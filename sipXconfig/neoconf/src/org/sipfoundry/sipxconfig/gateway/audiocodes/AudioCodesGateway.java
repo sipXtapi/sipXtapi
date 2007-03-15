@@ -12,7 +12,6 @@
 package org.sipfoundry.sipxconfig.gateway.audiocodes;
 
 import java.util.Map;
-import java.util.Set;
 
 import org.sipfoundry.sipxconfig.device.ProfileContext;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
@@ -46,9 +45,10 @@ public abstract class AudioCodesGateway extends Gateway {
         return model.getProfileTemplate();
     }
 
+    @Override
     protected Setting loadSettings() {
-        Set defines = getModelDefinitions();
-        return getModelFilesContext().loadDynamicModelFile("mp-gateway.xml", "audiocodes", defines);
+        return getModelFilesContext().loadDynamicModelFile("mp-gateway.xml", "audiocodes",
+                getSettingsEvaluator());
     }
 
     static class AudioCodesContext extends ProfileContext {

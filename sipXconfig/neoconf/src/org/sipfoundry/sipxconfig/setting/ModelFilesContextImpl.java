@@ -80,19 +80,4 @@ public class ModelFilesContextImpl implements ModelFilesContext {
     public void setModelBuilder(ModelBuilder modelBuilder) {
         m_modelBuilder = modelBuilder;
     }
-
-    /**
-     * look for expression in the set
-     */
-    static class SimpleDefinitionsEvaluator implements SettingExpressionEvaluator {
-        private Set m_defines;
-
-        public SimpleDefinitionsEvaluator(Set defines) {
-            m_defines = defines;
-        }
-
-        public boolean isExpressionTrue(String expression, Setting setting_) {
-            return m_defines.contains(expression);
-        }
-    }
 }

@@ -11,14 +11,12 @@
  */
 package org.sipfoundry.sipxconfig.setting;
 
-import java.util.Set;
 
 public interface ModelFilesContext {
     public Setting loadModelFile(String basename);
 
     public Setting loadModelFile(String basename, String manufacturer);
-  
-    public Setting loadDynamicModelFile(String basename, String manufacturer, Set defines);
-    
-    public Setting loadDynamicModelFile(String basename, String manufacturer, SettingExpressionEvaluator evalutor);
+
+    public Setting loadDynamicModelFile(String basename, String manufacturer,
+            SettingExpressionEvaluator evaluator);
 }

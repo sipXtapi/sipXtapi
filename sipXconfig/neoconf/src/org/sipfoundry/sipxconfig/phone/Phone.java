@@ -27,6 +27,8 @@ import org.sipfoundry.sipxconfig.device.ProfileContext;
 import org.sipfoundry.sipxconfig.device.ProfileGenerator;
 import org.sipfoundry.sipxconfig.setting.BeanWithGroups;
 import org.sipfoundry.sipxconfig.setting.Setting;
+import org.sipfoundry.sipxconfig.setting.SettingExpressionEvaluator;
+import org.sipfoundry.sipxconfig.setting.SimpleDefinitionsEvaluator;
 
 /**
  * Base class for managed phone subclasses
@@ -123,13 +125,11 @@ public abstract class Phone extends BeanWithGroups implements Device {
     }
 
     protected Setting loadSettings() {
-        Set defines = getModelDefinitions();
-        return getModelFilesContext().loadDynamicModelFile("phone.xml", getBeanId(), defines);
+        return getModelFilesContext().loadDynamicModelFile("phone.xml", getBeanId(), getSettingsEvaluator());
     }
 
     protected Setting loadLineSettings() {
-        Set defines = getModelDefinitions();
-        return getModelFilesContext().loadDynamicModelFile("line.xml", getBeanId(), defines);
+        return getModelFilesContext().loadDynamicModelFile("line.xml", getBeanId(), getSettingsEvaluator());
     }
 
     /**
@@ -148,6 +148,17 @@ public abstract class Phone extends BeanWithGroups implements Device {
             definitions.add(getDeviceVersion().getVersionId());
         }
         return definitions;
+    }
+
+    /**
+     * If SimepleDefinitionEvaluator is not what you need override this function to provide your
+     * own expression evaluator to be used when loading settings model.
+     * 
+     * @return reusable copy of expression evaluator
+     */
+    protected SettingExpressionEvaluator getSettingsEvaluator() {
+        Set defines = getModelDefinitions();
+        return new SimpleDefinitionsEvaluator(defines);
     }
 
     /**

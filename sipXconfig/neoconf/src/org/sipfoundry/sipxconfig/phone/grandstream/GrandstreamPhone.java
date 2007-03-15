@@ -65,20 +65,10 @@ public class GrandstreamPhone extends Phone {
     }
 
     @Override
-    public Setting loadSettings() {
-        return loadDynamicSettings("phone.xml");
-    }
-
-    @Override
-    public Setting loadLineSettings() {
-        return loadDynamicSettings("line.xml");
-    }
-
-    private Setting loadDynamicSettings(String basename) {
+    protected SettingExpressionEvaluator getSettingsEvaluator() {
         SettingExpressionEvaluator evaluator = new GrandstreamSettingExpressionEvaluator(
                 getModel().getModelId());
-        return getModelFilesContext().loadDynamicModelFile(basename, getModel().getBeanId(),
-                evaluator);
+        return evaluator;
     }
 
     @Override

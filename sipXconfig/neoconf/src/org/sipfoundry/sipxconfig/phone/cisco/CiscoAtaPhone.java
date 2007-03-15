@@ -34,18 +34,8 @@ public class CiscoAtaPhone extends CiscoPhone {
     }
 
     @Override
-    public Setting loadSettings() {
-        return loadDynamicSettings("phone.xml");
-    }
-
-    @Override
-    public Setting loadLineSettings() {
-        return loadDynamicSettings("line.xml");
-    }
-
-    private Setting loadDynamicSettings(String basename) {
-        SettingExpressionEvaluator evaluator = new Evaluator(getModel().getModelId());
-        return getModelFilesContext().loadDynamicModelFile(basename, getModel().getBeanId(), evaluator);
+    protected SettingExpressionEvaluator getSettingsEvaluator() {
+        return new Evaluator(getModel().getModelId());
     }
 
     @Override
