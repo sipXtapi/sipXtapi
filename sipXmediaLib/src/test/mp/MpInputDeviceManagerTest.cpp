@@ -158,7 +158,7 @@ private:
 class MpInputDeviceManagerTest : public CppUnit::TestCase
 {
     CPPUNIT_TEST_SUITE(MpInputDeviceManagerTest);
-    CPPUNIT_TEST(testSineInput);
+    //CPPUNIT_TEST(testSineInput);
     CPPUNIT_TEST_SUITE_END();
 
 
@@ -239,7 +239,7 @@ public:
 
         // Enable the device
         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
-                             inputDeviceManager.enableDevice(sineWaveDeviceId),
+                             inputDeviceManager.enableDevice(sineWaveDeviceId)
                              );
         CPPUNIT_ASSERT(inputDeviceManager.isDeviceEnabled(sineWaveDeviceId));
 
