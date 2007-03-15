@@ -105,6 +105,11 @@ public class LgNortelPhoneDefaults {
         return getZone().getStopTimeInHours();
     }
 
+    @SettingEntry(path = "VOIP/message_url")
+    public String getVoicemailExtension() {        
+        return m_defaults.getVoiceMail();
+    }
+    
     /**
      * Adjusts week of month value for LG phones.
      * 

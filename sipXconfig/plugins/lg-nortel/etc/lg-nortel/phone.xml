@@ -202,8 +202,7 @@
       <type refid="port-number" />
       <value>5060</value>
     </setting>
-    <setting name='message_url'>
-      <!-- TODO: number for user’s Voice Mail phone -->
+    <setting name='message_url' advanced="yes">
       <value></value>
     </setting>
     <setting name='preferred_codec'>
