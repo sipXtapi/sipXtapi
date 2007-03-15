@@ -191,7 +191,8 @@ public:
 
     void testUATeardown()
     {
-        for (int i=0; i<NUM_OF_RUNS; ++i)
+       int i;
+        for (i=0; i<NUM_OF_RUNS; ++i)
         {
             SipUserAgent* sipUA = new SipUserAgent( 5090
                                                     ,5090
