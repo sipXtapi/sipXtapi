@@ -36,7 +36,7 @@ public abstract class AudioCodesGateway extends Gateway {
 
     @Override
     protected ProfileContext createContext() {
-        return new AudioCodesContext(this);
+        return new AudioCodesContext(this, getProfileTemplate());
     }
 
     @Override
@@ -52,8 +52,8 @@ public abstract class AudioCodesGateway extends Gateway {
     }
 
     static class AudioCodesContext extends ProfileContext {
-        public AudioCodesContext(BeanWithSettings device) {
-            super(device);
+        public AudioCodesContext(BeanWithSettings device, String profileTemplate) {
+            super(device, profileTemplate);
         }
 
         public Map<String, Object> getContext() {

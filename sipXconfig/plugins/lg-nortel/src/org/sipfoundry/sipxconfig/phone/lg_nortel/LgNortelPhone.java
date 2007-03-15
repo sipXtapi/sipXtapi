@@ -53,18 +53,18 @@ public class LgNortelPhone extends Phone {
         LgNortelPhoneDefaults defaults = new LgNortelPhoneDefaults(phoneDefaults, lines);
         addDefaultBeanSettingHandler(defaults);
     }
-    
+
     @Override
-    public void generateProfiles() {
+    protected ProfileContext createContext() {
         SpeedDial speedDial = getPhoneContext().getSpeedDial(this);
-        ProfileContext context = new LgNortelProfileContext(this, speedDial);
-        getProfileGenerator().generate(context, getPhoneTemplate(), null, getPhoneFilename());        
-    }    
-    
+        return new LgNortelProfileContext(this, speedDial, getPhoneTemplate());
+    }
+
     static class LgNortelProfileContext extends ProfileContext {
         private SpeedDial m_speeddial;
-        LgNortelProfileContext(LgNortelPhone phone, SpeedDial speeddial) {
-            super(phone);
+
+        LgNortelProfileContext(LgNortelPhone phone, SpeedDial speeddial, String profileTemplate) {
+            super(phone, profileTemplate);
             m_speeddial = speeddial;
         }
 
@@ -81,10 +81,10 @@ public class LgNortelPhone extends Phone {
             if (lines != null) {
                 speeddialOffset = lines.size();
             }
-            context.put("speeddial_offset", speeddialOffset);            
-            
+            context.put("speeddial_offset", speeddialOffset);
+
             return context;
-        }        
+        }
     }
 
     @Override
@@ -102,7 +102,7 @@ public class LgNortelPhone extends Phone {
     protected void setLineInfo(Line line, LineInfo lineInfo) {
         LgNortelLineDefaults.setLineInfo(line, lineInfo);
     }
-    
+
     @Override
     public void restart() {
         sendCheckSyncToFirstLine();

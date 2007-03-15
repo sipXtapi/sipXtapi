@@ -188,15 +188,13 @@ public abstract class Phone extends BeanWithGroups implements Device {
      */
     public void generateProfiles() {
         String profileFileName = getPhoneFilename();
-        String phoneTemplate = getPhoneTemplate();
-        generateFile(profileFileName, phoneTemplate);
+        m_profileGenerator.generate(createContext(), profileFileName);
     }
 
-    public final void generateFile(String profileFileName, String phoneTemplate) {
-        ProfileContext context = new ProfileContext(this);
-        m_profileGenerator.generate(context, phoneTemplate, profileFileName);
+    protected ProfileContext createContext() {
+        return new ProfileContext(this, getPhoneTemplate());
     }
-
+    
     public Line findByUsername(String username) {
         for (Line l : getLines()) {
             User user = l.getUser();

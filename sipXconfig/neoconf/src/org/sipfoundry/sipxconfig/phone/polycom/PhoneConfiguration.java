@@ -28,7 +28,7 @@ public class PhoneConfiguration extends ProfileContext {
     private static final int TEMPLATE_DEFAULT_LINE_COUNT = 6;
 
     public PhoneConfiguration(BeanWithSettings device) {
-        super(device);
+        super(device, PolycomPhone.TEMPLATE_DIR + "/phone.cfg.vm");
     }
 
     public Map<String, Object> getContext() {

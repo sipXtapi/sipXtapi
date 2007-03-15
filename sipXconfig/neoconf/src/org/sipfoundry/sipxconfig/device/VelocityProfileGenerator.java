@@ -52,13 +52,14 @@ public class VelocityProfileGenerator extends AbstractProfileGenerator {
     }
 
     @Override
-    protected void generateProfile(ProfileContext context, String template, OutputStream out) {
+    protected void generateProfile(ProfileContext context, OutputStream out) {
         VelocityContext velocityContext = new VelocityContext();
         Set<Map.Entry<String, Object>> entries = context.getContext().entrySet();
         for (Map.Entry<String, Object> entry : entries) {
             velocityContext.put(entry.getKey(), entry.getValue());
         }
 
+        String template = context.getProfileTemplate();
         try {
             Writer output = new OutputStreamWriter(out, m_profileEncoding);
             m_velocityEngine.mergeTemplate(template, m_templateEncoding, velocityContext, output);

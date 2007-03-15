@@ -76,13 +76,12 @@ public class Gateway extends BeanWithSettings implements NamedObject, Device {
      */
     public void generateProfiles() {
         String profileFileName = getProfileFilename();
-        String profileTemplate = getProfileTemplate();
         ProfileContext context = createContext();
-        m_profileGenerator.generate(context, profileTemplate, profileFileName);
+        m_profileGenerator.generate(context, profileFileName);
     }
 
     protected ProfileContext createContext() {
-        return new ProfileContext(this);
+        return new ProfileContext(this, getProfileTemplate());
     }
 
     public void removeProfiles() {
@@ -238,7 +237,7 @@ public class Gateway extends BeanWithSettings implements NamedObject, Device {
         }
         return definitions;
     }
-    
+
     /**
      * If SimepleDefinitionEvaluator is not what you need override this function to provide your
      * own expression evaluator to be used when loading settings model.
@@ -248,7 +247,7 @@ public class Gateway extends BeanWithSettings implements NamedObject, Device {
     protected SettingExpressionEvaluator getSettingsEvaluator() {
         Set defines = getModelDefinitions();
         return new SimpleDefinitionsEvaluator(defines);
-    }    
+    }
 
     public void setDefaults(DeviceDefaults defaults) {
         m_defaults = defaults;

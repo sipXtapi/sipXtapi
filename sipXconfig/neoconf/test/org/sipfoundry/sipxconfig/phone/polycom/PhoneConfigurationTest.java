@@ -57,7 +57,7 @@ public class PhoneConfigurationTest extends XMLTestCase {
 
     private void assertExpectedProfile(String expected) throws Exception {
         PhoneConfiguration cfg = new PhoneConfiguration(phone);
-        m_pg.generate(cfg, phone.getPhoneTemplate(), "profile");
+        m_pg.generate(cfg, "profile");
 
         // helpful debug
         // System.out.println(new String(out.toCharArray()));

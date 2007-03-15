@@ -41,15 +41,14 @@ public class VelocityProfileGeneratorTest extends TestCase {
     public void testGenerateProfile() {
         ProfileContext context = new ProfileContextStub();
 
-        m_generator.generate(context, "org/sipfoundry/sipxconfig/device/velocity_test.vm",
-                "ignored");
+        m_generator.generate(context, "ignored");
 
         assertEquals("testPhone has 17 lines", m_location.toString());
     }
 
     public static final class ProfileContextStub extends ProfileContext {
         private ProfileContextStub() {
-            super(null);
+            super(null, "org/sipfoundry/sipxconfig/device/velocity_test.vm");
         }
 
         public Map<String, Object> getContext() {

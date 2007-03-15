@@ -33,13 +33,11 @@ import org.sipfoundry.sipxconfig.speeddial.Button;
 import org.sipfoundry.sipxconfig.speeddial.SpeedDial;
 
 public class DirectoryConfigurationTest extends XMLTestCase {
-    private PolycomPhone m_phone;
     private ProfileGenerator m_pg;
     private MemoryProfileLocation m_location;
 
     protected void setUp() {
         XMLUnit.setIgnoreWhitespace(true);
-        m_phone = new PolycomPhone();
 
         m_location = new MemoryProfileLocation();
         VelocityProfileGenerator pg = new VelocityProfileGenerator();
@@ -74,10 +72,9 @@ public class DirectoryConfigurationTest extends XMLTestCase {
 
         DirectoryConfiguration dir = new DirectoryConfiguration(null, null);
 
-        m_pg.generate(dir, m_phone.getDirectoryTemplate(), "profile");
+        m_pg.generate(dir, "profile");
 
-        InputStream expectedPhoneStream = getClass().getResourceAsStream(
-                "expected-empty-directory.xml");
+        InputStream expectedPhoneStream = getClass().getResourceAsStream("expected-empty-directory.xml");
         Reader expectedXml = new InputStreamReader(expectedPhoneStream);
         Reader generatedXml = m_location.getReader();
 
@@ -101,10 +98,9 @@ public class DirectoryConfigurationTest extends XMLTestCase {
         Collection<PhonebookEntry> entries = Collections.singleton(phonebookEntry);
         DirectoryConfiguration dir = new DirectoryConfiguration(entries, null);
 
-        m_pg.generate(dir, m_phone.getDirectoryTemplate(), "profile");
+        m_pg.generate(dir, "profile");
 
-        InputStream expectedPhoneStream = getClass()
-                .getResourceAsStream("expected-directory.xml");
+        InputStream expectedPhoneStream = getClass().getResourceAsStream("expected-directory.xml");
         Reader expectedXml = new InputStreamReader(expectedPhoneStream);
         Reader generatedXml = m_location.getReader();
 
@@ -125,10 +121,9 @@ public class DirectoryConfigurationTest extends XMLTestCase {
 
         DirectoryConfiguration dir = new DirectoryConfiguration(null, speedDial);
 
-        m_pg.generate(dir, m_phone.getDirectoryTemplate(), "profile");
+        m_pg.generate(dir, "profile");
 
-        InputStream expectedPhoneStream = getClass().getResourceAsStream(
-                "expected-speeddial-directory.xml");
+        InputStream expectedPhoneStream = getClass().getResourceAsStream("expected-speeddial-directory.xml");
         Reader expectedXml = new InputStreamReader(expectedPhoneStream);
         Reader generatedXml = m_location.getReader();
 

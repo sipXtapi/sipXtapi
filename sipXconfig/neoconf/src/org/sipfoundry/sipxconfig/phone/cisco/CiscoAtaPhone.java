@@ -79,8 +79,8 @@ public class CiscoAtaPhone extends CiscoPhone {
             String systemDir = getPhoneContext().getSystemDirectory();
             filter = new BinaryFilter(systemDir + "/ciscoAta", getCiscoModel());
         }
-        ProfileContext context = new ProfileContext(this);
-        getProfileGenerator().generate(context, "no template", filter, getPhoneFilename());
+        ProfileContext context = new ProfileContext(this, null);
+        getProfileGenerator().generate(context, filter, getPhoneFilename());
     }
 
     public Collection<Line> getProfileLines() {

@@ -54,10 +54,9 @@ public class ApplicationConfigurationTest extends XMLTestCase {
 
         ApplicationConfiguration app = new ApplicationConfiguration(phone, root);
 
-        m_pg.generate(app, phone.getApplicationTemplate(), "profile");
+        m_pg.generate(app, "profile");
 
-        InputStream expectedPhoneStream = getClass().getResourceAsStream(
-                "expected-macaddress.cfg");
+        InputStream expectedPhoneStream = getClass().getResourceAsStream("expected-macaddress.cfg");
         Reader expectedXml = new InputStreamReader(expectedPhoneStream);
         Reader generatedXml = new StringReader(m_location.toString());
 
@@ -70,8 +69,7 @@ public class ApplicationConfigurationTest extends XMLTestCase {
     }
 
     public void testGetUniqueDirectory() {
-        String root = TestHelper.getTestDirectory() + "/testGetUniqueDirectory-"
-                + System.currentTimeMillis();
+        String root = TestHelper.getTestDirectory() + "/testGetUniqueDirectory-" + System.currentTimeMillis();
         new File(root).mkdirs();
         String base = "000000000000";
 

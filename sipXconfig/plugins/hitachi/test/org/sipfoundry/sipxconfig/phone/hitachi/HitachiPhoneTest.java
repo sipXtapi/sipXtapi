@@ -18,6 +18,7 @@ import junit.framework.TestCase;
 import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.device.MemoryProfileLocation;
+import org.sipfoundry.sipxconfig.device.ProfileContext;
 import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
 
 public class HitachiPhoneTest extends TestCase {
@@ -43,8 +44,9 @@ public class HitachiPhoneTest extends TestCase {
         // call this to inject dummy data
         PhoneTestDriver.supplyTestData(phone);
         MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone);
-                
-        phone.generateFile(phone.getPhoneTemplate(), phone.getPhoneTemplate());
+
+        ProfileContext context = new ProfileContext(phone, phone.getPhoneTemplate());
+        phone.getProfileGenerator().generate(context, "ignore");
         InputStream expectedProfile = getClass().getResourceAsStream("test.user.ini");
         assertNotNull(expectedProfile);
         String expected = IOUtils.toString(expectedProfile);

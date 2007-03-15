@@ -11,16 +11,14 @@
  */
 package org.sipfoundry.sipxconfig.phone.grandstream;
 
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
+import org.sipfoundry.sipxconfig.device.ProfileContext;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineInfo;
 import org.sipfoundry.sipxconfig.phone.Phone;
@@ -57,24 +55,19 @@ public class GrandstreamPhone extends Phone {
 
     public GrandstreamPhone() {
         super(new GrandstreamModel());
-        init();
-    }
-
-    private void init() {
         setPhoneTemplate("grandstream/grandstream.vm");
     }
 
     @Override
     protected SettingExpressionEvaluator getSettingsEvaluator() {
-        SettingExpressionEvaluator evaluator = new GrandstreamSettingExpressionEvaluator(
-                getModel().getModelId());
+        SettingExpressionEvaluator evaluator = new GrandstreamSettingExpressionEvaluator(getModel()
+                .getModelId());
         return evaluator;
     }
 
     @Override
     public void initialize() {
-        GrandstreamDefaults defaults = new GrandstreamDefaults(getPhoneContext()
-                .getPhoneDefaults());
+        GrandstreamDefaults defaults = new GrandstreamDefaults(getPhoneContext().getPhoneDefaults());
         addDefaultBeanSettingHandler(defaults);
     }
 
@@ -250,25 +243,8 @@ public class GrandstreamPhone extends Phone {
         return linesSettings;
     }
 
-    public void generateProfiles() {
-        String outputfile = getPhoneFilename();
-        FileOutputStream wtr = null;
-
-        try {
-            wtr = new FileOutputStream(outputfile);
-            if (m_isTextFormatEnabled) {
-                GrandstreamProfileWriter pwtr = new GrandstreamProfileWriter(this);
-                pwtr.write(wtr);
-            } else {
-                GrandstreamBinaryProfileWriter bwtr = new GrandstreamBinaryProfileWriter(this);
-                bwtr.write(wtr);
-            }
-
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } finally {
-            IOUtils.closeQuietly(wtr);
-        }
+    protected ProfileContext createContext() {
+        return new GrandstreamProfileContext(this, m_isTextFormatEnabled);
     }
 
     public void restart() {

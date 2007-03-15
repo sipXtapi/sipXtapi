@@ -259,7 +259,7 @@ public class CiscoAtaProfileWriter extends AbstractProfileGenerator implements S
         return true;
     }
 
-    protected void generateProfile(ProfileContext context, String templateFileName, OutputStream out)
+    protected void generateProfile(ProfileContext context, OutputStream out)
         throws IOException {
         m_wtr = new OutputStreamWriter(out, "US-ASCII");
         CiscoAtaPhone phone = (CiscoAtaPhone) context.getDevice();

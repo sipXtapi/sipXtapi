@@ -26,12 +26,12 @@ public abstract class AbstractProfileGenerator implements ProfileGenerator {
         m_profileLocation = profileLocation;
     }
 
-    public void generate(ProfileContext context, String templateFileName, String outputFileName) {
-        generate(context, templateFileName, null, outputFileName);
+    public void generate(ProfileContext context, String outputFileName) {
+
+        generate(context, null, outputFileName);
     }
 
-    public void generate(ProfileContext context, String templateFileName, ProfileFilter filter,
-            String outputFileName) {
+    public void generate(ProfileContext context, ProfileFilter filter, String outputFileName) {
         if (outputFileName == null) {
             return;
         }
@@ -39,10 +39,10 @@ public abstract class AbstractProfileGenerator implements ProfileGenerator {
         OutputStream wtr = m_profileLocation.getOutput(outputFileName);
         try {
             if (filter == null) {
-                generateProfile(context, templateFileName, wtr);
+                generateProfile(context, wtr);
             } else {
                 ByteArrayOutputStream unformatted = new ByteArrayOutputStream();
-                generateProfile(context, templateFileName, unformatted);
+                generateProfile(context, unformatted);
                 unformatted.close();
                 filter.copy(new ByteArrayInputStream(unformatted.toByteArray()), wtr);
             }
@@ -59,6 +59,5 @@ public abstract class AbstractProfileGenerator implements ProfileGenerator {
         }
     }
 
-    protected abstract void generateProfile(ProfileContext context, String templateFileName,
-            OutputStream out) throws IOException;
+    protected abstract void generateProfile(ProfileContext context, OutputStream out) throws IOException;
 }
