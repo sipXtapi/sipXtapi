@@ -1,5 +1,7 @@
 package org.sipfoundry.sipxconfig.api;
 
+import java.util.Arrays;
+
 import junit.framework.TestCase;
 
 import org.easymock.EasyMock;
@@ -27,6 +29,7 @@ public class SystemServiceTest extends TestCase {
         String[] aliases = d.getAliases(); 
         assertEquals(2, aliases.length);
         // NOTE: order is not important
+        Arrays.sort(aliases);
         assertEquals("horned", aliases[0]);
         assertEquals("pie-billed", aliases[1]);
         
