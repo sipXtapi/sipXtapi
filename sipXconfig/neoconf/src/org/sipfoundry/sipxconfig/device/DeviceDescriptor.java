@@ -14,6 +14,7 @@ package org.sipfoundry.sipxconfig.device;
 
 
 public abstract class DeviceDescriptor {
+    private String m_modelFilePath;
 
     private String m_beanId;
 
@@ -81,4 +82,15 @@ public abstract class DeviceDescriptor {
     public DeviceVersion[] getVersions() {
         return m_versions;
     }    
+
+    /**
+     * @return File name with upload settings describing files to upload.  Relative to /etc/sipxpbx
+     */
+    public String getModelFilePath() {
+        return m_modelFilePath;
+    }
+
+    public void setModelFilePath(String modelFilePath) {
+        m_modelFilePath = modelFilePath;
+    }
 }

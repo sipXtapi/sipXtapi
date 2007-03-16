@@ -21,6 +21,7 @@
 		<config>src/org/sipfoundry/sipxconfig/login/login.beans.xml</config>
 		<config>src/org/sipfoundry/sipxconfig/device/device.beans.xml</config>
 		<config>src/org/sipfoundry/sipxconfig/gateway/gateway.beans.xml</config>
+		<config>src/org/sipfoundry/sipxconfig/service/service.beans.xml</config>
 		<config>src/org/sipfoundry/sipxconfig/admin/callgroup/callgroup.beans.xml</config>
 		<config>src/org/sipfoundry/sipxconfig/permission/permission.beans.xml</config>
 		<config>src/org/sipfoundry/sipxconfig/gateway/audiocodes/audiocodes-models.beans.xml</config>

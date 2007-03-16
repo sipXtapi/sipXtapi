@@ -135,9 +135,10 @@
     <antcall target="clear-uploads"/>
     <antcall target="speeddial"/>
     <antcall target="blf"/>
-	<antcall target="acd"/>
-	<antcall target="acd_agents"/>
-	<antcall target="acd_ext"/>
+    <antcall target="acd"/>
+    <antcall target="acd_agents"/>
+    <antcall target="acd_ext"/>
+    <antcall target="service"/>
     <!-- When freezing schema uncomment this line -->
     <!-- sipx-version version="6" -->
   </target>	
@@ -154,6 +155,10 @@
 
   <target name="speeddial" unless="speeddial">
     <db-patch patch="speeddial"/>
+  </target>
+
+  <target name="service" unless="service">
+    <db-patch patch="service"/>
   </target>
 
   <target name="blf" unless="blf">

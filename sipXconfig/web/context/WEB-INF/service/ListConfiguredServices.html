@@ -1,0 +1,14 @@
+<div jwcid="@Border">
+  <h2>
+    <span key="title"/>
+  </h2>
+  <span jwcid="@ErrorMsg"/>
+  <form jwcid="@Form" id="server:form" delegate="bean:validator" listener="listener:formSubmit">
+    <fieldset>
+      <table jwcid="@Table" id="server:list" source="prop:serviceManager.services" 
+        row="prop:currentRow" columns="literal:* name:name,address:address" 
+        selections="prop:selections" converter="prop:converter">
+      </table>
+    </fieldset>    
+  </form>
+</div>

@@ -35,17 +35,12 @@ public class UploadManagerImpl extends SipxHibernateDaoSupport implements BeanFa
     }
 
     public void saveUpload(Upload upload) {
-        upload.setValueStorage(clearUnsavedValueStorage(upload.getValueStorage()));
-        getHibernateTemplate().saveOrUpdate(upload);            
+        saveBeanWithSettings(upload);
     }
 
     public void deleteUpload(Upload upload) {
         upload.remove();
-        
-        // avoid hibernate errors about new object references when calling delete on parent object
-        upload.setValueStorage(clearUnsavedValueStorage(upload.getValueStorage()));
-        
-        getHibernateTemplate().delete(upload);
+        deleteBeanWithSettings(upload);
     }
     
     public Collection<Upload> getUpload() {
