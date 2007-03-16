@@ -193,6 +193,7 @@ int StreamWAVFormatDecoder::run(void* pArgs)
    int   nSamplesPartialFrame = 0;   
    int numOutSamples = 0;
    int iDataLength ;
+   int nQueuedFrames = 0;
 
    //used if the files are aLaw or uLaw encodec
    InitG711Tables();
@@ -206,9 +207,8 @@ int StreamWAVFormatDecoder::run(void* pArgs)
       {
          //we really want 80 SAMPLES not 80 bytes
          unsigned char  InBuffer[NUM_SAMPLES*2] ;
-         Sample OutBuffer[4000] ;  //make room for lots of decompression
+         Sample OutBuffer[4000] = {0} ;  //make room for lots of decompression
          
-         memset(&OutBuffer,0,sizeof(OutBuffer));
          iSamplesInOutBuffer = 0;
          
          while ((iDataLength > 0) && !mbEnd)
@@ -308,6 +308,7 @@ int StreamWAVFormatDecoder::run(void* pArgs)
                              if (iToCopy >= 80)
                              {
                                 queueFrame((const unsigned short *)OutBuffer+iCount);
+                                nQueuedFrames++ ;
                              }
                              else
                              {
@@ -327,6 +328,7 @@ int StreamWAVFormatDecoder::run(void* pArgs)
                              {
                                 queueFrame((const unsigned short *) partialFrame);
                                 nSamplesPartialFrame = 0 ;
+                                nQueuedFrames++ ;
                              }
                           }
                           iCount += iToCopy ;
@@ -336,6 +338,7 @@ int StreamWAVFormatDecoder::run(void* pArgs)
             else
             {
                // Truncated data source?
+               syslog(FAC_STREAMING, PRI_ERR, "StreamWAVFormatDecoder::run (FireEvent DecodingErrorEvent)");
                fireEvent(DecodingErrorEvent) ;
                break ;
             }
@@ -345,6 +348,7 @@ int StreamWAVFormatDecoder::run(void* pArgs)
    }
 
    queueEndOfFrames() ;      
+   syslog(FAC_STREAMING, PRI_DEBUG, "StreamWAVFormatDecoder::run queued %d frames", nQueuedFrames);
    fireEvent(DecodingCompletedEvent) ;
 
    mSemExited.release() ;
@@ -433,6 +437,7 @@ UtlBoolean StreamWAVFormatDecoder::nextDataChunk(int& iLength)
                     if (pDataSource->seek(iCurrentPosition + blockSize) != OS_SUCCESS)
                     {
                        // Kick out if we cannot seek
+                       syslog(FAC_STREAMING, PRI_ERR, "StreamWAVFormatDecoder::nextDataChunk (Error seeking past block \"fmt\"!)");
                        break ;
                     }
                 }
@@ -492,7 +497,10 @@ UtlBoolean StreamWAVFormatDecoder::nextDataChunk(int& iLength)
        pDataSource->getPosition(currentPosition);
 
        if (!bSuccess && (currentPosition < streamLength || streamLength == 0))
+       {
+           syslog(FAC_STREAMING, PRI_ERR, "StreamWAVFormatDecoder::nextDataChunk (FireEvent DecodingErrorEvent)");
           fireEvent(DecodingErrorEvent) ;
+       }
    }
    
 
