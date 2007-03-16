@@ -3375,8 +3375,8 @@ void SipConnection::processInviteRequest(const SipMessage* request)
     /*
      * Allocate media resources
      */
-    if (mpMediaInterface->isConnectionIdValid(mConnectionId) &&
-        mpMediaInterface != NULL)
+    if (mpMediaInterface != NULL &&
+        !mpMediaInterface->isConnectionIdValid(mConnectionId))
     {
         // Create a new connection in the flow graph
         // look at pSdpBody and determine rtpTransportOptions
