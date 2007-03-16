@@ -90,7 +90,7 @@ msdev sipXcallLibTest.dsp /USEENV /MAKE "sipXcallLibTest - Win32 %releaseType%" 
 cd ..
 
 cd sipXcallLib 
-del sipXtapi\%releaseType%\sipXtapiTest.exe
+del %releaseType%\sipXtapiTest.exe
 msdev sipXtapiTest.dsp /USEENV /MAKE "sipXtapiTest - Win32 %releaseType%" %doClean%
 cd ..
 
