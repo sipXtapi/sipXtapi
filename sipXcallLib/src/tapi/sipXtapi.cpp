@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2005-2006 SIPez LLC.
+// Copyright (C) 2005-2007 SIPez LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.
 // 
-// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -845,7 +845,8 @@ SIPXTAPI_API SIPX_RESULT sipxUnInitialize(SIPX_INST hInst,
 SIPXTAPI_API SIPX_RESULT sipxCallAccept(const SIPX_CALL   hCall,
                                         SIPX_VIDEO_DISPLAY* const pDisplay,
                                         SIPX_SECURITY_ATTRIBUTES* const pSecurity,
-                                        SIPX_CALL_OPTIONS* options)
+                                        SIPX_CALL_OPTIONS* options,
+                                        bool bSendEarlyMedia)
 {
     OsStackTraceLogger stackLogger(FAC_SIPXTAPI, PRI_DEBUG, "sipxCallAccept");
     bool bEnableLocationHeader=false;
@@ -863,8 +864,9 @@ SIPXTAPI_API SIPX_RESULT sipxCallAccept(const SIPX_CALL   hCall,
     }
 
     OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
-        "sipxCallAccept hCall=%d display=%p bEnableLocationHeader=%d bandWidth=%d, contactId=%d",
-        hCall, pDisplay, bEnableLocationHeader, bandWidth, contactId);
+        "sipxCallAccept hCall=%d display=%p bEnableLocationHeader=%d bandWidth=%d, contactId=%d bSendEarlyMedia=%s",
+        hCall, pDisplay, bEnableLocationHeader, bandWidth, contactId, 
+        bSendEarlyMedia ? "true" : "false");
 
     if (pSecurity)
     {
@@ -963,7 +965,8 @@ SIPXTAPI_API SIPX_RESULT sipxCallAccept(const SIPX_CALL   hCall,
                             (void*)&pCallData->display,
                             (void*)&pCallData->security,
                             pLocationHeader,
-                            bandWidth) ;
+                            bandWidth,
+                            bSendEarlyMedia ? TRUE : FALSE);
                             
                     sipxCallReleaseLock(pCallData, SIPX_LOCK_READ, stackLogger);
                 }
@@ -979,7 +982,8 @@ SIPXTAPI_API SIPX_RESULT sipxCallAccept(const SIPX_CALL   hCall,
                             (void*)&pCallData->display,
                             NULL,
                             pLocationHeader,
-                            bandWidth);
+                            bandWidth,
+                            bSendEarlyMedia ? TRUE : FALSE);
                     sipxCallReleaseLock(pCallData, SIPX_LOCK_READ, stackLogger);
                 }
             }

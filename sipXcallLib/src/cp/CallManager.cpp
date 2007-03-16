@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2005-2006 SIPez LLC.
+// Copyright (C) 2005-2007 SIPez LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.
 // 
-// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -2008,10 +2008,11 @@ void CallManager::acceptConnection(const char* callId,
                                    const void* hWnd,
                                    const void* security,
                                    const char* locationHeader,
-                                   const int bandWidth)
+                                   const int bandWidth,
+                                   UtlBoolean sendEarlyMedia)
 {
     CpMultiStringMessage acceptMessage(CP_ACCEPT_CONNECTION, callId, address, NULL, NULL, locationHeader, (int) contactId, 
-                                       (int) hWnd, (int) security, (int)bandWidth);
+                                       (int) hWnd, (int) security, (int)bandWidth, sendEarlyMedia);
     postMessage(acceptMessage);
 }
 

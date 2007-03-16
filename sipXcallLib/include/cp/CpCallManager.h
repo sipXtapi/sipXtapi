@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2005-2006 SIPez LLC.
+// Copyright (C) 2005-2007 SIPez LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.
 // 
-// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -514,7 +514,8 @@ public:
                                   const void* hWnd = NULL,
                                   const void* security = NULL,
                                   const char* locationHeader = NULL,
-                                  const int bandWidth=AUDIO_CODEC_BW_DEFAULT) = 0;
+                                  const int bandWidth=AUDIO_CODEC_BW_DEFAULT,
+                                  UtlBoolean sendEarlyMedia = FALSE) = 0;
 
     virtual void setOutboundLineForCall(const char* callId, 
                                         const char* address, 

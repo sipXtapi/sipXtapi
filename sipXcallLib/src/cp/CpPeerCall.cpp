@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2005-2006 SIPez LLC.
+// Copyright (C) 2005-2007 SIPez LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.
 // 
-// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -849,6 +849,7 @@ UtlBoolean CpPeerCall::handleAcceptConnection(OsMsg* pEventMessage)
     void* hWnd = (void*) ((CpMultiStringMessage*)pEventMessage)->getInt2Data();
     void* security = (void*) ((CpMultiStringMessage*)pEventMessage)->getInt3Data();
     int bandWidth = ((CpMultiStringMessage*)pEventMessage)->getInt4Data();
+    UtlBoolean sendEarlyMedia = ((CpMultiStringMessage*)pEventMessage)->getInt5Data();
     const char* locationHeaderData = (locationHeader.length() == 0) ? NULL : locationHeader.data();
     
     if (hWnd && mpMediaInterface)
@@ -894,7 +895,11 @@ UtlBoolean CpPeerCall::handleAcceptConnection(OsMsg* pEventMessage)
         if(connectState == Connection::CONNECTION_OFFERING)
         {
             connection->setContactId(contactId) ;
-            connection->accept(noAnswerTimeout, security, locationHeaderData, bandWidth);
+            connection->accept(noAnswerTimeout, 
+                               security, 
+                               locationHeaderData, 
+                               bandWidth, 
+                               sendEarlyMedia);
             connectionFound = TRUE;
             break;
         }

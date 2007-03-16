@@ -1,5 +1,8 @@
 //
-// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Copyright (C) 2005-2007 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
+// Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -7,6 +10,8 @@
 //
 // $$
 ///////////////////////////////////////////////////////////////////////////////
+
+// Author: Daniel Petrie dpetrie AT SIPez DOT com
 
 #ifndef _Connection_h_
 #define _Connection_h_
@@ -256,10 +261,15 @@ public:
 
    virtual UtlBoolean silentRemoteHold() = 0 ;
 
+   /// Accept and incoming INVITE and change from OFFERING to ALERTING state
+   /**
+    *  @param sendEarlyMedia - send early media (startRTPSend and send SDP in 183)
+    */
    virtual UtlBoolean accept(int forwardOnNoAnswerTimeOut, 
                              const void *pSecurity = NULL, 
                              const char* locationHeader = NULL,
-                             const int bandWidth = AUDIO_MICODEC_BW_DEFAULT) = 0;
+                             const int bandWidth = AUDIO_MICODEC_BW_DEFAULT,
+                             UtlBoolean sendEarlyMedia = FALSE) = 0;
 
    virtual UtlBoolean reject() = 0;
 

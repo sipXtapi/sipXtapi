@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2005-2006 SIPez LLC.
+// Copyright (C) 2005-2007 SIPez LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
-// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -1399,13 +1399,22 @@ UtlBoolean SipConnection::answer(const void* pDisplay)
     return(answerOk);
 }
 
-UtlBoolean SipConnection::accept(int ringingTimeOutSeconds, const void* pSecurity,
-                                 const char* locationHeader, const int bandWidth)
+UtlBoolean SipConnection::accept(int ringingTimeOutSeconds, 
+                                 const void* pSecurity,
+                                 const char* locationHeader, 
+                                 const int bandWidth,
+                                 UtlBoolean sendEarlyMedia)
 {
     UtlBoolean ringingSent = FALSE;
     int cause = 0;
     UtlString contentType("");
     mBandwidthId = bandWidth;
+
+    if(sendEarlyMedia)
+    {
+        OsSysLog::add(FAC_CP, PRI_ERR,
+            "SipConnection::accept early media not implemented");
+    }
 
     if (inviteMsg)
     {
