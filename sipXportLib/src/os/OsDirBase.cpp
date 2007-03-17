@@ -135,7 +135,7 @@ OsDirBase::operator=(const OsDirBase& rhs)
         else
             fileinfo.mbIsDirectory = FALSE;
 
-                if (stats.st_mode & S_READONLY)
+        if (stats.st_mode & S_READONLY)
             fileinfo.mbIsReadOnly = FALSE;
         else
             fileinfo.mbIsReadOnly = TRUE;
