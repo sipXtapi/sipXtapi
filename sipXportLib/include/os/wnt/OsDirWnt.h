@@ -34,7 +34,7 @@ class OsDirBase;
 class OsPathWnt;
 class OsFileInfoWnt;
 
-//:Abstraction class to hande directory manipulations
+//:Abstraction class to handle directory manipulations
 class OsDirWnt : public OsDirBase 
 {
 
