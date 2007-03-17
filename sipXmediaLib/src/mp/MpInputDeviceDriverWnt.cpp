@@ -57,6 +57,7 @@ MpInputDeviceDriverWnt::MpInputDeviceDriverWnt(const UtlString& name,
         else if (strncmp(name, devCaps.szPname, MAXPNAMELEN) == 0)
         {
             mWntDeviceId = i;
+            break;
         }
     }
 
@@ -96,6 +97,7 @@ MpInputDeviceDriverWnt::~MpInputDeviceDriverWnt()
 
 
 /* ============================ MANIPULATORS ============================== */
+
 OsStatus MpInputDeviceDriverWnt::enableDevice(unsigned samplesPerFrame, 
                                               unsigned samplesPerSec, 
                                               unsigned currentFrameTime)
@@ -286,6 +288,10 @@ OsStatus MpInputDeviceDriverWnt::disableDevice()
     return status;
 }
 
+/* ============================ ACCESSORS ================================= */
+/* ============================ INQUIRY =================================== */
+/* //////////////////////////// PROTECTED ///////////////////////////////// */
+
 void MpInputDeviceDriverWnt::processAudioInput(HWAVEIN hwi,
                                                UINT uMsg,
                                                DWORD_PTR dwParam1,
@@ -336,11 +342,6 @@ MpInputDeviceDriverWnt::waveInCallbackStatic(HWAVEIN hwi,
     iddWntPtr->processAudioInput(hwi, uMsg, dwParam1, dwParam2);
 }
 
-
-
-/* ============================ ACCESSORS ================================= */
-/* ============================ INQUIRY =================================== */
-/* //////////////////////////// PROTECTED ///////////////////////////////// */
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 WAVEHDR* MpInputDeviceDriverWnt::initWaveHeader(int n)

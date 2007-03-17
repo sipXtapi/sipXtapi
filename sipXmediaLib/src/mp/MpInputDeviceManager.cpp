@@ -294,7 +294,6 @@ public:
 
     inline void setInUse() { mInUse = TRUE; }
     inline void clearInUse() { mInUse = FALSE; }
-    inline UtlBoolean isInUse() { return mInUse; }
 
 //@}
 
@@ -302,13 +301,15 @@ public:
 ///@name Inquiry
 //@{
 
+    inline UtlBoolean isInUse() { return mInUse; }
+
 //@}
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
     unsigned int mLastPushedFrame;    ///< Index of last pushed frame in mppFrameBufferArray.
     unsigned int mFrameBufferLength;  ///< Length of mppFrameBufferArray.
-    unsigned int mFrameBuffersUsed;   ///< actual number of buffers with data in them
+    unsigned int mFrameBuffersUsed;   ///< Actual number of buffers with data.
     MpInputDeviceFrameData* mppFrameBufferArray;
     MpInputDeviceDriver* mpInputDeviceDriver;
     unsigned int mSamplesPerFrame;    ///< Number of audio samples in one frame.
