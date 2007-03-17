@@ -122,21 +122,20 @@ public:
       /// Clear the device ID associated with this device.
     virtual OsStatus clearDeviceId();
 
-      /// Calculate the # of milliseconds that a frame occupies in time.
+      /// Calculate the number of milliseconds that a frame occupies in time.
     inline MpFrameTime getFramePeriod()
     {
         return getFramePeriod(mSamplesPerFrame, mSamplesPerSec);
     }
 
-      /// Calculate the # of milliseconds that a frame occupies in time. 
-      /// (Static function)
+//@}
+
+      /// Calculate the number of milliseconds that a frame occupies in time. 
     static inline MpFrameTime getFramePeriod(unsigned samplesPerFrame,
                                              unsigned samplesPerSec)
     {
         return (1000*samplesPerFrame)/samplesPerSec;
     }
-
-//@}
 
 /* ============================ INQUIRY =================================== */
 ///@name Inquiry
@@ -155,8 +154,10 @@ protected:
     UtlBoolean mIsEnabled;         ///< Whether this device driver is enabled or not.
     MpInputDeviceHandle mDeviceId; ///< The logical device ID that identifies 
                     ///< this device, as supplied by the InputDeviceManager.
-    unsigned mSamplesPerFrame;     ///< TODO: Fill in mSamplesPerFrame description
-    unsigned mSamplesPerSec;       ///< TODO: Fill in mSamplesPerSec description
+    unsigned mSamplesPerFrame;     ///< Device produce audio frame with this
+                    ///< number of samples.
+    unsigned mSamplesPerSec;       ///< Device produce audio with this number
+                    ///< of samples per second.
     MpFrameTime mCurrentFrameTime; ///< TODO: Fill in mCurrentFrameTime description
     
 
