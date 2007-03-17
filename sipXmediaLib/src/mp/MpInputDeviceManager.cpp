@@ -301,7 +301,7 @@ public:
 ///@name Inquiry
 //@{
 
-    inline UtlBoolean isInUse() { return mInUse; }
+    inline UtlBoolean isInUse() const { return mInUse; }
 
 //@}
 
