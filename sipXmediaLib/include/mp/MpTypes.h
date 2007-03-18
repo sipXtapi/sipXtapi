@@ -41,11 +41,12 @@ typedef void * MSG_Q_ID;
 typedef void * SEM_ID;
 #endif /* _VXWORKS ] */
 
-typedef short MpAudioSample;     ///< Audio sample (16 bit, litle-endian)
+typedef short MpAudioSample;     ///< Audio sample (16 bit, little-endian)
 
 typedef int MpInputDeviceHandle; ///< Logical device ID identifying device
                                  ///< driver inside device manager.
-typedef unsigned MpFrameTime;    ///< TBD::
+typedef unsigned MpFrameTime;    ///< Time of frame begin relative to device
+                                 ///< manager startup (in milliseconds).
 
 #define DMA_COMPLETE 103
 

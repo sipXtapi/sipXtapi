@@ -40,15 +40,16 @@ class MpInputDeviceFrameData
 {
 public:
    MpInputDeviceFrameData()
-      : mFrameTime(0)
+   : mFrameTime(0)
    {};
 
    virtual ~MpInputDeviceFrameData()
    {};
 
-   MpAudioBufPtr mFrameBuffer;
+   MpAudioBufPtr mFrameBuffer; ///< Actual captured data.
    MpFrameTime mFrameTime;
-   OsTime mFrameReceivedTime;
+   OsTime mFrameReceivedTime;  ///< This time is used only for driver jitter
+                               ///< calculation.
 
 private:
      /// Copy constructor (not implemented for this class)
