@@ -154,13 +154,13 @@ static int openAudioOut(int desiredDeviceId, HWAVEOUT *pAudioOutH,int nChannels,
    //if we fail to open the audio device above, then we 
    //will try to open any device that will hande the requested format
    if (res != MMSYSERR_NOERROR)
-	   res = waveOutOpen(
-		  pAudioOutH,             // handle (will be filled in)
-		  WAVE_MAPPER,            // select any device able to handle this format
-		  &fmt,                   // format
-		  (DWORD) speakerCallbackProc,// callback entry
-		  GetCurrentThreadId(),   // instance data
-		  CALLBACK_FUNCTION);     // callback function specified
+      res = waveOutOpen(
+         pAudioOutH,             // handle (will be filled in)
+         WAVE_MAPPER,            // select any device able to handle this format
+         &fmt,                   // format
+         (DWORD) speakerCallbackProc,// callback entry
+         GetCurrentThreadId(),   // instance data
+         CALLBACK_FUNCTION);     // callback function specified
    
    if (res != MMSYSERR_NOERROR)
    {
@@ -322,9 +322,9 @@ static int openSpeakerDevices(WAVEHDR*& pWH, HWAVEOUT& hOut)
     MSG tMsg;
     BOOL bSuccess ;    
 
-	// set the different device ids
-	gRingDeviceId = WAVE_MAPPER;
-	gCallDeviceId = WAVE_MAPPER;
+    // set the different device ids
+    gRingDeviceId = WAVE_MAPPER;
+    gCallDeviceId = WAVE_MAPPER;
 
 
     // If either the ringer or call device is set to NONE, don't engage any audio devices
@@ -338,10 +338,10 @@ static int openSpeakerDevices(WAVEHDR*& pWH, HWAVEOUT& hOut)
     /*
      * Select in-call / ringer devices
      */
-	int ii;
-	WAVEOUTCAPS devcaps;
-	int numberOfDevicesOnSystem = waveOutGetNumDevs();
-	for(ii=0; ii<numberOfDevicesOnSystem; ii++)
+    int ii;
+    WAVEOUTCAPS devcaps;
+    int numberOfDevicesOnSystem = waveOutGetNumDevs();
+    for(ii=0; ii<numberOfDevicesOnSystem; ii++)
     {
         waveOutGetDevCaps(ii,&devcaps,sizeof(WAVEOUTCAPS));
         if (strcmp(devcaps.szPname, DmaTask::getRingDevice())==0) 
@@ -350,7 +350,7 @@ static int openSpeakerDevices(WAVEHDR*& pWH, HWAVEOUT& hOut)
             osPrintf("SpkrThread: Selected ring device: %s\n",devcaps.szPname);
         }
 
-		if (strcmp(devcaps.szPname, DmaTask::getCallDevice())==0) 
+        if (strcmp(devcaps.szPname, DmaTask::getCallDevice())==0) 
         {
             gCallDeviceId = ii;
             osPrintf("SpkrThread: Selected call device: %s\n",devcaps.szPname);
@@ -402,10 +402,10 @@ static int openSpeakerDevices(WAVEHDR*& pWH, HWAVEOUT& hOut)
             {
                 showWaveError("waveOutPrepareHeader", ret, i, __LINE__);
             }
-	        ret = waveOutWrite(hOut, pWH, sizeof(WAVEHDR));
+            ret = waveOutWrite(hOut, pWH, sizeof(WAVEHDR));
             if (ret != MMSYSERR_NOERROR)
             {
-   	            showWaveError("waveOutWrite", ret, i, __LINE__);
+                   showWaveError("waveOutWrite", ret, i, __LINE__);
             }
         }      
     }
@@ -676,27 +676,27 @@ unsigned int __stdcall SpkrThread(LPVOID Unused)
                 hOut = selectSpeakerDevice() ;
                 if (hOut)
                 {
-			        ret = waveOutUnprepareHeader(hOut, pWH, sizeof(WAVEHDR));
+                    ret = waveOutUnprepareHeader(hOut, pWH, sizeof(WAVEHDR));
                     if (ret != MMSYSERR_NOERROR)
                     {
-   				        showWaveError("waveOutUnprepareHeader", ret, played, __LINE__);
+                           showWaveError("waveOutUnprepareHeader", ret, played, __LINE__);
                     }
-				    outPostUnprep(n, false);
+                    outPostUnprep(n, false);
 
-				    pWH = outPrePrep(n, bufLen);
+                    pWH = outPrePrep(n, bufLen);
 
-				    ret = waveOutPrepareHeader(hOut, pWH, sizeof(WAVEHDR));
+                    ret = waveOutPrepareHeader(hOut, pWH, sizeof(WAVEHDR));
                     if (ret != MMSYSERR_NOERROR)
                     {
-   				        showWaveError("waveOutPrepareHeader", ret, played, __LINE__);
+                           showWaveError("waveOutPrepareHeader", ret, played, __LINE__);
                     }
-			    	ret = waveOutWrite(hOut, pWH, sizeof(WAVEHDR));
+                    ret = waveOutWrite(hOut, pWH, sizeof(WAVEHDR));
                     if (ret != MMSYSERR_NOERROR)
                     {
-   				        showWaveError("waveOutWrite", ret, played, __LINE__);
+                           showWaveError("waveOutWrite", ret, played, __LINE__);
                     }
                     played++;
-			    }
+                }
 
                 res = MpMediaTask::signalFrameStart();
 
