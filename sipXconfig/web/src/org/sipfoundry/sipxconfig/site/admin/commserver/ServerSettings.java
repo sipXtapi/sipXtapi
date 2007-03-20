@@ -22,7 +22,6 @@ import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.admin.commserver.Server;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
-import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
 /**
@@ -74,9 +73,5 @@ public abstract class ServerSettings extends BasePage implements PageBeginRender
 
     public void cancel() {
         getServer().resetSettings();
-    }
-
-    public String getParentSettingDescription() {
-        return TapestryUtils.getSettingDescription(this, getParentSetting());
     }
 }
