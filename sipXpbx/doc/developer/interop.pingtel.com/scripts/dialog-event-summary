@@ -30,7 +30,6 @@ $indent{'target'} = '        ';
 
 system('hostname -f');
 system('date');
-print "\n";
 
 # Open the log file.
 $log_file = "gunzip <$log_file |" if $log_file =~ /\.gz$/;
@@ -73,7 +72,11 @@ while (<LOG>) {
     $body =~ s/\n//g;
     $body =~ s/^\s+//;
     $body =~ s/\s+$//;
-print $body, "\n";
+
+    # Print the raw XML.
+    print "----------\n";
+    print $body, "\n";
+
     # Insert newlines in the expected places.
     $body =~ s/>\s*</>\n</g;
 
@@ -100,9 +103,13 @@ print $body, "\n";
     }
 
     # Print the notice.
-    print "User-Agent: $user_agent\n", join("\n", @body), "\n\n";
+    print "\n";
+    print "User-Agent: $user_agent\n";
+    print "\n";
+    print join("\n", @body), "\n";
 }
 
+print "----------\n";
 print "End\n";
 
 close LOG;
