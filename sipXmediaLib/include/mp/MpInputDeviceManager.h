@@ -121,7 +121,7 @@ public:
      *  Returns device ID which is unique within this device manager.
      *  This method locks the device manager for exclusive use.
      *
-     *  @param newDevice - A new input device to add to this manager.
+     *  @param newDevice - (in) A new input device to add to this manager.
      *                     The device should <b>only</b> be added to one manager.
      *  @returns A handle to reference the device by in other manager calls.
      *
@@ -134,7 +134,7 @@ public:
      /**<
      *  This method locks the device manager for exclusive use.
      *
-     *  @param deviceId - The device to disable.
+     *  @param deviceId - (in) The device to disable.
      *  @returns A pointer to the input device driver that was removed.
      *  @returns NULL if the device could not be found or device is busy.
      *
@@ -147,7 +147,7 @@ public:
      /**<
      *  This method enables the device driver indicated by the device id.
      *
-     *  @param deviceId - The device to enable.
+     *  @param deviceId - (in) The device to enable.
      *  @returns OS_NOT_FOUND if the device could not be found.
      *  
      *  @NOTE This SHOULD NOT be used to mute/unmute a device. Disabling and
@@ -162,7 +162,7 @@ public:
      /**<
      *  This method disables the device driver indicated by the device id.
      *
-     *  @param deviceId - The device to disable.
+     *  @param deviceId - (in) The device to disable.
      *  @returns OS_NOT_FOUND if the device could not be found.
      *  @returns OS_BUSY if the device is currently being removed or disabled.
      *
@@ -234,12 +234,12 @@ public:
 //@{
 
      /// @brief Get the device driver name for the given device ID
-   OsStatus getDeviceName(int deviceId, UtlString& deviceName) const;
+   OsStatus getDeviceName(MpInputDeviceHandle deviceId, UtlString& deviceName) const;
      /**<
      *  Get the name for the given deviceId.
      *
-     *  @param deviceId - The device to fetch the name of.
-     *  @param deviceName - [OUT] a UtlString that will hold the deviceName
+     *  @param deviceId - (in) The device to fetch the name of.
+     *  @param deviceName - (out) a UtlString that will hold the deviceName
      *  @returns OS_SUCCESS and <tt>deviceName</tt> filled with the
      *           name of the device.
      *  @returns OS_NOT_FOUND if the device could not be found.
@@ -255,7 +255,7 @@ public:
      *  mapping.  All device IDs and device names are unique within the
      *  scope of this MpInputDeviceManager.
      *
-     *  @param deviceName - The name of a device to get the ID of.
+     *  @param deviceName - (in) The name of a device to get the ID of.
      *  @returns A handle to reference the device by in other manager calls.
      *
      *  Multi-thread safe.
@@ -310,7 +310,7 @@ public:
      /**<
      *  Inquire if device is enabled (e.g. generating input).
      *
-     *  @param deviceId - The device to determine enabled status of.
+     *  @param deviceId - (in) The device to determine enabled status of.
      */
 
 //@}
