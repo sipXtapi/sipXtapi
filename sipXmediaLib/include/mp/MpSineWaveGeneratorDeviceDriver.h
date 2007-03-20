@@ -115,7 +115,7 @@ public:
 //@{
 
 
-    /// Calclulate a sample value for the specified sample in a frame
+    /// Calculate a sample value for the specified sample in a frame
     static MpAudioSample calculateSample(MpFrameTime frameStartTime,
                                          short magnatude,
                                          unsigned int periodInMilliseconds,
