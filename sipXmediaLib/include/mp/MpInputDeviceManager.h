@@ -268,7 +268,7 @@ public:
      *  The timestamp is in milliseconds from the initial reference point
      *  in time for this device manager
      *
-     *  @NOTE This number will wrap roughly every 11.5 days.
+     *  @NOTE This number will wrap roughly every 49.7 days.
      *
      *  Multi-thread safe.
      */
@@ -305,10 +305,10 @@ public:
 ///@name Inquiry
 //@{
 
-     /// @brief Inquire if device is enabled (e.g. generating input).
+     /// @brief Inquire if device is enabled (e.g. generating media data).
    UtlBoolean isDeviceEnabled(MpInputDeviceHandle deviceId);
      /**<
-     *  Inquire if device is enabled (e.g. generating input).
+     *  Inquire if device is enabled (e.g. generating media data).
      *
      *  @param deviceId - (in) The device to determine enabled status of.
      */
