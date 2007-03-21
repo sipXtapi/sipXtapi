@@ -1,7 +1,7 @@
 create table service(
   service_id int4 not null primary key,
   name varchar(255) not null unique,
-  address varchar(255),
+  address varchar(255) not null,
   bean_id varchar(32) not null,
   enabled bool not null,
   descriptor_id varchar(32),

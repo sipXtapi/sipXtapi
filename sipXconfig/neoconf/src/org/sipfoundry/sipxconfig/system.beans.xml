@@ -102,7 +102,7 @@
     <property name="hibernateProperties">
       <props>
         <prop key="hibernate.dialect">org.hibernate.dialect.PostgreSQLDialect</prop>
-        <prop key="hibernate.query.substitutions">true=1 false=0</prop>
+        <prop key="hibernate.query.substitutions">true 't', false 'f'</prop>
         <!-- prop key="hibernate.show_sql">true</prop -->
       </props>
     </property>

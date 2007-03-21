@@ -11,11 +11,16 @@
  */
 package org.sipfoundry.sipxconfig.device;
 
+import java.util.Collection;
+
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxServer;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.InternalRule;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
+import org.sipfoundry.sipxconfig.service.ConfiguredService;
+import org.sipfoundry.sipxconfig.service.ServiceManager;
+import org.sipfoundry.sipxconfig.service.UnmanagedService;
 
 /**
  * Sets up phone and line objects with system defaults.
@@ -45,6 +50,18 @@ public class DeviceDefaults {
     private String m_proxyServerSipPort;
 
     private DeviceTimeZone m_timeZone = new DeviceTimeZone();
+    
+    private ServiceManager m_serviceManager;
+    
+    private String m_defaultNtpService = "pool.ntp.org";
+
+    public void setDefaultNtpService(String defaultNtpService) {
+        m_defaultNtpService = defaultNtpService;
+    }
+
+    public void setServiceManager(ServiceManager serviceManager) {
+        m_serviceManager = serviceManager;
+    }
 
     public void setDialPlanContext(DialPlanContext dialPlanContext) {
         m_dialPlanContext = dialPlanContext;
@@ -52,6 +69,15 @@ public class DeviceDefaults {
 
     public String getDomainName() {
         return m_domainManager.getDomain().getName();
+    }
+    
+    public String getNtpServer() {
+        String ntpServer = m_defaultNtpService;
+        Collection<ConfiguredService> ntpServers = m_serviceManager.getEnabledServicesByType(UnmanagedService.NTP);
+        if (ntpServers != null && ntpServers.size() > 0) {
+            ntpServer =  ntpServers.iterator().next().getAddress();
+        }
+        return ntpServer;
     }
 
     public String getTftpServer() {

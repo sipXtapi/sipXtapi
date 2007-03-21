@@ -63,8 +63,8 @@ public class ServiceManagerImpl extends SipxHibernateDaoSupport<ConfiguredServic
         return getHibernateTemplate().findByNamedQuery("services");
     }
 
-    public Collection<ConfiguredService> getServicesByType(ServiceDescriptor descriptor) {
-        return getHibernateTemplate().findByNamedQueryAndNamedParam("services-by-id", "descriptorId", 
+    public Collection<ConfiguredService> getEnabledServicesByType(ServiceDescriptor descriptor) {
+        return getHibernateTemplate().findByNamedQueryAndNamedParam("enabled-services-by-id", "descriptorId", 
                 descriptor.getModelId());
     }
     

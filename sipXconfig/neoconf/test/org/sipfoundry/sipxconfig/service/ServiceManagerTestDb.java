@@ -43,7 +43,7 @@ public class ServiceManagerTestDb extends TestHelper.TestCaseDb {
         TestHelper.cleanInsertFlat("service/ServiceSeed.db.xml");
         ConfiguredService ntp = m_manager.loadService(1000);
         assertNotNull(ntp);        
-        Collection<ConfiguredService> services = m_manager.getServicesByType(UnmanagedService.NTP);
+        Collection<ConfiguredService> services = m_manager.getEnabledServicesByType(UnmanagedService.NTP);
         assertEquals(1, services.size());
         assertSame(UnmanagedService.NTP, services.iterator().next().getDescriptor());
     }

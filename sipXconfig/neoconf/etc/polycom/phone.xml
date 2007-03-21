@@ -516,9 +516,9 @@
     </setting>
     <setting name="address">
       <type>
-        <!-- a valid host name or IP address -->
+        <string/>
       </type>
-      <value>pool.ntp.org</value>
+      <value/>
     </setting>
     <setting name="address.overrideDHCP">
       <type>

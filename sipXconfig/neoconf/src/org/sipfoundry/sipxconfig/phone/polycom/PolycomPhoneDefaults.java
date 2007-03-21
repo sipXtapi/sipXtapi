@@ -43,6 +43,11 @@ public class PolycomPhoneDefaults {
     public boolean isDstEnabled() {
         return getZone().getDstOffset() != 0;
     }
+    
+    @SettingEntry(path = "tcpIpApp.sntp/address")
+    public String getNtpServer() {
+        return m_defaults.getNtpServer();
+    }
 
     @SettingEntry(path = "tcpIpApp.sntp/daylightSavings.fixedDayEnable")
     public boolean isFixedDayEnabled() {

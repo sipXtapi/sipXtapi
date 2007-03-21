@@ -22,6 +22,8 @@ import org.sipfoundry.sipxconfig.admin.commserver.SipxServerTest;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.device.DeviceTimeZone;
+import org.sipfoundry.sipxconfig.service.ServiceManager;
+import org.sipfoundry.sipxconfig.service.UnmanagedService;
 import org.sipfoundry.sipxconfig.setting.ModelFilesContextImpl;
 import org.sipfoundry.sipxconfig.setting.XmlModelBuilder;
 
@@ -115,6 +117,17 @@ public class PhoneTestDriver {
         mfContext.setConfigDirectory(sysdir);
         mfContext.setModelBuilder(new XmlModelBuilder(sysdir));
         phone.setModelFilesContext(mfContext);
+        
+        IMocksControl serviceManagerControl = EasyMock.createNiceControl();
+        ServiceManager serviceManager = serviceManagerControl.createMock(ServiceManager.class);
+        serviceManager.getEnabledServicesByType(UnmanagedService.NTP);
+        UnmanagedService ntp = new UnmanagedService();
+        ntp.setDescriptor(UnmanagedService.NTP);
+        ntp.setAddress("ntp.example.org");
+        serviceManagerControl.andReturn(Collections.singleton(ntp)).anyTimes();        
+        serviceManagerControl.replay();
+        
+        defaults.setServiceManager(serviceManager);
         
         phone.setPhoneContext(phoneContext);
     }

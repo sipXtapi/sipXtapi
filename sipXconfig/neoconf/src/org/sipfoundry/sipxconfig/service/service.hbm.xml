@@ -24,8 +24,8 @@
     <![CDATA[from ConfiguredService s order by s.name]]>
   </query>
     
-  <query name="services-by-id">
-    <![CDATA[from ConfiguredService s where s.descriptorId = :descriptorId order by s.name ]]>
+  <query name="enabled-services-by-id">
+    <![CDATA[from ConfiguredService s where s.enabled = true and s.descriptorId = :descriptorId order by s.name ]]>
   </query>
   
   <query name="services-by-name">

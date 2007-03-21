@@ -32,7 +32,7 @@ public interface ServiceManager extends DataObjectSource<ConfiguredService> {
 
     public Collection<ConfiguredService> getServices();
 
-    public Collection<ConfiguredService> getServicesByType(ServiceDescriptor descriptor);
+    public Collection<ConfiguredService> getEnabledServicesByType(ServiceDescriptor descriptor);
     
     public void clear();
 }
