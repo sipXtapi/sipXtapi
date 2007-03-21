@@ -10,7 +10,6 @@
     <property name="proxyNameSetting" value="SIP/ProxyName" />
     <property name="proxyIpSetting" value="SIP/ProxyIP" />
     <property name="profileTemplate" value="audiocodes/mp-gateway.ini.vm" />
-    <property name="serialNumberPattern" value="^FT\d{7,}$"></property>
   </bean>
 
   <bean id="audiocodesTP260_1_Span" parent="audiocodesTP">

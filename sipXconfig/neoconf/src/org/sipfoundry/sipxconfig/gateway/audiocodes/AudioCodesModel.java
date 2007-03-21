@@ -19,6 +19,10 @@ public class AudioCodesModel extends GatewayModel {
     private String m_proxyNameSetting;
     private String m_proxyIpSetting;
 
+    public AudioCodesModel() {
+        setSerialNumberPattern("^FT\\d{7,}$");
+    }
+
     public void setProfileTemplate(String profileTemplate) {
         m_profileTemplate = profileTemplate;
     }
