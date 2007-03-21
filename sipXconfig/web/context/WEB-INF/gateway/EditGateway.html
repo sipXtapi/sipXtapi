@@ -1,33 +1,42 @@
 <div jwcid="@Border">
   <h2><span key="title">Gateway Details</span></h2>
-  <span jwcid="@Insert" value="ognl:gateway.model.label"/>
+  <span jwcid="@Insert" value="prop:gateway.model.label"/>
   <span jwcid="@If" condition="ognl:!gateway.isNew()">
       <span jwcid="@setting/SettingsNavigation" bean="prop:gateway" 
           editSettingsListener="listener:editSettings" activeSetting="prop:currentSettingSet">
         <span jwcid="@For" source="ognl:{'config', 'gcai', 'dialplan'}" value="prop:currentTab">
             <span jwcid="@common/Tab" isActive="ognl:currentTab.equals(activeTab)">
-              <a jwcid="@DirectLink" listener="listener:editNonSettings" parameters="prop:currentTab"><span jwcid="@Insert" value="ognl:messages.getMessage('tab.' + currentTab)"/></a>
+              <a jwcid="@DirectLink" listener="listener:editNonSettings" parameters="prop:currentTab">
+                <span jwcid="@Insert" value="ognl:messages.getMessage('tab.' + currentTab)"/>
+              </a>
             </span>
         </span>
       </span>
   </span>
-  <div id="settings-content">
-    <form jwcid="@Form" delegate="ognl:beans.validator" id="gateway">
-    
+  <div jwcid="@OptionalElement" id="settings-content" element="ognl:gateway.isNew()?'':'div'">
+    <form jwcid="@Form" delegate="bean:validator" id="gateway">
+      <span jwcid="@Hidden" value="prop:activeTab"/>
+
       <div jwcid="configBlock@Block">
-        <fieldset jwcid="gatewayForm"/>               
+        <fieldset jwcid="@gateway/GatewayForm" gateway="prop:gateway" />               
       </div>
-    
+
       <div jwcid="gcaiBlock@Block">
-        <fieldset jwcid="gcaiPanel"/>
+        <fieldset jwcid="@GatewayCallerAliasInfoPanel" gcai="prop:gateway.callerAliasInfo"/>
       </div>
     
       <div jwcid="dialplanBlock@Block">
         <fieldset>
           <table>
             <tbody>
-              <label jwcid="gatewayPrefixPanel" for="gateway:prefix">
-                <input jwcid="gatewayPrefix" id="gateway:prefix" maxlength="10"/>
+              <label jwcid="@FieldPanel" for="gateway:prefix"
+                field="component:gatewayPrefix"
+                label="message:label.prefix"
+                description="message:description.prefix">
+                <input jwcid="gatewayPrefix@TextField" id="gateway:prefix" maxlength="10"
+                  value="prop:gateway.prefix"
+                  validators="spring-validators:validSipUserId"
+                  displayName="message:label.prefix"/>
               </label>
             </tbody>
           </table>
@@ -35,13 +44,14 @@
       </div>
       
       <div jwcid="settingsBlock@Block">
-          <span jwcid="settingDescription"/>
-          <fieldset jwcid="settingsFieldset"/>
+          <fieldset jwcid="@setting/SettingsFieldset" settings="prop:currentSettingSet"/>
       </div>
                   
-      <span jwcid="@ErrorMsg"/>
-      <span jwcid="tabContent"/>
-      <ul jwcid="formActions"/>
+      <span jwcid="@ErrorMsg"/>      
+      <span jwcid="@RenderBlock" block="ognl:components.get(activeTab + 'Block')"/>
+      <ul jwcid="@FormActions"
+        listener="listener:saveGateway"
+        callback="prop:callback"/>
     </form>    
   </div>
 </div>
