@@ -11,6 +11,7 @@
  */
 package org.sipfoundry.sipxconfig.gateway.audiocodes;
 
+import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.gateway.GatewayModel;
 
 public class AudioCodesModel extends GatewayModel {
@@ -40,5 +41,10 @@ public class AudioCodesModel extends GatewayModel {
 
     public void setProxyNameSetting(String proxyNameSetting) {
         m_proxyNameSetting = proxyNameSetting;
+    }
+
+    @Override
+    public String cleanSerialNumber(String raw) {
+        return StringUtils.upperCase(raw);
     }
 }

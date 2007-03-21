@@ -125,7 +125,6 @@
     <component-type type="ExportLink" specification-path="common/ExportLink.jwc"/>
     <component-type type="Footer" specification-path="common/Footer.jwc"/>
     <component-type type="FormActions" specification-path="common/FormActions.jwc"/>
-    <component-type type="GatewayForm" specification-path="gateway/GatewayForm.jwc"/>
     <component-type type="GatewayCallerAliasInfoPanel" specification-path="gateway/GatewayCallerAliasInfoPanel.jwc"/>
     <component-type type="GatewaysPanel" specification-path="gateway/GatewaysPanel.jwc"/>
     <component-type type="GatewayTable" specification-path="gateway/GatewayTable.jwc"/>

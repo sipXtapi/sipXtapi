@@ -90,6 +90,7 @@ public class GatewaysTestUi extends WebTestCase {
         SiteTestHelper.selectRow(tester, 1, true);
         clickButton("list:gateway:delete");
 
+        SiteTestHelper.assertNoUserError(tester);
         assertTablePresent("list:gateway");
         gatewaysTable = getDialog().getWebTableBySummaryOrId("list:gateway");
         assertEquals(9, gatewaysTable.getRowCount());

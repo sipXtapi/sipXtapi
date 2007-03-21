@@ -194,7 +194,7 @@ public abstract class Phone extends BeanWithGroups implements Device {
     protected ProfileContext createContext() {
         return new ProfileContext(this, getPhoneTemplate());
     }
-    
+
     public Line findByUsername(String username) {
         for (Line l : getLines()) {
             User user = l.getUser();
@@ -288,17 +288,7 @@ public abstract class Phone extends BeanWithGroups implements Device {
     }
 
     public void setSerialNumber(String serialNumber) {
-        m_serialNumber = cleanSerialNumber(serialNumber);
-    }
-
-    public static String cleanSerialNumber(String rawNumber) {
-        if (rawNumber == null) {
-            return null;
-        }
-        String clean = rawNumber.toLowerCase();
-        clean = clean.replaceAll("[:\\s]*", "");
-
-        return clean;
+        m_serialNumber = serialNumber;
     }
 
     public List<Line> getLines() {

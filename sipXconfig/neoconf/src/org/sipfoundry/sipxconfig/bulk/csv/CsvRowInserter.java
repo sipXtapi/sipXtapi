@@ -11,7 +11,6 @@
  */
 package org.sipfoundry.sipxconfig.bulk.csv;
 
-
 import org.apache.commons.collections.Closure;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
@@ -32,9 +31,9 @@ public class CsvRowInserter extends RowInserter<String[]> implements Closure {
     private CoreContext m_coreContext;
 
     private PhoneContext m_phoneContext;
-    
+
     private ModelSource<PhoneModel> m_modelSource;
-    
+
     private MailboxManager m_mailboxManager;
 
     public void setMailboxManager(MailboxManager mailboxManager) {
@@ -82,12 +81,12 @@ public class CsvRowInserter extends RowInserter<String[]> implements Closure {
         if (StringUtils.isNotBlank(userGroupName)) {
             userGroup = m_coreContext.getGroupByName(userGroupName, true);
         }
-        
-        MailboxPreferences mboxPrefs = mailboxPreferencesFromRow(row);            
-        
+
+        MailboxPreferences mboxPrefs = mailboxPreferencesFromRow(row);
+
         insertData(user, userGroup, phone, phoneGroup, mboxPrefs);
     }
-    
+
     MailboxPreferences mailboxPreferencesFromRow(String[] row) {
         String emailAddress = Index.EMAIL.get(row);
         if (!m_mailboxManager.isEnabled() || StringUtils.isBlank(emailAddress)) {
@@ -132,15 +131,15 @@ public class CsvRowInserter extends RowInserter<String[]> implements Closure {
     }
 
     Phone phoneFromRow(String[] row) {
-        String serialNo = Index.SERIAL_NUMBER.get(row);
+        String modelId = Index.MODEL_ID.get(row).trim();
+        PhoneModel model = m_modelSource.getModel(modelId);
+        String serialNo = model.cleanSerialNumber(Index.SERIAL_NUMBER.get(row));
 
         Integer phoneId = m_phoneContext.getPhoneIdBySerialNumber(serialNo);
         Phone phone = null;
         if (phoneId != null) {
             phone = m_phoneContext.loadPhone(phoneId);
         } else {
-            String modelId = Index.MODEL_ID.get(row).trim();
-            PhoneModel model = m_modelSource.getModel(modelId);
             phone = m_phoneContext.newPhone(model);
             phone.setSerialNumber(serialNo);
         }
@@ -162,7 +161,8 @@ public class CsvRowInserter extends RowInserter<String[]> implements Closure {
      * @param phone phone to add or update
      * @param phoneGroup phone group to which phone will be added
      */
-    private void insertData(User user, Group userGroup, Phone phone, Group phoneGroup, MailboxPreferences mboxPrefs) {
+    private void insertData(User user, Group userGroup, Phone phone, Group phoneGroup,
+            MailboxPreferences mboxPrefs) {
         if (userGroup != null) {
             user.addGroup(userGroup);
         }
@@ -177,7 +177,7 @@ public class CsvRowInserter extends RowInserter<String[]> implements Closure {
         phone.addLine(line);
 
         m_phoneContext.storePhone(phone);
-        
+
         if (mboxPrefs != null) {
             Mailbox mailbox = m_mailboxManager.getMailbox(user.getUserName());
             m_mailboxManager.saveMailboxPreferences(mailbox, mboxPrefs);

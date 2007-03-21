@@ -33,6 +33,7 @@ public class MediantGatewayTestDb extends TestCase {
         m_model = (AudioCodesModel) modelSource.getModel("audiocodesMP1X4_4_FXO");
         m_gateway = (MediantGateway) TestHelper.getApplicationContext().getBean(m_model.getBeanId());
         m_gateway.setModelId(m_model.getModelId());
+        m_gateway.setSerialNumber("FT0123456");
     }
 
     public void testGenerateProfiles() throws Exception {

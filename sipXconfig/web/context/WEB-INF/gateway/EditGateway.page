@@ -25,7 +25,7 @@
   <!--
     - C O M P O N E N T S
   -->
-  <component id="gatewayForm" type="GatewayForm">
+  <component id="gatewayForm" type="gateway/GatewayForm">
     <binding name="gateway" value="gateway" />
   </component>
   <component id="gcaiPanel" type="GatewayCallerAliasInfoPanel">

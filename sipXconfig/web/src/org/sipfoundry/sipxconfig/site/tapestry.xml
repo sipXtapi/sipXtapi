@@ -68,18 +68,6 @@
     </property>
   </bean>
 
-	  <!-- TODO: tolowercase transformer -->
-  <!-- FIXME: every phone type will have to have its own validator -->  
-  <bean name="validSerialNumber" class="org.apache.tapestry.form.validator.Pattern">
-    <property name="pattern">
-	  <!-- accept capital. Translator (called after validators) will convert to lower case -->
-      <value>^([a-f]|:|\d){12,}?$</value>
-    </property>
-    <property name="message">
-      <value>Please enter at least 12 hexadecimal digits (0-9 and a-f), for example: 0040214131fa</value>
-    </property>
-  </bean>
-
   <bean name="validSipUserId" class="org.apache.tapestry.form.validator.Pattern">
     <property name="pattern">
       <value>^([&SIP_USER_CHARS;]|&SIP_USER_ESCAPED;)+$</value>
@@ -115,7 +103,6 @@
   
 
   <!-- T R A N S L A T O R S -->	
-  <bean name="cleanSerialNumber" class="org.sipfoundry.sipxconfig.components.SerialNumberTranslator"/>	
   <bean name="validTime" class="org.sipfoundry.sipxconfig.components.DateWithTimezoneTranslator">
 	  <!-- timezone has to match w/DailyBackupSchedule, at least for Backup page -->
 	  <property name="timeZone">

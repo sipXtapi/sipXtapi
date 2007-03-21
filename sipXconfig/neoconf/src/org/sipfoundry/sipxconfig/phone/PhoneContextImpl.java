@@ -161,7 +161,7 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
 
     public Integer getPhoneIdBySerialNumber(String serialNumber) {
         List objs = getHibernateTemplate().findByNamedQueryAndNamedParam(QUERY_PHONE_ID_BY_SERIAL_NUMBER,
-                "value", Phone.cleanSerialNumber(serialNumber));
+                "value", serialNumber);
         return (Integer) DaoUtils.requireOneOrZero(objs, QUERY_PHONE_ID_BY_SERIAL_NUMBER);
     }
 
