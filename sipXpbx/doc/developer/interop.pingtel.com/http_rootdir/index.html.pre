@@ -65,6 +65,8 @@ testing of SIP user agents.  It is the sipXpbx <a href='http://www.sipfoundry.or
 with a <a href='#config'>custom configuration</a>.  This configuration
 is designed to exercise issues we have found are important to
 interoperability between User Agents and Proxies.
+This server is restarted once a week, at 00:00 Sunday UTC.
+The restart process takes approximately 2 minutes.
 </p>
 <p>
 <a href='sipx-version.cgi'>Display the sipX version running on this server</a>
