@@ -157,7 +157,16 @@
     <db-patch patch="speeddial"/>
   </target>
 
-  <target name="service" unless="service">
+  <!-- remove this and reference to this when freezing schema -->
+  <target name="reset-service" if="service">
+    <sipx-sql>
+      drop table service;
+      drop sequence service;
+      delete from patch where name = 'service'
+    </sipx-sql>    
+  </target>
+  
+  <target name="service" depends="reset-service">
     <db-patch patch="service"/>
   </target>
 

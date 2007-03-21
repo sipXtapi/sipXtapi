@@ -3,6 +3,8 @@
 <dataset>
     <service 
 		name="my-ntp" 		
+    address="1.1.1.1"
+    enabled="1"
 		service_id="1000"
     bean_id="unmanagedService"
     descriptor_id="ntpService"/> 

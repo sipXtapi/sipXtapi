@@ -497,7 +497,9 @@
 <!ATTLIST service
     service_id CDATA #REQUIRED
     name CDATA #REQUIRED
+    address CDATA #IMPLIED
     bean_id CDATA #REQUIRED
+    enabled CDATA #REQUIRED
     descriptor_id CDATA #IMPLIED
     value_storage_id CDATA #IMPLIED
     description CDATA #IMPLIED

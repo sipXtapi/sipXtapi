@@ -15,7 +15,7 @@
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/easymock-2.2.jar"/>
 	<classpathentry sourcepath="/LIB_SRC/httpunit/src.zip" kind="var" path="SIPX_CONFIG/lib/httpunit-1.6.2.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/jakarta-oro-2.0.8.jar"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/javassist-3.0.jar"/>
+	<classpathentry sourcepath="/LIB_SRC/javassist/3.0/src.zip" kind="var" path="SIPX_CONFIG/lib/javassist-3.0.jar"/>
 	<classpathentry sourcepath="LIB_SRC/junit/src.zip" kind="var" path="SIPX_CONFIG/lib/junit-3.8.1.jar"/>
 	<classpathentry sourcepath="/LIB_SRC/log4j/src.zip" kind="var" path="SIPX_CONFIG/lib/log4j-1.2.8.jar"/>
 	<classpathentry sourcepath="LIB_SRC/ognl/ognl-2.6.7-dist.zip" kind="var" path="SIPX_CONFIG/lib/ognl-2.6.7.jar"/>

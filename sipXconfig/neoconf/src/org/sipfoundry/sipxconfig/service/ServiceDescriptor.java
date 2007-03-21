@@ -26,4 +26,10 @@ public class ServiceDescriptor extends DeviceDescriptor {
         this(beanId);
         setModelId(modelId);
     }    
+
+    public ServiceDescriptor(String beanId, String modelId, String label) {
+        this(beanId);
+        setModelId(modelId);
+        setLabel(label);
+    }    
 }

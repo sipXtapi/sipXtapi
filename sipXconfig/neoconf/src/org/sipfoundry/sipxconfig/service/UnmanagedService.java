@@ -16,7 +16,7 @@ import org.sipfoundry.sipxconfig.setting.Setting;
 public class UnmanagedService extends ConfiguredService {
     public static final String BEAN_ID = "unmanagedService";
     
-    public static final ServiceDescriptor NTP = new ServiceDescriptor(BEAN_ID, "ntpService");
+    public static final ServiceDescriptor NTP = new ServiceDescriptor(BEAN_ID, "ntpService", "NTP");
     
     public final ServiceDescriptor ntp() {
         return NTP;
