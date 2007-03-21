@@ -27,5 +27,9 @@
   <query name="services-by-id">
     <![CDATA[from ConfiguredService s where s.descriptorId = :descriptorId order by s.name ]]>
   </query>
+  
+  <query name="services-by-name">
+    <![CDATA[from ConfiguredService s where s.name = :value]]>
+  </query>
 
 </hibernate-mapping>

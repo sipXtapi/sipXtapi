@@ -13,7 +13,9 @@ package org.sipfoundry.sipxconfig.service;
 
 import java.util.Collection;
 
+import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
+import org.sipfoundry.sipxconfig.common.UserException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.ListableBeanFactory;
@@ -31,6 +33,10 @@ public class ServiceManagerImpl extends SipxHibernateDaoSupport<ConfiguredServic
         return (ConfiguredService) getHibernateTemplate().load(ConfiguredService.class, serviceId);
     }
     
+    public void deleteServices(Collection<Integer> serviceIds) {
+        removeAll(ConfiguredService.class, serviceIds);
+    }   
+
     public void deleteService(ConfiguredService service) {
         deleteBeanWithSettings(service);
     }
@@ -42,8 +48,16 @@ public class ServiceManagerImpl extends SipxHibernateDaoSupport<ConfiguredServic
     }
     
     public void saveService(ConfiguredService service) {
+        DaoUtils.checkDuplicatesByNamedQuery(getHibernateTemplate(), service, "services-by-name", service.getName(),
+                new DuplicateNamedServiceException(service.getName()));
         saveBeanWithSettings(service);
     }   
+    
+    class DuplicateNamedServiceException extends UserException {
+        DuplicateNamedServiceException(String name) {
+            super(String.format("A service with name %s already exists", name));
+        }
+    }
 
     public Collection<ConfiguredService> getServices() {
         return getHibernateTemplate().findByNamedQuery("services");

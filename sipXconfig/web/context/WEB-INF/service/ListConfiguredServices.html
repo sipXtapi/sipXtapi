@@ -23,6 +23,17 @@
           <td jwcid="@common/EnabledColumn" value="prop:currentRow.enabled"/>
         </tr>
       </table>
+    <ul class="component-submit">
+      <li>
+        <input jwcid="delete@Submit" id="service:delete" 
+          selected="prop:rowsToDelete"
+          tag="prop:selections.allSelected"
+          value="message:button.delete" />
+        <span jwcid="@common/Confirm" 
+          component="component:delete"
+          prompt="message:confirm.delete"/>                    
+      </li>
+    </ul>
     </fieldset>    
   </form>
 </div>

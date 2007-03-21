@@ -14,6 +14,7 @@ package org.sipfoundry.sipxconfig.service;
 import java.util.Collection;
 
 import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.device.ModelSource;
 
 public class ServiceManagerTestDb extends TestHelper.TestCaseDb {
@@ -45,5 +46,18 @@ public class ServiceManagerTestDb extends TestHelper.TestCaseDb {
         Collection<ConfiguredService> services = m_manager.getServicesByType(UnmanagedService.NTP);
         assertEquals(1, services.size());
         assertSame(UnmanagedService.NTP, services.iterator().next().getDescriptor());
+    }
+    
+    public void testCheckDuplicateName() throws Exception {
+        TestHelper.cleanInsert("ClearDb.xml");
+        TestHelper.cleanInsertFlat("service/ServiceSeed.db.xml");
+        ConfiguredService ntp = m_manager.newService(UnmanagedService.NTP);
+        ntp.setName("my-ntp");
+        try {
+            m_manager.saveService(ntp);
+            fail();
+        } catch (UserException expected) {
+            assertTrue(true);
+        }        
     }
 }

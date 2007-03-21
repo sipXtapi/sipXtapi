@@ -27,6 +27,8 @@ public interface ServiceManager extends DataObjectSource<ConfiguredService> {
     public void saveService(ConfiguredService service);
 
     public void deleteService(ConfiguredService service);
+    
+    public void deleteServices(Collection<Integer> serviceIds);
 
     public Collection<ConfiguredService> getServices();
 

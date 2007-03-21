@@ -11,6 +11,8 @@
  */
 package org.sipfoundry.sipxconfig.site.service;
 
+import java.util.Collection;
+
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InitialValue;
@@ -57,6 +59,8 @@ public abstract class ListConfiguredServices extends BasePage implements PageBeg
     public abstract void setConverter(IPrimaryKeyConverter converter);
     
     public abstract ServiceDescriptor getServiceDescriptor();
+    
+    public abstract Collection<Integer> getRowsToDelete();
         
     public void pageBeginRender(PageEvent event) {
         if (getRequestCycle().isRewinding()) {
@@ -70,6 +74,11 @@ public abstract class ListConfiguredServices extends BasePage implements PageBeg
             page.setServiceDescriptor(getServiceDescriptor());
             page.setReturnPage(PAGE);
             return page;
+        } else {
+            Collection<Integer> toDelete = getRowsToDelete();
+            if (toDelete != null) {
+                getServiceManager().deleteServices(toDelete);
+            }            
         }
         
         return this;

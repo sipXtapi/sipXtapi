@@ -11,9 +11,7 @@
  */
 package org.sipfoundry.sipxconfig.site.service;
 
-import junit.extensions.TestDecorator;
 import junit.framework.Test;
-import junit.framework.TestResult;
 import net.sourceforge.jwebunit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
@@ -59,5 +57,13 @@ public class ListConfiguredServicesTestUi extends WebTestCase {
         seedNtpService("edit test");
         clickLinkWithText("edit test");
         assertElementPresent("server:form");        
+    }
+
+    public void testDeleteService() {
+        seedNtpService("delete test");
+        assertTextInTable("service:list", "delete test");        
+        checkCheckbox("checkbox");
+        clickButton("service:delete");
+        assertTextNotInTable("service:list", "delete test");        
     }
 }
