@@ -161,7 +161,7 @@
   <target name="reset-service" if="service">
     <sipx-sql>
       drop table service;
-      drop sequence service;
+      drop sequence service_seq;
       delete from patch where name = 'service'
     </sipx-sql>    
   </target>
