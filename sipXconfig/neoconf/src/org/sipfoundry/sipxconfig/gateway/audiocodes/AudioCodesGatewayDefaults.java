@@ -36,6 +36,11 @@ public class AudioCodesGatewayDefaults implements SettingValueHandler {
     public String getDestinationPort() {
         return m_gateway.getDefaults().getProxyServerSipPort();
     }
+    
+    @SettingEntry(path = "Network/NTPServerIP")
+    public String getNtpServer() {
+        return m_gateway.getDefaults().getNtpServer();
+    }
 
     public SettingValue getSettingValue(Setting setting) {
         SettingValue value = null;

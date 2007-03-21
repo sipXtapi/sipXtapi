@@ -160,6 +160,11 @@ public class GrandstreamPhone extends Phone {
             int offset = ((m_defaults.getTimeZone().getOffsetWithDst() / 60) + (12 * 60));
             return offset;
         }
+        
+        @SettingEntry(path = "network/P30")
+        public String getNtpServer() {
+            return m_defaults.getNtpServer();
+        }
     }
 
     public static class GrandstreamLineDefaults {

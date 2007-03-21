@@ -159,6 +159,11 @@ public class CiscoIpPhone extends CiscoPhone {
         public int getStopWeekOfMonth() {
             return isDstAutoAdjust() ? getZone().getStopWeek() : 0;
         }
+        
+        @SettingEntry(path = "network/sntp_server")
+        public String getNtpServer() {
+            return m_defaults.getNtpServer();
+        }
 
         private String time(int time) {
             return String.valueOf(time / 3600) + ZEROMIN;
