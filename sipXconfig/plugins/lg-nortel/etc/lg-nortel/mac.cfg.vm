@@ -20,7 +20,7 @@ ${s.ProfileName} $!{s.Value}
 ; LIP-68XX configuration information
 ;================================================================================================
 
-#emit_groups_by_name(['LAN', 'NETTIME'])
+#emit_groups_by_name(['NETTIME'])
 #emit_groups_by_name(['VOIP'])
 #foreach ($line in $phone.lines)
 #set($line_id = $velocityCount)
