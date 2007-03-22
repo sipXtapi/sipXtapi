@@ -35,7 +35,7 @@ public class SkinMessagesSource implements ComponentMessagesSource {
     }
 
     public Messages getMessages(IComponent component) {
-        return new SkinMessages(component.getId(), m_systemMessagesSource.getMessages(component), component
+        return new SkinMessages(m_systemMessagesSource.getMessages(component), component
                 .getPage().getLocale(), m_skin);
     }
 
@@ -43,19 +43,17 @@ public class SkinMessagesSource implements ComponentMessagesSource {
         private Messages m_systemMessages;
         private SkinControl m_skin;
         private Locale m_locale;
-        private String m_componentId;
 
-        SkinMessages(String componentId, Messages systemMessages, Locale locale, SkinControl skin) {
+        SkinMessages(Messages systemMessages, Locale locale, SkinControl skin) {
             m_systemMessages = systemMessages;
             m_locale = locale;
             m_skin = skin;
-            m_componentId = componentId;
         }
 
         @Override
         protected String findMessage(String key) {
             String defaultMessage = m_systemMessages.getMessage(key);
-            return m_skin.getLocalizeString(m_componentId, key, m_locale, defaultMessage);
+            return m_skin.getLocalizeString(key, m_locale, defaultMessage);
         }
 
         @Override

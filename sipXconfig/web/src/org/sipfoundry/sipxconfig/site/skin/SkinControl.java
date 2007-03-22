@@ -84,7 +84,7 @@ public class SkinControl implements BeanFactoryAware {
         m_messageSourceBeanId = messageSourceBeanId;
     }
     
-    public String getLocalizeString(String component, String key, Locale locale, String defaultString) {
+    public String getLocalizeString(String key, Locale locale, String defaultString) {
         if (m_messageSourceBeanId == null) {
             return defaultString;
         }
