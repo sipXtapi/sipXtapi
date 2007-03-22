@@ -147,7 +147,7 @@ OsStatus MpCodec_setGain(int level)
        MIXERLINE mxl;
        memset(&mxl, 0, sizeof(MIXERLINE));
        mxl.cbStruct = sizeof(mxl);
-       mxl.dwComponentType = MIXERLINE_COMPONENTTYPE_SRC_MICROPHONE;
+       mxl.dwComponentType = MIXERLINE_COMPONENTTYPE_DST_WAVEIN;
        mmresult = mixerGetLineInfo((HMIXEROBJ)hmx, &mxl, MIXER_GETLINEINFOF_COMPONENTTYPE);
 
        if (MMSYSERR_NOERROR == mmresult)
