@@ -45,6 +45,8 @@ typedef short MpAudioSample;     ///< Audio sample (16 bit, little-endian)
 
 typedef int MpInputDeviceHandle; ///< Logical device ID identifying device
                                  ///< driver inside device manager.
+typedef int MpOutputDeviceHandle; ///< Logical device ID identifying device
+                                  ///< driver inside device manager.
 typedef unsigned MpFrameTime;    ///< Time of frame begin relative to device
                                  ///< manager startup (in milliseconds).
 
