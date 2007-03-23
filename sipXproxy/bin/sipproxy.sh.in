@@ -77,7 +77,7 @@ case ${Action} in
      myIp=`@SIPX_BINDIR@/get_def_addr`
      if [ "${myHostname}" != "${myDomain}" -a "${myIp}" != "${myDomain}" ]
      then
-         if ! sip_resolves_to $myDomain $myHostname
+         if ! sip_resolves_to $myDomain $myIp
          then
              echo "    SIP route to SIPXCHANGE_DOMAIN_NAME '${myDomain}' is not to this host '${myHostname}' at ${myIp}" 1>&2
              echo "    See the installation guide on setting the DNS SRV records and domain names" 1>&2
