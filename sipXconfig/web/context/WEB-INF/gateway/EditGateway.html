@@ -2,6 +2,7 @@
   <h2><span key="title">Gateway Details</span></h2>
   <span jwcid="@Insert" value="prop:gateway.model.label"/>
   <span jwcid="@If" condition="ognl:!gateway.isNew()">
+    <div id="settings-nav">
       <span jwcid="@setting/SettingsNavigation" bean="prop:gateway" 
           editSettingsListener="listener:editSettings" activeSetting="prop:currentSettingSet">
         <span jwcid="@For" source="ognl:{'config', 'gcai', 'dialplan'}" value="prop:currentTab">
@@ -12,6 +13,7 @@
             </span>
         </span>
       </span>
+    </div>
   </span>
   <div jwcid="@OptionalElement" id="settings-content" element="ognl:gateway.isNew()?'':'div'">
     <form jwcid="@Form" delegate="bean:validator" id="gateway">
