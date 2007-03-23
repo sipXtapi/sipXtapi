@@ -5,7 +5,8 @@
   </div> 
   <span jwcid="@Else">
     <h2><span key="title">Speed Dial</span></h2>    
-  </span><span jwcid="@ErrorMsg"/>
+  </span>
+  <span jwcid="@ErrorMsg"/>
   <div jwcid="@OptionalElement" id="settings-content" element="ognl:(userSession.admin ? 'div' : null)">
     <!--  form jwcid="@tacos:AjaxForm" delegate="bean:validator" -->
     <form jwcid="speedDialForm@Form" delegate="bean:validator">

@@ -30,6 +30,9 @@ public class Button implements Serializable {
         setLabel(label);
     }
 
+    /**
+     * @return null if not set, may want to use number
+     */
     public String getLabel() {
         return m_label;
     }
@@ -45,7 +48,7 @@ public class Button implements Serializable {
     public void setNumber(String number) {
         m_number = number;
     }
-
+    
     public boolean isBlf() {
         return m_blf;
     }

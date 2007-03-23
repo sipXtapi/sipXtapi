@@ -153,7 +153,16 @@
     </sipx-sql>
   </target>
 
-  <target name="speeddial" unless="speeddial">
+  <target name="reset-speeddial" if="speeddial">
+    <sipx-sql>
+      drop table speeddial;
+      drop table speeddial_button
+      drop sequence speeddial_seq;
+      delete from patch where name = 'speeddial'
+    </sipx-sql>    
+  </target>
+
+  <target name="speeddial" depends="reset-speeddial">
     <db-patch patch="speeddial"/>
   </target>
 

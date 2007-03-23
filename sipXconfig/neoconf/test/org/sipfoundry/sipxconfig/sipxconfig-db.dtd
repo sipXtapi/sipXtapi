@@ -520,7 +520,7 @@
 
 <!ELEMENT speeddial_button EMPTY>
 <!ATTLIST speeddial_button
-    sppeddial_id CDATA #REQUIRED
+    speeddial_id CDATA #REQUIRED
     label CDATA #IMPLIED
     number CDATA #IMPLIED
     position CDATA #REQUIRED

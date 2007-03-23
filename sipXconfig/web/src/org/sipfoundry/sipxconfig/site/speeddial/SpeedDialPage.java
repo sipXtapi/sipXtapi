@@ -48,7 +48,9 @@ public abstract class SpeedDialPage extends UserBasePage {
     }
 
     public void onApply() {
-        SpeedDialManager speedDialManager = getSpeedDialManager();
-        speedDialManager.saveSpeedDial(getSpeedDial());
+        if (!getValidator().getHasErrors()) {
+            SpeedDialManager speedDialManager = getSpeedDialManager();
+            speedDialManager.saveSpeedDial(getSpeedDial());
+        }
     }
 }
