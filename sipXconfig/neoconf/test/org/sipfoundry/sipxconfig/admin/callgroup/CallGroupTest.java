@@ -66,6 +66,15 @@ public class CallGroupTest extends TestCase {
         assertTrue(am.getContact().startsWith(group.getName() + "@kuku"));
     }
     
+    public void testGenerateAliasesNameAndExtSame() {
+        CallGroup group = new CallGroup();
+        group.setName("402");
+        group.setExtension("402");
+        group.setEnabled(true);
+        List aliases = group.generateAliases("kiwi");
+        assertEquals(0, aliases.size());
+    }
+    
     public void testGenerateAliasesLastParallel() {
         CallGroup group = new CallGroup();
         group.setName("sales");
