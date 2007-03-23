@@ -122,8 +122,7 @@
       <value>5060</value>
     </setting>
     <setting name='SIP_service_domain' advanced="yes"></setting>
-    <setting name="moh_url" advanced="yes">      
-    </setting>
+    <setting name="moh_url" advanced="yes"></setting>
     <setting name='rtp_port' advanced="yes">
       <type refid="port-number" />
       <value>23000</value>
@@ -567,6 +566,14 @@
       </type>
       <value>0</value>
     </setting>
+    <setting name="cfg_download" hidden="yes">
+      <type refid="ena-dis"></type>
+      <value>enable</value>
+    </setting>
+    <setting name="sw_download" advanced="yes">
+      <type refid="ena-dis"></type>
+      <value>enable</value>
+    </setting>
     <setting name='dhcp_get_tftp'>
       <type refid="ena-dis" />
       <value>enable</value>
@@ -646,7 +653,7 @@
   </group>
   <group name='NETTIME'>
     <setting name='sntp_server_address'>
-      <value/>
+      <value />
     </setting>
     <setting name='interval'>
       <type>
