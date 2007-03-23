@@ -1,7 +1,7 @@
 VERSION=1.5.0
 SUN_VERSION=1_5_0
-BUILD=09
-REL=1
+BUILD=10
+REL=2
 
 # Combine the SRC and NOSRC to create usable (non-free) rpm
 JDK_LIBSRC = $(LIBSRC)/java-sun
