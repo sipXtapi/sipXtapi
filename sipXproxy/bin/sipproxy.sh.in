@@ -58,10 +58,6 @@ case ${Action} in
      @bindir@/sipx-validate-xml @SIPX_CONFDIR@/forwardingrules.xml
      Status=$?
 
-     myHostname=`hostname -f | tr A-Z a-z`
-     status=$? 
-     Status=$((${Status}+${status}))
-     
      myDomain=`. ${CONFIG_DEFS}; echo ${SIPXCHANGE_DOMAIN_NAME} | tr A-Z a-z`
      status=$? 
      Status=$((${Status}+${status}))
@@ -75,14 +71,11 @@ case ${Action} in
      fi
 
      myIp=`@SIPX_BINDIR@/get_def_addr`
-     if [ "${myHostname}" != "${myDomain}" -a "${myIp}" != "${myDomain}" ]
+     if ! sip_resolves_to ${myDomain} ${myIp}
      then
-         if ! sip_resolves_to $myDomain $myIp
-         then
-             echo "    SIP route to SIPXCHANGE_DOMAIN_NAME '${myDomain}' is not to this host '${myHostname}' at ${myIp}" 1>&2
-             echo "    See the installation guide on setting the DNS SRV records and domain names" 1>&2
-             Status=1
-         fi
+         echo "    SIP route to SIPXCHANGE_DOMAIN_NAME '${myDomain}' is not to my IP address: ${myIp}" 1>&2
+         echo "    See the installation guide on setting the DNS SRV records and domain names" 1>&2
+         Status=1
      fi
      ;;
 esac
