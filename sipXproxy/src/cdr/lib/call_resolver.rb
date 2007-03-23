@@ -57,7 +57,7 @@ class CallResolver
     end
     
     # state copies from CSE queue to CDR queue
-    @state = State.new(cse_queue, cdr_queue)
+    @state = State.new(cse_queue, cdr_queue, @config.max_call_len)
     
     Thread.new( @state ) { | state | 
       state.run

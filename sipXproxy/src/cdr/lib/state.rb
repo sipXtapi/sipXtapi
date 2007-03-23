@@ -27,13 +27,15 @@ class State
     end
   end
   
-  def initialize(cse_queue, cdr_queue, cdr_class = Cdr)
+  def initialize(cse_queue, cdr_queue, max_call_len = -1, cdr_class = Cdr)
     @cse_queue = cse_queue
     @cdr_queue = cdr_queue
+    @max_call_len = max_call_len
     @cdr_class = cdr_class
     @failed_calls = {}
     @retired_calls = {}
     @generation = 0
+    @last_event_time = nil
     @cdrs = {}
     super()
   end
@@ -47,10 +49,10 @@ class State
           accept(item)
         end            
       end
-      flush_failed
+      flush_failed()
       @cdr_queue << nil
     rescue 
-      p $!
+      p($!)
       raise
     end
   end
@@ -61,12 +63,12 @@ class State
   
   def dump_waiting
     @cdrs.each do | cdr |
-      p cdr.to_s
+      p(cdr.to_s)
     end
   end
   
   def dump_state
-    p to_s
+    p(to_s)
   end
   
   def to_s
@@ -76,6 +78,7 @@ class State
   # Analyze CSE, add CDR to queue if completed
   def accept(cse)
     @generation += 1
+    @last_event_time = cse.event_time
     
     call_id = cse.call_id
     
@@ -100,9 +103,10 @@ class State
         # delay notification for failed CDRs - they will get another chance
         @failed_calls[call_id] = FailedCdr.new(cdr, @generation)        
       end
-    end
+    end    
+    retire_long_calls() if 0 == @generation % 1000
   end
-    
+  
   # Strictly speaking this function does not have to be called.
   # Since it is possible that we receive notifications after we already 
   # notified about the CDR we need to maintain a list of CD for which we are going to ignore all notifications.
@@ -120,6 +124,21 @@ class State
     @failed_calls.delete_if do |key, value|
       notify(value.cdr) if @generation - value.generation >= age
     end
+  end
+  
+  # call to retire (turn into CDRs) really long calls
+  # the assumption is that we maybe loosing some events for some calls which permanently keeps tham in ongoing state
+  def retire_long_calls()
+    return unless @last_event_time
+    return unless @max_call_len > 0
+    @cdrs.delete_if do | call_id, cdr |
+      start_time = cdr.start_time
+      if start_time && (@last_event_time - start_time > @max_call_len)
+        cdr.force_finish
+        notify(cdr)
+        true                
+      end
+    end    
   end
   
   private

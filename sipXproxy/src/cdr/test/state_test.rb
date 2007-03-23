@@ -40,11 +40,12 @@ class StateTest < Test::Unit::TestCase
   end
     
   class DummyCse
-    attr_reader :call_id
-    
-    def initialize(call_id)
+    attr_reader :call_id, :event_time
+        
+    def initialize(call_id, event_time = Time.at(1000))
       @call_id = call_id
-    end
+      @event_time = event_time
+    end    
   end
 
   def test_empty
@@ -60,7 +61,7 @@ class StateTest < Test::Unit::TestCase
     cse1 = DummyCse.new('id1')
     cse2 = DummyCse.new('id2')
     
-    state = State.new([], observer, DummyCdr )
+    state = State.new([], observer, -1, DummyCdr )
     
     state.accept(cse1)    
     assert_equal(0, observer.counter)
@@ -79,7 +80,7 @@ class StateTest < Test::Unit::TestCase
     observer = DummyQueue.new
     cse1 = DummyCse.new('id1')
     
-    state = State.new([], observer, DummyCdr )
+    state = State.new([], observer, -1, DummyCdr )
     state.accept(cse1)    
     state.accept(cse1)    
     assert_equal(1, observer.counter)
@@ -104,7 +105,7 @@ class StateTest < Test::Unit::TestCase
     cse1 = DummyCse.new('id1')
     cse2 = DummyCse.new('id2')
     
-    state = State.new([], observer, DummyCdr )
+    state = State.new([], observer, -1, DummyCdr )
     state.accept(cse1)    
     state.accept(cse1)    
     assert_equal(1, observer.counter)
@@ -128,16 +129,18 @@ class StateTest < Test::Unit::TestCase
   class MockCdr
     @@results = []
     
-    attr_reader :call_id
+    attr_reader :call_id, :start_time
     
     def initialize(call_id)
       @call_id = call_id
     end
     
-    def accept(cse) 
+    def accept(cse)
+      @start_time = cse.event_time  
       self if @@results.shift
     end
     
+    def force_finish; end
     def retire; end
     
     def terminated?
@@ -159,7 +162,7 @@ class StateTest < Test::Unit::TestCase
     
     # results of calls to accept and terminated?
     MockCdr.results( true, false )
-    state = State.new([], observer, MockCdr )
+    state = State.new([], observer, -1, MockCdr )
     
     state.accept(cse1)
     assert_equal(0, observer.counter)
@@ -183,7 +186,7 @@ class StateTest < Test::Unit::TestCase
     
     # results of calls to accept and terminated?
     MockCdr.results( true, false, true, true )
-    state = State.new([], observer, MockCdr )
+    state = State.new([], observer, -1, MockCdr )
     
     state.accept(cse1)
     assert_equal(0, observer.counter)
@@ -207,12 +210,31 @@ class StateTest < Test::Unit::TestCase
     
     # results of calls to accept and terminated?
     MockCdr.results( true, false, true, true )
-    state = State.new(in_queue, out_queue, MockCdr )
+    state = State.new(in_queue, out_queue, -1, MockCdr )
     state.run
     
     # still only one - nothing flushed, and nil as the second
     assert_equal(2, out_queue.size)
     assert_nil(out_queue[1])
-  end  
+  end
   
+  def test_retire_long_calls
+    out_queue = []
+    cse1 = DummyCse.new('id1', Time.at(1000))    
+    cse2 = DummyCse.new('id2', Time.at(1100))    
+    cse3 = DummyCse.new('id3', Time.at(1200))    
+    in_queue = [
+      cse1, cse2, cse3, [:retire_long_calls]
+    ]
+    MockCdr.results( false, false, false, false, false, false )
+    state = State.new(in_queue, out_queue, 150, MockCdr )
+    state.run    
+    
+    # a single CDR will be recorded
+    assert_equal(2, out_queue.size)
+    assert_nil(out_queue[1])
+    
+    # and one CDR remains in the state
+    assert_equal(2, state.active_cdrs.size)
+  end  
 end
