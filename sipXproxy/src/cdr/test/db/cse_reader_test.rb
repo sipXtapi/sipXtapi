@@ -23,7 +23,7 @@ class CseReaderTest < Test::Unit::TestCase
       "failure_reason, request_uri FROM call_state_events " +
       "ORDER BY event_time", sql)
     
-    sql = CseReader.select_sql(Time.now, nil)
+    sql = CseReader.select_sql(nil, Time.now, nil)
     assert_equal("SELECT id, observer, event_seq, event_time, event_type, cseq, " +
       "call_id, from_tag, to_tag, " +
       "from_url, to_url, contact, refer_to, referred_by, failure_status, " +
@@ -31,7 +31,7 @@ class CseReaderTest < Test::Unit::TestCase
       "WHERE event_time >= ? " +
       "ORDER BY event_time", sql)    
     
-    sql = CseReader.select_sql(nil, Time.now)
+    sql = CseReader.select_sql(nil, nil, Time.now)
     assert_equal("SELECT id, observer, event_seq, event_time, event_type, cseq, " +
       "call_id, from_tag, to_tag, " +
       "from_url, to_url, contact, refer_to, referred_by, failure_status, " +
@@ -39,7 +39,7 @@ class CseReaderTest < Test::Unit::TestCase
       "WHERE event_time <= ? " +
       "ORDER BY event_time", sql)    
     
-    sql = CseReader.select_sql(Time.new, Time.new)
+    sql = CseReader.select_sql(nil, Time.new, Time.new)
     assert_equal("SELECT id, observer, event_seq, event_time, event_type, cseq, " +
       "call_id, from_tag, to_tag, " +
       "from_url, to_url, contact, refer_to, referred_by, failure_status, " +
@@ -47,6 +47,41 @@ class CseReaderTest < Test::Unit::TestCase
       "WHERE event_time >= ? AND event_time <= ? " +
       "ORDER BY event_time", sql)
   end
+
+  def test_select_sql_with_start_id
+    sql = CseReader.select_sql(1000)
+    assert_equal("SELECT id, observer, event_seq, event_time, event_type, cseq, " +
+      "call_id, from_tag, to_tag, " +
+      "from_url, to_url, contact, refer_to, referred_by, failure_status, " +
+      "failure_reason, request_uri FROM call_state_events " +
+      "WHERE id > ? " +
+      "ORDER BY event_time", sql)
+    
+    sql = CseReader.select_sql(1000, Time.now, nil)
+    assert_equal("SELECT id, observer, event_seq, event_time, event_type, cseq, " +
+      "call_id, from_tag, to_tag, " +
+      "from_url, to_url, contact, refer_to, referred_by, failure_status, " +
+      "failure_reason, request_uri FROM call_state_events " +
+      "WHERE id > ? AND event_time >= ? " +
+      "ORDER BY event_time", sql)    
+    
+    sql = CseReader.select_sql(1000, nil, Time.now)
+    assert_equal("SELECT id, observer, event_seq, event_time, event_type, cseq, " +
+      "call_id, from_tag, to_tag, " +
+      "from_url, to_url, contact, refer_to, referred_by, failure_status, " +
+      "failure_reason, request_uri FROM call_state_events " +
+      "WHERE id > ? AND event_time <= ? " +
+      "ORDER BY event_time", sql)    
+    
+    sql = CseReader.select_sql(1000, Time.new, Time.new)
+    assert_equal("SELECT id, observer, event_seq, event_time, event_type, cseq, " +
+      "call_id, from_tag, to_tag, " +
+      "from_url, to_url, contact, refer_to, referred_by, failure_status, " +
+      "failure_reason, request_uri FROM call_state_events " + 
+      "WHERE id > ? AND event_time >= ? AND event_time <= ? " +
+      "ORDER BY event_time", sql)  
+  end
+
   
   def test_delete_sql
     sql = CseReader.delete_sql(Time.new, Time.new)

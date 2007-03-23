@@ -51,11 +51,13 @@ class CallResolver
     cse_queue = Queue.new    
     
     reader_threads = @readers.collect do | reader |
-      Thread.new(reader, cse_queue) { |r, q| r.run(q, start_time, end_time) }
+      # TODO: we are passing nil as CSE start_id at them moment
+      # it would be better if we stored the last read id for every CSE database
+      Thread.new(reader, cse_queue) { |r, q| r.run(q, nil, start_time, end_time) }
     end
     
     # state copies from CSE queue to CDR queue
-    @state = State.new( cse_queue, cdr_queue )
+    @state = State.new(cse_queue, cdr_queue)
     
     Thread.new( @state ) { | state | 
       state.run
@@ -63,7 +65,7 @@ class CallResolver
     
     # create the SOAP server
     @server = CdrResolver::SOAP::Server.new(@state, @config)
-  
+    
     Thread.new( @server ) { | server | 
       server.start      
     }
@@ -104,9 +106,9 @@ class CallResolver
     return raw_queue unless CallDirectionPlugin.call_direction?(@config)    
     processed_queue = Queue.new
     
-    cdp = CallDirectionPlugin.new(raw_queu, processed_queue)  
+    cdp = CallDirectionPlugin.new(raw_queue, processed_queue)  
     Thread.new(cdp) { | plugin | plugin.run }
     
-    return cdr_queue
+    return processed_queue
   end  
 end
