@@ -1,2 +1,2 @@
 # script uses few resources so even every minute would be reasonable
-*/10 * * * * @SIPXPBXUSER@ @SIPX_BINDIR@/sipxconfig-report
+*/30 * * * * @SIPXPBXUSER@ @SIPX_BINDIR@/sipxconfig-report > /dev/null
