@@ -61,7 +61,7 @@
   <group name="time">
     <label>Time</label>
     <setting name='SNTP_server_1'>
-      <value>0.0.0.0</value>
+      <value/>
       <description>SNTP 1 IP address</description>
     </setting>
     <setting name='SNTP_server_2'>

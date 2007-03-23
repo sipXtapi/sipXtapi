@@ -646,7 +646,7 @@
   </group>
   <group name='NETTIME'>
     <setting name='sntp_server_address'>
-      <value>pool.ntp.org</value>
+      <value/>
     </setting>
     <setting name='interval'>
       <type>

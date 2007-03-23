@@ -47,6 +47,11 @@ public class LgNortelPhoneDefaults {
         return SipUri.stripSipPrefix(mohUri);
     }
 
+    @SettingEntry(path = "NETTIME/sntp_server_address")
+    public String getNtpServer() {
+        return m_defaults.getNtpServer();
+    }
+
     @SettingEntry(path = "VOIP/timezone")
     public int getTimezone() {
         // FIXME: need to translate into LG/Nortel timezone ID
