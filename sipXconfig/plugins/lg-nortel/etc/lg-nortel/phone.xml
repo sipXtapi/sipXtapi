@@ -24,7 +24,7 @@
     </boolean>
   </type>
   <type id="port-number">
-    <integer required="yes" min="1024" max="65534" />
+    <integer required="yes" max="65534" />
   </type>
   <type id="day-of-week">
     <enum>
