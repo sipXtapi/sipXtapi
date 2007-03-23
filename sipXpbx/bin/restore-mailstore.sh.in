@@ -50,9 +50,9 @@ then
         exit
 fi
 
-if [ -f /var/run/watchdog.pid ]
+if [ -f @SIPX_RUNDIR@/watchdog.pid ]
 then
-        echo "SIPxchange appears to be running. You must shut it down to restore."
+        echo "The sipX daemons appear to be running. You must shut it down to restore."
         exit
 fi
 
