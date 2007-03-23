@@ -114,7 +114,7 @@ do { \
 #endif
 
 #include <resparse/wnt/crypt.h>
-#ifndef WINCE6  /* WinCE 6 doesn't have signal.h or errno.h */
+#ifndef WINCE  /* WinCE doesn't have signal.h or errno.h */
 #include <signal.h>    /* SIGINT */
 #include <errno.h>
 #endif

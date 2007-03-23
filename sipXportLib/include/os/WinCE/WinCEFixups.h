@@ -20,7 +20,7 @@
 #include <winbase.h>
 #include <assert.h>
 #include <time.h>
-#ifdef WINCE6
+#ifdef WINCE
 #include <crtdefs.h>
 #endif
 
@@ -33,9 +33,11 @@
 #define ASSERT_AT(exp,file,line) (void)( (exp) || (ASSERT_PRINT(exp,file,line), DebugBreak(), 0 ) )
 #define assert(exp) ASSERT_AT(exp,__FILE__,__LINE__)
 
-#ifndef WINCE6
+#ifndef _WIN32_WCE
 typedef long intptr_t;
 #endif
+
+#define sprintf_s _snprintf
 
 struct _timeb
 {

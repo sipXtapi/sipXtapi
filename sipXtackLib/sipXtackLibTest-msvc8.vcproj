@@ -15,6 +15,9 @@
 			Name="Pocket PC 2003 (ARMV4)"
 		/>
 		<Platform
+			Name="Windows Mobile 5.0 Pocket PC SDK (ARMV4I)"
+		/>
+		<Platform
 			Name="sipx_CE60_emulator (ARMV4I)"
 		/>
 	</Platforms>
@@ -47,8 +50,8 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;C:\Documents and Settings\SIPez-user\My Documents\Visual Studio 2005\Projects\sipXtapi\sipXsdpLib\include&quot;;.\include;.\include\nss;..\sipXportLib\include;..\sipXsdpLib\include;..\sipXportLib\src\test;&quot;..\sipXbuild\vendors\Mozilla\wnt\nspr-4.4.1_dbg\include&quot;;&quot;..\sipXbuild\vendors\Mozilla\wnt\nss-3.9_dbg\include&quot;"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;_CRT_SECURE_NO_DEPRECATE"
+				AdditionalIncludeDirectories=".\include;.\include\nss;..\sipXportLib\include;..\sipXportLib\src\test;&quot;..\sipXbuild\vendors\Mozilla\wnt\nspr-4.4.1_dbg\include&quot;;&quot;..\sipXbuild\vendors\Mozilla\wnt\nss-3.9_dbg\include&quot;"
+				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -107,8 +110,8 @@
 		</Configuration>
 		<Configuration
 			Name="Debug|Pocket PC 2003 (ARMV4)"
-			OutputDirectory="Pocket PC 2003 (ARMV4)\$(ConfigurationName)"
-			IntermediateDirectory="Pocket PC 2003 (ARMV4)\$(ConfigurationName)"
+			OutputDirectory=".\Debug_ppc2003"
+			IntermediateDirectory=".\Debug_ppc2003\inttest"
 			ConfigurationType="1"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			CharacterSet="2"
@@ -133,10 +136,10 @@
 				Name="VCCLCompilerTool"
 				ExecutionBucket="7"
 				Optimization="0"
-				AdditionalIncludeDirectories=".\include;.\include\nss;..\sipXportLib\include;..\sipXsdpLib\include;..\sipXportLib\src\test;&quot;..\sipXbuild\vendors\Mozilla\wnt\nspr-4.4.1_dbg\include&quot;;&quot;..\sipXbuild\vendors\Mozilla\wnt\nss-3.9_dbg\include&quot;"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;WINCE;$(ARCHFAM);$(_ARCHFAM_);_WIN32_WCE=$(CEVER);UNDER_CE;$(PLATFORMDEFINES);PCRE_STATIC;WINCE6;SIPXTAPI_STATIC"
+				AdditionalIncludeDirectories="..\sipXsdpLib\include;.\include;.\include\nss;..\sipXportLib\include;..\sipXportLib\src\test"
+				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;WINCE;$(ARCHFAM);$(_ARCHFAM_);_WIN32_WCE=$(CEVER);UNDER_CE"
 				MinimalRebuild="true"
-				RuntimeLibrary="3"
+				RuntimeLibrary="1"
 				RuntimeTypeInfo="true"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
@@ -155,10 +158,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="msvcrtd.lib ws2.lib cppunit.lib sipXtackLib.lib sipXportLib.lib lib_pcre.lib ccrtrtti.lib toolhelp.lib"
+				AdditionalDependencies="ws2.lib ..\ppc2003\cppunitd_dll.lib sipXsdpLib.lib sipXtackLib.lib sipXportLib.lib ..\ppc2003\pcred.lib ccrtrtti.lib toolhelp.lib"
 				OutputFile="$(OutDir)/sipXtackLibTest.exe"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="&quot;.\$(OutDir)&quot;;&quot;..\sipXsdpLib\$(PlatformName)\$(ConfigurationName)&quot;;&quot;..\sipXportLib\$(PlatformName)\$(ConfigurationName)&quot;"
+				AdditionalLibraryDirectories="&quot;$(OutDir)\&quot;;&quot;..\sipXportLib\$(OutDir)\&quot;;&quot;..\sipXsdpLib\$(OutDir)\&quot;;&quot;..\sipXsdpLib\$(PlatformName)\$(ConfigurationName)&quot;;&quot;..\sipXportLib\$(PlatformName)\$(ConfigurationName)&quot;"
 				IgnoreDefaultLibraryNames=""
 				DelayLoadDLLs=""
 				GenerateDebugInformation="true"
@@ -191,9 +194,9 @@
 			/>
 		</Configuration>
 		<Configuration
-			Name="Debug|sipx_CE60_emulator (ARMV4I)"
-			OutputDirectory="sipx_CE60_emulator (ARMV4I)\$(ConfigurationName)"
-			IntermediateDirectory="sipx_CE60_emulator (ARMV4I)\$(ConfigurationName)"
+			Name="Debug|Windows Mobile 5.0 Pocket PC SDK (ARMV4I)"
+			OutputDirectory=".\Debug_Mobile5"
+			IntermediateDirectory=".\Debug_Mobile5\inttest"
 			ConfigurationType="1"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			CharacterSet="2"
@@ -218,13 +221,16 @@
 				Name="VCCLCompilerTool"
 				ExecutionBucket="7"
 				Optimization="0"
-				AdditionalIncludeDirectories=".\include;.\include\nss;..\sipXportLib\include;..\sipXportLib\src\test;&quot;..\sipXbuild\vendors\Mozilla\wnt\nspr-4.4.1_dbg\include&quot;;&quot;..\sipXbuild\vendors\Mozilla\wnt\nss-3.9_dbg\include&quot;"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
+				AdditionalIncludeDirectories="..\sipXsdpLib\include;.\include;.\include\nss;..\sipXportLib\include;..\sipXportLib\src\test"
+				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;WINCE;$(ARCHFAM);$(_ARCHFAM_);_WIN32_WCE=$(CEVER);UNDER_CE"
 				MinimalRebuild="true"
-				RuntimeLibrary="3"
+				RuntimeLibrary="1"
 				RuntimeTypeInfo="true"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
+				DebugInformationFormat="3"
+				ForcedIncludeFiles="os/wince/wincefixups.h"
+				InterworkCalls="true"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -237,15 +243,15 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="msvcrtd.lib MSVCPRTd.lib wsock32.lib cppunitd.lib sipXtackLib.lib sipXportLib.lib pcre.lib"
+				AdditionalDependencies="ws2.lib ..\ppc2003\cppunitd_dll.lib sipXsdpLib.lib sipXtackLib.lib sipXportLib.lib ..\ppc2003\pcred.lib ccrtrtti.lib toolhelp.lib"
 				OutputFile="$(OutDir)/sipXtackLibTest.exe"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories=".\Debug;..\sipXportLib\debug;..\sipXbuild\Vendors\Mozilla\wnt\nspr-3.4_dbg\lib;..\sipXbuild\Vendors\Mozilla\wnt\nss-3.9_dbg\lib;..\sipXbuild\vendors\Mozilla\wnt\nspr-4.4.1_dbg\lib"
-				IgnoreDefaultLibraryNames="msvcrt.lib;msvcprt.lib;msvcrt"
-				DelayLoadDLLs="nss3.dll;smime3.dll;nspr4.dll;plc4.dll;ssl3.dll"
+				AdditionalLibraryDirectories="&quot;$(OutDir)\&quot;;&quot;..\sipXportLib\$(OutDir)\&quot;;&quot;..\sipXsdpLib\$(OutDir)\&quot;;&quot;..\sipXsdpLib\$(PlatformName)\$(ConfigurationName)&quot;;&quot;..\sipXportLib\$(PlatformName)\$(ConfigurationName)&quot;"
+				IgnoreDefaultLibraryNames=""
+				DelayLoadDLLs=""
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(OutDir)/sipXtackLibTest.pdb"
-				SubSystem="1"
+				SubSystem="9"
 				TargetMachine="0"
 			/>
 			<Tool
@@ -354,8 +360,8 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Pocket PC 2003 (ARMV4)"
-			OutputDirectory="Pocket PC 2003 (ARMV4)\$(ConfigurationName)"
-			IntermediateDirectory="Pocket PC 2003 (ARMV4)\$(ConfigurationName)"
+			OutputDirectory=".\Release_ppc2003"
+			IntermediateDirectory=".\Release_ppc2003\inttest"
 			ConfigurationType="1"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			CharacterSet="2"
@@ -379,12 +385,14 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				ExecutionBucket="7"
-				AdditionalIncludeDirectories=".\include;.\include\nss;..\sipXportLib\include;..\sipXportLib\src\test;..\sipXbuild\vendors\Mozilla\wnt\nspr-4.4.1\include,..\sipXbuild\vendors\Mozilla\wnt\nss-3.9\include"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;"
-				RuntimeLibrary="2"
+				AdditionalIncludeDirectories="..\sipXsdpLib\include;.\include;.\include\nss;..\sipXportLib\include;..\sipXportLib\src\test"
+				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;WINCE;$(ARCHFAM);$(_ARCHFAM_);_WIN32_WCE=$(CEVER);UNDER_CE"
+				RuntimeLibrary="0"
+				RuntimeTypeInfo="true"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
-				DebugInformationFormat="3"
+				DebugInformationFormat="0"
+				ForcedIncludeFiles="os/WinCE/wincefixups.h"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -397,15 +405,179 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="msvcrt.lib MSVCPRT.lib wsock32.lib cppunit.lib sipXportLib.lib sipXtackLib.lib libpcre.a"
+				AdditionalDependencies="ws2.lib ..\ppc2003\cppunit_dll.lib sipXsdpLib.lib sipXtackLib.lib sipXportLib.lib ..\ppc2003\pcre.lib ccrtrtti.lib toolhelp.lib"
 				OutputFile="$(OutDir)/sipXtackLibTest.exe"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories=".\Release;..\sipXportLib\release;..\sipXbuild\Vendors\Mozilla\wnt\nspr-3.4\lib;..\sipXbuild\Vendors\Mozilla\wnt\nss-3.9\lib;..\sipXbuild\vendors\Mozilla\wnt\nspr-4.4.1\lib"
-				IgnoreDefaultLibraryNames="libcpmtd.lib;LIBCMTD.lib;libprt.lib;msvcrtd.lib;msvcprtd.lib"
+				AdditionalLibraryDirectories="&quot;$(OutDir)\&quot;;&quot;..\sipXportLib\$(OutDir)\&quot;;&quot;..\sipXsdpLib\$(OutDir)\&quot;;&quot;..\sipXsdpLib\$(PlatformName)\$(ConfigurationName)&quot;;&quot;..\sipXportLib\$(PlatformName)\$(ConfigurationName)&quot;"
+				IgnoreDefaultLibraryNames=""
 				GenerateDebugInformation="true"
-				SubSystem="1"
+				SubSystem="9"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
+				TargetMachine="0"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCCodeSignTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
+			<DeploymentTool
+				ForceDirty="-1"
+				RemoteDirectory=""
+				RegisterOutput="0"
+				AdditionalFiles=""
+			/>
+			<DebuggerTool
+			/>
+		</Configuration>
+		<Configuration
+			Name="Release|Windows Mobile 5.0 Pocket PC SDK (ARMV4I)"
+			OutputDirectory=".\Release_Mobile5"
+			IntermediateDirectory=".\Release_Mobile5\inttest"
+			ConfigurationType="1"
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
+			CharacterSet="2"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				TargetEnvironment="1"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				ExecutionBucket="7"
+				AdditionalIncludeDirectories="..\sipXsdpLib\include;.\include;.\include\nss;..\sipXportLib\include;..\sipXportLib\src\test"
+				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;WINCE;$(ARCHFAM);$(_ARCHFAM_);_WIN32_WCE=$(CEVER);UNDER_CE"
+				RuntimeLibrary="0"
+				RuntimeTypeInfo="true"
+				UsePrecompiledHeader="0"
+				WarningLevel="3"
+				DebugInformationFormat="0"
+				ForcedIncludeFiles="os/WinCE/wincefixups.h"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalDependencies="ws2.lib ..\ppc2003\cppunit_dll.lib sipXsdpLib.lib sipXtackLib.lib sipXportLib.lib ..\ppc2003\pcre.lib ccrtrtti.lib toolhelp.lib"
+				OutputFile="$(OutDir)/sipXtackLibTest.exe"
+				LinkIncremental="1"
+				AdditionalLibraryDirectories="&quot;$(OutDir)\&quot;;&quot;..\sipXportLib\$(OutDir)\&quot;;&quot;..\sipXsdpLib\$(OutDir)\&quot;;&quot;..\sipXsdpLib\$(PlatformName)\$(ConfigurationName)&quot;;&quot;..\sipXportLib\$(PlatformName)\$(ConfigurationName)&quot;"
+				IgnoreDefaultLibraryNames=""
+				GenerateDebugInformation="true"
+				SubSystem="9"
+				OptimizeReferences="2"
+				EnableCOMDATFolding="2"
+				TargetMachine="0"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCCodeSignTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
+			<DeploymentTool
+				ForceDirty="-1"
+				RemoteDirectory=""
+				RegisterOutput="0"
+				AdditionalFiles=""
+			/>
+			<DebuggerTool
+			/>
+		</Configuration>
+		<Configuration
+			Name="Debug|sipx_CE60_emulator (ARMV4I)"
+			OutputDirectory="sipx_CE60_emulator (ARMV4I)\$(ConfigurationName)"
+			IntermediateDirectory="sipx_CE60_emulator (ARMV4I)\$(ConfigurationName)"
+			ConfigurationType="1"
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
+			CharacterSet="2"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				TargetEnvironment="1"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				ExecutionBucket="7"
+				Optimization="0"
+				AdditionalIncludeDirectories=".\include;.\include\nss;..\sipXportLib\include;..\sipXportLib\src\test;&quot;..\sipXbuild\vendors\Mozilla\wnt\nspr-4.4.1_dbg\include&quot;;&quot;..\sipXbuild\vendors\Mozilla\wnt\nss-3.9_dbg\include&quot;"
+				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
+				MinimalRebuild="true"
+				RuntimeLibrary="3"
+				RuntimeTypeInfo="true"
+				UsePrecompiledHeader="0"
+				WarningLevel="3"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalDependencies="msvcrtd.lib MSVCPRTd.lib wsock32.lib cppunitd.lib sipXtackLib.lib sipXportLib.lib pcre.lib"
+				OutputFile="$(OutDir)/sipXtackLibTest.exe"
+				LinkIncremental="2"
+				AdditionalLibraryDirectories=".\Debug;..\sipXportLib\debug;..\sipXbuild\Vendors\Mozilla\wnt\nspr-3.4_dbg\lib;..\sipXbuild\Vendors\Mozilla\wnt\nss-3.9_dbg\lib;..\sipXbuild\vendors\Mozilla\wnt\nspr-4.4.1_dbg\lib"
+				IgnoreDefaultLibraryNames="msvcrt.lib;msvcprt.lib;msvcrt"
+				DelayLoadDLLs="nss3.dll;smime3.dll;nspr4.dll;plc4.dll;ssl3.dll"
+				GenerateDebugInformation="true"
+				ProgramDatabaseFile="$(OutDir)/sipXtackLibTest.pdb"
+				SubSystem="1"
 				TargetMachine="0"
 			/>
 			<Tool

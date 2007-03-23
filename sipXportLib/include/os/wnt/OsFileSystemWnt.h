@@ -43,7 +43,7 @@
 #	include <fcntl.h> 
 #endif
 
-#ifndef WINCE6
+#ifndef WINCE
 #include <errno.h>
 #endif
 

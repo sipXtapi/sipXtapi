@@ -21,7 +21,7 @@
 
 #include <stdlib.h>
 
-#ifndef WINCE6
+#ifndef WINCE
 #include <errno.h>
 #endif
 

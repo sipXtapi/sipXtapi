@@ -872,6 +872,13 @@ long CE_RegOpenKeyExA (	 HKEY hKey,
 	return NULL;
 }
 
+MMRESULT timeKillEvent(
+  UINT uTimerID  
+)
+{
+       printf( "timeKillEvent( ) NOT IMPLEMENTED\n" );
+       return NULL;
+}
 
 /* Came from mmsystem.h */
 MMRESULT WINAPI timeSetEvent( UINT           uDelay,      
@@ -930,7 +937,7 @@ time_t mktime(struct tm *t)
         return(result);
 }
 
-#ifdef WINCE6
+#ifdef WINCE
 // Wince6 has the function prototype for GetFileAttributesA, but no definition,
 // so we'll define one here.
 DWORD

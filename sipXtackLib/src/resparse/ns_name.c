@@ -23,7 +23,7 @@
 #else
 #   include <sys/types.h>
 #endif
-#ifndef WINCE6 /* no errno.h under WinCE 6.0 */
+#ifndef WINCE /* no errno.h under WinCE */
 #include <errno.h>
 #endif
 
