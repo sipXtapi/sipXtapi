@@ -155,8 +155,8 @@
 
   <target name="reset-speeddial" if="speeddial">
     <sipx-sql>
+      drop table speeddial_button;
       drop table speeddial;
-      drop table speeddial_button
       drop sequence speeddial_seq;
       delete from patch where name = 'speeddial'
     </sipx-sql>    
