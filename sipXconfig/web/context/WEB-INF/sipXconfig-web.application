@@ -123,7 +123,6 @@
     <component-type type="FieldPanel" specification-path="common/FieldPanel.jwc"/>
     <component-type type="FlexiblePropertySelection" specification-path="common/FlexiblePropertySelection.jwc"/>
     <component-type type="ExportLink" specification-path="common/ExportLink.jwc"/>
-    <component-type type="Footer" specification-path="common/Footer.jwc"/>
     <component-type type="FormActions" specification-path="common/FormActions.jwc"/>
     <component-type type="GatewayCallerAliasInfoPanel" specification-path="gateway/GatewayCallerAliasInfoPanel.jwc"/>
     <component-type type="GatewaysPanel" specification-path="gateway/GatewaysPanel.jwc"/>

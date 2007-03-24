@@ -11,6 +11,8 @@
  */
 package org.sipfoundry.sipxconfig.common;
 
+import org.apache.commons.lang.StringUtils;
+
 import junit.framework.TestCase;
 
 public class VersionInfoTest extends TestCase {
@@ -18,7 +20,7 @@ public class VersionInfoTest extends TestCase {
     public void testGetLongVersionStringEmpty() {
         // no package information during tests
         VersionInfo info = new VersionInfo();
-        assertEquals(" ()", info.getVersionString());
+        assertEquals("", info.getVersion());
     }
     
     public void testGetVersionIds() {
@@ -28,22 +30,31 @@ public class VersionInfoTest extends TestCase {
         assertEquals(34, ids[1].intValue());
         assertEquals(56, ids[2].intValue());
         assertEquals(0, VersionInfo.versionStringToVersionIds(null).length);
-    }
-
-    public void testGetLongVersionString() {
+    }    
+    
+    public void testVersionDetails() {
         VersionInfo info = new VersionInfo() {
-            public String getBuild() {
-                return "build";
-            }
-
-            public String getTitle() {
-                return "title";
+            String getBuildStamp() {
+                return "date host";
             }
 
             public String getVersion() {
                 return "version";
             }
         };
-        assertEquals("version (build)", info.getVersionString());
+        assertEquals("version|date|host", StringUtils.join(info.getVersionDetails(), '|'));
+    }
+
+    public void testVersionDetailsNoJar() {
+        VersionInfo info = new VersionInfo() {
+            String getBuildStamp() {
+                return null;
+            }
+
+            public String getVersion() {
+                return null;
+            }
+        };
+        assertEquals("|", StringUtils.join(info.getVersionDetails(), '|'));
     }
 }
