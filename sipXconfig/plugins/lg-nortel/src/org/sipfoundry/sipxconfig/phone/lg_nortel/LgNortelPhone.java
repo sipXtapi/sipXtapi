@@ -11,6 +11,7 @@
  */
 package org.sipfoundry.sipxconfig.phone.lg_nortel;
 
+import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
@@ -21,10 +22,12 @@ import org.sipfoundry.sipxconfig.device.ProfileContext;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineInfo;
 import org.sipfoundry.sipxconfig.phone.Phone;
+import org.sipfoundry.sipxconfig.phonebook.PhonebookEntry;
 import org.sipfoundry.sipxconfig.speeddial.SpeedDial;
 
 public class LgNortelPhone extends Phone {
     public static final String BEAN_ID = "lg-nortel";
+    private String m_phonebookFilename = "{0}-phonebook.csv";
 
     public LgNortelPhone() {
         super(BEAN_ID);
@@ -38,7 +41,7 @@ public class LgNortelPhone extends Phone {
     public String getPhoneTemplate() {
         return "lg-nortel/mac.cfg.vm";
     }
-
+    
     @Override
     public void initializeLine(Line line) {
         DeviceDefaults phoneDefaults = getPhoneContext().getPhoneDefaults();
@@ -52,6 +55,25 @@ public class LgNortelPhone extends Phone {
         int lines = getLines().size();
         LgNortelPhoneDefaults defaults = new LgNortelPhoneDefaults(phoneDefaults, lines);
         addDefaultBeanSettingHandler(defaults);
+    }
+    
+    @Override
+    public void generateProfiles() {
+        super.generateProfiles();
+        generatePhonebook();
+    }
+    
+    void generatePhonebook() {
+        Collection<PhonebookEntry> entries = getPhoneContext().getPhonebookEntries(this);
+        if (entries != null && entries.size() > 0) {
+            LgNortelPhonebook phonebook = new LgNortelPhonebook(entries);
+            getProfileGenerator().generate(phonebook, getPhonebookFilename());
+        }
+    }
+
+    @Override
+    public void removeProfiles() {
+        getProfileGenerator().remove(getPhonebookFilename());
     }
 
     @Override
@@ -106,5 +128,13 @@ public class LgNortelPhone extends Phone {
     @Override
     public void restart() {
         sendCheckSyncToFirstLine();
+    }
+
+    public void setPhonebookFilename(String phonebookFilename) {
+        m_phonebookFilename = phonebookFilename;
+    }
+    
+    public String getPhonebookFilename() {
+        return MessageFormat.format(m_phonebookFilename, getSerialNumber().toUpperCase());
     }
 }
