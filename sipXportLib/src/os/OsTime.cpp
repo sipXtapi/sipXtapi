@@ -146,21 +146,21 @@ OsTime OsTime::operator-=(const OsTime& rhs)
 }
 
 // Test for equality operator
-bool OsTime::operator==(const OsTime& rhs)
+bool OsTime::operator==(const OsTime& rhs) const
 {
    return (this->mSeconds == rhs.mSeconds) &&
           (this->mUsecs   == rhs.mUsecs);
 }
 
 // Test for inequality operator
-bool OsTime::operator!=(const OsTime& rhs)
+bool OsTime::operator!=(const OsTime& rhs) const
 {
    return (this->mSeconds != rhs.mSeconds) ||
           (this->mUsecs   != rhs.mUsecs);
 }
 
 // Test for greater than
-bool OsTime::operator>(const OsTime& rhs)
+bool OsTime::operator>(const OsTime& rhs) const
 {
    if (this->mSeconds >= 0)
    {  // "this" is a positive time value
@@ -177,7 +177,7 @@ bool OsTime::operator>(const OsTime& rhs)
 }
 
 // Test for greater than or equal
-bool OsTime::operator>=(const OsTime& rhs)
+bool OsTime::operator>=(const OsTime& rhs) const
 {
    if (this->mSeconds >= 0)
    {  // "this" is a positive time value
@@ -194,7 +194,7 @@ bool OsTime::operator>=(const OsTime& rhs)
 }
 
 // Test for less than
-bool OsTime::operator<(const OsTime& rhs)
+bool OsTime::operator<(const OsTime& rhs) const
 {
    if (this->mSeconds >= 0)
    {  // "this" is a positive time value
@@ -211,7 +211,7 @@ bool OsTime::operator<(const OsTime& rhs)
 }
 
 // Test for less than or equal
-bool OsTime::operator<=(const OsTime& rhs)
+bool OsTime::operator<=(const OsTime& rhs) const
 {
    if (this->mSeconds >= 0)
    {  // "this" is a positive time value

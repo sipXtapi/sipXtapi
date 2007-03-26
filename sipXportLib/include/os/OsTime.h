@@ -78,22 +78,22 @@ public:
    OsTime operator-=(const OsTime& rhs);
      //:Decrement operator
 
-   bool operator==(const OsTime& rhs);
+   bool operator==(const OsTime& rhs) const;
      //:Test for equality operator
 
-   bool operator!=(const OsTime& rhs);
+   bool operator!=(const OsTime& rhs) const;
      //:Test for inequality operator
 
-   bool operator>(const OsTime& rhs);
+   bool operator>(const OsTime& rhs) const;
      //:Test for greater than
 
-   bool operator>=(const OsTime& rhs);
+   bool operator>=(const OsTime& rhs) const;
      //:Test for greater than or equal
 
-   bool operator<(const OsTime& rhs);
+   bool operator<(const OsTime& rhs) const;
      //:Test for less than
 
-   bool operator<=(const OsTime& rhs);
+   bool operator<=(const OsTime& rhs) const;
      //:Test for less than or equal
 
 /* ============================ ACCESSORS ================================= */
