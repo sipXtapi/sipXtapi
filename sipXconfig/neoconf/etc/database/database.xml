@@ -134,7 +134,6 @@
     <antcall target="phonebook"/>
     <antcall target="clear-uploads"/>
     <antcall target="speeddial"/>
-    <antcall target="blf"/>
     <antcall target="acd"/>
     <antcall target="acd_agents"/>
     <antcall target="acd_ext"/>
@@ -179,10 +178,6 @@
     <db-patch patch="service"/>
   </target>
 
-  <target name="blf" unless="blf">
-    <db-patch patch="blf"/>
-  </target>
-	
   <target name="clear-uploads" unless="clear-uploads">
     <db-patch patch="clear-uploads"/>    
   </target>
