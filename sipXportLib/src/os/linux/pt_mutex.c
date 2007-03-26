@@ -13,7 +13,7 @@
 * the rest of the OS dependent files to that interface, we can just drop in a
 * mostly-compatible replacement written in C (like pthreads itself) that uses
 * the pthread_cond_timedwait function and a mutex to build all the other
-* synchronization objecs with timeout capabilities. */
+* synchronization objects with timeout capabilities. */
 
 /* This is the mutex implementation. */
 
@@ -43,12 +43,12 @@ int pt_mutex_lock(pt_mutex_t *mutex)
            while(retval == 0 && mutex->count)
            {
               retval = pthread_cond_wait(&mutex->cond,&mutex->mutex);
-        }
+           }
            switch ( retval )
            {
            case 0: // retval and count are 0, we now own the mutex
-        mutex->count=1;
-        mutex->thread=pthread_self();
+              mutex->count=1;
+              mutex->thread=pthread_self();
               break;
 
            default: // all error cases
@@ -78,16 +78,16 @@ int pt_mutex_timedlock(pt_mutex_t *mutex,const struct timespec *timeout)
            while(0 == retval && mutex->count)
            {
               retval = pthread_cond_timedwait(&mutex->cond,&mutex->mutex,timeout);
-        }
+           }
            switch ( retval )
-        {
+           {
            case 0: // retval and count are 0, we now own the mutex
-                mutex->count=1;
-                mutex->thread=pthread_self();
+              mutex->count=1;
+              mutex->thread=pthread_self();
               break;
 
            case ETIMEDOUT:  // timed out waiting for count to be 0
-        errno=EAGAIN;
+              errno=EAGAIN;
               retval = -1;
               break;
 
@@ -119,7 +119,7 @@ int pt_mutex_trylock(pt_mutex_t *mutex)
         }
         else
         {
-        errno=EAGAIN;
+           errno=EAGAIN;
            retval = -1;
         }
 
@@ -133,11 +133,11 @@ int pt_mutex_unlock(pt_mutex_t *mutex)
 
         if(mutex->count)
         {
-                mutex->count--;
-                if(!mutex->count)
-                {
-                   pthread_cond_broadcast(&mutex->cond);
-                }
+           mutex->count--;
+           if(!mutex->count)
+           {
+              pthread_cond_broadcast(&mutex->cond);
+           }
         }
         pthread_mutex_unlock(&mutex->mutex);
         return 0;
@@ -147,8 +147,8 @@ int pt_mutex_destroy(pt_mutex_t *mutex)
 {
         if(mutex->count)
         {
-                errno=EBUSY;
-                return -1;
+           errno=EBUSY;
+           return -1;
         }
         assert(0 == (pthread_mutex_destroy(&mutex->mutex) | pthread_cond_destroy(&mutex->cond)));
         return 0;

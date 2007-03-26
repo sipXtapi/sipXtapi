@@ -76,7 +76,7 @@ OsStatus OsMutexLinux::acquire(const OsTime& rTimeout)
    }
    else
    {
-   OsUtilLinux::cvtOsTimeToTimespec(rTimeout, &timeout);
+      OsUtilLinux::cvtOsTimeToTimespec(rTimeout, &timeout);
       status = (pt_mutex_timedlock(&mMutexImp, &timeout) == POSIX_OK)
          ? OS_SUCCESS : OS_WAIT_TIMEOUT;
    }
