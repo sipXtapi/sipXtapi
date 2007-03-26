@@ -11,6 +11,7 @@
   <parameter name="columns" required="yes" />
   <parameter name="converter" required="no" />
   <parameter name="initialSortColumn" required="no" />
+  <parameter name="initialSortOrder" required="no" default-value="true" />
   <parameter name="row" required="no"/>
   <parameter name="rowInfo" required="no" default-value="bean:defaultRowInfo" />
   <parameter name="rowClass" required="no" default-value="bean:rowClass" />
@@ -34,6 +35,7 @@
     <binding name="columns" value="columns" />
     <binding name="pageSize" value="usePager ? tableVariables.tablePageSize : -1" />
     <binding name="initialSortColumn" value="initialSortColumn" />
+    <binding name="initialSortOrder" value="initialSortOrder" />
     <binding name="element" value="literal:span" />
     <binding name="columnSettingsContainer" value="container" />
   </component>
