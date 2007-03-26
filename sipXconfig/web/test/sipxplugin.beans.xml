@@ -6,4 +6,9 @@
     class="org.sipfoundry.sipxconfig.site.skin.SkinProperties">
     <property name="locationPath" value="skin.properties"/>
   </bean>  
+  
+  <bean id="initializeTestSystem" class="org.sipfoundry.sipxconfig.site.InitializeTestSystem">
+    <property name="domainInitializer" ref="domainInitializer"/>   
+    <property name="replicationManagerImpl" ref="replicationManagerImpl"/>
+  </bean>
 </beans>
