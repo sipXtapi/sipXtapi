@@ -199,10 +199,21 @@ int StreamWAVFormatDecoder::run(void* pArgs)
    InitG711Tables();
  
    StreamDataSource* pSrc = getDataSource() ;
-
    if (pSrc != NULL)
    {
+      int streamLength = 0;
       // pSrc->open() ;
+      pSrc->getLength(streamLength);
+      if (streamLength == 0)	// empty file
+      {
+         Sample Click[80] = {0} ;  // one frame of "click" to give audible
+                                   // indication of some problem.
+         Click[39] = -200 ;
+         Click[40] = 20000 ;       // An impulse should do nicely
+         Click[41] = -200 ;
+         queueFrame((const unsigned short *)Click);
+         mbEnd = TRUE ;
+      }
       while (!mbEnd && nextDataChunk(iDataLength))
       {
          //we really want 80 SAMPLES not 80 bytes
@@ -346,6 +357,7 @@ int StreamWAVFormatDecoder::run(void* pArgs)
       }
       pSrc->close() ;
    }
+
 
    queueEndOfFrames() ;      
    syslog(FAC_STREAMING, PRI_DEBUG, "StreamWAVFormatDecoder::run queued %d frames", nQueuedFrames);
