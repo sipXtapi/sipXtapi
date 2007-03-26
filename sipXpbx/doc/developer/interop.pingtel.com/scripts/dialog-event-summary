@@ -21,6 +21,7 @@ open STDOUT, "| mail -s 'Dialog Event Report for $MyHostname' '$Recipients'";
 # Initialize the table of indentations.
 $indent{'dialog'} = '  ';
 $indent{'dialog-info'} = '';
+$indent{'duration'} = '      ';
 $indent{'identity'} = '        ';
 $indent{'local'} = '      ';
 $indent{'param'} = '          ';
