@@ -28,8 +28,8 @@
     <![CDATA[from ConfiguredService s where s.enabled = true and s.descriptorId = :descriptorId order by s.name ]]>
   </query>
   
-  <query name="services-by-name">
-    <![CDATA[from ConfiguredService s where s.name = :value]]>
+  <query name="service-ids-by-name">
+    <![CDATA[select s.id from ConfiguredService s where s.name = :value]]>
   </query>
 
 </hibernate-mapping>

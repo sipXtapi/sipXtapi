@@ -74,7 +74,7 @@ public abstract class ListConfiguredServices extends BasePage implements PageBeg
     public IPage formSubmit() {
         if (getServiceDescriptor() != null) {
             UnmanagedServicePage page = getUnmanagedServicePage();
-            page.setServiceDescriptor(getServiceDescriptor());
+            page.newService(getServiceDescriptor());
             page.setReturnPage(PAGE);
             return page;
         }
@@ -87,7 +87,7 @@ public abstract class ListConfiguredServices extends BasePage implements PageBeg
 
     public IPage edit(Integer serviceId) {
         UnmanagedServicePage page = getUnmanagedServicePage();
-        page.setServiceId(serviceId);
+        page.editService(serviceId);
         page.setReturnPage(PAGE);
         return page;
     }

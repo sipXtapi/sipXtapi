@@ -43,7 +43,16 @@ public abstract class UnmanagedServicePage extends PageWithCallback implements P
     public abstract ServiceDescriptor getServiceDescriptor();
     
     public abstract void setServiceDescriptor(ServiceDescriptor descriptor);
+    
+    public void newService(ServiceDescriptor descriptor) {
+        setServiceId(null);
+        setServiceDescriptor(descriptor);
+    }
 
+    public void editService(Integer serviceId) {
+        setServiceId(serviceId);
+    }
+    
     public void apply() {
         if (!getValidator().getHasErrors()) {
             getServiceManager().saveService(getService());

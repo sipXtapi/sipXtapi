@@ -58,6 +58,14 @@ public class ServiceManagerTestDb extends TestHelper.TestCaseDb {
             fail();
         } catch (UserException expected) {
             assertTrue(true);
-        }        
+        }
+    }
+    
+    public void testUpdate() throws Exception {
+        TestHelper.cleanInsert("ClearDb.xml");
+        TestHelper.cleanInsertFlat("service/ServiceSeed.db.xml");        
+        ConfiguredService ntp = m_manager.loadService(1000);
+        ntp.setAddress("1.1.1.2");
+        m_manager.saveService(ntp);        
     }
 }
