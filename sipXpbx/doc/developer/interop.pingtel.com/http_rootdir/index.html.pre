@@ -309,6 +309,9 @@ answered, the first extension called will receive a CANCEL when the
 next is called.  Make sure that your caller connects with the phone
 that answers, and that all the others correctly clean up the
 canceled requests.
+Note that ringing four contacts can take quite a while, and the
+calling phone or the sipX proxy may time out the call attempt before
+all four phones ring.
 </p>
 
 <h3><a name='pfork'>6</a>. Parallel Forking</h3>
