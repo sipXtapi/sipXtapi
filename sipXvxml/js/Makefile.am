@@ -2,7 +2,7 @@
 
 noinst_LTLIBRARIES = libjavascript.la
 
-libjavascript_la_CFLAGS = -DGCC_OPT_BUG -DXP_UNIX -DSVR4 -DSYSV -D_BSD_SOURCE -DPOSIX_SOURCE -DX86_LINX -DEDITLINE
+libjavascript_la_CFLAGS = -DGCC_OPT_BUG -DXP_UNIX -DSVR4 -DSYSV -D_BSD_SOURCE -DPOSIX_SOURCE -DX86_LINX -DEDITLINE -include ../config.h
 
 libjavascript_la_SOURCES= \
     src/jsapi.c     \
