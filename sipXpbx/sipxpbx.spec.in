@@ -198,3 +198,26 @@ else
   # SuSE
   insserv sipxpbx
 fi
+
+
+%preun
+# see http://fedoraproject.org/wiki/Packaging/ScriptletSnippets
+if [ $1 = 0 ]; then
+  /etc/init.d/sipxpbx stop &>/dev/null || :
+
+  if [ -x /sbin/chkconfig ]; then
+    # RedHat / Fedora
+    chkconfig --del sipxpbx
+  else
+    # SuSE
+    insserv -r sipxpbx
+  fi
+fi
+
+%postun
+# only restart when upgrade
+# do not put in post section because other dependencies have not 
+# run their post section yet.
+if [ "$1" -ge "1" ]; then
+  /etc/init.d/sipxpbx restart &>/dev/null || :
+fi
