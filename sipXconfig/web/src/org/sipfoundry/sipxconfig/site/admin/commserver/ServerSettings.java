@@ -66,6 +66,7 @@ public abstract class ServerSettings extends BasePage implements PageBeginRender
     }
 
     public IPage apply() {
+        getServer().applySettings();
         RestartReminder restartPage = getRestartReminderPage();
         restartPage.setNextPage(PAGE);
         return restartPage;
