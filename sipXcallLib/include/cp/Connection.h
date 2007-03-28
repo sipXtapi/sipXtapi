@@ -447,8 +447,6 @@ protected:
     int remoteRtcpPort;
 	int remoteVideoRtpPort;
 	int remoteVideoRtcpPort; 
-	int sendCodec;
-	int receiveCodec;
 	
 	int mLocalConnectionState;
 	int mRemoteConnectionState;

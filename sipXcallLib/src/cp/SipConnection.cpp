@@ -1353,7 +1353,6 @@ UtlBoolean SipConnection::answer(const void* pDisplay)
                         // if we have a send codec chosen Start sending media
                         if(numMatchingCodecs > 0)
                         {
-                            SdpCodec recvCodec((SdpCodec::SdpCodecTypes) receiveCodec);
                             mpMediaInterface->startRtpReceive(mConnectionId,
                                     numMatchingCodecs, matchingCodecs);
                             fireAudioStartEvents() ;
@@ -1538,7 +1537,6 @@ UtlBoolean SipConnection::accept(int ringingTimeOutSeconds,
             // Try to setup for early receipt of media.
             if(numMatchingCodecs > 0)
             {
-                SdpCodec recvCodec((SdpCodec::SdpCodecTypes) receiveCodec);
                 mpMediaInterface->startRtpReceive(mConnectionId,
                         numMatchingCodecs, matchingCodecs);
                 fireAudioStartEvents();
@@ -3835,8 +3833,6 @@ void SipConnection::processNotifyRequest(const SipMessage* request)
 
 void SipConnection::processAckRequest(const SipMessage* request)
 {
-    //UtlBoolean receiveCodecSet;
-    //UtlBoolean sendCodecSet;
     int requestSequenceNum = 0;
     UtlString requestSeqMethod;
 
