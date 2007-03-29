@@ -2,19 +2,74 @@
   - Manages database creation, dropping and upgrading.  The file is processed
   - by ANT and thus the format complies with ANT project files.
   -
-  - How to add a database patch:
-  -   1. add sql commands to a file called X in this directory, where X is any
-  -      value you choose
-  -   2. define a target X by copying a patch in the section for the database version
+  - How to add a database patch for a new feature
+  -
+  -   1. add sql commands to a file called xxx.sql in this directory, where xxx is any
+  -      meaningful label you choose to represent your new feature
+  -
+  -   2. define a ant target xxx by copying a patch in the section for the database version
   -      defined at the top of schema.sql
-  -   3. Add a sql file reference to build.xml (this may go away)
   -
-  - How to initialize tables beyond simple SQL.
-  -   1. Add this to your SQL patch file
+  -      Example:
+
+  <target name="xxx" unless="xxx">
+    <db-patch patch="xxx"/>
+  </target>
+
   -
-  -       insert into initialization_task (name) values ('Z');
+  -   3. add a reference to your patch in the ant target for the last version
   - 
-  -   2. Follow instructions in InitializationTask.java
+  -      Example:
+  -
+  <target name="versionN" description="upgrade from version N-1" unless="versionN+1">
+...
+   <antcall target="xxx"/>  
+
+
+  -
+  - How to run some code to initialize tables beyond simple SQL.  
+  -  1. Follow the same instructions for adding a patch and add this to your SQL
+  -
+  -       insert into initialization_task (name) values ('xxx');
+  -
+  -    where 'xxx' is any meaningful lable you choose to represent your new operation
+  - 
+  -   2. The follow instructions in 
+  -
+  -        sipXconfig/neoconf/src/org/sipfoundry/sipXconfig/common/InitializationTask.java
+  -
+  -     on how to catch the initialization task event
+  -
+  -
+  - How to can a database patch that will reset itself incase you anticipate more changes to the
+  - schema.  Otherwise, you end up writing patches to the patches, and this can be messy.  The only
+  - disadvantage to this is that each time the system starts up, your data will be reset, but for 
+  - brand new features in development, this is usually accepatable
+  -
+  - 1. Create sql patch file as you normally would and add a reference to it in the versionN section
+  -
+  - 2. By altering the dependency you will be telling ant to always reset and always apply your patch
+
+ 
+  <target name="reset-xxx" if="xxx">
+     <sipx-sql>
+      drop table aaa_bbb;
+      drop sequence aaa_bbb_seq;
+      delete from patch where name = 'xxx
+    </sipx-sql>
+  </target>
+
+  <target name="xxx" depends="reset-xxx">
+    <db-patch patch="xxx"/>
+  </target>
+
+  -
+  -  TO TEST AND USE YOUR PATCH
+  -
+  -    cd sipXconfig/neoconf
+  -    ant reset-db
+  -
+  -
   -->
 <project name="database" basedir=".">
   <property name="sipxconfig.db.name" value="SIPXCONFIG"/>
