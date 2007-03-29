@@ -193,10 +193,15 @@
     <antcall target="acd_agents"/>
     <antcall target="acd_ext"/>
     <antcall target="service"/>
+    <antcall target="enable-schedule"/>
     <!-- When freezing schema uncomment this line -->
     <!-- sipx-version version="6" -->
   </target>	
 	
+  <target name="enable-schedule" unless="enable-schedule">
+    <db-patch patch="enable-schedule"/>
+  </target>
+
   <!-- only temporary user/developer convenience until 3.8 ships -->
   <target name="reset-old-phonebook">
     <sipx-sql>
