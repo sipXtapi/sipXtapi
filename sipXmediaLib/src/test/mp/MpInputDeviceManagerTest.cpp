@@ -249,7 +249,7 @@ public:
         readerTask.start();
 
         // wait for frames to be read with slop time
-        int readerTaskWait = framePeriodMilliseconds * 1.5 * numBufferedFrames;
+        int readerTaskWait = (int)(framePeriodMilliseconds * 1.5 * numBufferedFrames);
         printf("waiting: %d for reader to finish\n", readerTaskWait);
         OsTask::delay(readerTaskWait);
         printf("done waiting for reader\n");
@@ -278,7 +278,7 @@ public:
 
             // Calculate the reference frame data
             actualSamples = storedSignal[frameIndex]->getSamples();
-            for(sampleIndex = 0; sampleIndex < samplesPerFrame; sampleIndex++)
+            for(sampleIndex = 0; (unsigned)sampleIndex < samplesPerFrame; sampleIndex++)
             {
                 referenceSamples[sampleIndex] =
                     MpSineWaveGeneratorDeviceDriver::calculateSample(frameTime, 
