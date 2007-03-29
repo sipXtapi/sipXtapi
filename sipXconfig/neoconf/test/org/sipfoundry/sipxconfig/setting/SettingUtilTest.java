@@ -35,11 +35,11 @@ public class SettingUtilTest extends TestCase {
 
     public void testIsLeaf() {
         SettingSet root = new SettingSet();
-        assertTrue(SettingUtil.isLeaf(root));
+        assertTrue(root.isLeaf());
         SettingSet child = new SettingSet("child1");
         root.addSetting(child);
-        assertFalse(SettingUtil.isLeaf(root));
-        assertTrue(SettingUtil.isLeaf(child));
+        assertFalse(root.isLeaf());
+        assertTrue(child.isLeaf());
     }
 
     public void testIsAdvancedIncludingParents() {

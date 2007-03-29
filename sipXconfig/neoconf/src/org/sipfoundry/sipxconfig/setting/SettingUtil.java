@@ -68,10 +68,6 @@ public final class SettingUtil {
         return false;
     }
 
-    public static boolean isLeaf(Setting setting) {
-        return setting.getValues().isEmpty();
-    }
-
     static class FilterRunner implements SettingVisitor {
         private Collection<Setting> m_collection = new ArrayList<Setting>();
 

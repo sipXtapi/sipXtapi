@@ -87,6 +87,8 @@ public interface Setting extends Cloneable {
     boolean isAdvanced();
 
     boolean isHidden();
+    
+    boolean isLeaf();
 
     Setting copy();
 

@@ -254,5 +254,9 @@ public abstract class AbstractSetting implements Setting, NamedObject {
         return child.getSetting(remainder);
     }
 
+    public boolean isLeaf() {
+        return getValues().isEmpty();
+    }
+
     protected abstract Setting findChild(String name);
 }

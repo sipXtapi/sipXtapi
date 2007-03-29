@@ -1,14 +1,20 @@
 ## Velocity macros
 ## emit 'setting value' pair
 #macro(emit_setting $s)
+#if($s.Leaf)
 ${s.ProfileName}=$!{s.Value}
+#end
+#end
+## emit setting line for every setting in the group
+#macro(emit_group_content $g)
+#foreach ($s in $g.Values)
+#emit_setting($s)
+#end
 #end
 ## emit setting line for every setting in the group
 #macro(emit_group $g)
 [${g.ProfileName}]
-#foreach ($s in $g.Values)
-#emit_setting($s)
-#end
+#emit_group_content($g)
 #end
 ## emit setting line for some settings in the group
 #macro(emit_settings $g $setting_names)
@@ -57,7 +63,14 @@ ${s.ProfileName}=$!{s.Value}
 TRUNKGROUP_$tg_conf_index=#emit_csv_index($trunks $tg_index ['ChannelRange', 'StartPhoneNumber', 'HuntGroupNumber'])
 #end
 
-#emit_groups_by_name(['Telephony', 'Voice'])
+#emit_groups_by_name(['Telephony'])
+[Voice]
+#foreach ($codec in $codecs)
+CoderName=$codec
+#end
+#set($voice = $gateway.Settings.getSetting('Voice'))
+#emit_group_content($voice)
+
 [Call_Routing]
 #set($cr = $gateway.Settings.getSetting('Call_Routing'))
 #set($prefix = $cr.getSetting('PREFIX'))

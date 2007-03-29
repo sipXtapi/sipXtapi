@@ -22,7 +22,7 @@
   if CDATA #IMPLIED
   unless CDATA #IMPLIED
   copy-of NMTOKEN #IMPLIED>
-<!ELEMENT collection (label?,setting*)>
+<!ELEMENT collection (label?,setting*,description?)>
 <!ATTLIST collection 
   name NMTOKEN #REQUIRED
   size CDATA #REQUIRED

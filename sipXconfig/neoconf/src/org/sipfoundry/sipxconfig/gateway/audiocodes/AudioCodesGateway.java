@@ -11,6 +11,8 @@
  */
 package org.sipfoundry.sipxconfig.gateway.audiocodes;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
@@ -18,6 +20,7 @@ import org.sipfoundry.sipxconfig.device.ProfileContext;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
+import org.sipfoundry.sipxconfig.setting.SettingArray;
 
 public abstract class AudioCodesGateway extends Gateway {
     private static final String MAC_PREFIX = "00908F";
@@ -69,7 +72,21 @@ public abstract class AudioCodesGateway extends Gateway {
             Map<String, Object> context = super.getContext();
             // $$ is used as ignore value
             context.put("ignore", "$$");
+            context.put("codecs", getCodecs());
             return context;
+        }
+
+        private String[] getCodecs() {
+            BeanWithSettings gateway = getDevice();
+            SettingArray codecs = (SettingArray) gateway.getSettings().getSetting("Voice/Codecs");
+            List<String> list = new ArrayList<String>(codecs.getSize());
+            for (int i = 0; i < codecs.getSize(); i++) {
+                String codecName = (String) codecs.getSetting(i, "CoderName").getTypedValue();
+                if (StringUtils.isNotBlank(codecName) && !list.contains(codecName)) {
+                    list.add(codecName);
+                }
+            }
+            return list.toArray(new String[list.size()]);
         }
     }
 }

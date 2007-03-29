@@ -101,4 +101,8 @@ public class SettingArray extends AbstractSetting {
     public Setting getSetting(int index, String column) {
         return m_elements[index].get(column);
     }
+    
+    public boolean isLeaf() {
+        return false;
+    }
 }
