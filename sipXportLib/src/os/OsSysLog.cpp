@@ -15,7 +15,6 @@
 #include <stdio.h>
 #include <ctype.h>
 
-
 // APPLICATION INCLUDES
 #include "utl/UtlDefs.h"
 #include "os/OsSysLog.h"
@@ -75,7 +74,7 @@ const char* OsSysLog::sPriorityNames[] =
 
 // LOCAL FUNCTIONS
 static void mysprintf(UtlString& results, const char* format, ...) ;
-static void myvsprintf(UtlString& results, const char* format, OS_VA_ARG_CONST va_list args) ;
+static void myvsprintf(UtlString& results, const char* format, va_list& args) ;
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
@@ -243,43 +242,18 @@ OsStatus OsSysLog::add(const char*            taskName,
                        const char*            format,
                                               ...)
 {
-   OsStatus rc = OS_UNSPECIFIED;
+   OsStatus rc;
 
-   // If the log has not been initialized, print everything
-   if (spOsSysLogTask == NULL)
-   {
-      // Convert the variable arguments into a single string
-      UtlString data ;
-      va_list ap;
-      va_start(ap, format); 
-      myvsprintf(data, format, ap) ;
-      data = escape(data) ;
-      va_end(ap);
-
-      // Display all of the data
-      osPrintf("%s %s %s 0x%08X %s\n", 
-            OsSysLog::sFacilityNames[facility], 
-            OsSysLog::sPriorityNames[priority],
-            (taskName == NULL) ? "" : taskName, 
-            taskId,
-            data.data()) ;
-
-      rc = OS_SUCCESS ;
-   }
-   // Otherwise make sure we want to handle the log entry before we process
+   // Make sure we want to handle the log entry before we process
    // the variable arguments.
-   else
+   if (willLog(facility, priority))
    {
-      if (willLog(facility, priority))
-      {
-         va_list ap;
-         va_start(ap, format);
-         osPrintf("before add::vadd") ;
-         rc = vadd(taskName, taskId, facility, priority, format, ap);
-         osPrintf("after add::vadd") ;
-         va_end(ap);
-      }  
-   }
+      va_list ap;
+      va_start(ap, format);
+      rc = vadd(taskName, taskId, facility, priority, format, ap);
+      va_end(ap);
+   }  
+
    return rc;
 }
 
@@ -290,32 +264,26 @@ OsStatus OsSysLog::add(const OsSysLogFacility facility,
                        const char*            format,
                                               ...)
 {
-   OsStatus rc = OS_UNSPECIFIED;
+   OsStatus rc;
 
-   // If the log has not been initialized, print everything
-   if (spOsSysLogTask != NULL)
+   if (willLog(facility, priority))
    {
-      if (willLog(facility, priority))
+      UtlString taskName ;
+      int       taskId = 0 ;
+
+      va_list ap;
+      va_start(ap, format);
+
+      OsTaskBase* pBase = OsTask::getCurrentTask() ;
+      if (pBase != NULL)
       {
-         UtlString taskName ;
-         int      taskId = 0 ;
-
-         va_list ap;
-         va_start(ap, format);
-
-         OsTaskBase* pBase = OsTask::getCurrentTask() ;
-         if (pBase != NULL)
-         {
-            taskName = pBase->getName() ;
-            pBase->id(taskId) ;
-         }
+         taskName = pBase->getName() ;
+         pBase->id(taskId) ;
+      }
          
-         rc = vadd(taskName.data(), taskId, facility, priority, format, ap);         
-         va_end(ap);
-      }  
+      rc = vadd(taskName.data(), taskId, facility, priority, format, ap);
+      va_end(ap);
    }
-   else
-      rc = OS_SUCCESS ;
 
    return rc;
 }
@@ -326,17 +294,31 @@ OsStatus OsSysLog::vadd(const char*            taskName,
                         const OsSysLogFacility facility,
                         const OsSysLogPriority priority,
                         const char*            format,
-                        const va_list          ap)
+                        va_list&               ap)
 {
-   // If the log has not been initialized, print everything to the console
-   if (spOsSysLogTask != NULL)
+   if (willLog(facility, priority))
    {
-      if (willLog(facility, priority))
+      UtlString logData;
+      myvsprintf(logData, format, ap) ;
+      logData = escape(logData) ;
+
+      // If the log has not been initialized, print to the console in a
+      // shorter format.
+      if (spOsSysLogTask == NULL)
       {
-         UtlString logData;
-         UtlString logEntry;
-         myvsprintf(logData, format, ap) ;
-         logData = escape(logData) ;
+         // Convert the variable arguments into a single string
+
+         // Display all of the data
+         osPrintf("%s %s %s 0x%08X %s\n", 
+                  OsSysLog::sFacilityNames[facility], 
+                  OsSysLog::sPriorityNames[priority],
+                  (taskName == NULL) ? "" : taskName, 
+                  taskId,
+                  logData.data()) ;
+      }
+      else
+      {
+         // Apply timestamps for messages that go into files.
 
          OsTime timeNow;
          OsDateTime::getCurTime(timeNow); 
@@ -345,44 +327,46 @@ OsStatus OsSysLog::vadd(const char*            taskName,
          UtlString   strTime ;
          logTime.getIsoTimeStringZus(strTime) ;
 
+         UtlString logEntry;
          mysprintf(logEntry, "\"%s\":%d:%s:%s:%s:%s:%08X:%s:\"%s\"",
-               strTime.data(),
-               ++sEventCount,
-               OsSysLog::sFacilityNames[facility], 
-               OsSysLog::sPriorityNames[priority],
-               sHostname.data(),
-               (taskName == NULL) ? "" : taskName,
-               taskId,
-               sProcessId.data(),
-               logData.data()) ;         
+                   strTime.data(),
+                   ++sEventCount,
+                   OsSysLog::sFacilityNames[facility], 
+                   OsSysLog::sPriorityNames[priority],
+                   sHostname.data(),
+                   (taskName == NULL) ? "" : taskName,
+                   taskId,
+                   sProcessId.data(),
+                   logData.data()) ;         
 
          // If the logger for some reason trys to log a message
          // there is a recursive problem.  Drop the message on the
          // floor for now.  This can occur if one of the os utilities
          // logs a message.
-         if(strcmp("syslog", taskName) == 0)
+         if (strcmp("syslog", taskName) == 0)
          {
-             // Just discard the log entry
-             //
-             // (rschaaf):
-             // NOTE: Don't try to use osPrintf() to emit the log entry since this
-             // can cause consternation for applications (e.g. CGIs) that expect to
-             // use stdout for further processing.
+            // Just discard the log entry
+            //
+            // (rschaaf):
+            // NOTE: Don't try to use osPrintf() to emit the log entry since this
+            // can cause consternation for applications (e.g. CGIs) that expect to
+            // use stdout for further processing.
          }
          else
          {
-             char* szPtr = strdup(logEntry.data()) ;
+            char* szPtr = strdup(logEntry.data()) ;
         
-             OsSysLogMsg msg(OsSysLogMsg::LOG, szPtr) ;
-             spOsSysLogTask->postMessage(msg) ;                 
+            OsSysLogMsg msg(OsSysLogMsg::LOG, szPtr) ;
+            spOsSysLogTask->postMessage(msg) ;                 
          }
       }
    }
+
    return OS_SUCCESS ;
 }
 
 
-// Clear the in memory log buffer
+// Clear the in-memory log buffer
 OsStatus OsSysLog::clearInMemoryLog()
 {
    OsStatus rc = OS_SUCCESS ;
@@ -869,10 +853,12 @@ void mysprintf(UtlString& results, const char* format, ...)
 
 
 // a version of vsprintf that stores results in an UtlString
-void myvsprintf(UtlString& results, const char* format, OS_VA_ARG_CONST va_list args)
+void myvsprintf(UtlString& results, const char* format, va_list& args)
 {    
-    /* Guess we need no more than 384 bytes. */
-    int n, size = 384;
+    /* Start by alocating 900 bytes.  The logs from a production
+     *  system show that 90% of messages are shorter than 900 bytes.
+     */
+    int n, size = 900;
     char *p;
 
     results.remove(0) ;
@@ -881,11 +867,15 @@ void myvsprintf(UtlString& results, const char* format, OS_VA_ARG_CONST va_list 
     while (p != NULL)
     {
         /* Try to print in the allocated space. */
-#ifdef _WIN32
-        n = _vsnprintf (p, size, format, args);
-#else
-        n = vsnprintf (p, size, format, args);
-#endif
+        {
+           // When printing the arguments, we must use a fresh copy of
+           // ap every time, because using a va_list in vsnprintf can
+           // modify it, and this vsnprintf is inside the while loop.
+           va_list ap;
+           va_copy (ap, args);
+           n = vsnprintf (p, size, format, ap);
+           va_end(ap);
+        }
 
         /* If that worked, return the string. */
         if (n > -1 && n < size)
