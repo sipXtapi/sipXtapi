@@ -251,7 +251,7 @@
     </setting>
     <setting name="dst_start_time">
       <type refid="hh:mm"/>
-      <value>2:00</value>
+      <value/>
       <description>Time of day on which DST begins.</description>
     </setting>
     <setting name="dst_start_week_of_month">
@@ -303,7 +303,7 @@
     </setting>
     <setting name="dst_stop_time">
       <type refid="hh:mm"/>
-      <value>2:00</value>
+      <value/>
       <description>Time of day on which DST ends.</description>
     </setting>
     <setting name="dst_stop_week_of_month">

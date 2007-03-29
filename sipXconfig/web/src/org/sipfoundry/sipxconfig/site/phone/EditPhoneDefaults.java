@@ -186,7 +186,7 @@ public abstract class EditPhoneDefaults extends BasePage implements PageBeginRen
             bean = getLine();
         }
 
-        Setting settings = getGroup().inherhitSettingsForEditing(bean.getSettings());
+        Setting settings = getGroup().inherhitSettingsForEditing(bean);
         Setting subset = settings.getSetting(getEditFormSettingName());
         if (subset == null) {
             // Only time this is true is if navigation on an item that doesn't

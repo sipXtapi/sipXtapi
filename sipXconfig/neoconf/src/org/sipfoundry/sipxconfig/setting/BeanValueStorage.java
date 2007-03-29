@@ -34,7 +34,7 @@ import org.apache.commons.lang.StringUtils;
  */
 public class BeanValueStorage implements SettingValueHandler {
     private Object m_bean;
-    private Map<String, Method> m_methods = new HashMap<String, Method>();
+    private Map<String, Method> m_methods = new HashMap<String, Method>();    
 
     public BeanValueStorage(Object bean) {
         m_bean = bean;
@@ -61,8 +61,15 @@ public class BeanValueStorage implements SettingValueHandler {
         try {
             // should be getter (although not strictly nec), with no args
             Object result = m.invoke(m_bean);
+            if (result == null) {
+                // obstain on null.  
+                // NOTE: There is not way to return NULL as a setting value. If this
+                // is nec., I would suggest adding field to SettingEntry annotation
+                // called "obstainOn" and check if that matches this result. 
+                return null;
+            }            
+            
             String svalue = setting.getType().convertToStringValue(result);
-
             return new SettingValueImpl(svalue);
         } catch (IllegalArgumentException e) {
             throw new RuntimeException(e);
