@@ -59,10 +59,8 @@ public class Snapshot {
         File executable = new File(binDirectory, "sipx-snapshot");
         List cmds = new ArrayList();
         cmds.add(executable.getPath());
-        if (!m_logs) {
-            cmds.add("--no-logs");
-
-        }
+        cmds.add("--logs");
+        cmds.add(m_logs ? "current" : "none");
         if (m_credentials) {
             cmds.add("--credentials");
 
