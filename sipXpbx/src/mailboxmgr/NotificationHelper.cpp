@@ -69,6 +69,7 @@ NotificationHelper::send (
     UtlString durationText = "" ;
     if( !wavFileName.contains("-FW") )
     {
+        durationText += "Duration " ;
         int iDuration = atoi(rDurationMSecs);
         if( iDuration > 0 )
         {
@@ -130,7 +131,7 @@ NotificationHelper::send (
     deleteMessageLink.append("/").append(rawMessageId).append("/delete");
     UtlString showMailboxLink = baseMailboxLink;
 
-    plainBodyText += "On " + rDate + ", " + strFrom + " left new voicemail. Duration " +
+    plainBodyText += "On " + rDate + ", " + strFrom + " left new voicemail. " +
         durationText + "\n";
     plainBodyText += "Listen to message " + playMessageLink + "\n";
     plainBodyText += "Show Voicemail Inbox "   + showMailboxLink + "\n";
@@ -151,7 +152,7 @@ NotificationHelper::send (
                   "<TITLE>Voicemail Notification</TITLE>\n" +
                   "</HEAD>\n<BODY>\n";
     htmlBodyText +=
-        "<p>On " + rDate + ", " + strFrom + " left new voicemail. Duration " +
+        "<p>On " + rDate + ", " + strFrom + " left new voicemail. " +
         durationText + "</p>\n";
     htmlBodyText +=
         "<p><a href=\"" + playMessageLinkXml + "\">Listen to message</a></p>\n";

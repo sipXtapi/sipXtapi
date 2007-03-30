@@ -222,7 +222,8 @@ public:
         const char* data,
         const int& datasize,
         const UtlString& nextMessageID = "-1",
-        const UtlBoolean& saveIfDataIsEmpty=FALSE) ;
+        const UtlBoolean& saveIfDataIsEmpty=FALSE,
+        const UtlBoolean& sendEmail=TRUE) ;
 
     /** Method to get the base URL of media server (like http://mediaserver:8090/) */
     OsStatus getMediaserverURL( UtlString& rMediaserverUrl ) const;

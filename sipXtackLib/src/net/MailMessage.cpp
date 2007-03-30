@@ -37,7 +37,7 @@ UtlString CRLFCRLF = "\r\n\r\n";
 void MailMessage::Body(const UtlString &rText)
 {
     UtlString text = rText.data();
-    m_ContentType = "text/plain; charset=\"us-ascii\"; format=flowed";
+    m_ContentType = "text/plain; charset=UTF-8";
     m_Body = text;
 }
 
@@ -51,17 +51,13 @@ void MailMessage::Body(const UtlString &rText, const UtlString &rHtml)
     m_ContentType = "multipart/alternative; boundary=\"" + boundary + "\"";
 
     m_Body  = CRLF + "--" + boundary + CRLF;
-//    m_Body += "Content-Type: text/plain; charset=\"us-ascii\"; format=flowed"
-    m_Body += "Content-Type: text/plain; charset=\"us-ascii\"" + /* format=flowed" */
-              CRLF;
-//  m_Body += "Content-Transfer-Encoding: quoted-printable" + CRLF;
+    m_Body += "Content-Type: text/plain; charset=UTF-8" + CRLF;
+    m_Body += "Content-Transfer-Encoding: 8bit" + CRLF;
     m_Body += CRLF;
     m_Body += text;
     m_Body += CRLF + "--" + boundary + CRLF;
-//  m_Body += "Content-Type: text/html; charset=\"us-ascii\"; format=flowed"
-    m_Body += "Content-Type: text/html; charset=\"us-ascii\"" + /* format=flowed" */
-              CRLF;
-//  m_Body += "Content-Transfer-Encoding: quoted-printable" + CRLF;
+    m_Body += "Content-Type: text/html; charset=UTF-8" + CRLF;
+    m_Body += "Content-Transfer-Encoding: 8bit" + CRLF;
     m_Body += CRLF;
     m_Body += html;
     m_Body += CRLF + "--" + boundary + "--";
@@ -292,8 +288,7 @@ UtlString MailMessage::FormatForSending()
 
         // Message body
         data += "--" + boundary + CRLF;
-        data += "Content-Type: " + m_ContentType + CRLF;
-        data += "Content-Transfer-Encoding: quoted-printable" + CRLFCRLF;
+        data += "Content-Type: " + m_ContentType + CRLFCRLF;
         data += m_Body + CRLF;
 
         // Attachments
