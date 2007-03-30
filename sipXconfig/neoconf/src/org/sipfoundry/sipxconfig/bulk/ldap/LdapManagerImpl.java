@@ -12,8 +12,6 @@
 package org.sipfoundry.sipxconfig.bulk.ldap;
 
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -24,30 +22,22 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.admin.CronSchedule;
-import org.sipfoundry.sipxconfig.common.ApplicationInitializedEvent;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.UserException;
-import org.springframework.beans.factory.BeanFactory;
-import org.springframework.beans.factory.BeanFactoryAware;
-import org.springframework.context.ApplicationEvent;
-import org.springframework.context.ApplicationListener;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 
 /**
  * Maintains LDAP connection params, attribute maps and schedule LdapManagerImpl
  */
-public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapManager,
-        BeanFactoryAware, ApplicationListener {
+public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapManager, ApplicationContextAware {
     public static final String FILTER_ALL_CLASSES = "objectclass=*";
 
     public static final Log LOG = LogFactory.getLog(LdapManagerImpl.class);
 
     private JndiLdapTemplate m_jndiTemplate;
 
-    private LdapImportManager m_ldapImportManager;
-
-    private Timer m_timer;
-
-    private BeanFactory m_beanFactory;
+    private ApplicationContext m_applicationContext;
 
     public void verify(LdapConnectionParams params, AttrMap attrMap) {
         params.applyToTemplate(m_jndiTemplate);
@@ -69,7 +59,7 @@ public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapMana
         try {
             return retrieveSchema();
         } catch (NamingException e) {
-            LOG.debug("Retireving schema failed.", e);
+            LOG.debug("Retrieving schema failed.", e);
             throw new UserException("Cannot retrieve schema from LDAP server: " + e.getMessage());
         }
     }
@@ -92,8 +82,7 @@ public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapMana
 
         cons.setReturningAttributes(attrs);
         cons.setSearchScope(SearchControls.OBJECT_SCOPE);
-        NamingEnumeration<SearchResult> results = m_jndiTemplate.search("", FILTER_ALL_CLASSES,
-                cons);
+        NamingEnumeration<SearchResult> results = m_jndiTemplate.search("", FILTER_ALL_CLASSES, cons);
         // only interested in the first result
         if (results.hasMore()) {
             SearchResult result = results.next();
@@ -110,8 +99,8 @@ public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapMana
 
         cons.setReturningAttributes(attrs);
         cons.setSearchScope(SearchControls.OBJECT_SCOPE);
-        NamingEnumeration<SearchResult> results = m_jndiTemplate.search("cn=subSchema",
-                FILTER_ALL_CLASSES, cons);
+        NamingEnumeration<SearchResult> results = m_jndiTemplate.search("cn=subSchema", FILTER_ALL_CLASSES,
+                cons);
         // only interested in the first result
 
         Schema schema = new Schema();
@@ -132,10 +121,6 @@ public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapMana
     }
 
     public void setSchedule(CronSchedule schedule) {
-        if (m_timer != null) {
-            m_timer.cancel();
-        }
-        
         if (!schedule.isNew()) {
             // XCF-1168 incoming schedule is probably an update to this schedule
             // so add this schedule to cache preempt hibernate error about multiple
@@ -144,12 +129,11 @@ public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapMana
             getHibernateTemplate().update(schedule);
         }
 
-        LdapConnectionParams connectionParams = getConnectionParams();        
+        LdapConnectionParams connectionParams = getConnectionParams();
         connectionParams.setSchedule(schedule);
-        TimerTask ldapImportTask = new LdapImportTask(m_ldapImportManager);
-        m_timer = schedule.schedule(ldapImportTask);
-
         getHibernateTemplate().update(connectionParams);
+
+        m_applicationContext.publishEvent(new LdapImportTrigger.ScheduleChangedEvent(schedule, this));
     }
 
     public AttrMap getAttrMap() {
@@ -157,18 +141,17 @@ public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapMana
         if (!connections.isEmpty()) {
             return connections.get(0);
         }
-        AttrMap attrMap = (AttrMap) m_beanFactory.getBean("attrMap", AttrMap.class);
+        AttrMap attrMap = (AttrMap) m_applicationContext.getBean("attrMap", AttrMap.class);
         getHibernateTemplate().save(attrMap);
         return attrMap;
     }
 
     public LdapConnectionParams getConnectionParams() {
-        List<LdapConnectionParams> connections = getHibernateTemplate().loadAll(
-                LdapConnectionParams.class);
+        List<LdapConnectionParams> connections = getHibernateTemplate().loadAll(LdapConnectionParams.class);
         if (!connections.isEmpty()) {
             return connections.get(0);
         }
-        LdapConnectionParams params = (LdapConnectionParams) m_beanFactory.getBean(
+        LdapConnectionParams params = (LdapConnectionParams) m_applicationContext.getBean(
                 "ldapConnectionParams", LdapConnectionParams.class);
         getHibernateTemplate().save(params);
         return params;
@@ -186,35 +169,7 @@ public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapMana
         m_jndiTemplate = jndiTemplate;
     }
 
-    public void setLdapImportManager(LdapImportManager ldapImportManager) {
-        m_ldapImportManager = ldapImportManager;
-    }
-
-    /**
-     * start timers after app is initialized
-     */
-    public void onApplicationEvent(ApplicationEvent event) {
-        if (event instanceof ApplicationInitializedEvent) {
-            CronSchedule schedule = getConnectionParams().getSchedule();
-            TimerTask ldapImportTask = new LdapImportTask(m_ldapImportManager);
-            m_timer = schedule.schedule(ldapImportTask);
-        }
-    }
-
-    public void setBeanFactory(BeanFactory beanFactory) {
-        m_beanFactory = beanFactory;
-    }
-
-    private static final class LdapImportTask extends TimerTask {
-        private LdapImportManager m_ldapImportManager;
-
-        public LdapImportTask(LdapImportManager ldapImportManager) {
-            m_ldapImportManager = ldapImportManager;
-
-        }
-
-        public void run() {
-            m_ldapImportManager.insert();
-        }
+    public void setApplicationContext(ApplicationContext applicationContext) {
+        m_applicationContext = applicationContext;
     }
 }
