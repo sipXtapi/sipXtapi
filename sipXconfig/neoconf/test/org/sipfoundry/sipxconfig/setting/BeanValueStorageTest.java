@@ -32,6 +32,11 @@ public class BeanValueStorageTest extends TestCase {
         Setting s = m_birds.getSetting("towhee/canyon");
         assertEquals("14 inches", m_vs.getSettingValue(s).getValue());
     }
+    
+    public void testObstainFromGetSettingValue() {
+        Setting s = m_birds.getSetting("woodpecker/ivory-billed");
+        assertNull(m_vs.getSettingValue(s));        
+    }
 
     public void testGetSettingValuePathArray() {
         Setting s1 = m_birds.getSetting("flycatcher/peewee");
@@ -63,6 +68,11 @@ public class BeanValueStorageTest extends TestCase {
         @SettingEntry(path = "pigeon/passenger")
         public String getSomeValue() {
             throw new BeanValueStorage.NoValueException();
+        }
+        
+        @SettingEntry(path = "woodpecker/ivory-billed")
+        public String getObstainFromAnsweringByReturningNull() {
+            return null;
         }
     }
 }
