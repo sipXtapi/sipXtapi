@@ -118,17 +118,9 @@ public class AbstractCallSequence extends BeanWithId {
     protected List generateAliases(String identity, String domain, boolean neverRouteToVoicemail) {
 
         List rings = getRings();
-        int  activeRings = 0;
-        // Count number of active rings
-        for (Iterator i = rings.iterator(); i.hasNext();) {
-            AbstractRing r = (AbstractRing) i.next();
-            if (r.isEnabled()) {
-                activeRings++;
-            }
-        }
         
-        List aliases = new ArrayList(activeRings);
-        ForkQueueValue q = new ForkQueueValue(activeRings);
+        List aliases = new ArrayList(rings.size());
+        ForkQueueValue q = new ForkQueueValue(rings.size());
         for (Iterator i = rings.iterator(); i.hasNext();) {
             AbstractRing r = (AbstractRing) i.next();
             if (StringUtils.isEmpty(r.getUserPart().toString()) || !r.isEnabled()) {

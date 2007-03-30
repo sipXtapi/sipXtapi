@@ -12,8 +12,8 @@
     <set name="enumClass" value="@org.sipfoundry.sipxconfig.admin.callgroup.AbstractRing$Type@class"/>
   </bean>
   <bean name="ringMode" class="org.sipfoundry.sipxconfig.components.BooleanPropertySelectionModel" lifecycle="page">
-    <set name="falseLabel" value="message:label.disabled"/>
-    <set name="trueLabel" value="message:label.enabled"/>
+    <set name="falseLabel" value="message:disabled"/>
+    <set name="trueLabel" value="message:enabled"/>
   </bean>
   
   <!-- C O M P O N E N T S -->
