@@ -194,6 +194,7 @@
     <antcall target="acd_ext"/>
     <antcall target="service"/>
     <antcall target="enable-schedule"/>
+    <antcall target="forwardrulemode"/>  
     <!-- When freezing schema uncomment this line -->
     <!-- sipx-version version="6" -->
   </target>	
@@ -403,6 +404,10 @@
     <replace file="${sipxpbx.conf.dir}/sipxconfig.properties.in">
       <replacefilter token="polycom.defaultVersionId=${polycom-from-id}" value="polycom.defaultVersionId=${polycom-to-id}" />
     </replace>    
+  </target>
+
+  <target name="forwardrulemode" unless="forwardrulemode">
+    <db-patch patch="forwardrulemode"/>
   </target>
 
   <!-- 

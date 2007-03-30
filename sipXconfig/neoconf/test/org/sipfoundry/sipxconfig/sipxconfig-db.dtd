@@ -480,6 +480,7 @@
     number CDATA #IMPLIED
     position CDATA #IMPLIED
     expiration CDATA #IMPLIED
+    enabled CDATA #IMPLIED
     ring_type CDATA #IMPLIED
     user_id CDATA #REQUIRED
 >

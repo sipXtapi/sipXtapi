@@ -11,11 +11,19 @@
   <bean name="delayModel" class="org.sipfoundry.sipxconfig.components.EnumPropertySelectionModel" lifecycle="page">
     <set name="enumClass" value="@org.sipfoundry.sipxconfig.admin.callgroup.AbstractRing$Type@class"/>
   </bean>
+  <bean name="ringMode" class="org.sipfoundry.sipxconfig.components.BooleanPropertySelectionModel" lifecycle="page">
+    <set name="falseLabel" value="message:label.disabled"/>
+    <set name="trueLabel" value="message:label.enabled"/>
+  </bean>
   
   <!-- C O M P O N E N T S -->
   <component id="type" type="PropertySelection">
     <binding name="value" value="ring.type"/>
     <binding name="model" value="bean:delayModel"/>
+  </component>
+  <component id="enabled" type="PropertySelection">
+    <binding name="value" value="ring.enabled"/>
+    <binding name="model" value="bean:ringMode"/>
   </component>
   <component id="numberLabel" type="FieldLabel">
     <binding name="field" value="components.number"/>
