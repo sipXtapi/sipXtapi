@@ -21,7 +21,7 @@ public abstract class ConfiguredService extends BeanWithSettings implements Name
     private String m_description;
     private String m_beanId;
     private String m_descriptorId;
-    private boolean m_enabled;
+    private boolean m_enabled = true;
     private ServiceDescriptor m_descriptor;
     private ModelSource<ServiceDescriptor> m_descriptorSource;
 
@@ -89,6 +89,7 @@ public abstract class ConfiguredService extends BeanWithSettings implements Name
 
     public void setDescriptor(ServiceDescriptor descriptor) {
         m_descriptor = descriptor;
+        m_descriptorId = m_descriptor.getModelId();
     }
 
     public String getDescriptorId() {

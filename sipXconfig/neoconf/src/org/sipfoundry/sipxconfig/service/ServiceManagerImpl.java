@@ -47,6 +47,13 @@ public class ServiceManagerImpl extends SipxHibernateDaoSupport<ConfiguredServic
         return service;
     }
     
+    public ConfiguredService getServiceByName(String name) {
+        String query = "service-by-name";
+        Collection<ConfiguredService> services = getHibernateTemplate().findByNamedQueryAndNamedParam(
+                query, "name", name);
+        return DaoUtils.requireOneOrZero(services, query);
+    }
+    
     public void saveService(ConfiguredService service) {
         DaoUtils.checkDuplicatesByNamedQuery(getHibernateTemplate(), service, "service-ids-by-name", service.getName(),
                 new DuplicateNamedServiceException(service.getName()));

@@ -40,7 +40,7 @@ public class ListConfiguredServicesTestUi extends WebTestCase {
         seedNtpService("new ntp service");
         assertElementPresent("service:list");
         String[][] expected = new String[][] {
-                {"new ntp service", "Disabled", "1.1.1.1", "NTP" }
+                {"new ntp service", "Enabled", "1.1.1.1", "NTP" }
         };
         assertTableRowsEqual("service:list", 1, expected);        
     }

@@ -21,7 +21,7 @@
   - 
   -      Example:
   -
-  <target name="versionN" description="upgrade from version N-1" unless="versionN+1">
+  <target name="versionN" ... >
 ...
    <antcall target="xxx"/>  
 
@@ -131,12 +131,24 @@
     depends="upgrade-no-init,initialize"/>
     	
   <target name="initialize" depends="tasks" if="initialize">
-    <java classname="org.sipfoundry.sipxconfig.admin.DataInitializer" output="/dev/null">
-        <sysproperty key="org.apache.lucene.lockdir" value="${tmp.dir}/index"/>
+    <sipx-task output="/dev/null" beanId="initializeSystemTask">
       <arg value="noexit"/>
-    </java>
+    </sipx-task>
   </target>
   
+  <!--
+    - Add service to system from CLI.  
+    -  Example:
+    -    -Dservice.id=ntpService -Dservice.address=address-or-hostname
+    -->  
+  <target name="add-service" depends="upgrade">
+    <sipx-task beanId="addServiceTask">
+      <arg value="${service.name}"/>
+      <arg value="${service.id}"/>
+      <arg value="${service.address}"/>
+    </sipx-task>
+  </target>
+
   <!--
     - Drop lucene index. It'll get recreated when we restart the application
     --> 
@@ -377,15 +389,13 @@
   <target name="import-2.8" depends="import-2.8-run,migrate-2.8" 
         description="import 2.8 PDS database from backup file, note clears all existing 3.0 data"/>
 
-  <target name="reset-superadmin-initialization-task">
+  <target name="reset-superadmin" depends="upgrade"
+      description="initialize superadmin user, administation group and resets password to blank">
+    <sipx-task beanId="resetAdministrator"/>
     <sipx-sql>
-      delete from initialization_task where name = 'admin-group-and-user';
-      insert into initialization_task (name) values ('admin-group-and-user');
-      update users set pintoken = '' where user_name = 'superadmin';
+      update users set pintoken = '' where user_name = 'superadmin';      
     </sipx-sql>
   </target>
-  <target name="reset-superadmin" depends="reset-superadmin-initialization-task,upgrade"
-      description="initialize superadmin user, administation group and resets password to blank"/>
   
   <target name="polycom-2.0" description="Migrate all polycom phones to generate 2.0 profiles">
     <property name="polycom-from-id" value="1.6"/>
@@ -548,6 +558,20 @@
       <sipx-sql>
         insert into version_history (version, applied) values (@{version}, now());
       </sipx-sql>
+    </sequential>
+  </macrodef>
+  
+  <!-- run spring beans implementing SystemTaskRunner from CLI -->
+  <macrodef name="sipx-task">
+    <attribute name="beanId"/>
+    <attribute name="output" default="/dev/stdout"/>
+    <element name="task-body" optional="yes" implicit="yes"/>
+    <sequential>
+      <java classname="org.sipfoundry.sipxconfig.common.SystemTaskRunner" output="@{output}">
+        <sysproperty key="org.apache.lucene.lockdir" value="${tmp.dir}/index"/>
+        <arg value="@{beanId}"/>
+        <task-body/>
+      </java>    
     </sequential>
   </macrodef>
   

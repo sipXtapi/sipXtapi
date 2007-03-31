@@ -30,6 +30,8 @@ public interface ServiceManager extends DataObjectSource<ConfiguredService> {
     
     public void deleteServices(Collection<Integer> serviceIds);
 
+    public ConfiguredService getServiceByName(String name);
+
     public Collection<ConfiguredService> getServices();
 
     public Collection<ConfiguredService> getEnabledServicesByType(ServiceDescriptor descriptor);

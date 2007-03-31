@@ -29,7 +29,6 @@
   </bean>
   
   <bean id="resetAdministrator" class="org.sipfoundry.sipxconfig.common.ResetAdministratorInitTaskListener">
-    <property name="taskName" value="admin-group-and-user"/>
     <property name="coreContext" ref="coreContext"/>
   </bean>
   

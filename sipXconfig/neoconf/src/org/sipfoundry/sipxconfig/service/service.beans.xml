@@ -37,5 +37,10 @@
   </bean>
   
   <bean id="ntpService" factory-bean="unmanagedService" factory-method="ntp"/>
+  
+  <bean id="addServiceTask" class="org.sipfoundry.sipxconfig.service.AddServiceTask">
+    <property name="serviceManager" ref="serviceManager"/>
+    <property name="servicesSource" ref="serviceDescriptorSource"/>
+  </bean>
 
 </beans>

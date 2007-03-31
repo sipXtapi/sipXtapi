@@ -32,4 +32,8 @@
     <![CDATA[select s.id from ConfiguredService s where s.name = :value]]>
   </query>
 
+  <query name="service-by-name">
+    <![CDATA[from ConfiguredService s where s.name = :name]]>
+  </query>
+
 </hibernate-mapping>

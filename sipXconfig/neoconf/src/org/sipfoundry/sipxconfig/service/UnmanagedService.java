@@ -18,6 +18,10 @@ public class UnmanagedService extends ConfiguredService {
     
     public static final ServiceDescriptor NTP = new ServiceDescriptor(BEAN_ID, "ntpService", "NTP");
     
+    public UnmanagedService() {        
+        super(BEAN_ID);
+    }
+    
     public final ServiceDescriptor ntp() {
         return NTP;
     }

@@ -11,15 +11,17 @@
  */
 package org.sipfoundry.sipxconfig.common;
 
-public class ResetAdministratorInitTaskListener extends InitTaskListener {
+/**
+ * Resets the superadmin user credentials to superadmin and pin to blank
+ */
+public class ResetAdministratorInitTaskListener implements SystemTaskEntryPoint {
     private CoreContext m_coreContext;
 
     public void setCoreContext(CoreContext coreContext) {
         m_coreContext = coreContext;
     }
 
-    @Override
-    public void onInitTask(String task) {
+    public void runSystemTask(String[] args) {
         m_coreContext.createAdminGroupAndInitialUserTask();
     }
 }
