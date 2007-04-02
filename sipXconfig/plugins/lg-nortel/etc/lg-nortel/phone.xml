@@ -186,7 +186,7 @@
   <group name='DSP'>
     <setting name='ringer_off'>
       <type refid="on-off" />
-      <value>off</value>
+      <value>on</value>
     </setting>
     <setting name='VAD'>
       <type refid="on-off" />
