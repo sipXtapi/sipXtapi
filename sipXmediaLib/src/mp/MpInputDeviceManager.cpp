@@ -399,24 +399,30 @@ MpInputDeviceDriver* MpInputDeviceManager::removeDevice(MpInputDeviceHandle devi
    UtlInt deviceKey(deviceId);
    MpInputDeviceDriver* deviceDriver = NULL;
 
+   // try 10 times (this is a blind guess) -- checking every
+   // 10ms over 100ms seems reasonable.
    int checkInUseTries = 10;
-   for (; checkInUseTries > 0; checkInUseTries--)
+
+   for (int i = 0; i < checkInUseTries; i--)
    {
       connectionFound =
          (MpAudioInputConnection*) mConnectionsByDeviceId.find(&deviceKey);
-      if (connectionFound && connectionFound->isInUse())
-      {
-         // If the device is in use, release the manager lock,
-         // wait a small bit, and get the lock again to give the manager a
-         // chance to finish what it was doing  with the connection.
-         mRwMutex.releaseWrite();
-         OsTask::delay(1);
-         mRwMutex.acquireWrite();
-      }
-      else if (connectionFound)
+
+      // If we couldn't find a connection, or we found the connection
+      // and it isn't in use, then no need to continue looping.
+      // The loop only continues if a connection was found and in use.
+      if (connectionFound == NULL ||
+         (!connectionFound->isInUse()))
       {
          break;
       }
+
+      // If the device is found and in use, release the manager lock,
+      // wait a small bit, and get the lock again to give the manager a
+      // chance to finish what it was doing  with the connection.
+      mRwMutex.releaseWrite();
+      OsTask::delay(10);
+      mRwMutex.acquireWrite();
    }
 
    if (connectionFound && !connectionFound->isInUse())
