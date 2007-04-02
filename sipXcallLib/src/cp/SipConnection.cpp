@@ -1409,12 +1409,6 @@ UtlBoolean SipConnection::accept(int ringingTimeOutSeconds,
     UtlString contentType("");
     mBandwidthId = bandWidth;
 
-    if(sendEarlyMedia)
-    {
-        OsSysLog::add(FAC_CP, PRI_ERR,
-            "SipConnection::accept early media not implemented");
-    }
-
     if (inviteMsg)
     {
         inviteMsg->getContentType(&contentType);
@@ -1443,11 +1437,13 @@ UtlBoolean SipConnection::accept(int ringingTimeOutSeconds,
     if(mpMediaInterface != NULL && inviteMsg &&
         !inviteFromThisSide && getState(true /*LOCAL_ONLY*/, cause) == CONNECTION_OFFERING)
     {
-        UtlString rtpAddress;
-        int receiveRtpPort;
-        int receiveRtcpPort;
-        int receiveVideoRtpPort;
-        int receiveVideoRtcpPort;
+        UtlString hostAddresses[MAX_ADDRESS_CANDIDATES];
+        int receiveRtpPorts[MAX_ADDRESS_CANDIDATES];
+        int receiveRtcpPorts[MAX_ADDRESS_CANDIDATES];
+        int receiveVideoRtpPorts[MAX_ADDRESS_CANDIDATES];
+        int receiveVideoRtcpPorts[MAX_ADDRESS_CANDIDATES];
+        RTP_TRANSPORT transportTypes[MAX_ADDRESS_CANDIDATES];
+        int numAddresses;
         int numMatchingCodecs = 0;
         int matchingBandwidth = 0;
         int totalBandwidth = 0;
@@ -1491,17 +1487,20 @@ UtlBoolean SipConnection::accept(int ringingTimeOutSeconds,
         }
         else
         {
-            mpMediaInterface->getCapabilities(mConnectionId,
-                rtpAddress,
-                receiveRtpPort,
-                receiveRtcpPort,
-                receiveVideoRtpPort,
-                receiveVideoRtcpPort,
-                supportedCodecs,
-                srtpParams,
-                bandWidth,
-                totalBandwidth,
-                videoFramerate);
+            mpMediaInterface->getCapabilitiesEx(mConnectionId,
+                                                MAX_ADDRESS_CANDIDATES,
+                                                hostAddresses,
+                                                receiveRtpPorts,
+                                                receiveRtcpPorts,
+                                                receiveVideoRtpPorts,
+                                                receiveVideoRtcpPorts,
+                                                transportTypes,
+                                                numAddresses,
+                                                supportedCodecs,
+                                                srtpParams,
+                                                mBandwidthId, // ?
+                                                totalBandwidth,
+                                                videoFramerate);
 
             inviteMsg->setSecurityAttributes(mpSecurity);
 
@@ -1524,7 +1523,22 @@ UtlBoolean SipConnection::accept(int ringingTimeOutSeconds,
             }
 
             ringingSent = TRUE;
-            proceedToRinging(inviteMsg, sipUserAgent, -1, mLineAvailableBehavior);
+            proceedToRinging(inviteMsg, 
+                             sipUserAgent, 
+                             -1, 
+                             mLineAvailableBehavior,
+                             sendEarlyMedia ? numAddresses : 0, 
+                             hostAddresses, 
+                             receiveRtpPorts,
+                             receiveRtcpPorts, 
+                             receiveVideoRtpPorts, 
+                             receiveVideoRtcpPorts,
+                             transportTypes,
+                             numMatchingCodecs, 
+                             matchingCodecs, 
+                             &matchingSrtpParams,
+                             totalBandwidth, 
+                             matchingVideoFramerate);
 
             // Keep track of the fact that this is a transfer
             if(cause != CONNECTION_CAUSE_TRANSFER)
@@ -1541,6 +1555,25 @@ UtlBoolean SipConnection::accept(int ringingTimeOutSeconds,
                         numMatchingCodecs, matchingCodecs);
                 fireAudioStartEvents();
                 mpMediaInterface->enableRtpReadNotification(mConnectionId) ;
+
+                // if early media is desired, start sending RTP
+                if(sendEarlyMedia)
+                {
+                    setMediaDestination(remoteRtpAddress,
+                                        remoteRtpPort,
+                                        remoteRtcpPort,
+                                        remoteVideoRtpPort,
+                                        remoteVideoRtcpPort,
+                                        inviteMsg->getSdpBody(mpSecurity));
+
+                    if(remoteRtpPort > 0)
+                    {
+                        mpMediaInterface->startRtpSend(mConnectionId,
+                                                       numMatchingCodecs, 
+                                                       matchingCodecs);
+                    }
+                    fireAudioStartEvents();
+                }
             }
 
             // If forward on no answer is enabled set the timer
@@ -6687,8 +6720,21 @@ void SipConnection::fireAudioStopEvents(SIPX_MEDIA_CAUSE cause)
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 void SipConnection::proceedToRinging(const SipMessage* inviteMessage,
-                                     SipUserAgent* sipUserAgent, int tagNum,
-                                     int availableBehavior)
+                                     SipUserAgent* sipUserAgent, 
+                                     int tagNum,
+                                     int availableBehavior,
+                                     int numAddresses, 
+                                     UtlString hostAddresses[], 
+                                     int receiveRtpPorts[],
+                                     int receiveRtcpPorts[], 
+                                     int receiveVideoRtpPorts[], 
+                                     int receiveVideoRtcpPorts[],
+                                     RTP_TRANSPORT transportTypes[],
+                                     int numMatchingCodecs, 
+                                     SdpCodec* matchingCodecs[], 
+                                     SdpSrtpParameters* matchingSrtpParams,
+                                     int totalBandwidth, 
+                                     int matchingVideoFramerate)
 {
     UtlString name = mpCall->getName();
 #ifdef TEST_PRINT
@@ -6702,6 +6748,52 @@ void SipConnection::proceedToRinging(const SipMessage* inviteMessage,
     {
         sipResponse.setToFieldTag(tagNum);
     }
+
+    // If we have addresses to receive RTP on, assume early media
+    if(numAddresses > 0)
+    {
+        // set early media response code
+        sipResponse.setResponseFirstHeaderLine(SIP_PROTOCOL_VERSION,
+                                               SIP_EARLY_MEDIA_CODE,
+                                               SIP_EARLY_MEDIA_TEXT);
+
+        // Add SDP to indicate early media
+        sipResponse.addSdpBody(numAddresses, 
+                               hostAddresses, 
+                               receiveRtpPorts,
+                               receiveRtcpPorts, 
+                               receiveVideoRtpPorts, 
+                               receiveVideoRtcpPorts,
+                               transportTypes,
+                               numMatchingCodecs, 
+                               matchingCodecs, 
+                               matchingSrtpParams,
+                               totalBandwidth, 
+                               matchingVideoFramerate,
+                               inviteMessage);
+
+        if (mRtpTransport != RTP_TRANSPORT_UDP)
+        {
+            // the callee must determime its TCP role,
+            // which, in turn will determine the remote
+            // endpoint's TCP role.
+            // The tcp role will be communicated via the sdp
+
+            // determine TCP connectivity
+            // only if (not 0.0.0.0)
+            if (remoteRtpAddress.compareTo("0.0.0.0") != 0)
+            {
+                if (mRtpTcpRole != RTP_TCP_ROLE_ACTIVE)
+                {
+                    mRtpTcpRole = RTP_TCP_ROLE_PASSIVE;
+                }
+                mpMediaInterface->setConnectionTcpRole(mConnectionId, mRtpTcpRole);
+            }
+        }
+
+        prepareInviteSdpForSend(&sipResponse, mConnectionId, mpSecurity) ;
+    }
+
     if(send(sipResponse))
     {
 #ifdef TEST_PRINT

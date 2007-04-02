@@ -391,9 +391,21 @@ private:
         int& matchingVideoFramerate);
 
     virtual void proceedToRinging(const SipMessage* inviteMessage,
-        SipUserAgent* sipUserAgent,
-        int tagNum,
-        int availableBehavior);
+                                  SipUserAgent* sipUserAgent,
+                                  int tagNum,
+                                  int availableBehavior,
+                                  int numAddresses = 0, 
+                                  UtlString hostAddresses[] = NULL, 
+                                  int receiveRtpPorts[] = NULL,
+                                  int receiveRtcpPorts[] = NULL, 
+                                  int receiveVideoRtpPorts[] = NULL, 
+                                  int receiveVideoRtcpPorts[] = NULL,
+                                  RTP_TRANSPORT transportTypes[] = NULL,
+                                  int numMatchingCodecs = 0, 
+                                  SdpCodec* matchingCodecs[] = NULL, 
+                                  SdpSrtpParameters* matchingSrtpParams = NULL,
+                                  int totalBandwidth = 0, 
+                                  int matchingVideoFramerate = 0);
 
     UtlBoolean isMethodAllowed(const char* method);
 
