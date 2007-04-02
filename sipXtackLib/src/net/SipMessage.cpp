@@ -441,7 +441,7 @@ void SipMessage::addSdpBody(int nRtpContacts,
                             SdpSrtpParameters* srtpParams,
                             int videoBandwidth,
                             int videoFramerate,
-                            SipMessage* pRequest,
+                            const SipMessage* pRequest,
                             RTP_TRANSPORT rtpTransportOptions)
 {
    if(numRtpCodecs > 0)

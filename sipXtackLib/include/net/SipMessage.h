@@ -652,7 +652,7 @@ public:
                     SdpSrtpParameters* srtpParams,
                     int videoBandwidth,
                     int videoFramerate,
-                    SipMessage* pRequest = NULL,
+                    const SipMessage* pRequest = NULL,
                     const RTP_TRANSPORT rtpTransportOptions = RTP_TRANSPORT_UDP);
 
     void setSecurityAttributes(const SIPXTACK_SECURITY_ATTRIBUTES* const pSecurity);
