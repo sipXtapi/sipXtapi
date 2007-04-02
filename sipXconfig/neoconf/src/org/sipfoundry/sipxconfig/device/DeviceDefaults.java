@@ -19,6 +19,7 @@ import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.InternalRule;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.service.ConfiguredService;
+import org.sipfoundry.sipxconfig.service.ServiceDescriptor;
 import org.sipfoundry.sipxconfig.service.ServiceManager;
 import org.sipfoundry.sipxconfig.service.UnmanagedService;
 
@@ -72,13 +73,27 @@ public class DeviceDefaults {
     }
     
     public String getNtpServer() {
-        String ntpServer = m_defaultNtpService;
-        Collection<ConfiguredService> ntpServers = m_serviceManager.getEnabledServicesByType(UnmanagedService.NTP);
-        if (ntpServers != null && ntpServers.size() > 0) {
-            ntpServer =  ntpServers.iterator().next().getAddress();
-        }
-        return ntpServer;
+        String server = getServer(0, UnmanagedService.NTP);
+        return server == null ? m_defaultNtpService : server; 
     }
+    
+    /**
+     * @return null if not set
+     */
+    public String getAlternateNtpServer() {
+        String server = getServer(1, UnmanagedService.NTP);
+        return server;
+    }
+    
+    private String getServer(int index, ServiceDescriptor s) {
+        String service = null;
+        Collection<ConfiguredService> servers = m_serviceManager.getEnabledServicesByType(s);
+        if (servers != null && servers.size() > index) {
+            service = servers.iterator().next().getAddress();
+        }
+        return service;
+    }
+   
 
     public String getTftpServer() {
         return m_tftpServer;

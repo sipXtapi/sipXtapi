@@ -29,6 +29,11 @@ public class ClearonePhoneDefaults {
         return m_defaults.getNtpServer();
     }
 
+    @SettingEntry(path = "time/SNTP_server_2")
+    public String getAlternateNtpServer() {
+        return m_defaults.getAlternateNtpServer();
+    }
+
     @SettingEntry(path = "time/timezone")
     public int getTimezone() {
         int tzhrs = m_defaults.getTimeZone().getOffset() / 3600;
