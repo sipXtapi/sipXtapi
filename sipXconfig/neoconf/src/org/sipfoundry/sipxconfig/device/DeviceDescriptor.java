@@ -26,7 +26,7 @@ public abstract class DeviceDescriptor {
      * By default we accept MAC address as serial number. Device plugin developers can define
      * other regular expressions to accept serial number in a format specific for a device.
      */
-    private String m_serialNumberPattern = "^([a-f]|:|\\d){12,}?$";
+    private String m_serialNumberPattern = "^[a-f\\d]{12}$";
 
     private DeviceVersion[] m_versions = new DeviceVersion[0];
 
