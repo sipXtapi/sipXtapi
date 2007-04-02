@@ -201,16 +201,23 @@ int StreamWAVFormatDecoder::run(void* pArgs)
    StreamDataSource* pSrc = getDataSource() ;
    if (pSrc != NULL)
    {
-      int streamLength = 0;
-      // pSrc->open() ;
-      pSrc->getLength(streamLength);
-      if (streamLength == 0)	// empty file
+      int iRead = 0;
+      char buf[16]; 
+
+      // "pre-read" 4 bytes, to see if this is a 0 length file and should
+      // be skipped.  Alas, apparently one cannot just call getLength() 
+      // as an  http fetch might not have returned any info yet.
+      if (pSrc->peek(buf, 4, iRead) != OS_SUCCESS) // empty file
       {
+         // If one doesn't queue at least one frame, then it seems things stall
+         // Queue one frame of a "click" to give some audible indication
+         // a file was played (even if it was empty)
          Sample Click[80] = {0} ;  // one frame of "click" to give audible
                                    // indication of some problem.
          Click[39] = -200 ;
          Click[40] = 20000 ;       // An impulse should do nicely
          Click[41] = -200 ;
+
          queueFrame((const unsigned short *)Click);
          mbEnd = TRUE ;
       }
