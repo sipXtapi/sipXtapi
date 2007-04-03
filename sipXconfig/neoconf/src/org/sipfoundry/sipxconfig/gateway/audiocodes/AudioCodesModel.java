@@ -20,7 +20,7 @@ public class AudioCodesModel extends GatewayModel {
     private String m_proxyIpSetting;
 
     public AudioCodesModel() {
-        setSerialNumberPattern("^FT\\d{7,}$");
+        setSerialNumberPattern("^[A-Z]{2}\\d{7,}$");
     }
 
     public void setProfileTemplate(String profileTemplate) {
