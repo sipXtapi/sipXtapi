@@ -13,6 +13,7 @@ package org.sipfoundry.sipxconfig.site.user_portal;
 
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.event.PageEvent;
+import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.site.user.EditPinComponent;
 import org.sipfoundry.sipxconfig.site.user.UserForm;
@@ -25,6 +26,9 @@ public abstract class EditMyInformation extends UserBasePage implements EditPinC
     
     public abstract String getPin();
     
+    public abstract User getUserForEditing();
+    public abstract void setUserForEditing(User user);
+    
     public abstract MailboxPreferences getMailboxPreferences();
     public abstract void setMailboxPreferences(MailboxPreferences preferences);
     
@@ -32,12 +36,14 @@ public abstract class EditMyInformation extends UserBasePage implements EditPinC
     public abstract MailboxManager getMailboxManager();
     
     public void save() {
-        if (!getValidator().getHasErrors()) {
-            getCoreContext().saveUser(getUser());
+        if (TapestryUtils.isValid(this)) {
+            User user = getUserForEditing(); 
+            UserForm.updatePin(this, user, getCoreContext().getAuthorizationRealm());
+            getCoreContext().saveUser(user);
             
             MailboxManager mailMgr = getMailboxManager();
             if (mailMgr.isEnabled()) {
-                Mailbox mailbox = mailMgr.getMailbox(getUser().getUserName());
+                Mailbox mailbox = mailMgr.getMailbox(user.getUserName());
                 mailMgr.saveMailboxPreferences(mailbox, getMailboxPreferences());
             }
         }
@@ -46,15 +52,19 @@ public abstract class EditMyInformation extends UserBasePage implements EditPinC
     public void pageBeginRender(PageEvent event) {
         super.pageBeginRender(event);
         
-        if (getPin() == null) {
-            UserForm.initializePin(getComponent("pin"), this, getUser());
-        } else if (TapestryUtils.isValid(this)) {
-            UserForm.updatePin(this, getUser(), getCoreContext().getAuthorizationRealm());
+        User user = getUserForEditing(); 
+        if (user == null) {
+            user = getUser();
+            setUserForEditing(user);
         }
+
+        if (getPin() == null) {
+            UserForm.initializePin(getComponent("pin"), this, user);
+        }        
         
         MailboxManager mailMgr = getMailboxManager();
         if (getMailboxPreferences() == null && mailMgr.isEnabled()) {
-            Mailbox mailbox = mailMgr.getMailbox(getUser().getUserName());
+            Mailbox mailbox = mailMgr.getMailbox(user.getUserName());
             setMailboxPreferences(mailMgr.loadMailboxPreferences(mailbox));            
         }
     }
