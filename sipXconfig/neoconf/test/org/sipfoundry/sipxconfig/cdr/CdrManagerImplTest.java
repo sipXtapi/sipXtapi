@@ -210,6 +210,54 @@ public class CdrManagerImplTest extends SipxDatabaseTestCase {
                         + "\"404\",\"I\"\n", writer.toString());
 
         rsControl.verify();
-
     }
+    
+    public void testCdrsCsvWriterNullConnectTime() throws Exception {
+        TimeZone tz = DateUtils.UTC_TIME_ZONE;
+        Calendar calendar = Calendar.getInstance(tz);
+
+        Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+        String dateStr = String.format("\"%s\",", DateFormatUtils.ISO_DATETIME_TIME_ZONE_FORMAT
+                .format(timestamp));
+
+        IMocksControl rsControl = EasyMock.createControl();
+        ResultSet rs = rsControl.createMock(ResultSet.class);
+        for (int i = 0; i < ColumnInfo.FIELDS.length; i++) {
+            rs.findColumn((String) EasyMock.anyObject());
+            rsControl.andReturn(i);
+        }
+
+        rs.getString(0);
+        rsControl.andReturn("caller");
+        rs.getString(1);
+        rsControl.andReturn("callee");
+
+        rs.getTimestamp(EasyMock.eq(2), eqTimeZone(calendar));
+        rsControl.andReturn(timestamp);
+        rs.getTimestamp(EasyMock.eq(3), eqTimeZone(calendar));
+        rsControl.andReturn(null);
+        rs.getTimestamp(EasyMock.eq(4), eqTimeZone(calendar));
+        rsControl.andReturn(timestamp);
+
+        rs.getString(5);
+        rsControl.andReturn("404");
+
+        rs.getString(6);
+        rsControl.andReturn("I");
+
+        rsControl.replay();
+
+        StringWriter writer = new StringWriter();
+
+        RowCallbackHandler handler = new CdrManagerImpl.CdrsCsvWriter(writer, tz);
+        handler.processRow(rs);
+
+        assertEquals(
+                "callee_aor,caller_aor,start_time,connect_time,end_time,failure_status,termination\n"
+                        + "\"caller\",\"callee\"," + dateStr + "\"\"," + dateStr
+                        + "\"404\",\"I\"\n", writer.toString());
+
+        rsControl.verify();
+    }
+    
 }
