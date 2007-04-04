@@ -377,6 +377,7 @@ DocumentRoot "@HTTP_ROOTDIR@"
 # http://httpd.apache.org/docs-2.0/mod/core.html#options
 # for more information.
 #
+# For Interop config use, add "ExecCGI":
     Options Indexes FollowSymLinks ExecCGI
 
 #
@@ -895,6 +896,7 @@ AddType application/x-gzip .gz .tgz
 # To use CGI scripts outside of ScriptAliased directories:
 # (You will also need to add "ExecCGI" to the "Options" directive.)
 #
+# For Interop config use, must un-comment this line:
 AddHandler cgi-script .cgi
 
 #
@@ -1085,4 +1087,3 @@ BrowserMatch "^gnome-vfs" redirect-carefully
 
 # sipX configuration includes
 Include @SIPX_CONFDIR@/httpd-sipxchange-common.conf
-Include @SIPX_CONFDIR@/httpd-sipxchange-configserver.conf
