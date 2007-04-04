@@ -1,3 +1,5 @@
+# This test only passes with the lastest SOAP4R binary so
+# it is disabled
 $:.unshift File.join(File.dirname(__FILE__), "..", "lib")
 require 'test/unit'
 require 'net/http'
@@ -46,7 +48,7 @@ class ServerTest < Test::Unit::TestCase
   end
   
   # fails SOAP4R in w/1.8.4i
-  def _test_get_wsdl
+  def test_get_wsdl
     response = Net::HTTP.get_response(URI.parse('http://localhost:2000/wsdl/sipxstats.wsdl'))
     assert_equal('200', response.code)
   end
@@ -100,7 +102,7 @@ class ServerTest < Test::Unit::TestCase
     assert_equal(1, actual.size)    
   end
   
-  def _test_primitive_read_write
+  def test_primitive_read_write
     assert_equal('queue stats here', @stats.getQueueStats)
     assert_equal('call stats here', @stats.getCallStats)
   end
