@@ -427,7 +427,10 @@ MpInputDeviceDriver* MpInputDeviceManager::removeDevice(MpInputDeviceHandle devi
 
    if (connectionFound && !connectionFound->isInUse())
    {
-      connectionFound->setInUse();
+      // Remove the connection while we're under the lock.
+      // If a disableDevice is waiting to acquire lock,
+      // once they receive the lock, the connection will no longer
+      // be there, which is the desired behavior.
 
       // Remove from the id indexed container
       mConnectionsByDeviceId.remove(connectionFound);
