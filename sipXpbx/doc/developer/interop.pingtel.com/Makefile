@@ -14,6 +14,7 @@ SIPX_BINDIR=/usr/bin
 SIPX_CONFDIR=/etc/sipxpbx
 SIPX_DATADIR=/var/sipxdata
 SIPX_LIBDIR=/usr/lib
+SIPX_VARDIR=/var
 SIPX_LOGDIR=/var/log/sipxpbx
 SIPX_RUNDIR=/var/run/sipxpbx
 HTTP_ROOTDIR=/usr/share/www/doc
@@ -62,6 +63,7 @@ $(SIPX_CONFDIR)/config.defs: $(SIPX_CONFDIR)/config.defs.in
 			-e 's!@SIPX_CONFDIR@!$(SIPX_CONFDIR)!g' \
 			-e 's!@SIPX_DATADIR@!$(SIPX_DATADIR)!g' \
 			-e 's!@SIPX_LIBDIR@!$(SIPX_LIBDIR)!g' \
+			-e 's!@SIPX_VARDIR@!$(SIPX_VARDIR)!g' \
 			-e 's!@SIPX_LOGDIR@!$(SIPX_LOGDIR)!g' \
 			-e 's!@SIPX_RUNDIR@!$(SIPX_RUNDIR)!g' \
 			-e 's!@HTTP_ROOTDIR@!$(HTTP_ROOTDIR)!g' \
@@ -81,6 +83,7 @@ $(CONFIG_FILES_EDITED) $(DOC_FILES_EDITED) $(SIPDB_FILES_EDITED): %: %.pre $(SIP
 			-e 's!@SIPX_CONFDIR@!$(SIPX_CONFDIR)!g' \
 			-e 's!@SIPX_DATADIR@!$(SIPX_DATADIR)!g' \
 			-e 's!@SIPX_LIBDIR@!$(SIPX_LIBDIR)!g' \
+			-e 's!@SIPX_VARDIR@!$(SIPX_VARDIR)!g' \
 			-e 's!@SIPX_LOGDIR@!$(SIPX_LOGDIR)!g' \
 			-e 's!@SIPX_RUNDIR@!$(SIPX_RUNDIR)!g' \
 			-e 's!@HTTP_ROOTDIR@!$(HTTP_ROOTDIR)!g' \
