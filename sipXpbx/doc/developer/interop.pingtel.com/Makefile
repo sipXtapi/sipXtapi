@@ -1,8 +1,3 @@
-# A prefix command applied to commands that manipulate the destination
-# directories.  Left as null to prevent surprises for people who haven't
-# read this Makefile before using it, but often set to "sudo".
-SUDO=
-
 # The name by which the update-passtokens script can be executed.
 # This will probably have to be specified, as update-passtokens is not
 # usually installed.
@@ -51,16 +46,16 @@ debug:
 	@ echo SIPDB_FILES_EDITED=$(SIPDB_FILES_EDITED)
 
 $(CONFIG_FILES): $(SIPX_CONFDIR)/%: sipx_confdir/%
-	$(SUDO) cp $< $@
+	cp $< $@
 
 $(DOC_FILES): $(HTTP_ROOTDIR)/%: http_rootdir/%
-	$(SUDO) cp $< $@
+	cp $< $@
 
 $(SIPDB_FILES): $(SIPX_DATADIR)/sipdb/%: sipx_dbdir/%
-	$(SUDO) cp $< $@
+	cp $< $@
 
 $(SIPX_CONFDIR)/config.defs: $(SIPX_CONFDIR)/config.defs.in
-	$(SUDO) sh -c \
+	sh -c \
 		"sed \
 			-e 's!@SIPX_USER@!$(SIPX_USER)!g' \
 			-e 's!@SIPX_BINDIR@!$(SIPX_BINDIR)!g' \
@@ -75,7 +70,7 @@ $(SIPX_CONFDIR)/config.defs: $(SIPX_CONFDIR)/config.defs.in
 
 $(CONFIG_FILES_EDITED) $(DOC_FILES_EDITED) $(SIPDB_FILES_EDITED): %: %.pre $(SIPX_CONFDIR)/config.defs
 	. $(SIPX_CONFDIR)/config.defs ;\
-	$(SUDO) sh -c \
+	sh -c \
 		"sed \
 			-e 's!@SIPXCHANGE_DOMAIN_NAME@!$$SIPXCHANGE_DOMAIN_NAME!g' \
 			-e 's!@INTEROP_ALIAS_UDP@!$$INTEROP_ALIAS_UDP!g' \
@@ -93,7 +88,7 @@ $(CONFIG_FILES_EDITED) $(DOC_FILES_EDITED) $(SIPDB_FILES_EDITED): %: %.pre $(SIP
 		<$< >$@"
 
 $(SIPX_DATADIR)/sipdb/credential.xml: $(SIPX_DATADIR)/sipdb/credential.xml.in $(SIPX_CONFDIR)/config.defs
-	$(SUDO) sh -c \
+	sh -c \
 		"yes 1234 | $(UPDATE_PASSTOKENS) $< $@"
 	@echo
 

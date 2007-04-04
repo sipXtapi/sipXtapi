@@ -5,11 +5,13 @@ Notes on managing a sipX "interop server".
 From a machine inside Pingtel, create a directory and download the
 RPMs for the desired version.  E.g.:
 
-	wget --no-parent -r http://falcon.pingtel.com/sipfoundry/main/FC/5/008551/RPM
+	wget --no-parent -r -nd \
+		http://falcon.pingtel.com/sipfoundry/main/FC/5/008551/RPM
 
-Create a destination directory on interop and upload the RPMs to it:
+Create a destination directory on interop (e.g., ~/8551) and upload
+the RPMs to it:
 
-	scp falcon.pingtel.com/sipfoundry/main/FC/5/008551/RPM/*.rpm interop:8551
+	scp *.rpm interop:8551
 
 On interop, stop sipX and install the new PRMs:
 
@@ -19,17 +21,24 @@ On interop, stop sipX and install the new PRMs:
 
 Note that rpm will attempt to install any RPMs that have the *same*
 version as the currently installed version, as well as any that are
-*newer*.  The former will fail, so you have to inspect the output of
-rpm for messages like this:
+*newer*.  The former will fail (which causes the entire rpm command to
+fail), so you have to inspect the output of rpm for messages like
+this:
 
 	package xerces-c-2.7.0-3 is already installed
 	package ruby-gems-0.8.11-2 is already installed
 	package cgicc-3.2.3-2 is already installed
 
-Rename these RPMs to have a different extension, and run the rpm
-command again.
+Rename these RPMs to have a different extension (or delete them), and
+run the rpm command again.
 
-Once the RPMs install, restart supX:
+Do not install the sipXconfig RPMs (sipxconfig, sipxconfig-agent,
+sipxconfig-ftp, sipxconfig-report, and sipxconfig-tftp), as the
+interop configuration uses special config files.  Also, do not install
+the Call Resolver (sipxproxy-cdr), as that requires Postgres to be set
+up.
+
+Once the RPMs are installed, restart sipX:
 
 	sudo /sbin/service sipxpbx start
 
@@ -42,20 +51,15 @@ Create an updated working copy of the configuration files:
 Generate the config.defs file:
 
 	cd ./interop.pingtel.com
-	make SUDO=sudo /etc/sipxpbx/config.defs
+	touch sipx_confdir/config.defs.in
+	sudo make /etc/sipxpbx/config.defs
 
 Edit /etc/sipxpbx/config.defs for any needed customization.
 
 Generate the remainder of the configuration files:
 
-	make SUDO=sudo install
+	sudo make install
 
 Restart sipX:
 
 	sudo /sbin/service/sipxpbx restart
-
-* Do not install the sipXconfig RPMs (sipxconfig, sipxconfig-agent,
-sipxconfig-ftp, sipxconfig-report, and sipxconfig-tftp), as the
-interop configuration uses special config files.  Also, do not install
-the Call Resolver (sipxproxy-cdr), as that requires Postgres to be set
-up.
