@@ -15,6 +15,7 @@ dist_bin_SCRIPTS = \
 	regtimes \
 	sipx-stats \
 	sipx-alias2dot \
+	sipx-trace \
 	sipx-readroute \
 	sipxcar \
 	sipxproc \
