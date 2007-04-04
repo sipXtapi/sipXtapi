@@ -11,6 +11,9 @@
 // 
 // $$
 //////////////////////////////////////////////////////////////////////////////
+#if _WIN32_WCE >= 0x0600
+#define _CRT_SECURE_NO_DEPRECATE
+#endif
 
 #include <windows.h>
 #include <string.h>
@@ -277,11 +280,19 @@ typedef struct tagWAVEINCAPS_W {
     WORD    wReserved1;              /* structure packing */
 } WAVEINCAPS_W;
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 size_t strftime(char * const s, const size_t maxsize, const char * const format, const struct tm * const t);
 time_t mktime(struct tm *t);
 struct tm * __cdecl gmtime( const time_t *timer );
 struct tm * __cdecl localtime( const time_t *timer );
 time_t __cdecl time( time_t *ptt );
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // _WINCEFIXUPS_H_
 

@@ -25,8 +25,10 @@
 #   include <../config/pingtel/pingtel.h>
 #   include <dosFsLib.h>
 #endif
+#ifndef WINCE
 #include <sys/types.h>
 #include <sys/stat.h>
+#endif
 #include <stdio.h>
 
 

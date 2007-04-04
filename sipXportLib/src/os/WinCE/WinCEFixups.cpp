@@ -10,6 +10,7 @@ extern "C" int errno = 1;
 extern int errno;
 #endif
 
+
 // Initialize the handle to "file descriptor" map.
 static UtlHashMap sFDtoHandleMap;
 
@@ -383,7 +384,7 @@ time_t FileTimeToUnixTime( LPFILETIME pft, int *pMillisecs = NULL )
 time_t __cdecl time( time_t *ptt )
 {
 	BOOL		fRet;
-	int			iRet;
+	int			iRet = -1;
 	FILETIME	ft;
 	SYSTEMTIME	st;
 	//  get SYSTEMTIME
@@ -391,6 +392,7 @@ time_t __cdecl time( time_t *ptt )
 	//  convert SYSTEMTIME to FILETIME
 	fRet = SystemTimeToFileTime( &st, &ft );
 	//  convert FILETIME to UnixTime
+    if (fRet)
 	iRet = (int)FileTimeToUnixTime( &ft );
 //	printf( "time( ) is about to return %d\n", iRet );
 	if( ptt )
@@ -651,20 +653,40 @@ int _mkdir( const char *p1 )
 
 
 //****************************************************************
-int rename( const char *p1, const char *p2 )
+int rename( const char *lpFileName, const char *lpFileName2 )
 {
-	printf( "rename( ) NOT IMPLEMENTED\n" );
-//	assert( 0 );
-	return 0;
+       wchar_t	wBuf[ MAX_PATH + 1 ];	
+       int iRet = 1;
+       iRet = MultiByteToWideChar( CP_ACP, 0, lpFileName, strlen( lpFileName ), wBuf, MAX_PATH );
+       wBuf[ iRet ] = 0;
+
+       wchar_t	wBuf2[ MAX_PATH + 1 ];	
+       int iRet2 = 1;
+
+       iRet2 = MultiByteToWideChar( CP_ACP, 0, lpFileName2, strlen( lpFileName2 ), wBuf2, MAX_PATH );
+       wBuf2[ iRet2 ] = 0;
+
+       if ((iRet > 0) && (iRet2 > 0)) {
+               BOOL bRet = MoveFileW(wBuf, wBuf2);
+               return (bRet) ? 0 : -1;
+       }	
+	return -1;
 }
 
 
 //****************************************************************
-int remove( const char *p1 )
+int remove( const char *lpFileName )
 {
-	printf( "remove( ) NOT IMPLEMENTED\n" );
-//	assert( 0 );
-	return 0;
+       wchar_t	wBuf[ MAX_PATH + 1 ];	
+       int iRet = 1;
+       iRet = MultiByteToWideChar( CP_ACP, 0, lpFileName, strlen( lpFileName ), wBuf, MAX_PATH );
+       wBuf[ iRet ] = 0;
+
+       if (iRet > 0) {
+              BOOL bRet = DeleteFileW(wBuf);
+              return (bRet) ? 0 : -1;
+       }	
+       return -1;
 }
 
 //#define _O_RDONLY		0x0000
@@ -872,25 +894,6 @@ long CE_RegOpenKeyExA (	 HKEY hKey,
 	return NULL;
 }
 
-MMRESULT timeKillEvent(
-  UINT uTimerID  
-)
-{
-       printf( "timeKillEvent( ) NOT IMPLEMENTED\n" );
-       return NULL;
-}
-
-/* Came from mmsystem.h */
-MMRESULT WINAPI timeSetEvent( UINT           uDelay,      
-                              UINT           uResolution, 
-                              LPTIMECALLBACK lpTimeProc,  
-                              DWORD_PTR      dwUser,      
-                              UINT           fuEvent      
-                            )
-{
-	printf( "timeSetEvent( ) NOT IMPLEMENTED\n" );
-	return NULL;
-}
 
 #ifdef __cplusplus
 extern "C" int _getpid()
@@ -964,6 +967,24 @@ GetFileAttributesA(
 	}
 	else
 		return NULL;
+}
+
+BOOL
+WINAPI
+GetFileAttributesExA(LPCTSTR lpFileName, 
+  GET_FILEEX_INFO_LEVELS fInfoLevelId, 
+  LPVOID lpFileInformation 
+)
+{
+    wchar_t	wBuf[ MAX_PATH + 1 ];	
+    int     iRet = 1;
+    iRet = MultiByteToWideChar( CP_ACP, 0, lpFileName, strlen( lpFileName ), wBuf, MAX_PATH );
+    wBuf[ iRet ] = 0;
+
+    if (iRet > 0) {
+        return GetFileAttributesExW(wBuf, fInfoLevelId, lpFileInformation);
+    }
+    return FALSE;
 }
 
 
@@ -1098,5 +1119,6 @@ FindFirstFileA(
     return NULL;
 }
 #endif
+
 
 #endif // WINCE
