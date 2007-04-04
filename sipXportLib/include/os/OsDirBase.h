@@ -71,7 +71,7 @@ public:
 
 /* ============================ ACCESSORS ================================= */
 
-   virtual OsStatus getFileInfo(OsFileInfoBase& rFileInfo);
+   virtual OsStatus getFileInfo(OsFileInfoBase& rFileInfo) const = 0;
      //: Returns the file information for this objects path (see 
      //:        OsFileInfo for more detail)
      //  Returns: 

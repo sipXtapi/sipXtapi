@@ -121,42 +121,7 @@ OsDirBase::operator=(const OsDirBase& rhs)
 
 
 
-  OsStatus OsDirBase::getFileInfo(OsFileInfoBase& fileinfo)
-  {
-    OsStatus ret = OS_INVALID;
 
-#ifndef WINCE
-    struct stat stats;
-    if (stat((char *)mDirName.data(),&stats) == 0)
-    {
-        ret = OS_SUCCESS;
-        if (stats.st_mode & S_DIR)
-            fileinfo.mbIsDirectory = TRUE;
-        else
-            fileinfo.mbIsDirectory = FALSE;
-
-        if (stats.st_mode & S_READONLY)
-            fileinfo.mbIsReadOnly = FALSE;
-        else
-            fileinfo.mbIsReadOnly = TRUE;
-
-        OsTime createTime(stats.st_ctime,0);
-        fileinfo.mCreateTime = createTime;
-
-        OsTime modifiedTime(stats.st_mtime,0);
-        fileinfo.mModifiedTime = modifiedTime;
-
-        fileinfo.mSize = stats.st_size;
-
-    }
-#else
-	//  JEP - TODO - implement this...
-	printf( "JEP - TODO in OsDirBase::getFileInfo( )\n" );
-#endif
-
-
-    return ret;
-  }
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 

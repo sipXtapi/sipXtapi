@@ -68,7 +68,12 @@ public:
 
 /* ============================ ACCESSORS ================================= */
 
-
+   OsStatus getFileInfo(OsFileInfoBase& rFileInfo) const;
+     //: Returns the file information for this objects path (see 
+     //:        OsFileInfo for more detail)
+     //  Returns: 
+     //         OS_SUCCESS if successful
+     //         OS_INVALID if failed
 
 /* ============================ INQUIRY =================================== */
 
