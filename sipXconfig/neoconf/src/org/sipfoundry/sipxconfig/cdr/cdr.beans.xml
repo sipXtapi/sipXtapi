@@ -11,6 +11,7 @@
     <property name="dataSource" ref="cdrDataSource" />
     <property name="cdrAgentHost" value="localhost" />
     <property name="cdrAgentPort" value="8130" />
+    <property name="csvLimit" value="25000" />
   </bean>
 
   <!-- We probably do not need to proxy this -->
