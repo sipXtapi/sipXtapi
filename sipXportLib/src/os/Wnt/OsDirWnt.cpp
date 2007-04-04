@@ -108,14 +108,14 @@ OsStatus OsDirWnt::rename(const char* name)
 
 
 /* ============================ ACCESSORS ================================= */
-static OsTime FileTimeToOsTime(FILETIME ft)
-{
-    __int64 ll = (((__int64)ft.dwHighDateTime << 32) |
-                                 ft.dwLowDateTime) - 116444736000000000;
-    // See http://support.microsoft.com/?scid=kb%3Ben-us%3B167296&x=14&y=17
-
-    return OsTime((long)(ll / 10000000), (long)((ll / 10) % 1000000));
-}
+//static OsTime FileTimeToOsTime(FILETIME ft)
+//{
+//    __int64 ll = (((__int64)ft.dwHighDateTime << 32) |
+//                                 ft.dwLowDateTime) - 116444736000000000;
+//    // See http://support.microsoft.com/?scid=kb%3Ben-us%3B167296&x=14&y=17
+//
+//    return OsTime((long)(ll / 10000000), (long)((ll / 10) % 1000000));
+//}
 
 OsStatus OsDirWnt::getFileInfo(OsFileInfoBase& fileinfo) const
 {
@@ -133,9 +133,8 @@ OsStatus OsDirWnt::getFileInfo(OsFileInfoBase& fileinfo) const
             (w32data.dwFileAttributes & FILE_ATTRIBUTE_READONLY) ? TRUE : FALSE;
 
         fileinfo.mSize = ((ULONGLONG)w32data.nFileSizeHigh << 32) | w32data.nFileSizeLow;
-        fileinfo.mCreateTime = FileTimeToOsTime(w32data.ftCreationTime);
-        fileinfo.mModifiedTime = FileTimeToOsTime(w32data.ftLastWriteTime);
-
+        fileinfo.mCreateTime = OsFileWnt::fileTimeToOsTime(w32data.ftCreationTime);
+        fileinfo.mModifiedTime = OsFileWnt::fileTimeToOsTime(w32data.ftLastWriteTime);
     }
     return ret;
 }
