@@ -8,19 +8,6 @@ Listen 8090
 # ulimit command in .../etc/init.d/sipxpbx.in.
 CoreDumpDirectory @SIPX_LOGDIR@
 
-# This is only available to the default (*:8090) port if there is no SSL
-#<IfDefine !SSL>
-#    ScriptAlias /cgi-bin/ "/usr/share/www/cgi-bin/"
-#</IfDefine>
-
-# Added sipxchange Authentication Module. This uses the LoadModule syntax
-# and exports several commands
-# - LoadCPPHandler loads the specified handler shared object
-# - AddCPPHandler associates a particular handler with a directory spec
-#
-LoadModule cplusplus_module @HTTP_MODULEDIR@/libmod_cplusplus.so
-LoadCPPHandler mod_sipxauth @HTTP_MODULEDIR@/libmod_sipxauth.so
-
 # protect the sipxchange cgi-bin directory from unauthorized access
 <Directory "/usr/share/www/cgi-bin">
     # Protect the directory hierarchy using Basic Authentication
@@ -36,7 +23,6 @@ LoadCPPHandler mod_sipxauth @HTTP_MODULEDIR@/libmod_sipxauth.so
 
     # Ensure that the following authentication C++ module
     # handles the authentication
-    AddCPPHandler mod_sipxauth
 
     # Standard directory settings taken from httpd.conf
     #AllowOverride All	# Commented out by Mike M.
