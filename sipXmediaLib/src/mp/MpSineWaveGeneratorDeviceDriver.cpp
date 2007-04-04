@@ -172,7 +172,8 @@ MpSineWaveGeneratorDeviceDriver::~MpSineWaveGeneratorDeviceDriver()
     OsSysLog::add(FAC_MP, PRI_ERR,"~MpSineWaveGeneratorDeviceDriver start\n");
     if(mpReaderTask)
     {
-        assert(disableDevice() == OS_SUCCESS);
+        OsStatus stat = disableDevice();
+        assert(stat == OS_SUCCESS);
     }
     OsSysLog::add(FAC_MP, PRI_ERR,"~MpSineWaveGeneratorDeviceDriver end\n");
 }
