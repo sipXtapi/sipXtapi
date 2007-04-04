@@ -41,7 +41,7 @@
   -     on how to catch the initialization task event
   -
   -
-  - How to can a database patch that will reset itself incase you anticipate more changes to the
+  - How to write a database patch that will reset itself in case you anticipate more changes to the
   - schema.  Otherwise, you end up writing patches to the patches, and this can be messy.  The only
   - disadvantage to this is that each time the system starts up, your data will be reset, but for 
   - brand new features in development, this is usually accepatable
