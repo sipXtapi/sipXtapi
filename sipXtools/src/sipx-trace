@@ -4,7 +4,7 @@
 ###
 
 Action=LOCAL
-Prefix=
+Prefix="/"
 
 User=admin
 Password=
@@ -42,7 +42,7 @@ do
                 break
             else
                 Action=LOCAL
-                Prefix="${Prefix} ${2}"
+                Prefix="${2}"
                 shift # consume the switch ( for n values, consume n-1 )
             fi
             ;;
@@ -158,12 +158,7 @@ USAGE
         ;;
 
     LOCAL)
-        if [ -z "${Prefix}" ]
-        then
-            Prefix="/"
-        fi
-
-        grepLog $prefix
+        grepLog $Prefix
         ;;
 esac
 
