@@ -28,7 +28,7 @@
       value="tab == 'agentsStats' || tab == 'callsStats'" />
   </component>
   
-  <component id="tabs" type="TabNavigation">
+  <component id="tabs" type="common/TabNavigation">
     <binding name="tabNames" value="{'config', 'agents', 'agentsStats', 'callsStats'}" />
     <binding name="selectedTab" value="tab" />
   </component>
@@ -61,7 +61,7 @@
     <binding name="value" value="overflowQueueId" />
   </component>
 
-  <component id="settingsFieldset" type="SettingsFieldset">
+  <component id="settingsFieldset" type="setting/SettingsFieldset">
     <binding name="settings" value="acdQueue.settings" />
     <binding name="renderGroupTitle" value="false" />
   </component>

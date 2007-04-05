@@ -3,6 +3,53 @@ SIPfoundry Issue Tracker at:
 
         http://track.sipfoundry.org/browse?XCF
 	
+Version 3.7.6
+
+** Bug
+    * [XCF-985] - When provisioning Cisco ATA-18x's, "<sip_domain>:<sip_port>" is provisioned as the proxy, causing SRV-lookups to fail.
+    * [XCF-1353] - Long Distance Rule: Field for Area Codes restricted to 40 characters - should allow up to 256
+    * [XCF-1461] - sipXconfing testbed 'ant run' should allow for testing of all screens.
+    * [XCF-1480] - Loss of menu items when displaying on a narrow screen
+    * [XCF-1544] - Migration of voicemail in custom folders
+    * [XCF-1545] - On "Phone" screens, the "presence" navigation item is not capitalized, unlike all other navigation items
+    * [XCF-1550] - Enabling BLF for blank speed dial fields gives exception on the speed dial page
+    * [XCF-1553] - reset-superadmin does not work
+    * [XCF-1558] - Deleting Cisco Phones gives exception with 3.7.5-008014 build
+    * [XCF-1561] - model XML files are parsed everytime settings are loaded
+    * [XCF-1563] - fix handling of "names" that are aliases for extensions [eg hunt groups]
+    * [XCF-1564] - Grandstream phone profles get generated in /var/log/sipxpbx directory
+    * [XCF-1568] - Build broken for /lib: Java version mismatch
+    * [XCF-1580] - cannot add a new gateway if editing old gateway was concluded when tab other than 'config' tab was active
+    * [XCF-1585] - An Exception page occured in Speed dial page
+    * [XCF-1586] - Enabling an Unmanaged Service causes an exception
+    * [XCF-1587] - speeddial page validation doesn't accept single character user id in sip addresses
+    * [XCF-1591] - Edit Configuration parameters under System-->General settings are not reflected in respective .in files
+    * [XCF-1599] - Adding a new phone accepts serial numbers containing blank spaces
+    * [XCF-1601] - Polycom timezone settings are different on group then on phone
+    * [XCF-1603] - "Enable periodic import from LDAP" setting won't stay enabled, and doesn't seem to work at all
+    * [XCF-1604] - LGNortel phones not setting timezone defaults
+
+** Improvement
+    * [XCF-858] - Allow user to enabled & disable forwarding targets without adding/deleting
+    * [XCF-971] - inter-page navigation does not show which tab is active
+    * [XCF-1072] - Grandstream profile generation is locale dependent
+    * [XCF-1133] - 'Send All [phone] Profiles' should have an 'Are you sure?' dialog
+    * [XCF-1340] - empty settings groups should be supported
+    * [XCF-1481] - Default display order for users should be ascending down the page
+    * [XCF-1521] - junit failure should emit to stderr during build
+    * [XCF-1549] - Allow for greater customization on login page and banner area
+    * [XCF-1582] - enable/disable firmware uploading on LG-Nortel phone
+
+** New Feature
+    * [XCF-1315] - support collection of entities when modelling phones and gateways
+    * [XCF-1528] - speed dial support for LG-Nortel phones
+    * [XCF-1529] - phone book support for LG-Nortel phones
+    * [XCF-1536] - Ability to change page title from skin properties
+    * [XCF-1567] - Set NTP server in one place for all phones
+    * [XCF-1602] - Ability to explicitly initialize NTP server during installation
+
+** Task
+    * [XCF-1362] - cleanup sipXconfig docs directory
 
 Version 3.7.5
 

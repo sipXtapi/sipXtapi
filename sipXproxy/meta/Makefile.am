@@ -24,4 +24,4 @@ $(foreach xsd,$(schemas),$(DESTDIR)@SIPX_SCHEMADIR@/$(xsd)): $(DESTDIR)@SIPX_SCH
 $(PREVIOUS_CONFIG) : $(srcdir)/$(SIPX30_CONFIG)
 	$(INSTALL) -D -m 644 $(srcdir)/$(SIPX30_CONFIG) $(PREVIOUS_CONFIG)
 
-DISTCLEANFILES = $(schemas)
+DISTCLEANFILES = 

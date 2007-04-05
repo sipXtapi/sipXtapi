@@ -22,7 +22,8 @@ import org.sipfoundry.sipxconfig.admin.commserver.SipxServerTest;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.device.DeviceTimeZone;
-import org.sipfoundry.sipxconfig.phonebook.PhonebookEntry;
+import org.sipfoundry.sipxconfig.service.ServiceManager;
+import org.sipfoundry.sipxconfig.service.UnmanagedService;
 import org.sipfoundry.sipxconfig.setting.ModelFilesContextImpl;
 import org.sipfoundry.sipxconfig.setting.XmlModelBuilder;
 
@@ -30,17 +31,15 @@ public class PhoneTestDriver {
 
     public String serialNumber = "0004f200e06b";
 
-    public IMocksControl phoneContextControl;
+    private IMocksControl m_phoneContextControl;
 
-    public PhoneContext phoneContext;
+    private PhoneContext m_phoneContext;
 
     public Phone phone;
 
     public SipService sip;
 
     public IMocksControl sipControl;
-
-    public DeviceDefaults defaults;
 
     private List<Line> m_lines = new ArrayList<Line>();
 
@@ -63,42 +62,17 @@ public class PhoneTestDriver {
     }
 
     private PhoneTestDriver(Phone _phone, List<User> users) {
-        defaults = new DeviceDefaults();
-        defaults.setDeviceTimeZone(new DeviceTimeZone("Etc/GMT+5")); // no DST for consistent
-        // results
-        defaults.setDomainManager(TestHelper.getTestDomainManager("sipfoundry.org"));
-        defaults.setFullyQualifiedDomainName("pbx.sipfoundry.org");
-        defaults.setTftpServer("tftp.sipfoundry.org");
-        defaults.setProxyServerAddr("outbound.sipfoundry.org");
-        defaults.setProxyServerSipPort("5555");
-        defaults.setAuthorizationRealm("realm.sipfoundry.org");
-        defaults.setSipxServer(SipxServerTest.setUpSipxServer());
 
-        phoneContextControl = EasyMock.createNiceControl();
-        phoneContext = phoneContextControl.createMock(PhoneContext.class);
-        String sysdir = TestHelper.getSysDirProperties().getProperty("sysdir.etc");
-        phoneContext.getSystemDirectory();
-        phoneContextControl.andReturn(sysdir).anyTimes();
-        phoneContext.getPhoneDefaults();
-        phoneContextControl.andReturn(defaults).anyTimes();
-        phoneContext.getPhonebookEntries(phone);
+        m_phoneContextControl = EasyMock.createNiceControl();
+        m_phoneContext = m_phoneContextControl.createMock(PhoneContext.class);
+        
+        supplyVitalTestData(m_phoneContextControl, m_phoneContext, _phone);
 
-        // put sample user in phonebook
-        IMocksControl entryContextControl = EasyMock.createNiceControl();
-        PhonebookEntry entry = entryContextControl.createMock(PhonebookEntry.class);
-        phoneContextControl.andReturn(Collections.singleton(entry)).anyTimes();
-
-        phoneContextControl.replay();
+        m_phoneContextControl.replay();
 
         this.phone = _phone;
 
-        ModelFilesContextImpl mfContext = new ModelFilesContextImpl();
-        mfContext.setConfigDirectory(sysdir);
-        mfContext.setModelBuilder(new XmlModelBuilder(sysdir));
-        _phone.setModelFilesContext(mfContext);
-
         _phone.setSerialNumber(serialNumber);
-        _phone.setPhoneContext(phoneContext);
 
         for (User user : users) {
             Line line = _phone.createLine();
@@ -118,5 +92,43 @@ public class PhoneTestDriver {
         sipControl.replay();
         _phone.setSipService(sip);
 
+    }
+    
+    public static void supplyVitalTestData(IMocksControl control, PhoneContext phoneContext, Phone phone) {
+        DeviceDefaults defaults = new DeviceDefaults();
+        defaults.setDeviceTimeZone(new DeviceTimeZone("Etc/GMT+5")); // no DST for consistent
+        // results
+        defaults.setDomainManager(TestHelper.getTestDomainManager("sipfoundry.org"));
+        defaults.setFullyQualifiedDomainName("pbx.sipfoundry.org");
+        defaults.setTftpServer("tftp.sipfoundry.org");
+        defaults.setProxyServerAddr("outbound.sipfoundry.org");
+        defaults.setProxyServerSipPort("5555");
+        defaults.setAuthorizationRealm("realm.sipfoundry.org");
+        defaults.setSipxServer(SipxServerTest.setUpSipxServer());
+
+        String sysdir = TestHelper.getSysDirProperties().getProperty("sysdir.etc");
+        phoneContext.getSystemDirectory();
+        control.andReturn(sysdir).anyTimes();
+
+        phoneContext.getPhoneDefaults();
+        control.andReturn(defaults).anyTimes();
+
+        ModelFilesContextImpl mfContext = new ModelFilesContextImpl();
+        mfContext.setConfigDirectory(sysdir);
+        mfContext.setModelBuilder(new XmlModelBuilder(sysdir));
+        phone.setModelFilesContext(mfContext);
+        
+        IMocksControl serviceManagerControl = EasyMock.createNiceControl();
+        ServiceManager serviceManager = serviceManagerControl.createMock(ServiceManager.class);
+        serviceManager.getEnabledServicesByType(UnmanagedService.NTP);
+        UnmanagedService ntp = new UnmanagedService();
+        ntp.setDescriptor(UnmanagedService.NTP);
+        ntp.setAddress("ntp.example.org");
+        serviceManagerControl.andReturn(Collections.singleton(ntp)).anyTimes();        
+        serviceManagerControl.replay();
+        
+        defaults.setServiceManager(serviceManager);
+        
+        phone.setPhoneContext(phoneContext);
     }
 }

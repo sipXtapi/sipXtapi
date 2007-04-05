@@ -23,7 +23,9 @@ import org.sipfoundry.sipxconfig.device.ProfileContext;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineInfo;
 import org.sipfoundry.sipxconfig.setting.Setting;
+import org.sipfoundry.sipxconfig.setting.SettingArray;
 import org.sipfoundry.sipxconfig.setting.SettingFilter;
+import org.sipfoundry.sipxconfig.setting.SettingSet;
 import org.sipfoundry.sipxconfig.setting.SettingUtil;
 import org.sipfoundry.sipxconfig.setting.SettingVisitor;
 
@@ -249,11 +251,15 @@ public class CiscoAtaProfileWriter extends AbstractProfileGenerator implements S
         }
     }
 
-    public boolean visitSettingGroup(Setting group) {
+    public boolean visitSettingGroup(SettingSet group) {
         return true;
     }
 
-    protected void generateProfile(ProfileContext context, String templateFileName, OutputStream out)
+    public boolean visitSettingArray(SettingArray array) {
+        return true;
+    }
+
+    protected void generateProfile(ProfileContext context, OutputStream out)
         throws IOException {
         m_wtr = new OutputStreamWriter(out, "US-ASCII");
         CiscoAtaPhone phone = (CiscoAtaPhone) context.getDevice();

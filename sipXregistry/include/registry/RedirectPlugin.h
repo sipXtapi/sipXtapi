@@ -171,7 +171,7 @@ class RedirectPlugin : public Plugin
     * logged message(s) at ERR level giving the details of the problem.
     *
     * The SipRedirectServer will be holding mMutex while lookUp is called.
-    * See ../doc/Redirection.txt for more details on how lookUp is called.
+    * See ../../doc/Redirection.txt for more details on how lookUp is called.
     */
    virtual LookUpStatus lookUp(
       const SipMessage& message,      ///< the incoming SIP message
@@ -232,7 +232,7 @@ class RedirectPlugin : public Plugin
   protected:
 
    /// Constructor is protected so that it is only callable from subclasses.
-   RedirectPlugin(const UtlString& instanceName) :
+   explicit RedirectPlugin(const UtlString& instanceName) :
       Plugin(instanceName)
       {
       };

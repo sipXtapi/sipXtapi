@@ -48,7 +48,9 @@
   <bean id="ciscoAta" class="org.sipfoundry.sipxconfig.phone.cisco.CiscoAtaPhone" singleton="false"
     parent="abstractPhone">
     <property name="profileGenerator">
-      <bean class="org.sipfoundry.sipxconfig.phone.cisco.CiscoAtaProfileWriter" />
+      <bean class="org.sipfoundry.sipxconfig.phone.cisco.CiscoAtaProfileWriter">
+        <property name="profileLocation" ref="tftpProfileLocation"/>
+      </bean>
     </property>
   </bean>
 </beans>

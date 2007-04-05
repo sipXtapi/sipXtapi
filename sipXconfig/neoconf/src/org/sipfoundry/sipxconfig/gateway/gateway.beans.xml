@@ -4,6 +4,8 @@
 <beans>
   <bean id="genericGatewayStandard" class="org.sipfoundry.sipxconfig.gateway.GatewayModel">
     <property name="beanId" value="gwGeneric" />
+    <!-- do not require serial number for unmanaged gateways -->
+    <property name="serialNumberPattern" value=""/>
     <property name="label" value="Unmanaged gateway" />
   </bean>
 

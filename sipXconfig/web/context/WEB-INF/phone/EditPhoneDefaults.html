@@ -14,35 +14,18 @@
         onchange="literal:javascript:this.form.submit();" />
     </p>
   </form>
-  <h2><span jwcid="@Insert" value="prop:editFormSettingLabel"/></h2>
-  <div id="settings-nav"> 
+  <div id="settings-nav">   
     <strong><span key="label.phones">Phones</span></strong>
-    <br/>
-    <ul>
-      <li jwcid="@For" element="li"
-        source="prop:phoneNavigationSettings" 
-        value="prop:currentNavigationSetting">
-        <a jwcid="@DirectLink"
-          listener="listener:editPhoneSettings"
-          parameters="prop:currentNavigationSetting.name">
-          <span jwcid="@Insert" value="prop:currentNavigationSettingLabel"/>
-        </a>
-      </li>
-    </ul> 
+    <span jwcid="@setting/SettingsNavigation" bean="prop:phone" activeSetting="prop:editFormSetting" 
+      editSettingsListener="listener:editPhoneSettingsClicked">
+    </span>
+  
     <strong><span key="label.lines">Lines</span></strong>
-    <br/>
-    <ul>
-      <li jwcid="@For" element="li"
-        source="prop:lineNavigationSettings" 
-        value="prop:currentNavigationSetting">
-        <a jwcid="@DirectLink"
-          listener="listener:editLineSettings"
-          parameters="prop:currentNavigationSetting.name">
-          <span jwcid="@Insert" value="prop:currentNavigationSettingLabel"/>
-        </a>
-      </li>
-    </ul>
+    <span jwcid="@setting/SettingsNavigation" bean="prop:line" activeSetting="prop:editFormSetting" 
+      editSettingsListener="listener:editLineSettingsClicked">
+    </span>
   </div>
+  
   <p><span jwcid="@Insert" value="prop:editFormSettingDescription"/></p>
   <span jwcid="@SettingsForm"
     validator="bean:validator"

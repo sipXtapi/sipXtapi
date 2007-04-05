@@ -251,8 +251,6 @@ OsStatus mergeWaveUrls(UtlString rSourceUrls[], UtlString &rDestFile)
     OsStatus retVal = OS_FAILED;
     int index = 0;
     
-    int outHandle = -1;
-
     if (OsFileSystem::exists(rDestFile.data()))
         OsFileSystem::remove(rDestFile.data());
 
@@ -358,10 +356,9 @@ OsStatus mergeWaveUrls(UtlString rSourceUrls[], UtlString &rDestFile)
             index++;  //move to next file
         }
         
+        OsStatus updateStat = updateWaveHeaderLengths(file);
         if (!bError)
         {
-            OsStatus updateStat = updateWaveHeaderLengths(file);
-            close(outHandle);
             retVal = updateStat;
         }
 
@@ -377,8 +374,6 @@ OsStatus mergeWaveFiles(UtlString rSourceFiles[], UtlString &rDestFile)
     OsStatus retVal = OS_FAILED;
     int index = 0;
     
-    int outHandle = -1;
-
     if (OsFileSystem::exists(rDestFile.data()))
         OsFileSystem::remove(rDestFile.data());
 
@@ -442,10 +437,9 @@ OsStatus mergeWaveFiles(UtlString rSourceFiles[], UtlString &rDestFile)
             index++;  //move to next file
         }
         
+        OsStatus updateStat = updateWaveHeaderLengths(file);
         if (!bError)
         {
-            OsStatus updateStat = updateWaveHeaderLengths(file);
-            close(outHandle);
             retVal = updateStat;
         }
 

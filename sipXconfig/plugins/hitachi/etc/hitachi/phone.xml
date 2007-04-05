@@ -3358,7 +3358,7 @@
 			<type>
 				<ipaddr />
 			</type>
-			<value>198.144.202.250</value>
+			<value/>
 			<description>
 				Address of the primary NTP server.
 			</description>

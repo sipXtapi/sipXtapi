@@ -123,9 +123,7 @@
     <component-type type="FieldPanel" specification-path="common/FieldPanel.jwc"/>
     <component-type type="FlexiblePropertySelection" specification-path="common/FlexiblePropertySelection.jwc"/>
     <component-type type="ExportLink" specification-path="common/ExportLink.jwc"/>
-    <component-type type="Footer" specification-path="common/Footer.jwc"/>
     <component-type type="FormActions" specification-path="common/FormActions.jwc"/>
-    <component-type type="GatewayForm" specification-path="gateway/GatewayForm.jwc"/>
     <component-type type="GatewayCallerAliasInfoPanel" specification-path="gateway/GatewayCallerAliasInfoPanel.jwc"/>
     <component-type type="GatewaysPanel" specification-path="gateway/GatewaysPanel.jwc"/>
     <component-type type="GatewayTable" specification-path="gateway/GatewayTable.jwc"/>
@@ -142,7 +140,6 @@
     <component-type type="LdapConnectionPanel" specification-path="admin/ldap/LdapConnectionPanel.jwc"/>
     <component-type type="LdapObjectClassPanel" specification-path="admin/ldap/LdapObjectClassPanel.jwc"/>
     <component-type type="LineLabel" specification-path="line/LineLabel.jwc"/>
-    <component-type type="LineNavigation" specification-path="line/LineNavigation.jwc"/>
     <component-type type="OptionalElement" specification-path="common/OptionalElement.jwc"/>
     <component-type type="PatternsEditor" specification-path="dialplan/PatternsEditor.jwc"/>
     <component-type type="PhoneLabel" specification-path="phone/PhoneLabel.jwc"/>
@@ -153,14 +150,10 @@
     <component-type type="RoutingExceptionEditor" specification-path="dialplan/RoutingExceptionEditor.jwc"/>
     <component-type type="ScheduleEditor" specification-path="common/ScheduleEditor.jwc"/>
     <component-type type="SelectRuleType" specification-path="dialplan/SelectRuleType.jwc"/>
-    <component-type type="SettingEditor" specification-path="setting/SettingEditor.jwc"/>
-    <component-type type="SettingsFieldset" specification-path="setting/SettingsFieldset.jwc"/>
     <component-type type="SettingsForm" specification-path="setting/SettingsForm.jwc"/>
-    <component-type type="SettingsNavigation" specification-path="setting/SettingsNavigation.jwc"/>
     <component-type type="SpecialAttendantPanel" specification-path="dialplan/SpecialAttendantPanel.jwc"/>
     <component-type type="StatsTable" specification-path="common/StatsTable.jwc"/>
     <component-type type="Table" specification-path="common/Table.jwc"/>
-    <component-type type="TabNavigation" specification-path="common/TabNavigation.jwc"/>
     <component-type type="ToggleLink" specification-path="common/ToggleLink.jwc"/>
     <component-type type="UserForm" specification-path="user/UserForm.jwc"/>
     <component-type type="UserNavigation" specification-path="user/UserNavigation.jwc"/>

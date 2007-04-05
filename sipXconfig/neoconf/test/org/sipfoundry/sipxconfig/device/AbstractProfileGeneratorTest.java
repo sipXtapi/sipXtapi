@@ -23,9 +23,8 @@ import org.easymock.IMocksControl;
 public class AbstractProfileGeneratorTest extends TestCase {
 
     private static class ProfileGeneratorStub extends AbstractProfileGenerator {
-        protected void generateProfile(ProfileContext context, String templateFileName,
-                OutputStream out) throws IOException {
-            out.write(templateFileName.getBytes("US-ASCII"));
+        protected void generateProfile(ProfileContext context, OutputStream out) throws IOException {
+            out.write(context.getProfileTemplate().getBytes("US-ASCII"));
         }
     }
 
@@ -47,7 +46,7 @@ public class AbstractProfileGeneratorTest extends TestCase {
         MemoryProfileLocation location = new MemoryProfileLocation();
         AbstractProfileGenerator pg = new ProfileGeneratorStub();
         pg.setProfileLocation(location);
-        pg.generate(null, "bongo", "ignored");
+        pg.generate(new ProfileContext(null, "bongo"), "ignored");
         assertEquals("bongo", location.toString());
     }
 
@@ -55,7 +54,7 @@ public class AbstractProfileGeneratorTest extends TestCase {
         MemoryProfileLocation location = new MemoryProfileLocation();
         AbstractProfileGenerator pg = new ProfileGeneratorStub();
         pg.setProfileLocation(location);
-        pg.generate(null, "bongo", new DoublingProfileFilter(), "ignored");
+        pg.generate(new ProfileContext(null, "bongo"), new DoublingProfileFilter(), "ignored");
         assertEquals("bboonnggoo", location.toString());
     }
 

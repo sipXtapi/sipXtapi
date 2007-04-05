@@ -25,26 +25,32 @@
 	</group>
 	<group name="cards">
 		<label>Playing Cards</label>
-		<group name="suit">
-			<setting name="spades"/>
-			<setting name="clubs"/>
-			<setting name="diamonds"/>
-			<setting name="hearts"/>
-		</group>
-		<group name="card">
-			<setting name="A"/>
-			<setting name="2"/>
-			<setting name="3"/>
-			<setting name="4"/>
-			<setting name="5"/>
-			<setting name="6"/>
-			<setting name="7"/>
-			<setting name="8"/>
-			<setting name="9"/>
-			<setting name="10"/>
-			<setting name="J"/>
-			<setting name="Q"/>
-			<setting name="K"/>
-		</group>
+        <collection name="deck" size="4">
+            <setting name="suit">
+              <type>
+                <enum>
+                  <option><value>spade</value></option>
+                  <option><value>heart</value></option>
+                  <option><value>diamond</value></option>
+                  <option><value>club</value></option>
+                </enum>
+              </type>
+            </setting>
+    		<group name="card">
+    			<setting name="A"/>
+    			<setting name="2"/>
+    			<setting name="3"/>
+    			<setting name="4"/>
+    			<setting name="5"/>
+    			<setting name="6"/>
+    			<setting name="7"/>
+    			<setting name="8"/>
+    			<setting name="9"/>
+    			<setting name="10"/>
+    			<setting name="J"/>
+    			<setting name="Q"/>
+    			<setting name="K"/>
+    		</group>
+        </collection>
 	</group>
 </model>

@@ -30,6 +30,7 @@ public abstract class AbstractRing extends BeanWithId implements DataCollectionI
     private int m_expiration = DEFAULT_EXPIRATION;
     private Type m_type = Type.DELAYED;
     private int m_position;
+    private boolean m_enabled = true;
 
     public int getExpiration() {
         return m_expiration;
@@ -54,6 +55,16 @@ public abstract class AbstractRing extends BeanWithId implements DataCollectionI
     public void setType(Type type) {
         m_type = type;
     }
+
+
+    public boolean isEnabled() {
+        return m_enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        m_enabled = enabled;
+    }
+
 
     public static class Type extends Enum {
         public static final Type DELAYED = new Type("If no response");

@@ -21,7 +21,18 @@ public class Button implements Serializable {
     private String m_label;
     private String m_number;
     private boolean m_blf;
+    
+    public Button() {        
+    }
 
+    public Button(String label, String number) {
+        setNumber(number);
+        setLabel(label);
+    }
+
+    /**
+     * @return null if not set, may want to use number
+     */
     public String getLabel() {
         return m_label;
     }
@@ -37,7 +48,7 @@ public class Button implements Serializable {
     public void setNumber(String number) {
         m_number = number;
     }
-
+    
     public boolean isBlf() {
         return m_blf;
     }

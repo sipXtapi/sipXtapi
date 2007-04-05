@@ -11,7 +11,6 @@
  */
 package org.sipfoundry.sipxconfig.setting;
 
-import java.io.InputStream;
 import java.util.Collection;
 
 import junit.framework.TestCase;
@@ -36,36 +35,12 @@ public class SettingUtilTest extends TestCase {
 
     public void testIsLeaf() {
         SettingSet root = new SettingSet();
-        assertTrue(SettingUtil.isLeaf(root));
-        SettingSet child = new SettingSet("child1"); 
+        assertTrue(root.isLeaf());
+        SettingSet child = new SettingSet("child1");
         root.addSetting(child);
-        assertFalse(SettingUtil.isLeaf(root));
-        assertTrue(SettingUtil.isLeaf(child));
+        assertFalse(root.isLeaf());
+        assertTrue(child.isLeaf());
     }
-
-    public void testZeroSubpath() {
-        assertEquals(null, SettingUtil.subpath(null, 1));
-        assertEquals("a", SettingUtil.subpath("a", 0));
-        assertEquals("a/b/c", SettingUtil.subpath("a/b/c", 0));
-    }
-        
-    public void testOneSubpath() {
-        assertEquals("b", SettingUtil.subpath("a/b", 1));
-        assertEquals("b", SettingUtil.subpath("/b", 1));
-        assertEquals("", SettingUtil.subpath("a/", 1));
-    }
-    
-    public void testNSubpath() {
-        assertEquals("c", SettingUtil.subpath("a/b/c", 2));
-    }
-    
-//    public void testGetSettingFromNode() {
-//        Setting root = TestHelper.loadSettings("../test/org/sipfoundry/sipxconfig/setting/games.xml");
-//        Setting cards = root.getSetting("cards");
-//        Setting ace = root.getSetting("cards/card/A");
-//        String acePath = ace.getPath();
-//        assertSame(ace, SettingUtil.getSettingFromNode(cards, acePath));        
-//    }
 
     public void testIsAdvancedIncludingParents() {
         Setting root = loadSettings("advanced.xml");
@@ -74,12 +49,13 @@ public class SettingUtilTest extends TestCase {
         assertFalse(SettingUtil.isAdvancedIncludingParents(root, root.getSetting("not-advanced/setting")));
         assertFalse(SettingUtil.isAdvancedIncludingParents(root, root.getSetting("not-advanced")));
         assertTrue(SettingUtil.isAdvancedIncludingParents(root, root.getSetting("advanced-setting/setting")));
-        assertTrue(SettingUtil.isAdvancedIncludingParents(root, root.getSetting("advance-and-advanded-setting/setting")));
-        assertTrue(SettingUtil.isAdvancedIncludingParents(root, root.getSetting("advance-and-advanded-setting")));
-    }    
-    
+        assertTrue(SettingUtil.isAdvancedIncludingParents(root, root
+                .getSetting("advance-and-advanded-setting/setting")));
+        assertTrue(SettingUtil.isAdvancedIncludingParents(root, root
+                .getSetting("advance-and-advanded-setting")));
+    }
+
     Setting loadSettings(String resource) {
-        InputStream in = getClass().getResourceAsStream(resource);
-        return TestHelper.loadSettings(in);
+        return TestHelper.loadSettings(getClass(), resource);
     }
 }

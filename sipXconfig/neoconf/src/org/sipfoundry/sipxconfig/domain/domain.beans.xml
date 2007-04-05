@@ -40,6 +40,7 @@
   <bean id="domainInitializer"
     class="org.sipfoundry.sipxconfig.domain.DomainInitializer">
     <property name="domainManager" ref="domainManager"/>
+    <property name="taskName" value="initialize-domain"/>
   </bean>
 
 </beans>

@@ -15,25 +15,16 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import org.apache.tapestry.IPage;
-import org.apache.tapestry.IRequestCycle;
-import org.apache.tapestry.annotations.ComponentClass;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.InjectPage;
-import org.apache.tapestry.annotations.Parameter;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.setting.Setting;
-import org.sipfoundry.sipxconfig.site.common.NavigationWithSettings;
+import org.sipfoundry.sipxconfig.site.common.BeanNavigation;
 import org.sipfoundry.sipxconfig.site.speeddial.SpeedDialPage;
 import org.sipfoundry.sipxconfig.site.user_portal.UserCallForwarding;
 
-@ComponentClass(allowBody = true, allowInformalParameters = false)
-public abstract class UserNavigation extends NavigationWithSettings {
-
-    @Parameter(required = true)
-    public abstract void setUser(User user);
-
-    public abstract User getUser();
+public abstract class UserNavigation extends BeanNavigation<User> {
 
     @InjectObject(value = "spring:coreContext")
     public abstract CoreContext getCoreContext();
@@ -77,9 +68,9 @@ public abstract class UserNavigation extends NavigationWithSettings {
         return page;
     }
 
-    public IPage editSettings(Integer userId, String path) {
+    public IPage editSettings(Integer beanId, String path) {
         UserSettings page = getUserSettingsPage();
-        page.setUserId(userId);
+        page.setUserId(beanId);
         page.setParentSettingName(path);
         return page;
     }
@@ -97,16 +88,29 @@ public abstract class UserNavigation extends NavigationWithSettings {
         page.setReturnPage(ManageUsers.PAGE);
         return page;
     }
+    
+    public boolean isIdentificationTabActive() {
+        return EditUser.PAGE.equals(getPage().getPageName());
+    }
 
-    public void prepareForRender(IRequestCycle cycle) {
-        super.prepareForRender(cycle);
-        Setting settings = getUser().getSettings();
-        setSettings(settings);
-        setMessageSource(settings.getMessageSource());
+    public boolean isPhonesTabActive() {
+        return UserPhones.PAGE.equals(getPage().getPageName());
+    }
+    
+    public boolean isCallForwardingTabActive() {
+        return UserCallForwarding.PAGE.equals(getPage().getPageName());
+    }
+    
+    public boolean isSpeedDialTabActive() {
+        return SpeedDialPage.PAGE.equals(getPage().getPageName());
+    }
+    
+    public boolean isSupervisorTabActive() {
+        return SupervisorPermission.PAGE.equals(getPage().getPageName());
     }
 
     public Collection<Setting> getNavigationGroups() {
-        Setting settings = getSettings();
+        Setting settings = getBean().getSettings();
         return getUserNavigationGroups(settings);
     }
 
@@ -121,7 +125,7 @@ public abstract class UserNavigation extends NavigationWithSettings {
      * </code>
      * 
      * Into tree that looks like this: <code>
-     * - aplication permissions 
+     * - application permissions 
      * - call handling
      * - group 1
      * - group 2

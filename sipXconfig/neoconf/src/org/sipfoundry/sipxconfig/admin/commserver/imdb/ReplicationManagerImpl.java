@@ -38,6 +38,7 @@ import org.sipfoundry.sipxconfig.admin.dialplan.config.XmlFile;
 public class ReplicationManagerImpl implements ReplicationManager {
     private static final Log LOG = LogFactory.getLog(ReplicationManagerImpl.class);
     private static final Charset CHARSET_UTF8 = Charset.forName("UTF8");
+    private boolean m_enabled = true;
 
     /**
      * sends payload data to all URLs
@@ -93,6 +94,11 @@ public class ReplicationManagerImpl implements ReplicationManager {
      * posts the xmlData to the URL given.
      */
     boolean postData(String url, byte[] xmlData) throws IOException {
+        if (!m_enabled) {
+            LOG.warn("Replication disabled. Typical of a test environment");
+            return true;
+        }
+        
         HttpURLConnection urlConn = getConnection(url);
         urlConn.setDoOutput(true);
         urlConn.setRequestMethod("POST");
@@ -168,5 +174,9 @@ public class ReplicationManagerImpl implements ReplicationManager {
             }
         }
         return success;
+    }
+
+    public void setEnabled(boolean enabled) {
+        m_enabled = enabled;
     }
 }

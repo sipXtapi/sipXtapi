@@ -11,18 +11,20 @@
  */
 package org.sipfoundry.sipxconfig.setting;
 
+import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Collection;
 
 import junit.framework.TestCase;
+
+import org.sipfoundry.sipxconfig.TestHelper;
 
 
 public class PatternSettingFilterTest extends TestCase {
     
     public void testPatternFilter() throws IOException {
         ModelBuilder builder = new XmlModelBuilder("etc");
-        InputStream in = getClass().getResourceAsStream("games.xml");
+        File in = TestHelper.getResourceAsFile(getClass(), "games.xml");        
         SettingSet games = builder.buildModel(in);
 
         PatternSettingFilter filter = new PatternSettingFilter();

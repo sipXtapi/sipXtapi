@@ -1,44 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE component-specification PUBLIC "-//Apache Software Foundation//Tapestry Specification 4.0//EN" "http://jakarta.apache.org/tapestry/dtd/Tapestry_4_0.dtd">
-<component-specification
-	class="org.sipfoundry.sipxconfig.site.line.LineNavigation"
-	allow-body="yes" allow-informal-parameters="yes">
-	<description>add a description</description>
-	<!--
-		- P A R A M E T E R S
-	-->
-	<parameter name="line" required="yes" />
-	<!--
-		- P R O P E R T I E S
-	-->
-	<inject property="phoneContext" object="spring:phoneContext" />
-	<!--
-		- B E A N S
-	-->
-	<bean name="tabs" class="org.sipfoundry.sipxconfig.components.Tabs" lifecycle="request">
-		<set name="activeTab" value="literal:tab" />
-	</bean>
-	<!--
-		- C O M P O N E N T S
-	-->
-	<component id="lineTab" type="DirectLink">
-		<binding name="listener" value="listener:editLine" />
-		<binding name="parameters" value="line.id" />
-		<binding name="class" value="beans.tabs.getTabClass('EditLine')" />
-	</component>
-	<component id="settingsTabs" type="For">
-		<binding name="source" value="settings.values" />
-		<binding name="value" value="currentSetting" />
-	</component>
-	<component id="settingsTab" type="DirectLink">
-		<binding name="listener" value="listener:editSettings" />
-		<binding name="parameters"
-			value="editSettingListenerParameters" />
-		<binding name="class"
-			value="beans.tabs.getTabClass(currentSetting.name)" />
-	</component>
-	<component id="lineLabel" type="LineLabel">
-		<binding name="line" value="line" />
-		<binding name="phoneContext" value="phoneContext" />
-	</component>
+<component-specification>
 </component-specification>

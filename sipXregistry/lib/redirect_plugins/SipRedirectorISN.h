@@ -36,7 +36,7 @@ class SipRedirectorISN : public RedirectPlugin
 {
   public:
 
-   SipRedirectorISN(const UtlString& instanceName);
+   explicit SipRedirectorISN(const UtlString& instanceName);
 
    ~SipRedirectorISN();
 

@@ -34,7 +34,7 @@ public class CallSequenceTest extends TestCase {
         final int N = 7;
         List rings = new ArrayList(N);
         for (int i = 0; i < N; i++) {
-            Ring ring = new Ring("2" + i, i, Ring.Type.DELAYED);
+            Ring ring = new Ring("2" + i, i, Ring.Type.DELAYED, true);
             rings.add(ring);
         }
         // add empty ring - should not change anything
@@ -55,11 +55,41 @@ public class CallSequenceTest extends TestCase {
         }
     }
 
+    public void testGenerateXabledAliases() {
+        final int N = 8;
+        List ringsDisabled = new ArrayList(N);
+        List ringsMixed = new ArrayList(N);
+        for (int i = 0; i < N; i++) {
+			boolean enabled = (i % 2) == 0;
+            ringsMixed.add(new Ring("2" + i, i, Ring.Type.DELAYED, enabled));
+            ringsDisabled.add(new Ring("2" + i, i, Ring.Type.DELAYED, false));
+        }
+
+        CallSequence sequence = new CallSequence();
+        sequence.setUser(m_user);
+
+        sequence.setRings(ringsDisabled);
+        List aliases = sequence.generateAliases("sipfoundry.org");
+        assertEquals(0, aliases.size());
+
+        sequence.setRings(ringsMixed);
+        aliases = sequence.generateAliases("sipfoundry.org");
+        assertEquals(N/2, aliases.size());
+        
+        for (Iterator i = aliases.iterator(); i.hasNext();) {
+            AliasMapping a = (AliasMapping) i.next();
+            assertEquals("abc@sipfoundry.org", a.getIdentity());
+            String contact = a.getContact();
+            assertTrue(contact
+                    .matches("<sip:\\d+@sipfoundry.org;sipx-noroute=Voicemail\\?expires=\\d+>;q=[01]\\.\\d+"));
+        }
+    }
+
     public void testGenerateAuthExceptions() {
         final int N = 7;
         List rings = new ArrayList(N);
         for (int i = 0; i < N; i++) {
-            Ring ring = new Ring("2" + i, i, Ring.Type.DELAYED);
+            Ring ring = new Ring("2" + i, i, Ring.Type.DELAYED, true);
             rings.add(ring);
         }
         // add empty ring - should not change anything
@@ -89,9 +119,9 @@ public class CallSequenceTest extends TestCase {
 
         List calls = new ArrayList();
 
-        Ring ring0 = new Ring("000", 40, Ring.Type.IMMEDIATE);
-        Ring ring1 = new Ring("111", 40, Ring.Type.IMMEDIATE);
-        Ring ring2 = new Ring("222", 40, Ring.Type.IMMEDIATE);
+        Ring ring0 = new Ring("000", 40, Ring.Type.IMMEDIATE, true);
+        Ring ring1 = new Ring("111", 40, Ring.Type.IMMEDIATE, true);
+        Ring ring2 = new Ring("222", 40, Ring.Type.IMMEDIATE, true);
 
         calls.add(ring0.setUniqueId());
         calls.add(ring1.setUniqueId());

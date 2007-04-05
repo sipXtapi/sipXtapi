@@ -11,8 +11,12 @@
  */
 package org.sipfoundry.sipxconfig.gateway.audiocodes;
 
+import java.io.InputStream;
+
 import junit.framework.TestCase;
 
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
 import org.sipfoundry.sipxconfig.TestHelper;
@@ -33,17 +37,33 @@ public class MediantGatewayTestDb extends TestCase {
         m_model = (AudioCodesModel) modelSource.getModel("audiocodesMP1X4_4_FXO");
         m_gateway = (MediantGateway) TestHelper.getApplicationContext().getBean(m_model.getBeanId());
         m_gateway.setModelId(m_model.getModelId());
+        m_gateway.setSerialNumber("FT0123456");
     }
 
+    public void testModel() {
+        assertSame(m_model, m_gateway.getModel());        
+    }
+    
     public void testGenerateProfiles() throws Exception {
-        assertSame(m_model, m_gateway.getModel());
-
         MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(m_gateway);
         m_gateway.generateProfiles();
 
-        System.err.println(location.toString());
-        // cursory check for now
-        assertTrue(location.toString().indexOf("MaxDigits") >= 0);
+        InputStream expectedProfile = getClass().getResourceAsStream("mp-gateway.ini");
+        assertNotNull(expectedProfile);
+        String expected = IOUtils.toString(expectedProfile);
+        expectedProfile.close();
+        
+        String actual = location.toString();
+
+        String expectedLines[] = StringUtils.split(expected, "\n");
+        String actualLines[] = StringUtils.split(actual, "\n");
+
+        int len = Math.min(actualLines.length, expectedLines.length);
+        for (int i = 0; i < len; i++) {
+            assertEquals(expectedLines[i], actualLines[i]);
+        }
+        assertEquals(expectedLines.length, actualLines.length);        
+        assertEquals(expected, actual);
     }
 
     public void testPrepareSettings() throws Exception {

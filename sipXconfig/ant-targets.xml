@@ -6,7 +6,7 @@
   -
   - NOTES:
   -
-  -  Attempts to define targets w/standard target names, but not authorative
+  -  Attempts to define targets w/standard target names, but no authorative
   -    standard was used.
   -->
 <project xmlns:ivy="antlib:fr.jayasoft.ivy.ant" name="ant-targets" default="default">
@@ -160,6 +160,12 @@
     <delete dir="${dist.dir}"/>
     <delete dir="${clover.dir}"/>
     <delete dir="${style.dir}"/>
+  </target>
+
+
+  <!-- D I S T C L E A N -->
+  <target name="distclean" depends="clean"
+      description="remove class, distribution and test directories (same as clean)">
   </target>
 
 
@@ -343,10 +349,10 @@
 		<manifest file="${dist.dir}/MANIFEST.MF">
 			<attribute name="Specification-Title" value="sipXconfig"/>
 			<attribute name="Specification-Version" value="${version}"/>
-			<attribute name="Specification-Vendor" value="SipFoundry"/>
+			<attribute name="Specification-Vendor" value="SIPfoundry"/>
 			<attribute name="Implementation-Title" value="${project.dir}"/>
 			<attribute name="Implementation-Version" value="${version.buildno} ${version.build}"/>
-			<attribute name="Implementation-Vendor" value="SipFoundry"/>
+			<attribute name="Implementation-Vendor" value="SIPfoundry"/>
 		</manifest>				
   </presetdef>	
 	

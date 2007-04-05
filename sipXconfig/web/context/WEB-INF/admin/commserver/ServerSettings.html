@@ -1,13 +1,12 @@
-<html>
-<head>
-    <link rel="stylesheet" type="text/css" href="../../css/sipxconfig.css"/>
-</head>
-<body jwcid="$content$">
-    <div jwcid="@Border">        
-        <span jwcid="settingsNavigation">
-            <span jwcid="settingDescription"></span>
-        </span>
-        <span jwcid="settingsForm"/>
-    </div>   
-</body>
-</html>
+<span jwcid="$content$">
+  <div jwcid="@Border">
+    <div id="settings-nav">
+      <span jwcid="@setting/SettingsNavigation" bean="prop:server"
+        activeSetting="prop:parentSetting"
+        editSettingsListener="listener:editSettings"/>
+    </div>
+    <span jwcid="@SettingsForm" settings="prop:parentSetting"
+      cancelListener="listener:cancel" applyListener="listener:apply"
+      validator="bean:validator"/>
+  </div>
+</span>

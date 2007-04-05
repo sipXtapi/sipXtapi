@@ -136,6 +136,14 @@ class CallResolverConfigure
     parse_int_param(@config, 'SIP_CALLRESOLVER_CSE_POLLING_INTERVAL', 10, 1)
   end
   
+  # number of seconds for that the longest registered call may last
+  # all calls longer than max_call_len will be logged as completed
+  # -1 means - no lenght limit (but it may lead to zombie calls never removed 
+  # from the pool of active calls)
+  def max_call_len
+    parse_int_param(@config, 'SIP_CALLRESOLVER_MAX_CALL_LEN', 8 * 60 * 60, -1)    
+  end
+  
   def stunnel_debug
     @config.fetch('SIP_CALLRESOLVER_STUNNEL_DEBUG', 5)
   end

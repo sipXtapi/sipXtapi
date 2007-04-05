@@ -36,7 +36,7 @@ class SipRedirectorRegDB : public RedirectPlugin
 {
   public:
 
-   SipRedirectorRegDB(const UtlString& instanceName);
+   explicit SipRedirectorRegDB(const UtlString& instanceName);
 
    ~SipRedirectorRegDB();
 

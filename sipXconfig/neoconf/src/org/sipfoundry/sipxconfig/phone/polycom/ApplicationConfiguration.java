@@ -37,7 +37,7 @@ public class ApplicationConfiguration extends ProfileContext {
     private String m_parentDir;
 
     public ApplicationConfiguration(Phone phone, String parentDir) {
-        super(phone);
+        super(phone, "polycom/mac-address.cfg.vm");
         m_serialNumber = phone.getSerialNumber();
         m_parentDir = parentDir;
     }

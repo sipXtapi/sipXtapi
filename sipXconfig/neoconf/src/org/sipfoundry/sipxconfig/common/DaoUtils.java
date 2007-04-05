@@ -135,7 +135,7 @@ public final class DaoUtils {
      * @return first item from the collection
      * @throws IllegalStateException if more than one item in collection.
      */
-    public static Object requireOneOrZero(Collection c, String query) {
+    public static <T> T requireOneOrZero(Collection<T> c, String query) {
         if (c.size() > 1) {
             // DatabaseCorruptionException ?
             // TODO: move error string construction to new UnexpectedQueryResult(?) class, enable
@@ -144,7 +144,7 @@ public final class DaoUtils {
                     " and expected zero or one. query=").append(query);
             throw new IllegalStateException(error.toString());
         }
-        Iterator i = c.iterator();
+        Iterator<T> i = c.iterator();
 
         return (i.hasNext() ? c.iterator().next() : null);
     }

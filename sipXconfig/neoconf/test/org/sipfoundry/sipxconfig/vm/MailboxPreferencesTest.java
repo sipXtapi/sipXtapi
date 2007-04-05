@@ -17,12 +17,11 @@ import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.io.StringWriter;
 
-import junit.framework.TestCase;
-
 import org.apache.commons.io.IOUtils;
+import org.custommonkey.xmlunit.XMLTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
 
-public class MailboxPreferencesTest extends TestCase {
+public class MailboxPreferencesTest extends XMLTestCase {
     
     private MailboxPreferencesReader m_reader;
     private MailboxPreferencesWriter m_writer;
@@ -47,17 +46,14 @@ public class MailboxPreferencesTest extends TestCase {
         assertSame(MailboxPreferences.ActiveGreeting.NONE, actual);
     }
     
-    public void testWritePreferences() throws IOException {
+    public void testWritePreferences() throws Exception {
         StringWriter actual = new StringWriter();
         MailboxPreferences prefs = new MailboxPreferences();
         prefs.setEmailAddress("dhubler@pingtel.com");
         prefs.setActiveGreeting(MailboxPreferences.ActiveGreeting.OUT_OF_OFFICE);
         m_writer.writeObject(prefs, actual);
-        StringWriter expected = new StringWriter();
         InputStream expectedIn = getClass().getResourceAsStream("expected-mailboxprefs.xml");
-        IOUtils.copy(expectedIn, expected);
-        IOUtils.closeQuietly(expectedIn);
-        assertEquals(expected.toString(), actual.toString());
+        compareXML(actual.toString(), new InputStreamReader(expectedIn));
     }
     
     public void testReadWritePreferences() throws IOException {

@@ -145,6 +145,11 @@ public class SnomPhone extends Phone {
 
             return '+' + String.valueOf(tzsec);
         }
+        
+        @SettingEntry(path = "Basic_Network_Settings/ntp_server")
+        public String getNtpServer() {
+            return m_defaults.getNtpServer();
+        }        
 
         @SettingEntry(path = DST_SETTING)
         public String getDstSetting() {

@@ -52,7 +52,7 @@ class SipRedirectorGateway : public RedirectPlugin
 {
   public:
 
-   SipRedirectorGateway(const UtlString& instanceName);
+   explicit SipRedirectorGateway(const UtlString& instanceName);
 
    ~SipRedirectorGateway();
 

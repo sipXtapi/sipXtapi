@@ -29,6 +29,16 @@ public class GroupTestDb extends SipxDatabaseTestCase {
         m_dao = (SettingDao) context.getBean("settingDao");
     }
 
+    static class TestBeanWithSettings extends BeanWithSettings {
+        private SettingSet m_set;
+        TestBeanWithSettings(SettingSet set) {
+            m_set = set;
+        }
+        protected Setting loadSettings() {
+            return m_set;
+        }
+    }
+
     public void testSave() throws Throwable {
         TestHelper.cleanInsert("ClearDb.xml");
 
@@ -40,7 +50,8 @@ public class GroupTestDb extends SipxDatabaseTestCase {
         ms.setResource("unittest");
         ms.setName("food");
         
-        Setting settings = ms.inherhitSettingsForEditing(root);
+        TestBeanWithSettings bean = new TestBeanWithSettings(root);
+        Setting settings = ms.inherhitSettingsForEditing(bean);
         
         settings.getSetting("fruit/apple").setValue("granny smith");
         settings.getSetting("vegetable/pea").setValue(null);
@@ -71,7 +82,8 @@ public class GroupTestDb extends SipxDatabaseTestCase {
 
         Group ms = m_dao.loadGroup(new Integer(1));
         
-        Setting settings = ms.inherhitSettingsForEditing(root);
+        TestBeanWithSettings bean = new TestBeanWithSettings(root);
+        Setting settings = ms.inherhitSettingsForEditing(bean);
         // should make it disappear
         settings.getSetting("fruit/apple").setValue("granny smith");
 

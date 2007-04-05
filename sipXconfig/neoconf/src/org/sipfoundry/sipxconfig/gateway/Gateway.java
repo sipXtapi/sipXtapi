@@ -25,6 +25,8 @@ import org.sipfoundry.sipxconfig.device.ProfileContext;
 import org.sipfoundry.sipxconfig.device.ProfileGenerator;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
+import org.sipfoundry.sipxconfig.setting.SettingExpressionEvaluator;
+import org.sipfoundry.sipxconfig.setting.SimpleDefinitionsEvaluator;
 
 /**
  * Gateway
@@ -74,13 +76,12 @@ public class Gateway extends BeanWithSettings implements NamedObject, Device {
      */
     public void generateProfiles() {
         String profileFileName = getProfileFilename();
-        String profileTemplate = getProfileTemplate();
         ProfileContext context = createContext();
-        m_profileGenerator.generate(context, profileTemplate, profileFileName);
+        m_profileGenerator.generate(context, profileFileName);
     }
 
     protected ProfileContext createContext() {
-        return new ProfileContext(this);
+        return new ProfileContext(this, getProfileTemplate());
     }
 
     public void removeProfiles() {
@@ -235,6 +236,17 @@ public class Gateway extends BeanWithSettings implements NamedObject, Device {
             definitions.add(getDeviceVersion().getVersionId());
         }
         return definitions;
+    }
+
+    /**
+     * If SimepleDefinitionEvaluator is not what you need override this function to provide your
+     * own expression evaluator to be used when loading settings model.
+     * 
+     * @return reusable copy of expression evaluator
+     */
+    protected SettingExpressionEvaluator getSettingsEvaluator() {
+        Set defines = getModelDefinitions();
+        return new SimpleDefinitionsEvaluator(defines);
     }
 
     public void setDefaults(DeviceDefaults defaults) {

@@ -51,4 +51,14 @@ public class CiscoAtaDefaults {
     public String getVoiceMailNumber() {
         return m_defaults.getVoiceMail();
     }
+    
+    @SettingEntry(path = "network/NTPIP")
+    public String getNtpServer() {
+        return m_defaults.getNtpServer();
+    }
+
+    @SettingEntry(path = "network/AltNTPIP")
+    public String getAlternateNtpServer() {
+        return m_defaults.getAlternateNtpServer();
+    }
 }

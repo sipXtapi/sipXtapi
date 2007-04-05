@@ -42,13 +42,7 @@ public class PolycomPhone extends Phone {
     static final String PASSWORD_PATH = "reg/auth.password";
     static final String USER_ID_PATH = "reg/address";
     static final String AUTHORIZATION_ID_PATH = "reg/auth.userId";
-
-    private String m_phoneConfigDir = "polycom/mac-address.d";
-    private String m_phoneTemplate = m_phoneConfigDir + "/phone.cfg.vm";
-    private String m_sipTemplate = m_phoneConfigDir + "/sip-%s.cfg.vm";
-    private String m_coreTemplate = m_phoneConfigDir + "/ipmid.cfg.vm";
-    private String m_directoryTemplate = "polycom/mac-address-directory.xml.vm";
-    private String m_applicationTemplate = "polycom/mac-address.cfg.vm";
+    static final String TEMPLATE_DIR = "polycom/mac-address.d";
 
     private String m_tftpRoot;
 
@@ -83,8 +77,8 @@ public class PolycomPhone extends Phone {
     @Override
     public void initialize() {
         SpeedDial speedDial = getPhoneContext().getSpeedDial(this);
-        PolycomPhoneDefaults phoneDefaults = new PolycomPhoneDefaults(getPhoneContext()
-                .getPhoneDefaults(), speedDial);
+        PolycomPhoneDefaults phoneDefaults = new PolycomPhoneDefaults(getPhoneContext().getPhoneDefaults(),
+                speedDial);
         addDefaultBeanSettingHandler(phoneDefaults);
 
         PolycomIntercomDefaults intercomDefaults = new PolycomIntercomDefaults(this);
@@ -93,41 +87,8 @@ public class PolycomPhone extends Phone {
 
     @Override
     public void initializeLine(Line line) {
-        PolycomLineDefaults lineDefaults = new PolycomLineDefaults(getPhoneContext()
-                .getPhoneDefaults(), line);
+        PolycomLineDefaults lineDefaults = new PolycomLineDefaults(getPhoneContext().getPhoneDefaults(), line);
         line.addDefaultBeanSettingHandler(lineDefaults);
-    }
-
-    public String getPhoneTemplate() {
-        return m_phoneTemplate;
-    }
-
-    public void setPhoneTemplate(String phoneTemplate) {
-        m_phoneTemplate = phoneTemplate;
-    }
-
-    public String getCoreTemplate() {
-        return m_coreTemplate;
-    }
-
-    public void setCoreTemplate(String coreTemplate) {
-        m_coreTemplate = coreTemplate;
-    }
-
-    public String getApplicationTemplate() {
-        return m_applicationTemplate;
-    }
-
-    public void setApplicationTemplate(String applicationTemplate) {
-        m_applicationTemplate = applicationTemplate;
-    }
-
-    public String getSipTemplate() {
-        return String.format(m_sipTemplate, getDeviceVersion().getVersionId());
-    }
-
-    public void setSipTemplate(String sipTemplate) {
-        m_sipTemplate = sipTemplate;
     }
 
     public void generateProfiles() {
@@ -135,22 +96,20 @@ public class PolycomPhone extends Phone {
 
         ApplicationConfiguration app = new ApplicationConfiguration(this, m_tftpRoot);
 
-        getProfileGenerator().generate(app, getApplicationTemplate(), format,
-                app.getAppFilename());
+        getProfileGenerator().generate(app, format, app.getAppFilename());
 
         SipConfiguration sip = new SipConfiguration(this);
-        getProfileGenerator().generate(sip, getSipTemplate(), format, app.getSipFilename());
+        getProfileGenerator().generate(sip, format, app.getSipFilename());
 
         PhoneConfiguration phone = new PhoneConfiguration(this);
-        getProfileGenerator().generate(phone, getPhoneTemplate(), format, app.getPhoneFilename());
+        getProfileGenerator().generate(phone, format, app.getPhoneFilename());
 
         app.deleteStaleDirectories();
 
         Collection<PhonebookEntry> entries = getPhoneContext().getPhonebookEntries(this);
         SpeedDial speedDial = getPhoneContext().getSpeedDial(this);
         DirectoryConfiguration dir = new DirectoryConfiguration(entries, speedDial);
-        getProfileGenerator().generate(dir, getDirectoryTemplate(), format,
-                app.getDirectoryFilename());
+        getProfileGenerator().generate(dir, format, app.getDirectoryFilename());
     }
 
     public void removeProfiles() {
@@ -209,13 +168,5 @@ public class PolycomPhone extends Phone {
 
     public void restart() {
         sendCheckSyncToFirstLine();
-    }
-
-    public String getDirectoryTemplate() {
-        return m_directoryTemplate;
-    }
-
-    public void setDirectoryTemplate(String directoryTemplate) {
-        m_directoryTemplate = directoryTemplate;
     }
 }

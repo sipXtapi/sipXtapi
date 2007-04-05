@@ -23,16 +23,16 @@ public class SnapshotTest extends TestCase {
         Snapshot snapshot = new Snapshot();
 
         String cmdLine = StringUtils.join(snapshot.getCmdLine(""), ' ');
-        assertEquals(File.separator + "sipx-snapshot sipx-configuration.tar.gz", cmdLine);
+        assertEquals(File.separator + "sipx-snapshot --logs current sipx-configuration.tar.gz", cmdLine);
 
         snapshot.setCredentials(true);
         snapshot.setWww(false);
         cmdLine = StringUtils.join(snapshot.getCmdLine(""), ' ');
-        assertEquals(File.separator + "sipx-snapshot --credentials --no-www sipx-configuration.tar.gz", cmdLine);
+        assertEquals(File.separator + "sipx-snapshot --logs current --credentials --no-www sipx-configuration.tar.gz", cmdLine);
 
         snapshot.setLogs(false);
         cmdLine = StringUtils.join(snapshot.getCmdLine("xyz"), ' ');
-        assertEquals("xyz" + File.separator + "sipx-snapshot --no-logs --credentials --no-www sipx-configuration.tar.gz",
+        assertEquals("xyz" + File.separator + "sipx-snapshot --logs none --credentials --no-www sipx-configuration.tar.gz",
                 cmdLine);
     }
 }

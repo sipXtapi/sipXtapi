@@ -13,24 +13,25 @@ package org.sipfoundry.sipxconfig.phone.grandstream;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collection;
 
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.phone.Line;
+import org.sipfoundry.sipxconfig.setting.AbstractSettingVisitor;
 import org.sipfoundry.sipxconfig.setting.Setting;
-import org.sipfoundry.sipxconfig.setting.SettingVisitor;
 
-public class GrandstreamProfileWriter implements SettingVisitor {
+public class GrandstreamProfileWriter extends AbstractSettingVisitor {
     protected static final char LF = 0x0a;
     private OutputStream m_wtr;
     private GrandstreamPhone m_phone;
     private int m_lineIndex;
-    
+
     GrandstreamProfileWriter(GrandstreamPhone phone) {
-        m_phone = phone; 
+        m_phone = phone;
     }
-    
+
     public void write(OutputStream wtr) {
         setOutputStream(wtr);
         m_phone.getSettings().acceptVisitor(this);
@@ -39,15 +40,21 @@ public class GrandstreamProfileWriter implements SettingVisitor {
             m_lineIndex++;
         }
     }
-    
+
     protected void setOutputStream(OutputStream wtr) {
         m_wtr = wtr;
     }
-    
-    protected OutputStream getOutputStream() {
-        return m_wtr;
+
+    protected void writeString(String line) {
+        try {
+            m_wtr.write(line.getBytes("UTF-8"));
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
-    
+
     protected GrandstreamPhone getPhone() {
         return m_phone;
     }
@@ -55,10 +62,6 @@ public class GrandstreamProfileWriter implements SettingVisitor {
     public void visitSetting(Setting setting) {
         writeProfileEntry(setting.getProfileName(), setting.getValue());
     }
-
-    public boolean visitSettingGroup(Setting group) {
-        return true;
-    }        
 
     String nonNull(String value) {
         return value == null ? StringUtils.EMPTY : value;
@@ -71,7 +74,7 @@ public class GrandstreamProfileWriter implements SettingVisitor {
             writeLine(name, value);
         }
     }
-    
+
     void writeLine(String name, String value) {
         String lname = name;
         if (isCompositeProfileName(lname)) {
@@ -79,28 +82,24 @@ public class GrandstreamProfileWriter implements SettingVisitor {
             lname = names[m_lineIndex];
         }
         String line = lname + " = " + nonNull(value) + LF;
-        try {
-            getOutputStream().write(line.getBytes());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }        
+        writeString(line);
     }
-    
+
     boolean isCompositeProfileName(String name) {
         return name.indexOf('-') >= 0;
     }
-    
+
     boolean isCompositeIpAddress(String name) {
         return name.indexOf(',') >= 0;
     }
-    
+
     void writeIpAddress(String name, String value) {
-        String[] names = name.split(",");        
+        String[] names = name.split(",");
         String[] values = StringUtils.defaultString(value).split("\\.");
         for (int i = 0; i < names.length; i++) {
             String svalue = i < values.length ? values[i] : StringUtils.EMPTY;
             writeLine(names[i], svalue);
-        }        
+        }
     }
 
     public Collection<Line> getLines() {

@@ -32,6 +32,7 @@ public class Tp260GatewayTestDb extends TestCase {
         m_model = (AudioCodesModel) modelSource.getModel("audiocodesTP260_2_Span");
         m_gateway = (Tp260Gateway) TestHelper.getApplicationContext().getBean(m_model.getBeanId());
         m_gateway.setModelId(m_model.getModelId());
+        m_gateway.setSerialNumber("FT0123456");        
     }
 
     public void testGenerateProfiles() throws Exception {

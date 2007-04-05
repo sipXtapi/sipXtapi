@@ -61,7 +61,7 @@
         <string />
       </type>
       <value />
-      <description>Extension to used when transfer on failure is enabled.</description>
+      <description>Extension to be used when transfer on failure is enabled.</description>
     </setting>
   </group>
 </model>

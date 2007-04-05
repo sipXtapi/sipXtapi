@@ -43,7 +43,7 @@
     <binding name="value" value="acdQueueId" />
   </component>
 
-  <component id="settingsFieldset" type="SettingsFieldset">
+  <component id="settingsFieldset" type="setting/SettingsFieldset">
     <binding name="settings" value="acdLine.settings" />
     <binding name="renderGroupTitle" value="false" />
   </component>

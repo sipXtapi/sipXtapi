@@ -116,12 +116,14 @@ public class AbstractCallSequence extends BeanWithId {
      * @return list of AliasMapping objects
      */
     protected List generateAliases(String identity, String domain, boolean neverRouteToVoicemail) {
+
         List rings = getRings();
+        
         List aliases = new ArrayList(rings.size());
         ForkQueueValue q = new ForkQueueValue(rings.size());
         for (Iterator i = rings.iterator(); i.hasNext();) {
             AbstractRing r = (AbstractRing) i.next();
-            if (StringUtils.isEmpty(r.getUserPart().toString())) {
+            if (StringUtils.isEmpty(r.getUserPart().toString()) || !r.isEnabled()) {
                 continue;
             }
             // ignore voice mail if neverRouteToVoicemail is set

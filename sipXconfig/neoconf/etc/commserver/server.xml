@@ -280,7 +280,7 @@
       </type>
       <value>7</value>
     </setting>
-    <setting name="SIP_CALLRESOLVER_CALL_DIRECTION" advanced="yes">
+    <setting name="SIP_CALLRESOLVER_CALL_DIRECTION" hidden="yes">
       <profileName>callresolver-config.in</profileName>
       <type refid="enablestate" />
       <value>DISABLE</value>

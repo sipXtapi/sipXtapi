@@ -304,4 +304,24 @@ class CdrTest < Test::Unit::TestCase
     assert(!cdr.complete?)
   end
   
+  def test_force_finish_empty
+    cdr = Cdr.new('call_ui')
+    assert(!cdr.complete?)
+    cdr.force_finish
+    assert(cdr.complete?)
+  end
+  
+  def test_force_finish_with_leg
+    cdr = Cdr.new('call_ui')
+    cse = make_cse(:from_tag => 't1', :to_tag => 't7', :event_time => Time.at(1000), :event_type => 'R')
+    cdr.accept(cse)
+    cse = make_cse(:from_tag => 't1', :to_tag => 't7', :event_time => Time.at(1100), :event_type => 'S')
+    cdr.accept(cse)
+    assert(!cdr.complete?)
+    cdr.force_finish    
+    assert(cdr.complete?) 
+    assert_equal(1000, cdr.start_time.tv_sec)   
+    assert_equal(1100, cdr.connect_time.tv_sec)
+    assert_nil(cdr.end_time)    
+  end
 end

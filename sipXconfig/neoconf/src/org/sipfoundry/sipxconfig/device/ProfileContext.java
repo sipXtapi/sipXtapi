@@ -45,10 +45,13 @@ public class ProfileContext {
 
     private BeanWithSettings m_device;
 
-    public ProfileContext(BeanWithSettings device) {
+    private String m_profileTemplate;
+
+    public ProfileContext(BeanWithSettings device, String profileTemplate) {
         m_device = device;
+        m_profileTemplate = profileTemplate;
     }
-    
+
     public Map<String, Object> getContext() {
         HashMap<String, Object> context = new HashMap<String, Object>();
         context.put("phone", m_device);
@@ -59,6 +62,10 @@ public class ProfileContext {
 
     public BeanWithSettings getDevice() {
         return m_device;
+    }
+    
+    public String getProfileTemplate() {
+        return m_profileTemplate;
     }
 
     /**

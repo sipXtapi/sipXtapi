@@ -19,6 +19,6 @@ public interface SettingValueHandler {
     /**
      * call value.setValue() if implementation has a value for given setting 
      */
-    public SettingValue2 getSettingValue(Setting setting); 
+    public SettingValue getSettingValue(Setting setting); 
 
 }

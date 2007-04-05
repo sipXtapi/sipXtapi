@@ -21,7 +21,7 @@
       value="tab == 'agentsStats' || tab == 'callsStats' || tab == 'queuesStats'" />
   </component>
 
-  <component id="tabs" type="TabNavigation">
+  <component id="tabs" type="common/TabNavigation">
     <binding name="tabNames"
       value="{'config', 'queues', 'lines', 'agentsStats', 'callsStats', 'queuesStats'}" />
     <binding name="selectedTab" value="tab" />
@@ -63,7 +63,7 @@
     <binding name="displayName" value="message:label.port" />
   </component>
 
-  <component id="settingsFieldset" type="SettingsFieldset">
+  <component id="settingsFieldset" type="setting/SettingsFieldset">
     <binding name="settings" value="acdServer.settings" />
     <binding name="renderGroupTitle" value="false" />
   </component>

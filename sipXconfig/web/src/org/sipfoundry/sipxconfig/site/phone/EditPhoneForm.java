@@ -20,6 +20,9 @@ import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.annotations.ComponentClass;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Parameter;
+import org.apache.tapestry.form.translator.Translator;
+import org.apache.tapestry.form.validator.Validator;
+import org.sipfoundry.sipxconfig.components.SerialNumberTranslator;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.phone.Phone;
@@ -68,11 +71,18 @@ public abstract class EditPhoneForm extends BaseComponent {
         if (TapestryUtils.isRewinding(cycle, this) && TapestryUtils.isValid(this)) {
             String groupsString = getGroupsString();
             if (groupsString != null) {
-                List groups = getSettingDao().getGroupsByString(Phone.GROUP_RESOURCE_ID,
-                        groupsString, false);
+                List groups = getSettingDao().getGroupsByString(Phone.GROUP_RESOURCE_ID, groupsString, false);
                 Phone phone = getPhone();
                 phone.setGroupsAsList(groups);
             }
         }
+    }
+
+    public List<Validator> getSerialNumberValidators() {
+        return TapestryUtils.getSerialNumberValidators(getPhone().getModel());
+    }
+
+    public Translator getSerialNumberTranslator() {
+        return new SerialNumberTranslator(getPhone().getModel());
     }
 }

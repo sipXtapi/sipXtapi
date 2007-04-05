@@ -27,6 +27,8 @@ import org.sipfoundry.sipxconfig.device.ProfileContext;
 import org.sipfoundry.sipxconfig.device.ProfileGenerator;
 import org.sipfoundry.sipxconfig.setting.BeanWithGroups;
 import org.sipfoundry.sipxconfig.setting.Setting;
+import org.sipfoundry.sipxconfig.setting.SettingExpressionEvaluator;
+import org.sipfoundry.sipxconfig.setting.SimpleDefinitionsEvaluator;
 
 /**
  * Base class for managed phone subclasses
@@ -123,13 +125,11 @@ public abstract class Phone extends BeanWithGroups implements Device {
     }
 
     protected Setting loadSettings() {
-        Set defines = getModelDefinitions();
-        return getModelFilesContext().loadDynamicModelFile("phone.xml", getBeanId(), defines);
+        return getModelFilesContext().loadDynamicModelFile("phone.xml", getBeanId(), getSettingsEvaluator());
     }
 
     protected Setting loadLineSettings() {
-        Set defines = getModelDefinitions();
-        return getModelFilesContext().loadDynamicModelFile("line.xml", getBeanId(), defines);
+        return getModelFilesContext().loadDynamicModelFile("line.xml", getBeanId(), getSettingsEvaluator());
     }
 
     /**
@@ -148,6 +148,17 @@ public abstract class Phone extends BeanWithGroups implements Device {
             definitions.add(getDeviceVersion().getVersionId());
         }
         return definitions;
+    }
+
+    /**
+     * If SimepleDefinitionEvaluator is not what you need override this function to provide your
+     * own expression evaluator to be used when loading settings model.
+     * 
+     * @return reusable copy of expression evaluator
+     */
+    protected SettingExpressionEvaluator getSettingsEvaluator() {
+        Set defines = getModelDefinitions();
+        return new SimpleDefinitionsEvaluator(defines);
     }
 
     /**
@@ -177,13 +188,11 @@ public abstract class Phone extends BeanWithGroups implements Device {
      */
     public void generateProfiles() {
         String profileFileName = getPhoneFilename();
-        String phoneTemplate = getPhoneTemplate();
-        generateFile(profileFileName, phoneTemplate);
+        m_profileGenerator.generate(createContext(), profileFileName);
     }
 
-    public final void generateFile(String profileFileName, String phoneTemplate) {
-        ProfileContext context = new ProfileContext(this);
-        m_profileGenerator.generate(context, phoneTemplate, profileFileName);
+    protected ProfileContext createContext() {
+        return new ProfileContext(this, getPhoneTemplate());
     }
 
     public Line findByUsername(String username) {
@@ -279,17 +288,7 @@ public abstract class Phone extends BeanWithGroups implements Device {
     }
 
     public void setSerialNumber(String serialNumber) {
-        m_serialNumber = cleanSerialNumber(serialNumber);
-    }
-
-    public static String cleanSerialNumber(String rawNumber) {
-        if (rawNumber == null) {
-            return null;
-        }
-        String clean = rawNumber.toLowerCase();
-        clean = clean.replaceAll("[:\\s]*", "");
-
-        return clean;
+        m_serialNumber = serialNumber;
     }
 
     public List<Line> getLines() {

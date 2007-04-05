@@ -19,12 +19,12 @@
         <value>on</value>
       </true>
       <false>
-        <value>of</value>
+        <value>off</value>
       </false>
     </boolean>
   </type>
   <type id="port-number">
-    <integer required="yes" min="1024" max="65534" />
+    <integer required="yes" max="65534" />
   </type>
   <type id="day-of-week">
     <enum>
@@ -110,64 +110,6 @@
       </option>
     </enum>
   </type>
-  <group name='LAN'>
-    <setting name='network_mode'>
-      <type>
-        <enum>
-          <option>
-            <value>static</value>
-          </option>
-          <option>
-            <value>dhcp</value>
-          </option>
-        </enum>
-      </type>
-      <value>dhcp</value>
-    </setting>
-    <setting name='dns1_address'>
-      <type>
-        <ipaddr />
-      </type>
-    </setting>
-    <setting name='dns2_address'>
-      <type>
-        <ipaddr />
-      </type>
-    </setting>
-    <setting name='domain_name'></setting>
-    <setting name='tftp_server_address'>
-      <type>
-        <ipaddr />
-      </type>
-    </setting>
-    <setting name='tos' advanced="yes">
-      <value>0</value>
-    </setting>
-    <setting name='pc_802_priority' advanced="yes">
-      <type>
-        <integer min="0" max="7" />
-      </type>
-      <value>0</value>
-    </setting>
-    <setting name='phone_802_priority' advanced="yes">
-      <type>
-        <integer min="0" max="7" />
-      </type>
-      <value>0</value>
-    </setting>
-    <setting name='pc_vlan_id' advanced="yes">
-      <type>
-        <integer min="0" max="4094" />
-      </type>
-      <value>0</value>
-    </setting>
-    <setting name='phone_vlan_id' advanced="yes">
-      <type>
-        <integer min="0" max="4094" />
-      </type>
-      <value>0</value>
-    </setting>
-  </group>
   <group name='VOIP'>
     <setting name='outbound_proxy_server'></setting>
     <setting name='outbound_proxy_port' advanced="yes">
@@ -180,8 +122,7 @@
       <value>5060</value>
     </setting>
     <setting name='SIP_service_domain' advanced="yes"></setting>
-    <setting name="moh_url" advanced="yes">      
-    </setting>
+    <setting name="moh_url" advanced="yes"></setting>
     <setting name='rtp_port' advanced="yes">
       <type refid="port-number" />
       <value>23000</value>
@@ -202,8 +143,7 @@
       <type refid="port-number" />
       <value>5060</value>
     </setting>
-    <setting name='message_url'>
-      <!-- TODO: number for user’s Voice Mail phone -->
+    <setting name='message_url' advanced="yes">
       <value></value>
     </setting>
     <setting name='preferred_codec'>
@@ -246,7 +186,7 @@
   <group name='DSP'>
     <setting name='ringer_off'>
       <type refid="on-off" />
-      <value>off</value>
+      <value>on</value>
     </setting>
     <setting name='VAD'>
       <type refid="on-off" />
@@ -626,6 +566,14 @@
       </type>
       <value>0</value>
     </setting>
+    <setting name="cfg_download" hidden="yes">
+      <type refid="ena-dis"></type>
+      <value>enable</value>
+    </setting>
+    <setting name="sw_download" advanced="yes">
+      <type refid="ena-dis"></type>
+      <value>enable</value>
+    </setting>
     <setting name='dhcp_get_tftp'>
       <type refid="ena-dis" />
       <value>enable</value>
@@ -705,7 +653,7 @@
   </group>
   <group name='NETTIME'>
     <setting name='sntp_server_address'>
-      <value>pool.ntp.org</value>
+      <value />
     </setting>
     <setting name='interval'>
       <type>

@@ -1,11 +1,7 @@
 package org.sipfoundry.sipxconfig.phone;
 
-import java.io.IOException;
-import java.io.InputStream;
-
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.setting.Setting;
-import org.sipfoundry.sipxconfig.setting.XmlModelBuilder;
 
 public class TestPhone extends Phone {
     public static final String BEAN_ID = "testPhone";
@@ -21,16 +17,7 @@ public class TestPhone extends Phone {
     }
     
     Setting loadSettings(String resource) {
-        InputStream xmlStream = getClass().getResourceAsStream(resource);
-        String sysdir = TestHelper.getSettingModelContextRoot();
-        XmlModelBuilder builder = new XmlModelBuilder(sysdir);
-        Setting settings;
-        try {
-            settings = builder.buildModel(xmlStream, null);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        return settings;        
+        return TestHelper.loadSettings(getClass(), resource);
     }
     
     @Override

@@ -84,9 +84,9 @@ public class SettingTest extends TestCase {
 
     public void testGetProfileHandler() {
         SettingImpl s = new SettingImpl("bluejay");
-        SettingValue2 handlerValue = new SettingValueImpl("indigojay");
+        SettingValue handlerValue = new SettingValueImpl("indigojay");
 
-        SettingModel2 model = EasyMock.createStrictMock(SettingModel2.class);
+        SettingModel model = EasyMock.createStrictMock(SettingModel.class);
         model.getProfileName(s);
         EasyMock.expectLastCall().andReturn(handlerValue);
         EasyMock.replay(model);

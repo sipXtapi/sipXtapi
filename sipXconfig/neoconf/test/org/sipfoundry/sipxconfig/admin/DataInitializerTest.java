@@ -39,7 +39,9 @@ public class DataInitializerTest extends TestCase {
         context.publishEvent(event0);
         appControl.replay();
         
-        initializer.initializeData("unittest", context, admin);
+        initializer.setAdminContext(admin);
+        initializer.setApplicationContext(context);
+        initializer.initializeData("unittest");
         
         adminControl.verify();
         appControl.verify();

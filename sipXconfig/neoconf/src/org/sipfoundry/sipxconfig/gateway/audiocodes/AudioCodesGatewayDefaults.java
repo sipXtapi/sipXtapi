@@ -14,7 +14,7 @@ package org.sipfoundry.sipxconfig.gateway.audiocodes;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingEntry;
-import org.sipfoundry.sipxconfig.setting.SettingValue2;
+import org.sipfoundry.sipxconfig.setting.SettingValue;
 import org.sipfoundry.sipxconfig.setting.SettingValueHandler;
 import org.sipfoundry.sipxconfig.setting.SettingValueImpl;
 
@@ -36,9 +36,14 @@ public class AudioCodesGatewayDefaults implements SettingValueHandler {
     public String getDestinationPort() {
         return m_gateway.getDefaults().getProxyServerSipPort();
     }
+    
+    @SettingEntry(path = "Network/NTPServerIP")
+    public String getNtpServer() {
+        return m_gateway.getDefaults().getNtpServer();
+    }
 
-    public SettingValue2 getSettingValue(Setting setting) {
-        SettingValue2 value = null;
+    public SettingValue getSettingValue(Setting setting) {
+        SettingValue value = null;
         String path = setting.getPath();
         AudioCodesModel model = (AudioCodesModel) m_gateway.getModel();
         if (path.equals(model.getProxyNameSetting())) {

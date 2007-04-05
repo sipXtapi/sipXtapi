@@ -11,26 +11,21 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan;
 
-import org.sipfoundry.sipxconfig.common.InitializationTask;
-import org.springframework.context.ApplicationEvent;
-import org.springframework.context.ApplicationListener;
+import org.sipfoundry.sipxconfig.common.InitTaskListener;
 
-public class AttendantMigrationTrigger implements ApplicationListener {
+public class AttendantMigrationTrigger extends InitTaskListener {
     private AttendantMigrationContext m_attendantMigrationContext;
 
     public void setAttendantMigrationContext(AttendantMigrationContext attendantMigrationContext) {
         m_attendantMigrationContext = attendantMigrationContext;
     }
 
-    public void onApplicationEvent(ApplicationEvent event) {
-        if (event instanceof InitializationTask) {
-            InitializationTask task = (InitializationTask) event;
-            String taskName = task.getTask();
-            if ("dial_plan_migrate_attendant_rules".equals(taskName)) {
-                m_attendantMigrationContext.migrateAttendantRules();
-            } else if ("attendant_defaults".equals(taskName)) {
-                m_attendantMigrationContext.setAttendantDefaults();
-            }
+    @Override
+    public void onInitTask(String task) {
+        if ("dial_plan_migrate_attendant_rules".equals(task)) {
+            m_attendantMigrationContext.migrateAttendantRules();
+        } else if ("attendant_defaults".equals(task)) {
+            m_attendantMigrationContext.setAttendantDefaults();
         }
     }
 }

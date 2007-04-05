@@ -12,6 +12,7 @@
 package org.sipfoundry.sipxconfig.phone.clearone;
 
 import org.apache.commons.lang.StringUtils;
+import org.sipfoundry.sipxconfig.device.ProfileContext;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineInfo;
 import org.sipfoundry.sipxconfig.phone.Phone;
@@ -42,8 +43,7 @@ public class ClearonePhone extends Phone {
 
     @Override
     public void initializeLine(Line line) {
-        ClearoneLineDefaults defaults = new ClearoneLineDefaults(line, getPhoneContext()
-                .getPhoneDefaults());
+        ClearoneLineDefaults defaults = new ClearoneLineDefaults(line, getPhoneContext().getPhoneDefaults());
         line.addDefaultBeanSettingHandler(defaults);
     }
 
@@ -55,18 +55,18 @@ public class ClearonePhone extends Phone {
             ClearonePhoneSpeedDial phoneSpeedDial = new ClearonePhoneSpeedDial(speedDial);
             addDefaultSettingHandler(phoneSpeedDial);
         }
-        ClearonePhoneDefaults defaults = new ClearonePhoneDefaults(phoneContext
-                .getPhoneDefaults(), formatName(DIALPLAN_FILE));
+        ClearonePhoneDefaults defaults = new ClearonePhoneDefaults(phoneContext.getPhoneDefaults(),
+                formatName(DIALPLAN_FILE));
         addDefaultBeanSettingHandler(defaults);
     }
 
     @Override
     public void generateProfiles() {
         super.generateProfiles();
-        // generate some other files
-        generateFile(getDialplanFileName(), getDialplanTemplate());
+        ProfileContext context = new ProfileContext(this, getDialplanTemplate());
+        getProfileGenerator().generate(context, getDialplanFileName());
     }
-    
+
     @Override
     public void removeProfiles() {
         super.removeProfiles();

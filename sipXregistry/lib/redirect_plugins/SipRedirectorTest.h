@@ -33,7 +33,7 @@ class SipRedirectorTest : public RedirectPlugin
 {
 public:
 
-   SipRedirectorTest(const UtlString& instanceName);
+   explicit SipRedirectorTest(const UtlString& instanceName);
 
    ~SipRedirectorTest();
 

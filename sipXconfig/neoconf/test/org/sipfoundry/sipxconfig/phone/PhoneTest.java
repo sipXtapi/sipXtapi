@@ -22,15 +22,6 @@ import org.sipfoundry.sipxconfig.phone.acme.AcmePhone;
 
 public class PhoneTest extends TestCase {
 
-    public void testSetSerialNumber() {
-        assertEquals("123456789012", Phone.cleanSerialNumber("123456789012"));
-        assertEquals("123456789012", Phone.cleanSerialNumber("1234 5678 9012"));
-        assertEquals("123456789012", Phone.cleanSerialNumber("12:34:56:78:90:12"));
-        assertEquals("aabbccddeeff", Phone.cleanSerialNumber("AABBCCDDEEFF"));
-        assertEquals("totallybogus", Phone.cleanSerialNumber("totallybogus"));
-        assertNull(Phone.cleanSerialNumber(null));
-    }
-
     public void testFindByUsername() {
         DeviceDefaults defaults = new DeviceDefaults();
         defaults.setDomainManager(TestHelper.getTestDomainManager("sipfoundry.org"));

@@ -11,7 +11,7 @@
  */
 package org.sipfoundry.sipxconfig.setting;
 
-public class SettingValueImpl implements SettingValue2 {
+public class SettingValueImpl implements SettingValue {
     private String m_value;
     
     public SettingValueImpl(String value) {
@@ -34,11 +34,11 @@ public class SettingValueImpl implements SettingValue2 {
     
     @Override
     public boolean equals(Object ovalue) {
-        if (!(ovalue instanceof SettingValue2)) {
+        if (!(ovalue instanceof SettingValue)) {
             return false;
         }
         
-        SettingValue2 value = (SettingValue2) ovalue;
+        SettingValue value = (SettingValue) ovalue;
         if (value == null) {
             return false;
         }

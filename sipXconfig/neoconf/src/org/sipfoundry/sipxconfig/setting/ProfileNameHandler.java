@@ -19,6 +19,6 @@ public interface ProfileNameHandler {
     /**
      * @return null if you do not handle this setting and wish to use default
      */
-    public SettingValue2 getProfileName(Setting setting);
+    public SettingValue getProfileName(Setting setting);
 
 }

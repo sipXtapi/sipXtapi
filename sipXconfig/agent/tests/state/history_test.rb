@@ -20,7 +20,7 @@ class AcdTest < Test::Unit::TestCase
   end
   
   def test_history
-    h = History.new
+    h = History.new(30, 0)
     h.add(DummyItem.new(10), 11)
     h.add(DummyItem.new(20), 21)
     h.add(DummyItem.new(20), 22)
@@ -32,8 +32,8 @@ class AcdTest < Test::Unit::TestCase
     assert_equal(0, h.get_history(Time.at(31)).size)        
   end
   
-  def test_trim
-    h = History.new(20)
+  def test_trim_based_on_time
+    h = History.new(20, 0)
     h.add(DummyItem.new(10), 11)
     h.add(DummyItem.new(20), 21)
     assert_equal(2, h.get_history(Time.at(0)).size)    
@@ -43,9 +43,20 @@ class AcdTest < Test::Unit::TestCase
     assert_equal(1, h.get_history(Time.at(0)).size)    
   end
   
+  def test_trim_based_on_size
+    h = History.new(20, 3)
+    h.add(DummyItem.new(10), 11)
+    h.add(DummyItem.new(20), 21)
+    assert_equal(2, h.get_history(Time.at(0)).size)
+    h.add(DummyItem.new(21), 40)
+    assert_equal(3, h.get_history(Time.at(0)).size)
+    h.add(DummyItem.new(25), 60)
+    assert_equal(3, h.get_history(Time.at(0)).size)
+  end
+
   def test_default_memory
-    # default memory is 30 minutes
-    h = History.new
+    # default memory is 90 minutes
+    h = History.new(30, 0)
     time1 = Time.at(1000)
     time2 = time1 + 30 * 60
     h.add(DummyItem.new(time1.to_i), time1.to_i)    

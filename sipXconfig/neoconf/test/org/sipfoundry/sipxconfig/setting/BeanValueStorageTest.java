@@ -12,7 +12,6 @@
 package org.sipfoundry.sipxconfig.setting;
 
 import java.io.IOException;
-import java.io.InputStream;
 
 import junit.framework.TestCase;
 
@@ -26,13 +25,17 @@ public class BeanValueStorageTest extends TestCase {
     protected void setUp() throws IOException {
         BeanValueStorageTestBean bean = new BeanValueStorageTestBean();
         m_vs = new BeanValueStorage(bean);
-        InputStream in = getClass().getResourceAsStream("birds.xml");
-        m_birds = TestHelper.loadSettings(in);
+        m_birds = TestHelper.loadSettings(getClass(), "birds.xml");
     }
 
     public void testGetSettingValue() {
         Setting s = m_birds.getSetting("towhee/canyon");
         assertEquals("14 inches", m_vs.getSettingValue(s).getValue());
+    }
+    
+    public void testObstainFromGetSettingValue() {
+        Setting s = m_birds.getSetting("woodpecker/ivory-billed");
+        assertNull(m_vs.getSettingValue(s));        
     }
 
     public void testGetSettingValuePathArray() {
@@ -65,6 +68,11 @@ public class BeanValueStorageTest extends TestCase {
         @SettingEntry(path = "pigeon/passenger")
         public String getSomeValue() {
             throw new BeanValueStorage.NoValueException();
+        }
+        
+        @SettingEntry(path = "woodpecker/ivory-billed")
+        public String getObstainFromAnsweringByReturningNull() {
+            return null;
         }
     }
 }

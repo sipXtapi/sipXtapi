@@ -18,8 +18,6 @@ import org.sipfoundry.sipxconfig.device.DeviceDescriptor;
  * One UploadSpecification instance for all types of uploads
  */
 public class UploadSpecification extends DeviceDescriptor {
-    private String m_modelFilePath;
-
     public UploadSpecification() {
     }
 
@@ -36,16 +34,5 @@ public class UploadSpecification extends DeviceDescriptor {
      */
     public String getSpecificationId() {
         return getModelId();
-    }
-
-    /**
-     * @return File name with upload settings describing files to upload.  Relative to /etc/sipxpbx
-     */
-    public String getModelFilePath() {
-        return m_modelFilePath;
-    }
-
-    public void setModelFilePath(String modelFilePath) {
-        m_modelFilePath = modelFilePath;
     }
 }

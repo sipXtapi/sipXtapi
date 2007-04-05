@@ -470,13 +470,41 @@
   </group>
   <group name='Voice'>
     <label>Voice, DTMF &amp; Fax Settings</label>
-    <setting name='CoderName'>
-      <label>Voice Codec</label>
-      <value>g711Ulaw64k</value>
-      <description>
-        g711Ulaw64k, g711Ulaw64k, g729, or g723.1 - case sensitive. This parameter can appear more than once.
-      </description>
-    </setting>
+    <collection name="Codecs" size="5">
+      <label>Voice Codecs</label>
+      <setting name='CoderName'>
+        <label>Codec</label>
+        <type>
+          <enum>
+            <option>
+              <label>G.711 A-law</label>
+              <value>g711Alaw64k</value>
+            </option>
+            <option>
+              <label>G.711 u-law</label>
+              <value>g711Ulaw64k</value>
+            </option>
+            <option>
+              <label>G.729</label>
+              <value>g729</value>
+            </option>
+            <option>
+              <label>G.723.1</label>
+              <value>g7231</value>
+            </option>
+            <option>
+              <label>G.726</label>
+              <value>g726</value>
+            </option>
+            <option>
+              <value></value>
+            </option>
+          </enum>
+        </type>
+        <value>g711Ulaw64k</value>
+      </setting>
+      <description>List of preferred codecs.</description>
+    </collection>
     <setting name='MaxDigits' advanced='yes'>
       <label>Dialed Digits Max. Length</label>
       <type>
@@ -705,7 +733,7 @@
   </group>
   <group name="Trunks">
     <label>Trunk Groups</label>
-    <group name="TRUNKGROUP_1">
+    <collection name="TRUNKGROUP" size="4">
       <label>Trunk Group #1</label>
       <setting name='ChannelRange'>
         <label>Ports Range</label>
@@ -733,16 +761,7 @@
         <value>0</value>
         <description>Hunt group number, optional</description>
       </setting>
-    </group>
-    <group name="TRUNKGROUP_2" copy-of="TRUNKGROUP_1">
-      <label>Trunk Group #2</label>
-    </group>
-    <group name="TRUNKGROUP_3" copy-of="TRUNKGROUP_1">
-      <label>Trunk Group #3</label>
-    </group>
-    <group name="TRUNKGROUP_4" copy-of="TRUNKGROUP_1">
-      <label>Trunk Group #4</label>
-    </group>
+    </collection>
   </group>
   <group name='Telephony'>
     <label>Telephony Interface Parameters</label>

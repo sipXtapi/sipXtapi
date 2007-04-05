@@ -164,7 +164,7 @@
     <module name="ExplicitInitialization"/>
     <module name="DefaultComesLast"/>
     <module name="MultipleStringLiterals">
-      <property name="ignoreStringsRegexp" value="(unused)|(ognl:.*)"/>
+      <property name="ignoreStringsRegexp" value="(unused)|(ognl:.*)|true|false"/>
     </module>
     <module name="MultipleVariableDeclarations"/>
     

@@ -113,10 +113,12 @@ public class Permission implements Comparable<Permission>, PrimaryKeySource {
         return m_defaultValue;
     }
 
+    @SuppressWarnings("unused")
     public String getLabel(Locale locale) {
         return getLabel();
     }
 
+    @SuppressWarnings("unused")
     public String getDescription(Locale locale) {
         return getDescription();
     }

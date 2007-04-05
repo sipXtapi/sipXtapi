@@ -20,10 +20,10 @@ public class MulticastSettingValueHandler implements SettingValueHandler {
         m_resolvers = resolvers;
     }
 
-    public SettingValue2 getSettingValue(Setting setting) {
-        SettingValue2 value = null;
+    public SettingValue getSettingValue(Setting setting) {
+        SettingValue value = null;
         for (SettingValueHandler resolver : m_resolvers) {
-            SettingValue2 sv = resolver.getSettingValue(setting);
+            SettingValue sv = resolver.getSettingValue(setting);
             if (sv != null) {
                 value = sv;
             }

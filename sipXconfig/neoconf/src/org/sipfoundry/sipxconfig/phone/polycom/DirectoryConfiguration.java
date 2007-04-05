@@ -26,7 +26,7 @@ public class DirectoryConfiguration extends ProfileContext {
     private List<Button> m_buttons;
 
     public DirectoryConfiguration(Collection<PhonebookEntry> entries, SpeedDial speedDial) {
-        super(null);
+        super(null, "polycom/mac-address-directory.xml.vm");
         m_entries = entries;
         if (speedDial != null) {
             m_buttons = speedDial.getButtons();
@@ -38,8 +38,7 @@ public class DirectoryConfiguration extends ProfileContext {
         if (size == 0) {
             return Collections.emptyList();
         }
-        Collection<PolycomPhonebookEntry> polycomEntries = new ArrayList<PolycomPhonebookEntry>(
-                size);
+        Collection<PolycomPhonebookEntry> polycomEntries = new ArrayList<PolycomPhonebookEntry>(size);
         if (m_entries != null) {
             transformPhoneBook(m_entries, polycomEntries);
         }

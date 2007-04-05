@@ -29,6 +29,7 @@ import org.sipfoundry.sipxconfig.site.ApplicationLifecycle;
 import org.sipfoundry.sipxconfig.site.Home;
 import org.sipfoundry.sipxconfig.site.LoginPage;
 import org.sipfoundry.sipxconfig.site.UserSession;
+import org.sipfoundry.sipxconfig.site.skin.SkinControl;
 import org.sipfoundry.sipxconfig.site.user.FirstUser;
 
 public abstract class Border extends BaseComponent implements PageValidateListener {
@@ -112,13 +113,4 @@ public abstract class Border extends BaseComponent implements PageValidateListen
     public VersionInfo getVersionInfo() {
         return m_version;
     }
-
-//    public String getPageTitle() {
-//        StringBuilder s = new StringBuilder(getSkin().getProductName());
-//        String pageTitle = getPage().getMessages().getMessage("title");
-//        if (!StringUtils.isEmpty(pageTitle)) {
-//            s.append(" - ").append(pageTitle);
-//        }
-//        return s.toString();
-//    }
 }

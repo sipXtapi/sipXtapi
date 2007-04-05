@@ -12,38 +12,42 @@
 package org.sipfoundry.sipxconfig.admin;
 
 import org.sipfoundry.sipxconfig.common.InitializationTask;
-import org.springframework.beans.factory.access.BeanFactoryLocator;
-import org.springframework.beans.factory.access.BeanFactoryReference;
+import org.sipfoundry.sipxconfig.common.SystemTaskEntryPoint;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.access.ContextSingletonBeanFactoryLocator;
+import org.springframework.context.ApplicationContextAware;
 
 /**
  * Iterates through all beans in Spring context and calls the beans that implement Patch interface
  * with opportunity to apply a db patch.
  */
-public class DataInitializer {
+public class DataInitializer implements SystemTaskEntryPoint, ApplicationContextAware {
+    private AdminContext m_adminContext;
+    private ApplicationContext m_app;
     
-    public static void main(String[] args) {
-        new DataInitializer().runMain();        
-        if (args.length == 0 || !"noexit".equals(args[0])) {
+    public void runSystemTask(String[] args) {
+        String[] tasks = m_adminContext.getInitializationTasks();
+        for (int i = 0; i < tasks.length; i++) {
+            initializeData(tasks[i]);
+        }
+        
+        // unclear exactly why we'd need to ever call exit.  If you find out why,
+        // replace this comment w/reason
+        if (args.length >= 2 || !"noexit".equals(args[1])) {
             System.exit(0);
         }
     }
     
-    void runMain() {
-        BeanFactoryLocator bfl = ContextSingletonBeanFactoryLocator.getInstance();
-        BeanFactoryReference bfr = bfl.useBeanFactory("servicelayer-context");
-        ApplicationContext app = (ApplicationContext) bfr.getFactory();
-        AdminContext adminContext = (AdminContext) app.getBean(AdminContext.CONTEXT_BEAN_NAME);
-        String[] tasks = adminContext.getInitializationTasks();
-        for (int i = 0; i < tasks.length; i++) {
-            initializeData(tasks[i], app, adminContext);
-        }
-    }
-    
-    void initializeData(String task, ApplicationContext app, AdminContext admin) {
+    void initializeData(String task) {
         InitializationTask event = new InitializationTask(task);
-        app.publishEvent(event);
-        admin.deleteInitializationTask(task);            
+        m_app.publishEvent(event);
+        m_adminContext.deleteInitializationTask(task);        
+    }
+
+    public void setApplicationContext(ApplicationContext applicationContext) {
+        m_app = applicationContext;
+    }
+
+    public void setAdminContext(AdminContext adminContext) {
+        m_adminContext = adminContext;
     }
 }

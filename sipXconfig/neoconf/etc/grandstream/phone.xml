@@ -422,12 +422,12 @@
             <description>IP QoS (IP Diff-Serv or Precedence value for RTP)</description>
         </setting>
         <setting name="P51">
-            <label>Layer 2 QoS</label>
+            <label>Layer 2 VLAN</label>
             <type>
                 <integer min="0" max="4095"/>
             </type>
             <value>0</value>
-            <description>Layer 2 QoS. 802.1Q/VLAN Tag (VLAN classification for RTP)</description>
+            <description>Layer 2 QoS: 802.1Q/VLAN Tag (VLAN classification for RTP)</description>
         </setting>
         <setting name="P87">
             <label>Layer 2 QoS</label>
@@ -435,7 +435,7 @@
                 <integer min="0" max="7"/>
             </type>
             <value>0</value>
-            <description>Layer 2 QoS. 802.1p priority value (0 - 7)</description>
+            <description>Layer 2 QoS: 802.1p priority value (0 - 7)</description>
         </setting>
         <setting name="P229" if="gsHt486">
             <label>Layer 2 Qos (PC) 802.1Q/VLAN Tag</label>

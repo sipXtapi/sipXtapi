@@ -101,10 +101,6 @@ end
 if $0 == __FILE__
   # this is just a test - pass empty acd server here
   server = StatsServer.new(States::Acd.new, :Port => 2000)
-  trap(:INT) do 
-    puts "shutting down"
-    server.shutdown
-  end
   puts "starting server on port 2000"
   server.start
 end

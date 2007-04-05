@@ -105,4 +105,5 @@
   
   <table name="speeddial"/>
   <table name="speeddial_button"/>
+  <table name="service"/>
 </dataset>

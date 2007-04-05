@@ -2,6 +2,9 @@
 <prefs>
     <activegreeting>$!preferences.ActiveGreeting.Id</activegreeting>
     <notification>
-        <contact type="email" attachments="$yesNo.encode($preferences.AttachVoicemailToEmail)">$!preferences.EmailAddress</contact>
+        <contact type="email" attachments="$yesNo.encode($preferences.AttachVoicemailToEmail)">$!preferences.EmailAddress</contact>        
+#if ($hasAlternateEmailAddress)        
+        <contact type="email" attachments="$yesNo.encode($preferences.AttachVoicemailToAlternateEmail)">$!preferences.AlternateEmailAddress</contact>
+#end        
     </notification>
 </prefs>

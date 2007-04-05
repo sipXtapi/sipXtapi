@@ -277,7 +277,7 @@ SipUserAgent::SipUserAgent(int sipTcpPort,
         if (numAddresses > 0)
         {
            // Bind to the first address in the list.
-           defaultSipAddress = (char*)addresses[0]->mAddress.data();
+           mDefaultSipAddress = (char*)addresses[0]->mAddress.data();
            // Now free up the list.
            for (int i = 0; i < numAddresses; i++)
            {
@@ -291,7 +291,7 @@ SipUserAgent::SipUserAgent(int sipTcpPort,
     }
     else
     {
-        defaultSipAddress.append(defaultAddress);
+        mDefaultSipAddress.append(defaultAddress);
     }
     if(sipRegistryServers)
     {
@@ -309,7 +309,7 @@ SipUserAgent::SipUserAgent(int sipTcpPort,
         contact.eContactType = CONFIG;
         strcpy(contact.cIpAddress, publicAddress);
 
-        if (getContactAdapterName(szAdapter, defaultSipAddress))
+        if (getContactAdapterName(szAdapter, mDefaultSipAddress))
         {
            strcpy(contact.cInterface, szAdapter);
         }
@@ -318,7 +318,7 @@ SipUserAgent::SipUserAgent(int sipTcpPort,
            // If getContactAdapterName can't find an adapter.
            OsSysLog::add(FAC_SIP, PRI_WARNING,
                          "SipUserAgent::_ no adaptor found for address '%s'",
-                         defaultSipAddress.data());
+                         mDefaultSipAddress.data());
            strcpy(contact.cInterface, "(unknown)");
         }
         contact.iPort = mUdpPort; // what about the tcp port?
@@ -2785,9 +2785,9 @@ UtlBoolean SipUserAgent::getLocalAddress(UtlString* pIpAddress, int* pPort)
 {
     if (pIpAddress)
     {   
-        if (defaultSipAddress.length() > 0)
+        if (mDefaultSipAddress.length() > 0)
         {
-            *pIpAddress = defaultSipAddress;
+            *pIpAddress = mDefaultSipAddress;
         }
         else
         {
@@ -3008,7 +3008,7 @@ void SipUserAgent::getFromAddress(UtlString* address, int* port, UtlString* prot
             }
 
             // If there is an address configured use it
-            NameValueTokenizer::getSubField(defaultSipAddress.data(), 0,
+            NameValueTokenizer::getSubField(mDefaultSipAddress.data(), 0,
                     ", \t", address);
 
             // else use the local host ip address

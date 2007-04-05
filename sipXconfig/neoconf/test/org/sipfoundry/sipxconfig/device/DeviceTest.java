@@ -26,8 +26,7 @@ import org.sipfoundry.sipxconfig.phone.TestPhone;
 public class DeviceTest extends TestCase {
 
     private final class ProfileGeneratorStub extends AbstractProfileGenerator {
-        protected void generateProfile(ProfileContext context, String templateFileName, OutputStream out)
-                throws IOException {
+        protected void generateProfile(ProfileContext context, OutputStream out) throws IOException {
             IOUtils.write("profile", out);
         }
     }

@@ -14,6 +14,7 @@
 		<property name="number"/>
         <property name="position"/>
 		<property name="expiration"/>
+        <property name="enabled"/>
 		<property name="type" column="ring_type" type="org.sipfoundry.sipxconfig.admin.callgroup.AbstractRing$UserType"/>
         <many-to-one name="callSequence" column="user_id" class="CallSequence" not-null="true"/>
 	</class>

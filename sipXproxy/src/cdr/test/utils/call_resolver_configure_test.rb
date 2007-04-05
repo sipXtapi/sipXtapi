@@ -208,6 +208,13 @@ class CallResolverConfigureTest < Test::Unit::TestCase
     assert_equal(12, config.cse_polling_interval)
   end  
 
+  def test_max_call_len
+    assert_equal(28800, @config.max_call_len)
+    c = Configure.new('SIP_CALLRESOLVER_MAX_CALL_LEN' => '-1')
+    config = CallResolverConfigure.new(c)
+    assert_equal(-1, config.max_call_len)
+  end  
+
   def test_dirs
     assert_equal('/etc/sipxpbx', @config.confdir)
     assert_equal('/etc/sipxpbx/ssl', @config.ssldir)

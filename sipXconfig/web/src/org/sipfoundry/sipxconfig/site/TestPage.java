@@ -21,6 +21,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
+import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.engine.IEngineService;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.acd.AcdContext;
@@ -42,6 +43,7 @@ import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.phone.PhoneModel;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookManager;
 import org.sipfoundry.sipxconfig.search.IndexManager;
+import org.sipfoundry.sipxconfig.service.ServiceManager;
 import org.sipfoundry.sipxconfig.site.admin.commserver.ReplicationData;
 import org.sipfoundry.sipxconfig.site.admin.commserver.RestartReminder;
 import org.sipfoundry.sipxconfig.site.phone.ManagePhones;
@@ -119,7 +121,15 @@ public abstract class TestPage extends BasePage {
     public abstract IEngineService getRestartService();
     
     public abstract MailboxManager getMailboxManager();
+    
+    @InjectObject(value = "spring:serviceManager")
+    public abstract ServiceManager getServiceManager();
 
+    
+    public void resetServiceManager() {
+        getServiceManager().clear();
+    }
+    
     public void resetCallForwarding() {
         getForwardingContext().clear();
     }

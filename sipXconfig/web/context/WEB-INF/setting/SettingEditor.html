@@ -49,11 +49,16 @@
     submitOnChange="ognl:false"
     enabled="prop:enabled" />
 </span>
-<span jwcid="@FieldPanel"
-  field="prop:formComponent"
-  label="prop:label"
-  defaultValue="prop:defaultValue"
-  description="prop:description"
-  highlight="prop:modified">
-  <span jwcid="field@RenderBlock" block="prop:widgetBlock"/>
+<span jwcid="@If" condition="prop:decorated">
+  <span jwcid="@FieldPanel"
+    field="prop:formComponent"
+    label="prop:label"
+    defaultValue="prop:defaultValue"
+    description="prop:description"
+    highlight="prop:modified">
+    <span jwcid="field@RenderBlock" block="prop:widgetBlock"/>
+  </span>
+</span>
+<span jwcid="@Else">
+  <span jwcid="@RenderBlock" block="prop:widgetBlock"/>
 </span>

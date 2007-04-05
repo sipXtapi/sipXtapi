@@ -2,12 +2,13 @@
   <td>
     <span jwcid="label@TextField" 
       value="prop:button.label" 
-      validators="validators:required" />
+      displayName="ognl:container.getMessage('label.label')" />
   </td>
   <td>
     <span jwcid="number@TextField" 
       value="prop:button.number"
-      validators="spring-validators:validPhoneOrAor,required" />
+      validators="spring-validators:required,validPhoneOrAor"
+      displayName="ognl:container.getMessage('label.number')" />
   </td>
   <td>
     <span jwcid="blf@Checkbox" 

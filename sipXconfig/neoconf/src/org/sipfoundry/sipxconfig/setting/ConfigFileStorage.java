@@ -40,7 +40,7 @@ public class ConfigFileStorage implements Storage {
     }
 
     public String getValue(Setting setting) {
-        SettingValue2 v = getSettingValue(setting);
+        SettingValue v = getSettingValue(setting);
         return v == null ? null : v.getValue();
     }
 
@@ -48,8 +48,8 @@ public class ConfigFileStorage implements Storage {
         setSettingValue(setting, new SettingValueImpl(value), null);
     }
 
-    public SettingValue2 getSettingValue(Setting setting) {
-        SettingValue2 value = null;
+    public SettingValue getSettingValue(Setting setting) {
+        SettingValue value = null;
         try {
             Properties properties = loadForFile(setting);
             String svalue = properties.getProperty(setting.getName());
@@ -62,7 +62,7 @@ public class ConfigFileStorage implements Storage {
         return value;
     }
 
-    public void setSettingValue(Setting setting, SettingValue2 value, SettingValue2 defaultValue) {
+    public void setSettingValue(Setting setting, SettingValue value, SettingValue defaultValue) {
         try {
             Properties properties = loadForFile(setting);
             properties.put(setting.getName(), StringUtils.defaultString(value.getValue()));

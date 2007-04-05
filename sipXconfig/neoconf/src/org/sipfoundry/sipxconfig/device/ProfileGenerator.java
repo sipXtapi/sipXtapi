@@ -13,9 +13,9 @@ package org.sipfoundry.sipxconfig.device;
 
 
 public interface ProfileGenerator {
-    void generate(ProfileContext context, String templateFileName, String outputFileName);
+    void generate(ProfileContext context, String outputFileName);
 
-    void generate(ProfileContext context, String templateFileName, ProfileFilter filter, String outputFileName);
+    void generate(ProfileContext context, ProfileFilter filter, String outputFileName);
     
     void remove(String outputFileName);
 }

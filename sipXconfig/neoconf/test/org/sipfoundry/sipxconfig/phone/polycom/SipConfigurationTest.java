@@ -75,7 +75,7 @@ public class SipConfigurationTest extends XMLTestCase {
 
         ProfileContext cfg = new SipConfiguration(phone);
 
-        m_pg.generate(cfg, phone.getSipTemplate(), "profile");
+        m_pg.generate(cfg, "profile");
 
         InputStream expectedPhoneStream = getClass().getResourceAsStream(expected);
         Reader expectedXml = new InputStreamReader(expectedPhoneStream);

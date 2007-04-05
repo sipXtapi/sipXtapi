@@ -1,14 +1,20 @@
 ## Velocity macros
 ## emit 'setting value' pair
 #macro(emit_setting $s)
+#if($s.Leaf)
 ${s.ProfileName}=$!{s.Value}
+#end
+#end
+## emit setting line for every setting in the group
+#macro(emit_group_content $g)
+#foreach ($s in $g.Values)
+#emit_setting($s)
+#end
 #end
 ## emit setting line for every setting in the group
 #macro(emit_group $g)
 [${g.ProfileName}]
-#foreach ($s in $g.Values)
-#emit_setting($s)
-#end
+#emit_group_content($g)
 #end
 ## emit setting line for some settings in the group
 #macro(emit_settings $g $setting_names)
@@ -20,6 +26,7 @@ ${s.ProfileName}=$!{s.Value}
 #macro(emit_groups_by_name $group_names)
 #foreach ($gn in $group_names)
 #emit_group($gateway.Settings.getSetting("$gn"))
+
 #end
 #end
 ## emit comma separated list of values
@@ -27,7 +34,15 @@ ${s.ProfileName}=$!{s.Value}
 #foreach ($sn in $setting_names)
 #if($velocityCount > 1),#end
 #set($s=$group.getSetting($sn))
-##$group.getSetting($sn).Value#end
+#if($s && $s.Value)$s.Value#else$ignore#end
+#end
+
+#end
+## same as emit_csv but works with arrays
+#macro(emit_csv_index $array $index $setting_names)
+#foreach ($sn in $setting_names)
+#if($velocityCount > 1),#end
+#set($s=$array.getSetting("$sn[$index]"))
 #if($s && $s.Value)$s.Value#else$ignore#end
 #end
 
@@ -40,15 +55,21 @@ ${s.ProfileName}=$!{s.Value}
 ;------------------------------
 
 #emit_groups_by_name(['SIP', 'Network'])
-
-#set($trunks = $gateway.Settings.getSetting('Trunks'))
 [Trunks]
-#foreach ($tg_index in [1..4])
-#set($tg = $trunks.getSetting("TRUNKGROUP_$tg_index"))
-TRUNKGROUP_$tg_index=#emit_csv($tg ['ChannelRange', 'StartPhoneNumber', 'HuntGroupNumber'])
+#set($trunks = $gateway.Settings.getSetting('Trunks/TRUNKGROUP'))
+#set($max_trunk = $trunks.size - 1)
+#foreach ($tg_index in [0..$max_trunk])
+#set($tg_conf_index = $tg_index + 1)
+TRUNKGROUP_$tg_conf_index=#emit_csv_index($trunks $tg_index ['ChannelRange', 'StartPhoneNumber', 'HuntGroupNumber'])
 #end
 
-#emit_groups_by_name(['Telephony', 'Voice'])
+#emit_groups_by_name(['Telephony'])
+[Voice]
+#foreach ($codec in $codecs)
+CoderName=$codec
+#end
+#set($voice = $gateway.Settings.getSetting('Voice'))
+#emit_group_content($voice)
 
 [Call_Routing]
 #set($cr = $gateway.Settings.getSetting('Call_Routing'))
@@ -70,8 +91,8 @@ SourceNUMBERMAPTEL2IP=#emit_csv($s_t2i ['prefixtomatch', 'stripdigitcount', 'pre
 SourceNUMBERMAPIP2TEL=#emit_csv($s_i2t ['prefixtomatch', 'stripdigitcount', 'prefix-suffix', 'leavefromright', 'ignore', 'ignore', 'DNISPrefix', 'ignore', 'sourceIP'])
 
 #emit_groups_by_name(['Management_Interface'])
-
 ; must exist in the file
 EnableLANWatchDog=1
 IdlePCMPattern=85
 LogoWidth=339
+## end of generated file

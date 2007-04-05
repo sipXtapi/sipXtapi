@@ -13,7 +13,7 @@ package org.sipfoundry.sipxconfig.setting;
 
 public interface Storage extends SettingValueHandler {
 
-    public void setSettingValue(Setting setting, SettingValue2 value, SettingValue2 defaultValue);
+    public void setSettingValue(Setting setting, SettingValue value, SettingValue defaultValue);
 
     public void revertSettingToDefault(Setting setting);
 }

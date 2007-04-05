@@ -38,7 +38,7 @@ class SipRedirectorENUM : public RedirectPlugin
 {
   public:
 
-   SipRedirectorENUM(const UtlString& instanceName);
+   explicit SipRedirectorENUM(const UtlString& instanceName);
 
    ~SipRedirectorENUM();
 

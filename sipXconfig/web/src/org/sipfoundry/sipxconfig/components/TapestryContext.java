@@ -66,7 +66,7 @@ public class TapestryContext {
 
         return decorated;
     }
-
+    
     /**
      * Translates UserExceptions into form errors instead redirecting to an error page.
      */

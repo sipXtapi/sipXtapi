@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -31,12 +32,16 @@ import org.apache.tapestry.PageRedirectException;
 import org.apache.tapestry.contrib.table.model.IAdvancedTableColumn;
 import org.apache.tapestry.contrib.table.model.ITableColumn;
 import org.apache.tapestry.contrib.table.model.ognl.ExpressionTableColumn;
+import org.apache.tapestry.form.validator.Pattern;
+import org.apache.tapestry.form.validator.Required;
+import org.apache.tapestry.form.validator.Validator;
 import org.apache.tapestry.services.ExpressionEvaluator;
 import org.apache.tapestry.util.ContentType;
 import org.apache.tapestry.valid.IValidationDelegate;
 import org.apache.tapestry.valid.ValidatorException;
 import org.apache.tapestry.web.WebResponse;
 import org.sipfoundry.sipxconfig.common.NamedObject;
+import org.sipfoundry.sipxconfig.device.DeviceDescriptor;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.springframework.context.MessageSource;
 
@@ -356,5 +361,14 @@ public final class TapestryUtils {
             array = s.split("\\s+");
         }  
         return array;
+    }
+
+    public static List<Validator> getSerialNumberValidators(DeviceDescriptor model) {
+        Validator[] vs = new Validator[2];
+        vs[0] = new Required();
+        Pattern pattern = new Pattern();
+        pattern.setPattern(model.getSerialNumberPattern());
+        vs[1] = pattern;
+        return Arrays.asList(vs);
     }
 }

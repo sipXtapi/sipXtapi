@@ -37,6 +37,8 @@
       <li><a jwcid="newPhoneGroup" id="NewPhoneGroup">New Phone Group</a></li>
       <li><a jwcid="@DirectLink" id="NewPhone" listener="listener:newPhone">New Phone</a></li>
       <li><a jwcid="populatePhones" id="link:populatePhones">Populate Phones</a></li>
+      <li><a jwcid="@PageLink" id="link:managePhonebooks" page="ManagePhonebooks">Manage Phonebooks</a></li>
+      <li><a jwcid="@PageLink" id="link:phonebook" page="EditPhonebook">Phonebook</a></li>
     </ul>
     
     <h3>Call Groups</h3>
@@ -79,11 +81,8 @@
       <li><a jwcid="@PageLink" id="link:import" page="BulkImport">Import from CSV</a></li>
       <li><a jwcid="@PageLink" id="link:intercom" page="Intercom">Intercom</a></li>
       <li><a jwcid="@PageLink" id="link:domain" page="ManageDomain">Domain</a></li>
-      <li><a jwcid="@PageLink" id="link:managePhonebooks" page="ManagePhonebooks">Manage Phonebooks</a></li>
-      <li><a jwcid="@PageLink" id="link:phonebook" page="EditPhonebook">Phonebook</a></li>
-      <li><a jwcid="resetPhonebook" id="link:phonebookReset">Reset Phonebooks</a></li>
-
-          </ul>
+      <li><a jwcid="@PageLink" id="link:configuredServices" page="service/ListConfiguredServices">Configured Services</a></li>
+    </ul>
     
     <h3>Conference Bridge</h3>
     <ul>
@@ -93,6 +92,7 @@
   </div>      
   <div class="col">    
     <h3>Reset</h3>
+    <p>This clears all related data in that context!</p>
     <ul>
       <li><a jwcid="resetCoreContext" id="resetCoreContext">Reset core context</a></li>
       <li><a jwcid="resetDialPlans" id="resetDialPlans">Reset dial plans</a></li>
@@ -103,6 +103,8 @@
       <li><a jwcid="resetConferenceBridgeContext" id="resetConferenceBridgeContext">Reset conference bridge context</a></li>
       <li><a jwcid="resetUpload" id="link:resetUpload">Reset Upload</a></li>
       <li><a jwcid="resetVoicemail" id="resetVoicemail">Reset Voicemail</a></li>
+      <li><a jwcid="resetPhonebook" id="link:phonebookReset">Reset Phonebooks</a></li>
+      <li><a jwcid="@DirectLink" id="resetConfiguredServices" listener="listener:resetServiceManager">Reset Configured Services</a></li>
       <li><a jwcid="disableVoicemail" id="disableVoicemail">Disable Voicemail</a></li>
     </ul>
 

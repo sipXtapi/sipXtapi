@@ -11,13 +11,10 @@
  */
 package org.sipfoundry.sipxconfig.phone;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.sipfoundry.sipxconfig.admin.intercom.Intercom;
 import org.sipfoundry.sipxconfig.admin.intercom.IntercomManager;
@@ -33,9 +30,7 @@ import org.sipfoundry.sipxconfig.phonebook.Phonebook;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookEntry;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookManager;
 import org.sipfoundry.sipxconfig.setting.Group;
-import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
-import org.sipfoundry.sipxconfig.setting.XmlModelBuilder;
 import org.sipfoundry.sipxconfig.speeddial.SpeedDial;
 import org.sipfoundry.sipxconfig.speeddial.SpeedDialManager;
 import org.springframework.beans.factory.BeanFactory;
@@ -47,8 +42,8 @@ import org.springframework.orm.hibernate3.HibernateTemplate;
 /**
  * Context for entire sipXconfig framework. Holder for service layer bean factories.
  */
-public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFactoryAware,
-        PhoneContext, ApplicationListener, DaoEventListener {
+public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFactoryAware, PhoneContext,
+        ApplicationListener, DaoEventListener {
 
     private static final String GROUP_RESOURCE_ID = "phone";
     private static final String QUERY_PHONE_ID_BY_SERIAL_NUMBER = "phoneIdsWithSerialNumber";
@@ -60,8 +55,6 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
     private BeanFactory m_beanFactory;
 
     private String m_systemDirectory;
-
-    private Map m_modelCache = new HashMap();
 
     private DeviceDefaults m_deviceDefaults;
 
@@ -109,8 +102,8 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
     public void storePhone(Phone phone) {
         HibernateTemplate hibernate = getHibernateTemplate();
         String serialNumber = phone.getSerialNumber();
-        DaoUtils.checkDuplicatesByNamedQuery(hibernate, phone, QUERY_PHONE_ID_BY_SERIAL_NUMBER,
-                serialNumber, new DuplicateSerialNumberException(serialNumber));
+        DaoUtils.checkDuplicatesByNamedQuery(hibernate, phone, QUERY_PHONE_ID_BY_SERIAL_NUMBER, serialNumber,
+                new DuplicateSerialNumberException(serialNumber));
         phone.setValueStorage(clearUnsavedValueStorage(phone.getValueStorage()));
         hibernate.saveOrUpdate(phone);
     }
@@ -147,8 +140,8 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
         return getBeansInGroupCount(Phone.class, groupId);
     }
 
-    public List<Phone> loadPhonesByPage(Integer groupId, int firstRow, int pageSize,
-            String[] orderBy, boolean orderAscending) {
+    public List<Phone> loadPhonesByPage(Integer groupId, int firstRow, int pageSize, String[] orderBy,
+            boolean orderAscending) {
         return loadBeansByPage(Phone.class, groupId, firstRow, pageSize, orderBy, orderAscending);
     }
 
@@ -167,8 +160,8 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
     }
 
     public Integer getPhoneIdBySerialNumber(String serialNumber) {
-        List objs = getHibernateTemplate().findByNamedQueryAndNamedParam(
-                QUERY_PHONE_ID_BY_SERIAL_NUMBER, "value", Phone.cleanSerialNumber(serialNumber));
+        List objs = getHibernateTemplate().findByNamedQueryAndNamedParam(QUERY_PHONE_ID_BY_SERIAL_NUMBER,
+                "value", serialNumber);
         return (Integer) DaoUtils.requireOneOrZero(objs, QUERY_PHONE_ID_BY_SERIAL_NUMBER);
     }
 
@@ -210,17 +203,6 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
         m_systemDirectory = systemDirectory;
     }
 
-    public Setting getSettingModel(String filename) {
-        // cache it, but may be helpful to reload model on fly in future
-        Setting model = (Setting) m_modelCache.get(filename);
-        if (model == null) {
-            File modelDefsFile = new File(getSystemDirectory() + '/' + filename);
-            model = new XmlModelBuilder(getSystemDirectory()).buildModel(modelDefsFile);
-            m_modelCache.put(filename, model);
-        }
-        return model;
-    }
-
     private static class DuplicateSerialNumberException extends UserException {
         private static final String ERROR = "A phone with serial number: {0} already exists.";
 
@@ -242,8 +224,8 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
     }
 
     public Collection getPhonesByGroupId(Integer groupId) {
-        Collection users = getHibernateTemplate().findByNamedQueryAndNamedParam(
-                "phonesByGroupId", "groupId", groupId);
+        Collection users = getHibernateTemplate().findByNamedQueryAndNamedParam("phonesByGroupId", "groupId",
+                groupId);
         return users;
     }
 
@@ -284,8 +266,7 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
     }
 
     public Collection<Phone> getPhonesByUserId(Integer userId) {
-        return getHibernateTemplate().findByNamedQueryAndNamedParam("phonesByUserId", "userId",
-                userId);
+        return getHibernateTemplate().findByNamedQueryAndNamedParam("phonesByUserId", "userId", userId);
     }
 
     public void addToGroup(Integer groupId, Collection<Integer> ids) {

@@ -65,6 +65,8 @@ testing of SIP user agents.  It is the sipXpbx <a href='http://www.sipfoundry.or
 with a <a href='#config'>custom configuration</a>.  This configuration
 is designed to exercise issues we have found are important to
 interoperability between User Agents and Proxies.
+This server is restarted once a week, at 00:00 Sunday UTC.
+The restart process takes approximately 2 minutes.
 </p>
 <p>
 <a href='sipx-version.cgi'>Display the sipX version running on this server</a>
@@ -307,6 +309,9 @@ answered, the first extension called will receive a CANCEL when the
 next is called.  Make sure that your caller connects with the phone
 that answers, and that all the others correctly clean up the
 canceled requests.
+Note that ringing four contacts can take quite a while, and the
+calling phone or the sipX proxy may time out the call attempt before
+all four phones ring.
 </p>
 
 <h3><a name='pfork'>6</a>. Parallel Forking</h3>
@@ -484,7 +489,7 @@ For example:
 <p>
 User agents that provide "music on hold" via the technique of
 <a href="http://tools.ietf.org/wg/sipping/draft-ietf-sipping-service-examples/draft-ietf-sipping-service-examples-10.txt">draft-ietf-sipping-service-examples-10</a>
-can use the URI <code>sip:moh@@SIPXCHANGE_DOMAIN_NAME@:5120</code> as an
+can use the URI <code>sip:~~mh~@@SIPXCHANGE_DOMAIN_NAME@</code> as an
 audio source.
 </p>
 

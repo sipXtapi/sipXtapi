@@ -90,9 +90,6 @@ public class Upload extends BeanWithSettings {
         return m_specification;
     }
 
-    /**
-     * @return ids used in PhoneFactory
-     */
     public String getBeanId() {
         return m_beanId;
     }
