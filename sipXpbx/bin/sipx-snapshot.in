@@ -61,17 +61,25 @@ do
             ;;
 
         -l|--logs)
-            Logs=`echo ${2} | tr A-Z a-z`
-            case ${Logs} in
-                current|none|all)
-                    :
-                    ;;
-                *)
-                    echo "invalid selector for ${1}: '${2}'" 1>&2
-                    Action=USAGE
-                    break
-                    ;;
-            esac
+            if [ -z "${2}" ]
+            then
+                echo "No argument supplied for ${1}" 1>&2
+                Action=USAGE
+                break
+            else
+                Logs=`echo ${2} | tr A-Z a-z`
+                case ${Logs} in
+                    current|none|all)
+                        :
+                        ;;
+                    *)
+                        echo "invalid selector for ${1}: '${2}'" 1>&2
+                        Action=USAGE
+                        break
+                        ;;
+                esac
+            fi
+            shift
             ;;
 
         -nl|--no-logs)
