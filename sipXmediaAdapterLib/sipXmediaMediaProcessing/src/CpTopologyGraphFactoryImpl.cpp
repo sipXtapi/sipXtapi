@@ -16,6 +16,11 @@
 #include <mp/MpInputDeviceManager.h>
 #include <mp/MpMisc.h>
 #include <mp/MpResourceFactory.h>
+#include <mp/MprFromInputDeviceConstructor.h>
+#include <mp/MprToOutputDeviceConstructor.h>
+#include <mp/MprToneGenConstructor.h>
+#include <mp/MprFromFileConstructor.h>
+#include <mp/MprNullConstructor.h>
 #include <mp/MprBridgeConstructor.h>
 #include <include/CpTopologyGraphFactoryImpl.h>
 #include <mi/CpMediaInterfaceFactory.h>
@@ -118,6 +123,21 @@ MpResourceFactory* CpTopologyGraphFactoryImpl::buildDefaultResourceFactory()
 {
     MpResourceFactory* resourceFactory = 
         new MpResourceFactory();
+
+    // Input device
+    resourceFactory->addConstructor(*(new MprFromInputDeviceConstructor()));
+
+    // Output device
+    resourceFactory->addConstructor(*(new MprToOutputDeviceConstructor()));
+
+    // Tonegen
+    resourceFactory->addConstructor(*(new MprToneGenConstructor()));
+
+    // FromFile
+    resourceFactory->addConstructor(*(new MprFromFileConstructor()));
+
+    // Null resource
+    resourceFactory->addConstructor(*(new MprNullConstructor()));
 
     // Bridge
     resourceFactory->addConstructor(*(new MprBridgeConstructor()));

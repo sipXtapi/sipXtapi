@@ -1055,7 +1055,15 @@ SOURCE=.\include\mp\MprFromFile.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\include\mp\MprFromFileConstructor.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\include\mp\MprFromInputDevice.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MprFromInputDeviceConstructor.h
 # End Source File
 # Begin Source File
 
@@ -1079,6 +1087,10 @@ SOURCE=.\include\mp\MprNull.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\include\mp\MprNullConstructor.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\include\mp\MprRecorder.h
 # End Source File
 # Begin Source File
@@ -1099,7 +1111,15 @@ SOURCE=.\include\mp\MprToneGen.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\include\mp\MprToneGenConstructor.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\include\mp\MprToNet.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MprToOutputDeviceConstructor.h
 # End Source File
 # Begin Source File
 

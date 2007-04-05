@@ -18,12 +18,7 @@
 
 
 //  REMOVE THESE WHEN MpResourceFactory and MpResourceTopology are implemented
-#include <mp/MprFromFile.h>
-#include <mp/MprToneGen.h>
-#include <mp/MprFromMic.h>
-#include <mp/MprToSpkr.h>
-#include <mp/MprNull.h>
-#include <mp/MpMisc.h>
+//#include <mp/MprToneGen.h>
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -49,26 +44,23 @@ MpFlowGraphBase(samplesPerFrame, samplesPerSec)
 
     // For now we just hardcode construct a few resources to get the framework
     // working
-    MprFromFile* fromFile = 
-        new MprFromFile("FromFile1", 
-                        samplesPerFrame,
-                        samplesPerSec);
+    MpResource* fromFile = 
+        resourceFactory.newResource(DEFAULT_FROM_FILE_RESOURCE_TYPE, "FromFile1");
+    assert(fromFile);
     OsStatus result = addResource(*fromFile);
     assert(result == OS_SUCCESS);
     printf("fromFile: %p\n", fromFile);
 
-    MprFromMic* fromMic =
-        new MprFromMic("FromMic1",
-                       samplesPerFrame,
-                       samplesPerSec,
-                       MpMisc.pMicQ);
+    MpResource* fromMic =
+        resourceFactory.newResource(DEFAULT_FROM_INPUT_DEVICE_RESOURCE_TYPE, "FromMic1");
+    assert(fromMic);
     result = addResource(*fromMic);
     assert(result == OS_SUCCESS);
     printf("fromMic: %p\n", fromMic);
 
     MpResource* bridge =
         resourceFactory.newResource(DEFAULT_BRIDGE_RESOURCE_TYPE, "Bridge1");
-
+    assert(bridge);
     result = addResource(*bridge);
     assert(result == OS_SUCCESS);
     printf("bridge: %p\n", bridge);
@@ -82,11 +74,9 @@ MpFlowGraphBase(samplesPerFrame, samplesPerSec)
     assert(result == OS_SUCCESS);
 
     // Create a tone generator
-    MprToneGen* toneGen =
-        new MprToneGen("ToneGen1",
-                       samplesPerFrame,
-                       samplesPerSec,
-                       NULL /* locale */);
+    MpResource* toneGen =
+        resourceFactory.newResource(DEFAULT_TONE_GEN_RESOURCE_TYPE, "ToneGen1");
+    assert(toneGen);
     result = addResource(*toneGen);
     assert(result == OS_SUCCESS);
     printf("toneGen: %p\n", toneGen);
@@ -97,12 +87,9 @@ MpFlowGraphBase(samplesPerFrame, samplesPerSec)
 
     // TODO: need a recorder to be added to bridge output port 0
 
-    MprToSpkr* toSpeaker =
-        new MprToSpkr("ToSpeaker1",
-                      samplesPerFrame,
-                      samplesPerSec,
-                      MpMisc.pSpkQ, 
-                      MpMisc.pEchoQ);
+    MpResource* toSpeaker =
+        resourceFactory.newResource(DEFAULT_TO_OUTPUT_DEVICE_RESOURCE_TYPE, "ToSpeaker1");
+    assert(toSpeaker);
     result = addResource(*toSpeaker);
     assert(result == OS_SUCCESS);
     printf("toSpeaker: %p\n", toSpeaker);
@@ -111,11 +98,9 @@ MpFlowGraphBase(samplesPerFrame, samplesPerSec)
     result = addLink(*bridge, 1, *toSpeaker, 0);
     assert(result == OS_SUCCESS);
 
-    MprNull* nullResource = 
-        new MprNull("Null1",
-                    5, // max input or outputs
-                    samplesPerFrame,
-                    samplesPerSec);
+    MpResource* nullResource = 
+        resourceFactory.newResource(DEFAULT_NULL_RESOURCE_TYPE, "Null1");
+    assert(nullResource);
     result = addResource(*nullResource);
     assert(result == OS_SUCCESS);
 
@@ -136,7 +121,7 @@ MpFlowGraphBase(samplesPerFrame, samplesPerSec)
     assert(toSpeaker->isEnabled());
 
     // DO NOT CHECK IN
-    toneGen->startTone('2');
+    //((MprToneGen*)toneGen)->startTone('2');
 
     // ask the media processing task to manage the new flowgraph
     MpMediaTask* mediaTask = MpMediaTask::getMediaTask(0);

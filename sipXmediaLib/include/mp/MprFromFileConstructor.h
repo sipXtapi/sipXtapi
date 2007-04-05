@@ -10,13 +10,13 @@
 
 // Author: Dan Petrie <dpetrie AT SIPez DOT com>
 
-#ifndef _MprBridgeConstructor_h_
-#define _MprBridgeConstructor_h_
+#ifndef _MprFromFileConstructor_h_
+#define _MprFromFileConstructor_h_
 
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
 #include <mp/MpAudioResourceConstructor.h>
-#include <mp/MprBridge.h>
+#include <mp/MprFromFile.h>
 
 // DEFINES
 // MACROS
@@ -28,10 +28,10 @@
 // FORWARD DECLARATIONS
 
 /**
-*  @brief MprBridgeConstructor is used to contruct a bridge mixer resource
+*  @brief MprFromFileConstructor is used to contruct a FromFile resource
 *
 */
-class MprBridgeConstructor : public MpAudioResourceConstructor
+class MprFromFileConstructor : public MpAudioResourceConstructor
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
@@ -40,15 +40,13 @@ public:
 
     /** Constructor
      */
-    MprBridgeConstructor(int minInOutputs = 1,
-                         int maxInOutputs = 1,
-                         int samplesPerFrame = 80, 
-                         int samplesPerSecond = 8000) :
-      MpAudioResourceConstructor(DEFAULT_BRIDGE_RESOURCE_TYPE,
-                                 minInOutputs,
-                                 maxInOutputs,
-                                 minInOutputs,
-                                 maxInOutputs,
+    MprFromFileConstructor(int samplesPerFrame = 80, 
+                           int samplesPerSecond = 8000) :
+      MpAudioResourceConstructor(DEFAULT_FROM_FILE_RESOURCE_TYPE,
+                                 0, //minInputs,
+                                 1, //maxInputs,
+                                 1, //minOutputs,
+                                 1, //maxOutputs,
                                  samplesPerFrame,
                                  samplesPerSecond)
     {
@@ -56,7 +54,7 @@ public:
 
     /** Destructor
      */
-    virtual ~MprBridgeConstructor(){};
+    virtual ~MprFromFileConstructor(){};
 
 /* ============================ MANIPULATORS ============================== */
 
@@ -65,9 +63,9 @@ public:
     {
         assert(mSamplesPerFrame > 0);
         assert(mSamplesPerSecond > 0);
-        return(new MprBridge(resourceName,
-                             mSamplesPerFrame,
-                             mSamplesPerSecond));
+        return(new MprFromFile(resourceName,
+                               mSamplesPerFrame,
+                               mSamplesPerSecond));
     }
 
 /* ============================ ACCESSORS ================================= */
@@ -82,15 +80,15 @@ private:
 
     /** Disabled copy constructor
      */
-    MprBridgeConstructor(const MprBridgeConstructor& rMprBridgeConstructor);
+    MprFromFileConstructor(const MprFromFileConstructor& rMprFromFileConstructor);
 
 
     /** Disable assignment operator
      */
-    MprBridgeConstructor& operator=(const MprBridgeConstructor& rhs);
+    MprFromFileConstructor& operator=(const MprFromFileConstructor& rhs);
 
 };
 
 /* ============================ INLINE METHODS ============================ */
 
-#endif  // _MprBridgeConstructor_h_
+#endif  // _MprFromFileConstructor_h_

@@ -10,13 +10,13 @@
 
 // Author: Dan Petrie <dpetrie AT SIPez DOT com>
 
-#ifndef _MprBridgeConstructor_h_
-#define _MprBridgeConstructor_h_
+#ifndef _MprNullConstructor_h_
+#define _MprNullConstructor_h_
 
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
 #include <mp/MpAudioResourceConstructor.h>
-#include <mp/MprBridge.h>
+#include <mp/MprNull.h>
 
 // DEFINES
 // MACROS
@@ -28,10 +28,10 @@
 // FORWARD DECLARATIONS
 
 /**
-*  @brief MprBridgeConstructor is used to contruct a bridge mixer resource
+*  @brief MprNullConstructor is used to contruct a Null resource (e.g. /dev/null)
 *
 */
-class MprBridgeConstructor : public MpAudioResourceConstructor
+class MprNullConstructor : public MpAudioResourceConstructor
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
@@ -40,14 +40,13 @@ public:
 
     /** Constructor
      */
-    MprBridgeConstructor(int minInOutputs = 1,
-                         int maxInOutputs = 1,
-                         int samplesPerFrame = 80, 
-                         int samplesPerSecond = 8000) :
-      MpAudioResourceConstructor(DEFAULT_BRIDGE_RESOURCE_TYPE,
-                                 minInOutputs,
+    MprNullConstructor(int maxInOutputs = 5,
+                       int samplesPerFrame = 80, 
+                       int samplesPerSecond = 8000) :
+      MpAudioResourceConstructor(DEFAULT_NULL_RESOURCE_TYPE,
+                                 0,
                                  maxInOutputs,
-                                 minInOutputs,
+                                 0,
                                  maxInOutputs,
                                  samplesPerFrame,
                                  samplesPerSecond)
@@ -56,7 +55,7 @@ public:
 
     /** Destructor
      */
-    virtual ~MprBridgeConstructor(){};
+    virtual ~MprNullConstructor(){};
 
 /* ============================ MANIPULATORS ============================== */
 
@@ -65,9 +64,10 @@ public:
     {
         assert(mSamplesPerFrame > 0);
         assert(mSamplesPerSecond > 0);
-        return(new MprBridge(resourceName,
-                             mSamplesPerFrame,
-                             mSamplesPerSecond));
+        return(new MprNull(resourceName,
+                           mMaxInputs,
+                           mSamplesPerFrame,
+                           mSamplesPerSecond));
     }
 
 /* ============================ ACCESSORS ================================= */
@@ -82,15 +82,15 @@ private:
 
     /** Disabled copy constructor
      */
-    MprBridgeConstructor(const MprBridgeConstructor& rMprBridgeConstructor);
+    MprNullConstructor(const MprNullConstructor& rMprNullConstructor);
 
 
     /** Disable assignment operator
      */
-    MprBridgeConstructor& operator=(const MprBridgeConstructor& rhs);
+    MprNullConstructor& operator=(const MprNullConstructor& rhs);
 
 };
 
 /* ============================ INLINE METHODS ============================ */
 
-#endif  // _MprBridgeConstructor_h_
+#endif  // _MprNullConstructor_h_

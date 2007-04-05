@@ -10,13 +10,13 @@
 
 // Author: Dan Petrie <dpetrie AT SIPez DOT com>
 
-#ifndef _MprBridgeConstructor_h_
-#define _MprBridgeConstructor_h_
+#ifndef _MprToneGenConstructor_h_
+#define _MprToneGenConstructor_h_
 
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
 #include <mp/MpAudioResourceConstructor.h>
-#include <mp/MprBridge.h>
+#include <mp/MprToneGen.h>
 
 // DEFINES
 // MACROS
@@ -28,10 +28,10 @@
 // FORWARD DECLARATIONS
 
 /**
-*  @brief MprBridgeConstructor is used to contruct a bridge mixer resource
+*  @brief MprToneGenConstructor is used to contruct a ToneGen resource
 *
 */
-class MprBridgeConstructor : public MpAudioResourceConstructor
+class MprToneGenConstructor : public MpAudioResourceConstructor
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
@@ -40,23 +40,23 @@ public:
 
     /** Constructor
      */
-    MprBridgeConstructor(int minInOutputs = 1,
-                         int maxInOutputs = 1,
-                         int samplesPerFrame = 80, 
-                         int samplesPerSecond = 8000) :
-      MpAudioResourceConstructor(DEFAULT_BRIDGE_RESOURCE_TYPE,
-                                 minInOutputs,
-                                 maxInOutputs,
-                                 minInOutputs,
-                                 maxInOutputs,
+    MprToneGenConstructor(int samplesPerFrame = 80, 
+                          int samplesPerSecond = 8000,
+                          const UtlString& locale = "") :
+      MpAudioResourceConstructor(DEFAULT_TONE_GEN_RESOURCE_TYPE,
+                                 0, //minInputs,
+                                 1, //maxInputs,
+                                 1, //minOutputs,
+                                 1, //maxOutputs,
                                  samplesPerFrame,
-                                 samplesPerSecond)
+                                 samplesPerSecond),
+      mLocale(locale)
     {
     };
 
     /** Destructor
      */
-    virtual ~MprBridgeConstructor(){};
+    virtual ~MprToneGenConstructor(){};
 
 /* ============================ MANIPULATORS ============================== */
 
@@ -65,9 +65,12 @@ public:
     {
         assert(mSamplesPerFrame > 0);
         assert(mSamplesPerSecond > 0);
-        return(new MprBridge(resourceName,
+
+        // TODO: use MprToneGen instead
+        return(new MprToneGen(resourceName,
                              mSamplesPerFrame,
-                             mSamplesPerSecond));
+                             mSamplesPerSecond,
+                             mLocale));
     }
 
 /* ============================ ACCESSORS ================================= */
@@ -79,18 +82,19 @@ protected:
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
+    UtlString mLocale;
 
     /** Disabled copy constructor
      */
-    MprBridgeConstructor(const MprBridgeConstructor& rMprBridgeConstructor);
+    MprToneGenConstructor(const MprToneGenConstructor& rMprToneGenConstructor);
 
 
     /** Disable assignment operator
      */
-    MprBridgeConstructor& operator=(const MprBridgeConstructor& rhs);
+    MprToneGenConstructor& operator=(const MprToneGenConstructor& rhs);
 
 };
 
 /* ============================ INLINE METHODS ============================ */
 
-#endif  // _MprBridgeConstructor_h_
+#endif  // _MprToneGenConstructor_h_

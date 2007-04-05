@@ -93,16 +93,23 @@ nobase_include_HEADERS =  \
     mp/MpResourceFactory.h \
     mp/MpResourceSortAlg.h \
     mp/MprFromFile.h \
+    mp/MprFromFileConstructor.h \
+    mp/MprFromInputDevice.h \
+    mp/MprFromInputDeviceConstructor.h \
     mp/MprFromMic.h \
     mp/MprFromNet.h \
     mp/MprFromStream.h \
     mp/MprMixer.h \
+    mp/MprNull.h \
+    mp/MprNullConstructor.h \
     mp/MprRecorder.h \
     mp/MprSpeexEchoCancel.h \
     mp/MprSpeexPreProcess.h \
     mp/MprSplitter.h \
     mp/MprToneGen.h \
+    mp/MprToneGenConstructor.h \
     mp/MprToNet.h \
+    mp/MprToOutputDeviceConstructor.h \
     mp/MprToSpkr.h \
     mp/MpSipxDecoders.h \
     mp/MpStreamFeeder.h \
