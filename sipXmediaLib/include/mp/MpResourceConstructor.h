@@ -80,7 +80,7 @@ protected:
 private:
 
     /// Disable default constructor
-    MpAudioResourceConstructor();
+    MpResourceConstructor();
 
     /** Disabled copy constructor
      */
