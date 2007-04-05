@@ -489,7 +489,7 @@ For example:
 <p>
 User agents that provide "music on hold" via the technique of
 <a href="http://tools.ietf.org/wg/sipping/draft-ietf-sipping-service-examples/draft-ietf-sipping-service-examples-10.txt">draft-ietf-sipping-service-examples-10</a>
-can use the URI <code>sip:moh@@SIPXCHANGE_DOMAIN_NAME@:5120</code> as an
+can use the URI <code>sip:~~mh~@@SIPXCHANGE_DOMAIN_NAME@</code> as an
 audio source.
 </p>
 
