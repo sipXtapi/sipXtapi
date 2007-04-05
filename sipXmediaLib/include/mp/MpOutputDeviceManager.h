@@ -17,8 +17,8 @@
 
 // APPLICATION INCLUDES
 #include <os/OsRWMutex.h>
-//#include <utl/UtlHashMap.h>
-//#include <utl/UtlHashBag.h>
+#include <utl/UtlHashMap.h>
+#include <utl/UtlHashBag.h>
 #include "mp/MpTypes.h"
 
 // DEFINES
@@ -71,8 +71,8 @@ public:
 ///@name Creators
 //@{
 
-     /// @brief Default constructor.
-   MpOutputDeviceManager(unsigned defaultSamplesPerFrame, 
+     /// Default constructor.
+   MpOutputDeviceManager(unsigned defaultSamplesPerFrame,
                          unsigned defaultSamplesPerSecond,
                          MpFrameTime defaultMixerBufferLength);
      /**<
@@ -90,12 +90,12 @@ public:
      */
 
 
-     /// @brief Destructor.
+     /// Destructor.
    virtual
    ~MpOutputDeviceManager();
      /**<
      *  @NOTE This is NOT thread safe.  The invoker of this destructor
-     *        MUST be sure that no device drivers or resources are referencing
+     *        MUST be sure that no connections or resources are referencing
      *        this device manager.
      */
 
@@ -105,7 +105,7 @@ public:
 ///@name Manipulators
 //@{
 
-     /// @brief Add a new input device for use.
+     /// Add a new input device for use.
    MpOutputDeviceHandle addDevice(MpOutputDeviceDriver& newDevice);
      /**<
      *  Returns device ID which is unique within this device manager.
@@ -120,7 +120,7 @@ public:
      */
 
 
-     /// @brief Remove an existing input device.
+     /// Remove an existing input device.
    MpOutputDeviceDriver* removeDevice(MpOutputDeviceHandle deviceId);
      /**<
      *  This method locks the device manager for exclusive use.
@@ -134,7 +134,7 @@ public:
      */
 
 
-     /// @brief Helper to enable device driver.
+     /// Helper to enable device driver.
    OsStatus enableDevice(MpOutputDeviceHandle deviceId,
                          MpFrameTime mixerBufferLength);
      /**<
@@ -149,6 +149,7 @@ public:
      *         Set <tt>mixerBufferLength</tt> to 0 to enable direct write mode.
      *
      *  @returns OS_NOT_FOUND if the device could not be found.
+     *  @returns OS_INVALID_STATE if device already enabled.
      *  
      *  @NOTE This SHOULD NOT be used to mute/unmute a device. Disabling and
      *        enabling a device results in state and buffer queues being cleared.
@@ -157,7 +158,7 @@ public:
      */
 
 
-     /// @brief Helper to disable device driver.
+     /// Helper to disable device driver.
    OsStatus disableDevice(MpOutputDeviceHandle deviceId);
      /**<
      *  This method disables the device driver indicated by the device id.
@@ -174,7 +175,7 @@ public:
      */
 
 
-     /// @brief Method for sending frame of data to output device.
+     /// Method for sending frame of data to output device.
    OsStatus pushFrame(MpOutputDeviceHandle deviceId,
                       MpFrameTime frameTime,
                       const MpBufPtr& frame,
@@ -183,45 +184,19 @@ public:
      *  This method is used to push a frame to the MpOutputDeviceManager to be
      *  buffered for a short window of time and mixed with data from other
      *  contributors.
+     *
      *  This method is typically invoked by MprToOutputDevice resources.
      *
-     *  @param deviceId - (in) device id to identify device to which this frame
+     *  @param deviceId - (in) Device id to identify device to which this frame
      *         will be sent.
-     *  @param frameTime - (in) time in milliseconds for beginning of frame
+     *  @param frameTime - (in) Time in milliseconds for beginning of frame
      *         relative to the MpOutputDeviceManager reference time.
-     *  @param frame - (in) frame of media to be sent to output device.
-     *  @param alreadyBuffered - (out) length of data (in milliseconds) stored
+     *  @param frame - (in) Frame of media to be sent to output device.
+     *  @param alreadyBuffered - (out) Length of data (in milliseconds) stored
      *         in mixer buffer and not yet send to device driver.
      *
      *  @returns OS_NOT_FOUND if the device could not be found.
      *  @returns OS_LIMIT_REACHED if mixer buffer is full.
-     *
-     *  Multi-thread safe.
-     */
-
-
-     /// @brief Method for MpOutputDeviceDriver to get data from mixer buffer.
-   OsStatus pullFrame(MpOutputDeviceHandle deviceId,
-                      MpFrameTime frameTime
-                      unsigned numSamples,
-                      MpAudioSample *samples);
-     /**<
-     *  Method for pulling next frame of media data for playback.
-     *  This method is typically invoked by MpOutputDeviceDriver objects in
-     *  non direct write mode.
-     *
-     *  @param deviceId - (in) device id to identify device which pull the data.
-     *  @param frameTime - (in) time in milliseconds for beginning of frame
-     *         relative to the MpOutputDeviceManager reference time.
-     *  @param numSamples - (in) number of samples in the frame of media to
-     *         pull from mixer buffer.
-     *  @param samples - (in) pointer to buffer for the the frame data.
-     *
-     *  @returns OS_NOT_FOUND if the device id does not exist.
-     *  @returns OS_INVALID_STATE if device is configured for direct write
-     *                            operation and mixer buffer is not available.
-     *  @returns OS_INVALID_ARGUMENT if the frame for the requested time is not
-     *                               available.
      *
      *  Multi-thread safe.
      */
@@ -232,7 +207,7 @@ public:
 ///@name Accessors
 //@{
 
-     /// @brief Get the device driver name for the given device ID
+     /// Get the device driver name for the given device ID
    OsStatus getDeviceName(MpOutputDeviceHandle deviceId, UtlString& deviceName) const;
      /**<
      *  Get the name for the given deviceId.
@@ -248,7 +223,7 @@ public:
      */
 
 
-     /// @brief Get the device id for the given device driver name
+     /// Get the device id for the given device driver name
    OsStatus getDeviceId(const UtlString& deviceName, MpOutputDeviceHandle &deviceId) const;
      /**<
      *  The MpOutputDeviceManager maintains a device ID to device name
@@ -266,7 +241,7 @@ public:
      */
 
 
-     /// @brief Get current frame timestamp
+     /// Get current frame timestamp
    MpFrameTime getCurrentFrameTime() const;
      /**<
      *  The timestamp is in milliseconds from the initial reference point
@@ -283,7 +258,7 @@ public:
 ///@name Inquiry
 //@{
 
-     /// @brief Inquire if device is enabled (e.g. consuming media data).
+     /// Inquire if device is enabled (e.g. consuming media data).
    UtlBoolean isDeviceEnabled(MpOutputDeviceHandle deviceId);
      /**<
      *  Inquire if specified device is enabled (e.g. consuming media data).
@@ -295,6 +270,11 @@ public:
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
+
+   MpAudioOutputConnection* findConnectionBlocking(MpOutputDeviceHandle deviceId,
+                                                   int tries);
+   // Try 10 times (this is a blind guess).
+   // Checking every 10ms over 100ms seems reasonable.
 
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */

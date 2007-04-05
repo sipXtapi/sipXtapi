@@ -822,6 +822,9 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\src\mp\MpAudioOutputConnection.cpp">
+			</File>
+			<File
 				RelativePath=".\src\mp\MpAudioResource.cpp">
 			</File>
 			<File
@@ -2262,6 +2265,9 @@
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\src\mp\MpOutputDeviceDriver.cpp">
 			</File>
 			<File
 				RelativePath="src\mp\MpPlayer.cpp">
@@ -4366,6 +4372,9 @@
 				RelativePath="include\mp\MpAudioFileUtils.h">
 			</File>
 			<File
+				RelativePath=".\include\mp\MpAudioOutputConnection.h">
+			</File>
+			<File
 				RelativePath=".\include\mp\MpAudioResource.h">
 			</File>
 			<File
@@ -4511,6 +4520,12 @@
 			</File>
 			<File
 				RelativePath="include\mp\MpMisc.h">
+			</File>
+			<File
+				RelativePath=".\include\mp\MpOutputDeviceDriver.h">
+			</File>
+			<File
+				RelativePath=".\include\mp\MpOutputDeviceManager.h">
 			</File>
 			<File
 				RelativePath="include\mp\MpPlayer.h">
