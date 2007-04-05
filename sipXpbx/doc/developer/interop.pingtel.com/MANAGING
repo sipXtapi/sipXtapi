@@ -62,4 +62,4 @@ Generate the remainder of the configuration files:
 
 Restart sipX:
 
-	sudo /sbin/service/sipxpbx restart
+	sudo /sbin/service sipxpbx restart
