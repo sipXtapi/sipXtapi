@@ -475,6 +475,10 @@ SOURCE=.\src\mp\MpStreamQueuePlayer.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\mp\MpTopologyFactory.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\mp\MpTopologyGraph.cpp
 # End Source File
 # Begin Source File
@@ -799,6 +803,10 @@ SOURCE=.\include\mp\MpAudioResource.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\include\mp\MpAudioResourceConstructor.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\include\mp\MpAudioUtils.h
 # End Source File
 # Begin Source File
@@ -1007,6 +1015,10 @@ SOURCE=.\include\mp\MprBridge.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\include\mp\MprBridgeConstructor.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\include\mp\MprDecode.h
 # End Source File
 # Begin Source File
@@ -1024,6 +1036,14 @@ SOURCE=.\include\mp\MprEncode.h
 # Begin Source File
 
 SOURCE=.\include\mp\MpResource.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MpResourceConstructor.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MpResourceFactory.h
 # End Source File
 # Begin Source File
 

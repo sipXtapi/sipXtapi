@@ -32,6 +32,7 @@ nobase_include_HEADERS =  \
     mp/MpAudioFileOpen.h \
     mp/MpAudioFileUtils.h \
     mp/MpAudioResource.h \
+    mp/MpAudioResourceConstructor.h \
     mp/MpAudioUtils.h \
     mp/MpAudioWaveFileRead.h \
     mp/MpBuf.h \
@@ -82,11 +83,14 @@ nobase_include_HEADERS =  \
     mp/MpRtpBuf.h \
     mp/MpUdpBuf.h \
     mp/MprBridge.h \
+    mp/MprBridgeConstructor.h \
     mp/MprDecode.h \
     mp/MprDejitter.h \
     mp/MprEchoSuppress.h \
     mp/MprEncode.h \
     mp/MpResource.h \
+    mp/MpResourceConstructor.h \
+    mp/MpResourceFactory.h \
     mp/MpResourceSortAlg.h \
     mp/MprFromFile.h \
     mp/MprFromMic.h \
@@ -106,6 +110,7 @@ nobase_include_HEADERS =  \
     mp/MpStreamPlayer.h \
     mp/MpStreamPlaylistPlayer.h \
     mp/MpStreamQueuePlayer.h \
+    mp/MpTopologyGraph.h \
     mp/MpTypes.h \
     mp/NetInTask.h \
     mp/resamplingby2.h \

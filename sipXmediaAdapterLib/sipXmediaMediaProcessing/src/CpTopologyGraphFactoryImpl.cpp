@@ -15,6 +15,8 @@
 // APPLICATION INCLUDES
 #include <mp/MpInputDeviceManager.h>
 #include <mp/MpMisc.h>
+#include <mp/MpResourceFactory.h>
+#include <mp/MprBridgeConstructor.h>
 #include <include/CpTopologyGraphFactoryImpl.h>
 #include <mi/CpMediaInterfaceFactory.h>
 #include <include/CpTopologyGraphInterface.h>
@@ -65,6 +67,8 @@ sipXmediaFactoryImpl(pConfigDb)
                                  8000, // samples per second
                                  4, // number of buffered frames saved
                                  *MpMisc.RawAudioPool);
+
+    mpResourceFactory = buildDefaultResourceFactory();
 }
 
 
@@ -108,6 +112,17 @@ CpTopologyGraphFactoryImpl::createMediaInterface(const char* publicAddress,
                                        turnPassword, 
                                        turnKeepAliveSecs, 
                                        enableIce));
+}
+
+MpResourceFactory* CpTopologyGraphFactoryImpl::buildDefaultResourceFactory()
+{
+    MpResourceFactory* resourceFactory = 
+        new MpResourceFactory();
+
+    // Bridge
+    resourceFactory->addConstructor(*(new MprBridgeConstructor()));
+
+    return(resourceFactory);
 }
 
 /* ============================ ACCESSORS ================================= */

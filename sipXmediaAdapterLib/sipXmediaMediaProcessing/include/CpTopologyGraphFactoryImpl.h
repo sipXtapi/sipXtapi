@@ -109,6 +109,10 @@ public:
     // Eventially they will all need to be replaced with specific 
     // implementations
 
+    /** Build a resource factory with the default set of resource constructors
+     */
+    static MpResourceFactory* buildDefaultResourceFactory();
+
 /* ============================ INQUIRY =================================== */
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */

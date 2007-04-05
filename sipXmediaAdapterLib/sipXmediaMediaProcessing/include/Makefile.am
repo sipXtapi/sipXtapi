@@ -1,1 +1,6 @@
-noinst_HEADERS = CpPhoneMediaInterface.h sipXmediaFactoryImpl.h
+noinst_HEADERS = \
+   CpPhoneMediaInterface.h \
+   CpTopologyGraphFactoryImpl.h \
+   CpTopologyGraphInterface.h \
+   sipXmediaFactoryImpl.h \
+

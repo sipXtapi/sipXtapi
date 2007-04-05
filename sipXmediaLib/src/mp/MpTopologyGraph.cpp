@@ -14,13 +14,13 @@
 // APPLICATION INCLUDES
 #include <mp/MpTopologyGraph.h>
 #include <mp/MpMediaTask.h>
+#include <mp/MpResourceFactory.h>
 
 
 //  REMOVE THESE WHEN MpResourceFactory and MpResourceTopology are implemented
 #include <mp/MprFromFile.h>
 #include <mp/MprToneGen.h>
 #include <mp/MprFromMic.h>
-#include <mp/MprBridge.h>
 #include <mp/MprToSpkr.h>
 #include <mp/MprNull.h>
 #include <mp/MpMisc.h>
@@ -53,7 +53,8 @@ MpFlowGraphBase(samplesPerFrame, samplesPerSec)
         new MprFromFile("FromFile1", 
                         samplesPerFrame,
                         samplesPerSec);
-    assert(addResource(*fromFile) == OS_SUCCESS);
+    OsStatus result = addResource(*fromFile);
+    assert(result == OS_SUCCESS);
     printf("fromFile: %p\n", fromFile);
 
     MprFromMic* fromMic =
@@ -61,21 +62,24 @@ MpFlowGraphBase(samplesPerFrame, samplesPerSec)
                        samplesPerFrame,
                        samplesPerSec,
                        MpMisc.pMicQ);
-    assert(addResource(*fromMic) == OS_SUCCESS);
+    result = addResource(*fromMic);
+    assert(result == OS_SUCCESS);
     printf("fromMic: %p\n", fromMic);
 
-    MprBridge* bridge =
-        new MprBridge("Bridge1",
-                      samplesPerFrame,
-                      samplesPerSec);
-    assert(addResource(*bridge) == OS_SUCCESS);
+    MpResource* bridge =
+        resourceFactory.newResource(DEFAULT_BRIDGE_RESOURCE_TYPE, "Bridge1");
+
+    result = addResource(*bridge);
+    assert(result == OS_SUCCESS);
     printf("bridge: %p\n", bridge);
 
     // Link fromFile to bridge
-    assert(addLink(*fromFile, 0, *bridge, 0) == OS_SUCCESS);
+    result = addLink(*fromFile, 0, *bridge, 0);
+    assert(result == OS_SUCCESS);
 
     // Link mic to bridge
-    assert(addLink(*fromMic, 0, *bridge, 1) == OS_SUCCESS);
+    result = addLink(*fromMic, 0, *bridge, 1);
+    assert(result == OS_SUCCESS);
 
     // Create a tone generator
     MprToneGen* toneGen =
@@ -83,11 +87,13 @@ MpFlowGraphBase(samplesPerFrame, samplesPerSec)
                        samplesPerFrame,
                        samplesPerSec,
                        NULL /* locale */);
-    assert(addResource(*toneGen) == OS_SUCCESS);
+    result = addResource(*toneGen);
+    assert(result == OS_SUCCESS);
     printf("toneGen: %p\n", toneGen);
 
     // TODO: add a mixer for locally generated audio (e.g. tones, fromFile, etc)
-    assert(addLink(*toneGen, 0, *bridge, 2) == OS_SUCCESS);
+    result = addLink(*toneGen, 0, *bridge, 2);
+    assert(result == OS_SUCCESS);
 
     // TODO: need a recorder to be added to bridge output port 0
 
@@ -97,38 +103,49 @@ MpFlowGraphBase(samplesPerFrame, samplesPerSec)
                       samplesPerSec,
                       MpMisc.pSpkQ, 
                       MpMisc.pEchoQ);
-    assert(addResource(*toSpeaker) == OS_SUCCESS);
+    result = addResource(*toSpeaker);
+    assert(result == OS_SUCCESS);
     printf("toSpeaker: %p\n", toSpeaker);
 
     // Link bridge to speaker
-    assert(addLink(*bridge, 1, *toSpeaker, 0) == OS_SUCCESS);
+    result = addLink(*bridge, 1, *toSpeaker, 0);
+    assert(result == OS_SUCCESS);
 
     MprNull* nullResource = 
         new MprNull("Null1",
                     5, // max input or outputs
                     samplesPerFrame,
                     samplesPerSec);
-    assert(addResource(*nullResource) == OS_SUCCESS);
+    result = addResource(*nullResource);
+    assert(result == OS_SUCCESS);
 
     // Fill up the unpaired bridge outputs as it currently barfs if
     // it does not have the same number of inputs and outputs.
-    assert(addLink(*bridge, 0, *nullResource, 0) == OS_SUCCESS);
-    assert(addLink(*bridge, 2, *nullResource, 2) == OS_SUCCESS);
+    result = addLink(*bridge, 0, *nullResource, 0);
+    assert(result == OS_SUCCESS);
+    result = addLink(*bridge, 2, *nullResource, 2);
+    assert(result == OS_SUCCESS);
 
     // Enable the flowgraph and all its resources
-    assert(enable() == OS_SUCCESS);
+    result = enable();
+    assert(result == OS_SUCCESS);
 
     // Remove when topology is used to construct and add resources
     assert(toneGen->isEnabled());
     assert(bridge->isEnabled());
     assert(toSpeaker->isEnabled());
 
+    // DO NOT CHECK IN
+    toneGen->startTone('2');
+
     // ask the media processing task to manage the new flowgraph
     MpMediaTask* mediaTask = MpMediaTask::getMediaTask(0);
-    assert(mediaTask->manageFlowGraph(*this) == OS_SUCCESS);
+    result = mediaTask->manageFlowGraph(*this);
+    assert(result == OS_SUCCESS);
 
     // start the flowgraph
-    assert(mediaTask->startFlowGraph(*this) == OS_SUCCESS);
+    result = mediaTask->startFlowGraph(*this);
+    assert(result == OS_SUCCESS);
     assert(isStarted());
 }
 
@@ -137,7 +154,8 @@ MpTopologyGraph::~MpTopologyGraph()
 {
     // unmanage the flowgraph
     MpMediaTask* mediaTask = MpMediaTask::getMediaTask(0);
-    assert(mediaTask->unmanageFlowGraph(*this) == OS_SUCCESS);
+    OsStatus result = mediaTask->unmanageFlowGraph(*this);
+    assert(result == OS_SUCCESS);
 
     // wait until the flowgraph is unmanaged.
     while (mediaTask->isManagedFlowGraph(this))
