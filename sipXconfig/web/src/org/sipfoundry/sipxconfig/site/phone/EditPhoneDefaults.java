@@ -101,18 +101,24 @@ public abstract class EditPhoneDefaults extends BasePage implements PageBeginRen
     public Collection getPhoneNavigationSettings() {
         return getPhone().getSettings().getValues();
     }
-
-    public Collection getLineNavigationSettings() {
-        return getPhone().getLine(0).getSettings().getValues();
+    
+    public Line getLine() {
+        return getPhone().getLine(0);
     }
 
-    public IPage editPhoneSettings(String settingName) {
+    public Collection getLineNavigationSettings() {
+        return getLine().getSettings().getValues();
+    }
+
+    @SuppressWarnings("unused")
+    public IPage editPhoneSettingsClicked(Integer beanId, String settingName) {
         setResourceId(PHONE_SETTINGS);
         setEditFormSettingName(settingName);
         return getPage();
     }
 
-    public IPage editLineSettings(String settingName) {
+    @SuppressWarnings("unused")
+    public IPage editLineSettingsClicked(Integer beanId, String settingName) {
         setResourceId(LINE_SETTITNGS);
         setEditFormSettingName(settingName);
         return getPage();
@@ -177,10 +183,10 @@ public abstract class EditPhoneDefaults extends BasePage implements PageBeginRen
         if (getResourceId() == PHONE_SETTINGS) {
             bean = getPhone();
         } else {
-            bean = getPhone().getLine(0);
+            bean = getLine();
         }
 
-        Setting settings = getGroup().inherhitSettingsForEditing(bean.getSettings());
+        Setting settings = getGroup().inherhitSettingsForEditing(bean);
         Setting subset = settings.getSetting(getEditFormSettingName());
         if (subset == null) {
             // Only time this is true is if navigation on an item that doesn't

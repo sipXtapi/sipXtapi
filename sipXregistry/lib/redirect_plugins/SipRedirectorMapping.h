@@ -40,7 +40,7 @@ class SipRedirectorMapping : public RedirectPlugin
 {
   public:
 
-   SipRedirectorMapping(const UtlString& instanceName);
+   explicit SipRedirectorMapping(const UtlString& instanceName);
 
    ~SipRedirectorMapping();
 

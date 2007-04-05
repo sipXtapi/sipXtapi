@@ -12,11 +12,12 @@
 package org.sipfoundry.sipxconfig.common;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Properties;
 
-import org.sipfoundry.sipxconfig.test.TestUtil;
-
 import junit.framework.TestCase;
+
+import org.sipfoundry.sipxconfig.test.TestUtil;
 
 
 public class TestUtilTest extends TestCase {
@@ -32,13 +33,14 @@ public class TestUtilTest extends TestCase {
         assertEquals("neoconf", new File(projectDirectory).getName());
     }
     
-    public void testGetSysDirProperties() {
+    public void testGetSysDirProperties() throws IOException {
         Properties props = new Properties();
-        TestUtil.setSysDirProperties(props, "etc", "out");
+        String out = System.getProperty("java.io.tmpdir");
+        TestUtil.setSysDirProperties(props, "etc", out);
         assertEquals("etc", props.getProperty("sysdir.etc"));
-        assertEquals("out", props.getProperty("sysdir.data"));
-        assertEquals("out", props.getProperty("sysdir.phone"));
-        assertEquals("out", props.getProperty("sysdir.log"));
+        assertEquals(out, props.getProperty("sysdir.data"));
+        assertEquals(out, props.getProperty("sysdir.phone"));
+        assertEquals(out, props.getProperty("sysdir.log"));
     }
     
     public void testGetTopBuildDirectory() {

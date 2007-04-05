@@ -23,9 +23,7 @@
     - C O M P O N E N T S
   -->
   <component id="userNavigation" type="UserNavigation">
-    <binding name="user" value="user" />
-    <binding name="tab" value="CallForwarding" />
-    <binding name="heading" value="literal:Call Forwarding" />
+    <binding name="bean" value="user" />
   </component>
   <component id="form" type="Form">
     <binding name="delegate" value="bean:validator" />

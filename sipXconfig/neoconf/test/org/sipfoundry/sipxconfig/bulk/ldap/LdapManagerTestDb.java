@@ -35,12 +35,10 @@ public class LdapManagerTestDb extends TestCaseDb {
         assertNotNull(connectionParams);
         assertNotNull(connectionParams.getSchedule());
 
-        ITable ldapConnectionTable = TestHelper.getConnection().createDataSet().getTable(
-                "ldap_connection");
+        ITable ldapConnectionTable = TestHelper.getConnection().createDataSet().getTable("ldap_connection");
         assertEquals(1, ldapConnectionTable.getRowCount());
 
-        ITable cronScheduleTable = TestHelper.getConnection().createDataSet().getTable(
-                "cron_schedule");
+        ITable cronScheduleTable = TestHelper.getConnection().createDataSet().getTable("cron_schedule");
         // this will change once we start keeping something else in the table
         assertEquals(1, cronScheduleTable.getRowCount());
     }
@@ -53,8 +51,7 @@ public class LdapManagerTestDb extends TestCaseDb {
         params.setSecret("secret");
 
         m_context.setConnectionParams(params);
-        ITable ldapConnectionTable = TestHelper.getConnection().createDataSet().getTable(
-                "ldap_connection");
+        ITable ldapConnectionTable = TestHelper.getConnection().createDataSet().getTable("ldap_connection");
         assertEquals(1, ldapConnectionTable.getRowCount());
 
         assertEquals("secret", ldapConnectionTable.getValue(0, "secret"));
@@ -67,8 +64,7 @@ public class LdapManagerTestDb extends TestCaseDb {
         AttrMap attrMap = m_context.getAttrMap();
         assertNotNull(attrMap);
 
-        ITable attrMapTable = TestHelper.getConnection().createDataSet()
-                .getTable("ldap_attr_map");
+        ITable attrMapTable = TestHelper.getConnection().createDataSet().getTable("ldap_attr_map");
         assertEquals(1, attrMapTable.getRowCount());
 
         ITable userToLdapTable = TestHelper.getConnection().createDataSet().getTable(
@@ -82,10 +78,10 @@ public class LdapManagerTestDb extends TestCaseDb {
 
         assertEquals("uid", attrMap.getAttribute("username"));
         assertEquals("cn", attrMap.getAttribute("firstname"));
-        
+
         assertEquals("filter", attrMap.getFilter());
         Collection<String> selectedObjectClasses = attrMap.getSelectedObjectClasses();
-        
+
         assertEquals(2, selectedObjectClasses.size());
         assertTrue(selectedObjectClasses.contains("abc"));
         assertTrue(selectedObjectClasses.contains("def"));
@@ -101,8 +97,7 @@ public class LdapManagerTestDb extends TestCaseDb {
 
         m_context.setAttrMap(attrMap);
 
-        ITable attrMapTable = TestHelper.getConnection().createDataSet()
-                .getTable("ldap_attr_map");
+        ITable attrMapTable = TestHelper.getConnection().createDataSet().getTable("ldap_attr_map");
         assertEquals(1, attrMapTable.getRowCount());
         assertEquals("ou=marketing", attrMapTable.getValue(0, "filter"));
 
@@ -121,7 +116,20 @@ public class LdapManagerTestDb extends TestCaseDb {
         assertEquals(1, TestHelper.getConnection().getRowCount("cron_schedule",
                 "where cron_string = '0 15 * ? * *'"));
     }
-    
+
+    public void testSetScheduleEnabled() throws Exception {
+        CronSchedule schedule = new CronSchedule();
+        schedule.setType(CronSchedule.Type.WEEKLY);
+        schedule.setDayOfWeek(4);
+        schedule.setMin(15);
+        schedule.setEnabled(true);
+
+        m_context.setSchedule(schedule);
+
+        assertEquals(1, TestHelper.getConnection().getRowCount("cron_schedule",
+                "where cron_string = '0 15 0 ? * 4' and enabled = 'true'"));
+    }
+
     public void testGetSetSchedule() throws Exception {
         CronSchedule schedule = m_context.getSchedule();
         m_context.setSchedule(schedule);

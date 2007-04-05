@@ -14,6 +14,7 @@
       <generator class="native" />
     </id>
     <property name="cronString" />
+    <property name="enabled" />
   </class>
 
   <query name="taskNames">

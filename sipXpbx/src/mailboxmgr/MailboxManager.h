@@ -82,6 +82,7 @@
  * Used in updateMessageStates() method.
  */
 #define UPDATE_ALL_MSG_STATES           "-1"
+#define REFRESH_ALL_MSG_STATES           "-2"
 #define MESSAGE_DELIMITER               " "
 #define DEFAULT_MESSAGE_SUBJECT         "Voice Message"
 
@@ -221,7 +222,8 @@ public:
         const char* data,
         const int& datasize,
         const UtlString& nextMessageID = "-1",
-        const UtlBoolean& saveIfDataIsEmpty=FALSE) ;
+        const UtlBoolean& saveIfDataIsEmpty=FALSE,
+        const UtlBoolean& sendEmail=TRUE) ;
 
     /** Method to get the base URL of media server (like http://mediaserver:8090/) */
     OsStatus getMediaserverURL( UtlString& rMediaserverUrl ) const;

@@ -17,11 +17,14 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
+import java.util.Locale;
 import java.util.Properties;
 
+import junit.extensions.TestDecorator;
 import junit.framework.Assert;
 import junit.framework.AssertionFailedError;
 import junit.framework.Test;
+import junit.framework.TestResult;
 import junit.framework.TestSuite;
 
 import com.meterware.httpunit.HttpUnitOptions;
@@ -29,6 +32,7 @@ import com.meterware.httpunit.WebForm;
 import com.meterware.httpunit.WebResponse;
 
 import net.sourceforge.jwebunit.HttpUnitDialog;
+import net.sourceforge.jwebunit.WebTestCase;
 import net.sourceforge.jwebunit.WebTester;
 
 import org.apache.commons.io.FileUtils;
@@ -60,14 +64,46 @@ public class SiteTestHelper {
     private static String s_artificialSystemRoot;
 
     public static Test webTestSuite(Class webTestClass) {
-        TestSuite suite = new TestSuite();
-        suite.addTestSuite(webTestClass);
+        TestSuite suite = new SipxWebTestSuite(webTestClass);
 
         JettyTestSetup jetty = new JettyTestSetup(suite);
         s_baseUrl = jetty.getUrl();
 
         return jetty;
     }
+    
+    static class SipxWebTestSuite extends TestSuite {
+        SipxWebTestSuite(Class test) {
+            super(test);
+        }
+        
+        public void addTest(Test test) {
+            if (test instanceof WebTestCase) {
+                super.addTest(new DumpResponseOnFailure((WebTestCase) test));                
+            } else {
+                super.addTest(test);
+            }
+        }
+    }
+    
+    static class DumpResponseOnFailure extends TestDecorator {
+        DumpResponseOnFailure(WebTestCase test) {
+            super(test);
+        }
+
+        public void run(TestResult result) {
+            int e = totalFailures(result);
+            super.run(result);
+            if (e < totalFailures(result)) {
+                ((WebTestCase) getTest()).getDialog().dumpResponse();
+            }
+        }
+        
+        private int totalFailures(TestResult result) {
+            return result.errorCount() + result.failureCount();
+        }
+    }
+
 
     /**
      * Go to TestPage.html and log in. Includes hack for slow machines.
@@ -87,6 +123,11 @@ public class SiteTestHelper {
         setScriptingEnabled(false);
 
         tester.beginAt(TEST_PAGE_URL);
+        
+        // So tests can check for fixed text. tests can reset this if they wish 
+        // back to Locale.getDefault()
+        tester.getTestContext().setLocale(Locale.ENGLISH);
+        
         if (login) {
             tester.clickLink("login");
         }

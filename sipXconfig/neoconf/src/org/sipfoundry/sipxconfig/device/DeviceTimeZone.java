@@ -97,9 +97,13 @@ public class DeviceTimeZone {
         m_dstrule = dstname;
         setDstParameters();
     }
+    
+    public boolean isUsingDaylightTime() {
+        return m_tz.useDaylightTime();
+    }
 
     private void setDstParameters() {
-        if (m_tz.useDaylightTime()) {
+        if (isUsingDaylightTime()) {
             if (m_dstrule.equals(DST_US)) {
                 m_dstparam[DST_STARTDAY] = 0;
                 m_dstparam[DST_STARTDAYOFWEEK] = DST_SUNDAY;

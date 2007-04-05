@@ -3,6 +3,95 @@ SIPfoundry Issue Tracker at:
 
         http://track.sipfoundry.org/browse?XCF
 	
+Version 3.7.6
+
+** Bug
+    * [XCF-985] - When provisioning Cisco ATA-18x's, "<sip_domain>:<sip_port>" is provisioned as the proxy, causing SRV-lookups to fail.
+    * [XCF-1353] - Long Distance Rule: Field for Area Codes restricted to 40 characters - should allow up to 256
+    * [XCF-1461] - sipXconfing testbed 'ant run' should allow for testing of all screens.
+    * [XCF-1480] - Loss of menu items when displaying on a narrow screen
+    * [XCF-1544] - Migration of voicemail in custom folders
+    * [XCF-1545] - On "Phone" screens, the "presence" navigation item is not capitalized, unlike all other navigation items
+    * [XCF-1550] - Enabling BLF for blank speed dial fields gives exception on the speed dial page
+    * [XCF-1553] - reset-superadmin does not work
+    * [XCF-1558] - Deleting Cisco Phones gives exception with 3.7.5-008014 build
+    * [XCF-1561] - model XML files are parsed everytime settings are loaded
+    * [XCF-1563] - fix handling of "names" that are aliases for extensions [eg hunt groups]
+    * [XCF-1564] - Grandstream phone profles get generated in /var/log/sipxpbx directory
+    * [XCF-1568] - Build broken for /lib: Java version mismatch
+    * [XCF-1580] - cannot add a new gateway if editing old gateway was concluded when tab other than 'config' tab was active
+    * [XCF-1585] - An Exception page occured in Speed dial page
+    * [XCF-1586] - Enabling an Unmanaged Service causes an exception
+    * [XCF-1587] - speeddial page validation doesn't accept single character user id in sip addresses
+    * [XCF-1591] - Edit Configuration parameters under System-->General settings are not reflected in respective .in files
+    * [XCF-1599] - Adding a new phone accepts serial numbers containing blank spaces
+    * [XCF-1601] - Polycom timezone settings are different on group then on phone
+    * [XCF-1603] - "Enable periodic import from LDAP" setting won't stay enabled, and doesn't seem to work at all
+    * [XCF-1604] - LGNortel phones not setting timezone defaults
+
+** Improvement
+    * [XCF-858] - Allow user to enabled & disable forwarding targets without adding/deleting
+    * [XCF-971] - inter-page navigation does not show which tab is active
+    * [XCF-1072] - Grandstream profile generation is locale dependent
+    * [XCF-1133] - 'Send All [phone] Profiles' should have an 'Are you sure?' dialog
+    * [XCF-1340] - empty settings groups should be supported
+    * [XCF-1481] - Default display order for users should be ascending down the page
+    * [XCF-1521] - junit failure should emit to stderr during build
+    * [XCF-1549] - Allow for greater customization on login page and banner area
+    * [XCF-1582] - enable/disable firmware uploading on LG-Nortel phone
+
+** New Feature
+    * [XCF-1315] - support collection of entities when modelling phones and gateways
+    * [XCF-1528] - speed dial support for LG-Nortel phones
+    * [XCF-1529] - phone book support for LG-Nortel phones
+    * [XCF-1536] - Ability to change page title from skin properties
+    * [XCF-1567] - Set NTP server in one place for all phones
+    * [XCF-1602] - Ability to explicitly initialize NTP server during installation
+
+** Task
+    * [XCF-1362] - cleanup sipXconfig docs directory
+
+Version 3.7.5
+
+** Bug
+    * [XCF-1150] - Click on "Import" without uploading any file gives an exception
+    * [XCF-1347] - warnings during Polycom profile generation
+    * [XCF-1369] - Intercom gets enabled without any group assigned to it.
+    * [XCF-1373] - reset-superadmin task in some case does not restore admin privileges
+    * [XCF-1413] - Internal error deleting polycom firmware files entry
+    * [XCF-1419] - Configuration of presence server parameters incorrect
+    * [XCF-1450] - Uploaded CSV file to a phonebook cannot be deleted from the config ui
+    * [XCF-1453] - CDR: When either the start or end date in the cdr statistics page is set to blank, an exception page is seen
+    * [XCF-1455] - Call Resolver(CDR) : Start time displayed in CDR table is  UTC 
+    * [XCF-1460] - after 3.4 to 3.6 upgrade, selecting "Clear Completed" on Job Status screen generates an internal error
+    * [XCF-1462] - "keys per registration" setting of polycom is limited to a number of buttons on the phone
+    * [XCF-1463] - GUI gives no warning when user with no forwarding permission attempts to forward.
+    * [XCF-1470] - 'make install' leaves old jars in sipXconfig lib directory
+    * [XCF-1475] - sipxconfig-report doesn't start on CentOS or RHEL for various packaging reasons
+    * [XCF-1477] - sipXproxy configtest fails after activating the dialplan
+    * [XCF-1484] - Not able to configure Speed dial using Internet Explorer as the browser.
+    * [XCF-1486] - VM Web UI: Not able to login to the voicemail box when a message is sent via distribution list / Forward the messge
+    * [XCF-1487] - Heard and  unheard status is not displayed in new Voicemail UI
+    * [XCF-1500] - full version number is not displayed in page footer
+    * [XCF-1501] - Media server should send hyperlinks to new web portal in email notification
+    * [XCF-1507] - sipxconfig allows ACD line to use number already used by another line/extension/userID
+    * [XCF-1508] - Getting exception while configuring the Use caller sensitive forwarding.
+    * [XCF-1509] - Cosmetic change in Polycom Localization settings
+    * [XCF-1510] - Internal error hitting preview button on LDAP preview
+    * [XCF-1512] - checkconfig error: /usr/bin/sipxconfig-agent.sh not found
+    * [XCF-1519] - Page error showing new voicemail UI
+    * [XCF-1537] - ACD reports duplicates one record each time it runs
+    * [XCF-1540] -  MWI indication is not turned-off when an unheard voicemail is deleted from the web ui
+
+** Improvement
+    * [XCF-1523] - E-mail address is copied to the next page when Create another user checkbox is selected
+    * [XCF-1541] - Use same shell as interpreter in all the scripts.
+    * [XCF-1542] - display user and device information on home page
+
+** New Feature
+    * [XCF-1517] - Add managed support for LG/Nortel phones
+    * [XCF-1527] - MOH support for LG-Nortel phone
+
 Version 3.7.4
 
 ** Bug
@@ -797,5 +886,3 @@ Release Notes - sipXconfig - Version 2.5.1
 
 ** Bug
     * [XCF-4] - won't build with sipXportLib
-
-

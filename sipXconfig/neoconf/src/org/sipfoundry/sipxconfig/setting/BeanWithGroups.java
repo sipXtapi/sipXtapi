@@ -59,6 +59,16 @@ public abstract class BeanWithGroups extends BeanWithSettings {
         getGroups().clear();
         getGroups().addAll(groups);
     }
+    
+    public Group getFirstGroupDefaultIsSetFor(Setting setting) {
+        for (Group g : getGroups()) {
+            if (g.getSettingValue(setting) != null) {
+                return g;
+            }
+        }
+        
+        return null;
+    }
 
     /**
      * @return string representation of groups as space separated group names

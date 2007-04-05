@@ -47,11 +47,22 @@ public abstract class SettingEditor extends BaseComponent {
 
     public abstract void setSetting(Setting setting);
 
+    /**
+     * Should be called 'enforceRequired'. If it is set to false the 'required' constraints are
+     * not enforced. It is used when editing group settings since groups do not have to provide
+     * settings values even it the settings has required flag.
+     */
     @Parameter(required = true)
     public abstract boolean isRequiredEnabled();
 
     @Parameter(defaultValue = "true")
     public abstract boolean isEnabled();
+
+    /**
+     * Set to false to render only setting widget without label, default value and description.
+     */
+    @Parameter(defaultValue = "true")
+    public abstract boolean isDecorated();
 
     /**
      * Spring MessageSource interface based on resource bundle with translations for the model.

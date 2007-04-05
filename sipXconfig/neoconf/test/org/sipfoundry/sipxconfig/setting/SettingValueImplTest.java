@@ -16,8 +16,8 @@ import junit.framework.TestCase;
 public class SettingValueImplTest extends TestCase {
     
     public void testNullEquals() {
-        SettingValue2 v1 = new SettingValueImpl(null);
-        SettingValue2 v2 = new SettingValueImpl(null);
+        SettingValue v1 = new SettingValueImpl(null);
+        SettingValue v2 = new SettingValueImpl(null);
         assertTrue(v1.equals(v2));
     }
 

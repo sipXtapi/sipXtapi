@@ -74,7 +74,7 @@ public class LazySipxReplicationContextImplTest extends TestCase {
             lazy.generateAll();            
         }        
 
-        Thread.sleep(400);
+        Thread.sleep(800);
         
         replicationCtrl.verify();
     }

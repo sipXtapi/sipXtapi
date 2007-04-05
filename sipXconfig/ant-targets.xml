@@ -6,7 +6,7 @@
   -
   - NOTES:
   -
-  -  Attempts to define targets w/standard target names, but not authorative
+  -  Attempts to define targets w/standard target names, but no authorative
   -    standard was used.
   -->
 <project xmlns:ivy="antlib:fr.jayasoft.ivy.ant" name="ant-targets" default="default">
@@ -163,6 +163,12 @@
   </target>
 
 
+  <!-- D I S T C L E A N -->
+  <target name="distclean" depends="clean"
+      description="remove class, distribution and test directories (same as clean)">
+  </target>
+
+
   <!-- I N S T A L L -->
   <target name="install"
        description="install java components" />
@@ -238,6 +244,7 @@
   <path id="test.path">
     <pathelement location="${test.src.dir}"/>
     <pathelement location="${src.dir}"/>
+    <pathelement location="${log4j.jar}"/>
     <pathelement location="etc"/>
     <pathelement location="${clover.jar}"/> 
     <path refid="base.path"/>
@@ -263,7 +270,17 @@
         </fileset>
       </batchtest>
     </junit>        
-    <fail if="junit.failed"/>   
+    <antcall target="failure-report"/>
+    <fail if="junit.failed"/>
+  </target>
+
+  <!-- do not put test-report in depends attribute or it runs everytime -->
+  <target name="failure-report" if="junit.failed">
+    <antcall target="test-report"/>
+    <style style="${top.dir}/meta/failure-report.xsl" in="${junit.results.dir}/TESTS-TestSuites.xml" out="${junit.results.dir}/failures.txt"/>
+    <concat>
+      <filelist dir="${junit.results.dir}" files="failures.txt"/>
+    </concat>
   </target>
 
   <!--
@@ -296,6 +313,8 @@
            todir="${junit.results.dir}"/>
 
     </junitreport>
+
+
   </target>
 
   <!--
@@ -330,10 +349,10 @@
 		<manifest file="${dist.dir}/MANIFEST.MF">
 			<attribute name="Specification-Title" value="sipXconfig"/>
 			<attribute name="Specification-Version" value="${version}"/>
-			<attribute name="Specification-Vendor" value="SipFoundry"/>
+			<attribute name="Specification-Vendor" value="SIPfoundry"/>
 			<attribute name="Implementation-Title" value="${project.dir}"/>
-			<attribute name="Implementation-Version" value="${version.build}"/> 
-			<attribute name="Implementation-Vendor" value="SipFoundry"/>
+			<attribute name="Implementation-Version" value="${version.buildno} ${version.build}"/>
+			<attribute name="Implementation-Vendor" value="SIPfoundry"/>
 		</manifest>				
   </presetdef>	
 	

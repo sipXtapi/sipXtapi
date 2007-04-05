@@ -183,7 +183,7 @@ public:
      *        spoofing in a UA when behind a NAT
      * \param defaultUser - default user ID to use in Contacts which get
      *        inserted when missing on a UA.
-     * \param defaultSipAddress - deprecated
+     * \param defaultAddress - deprecated
      * \param sipProxyServers - server to which non-routed requests should
      *        be sent for next hop before going to the final destination
      * \param sipDirectoryServers - deprecated
@@ -230,7 +230,7 @@ public:
                 int sipTlsPort = SIP_PORT+1,
                 const char* publicAddress = NULL,
                 const char* defaultUser = NULL,
-                const char* defaultSipAddress = NULL,
+                const char* defaultAddress = NULL,
                 const char* sipProxyServers = NULL,
                 const char* sipDirectoryServers = NULL,
                 const char* sipRegistryServers = NULL,
@@ -624,7 +624,7 @@ private:
 #endif
     SipTransactionList mSipTransactions;
     UtlString defaultSipUser;
-    UtlString defaultSipAddress;
+    UtlString mDefaultSipAddress;
     UtlString proxyServers;
     UtlString directoryServers;
     UtlString registryServers;

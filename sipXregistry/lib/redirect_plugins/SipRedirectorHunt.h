@@ -33,7 +33,7 @@ class SipRedirectorHunt : public RedirectPlugin
 {
 public:
 
-   SipRedirectorHunt(const UtlString& instanceName);
+   explicit SipRedirectorHunt(const UtlString& instanceName);
 
    ~SipRedirectorHunt();
 

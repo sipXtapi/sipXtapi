@@ -31,20 +31,19 @@ public class UserSettingsTestUi extends WebTestCase {
     }
     
     public void testDisplay() {
-        clickLink("permission.application.label");        
-        clickLink("permission.call-handling.label");        
+        clickLink("link:permission.label");        
         SiteTestHelper.assertNoException(tester);        
     }
 
     public void testSaveSetting() {
-        clickLink("permission.application.label");
+        clickLink("link:permission.label");
         SiteTestHelper.enableCheckbox(tester, "booleanField", 0, true);
         
         clickButton("setting:ok");
         
         // click ok, then navigate back.  apply would work but this is more thurough.
         clickLinkWithText(SiteTestHelper.TEST_USER);        
-        clickLink("permission.application.label");
+        clickLink("link:permission.label");
         assertCheckboxSelected("booleanField");
     }    
 }

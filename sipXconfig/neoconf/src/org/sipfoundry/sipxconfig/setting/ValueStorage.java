@@ -35,12 +35,12 @@ public class ValueStorage extends BeanWithId implements Storage {
         return m_delegate.size();
     }    
 
-    public SettingValue2 getSettingValue(Setting setting) {
+    public SettingValue getSettingValue(Setting setting) {
         if (getValues() == null) {
             return null;
         }
         
-        SettingValue2 settingValue = null;
+        SettingValue settingValue = null;
         // null is legal value so test for key existance
         if (getValues().containsKey(setting.getPath())) {            
             String value = (String) getValues().get(setting.getPath());
@@ -49,7 +49,7 @@ public class ValueStorage extends BeanWithId implements Storage {
         return settingValue;
     }
 
-    public void setSettingValue(Setting setting, SettingValue2 value, SettingValue2 defaultValue) {
+    public void setSettingValue(Setting setting, SettingValue value, SettingValue defaultValue) {
         if (value.equals(defaultValue)) {
             revertSettingToDefault(setting);
         } else {

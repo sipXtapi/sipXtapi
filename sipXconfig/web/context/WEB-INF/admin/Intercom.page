@@ -32,8 +32,9 @@
   <component id="groupsPanel" type="FieldPanel">
     <!-- Tacos/Tapestry Bug
       - give the right value for field, and autocomplete renders double 
+      - hence: 'null' instead of 'component:groups'
     -->
-    <binding name="field" value="components.groupsX" />
+    <binding name="field" value="null" />
     <binding name="label" value="message:label.groups" />
     <binding name="description" value="message:description.groups" />
   </component>
@@ -42,7 +43,9 @@
     <binding name="size" value="50" />
     <binding name="listSource" value="groupCandidates" />
     <binding name="translator" value="translator:string,empty=" />
+    <binding name="validators" value="validators:required" />
     <binding name="listener" value="listener:buildGroupCandidates" />
+    <binding name="displayName" value="message:label.groups" />
   </component>
   <component id="prefixPanel" type="FieldPanel">
     <binding name="field" value="components.prefix" />

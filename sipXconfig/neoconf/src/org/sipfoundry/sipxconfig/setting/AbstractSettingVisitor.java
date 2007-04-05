@@ -11,13 +11,17 @@
  */
 package org.sipfoundry.sipxconfig.setting;
 
-public abstract class AbstractSettingVisitor implements SettingVisitor {
+public class AbstractSettingVisitor implements SettingVisitor {
 
     public void visitSetting(Setting setting_) {
         // do nothing
     }
 
-    public boolean visitSettingGroup(Setting group_) {
+    public boolean visitSettingGroup(SettingSet group_) {
+        return true;
+    }
+
+    public boolean visitSettingArray(SettingArray array) {
         return true;
     }
 }

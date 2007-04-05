@@ -162,6 +162,18 @@ public class UserTest extends TestCase {
         assertFalse(user.hasPermission(PermissionName.SUPERADMIN));
     }
 
+    public void testSetPermission() {
+        PermissionManagerImpl pm = new PermissionManagerImpl();
+        pm.setModelFilesContext(TestHelper.getModelFilesContext());
+
+        User user = new User();
+        user.setPermissionManager(pm);
+
+        assertFalse(user.isAdmin());
+        user.setPermission(PermissionName.SUPERADMIN, true);
+        assertTrue(user.isAdmin());
+    }
+
     public void testGetExtension() throws Exception {
         User user = new User();
         user.setUserName("abc");
@@ -197,4 +209,5 @@ public class UserTest extends TestCase {
         String safePin = StringUtils.defaultString(pin);
         return Md5Encoder.digestPassword(username, "realm.sipfoundry.org", safePin);
     }
+
 }

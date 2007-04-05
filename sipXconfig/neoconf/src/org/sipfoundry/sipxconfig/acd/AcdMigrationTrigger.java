@@ -11,26 +11,20 @@
  */
 package org.sipfoundry.sipxconfig.acd;
 
-import org.sipfoundry.sipxconfig.common.InitializationTask;
-import org.springframework.context.ApplicationEvent;
-import org.springframework.context.ApplicationListener;
+import org.sipfoundry.sipxconfig.common.InitTaskListener;
 
-public class AcdMigrationTrigger implements ApplicationListener {
+public class AcdMigrationTrigger extends InitTaskListener {
     private AcdContext m_acdContext;
 
     public void setAcdContext(AcdContext acdContext) {
         m_acdContext = acdContext;
     }
 
-    public void onApplicationEvent(ApplicationEvent event) {
-        if (event instanceof InitializationTask) {
-            InitializationTask task = (InitializationTask) event;
-            String taskName = task.getTask();
-            if ("acd_migrate_line_extensions".equals(taskName)) {
-                m_acdContext.migrateLineExtensions();
-            } else if ("acd_migrate_overflow_queues".equals(taskName)) {
-                m_acdContext.migrateOverflowQueues();
-            }
+    public void onInitTask(String task) {
+        if ("acd_migrate_line_extensions".equals(task)) {
+            m_acdContext.migrateLineExtensions();
+        } else if ("acd_migrate_overflow_queues".equals(task)) {
+            m_acdContext.migrateOverflowQueues();
         }
     }
 }

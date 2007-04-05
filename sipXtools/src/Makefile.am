@@ -12,7 +12,11 @@ LOCAL_SHELLSCRIPTS = \
 EXTRA_DIST = $(foreach sipxScript,$(LOCAL_SHELLSCRIPTS),$(sipxScript).in)
 
 dist_bin_SCRIPTS = \
+	regtimes \
 	sipx-stats \
+	sipx-alias2dot \
+	sipx-trace \
+	sipx-readroute \
 	sipxcar \
 	sipxproc \
 	sipdb-dump \

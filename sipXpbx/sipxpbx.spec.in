@@ -14,8 +14,10 @@ Source:   %name-%version.tar.gz
 Requires: expat >= 1.95
 Requires: httpd >= 2.0.46
 Requires: cgicc >= 3.2.2
+%if %{_vendor} == redhat
 Requires: mod_ssl
 Requires: chkconfig
+%endif
 
 Requires: sipxcalllib >= 3.7
 Requires: sipxcommserverlib >= 3.7
@@ -24,7 +26,12 @@ Requires: sipxcommserverlib >= 3.7
 Requires: httpd >= 2.0
 
 # sending email - an smtp listener must be running on localhost
+%if %{_vendor} == redhat
 Requires: smtpdaemon
+%endif
+%if %{_vendor} == suse
+Requires: postfix
+%endif
 
 Prefix:    %_prefix
 BuildRoot: %{_tmppath}/%name-%version-root
@@ -89,6 +96,7 @@ rm -rf $RPM_BUILD_ROOT
 #%docdir doc
 %attr(755,root,root) %{_bindir}/blat
 %attr(755,root,root) %{_bindir}/autodel
+%attr(755,root,root) %{_bindir}/ipcclean.pl
 %attr(755,root,root) %{_bindir}/check-fqdn
 %attr(755,root,root) %{_bindir}/watchdog
 %attr(755,root,root) %{_bindir}/watchdog.sh
@@ -183,4 +191,33 @@ pkg-upgrade --previous %{previous_archive} --current %{current_archive}
 
 # Arrange for sipX to be started every time the system starts up.
 # It starts in runlevels 3 and 5.
-chkconfig --add sipxpbx
+if [ -x /sbin/chkconfig ]; then
+  # RedHat / Fedora
+  chkconfig --add sipxpbx
+else
+  # SuSE
+  insserv sipxpbx
+fi
+
+
+%preun
+# see http://fedoraproject.org/wiki/Packaging/ScriptletSnippets
+if [ $1 = 0 ]; then
+  /etc/init.d/sipxpbx stop &>/dev/null || :
+
+  if [ -x /sbin/chkconfig ]; then
+    # RedHat / Fedora
+    chkconfig --del sipxpbx
+  else
+    # SuSE
+    insserv -r sipxpbx
+  fi
+fi
+
+%postun
+# only restart when upgrade
+# do not put in post section because other dependencies have not 
+# run their post section yet.
+if [ "$1" -ge "1" ]; then
+  /etc/init.d/sipxpbx restart &>/dev/null || :
+fi

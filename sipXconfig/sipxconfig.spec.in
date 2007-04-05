@@ -27,7 +27,12 @@ Requires: sipxcommserverlib >= 3.7
 Requires: sipxpbx >= 3.7
 Requires: postgresql-server
 Requires: ruby
+%if %{_vendor} == redhat
 Requires: ruby-gems
+%endif
+%if %{_vendor} == suse
+Requires: rubygems
+%endif
 
 # known incompatabilities w/gcj, unclear how to enforce. can be issue
 # when gcj gets to 1.5, until them sun and ibm jvms ok
@@ -50,7 +55,13 @@ SOAP, postgresql and other JEE technologies to get the job done.
 
 # For phones that use TFTP to server profiles
 %package tftp
+%if %{_vendor} == redhat
 Requires: tftp-server
+%endif
+%if %{_vendor} == suse
+Requires: tftp
+%endif
+
 Group: Productivity/Telephony/SIP/Servers
 Vendor: SIPfoundry
 Summary: Configures/enables TFTP for devices controlled by %{name}
@@ -76,9 +87,18 @@ Summary: Configures/enables FTP for devices controlled by %{name}
 %package agent
 Requires: sipxcommserverlib
 Requires: ruby
+%if %{_vendor} == redhat
 Requires: ruby-gems
+%endif
+%if %{_vendor} == suse
+Requires: rubygems
+%endif
+
+%if %{_vendor} == redhat
 # irb is for file-tail gem
 Requires: irb
+%endif
+
 Group: Productivity/Telephony/SIP/Servers
 Vendor: SIPfoundry
 Summary: Analyzes data from sipxpbx and provides SOAP API to information
@@ -93,10 +113,17 @@ Requires: ruby
 Group: Productivity/Telephony/SIP/Servers
 Vendor: SIPfoundry
 Summary: Aggregates data from sipxconfig-agent into a database for reporting tools
+
+%if %{_vendor} == redhat
 Requires: ruby-gems
 Requires: ruby-postgres
+%endif
+%if %{_vendor} == suse
+Requires: rubygems
+Requires: rubygem-ruby-postgres
+%endif
+
 Requires: ruby-dbi
-Requires: soap4r
 
 %description report
 Report peridocically queries sipxconfig-agent regarding automatic call distribution records
@@ -144,6 +171,8 @@ rm -rf $RPM_BUILD_ROOT
 %doc CONTRIBUTORS INSTALL README NEWS TODO ChangeLog %name.configlog
 %attr(755,root,root) %{_bindir}/sipxconfig.sh
 %attr(755,root,root) %{_bindir}/sipxconfig-config
+%attr(755,root,root) %{_bindir}/sipx-upgrade-3.6-mailstore
+%attr(755,root,root) %{_bindir}/sipx-upgrade-3.6-mailstore-report
 %attr(755,root,root) %{_bindir}/ssl-cert/create-ssl-keystore.sh
 %attr(755,root,root) %{_bindir}/ssl-cert/create-ssl-truststore.sh
 

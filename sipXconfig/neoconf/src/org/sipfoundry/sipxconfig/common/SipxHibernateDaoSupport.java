@@ -26,6 +26,7 @@ import org.hibernate.criterion.Restrictions;
 import org.hibernate.engine.SessionImplementor;
 import org.hibernate.metadata.ClassMetadata;
 import org.hibernate.persister.entity.EntityPersister;
+import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
 import org.sipfoundry.sipxconfig.setting.Storage;
 import org.sipfoundry.sipxconfig.setting.ValueStorage;
 import org.springframework.orm.hibernate3.HibernateCallback;
@@ -48,6 +49,17 @@ public class SipxHibernateDaoSupport<T> extends HibernateDaoSupport {
     
     public T load(Class<T> c, Serializable id) {
         return (T) getHibernateTemplate().load(c, id);
+    }
+    
+    protected void saveBeanWithSettings(BeanWithSettings bean) {
+        bean.setValueStorage(clearUnsavedValueStorage(bean.getValueStorage()));
+        getHibernateTemplate().saveOrUpdate(bean);                    
+    }
+
+    protected void deleteBeanWithSettings(BeanWithSettings bean) {
+        // avoid hibernate errors about new object references when calling delete on parent object
+        bean.setValueStorage(clearUnsavedValueStorage(bean.getValueStorage()));        
+        getHibernateTemplate().delete(bean);
     }
 
     /**

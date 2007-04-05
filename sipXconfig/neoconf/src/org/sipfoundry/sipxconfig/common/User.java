@@ -273,16 +273,32 @@ public class User extends BeanWithGroups implements NamedObject {
      * Check if a user has a specific permission
      */
     public boolean hasPermission(PermissionName permissionName) {
+        Setting setting = retrieveSettingForPermission(permissionName);
+        return Permission.isEnabled(setting.getValue());
+    }
+
+    /**
+     * Set specific permission for the user
+     * 
+     * @param permissionName - permission to set
+     * @param enabled - true for enabled, false for disabled
+     */
+    public void setPermission(PermissionName permissionName, boolean enabled) {
+        Setting setting = retrieveSettingForPermission(permissionName);
+        setting.setTypedValue(enabled);
+    }
+
+    public boolean isAdmin() {
+        return hasPermission(PermissionName.SUPERADMIN);
+    }
+
+    private Setting retrieveSettingForPermission(PermissionName permissionName) {
         Setting setting = getSettings().getSetting(permissionName.getPath());
         if (setting == null) {
             throw new IllegalArgumentException("Setting " + permissionName.getName()
                     + " does not exist in user setting model");
         }
-        return Permission.isEnabled(setting.getValue());
-    }
-
-    public boolean isAdmin() {
-        return hasPermission(PermissionName.SUPERADMIN);
+        return setting;
     }
 
     public boolean isSupervisor() {

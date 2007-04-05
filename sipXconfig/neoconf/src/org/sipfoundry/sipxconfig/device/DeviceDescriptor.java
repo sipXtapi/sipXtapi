@@ -11,9 +11,10 @@
  */
 package org.sipfoundry.sipxconfig.device;
 
-
+import org.apache.commons.lang.StringUtils;
 
 public abstract class DeviceDescriptor {
+    private String m_modelFilePath;
 
     private String m_beanId;
 
@@ -21,20 +22,25 @@ public abstract class DeviceDescriptor {
 
     private String m_modelId;
 
+    /**
+     * By default we accept MAC address as serial number. Device plugin developers can define
+     * other regular expressions to accept serial number in a format specific for a device.
+     */
+    private String m_serialNumberPattern = "^[a-f\\d]{12}$";
+
     private DeviceVersion[] m_versions = new DeviceVersion[0];
-    
-    public DeviceDescriptor() {        
+
+    public DeviceDescriptor() {
     }
-    
+
     public DeviceDescriptor(String beanId) {
         setBeanId(beanId);
     }
-    
+
     public DeviceDescriptor(String beanId, String modelId) {
         this(beanId);
         setModelId(modelId);
     }
-    
 
     public void setBeanId(String beanId) {
         m_beanId = beanId;
@@ -68,17 +74,53 @@ public abstract class DeviceDescriptor {
     }
 
     /**
-     * @return true if phones with this model have a serial number, false otherwise
+     * If non-empty pattern is specified than assume serial number is needed.
      */
     public boolean getHasSerialNumber() {
-        return true;
+        return StringUtils.isNotBlank(getSerialNumberPattern());
     }
-    
+
     protected void setVersions(DeviceVersion[] versions) {
         m_versions = versions;
     }
-    
+
     public DeviceVersion[] getVersions() {
         return m_versions;
-    }    
+    }
+
+    public String getSerialNumberPattern() {
+        return m_serialNumberPattern;
+    }
+
+    public void setSerialNumberPattern(String serialNumberPattern) {
+        m_serialNumberPattern = serialNumberPattern;
+    }
+
+    /**
+     * This function is called to transform serial number entered by the user to the format that
+     * is accepted by sipXconfig. It is called before the serial number is verified against
+     * regular expression pattern.
+     * 
+     * @param raw serial number as entered by the user or
+     * @return cleaned serial number
+     */
+    public String cleanSerialNumber(String raw) {
+        if (raw == null) {
+            return null;
+        }
+        String clean = raw.toLowerCase();
+        // remove spaces, dashes and colons
+        return clean.replaceAll("[-:\\s]*", "");
+    }
+
+    /**
+     * @return File name with upload settings describing files to upload. Relative to /etc/sipxpbx
+     */
+    public String getModelFilePath() {
+        return m_modelFilePath;
+    }
+
+    public void setModelFilePath(String modelFilePath) {
+        m_modelFilePath = modelFilePath;
+    }
 }

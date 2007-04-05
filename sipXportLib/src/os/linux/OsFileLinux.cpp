@@ -17,6 +17,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <utime.h>
 
 // APPLICATION INCLUDES
 #include "os/OsFS.h"
@@ -136,6 +137,23 @@ OsStatus  OsFileLinux::setReadOnly(UtlBoolean bState)
     return stat;
 }
 
+OsStatus OsFileLinux::touch()
+{
+    OsStatus stat = OS_INVALID;
+
+    if (exists() == OS_SUCCESS)
+    {
+        if (utime(mFilename,NULL) == 0)
+            stat = OS_SUCCESS;
+    }
+    else
+    {
+        stat = open(CREATE);
+        close();
+    }
+
+    return stat;
+}
 
 
 /* ============================ ACCESSORS ================================= */

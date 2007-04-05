@@ -11,13 +11,7 @@
  */
 package org.sipfoundry.sipxconfig.phone.hitachi;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.Writer;
-
-import org.apache.commons.io.IOUtils;
+import org.sipfoundry.sipxconfig.device.ProfileContext;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineInfo;
 import org.sipfoundry.sipxconfig.phone.Phone;
@@ -54,8 +48,7 @@ public class HitachiPhone extends Phone {
 
     @Override
     public void initialize() {
-        HitachiPhoneDefaults defaults = new HitachiPhoneDefaults(getPhoneContext()
-                .getPhoneDefaults());
+        HitachiPhoneDefaults defaults = new HitachiPhoneDefaults(getPhoneContext().getPhoneDefaults());
         addDefaultBeanSettingHandler(defaults);
     }
 
@@ -63,22 +56,8 @@ public class HitachiPhone extends Phone {
     public void generateProfiles() {
         super.generateProfiles();
         // and copy loadrun.ini as well
-        generateLoadrunIni(getTftpRoot());
-    }
-
-    void generateLoadrunIni(String dstDir) {
-        Writer loadrunIniWriter = null;
-        try {
-            InputStream loadrunIniTemplate = getClass().getClassLoader().getResourceAsStream(
-                    getLoadrunTemplate());
-            File loadrunIniFile = new File(dstDir, "loadrun.ini");
-            loadrunIniWriter = new FileWriter(loadrunIniFile);
-            IOUtils.copy(loadrunIniTemplate, loadrunIniWriter);
-        } catch (IOException e) {
-            throw new RuntimeException("Cannot generate profiles for " + getSerialNumber(), e);
-        } finally {
-            IOUtils.closeQuietly(loadrunIniWriter);
-        }
+        ProfileContext context = new ProfileContext(this, getLoadrunTemplate());
+        getProfileGenerator().generate(context, "loadrun.ini");
     }
 
     /**
@@ -90,7 +69,7 @@ public class HitachiPhone extends Phone {
     public String getPhoneFilename() {
         String serialNumber = getSerialNumber();
         String prefix = serialNumber.substring(6);
-        return getTftpRoot() + "/" + prefix + "user.ini";
+        return prefix + "user.ini";
     }
 
     @Override

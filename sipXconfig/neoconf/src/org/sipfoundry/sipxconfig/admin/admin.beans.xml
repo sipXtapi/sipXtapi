@@ -27,4 +27,8 @@
   <bean id="whacker" class="org.sipfoundry.sipxconfig.admin.Whacker">
     <property name="processContext" ref="sipxProcessContext"/>
   </bean>
+  
+  <bean id="initializeSystemTask" class="org.sipfoundry.sipxconfig.admin.DataInitializer">
+    <property name="adminContext" ref="adminContext"/>
+  </bean>
 </beans>

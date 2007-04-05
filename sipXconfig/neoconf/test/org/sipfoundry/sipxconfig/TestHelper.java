@@ -15,6 +15,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Properties;
@@ -35,13 +36,15 @@ import org.dbunit.dataset.xml.XmlDataSet;
 import org.dbunit.operation.DatabaseOperation;
 import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
+import org.sipfoundry.sipxconfig.device.Device;
+import org.sipfoundry.sipxconfig.device.MemoryProfileLocation;
+import org.sipfoundry.sipxconfig.device.VelocityProfileGenerator;
 import org.sipfoundry.sipxconfig.domain.Domain;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.setting.ModelBuilder;
 import org.sipfoundry.sipxconfig.setting.ModelFilesContext;
 import org.sipfoundry.sipxconfig.setting.ModelFilesContextImpl;
 import org.sipfoundry.sipxconfig.setting.Setting;
-import org.sipfoundry.sipxconfig.setting.SettingSet;
 import org.sipfoundry.sipxconfig.setting.XmlModelBuilder;
 import org.sipfoundry.sipxconfig.test.TestUtil;
 import org.springframework.beans.factory.access.BeanFactoryLocator;
@@ -73,10 +76,10 @@ public final class TestHelper {
         // 1.5.
         System.setProperty("javax.xml.parsers.SAXParserFactory",
                 "org.apache.xerces.jaxp.SAXParserFactoryImpl");
-        
-        // Activate log configuration on test/log4j.properties 
-        // System.setProperty("org.apache.commons.logging.Log", 
-        //        "org.apache.commons.logging.impl.Log4JLogger");                
+
+        // Activate log configuration on test/log4j.properties
+        // System.setProperty("org.apache.commons.logging.Log",
+        // "org.apache.commons.logging.impl.Log4JLogger");
     }
 
     public static ApplicationContext getApplicationContext() {
@@ -89,14 +92,14 @@ public final class TestHelper {
 
         return s_appContext;
     }
-    
+
     public static DomainManager getTestDomainManager(String domain) {
         Domain exampleDomain = new Domain(domain);
         IMocksControl domainManagerControl = EasyMock.createControl();
         DomainManager domainManager = domainManagerControl.createMock(DomainManager.class);
         domainManager.getDomain();
         domainManagerControl.andReturn(exampleDomain).anyTimes();
-        domainManagerControl.replay();        
+        domainManagerControl.replay();
         return domainManager;
     }
 
@@ -108,14 +111,14 @@ public final class TestHelper {
         mfc.setModelBuilder(builder);
         return mfc;
     }
-    
+
     public static XmlModelBuilder getModelBuilder() {
         ModelFilesContextImpl mfc = new ModelFilesContextImpl();
         String sysdir = getSettingModelContextRoot();
         mfc.setConfigDirectory(sysdir);
         XmlModelBuilder builder = new XmlModelBuilder(sysdir);
         mfc.setModelBuilder(builder);
-        return builder;        
+        return builder;
     }
 
     public static String getSettingModelContextRoot() {
@@ -127,16 +130,11 @@ public final class TestHelper {
         Setting settings = getModelFilesContext().loadModelFile(path);
         return settings;
     }
-    
-    public static Setting loadSettings(InputStream in) {        
+
+    public static Setting loadSettings(Class klass, String resource) {
         ModelBuilder builder = new XmlModelBuilder("etc");
-        SettingSet root;
-        try {
-            root = builder.buildModel(in);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        return root;
+        File in = getResourceAsFile(klass, resource);
+        return builder.buildModel(in);
     }
 
     public static String getClasspathDirectory() {
@@ -159,6 +157,28 @@ public final class TestHelper {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static VelocityProfileGenerator getProfileGenerator() {
+        VelocityProfileGenerator profileGenerator = new VelocityProfileGenerator();
+        profileGenerator.setVelocityEngine(getVelocityEngine());
+        return profileGenerator;
+    }
+
+    /**
+     * Sets velocity profile generator that generates profile to memory and can be used during
+     * testing.
+     * 
+     * @param device
+     */
+    public static MemoryProfileLocation setVelocityProfileGenerator(Device device) {
+        MemoryProfileLocation location = new MemoryProfileLocation();
+        VelocityProfileGenerator profileGenerator = new VelocityProfileGenerator();
+        profileGenerator.setVelocityEngine(getVelocityEngine());
+        profileGenerator.setProfileLocation(location);
+        device.setProfileGenerator(profileGenerator);
+
+        return location;
     }
 
     public static String getTestDirectory() {
@@ -214,12 +234,12 @@ public final class TestHelper {
         // we are checking XML validity in separate Ant tasks (test-dataset)
         return new FlatXmlDataSet(datasetStream, false);
     }
-    
+
     public static ReplacementDataSet loadReplaceableDataSetFlat(String fileResource) throws Exception {
-    		IDataSet ds = loadDataSetFlat(fileResource);
-    		ReplacementDataSet relaceable = new ReplacementDataSet(ds);
-    		relaceable.addReplacementObject("[null]", null);
-    		return relaceable;    		
+        IDataSet ds = loadDataSetFlat(fileResource);
+        ReplacementDataSet relaceable = new ReplacementDataSet(ds);
+        relaceable.addReplacementObject("[null]", null);
+        return relaceable;
     }
 
     public static void cleanInsert(String resource) throws Exception {
@@ -285,5 +305,17 @@ public final class TestHelper {
         IOUtils.copy(from, to);
         IOUtils.closeQuietly(to);
         IOUtils.closeQuietly(from);
+    }
+
+    /**
+     * Retrieves the file corresponding to the class resource
+     * 
+     * @param klass
+     * @param resource resource name relative to class
+     * @return file that can be opened and used to read resource
+     */
+    public static File getResourceAsFile(Class klass, String resource) {
+        URL url = klass.getResource(resource);
+        return new File(url.getFile());
     }
 }

@@ -11,21 +11,23 @@
  */
 package org.sipfoundry.sipxconfig.phone.polycom;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
-import java.io.StringWriter;
-import java.io.Writer;
 
 import junit.framework.TestCase;
 
 import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.device.FileSystemProfileLocation;
+import org.sipfoundry.sipxconfig.device.VelocityProfileGenerator;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
 import org.sipfoundry.sipxconfig.phone.RestartException;
+import org.sipfoundry.sipxconfig.phone.polycom.PolycomPhone.FormatFilter;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
 public class PolycomPhoneTest extends TestCase {
@@ -34,22 +36,33 @@ public class PolycomPhoneTest extends TestCase {
 
     private PhoneTestDriver m_tester;
 
+    private String m_root;
+
     protected void setUp() {
+        m_root = TestHelper.getTestDirectory() + "/polycom";
         m_phone = new PolycomPhone();
         m_tester = PhoneTestDriver.supplyTestData(m_phone);
+        m_phone.setTftpRoot(m_root);
+        
+        FileSystemProfileLocation location = new FileSystemProfileLocation();
+        location.setParentDir(m_root);
+        
+        VelocityProfileGenerator profileGenerator = TestHelper.getProfileGenerator();
+        profileGenerator.setProfileLocation(location);
+        
+        m_phone.setProfileGenerator(profileGenerator);        
     }
-    
+
     public void testVersionArray() {
         assertSame(new PolycomModel().getVersions()[0], PolycomModel.VER_1_6);
     }
 
     public void testGenerateProfiles() throws Exception {
-        m_phone.setVelocityEngine(TestHelper.getVelocityEngine());
-        ApplicationConfiguration cfg = new ApplicationConfiguration(m_phone);
+        ApplicationConfiguration cfg = new ApplicationConfiguration(m_phone, m_root);
         m_phone.generateProfiles();
 
         // content of profiles is tested in individual base classes of ConfigurationTemplate
-        File file = new File(m_phone.getTftpRoot(), cfg.getAppFilename());
+        File file = new File(m_root, cfg.getAppFilename());
         assertTrue(file.exists());
 
         m_phone.removeProfiles();
@@ -67,11 +80,11 @@ public class PolycomPhoneTest extends TestCase {
     }
 
     public void testRestart() throws Exception {
-        
+
         String uri = m_phone.getLine(0).getUri();
         assertEquals("\"Joe User\"<sip:juser@sipfoundry.org>", uri);
-        
-        m_phone.restart();        
+
+        m_phone.restart();
         m_tester.sipControl.verify();
     }
 
@@ -88,17 +101,18 @@ public class PolycomPhoneTest extends TestCase {
         Setting userId = settings.getSetting("reg/auth.userId");
         assertEquals(null, userId.getValue());
     }
-    
+
     public void testFormat() throws Exception {
         InputStream in = getClass().getResourceAsStream("unformatted.xml");
-        Reader rdr = new InputStreamReader(in);
-        Writer wtr = new StringWriter();
-        PolycomPhone.format(rdr, wtr);
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        
+        FormatFilter format = new PolycomPhone.FormatFilter();
+        format.copy(in, out);
         Reader expected = new InputStreamReader(getClass().getResourceAsStream("formatted.xml"));
-        Reader actual = new StringReader(wtr.toString());
+        Reader actual = new StringReader(out.toString());
         IOUtils.contentEquals(expected, actual);
     }
-    
+
     public void testDayOfWeek() {
         assertEquals(2, PolycomPhoneDefaults.dayOfWeek(0));
         assertEquals(1, PolycomPhoneDefaults.dayOfWeek(6));

@@ -19,6 +19,7 @@ import junit.framework.TestCase;
 
 import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
+import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookManagerImpl.CsvFileFormatError;
@@ -30,7 +31,7 @@ import org.sipfoundry.sipxconfig.test.TestUtil;
 public class PhonebookManagerTest extends TestCase {
     
     public void testMkdirs() {
-        String dir = String.valueOf(System.currentTimeMillis());
+        String dir = TestHelper.getTestDirectory() + File.separator + System.currentTimeMillis(); 
         assertFalse(new File(dir).exists());
         PhonebookManagerImpl.mkdirs(dir);
         assertTrue(new File(dir).exists());

@@ -1,32 +1,22 @@
-<span jwcid="@PhoneLabel" phone="ognl:phone" />
-<h2><span jwcid="@Insert" value="ognl:tabHeading">Page Heading</span></h2>
-<div id="settings-nav">
-  <ul>
-    <li>
-      <a jwcid="deviceIdLink@DirectLink" 
-        listener="listener:editPhone"
-        parameters="ognl:phone.id">
-        <span key="link.identification">Identification</span>        
-     </a>
-    </li>
-    <li>
-      <a jwcid="linesLink@DirectLink" 
-        listener="listener:editLines"
-        parameters="ognl:phone.id">
-        <span key="link.lines">Lines</span>
-      </a>
-    </li>
-    <span jwcid="settingsTabs@For" 
-      source="ognl:settings.values"
-      value="ognl:currentSetting">
-      <li>
-        <a jwcid="settingsLink@DirectLink"
-          listener="listener:editSettings"
-          parameters="ognl:editSettingListenerParameters">
-          <span jwcid="@Insert" value="ognl:currentSettingLabel"/>
+<span jwcid="$content$">
+  <span jwcid="@PhoneLabel" phone="prop:bean"/>
+  <div id="settings-nav">
+    <span jwcid="@setting/SettingsNavigation" bean="prop:bean"
+      activeSetting="prop:activeSetting"
+      editSettingsListener="listener:editSettings">
+      <span jwcid="@common/Tab" isActive="prop:identificationTabActive">
+        <a jwcid="deviceIdLink@DirectLink" listener="listener:editPhone"
+          parameters="prop:bean.id">
+          <span key="link.identification">Identification</span>
         </a>
-      </li>
+      </span>
+      <span jwcid="@common/Tab" isActive="prop:linesTabActive">
+        <a jwcid="linesLink@DirectLink" listener="listener:editLines"
+          parameters="prop:bean.id">
+          <span key="link.lines">Lines</span>
+        </a>
+      </span>
     </span>
-  </ul>
-</div>
-<span jwcid="@RenderBody"/>
+  </div>
+  <span jwcid="@RenderBody"/>
+</span>

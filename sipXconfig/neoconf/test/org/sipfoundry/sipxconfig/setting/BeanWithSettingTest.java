@@ -11,8 +11,6 @@
  */
 package org.sipfoundry.sipxconfig.setting;
 
-import java.io.InputStream;
-
 import junit.framework.TestCase;
 
 import org.sipfoundry.sipxconfig.TestHelper;
@@ -32,8 +30,7 @@ public class BeanWithSettingTest extends TestCase {
 
     static class BirdWithSettings extends BeanWithSettings {
         protected Setting loadSettings() {
-            InputStream in = getClass().getResourceAsStream("birds.xml");
-            return TestHelper.loadSettings(in);
+            return TestHelper.loadSettings(BeanWithSettingTest.class, "birds.xml");
         }
     }
 }

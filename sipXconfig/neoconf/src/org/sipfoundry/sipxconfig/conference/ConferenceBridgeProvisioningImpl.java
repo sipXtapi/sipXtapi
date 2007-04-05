@@ -27,7 +27,7 @@ import org.sipfoundry.sipxconfig.setting.ProfileNameHandler;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingFilter;
 import org.sipfoundry.sipxconfig.setting.SettingUtil;
-import org.sipfoundry.sipxconfig.setting.SettingValue2;
+import org.sipfoundry.sipxconfig.setting.SettingValue;
 import org.sipfoundry.sipxconfig.setting.SettingValueImpl;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 import org.sipfoundry.sipxconfig.xmlrpc.XmlRpcClientInterceptor;
@@ -110,7 +110,7 @@ public class ConferenceBridgeProvisioningImpl extends HibernateDaoSupport implem
             m_conferenceName = SEPARATOR + conferenceName;            
         }
         
-        public SettingValue2 getProfileName(Setting setting) {
+        public SettingValue getProfileName(Setting setting) {
             String profileName = setting.getProfileName();
             StringBuffer buffer = new StringBuffer(profileName);
             int dotIndex = profileName.indexOf(SEPARATOR);

@@ -72,6 +72,9 @@ public:
      //:         OS_INVALID if failed
 
 
+   OsStatus touch();
+     //: Updates the date and time on the file.  Creates if needed.
+
 /* ============================ ACCESSORS ================================= */
 
 

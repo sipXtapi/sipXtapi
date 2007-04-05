@@ -23,6 +23,16 @@ public class ClearonePhoneDefaults {
         m_defaults = defaults;
         m_dialPlanName = dialplanName;
     }
+    
+    @SettingEntry(path = "time/SNTP_server_1")
+    public String getNtpServer() {
+        return m_defaults.getNtpServer();
+    }
+
+    @SettingEntry(path = "time/SNTP_server_2")
+    public String getAlternateNtpServer() {
+        return m_defaults.getAlternateNtpServer();
+    }
 
     @SettingEntry(path = "time/timezone")
     public int getTimezone() {

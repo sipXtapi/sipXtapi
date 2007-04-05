@@ -48,8 +48,8 @@ public class JobContextImplTest extends TestCase {
         job = m_context.getJobs().get(0);
         assertEquals(JobStatus.COMPLETED, job.getStatus());
 
-        assertFalse(job.getStart().after(during));
-        assertFalse(job.getStop().before(during));
+        assertFalse("job start is after during", job.getStart().after(during));
+        assertFalse("job stop is before during", job.getStop().before(during));
 
         assertEquals(0, job.getErrorMsg().length());
     }

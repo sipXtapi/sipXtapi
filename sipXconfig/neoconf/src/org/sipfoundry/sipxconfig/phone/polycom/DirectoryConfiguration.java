@@ -16,29 +16,21 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.velocity.VelocityContext;
-import org.sipfoundry.sipxconfig.device.VelocityProfileGenerator;
+import org.sipfoundry.sipxconfig.device.ProfileContext;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookEntry;
-import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
 import org.sipfoundry.sipxconfig.speeddial.Button;
 import org.sipfoundry.sipxconfig.speeddial.SpeedDial;
 
-public class DirectoryConfiguration extends VelocityProfileGenerator {
+public class DirectoryConfiguration extends ProfileContext {
     private Collection<PhonebookEntry> m_entries;
     private List<Button> m_buttons;
 
-    public DirectoryConfiguration(BeanWithSettings phone, Collection<PhonebookEntry> entries,
-            SpeedDial speedDial) {
-        super(phone);
+    public DirectoryConfiguration(Collection<PhonebookEntry> entries, SpeedDial speedDial) {
+        super(null, "polycom/mac-address-directory.xml.vm");
         m_entries = entries;
         if (speedDial != null) {
             m_buttons = speedDial.getButtons();
         }
-    }
-
-    @Override
-    protected void addContext(VelocityContext context) {
-        super.addContext(context);
     }
 
     public Collection<PolycomPhonebookEntry> getRows() {
@@ -46,8 +38,7 @@ public class DirectoryConfiguration extends VelocityProfileGenerator {
         if (size == 0) {
             return Collections.emptyList();
         }
-        Collection<PolycomPhonebookEntry> polycomEntries = new ArrayList<PolycomPhonebookEntry>(
-                size);
+        Collection<PolycomPhonebookEntry> polycomEntries = new ArrayList<PolycomPhonebookEntry>(size);
         if (m_entries != null) {
             transformPhoneBook(m_entries, polycomEntries);
         }

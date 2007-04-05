@@ -39,10 +39,10 @@ public class GrandstreamBinaryProfileWriter extends GrandstreamProfileWriter {
             line.getSettings().acceptVisitor(this);
             m_lineIndex++;
         }
-        
+
         writeBody(inmemory, wtr);
     }
-    
+
     void writeBody(ByteArrayOutputStream inmemory, OutputStream wtr) {
         try {
             finalizeBody(inmemory);
@@ -51,16 +51,12 @@ public class GrandstreamBinaryProfileWriter extends GrandstreamProfileWriter {
             wtr.write(body);
         } catch (IOException e) {
             throw new RuntimeException(e);
-        }        
+        }
     }
 
     void writeLine(String name, String value) {
         String line = getProfileName(name) + '=' + nonNull(value) + ET;
-        try {
-            getOutputStream().write(line.getBytes());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        writeString(line);
     }
 
     String getProfileName(String pname) {
@@ -81,8 +77,7 @@ public class GrandstreamBinaryProfileWriter extends GrandstreamProfileWriter {
 
     void writeHeader(OutputStream wtr, byte[] body) throws IOException {
         byte[] gsheader = new byte[] {
-            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, CR, LF, CR,
-            LF
+            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, CR, LF, CR, LF
         };
         String serial = getPhone().getSerialNumber();
         for (int si = 0; si < 6; si++) {

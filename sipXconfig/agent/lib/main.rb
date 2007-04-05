@@ -43,6 +43,10 @@ def main(filename, port)
     $stderr.puts "shutting down"
     server.shutdown
   end
+  trap("USR1") do
+    puts "dumping state"
+    puts acd_state.inspect
+  end
   
   # start the server
   $stderr.puts "starting server on port #{port}"  

@@ -11,11 +11,17 @@
  */
 package org.sipfoundry.sipxconfig.device;
 
+import java.util.Collection;
+
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxServer;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.InternalRule;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
+import org.sipfoundry.sipxconfig.service.ConfiguredService;
+import org.sipfoundry.sipxconfig.service.ServiceDescriptor;
+import org.sipfoundry.sipxconfig.service.ServiceManager;
+import org.sipfoundry.sipxconfig.service.UnmanagedService;
 
 /**
  * Sets up phone and line objects with system defaults.
@@ -45,6 +51,18 @@ public class DeviceDefaults {
     private String m_proxyServerSipPort;
 
     private DeviceTimeZone m_timeZone = new DeviceTimeZone();
+    
+    private ServiceManager m_serviceManager;
+    
+    private String m_defaultNtpService = "pool.ntp.org";
+
+    public void setDefaultNtpService(String defaultNtpService) {
+        m_defaultNtpService = defaultNtpService;
+    }
+
+    public void setServiceManager(ServiceManager serviceManager) {
+        m_serviceManager = serviceManager;
+    }
 
     public void setDialPlanContext(DialPlanContext dialPlanContext) {
         m_dialPlanContext = dialPlanContext;
@@ -53,6 +71,29 @@ public class DeviceDefaults {
     public String getDomainName() {
         return m_domainManager.getDomain().getName();
     }
+    
+    public String getNtpServer() {
+        String server = getServer(0, UnmanagedService.NTP);
+        return server == null ? m_defaultNtpService : server; 
+    }
+    
+    /**
+     * @return null if not set
+     */
+    public String getAlternateNtpServer() {
+        String server = getServer(1, UnmanagedService.NTP);
+        return server;
+    }
+    
+    private String getServer(int index, ServiceDescriptor s) {
+        String service = null;
+        Collection<ConfiguredService> servers = m_serviceManager.getEnabledServicesByType(s);
+        if (servers != null && servers.size() > index) {
+            service = servers.iterator().next().getAddress();
+        }
+        return service;
+    }
+   
 
     public String getTftpServer() {
         return m_tftpServer;

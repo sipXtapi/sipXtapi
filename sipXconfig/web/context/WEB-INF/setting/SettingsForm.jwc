@@ -20,7 +20,7 @@
   <component id="ifRenderOk" type="If">
     <binding name="condition" value="okListener != null"/>
   </component>
-  <component id="settingsFieldset" type="SettingsFieldset">
+  <component id="settingsFieldset" type="setting/SettingsFieldset">
     <binding name="settings" value="settings"/>
     <binding name="requiredEnabled" value="requiredEnabled"/>
   </component>

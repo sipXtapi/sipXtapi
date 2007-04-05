@@ -33,11 +33,13 @@ public class Ring extends AbstractRing {
      * @param expiration number of seconds that call will ring
      * @param type if the call should wait for the previous call failure or start ringing at the
      *        same time
+     * @param enabled flag indicating whether this rule is active
      */
-    Ring(String number, int expiration, Type type) {
+    Ring(String number, int expiration, Type type, boolean enabled) {
         m_number = number;
         setExpiration(expiration);
         setType(type);
+        setEnabled(enabled);
     }
 
     /**

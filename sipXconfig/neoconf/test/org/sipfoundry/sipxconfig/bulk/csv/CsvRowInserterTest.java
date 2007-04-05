@@ -100,6 +100,8 @@ public class CsvRowInserterTest extends TestCase {
 
         Integer phoneId = new Integer(5);
         Phone phone = new TestPhone();
+        PhoneModel model = new TestPhoneModel();
+        
         phone.setSerialNumber("001122334466");
         phone.setDescription("old description");
 
@@ -112,9 +114,18 @@ public class CsvRowInserterTest extends TestCase {
         phoneContextCtrl.andReturn(phone);
 
         phoneContextCtrl.replay();
+        
+        IMocksControl phoneModelSourceControl = EasyMock.createControl();
+        ModelSource<PhoneModel> phoneModelSource = phoneModelSourceControl.createMock(ModelSource.class);
+        phoneModelSource.getModel("polycom300");
+        phoneModelSourceControl.andReturn(model);
+        
+        phoneModelSourceControl.replay();
+        
 
         CsvRowInserter impl = new CsvRowInserter();
         impl.setPhoneContext(phoneContext);
+        impl.setPhoneModelSource(phoneModelSource);
 
         // update existing phone
         Phone phone1 = impl.phoneFromRow(phoneRow);
@@ -122,6 +133,7 @@ public class CsvRowInserterTest extends TestCase {
         assertEquals("001122334466", phone1.getSerialNumber());
 
         phoneContextCtrl.verify();
+        phoneModelSourceControl.verify();
     }
 
     public void testPhoneFromRowNew() {

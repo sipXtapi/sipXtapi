@@ -83,10 +83,10 @@ public class NewPhoneTestUi extends WebTestCase {
         clickButton("form:ok");
         SiteTestHelper.assertUserError(tester);
 
-        // 16 correct digits - is OK - we accept 12 or more now
+        // 16 correct digits - not OK we only accept 12
         setFormElement("serialNumber", "123456789abcdef");
         clickButton("form:ok");
-        SiteTestHelper.assertNoUserError(tester);
+        SiteTestHelper.assertUserError(tester);
 
         SiteTestHelper.home(getTester());
         clickLink("NewPhone");

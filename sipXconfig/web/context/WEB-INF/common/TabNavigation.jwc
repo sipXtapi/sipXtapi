@@ -1,55 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE component-specification PUBLIC "-//Apache Software Foundation//Tapestry Specification 4.0//EN"
   "http://jakarta.apache.org/tapestry/dtd/Tapestry_4_0.dtd">
-<component-specification class="org.sipfoundry.sipxconfig.components.TabNavigation"
-  allow-body="yes" allow-informal-parameters="yes">
-  <description>
-    Generalized version of settings navigation components: can switch between any blocks.
-  </description>
-
-  <!--
-    - P A R A M E T E R S
-  -->
-  <parameter name="tabNames" required="yes">
-    <description>Internal names of the tabs.</description>
-  </parameter>
-  <parameter name="selectedTab" />
-  <parameter name="submit" default-value="false" required="no"/>
-
-  <!--
-    - P R O P E R T I E S
-  -->
-  <property name="currentTab" />
-
-  <!--
-    - B E A N S
-  -->
-  <bean name="tabs" class="org.sipfoundry.sipxconfig.components.Tabs" lifecycle="request">
-    <set name="activeTab" value="selectedTab" />
-  </bean>
-
-  <!--
-    - C O M P O N E N T S
-  -->
-  <component id="tabLinks" type="For">
-    <binding name="source" value="tabNames" />
-    <binding name="value" value="currentTab" />
-  </component>
-  <component id="tabLink" type="DirectLink">
-    <binding name="listener" value="listener:activateTab" />
-    <binding name="parameters" value="currentTab" />
-    <binding name="class" value="beans.tabs.getTabClass(currentTab)" />
-    <binding name="id" value="'link:' + currentTab" />
-  </component>
-  <component id="tabSubmitLink" type="LinkSubmit">
-    <binding name="action" value="listener:submitAndActivateTab" />
-    <binding name="parameters" value="currentTab" />
-    <binding name="class" value="beans.tabs.getTabClass(currentTab)" />
-    <binding name="id" value="'link:' + currentTab" />
-  </component>  
-  <component id="tabLabel" type="InsertText">
-    <binding name="value" value="container.messages.getMessage('tab.' + currentTab)" />
-  </component>
-  <component id="tabSubmitLabel" copy-of="tabLabel" />
-  
+<component-specification>
 </component-specification>

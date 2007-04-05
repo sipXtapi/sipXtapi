@@ -1,6 +1,6 @@
 <div jwcid="@Border" useDojo="true">
   <h2><span key="title">Call Monitoring</span></h2>
-  <span jwcid="@TabNavigation" tabNames="ognl:{'active', 'historic'}" selectedTab="prop:tab"/>  
+  <span jwcid="@common/TabNavigation" tabNames="ognl:{'active', 'historic'}" selectedTab="prop:tab"/>  
   <div id="settings-content">
     <span jwcid="@RenderBlock" block="ognl:components.get(tab + 'Tab')" />
   </div>

@@ -39,7 +39,7 @@
     <binding name="contentType" value="literal:audio/x-wav"/>
     <binding name="selectable" value="true"></binding>
   </component>
-  <component id="settingsFieldset" type="SettingsFieldset">
+  <component id="settingsFieldset" type="setting/SettingsFieldset">
     <binding name="settings" value="parkOrbit.settings"/>
     <binding name="renderGroupTitle" value="false"/>
   </component>  

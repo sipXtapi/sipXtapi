@@ -20,6 +20,5 @@ public class GatewayTest extends TestCase {
         assertEquals("123", gateway.getCallPattern("123"));
         gateway.setPrefix("99");
         assertEquals("99123", gateway.getCallPattern("123"));
-    }
-
+    }    
 }

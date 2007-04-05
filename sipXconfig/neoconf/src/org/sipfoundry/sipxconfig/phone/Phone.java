@@ -11,31 +11,29 @@
  */
 package org.sipfoundry.sipxconfig.phone;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.velocity.app.VelocityEngine;
 import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.device.Device;
 import org.sipfoundry.sipxconfig.device.DeviceVersion;
 import org.sipfoundry.sipxconfig.device.ModelSource;
-import org.sipfoundry.sipxconfig.device.VelocityProfileGenerator;
+import org.sipfoundry.sipxconfig.device.ProfileContext;
+import org.sipfoundry.sipxconfig.device.ProfileGenerator;
 import org.sipfoundry.sipxconfig.setting.BeanWithGroups;
 import org.sipfoundry.sipxconfig.setting.Setting;
+import org.sipfoundry.sipxconfig.setting.SettingExpressionEvaluator;
+import org.sipfoundry.sipxconfig.setting.SimpleDefinitionsEvaluator;
 
 /**
  * Base class for managed phone subclasses
  */
-public abstract class Phone extends BeanWithGroups {
+public abstract class Phone extends BeanWithGroups implements Device {
     // public because of checkstyle
     public static final String PHONE_CONSTANT = "phone";
 
@@ -51,15 +49,11 @@ public abstract class Phone extends BeanWithGroups {
 
     private ModelSource<PhoneModel> m_modelSource;
 
-    private String m_tftpRoot;
-
-    private VelocityEngine m_velocityEngine;
+    private ProfileGenerator m_profileGenerator;
 
     private SipService m_sip;
 
     private String m_phoneTemplate;
-
-    private String m_webDirectory;
 
     private String m_beanId;
 
@@ -114,14 +108,6 @@ public abstract class Phone extends BeanWithGroups {
         m_version = version;
     }
 
-    public String getWebDirectory() {
-        return m_webDirectory;
-    }
-
-    public void setWebDirectory(String webDirectory) {
-        m_webDirectory = webDirectory;
-    }
-
     public void setSipService(SipService sip) {
         m_sip = sip;
     }
@@ -130,30 +116,20 @@ public abstract class Phone extends BeanWithGroups {
         return m_sip;
     }
 
-    public String getTftpRoot() {
-        return m_tftpRoot;
+    public void setProfileGenerator(ProfileGenerator profileGenerator) {
+        m_profileGenerator = profileGenerator;
     }
 
-    public void setTftpRoot(String tftpRoot) {
-        m_tftpRoot = tftpRoot;
-    }
-
-    public VelocityEngine getVelocityEngine() {
-        return m_velocityEngine;
-    }
-
-    public void setVelocityEngine(VelocityEngine velocityEngine) {
-        m_velocityEngine = velocityEngine;
+    public ProfileGenerator getProfileGenerator() {
+        return m_profileGenerator;
     }
 
     protected Setting loadSettings() {
-        Set defines = getModelDefinitions();
-        return getModelFilesContext().loadDynamicModelFile("phone.xml", getBeanId(), defines);
+        return getModelFilesContext().loadDynamicModelFile("phone.xml", getBeanId(), getSettingsEvaluator());
     }
 
     protected Setting loadLineSettings() {
-        Set defines = getModelDefinitions();
-        return getModelFilesContext().loadDynamicModelFile("line.xml", getBeanId(), defines);
+        return getModelFilesContext().loadDynamicModelFile("line.xml", getBeanId(), getSettingsEvaluator());
     }
 
     /**
@@ -172,6 +148,17 @@ public abstract class Phone extends BeanWithGroups {
             definitions.add(getDeviceVersion().getVersionId());
         }
         return definitions;
+    }
+
+    /**
+     * If SimepleDefinitionEvaluator is not what you need override this function to provide your
+     * own expression evaluator to be used when loading settings model.
+     * 
+     * @return reusable copy of expression evaluator
+     */
+    protected SettingExpressionEvaluator getSettingsEvaluator() {
+        Set defines = getModelDefinitions();
+        return new SimpleDefinitionsEvaluator(defines);
     }
 
     /**
@@ -195,28 +182,17 @@ public abstract class Phone extends BeanWithGroups {
         return null;
     }
 
+    /**
+     * Default implementation - generates a single profile file based in provided file name and
+     * phone template
+     */
     public void generateProfiles() {
         String profileFileName = getPhoneFilename();
-        String phoneTemplate = getPhoneTemplate();
-        generateFile(profileFileName, phoneTemplate);
+        m_profileGenerator.generate(createContext(), profileFileName);
     }
 
-    protected void generateFile(String profileFileName, String phoneTemplate) {
-        if (profileFileName == null) {
-            return;
-        }
-
-        Writer wtr = null;
-        try {
-            File file = new File(profileFileName);
-            VelocityProfileGenerator.makeParentDirectory(file);
-            wtr = new FileWriter(file);
-            generateProfile(phoneTemplate, wtr);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } finally {
-            IOUtils.closeQuietly(wtr);
-        }
+    protected ProfileContext createContext() {
+        return new ProfileContext(this, getPhoneTemplate());
     }
 
     public Line findByUsername(String username) {
@@ -248,13 +224,7 @@ public abstract class Phone extends BeanWithGroups {
      * Removes profiles generated by generateProfiles
      */
     public void removeProfiles() {
-        String profileFileName = getPhoneFilename();
-        if (profileFileName == null) {
-            return;
-        }
-        VelocityProfileGenerator.removeProfileFiles(new File[] {
-            new File(profileFileName)
-        });
+        getProfileGenerator().remove(getPhoneFilename());
     }
 
     public String getPhoneTemplate() {
@@ -263,19 +233,6 @@ public abstract class Phone extends BeanWithGroups {
 
     public void setPhoneTemplate(String phoneTemplate) {
         m_phoneTemplate = phoneTemplate;
-    }
-
-    public void generateProfile(String phoneTemplate, Writer out) {
-        if (phoneTemplate == null) {
-            return;
-        }
-        VelocityProfileGenerator generator = new VelocityProfileGenerator(this);
-        generateProfile(generator, phoneTemplate, out);
-    }
-
-    protected void generateProfile(VelocityProfileGenerator generator, String template, Writer out) {
-        generator.setVelocityEngine(getVelocityEngine());
-        generator.generateProfile(template, out);
     }
 
     /**
@@ -331,17 +288,7 @@ public abstract class Phone extends BeanWithGroups {
     }
 
     public void setSerialNumber(String serialNumber) {
-        m_serialNumber = cleanSerialNumber(serialNumber);
-    }
-
-    public static String cleanSerialNumber(String rawNumber) {
-        if (rawNumber == null) {
-            return null;
-        }
-        String clean = rawNumber.toLowerCase();
-        clean = clean.replaceAll("[:\\s]*", "");
-
-        return clean;
+        m_serialNumber = serialNumber;
     }
 
     public List<Line> getLines() {

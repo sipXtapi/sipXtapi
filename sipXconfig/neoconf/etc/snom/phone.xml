@@ -880,7 +880,7 @@
       <type>
         <string />
       </type>
-      <value>pool.ntp.org</value>
+      <value/>
     </setting>
     <setting name="ntp_refresh_timer" advanced="yes">
       <type>

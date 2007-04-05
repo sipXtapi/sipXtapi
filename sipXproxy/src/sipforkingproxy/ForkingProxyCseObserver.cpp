@@ -105,7 +105,7 @@ ForkingProxyCseObserver::ForkingProxyCseObserver(SipUserAgent&         sipUserAg
                                    TRUE, // Requests,
                                    TRUE, //Responses,
                                    TRUE, //Incoming,
-                                   FALSE, //OutGoing,
+                                   TRUE, //OutGoing,
                                    "", //eventName,
                                    NULL, // any session
                                    NULL // no observerData
@@ -148,21 +148,75 @@ UtlBoolean ForkingProxyCseObserver::handleMessage(OsMsg& eventMessage)
       
    case OsMsg::PHONE_APP:
    {
-      SipMessage* sipRequest;
+      SipMessage* sipMsg;
 
       if(SipMessageEvent::TRANSPORT_ERROR == ((SipMessageEvent&)eventMessage).getMessageStatus())
       {
          OsSysLog::add(FAC_SIP, PRI_ERR,
                        "ForkingProxyCseObserver::handleMessage transport error");
       }
-      else if((sipRequest = (SipMessage*)((SipMessageEvent&)eventMessage).getMessage()))
+      else if((sipMsg = (SipMessage*)((SipMessageEvent&)eventMessage).getMessage()))
       {
-         Url toUrl;
-         sipRequest->getToUrl(toUrl);
+         UtlString method;
+         int       rspStatus = 0;
+         UtlString rspText;
+         UtlString contact;
          UtlString toTag;
-         toUrl.getFieldParameter("tag", toTag);
 
-         if (toTag.isNull())
+         enum
+            {
+               UnInteresting,
+               aCallSetup,
+               aCallFailure,
+               aCallEnd,
+               aCallTransfer
+            } thisMsgIs = UnInteresting;
+
+         if (!sipMsg->isResponse())
+         {
+            // sipMsg is a Request
+            sipMsg->getRequestMethod(&method);
+            if (0==method.compareTo(SIP_INVITE_METHOD, UtlString::ignoreCase))
+            {
+               Url toUrl;
+               sipMsg->getToUrl(toUrl);
+               // explicitly, an INVITE Request
+               toUrl.getFieldParameter("tag", toTag);
+               if (toTag.isNull())
+               {
+                  thisMsgIs = aCallSetup;
+               }
+            }
+         }
+         else
+         {
+            // sipMsg is a Response
+            int seq;
+            if (sipMsg->getCSeqField(&seq, &method)) // get the method out of cseq field
+            if (0==method.compareTo(SIP_INVITE_METHOD, UtlString::ignoreCase))
+            { 
+               // explicitly, an INVITE Response
+                rspStatus = sipMsg->getResponseStatusCode();
+                if (rspStatus >= SIP_4XX_CLASS_CODE) // any failure
+                {
+                   // a final failure - this is a CallFailure
+                   thisMsgIs = aCallFailure;
+                   sipMsg->getResponseStatusText(&rspText);
+                }
+            }
+         }
+
+#if 1
+         OsSysLog::add(FAC_SIP, PRI_DEBUG, "ForkingProxyCseObserver message is %s",                       (  thisMsgIs == UnInteresting ? "UnInteresting"
+                        : thisMsgIs == aCallEnd      ? "a Call End"
+                        : thisMsgIs == aCallFailure  ? "a Call Failure"
+                        : thisMsgIs == aCallSetup    ? "a Call Setup"
+                        : thisMsgIs == aCallTransfer ? "a Call Transfer"
+                        : "BROKEN"
+                        ));
+#endif
+
+         if (thisMsgIs != UnInteresting)
          {
             // get the sequence data
             mSequenceNumber++;
@@ -172,35 +226,49 @@ UtlBoolean ForkingProxyCseObserver::handleMessage(OsMsg& eventMessage)
 
             // get the dialog information
             UtlString contact;
-            sipRequest->getContactEntry(0, &contact);
+            sipMsg->getContactEntry(0, &contact);
 
             UtlString callId;
-            sipRequest->getCallIdField(&callId);
+            sipMsg->getCallIdField(&callId);
 
             // get the To and From header fields
             Url fromUrl;
-            sipRequest->getFromUrl(fromUrl);
+            sipMsg->getFromUrl(fromUrl);
             UtlString fromTag;
             fromUrl.getFieldParameter("tag", fromTag);
 
             UtlString toField;
-            sipRequest->getToField(&toField);
+            sipMsg->getToField(&toField);
             
             UtlString fromField;
-            sipRequest->getFromField(&fromField);
+            sipMsg->getFromField(&fromField);
             
             UtlString responseMethod;
             int cseqNumber;
-            sipRequest->getCSeqField(&cseqNumber, &responseMethod);
+            sipMsg->getCSeqField(&cseqNumber, &responseMethod);
 
             // construct the event record
             if (mpBuilder)
             {
-               mpBuilder->callRequestEvent(mSequenceNumber, timeNow, contact);
+               switch (thisMsgIs)
+               {
+               case aCallSetup:
+                  mpBuilder->callRequestEvent(mSequenceNumber, timeNow, contact);
+                  break;
+               case aCallFailure:
+                  mpBuilder->callFailureEvent(mSequenceNumber, timeNow, rspStatus, rspText);
+                  break;
+
+               default:
+                  // shouldn't be possible to get here
+                  OsSysLog::add(FAC_SIP, PRI_ERR, "ForkingProxyCseObserver invalid thisMsgIs");
+                  break;
+               }
+
                mpBuilder->addCallData(cseqNumber, callId, fromTag, toTag, fromField, toField);
 
                UtlString via;
-               for (int i=0; sipRequest->getViaField(&via, i); i++)
+               for (int i=0; sipMsg->getViaField(&via, i); i++)
                {
                   mpBuilder->addEventVia(via);
                }

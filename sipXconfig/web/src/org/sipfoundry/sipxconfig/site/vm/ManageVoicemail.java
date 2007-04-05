@@ -45,6 +45,7 @@ import org.sipfoundry.sipxconfig.components.selection.AdaptedSelectionModel;
 import org.sipfoundry.sipxconfig.components.selection.OptGroup;
 import org.sipfoundry.sipxconfig.components.selection.OptionAdapter;
 import org.sipfoundry.sipxconfig.site.user_portal.UserBasePage;
+import org.sipfoundry.sipxconfig.vm.Mailbox;
 import org.sipfoundry.sipxconfig.vm.MailboxManager;
 import org.sipfoundry.sipxconfig.vm.Voicemail;
 import org.sipfoundry.sipxconfig.vm.VoicemailSource;
@@ -130,8 +131,8 @@ public abstract class ManageVoicemail extends UserBasePage implements IExternalP
         actions.add(new OptGroup(getMessages().getMessage("label.moveTo")));
         for (String folderId : getFolderIds()) {
             if (!folderId.equals(getFolderId())) {
-                OptionAdapter action = new MoveVoicemailAction(getVoicemailSource(), 
-                        getFolderLabel(folderId), folderId); 
+                OptionAdapter action = new MoveVoicemailAction(getMailboxManager(), getVoicemailSource(), 
+                        getFolderLabel(folderId), folderId);
                 actions.add(action);
             }
         }
@@ -142,10 +143,11 @@ public abstract class ManageVoicemail extends UserBasePage implements IExternalP
     }
     
     public void delete() {
+        Mailbox mbox = getMailboxManager().getMailbox(getUser().getUserName());
         Collection<Serializable> allSelected =  getSelections().getAllSelected();
         for (Serializable id : allSelected) {
             Voicemail vm = getVoicemailSource().getVoicemail(id);
-            vm.delete();
+            getMailboxManager().delete(mbox, vm);
         }        
     }
     
@@ -200,9 +202,11 @@ public abstract class ManageVoicemail extends UserBasePage implements IExternalP
         
         String userId = getUser().getUserName();
         
+        MailboxManager mgr = getMailboxManager();        
+        Mailbox mbox = mgr.getMailbox(userId);
         List<String> folderIds = getFolderIds(); 
         if (getFolderIds() == null) {
-            folderIds = getMailboxManager().getFolderIds(userId);
+            folderIds = mbox.getFolderIds();
             setFolderIds(folderIds);
         }
         
@@ -213,7 +217,7 @@ public abstract class ManageVoicemail extends UserBasePage implements IExternalP
 
         List<Voicemail> vm;
         try {
-            vm = getMailboxManager().getVoicemail(userId, getFolderId());
+            vm = mgr.getVoicemail(mbox, getFolderId());
         } catch (UserException e) {
             getValidator().record(new ValidatorException(e.getMessage()));
             vm = Collections.emptyList();

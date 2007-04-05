@@ -14,18 +14,26 @@ package org.sipfoundry.sipxconfig.acd.stats;
 import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
 import org.apache.commons.beanutils.locale.LocaleConvertUtils;
+import org.apache.commons.lang.time.DateUtils;
 import org.sipfoundry.sipxconfig.bulk.csv.CsvWriter;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.jdbc.core.ColumnMapRowMapper;
+import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.core.RowMapperResultReader;
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
@@ -106,12 +114,51 @@ public class AcdHistoricalStatsImpl extends JdbcDaoSupport implements AcdHistori
 
     public List<Map<String, Object>> getReport(String reportName, Date startTime, Date endTime) {
         AcdHistoricalReport report = (AcdHistoricalReport) m_factory.getBean(reportName);
-        ColumnMapRowMapper columnMapper = new ColumnMapRowMapper();
+        ColumnMapRowMapper columnMapper = new ColumnTransformer();
         RowMapperResultReader rowReader = new RowMapperResultReader(columnMapper);
-        Object[] sqlParameters = new Object[] {
-            startTime, endTime
-        };
-        return getJdbcTemplate().query(report.getQuery(), sqlParameters, rowReader);
+        ReportStatement statement = new ReportStatement(report.getQuery(), startTime, endTime);        
+        return getJdbcTemplate().query(statement, rowReader);
+    }
+    
+    static class ColumnTransformer extends ColumnMapRowMapper {
+        static final Calendar UTC = Calendar.getInstance(DateUtils.UTC_TIME_ZONE);
+        static {            
+            UTC.setTimeInMillis(0);
+        }
+
+        protected Object getColumnValue(ResultSet rs, int index) throws SQLException {
+            Object obj = rs.getObject(index);            
+            if (obj != null && obj instanceof java.sql.Timestamp) {
+                // Timestamp is invalid, force timezone to utc  
+                obj = rs.getTimestamp(index, UTC);
+            } else {
+                obj = super.getColumnValue(rs, index);
+            }
+            
+            return obj;
+        }        
+    }
+    
+    
+    static class ReportStatement implements PreparedStatementCreator {
+        private String m_sql;
+        private Timestamp m_from;
+        private Timestamp m_to;
+        ReportStatement(String sql, Date from, Date to) {
+            m_sql = sql;
+            long fromMillis = from != null ? from.getTime() : 0;
+            m_from = new Timestamp(fromMillis);
+            long toMillis = to != null ? to.getTime() : System.currentTimeMillis();
+            m_to = new Timestamp(toMillis);
+        }
+
+        public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
+            PreparedStatement ps = con.prepareStatement(m_sql);
+            Calendar calendar = Calendar.getInstance(DateUtils.UTC_TIME_ZONE);
+            ps.setTimestamp(1, m_from, calendar);
+            ps.setTimestamp(2, m_to, calendar);
+            return ps;
+        }        
     }
 
     public void setBeanFactory(BeanFactory beanFactory) {

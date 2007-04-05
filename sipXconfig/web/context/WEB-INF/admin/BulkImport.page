@@ -24,11 +24,13 @@
     <binding name="value" value="message:label.import"/>
   </component>
   <component id="csvPanel" type="FieldPanel">
-    <binding name="field" value="components.csv"/>
+    <binding name="field" value="component:csv"/>
     <binding name="label" value="message:label.csv"/>
     <binding name="description" value="message:description.csv"/>
   </component>
   <component id="csv" type="Upload">
     <binding name="file" value="uploadFile"/>
+    <binding name="validators" value="validators:required"/>
+    <binding name="displayName" value="message:label.csv"/>
   </component>
 </page-specification>

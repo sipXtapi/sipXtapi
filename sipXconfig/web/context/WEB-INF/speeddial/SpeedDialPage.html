@@ -1,17 +1,15 @@
 <div jwcid="@Border" restricted="false" useDojo="true">
   <span jwcid="@QuickHelp" value="message:quick.help" /> 
   <div jwcid="@If" condition="ognl:userSession.admin"> 
-    <span jwcid="@UserNavigation" 
-      user="ognl:user" 
-      tab="SpeedDial" 
-      heading="message:title"/> 
+    <span jwcid="@UserNavigation" bean="prop:user"/> 
   </div> 
   <span jwcid="@Else">
     <h2><span key="title">Speed Dial</span></h2>    
-  </span><span jwcid="@ErrorMsg"/>
+  </span>
+  <span jwcid="@ErrorMsg"/>
   <div jwcid="@OptionalElement" id="settings-content" element="ognl:(userSession.admin ? 'div' : null)">
     <!--  form jwcid="@tacos:AjaxForm" delegate="bean:validator" -->
-    <form jwcid="@Form" delegate="bean:validator">
+    <form jwcid="speedDialForm@Form" delegate="bean:validator">
       <fieldset jwcid="@speeddial/SpeedDialPanel" speedDial="ognl:speedDial"/>
       <fieldset jwcid="@FormActions" listener="listener:onApply" callback="ognl:callback"/>
     </form>

@@ -291,6 +291,9 @@
     <copy todir="${test.systemRoot}/etc">
       <fileset dir="${top.dir}/neoconf/etc"/>
     </copy>
+    <copy todir="${test.systemRoot}/etc">
+      <fileset dir="test/artificial-root"/>
+    </copy>
     <copy todir="${test.war}/WEB-INF/classes">
     	  <fileset dir="${test.src.dir}">
     	  	<include name="**/*.png"/>
@@ -315,6 +318,7 @@
         </fileset>
       </batchtest>
     </junit>
+    <antcall target="failure-report"/>
     <fail if="junit.failed"/>
   </target>
   

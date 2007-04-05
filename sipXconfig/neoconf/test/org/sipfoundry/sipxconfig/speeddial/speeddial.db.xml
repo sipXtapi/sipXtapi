@@ -6,7 +6,7 @@
   
   <speeddial speeddial_id="2000" user_id="1001"/>
   
-  <speeddial_button position="0" sppeddial_id="2000" label="A" number="000" blf="false"/>
-  <speeddial_button position="1" sppeddial_id="2000" label="B" number="111" blf="true"/>
-  <speeddial_button position="2" sppeddial_id="2000" label="C" number="222" blf="false"/>
+  <speeddial_button position="0" speeddial_id="2000" label="A" number="000" blf="false"/>
+  <speeddial_button position="1" speeddial_id="2000" label="B" number="111" blf="true"/>
+  <speeddial_button position="2" speeddial_id="2000" label="C" number="222" blf="false"/>
 </dataset>

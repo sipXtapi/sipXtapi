@@ -59,12 +59,12 @@ public abstract class XmlWriterImpl<T> {
     public void writeObject(T object, Writer output) {        
         VelocityContext velocityContext = new VelocityContext();
         addContext(velocityContext, object);
-        writeObject(velocityContext, object, output);
+        writeObject(velocityContext, output);
     }
     
     protected abstract void addContext(VelocityContext context, T object);
     
-    protected void writeObject(VelocityContext context, T object, Writer output) {
+    protected void writeObject(VelocityContext context, Writer output) {
         try {
             getVelocityEngine().mergeTemplate(getTemplate(), context, output);
         } catch (Exception e) {

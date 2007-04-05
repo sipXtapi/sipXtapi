@@ -32,7 +32,7 @@ public class KPhone extends Phone {
     }
     
     public String getPhoneFilename() {
-        return getWebDirectory() + "/" + getSerialNumber() + ".kphonerc";
+        return getSerialNumber() + ".kphonerc";
     }    
     
     @Override

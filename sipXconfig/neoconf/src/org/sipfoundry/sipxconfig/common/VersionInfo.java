@@ -11,9 +11,6 @@
  */
 package org.sipfoundry.sipxconfig.common;
 
-import java.text.MessageFormat;
-
-import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 
 /**
@@ -21,11 +18,13 @@ import org.apache.commons.lang.StringUtils;
  * manifest task in neoconf/build.xml for more details.
  */
 public class VersionInfo {
+    
+    
     /**
      * @return Major and minor version number
      */
     public String getVersion() {
-        return getClass().getPackage().getSpecificationVersion();
+        return StringUtils.defaultString(getClass().getPackage().getSpecificationVersion());
     }
 
     /**
@@ -48,26 +47,19 @@ public class VersionInfo {
         }
         return ids;
     }
+    
+    String getBuildStamp() {
+        return getClass().getPackage().getImplementationVersion();
+    }
 
     /**
      * @return more specific build information
      */
-    public String getBuild() {
-        return getClass().getPackage().getImplementationVersion();
-    }
-
-    public String getTitle() {
-        return getClass().getPackage().getSpecificationTitle();
-    }
-
-    public String getVersionString() {
-        Object[] params = {
-            getVersion(), getBuild()
-        };
-        // remove nulls
-        for (int i = 0; i < params.length; i++) {
-            params[i] = ObjectUtils.defaultIfNull(params[i], StringUtils.EMPTY);
-        }
-        return MessageFormat.format("{0} ({1})", params);
+    public String[] getVersionDetails() {        
+        String[] implVer = StringUtils.defaultString(getBuildStamp()).split(" ");
+        String[] details = new String[implVer.length + 1];
+        System.arraycopy(implVer, 0, details, 1, implVer.length);
+        details[0] = getVersion();
+        return details;
     }
 }

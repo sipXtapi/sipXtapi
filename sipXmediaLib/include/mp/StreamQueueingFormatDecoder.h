@@ -116,6 +116,9 @@ private:
 
    static void reportStream() ;
      //:Reports that a stream has been created
+
+   virtual void checkThrottle() ;
+     //:Determines if throttling is needed
 };
 
 /* ============================ INLINE METHODS ============================ */

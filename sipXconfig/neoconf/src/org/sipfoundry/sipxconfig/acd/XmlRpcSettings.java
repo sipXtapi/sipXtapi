@@ -22,8 +22,9 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sipfoundry.sipxconfig.setting.AbstractSettingVisitor;
 import org.sipfoundry.sipxconfig.setting.Setting;
-import org.sipfoundry.sipxconfig.setting.SettingVisitor;
+import org.sipfoundry.sipxconfig.setting.SettingSet;
 import org.sipfoundry.sipxconfig.xmlrpc.XmlRpcRemoteException;
 
 /**
@@ -126,7 +127,7 @@ public class XmlRpcSettings {
         return (List) params.get("object-class-list");
     }
 
-    private static class XmlRpcParams implements SettingVisitor {
+    private static class XmlRpcParams extends AbstractSettingVisitor {
         private final Map m_parameters;
         private final boolean m_onlyRequired;
 
@@ -146,13 +147,13 @@ public class XmlRpcSettings {
             }
         }
 
-        public boolean visitSettingGroup(Setting group) {
+        public boolean visitSettingGroup(SettingSet group) {
             setObjectClass(m_parameters, group.getProfileName());
             return true;
         }
     }
 
-    private static class XmlRpcParamRetriever implements SettingVisitor {
+    private static class XmlRpcParamRetriever extends AbstractSettingVisitor {
         private final Map m_parameters;
 
         public XmlRpcParamRetriever(Map parameters) {
@@ -165,10 +166,6 @@ public class XmlRpcSettings {
             if (value != null) {
                 setting.setValue(value.toString());
             }
-        }
-
-        public boolean visitSettingGroup(Setting group_) {
-            return true;
         }
     }
 }

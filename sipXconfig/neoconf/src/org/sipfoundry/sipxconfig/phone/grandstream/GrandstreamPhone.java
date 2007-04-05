@@ -11,16 +11,14 @@
  */
 package org.sipfoundry.sipxconfig.phone.grandstream;
 
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
+import org.sipfoundry.sipxconfig.device.ProfileContext;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineInfo;
 import org.sipfoundry.sipxconfig.phone.Phone;
@@ -57,34 +55,19 @@ public class GrandstreamPhone extends Phone {
 
     public GrandstreamPhone() {
         super(new GrandstreamModel());
-        init();
-    }
-
-    private void init() {
         setPhoneTemplate("grandstream/grandstream.vm");
     }
 
     @Override
-    public Setting loadSettings() {
-        return loadDynamicSettings("phone.xml");
-    }
-
-    @Override
-    public Setting loadLineSettings() {
-        return loadDynamicSettings("line.xml");
-    }
-
-    private Setting loadDynamicSettings(String basename) {
-        SettingExpressionEvaluator evaluator = new GrandstreamSettingExpressionEvaluator(
-                getModel().getModelId());
-        return getModelFilesContext().loadDynamicModelFile(basename, getModel().getBeanId(),
-                evaluator);
+    protected SettingExpressionEvaluator getSettingsEvaluator() {
+        SettingExpressionEvaluator evaluator = new GrandstreamSettingExpressionEvaluator(getModel()
+                .getModelId());
+        return evaluator;
     }
 
     @Override
     public void initialize() {
-        GrandstreamDefaults defaults = new GrandstreamDefaults(getPhoneContext()
-                .getPhoneDefaults());
+        GrandstreamDefaults defaults = new GrandstreamDefaults(getPhoneContext().getPhoneDefaults());
         addDefaultBeanSettingHandler(defaults);
     }
 
@@ -150,7 +133,7 @@ public class GrandstreamPhone extends Phone {
 
     public String getPhoneFilename() {
         String phoneFilename = getSerialNumber();
-        return getTftpRoot() + "/cfg" + phoneFilename.toLowerCase();
+        return "cfg" + phoneFilename.toLowerCase();
     }
 
     public void setDefaultIfExists(Setting sroot, String param, String value) {
@@ -166,11 +149,8 @@ public class GrandstreamPhone extends Phone {
             m_defaults = defaults;
         }
 
-        @SettingEntry(
-            paths = {
-                "upgrade/__TFTPServer-213", "upgrade/__TFTPServerOld-41", "upgrade/P192",
-                "upgrade/P237"
-                })
+        @SettingEntry(paths = { "upgrade/__TFTPServer-213", "upgrade/__TFTPServerOld-41", "upgrade/P192",
+                "upgrade/P237" })
         public String getTftpServer() {
             return m_defaults.getTftpServer();
         }
@@ -179,6 +159,11 @@ public class GrandstreamPhone extends Phone {
         public int getTimeOffset() {
             int offset = ((m_defaults.getTimeZone().getOffsetWithDst() / 60) + (12 * 60));
             return offset;
+        }
+        
+        @SettingEntry(path = "network/P30")
+        public String getNtpServer() {
+            return m_defaults.getNtpServer();
         }
     }
 
@@ -191,10 +176,7 @@ public class GrandstreamPhone extends Phone {
             m_line = line;
         }
 
-        @SettingEntry(
-            paths = {
-                USERID_PATH, HT_USERID_PATH, AUTHID_PATH, HT_AUTHID_PATH
-                })
+        @SettingEntry(paths = { USERID_PATH, HT_USERID_PATH, AUTHID_PATH, HT_AUTHID_PATH })
         public String getUserId() {
             String userId = null;
             User u = m_line.getUser();
@@ -205,10 +187,7 @@ public class GrandstreamPhone extends Phone {
             return userId;
         }
 
-        @SettingEntry(
-            paths = {
-                PASSWORD_PATH, HT_PASSWORD_PATH
-                })
+        @SettingEntry(paths = { PASSWORD_PATH, HT_PASSWORD_PATH })
         public String getPassword() {
             String password = null;
             User u = m_line.getUser();
@@ -219,10 +198,7 @@ public class GrandstreamPhone extends Phone {
             return password;
         }
 
-        @SettingEntry(
-            paths = {
-                DISPLAY_NAME_PATH, HT_DISPLAY_NAME_PATH
-                })
+        @SettingEntry(paths = { DISPLAY_NAME_PATH, HT_DISPLAY_NAME_PATH })
         public String getDisplayName() {
             String displayName = null;
             User u = m_line.getUser();
@@ -233,11 +209,8 @@ public class GrandstreamPhone extends Phone {
             return displayName;
         }
 
-        @SettingEntry(
-            paths = {
-                REGISTRATION_SERVER_PATH, REGISTRATION_SERVER2_PATH, HT_REGISTRATION_SERVER_PATH,
-                HT_REGISTRATION_SERVER2_PATH
-                })
+        @SettingEntry(paths = { REGISTRATION_SERVER_PATH, REGISTRATION_SERVER2_PATH, 
+                HT_REGISTRATION_SERVER_PATH, HT_REGISTRATION_SERVER2_PATH })
         public String getRegistationServer() {
             return m_phone.getPhoneContext().getPhoneDefaults().getDomainName();
         }
@@ -246,7 +219,7 @@ public class GrandstreamPhone extends Phone {
         public String getVoicemail() {
             return m_phone.getPhoneContext().getPhoneDefaults().getVoiceMail();
         }
-        
+
         @SettingEntry(path = LINE_ACTIVE_PATH)
         public boolean isLineActive() {
             boolean active = !StringUtils.isBlank(getUserId());
@@ -275,25 +248,8 @@ public class GrandstreamPhone extends Phone {
         return linesSettings;
     }
 
-    public void generateProfiles() {
-        String outputfile = getPhoneFilename();
-        FileOutputStream wtr = null;
-
-        try {
-            wtr = new FileOutputStream(outputfile);
-            if (m_isTextFormatEnabled) {
-                GrandstreamProfileWriter pwtr = new GrandstreamProfileWriter(this);
-                pwtr.write(wtr);
-            } else {
-                GrandstreamBinaryProfileWriter bwtr = new GrandstreamBinaryProfileWriter(this);
-                bwtr.write(wtr);
-            }
-
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } finally {
-            IOUtils.closeQuietly(wtr);
-        }
+    protected ProfileContext createContext() {
+        return new GrandstreamProfileContext(this, m_isTextFormatEnabled);
     }
 
     public void restart() {

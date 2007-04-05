@@ -113,14 +113,11 @@ OsStatus StreamQueueingFormatDecoder::getFrame(unsigned short* samples)
    return status ;
 }
 
-// Queues a frame of data
-OsStatus StreamQueueingFormatDecoder::queueFrame(const unsigned short* pSamples)
+// Checks to see if queue is full, and if so needs to report throttle
+// activity to avoid a stall
+void StreamQueueingFormatDecoder::checkThrottle()
 {
-   OsStatus status = OS_SUCCESS;
-   int iNumQueuedFrames = getNumQueuedFrames() ;
-
-   // Report throttles
-   if (iNumQueuedFrames == getMaxQueueLength())
+   if (getNumQueuedFrames() == getMaxQueueLength())
    {
       // Only report once (reset if we ever have an underrun)
       if (mbReportThrottle)
@@ -129,8 +126,19 @@ OsStatus StreamQueueingFormatDecoder::queueFrame(const unsigned short* pSamples)
          mbReportThrottle = FALSE ;
       }
       if (!mbDraining)
+      {
          reportThrottle();
+      }
    }
+}
+
+// Queues a frame of data
+OsStatus StreamQueueingFormatDecoder::queueFrame(const unsigned short* pSamples)
+{
+   OsStatus status = OS_SUCCESS;
+
+   // check if throttling needs to happen
+   checkThrottle() ;
 
    // Queue frame
    StreamQueueMsg* pMsg = (StreamQueueMsg*) mMsgPool.findFreeMsg() ;
@@ -154,6 +162,10 @@ OsStatus StreamQueueingFormatDecoder::queueFrame(const unsigned short* pSamples)
 OsStatus StreamQueueingFormatDecoder::queueEndOfFrames()
 {      
    OsStatus status = OS_SUCCESS ;
+
+   // check if throttling needs to happen
+   checkThrottle() ;
+
    // Queue an end of frame marker
    StreamQueueMsg* pMsg = (StreamQueueMsg*) mMsgPool.findFreeMsg() ;
    if (pMsg)

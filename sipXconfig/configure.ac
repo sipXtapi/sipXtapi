@@ -3,7 +3,7 @@
 # benign edit
 
 AC_PREREQ(2.57)
-AC_INIT(sipXconfig, 3.7.4, sipx-dev@list.sipfoundry.org)
+AC_INIT(sipXconfig, 3.7.6, sipx-dev@list.sipfoundry.org)
 
 
 AC_CONFIG_AUX_DIR(config)
@@ -78,7 +78,6 @@ AC_CONFIG_FILES([
     neoconf/Makefile
     web/Makefile
     meta/Makefile
-    doc/Makefile
     agent/Makefile
     report/Makefile
     report/etc/Makefile

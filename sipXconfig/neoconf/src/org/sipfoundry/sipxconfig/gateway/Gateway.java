@@ -11,18 +11,27 @@
  */
 package org.sipfoundry.sipxconfig.gateway;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.apache.commons.lang.StringUtils;
-import org.apache.velocity.app.VelocityEngine;
 import org.sipfoundry.sipxconfig.common.NamedObject;
+import org.sipfoundry.sipxconfig.device.Device;
+import org.sipfoundry.sipxconfig.device.DeviceDefaults;
+import org.sipfoundry.sipxconfig.device.DeviceDescriptor;
 import org.sipfoundry.sipxconfig.device.DeviceVersion;
 import org.sipfoundry.sipxconfig.device.ModelSource;
+import org.sipfoundry.sipxconfig.device.ProfileContext;
+import org.sipfoundry.sipxconfig.device.ProfileGenerator;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
+import org.sipfoundry.sipxconfig.setting.SettingExpressionEvaluator;
+import org.sipfoundry.sipxconfig.setting.SimpleDefinitionsEvaluator;
 
 /**
  * Gateway
  */
-public class Gateway extends BeanWithSettings implements NamedObject {
+public class Gateway extends BeanWithSettings implements NamedObject, Device {
     private String m_name;
 
     private String m_address;
@@ -37,17 +46,17 @@ public class Gateway extends BeanWithSettings implements NamedObject {
 
     private String m_serialNumber;
 
-    private String m_tftpRoot;
-
     private GatewayModel m_model;
 
     private ModelSource<GatewayModel> m_modelSource;
 
     private DeviceVersion m_version;
 
-    private VelocityEngine m_velocityEngine;
+    private ProfileGenerator m_profileGenerator;
 
     private GatewayCallerAliasInfo m_callerAliasInfo = new GatewayCallerAliasInfo();
+
+    private DeviceDefaults m_defaults;
 
     public Gateway() {
     }
@@ -60,12 +69,31 @@ public class Gateway extends BeanWithSettings implements NamedObject {
     public void initialize() {
     }
 
+    /**
+     * Default implementation generates a single profile file if profile file name and profile
+     * template are provided
+     * 
+     */
     public void generateProfiles() {
-        // do nothing for generic gateways - we do not generate profile for it
+        String profileFileName = getProfileFilename();
+        ProfileContext context = createContext();
+        m_profileGenerator.generate(context, profileFileName);
+    }
+
+    protected ProfileContext createContext() {
+        return new ProfileContext(this, getProfileTemplate());
     }
 
     public void removeProfiles() {
-        // do nothing for generic gateways - we do not generate profile for it
+        getProfileGenerator().remove(getProfileFilename());
+    }
+
+    protected String getProfileTemplate() {
+        return null;
+    }
+
+    protected String getProfileFilename() {
+        return null;
     }
 
     public DeviceVersion getDeviceVersion() {
@@ -108,20 +136,12 @@ public class Gateway extends BeanWithSettings implements NamedObject {
         m_serialNumber = serialNumber;
     }
 
-    public String getTftpRoot() {
-        return m_tftpRoot;
+    public void setProfileGenerator(ProfileGenerator profileGenerator) {
+        m_profileGenerator = profileGenerator;
     }
 
-    public void setTftpRoot(String tftpRoot) {
-        m_tftpRoot = tftpRoot;
-    }
-
-    public VelocityEngine getVelocityEngine() {
-        return m_velocityEngine;
-    }
-
-    public void setVelocityEngine(VelocityEngine velocityEngine) {
-        m_velocityEngine = velocityEngine;
+    protected ProfileGenerator getProfileGenerator() {
+        return m_profileGenerator;
     }
 
     public String getBeanId() {
@@ -206,5 +226,34 @@ public class Gateway extends BeanWithSettings implements NamedObject {
 
     public void setGatewayModelSource(ModelSource<GatewayModel> modelSource) {
         m_modelSource = modelSource;
+    }
+
+    protected Set getModelDefinitions() {
+        Set definitions = new HashSet();
+        DeviceDescriptor model = getModel();
+        definitions.add(model.getModelId());
+        if (getDeviceVersion() != null) {
+            definitions.add(getDeviceVersion().getVersionId());
+        }
+        return definitions;
+    }
+
+    /**
+     * If SimepleDefinitionEvaluator is not what you need override this function to provide your
+     * own expression evaluator to be used when loading settings model.
+     * 
+     * @return reusable copy of expression evaluator
+     */
+    protected SettingExpressionEvaluator getSettingsEvaluator() {
+        Set defines = getModelDefinitions();
+        return new SimpleDefinitionsEvaluator(defines);
+    }
+
+    public void setDefaults(DeviceDefaults defaults) {
+        m_defaults = defaults;
+    }
+
+    public DeviceDefaults getDefaults() {
+        return m_defaults;
     }
 }

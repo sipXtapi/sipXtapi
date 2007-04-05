@@ -8,7 +8,7 @@
    <allow_reboot_in_call> 0  </allow_reboot_in_call> <!-- 1 - allow reboot during a call 0 - wait till call complete -->
    <mute_ringtone> 0 </mute_ringtone>                <!-- 1 - mute ringer on incoming call 0 - disable mute -->
    <dialplan> c1dialplan_0004F200E06B.txt </dialplan>   <!-- File describing MAX Dialplan - TFTPed from server -->
-   <SNTP_server_1> 0.0.0.0 </SNTP_server_1>          <!-- SNTP 1 IP address -->
+   <SNTP_server_1> ntp.example.org </SNTP_server_1>          <!-- SNTP 1 IP address -->
    <SNTP_server_2> 0.0.0.0 </SNTP_server_2>          <!-- SNTP 2 IP address -->
    <timezone> 7 </timezone>                          <!-- Timezone offset -->
    <adjust_dst> 0 </adjust_dst>                      <!-- 1 - adjust for daylight savings time 0 - disable -->

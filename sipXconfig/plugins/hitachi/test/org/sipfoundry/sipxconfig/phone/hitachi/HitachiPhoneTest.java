@@ -12,11 +12,13 @@
 package org.sipfoundry.sipxconfig.phone.hitachi;
 
 import java.io.InputStream;
-import java.io.StringWriter;
 
 import junit.framework.TestCase;
 
 import org.apache.commons.io.IOUtils;
+import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.device.MemoryProfileLocation;
+import org.sipfoundry.sipxconfig.device.ProfileContext;
 import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
 
 public class HitachiPhoneTest extends TestCase {
@@ -33,8 +35,7 @@ public class HitachiPhoneTest extends TestCase {
     public void testGetFileName() throws Exception {
         HitachiPhone phone = new HitachiPhone();
         phone.setSerialNumber("001122334455");
-        phone.setTftpRoot("abc");
-        assertEquals("abc/334455user.ini", phone.getPhoneFilename());
+        assertEquals("334455user.ini", phone.getPhoneFilename());
     }
 
     public void testGenerateTypicalProfile() throws Exception {
@@ -42,16 +43,15 @@ public class HitachiPhoneTest extends TestCase {
 
         // call this to inject dummy data
         PhoneTestDriver.supplyTestData(phone);
+        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone);
 
-        StringWriter actualWriter = new StringWriter();
-        phone.generateProfile(phone.getPhoneTemplate(), actualWriter);
+        ProfileContext context = new ProfileContext(phone, phone.getPhoneTemplate());
+        phone.getProfileGenerator().generate(context, "ignore");
         InputStream expectedProfile = getClass().getResourceAsStream("test.user.ini");
         assertNotNull(expectedProfile);
         String expected = IOUtils.toString(expectedProfile);
         expectedProfile.close();
 
-        assertEquals(expected, actualWriter.toString());
-
+        assertEquals(expected, location.toString());
     }
-
 }

@@ -2,19 +2,74 @@
   - Manages database creation, dropping and upgrading.  The file is processed
   - by ANT and thus the format complies with ANT project files.
   -
-  - How to add a database patch:
-  -   1. add sql commands to a file called X in this directory, where X is any
-  -      value you choose
-  -   2. define a target X by copying a patch in the section for the database version
+  - How to add a database patch for a new feature
+  -
+  -   1. add sql commands to a file called xxx.sql in this directory, where xxx is any
+  -      meaningful label you choose to represent your new feature
+  -
+  -   2. define a ant target xxx by copying a patch in the section for the database version
   -      defined at the top of schema.sql
-  -   3. Add a sql file reference to build.xml (this may go away)
   -
-  - How to initialize tables beyond simple SQL.
-  -   1. Add this to your SQL patch file
+  -      Example:
+
+  <target name="xxx" unless="xxx">
+    <db-patch patch="xxx"/>
+  </target>
+
   -
-  -       insert into initialization_task (name) values ('Z');
+  -   3. add a reference to your patch in the ant target for the last version
   - 
-  -   2. Follow instructions in InitializationTask.java
+  -      Example:
+  -
+  <target name="versionN" ... >
+...
+   <antcall target="xxx"/>  
+
+
+  -
+  - How to run some code to initialize tables beyond simple SQL.  
+  -  1. Follow the same instructions for adding a patch and add this to your SQL
+  -
+  -       insert into initialization_task (name) values ('xxx');
+  -
+  -    where 'xxx' is any meaningful lable you choose to represent your new operation
+  - 
+  -   2. The follow instructions in 
+  -
+  -        sipXconfig/neoconf/src/org/sipfoundry/sipXconfig/common/InitializationTask.java
+  -
+  -     on how to catch the initialization task event
+  -
+  -
+  - How to write a database patch that will reset itself in case you anticipate more changes to the
+  - schema.  Otherwise, you end up writing patches to the patches, and this can be messy.  The only
+  - disadvantage to this is that each time the system starts up, your data will be reset, but for 
+  - brand new features in development, this is usually accepatable
+  -
+  - 1. Create sql patch file as you normally would and add a reference to it in the versionN section
+  -
+  - 2. By altering the dependency you will be telling ant to always reset and always apply your patch
+
+ 
+  <target name="reset-xxx" if="xxx">
+     <sipx-sql>
+      drop table aaa_bbb;
+      drop sequence aaa_bbb_seq;
+      delete from patch where name = 'xxx
+    </sipx-sql>
+  </target>
+
+  <target name="xxx" depends="reset-xxx">
+    <db-patch patch="xxx"/>
+  </target>
+
+  -
+  -  TO TEST AND USE YOUR PATCH
+  -
+  -    cd sipXconfig/neoconf
+  -    ant reset-db
+  -
+  -
   -->
 <project name="database" basedir=".">
   <property name="sipxconfig.db.name" value="SIPXCONFIG"/>
@@ -76,12 +131,24 @@
     depends="upgrade-no-init,initialize"/>
     	
   <target name="initialize" depends="tasks" if="initialize">
-    <java classname="org.sipfoundry.sipxconfig.admin.DataInitializer" output="/dev/null">
-        <sysproperty key="org.apache.lucene.lockdir" value="${tmp.dir}/index"/>
+    <sipx-task output="/dev/null" beanId="initializeSystemTask">
       <arg value="noexit"/>
-    </java>
+    </sipx-task>
   </target>
   
+  <!--
+    - Add service to system from CLI.  
+    -  Example:
+    -    -Dservice.id=ntpService -Dservice.address=address-or-hostname
+    -->  
+  <target name="add-service" depends="upgrade">
+    <sipx-task beanId="addServiceTask">
+      <arg value="${service.name}"/>
+      <arg value="${service.id}"/>
+      <arg value="${service.address}"/>
+    </sipx-task>
+  </target>
+
   <!--
     - Drop lucene index. It'll get recreated when we restart the application
     --> 
@@ -124,23 +191,30 @@
 	
   <!-- bumped up ver only to keep 3.6 from running incompat. 3.7 db versions -->
   <target name="version4" description="upgrade from version 3" unless="version5">
-    <antcall target="afterhour"/>
     <sipx-version version="5"/>
   </target>	
 
   <target name="version5" description="upgrade from version 4" unless="version6">
+    <antcall target="afterhour"/>
+    <antcall target="unmanaged-to-acme"/>
     <antcall target="model-refactoring"/>
     <antcall target="phonebook"/>
     <antcall target="clear-uploads"/>
     <antcall target="speeddial"/>
-    <antcall target="blf"/>
-	<antcall target="acd"/>
-	<antcall target="acd_agents"/>
-	<antcall target="acd_ext"/>
+    <antcall target="acd"/>
+    <antcall target="acd_agents"/>
+    <antcall target="acd_ext"/>
+    <antcall target="service"/>
+    <antcall target="enable-schedule"/>
+    <antcall target="forwardrulemode"/>  
     <!-- When freezing schema uncomment this line -->
     <!-- sipx-version version="6" -->
   </target>	
 	
+  <target name="enable-schedule" unless="enable-schedule">
+    <db-patch patch="enable-schedule"/>
+  </target>
+
   <!-- only temporary user/developer convenience until 3.8 ships -->
   <target name="reset-old-phonebook">
     <sipx-sql>
@@ -151,14 +225,32 @@
     </sipx-sql>
   </target>
 
-  <target name="speeddial" unless="speeddial">
+  <target name="reset-speeddial" if="speeddial">
+    <sipx-sql>
+      drop table speeddial_button;
+      drop table speeddial;
+      drop sequence speeddial_seq;
+      delete from patch where name = 'speeddial'
+    </sipx-sql>    
+  </target>
+
+  <target name="speeddial" depends="reset-speeddial">
     <db-patch patch="speeddial"/>
   </target>
 
-  <target name="blf" unless="blf">
-    <db-patch patch="blf"/>
+  <!-- remove this and reference to this when freezing schema -->
+  <target name="reset-service" if="service">
+    <sipx-sql>
+      drop table service;
+      drop sequence service_seq;
+      delete from patch where name = 'service'
+    </sipx-sql>    
   </target>
-	
+  
+  <target name="service" depends="reset-service">
+    <db-patch patch="service"/>
+  </target>
+
   <target name="clear-uploads" unless="clear-uploads">
     <db-patch patch="clear-uploads"/>    
   </target>
@@ -169,6 +261,13 @@
 
   <target name="model-refactoring" unless="model-refactoring">
     <db-patch patch="model-refactoring"/>
+  </target>
+
+  <target name="unmanaged-to-acme" unless="unmanaged-to-acme">
+    <sipx-sql>
+      update phone set bean_id = 'acmePhone' where bean_id = 'unmanagedPhone';
+    </sipx-sql>
+    <mark-patch-applied patch="unmanaged-to-acme"/>
   </target>
 
   <target name="afterhour" unless="afterhour">
@@ -290,15 +389,13 @@
   <target name="import-2.8" depends="import-2.8-run,migrate-2.8" 
         description="import 2.8 PDS database from backup file, note clears all existing 3.0 data"/>
 
-  <target name="reset-superadmin-initialization-task">
+  <target name="reset-superadmin" depends="upgrade"
+      description="initialize superadmin user, administation group and resets password to blank">
+    <sipx-task beanId="resetAdministrator"/>
     <sipx-sql>
-      delete from initialization_task where name = 'admin-group-and-user';
-      insert into initialization_task (name) values ('admin-group-and-user');
-      update users set pintoken = '' where user_name = 'superadmin';
+      update users set pintoken = '' where user_name = 'superadmin';      
     </sipx-sql>
   </target>
-  <target name="reset-superadmin" depends="reset-superadmin-initialization-task,upgrade"
-      description="initialize superadmin user, administation group and resets password to blank"/>
   
   <target name="polycom-2.0" description="Migrate all polycom phones to generate 2.0 profiles">
     <property name="polycom-from-id" value="1.6"/>
@@ -317,6 +414,10 @@
     <replace file="${sipxpbx.conf.dir}/sipxconfig.properties.in">
       <replacefilter token="polycom.defaultVersionId=${polycom-from-id}" value="polycom.defaultVersionId=${polycom-to-id}" />
     </replace>    
+  </target>
+
+  <target name="forwardrulemode" unless="forwardrulemode">
+    <db-patch patch="forwardrulemode"/>
   </target>
 
   <!-- 
@@ -457,6 +558,20 @@
       <sipx-sql>
         insert into version_history (version, applied) values (@{version}, now());
       </sipx-sql>
+    </sequential>
+  </macrodef>
+  
+  <!-- run spring beans implementing SystemTaskRunner from CLI -->
+  <macrodef name="sipx-task">
+    <attribute name="beanId"/>
+    <attribute name="output" default="/dev/stdout"/>
+    <element name="task-body" optional="yes" implicit="yes"/>
+    <sequential>
+      <java classname="org.sipfoundry.sipxconfig.common.SystemTaskRunner" output="@{output}">
+        <sysproperty key="org.apache.lucene.lockdir" value="${tmp.dir}/index"/>
+        <arg value="@{beanId}"/>
+        <task-body/>
+      </java>    
     </sequential>
   </macrodef>
   

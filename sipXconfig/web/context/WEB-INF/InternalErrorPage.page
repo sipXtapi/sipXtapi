@@ -6,7 +6,7 @@
   <inject property="skin" object="spring:skin"/>
   <component id="shell" type="Shell">
     <binding name="stylesheets" value="skin.stylesheetAssets"/>
-    <binding name="title" value="message:title"/>
+    <binding name="title" value="message:product.name"/>
   </component>
   <component id="restart" type="ServiceLink">
     <binding name="service" value="@org.apache.tapestry.Tapestry@RESTART_SERVICE"/>

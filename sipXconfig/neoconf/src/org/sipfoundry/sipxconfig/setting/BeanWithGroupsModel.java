@@ -25,8 +25,8 @@ public class BeanWithGroupsModel extends BeanWithSettingsModel {
     }
 
     @Override
-    protected SettingValue2 getDefault(Setting setting) {
-        SettingValue2 value = null;
+    protected SettingValue getDefault(Setting setting) {
+        SettingValue value = null;
 
         if (m_groupsHandler != null) {
             value = m_groupsHandler.getSettingValue(setting);

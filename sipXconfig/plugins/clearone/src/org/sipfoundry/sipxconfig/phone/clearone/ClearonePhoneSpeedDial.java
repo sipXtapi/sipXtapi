@@ -14,7 +14,7 @@ package org.sipfoundry.sipxconfig.phone.clearone;
 import java.util.List;
 
 import org.sipfoundry.sipxconfig.setting.Setting;
-import org.sipfoundry.sipxconfig.setting.SettingValue2;
+import org.sipfoundry.sipxconfig.setting.SettingValue;
 import org.sipfoundry.sipxconfig.setting.SettingValueHandler;
 import org.sipfoundry.sipxconfig.setting.SettingValueImpl;
 import org.sipfoundry.sipxconfig.speeddial.Button;
@@ -29,7 +29,7 @@ public class ClearonePhoneSpeedDial implements SettingValueHandler {
         m_speedDial = speedDial;
     }
 
-    public SettingValue2 getSettingValue(Setting setting) {
+    public SettingValue getSettingValue(Setting setting) {
         int index = indexFromSettingPath(setting.getProfilePath());
         List<Button> buttons = m_speedDial.getButtons();
         if (index < 0 || index >= buttons.size()) {

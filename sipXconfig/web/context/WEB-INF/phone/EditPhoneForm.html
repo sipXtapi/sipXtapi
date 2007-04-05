@@ -9,9 +9,9 @@
         <td jwcid="serialNumber@TextField" 
           id="phone:serialNumber"
           value="ognl:phone.serialNumber"
-          validators="spring-validators:validSerialNumber,required"
-          translator="hivemind:spring:cleanSerialNumber"
-          displayName="message:serialNumber"/>
+          validators="prop:serialNumberValidators"
+          translator="prop:serialNumberTranslator"
+          displayName="message:label.serialNumber"/>
     </tr>
     <tr jwcid="@FieldPanel"
       for="phone:description" 
@@ -43,8 +43,8 @@
         <td class="auto_complete" 
           jwcid="groups@tacos:Autocompleter"
           value="ognl:groupsString"
-          size="50"
           listSource="ognl:groupCandidates"
+          size="50"
           translator="translator:string,empty="
           listener="listener:buildGroupCandidates"/>
       </tr>

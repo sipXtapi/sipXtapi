@@ -29,7 +29,7 @@ import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
 import org.sipfoundry.sipxconfig.setting.ProfileNameHandler;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingEntry;
-import org.sipfoundry.sipxconfig.setting.SettingValue2;
+import org.sipfoundry.sipxconfig.setting.SettingValue;
 import org.sipfoundry.sipxconfig.setting.SettingValueImpl;
 
 public class Conference extends BeanWithSettings implements NamedObject {
@@ -199,7 +199,7 @@ public class Conference extends BeanWithSettings implements NamedObject {
             m_conference = conference;
         }
 
-        public SettingValue2 getProfileName(Setting setting) {
+        public SettingValue getProfileName(Setting setting) {
             String nameToken = SEPARATOR + m_conference.getName();
             String profileName = setting.getProfileName();
             StringBuffer buffer = new StringBuffer(profileName);

@@ -1,4 +1,5 @@
 <!ELEMENT dataset ANY>
+
 <!ELEMENT acd_agent EMPTY>
 <!ATTLIST acd_agent
     acd_agent_id CDATA #REQUIRED
@@ -479,6 +480,7 @@
     number CDATA #IMPLIED
     position CDATA #IMPLIED
     expiration CDATA #IMPLIED
+    enabled CDATA #IMPLIED
     ring_type CDATA #IMPLIED
     user_id CDATA #REQUIRED
 >
@@ -490,6 +492,18 @@
     external_number CDATA #IMPLIED
     callers CDATA #IMPLIED
     emergency_routing_id CDATA #IMPLIED
+>
+
+<!ELEMENT service EMPTY>
+<!ATTLIST service
+    service_id CDATA #REQUIRED
+    name CDATA #REQUIRED
+    address CDATA #IMPLIED
+    bean_id CDATA #REQUIRED
+    enabled CDATA #REQUIRED
+    descriptor_id CDATA #IMPLIED
+    value_storage_id CDATA #IMPLIED
+    description CDATA #IMPLIED
 >
 
 <!ELEMENT setting_value EMPTY>
@@ -507,7 +521,7 @@
 
 <!ELEMENT speeddial_button EMPTY>
 <!ATTLIST speeddial_button
-    sppeddial_id CDATA #REQUIRED
+    speeddial_id CDATA #REQUIRED
     label CDATA #IMPLIED
     number CDATA #IMPLIED
     position CDATA #REQUIRED

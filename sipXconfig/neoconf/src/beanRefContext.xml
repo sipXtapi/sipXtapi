@@ -38,9 +38,10 @@
         <value>classpath*:/org/sipfoundry/sipxconfig/**/*-models.beans.xml</value>
         <!-- from etc/dialplan directory -->
         <value>classpath*:/dialplan/*.dialrules.beans.xml</value>
-        <value>classpath*:/org/sipfoundry/sipxconfig/acd/acd.beans.xml</value>				
-        <value>classpath*:/org/sipfoundry/sipxconfig/acd/stats/acdstats.beans.xml</value>				
-        <value>classpath*:/org/sipfoundry/sipxconfig/vm/vm.beans.xml</value>				
+        <value>classpath:/org/sipfoundry/sipxconfig/acd/acd.beans.xml</value>
+        <value>classpath:/org/sipfoundry/sipxconfig/acd/stats/acdstats.beans.xml</value>
+        <value>classpath:/org/sipfoundry/sipxconfig/vm/vm.beans.xml</value>
+        <value>classpath:/org/sipfoundry/sipxconfig/service/service.beans.xml</value>
       </list>
     </constructor-arg>
   </bean>

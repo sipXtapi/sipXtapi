@@ -62,7 +62,7 @@
     <binding name="contentType" value="literal:audio/x-wav"/>
     <binding name="selectable" value="true"/>
   </component>
-  <component id="settingsFieldset" type="SettingsFieldset">
+  <component id="settingsFieldset" type="setting/SettingsFieldset">
     <binding name="settings" value="attendant.settings"/>
     <binding name="renderGroupTitle" value="true"/>
   </component>

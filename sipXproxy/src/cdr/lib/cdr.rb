@@ -210,9 +210,16 @@ class Cdr
   end
   
   # called when we are done with processing of this CDR
-  # cleans temporry data structures
+  # cleans temporary data structures
   def retire
     @legs = nil
+  end
+  
+  # called if we suspect termination even has been lost
+  def force_finish
+    leg = @legs.best_leg
+    apply_leg(leg) if leg
+    @termination = CALL_COMPLETED_TERM
   end
   
   def to_s
@@ -255,15 +262,18 @@ class Cdr
   
   def finish
     return unless @legs.done?
-    leg = @legs.best_leg
+    apply_leg(@legs.best_leg)
+    return self
+  end
+  
+  def apply_leg(leg)
     @to_tag = leg.to_tag
     @connect_time = leg.connect_time
     @end_time = leg.end_time
     @termination = leg.status
     @failure_reason = leg.failure_reason
     @failure_status = leg.failure_status
-    @callee_contact = leg.callee_contact
-    return self
+    @callee_contact = leg.callee_contact  
   end
   
   # Map termination codes to human-readable strings

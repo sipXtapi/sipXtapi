@@ -427,20 +427,18 @@ main(int argc, char* argv[])
             // the realm (in which case the default realm will
             // be appended in the MailboxManager
             UtlString mailbox;
-            if( requestIsFromWebUI )
-            {   // this will just be a userid without the @domain part
-                mailbox = getenv( "REMOTE_USER" );
-                OsSysLog::add( LOG_FACILITY, PRI_INFO, "Mediaserver CGI - mailbox=%s \n", mailbox.data());
-            }
-            else
+	    const char* sMailboxCGIVar = gValues->valueOf ( "mailbox" );
+	    if ( sMailboxCGIVar )
             {
-                const char* sMailboxCGIVar = gValues->valueOf ( "mailbox" );
-                if ( sMailboxCGIVar )
-                {
-                    mailbox = sMailboxCGIVar;
-                    OsSysLog::add( LOG_FACILITY, PRI_INFO, "Mediaserver CGI - mailbox=%s \n", mailbox.data());
+		mailbox = sMailboxCGIVar;
+		OsSysLog::add( LOG_FACILITY, PRI_INFO, "Mediaserver CGI - mailbox=%s \n", mailbox.data());
+
+                if( requestIsFromWebUI )
+                {   // this will just be a userid without the @domain part
+   		   setenv( "REMOTE_USER", mailbox.data(), 1);
+                   OsSysLog::add( LOG_FACILITY, PRI_INFO, "Mediaserver CGI - mailbox=%s \n", mailbox.data());
                 }
-            }
+ 	    }
 
             // Determine the type of cgi action
             if ( action == "sos" )

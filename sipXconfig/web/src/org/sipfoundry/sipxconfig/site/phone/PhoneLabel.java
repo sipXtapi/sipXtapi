@@ -37,12 +37,13 @@ public abstract class PhoneLabel extends BaseComponent {
 
     @InjectObject(value = "spring:phoneContext")
     public abstract PhoneContext getPhoneContext();
-    
+
     public void prepareForRender(IRequestCycle cycle) {
         super.prepareForRender(cycle);
     }
 
     public IPage editPhone(IRequestCycle cycle, String phoneSerialNumber) {
+        // TODO: it would be better if we were serching by phone ID and not by serial number
         EditPhone editPhonePage = (EditPhone) cycle.getPage(EditPhone.PAGE);
         Integer phoneId = getPhoneContext().getPhoneIdBySerialNumber(phoneSerialNumber);
         if (phoneId == null) {

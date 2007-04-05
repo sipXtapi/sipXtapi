@@ -17,7 +17,7 @@
     <binding name="restricted" value="false"/>
   </component>
 
-  <component id="tabs" type="TabNavigation">
+  <component id="tabs" type="common/TabNavigation">
     <binding name="tabNames"
       value="{'agentPresence', 'agentsStats', 'callsStats', 'queuesStats'}" />
     <binding name="selectedTab" value="tab" />

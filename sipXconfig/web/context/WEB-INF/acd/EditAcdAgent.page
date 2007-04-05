@@ -23,7 +23,7 @@
     <binding name="listener" value="listener:formSubmit" />
   </component>
 
-  <component id="settingsFieldset" type="SettingsFieldset">
+  <component id="settingsFieldset" type="setting/SettingsFieldset">
     <binding name="settings" value="acdAgent.settings" />
     <binding name="renderGroupTitle" value="false" />
   </component>

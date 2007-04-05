@@ -14,8 +14,8 @@ package org.sipfoundry.sipxconfig.gateway;
 import org.sipfoundry.sipxconfig.device.DeviceDescriptor;
 
 public class GatewayModel extends DeviceDescriptor {
-    
-    public GatewayModel() {        
+
+    public GatewayModel() {
     }
 
     public GatewayModel(String beanId) {

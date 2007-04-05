@@ -11,8 +11,6 @@
  */
 package org.sipfoundry.sipxconfig.setting;
 
-import java.util.Iterator;
-
 public class ConditionalSet extends SettingSet implements ConditionalSetting {
     private String m_if;
     private String m_unless;
@@ -41,11 +39,6 @@ public class ConditionalSet extends SettingSet implements ConditionalSetting {
         return settings;
     }
 
-    protected Setting shallowCopy() {
-        SettingSet copy = (SettingSet) super.shallowCopy();
-        return copy;
-    }
-
     /**
      * Not re-entrant or multi-threaded. (Use and throw away)
      */
@@ -56,25 +49,32 @@ public class ConditionalSet extends SettingSet implements ConditionalSetting {
         public Setting evaluate(SettingExpressionEvaluator evaluator, ConditionalSet settings) {
             m_evaluator = evaluator;
             m_copy = (SettingSet) settings.shallowCopy();
-            Iterator i = settings.getValues().iterator();
-            while (i.hasNext()) {
-                Setting s = (Setting) i.next();
+            for (Setting s : settings.getValues()) {
                 s.acceptVisitor(this);
             }
             return m_copy;
         }
 
         public void visitSetting(Setting setting) {
-            ConditionalSetting conditional = (ConditionalSetting) setting;
-            if (isTrue(conditional.getIf(), conditional.getUnless(), setting)) {
-                Setting copy = conditional.copy();
-                addCopy(copy);
+            if (setting instanceof ConditionalSetting) {
+                ConditionalSetting conditional = (ConditionalSetting) setting;
+                if (isTrue(conditional)) {
+                    Setting copy = setting.copy();
+                    addCopy(copy);
+                }
+            } else {
+                addCopy(setting.copy());
             }
         }
 
-        public boolean visitSettingGroup(Setting set) {
+        public boolean visitSettingArray(SettingArray array) {
+            addCopy(array.copy());
+            return true;
+        }
+
+        public boolean visitSettingGroup(SettingSet set) {
             ConditionalSet conditional = (ConditionalSet) set;
-            boolean isTrue = isTrue(conditional.getIf(), conditional.getUnless(), set);
+            boolean isTrue = isTrue(conditional);
             if (isTrue) {
                 Setting copy = conditional.shallowCopy();
                 addCopy(copy);
@@ -90,15 +90,15 @@ public class ConditionalSet extends SettingSet implements ConditionalSetting {
             }
         }
 
-        private boolean isTrue(String ifExpression, String unlessExpression, Setting setting) {
+        private boolean isTrue(ConditionalSetting setting) {
             boolean isTrue = true;
 
-            if (ifExpression != null && unlessExpression != null) {
-                isTrue = m_evaluator.isExpressionTrue(ifExpression, setting)
-                        && !m_evaluator.isExpressionTrue(unlessExpression, setting);
-            } else if (ifExpression != null) {
+            String ifExpression = setting.getIf();
+            if (ifExpression != null) {
                 isTrue = m_evaluator.isExpressionTrue(ifExpression, setting);
-            } else if (unlessExpression != null) {
+            }
+            String unlessExpression = setting.getUnless();
+            if (isTrue && unlessExpression != null) {
                 isTrue = !m_evaluator.isExpressionTrue(unlessExpression, setting);
             }
 

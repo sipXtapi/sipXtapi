@@ -11,6 +11,7 @@
  */
 package org.sipfoundry.sipxconfig.acd.stats;
 
+import java.sql.Timestamp;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -18,7 +19,9 @@ import java.util.Map;
 
 import junit.framework.TestCase;
 
+import org.apache.commons.lang.time.DateUtils;
 import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.test.TestUtil;
 import org.springframework.context.ApplicationContext;
 
 public class AcdHistoricalStatsTestDb extends TestCase {
@@ -37,6 +40,17 @@ public class AcdHistoricalStatsTestDb extends TestCase {
         Iterator<Map<String, Object>> i = stats.iterator();
         record = i.next();
         assertEquals("sip:374@pingtel.com", record.get("agent_uri"));
+    }
+
+    public void testSignoutActivityReportSigninTime() {
+        List<Map<String, Object>> stats = m_history.getReport("agentAvailablityReport", new Date(0), new Date());        
+        Map<String, Object> record;
+        Iterator<Map<String, Object>> i = stats.iterator();
+        record = i.next();
+        // seed file is in UTC and so it shoudl equal this date which is 5 hours from GMT
+        Date expectedSigninTime = TestUtil.localizeDateTime("12/19/06 8:40:50 AM EST");
+        Timestamp actualSigninTime = (Timestamp) record.get("sign_in_time");
+        assertTrue(DateUtils.isSameInstant(expectedSigninTime, actualSigninTime));
     }
 
     public void testSignoutActivityReportColumns() {

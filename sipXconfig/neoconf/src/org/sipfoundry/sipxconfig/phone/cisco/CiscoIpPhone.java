@@ -54,7 +54,7 @@ public class CiscoIpPhone extends CiscoPhone {
 
     public String getPhoneFilename() {
         String phoneFilename = getSerialNumber();
-        return getTftpRoot() + "/SIP" + phoneFilename.toUpperCase() + ".cnf";
+        return "SIP" + phoneFilename.toUpperCase() + ".cnf";
     }
 
     @Override
@@ -158,6 +158,11 @@ public class CiscoIpPhone extends CiscoPhone {
         @SettingEntry(path = "datetime/dst_stop_week_of_month")
         public int getStopWeekOfMonth() {
             return isDstAutoAdjust() ? getZone().getStopWeek() : 0;
+        }
+        
+        @SettingEntry(path = "network/sntp_server")
+        public String getNtpServer() {
+            return m_defaults.getNtpServer();
         }
 
         private String time(int time) {

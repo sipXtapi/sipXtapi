@@ -1,33 +1,27 @@
-EXTRA_DIST = \
-    $(MAN_FILES) \
-	$(man_MANS)
+if GENERATE_MANPAGES
+MAN_PAGES_OPT = $(MAN_PAGES)
+endif
 
-man_MANS = \
+man_MANS = $(MAN_PAGES_OPT)
+
+MAN_PAGES = \
 	sipx-stats.1 \
+	sipx-alias2dot.1 \
+	sipx-readroute.1 \
+	sipx-trace.1 \
 	expire-spread.1 \
 	monitor-spread.1 \
+	regtimes.1 \
 	sipxcar.1 \
 	sipxproc.1 \
 	polycom-config.1 \
 	sipdb-dump.1
 
-MAN_FILES = $(subst .1,.txt2man,$(man_MANS))
+EXTRA_DIST = \
+	$(subst .1,.txt2man,$(MAN_PAGES))
 
-# explicit list otherwise 
-#	$(subst .txt2man,.1,$(MAN_FILES))
+%.xml : %.txt2man
+	$(ASCIIDOC) -d manpage -b docbook -o $@ $< 
 
-#
-# man files are not generated everytime because txt2man
-# is not likely to be installed. For those editing man
-# pages should update install it and run this command 
-#
-#   cd src/man; make generate-man-files
-#
-srcdir_man_MANS = $(foreach F,$(man_MANS),$(srcdir)/$F)
-generate-man-files: force-man-file-generation $(srcdir_man_MANS)
-
-force-man-file-generation :
-	cd $(srcdir); touch $(MAN_FILES)
-
-#$(srcdir)/%.1 : $(srcdir)/%.txt2man
-#	txt2man $< > $@
+%.1 : %.xml
+	$(XSLTPROC) $(DOCBOOK_2_MAN_XSL) $<

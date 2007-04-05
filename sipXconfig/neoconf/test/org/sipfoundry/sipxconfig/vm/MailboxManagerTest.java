@@ -11,10 +11,13 @@
  */
 package org.sipfoundry.sipxconfig.vm;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 import junit.framework.TestCase;
 
+import org.apache.commons.io.FileUtils;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.test.TestUtil;
@@ -22,10 +25,19 @@ import org.sipfoundry.sipxconfig.test.TestUtil;
 public class MailboxManagerTest extends TestCase {
     private MailboxManagerImpl m_mgr;
     
+    public static final File READONLY_MAILSTORE = new File(TestUtil.getTestSourceDirectory(MailboxManagerTest.class));
+    
     protected void setUp() {
         m_mgr = new MailboxManagerImpl();
         String thisDir = TestUtil.getTestSourceDirectory(getClass());
         m_mgr.setMailstoreDirectory(thisDir);        
+    }
+    
+    public static File createTestMailStore() throws IOException {
+        File testMailstore = new File(TestHelper.getTestDirectory() + '/' + System.currentTimeMillis());
+        testMailstore.mkdirs();
+        FileUtils.copyDirectory(new File(READONLY_MAILSTORE, "200"), new File(testMailstore, "200"));        
+        return testMailstore;
     }
     
     public void testEnabled() {
@@ -36,8 +48,9 @@ public class MailboxManagerTest extends TestCase {
 
     public void testGetVoicemailWhenInvalid() {        
         MailboxManagerImpl mgr = new MailboxManagerImpl();
+        Mailbox mbox = mgr.getMailbox("200");
         try {
-            mgr.getVoicemail("200", "inbox").size();
+            mgr.getVoicemail(mbox, "inbox").size();
             fail();
         } catch (UserException expected) {
             assertTrue(true);
@@ -46,7 +59,7 @@ public class MailboxManagerTest extends TestCase {
 
         try {
             mgr.setMailstoreDirectory("bogus");
-            mgr.getVoicemail("200", "inbox").size();
+            mgr.getVoicemail(mbox, "inbox").size();
             fail();
         } catch (UserException expected) {
             assertTrue(true);
@@ -54,12 +67,12 @@ public class MailboxManagerTest extends TestCase {
     }
     
     public void testGetVoicemailWhenEmpty() {        
-        assertEquals(0, m_mgr.getVoicemail("200", "inbox-bogus").size());
-        assertEquals(0, m_mgr.getVoicemail("200-bogus", "inbox").size());
+        assertEquals(0, m_mgr.getVoicemail(m_mgr.getMailbox("200"), "inbox-bogus").size());
+        assertEquals(0, m_mgr.getVoicemail(m_mgr.getMailbox("200-bogus"), "inbox").size());
     }
 
     public void testGetInboxVoicemail() {
-        List<Voicemail> vm = m_mgr.getVoicemail("200", "inbox");
+        List<Voicemail> vm = m_mgr.getVoicemail(m_mgr.getMailbox("200"), "inbox");
         assertEquals(2, vm.size());
         assertEquals("00000001", vm.get(0).getMessageId());
         assertTrue(vm.get(0).getMediaFile().exists());
@@ -71,12 +84,12 @@ public class MailboxManagerTest extends TestCase {
     }
     
     public void testGetFolders() {
-        List<String> folderIds = m_mgr.getFolderIds("200");
+        List<String> folderIds = m_mgr.getMailbox("200").getFolderIds();
         assertEquals(3, folderIds.size());
     }
     
     public void testGetDeletedVoicemail() {
-        List<Voicemail> deleted = m_mgr.getVoicemail("200", "deleted");
+        List<Voicemail> deleted = m_mgr.getVoicemail(m_mgr.getMailbox("200"), "deleted");
         assertEquals(1, deleted.size());
         assertEquals("00000002", deleted.get(0).getMessageId());
     }

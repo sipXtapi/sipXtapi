@@ -25,6 +25,7 @@ class HttpMessageTest : public CppUnit::TestCase
     CPPUNIT_TEST(testHeader);
     CPPUNIT_TEST(testSdp);
     CPPUNIT_TEST(testMd5Digest);
+    CPPUNIT_TEST(testEscape);
     CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -429,6 +430,22 @@ public:
         CPPUNIT_ASSERT_EQUAL_MESSAGE("httpmessage digest test",
             0, responseToken.compareTo(response));
     }
+
+  void testEscape()
+  {
+    const char* umlautUriValue = "\"Thomas Frölich Snom 320\" <sip:2012@pforzheim.org;transport=udp>;tag=zmbmylm36n";
+    
+    UtlString umlautString(umlautUriValue);
+    
+    ASSERT_STR_EQUAL(umlautUriValue, umlautString.data());
+
+    HttpMessage::escape(umlautString);
+    const char* umlautUriEscaped = "%22Thomas+Fr%C3%B6lich+Snom+320%22+%3Csip%3A2012%40pforzheim.org%3Btransport%3Dudp%3E%3Btag%3Dzmbmylm36n";
+    ASSERT_STR_EQUAL(umlautUriEscaped, umlautString.data());
+
+    HttpMessage::unescape(umlautString);
+    ASSERT_STR_EQUAL(umlautUriValue, umlautString.data());
+  }
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(HttpMessageTest);

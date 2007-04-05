@@ -22,6 +22,9 @@ import org.apache.tapestry.AbstractPage;
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IMarkupWriter;
 import org.apache.tapestry.IRequestCycle;
+import org.apache.tapestry.annotations.ComponentClass;
+import org.apache.tapestry.annotations.InjectObject;
+import org.apache.tapestry.annotations.Parameter;
 import org.apache.tapestry.form.IFormComponent;
 import org.apache.tapestry.form.IPropertySelectionModel;
 import org.apache.tapestry.form.StringPropertySelectionModel;
@@ -29,22 +32,48 @@ import org.apache.tapestry.request.IUploadFile;
 import org.apache.tapestry.valid.IValidationDelegate;
 import org.apache.tapestry.valid.ValidationConstraint;
 
+/**
+ * Component that allows user to select from existing set of assets (prompts etc.) or upload a new
+ * asset.
+ */
+@ComponentClass(allowBody = false, allowInformalParameters = true)
 public abstract class AssetSelector extends BaseComponent {
+    @InjectObject(value = "spring:tapestry")
+    public abstract TapestryContext getTapestry();
+
+    @Parameter(required = true)
+    public abstract String getAsset();
+
+    /**
+     * All files in this directory become selectable assets.
+     */
+    @Parameter(required = true)
     public abstract String getAssetDir();
+
+    @Parameter
+    public abstract String getErrorMsg();
+
+    @Parameter(required = true)
+    public abstract String getContentType();
+
+    /**
+     * If selectable is set to true, user can upload mulitple files and select among them. If it's
+     * set to fals only a single file can be uploaded or deleted.
+     */
+    @Parameter(defaultValue = "ognl:false")
+    public abstract boolean isSelectable();
+
+    @Parameter(defaultValue = "ognl:true")
+    public abstract boolean isEnabled();
+    
+    @Parameter(defaultValue = "ognl:true")
+    public abstract boolean getSubmitOnChange();
+
+    public abstract void setAsset(String asset);
 
     public abstract IUploadFile getUploadAsset();
 
     public abstract void setUploadAsset(IUploadFile uploadFile);
-
-    public abstract void setAsset(String asset);
-
-    public abstract String getAsset();
-
-    public abstract String getErrorMsg();
-
-    public abstract String getContentType();
-
-    public abstract boolean getSelectable();
 
     public abstract String getDeleteAsset();
 
@@ -82,16 +111,22 @@ public abstract class AssetSelector extends BaseComponent {
     }
 
     protected void renderComponent(IMarkupWriter writer, IRequestCycle cycle) {
-        super.renderComponent(writer, cycle);
-        if (!cycle.isRewinding()) {
-            return;
+        if (TapestryUtils.isRewinding(cycle, this) && getAssetExists()) {
+            // reset the value of the asset if associated file does not exist
+            File assetFile = new File(getAssetDir(), getAsset());
+            if (!isSelectable() && !assetFile.exists()) {
+                setAsset(null);
+            }
         }
-        AbstractPage page = (AbstractPage) getPage();
-        IValidationDelegate validator = TapestryUtils.getValidator(page);
-        validateNotEmpty(validator, getErrorMsg());
-        TapestryUtils.isValid(page);
-        checkFileUpload();
-        checkDeleteAsset();
+        super.renderComponent(writer, cycle);
+        if (TapestryUtils.isRewinding(cycle, this)) {
+            AbstractPage page = (AbstractPage) getPage();
+            IValidationDelegate validator = TapestryUtils.getValidator(page);
+            validateNotEmpty(validator, getErrorMsg());
+            TapestryUtils.isValid(page);
+            checkFileUpload();
+            checkDeleteAsset();
+        }
     }
 
     private void checkDeleteAsset() {
@@ -169,5 +204,9 @@ public abstract class AssetSelector extends BaseComponent {
      */
     public IFormComponent getPrompt() {
         return (IFormComponent) getComponent("prompt");
+    }
+
+    public boolean isDisabled() {
+        return !isEnabled();
     }
 }

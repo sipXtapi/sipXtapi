@@ -13,12 +13,35 @@ PATH=$PATH:/sbin
 Action=SNAPSHOT
 DoWebFiles=YES
 SaveCredentials=NO
-SaveLogs=YES
-DeleteLogs=NO
 Tar=YES
 ToFile=
+Logs=current
 
 DefaultTarFile="sipx-configuration-`hostname -f`.tar.gz"
+
+# Define functions.
+
+# Make a file name absolute.
+# First argument is the file name, second is the default directory.
+# If file name contains no /, prepend the default directory.
+# If file name is relative, prepend the working directory.
+# If file name is absolute, leave it unchanged.
+# Output absolute file name to stdout.
+function make_absolute () {
+  case ${1} in
+      /*)
+          echo ${1}
+          ;;
+      */*)
+          echo ${PWD}/${1}
+          ;;
+      *)
+          echo ${2}/${1}
+          ;;
+  esac
+}
+
+# Process arguments.
 
 while [ $# -ne 0 ]
 do
@@ -38,11 +61,29 @@ do
             ;;
 
         -l|--logs)
-            SaveLogs=YES
+            if [ -z "${2}" ]
+            then
+                echo "No argument supplied for ${1}" 1>&2
+                Action=USAGE
+                break
+            else
+                Logs=`echo ${2} | tr A-Z a-z`
+                case ${Logs} in
+                    current|none|all)
+                        :
+                        ;;
+                    *)
+                        echo "invalid selector for ${1}: '${2}'" 1>&2
+                        Action=USAGE
+                        break
+                        ;;
+                esac
+            fi
+            shift
             ;;
 
         -nl|--no-logs)
-            SaveLogs=NO
+            Logs=none
             ;;
 
         -c|--credentials)
@@ -54,17 +95,45 @@ do
             Tar=NO
             ;;
 
-        -d|--delete-logs)
-            SaveLogs=YES
-            DeleteLogs=YES
-            ;;
-
         -n|--notar)
             Tar=NO
             ;;
 
+        --core)
+            if [ -z "${2}" ]
+            then
+                echo "No argument supplied for --core" 1>&2
+                Action=USAGE
+                break
+            fi
+            CoreFiles="${CoreFiles} ${2}"
+            shift
+            ;;
+
+        --file)
+            if [ -z "${2}" ]
+            then
+                echo "No argument supplied for --file" 1>&2
+                Action=USAGE
+                break
+            fi
+            ExtraFiles="${ExtraFiles} ${2}"
+            shift
+                 ;;
+
+        --comment)
+            if [ -z "${2}" ]
+            then
+                echo "No argument supplied for --comment" 1>&2
+                Action=USAGE
+                break
+            fi
+            CommentFiles="${CommentFiles} ${2}"
+            shift
+            ;;
+
         ##
-        ## handle the 'end of options' marker
+        ## handle the 'end of options' marker (no-op)
         ##
         --)
             ;;
@@ -73,6 +142,7 @@ do
         ## handle an unknown switch
         ##
         -*)
+            echo "Unknown switch: ${1}" 1>&2
             Action=USAGE
             break
             ;;
@@ -113,8 +183,10 @@ Usage:
 
     sipx-snapshot [ -c | --credentials ]
                   [ -nw | --no-www ]
-                  [ -nl | --no-logs ]
-                  [ -d | --delete-logs ]
+                  [ -l  | --logs {current|all|none} ]
+                  [ --core <core-file> ] ...
+                  [ --file <file-name> ] ...
+                  [ --comment <file-name> ] ...
                                        [ <tar-file-name> ]
 
     sipx-snapshot [ -i | --info-only ]
@@ -152,13 +224,16 @@ Usage:
 
     The --no-www switch disables saving the apache configuration files.
 
+    The --logs switch selects which logs are saved:
+               current - saves all the current logs (not those saved by logrotate)
+               all     - saves all logs in the sipx log directory (large!)
+               none    - does not include any logs (not recommended)
+
     The --no-logs switch causes the sipX and Apache logs to be omitted
-    from the snapshot; the default is to include them.
+    from the snapshot; the default is to include them.  (deprecated but
+    left in for backward compatibility - use '--logs none').
 
-    The --delete-logs switch deletes the log files after they are included 
-    in the snapshot, which is often handy when doing multiple runs to illustrate 
-    a problem.  --delete-logs should only be used if sipX is not running.
-
+    The --delete-logs option has been removed.
 
 USAGE
     exit
@@ -174,114 +249,34 @@ SystemConfig=${Work}/SystemConfig
 
 # Assemble the list of files to record.
 
-# These files are always recorded.
+# These files and directories are always recorded.
 cat > $Work.copy-files <<EOF
-@SIPX_CONFDIR@/ProcessDefinitions.xml
-@SIPX_CONFDIR@/WatchDog.xml
-@SIPX_CONFDIR@/authexception.xml
-@SIPX_CONFDIR@/authproxy-config
-@SIPX_CONFDIR@/authproxy-config.in
-@SIPX_CONFDIR@/authrules.xml
-@SIPX_CONFDIR@/authrules.xml.in
-@SIPX_CONFDIR@/callresolver-config
-@SIPX_CONFDIR@/callresolver-config.in
-@SIPX_CONFDIR@/config.defs
-@SIPX_CONFDIR@/destinations.xml
-@SIPX_CONFDIR@/fallbackrules.xml
-@SIPX_CONFDIR@/fallbackrules.xml.in
-@SIPX_CONFDIR@/forwardingrules.xml
-@SIPX_CONFDIR@/forwardingrules.xml.in
-@SIPX_CONFDIR@/httpd.conf
-@SIPX_CONFDIR@/httpd-sipxchange-common-ssl.conf
-@SIPX_CONFDIR@/httpd-sipxchange-common-ssl.conf.in
-@SIPX_CONFDIR@/httpd-sipxchange-common.conf
-@SIPX_CONFDIR@/httpd-sipxchange-common.conf.in
-@SIPX_CONFDIR@/httpd-sipxchange-configserver.conf
-@SIPX_CONFDIR@/httpd-sipxchange-configserver.conf.in
-@SIPX_CONFDIR@/httpd-sipxchange-mediaserver-ssl.conf
-@SIPX_CONFDIR@/httpd-sipxchange-mediaserver-ssl.conf.in
-@SIPX_CONFDIR@/httpd-sipxchange-mediaserver.conf
-@SIPX_CONFDIR@/httpd-sipxchange-mediaserver.conf.in
-@SIPX_CONFDIR@/mappingrules.xml
-@SIPX_CONFDIR@/mappingrules.xml.in
-@SIPX_CONFDIR@/mediaserver-config
-@SIPX_CONFDIR@/mediaserver-config.in
-@SIPX_CONFDIR@/orbits.xml
-@SIPX_CONFDIR@/proxy-config
-@SIPX_CONFDIR@/proxy-config.in
-@SIPX_CONFDIR@/registrar-config
-@SIPX_CONFDIR@/registrar-config.in
-@SIPX_CONFDIR@/resourcemap.xml
-@SIPX_CONFDIR@/resourcemap.xml
-@SIPX_CONFDIR@/security.policy
-@SIPX_CONFDIR@/sipxconfig.properties.in
-@SIPX_CONFDIR@/sipxpark-config
-@SIPX_CONFDIR@/sipxpark-config.in
-@SIPX_CONFDIR@/sipxpresence-config
-@SIPX_CONFDIR@/sipxpresence-config.in
-@SIPX_CONFDIR@/ssl/authorities/*.crt
-@SIPX_CONFDIR@/ssl/ssl.crt
-@SIPX_CONFDIR@/ssl/stunnel/stunnel-config
-@SIPX_CONFDIR@/status-config
-@SIPX_CONFDIR@/status-config.in
-@SIPX_CONFDIR@/status-plugin.xml
-@SIPX_CONFDIR@/status-plugin.xml.in
-@SIPX_CONFDIR@/statusserver-config-defs.xml
-@SIPX_CONFDIR@/topology.xml
-@SIPX_CONFDIR@/voicemail.xml
-@SIPX_CONFDIR@/voicemail.xml.in
-@SIPX_CONFDIR@/process.d/keepalive.process.xml
-@SIPX_CONFDIR@/process.d/sipauthproxy.process.xml
-@SIPX_CONFDIR@/process.d/sipproxy.process.xml
-@SIPX_CONFDIR@/process.d/sipregistrar.process.xml
-@SIPX_CONFDIR@/process.d/sipstatus.process.xml
-@SIPX_CONFDIR@/process.d/sipxacd.process.xml
-@SIPX_CONFDIR@/process.d/sipxconfig.process.xml
-@SIPX_CONFDIR@/process.d/sipxpark.process.xml
-@SIPX_CONFDIR@/process.d/sipxpresence.process.xml
-@SIPX_CONFDIR@/process.d/sipXvxml.process.xml
-@SIPX_DBDIR@/alias.xml
-@SIPX_DBDIR@/credential.xml
-@SIPX_DBDIR@/ext_alias.xml
-@SIPX_DBDIR@/caller-alias.xml
-@SIPX_DBDIR@/extension.xml
-@SIPX_DBDIR@/huntgroup.xml
-@SIPX_DBDIR@/permission.xml
-@SIPX_DBDIR@/registration.xml
-@SIPX_DBDIR@/subscription.xml
+@SIPX_CONFDIR@
+@SIPX_DBDIR@
 /etc/host.conf
 /etc/resolv.conf
 /etc/hosts
 /etc/crontab
 EOF
 
-# These files are recorded if --logs is specified, and deleted if
-# --delete-logs is specified.
-if [ ${SaveLogs} = YES ]
-then
-  cat > $Work.delete-files <<EOF
-@SIPX_LOGDIR@/setup.log
-@SIPX_LOGDIR@/configtest.log
-@SIPX_LOGDIR@/dbmonitor.log
-@SIPX_LOGDIR@/httpd_access_log
-@SIPX_LOGDIR@/httpd_error_log
-@SIPX_LOGDIR@/mediaserver.log
-@SIPX_LOGDIR@/mediaserver_cgi.log
-@SIPX_LOGDIR@/replicationcgi.log
-@SIPX_LOGDIR@/sipauthproxy.log
-@SIPX_LOGDIR@/sipcallresolver.log
-@SIPX_LOGDIR@/sipproxy.log
-@SIPX_LOGDIR@/sipregistrar.log
-@SIPX_LOGDIR@/sipstatus.log
-@SIPX_LOGDIR@/sipxconfig.log
-@SIPX_LOGDIR@/sipxpark.log
-@SIPX_LOGDIR@/sipxpresence.log
-@SIPX_LOGDIR@/sipstunnel.log
-@SIPX_LOGDIR@/vxmlengine.log
-@SIPX_LOGDIR@/watchdog.log
-EOF
-  cat < $Work.delete-files >> $Work.copy-files
-fi
+# Add the requested log files
+case ${Logs} in
+    none)
+        :
+        ;;
+    current)
+        for log in @SIPX_LOGDIR@/*.log
+        do
+          echo $log >> $Work.copy-files
+        done
+        ;;
+    all)
+        for log in @SIPX_LOGDIR@/*.log  @SIPX_LOGDIR@/*.log.*
+        do
+          echo $log >> $Work.copy-files
+        done
+        ;;
+esac
 
 # Record miscellaneous information about the host.
 
@@ -320,8 +315,36 @@ echo ""                         >> ${SystemConfig}
 echo "SSL Configuration:"      >> ${SystemConfig}
 ls -lR @SIPX_CONFDIR@/ssl/     >> ${SystemConfig}
 echo "  Certificate Dump:"     >> ${SystemConfig}
-cat @SIPX_CONFDIR@/ssl/ssl.crt >> ${SystemConfig}
+cat @SIPX_CONFDIR@/ssl/ssl.crt >> ${SystemConfig} 2>&1
 echo ""
+
+# Get DNS and hostname information
+locale=""
+full_host=`hostname --fqdn | tr A-Z a-z`
+full_locale=$full_locale
+
+while [ -n "$full_locale" ]
+do
+    locale="$full_locale $locale"
+    full_locale=`echo $full_locale | sed 's/^[^.]*\.//; s/^[^.]*$//'`
+done
+
+sipDomain=`. @SIPX_CONFDIR@/config.defs > /dev/null 2>&1; echo ${SIPXCHANGE_DOMAIN_NAME}`
+echo "" >> ${SystemConfig}
+echo ======== SIP Domain: $sipDomain >> ${SystemConfig}
+
+echo "" >> ${SystemConfig}
+echo ======== DNS NAPTR $sipDomain >> ${SystemConfig}
+dig -t naptr +noidentify +nocmd +nocomments +noquestion +nostats +noauthority $sipDomain \
+>> ${SystemConfig}
+
+for d in $sipDomain rr.$full_host ap.$full_host
+do
+  echo ======== DNS SRV $d >> ${SystemConfig}
+  dig -t srv +noidentify +nocmd +nocomments +noquestion +nostats +noauthority _sip._tcp.$d _sip._udp.$d \
+  | sort -u -r \
+  >> ${SystemConfig}
+done
 
 # Get configuration information on sipX components
 for component in pbx config proxy registry publisher vxml commserverlib calllib medialib tacklib portlib
@@ -362,26 +385,6 @@ echo ""       >> ${SystemConfig}
 echo ======== ifconfig >> ${SystemConfig}
 ifconfig      >> ${SystemConfig}
 
-# Get DNS and hostname information
-locale=""
-full_host=`hostname --fqdn | tr A-Z a-z`
-full_locale=$full_locale
-
-while [ -n "$full_locale" ]
-do
-    locale="$full_locale $locale"
-    full_locale=`echo $full_locale | sed 's/^[^.]*\.//; s/^[^.]*$//'`
-done
-
-for d in  rr.$full_host ap.$full_host
-do
-  echo "" >> ${SystemConfig}
-  echo ======== DNS SRV $d >> ${SystemConfig}
-  dig -t srv +noidentify +nocmd +nocomments +noquestion +nostats +noauthority _sip._tcp.$d _sip._udp.$d \
-  | sort -u -r \
-  >> ${SystemConfig}
-done
-
 # Get any firewall or other tricky IP manipulations
 echo "" >> ${SystemConfig}
 echo "======== IPTables:"       >> ${SystemConfig}
@@ -420,8 +423,13 @@ then
     then
       mkdir -p ${copyDir}
       cp --archive ${file} ${copyDir}/${copyFile}
+    elif [ -d ${file} ]
+    then
+      mkdir -p ${copyDir}
+      cp -pR --dereference ${file} ${Work}${file}
     else
-      echo Missing: ${file} >> ${SystemConfig}
+      echo Missing or not a file/directory: ${file} >> ${SystemConfig}
+      ls -ld ${file} >> ${SystemConfig}
     fi
   done
 
@@ -432,7 +440,8 @@ then
     do
       mv ${file} ${file}.tmp
       sed < ${file}.tmp > ${file} \
-            -e 's|<passtoken>[^<]*</passtoken>|<passtoken>ELIDED</passtoken>|'
+            -e 's|<passtoken>[^<]*</passtoken>|<passtoken>ELIDED</passtoken>|' \
+            -e 's|<pintoken>[^<]*</pintoken>|<pintoken>ELIDED</pintoken>|'
       rm ${file}.tmp
     done
   fi
@@ -456,13 +465,6 @@ then
 
 else
   echo "Configuration saved in '${Work}'"
-fi
-
-# Delete the log files, if requested.
-if [ ${DeleteLogs} = YES ]
-then
-  rm $( cat $Work.delete-files )
-  echo "Log files deleted"
 fi
 
 # Remove the temporary files.

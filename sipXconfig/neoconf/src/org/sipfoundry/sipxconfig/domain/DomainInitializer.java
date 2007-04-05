@@ -14,14 +14,12 @@ package org.sipfoundry.sipxconfig.domain;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
-import org.sipfoundry.sipxconfig.common.InitializationTask;
-import org.springframework.context.ApplicationEvent;
-import org.springframework.context.ApplicationListener;
+import org.sipfoundry.sipxconfig.common.InitTaskListener;
 
 /**
  * When system first starts up, create initial domain object w/default value(s)
  */
-public class DomainInitializer implements ApplicationListener {
+public class DomainInitializer extends InitTaskListener {
     private DomainManager m_domainManager;
     private String m_initialDomain;
 
@@ -29,39 +27,22 @@ public class DomainInitializer implements ApplicationListener {
         m_initialDomain = initialDomain;
     }
 
-    public DomainManager getDomainManager() {
-        return m_domainManager;
-    }
-
     public void setDomainManager(DomainManager domainManager) {
         m_domainManager = domainManager;
     }
 
-    public void onApplicationEvent(ApplicationEvent event) {
-        if (event instanceof InitializationTask) {
-            InitializationTask dbEvent = (InitializationTask) event;
-            if (dbEvent.getTask().equals("initialize-domain")) {
-                initializeDomain();
-            }
-        }
+    @Override
+    public void onInitTask(String task) {
+        Domain domain = new Domain();
+        domain.setName(getInitialDomainName());
+        m_domainManager.saveDomain(domain);
     }
-    
-    void initializeDomain() {
-        Domain domain = createDomain();
-        m_domainManager.saveDomain(domain);        
-    }
-    
-    public Domain createDomain() {
-        Domain d = new Domain();
-        d.setName(getInitialDomainName());
-        return d;        
-    }
-    
-    public String getInitialDomainName() {
+
+    String getInitialDomainName() {
         if (m_initialDomain != null) {
             return m_initialDomain;
         }
-        
+
         try {
             InetAddress addr = InetAddress.getLocalHost();
             m_initialDomain = addr.getHostName();

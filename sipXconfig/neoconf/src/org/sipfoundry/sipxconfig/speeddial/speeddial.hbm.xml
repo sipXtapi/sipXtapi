@@ -11,7 +11,7 @@
     </id>
     <many-to-one name="user" column="user_id" foreign-key="fk_speeddial_user" not-null="true" />
     <list name="buttons" table="speeddial_button">
-      <key column="sppeddial_id" />
+      <key column="speeddial_id" />
       <index column="position" />
       <composite-element class="Button">
         <property name="label" />

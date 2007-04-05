@@ -34,6 +34,16 @@ public class HitachiPhoneDefaults {
         return m_defaults.getAuthorizationRealm();
     }
 
+    @SettingEntry(path = "SNTP/NTP_Server1")
+    public String getNtpServer() {
+        return m_defaults.getNtpServer();
+    }
+
+    @SettingEntry(path = "SNTP/NTP_Server2")
+    public String getAlternateNtpServer() {
+        return m_defaults.getAlternateNtpServer();
+    }
+
     @SettingEntry(path = "SNTP/Time_Zone")
     public String getTimeZoneOffset() {
         int tzhrs = m_defaults.getTimeZone().getOffset() / 3600;

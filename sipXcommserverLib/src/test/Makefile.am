@@ -32,8 +32,11 @@ testsuite_LDADD = \
 	testlib/libsipXcommserverTest.la \
    ../libsipXcommserver.la
 
+# FAILING - leaks semaphores and eventually buildserver will proceed to fail here
+# see XCS-78
+#    RegistryDbTest.cpp 
+
 testsuite_SOURCES = \
-    RegistryDbTest.cpp \
     ResultSetRpcTest.cpp \
     UrlMappingTest.cpp \
     $(db_FILES)

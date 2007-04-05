@@ -54,6 +54,7 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager {
 
     private String m_cdrAgentHost;
     private int m_cdrAgentPort;
+    private int m_csvLimit;
 
     /**
      * CDRs database at the moment is using 'timestamp' type to store UTC time. Postgres
@@ -77,8 +78,18 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager {
         return getJdbcTemplate().query(psc, resultReader);
     }
 
+    /**
+     * Current implementation only dumps at most m_csvLimit CDRs. This limitation is necessary due
+     * to limitations of URLConnection used to download exported data to the client system.
+     * 
+     * See: http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4212479
+     * http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=5026745
+     * 
+     * If we had direct access to that connection we could try calling "setChunkedStreamingMode"
+     * on it.
+     */
     public void dumpCdrs(Writer writer, Date from, Date to, CdrSearch search) throws IOException {
-        CdrsStatementCreator psc = new SelectAll(from, to, search, m_tz);
+        CdrsStatementCreator psc = new SelectAll(from, to, search, m_tz, m_csvLimit, 0);
         CdrsCsvWriter resultReader = new CdrsCsvWriter(writer, m_tz);
         try {
             getJdbcTemplate().query(psc, resultReader);
@@ -136,6 +147,10 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager {
         m_cdrAgentPort = cdrAgentPort;
     }
 
+    public void setCsvLimit(int csvLimit) {
+        m_csvLimit = csvLimit;
+    }
+
     abstract static class CdrsStatementCreator implements PreparedStatementCreator {
         private static final String FROM = " FROM cdrs WHERE (? <= start_time) AND (start_time <= ?)";
         private static final String LIMIT = " LIMIT ? OFFSET ?";
@@ -151,8 +166,7 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager {
             this(from, to, search, tz, 0, 0);
         }
 
-        public CdrsStatementCreator(Date from, Date to, CdrSearch search, TimeZone tz, int limit,
-                int offset) {
+        public CdrsStatementCreator(Date from, Date to, CdrSearch search, TimeZone tz, int limit, int offset) {
             m_calendar = Calendar.getInstance(tz);
             long fromMillis = from != null ? from.getTime() : 0;
             m_from = new Timestamp(fromMillis);
@@ -252,8 +266,7 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager {
     static class ColumnInfo {
         /** List of fields that will be exported to CDR */
         static final String[] FIELDS = {
-            CALLEE_AOR, CALLER_AOR, START_TIME, CONNECT_TIME, END_TIME, FAILURE_STATUS,
-            TERMINATION,
+            CALLEE_AOR, CALLER_AOR, START_TIME, CONNECT_TIME, END_TIME, FAILURE_STATUS, TERMINATION,
         };
         static final boolean[] TIME_FIELDS = {
             false, false, true, true, true, false, false
@@ -306,7 +319,10 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager {
             for (int i = 0; i < row.length; i++) {
                 if (m_columns[i].isTimestamp()) {
                     Date date = rs.getTimestamp(m_columns[i].getIndex(), m_calendar);
-                    row[i] = DateFormatUtils.ISO_DATETIME_TIME_ZONE_FORMAT.format(date);
+                    if (date != null) {
+                        row[i] = DateFormatUtils.ISO_DATETIME_TIME_ZONE_FORMAT.format(date);
+                    }
+
                 } else {
                     row[i] = rs.getString(m_columns[i].getIndex());
                 }

@@ -28,6 +28,8 @@ public class MailboxPreferences {
     private ActiveGreeting m_activeGreeting = ActiveGreeting.NONE;
     private String m_emailAddress;
     private boolean m_attachVoicemailToEmail;
+    private String m_alternateEmailAddress;
+    private boolean m_attachVoicemailToAlternateEmail;
     
     public enum ActiveGreeting {
         NONE("none"), 
@@ -77,5 +79,21 @@ public class MailboxPreferences {
     
     public void setEmailAddress(String emailAddress) {
         m_emailAddress = emailAddress;
+    }
+
+    public String getAlternateEmailAddress() {
+        return m_alternateEmailAddress;
+    }
+
+    public void setAlternateEmailAddress(String alternateEmailAddress) {
+        m_alternateEmailAddress = alternateEmailAddress;
+    }
+
+    public boolean isAttachVoicemailToAlternateEmail() {
+        return m_attachVoicemailToAlternateEmail;
+    }
+
+    public void setAttachVoicemailToAlternateEmail(boolean attachVoicemailToAlternateEmail) {
+        m_attachVoicemailToAlternateEmail = attachVoicemailToAlternateEmail;
     }
 }

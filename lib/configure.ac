@@ -7,31 +7,43 @@ AM_INIT_AUTOMAKE(foreign)
 
 SFAC_SRCDIR_EXPAND
 
-# default, fc5
-cgicc=yes
-xerces_c=yes
-ruby_gems=yes
-ruby_dbi=yes
-soap4r=yes
-http_access=yes
+AC_ARG_ENABLE(suse10,
+        AC_HELP_STRING([--enable-suse10], [Enable dependencies for openSUSE 10.2]),
+        [
+          w3c_libwww=yes
+          cgicc=yes
+          ruby_dbi=yes
+        ])
 
 AC_ARG_ENABLE(fc4,
 	AC_HELP_STRING([--enable-fc4], [Enable dependencies for Fedora Core 4]),
 	[ 
           java_sun=yes
+          ruby_gems=yes
           ruby_postgres=yes
+          xerces_c=yes
+          cgicc=yes
+          ruby_dbi=yes
+          soap4r=yes
+          http_access=yes
         ])
 
 AC_ARG_ENABLE(fc5,
 	AC_HELP_STRING([--enable-fc5], [Enable dependencies for Fedora Core 5]),
 	[ 
           java_sun=yes
+          ruby_gems=yes
+          cgicc=yes
+          ruby_dbi=yes
         ])
 
 AC_ARG_ENABLE(fc6,
 	AC_HELP_STRING([--enable-fc6], [Enable dependencies for Fedora Core 6]),
 	[ 
           java_sun=yes
+          ruby_gems=yes
+          cgicc=yes
+          ruby_dbi=yes
         ])
 
 AC_ARG_ENABLE(rhe4,
@@ -39,9 +51,15 @@ AC_ARG_ENABLE(rhe4,
 	[ 
           java_sun=yes
           w3c_libwww=yes
+          xerces_c=yes
           cppunit=yes
           ruby=yes
+          ruby_gems=yes
           ruby_postgres=yes
+          cgicc=yes
+          ruby_dbi=yes
+          soap4r=yes
+          http_access=yes
         ])
 
 AC_ARG_ENABLE(soap4r,

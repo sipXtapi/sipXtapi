@@ -30,7 +30,7 @@ class SipRedirectorAuthRouter : public RedirectPlugin
 {
 public:
 
-   SipRedirectorAuthRouter(const UtlString& instanceName);
+   explicit SipRedirectorAuthRouter(const UtlString& instanceName);
 
    ~SipRedirectorAuthRouter();
 

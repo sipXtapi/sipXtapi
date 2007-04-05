@@ -1,13 +1,16 @@
 <div jwcid="@Border" restricted="false">
-  <span jwcid="@QuickHelp" value="message:quick.help"/>
   <span jwcid="@If" condition="ognl:userSession.admin">
     <span jwcid="userNavigation"/>
   </span>
   <h2 jwcid="@Else" element="h2">
     <span key="title">Call Forwarding</span>
   </h2>
-  <span jwcid="errors"></span>
   <div jwcid="@OptionalElement" id="settings-content" element="ognl:(userSession.admin ? 'div' : null)">
+    <span jwcid="@QuickHelp" value="message:quick.help"/>
+      <span jwcid="errors"></span>
+      <span jwcid="@If" condition="prop:renderForwardWarning">
+        <span class="user-warning" jwcid="@Insert" value="prop:forwardWarning"/>
+      </span>
     <form jwcid="form">
       <ul class="component-links">
         <li><a jwcid="addRingLink">

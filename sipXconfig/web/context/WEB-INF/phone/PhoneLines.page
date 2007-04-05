@@ -20,9 +20,7 @@
     - C O M P O N E N T S
     -->
   <component id="editPhoneNavigation" type="PhoneNavigation">
-    <binding name="phone" value="phone"/>
-    <binding name="tab" value="literal:PhoneLines"/>
-    <binding name="heading" value="message:lines"/>
+    <binding name="bean" value="phone"/>
   </component>
   <component id="editLinesForm" type="Form"/>
   <component id="lineTableView" type="Table">

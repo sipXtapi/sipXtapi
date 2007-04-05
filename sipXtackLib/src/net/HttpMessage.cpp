@@ -1661,7 +1661,7 @@ void HttpMessage::escape(UtlString& unEscapedText)
         }
         else
         {
-            sprintf(escapedChar, "%%%X", (int) unEscapedChar);
+            sprintf(escapedChar, "%%%02X", (int)(unEscapedChar & 0xff));
 #ifdef TEST_PRINT
             osPrintf("%d escaped: %s\n", (int) unEscapedChar,
                 escapedChar);
@@ -1686,7 +1686,7 @@ void HttpMessage::escapeOneChar(UtlString& unEscapedText, char tobeEscapedChar)
         unEscapedChar = *unescapedTextPtr;
         if(unEscapedChar == tobeEscapedChar )
         {
-            sprintf(escapedChar, "%%%X", (int) unEscapedChar);
+            sprintf(escapedChar, "%%%02X", (int) (unEscapedChar & 0xff));
 #ifdef TEST_PRINT
             osPrintf("%d escaped: %s\n", (int) unEscapedChar,
                 escapedChar);

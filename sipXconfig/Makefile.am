@@ -32,8 +32,7 @@ SUBDIRS = \
 	meta \
 	plugins \
 	$(REPORTS_OPT) \
-	$(AGENT_OPT) \
-	$(doc_SUBDIRS) 
+	$(AGENT_OPT)
 
 install-exec-hook :
 	$(ANT_CMD) $(ANT_FLAGS) remove-jars
@@ -55,6 +54,7 @@ EXTRA_DIST = \
     lib.properties \
     neoconf \
     sipxconfig.spec \
+    doc \
     web \
     meta \
     agent \

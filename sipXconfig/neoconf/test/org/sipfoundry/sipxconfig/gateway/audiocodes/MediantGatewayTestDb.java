@@ -11,17 +11,18 @@
  */
 package org.sipfoundry.sipxconfig.gateway.audiocodes;
 
-import java.io.File;
-import java.io.StringWriter;
-import java.io.Writer;
+import java.io.InputStream;
 
 import junit.framework.TestCase;
 
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.device.BeanFactoryModelSource;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
+import org.sipfoundry.sipxconfig.device.MemoryProfileLocation;
 import org.sipfoundry.sipxconfig.gateway.GatewayModel;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingSet;
@@ -34,33 +35,35 @@ public class MediantGatewayTestDb extends TestCase {
         BeanFactoryModelSource<GatewayModel> modelSource = (BeanFactoryModelSource<GatewayModel>) TestHelper
                 .getApplicationContext().getBean("nakedGatewayModelSource");
         m_model = (AudioCodesModel) modelSource.getModel("audiocodesMP1X4_4_FXO");
-        m_gateway = (MediantGateway) TestHelper.getApplicationContext().getBean(
-                m_model.getBeanId());
+        m_gateway = (MediantGateway) TestHelper.getApplicationContext().getBean(m_model.getBeanId());
         m_gateway.setModelId(m_model.getModelId());
+        m_gateway.setSerialNumber("FT0123456");
     }
 
-    /**
-     * Every test case must have 1 test
-     */
-    public void testOnlyExistsBecauseAllOtherTestsDisabled() {
+    public void testModel() {
+        assertSame(m_model, m_gateway.getModel());        
     }
-
+    
     public void testGenerateProfiles() throws Exception {
-        assertSame(m_model, m_gateway.getModel());
-
-        Writer writer = new StringWriter();
-        m_gateway.generateProfiles(writer);
-
-        // cursory check for now
-        assertTrue(writer.toString().indexOf("MAXDIGITS") >= 0);
-    }
-
-    public void testGenerateAndRemoveProfiles() throws Exception {
-        File file = m_gateway.getIniFile();
+        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(m_gateway);
         m_gateway.generateProfiles();
-        assertTrue(file.exists());
-        m_gateway.removeProfiles();
-        assertFalse(file.exists());
+
+        InputStream expectedProfile = getClass().getResourceAsStream("mp-gateway.ini");
+        assertNotNull(expectedProfile);
+        String expected = IOUtils.toString(expectedProfile);
+        expectedProfile.close();
+        
+        String actual = location.toString();
+
+        String expectedLines[] = StringUtils.split(expected, "\n");
+        String actualLines[] = StringUtils.split(actual, "\n");
+
+        int len = Math.min(actualLines.length, expectedLines.length);
+        for (int i = 0; i < len; i++) {
+            assertEquals(expectedLines[i], actualLines[i]);
+        }
+        assertEquals(expectedLines.length, actualLines.length);        
+        assertEquals(expected, actual);
     }
 
     public void testPrepareSettings() throws Exception {
@@ -77,18 +80,18 @@ public class MediantGatewayTestDb extends TestCase {
 
         m_gateway.setDefaults(defaults);
 
-        assertEquals("10.1.2.3", m_gateway.getSettingValue("SIP_Params/PROXYIP"));
-        assertEquals("mysipdomain.com", m_gateway.getSettingValue("SIP_Params/PROXYNAME"));
+        assertEquals("10.1.2.3", m_gateway.getSettingValue("SIP/ProxyIP"));
+        assertEquals("mysipdomain.com", m_gateway.getSettingValue("SIP/ProxyName"));
 
         defaultsCtrl.verify();
     }
 
     public void testGetSettings() throws Exception {
         Setting settings = m_gateway.getSettings();
-        assertEquals("15", settings.getSetting("SIP_Params/MAXDIGITS").getValue());
+        assertEquals("13", settings.getSetting("Voice/MaxDigits").getValue());
         assertTrue(settings instanceof SettingSet);
         SettingSet root = (SettingSet) settings;
-        SettingSet currentSettingSet = (SettingSet) root.getSetting("SIP_Params");
-        assertEquals("15", currentSettingSet.getSetting("MAXDIGITS").getValue());
+        SettingSet currentSettingSet = (SettingSet) root.getSetting("Voice");
+        assertEquals("13", currentSettingSet.getSetting("MaxDigits").getValue());
     }
 }

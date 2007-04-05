@@ -1163,7 +1163,8 @@ MailboxManager::saveMessage (
     const char* data,
     const int& datasize,
     const UtlString& nextMessageID,
-    const UtlBoolean& saveIfDataIsEmpty)
+    const UtlBoolean& saveIfDataIsEmpty,
+    const UtlBoolean& sendEmail)
 {
    OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                  "MailboxManager::saveMessage(fromUrl = '%s', mailboxIdentity = '%s', duration = '%s', timestamp = '%s', datasize = %d, nextMessageId = '%s', saveIfDataIsEmpty = %d)",
@@ -1282,15 +1283,19 @@ MailboxManager::saveMessage (
                         wavFileName = messageid + "-FW.wav";
                      }
 
-                     sendEmailNotification ( mailboxIdentity ,
+                     if (sendEmail)
+                     {
+                         sendEmailNotification ( mailboxIdentity ,
                                             from,
                                             timestamp,
                                             duration,
                                             wavFileName,
                                             data,
                                             datasize);
+                      }
 
-                  } else
+                  } 
+                  else
                   {
                      // Delete the WAV and XML file as we failed to
                      // write to the descriptor.
@@ -1300,7 +1305,7 @@ MailboxManager::saveMessage (
                      metaDataFile.close();
                      logContent = "Unable to write to message descriptor file : " + nameWithoutExtension + ".xml\n" ;
                      OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_ERR,
-                                   "MailboxManager::saveMessage: metaDataFile.write() failed, filename '%s.xml'",
+				     "MailboxManager::saveMessage: metaDataFile.write() failed, filename '%s.xml'",
                                    nameWithoutExtension.data());
                   }
                } else
@@ -2655,7 +2660,12 @@ MailboxManager::updateMessageStates(
       int msgCount = 0;
       int errorCount = 0;
 
-      if (messageids == UPDATE_ALL_MSG_STATES)
+      if (messageids == REFRESH_ALL_MSG_STATES)
+      {
+	 // Refresh message states, trigger NOTIFY
+         msgCount = 1;         
+      } 
+      else if (messageids == UPDATE_ALL_MSG_STATES)
       {
          // messageids == "-1" means to update all messages to "heard" status.
          // Delete all .sta files.
@@ -3026,10 +3036,17 @@ MailboxManager::forwardMessages (
     CredentialDB::getInstance()->
         getAllCredentials( fromIdentityUrl, credentials );
 
-    if ( credentials.getSize() > 0 )
+    for(;;) // dummy loop so we can use "break" to jump out
     {
+        if ( credentials.getSize() <= 0 )
+        {
+            logContents = "Unable to get credentials for " + 
+                fromIdentityUrl.toString();
+            break ;
+        }
+
         UtlHashMap record;
-        // only intersted in the first row here
+        // only interested in the first row here
         credentials.getIndex( 0, record );
         UtlString uriKey ("uri");
 
@@ -3040,219 +3057,243 @@ MailboxManager::forwardMessages (
         UtlString fromIdentity;
         fromUrl.getIdentity( fromIdentity );
         result = getMailboxPath( fromIdentity, fromMailboxPath );
-        if ( result == OS_SUCCESS )
-        {
-            fromMailboxPath += OsPathBase::separator + getFolderName( fromFolder );
-
-            result = getMailboxPath( toMailbox, toMailboxPath ) ;
-            if ( result == OS_SUCCESS )
-            {
-                toMailboxPath += OsPathBase::separator + m_inboxFolder;
-
-                // 2. Copy the original message to the destination folder.
-                OsPath path(fromMailboxPath);
-                OsFileIterator fi(path);
-                OsPath entry;
-
-                UtlTokenizer nameValuePair(messageIds);
-                UtlString id;
-                int msgCount = 0;
-
-                // Parse messageIds
-                while ( nameValuePair.next(id, MESSAGE_DELIMITER) )
-                {
-                    id = id.strip(UtlString::both);
-                    msgCount++;
-
-                    // Find all files starting with the given message id.
-                    UtlString regExp = id + ".+\\.*";
-                    UtlString nextMessageID ;
-
-                    result = fi.findFirst(entry, regExp, OsFileIterator::FILES);
-
-                    // If files found, save the recorded comment first.
-                    if ( result == OS_SUCCESS )
-                    {
-                        // Get the id of the message to be stored in the destination folder.
-                        if (!m_pMsgIDGenerator)
-                        {
-                           m_pMsgIDGenerator = MessageIDGenerator::getInstance(m_mailstoreRoot);
-                        }
-
-                        result = m_pMsgIDGenerator->getNextMessageID( nextMessageID );
-                        if ( result == OS_SUCCESS )
-                        {
-                            OsStatus    moreMessages = OS_SUCCESS ;
-                            UtlString    mergeFileInput2 ;
-                            UtlString    originalMsgSubject ;
-
-                            // Copy the forwarded messages
-                            while ( moreMessages == OS_SUCCESS )
-                            {
-                                // Construct a file object.
-                                UtlString fromFileLocation = fromMailboxPath + OsPathBase::separator + entry.getFilename() + entry.getExt();
-                                OsFile fromFile( fromFileLocation );
-                                UtlString filename = entry.getFilename();
-                                UtlString fromMessageDepth = filename(filename.index('-')+1, filename.length());
-
-                                if( fromMessageDepth == forwardedMsgsPlayListExtn )
-                                {
-                                    mergeFileInput2 = fromFileLocation ;
-                                }
-                                else
-                                {
-                                    // increment the depth of the forwarded message
-                                    int iFromMessageDepth = atoi ( fromMessageDepth.data() );
-                                    iFromMessageDepth++;
-                                    char temp[5];
-                                    sprintf ( temp, "%02d", iFromMessageDepth );
-                                    UtlString toMessageDepth = temp;
-
-                                    if ( entry.getExt() != ".sta" )
-                                    {
-                                        UtlString toFileLocation =
-                                            toMailboxPath + OsPathBase::separator +
-                                            nextMessageID + "-" + toMessageDepth + entry.getExt();
-                                        fromFile.copy(toFileLocation);
-
-                                    }
-
-                                    if( entry.getExt() == ".xml" )
-                                    {
-                                        if( iFromMessageDepth == 1 )
-                                        {
-                                            // Get the message subject from the -00.xml file
-                                            UtlHashMap *msgInfoHash = new UtlHashMap();
-                                            parseMessageDescriptor(fromFileLocation, msgInfoHash );
-                                            UtlString *rwMsgSubject = (UtlString *)msgInfoHash->
-                                                                                    findValue( new UtlString("subject") ) ;
-                                            originalMsgSubject = rwMsgSubject->data() ;
-
-                                            delete rwMsgSubject ;
-                                            delete msgInfoHash ;
-                                        }
-                                    }
-
-                                    if( entry.getExt() == ".wav" && iFromMessageDepth == 1 )
-                                        mergeFileInput2 = fromFileLocation ;
-                                }
-
-                                // Get the next message.
-                                moreMessages = fi.findNext(entry);
-                            }
-
-                            // Call SaveMessage to save the comments.
-                            result = saveMessage(
-                                fromUrl,
-                                toMailbox,
-                                commentsDuration,
-                                commentsTimestamp,
-                                comments,
-                                commentsSize,
-                                nextMessageID,
-                                TRUE);
-
-                            if( result == OS_SUCCESS )
-                            {
-                                UtlString mergedOutputFileLocation = toMailboxPath +
-                                                                    OsPathBase::separator +
-                                                                    nextMessageID + "-" + forwardedMsgsPlayListExtn + ".wav";
-
-                                UtlString subject = forwardedMsgSubjectPrefix + originalMsgSubject ;
-                                UtlString messageDescriptorLoc = toMailboxPath +
-                                                                OsPathBase::separator +
-                                                                nextMessageID + "-00.xml";
-                                // Update the message descriptor
-                                updateMessageDescriptor( messageDescriptorLoc, subject );
-
-                                if( commentsSize > 0 )
-                                {
-                                    // merge the wav files.
-                                    UtlString mergeFileInput1 =  toMailboxPath +
-                                                                OsPathBase::separator +
-                                                                nextMessageID + "-00.wav";
-                                    UtlString inputFileArray[3] ;
-                                    inputFileArray[0] = mergeFileInput1 ;
-                                    inputFileArray[1] = mergeFileInput2 ;
-                                    inputFileArray[2] = "" ;
-
-                                    mergeWaveFiles(inputFileArray, mergedOutputFileLocation );
-                                }
-                                else
-                                {
-                                    OsFile originalMsg (mergeFileInput2) ;
-                                    result = originalMsg.copy(mergedOutputFileLocation);
-                                }
-
-                                OsFile file(mergedOutputFileLocation.data());
-                                if (file.open() == OS_SUCCESS)
-                                {
-                                    // Save the file size
-                                    unsigned long fileSize;
-                                    file.getLength(fileSize);
-
-                                    // Create a buffer for the file contents
-                                    unsigned char *buffer = new unsigned char[fileSize];
-                                    if (buffer != NULL)
-                                    {
-                                        // Read the file contents into the buffer
-                                        unsigned long bytesRead;
-                                        if ( file.read(buffer, fileSize,bytesRead) == OS_SUCCESS )
-                                        {
-                                            if (bytesRead == fileSize)
-                                            {
-                                                UtlString from;
-                                                fromUrl.getDisplayName(from);
-
-                                                UtlString userId;
-                                                fromUrl.getUserId(userId);
-
-                                                if (!from.isNull())
-                                                   from += " - " + userId;
-                                                else
-                                                   from = userId;
-
-                                                UtlString wavFileName = nextMessageID + "-" + forwardedMsgsPlayListExtn + ".wav";
-
-                                                const char* data = (const char*) buffer;
-                                                sendEmailNotification ( toMailbox,
-                                                    from,
-                                                    commentsTimestamp,
-                                                    commentsDuration,
-                                                    wavFileName,
-                                                    data,
-                                                    fileSize);
-                                            }
-                                        }
-                                    }
-                                    delete [] buffer;
-                                    buffer = NULL;
-                                }
-                                file.close();
-                            }
-                            else
-                            {
-                                logContents = "Failed to save the message to " + toMailbox ;
-                            }
-                        }
-                        else
-                        {
-                            logContents = "Failed to generate next message id for " + toMailbox ;
-                        }
-                    }
-                    else
-                    {
-                        break ;
-                    }
-                }
-            } else
-            {
-                logContents = "Unable to get mailbox path for " + toMailbox;
-            }
-        } else
+        if ( result != OS_SUCCESS )
         {
             logContents = "Unable to get mailbox path for " + fromIdentity;
+            break ;
         }
+
+        fromMailboxPath += OsPathBase::separator + getFolderName( fromFolder );
+
+        result = getMailboxPath( toMailbox, toMailboxPath ) ;
+        if ( result != OS_SUCCESS )
+        {
+            logContents = "Unable to get mailbox path for " + toMailbox;
+            break ;
+        }
+
+        toMailboxPath += OsPathBase::separator + m_inboxFolder;
+
+        // 2. Copy the original message to the destination folder.
+        OsPath path(fromMailboxPath);
+        OsFileIterator fi(path);
+        OsPath entry;
+
+        UtlTokenizer nameValuePair(messageIds);
+        UtlString id;
+        int msgCount = 0;
+
+        // Parse messageIds
+        while ( nameValuePair.next(id, MESSAGE_DELIMITER) )
+        {
+            id = id.strip(UtlString::both);
+            msgCount++;
+
+            // Find all files starting with the given message id.
+            UtlString regExp = id + ".+\\.*";
+            UtlString nextMessageID ;
+
+            result = fi.findFirst(entry, regExp, OsFileIterator::FILES);
+
+            if ( result != OS_SUCCESS )
+            {
+                logContents = "Failed to find files with regExp " + regExp ;
+                break ;
+            }
+
+            // If files found, save the recorded comment first.
+            // Get the id of the message to be stored in the destination folder.
+            if (!m_pMsgIDGenerator)
+            {
+               m_pMsgIDGenerator = MessageIDGenerator::getInstance(m_mailstoreRoot);
+            }
+
+            result = m_pMsgIDGenerator->getNextMessageID( nextMessageID );
+            if ( result != OS_SUCCESS )
+            {
+                logContents = "Failed to generate next message id for " 
+                                 + toMailbox ;
+                break ;
+            }
+
+            OsStatus    moreMessages = OS_SUCCESS ;
+            UtlString    mergeFileInput2 ;
+            UtlString    originalMsgSubject ;
+
+            // Copy the forwarded messages to the new mailbox
+            while ( moreMessages == OS_SUCCESS )
+            {
+                // Construct a file object.
+                UtlString fromFileLocation = 
+                    fromMailboxPath + OsPathBase::separator + 
+                    entry.getFilename() + entry.getExt();
+                OsFile fromFile( fromFileLocation );
+                UtlString filename = entry.getFilename();
+                UtlString fromMessageDepth = 
+                    filename(filename.index('-')+1, filename.length());
+
+                if( fromMessageDepth == forwardedMsgsPlayListExtn )
+                {
+                    mergeFileInput2 = fromFileLocation ;
+                }
+                else
+                {
+                    // increment the depth of the forwarded message
+                    int iFromMessageDepth = atoi ( fromMessageDepth.data() );
+                    iFromMessageDepth++;
+                    char temp[5];
+                    sprintf ( temp, "%02d", iFromMessageDepth );
+                    UtlString toMessageDepth = temp;
+
+                    if ( entry.getExt() != ".sta" )
+                    {
+                        UtlString toFileLocation =
+                            toMailboxPath + OsPathBase::separator +
+                            nextMessageID + "-" + toMessageDepth + 
+                            entry.getExt();
+                        fromFile.copy(toFileLocation);
+                    }
+
+                    if( entry.getExt() == ".xml" )
+                    {
+                        if( iFromMessageDepth == 1 )
+                        {
+                            // Get the message subject from the -00.xml file
+                            UtlHashMap *msgInfoHash = new UtlHashMap();
+                            parseMessageDescriptor(fromFileLocation, msgInfoHash );
+                            UtlString *rwMsgSubject = 
+                                (UtlString *)msgInfoHash->findValue( 
+                                                   new UtlString("subject") ) ;
+                            originalMsgSubject = rwMsgSubject->data() ;
+
+                            delete rwMsgSubject ;
+                            delete msgInfoHash ;
+                        }
+                    }
+
+                    if( entry.getExt() == ".wav" && iFromMessageDepth == 1 )
+                    {
+                        mergeFileInput2 = fromFileLocation ;
+                    }
+                }
+
+                // Get the next message.
+                moreMessages = fi.findNext(entry);
+            }
+
+            // Call SaveMessage to save the comments.
+            result = saveMessage(
+                fromUrl,
+                toMailbox,
+                commentsDuration,
+                commentsTimestamp,
+                comments,
+                commentsSize,
+                nextMessageID,
+                TRUE,
+                FALSE); // Don't email this message!  We do that later.
+
+            if( result != OS_SUCCESS )
+            {
+                logContents = "Failed to save the message to " + toMailbox ;
+                break ;
+            }
+
+            UtlString mergedOutputFileLocation = 
+                toMailboxPath +
+                OsPathBase::separator +
+                nextMessageID + "-" + forwardedMsgsPlayListExtn + ".wav";
+
+            UtlString subject = forwardedMsgSubjectPrefix + originalMsgSubject ;
+            UtlString messageDescriptorLoc = 
+                toMailboxPath +
+                OsPathBase::separator +
+                nextMessageID + "-00.xml";
+
+            // Update the message descriptor
+            updateMessageDescriptor( messageDescriptorLoc, subject );
+
+            if( commentsSize > 0 )
+            {
+                // merge the wav files.
+                UtlString mergeFileInput1 =  toMailboxPath +
+                                            OsPathBase::separator +
+                                            nextMessageID + "-00.wav";
+                UtlString inputFileArray[3] ;
+                inputFileArray[0] = mergeFileInput1 ;
+                inputFileArray[1] = mergeFileInput2 ;
+                inputFileArray[2] = "" ;
+
+                result = mergeWaveFiles(inputFileArray, mergedOutputFileLocation );
+                logContents = "Unable to merge file " + mergeFileInput1 + 
+                   "with " + mergeFileInput2 ;
+            }
+            else
+            {
+                // Use the original file
+                OsFile originalMsg (mergeFileInput2) ;
+                result = originalMsg.copy(mergedOutputFileLocation);
+                logContents = "Unable to copy file " + mergeFileInput2 + 
+                    "to " + mergedOutputFileLocation ;
+            }
+
+            if (result != OS_SUCCESS)
+            {
+                break ;
+            }
+
+            OsFile file(mergedOutputFileLocation.data());
+            result = file.open() ;
+            if (result != OS_SUCCESS)
+            {
+                logContents = "Unable to open merged file " + 
+                   mergedOutputFileLocation ;
+                break ;
+            }
+
+            // Save the file size
+            unsigned long fileSize;
+            file.getLength(fileSize);
+
+            // Create a buffer for the file contents
+            unsigned char *buffer = new unsigned char[fileSize];
+            if (buffer != NULL)
+            {
+                // Read the file contents into the buffer
+                unsigned long bytesRead;
+                if ( file.read(buffer, fileSize,bytesRead) == OS_SUCCESS )
+                {
+                    if (bytesRead == fileSize)
+                    {
+                        UtlString from;
+                        fromUrl.getDisplayName(from);
+
+                        UtlString userId;
+                        fromUrl.getUserId(userId);
+
+                        if (!from.isNull() && from.length() > 0)
+                           from += " - " + userId;
+                        else
+                           from = userId;
+
+                        UtlString wavFileName = nextMessageID + "-" + 
+                           forwardedMsgsPlayListExtn + ".wav";
+
+                        const char* data = (const char*) buffer;
+                        sendEmailNotification ( toMailbox,
+                            from,
+                            commentsTimestamp,
+                            commentsDuration,
+                            wavFileName,
+                            data,
+                            fileSize);
+                    }
+                }
+                delete [] buffer;
+            }
+            file.close();
+        }
+        break ; // End dummy loop
     }
 
     if( result != OS_SUCCESS )

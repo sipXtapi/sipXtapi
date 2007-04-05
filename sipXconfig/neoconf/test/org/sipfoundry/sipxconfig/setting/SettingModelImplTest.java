@@ -11,8 +11,6 @@
  */
 package org.sipfoundry.sipxconfig.setting;
 
-import java.io.InputStream;
-
 import junit.framework.TestCase;
 
 import org.easymock.EasyMock;
@@ -23,9 +21,8 @@ import org.sipfoundry.sipxconfig.setting.BeanWithSettingTest.BirdWithSettings;
 public class SettingModelImplTest extends TestCase {
 
     public void testAddHandler() throws Exception {
-        SettingValue2 ten = new SettingValueImpl("10");
-        InputStream in = getClass().getResourceAsStream("birds.xml");
-        Setting birds = TestHelper.loadSettings(in);
+        SettingValue ten = new SettingValueImpl("10");
+        Setting birds = TestHelper.loadSettings(getClass(), "birds.xml");
         Setting peewee = birds.getSetting("flycatcher/peewee");
         Setting canyonTowhee = birds.getSetting("towhee/canyon");
 

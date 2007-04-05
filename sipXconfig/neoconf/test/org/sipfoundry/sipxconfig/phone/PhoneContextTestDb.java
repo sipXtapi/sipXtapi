@@ -128,7 +128,7 @@ public class PhoneContextTestDb extends SipxDatabaseTestCase {
         TestHelper.cleanInsert("ClearDb.xml");
         TestHelper.cleanInsertFlat("phone/SamplePhoneSeed.xml");
         assertEquals(new Integer(1002), m_context.getPhoneIdBySerialNumber("00003"));
-        assertEquals(new Integer(1003), m_context.getPhoneIdBySerialNumber("Aa:00004"));
+        assertEquals(new Integer(1003), m_context.getPhoneIdBySerialNumber("aa00004"));
         assertEquals(null, m_context.getPhoneIdBySerialNumber("won't find this guy"));
     }
 

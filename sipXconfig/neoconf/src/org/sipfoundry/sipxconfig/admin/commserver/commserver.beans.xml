@@ -16,11 +16,11 @@
   <bean id="sipxReplicationContextImpl" abstract="true"
     class="org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContextImpl">
     <property name="configDirectory" value="${sysdir.etc}" />
-    <property name="replicationManager">
-      <bean class="org.sipfoundry.sipxconfig.admin.commserver.imdb.ReplicationManagerImpl" />
-    </property>
+    <property name="replicationManager" ref="replicationManagerImpl"/>
     <property name="jobContext" ref="jobContext" />
   </bean>
+  
+  <bean id="replicationManagerImpl" class="org.sipfoundry.sipxconfig.admin.commserver.imdb.ReplicationManagerImpl"/>
 
   <bean id="sipxProcessContext" parent="sipxReplicationContextImpl"
     class="org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContextImpl">

@@ -17,9 +17,7 @@ public interface MailboxManager {
     
     public boolean isEnabled();
     
-    public List<String> getFolderIds(String userid);
-
-    public List<Voicemail> getVoicemail(String userid, String folder);
+    public List<Voicemail> getVoicemail(Mailbox mailbox, String folder);
     
     public String getMailstoreDirectory();
 
@@ -35,4 +33,7 @@ public interface MailboxManager {
 
     public void markRead(Mailbox mailbox, Voicemail voicemail);
     
+    public void move(Mailbox mailbox, Voicemail voicemail, String destinationFolderId);
+
+    public void delete(Mailbox mailbox, Voicemail voicemail);
 }
