@@ -98,6 +98,7 @@ libsipXmedia_la_SOURCES =  \
     mp/MpFlowGraphBase.cpp \
     mp/MpFlowGraphMsg.cpp \
     mp/mpG711.cpp \
+    mp/MpInputDeviceManager.cpp \
     mp/MpJitterBuffer.cpp \
     mp/MpMediaTask.cpp \
     mp/MpMediaTaskMsg.cpp \
@@ -118,6 +119,7 @@ libsipXmedia_la_SOURCES =  \
     mp/MprFromNet.cpp \
     mp/MprFromStream.cpp \
     mp/MprMixer.cpp \
+    mp/MprNull.cpp \
     mp/MprRecorder.cpp \
     mp/MprSpeexEchoCancel.cpp \
     mp/MprSpeexPreProcess.cpp \
