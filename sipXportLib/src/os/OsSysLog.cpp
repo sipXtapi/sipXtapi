@@ -37,18 +37,6 @@ extern char* strdup(const char*) ;
 
 // EXTERNAL VARIABLES
 // CONSTANTS
-#if defined(_WIN32)
-     // Windows va_arg function does not take a const 
-#    define OS_VA_ARG_CONST 
-#elif defined(__pingtel_on_posix__)
-     // Posix va_arg function takes a const
-#    define OS_VA_ARG_CONST const
-#elif _VXWORKS
-     // Vxworks va_arg function does not take a const 
-#    define OS_VA_ARG_CONST 
-#else
-#error Unsupported target platform.
-#endif
 // STATIC VARIABLE INITIALIZATIONS
 OsSysLogTask* OsSysLog::spOsSysLogTask = NULL;
 unsigned long OsSysLog::sEventCount = 0;
