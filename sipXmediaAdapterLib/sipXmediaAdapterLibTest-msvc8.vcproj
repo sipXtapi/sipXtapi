@@ -186,79 +186,9 @@
 			/>
 		</Configuration>
 		<Configuration
-			Name="Release|SDK1_emu (ARMV4I)"
-			OutputDirectory="SDK1_emu (ARMV4I)\$(ConfigurationName)"
-			IntermediateDirectory="SDK1_emu (ARMV4I)\$(ConfigurationName)"
-			ConfigurationType="1"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-				TargetEnvironment="1"
-			/>
-			<Tool
-				Name="VCCLCompilerTool"
-				ExecutionBucket="7"
-				AdditionalIncludeDirectories="include;..\sipXportLib\include;..\sipXsdpLib\include;..\sipXtackLib\include;sipXmediaMediaProcessing;interface;..\sipXmediaLib\include;..\sipXportLib\src\test;src\test;..\sipXmediaAdapterLib\interface"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;SIP_STACK_VERSION=\&quot;1.13.0\&quot;;WINCE;$(ARCHFAM);$(_ARCHFAM_);_WIN32_WCE=$(CEVER);UNDER_CE"
-				ForcedIncludeFiles="os/WinCE/wincefixups.h"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
-			<Tool
-				Name="VCLinkerTool"
-				AdditionalDependencies="Ws2.lib Iphlpapi.lib ../mobile5/pcre.lib ../mobile5/cppunit_dll.lib ccrtrtti.lib toolhelp.lib sipxmedialib.lib sipxportlib.lib sipXtackLib.lib sipXsdpLib.lib mmtimer.lib"
-				OutputFile="$(OutDir)\sipXmediaAdapterLibTest.exe"
-				AdditionalLibraryDirectories="&quot;$(OutDir)\&quot;;&quot;..\sipXmediaLib\$(OutDir)\&quot;;&quot;..\sipXsdpLib\$(OutDir)\&quot;;&quot;..\sipXportLib\$(OutDir)\&quot;;&quot;..\sipXtackLib\$(OutDir)\&quot;;&quot;..\sipXportLib\$(PlatformName)\$(ConfigurationName)&quot;"
-				SubSystem="9"
-				TargetMachine="0"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-			/>
-			<Tool
-				Name="VCCodeSignTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-			/>
-			<DeploymentTool
-				ForceDirty="-1"
-				RemoteDirectory=""
-				RegisterOutput="0"
-				AdditionalFiles=""
-			/>
-			<DebuggerTool
-			/>
-		</Configuration>
-		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory=".\Debug"
-			IntermediateDirectory=".\Debug"
+			IntermediateDirectory=".\testDebug"
 			ConfigurationType="1"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfMFC="0"
@@ -286,7 +216,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\sipXportLib\src\test,..\sipXportLib\include,..\sipXportLib\include\glib,interface,include,..\sipXtackLib\include"
-				PreprocessorDefinitions="_DEBUG;DONT_USE_LONG_LONG;WIN32;_CONSOLE;DISABLE_MEM_POOLS"
+				PreprocessorDefinitions="_DEBUG;DONT_USE_LONG_LONG;WIN32;_CONSOLE;DISABLE_MEM_POOLS;_CRT_SECURE_NO_DEPRECATE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
 				UsePrecompiledHeader="0"
@@ -392,6 +322,76 @@
 				AdditionalDependencies="Ws2.lib Iphlpapi.lib ../ppc2003/pcred.lib ../ppc2003/cppunitd_dll.lib ccrtrtti.lib toolhelp.lib sipxmedialib.lib sipxportlib.lib sipXtackLib.lib sipXsdpLib.lib mmtimer.lib"
 				AdditionalLibraryDirectories="&quot;$(OutDir)\&quot;;&quot;..\sipXmediaLib\$(OutDir)\&quot;;&quot;..\sipXsdpLib\$(OutDir)\&quot;;&quot;..\sipXportLib\$(OutDir)\&quot;;&quot;..\sipXtackLib\$(OutDir)\&quot;;&quot;..\sipXportLib\$(PlatformName)\$(ConfigurationName)&quot;"
 				SubSystem="9"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCCodeSignTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
+			<DeploymentTool
+				ForceDirty="-1"
+				RemoteDirectory=""
+				RegisterOutput="0"
+				AdditionalFiles=""
+			/>
+			<DebuggerTool
+			/>
+		</Configuration>
+		<Configuration
+			Name="Release|SDK1_emu (ARMV4I)"
+			OutputDirectory="SDK1_emu (ARMV4I)\$(ConfigurationName)"
+			IntermediateDirectory="SDK1_emu (ARMV4I)\$(ConfigurationName)"
+			ConfigurationType="1"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				TargetEnvironment="1"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				ExecutionBucket="7"
+				AdditionalIncludeDirectories="include;..\sipXportLib\include;..\sipXsdpLib\include;..\sipXtackLib\include;sipXmediaMediaProcessing;interface;..\sipXmediaLib\include;..\sipXportLib\src\test;src\test;..\sipXmediaAdapterLib\interface"
+				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;SIP_STACK_VERSION=\&quot;1.13.0\&quot;;WINCE;$(ARCHFAM);$(_ARCHFAM_);_WIN32_WCE=$(CEVER);UNDER_CE"
+				ForcedIncludeFiles="os/WinCE/wincefixups.h"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalDependencies="Ws2.lib Iphlpapi.lib ../mobile5/pcre.lib ../mobile5/cppunit_dll.lib ccrtrtti.lib toolhelp.lib sipxmedialib.lib sipxportlib.lib sipXtackLib.lib sipXsdpLib.lib mmtimer.lib"
+				OutputFile="$(OutDir)\sipXmediaAdapterLibTest.exe"
+				AdditionalLibraryDirectories="&quot;$(OutDir)\&quot;;&quot;..\sipXmediaLib\$(OutDir)\&quot;;&quot;..\sipXsdpLib\$(OutDir)\&quot;;&quot;..\sipXportLib\$(OutDir)\&quot;;&quot;..\sipXtackLib\$(OutDir)\&quot;;&quot;..\sipXportLib\$(PlatformName)\$(ConfigurationName)&quot;"
+				SubSystem="9"
+				TargetMachine="0"
 			/>
 			<Tool
 				Name="VCALinkTool"

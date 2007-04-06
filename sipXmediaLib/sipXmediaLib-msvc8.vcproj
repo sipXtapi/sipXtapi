@@ -55,7 +55,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="include,..\sipXportLib\include,..\sipXportLib\include\glib,..\sipXsdpLib\include,..\sipXtackLib\include,..\gips\include"
-				PreprocessorDefinitions="_DEBUG;WIN32;_LIB;DISABLE_MEM_POOLS"
+				PreprocessorDefinitions="_DEBUG;WIN32;_LIB;DISABLE_MEM_POOLS;_CRT_SECURE_NO_DEPRECATE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
 				RuntimeTypeInfo="true"
@@ -12539,7 +12539,15 @@
 				>
 			</File>
 			<File
+				RelativePath=".\include\mp\MprFromFileConstructor.h"
+				>
+			</File>
+			<File
 				RelativePath=".\include\mp\MprFromInputDevice.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\mp\MprFromInputDeviceConstructor.h"
 				>
 			</File>
 			<File
@@ -12563,6 +12571,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\include\mp\MprNullConstructor.h"
+				>
+			</File>
+			<File
 				RelativePath="include\mp\MprRecorder.h"
 				>
 			</File>
@@ -12583,7 +12595,15 @@
 				>
 			</File>
 			<File
+				RelativePath=".\include\mp\MprToneGenConstructor.h"
+				>
+			</File>
+			<File
 				RelativePath="include\mp\MprToNet.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\mp\MprToOutputDeviceConstructor.h"
 				>
 			</File>
 			<File
