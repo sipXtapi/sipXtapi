@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<mappings xmlns='http://www.sipfoundry.org/sipX/schema/xml/urlmap-00-00'>
+<mappings xmlns="http://www.sipfoundry.org/sipX/schema/xml/urlmap-00-00">
 
   <!-- Mapping rule to implement the TCP and UDP SRV aliases. -->
   <hostMatch>
@@ -17,8 +17,6 @@
 
   <hostMatch>
     <hostPattern>${SIPXCHANGE_DOMAIN_NAME}</hostPattern>
-    <hostPattern>${MY_FULL_HOSTNAME}</hostPattern>
-    <hostPattern>${MY_HOSTNAME}</hostPattern>
     <hostPattern>${MY_IP_ADDR}</hostPattern>
 
     <!-- Sample mapping rule for *90 forwarding prefix -->
@@ -28,28 +26,6 @@
       <permissionMatch>
         <transform>
           <url>&lt;sip:{vdigits}@example.com&gt;</url>
-        </transform>
-      </permissionMatch>
-    </userMatch>
-
-    <userMatch>
-      <!--Music on Hold-->
-      <description>Forward music on hold calls to Park Server</description>
-      <userPattern>~~mh~</userPattern>
-      <permissionMatch>
-        <transform>
-          <url>&lt;sip:moh@${ORBIT_SERVER_SIP_SRV_OR_HOSTPORT}&gt;</url>
-        </transform>
-      </permissionMatch>
-    </userMatch>
-
-    <userMatch>
-      <!--RLS-->
-      <description>Forward resource list subscriptions to RLS</description>
-      <userPattern>~~rl~.</userPattern>
-      <permissionMatch>
-        <transform>
-          <url>&lt;sip:{digits}@${RLS_ADDR}:${RLS_SIP_PORT}&gt;</url>
         </transform>
       </permissionMatch>
     </userMatch>

@@ -1,3 +1,8 @@
+# A prefix command applied to commands that manipulate the destination
+# directories.  Left as null to prevent surprises for people who haven't
+# read this Makefile before using it, but often set to "sudo".
+SUDO=
+
 # The name by which the update-passtokens script can be executed.
 # This will probably have to be specified, as update-passtokens is not
 # usually installed.
@@ -14,7 +19,6 @@ SIPX_BINDIR=/usr/bin
 SIPX_CONFDIR=/etc/sipxpbx
 SIPX_DATADIR=/var/sipxdata
 SIPX_LIBDIR=/usr/lib
-SIPX_VARDIR=/var
 SIPX_LOGDIR=/var/log/sipxpbx
 SIPX_RUNDIR=/var/run/sipxpbx
 HTTP_ROOTDIR=/usr/share/www/doc
@@ -47,23 +51,22 @@ debug:
 	@ echo SIPDB_FILES_EDITED=$(SIPDB_FILES_EDITED)
 
 $(CONFIG_FILES): $(SIPX_CONFDIR)/%: sipx_confdir/%
-	cp $< $@
+	$(SUDO) cp $< $@
 
 $(DOC_FILES): $(HTTP_ROOTDIR)/%: http_rootdir/%
-	cp $< $@
+	$(SUDO) cp $< $@
 
 $(SIPDB_FILES): $(SIPX_DATADIR)/sipdb/%: sipx_dbdir/%
-	cp $< $@
+	$(SUDO) cp $< $@
 
 $(SIPX_CONFDIR)/config.defs: $(SIPX_CONFDIR)/config.defs.in
-	sh -c \
+	$(SUDO) sh -c \
 		"sed \
 			-e 's!@SIPX_USER@!$(SIPX_USER)!g' \
 			-e 's!@SIPX_BINDIR@!$(SIPX_BINDIR)!g' \
 			-e 's!@SIPX_CONFDIR@!$(SIPX_CONFDIR)!g' \
 			-e 's!@SIPX_DATADIR@!$(SIPX_DATADIR)!g' \
 			-e 's!@SIPX_LIBDIR@!$(SIPX_LIBDIR)!g' \
-			-e 's!@SIPX_VARDIR@!$(SIPX_VARDIR)!g' \
 			-e 's!@SIPX_LOGDIR@!$(SIPX_LOGDIR)!g' \
 			-e 's!@SIPX_RUNDIR@!$(SIPX_RUNDIR)!g' \
 			-e 's!@HTTP_ROOTDIR@!$(HTTP_ROOTDIR)!g' \
@@ -72,7 +75,7 @@ $(SIPX_CONFDIR)/config.defs: $(SIPX_CONFDIR)/config.defs.in
 
 $(CONFIG_FILES_EDITED) $(DOC_FILES_EDITED) $(SIPDB_FILES_EDITED): %: %.pre $(SIPX_CONFDIR)/config.defs
 	. $(SIPX_CONFDIR)/config.defs ;\
-	sh -c \
+	$(SUDO) sh -c \
 		"sed \
 			-e 's!@SIPXCHANGE_DOMAIN_NAME@!$$SIPXCHANGE_DOMAIN_NAME!g' \
 			-e 's!@INTEROP_ALIAS_UDP@!$$INTEROP_ALIAS_UDP!g' \
@@ -83,7 +86,6 @@ $(CONFIG_FILES_EDITED) $(DOC_FILES_EDITED) $(SIPDB_FILES_EDITED): %: %.pre $(SIP
 			-e 's!@SIPX_CONFDIR@!$(SIPX_CONFDIR)!g' \
 			-e 's!@SIPX_DATADIR@!$(SIPX_DATADIR)!g' \
 			-e 's!@SIPX_LIBDIR@!$(SIPX_LIBDIR)!g' \
-			-e 's!@SIPX_VARDIR@!$(SIPX_VARDIR)!g' \
 			-e 's!@SIPX_LOGDIR@!$(SIPX_LOGDIR)!g' \
 			-e 's!@SIPX_RUNDIR@!$(SIPX_RUNDIR)!g' \
 			-e 's!@HTTP_ROOTDIR@!$(HTTP_ROOTDIR)!g' \
@@ -91,7 +93,7 @@ $(CONFIG_FILES_EDITED) $(DOC_FILES_EDITED) $(SIPDB_FILES_EDITED): %: %.pre $(SIP
 		<$< >$@"
 
 $(SIPX_DATADIR)/sipdb/credential.xml: $(SIPX_DATADIR)/sipdb/credential.xml.in $(SIPX_CONFDIR)/config.defs
-	sh -c \
+	$(SUDO) sh -c \
 		"yes 1234 | $(UPDATE_PASSTOKENS) $< $@"
 	@echo
 
