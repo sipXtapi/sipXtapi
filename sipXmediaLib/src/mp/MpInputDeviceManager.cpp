@@ -101,7 +101,7 @@ public:
    virtual
    ~MpAudioInputConnection()
    {
-      OsSysLog::add(FAC_MP, PRI_ERR,"~MpInputDeviceManager start dev: %p id: %d\n",
+      OsSysLog::add(FAC_MP, PRI_DEBUG,"~MpInputDeviceManager start dev: %p id: %d\n",
          mpInputDeviceDriver, getValue());
 
       if (mppFrameBufferArray)
@@ -109,7 +109,7 @@ public:
          delete[] mppFrameBufferArray;
          mppFrameBufferArray = NULL;
       }
-      OsSysLog::add(FAC_MP, PRI_ERR,"~MpInputDeviceManager end\n");
+      OsSysLog::add(FAC_MP, PRI_DEBUG,"~MpInputDeviceManager end\n");
    }
 
 //@}
@@ -378,7 +378,7 @@ int MpInputDeviceManager::addDevice(MpInputDeviceDriver& newDevice)
 
    // Map by device name string
    UtlInt* idValue = new UtlInt(newDeviceId);
-   OsSysLog::add(FAC_MP, PRI_ERR,
+   OsSysLog::add(FAC_MP, PRI_DEBUG,
                  "MpInputDeviceManager::addDevice dev: %p value: %p id: %d\n", 
                  newDevice, idValue, newDeviceId);
    mConnectionsByDeviceName.insertKeyAndValue(&newDevice, idValue);
@@ -446,8 +446,8 @@ MpInputDeviceDriver* MpInputDeviceManager::removeDevice(MpInputDeviceHandle devi
       mConnectionsByDeviceName.remove(deviceDriver);
       if (deviceIdInt)
       {
-         OsSysLog::add(FAC_MP, PRI_ERR,
-                       "MpInputDeviceManager::addDevice dev: %p int: %p id: %d\n", 
+         OsSysLog::add(FAC_MP, PRI_DEBUG,
+                       "MpInputDeviceManager::removeDevice dev: %p int: %p id: %d\n", 
                        deviceDriver, deviceIdInt, 
                        deviceIdInt->getValue());
          delete deviceIdInt;
@@ -583,7 +583,7 @@ OsStatus MpInputDeviceManager::pushFrame(MpInputDeviceHandle deviceId,
    RTL_EVENT("MpInputDeviceManager.pushFrame", deviceId);
 #endif
 
-   OsWriteLock lock((OsRWMutex&)mRwMutex);
+   OsWriteLock lock(mRwMutex);
 
    MpAudioInputConnection* connectionFound = NULL;
    UtlInt deviceKey(deviceId);
@@ -614,7 +614,7 @@ OsStatus MpInputDeviceManager::getFrame(MpInputDeviceHandle deviceId,
    RTL_EVENT("MpInputDeviceManager.getFrame", deviceId);
 #endif
 
-   OsWriteLock lock((OsRWMutex&)mRwMutex);
+   OsWriteLock lock(mRwMutex);
 
    MpAudioInputConnection* connectionFound = NULL;
    UtlInt deviceKey(deviceId);
@@ -643,7 +643,7 @@ OsStatus MpInputDeviceManager::getDeviceName(MpInputDeviceHandle deviceId,
 {
    OsStatus status = OS_NOT_FOUND;
 
-   OsReadLock lock((OsRWMutex&)mRwMutex);
+   OsReadLock lock(mRwMutex);
 
    MpAudioInputConnection* connectionFound = NULL;
    UtlInt deviceKey(deviceId);
@@ -665,18 +665,27 @@ OsStatus MpInputDeviceManager::getDeviceName(MpInputDeviceHandle deviceId,
 }
 
 
-MpInputDeviceHandle MpInputDeviceManager::getDeviceId(const char* deviceName) const
+OsStatus MpInputDeviceManager::getDeviceId(const UtlString& deviceName,
+                                           MpOutputDeviceHandle& deviceId) const
 {
    OsStatus status = OS_NOT_FOUND;
-
-
-   OsWriteLock lock((OsRWMutex&)mRwMutex);
-
    UtlString deviceString(deviceName);
-   UtlInt* deviceId
-      = (UtlInt*) mConnectionsByDeviceName.find(&deviceString);
 
-   return(deviceId ? deviceId->getValue() : -1);
+   OsReadLock lock(mRwMutex);
+
+   UtlInt* deviceKey = (UtlInt*) mConnectionsByDeviceName.find(&deviceString);
+
+   if (deviceKey != NULL)
+   {
+      deviceId = deviceKey->getValue();
+      status = OS_SUCCESS;
+   }
+   else
+   {
+      deviceId = -1;
+   }
+
+   return status;
 }
 
 
@@ -697,7 +706,7 @@ OsStatus MpInputDeviceManager::getTimeDerivatives(MpInputDeviceHandle deviceId,
 {
    OsStatus stat = OS_INVALID_ARGUMENT;
    unsigned nActualDerivs = 0;
-   OsReadLock lock((OsRWMutex&)mRwMutex);
+   OsReadLock lock(mRwMutex);
 
    MpAudioInputConnection* connectionFound = NULL;
    UtlInt deviceKey(deviceId);
@@ -720,7 +729,7 @@ OsStatus MpInputDeviceManager::getTimeDerivatives(MpInputDeviceHandle deviceId,
 
 /* ============================ INQUIRY =================================== */
 
-UtlBoolean MpInputDeviceManager::isDeviceEnabled(MpInputDeviceHandle deviceId)
+UtlBoolean MpInputDeviceManager::isDeviceEnabled(MpInputDeviceHandle deviceId) const
 {
    OsStatus status = OS_NOT_FOUND;
    UtlBoolean enabledState = FALSE;

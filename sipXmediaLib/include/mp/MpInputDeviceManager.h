@@ -249,14 +249,19 @@ public:
 
 
      /// @brief Get the device id for the given device driver name
-   MpInputDeviceHandle getDeviceId(const char* deviceName) const;
+   OsStatus getDeviceId(const UtlString& deviceName,
+                        MpOutputDeviceHandle& deviceId) const;
      /**<
      *  The MpInputDeviceManager maintains a device ID to device name
      *  mapping.  All device IDs and device names are unique within the
      *  scope of this MpInputDeviceManager.
      *
      *  @param deviceName - (in) The name of a device to get the ID of.
-     *  @returns A handle to reference the device by in other manager calls.
+     *  @param deviceId   - (out) A place to store the ID of the device.
+     *  @returns OS_SUCCESS and \c deviceId set with the ID of the 
+     *           device, if the device was found.
+     *  @returns OS_NOT_FOUND and \c deviceId set with -1 if the 
+     *           device could not be found.
      *
      *  Multi-thread safe.
      */
@@ -306,7 +311,7 @@ public:
 //@{
 
      /// @brief Inquire if device is enabled (e.g. generating media data).
-   UtlBoolean isDeviceEnabled(MpInputDeviceHandle deviceId);
+   UtlBoolean isDeviceEnabled(MpInputDeviceHandle deviceId) const;
      /**<
      *  Inquire if device is enabled (e.g. generating media data).
      *
@@ -322,7 +327,7 @@ protected:
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
 
-   OsRWMutex mRwMutex;
+   mutable OsRWMutex mRwMutex;
    MpInputDeviceHandle mLastDeviceId;
    unsigned mDefaultSamplesPerFrame;
    unsigned mDefaultSamplesPerSecond;
