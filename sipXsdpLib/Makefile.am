@@ -3,16 +3,16 @@
 include $(top_builddir)/config/sipXcommon.mak
 
 EXTRA_DIST = \
-    config/sipX-config.in \
-    config/sipX-buildstamp.cpp.in \
-    config/sipX-buildstamp.h.in \
-    config/sipXprojtop.mak \
-    config/sipXcommon.mak.in \
-    CONTRIBUTORS \
-    BUILDSTAMP \
-    SVN-VERSION \
-    sipxsdplib.spec \
-    config.properties.in 
+	config/sipX-config.in \
+	config/sipX-buildstamp.cpp.in \
+	config/sipX-buildstamp.h.in \
+	config/sipXprojtop.mak \
+	config/sipXcommon.mak.in \
+	CONTRIBUTORS \
+	BUILDSTAMP \
+	SVN-VERSION \
+	sipxsdplib.spec \
+	config.properties.in 
 
 unconditional_SUBDIRS = . include src 
 
