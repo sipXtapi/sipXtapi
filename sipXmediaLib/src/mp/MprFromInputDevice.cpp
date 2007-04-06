@@ -63,8 +63,8 @@ UtlBoolean MprFromInputDevice::doProcessFrame(MpBufPtr inBufs[],
                                               int samplesPerFrame,
                                               int samplesPerSecond)
 {
-    // Inline for review purposes.  Missing logic to react to frequent
-    // starvation.
+    // NOTE: Logic to react to frequent starvation is missing.
+
     UtlBoolean bufferOutput = FALSE;
     assert(mpInputDeviceManager);
 
@@ -99,7 +99,7 @@ UtlBoolean MprFromInputDevice::doProcessFrame(MpBufPtr inBufs[],
             mFrameTimeInitialized = TRUE;
         }
 
-        if(numFramesNotPlayed > 1)
+        if (numFramesNotPlayed > 1)
         {
             // TODO: now is a good time to adjust and get a newer
             // frame
@@ -107,7 +107,7 @@ UtlBoolean MprFromInputDevice::doProcessFrame(MpBufPtr inBufs[],
         }
     }
 
-    if(buffer.isValid())
+    if (buffer.isValid())
     {
         outBufs[0] = buffer;
         bufferOutput = TRUE;
