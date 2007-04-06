@@ -30,6 +30,7 @@
 // TYPEDEFS
 // FORWARD DECLARATIONS
 class MpOutputDeviceDriver;
+class MpAudioOutputConnection;
 class UtlString;
 class MpBufPtr;
 
@@ -106,7 +107,7 @@ public:
 //@{
 
      /// Add a new input device for use.
-   MpOutputDeviceHandle addDevice(MpOutputDeviceDriver& newDevice);
+   MpOutputDeviceHandle addDevice(MpOutputDeviceDriver  *newDevice);
      /**<
      *  Returns device ID which is unique within this device manager.
      *  This method locks the device manager for exclusive use.
@@ -158,6 +159,24 @@ public:
      */
 
 
+     /// Helper to enable device driver with default mixer buffer length.
+   OsStatus enableDevice(MpOutputDeviceHandle deviceId);
+     /**<
+     *  This method is equal to enableDevice() with mixerBufferLength parameter
+     *  equal to default mixer buffer length.
+     *
+     *  @param deviceId - (in) The device to enable.
+     *
+     *  @returns OS_NOT_FOUND if the device could not be found.
+     *  @returns OS_INVALID_STATE if device already enabled.
+     *  
+     *  @NOTE This SHOULD NOT be used to mute/unmute a device. Disabling and
+     *        enabling a device results in state and buffer queues being cleared.
+     *
+     *  Multi-thread safe.
+     */
+
+
      /// Helper to disable device driver.
    OsStatus disableDevice(MpOutputDeviceHandle deviceId);
      /**<
@@ -178,8 +197,7 @@ public:
      /// Method for sending frame of data to output device.
    OsStatus pushFrame(MpOutputDeviceHandle deviceId,
                       MpFrameTime frameTime,
-                      const MpBufPtr& frame,
-                      MpFrameTime& alreadyBuffered);
+                      const MpBufPtr& frame);
      /**<
      *  This method is used to push a frame to the MpOutputDeviceManager to be
      *  buffered for a short window of time and mixed with data from other
@@ -192,8 +210,6 @@ public:
      *  @param frameTime - (in) Time in milliseconds for beginning of frame
      *         relative to the MpOutputDeviceManager reference time.
      *  @param frame - (in) Frame of media to be sent to output device.
-     *  @param alreadyBuffered - (out) Length of data (in milliseconds) stored
-     *         in mixer buffer and not yet send to device driver.
      *
      *  @returns OS_NOT_FOUND if the device could not be found.
      *  @returns OS_LIMIT_REACHED if mixer buffer is full.
@@ -259,7 +275,7 @@ public:
 //@{
 
      /// Inquire if device is enabled (e.g. consuming media data).
-   UtlBoolean isDeviceEnabled(MpOutputDeviceHandle deviceId);
+   UtlBoolean isDeviceEnabled(MpOutputDeviceHandle deviceId) const;
      /**<
      *  Inquire if specified device is enabled (e.g. consuming media data).
      *
@@ -272,7 +288,7 @@ public:
 protected:
 
    MpAudioOutputConnection* findConnectionBlocking(MpOutputDeviceHandle deviceId,
-                                                   int tries);
+                                                   int tries=10) const;
    // Try 10 times (this is a blind guess).
    // Checking every 10ms over 100ms seems reasonable.
 
@@ -280,7 +296,9 @@ protected:
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
 
-  OsRWMutex mRwMutex;
+  mutable OsRWMutex mRwMutex;         ///< Mutex to serialize access to
+                      ///< connections. It is mutable, as we lock it in const
+                      ///< methods too.
   MpOutputDeviceHandle mLastDeviceId;
   unsigned mDefaultSamplesPerFrame;
   unsigned mDefaultSamplesPerSecond;

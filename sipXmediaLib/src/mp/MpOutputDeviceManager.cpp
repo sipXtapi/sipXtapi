@@ -1,0 +1,377 @@
+//  
+// Copyright (C) 2007 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
+//
+// Copyright (C) 2007 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// $$
+///////////////////////////////////////////////////////////////////////////////
+
+// Author: Alexander Chemeris <Alexander DOT Chemeris AT SIPez DOT com>
+
+// SYSTEM INCLUDES
+#include <assert.h>
+
+// APPLICATION INCLUDES
+#include <os/OsWriteLock.h>
+#include <os/OsReadLock.h>
+#include <os/OsDateTime.h>
+#include <os/OsSysLog.h>
+#include <os/OsTask.h>
+#include <mp/MpOutputDeviceManager.h>
+#include <mp/MpOutputDeviceDriver.h>
+#include <mp/MpAudioOutputConnection.h>
+#include <mp/MpBuf.h>
+#include <mp/MpAudioBuf.h>
+#include <utl/UtlInt.h>
+
+// EXTERNAL FUNCTIONS
+// EXTERNAL VARIABLES
+// CONSTANTS
+// STATIC VARIABLE INITIALIZATIONS
+// PRIVATE CLASSES
+
+/* //////////////////////////// PUBLIC //////////////////////////////////// */
+
+/* ============================ CREATORS ================================== */
+
+// Constructor
+MpOutputDeviceManager::MpOutputDeviceManager(unsigned defaultSamplesPerFrame, 
+                                             unsigned defaultSamplesPerSecond,
+                                             MpFrameTime defaultMixerBufferLength)
+: mRwMutex(OsRWMutex::Q_PRIORITY)
+, mLastDeviceId(0)
+, mDefaultSamplesPerFrame(defaultSamplesPerFrame)
+, mDefaultSamplesPerSecond(defaultSamplesPerSecond)
+, mDefaultBufferLength(defaultMixerBufferLength)
+{
+   assert(defaultSamplesPerFrame > 0);
+   assert(defaultSamplesPerSecond > 0);
+
+   OsDateTime::getCurTimeSinceBoot(mTimeZero);
+}
+
+
+// Destructor
+MpOutputDeviceManager::~MpOutputDeviceManager()
+{
+
+   // TODO:: Clean up all connections!
+
+}
+
+/* ============================ MANIPULATORS ============================== */
+int MpOutputDeviceManager::addDevice(MpOutputDeviceDriver *newDevice)
+{
+   OsWriteLock lock(mRwMutex);
+
+   // Get new device ID.
+   MpOutputDeviceHandle newDeviceId = ++mLastDeviceId;
+   // Be sure device ID do not wrap over MAX_INT.
+   assert(newDeviceId>mLastDeviceId);
+
+   // Create a connection to contain the device and its buffered frames
+   MpAudioOutputConnection* connection = 
+      new MpAudioOutputConnection(newDeviceId, newDevice);
+
+   // Map by device name string
+   UtlInt* idValue = new UtlInt(newDeviceId);
+   OsSysLog::add(FAC_MP, PRI_DEBUG,
+                 "MpOutputDeviceManager::addDevice dev: %p value: %p id: %d\n", 
+                 newDevice, idValue, newDeviceId);
+   mConnectionsByDeviceName.insertKeyAndValue(newDevice, idValue);
+
+   // Map by device ID
+   mConnectionsByDeviceId.insert(connection);
+
+   return newDeviceId;
+}
+
+
+MpOutputDeviceDriver* MpOutputDeviceManager::removeDevice(MpOutputDeviceHandle deviceId)
+{
+   MpAudioOutputConnection* connection = NULL;
+   MpOutputDeviceDriver* deviceDriver = NULL;
+
+   OsWriteLock lock(mRwMutex);
+
+   connection = findConnectionBlocking(deviceId);
+
+   if (connection != NULL && connection->getUseCount() == 0)
+   {
+      // Remove from the id indexed container
+      mConnectionsByDeviceId.remove(connection);
+
+      deviceDriver = connection->getDeviceDriver();
+      assert(deviceDriver != NULL);
+
+      // Get the int value mapped in the hash so we can clean up
+      UtlInt* deviceIdInt =
+         (UtlInt*) mConnectionsByDeviceName.findValue(deviceDriver);
+
+      // Remove from the name indexed hash
+      mConnectionsByDeviceName.remove(deviceDriver);
+      if (deviceIdInt)
+      {
+         delete deviceIdInt;
+         deviceIdInt = NULL;
+      }
+
+      delete connection;
+      connection = NULL;
+   }
+
+   // deviceDriver of NULL is returned if:
+   //    * The connection is not found.
+   //    * The connection is found, but the connection was already in use.
+   return deviceDriver;
+}
+
+
+OsStatus MpOutputDeviceManager::enableDevice(MpOutputDeviceHandle deviceId,
+                                             MpFrameTime mixerBufferLength)
+{
+   OsStatus status = OS_NOT_FOUND;
+   MpAudioOutputConnection* connection = NULL;
+   UtlInt deviceKey(deviceId);
+   MpOutputDeviceDriver* deviceDriver = NULL;
+
+   OsWriteLock lock(mRwMutex);
+
+   connection = (MpAudioOutputConnection*) mConnectionsByDeviceId.find(&deviceKey);
+
+   if (connection != NULL)
+   {
+       status = connection->enableDevice(mDefaultSamplesPerFrame, 
+                                         mDefaultSamplesPerSecond,
+                                         getCurrentFrameTime(),
+                                         mixerBufferLength
+                                         );
+   }
+   return status;
+}
+
+
+OsStatus MpOutputDeviceManager::enableDevice(MpOutputDeviceHandle deviceId)
+{
+   return enableDevice(deviceId, mDefaultBufferLength);
+}
+
+
+OsStatus MpOutputDeviceManager::disableDevice(MpOutputDeviceHandle deviceId)
+{
+   OsStatus status = OS_NOT_FOUND;
+   MpAudioOutputConnection* connection = NULL;
+   UtlInt deviceKey(deviceId);
+
+   {
+      // Lock is took to increase use count only.
+      OsWriteLock lock(mRwMutex);
+
+      connection = findConnectionBlocking(deviceId);
+
+      if (connection != NULL)
+      {
+         if (connection->getUseCount() > 0)
+         {
+            // If the connection is in use by someone else,
+            // then we indicate that the connection is busy.
+            status = OS_BUSY;
+         }
+         else
+         {
+            // It's ok to disable now,
+            // Set the connection in use.
+            status = OS_SUCCESS;
+            connection->increaseUseCount();
+         }
+      }
+   }
+
+   if (status == OS_SUCCESS)
+   {
+      status = 
+         connection->disableDevice();
+
+      {
+         // Lock is took to decrease use count only.
+         OsWriteLock lock(mRwMutex);
+         connection->decreaseUseCount();
+      }
+   }
+
+   return status;
+}
+
+
+OsStatus MpOutputDeviceManager::pushFrame(MpOutputDeviceHandle deviceId,
+                                          MpFrameTime frameTime,
+                                          const MpBufPtr& frame)
+{
+   OsStatus status = OS_NOT_FOUND;
+   MpAudioOutputConnection* connection = NULL;
+   UtlInt deviceKey(deviceId);
+
+   OsWriteLock lock(mRwMutex);
+
+   connection = (MpAudioOutputConnection*) mConnectionsByDeviceId.find(&deviceKey);
+
+   if (connection != NULL)
+   {
+      MpAudioBufPtr pAudioFrame(const_cast<MpBufPtr&>(frame));
+
+      status = 
+         connection->pushFrame(pAudioFrame->getSamplesNumber(),
+                               pAudioFrame->getSamples(),
+                               frameTime);
+   }
+
+   return status;
+}
+
+/* ============================ ACCESSORS ================================= */
+
+OsStatus MpOutputDeviceManager::getDeviceName(MpOutputDeviceHandle deviceId,
+                                              UtlString& deviceName) const
+{
+   OsStatus status = OS_NOT_FOUND;
+   MpAudioOutputConnection* connection = NULL;
+   UtlInt deviceKey(deviceId);
+   MpOutputDeviceDriver* deviceDriver = NULL;
+
+   OsReadLock lock(mRwMutex);
+
+   connection =
+      (MpAudioOutputConnection*) mConnectionsByDeviceId.find(&deviceKey);
+
+   if (connection)
+   {
+      deviceDriver = connection->getDeviceDriver();
+      assert(deviceDriver != NULL);
+      if (deviceDriver != NULL)
+      {
+         status = OS_SUCCESS;
+         deviceName = *deviceDriver;
+      }
+   }
+
+   return status;
+}
+
+
+OsStatus MpOutputDeviceManager::getDeviceId(const UtlString& deviceName,
+                                            MpOutputDeviceHandle &deviceId) const
+{
+   UtlString deviceString(deviceName);
+
+   OsReadLock lock(mRwMutex);
+
+   UtlInt* deviceKey = (UtlInt*) mConnectionsByDeviceName.find(&deviceString);
+
+   if (deviceKey != NULL)
+   {
+      deviceId = deviceKey->getValue();
+      return OS_SUCCESS;
+   }
+   else
+   {
+      deviceId = -1;
+      return OS_NOT_FOUND;
+   }
+}
+
+
+MpFrameTime MpOutputDeviceManager::getCurrentFrameTime() const
+{
+   OsTime now;
+   OsDateTime::getCurTimeSinceBoot(now);
+
+   now -= mTimeZero;
+
+   return(now.seconds() * 1000 + now.usecs() / 1000);
+}
+
+/* ============================ INQUIRY =================================== */
+
+UtlBoolean MpOutputDeviceManager::isDeviceEnabled(MpOutputDeviceHandle deviceId) const
+{
+   OsStatus status = OS_NOT_FOUND;
+   UtlBoolean enabledState = FALSE;
+   OsReadLock lock(mRwMutex);
+
+   MpAudioOutputConnection* connectionFound = NULL;
+   UtlInt deviceKey(deviceId);
+   connectionFound =
+      (MpAudioOutputConnection*) mConnectionsByDeviceId.find(&deviceKey);
+   MpOutputDeviceDriver* deviceDriver = NULL;
+
+   if (connectionFound)
+   {
+      deviceDriver = connectionFound->getDeviceDriver();
+      assert(deviceDriver);
+      if (deviceDriver)
+      {
+         enabledState = 
+            deviceDriver->isEnabled();
+      }
+   }
+   return(enabledState);
+}
+
+/* //////////////////////////// PROTECTED ///////////////////////////////// */
+
+MpAudioOutputConnection* MpOutputDeviceManager::findConnectionBlocking(
+                                                   MpOutputDeviceHandle deviceId,
+                                                   int tries) const
+{
+   UtlInt deviceKey(deviceId);
+   MpAudioOutputConnection* connection = NULL;
+
+   assert(connection != NULL);
+
+   for (int i = 0; i < tries; i--)
+   {
+      // Lookup connection on every iteration, as we may lose it when released
+      // lock.
+      connection =
+         (MpAudioOutputConnection*) mConnectionsByDeviceId.find(&deviceKey);
+
+      // If we couldn't find a connection, or we found the connection
+      // and it isn't in use, then no need to continue looping.
+      // The loop only continues if a connection was found and in use.
+      if ( (connection == NULL) ||
+           (connection->getUseCount() == 0))
+      {
+         break;
+      }
+
+      // If the device is found and in use, release the manager lock,
+      // wait a small bit, and get the lock again to give the manager a
+      // chance to finish what it was doing  with the connection.
+      mRwMutex.releaseWrite();
+      OsTask::delay(10);
+      mRwMutex.acquireWrite();
+   }
+
+   if (connection == NULL)
+   {
+      OsSysLog::add(FAC_MP, PRI_DEBUG,
+                     "MpOutputDeviceManager::findConnectionBlocking():"
+                     "could not find device with handle=%d\n", 
+                     deviceId);
+   } else if (connection->getUseCount() > 0)
+   {
+      OsSysLog::add(FAC_MP, PRI_ERR,
+                     "MpOutputDeviceManager::findConnectionBlocking():"
+                     "device with handle=%d in use even after %d tries.\n", 
+                     deviceId, tries);
+   }
+
+   return connection;
+}
+
+/* //////////////////////////// PRIVATE /////////////////////////////////// */
+
+/* ============================ FUNCTIONS ================================= */
+

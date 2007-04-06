@@ -2270,6 +2270,9 @@
 				RelativePath=".\src\mp\MpOutputDeviceDriver.cpp">
 			</File>
 			<File
+				RelativePath=".\src\mp\MpOutputDeviceManager.cpp">
+			</File>
+			<File
 				RelativePath="src\mp\MpPlayer.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
