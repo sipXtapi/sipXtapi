@@ -48,16 +48,16 @@ public:
 ///@name Creators
 //@{
 
-      /// Default constructor
-    MprFromInputDevice(const UtlString& rName, 
-                       int samplesPerFrame, 
-                       int samplesPerSec,
-                       MpInputDeviceManager* deviceManager,
-                       int deviceId);
+     /// Default constructor
+   MprFromInputDevice(const UtlString& rName, 
+                      int samplesPerFrame, 
+                      int samplesPerSec,
+                      MpInputDeviceManager* deviceManager,
+                      int deviceId);
 
-      /// Destructor
-    virtual
-    ~MprFromInputDevice();
+     /// Destructor
+   virtual
+   ~MprFromInputDevice();
 
 //@}
 
@@ -86,24 +86,24 @@ protected:
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
 
-    virtual UtlBoolean doProcessFrame(MpBufPtr inBufs[],
-                                      MpBufPtr outBufs[],
-                                      int inBufsSize,
-                                      int outBufsSize,
-                                      UtlBoolean isEnabled,
-                                      int samplesPerFrame=80,
-                                      int samplesPerSecond=8000);
+   virtual UtlBoolean doProcessFrame(MpBufPtr inBufs[],
+                                     MpBufPtr outBufs[],
+                                     int inBufsSize,
+                                     int outBufsSize,
+                                     UtlBoolean isEnabled,
+                                     int samplesPerFrame=80,
+                                     int samplesPerSecond=8000);
 
-    MpInputDeviceManager* mpInputDeviceManager;
-    UtlBoolean mFrameTimeInitialized;
-    int mPreviousFrameTime;
-    int mDeviceId;
+   MpInputDeviceManager* mpInputDeviceManager;
+   UtlBoolean mFrameTimeInitialized;
+   int mPreviousFrameTime;
+   int mDeviceId;
 
-      /// Copy constructor (not implemented for this class)
-    MprFromInputDevice(const MprFromInputDevice& rMprFromInputDevice);
+     /// Copy constructor (not implemented for this class)
+   MprFromInputDevice(const MprFromInputDevice& rMprFromInputDevice);
 
-      /// Assignment operator (not implemented for this class)
-    MprFromInputDevice& operator=(const MprFromInputDevice& rhs);
+     /// Assignment operator (not implemented for this class)
+   MprFromInputDevice& operator=(const MprFromInputDevice& rhs);
 
 };
 

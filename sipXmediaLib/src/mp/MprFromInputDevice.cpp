@@ -29,15 +29,19 @@
 
 // Constructor
 MprFromInputDevice::MprFromInputDevice(const UtlString& rName, 
-                                       int samplesPerFrame, 
-                                       int samplesPerSec,
-                                       MpInputDeviceManager* deviceManager,
-                                       int deviceId) :
-MpAudioResource(rName, 0, 0, /* inputs */ 0, 1, /* outputs */ samplesPerFrame, samplesPerSec)
+                                      int samplesPerFrame, 
+                                      int samplesPerSec,
+                                      MpInputDeviceManager* deviceManager,
+                                      int deviceId) :
+: MpAudioResource(rName,
+                  1, 1, /* inputs */
+                  0, 0, /* outputs */
+                  samplesPerFrame, samplesPerSec)
+, mpOutputDeviceManager(deviceManager)
+, mFrameTimeInitialized(FALSE)
+, mPreviousFrameTime(0)
+, mDeviceId(deviceId)
 {
-    mpInputDeviceManager = deviceManager;
-    mDeviceId = deviceId;
-    mFrameTimeInitialized = FALSE;
 }
 
 // Destructor
@@ -56,64 +60,63 @@ MprFromInputDevice::~MprFromInputDevice()
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 UtlBoolean MprFromInputDevice::doProcessFrame(MpBufPtr inBufs[],
-                                              MpBufPtr outBufs[],
-                                              int inBufsSize,
-                                              int outBufsSize,
-                                              UtlBoolean isEnabled,
-                                              int samplesPerFrame,
-                                              int samplesPerSecond)
+                                             MpBufPtr outBufs[],
+                                             int inBufsSize,
+                                             int outBufsSize,
+                                             UtlBoolean isEnabled,
+                                             int samplesPerFrame,
+                                             int samplesPerSecond)
 {
-    // NOTE: Logic to react to frequent starvation is missing.
+   // NOTE: Logic to react to frequent starvation is missing.
 
-    UtlBoolean bufferOutput = FALSE;
-    assert(mpInputDeviceManager);
+   UtlBoolean bufferOutput = FALSE;
+   assert(mpInputDeviceManager);
 
-    // Milliseconds per frame:
-    int frameTimeInterval = samplesPerFrame * 1000 / samplesPerSecond;
+   // Milliseconds per frame:
+   int frameTimeInterval = samplesPerFrame * 1000 / samplesPerSecond;
 
-    if (!mFrameTimeInitialized)
-    {
-        // Start with a frame behind.  Possible need smarter
-        // decision for starting.
-        mPreviousFrameTime = mpInputDeviceManager->getCurrentFrameTime();
-        mPreviousFrameTime -= (2 * frameTimeInterval);
-    }
+   if (!mFrameTimeInitialized)
+   {
+      // Start with a frame behind.  Possible need smarter
+      // decision for starting.
+      mPreviousFrameTime = mpInputDeviceManager->getCurrentFrameTime();
+      mPreviousFrameTime -= (2 * frameTimeInterval);
+   }
 
-    mPreviousFrameTime += frameTimeInterval;
+   mPreviousFrameTime += frameTimeInterval;
 
-    MpBufPtr buffer;
-    unsigned int numFramesNotPlayed;
-    unsigned int numFramedBufferedBehind;
-    OsStatus getResult =
-    mpInputDeviceManager->getFrame(mDeviceId,
-                                   mPreviousFrameTime,
-                                   buffer,
-                                   numFramesNotPlayed,
-                                   numFramedBufferedBehind);
+   MpBufPtr buffer;
+   unsigned int numFramesNotPlayed;
+   unsigned int numFramedBufferedBehind;
+   OsStatus getResult = mpInputDeviceManager->getFrame(mDeviceId,
+                                                       mPreviousFrameTime,
+                                                       buffer,
+                                                       numFramesNotPlayed,
+                                                       numFramedBufferedBehind);
 
 
-    if (!mFrameTimeInitialized)
-    {
-        if (getResult == OS_SUCCESS)
-        {
-            mFrameTimeInitialized = TRUE;
-        }
+   if (!mFrameTimeInitialized)
+   {
+      if (getResult == OS_SUCCESS)
+      {
+         mFrameTimeInitialized = TRUE;
+      }
 
-        if (numFramesNotPlayed > 1)
-        {
-            // TODO: now is a good time to adjust and get a newer
-            // frame
-            // could increment mPreviousFrameTime and getFrame again
-        }
-    }
+      if (numFramesNotPlayed > 1)
+      {
+         // TODO: now is a good time to adjust and get a newer
+         // frame
+         // could increment mPreviousFrameTime and getFrame again
+      }
+   }
 
-    if (buffer.isValid())
-    {
-        outBufs[0] = buffer;
-        bufferOutput = TRUE;
-    }
+   if (buffer.isValid())
+   {
+      outBufs[0] = buffer;
+      bufferOutput = TRUE;
+   }
 
-    return(bufferOutput);
+   return(bufferOutput);
 }
 
 /* ============================ FUNCTIONS ================================= */
