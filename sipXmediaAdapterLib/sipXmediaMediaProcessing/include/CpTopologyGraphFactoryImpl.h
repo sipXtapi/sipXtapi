@@ -113,6 +113,10 @@ public:
      */
     static MpResourceFactory* buildDefaultResourceFactory();
 
+    /** Build a default initial resource topology
+     */
+    static MpResourceTopology* buildDefaultInitialResourceTopology();
+
 /* ============================ INQUIRY =================================== */
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */

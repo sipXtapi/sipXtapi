@@ -16,6 +16,7 @@
 #include <mp/MpInputDeviceManager.h>
 #include <mp/MpMisc.h>
 #include <mp/MpResourceFactory.h>
+#include <mp/MpResourceTopology.h>
 #include <mp/MprFromInputDeviceConstructor.h>
 #include <mp/MprToOutputDeviceConstructor.h>
 #include <mp/MprToneGenConstructor.h>
@@ -62,8 +63,15 @@ extern "C" CpMediaInterfaceFactory* sipXmediaFactoryFactory(OsConfigDb* pConfigD
 CpTopologyGraphFactoryImpl::CpTopologyGraphFactoryImpl(OsConfigDb* pConfigDb) :
 sipXmediaFactoryImpl(pConfigDb)
 {    
-    mpInitialResourceTopology = NULL;
-    mpResourceFactory = NULL;
+    mpInitialResourceTopology = buildDefaultInitialResourceTopology();
+    mpResourceFactory = buildDefaultResourceFactory();
+    int firstInvalidResourceIndex;
+    OsStatus result = 
+        mpInitialResourceTopology->validateResourceTypes(*mpResourceFactory, 
+                                                         firstInvalidResourceIndex);
+    assert(result == OS_SUCCESS);
+    assert(firstInvalidResourceIndex == -1);
+
     mpConnectionResourceTopology = NULL;
 
     assert(MpMisc.RawAudioPool);
@@ -72,8 +80,6 @@ sipXmediaFactoryImpl(pConfigDb)
                                  8000, // samples per second
                                  4, // number of buffered frames saved
                                  *MpMisc.RawAudioPool);
-
-    mpResourceFactory = buildDefaultResourceFactory();
 }
 
 
@@ -143,6 +149,77 @@ MpResourceFactory* CpTopologyGraphFactoryImpl::buildDefaultResourceFactory()
     resourceFactory->addConstructor(*(new MprBridgeConstructor()));
 
     return(resourceFactory);
+}
+
+MpResourceTopology* CpTopologyGraphFactoryImpl::buildDefaultInitialResourceTopology()
+{
+    MpResourceTopology* resourceTopology = new MpResourceTopology();
+
+    // For now we just hardcode construct a few resources to get the framework
+    // working
+    OsStatus result;
+    result = resourceTopology->addResource(DEFAULT_FROM_FILE_RESOURCE_TYPE, 
+                                           DEFAULT_FROM_FILE_RESOURCE_NAME);
+    assert(result == OS_SUCCESS);
+
+    result = resourceTopology->addResource(DEFAULT_FROM_INPUT_DEVICE_RESOURCE_TYPE, 
+                                           DEFAULT_FROM_INPUT_DEVICE_RESOURCE_NAME);
+    assert(result == OS_SUCCESS);
+
+    result = resourceTopology->addResource(DEFAULT_BRIDGE_RESOURCE_TYPE, 
+                                           DEFAULT_BRIDGE_RESOURCE_NAME);
+    assert(result == OS_SUCCESS);
+
+    result = resourceTopology->addResource(DEFAULT_TONE_GEN_RESOURCE_TYPE, 
+                                           DEFAULT_TONE_GEN_RESOURCE_NAME);
+    assert(result == OS_SUCCESS);
+
+    result = resourceTopology->addResource(DEFAULT_TO_OUTPUT_DEVICE_RESOURCE_TYPE, 
+                                           DEFAULT_TO_OUTPUT_DEVICE_RESOURCE_NAME);
+    assert(result == OS_SUCCESS);
+
+    result = resourceTopology->addResource(DEFAULT_NULL_RESOURCE_TYPE, 
+                                           DEFAULT_NULL_RESOURCE_NAME);
+    assert(result == OS_SUCCESS);
+
+
+
+    // Link fromFile to bridge
+    result = resourceTopology->addConnection(DEFAULT_FROM_FILE_RESOURCE_NAME, 0, DEFAULT_BRIDGE_RESOURCE_NAME, 0);
+    assert(result == OS_SUCCESS);
+
+    // Link mic to bridge
+    result = resourceTopology->addConnection(DEFAULT_FROM_INPUT_DEVICE_RESOURCE_NAME, 0, DEFAULT_BRIDGE_RESOURCE_NAME, 1);
+    assert(result == OS_SUCCESS);
+
+    // TODO: add a mixer for locally generated audio (e.g. tones, fromFile, etc)
+    result = resourceTopology->addConnection(DEFAULT_TONE_GEN_RESOURCE_NAME, 0, DEFAULT_BRIDGE_RESOURCE_NAME, 2);
+    assert(result == OS_SUCCESS);
+
+    // Link bridge to speaker
+    result = resourceTopology->addConnection(DEFAULT_BRIDGE_RESOURCE_NAME, 1, DEFAULT_TO_OUTPUT_DEVICE_RESOURCE_NAME, 0);
+    assert(result == OS_SUCCESS);
+
+    // Fill up the unpaired bridge outputs as it currently barfs if
+    // it does not have the same number of inputs and outputs.
+    result = resourceTopology->addConnection(DEFAULT_BRIDGE_RESOURCE_NAME, 0, DEFAULT_NULL_RESOURCE_NAME, 0);
+    assert(result == OS_SUCCESS);
+
+    result = resourceTopology->addConnection(DEFAULT_BRIDGE_RESOURCE_NAME, 2, DEFAULT_NULL_RESOURCE_NAME, 2);
+    assert(result == OS_SUCCESS);
+
+    // Validate the topology to make sure all the resources are connected
+    // and that there are no dangling resources
+    UtlString firstUnconnectedResourceName;
+    UtlString firstDanglingResourceName;
+    result = resourceTopology->validateConnections(firstUnconnectedResourceName,
+                    firstDanglingResourceName, 
+                    FALSE); // disallow references to resources not in this topology
+    assert(result == OS_SUCCESS);
+    assert(firstUnconnectedResourceName.isNull());
+    assert(firstDanglingResourceName.isNull());
+
+    return(resourceTopology);
 }
 
 /* ============================ ACCESSORS ================================= */

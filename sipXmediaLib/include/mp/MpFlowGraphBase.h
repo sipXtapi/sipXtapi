@@ -305,7 +305,7 @@ public:
 
      /// @brief Sets <i>rpResource</i> to point to the resource that corresponds
      /// to <i>name</i> or to NULL if no matching resource is found.
-   OsStatus lookupResource(UtlString name,
+   OsStatus lookupResource(const UtlString& name,
                            MpResource*& rpResource);
      /**<
      *  @returns <b>OS_SUCCESS</b> - success

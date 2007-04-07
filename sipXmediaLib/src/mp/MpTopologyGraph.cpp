@@ -15,10 +15,11 @@
 #include <mp/MpTopologyGraph.h>
 #include <mp/MpMediaTask.h>
 #include <mp/MpResourceFactory.h>
+#include <mp/MpResourceTopology.h>
 
 
 //  REMOVE THESE WHEN MpResourceFactory and MpResourceTopology are implemented
-//#include <mp/MprToneGen.h>
+#include <mp/MprToneGen.h>
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -39,89 +40,65 @@ MpFlowGraphBase(samplesPerFrame, samplesPerSec)
     printf("constructing MpTopologyGraph\n");
     mpResourceFactory = &resourceFactory;
 
-    // TODO: This needs to be removed and resources listed in the topology
-    // need to be constructed using the resource factory.
+    // Add the resources
+    int resourceIndex = 0;
+    MpResource* resource = NULL;
+    UtlString resourceType;
+    UtlString resourceName;
+    OsStatus result;
+    while(initialResourceTopology.getResource(resourceIndex, resourceType, resourceName) == OS_SUCCESS)
+    {
+        resource = resourceFactory.newResource(resourceType, resourceName);
+        assert(resource);
+        if(resource)
+        {
+            result = addResource(*resource);
+            assert(result == OS_SUCCESS);
+        }
+        resourceIndex++;
+    }
 
-    // For now we just hardcode construct a few resources to get the framework
-    // working
-    MpResource* fromFile = 
-        resourceFactory.newResource(DEFAULT_FROM_FILE_RESOURCE_TYPE, "FromFile1");
-    assert(fromFile);
-    OsStatus result = addResource(*fromFile);
-    assert(result == OS_SUCCESS);
-    printf("fromFile: %p\n", fromFile);
+    // Link the resources
+    int connectionIndex = 0;
+    UtlString outputResourceName;
+    UtlString inputResourceName;
+    int outputResourcePortIndex;
+    int inputResourcePortIndex;
+    MpResource* outputResource = NULL;
+    MpResource* inputResource = NULL;
+    while(initialResourceTopology.getConnection(connectionIndex, outputResourceName, outputResourcePortIndex, inputResourceName, inputResourcePortIndex) == OS_SUCCESS)
+    {
+        result = lookupResource(outputResourceName,
+                                outputResource);
+        assert(result == OS_SUCCESS);
+        result = lookupResource(inputResourceName,
+                                inputResource);
+        assert(result == OS_SUCCESS);
+        assert(outputResource);
+        assert(inputResource);
 
-    MpResource* fromMic =
-        resourceFactory.newResource(DEFAULT_FROM_INPUT_DEVICE_RESOURCE_TYPE, "FromMic1");
-    assert(fromMic);
-    result = addResource(*fromMic);
-    assert(result == OS_SUCCESS);
-    printf("fromMic: %p\n", fromMic);
-
-    MpResource* bridge =
-        resourceFactory.newResource(DEFAULT_BRIDGE_RESOURCE_TYPE, "Bridge1");
-    assert(bridge);
-    result = addResource(*bridge);
-    assert(result == OS_SUCCESS);
-    printf("bridge: %p\n", bridge);
-
-    // Link fromFile to bridge
-    result = addLink(*fromFile, 0, *bridge, 0);
-    assert(result == OS_SUCCESS);
-
-    // Link mic to bridge
-    result = addLink(*fromMic, 0, *bridge, 1);
-    assert(result == OS_SUCCESS);
-
-    // Create a tone generator
-    MpResource* toneGen =
-        resourceFactory.newResource(DEFAULT_TONE_GEN_RESOURCE_TYPE, "ToneGen1");
-    assert(toneGen);
-    result = addResource(*toneGen);
-    assert(result == OS_SUCCESS);
-    printf("toneGen: %p\n", toneGen);
-
-    // TODO: add a mixer for locally generated audio (e.g. tones, fromFile, etc)
-    result = addLink(*toneGen, 0, *bridge, 2);
-    assert(result == OS_SUCCESS);
-
-    // TODO: need a recorder to be added to bridge output port 0
-
-    MpResource* toSpeaker =
-        resourceFactory.newResource(DEFAULT_TO_OUTPUT_DEVICE_RESOURCE_TYPE, "ToSpeaker1");
-    assert(toSpeaker);
-    result = addResource(*toSpeaker);
-    assert(result == OS_SUCCESS);
-    printf("toSpeaker: %p\n", toSpeaker);
-
-    // Link bridge to speaker
-    result = addLink(*bridge, 1, *toSpeaker, 0);
-    assert(result == OS_SUCCESS);
-
-    MpResource* nullResource = 
-        resourceFactory.newResource(DEFAULT_NULL_RESOURCE_TYPE, "Null1");
-    assert(nullResource);
-    result = addResource(*nullResource);
-    assert(result == OS_SUCCESS);
-
-    // Fill up the unpaired bridge outputs as it currently barfs if
-    // it does not have the same number of inputs and outputs.
-    result = addLink(*bridge, 0, *nullResource, 0);
-    assert(result == OS_SUCCESS);
-    result = addLink(*bridge, 2, *nullResource, 2);
-    assert(result == OS_SUCCESS);
+        if(outputResource && inputResource)
+        {
+            result = addLink(*outputResource, outputResourcePortIndex, *inputResource, inputResourcePortIndex);
+            assert(result == OS_SUCCESS);
+        }
+        connectionIndex++;
+    }
 
     // Enable the flowgraph and all its resources
     result = enable();
     assert(result == OS_SUCCESS);
 
-    // Remove when topology is used to construct and add resources
-    assert(toneGen->isEnabled());
-    assert(bridge->isEnabled());
-    assert(toSpeaker->isEnabled());
-
-    // DO NOT CHECK IN
-    //((MprToneGen*)toneGen)->startTone('2');
+#if 0
+    // DO NOT CHECK IN for test purposes until resource operation messages
+    // are completed
+    MprToneGen* toneGen = NULL;
+    result = lookupResource("ToneGen1",
+                            (MpResource*&)toneGen);
+    assert(result == OS_SUCCESS);
+    assert(toneGen);
+    toneGen->startTone('2');
+#endif
 
     // ask the media processing task to manage the new flowgraph
     MpMediaTask* mediaTask = MpMediaTask::getMediaTask(0);

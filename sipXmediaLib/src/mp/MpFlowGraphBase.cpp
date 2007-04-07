@@ -619,8 +619,8 @@ int MpFlowGraphBase::getState(void) const
 // Sets rpResource to point to the resource that corresponds to 
 // name  or to NULL if no matching resource is found.
 // Returns OS_SUCCESS if there is a match, otherwise returns OS_NOT_FOUND.
-OsStatus MpFlowGraphBase::lookupResource(UtlString name,
-                                     MpResource*& rpResource)
+OsStatus MpFlowGraphBase::lookupResource(const UtlString& name,
+                                         MpResource*& rpResource)
 {
    OsReadLock          lock(mRWMutex);
    UtlString key(name);
