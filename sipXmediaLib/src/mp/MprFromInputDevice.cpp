@@ -32,12 +32,12 @@ MprFromInputDevice::MprFromInputDevice(const UtlString& rName,
                                       int samplesPerFrame, 
                                       int samplesPerSec,
                                       MpInputDeviceManager* deviceManager,
-                                      int deviceId) :
+                                      int deviceId)
 : MpAudioResource(rName,
                   1, 1, /* inputs */
                   0, 0, /* outputs */
                   samplesPerFrame, samplesPerSec)
-, mpOutputDeviceManager(deviceManager)
+, mpInputDeviceManager(deviceManager)
 , mFrameTimeInitialized(FALSE)
 , mPreviousFrameTime(0)
 , mDeviceId(deviceId)
