@@ -383,7 +383,15 @@ SOURCE=.\src\mp\MpResource.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\mp\MpResourceFactory.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\mp\MpResourceSortAlg.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\mp\MpResourceTopology.cpp
 # End Source File
 # Begin Source File
 
@@ -472,10 +480,6 @@ SOURCE=.\src\mp\MpStreamPlaylistPlayer.cpp
 # Begin Source File
 
 SOURCE=.\src\mp\MpStreamQueuePlayer.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\src\mp\MpTopologyFactory.cpp
 # End Source File
 # Begin Source File
 
@@ -1048,6 +1052,10 @@ SOURCE=.\include\mp\MpResourceFactory.h
 # Begin Source File
 
 SOURCE=.\include\mp\MpResourceSortAlg.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MpResourceTopology.h
 # End Source File
 # Begin Source File
 

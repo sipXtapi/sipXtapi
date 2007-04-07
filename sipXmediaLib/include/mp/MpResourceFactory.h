@@ -73,6 +73,8 @@ public:
 
 /* ============================ INQUIRY =================================== */
 
+    UtlBoolean constructorExists(const UtlString& resourceType);
+
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 

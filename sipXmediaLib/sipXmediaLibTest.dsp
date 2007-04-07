@@ -117,6 +117,10 @@ SOURCE=.\src\test\mp\MpResourceTest.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\test\mp\MpResourceTopologyTest.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\test\mp\MprFromMicTest.cpp
 # End Source File
 # Begin Source File

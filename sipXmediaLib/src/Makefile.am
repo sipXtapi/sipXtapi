@@ -111,7 +111,9 @@ libsipXmedia_la_SOURCES =  \
     mp/MprEchoSuppress.cpp \
     mp/MprEncode.cpp \
     mp/MpResource.cpp \
+    mp/MpResourceFactory.cpp \
     mp/MpResourceSortAlg.cpp \
+    mp/MpResourceTopology.cpp \
     mp/MpRtpBuf.cpp \
     mp/MpUdpBuf.cpp \
     mp/MprFromFile.cpp \
@@ -132,7 +134,6 @@ libsipXmedia_la_SOURCES =  \
     mp/MpStreamPlayer.cpp \
     mp/MpStreamPlaylistPlayer.cpp \
     mp/MpStreamQueuePlayer.cpp \
-    mp/MpTopologyFactory.cpp \
     mp/MpTopologyGraph.cpp \
     mp/NetInTask.cpp \
     mp/resamplingby2.cpp \

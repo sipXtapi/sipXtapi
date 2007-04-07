@@ -69,6 +69,14 @@ MpResource* MpResourceFactory::newResource(const UtlString& resourceType,
 
 /* ============================ INQUIRY =================================== */
 
+UtlBoolean MpResourceFactory::constructorExists(const UtlString& resourceType)
+{
+    MpResourceConstructor* constructor = 
+        (MpResourceConstructor*) mConstructors.find(&resourceType);
+
+    return(constructor != NULL);
+}
+
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */

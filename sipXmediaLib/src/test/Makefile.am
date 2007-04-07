@@ -22,6 +22,7 @@ testsuite_SOURCES = \
     mp/MpMediaTaskTest.cpp \
     mp/MpFlowGraphTest.cpp \
     mp/MpResourceTest.cpp \
+    mp/MpResourceTopologyTest.cpp \
     mp/MpTestResource.h \
     mp/MpTestResource.cpp \
     mp/MpGenericResourceTest.h \
