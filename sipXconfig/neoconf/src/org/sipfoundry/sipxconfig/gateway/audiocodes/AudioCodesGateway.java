@@ -58,6 +58,13 @@ public abstract class AudioCodesGateway extends Gateway {
                 getSettingsEvaluator());
     }
 
+    @Override
+    public void generateProfiles() {
+        getProfileGenerator().copy("audiocodes/MP11x-02-1-FXS_16KHZ.dat", "MP11x-02-1-FXS_16KHZ.dat");
+        getProfileGenerator().copy("audiocodes/usa_tones_12.dat", "usa_tones_12.dat");
+        super.generateProfiles();
+    }
+
     static class AudioCodesContext extends ProfileContext {
         public AudioCodesContext(BeanWithSettings device, String profileTemplate) {
             super(device, profileTemplate);

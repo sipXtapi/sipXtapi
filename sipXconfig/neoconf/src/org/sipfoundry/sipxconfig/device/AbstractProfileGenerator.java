@@ -33,7 +33,7 @@ public abstract class AbstractProfileGenerator implements ProfileGenerator {
 
         generate(context, null, outputFileName);
     }
-    
+
     public void setTemplateRoot(String templateRoot) {
         m_templateRoot = templateRoot;
     }
@@ -43,15 +43,17 @@ public abstract class AbstractProfileGenerator implements ProfileGenerator {
             return;
         }
         OutputStream output = m_profileLocation.getOutput(outputFileName);
-        FileInputStream input;
+        FileInputStream input = null;
         try {
-            input = new FileInputStream(new File(m_templateRoot + "/" + inputFileName));
+            File sourceFile = new File(m_templateRoot, inputFileName);
+            input = new FileInputStream(sourceFile);
             IOUtils.copy(input, output);
         } catch (IOException e) {
             throw new RuntimeException(e);
+        } finally {
+            IOUtils.closeQuietly(input);
+            IOUtils.closeQuietly(output);
         }
-        IOUtils.closeQuietly(input);
-        IOUtils.closeQuietly(output);
     }
 
     public void generate(ProfileContext context, ProfileFilter filter, String outputFileName) {

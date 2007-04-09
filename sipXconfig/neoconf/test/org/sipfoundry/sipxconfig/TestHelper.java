@@ -177,6 +177,7 @@ public final class TestHelper {
         VelocityProfileGenerator profileGenerator = new VelocityProfileGenerator();
         profileGenerator.setVelocityEngine(getVelocityEngine());
         profileGenerator.setProfileLocation(location);
+        profileGenerator.setTemplateRoot(getSysDirProperties().getProperty("sysdir.etc"));
         device.setProfileGenerator(profileGenerator);
 
         return location;
