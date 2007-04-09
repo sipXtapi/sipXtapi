@@ -15,7 +15,6 @@
 
 // APPLICATION INCLUDES
 #include "mp/MpdSipxILBC.h"
-#include "mp/MpAudioConnection.h"
 #include "mp/JB/JB_API.h"
 extern "C" {
 #include <iLBC_define.h>

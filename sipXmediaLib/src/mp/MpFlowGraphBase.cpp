@@ -1,8 +1,8 @@
 //  
-// Copyright (C) 2006 SIPez LLC. 
+// Copyright (C) 2006-2007 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -17,16 +17,17 @@
 
 
 // APPLICATION INCLUDES
-#include "os/OsDefs.h"
-#include "os/OsTask.h"
-#include "os/OsReadLock.h"
-#include "os/OsWriteLock.h"
-#include "mp/MpFlowGraphBase.h"
-#include "mp/MpFlowGraphMsg.h"
-#include "mp/MpResourceSortAlg.h"
-#include "mp/MpMediaTask.h"
+#include <os/OsDefs.h>
+#include <os/OsTask.h>
+#include <os/OsReadLock.h>
+#include <os/OsWriteLock.h>
+#include <os/OsEvent.h>
+#include <mp/MpFlowGraphBase.h>
+#include <mp/MpFlowGraphMsg.h>
+#include <mp/MpResourceSortAlg.h>
+#include <mp/MpMediaTask.h>
 
-#include "mp/MpMisc.h"
+#include <mp/MpMisc.h>
 
 #ifdef RTL_ENABLED
 #   include <rtl_macro.h>
@@ -541,6 +542,24 @@ OsStatus MpFlowGraphBase::stop(void)
    MpFlowGraphMsg msg(MpFlowGraphMsg::FLOWGRAPH_STOP);
 
    return postMessage(msg);
+}
+
+void MpFlowGraphBase::synchronize(const char* tag, int val1)
+{
+   OsTask* val2 = OsTask::getCurrentTask();
+   if (val2 != MpMediaTask::getMediaTask(0)) {
+      OsEvent event;
+      MpFlowGraphMsg msg(MpFlowGraphMsg::FLOWGRAPH_SYNCHRONIZE,
+         NULL, NULL, (void*) tag, val1, (int) val2);
+      OsStatus  res;
+
+      msg.setPtr1(&event);
+      res = postMessage(msg);
+      // if (NULL == tag) osPrintf("MpFlowGraphBase::synchronize()\n");
+      event.wait();
+   } else {
+      osPrintf("Note: synchronize called from within Media Task\n");
+   }
 }
 
 /* ============================ ACCESSORS ================================= */

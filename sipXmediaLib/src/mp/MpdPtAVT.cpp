@@ -1,8 +1,8 @@
 //  
-// Copyright (C) 2006 SIPez LLC. 
+// Copyright (C) 2006-2007 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -17,7 +17,6 @@
 #include <sys/types.h>
 #include <netinet/in.h>
 #endif /* __pingtel_on_posix__ ] */
-#include "mp/MpAudioConnection.h"
 #include "mp/MpdPtAVT.h"
 #include "mp/MprDejitter.h"
 #include "mp/NetInTask.h"
@@ -42,7 +41,6 @@ const MpCodecInfo MpdPtAVT::smCodecInfo(
 
 MpdPtAVT::MpdPtAVT(int payloadType)
    : MpDecoderBase(payloadType, &smCodecInfo),
-     mpJBState(NULL),
      mCurrentToneKey(-1),
      mPrevToneSignature(0),
      mCurrentToneSignature(0),
@@ -59,29 +57,10 @@ MpdPtAVT::~MpdPtAVT()
    freeDecode();
 }
 
-OsStatus MpdPtAVT::initDecode(MpAudioConnection* pConnection)
+OsStatus MpdPtAVT::initDecode()
 {
    int res = 0;
    debugCtr = 0;
-
-   if (NULL != mpJBState) {
-      return OS_SUCCESS;  // we already did this, no need to do it again.
-   }
-
-   //Get JB pointer
-   mpJBState = pConnection->getJBinst(TRUE);
-
-   if (NULL != mpJBState) {
-      int payloadType = getPayloadType();
-
-      res = JB_initCodepoint(mpJBState,
-         (char*) ("audio/telephone-event"), 8000, payloadType);
-
-      OsSysLog::add(FAC_MP, PRI_DEBUG, "%sMpdAVT: registered with JB (pt=%d), res=%d\n",
-         ((0==res) ? "" : " ***** "), payloadType, res);
-   } else {
-      OsSysLog::add(FAC_MP, PRI_DEBUG, "MpdAVT: NOT registering with JB\n");
-   }
 
    return (0 == res) ? OS_SUCCESS : OS_UNSPECIFIED;
 }

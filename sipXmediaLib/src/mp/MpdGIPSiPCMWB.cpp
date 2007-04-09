@@ -15,7 +15,6 @@
 
 #include "assert.h"
 // APPLICATION INCLUDES
-#include "mp/MpAudioConnection.h"
 #include "mp/MpdGIPSiPCMWB.h"
 #include "mp/GIPS/GIPS_API.h"
 const MpCodecInfo MpdGIPSiPCMWB::smCodecInfo(

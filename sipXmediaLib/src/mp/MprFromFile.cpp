@@ -1,8 +1,8 @@
 //  
-// Copyright (C) 2005-2006 SIPez LLC. 
+// Copyright (C) 2005-2007 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -32,6 +32,7 @@
 #include "mp/MpAudioUtils.h"
 #include "mp/MpAudioWaveFileRead.h"
 #include "mp/mpau.h"
+// TODO remove reference to MpCallFlowGraph
 #include "mp/MpCallFlowGraph.h"
 #include "os/OsSysLog.h"
 #include "os/OsProtectEventMgr.h"
@@ -562,8 +563,12 @@ UtlBoolean MprFromFile::doProcessFrame(MpBufPtr inBufs[],
              if (mFileBufferIndex >= bufferLength) {
                 bytesLeft = bytesPerFrame - totalBytesRead;
                 memset(&outbuf[(totalBytesRead/sizeof(MpAudioSample))], 0, bytesLeft);
+
+                // TODO: remove reference to MpCallFlowGraph
+                // MprFromFile::stopFile(mName, getFloGraph()->getMsgQ());
                 MpCallFlowGraph* mpMyFG = (MpCallFlowGraph*) getFlowGraph();
                 mpMyFG->stopFile(0);
+
                 disable();
              }
           }

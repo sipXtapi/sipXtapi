@@ -1,8 +1,8 @@
 //  
-// Copyright (C) 2006 SIPez LLC. 
+// Copyright (C) 2006-2007 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -68,7 +68,6 @@ GIPS_Word16 G729FIX_GIPS_decode(G729_decinst_t *G729dec_inst,
 // APPLICATION INCLUDES
 #include "mp/MpdGIPSG729ab.h"
 #include "mp/MprDejitter.h"
-#include "mp/MpAudioConnection.h"
 #include "mp/GIPS/G729Interface.h"
 #include "mp/GIPS/GIPS_API.h"
 
@@ -115,23 +114,10 @@ MpdGIPSG729ab::~MpdGIPSG729ab()
    freeDecode();
 }
 
-OsStatus MpdGIPSG729ab::initDecode(MpAudioConnection* pConnection)
+OsStatus MpdGIPSG729ab::initDecode()
 {
-   int res;
+   int res = 0;
 
-   //Get NetEq pointer
-   mpJBState = pConnection->getJBinst();
-
-   // Set the payload number for NetEq
-   res = NETEQ_GIPS_10MS16B_initCodepoint(mpJBState,
-                                          "G729", 8000, getPayloadType());
-
-   //Attach the decoder to NetEq instance
-   res += NETEQG729_GIPS_10MS16B_init(mpJBState, (G729_decinst*) this);
-   osPrintf("NETEQG729_GIPS_10MS16B_init(0x%X, 0x%X) returned %d\n",
-      (int) mpJBState, (int) this, res);
-
-   osPrintf("MpdGIPSG729ab::initDecode: payloadType=%d\n", getPayloadType());
    return ((0==res) ? OS_SUCCESS : OS_NO_MEMORY);
 }
 

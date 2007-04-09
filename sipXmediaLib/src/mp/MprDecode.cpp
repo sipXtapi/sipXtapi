@@ -423,7 +423,7 @@ UtlBoolean MprDecode::handleSelectCodecs(SdpCodec* pCodecs[], int numCodecs)
          ret = pFactory->createDecoder(ourCodec, payload, pNewDecoder);
          assert(OS_SUCCESS == ret);
          assert(NULL != pNewDecoder);
-         pNewDecoder->initDecode(mpConnection);
+         pNewDecoder->initDecode();
          // Add this codec to mpConnection's payload type decoding table.
          mpConnection->addPayloadType(payload, pNewDecoder);
          mpCurrentCodecs[i] = pNewDecoder;
@@ -432,7 +432,7 @@ UtlBoolean MprDecode::handleSelectCodecs(SdpCodec* pCodecs[], int numCodecs)
       // Go back and add any signaling codecs to Jitter Buffer.
       for (i=0; i<numCodecs; i++) {
          if (mpCurrentCodecs[i]->getInfo()->isSignalingCodec()) {
-            mpCurrentCodecs[i]->initDecode(mpConnection);
+            mpCurrentCodecs[i]->initDecode();
          }
       }
    }

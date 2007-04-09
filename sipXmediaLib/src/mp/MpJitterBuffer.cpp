@@ -1,8 +1,8 @@
 //  
-// Copyright (C) 2006 SIPez LLC. 
+// Copyright (C) 2006-2007 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -106,11 +106,6 @@ int MpJitterBuffer::getSamples(MpAudioSample *samplesBuffer, JB_size samplesNumb
    return samplesNumber;
 }
 
-int MpJitterBuffer::setCodepoint(const JB_char* codec, JB_size sampleRate,
-   JB_code codepoint)
-{
-   return 0;
-}
 
 int MpJitterBuffer::setCodecList(MpDecoderBase** codecList, int codecCount)
 {
@@ -128,13 +123,6 @@ int MpJitterBuffer::setCodecList(MpDecoderBase** codecList, int codecCount)
 
 /* ===================== Jitter Buffer API Functions ====================== */
 
-JB_ret JB_initCodepoint(JB_inst *JB_inst,
-                        const JB_char* codec,
-                        JB_size sampleRate,
-                        JB_code codepoint)
-{
-   return JB_inst->setCodepoint(codec, sampleRate, codepoint);
-}
 
 JB_ret JB_RecIn(JB_inst *JB_inst,
                 MpRtpBufPtr &rtpPacket)

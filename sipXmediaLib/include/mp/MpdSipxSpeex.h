@@ -1,8 +1,8 @@
 //  
-// Copyright (C) 2006 SIPez LLC. 
+// Copyright (C) 2006-2007 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //  
-// Copyright (C) 2006 SIPfoundry Inc. 
+// Copyright (C) 2006-2007 SIPfoundry Inc. 
 // Licensed by SIPfoundry under the LGPL license. 
 //  
 // Copyright (C) 2006 Hector Izquierdo Seliva. 
@@ -55,9 +55,8 @@ public:
    ~MpdSipxSpeex();
 
      /// Initializes a codec data structure for use as a decoder
-   virtual OsStatus initDecode(MpAudioConnection* pConnection);
+   virtual OsStatus initDecode();
      /**<
-     *  @param pConnection - (in) Pointer to the MpAudioConnection container
      *  @returns <b>OS_SUCCESS</b> - Success
      *  @returns <b>OS_NO_MEMORY</b> - Memory allocation failure
      */

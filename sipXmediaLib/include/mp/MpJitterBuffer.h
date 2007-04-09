@@ -77,9 +77,6 @@ public:
      *  
      *  @return Number of samples written to samplesBuffer
      */
-
-   int setCodepoint(const JB_char* codec, JB_size sampleRate,
-                    JB_code codepoint);
    
      /// Set available decoders.
    int setCodecList(MpDecoderBase** codecList, int codecCount);

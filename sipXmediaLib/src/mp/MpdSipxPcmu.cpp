@@ -1,8 +1,8 @@
 //  
-// Copyright (C) 2006 SIPez LLC. 
+// Copyright (C) 2006-2007 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -15,7 +15,6 @@
 #ifndef HAVE_GIPS /* [ */
 
 // APPLICATION INCLUDES
-#include "mp/MpAudioConnection.h"
 #include "mp/MpdSipxPcmu.h"
 #include "mp/JB/JB_API.h"
 #include "mp/MprDejitter.h"
@@ -43,17 +42,8 @@ MpdSipxPcmu::~MpdSipxPcmu()
    freeDecode();
 }
 
-OsStatus MpdSipxPcmu::initDecode(MpAudioConnection* pConnection)
+OsStatus MpdSipxPcmu::initDecode()
 {
-   if (pConnection == NULL)
-      return OS_SUCCESS;
-
-   //Get JB pointer
-   pJBState = pConnection->getJBinst();
-
-   // Set the payload number for JB
-   JB_initCodepoint(pJBState, "PCMU", 8000, getPayloadType());
-
    mNextPullTimerCount = 0;
    mUnderflowCount = 0;
    mLastSeqNo = 0;

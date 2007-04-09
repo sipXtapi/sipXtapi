@@ -324,9 +324,6 @@ public:
    IRTCPSession* getRTCPSessionPtr(void);
 #endif /* INCLUDE_RTCP ] */
 
-     /// sends a message to self, and waits for reply.
-   void synchronize(const char* tag=NULL, int val=0);
-
 //@}
 
 /* ============================ INQUIRY =================================== */

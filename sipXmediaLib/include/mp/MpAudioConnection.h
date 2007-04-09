@@ -16,7 +16,7 @@
 #define _MpAudioConnection_h_
 
 // FORWARD DECLARATIONS
-class MpCallFlowGraph;
+class MpFlowGraphBase;
 class MpDecoderBase;
 class MpResource;
 class MprDecode;
@@ -187,7 +187,7 @@ private:
      /// Assignment operator (not implemented for this type)
    MpAudioConnection& operator=(const MpAudioConnection& rhs);
 
-   MpCallFlowGraph*   mpFlowGraph;     ///< Parent flowgraph
+   MpFlowGraphBase*   mpFlowGraph;     ///< Parent flowgraph
    MprEncode*         mpEncode;        ///< Outbound component: Encoder
    MprDecode*         mpDecode;        ///< Inbound component: Decoder
    int                mBridgePort;     ///< Where we are connected on the bridge

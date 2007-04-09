@@ -1551,23 +1551,6 @@ void MpCallFlowGraph::RemoteSSRCCollision(IRTCPConnection  *piRTCPConnection,
 
 /* ============================ ACCESSORS ================================= */
 
-void MpCallFlowGraph::synchronize(const char* tag, int val1)
-{
-   OsTask* val2 = OsTask::getCurrentTask();
-   if (val2 != MpMediaTask::getMediaTask(0)) {
-      OsEvent event;
-      MpFlowGraphMsg msg(MpFlowGraphMsg::FLOWGRAPH_SYNCHRONIZE,
-         NULL, NULL, (void*) tag, val1, (int) val2);
-      OsStatus  res;
-
-      msg.setPtr1(&event);
-      res = postMessage(msg);
-      // if (NULL == tag) osPrintf("MpCallFlowGraph::synchronize()\n");
-      event.wait();
-   } else {
-      osPrintf("Note: synchronize called from within Media Task\n");
-   }
-}
 
 /* ============================ INQUIRY =================================== */
 

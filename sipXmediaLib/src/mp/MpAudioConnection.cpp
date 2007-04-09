@@ -359,12 +359,12 @@ JB_inst* MpAudioConnection::getJBinst(UtlBoolean optional) {
          }
       }
       if (NULL != mpJB_inst) {
-         UtlBoolean on = mpFlowGraph->isPremiumSoundEnabled();
 /*
+         UtlBoolean on = mpFlowGraph->isPremiumSoundEnabled();
          osPrintf("MpAudioConnection::getJBinst: %sabling Premium Sound on #%d\n",
             on ? "En" : "Dis", mMyID);
-*/
          setPremiumSound(on ? EnablePremiumSound : DisablePremiumSound);
+*/
       }
    }
    return(mpJB_inst);

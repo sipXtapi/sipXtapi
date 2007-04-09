@@ -20,11 +20,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-JB_EXTERN JB_ret JB_initCodepoint(JB_inst *JB_inst,
-                                  const JB_char *codec,
-                                  JB_size sampleRate, 
-                                  JB_code codepoint);
  
 
 JB_EXTERN JB_ret JB_RecIn(JB_inst *JB_inst, 

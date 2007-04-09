@@ -286,6 +286,9 @@ public:
 
 //@}
 
+     /// sends a message to self, and waits for reply.
+   void synchronize(const char* tag=NULL, int val=0);
+
 /* ============================ ACCESSORS ================================= */
 
      /// Displays information on the console about the specified flow graph.

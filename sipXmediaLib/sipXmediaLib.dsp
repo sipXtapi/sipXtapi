@@ -251,6 +251,10 @@ SOURCE=.\src\mp\MpdSipxGSM.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\mp\MpdSipxILBC.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\mp\MpdSipxPcma.cpp
 # End Source File
 # Begin Source File

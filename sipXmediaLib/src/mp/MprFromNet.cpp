@@ -1,8 +1,8 @@
 //  
-// Copyright (C) 2006 SIPez LLC. 
+// Copyright (C) 2006-2007 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -32,7 +32,6 @@
 #include "os/OsDefs.h"
 #include "mp/MpMisc.h"
 #include "mp/MpBuf.h"
-#include "mp/MpConnection.h"
 #include "mp/MprFromNet.h"
 #include "mp/MprDejitter.h"
 #ifdef INCLUDE_RTCP /* [ */
@@ -331,7 +330,7 @@ OsStatus MprFromNet::pushPacket(const MpUdpBufPtr &udpBuf, bool isRtcp)
                     thisSsrc, New.data(), udpBuf->getUdpPort());
             }
             if (  (udpBuf->getIP().s_addr == mRtpDestIp)
-               && (udpBuf->getUdpPort() == mRtpDestPort)) {
+               && ((int)udpBuf->getUdpPort() == mRtpDestPort)) {
                 setPrefSsrc(thisSsrc);
             } else if (  mRtpRtcpMatchSsrcValid
                       && (thisSsrc == mRtpRtcpMatchSsrc)) {
@@ -354,7 +353,7 @@ OsStatus MprFromNet::pushPacket(const MpUdpBufPtr &udpBuf, bool isRtcp)
         }
 
         if (  (mPrevIP != udpBuf->getIP().s_addr)
-           || (mPrevPort != udpBuf->getUdpPort()))
+           || (mPrevPort != (int) udpBuf->getUdpPort()))
         {
             if (mNumWarnings++ < 20) {
                 UtlString Old(""), New("");

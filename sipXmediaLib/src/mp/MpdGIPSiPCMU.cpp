@@ -1,8 +1,8 @@
 //  
-// Copyright (C) 2006 SIPez LLC. 
+// Copyright (C) 2006-2007 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -16,7 +16,6 @@
 
 #include "assert.h"
 // APPLICATION INCLUDES
-#include "mp/MpAudioConnection.h"
 #include "mp/MpdGIPSiPCMU.h"
 #include "mp/GIPS/GIPS_API.h"
 #include "mp/MprDejitter.h"
@@ -35,27 +34,10 @@ MpdGIPSiPCMU::~MpdGIPSiPCMU()
    freeDecode();
 }
 
-OsStatus MpdGIPSiPCMU::initDecode(MpAudioConnection* pConnection)
+OsStatus MpdGIPSiPCMU::initDecode()
 {
    int res = 0;
 
-   //Get NetEq pointer
-   mpJBState = pConnection->getJBinst();
-   assert(NULL != mpJBState);
-
-   //Allocate memory, only once though
-   if (NULL == pDecoderState) {
-      res += EG711U_GIPS_10MS16B_create(&pDecoderState);
-   }
-
-   // Set the payload number for NetEq
-   NETEQ_GIPS_10MS16B_initCodepoint(mpJBState,
-                                        "EG711U", 8000, getPayloadType());
-
-   //Attach the decoder to NetEq instance
-   res += NETEQEG711U_GIPS_10MS16B_init(mpJBState, pDecoderState);
-
-   osPrintf("MpdGIPSiPCMU::initDecode: payloadType=%d\n", getPayloadType());
    return ((0==res) ? OS_SUCCESS : OS_NO_MEMORY);
 }
 

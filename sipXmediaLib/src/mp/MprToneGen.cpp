@@ -1,8 +1,8 @@
 //  
-// Copyright (C) 2006 SIPez LLC. 
+// Copyright (C) 2006-2007 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -22,6 +22,7 @@
 /* #include "pinger/Pinger.h" */
 #include "mp/MpMisc.h"
 #include "mp/MpBuf.h"
+// TODO: Remove reference to MpCallFlowGraph
 #include "mp/MpCallFlowGraph.h"
 #include "mp/MprToneGen.h"
 
@@ -153,6 +154,8 @@ UtlBoolean MprToneGen::doProcessFrame(MpBufPtr inBufs[],
       // See what we get...
       switch (ret) {
       case OS_WAIT_TIMEOUT: /* one-shot tone completed */
+          // TODO: remove referene to MpCallFlowGraph
+          // MprToneGen::stopTone(mName, getFloGraph()->getMsgQ());
          ((MpCallFlowGraph*)getFlowGraph())->stopTone();
          out->setSpeechType(MpAudioBuf::MP_SPEECH_TONE);
          break;

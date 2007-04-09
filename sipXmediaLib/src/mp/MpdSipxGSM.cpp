@@ -1,8 +1,8 @@
 //  
-// Copyright (C) 2006 SIPez LLC. 
+// Copyright (C) 2006-2007 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //  
-// Copyright (C) 2006 SIPfoundry Inc. 
+// Copyright (C) 2006-2007 SIPfoundry Inc. 
 // Licensed by SIPfoundry under the LGPL license. 
 //  
 // $$ 
@@ -21,7 +21,6 @@
 
 // APPLICATION INCLUDES
 #include "mp/MpdSipxGSM.h"
-#include "mp/MpAudioConnection.h"
 #include "mp/JB/JB_API.h"
 extern "C" {
 #include <gsm.h>
@@ -56,11 +55,8 @@ MpdSipxGSM::~MpdSipxGSM()
 {
 }
 
-OsStatus MpdSipxGSM::initDecode(MpAudioConnection* pConnection)
+OsStatus MpdSipxGSM::initDecode()
 {
-   mpJBState = pConnection->getJBinst();
-   JB_initCodepoint(mpJBState, "GSM", 8000, getPayloadType());
-
    if (mpGsmState == NULL) 
       mpGsmState = gsm_create();
 
