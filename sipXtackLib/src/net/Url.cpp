@@ -1477,13 +1477,6 @@ void Url::parseString(const char* urlString, UtlBoolean isAddrSpec)
          urlPath.MatchString(&mPath,1);
          workingOffset = urlPath.AfterMatch(1);
       }
-#     ifdef _WIN32
-      {
-         // Massage Data under Windows:  C|/foo.txt --> C:\foo.txt
-         mPath.replace('|', ':');
-         mPath.replace('/', '\\');
-      }
-#     endif
    }
    break;
 
