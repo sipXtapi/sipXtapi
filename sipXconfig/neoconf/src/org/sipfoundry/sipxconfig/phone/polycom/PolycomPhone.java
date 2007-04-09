@@ -28,6 +28,7 @@ import org.sipfoundry.sipxconfig.phone.LineInfo;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookEntry;
 import org.sipfoundry.sipxconfig.speeddial.SpeedDial;
+import org.sipfoundry.sipxconfig.upload.UploadManager;
 
 /**
  * Support for Polycom 300, 400, and 500 series phones and model 3000 conference phone
@@ -42,9 +43,10 @@ public class PolycomPhone extends Phone {
     static final String PASSWORD_PATH = "reg/auth.password";
     static final String USER_ID_PATH = "reg/address";
     static final String AUTHORIZATION_ID_PATH = "reg/auth.userId";
-    static final String TEMPLATE_DIR = "polycom/mac-address.d";
+    static final String TEMPLATE_DIR = "polycom/mac-address.d";    
 
     private String m_tftpRoot;
+    private UploadManager m_uploadManager;
 
     public PolycomPhone() {
         super(new PolycomModel());
@@ -110,8 +112,15 @@ public class PolycomPhone extends Phone {
         SpeedDial speedDial = getPhoneContext().getSpeedDial(this);
         DirectoryConfiguration dir = new DirectoryConfiguration(entries, speedDial);
         getProfileGenerator().generate(dir, format, app.getDirectoryFilename());
+        
+        // Don't copy in vendor skeleton templates if there's a firmware active as it would
+        // contain it's own copies that should match the phone's firmware version
+        if (!m_uploadManager.isActiveUploadById(m_uploadManager.getSpecification("polycomFirmware"))) {
+            getProfileGenerator().copy("polycom/sip.cfg", "sip.cfg");            
+            getProfileGenerator().copy("polycom/phone1.cfg", "phone1.cfg");            
+        }        
     }
-
+    
     public void removeProfiles() {
         ApplicationConfiguration app = new ApplicationConfiguration(this, m_tftpRoot);
         // new to call this function to generate stale directories list
@@ -168,5 +177,9 @@ public class PolycomPhone extends Phone {
 
     public void restart() {
         sendCheckSyncToFirstLine();
+    }
+
+    public void setUploadManager(UploadManager uploadManager) {
+        m_uploadManager = uploadManager;
     }
 }

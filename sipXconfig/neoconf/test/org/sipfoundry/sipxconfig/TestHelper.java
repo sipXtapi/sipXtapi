@@ -162,6 +162,7 @@ public final class TestHelper {
     public static VelocityProfileGenerator getProfileGenerator() {
         VelocityProfileGenerator profileGenerator = new VelocityProfileGenerator();
         profileGenerator.setVelocityEngine(getVelocityEngine());
+        profileGenerator.setTemplateRoot(getSettingModelContextRoot());
         return profileGenerator;
     }
 
