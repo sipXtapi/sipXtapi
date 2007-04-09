@@ -381,7 +381,7 @@ class SipMessageTest : public CppUnit::TestCase
             "a=rtpmap:0 PCMU/8000\r\n"
             "a=rtpmap:98 telephone-event/8000\r\n"
             "a=fmtp:98 0-16\r\n"
-            "a=ptime:20"
+            "a=ptime:20\r\n"
             ;
          
          SipMessage testMsg( MultipartBodyMessage, strlen( MultipartBodyMessage ) );
@@ -393,8 +393,10 @@ class SipMessageTest : public CppUnit::TestCase
          int theLength;
          
          sdpBody->getBytes(&theBody, &theLength);
+         sdpBody->findMediaType("audio", 0);
          
          ASSERT_STR_EQUAL(correctBody,theBody.data());
+         delete sdpBody;
       };
 
 
@@ -964,6 +966,8 @@ class SipMessageTest : public CppUnit::TestCase
         CPPUNIT_ASSERT_MESSAGE("Null sdp copy serialized content", sdpCopyBytes != NULL);
         CPPUNIT_ASSERT_MESSAGE("SDP does not match expected content",
             strcmp(referenceSdp, sdpCopyBytes) == 0);
+        delete sdp;
+        delete sdpCopy;
    }
 
 

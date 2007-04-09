@@ -37,10 +37,12 @@ public:
 /* ============================ CREATORS ================================== */
 
    MimeBodyPart(const HttpBody* parent = NULL,
+                const char* bytes = 0,
                 int parentBodyStartIndex = 0,
-                int rawBodyLength = 0);
-     //:Default constructor
+                int rawBodyLength = 0,
+                const char* contentType = NULL);
 
+   
    //! Construct a MimeBodyPart from an HttpBody and a list of parameters.
    MimeBodyPart(const HttpBody& httpBody,
                 //< Provides the bytes of the body.

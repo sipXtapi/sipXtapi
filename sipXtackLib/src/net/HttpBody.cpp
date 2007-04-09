@@ -107,9 +107,9 @@ HttpBody::HttpBody(const char* bytes, int length, const char* contentType) :
          {
             for(int partIndex = 0; partIndex < MAX_HTTP_BODY_PARTS; partIndex++)
             {
-               //UtlString contentType;
-               //UtlString name;
-               //UtlString value;
+               UtlString contentType;
+               UtlString name;
+               UtlString value;
                const char* partBytes;
                const char* parentBodyBytes;
                int partLength;
@@ -123,17 +123,17 @@ HttpBody::HttpBody(const char* bytes, int length, const char* contentType) :
 
                // Parse throught the header to the MIME part
                // The first blank line is the begining of the part body
-               /*NameValueTokenizer parser(partBytes, partLength);
+               NameValueTokenizer parser(partBytes, partLength);
                  do
                  {
-                 parser.getNextPair(HTTP_NAME_VALUE_DELIMITER,
-                 &name, & value);
-                 if(name.compareTo(HTTP_CONTENT_TYPE_FIELD) == 0)
-                 {
-                 contentType = name;
+                     parser.getNextPair(HTTP_NAME_VALUE_DELIMITER,
+                     &name, & value);
+                     if(name.compareTo(HTTP_CONTENT_TYPE_FIELD) == 0)
+                     {
+                         contentType = name;
+                     }
                  }
-                 }
-                 while(!name.isNull());*/
+                 while(!name.isNull());
 
                // This is a bit of a temporary kludge
                //Prepend a HTTP header to make it look like a HTTP message
@@ -144,8 +144,8 @@ HttpBody::HttpBody(const char* bytes, int length, const char* contentType) :
 
                if (partLength > 0)
                {
-                  mpBodyParts[partIndex] = new MimeBodyPart(this, partBytes - parentBodyBytes,
-                                                            partLength);
+                  mpBodyParts[partIndex] = new MimeBodyPart(this, partBytes, partBytes - parentBodyBytes,
+                                                            partLength,contentType.data());
                   // Save the number of body parts.
                   mBodyPartCount = partIndex + 1;
                }
