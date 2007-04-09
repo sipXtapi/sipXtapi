@@ -282,6 +282,34 @@ OsStatus MpOutputDeviceManager::getDeviceId(const UtlString& deviceName,
 }
 
 
+OsStatus MpOutputDeviceManager::getMixerBufferLength(MpOutputDeviceHandle deviceId,
+                                                     MpFrameTime &length) const
+{
+   OsStatus status = OS_FAILED;
+   MpAudioOutputConnection* connection = NULL;
+   UtlInt deviceKey(deviceId);
+   MpOutputDeviceDriver* deviceDriver = NULL;
+
+   OsReadLock lock(mRwMutex);
+
+   connection =
+      (MpAudioOutputConnection*) mConnectionsByDeviceId.find(&deviceKey);
+
+   if (connection)
+   {
+      length = connection->getMixerBufferLength();
+      status = OS_SUCCESS;
+   }
+   else
+   {
+      length = 0;
+      status = OS_NOT_FOUND;
+   }
+
+   return status;
+}
+
+
 MpFrameTime MpOutputDeviceManager::getCurrentFrameTime() const
 {
    OsTime now;

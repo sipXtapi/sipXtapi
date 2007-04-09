@@ -256,6 +256,16 @@ public:
      *  Multi-thread safe.
      */
 
+     /// Get mixer buffer length (in milliseconds) for given device.
+   OsStatus getMixerBufferLength(MpOutputDeviceHandle deviceId, MpFrameTime &length) const;
+     /**<
+     *  If device is in direct-write mode, method will return 0.
+     *
+     *  @returns OS_SUCCESS if device found and <tt>length</tt> filled in.
+     *  @returns OS_NOT_FOUND if specified device could not be found.
+     *
+     *  Multi-thread safe.
+     */
 
      /// Get current frame timestamp
    MpFrameTime getCurrentFrameTime() const;

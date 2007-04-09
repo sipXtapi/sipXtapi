@@ -180,6 +180,13 @@ public:
    inline
    MpOutputDeviceDriver* getDeviceDriver() const;
 
+     /// Return length of mixer buffer in milliseconds.
+   inline
+   MpFrameTime getMixerBufferLength() const;
+     /**<
+     *  Function returns 0 if direct write mode is used.
+     */
+
      /// Return number of external entities, referring to this connection.
    inline
    unsigned getUseCount() const;
@@ -303,6 +310,11 @@ MpOutputDeviceDriver* MpAudioOutputConnection::getDeviceDriver() const
 {
    return mpDeviceDriver;
 };
+
+MpFrameTime MpAudioOutputConnection::getMixerBufferLength() const
+{
+   return mMixerBufferLength;
+}
 
 unsigned MpAudioOutputConnection::getUseCount() const
 {
