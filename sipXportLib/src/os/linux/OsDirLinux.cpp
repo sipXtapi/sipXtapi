@@ -14,6 +14,7 @@
 #include <dirent.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <fcntl.h>
 
 // APPLICATION INCLUDES
 #include "os/OsFS.h"
@@ -113,12 +114,12 @@ OsStatus OsDirLinux::getFileInfo(OsFileInfoBase& fileinfo) const
     if (stat((char *)mDirName.data(),&stats) == 0)
     {
         ret = OS_SUCCESS;
-        if (stats.st_mode & S_DIR)
+        if (stats.st_mode & S_IFDIR)
             fileinfo.mbIsDirectory = TRUE;
         else
             fileinfo.mbIsDirectory = FALSE;
 
-        if (stats.st_mode & S_READONLY)
+        if (stats.st_mode & S_IWUSR)
             fileinfo.mbIsReadOnly = FALSE;
         else
             fileinfo.mbIsReadOnly = TRUE;
