@@ -69,7 +69,6 @@ UtlBoolean MprFromInputDevice::doProcessFrame(MpBufPtr inBufs[],
 {
    // NOTE: Logic to react to frequent starvation is missing.
 
-   UtlBoolean bufferOutput = FALSE;
    assert(mpInputDeviceManager);
 
    // Milliseconds per frame:
@@ -110,13 +109,9 @@ UtlBoolean MprFromInputDevice::doProcessFrame(MpBufPtr inBufs[],
       }
    }
 
-   if (buffer.isValid())
-   {
-      outBufs[0] = buffer;
-      bufferOutput = TRUE;
-   }
+   outBufs[0] = buffer;
 
-   return(bufferOutput);
+   return getResult;
 }
 
 /* ============================ FUNCTIONS ================================= */
