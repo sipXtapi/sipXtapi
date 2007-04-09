@@ -212,7 +212,11 @@ public:
      *  @param frame - (in) Frame of media to be sent to output device.
      *
      *  @returns OS_NOT_FOUND if the device could not be found.
-     *  @returns OS_LIMIT_REACHED if mixer buffer is full.
+     *  @returns OS_LIMIT_REACHED if mixer buffer is full, i.e. frame come too
+     *           early.
+     *  @returns OS_INVALID_STATE if frame come too late and was rejected.
+     *           Frame considered late if whole frame does not fit into buffer,
+     *           i.e. it would be rejected even if part of frame fit into buffer.
      *
      *  Multi-thread safe.
      */

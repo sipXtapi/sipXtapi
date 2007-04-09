@@ -123,7 +123,8 @@ public:
      *  @param frameTime - (in) Time in milliseconds for beginning of frame
      *         relative to the MpOutputDeviceManager reference time.
      *
-     *  @returns OS_LIMIT_REACHED if mixer buffer is full.
+     *  @returns OS_LIMIT_REACHED if mixer buffer is full, i.e. frame come too
+     *           early.
      *  @returns OS_INVALID_STATE if frame come too late and was rejected.
      *           Frame considered late if whole frame does not fit into buffer,
      *           i.e. it would be rejected even if part of frame fit into buffer.
