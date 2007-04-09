@@ -100,7 +100,7 @@ MpInputDeviceDriverWnt::~MpInputDeviceDriverWnt()
 
 OsStatus MpInputDeviceDriverWnt::enableDevice(unsigned samplesPerFrame, 
                                               unsigned samplesPerSec, 
-                                              unsigned currentFrameTime)
+                                              MpFrameTime currentFrameTime)
 {
     OsStatus status = OS_SUCCESS;
 

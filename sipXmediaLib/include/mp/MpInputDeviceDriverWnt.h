@@ -80,7 +80,7 @@ public:
       /// @brief Initialize device driver and state
     OsStatus enableDevice(unsigned samplesPerFrame, 
                           unsigned samplesPerSec,
-                          unsigned currentFrameTime);
+                          MpFrameTime currentFrameTime);
       /**<
       *  This method enables the device driver.
       *
