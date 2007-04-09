@@ -38,8 +38,8 @@ class OsServerTask;
 *
 *  Implements a MpSineWaveGeneratorDeviceDriver that generates a sine wave
 *  of the given magnitude and period (in samples).  This device is
-*  parimarily intended for testing the input device framework as it
-*  produces a predictable signal that can be calulated and predetermined,
+*  primarily intended for testing the input device framework as it
+*  produces a predictable signal that can be calculated and predetermined,
 *  a useful characteristic for unit testing.
 */
 class MpSineWaveGeneratorDeviceDriver : public MpInputDeviceDriver
