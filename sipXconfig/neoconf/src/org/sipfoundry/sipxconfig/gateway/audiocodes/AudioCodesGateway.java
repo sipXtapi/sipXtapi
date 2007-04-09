@@ -23,8 +23,6 @@ import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingArray;
 
 public abstract class AudioCodesGateway extends Gateway {
-    private static final String MAC_PREFIX = "00908F";
-
     @Override
     public void initialize() {
         AudioCodesGatewayDefaults defaults = new AudioCodesGatewayDefaults(this, getDefaults());
@@ -40,10 +38,7 @@ public abstract class AudioCodesGateway extends Gateway {
         if (serialNumber == null) {
             return null;
         }
-        int id = Integer.parseInt(serialNumber.substring(2));
-        String hexAddress = Integer.toHexString(id).toUpperCase();
-        hexAddress = StringUtils.leftPad(hexAddress, 6, '0');
-        return MAC_PREFIX + hexAddress + ".ini";
+        return serialNumber.toUpperCase() + ".ini";
     }
 
     @Override
