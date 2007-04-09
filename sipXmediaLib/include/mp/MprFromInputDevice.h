@@ -53,7 +53,7 @@ public:
                       int samplesPerFrame, 
                       int samplesPerSec,
                       MpInputDeviceManager* deviceManager,
-                      int deviceId);
+                      MpInputDeviceHandle deviceId);
 
      /// Destructor
    virtual
@@ -96,8 +96,8 @@ private:
 
    MpInputDeviceManager* mpInputDeviceManager;
    UtlBoolean mFrameTimeInitialized;
-   int mPreviousFrameTime;
-   int mDeviceId;
+   MpFrameTime mPreviousFrameTime;
+   MpInputDeviceHandle mDeviceId;
 
      /// Copy constructor (not implemented for this class)
    MprFromInputDevice(const MprFromInputDevice& rMprFromInputDevice);
