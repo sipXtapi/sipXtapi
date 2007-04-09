@@ -31,6 +31,7 @@ nobase_include_HEADERS =  \
     mp/MpAudioFileDecompress.h \
     mp/MpAudioFileOpen.h \
     mp/MpAudioFileUtils.h \
+    mp/MpAudioOutputConnection.h \
     mp/MpAudioResource.h \
     mp/MpAudioResourceConstructor.h \
     mp/MpAudioUtils.h \
@@ -77,6 +78,8 @@ nobase_include_HEADERS =  \
     mp/MpMediaTask.h \
     mp/MpMediaTaskMsg.h \
     mp/MpMisc.h \
+    mp/MpOutputDeviceDriver.h \
+    mp/MpOutputDeviceManager.h \
     mp/MpPlayer.h \
     mp/MpPlayerEvent.h \
     mp/MpPlayerListener.h \
@@ -112,6 +115,7 @@ nobase_include_HEADERS =  \
     mp/MprToneGenConstructor.h \
     mp/MprToNet.h \
     mp/MprToOutputDeviceConstructor.h \
+    mp/MprToOutputDevice.h \
     mp/MprToSpkr.h \
     mp/MpSipxDecoders.h \
     mp/MpStreamFeeder.h \

@@ -2572,6 +2572,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\src\mp\MpAudioOutputConnection.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\src\mp\MpAudioResource.cpp"
 				>
 			</File>
@@ -6586,6 +6590,14 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\src\mp\MpOutputDeviceDriver.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\src\mp\MpOutputDeviceManager.cpp"
+				>
+			</File>
+			<File
 				RelativePath="src\mp\MpPlayer.cpp"
 				>
 				<FileConfiguration
@@ -8478,6 +8490,10 @@
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\src\mp\MprToOutputDevice.cpp"
+				>
 			</File>
 			<File
 				RelativePath="src\mp\MprToSpkr.cpp"
@@ -12271,6 +12287,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\include\mp\MpAudioOutputConnection.h"
+				>
+			</File>
+			<File
 				RelativePath=".\include\mp\MpAudioResource.h"
 				>
 			</File>
@@ -12475,6 +12495,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\include\mp\MpOutputDeviceDriver.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\mp\MpOutputDeviceManager.h"
+				>
+			</File>
+			<File
 				RelativePath="include\mp\MpPlayer.h"
 				>
 			</File>
@@ -12604,6 +12632,10 @@
 			</File>
 			<File
 				RelativePath=".\include\mp\MprToOutputDeviceConstructor.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\mp\MprToOutputDevice.h"
 				>
 			</File>
 			<File

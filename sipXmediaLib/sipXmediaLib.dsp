@@ -163,6 +163,10 @@ SOURCE=.\src\mp\MpAudioFileUtils.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\mp\MpAudioOutputConnection.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\mp\MpAudioResource.cpp
 # End Source File
 # Begin Source File
@@ -355,6 +359,14 @@ SOURCE=.\src\mp\MpMisc.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\mp\MpOutputDeviceDriver.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\mp\MpOutputDeviceManager.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\mp\MpPlayer.cpp
 # End Source File
 # Begin Source File
@@ -448,6 +460,10 @@ SOURCE=.\src\mp\MprToneGen.cpp
 # Begin Source File
 
 SOURCE=.\src\mp\MprToNet.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\mp\MprToOutputDevice.cpp
 # End Source File
 # Begin Source File
 
@@ -807,6 +823,10 @@ SOURCE=.\include\mp\MpAudioFileUtils.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\include\mp\MpAudioOutputConnection.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\include\mp\MpAudioResource.h
 # End Source File
 # Begin Source File
@@ -1003,6 +1023,14 @@ SOURCE=.\include\mp\MpMisc.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\include\mp\MpOutputDeviceDriver.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MpOutputDeviceManager.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\include\mp\MpPlayer.h
 # End Source File
 # Begin Source File
@@ -1132,6 +1160,10 @@ SOURCE=.\include\mp\MprToNet.h
 # Begin Source File
 
 SOURCE=.\include\mp\MprToOutputDeviceConstructor.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MprToOutputDevice.h
 # End Source File
 # Begin Source File
 

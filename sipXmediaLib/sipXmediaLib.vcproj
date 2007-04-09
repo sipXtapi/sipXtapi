@@ -2951,6 +2951,9 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\src\mp\MprToOutputDevice.cpp">
+			</File>
+			<File
 				RelativePath="src\mp\MprToSpkr.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -4601,6 +4604,9 @@
 			</File>
 			<File
 				RelativePath="include\mp\MprToNet.h">
+			</File>
+			<File
+				RelativePath=".\include\mp\MprToOutputDevice.h">
 			</File>
 			<File
 				RelativePath="include\mp\MprToSpkr.h">
