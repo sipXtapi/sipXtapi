@@ -73,7 +73,7 @@ module Events
 
       # NOTE: tail file implementation will send `EOFError' messages
       # to console when ruby in debug mode      
-      @file = File::Tail::Logfile.open(@path, "r") do |log|
+      @file = File::Tail::Logfile.open(@path) do |log|
         log.tail { |line| 
            yield line.chomp if line
         }
