@@ -67,7 +67,7 @@ public class BeanWithId implements PrimaryKeySource, Cloneable {
             return false;
         }
         BeanWithId other = (BeanWithId) o;
-        return m_id.equals(other.m_id);
+        return getId().equals(other.getId());
     }
 
     public int hashCode() {

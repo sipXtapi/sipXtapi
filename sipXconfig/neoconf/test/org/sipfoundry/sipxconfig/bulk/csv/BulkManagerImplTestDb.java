@@ -99,8 +99,8 @@ public class BulkManagerImplTestDb extends SipxDatabaseTestCase {
         m_bulkManager.insertFromCsv(new InputStreamReader(cutsheet));
         assertEquals(5, getConnection().getRowCount("users"));
         assertEquals(5, getConnection().getRowCount("phone"));
-        // lines are re-added for now - everything else is updated
-        assertEquals(10, getConnection().getRowCount("line"));
+        // lines are updated, if this value is 10, lines are erroneously being duplicated
+        assertEquals(5, getConnection().getRowCount("line"));
         assertEquals(5, getConnection().getRowCount("user_group"));
         assertEquals(5, getConnection().getRowCount("phone_group"));
         assertEquals(2, getConnection().getRowCount("group_storage", "where resource = 'phone'"));
