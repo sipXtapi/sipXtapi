@@ -84,16 +84,6 @@ public:
 ///@name Manipulators
 //@{
 
-     /// Set device manager that is used to access to this device.
-   virtual OsStatus setDeviceManager(MpOutputDeviceManager *deviceManager);
-     /**<
-     *  @param deviceManager - (in) device manager that is used to access
-     *         to this device.
-     *
-     *  @NOTE This method should only be used inside MpOutputDeviceManager when
-     *        adding or removing device driver.
-     */
-
      /// Initialize device driver and state.
    virtual OsStatus enableDevice(unsigned samplesPerFrame, 
                                  unsigned samplesPerSec,

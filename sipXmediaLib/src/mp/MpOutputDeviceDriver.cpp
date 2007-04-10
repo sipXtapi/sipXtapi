@@ -12,8 +12,6 @@
 
 
 // SYSTEM INCLUDES
-#include <Windows.h>
-
 // APPLICATION INCLUDES
 #include "mp/MpOutputDeviceDriver.h"
 
