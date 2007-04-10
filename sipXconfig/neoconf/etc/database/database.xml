@@ -215,7 +215,7 @@
     <db-patch patch="enable-schedule"/>
   </target>
 
-  <!-- only temporary user/developer convenience until 3.8 ships -->
+  <!-- BEGIN: only temporary user/developer convenience until 3.8 ships -->
   <target name="reset-old-phonebook">
     <sipx-sql>
       drop table phonebook_member;
@@ -224,8 +224,7 @@
       delete from patch where name = 'phonebook'
     </sipx-sql>
   </target>
-
-  <target name="reset-speeddial" if="speeddial">
+  <target name="reset-speeddial">
     <sipx-sql>
       drop table speeddial_button;
       drop table speeddial;
@@ -233,21 +232,20 @@
       delete from patch where name = 'speeddial'
     </sipx-sql>    
   </target>
-
-  <target name="speeddial" depends="reset-speeddial">
-    <db-patch patch="speeddial"/>
-  </target>
-
-  <!-- remove this and reference to this when freezing schema -->
-  <target name="reset-service" if="service">
+  <target name="reset-service">
     <sipx-sql>
       drop table service;
       drop sequence service_seq;
       delete from patch where name = 'service'
     </sipx-sql>    
   </target>
+  <!-- END: only temporary user/developer convenience until 3.8 ships -->
+
+  <target name="speeddial" unless="speeddial">
+    <db-patch patch="speeddial"/>
+  </target>
   
-  <target name="service" depends="reset-service">
+  <target name="service" unless="service">
     <db-patch patch="service"/>
   </target>
 
