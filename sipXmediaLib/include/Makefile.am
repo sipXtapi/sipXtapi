@@ -73,6 +73,7 @@ nobase_include_HEADERS =  \
     mp/MpePtAVT.h \
     mp/MpFlowGraphBase.h \
     mp/MpFlowGraphMsg.h \
+    mp/MpInputDeviceDriver.h \
     mp/MpInputDeviceManager.h \
     mp/MpJitterBuffer.h \
     mp/MpMediaTask.h \
@@ -117,6 +118,7 @@ nobase_include_HEADERS =  \
     mp/MprToOutputDeviceConstructor.h \
     mp/MprToOutputDevice.h \
     mp/MprToSpkr.h \
+    mp/MpSineWaveGeneratorDeviceDriver.h \
     mp/MpSipxDecoders.h \
     mp/MpStreamFeeder.h \
     mp/MpStreamMsg.h \
