@@ -57,7 +57,7 @@ public:
     int run(void* pArg)
     {
         MpFrameTime frameTime = mpInputDeviceManager->getCurrentFrameTime();
-        OsSysLog::add(FAC_AUDIO, PRI_ERR, "Start frame time: %u\n", frameTime);
+        OsSysLog::add(FAC_AUDIO, PRI_DEBUG, "Start frame time: %u\n", frameTime);
         int frameIndex;
         unsigned numFramesBefore;
         unsigned numFramesAfter;
@@ -72,7 +72,7 @@ public:
         UtlBoolean firstFrame = TRUE;
         for(frameIndex = 0; frameIndex < mNumBufferedFrames; frameIndex++)
         {
-            //OsSysLog::add(FAC_AUDIO, PRI_ERR, 
+            //OsSysLog::add(FAC_AUDIO, PRI_DEBUG, 
             //printf("delay: %d\n", mFramePeriodMilliseconds);
 
             { // Block scope for instrumentation timing
@@ -116,7 +116,7 @@ public:
             else
             {
                 mNumStarvations++;
-                //OsSysLog::add(FAC_AUDIO, PRI_ERR, 
+                //OsSysLog::add(FAC_AUDIO, PRI_DEBUG, 
                 printf("got frameTime: %u numFramesBefore: %d numFramesAfter: %d result: %d valid frame: %s\n", 
                                frameTime,
                                numFramesBefore, 
@@ -158,7 +158,7 @@ private:
 class MpInputDeviceManagerTest : public CppUnit::TestCase
 {
     CPPUNIT_TEST_SUITE(MpInputDeviceManagerTest);
-    //CPPUNIT_TEST(testSineInput);
+    CPPUNIT_TEST(testSineInput);
     CPPUNIT_TEST_SUITE_END();
 
 
