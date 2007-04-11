@@ -16,6 +16,7 @@
 #define _MpAudioConnection_h_
 
 // FORWARD DECLARATIONS
+class MpCallFlowGraph;
 class MpFlowGraphBase;
 class MpDecoderBase;
 class MpResource;

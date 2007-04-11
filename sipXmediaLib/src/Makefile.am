@@ -116,6 +116,7 @@ libsipXmedia_la_SOURCES =  \
     mp/MprEncode.cpp \
     mp/MpResource.cpp \
     mp/MpResourceFactory.cpp \
+    mp/MpResourceMsg.cpp \
     mp/MpResourceSortAlg.cpp \
     mp/MpResourceTopology.cpp \
     mp/MpRtpBuf.cpp \

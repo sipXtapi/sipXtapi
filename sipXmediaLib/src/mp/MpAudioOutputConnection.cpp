@@ -16,6 +16,7 @@
 // APPLICATION INCLUDES
 #include <mp/MpAudioOutputConnection.h>
 #include <mp/MpOutputDeviceDriver.h>
+#include <mp/MpMisc.h>    // for min macro
 #include <os/OsLock.h>
 
 // EXTERNAL FUNCTIONS
