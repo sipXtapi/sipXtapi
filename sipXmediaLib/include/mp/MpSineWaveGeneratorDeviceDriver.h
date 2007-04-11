@@ -115,22 +115,22 @@ public:
 //@{
 
 
-    /// Calculate a sample value for the specified sample in a frame
+      /// Calculate a sample value for the specified sample in a frame
     static MpAudioSample calculateSample(MpFrameTime frameStartTime,
                                          short magnatude,
                                          unsigned int periodInMilliseconds,
                                          unsigned int frameSampleIndex,
                                          unsigned int samplesPerFrame, 
                                          unsigned int samplesPerSecond);
-    /**<
-     *  @param frameStartTime - time in milliseconds for the first sample
-     *         in the frame from the device manager reference time.
-     *  @param frameSampleIndex - index to the requested sample of the 
-     *         given frame.
-     *  @param samplesPerFrame - number of samples in a frame
-     *  @param samplesPerSecond - sample rate in samples per second
-     *  @returns a sample value for the requested sample and frame
-     */
+      /**<
+      *  @param frameStartTime - time in milliseconds for the first sample
+      *         in the frame from the device manager reference time.
+      *  @param frameSampleIndex - index to the requested sample of the 
+      *         given frame.
+      *  @param samplesPerFrame - number of samples in a frame
+      *  @param samplesPerSecond - sample rate in samples per second
+      *  @returns a sample value for the requested sample and frame
+      */
 
 //@}
 
