@@ -182,7 +182,7 @@ public:
    };
 
 
-   OsStatus getFrame(MpFrameTime frameTime,
+   OsStatus getFrame(MpFrameTime &frameTime,
                      MpBufPtr& buffer,
                      unsigned& numFramesBefore,
                      unsigned& numFramesAfter)
@@ -229,6 +229,7 @@ public:
             // We always make a copy of the frame as we are typically
             // crossing task boundaries here.
             buffer = frameData->mFrameBuffer.clone();
+            frameTime = frameData->mFrameTime;
             result = OS_SUCCESS;
             break;
          }
@@ -604,7 +605,7 @@ OsStatus MpInputDeviceManager::pushFrame(MpInputDeviceHandle deviceId,
 
 
 OsStatus MpInputDeviceManager::getFrame(MpInputDeviceHandle deviceId,
-                                        MpFrameTime frameTime,
+                                        MpFrameTime &frameTime,
                                         MpBufPtr& buffer,
                                         unsigned& numFramesBefore,
                                         unsigned& numFramesAfter)

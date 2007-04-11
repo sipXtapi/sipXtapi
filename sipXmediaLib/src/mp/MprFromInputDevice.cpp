@@ -87,8 +87,14 @@ UtlBoolean MprFromInputDevice::doProcessFrame(MpBufPtr inBufs[],
    MpBufPtr buffer;
    unsigned int numFramesNotPlayed;
    unsigned int numFramedBufferedBehind;
+   MpFrameTime  frameToFetch;
+
+   // Use temp variable for frame time to prevent frame time drift in case
+   // of device hiccup.
+   frameToFetch = mPreviousFrameTime;
+
    OsStatus getResult = mpInputDeviceManager->getFrame(mDeviceId,
-                                                       mPreviousFrameTime,
+                                                       frameToFetch,
                                                        buffer,
                                                        numFramesNotPlayed,
                                                        numFramedBufferedBehind);
