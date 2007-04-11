@@ -135,11 +135,11 @@ public:
     }
 
 private:
-    unsigned int mNextFrameTime;
+    MpFrameTime mNextFrameTime;
     unsigned int mSamplesPerFrame;
     unsigned int mSamplesPerSecond;
     short mMagnatude;
-    unsigned int mSinePeriodMilliseconds;
+    MpFrameTime mSinePeriodMilliseconds;
     int mUnderOverRunTime;
     MpInputDeviceHandle mDeviceId;
     MpInputDeviceManager* mpInputDeviceManager;
