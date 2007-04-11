@@ -50,9 +50,8 @@ public:
    virtual ~MpdSipxILBC();
 
      /// Initializes a codec data structure for use as a decoder
-   virtual OsStatus initDecode(MpAudioConnection* pConnection);
+   virtual OsStatus initDecode();
      /**<
-     *  @param pConnection - (in) Pointer to the MpConnection container
      *  @returns <b>OS_SUCCESS</b> - Success
      *  @returns <b>OS_NO_MEMORY</b> - Memory allocation failure
      */

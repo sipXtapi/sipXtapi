@@ -50,17 +50,8 @@ MpdSipxILBC::~MpdSipxILBC()
    freeDecode();
 }
 
-OsStatus MpdSipxILBC::initDecode(MpAudioConnection* pConnection)
+OsStatus MpdSipxILBC::initDecode()
 {
-   mpJBState = pConnection->getJBinst();
-   JB_initCodepoint(mpJBState, "iLBC", 8000, getPayloadType());
-
-   if (mpState == NULL) 
-   {
-      mpState = new iLBC_Dec_Inst_t();
-      memset(mpState, 0, sizeof(*mpState));
-      ::initDecode(mpState, 30, 1);
-   }
    return OS_SUCCESS;
 }
 
