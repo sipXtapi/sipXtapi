@@ -1,8 +1,8 @@
 //  
-// Copyright (C) 2006 SIPez LLC. 
+// Copyright (C) 2006-2007 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -19,12 +19,14 @@
 #include "os/OsDefs.h"
 #include "mp/MpFlowGraphBase.h"
 #include "mp/MpFlowGraphMsg.h"
+#include "mp/MpResourceMsg.h"
 #include "mp/MpResource.h"
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
 const UtlContainableType MpResource::TYPE = "MpResource";
+const OsTime MpResource::sOperationQueueTimeout = OsTime::NO_WAIT_TIME;
 
 // STATIC VARIABLE INITIALIZATIONS
 
@@ -118,6 +120,13 @@ UtlBoolean MpResource::disable(void)
    return (res == OS_SUCCESS);
 }
 
+OsStatus MpResource::disable(const UtlString& namedResource,
+                             OsMsgQ& fgQ)
+{
+   MpResourceMsg msg(MpResourceMsg::MPRM_RESOURCE_DISABLE, namedResource);
+   return fgQ.send(msg, sOperationQueueTimeout);
+}
+
 // Enable this resource.
 // Returns TRUE if successful, FALSE otherwise.
 // The "enabled" flag is passed to the doProcessFrame() method
@@ -133,6 +142,13 @@ UtlBoolean MpResource::enable(void)
 
    res = postMessage(msg);
    return (res == OS_SUCCESS);
+}
+
+OsStatus MpResource::enable(const UtlString& namedResource,
+                            OsMsgQ& fgQ)
+{
+   MpResourceMsg msg(MpResourceMsg::MPRM_RESOURCE_ENABLE, namedResource);
+   return fgQ.send(msg, sOperationQueueTimeout);
 }
 
 // Sets the visit state for this resource (used in performing a 
@@ -348,14 +364,14 @@ int MpResource::compareTo(UtlContainable const * inVal) const
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
-// Handles an incoming message for this media processing object.
+// Handles an incoming flowgraph message for this media processing object.
 // Returns TRUE if the message was handled, otherwise FALSE.
-UtlBoolean MpResource::handleMessage(MpFlowGraphMsg& rMsg)
+UtlBoolean MpResource::handleMessage(MpFlowGraphMsg& fgMsg)
 {
-   UtlBoolean msgHandled;
+   UtlBoolean msgHandled = FALSE;
 
-   msgHandled = TRUE;                       // assume we'll handle the msg
-   switch (rMsg.getMsg())
+   msgHandled = TRUE; // assume we'll handle the msg
+   switch (fgMsg.getMsg())
    {
    case MpFlowGraphMsg::RESOURCE_DISABLE:   // disable this resource
       mIsEnabled = FALSE;
@@ -364,11 +380,85 @@ UtlBoolean MpResource::handleMessage(MpFlowGraphMsg& rMsg)
       mIsEnabled = TRUE;
       break;
    default:
-      msgHandled = FALSE;                   // we didn't handle the msg
-      break;                                //  after all
+      msgHandled = FALSE; // we didn't handle the msg after all
+      break;
+   }
+   
+   return msgHandled;
+}
+
+// Handles an incoming resource message for this media processing object.
+// Returns TRUE if the message was handled, otherwise FALSE.
+UtlBoolean MpResource::handleMessage(MpResourceMsg& rMsg)
+{
+   UtlBoolean msgHandled = FALSE;
+
+   // Do stuff for resource messages.
+   msgHandled = TRUE; // assume we'll handle the msg
+   switch (rMsg.getMsg())
+   {
+   case MpResourceMsg::MPRM_RESOURCE_DISABLE:   // disable this resource
+      mIsEnabled = FALSE;
+      break;
+   case MpResourceMsg::MPRM_RESOURCE_ENABLE:    // enable this resource
+      mIsEnabled = TRUE;
+      break;
+   default:
+      msgHandled = FALSE; // we didn't handle the msg after all
+      break;
    }
 
    return msgHandled;
+}
+
+UtlBoolean MpResource::handleMessages(OsMsgQ& msgQ)
+{
+   UtlBoolean handledAllMsgs = FALSE;
+   while(!msgQ.isEmpty())
+   {
+      OsMsg* msg;
+      OsStatus recvStat = msgQ.receive(msg, OsTime::NO_WAIT_TIME);
+      UtlBoolean curMsgHandled = FALSE;
+      if (recvStat == OS_SUCCESS)
+      {
+         if (msg->getMsgType() == OsMsg::MP_FLOWGRAPH_MSG)
+         {
+            MpFlowGraphMsg* fgMsg = dynamic_cast<MpFlowGraphMsg*>(msg);
+            if (fgMsg != NULL)
+            {
+               curMsgHandled = handleMessage(*fgMsg);
+            }
+         }
+         else if (msg->getMsgType() == OsMsg::MP_RESOURCE_MSG)
+         {
+            MpResourceMsg* rMsg = dynamic_cast<MpResourceMsg*>(msg);
+            if (rMsg != NULL)
+            {
+               curMsgHandled = handleMessage(*rMsg);
+            }
+         }
+
+         // TODO: If message received is not handled, it might be good
+         //       to stuff the message back into the front of the queue
+         //       with msgQ.sendUrgent(msg, OsTime::NO_WAIT_TIME);
+         //       I haven't thought through the ramifications of this,
+         //       so I haven't implemented it yet.
+      }
+
+      // Stop at the first message we encounter that is not handled.
+      if (curMsgHandled == FALSE)
+      {
+         break;
+      }
+
+      // If the queue is empty at this point,
+      // then all messages have been handled.
+      if (msgQ.isEmpty())
+      {
+         handledAllMsgs = TRUE;
+      }
+   }
+   return handledAllMsgs;
 }
 
 // If there already is a buffer stored for this input port, delete it.

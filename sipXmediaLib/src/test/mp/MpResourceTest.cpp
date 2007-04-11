@@ -1,8 +1,8 @@
 //  
-// Copyright (C) 2006 SIPez LLC. 
+// Copyright (C) 2006-2007 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -15,6 +15,7 @@
 #include <cppunit/TestCase.h>
 
 #include <os/OsDefs.h>
+#include <os/OsMsgQ.h>
 #include <mp/MpResource.h>
 #include <mp/MpFlowGraphBase.h>
 #include <mp/MpTestResource.h>
@@ -35,6 +36,7 @@ class MpResourceTest : public CppUnit::TestCase
     CPPUNIT_TEST(testInputOutputInfoAndCounts);
     CPPUNIT_TEST(testIsEnabled);
     CPPUNIT_TEST(testIsInputOutputConnectedDisconnected);
+    CPPUNIT_TEST(testNewEnableAndDisable);
     CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -408,6 +410,50 @@ public:
         delete pResource1;
         delete pResource2;
         delete pFlowGraph;
+    }
+
+    void testNewEnableAndDisable()
+    {
+       MpTestResource* pResource = 0;
+       pResource = new MpTestResource("test1", 0, 5, 1, 4);
+
+       // verify that the resource starts out disabled
+       CPPUNIT_ASSERT(pResource->isEnabled() == FALSE);
+
+       // verify that the isEnabled flag is getting passed properly via
+       // doProcessFrame()
+       CPPUNIT_ASSERT_EQUAL(0, pResource->numFramesProcessed());
+       pResource->processFrame();
+       CPPUNIT_ASSERT_EQUAL(1, pResource->numFramesProcessed());
+       CPPUNIT_ASSERT(pResource->mLastDoProcessArgs.isEnabled == FALSE);
+
+       // Create a queue..
+       OsMsgQ msgQ;
+       // Have the resource create an enable message and stick it on
+       // the queue provided.
+       MpResource::enable("test1", msgQ);
+       // Then have it process the queue immediately, doing the enable.
+       pResource->handleMessages(msgQ);
+
+       // Check that it's enabled now.
+       CPPUNIT_ASSERT(pResource->isEnabled());
+
+       pResource->processFrame();
+       CPPUNIT_ASSERT_EQUAL(2, pResource->numFramesProcessed());
+       CPPUNIT_ASSERT(pResource->mLastDoProcessArgs.isEnabled);
+
+       // Have the resource create a disable message and stick it on
+       // the queue provided.
+       MpResource::disable("test1", msgQ);
+       // Then have it process the queue immediately, doing the disable.
+       pResource->handleMessages(msgQ);
+       CPPUNIT_ASSERT(pResource->isEnabled() == FALSE);
+
+       pResource->processFrame();
+       CPPUNIT_ASSERT_EQUAL(3, pResource->numFramesProcessed());
+       CPPUNIT_ASSERT(pResource->mLastDoProcessArgs.isEnabled == FALSE);
+
+       delete pResource;
     }
 };
 

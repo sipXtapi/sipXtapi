@@ -1,8 +1,8 @@
 //  
-// Copyright (C) 2006 SIPez LLC. 
+// Copyright (C) 2006-2007 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -21,6 +21,7 @@
 #include "os/OsDefs.h"
 #include "os/OsRWMutex.h"
 #include "os/OsStatus.h"
+#include "os/OsMsgQ.h"
 #include "utl/UtlContainable.h"
 #include "utl/UtlString.h"
 #include "mp/MpBuf.h"
@@ -39,6 +40,7 @@
 // FORWARD DECLARATIONS
 class MpFlowGraphBase;
 class MpFlowGraphMsg;
+class MpResourceMsg;
 
 /// Abstract base class for all media processing objects.
 /**
@@ -97,6 +99,23 @@ static const UtlContainableType TYPE;
      *  @returns TRUE if successful, FALSE otherwise.
      */
 
+     /// Post a message to disable the resource named.
+   static OsStatus disable(const UtlString& namedResource,
+                           OsMsgQ& fgQ);
+     /**<
+     *  Post a disable message for the named resource to the 
+     *  flowgraph queue supplied.
+     *  NOTE: This is an asynchronous operation.
+     *        The status returned does not indicate that the disable
+     *        happened - only that it was properly queued.
+     *  @param namedResource - the name of the resource to disable.
+     *  @param fgQ - The flowgraph message queue to post the message to.
+     *  @returns OS_SUCCESS if the message was successfully queued
+     *           to the message queue.
+     *  @returns OS_FAILED if the message could not be added to the
+     *           message queue.
+     */
+
      /// Enable this resource.
    virtual UtlBoolean enable(void);
      /**<
@@ -107,6 +126,38 @@ static const UtlContainableType TYPE;
      *  example, passing the input straight through to the output in the case
      *  of a one input / one output resource).
      *  @returns TRUE if successful, FALSE otherwise.
+     */
+
+     /// Post a message to enable the resource named.
+   static OsStatus enable(const UtlString& namedResource,
+                          OsMsgQ& fgQ);
+     /**<
+     *  Post an enable message for the named resource to the 
+     *  flowgraph queue supplied.
+     *  NOTE: This is an asynchronous operation.
+     *        The status returned does not indicate that the enable
+     *        happened - only that it was properly queued.
+     *  @param namedResource - the name of the resource to enable.
+     *  @param fgQ - The flowgraph message queue to post the message to.
+     *  @returns OS_SUCCESS if the message was successfully queued
+     *           to the message queue.
+     *  @returns OS_FAILED if the message could not be added to the
+     *           message queue.
+     */
+
+     /// @brief Handles a queue-full of incoming messages for this media processing object.
+   UtlBoolean handleMessages(OsMsgQ& msgQ);
+     /**<
+     *  handles a queue-full of incoming messages for this resource.
+     *  This is intended to handle messages directly on a resource, 
+     *  circumventing a flowgraph's queue, and allowing things like the
+     *  application to get resources to process some operations directly.
+     *  (usually before a flowgraph is set up, but perhaps else-when too.
+     *  NOTE: This makes an assumption that the destination of these 
+     *        messages is this resource.
+     *
+     *  @param msgQ - a message queue full of messages intended for this resource.
+     *  @returns TRUE if all the messages were handled, otherwise FALSE. 
      */
 
      /// This method is called in every MpFlowGraph processing cycle.
@@ -258,9 +309,16 @@ protected:
    int          mNumActualOutputs; ///< actual number of connected outputs
    int          mVisitState;       ///< (used by flow graph topological sort alg.)
 
-     /// @brief Handles an incoming message for this media processing object.
-   virtual UtlBoolean handleMessage(MpFlowGraphMsg& rMsg);
+   static const OsTime sOperationQueueTimeout;
+     ///< The timeout for message operations for all resources when posting to the flowgraph queue.
+
+     /// @brief Handles an incoming flowgraph message for this media processing object.
+   virtual UtlBoolean handleMessage(MpFlowGraphMsg& fgMsg);
      /**< @returns TRUE if the message was handled, otherwise FALSE. */
+
+   /// @brief Handles an incoming resource message for this media processing object.
+   virtual UtlBoolean handleMessage(MpResourceMsg& rMsg);
+   /**< @returns TRUE if the message was handled, otherwise FALSE. */
 
      /// @brief If there already is a buffer stored for this input port, delete it. 
      /// Then store <i>pBuf</i> for the indicated input port.

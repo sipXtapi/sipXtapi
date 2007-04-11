@@ -1,8 +1,8 @@
 //  
-// Copyright (C) 2006 SIPez LLC. 
+// Copyright (C) 2006-2007 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -33,6 +33,8 @@ class MpFlowGraphTest : public CppUnit::TestCase
     CPPUNIT_TEST(testStartAndStop);
     CPPUNIT_TEST(testAccessors);
     CPPUNIT_TEST(testProcessNextFrame);
+
+    CPPUNIT_TEST(testNewResourceEnableDisableMsgFlow);
     CPPUNIT_TEST_SUITE_END();
 
 
@@ -446,6 +448,73 @@ public:
         delete pResource1;
         delete pResource2;
         delete pFlowGraph;
+    }
+
+    void testNewResourceEnableDisableMsgFlow()
+    {
+       MpFlowGraphBase* pFlowGraph = NULL;
+       MpTestResource*  pResource1 = NULL;
+       OsStatus         res;
+
+       mpStartUp(8000, 80, 6*10, 0);
+
+       pFlowGraph = new MpFlowGraphBase(80, 8000);
+       pResource1 = new MpTestResource("resource1", 4, 4, 4, 4);
+
+       res = pFlowGraph->addResource(*pResource1);
+       CPPUNIT_ASSERT(res == OS_SUCCESS);
+
+       CPPUNIT_ASSERT(pResource1->numFramesProcessed() == 0);
+
+       // Enable the flow graph
+       res = pFlowGraph->enable();
+       CPPUNIT_ASSERT(res == OS_SUCCESS);
+
+       // disable the resource..
+       res = MpResource::disable("resource1", *pFlowGraph->getMsgQ());
+       CPPUNIT_ASSERT(res == OS_SUCCESS);
+
+       // Start the flow graph
+       res = pFlowGraph->start();
+       CPPUNIT_ASSERT(res == OS_SUCCESS);
+
+       // Process a frame and check that the resource is disabled.
+       res = pFlowGraph->processNextFrame();
+       CPPUNIT_ASSERT(res == OS_SUCCESS);
+       CPPUNIT_ASSERT(!pResource1->isEnabled());
+
+       // enable the resource..
+       res = MpResource::enable("resource1", *pFlowGraph->getMsgQ());
+       CPPUNIT_ASSERT(res == OS_SUCCESS);
+       // Process the next frame, and check that the resource is enabled.
+       res = pFlowGraph->processNextFrame();
+       CPPUNIT_ASSERT(res == OS_SUCCESS);
+       CPPUNIT_ASSERT(pResource1->isEnabled());
+
+#if 0
+       // Now try enabling a resource with bad name
+       // (one that doesn't exist in the flowgraph)
+       res = MpResource::enable("BadResource", *pFlowGraph->getMsgQ());
+       CPPUNIT_ASSERT(res == OS_SUCCESS);
+       // Process the next frame, and check that the resource is enabled.
+       res = pFlowGraph->processNextFrame();
+       // When this codeblock is activated, an assert in 
+       // MpFlowGraphBase::processMessages() should occur when it
+       // cannot find the resource.
+#endif
+
+       // Stop the flow graph
+       res = pFlowGraph->stop();
+       CPPUNIT_ASSERT(res == OS_SUCCESS);
+
+       // Request processing of another frame so that the STOP_FLOWGRAPH
+       // message gets handled
+       res = pFlowGraph->processNextFrame();
+       CPPUNIT_ASSERT(res == OS_SUCCESS);
+
+       delete pFlowGraph;
+
+       mpShutdown();
     }
 };
 

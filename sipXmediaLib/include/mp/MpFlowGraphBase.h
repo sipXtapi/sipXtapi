@@ -311,8 +311,11 @@ public:
    OsStatus lookupResource(const UtlString& name,
                            MpResource*& rpResource);
      /**<
+     *  @param name - the name of the resource to look up.
+     *  @param rpResource - [out] the resource pointer to store the resource in.
      *  @returns <b>OS_SUCCESS</b> - success
      *  @returns <b>OS_NOT_FOUND</b> - no resource with the specified name
+     *           rpResource is NULL if OS_NOT_FOUND.
      */
 
      /// Returns the number of links in the flow graph.
@@ -482,6 +485,22 @@ private:
      /**<
      * @returns <b>TRUE</b> - if the message was handled,
      * @returns <b>FALSE</b> - otherwise.
+     */
+
+     /// @brief Sets <i>rpResource</i> to point to the resource that corresponds
+     /// to <i>name</i> or to NULL if no matching resource is found.
+   OsStatus lookupResourcePrivate(const UtlString& name,
+                                  MpResource*& rpResource);
+     /**<
+     *  Does a lookup of name->resource, and sets \c rpResource to
+     *  point to the resource that corresponds to \c name, or to 
+     *  \c NULL if no matching resource is found.
+     *  This private version does no locking.
+     *  @param name - the name of the resource to look up.
+     *  @param rpResource - [out] the resource pointer to store the resource in.
+     *  @returns <b>OS_SUCCESS</b> - success
+     *  @returns <b>OS_NOT_FOUND</b> - no resource with the specified name
+     *           rpResource is NULL if OS_NOT_FOUND.
      */
 
      /// Processes all of the messages currently queued for this flow graph.

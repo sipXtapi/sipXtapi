@@ -17,16 +17,16 @@
 
 
 // APPLICATION INCLUDES
-#include <os/OsDefs.h>
-#include <os/OsTask.h>
-#include <os/OsReadLock.h>
-#include <os/OsWriteLock.h>
+#include "os/OsDefs.h"
+#include "os/OsTask.h"
+#include "os/OsReadLock.h"
+#include "os/OsWriteLock.h"
 #include <os/OsEvent.h>
-#include <mp/MpFlowGraphBase.h>
-#include <mp/MpFlowGraphMsg.h>
-#include <mp/MpResourceSortAlg.h>
-#include <mp/MpMediaTask.h>
-
+#include "mp/MpFlowGraphBase.h"
+#include "mp/MpFlowGraphMsg.h"
+#include "mp/MpResourceMsg.h"
+#include "mp/MpResourceSortAlg.h"
+#include "mp/MpMediaTask.h"
 #include <mp/MpMisc.h>
 
 #ifdef RTL_ENABLED
@@ -641,7 +641,17 @@ int MpFlowGraphBase::getState(void) const
 OsStatus MpFlowGraphBase::lookupResource(const UtlString& name,
                                          MpResource*& rpResource)
 {
-   OsReadLock          lock(mRWMutex);
+   OsReadLock lock(mRWMutex);
+   return lookupResourcePrivate(name, rpResource);
+}
+
+// Sets rpResource to point to the resource that corresponds to 
+// name  or to NULL if no matching resource is found.
+// Returns OS_SUCCESS if there is a match, otherwise returns OS_NOT_FOUND.
+OsStatus MpFlowGraphBase::lookupResourcePrivate(
+   const UtlString& name,
+   MpResource*& rpResource)
+{
    UtlString key(name);
 
    rpResource = (MpResource*) mResourceDict.findValue(&key);
@@ -761,6 +771,17 @@ UtlBoolean MpFlowGraphBase::disconnectAllOutputs(MpResource* pResource)
 // Returns TRUE if the message was handled, otherwise FALSE.
 UtlBoolean MpFlowGraphBase::handleMessage(OsMsg& rMsg)
 {
+   // Make sure that we have either a flowgraph message,
+   // or a resource message.
+   assert(rMsg.getMsgType() == OsMsg::MP_FLOWGRAPH_MSG);
+   if (!(rMsg.getMsgType() == OsMsg::MP_FLOWGRAPH_MSG))
+   {
+      // If we don't have a resource message, return 
+      // indicating the message wasn't handled.
+      // TODO: Should also probably log to syslog
+      return FALSE;
+   }
+
    MpFlowGraphMsg* pMsg = (MpFlowGraphMsg*) &rMsg ;
    UtlBoolean retCode;
    MpResource* ptr1;
@@ -1242,10 +1263,9 @@ OsStatus MpFlowGraphBase::processMessages(void)
 
    OsWriteLock     lock(mRWMutex);
 
-   UtlBoolean       done;
-   UtlBoolean       handled;
+   UtlBoolean       handled = FALSE;
    static MpFlowGraphMsg* pStopMsg = NULL;
-   MpResource*     pMsgDest;
+   MpResource*     pMsgDest = NULL;
    
    OsStatus        res;
 
@@ -1263,7 +1283,7 @@ OsStatus MpFlowGraphBase::processMessages(void)
    res = postMessage(*pStopMsg);
    assert(res == OS_SUCCESS);
 
-   done = FALSE;
+   UtlBoolean done = FALSE;
    while (!done)
    {                  
       // get the next message
@@ -1275,10 +1295,10 @@ OsStatus MpFlowGraphBase::processMessages(void)
       
       if (pMsg->getMsgType() == OsMsg::MP_FLOWGRAPH_MSG)
       {
-         MpFlowGraphMsg* pRcvdMsg = (MpFlowGraphMsg*) pMsg ;
+         MpFlowGraphMsg* pFlowgraphMsg = (MpFlowGraphMsg*) pMsg ;
          // determine if this message is intended for a resource in the
          // flow graph (as opposed to a message for the flow graph itself)
-         pMsgDest = pRcvdMsg->getMsgDest();
+         pMsgDest = pFlowgraphMsg->getMsgDest();
 
 
          if (pMsgDest != NULL)
@@ -1286,34 +1306,80 @@ OsStatus MpFlowGraphBase::processMessages(void)
             // deliver the message if the resource is still part of this graph
             if (pMsgDest->getFlowGraph() == this)
             {
-               handled = pMsgDest->handleMessage(*pRcvdMsg);
+               handled = pMsgDest->handleMessage(*pFlowgraphMsg);
                assert(handled);
             }
          }
          else
          {
             // since pMsgDest is NULL, this msg is intended for the flow graph
-            switch (pRcvdMsg->getMsg())
+            switch (pFlowgraphMsg->getMsg())
             {
             case MpFlowGraphMsg::FLOWGRAPH_PROCESS_FRAME:
                done = TRUE;    // "stopper" message encountered -- we are done
                break;          //  processing messages for this frame interval
 
             default:
-               handled = handleMessage(*pRcvdMsg);
+               handled = handleMessage(*pFlowgraphMsg);
                assert(handled);
                break;
             }
          }
-         pRcvdMsg->releaseMsg();    // free the msg
+      }
+      else if (pMsg->getMsgType() == OsMsg::MP_RESOURCE_MSG)
+      {
+         MpResourceMsg* pResourceMsg = 
+            dynamic_cast<MpResourceMsg*>(pMsg);
+         assert(pResourceMsg != NULL);
+         if (pResourceMsg != NULL)
+         {
+            // From the resource message, get the name of the resource, and look it up.
+            // If we find it, we call the resource's handleMessage method.
+            res = lookupResourcePrivate(pResourceMsg->getDestResourceName(), pMsgDest);
+            assert(res == OS_SUCCESS);
+            assert(pMsgDest != NULL);
+
+            if (pMsgDest != NULL)
+            {
+               handled = pMsgDest->handleMessage(*pResourceMsg);
+               assert(handled);
+            }
+            else
+            {
+               OsSysLog::add(FAC_MP, PRI_DEBUG,
+                  "MpFlowGraphBase::processMessages - "
+                  "Failed looking up resource!: "
+                  "name=\"%s\", lookupResource status=0x%X, "
+                  "resource pointer returned = 0x%X",
+                  pResourceMsg->getDestResourceName(), 
+                  res, pMsgDest);
+            }
+         }
+         else // pResourceMsg == NULL
+         {
+            OsSysLog::add(FAC_MP, PRI_DEBUG,
+               "MpFlowGraphBase::processMessages - "
+               "message type field indicated it was an MP_RESOURCE_MSG "
+               "but actual language type was not an MP_RESOURCE_MSG: "
+               "msgType==0x%X, msgSubType=0x%X",
+               pMsg->getMsgType(), pMsg->getMsgSubType());
+         }
       }
       else
       {
-         handled = handleMessage(*pMsg);
-         assert(handled);
-         pMsg->releaseMsg() ;
+         // We shouldn't get here.  If we do, then someone was dumb
+         // and stuck some weird messages in the queue with types
+         // other than MP_FLOWGRAPH_MSG and MP_RESOURCE_MSG
+         assert(0);
+         OsSysLog::add(FAC_MP, PRI_DEBUG, 
+            "MpFlowGraphBase::processMessages - "
+            "SAW WEIRD MESSAGE!: "
+            "msgType==0x%X, msgSubType=0x%X",
+            pMsg->getMsgType(), pMsg->getMsgSubType());
       }
-      
+
+      // We're done with the message, we can release it now.
+      pMsg->releaseMsg();
    }
 
    return OS_SUCCESS;

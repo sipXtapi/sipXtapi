@@ -7442,6 +7442,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\src\mp\MpResourceMsg.cpp"
+				>
+			</File>
+			<File
 				RelativePath="src\mp\MpResourceSortAlg.cpp"
 				>
 				<FileConfiguration
@@ -9233,10 +9237,6 @@
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
-			</File>
-			<File
-				RelativePath=".\src\mp\MpTopologyFactory.cpp"
-				>
 			</File>
 			<File
 				RelativePath=".\src\mp\MpTopologyGraph.cpp"
@@ -12559,6 +12559,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\include\mp\MpResourceMsg.h"
+				>
+			</File>
+			<File
 				RelativePath="include\mp\MpResourceSortAlg.h"
 				>
 			</File>
@@ -12631,11 +12635,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\include\mp\MprToOutputDeviceConstructor.h"
+				RelativePath=".\include\mp\MprToOutputDevice.h"
 				>
 			</File>
 			<File
-				RelativePath=".\include\mp\MprToOutputDevice.h"
+				RelativePath=".\include\mp\MprToOutputDeviceConstructor.h"
 				>
 			</File>
 			<File
