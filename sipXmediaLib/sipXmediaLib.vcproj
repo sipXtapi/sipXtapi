@@ -2569,6 +2569,9 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\src\mp\MpResourceMsg.cpp">
+			</File>
+			<File
 				RelativePath="src\mp\MpResourceSortAlg.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -4562,6 +4565,9 @@
 			</File>
 			<File
 				RelativePath="include\mp\MpResource.h">
+			</File>
+			<File
+				RelativePath=".\include\mp\MpResourceMsg.h">
 			</File>
 			<File
 				RelativePath="include\mp\MpResourceSortAlg.h">
