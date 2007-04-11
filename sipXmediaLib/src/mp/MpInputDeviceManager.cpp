@@ -200,10 +200,12 @@ public:
          printf("getFrame invalid device: %d\n", getValue());
       }
 
-      unsigned int lastFrame = mLastPushedFrame;
-      //printf("getFrame lastFrame: %d mFrameBuffersUsed: %d\n", lastFrame, mFrameBuffersUsed);
+      // Initialize numFramesBefore and numFramesAfter. They will be advanced
+      // inside the loop.
       numFramesBefore = 0;
-      numFramesAfter = 0;
+      numFramesAfter = mFrameBuffersUsed;
+
+      unsigned int lastFrame = mLastPushedFrame;
       int framePeriod = 1000 * mSamplesPerFrame / mSamplesPerSecond;
 
       // When requesting a frame we provide the frame that overlaps the
@@ -217,28 +219,42 @@ public:
          MpInputDeviceFrameData* frameData = 
             &mppFrameBufferArray[(lastFrame - frameIndex) % mFrameBufferLength];
 
-         // The frame whose time range covers the requested time
-         if (frameData->mFrameBuffer.isValid() &&
-             frameData->mFrameTime <= frameTime &&
-             frameData->mFrameTime + framePeriod > frameTime)
+         if (frameData->mFrameBuffer.isValid())
          {
-            // We have a frame of media for the requested time
-            numFramesBefore = frameIndex;
-            numFramesAfter = mFrameBuffersUsed - 1 - frameIndex;
+            if (frameData->mFrameTime + framePeriod <= frameTime)
+            {
+               // No need to move forward - we've already gone to too early
+               // frame time.
 
-            // We always make a copy of the frame as we are typically
-            // crossing task boundaries here.
-            buffer = frameData->mFrameBuffer.clone();
-            frameTime = frameData->mFrameTime;
-            result = OS_SUCCESS;
-            break;
+               /*printf("too early: %ums + %ums <= %ums [%u/%u] %u+%u\n",
+                      frameData->mFrameTime, framePeriod, frameTime,
+                      frameIndex, mFrameBuffersUsed,
+                      numFramesBefore, numFramesAfter);*/
+               break;
+            }
+            else if (frameData->mFrameTime <= frameTime)
+            {
+               // The frame whose time range covers the requested time.
+
+               // Do not count this frame.
+               numFramesAfter--;
+
+               // We always make a copy of the frame as we are typically
+               // crossing task boundaries here.
+               buffer = frameData->mFrameBuffer.clone();
+
+               frameTime = frameData->mFrameTime;
+               result = OS_SUCCESS;
+               break;
+            }
          }
+
+         numFramesAfter--;
+         numFramesBefore++;
       }
 
-      /*if (result == OS_SUCCESS)
-      {
-         printf("getFrame got frame: %d\n", frameIndex);
-      }*/
+//      printf("[%u] %u+%u=%u\n", frameIndex, numFramesBefore, numFramesAfter, mFrameBuffersUsed);
+
       return(result);
    };
 
