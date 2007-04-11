@@ -2,16 +2,8 @@
 <mappings xmlns='http://www.sipfoundry.org/sipX/schema/xml/urlmap-00-00'>
   <hostMatch>
     <hostPattern>${SIPXCHANGE_DOMAIN_NAME}</hostPattern>
+    <hostPattern>${MY_FULL_HOSTNAME}</hostPattern>
+    <hostPattern>${MY_HOSTNAME}</hostPattern>
     <hostPattern>${MY_IP_ADDR}</hostPattern>
-    <userMatch>
-      <!-- operator or any extension 0* goes to AutoAttendant -->
-      <userPattern>operator</userPattern>
-      <userPattern>0.</userPattern>
-      <permissionMatch>
-        <transform>
-          <url>&lt;sip:{digits}@{mediaserver};play={voicemail}%2Fcgi-bin%2Fvoicemail%2Fmediaserver.cgi%3Faction%3Dautoattendant&gt;</url>
-        </transform>
-      </permissionMatch>
-    </userMatch>
   </hostMatch>
 </mappings>
