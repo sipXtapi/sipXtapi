@@ -130,7 +130,7 @@ public:
         mLapseTime = mFramePeriodMilliseconds * 1000 * mNumBufferedFrames;
         OsTime delta = end - start;
         mActualLapseTime = delta.seconds() * 1000000 + delta.usecs();
-        printf("actual time: %d scheduled: %d (milli seconds) abs: %d\n",
+        printf("actual time: %dus, scheduled: %dus, abs: %dus\n",
             mActualLapseTime, mLapseTime, abs(mActualLapseTime - mLapseTime));
         mRunDone = TRUE;
         return(1);
