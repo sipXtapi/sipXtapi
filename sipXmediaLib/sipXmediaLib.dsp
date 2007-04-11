@@ -403,6 +403,10 @@ SOURCE=.\src\mp\MpResourceFactory.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\mp\MpResourceMsg.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\mp\MpResourceSortAlg.cpp
 # End Source File
 # Begin Source File
@@ -923,6 +927,10 @@ SOURCE=.\include\mp\MpdSipxGSM.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\include\mp\MpdSipxILBC.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\include\mp\MpdSipxPcma.h
 # End Source File
 # Begin Source File
@@ -972,6 +980,10 @@ SOURCE=.\include\mp\MpePtAVT.h
 # Begin Source File
 
 SOURCE=.\include\mp\MpeSipxGSM.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MpeSipxILBC.h
 # End Source File
 # Begin Source File
 
@@ -1047,6 +1059,10 @@ SOURCE=.\include\mp\MpQueuePlayerListener.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\include\mp\MpRawAudioBuffer.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\include\mp\MprBridge.h
 # End Source File
 # Begin Source File
@@ -1080,6 +1096,10 @@ SOURCE=.\include\mp\MpResourceConstructor.h
 # Begin Source File
 
 SOURCE=.\include\mp\MpResourceFactory.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MpResourceMsg.h
 # End Source File
 # Begin Source File
 
@@ -1159,11 +1179,11 @@ SOURCE=.\include\mp\MprToNet.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\mp\MprToOutputDeviceConstructor.h
+SOURCE=.\include\mp\MprToOutputDevice.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\mp\MprToOutputDevice.h
+SOURCE=.\include\mp\MprToOutputDeviceConstructor.h
 # End Source File
 # Begin Source File
 

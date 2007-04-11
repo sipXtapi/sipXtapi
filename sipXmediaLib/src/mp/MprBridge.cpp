@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2006 SIPez LLC. 
+// Copyright (C) 2006-2007 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
@@ -33,17 +33,15 @@
 
 // Constructor
 MprBridge::MprBridge(const UtlString& rName,
-                           int samplesPerFrame, int samplesPerSec)
-:  MpAudioResource(rName, 1, MAX_BRIDGE_PORTS, 1,
-                   MAX_BRIDGE_PORTS, samplesPerFrame, samplesPerSec),
-   mPortLock(OsBSem::Q_FIFO, OsBSem::FULL)
+                     int maxInOutputs,
+                     int samplesPerFrame, 
+                     int samplesPerSec)
+:  MpAudioResource(rName, 
+                   1, maxInOutputs, 
+                   1, maxInOutputs, 
+                   samplesPerFrame, 
+                   samplesPerSec)
 {
-   int i;
-
-   mpConnectionIDs[0] = (1<<30);
-   for (i=1; i<MAX_BRIDGE_PORTS; i++) {
-      mpConnectionIDs[i] = -1;
-   }
 }
 
 // Destructor
@@ -53,35 +51,6 @@ MprBridge::~MprBridge()
 
 /* ============================ MANIPULATORS ============================== */
 
-// Attach a connection container to an available port.
-int MprBridge::connectPort(const MpConnectionID connID)
-{
-   int port = findFreePort();
-
-   if (port > -1) {
-      assert(-2 == mpConnectionIDs[port]);
-      mpConnectionIDs[port] = connID;
-   }
-   return port;
-}
-
-
-// Disconnect a connection container from its port.
-OsStatus MprBridge::disconnectPort(const MpConnectionID connID)
-{
-   int i;
-
-   for (i=1; i<MAX_BRIDGE_PORTS; i++)
-   {
-      if (connID == mpConnectionIDs[i]) {
-         // Found the port, mark it free
-         mpConnectionIDs[i] = -1;
-         return OS_SUCCESS;
-      }
-   }
-   return OS_NOT_FOUND;
-}
-
 /* ============================ ACCESSORS ================================= */
 
 /* ============================ INQUIRY =================================== */
@@ -89,7 +58,7 @@ OsStatus MprBridge::disconnectPort(const MpConnectionID connID)
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
 UtlBoolean MprBridge::doMix(MpAudioBufPtr inBufs[], int inBufsSize,
-                            MpAudioBufPtr &out, int samplesPerFrame) const
+                            MpAudioBufPtr &out, int samplesPerFrame)
 {
     int inputsConnected;  // Number of connected ports
     int inputsValid;      // Number of ports with available data
@@ -174,28 +143,8 @@ UtlBoolean MprBridge::doMix(MpAudioBufPtr inBufs[], int inBufsSize,
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
-//Find and return the index to an unused port pair
-int MprBridge::findFreePort(void)
-{
-   int i;
-   int found = -1;
-
-   mPortLock.acquire();
-   for (i=1; i<MAX_BRIDGE_PORTS; i++)
-   {
-      if (-1 == mpConnectionIDs[i]) {
-         // Found a free port, we can put a new connection here.
-         mpConnectionIDs[i] = -2;
-         found = i;
-         i = MAX_BRIDGE_PORTS;
-      }
-   }
-   mPortLock.release();
-   return found;
-}
-
 //Check whether this port is connected to both input and output
-UtlBoolean MprBridge::isPortActive(int portIdx) const
+UtlBoolean MprBridge::isPortActive(int portIdx)
 {
    return (isInputConnected(portIdx) && isOutputConnected(portIdx));
 }

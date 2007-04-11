@@ -1,12 +1,12 @@
+//  
+// Copyright (C) 2006-2007 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
-//  
-// Copyright (C) 2006 SIPez LLC. 
-// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // $$
 ///////////////////////////////////////////////////////////////////////////////
@@ -140,7 +140,7 @@ MpCallFlowGraph::MpCallFlowGraph(const char* locale,
    for (i=0; i<MAX_RECORDERS; i++) mpRecorders[i] = NULL;
 
    // create the resources and add them to the flow graph
-   mpBridge           = new MprBridge("Bridge",
+   mpBridge           = new MprBridge("Bridge", MAX_CONNECTIONS + 1,
                                  samplesPerFrame, samplesPerSec);
    mpFromFile         = new MprFromFile("FromFile",
                                  samplesPerFrame, samplesPerSec);
@@ -1187,7 +1187,7 @@ MpConnectionID MpCallFlowGraph::createConnection()
 
    pConnection = mpConnections[found];
 
-   bridgePort = mpBridge->connectPort(found);
+   bridgePort = mpBridge->reserveFirstUnconnectedInput();
 
    if (bridgePort < 0) {
       delete pConnection;
@@ -1245,11 +1245,11 @@ OsStatus MpCallFlowGraph::deleteConnection(MpConnectionID connID)
       return OS_UNSPECIFIED;
 }
 
-void MpCallFlowGraph::setPremiumSound(MpAudioConnection::PremiumSoundOptions op)
+void MpCallFlowGraph::setPremiumSound(UtlBoolean enablePremiumSound)
 {
    OsStatus  res;
    MpFlowGraphMsg msg(MpFlowGraphMsg::FLOWGRAPH_SET_PREMIUM_SOUND,
-      NULL, NULL, NULL, op);
+      NULL, NULL, NULL, enablePremiumSound);
 
    res = postMessage(msg);
 }
@@ -1727,7 +1727,9 @@ UtlBoolean MpCallFlowGraph::handleRemoveConnection(MpFlowGraphMsg& rMsg)
    MpAudioConnection* pConnection;
    UtlBoolean    res;
 
-   mpBridge->disconnectPort(connID);
+   // Don't think this is needed as we make the ports available by
+   // releasing the ports on the connected resources
+   //mpBridge->disconnectPort(connID);
    mConnTableLock.acquire();
    pConnection = mpConnections[connID];
    mpConnections[connID] = NULL;

@@ -16,11 +16,12 @@
 #include <assert.h>
 
 // APPLICATION INCLUDES
-#include "os/OsDefs.h"
-#include "mp/MpFlowGraphBase.h"
-#include "mp/MpFlowGraphMsg.h"
-#include "mp/MpResourceMsg.h"
-#include "mp/MpResource.h"
+#include <os/OsDefs.h>
+#include <os/OsLock.h>
+#include <mp/MpFlowGraphBase.h>
+#include <mp/MpFlowGraphMsg.h>
+#include <mp/MpResourceMsg.h>
+#include <mp/MpResource.h>
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -47,7 +48,8 @@ MpResource::MpResource(const UtlString& rName, int minInputs, int maxInputs,
    mMinOutputs(minOutputs),
    mNumActualInputs(0),
    mNumActualOutputs(0),
-   mVisitState(NOT_VISITED)
+   mVisitState(NOT_VISITED),
+   mLock(OsBSem::Q_FIFO, OsBSem::FULL)
 {
    int i;   
 
@@ -59,6 +61,7 @@ MpResource::MpResource(const UtlString& rName, int minInputs, int maxInputs,
    // Allocate arrays for input/output link objects and input/output
    // buffer.  Size the arrays so as to accommodate the maximum number of
    // input and output links supported for this resource.
+   OsLock lock(mLock);
    mpInConns  = new Conn[maxInputs];
    mpOutConns = new Conn[maxOutputs];
    mpInBufs   = new MpBufPtr[maxInputs];
@@ -68,6 +71,7 @@ MpResource::MpResource(const UtlString& rName, int minInputs, int maxInputs,
    {
       mpInConns[i].pResource = NULL;
       mpInConns[i].portIndex = -1;
+      mpInConns[i].reserved = FALSE;
       mpInBufs[i].release();
    }
 
@@ -75,9 +79,9 @@ MpResource::MpResource(const UtlString& rName, int minInputs, int maxInputs,
    {
       mpOutConns[i].pResource = NULL;
       mpOutConns[i].portIndex = -1;
+      mpOutConns[i].reserved = FALSE;
       mpOutBufs[i].release();
    }
-
 }
 
 // Destructor
@@ -166,27 +170,51 @@ void MpResource::setVisitState(int newState)
 // graph.
 void MpResource::resourceInfo(MpResource* pResource, int index)
 {
-   int         i;
-   const char*       name;
+   if(pResource)
+   {
+       int         i;
+       const char*       name;
 
-   name = pResource->getName();
-   osPrintf("    Resource[%d]: %p, %s (%sabled)\n",
-          index, pResource, name, pResource->mIsEnabled ? "En" : "Dis");
-   
-   for (i=0; i<pResource->mMaxInputs; i++) {
-      if (NULL != pResource->mpInConns[i].pResource) {
-         name = pResource->mpInConns[i].pResource->getName();
-         osPrintf("        Input %d from %s:%d\n", i, 
-            name, pResource->mpInConns[i].portIndex);
-      }
-   }
+       name = pResource->getName();
+       osPrintf("    Resource[%d]: %p, %s (%sabled)\n",
+              index, pResource, name, pResource->mIsEnabled ? "En" : "Dis");
 
-   for (i=0; i<pResource->mMaxOutputs; i++) {
-      if (NULL != pResource->mpOutConns[i].pResource) {
-         name = pResource->mpOutConns[i].pResource->getName();
-         osPrintf("        Output %d to %s:%d\n", i, 
-            name, pResource->mpOutConns[i].portIndex);
-      }
+       OsLock lock(pResource->mLock);
+       for (i=0; i<pResource->mMaxInputs; i++) 
+       {
+          if (NULL != pResource->mpInConns[i].pResource) 
+          {
+             name = pResource->mpInConns[i].pResource->getName();
+             osPrintf("        Input %d from %s:%d\n", i, 
+                name, pResource->mpInConns[i].portIndex);
+          }
+          else if(pResource->mpInConns[i].reserved)
+          {
+             osPrintf("        Input %d reserved", i);
+          }
+          else
+          {
+             osPrintf("        Input %d  not reserved", i);
+          }
+       }
+
+       for (i=0; i<pResource->mMaxOutputs; i++) 
+       {
+          if (NULL != pResource->mpOutConns[i].pResource) 
+          {
+             name = pResource->mpOutConns[i].pResource->getName();
+             osPrintf("        Output %d to %s:%d\n", i, 
+                name, pResource->mpOutConns[i].portIndex);
+          }
+          else if(pResource->mpOutConns[i].reserved)
+          {
+             osPrintf("        Output %d reserved", i);
+          }
+          else
+          {
+             osPrintf("        Output %d  not reserved", i);
+          }
+       }
    }
 }
 
@@ -202,7 +230,7 @@ MpFlowGraphBase* MpResource::getFlowGraph(void) const
 // "inPortIdx" input on this resource.  If "inPortIdx" is invalid or
 // there is no link, then "rpUpstreamResource" will be set to NULL.
 void MpResource::getInputInfo(int inPortIdx, MpResource*& rpUpstreamResource,
-                              int& rUpstreamPortIdx) const
+                              int& rUpstreamPortIdx)
 {
    if (inPortIdx < 0 || inPortIdx >= mMaxInputs)
    {
@@ -211,6 +239,7 @@ void MpResource::getInputInfo(int inPortIdx, MpResource*& rpUpstreamResource,
    }
    else
    {
+      OsLock lock(mLock);
       rpUpstreamResource = mpInConns[inPortIdx].pResource;
       rUpstreamPortIdx   = mpInConns[inPortIdx].portIndex;
    }
@@ -227,7 +256,7 @@ UtlString MpResource::getName(void) const
 // there is no link, then "rpDownstreamResource" will be set to NULL.
 void MpResource::getOutputInfo(int outPortIdx,
                                MpResource*& rpDownstreamResource,
-                               int& rDownstreamPortIdx) const
+                               int& rDownstreamPortIdx)
 {
    if (outPortIdx < 0 || outPortIdx >= mMaxOutputs)
    {
@@ -236,6 +265,7 @@ void MpResource::getOutputInfo(int outPortIdx,
    }
    else
    {
+      OsLock lock(mLock);
       rpDownstreamResource = mpOutConns[outPortIdx].pResource;
       rDownstreamPortIdx   = mpOutConns[outPortIdx].portIndex;
    }
@@ -284,6 +314,40 @@ int MpResource::numOutputs(void) const
    return mNumActualOutputs;
 }
 
+int MpResource::reserveFirstUnconnectedInput()
+{
+   int i;
+   int portIndex = -1;
+   OsLock lock(mLock);
+   for (i = 0; i < mMaxInputs; i++)       // initialize the input port storage
+   {
+      if(mpInConns[i].pResource == NULL && mpInConns[i].reserved == FALSE)
+      {
+          mpInConns[i].reserved = TRUE;
+          portIndex = i;
+          break;
+      }
+   }
+   return(portIndex);
+}
+
+int MpResource::reserveFirstUnconnectedOutput()
+{
+   int i;
+   int portIndex = -1;
+   OsLock lock(mLock);
+   for (i = 0; i < mMaxOutputs; i++)       // initialize the input port storage
+   {
+      if(mpOutConns[i].pResource == NULL && mpOutConns[i].reserved == FALSE)
+      {
+          mpOutConns[i].reserved = TRUE;
+          portIndex = i;
+          break;
+      }
+   }
+   return(portIndex);
+}
+
 // Calculate a unique hash code for this object.
 unsigned MpResource::hash() const
 {
@@ -306,42 +370,50 @@ UtlBoolean MpResource::isEnabled(void) const
 
 // Returns TRUE if portIdx is valid and the indicated input is connected,
 // FALSE otherwise.
-UtlBoolean MpResource::isInputConnected(int portIdx) const
+UtlBoolean MpResource::isInputConnected(int portIdx)
 {
    if (portIdx < 0 || portIdx >= mMaxInputs)  // portIdx out of range
       return FALSE;
 
-   return (mpInConns[portIdx].pResource != NULL);
+   OsLock lock(mLock);
+   UtlBoolean isConnected = (mpInConns[portIdx].pResource != NULL);
+   return(isConnected);
 }
 
 // Returns TRUE if portIdx is valid and the indicated input is not connected,
 // FALSE otherwise.
-UtlBoolean MpResource::isInputUnconnected(int portIdx) const
+UtlBoolean MpResource::isInputUnconnected(int portIdx)
 {
    if (portIdx < 0 || portIdx >= mMaxInputs)  // portIdx out of range
       return FALSE;
 
-   return (mpInConns[portIdx].pResource == NULL);
+   OsLock lock(mLock);
+   UtlBoolean isUnconnected = (mpInConns[portIdx].pResource == NULL);
+   return(isUnconnected);
 }
 
 // Returns TRUE if portIdx is valid and the indicated output is connected,
 // FALSE otherwise.
-UtlBoolean MpResource::isOutputConnected(int portIdx) const
+UtlBoolean MpResource::isOutputConnected(int portIdx)
 {
    if (portIdx < 0 || portIdx >= mMaxOutputs) // portIdx out of range
       return FALSE;
 
-   return (mpOutConns[portIdx].pResource != NULL);
+   OsLock lock(mLock);
+   UtlBoolean isConnected = (mpOutConns[portIdx].pResource != NULL);
+   return(isConnected);
 }
 
 // Returns TRUE if portIdx is valid and the indicated output is not connected,
 // FALSE otherwise.
-UtlBoolean MpResource::isOutputUnconnected(int portIdx) const
+UtlBoolean MpResource::isOutputUnconnected(int portIdx)
 {
    if (portIdx < 0 || portIdx >= mMaxOutputs) // portIdx out of range
       return FALSE;
 
-   return (mpOutConns[portIdx].pResource == NULL);
+   OsLock lock(mLock);
+   UtlBoolean isUnconnected = (mpOutConns[portIdx].pResource == NULL);
+   return(isUnconnected);
 }
 
 // Compare the this object to another like-object. 
@@ -465,6 +537,7 @@ UtlBoolean MpResource::handleMessages(OsMsgQ& msgQ)
 // Then store pBuf for the indicated input port.
 void MpResource::setInputBuffer(int inPortIdx, const MpBufPtr &pBuf)
 {
+    OsLock lock(mLock);
    // make sure we have a valid port that is connected to a resource
    assert((inPortIdx >= 0) && (inPortIdx < mMaxInputs) &&
           (mpInConns[inPortIdx].pResource != NULL));
@@ -484,6 +557,7 @@ UtlBoolean MpResource::pushBufferDownsream(int outPortIdx, const MpBufPtr &pBuf)
    if (outPortIdx < 0 || outPortIdx >= mMaxOutputs)  // port  out of range
       return FALSE;
 
+   OsLock lock(mLock);
    pDownstreamInput  = mpOutConns[outPortIdx].pResource;
    downstreamPortIdx = mpOutConns[outPortIdx].portIndex;
    if (pDownstreamInput == NULL)                     // no connected resource
@@ -529,9 +603,11 @@ UtlBoolean MpResource::connectInput(MpResource& rFrom, int fromPortIdx,
        toPortIdx >= mMaxInputs)        // bad port index
       return FALSE;
 
+   OsLock lock(mLock);
    mpInBufs[toPortIdx].release();
    mpInConns[toPortIdx].pResource = &rFrom;
    mpInConns[toPortIdx].portIndex = fromPortIdx;
+   mpInConns[toPortIdx].reserved = FALSE;
 
    mNumActualInputs++;
 
@@ -548,9 +624,11 @@ UtlBoolean MpResource::connectOutput(MpResource& rTo, int toPortIdx,
        fromPortIdx >= mMaxOutputs)     // bad port index
       return FALSE;
 
+   OsLock lock(mLock);
    mpOutBufs[fromPortIdx].release();
    mpOutConns[fromPortIdx].pResource = &rTo;
    mpOutConns[fromPortIdx].portIndex = toPortIdx;
+   mpOutConns[fromPortIdx].reserved = FALSE;
 
    mNumActualOutputs++;
 
@@ -561,6 +639,7 @@ UtlBoolean MpResource::connectOutput(MpResource& rTo, int toPortIdx,
 // Returns TRUE if successful, FALSE otherwise.
 UtlBoolean MpResource::disconnectInput(int inPortIdx)
 {
+   OsLock lock(mLock);
    if (mpInConns[inPortIdx].pResource == NULL || // no connected resource
        inPortIdx < 0 ||                          // bad port index
        inPortIdx >= mMaxInputs)                  // bad port index
@@ -569,6 +648,7 @@ UtlBoolean MpResource::disconnectInput(int inPortIdx)
    mpInBufs[inPortIdx].release();
    mpInConns[inPortIdx].pResource = NULL;
    mpInConns[inPortIdx].portIndex = -1;
+   mpInConns[inPortIdx].reserved = FALSE;
 
    mNumActualInputs--;
 
@@ -579,6 +659,7 @@ UtlBoolean MpResource::disconnectInput(int inPortIdx)
 // Returns TRUE if successful, FALSE otherwise.
 UtlBoolean MpResource::disconnectOutput(int outPortIdx)
 {
+   OsLock lock(mLock);
    if (mpOutConns[outPortIdx].pResource == NULL || // no connected resource
        outPortIdx < 0 ||                           // bad port index
        outPortIdx >= mMaxOutputs)                  // bad port index
@@ -587,6 +668,7 @@ UtlBoolean MpResource::disconnectOutput(int outPortIdx)
    mpOutBufs[outPortIdx].release();
    mpOutConns[outPortIdx].pResource = NULL;
    mpOutConns[outPortIdx].portIndex = -1;
+   mpOutConns[outPortIdx].reserved = FALSE;
 
    mNumActualOutputs--;
 

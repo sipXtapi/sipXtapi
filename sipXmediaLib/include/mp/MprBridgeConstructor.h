@@ -41,7 +41,7 @@ public:
     /** Constructor
      */
     MprBridgeConstructor(int minInOutputs = 1,
-                         int maxInOutputs = 1,
+                         int maxInOutputs = 10,
                          int samplesPerFrame = 80, 
                          int samplesPerSecond = 8000) :
       MpAudioResourceConstructor(DEFAULT_BRIDGE_RESOURCE_TYPE,
@@ -65,7 +65,9 @@ public:
     {
         assert(mSamplesPerFrame > 0);
         assert(mSamplesPerSecond > 0);
+        assert(mMaxInputs == mMaxOutputs);
         return(new MprBridge(resourceName,
+                             mMaxInputs,
                              mSamplesPerFrame,
                              mSamplesPerSecond));
     }

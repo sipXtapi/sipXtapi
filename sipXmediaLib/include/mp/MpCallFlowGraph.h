@@ -1,12 +1,12 @@
+//  
+// Copyright (C) 2006-2007 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
-//  
-// Copyright (C) 2006 SIPez LLC. 
-// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // $$
 ///////////////////////////////////////////////////////////////////////////////
@@ -22,7 +22,6 @@
 // APPLICATION INCLUDES
 #include "mp/MpMisc.h"
 #include "mp/MpFlowGraphBase.h"
-#include "mp/MpAudioConnection.h"
 #include "mp/StreamDefs.h"
 #include "mp/MpStreamMsg.h"
 #include "os/OsProtectEvent.h"
@@ -84,6 +83,8 @@ class MprMixer;
 class MprSplitter;
 class MprToSpkr;
 class MprToneGen;
+class SdpCodec;
+class MpAudioConnection;
 
 /// Flow graph used to handle a basic call
 #ifdef INCLUDE_RTCP /* [ */
@@ -275,7 +276,7 @@ public:
    OsStatus deleteConnection(MpConnectionID connID);
 
      /// Disables or enables the GIPS premium sound.
-   void setPremiumSound(MpAudioConnection::PremiumSoundOptions op);
+   void setPremiumSound(UtlBoolean enablePremiumSound);
 
      /// Disables the GIPS premium sound.
    void disablePremiumSound(void);
@@ -318,7 +319,6 @@ public:
 ///@name Accessors
 //@{
 
-   MpAudioConnection* getConnectionPtr(MpConnectionID id);
 #ifdef INCLUDE_RTCP /* [ */
      /// Returns the RTCP Session interface pointer associated with this call's flow graph.
    IRTCPSession* getRTCPSessionPtr(void);

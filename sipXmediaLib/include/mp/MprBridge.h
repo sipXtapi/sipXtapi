@@ -1,8 +1,8 @@
 //  
-// Copyright (C) 2006 SIPez LLC. 
+// Copyright (C) 2006-2007 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -19,7 +19,6 @@
 
 // APPLICATION INCLUDES
 #include "mp/MpAudioResource.h"
-#include "mp/MpAudioConnection.h"
 
 // DEFINES
 // MACROS
@@ -55,7 +54,10 @@ public:
 //@{
 
      /// Default constructor
-   MprBridge(const UtlString& rName, int samplesPerFrame, int samplesPerSec);
+   MprBridge(const UtlString& rName,
+             int maxInOutputs, 
+             int samplesPerFrame, 
+             int samplesPerSec);
 
      /// Destructor
    virtual
@@ -66,12 +68,6 @@ public:
 /* ============================ MANIPULATORS ============================== */
 ///@name Manipulators
 //@{
-
-     /// Attach MpAudioConnection to an available port.
-   int connectPort(MpConnectionID connID);
-
-     /// Disconnect MpAudioConnection from its port.
-   OsStatus disconnectPort(MpConnectionID connID);
 
 //@}
 
@@ -91,17 +87,10 @@ public:
 protected:
 
     UtlBoolean doMix(MpAudioBufPtr inBufs[], int inBufsSize,
-                     MpAudioBufPtr &out, int samplesPerFrame) const;
+                     MpAudioBufPtr &out, int samplesPerFrame);
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-
-   enum { MAX_BRIDGE_PORTS = 10 };
-
-   MpConnectionID mpConnectionIDs[MAX_BRIDGE_PORTS];
-                              ///< IDs of remote connections, binded to this
-                              ///< bridge.
-   OsBSem         mPortLock;  ///< Mutex for ports access synchronization
 
    virtual UtlBoolean doProcessFrame(MpBufPtr inBufs[],
                                      MpBufPtr outBufs[],
@@ -111,11 +100,8 @@ private:
                                      int samplesPerFrame=80,
                                      int samplesPerSecond=8000);
 
-     /// Find and return the index to an unused port pair
-   int findFreePort(void);
-
      /// Check whether this port is connected to both input and output
-   UtlBoolean isPortActive(int portIdx) const;
+   UtlBoolean isPortActive(int portIdx);
 
      /// Copy constructor (not implemented for this class)
    MprBridge(const MprBridge& rMprBridge);

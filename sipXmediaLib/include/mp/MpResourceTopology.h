@@ -68,6 +68,11 @@ class MpResourceTopology
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
+    enum MpLogicalPortTypes
+    {
+        MP_TOPOLOGY_NEXT_AVAILABLE_PORT = -1
+    };
+
 /* ============================ CREATORS ================================== */
 
     /** Constructor
@@ -135,6 +140,14 @@ public:
                            UtlString& inputResourceName,
                            int& inputPortIndex);
 
+    /// Get the next logical port, used when the same port number
+    /** 
+      * used when more than one connection should refer to the same
+      * port number, but the port number is not yet known (e.g. use
+      * the next available port).
+      */
+    int getNextLogicalPortNumber();
+
 /* ============================ INQUIRY =================================== */
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
@@ -156,6 +169,7 @@ private:
     MpResourceTopology& operator=(const MpResourceTopology& rhs);
 
     
+    int mPriorLogicalPort;
     UtlDList mResources;
     UtlDList mConnections;
 };

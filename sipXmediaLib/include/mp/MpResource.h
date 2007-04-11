@@ -195,7 +195,7 @@ static const UtlContainableType TYPE;
 
      /// Returns information about the upstream end of a connection.
    void getInputInfo(int inPortIdx, MpResource*& rpUpstreamResource,
-                     int& rUpstreamPortIdx) const;
+                     int& rUpstreamPortIdx);
      /**<
      *  Returns information about the upstream end of a connection to the 
      *  <i>inPortIdx</i> input on this resource.  If <i>inPortIdx</i> is 
@@ -208,7 +208,7 @@ static const UtlContainableType TYPE;
 
      /// Returns information about the downstream end of a connection.
    void getOutputInfo(int outPortIdx, MpResource*& rpDownstreamResource,
-                      int& rDownstreamPortIdx) const;
+                      int& rDownstreamPortIdx);
      /**<
      *  Returns information about the downstream end of a connection to the 
      *  <i>outPortIdx</i> output on this resource.  If <i>outPortIdx</i> is 
@@ -238,6 +238,22 @@ static const UtlContainableType TYPE;
      /// Returns the number of resource outputs that are currently connected.
    int numOutputs(void) const;
 
+     /// Find the first unconnected input port and reserve it
+     /** 
+       * Reserving a port does not prevent someone from connecting to
+       * that port.
+       * @returns -1 if no free ports
+       */
+   int reserveFirstUnconnectedInput();
+
+     /// Find the first unconnected output port and reserve it
+     /** 
+       * Reserving a port does not prevent someone from connecting to
+       * that port.
+       * @returns -1 if no free ports
+       */
+   int reserveFirstUnconnectedOutput();
+
      /// Calculate a unique hash code for this object.
    virtual unsigned hash() const ;
      /**<
@@ -258,16 +274,16 @@ static const UtlContainableType TYPE;
    UtlBoolean isEnabled(void) const;
 
      /// Returns TRUE if portIdx is valid and the indicated input is connected, FALSE otherwise.
-   UtlBoolean isInputConnected(int portIdx) const;
+   UtlBoolean isInputConnected(int portIdx);
 
      /// Returns TRUE if portIdx is valid and the indicated input is not connected, FALSE otherwise.
-   UtlBoolean isInputUnconnected(int portIdx) const;
+   UtlBoolean isInputUnconnected(int portIdx);
 
      /// Returns TRUE if portIdx is valid and the indicated output is connected, FALSE otherwise.
-   UtlBoolean isOutputConnected(int portIdx) const;
+   UtlBoolean isOutputConnected(int portIdx);
 
      /// Returns TRUE if portIdx is valid and the indicated output is not connected, FALSE otherwise.
-   UtlBoolean isOutputUnconnected(int portIdx) const;
+   UtlBoolean isOutputUnconnected(int portIdx);
 
      /// Compare the this object to another like-objects.
    virtual int compareTo(UtlContainable const *) const ;   
@@ -289,6 +305,7 @@ protected:
    {
       MpResource* pResource;    ///< Other end of the connection.
       int         portIndex;    ///< Port number on the other end of the connection.
+      UtlBoolean  reserved;     ///< this port is reserved to be used
    };
 
    UtlString     mName;            ///< name associated with this resource
@@ -308,6 +325,7 @@ protected:
    int          mNumActualInputs;  ///< actual number of connected inputs
    int          mNumActualOutputs; ///< actual number of connected outputs
    int          mVisitState;       ///< (used by flow graph topological sort alg.)
+   OsBSem       mLock;             ///< used mainly to make safe changes to ports
 
    static const OsTime sOperationQueueTimeout;
      ///< The timeout for message operations for all resources when posting to the flowgraph queue.

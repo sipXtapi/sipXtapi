@@ -22,6 +22,7 @@
 #include <os/OsDatagramSocket.h>
 #include <os/OsNatDatagramSocket.h>
 #include <os/OsProtectEventMgr.h>
+typedef int MpConnectionID;
 #include "include/CpPhoneMediaInterface.h"
 #include "mi/CpMediaInterfaceFactoryImpl.h"
 #include <mp/MpMediaTask.h>

@@ -32,7 +32,8 @@
 #include "mp/MpAudioUtils.h"
 #include "mp/MpAudioWaveFileRead.h"
 #include "mp/mpau.h"
-// TODO remove reference to MpCallFlowGraph
+// TODO remove next two lines and reference to MpCallFlowGraph
+typedef int MpConnectionID;
 #include "mp/MpCallFlowGraph.h"
 #include "os/OsSysLog.h"
 #include "os/OsProtectEventMgr.h"

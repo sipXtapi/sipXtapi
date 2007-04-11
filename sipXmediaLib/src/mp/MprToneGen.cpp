@@ -22,7 +22,8 @@
 /* #include "pinger/Pinger.h" */
 #include "mp/MpMisc.h"
 #include "mp/MpBuf.h"
-// TODO: Remove reference to MpCallFlowGraph
+// TODO remove next two lines and reference to MpCallFlowGraph
+typedef int MpConnectionID;
 #include "mp/MpCallFlowGraph.h"
 #include "mp/MprToneGen.h"
 

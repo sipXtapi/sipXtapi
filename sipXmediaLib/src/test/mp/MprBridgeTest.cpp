@@ -42,7 +42,7 @@ public:
        // when we have a flow graph that contains resources and links,
        // verify that destroying the flow graph also gets rid of the resources
        // and links.
-       pBridge = new MprBridge("MprBridge",
+       pBridge = new MprBridge("MprBridge", 10,
                                TEST_SAMPLES_PER_FRAME, TEST_SAMPLES_PER_SEC);
 
        res = mpFlowGraph->addResource(*pBridge);
@@ -56,7 +56,7 @@ public:
        OsStatus          res;
        int               i;
 
-       pBridge = new MprBridge("MprBridge",
+       pBridge = new MprBridge("MprBridge", 10,
                                TEST_SAMPLES_PER_FRAME, TEST_SAMPLES_PER_SEC);
        CPPUNIT_ASSERT(pBridge != NULL);
 
@@ -107,7 +107,7 @@ public:
        MprBridge*        pBridge    = NULL;
        OsStatus          res;
 
-       pBridge = new MprBridge("MprBridge",
+       pBridge = new MprBridge("MprBridge", 10,
                                TEST_SAMPLES_PER_FRAME, TEST_SAMPLES_PER_SEC);
        CPPUNIT_ASSERT(pBridge != NULL);
 
@@ -138,7 +138,7 @@ public:
        MpBufPtr          pBuf;
        OsStatus          res;
 
-       pBridge = new MprBridge("MprBridge",
+       pBridge = new MprBridge("MprBridge", 10,
                                TEST_SAMPLES_PER_FRAME, TEST_SAMPLES_PER_SEC);
        CPPUNIT_ASSERT(pBridge != NULL);
 
@@ -183,7 +183,7 @@ public:
        MpBufPtr          pBuf;
        OsStatus          res;
 
-       pBridge = new MprBridge("MprBridge",
+       pBridge = new MprBridge("MprBridge", 10,
                                TEST_SAMPLES_PER_FRAME, TEST_SAMPLES_PER_SEC);
        CPPUNIT_ASSERT(pBridge != NULL);
 

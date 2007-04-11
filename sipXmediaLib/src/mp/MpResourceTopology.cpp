@@ -78,7 +78,8 @@ private:
 /* ============================ CREATORS ================================== */
 
 // Constructor
-MpResourceTopology::MpResourceTopology()
+MpResourceTopology::MpResourceTopology() :
+mPriorLogicalPort(MP_TOPOLOGY_NEXT_AVAILABLE_PORT)
 {
 }
 
@@ -301,6 +302,11 @@ OsStatus MpResourceTopology::getConnection(int connectionIndex,
         result = OS_NOT_FOUND;
     }
     return(result);
+}
+
+int MpResourceTopology::getNextLogicalPortNumber()
+{
+    return((--mPriorLogicalPort));
 }
 
 /* ============================ INQUIRY =================================== */
