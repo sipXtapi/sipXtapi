@@ -380,7 +380,7 @@ int MpInputDeviceManager::addDevice(MpInputDeviceDriver& newDevice)
    UtlInt* idValue = new UtlInt(newDeviceId);
    OsSysLog::add(FAC_MP, PRI_DEBUG,
                  "MpInputDeviceManager::addDevice dev: %p value: %p id: %d\n", 
-                 newDevice, idValue, newDeviceId);
+                 &newDevice, idValue, newDeviceId);
    mConnectionsByDeviceName.insertKeyAndValue(&newDevice, idValue);
 
    // Map by device ID
