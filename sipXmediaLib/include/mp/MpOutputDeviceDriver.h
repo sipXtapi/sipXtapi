@@ -16,6 +16,7 @@
 // SYSTEM INCLUDES
 //#include <utl/UtlDefs.h>
 #include <os/OsStatus.h>
+#include <os/OsNotification.h>
 #include <utl/UtlString.h>
 
 // APPLICATION INCLUDES
@@ -136,6 +137,23 @@ public:
      *  @param samples - (in) Array of samples to push to device.
      */
 
+     /// Set frame ticker notification which this device should signal.
+   virtual
+   OsStatus setTickerNotification(OsNotification *pFrameTicker) = 0;
+     /**<
+     *  @param pFrameTicker - (in) notification to signal when device become
+     *         ready. Pass NULL to pFrameTicker if you do not want receive
+     *         frame ticks, e.g. in direct write mode. In this case driver
+     *         may stop its thread if it used one for for notifications.
+     *
+     *  @see See mpFrameTicker documentation for detailed discussion.
+     *  @see See isFrameTickerSupported().
+     *
+     *  @returns OS_SUCCESS if frame ticker notification set successfully.
+     *  @returns OS_NOT_SUPPORTED if this driver implementation does not support
+     *           frame ticker notification.
+     */
+
      /// Set device ID associated with this device in parent input device manager.
 //   virtual OsStatus setDeviceId(MpOutputDeviceHandle deviceId);
      /**<
@@ -177,6 +195,15 @@ public:
    inline
    unsigned getSamplesPerSec() const;
 
+     /// Is frame ticker notification support by this driver notification.
+   virtual
+   UtlBoolean isFrameTickerSupported() const = 0;
+     /**<
+     *  If this method returns TRUE, setTickerNotification() method may be
+     *  used to set frame ticker notification. If this method returns FALSE,
+     *  setTickerNotification() must return OS_NOT_SUPPORTED.
+     */
+
 
 //@}
 
@@ -206,6 +233,17 @@ protected:
                    ///< number of samples.
    unsigned mSamplesPerSec;       ///< Device produce audio with this number
                    ///< of samples per second.
+   OsNotification *mpFrameTicker; ///< If this notification is not NULL, device
+                   ///< driver MUST signal this notification as soon as he ready
+                   ///< to receive next frame of data. Note, that signaling
+                   ///< this notification may block for some time, as it would
+                   ///< normally be a callback which in turn calls pushFrame()
+                   ///< method of this device driver. Also this notification may
+                   ///< be used to signal begin of frame interval for one or
+                   ///< several flowgraphs, so it should be as monotonous
+                   ///< as possible, i.e. it should not burst or hold over,
+                   ///< driver should signal this notification after equal
+                   ///< intervals of time.
    
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
