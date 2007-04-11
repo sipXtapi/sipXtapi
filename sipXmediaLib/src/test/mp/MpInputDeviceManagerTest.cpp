@@ -15,6 +15,7 @@
 #include <os/OsTask.h>
 #include <os/OsTime.h>
 #include <os/OsDateTime.h>
+#include <os/OsEvent.h>
 #include <mp/MpAudioBuf.h>
 #include <mp/MpInputDeviceManager.h>
 #include <mp/MpSineWaveGeneratorDeviceDriver.h>
@@ -33,8 +34,9 @@ public:
                                    int framePeriodMilliseconds,
                                    MpAudioBufPtr* storedSignal,
                                    int deviceId,
-                                   MpInputDeviceManager& inputDeviceManager) :
-      OsTask("MpInputDeviceManagerTestReader-%d", NULL, 1 /* HIGHEST PRIORITY is 0*/),
+                                   MpInputDeviceManager& inputDeviceManager,
+                                   OsEvent &finishedEvent)
+      : OsTask("MpInputDeviceManagerTestReader-%d", NULL, 1 /* HIGHEST PRIORITY is 0*/),
       mRunDone(FALSE),
       mNumStarvations(0),
       mFirstFrameTime(0),
@@ -45,7 +47,8 @@ public:
       mFramePeriodMilliseconds(framePeriodMilliseconds),
       mpStoredSignal(storedSignal),
       mDeviceId(deviceId),
-      mpInputDeviceManager(&inputDeviceManager)
+      mpInputDeviceManager(&inputDeviceManager),
+      mpFinishedEvent(&finishedEvent)
     {
           CPPUNIT_ASSERT(storedSignal);
     };
@@ -82,32 +85,43 @@ public:
 
                 result = 
                     mpInputDeviceManager->getFrame(mDeviceId,
-                                                frameTime,
-                                                mpStoredSignal[frameIndex],
-                                                numFramesBefore,
-                                                numFramesAfter);
+                                                   frameTime,
+                                                   mpStoredSignal[frameIndex],
+                                                   numFramesBefore,
+                                                   numFramesAfter);
 
                 // Retry once
                 if(result != OS_SUCCESS)
                 {
                     mRetryCount++;
-                    result = 
-                        mpInputDeviceManager->getFrame(mDeviceId,
-                                                    frameTime,
-                                                    mpStoredSignal[frameIndex],
-                                                    numFramesBefore,
-                                                    numFramesAfter);
+                    while (result != OS_SUCCESS && numFramesAfter == 0 && numFramesBefore > 0)
+                    {
+                        printf(".\n");
+                        frameTime += mFramePeriodMilliseconds;
+                        result = 
+                              mpInputDeviceManager->getFrame(mDeviceId,
+                                                             frameTime,
+                                                             mpStoredSignal[frameIndex],
+                                                             numFramesBefore,
+                                                             numFramesAfter);
+                    }
                 }
 
             }
 
-            
-            delay(mFramePeriodMilliseconds);
+            printf("got frame #%d frameTime: %u numFramesBefore: %d numFramesAfter: %d result: %d valid frame: %s\n", 
+                           frameIndex,
+                           frameTime,
+                           numFramesBefore, 
+                           numFramesAfter,
+                           result,
+                           mpStoredSignal[frameIndex].isValid() ? "TRUE" : "FALSE");
 
             if(result == OS_SUCCESS && mpStoredSignal[frameIndex].isValid())
             {
                 if(firstFrame == TRUE)
                 {
+                    printf("First frame time: %u\n", frameTime);
                     mFirstFrameTime = frameTime;
                     firstFrame = FALSE;
                 }
@@ -117,28 +131,25 @@ public:
             {
                 mNumStarvations++;
                 //OsSysLog::add(FAC_AUDIO, PRI_DEBUG, 
-                printf("got frameTime: %u numFramesBefore: %d numFramesAfter: %d result: %d valid frame: %s\n", 
-                               frameTime,
-                               numFramesBefore, 
-                               numFramesAfter,
-                               result,
-                               mpStoredSignal[frameIndex].isValid() ? "TRUE" : "FALSE");
-                printf("BAAAAD driver: %d frame not available\n", mDeviceId);
+                printf("BAAAAD driver: frame #%d not available\n", mDeviceId);
             }
+
+            delay(mFramePeriodMilliseconds);
         }
         OsDateTime::getCurTimeSinceBoot(end);
-        mLapseTime = mFramePeriodMilliseconds * 1000 * mNumBufferedFrames;
+        mLapseTime = mFramePeriodMilliseconds * mNumBufferedFrames;
         OsTime delta = end - start;
-        mActualLapseTime = delta.seconds() * 1000000 + delta.usecs();
-        printf("actual time: %dus, scheduled: %dus, abs: %dus\n",
+        mActualLapseTime = delta.seconds() * 1000 + delta.usecs() / 1000;
+        printf("actual time: %dms, scheduled: %dms, abs: %dms\n",
             mActualLapseTime, mLapseTime, abs(mActualLapseTime - mLapseTime));
         mRunDone = TRUE;
-        return(1);
+        mpFinishedEvent->signal(0);
+        return 1;
     }
 
     UtlBoolean mRunDone;
     int mNumStarvations;
-    unsigned int mFirstFrameTime;
+    MpFrameTime mFirstFrameTime;
     int mLapseTime;
     int mActualLapseTime;
     int mRetryCount;
@@ -149,6 +160,7 @@ private:
     MpAudioBufPtr* mpStoredSignal;
     int mDeviceId;
     MpInputDeviceManager* mpInputDeviceManager;
+    OsEvent *mpFinishedEvent;
 
 };
 
@@ -227,11 +239,13 @@ public:
 
         // Create a task to read frames from manager
         MpAudioBufPtr*  storedSignal = new MpAudioBufPtr[numBufferedFrames];
+        OsEvent readerFinished;
         MpInputDeviceManagerTestReader readerTask(numBufferedFrames,
                                                   framePeriodMilliseconds,
                                                   storedSignal,
                                                   sineWaveDeviceId,
-                                                  inputDeviceManager);
+                                                  inputDeviceManager,
+                                                  readerFinished);
 
         // Should fail as it is not enabled yet
         CPPUNIT_ASSERT(inputDeviceManager.disableDevice(sineWaveDeviceId) !=
@@ -250,13 +264,18 @@ public:
 
         // wait for frames to be read with slop time
         int readerTaskWait = (int)(framePeriodMilliseconds * 1.5 * numBufferedFrames);
-        printf("waiting: %d for reader to finish\n", readerTaskWait);
-        OsTask::delay(readerTaskWait);
+        printf("waiting %dms for reader to finish\n", readerTaskWait);
+        // Do not block forever, wait 1sec
+        OsTime maxWaitTime(0, 1000000);
+        CPPUNIT_ASSERT(readerFinished.wait(maxWaitTime) == OS_SUCCESS);
         printf("done waiting for reader\n");
 
         CPPUNIT_ASSERT(readerTask.mRunDone);
         CPPUNIT_ASSERT_EQUAL(0, readerTask.mNumStarvations);
         CPPUNIT_ASSERT(readerTask.isShutDown());
+
+        CPPUNIT_ASSERT(abs(readerTask.mActualLapseTime - readerTask.mLapseTime) < 2000 * numBufferedFrames);
+        CPPUNIT_ASSERT_EQUAL(0, readerTask.mRetryCount);
 
         // Validate the actual frame data
         int frameIndex;
@@ -267,7 +286,7 @@ public:
         CPPUNIT_ASSERT(referenceFrame.isValid());
         MpAudioSample* referenceSamples = referenceFrame->getSamples();
         MpAudioSample* actualSamples;
-        unsigned int frameTime = readerTask.mFirstFrameTime;
+        MpFrameTime frameTime = readerTask.mFirstFrameTime;
         for(frameIndex = 0; frameIndex < numBufferedFrames; frameIndex++)
         {
             sprintf(frameMessage, "Validating frame: %d", frameIndex);
@@ -287,13 +306,13 @@ public:
                                                                      sampleIndex,
                                                                      samplesPerFrame,
                                                                      samplesPerSecond);
-                /*printf("frame sample[%d,%d] r=%d a=%d\n",
-                       frameIndex,
-                       sampleIndex,
-                       referenceSamples[sampleIndex],
-                       actualSamples[sampleIndex]);*/
-
             }
+
+            /*printf("frame sample[%d,%d] r=%d a=%d\n",
+                   frameIndex,
+                   sampleIndex,
+                   referenceSamples[0],
+                   actualSamples[0]);*/
 
             CPPUNIT_ASSERT_EQUAL_MESSAGE(frameMessage,
                                          0,
@@ -319,8 +338,6 @@ public:
                              (MpInputDeviceDriver*)sineWaveDevice);
         delete sineWaveDevice;
         sineWaveDevice = NULL;
-        CPPUNIT_ASSERT(abs(readerTask.mActualLapseTime - readerTask.mLapseTime) < 2000 * numBufferedFrames);
-        CPPUNIT_ASSERT_EQUAL(0, readerTask.mRetryCount);
 
 
         // TODO: Create another driver which runs too slow
