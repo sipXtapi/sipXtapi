@@ -53,7 +53,6 @@ libsipXmedia_la_SOURCES =  \
     mp/MpArrayBuf.cpp \
     mp/MpAudioAbstract.cpp \
     mp/MpAudioBuf.cpp \
-    mp/MpAudioConnection.cpp \
     mp/MpAudioFileDecompress.cpp \
     mp/MpAudioFileOpen.cpp \
     mp/MpAudioFileUtils.cpp \
@@ -68,7 +67,6 @@ libsipXmedia_la_SOURCES =  \
     mp/MpCodec.cpp \
     mp/MpCodecFactory.cpp \
     mp/MpCodecInfo.cpp \
-    mp/MpConnection.cpp \
     mp/MpDataBuf.cpp \
     mp/MpDecoderBase.cpp \
     mp/MpdGIPSG729ab.cpp \
@@ -137,6 +135,10 @@ libsipXmedia_la_SOURCES =  \
     mp/MprToNet.cpp \
     mp/MprToOutputDevice.cpp \
     mp/MprToSpkr.cpp \
+    mp/MpRtpInputAudioConnection.cpp \
+    mp/MpRtpInputConnection.cpp \
+    mp/MpRtpOutputAudioConnection.cpp \
+    mp/MpRtpOutputConnection.cpp \
     mp/MpStreamFeeder.cpp \
     mp/MpStreamMsg.cpp \
     mp/MpStreamPlayer.cpp \

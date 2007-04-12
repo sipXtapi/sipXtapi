@@ -27,7 +27,6 @@ nobase_include_HEADERS =  \
     mp/MpArrayBuf.h \
     mp/MpAudioAbstract.h \
     mp/MpAudioBuf.h \
-    mp/MpAudioConnection.h \
     mp/MpAudioFileDecompress.h \
     mp/MpAudioFileOpen.h \
     mp/MpAudioFileUtils.h \
@@ -43,7 +42,6 @@ nobase_include_HEADERS =  \
     mp/MpCodec.h \
     mp/MpCodecFactory.h \
     mp/MpCodecInfo.h \
-    mp/MpConnection.h \
     mp/MpDataBuf.h \
     mp/MpDecoderBase.h \
     mp/MpdGIPSG729ab.h \
@@ -119,6 +117,10 @@ nobase_include_HEADERS =  \
     mp/MprToOutputDeviceConstructor.h \
     mp/MprToOutputDevice.h \
     mp/MprToSpkr.h \
+    mp/MpRtpInputAudioConnection.h \
+    mp/MpRtpInputConnection.h \
+    mp/MpRtpOutputAudioConnection.h \
+    mp/MpRtpOutputConnection.h \
     mp/MpSineWaveGeneratorDeviceDriver.h \
     mp/MpSipxDecoders.h \
     mp/MpStreamFeeder.h \
