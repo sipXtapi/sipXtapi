@@ -90,8 +90,7 @@ OsStatus MpAudioOutputConnection::enableDevice(unsigned samplesPerFrame,
 
    // Enable device driver
    result = mpDeviceDriver->enableDevice(samplesPerFrame, samplesPerSec,
-                                         mCurrentFrameTime,
-                                         mMixerBufferLength==0?TRUE:FALSE);
+                                         mCurrentFrameTime);
 
    return result;
 }
