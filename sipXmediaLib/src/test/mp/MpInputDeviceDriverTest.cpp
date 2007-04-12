@@ -123,14 +123,16 @@ public:
          // Now enable it via the manager -- this should succeed.
          CPPUNIT_ASSERT(inDevMgr.enableDevice(iDrvHnd) == OS_SUCCESS);
 
+         int nMSPerBuffer = mNumBufferedFrames * mFramePeriodMSecs;
          unsigned nMSecsToRecord = 1000;
+         double* derivs = new double[(mNumBufferedFrames-1)*(nMSecsToRecord/nMSPerBuffer)];
+         // Round nMSecsToRecord to nMSPerBuffer boundary.
+         nMSecsToRecord = (nMSecsToRecord/nMSPerBuffer) * nMSPerBuffer;
 
          UtlString derivPlotStr;
          derivPlotStr.capacity((nMSecsToRecord/mFramePeriodMSecs) << 2);
          UtlString derivWAvgStr;
 
-         int nMSPerBuffer = mNumBufferedFrames * mFramePeriodMSecs;
-         double* derivs = new double[(mNumBufferedFrames-1)*(nMSecsToRecord/nMSPerBuffer)];
          unsigned i;
          for(i=0;i<(mNumBufferedFrames-1)*(nMSecsToRecord/nMSPerBuffer);i++)
             derivs[i] = -1;
@@ -192,12 +194,7 @@ public:
 
             derivWeightedAverage += derivs[i];
 
-            try { CPPUNIT_ASSERT(derivs[i] <= 4); }
-            catch (CppUnit::Exception& e)
-            {
-               inDevMgr.disableDevice(iDrvHnd);
-               throw(e);
-            }
+            CPPUNIT_ASSERT(derivs[i] <= 4);
          }
 
          // Ok, now disable it via the manager -- this time it should succeed.
