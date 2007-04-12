@@ -53,11 +53,10 @@ const int MprFromNet::SSRC_SWITCH_MISMATCH_COUNT = 8;
 /* ============================ CREATORS ================================== */
 
 // Constructor
-MprFromNet::MprFromNet(MpConnection* pConn)
+MprFromNet::MprFromNet()
 :  mMutex(OsMutex::Q_PRIORITY|OsMutex::INVERSION_SAFE),
    mRegistered(FALSE),
    mpDejitter(NULL),
-   mpConnection(pConn),
 #ifdef INCLUDE_RTCP /* [ */
    mpiRTCPDispatch(NULL),
    mpiRTPDispatch(NULL),
@@ -295,17 +294,6 @@ OsStatus MprFromNet::pushPacket(const MpUdpBufPtr &udpBuf, bool isRtcp)
     if (isRtcp == false)
     {
         rtpBuf = parseRtpPacket(udpBuf);
-
-// Ipse: Disabled this check when separating MpAudioConnection from MpConnection.
-//       We could not do this check with new MpConnection, cause it does not
-//       know anything about decoding - it just receive/send RTP and RTCP streams.
-#if 0
-        // Check if we can decode this packet
-        if (mpConnection->mapPayloadType(rtpBuf->getRtpPayloadType()) == NULL) {
-            // just ignore it!
-            return ret;
-        }
-#endif
 
         thisSsrc = rtpBuf->getRtpSSRC();
 

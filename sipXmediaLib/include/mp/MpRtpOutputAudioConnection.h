@@ -12,8 +12,8 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 
-#ifndef _MpAudioConnection_h_
-#define _MpAudioConnection_h_
+#ifndef _MpRtpOutputAudioConnection_h_
+#define _MpRtpOutputAudioConnection_h_
 
 // FORWARD DECLARATIONS
 class MpCallFlowGraph;
@@ -27,7 +27,7 @@ class MprRecorder;
 
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
-#include "mp/MpConnection.h"
+#include "mp/MpRtpOutputConnection.h"
 #include "mp/JB/jb_typedefs.h"
 
 // DEFINES
@@ -41,30 +41,24 @@ class MprRecorder;
 /**
 *  @brief Connection container for audio part of call.
 */
-class MpAudioConnection : public MpConnection
+class MpRtpOutputAudioConnection : public MpRtpOutputConnection
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
    friend class MpCallFlowGraph;
 
-   typedef enum
-   {
-      DisablePremiumSound = FALSE,
-      EnablePremiumSound = TRUE
-   } PremiumSoundOptions;
-
 /* ============================ CREATORS ================================== */
 ///@name Creators
 //@{
 
      /// Constructor
-   MpAudioConnection(MpConnectionID myID, MpCallFlowGraph* pParent,
+   MpRtpOutputAudioConnection(MpConnectionID myID, MpCallFlowGraph* pParent,
                      int samplesPerFrame, int samplesPerSec);
 
      /// Destructor
    virtual
-   ~MpAudioConnection();
+   ~MpRtpOutputAudioConnection();
 
 //@}
 
@@ -72,26 +66,14 @@ public:
 ///@name Manipulators
 //@{
 
-     /// Disables the input path of the connection.
-   OsStatus disableIn();
-     /**<
-     *  @see See MpConnection::disable() for more information.
-     */
-
      /// Disables the output path of the connection.
-   OsStatus disableOut();
+   //virtual OsStatus disable();
      /**<
      *  @see See MpConnection::disable() for more information.
-     */
-
-     /// Enables the input path of the connection.
-   OsStatus enableIn();
-     /**<
-     *  @see See MpConnection::enable() for more information.
      */
 
      /// Enables the output path of the connection.
-   OsStatus enableOut();
+   virtual OsStatus enable();
      /**<
      *  @see See MpConnection::enable() for more information.
      */
@@ -106,13 +88,6 @@ public:
 
      /// Stops sending RTP and RTCP packets.
    void stopSendRtp();
-
-     /// Starts receiving RTP and RTCP packets.
-   void startReceiveRtp(SdpCodec* pCodecs[], int numCodecs,
-                        OsSocket& rRtpSocket, OsSocket& rRtcpSocket);
-
-     /// Stops receiving RTP and RTCP packets.
-   void stopReceiveRtp(void);
 
      /// Save the port number that was assigned by the bridge.
    OsStatus setBridgePort(int port);
@@ -135,27 +110,11 @@ public:
 ///@name Accessors
 //@{
 
-     /// Returns a pointer to the JB instance, creating it if necessary
-   JB_inst* getJBinst(UtlBoolean optional = FALSE);
-     /**<
-     *  If the instance has not been created, but the argument "optional" is
-     *  TRUE, then do not create it, just return NULL.
-     */
-
      /// Returns the resource to link to upstream resource's outPort.
    MpResource* getSinkResource(void);
 
-     /// Returns the resource to link to downstream resource's inPort.
-   MpResource* getSourceResource(void);
-
      /// Retrieve the port number that was assigned by the bridge.
    int getBridgePort(void);
-
-     /// Get decoder for this payload type
-   MpDecoderBase* mapPayloadType(int payloadType);
-
-     /// Disables or enables the GIPS premium sound.
-   void setPremiumSound(PremiumSoundOptions op);
 
 //@}
 
@@ -168,31 +127,21 @@ public:
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 
-     /// Handle the FLOWGRAPH_SET_DTMF_NOTIFY message.
-   UtlBoolean handleSetDtmfNotify(OsNotification* n);
-     /**<
-     *  @Returns <b>TRUE</b>
-     */
-
-   UtlBoolean setDtmfTerm(MprRecorder *pRecorder);
-
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
 
      /// Default constructor
-   MpAudioConnection();
+   MpRtpOutputAudioConnection();
 
      /// Copy constructor (not implemented for this type)
-   MpAudioConnection(const MpAudioConnection& rMpAudioConnection);
+   MpRtpOutputAudioConnection(const MpRtpOutputAudioConnection& rMpRtpOutputAudioConnection);
 
      /// Assignment operator (not implemented for this type)
-   MpAudioConnection& operator=(const MpAudioConnection& rhs);
+   MpRtpOutputAudioConnection& operator=(const MpRtpOutputAudioConnection& rhs);
 
    MpFlowGraphBase*   mpFlowGraph;     ///< Parent flowgraph
    MprEncode*         mpEncode;        ///< Outbound component: Encoder
-   MprDecode*         mpDecode;        ///< Inbound component: Decoder
    int                mBridgePort;     ///< Where we are connected on the bridge
-   JB_inst*           mpJB_inst;       ///< Pointer to JitterBuffer instance
 
    MpDecoderBase*     mpPayloadMap[NUM_PAYLOAD_TYPES];
                                        ///< Map RTP payload types to our decoders
@@ -200,4 +149,4 @@ private:
 
 /* ============================ INLINE METHODS ============================ */
 
-#endif  // _MpAudioConnection_h_
+#endif  // _MpRtpOutputAudioConnection_h_

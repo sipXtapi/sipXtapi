@@ -1,8 +1,8 @@
 //  
-// Copyright (C) 2006 SIPez LLC. 
+// Copyright (C) 2006-2007 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -16,7 +16,7 @@
 
 // APPLICATION INCLUDES
 #include "mp/MpMediaTask.h"
-#include "mp/MpAudioConnection.h"
+#include "mp/MpRtpInputAudioConnection.h"
 #include "mp/MpFlowGraphBase.h"
 #include "mp/MpCallFlowGraph.h"
 #include "mp/MprEncode.h"
@@ -39,9 +39,9 @@
 /* ============================ CREATORS ================================== */
 
 // Constructor
-MpAudioConnection::MpAudioConnection(MpConnectionID myID, MpCallFlowGraph* pParent,
+MpRtpInputAudioConnection::MpRtpInputAudioConnection(MpConnectionID myID, MpCallFlowGraph* pParent,
                                      int samplesPerFrame, int samplesPerSec)
-: MpConnection(myID, 
+: MpRtpInputConnection(myID, 
 #ifdef INCLUDE_RTCP // [
                pParent->getRTCPSessionPtr()
 #else // INCLUDE_RTCP ][
@@ -49,7 +49,6 @@ MpAudioConnection::MpAudioConnection(MpConnectionID myID, MpCallFlowGraph* pPare
 #endif // INCLUDE_RTCP ]
                )
 , mpFlowGraph(pParent)
-, mpEncode(NULL)
 , mpDecode(NULL)
 , mBridgePort(-1)
 , mpJB_inst(NULL)
@@ -60,8 +59,6 @@ MpAudioConnection::MpAudioConnection(MpConnectionID myID, MpCallFlowGraph* pPare
 
    sprintf(name, "Decode-%d", myID);
    mpDecode    = new MprDecode(name, this, samplesPerFrame, samplesPerSec);
-   sprintf(name, "Encode-%d", myID);
-   mpEncode    = new MprEncode(name, samplesPerFrame, samplesPerSec);
 
  //memset((char*)mpPayloadMap, 0, (NUM_PAYLOAD_TYPES*sizeof(MpDecoderBase*)));
    for (i=0; i<NUM_PAYLOAD_TYPES; i++) {
@@ -70,15 +67,10 @@ MpAudioConnection::MpAudioConnection(MpConnectionID myID, MpCallFlowGraph* pPare
 
    // Add synchronized resources to flowgraph.
    res = pParent->addResource(*mpDecode);      assert(res == OS_SUCCESS);
-   res = pParent->addResource(*mpEncode);      assert(res == OS_SUCCESS);
 
    //////////////////////////////////////////////////////////////////////////
    // connect Dejitter -> Decode (Non synchronous resources)
    mpDecode->setMyDejitter(mpDejitter);
-
-   //////////////////////////////////////////////////////////////////////////
-   // connect Encode -> ToNet (Non synchronous resources)
-   mpEncode->setMyToNet(mpToNet);
 
    pParent->synchronize("new Connection, before enable(), %dx%X\n");
    enable();
@@ -86,13 +78,10 @@ MpAudioConnection::MpAudioConnection(MpConnectionID myID, MpCallFlowGraph* pPare
 }
 
 // Destructor
-MpAudioConnection::~MpAudioConnection()
+MpRtpInputAudioConnection::~MpRtpInputAudioConnection()
 {
    if (mpDecode != NULL)
       delete mpDecode;
-
-   if (mpEncode != NULL)
-      delete mpEncode;
 
    if (NULL != mpJB_inst) {
       JB_free(mpJB_inst);
@@ -102,26 +91,22 @@ MpAudioConnection::~MpAudioConnection()
 
 /* ============================ MANIPULATORS ============================== */
 
-// Disables the input path, output path, or both paths, of the connection.
+// Disables the input path of the connection.
 // Resources on the path(s) will also be disabled by these calls.
 // If the flow graph is not "started", this call takes effect
 // immediately.  Otherwise, the call takes effect at the start of the
 // next frame processing interval.
 //!retcode: OS_SUCCESS - for now, these methods always return success
 
-OsStatus MpAudioConnection::disableIn()
+/*OsStatus MpRtpInputAudioConnection::disable()
 {
    mpDecode->disable();
-   return MpConnection::disableIn();
-}
+   return MpRtpInputAudioConnection::disable();
+}*/
 
-OsStatus MpAudioConnection::disableOut()
-{
-   mpEncode->disable();
-   return MpConnection::disableOut();
-}
 
-// Enables the input path, output path, or both paths, of the connection.
+
+// Enables the input path of the connection.
 // Resources on the path(s) will also be enabled by these calls.
 // Resources may allocate needed data (e.g. output path reframe buffer)
 //  during this operation.
@@ -130,73 +115,15 @@ OsStatus MpAudioConnection::disableOut()
 // next frame processing interval.
 //!retcode: OS_SUCCESS - for now, these methods always return success
 
-OsStatus MpAudioConnection::enableIn()
+OsStatus MpRtpInputAudioConnection::enable()
 {
    mpDecode->enable();
-   return MpConnection::enableIn();
-}
-
-OsStatus MpAudioConnection::enableOut()
-{
-   mpEncode->enable();
-   return MpConnection::enableOut();
-}
-
-// Start sending RTP and RTCP packets.
-
-void MpAudioConnection::startSendRtp(OsSocket& rRtpSocket,
-                                     OsSocket& rRtcpSocket,
-                                     SdpCodec* pPrimaryCodec,
-                                     SdpCodec* pDtmfCodec)
-{
-   prepareStartSendRtp(rRtpSocket, rRtcpSocket);
-
-   // This should be ok to set directly as long as we do not switch mid stream
-   // Eventually this needs to be a message
-#if 0
-   osPrintf("MpConnection::startSendRtp setting send codecs:\n");
-
-   if (NULL != pPrimaryCodec) {
-      osPrintf("  Primary audio: codec=%d, payload type=%d\n",
-          pPrimaryCodec->getCodecType(),
-          pPrimaryCodec->getCodecPayloadFormat());
-   } else {
-      osPrintf("  Primary audio: NONE\n");
-   }
-   if (NULL != pDtmfCodec) {
-      osPrintf("  DTMF Tones: codec=%d, payload type=%d\n",
-          pDtmfCodec->getCodecType(), pDtmfCodec->getCodecPayloadFormat());
-   } else {
-      osPrintf("  DTMF Tones: NONE\n");
-   }
-   if (NULL != pSecondaryCodec) {
-      osPrintf("  Secondary audio: codec=%d, payload type=%d\n",
-          pSecondaryCodec->getCodecType(),
-          pSecondaryCodec->getCodecPayloadFormat());
-   } else {
-      osPrintf("  Secondary audio: NONE\n");
-   }
-#endif
-
-   mpEncode->selectCodecs(pPrimaryCodec, pDtmfCodec);
-   mpFlowGraph->synchronize();
-   mpEncode->enable();
-}
-
-// Stop sending RTP and RTCP packets.
-void MpAudioConnection::stopSendRtp()
-{
-   prepareStopSendRtp();
-
-//   osPrintf("MpAudioConnection::stopSendRtp resetting send codec\n");
-   mpEncode->deselectCodecs();
-   mpFlowGraph->synchronize();
-   mpEncode->disable();
+   return MpRtpInputConnection::enable();
 }
 
 // Start receiving RTP and RTCP packets.
 
-void MpAudioConnection::startReceiveRtp(SdpCodec* pCodecs[], int numCodecs,
+void MpRtpInputAudioConnection::startReceiveRtp(SdpCodec* pCodecs[], int numCodecs,
                                        OsSocket& rRtpSocket,
                                        OsSocket& rRtcpSocket)
 {
@@ -214,7 +141,7 @@ void MpAudioConnection::startReceiveRtp(SdpCodec* pCodecs[], int numCodecs,
 }
 
 // Stop receiving RTP and RTCP packets.
-void MpAudioConnection::stopReceiveRtp()
+void MpRtpInputAudioConnection::stopReceiveRtp()
 {
    prepareStopReceiveRtp();
 
@@ -235,24 +162,14 @@ void MpAudioConnection::stopReceiveRtp()
    mpDecode->disable();
 }
 
-OsStatus MpAudioConnection::setBridgePort(int port)
+OsStatus MpRtpInputAudioConnection::setBridgePort(int port)
 {
    if (-1 != mBridgePort) return OS_BUSY;
    mBridgePort = port;
    return OS_SUCCESS;
 }
 
-void MpAudioConnection::startTone(int toneId)
-{
-   mpEncode->startTone(toneId);
-}
-
-void MpAudioConnection::stopTone(void)
-{
-   mpEncode->stopTone();
-}
-
-void MpAudioConnection::addPayloadType(int payloadType, MpDecoderBase* decoder)
+void MpRtpInputAudioConnection::addPayloadType(int payloadType, MpDecoderBase* decoder)
 {
    OsLock lock(mLock);
 
@@ -260,7 +177,7 @@ void MpAudioConnection::addPayloadType(int payloadType, MpDecoderBase* decoder)
    if ((payloadType < 0) || (payloadType >= NUM_PAYLOAD_TYPES))
    {
       OsSysLog::add(FAC_MP, PRI_ERR,
-                    "MpAudioConnection::addPayloadType Attempting to add an invalid payload type %d", payloadType);
+                    "MpRtpInputAudioConnection::addPayloadType Attempting to add an invalid payload type %d", payloadType);
    }
    // Check to see if we already have a decoder for this payload type.
    else if (!(NULL == mpPayloadMap[payloadType]))
@@ -268,7 +185,7 @@ void MpAudioConnection::addPayloadType(int payloadType, MpDecoderBase* decoder)
       // This condition probably indicates that the sender of SDP specified
       // two decoders for the same payload type number.
       OsSysLog::add(FAC_MP, PRI_ERR,
-                    "MpAudioConnection::addPayloadType Attempting to add a second decoder for payload type %d",
+                    "MpRtpInputAudioConnection::addPayloadType Attempting to add a second decoder for payload type %d",
                     payloadType);
    }
    else
@@ -277,7 +194,7 @@ void MpAudioConnection::addPayloadType(int payloadType, MpDecoderBase* decoder)
    }
 }
 
-void MpAudioConnection::deletePayloadType(int payloadType)
+void MpRtpInputAudioConnection::deletePayloadType(int payloadType)
 {
    OsLock lock(mLock);
 
@@ -285,7 +202,7 @@ void MpAudioConnection::deletePayloadType(int payloadType)
    if ((payloadType < 0) || (payloadType >= NUM_PAYLOAD_TYPES))
    {
       OsSysLog::add(FAC_MP, PRI_ERR,
-                    "MpAudioConnection::deletePayloadType Attempting to delete an invalid payload type %d", payloadType);
+                    "MpRtpInputAudioConnection::deletePayloadType Attempting to delete an invalid payload type %d", payloadType);
    }
    // Check to see if this entry has already been deleted.
    else if (NULL == mpPayloadMap[payloadType])
@@ -293,10 +210,10 @@ void MpAudioConnection::deletePayloadType(int payloadType)
       // Either this payload type was doubly-added (and reported by
       // addPayloadType) or we've hit the race condtion in XMR-29.
       OsSysLog::add(FAC_MP, PRI_ERR,
-                    "MpAudioConnection::deletePayloadType Attempting to delete again payload type %d",
+                    "MpRtpInputAudioConnection::deletePayloadType Attempting to delete again payload type %d",
                     payloadType);
       OsSysLog::add(FAC_MP, PRI_ERR,
-                    "MpAudioConnection::deletePayloadType If there is no message from MpAudioConnection::addPayloadType above, see XMR-29");
+                    "MpRtpInputAudioConnection::deletePayloadType If there is no message from MpRtpInputAudioConnection::addPayloadType above, see XMR-29");
    }
    else
    {
@@ -304,7 +221,7 @@ void MpAudioConnection::deletePayloadType(int payloadType)
    }
 }
 
-void MpAudioConnection::setPremiumSound(PremiumSoundOptions op)
+void MpRtpInputAudioConnection::setPremiumSound(PremiumSoundOptions op)
 {
 #ifdef HAVE_GIPS /* [ */
    int NetEqOp = NETEQ_PLAYOUT_MODE_OFF;
@@ -320,7 +237,7 @@ void MpAudioConnection::setPremiumSound(PremiumSoundOptions op)
       NETEQ_GIPS_10MS16B_SetPlayoutMode(mpJB_inst, NetEqOp);
 #endif
 /*
-      osPrintf("MpAudioConnection::setPremiumSound: %sabling Premium Sound on #%d\n",
+      osPrintf("MpRtpInputAudioConnection::setPremiumSound: %sabling Premium Sound on #%d\n",
          (EnablePremiumSound == op) ? "En" : "Dis", mMyID);
 */
    }
@@ -333,13 +250,13 @@ void MpAudioConnection::setPremiumSound(PremiumSoundOptions op)
 // If the instance has not been created, but the argument "optional" is
 // TRUE, then do not create it, just return NULL.
 
-JB_inst* MpAudioConnection::getJBinst(UtlBoolean optional) {
+JB_inst* MpRtpInputAudioConnection::getJBinst(UtlBoolean optional) {
 
    if ((NULL == mpJB_inst) && (!optional)) {
       int res;
       res = JB_create(&mpJB_inst);
 /*
-      osPrintf("MpAudioConnection::getJBinst: JB_create=>0x%X\n",
+      osPrintf("MpRtpInputAudioConnection::getJBinst: JB_create=>0x%X\n",
          (int) mpJB_inst);
 */
 
@@ -352,7 +269,7 @@ JB_inst* MpAudioConnection::getJBinst(UtlBoolean optional) {
       res |= JB_init(mpJB_inst, 8000);
 
       if (0 != res) { //just in case
-         osPrintf("MpAudioConnection::getJBinst: Jitter Buffer init failure!\n");
+         osPrintf("MpRtpInputAudioConnection::getJBinst: Jitter Buffer init failure!\n");
          if (NULL != mpJB_inst) {
             JB_free(mpJB_inst);
             mpJB_inst = NULL;
@@ -361,7 +278,7 @@ JB_inst* MpAudioConnection::getJBinst(UtlBoolean optional) {
       if (NULL != mpJB_inst) {
 /*
          UtlBoolean on = mpFlowGraph->isPremiumSoundEnabled();
-         osPrintf("MpAudioConnection::getJBinst: %sabling Premium Sound on #%d\n",
+         osPrintf("MpRtpInputAudioConnection::getJBinst: %sabling Premium Sound on #%d\n",
             on ? "En" : "Dis", mMyID);
          setPremiumSound(on ? EnablePremiumSound : DisablePremiumSound);
 */
@@ -370,29 +287,24 @@ JB_inst* MpAudioConnection::getJBinst(UtlBoolean optional) {
    return(mpJB_inst);
 }
 
-//Returns the resource to link to upstream resource's outPort.
-MpResource* MpAudioConnection::getSinkResource() {
-   return mpEncode;
-}
-
 //Returns the resource to link to downstream resource's inPort.
-MpResource* MpAudioConnection::getSourceResource() {
+MpResource* MpRtpInputAudioConnection::getSourceResource() {
    return mpDecode;
 }
 
 //Retrieves the port number that was assigned by the bridge.
-int MpAudioConnection::getBridgePort() {
+int MpRtpInputAudioConnection::getBridgePort() {
    return mBridgePort;
 }
 
-MpDecoderBase* MpAudioConnection::mapPayloadType(int payloadType)
+MpDecoderBase* MpRtpInputAudioConnection::mapPayloadType(int payloadType)
 {
    OsLock lock(mLock);
 
    if ((payloadType < 0) || (payloadType >= NUM_PAYLOAD_TYPES))
    {
       OsSysLog::add(FAC_MP, PRI_ERR,
-                    "MpAudioConnection::mapPayloadType Attempting to map an invalid payload type %d", payloadType);
+                    "MpRtpInputAudioConnection::mapPayloadType Attempting to map an invalid payload type %d", payloadType);
       return NULL;
    }
    else
@@ -406,12 +318,12 @@ MpDecoderBase* MpAudioConnection::mapPayloadType(int payloadType)
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
-UtlBoolean MpAudioConnection::handleSetDtmfNotify(OsNotification* pNotify)
+UtlBoolean MpRtpInputAudioConnection::handleSetDtmfNotify(OsNotification* pNotify)
 {
    return mpDecode->handleSetDtmfNotify(pNotify);
 }
 
-UtlBoolean MpAudioConnection::setDtmfTerm(MprRecorder *pRecorders)
+UtlBoolean MpRtpInputAudioConnection::setDtmfTerm(MprRecorder *pRecorders)
 {
    return mpDecode->setDtmfTerm(pRecorders);
 }

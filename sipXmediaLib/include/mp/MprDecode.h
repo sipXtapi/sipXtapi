@@ -1,8 +1,8 @@
 //  
-// Copyright (C) 2006 SIPez LLC. 
+// Copyright (C) 2006-2007 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -34,7 +34,7 @@
 // TYPEDEFS
 
 // FORWARD DECLARATIONS
-class MpAudioConnection;
+class MpRtpInputAudioConnection;
 class MpDecoderBase;
 class MprRecorder;
 
@@ -44,14 +44,14 @@ class MprDecode : public MpAudioResource
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
-   friend class MpAudioConnection;
+   friend class MpRtpInputAudioConnection;
 
 /* ============================ CREATORS ================================== */
 ///@name Creators
 //@{
 
      /// Constructor
-   MprDecode(const UtlString& rName, MpAudioConnection* pConn,
+   MprDecode(const UtlString& rName, MpRtpInputAudioConnection* pConn,
              int samplesPerFrame, int samplesPerSec);
 
      /// Destructor
@@ -138,7 +138,7 @@ private:
    MpDecoderBase** mpPrevCodecs;
    int             mNumPrevCodecs; ///< Length of mpPrevCodecs array.
 
-   MpAudioConnection*   mpConnection;   ///< Link to the parent Connection.
+   MpRtpInputAudioConnection*   mpConnection;   ///< Link to the parent Connection.
 
    virtual UtlBoolean doProcessFrame(MpBufPtr inBufs[],
                                      MpBufPtr outBufs[],

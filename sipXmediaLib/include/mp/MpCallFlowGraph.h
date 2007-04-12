@@ -84,7 +84,8 @@ class MprSplitter;
 class MprToSpkr;
 class MprToneGen;
 class SdpCodec;
-class MpAudioConnection;
+class MpRtpInputAudioConnection;
+class MpRtpOutputAudioConnection;
 
 /// Flow graph used to handle a basic call
 #ifdef INCLUDE_RTCP /* [ */
@@ -471,7 +472,8 @@ private:
    MprToneGen*   mpToneGen;
    OsBSem        mConnTableLock;
    UtlBoolean    mToneIsGlobal;
-   MpAudioConnection* mpConnections[MAX_CONNECTIONS];
+   MpRtpInputAudioConnection* mpInputConnections[MAX_CONNECTIONS];
+   MpRtpOutputAudioConnection* mpOutputConnections[MAX_CONNECTIONS];
    UtlBoolean     mToneGenDefocused; ///< disabled during defocused state flag
 #ifdef INCLUDE_RTCP /* [ */
    IRTCPSession* mpiRTCPSession;

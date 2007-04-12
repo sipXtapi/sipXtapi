@@ -1,8 +1,8 @@
 //  
-// Copyright (C) 2006 SIPez LLC. 
+// Copyright (C) 2006-2007 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -12,8 +12,8 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 
-#ifndef _MpConnection_h_
-#define _MpConnection_h_
+#ifndef _MpRtpOutputConnection_h_
+#define _MpRtpOutputConnection_h_
 
 #include "rtcp/RtcpConfig.h"
 
@@ -45,7 +45,7 @@ typedef int MpConnectionID;
 *  @brief Connection container for the inbound and outbound network paths to a
 *  single remote party.
 */
-class MpConnection
+class MpRtpOutputConnection
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
@@ -60,11 +60,11 @@ public:
 //@{
 
      /// Constructor
-   MpConnection(MpConnectionID myID, IRTCPSession *piRTCPSession);
+   MpRtpOutputConnection(MpConnectionID myID, IRTCPSession *piRTCPSession);
 
      /// Destructor
    virtual
-   ~MpConnection();
+   ~MpRtpOutputConnection();
 
 //@}
 
@@ -72,20 +72,8 @@ public:
 ///@name Manipulators
 //@{
 
-     /// Disables the input path of the connection.
-   virtual OsStatus disableIn();
-     /**<
-     *  @see See disable() for more information.
-     */
-
-     /// Disables the output path of the connection.
-   virtual OsStatus disableOut();
-     /**<
-     *  @see See disable() for more information.
-     */
-
-     /// Disables both paths, of the connection.
-   OsStatus disable(); // Both in and out
+     /// Disables output path of the connection.
+   // virtual OsStatus disable(); 
      /**<
      *  Resources on the path(s) will also be disabled by these calls.
      *  If the flow graph is not "started", this call takes effect
@@ -95,20 +83,8 @@ public:
      *  @returns <b>OS_SUCCESS</b> - for now, these methods always return success
      */
 
-     /// Enables the input path of the connection.
-   virtual OsStatus enableIn();
-     /**<
-     *  @see See enable() for more information.
-     */
-
-     /// Enables the output path of the connection.
-   virtual OsStatus enableOut();
-     /**<
-     *  @see See enable() for more information.
-     */
-
-     /// Enables both paths of the connection.
-   OsStatus enable(); // Both in and out
+     /// Enables output path of the connection.
+   virtual OsStatus enable();
      /**<
      *  Resources on the path(s) will also be enabled by these calls.
      *  Resources may allocate needed data (e.g. output path reframe buffer)
@@ -134,20 +110,6 @@ public:
      *         need access to it.
      */
 
-     /// Starts receiving RTP and RTCP packets.
-   void prepareStartReceiveRtp(OsSocket& rRtpSocket, OsSocket& rRtcpSocket);
-     /**<
-     *  @note: Someday may be made protected, if MpVideoCallFlowGraph will not
-     *         need access to it.
-     */
-
-     /// Stops receiving RTP and RTCP packets.
-   void prepareStopReceiveRtp();
-     /**<
-     *  @note: Someday may be made protected, if MpVideoCallFlowGraph will not
-     *         need access to it.
-     */
-
 #ifdef INCLUDE_RTCP /* [ */
      /// A new SSRC has been generated for the Session
    void reassignSSRC(int iSSRC);
@@ -165,14 +127,8 @@ public:
      *  This component should be used to send RTP packets to remote party.
      */
 
-     /// Return pointer to dejitter component of connection
-   MprDejitter *getDejitter() const {return mpDejitter;}
-     /**<
-     *  This component should be used to receive RTP packets from remote party.
-     */
-
 #ifdef INCLUDE_RTCP /* [ */
-     /// Retrieve the RTCP Connection interface associated with this MpConnection
+     /// Retrieve the RTCP Connection interface associated with this MpRtpOutputConnection
    IRTCPConnection *getRTCPConnection(void);
 #endif /* INCLUDE_RTCP ] */
 
@@ -188,12 +144,8 @@ public:
 protected:
 
    MprToNet*          mpToNet;         ///< Outbound component: ToNet
-   MprFromNet*        mpFromNet;       ///< Inbound component: FromNet
-   MprDejitter*       mpDejitter;      ///< Inbound component: Dejitter
    MpConnectionID     mMyID;           ///< ID within parent flowgraph
-   UtlBoolean         mInEnabled;      ///< Current state of inbound components
    UtlBoolean         mOutEnabled;     ///< Current state of outbound components
-   UtlBoolean         mInRtpStarted;   ///< Are we currently receiving RTP stream?
    UtlBoolean         mOutRtpStarted;  ///< Are we currently sending RTP stream?
    OsMutex            mLock;
 
@@ -207,15 +159,15 @@ protected:
 private:
 
      /// Default constructor
-   MpConnection();
+   MpRtpOutputConnection();
 
      /// Copy constructor (not implemented for this type)
-   MpConnection(const MpConnection& rMpConnection);
+   MpRtpOutputConnection(const MpRtpOutputConnection& rMpRtpOutputConnection);
 
      /// Assignment operator (not implemented for this type)
-   MpConnection& operator=(const MpConnection& rhs);
+   MpRtpOutputConnection& operator=(const MpRtpOutputConnection& rhs);
 };
 
 /* ============================ INLINE METHODS ============================ */
 
-#endif  // _MpConnection_h_
+#endif  // _MpRtpOutputConnection_h_

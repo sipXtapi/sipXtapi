@@ -1,8 +1,8 @@
 //  
-// Copyright (C) 2006 SIPez LLC. 
+// Copyright (C) 2006-2007 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -16,8 +16,7 @@
 #include <assert.h>
 
 // APPLICATION INCLUDES
-#include "mp/MpConnection.h"
-#include "mp/MprToNet.h"
+#include "mp/MpRtpInputConnection.h"
 #include "mp/MprFromNet.h"
 #include "mp/MprDejitter.h"
 #include "os/OsLock.h"
@@ -41,15 +40,12 @@
 /* ============================ CREATORS ================================== */
 
 // Constructor
-MpConnection::MpConnection(MpConnectionID myID, IRTCPSession *piRTCPSession)
-: mpToNet(NULL)
-, mpFromNet(NULL)
+MpRtpInputConnection::MpRtpInputConnection(MpConnectionID myID, IRTCPSession *piRTCPSession)
+: mpFromNet(NULL)
 , mpDejitter(NULL)
 , mMyID(myID)
 , mInEnabled(FALSE)
-, mOutEnabled(FALSE)
 , mInRtpStarted(FALSE)
-, mOutRtpStarted(FALSE)
 , mLock(OsMutex::Q_PRIORITY|OsMutex::INVERSION_SAFE)
 #ifdef INCLUDE_RTCP /* [ */
 , mpiRTCPSession(piRTCPSession)
@@ -80,9 +76,7 @@ MpConnection::MpConnection(MpConnectionID myID, IRTCPSession *piRTCPSession)
    sprintf(name, "Dejitter-%d", myID);
    mpDejitter  = new MprDejitter();
    sprintf(name, "FromNet-%d", myID);
-   mpFromNet   = new MprFromNet(this);
-   sprintf(name, "ToNet-%d", myID);
-   mpToNet     = new MprToNet();
+   mpFromNet   = new MprFromNet();
 
 #ifdef INCLUDE_RTCP /* [ */
 
@@ -91,45 +85,23 @@ MpConnection::MpConnection(MpConnectionID myID, IRTCPSession *piRTCPSession)
 // to the correct location.
    mpFromNet->setDispatchers(piRTPDispatch, piRTCPDispatch);
 
-// Set the Statistics interface to be used by the RTP stream to increment
-// packet and octet statistics
-   mpToNet->setRTPAccumulator(piRTPAccumulator);
-
-// The RTP Stream associated with the MprToNet object must have its SSRC ID
-// set to the value generated from the Session.
-   mpToNet->setSSRC(mpiRTCPSession->GetSSRC());
 #else /* INCLUDE_RTCP ] [ */
-   {
-      OsDateTime date;
-      OsTime now;
-      int ssrc;
-      OsDateTime::getCurTime(date);
-      date.cvtToTimeSinceEpoch(now);
-      ssrc = now.seconds() ^ now.usecs();
-      mpToNet->setSSRC(ssrc);
-   }
+
 #endif /* INCLUDE_RTCP ] */
 
    //////////////////////////////////////////////////////////////////////////
    // connect FromNet -> Dejitter
    mpFromNet->setMyDejitter(mpDejitter);
-
-   //////////////////////////////////////////////////////////////////////////
-   // connect ToNet -> FromNet for RTP synchronization
-   mpToNet->setRtpPal(mpFromNet);
 }
 
 // Destructor
-MpConnection::~MpConnection()
+MpRtpInputConnection::~MpRtpInputConnection()
 {
    if (mpDejitter != NULL)
       delete mpDejitter;
 
    if (mpFromNet != NULL)
       delete mpFromNet;
-
-   if (mpToNet != NULL)
-      delete mpToNet;
 
 #ifdef INCLUDE_RTCP /* [ */
 // Let's free our RTCP Connection
@@ -139,33 +111,22 @@ MpConnection::~MpConnection()
 
 /* ============================ MANIPULATORS ============================== */
 
-// Disables the input path, output path, or both paths, of the connection.
+// Disables the input path of the connection.
 // Resources on the path(s) will also be disabled by these calls.
 // If the flow graph is not "started", this call takes effect
 // immediately.  Otherwise, the call takes effect at the start of the
 // next frame processing interval.
 //!retcode: OS_SUCCESS - for now, these methods always return success
 
-OsStatus MpConnection::disableIn(void)
+
+
+/*OsStatus MpRtpInputConnection::disable(void)
 {
    mInEnabled = FALSE;
    return OS_SUCCESS;
-}
+}*/
 
-OsStatus MpConnection::disableOut(void)
-{
-   mOutEnabled = FALSE;
-   return OS_SUCCESS;
-}
-
-OsStatus MpConnection::disable(void)
-{
-   MpConnection::disableIn();
-   MpConnection::disableOut();
-   return OS_SUCCESS;
-}
-
-// Enables the input path, output path, or both paths, of the connection.
+// Enables the input path of the connection.
 // Resources on the path(s) will also be enabled by these calls.
 // Resources may allocate needed data (e.g. output path reframe buffer)
 //  during this operation.
@@ -174,84 +135,33 @@ OsStatus MpConnection::disable(void)
 // next frame processing interval.
 //!retcode: OS_SUCCESS - for now, these methods always return success
 
-OsStatus MpConnection::enableIn(void)
+OsStatus MpRtpInputConnection::enable(void)
 {
    mInEnabled = TRUE;
    return OS_SUCCESS;
 }
 
-OsStatus MpConnection::enableOut(void)
-{
-   mOutEnabled = TRUE;
-   return OS_SUCCESS;
-}
-
-OsStatus MpConnection::enable(void)
-{
-   enableIn();
-   enableOut();
-   return OS_SUCCESS;
-}
-
-void MpConnection::prepareStartSendRtp(OsSocket& rRtpSocket,
-                                       OsSocket& rRtcpSocket)
-{
-   mpToNet->setSockets(rRtpSocket, rRtcpSocket);
-   mpFromNet->setDestIp(rRtpSocket);
-
-#ifdef INCLUDE_RTCP /* [ */
-// Associate the RTCP socket to be used by the RTCP Render portion of the
-// connection to write reports to the network
-   mpiRTCPConnection->StartRenderer(rRtcpSocket);
-#endif /* INCLUDE_RTCP ] */
-
-   mOutRtpStarted = TRUE;
-}
-
-void MpConnection::prepareStopSendRtp()
-{
-#ifdef INCLUDE_RTCP /* [ */
-// Terminate the RTCP Connection which shall include stopping the RTCP
-// Render so that no additional reports are emitted
-   mpiRTCPConnection->StopRenderer();
-#endif /* INCLUDE_RTCP ] */
-
-   mpToNet->resetSockets();
-
-   mOutRtpStarted = FALSE;
-}
-
 // Start receiving RTP and RTCP packets.
-void MpConnection::prepareStartReceiveRtp(OsSocket& rRtpSocket,
+void MpRtpInputConnection::prepareStartReceiveRtp(OsSocket& rRtpSocket,
                                           OsSocket& rRtcpSocket)
 {
    mpFromNet->setSockets(rRtpSocket, rRtcpSocket);
    mInRtpStarted = TRUE;
 }
 
+// TODO:  mpFromNet->setDestIp(rRtpSocket);
+
 // Stop receiving RTP and RTCP packets.
-void MpConnection::prepareStopReceiveRtp()
+void MpRtpInputConnection::prepareStopReceiveRtp()
 {
    mpFromNet->resetSockets();
    mInRtpStarted = FALSE;
 }
 
-#ifdef INCLUDE_RTCP /* [ */
-void MpConnection::reassignSSRC(int iSSRC)
-{
-
-//  Set the new SSRC
-    mpToNet->setSSRC(iSSRC);
-
-    return;
-
-}
-#endif /* INCLUDE_RTCP ] */
-
 /* ============================ ACCESSORS ================================= */
 
 #ifdef INCLUDE_RTCP /* [ */
-IRTCPConnection *MpConnection::getRTCPConnection(void)
+IRTCPConnection *MpRtpInputConnection::getRTCPConnection(void)
 {
     return(mpiRTCPConnection);
 }

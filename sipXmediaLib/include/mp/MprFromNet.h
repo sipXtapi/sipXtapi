@@ -25,7 +25,6 @@
 // APPLICATION INCLUDES
 
 class MprDejitter;
-class MpConnection;
 
 #include "os/OsDefs.h"
 #include "os/OsSocket.h"
@@ -57,7 +56,7 @@ public:
 //@{
 
      /// Constructor
-   MprFromNet(MpConnection* pConn);
+   MprFromNet();
 
      /// Destructor
    virtual ~MprFromNet();
@@ -117,7 +116,6 @@ private:
    OsMutex          mMutex;
    UtlBoolean       mRegistered;
    MprDejitter*     mpDejitter;
-   MpConnection*    mpConnection;
 #ifdef INCLUDE_RTCP /* [ */
    INetDispatch*    mpiRTCPDispatch;
    IRTPDispatch*    mpiRTPDispatch;

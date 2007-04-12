@@ -37,7 +37,8 @@
 #include "os/OsProtectEventMgr.h"
 #include "os/OsProtectEvent.h"
 #include "os/OsFS.h"
-#include "mp/MpAudioConnection.h"
+#include "mp/MpRtpInputAudioConnection.h"
+#include "mp/MpRtpOutputAudioConnection.h"
 #include "mp/MpCallFlowGraph.h"
 #include "mp/MpMediaTask.h"
 #include "mp/MpStreamMsg.h"
@@ -136,7 +137,8 @@ MpCallFlowGraph::MpCallFlowGraph(const char* locale,
    OsStatus     res;
    int          i;
 
-   for (i=0; i<MAX_CONNECTIONS; i++) mpConnections[i] = NULL;
+   for (i=0; i<MAX_CONNECTIONS; i++) mpInputConnections[i] = NULL;
+   for (i=0; i<MAX_CONNECTIONS; i++) mpOutputConnections[i] = NULL;
    for (i=0; i<MAX_RECORDERS; i++) mpRecorders[i] = NULL;
 
    // create the resources and add them to the flow graph
@@ -671,7 +673,8 @@ void MpCallFlowGraph::startTone(int toneId, int toneOptions)
    if (toneOptions & TONE_TO_NET) { // "mToneIsGlobal"
       // Notify outbound leg of all connections that we are playing a tone
       for (i=0; i<MAX_CONNECTIONS; i++) {
-         if (NULL != mpConnections[i]) mpConnections[i]->startTone(toneId);
+         if (NULL != mpOutputConnections[i]) 
+             mpOutputConnections[i]->startTone(toneId);
       }
    }
    // mpToneGen->enable();
@@ -697,7 +700,8 @@ void MpCallFlowGraph::stopTone(void)
       // boolRes = mpTFsMicMixer->enable();      assert(boolRes);
       // Notify outbound leg of all connections that we are playing a tone
       for (i=0; i<MAX_CONNECTIONS; i++) {
-         if (NULL != mpConnections[i]) mpConnections[i]->stopTone();
+         if (NULL != mpOutputConnections[i]) 
+             mpOutputConnections[i]->stopTone();
       }
    }
 }
@@ -882,9 +886,9 @@ OsStatus MpCallFlowGraph::mediaRecord(int ms,
    {
      for (int i=0; i<MAX_CONNECTIONS; i++) 
      {
-         if (NULL != mpConnections[i]) 
+         if (NULL != mpInputConnections[i]) 
          {
-           mpConnections[i]->setDtmfTerm(mpRecorders[RECORDER_SPKR]);
+           mpInputConnections[i]->setDtmfTerm(mpRecorders[RECORDER_SPKR]);
          }
      }
    }
@@ -967,9 +971,9 @@ OsStatus MpCallFlowGraph::ezRecord(int ms,
    {
      for (int i=0; i<MAX_CONNECTIONS; i++) 
      {
-         if (NULL != mpConnections[i]) 
+         if (NULL != mpInputConnections[i]) 
          {
-           mpConnections[i]->setDtmfTerm(mpRecorders[RECORDER_SPKR]);
+           mpInputConnections[i]->setDtmfTerm(mpRecorders[RECORDER_SPKR]);
          }
      }
    }
@@ -1166,12 +1170,17 @@ MpConnectionID MpCallFlowGraph::createConnection()
    int            bridgePort;
    MpResource*    pBridgeSink;
    MpResource*    pBridgeSource;
-   MpAudioConnection*  pConnection;
+   MpRtpInputAudioConnection*  pInputConnection;
+   MpRtpOutputAudioConnection*  pOutputConnection;
 
    mConnTableLock.acquire();
-   for (i=1; i<MAX_CONNECTIONS; i++) {
-      if (NULL == mpConnections[i]) {
-         mpConnections[i] = (MpAudioConnection*) -1;
+   for (i=1; i<MAX_CONNECTIONS; i++) 
+   {
+      if (NULL == mpInputConnections[i] &&
+          NULL == mpOutputConnections[i]) 
+      {
+         mpInputConnections[i] = (MpRtpInputAudioConnection*) -1;
+         mpOutputConnections[i] = (MpRtpOutputAudioConnection*) -1;
          found = i;
          i = MAX_CONNECTIONS;
       }
@@ -1182,16 +1191,28 @@ MpConnectionID MpCallFlowGraph::createConnection()
       return -1;
    }
    
-   mpConnections[found] = new MpAudioConnection(found, this,
-                 getSamplesPerFrame(), getSamplesPerSec());
+   mpInputConnections[found] = 
+       new MpRtpInputAudioConnection(found, 
+                                     this,
+                                     getSamplesPerFrame(), 
+                                     getSamplesPerSec());
+   mpOutputConnections[found] = 
+       new MpRtpOutputAudioConnection(found, 
+                                      this,
+                                      getSamplesPerFrame(), 
+                                      getSamplesPerSec());
 
-   pConnection = mpConnections[found];
+   pInputConnection = mpInputConnections[found];
+   pOutputConnection = mpOutputConnections[found];
 
    bridgePort = mpBridge->reserveFirstUnconnectedInput();
 
-   if (bridgePort < 0) {
-      delete pConnection;
-      mpConnections[found] = NULL;
+   if (bridgePort < 0) 
+   {
+      delete pInputConnection;
+      delete pOutputConnection;
+      mpInputConnections[found] = NULL;
+      mpOutputConnections[found] = NULL;
       mConnTableLock.release();
       return -1;
    }
@@ -1200,9 +1221,10 @@ MpConnectionID MpCallFlowGraph::createConnection()
 
    Zprintf("bridgePort = %d\n", bridgePort, 0,0,0,0,0);
 
-   pConnection->setBridgePort(bridgePort);
-   pBridgeSink = pConnection->getSinkResource();
-   pBridgeSource = pConnection->getSourceResource();
+   pInputConnection->setBridgePort(bridgePort);
+   pOutputConnection->setBridgePort(bridgePort);
+   pBridgeSink = pOutputConnection->getSinkResource();
+   pBridgeSource = pInputConnection->getSourceResource();
 
    OsStatus stat = addLink(*mpBridge, bridgePort, *pBridgeSink, 0);
    assert(OS_SUCCESS == stat);
@@ -1222,8 +1244,12 @@ OsStatus MpCallFlowGraph::deleteConnection(MpConnectionID connID)
 //   osPrintf("deleteConnection(%d)\n", connID);
    assert((0 < connID) && (connID < MAX_CONNECTIONS));
 
-   if ((NULL == mpConnections[connID]) || 
-      (((MpAudioConnection*) -1) == mpConnections[connID]))
+   if ((NULL == mpInputConnections[connID]) || 
+      (((MpRtpInputAudioConnection*) -1) == mpInputConnections[connID]))
+         return OS_INVALID_ARGUMENT;
+
+   if ((NULL == mpOutputConnections[connID]) || 
+      (((MpRtpOutputAudioConnection*) -1) == mpOutputConnections[connID]))
          return OS_INVALID_ARGUMENT;
 
    MpFlowGraphMsg msg(MpFlowGraphMsg::FLOWGRAPH_REMOVE_CONNECTION, NULL,
@@ -1269,7 +1295,7 @@ void MpCallFlowGraph::disablePremiumSound(void)
    }
 #endif /* DEBUG_GIPS_PREMIUM_SOUND ] */
 #endif /* _VXWORKS ] */
-   setPremiumSound(MpAudioConnection::DisablePremiumSound);
+   setPremiumSound(MpRtpInputAudioConnection::DisablePremiumSound);
 }
 
 void MpCallFlowGraph::enablePremiumSound(void)
@@ -1284,7 +1310,7 @@ void MpCallFlowGraph::enablePremiumSound(void)
    }
 #endif /* DEBUG_GIPS_PREMIUM_SOUND ] */
 #endif /* _VXWORKS ] */
-   setPremiumSound(MpAudioConnection::EnablePremiumSound);
+   setPremiumSound(MpRtpInputAudioConnection::EnablePremiumSound);
 }
 
 // Start sending RTP and RTCP packets.
@@ -1294,7 +1320,7 @@ void MpCallFlowGraph::startSendRtp(OsSocket& rRtpSocket,
                                     SdpCodec* pPrimaryCodec,
                                     SdpCodec* pDtmfCodec)
 {
-   mpConnections[connID]->startSendRtp(rRtpSocket, rRtcpSocket,
+   mpOutputConnections[connID]->startSendRtp(rRtpSocket, rRtcpSocket,
       pPrimaryCodec, pDtmfCodec);
 }
 
@@ -1311,7 +1337,7 @@ void MpCallFlowGraph::startSendRtp(SdpCodec& rPrimaryCodec,
 void MpCallFlowGraph::stopSendRtp(MpConnectionID connID)
 {
    // postPone(40); // testing...
-   mpConnections[connID]->stopSendRtp();
+   mpOutputConnections[connID]->stopSendRtp();
 }
 
 // Start receiving RTP and RTCP packets.
@@ -1334,14 +1360,14 @@ void MpCallFlowGraph::startReceiveRtp(SdpCodec* pCodecs[],
                                        OsSocket& rRtcpSocket,
                                        MpConnectionID connID)
 {
-   mpConnections[connID]->
+   mpInputConnections[connID]->
             startReceiveRtp(pCodecs, numCodecs, rRtpSocket, rRtcpSocket);
 }
 
 // Stop receiving RTP and RTCP packets.
 void MpCallFlowGraph::stopReceiveRtp(MpConnectionID connID)
 {
-   mpConnections[connID]->stopReceiveRtp();
+   mpInputConnections[connID]->stopReceiveRtp();
 }
 
 OsStatus MpCallFlowGraph::addToneListener(OsNotification* pNotify,
@@ -1474,10 +1500,10 @@ void MpCallFlowGraph::LocalSSRCCollision(IRTCPConnection  *piRTCPConnection,
     mConnTableLock.acquire();
     for (int iConnection = 1; iConnection < MAX_CONNECTIONS; iConnection++) 
     {
-      if (mpConnections[iConnection]->getRTCPConnection()) 
+      if (mpOutputConnections[iConnection]->getRTCPConnection()) 
       {
 //       Set the new SSRC
-         mpConnections[iConnection]->
+         mpOutputConnections[iConnection]->
                           reassignSSRC((int)mpiRTCPSession->GetSSRC());
          break;
       }
@@ -1531,11 +1557,11 @@ void MpCallFlowGraph::RemoteSSRCCollision(IRTCPConnection  *piRTCPConnection,
     mConnTableLock.acquire();
     for (int iConnection = 1; iConnection < MAX_CONNECTIONS; iConnection++) 
     {
-      if (mpConnections[iConnection]->getRTCPConnection() == piRTCPConnection) 
+      if (mpInputConnections[iConnection]->getRTCPConnection() == piRTCPConnection) 
       {
 // We are supposed to ignore the media of the latter of two terminals
 // whose SSRC collides
-         mpConnections[iConnection]->stopReceiveRtp();
+         mpInputConnections[iConnection]->stopReceiveRtp();
          break;
       }
    }
@@ -1724,28 +1750,34 @@ UtlBoolean MpCallFlowGraph::handleMessage(OsMsg& rMsg)
 UtlBoolean MpCallFlowGraph::handleRemoveConnection(MpFlowGraphMsg& rMsg)
 {
    MpConnectionID connID = rMsg.getInt1();
-   MpAudioConnection* pConnection;
+   MpRtpInputAudioConnection* pInputConnection;
+   MpRtpOutputAudioConnection* pOutputConnection;
    UtlBoolean    res;
 
    // Don't think this is needed as we make the ports available by
    // releasing the ports on the connected resources
    //mpBridge->disconnectPort(connID);
    mConnTableLock.acquire();
-   pConnection = mpConnections[connID];
-   mpConnections[connID] = NULL;
+   pInputConnection = mpInputConnections[connID];
+   pOutputConnection = mpOutputConnections[connID];
+   mpInputConnections[connID] = NULL;
+   mpOutputConnections[connID] = NULL;
    mConnTableLock.release();
 
-   if ((NULL == pConnection) || (((MpAudioConnection*) -1) == pConnection))
-      return TRUE;
-
    // now remove synchronous resources from flow graph
-   res = handleRemoveResource(pConnection->mpDecode);
-   assert(res);
+   if(pInputConnection)
+   {
+       res = handleRemoveResource(pInputConnection->mpDecode);
+       assert(res);
+       delete pInputConnection;
+   }
 
-   res = handleRemoveResource(pConnection->mpEncode);
-   assert(res);
-   
-   delete pConnection;
+   if(pOutputConnection)
+   {
+       res = handleRemoveResource(pOutputConnection->mpEncode);
+       assert(res);
+       delete pOutputConnection;
+   }   
    return TRUE;
 }
 
@@ -1884,11 +1916,11 @@ UtlBoolean MpCallFlowGraph::handleSynchronize(MpFlowGraphMsg& rMsg)
 UtlBoolean MpCallFlowGraph::handleSetPremiumSound(MpFlowGraphMsg& rMsg)
 {
    UtlBoolean save = mPremiumSoundEnabled;
-   MpAudioConnection::PremiumSoundOptions op =
-                        (MpAudioConnection::PremiumSoundOptions) rMsg.getInt1();
+   MpRtpInputAudioConnection::PremiumSoundOptions op =
+       (MpRtpInputAudioConnection::PremiumSoundOptions) rMsg.getInt1();
    int i;
 
-   mPremiumSoundEnabled = (op == MpAudioConnection::EnablePremiumSound);
+   mPremiumSoundEnabled = (op == MpRtpInputAudioConnection::EnablePremiumSound);
    if (save != mPremiumSoundEnabled) {
 /*
       osPrintf("MpCallFlowGraph(%p): Premium sound %sABLED\n",
@@ -1896,8 +1928,8 @@ UtlBoolean MpCallFlowGraph::handleSetPremiumSound(MpFlowGraphMsg& rMsg)
 */
 
       for (i=0; i<MAX_CONNECTIONS; i++) {
-         if (NULL != mpConnections[i]) {
-            mpConnections[i]->setPremiumSound(op);
+         if (NULL != mpInputConnections[i]) {
+            mpInputConnections[i]->setPremiumSound(op);
          }
       }
    }
@@ -1909,7 +1941,7 @@ UtlBoolean MpCallFlowGraph::handleSetDtmfNotify(MpFlowGraphMsg& rMsg)
    OsNotification* pNotify = (OsNotification*) rMsg.getPtr1();
    MpConnectionID  connId  = rMsg.getInt1();
 
-   return mpConnections[connId]->handleSetDtmfNotify(pNotify);
+   return mpInputConnections[connId]->handleSetDtmfNotify(pNotify);
 }
 
 

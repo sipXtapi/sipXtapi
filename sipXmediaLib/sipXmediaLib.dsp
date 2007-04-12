@@ -147,10 +147,6 @@ SOURCE=.\src\mp\MpAudioBuf.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\mp\MpAudioConnection.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\src\mp\MpAudioFileDecompress.cpp
 # End Source File
 # Begin Source File
@@ -204,10 +200,6 @@ SOURCE=.\src\mp\MpCodecFactory.cpp
 # Begin Source File
 
 SOURCE=.\src\mp\MpCodecInfo.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\src\mp\MpConnection.cpp
 # End Source File
 # Begin Source File
 
@@ -476,6 +468,22 @@ SOURCE=.\src\mp\MprToSpkr.cpp
 # Begin Source File
 
 SOURCE=.\src\mp\MpRtpBuf.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\mp\MpRtpInputAudioConnection.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\mp\MpRtpInputConnection.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\mp\MpRtpOutputAudioConnection.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\mp\MpRtpOutputConnection.cpp
 # End Source File
 # Begin Source File
 
@@ -811,10 +819,6 @@ SOURCE=.\include\mp\MpAudioBuf.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\mp\MpAudioConnection.h
-# End Source File
-# Begin Source File
-
 SOURCE=.\include\mp\MpAudioFileDecompress.h
 # End Source File
 # Begin Source File
@@ -872,10 +876,6 @@ SOURCE=.\include\mp\MpCodecFactory.h
 # Begin Source File
 
 SOURCE=.\include\mp\MpCodecInfo.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\include\mp\MpConnection.h
 # End Source File
 # Begin Source File
 
@@ -1004,6 +1004,10 @@ SOURCE=.\include\mp\MpFlowGraphBase.h
 # Begin Source File
 
 SOURCE=.\include\mp\MpFlowGraphMsg.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MpInputConnection.h
 # End Source File
 # Begin Source File
 
@@ -1192,6 +1196,22 @@ SOURCE=.\include\mp\MprToSpkr.h
 # Begin Source File
 
 SOURCE=.\include\mp\MpRtpBuf.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MpRtpInputAudioConnection.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MpRtpInputConnection.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MpRtpOutputAudioConnection.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MpRtpOutputConnection.h
 # End Source File
 # Begin Source File
 
