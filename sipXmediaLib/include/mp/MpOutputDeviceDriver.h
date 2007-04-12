@@ -47,7 +47,7 @@ class OsNotification;
 *  mixer buffer become full. Direct write mode have less latency, but could be
 *  fed by one source only. If two or more sources will try to push data, only
 *  first will succeed. In opposite to direct write mode, mixer mode is supposed
-*  to accept several sreams and mix them. In this mode device should provide
+*  to accept several streams and mix them. In this mode device should provide
 *  timer which will notify MpAudioOutputConnection when device is ready to
 *  accept next frame of data.
 *
@@ -87,8 +87,7 @@ public:
      /// Initialize device driver and state.
    virtual OsStatus enableDevice(unsigned samplesPerFrame, 
                                  unsigned samplesPerSec,
-                                 MpFrameTime currentFrameTime,
-                                 UtlBoolean enableDirectWriteMode) = 0;
+                                 MpFrameTime currentFrameTime) = 0;
      /**<
      *  This method enables the device driver.
      *
@@ -99,10 +98,6 @@ public:
      *  @param samplesPerSec - (in) sample rate for media frame in samples per second
      *  @param currentFrameTime - (in) time in milliseconds for beginning of frame
      *         relative to the MpOutputDeviceManager reference time
-     *  @param enableDirectWriteMode - (in) pass TRUE to enable direct write
-     *         mode. In this mode data is pushed to device as soon as it become
-     *         available. In non direct (mixer) write mode data will be pulled
-     *         by device itself.
      *
      *  @returns OS_INVALID_STATE if device already enabled.
      *
