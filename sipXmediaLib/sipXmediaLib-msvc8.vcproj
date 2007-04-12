@@ -2253,10 +2253,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\src\mp\MpAudioConnection.cpp"
-				>
-			</File>
-			<File
 				RelativePath="src\mp\MpAudioFileDecompress.cpp"
 				>
 				<FileConfiguration
@@ -3320,111 +3316,6 @@
 			</File>
 			<File
 				RelativePath="src\mp\MpCodecInfo.cpp"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|Pocket PC 2003 (ARMV4)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|Windows Mobile 5.0 Pocket PC SDK (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|SDK1_emu (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Windows Mobile 5.0 Pocket PC SDK (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|SDK1_emu (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="src\mp\MpConnection.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -8609,6 +8500,26 @@
 				>
 			</File>
 			<File
+				RelativePath=".\src\mp\MpRtpInputAudioConnection.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\src\mp\MpRtpInputConnection.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\src\mp\MpRtpOutputAudioConnection.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\src\mp\MpRtpOutputConnection.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\include\mp\MpSineWaveGeneratorDeviceDriver.cpp"
+				>
+			</File>
+			<File
 				RelativePath="src\mp\MpSipxDecoders.cpp"
 				>
 				<FileConfiguration
@@ -12271,10 +12182,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\include\mp\MpAudioConnection.h"
-				>
-			</File>
-			<File
 				RelativePath="include\mp\MpAudioFileDecompress.h"
 				>
 			</File>
@@ -12648,6 +12555,22 @@
 			</File>
 			<File
 				RelativePath=".\include\mp\MpRtpBuf.h"
+				>
+			</File>
+			<File
+				RelativePath=".\src\mp\MpRtpInputAudioConnection.h"
+				>
+			</File>
+			<File
+				RelativePath=".\src\mp\MpRtpInputConnection.h"
+				>
+			</File>
+			<File
+				RelativePath=".\src\mp\MpRtpOutputAudioConnection.h"
+				>
+			</File>
+			<File
+				RelativePath=".\src\mp\MpRtpOutputConnection.h"
 				>
 			</File>
 			<File

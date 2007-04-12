@@ -708,9 +708,6 @@
 				RelativePath=".\src\mp\MpAudioBuf.cpp">
 			</File>
 			<File
-				RelativePath=".\src\mp\MpAudioConnection.cpp">
-			</File>
-			<File
 				RelativePath="src\mp\MpAudioFileDecompress.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -1091,43 +1088,6 @@
 			</File>
 			<File
 				RelativePath="src\mp\MpCodecInfo.cpp">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug_NoVideo|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release_NoVideo|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="src\mp\MpConnection.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -2997,6 +2957,18 @@
 				RelativePath=".\src\mp\MpRtpBuf.cpp">
 			</File>
 			<File
+				RelativePath=".\src\mp\MpRtpInputAudioConnection.cpp">
+			</File>
+			<File
+				RelativePath=".\src\mp\MpRtpInputConnection.cpp">
+			</File>
+			<File
+				RelativePath=".\src\mp\MpRtpOutputAudioConnection.cpp">
+			</File>
+			<File
+				RelativePath=".\src\mp\MpRtpOutputConnection.cpp">
+			</File>
+			<File
 				RelativePath=".\src\mp\MpSineWaveGeneratorDeviceDriver.cpp">
 			</File>
 			<File
@@ -4369,9 +4341,6 @@
 				RelativePath=".\include\mp\MpAudioBuf.h">
 			</File>
 			<File
-				RelativePath=".\include\mp\MpAudioConnection.h">
-			</File>
-			<File
 				RelativePath="include\mp\MpAudioFileDecompress.h">
 			</File>
 			<File
@@ -4412,9 +4381,6 @@
 			</File>
 			<File
 				RelativePath="include\mp\MpCodecInfo.h">
-			</File>
-			<File
-				RelativePath="include\mp\MpConnection.h">
 			</File>
 			<File
 				RelativePath=".\include\mp\MpDataBuf.h">
@@ -4619,6 +4585,18 @@
 			</File>
 			<File
 				RelativePath=".\include\mp\MpRtpBuf.h">
+			</File>
+			<File
+				RelativePath=".\include\mp\MpRtpInputAudioConnection.h">
+			</File>
+			<File
+				RelativePath=".\include\mp\MpRtpInputConnection.h">
+			</File>
+			<File
+				RelativePath=".\include\mp\MpRtpOutputAudioConnection.h">
+			</File>
+			<File
+				RelativePath=".\include\mp\MpRtpOutputConnection.h">
 			</File>
 			<File
 				RelativePath=".\include\mp\MpSineWaveGeneratorDeviceDriver.h">
