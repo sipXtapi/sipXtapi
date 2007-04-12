@@ -19,6 +19,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.custommonkey.xmlunit.XMLTestCase;
+import org.dom4j.Element;
 import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.common.CoreContext;
@@ -140,6 +141,27 @@ public class ResourceListsTest extends XMLTestCase {
                 "<lists xmlns=\"http://www.sipfoundry.org/sipX/schema/xml/resource-lists-00-00\"/>",
                 fileContent);
         coreContextControl.verify();
+    }
+    
+    public void testEmptyLabel() {
+        IMocksControl elementControl = EasyMock.createControl();
+        Element list = elementControl.createMock(Element.class);
+        Element item = elementControl.createMock(Element.class);
+        Element name = elementControl.createMock(Element.class);
+        list.addElement("resource");        
+        elementControl.andReturn(item);
+        item.addAttribute("uri", "sip:123@example.org");
+        elementControl.andReturn(item);
+        item.addElement("name");
+        elementControl.andReturn(name);
+        name.setText("123");
+        elementControl.replay();
+
+        Button button = new Button(null, "123");
+        ResourceLists rl = new ResourceLists();
+        rl.createResourceForUser(list, button, "example.org");
+        
+        elementControl.verify();
     }
 
     private class DummyUser extends User {

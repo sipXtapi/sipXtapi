@@ -19,10 +19,14 @@ import junit.framework.TestCase;
 
 import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
+import org.sipfoundry.sipxconfig.test.TestUtil;
 
 public class AbstractProfileGeneratorTest extends TestCase {
 
     private static class ProfileGeneratorStub extends AbstractProfileGenerator {
+        ProfileGeneratorStub() {
+            setTemplateRoot(TestUtil.getTestSourceDirectory(AbstractProfileGeneratorTest.class));
+        }
         protected void generateProfile(ProfileContext context, OutputStream out) throws IOException {
             out.write(context.getProfileTemplate().getBytes("US-ASCII"));
         }
@@ -40,6 +44,14 @@ public class AbstractProfileGeneratorTest extends TestCase {
 
     protected void setUp() throws Exception {
         super.setUp();
+    }
+
+    public void testCopy() throws IOException {
+        MemoryProfileLocation location = new MemoryProfileLocation();
+        AbstractProfileGenerator pg = new ProfileGeneratorStub();
+        pg.setProfileLocation(location);
+        pg.copy("CopyFileTest.txt", "whatever");
+        assertEquals("test file contents\n", location.toString());
     }
 
     public void testGenerateProfileContextStringString() {

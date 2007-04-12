@@ -46,17 +46,7 @@ MpStreamPlaylistPlayer::MpStreamPlaylistPlayer(OsMsgQ* pMsgQ, const char* pTarge
       mTarget = pTarget;
    mpQueueEvent = NULL;
 
-   for (int i = 0; i < MAX_PLAYLIST_LENGTH; i++)
-   {
-      mPlayListDb[i].sourceType = 0;
-      mPlayListDb[i].pBuffer = NULL;
-      mPlayListDb[i].handle = NULL;
-      mPlayListDb[i].state = PlayerUnrealized;
-      mPlayListDb[i].flags = 0;
-      mPlayListDb[i].pQueuedEvent = NULL;
-   }
-
-   mNumPlayListElements = 0;
+   mPlayListDb = new UtlSList();
    mCurrentElement = 0;
    mPlayingElement = -1;
    mbAutoAdvance = FALSE;
@@ -76,6 +66,7 @@ MpStreamPlaylistPlayer::MpStreamPlaylistPlayer(OsMsgQ* pMsgQ, const char* pTarge
 MpStreamPlaylistPlayer::~MpStreamPlaylistPlayer()
 {   
    reset();
+   delete mPlayListDb ;
 
    if (mpQueueEvent != NULL)
    {
@@ -88,43 +79,36 @@ MpStreamPlaylistPlayer::~MpStreamPlaylistPlayer()
 // Adds a url to the playlist 
 OsStatus MpStreamPlaylistPlayer::add(Url& url, int flags)
 {
-   OsStatus status = OS_LIMIT_REACHED;
+   PlayListEntry* e = new PlayListEntry(); 
+   int index = mPlayListDb->entries();
 
-   if (mNumPlayListElements < MAX_PLAYLIST_LENGTH)
-   {
-      int index = mNumPlayListElements;
-      mNumPlayListElements++;
+   e->sourceType = SourceUrl;
+   e->url = url;
+   e->flags = flags;       
+   e->pQueuedEvent = new OsQueuedEvent(*getMessageQueue(), index);
+   e->index = index ;
 
-      mPlayListDb[index].sourceType = SourceUrl;
-      mPlayListDb[index].url = url;
-      mPlayListDb[index].flags = flags;       
-      mPlayListDb[index].pQueuedEvent = new OsQueuedEvent(*getMessageQueue(), index);
+   mPlayListDb->append(e);
 
-      status = OS_SUCCESS;
-   }
-
-   return status;
+   return OS_SUCCESS;
 }
 
 
 // Adds a buffer to the playlist  
 OsStatus MpStreamPlaylistPlayer::add(UtlString* pBuffer, int flags)
 {
-   OsStatus status = OS_LIMIT_REACHED;
+   PlayListEntry* e = new PlayListEntry(); 
+   int index = mPlayListDb->entries();
 
-   if (mNumPlayListElements < MAX_PLAYLIST_LENGTH)
-   {
-      int index = mNumPlayListElements;
-      mNumPlayListElements++;
+   e->sourceType = SourceBuffer;
+   e->pBuffer = pBuffer;
+   e->flags = flags;       
+   e->pQueuedEvent = new OsQueuedEvent(*getMessageQueue(), index);
+   e->index = index ;
 
-      mPlayListDb[index].sourceType = SourceBuffer;
-      mPlayListDb[index].pBuffer = pBuffer;
-      mPlayListDb[index].flags = flags;       
-      mPlayListDb[index].pQueuedEvent = new OsQueuedEvent(*getMessageQueue(), index);
+   mPlayListDb->append(e);
 
-      status = OS_SUCCESS;
-   }
-   return status;   
+   return OS_SUCCESS;
 }
 
 
@@ -133,56 +117,59 @@ OsStatus MpStreamPlaylistPlayer::add(UtlString* pBuffer, int flags)
 OsStatus MpStreamPlaylistPlayer::realize(UtlBoolean bBlock)
 {
    OsStatus status = OS_FAILED;
-   int i;
+   PlayListEntry* e; 
 
    if (mAggregateState == PlayerFailed)
    {
-      OsSysLog::add(FAC_MP, PRI_DEBUG, "MpStreamPlaylistPlayer::realize failure, mAggregateState == PlayerFailed");
+      OsSysLog::add(FAC_MP, PRI_ERR, "MpStreamPlaylistPlayer::realize failure, mAggregateState == PlayerFailed");
       return status;
    }
 
    // Start prefetching all of the elements
-   for (i = 0; (i < mNumPlayListElements) && (mAggregateState != PlayerFailed); i++)
-   {         
-      if (mPlayListDb[i].state == PlayerUnrealized)
+   UtlSListIterator playListDbIterator(*mPlayListDb) ;
+   while((e = (PlayListEntry*)playListDbIterator()))
+   {
+//      OsSysLog::add(FAC_MP, PRI_DEBUG, "MpStreamPlaylistPlayer::realize entry[%d] state %d", e->index, e->state);
+
+      if (e->state == PlayerUnrealized)
       {
          OsEvent eventHandle;
 
          // Realize the stream
-         if (mPlayListDb[i].sourceType == SourceUrl)
+         if (e->sourceType == SourceUrl)
          {            
             MpStreamMsg msg(MpStreamMsg::STREAM_REALIZE_URL,
                             mTarget,
                             NULL,
                             &eventHandle,
-                            mPlayListDb[i].pQueuedEvent,
-                            mPlayListDb[i].flags,
-                            (int) new Url(mPlayListDb[i].url));                   
+                            e->pQueuedEvent,
+                            e->flags,
+                            (int) new Url(e->url));                   
             status = mpMsgQ->send(msg);
             if (status != OS_SUCCESS)
             {
-               setEntryState(i, PlayerFailed);
-               mPlayListDb[i].handle = NULL;
-               OsSysLog::add(FAC_MP, PRI_DEBUG, "MpStreamPlaylistPlayer::realize failed on send of MpStreamMsg::STREAM_REALIZE_URL message");
+               setEntryState(e, PlayerFailed);
+               e->handle = NULL;
+               OsSysLog::add(FAC_MP, PRI_ERR, "MpStreamPlaylistPlayer::realize failed on send of MpStreamMsg::STREAM_REALIZE_URL message");
             }
          }
-         else if (mPlayListDb[i].sourceType == SourceBuffer)
+         else if (e->sourceType == SourceBuffer)
          {
             MpStreamMsg msg(MpStreamMsg::STREAM_REALIZE_BUFFER,
                             mTarget,
                             NULL,
                             &eventHandle,
-                            mPlayListDb[i].pQueuedEvent,
-                            mPlayListDb[i].flags,
-                            (int) mPlayListDb[i].pBuffer);                            
+                            e->pQueuedEvent,
+                            e->flags,
+                            (int) e->pBuffer);                            
             status = mpMsgQ->send(msg);
             if (status != OS_SUCCESS)
             {
-               setEntryState(i, PlayerFailed);
-               mPlayListDb[i].handle = NULL;
-               delete mPlayListDb[i].pBuffer;
-               mPlayListDb[i].pBuffer = NULL;
-               OsSysLog::add(FAC_MP, PRI_DEBUG, "MpStreamPlaylistPlayer::realize failed on send of MpStreamMsg::STREAM_REALIZE_BUFFER message");
+               setEntryState(e, PlayerFailed);
+               e->handle = NULL;
+               delete e->pBuffer;
+               e->pBuffer = NULL;
+               OsSysLog::add(FAC_MP, PRI_ERR, "MpStreamPlaylistPlayer::realize failed on send of MpStreamMsg::STREAM_REALIZE_BUFFER message");
             }
          }
 
@@ -195,35 +182,38 @@ OsStatus MpStreamPlaylistPlayer::realize(UtlBoolean bBlock)
                status = eventHandle.getEventData(eventData);
             if (status == OS_SUCCESS)
             {
-               mPlayListDb[i].handle = (StreamHandle) eventData;
+               e->handle = (StreamHandle) eventData;
             }
             else
             {
-               setEntryState(i, PlayerFailed);
-               mPlayListDb[i].handle = NULL;
-               if (mPlayListDb[i].sourceType == SourceBuffer)
+               setEntryState(e, PlayerFailed);
+               e->handle = NULL;
+               if (e->sourceType == SourceBuffer)
                {
-                  delete mPlayListDb[i].pBuffer;
-                  mPlayListDb[i].pBuffer = NULL;
+                  delete e->pBuffer;
+                  e->pBuffer = NULL;
                }
-               OsSysLog::add(FAC_MP, PRI_DEBUG, "MpStreamPlaylistPlayer::realize STREAM_REALIZE_ request failed");
+               OsSysLog::add(FAC_MP, PRI_ERR, "MpStreamPlaylistPlayer::realize STREAM_REALIZE_ request failed");
             }
          }
       }
    }
 
    // Block if requested
+   playListDbIterator.reset();
    if ((status == OS_SUCCESS) && bBlock)
    {
-      for (i = 0; (i < mNumPlayListElements) && (mAggregateState != PlayerFailed); i++)
+      while((e = (PlayListEntry*)playListDbIterator()) != NULL &&
+               (mAggregateState != PlayerFailed))
       {
-         while (mPlayListDb[i].state == PlayerUnrealized)
+         while (e->state == PlayerUnrealized)
          {
             status = mSemStateChange.acquire(mRealizeTimeout);
             if (status == OS_WAIT_TIMEOUT)
             {
-               setEntryState(i, PlayerFailed);
-               OsSysLog::add(FAC_MP, PRI_DEBUG, "MpStreamPlaylistPlayer::realize timed out waiting for Realize to complete");
+               setEntryState(e, PlayerFailed);
+               OsSysLog::add(FAC_MP, PRI_ERR, "MpStreamPlaylistPlayer::realize timed out waiting for Realize to complete");
+               break;
             }
          }
       }
@@ -231,26 +221,27 @@ OsStatus MpStreamPlaylistPlayer::realize(UtlBoolean bBlock)
 
    return status;
 }
-     
 
 // Prefetch enough of the data source to ensure a smooth playback.
 OsStatus MpStreamPlaylistPlayer::prefetch(UtlBoolean bBlock /*= TRUE*/)
 {
    OsStatus status = OS_FAILED;
-   int i;
+   PlayListEntry* e;
 
    // Start prefetching all of the elements
-   for (i = 0; (i < mNumPlayListElements) && (mAggregateState != PlayerFailed); i++)
-   {         
-      if (mPlayListDb[i].state == PlayerRealized)
+   UtlSListIterator playListDbIterator(*mPlayListDb) ;
+   while((mAggregateState != PlayerFailed) && 
+         (e = (PlayListEntry*)playListDbIterator()))
+   {
+      if (e->state == PlayerRealized)
       {
 
-         MpStreamMsg msg(MpStreamMsg::STREAM_PREFETCH, mTarget, mPlayListDb[i].handle);
+         MpStreamMsg msg(MpStreamMsg::STREAM_PREFETCH, mTarget, e->handle);
          status = mpMsgQ->send(msg);         
          if (status != OS_SUCCESS)
          {
-            setEntryState(i, PlayerFailed);
-            OsSysLog::add(FAC_MP, PRI_DEBUG, "MpStreamPlaylistPlayer::prefetch failed on send of MpStreamMsg::STREAM_PREFETCH message");
+            setEntryState(e, PlayerFailed);
+            OsSysLog::add(FAC_MP, PRI_ERR, "MpStreamPlaylistPlayer::prefetch failed on send of MpStreamMsg::STREAM_PREFETCH message");
          }
       }
    }
@@ -258,15 +249,18 @@ OsStatus MpStreamPlaylistPlayer::prefetch(UtlBoolean bBlock /*= TRUE*/)
    // Block if requested
    if ((status == OS_SUCCESS) && bBlock)
    {
-      for (i = 0; (i < mNumPlayListElements) && (mAggregateState != PlayerFailed); i++)
+      playListDbIterator.reset();
+      while((mAggregateState != PlayerFailed) && 
+            (e = (PlayListEntry*)playListDbIterator()))
       {
-         while (mPlayListDb[i].state == PlayerRealized)
+         while (e->state == PlayerRealized)
          {
             status = mSemStateChange.acquire(mPrefetchTimeout);
             if (status == OS_WAIT_TIMEOUT)
             {
-               setEntryState(i, PlayerFailed);
-               OsSysLog::add(FAC_MP, PRI_DEBUG, "MpStreamPlaylistPlayer::prefetch timed out waiting for Prefetch to complete");
+               setEntryState(e, PlayerFailed);
+               OsSysLog::add(FAC_MP, PRI_ERR, "MpStreamPlaylistPlayer::prefetch timed out waiting for Prefetch to complete");
+               break ;
             }
          }
       }
@@ -286,7 +280,7 @@ OsStatus MpStreamPlaylistPlayer::play(UtlBoolean bBlock /*= TRUE*/)
    // If the player is in a failed or unrealized state, abort.
    if ((mAggregateState == PlayerFailed) || (mAggregateState == PlayerUnrealized))
    {
-      OsSysLog::add(FAC_MP, PRI_DEBUG, "MpStreamPlaylistPlayer::play request failed due to player being in invalid state");
+      OsSysLog::add(FAC_MP, PRI_ERR, "MpStreamPlaylistPlayer::play request failed due to player being in invalid state");
       return OS_INVALID_STATE;
    }
 
@@ -298,7 +292,7 @@ OsStatus MpStreamPlaylistPlayer::play(UtlBoolean bBlock /*= TRUE*/)
          mbAutoAdvance = FALSE;         
          status = playNext(); 
       }
-      while ((status == OS_SUCCESS) && (mCurrentElement < mNumPlayListElements));      
+      while ((status == OS_SUCCESS) && (mCurrentElement < (int)mPlayListDb->entries()));      
    }
    else
    {
@@ -339,14 +333,16 @@ OsStatus MpStreamPlaylistPlayer::wait(const OsTime& rTimeout)
 OsStatus MpStreamPlaylistPlayer::rewind(UtlBoolean bBlock /*= TRUE*/)
 {
    OsStatus status = OS_SUCCESS;
+   PlayListEntry* e;
 
    stop();
    mAggregateState = PlayerUnrealized;
 
-   // Start prefetching all of the elements
-   for (int i = 0; i < mNumPlayListElements; i++)
+   // rewind all of the elements
+   UtlSListIterator playListDbIterator(*mPlayListDb) ;
+   while((e = (PlayListEntry*)playListDbIterator()))
    {
-      rewindEntry(i, bBlock);
+      rewindEntry(e, bBlock);
    }
 
    mCurrentElement = 0;
@@ -360,13 +356,26 @@ OsStatus MpStreamPlaylistPlayer::rewind(UtlBoolean bBlock /*= TRUE*/)
 OsStatus MpStreamPlaylistPlayer::reset()
 {
    OsStatus status = OS_SUCCESS;
+   PlayListEntry* e;
 
-   for (int i = 0; i < mNumPlayListElements; i++)
+   OsSysLog::add(FAC_MP, PRI_DEBUG, "MpStreamPlaylistPlayer::reset");
+   UtlSListIterator playListDbIterator(*mPlayListDb) ;
+   while((e = (PlayListEntry*)playListDbIterator()))
    {
-      destroyEntry(i);
+      destroyEntry(e);
    }
 
-   mNumPlayListElements = 0;
+   // Remove PlayListEntries from the db.  Cannot do it until all the
+   // entries are destroyed, as they are position dependent based on index,
+   // and if we remove entry 0 before entry 1 is done, when the event for
+   // entry 1 arrives everything will have moved down one and be messed up.
+            // Remove the PlayListEntry from the Db
+   playListDbIterator.reset();
+   while((e = (PlayListEntry*)playListDbIterator()))
+   {
+      mPlayListDb->removeReference(e) ;
+   }
+
    mCurrentElement = 0;
    mPlayingElement = -1;
    mbAutoAdvance = FALSE;
@@ -388,11 +397,13 @@ OsStatus MpStreamPlaylistPlayer::stop()
 {
    OsStatus status = OS_SUCCESS;
    mbAutoAdvance = FALSE;
+   PlayListEntry* e;
 
-   mCurrentElement = mNumPlayListElements;
-   for (int i = 0; i < mNumPlayListElements; i++)
+   mCurrentElement = mPlayListDb->entries();
+   UtlSListIterator playListDbIterator(*mPlayListDb) ;
+   while((e = (PlayListEntry*)playListDbIterator()))
    {
-      stopEntry(i);      
+      stopEntry(e);      
    }
 
    return status;
@@ -405,11 +416,14 @@ OsStatus MpStreamPlaylistPlayer::stop()
 OsStatus MpStreamPlaylistPlayer::destroy()
 {
    OsStatus status = OS_SUCCESS;   // This is non-blocking, assume success.
+   PlayListEntry* e;
  
-   mCurrentElement = mNumPlayListElements;
-   for (int i = 0; i < mNumPlayListElements; i++)
+   OsSysLog::add(FAC_MP, PRI_DEBUG, "MpStreamPlaylistPlayer::destroy");
+   mCurrentElement = mPlayListDb->entries();
+   UtlSListIterator playListDbIterator(*mPlayListDb) ;
+   while((e = (PlayListEntry*)playListDbIterator()))
    {
-      destroyEntry(i, false);      
+      destroyEntry(e, false);      
    }
 
    return status;
@@ -424,7 +438,8 @@ OsStatus MpStreamPlaylistPlayer::pause()
    int iPlayingElement = mPlayingElement;
    if (iPlayingElement != -1)
    {
-      status = pauseEntry(iPlayingElement);
+      PlayListEntry* e = (PlayListEntry*)mPlayListDb->at(iPlayingElement);
+      status = pauseEntry(e);
    }
 
    return status;
@@ -436,7 +451,7 @@ OsStatus MpStreamPlaylistPlayer::pause()
 // Gets the number of play list entries
 OsStatus MpStreamPlaylistPlayer::getCount(int& count) const
 {
-   count = mNumPlayListElements;
+   count = (int)mPlayListDb->entries();
    return OS_SUCCESS;
 }
 
@@ -445,10 +460,11 @@ OsStatus MpStreamPlaylistPlayer::getCount(int& count) const
 OsStatus MpStreamPlaylistPlayer::getSourceType(int index, int& type) const
 {
    OsStatus status = OS_INVALID_ARGUMENT;
+   PlayListEntry* e = (PlayListEntry*)mPlayListDb->at(index) ;
 
-   if ((index >= 0) && (index < mNumPlayListElements))
+   if (e != NULL)
    {
-      type = mPlayListDb[index].sourceType;
+      type = e->sourceType;
       status = OS_SUCCESS;
    }
 
@@ -460,12 +476,13 @@ OsStatus MpStreamPlaylistPlayer::getSourceType(int index, int& type) const
 OsStatus MpStreamPlaylistPlayer::getSourceUrl(int index, Url url) const
 {
    OsStatus status = OS_INVALID_ARGUMENT;
+   PlayListEntry* e = (PlayListEntry*)mPlayListDb->at(index) ;
 
-   if ((index >= 0) && (index < mNumPlayListElements))
+   if (e != NULL)
    {
-      if (mPlayListDb[index].sourceType == SourceUrl)
+      if (e->sourceType == SourceUrl)
       {
-         url = mPlayListDb[index].url;
+         url = e->url;
          status = OS_SUCCESS;
       }
    }
@@ -478,12 +495,13 @@ OsStatus MpStreamPlaylistPlayer::getSourceUrl(int index, Url url) const
 OsStatus MpStreamPlaylistPlayer::getSourceBuffer(int index, UtlString*& netBuffer) const
 {
    OsStatus status = OS_INVALID_ARGUMENT;
+   PlayListEntry* e = (PlayListEntry*)mPlayListDb->at(index) ;
 
-   if ((index >= 0) && (index < mNumPlayListElements))
+   if (e != NULL)
    {
-      if (mPlayListDb[index].sourceType == SourceBuffer)
+      if (e->sourceType == SourceBuffer)
       {
-         netBuffer = mPlayListDb[index].pBuffer;
+         netBuffer = e->pBuffer;
          status = OS_SUCCESS;
       }
    }
@@ -496,10 +514,11 @@ OsStatus MpStreamPlaylistPlayer::getSourceState(int index, PlayerState& state) c
 
 {
    OsStatus status = OS_INVALID_ARGUMENT;
+   PlayListEntry* e = (PlayListEntry*)mPlayListDb->at(index) ;
 
-   if ((index >= 0) && (index < mNumPlayListElements))
+   if (e != NULL)
    {
-      state = mPlayListDb[index].state;
+      state = e->state;
       status = OS_SUCCESS;
    }
 
@@ -568,8 +587,9 @@ OsStatus MpStreamPlaylistPlayer::last()
 {
    stop();
 
-   if (mNumPlayListElements > 0)
-      mCurrentElement = mNumPlayListElements - 1;
+   int n = mPlayListDb->entries() ;
+   if (n > 0)
+      mCurrentElement = n - 1;
    else
       mCurrentElement = 0;
 
@@ -582,7 +602,7 @@ OsStatus MpStreamPlaylistPlayer::playNext(UtlBoolean bBlock /*= TRUE*/)
 {
    OsStatus status = OS_LIMIT_REACHED;
 
-   if (mCurrentElement < mNumPlayListElements)
+   if (mCurrentElement < (int)mPlayListDb->entries())
    {
       int iPlayElement = mCurrentElement++;
       status = playEntry(iPlayElement, bBlock);
@@ -609,18 +629,27 @@ OsStatus MpStreamPlaylistPlayer::playPrevious(UtlBoolean bBlock /*= TRUE*/)
 
 
 // Sets the state for a specific entry.
-void MpStreamPlaylistPlayer::setEntryState(int iEntry, PlayerState newState)
+void MpStreamPlaylistPlayer::setEntryState(PlayListEntry* e, PlayerState newState)
 {
-   PlayerState oldState = mPlayListDb[iEntry].state;
+//   OsSysLog::add(FAC_MP, PRI_DEBUG, "MpStreamPlaylistPlayer::setEntryState %p[%d] newState=%d", e, e?e->index:-1, newState);
+
+   if (e == NULL)
+   {
+      // Update any blocking calls
+      mSemStateChange.release();
+      return ;
+   }
+
+   PlayerState oldState = e->state;
 
    if (oldState != newState)
    {
 #ifdef MP_STREAM_DEBUG /* [ */
       osPrintf("MpStreamPlaylistPlayer::setEntryState(%p): Setting mPlayListDb[%d].state = %s\n",
-               this, iEntry, getEventString(newState));
+               this, e->index, getEventString(newState));
 #endif /* MP_STREAM_DEBUG ] */
       // Store the new state
-      mPlayListDb[iEntry].state = newState;
+      e->state = newState;
 
       // Updated aggregate state given the new entry state
       switch (newState)
@@ -628,25 +657,25 @@ void MpStreamPlaylistPlayer::setEntryState(int iEntry, PlayerState newState)
          case PlayerUnrealized:            
             break;
          case PlayerRealized:
-            handleRealizedState(iEntry, oldState, newState);
+            handleRealizedState(oldState, newState);
             break;
          case PlayerPrefetched:
-            handlePrefetchedState(iEntry, oldState, newState);
+            handlePrefetchedState(oldState, newState);
             break;
          case PlayerPlaying:
-            handlePlayingState(iEntry, oldState, newState);
+            handlePlayingState(oldState, newState);
             break;
          case PlayerPaused:
-            handlePausedState(iEntry, oldState, newState);
+            handlePausedState(oldState, newState);
             break;
          case PlayerStopped:
          case PlayerAborted:
-            handleStoppedState(iEntry, oldState, newState);
+            handleStoppedState(oldState, newState);
             break;
          case PlayerDestroyed:
             break;
          case PlayerFailed:
-            handleFailedState(iEntry, oldState, newState);
+            handleFailedState(oldState, newState);
             break;
       }
       
@@ -660,41 +689,43 @@ void MpStreamPlaylistPlayer::setEntryState(int iEntry, PlayerState newState)
 OsStatus MpStreamPlaylistPlayer::playEntry(int iEntry, UtlBoolean bBlock /*= TRUE*/)
 {
    OsStatus status = OS_INVALID_ARGUMENT;
+   PlayListEntry* e = (PlayListEntry*)mPlayListDb->at(iEntry) ;
 
-   if ((iEntry >= 0) && (iEntry < mNumPlayListElements))
+   if (e != NULL)
    {      
       // Only proceed if we have a flow graph and the player is realized.
       // NOTE: The player doesn't need to be prefetched
-      if (  (mPlayListDb[iEntry].state == PlayerRealized) || 
-            (mPlayListDb[iEntry].state == PlayerPaused) ||
-            (mPlayListDb[iEntry].state == PlayerPrefetched))
+      if (  (e->state == PlayerRealized) || 
+            (e->state == PlayerPaused) ||
+            (e->state == PlayerPrefetched))
       {
          mPlayingElement = iEntry;         
-         MpStreamMsg msg(MpStreamMsg::STREAM_PLAY, mTarget, mPlayListDb[iEntry].handle);
+         MpStreamMsg msg(MpStreamMsg::STREAM_PLAY, mTarget, e->handle);
          status = mpMsgQ->send(msg);
          if (status != OS_SUCCESS)
          {
-            setEntryState(iEntry, PlayerFailed);
-            OsSysLog::add(FAC_MP, PRI_DEBUG, "MpStreamPlaylistPlayer::playEntry failed on send of MpStreamMsg::STREAM_PLAY message");
+            setEntryState(e, PlayerFailed);
+            OsSysLog::add(FAC_MP, PRI_ERR, "MpStreamPlaylistPlayer::playEntry failed on send of MpStreamMsg::STREAM_PLAY message");
          }
          else 
          {
-            if (mPlayListDb[iEntry].state == PlayerPaused)
-               setEntryState(iEntry, PlayerPlaying);
+            if (e->state == PlayerPaused)
+               setEntryState(e, PlayerPlaying);
 
             // Block while waiting for play to complete (if requested)
             if ((status == OS_SUCCESS)  && bBlock)
             {
-               while (  (mPlayListDb[iEntry].state == PlayerRealized)
-                     || (mPlayListDb[iEntry].state == PlayerPrefetched) 
-                     || (mPlayListDb[iEntry].state == PlayerPlaying) 
-                     || (mPlayListDb[iEntry].state == PlayerPaused))
+               while (  (e->state == PlayerRealized)
+                     || (e->state == PlayerPrefetched) 
+                     || (e->state == PlayerPlaying) 
+                     || (e->state == PlayerPaused))
                {
                   status = mSemStateChange.acquire(mPlayTimeout);
                   if (status == OS_WAIT_TIMEOUT)
                   {
-                     setEntryState(iEntry, PlayerFailed);
-                     OsSysLog::add(FAC_MP, PRI_DEBUG, "MpStreamPlaylistPlayer::playEntry timed out waiting for play to complete");
+                     setEntryState(e, PlayerFailed);
+                     OsSysLog::add(FAC_MP, PRI_ERR, "MpStreamPlaylistPlayer::playEntry timed out waiting for play to complete");
+                     break;
                   }
                }
             }
@@ -703,7 +734,7 @@ OsStatus MpStreamPlaylistPlayer::playEntry(int iEntry, UtlBoolean bBlock /*= TRU
       else
       {
          status = OS_INVALID_STATE;
-         OsSysLog::add(FAC_MP, PRI_DEBUG, "MpStreamPlaylistPlayer::playEntry failed due to current state being invalid");
+         OsSysLog::add(FAC_MP, PRI_ERR, "MpStreamPlaylistPlayer::playEntry failed due to current state being invalid");
       }      
    }
    return status;
@@ -712,13 +743,13 @@ OsStatus MpStreamPlaylistPlayer::playEntry(int iEntry, UtlBoolean bBlock /*= TRU
 
 // Rewinds a previously played media stream.  In some cases this may result
 // in a re-connect/refetch.
-OsStatus MpStreamPlaylistPlayer::rewindEntry(int iEntry, UtlBoolean bBlock /*= TRUE*/)
+OsStatus MpStreamPlaylistPlayer::rewindEntry(PlayListEntry* e, UtlBoolean bBlock /*= TRUE*/)
 {
    OsStatus status = OS_INVALID_ARGUMENT;
 
-   if ((iEntry >= 0) && (iEntry < mNumPlayListElements))
+   if (e != NULL)
    {      
-      if (mPlayListDb[iEntry].state == PlayerPrefetched)
+      if (e->state == PlayerPrefetched)
       {
          status = OS_SUCCESS;
       }
@@ -726,29 +757,30 @@ OsStatus MpStreamPlaylistPlayer::rewindEntry(int iEntry, UtlBoolean bBlock /*= T
       {         
          // Only proceed if we have a flow graph and the player is realized.
          // NOTE: The player doesn't need to be prefetched
-         if ((mPlayListDb[iEntry].state == PlayerStopped) || (mPlayListDb[iEntry].state == PlayerAborted))
+         if ((e->state == PlayerStopped) || (e->state == PlayerAborted))
          {         
-            MpStreamMsg msg(MpStreamMsg::STREAM_REWIND, mTarget, mPlayListDb[iEntry].handle);
+            MpStreamMsg msg(MpStreamMsg::STREAM_REWIND, mTarget, e->handle);
             status = mpMsgQ->send(msg);
             if (status != OS_SUCCESS)
             {
-               setEntryState(iEntry, PlayerFailed);
-               OsSysLog::add(FAC_MP, PRI_DEBUG, "MpStreamPlaylistPlayer::rewindEntry failed on send of MpStreamMsg::STREAM_REWIND message");
+               setEntryState(e, PlayerFailed);
+               OsSysLog::add(FAC_MP, PRI_ERR, "MpStreamPlaylistPlayer::rewindEntry failed on send of MpStreamMsg::STREAM_REWIND message");
             }
             else 
             {
                // Block while waiting for rewind to complete (if requested)
                if (bBlock)
                {
-                  while ((mPlayListDb[iEntry].state == PlayerStopped) || 
-                        (mPlayListDb[iEntry].state == PlayerAborted)  ||
-                        (mPlayListDb[iEntry].state == PlayerRealized))
+                  while ((e->state == PlayerStopped) || 
+                        (e->state == PlayerAborted)  ||
+                        (e->state == PlayerRealized))
                   {
                      status = mSemStateChange.acquire(mRewindTimeout);
                      if (status == OS_WAIT_TIMEOUT)
                      {
-                        setEntryState(iEntry, PlayerFailed);
-                        OsSysLog::add(FAC_MP, PRI_DEBUG, "MpStreamPlaylistPlayer::rewindEntry timed out waiting for Rewind to complete");
+                        setEntryState(e, PlayerFailed);
+                        OsSysLog::add(FAC_MP, PRI_ERR, "MpStreamPlaylistPlayer::rewindEntry timed out waiting for Rewind to complete");
+                        break;
                      }
                   }
                }
@@ -765,46 +797,46 @@ OsStatus MpStreamPlaylistPlayer::rewindEntry(int iEntry, UtlBoolean bBlock /*= T
 
 
 // Stops playing a specific entry
-OsStatus MpStreamPlaylistPlayer::stopEntry(int iEntry, UtlBoolean bBlock /* = TRUE */)
+OsStatus MpStreamPlaylistPlayer::stopEntry(PlayListEntry* e, UtlBoolean bBlock /* = TRUE */)
 {
    OsStatus status = OS_INVALID_ARGUMENT;
 
-   if ((iEntry >= 0) && (iEntry < mNumPlayListElements))
+   if (e != NULL)
    {      
       // Only proceed if we have a flow graph and the player is realized.
       // NOTE: The player doesn't need to be prefetched
-      if (  (mPlayListDb[iEntry].state == PlayerPrefetched) || 
-            (mPlayListDb[iEntry].state == PlayerPlaying) || 
-            (mPlayListDb[iEntry].state == PlayerPaused))
+      if (  (e->state == PlayerPrefetched) || 
+            (e->state == PlayerPlaying) || 
+            (e->state == PlayerPaused))
       {        
-         MpStreamMsg msg(MpStreamMsg::STREAM_STOP, mTarget, mPlayListDb[iEntry].handle);
+         MpStreamMsg msg(MpStreamMsg::STREAM_STOP, mTarget, e->handle);
          status = mpMsgQ->send(msg);         
          if (status != OS_SUCCESS)
          {
-            setEntryState(iEntry, PlayerFailed);
-            OsSysLog::add(FAC_MP, PRI_DEBUG, "MpStreamPlaylistPlayer::stopEntry failed on send of MpStreamMsg::STREAM_STOP message");
+            setEntryState(e, PlayerFailed);
+            OsSysLog::add(FAC_MP, PRI_ERR, "MpStreamPlaylistPlayer::stopEntry failed on send of MpStreamMsg::STREAM_STOP message");
          }
          else 
          {
             if (bBlock)
             {
-               while ((mPlayListDb[iEntry].state != PlayerStopped) && 
-                      (mPlayListDb[iEntry].state != PlayerAborted))
+               while ((e->state != PlayerStopped) && 
+                      (e->state != PlayerAborted))
                 
                {
                   status = mSemStateChange.acquire(mStopTimeout);
                   if (status == OS_WAIT_TIMEOUT)
                   {
-                     setEntryState(iEntry, PlayerFailed);
-                     OsSysLog::add(FAC_MP, PRI_DEBUG, "MpStreamPlaylistPlayer::stopEntry timed out waiting for Stop to complete");
+                     setEntryState(e, PlayerFailed);
+                     OsSysLog::add(FAC_MP, PRI_ERR, "MpStreamPlaylistPlayer::stopEntry timed out waiting for Stop to complete");
                      break;
                   }
                }
             }
          }
       }
-      else if ((mPlayListDb[iEntry].state == PlayerStopped) || 
-               (mPlayListDb[iEntry].state == PlayerAborted))
+      else if ((e->state == PlayerStopped) || 
+               (e->state == PlayerAborted))
          status = OS_SUCCESS;
    }
    return status;
@@ -812,25 +844,25 @@ OsStatus MpStreamPlaylistPlayer::stopEntry(int iEntry, UtlBoolean bBlock /* = TR
 
 
 // Pauses a specific entry
-OsStatus MpStreamPlaylistPlayer::pauseEntry(int iEntry)
+OsStatus MpStreamPlaylistPlayer::pauseEntry(PlayListEntry* e)
 {
    OsStatus status = OS_INVALID_ARGUMENT;
 
-   if ((iEntry >= 0) && (iEntry < mNumPlayListElements))
+   if (e != NULL)
    {
       status = OS_SUCCESS;
 
       // Only proceed if we have a flow graph and the player is prefetched or
       // playing.
-      if ( (mPlayListDb[iEntry].state == PlayerPrefetched) ||
-           (mPlayListDb[iEntry].state == PlayerPlaying))
+      if ( (e->state == PlayerPrefetched) ||
+           (e->state == PlayerPlaying))
       {
-         MpStreamMsg msg(MpStreamMsg::STREAM_PAUSE, mTarget, mPlayListDb[iEntry].handle);
+         MpStreamMsg msg(MpStreamMsg::STREAM_PAUSE, mTarget, e->handle);
          status = mpMsgQ->send(msg);         
          if (status != OS_SUCCESS)
          {
-            setEntryState(iEntry, PlayerFailed);
-            OsSysLog::add(FAC_MP, PRI_DEBUG, "MpStreamPlaylistPlayer::pauseEntry failed on send of MpStreamMsg::STREAM_PAUSE message");
+            setEntryState(e, PlayerFailed);
+            OsSysLog::add(FAC_MP, PRI_ERR, "MpStreamPlaylistPlayer::pauseEntry failed on send of MpStreamMsg::STREAM_PAUSE message");
          }
       }
    }
@@ -840,66 +872,64 @@ OsStatus MpStreamPlaylistPlayer::pauseEntry(int iEntry)
 
 
 // Pauses a specific entry
-OsStatus MpStreamPlaylistPlayer::destroyEntry(int iEntry, UtlBoolean bBlockAndClean /*= TRUE*/)
+OsStatus MpStreamPlaylistPlayer::destroyEntry(PlayListEntry* e, UtlBoolean bBlockAndClean /*= TRUE*/)
 {
    OsStatus status = OS_INVALID_ARGUMENT;
 
-   if ((iEntry >= 0) && (iEntry < mNumPlayListElements))
+//   OsSysLog::add(FAC_MP, PRI_DEBUG, "MpStreamPlaylistPlayer::destroyEntry %p[%d]", e, e? e->index:-1);
+
+   if (e != NULL)
    {
       status = OS_SUCCESS;
 
       // Only proceed if we have a flow graph and the player is prefetched or
       // playing.
-      if (mPlayListDb[iEntry].state != PlayerUnrealized)
+      if (e->state != PlayerUnrealized)
       {
-         int iState = mPlayListDb[iEntry].state;
+         int iState = e->state;
          if (  (iState != PlayerStopped) && 
                (iState != PlayerAborted) && 
                (iState != PlayerDestroyed)  )
          {
-            MpStreamMsg msgStop(MpStreamMsg::STREAM_STOP, mTarget, mPlayListDb[iEntry].handle);
+            MpStreamMsg msgStop(MpStreamMsg::STREAM_STOP, mTarget, e->handle);
             status = mpMsgQ->send(msgStop);
             if (status != OS_SUCCESS)
             {
-               setEntryState(iEntry, PlayerFailed);
-               OsSysLog::add(FAC_MP, PRI_DEBUG, "MpStreamPlaylistPlayer::deleteEntry failed on send of MpStreamMsg::STREAM_STOP message");
+               setEntryState(e, PlayerFailed);
+               OsSysLog::add(FAC_MP, PRI_ERR, "MpStreamPlaylistPlayer::destroyEntry failed on send of MpStreamMsg::STREAM_STOP message");
             }
          }
 
          if ((iState != PlayerDestroyed) && (status == OS_SUCCESS))
          {
-            MpStreamMsg msgDestroy(MpStreamMsg::STREAM_DESTROY, mTarget, mPlayListDb[iEntry].handle);
+            MpStreamMsg msgDestroy(MpStreamMsg::STREAM_DESTROY, mTarget, e->handle);
             status = mpMsgQ->send(msgDestroy);
             if (status != OS_SUCCESS)
             {
-               setEntryState(iEntry, PlayerFailed);
-               OsSysLog::add(FAC_MP, PRI_DEBUG, "MpStreamPlaylistPlayer::deleteEntry failed on send of MpStreamMsg::STREAM_DESTROY message");
+               setEntryState(e, PlayerFailed);
+               OsSysLog::add(FAC_MP, PRI_ERR, "MpStreamPlaylistPlayer::destroyEntry failed on send of MpStreamMsg::STREAM_DESTROY message");
             }
          }         
 
          
          if (bBlockAndClean)
          {
-            while (mPlayListDb[iEntry].state != PlayerDestroyed)
+            while (e->state != PlayerDestroyed)
             {
                status = mSemStateChange.acquire(mDestroyTimeout);
                if (status == OS_WAIT_TIMEOUT)
                {
-                  OsSysLog::add(FAC_MP, PRI_DEBUG, "MpStreamPlaylistPlayer::deleteEntry timed out waiting for Delete to complete");
+                  OsSysLog::add(FAC_MP, PRI_ERR, "MpStreamPlaylistPlayer::destroyEntry timed out waiting for Delete to complete");
                   break;
                }
             }         
 
-            mPlayListDb[iEntry].sourceType = 0;
-            mPlayListDb[iEntry].pBuffer = NULL;
-            mPlayListDb[iEntry].handle = NULL;
-            mPlayListDb[iEntry].state = PlayerUnrealized;
-            mPlayListDb[iEntry].flags = 0;
-            if (mPlayListDb[iEntry].pQueuedEvent != NULL)
+            if (e->pQueuedEvent != NULL)
             {
-               delete mPlayListDb[iEntry].pQueuedEvent;
-               mPlayListDb[iEntry].pQueuedEvent = NULL;   
+               delete e->pQueuedEvent;
             }
+            // Delete the PlayListEntry
+            delete e ;
          }
       }
    }
@@ -916,32 +946,34 @@ UtlBoolean MpStreamPlaylistPlayer::handleMessage(OsMsg& rMsg)
       case OsMsg::OS_EVENT:
          OsEventMsg* pMsg = (OsEventMsg*) &rMsg;
          int status;
-         PlayerState oldState;         
          int index;
 
          pMsg->getUserData(index);
          if (pMsg->getEventData(status) == OS_SUCCESS)
          {
+            PlayListEntry* e = (PlayListEntry*)mPlayListDb->at(index) ;
 #ifdef MP_STREAM_DEBUG /* [ */
             osPrintf("MpStreamPlaylistPlayer::handleMessage(%p): Received Feeder event: %s \n", 
                      this, getFeederEventString(status));
-#endif /* MP_STREAM_DEBUG ] */
 
-            getSourceState(index, oldState);
+            OsSysLog::add(FAC_MP, PRI_DEBUG, 
+               "MpStreamPlaylistPlayer::handleMessage(%p): Received Feeder event: %s index=%d e->index=%d", 
+                  this, getFeederEventString(status), index, e?e->index:-1);
+#endif /* MP_STREAM_DEBUG ] */
             switch (status)
             {
                case FeederRealizedEvent:
-                  setEntryState(index, PlayerRealized);                  
+                  setEntryState(e, PlayerRealized);                  
                   break;
 
                case FeederPrefetchedEvent:
-                  setEntryState(index, PlayerPrefetched);
+                  setEntryState(e, PlayerPrefetched);
                   break;
 
                case FeederStoppedEvent:
                   if (mAggregateState != PlayerPlaying)
                   {
-                     setEntryState(index, PlayerPrefetched);
+                     setEntryState(e, PlayerPrefetched);
                   }
                   break;
 
@@ -949,27 +981,27 @@ UtlBoolean MpStreamPlaylistPlayer::handleMessage(OsMsg& rMsg)
                   break;
 
                case FeederFailedEvent:                     
-                  setEntryState(index, PlayerFailed);
+                  setEntryState(e, PlayerFailed);
                   break;
 
                case FeederStreamPlayingEvent:
-                  setEntryState(index, PlayerPlaying);
+                  setEntryState(e, PlayerPlaying);
                   break;
 
                case FeederStreamPausedEvent:
-                  setEntryState(index, PlayerPaused);
+                  setEntryState(e, PlayerPaused);
                   break;               
 
                case FeederStreamStoppedEvent:
-                  setEntryState(index, PlayerStopped);
+                  setEntryState(e, PlayerStopped);
                   break;
                
                case FeederStreamDestroyedEvent:
-                  setEntryState(index, PlayerDestroyed);
+                  setEntryState(e, PlayerDestroyed);
                   break;
                
                case FeederStreamAbortedEvent:
-                  setEntryState(index, PlayerStopped);
+                  setEntryState(e, PlayerStopped);
                   break;
 
             }
@@ -982,7 +1014,7 @@ UtlBoolean MpStreamPlaylistPlayer::handleMessage(OsMsg& rMsg)
 
 
 // Handles processing for the realized state
-void MpStreamPlaylistPlayer::handleRealizedState(int index, PlayerState oldState, PlayerState newState)
+void MpStreamPlaylistPlayer::handleRealizedState(PlayerState oldState, PlayerState newState)
 {
    //
    // Updated the mAggregateState if all play list items are realized
@@ -990,9 +1022,10 @@ void MpStreamPlaylistPlayer::handleRealizedState(int index, PlayerState oldState
    if (mAggregateState == PlayerUnrealized)
    {
       UtlBoolean bAnyUnRealized = FALSE;
-      for (int i = 0; i < mNumPlayListElements; i++)
+      UtlSListIterator playListDbIterator(*mPlayListDb) ;
+      while(PlayListEntry* e = (PlayListEntry*)playListDbIterator())
       {
-         if (mPlayListDb[i].state == PlayerUnrealized)
+         if (e->state == PlayerUnrealized)
          {
             bAnyUnRealized = TRUE;
             break;
@@ -1015,7 +1048,7 @@ void MpStreamPlaylistPlayer::handleRealizedState(int index, PlayerState oldState
 
   
 // Handles processing for the prefetched state
-void MpStreamPlaylistPlayer::handlePrefetchedState(int index, PlayerState oldState, PlayerState newState)
+void MpStreamPlaylistPlayer::handlePrefetchedState(PlayerState oldState, PlayerState newState)
 {   
    //
    // Updated the mAggregateState if all play list items are prefetched
@@ -1023,10 +1056,11 @@ void MpStreamPlaylistPlayer::handlePrefetchedState(int index, PlayerState oldSta
    if ((mAggregateState == PlayerUnrealized) || (mAggregateState == PlayerRealized))
    {
       UtlBoolean bAllPrefetched = TRUE;
-      for (int i = 0; i < mNumPlayListElements; i++)
+      UtlSListIterator playListDbIterator(*mPlayListDb) ;
+      while(PlayListEntry* e = (PlayListEntry*)playListDbIterator())
       {
-         if (  (mPlayListDb[i].state != PlayerPrefetched) && 
-               (mPlayListDb[i].state != PlayerFailed))
+         if (  (e->state != PlayerPrefetched) && 
+               (e->state != PlayerFailed))
          {
             bAllPrefetched = FALSE;
             break;
@@ -1049,7 +1083,7 @@ void MpStreamPlaylistPlayer::handlePrefetchedState(int index, PlayerState oldSta
 
 
 // Handles processing for the playing state
-void MpStreamPlaylistPlayer::handlePlayingState(int index, PlayerState oldState, PlayerState newState)
+void MpStreamPlaylistPlayer::handlePlayingState(PlayerState oldState, PlayerState newState)
 {
    if (mAggregateState != PlayerPlaying)
    {
@@ -1064,7 +1098,7 @@ void MpStreamPlaylistPlayer::handlePlayingState(int index, PlayerState oldState,
 
 
 // Handles processing for the paused state
-void MpStreamPlaylistPlayer::handlePausedState(int index, PlayerState oldState, PlayerState newState)
+void MpStreamPlaylistPlayer::handlePausedState(PlayerState oldState, PlayerState newState)
 {
    if (mAggregateState != PlayerPaused)
    {
@@ -1079,10 +1113,10 @@ void MpStreamPlaylistPlayer::handlePausedState(int index, PlayerState oldState, 
 
 
 // Handles processing for the stopped state
-void MpStreamPlaylistPlayer::handleStoppedState(int index, PlayerState oldState, PlayerState newState)
+void MpStreamPlaylistPlayer::handleStoppedState(PlayerState oldState, PlayerState newState)
 {
    if (  (mbAutoAdvance) && 
-         (mCurrentElement < mNumPlayListElements) && 
+         (mCurrentElement < (int)mPlayListDb->entries()) && 
          (newState != PlayerAborted))
    {
       playNext(FALSE);
@@ -1103,7 +1137,7 @@ void MpStreamPlaylistPlayer::handleStoppedState(int index, PlayerState oldState,
    }
    else
    {
-      if (mCurrentElement >= mNumPlayListElements)
+      if (mCurrentElement >= (int)mPlayListDb->entries())
       {
          mbAutoAdvance = FALSE;
 
@@ -1124,7 +1158,7 @@ void MpStreamPlaylistPlayer::handleStoppedState(int index, PlayerState oldState,
 
 
 // Handles processing for the failed state
-void MpStreamPlaylistPlayer::handleFailedState(int index, PlayerState oldState, PlayerState newState)
+void MpStreamPlaylistPlayer::handleFailedState(PlayerState oldState, PlayerState newState)
 {
 #ifdef MP_STREAM_DEBUG /* [ */
    osPrintf("MpStreamPlaylistPlayer::handleFailedState(%p): Changed from %s to PlayerFailed.\n",
@@ -1141,7 +1175,6 @@ void MpStreamPlaylistPlayer::handleFailedState(int index, PlayerState oldState, 
 
 /* ============================ TESTING =================================== */
 
-#ifdef MP_STREAM_DEBUG /* [ */
 const char* MpStreamPlaylistPlayer::getFeederEventString(int iEvent)
 {
    const char* szRC = "ERROR_UNKNOWN";
@@ -1181,8 +1214,6 @@ const char* MpStreamPlaylistPlayer::getFeederEventString(int iEvent)
    }
    return szRC;
 }
-
-#endif
 
 /* ============================ FUNCTIONS ================================= */
 

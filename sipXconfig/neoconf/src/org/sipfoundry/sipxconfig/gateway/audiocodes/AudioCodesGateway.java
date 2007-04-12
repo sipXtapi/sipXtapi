@@ -23,8 +23,6 @@ import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingArray;
 
 public abstract class AudioCodesGateway extends Gateway {
-    private static final String MAC_PREFIX = "00908F";
-
     @Override
     public void initialize() {
         AudioCodesGatewayDefaults defaults = new AudioCodesGatewayDefaults(this, getDefaults());
@@ -40,10 +38,7 @@ public abstract class AudioCodesGateway extends Gateway {
         if (serialNumber == null) {
             return null;
         }
-        int id = Integer.parseInt(serialNumber.substring(2));
-        String hexAddress = Integer.toHexString(id).toUpperCase();
-        hexAddress = StringUtils.leftPad(hexAddress, 6, '0');
-        return MAC_PREFIX + hexAddress + ".ini";
+        return serialNumber.toUpperCase() + ".ini";
     }
 
     @Override
@@ -61,6 +56,13 @@ public abstract class AudioCodesGateway extends Gateway {
     protected Setting loadSettings() {
         return getModelFilesContext().loadDynamicModelFile("mp-gateway.xml", "audiocodes",
                 getSettingsEvaluator());
+    }
+
+    @Override
+    public void generateProfiles() {
+        getProfileGenerator().copy("audiocodes/MP11x-02-1-FXS_16KHZ.dat", "MP11x-02-1-FXS_16KHZ.dat");
+        getProfileGenerator().copy("audiocodes/usa_tones_12.dat", "usa_tones_12.dat");
+        super.generateProfiles();
     }
 
     static class AudioCodesContext extends ProfileContext {

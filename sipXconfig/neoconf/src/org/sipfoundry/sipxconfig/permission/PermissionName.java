@@ -61,6 +61,6 @@ public enum PermissionName {
     public void setEnabled(Group g, boolean enable) {
         String path = getPath();
         String value = enable ? Permission.ENABLE : Permission.DISABLE;
-        g.getValues().put(path, value);
+        g.setSettingValue(path, value);
     }
 }

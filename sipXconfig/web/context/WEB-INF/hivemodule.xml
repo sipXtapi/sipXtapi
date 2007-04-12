@@ -149,7 +149,7 @@
   <!-- override default exception page -->
   <service-point id="ExceptionPresenter" interface="org.apache.tapestry.error.ExceptionPresenter">
     <invoke-factory>
-      <construct class="org.apache.tapestry.error.ExceptionPresenterImpl">
+      <construct class="org.sipfoundry.sipxconfig.site.ExceptionPresenterWithHttpCodes">
         <set property="exceptionPageName" value="InternalErrorPage" />
         <set property="verbose" value="true" />
         <set-object property="requestExceptionReporter" value="infrastructure:requestExceptionReporter" />

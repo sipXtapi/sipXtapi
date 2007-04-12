@@ -26,6 +26,10 @@ public class GrandstreamProfileTest extends TestCase {
 
     PhoneTestDriver tester;
 
+    public void testHandytone() throws Exception {
+        assertProfile("gsHt496", "expected-ht.cfg");
+    }
+
     public void testBudgetone() throws Exception {
         assertProfile("gsPhoneBt", "expected-gsbt.cfg");
     }

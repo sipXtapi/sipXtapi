@@ -25,14 +25,14 @@
 /* ============================ CREATORS ================================== */
 
 // Constructor
-MimeBodyPart::MimeBodyPart(const HttpBody* parent, int parentBodyStartIndex, int rawBodyLength)
+MimeBodyPart::MimeBodyPart(const HttpBody* parent, const char* bodyPart, int  parentBodyStartIndex, int rawBodyLength, const char* contentType)
+:  HttpBody(bodyPart,rawBodyLength,contentType),
+   mpParentBody(parent),
+   mParentBodyRawStartIndex(parentBodyStartIndex),
+   mRawBodyLength(rawBodyLength),
+   mParentBodyStartIndex(parentBodyStartIndex),
+   mBodyLength(0)
 {
-   mpParentBody = parent;
-   mParentBodyRawStartIndex = parentBodyStartIndex;
-   mRawBodyLength = rawBodyLength;
-   mParentBodyStartIndex = parentBodyStartIndex;
-   mBodyLength = 0;
-
    if(rawBodyLength > 0 && parent)
    {
        const char* parentBodyBytes;
@@ -42,7 +42,7 @@ MimeBodyPart::MimeBodyPart(const HttpBody* parent, int parentBodyStartIndex, int
        bodyBytes = parentBodyBytes + parentBodyStartIndex;
        if(parentBodyLength >= parentBodyStartIndex + rawBodyLength)
        {
-            
+
            int parsedBytes = HttpMessage::parseHeaders(bodyBytes, rawBodyLength,
                     mNameValues);
 

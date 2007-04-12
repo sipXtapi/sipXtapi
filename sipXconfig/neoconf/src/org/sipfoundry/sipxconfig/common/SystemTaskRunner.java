@@ -21,11 +21,9 @@ import org.springframework.context.access.ContextSingletonBeanFactoryLocator;
  */
 public class SystemTaskRunner {
 
-    @SuppressWarnings("unused")
     public static void main(String[] args) {
         if (args == null || args.length == 0) {
-            System.err.println("bean to run is required as first argument");
-            System.exit(1);
+            throw new IllegalArgumentException("bean to run is required as first argument");
         }
 
         new SystemTaskRunner().runMain(args);

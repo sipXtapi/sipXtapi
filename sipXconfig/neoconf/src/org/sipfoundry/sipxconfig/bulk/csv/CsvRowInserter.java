@@ -172,9 +172,7 @@ public class CsvRowInserter extends RowInserter<String[]> implements Closure {
             phone.addGroup(phoneGroup);
         }
 
-        Line line = phone.createLine();
-        line.setUser(user);
-        phone.addLine(line);
+        addLine(phone, user);
 
         m_phoneContext.storePhone(phone);
 
@@ -182,6 +180,21 @@ public class CsvRowInserter extends RowInserter<String[]> implements Closure {
             Mailbox mailbox = m_mailboxManager.getMailbox(user.getUserName());
             m_mailboxManager.saveMailboxPreferences(mailbox, mboxPrefs);
         }
+    }
+    
+    Line addLine(Phone phone, User user) {
+        for (Line l : phone.getLines()) {
+            User candidate = l.getUser();
+            if (candidate != null && candidate.equals(user)) {
+                // user already on this line
+                return l;
+            }
+        }
+        
+        Line line = phone.createLine();
+        line.setUser(user);
+        phone.addLine(line);
+        return line;
     }
 
     protected String dataToString(String[] row) {

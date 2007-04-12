@@ -19,12 +19,9 @@ public class AudioCodesGatewayTest extends TestCase {
         AudioCodesGateway gateway = new AudioCodesGateway() {            
         };
         
-        gateway.setSerialNumber("FT0259483");
+        gateway.setSerialNumber("00908f03f59B");
         assertEquals("00908F03F59B.ini", gateway.getProfileFilename());
 
-        gateway.setSerialNumber("FT0000001");
-        assertEquals("00908F000001.ini", gateway.getProfileFilename());
-        
         gateway.setSerialNumber(null);
         assertNull(gateway.getProfileFilename());        
     }

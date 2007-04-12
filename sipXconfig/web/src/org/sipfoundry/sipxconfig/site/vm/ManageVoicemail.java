@@ -73,10 +73,6 @@ public abstract class ManageVoicemail extends UserBasePage implements IExternalP
 
     public abstract Voicemail getVoicemail();
 
-    public abstract List<Voicemail> getVoicemails();
-
-    public abstract void setVoicemails(List<Voicemail> vm);
-
     @InjectObject(value = "service:tapestry.ognl.ExpressionEvaluator")
     public abstract ExpressionEvaluator getExpressionEvaluator();
 
@@ -214,15 +210,6 @@ public abstract class ManageVoicemail extends UserBasePage implements IExternalP
         if (folderId == null || !folderIds.contains(folderId)) {
             setFolderId(folderIds.get(0));
         }
-
-        List<Voicemail> vm;
-        try {
-            vm = mgr.getVoicemail(mbox, getFolderId());
-        } catch (UserException e) {
-            getValidator().record(new ValidatorException(e.getMessage()));
-            vm = Collections.emptyList();
-        }
-        setVoicemails(vm);
         
         VoicemailSource source = getVoicemailSource();
         if (source == null) {            
@@ -233,6 +220,22 @@ public abstract class ManageVoicemail extends UserBasePage implements IExternalP
         }        
     }
     
+    /**
+     *  Lazily get voicemails to avoid tapestry bug that attempts to use table collection
+     *  before pageBeginRender is called when navigating table pager
+     */ 
+    public List<Voicemail> getVoicemails() {
+        MailboxManager mgr = getMailboxManager();        
+        String userId = getUser().getUserName();
+        Mailbox mbox = mgr.getMailbox(userId);
+        try {
+            return mgr.getVoicemail(mbox, getFolderId());
+        } catch (UserException e) {
+            getValidator().record(new ValidatorException(e.getMessage()));
+            return Collections.emptyList();
+        }
+    }
+
     public static class VoicemailRowInfo implements RowInfo<Voicemail> {
         private VoicemailSource m_source;
         

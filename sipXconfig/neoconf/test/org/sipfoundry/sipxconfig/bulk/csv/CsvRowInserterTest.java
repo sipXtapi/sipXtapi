@@ -20,6 +20,7 @@ import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.device.ModelSource;
+import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.phone.PhoneModel;
@@ -246,5 +247,30 @@ public class CsvRowInserterTest extends TestCase {
         assertNull(preferencesDisabled);
         
         mailboxManagerControl.verify();
+    }
+    
+    public void testAddLine() {
+        CsvRowInserter impl = new CsvRowInserter();
+        Phone phone = new TestPhone();
+        phone.setModel(new PhoneModel("test"));
+        User user = new User();
+        Line expected = impl.addLine(phone, user);        
+        Line actual = impl.addLine(phone, user);
+        assertSame(expected, actual);
+        
+        User newuser = new TestUser(1);
+        Line newline = impl.addLine(phone, newuser);
+        assertNotSame(expected, newline);
+    }
+
+    private class TestUser extends User {
+        private Integer m_id;
+        TestUser(Integer id) {
+            m_id = id;
+        }
+        
+        public Integer getId() {
+            return m_id;
+        }
     }
 }

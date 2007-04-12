@@ -160,17 +160,15 @@ class CallLegsTest < Test::Unit::TestCase
     leg = cl.accept_end(cse)    
     assert_kind_of(CallLeg, leg)
     assert_same(leg, cl.best_leg)
-    assert cl.done? 
+    # this call is still in progress
+    assert !cl.done?
     
     cse = make_cse(:to_tag => 't5', :event_type => 'E', :event_time => 201)
     leg = cl.accept_end(cse)    
-    assert_kind_of(CallLeg, leg)
-    
-    assert_equal(101, leg.duration)
-    
-    assert_same(leg, cl.best_leg)
-    
-    assert cl.done? 
+    assert_kind_of(CallLeg, leg)    
+    assert_equal(101, leg.duration)    
+    assert_same(leg, cl.best_leg)    
+    assert cl.done?
   end
   
   def test_accept_out_of_order
@@ -184,7 +182,7 @@ class CallLegsTest < Test::Unit::TestCase
     cse = make_cse(:to_tag => 't5', :event_type => 'S', :event_time => 101)
     assert_not_nil cl.accept_setup(cse)    
     assert_not_nil cl.best_leg    
-    assert cl.done? 
+    assert !cl.done? 
     
     cse = make_cse(:from_tag => 't6', :to_tag => 't1', :event_type => 'S', :event_time => 100)
     leg = cl.accept_setup(cse)    
@@ -284,6 +282,36 @@ class CdrTest < Test::Unit::TestCase
     assert_equal('t1', cdr.from_tag)
     assert_equal('t7', cdr.to_tag)
   end
+  
+  
+  
+  # based on Martin's example of call setup in the middle of the call
+  def test_unusual_call_setup
+    cdr = Cdr.new('test')
+    cse = make_cse(:event_time =>  100, :from_tag => 't1', :event_type => 'R')
+    assert_nil cdr.accept(cse)    
+    cse = make_cse(:event_time =>  200, :from_tag => 't1', :event_type => 'F')
+    assert_not_nil cdr.accept(cse)
+    cse = make_cse(:event_time =>  300, :from_tag => 't1', :event_type => 'R')
+    assert_nil cdr.accept(cse)
+    cse = make_cse(:event_time =>  400, :from_tag => 't1', :to_tag => 't8', :event_type => 'F')
+    assert_not_nil cdr.accept(cse)
+    cse = make_cse(:event_time =>  500, :from_tag => 't1', :to_tag => 't2', :event_type => 'S')
+    assert_nil cdr.accept(cse)
+    cse = make_cse(:event_time =>  1500, :from_tag => 't2', :to_tag => 't1', :event_type => 'S')
+    assert_nil cdr.accept(cse)
+    cse = make_cse(:event_time =>  1600, :from_tag => 't1', :to_tag => 't2', :event_type => 'E')
+    assert_not_nil cdr.accept(cse)
+    cse = make_cse(:event_time =>  1700, :from_tag => 't1', :to_tag => 't2', :event_type => 'E')
+    assert_not_nil cdr.accept(cse)
+
+
+    assert_equal( 100, cdr.start_time )
+    assert_equal( 500, cdr.connect_time )
+    assert_equal( 1700, cdr.end_time )
+    
+  end
+  
   
   def test_complete?
     cdr = Cdr.new('call_ui')

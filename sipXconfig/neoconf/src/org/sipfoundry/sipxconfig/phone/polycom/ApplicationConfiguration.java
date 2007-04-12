@@ -20,6 +20,8 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
+import org.sipfoundry.sipxconfig.device.DeviceVersion;
 import org.sipfoundry.sipxconfig.device.ProfileContext;
 import org.sipfoundry.sipxconfig.phone.Phone;
 
@@ -35,15 +37,26 @@ public class ApplicationConfiguration extends ProfileContext {
     private String m_serialNumber;
 
     private String m_parentDir;
+    
+    private DeviceVersion m_version;
 
     public ApplicationConfiguration(Phone phone, String parentDir) {
         super(phone, "polycom/mac-address.cfg.vm");
         m_serialNumber = phone.getSerialNumber();
         m_parentDir = parentDir;
+        m_version = phone.getDeviceVersion();
     }
 
     public String getSipBinaryFilename() {
         return "sip.ld";
+    }
+    
+    public String getManufacturorSipTemplate() {
+        return m_version == PolycomModel.VER_2_0 ? "sip.cfg" : StringUtils.EMPTY;
+    }
+
+    public String getManufacturorPhoneTemplate() {
+        return m_version == PolycomModel.VER_2_0 ? "phone1.cfg" : StringUtils.EMPTY;
     }
 
     public String getAppFilename() {

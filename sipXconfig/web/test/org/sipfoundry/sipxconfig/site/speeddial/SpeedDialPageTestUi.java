@@ -36,4 +36,11 @@ public class SpeedDialPageTestUi extends WebTestCase {
         clickButton("form:ok");
         SiteTestHelper.assertNoUserError(tester);        
     }
+
+    public void testUpdatePhones() throws Exception {
+        // just exercises page for error
+        clickLink("SpeedDialPage");
+        clickButton("form:updatePhones");
+        SiteTestHelper.assertNoUserError(tester);        
+    }
 }

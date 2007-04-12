@@ -11,6 +11,7 @@
  */
 package org.sipfoundry.sipxconfig.setting;
 
+
 public class SettingValueImpl implements SettingValue {
     private String m_value;
     

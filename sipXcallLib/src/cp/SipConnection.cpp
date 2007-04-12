@@ -301,6 +301,7 @@ UtlBoolean SipConnection::requestShouldCreateConnection(const SipMessage* sipMsg
                     sipUa.send(badMediaResponse);
                 }
 
+                delete bodyPtr;
             }
 
             // Assume that SDP will be sent in ACK
@@ -3715,8 +3716,15 @@ UtlBoolean SipConnection::getInitialSdpCodecs(const SipMessage* sdpMessage,
         osPrintf("No SDP in message\n");
     }
 #endif
-
-    return(sdpBody != NULL);
+    if(sdpBody != NULL)
+    {
+        delete sdpBody;
+        return TRUE;
+    }
+    else
+    {
+        return FALSE;
+    }
 }
 
 UtlBoolean SipConnection::processResponse(const SipMessage* response,

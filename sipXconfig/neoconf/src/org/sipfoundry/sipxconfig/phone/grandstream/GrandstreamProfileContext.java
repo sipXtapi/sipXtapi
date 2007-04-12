@@ -16,12 +16,12 @@ import org.sipfoundry.sipxconfig.device.ProfileContext;
 public class GrandstreamProfileContext extends ProfileContext {
     private GrandstreamProfileWriter m_writer;
 
-    public GrandstreamProfileContext(GrandstreamPhone device, boolean useBinary) {
+    public GrandstreamProfileContext(GrandstreamPhone device, boolean isTextFormatEnabled) {
         super(device, null);
-        if (useBinary) {
-            m_writer = new GrandstreamBinaryProfileWriter(device);
-        } else {
+        if (isTextFormatEnabled) {
             m_writer = new GrandstreamProfileWriter(device);
+        } else {
+            m_writer = new GrandstreamBinaryProfileWriter(device);
         }
     }
 

@@ -1617,56 +1617,12 @@
             <value></value>
             <description>TFTP Server address.</description>
         </setting>
-        <setting name="P213" hidden="yes" if="gsPhoneGxp|gsHt286">
-            <label>TFTP Server byte 1</label>
-            <type>
-                <string/>
-            </type>
-            <value></value>
-        </setting>
-        <setting name="P214" hidden="yes" if="gsPhoneGxp|gsHt286">
-            <label>TFTP byte 2</label>
-            <type refid="byte"/>
-            <value></value>
-        </setting>
-        <setting name="P215" hidden="yes" if="gsPhoneGxp|gsHt286">
-            <label>TFTP byte 3</label>
-            <type refid="byte"/>
-            <value></value>
-        </setting>
-        <setting name="P216" hidden="yes" if="gsPhoneGxp|gsHt286">
-            <label>TFTP byte 4</label>
-            <type refid="byte"/>
-            <value></value>
-        </setting>
         <setting name="__TFTPServerOld-41" if="gsHt386|gsHt488|gsHt496">
             <label>TFTP server</label>
             <profileName>P41,P42,P43,P44</profileName>
             <type>
                 <ipaddr/>
             </type>
-            <value></value>
-        </setting>
-        <setting name="P41" hidden="yes" if="gsHt386|gsHt488|gsHt496">
-            <label>TFTP Server byte 1</label>
-            <type>
-                <string/>
-            </type>
-            <value></value>
-        </setting>
-        <setting name="P42" hidden="yes" if="gsHt386|gsHt488|gsHt496">
-            <label>TFTP byte 2</label>
-            <type refid="byte"/>
-            <value></value>
-        </setting>
-        <setting name="P43" hidden="yes" if="gsHt386|gsHt488|gsHt496">
-            <label>TFTP byte 3</label>
-            <type refid="byte"/>
-            <value></value>
-        </setting>
-        <setting name="P44" hidden="yes" if="gsHt386|gsHt488|gsHt496">
-            <label>TFTP byte 4</label>
-            <type refid="byte"/>
             <value></value>
         </setting>
         <setting name="P193" if="gsPhone.*|gsHt286|gsHt486">

@@ -4,16 +4,17 @@
   </h2>
   <span jwcid="@If" condition="ognl:acdHistoricalStats.enabled">
     <div id="settings-nav">
-    <ul>
-      <span jwcid="@For" source="ognl:acdHistoricalStats.reports" value="ognl:availableReportsIndexItem" index="ognl:reportIndex" element="li">
-        <a href="#" jwcid="@DirectLink" listener="listener:showReport" parameters="ognl:availableReportsIndexItem" id="ognl:'report' + reportIndex">
-          <span jwcid="@Insert" value="ognl:messages.getMessage('label.' + availableReportsIndexItem)"/>
-        </a>
-      </span>
-    </ul>
+    <span jwcid="@common/TabControl">
+      <span jwcid="@For" source="ognl:acdHistoricalStats.reports" value="ognl:availableReportsIndexItem" index="ognl:reportIndex">
+        <span jwcid="@common/Tab" isActive="ognl:availableReportsIndexItem.equals(reportName)">
+          <a href="#" jwcid="@DirectLink" listener="listener:showReport" parameters="ognl:availableReportsIndexItem" id="ognl:'report' + reportIndex">
+            <span jwcid="@Insert" value="ognl:messages.getMessage('label.' + availableReportsIndexItem)"/>
+          </a>
+        </span>
+      </span>      
+    </span>
     </div>  
     <div id="settings-content">
-      <h3><span jwcid="@Insert" value="ognl:messages.getMessage('label.' + reportName)"/></h3>        
       <ul class="component-links">
         <li>
           <a jwcid="@ExportLink" id="acdHistory:export" listener="listener:export"> 

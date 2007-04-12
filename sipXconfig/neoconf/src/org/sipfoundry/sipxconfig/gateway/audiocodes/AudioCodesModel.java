@@ -11,17 +11,12 @@
  */
 package org.sipfoundry.sipxconfig.gateway.audiocodes;
 
-import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.gateway.GatewayModel;
 
 public class AudioCodesModel extends GatewayModel {
     private String m_profileTemplate;
     private String m_proxyNameSetting;
     private String m_proxyIpSetting;
-
-    public AudioCodesModel() {
-        setSerialNumberPattern("^[A-Z]{2}\\d{7,}$");
-    }
 
     public void setProfileTemplate(String profileTemplate) {
         m_profileTemplate = profileTemplate;
@@ -45,10 +40,5 @@ public class AudioCodesModel extends GatewayModel {
 
     public void setProxyNameSetting(String proxyNameSetting) {
         m_proxyNameSetting = proxyNameSetting;
-    }
-
-    @Override
-    public String cleanSerialNumber(String raw) {
-        return StringUtils.upperCase(raw);
     }
 }
