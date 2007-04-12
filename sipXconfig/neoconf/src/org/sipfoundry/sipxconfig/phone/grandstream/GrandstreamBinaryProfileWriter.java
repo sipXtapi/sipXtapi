@@ -54,7 +54,8 @@ public class GrandstreamBinaryProfileWriter extends GrandstreamProfileWriter {
         }
     }
 
-    void writeLine(String name, String value) {
+    @Override
+    protected void writeLineEntry(String name, String value) {
         String line = getProfileName(name) + '=' + nonNull(value) + ET;
         writeString(line);
     }

@@ -16,6 +16,8 @@ import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.phone.Line;
@@ -27,6 +29,7 @@ public class GrandstreamProfileWriter extends AbstractSettingVisitor {
     private OutputStream m_wtr;
     private GrandstreamPhone m_phone;
     private int m_lineIndex;
+    private Set m_ignore = new HashSet();
 
     GrandstreamProfileWriter(GrandstreamPhone phone) {
         m_phone = phone;
@@ -68,6 +71,9 @@ public class GrandstreamProfileWriter extends AbstractSettingVisitor {
     }
 
     void writeProfileEntry(String name, String value) {
+        if (m_ignore.contains(name)) {
+            return;
+        }
         if (isCompositeIpAddress(name)) {
             writeIpAddress(name, value);
         } else {
@@ -81,8 +87,12 @@ public class GrandstreamProfileWriter extends AbstractSettingVisitor {
             String[] names = name.split("-");
             lname = names[m_lineIndex];
         }
-        String line = lname + " = " + nonNull(value) + LF;
-        writeString(line);
+        writeLineEntry(lname, value);
+    }
+    
+    protected void writeLineEntry(String name, String value) {
+        String line = name + " = " + nonNull(value) + LF;
+        writeString(line);        
     }
 
     boolean isCompositeProfileName(String name) {
