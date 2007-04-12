@@ -22,6 +22,8 @@
 
 #include "mp/MpMisc.h"
 #include "mp/MpStreamPlaylistPlayer.h"
+typedef int MpConnectionID;
+#include "mp/MpCallFlowGraph.h"
 #include "os/OsDefs.h"
 #include "mp/StreamDefs.h"
 #include "net/Url.h"

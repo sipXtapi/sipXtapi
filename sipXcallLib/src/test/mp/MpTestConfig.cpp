@@ -13,6 +13,7 @@
 #include "mp/MpMediaTask.h"
 #include "ps/PsPhoneTask.h"
 #include "ptapi/PtComponentGroup.h"
+typedef int MpConnectionID;
 #include "mp/MpCallFlowGraph.h"
 #include "net/SipUserAgent.h"
 #include "cp/CallManager.h"

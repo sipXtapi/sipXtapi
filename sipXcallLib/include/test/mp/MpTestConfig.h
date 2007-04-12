@@ -13,9 +13,9 @@
 
 #include "mp/MpMediaTask.h"
 #include "ps/PsPhoneTask.h"
-#include "mp/MpCallFlowGraph.h"
 #include "net/SipUserAgent.h"
 #include "cp/CallManager.h"
+class MpCallFlowGraph;
 
 // Base URL to find data sources for this test program.  This software expects
 // to find the followings files:
