@@ -27,9 +27,7 @@
 // Default constructor
 MpOutputDeviceDriver::MpOutputDeviceDriver(const UtlString& name)
 : UtlString(name)
-, mpDeviceManager(NULL)
 , mIsEnabled(FALSE)
-//, mDeviceId(-1)
 , mSamplesPerFrame(0)
 , mSamplesPerSec(0)
 {
@@ -38,39 +36,11 @@ MpOutputDeviceDriver::MpOutputDeviceDriver(const UtlString& name)
 MpOutputDeviceDriver::~MpOutputDeviceDriver()
 {
     assert(!isEnabled());
-//    clearDeviceId();
-    mpDeviceManager = NULL;
 }
 
 /* ============================ MANIPULATORS ============================== */
 
 /* ============================ ACCESSORS ================================= */
-
-/*
-OsStatus MpOutputDeviceDriver::setDeviceId(MpOutputDeviceHandle deviceId) 
-{ 
-    assert(deviceId > 0);
-
-    OsStatus status = OS_BUSY;
-    if (!isEnabled())
-    {
-        mDeviceId = deviceId; 
-        status = OS_SUCCESS;
-    }
-    return status;
-}
-
-OsStatus MpOutputDeviceDriver::clearDeviceId()
-{
-    OsStatus status = OS_BUSY;
-    if (!isEnabled())
-    {
-        mDeviceId = -1;
-        status = OS_SUCCESS;
-    }
-    return status;
-}
-*/
 
 /* ============================ INQUIRY =================================== */
 

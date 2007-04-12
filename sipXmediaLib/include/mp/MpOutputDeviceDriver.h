@@ -16,7 +16,6 @@
 // SYSTEM INCLUDES
 //#include <utl/UtlDefs.h>
 #include <os/OsStatus.h>
-#include <os/OsNotification.h>
 #include <utl/UtlString.h>
 
 // APPLICATION INCLUDES
@@ -30,7 +29,7 @@
 // STRUCTS
 // TYPEDEFS
 // FORWARD DECLARATIONS
-class MpOutputDeviceManager;
+class OsNotification;
 
 /**
 *  @brief Container for device specific output driver.
@@ -141,12 +140,21 @@ public:
    virtual
    OsStatus setTickerNotification(OsNotification *pFrameTicker) = 0;
      /**<
-     *  @param pFrameTicker - (in) notification to signal when device become
-     *         ready. Pass NULL to pFrameTicker if you do not want receive
-     *         frame ticks, e.g. in direct write mode. In this case driver
-     *         may stop its thread if it used one for for notifications.
+     *  If pFrameTicker is not NULL, device driver MUST signal this
+     *  notification as soon as it become ready to receive next frame of data.
+     *  Note, that signaling this notification may block for some time, as it
+     *  would normally be a callback which in turn calls pushFrame() method of
+     *  this device driver. Also notification may be used to signal begin of
+     *  frame interval for one or several flowgraphs, so it should be as
+     *  uniform as possible, i.e. it should not burst or hold over, driver
+     *  should signal this notification after equal intervals of time.
      *
-     *  @see See mpFrameTicker documentation for detailed discussion.
+     *  Pass NULL to pFrameTicker if you do not want receive frame ticks, e.g.
+     *  in direct write mode. In this case driver may stop its thread if it used
+     *  one for for notifications.
+     *
+     *  @param pFrameTicker - (in) notification to signal when device become ready. 
+     *
      *  @see See isFrameTickerSupported().
      *
      *  @returns OS_SUCCESS if frame ticker notification set successfully.
@@ -154,34 +162,11 @@ public:
      *           frame ticker notification.
      */
 
-     /// Set device ID associated with this device in parent input device manager.
-//   virtual OsStatus setDeviceId(MpOutputDeviceHandle deviceId);
-     /**<
-     *  @NOTE This method is supposed to be used only inside MpAudioOutputConnection.
-     *        Normally it used only once in its constructor to associate device
-     *        driver to connection.
-     */
-
-     /// Clear the device ID associated with this device.
-//   virtual OsStatus clearDeviceId();
-     /**<
-     *  @NOTE This method is supposed to be used only inside MpAudioOutputConnection.
-     *        Normally it used only once in its destructor to remove association
-     *        of device driver with connection.
-     */
-
 //@}
 
 /* ============================ ACCESSORS ================================= */
 ///@name Accessors
 //@{
-
-     /// Get device manager which is used to access to this device driver.
-   inline
-   MpOutputDeviceManager *getDeviceManager() const;
-
-     /// Get device ID associated with this device in parent input device manager.
-//   inline MpOutputDeviceHandle getDeviceId() const;
 
      /// Calculate the number of milliseconds that a frame occupies in time.
    inline
@@ -224,27 +209,11 @@ public:
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 
-   MpOutputDeviceManager* mpDeviceManager;  ///< The object that manages 
-                   ///< this device driver.
    UtlBoolean mIsEnabled;         ///< Whether this device driver is enabled or not.
-//   MpOutputDeviceHandle mDeviceId; ///< The logical device ID that identifies 
-                   ///< this device, as supplied by the InputDeviceManager.
    unsigned mSamplesPerFrame;     ///< Device produce audio frame with this
                    ///< number of samples.
    unsigned mSamplesPerSec;       ///< Device produce audio with this number
                    ///< of samples per second.
-   OsNotification *mpFrameTicker; ///< If this notification is not NULL, device
-                   ///< driver MUST signal this notification as soon as he ready
-                   ///< to receive next frame of data. Note, that signaling
-                   ///< this notification may block for some time, as it would
-                   ///< normally be a callback which in turn calls pushFrame()
-                   ///< method of this device driver. Also this notification may
-                   ///< be used to signal begin of frame interval for one or
-                   ///< several flowgraphs, so it should be as monotonous
-                   ///< as possible, i.e. it should not burst or hold over,
-                   ///< driver should signal this notification after equal
-                   ///< intervals of time.
-   
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
@@ -259,21 +228,10 @@ private:
 
 /* ============================ INLINE METHODS ============================ */
 
-MpOutputDeviceManager *MpOutputDeviceDriver::getDeviceManager() const
-{
-   return mpDeviceManager;
-}
-
 MpFrameTime MpOutputDeviceDriver::getFramePeriod() const
 {
    return getFramePeriod(mSamplesPerFrame, mSamplesPerSec);
 }
-/*
-MpOutputDeviceHandle MpOutputDeviceDriver::getDeviceId() const
-{
-   return mDeviceId;
-}
-*/
 
 MpFrameTime MpOutputDeviceDriver::getFramePeriod(unsigned samplesPerFrame,
                                                  unsigned samplesPerSec)
