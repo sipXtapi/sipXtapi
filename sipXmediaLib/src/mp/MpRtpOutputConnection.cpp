@@ -28,9 +28,8 @@
 #include "rtcp/ISetSenderStatistics.h"
 #include "rtcp/IRTCPSession.h"
 #include "rtcp/IRTCPConnection.h"
-#else
-#include "os/OsDateTime.h"
 #endif /* INCLUDE_RTCP ] */
+#include "os/OsDateTime.h"
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
@@ -41,12 +40,12 @@
 /* ============================ CREATORS ================================== */
 
 // Constructor
-MpRtpOutputConnection::MpRtpOutputConnection(MpConnectionID myID, IRTCPSession *piRTCPSession)
+MpRtpOutputConnection::MpRtpOutputConnection(MpConnectionID myID, 
+                                             IRTCPSession *piRTCPSession)
 : mpToNet(NULL)
 , mMyID(myID)
 , mOutEnabled(FALSE)
 , mOutRtpStarted(FALSE)
-, mLock(OsMutex::Q_PRIORITY|OsMutex::INVERSION_SAFE)
 #ifdef INCLUDE_RTCP /* [ */
 , mpiRTCPSession(piRTCPSession)
 , mpiRTCPConnection(NULL)
@@ -56,20 +55,25 @@ MpRtpOutputConnection::MpRtpOutputConnection(MpConnectionID myID, IRTCPSession *
 
 #ifdef INCLUDE_RTCP /* [ */
 // Let's create an RTCP Connection to accompany the MP Connection just created.
-   
-   mpiRTCPConnection = mpiRTCPSession->CreateRTCPConnection();
+   if(mpiRTCPSession)
+   {
+       mpiRTCPConnection = mpiRTCPSession->CreateRTCPConnection();
 
-   assert(mpiRTCPConnection != NULL); 
+       assert(mpiRTCPConnection != NULL); 
+   }
 
 // Let's use the Connection interface to acquire the constituent interfaces
 // required for dispatching RTP and RTCP packets received from the network as
 // well as the statistics interface tabulating RTP packets going to the network.
-   INetDispatch         *piRTCPDispatch;
-   IRTPDispatch         *piRTPDispatch;
-   ISetSenderStatistics *piRTPAccumulator;
+   INetDispatch         *piRTCPDispatch = NULL;
+   IRTPDispatch         *piRTPDispatch = NULL;
+   ISetSenderStatistics *piRTPAccumulator = NULL;
 
-   mpiRTCPConnection-> GetDispatchInterfaces(&piRTCPDispatch,
-      &piRTPDispatch, &piRTPAccumulator);
+   if(mpiRTCPConnection)
+   {
+       mpiRTCPConnection->GetDispatchInterfaces(&piRTCPDispatch,
+          &piRTPDispatch, &piRTPAccumulator);
+   }
 #endif /* INCLUDE_RTCP ] */
 
    // Create our resources
@@ -77,15 +81,18 @@ MpRtpOutputConnection::MpRtpOutputConnection(MpConnectionID myID, IRTCPSession *
    mpToNet     = new MprToNet();
 
 #ifdef INCLUDE_RTCP /* [ */
-
+   if(mpiRTCPSession)
+   {
 // Set the Statistics interface to be used by the RTP stream to increment
 // packet and octet statistics
-   mpToNet->setRTPAccumulator(piRTPAccumulator);
+       mpToNet->setRTPAccumulator(piRTPAccumulator);
 
 // The RTP Stream associated with the MprToNet object must have its SSRC ID
 // set to the value generated from the Session.
-   mpToNet->setSSRC(mpiRTCPSession->GetSSRC());
-#else /* INCLUDE_RTCP ] [ */
+       mpToNet->setSSRC(mpiRTCPSession->GetSSRC());
+   }
+   else
+#endif /* INCLUDE_RTCP ] */
    {
       OsDateTime date;
       OsTime now;
@@ -95,7 +102,6 @@ MpRtpOutputConnection::MpRtpOutputConnection(MpConnectionID myID, IRTCPSession *
       ssrc = now.seconds() ^ now.usecs();
       mpToNet->setSSRC(ssrc);
    }
-#endif /* INCLUDE_RTCP ] */
 
    //////////////////////////////////////////////////////////////////////////
    // connect ToNet -> FromNet for RTP synchronization
@@ -110,7 +116,10 @@ MpRtpOutputConnection::~MpRtpOutputConnection()
 
 #ifdef INCLUDE_RTCP /* [ */
 // Let's free our RTCP Connection
-   mpiRTCPSession->TerminateRTCPConnection(mpiRTCPConnection); 
+   if(mpiRTCPSession)
+   {
+       mpiRTCPSession->TerminateRTCPConnection(mpiRTCPConnection); 
+   }
 #endif /* INCLUDE_RTCP ] */
 }
 
@@ -153,7 +162,10 @@ void MpRtpOutputConnection::prepareStartSendRtp(OsSocket& rRtpSocket,
 #ifdef INCLUDE_RTCP /* [ */
 // Associate the RTCP socket to be used by the RTCP Render portion of the
 // connection to write reports to the network
-   mpiRTCPConnection->StartRenderer(rRtcpSocket);
+   if(mpiRTCPConnection)
+   {
+       mpiRTCPConnection->StartRenderer(rRtcpSocket);
+   }
 #endif /* INCLUDE_RTCP ] */
 
    mOutRtpStarted = TRUE;
@@ -164,7 +176,10 @@ void MpRtpOutputConnection::prepareStopSendRtp()
 #ifdef INCLUDE_RTCP /* [ */
 // Terminate the RTCP Connection which shall include stopping the RTCP
 // Render so that no additional reports are emitted
-   mpiRTCPConnection->StopRenderer();
+   if(mpiRTCPConnection)
+   {
+       mpiRTCPConnection->StopRenderer();
+   }
 #endif /* INCLUDE_RTCP ] */
 
    mpToNet->resetSockets();

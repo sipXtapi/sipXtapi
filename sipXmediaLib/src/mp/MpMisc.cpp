@@ -52,9 +52,6 @@
 #include "mp/NetInTask.h"
 #include "mp/MprFromMic.h"
 #include "mp/MprToSpkr.h"
-#include "mp/MprDejitter.h"
-#include "mp/MprDecode.h"
-#include "mp/MprToNet.h"
 #include "mp/MpMediaTask.h"
 
 // EXTERNAL FUNCTIONS

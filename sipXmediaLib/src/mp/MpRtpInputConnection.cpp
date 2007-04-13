@@ -56,20 +56,25 @@ MpRtpInputConnection::MpRtpInputConnection(MpConnectionID myID, IRTCPSession *pi
 
 #ifdef INCLUDE_RTCP /* [ */
 // Let's create an RTCP Connection to accompany the MP Connection just created.
-   
-   mpiRTCPConnection = mpiRTCPSession->CreateRTCPConnection();
+   if(mpiRTCPSession)
+   {
+       mpiRTCPConnection = mpiRTCPSession->CreateRTCPConnection();
 
-   assert(mpiRTCPConnection != NULL); 
+       assert(mpiRTCPConnection != NULL);
+   }
 
 // Let's use the Connection interface to acquire the constituent interfaces
 // required for dispatching RTP and RTCP packets received from the network as
 // well as the statistics interface tabulating RTP packets going to the network.
-   INetDispatch         *piRTCPDispatch;
-   IRTPDispatch         *piRTPDispatch;
-   ISetSenderStatistics *piRTPAccumulator;
+   INetDispatch         *piRTCPDispatch = NULL;
+   IRTPDispatch         *piRTPDispatch = NULL;
+   ISetSenderStatistics *piRTPAccumulator = NULL;
 
-   mpiRTCPConnection-> GetDispatchInterfaces(&piRTCPDispatch,
-      &piRTPDispatch, &piRTPAccumulator);
+   if(mpiRTCPConnection)
+   {
+       mpiRTCPConnection->GetDispatchInterfaces(&piRTCPDispatch,
+          &piRTPDispatch, &piRTPAccumulator);
+   }
 #endif /* INCLUDE_RTCP ] */
 
    // Create our resources
@@ -105,7 +110,10 @@ MpRtpInputConnection::~MpRtpInputConnection()
 
 #ifdef INCLUDE_RTCP /* [ */
 // Let's free our RTCP Connection
-   mpiRTCPSession->TerminateRTCPConnection(mpiRTCPConnection); 
+   if(mpiRTCPSession)
+   {
+       mpiRTCPSession->TerminateRTCPConnection(mpiRTCPConnection); 
+   }
 #endif /* INCLUDE_RTCP ] */
 }
 

@@ -18,7 +18,6 @@
 #include "mp/MpMediaTask.h"
 #include "mp/MpRtpInputAudioConnection.h"
 #include "mp/MpFlowGraphBase.h"
-#include "mp/MpCallFlowGraph.h"
 #include "mp/MprEncode.h"
 #include "mp/MprToNet.h"
 #include "mp/MprFromNet.h"
@@ -39,18 +38,19 @@
 /* ============================ CREATORS ================================== */
 
 // Constructor
-MpRtpInputAudioConnection::MpRtpInputAudioConnection(MpConnectionID myID, MpCallFlowGraph* pParent,
-                                     int samplesPerFrame, int samplesPerSec)
+MpRtpInputAudioConnection::MpRtpInputAudioConnection(MpConnectionID myID, 
+                                                     MpFlowGraphBase* pParent,
+                                                     int samplesPerFrame, 
+                                                     int samplesPerSec)
 : MpRtpInputConnection(myID, 
 #ifdef INCLUDE_RTCP // [
-               pParent->getRTCPSessionPtr()
+               NULL // TODO: pParent->getRTCPSessionPtr()
 #else // INCLUDE_RTCP ][
                NULL
 #endif // INCLUDE_RTCP ]
                )
 , mpFlowGraph(pParent)
 , mpDecode(NULL)
-, mBridgePort(-1)
 , mpJB_inst(NULL)
 {
    OsStatus     res;
@@ -160,13 +160,6 @@ void MpRtpInputAudioConnection::stopReceiveRtp()
       JB_free(pJB_inst);
    }
    mpDecode->disable();
-}
-
-OsStatus MpRtpInputAudioConnection::setBridgePort(int port)
-{
-   if (-1 != mBridgePort) return OS_BUSY;
-   mBridgePort = port;
-   return OS_SUCCESS;
 }
 
 void MpRtpInputAudioConnection::addPayloadType(int payloadType, MpDecoderBase* decoder)
@@ -290,11 +283,6 @@ JB_inst* MpRtpInputAudioConnection::getJBinst(UtlBoolean optional) {
 //Returns the resource to link to downstream resource's inPort.
 MpResource* MpRtpInputAudioConnection::getSourceResource() {
    return mpDecode;
-}
-
-//Retrieves the port number that was assigned by the bridge.
-int MpRtpInputAudioConnection::getBridgePort() {
-   return mBridgePort;
 }
 
 MpDecoderBase* MpRtpInputAudioConnection::mapPayloadType(int payloadType)

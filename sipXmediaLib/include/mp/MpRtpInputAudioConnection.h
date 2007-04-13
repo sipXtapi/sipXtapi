@@ -16,13 +16,13 @@
 #define _MpRtpInputAudioConnection_h_
 
 // FORWARD DECLARATIONS
-class MpCallFlowGraph;
 class MpFlowGraphBase;
 class MpDecoderBase;
 class MpResource;
 class MprDecode;
 class OsNotification;
 class MprRecorder;
+class SdpCodec;
 
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
@@ -45,8 +45,6 @@ class MpRtpInputAudioConnection : public MpRtpInputConnection
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
-   friend class MpCallFlowGraph;
-
    typedef enum
    {
       DisablePremiumSound = FALSE,
@@ -59,7 +57,7 @@ public:
 
      /// Constructor
    MpRtpInputAudioConnection(MpConnectionID myID, 
-                             MpCallFlowGraph* pParent,
+                             MpFlowGraphBase* pParent,
                              int samplesPerFrame, 
                              int samplesPerSec);
 
@@ -72,13 +70,6 @@ public:
 /* ============================ MANIPULATORS ============================== */
 ///@name Manipulators
 //@{
-
-     /// Disables the input path of the connection.
-   //virtual OsStatus disable();
-     /**<
-     *  @see See MpRtpInputConnection::disable() for more information.
-     */
-
      /// Enables the input path of the connection.
    virtual OsStatus enable();
      /**<
@@ -91,9 +82,6 @@ public:
 
      /// Stops receiving RTP and RTCP packets.
    void stopReceiveRtp(void);
-
-     /// Save the port number that was assigned by the bridge.
-   OsStatus setBridgePort(int port);
 
      /// Add an RTP payload type to decoder instance mapping table
    void addPayloadType(int payloadId, MpDecoderBase* pDecoder);
@@ -117,14 +105,22 @@ public:
      /// Returns the resource to link to downstream resource's inPort.
    MpResource* getSourceResource(void);
 
-     /// Retrieve the port number that was assigned by the bridge.
-   int getBridgePort(void);
-
      /// Get decoder for this payload type
    MpDecoderBase* mapPayloadType(int payloadType);
 
      /// Disables or enables the premium sound.
    void setPremiumSound(PremiumSoundOptions op);
+
+   // TODO:  this should become a resource message handled by the resource:
+     /// Handle the FLOWGRAPH_SET_DTMF_NOTIFY message.
+   UtlBoolean handleSetDtmfNotify(OsNotification* n);
+     /**<
+     *  @Returns <b>TRUE</b>
+     */
+
+   // TODO: this is butt ugly.  The connection should not know anything
+   // about a recorder.  This should be and event or something like that.
+   UtlBoolean setDtmfTerm(MprRecorder *pRecorder);
 
 //@}
 
@@ -136,14 +132,6 @@ public:
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
-
-     /// Handle the FLOWGRAPH_SET_DTMF_NOTIFY message.
-   UtlBoolean handleSetDtmfNotify(OsNotification* n);
-     /**<
-     *  @Returns <b>TRUE</b>
-     */
-
-   UtlBoolean setDtmfTerm(MprRecorder *pRecorder);
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
@@ -159,7 +147,6 @@ private:
 
    MpFlowGraphBase*   mpFlowGraph;     ///< Parent flowgraph
    MprDecode*         mpDecode;        ///< Inbound component: Decoder
-   int                mBridgePort;     ///< Where we are connected on the bridge
    JB_inst*           mpJB_inst;       ///< Pointer to JitterBuffer instance
 
    MpDecoderBase*     mpPayloadMap[NUM_PAYLOAD_TYPES];

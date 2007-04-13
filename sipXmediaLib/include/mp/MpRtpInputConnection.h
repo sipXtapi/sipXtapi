@@ -21,7 +21,6 @@
 class MprDejitter;
 class MprFromNet;
 class OsSocket;
-class SdpCodec;
 #ifdef INCLUDE_RTCP /* [ */
 struct IRTCPSession;
 struct IRTCPConnection;
@@ -95,31 +94,11 @@ public:
      *  @returns <b>OS_SUCCESS</b> - for now, these methods always return success
      */
 
-     /// Starts receiving RTP and RTCP packets.
-   void prepareStartReceiveRtp(OsSocket& rRtpSocket, OsSocket& rRtcpSocket);
-     /**<
-     *  @note: Someday may be made protected, if MpVideoCallFlowGraph will not
-     *         need access to it.
-     */
-
-     /// Stops receiving RTP and RTCP packets.
-   void prepareStopReceiveRtp();
-     /**<
-     *  @note: Someday may be made protected, if MpVideoCallFlowGraph will not
-     *         need access to it.
-     */
-
 //@}
 
 /* ============================ ACCESSORS ================================= */
 ///@name Accessors
 //@{
-
-     /// Return pointer to dejitter component of connection
-   MprDejitter *getDejitter() const {return mpDejitter;}
-     /**<
-     *  This component should be used to receive RTP packets from remote party.
-     */
 
 #ifdef INCLUDE_RTCP /* [ */
      /// Retrieve the RTCP Connection interface associated with this MpRtpInputConnection
@@ -136,6 +115,20 @@ public:
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
+
+     /// Starts receiving RTP and RTCP packets.
+   void prepareStartReceiveRtp(OsSocket& rRtpSocket, OsSocket& rRtcpSocket);
+     /**<
+     *  @note: Someday may be made protected, if MpVideoCallFlowGraph will not
+     *         need access to it.
+     */
+
+     /// Stops receiving RTP and RTCP packets.
+   void prepareStopReceiveRtp();
+     /**<
+     *  @note: Someday may be made protected, if MpVideoCallFlowGraph will not
+     *         need access to it.
+     */
 
    MprFromNet*        mpFromNet;       ///< Inbound component: FromNet
    MprDejitter*       mpDejitter;      ///< Inbound component: Dejitter

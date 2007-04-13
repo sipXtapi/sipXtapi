@@ -94,7 +94,10 @@ MprToNet::~MprToNet()
 //  Release the reference held to the RTP Accumulator interface used to
 //  RTP outbound stream statistics
     if(mpiRTPAccumulator)
+    {
         mpiRTPAccumulator->Release();
+        mpiRTPAccumulator = NULL;
+    }
 #endif /* INCLUDE_RTCP ] */
     if (0 != mNumRtpWriteErrors) {
         osPrintf("MprToNet: %d network write errors on RTP socket!\n",
@@ -140,7 +143,10 @@ void MprToNet::setRTPAccumulator(ISetSenderStatistics *piRTPAccumulator)
 {
    mpiRTPAccumulator = piRTPAccumulator;
    mTimestampDelta = rand_timer32();
-   mpiRTPAccumulator->SetRTPTimestamp(mTimestampDelta);
+   if(mpiRTPAccumulator)
+   {
+       mpiRTPAccumulator->SetRTPTimestamp(mTimestampDelta);
+   }
 }
 
 #endif /* INCLUDE_RTCP ] */
@@ -256,7 +262,10 @@ int MprToNet::writeRtp(int payloadType, UtlBoolean markerState,
    // Update the Accumulated statistics kept for an inbound RTP packet.
    // These statistics comprise a Sender Report that is sent out periodically
    // to the originating site
-   mpiRTPAccumulator->IncrementCounts(payloadOctets);
+   if(mpiRTPAccumulator)
+   {
+       mpiRTPAccumulator->IncrementCounts(payloadOctets);
+   }
 #endif /* INCLUDE_RTCP ] */
 
 #ifdef DROP_SOME_PACKETS /* [ */

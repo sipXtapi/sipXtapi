@@ -72,17 +72,6 @@ public:
 ///@name Manipulators
 //@{
 
-     /// Disables output path of the connection.
-   // virtual OsStatus disable(); 
-     /**<
-     *  Resources on the path(s) will also be disabled by these calls.
-     *  If the flow graph is not "started", this call takes effect
-     *  immediately.  Otherwise, the call takes effect at the start of the
-     *  next frame processing interval.
-     *
-     *  @returns <b>OS_SUCCESS</b> - for now, these methods always return success
-     */
-
      /// Enables output path of the connection.
    virtual OsStatus enable();
      /**<
@@ -96,20 +85,6 @@ public:
      *  @returns <b>OS_SUCCESS</b> - for now, these methods always return success
      */
 
-     /// Starts sending RTP and RTCP packets.
-   void prepareStartSendRtp(OsSocket& rRtpSocket, OsSocket& rRtcpSocket);
-     /**<
-     *  @note: Someday may be made protected, if MpVideoCallFlowGraph will not
-     *         need access to it.
-     */
-
-     /// Stops sending RTP and RTCP packets.
-   void prepareStopSendRtp();
-     /**<
-     *  @note: Someday may be made protected, if MpVideoCallFlowGraph will not
-     *         need access to it.
-     */
-
 #ifdef INCLUDE_RTCP /* [ */
      /// A new SSRC has been generated for the Session
    void reassignSSRC(int iSSRC);
@@ -120,12 +95,6 @@ public:
 /* ============================ ACCESSORS ================================= */
 ///@name Accessors
 //@{
-
-     /// Return pointer to RTP writer component of connection.
-   MprToNet *getRtpWriter() const {return mpToNet;}
-     /**<
-     *  This component should be used to send RTP packets to remote party.
-     */
 
 #ifdef INCLUDE_RTCP /* [ */
      /// Retrieve the RTCP Connection interface associated with this MpRtpOutputConnection
@@ -143,11 +112,24 @@ public:
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 
+     /// Starts sending RTP and RTCP packets.
+   void prepareStartSendRtp(OsSocket& rRtpSocket, OsSocket& rRtcpSocket);
+     /**<
+     *  @note: Someday may be made protected, if MpVideoCallFlowGraph will not
+     *         need access to it.
+     */
+
+     /// Stops sending RTP and RTCP packets.
+   void prepareStopSendRtp();
+     /**<
+     *  @note: Someday may be made protected, if MpVideoCallFlowGraph will not
+     *         need access to it.
+     */
+
    MprToNet*          mpToNet;         ///< Outbound component: ToNet
    MpConnectionID     mMyID;           ///< ID within parent flowgraph
    UtlBoolean         mOutEnabled;     ///< Current state of outbound components
    UtlBoolean         mOutRtpStarted;  ///< Are we currently sending RTP stream?
-   OsMutex            mLock;
 
 #ifdef INCLUDE_RTCP /* [ */
    IRTCPSession    *mpiRTCPSession;    ///< RTCP Session Interface pointer

@@ -93,9 +93,16 @@ MprFromNet::~MprFromNet()
 //  Release the references held to the RTP and RTCP Dispatchers used for
 //  routing packets to the RTCP component
     if(mpiRTPDispatch)
+    {
         mpiRTPDispatch->Release();
+        mpiRTPDispatch = NULL;
+    }
+
     if(mpiRTCPDispatch)
+    {
         mpiRTCPDispatch->Release();
+        mpiRTCPDispatch = NULL;
+    }
 #else /* INCLUDE_RTCP ] [ */
    if (NULL != mInRtpHandle)  FinishRtpSession(mInRtpHandle);
    mInRtpHandle  = NULL;
@@ -382,7 +389,10 @@ OsStatus MprFromNet::pushPacket(const MpUdpBufPtr &udpBuf, bool isRtcp)
         oRTPHeader.ParseRTPHeader((unsigned char *)udpBuf->getDataPtr());
 
         // Dispatch packet to RTCP Render object
-        mpiRTPDispatch->ForwardRTPHeader((IRTPHeader *)&oRTPHeader);
+        if(mpiRTPDispatch)
+        {
+            mpiRTPDispatch->ForwardRTPHeader((IRTPHeader *)&oRTPHeader);
+        }
 #endif /* INCLUDE_RTCP ] */
 
     }
@@ -403,12 +413,15 @@ OsStatus MprFromNet::pushPacket(const MpUdpBufPtr &udpBuf, bool isRtcp)
  *
  * Here is a temporary workaround for a memory leak in the RTCP code.
  **************************************************************************/
-        if (DoForwardRtcp) {
-            mpiRTCPDispatch->ProcessPacket(
-                      (unsigned char *)udpBuf->getDataPtr(), 
-                      (unsigned long)udpBuf->getPacketSize());
-        } else {
-            RtcpDiscards++;
+        if(mpiRTCPDispatch)
+        {
+            if (DoForwardRtcp) {
+                mpiRTCPDispatch->ProcessPacket(
+                          (unsigned char *)udpBuf->getDataPtr(), 
+                          (unsigned long)udpBuf->getPacketSize());
+            } else {
+                RtcpDiscards++;
+            }
         }
     }
 #endif /* INCLUDE_RTCP ] */

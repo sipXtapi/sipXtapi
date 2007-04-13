@@ -59,11 +59,7 @@
 #include "mp/MprToSpkr.h"
 #include "mp/MprToneGen.h"
 
-#include "mp/MprDecode.h"
-#include "mp/MprEncode.h"
-#include "mp/MprToNet.h"
-#include "mp/MprFromNet.h"
-#include "mp/MprDejitter.h"
+#include "mp/NetInTask.h"
 #include "mp/MprRecorder.h"
 #include "mp/MpTypes.h"
 #include "mp/MpAudioUtils.h"
@@ -536,6 +532,7 @@ MpCallFlowGraph::~MpCallFlowGraph()
 
 // For now, we just let the base class destructor mop up this mess...
 #ifdef IS_THIS_TOO_MUCH /* [ */
+#error foo
 // int          i;
 // MpResource*  pBridgeSource;
 // int          bridgePort;
@@ -1221,8 +1218,6 @@ MpConnectionID MpCallFlowGraph::createConnection()
 
    Zprintf("bridgePort = %d\n", bridgePort, 0,0,0,0,0);
 
-   pInputConnection->setBridgePort(bridgePort);
-   pOutputConnection->setBridgePort(bridgePort);
    pBridgeSink = pOutputConnection->getSinkResource();
    pBridgeSource = pInputConnection->getSourceResource();
 
@@ -1767,14 +1762,14 @@ UtlBoolean MpCallFlowGraph::handleRemoveConnection(MpFlowGraphMsg& rMsg)
    // now remove synchronous resources from flow graph
    if(pInputConnection)
    {
-       res = handleRemoveResource(pInputConnection->mpDecode);
+       res = handleRemoveResource(pInputConnection->getSourceResource());
        assert(res);
        delete pInputConnection;
    }
 
    if(pOutputConnection)
    {
-       res = handleRemoveResource(pOutputConnection->mpEncode);
+       res = handleRemoveResource(pOutputConnection->getSinkResource());
        assert(res);
        delete pOutputConnection;
    }   

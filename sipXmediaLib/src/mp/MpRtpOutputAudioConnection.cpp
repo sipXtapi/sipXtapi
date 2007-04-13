@@ -18,7 +18,6 @@
 #include "mp/MpMediaTask.h"
 #include "mp/MpRtpOutputAudioConnection.h"
 #include "mp/MpFlowGraphBase.h"
-#include "mp/MpCallFlowGraph.h"
 #include "mp/MprEncode.h"
 #include "mp/MprToNet.h"
 #include "mp/MprFromNet.h"
@@ -39,30 +38,25 @@
 /* ============================ CREATORS ================================== */
 
 // Constructor
-MpRtpOutputAudioConnection::MpRtpOutputAudioConnection(MpConnectionID myID, MpCallFlowGraph* pParent,
-                                     int samplesPerFrame, int samplesPerSec)
+MpRtpOutputAudioConnection::MpRtpOutputAudioConnection(MpConnectionID myID, 
+                                                       MpFlowGraphBase* pParent,
+                                                       int samplesPerFrame, 
+                                                       int samplesPerSec)
 : MpRtpOutputConnection(myID, 
 #ifdef INCLUDE_RTCP // [
-               pParent->getRTCPSessionPtr()
+               NULL // TODO: pParent->getRTCPSessionPtr()
 #else // INCLUDE_RTCP ][
                NULL
 #endif // INCLUDE_RTCP ]
                )
 , mpFlowGraph(pParent)
 , mpEncode(NULL)
-, mBridgePort(-1)
 {
    OsStatus     res;
    char         name[50];
-   int          i;
 
    sprintf(name, "Encode-%d", myID);
    mpEncode    = new MprEncode(name, samplesPerFrame, samplesPerSec);
-
- //memset((char*)mpPayloadMap, 0, (NUM_PAYLOAD_TYPES*sizeof(MpDecoderBase*)));
-   for (i=0; i<NUM_PAYLOAD_TYPES; i++) {
-      mpPayloadMap[i] = NULL;
-   }
 
    // Add synchronized resources to flowgraph.
    res = pParent->addResource(*mpEncode);      assert(res == OS_SUCCESS);
@@ -166,13 +160,6 @@ void MpRtpOutputAudioConnection::stopSendRtp()
    mpEncode->disable();
 }
 
-OsStatus MpRtpOutputAudioConnection::setBridgePort(int port)
-{
-   if (-1 != mBridgePort) return OS_BUSY;
-   mBridgePort = port;
-   return OS_SUCCESS;
-}
-
 void MpRtpOutputAudioConnection::startTone(int toneId)
 {
    mpEncode->startTone(toneId);
@@ -183,68 +170,11 @@ void MpRtpOutputAudioConnection::stopTone(void)
    mpEncode->stopTone();
 }
 
-void MpRtpOutputAudioConnection::addPayloadType(int payloadType, MpDecoderBase* decoder)
-{
-   OsLock lock(mLock);
-
-   // Check that payloadType is valid.
-   if ((payloadType < 0) || (payloadType >= NUM_PAYLOAD_TYPES))
-   {
-      OsSysLog::add(FAC_MP, PRI_ERR,
-                    "MpRtpOutputAudioConnection::addPayloadType Attempting to add an invalid payload type %d", payloadType);
-   }
-   // Check to see if we already have a decoder for this payload type.
-   else if (!(NULL == mpPayloadMap[payloadType]))
-   {
-      // This condition probably indicates that the sender of SDP specified
-      // two decoders for the same payload type number.
-      OsSysLog::add(FAC_MP, PRI_ERR,
-                    "MpRtpOutputAudioConnection::addPayloadType Attempting to add a second decoder for payload type %d",
-                    payloadType);
-   }
-   else
-   {
-      mpPayloadMap[payloadType] = decoder;
-   }
-}
-
-void MpRtpOutputAudioConnection::deletePayloadType(int payloadType)
-{
-   OsLock lock(mLock);
-
-   // Check that payloadType is valid.
-   if ((payloadType < 0) || (payloadType >= NUM_PAYLOAD_TYPES))
-   {
-      OsSysLog::add(FAC_MP, PRI_ERR,
-                    "MpRtpOutputAudioConnection::deletePayloadType Attempting to delete an invalid payload type %d", payloadType);
-   }
-   // Check to see if this entry has already been deleted.
-   else if (NULL == mpPayloadMap[payloadType])
-   {
-      // Either this payload type was doubly-added (and reported by
-      // addPayloadType) or we've hit the race condtion in XMR-29.
-      OsSysLog::add(FAC_MP, PRI_ERR,
-                    "MpRtpOutputAudioConnection::deletePayloadType Attempting to delete again payload type %d",
-                    payloadType);
-      OsSysLog::add(FAC_MP, PRI_ERR,
-                    "MpRtpOutputAudioConnection::deletePayloadType If there is no message from MpRtpOutputAudioConnection::addPayloadType above, see XMR-29");
-   }
-   else
-   {
-      mpPayloadMap[payloadType] = NULL;
-   }
-}
-
 /* ============================ ACCESSORS ================================= */
 
 //Returns the resource to link to upstream resource's outPort.
 MpResource* MpRtpOutputAudioConnection::getSinkResource() {
    return mpEncode;
-}
-
-//Retrieves the port number that was assigned by the bridge.
-int MpRtpOutputAudioConnection::getBridgePort() {
-   return mBridgePort;
 }
 
 /* ============================ INQUIRY =================================== */
