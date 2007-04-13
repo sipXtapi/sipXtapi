@@ -66,10 +66,10 @@ int MpOutputDeviceManager::addDevice(MpOutputDeviceDriver *newDevice)
 {
    OsWriteLock lock(mRwMutex);
 
+   // Be sure device ID will not wrap over MAX_INT.
+   assert(mLastDeviceId < mLastDeviceId+1);
    // Get new device ID.
    MpOutputDeviceHandle newDeviceId = ++mLastDeviceId;
-   // Be sure device ID do not wrap over MAX_INT.
-   assert(newDeviceId>mLastDeviceId);
 
    // Create a connection to contain the device and its buffered frames
    MpAudioOutputConnection* connection = 
@@ -355,8 +355,6 @@ MpAudioOutputConnection* MpOutputDeviceManager::findConnectionBlocking(
 {
    UtlInt deviceKey(deviceId);
    MpAudioOutputConnection* connection = NULL;
-
-   assert(connection != NULL);
 
    for (int i = 0; i < tries; i--)
    {
