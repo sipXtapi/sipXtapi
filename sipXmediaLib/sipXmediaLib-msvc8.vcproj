@@ -7333,6 +7333,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\src\mp\MpResourceFactory.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\src\mp\MpResourceMsg.cpp"
 				>
 			</File>
@@ -7440,6 +7444,10 @@
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\src\mp\MpResourceTopology.cpp"
+				>
 			</File>
 			<File
 				RelativePath="src\mp\MprFromFile.cpp"
@@ -7965,6 +7973,10 @@
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\src\mp\MprNull.cpp"
+				>
 			</File>
 			<File
 				RelativePath="src\mp\MprRecorder.cpp"
@@ -8513,10 +8525,6 @@
 			</File>
 			<File
 				RelativePath=".\src\mp\MpRtpOutputConnection.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\include\mp\MpSineWaveGeneratorDeviceDriver.cpp"
 				>
 			</File>
 			<File
@@ -12474,6 +12482,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\include\mp\MpResourceTopology.h"
+				>
+			</File>
+			<File
 				RelativePath="include\mp\MprFromFile.h"
 				>
 			</File>
@@ -12571,10 +12583,6 @@
 			</File>
 			<File
 				RelativePath=".\src\mp\MpRtpOutputConnection.h"
-				>
-			</File>
-			<File
-				RelativePath=".\include\mp\MpSineWaveGeneratorDeviceDriver.h"
 				>
 			</File>
 			<File
