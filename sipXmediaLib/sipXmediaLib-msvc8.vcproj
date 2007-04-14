@@ -12250,10 +12250,6 @@
 				>
 			</File>
 			<File
-				RelativePath="include\mp\MpConnection.h"
-				>
-			</File>
-			<File
 				RelativePath=".\include\mp\MpDataBuf.h"
 				>
 			</File>
@@ -12570,19 +12566,19 @@
 				>
 			</File>
 			<File
-				RelativePath=".\src\mp\MpRtpInputAudioConnection.h"
+				RelativePath=".\include\mp\MpRtpInputAudioConnection.h"
 				>
 			</File>
 			<File
-				RelativePath=".\src\mp\MpRtpInputConnection.h"
+				RelativePath=".\include\mp\MpRtpInputConnection.h"
 				>
 			</File>
 			<File
-				RelativePath=".\src\mp\MpRtpOutputAudioConnection.h"
+				RelativePath=".\include\mp\MpRtpOutputAudioConnection.h"
 				>
 			</File>
 			<File
-				RelativePath=".\src\mp\MpRtpOutputConnection.h"
+				RelativePath=".\include\mp\MpRtpOutputConnection.h"
 				>
 			</File>
 			<File
@@ -12607,6 +12603,10 @@
 			</File>
 			<File
 				RelativePath="include\mp\MpStreamQueuePlayer.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\mp\MpToneResourceMsg.h"
 				>
 			</File>
 			<File

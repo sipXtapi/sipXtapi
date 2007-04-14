@@ -25,6 +25,7 @@
 // TODO remove next two lines and reference to MpCallFlowGraph
 typedef int MpConnectionID;
 #include "mp/MpCallFlowGraph.h"
+#include "mp/MpToneResourceMsg.h"
 #include "mp/MprToneGen.h"
 
 // EXTERNAL FUNCTIONS
@@ -94,6 +95,18 @@ OsStatus MprToneGen::startTone(int toneId)
    return res;
 }
 
+// Sends an MPRM_START_TONE message to the named MprToneGen resource.
+// When received, the resource starts generating the toneId tone.
+// Returns the result of attempting to queue the message to this resource.
+OsStatus MprToneGen::startTone(const UtlString& namedResource,
+                               OsMsgQ& fgQ,
+                               int toneId)
+{
+   MpToneResourceMsg msg(MpResourceMsg::MPRM_START_TONE, 
+                         namedResource, toneId);
+   return fgQ.send(msg, sOperationQueueTimeout);
+}
+
 // Sends a STOP_TONE message to this resource to stop generating 
 // an audio tone.
 // Returns the result of attempting to queue the message to this
@@ -105,6 +118,16 @@ OsStatus MprToneGen::stopTone(void)
 
    res = postMessage(msg);
    return res;
+}
+
+// Sends an MPRM_STOP_TONE message to the named MprToneGen resource.
+// When received, the resource stops generating a tone.
+// Returns the result of attempting to queue the message to this resource.
+OsStatus MprToneGen::stopTone(const UtlString& namedResource,
+                              OsMsgQ& fgQ)
+{
+   MpResourceMsg msg(MpResourceMsg::MPRM_STOP_TONE, namedResource);
+   return fgQ.send(msg, sOperationQueueTimeout);
 }
 
 /* ============================ ACCESSORS ================================= */
@@ -188,15 +211,15 @@ UtlBoolean MprToneGen::doProcessFrame(MpBufPtr inBufs[],
 }
 
 // Handle messages for this resource.
-UtlBoolean MprToneGen::handleMessage(MpFlowGraphMsg& rMsg)
+UtlBoolean MprToneGen::handleMessage(MpFlowGraphMsg& fgMsg)
 {
    int msgType;
 
-   msgType = rMsg.getMsg();
+   msgType = fgMsg.getMsg();
    switch (msgType)
    {
    case START_TONE:
-      MpToneGen_startTone(mpToneGenState, rMsg.getInt1());
+      MpToneGen_startTone(mpToneGenState, fgMsg.getInt1());
       enable();
       break;
    case STOP_TONE:
@@ -204,10 +227,46 @@ UtlBoolean MprToneGen::handleMessage(MpFlowGraphMsg& rMsg)
       disable();
       break;
    default:
-      return MpAudioResource::handleMessage(rMsg);
+      return MpAudioResource::handleMessage(fgMsg);
       break;
    }
    return TRUE;
+}
+
+// Handle messages for this resource.
+UtlBoolean MprToneGen::handleMessage(MpResourceMsg& rMsg)
+{
+   UtlBoolean msgHandled = FALSE;
+   int msgType;
+
+   MpToneResourceMsg* toneMsg = (MpToneResourceMsg*)(&rMsg);
+
+   msgType = rMsg.getMsg();
+   switch (msgType)
+   {
+   case MpResourceMsg::MPRM_START_TONE:
+      if(toneMsg == NULL)
+      {
+         // If it's not a ToneResourceMsg, 
+         //then pass it on to the parent class.
+         return MpResource::handleMessage(rMsg);
+      }
+
+      MpToneGen_startTone(mpToneGenState, toneMsg->getToneId());
+      enable();
+      msgHandled = TRUE;
+      break;
+   case MpResourceMsg::MPRM_STOP_TONE:
+      MpToneGen_stopTone(mpToneGenState);
+      disable();
+      msgHandled = TRUE;
+      break;
+   default:
+      // If we don't handle the message here, let our parent try.
+      msgHandled = MpResource::handleMessage(rMsg); 
+      break;
+   }
+   return msgHandled;
 }
 
 /* ============================ FUNCTIONS ================================= */

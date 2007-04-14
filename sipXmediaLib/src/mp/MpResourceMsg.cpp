@@ -29,16 +29,16 @@
 
 // Constructor
 MpResourceMsg::MpResourceMsg(int msg, const UtlString& msgDestName)
-:  OsMsg(OsMsg::MP_RESOURCE_MSG, msg),
-   mMsgDestName(msgDestName)
+   : OsMsg(OsMsg::MP_RESOURCE_MSG, msg)
+   , mMsgDestName(msgDestName)
 {
 }
 
 // Copy constructor
 MpResourceMsg::MpResourceMsg(const MpResourceMsg& rMpResourceMsg)
-:  OsMsg(rMpResourceMsg)
+   : OsMsg(rMpResourceMsg)
+   , mMsgDestName(rMpResourceMsg.mMsgDestName)
 {
-   mMsgDestName = rMpResourceMsg.mMsgDestName;
 }
 
 // Create a copy of this msg object (which may be of a derived type)

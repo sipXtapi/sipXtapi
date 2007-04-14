@@ -18,6 +18,9 @@
 #include <mp/MpFlowGraphBase.h>
 #include <mp/MpTestResource.h>
 #include <mp/MpMisc.h>
+#include <mp/MprToneGen.h>
+#include <mp/MpMediaTask.h>
+#include <os/OsTask.h>
 
 /**
  * Unittest for MpFlowGraph
@@ -35,6 +38,7 @@ class MpFlowGraphTest : public CppUnit::TestCase
     CPPUNIT_TEST(testProcessNextFrame);
 
     CPPUNIT_TEST(testNewResourceEnableDisableMsgFlow);
+//    CPPUNIT_TEST(testNewResourceToneGenMsgFlow);
     CPPUNIT_TEST_SUITE_END();
 
 
@@ -515,6 +519,94 @@ public:
        delete pFlowGraph;
 
        mpShutdown();
+    }
+
+    void testNewResourceToneGenMsgFlow()
+    {
+       MpFlowGraphBase* pFlowGraph = NULL;
+       MprToneGen*      pToneGen1 = NULL;
+       OsStatus         res;
+
+       // Setup media task
+       res = mpStartUp(8000, 80, 6*10, 0);
+       CPPUNIT_ASSERT(res == OS_SUCCESS);
+
+       pFlowGraph = new MpFlowGraphBase(80, 8000);
+       pToneGen1  = new MprToneGen("toneGen1", 80, 8000, "");
+
+       // TODO: START HERE
+
+       res = pFlowGraph->addResource(*pToneGen1);
+       CPPUNIT_ASSERT(res == OS_SUCCESS);
+
+       // Enable the flow graph
+       res = pFlowGraph->enable();
+       CPPUNIT_ASSERT(res == OS_SUCCESS);
+
+       // Call getMediaTask() which causes the task to get instantiated
+       MpMediaTask* pMediaTask = MpMediaTask::getMediaTask(10);
+
+       res = mpStartTasks();
+       CPPUNIT_ASSERT(res == OS_SUCCESS);
+
+       // Manage the flow graph so it flows...
+       res = pMediaTask->manageFlowGraph(*pFlowGraph);
+       CPPUNIT_ASSERT(res == OS_SUCCESS);
+
+       res = pMediaTask->startFlowGraph(*pFlowGraph); // start the flow graph
+       CPPUNIT_ASSERT(res == OS_SUCCESS);
+
+       // Bring this flowgraph into focus..
+       res = pMediaTask->setFocus(pFlowGraph);
+
+       // disable the resource..
+       //res = MpResource::disable("toneGen1", *pFlowGraph->getMsgQ());
+       //CPPUNIT_ASSERT(res == OS_SUCCESS);
+
+       // Start the flow graph
+       res = pFlowGraph->start();
+       CPPUNIT_ASSERT(res == OS_SUCCESS);
+
+       // Tell the tone generator to play a tone...
+       res = MprToneGen::startTone("toneGen1", *pFlowGraph->getMsgQ(), '2');
+
+       // enable the resource..
+       res = MpResource::enable("toneGen1", *pFlowGraph->getMsgQ());
+       CPPUNIT_ASSERT(res == OS_SUCCESS);
+
+       // Let the tone play for a few seconds..
+       OsTask::delay(1000);
+
+       // Tell the tone generator to play a tone...
+       res = MprToneGen::stopTone("toneGen1", *pFlowGraph->getMsgQ());
+       CPPUNIT_ASSERT(res == OS_SUCCESS);
+
+       // Let the tone play for a few seconds..
+       OsTask::delay(300);
+
+       // Tell the tone generator to play a tone...
+       res = MprToneGen::startTone("toneGen1", *pFlowGraph->getMsgQ(), '3');
+       CPPUNIT_ASSERT(res == OS_SUCCESS);
+
+       // Let the tone play for a few seconds..
+       OsTask::delay(1000);
+
+       // Stop the flow graph
+       res = pFlowGraph->stop();
+       CPPUNIT_ASSERT(res == OS_SUCCESS);
+
+       OsTask::delay(1000);
+
+       res = pMediaTask->unmanageFlowGraph(*pFlowGraph);
+       CPPUNIT_ASSERT(res == OS_SUCCESS);
+
+       OsTask::delay(1000);
+
+       // Clear all Media Tasks data
+       res = mpShutdown();
+       CPPUNIT_ASSERT(res == OS_SUCCESS);
+
+       delete pFlowGraph;
     }
 };
 

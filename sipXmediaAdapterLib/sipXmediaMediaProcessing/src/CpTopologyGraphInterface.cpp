@@ -24,6 +24,8 @@
 #include <os/OsProtectEventMgr.h>
 #include <os/OsSysLog.h>
 #include <mp/MpTopologyGraph.h>
+#include <mp/MpResourceTopology.h>
+#include <mp/MprToneGen.h>
 #include <mp/dtmflib.h>
 #include <include/CpTopologyGraphInterface.h>
 #include <include/CpTopologyGraphFactoryImpl.h>
@@ -1275,12 +1277,49 @@ OsStatus CpTopologyGraphInterface::startTone(int toneId,
                                           UtlBoolean local,
                                           UtlBoolean remote)
 {
-   return OS_NOT_SUPPORTED;
+   // For some reason, Tones are still not being generated...
+   // Despite the message being propagated to the resource,
+   // and the code to start the tone is done.
+
+   // NOTE: For the full-tone hack in MpTopologyGraph to work, 
+   // uncomment the below line. and similar line in stopTone.
+//   return OS_NOT_SUPPORTED;
+
+   // TODO: deal with "local" and "remote"...
+   OsStatus stat = OS_FAILED;
+   if(mpTopologyGraph != NULL)
+   {
+      stat = MprToneGen::startTone(DEFAULT_TONE_GEN_RESOURCE_NAME, 
+                                   *mpTopologyGraph->getMsgQ(), toneId);
+   }
+   else
+   {
+      stat = OS_NOT_FOUND;
+   }
+   return stat;
 }
 
 OsStatus CpTopologyGraphInterface::stopTone()
 {
-   return OS_NOT_SUPPORTED;
+   // For some reason, Tones are still not being generated...
+   // Despite the message being propagated to the resource,
+   // and the code to stop the tone is done.
+
+   // NOTE: For the full-tone hack in MpTopologyGraph to work, 
+   // uncomment the below line. and similar line in startTone.
+//   return OS_NOT_SUPPORTED;
+
+   OsStatus stat = OS_FAILED;
+   if(mpTopologyGraph != NULL)
+   {
+      stat = MprToneGen::stopTone(DEFAULT_TONE_GEN_RESOURCE_NAME, 
+                                  *mpTopologyGraph->getMsgQ());
+   }
+   else
+   {
+      stat = OS_NOT_FOUND;
+   }
+   return stat;
 }
 
 OsStatus CpTopologyGraphInterface::startChannelTone(int connectionId, int toneId, UtlBoolean local, UtlBoolean remote) 

@@ -78,11 +78,43 @@ implementation.  At least these changes are needed:
      *  Returns the result of attempting to queue the message to this resource.
      */
 
+     /// @brief Sends an MPRM_START_TONE message to the named MprToneGen resource.
+   static OsStatus startTone(const UtlString& namedResource,
+                             OsMsgQ& fgQ,
+                             int toneId);
+     /**<
+     *  Sends an MPRM_START_TONE message to the named MprToneGen resource
+     *  within the flowgraph who's queue is supplied. When the message 
+     *  is received, the above resource will then begin generating 
+     *  an audio tone.
+     *
+     *  @param namedResource - the name of the resource to send a message to.
+     *  @param fgQ - the queue of the flowgraph containing the resource which
+     *  the message is to be received by.
+     *  @param toneId - the id of the tone to start generating.
+     *  @returns the result of attempting to queue the message to this resource.
+     */
+
      /// @brief Sends a STOP_TONE message to this resource to stop generating 
      /// an audio tone.
    OsStatus stopTone(void);
      /**<
      *  Returns the result of attempting to queue the message to this resource.
+     */
+
+     /// @brief Sends an MPRM_STOP_TONE message to the named MprToneGen resource.
+   static OsStatus stopTone(const UtlString& namedResource,
+                            OsMsgQ& fgQ);
+     /**<
+     *  Sends an MPRM_STOP_TONE message to the named MprToneGen resource
+     *  within the flowgraph who's queue is supplied. When the message 
+     *  is received, the above resource will then stop generating 
+     *  an audio tone.
+     *
+     *  @param namedResource - the name of the resource to send a message to.
+     *  @param fgQ - the queue of the flowgraph containing the resource which
+     *  the message is to be received by.
+     *  @returns the result of attempting to queue the message to this resource.
      */
 
 //@}
@@ -123,8 +155,11 @@ private:
                                      int samplesPerFrame,
                                      int samplesPerSecond);
 
-     /// Handle messages for this resource.
-   virtual UtlBoolean handleMessage(MpFlowGraphMsg& rMsg);
+     /// Handle flowgraph messages for this resource.
+   virtual UtlBoolean handleMessage(MpFlowGraphMsg& fgMsg);
+
+     /// Handle resource messages for this resource.
+   virtual UtlBoolean handleMessage(MpResourceMsg& rMsg);
 
      /// Copy constructor (not implemented for this class)
    MprToneGen(const MprToneGen& rMprToneGen);
