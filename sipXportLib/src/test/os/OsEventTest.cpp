@@ -18,39 +18,6 @@
 #include <os/OsDateTime.h>
 
 
-#if 0
-int
-WINAPI
-WinMain(
-    HINSTANCE hInstance,
-    HINSTANCE hPrevInstance,
-//#ifdef UNDER_CE
-//    LPWSTR lpCmdLine,
-//#else
-    LPSTR lpCmdLine,
-//#endif
-    int nShowCmd
-    )
-{
-    int i = 0;
-    int j = 1;
-    j = j / i;
-
-    return 0;
-}
-#endif
-
-
-//time_t _time(time_t *)
-//{
-//	return NULL;
-//}
-
-//int _time( time_t *pIn )
-//{
-//	return NULL;
-//}
-
 class RightEventThread : public OsServerTask
 {
     public:
