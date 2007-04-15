@@ -35,7 +35,7 @@ MpOutputDeviceDriver::MpOutputDeviceDriver(const UtlString& name)
 
 MpOutputDeviceDriver::~MpOutputDeviceDriver()
 {
-    assert(!isEnabled());
+   assert(!isEnabled());
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -46,7 +46,7 @@ MpOutputDeviceDriver::~MpOutputDeviceDriver()
 
 UtlBoolean MpOutputDeviceDriver::isEnabled()
 {
-    return mIsEnabled;
+   return mIsEnabled;
 };
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
