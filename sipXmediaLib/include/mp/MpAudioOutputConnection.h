@@ -29,6 +29,7 @@
 // TYPEDEFS
 // FORWARD DECLARATIONS
 class MpOutputDeviceDriver;
+class OsCallback;
 
 /**
 *  @brief Private container class for MpOutputDeviceDriver pointer and
@@ -87,6 +88,8 @@ public:
      *  @param mixerBufferLength - (in) length of mixer buffer in milliseconds. 
      *
      *  @returns OS_INVALID_STATE if device already enabled.
+     *  @returns OS_NOT_SUPPORTED if device does not support ticker notification.
+     *  @returns OS_SUCCESSS if device is successfully enabled.
      *  
      *  @see MpOutputDeviceDriver::enableDevice() for more information.
      *  @see MpOutputDeviceManager constructor description for more information
@@ -271,6 +274,14 @@ protected:
 
 //@}
 
+     /// Call this when driver become ready for the next frame.
+   static
+   void tickerCallback(const int userData, const int eventData);
+     /**<
+     *  @param userData - (in) Contain pointer connection it is associated with.
+     *  @param eventData - (in) contain 0 for now.
+     */
+
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
 
@@ -285,6 +296,10 @@ private:
    MpAudioSample *mpMixerBuffer;  ///< Mixer circular buffer. Used to mix
                    ///< several media streams if direct write mode is not enabled.
    unsigned mMixerBufferBegin;    ///< Index of first available sample in mixer buffer.
+
+   OsCallback *mpTickerCallback;  ///< This callback is used in mixer mode
+                   ///< to notify connection that device is ready for
+                   ///< the next frame.
 
 
      /// Copy constructor (not implemented for this class)

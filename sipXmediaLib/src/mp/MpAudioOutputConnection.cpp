@@ -18,6 +18,7 @@
 #include <mp/MpOutputDeviceDriver.h>
 #include <mp/MpMisc.h>    // for min macro
 #include <os/OsLock.h>
+#include <os/OsCallback.h>
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -39,12 +40,19 @@ MpAudioOutputConnection::MpAudioOutputConnection(MpOutputDeviceHandle deviceId,
 , mMixerBufferLength(0)
 , mpMixerBuffer(NULL)
 , mMixerBufferBegin(0)
+, mpTickerCallback(NULL)
 {
    assert(mpDeviceDriver != NULL);
 };
 
 MpAudioOutputConnection::~MpAudioOutputConnection()
 {
+   assert(mpTickerCallback == NULL);
+   if (mpTickerCallback != NULL)
+   {
+      delete mpTickerCallback;
+      mpTickerCallback = NULL;
+   }
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -62,8 +70,12 @@ OsStatus MpAudioOutputConnection::enableDevice(unsigned samplesPerFrame,
 
    if (mpDeviceDriver->isEnabled())
    {
-      result = OS_INVALID_STATE;
-      return result;
+      return OS_INVALID_STATE;
+   }
+
+   if (!mpDeviceDriver->isFrameTickerSupported())
+   {
+      return OS_NOT_SUPPORTED;
    }
 
    // Set current frame time for this connection.
@@ -86,6 +98,15 @@ OsStatus MpAudioOutputConnection::enableDevice(unsigned samplesPerFrame,
       {
          return result;
       }
+
+      // Create callback and register it with device driver
+      mpTickerCallback = new OsCallback((int)this, tickerCallback);
+      assert(mpTickerCallback != NULL);
+      if (mpDeviceDriver->setTickerNotification(mpTickerCallback) != OS_SUCCESS)
+      {
+         freeMixerBuffer();
+         return OS_NOT_SUPPORTED;
+      }
    }
 
    // Enable device driver
@@ -99,6 +120,14 @@ OsStatus MpAudioOutputConnection::disableDevice()
 {
    OsStatus result = OS_FAILED;
    OsLock lock(mMutex);
+
+   // Disable ticker notification and delete it if any.
+   if (mpTickerCallback != NULL)
+   {
+      mpDeviceDriver->setTickerNotification(NULL);
+      delete mpTickerCallback;
+      mpTickerCallback = NULL;
+   }
 
    // Disable device and set result code.
    result = mpDeviceDriver->disableDevice();
@@ -310,6 +339,11 @@ OsStatus MpAudioOutputConnection::advanceMixerBuffer(unsigned numSamples)
    }
 
    return OS_SUCCESS;
+}
+
+void MpAudioOutputConnection::tickerCallback(const int userData, const int eventData)
+{
+
 }
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
