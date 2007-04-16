@@ -113,7 +113,6 @@ protected:
    MprFromNet*        mpFromNet;       ///< Inbound component: FromNet
    MprDejitter*       mpDejitter;      ///< Inbound component: Dejitter
    MpConnectionID     mMyID;           ///< ID within parent flowgraph
-//   UtlBoolean         mInEnabled;      ///< Current state of inbound components
    UtlBoolean         mInRtpStarted;   ///< Are we currently receiving RTP stream?
    OsMutex            mLock;
 

@@ -43,6 +43,8 @@ class MprEncode : public MpAudioResource
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
+   friend class MpRtpOutputAudioConnection;
+
 /* ============================ CREATORS ================================== */
 ///@name Creators
 //@{
@@ -97,6 +99,14 @@ public:
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 
+   virtual UtlBoolean doProcessFrame(MpBufPtr inBufs[],
+                                     MpBufPtr outBufs[],
+                                     int inBufsSize,
+                                     int outBufsSize,
+                                     UtlBoolean isEnabled,
+                                     int samplesPerFrame=80,
+                                     int samplesPerSecond=8000);
+
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
    typedef enum
@@ -144,14 +154,6 @@ private:
 
    MprToNet* mpToNet;  ///< Pointer to ToNet resource, which will send generated
                        ///< RTP packets.
-
-   virtual UtlBoolean doProcessFrame(MpBufPtr inBufs[],
-                                     MpBufPtr outBufs[],
-                                     int inBufsSize,
-                                     int outBufsSize,
-                                     UtlBoolean isEnabled,
-                                     int samplesPerFrame=80,
-                                     int samplesPerSecond=8000);
 
      /// Handle messages for this resource.
    virtual UtlBoolean handleMessage(MpFlowGraphMsg& rMsg);

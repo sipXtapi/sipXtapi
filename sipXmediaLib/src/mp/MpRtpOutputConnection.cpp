@@ -18,8 +18,7 @@
 // APPLICATION INCLUDES
 #include "mp/MpRtpOutputConnection.h"
 #include "mp/MprToNet.h"
-#include "mp/MprFromNet.h"
-#include "mp/MprDejitter.h"
+#include "mp/MprEncode.h"
 #include "os/OsLock.h"
 #ifdef INCLUDE_RTCP /* [ */
 #include "rtcp/RtcpConfig.h"
@@ -40,11 +39,12 @@
 /* ============================ CREATORS ================================== */
 
 // Constructor
-MpRtpOutputConnection::MpRtpOutputConnection(MpConnectionID myID, 
+MpRtpOutputConnection::MpRtpOutputConnection(UtlString& resourceName,
+                                             MpConnectionID myID, 
                                              IRTCPSession *piRTCPSession)
-: mpToNet(NULL)
+: MpResource(resourceName, 0, 1, 0, 0)
+,mpToNet(NULL)
 , mMyID(myID)
-, mOutEnabled(FALSE)
 , mOutRtpStarted(FALSE)
 #ifdef INCLUDE_RTCP /* [ */
 , mpiRTCPSession(piRTCPSession)
@@ -124,34 +124,6 @@ MpRtpOutputConnection::~MpRtpOutputConnection()
 }
 
 /* ============================ MANIPULATORS ============================== */
-
-// Disables the output path of the connection.
-// Resources on the path(s) will also be disabled by these calls.
-// If the flow graph is not "started", this call takes effect
-// immediately.  Otherwise, the call takes effect at the start of the
-// next frame processing interval.
-//!retcode: OS_SUCCESS - for now, these methods always return success
-
-/*OsStatus MpRtpOutputConnection::disable(void)
-{
-   mOutEnabled = FALSE;
-   return OS_SUCCESS;
-}*/
-
-// Enables the output path of the connection.
-// Resources on the path(s) will also be enabled by these calls.
-// Resources may allocate needed data (e.g. output path reframe buffer)
-//  during this operation.
-// If the flow graph is not "started", this call takes effect
-// immediately.  Otherwise, the call takes effect at the start of the
-// next frame processing interval.
-//!retcode: OS_SUCCESS - for now, these methods always return success
-
-OsStatus MpRtpOutputConnection::enable(void)
-{
-   mOutEnabled = TRUE;
-   return OS_SUCCESS;
-}
 
 void MpRtpOutputConnection::prepareStartSendRtp(OsSocket& rRtpSocket,
                                        OsSocket& rRtcpSocket)

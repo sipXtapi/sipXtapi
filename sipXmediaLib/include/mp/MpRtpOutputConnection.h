@@ -30,7 +30,8 @@ struct IRTCPConnection;
 
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
-#include "os/OsMutex.h"
+#include <os/OsMutex.h>
+#include <mp/MpResource.h>
 
 // DEFINES
 // MACROS
@@ -45,7 +46,7 @@ typedef int MpConnectionID;
 *  @brief Connection container for the inbound and outbound network paths to a
 *  single remote party.
 */
-class MpRtpOutputConnection
+class MpRtpOutputConnection : public MpResource
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
@@ -60,7 +61,9 @@ public:
 //@{
 
      /// Constructor
-   MpRtpOutputConnection(MpConnectionID myID, IRTCPSession *piRTCPSession);
+   MpRtpOutputConnection(UtlString& resourceName,
+                         MpConnectionID myID, 
+                         IRTCPSession *piRTCPSession);
 
      /// Destructor
    virtual
@@ -71,19 +74,6 @@ public:
 /* ============================ MANIPULATORS ============================== */
 ///@name Manipulators
 //@{
-
-     /// Enables output path of the connection.
-   virtual OsStatus enable();
-     /**<
-     *  Resources on the path(s) will also be enabled by these calls.
-     *  Resources may allocate needed data (e.g. output path reframe buffer)
-     *   during this operation.
-     *  If the flow graph is not "started", this call takes effect
-     *  immediately.  Otherwise, the call takes effect at the start of the
-     *  next frame processing interval.
-     *
-     *  @returns <b>OS_SUCCESS</b> - for now, these methods always return success
-     */
 
 #ifdef INCLUDE_RTCP /* [ */
      /// A new SSRC has been generated for the Session
@@ -128,7 +118,6 @@ protected:
 
    MprToNet*          mpToNet;         ///< Outbound component: ToNet
    MpConnectionID     mMyID;           ///< ID within parent flowgraph
-   UtlBoolean         mOutEnabled;     ///< Current state of outbound components
    UtlBoolean         mOutRtpStarted;  ///< Are we currently sending RTP stream?
 
 #ifdef INCLUDE_RTCP /* [ */

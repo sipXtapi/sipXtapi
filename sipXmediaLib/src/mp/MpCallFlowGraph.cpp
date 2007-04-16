@@ -1200,7 +1200,7 @@ MpConnectionID MpCallFlowGraph::createConnection()
                                      getSamplesPerFrame(), 
                                      getSamplesPerSec());
    mpOutputConnections[found] = 
-       new MpRtpOutputAudioConnection(//outConnectionName,
+       new MpRtpOutputAudioConnection(outConnectionName,
                                       found, 
                                       this,
                                       getSamplesPerFrame(), 

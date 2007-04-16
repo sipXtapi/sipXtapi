@@ -18,15 +18,12 @@
 #include "mp/MpMediaTask.h"
 #include "mp/MpRtpInputAudioConnection.h"
 #include "mp/MpFlowGraphBase.h"
-#include "mp/MprEncode.h"
-#include "mp/MprToNet.h"
 #include "mp/MprFromNet.h"
 #include "mp/MprDejitter.h"
 #include "mp/MprDecode.h"
 #include "mp/JB/JB_API.h"
 #include "sdp/SdpCodec.h"
 #include "os/OsLock.h"
-#include "os/OsTask.h"
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
