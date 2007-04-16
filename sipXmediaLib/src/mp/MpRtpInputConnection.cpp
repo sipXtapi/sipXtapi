@@ -40,11 +40,13 @@
 /* ============================ CREATORS ================================== */
 
 // Constructor
-MpRtpInputConnection::MpRtpInputConnection(MpConnectionID myID, IRTCPSession *piRTCPSession)
-: mpFromNet(NULL)
+MpRtpInputConnection::MpRtpInputConnection(UtlString& resourceName,
+                                           MpConnectionID myID, 
+                                           IRTCPSession *piRTCPSession)
+: MpResource(resourceName, 0, 0, 0, 1)
+, mpFromNet(NULL)
 , mpDejitter(NULL)
 , mMyID(myID)
-, mInEnabled(FALSE)
 , mInRtpStarted(FALSE)
 , mLock(OsMutex::Q_PRIORITY|OsMutex::INVERSION_SAFE)
 #ifdef INCLUDE_RTCP /* [ */
@@ -104,9 +106,11 @@ MpRtpInputConnection::~MpRtpInputConnection()
 {
    if (mpDejitter != NULL)
       delete mpDejitter;
+   mpDejitter = NULL;
 
    if (mpFromNet != NULL)
       delete mpFromNet;
+   mpFromNet = NULL;
 
 #ifdef INCLUDE_RTCP /* [ */
 // Let's free our RTCP Connection
@@ -118,36 +122,6 @@ MpRtpInputConnection::~MpRtpInputConnection()
 }
 
 /* ============================ MANIPULATORS ============================== */
-
-// Disables the input path of the connection.
-// Resources on the path(s) will also be disabled by these calls.
-// If the flow graph is not "started", this call takes effect
-// immediately.  Otherwise, the call takes effect at the start of the
-// next frame processing interval.
-//!retcode: OS_SUCCESS - for now, these methods always return success
-
-
-
-/*OsStatus MpRtpInputConnection::disable(void)
-{
-   mInEnabled = FALSE;
-   return OS_SUCCESS;
-}*/
-
-// Enables the input path of the connection.
-// Resources on the path(s) will also be enabled by these calls.
-// Resources may allocate needed data (e.g. output path reframe buffer)
-//  during this operation.
-// If the flow graph is not "started", this call takes effect
-// immediately.  Otherwise, the call takes effect at the start of the
-// next frame processing interval.
-//!retcode: OS_SUCCESS - for now, these methods always return success
-
-OsStatus MpRtpInputConnection::enable(void)
-{
-   mInEnabled = TRUE;
-   return OS_SUCCESS;
-}
 
 // Start receiving RTP and RTCP packets.
 void MpRtpInputConnection::prepareStartReceiveRtp(OsSocket& rRtpSocket,

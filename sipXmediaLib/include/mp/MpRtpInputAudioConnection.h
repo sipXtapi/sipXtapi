@@ -56,7 +56,8 @@ public:
 //@{
 
      /// Constructor
-   MpRtpInputAudioConnection(MpConnectionID myID, 
+   MpRtpInputAudioConnection(UtlString& resourceName,
+                             MpConnectionID myID, 
                              MpFlowGraphBase* pParent,
                              int samplesPerFrame, 
                              int samplesPerSec);
@@ -70,11 +71,8 @@ public:
 /* ============================ MANIPULATORS ============================== */
 ///@name Manipulators
 //@{
-     /// Enables the input path of the connection.
-   virtual OsStatus enable();
-     /**<
-     *  @see See MpRtpInputConnection::enable() for more information.
-     */
+   /// Process one frame of audio
+   UtlBoolean processFrame(void);
 
      /// Starts receiving RTP and RTCP packets.
    void startReceiveRtp(SdpCodec* pCodecs[], int numCodecs,
@@ -132,6 +130,22 @@ public:
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
+
+   /// @brief perform the enable operation specific to the MpRtpInputAudioConnection
+   virtual UtlBoolean handleEnable();
+
+   /// @brief perform the disable operation specific to the MpRtpInputAudioConnection
+   virtual UtlBoolean handleDisable();
+
+   /// @brief This method does the real work for the media processing resource and 
+   /// must be defined in each class derived from this one.
+   virtual UtlBoolean doProcessFrame(MpBufPtr inBufs[],
+                                     MpBufPtr outBufs[],
+                                     int inBufsSize,
+                                     int outBufsSize,
+                                     UtlBoolean isEnabled,
+                                     int samplesPerFrame=80,
+                                     int samplesPerSecond=8000);
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:

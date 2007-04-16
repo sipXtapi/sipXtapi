@@ -60,6 +60,20 @@ public:
    {
       OsStatus          res;
 
+      // This should normally be done by haltFramework, but if we aborted due
+      // to an assertion the flowgraph will need to be shutdown here
+      if(mpFlowGraph && mpFlowGraph->isStarted())
+      {
+          printf("WARNING: flowgraph found still running, shutting down\n");
+
+          // ignore the result and keep going
+          mpFlowGraph->stop();
+
+          // Request processing of another frame so that the STOP_FLOWGRAPH
+          // message gets handled
+          mpFlowGraph->processNextFrame();
+      }
+
       // Free flowgraph resources
       delete mpFlowGraph;
       mpFlowGraph = NULL;

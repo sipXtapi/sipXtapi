@@ -446,10 +446,10 @@ UtlBoolean MpResource::handleMessage(MpFlowGraphMsg& fgMsg)
    switch (fgMsg.getMsg())
    {
    case MpFlowGraphMsg::RESOURCE_DISABLE:   // disable this resource
-      mIsEnabled = FALSE;
+      msgHandled = handleDisable();
       break;
    case MpFlowGraphMsg::RESOURCE_ENABLE:    // enable this resource
-      mIsEnabled = TRUE;
+      msgHandled = handleEnable();
       break;
    default:
       msgHandled = FALSE; // we didn't handle the msg after all
@@ -470,10 +470,10 @@ UtlBoolean MpResource::handleMessage(MpResourceMsg& rMsg)
    switch (rMsg.getMsg())
    {
    case MpResourceMsg::MPRM_RESOURCE_DISABLE:   // disable this resource
-      mIsEnabled = FALSE;
+      msgHandled = handleDisable();
       break;
    case MpResourceMsg::MPRM_RESOURCE_ENABLE:    // enable this resource
-      mIsEnabled = TRUE;
+      msgHandled = handleEnable();
       break;
    default:
       msgHandled = FALSE; // we didn't handle the msg after all
@@ -531,6 +531,18 @@ UtlBoolean MpResource::handleMessages(OsMsgQ& msgQ)
       }
    }
    return handledAllMsgs;
+}
+
+UtlBoolean MpResource::handleEnable()
+{
+    mIsEnabled = TRUE;
+    return(TRUE);
+}
+
+UtlBoolean MpResource::handleDisable()
+{
+    mIsEnabled = FALSE;
+    return(TRUE);
 }
 
 // If there already is a buffer stored for this input port, delete it.

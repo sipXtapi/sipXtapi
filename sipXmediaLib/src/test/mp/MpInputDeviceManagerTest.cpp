@@ -274,7 +274,7 @@ public:
         CPPUNIT_ASSERT_EQUAL(0, readerTask.mNumStarvations);
         CPPUNIT_ASSERT(readerTask.isShutDown());
 
-        CPPUNIT_ASSERT(abs(readerTask.mActualLapseTime - readerTask.mLapseTime) < 2000 * numBufferedFrames);
+        CPPUNIT_ASSERT(abs(readerTask.mActualLapseTime - readerTask.mLapseTime) < 4000 * numBufferedFrames);
         CPPUNIT_ASSERT_EQUAL(0, readerTask.mRetryCount);
 
         // Validate the actual frame data

@@ -38,17 +38,19 @@
 /* ============================ CREATORS ================================== */
 
 // Constructor
-MpRtpInputAudioConnection::MpRtpInputAudioConnection(MpConnectionID myID, 
+MpRtpInputAudioConnection::MpRtpInputAudioConnection(UtlString& resourceName,
+                                                     MpConnectionID myID, 
                                                      MpFlowGraphBase* pParent,
                                                      int samplesPerFrame, 
                                                      int samplesPerSec)
-: MpRtpInputConnection(myID, 
+: MpRtpInputConnection(resourceName,
+                       myID, 
 #ifdef INCLUDE_RTCP // [
-               NULL // TODO: pParent->getRTCPSessionPtr()
+                       NULL // TODO: pParent->getRTCPSessionPtr()
 #else // INCLUDE_RTCP ][
-               NULL
+                       NULL
 #endif // INCLUDE_RTCP ]
-               )
+                       )
 , mpFlowGraph(pParent)
 , mpDecode(NULL)
 , mpJB_inst(NULL)
@@ -91,6 +93,58 @@ MpRtpInputAudioConnection::~MpRtpInputAudioConnection()
 
 /* ============================ MANIPULATORS ============================== */
 
+UtlBoolean MpRtpInputAudioConnection::processFrame(void)
+{
+    UtlBoolean result;
+
+#ifdef RTL_ENABLED
+    RTL_BLOCK(mName);
+#endif
+
+    assert(mpDecode);
+    // call doProcessFrame to do any "real" work
+    result = mpDecode->doProcessFrame(mpInBufs, 
+                                      mpOutBufs,
+                                      mMaxInputs, 
+                                      mMaxOutputs, 
+                                      mIsEnabled,
+                                      mpDecode->getSamplesPerFrame(), 
+                                      mpDecode->getSamplesPerSec());
+
+
+   // release the output buffer
+   mpOutBufs[0].release();
+
+   assert(mMaxInputs == 0);
+
+   return(result);
+}
+
+UtlBoolean MpRtpInputAudioConnection::doProcessFrame(MpBufPtr inBufs[],
+                                                     MpBufPtr outBufs[],
+                                                     int inBufsSize,
+                                                     int outBufsSize,
+                                                     UtlBoolean isEnabled,
+                                                     int samplesPerFrame,
+                                                     int samplesPerSecond)
+{
+    UtlBoolean result = FALSE;
+    assert(mpDecode);
+    if(mpDecode)
+    {
+        result = mpDecode->doProcessFrame(inBufs,
+                                          outBufs,
+                                          inBufsSize,
+                                          outBufsSize,
+                                          isEnabled,
+                                          samplesPerFrame,
+                                          samplesPerSecond);
+    }
+
+    return(result);
+}
+
+
 // Disables the input path of the connection.
 // Resources on the path(s) will also be disabled by these calls.
 // If the flow graph is not "started", this call takes effect
@@ -98,11 +152,11 @@ MpRtpInputAudioConnection::~MpRtpInputAudioConnection()
 // next frame processing interval.
 //!retcode: OS_SUCCESS - for now, these methods always return success
 
-/*OsStatus MpRtpInputAudioConnection::disable()
+UtlBoolean MpRtpInputAudioConnection::handleDisable()
 {
    mpDecode->disable();
-   return MpRtpInputAudioConnection::disable();
-}*/
+   return(MpResource::handleDisable());
+}
 
 
 
@@ -115,10 +169,10 @@ MpRtpInputAudioConnection::~MpRtpInputAudioConnection()
 // next frame processing interval.
 //!retcode: OS_SUCCESS - for now, these methods always return success
 
-OsStatus MpRtpInputAudioConnection::enable()
+UtlBoolean MpRtpInputAudioConnection::handleEnable()
 {
    mpDecode->enable();
-   return MpRtpInputConnection::enable();
+   return(MpResource::handleEnable());
 }
 
 // Start receiving RTP and RTCP packets.

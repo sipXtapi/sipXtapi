@@ -1187,14 +1187,21 @@ MpConnectionID MpCallFlowGraph::createConnection()
       mConnTableLock.release();
       return -1;
    }
-   
+   UtlString inConnectionName("InputConnection-");
+   UtlString outConnectionName("OutputConnection-");
+   char numBuf[20];
+   sprintf(numBuf, "%d", found);
+   inConnectionName.append(numBuf);
+   outConnectionName.append(numBuf);
    mpInputConnections[found] = 
-       new MpRtpInputAudioConnection(found, 
+       new MpRtpInputAudioConnection(inConnectionName,
+                                     found, 
                                      this,
                                      getSamplesPerFrame(), 
                                      getSamplesPerSec());
    mpOutputConnections[found] = 
-       new MpRtpOutputAudioConnection(found, 
+       new MpRtpOutputAudioConnection(//outConnectionName,
+                                      found, 
                                       this,
                                       getSamplesPerFrame(), 
                                       getSamplesPerSec());

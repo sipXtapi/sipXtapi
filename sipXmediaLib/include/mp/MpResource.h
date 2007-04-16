@@ -338,7 +338,13 @@ protected:
    virtual UtlBoolean handleMessage(MpResourceMsg& rMsg);
    /**< @returns TRUE if the message was handled, otherwise FALSE. */
 
-     /// @brief If there already is a buffer stored for this input port, delete it. 
+   /// @brief perform the enable operation on the resource
+   virtual UtlBoolean handleEnable();
+
+   /// @brief perform the disable operation on the resource
+   virtual UtlBoolean handleDisable();
+
+   /// @brief If there already is a buffer stored for this input port, delete it. 
      /// Then store <i>pBuf</i> for the indicated input port.
    void setInputBuffer(int inPortIdx, const MpBufPtr &pBuf);
 

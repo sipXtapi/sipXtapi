@@ -28,7 +28,8 @@ struct IRTCPConnection;
 
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
-#include "os/OsMutex.h"
+#include <os/OsMutex.h>
+#include <mp/MpResource.h>
 
 // DEFINES
 // MACROS
@@ -43,7 +44,7 @@ typedef int MpConnectionID;
 *  @brief Connection container for the inbound and outbound network paths to a
 *  single remote party.
 */
-class MpRtpInputConnection
+class MpRtpInputConnection : public MpResource
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
@@ -58,7 +59,9 @@ public:
 //@{
 
      /// Constructor
-   MpRtpInputConnection(MpConnectionID myID, IRTCPSession *piRTCPSession);
+   MpRtpInputConnection(UtlString& resourceName,
+                        MpConnectionID myID, 
+                        IRTCPSession *piRTCPSession);
 
      /// Destructor
    virtual
@@ -70,29 +73,6 @@ public:
 ///@name Manipulators
 //@{
 
-     /// Disables input path, of the connection.
-   //virtual OsStatus disable(); // Both in 
-     /**<
-     *  Resources on the path(s) will also be disabled by these calls.
-     *  If the flow graph is not "started", this call takes effect
-     *  immediately.  Otherwise, the call takes effect at the start of the
-     *  next frame processing interval.
-     *
-     *  @returns <b>OS_SUCCESS</b> - for now, these methods always return success
-     */
-
-     /// Enables input path of the connection.
-   virtual OsStatus enable();
-     /**<
-     *  Resources on the path(s) will also be enabled by these calls.
-     *  Resources may allocate needed data (e.g. output path reframe buffer)
-     *   during this operation.
-     *  If the flow graph is not "started", this call takes effect
-     *  immediately.  Otherwise, the call takes effect at the start of the
-     *  next frame processing interval.
-     *
-     *  @returns <b>OS_SUCCESS</b> - for now, these methods always return success
-     */
 
 //@}
 
@@ -133,7 +113,7 @@ protected:
    MprFromNet*        mpFromNet;       ///< Inbound component: FromNet
    MprDejitter*       mpDejitter;      ///< Inbound component: Dejitter
    MpConnectionID     mMyID;           ///< ID within parent flowgraph
-   UtlBoolean         mInEnabled;      ///< Current state of inbound components
+//   UtlBoolean         mInEnabled;      ///< Current state of inbound components
    UtlBoolean         mInRtpStarted;   ///< Are we currently receiving RTP stream?
    OsMutex            mLock;
 
