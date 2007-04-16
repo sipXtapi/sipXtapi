@@ -19,6 +19,7 @@
 #include "os/OsBSem.h"
 #include "os/OsNotification.h"
 #include "os/OsTime.h"
+#include "os/OsMutex.h"
 
 // DEFINES
 // MACROS
@@ -126,6 +127,9 @@ private:
    UtlBoolean mIsSignaled;  // indicates whether the event has been signaled
    OsBSem    mSignalSem;   // semaphore used to queue up tasks waiting for
                            //  the event to be signaled
+   OsMutex   mMutex;       // Mutex to synchronize access to member variables,
+                           // especially to mIsSignaled, which may cause
+                           // deadlock when changed without synchronization.
    int       mUserData;    // data specified on behalf of the user and
                            //  not otherwise used by this class -- the user
                            //  data is specified as an argument to the class

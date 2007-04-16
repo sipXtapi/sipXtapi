@@ -13,6 +13,7 @@
 
 // APPLICATION INCLUDES
 #include "os/OsEvent.h"
+#include "os/OsLock.h"
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -38,6 +39,7 @@ OsEvent::OsEvent(const int userData)
 :  mEventData(-1),
    mIsSignaled(FALSE),
    mSignalSem(OsBSem::Q_PRIORITY, OsBSem::EMPTY),
+   mMutex(OsMutex::Q_FIFO),
    mUserData(userData)
 {
    // all work is done by the initializers, no other work required
@@ -46,7 +48,9 @@ OsEvent::OsEvent(const int userData)
 // Destructor
 OsEvent::~OsEvent()
 {
-   // no work required
+   // Take lock here to prevent destroying member variables while signal() is
+   // still running.
+   OsLock lock(mMutex);
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -57,6 +61,7 @@ OsEvent::~OsEvent()
 OsStatus OsEvent::signal(const int eventData)
 {
    OsStatus res;
+   OsLock lock(mMutex);
 
    if (mIsSignaled)
    {
@@ -81,6 +86,7 @@ OsStatus OsEvent::signal(const int eventData)
 OsStatus OsEvent::reset(void)
 {
    OsStatus res;
+   OsLock lock(mMutex);
 
    if (mIsSignaled)
    {                                 // if the event has been signaled
@@ -119,6 +125,8 @@ OsStatus OsEvent::setUserData(int userData)
 // already been cleared), otherwise return OS_SUCCESS.
 OsStatus OsEvent::getEventData(int& rEventData)
 {
+   OsLock lock(mMutex);
+
    if (mIsSignaled)
    {
       rEventData = mEventData;
