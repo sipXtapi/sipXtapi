@@ -165,8 +165,8 @@ int OsTimerTask::run(void* pArg)
                if (!handleMessage(*pMsg))               // process the message
                {
                   OsServerTask::handleMessage(*pMsg);
-   }
-}
+               }
+            }
 
             if (!pMsg->getSentFromISR())
             {
