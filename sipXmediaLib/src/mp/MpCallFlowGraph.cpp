@@ -1166,7 +1166,6 @@ MpConnectionID MpCallFlowGraph::createConnection()
    MpConnectionID found = -1;
    int            bridgePort;
    MpResource*    pBridgeSink;
-   MpResource*    pBridgeSource;
    MpRtpInputAudioConnection*  pInputConnection;
    MpRtpOutputAudioConnection*  pOutputConnection;
 
@@ -1196,7 +1195,6 @@ MpConnectionID MpCallFlowGraph::createConnection()
    mpInputConnections[found] = 
        new MpRtpInputAudioConnection(inConnectionName,
                                      found, 
-                                     this,
                                      getSamplesPerFrame(), 
                                      getSamplesPerSec());
    mpOutputConnections[found] = 
@@ -1226,11 +1224,17 @@ MpConnectionID MpCallFlowGraph::createConnection()
    Zprintf("bridgePort = %d\n", bridgePort, 0,0,0,0,0);
 
    pBridgeSink = pOutputConnection->getSinkResource();
-   pBridgeSource = pInputConnection->getSourceResource();
-
-   OsStatus stat = addLink(*mpBridge, bridgePort, *pBridgeSink, 0);
+   OsStatus stat = addResource(*pInputConnection);
    assert(OS_SUCCESS == stat);
-   stat = addLink(*pBridgeSource, 0, *mpBridge, bridgePort);
+
+   // Not sure if this is still needed
+   this->synchronize();
+   pInputConnection->enable();
+   this->synchronize();
+
+   stat = addLink(*mpBridge, bridgePort, *pBridgeSink, 0);
+   assert(OS_SUCCESS == stat);
+   stat = addLink(*pInputConnection, 0, *mpBridge, bridgePort);
    assert(OS_SUCCESS == stat);
 
    return found;
@@ -1769,7 +1773,7 @@ UtlBoolean MpCallFlowGraph::handleRemoveConnection(MpFlowGraphMsg& rMsg)
    // now remove synchronous resources from flow graph
    if(pInputConnection)
    {
-       res = handleRemoveResource(pInputConnection->getSourceResource());
+       res = handleRemoveResource(pInputConnection);
        assert(res);
        delete pInputConnection;
    }

@@ -37,7 +37,6 @@
 // Constructor
 MpRtpInputAudioConnection::MpRtpInputAudioConnection(UtlString& resourceName,
                                                      MpConnectionID myID, 
-                                                     MpFlowGraphBase* pParent,
                                                      int samplesPerFrame, 
                                                      int samplesPerSec)
 : MpRtpInputConnection(resourceName,
@@ -48,11 +47,10 @@ MpRtpInputAudioConnection::MpRtpInputAudioConnection(UtlString& resourceName,
                        NULL
 #endif // INCLUDE_RTCP ]
                        )
-, mpFlowGraph(pParent)
+//, mpFlowGraph(pParent)
 , mpDecode(NULL)
 , mpJB_inst(NULL)
 {
-   OsStatus     res;
    char         name[50];
    int          i;
 
@@ -64,16 +62,18 @@ MpRtpInputAudioConnection::MpRtpInputAudioConnection(UtlString& resourceName,
       mpPayloadMap[i] = NULL;
    }
 
-   // Add synchronized resources to flowgraph.
-   res = pParent->addResource(*mpDecode);      assert(res == OS_SUCCESS);
+   // decoder does not get added to the flowgraph, this connection
+   // gets added to do the decoding frameprocessing.
 
    //////////////////////////////////////////////////////////////////////////
    // connect Dejitter -> Decode (Non synchronous resources)
    mpDecode->setMyDejitter(mpDejitter);
 
-   pParent->synchronize("new Connection, before enable(), %dx%X\n");
-   enable();
-   pParent->synchronize("new Connection, after enable(), %dx%X\n");
+   //  This got moved to the call flowgraph when the connection is
+   // added to the flowgraph.  Not sure it is still needed there either
+   //pParent->synchronize("new Connection, before enable(), %dx%X\n");
+   //enable();
+   //pParent->synchronize("new Connection, after enable(), %dx%X\n");
 }
 
 // Destructor
@@ -99,20 +99,29 @@ UtlBoolean MpRtpInputAudioConnection::processFrame(void)
 #endif
 
     assert(mpDecode);
-    // call doProcessFrame to do any "real" work
-    result = mpDecode->doProcessFrame(mpInBufs, 
-                                      mpOutBufs,
-                                      mMaxInputs, 
-                                      mMaxOutputs, 
-                                      mIsEnabled,
-                                      mpDecode->getSamplesPerFrame(), 
-                                      mpDecode->getSamplesPerSec());
+    if(mpDecode)
+    {
+        // call doProcessFrame to do any "real" work
+        result = mpDecode->doProcessFrame(mpInBufs, 
+                                          mpOutBufs,
+                                          mMaxInputs, 
+                                          mMaxOutputs, 
+                                          mIsEnabled,
+                                          mpDecode->getSamplesPerFrame(), 
+                                          mpDecode->getSamplesPerSec());
+    }
 
 
+
+    // No input buffers to release
+   assert(mMaxInputs == 0);
+
+   // Push the output buffer to the next resource
+   assert(mMaxOutputs == 1);
+   pushBufferDownsream(0, mpOutBufs[0]);
    // release the output buffer
    mpOutBufs[0].release();
 
-   assert(mMaxInputs == 0);
 
    return(result);
 }
@@ -125,6 +134,9 @@ UtlBoolean MpRtpInputAudioConnection::doProcessFrame(MpBufPtr inBufs[],
                                                      int samplesPerFrame,
                                                      int samplesPerSecond)
 {
+    // Not currently used
+    assert(0);
+
     UtlBoolean result = FALSE;
     assert(mpDecode);
     if(mpDecode)
@@ -329,11 +341,6 @@ JB_inst* MpRtpInputAudioConnection::getJBinst(UtlBoolean optional) {
       }
    }
    return(mpJB_inst);
-}
-
-//Returns the resource to link to downstream resource's inPort.
-MpResource* MpRtpInputAudioConnection::getSourceResource() {
-   return mpDecode;
 }
 
 MpDecoderBase* MpRtpInputAudioConnection::mapPayloadType(int payloadType)

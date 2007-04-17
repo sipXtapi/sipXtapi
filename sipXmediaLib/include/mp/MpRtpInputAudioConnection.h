@@ -58,7 +58,6 @@ public:
      /// Constructor
    MpRtpInputAudioConnection(UtlString& resourceName,
                              MpConnectionID myID, 
-                             MpFlowGraphBase* pParent,
                              int samplesPerFrame, 
                              int samplesPerSec);
 
@@ -99,9 +98,6 @@ public:
      *  If the instance has not been created, but the argument "optional" is
      *  TRUE, then do not create it, just return NULL.
      */
-
-     /// Returns the resource to link to downstream resource's inPort.
-   MpResource* getSourceResource(void);
 
      /// Get decoder for this payload type
    MpDecoderBase* mapPayloadType(int payloadType);
@@ -159,7 +155,7 @@ private:
      /// Assignment operator (not implemented for this type)
    MpRtpInputAudioConnection& operator=(const MpRtpInputAudioConnection& rhs);
 
-   MpFlowGraphBase*   mpFlowGraph;     ///< Parent flowgraph
+//   MpFlowGraphBase*   mpFlowGraph;     ///< Parent flowgraph
    MprDecode*         mpDecode;        ///< Inbound component: Decoder
    JB_inst*           mpJB_inst;       ///< Pointer to JitterBuffer instance
 

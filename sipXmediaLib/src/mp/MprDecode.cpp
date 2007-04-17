@@ -67,8 +67,7 @@ MprDecode::MprDecode(const UtlString& rName, MpRtpInputAudioConnection* pConn,
    mNumCurrentCodecs(0),
    mpPrevCodecs(NULL),
    mNumPrevCodecs(0),
-   mpConnection(pConn),
-   mLock(OsMutex::Q_PRIORITY|OsMutex::INVERSION_SAFE)
+   mpConnection(pConn)
 {
 }
 
@@ -229,6 +228,12 @@ static int iFramesSinceLastReport=0;
    int packetLen;
    int i;
 
+   // Not sure this is a good idea to do in doProcessFrame, 
+   // but the use of this lock is meaningless
+   // unless we lock all access of the mpCurrentCodecs
+   OsLock lock(mLock);
+
+   int pulledPacketCount = 0;
    // Cycle through all decoders and process frames for them.
    for (i = 0; i < mNumCurrentCodecs; i++) 
    {
@@ -246,6 +251,8 @@ static int iFramesSinceLastReport=0;
 
       while ((rtp = pDej->pullPacket(pt)).isValid()) 
       {
+         pulledPacketCount++;
+
          if (iFramesSinceLastReport >= samplesPerSecond/samplesPerFrame) {
             // One second has passed since time we reported the average number of packets
             // in the jitter buffer
@@ -303,6 +310,7 @@ static int iFramesSinceLastReport=0;
 
    // Decode one packet from Jitter Buffer
    JB_inst* pJBState = mpConnection->getJBinst();
+   int decodedAPacket = FALSE;
    if (pJBState) {
       // This should be a JB_something or other.  However the only
       // current choices is a short or long equivalent and this needs
@@ -312,8 +320,9 @@ static int iFramesSinceLastReport=0;
       res = JB_RecOut(pJBState, pSamples, &bufLength);
       assert(bufLength == (int)out->getSamplesNumber());
       out->setSpeechType(MpAudioBuf::MP_SPEECH_UNKNOWN);
+      decodedAPacket = TRUE;
    }
-
+   
    // Push decoded audio packet downstream
    outBufs[0] = out;
 
@@ -411,7 +420,7 @@ UtlBoolean MprDecode::handleSelectCodecs(SdpCodec* pCodecs[], int numCodecs)
       OsLock lock(mLock);
 
       // Delete the current codecs.
-      handleDeselectCodecs();
+      handleDeselectCodecs(FALSE);
 
       mNumCurrentCodecs = numCodecs;
       mpCurrentCodecs = new MpDecoderBase*[numCodecs];
@@ -461,14 +470,16 @@ UtlBoolean MprDecode::handleDeselectCodec(MpDecoderBase* pDecoder)
    return TRUE;
 }
 
-UtlBoolean MprDecode::handleDeselectCodecs()
+UtlBoolean MprDecode::handleDeselectCodecs(UtlBoolean shouldLock)
 {
    int i;
    MpDecoderBase** pCurrentCodecs;
    MpDecoderBase** pPrevCodecs;
    int newN;
-   OsLock lock(mLock);
-
+   if(shouldLock)
+   {
+       mLock.acquire();
+   }
    if (0 < mNumCurrentCodecs) {
 
       newN = mNumCurrentCodecs + mNumPrevCodecs;
@@ -498,6 +509,10 @@ UtlBoolean MprDecode::handleDeselectCodecs()
       delete[] pCurrentCodecs;
       mpPrevCodecs = pPrevCodecs;
       mNumPrevCodecs = newN;
+   }
+   if(shouldLock)
+   {
+       mLock.release();
    }
    return TRUE;
 }

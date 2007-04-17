@@ -120,12 +120,6 @@ private:
 
    MprDejitter* mpMyDJ;
 
-   /// Semaphore that protects access to the m*Codecs members.
-   /**
-   *  This is needed because outside threads can call the destructor.
-   */
-   OsMutex mLock;
-
    /// List of the codecs to be used to decode media.
    /**
    *  Pointer to array of length mNumCurrentCodecs of MpDecoderBase*'s
@@ -161,7 +155,7 @@ private:
 
      /// @brief Remove all codecs from mpCurrentCodecs, transferring them to
      /// mpPrevCodecs.
-   UtlBoolean handleDeselectCodecs(void);
+   UtlBoolean handleDeselectCodecs(UtlBoolean shouldLock = TRUE);
 
      /// Remove one codec from mpConnection's payload type decoder table.
    UtlBoolean handleDeselectCodec(MpDecoderBase* pDecoder);
