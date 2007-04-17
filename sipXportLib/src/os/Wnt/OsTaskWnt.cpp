@@ -55,6 +55,8 @@ OsTaskWnt::OsTaskWnt(const UtlString& name,
 // Destructor
 OsTaskWnt::~OsTaskWnt()
 {
+   waitUntilShutDown();
+
    OsLock lock(mDataGuard);
 
    doWntTerminateTask(FALSE);
