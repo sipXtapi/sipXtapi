@@ -169,7 +169,6 @@ int OsServerTask::run(void* pArg)
    }
    while (!doShutdown);
 
-   ackShutdown();   // acknowledge the task shutdown request
    return 0;        // and then exit
 }
 

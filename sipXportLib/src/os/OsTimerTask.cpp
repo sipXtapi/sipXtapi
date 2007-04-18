@@ -173,6 +173,10 @@ int OsTimerTask::run(void* pArg)
                pMsg->releaseMsg();                      // free the message
             }
          }
+         else
+         {
+            assert(pMsg==NULL);
+         }
 
          now = OsTimer::now();     // Update our record of the current time.
       }
@@ -208,7 +212,6 @@ int OsTimerTask::run(void* pArg)
    OsSysLog::add(FAC_KERNEL, PRI_INFO,
                  "OsTimerTask::run OsTimerTask shutting down");
 
-   ackShutdown();   // acknowledge the task shutdown request
    return 0;        // and then exit
 }
 
