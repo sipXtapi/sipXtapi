@@ -62,17 +62,20 @@ public:
    /// Process one frame of audio
    UtlBoolean processFrame(void);
 
-     /// Starts sending RTP and RTCP packets.
-   void startSendRtp(OsSocket& rRtpSocket, OsSocket& rRtcpSocket,
-                     SdpCodec* pPrimary, SdpCodec* pDtmf);
+     /// Queues a message to start sending RTP and RTCP packets.
+   static OsStatus startSendRtp(OsMsgQ& messageQueue,
+                                UtlString& resourceName,
+                                OsSocket& rRtpSocket, 
+                                OsSocket& rRtcpSocket,
+                                SdpCodec* pPrimary, 
+                                SdpCodec* pDtmf);
 
-     /// Starts sending RTP and RTCP packets.
-   void startSendRtp(SdpCodec& rCodec,
-                     OsSocket& rRtpSocket, OsSocket& rRtcpSocket);
+     /// Queues a message to stop sending RTP and RTCP packets.
+   static OsStatus stopSendRtp(OsMsgQ& messageQueue,
+                               UtlString& resourceName);
 
-     /// Stops sending RTP and RTCP packets.
-   void stopSendRtp();
 
+   // TODO: make these message and/or meta data in the MpBufs
      /// Start sending DTMF tone.
    void startTone(int toneId);
 
@@ -96,6 +99,9 @@ public:
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 
+   /// @brief handle any resource operation message
+   virtual UtlBoolean handleMessage(MpResourceMsg& rMsg);
+
    /// @brief perform the enable operation specific to the MpRtpInputAudioConnection
    virtual UtlBoolean handleEnable();
 
@@ -114,6 +120,15 @@ protected:
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
+
+     /// Queues a message to start sending RTP and RTCP packets.
+   OsStatus handleStartSendRtp(OsSocket& rRtpSocket, 
+                               OsSocket& rRtcpSocket,
+                               SdpCodec* pPrimary, 
+                               SdpCodec* pDtmf);
+
+     /// Queues a message to stop sending RTP and RTCP packets.
+   OsStatus handleStopSendRtp();
 
      /// Default constructor
    MpRtpOutputAudioConnection();

@@ -1326,8 +1326,15 @@ void MpCallFlowGraph::startSendRtp(OsSocket& rRtpSocket,
                                     SdpCodec* pPrimaryCodec,
                                     SdpCodec* pDtmfCodec)
 {
-   mpOutputConnections[connID]->startSendRtp(rRtpSocket, rRtcpSocket,
-      pPrimaryCodec, pDtmfCodec);
+   if(mpOutputConnections[connID])
+   {
+       MpRtpOutputAudioConnection::startSendRtp(*(getMsgQ()),
+                                                mpOutputConnections[connID]->getName(),
+                                                rRtpSocket, 
+                                                rRtcpSocket,
+                                                pPrimaryCodec, 
+                                                pDtmfCodec);
+   }
 }
 
 // (old style call...)
@@ -1343,7 +1350,14 @@ void MpCallFlowGraph::startSendRtp(SdpCodec& rPrimaryCodec,
 void MpCallFlowGraph::stopSendRtp(MpConnectionID connID)
 {
    // postPone(40); // testing...
-   mpOutputConnections[connID]->stopSendRtp();
+   if(mpOutputConnections[connID])
+   {
+       if(mpOutputConnections[connID])
+       {
+           MpRtpOutputAudioConnection::stopSendRtp(*(getMsgQ()),
+                                                mpOutputConnections[connID]->getName());
+       }
+   }
 }
 
 // Start receiving RTP and RTCP packets.

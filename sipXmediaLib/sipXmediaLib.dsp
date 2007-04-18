@@ -1171,6 +1171,10 @@ SOURCE=.\include\mp\MprRtpStartReceiveMsg.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\include\mp\MprRtpStartSendMsg.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\include\mp\MprSpeexEchoCancel.h
 # End Source File
 # Begin Source File
