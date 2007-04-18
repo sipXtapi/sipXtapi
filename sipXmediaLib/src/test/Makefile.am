@@ -31,7 +31,9 @@ testsuite_SOURCES = \
     mp/MprMixerTest.cpp \
     mp/MprSplitterTest.cpp \
     mp/MprToSpkrTest.cpp \
-    mp/MpBufTest.cpp
+    mp/MpBufTest.cpp \
+    mp/MpOutputDriverTest.cpp \
+    mp/MpOutputManagerTest.cpp
 
 
 # [DEBUG ASSISTANT] List a single unittest to isoloate a unittest for

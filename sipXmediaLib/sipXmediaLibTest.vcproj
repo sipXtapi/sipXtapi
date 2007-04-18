@@ -133,6 +133,12 @@
 				RelativePath=".\src\test\mp\MpMediaTaskTest.cpp">
 			</File>
 			<File
+				RelativePath=".\src\test\mp\MpOutputDriverTest.cpp">
+			</File>
+			<File
+				RelativePath=".\src\test\mp\MpOutputManagerTest.cpp">
+			</File>
+			<File
 				RelativePath=".\src\test\mp\MprBridgeTest.cpp">
 			</File>
 			<File

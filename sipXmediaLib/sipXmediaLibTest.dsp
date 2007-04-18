@@ -109,6 +109,14 @@ SOURCE=.\src\test\mp\MpMediaTaskTest.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\test\mp\MpOutputDriverTest.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\test\mp\MpOutputManagerTest.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\test\mp\MprBridgeTest.cpp
 # End Source File
 # Begin Source File
