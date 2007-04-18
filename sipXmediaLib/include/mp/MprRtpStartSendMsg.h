@@ -37,11 +37,11 @@ public:
    //@{
 
    /// Constructor
-   MprRtpStartSendMsg(UtlString& targetResourceName,
-                         SdpCodec* audioCodec,
-                         SdpCodec* dtmfCodec,
-                         OsSocket& rRtpSocket,
-                         OsSocket& rRtcpSocket)
+   MprRtpStartSendMsg(const UtlString& targetResourceName,
+                      SdpCodec* audioCodec,
+                      SdpCodec* dtmfCodec,
+                      OsSocket& rRtpSocket,
+                      OsSocket& rRtcpSocket)
       : MpResourceMsg(MPRM_START_SEND_RTP, targetResourceName)
       , mAudioCodecSet(FALSE)
       , mDtmfCodecSet(FALSE)

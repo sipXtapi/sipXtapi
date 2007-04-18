@@ -37,7 +37,7 @@ public:
    //@{
 
    /// Constructor
-   MprRtpStartReceiveMsg(UtlString& targetResourceName,
+   MprRtpStartReceiveMsg(const UtlString& targetResourceName,
                          SdpCodec* codecs[],
                          int numCodecs,
                          OsSocket& rRtpSocket,
