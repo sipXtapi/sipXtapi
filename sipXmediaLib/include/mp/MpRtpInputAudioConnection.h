@@ -73,13 +73,6 @@ public:
    /// Process one frame of audio
    UtlBoolean processFrame(void);
 
-     /// Starts receiving RTP and RTCP packets.
-   void startReceiveRtp(SdpCodec* pCodecs[], int numCodecs,
-                        OsSocket& rRtpSocket, OsSocket& rRtcpSocket);
-
-     /// Stops receiving RTP and RTCP packets.
-   void stopReceiveRtp(void);
-
      /// Add an RTP payload type to decoder instance mapping table
    void addPayloadType(int payloadId, MpDecoderBase* pDecoder);
 
@@ -116,6 +109,19 @@ public:
    // about a recorder.  This should be and event or something like that.
    UtlBoolean setDtmfTerm(MprRecorder *pRecorder);
 
+   /// Queue a message to start receiving RTP and RTCP packets.
+   static OsStatus startReceiveRtp(OsMsgQ& messageQueue,
+                                   UtlString& resourceName,
+                                   SdpCodec* pCodecs[], 
+                                   int numCodecs,
+                                   OsSocket& rRtpSocket, 
+                                   OsSocket& rRtcpSocket);
+
+
+   /// queue a message to stop receiving RTP and RTCP packets.
+   static OsStatus stopReceiveRtp(OsMsgQ& messageQueue,
+                                  UtlString& resourceName);
+
 //@}
 
 /* ============================ INQUIRY =================================== */
@@ -126,6 +132,10 @@ public:
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
+
+   /// @brief Handles an incoming resource message for this media processing object.
+   virtual UtlBoolean handleMessage(MpResourceMsg& rMsg);
+   /**< @returns TRUE if the message was handled, otherwise FALSE. */
 
    /// @brief perform the enable operation specific to the MpRtpInputAudioConnection
    virtual UtlBoolean handleEnable();
@@ -145,6 +155,13 @@ protected:
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
+
+     /// Stops receiving RTP and RTCP packets.
+   void handleStopReceiveRtp(void);
+
+   /// Starts receiving RTP and RTCP packets.
+   void handleStartReceiveRtp(SdpCodec* pCodecs[], int numCodecs,
+                        OsSocket& rRtpSocket, OsSocket& rRtcpSocket);
 
      /// Default constructor
    MpRtpInputAudioConnection();

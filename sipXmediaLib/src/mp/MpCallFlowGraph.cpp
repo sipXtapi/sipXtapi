@@ -1165,7 +1165,6 @@ MpConnectionID MpCallFlowGraph::createConnection()
    int            i;
    MpConnectionID found = -1;
    int            bridgePort;
-   MpResource*    pBridgeSink;
    MpRtpInputAudioConnection*  pInputConnection;
    MpRtpOutputAudioConnection*  pOutputConnection;
 
@@ -1200,7 +1199,6 @@ MpConnectionID MpCallFlowGraph::createConnection()
    mpOutputConnections[found] = 
        new MpRtpOutputAudioConnection(outConnectionName,
                                       found, 
-                                      this,
                                       getSamplesPerFrame(), 
                                       getSamplesPerSec());
 
@@ -1223,16 +1221,18 @@ MpConnectionID MpCallFlowGraph::createConnection()
 
    Zprintf("bridgePort = %d\n", bridgePort, 0,0,0,0,0);
 
-   pBridgeSink = pOutputConnection->getSinkResource();
    OsStatus stat = addResource(*pInputConnection);
+   assert(OS_SUCCESS == stat);
+   stat = addResource(*pOutputConnection);
    assert(OS_SUCCESS == stat);
 
    // Not sure if this is still needed
    this->synchronize();
    pInputConnection->enable();
+   pOutputConnection->enable();
    this->synchronize();
 
-   stat = addLink(*mpBridge, bridgePort, *pBridgeSink, 0);
+   stat = addLink(*mpBridge, bridgePort, *pOutputConnection, 0);
    assert(OS_SUCCESS == stat);
    stat = addLink(*pInputConnection, 0, *mpBridge, bridgePort);
    assert(OS_SUCCESS == stat);
@@ -1366,14 +1366,25 @@ void MpCallFlowGraph::startReceiveRtp(SdpCodec* pCodecs[],
                                        OsSocket& rRtcpSocket,
                                        MpConnectionID connID)
 {
-   mpInputConnections[connID]->
-            startReceiveRtp(pCodecs, numCodecs, rRtpSocket, rRtcpSocket);
+    if(mpInputConnections[connID])
+    {
+        MpRtpInputAudioConnection::startReceiveRtp(*(getMsgQ()),
+                                mpInputConnections[connID]->getName(),
+                                pCodecs, 
+                                numCodecs, 
+                                rRtpSocket, 
+                                rRtcpSocket);
+    }
 }
 
 // Stop receiving RTP and RTCP packets.
 void MpCallFlowGraph::stopReceiveRtp(MpConnectionID connID)
 {
-   mpInputConnections[connID]->stopReceiveRtp();
+    if(mpInputConnections[connID])
+    {
+        MpRtpInputAudioConnection::stopReceiveRtp(*(getMsgQ()),
+                                mpInputConnections[connID]->getName());
+    }
 }
 
 OsStatus MpCallFlowGraph::addToneListener(OsNotification* pNotify,
@@ -1563,11 +1574,13 @@ void MpCallFlowGraph::RemoteSSRCCollision(IRTCPConnection  *piRTCPConnection,
     mConnTableLock.acquire();
     for (int iConnection = 1; iConnection < MAX_CONNECTIONS; iConnection++) 
     {
-      if (mpInputConnections[iConnection]->getRTCPConnection() == piRTCPConnection) 
+      if (mpInputConnections[iConnection] &&
+          mpInputConnections[iConnection]->getRTCPConnection() == piRTCPConnection) 
       {
 // We are supposed to ignore the media of the latter of two terminals
 // whose SSRC collides
-         mpInputConnections[iConnection]->stopReceiveRtp();
+         MpRtpInputAudioConnection::stopReceiveRtp(*(getMsgQ()),
+                                mpInputConnections[iConnection]->getName());
          break;
       }
    }
@@ -1780,7 +1793,7 @@ UtlBoolean MpCallFlowGraph::handleRemoveConnection(MpFlowGraphMsg& rMsg)
 
    if(pOutputConnection)
    {
-       res = handleRemoveResource(pOutputConnection->getSinkResource());
+       res = handleRemoveResource(pOutputConnection);
        assert(res);
        delete pOutputConnection;
    }   

@@ -28,8 +28,8 @@
 /* ============================ CREATORS ================================== */
 
 // Constructor
-MpResourceMsg::MpResourceMsg(int msg, const UtlString& msgDestName)
-   : OsMsg(OsMsg::MP_RESOURCE_MSG, msg)
+MpResourceMsg::MpResourceMsg(MpResourceMsgType messageSubtype, const UtlString& msgDestName)
+   : OsMsg(OsMsg::MP_RESOURCE_MSG, messageSubtype)
    , mMsgDestName(msgDestName)
 {
 }

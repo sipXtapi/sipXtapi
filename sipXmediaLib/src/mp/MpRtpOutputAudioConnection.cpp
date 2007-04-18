@@ -35,7 +35,6 @@
 // Constructor
 MpRtpOutputAudioConnection::MpRtpOutputAudioConnection(UtlString& resourceName,
                                                        MpConnectionID myID, 
-                                                       MpFlowGraphBase* pParent,
                                                        int samplesPerFrame, 
                                                        int samplesPerSec)
 : MpRtpOutputConnection(resourceName,
@@ -46,7 +45,6 @@ MpRtpOutputAudioConnection::MpRtpOutputAudioConnection(UtlString& resourceName,
                         NULL
 #endif // INCLUDE_RTCP ]
                        )
-, mpFlowGraph(pParent)
 , mpEncode(NULL)
 {
    OsStatus     res;
@@ -55,16 +53,18 @@ MpRtpOutputAudioConnection::MpRtpOutputAudioConnection(UtlString& resourceName,
    sprintf(name, "Encode-%d", myID);
    mpEncode    = new MprEncode(name, samplesPerFrame, samplesPerSec);
 
-   // Add synchronized resources to flowgraph.
-   res = pParent->addResource(*mpEncode);      assert(res == OS_SUCCESS);
+   // encoder does not get added to the flowgraph, this connection
+   // gets added to do the encoding frameprocessing.
 
    //////////////////////////////////////////////////////////////////////////
    // connect Encode -> ToNet (Non synchronous resources)
    mpEncode->setMyToNet(mpToNet);
 
-   pParent->synchronize("new Connection, before enable(), %dx%X\n");
-   enable();
-   pParent->synchronize("new Connection, after enable(), %dx%X\n");
+   //  This got moved to the call flowgraph when the connection is
+   // added to the flowgraph.  Not sure it is still needed there either
+   //pParent->synchronize("new Connection, before enable(), %dx%X\n");
+   //enable();
+   //pParent->synchronize("new Connection, after enable(), %dx%X\n");
 }
 
 // Destructor
@@ -97,9 +97,11 @@ UtlBoolean MpRtpOutputAudioConnection::processFrame(void)
                                 mpEncode->getSamplesPerSec());
     }
 
-   // release the input buffer
+   // release the input buffer, we are done with it
    mpInBufs[0].release();
+   assert(mMaxInputs == 1);
 
+   // no outputs to release
    assert(mMaxOutputs == 0);
 
    return(result);
@@ -218,11 +220,6 @@ void MpRtpOutputAudioConnection::stopTone(void)
 }
 
 /* ============================ ACCESSORS ================================= */
-
-//Returns the resource to link to upstream resource's outPort.
-MpResource* MpRtpOutputAudioConnection::getSinkResource() {
-   return mpEncode;
-}
 
 /* ============================ INQUIRY =================================== */
 

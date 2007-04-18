@@ -38,8 +38,8 @@ public:
    //@{
 
    /// Constructor
-   MpToneResourceMsg(int msg, const UtlString& msgDestName, int toneId)
-      : MpResourceMsg(msg, msgDestName)
+   MpToneResourceMsg(const UtlString& msgDestName, int toneId)
+      : MpResourceMsg(MPRM_START_TONE, msgDestName)
       , mToneId(toneId) 
    {};
 
@@ -52,7 +52,7 @@ public:
    /// Create a copy of this msg object (which may be of a derived type)
    OsMsg* createCopy(void) const 
    {
-      return new MpResourceMsg(*this); 
+      return new MpToneResourceMsg(*this); 
    }
 
    /// Destructor

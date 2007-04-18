@@ -1167,6 +1167,10 @@ SOURCE=.\include\mp\MprRecorder.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\include\mp\MprRtpStartReceiveMsg.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\include\mp\MprSpeexEchoCancel.h
 # End Source File
 # Begin Source File
@@ -1248,6 +1252,10 @@ SOURCE=.\include\mp\MpStreamPlaylistPlayer.h
 # Begin Source File
 
 SOURCE=.\include\mp\MpStreamQueuePlayer.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MpToneResourceMsg.h
 # End Source File
 # Begin Source File
 

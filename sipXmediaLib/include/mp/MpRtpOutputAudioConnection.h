@@ -47,7 +47,6 @@ public:
      /// Constructor
    MpRtpOutputAudioConnection(UtlString& resourceName,
                               MpConnectionID myID, 
-                              MpFlowGraphBase* pParent,
                               int samplesPerFrame, 
                               int samplesPerSec);
 
@@ -85,9 +84,6 @@ public:
 /* ============================ ACCESSORS ================================= */
 ///@name Accessors
 //@{
-
-     /// Returns the resource to link to upstream resource's outPort.
-   MpResource* getSinkResource(void);
 
 //@}
 
@@ -128,7 +124,6 @@ private:
      /// Assignment operator (not implemented for this type)
    MpRtpOutputAudioConnection& operator=(const MpRtpOutputAudioConnection& rhs);
 
-   MpFlowGraphBase*   mpFlowGraph;     ///< Parent flowgraph
    MprEncode*         mpEncode;        ///< Outbound component: Encoder
 };
 

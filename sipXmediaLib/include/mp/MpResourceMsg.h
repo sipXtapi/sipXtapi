@@ -41,7 +41,19 @@ public:
       MPRM_STOP_TONE,
       MPRM_FROMFILE_START,
       MPRM_FROMFILE_PAUSE,
-      MPRM_FROMFILE_STOP
+      MPRM_FROMFILE_STOP,
+
+      // Connection Resource messages
+      MPRM_START_RECEIVE_RTP,
+      MPRM_STOP_RECEIVE_RTP,
+      MPRM_START_SEND_RTP,
+      MPRM_STOP_SEND_RTP,
+
+      // Add new built in resource operation messages above
+
+      // Non-builtin resource messages
+      MPRM_EXTERNAL_MESSAGE_START = 128
+      // Do not add new message types after this
    } MpResourceMsgType;
 
 /* ============================ CREATORS ================================== */
@@ -49,7 +61,7 @@ public:
 //@{
 
      /// Constructor
-   MpResourceMsg(int msg, const UtlString& msgDestName);
+   MpResourceMsg(MpResourceMsgType msg, const UtlString& msgDestName);
 
      /// Copy constructor
    MpResourceMsg(const MpResourceMsg& rMpResourceMsg);
