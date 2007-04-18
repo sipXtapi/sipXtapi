@@ -448,7 +448,7 @@ public:
         gCallBackCount = 0;
         returnValue = pTimer->periodicEvery(twoSeconds, twoSeconds) ; 
         //Give a delay of 10+ seconds . If all went well the call back method
-        //must have been called once every 2 seconds and hence the callbackcount 
+        //must have been called once every 2 seconds and hence the callback count 
         //must be up by 5. 
         OsTask::delay(11250) ; 
         CPPUNIT_ASSERT_MESSAGE("Test periodic timer - verify return value", 
@@ -528,7 +528,7 @@ public:
         // Wait for another 5 seconds. Neither the first shot nor the repeat legs
         // should ever have been called. 
         OsTask::delay(5000) ; 
-        CPPUNIT_ASSERT_MESSAGE("Verify that a periodictimer can be stopped even " 
+        CPPUNIT_ASSERT_MESSAGE("Verify that a periodic timer can be stopped even " 
                               "before the first leg is called", gCallBackCount == 0);
         delete pTimer ; 
 
@@ -545,12 +545,12 @@ public:
         diffUSecs = getTimeDeltaInUsecs() ; 
         REPORT_SKEW(("      Timing inaccuracy = %ld us;\n",
                     diffUSecs - MsecsToUsecs(1000)));
-        CPPUNIT_ASSERT_MESSAGE("Test stoping periodic timer - Verify that the " 
+        CPPUNIT_ASSERT_MESSAGE("Test stopping periodic timer - Verify that the " 
             "first leg was fired", 
             diffUSecs > MsecsToUsecs(1000 - OSTIMETOLERANCE) && 
             diffUSecs < MsecsToUsecs(1000 + OSTIMETOLERANCE) ) ; 
         // Also verify that only the first leg was called. 
-        CPPUNIT_ASSERT_EQUAL_MESSAGE("Test stoping periodic timer - Verify that ONLY the first " 
+        CPPUNIT_ASSERT_EQUAL_MESSAGE("Test stopping periodic timer - Verify that ONLY the first " 
                                     "leg was fired", 1, gCallBackCount);
         delete pTimer2 ; 
         delete pNotifier;
@@ -569,7 +569,7 @@ public:
         // Wait for another 5 seconds. Neither the first shot nor the repeat legs
         // should ever have been called. 
         OsTask::delay(5000) ; 
-        CPPUNIT_ASSERT_MESSAGE("Verify that a periodictimer can be stopped even " 
+        CPPUNIT_ASSERT_MESSAGE("Verify that a periodic timer can be stopped even " 
                               "before the first leg is called", gCallBackCount == 0);
         delete pNotifier ; 
     }
