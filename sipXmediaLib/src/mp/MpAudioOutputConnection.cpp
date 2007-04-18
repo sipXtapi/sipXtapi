@@ -50,6 +50,11 @@ MpAudioOutputConnection::~MpAudioOutputConnection()
    assert(mpTickerCallback == NULL);
    if (mpTickerCallback != NULL)
    {
+      if (mpDeviceDriver != NULL)
+      {
+         mpDeviceDriver->setTickerNotification(NULL);
+      }
+
       delete mpTickerCallback;
       mpTickerCallback = NULL;
    }
@@ -326,6 +331,7 @@ OsStatus MpAudioOutputConnection::advanceMixerBuffer(unsigned numSamples)
       memset(&mpMixerBuffer[0],
              0,
              numSamples);
+      mMixerBufferBegin += numSamples;
    }
    else
    {
@@ -336,6 +342,8 @@ OsStatus MpAudioOutputConnection::advanceMixerBuffer(unsigned numSamples)
       memset(&mpMixerBuffer[0],
              0,
              (numSamples-firstChunkSize)*sizeof(MpAudioSample));
+
+      mMixerBufferBegin = numSamples - firstChunkSize;
    }
 
    return OS_SUCCESS;
@@ -343,7 +351,21 @@ OsStatus MpAudioOutputConnection::advanceMixerBuffer(unsigned numSamples)
 
 void MpAudioOutputConnection::tickerCallback(const int userData, const int eventData)
 {
+   OsStatus result;
+   MpAudioOutputConnection *pConnection = (MpAudioOutputConnection*)userData;
 
+   if (pConnection->mMutex.acquire(OsTime(5)) == OS_SUCCESS)
+   {
+      // So, push data to device driver and forget.
+      result = pConnection->mpDeviceDriver->pushFrame(
+                     pConnection->mpDeviceDriver->getSamplesPerFrame(),
+                     pConnection->mpMixerBuffer+pConnection->mMixerBufferBegin);
+      assert(result == OS_SUCCESS);
+
+      pConnection->advanceMixerBuffer(pConnection->mpDeviceDriver->getSamplesPerFrame());
+
+      pConnection->mMutex.release();
+   }
 }
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
