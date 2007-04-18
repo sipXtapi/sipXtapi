@@ -344,6 +344,8 @@ OsStatus OsMsgQShared::doReceive(OsMsg*& rpMsg, const OsTime& rTimeout)
 {
    OsStatus ret;
 
+   rpMsg = NULL;
+
 #ifdef MSGQ_IS_VALID_CHECK /* [ */
    ret = mGuard.acquire();         // start critical section
    assert(ret == OS_SUCCESS);
