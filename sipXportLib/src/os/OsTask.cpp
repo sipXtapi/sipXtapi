@@ -187,6 +187,8 @@ OsTaskBase::~OsTaskBase()
 {
    OsStatus res;
 
+   assert(isUnInitialized());
+
    if (mName != "")
    {
       res = OsUtil::deleteKeyValue(TASK_PREFIX, mName);
