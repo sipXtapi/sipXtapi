@@ -64,7 +64,7 @@ public:
 
      /// Queues a message to start sending RTP and RTCP packets.
    static OsStatus startSendRtp(OsMsgQ& messageQueue,
-                                UtlString& resourceName,
+                                const UtlString& resourceName,
                                 OsSocket& rRtpSocket, 
                                 OsSocket& rRtcpSocket,
                                 SdpCodec* pPrimary, 
@@ -72,7 +72,7 @@ public:
 
      /// Queues a message to stop sending RTP and RTCP packets.
    static OsStatus stopSendRtp(OsMsgQ& messageQueue,
-                               UtlString& resourceName);
+                               const UtlString& resourceName);
 
 
    // TODO: make these message and/or meta data in the MpBufs

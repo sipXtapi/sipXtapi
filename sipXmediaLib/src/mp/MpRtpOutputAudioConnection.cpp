@@ -199,7 +199,7 @@ UtlBoolean MpRtpOutputAudioConnection::handleEnable()
 
      /// Queues a message to start sending RTP and RTCP packets.
 OsStatus MpRtpOutputAudioConnection::startSendRtp(OsMsgQ& messageQueue,
-                                                  UtlString& resourceName,
+                                                  const UtlString& resourceName,
                                                   OsSocket& rRtpSocket, 
                                                   OsSocket& rRtcpSocket,
                                                   SdpCodec* audioCodec, 
@@ -223,7 +223,7 @@ OsStatus MpRtpOutputAudioConnection::startSendRtp(OsMsgQ& messageQueue,
 
      /// Queues a message to stop sending RTP and RTCP packets.
 OsStatus MpRtpOutputAudioConnection::stopSendRtp(OsMsgQ& messageQueue,
-                                                 UtlString& resourceName)
+                                                 const UtlString& resourceName)
 {
     MpResourceMsg stopSendMsg(MpResourceMsg::MPRM_STOP_SEND_RTP, 
                               resourceName);
