@@ -109,13 +109,14 @@ public:
 
             }
 
-            printf("got frame #%d frameTime: %u numFramesBefore: %d numFramesAfter: %d result: %d valid frame: %s\n", 
+            /*printf("got frame #%d frameTime: %u numFramesBefore: %d numFramesAfter: %d result: %d valid frame: %s\n", 
                            frameIndex,
                            frameTime,
                            numFramesBefore, 
                            numFramesAfter,
                            result,
                            mpStoredSignal[frameIndex].isValid() ? "TRUE" : "FALSE");
+            */
 
             if(result == OS_SUCCESS && mpStoredSignal[frameIndex].isValid())
             {
