@@ -323,7 +323,7 @@ OsStatus MpAudioOutputConnection::mixFrame(unsigned frameOffset,
 
 OsStatus MpAudioOutputConnection::advanceMixerBuffer(unsigned numSamples)
 {
-   assert(numSamples > 0 && numSamples < mMixerBufferLength);
+   assert(numSamples > 0 && numSamples <= mMixerBufferLength);
 
    // If buffer could be copied in one pass
    if (mMixerBufferBegin+numSamples < mMixerBufferLength)
