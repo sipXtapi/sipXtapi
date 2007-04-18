@@ -34,8 +34,8 @@ MprFromInputDevice::MprFromInputDevice(const UtlString& rName,
                                       MpInputDeviceManager* deviceManager,
                                       MpInputDeviceHandle deviceId)
 : MpAudioResource(rName,
-                  1, 1, /* inputs */
-                  0, 0, /* outputs */
+                  0, 0, /* inputs */
+                  1, 1, /* outputs */
                   samplesPerFrame, samplesPerSec)
 , mpInputDeviceManager(deviceManager)
 , mFrameTimeInitialized(FALSE)
@@ -79,7 +79,7 @@ UtlBoolean MprFromInputDevice::doProcessFrame(MpBufPtr inBufs[],
       // Start with a frame behind.  Possible need smarter
       // decision for starting.
       mPreviousFrameTime = mpInputDeviceManager->getCurrentFrameTime();
-      mPreviousFrameTime -= (2 * frameTimeInterval);
+//      mPreviousFrameTime -= (5 * frameTimeInterval);
    }
 
    mPreviousFrameTime += frameTimeInterval;
@@ -100,18 +100,45 @@ UtlBoolean MprFromInputDevice::doProcessFrame(MpBufPtr inBufs[],
                                                        numFramedBufferedBehind);
 
 
+   printf("MprFromInputDevice::doProcessFrame() frameToFetch=%d, getResult=%d, numFramesNotPlayed=%d, numFramedBufferedBehind=%d\n",
+          frameToFetch, getResult, numFramesNotPlayed, numFramedBufferedBehind);
+
+   if(getResult != OS_SUCCESS)
+   {
+      while (getResult == OS_NOT_FOUND && numFramedBufferedBehind == 0 && numFramesNotPlayed > 0)
+      {
+         printf("+ %d numFramesNotPlayed=%d, numFramedBufferedBehind=%d\n",
+                mPreviousFrameTime, numFramesNotPlayed, numFramedBufferedBehind);
+         mPreviousFrameTime += frameTimeInterval;
+         frameToFetch = mPreviousFrameTime;
+         getResult = 
+            mpInputDeviceManager->getFrame(mDeviceId,
+                                           frameToFetch,
+                                           buffer,
+                                           numFramesNotPlayed,
+                                           numFramedBufferedBehind);
+      }
+      while (getResult == OS_NOT_FOUND && numFramedBufferedBehind > 0 && numFramesNotPlayed == 0)
+      {
+         printf("- %d numFramesNotPlayed=%d, numFramedBufferedBehind=%d\n",
+                mPreviousFrameTime, numFramesNotPlayed, numFramedBufferedBehind);
+         mPreviousFrameTime -= frameTimeInterval;
+         frameToFetch = mPreviousFrameTime;
+         getResult = 
+            mpInputDeviceManager->getFrame(mDeviceId,
+                                           frameToFetch,
+                                           buffer,
+                                           numFramesNotPlayed,
+                                           numFramedBufferedBehind);
+      }
+   }
+
    if (!mFrameTimeInitialized)
    {
       if (getResult == OS_SUCCESS)
       {
+         mPreviousFrameTime = frameToFetch;
          mFrameTimeInitialized = TRUE;
-      }
-
-      if (numFramesNotPlayed > 1)
-      {
-         // TODO: now is a good time to adjust and get a newer
-         // frame
-         // could increment mPreviousFrameTime and getFrame again
       }
    }
 
