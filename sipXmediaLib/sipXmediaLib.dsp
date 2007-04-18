@@ -351,6 +351,10 @@ SOURCE=.\src\mp\MpMisc.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\mp\MpodBufferRecorder.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\mp\MpOutputDeviceDriver.cpp
 # End Source File
 # Begin Source File
@@ -1036,6 +1040,10 @@ SOURCE=.\include\mp\MpMediaTaskMsg.h
 # Begin Source File
 
 SOURCE=.\include\mp\MpMisc.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MpodBufferRecorder.h
 # End Source File
 # Begin Source File
 

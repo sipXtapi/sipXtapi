@@ -77,6 +77,7 @@ nobase_include_HEADERS =  \
     mp/MpMediaTask.h \
     mp/MpMediaTaskMsg.h \
     mp/MpMisc.h \
+    mp/MpodBufferRecorder.h \
     mp/MpOutputDeviceDriver.h \
     mp/MpOutputDeviceManager.h \
     mp/MpPlayer.h \

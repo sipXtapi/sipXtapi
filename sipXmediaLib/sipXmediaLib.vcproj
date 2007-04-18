@@ -2227,6 +2227,9 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\src\mp\MpodBufferRecorder.cpp">
+			</File>
+			<File
 				RelativePath=".\src\mp\MpOutputDeviceDriver.cpp">
 			</File>
 			<File
@@ -4495,6 +4498,9 @@
 			</File>
 			<File
 				RelativePath="include\mp\MpMisc.h">
+			</File>
+			<File
+				RelativePath=".\include\mp\MpodBufferRecorder.h">
 			</File>
 			<File
 				RelativePath=".\include\mp\MpOutputDeviceDriver.h">

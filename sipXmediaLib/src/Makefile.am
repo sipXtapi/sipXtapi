@@ -103,6 +103,7 @@ libsipXmedia_la_SOURCES =  \
     mp/MpMediaTask.cpp \
     mp/MpMediaTaskMsg.cpp \
     mp/MpMisc.cpp \
+    mp/MpodBufferRecorder.cpp \
     mp/MpOutputDeviceDriver.cpp \
     mp/MpOutputDeviceManager.cpp \
     mp/MpPlayer.cpp \
