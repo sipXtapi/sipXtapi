@@ -111,7 +111,7 @@ public:
 
    /// Queue a message to start receiving RTP and RTCP packets.
    static OsStatus startReceiveRtp(OsMsgQ& messageQueue,
-                                   UtlString& resourceName,
+                                   const UtlString& resourceName,
                                    SdpCodec* pCodecs[], 
                                    int numCodecs,
                                    OsSocket& rRtpSocket, 
@@ -120,7 +120,7 @@ public:
 
    /// queue a message to stop receiving RTP and RTCP packets.
    static OsStatus stopReceiveRtp(OsMsgQ& messageQueue,
-                                  UtlString& resourceName);
+                                  const UtlString& resourceName);
 
 //@}
 

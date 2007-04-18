@@ -26,6 +26,9 @@
 #include <mp/MprRtpStartReceiveMsg.h>
 #include <sdp/SdpCodec.h>
 #include <os/OsLock.h>
+#ifdef RTL_ENABLED
+#   include <rtl_macro.h>
+#endif
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -220,11 +223,11 @@ UtlBoolean MpRtpInputAudioConnection::handleEnable()
 // Start receiving RTP and RTCP packets.
 
 OsStatus MpRtpInputAudioConnection::startReceiveRtp(OsMsgQ& messageQueue,
-                                                          UtlString& resourceName,
-                                                          SdpCodec* codecArray[], 
-                                                          int numCodecs,
-                                                          OsSocket& rRtpSocket,
-                                                          OsSocket& rRtcpSocket)
+                                                    const UtlString& resourceName,
+                                                    SdpCodec* codecArray[], 
+                                                    int numCodecs,
+                                                    OsSocket& rRtpSocket,
+                                                    OsSocket& rRtcpSocket)
 {
     OsStatus result = OS_INVALID_ARGUMENT;
     if(numCodecs > 0 && codecArray)
@@ -265,7 +268,7 @@ void MpRtpInputAudioConnection::handleStartReceiveRtp(SdpCodec* pCodecs[],
 }
 
 OsStatus MpRtpInputAudioConnection::stopReceiveRtp(OsMsgQ& messageQueue,
-                                                   UtlString& resourceName)
+                                                   const UtlString& resourceName)
 {
     MpResourceMsg stopReceiveMsg(MpResourceMsg::MPRM_STOP_RECEIVE_RTP, 
                                  resourceName);
