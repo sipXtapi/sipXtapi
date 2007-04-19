@@ -24,6 +24,9 @@
 #include <mp/MpResourceMsg.h>
 #include <sdp/SdpCodec.h>
 #include <os/OsLock.h>
+#ifdef RTL_ENABLED
+#   include <rtl_macro.h>
+#endif
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES

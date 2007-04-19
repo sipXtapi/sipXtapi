@@ -14,6 +14,7 @@
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
 #include "mp/MpodBufferRecorder.h"
+#include "mp/MpMisc.h"
 #include <os/OsTimer.h>
 #include <os/OsNotification.h>
 #include <os/OsSysLog.h>
