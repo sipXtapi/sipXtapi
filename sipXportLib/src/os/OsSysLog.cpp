@@ -60,7 +60,6 @@ OsSysLogTask* OsSysLog::spOsSysLogTask = NULL;
 unsigned long OsSysLog::sEventCount = 0;
 UtlString OsSysLog::sProcessId = "" ;
 UtlString OsSysLog::sHostname = "" ;
-OsSysLogPriority* OsSysLog::spPriorities = new OsSysLogPriority[FAC_MAX_FACILITY] ;
 // Initial logging level is PRI_ERR.
 OsSysLogPriority OsSysLog::sLoggingPriority = PRI_ERR ;
 UtlBoolean OsSysLog::bPrioritiesInitialized = FALSE ;

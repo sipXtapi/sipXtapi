@@ -441,7 +441,7 @@ protected:
    static OsSysLogTask* spOsSysLogTask;
 
    static unsigned long sEventCount;
-   static OsSysLogPriority* spPriorities;
+   static OsSysLogPriority spPriorities[FAC_MAX_FACILITY] ;
    static OsSysLogPriority sLoggingPriority;
    static UtlString sProcessId;
    static UtlString sHostname;
