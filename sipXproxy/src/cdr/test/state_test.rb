@@ -236,5 +236,5 @@ class StateTest < Test::Unit::TestCase
     
     # and one CDR remains in the state
     assert_equal(2, state.active_cdrs.size)
-  end  
+  end
 end

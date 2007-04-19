@@ -29,17 +29,13 @@ public class ValueStorageTestDb extends SipxDatabaseTestCase {
         ApplicationContext context = TestHelper.getApplicationContext();
         m_dao = (SettingDao) context.getBean("settingDao");
         m_bean = new BirdWithSettings();
-        SettingSet root = new SettingSet();
-        root.addSetting(new SettingSet("fruit")).addSetting(new SettingImpl("apple"));
-        root.addSetting(new SettingSet("vegetable")).addSetting(new SettingImpl("pea"));
-        m_bean.setSettings(root);        
     }
 
     public void testSave() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
 
-        m_bean.setSettingValue("fruit/apple", "granny smith");
-        m_bean.setSettingValue("vegetable/pea", null);
+        m_bean.setSettingValue("towhee/canyon", "chirp");
+        m_bean.setSettingValue("pigeon/rock-dove", null);
         
         ValueStorage vs = (ValueStorage) m_bean.getValueStorage();
         m_dao.storeValueStorage(vs);
@@ -62,8 +58,8 @@ public class ValueStorageTestDb extends SipxDatabaseTestCase {
         ValueStorage vs = m_dao.loadValueStorage(new Integer(1));
         m_bean.setValueStorage(vs);
         
-        m_bean.setSettingValue("fruit/apple", null);
-        m_bean.setSettingValue("vegetable/pea", "snow pea");
+        m_bean.setSettingValue("towhee/canyon", null);
+        m_bean.setSettingValue("pigeon/rock-dove", "coo coo");
         
         m_dao.storeValueStorage(vs);
 

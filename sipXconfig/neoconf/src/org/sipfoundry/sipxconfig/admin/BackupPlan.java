@@ -45,6 +45,9 @@ public class BackupPlan extends BeanWithId {
 
     private static final String SCRIPT_SUFFIX = ".sh";
     private static final String OPTIONS = "--non-interactive";
+    
+    /* ensures we do not get caught in infinite loop */
+    private static final int MAX_BACKUPS_TO_DELETE = 100;
 
     private static final int SUCCESS = 0;
 
@@ -83,15 +86,26 @@ public class BackupPlan extends BeanWithId {
         m_backupTime = new Date();
         DateFormat fmt = new SimpleDateFormat("yyyyMMddHHmm");
         File nextDir = new File(rootBackupDir, fmt.format(m_backupTime));
-
-        String purgeable = getOldestPurgableBackup(rootBackupDir.list());
-        if (purgeable != null) {
-            try {
-                FileUtils.deleteDirectory(new File(rootBackupDir, purgeable));
-            } catch (IOException nonfatal) {
-                LOG.error("Could not limit backup count", nonfatal);
+        
+        String purgeable;
+        int i = 0;
+        do {
+            purgeable = getOldestPurgableBackup(rootBackupDir.list());
+            if (purgeable != null) {
+                try {
+                    File oldBackup = new File(rootBackupDir, purgeable);
+                    LOG.info(String.format("Deleting old backup '%s'", oldBackup.getAbsolutePath()));
+                    FileUtils.deleteDirectory(oldBackup);
+                    if (i++ > MAX_BACKUPS_TO_DELETE) {
+                        LOG.error("Avoiding infinite loop trying to remove old backups");
+                        break;
+                    }
+                } catch (IOException nonfatal) {
+                    LOG.error("Could not limit backup count", nonfatal);
+                    break;
+                }
             }
-        }
+        } while (purgeable != null);
 
         return nextDir;
     }

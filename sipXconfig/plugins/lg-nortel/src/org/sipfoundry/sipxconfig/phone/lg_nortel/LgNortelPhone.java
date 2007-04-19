@@ -73,6 +73,7 @@ public class LgNortelPhone extends Phone {
 
     @Override
     public void removeProfiles() {
+        super.removeProfiles();
         getProfileGenerator().remove(getPhonebookFilename());
     }
 

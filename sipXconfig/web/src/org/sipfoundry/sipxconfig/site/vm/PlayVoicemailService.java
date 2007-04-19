@@ -55,7 +55,6 @@ public class PlayVoicemailService extends FileService {
         cycle.getParameters(ServiceConstants.PARAMETER);
         Voicemail voicemail = mailbox.getVoicemail(info.getFolderId(), info.getMessageId());                
         File file = voicemail.getMediaFile();
-        
         sendFile(file, info.getDigest(), new ContentType("audio/x-wav"));
         
         m_mailboxManager.markRead(mailbox, voicemail);

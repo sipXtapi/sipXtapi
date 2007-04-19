@@ -529,8 +529,8 @@
       </type>
       <value>1</value>
     </setting>
-    <setting name='call-park'>
-      <profileName>function call-park</profileName>
+    <setting name='call_park'>
+      <profileName>function call_park</profileName>
       <type refid="ena-dis" />
       <value>disable</value>
     </setting>

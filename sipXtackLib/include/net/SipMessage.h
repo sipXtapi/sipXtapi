@@ -1192,13 +1192,15 @@ public:
     static void parseViaParameters( const char* viaField
                                    ,UtlContainer& viaParameterList
                                    );
-
+    
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-
+    
+    static SdpBody* convertToSdpBody(const HttpBody* httpBody);
+ 
     SipTransaction* mpSipTransaction;
     
     UtlString mLocalIp;

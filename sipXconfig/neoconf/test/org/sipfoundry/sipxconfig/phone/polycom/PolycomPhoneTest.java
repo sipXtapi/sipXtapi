@@ -21,6 +21,8 @@ import java.io.StringReader;
 import junit.framework.TestCase;
 
 import org.apache.commons.io.IOUtils;
+import org.easymock.EasyMock;
+import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.device.FileSystemProfileLocation;
 import org.sipfoundry.sipxconfig.device.VelocityProfileGenerator;
@@ -29,6 +31,8 @@ import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
 import org.sipfoundry.sipxconfig.phone.RestartException;
 import org.sipfoundry.sipxconfig.phone.polycom.PolycomPhone.FormatFilter;
 import org.sipfoundry.sipxconfig.setting.Setting;
+import org.sipfoundry.sipxconfig.upload.UploadManager;
+import org.sipfoundry.sipxconfig.upload.UploadSpecification;
 
 public class PolycomPhoneTest extends TestCase {
 
@@ -50,7 +54,14 @@ public class PolycomPhoneTest extends TestCase {
         VelocityProfileGenerator profileGenerator = TestHelper.getProfileGenerator();
         profileGenerator.setProfileLocation(location);
         
-        m_phone.setProfileGenerator(profileGenerator);        
+        m_phone.setProfileGenerator(profileGenerator);       
+        
+        IMocksControl uploadControl = EasyMock.createNiceControl();
+        UploadManager uploadManager = uploadControl.createMock(UploadManager.class);
+        uploadManager.getSpecification("polycomFirmware");
+        uploadControl.andReturn(new UploadSpecification());
+        m_phone.setUploadManager(uploadManager);
+        uploadControl.replay();
     }
 
     public void testVersionArray() {

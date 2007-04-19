@@ -35,17 +35,6 @@ public class Tp260GatewayTestDb extends TestCase {
         m_gateway.setSerialNumber("FT0123456");        
     }
 
-    public void testGenerateProfiles() throws Exception {
-        assertSame(m_model, m_gateway.getModel());
-
-        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(m_gateway);
-        m_gateway.generateProfiles();
-
-        System.err.println(location.toString());
-        // cursory check for now
-        assertTrue(location.toString().indexOf("VoiceVolume") >= 0);
-    }
-
     public void testPrepareSettings() throws Exception {
         assertSame(m_model, m_gateway.getModel());
 

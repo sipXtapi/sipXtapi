@@ -59,9 +59,6 @@ public class PhoneConfigurationTest extends XMLTestCase {
         PhoneConfiguration cfg = new PhoneConfiguration(phone);
         m_pg.generate(cfg, "profile");
 
-        // helpful debug
-        // System.out.println(new String(out.toCharArray()));
-
         InputStream expectedPhoneStream = getClass().getResourceAsStream(expected);
         Reader expectedXml = new InputStreamReader(expectedPhoneStream);
         Reader generatedXml = m_location.getReader();

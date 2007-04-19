@@ -13,6 +13,7 @@ package org.sipfoundry.sipxconfig.speeddial;
 
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigFileType;
@@ -50,15 +51,15 @@ public class ResourceLists extends XmlFile {
                 if (list == null) {
                     list = createListForUser(lists, speedDial);
                 }
-                createResourceForUser(list, button);
+                createResourceForUser(list, button, m_coreContext.getDomainName());
             }
         }
     }
 
-    private Element createResourceForUser(Element list, Button button) {
+    Element createResourceForUser(Element list, Button button, String domainName) {
         Element resource = list.addElement("resource");
-        resource.addAttribute("uri", button.getUri(m_coreContext.getDomainName()));
-        addNameElement(resource, button.getLabel());
+        resource.addAttribute("uri", button.getUri(domainName));
+        addNameElement(resource, StringUtils.defaultIfEmpty(button.getLabel(), button.getNumber()));
         return resource;
     }
 

@@ -30,6 +30,7 @@ class SdpBodyTest : public CppUnit::TestCase
    CPPUNIT_TEST_SUITE(SdpBodyTest);
    CPPUNIT_TEST(testParser);
    CPPUNIT_TEST(testIndexAccessor);
+   CPPUNIT_TEST(testBlankLineSkipping);
    CPPUNIT_TEST(testNewMessage);
    CPPUNIT_TEST(testTimeHeaders);
    CPPUNIT_TEST(testGetMediaSetCount);
@@ -183,6 +184,55 @@ public:
          CPPUNIT_ASSERT(!body.getValue(-2, &name, &value));
          CPPUNIT_ASSERT(value.isNull());
          CPPUNIT_ASSERT(name.isNull());
+      }
+
+   void testBlankLineSkipping()
+      {
+         const char *sdp = 
+            "\n"
+            "\r"
+            "\r\n"
+            "v=0\r\n"
+            "\n"
+            "\r"
+            "\r\n"
+            "o=mhandley 2890844526 2890842807 IN IP4 126.16.64.4\r\n"
+            "\n"
+            "\r"
+            "\r\n"
+            "s=SDP Seminar\r\n"
+            "\n"
+            "\r"
+            "\r\n"
+            "i=A Seminar on the session description protocol\r\n"
+            "\n"
+            "\r"
+            "\r\n"
+            ;
+       
+         SdpBody body(sdp);
+
+         int fields = body.SdpBody::getFieldCount();
+         CPPUNIT_ASSERT(fields == 4);
+         
+         UtlString name;
+         UtlString value;
+
+         CPPUNIT_ASSERT(body.getValue(0, &name, &value));
+         ASSERT_STR_EQUAL(name.data(), "v");
+         ASSERT_STR_EQUAL(value.data(), "0");
+         
+         CPPUNIT_ASSERT(body.getValue(1, &name, &value));
+         ASSERT_STR_EQUAL(name.data(), "o");
+         ASSERT_STR_EQUAL(value.data(), "mhandley 2890844526 2890842807 IN IP4 126.16.64.4");
+         
+         CPPUNIT_ASSERT(body.getValue(2, &name, &value));
+         ASSERT_STR_EQUAL(name.data(), "s");
+         ASSERT_STR_EQUAL(value.data(), "SDP Seminar");
+         
+         CPPUNIT_ASSERT(body.getValue(3, &name, &value));
+         ASSERT_STR_EQUAL(name.data(), "i");
+         ASSERT_STR_EQUAL(value.data(), "A Seminar on the session description protocol");
       }
 
    void testNewMessage()

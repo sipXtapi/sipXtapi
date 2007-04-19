@@ -12,10 +12,10 @@
       </generator>
     </id>
     <!-- S E T T I N G   V A L U E -->
-    <map name="values" cascade="all" table="setting_value">
+    <map name="databaseValues" cascade="all" table="setting_value">
       <key column="value_storage_id"/>
       <index column="path" type="string"/>
-      <element type="string" column="value" not-null="true"/>
+      <element type="string" column="value"/>
     </map>    
     <!--
       - G R O U P

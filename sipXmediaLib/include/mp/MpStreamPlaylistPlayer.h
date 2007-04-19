@@ -21,9 +21,11 @@
 #include "os/OsServerTask.h"
 #include "os/OsStatus.h"
 #include "os/OsQueuedEvent.h"
+#include "utl/UtlContainableAtomic.h"
+#include "utl/UtlSList.h"
+#include "utl/UtlSListIterator.h"
 
 // DEFINES
-#define MAX_PLAYLIST_LENGTH      40    // Max number of play list entries
 #define REALIZE_TIMEOUT          15    // Timeout after 15 seconds
 #define PREFETCH_TIMEOUT         30    // Timeout after 30 seconds
 #define PLAY_TIMEOUT            180    // Timeout after 180 seconds
@@ -44,6 +46,9 @@ class UtlString;
 // Class detailed description which may extend to multiple lines
 class MpStreamPlaylistPlayer : public OsServerTask, public MpPlayer
 {
+// FORWARD DECLARATIONS
+   class PlayListEntry;
+
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
@@ -179,43 +184,43 @@ protected:
    virtual OsStatus playPrevious(UtlBoolean bBlock = TRUE) ;
      //:Plays the previous playlist entry without wrapping.
 
-   void setEntryState(int index, PlayerState iState) ;
+   void setEntryState(PlayListEntry *e, PlayerState iState) ;
      //:Sets the state for a specific entry.
 
    OsStatus playEntry(int iEntry, UtlBoolean bBlock = TRUE);
      //:Starts playing a specific entry
 
-   OsStatus rewindEntry(int iEntry, UtlBoolean bBlock = TRUE);
+   OsStatus rewindEntry(PlayListEntry *e, UtlBoolean bBlock = TRUE);
      //:Rewinds a specific entry
 
-   OsStatus stopEntry(int index, UtlBoolean bBlock = TRUE);
+   OsStatus stopEntry(PlayListEntry *e, UtlBoolean bBlock = TRUE);
      //:Stops playing a specific entry
 
-   OsStatus pauseEntry(int index);
+   OsStatus pauseEntry(PlayListEntry *e);
      //:Pauses a specific entry
 
-   OsStatus destroyEntry(int index, UtlBoolean bBlockAndClean = TRUE);
+   OsStatus destroyEntry(PlayListEntry *e, UtlBoolean bBlockAndClean = TRUE);
      //:Destroys a specific entry
 
    virtual UtlBoolean handleMessage(OsMsg& rMsg) ;
      //:Handle messages directed to this server task.
 
-   void handleRealizedState(int index, PlayerState oldState, PlayerState newState);
+   void handleRealizedState(PlayerState oldState, PlayerState newState);
      //:Handles processing for the realized state
 
-   void handlePrefetchedState(int index, PlayerState oldState, PlayerState newState);
+   void handlePrefetchedState(PlayerState oldState, PlayerState newState);
      //:Handles processing for the prefetched state
 
-   void handlePlayingState(int index, PlayerState oldState, PlayerState newState);
+   void handlePlayingState(PlayerState oldState, PlayerState newState);
      //:Handles processing for the playing state
 
-   void handlePausedState(int index, PlayerState oldState, PlayerState newState);
+   void handlePausedState(PlayerState oldState, PlayerState newState);
      //:Handles processing for the paused state
 
-   void handleStoppedState(int index, PlayerState oldState, PlayerState newState);
+   void handleStoppedState(PlayerState oldState, PlayerState newState);
      //:Handles processing for the stopped state
 
-   void handleFailedState(int index, PlayerState oldState, PlayerState newState);
+   void handleFailedState(PlayerState oldState, PlayerState newState);
      //:Handles processing for the failed state
 
    const char* getFeederEventString(int iEvent);
@@ -224,8 +229,10 @@ protected:
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
 
-   struct PlaylistDb                // Definition for a playlist entry
+   // Definition for a playlist entry
+   class PlayListEntry : public UtlContainableAtomic 
    {
+   public:
       int            sourceType ;   // Source type (url or buffer)
       Url            url ;          // url if source type url
       UtlString*     pBuffer ;      // buffer if source type buffer
@@ -233,10 +240,25 @@ private:
       PlayerState    state ;        // state of the entry
       int            flags ;        // flags for the entry
       OsQueuedEvent* pQueuedEvent ; // queued event for notifications
+      int            index;         // Entry index (0 based)
+
+      // Constructor
+      PlayListEntry() {
+         sourceType = 0;
+         pBuffer = NULL;
+         handle = NULL;
+         state = PlayerUnrealized;
+         flags = 0;
+         pQueuedEvent = NULL;
+      }
+
+      // Needed for UtlContainable
+      virtual UtlContainableType getContainableType() const {
+         return "PlaylistEntry";
+      }
    }  ;
 
 
-   int mNumPlayListElements;        // number of play list entries
    int mCurrentElement ;            // next item to  play
    int mPlayingElement ;            // current playing item
 
@@ -254,7 +276,7 @@ private:
 
    UtlBoolean mbAutoAdvance;        // used to play playlist lists
 
-   struct PlaylistDb mPlayListDb[MAX_PLAYLIST_LENGTH];   // db of entries
+   UtlSList* mPlayListDb;           // db of entries
    PlayerState mAggregateState ;    // Aggregate state of the player
 };
 

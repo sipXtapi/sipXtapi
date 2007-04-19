@@ -852,18 +852,23 @@ VXIpromptResult OSBpromptQueue(VXIpromptInterface* vxip,
             audioBuf = gPromptCache.lookup(audiourl);
             if (audioBuf != NULL)
             {
-               impl->pPlayer->add(
+               status = impl->pPlayer->add(
                   audioBuf,
                   STREAM_SOUND_REMOTE |
                   STREAM_FORMAT_WAV);
             }
             else
             {
-               impl->pPlayer->add(
+               status = impl->pPlayer->add(
                   audiourl,
                   STREAM_SOUND_REMOTE |
                   STREAM_FORMAT_WAV);
             }
+            if (status != OS_SUCCESS)
+            {
+               OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_ERR, "OSBpromptQueue: MpStreamPlaylistPlayer::add out of space");
+            }
+         
             // Realize a connection to the data stream and
             // prefetch the data.  Both are blocking operations.
             status = impl->pPlayer->realize(TRUE);
@@ -933,17 +938,21 @@ VXIpromptResult OSBpromptQueue(VXIpromptInterface* vxip,
             audioBuf = gPromptCache.lookup(prompts[i]);
             if (audioBuf != NULL)
             {
-               impl->pPlayer->add(
+               status = impl->pPlayer->add(
                   audioBuf,
                   STREAM_SOUND_REMOTE |
                   STREAM_FORMAT_WAV);
             }
             else
             {
-               impl->pPlayer->add(
+               status = impl->pPlayer->add(
                   prompts[i],
                   STREAM_SOUND_REMOTE |
                   STREAM_FORMAT_WAV);
+            }
+            if (status != OS_SUCCESS)
+            {
+               OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_ERR, "OSBpromptQueue: MpStreamPlaylistPlayer::add out of space");
             }
          }
 
@@ -1017,10 +1026,14 @@ VXIpromptResult OSBpromptQueue(VXIpromptInterface* vxip,
                impl->pWaitSem->acquire();
 
             // Add an audio buffer to the a playlist
-            impl->pPlayer->add(
+            status = impl->pPlayer->add(
                audioBuf,
                STREAM_SOUND_REMOTE |
                STREAM_FORMAT_WAV);
+            if (status != OS_SUCCESS)
+            {
+               OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_ERR, "OSBpromptQueue: MpStreamPlaylistPlayer::add out of space");
+            }
 
             // Realize a connection to the data source. This is blocking.
             status = impl->pPlayer->realize(TRUE);
@@ -1069,6 +1082,7 @@ static
 VXIpromptResult OSBpromptWait(VXIpromptInterface* vxip,
                               VXIpromptResult* playResult)
 {
+   OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG, "OSBpromptWait: begin");
    OSBpromptImpl *impl = ToOSBpromptImpl(vxip);
    Diag(impl, DIAG_TAG_PROMPTING, NULL, L"wait");
    if ( impl->pWaitSem ) impl->pWaitSem->acquire();
@@ -1082,6 +1096,7 @@ VXIpromptResult OSBpromptWait(VXIpromptInterface* vxip,
       impl->playing = 0 ;
       Diag(impl, DIAG_TAG_PROMPTING, NULL, L"finished");
    }
+   OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG, "OSBpromptWait: end");
    return VXIprompt_RESULT_SUCCESS;
 }
 

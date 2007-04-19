@@ -155,7 +155,7 @@ void SdpBody::parseBody(const char* bodyBytes, int byteCount)
 
          }
       }
-      while(nameFound);
+      while( !parser.isAtEnd() );
    }
 }
 

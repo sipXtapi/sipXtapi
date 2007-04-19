@@ -29,6 +29,10 @@ public interface UploadManager extends DataObjectSource {
     
     public Upload newUpload(UploadSpecification manufacturer);
     
+    public boolean isActiveUploadById(UploadSpecification spec);
+    
+    public UploadSpecification getSpecification(String specId);
+    
     /**
      * Checks to ensure you're not deploying more than one type of upload
      * then delegates deployment to upload object

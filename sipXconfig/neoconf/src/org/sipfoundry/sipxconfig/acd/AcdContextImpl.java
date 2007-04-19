@@ -31,6 +31,7 @@ import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
+import org.sipfoundry.sipxconfig.setting.Setting;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.orm.hibernate3.HibernateTemplate;
@@ -328,12 +329,13 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
         }
         for (Iterator i = queuesToBeFixed.iterator(); i.hasNext();) {
             AcdQueue queue = (AcdQueue) i.next();
-            String overflowQueueUri = queue.getSettingValue(AcdQueue.OVERFLOW_QUEUE);
+            Setting overflowQueueUriSetting = queue.getSettings().getSetting(AcdQueue.OVERFLOW_QUEUE); 
+            String overflowQueueUri = overflowQueueUriSetting.getValue();
             String name = SipUri.extractUser(overflowQueueUri);
             AcdQueue overflowQueue = (AcdQueue) name2queue.get(name);
             if (overflowQueue != null) {
                 queue.setOverflowQueue(overflowQueue);
-                queue.setSettingValue(AcdQueue.OVERFLOW_QUEUE, null);
+                queue.getValueStorage().revertSettingToDefault(overflowQueueUriSetting);
             }
         }
         getHibernateTemplate().saveOrUpdateAll(queuesToBeFixed);
@@ -343,10 +345,11 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
         List lines = getHibernateTemplate().loadAll(AcdLine.class);
         for (Iterator i = lines.iterator(); i.hasNext();) {
             AcdLine line = (AcdLine) i.next();
-            String extension = line.getSettingValue(AcdLine.EXTENSION);
+            Setting extensionSetting = line.getSettings().getSetting(AcdLine.EXTENSION);
+            String extension = extensionSetting.getValue();
             if (StringUtils.isNotEmpty(extension)) {
                 line.setExtension(extension);
-                line.setSettingValue(AcdLine.EXTENSION, null);
+                line.getValueStorage().revertSettingToDefault(extensionSetting);
             }
         }
         getHibernateTemplate().saveOrUpdateAll(lines);

@@ -16,12 +16,14 @@ import java.util.List;
 
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.device.ModelSource;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.ListableBeanFactory;
 
 public class UploadManagerImpl extends SipxHibernateDaoSupport implements BeanFactoryAware, UploadManager {
-    private ListableBeanFactory m_beanFactory;   
+    private ListableBeanFactory m_beanFactory;
+    private ModelSource<UploadSpecification> m_specificationSource;
 
     /**
      * Callback that supplies the owning factory to a bean instance.
@@ -46,6 +48,25 @@ public class UploadManagerImpl extends SipxHibernateDaoSupport implements BeanFa
     public Collection<Upload> getUpload() {
         return getHibernateTemplate().findByNamedQuery("upload");
     }
+    
+    public boolean isActiveUploadById(UploadSpecification spec) {
+        return (getActiveUpload(spec).size() > 1);
+    }
+        
+    
+    public void setSpecificationSource(ModelSource<UploadSpecification> specificationSource) {
+        m_specificationSource = specificationSource;
+    }
+
+    public UploadSpecification getSpecification(String specId) {
+        return m_specificationSource.getModel(specId);
+    }
+    
+    private List<Upload> getActiveUpload(UploadSpecification spec) {
+        List<Upload> existing = getHibernateTemplate().findByNamedQueryAndNamedParam(
+                "deployedUploadBySpecification", "spec", spec.getSpecificationId());
+        return existing;
+    }
         
     public Upload newUpload(UploadSpecification specification) {       
         Upload upload = (Upload) m_beanFactory.getBean(specification.getBeanId());
@@ -64,8 +85,7 @@ public class UploadManagerImpl extends SipxHibernateDaoSupport implements BeanFa
         }
         
         UploadSpecification spec = upload.getSpecification();
-        List existing = getHibernateTemplate().findByNamedQueryAndNamedParam(
-                "deployedUploadBySpecification", "spec", spec.getSpecificationId());
+        List<Upload> existing = getActiveUpload(spec);
         // should never happen
         if (existing.size() > 1) {
             throw new AlreadyDeployedException("There are already " + existing.size() 
@@ -73,7 +93,7 @@ public class UploadManagerImpl extends SipxHibernateDaoSupport implements BeanFa
                     + " one set of files of this type deployed at a time");                
         }
         if (existing.size() == 1) {
-            Upload existingUpload = (Upload) existing.get(0);
+            Upload existingUpload = existing.get(0);
             if (!existingUpload.getId().equals(upload.getId())) {
                 throw new AlreadyDeployedException("You must undeploy \"" +  existingUpload.getName()
                         + "\" before you can deploy these files.  You can only have one set of files of type \""

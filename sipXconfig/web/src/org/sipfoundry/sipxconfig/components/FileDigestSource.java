@@ -12,12 +12,14 @@
 package org.sipfoundry.sipxconfig.components;
 
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.MessageDigest;
 
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.io.IOUtils;
+import org.apache.tapestry.PageNotFoundException;
 
 public class FileDigestSource {
     private static final int BUFFER_SIZE = 5000;
@@ -50,6 +52,8 @@ public class FileDigestSource {
             char[] encoded = Hex.encodeHex(bytes);
 
             return new String(encoded);
+        } catch (FileNotFoundException ex) {
+            throw new PageNotFoundException("Resource not available. It may have been moved or deleted.");
         } catch (IOException ex) {
             throw new RuntimeException(ex);
         } catch (Exception ex) {

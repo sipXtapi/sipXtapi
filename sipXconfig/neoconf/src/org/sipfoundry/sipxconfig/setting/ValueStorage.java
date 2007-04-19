@@ -14,50 +14,66 @@ package org.sipfoundry.sipxconfig.setting;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 
 /**
  * Basic layer of settings decoration that captures just setting values.
  */
 public class ValueStorage extends BeanWithId implements Storage {
+    private Map m_databaseValues = new HashMap();
 
-    private Map m_delegate = new HashMap();
-
-    public Map getValues() {
-        return m_delegate;
-    }
-
-    public void setValues(Map delegate) {
-        m_delegate = delegate;
-    }
-    
     public int size() {
-        return m_delegate.size();
+        return m_databaseValues.size();
     }    
 
+    public Map getDatabaseValues() {
+        return m_databaseValues;
+    }
+
+    public void setDatabaseValues(Map databaseValues) {
+        m_databaseValues = databaseValues;
+    }
+    
+    public int getSize() {
+        return getDatabaseValues().size();
+    }
+
     public SettingValue getSettingValue(Setting setting) {
-        if (getValues() == null) {
+        if (getDatabaseValues() == null) {
             return null;
         }
         
         SettingValue settingValue = null;
         // null is legal value so test for key existance
-        if (getValues().containsKey(setting.getPath())) {            
-            String value = (String) getValues().get(setting.getPath());
-            settingValue = new SettingValueImpl(value);
+        if (getDatabaseValues().containsKey(setting.getPath())) {            
+            String value = (String) getDatabaseValues().get(setting.getPath());
+            settingValue = new SettingValueImpl(blankToNull(value));
         }
         return settingValue;
+    }
+
+    public void setSettingValue(String path, String value) {
+        getDatabaseValues().put(path, nullToBlank(value));        
+    }
+    
+    private static String nullToBlank(String value) {
+        return value == null ? StringUtils.EMPTY : value;
+    }
+    
+    private static String blankToNull(String value) {
+        return StringUtils.isEmpty(value) ? null : value;
     }
 
     public void setSettingValue(Setting setting, SettingValue value, SettingValue defaultValue) {
         if (value.equals(defaultValue)) {
             revertSettingToDefault(setting);
         } else {
-            getValues().put(setting.getPath(), value.getValue());
+            setSettingValue(setting.getPath(), value.getValue());
         }
     }
 
     public void revertSettingToDefault(Setting setting) {
-        getValues().remove(setting.getPath());
+        getDatabaseValues().remove(setting.getPath());
     }
 }

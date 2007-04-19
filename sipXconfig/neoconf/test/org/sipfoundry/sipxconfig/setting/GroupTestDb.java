@@ -90,7 +90,7 @@ public class GroupTestDb extends SipxDatabaseTestCase {
         // should make it update
         settings.getSetting("vegetable/pea").setValue("snap pea");
 
-        assertEquals(1, ms.getValues().size());
+        assertEquals(1, ms.getSize());
         m_dao.saveGroup(ms);
 
         IDataSet expectedDs = TestHelper.loadDataSetFlat("setting/UpdateGroupExpected.xml");

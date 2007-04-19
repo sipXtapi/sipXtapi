@@ -19,14 +19,12 @@ class CallLeg
     @end_time = nil
     @failure_status = nil
     @failure_reason = nil
+    # we count 'setup' and 'end/failure' events but the numbers do not have to match here
+    @refcount = 0    
   end
   
   def has_duration?
     @connect_time && @end_time
-  end
-  
-  def completed?
-    @status == Cdr::CALL_COMPLETED_TERM
   end
   
   def duration
@@ -35,14 +33,20 @@ class CallLeg
   end
   
   def accept_setup(cse)
-    @connect_time = cse.event_time
+    @refcount += 1
+    if @connect_time.nil? || cse.event_time < @connect_time
+      @connect_time = cse.event_time
+    end      
     @status ||= Cdr::CALL_IN_PROGRESS_TERM
     @to_tag = cse.to_tag
     @callee_contact = Utils.contact_without_params(cse.contact)
   end
   
   def accept_end(cse)
-    @end_time = cse.event_time
+    @refcount -= 1
+    if @end_time.nil? || @end_time < cse.event_time
+      @end_time = cse.event_time
+    end
     @status = if cse.call_end? 
       Cdr::CALL_COMPLETED_TERM 
     else 
@@ -58,12 +62,13 @@ class CallLeg
     # leg that has duration is always better than the one that does now
     return 1 if has_duration? && !other.has_duration?
     return -1 if !has_duration? && other.has_duration?
+    
+    # if both have duration longer one should win
     if has_duration? and other.has_duration? 
       if @status == other.status 
         return duration <=> other.duration
       else
-        # different status
-        return  completed? ? 1 : -1
+        return compare_leg_status(@status, other.status)
       end
     end
     
@@ -73,11 +78,17 @@ class CallLeg
       return other.connect_time <=> @connect_time if @status == Cdr::CALL_IN_PROGRESS_TERM
       return @end_time <=> other.end_time
     else
-      # different status
-      return 1 if completed?
-      return -1 if other.completed?
-      return @status == Cdr::CALL_FAILED_TERM ? 1 : -1
+      return compare_leg_status(@status, other.status)
     end
+  end
+  
+  # compare leg status - completed >> in_progress >> failed
+  def compare_leg_status(first, second)
+    return 0 if first == second
+    return -1 if Cdr::CALL_FAILED_TERM == first
+    return 1 if Cdr::CALL_COMPLETED_TERM == first
+    return 1 if  Cdr::CALL_FAILED_TERM == second
+    return -1 if  Cdr::CALL_COMPLETED_TERM == second
   end
   
   class << self

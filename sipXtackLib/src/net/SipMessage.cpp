@@ -473,7 +473,7 @@ const SdpBody* SipMessage::getSdpBody(const char* derPkcs12,
     if ((pHttpBody) && 
         (pHttpBody->getClassType() == HttpBody::SDP_BODY_CLASS))
     {
-       body = (SdpBody *)pHttpBody;       
+      body = convertToSdpBody(pHttpBody);       
     }
 
     // If we have a private key and this is a S/MIME body
@@ -500,7 +500,7 @@ const SdpBody* SipMessage::getSdpBody(const char* derPkcs12,
             // If the decrypted body is an SDP body type, use it
             if(strcmp(decryptedHttpBody->getContentType(), sdpType) == 0)
             {
-                body = (const SdpBody*) decryptedHttpBody;
+                body = convertToSdpBody(decryptedHttpBody);
             }
         }
         else
@@ -523,7 +523,8 @@ const SdpBody* SipMessage::getSdpBody(const char* derPkcs12,
                 if(strcmp(bodyPart->getContentType(), SDP_CONTENT_TYPE) == 0)
                 {
                     // Temporarily disable while fixing multipart bodies
-                    body = (const SdpBody*) bodyPart;
+                    //body = (const SdpBody*) bodyPart;
+                    body = convertToSdpBody(bodyPart);
                     break;
                 }
 
@@ -551,7 +552,7 @@ const SdpBody* SipMessage::getSdpBody(const char* derPkcs12,
                         // If the decrypted body is an SDP body type, use it
                         if(strcmp(decryptedHttpBody->getContentType(), sdpType) == 0)
                         {
-                            body = (const SdpBody*) decryptedHttpBody;
+                            body = convertToSdpBody(decryptedHttpBody); 
                             break;
                         }
                     }
@@ -5199,7 +5200,6 @@ void SipMessage::parseViaParameters( const char* viaField
             && viaField[lastCharIndex] != '\0'
             );
 }
-
 void SipMessage::setSipIfMatchField(const char* sipIfMatchField)
 {
     setHeaderValue(SIP_IF_MATCH_FIELD, sipIfMatchField, 0);
@@ -5440,4 +5440,19 @@ void SipMessage::normalizeProxyRoutes(const SipUserAgent* sipUA,
          }
       }
    } // while ! doneNormalizingRouteSet
+}
+
+SdpBody* SipMessage::convertToSdpBody(const HttpBody* pHttpBody)
+{
+    SdpBody* pSdpBody = NULL;
+ 
+    if(pHttpBody)
+    {
+        const char* theBody;
+        int theLength;
+        pHttpBody->getBytes(&theBody, &theLength);
+        pSdpBody = new SdpBody(theBody,theLength);
+    }
+    return pSdpBody;
+
 }
