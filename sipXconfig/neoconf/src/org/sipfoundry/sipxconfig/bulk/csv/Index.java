@@ -14,6 +14,7 @@ package org.sipfoundry.sipxconfig.bulk.csv;
 import java.lang.reflect.InvocationTargetException;
 
 import org.apache.commons.beanutils.BeanUtils;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * Values of the enums below determine the exact format of CSV file
@@ -48,7 +49,7 @@ public enum Index {
     }
 
     public String get(String[] row) {
-        return row[m_value];
+        return (m_value < row.length  ? row[m_value] : StringUtils.EMPTY);
     }
 
     public void set(String[] row, String value) {
