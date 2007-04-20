@@ -43,7 +43,6 @@ MpeSipxILBC::MpeSipxILBC(int payloadType)
 , mpState(NULL)
 , mBufferLoad(0)
 {
-   assert(CODEC_TYPE_ILBC == payloadType);
 }
 
 MpeSipxILBC::~MpeSipxILBC()
