@@ -52,6 +52,12 @@ MpdSipxILBC::~MpdSipxILBC()
 
 OsStatus MpdSipxILBC::initDecode()
 {
+   if (mpState == NULL) 
+   {
+      mpState = new iLBC_Dec_Inst_t();
+      memset(mpState, 0, sizeof(*mpState));
+      ::initDecode(mpState, 30, 1);
+   }
    return OS_SUCCESS;
 }
 
