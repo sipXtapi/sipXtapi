@@ -173,6 +173,30 @@ SdpCodec::SdpCodec(int payloadFormat,
          mCPUCost = SDP_CODEC_CPU_HIGH;
          mBWCost = SDP_CODEC_BANDWIDTH_VARIABLE;
       }
+      else if(mMimeSubtype.compareTo("speex") == 0)
+      {
+         if(mFormatSpecificData.compareTo("mode=2", UtlString::ignoreCase) == 0)
+         {
+            setValue(SDP_CODEC_SPEEX_5);  // Speex Profile 1
+            mBWCost = SDP_CODEC_BANDWIDTH_LOW;
+         }
+         else if(mFormatSpecificData.compareTo("mode=5", UtlString::ignoreCase) == 0)
+         {
+            setValue(SDP_CODEC_SPEEX_15);  // Speex Profile 2
+            mBWCost = SDP_CODEC_BANDWIDTH_NORMAL;
+         }
+         else if(mFormatSpecificData.compareTo("mode=7", UtlString::ignoreCase) == 0)
+         {
+            setValue(SDP_CODEC_SPEEX_24);  // Speex Profile 3
+            mBWCost = SDP_CODEC_BANDWIDTH_NORMAL;
+         }
+         else
+         {
+            // mode = 3
+            setValue(SDP_CODEC_SPEEX);
+            mBWCost = SDP_CODEC_BANDWIDTH_LOW;
+         }
+      }
       else
       {
          setValue(SDP_CODEC_UNKNOWN);
