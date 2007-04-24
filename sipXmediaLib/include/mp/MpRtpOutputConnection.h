@@ -61,7 +61,7 @@ public:
 //@{
 
      /// Constructor
-   MpRtpOutputConnection(UtlString& resourceName,
+   MpRtpOutputConnection(const UtlString& resourceName,
                          MpConnectionID myID, 
                          IRTCPSession *piRTCPSession);
 

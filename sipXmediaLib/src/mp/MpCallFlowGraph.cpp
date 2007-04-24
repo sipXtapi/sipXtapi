@@ -1760,9 +1760,6 @@ UtlBoolean MpCallFlowGraph::handleMessage(OsMsg& rMsg)
       case MpFlowGraphMsg::FLOWGRAPH_STOP_TONE:
          retCode = handleStopToneOrPlay();
          break;
-      case MpFlowGraphMsg::FLOWGRAPH_SYNCHRONIZE:
-         retCode = handleSynchronize(*pMsg);
-         break;
       case MpFlowGraphMsg::FLOWGRAPH_SET_PREMIUM_SOUND:
          retCode = handleSetPremiumSound(*pMsg);
          break;
@@ -1926,25 +1923,6 @@ UtlBoolean MpCallFlowGraph::handleStopToneOrPlay()
       // osPrintf("MpCallFlowGraph::postPone(%d)\n", ms);
    }
 #endif /* DEBUG_POSTPONE ] */
-
-UtlBoolean MpCallFlowGraph::handleSynchronize(MpFlowGraphMsg& rMsg)
-{
-   OsNotification* pSync = (OsNotification*) rMsg.getPtr1();
-   char* tag = (char*) rMsg.getPtr2();
-   int val1  = rMsg.getInt1();
-   int val2  = rMsg.getInt2();
-
-   if (0 != pSync) {
-      pSync->signal(val1);
-      // if (NULL != tag) osPrintf(tag, val1, val2);
-#ifdef DEBUG_POSTPONE /* [ */
-   } else {
-      // just delay (postPone()), for debugging race conditions...
-      OsTask::delay(rMsg.getInt1());
-#endif /* DEBUG_POSTPONE ] */
-   }
-   return TRUE;
-}
 
 UtlBoolean MpCallFlowGraph::handleSetPremiumSound(MpFlowGraphMsg& rMsg)
 {

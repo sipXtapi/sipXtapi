@@ -40,7 +40,7 @@
 /* ============================ CREATORS ================================== */
 
 // Constructor
-MpRtpInputConnection::MpRtpInputConnection(UtlString& resourceName,
+MpRtpInputConnection::MpRtpInputConnection(const UtlString& resourceName,
                                            MpConnectionID myID, 
                                            IRTCPSession *piRTCPSession)
 : MpResource(resourceName, 0, 0, 0, 1)

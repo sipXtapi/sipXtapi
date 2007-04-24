@@ -23,6 +23,8 @@
 #include <mp/MprFromFileConstructor.h>
 #include <mp/MprNullConstructor.h>
 #include <mp/MprBridgeConstructor.h>
+#include <mp/MprRtpOutputAudioConnectionConstructor.h>
+#include <mp/MprRtpInputAudioConnectionConstructor.h>
 #include <include/CpTopologyGraphFactoryImpl.h>
 #include <mi/CpMediaInterfaceFactory.h>
 #include <include/CpTopologyGraphInterface.h>
@@ -72,7 +74,7 @@ sipXmediaFactoryImpl(pConfigDb)
     assert(result == OS_SUCCESS);
     assert(firstInvalidResourceIndex == -1);
 
-    mpConnectionResourceTopology = NULL;
+    mpConnectionResourceTopology = buildDefaultIncrementalResourceTopology();
 
     assert(MpMisc.RawAudioPool);
     mpInputDeviceManager = 
@@ -148,6 +150,12 @@ MpResourceFactory* CpTopologyGraphFactoryImpl::buildDefaultResourceFactory()
     // Bridge
     resourceFactory->addConstructor(*(new MprBridgeConstructor()));
 
+    // Output RTP connection
+    resourceFactory->addConstructor(*(new MprRtpOutputAudioConnectionConstructor()));
+
+    // Input RTP connection
+    resourceFactory->addConstructor(*(new MprRtpInputAudioConnectionConstructor()));
+
     return(resourceFactory);
 }
 
@@ -185,11 +193,11 @@ MpResourceTopology* CpTopologyGraphFactoryImpl::buildDefaultInitialResourceTopol
 
 
     // Link fromFile to bridge
-    result = resourceTopology->addConnection(DEFAULT_FROM_FILE_RESOURCE_NAME, 0, DEFAULT_BRIDGE_RESOURCE_NAME, 0);
+    result = resourceTopology->addConnection(DEFAULT_FROM_FILE_RESOURCE_NAME, 0, DEFAULT_BRIDGE_RESOURCE_NAME, 1);
     assert(result == OS_SUCCESS);
 
     // Link mic to bridge
-    result = resourceTopology->addConnection(DEFAULT_FROM_INPUT_DEVICE_RESOURCE_NAME, 0, DEFAULT_BRIDGE_RESOURCE_NAME, 1);
+    result = resourceTopology->addConnection(DEFAULT_FROM_INPUT_DEVICE_RESOURCE_NAME, 0, DEFAULT_BRIDGE_RESOURCE_NAME, 0);
     assert(result == OS_SUCCESS);
 
     // TODO: add a mixer for locally generated audio (e.g. tones, fromFile, etc)
@@ -197,12 +205,12 @@ MpResourceTopology* CpTopologyGraphFactoryImpl::buildDefaultInitialResourceTopol
     assert(result == OS_SUCCESS);
 
     // Link bridge to speaker
-    result = resourceTopology->addConnection(DEFAULT_BRIDGE_RESOURCE_NAME, 1, DEFAULT_TO_OUTPUT_DEVICE_RESOURCE_NAME, 0);
+    result = resourceTopology->addConnection(DEFAULT_BRIDGE_RESOURCE_NAME, 0, DEFAULT_TO_OUTPUT_DEVICE_RESOURCE_NAME, 0);
     assert(result == OS_SUCCESS);
 
     // Fill up the unpaired bridge outputs as it currently barfs if
     // it does not have the same number of inputs and outputs.
-    result = resourceTopology->addConnection(DEFAULT_BRIDGE_RESOURCE_NAME, 0, DEFAULT_NULL_RESOURCE_NAME, 0);
+    result = resourceTopology->addConnection(DEFAULT_BRIDGE_RESOURCE_NAME, 1, DEFAULT_NULL_RESOURCE_NAME, 1);
     assert(result == OS_SUCCESS);
 
     result = resourceTopology->addConnection(DEFAULT_BRIDGE_RESOURCE_NAME, 2, DEFAULT_NULL_RESOURCE_NAME, 2);
@@ -218,6 +226,33 @@ MpResourceTopology* CpTopologyGraphFactoryImpl::buildDefaultInitialResourceTopol
     assert(result == OS_SUCCESS);
     assert(firstUnconnectedResourceName.isNull());
     assert(firstDanglingResourceName.isNull());
+
+    return(resourceTopology);
+}
+
+MpResourceTopology* CpTopologyGraphFactoryImpl::buildDefaultIncrementalResourceTopology()
+{
+    MpResourceTopology* resourceTopology = new MpResourceTopology();
+
+    OsStatus result;
+    result = resourceTopology->addResource(DEFAULT_RTP_INPUT_RESOURCE_TYPE, 
+                                           DEFAULT_RTP_INPUT_RESOURCE_NAME);
+    assert(result == OS_SUCCESS);
+
+    result = resourceTopology->addResource(DEFAULT_RTP_OUTPUT_RESOURCE_TYPE, 
+                                           DEFAULT_RTP_OUTPUT_RESOURCE_NAME);
+    assert(result == OS_SUCCESS);
+
+    int logicalPortNum = resourceTopology->getNextLogicalPortNumber();
+    // Link RTP input to bridge
+    result = resourceTopology->addConnection(DEFAULT_RTP_INPUT_RESOURCE_NAME, 0, 
+        DEFAULT_BRIDGE_RESOURCE_NAME, logicalPortNum);
+    assert(result == OS_SUCCESS);
+
+    // Link RTP output to bridge
+    result = resourceTopology->addConnection(DEFAULT_BRIDGE_RESOURCE_NAME, logicalPortNum, 
+        DEFAULT_RTP_OUTPUT_RESOURCE_NAME, 0);
+    assert(result == OS_SUCCESS);
 
     return(resourceTopology);
 }

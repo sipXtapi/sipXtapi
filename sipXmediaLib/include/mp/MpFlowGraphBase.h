@@ -377,6 +377,13 @@ protected:
      * @returns <b>FALSE</b> - otherwise.
      */
 
+     /// Handle the FLOWGRAPH_SYNCHRONIZE message.
+   UtlBoolean handleSynchronize(MpFlowGraphMsg& rMsg);
+     /**<
+     *  @returns <b>TRUE</b> if the message was handled
+     *  @returns <b>FALSE</b> otherwise.
+     */
+
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
 

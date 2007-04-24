@@ -314,6 +314,19 @@ int MpResourceTopology::getNextLogicalPortNumber()
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
+
+void MpResourceTopology::replaceNumInName(UtlString& resourceName,
+                                          int resourceNum)
+{
+    int stringIndex = resourceName.index("%d");
+    if(stringIndex >= 0)
+    {
+        char numBuf[20];
+        sprintf(numBuf, "%d", resourceNum);
+        resourceName.replace(stringIndex, 2, numBuf);
+    }
+}
+
 int MpResourceTopology::findResourceConnections(const UtlString& resourceName,
                                                 UtlContainer& connections) const
 {

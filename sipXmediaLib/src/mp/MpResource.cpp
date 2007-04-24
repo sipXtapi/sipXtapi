@@ -38,7 +38,7 @@ const OsTime MpResource::sOperationQueueTimeout = OsTime::NO_WAIT_TIME;
 // Constructor
 MpResource::MpResource(const UtlString& rName, int minInputs, int maxInputs,
                        int minOutputs, int maxOutputs)
-:  mName(rName),
+:  UtlString(rName), //mName(rName),
    mpFlowGraph(NULL),
    mIsEnabled(FALSE),
    mRWMutex(OsRWMutex::Q_PRIORITY),
@@ -248,7 +248,7 @@ void MpResource::getInputInfo(int inPortIdx, MpResource*& rpUpstreamResource,
 // Returns the name associated with this resource.
 UtlString MpResource::getName(void) const
 {
-   return mName;
+   return *this;
 }
 
 // Returns information about the downstream end of a link to the 
@@ -348,17 +348,11 @@ int MpResource::reserveFirstUnconnectedOutput()
    return(portIndex);
 }
 
-// Calculate a unique hash code for this object.
-unsigned MpResource::hash() const
-{
-    return (unsigned) this ; 
-}
-
 // Get the ContainableType for a UtlContainable derived class.
-UtlContainableType MpResource::getContainableType() const
+/*UtlContainableType MpResource::getContainableType() const
 {
     return TYPE;
-}
+}*/
 
 /* ============================ INQUIRY =================================== */
 
@@ -415,24 +409,6 @@ UtlBoolean MpResource::isOutputUnconnected(int portIdx)
    UtlBoolean isUnconnected = (mpOutConns[portIdx].pResource == NULL);
    return(isUnconnected);
 }
-
-// Compare the this object to another like-object. 
-int MpResource::compareTo(UtlContainable const * inVal) const
-{
-   int result ; 
-   
-   if (inVal->isInstanceOf(getContainableType()))
-   {
-      result = ((unsigned) this) - ((unsigned) inVal);
-   }
-   else
-   {
-      result = -1; 
-   }
-
-   return result;
-}
-
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
@@ -699,7 +675,7 @@ OsStatus MpResource::setFlowGraph(MpFlowGraphBase* pFlowGraph)
 // Sets the name that is associated with this resource.
 void MpResource::setName(const UtlString& rName)
 {
-   mName = rName;
+   *((UtlString*)this) = rName;
 }
 
 /* ============================ FUNCTIONS ================================= */

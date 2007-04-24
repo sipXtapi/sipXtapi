@@ -206,7 +206,7 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
 
         // Properties specific to a connection
         int connectionId = -1;
-        /*CPPUNIT_ASSERT*/(mediaInterface->createConnection(connectionId, NULL, NULL) == OS_SUCCESS);
+        CPPUNIT_ASSERT(mediaInterface->createConnection(connectionId, NULL, NULL) == OS_SUCCESS);
         CPPUNIT_ASSERT(connectionId > 0);
 
         mediaInterface->giveFocus() ;
@@ -341,7 +341,7 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
 
         // Properties specific to a connection
         int connectionId = -1;
-        /*CPPUNIT_ASSERT*/(mediaInterface->createConnection(connectionId, NULL, NULL) == OS_SUCCESS);
+        CPPUNIT_ASSERT(mediaInterface->createConnection(connectionId, NULL, NULL) == OS_SUCCESS);
         CPPUNIT_ASSERT(connectionId > 0);
 
         mediaInterface->giveFocus() ;
@@ -570,14 +570,14 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
             *rtpVideoPorts1,
             *rtcpVideoPorts1);
 
-        //CPPUNIT_ASSERT_EQUAL(
+        CPPUNIT_ASSERT_EQUAL(
             source1Interface->setConnectionDestination(source1ConnectionId,
                                                        rtpHostAddresses1->data(), 
                                                        *rtpAudioPorts1,
                                                        *rtcpAudioPorts1,
                                                        *rtpVideoPorts1,
-                                                       *rtcpVideoPorts1);
-            //OS_SUCCESS);
+                                                       *rtcpVideoPorts1),
+            OS_SUCCESS);
 
         // Start sending RTP from source 1 to the mix flowgraph
         CPPUNIT_ASSERT_EQUAL(

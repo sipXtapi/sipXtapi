@@ -26,6 +26,8 @@
 #define DEFAULT_TONE_GEN_RESOURCE_NAME "ToneGen1"
 #define DEFAULT_TO_OUTPUT_DEVICE_RESOURCE_NAME "ToSpeaker1"
 #define DEFAULT_NULL_RESOURCE_NAME "Null1"
+#define DEFAULT_RTP_INPUT_RESOURCE_NAME "InRtp-%d"
+#define DEFAULT_RTP_OUTPUT_RESOURCE_NAME "OutRtp-%d"
 
 // MACROS
 // EXTERNAL FUNCTIONS
@@ -125,6 +127,11 @@ public:
     /// Validate that all the resource types in this topology have a constructor in the factory
     OsStatus validateResourceTypes(MpResourceFactory& resourceFactory,
                                    int& firstInvalidResourceIndex) const;
+
+
+    /// Utility to replace "%d" in resource name with an integer
+    static void replaceNumInName(UtlString& resourceName,
+                          int resourceNum);
 
 /* ============================ ACCESSORS ================================= */
 

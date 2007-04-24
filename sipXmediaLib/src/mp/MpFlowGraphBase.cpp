@@ -403,7 +403,7 @@ OsStatus MpFlowGraphBase::processNextFrame(void)
          boolRes = mExecOrder[i]->processFrame();
          if (!boolRes) {
             osPrintf("MpMedia: called %s, which indicated failure\n",
-               mpResourceInProcess->mName.data());
+               mpResourceInProcess->data());
          }
       }
    }
@@ -825,6 +825,9 @@ UtlBoolean MpFlowGraphBase::handleMessage(OsMsg& rMsg)
    case MpFlowGraphMsg::FLOWGRAPH_SET_SAMPLES_PER_SEC:
       retCode = handleSetSamplesPerSec(int1);
       break;
+   case MpFlowGraphMsg::FLOWGRAPH_SYNCHRONIZE:
+      retCode = handleSynchronize(*pMsg);
+      break;
    case MpFlowGraphMsg::FLOWGRAPH_START:
       retCode = handleStart();
       break;
@@ -844,6 +847,25 @@ static void complainAdd(const char *n1, int p1, const char *n2,
       Zprintf("MpFlowGraphBase::handleAddLink(%s:%d, %s:%d)\n"
          " %s:%d is already connected!\n",
          (int) n1, p1, (int) n2, p2, (int) n3, p3);
+}
+
+UtlBoolean MpFlowGraphBase::handleSynchronize(MpFlowGraphMsg& rMsg)
+{
+   OsNotification* pSync = (OsNotification*) rMsg.getPtr1();
+   char* tag = (char*) rMsg.getPtr2();
+   int val1  = rMsg.getInt1();
+   int val2  = rMsg.getInt2();
+
+   if (0 != pSync) {
+      pSync->signal(val1);
+      // if (NULL != tag) osPrintf(tag, val1, val2);
+#ifdef DEBUG_POSTPONE /* [ */
+   } else {
+      // just delay (postPone()), for debugging race conditions...
+      OsTask::delay(rMsg.getInt1());
+#endif /* DEBUG_POSTPONE ] */
+   }
+   return TRUE;
 }
 
 // Handle the FLOWGRAPH_ADD_LINK message.

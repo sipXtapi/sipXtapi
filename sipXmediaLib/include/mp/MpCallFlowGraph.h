@@ -546,13 +546,6 @@ private:
    void postPone(int ms);
 #endif /* DEBUG_POSTPONE ] */
 
-     /// Handle the FLOWGRAPH_SYNCHRONIZE message.
-   UtlBoolean handleSynchronize(MpFlowGraphMsg& rMsg);
-     /**<
-     *  @returns <b>TRUE</b> if the message was handled
-     *  @returns <b>FALSE</b> otherwise.
-     */
-
      /// Handle the FLOWGRAPH_SET_PREMIUM_SOUND message.
    UtlBoolean handleSetPremiumSound(MpFlowGraphMsg& rMsg);
      /**<

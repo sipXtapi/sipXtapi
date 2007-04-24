@@ -40,7 +40,7 @@
 /* ============================ CREATORS ================================== */
 
 // Constructor
-MpRtpInputAudioConnection::MpRtpInputAudioConnection(UtlString& resourceName,
+MpRtpInputAudioConnection::MpRtpInputAudioConnection(const UtlString& resourceName,
                                                      MpConnectionID myID, 
                                                      int samplesPerFrame, 
                                                      int samplesPerSec)
@@ -178,6 +178,7 @@ UtlBoolean MpRtpInputAudioConnection::handleMessage(MpResourceMsg& rMsg)
         break;
 
     case MpResourceMsg::MPRM_STOP_RECEIVE_RTP:
+        printf("MpRtpInputAudioConnection::handleMessage MPRM_STOP_RECEIVE_RTP\n");
         handleStopReceiveRtp();
         result = TRUE;
         break;

@@ -51,8 +51,12 @@ class MpResourceMsg;
 *  Substantive changes to a resource can only be made:
 *  1) when the resource is not part of flow graph, or
 *  2) at the start of a frame processing interval
+*
+*  MpResource inherits from UtlString and stores the resource name
+*  in the base class.  The resource name is used to uniquely identify
+*  the resource within the scope of a flowgraph.
 */
-class MpResource : public UtlContainable
+class MpResource : public UtlString
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
@@ -254,15 +258,8 @@ static const UtlContainableType TYPE;
        */
    int reserveFirstUnconnectedOutput();
 
-     /// Calculate a unique hash code for this object.
-   virtual unsigned hash() const ;
-     /**<
-     *  If the equals operator returns true for another object, then both of those
-     *  objects must return the same hashcode.
-     */
-
      /// Get the ContainableType for a UtlContainable derived class.
-   virtual UtlContainableType getContainableType() const ;
+   //virtual UtlContainableType getContainableType() const ;
 
 //@}
 
@@ -285,14 +282,6 @@ static const UtlContainableType TYPE;
      /// Returns TRUE if portIdx is valid and the indicated output is not connected, FALSE otherwise.
    UtlBoolean isOutputUnconnected(int portIdx);
 
-     /// Compare the this object to another like-objects.
-   virtual int compareTo(UtlContainable const *) const ;   
-     /**<
-     *  Results for designating a non-like object are undefined.
-     * 
-     *  @returns 0 if equal, < 0 if less then and >0 if greater.
-     */
-
 //@}
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
@@ -308,7 +297,6 @@ protected:
       UtlBoolean  reserved;     ///< this port is reserved to be used
    };
 
-   UtlString     mName;            ///< name associated with this resource
    MpFlowGraphBase* mpFlowGraph;   ///< flow graph this resource belongs to
    UtlBoolean    mIsEnabled;       ///< TRUE if resource is enabled, FALSE otherwise
 

@@ -56,7 +56,7 @@ public:
 //@{
 
      /// Constructor
-   MpRtpInputAudioConnection(UtlString& resourceName,
+   MpRtpInputAudioConnection(const UtlString& resourceName,
                              MpConnectionID myID, 
                              int samplesPerFrame, 
                              int samplesPerSec);

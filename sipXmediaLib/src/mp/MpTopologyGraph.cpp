@@ -12,6 +12,10 @@
 
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
+#include <utl/UtlInt.h>
+#include <utl/UtlHashMap.h>
+#include <utl/UtlHashBag.h>
+#include <utl/UtlHashBagIterator.h>
 #include <mp/MpTopologyGraph.h>
 #include <mp/MpMediaTask.h>
 #include <mp/MpResourceFactory.h>
@@ -40,53 +44,17 @@ MpFlowGraphBase(samplesPerFrame, samplesPerSec)
     printf("constructing MpTopologyGraph\n");
     mpResourceFactory = &resourceFactory;
 
-    // Add the resources
-    int resourceIndex = 0;
-    MpResource* resource = NULL;
-    UtlString resourceType;
-    UtlString resourceName;
-    OsStatus result;
-    while(initialResourceTopology.getResource(resourceIndex, resourceType, resourceName) == OS_SUCCESS)
-    {
-        resource = resourceFactory.newResource(resourceType, resourceName);
-        assert(resource);
-        if(resource)
-        {
-            result = addResource(*resource);
-            assert(result == OS_SUCCESS);
-        }
-        resourceIndex++;
-    }
+    // construct the new resources defined in the topology and add to the flowgraph
+    UtlHashBag newResourcesAdded;
+    addTopologyResources(initialResourceTopology, 
+                         resourceFactory,
+                         newResourcesAdded);
 
-    // Link the resources
-    int connectionIndex = 0;
-    UtlString outputResourceName;
-    UtlString inputResourceName;
-    int outputResourcePortIndex;
-    int inputResourcePortIndex;
-    MpResource* outputResource = NULL;
-    MpResource* inputResource = NULL;
-    while(initialResourceTopology.getConnection(connectionIndex, outputResourceName, outputResourcePortIndex, inputResourceName, inputResourcePortIndex) == OS_SUCCESS)
-    {
-        result = lookupResource(outputResourceName,
-                                outputResource);
-        assert(result == OS_SUCCESS);
-        result = lookupResource(inputResourceName,
-                                inputResource);
-        assert(result == OS_SUCCESS);
-        assert(outputResource);
-        assert(inputResource);
-
-        if(outputResource && inputResource)
-        {
-            result = addLink(*outputResource, outputResourcePortIndex, *inputResource, inputResourcePortIndex);
-            assert(result == OS_SUCCESS);
-        }
-        connectionIndex++;
-    }
+    // Add the links for the resources in the topology
+    linkTopologyResources(initialResourceTopology, newResourcesAdded);
 
     // Enable the flowgraph and all its resources
-    result = enable();
+    OsStatus result = enable();
     assert(result == OS_SUCCESS);
 
 #if 0
@@ -107,8 +75,11 @@ MpFlowGraphBase(samplesPerFrame, samplesPerSec)
 
     // start the flowgraph
     result = mediaTask->startFlowGraph(*this);
+    if(result != OS_SUCCESS)
+    {
+        printf("MpTopologyGraph mediaTask->startFlowGraph failed: %d\n", result);
+    }
     assert(result == OS_SUCCESS);
-    assert(isStarted());
 }
 
 // Destructor
@@ -131,16 +102,30 @@ MpTopologyGraph::~MpTopologyGraph()
 /* ============================ MANIPULATORS ============================== */
 
 OsStatus MpTopologyGraph::addResources(MpResourceTopology& incrementalTopology,
-                                         MpResourceFactory* resourceFactory,
-                                         int resourceInstanceId)
+                                       MpResourceFactory* resourceFactory,
+                                       int resourceInstanceId)
 {
     if(resourceFactory == NULL)
     {
         resourceFactory = mpResourceFactory;
     }
 
-    // Not implemented
-    //assert(resourceFactory);
+    assert(resourceFactory);
+
+    // Add new resources
+    UtlHashBag newResourcesAdded;
+    addTopologyResources(incrementalTopology, 
+                         *resourceFactory, 
+                         newResourcesAdded,
+                         TRUE, 
+                         resourceInstanceId);
+
+    // Add the links for the resources in the topology
+    linkTopologyResources(incrementalTopology, 
+                          newResourcesAdded,
+                          TRUE, 
+                          resourceInstanceId);
+
     return(OS_NOT_YET_IMPLEMENTED);
 }
 
@@ -171,5 +156,163 @@ OsStatus MpTopologyGraph::processNextFrame()
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
+int MpTopologyGraph::addTopologyResources(MpResourceTopology& resourceTopology,
+                                          MpResourceFactory& resourceFactory,
+                                          UtlHashBag& newResources,
+                                          UtlBoolean replaceNumInName,
+                                          int resourceNum)
+{
+    // Add the resources
+    int resourceIndex = 0;
+    MpResource* resource = NULL;
+    UtlString resourceType;
+    UtlString resourceName;
+    OsStatus result;
+    while(resourceTopology.getResource(resourceIndex, resourceType, resourceName) == OS_SUCCESS)
+    {
+        if(replaceNumInName)
+        {
+            resourceTopology.replaceNumInName(resourceName, resourceNum);
+        }
+        resource = resourceFactory.newResource(resourceType, resourceName);
+        assert(resource);
+        if(resource)
+        {
+#ifdef TEST_PRINT
+            printf("constructed and adding resource name: %s type: %s\n",
+                resource->getName().data(),
+                resourceType.data());
+#endif
+            newResources.insert(resource);
+            result = addResource(*resource, FALSE);
+            assert(result == OS_SUCCESS);
+        }
+        resourceIndex++;
+    }
+    return(resourceIndex);
+}
+
+int MpTopologyGraph::linkTopologyResources(MpResourceTopology& resourceTopology,
+                                           UtlHashBag& newResources,
+                                           UtlBoolean replaceNumInName,
+                                           int resourceNum)
+{
+    // Link the resources
+    int connectionIndex = 0;
+    UtlString outputResourceName;
+    UtlString inputResourceName;
+    int outputResourcePortIndex;
+    int inputResourcePortIndex;
+    MpResource* outputResource = NULL;
+    MpResource* inputResource = NULL;
+    OsStatus result;
+    UtlHashMap newConnectionIds;
+
+#ifdef TEST_PRINT
+    printf("%d new resources in the list\n", newResources.entries());
+    UtlHashBagIterator iterator(newResources);
+    MpResource* containerResource = NULL;
+    while(containerResource = (MpResource*) iterator())
+    {
+        printf("found list resource: \"%s\" value: \"%s\"\n", containerResource->getName().data(), containerResource->data());
+    }
+#endif
+
+    while(resourceTopology.getConnection(connectionIndex, outputResourceName, outputResourcePortIndex, inputResourceName, inputResourcePortIndex) == OS_SUCCESS)
+    {
+        if(replaceNumInName)
+        {
+            resourceTopology.replaceNumInName(outputResourceName, resourceNum);
+            resourceTopology.replaceNumInName(inputResourceName, resourceNum);
+        }
+
+        // Look in the container of new resources first as this is more 
+        // efficent and new resources are not added immediately to a running
+        // flowgraph
+        outputResource = (MpResource*) newResources.find(&outputResourceName);
+        if(outputResource == NULL)
+        {
+            result = lookupResource(outputResourceName,
+                                    outputResource);
+            if(result != OS_SUCCESS)
+            {
+                printf("MpTopologyGraph::linkTopologyResources could not find output resource: \"%s\"\n",
+                    outputResourceName.data());
+            }
+            assert(result == OS_SUCCESS);
+        }
+        inputResource = (MpResource*) newResources.find(&inputResourceName);
+        if(inputResource == NULL)
+        {
+            result = lookupResource(inputResourceName,
+                                    inputResource);
+            assert(result == OS_SUCCESS);
+        }
+        assert(outputResource);
+        assert(inputResource);
+
+        if(outputResource && inputResource)
+        {
+            if(outputResourcePortIndex == MpResourceTopology::MP_TOPOLOGY_NEXT_AVAILABLE_PORT)
+            {
+                outputResourcePortIndex = outputResource->reserveFirstUnconnectedOutput();
+            }
+            else if(outputResourcePortIndex < MpResourceTopology::MP_TOPOLOGY_NEXT_AVAILABLE_PORT)
+            {
+                // First see if a real port is already in the dictionary
+                UtlInt searchKey(outputResourcePortIndex);
+                UtlInt* foundValue = NULL;
+                if((foundValue = (UtlInt*) newConnectionIds.findValue(&searchKey)))
+                {
+                    // Use the mapped index
+                    outputResourcePortIndex = foundValue->getValue();
+                }
+                else
+                {
+                    // Find an available port and add it to the map
+                    int realPortNum = outputResource->reserveFirstUnconnectedOutput();
+                    UtlInt* portKey = new UtlInt(outputResourcePortIndex);
+                    UtlInt* portValue = new UtlInt(realPortNum);
+                    newConnectionIds.insertKeyAndValue(portKey, portValue);
+                    outputResourcePortIndex = realPortNum;
+                }
+            }
+
+            if(inputResourcePortIndex == MpResourceTopology::MP_TOPOLOGY_NEXT_AVAILABLE_PORT)
+            {
+                inputResourcePortIndex = outputResource->reserveFirstUnconnectedOutput();
+            }
+            else if(inputResourcePortIndex < MpResourceTopology::MP_TOPOLOGY_NEXT_AVAILABLE_PORT)
+            {
+                // First see if a real port is already in the dictionary
+                UtlInt searchKey(inputResourcePortIndex);
+                UtlInt* foundValue = NULL;
+                if((foundValue = (UtlInt*) newConnectionIds.findValue(&searchKey)))
+                {
+                    // Use the mapped index
+                    inputResourcePortIndex = foundValue->getValue();
+                }
+                else
+                {
+                    // Find an available port and add it to the map
+                    int realPortNum = inputResource->reserveFirstUnconnectedInput();
+                    UtlInt* portKey = new UtlInt(inputResourcePortIndex);
+                    UtlInt* portValue = new UtlInt(realPortNum);
+                    newConnectionIds.insertKeyAndValue(portKey, portValue);
+                    inputResourcePortIndex = realPortNum;
+                }
+            }
+
+
+            result = addLink(*outputResource, outputResourcePortIndex, *inputResource, inputResourcePortIndex);
+            assert(result == OS_SUCCESS);
+        }
+        connectionIndex++;
+    }
+
+    newConnectionIds.destroyAll();
+    return(connectionIndex);
+}
+    
 /* ============================ FUNCTIONS ================================= */
 

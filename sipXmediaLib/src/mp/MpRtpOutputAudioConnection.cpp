@@ -38,7 +38,7 @@
 /* ============================ CREATORS ================================== */
 
 // Constructor
-MpRtpOutputAudioConnection::MpRtpOutputAudioConnection(UtlString& resourceName,
+MpRtpOutputAudioConnection::MpRtpOutputAudioConnection(const UtlString& resourceName,
                                                        MpConnectionID myID, 
                                                        int samplesPerFrame, 
                                                        int samplesPerSec)

@@ -1167,6 +1167,14 @@ SOURCE=.\include\mp\MprRecorder.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\include\mp\MprRtpInputAudioConnectionConstructor.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MprRtpOutputAudioConnectionConstructor.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\include\mp\MprRtpStartReceiveMsg.h
 # End Source File
 # Begin Source File

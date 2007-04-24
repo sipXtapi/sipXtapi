@@ -42,6 +42,7 @@ MprBridge::MprBridge(const UtlString& rName,
                    samplesPerFrame, 
                    samplesPerSec)
 {
+    handleEnable();
 }
 
 // Destructor
@@ -180,6 +181,7 @@ UtlBoolean MprBridge::doProcessFrame(MpBufPtr inBufs[],
    // our local microphone to all remote outputs.
    if (!isEnabled)
    {
+       printf("Bridge disabled\n");
       // Move local mic data to all remote parties
       in.swap(inAudioBufs[0]);
       for (int outIdx=1; outIdx < outBufsSize; outIdx++) {

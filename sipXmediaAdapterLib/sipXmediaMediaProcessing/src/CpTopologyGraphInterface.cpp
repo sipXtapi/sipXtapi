@@ -26,6 +26,8 @@
 #include <mp/MpTopologyGraph.h>
 #include <mp/MpResourceTopology.h>
 #include <mp/MprToneGen.h>
+#include <mp/MpRtpInputAudioConnection.h>
+#include <mp/MpRtpOutputAudioConnection.h>
 #include <mp/dtmflib.h>
 #include <include/CpTopologyGraphInterface.h>
 #include <include/CpTopologyGraphFactoryImpl.h>
@@ -84,6 +86,7 @@ public:
 
 #ifdef TEST_PRINT
             OsSysLog::add(FAC_CP, PRI_DEBUG, 
+            //printf(
                 "~CpTopologyMediaConnection deleting RTP socket: %p descriptor: %d",
                 mpRtpAudioSocket, mpRtpAudioSocket->getSocketDescriptor());
 #endif
@@ -95,6 +98,7 @@ public:
         {
 #ifdef TEST_PRINT
             OsSysLog::add(FAC_CP, PRI_DEBUG, 
+            //printf(
                 "~CpTopologyMediaConnection deleting RTCP socket: %p descriptor: %d",
                 mpRtcpAudioSocket, mpRtcpAudioSocket->getSocketDescriptor());
 #endif
@@ -308,7 +312,9 @@ CpTopologyGraphInterface::~CpTopologyGraphInterface()
         //    mediaTask->setFocus(NULL);
         //}
 
-        OsSysLog::add(FAC_CP, PRI_DEBUG, "CpTopologyGraphInterface::~CpTopologyGraphInterface deleting the MpCallFlowGraph %p",
+        OsSysLog::add(FAC_CP, PRI_DEBUG, 
+        //printf(
+                      "CpTopologyGraphInterface::~CpTopologyGraphInterface deleting the MpCallFlowGraph %p",
                       mpTopologyGraph);
         delete mpTopologyGraph;
         mpTopologyGraph = NULL;
@@ -369,10 +375,15 @@ OsStatus CpTopologyGraphInterface::createConnection(int& connectionId,
                        mediaConnection->mpRtpAudioSocket, mediaConnection->mpRtcpAudioSocket);
 
    // Start the audio packet pump
-   //mpTopologyGraph->startReceiveRtp(NULL, 0,
-   //                             *mediaConnection->mpRtpAudioSocket,
-   //                             *mediaConnection->mpRtcpAudioSocket,
-   //                             connectionId);
+   UtlString inConnectionName(DEFAULT_RTP_INPUT_RESOURCE_NAME);
+   MpResourceTopology::replaceNumInName(inConnectionName, connectionId);
+   MpRtpInputAudioConnection::startReceiveRtp(*(mpTopologyGraph->getMsgQ()),
+                                              inConnectionName,
+                                              NULL,
+                                              0,
+                                              *(mediaConnection->mpRtpAudioSocket),
+                                              *(mediaConnection->mpRtcpAudioSocket));
+
 
    // Store audio stream settings
    mediaConnection->mRtpAudioReceivePort = mediaConnection->mpRtpAudioSocket->getLocalHostPort() ;
@@ -631,6 +642,7 @@ OsStatus CpTopologyGraphInterface::setConnectionDestination(int connectionId,
 
     if(pMediaConnection && remoteRtpHostAddress && *remoteRtpHostAddress)
     {
+        returnCode = OS_SUCCESS;
         /*
          * Common Setup
          */
@@ -921,6 +933,15 @@ OsStatus CpTopologyGraphInterface::startRtpSend(int connectionId,
          //                          connectionId,
          //                          audioCodec,
          //                          dtmfCodec);
+         UtlString outConnectionName(DEFAULT_RTP_OUTPUT_RESOURCE_NAME);
+         MpResourceTopology::replaceNumInName(outConnectionName, connectionId);
+
+         MpRtpOutputAudioConnection::startSendRtp(*(mpTopologyGraph->getMsgQ()),
+                                                  outConnectionName,
+                                                  *(mediaConnection->mpRtpAudioSocket),
+                                                  *(mediaConnection->mpRtcpAudioSocket),
+                                                  audioCodec,
+                                                  dtmfCodec);
 
          mediaConnection->mRtpAudioSending = TRUE;
          returnCode = OS_SUCCESS;
@@ -968,6 +989,9 @@ OsStatus CpTopologyGraphInterface::startRtpReceive(int connectionId,
       }
 #endif
 
+      UtlString inConnectionName(DEFAULT_RTP_INPUT_RESOURCE_NAME);
+      MpResourceTopology::replaceNumInName(inConnectionName, connectionId);
+
       if(mediaConnection->mRtpAudioReceiving)
       {
          // This is not supposed to be necessary and may be
@@ -975,9 +999,14 @@ OsStatus CpTopologyGraphInterface::startRtpReceive(int connectionId,
          //mpTopologyGraph->stopReceiveRtp(connectionId);
       }
 
-      //mpTopologyGraph->startReceiveRtp(receiveCodecs, numCodecs,
-      //     *(mediaConnection->mpRtpAudioSocket), *(mediaConnection->mpRtcpAudioSocket),
-      //     connectionId);
+
+      MpRtpInputAudioConnection::startReceiveRtp(*(mpTopologyGraph->getMsgQ()),
+                                                 inConnectionName,
+                                                 receiveCodecs,
+                                                 numCodecs,
+                                                 *(mediaConnection->mpRtpAudioSocket),
+                                                 *(mediaConnection->mpRtcpAudioSocket));
+
       mediaConnection->mRtpAudioReceiving = TRUE;
 
       returnCode = OS_SUCCESS;
@@ -994,7 +1023,11 @@ OsStatus CpTopologyGraphInterface::stopRtpSend(int connectionId)
    if (mpTopologyGraph && mediaConnection &&
        mediaConnection->mRtpAudioSending)
    {
-      //mpTopologyGraph->stopSendRtp(connectionId);
+      UtlString outConnectionName(DEFAULT_RTP_OUTPUT_RESOURCE_NAME);
+      MpResourceTopology::replaceNumInName(outConnectionName, connectionId);
+      MpRtpOutputAudioConnection::stopSendRtp(*(mpTopologyGraph->getMsgQ()),
+                                               outConnectionName);
+
       mediaConnection->mRtpAudioSending = FALSE;
       returnCode = OS_SUCCESS;
    }
@@ -1007,10 +1040,29 @@ OsStatus CpTopologyGraphInterface::stopRtpReceive(int connectionId)
    CpTopologyMediaConnection* mediaConnection =
        getMediaConnection(connectionId);
 
+#ifdef TEST_PRINT
+   printf("CpTopologyGraphInterface::stopRtpReceive(%d) mpTopologyGraph %p mediaCOnnection: %p receiving: %s\n", 
+       connectionId,
+       mpTopologyGraph,
+       mediaConnection, 
+       mediaConnection && mediaConnection->mRtpAudioReceiving ? "TRUE" : "FALSE");
+#endif
+
    if (mpTopologyGraph && mediaConnection &&
        mediaConnection->mRtpAudioReceiving)
    {
-      //mpTopologyGraph->stopReceiveRtp(connectionId);
+      UtlString inConnectionName(DEFAULT_RTP_INPUT_RESOURCE_NAME);
+      MpResourceTopology::replaceNumInName(inConnectionName, connectionId);
+
+#ifdef TEST_PRINT
+      printf("sending stopReceiveRtp message RTP socket: %p RTCP socket: %p\n",
+             mediaConnection->mpRtpAudioSocket,
+             mediaConnection->mpRtcpAudioSocket);
+#endif
+
+      MpRtpInputAudioConnection::stopReceiveRtp(*(mpTopologyGraph->getMsgQ()),
+                                                inConnectionName);
+      
       mediaConnection->mRtpAudioReceiving = FALSE;
       returnCode = OS_SUCCESS;
    }
@@ -1064,14 +1116,63 @@ OsStatus CpTopologyGraphInterface::doDeleteConnection(CpTopologyMediaConnection*
                     mediaConnection->mpRtcpAudioSocket);
 #endif
 
-   returnCode = stopRtpSend(mediaConnection->getValue());
-   returnCode = stopRtpReceive(mediaConnection->getValue());
+
+   // The connections may be removed from the list, so we cannot use
+   // the method that takes a connection id
+   //returnCode = stopRtpSend(mediaConnection->getValue());
+      UtlString outConnectionName(DEFAULT_RTP_OUTPUT_RESOURCE_NAME);
+      MpResourceTopology::replaceNumInName(outConnectionName, mediaConnection->getValue());
+      MpRtpOutputAudioConnection::stopSendRtp(*(mpTopologyGraph->getMsgQ()),
+                                               outConnectionName);
+   //returnCode = stopRtpReceive(mediaConnection->getValue());
+      UtlString inConnectionName(DEFAULT_RTP_INPUT_RESOURCE_NAME);
+      MpResourceTopology::replaceNumInName(inConnectionName, mediaConnection->getValue());
+//      printf("doDeleteConnection sending stopReceiveRtp message RTP socket: %p RTCP socket: %p\n",
+//             mediaConnection->mpRtpAudioSocket,
+//             mediaConnection->mpRtcpAudioSocket);
+      MpRtpInputAudioConnection::stopReceiveRtp(*(mpTopologyGraph->getMsgQ()),
+                                                inConnectionName);
+
+   // Make sure the sockets are no longer used before further operations
+   mpTopologyGraph->synchronize();
 
    if(mediaConnection->getValue() >= 0)
    {
-      //mpTopologyGraph->deleteConnection(mediaConnection->getValue());
-      mediaConnection->setValue(-1);
-      //mpTopologyGraph->synchronize();
+       UtlString inConnectionName(DEFAULT_RTP_INPUT_RESOURCE_NAME);
+       MpResourceTopology::replaceNumInName(inConnectionName, mediaConnection->getValue());
+       UtlString outConnectionName(DEFAULT_RTP_OUTPUT_RESOURCE_NAME);
+       MpResourceTopology::replaceNumInName(outConnectionName, mediaConnection->getValue());
+
+       MpResource* inConnectionResource = NULL;
+       returnCode = mpTopologyGraph->lookupResource(inConnectionName,
+                                                    inConnectionResource);
+       // If we failed to find the connection resource, sync. in case we
+       // are deleting before the resources got linked into the flowgraph
+       if(returnCode != OS_SUCCESS)
+       {
+           mpTopologyGraph->synchronize();
+           returnCode = mpTopologyGraph->lookupResource(inConnectionName,
+                                                        inConnectionResource);
+       }
+       assert(returnCode == OS_SUCCESS);
+       assert(inConnectionResource);
+
+       if(inConnectionResource)
+       {
+           mpTopologyGraph->removeResource(*inConnectionResource);
+       }
+       MpResource* outConnectionResource = NULL;
+       returnCode = mpTopologyGraph->lookupResource(outConnectionName,
+                                                    outConnectionResource);
+       assert(returnCode == OS_SUCCESS);
+       assert(outConnectionResource);
+
+       if(outConnectionResource)
+       {
+           mpTopologyGraph->removeResource(*outConnectionResource);
+       }
+       mediaConnection->setValue(-1);
+       mpTopologyGraph->synchronize();
    }
 
    mpFactoryImpl->releaseRtpPort(mediaConnection->mRtpAudioReceivePort) ;
@@ -1079,9 +1180,11 @@ OsStatus CpTopologyGraphInterface::doDeleteConnection(CpTopologyMediaConnection*
    if(mediaConnection->mpRtpAudioSocket)
    {
 #ifdef TEST_PRINT
-      OsSysLog::add(FAC_CP, PRI_DEBUG, "deleting RTP socket: %p descriptor: %d",
-         mediaConnection->mpRtpAudioSocket,
-         mediaConnection->mpRtpAudioSocket->getSocketDescriptor());
+      OsSysLog::add(FAC_CP, PRI_DEBUG, 
+      //printf(
+                    "CpTopologyGraphInterface::doDeleteConnection deleting RTP socket: %p descriptor: %d",
+                    mediaConnection->mpRtpAudioSocket,
+                    mediaConnection->mpRtpAudioSocket->getSocketDescriptor());
 #endif
 
       delete mediaConnection->mpRtpAudioSocket;
@@ -1090,7 +1193,9 @@ OsStatus CpTopologyGraphInterface::doDeleteConnection(CpTopologyMediaConnection*
    if(mediaConnection->mpRtcpAudioSocket)
    {
 #ifdef TEST_PRINT
-      OsSysLog::add(FAC_CP, PRI_DEBUG, "deleting RTCP socket: %p descriptor: %d",
+      OsSysLog::add(FAC_CP, PRI_DEBUG, 
+      //printf(
+                    "deleting RTCP socket: %p descriptor: %d",
          mediaConnection->mpRtcpAudioSocket,
          mediaConnection->mpRtcpAudioSocket->getSocketDescriptor());
 #endif

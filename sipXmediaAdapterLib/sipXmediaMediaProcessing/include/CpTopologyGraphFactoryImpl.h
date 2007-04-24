@@ -117,6 +117,10 @@ public:
      */
     static MpResourceTopology* buildDefaultInitialResourceTopology();
 
+    /** Build a default incremental resource topology for RTP connections
+     */
+    static MpResourceTopology* buildDefaultIncrementalResourceTopology();
+
 /* ============================ INQUIRY =================================== */
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */

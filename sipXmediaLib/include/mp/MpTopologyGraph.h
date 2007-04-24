@@ -101,6 +101,20 @@ protected:
 private:
 
 
+    /// Adds all new resources defined in a topology
+    int addTopologyResources(MpResourceTopology& resourceTopology,
+                             MpResourceFactory& resourceFactory,
+                             UtlHashBag& newResources,
+                             UtlBoolean replaceNumInName = FALSE,
+                             int resourceNum = -1);
+
+    /// Adds links defined for resources in resource topology
+    int linkTopologyResources(MpResourceTopology& resourceTopology,
+                              UtlHashBag& newResources,
+                              UtlBoolean replaceNumInName = FALSE,
+                              int resourceNum = -1);
+
+
     /** Disabled copy constructor
      */
     MpTopologyGraph(const MpTopologyGraph& rMpTopologyGraph);
