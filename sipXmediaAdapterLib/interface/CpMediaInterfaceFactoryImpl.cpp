@@ -139,7 +139,7 @@ OsStatus CpMediaInterfaceFactoryImpl::releaseRtpPort(const int rtpPort)
     if (miNextRtpPort != 0)
     {
         // if it is not already in the list...
-        if (!mlistFreePorts.find(new UtlInt(rtpPort)))
+        if (!mlistFreePorts.find(&UtlInt(rtpPort)))
         {
             // Release port to head of list (generally want to reuse ports)
             mlistFreePorts.insert(new UtlInt(rtpPort)) ;
