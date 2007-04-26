@@ -4753,6 +4753,11 @@ void SipConnection::processInviteResponseFailed(const SipMessage* response)
             setState(CONNECTION_FAILED, CONNECTION_REMOTE, cause);
             fireSipXEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_NO_RESPONSE);
         }
+        else if (responseCode == SIP_BAD_ADDRESS_CODE)
+        {
+           setState(CONNECTION_FAILED, CONNECTION_REMOTE, cause);
+           fireSipXEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_BAD_ADDRESS);
+        }
         else
         {
             setState(CONNECTION_FAILED, CONNECTION_REMOTE, cause);
