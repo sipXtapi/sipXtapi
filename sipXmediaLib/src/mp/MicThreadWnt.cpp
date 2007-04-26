@@ -634,6 +634,8 @@ unsigned int __stdcall MicThread(LPVOID Unused)
     closeMicDevice() ;    
 
     bRunning = false ;
+    delete DmaMsgPool;
+    delete pMsg;
 
     return 0;
 }
