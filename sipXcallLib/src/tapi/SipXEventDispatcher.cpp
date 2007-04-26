@@ -116,10 +116,12 @@ bool SipXEventDispatcher::removeListener(SIPX_EVENT_CALLBACK_PROC  pCallbackProc
         assert(pContext != NULL) ;
         if (pContext)
         {
-            if (    pContext->pCallbackProc == pCallbackProc &&
-                    pContext->pUserData == pUserData)
+            if (pContext->pCallbackProc == pCallbackProc &&
+                pContext->pUserData == pUserData)
             {
                 mListeners.destroy(pValue) ;
+                // mListeners.destroy will only delete the UtlVoidPtr object, not pContext
+                delete pContext;
                 bRC = true ;
                 break ;
             }
@@ -132,7 +134,18 @@ bool SipXEventDispatcher::removeListener(SIPX_EVENT_CALLBACK_PROC  pCallbackProc
 void SipXEventDispatcher::removeAllListeners() 
 {
     OsWriteLock lock(mListenerLock) ;
-    mListeners.destroyAll() ;
+
+    UtlHashMapIterator itor(mListeners) ;
+    UtlVoidPtr* pValue ;
+    SIPX_EVENT_LISTENER_CONTEXT* pContext = NULL ;
+
+    while ((pValue = (UtlVoidPtr*) itor()))
+    {
+       pContext = (SIPX_EVENT_LISTENER_CONTEXT*) pValue->getValue() ;
+       // delete tests for NULL value automatically
+       delete pContext;
+    }
+    mListeners.destroyAll();
 }
 
 
