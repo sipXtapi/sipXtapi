@@ -135,13 +135,20 @@ void destroyCallData(SIPX_CALL_DATA* pData)
 
       // delete tests for NULL automatically
       delete pData->callId;
+      pData->callId = NULL;
       delete pData->lineURI;
+      pData->lineURI = NULL;
       delete pData->remoteAddress;
+      pData->remoteAddress = NULL;
       delete pData->ghostCallId;
+      pData->ghostCallId = NULL;
       delete pData->sessionCallId;
+      pData->sessionCallId = NULL;
       delete pData->contactAddress;
+      pData->contactAddress = NULL;
       // no need to release mutex, nobody should be waiting on it or its a bug
       delete pData->pMutex;
+      pData->pMutex = NULL;
       delete pData;
    }
 }
