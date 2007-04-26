@@ -128,6 +128,16 @@ SipSubscribeServer::~SipSubscribeServer()
     *   they are owned by whoever constructed this server.
     */
 
+   /*
+   * jaro: actually these are never deleted, and good habit is to delete
+   * objects in the same class where they are created if we keep pointer
+   * to them in member variables. This doesn't cause any problems in Windows.
+   * If it causes problems for someone, investigate it please, and don't solve
+   * it by not deleting something.
+   */
+   delete mpDefaultEventHandler;
+   delete mpDefaultSubscriptionMgr;
+   delete mpDefaultContentMgr;
     // Iterate through and delete all the event data
     // TODO:
 }
