@@ -122,54 +122,28 @@ static void initLogger()
                         "sipXtapi"); // name for messages from this program
 }
 
+// jaro: CHECKED, external lock on mutex is assumed
 void destroyCallData(SIPX_CALL_DATA* pData)
 {
-    if (pData != NULL)
-    {
-        // Increment call count
-        pData->pInst->pLock->acquire() ;
-        pData->pInst->nCalls-- ;
-        assert(pData->pInst->nCalls >= 0) ;
-        pData->pInst->pLock->release() ;
+   if (pData)
+   {
+      // Increment call count
+      pData->pInst->pLock->acquire();
+      pData->pInst->nCalls--;
+      assert(pData->pInst->nCalls >= 0);
+      pData->pInst->pLock->release();
 
-        if (pData->callId != NULL)
-        {
-            delete pData->callId ;
-            pData->callId = NULL ;
-        }
-
-        if (pData->lineURI != NULL)
-        {
-            delete pData->lineURI ;
-            pData->lineURI = NULL ;
-        }
-
-        if (pData->remoteAddress != NULL)
-        {
-            delete pData->remoteAddress ;
-            pData->remoteAddress = NULL ;
-        }
-
-        if (pData->ghostCallId != NULL)
-        {
-            delete pData->ghostCallId;
-            pData->ghostCallId = NULL;
-        }
-
-        if (pData->sessionCallId != NULL)
-        {
-            delete pData->sessionCallId ;
-            pData->sessionCallId = NULL ;
-        }
-        OsRWMutex* pMutex = pData->pMutex;
-        pData->pMutex = NULL;
-        delete pData ;
-        if (pMutex)
-        {
-            pMutex->releaseWrite();
-        }
-        delete pMutex;
-    }
+      // delete tests for NULL automatically
+      delete pData->callId;
+      delete pData->lineURI;
+      delete pData->remoteAddress;
+      delete pData->ghostCallId;
+      delete pData->sessionCallId;
+      delete pData->contactAddress;
+      // no need to release mutex, nobody should be waiting on it or its a bug
+      delete pData->pMutex;
+      delete pData;
+   }
 }
 
 static void destroyLineData(SIPX_LINE_DATA* pData)

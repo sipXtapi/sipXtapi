@@ -1225,7 +1225,7 @@ void sipxFireCallEvent(const void* pSrc,
             // osPrintf("event M=%s m=%s\n", convertCallstateEventToString(major), convertCallstateCauseToString(minor)) ;
         }
         pCallData = sipxCallLookup(hCall, SIPX_LOCK_WRITE, stackLogger) ;
-        if (pCallData && pSession)
+        if (pCallData && pSession && !pCallData->contactAddress)
         {
             pSession->getContactRequestUri(contactAddress);
             pCallData->contactAddress = new UtlString(contactAddress);
