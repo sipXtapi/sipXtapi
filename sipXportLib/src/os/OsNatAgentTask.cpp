@@ -77,7 +77,7 @@ OsNatAgentTask::~OsNatAgentTask()
 
     // Clear Timers 
     UtlSListIterator listIterator(mTimerPool);
-    while (pKey = (UtlVoidPtr*)iterator())
+    while (pKey = (UtlVoidPtr*)listIterator())
     {
         OsTimer* pTimer = (OsTimer*) pKey->getValue() ;
         mTimerPool.destroy(pKey) ;        
