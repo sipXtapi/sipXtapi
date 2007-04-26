@@ -41,7 +41,6 @@ MpTopologyGraph::MpTopologyGraph(int samplesPerFrame,
                                  MpResourceFactory& resourceFactory) :
 MpFlowGraphBase(samplesPerFrame, samplesPerSec)
 {
-    printf("constructing MpTopologyGraph\n");
     mpResourceFactory = &resourceFactory;
 
     // construct the new resources defined in the topology and add to the flowgraph

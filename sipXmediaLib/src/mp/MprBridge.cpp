@@ -42,7 +42,7 @@ MprBridge::MprBridge(const UtlString& rName,
                    samplesPerFrame, 
                    samplesPerSec)
 {
-    handleEnable();
+    handleDisable();
 }
 
 // Destructor
