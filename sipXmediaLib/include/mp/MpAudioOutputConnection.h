@@ -135,7 +135,7 @@ public:
      */
 
      /// Send one frame from mixer buffer to device.
-   OsStatus pushToDevice();
+//   OsStatus pushToDevice();
      /**<
      *  Get one frame from mixer buffer, push it to device and remove this frame
      *  from mixer buffer. This method is called from timer callback usually.

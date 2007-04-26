@@ -196,6 +196,7 @@ OsStatus MpAudioOutputConnection::pushFrame(unsigned int numSamples,
    return result;
 };
 
+/*
 OsStatus MpAudioOutputConnection::pushToDevice()
 {
    OsStatus result = OS_FAILED;
@@ -222,6 +223,7 @@ OsStatus MpAudioOutputConnection::pushToDevice()
 
    return result;
 }
+*/
 
 /* ============================ ACCESSORS ================================= */
 
