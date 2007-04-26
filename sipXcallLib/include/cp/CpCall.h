@@ -251,12 +251,13 @@ protected:
         const CpMultiStringMessage* multiStringMessage);
 
     OsStatus addListener(OsServerTask* pListener,
-        TaoListenerDb** pListeners,
-        int& listenerCnt,
-        char* callId = NULL,
-        int ConnectId = 0,
-        int mask = 0,
-        int pEv = 0);
+                         TaoListenerDb*** pListeners,
+                         int& listenerCnt,
+                         int& maxNumListeners,
+                         char* callId = NULL,
+                         int connectId = 0,
+                         int mask = 0,
+                         int pEv = 0);
 
     CpCallManager* mpManager;
     UtlString mCallId;
@@ -282,8 +283,9 @@ protected:
     int                             mListenerCnt;
     int                             mMaxNumListeners;
 
-    TaoListenerDb*                  mpToneListeners[MAX_NUM_TONE_LISTENERS];
-    int                                             mToneListenerCnt;
+    TaoListenerDb**                 mpToneListeners;
+    int                             mToneListenerCnt;
+    int                             nMaxNumToneListeners;
 
     int mMessageEventCount;
     UtlString mCallHistory[CP_CALL_HISTORY_LENGTH];

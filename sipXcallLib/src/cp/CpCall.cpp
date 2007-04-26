@@ -88,12 +88,21 @@ mDtmfQMutex(OsMutex::Q_FIFO)
     mListenerCnt = 0;
     mToneListenerCnt = 0;
     mMaxNumListeners = 20;
+    nMaxNumToneListeners = MAX_NUM_TONE_LISTENERS;
     mpListeners = (TaoListenerDb**) malloc(sizeof(TaoListenerDb *)*mMaxNumListeners);
 
     if (!mpListeners)
     {
-        osPrintf("***** ERROR ALLOCATING LISTENERS IN CPCALL **** \n");
+        osPrintf("***** ERROR ALLOCATING mpListeners IN CPCALL **** \n");
         return;
+    }
+
+    mpToneListeners = (TaoListenerDb**) malloc(sizeof(TaoListenerDb *)*nMaxNumToneListeners);
+
+    if (!mpToneListeners)
+    {
+       osPrintf("***** ERROR ALLOCATING mpToneListeners IN CPCALL **** \n");
+       return;
     }
 
     int i;
@@ -174,6 +183,12 @@ CpCall::~CpCall()
                 mpToneListeners[i] = 0;
             }
         }
+    }
+
+    if (mpToneListeners)
+    {
+       free(mpToneListeners);
+       mpToneListeners = NULL;
     }
 
     if(mpMetaEventCallIds)
@@ -798,8 +813,9 @@ OsStatus CpCall::addTaoListener(OsServerTask* pListener,
                                 int pEv)
 {
     return addListener(pListener,
-        mpListeners,
+        &mpListeners,
         mListenerCnt,
+        mMaxNumListeners,
         callId,
         connectId,
         mask,
@@ -835,8 +851,9 @@ void CpCall::addToneListenerToFlowGraph(int pListener, Connection* connection)
     connection->getRemoteAddress(&remoteAddress);
 
     addListener((OsServerTask*) pListener,
-        mpToneListeners,
+        &mpToneListeners,
         mToneListenerCnt,
+        nMaxNumToneListeners,
         (char*)remoteAddress.data(),
         connection->getConnectionId(),
         0,
@@ -1268,32 +1285,33 @@ void CpCall::addHistoryEvent(const int msgSubType,
 }
 
 OsStatus CpCall::addListener(OsServerTask* pListener,
-                             TaoListenerDb** pListeners,
+                             TaoListenerDb*** pListeners,
                              int& listenerCnt,
-                             char* callId,
-                             int connectId,
-                             int mask,
-                             int pEv)
+                             int& maxNumListeners,
+                             char* callId /*= NULL*/,
+                             int connectId /*= 0*/,
+                             int mask /*= 0*/,
+                             int pEv /*= 0*/)
 {
     for (int i = 0; i < listenerCnt; i++)
     {
-        if (pListeners[i] &&
-            pListeners[i]->mpListenerPtr == (int) pListener &&
-            (!callId || pListeners[i]->mName.compareTo(callId) == 0) &&
-            (pListeners[i]->mId == connectId))
+        if ((*pListeners)[i] &&
+            (*pListeners)[i]->mpListenerPtr == (int) pListener &&
+            (!callId || (*pListeners)[i]->mName.compareTo(callId) == 0) &&
+            ((*pListeners)[i]->mId == connectId))
         {
-            pListeners[i]->mRef++;
+            (*pListeners)[i]->mRef++;
             return OS_SUCCESS;
         }
     }
 
-    if (mListenerCnt == mMaxNumListeners)
+    if (listenerCnt == maxNumListeners)
     {
         //make more of em.
-        mMaxNumListeners += 20;
-        mpListeners = (TaoListenerDb **)realloc(mpListeners,sizeof(TaoListenerDb *)*mMaxNumListeners);
-        for (int loop = mListenerCnt;loop < mMaxNumListeners;loop++)
-            mpListeners[loop] = 0 ;
+        maxNumListeners += 20;
+        *pListeners = (TaoListenerDb **)realloc((*pListeners),sizeof(TaoListenerDb *)*maxNumListeners);
+        for (int loop = listenerCnt;loop < maxNumListeners;loop++)
+            (*pListeners)[loop] = 0 ;
     }
 
     // add to listenerDb
@@ -1304,7 +1322,7 @@ OsStatus CpCall::addListener(OsServerTask* pListener,
     pListenerDb->mRef = 1;
     pListenerDb->mId = connectId;
     pListenerDb->mIntData = pEv;
-    pListeners[listenerCnt++] = pListenerDb;
+    (*pListeners)[listenerCnt++] = pListenerDb;
 
     return OS_SUCCESS;
 }
