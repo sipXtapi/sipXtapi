@@ -27,6 +27,7 @@
 #include <os/OsQueuedEvent.h>
 #ifdef SIP_TLS
 #include <net/SipTlsServer.h>
+#include <os/OsTLS.h>
 #endif
 #include <os/OsNatKeepaliveListener.h>
 
