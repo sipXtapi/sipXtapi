@@ -1438,15 +1438,14 @@ void sipxConfFree(const SIPX_CONF hConf)
             assert(pData->pInst->nConferences >= 0) ;
             pData->pInst->pLock->release() ;
 
-            if (pData->strCallId)
+            if (!pData->strCallId.isNull())
             {
-                callId = *pData->strCallId;
+                callId = pData->strCallId;
             }
             pInst = pData->pInst ;
 
             OsRWMutex* pMutex = pData->pMutex;
             pData->pMutex = NULL;
-            delete pData->strCallId;
             delete pData ;
             if (pMutex)
             {

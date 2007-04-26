@@ -237,7 +237,7 @@ typedef enum CONF_HOLD_STATE
 
 typedef struct
 {
-    UtlString*          strCallId ;
+    UtlString           strCallId ;
     SIPX_INSTANCE_DATA* pInst ;
     size_t              nCalls ;
     SIPX_CALL           hCalls[CONF_MAX_CONNECTIONS] ;
