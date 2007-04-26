@@ -67,6 +67,7 @@ mpTextHandlerFunction(NULL)
 // Destructor
 SipPimClient::~SipPimClient()
 {
+   mpUserAgent->removeMessageObserver(*getMessageQueue());
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -156,6 +157,11 @@ UtlBoolean SipPimClient::sendPagerMessage(Url& destinationAor,
         // If we do not wait forever, we need to be sure to wait the
         // the maximum transaction timeout period so that the qMessage
         // exists when the SipUserAgent queues the response.
+
+        // counter to make sure we don't get stuck in the following
+        // loop forever
+        int loopCounter = 0;
+
         do 
         {
             responseQueue.receive(qMessage);
@@ -178,7 +184,7 @@ UtlBoolean SipPimClient::sendPagerMessage(Url& destinationAor,
                     }
                 }
             }
-        } while (responseCode == 407);
+        } while (responseCode == 407 && ++loopCounter < 2);
     }
 
     return(returnCode);
