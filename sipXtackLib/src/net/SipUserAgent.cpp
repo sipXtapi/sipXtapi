@@ -483,6 +483,7 @@ SipUserAgent::~SipUserAgent()
 
     allowedSipMethods.destroyAll();
     mMessageObservers.destroyAll();
+    allowedSipExtensions.destroyAll();
 }
 
 /* ============================ MANIPULATORS ============================== */
