@@ -109,7 +109,7 @@ public:
          CPPUNIT_ASSERT(iDevDriverWnt.isDeviceValid());
 #elif defined __linux__         
          // Verify that we are pointing at an actual OSS device.
-         CPPUNIT_ASSERT(ppInDevDriver->isDeviceValid());
+         CPPUNIT_ASSERT(((MpidOSS*)pInDevDriver)->isDeviceValid());
 #endif
 
          // Since we've only just created this device, it shouldn't be enabled.
