@@ -212,10 +212,7 @@ public:
 
             derivWeightedAverage += derivs[i];
 
-#ifndef __linux__
-	        // We do not test this under Linux, as it give as it always raise exception now.
             CPPUNIT_ASSERT(derivs[i] <= 4);
-#endif
          }
 
          // Ok, now disable it via the manager -- this time it should succeed.
