@@ -29,8 +29,8 @@
 #define USE_TEST_DRIVER
 
 #ifdef USE_TEST_DRIVER // USE_TEST_DRIVER [
-#include <mp/MpOutputDeviceDriverBufferRecorder.h>
-#define OUTPUT_DRIVER MpOutputDeviceDriverBufferRecorder
+#include <mp/MpodBufferRecorder.h>
+#define OUTPUT_DRIVER MpodBufferRecorder
 #define OUTPUT_DRIVER_CONSTRUCTOR_PARAMS "default", TEST_SAMPLE_DATA_SIZE*1000/TEST_SAMPLES_PER_SECOND
 
 #elif defined(WIN32) // USE_TEST_DRIVER ][ WIN32
