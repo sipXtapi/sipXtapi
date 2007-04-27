@@ -116,9 +116,10 @@ BOOL APIENTRY DllMain( HANDLE hModule,
 
 #endif /* defined(_WIN32) */
 
+// jaro: CHECKED
 static void initLogger()
 {
-    OsSysLog::initialize(0, // do not cache any log messages in memory
+   OsSysLog::initialize(0, // do not cache any log messages in memory
                         "sipXtapi"); // name for messages from this program
 }
 
@@ -153,44 +154,40 @@ void destroyCallData(SIPX_CALL_DATA* pData)
    }
 }
 
+// jaro: CHECKED
 static void destroyLineData(SIPX_LINE_DATA* pData)
 {
-    if (pData != NULL)
-    {
-        if (pData->lineURI != NULL)
-        {
-            delete pData->pMutex ;
-            delete pData->lineURI ;
-        }
-
-        delete pData ;
-    }
+   if (pData)
+   {
+      delete pData->pMutex;
+      pData->pMutex = NULL;
+      delete pData->lineURI;
+      pData->lineURI = NULL;
+      delete pData->pLineAliases;
+      pData->pLineAliases = NULL;
+      delete pData;
+   }
 }
 
+// jaro: CHECKED
 static SIPX_LINE_DATA* createLineData(SIPX_INSTANCE_DATA* pInst, const Url& uri)
 {
-    SIPX_LINE_DATA* pData = new SIPX_LINE_DATA ;
-    memset ((void*) pData, 0, sizeof(SIPX_LINE_DATA));
+   SIPX_LINE_DATA* pData = new SIPX_LINE_DATA();
+   // if there is allocation failure, std::bad_alloc exception is thrown
+   // unless we use _set_new_handler to set new handler
+   // we do not handle std::bad_alloc thus program will exit, which is ok
+   // if we want to check for NULL, then we would have to use
+   // new(std:::nothrow) instead of just new
 
-    if (pData != NULL)
-    {
-        pData->lineURI = new Url(uri) ;
-        pData->pInst = pInst ;
-        pData->pMutex = new OsRWMutex(OsRWMutex::Q_FIFO) ;
-        if ((pData->lineURI == NULL) || (pData->pMutex == NULL))
-        {
-            destroyLineData(pData) ;
-            pData = NULL ;
-        }
-        else
-        {
-            pInst->pLock->acquire() ;
-            pInst->nLines++ ;
-            pInst->pLock->release() ;
-        }
-    }
+   pData->lineURI = new Url(uri);
+   pData->pInst = pInst;
+   pData->pMutex = new OsRWMutex(OsRWMutex::Q_FIFO);
 
-    return pData ;
+   pInst->pLock->acquire();
+   pInst->nLines++;
+   pInst->pLock->release();
+
+   return pData ;
 }
 
 
