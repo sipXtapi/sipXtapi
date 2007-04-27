@@ -39,9 +39,10 @@
 class MpResourceFactory;
 
 /**
-*  @brief MpResourceTopology is used to define a set of resources and how they are to be connected in a flowgraph.
+*  @brief MpResourceTopology is used to define a set of resources and how they
+*         are to be connected in a flowgraph.
 *
-*  MpResourceTopology is defines a list of resouces to be created and a list of
+*  MpResourceTopology is defines a list of resources to be created and a list of
 *  connections defining how the resources are to be connected in a flowgraph.
 *  There are two types of MpResourceTopologies that may be defined:
 *  
@@ -51,7 +52,7 @@ class MpResourceFactory;
 *
 *  2) Incremental topologies which define a set of resources to be added to
 *  a flowgraph and a set of connections defining how the new resources are
-*  connected amonst themselves and the existing resources in the flowgraph.
+*  connected amongst themselves and the existing resources in the flowgraph.
 *  An incremental topology the connections may reference resources which
 *  already exist in the flowgraph or resources defined in the MpResourceTopology.
 *
@@ -91,7 +92,7 @@ public:
     /** 
       * @param resourceType - type for MpResourceFactory construction
       * @param resourceName - unique name for resource in this topology and
-      *        ulimately in flowgraph.
+      *        ultimately in flowgraph.
       * @returns OS_NAME_IN_USE if resourceName already exists in this topology
       */
     OsStatus addResource(const UtlString& resourceType,
@@ -116,7 +117,7 @@ public:
       * @param firstDanglingResourceName - first resource found to not be
       *        connected topologically to the rest of the resources.  The
       *        can only be tested in full topologies.  We do not know the
-      *        pre-exising topology in the flowgraph for incremental topologies.
+      *        pre-existing topology in the flowgraph for incremental topologies.
       * @param allowExternalResources - FALSE = full topology, TRUE = increment
       *        topology (see definitions at top of this class)
       */
