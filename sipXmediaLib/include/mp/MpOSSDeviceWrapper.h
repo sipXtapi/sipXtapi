@@ -1,0 +1,219 @@
+//  
+// Copyright (C) 2007 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
+//
+// Copyright (C) 2007 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// $$
+///////////////////////////////////////////////////////////////////////////////
+
+// Author: REFACTORING CODE
+
+#ifndef _MpOSSDeviceWrapper_h_
+#define _MpOSSDeviceWrapper_h_
+// OSS-specific code
+#ifdef __linux__
+
+// SYSTEM INCLUDES
+#include <pthread.h>
+#include <semaphore.h>
+
+#include <sys/types.h>
+#include <sys/soundcard.h>
+
+
+// APPLICATION INCLUDES
+#include "mp/MpInputDeviceDriver.h"
+#include "mp/MpOutputDeviceDriver.h"
+
+// DEFINES
+#define OSS_SOUND_STEREO        0
+
+/// Uncomment follow sentence for single OSS device mode
+/// #define OSS_SINGLE_DEVICE
+
+#ifndef OSS_SINGLE_DEVICE
+#include "mp/MpOSSDeviceWrapperContainer.h"
+#include "utl/UtlVoidPtr.h"
+#endif
+
+// MACROS
+// EXTERNAL FUNCTIONS
+// EXTERNAL VARIABLES
+// CONSTANTS
+// STRUCTS
+// TYPEDEFS
+// FORWARD DECLARATIONS
+class MpidOSS;
+class MpodOSS;
+
+
+/**
+*  @brief Wrapper for OSS device that use file discriptor to communicate.
+*/
+class MpOSSDeviceWrapper
+#ifndef OSS_SINGLE_DEVICE
+                            : public UtlVoidPtr
+#endif
+{
+    friend class MpidOSS;
+    friend class MpodOSS;    
+/* //////////////////////////// PUBLIC //////////////////////////////////// */
+public:
+     /// @brief Constructor
+    MpOSSDeviceWrapper();
+
+     /// @brief Destructor
+    ~MpOSSDeviceWrapper();
+
+/* ============================ MANIPULATORS ============================== */
+///@name Manipulators
+//@{
+     /// @brief Connect MpidOSS class driver
+    OsStatus setInputDevice(MpidOSS* pIDD);
+     /// @brief Connect MpodOSS class driver   
+    OsStatus setOutputDevice(MpodOSS* pODD);
+    
+     /// @brief Disconnect Input driver
+    OsStatus freeInputDevice();
+     /// @brief Disconnect Output driver
+    OsStatus freeOutputDevice();
+    
+     /// @brief Enable input device  
+    OsStatus attachReader();
+     /// @brief Enable output device  
+    OsStatus attachWriter();
+    
+     /// @brief Disable input device
+    OsStatus detachReader();
+     /// @brief Disable output device
+    OsStatus detachWriter();
+
+    UtlBoolean ossSetTrigger(bool read, bool write);
+    UtlBoolean ossGetBlockSize(unsigned& block);
+    UtlBoolean ossGetODelay(unsigned& delay);
+//@}
+   
+/* ============================ ACCESSORS ================================= */
+///@name Accessors
+//@{
+
+
+//@}
+
+/* ============================ INQUIRY =================================== */
+///@name Inquiry
+//@{
+
+      /// @brief Inquire if the device is valid
+    UtlBoolean isDeviceValid() { return (mfdDevice != -1); }   
+    
+      /// @brief Inquire if the input device is connected
+    UtlBoolean isReaderAttached() { return (pReader != NULL); }  
+      /// @brief Inquire if the output device is connected    
+    UtlBoolean isWriterAttached() { return (pWriter != NULL); }
+    
+    
+    UtlBoolean isDevCapBatch()   { return (mDeviceCap & DSP_CAP_BATCH); }
+    UtlBoolean isDevCapDuplex()  { return (mDeviceCap & DSP_CAP_DUPLEX); }
+    UtlBoolean isDevCapMmap()    { return (mDeviceCap & DSP_CAP_MMAP); }
+    UtlBoolean isDevCapTrigger() { return (mDeviceCap & DSP_CAP_TRIGGER); }
+    
+     /// @brief Inquire if OSS device is free, i.e. neither input nor output is connected
+    UtlBoolean isNotUsed() { return ((pReader == NULL) && (pWriter == NULL)); }
+//@}
+
+/* //////////////////////////// PROTECTED ///////////////////////////////// */
+protected:
+    int mfdDevice;            ///< The fd of the POSIX device (e.g. /dev/dsp)
+    
+    unsigned mUsedSamplesPerSec; ///< Used sapmles rate either for input or
+                                 /// output
+    
+    MpidOSS* pReader; ///< Input driver
+    MpodOSS* pWriter; ///< Output driver
+    
+    int mDeviceCap; ///< Device capabilities
+    
+    UtlBoolean pReaderEnabled; ///< Input device is enabled
+    UtlBoolean pWriterEnabled; ///< Output device is enabled
+    
+    pthread_t iothread; ///< Internal IO thread
+    sem_t semIOBlock; ///< Internal semaphore for syncronisations
+    
+    sem_t semExit;
+    sem_t notifierBlock;
+    
+    UtlBoolean mThreadExit; ///< Thread exit flag
+    
+    unsigned fullOSpace;
+    
+    pthread_mutex_t mWrMutex;
+    pthread_mutex_t mWrMutexBuff;
+    pthread_cond_t mNewTickCondition;
+    pthread_cond_t mNull;
+    pthread_cond_t mNewDataArrived;
+    pthread_cond_t mNewQueueFrame;
+    struct timespec mWrTimeStarted;
+    UtlBoolean mbFisrtWriteCycle;
+    unsigned musecFrameTime; ///< Period of frame in usec
+    unsigned musecTimeCorrect;
+    int musecJitterCorrect;
+    
+    MpAudioSample* mWrCurrentSample;
+    ///Statistics
+    unsigned mFramesRead;
+    unsigned mFramesDropRead;    
+    unsigned mFramesWritten;
+    unsigned mFramesWrittenBlocked;
+    unsigned mFramesWrUnderruns;
+    unsigned mReClocks;
+    unsigned mCTimeUp;
+    unsigned mCTimeDown;
+        
+protected:    
+     /// @brief Common initializations for OSS device
+    OsStatus initDevice(const char* devname);
+     /// @brief Free OSS device
+    OsStatus freeDevice();
+    
+     /// @brief Because OSS device works in duplex mode we must ensure that input and output driver use one spamplerate
+    OsStatus setSampleRate(unsigned samplesPerSec);
+    
+     /// @brief Calling ever time when input (output) driver is enabling or disabling
+    OsStatus emitDriverStatusChanged(bool bAdded);
+    
+     /// @brief Perform input operation of OSS device
+    OsStatus doInput(char* buffer, int size);
+     /// @brief Perform output operation of OSS device
+    OsStatus doOutput(char* buffer, int size);
+    
+     /// @brief Deinitialization and freeing sequences
+    void noMoreNeeded();
+     
+     /// @brief Get maximum size of data can be readed without blocking         
+    UtlBoolean getISpace(unsigned& ispace);
+     /// @brief Get maximum size of data can be written without blocking
+    UtlBoolean getOSpace(unsigned& ospace);
+    
+    void performOnlyRead();
+    void performWithWrite();
+    //void performOnlyWrite();
+    //void performDuplexRW();
+    void performReaderNoDelay();
+    
+     /// @brief Thread subroutine 
+    void soundIOThread();
+/* //////////////////////////// PRIVATE /////////////////////////////////// */
+private:
+     ///  @brief Thread subroutine
+    static void* soundCardIOWrapper(void* arg);
+
+};
+
+/* ============================ INLINE METHODS ============================ */
+
+
+#endif // __linux__
+#endif // _MpOSSDeviceWrapper_h_

@@ -52,8 +52,8 @@
 #error No output driver for Windows exist!
 
 #elif defined(__pingtel_on_posix__) // WIN32 ][ __pingtel_on_posix__
-#include <mp/MpOutputDeviceDriverOSS.h>
-#define OUTPUT_DRIVER MpOutputDeviceDriverOSS
+#include <mp/MpodOSS.h>
+#define OUTPUT_DRIVER MpodOSS
 #define OUTPUT_DRIVER_CONSTRUCTOR_PARAMS "/dev/dsp"
 
 #else // __pingtel_on_possix__ ]

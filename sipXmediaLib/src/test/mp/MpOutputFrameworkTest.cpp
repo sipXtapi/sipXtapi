@@ -8,8 +8,6 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
-// Author: Alexander Chemeris <Alexander DOT Chemeris AT SIPez DOT com>
-
 #include <cppunit/extensions/HelperMacros.h>
 #include <cppunit/TestCase.h>
 #include <sipxunit/TestUtilities.h>
@@ -21,23 +19,18 @@
 #include <os/OsEvent.h>
 
 #define TEST_SAMPLES_PER_FRAME_SIZE   80
-#define BUFFER_NUM                    500
+#define BUFFER_NUM                    50
 #define TEST_SAMPLES_PER_SECOND       8000
+#define TEST_MIXER_BUFFER_LENGTH      10
 #define TEST_SAMPLE_DATA_SIZE         (TEST_SAMPLES_PER_SECOND*1)
 #define TEST_SAMPLE_DATA_MAGNITUDE    32000
 #define TEST_SAMPLE_DATA_PERIOD       11  // in milliseconds
 
-#define CREATE_TEST_RUNS_NUMBER              3
-#define ENABLE_DISABLE_TEST_RUNS_NUMBER      5
-#define ENABLE_DISABLE_FAST_TEST_RUNS_NUMBER 10
-#define DIRECT_WRITE_TEST_RUNS_NUMBER        3
-#define TICKER_TEST_WRITE_RUNS_NUMBER        3
-
 #define USE_TEST_DRIVER
 
 #ifdef USE_TEST_DRIVER // USE_TEST_DRIVER [
-#include <mp/MpodBufferRecorder.h>
-#define OUTPUT_DRIVER MpodBufferRecorder
+#include <mp/MpOutputDeviceDriverBufferRecorder.h>
+#define OUTPUT_DRIVER MpOutputDeviceDriverBufferRecorder
 #define OUTPUT_DRIVER_CONSTRUCTOR_PARAMS "default", TEST_SAMPLE_DATA_SIZE*1000/TEST_SAMPLES_PER_SECOND
 
 #elif defined(WIN32) // USE_TEST_DRIVER ][ WIN32
@@ -52,10 +45,12 @@
 #error Unknown platform!
 #endif
 
-static MpAudioSample sampleData[TEST_SAMPLE_DATA_SIZE];
-static UtlBoolean sampleDataInitialized=FALSE;
 
-static void calculateSampleData()
+
+MpAudioSample sampleData[TEST_SAMPLE_DATA_SIZE];
+UtlBoolean sampleDataInitialized=FALSE;
+
+void calculateSampleData()
 {
    if (sampleDataInitialized)
       return;
@@ -75,15 +70,18 @@ static void calculateSampleData()
 }
 
 /**
- * Unittest for MpOutputDeviceDriver
+ * Unittest for MpOutputDeviceManager
  */
 class MpOutputDeviceDriverTest : public CppUnit::TestCase
 {
    CPPUNIT_TEST_SUITE(MpOutputDeviceDriverTest);
    CPPUNIT_TEST(testCreate);
+   CPPUNIT_TEST(testAddRemoveToManager);
    CPPUNIT_TEST(testEnableDisable);
    CPPUNIT_TEST(testEnableDisableFast);
-   CPPUNIT_TEST(testDirectWrite);
+   // This is disabled, as it gives very bad sound quality
+   // and may be used only for very first driver testing.
+   //CPPUNIT_TEST(testDirectWrite);
    CPPUNIT_TEST(testTickerNotification);
    CPPUNIT_TEST_SUITE_END();
 
@@ -120,44 +118,50 @@ public:
 
    void testCreate()
    {
-      for (int i=0; i<CREATE_TEST_RUNS_NUMBER; i++)
-      {
-         OUTPUT_DRIVER driver(OUTPUT_DRIVER_CONSTRUCTOR_PARAMS);
+      OUTPUT_DRIVER driver(OUTPUT_DRIVER_CONSTRUCTOR_PARAMS);
+   }
 
-         CPPUNIT_ASSERT(!driver.isEnabled());
+   void testAddRemoveToManager()
+   {
+      OUTPUT_DRIVER device(OUTPUT_DRIVER_CONSTRUCTOR_PARAMS);
+      MpOutputDeviceHandle deviceId;
+
+      {
+         // Test with direct write mode
+         MpOutputDeviceManager deviceManager(TEST_SAMPLES_PER_FRAME_SIZE,
+            TEST_SAMPLES_PER_SECOND,
+            0);
+
+         deviceId = deviceManager.addDevice(&device);
+         CPPUNIT_ASSERT(deviceId > 0);
+         CPPUNIT_ASSERT(deviceManager.removeDevice(deviceId) == &device);
+      }
+
+      {
+         // Test with mixer mode
+         MpOutputDeviceManager deviceManager(TEST_SAMPLES_PER_FRAME_SIZE,
+                                             TEST_SAMPLES_PER_SECOND,
+                                             TEST_MIXER_BUFFER_LENGTH);
+
+         deviceId = deviceManager.addDevice(&device);
+         CPPUNIT_ASSERT(deviceId > 0);
+         CPPUNIT_ASSERT(deviceManager.removeDevice(deviceId) == &device);
       }
    }
 
    void testEnableDisable()
    {
       OUTPUT_DRIVER driver(OUTPUT_DRIVER_CONSTRUCTOR_PARAMS);
-      CPPUNIT_ASSERT(!driver.isEnabled());
-
-      for (int i=0; i<ENABLE_DISABLE_TEST_RUNS_NUMBER; i++)
-      {
-         driver.enableDevice(TEST_SAMPLES_PER_FRAME_SIZE, TEST_SAMPLES_PER_SECOND, 0);
-         CPPUNIT_ASSERT(driver.isEnabled());
-
-         OsTask::delay(50);
-
-         driver.disableDevice();
-         CPPUNIT_ASSERT(!driver.isEnabled());
-      }
+      driver.enableDevice(TEST_SAMPLES_PER_FRAME_SIZE, TEST_SAMPLES_PER_SECOND, 0);
+      OsTask::delay(50);
+      driver.disableDevice();
    }
 
    void testEnableDisableFast()
    {
       OUTPUT_DRIVER driver(OUTPUT_DRIVER_CONSTRUCTOR_PARAMS);
-      CPPUNIT_ASSERT(!driver.isEnabled());
-
-      for (int i=0; i<ENABLE_DISABLE_FAST_TEST_RUNS_NUMBER; i++)
-      {
-         driver.enableDevice(TEST_SAMPLES_PER_FRAME_SIZE, TEST_SAMPLES_PER_SECOND, 0);
-         CPPUNIT_ASSERT(driver.isEnabled());
-
-         driver.disableDevice();
-         CPPUNIT_ASSERT(!driver.isEnabled());
-      }
+      driver.enableDevice(TEST_SAMPLES_PER_FRAME_SIZE, TEST_SAMPLES_PER_SECOND, 0);
+      driver.disableDevice();
    }
 
    void testDirectWrite()
@@ -165,25 +169,16 @@ public:
       calculateSampleData();
 
       OUTPUT_DRIVER driver(OUTPUT_DRIVER_CONSTRUCTOR_PARAMS);
-      CPPUNIT_ASSERT(!driver.isEnabled());
+      driver.enableDevice(TEST_SAMPLES_PER_FRAME_SIZE, TEST_SAMPLES_PER_SECOND, 0);
 
-      for (int i=0; i<DIRECT_WRITE_TEST_RUNS_NUMBER; i++)
+      // Write some data to device.
+      for (int frame=0; frame<TEST_SAMPLE_DATA_SIZE/TEST_SAMPLES_PER_FRAME_SIZE; frame++)
       {
-         driver.enableDevice(TEST_SAMPLES_PER_FRAME_SIZE, TEST_SAMPLES_PER_SECOND, 0);
-         CPPUNIT_ASSERT(driver.isEnabled());
-
-         // Write some data to device.
-         for (int frame=0; frame<TEST_SAMPLE_DATA_SIZE/TEST_SAMPLES_PER_FRAME_SIZE; frame++)
-         {
-            OsTask::delay(1000*TEST_SAMPLES_PER_FRAME_SIZE/TEST_SAMPLES_PER_SECOND);
-            CPPUNIT_ASSERT(driver.pushFrame(TEST_SAMPLES_PER_FRAME_SIZE,
-                                            sampleData + TEST_SAMPLES_PER_FRAME_SIZE*frame)
-                           == OS_SUCCESS);
-         }
-
-         driver.disableDevice();
-         CPPUNIT_ASSERT(!driver.isEnabled());
+         OsTask::delay(1000*TEST_SAMPLES_PER_FRAME_SIZE/TEST_SAMPLES_PER_SECOND);
+         driver.pushFrame(TEST_SAMPLES_PER_FRAME_SIZE, sampleData + TEST_SAMPLES_PER_FRAME_SIZE*frame);
       }
+
+      driver.disableDevice();
    }
 
    void testTickerNotification()
@@ -193,30 +188,18 @@ public:
       calculateSampleData();
 
       OUTPUT_DRIVER driver(OUTPUT_DRIVER_CONSTRUCTOR_PARAMS);
-      CPPUNIT_ASSERT(!driver.isEnabled());
+      driver.enableDevice(TEST_SAMPLES_PER_FRAME_SIZE, TEST_SAMPLES_PER_SECOND, 0);
+      driver.setTickerNotification(&notificationEvent);
 
-      for (int i=0; i<TICKER_TEST_WRITE_RUNS_NUMBER; i++)
+      // Write some data to device.
+      for (int frame=0; frame<TEST_SAMPLE_DATA_SIZE/TEST_SAMPLES_PER_FRAME_SIZE; frame++)
       {
-         driver.enableDevice(TEST_SAMPLES_PER_FRAME_SIZE, TEST_SAMPLES_PER_SECOND, 0);
-         CPPUNIT_ASSERT(driver.isEnabled());
-
-         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, driver.setTickerNotification(&notificationEvent));
-
-         // Write some data to device.
-         for (int frame=0; frame<TEST_SAMPLE_DATA_SIZE/TEST_SAMPLES_PER_FRAME_SIZE; frame++)
-         {
-            CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, notificationEvent.wait(OsTime(1000)));
-            notificationEvent.reset();
-            CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
-                                 driver.pushFrame(TEST_SAMPLES_PER_FRAME_SIZE,
-                                                  sampleData + TEST_SAMPLES_PER_FRAME_SIZE*frame));
-         }
-
-         CPPUNIT_ASSERT(driver.setTickerNotification(NULL) == OS_SUCCESS);
-
-         driver.disableDevice();
-         CPPUNIT_ASSERT(!driver.isEnabled());
+         notificationEvent.wait(OsTime(50));
+         notificationEvent.reset();
+         driver.pushFrame(TEST_SAMPLES_PER_FRAME_SIZE, sampleData + TEST_SAMPLES_PER_FRAME_SIZE*frame);
       }
+
+      driver.disableDevice();
    }
 
 protected:

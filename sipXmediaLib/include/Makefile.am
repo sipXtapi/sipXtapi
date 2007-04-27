@@ -71,6 +71,7 @@ nobase_include_HEADERS =  \
     mp/MpePtAVT.h \
     mp/MpFlowGraphBase.h \
     mp/MpFlowGraphMsg.h \
+    mp/MpidOSS.h \
     mp/MpInputDeviceDriver.h \
     mp/MpInputDeviceManager.h \
     mp/MpJitterBuffer.h \
@@ -78,6 +79,9 @@ nobase_include_HEADERS =  \
     mp/MpMediaTaskMsg.h \
     mp/MpMisc.h \
     mp/MpodBufferRecorder.h \
+    mp/MpodOSS.h \
+    mp/MpOSSDeviceWrapper.h \
+    mp/MpOSSDeviceWrapperContainer.h \
     mp/MpOutputDeviceDriver.h \
     mp/MpOutputDeviceManager.h \
     mp/MpPlayer.h \

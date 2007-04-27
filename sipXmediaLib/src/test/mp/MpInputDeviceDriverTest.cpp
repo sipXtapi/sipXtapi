@@ -16,7 +16,11 @@
 #include <mp/MpArrayBuf.h>
 #include <mp/MpAudioBuf.h>
 #include <mp/MpInputDeviceManager.h>
+#ifdef WIN32
 #include <mp/MpInputDeviceDriverWnt.h>
+#elif defined __linux__
+#include <mp/MpidOSS.h>
+#endif
 #include <os/OsTask.h>
 #include <utl/UtlString.h>
 
@@ -72,6 +76,9 @@ public:
       {
          devName = UtlString(devCaps.szPname, MAXPNAMELEN);
       }
+#elif defined __linux__
+         //FIXME: Make more convectional determining
+         devName = "/dev/dsp";
 #endif
       return devName;
     }
@@ -90,12 +97,19 @@ public:
 #ifdef WIN32
       MpInputDeviceDriverWnt iDevDriverWnt(getDefaultWaveInDevice(), inDevMgr);
       pInDevDriver = &iDevDriverWnt;
+#elif defined __linux__
+      UtlString name = getDefaultWaveInDevice();
+      //MpidOSS iDevDriverOSS(name, inDevMgr);
+      pInDevDriver = new MpidOSS(name, inDevMgr);
 #endif
       if (pInDevDriver != NULL)
       {
 #ifdef WIN32
          // Verify that we are pointing at an actual windows device.
          CPPUNIT_ASSERT(iDevDriverWnt.isDeviceValid());
+#elif defined __linux__         
+         // Verify that we are pointing at an actual OSS device.
+         CPPUNIT_ASSERT(ppInDevDriver->isDeviceValid());
 #endif
 
          // Since we've only just created this device, it shouldn't be enabled.
@@ -124,7 +138,7 @@ public:
          CPPUNIT_ASSERT(inDevMgr.enableDevice(iDrvHnd) == OS_SUCCESS);
 
          int nMSPerBuffer = mNumBufferedFrames * mFramePeriodMSecs;
-         unsigned nMSecsToRecord = 1000;
+         unsigned nMSecsToRecord = 5000;
          double* derivs = new double[(mNumBufferedFrames-1)*(nMSecsToRecord/nMSPerBuffer)];
          // Round nMSecsToRecord to nMSPerBuffer boundary.
          nMSecsToRecord = (nMSecsToRecord/nMSPerBuffer) * nMSPerBuffer;
