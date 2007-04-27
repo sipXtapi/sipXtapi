@@ -254,10 +254,6 @@ OsStatus MpodOSS::setTickerNotification(OsNotification *pFrameTicker)
     {
         return OS_FAILED;
     }
-    if (isEnabled()) 
-    {
-        return OS_BUSY;
-    }
     
     pNotificator = pFrameTicker;
     return OS_SUCCESS;
