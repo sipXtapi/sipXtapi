@@ -65,14 +65,14 @@ UtlBoolean MpAudioResource::processFrame(void)
    UtlBoolean res;
 
 #ifdef RTL_ENABLED
-        RTL_BLOCK(mName);
+        RTL_BLOCK((UtlString)*this);
 #endif
 
 #ifdef WATCH_FRAME_PROCESSING /* [ */
    char      z[500];
    int       len;
 
-   len = sprintf(z, "%s in(", (const char*)mName);
+   len = sprintf(z, "%s in(", (const char*)*this);
    for (i=0; i < mMaxInputs; i++)
    {
       if (mpInBufs[i].isValid())

@@ -132,6 +132,7 @@ public:
      *           Frame considered late if whole frame does not fit into buffer,
      *           i.e. it would be rejected even if part of frame fit into buffer.
      *  @returns OS_FAILED for other errors.
+     *  @returns OS_SUCCESS if frame sent correctly.
      */
 
      /// Send one frame from mixer buffer to device.

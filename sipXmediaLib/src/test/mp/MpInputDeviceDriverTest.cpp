@@ -93,6 +93,11 @@ public:
                                     mNumBufferedFrames, 
                                     *mpBufPool);
 
+      // Buffer for recorded data.
+      MpAudioSample* pRecordBuffer = new MpAudioSample[mNumBufferedFrames* MIDDT_SAMPLES_PER_FRAME];
+      int pRecordBufferPointer = 0;
+
+
       MpInputDeviceDriver* pInDevDriver = NULL;
 #ifdef WIN32
       MpInputDeviceDriverWnt iDevDriverWnt(getDefaultWaveInDevice(), inDevMgr);

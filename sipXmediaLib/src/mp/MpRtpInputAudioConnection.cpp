@@ -99,7 +99,7 @@ UtlBoolean MpRtpInputAudioConnection::processFrame(void)
     UtlBoolean result;
 
 #ifdef RTL_ENABLED
-    RTL_BLOCK(mName);
+    RTL_BLOCK((UtlString)*this);
 #endif
 
     assert(mpDecode);

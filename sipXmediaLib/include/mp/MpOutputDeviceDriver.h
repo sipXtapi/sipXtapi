@@ -129,6 +129,11 @@ public:
      *
      *  @param numSamples - (in) Number of samples in <tt>samples</tt> array.
      *  @param samples - (in) Array of samples to push to device.
+     *
+     *  @returns OS_LIMIT_REACHED if mixer buffer is full, i.e. frame come too
+     *           early.
+     *  @returns OS_FAILED for other errors.
+     *  @returns OS_SUCCESS if frame sent correctly.
      */
 
      /// Set frame ticker notification which this device should signal.
