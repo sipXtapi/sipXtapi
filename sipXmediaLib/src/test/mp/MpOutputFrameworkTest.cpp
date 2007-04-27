@@ -18,15 +18,24 @@
 #include <os/OsTask.h>
 #include <os/OsEvent.h>
 
+#ifdef RTL_ENABLED // [
+#  include "rtl_macro.h"
+#else  // RTL_ENABLED ][
+#  define RTL_WRITE
+#  define RTL_BLOCK
+#  define RTL_START
+#endif // RTL_ENABLED ]
+
 #define TEST_SAMPLES_PER_FRAME_SIZE   80
 #define BUFFER_NUM                    50
 #define TEST_SAMPLES_PER_SECOND       8000
 #define TEST_MIXER_BUFFER_LENGTH      10
-#define TEST_SAMPLE_DATA_SIZE         (TEST_SAMPLES_PER_SECOND*1)
+#define TEST_SAMPLE_DATA_LENGTH_SEC   5  // test length in seconds
+#define TEST_SAMPLE_DATA_SIZE         (TEST_SAMPLES_PER_SECOND*TEST_SAMPLE_DATA_LENGTH_SEC)
 #define TEST_SAMPLE_DATA_MAGNITUDE    32000
-#define TEST_SAMPLE_DATA_PERIOD       11  // in milliseconds
+#define TEST_SAMPLE_DATA_PERIOD       7  // in milliseconds
 
-#define USE_TEST_DRIVER
+//#define USE_TEST_DRIVER
 
 #ifdef USE_TEST_DRIVER // USE_TEST_DRIVER [
 #include <mp/MpodBufferRecorder.h>
@@ -184,6 +193,8 @@ public:
    void testTickerNotification()
    {
       OsEvent notificationEvent;
+     
+     RTL_START(1000000);
 
       calculateSampleData();
 
@@ -196,10 +207,13 @@ public:
       {
          notificationEvent.wait(OsTime(50));
          notificationEvent.reset();
+        RTL_BLOCK("test ticker loop");
          driver.pushFrame(TEST_SAMPLES_PER_FRAME_SIZE, sampleData + TEST_SAMPLES_PER_FRAME_SIZE*frame);
       }
 
       driver.disableDevice();
+
+      RTL_WRITE("testTickerNotification.rtl");
    }
 
 protected:
