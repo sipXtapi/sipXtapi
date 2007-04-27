@@ -19,6 +19,7 @@
 // APPLICATION INCLUDES
 #include <utl/UtlDListIterator.h>
 #include <utl/UtlHashMap.h>
+#include <utl/UtlHashBag.h>
 #include <os/OsDatagramSocket.h>
 #include <os/OsNatDatagramSocket.h>
 #include <os/OsProtectEventMgr.h>
