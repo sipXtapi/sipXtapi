@@ -195,7 +195,8 @@ OsStatus MpodOSS::pushFrame(unsigned int numSamples,
         //assert(res == 0);
         //pthread_mutex_unlock(&pDevWrapper->mWrMutexBuff);
         //pthread_yield();
-        
+
+        status = OS_SUCCESS;
     }
     else
     {
@@ -214,6 +215,7 @@ OsStatus MpodOSS::pushFrame(unsigned int numSamples,
                 OsSysLog::add(FAC_MP, PRI_DEBUG,
                         "OSS: MpodOSS out buffer is overflowing\n");
                 
+                status = OS_LIMIT_REACHED;
                 break;
             }
         
