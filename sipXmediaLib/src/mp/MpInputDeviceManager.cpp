@@ -146,7 +146,7 @@ public:
       MpInputDeviceFrameData* thisFrameData = &mppFrameBufferArray[thisFrameIndex];
 
       // Current time to review device driver jitter
-      OsDateTime::getCurTimeSinceBoot(thisFrameData->mFrameReceivedTime);
+      OsDateTime::getCurTime(thisFrameData->mFrameReceivedTime);
 
       // Frame time slot the driver says this is targeted for
       thisFrameData->mFrameTime = frameTime;
@@ -365,7 +365,7 @@ MpInputDeviceManager::MpInputDeviceManager(unsigned defaultSamplesPerFrame,
    assert(defaultSamplesPerSec > 0);
    assert(defaultNumBufferedFrames > 0);
 
-   OsDateTime::getCurTimeSinceBoot(mTimeZero);
+   OsDateTime::getCurTime(mTimeZero);
 }
 
 
@@ -709,7 +709,7 @@ OsStatus MpInputDeviceManager::getDeviceId(const UtlString& deviceName,
 MpFrameTime MpInputDeviceManager::getCurrentFrameTime() const
 {
    OsTime now;
-   OsDateTime::getCurTimeSinceBoot(now);
+   OsDateTime::getCurTime(now);
 
    now -= mTimeZero;
 

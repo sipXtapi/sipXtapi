@@ -49,7 +49,7 @@ MpOutputDeviceManager::MpOutputDeviceManager(unsigned defaultSamplesPerFrame,
    assert(defaultSamplesPerFrame > 0);
    assert(defaultSamplesPerSecond > 0);
 
-   OsDateTime::getCurTimeSinceBoot(mTimeZero);
+   OsDateTime::getCurTime(mTimeZero);
 }
 
 
@@ -313,7 +313,7 @@ OsStatus MpOutputDeviceManager::getMixerBufferLength(MpOutputDeviceHandle device
 MpFrameTime MpOutputDeviceManager::getCurrentFrameTime() const
 {
    OsTime now;
-   OsDateTime::getCurTimeSinceBoot(now);
+   OsDateTime::getCurTime(now);
 
    now -= mTimeZero;
 
