@@ -119,21 +119,29 @@ UtlBoolean MprToOutputDevice::doProcessFrame(MpBufPtr inBufs[],
       status = mpOutputDeviceManager->pushFrame(mDeviceId, mFrameTime, inBufs[0]);
       osPrintf("MprToOutputDevice::doProcessFrame(): frameToPush=%d, pushResult=%d\n", mFrameTime, status);
 
-      while (status == OS_LIMIT_REACHED)
+      // If push frame fail and we're in mixer mode, advance our current frame
+      // time to fit into mixer buffer.
+      MpFrameTime mixerBufferLength;
+      if (  (status != OS_SUCCESS)
+         && mpOutputDeviceManager->getMixerBufferLength(mDeviceId, mixerBufferLength) == OS_SUCCESS
+         && (mixerBufferLength > 0) )
       {
-         RTL_EVENT("MprToOutputDevice::overflow",1);
-         mFrameTime -= frameTimeInterval;
-         status = mpOutputDeviceManager->pushFrame(mDeviceId, mFrameTime, inBufs[0]);
-         osPrintf("MprToOutputDevice::doProcessFrame(): frameToPush=%d, pushResult=%d ---\n", mFrameTime, status);
+         while (status == OS_LIMIT_REACHED)
+         {
+            RTL_EVENT("MprToOutputDevice::overflow",1);
+            mFrameTime -= frameTimeInterval;
+            status = mpOutputDeviceManager->pushFrame(mDeviceId, mFrameTime, inBufs[0]);
+            osPrintf("MprToOutputDevice::doProcessFrame(): frameToPush=%d, pushResult=%d ---\n", mFrameTime, status);
+         }
+         while (status == OS_INVALID_STATE)
+         {
+            RTL_EVENT("MprToOutputDevice::overflow",-1);
+            mFrameTime += frameTimeInterval;
+            status = mpOutputDeviceManager->pushFrame(mDeviceId, mFrameTime, inBufs[0]);
+            osPrintf("MprToOutputDevice::doProcessFrame(): frameToPush=%d, pushResult=%d +++\n", mFrameTime, status);
+         }
+         RTL_EVENT("MprToOutputDevice::overflow",0);
       }
-      while (status == OS_INVALID_STATE)
-      {
-         RTL_EVENT("MprToOutputDevice::overflow",-1);
-         mFrameTime += frameTimeInterval;
-         status = mpOutputDeviceManager->pushFrame(mDeviceId, mFrameTime, inBufs[0]);
-         osPrintf("MprToOutputDevice::doProcessFrame(): frameToPush=%d, pushResult=%d +++\n", mFrameTime, status);
-      }
-      RTL_EVENT("MprToOutputDevice::overflow",0);
    }
 
    return (status == OS_SUCCESS);
