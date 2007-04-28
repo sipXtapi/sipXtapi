@@ -207,8 +207,9 @@ public:
 
 //@}
 
-     /// @brief Release the "frame start" semaphore.  This signals the media 
-     /// processing task that it should begin processing the next frame.
+     /// @brief Post NO_WAIT_TIME message to MediaTask queue. This signals
+     /// the media processing task that it should begin processing the next
+     /// frame.
    static OsStatus signalFrameStart(void);
      /**<
      *  Returns the result of releasing the binary semaphore that is used
