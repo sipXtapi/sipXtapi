@@ -378,32 +378,30 @@ UtlBoolean OsTimerTask::handleMessage(OsMsg& rMsg)
  *  Advances the timer's state if it is one-shot or has been stopped.
  */
 void OsTimerTask::fireTimer(OsTimer* timer)
-   {
+{
+   OsLock lock(timer->mBSem);
    UtlBoolean report;
+
+   // mDeleting may be true, if the destructor has started running.
+
+   // Determine if this firing should be reported, or whether the
+   // timer has been stopped since we were informed that it started.
+   report = timer->mTaskState == timer->mApplicationState;
+
+   if (!report)
    {
-      OsLock lock(timer->mBSem);
-
-      // mDeleting may be true, if the destructor has started running.
-   
-      // Determine if this firing should be reported, or whether the
-      // timer has been stopped since we were informed that it started.
-      report = timer->mTaskState == timer->mApplicationState;
-
-      if (!report)
-      {
-         // If this firing is after the timer has been stopped by
-         // the application, advance mTaskState to a stopped state
-         // to recognize that the timer has been removed from the
-         // timer queue.
-         timer->mTaskState++;
-      }
-      else if (report && !timer->mQueuedPeriodic)
-      {
-         // If this firing should be reported, and this is a one-shot
-         // timer, stop the timer:
-         // advance both mTaskState and mApplicationState
-         timer->mTaskState = timer->mApplicationState = timer->mTaskState + 1;
-      }
+      // If this firing is after the timer has been stopped by
+      // the application, advance mTaskState to a stopped state
+      // to recognize that the timer has been removed from the
+      // timer queue.
+      timer->mTaskState++;
+   }
+   else if (report && !timer->mQueuedPeriodic)
+   {
+      // If this firing should be reported, and this is a one-shot
+      // timer, stop the timer:
+      // advance both mTaskState and mApplicationState
+      timer->mTaskState = timer->mApplicationState = timer->mTaskState + 1;
    }
 
    // If this firing should be reported, and this is a periodic
@@ -414,12 +412,13 @@ void OsTimerTask::fireTimer(OsTimer* timer)
                                                      timer->mQueuedPeriod);
       // Insert the timer into the active timer queue.
       insertTimer(timer);
-}
+   }
 
    // Call the event routine if we are supposed to.
    if (report)
    {
       timer->mpNotifier->signal((int) timer);
+      timer->mWasFired = TRUE;
    }
 }
 

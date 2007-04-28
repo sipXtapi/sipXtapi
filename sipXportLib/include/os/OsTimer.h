@@ -234,7 +234,15 @@ public:
 
    /// Get the ContainableType for a UtlContainable derived class.
    virtual UtlContainableType getContainableType() const;
-    
+
+   /// Returns TRUE if timer was fired
+   UtlBoolean getWasFired();
+   /**<
+    * This flag is set to FALSE when timer is first started, and also
+    * if stop operation succeeds. It is set to TRUE when timer is fired.
+    * Note that stop fails on a stopped timer.
+    */
+
 /* ============================ INQUIRY =================================== */
 
    /// Compare the this object to another like-objects.
@@ -259,6 +267,7 @@ protected:
    OsBSem          mBSem;      //< semaphore to lock access to members
 
    unsigned int    mApplicationState;
+   UtlBoolean      mWasFired; ///< TRUE if timer is stopped because it was fired
    //< state as seen by application methods
    unsigned int    mTaskState; //< state as seen by the timer task
    UtlBoolean      mDeleting;  //< TRUE if timer is being deleted

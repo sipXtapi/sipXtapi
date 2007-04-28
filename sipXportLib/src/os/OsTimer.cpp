@@ -53,7 +53,8 @@ OsTimer::OsTimer(OsMsgQ* pQueue, const int userData) :
    mpNotifier(new OsQueuedEvent(*pQueue, userData)) ,
    mbManagedNotifier(TRUE),
    mOutstandingMessages(0),
-   mTimerQueueLink(0)
+   mTimerQueueLink(0),
+   mWasFired(FALSE)
 {
 #ifdef VALGRIND_TIMER_ERROR
    // Initialize the variables for tracking timer access.
@@ -73,7 +74,8 @@ OsTimer::OsTimer(OsNotification& rNotifier) :
    mpNotifier(&rNotifier) ,
    mbManagedNotifier(FALSE),
    mOutstandingMessages(0),
-   mTimerQueueLink(0)
+   mTimerQueueLink(0),
+   mWasFired(FALSE)
 {
 #ifdef VALGRIND_TIMER_ERROR
    // Initialize the variables for tracking timer access.
@@ -213,6 +215,7 @@ OsStatus OsTimer::stop(UtlBoolean synchronous)
       // Determine whether the call is successful.
       if (isStarted(mApplicationState))
       {
+         mWasFired = FALSE;
          // Update state to stopped.
          mApplicationState++;
          result = OS_SUCCESS;
@@ -282,6 +285,13 @@ UtlContainableType OsTimer::getContainableType() const
     return OsTimer::TYPE;
 }
 
+
+UtlBoolean OsTimer::getWasFired()
+{
+   OsLock lock(mBSem);
+   return mWasFired;
+}
+
 /* ============================ INQUIRY =================================== */
 
 // Return the state value for this OsTimer object
@@ -339,6 +349,7 @@ OsStatus OsTimer::startTimer(Time start,
       // Determine whether the call is successful.
       if (isStopped(mApplicationState))
       {
+         mWasFired = FALSE;
          // Update state to started.
          mApplicationState++;
          result = OS_SUCCESS;
