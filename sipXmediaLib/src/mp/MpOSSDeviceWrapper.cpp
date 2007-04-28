@@ -956,8 +956,8 @@ void MpOSSDeviceWrapper::performWithWrite()
             mWrTimeStarted.tv_nsec -= 1000000000;
             mWrTimeStarted.tv_sec++;
         }   */
-        res = pthread_cond_timedwait(&mNull, &mWrMutex, &mWrTimeStarted);           
-        assert (res == ETIMEDOUT);
+//        res = pthread_cond_timedwait(&mNull, &mWrMutex, &mWrTimeStarted);           
+//        assert (res == ETIMEDOUT);
     }   
     
        
