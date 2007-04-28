@@ -20,6 +20,13 @@
 #include <os/OsLock.h>
 #include <os/OsCallback.h>
 
+#ifdef RTL_ENABLED
+#include <rtl_macro.h>
+#else
+#define RTL_BLOCK(x)
+#define RTL_EVENT(x,y)
+#endif
+
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
@@ -156,10 +163,15 @@ OsStatus MpAudioOutputConnection::pushFrame(unsigned int numSamples,
    assert(samples != NULL);
    assert(numSamples > 0);
 
-   // Check for late frame.
+   // Check for late frame. Check for too early frame is done inside mixFrame()
+   // function (if mixer mode is used) and will not be done if direct write
+   // mode is used.
    // TODO:: This check should be fixed to support frame time wrap around.
    if (frameTime < mCurrentFrameTime)
    {
+      osPrintf("MpAudioOutputConnection::pushFrame()"
+               " OS_INVALID_STATE frameTime=%d, currentTime=%d\n",
+               frameTime, mCurrentFrameTime);
       result = OS_INVALID_STATE;
       return result;
    }
@@ -171,6 +183,7 @@ OsStatus MpAudioOutputConnection::pushFrame(unsigned int numSamples,
    if (isMixerBufferAvailable())
    {
       // We're in mixer mode.
+      RTL_BLOCK("MpAudioOutputConnection::mixFrame");
 
       // Convert frameTime to offset in mixer buffer.
       // Note: frameTime >= mCurrentFrameTime.
@@ -183,6 +196,7 @@ OsStatus MpAudioOutputConnection::pushFrame(unsigned int numSamples,
    }
    else
    {
+      RTL_BLOCK("MpAudioOutputConnection::directWrite");
       // We're in direct write mode.
       // In this mode pushed frame should have same size as device driver frame.
       // Later we may write code which enable pushing frames containing multiple
@@ -191,6 +205,9 @@ OsStatus MpAudioOutputConnection::pushFrame(unsigned int numSamples,
 
       // So, push data to device driver and forget.
       result = mpDeviceDriver->pushFrame(numSamples, samples);
+
+      // But do not forget to advance our frame time.
+      mCurrentFrameTime += numSamples * 1000 / mpDeviceDriver->getSamplesPerSec();
    }
 
    return result;
@@ -288,6 +305,9 @@ OsStatus MpAudioOutputConnection::mixFrame(unsigned frameOffset,
    // Check for late frame. Whole frame should fit into buffer to be accepted.
    if (frameOffset+numSamples >= mMixerBufferLength)
    {
+      osPrintf("MpAudioOutputConnection::mixFrame()"
+               " OS_LIMIT_REACHED offset=%d, samples=%d, bufferLength=%d\n",
+               frameOffset, numSamples, mMixerBufferLength);
       return OS_LIMIT_REACHED;
    }
 
@@ -355,6 +375,8 @@ void MpAudioOutputConnection::tickerCallback(const int userData, const int event
 {
    OsStatus result;
    MpAudioOutputConnection *pConnection = (MpAudioOutputConnection*)userData;
+   RTL_BLOCK("MpAudioOutputConnection::tickerCallBack");
+
 
    if (pConnection->mMutex.acquire(OsTime(5)) == OS_SUCCESS)
    {
@@ -362,9 +384,16 @@ void MpAudioOutputConnection::tickerCallback(const int userData, const int event
       result = pConnection->mpDeviceDriver->pushFrame(
                      pConnection->mpDeviceDriver->getSamplesPerFrame(),
                      pConnection->mpMixerBuffer+pConnection->mMixerBufferBegin);
-      assert(result == OS_SUCCESS);
+      osPrintf("MpAudioOutputConnection::tickerCallback()"
+               " frame=%d, pushFrame result=%d\n",
+               pConnection->mCurrentFrameTime, result);
+//      assert(result == OS_SUCCESS);
 
+      // Advance mixer buffer and frame time.
       pConnection->advanceMixerBuffer(pConnection->mpDeviceDriver->getSamplesPerFrame());
+      pConnection->mCurrentFrameTime +=
+                           pConnection->mpDeviceDriver->getSamplesPerFrame() * 1000
+                           / pConnection->mpDeviceDriver->getSamplesPerSec();
 
       pConnection->mMutex.release();
    }
