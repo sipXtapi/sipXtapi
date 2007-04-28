@@ -17,6 +17,13 @@
 #include <mp/MpOutputDeviceManager.h>
 #include <mp/MprToOutputDevice.h>
 
+#ifdef RTL_ENABLED
+#include <rtl_macro.h>
+#else
+#define RTL_BLOCK(x)
+#define RTL_EVENT(x,y)
+#endif
+
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
@@ -69,6 +76,8 @@ UtlBoolean MprToOutputDevice::doProcessFrame(MpBufPtr inBufs[],
 {
    int frameTimeInterval;
    OsStatus status = OS_SUCCESS;
+   
+   RTL_BLOCK("MprToOutputDevice::doProcessFrame");
 
    assert(mpOutputDeviceManager != NULL);
 
@@ -96,6 +105,8 @@ UtlBoolean MprToOutputDevice::doProcessFrame(MpBufPtr inBufs[],
 
       mFrameTime = mpOutputDeviceManager->getCurrentFrameTime();
       mFrameTime += mixerBufferLength / 2;
+      
+      mFrameTimeInitialized = TRUE;
    }
    else
    {
@@ -106,15 +117,23 @@ UtlBoolean MprToOutputDevice::doProcessFrame(MpBufPtr inBufs[],
    if (inBufs[0].isValid())
    {
       status = mpOutputDeviceManager->pushFrame(mDeviceId, mFrameTime, inBufs[0]);
+      osPrintf("MprToOutputDevice::doProcessFrame(): frameToPush=%d, pushResult=%d\n", mFrameTime, status);
 
-      if (status == OS_LIMIT_REACHED)
+      while (status == OS_LIMIT_REACHED)
       {
-         // TODO:: Put code to workaround mixer buffer overflow. 
+         RTL_EVENT("MprToOutputDevice::overflow",1);
+         mFrameTime -= frameTimeInterval;
+         status = mpOutputDeviceManager->pushFrame(mDeviceId, mFrameTime, inBufs[0]);
+         osPrintf("MprToOutputDevice::doProcessFrame(): frameToPush=%d, pushResult=%d ---\n", mFrameTime, status);
       }
-      else if (status == OS_INVALID_STATE)
+      while (status == OS_INVALID_STATE)
       {
-         // TODO:: Put code to workaround mixer buffer underflow.
+         RTL_EVENT("MprToOutputDevice::overflow",-1);
+         mFrameTime += frameTimeInterval;
+         status = mpOutputDeviceManager->pushFrame(mDeviceId, mFrameTime, inBufs[0]);
+         osPrintf("MprToOutputDevice::doProcessFrame(): frameToPush=%d, pushResult=%d +++\n", mFrameTime, status);
       }
+      RTL_EVENT("MprToOutputDevice::overflow",0);
    }
 
    return (status == OS_SUCCESS);
