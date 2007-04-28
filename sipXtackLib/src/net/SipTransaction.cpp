@@ -3972,14 +3972,18 @@ void SipTransaction::deleteTimers()
 #ifdef TEST_PRINT
         osPrintf("SipTransaction::deleteTimers deleting timer %p\n", timer);
 #endif
+        // stop timer so it doesn't fire anymore
+        timer->stop();
+
+        // remove timer from transaction
         removeTimer(timer);
         
-        // Only delete the timer if not stopped -- the timer will be cleaned 
-        // up in handle message.  Delete it opens up a race (the timer could
-        // be queued up on the SipUserAgent already).
-        if (timer->getState() != OsTimer::STOPPED)
+        // delete timer if it's stopped and isn't stopped because it fired
+        // but because we stopped it manually. Such timers are safe to delete.
+        // Fired timers should be cleaned up in the message queue they posted
+        // message to (SipUserAgent).
+        if (timer->getState() == OsTimer::STOPPED && timer->getWasFired() == FALSE)
         {
-            timer->stop();
             SipMessageEvent* pMsgEvent = (SipMessageEvent*) timer->getUserData() ;
             delete pMsgEvent;
             delete timer;
