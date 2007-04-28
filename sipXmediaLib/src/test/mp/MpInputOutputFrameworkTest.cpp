@@ -12,13 +12,18 @@
 #include <cppunit/TestCase.h>
 #include <sipxunit/TestUtilities.h>
 
-#include "mp/MpGenericResourceTest.h"
 #include "mp/MpInputDeviceManager.h"
 #include "mp/MprFromInputDevice.h"
 #include "mp/MpOutputDeviceManager.h"
 #include "mp/MprToOutputDevice.h"
+#include "mp/MpFlowGraphBase.h"
+#include "mp/MpMisc.h"
+#include "os/OsTask.h"
 #ifdef RTL_ENABLED
 #  include <rtl_macro.h>
+#else
+#  define RTL_BLOCK(x)
+#  define RTL_EVENT(x,y)
 #endif
 
 #include <os/OsFS.h>
@@ -26,10 +31,13 @@
 #define TEST_TIME_MS                  10000  ///< Time to runs test (in milliseconds)
 #define AUDIO_BUFS_NUM                500   ///< Number of buffers in buffer pool we'll use.
 #define BUFFERS_TO_BUFFER_ON_INPUT    3     ///< Number of buffers to buffer in input manager.
-#define BUFFERS_TO_BUFFER_ON_OUTPUT   3     ///< Number of buffers to buffer in output manager.
+#define BUFFERS_TO_BUFFER_ON_OUTPUT   0     ///< Number of buffers to buffer in output manager.
 
 #define TEST_SAMPLES_PER_FRAME        80    ///< in samples
 #define TEST_SAMPLES_PER_SECOND       8000  ///< in samples/sec (Hz)
+
+#define BUFFER_ON_OUTPUT_MS           (BUFFERS_TO_BUFFER_ON_OUTPUT*TEST_SAMPLES_PER_FRAME*1000/TEST_SAMPLES_PER_SECOND)
+                                            ///< Buffer size in output manager in milliseconds.
 
 //#define USE_TEST_INPUT_DRIVER
 //#define USE_TEST_OUTPUT_DRIVER
@@ -70,48 +78,51 @@
 
 
 ///  Unit test for MprSplitter
-class MpInputOutputFrameworkTest : public MpGenericResourceTest
+class MpInputOutputFrameworkTest : public CppUnit::TestCase
 {
-   CPPUNIT_TEST_SUB_SUITE(MpInputOutputFrameworkTest, MpGenericResourceTest);
+   CPPUNIT_TEST_SUITE(MpInputOutputFrameworkTest);
    CPPUNIT_TEST(testShortCircuit);
    CPPUNIT_TEST_SUITE_END();
 
 protected:
-   MpBufPool *mpPool;         ///< Pool for data buffers
-   MpBufPool *mpHeadersPool;  ///< Pool for buffers headers
+   MpFlowGraphBase*  mpFlowGraph; ///< Flowgraph for our fromInputDevice and
+                              ///< toOutputDevice resources.
 
 public:
 
    void setUp()
    {
-      MpGenericResourceTest::setUp();
+      // Setup media task
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                           mpStartUp(TEST_SAMPLES_PER_SECOND, TEST_SAMPLES_PER_FRAME, 6*10, 0));
 
-      // Create pool for data buffers
-      mpPool = new MpBufPool(TEST_SAMPLES_PER_FRAME * sizeof(MpAudioSample)
-                             + MpArrayBuf::getHeaderSize(), AUDIO_BUFS_NUM);
-      CPPUNIT_ASSERT(mpPool != NULL);
-
-      // Create pool for buffer headers
-      mpHeadersPool = new MpBufPool(sizeof(MpAudioBuf), AUDIO_BUFS_NUM);
-      CPPUNIT_ASSERT(mpHeadersPool != NULL);
-
-      // Set mpHeadersPool as default pool for audio and data pools.
-      MpAudioBuf::smpDefaultPool = mpHeadersPool;
-      MpDataBuf::smpDefaultPool = mpHeadersPool;
+      mpFlowGraph = new MpFlowGraphBase( TEST_SAMPLES_PER_FRAME
+                                       , TEST_SAMPLES_PER_SECOND);
+      CPPUNIT_ASSERT(mpFlowGraph != NULL);
    }
 
    void tearDown()
    {
-      if (mpPool != NULL)
+      // This should normally be done by haltFramework, but if we aborted due
+      // to an assertion the flowgraph will need to be shutdown here
+      if (mpFlowGraph && mpFlowGraph->isStarted())
       {
-         delete mpPool;
-      }
-      if (mpHeadersPool != NULL)
-      {
-         delete mpHeadersPool;
+         osPrintf("WARNING: flowgraph found still running, shutting down\n");
+
+         // ignore the result and keep going
+         mpFlowGraph->stop();
+
+         // Request processing of another frame so that the STOP_FLOWGRAPH
+         // message gets handled
+         mpFlowGraph->processNextFrame();
       }
 
-      MpGenericResourceTest::setUp();
+      // Free flowgraph resources
+      delete mpFlowGraph;
+      mpFlowGraph = NULL;
+
+      // Clear all Media Tasks data
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, mpShutdown());
    }
 
    void testShortCircuit()
@@ -124,10 +135,10 @@ public:
       MpInputDeviceManager inputDeviceManager(TEST_SAMPLES_PER_FRAME, 
                                               TEST_SAMPLES_PER_SECOND,
                                               BUFFERS_TO_BUFFER_ON_INPUT,
-                                              *mpPool);
+                                              *MpMisc.RawAudioPool);
       MpOutputDeviceManager outputDeviceManager(TEST_SAMPLES_PER_FRAME,
                                                 TEST_SAMPLES_PER_SECOND,
-                                                BUFFERS_TO_BUFFER_ON_OUTPUT);
+                                                BUFFER_ON_OUTPUT_MS);
 
 
       // Create source (input) device and add it to manager.
@@ -145,12 +156,12 @@ public:
       // Create source (input) and sink (output) resources.
       MprFromInputDevice pSource("MprFromInputDevice",
                                  TEST_SAMPLES_PER_FRAME,
-                                 TEST_SAMPLES_PER_SEC,
+                                 TEST_SAMPLES_PER_SECOND,
                                  &inputDeviceManager,
                                  sourceDeviceId);
       MprToOutputDevice pSink("MprToOutputDevice",
                               TEST_SAMPLES_PER_FRAME,
-                              TEST_SAMPLES_PER_SEC,
+                              TEST_SAMPLES_PER_SECOND,
                               &outputDeviceManager,
                               sinkDeviceId);
 
@@ -177,7 +188,7 @@ public:
          RTL_BLOCK("test loop body");
          printf("==> i=%d\n",i);
          OsTask::delay(TEST_SAMPLES_PER_FRAME*1000/TEST_SAMPLES_PER_SECOND-2);
-	 RTL_EVENT("test loop body", 2);
+         RTL_EVENT("test loop body", 2);
          mpFlowGraph->processNextFrame();
       }
 
@@ -186,7 +197,8 @@ public:
       CPPUNIT_ASSERT(pSink.disable());
       mpFlowGraph->processNextFrame();
 
-      mpFlowGraph->stop();
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, mpFlowGraph->stop());
+      mpFlowGraph->processNextFrame();
 
 #ifdef USE_TEST_OUTPUT_DRIVER // [
       OsFile::openAndWrite("capture.raw",
@@ -199,6 +211,10 @@ public:
                            inputDeviceManager.disableDevice(sourceDeviceId));
       CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
                            outputDeviceManager.disableDevice(sinkDeviceId));
+
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, mpFlowGraph->removeResource(pSink));
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, mpFlowGraph->removeResource(pSource));
+      mpFlowGraph->processNextFrame();
 
       OsTask::delay(10);
 
