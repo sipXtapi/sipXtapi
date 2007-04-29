@@ -221,6 +221,26 @@ public:
      *  Multi-thread safe.
      */
 
+     /// Set device that will be used to send frame start message to media task.
+   OsStatus setFlowgraphTickerSource(MpOutputDeviceHandle deviceId);
+     /**<
+     *  Selected device will call MpMediaTask::signalFrameStart() method after
+     *  every frame period to signal start of next frame processing interval.
+     *
+     *  @note Note, that ticker work only when device is enabled. So do not
+     *        forget to enable device after call to this function.
+     *
+     *  @param deviceId - (in) Device id for device that will be used as ticker
+     *         source. Pass MP_INVALID_OUTPUT_DEVICE_HANDLE to totally disable
+     *         flowgraph ticker.
+     *
+     *  @returns OS_SUCCESS if device accepted set ticker request.
+     *  @returns OS_NOT_FOUND if the device could not be found.
+     *  @returns OS_FAILED if device rejected set ticker request.
+     *
+     *  Multi-thread safe.
+     */
+
 //@}
 
 /* ============================ ACCESSORS ================================= */
@@ -320,6 +340,7 @@ private:
   UtlHashMap mConnectionsByDeviceName;
   UtlHashBag mConnectionsByDeviceId;
   OsTime mTimeZero;
+  MpOutputDeviceHandle mCurrentTickerDevice;
 
     /// Copy constructor (not implemented for this class)
   MpOutputDeviceManager(const MpOutputDeviceManager& rMpOutputDeviceManager);

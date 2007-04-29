@@ -105,6 +105,12 @@ public:
      *  @see MpOutputDeviceDriver::disableDevice() for more information.
      */
 
+     /// Use this device to signal frame processing interval start.
+   OsStatus enableFlowgraphTicker();
+
+     /// Stop using this device to signal frame processing interval start.
+   OsStatus disableFlowgraphTicker();
+
      /// Send data frame to output device.
    OsStatus pushFrame(unsigned int numSamples,
                       MpAudioSample* samples,
@@ -241,6 +247,8 @@ protected:
    inline
    UtlBoolean isMixerBufferAvailable() const;
      /**<
+     *  Use this function to check is connection in mixer mode or not.
+     *
      *  @NOTE Not thread-safe. This function is supposed to be used from
      *        other (synchronized) functions.
      */
@@ -275,6 +283,32 @@ protected:
 
 //@}
 
+///@name Ticker methods
+//@{
+
+     /// Return true if ticker is needed.
+   inline
+   UtlBoolean isTickerNeeded() const;
+     /**<
+     *  @returns TRUE if mixer mode is enabled or flowgraph ticker is requested.
+     */
+
+     /// Create notification and register it with device.
+   OsStatus setDeviceTicker();
+     /**<
+     *  @returns OS_SUCCESS if ticker created and registered successfully.
+     *  @returns OS_NOT_SUPPORTED if device do not support ticker callback.
+     *  @returns OS_FAILED if device failed to set ticker callback.
+     */
+
+     /// Unregister and delete it.
+   OsStatus clearDeviceTicker();
+     /**<
+     *  @returns OS_SUCCESS always.
+     */
+
+//@}
+
      /// Call this when driver become ready for the next frame.
    static
    void tickerCallback(const int userData, const int eventData);
@@ -301,6 +335,8 @@ private:
    OsCallback *mpTickerCallback;  ///< This callback is used in mixer mode
                    ///< to notify connection that device is ready for
                    ///< the next frame.
+   UtlBoolean mDoFlowgraphTicker; ///< Should we call MpMediaTask::signalFrameStart()
+                   ///< in ticker callback or not.
 
 
      /// Copy constructor (not implemented for this class)
@@ -341,6 +377,11 @@ unsigned MpAudioOutputConnection::getUseCount() const
 UtlBoolean MpAudioOutputConnection::isMixerBufferAvailable() const
 {
    return (mMixerBufferLength != 0);
+}
+
+UtlBoolean MpAudioOutputConnection::isTickerNeeded() const
+{
+   return (isMixerBufferAvailable() || mDoFlowgraphTicker);
 }
 
 #endif  // _MpAudioOutputConnection_h_

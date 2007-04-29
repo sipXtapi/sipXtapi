@@ -45,6 +45,7 @@ MpOutputDeviceManager::MpOutputDeviceManager(unsigned defaultSamplesPerFrame,
 , mDefaultSamplesPerFrame(defaultSamplesPerFrame)
 , mDefaultSamplesPerSecond(defaultSamplesPerSecond)
 , mDefaultBufferLength(defaultMixerBufferLength)
+, mCurrentTickerDevice(MP_INVALID_OUTPUT_DEVICE_HANDLE)
 {
    assert(defaultSamplesPerFrame > 0);
    assert(defaultSamplesPerSecond > 0);
@@ -213,7 +214,7 @@ OsStatus MpOutputDeviceManager::pushFrame(MpOutputDeviceHandle deviceId,
    MpAudioOutputConnection* connection = NULL;
    UtlInt deviceKey(deviceId);
 
-   OsWriteLock lock(mRwMutex);
+   OsReadLock lock(mRwMutex);
 
    connection = (MpAudioOutputConnection*) mConnectionsByDeviceId.find(&deviceKey);
 
@@ -225,6 +226,46 @@ OsStatus MpOutputDeviceManager::pushFrame(MpOutputDeviceHandle deviceId,
          connection->pushFrame(pAudioFrame->getSamplesNumber(),
                                pAudioFrame->getSamples(),
                                frameTime);
+   }
+
+   return status;
+}
+
+OsStatus MpOutputDeviceManager::setFlowgraphTickerSource(MpOutputDeviceHandle deviceId)
+{
+   OsStatus status = OS_NOT_FOUND;
+   MpAudioOutputConnection* connection = NULL;
+
+   // No need to take lock here as access to mConnectionsByDeviceId is atomic
+   // read operation.
+   if (mCurrentTickerDevice != deviceId)
+   {
+      OsWriteLock lock(mRwMutex);
+
+      // Stop current ticker if was enabled.
+      if (mCurrentTickerDevice != MP_INVALID_OUTPUT_DEVICE_HANDLE)
+      {
+         UtlInt deviceKey(mCurrentTickerDevice);
+         connection = (MpAudioOutputConnection*) mConnectionsByDeviceId.find(&deviceKey);
+
+         if (connection != NULL)
+         {
+            connection->disableFlowgraphTicker();
+         }
+      }
+
+      // Start new ticker if requested.
+      if (deviceId != MP_INVALID_OUTPUT_DEVICE_HANDLE)
+      {
+         UtlInt deviceKey(deviceId);
+         connection = (MpAudioOutputConnection*) mConnectionsByDeviceId.find(&deviceKey);
+
+         if (connection != NULL)
+         {
+            connection->enableFlowgraphTicker();
+         }
+      }
+
    }
 
    return status;
@@ -276,7 +317,7 @@ OsStatus MpOutputDeviceManager::getDeviceId(const UtlString& deviceName,
    }
    else
    {
-      deviceId = -1;
+      deviceId = MP_INVALID_OUTPUT_DEVICE_HANDLE;
       return OS_NOT_FOUND;
    }
 }

@@ -17,6 +17,7 @@
 #include <mp/MpAudioOutputConnection.h>
 #include <mp/MpOutputDeviceDriver.h>
 #include <mp/MpMisc.h>    // for min macro
+#include <mp/MpMediaTask.h> // for MpMediaTask::signalFrameStart()
 #include <os/OsLock.h>
 #include <os/OsCallback.h>
 
@@ -48,6 +49,7 @@ MpAudioOutputConnection::MpAudioOutputConnection(MpOutputDeviceHandle deviceId,
 , mpMixerBuffer(NULL)
 , mMixerBufferBegin(0)
 , mpTickerCallback(NULL)
+, mDoFlowgraphTicker(FALSE)
 {
    assert(mpDeviceDriver != NULL);
 };
@@ -85,7 +87,8 @@ OsStatus MpAudioOutputConnection::enableDevice(unsigned samplesPerFrame,
       return OS_INVALID_STATE;
    }
 
-   if (!mpDeviceDriver->isFrameTickerSupported())
+   // Driver should be able to request next frame in mixer mode.
+   if (mixerBufferLength > 0 && !mpDeviceDriver->isFrameTickerSupported())
    {
       return OS_NOT_SUPPORTED;
    }
@@ -110,15 +113,12 @@ OsStatus MpAudioOutputConnection::enableDevice(unsigned samplesPerFrame,
       {
          return result;
       }
+   }
 
-      // Create callback and register it with device driver
-      mpTickerCallback = new OsCallback((int)this, tickerCallback);
-      assert(mpTickerCallback != NULL);
-      if (mpDeviceDriver->setTickerNotification(mpTickerCallback) != OS_SUCCESS)
-      {
-         freeMixerBuffer();
-         return OS_NOT_SUPPORTED;
-      }
+   // Enable ticker if needed.
+   if (isTickerNeeded())
+   {
+      setDeviceTicker();
    }
 
    // Enable device driver
@@ -134,12 +134,7 @@ OsStatus MpAudioOutputConnection::disableDevice()
    OsLock lock(mMutex);
 
    // Disable ticker notification and delete it if any.
-   if (mpTickerCallback != NULL)
-   {
-      mpDeviceDriver->setTickerNotification(NULL);
-      delete mpTickerCallback;
-      mpTickerCallback = NULL;
-   }
+   clearDeviceTicker();
 
    // Disable device and set result code.
    result = mpDeviceDriver->disableDevice();
@@ -149,6 +144,54 @@ OsStatus MpAudioOutputConnection::disableDevice()
    {
       // Do not check return code, as it is not critical if it fails.
       freeMixerBuffer();
+   }
+
+   return result;
+}
+
+OsStatus MpAudioOutputConnection::enableFlowgraphTicker()
+{
+   OsStatus result = OS_NOT_SUPPORTED;
+   OsLock lock(mMutex);
+
+   assert(mDoFlowgraphTicker == FALSE);
+
+   if (mpDeviceDriver->isFrameTickerSupported())
+   {
+      result = OS_SUCCESS;
+
+      // Set flowgraph ticker flag
+      mDoFlowgraphTicker = TRUE;
+
+      // Enable ticker if not enabled already
+      if (mpTickerCallback == NULL)
+      {
+         result = setDeviceTicker();
+      }
+   }
+
+   return result;
+}
+
+OsStatus MpAudioOutputConnection::disableFlowgraphTicker()
+{
+   OsStatus result = OS_NOT_SUPPORTED;
+   OsLock lock(mMutex);
+
+   assert(mDoFlowgraphTicker == TRUE);
+
+   if (mpDeviceDriver->isFrameTickerSupported())
+   {
+      result = OS_SUCCESS;
+
+      // Set flowgraph ticker flag
+      mDoFlowgraphTicker = FALSE;
+
+      // Disable ticker if we're not in mixer mode.
+      if (!isTickerNeeded())
+      {
+         clearDeviceTicker();
+      }
    }
 
    return result;
@@ -371,6 +414,39 @@ OsStatus MpAudioOutputConnection::advanceMixerBuffer(unsigned numSamples)
    return OS_SUCCESS;
 }
 
+OsStatus MpAudioOutputConnection::setDeviceTicker()
+{
+   // Do driver support ticker callback?
+   if (!mpDeviceDriver->isFrameTickerSupported())
+   {
+      return OS_NOT_SUPPORTED;
+   }
+
+   // Create callback and register it with device driver
+   mpTickerCallback = new OsCallback((int)this, tickerCallback);
+   assert(mpTickerCallback != NULL);
+   if (mpDeviceDriver->setTickerNotification(mpTickerCallback) != OS_SUCCESS)
+   {
+      delete mpTickerCallback;
+      mpTickerCallback = NULL;
+      freeMixerBuffer();
+      return OS_FAILED;
+   }
+
+   return OS_SUCCESS;
+}
+
+OsStatus MpAudioOutputConnection::clearDeviceTicker()
+{
+   assert(mpTickerCallback != NULL);
+
+   mpDeviceDriver->setTickerNotification(NULL);
+   delete mpTickerCallback;
+   mpTickerCallback = NULL;
+
+   return OS_SUCCESS;
+}
+
 void MpAudioOutputConnection::tickerCallback(const int userData, const int eventData)
 {
    OsStatus result;
@@ -380,20 +456,31 @@ void MpAudioOutputConnection::tickerCallback(const int userData, const int event
 
    if (pConnection->mMutex.acquire(OsTime(5)) == OS_SUCCESS)
    {
-      // So, push data to device driver and forget.
-      result = pConnection->mpDeviceDriver->pushFrame(
-                     pConnection->mpDeviceDriver->getSamplesPerFrame(),
-                     pConnection->mpMixerBuffer+pConnection->mMixerBufferBegin);
-      osPrintf("MpAudioOutputConnection::tickerCallback()"
-               " frame=%d, pushFrame result=%d\n",
-               pConnection->mCurrentFrameTime, result);
-//      assert(result == OS_SUCCESS);
 
-      // Advance mixer buffer and frame time.
-      pConnection->advanceMixerBuffer(pConnection->mpDeviceDriver->getSamplesPerFrame());
-      pConnection->mCurrentFrameTime +=
-                           pConnection->mpDeviceDriver->getSamplesPerFrame() * 1000
-                           / pConnection->mpDeviceDriver->getSamplesPerSec();
+      // If we're in mixer buffer - push frame to device.
+      if (pConnection->isMixerBufferAvailable())
+      {
+         // So, push data to device driver and forget.
+         result = pConnection->mpDeviceDriver->pushFrame(
+                        pConnection->mpDeviceDriver->getSamplesPerFrame(),
+                        pConnection->mpMixerBuffer+pConnection->mMixerBufferBegin);
+         osPrintf("MpAudioOutputConnection::tickerCallback()"
+                  " frame=%d, pushFrame result=%d\n",
+                  pConnection->mCurrentFrameTime, result);
+//       assert(result == OS_SUCCESS);
+
+         // Advance mixer buffer and frame time.
+         pConnection->advanceMixerBuffer(pConnection->mpDeviceDriver->getSamplesPerFrame());
+         pConnection->mCurrentFrameTime +=
+                              pConnection->mpDeviceDriver->getSamplesPerFrame() * 1000
+                              / pConnection->mpDeviceDriver->getSamplesPerSec();
+      }
+
+      // Signal frame processing interval start if we were asked about.
+      if (pConnection->mDoFlowgraphTicker)
+      {
+         MpMediaTask::signalFrameStart();
+      }
 
       pConnection->mMutex.release();
    }
