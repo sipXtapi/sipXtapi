@@ -47,6 +47,7 @@ typedef int MpInputDeviceHandle; ///< Logical device ID identifying device
                                  ///< driver inside device manager.
 typedef int MpOutputDeviceHandle; ///< Logical device ID identifying device
                                   ///< driver inside device manager.
+#define MP_INVALID_OUTPUT_DEVICE_HANDLE -1
 typedef unsigned MpFrameTime;    ///< Time of frame begin relative to device
                                  ///< manager startup (in milliseconds).
 
