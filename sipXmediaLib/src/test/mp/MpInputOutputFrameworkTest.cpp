@@ -18,6 +18,7 @@
 #include "mp/MprToOutputDevice.h"
 #include "mp/MpFlowGraphBase.h"
 #include "mp/MpMisc.h"
+#include "mp/MpMediaTask.h"
 #include "os/OsTask.h"
 #ifdef RTL_ENABLED
 #  include <rtl_macro.h>
@@ -99,6 +100,9 @@ public:
       mpFlowGraph = new MpFlowGraphBase( TEST_SAMPLES_PER_FRAME
                                        , TEST_SAMPLES_PER_SECOND);
       CPPUNIT_ASSERT(mpFlowGraph != NULL);
+
+      // Call getMediaTask() which causes the task to get instantiated
+      CPPUNIT_ASSERT(MpMediaTask::getMediaTask(10) != NULL);
    }
 
    void tearDown()
@@ -127,9 +131,14 @@ public:
 
    void testShortCircuit()
    {
+      enableConsoleOutput(1);
+
 #ifdef RTL_ENABLED
       RTL_START(1000000);
 #endif
+
+      // Get media processing task.
+      MpMediaTask *pMediaTask = MpMediaTask::getMediaTask(10);
 
       // Create input and output device managers
       MpInputDeviceManager inputDeviceManager(TEST_SAMPLES_PER_FRAME, 
@@ -175,22 +184,39 @@ public:
                            inputDeviceManager.enableDevice(sourceDeviceId));
       CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
                            outputDeviceManager.enableDevice(sinkDeviceId));
+
+      // Set flowgraph ticker
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                           outputDeviceManager.setFlowgraphTickerSource(sinkDeviceId));
    
       // Enable resources
       CPPUNIT_ASSERT(pSource.enable());
       CPPUNIT_ASSERT(pSink.enable());
 
-      mpFlowGraph->start();
+      // Manage flowgraph with media task.
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pMediaTask->manageFlowGraph(*mpFlowGraph));
+
+      // Start flowgraph
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pMediaTask->startFlowGraph(*mpFlowGraph));
 
       // Run test!
-      for (int i=0; i<TEST_TIME_MS*(TEST_SAMPLES_PER_SECOND/TEST_SAMPLES_PER_FRAME)/1000; i++)
+      OsTask::delay(TEST_TIME_MS);
+/*      for (int i=0; i<TEST_TIME_MS*(TEST_SAMPLES_PER_SECOND/TEST_SAMPLES_PER_FRAME)/1000; i++)
       {
          RTL_BLOCK("test loop body");
          printf("==> i=%d\n",i);
          OsTask::delay(TEST_SAMPLES_PER_FRAME*1000/TEST_SAMPLES_PER_SECOND-2);
          RTL_EVENT("test loop body", 2);
-         mpFlowGraph->processNextFrame();
+         MpMediaTask::signalFrameStart();
       }
+*/
+
+      // Stop flowgraph
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pMediaTask->stopFlowGraph(*mpFlowGraph));
+      OsTask::delay(20);
+
+      // Unmanage flowgraph with media task.
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pMediaTask->unmanageFlowGraph(*mpFlowGraph));
 
       // Disable resources
       CPPUNIT_ASSERT(pSource.disable());
