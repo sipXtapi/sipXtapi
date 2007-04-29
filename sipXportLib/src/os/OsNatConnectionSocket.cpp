@@ -350,7 +350,7 @@ void OsNatConnectionSocket::enableTurn(const char* szTurnServer,
             clientConnect(szTurnServer, turnPort);
         }
     
-        bool bRC = mpNatAgent->enableTurn(this, szTurnServer, turnPort, iKeepAlive, username, password) ;
+        UtlBoolean bRC = mpNatAgent->enableTurn(this, szTurnServer, turnPort, iKeepAlive, username, password) ;
         if (bRC)
         { 
             if (bReadFromSocket)
@@ -805,18 +805,18 @@ int OsNatConnectionSocket::clientConnect(const char* szServer, const int port)
 
 bool OsNatConnectionSocket::isClientConnected(const char* szServer, const int port)
 {
-    bool bRet = false;
+    UtlBoolean bRet = false;
     OsNatConnectionSocket* pClient = getClientConnection(szServer, port);
     if (pClient)
     {
         bRet = pClient->isConnected();
     }
-    return bRet;
+    return bRet==TRUE;
 }
 
 OsNatConnectionSocket* OsNatConnectionSocket::getClientConnection(const char* szServer, const int port)
 {
-     OsNatConnectionSocket* pClient = NULL;
+    OsNatConnectionSocket* pClient = NULL;
     
     UtlInt* pSocketContainer = NULL;
     UtlString key(szServer);
