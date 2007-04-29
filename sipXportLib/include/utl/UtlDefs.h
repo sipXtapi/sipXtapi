@@ -19,11 +19,11 @@
 // APPLICATION INCLUDES
 // DEFINES
 #ifndef FALSE
-#define FALSE (1==0)
+#define FALSE ((UtlBoolean)(1==0))
 #endif
 
 #ifndef TRUE
-#define TRUE (1==1)
+#define TRUE ((UtlBoolean)(1==1))
 #endif
 
 #ifndef NULL
