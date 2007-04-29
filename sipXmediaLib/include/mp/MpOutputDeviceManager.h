@@ -237,6 +237,9 @@ public:
      *  @returns OS_SUCCESS if device accepted set ticker request.
      *  @returns OS_NOT_FOUND if the device could not be found.
      *  @returns OS_FAILED if device rejected set ticker request.
+     *  @returns OS_INVALID_STATE if current ticker source is no more
+     *           available. New notification source is not set in this case.
+     *  @returns OS_NOT_SUPPORTED if device could not provide ticker.
      *
      *  Multi-thread safe.
      */

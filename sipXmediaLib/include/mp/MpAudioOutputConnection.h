@@ -107,9 +107,19 @@ public:
 
      /// Use this device to signal frame processing interval start.
    OsStatus enableFlowgraphTicker();
+     /**<
+     *  @returns OS_SUCCESS if ticker registered successfully.
+     *  @returns OS_NOT_SUPPORTED if device could not provide ticker.
+     *  @returns OS_FAILED if device failed to register ticker.
+     */
 
      /// Stop using this device to signal frame processing interval start.
    OsStatus disableFlowgraphTicker();
+     /**<
+     *  @returns OS_SUCCESS if ticker registered successfully.
+     *  @returns OS_NOT_SUPPORTED if device could not provide ticker.
+     *  @returns OS_FAILED if device failed to unregister ticker.
+     */
 
      /// Send data frame to output device.
    OsStatus pushFrame(unsigned int numSamples,

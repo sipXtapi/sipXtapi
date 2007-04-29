@@ -233,7 +233,7 @@ OsStatus MpOutputDeviceManager::pushFrame(MpOutputDeviceHandle deviceId,
 
 OsStatus MpOutputDeviceManager::setFlowgraphTickerSource(MpOutputDeviceHandle deviceId)
 {
-   OsStatus status = OS_NOT_FOUND;
+   OsStatus status = OS_SUCCESS;
    MpAudioOutputConnection* connection = NULL;
 
    // No need to take lock here as access to mConnectionsByDeviceId is atomic
@@ -250,19 +250,33 @@ OsStatus MpOutputDeviceManager::setFlowgraphTickerSource(MpOutputDeviceHandle de
 
          if (connection != NULL)
          {
-            connection->disableFlowgraphTicker();
+            status = connection->disableFlowgraphTicker();
          }
+         else
+         {
+            status = OS_INVALID_STATE;
+         }
+
+         mCurrentTickerDevice = MP_INVALID_OUTPUT_DEVICE_HANDLE;
       }
 
       // Start new ticker if requested.
-      if (deviceId != MP_INVALID_OUTPUT_DEVICE_HANDLE)
+      if (status == OS_SUCCESS && deviceId != MP_INVALID_OUTPUT_DEVICE_HANDLE)
       {
          UtlInt deviceKey(deviceId);
          connection = (MpAudioOutputConnection*) mConnectionsByDeviceId.find(&deviceKey);
 
          if (connection != NULL)
          {
-            connection->enableFlowgraphTicker();
+            status = connection->enableFlowgraphTicker();
+            if (status == OS_SUCCESS)
+            {
+               mCurrentTickerDevice = deviceId;
+            }
+         }
+         else
+         {
+            status = OS_NOT_FOUND;
          }
       }
 
