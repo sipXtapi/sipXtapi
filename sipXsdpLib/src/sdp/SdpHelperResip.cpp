@@ -55,11 +55,11 @@ SdpMediaLine::SdpEncryptionMethod SdpHelperResip::convertResipEncryptionMethod(r
    }
 }
 
-Sdp* SdpHelperResip::createSdpFromResipSdp(resip::SdpContents& resipSdp)
+Sdp* SdpHelperResip::createSdpFromResipSdp(const resip::SdpContents& resipSdp)
 {
    bool rtcpEnabled = true;
    Sdp* sdp = new Sdp();
-   SdpContents::Session* resipSession = &resipSdp.session();
+   const SdpContents::Session* resipSession = &resipSdp.session();
 
    
    sdp->setSdpVersion(resipSession->version()); // v=
@@ -114,8 +114,8 @@ Sdp* SdpHelperResip::createSdpFromResipSdp(resip::SdpContents& resipSdp)
 
    // Populate bandwidths, b=
    {
-      std::list<SdpContents::Session::Bandwidth>& bandwidths = resipSession->bandwidths();
-      std::list<SdpContents::Session::Bandwidth>::iterator it;
+      const std::list<SdpContents::Session::Bandwidth>& bandwidths = resipSession->bandwidths();
+      std::list<SdpContents::Session::Bandwidth>::const_iterator it;
       bool RRSetToZero=false;
       bool RSSetToZero=false;
       for(it = bandwidths.begin(); it != bandwidths.end(); it++)
@@ -143,8 +143,8 @@ Sdp* SdpHelperResip::createSdpFromResipSdp(resip::SdpContents& resipSdp)
 
    // Populate Times, t=, r=
    {
-      std::list<SdpContents::Session::Time>& times = resipSession->getTimes();
-      std::list<SdpContents::Session::Time>::iterator it;
+      const std::list<SdpContents::Session::Time>& times = resipSession->getTimes();
+      std::list<SdpContents::Session::Time>::const_iterator it;
       for(it = times.begin(); it != times.end(); it++)
       {
          Sdp::SdpTime *sdpTime = new Sdp::SdpTime(it->getStart(), it->getStop());
@@ -248,12 +248,12 @@ Sdp* SdpHelperResip::createSdpFromResipSdp(resip::SdpContents& resipSdp)
    }
 
    // Iterate through the m= lines
-   std::list<SdpContents::Session::Medium>& medias = resipSession->media();
-   std::list<SdpContents::Session::Medium>::iterator it;
+   const std::list<SdpContents::Session::Medium>& medias = resipSession->media();
+   std::list<SdpContents::Session::Medium>::const_iterator it;
    for(it = medias.begin(); it != medias.end(); it++)
    {
       bool rtcpEnabledForMedia = rtcpEnabled;  // Default to Session setting
-      SdpContents::Session::Medium& resipMedia = *it;
+      const SdpContents::Session::Medium& resipMedia = *it;
       SdpMediaLine* mediaLine = new SdpMediaLine();
   
       mediaLine->setMediaType(SdpMediaLine::getMediaTypeFromString(resipMedia.name().c_str()));
@@ -269,11 +269,11 @@ Sdp* SdpHelperResip::createSdpFromResipSdp(resip::SdpContents& resipSdp)
 
       // Iterate Through Codecs
       {
-         std::list<SdpContents::Session::Codec>& codecs = resipMedia.codecs();
-         std::list<SdpContents::Session::Codec>::iterator it2;
+         const std::list<SdpContents::Session::Codec>& codecs = resipMedia.codecs();
+         std::list<SdpContents::Session::Codec>::const_iterator it2;
          for(it2 = codecs.begin(); it2 != codecs.end(); it2++)
          {  
-            SdpContents::Session::Codec& resipCodec = *it2;
+            const SdpContents::Session::Codec& resipCodec = *it2;
    
             SdpCodec* codec = new SdpCodec(resipCodec.payloadType(), 
                                            resipMedia.name().c_str(), 
@@ -291,8 +291,8 @@ Sdp* SdpHelperResip::createSdpFromResipSdp(resip::SdpContents& resipSdp)
       // Iterrate through bandwidths, b=     
       // Note:  this is done before connections so that we can see if RTCP is disabled or not
       {
-         std::list<SdpContents::Session::Bandwidth>& bandwidths = resipMedia.bandwidths();
-         std::list<SdpContents::Session::Bandwidth>::iterator it;
+         const std::list<SdpContents::Session::Bandwidth>& bandwidths = resipMedia.bandwidths();
+         std::list<SdpContents::Session::Bandwidth>::const_iterator it;
          bool RRSetToZero=false;
          bool RSSetToZero=false;
          for(it = bandwidths.begin(); it != bandwidths.end(); it++)

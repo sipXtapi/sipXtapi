@@ -50,7 +50,7 @@ public:
 /* ============================ MANIPULATORS ============================== */
    static Sdp::SdpAddressType convertResipAddressType(resip::SdpContents::AddrType resipAddrType);
    static SdpMediaLine::SdpEncryptionMethod convertResipEncryptionMethod(resip::SdpContents::Session::Encryption::KeyType resipMethod);
-   static Sdp* createSdpFromResipSdp(resip::SdpContents& resipSdp);
+   static Sdp* createSdpFromResipSdp(const resip::SdpContents& resipSdp);
 
 /* ============================ ACCESSORS ================================= */
 
