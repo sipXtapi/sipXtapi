@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8,00"
+	Version="8.00"
 	Name="sipXmediaAdapterLibTest-msvc8"
 	ProjectGUID="{4D2F60E7-A4A4-4429-A640-2894F33824CA}"
 	RootNamespace="sipXmediaAdapterLibTest-msvc8"
@@ -83,7 +83,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="Ws2_32.lib winmm.lib cppunitd.lib pcre.lib libilbc.lib"
+				AdditionalDependencies="Ws2_32.lib winmm.lib cppunitd.lib pcre.lib"
 				OutputFile=".\Debug/sipXmediaAdapterLibTest.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"

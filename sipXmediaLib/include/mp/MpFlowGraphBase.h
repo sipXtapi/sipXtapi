@@ -27,6 +27,7 @@
 #include "os/OsRWMutex.h"
 #include "os/OsTime.h"
 #include "mp/MpResource.h"
+#include "MpNotificationDispatcher.h"
 
 // DEFINES
 // MACROS
@@ -127,6 +128,18 @@ public:
      *  @returns <b>OS_UNSPECIFIED</b> - add link attempt failed
      */
 
+     /// Adds a dispatcher for notifications to the flowgraph.
+   OsStatus 
+   addNotificationDispatcher(MpNotificationDispatcher* notifyDispatcher);
+     /**<
+     *  Adds a notification dispatcher to the flowgraph, for use in
+     *  letting the resources or the flowgraph tell the application 
+     *  any interesting events.
+     *
+     *  @returns <b>OS_SUCCESS</b> - successfully added the dispatcher.
+     *  @returns <b>OS_LIMIT_REACHED</b> - if we have a dispatcher already.
+     */
+
      /// Adds the indicated media processing object to the flow graph.
    OsStatus addResource(MpResource& rResource, UtlBoolean makeNameUnique=TRUE);
      /**<
@@ -221,6 +234,18 @@ public:
      *  @returns <b>OS_INVALID</b> - only a MpBasicFlowGraph can have focus.
      */
 
+     /// @brief posts a resource notification message to the Notification dispatcher.
+   virtual OsStatus postNotification(const MpResourceNotificationMsg& msg);
+     /**<
+     *  If there is a notification dispatcher, this message is posted
+     *  to it.  Otherwise, the message is dropped.
+     *  @param msg the notification message to post to the dispatcher.
+     *  @returns OS_SUCCESS if the message was successfully added to the dispatcher.
+     *  @returns OS_LIMIT_REACHED if the queue is full, and no more 
+     *           messages can be accepted.
+     *  @returns OS_NOT_FOUND if there's no dispatcher.
+     */
+
      /// Processes the next frame interval's worth of media for the flow graph.
    virtual OsStatus processNextFrame(void);
      /**<
@@ -236,6 +261,16 @@ public:
      *  next frame processing interval.
      *  @returns <b>OS_SUCCESS</b> - link has been removed
      *  @returns <b>OS_INVALID_ARGUMENT</b> - invalid port index
+     */
+
+     /// Clears the pointer to notification dispatcher from the flow graph.
+   OsStatus removeNotificationDispatcher();
+     /**<
+     *  Clears the pointer to the notification dispatcher held in the flowgraph.
+     *  If there is no notification dispatcher set, then it returns failure.
+     *
+     *  @returns <b>OS_SUCCESS</b> - success, dispatcher has been removed
+     *  @returns <b>OS_NOT_FOUND</b> - no dispatcher to remove.
      */
 
      /// Removes the indicated media processing object from the flow graph.
@@ -395,6 +430,7 @@ private:
    MpResource* mUnsorted[MAX_FLOWGRAPH_RESOURCES];  ///< unsorted resources
    int       mCurState;        ///< current flow graph state
    OsMsgQ    mMessages;        ///< message queue for this flow graph
+   MpNotificationDispatcher* mNotifyDispatcher; ///< Dispatcher for notification messages
    int       mPeriodCnt;       ///< number of frames processed by this flow graph
    int       mLinkCnt;         ///< number of links in this flow graph
    int       mResourceCnt;     ///< number of resources in this flow graph

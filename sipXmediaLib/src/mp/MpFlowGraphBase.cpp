@@ -44,17 +44,18 @@
 
 // Constructor
 MpFlowGraphBase::MpFlowGraphBase(int samplesPerFrame, int samplesPerSec)
-: mRWMutex(OsRWMutex::Q_PRIORITY),
-  mResourceDict(),
-  mCurState(STOPPED),
-  mMessages(MAX_FLOWGRAPH_MESSAGES),
-  mPeriodCnt(0),
-  mLinkCnt(0),
-  mResourceCnt(0),
-  mRecomputeOrder(FALSE),
-  mSamplesPerFrame(samplesPerFrame),
-  mSamplesPerSec(samplesPerSec),
-  mpResourceInProcess(NULL)
+: mRWMutex(OsRWMutex::Q_PRIORITY)
+, mResourceDict()
+, mCurState(STOPPED)
+, mMessages(MAX_FLOWGRAPH_MESSAGES)
+, mNotifyDispatcher(NULL)
+, mPeriodCnt(0)
+, mLinkCnt(0)
+, mResourceCnt(0)
+, mRecomputeOrder(FALSE)
+, mSamplesPerFrame(samplesPerFrame)
+, mSamplesPerSec(samplesPerSec)
+, mpResourceInProcess(NULL)
 {
    int i;
 
@@ -118,6 +119,22 @@ OsStatus MpFlowGraphBase::addLink(MpResource& rFrom, int outPortIdx,
       return OS_SUCCESS;
    else
       return OS_UNSPECIFIED;
+}
+
+OsStatus 
+MpFlowGraphBase::addNotificationDispatcher(MpNotificationDispatcher* notifyDispatcher)
+{
+   OsStatus stat = OS_SUCCESS;
+   if(mNotifyDispatcher != NULL)
+   {
+      // We already have a notification dispatcher..
+      stat = OS_LIMIT_REACHED;
+   }
+   else
+   {
+      mNotifyDispatcher = notifyDispatcher;
+   }
+   return stat;
 }
 
 // Adds the indicated media processing object to the flow graph.  If 
@@ -362,6 +379,21 @@ OsStatus MpFlowGraphBase::loseFocus(void)
    return OS_INVALID_ARGUMENT;
 }
 
+// Post a notification message to the dispatcher.
+OsStatus MpFlowGraphBase::postNotification(const MpResourceNotificationMsg& msg)
+{
+   // If there is no dispatcher, OS_NOT_FOUND is used.
+   OsStatus stat = OS_NOT_FOUND;
+   
+   if(mNotifyDispatcher != NULL)
+   {
+      // If the limit is reached on the queue, OS_LIMIT_REACHED is sent.
+      // otherwise success - OS_SUCCESS.
+      stat = mNotifyDispatcher->postNotification(msg);
+   }
+   return stat;
+}
+
 // Processes the next frame interval's worth of media for the flow graph.
 // For now, this method always returns success.
 OsStatus MpFlowGraphBase::processNextFrame(void)
@@ -439,6 +471,17 @@ OsStatus MpFlowGraphBase::removeLink(MpResource& rFrom, int outPortIdx)
       return OS_SUCCESS;
    else
       return OS_UNSPECIFIED;
+}
+
+OsStatus MpFlowGraphBase::removeNotificationDispatcher()
+{
+   OsStatus stat = OS_NOT_FOUND;
+   if(mNotifyDispatcher != NULL)
+   {
+      mNotifyDispatcher = NULL;
+      stat = OS_SUCCESS;
+   }
+   return stat;
 }
 
 // Removes the indicated media processing object from the flow graph.
