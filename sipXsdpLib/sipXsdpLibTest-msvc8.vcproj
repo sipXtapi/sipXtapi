@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8.00"
+	Version="8,00"
 	Name="sipXsdpLibTest-msvc8"
 	ProjectGUID="{AB8F7343-BC81-4077-B1A5-37CA389FCA94}"
 	RootNamespace="sipXsdpLibTest-msvc8"
@@ -15,10 +15,10 @@
 			Name="Pocket PC 2003 (ARMV4)"
 		/>
 		<Platform
-			Name="SDK1_emu (ARMV4I)"
+			Name="Windows Mobile 5.0 Pocket PC SDK (ARMV4I)"
 		/>
 		<Platform
-			Name="Windows Mobile 5.0 Pocket PC SDK (ARMV4I)"
+			Name="SDK1_emu (ARMV4I)"
 		/>
 	</Platforms>
 	<ToolFiles>
@@ -27,7 +27,7 @@
 		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory="Debug"
-			IntermediateDirectory="testDebug"
+			IntermediateDirectory="Debug"
 			ConfigurationType="1"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			CharacterSet="2"
@@ -50,7 +50,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="include;..\sipXsdpLib\include;..\sipXtackLib\include;..\sipXportLib\include;..\..\resip\;..\sipXportLib\src\test"
+				AdditionalIncludeDirectories="include;..\sipXsdpLib\include;..\sipXtackLib\include;..\sipXportLib\include;..\CPPUnit\include;..\..\resip\"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;_CRT_SECURE_NO_DEPRECATE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -72,10 +72,11 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="Ws2_32.lib Dnsapi.lib Iphlpapi.lib Winmm.lib pcre.lib cppunitd.lib"
+				AdditionalDependencies="Ws2_32.lib cppunitd.lib pcre.lib"
 				OutputFile="$(OutDir)\sipXsdpLibTest.exe"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="&quot;$(OutDir)\&quot;;&quot;..\sipXportLib\$(PlatformName)\$(ConfigurationName)&quot;"
+				AdditionalLibraryDirectories=".\Debug;..\CPPUnit\lib"
+				IgnoreDefaultLibraryNames="libcmt.lib;msvcrt.lib"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(OutDir)/sipXsdpLibTest.pdb"
 				SubSystem="1"
@@ -156,6 +157,88 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="Ws2.lib  Iphlpapi.lib  ../ppc2003/pcred.lib ../ppc2003/cppunitd_dll.lib ccrtrtti.lib toolhelp.lib sipxsdplib.lib sipxportlib.lib sipXtackLib.lib"
+				OutputFile="$(OutDir)\sipXsdpLibTest.exe"
+				LinkIncremental="2"
+				AdditionalLibraryDirectories="&quot;$(OutDir)\&quot;;&quot;..\sipXportLib\$(OutDir)\&quot;;&quot;..\sipXtackLib\$(OutDir)\&quot;;&quot;..\sipXportLib\$(PlatformName)\$(ConfigurationName)&quot;"
+				GenerateDebugInformation="true"
+				ProgramDatabaseFile="$(OutDir)/sipXsdpLibTest.pdb"
+				SubSystem="9"
+				TargetMachine="0"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCCodeSignTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
+			<DeploymentTool
+				ForceDirty="-1"
+				RemoteDirectory=""
+				RegisterOutput="0"
+				AdditionalFiles=""
+			/>
+			<DebuggerTool
+			/>
+		</Configuration>
+		<Configuration
+			Name="Debug|Windows Mobile 5.0 Pocket PC SDK (ARMV4I)"
+			OutputDirectory=".\Debug_Mobile5"
+			IntermediateDirectory=".\Debug_Mobile5\inttest"
+			ConfigurationType="1"
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
+			CharacterSet="2"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				TargetEnvironment="1"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				ExecutionBucket="7"
+				Optimization="0"
+				AdditionalIncludeDirectories="include;..\sipXsdpLib\include;..\sipXtackLib\include;..\sipXportLib\include;..\..\resip\;..\sipXportLib\src\test"
+				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;WINCE;$(ARCHFAM);$(_ARCHFAM_);_WIN32_WCE=$(CEVER);UNDER_CE"
+				MinimalRebuild="true"
+				RuntimeLibrary="1"
+				RuntimeTypeInfo="true"
+				UsePrecompiledHeader="0"
+				WarningLevel="3"
+				DebugInformationFormat="3"
+				ForcedIncludeFiles="os/wince/wincefixups.h"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalDependencies="Ws2.lib  Iphlpapi.lib  ../mobile5/pcred.lib ../mobile5/cppunitd_dll.lib ccrtrtti.lib toolhelp.lib sipxsdplib.lib sipxportlib.lib sipXtackLib.lib"
 				OutputFile="$(OutDir)\sipXsdpLibTest.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;$(OutDir)\&quot;;&quot;..\sipXportLib\$(OutDir)\&quot;;&quot;..\sipXtackLib\$(OutDir)\&quot;;&quot;..\sipXportLib\$(PlatformName)\$(ConfigurationName)&quot;"
@@ -312,6 +395,87 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="Ws2.lib  Iphlpapi.lib  ../ppc2003/pcre.lib ../ppc2003/cppunit_dll.lib ccrtrtti.lib toolhelp.lib sipxsdplib.lib sipxportlib.lib sipXtackLib.lib"
+				OutputFile="$(OutDir)/sipXsdpLibTest.exe"
+				LinkIncremental="1"
+				AdditionalLibraryDirectories="&quot;$(OutDir)\&quot;;&quot;..\sipXportLib\$(OutDir)\&quot;;&quot;..\sipXtackLib\$(OutDir)\&quot;;&quot;..\sipXportLib\$(PlatformName)\$(ConfigurationName)&quot;"
+				GenerateDebugInformation="true"
+				SubSystem="9"
+				OptimizeReferences="0"
+				EnableCOMDATFolding="0"
+				TargetMachine="0"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCCodeSignTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
+			<DeploymentTool
+				ForceDirty="-1"
+				RemoteDirectory=""
+				RegisterOutput="0"
+				AdditionalFiles=""
+			/>
+			<DebuggerTool
+			/>
+		</Configuration>
+		<Configuration
+			Name="Release|Windows Mobile 5.0 Pocket PC SDK (ARMV4I)"
+			OutputDirectory=".\Release_Mobile5\"
+			IntermediateDirectory=".\Release_Mobile5\inttest"
+			ConfigurationType="1"
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
+			CharacterSet="2"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				TargetEnvironment="1"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				ExecutionBucket="7"
+				AdditionalIncludeDirectories="include;..\sipXsdpLib\include;..\sipXtackLib\include;..\sipXportLib\include;..\..\resip\;..\sipXportLib\src\test"
+				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;WINCE;$(ARCHFAM);$(_ARCHFAM_);_WIN32_WCE=$(CEVER);UNDER_CE"
+				MinimalRebuild="true"
+				RuntimeLibrary="0"
+				UsePrecompiledHeader="0"
+				WarningLevel="3"
+				DebugInformationFormat="3"
+				ForcedIncludeFiles="os/WinCE/wincefixups.h"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalDependencies="Ws2.lib  Iphlpapi.lib  ../mobile5/pcre.lib ../mobile5/cppunit_dll.lib ccrtrtti.lib toolhelp.lib sipxsdplib.lib sipxportlib.lib sipXtackLib.lib"
 				OutputFile="$(OutDir)/sipXsdpLibTest.exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="&quot;$(OutDir)\&quot;;&quot;..\sipXportLib\$(OutDir)\&quot;;&quot;..\sipXtackLib\$(OutDir)\&quot;;&quot;..\sipXportLib\$(PlatformName)\$(ConfigurationName)&quot;"
@@ -507,169 +671,6 @@
 			<DebuggerTool
 			/>
 		</Configuration>
-		<Configuration
-			Name="Debug|Windows Mobile 5.0 Pocket PC SDK (ARMV4I)"
-			OutputDirectory=".\Debug_Mobile5"
-			IntermediateDirectory=".\Debug_Mobile5\inttest"
-			ConfigurationType="1"
-			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
-			CharacterSet="2"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-				TargetEnvironment="1"
-			/>
-			<Tool
-				Name="VCCLCompilerTool"
-				ExecutionBucket="7"
-				Optimization="0"
-				AdditionalIncludeDirectories="include;..\sipXsdpLib\include;..\sipXtackLib\include;..\sipXportLib\include;..\..\resip\;..\sipXportLib\src\test"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;WINCE;$(ARCHFAM);$(_ARCHFAM_);_WIN32_WCE=$(CEVER);UNDER_CE"
-				MinimalRebuild="true"
-				RuntimeLibrary="1"
-				RuntimeTypeInfo="true"
-				UsePrecompiledHeader="0"
-				WarningLevel="3"
-				DebugInformationFormat="3"
-				ForcedIncludeFiles="os/wince/wincefixups.h"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
-			<Tool
-				Name="VCLinkerTool"
-				AdditionalDependencies="Ws2.lib  Iphlpapi.lib  ../mobile5/pcred.lib ../mobile5/cppunitd_dll.lib ccrtrtti.lib toolhelp.lib sipxsdplib.lib sipxportlib.lib sipXtackLib.lib"
-				OutputFile="$(OutDir)\sipXsdpLibTest.exe"
-				LinkIncremental="2"
-				AdditionalLibraryDirectories="&quot;$(OutDir)\&quot;;&quot;..\sipXportLib\$(OutDir)\&quot;;&quot;..\sipXtackLib\$(OutDir)\&quot;;&quot;..\sipXportLib\$(PlatformName)\$(ConfigurationName)&quot;"
-				GenerateDebugInformation="true"
-				ProgramDatabaseFile="$(OutDir)/sipXsdpLibTest.pdb"
-				SubSystem="9"
-				TargetMachine="0"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-			/>
-			<Tool
-				Name="VCCodeSignTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-			/>
-			<DeploymentTool
-				ForceDirty="-1"
-				RemoteDirectory=""
-				RegisterOutput="0"
-				AdditionalFiles=""
-			/>
-			<DebuggerTool
-			/>
-		</Configuration>
-		<Configuration
-			Name="Release|Windows Mobile 5.0 Pocket PC SDK (ARMV4I)"
-			OutputDirectory=".\Release_Mobile5\"
-			IntermediateDirectory=".\Release_Mobile5\inttest"
-			ConfigurationType="1"
-			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
-			CharacterSet="2"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-				TargetEnvironment="1"
-			/>
-			<Tool
-				Name="VCCLCompilerTool"
-				ExecutionBucket="7"
-				AdditionalIncludeDirectories="include;..\sipXsdpLib\include;..\sipXtackLib\include;..\sipXportLib\include;..\..\resip\;..\sipXportLib\src\test"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;WINCE;$(ARCHFAM);$(_ARCHFAM_);_WIN32_WCE=$(CEVER);UNDER_CE"
-				MinimalRebuild="true"
-				RuntimeLibrary="0"
-				UsePrecompiledHeader="0"
-				WarningLevel="3"
-				DebugInformationFormat="3"
-				ForcedIncludeFiles="os/WinCE/wincefixups.h"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
-			<Tool
-				Name="VCLinkerTool"
-				AdditionalDependencies="Ws2.lib  Iphlpapi.lib  ../mobile5/pcre.lib ../mobile5/cppunit_dll.lib ccrtrtti.lib toolhelp.lib sipxsdplib.lib sipxportlib.lib sipXtackLib.lib"
-				OutputFile="$(OutDir)/sipXsdpLibTest.exe"
-				LinkIncremental="1"
-				AdditionalLibraryDirectories="&quot;$(OutDir)\&quot;;&quot;..\sipXportLib\$(OutDir)\&quot;;&quot;..\sipXtackLib\$(OutDir)\&quot;;&quot;..\sipXportLib\$(PlatformName)\$(ConfigurationName)&quot;"
-				GenerateDebugInformation="true"
-				SubSystem="9"
-				OptimizeReferences="0"
-				EnableCOMDATFolding="0"
-				TargetMachine="0"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-			/>
-			<Tool
-				Name="VCCodeSignTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-			/>
-			<DeploymentTool
-				ForceDirty="-1"
-				RemoteDirectory=""
-				RegisterOutput="0"
-				AdditionalFiles=""
-			/>
-			<DebuggerTool
-			/>
-		</Configuration>
 	</Configurations>
 	<References>
 	</References>
@@ -681,34 +682,6 @@
 			>
 			<File
 				RelativePath=".\src\test\sdp\SdpSetGetTest.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\sipXportLib\src\test\sipxunit\TestMonitor.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\sipXportLib\src\test\sipxunit\TestOsSysLogListener.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\sipXportLib\src\test\sipxunit\TestOutputter.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\sipXportLib\src\test\sipxunit\TestRunner.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\sipXportLib\src\test\sipxunit\TestTemplate.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\sipXportLib\src\test\sipxunit\TestUtilities.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\sipXportLib\src\test\sipxunit\unitmain.cpp"
 				>
 			</File>
 		</Filter>

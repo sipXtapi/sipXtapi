@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8.00"
+	Version="8,00"
 	Name="sipXmediaLibTest-msvc8"
 	ProjectGUID="{41C4FC22-37B1-4792-AB3A-FA2B81BE4B0A}"
 	RootNamespace="sipXmediaLibTest-msvc8"
@@ -14,10 +14,10 @@
 			Name="Pocket PC 2003 (ARMV4)"
 		/>
 		<Platform
-			Name="SDK1_emu (ARMV4I)"
+			Name="Windows Mobile 5.0 Pocket PC SDK (ARMV4I)"
 		/>
 		<Platform
-			Name="Windows Mobile 5.0 Pocket PC SDK (ARMV4I)"
+			Name="SDK1_emu (ARMV4I)"
 		/>
 		<Platform
 			Name="sipx_CE60_emulator (ARMV4I)"
@@ -83,11 +83,12 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="..\sipXportLib\Debug\sipXportLib.lib ..\sipXtackLib\Debug\sipXtackLib.lib Debug\sipXmediaLib.lib cppunitd.lib odbc32.lib odbccp32.lib wsock32.lib pcre.lib winmm.lib"
-				OutputFile=".\Debug/sipXmediaLibTest-msvc8.exe"
+				AdditionalDependencies="Ws2_32.lib winmm.lib cppunitd.lib pcre.lib libilbc.lib"
+				OutputFile=".\Debug/sipXmediaLibTest.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
-				IgnoreDefaultLibraryNames="LIBCMTD.lib,LIBCMT.lib,MSVCRT"
+				AdditionalLibraryDirectories="..\CPPUnit\lib;..\sipXmediaLib\contrib\libgsm\lib;..\sipXmediaLib\contrib\libspeex\lib;C:\work\libiLBC\Debug"
+				IgnoreDefaultLibraryNames="libcmt.lib;msvcrt.lib"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile=".\Debug/sipXmediaLibTest-msvc8.pdb"
 				GenerateMapFile="true"
@@ -167,6 +168,80 @@
 				OutputFile="$(OutDir)\sipXmediaLibTest.exe"
 				AdditionalLibraryDirectories="&quot;$(OutDir)\&quot;;&quot;..\sipXsdpLib\$(OutDir)\&quot;;&quot;..\sipXportLib\$(OutDir)\&quot;;&quot;..\sipXtackLib\$(OutDir)\&quot;;&quot;..\sipXportLib\$(PlatformName)\$(ConfigurationName)&quot;"
 				SubSystem="9"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCCodeSignTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
+			<DeploymentTool
+				ForceDirty="-1"
+				RemoteDirectory=""
+				RegisterOutput="0"
+				AdditionalFiles=""
+			/>
+			<DebuggerTool
+			/>
+		</Configuration>
+		<Configuration
+			Name="Debug|Windows Mobile 5.0 Pocket PC SDK (ARMV4I)"
+			OutputDirectory=".\Debug_Mobile5"
+			IntermediateDirectory=".\Debug_Mobile5\inttest"
+			ConfigurationType="1"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				TargetEnvironment="1"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				ExecutionBucket="7"
+				AdditionalIncludeDirectories="include;..\sipXsdpLib\include;..\sipXtackLib\include;..\sipXportLib\include;..\..\resip\;..\sipXportLib\src\test;src\test"
+				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;WINCE;$(ARCHFAM);$(_ARCHFAM_);_WIN32_WCE=$(CEVER);UNDER_CE"
+				MinimalRebuild="true"
+				RuntimeLibrary="1"
+				WarningLevel="3"
+				DebugInformationFormat="3"
+				ForcedIncludeFiles="os/WinCE/wincefixups.h"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalDependencies="Ws2.lib  Iphlpapi.lib  ../mobile5/pcred.lib ../mobile5/cppunitd_dll.lib ccrtrtti.lib toolhelp.lib sipxmedialib.lib sipxportlib.lib sipXtackLib.lib sipXsdpLib.lib mmtimer.lib"
+				OutputFile="$(OutDir)\sipXmediaLibTest.exe"
+				AdditionalLibraryDirectories="&quot;$(OutDir)\&quot;;&quot;..\sipXsdpLib\$(OutDir)\&quot;;&quot;..\sipXportLib\$(OutDir)\&quot;;&quot;..\sipXtackLib\$(OutDir)\&quot;;&quot;..\sipXportLib\$(PlatformName)\$(ConfigurationName)&quot;"
+				SubSystem="9"
+				TargetMachine="0"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -352,6 +427,78 @@
 			/>
 		</Configuration>
 		<Configuration
+			Name="Release|Windows Mobile 5.0 Pocket PC SDK (ARMV4I)"
+			OutputDirectory=".\Release_Mobile5"
+			IntermediateDirectory=".\Release_Mobile5\inttest"
+			ConfigurationType="1"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				TargetEnvironment="1"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				ExecutionBucket="7"
+				AdditionalIncludeDirectories="include;..\sipXtackLib\include;..\sipXportLib\include;..\sipXportLib\include\glib;..\gips\include;..\sipXportLib\src\test;src\test"
+				PreprocessorDefinitions="NDEBUG;WIN32;_LIB;WINCE;$(ARCHFAM);$(_ARCHFAM_);_WIN32_WCE=$(CEVER);UNDER_CE"
+				MinimalRebuild="true"
+				DebugInformationFormat="3"
+				ForcedIncludeFiles="os/WinCE/wincefixups.h"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalDependencies="Ws2.lib  Iphlpapi.lib  ../mobile5/pcre.lib ../mobile5/cppunit_dll.lib ccrtrtti.lib toolhelp.lib sipxmedialib.lib sipxportlib.lib sipXtackLib.lib sipXsdpLib.lib mmtimer.lib"
+				OutputFile="$(OutDir)\sipXmediaLibTest.exe"
+				AdditionalLibraryDirectories="&quot;$(OutDir)\&quot;;&quot;..\sipXsdpLib\$(OutDir)\&quot;;&quot;..\sipXportLib\$(OutDir)\&quot;;&quot;..\sipXtackLib\$(OutDir)\&quot;;&quot;..\sipXportLib\$(PlatformName)\$(ConfigurationName)&quot;"
+				SubSystem="9"
+				TargetMachine="0"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCCodeSignTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
+			<DeploymentTool
+				ForceDirty="-1"
+				RemoteDirectory=""
+				RegisterOutput="0"
+				AdditionalFiles=""
+			/>
+			<DebuggerTool
+			/>
+		</Configuration>
+		<Configuration
 			Name="Debug|SDK1_emu (ARMV4I)"
 			OutputDirectory="SDK1_emu (ARMV4I)\$(ConfigurationName)"
 			IntermediateDirectory="SDK1_emu (ARMV4I)\test$(ConfigurationName)"
@@ -451,152 +598,6 @@
 				AdditionalIncludeDirectories="include;..\sipXtackLib\include;..\sipXportLib\include;..\sipXportLib\include\glib;..\gips\include;..\sipXportLib\src\test;src\test"
 				PreprocessorDefinitions="NDEBUG;WIN32;_LIB;WINCE;$(ARCHFAM);$(_ARCHFAM_);_WIN32_WCE=$(CEVER);UNDER_CE"
 				CompileAs="0"
-				ForcedIncludeFiles="os/WinCE/wincefixups.h"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
-			<Tool
-				Name="VCLinkerTool"
-				AdditionalDependencies="Ws2.lib  Iphlpapi.lib  ../mobile5/pcre.lib ../mobile5/cppunit_dll.lib ccrtrtti.lib toolhelp.lib sipxmedialib.lib sipxportlib.lib sipXtackLib.lib sipXsdpLib.lib mmtimer.lib"
-				OutputFile="$(OutDir)\sipXmediaLibTest.exe"
-				AdditionalLibraryDirectories="&quot;$(OutDir)\&quot;;&quot;..\sipXsdpLib\$(OutDir)\&quot;;&quot;..\sipXportLib\$(OutDir)\&quot;;&quot;..\sipXtackLib\$(OutDir)\&quot;;&quot;..\sipXportLib\$(PlatformName)\$(ConfigurationName)&quot;"
-				SubSystem="9"
-				TargetMachine="0"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-			/>
-			<Tool
-				Name="VCCodeSignTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-			/>
-			<DeploymentTool
-				ForceDirty="-1"
-				RemoteDirectory=""
-				RegisterOutput="0"
-				AdditionalFiles=""
-			/>
-			<DebuggerTool
-			/>
-		</Configuration>
-		<Configuration
-			Name="Debug|Windows Mobile 5.0 Pocket PC SDK (ARMV4I)"
-			OutputDirectory=".\Debug_Mobile5"
-			IntermediateDirectory=".\Debug_Mobile5\inttest"
-			ConfigurationType="1"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-				TargetEnvironment="1"
-			/>
-			<Tool
-				Name="VCCLCompilerTool"
-				ExecutionBucket="7"
-				AdditionalIncludeDirectories="include;..\sipXsdpLib\include;..\sipXtackLib\include;..\sipXportLib\include;..\..\resip\;..\sipXportLib\src\test;src\test"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;WINCE;$(ARCHFAM);$(_ARCHFAM_);_WIN32_WCE=$(CEVER);UNDER_CE"
-				MinimalRebuild="true"
-				RuntimeLibrary="1"
-				WarningLevel="3"
-				DebugInformationFormat="3"
-				ForcedIncludeFiles="os/WinCE/wincefixups.h"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
-			<Tool
-				Name="VCLinkerTool"
-				AdditionalDependencies="Ws2.lib  Iphlpapi.lib  ../mobile5/pcred.lib ../mobile5/cppunitd_dll.lib ccrtrtti.lib toolhelp.lib sipxmedialib.lib sipxportlib.lib sipXtackLib.lib sipXsdpLib.lib mmtimer.lib"
-				OutputFile="$(OutDir)\sipXmediaLibTest.exe"
-				AdditionalLibraryDirectories="&quot;$(OutDir)\&quot;;&quot;..\sipXsdpLib\$(OutDir)\&quot;;&quot;..\sipXportLib\$(OutDir)\&quot;;&quot;..\sipXtackLib\$(OutDir)\&quot;;&quot;..\sipXportLib\$(PlatformName)\$(ConfigurationName)&quot;"
-				SubSystem="9"
-				TargetMachine="0"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-			/>
-			<Tool
-				Name="VCCodeSignTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-			/>
-			<DeploymentTool
-				ForceDirty="-1"
-				RemoteDirectory=""
-				RegisterOutput="0"
-				AdditionalFiles=""
-			/>
-			<DebuggerTool
-			/>
-		</Configuration>
-		<Configuration
-			Name="Release|Windows Mobile 5.0 Pocket PC SDK (ARMV4I)"
-			OutputDirectory=".\Release_Mobile5"
-			IntermediateDirectory=".\Release_Mobile5\inttest"
-			ConfigurationType="1"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-				TargetEnvironment="1"
-			/>
-			<Tool
-				Name="VCCLCompilerTool"
-				ExecutionBucket="7"
-				AdditionalIncludeDirectories="include;..\sipXtackLib\include;..\sipXportLib\include;..\sipXportLib\include\glib;..\gips\include;..\sipXportLib\src\test;src\test"
-				PreprocessorDefinitions="NDEBUG;WIN32;_LIB;WINCE;$(ARCHFAM);$(_ARCHFAM_);_WIN32_WCE=$(CEVER);UNDER_CE"
-				MinimalRebuild="true"
-				DebugInformationFormat="3"
 				ForcedIncludeFiles="os/WinCE/wincefixups.h"
 			/>
 			<Tool
@@ -985,6 +986,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\src\test\mp\MpResourceTopologyTest.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\src\test\mp\MprFromMicTest.cpp"
 				>
 			</File>
@@ -1040,250 +1045,6 @@
 					/>
 				</FileConfiguration>
 			</File>
-			<File
-				RelativePath="..\sipXportLib\src\test\sipxunit\TestMonitor.cpp"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="..\sipXportLib\src\test\sipxunit\TestOsSysLogListener.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\sipXportLib\src\test\sipxunit\TestOutputter.cpp"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="..\sipXportLib\src\test\sipxunit\TestRunner.cpp"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="..\sipXportLib\src\test\sipxunit\TestTemplate.cpp"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="..\sipXportLib\src\test\sipxunit\TestUtilities.cpp"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="..\sipXportLib\src\test\sipxunit\unitmain.cpp"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|sipx_CE60_emulator (ARMV4I)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -1295,22 +1056,6 @@
 			</File>
 			<File
 				RelativePath=".\src\test\mp\MpTestResource.h"
-				>
-			</File>
-			<File
-				RelativePath="..\sipXportLib\src\test\sipxunit\TestMonitor.h"
-				>
-			</File>
-			<File
-				RelativePath="..\sipXportLib\src\test\sipxunit\TestOutputter.h"
-				>
-			</File>
-			<File
-				RelativePath="..\sipXportLib\src\test\sipxunit\TestRunner.h"
-				>
-			</File>
-			<File
-				RelativePath="..\sipXportLib\src\test\sipxunit\TestUtilities.h"
 				>
 			</File>
 		</Filter>
