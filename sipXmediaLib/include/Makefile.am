@@ -78,6 +78,7 @@ nobase_include_HEADERS =  \
     mp/MpMediaTask.h \
     mp/MpMediaTaskMsg.h \
     mp/MpMisc.h \
+    mp/MpNotificationDispatcher.h \
     mp/MpodBufferRecorder.h \
     mp/MpodOSS.h \
     mp/MpOSSDeviceWrapper.h \
@@ -100,6 +101,7 @@ nobase_include_HEADERS =  \
     mp/MpResourceConstructor.h \
     mp/MpResourceFactory.h \
     mp/MpResourceMsg.h \
+    mp/MpResourceNotificationMsg.h \
     mp/MpResourceSortAlg.h \
     mp/MpResourceTopology.h \
     mp/MprFromFile.h \
