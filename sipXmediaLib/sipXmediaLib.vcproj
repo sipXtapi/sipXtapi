@@ -4626,6 +4626,9 @@
 				RelativePath="include\mp\MpStreamQueuePlayer.h">
 			</File>
 			<File
+				RelativePath=".\include\mp\MpToneResourceMsg.h">
+			</File>
+			<File
 				RelativePath=".\include\mp\MpTopologyGraph.h">
 			</File>
 			<File
