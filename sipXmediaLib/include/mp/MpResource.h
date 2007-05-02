@@ -149,6 +149,42 @@ static const UtlContainableType TYPE;
      *           message queue.
      */
 
+     /// @brief Post a message to enable resource notifications on the 
+     /// named resource.
+   static OsStatus enableAllNotifications(const UtlString& namedResource,
+                                          OsMsgQ& fgQ);
+     /**<
+     *  Post a message to enable sending all notifications for the
+     *  named resource to the flowgraph queue supplied.
+     *  NOTE: This is an asynchronous operation.
+     *        The status returned does not indicate that notifications
+     *        are enabled or disabled - only that it was properly queued.
+     *  @param namedResource - the name of the resource to operate on.
+     *  @param fgQ - The flowgraph message queue to post the message to.
+     *  @returns OS_SUCCESS if the message was successfully queued
+     *           to the message queue.
+     *  @returns OS_FAILED if the message could not be added to the
+     *           message queue.
+     */
+
+     /// @brief Post a message to disable resource notifications on the 
+     /// named resource.
+   static OsStatus disableAllNotifications(const UtlString& namedResource,
+                                           OsMsgQ& fgQ);
+     /**<
+     *  Post a message to disable sending all notifications for the
+     *  named resource to the flowgraph queue supplied.
+     *  NOTE: This is an asynchronous operation.
+     *        The status returned does not indicate that notifications
+     *        are enabled or disabled - only that it was properly queued.
+     *  @param namedResource - the name of the resource to operate on.
+     *  @param fgQ - The flowgraph message queue to post the message to.
+     *  @returns OS_SUCCESS if the message was successfully queued
+     *           to the message queue.
+     *  @returns OS_FAILED if the message could not be added to the
+     *           message queue.
+     */
+
      /// @brief Handles a queue-full of incoming messages for this media processing object.
    UtlBoolean handleMessages(OsMsgQ& msgQ);
      /**<
@@ -313,6 +349,7 @@ protected:
    int          mNumActualInputs;  ///< actual number of connected inputs
    int          mNumActualOutputs; ///< actual number of connected outputs
    int          mVisitState;       ///< (used by flow graph topological sort alg.)
+   UtlBoolean   mNotificationsEnabled; ///< Whether we should send notifications or not.
    OsBSem       mLock;             ///< used mainly to make safe changes to ports
 
    static const OsTime sOperationQueueTimeout;

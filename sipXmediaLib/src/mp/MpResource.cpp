@@ -38,18 +38,19 @@ const OsTime MpResource::sOperationQueueTimeout = OsTime::NO_WAIT_TIME;
 // Constructor
 MpResource::MpResource(const UtlString& rName, int minInputs, int maxInputs,
                        int minOutputs, int maxOutputs)
-:  UtlString(rName), //mName(rName),
-   mpFlowGraph(NULL),
-   mIsEnabled(FALSE),
-   mRWMutex(OsRWMutex::Q_PRIORITY),
-   mMaxInputs(maxInputs),
-   mMaxOutputs(maxOutputs),
-   mMinInputs(minInputs),
-   mMinOutputs(minOutputs),
-   mNumActualInputs(0),
-   mNumActualOutputs(0),
-   mVisitState(NOT_VISITED),
-   mLock(OsBSem::Q_FIFO, OsBSem::FULL)
+: UtlString(rName) //,mName(rName) -- resource name is now stored in parent utlString
+, mpFlowGraph(NULL)
+, mIsEnabled(FALSE)
+, mRWMutex(OsRWMutex::Q_PRIORITY)
+, mMaxInputs(maxInputs)
+, mMaxOutputs(maxOutputs)
+, mMinInputs(minInputs)
+, mMinOutputs(minOutputs)
+, mNumActualInputs(0)
+, mNumActualOutputs(0)
+, mVisitState(NOT_VISITED)
+, mNotificationsEnabled(FALSE)
+, mLock(OsBSem::Q_FIFO, OsBSem::FULL)
 {
    int i;   
 
@@ -152,6 +153,22 @@ OsStatus MpResource::enable(const UtlString& namedResource,
                             OsMsgQ& fgQ)
 {
    MpResourceMsg msg(MpResourceMsg::MPRM_RESOURCE_ENABLE, namedResource);
+   return fgQ.send(msg, sOperationQueueTimeout);
+}
+
+OsStatus MpResource::enableAllNotifications(const UtlString& namedResource, 
+                                            OsMsgQ& fgQ)
+{
+   MpResourceMsg msg(MpResourceMsg::MPRM_ENABLE_ALL_NOTIFICATIONS,
+                     namedResource);
+   return fgQ.send(msg, sOperationQueueTimeout);
+}
+
+OsStatus MpResource::disableAllNotifications(const UtlString& namedResource, 
+                                             OsMsgQ& fgQ)
+{
+   MpResourceMsg msg(MpResourceMsg::MPRM_DISABLE_ALL_NOTIFICATIONS,
+      namedResource);
    return fgQ.send(msg, sOperationQueueTimeout);
 }
 
@@ -450,6 +467,14 @@ UtlBoolean MpResource::handleMessage(MpResourceMsg& rMsg)
       break;
    case MpResourceMsg::MPRM_RESOURCE_ENABLE:    // enable this resource
       msgHandled = handleEnable();
+      break;
+   case MpResourceMsg::MPRM_DISABLE_ALL_NOTIFICATIONS:
+      // Disable all notifications sent out from this resource.
+      mNotificationsEnabled = FALSE;
+      break;
+   case MpResourceMsg::MPRM_ENABLE_ALL_NOTIFICATIONS:
+      // Enable all notifications sent out from this resource.
+      mNotificationsEnabled = TRUE;
       break;
    default:
       msgHandled = FALSE; // we didn't handle the msg after all
