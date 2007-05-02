@@ -1358,7 +1358,11 @@ OsStatus MpFlowGraphBase::processMessages(void)
 
       assert(res == OS_SUCCESS);
       
-      if (pMsg->getMsgType() == OsMsg::MP_FLOWGRAPH_MSG)
+      if (pMsg->getMsgType() == OsMsg::STREAMING_MSG)
+      {
+         handleMessage(*pMsg);
+      }
+      else if (pMsg->getMsgType() == OsMsg::MP_FLOWGRAPH_MSG)
       {
          MpFlowGraphMsg* pFlowgraphMsg = (MpFlowGraphMsg*) pMsg ;
          // determine if this message is intended for a resource in the

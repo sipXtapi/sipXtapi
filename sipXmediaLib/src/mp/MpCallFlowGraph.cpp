@@ -1818,8 +1818,11 @@ UtlBoolean MpCallFlowGraph::handleStartPlay(MpFlowGraphMsg& rMsg)
 
    boolRes = mpFromFile->enable();          assert(boolRes);
 
-   // Play locally, always
-   boolRes = mpTFsBridgeMixer->disable();   assert(boolRes);
+   // Only play locally if requested
+   if (toneOptions & TONE_TO_SPKR)
+   {
+      boolRes = mpTFsBridgeMixer->disable();   assert(boolRes);
+   }
 
    if (toneOptions & TONE_TO_NET)
    {

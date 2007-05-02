@@ -423,10 +423,12 @@ UtlBoolean StreamWAVFormatDecoder::nextDataChunk(int& iLength)
                 {
                     // for streaming, we currently only support one format:
                     // 16 bit, 8khz, signed.
-                    if (formatChunkInfo.nSamplesPerSec != 8000 || formatChunkInfo.nBitsPerSample != 16 ||
+                    // !SLG! Enable 8 bit playback - seems to work fine - run method converts 8 bit to 16 bit                   
+                    if (formatChunkInfo.nSamplesPerSec != 8000 || 
+                        (formatChunkInfo.nBitsPerSample != 16 && formatChunkInfo.nBitsPerSample != 8) ||
                         formatChunkInfo.nChannels != 1)
                     {
-                        syslog(FAC_STREAMING, PRI_ERR, "StreamWAVFormatDecoder::nextDataChunk (File is not 16 bit, 8khz, mono, signed format!)");
+                         syslog(FAC_STREAMING, PRI_ERR, "StreamWAVFormatDecoder::nextDataChunk (File is not 8 or 16 bit, 8khz, mono, signed format!)");
                          mbEnd = TRUE;
                          break;
                     }

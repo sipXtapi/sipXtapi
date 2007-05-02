@@ -31,6 +31,7 @@
 #define STREAM_HINT_CACHE   0x10000000 ///< Cache entire file
 
 #undef  MP_STREAM_DEBUG
+//#define  MP_STREAM_DEBUG
 
 // MACROS
 // CONSTANTS

@@ -522,6 +522,7 @@ int StreamHttpDataSource::run(void *pArgs)
          else
          {
             fireEvent(LoadingErrorEvent) ; 
+            close(); 
          } 
       }
       delete pMsg ;

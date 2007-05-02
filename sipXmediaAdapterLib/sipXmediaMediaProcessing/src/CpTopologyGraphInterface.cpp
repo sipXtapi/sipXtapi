@@ -1214,7 +1214,8 @@ OsStatus CpTopologyGraphInterface::playAudio(const char* url,
                                           UtlBoolean local,
                                           UtlBoolean remote,
                                           UtlBoolean mixWithMic,
-                                          int downScaling)
+                                          int downScaling,
+                                          OsNotification *event)
 {
     OsStatus returnCode = OS_NOT_FOUND;
     UtlString urlString;
@@ -1224,12 +1225,22 @@ OsStatus CpTopologyGraphInterface::playAudio(const char* url,
 
     if(mpTopologyGraph && !urlString.isNull())
     {
+       /*
+         int toneOptions=0;
+
+         if (local)
+         {
+            toneOptions |= MpCallFlowGraph::TONE_TO_SPKR;
+         }                  
+         
+         if(remote)
+         {
+            toneOptions |= MpCallFlowGraph::TONE_TO_NET;
+         }
 
         // Start playing the audio file
-        //returnCode = mpTopologyGraph->playFile(urlString.data(),
-        //    repeat,
-        //    remote ? MpCallFlowGraph::TONE_TO_NET :
-        //        MpCallFlowGraph::TONE_TO_SPKR);
+        returnCode = mpTopologyGraph->playFile(urlString.data(), repeat, toneOptions, event);
+        */
     }
 
     if(returnCode != OS_SUCCESS)
@@ -1253,12 +1264,22 @@ OsStatus CpTopologyGraphInterface::playBuffer(char* buf,
     OsStatus returnCode = OS_NOT_FOUND;
     if(mpTopologyGraph && buf)
     {
+       /*
+         int toneOptions=0;
+
+         if (local)
+         {
+            toneOptions |= MpCallFlowGraph::TONE_TO_SPKR;
+         }                  
+         
+         if(remote)
+         {
+            toneOptions |= MpCallFlowGraph::TONE_TO_NET;
+         }
 
         // Start playing the audio file
-        //returnCode = mpTopologyGraph->playBuffer(buf, bufSize, type, 
-        //       repeat,
-        //       remote ? MpCallFlowGraph::TONE_TO_NET : MpCallFlowGraph::TONE_TO_SPKR,
-        //       NULL);
+        returnCode = mpTopologyGraph->playBuffer(buf, bufSize, type, repeat, toneOptions, NULL);
+        */
     }
 
     if(returnCode != OS_SUCCESS)
@@ -1297,12 +1318,13 @@ OsStatus CpTopologyGraphInterface::playChannelAudio(int connectionId,
                                                  UtlBoolean local,
                                                  UtlBoolean remote,
                                                  UtlBoolean mixWithMic,
-                                                 int downScaling) 
+                                                 int downScaling,
+                                                 OsNotification *event) 
 {
     // TODO:: This API is designed to record the audio from a single channel.  
     // If the connectionId is -1, record all.
 
-    return playAudio(url, repeat, local, remote, mixWithMic, downScaling) ;
+    return playAudio(url, repeat, local, remote, mixWithMic, downScaling, event) ;
 }
 
 

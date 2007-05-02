@@ -155,7 +155,8 @@ public:
                               UtlBoolean local, 
                               UtlBoolean remote,
                               UtlBoolean mixWithMic = false,
-                              int downScaling = 100);
+                              int downScaling = 100,
+                              OsNotification *event = NULL);
 
 
     virtual OsStatus playBuffer(char* buf, 
@@ -176,7 +177,8 @@ public:
                                      UtlBoolean local,
                                      UtlBoolean remote,
                                      UtlBoolean mixWithMic = false,
-                                     int downScaling = 100) ;
+                                     int downScaling = 100,
+                                     OsNotification *event = NULL) ;
 
 
    virtual OsStatus stopChannelAudio(int connectionId) ;

@@ -365,7 +365,8 @@ public:
                               UtlBoolean local, 
                               UtlBoolean remote,
                               UtlBoolean mixWithMic = false,
-                              int downScaling = 100) = 0 ;
+                              int downScaling = 100,
+                              OsNotification *event = NULL) = 0 ;
 
    virtual OsStatus playChannelAudio(int connectionId,
                                      const char* url, 
@@ -373,7 +374,8 @@ public:
                                      UtlBoolean local, 
                                      UtlBoolean remote,
                                      UtlBoolean mixWithMic = false,
-                                     int downScaling = 100) = 0 ;
+                                     int downScaling = 100,
+                                     OsNotification *event = NULL) = 0 ;
 
 
    /**
