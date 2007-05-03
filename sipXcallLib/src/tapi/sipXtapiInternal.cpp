@@ -66,6 +66,7 @@ UtlDList*  gpSessionList  = new UtlDList() ;    /**< List of sipX sessions (to b
                                                 by handle map in the future */
 OsMutex*	gpSessionLock = new OsMutex(OsMutex::Q_FIFO);
 OsMutex*	gpCallAccessLock = new OsMutex(OsMutex::Q_FIFO);
+OsMutex gSubscribeAccessLock(OsMutex::Q_FIFO);
 
 static int      gSessions = 0;
 
@@ -2200,51 +2201,61 @@ void sipxPublishReleaseLock(SIPX_PUBLISH_DATA* pData, SIPX_LOCK_TYPE type, const
     }
 }
 
-SIPX_SUBSCRIPTION_DATA* sipxSubscribeLookup(const SIPX_SUB hSub, SIPX_LOCK_TYPE type, const OsStackTraceLogger& oneBackInStack)
+// CHECKED
+SIPX_SUBSCRIPTION_DATA* sipxSubscribeLookup(const SIPX_SUB hSub,
+                                            SIPX_LOCK_TYPE type,
+                                            const OsStackTraceLogger& oneBackInStack)
 {
-    OsStackTraceLogger logItem(FAC_SIPXTAPI, PRI_DEBUG, "sipxSubscribeLookup", oneBackInStack);
+   OsStackTraceLogger logItem(FAC_SIPXTAPI, PRI_DEBUG, "sipxSubscribeLookup", oneBackInStack);
+   SIPX_SUBSCRIPTION_DATA* pRC = NULL;    
+   OsStatus status;
 
-    SIPX_SUBSCRIPTION_DATA* pRC ;    
+   gSubscribeAccessLock.acquire(); // global lock will enable us to delete mutex safely
 
-    pRC = (SIPX_SUBSCRIPTION_DATA*) gpSubHandleMap->findHandle(hSub) ;
-    if(pRC)
-    {
-        switch (type)
-        {
-        case SIPX_LOCK_READ:
-            // TODO: What happens if this fails?
-            pRC->pMutex->acquireRead() ;            
-            break ;
-        case SIPX_LOCK_WRITE:
-            // TODO: What happens if this fails?
-            pRC->pMutex->acquireWrite() ;
-            break ;
-        default:
-            break ;
-        }
-    }
+   pRC = (SIPX_SUBSCRIPTION_DATA*) gpSubHandleMap->findHandle(hSub);
+   if(pRC && type != SIPX_LOCK_NONE)
+   {
+      switch (type)
+      {
+      case SIPX_LOCK_READ:
+         status = pRC->pMutex->acquireRead();
+         assert(status == OS_SUCCESS);
+         break;
+      case SIPX_LOCK_WRITE:
+         status = pRC->pMutex->acquireWrite();
+         assert(status == OS_SUCCESS);
+         break;
+      default:
+         break;
+      }
+   }
 
-    return pRC ;
+   gSubscribeAccessLock.release();
+   return pRC ;
 }
 
-void sipxSubscribeReleaseLock(SIPX_SUBSCRIPTION_DATA* pData, SIPX_LOCK_TYPE type, const OsStackTraceLogger& oneBackInStack) 
+// CHECKED
+void sipxSubscribeReleaseLock(SIPX_SUBSCRIPTION_DATA* pData,
+                              SIPX_LOCK_TYPE type,
+                              const OsStackTraceLogger& oneBackInStack) 
 {
-    OsStackTraceLogger logItem(FAC_SIPXTAPI, PRI_DEBUG, "sipxSubscribeReleaseLock", oneBackInStack);
+   OsStackTraceLogger logItem(FAC_SIPXTAPI, PRI_DEBUG, "sipxSubscribeReleaseLock", oneBackInStack);
+   OsStatus status;
 
-    if (pData && type != SIPX_LOCK_NONE)
-    {
-        switch (type)
-        {
-        case SIPX_LOCK_READ:
-            // TODO: What happens if this fails?
-            pData->pMutex->releaseRead() ;
-            break ;
-        case SIPX_LOCK_WRITE:
-            // TODO: What happens if this fails?
-            pData->pMutex->releaseWrite() ;
-            break ;
-        default:
-            break ;
-        }
-    }
+   if (pData && type != SIPX_LOCK_NONE)
+   {
+      switch (type)
+      {
+      case SIPX_LOCK_READ:
+         status = pData->pMutex->releaseRead();
+         assert(status == OS_SUCCESS);
+         break;
+      case SIPX_LOCK_WRITE:
+         status = pData->pMutex->releaseWrite();
+         assert(status == OS_SUCCESS);
+         break;
+      default:
+         break;
+      }
+   }
 }

@@ -87,6 +87,7 @@ extern SipXHandleMap* gpPubHandleMap ;    // sipXtapiInternal.cpp
 extern SipXHandleMap* gpSubHandleMap ;    // sipXtapiInternal.cpp
 extern SipXHandleMap* gpTransportHandleMap ; // sipXtapiInternal.cpp
 extern UtlDList*      gpSessionList ;     // sipXtapiInternal.cpp
+extern OsMutex gSubscribeAccessLock; // sipXtapiInternal.cpp
 // EXTERNAL FUNCTIONS
 
 // STRUCTURES
@@ -2427,55 +2428,58 @@ SIPXTAPI_API SIPX_RESULT sipxCallSubscribe(const SIPX_CALL hCall,
     return sipXresult;
 }
 
+// CHECKED
 SIPXTAPI_API SIPX_RESULT sipxCallUnsubscribe(const SIPX_SUB hSub)
 {
-    OsStackTraceLogger stackLogger(FAC_SIPXTAPI, PRI_DEBUG, "sipxCallUnsubscribe");
-    SIPX_RESULT sipXresult = SIPX_RESULT_FAILURE;
-    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
-        "sipxCallSubscribe hSub=%x", hSub);
+   OsStackTraceLogger stackLogger(FAC_SIPXTAPI, PRI_DEBUG, "sipxCallUnsubscribe");
+   SIPX_RESULT sipXresult = SIPX_RESULT_FAILURE;
+   OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+      "sipxCallSubscribe hSub=%x", hSub);
 
-    
-    SIPX_SUBSCRIPTION_DATA* subscriptionData = sipxSubscribeLookup(hSub, SIPX_LOCK_WRITE, stackLogger);
+   gSubscribeAccessLock.acquire(); // we need global lock to delete mutex
+   SIPX_SUBSCRIPTION_DATA* subscriptionData = sipxSubscribeLookup(hSub, SIPX_LOCK_WRITE, stackLogger);
 
-    if(subscriptionData && subscriptionData->pInst)
-    {
-        if(subscriptionData->pInst->pSubscribeClient->endSubscription(*(subscriptionData->pDialogHandle)))
-        {
-            sipXresult = SIPX_RESULT_SUCCESS;
-        }
-        else
-        {
-            OsSysLog::add(FAC_SIPXTAPI, PRI_ERR,
-                "sipxCallUnsubscribe endSubscription failed for subscription handle: %d dialog handle: \"%s\"",
-                hSub,
-                subscriptionData->pDialogHandle->data());
-            sipXresult = SIPX_RESULT_INVALID_ARGS;
-        }
+   if(subscriptionData)
+   {
+      assert(subscriptionData->pInst); // this should never happen
+      assert(subscriptionData->pDialogHandle);
+      UtlString dialogHandle(*(subscriptionData->pDialogHandle));
+      SIPX_INSTANCE_DATA *pInst = subscriptionData->pInst;
 
-        // Remove and free up the subscription handle and data
-        gpSubHandleMap->removeHandle(hSub);
+      // Remove and free up the subscription handle and data
+      gpSubHandleMap->removeHandle(hSub);
+      gSubscribeAccessLock.release(); // we can release global lock now
 
-        if(subscriptionData->pDialogHandle)
-        {
-            delete subscriptionData->pDialogHandle;
-            subscriptionData->pDialogHandle = NULL;
-        }
+      delete subscriptionData->pDialogHandle;
+      subscriptionData->pDialogHandle = NULL;
+      delete subscriptionData->pMutex;
+      subscriptionData->pMutex = NULL;
+      delete subscriptionData;
 
-        sipxSubscribeReleaseLock(subscriptionData, SIPX_LOCK_WRITE, stackLogger);
-        delete subscriptionData;
-        subscriptionData = NULL;
-    }
+      if(pInst->pSubscribeClient->endSubscription(dialogHandle))
+      {
+         sipXresult = SIPX_RESULT_SUCCESS;
+      }
+      else
+      {
+         OsSysLog::add(FAC_SIPXTAPI, PRI_ERR,
+            "sipxCallUnsubscribe endSubscription failed for subscription handle: %d dialog handle: \"%s\"",
+            hSub,
+            dialogHandle);
+         sipXresult = SIPX_RESULT_INVALID_ARGS;
+      }
+   }
+   else  // Invalid subscription handle, possibly already deleted
+   {
+      gSubscribeAccessLock.release();
+      OsSysLog::add(FAC_SIPXTAPI, PRI_ERR,
+         "sipxCallUnsubscribe: cannot find subscription data for handle: %d",
+         hSub);
+      sipXresult = SIPX_RESULT_INVALID_ARGS;
+      // no other lock to release, since handle wasn't found
+   }
 
-    // Invalid subscription handle
-    else
-    {
-        OsSysLog::add(FAC_SIPXTAPI, PRI_ERR,
-            "sipxCallUnsubscribe: cannot find subscription data for handle: %d",
-            hSub);
-        sipXresult = SIPX_RESULT_INVALID_ARGS;
-    }
-    sipxSubscribeReleaseLock(subscriptionData, SIPX_LOCK_WRITE, stackLogger);
-    return(sipXresult);
+   return(sipXresult);
 }
 
 SIPXTAPI_API SIPX_RESULT sipxConfigSubscribe(const SIPX_INST hInst, 
