@@ -125,8 +125,10 @@ nobase_include_HEADERS =  \
     mp/MprToOutputDevice.h \
     mp/MprToSpkr.h \
     mp/MpRtpInputAudioConnection.h \
+    mp/MprRtpInputAudioConnectionConstructor.h \
     mp/MpRtpInputConnection.h \
     mp/MpRtpOutputAudioConnection.h \
+    mp/MprRtpOutputAudioConnectionConstructor.h \
     mp/MpRtpOutputConnection.h \
     mp/MpSineWaveGeneratorDeviceDriver.h \
     mp/MpSipxDecoders.h \
