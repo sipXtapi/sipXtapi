@@ -103,8 +103,9 @@ OsMsgPool::~OsMsgPool()
    delete[] mpElts;
    mpModel->setReusable(FALSE);
    delete mpModel;
-   delete mpMutex;
    delete mpName;
+   if (NULL != mpMutex) mpMutex->release();
+   delete mpMutex;
 }
 
 /* ============================ MANIPULATORS ============================== */
