@@ -12,8 +12,8 @@
 #define _INCLUDED_MPBUF_H
 
 /**
- *  @todo cache align - align pool begining, buffer sizes (must be multiple of
- *        the cache size) and data begining in MpArrayBuf.
+ *  @todo cache align - align pool beginning, buffer sizes (must be multiple of
+ *        the cache size) and data beginning in MpArrayBuf.
  *  @todo error handling - return OsStatus may be?
  */
 
@@ -26,6 +26,10 @@
 
 // DEFINES
 // MACROS
+// Uncomment MPBUF_DEBUG define to enable deep MpBuf debug with alot of messages
+// and more asserts.
+//#define MPBUF_DEBUG
+
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
