@@ -225,137 +225,160 @@ void sipxSubscribeDestroyAll(const SIPX_INST hInst)
     gpSubHandleMap->unlock() ;
 }
 
-SIPX_CALL sipxCallLookupHandle(const UtlString& callID, const void* pSrc)
+// CHECKED, FIX NEEDED
+SIPX_CALL sipxCallLookupHandle(const UtlString& callID, const void *pSrc)
 {
-    SIPX_CALL hCall = 0 ;
-    gpCallHandleMap->lock() ;
-    // control iterator scope
-    {
-        UtlHashMapIterator iter(*gpCallHandleMap);
+   SIPX_CALL hCall = 0;
+   SIPX_CALL_DATA* pData = NULL;
 
-        UtlInt* pIndex = NULL;
-        UtlVoidPtr* pObj = NULL;
+   // global lock is needed here too, to prevent problems with deletion in sipxCallObjectFree
+   // all lookup and free functions need to acquire global lock
+   gpCallAccessLock->acquire();
+   gpCallHandleMap->lock();
+   // control iterator scope
+   {
+      UtlHashMapIterator iter(gpCallHandleMap);
 
-        while ((pIndex = dynamic_cast<UtlInt*>(iter())))       
-        {
-            pObj = dynamic_cast<UtlVoidPtr*>(gpCallHandleMap->findValue(pIndex));
-            SIPX_CALL_DATA* pData = NULL ;
-            if (pObj)
+      UtlInt* pIndex = NULL;
+      UtlVoidPtr* pObj = NULL;
+
+      while ((pIndex = dynamic_cast<UtlInt*>(iter())))       
+      {
+         pObj = dynamic_cast<UtlVoidPtr*>(gpCallHandleMap->findValue(pIndex));
+
+         assert(pObj); // if it's NULL, then it's a bug
+         if (pObj)
+         {
+            pData = (SIPX_CALL_DATA*) pObj->getValue();
+            assert(pData);
+
+            if (pData &&
+               (pData->callId && pData->callId->compareTo(callID) == 0 ||
+               (pData->sessionCallId && pData->sessionCallId->compareTo(callID) == 0)) && 
+               // I don't like this
+               (pData->pInst == pSrc || pData->pInst->pCallManager == pSrc
+               || pData->pInst->pSipUserAgent == pSrc))
             {
-                pData = (SIPX_CALL_DATA*) pObj->getValue() ;
+               hCall = pIndex->getValue();
+               break;
             }
+         }
+      }
+   }
+   gpCallHandleMap->unlock();
+   gpCallAccessLock->release();
 
-            if (pData && 
-                (pData->callId->compareTo(callID) == 0 ||
-                (pData->sessionCallId && (pData->sessionCallId->compareTo(callID) == 0))) && 
-                (pData->pInst->pCallManager == pSrc ||
-                pData->pInst->pSipUserAgent == pSrc) )
-            {
-                hCall = pIndex->getValue() ;
-                break ;
-            }
-        }
-    }        
-    gpCallHandleMap->unlock() ;
-
-    return hCall;
+   return hCall;
 }
 
-
+// CHECKED
 void sipxCallObjectFree(const SIPX_CALL hCall, const OsStackTraceLogger& oneBackInStack)
 {
-    OsStackTraceLogger logItem(FAC_SIPXTAPI, PRI_DEBUG, "sipxCallObjectFree", oneBackInStack);
+   OsStackTraceLogger logItem(FAC_SIPXTAPI, PRI_DEBUG, "sipxCallObjectFree", oneBackInStack);
 
-    gpCallAccessLock->acquire();    
-    SIPX_CALL_DATA* pData = sipxCallLookup(hCall, SIPX_LOCK_WRITE, logItem) ;
+   gpCallAccessLock->acquire();    
+   SIPX_CALL_DATA* pData = sipxCallLookup(hCall, SIPX_LOCK_WRITE, logItem) ;
 
-    if (pData)
-    {
-        const void* pRC = gpCallHandleMap->removeHandle(hCall); 
-        sipxCallReleaseLock(pData, SIPX_LOCK_WRITE, logItem) ;
-        if (pRC)
-        {
-//            destroyCallData(pData) ;   
-            // To prevent any Pure Virtual Function call error
-            // we now do garbage collection of this object after 100 msecs
-            OsMsgQ*  pMsgQ = pData->pInst->pMessageObserver->getMessageQueue();
-            OsTimer* timer = new OsTimer(pMsgQ, (int)pData);
-
-            OsTime timerTime(100);
-            timer->oneshotAfter(timerTime);  
-        }
-    }
-    gpCallAccessLock->release();
+   if (pData)
+   {
+      const void* pRC = gpCallHandleMap->removeHandle(hCall); 
+      gpCallAccessLock->release(); // we can release lock now
+      assert(pRC); // if NULL, then something is bad :(
+      destroyCallData(pData);
+   }
+   else
+   {
+      gpCallAccessLock->release(); // we can release lock now
+   }
 }
 
-
-SIPX_CALL_DATA* sipxCallLookup(const SIPX_CALL hCall, SIPX_LOCK_TYPE type, const OsStackTraceLogger& oneBackInStack)
+// CHECKED
+SIPX_CALL_DATA* sipxCallLookup(const SIPX_CALL hCall,
+                               SIPX_LOCK_TYPE type,
+                               const OsStackTraceLogger& oneBackInStack)
 {
-    OsStackTraceLogger logItem(FAC_SIPXTAPI, PRI_DEBUG, "sipxCallLookup", oneBackInStack);
-    SIPX_CALL_DATA* pRC ;    
+   OsStackTraceLogger logItem(FAC_SIPXTAPI, PRI_DEBUG, "sipxCallLookup", oneBackInStack);
+   SIPX_CALL_DATA* pRC = NULL;
+   OsStatus status;
 
-    gpCallAccessLock->acquire();
-    pRC = (SIPX_CALL_DATA*) gpCallHandleMap->findHandle(hCall) ;
-    if (validCallData(pRC))
-    {
-        switch (type)
-        {
-        case SIPX_LOCK_READ:
-            // TODO: What happens if this fails?
-            pRC->pMutex->acquireRead() ;   
-            // the handle could have already been removed before we aquired the lock
-            pRC = (SIPX_CALL_DATA*) gpCallHandleMap->findHandle(hCall);
-            break ;
-        case SIPX_LOCK_WRITE:
-            // TODO: What happens if this fails?
-            pRC->pMutex->acquireWrite() ;
-            // the handle could have already been removed before we aquired the lock
-            pRC = (SIPX_CALL_DATA*) gpCallHandleMap->findHandle(hCall);
-            break ;
-        default:
-            break ;
-        }
-    }
-    else
-    {
-        pRC = NULL ;
-    }
-    gpCallAccessLock->release();
-    return pRC ;
+   gpCallAccessLock->acquire();
+   pRC = (SIPX_CALL_DATA*) gpCallHandleMap->findHandle(hCall);
+   if (pRC && type != SIPX_LOCK_NONE)
+   {
+      if (validCallData(pRC))
+      {
+         switch (type)
+         {
+         case SIPX_LOCK_READ:
+            status = pRC->pMutex->acquireRead();
+            assert(status == OS_SUCCESS);
+            // handle couldn't have been removed before we acquired the lock,
+            // as removeHandle above is guarded by 2 semaphores
+            break;
+         case SIPX_LOCK_WRITE:
+            status = pRC->pMutex->acquireWrite();
+            assert(status == OS_SUCCESS);
+            break;
+         default:
+            break;
+         }
+      }
+      else // call was found but call data is not completely valid
+      {
+         // fire assert, something is not right, fix it
+         assert(false); // this only works in debug mode
+         pRC = NULL; // we only get here in release mode
+      }
+   }
+   gpCallAccessLock->release();
+   return pRC ;
 }
 
-
+// CHECKED
 UtlBoolean validCallData(SIPX_CALL_DATA* pData)
 {
-    return (pData && pData->callId && 
-        pData->lineURI  && 
-        pData->pInst &&
-        pData->pInst->pCallManager && 
-        pData->pInst->pRefreshManager &&
-        pData->pInst->pLineManager &&
-        pData->pMutex) ;
+   return (pData &&
+      pData->callId && 
+      pData->lineURI && 
+      pData->pInst &&
+      pData->pInst->pCallManager && 
+      pData->pInst->pRefreshManager &&
+      pData->pInst->pLineManager &&
+      pData->pMutex);
 }
 
-
-void sipxCallReleaseLock(SIPX_CALL_DATA* pData, SIPX_LOCK_TYPE type, const OsStackTraceLogger& oneBackInStack)
+// CHECKED
+void sipxCallReleaseLock(SIPX_CALL_DATA* pData,
+                         SIPX_LOCK_TYPE type,
+                         const OsStackTraceLogger& oneBackInStack)
 {
-    OsStackTraceLogger logItem(FAC_SIPXTAPI, PRI_DEBUG, "sipxCallReleaseLock", oneBackInStack);
-    if ((type != SIPX_LOCK_NONE) && validCallData(pData))
-    {
-        switch (type)
-        {
-        case SIPX_LOCK_READ:
-            // TODO: What happens if this fails?
-            pData->pMutex->releaseRead() ;            
-            break ;
-        case SIPX_LOCK_WRITE:
-            // TODO: What happens if this fails?
-            pData->pMutex->releaseWrite() ;
-            break ;
-        default:
-            break ;
-        }
-    }
+   OsStackTraceLogger logItem(FAC_SIPXTAPI, PRI_DEBUG, "sipxCallReleaseLock", oneBackInStack);
+   OsStatus status;
+
+   if (type != SIPX_LOCK_NONE)
+   {
+      if (validCallData(pData))
+      {
+         switch (type)
+         {
+         case SIPX_LOCK_READ:
+            status = pData->pMutex->releaseRead();
+            assert(status == OS_SUCCESS);
+            break;
+         case SIPX_LOCK_WRITE:
+            status = pData->pMutex->releaseWrite();
+            assert(status == OS_SUCCESS);
+            break;
+         default:
+            break;
+         }
+      }
+      else
+      {
+         // something is bad if call data is not valid, fix bug
+         assert(false);
+      }
+   }   
 }
 
 UtlBoolean sipxCallGetCommonData(SIPX_CALL hCall,

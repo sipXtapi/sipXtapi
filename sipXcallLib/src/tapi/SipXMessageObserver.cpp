@@ -71,31 +71,12 @@ UtlBoolean SipXMessageObserver::handleMessage(OsMsg& rMsg)
                 bRet = TRUE ;
                 break ;
             default:
-                if ( rMsg.getMsgSubType() == OsEventMsg::NOTIFY)
-                {
-                     SIPX_CALL_DATA* pData = NULL;
-                     OsTimer* timer = NULL;
- 
-                     pEventMsg->getUserData((int&)pData);
-                     pEventMsg->getEventData((int&)timer);
- 
-                     if(timer)
-                     {
-                         timer->stop();
-                         delete timer;
-                         timer = NULL;
-                     }
-                     if(pData)
-                     {
-                         if (pData->pMutex)
-                         {
-                            pData->pMutex->acquireWrite();
-                            destroyCallData(pData) ;
-                            pData = NULL;
-                         }
-                     }
-                }
-               break;                
+               if (rMsg.getMsgSubType() == OsEventMsg::NOTIFY)
+               {
+                  // this shouldn't be used at all
+                  assert(false);
+               }
+               break;
         }                
     }
     else
