@@ -134,7 +134,10 @@ OsStatus MpAudioOutputConnection::disableDevice()
    OsLock lock(mMutex);
 
    // Disable ticker notification and delete it if any.
-   clearDeviceTicker();
+   if (isTickerNeeded())
+   {
+      clearDeviceTicker();
+   }
 
    // Disable device and set result code.
    result = mpDeviceDriver->disableDevice();
