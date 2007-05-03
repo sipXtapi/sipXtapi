@@ -57,9 +57,10 @@ MpOutputDeviceManager::MpOutputDeviceManager(unsigned defaultSamplesPerFrame,
 // Destructor
 MpOutputDeviceManager::~MpOutputDeviceManager()
 {
-
-   // TODO:: Clean up all connections!
-
+   // All devices (and connections, so) should be removed from manager before
+   // manager destroyed.
+   assert(mConnectionsByDeviceName.entries() == 0);
+   assert(mConnectionsByDeviceId.entries() == 0);
 }
 
 /* ============================ MANIPULATORS ============================== */

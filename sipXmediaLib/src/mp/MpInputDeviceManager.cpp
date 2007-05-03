@@ -372,6 +372,10 @@ MpInputDeviceManager::MpInputDeviceManager(unsigned defaultSamplesPerFrame,
 // Destructor
 MpInputDeviceManager::~MpInputDeviceManager()
 {
+   // All devices (and connections, so) should be removed from manager before
+   // manager destroyed.
+   assert(mConnectionsByDeviceName.entries() == 0);
+   assert(mConnectionsByDeviceId.entries() == 0);
 }
 
 /* ============================ MANIPULATORS ============================== */
