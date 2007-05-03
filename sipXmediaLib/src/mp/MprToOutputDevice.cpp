@@ -76,7 +76,12 @@ UtlBoolean MprToOutputDevice::doProcessFrame(MpBufPtr inBufs[],
 {
    int frameTimeInterval;
    OsStatus status = OS_SUCCESS;
-   
+
+   if (!isEnabled)
+   {
+      return TRUE;
+   }
+
    RTL_BLOCK("MprToOutputDevice::doProcessFrame");
 
    assert(mpOutputDeviceManager != NULL);

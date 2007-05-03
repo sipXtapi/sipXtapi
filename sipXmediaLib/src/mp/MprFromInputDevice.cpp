@@ -71,6 +71,11 @@ UtlBoolean MprFromInputDevice::doProcessFrame(MpBufPtr inBufs[],
 
    assert(mpInputDeviceManager);
 
+   if (!isEnabled)
+   {
+      return TRUE;
+   }
+
    // Milliseconds per frame:
    int frameTimeInterval = samplesPerFrame * 1000 / samplesPerSecond;
 
