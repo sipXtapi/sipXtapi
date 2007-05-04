@@ -194,7 +194,7 @@ public:
    {
       OsEvent notificationEvent;
      
-     RTL_START(1000000);
+      RTL_START(1000000);
 
       calculateSampleData();
 
@@ -205,9 +205,9 @@ public:
       // Write some data to device.
       for (int frame=0; frame<TEST_SAMPLE_DATA_SIZE/TEST_SAMPLES_PER_FRAME_SIZE; frame++)
       {
-         notificationEvent.wait(OsTime(50));
+         notificationEvent.wait(OsTime(500));
          notificationEvent.reset();
-        RTL_BLOCK("test ticker loop");
+         RTL_BLOCK("test ticker loop");
          driver.pushFrame(TEST_SAMPLES_PER_FRAME_SIZE, sampleData + TEST_SAMPLES_PER_FRAME_SIZE*frame);
       }
 
