@@ -44,7 +44,9 @@
 //#define USE_TEST_OUTPUT_DRIVER
 
 #ifdef USE_TEST_INPUT_DRIVER // USE_TEST_DRIVER [
-#error Not supported platform!
+#include <mp/MpSineWaveGeneratorDeviceDriver.h>
+#define INPUT_DRIVER MpSineWaveGeneratorDeviceDriver
+#define INPUT_DRIVER_CONSTRUCTOR_PARAMS(manager) "SineGenerator", (manager), 32000, 3, 0
 
 #elif defined(WIN32) // USE_TEST_DRIVER ][ WIN32
 #include <mp/MpInputDeviceDriverWnt.h>
