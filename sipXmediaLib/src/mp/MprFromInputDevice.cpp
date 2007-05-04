@@ -17,6 +17,13 @@
 #include <mp/MpInputDeviceManager.h>
 #include <mp/MprFromInputDevice.h>
 
+#ifdef RTL_ENABLED
+#include <rtl_macro.h>
+#else
+#define RTL_BLOCK(x)
+#define RTL_EVENT(x,y)
+#endif
+
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
@@ -68,6 +75,7 @@ UtlBoolean MprFromInputDevice::doProcessFrame(MpBufPtr inBufs[],
                                              int samplesPerSecond)
 {
    // NOTE: Logic to react to frequent starvation is missing.
+   RTL_BLOCK("MprFromInputDevice::doProcessFrame");
 
    assert(mpInputDeviceManager);
 
@@ -105,15 +113,17 @@ UtlBoolean MprFromInputDevice::doProcessFrame(MpBufPtr inBufs[],
                                                        numFramedBufferedBehind);
 
 
-   printf("MprFromInputDevice::doProcessFrame() frameToFetch=%d, getResult=%d, numFramesNotPlayed=%d, numFramedBufferedBehind=%d\n",
-          frameToFetch, getResult, numFramesNotPlayed, numFramedBufferedBehind);
+   osPrintf("MprFromInputDevice::doProcessFrame()"
+            " frameToFetch=%d, getResult=%d, numFramesNotPlayed=%d, numFramedBufferedBehind=%d\n",
+            frameToFetch, getResult, numFramesNotPlayed, numFramedBufferedBehind);
 
    if(getResult != OS_SUCCESS)
    {
+      int numAdvances = 0;
       while (getResult == OS_NOT_FOUND && numFramedBufferedBehind == 0 && numFramesNotPlayed > 0)
       {
-         printf("+ %d numFramesNotPlayed=%d, numFramedBufferedBehind=%d\n",
-                mPreviousFrameTime, numFramesNotPlayed, numFramedBufferedBehind);
+         osPrintf("+ %d numFramesNotPlayed=%d, numFramedBufferedBehind=%d\n",
+                  mPreviousFrameTime, numFramesNotPlayed, numFramedBufferedBehind);
          mPreviousFrameTime += frameTimeInterval;
          frameToFetch = mPreviousFrameTime;
          getResult = 
@@ -122,11 +132,15 @@ UtlBoolean MprFromInputDevice::doProcessFrame(MpBufPtr inBufs[],
                                            buffer,
                                            numFramesNotPlayed,
                                            numFramedBufferedBehind);
+         numAdvances++;
+         RTL_EVENT("MprFromInputDevice::advance", numAdvances);
       }
+      numAdvances = 0;
+      RTL_EVENT("MprFromInputDevice::advance", numAdvances);
       while (getResult == OS_NOT_FOUND && numFramedBufferedBehind > 0 && numFramesNotPlayed == 0)
       {
-         printf("- %d numFramesNotPlayed=%d, numFramedBufferedBehind=%d\n",
-                mPreviousFrameTime, numFramesNotPlayed, numFramedBufferedBehind);
+         osPrintf("- %d numFramesNotPlayed=%d, numFramedBufferedBehind=%d\n",
+                  mPreviousFrameTime, numFramesNotPlayed, numFramedBufferedBehind);
          mPreviousFrameTime -= frameTimeInterval;
          frameToFetch = mPreviousFrameTime;
          getResult = 
@@ -135,7 +149,11 @@ UtlBoolean MprFromInputDevice::doProcessFrame(MpBufPtr inBufs[],
                                            buffer,
                                            numFramesNotPlayed,
                                            numFramedBufferedBehind);
+         numAdvances--;
+         RTL_EVENT("MprFromInputDevice::advance", numAdvances);
       }
+      numAdvances = 0;
+      RTL_EVENT("MprFromInputDevice::advance", numAdvances);
    }
 
    if (!mFrameTimeInitialized)
