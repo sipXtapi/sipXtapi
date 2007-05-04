@@ -394,12 +394,13 @@ OsStatus MpAudioOutputConnection::advanceMixerBuffer(unsigned numSamples)
    assert(numSamples > 0 && numSamples <= mMixerBufferLength);
 
    // If buffer could be copied in one pass
-   if (mMixerBufferBegin+numSamples < mMixerBufferLength)
+   if (mMixerBufferBegin+numSamples <= mMixerBufferLength)
    {
-      memset(&mpMixerBuffer[0],
+      memset(&mpMixerBuffer[mMixerBufferBegin],
              0,
-             numSamples);
+             numSamples*sizeof(MpAudioSample));
       mMixerBufferBegin += numSamples;
+      mMixerBufferBegin %= mMixerBufferLength;
    }
    else
    {
