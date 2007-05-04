@@ -125,6 +125,7 @@ public:
      *           frame ticker notification.
      */
 
+     OsStatus setNotificationMode(UtlBoolean bThreadNotification);
 
 //@}
 
@@ -168,8 +169,8 @@ protected:
     
     MpFrameTime mCurrentFrameTime; ///< TODO: Fill in mCurrentFrameTime description
     
-    UtlBoolean mDirectWritePending; ///< Setting to TRUE when current operations is direct write
-    UtlBoolean mConditionWrite;
+    int mQueueLen;
+    UtlBoolean mNotificationThreadEn;
 
 protected:    
     OsStatus initBuffers();
@@ -183,9 +184,7 @@ protected:
       *  otherwise return value is NULL
       */
      
-     OsStatus signalForNextFrame();
-     OsStatus signalForNextFrameWithCond();
-     //OsStatus signalForNextFrameAndDirectWrite();
+    OsStatus signalForNextFrame();
      
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:

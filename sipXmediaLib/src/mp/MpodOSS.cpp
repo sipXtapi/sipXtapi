@@ -35,6 +35,15 @@
 #include "os/OsTask.h"
 #include "os/OsNotification.h"
 
+#ifdef RTL_ENABLED // [
+#  include "rtl_macro.h"
+#else  // RTL_ENABLED ][
+#  define RTL_WRITE
+#  define RTL_BLOCK
+#  define RTL_BLOCK
+#  define RTL_START
+#endif // RTL_ENABLED ]
+
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 #ifdef OSS_SINGLE_DEVICE
@@ -57,8 +66,8 @@ MpodOSS::MpodOSS(const UtlString& name,
                           , mCurBuff(-1)
                           , mLastReceived(-1)
                           , pNotificator(NULL)
-                          , mDirectWritePending(FALSE)
-                          , pDevWrapper(NULL)                
+                          , mNotificationThreadEn(FALSE)
+                          , pDevWrapper(NULL)
 {
     int result = sem_init(&mPushPopSem, 0, 1);
     assert(result != -1);
@@ -89,6 +98,16 @@ MpodOSS::~MpodOSS()
     sem_destroy(&mPushPopSem);
 }
 /* ============================ MANIPULATORS ============================== */
+OsStatus MpodOSS::setNotificationMode(UtlBoolean bThreadNotification)
+{
+    if (isEnabled())
+    {
+        return OS_INVALID_STATE;
+    }
+
+    mNotificationThreadEn = bThreadNotification;
+}
+
 OsStatus MpodOSS::enableDevice(unsigned samplesPerFrame, 
                           unsigned samplesPerSec,
                           MpFrameTime currentFrameTime)
@@ -122,7 +141,7 @@ OsStatus MpodOSS::enableDevice(unsigned samplesPerFrame,
         return ret;
     }
     mIsEnabled = TRUE;        
-    
+    mQueueLen = 0;
     return ret;
 }
 
@@ -144,9 +163,7 @@ OsStatus MpodOSS::disableDevice()
     {
         return ret;
     }      
-    //printf("56"); fflush(stdout);
     freeBuffers();
-    //printf("66"); fflush(stdout);
     mIsEnabled = FALSE; 
     
     return ret;
@@ -161,90 +178,50 @@ OsStatus MpodOSS::pushFrame(unsigned int numSamples,
     OsStatus status = OS_FAILED;        
     // Currently only full frame supported
     assert(numSamples == mSamplesPerFrame);
-    
-    /*
-    if (mDirectWritePending)
-    {
-        status = pDevWrapper->doOutput((char*)samples, numSamples * sizeof(MpAudioSample));
+
+
+    RTL_BLOCK("MpodOSS::pushFrame");
+    int res = sem_wait(&mPushPopSem);
+    int doSignal = 0;
+    assert (res != -1);
+    do 
+    { 
+        if (((mCurBuff + 1 ) == mLastReceived) ||
+            ((mCurBuff + 1  == mNumInBuffers) && (mLastReceived == 0)))
+        {
+            //Overwritting existing buffer
+            //Need more buffs
+            OsSysLog::add(FAC_MP, PRI_DEBUG,
+                    "OSS: MpodOSS out buffer is overflowing\n");
+            
+            status = OS_LIMIT_REACHED;
+            break;
+        }
+        MpAudioSample* buff = (MpAudioSample*)(mpWaveBuffers + 
+                        mCurBuff * mSamplesPerFrame * sizeof(MpAudioSample) * 
+                        (OSS_SOUND_STEREO ? 2 : 1));
+        mCurBuff++;
+        if (mCurBuff == mNumInBuffers)
+        {
+            mCurBuff = 0;
+        }
+        memcpy(buff, samples, numSamples * sizeof(MpAudioSample) * 
+                        (OSS_SOUND_STEREO ? 2 : 1));
+        
         mCurrentFrameTime += getFramePeriod();
-        
-        // Notify taht DirectIO has been ended 
-        sem_post(&mPushPopSem);        
-    } 
-    else*/ if (mConditionWrite)
-    {
-        int res = 0;
-        //sem_wait(&pDevWrapper->notifierBlock);
-        //res = pthread_mutex_lock(&pDevWrapper->mWrMutex);
-        //pthread_mutex_lock(&pDevWrapper->mWrMutexBuff);
-        //assert(res == 0);
-        //status = pDevWrapper->doOutput((char*)samples, numSamples * sizeof(MpAudioSample));
-        memcpy(pDevWrapper->mWrCurrentSample, samples, numSamples * sizeof(MpAudioSample));
-        mCurrentFrameTime += getFramePeriod();
-        
-        // Notify taht DirectIO has been ended 
-        mConditionWrite = FALSE;
-        //sem_post(&mPushPopSem);        
-        
-        //sem_post(&pDevWrapper->notifierBlock);
-          
-        res = pthread_cond_signal(&pDevWrapper->mNewTickCondition);
-        assert(res == 0);
-        //
-        //res = pthread_mutex_unlock(&pDevWrapper->mWrMutex);
-        //assert(res == 0);
-        //pthread_mutex_unlock(&pDevWrapper->mWrMutexBuff);
-        //pthread_yield();
+        doSignal = 1;
+        mQueueLen ++;
+        RTL_EVENT("MpodOSS::queue", mQueueLen);
 
         status = OS_SUCCESS;
-    }
-    else
+    } while (FALSE);
+    res = sem_post(&mPushPopSem);
+    assert (res != -1);
+    
+    if (doSignal)
     {
-        int res = sem_wait(&mPushPopSem);
-        int doSignal = 0;
-        assert (res != -1);    
-        do 
-        {
-            //printf("mC=%d  mL=%d\n", mCurBuff, mLastReceived);
-            
-            if (((mCurBuff + 1 ) == mLastReceived) ||
-                ((mCurBuff + 1  == mNumInBuffers) && (mLastReceived == 0)))
-            {
-                //Overwritting existing buffer
-                //Need more buffs
-                OsSysLog::add(FAC_MP, PRI_DEBUG,
-                        "OSS: MpodOSS out buffer is overflowing\n");
-                
-                status = OS_LIMIT_REACHED;
-                break;
-            }
-        
-            //printf("p");
-            
-            MpAudioSample* buff = (MpAudioSample*)(mpWaveBuffers + 
-                            mCurBuff * mSamplesPerFrame * sizeof(MpAudioSample) * 
-                            (OSS_SOUND_STEREO ? 2 : 1));
-            mCurBuff++;
-            if (mCurBuff == mNumInBuffers)
-            {
-                mCurBuff = 0;
-            }
-            
-            memcpy(buff, samples, numSamples * sizeof(MpAudioSample) * 
-                            (OSS_SOUND_STEREO ? 2 : 1));
-            
-            mCurrentFrameTime += getFramePeriod();
-            doSignal = 1;
-            status = OS_SUCCESS;
-        } while (FALSE);
-        res = sem_post(&mPushPopSem);
+        res = pthread_cond_signal(&pDevWrapper->mNewQueueFrame);
         assert (res != -1);
-        
-        if (doSignal)
-        {
-            res = pthread_cond_signal(&pDevWrapper->mNewQueueFrame);
-            assert (res != -1);
-        }
     }
     
     return status;
@@ -256,7 +233,6 @@ OsStatus MpodOSS::setTickerNotification(OsNotification *pFrameTicker)
     {
         return OS_FAILED;
     }
-    
     pNotificator = pFrameTicker;
     return OS_SUCCESS;
 }
@@ -276,7 +252,7 @@ OsStatus MpodOSS::initBuffers()
 
     mpWaveBuffers = new char[total_size];
     if (mpWaveBuffers != NULL) 
-    {    
+    {
         mCurBuff = 0;
         mLastReceived = 0;
         return OS_SUCCESS;
@@ -297,7 +273,7 @@ void MpodOSS::freeBuffers()
     mpWaveBuffers = NULL;
     
     res = sem_post(&mPushPopSem);
-    assert (res != -1);   
+    assert (res != -1);
 }
 
 MpAudioSample* MpodOSS::popFrame(unsigned& size)
@@ -305,7 +281,7 @@ MpAudioSample* MpodOSS::popFrame(unsigned& size)
     MpAudioSample* ret = NULL;
     if (!isEnabled()) 
         return ret;
-        
+    
     int res = sem_wait(&mPushPopSem);
     assert (res != -1);
     do
@@ -329,7 +305,9 @@ MpAudioSample* MpodOSS::popFrame(unsigned& size)
             mLastReceived = 0;
         }
         size = sampleSize;
-    } while (FALSE);    
+        mQueueLen --;
+        RTL_EVENT("MpodOSS::queue", mQueueLen);
+    } while (FALSE);
     res = sem_post(&mPushPopSem);
     assert (res != -1);
     
@@ -339,51 +317,13 @@ MpAudioSample* MpodOSS::popFrame(unsigned& size)
 OsStatus MpodOSS::signalForNextFrame()
 {
     OsStatus ret = OS_FAILED;
-    
+
     if (!isNotificationNeeded())
         return ret;
 
-    //printf("@"); fflush(stdout);            
     ret = pNotificator->signal(mCurrentFrameTime);
     return ret;
 }
-
-OsStatus MpodOSS::signalForNextFrameWithCond()
-{
-    OsStatus ret = OS_FAILED;
-    
-    if (!isNotificationNeeded())
-    {
-        //printf("^");
-        return ret;
-    }
-        
-    mConditionWrite = TRUE;
-    //printf("?"); fflush(stdout);            
-    ret = pNotificator->signal(mCurrentFrameTime);
-    return ret;
-}
-/*
-OsStatus MpodOSS::signalForNextFrameAndDirectWrite()
-{
-    OsStatus ret = OS_FAILED;
-    
-    if (!isNotificationNeeded())
-        return ret;
-                
-    // Set Semaphore value to 0
-    sem_wait(&mPushPopSem);
-    mDirectWritePending = TRUE;
-    //printf("&"); fflush(stdout);            
-    ret = pNotificator->signal(mCurrentFrameTime);    
-    // Will block there until signal has not been proceed
-    sem_wait(&mPushPopSem);
-    // Set Semaphore value to 1
-    sem_post(&mPushPopSem);
-    mDirectWritePending = FALSE;
-    return ret;
-}
-*/
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 

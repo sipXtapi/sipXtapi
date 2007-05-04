@@ -34,6 +34,14 @@
 #include "mp/MpOSSDeviceWrapper.h"
 #include "os/OsTask.h"
 
+#ifdef RTL_ENABLED // [
+#  include "rtl_macro.h"
+#else  // RTL_ENABLED ][
+#  define RTL_WRITE
+#  define RTL_BLOCK
+#  define RTL_START
+#endif // RTL_ENABLED ]
+
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 #ifdef OSS_SINGLE_DEVICE
@@ -185,7 +193,7 @@ MpAudioSample* MpidOSS::getBuffer()
 
 void MpidOSS::pushFrame(MpAudioSample* frm)
 {
-
+    RTL_BLOCK("MpidOSS::pushFrame");
     mpInputDeviceManager->pushFrame(mDeviceId,
                                     mSamplesPerFrame,
                                     frm,

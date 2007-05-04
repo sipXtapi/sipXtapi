@@ -140,14 +140,13 @@ protected:
     UtlBoolean pWriterEnabled; ///< Output device is enabled
     
     pthread_t iothread; ///< Internal IO thread
-    sem_t semIOBlock; ///< Internal semaphore for syncronisations
+    pthread_t notifythread; ///< Internal notify thread
     
     sem_t semExit;
-    sem_t notifierBlock;
     
     UtlBoolean mThreadExit; ///< Thread exit flag
     
-    unsigned fullOSpace;
+    int fullOSpace; ///< Size of assigned DMA buffer
     
     pthread_mutex_t mWrMutex;
     pthread_mutex_t mWrMutexBuff;
@@ -155,16 +154,16 @@ protected:
     pthread_cond_t mNull;
     pthread_cond_t mNewDataArrived;
     pthread_cond_t mNewQueueFrame;
+    pthread_cond_t mBlockCondition;
     struct timespec mWrTimeStarted;
     UtlBoolean mbFisrtWriteCycle;
     unsigned musecFrameTime; ///< Period of frame in usec
     unsigned musecTimeCorrect;
     int musecJitterCorrect;
     
-    MpAudioSample* mWrCurrentSample;
-    ///Statistics
+    /// Statistics
     unsigned mFramesRead;
-    unsigned mFramesDropRead;    
+    unsigned mFramesDropRead;
     unsigned mFramesWritten;
     unsigned mFramesWrittenBlocked;
     unsigned mFramesWrUnderruns;
@@ -173,6 +172,10 @@ protected:
     unsigned mCTimeDown;
         
 protected:    
+    
+     /// @brief Returning current count of MpAudioSample's would be playing
+    int getDMAPlayingQueue();
+
      /// @brief Common initializations for OSS device
     OsStatus initDevice(const char* devname);
      /// @brief Free OSS device
@@ -180,9 +183,6 @@ protected:
     
      /// @brief Because OSS device works in duplex mode we must ensure that input and output driver use one spamplerate
     OsStatus setSampleRate(unsigned samplesPerSec);
-    
-     /// @brief Calling ever time when input (output) driver is enabling or disabling
-    OsStatus emitDriverStatusChanged(bool bAdded);
     
      /// @brief Perform input operation of OSS device
     OsStatus doInput(char* buffer, int size);
@@ -192,23 +192,28 @@ protected:
      /// @brief Deinitialization and freeing sequences
     void noMoreNeeded();
      
-     /// @brief Get maximum size of data can be readed without blocking         
-    UtlBoolean getISpace(unsigned& ispace);
+     /// @brief Get maximum size of data can be readed without blocking
+    UtlBoolean getISpace(int& ispace);
      /// @brief Get maximum size of data can be written without blocking
-    UtlBoolean getOSpace(unsigned& ospace);
+    UtlBoolean getOSpace(int& ospace);
     
     void performOnlyRead();
-    void performWithWrite();
-    //void performOnlyWrite();
-    //void performDuplexRW();
+    void performWithWrite(UtlBoolean bReaderEn);
     void performReaderNoDelay();
     
      /// @brief Thread subroutine 
     void soundIOThread();
+    void soundNotify();
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
+    void soundIOThreadLockUnlock(bool bLock);
+    void soundIOThreadAfterBlocking();
+    void soundIOThreadBlocking();
+
      ///  @brief Thread subroutine
     static void* soundCardIOWrapper(void* arg);
+
+    static void* soundNotifier(void *arg);
 
 };
 
