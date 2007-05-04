@@ -237,7 +237,7 @@ SIPX_CALL sipxCallLookupHandle(const UtlString& callID, const void *pSrc)
    gpCallHandleMap->lock();
    // control iterator scope
    {
-      UtlHashMapIterator iter(gpCallHandleMap);
+      UtlHashMapIterator iter(*gpCallHandleMap);
 
       UtlInt* pIndex = NULL;
       UtlVoidPtr* pObj = NULL;
