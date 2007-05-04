@@ -29,7 +29,7 @@
 
 #include <os/OsFS.h>
 
-#define TEST_TIME_MS                  10000  ///< Time to runs test (in milliseconds)
+#define TEST_TIME_MS                  10000 ///< Time to runs test (in milliseconds)
 #define AUDIO_BUFS_NUM                500   ///< Number of buffers in buffer pool we'll use.
 #define BUFFERS_TO_BUFFER_ON_INPUT    3     ///< Number of buffers to buffer in input manager.
 #define BUFFERS_TO_BUFFER_ON_OUTPUT   0     ///< Number of buffers to buffer in output manager.
@@ -136,11 +136,12 @@ public:
       enableConsoleOutput(1);
 
 #ifdef RTL_ENABLED
-      RTL_START(1000000);
+      RTL_START(10000000);
 #endif
 
       // Get media processing task.
       MpMediaTask *pMediaTask = MpMediaTask::getMediaTask(10);
+      CPPUNIT_ASSERT(pMediaTask != NULL);
 
       // Create input and output device managers
       MpInputDeviceManager inputDeviceManager(TEST_SAMPLES_PER_FRAME, 
@@ -181,70 +182,92 @@ public:
       CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, mpFlowGraph->addResource(pSink));
       CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, mpFlowGraph->addLink(pSource, 0, pSink, 0));
 
-      // Enable devices
-      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
-                           inputDeviceManager.enableDevice(sourceDeviceId));
-      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
-                           outputDeviceManager.enableDevice(sinkDeviceId));
+      try {
 
-      // Set flowgraph ticker
-      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
-                           outputDeviceManager.setFlowgraphTickerSource(sinkDeviceId));
-   
-      // Enable resources
-      CPPUNIT_ASSERT(pSource.enable());
-      CPPUNIT_ASSERT(pSink.enable());
+         // Set flowgraph ticker
+         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                              outputDeviceManager.setFlowgraphTickerSource(sinkDeviceId));
 
-      // Manage flowgraph with media task.
-      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pMediaTask->manageFlowGraph(*mpFlowGraph));
+         // Enable devices
+         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                              inputDeviceManager.enableDevice(sourceDeviceId));
+         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                              outputDeviceManager.enableDevice(sinkDeviceId));
 
-      // Start flowgraph
-      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pMediaTask->startFlowGraph(*mpFlowGraph));
+         // Enable resources
+         CPPUNIT_ASSERT(pSource.enable());
+         CPPUNIT_ASSERT(pSink.enable());
 
-      // Run test!
-      OsTask::delay(TEST_TIME_MS);
-/*      for (int i=0; i<TEST_TIME_MS*(TEST_SAMPLES_PER_SECOND/TEST_SAMPLES_PER_FRAME)/1000; i++)
-      {
-         RTL_BLOCK("test loop body");
-         printf("==> i=%d\n",i);
-         OsTask::delay(TEST_SAMPLES_PER_FRAME*1000/TEST_SAMPLES_PER_SECOND-2);
-         RTL_EVENT("test loop body", 2);
-         MpMediaTask::signalFrameStart();
-      }
+         // Manage flowgraph with media task.
+         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pMediaTask->manageFlowGraph(*mpFlowGraph));
+
+         // Start flowgraph
+         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pMediaTask->startFlowGraph(*mpFlowGraph));
+
+         // Run test!
+         OsTask::delay(TEST_TIME_MS);
+/*       for (int i=0; i<TEST_TIME_MS*(TEST_SAMPLES_PER_SECOND/TEST_SAMPLES_PER_FRAME)/1000; i++)
+         {
+            RTL_BLOCK("test loop body");
+            osPrintf("==> i=%d\n",i);
+            OsTask::delay(TEST_SAMPLES_PER_FRAME*1000/TEST_SAMPLES_PER_SECOND-2);
+            RTL_EVENT("test loop body", 2);
+            MpMediaTask::signalFrameStart();
+         }
 */
 
-      // Stop flowgraph
-      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pMediaTask->stopFlowGraph(*mpFlowGraph));
-      OsTask::delay(20);
+         // Clear flowgraph ticker
+         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                              outputDeviceManager.setFlowgraphTickerSource(MP_INVALID_OUTPUT_DEVICE_HANDLE));
 
-      // Unmanage flowgraph with media task.
-      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pMediaTask->unmanageFlowGraph(*mpFlowGraph));
+//         OsTask::delay(50);
 
-      // Disable resources
-      CPPUNIT_ASSERT(pSource.disable());
-      CPPUNIT_ASSERT(pSink.disable());
-      mpFlowGraph->processNextFrame();
+         // Disable resources
+         CPPUNIT_ASSERT(pSource.disable());
+         CPPUNIT_ASSERT(pSink.disable());
+         MpMediaTask::signalFrameStart();
 
-      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, mpFlowGraph->stop());
-      mpFlowGraph->processNextFrame();
+         // Unmanage flowgraph with media task.
+         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pMediaTask->unmanageFlowGraph(*mpFlowGraph));
+         MpMediaTask::signalFrameStart();
 
 #ifdef USE_TEST_OUTPUT_DRIVER // [
-      OsFile::openAndWrite("capture.raw",
-                           (const char*)sinkDevice.getBufferData(),
-                           sinkDevice.getBufferLength()*sizeof(MpAudioSample));
+         OsFile::openAndWrite("capture.raw",
+                              (const char*)sinkDevice.getBufferData(),
+                              sinkDevice.getBufferLength()*sizeof(MpAudioSample));
 #endif // USE_TEST_OUTPUT_DRIVER ]
 
-      // Disable devices
-      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
-                           inputDeviceManager.disableDevice(sourceDeviceId));
-      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
-                           outputDeviceManager.disableDevice(sinkDeviceId));
+         // Disable devices
+         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                              inputDeviceManager.disableDevice(sourceDeviceId));
+         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                              outputDeviceManager.disableDevice(sinkDeviceId));
 
-      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, mpFlowGraph->removeResource(pSink));
-      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, mpFlowGraph->removeResource(pSource));
-      mpFlowGraph->processNextFrame();
+         // Remove resources from flowgraph. We sohuld remove them explicitly
+         // here, because they are stored on the stack and will be destroyed.
+         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, mpFlowGraph->removeResource(pSink));
+         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, mpFlowGraph->removeResource(pSource));
+         mpFlowGraph->processNextFrame();
+      }
+      catch (CppUnit::Exception& e)
+      {
+         // Remove resources from flowgraph. We sohuld remove them explicitly
+         // here, because they are stored on the stack and will be destroyed.
+         // If we will not catch this assert we'll have this resources destroyed
+         // while still referenced in flowgraph, causing crash.
+         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, mpFlowGraph->removeResource(pSink));
+         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, mpFlowGraph->removeResource(pSource));
+         mpFlowGraph->processNextFrame();
 
-      OsTask::delay(10);
+         // Rethrow exception.
+         throw(e);
+      }
+
+      // Remove devices from managers.
+      CPPUNIT_ASSERT_EQUAL((MpInputDeviceDriver*)&sourceDevice,
+                           inputDeviceManager.removeDevice(sourceDeviceId));
+      CPPUNIT_ASSERT_EQUAL((MpOutputDeviceDriver*)&sinkDevice,
+                           outputDeviceManager.removeDevice(sinkDeviceId));
 
 #ifdef RTL_ENABLED
       RTL_WRITE("testShortCircuit.rtl");
