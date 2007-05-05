@@ -1107,7 +1107,7 @@ OsStatus CpPhoneMediaInterface::playAudio(const char* url,
     OsStatus returnCode = OS_NOT_FOUND;
     UtlString urlString;
     if(url) urlString.append(url);
-    int fileIndex = urlString.index("file://");
+    size_t fileIndex = urlString.index("file://");
     if(fileIndex == 0) urlString.remove(0, 6);
 
     if(mpFlowGraph && !urlString.isNull())
