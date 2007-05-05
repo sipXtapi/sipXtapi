@@ -71,6 +71,7 @@ nobase_include_HEADERS =  \
     mp/MpePtAVT.h \
     mp/MpFlowGraphBase.h \
     mp/MpFlowGraphMsg.h \
+    mp/MpFromFileStartResourceMsg.h \
     mp/MpidOSS.h \
     mp/MpInputDeviceDriver.h \
     mp/MpInputDeviceManager.h \
