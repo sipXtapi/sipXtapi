@@ -31,6 +31,7 @@
 #include "mp/MpAudioFileOpen.h"
 #include "mp/MpAudioUtils.h"
 #include "mp/MpAudioWaveFileRead.h"
+#include "mp/MpFromFileStartResourceMsg.h"
 #include "mp/mpau.h"
 // TODO remove next two lines and reference to MpCallFlowGraph
 typedef int MpConnectionID;
@@ -463,6 +464,16 @@ OsStatus MprFromFile::playFile(const char* audioFileName, UtlBoolean repeat,
     return res;
 }
 
+OsStatus MprFromFile::playFile(const UtlString& namedResource, 
+                               OsMsgQ& fgQ, 
+                               const UtlString& filename, 
+                               const UtlBoolean& repeat,
+                               OsNotification* evt)
+{
+   MpFromFileStartResourceMsg msg(namedResource, filename, repeat, evt);
+   return fgQ.send(msg, sOperationQueueTimeout);
+}
+
 // stop file play
 OsStatus MprFromFile::stopFile(void)
 {
@@ -472,6 +483,22 @@ OsStatus MprFromFile::stopFile(void)
 
 // $$$ These enable and disable routines need more thought, as part of
 // $$$ the entire notification scheme.
+
+OsStatus MprFromFile::stopFile(const UtlString& namedResource, 
+                               OsMsgQ& fgQ)
+{
+   MpResourceMsg msg(MpResourceMsg::MPRM_FROMFILE_STOP, namedResource);
+   return fgQ.send(msg, sOperationQueueTimeout);
+}
+
+OsStatus MprFromFile::pauseFile(const UtlString& namedResource, 
+                                OsMsgQ& fgQ)
+{
+   MpResourceMsg msg(MpResourceMsg::MPRM_FROMFILE_PAUSE, namedResource);
+   return fgQ.send(msg, sOperationQueueTimeout);
+}
+
+
 
 UtlBoolean MprFromFile::enable(void) //$$$
 {
@@ -566,11 +593,19 @@ UtlBoolean MprFromFile::doProcessFrame(MpBufPtr inBufs[],
                 memset(&outbuf[(totalBytesRead/sizeof(MpAudioSample))], 0, bytesLeft);
 
                 // TODO: remove reference to MpCallFlowGraph
-                // MprFromFile::stopFile(mName, getFloGraph()->getMsgQ());
-                MpCallFlowGraph* mpMyFG = (MpCallFlowGraph*) getFlowGraph();
-                mpMyFG->stopFile(0);
+                OsMsgQ* fgQ = getFlowGraph()->getMsgQ();
+                assert(fgQ != NULL);
 
-                disable();
+                // Let the flowgraph handle the bits of stopping play 
+                // it needs to do... (new connector code for legacy code)
+                if(dynamic_cast<MpCallFlowGraph*>(getFlowGraph()) != NULL)
+                {
+                   MpFlowGraphMsg msg(MpFlowGraphMsg::FLOWGRAPH_STOP_PLAY);
+                   fgQ->send(msg, sOperationQueueTimeout);
+                }
+
+                MprFromFile::stopFile(getName(), *fgQ);
+                MpResource::disable(getName(), *fgQ);
              }
           }
       }
@@ -629,6 +664,34 @@ UtlBoolean MprFromFile::handleMessage(MpFlowGraphMsg& rMsg)
       break;
    }
    return TRUE;
+}
+
+
+UtlBoolean MprFromFile::handleMessage(MpResourceMsg& rMsg)
+{
+   UtlBoolean msgHandled = TRUE;
+
+   MpFromFileStartResourceMsg* ffsRMsg = NULL;
+   switch (rMsg.getMsg()) 
+   {
+   case MpResourceMsg::MPRM_FROMFILE_START:
+      ffsRMsg = (MpFromFileStartResourceMsg*)&rMsg;
+
+      // Enable this resource - as it's disabled automatically when the last file ends.
+      enable();
+      msgHandled = playFile(ffsRMsg->getFilename(), ffsRMsg->isRepeating(), ffsRMsg->getOsNotification());
+      break;
+
+   case MpResourceMsg::MPRM_FROMFILE_STOP:
+      msgHandled = stopFile();
+      break;
+
+   default:
+      // If we don't handle the message here, let our parent try.
+      msgHandled = MpResource::handleMessage(rMsg); 
+      break;
+   }
+   return msgHandled;
 }
 
 /* ============================ FUNCTIONS ================================= */

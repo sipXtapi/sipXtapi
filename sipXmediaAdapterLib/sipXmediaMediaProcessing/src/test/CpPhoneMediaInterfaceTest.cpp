@@ -15,9 +15,12 @@
 #include <mi/CpMediaInterfaceFactory.h>
 #include <mi/CpMediaInterfaceFactoryFactory.h>
 #include <mi/CpMediaInterface.h>
+#include <mp/MprFromFile.h>
 #include <os/OsTask.h>
+#include <utl/UtlSList.h>
+#include <utl/UtlInt.h>
 //#define DISABLE_RECORDING
-#define EMBED_PROMPTS
+//#define EMBED_PROMPTS
 #ifdef EMBED_PROMPTS
 #  include "playback_prompt.h"
 #  include "record_prompt.h"
@@ -29,6 +32,36 @@
 #else
 #  define RTL_EVENT
 #endif
+
+class StoreSignalNotification : public OsNotification
+{
+public:
+   StoreSignalNotification() {}
+   virtual ~StoreSignalNotification() {}
+
+   OsStatus signal(const int eventData) 
+   { 
+      UtlInt* pED = new UtlInt(eventData);
+      return (mEDataList.insert(pED) == pED) ?
+         OS_SUCCESS : OS_FAILED;
+   }
+   OsStatus popLastEvent(int& evtData) 
+   {
+      OsStatus stat = OS_NOT_FOUND;
+      UtlInt* lastEData = (UtlInt*)mEDataList.get();
+      if(lastEData != NULL)
+      {
+         evtData = lastEData->getValue();
+         delete lastEData;
+         stat = OS_SUCCESS;
+      }
+      return stat;
+   }
+
+   // Data (public now)
+   UtlSList mEDataList;
+private:
+};
 
 // Unittest for CpPhoneMediaInterface
 
@@ -214,6 +247,7 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
         int taskId;
         OsTask::getCurrentTaskId(taskId);
      
+        StoreSignalNotification playAudNote;
 #ifdef EMBED_PROMPTS
         printf("Playing record_prompt from RAM bytes: %d samples: %d frames: %d\n",
                 sizeof(record_prompt),
@@ -229,9 +263,24 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
         mediaInterface->playAudio("record_prompt.wav", 
                                   false, //repeat
                                   true, // local
-                                  false) ; //remote
+                                  false, //remote
+                                  false,
+                                  100,
+                                  &playAudNote);
 #endif
-        OsTask::delay(3500) ;
+        OsTask::delay(3500);
+
+        // Check via old OsNotification mechanism if the file finished playing.
+        printf("%d event(s) on play event queue:  ", playAudNote.mEDataList.entries());
+        int evtData = -1;
+        while((evtData = playAudNote.popLastEvent(evtData)) != OS_NOT_FOUND)
+        {
+           printf("%d ", evtData);
+        }
+        printf("\n");
+//        playAudNote.popLastEvent(evtData);
+//        CPPUNIT_ASSERT_EQUAL((int)MprFromFile::PLAY_FINISHED, evtData);
+
         mediaInterface->stopAudio() ;
         
         mediaInterface->startTone(0, true, false) ;

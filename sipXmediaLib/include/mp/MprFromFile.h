@@ -102,6 +102,27 @@ public:
      *  resource and/or opening the named file.
      */
 
+     /// @brief Sends an MPRM_FROMFILE_START message to the named MprFromFile resource.
+   static OsStatus playFile(const UtlString& namedResource,
+                            OsMsgQ& fgQ,
+                            const UtlString& filename,
+                            const UtlBoolean& repeat,
+                            OsNotification* evt);
+     /**<
+     *  Sends an MPRM_FROMFILE_START message to the named MprFromFile resource
+     *  within the flowgraph who's queue is supplied. When the message 
+     *  is received, the above resource will then begin playing the file
+     *  specified.
+     *
+     *  @param namedResource - the name of the resource to send a message to.
+     *  @param fgQ - the queue of the flowgraph containing the resource which
+     *  the message is to be received by.
+     *  @param filename - the filename of the file to start playing.
+     *  @param repeat - boolean indicating whether to loop-play the file.
+     *  @param remote - boolean indicating whether to play this file remotely or locally.
+     *  @returns the result of attempting to queue the message to this resource.
+     */
+
      /// Stop playing from file
    OsStatus stopFile(void);
      /**<
@@ -110,6 +131,36 @@ public:
      *
      *  @returns the result of attempting to queue the message to this
      *  resource.
+     */
+
+     /// @brief Sends an MPRM_FROMFILE_STOP message to the named MprFromFile resource.
+   static OsStatus stopFile(const UtlString& namedResource,
+                            OsMsgQ& fgQ);
+     /**<
+     *  Sends an MPRM_FROMFILE_STOP message to the named MprFromFile resource
+     *  within the flowgraph who's queue is supplied. When the message 
+     *  is received, the above resource will then stop playing the file
+     *  it has been playing.
+     *
+     *  @param namedResource - the name of the resource to send a message to.
+     *  @param fgQ - the queue of the flowgraph containing the resource which
+     *  the message is to be received by.
+     *  @returns the result of attempting to queue the message to this resource.
+     */
+
+     /// @brief Sends an MPRM_FROMFILE_PAUSE message to the named MprFromFile resource.
+   static OsStatus pauseFile(const UtlString& namedResource,
+                            OsMsgQ& fgQ);
+     /**<
+     *  Sends an MPRM_FROMFILE_PAUSE message to the named MprFromFile resource
+     *  within the flowgraph who's queue is supplied. When the message 
+     *  is received, the above resource will then pause the file that 
+     *  has been playing.
+     *
+     *  @param namedResource - the name of the resource to send a message to.
+     *  @param fgQ - the queue of the flowgraph containing the resource which
+     *  the message is to be received by.
+     *  @returns the result of attempting to queue the message to this resource.
      */
 
    virtual UtlBoolean enable(void);
@@ -162,8 +213,11 @@ private:
    virtual UtlBoolean handleSetup(MpFlowGraphMsg& rMsg);
    virtual UtlBoolean handleStop(void);
 
-     /// Handle messages for this resource.
+     /// Handle flowgraph messages for this resource.
    virtual UtlBoolean handleMessage(MpFlowGraphMsg& rMsg);
+
+   /// Handle resource messages for this resource.
+   virtual UtlBoolean handleMessage(MpResourceMsg& rMsg);
 
      /// Copy constructor (not implemented for this class)
    MprFromFile(const MprFromFile& rMprFromFile);

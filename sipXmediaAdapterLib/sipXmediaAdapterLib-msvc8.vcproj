@@ -221,7 +221,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="sipXmediaMediaProcessing;..\sipXportLib\include;..\sipXsdpLib\include;..\sipXmediaLib\include;..\sipXcallLib\include;..\sipXtackLib\include;interface"
-				PreprocessorDefinitions="XXHAVE_SPEEX;XXHAVE_GSM;XXHAVE_ILBC;WIN32;_DEBUG;_LIB;_CRT_SECURE_NO_DEPRECATE"
+				PreprocessorDefinitions="xxHAVE_SPEEX;xxHAVE_GSM;xxHAVE_ILBC;WIN32;_DEBUG;_LIB;_CRT_SECURE_NO_DEPRECATE;xxENABLE_TOPOLOGY_FLOWGRAPH_INTERFACE_FACTORY;xxDISABLE_DEFAULT_PHONE_MEDIA_INTERFACE_FACTORY"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"

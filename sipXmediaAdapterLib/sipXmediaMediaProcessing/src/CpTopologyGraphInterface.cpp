@@ -27,6 +27,7 @@
 #include <mp/MpTopologyGraph.h>
 #include <mp/MpResourceTopology.h>
 #include <mp/MprToneGen.h>
+#include <mp/MprFromFile.h>
 #include <mp/MpRtpInputAudioConnection.h>
 #include <mp/MpRtpOutputAudioConnection.h>
 #include <mp/dtmflib.h>
@@ -1217,38 +1218,25 @@ OsStatus CpTopologyGraphInterface::playAudio(const char* url,
                                           int downScaling,
                                           OsNotification *event)
 {
-    OsStatus returnCode = OS_NOT_FOUND;
-    UtlString urlString;
-    if(url) urlString.append(url);
-    int fileIndex = urlString.index("file://");
-    if(fileIndex == 0) urlString.remove(0, 6);
+    OsStatus stat = OS_NOT_FOUND;
+    UtlString filename;
+    if(url) filename.append(url);
+    size_t filePrefixIdx = filename.index("file://");
+    if(filePrefixIdx == 0) filename.remove(0, 6);
 
-    if(mpTopologyGraph && !urlString.isNull())
+    if(mpTopologyGraph && !filename.isNull())
     {
-       /*
-         int toneOptions=0;
-
-         if (local)
-         {
-            toneOptions |= MpCallFlowGraph::TONE_TO_SPKR;
-         }                  
-         
-         if(remote)
-         {
-            toneOptions |= MpCallFlowGraph::TONE_TO_NET;
-         }
-
-        // Start playing the audio file
-        returnCode = mpTopologyGraph->playFile(urlString.data(), repeat, toneOptions, event);
-        */
+       // Currently, this ignores "local", "mixWithMic" and "downScaling".
+       stat = MprFromFile::playFile(DEFAULT_FROM_FILE_RESOURCE_NAME, 
+          *mpTopologyGraph->getMsgQ(), filename, repeat, event);
     }
 
-    if(returnCode != OS_SUCCESS)
+    if(stat != OS_SUCCESS)
     {
-        osPrintf("Cannot play audio file: %s\n", urlString.data());
+        osPrintf("Cannot play audio file: %s\n", filename.data());
     }
 
-    return(returnCode);
+    return(stat);
 }
 
 OsStatus CpTopologyGraphInterface::playBuffer(char* buf,
