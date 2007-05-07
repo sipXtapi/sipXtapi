@@ -58,7 +58,7 @@ class MpOSSDeviceWrapper
 #endif
 {
     friend class MpidOSS;
-    friend class MpodOSS;    
+    friend class MpodOSS;
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
      /// @brief Constructor
@@ -127,6 +127,8 @@ public:
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
     int mfdDevice;            ///< The fd of the POSIX device (e.g. /dev/dsp)
+    UtlBoolean mbReadCap;
+    UtlBoolean mbWriteCap;
     
     unsigned mUsedSamplesPerSec; ///< Used sapmles rate either for input or
                                  /// output
@@ -150,11 +152,14 @@ protected:
     
     pthread_mutex_t mWrMutex;
     pthread_mutex_t mWrMutexBuff;
+    pthread_mutex_t mWrMutexBuff1;
+    pthread_mutex_t mNotifyBlk;
     pthread_cond_t mNewTickCondition;
     pthread_cond_t mNull;
     pthread_cond_t mNewDataArrived;
     pthread_cond_t mNewQueueFrame;
     pthread_cond_t mBlockCondition;
+    pthread_cond_t mUnBlockCondition;
     struct timespec mWrTimeStarted;
     UtlBoolean mbFisrtWriteCycle;
     unsigned musecFrameTime; ///< Period of frame in usec
@@ -170,9 +175,8 @@ protected:
     unsigned mReClocks;
     unsigned mCTimeUp;
     unsigned mCTimeDown;
-        
-protected:    
     
+protected:
      /// @brief Returning current count of MpAudioSample's would be playing
     int getDMAPlayingQueue();
 
@@ -208,7 +212,7 @@ protected:
 private:
     void soundIOThreadLockUnlock(bool bLock);
     void soundIOThreadAfterBlocking();
-    void soundIOThreadBlocking();
+    void soundIOThreadBlocking(UtlBoolean bIsWorkingNow);
 
      ///  @brief Thread subroutine
     static void* soundCardIOWrapper(void* arg);

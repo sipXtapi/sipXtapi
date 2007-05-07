@@ -65,7 +65,7 @@ MpidOSS::MpidOSS(const UtlString& name,
                           , mCurBuff(-1)
                           , pDevWrapper(NULL)
 {
-#ifdef OSS_SINGLE_DEVICE    
+#ifdef OSS_SINGLE_DEVICE 
     pDevWrapper = &ossSingleDriver;
 #else
     pDevWrapper = mOSSContainer.getOSSDeviceWrapper(name);
@@ -76,7 +76,13 @@ MpidOSS::MpidOSS(const UtlString& name,
         if (res != OS_SUCCESS) {
             pDevWrapper = NULL;
         }
-    }    
+        else if (!pDevWrapper->mbReadCap)
+        {
+            //Device dosen't support output
+            pDevWrapper->freeOutputDevice();
+            pDevWrapper = NULL;
+        }
+    }
 }
 
 MpidOSS::~MpidOSS()
@@ -84,7 +90,7 @@ MpidOSS::~MpidOSS()
     if (isDeviceValid())
     {
         pDevWrapper->freeInputDevice();
-    }    
+    }
 }
 /* ============================ MANIPULATORS ============================== */
 OsStatus MpidOSS::enableDevice(unsigned samplesPerFrame, 
@@ -92,61 +98,61 @@ OsStatus MpidOSS::enableDevice(unsigned samplesPerFrame,
                           MpFrameTime currentFrameTime)
 {
     OsStatus ret;
-    
+
     // If the device is not valid, let the user know it's bad.
     if (!isDeviceValid())
     {
         return OS_INVALID_STATE;
-    }    
+    }
     if (isEnabled())
     {
         return OS_FAILED;
-    }    
+    }
 
     // Set some wave header stat information.
     mSamplesPerFrame = samplesPerFrame;
     mSamplesPerSec = samplesPerSec;
     mCurrentFrameTime = currentFrameTime;
-    
+
     ret = initBuffers();
     if (ret != OS_SUCCESS) 
     {
         return ret;
     }
-    
+
     ret = pDevWrapper->attachReader();
     if (ret != OS_SUCCESS)
     {
         return ret;
     }
-    mIsEnabled = TRUE;        
-    
+    mIsEnabled = TRUE;
+
     return ret;
 }
 
 OsStatus MpidOSS::disableDevice()
 {
     OsStatus ret;
-    
+
     // If the device is not valid, let the user know it's bad.
     if (!isDeviceValid())
     {
         return OS_INVALID_STATE;
-    }    
+    }
     if (!isEnabled())
     {
         return OS_FAILED;
-    }     
+    }
     ret = pDevWrapper->detachReader();
     if (ret != OS_SUCCESS) 
     {
         return ret;
-    }      
+    }
 
     freeBuffers();
 
     mIsEnabled = FALSE; 
-    
+
     return ret;
 }
 /* ============================ ACCESSORS ================================= */
@@ -159,11 +165,11 @@ OsStatus MpidOSS::initBuffers()
 
     mpWaveBuffers = new char[total_size];
     if (mpWaveBuffers != NULL) 
-    {    
+    {
         mCurBuff = 0;
         return OS_SUCCESS;
-    } 
-    else 
+    }
+    else
     {
         mCurBuff = -1;
     }
@@ -198,8 +204,7 @@ void MpidOSS::pushFrame(MpAudioSample* frm)
                                     mSamplesPerFrame,
                                     frm,
                                     mCurrentFrameTime);
-    
-   // printf("Pushed %d bytes\n", mSamplesPerFrame * sizeof(MpAudioSample) );                                    
+
     mCurrentFrameTime += getFramePeriod();
 }
 

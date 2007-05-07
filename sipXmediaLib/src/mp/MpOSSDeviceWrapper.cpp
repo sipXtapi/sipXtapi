@@ -67,7 +67,7 @@ static inline void addToTimespec(struct timespec& ts, int nsec)
 }
 
 
-//#define DEBUG_OSS_TIMERS
+#define DEBUG_OSS_TIMERS
 
 #ifdef DEBUG_OSS_TIMERS
 #define dossprintf(x)  do { printf(x); fflush(stdout); } while (0)
@@ -81,6 +81,8 @@ static inline void addToTimespec(struct timespec& ts, int nsec)
 // Default constructor
 MpOSSDeviceWrapper::MpOSSDeviceWrapper() :
                              mfdDevice(-1),
+                             mbReadCap(FALSE),
+                             mbWriteCap(FALSE),
                              mUsedSamplesPerSec(0),
                              pReader(NULL),
                              pWriter(NULL),
@@ -104,17 +106,17 @@ MpOSSDeviceWrapper::MpOSSDeviceWrapper() :
 
     pthread_mutex_init(&mWrMutex, NULL);
     pthread_mutex_init(&mWrMutexBuff, NULL);
+    pthread_mutex_init(&mWrMutexBuff1, NULL);
+    pthread_mutex_init(&mNotifyBlk, NULL);
     pthread_cond_init(&mNewTickCondition, NULL);
     pthread_cond_init(&mNull, NULL);
     pthread_cond_init(&mNewDataArrived, NULL);
     pthread_cond_init(&mNewQueueFrame, NULL);
     pthread_cond_init(&mBlockCondition, NULL);
+    pthread_cond_init(&mUnBlockCondition, NULL);
 
-    //res = sem_init(&notifierBlock, 0, 0);
-    //assert(res != -1);
 
-    res = sem_init(&semExit, 0, 0);
-    assert(res != -1);
+    pthread_mutex_lock(&mWrMutexBuff);
 
     res = pthread_create(&iothread, NULL, soundCardIOWrapper, this);
     assert(res == 0);
@@ -122,8 +124,9 @@ MpOSSDeviceWrapper::MpOSSDeviceWrapper() :
     res = pthread_create(&notifythread, NULL, soundNotifier, this);
     assert(res == 0);
 
-    sem_wait(&semExit);
-    assert(res == 0);
+    dossprintf("^^^");
+    pthread_cond_wait(&mBlockCondition, &mWrMutexBuff);
+    pthread_mutex_unlock(&mWrMutexBuff);
 
     dossprintf("ok\n");
 }
@@ -138,8 +141,10 @@ MpOSSDeviceWrapper::~MpOSSDeviceWrapper()
     //Stopping thread
     mThreadExit = TRUE;
     
-    //Waiting while thread terminating    
+    //Waiting while thread terminating
+    pthread_mutex_lock(&mNotifyBlk);
     pthread_cond_signal(&mNewDataArrived);
+    pthread_mutex_unlock(&mNotifyBlk);
     
     void *dummy;
     res = pthread_join(notifythread, &dummy);
@@ -149,15 +154,14 @@ MpOSSDeviceWrapper::~MpOSSDeviceWrapper()
     assert(res == 0);
     
     pthread_mutex_destroy(&mWrMutex);
+    pthread_mutex_destroy(&mWrMutexBuff);
+    pthread_mutex_destroy(&mNotifyBlk);
     pthread_cond_destroy(&mNewTickCondition);
     pthread_cond_destroy(&mNull);
     pthread_cond_destroy(&mNewDataArrived);
     pthread_cond_destroy(&mNewQueueFrame);
     pthread_cond_destroy(&mBlockCondition);
-
-    sem_destroy(&semExit);
- //   sem_destroy(&notifierBlock);
-
+    pthread_cond_destroy(&mUnBlockCondition);
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -176,7 +180,6 @@ OsStatus MpOSSDeviceWrapper::setInputDevice(MpidOSS* pIDD)
     if (pWriter)
     {
         //Check than one device is selected when pWriter has been set.
-        //int res = name.compareTo(*pIDD);
         int res = pIDD->compareTo(*pWriter);
         assert (res == 0);
         ret = OS_SUCCESS;
@@ -232,7 +235,6 @@ OsStatus MpOSSDeviceWrapper::freeInputDevice()
     dossprintf("MpOSSDeviceWrapper::freeInputDevice...");
     if (pReaderEnabled)
     {
-        //printf("pReader ENABLED \n");
         //It's very bad freeing device when it is enabled
         ret = detachReader();
     }
@@ -264,13 +266,12 @@ OsStatus MpOSSDeviceWrapper::freeOutputDevice()
     dossprintf("MpOSSDeviceWrapper::freeOutputDevice...");
     if (pWriterEnabled) 
     {
-        //printf("pWriter ENABLED \n");
         //It's very bad freeing device when it is enabled
         ret = detachWriter();
     }
     
     if (pWriter != NULL)
-        pWriter = NULL; 
+        pWriter = NULL;
     else
         ret = OS_FAILED;
 
@@ -292,12 +293,8 @@ OsStatus MpOSSDeviceWrapper::freeOutputDevice()
 
 void MpOSSDeviceWrapper::noMoreNeeded()
 {
-    //printf("freeing OSS \n"); fflush(stdout);
-    //OsSysLog::add(FAC_MP, PRI_DEBUG, "Freeing OSS device...\n");
-
     //Free OSS deive If it no longer using
     freeDevice();
-
 #ifndef OSS_SINGLE_DEVICE     
     //Remove this wrapper from container
     mOSSContainer.excludeFromContainer(this);
@@ -310,14 +307,15 @@ OsStatus MpOSSDeviceWrapper::attachReader()
     OsStatus ret = OS_FAILED;
     if ((pReader == NULL) || (pReaderEnabled == TRUE))
         return ret;
-    
-    ret = setSampleRate(pReader->mSamplesPerSec); 
+
+    assert(mbReadCap == TRUE);
+
+    pthread_mutex_lock(&mWrMutexBuff);
+    pthread_mutex_lock(&mWrMutexBuff1);
+    ret = setSampleRate(pReader->mSamplesPerSec);
     if (ret == OS_SUCCESS) {
         pReaderEnabled = TRUE;
-        soundIOThreadBlocking();
-
-        //if (!pWriterEnabled)
-        //    emitDriverStatusChanged(true);
+        soundIOThreadBlocking(pWriterEnabled);
 
         ossSetTrigger(pReaderEnabled, pWriterEnabled);
         dossprintf("A");
@@ -326,8 +324,9 @@ OsStatus MpOSSDeviceWrapper::attachReader()
         dossprintf("D");
         soundIOThreadAfterBlocking();
     }
-    //char silence[20];
-    //doInput(silence, 20);
+    dossprintf("ok\n");
+    pthread_mutex_unlock(&mWrMutexBuff1);
+    pthread_mutex_unlock(&mWrMutexBuff);
     return ret;
 }
 
@@ -337,19 +336,24 @@ OsStatus MpOSSDeviceWrapper::attachWriter()
     OsStatus ret = OS_FAILED;
     if ((pWriter == NULL) || (pWriterEnabled == TRUE))
         return ret;
-    
+
+    assert(mbWriteCap == TRUE);
+
+    pthread_mutex_lock(&mWrMutexBuff);
+    pthread_mutex_lock(&mWrMutexBuff1);
     ret = setSampleRate(pWriter->mSamplesPerSec);
     
     if (ret == OS_SUCCESS) {
         pWriterEnabled = TRUE;
         mbFisrtWriteCycle = TRUE;
-        soundIOThreadBlocking();
-        //if (!pReaderEnabled)
-        //    emitDriverStatusChanged(true);
+        soundIOThreadBlocking(pReaderEnabled);
+
         ossSetTrigger(pReaderEnabled, pWriterEnabled);
         soundIOThreadAfterBlocking();
     }
     dossprintf("ok\n");
+    pthread_mutex_unlock(&mWrMutexBuff1);
+    pthread_mutex_unlock(&mWrMutexBuff);
     return ret;
 }
 
@@ -359,21 +363,17 @@ OsStatus MpOSSDeviceWrapper::detachReader()
     OsStatus ret = OS_FAILED;
     if ((pReader == NULL) || (pReaderEnabled == FALSE))
         return ret;
-    
 
-    //dossprintf("Going to block\n");
-    //sem_wait(&semIOBlock);
-    //dossprintf("OOOKKKK\n");
+    pthread_mutex_lock(&mWrMutexBuff);
+    pthread_mutex_lock(&mWrMutexBuff1);
     pReaderEnabled = FALSE;
-    soundIOThreadBlocking();
-    //sem_post(&semIOBlock);
-
-   // if (!pWriterEnabled)
-    //    emitDriverStatusChanged(false);
+    soundIOThreadBlocking(TRUE);
     
     ossSetTrigger(pReaderEnabled, pWriterEnabled);
 
     soundIOThreadAfterBlocking();
+    pthread_mutex_unlock(&mWrMutexBuff1);
+    pthread_mutex_unlock(&mWrMutexBuff);
 
     OsSysLog::add(FAC_MP, PRI_DEBUG,
                     "OSS: Reader Statistic: Captured %d, Dropped %d", mFramesRead, mFramesDropRead);
@@ -388,21 +388,17 @@ OsStatus MpOSSDeviceWrapper::detachWriter()
     OsStatus ret = OS_FAILED;
     if ((pWriter == NULL) || (pWriterEnabled == FALSE))
         return ret;
-    
-    dossprintf("Going to block\n");
-    //sem_wait(&semIOBlock);
 
+    pthread_mutex_lock(&mWrMutexBuff);
+    pthread_mutex_lock(&mWrMutexBuff1);
     pWriterEnabled = FALSE;
-    soundIOThreadBlocking();
-    //sem_post(&semIOBlock);
-
-    //if (!pReaderEnabled)
-    //    emitDriverStatusChanged(false);
-    
+    soundIOThreadBlocking(TRUE);
 
     ossSetTrigger(pReaderEnabled, pWriterEnabled);
 
     soundIOThreadAfterBlocking();
+    pthread_mutex_unlock(&mWrMutexBuff1);
+    pthread_mutex_unlock(&mWrMutexBuff);
     
     OsSysLog::add(FAC_MP, PRI_DEBUG,
                     "OSS: Writer Statistic: Played %d; Underruns %d; Reclocks %d; "
@@ -418,20 +414,21 @@ void MpOSSDeviceWrapper::soundIOThreadLockUnlock(bool bLock)
     if (bLock)
     {
         //Blocking IO thread because no IO operation can occurs
-        pthread_mutex_t notifyMutex = PTHREAD_MUTEX_INITIALIZER;
-        pthread_mutex_lock(&notifyMutex);
         dossprintf("BW");
-        pthread_cond_wait(&mBlockCondition, &notifyMutex);
+        pthread_cond_wait(&mBlockCondition, &mWrMutexBuff);
         dossprintf("BLK+");
-        pthread_mutex_unlock(&notifyMutex);
-    } 
+    }
     else
     {
         //Unblocking IO thread
         dossprintf("BLK-");
-        pthread_mutex_lock(&mWrMutex);
+        pthread_mutex_lock(&mNotifyBlk);
         pthread_cond_signal(&mNewDataArrived);
-        pthread_mutex_unlock(&mWrMutex);
+        pthread_mutex_unlock(&mNotifyBlk);
+        dossprintf("-W");
+
+        pthread_cond_wait(&mUnBlockCondition, &mWrMutexBuff1);
+        dossprintf("-K");
     }
 }
 
@@ -447,64 +444,13 @@ void  MpOSSDeviceWrapper::soundIOThreadAfterBlocking()
     }
 }
 
-void  MpOSSDeviceWrapper::soundIOThreadBlocking()
+void  MpOSSDeviceWrapper::soundIOThreadBlocking(UtlBoolean bIsWorkingNow)
 {
-    //if (pReaderEnabled || pWriterEnabled)
-    //{
+    if (bIsWorkingNow)
+    {
         soundIOThreadLockUnlock(TRUE);
-    //}
-    // else already blocked
-}
-
-#if 0
-OsStatus MpOSSDeviceWrapper::emitDriverStatusChanged(bool bAdded)
-{
-    OsStatus ret = OS_SUCCESS;
-    int res;
-
-    // Neither reading nor writing ops
-    //if (!pWriterEnabled && !pReaderEnabled)
-    if (!bAdded)
-    {
-        //Blocking IO thread because no IO operation can occurs
-        pthread_mutex_t notifyMutex = PTHREAD_MUTEX_INITIALIZER;
-        pthread_mutex_lock(&notifyMutex);
-
-        dossprintf("BW");
-
-        pthread_cond_wait(&mBlockCondition, &notifyMutex);
-
-        dossprintf("BLK+");
-
-  //      res = sem_wait(&semIOBlock);
-  //      assert(res != -1);
-  //      dossprintf("+");
-
-
-        //printf("Blocking Thread\n"); fflush(stdout);
-        //Now can set various sample rate
-        mUsedSamplesPerSec = 0;
-
-        pthread_mutex_unlock(&notifyMutex);
-    } 
-    // Started reading or writing ops
-    /*else if (((pWriterEnabled && !pReaderEnabled) ||
-             (!pWriterEnabled && pReaderEnabled)) &&
-             bAdded)*/
-    else
-    {
-        //Unblocking IO thread
-        dossprintf("BLK-");
-//        res = sem_post(&semIOBlock);
-//        assert(res != -1);
-        
-        pthread_cond_signal(&mNewDataArrived);
-        //printf("Unblocking Thread\n"); fflush(stdout);
     }
-
-    return ret;
 }
-#endif
 
 UtlBoolean MpOSSDeviceWrapper::ossSetTrigger(bool read, bool write)
 {
@@ -540,7 +486,10 @@ OsStatus MpOSSDeviceWrapper::initDevice(const char* devname)
     int samplesize = 8 * sizeof(MpAudioSample);
     
     OsStatus ret = OS_FAILED;
-    
+
+    mbReadCap = TRUE;
+    mbWriteCap = TRUE;
+
     mfdDevice = open(devname, O_RDWR
 #ifdef FULLY_NONBLOCK
                 | O_NONBLOCK
@@ -548,21 +497,58 @@ OsStatus MpOSSDeviceWrapper::initDevice(const char* devname)
                     );
     if (mfdDevice == -1)
     {
-        OsSysLog::add(FAC_MP, PRI_EMERG,
-                    "OSS: could not open %s; *** NO SOUND! ***", devname);
-        ret = OS_INVALID_ARGUMENT;
-        return ret;
+        char temp[1024];
+        char* ptr = strerror_r(errno, temp, 1024); 
+
+
+        //Trying only input device
+        mfdDevice = open(devname, O_RDONLY
+#ifdef FULLY_NONBLOCK
+                               | O_NONBLOCK
+#endif
+                              );
+        if (mfdDevice == -1)
+        {
+
+            //Trying only output device
+            mfdDevice = open(devname, O_WRONLY
+#ifdef FULLY_NONBLOCK
+                                | O_NONBLOCK
+#endif
+                                );
+            if (mfdDevice == -1)
+            {
+                OsSysLog::add(FAC_MP, PRI_EMERG,
+                            "OSS: could not open %s, errno = %d (%s); *** NO SOUND! ***", devname, errno, (ptr) ? ptr : "");
+                ret = OS_INVALID_ARGUMENT;
+                return ret;
+            }
+            else
+            {
+                OsSysLog::add(FAC_MP, PRI_WARNING,
+                    "OSS: could not open %s in duplex mode: %s (openning output only).", devname, (ptr) ? ptr : "");
+                mbReadCap = FALSE;
+            }
+        }
+        else
+        {
+            OsSysLog::add(FAC_MP, PRI_WARNING,
+                    "OSS: could not open %s in duplex mode: %s (openning input only).", devname, (ptr) ? ptr : "");
+            mbWriteCap = FALSE;
+        }
     }
    
-    res = ioctl(mfdDevice, SNDCTL_DSP_SETDUPLEX, 0);
-    if (res == -1)
+    if ((mbReadCap == TRUE) && (mbWriteCap == TRUE))
     {
-        OsSysLog::add(FAC_MP, PRI_EMERG,
-                    "OSS: could not set full duplex; *** NO SOUND! ***");
-        freeDevice();
-        return ret;
+        res = ioctl(mfdDevice, SNDCTL_DSP_SETDUPLEX, 0);
+        if (res == -1)
+        {
+            OsSysLog::add(FAC_MP, PRI_WARNING,
+                        "OSS: could not set full duplex");
+//            freeDevice();
+//            return ret;
+        }
     }
-    
     // magic number, reduces latency (0x0004 dma buffers of 2 ^ 0x0008 = 256 bytes each) 
     //int fragment = 0x00040007; 
     int fragment = 0x00080007; 
@@ -579,19 +565,19 @@ OsStatus MpOSSDeviceWrapper::initDevice(const char* devname)
     res = ioctl(mfdDevice, SNDCTL_DSP_STEREO, &stereo);
     if (res == -1)
     {
-        OsSysLog::add(FAC_MP, PRI_EMERG,
-                    "OSS: could not set single channel audio; *** NO SOUND! ***");
-        freeDevice();
-        return ret;
-    }    
+        OsSysLog::add(FAC_MP, PRI_WARNING,
+                    "OSS: could not set single channel audio");
+       // freeDevice();
+        //return ret;
+    }
     
     res = ioctl(mfdDevice, SNDCTL_DSP_SAMPLESIZE, &samplesize);
     if ((res == -1) || (samplesize != (8 * sizeof(MpAudioSample))))
     {
         OsSysLog::add(FAC_MP, PRI_EMERG,
-                    "OSS: could not set sample size; *** NO SOUND! ***");
-        freeDevice();
-        return ret;
+                    "OSS: could not set sample size (samplesize = %d); *** NO SOUND! ***", samplesize);
+        //freeDevice();
+        //return ret;
     }
     
     // Make sure the sound card has the capabilities we need
@@ -617,11 +603,19 @@ OsStatus MpOSSDeviceWrapper::initDevice(const char* devname)
     
     if (!isDevCapDuplex())
     {
-        OsSysLog::add(FAC_MP, PRI_EMERG,
-                    "OSS: this device dosen't support "
-                    "duplex operations; *** NO SOUND! ***");
-        freeDevice();
-        return ret;
+        char buff[8] = {0};
+        OsStatus st = doOutput(buff, 8);
+
+        printf(" res = %d \n", st);
+
+        mbWriteCap = (st == OS_SUCCESS);
+        mbReadCap = !mbWriteCap;
+
+
+        OsSysLog::add(FAC_MP, PRI_DEBUG,
+            "OSS: device %s support only %s operations", devname,
+                (mbWriteCap) ? "outpur" : "input");
+
     }
     
     if (isDevCapBatch())
@@ -705,11 +699,6 @@ OsStatus MpOSSDeviceWrapper::doInput(char* buffer, int size)
         }
         bytesReadSoFar += bytesJustRead;
     }
-
- //   int test;
- //   getISpace(test);
- //   getOSpace(test);
-
     return OS_SUCCESS;
 }
 
@@ -718,9 +707,10 @@ OsStatus MpOSSDeviceWrapper::doOutput(char* buffer, int size)
     //Perform writting
     int bytesToWrite = size;
     int bytesWritedSoFar = 0;
-    int test;
+/*    int test;
     getISpace(test);
     getOSpace(test);
+*/
 
     while (bytesWritedSoFar < bytesToWrite)
     {
@@ -730,8 +720,6 @@ OsStatus MpOSSDeviceWrapper::doOutput(char* buffer, int size)
         if (bytesJustWrite == -1) {
             return OS_FAILED;
         }
-        // else if (bytesJustWrite == 0) {
-        //}
         bytesWritedSoFar += bytesJustWrite;
     }
     
@@ -890,25 +878,16 @@ void MpOSSDeviceWrapper::performWithWrite(UtlBoolean bReaderEn)
         
         musecJitterCorrect = 0; //Ensure buffer would not emptying
         musecTimeCorrect = 0;
-        
-        //res = gettimeofday(&tm, NULL);
-        //assert(res == 0);
-        //mWrTimeStarted.tv_sec = tm.tv_sec;
-        //mWrTimeStarted.tv_nsec = tm.tv_usec * 1000;
         clock_gettime(CLOCK_REALTIME, &mWrTimeStarted);
     }
     else
     {
-        //res = gettimeofday(&tm, NULL);
         res = clock_gettime(CLOCK_REALTIME, &tmCurr);
-
         assert(res == 0);
-//        int usec_delta = ((tm.tv_sec - mWrTimeStarted.tv_sec) * 1000000 + (tm.tv_usec - mWrTimeStarted.tv_nsec / 1000));
         int usec_delta = ((tmCurr.tv_sec - mWrTimeStarted.tv_sec) * 1000000 + (tmCurr.tv_nsec - mWrTimeStarted.tv_nsec) / 1000);
-            
-        if (abs(usec_delta) > ((int)musecFrameTime) * 2) {
-            //mWrTimeStarted.tv_sec = tm.tv_sec;
-            //mWrTimeStarted.tv_nsec = tm.tv_usec * 1000;
+         
+        if (abs(usec_delta) > ((int)musecFrameTime * 2)) 
+        {
             mWrTimeStarted.tv_sec = tmCurr.tv_sec;
             mWrTimeStarted.tv_nsec = tmCurr.tv_nsec;
 
@@ -1039,61 +1018,72 @@ void MpOSSDeviceWrapper::performWithWrite(UtlBoolean bReaderEn)
 void MpOSSDeviceWrapper::soundIOThread()
 {
     int res;
-    int bLock = FALSE;
+    int bLock = TRUE;
 
     UtlBoolean bOldReader = FALSE;
     UtlBoolean bOldWriter = FALSE;
 
     UtlBoolean bModeChanged = FALSE;
 
-    UtlBoolean bLocalReader;
-    UtlBoolean bLocalWriter;
-    
+    UtlBoolean bLocalReader = FALSE;
+    UtlBoolean bLocalWriter = FALSE;
+
     for (;;)
     {
-        //Begin IO
-        if (mThreadExit) {
-            return;
-        }
-
         bLocalReader = pReaderEnabled;
         bLocalWriter = pWriterEnabled;
         bModeChanged = (bLocalReader != bOldReader) || (bLocalWriter != bOldWriter);
 
-
         if (!bLocalReader && !bLocalWriter)
         {
             bLock = TRUE;
-            //dossprintf("LOCK\n");
+            dossprintf("LOCK\n");
         }
 
         if ((bLock) || (bModeChanged))
         {
-            struct timespec tm;
-            clock_gettime(CLOCK_REALTIME, &tm);
-            do 
-            {
-                addToTimespec(tm, 1 * 1000 * 1000);
-                pthread_cond_signal(&mBlockCondition);
-                if (mThreadExit) {
-                    //dossprintf("WEWExit flag recived\n");
-                    return;
-                }
-                //Wait an event to wakeup
-                res = pthread_cond_timedwait(&mNewDataArrived, &mWrMutex, &tm);
+            pthread_mutex_lock(&mWrMutexBuff);
+            dossprintf("+");
+            pthread_cond_signal(&mBlockCondition);
+            pthread_mutex_unlock(&mWrMutexBuff);
+
+            res = pthread_cond_wait(&mNewDataArrived, &mNotifyBlk);
+
+            // Updating flags
+            if (bLock) {
+                bOldReader = pReaderEnabled;
+                bOldWriter = pWriterEnabled;
             }
-            while (res == ETIMEDOUT);
-            assert(res == 0);
-            
+            else
+            {
+                bOldReader = bLocalReader;
+                bOldWriter = bLocalWriter;
+            }
             bLock = FALSE;
+
+            dossprintf("$");
+
+            pthread_mutex_lock(&mWrMutexBuff1);
+            pthread_cond_signal(&mUnBlockCondition);
+            pthread_mutex_unlock(&mWrMutexBuff1);
+
+            if (mThreadExit) {
+                dossprintf("WEWExit flag recived\n");
+                return;
+            }
+            dossprintf("#");
+            continue;
         }
 
+        //Begin IO
         if (bLocalReader && !bLocalWriter)
         {
+            dossprintf("R");
             performOnlyRead();
         }
         else if (bLocalWriter)
         {
+            dossprintf("W");
             performWithWrite(bLocalReader);
         }
 
@@ -1133,13 +1123,15 @@ void* MpOSSDeviceWrapper::soundCardIOWrapper(void* arg)
         }
     }
 #endif /* _REALTIME_LINUX_AUDIO_THREADS ] */
-    sem_post(&pOSSDW->semExit);
-    
+    pthread_mutex_lock(&pOSSDW->mWrMutex);
+    pthread_mutex_lock(&pOSSDW->mNotifyBlk);
+    //sem_post(&pOSSDW->semExit);
+
     pOSSDW->soundIOThread();
-    
     //sem_post(&pOSSDW->semExit);
     // Some unititialization here
     pthread_mutex_unlock(&pOSSDW->mWrMutex);
+    pthread_mutex_unlock(&pOSSDW->mNotifyBlk);
     return NULL;
 }
 

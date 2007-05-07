@@ -69,8 +69,8 @@ MpodOSS::MpodOSS(const UtlString& name,
 {
     int result = sem_init(&mPushPopSem, 0, 1);
     assert(result != -1);
-    
-#ifdef OSS_SINGLE_DEVICE    
+
+#ifdef OSS_SINGLE_DEVICE
     pDevWrapper = &ossSingleDriver;
 #else
     pDevWrapper = mOSSContainer.getOSSDeviceWrapper(name);
@@ -82,6 +82,12 @@ MpodOSS::MpodOSS(const UtlString& name,
         {
             pDevWrapper = NULL;
         }
+        else if (!pDevWrapper->mbWriteCap)
+        {
+            //Device dosen't support output
+            pDevWrapper->freeOutputDevice();
+            pDevWrapper = NULL;
+        }
     }
 }
 
@@ -90,8 +96,8 @@ MpodOSS::~MpodOSS()
     if (isDeviceValid())
     {
         pDevWrapper->freeOutputDevice();
-    }    
-    
+    }
+
     sem_wait(&mPushPopSem);
     sem_destroy(&mPushPopSem);
 }
@@ -116,11 +122,11 @@ OsStatus MpodOSS::enableDevice(unsigned samplesPerFrame,
     if (!isDeviceValid())
     {
         return OS_INVALID_STATE;
-    }    
+    }
     if (isEnabled())
     {
         return OS_FAILED;
-    }    
+    }
 
     // Set some wave header stat information.
     mSamplesPerFrame = samplesPerFrame;
@@ -138,7 +144,7 @@ OsStatus MpodOSS::enableDevice(unsigned samplesPerFrame,
     {
         return ret;
     }
-    mIsEnabled = TRUE;        
+    mIsEnabled = TRUE;
     mQueueLen = 0;
     return ret;
 }
@@ -151,16 +157,16 @@ OsStatus MpodOSS::disableDevice()
     if (!isDeviceValid())
     {
         return OS_INVALID_STATE;
-    }    
+    }
     if (!isEnabled())
     {
         return OS_FAILED;
-    }     
+    }
     ret = pDevWrapper->detachWriter();
     if (ret != OS_SUCCESS) 
     {
         return ret;
-    }      
+    }
     freeBuffers();
     mIsEnabled = FALSE; 
     
@@ -173,7 +179,7 @@ OsStatus MpodOSS::pushFrame(unsigned int numSamples,
     if (!isEnabled()) 
         return OS_FAILED;
 
-    OsStatus status = OS_FAILED;        
+    OsStatus status = OS_FAILED;
     // Currently only full frame supported
     assert(numSamples == mSamplesPerFrame);
 
@@ -287,9 +293,6 @@ MpAudioSample* MpodOSS::popFrame(unsigned& size)
         if (mLastReceived == mCurBuff) 
         {
             //No data stored in buffer
-            //OsSysLog::add(FAC_MP, PRI_DEBUG,
-            //        "OSS: MpodOSS can't popup samples: no data\n");
-            //printf("!");
             break;
         }
         unsigned sampleSize = mSamplesPerFrame * sizeof(MpAudioSample) * 
