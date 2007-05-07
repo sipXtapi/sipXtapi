@@ -54,16 +54,16 @@ public:
       /// Default constructor
     MpSineWaveGeneratorDeviceDriver(const UtlString& name,
                                     MpInputDeviceManager& deviceManager,
-                                    short magnatude,
-                                    unsigned int periodInMilliseconds,
+                                    unsigned int magnitude,
+                                    unsigned int periodInMicroseconds,
                                     int underOverRunTime);
       /**<
       *  @param name - unique for this device driver 
       *  @param deviceManager - MpInputDeviceManager this device is to
       *         push frames to via pushFrame method
-      *  @param magnatude - maximum value of sine wave 
-      *  @param periodInSamples - the length of a complete 360 degree
-      *         sine wave cycle in milliseconds.  T=zero as determined
+      *  @param magnitude - maximum value of sine wave 
+      *  @param periodInMicroseconds - the length of a complete 360 degree
+      *         sine wave cycle in micro-seconds.  T=zero as determined
       *         by the device manager.
       *  @param underOverRunClockRate - produce frames faster or slower
       *         than CPU clock by the given number of microseconds.  This
@@ -117,18 +117,21 @@ public:
 
       /// Calculate a sample value for the specified sample in a frame
     static MpAudioSample calculateSample(MpFrameTime frameStartTime,
-                                         short magnatude,
-                                         unsigned int periodInMilliseconds,
+                                         unsigned int magnitude,
+                                         unsigned int periodInMicroseconds,
                                          unsigned int frameSampleIndex,
                                          unsigned int samplesPerFrame, 
                                          unsigned int samplesPerSecond);
       /**<
       *  @param frameStartTime - time in milliseconds for the first sample
       *         in the frame from the device manager reference time.
+      *  @param magnitude - value of sine amplitude.
+      *  @param periodInMicroseconds - sine period in micro-seconds.
       *  @param frameSampleIndex - index to the requested sample of the 
       *         given frame.
       *  @param samplesPerFrame - number of samples in a frame
       *  @param samplesPerSecond - sample rate in samples per second
+      *
       *  @returns a sample value for the requested sample and frame
       */
 
@@ -154,8 +157,8 @@ private:
       /// Assignment operator (not implemented for this class)
     MpSineWaveGeneratorDeviceDriver& operator=(const MpSineWaveGeneratorDeviceDriver& rhs);
 
-    short mMagnatude;
-    unsigned int mPeriodInMilliseconds;
+    unsigned int mMagnitude;
+    unsigned int mPeriodInMicroseconds;
     int mUnderOverRunTime;
     OsServerTask* mpReaderTask;
 };

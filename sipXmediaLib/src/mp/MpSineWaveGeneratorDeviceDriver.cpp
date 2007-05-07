@@ -41,21 +41,24 @@ public:
     MpSineWaveGeneratorServer(unsigned int startFrameTime,
                               unsigned int samplesPerFrame,
                               unsigned int samplesPerSecond,
+                              unsigned int magnitude,
+                              unsigned int periodMicroseconds,
                               int underOverRunTime,
                               MpInputDeviceHandle deviceId,
-                              MpInputDeviceManager& inputDeviceManager) :
-    OsServerTask("MpSineWaveGeneratorServer-%d", NULL, DEF_MAX_MSGS, SINE_WAVE_DEVICE_PRIORITY),
+                              MpInputDeviceManager& inputDeviceManager)
+    : OsServerTask("MpSineWaveGeneratorServer-%d", NULL, DEF_MAX_MSGS, SINE_WAVE_DEVICE_PRIORITY),
+    mNextFrameTime(startFrameTime),
+    mSamplesPerFrame(samplesPerFrame),
+    mSamplesPerSecond(samplesPerSecond),
+    mMagnatude(magnitude),
+    mSinePeriodMicroseconds(periodMicroseconds),
+    mUnderOverRunTime(underOverRunTime),
+    mDeviceId(deviceId),
+    mpInputDeviceManager(&inputDeviceManager),
+    mpFrameData(NULL),
     mTimer(getMessageQueue(), 0)
     {
-        mNextFrameTime = startFrameTime;
-        mSamplesPerFrame = samplesPerFrame;
-        mSamplesPerSecond = samplesPerSecond;
-        mUnderOverRunTime = underOverRunTime;
-        mDeviceId = deviceId;
-        mpInputDeviceManager = &inputDeviceManager;
         mpFrameData = new MpAudioSample[samplesPerFrame];
-        mSinePeriodMilliseconds = 40;
-        mMagnatude = 32000;
     };
 
     virtual ~MpSineWaveGeneratorServer()
@@ -86,7 +89,7 @@ public:
             mUnderOverRunTime;
         assert(microSecondsPerFrame > 0);
         OsTime framePeriod(0, microSecondsPerFrame);
-        // Start re-occuring timer which causes handleMessage to be called
+        // Start re-occurring timer which causes handleMessage to be called
         // periodically
         mTimer.periodicEvery(noDelay, framePeriod);
         OsSysLog::add(FAC_MP, PRI_DEBUG,"MpSineWaveGeneratorServer::start end\n");
@@ -117,7 +120,7 @@ public:
             mpFrameData[frameIndex] =
                 MpSineWaveGeneratorDeviceDriver::calculateSample(mNextFrameTime, 
                                                                  mMagnatude,
-                                                                 mSinePeriodMilliseconds,
+                                                                 mSinePeriodMicroseconds,
                                                                  frameIndex,
                                                                  mSamplesPerFrame,
                                                                  mSamplesPerSecond);
@@ -136,8 +139,8 @@ private:
     MpFrameTime mNextFrameTime;
     unsigned int mSamplesPerFrame;
     unsigned int mSamplesPerSecond;
-    short mMagnatude;
-    MpFrameTime mSinePeriodMilliseconds;
+    unsigned int mMagnatude;
+    unsigned int mSinePeriodMicroseconds;
     int mUnderOverRunTime;
     MpInputDeviceHandle mDeviceId;
     MpInputDeviceManager* mpInputDeviceManager;
@@ -152,16 +155,16 @@ private:
 
 // Constructor
 MpSineWaveGeneratorDeviceDriver::MpSineWaveGeneratorDeviceDriver(const UtlString& name,
-                                                                MpInputDeviceManager& deviceManager,
-                                                                short magnatude,
-                                                                unsigned int periodInMilliseconds,
-                                                                int underOverRunTime) :
-MpInputDeviceDriver(name, deviceManager)
+                                                                 MpInputDeviceManager& deviceManager,
+                                                                 unsigned int magnitude,
+                                                                 unsigned int periodInMicroseconds,
+                                                                 int underOverRunTime)
+: MpInputDeviceDriver(name, deviceManager),
+mMagnitude(magnitude),
+mPeriodInMicroseconds(periodInMicroseconds),
+mUnderOverRunTime(underOverRunTime),
+mpReaderTask(NULL)
 {
-    mMagnatude = magnatude;
-    mPeriodInMilliseconds = periodInMilliseconds;
-    mUnderOverRunTime = underOverRunTime;
-    mpReaderTask = NULL;
 }
 
 // Destructor
@@ -192,6 +195,8 @@ OsStatus MpSineWaveGeneratorDeviceDriver::enableDevice(unsigned samplesPerFrame,
             new MpSineWaveGeneratorServer(currentFrameTime,
                                           samplesPerFrame,
                                           samplesPerSec,
+                                          mMagnitude,
+                                          mPeriodInMicroseconds,
                                           mUnderOverRunTime,
                                           getDeviceId(),
                                           *mpInputDeviceManager);
@@ -228,15 +233,15 @@ OsStatus MpSineWaveGeneratorDeviceDriver::disableDevice()
 /* ============================ ACCESSORS ================================= */
 MpAudioSample 
 MpSineWaveGeneratorDeviceDriver::calculateSample(MpFrameTime frameStartTime,
-                                                 short magnatude,
-                                                 unsigned int periodInMilliseconds,
+                                                 unsigned int magnitude,
+                                                 unsigned int periodInMicroseconds,
                                                  unsigned int frameSampleIndex,
                                                  unsigned int samplesPerFrame, 
                                                  unsigned int samplesPerSecond)
 {
     double time = ((frameStartTime + frameSampleIndex * 1000.0 / samplesPerSecond)
-        / ((double) periodInMilliseconds)) * 2.0 * M_PI;
-    MpAudioSample sample = (MpAudioSample)(sin(time) * (double)magnatude);
+        / ((double) periodInMicroseconds) * 1000.0 ) * 2.0 * M_PI;
+    MpAudioSample sample = (MpAudioSample)(sin(time) * (double)magnitude);
 
     return(sample);
 }
