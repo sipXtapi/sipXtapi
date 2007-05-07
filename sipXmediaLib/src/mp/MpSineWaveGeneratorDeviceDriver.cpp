@@ -109,7 +109,6 @@ public:
 #ifdef RTL_ENABLED
         RTL_BLOCK("MpSineWaveGeneratorServer.handleMessage");
 #endif
-        OsSysLog::add(FAC_MP, PRI_DEBUG,"MpSineWaveGeneratorServer::handleMessage start time=%u\n", mNextFrameTime);
         // Build a frame of signal and push it to the device manager
         assert(mpFrameData);
 
@@ -130,7 +129,6 @@ public:
                                         mNextFrameTime);
         mNextFrameTime += mSamplesPerFrame * 1000 / mSamplesPerSecond;
 
-        OsSysLog::add(FAC_MP, PRI_DEBUG,"MpSineWaveGeneratorServer::handleMessage end\n");
         return(TRUE);
     }
 
