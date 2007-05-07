@@ -64,7 +64,7 @@ public:
 
       /// Default constructor
     MpInputDeviceDriver(const UtlString& name,
-        MpInputDeviceManager& deviceManager);
+                        MpInputDeviceManager& deviceManager);
       /**<
       *  @param name - unique device driver name (e.g. "/dev/dsp", 
       *         "YAMAHA AC-XG WDM Audio", etc.)
