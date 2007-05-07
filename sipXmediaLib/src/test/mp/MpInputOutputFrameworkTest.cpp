@@ -46,7 +46,7 @@
 #ifdef USE_TEST_INPUT_DRIVER // USE_TEST_DRIVER [
 #include <mp/MpSineWaveGeneratorDeviceDriver.h>
 #define INPUT_DRIVER MpSineWaveGeneratorDeviceDriver
-#define INPUT_DRIVER_CONSTRUCTOR_PARAMS(manager) "SineGenerator", (manager), 32000, 3, 0
+#define INPUT_DRIVER_CONSTRUCTOR_PARAMS(manager) "SineGenerator", (manager), 32000, 3000, 0
 
 #elif defined(WIN32) // USE_TEST_DRIVER ][ WIN32
 #include <mp/MpInputDeviceDriverWnt.h>
