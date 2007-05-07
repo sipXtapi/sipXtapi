@@ -1011,7 +1011,7 @@ SOURCE=.\include\mp\MpFlowGraphMsg.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\mp\MpInputConnection.h
+SOURCE=.\include\mp\MpFromFileStartResourceMsg.h
 # End Source File
 # Begin Source File
 

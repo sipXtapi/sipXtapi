@@ -4479,6 +4479,9 @@
 				RelativePath="include\mp\MpFlowGraphMsg.h">
 			</File>
 			<File
+				RelativePath="include\mp\MpFromFileStartResourceMsg.h">
+			</File>
+			<File
 				RelativePath=".\include\mp\MpInputDeviceDriver.h">
 			</File>
 			<File
