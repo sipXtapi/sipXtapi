@@ -39,11 +39,11 @@ public:
 
    /// Constructor
    MpFromFileStartResourceMsg(const UtlString& msgDestName, 
-                              const UtlString& filename,
+                              UtlString* pAudioBuf,
                               const UtlBoolean& repeat,
                               OsNotification* evt = NULL)
       : MpResourceMsg(MPRM_FROMFILE_START, msgDestName)
-      , mFilename(filename)
+      , mpAudioBuf(pAudioBuf)
       , mRepeat(repeat)
       , mpEvt(evt)
    {};
@@ -51,7 +51,7 @@ public:
    /// Copy constructor
    MpFromFileStartResourceMsg(const MpFromFileStartResourceMsg& rMpResourceMsg)
       : MpResourceMsg(rMpResourceMsg)
-      , mFilename(rMpResourceMsg.mFilename)
+      , mpAudioBuf(rMpResourceMsg.mpAudioBuf)
       , mRepeat(rMpResourceMsg.mRepeat)
       , mpEvt(rMpResourceMsg.mpEvt)
    {};
@@ -63,7 +63,8 @@ public:
    }
 
    /// Destructor
-   ~MpFromFileStartResourceMsg() { /* No work required */ };
+   ~MpFromFileStartResourceMsg() 
+   { /* No work required -- audio buf pointer ownership passes on to msg recipient */ };
 
    //@}
 
@@ -78,23 +79,24 @@ public:
          return *this;  // handle the assignment to self case
 
       MpResourceMsg::operator=(rhs);  // assign fields for parent class
-      mFilename = rhs.mFilename;
+      mpAudioBuf = rhs.mpAudioBuf;
       mRepeat = rhs.mRepeat;
       mpEvt = rhs.mpEvt;
       return *this;
    }
 
-     /// @brief Set the filename that is associated with this resource.
-   inline void setFilename(const UtlString& filename) { mFilename = filename; }
+     /// @brief Set the audio buffer that is associated with this resource.
+   inline void setAudioBuffer(UtlString* pAudioBuf) { mpAudioBuf = pAudioBuf; }
      /**<
-     *  Set the filename that is associated with this resource.
-     *  @param filename the new filename that is to be set in this resource.
+     *  Set the audio buffer that is associated with this resource.
+     *  Ownership transfers to the recipient of this message.
+     *  @param pAudioBuf the new audio buffer that is to be set in this resource.
      */
 
-     /// @brief Set whether or not this file loops when it plays.
+     /// @brief Set whether or not this audio buffer loops when it plays.
    inline void setRepeat(const UtlBoolean& repeat) { mRepeat = repeat; }
      /**<
-     *  Set whether or not this file loops when it plays.
+     *  Set whether or not this audio buffer loops when it plays.
      *  @param repeat the new repeat status that is to be set in this resource.
      */
 
@@ -110,10 +112,10 @@ public:
    ///@name Accessors
    //@{
 
-     /// Get the filename that is associated with this resource.
-   inline UtlString getFilename(void) const { return mFilename; };
+     /// Get the audio buffer that is associated with this resource.
+   inline UtlString* getAudioBuffer(void) const { return mpAudioBuf; };
      /**<
-     *  Returns the filename that is associated with this resource.
+     *  Returns the audio buffer that is associated with this resource.
      */
 
    /// Get the OsNotification pointer that is associated with this resource.
@@ -128,10 +130,10 @@ public:
    ///@name Inquiry
    //@{
 
-     /// Return whether this filename is to repeat or not.
+     /// Return whether this bit of audio is to repeat or not.
    inline UtlBoolean isRepeating(void) const { return mRepeat; };
      /**<
-     *  Return whether this filename is to repeat or not.
+     *  Return whether this bit of audio is to repeat or not.
      */
 
    //@}
@@ -141,7 +143,7 @@ protected:
 
    /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-   UtlString mFilename; ///< The filename of the file to play.
+   UtlString* mpAudioBuf; ///< The audio buffer to play.
    UtlBoolean mRepeat; ///< Whether or not to loop-play this.
    OsNotification* mpEvt; ///< Pointer to OsNotification that signals when play status changes.
 };

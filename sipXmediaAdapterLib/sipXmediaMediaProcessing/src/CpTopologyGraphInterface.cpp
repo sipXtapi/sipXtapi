@@ -1249,10 +1249,17 @@ OsStatus CpTopologyGraphInterface::playBuffer(char* buf,
                                            UtlBoolean mixWithMic,
                                            int downScaling)
 {
-    OsStatus returnCode = OS_NOT_FOUND;
+    OsStatus stat = OS_NOT_FOUND;
     if(mpTopologyGraph && buf)
     {
+       // Currently, this ignores "local/remote", "mixWithMic" and "downScaling".
+       // I also don't know what to do with this blasted protected event.. sending NULL now.
+       // If it was an OsNotification -- no problem..
+       stat = MprFromFile::playBuffer(DEFAULT_FROM_FILE_RESOURCE_NAME, 
+          *mpTopologyGraph->getMsgQ(), buf, bufSize, type, repeat, NULL);
+
        /*
+         old stuff:
          int toneOptions=0;
 
          if (local)
@@ -1266,11 +1273,11 @@ OsStatus CpTopologyGraphInterface::playBuffer(char* buf,
          }
 
         // Start playing the audio file
-        returnCode = mpTopologyGraph->playBuffer(buf, bufSize, type, repeat, toneOptions, NULL);
+        stat = mpTopologyGraph->playBuffer(buf, bufSize, type, repeat, toneOptions, NULL);
         */
     }
 
-    if(returnCode != OS_SUCCESS)
+    if(stat != OS_SUCCESS)
     {
         osPrintf("Cannot play audio buffer: %10p\n", buf);
     }
@@ -1284,7 +1291,7 @@ OsStatus CpTopologyGraphInterface::playBuffer(char* buf,
         }
     }
 
-    return(returnCode);
+    return(stat);
 }
 
 

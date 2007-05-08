@@ -20,7 +20,7 @@
 #include <utl/UtlSList.h>
 #include <utl/UtlInt.h>
 //#define DISABLE_RECORDING
-//#define EMBED_PROMPTS
+#define EMBED_PROMPTS
 #ifdef EMBED_PROMPTS
 #  include "playback_prompt.h"
 #  include "record_prompt.h"

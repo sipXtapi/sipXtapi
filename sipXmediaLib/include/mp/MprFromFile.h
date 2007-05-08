@@ -83,8 +83,26 @@ public:
      *  resource and/or opening the named file.
      */
 
+      /// Play sound from buffer w/repeat option
+    static OsStatus playBuffer(const UtlString& namedResource, 
+                               OsMsgQ& fgQ, 
+                               const char* audioBuffer, 
+                               unsigned long bufSize, 
+                               int type, UtlBoolean repeat, 
+                               OsNotification* notify);
+      /**<
+      *  @param type - can be one of following:  (need a OsSoundType)<br>
+      *  0 = RAW<br>
+      *  1 = muLaw
+      *
+      *  @param repeat - TRUE/FALSE after the fromFile reaches the end of
+      *   the buffer, go back to the beginning and continue to play.
+      *
+      *  @returns the result of attempting to queue the message to this
+      *  resource and/or converting the audio buffer data.
+      */
 
-     /// Play from file w/file name and repeat option
+     /// Old Play from file w/file name and repeat option
    OsStatus playFile(const char* fileName, UtlBoolean repeat,
                      OsNotification* event = NULL);
      /**<
@@ -97,6 +115,9 @@ public:
      *  @param repeat - TRUE/FALSE after the fromFile reaches the end of
      *   the file, go back to the beginning and continue to play.  Note this
      *   assumes that the file was opened for read.
+     *
+     *  @param event - an event to signal when state changes.  If NULL,
+     *  nothing will be signaled.
      *
      *  @returns the result of attempting to queue the message to this
      *  resource and/or opening the named file.
@@ -197,10 +218,56 @@ private:
        PLAY_REPEAT
    } MessageAttributes;
 
+   static const unsigned int sFromFileReadBufferSize;
+
    UtlString* mpFileBuffer;
    int mFileBufferIndex;
    UtlBoolean mFileRepeat;
    OsNotification* mpNotify;
+
+     /// @brief Convert generic audio data into flowgraph audio data.
+   static OsStatus MprFromFile::genericAudioBufToFGAudioBuf(
+                                             UtlString*& fgAudioBuf,
+                                             const char* audioBuffer, 
+                                             unsigned long bufSize, 
+                                             int type);
+     /**<
+     *  Method to convert a generic char* audio buffer, in one of several
+     *  acceptable formats, to a format that can be passed through the 
+     *  flowgraph.
+     *
+     *  @param type - can be one of following:  (need a OsSoundType)<br>
+     *  0 = RAW<br>
+     *  1 = muLaw
+     *
+     *  @param repeat - TRUE/FALSE after the fromFile reaches the end of
+     *   the file, go back to the beginning and continue to play.  Note this
+     *   assumes that the file was opened for read.
+     *
+     *  @returns the result of attempting to queue the message to this
+     *  resource and/or opening the named file.
+     */
+
+     /// Read in an audio file into a new UtlString audio buffer.
+   static OsStatus MprFromFile::readAudioFile(UtlString*& audioBuffer,
+                                              const char* audioFileName,
+                                              OsNotification* notify);
+     /**<
+     *  @param audioBuffer - a reference to a pointer that will be filled
+     *   with a new buffer holding the audio data.  Ownership will then
+     *   transfer to the caller.
+     *
+     *  @param audioFileName - the name of a file to read flowgraph
+     *   audio data from.  (exact format that the FG will accept -
+     *   sample size, rate, & number of channels)
+     *
+     *  @param event - an event to signal when state changes.  If NULL,
+     *  nothing will be signaled.
+     *
+     *  @returns OS_INVALID_ARGUMENT if the filename was null,
+     *  the file was unopenable, or the file contained less than one sample.
+     *  @returns OS_SUCCESS if the file was read succesfully.
+     */
 
    virtual UtlBoolean doProcessFrame(MpBufPtr inBufs[],
                                     MpBufPtr outBufs[],
