@@ -38,8 +38,8 @@
 #ifdef RTL_ENABLED // [
 #  include "rtl_macro.h"
 #else  // RTL_ENABLED ][
-#  define RTL_BLOCK
-#  define RTL_EVENT
+#  define RTL_BLOCK(x)
+#  define RTL_EVENT(x, y)
 #endif // RTL_ENABLED ]
 
 // EXTERNAL FUNCTIONS
