@@ -55,4 +55,5 @@ sandbox_LDFLAGS = $(testsuite_LDFLAGS)
 sandbox_LDADD = $(testsuite_LDADD)
 
 sandbox_SOURCES = \
-    mp/MpMediaTaskTest.cpp
+    mp/MpOutputFrameworkTest.cpp \
+    mp/MpInputOutputFrameworkTest.cpp
