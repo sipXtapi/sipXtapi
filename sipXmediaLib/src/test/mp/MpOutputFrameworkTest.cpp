@@ -21,9 +21,9 @@
 #ifdef RTL_ENABLED // [
 #  include "rtl_macro.h"
 #else  // RTL_ENABLED ][
-#  define RTL_WRITE
-#  define RTL_BLOCK
-#  define RTL_START
+#  define RTL_WRITE(x)
+#  define RTL_BLOCK(x)
+#  define RTL_START(x)
 #endif // RTL_ENABLED ]
 
 #define TEST_SAMPLES_PER_FRAME_SIZE   80
@@ -81,9 +81,9 @@ void calculateSampleData()
 /**
  * Unittest for MpOutputDeviceManager
  */
-class MpOutputDeviceDriverTest : public CppUnit::TestCase
+class MpOutputFrameworkTest : public CppUnit::TestCase
 {
-   CPPUNIT_TEST_SUITE(MpOutputDeviceDriverTest);
+   CPPUNIT_TEST_SUITE(MpOutputFrameworkTest);
    CPPUNIT_TEST(testCreate);
    CPPUNIT_TEST(testAddRemoveToManager);
    CPPUNIT_TEST(testEnableDisable);
@@ -222,4 +222,4 @@ protected:
 
 };
 
-CPPUNIT_TEST_SUITE_REGISTRATION(MpOutputDeviceDriverTest);
+CPPUNIT_TEST_SUITE_REGISTRATION(MpOutputFrameworkTest);
