@@ -1420,7 +1420,7 @@ OsStatus MpFlowGraphBase::processMessages(void)
                   "Failed looking up resource!: "
                   "name=\"%s\", lookupResource status=0x%X, "
                   "resource pointer returned = 0x%X",
-                  pResourceMsg->getDestResourceName(), 
+                  pResourceMsg->getDestResourceName().data(), 
                   res, pMsgDest);
             }
          }
