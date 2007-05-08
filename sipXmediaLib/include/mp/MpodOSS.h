@@ -172,6 +172,8 @@ protected:
    int mQueueLen;            ///< Depth of queue of stored frames
    UtlBoolean mNotificationThreadEn;
 
+   MpOSSDeviceWrapperContainer* mpCont; ///< Pointer to Wrapper container
+
      /// @brief Allocating internal OSS buffers
    OsStatus initBuffers();
 

@@ -24,8 +24,12 @@
 // EXTERNAL VARIABLES
 // CONSTANTS
 // STATIC VARIABLE INITIALIZATIONS
+MpOSSDeviceWrapperContainer* MpOSSDeviceWrapperContainer::mpCont = NULL;
+int MpOSSDeviceWrapperContainer::refCount = 0;
+
 // GLOBAL VARIABLE INITIALIZATIONS
-MpOSSDeviceWrapperContainer mOSSContainer;
+//MpOSSDeviceWrapperContainer mOSSContainer;
+
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
@@ -107,3 +111,44 @@ MpOSSDeviceWrapper* MpOSSDeviceWrapperContainer::getOSSDeviceWrapper(const UtlSt
 
    return pDev;
 }
+
+UtlBoolean MpOSSDeviceWrapperContainer::excludeWrapperFromContainer(MpOSSDeviceWrapper* pDev)
+{
+   if (refCount == 0)
+   {
+      assert(mpCont != NULL);
+      mpCont->excludeFromContainer(pDev);
+
+      return TRUE;
+   }
+
+   return FALSE;
+}
+
+/* ============================ ACCESSORS ================================= */
+
+MpOSSDeviceWrapperContainer* MpOSSDeviceWrapperContainer::getContainer()
+{
+   if (refCount == 0)
+   {
+      assert(mpCont == NULL);
+      mpCont = new MpOSSDeviceWrapperContainer;
+   }
+   refCount++;
+
+   return mpCont;
+}
+
+void MpOSSDeviceWrapperContainer::releaseContainer(MpOSSDeviceWrapperContainer* pCont)
+{
+   assert(refCount > 0);
+   assert(mpCont == pCont);
+
+   refCount--;
+   if (refCount == 0)
+   {
+      delete mpCont;
+      mpCont = NULL;
+   }
+}
+

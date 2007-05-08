@@ -46,9 +46,10 @@ public:
 /* ============================ MANIPULATORS ============================== */
 ///@name Manipulators
 //@{
-
+     /// @brief Create new wrapper for name haven't founded in container. 
    MpOSSDeviceWrapper* getOSSDeviceWrapper(const UtlString& ossdev);
 
+     /// @brief Excluding wrapper from container.
    void excludeFromContainer(MpOSSDeviceWrapper* pDev);
 
 //@}
@@ -59,6 +60,18 @@ public:
 
 //@}
 
+     /// @brief Creating wrapper and return if it wasn't create yet.
+   static
+   MpOSSDeviceWrapperContainer* getContainer();
+
+     /// @brief Releasing wrapper if it no longer needed (no references).
+   static
+   void releaseContainer(MpOSSDeviceWrapperContainer* pCont);
+
+     /// @brief Excluding wrapper from container (static version).
+   static
+   UtlBoolean excludeWrapperFromContainer(MpOSSDeviceWrapper* pDev);
+
 /* ============================ INQUIRY =================================== */
 ///@name Inquiry
 //@{
@@ -67,10 +80,12 @@ public:
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
+   static MpOSSDeviceWrapperContainer* mpCont; ///< Pointer to allocated class
+   static int refCount; ///< Number of all MpOSSDeviceWrapperContainer members
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-   OsMutex mMutex;
+   OsMutex mMutex;      ///< Internal syncronization mutex
 };
 
 /* ============================ INLINE METHODS ============================ */

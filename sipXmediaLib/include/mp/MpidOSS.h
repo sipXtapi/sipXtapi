@@ -125,6 +125,8 @@ protected:
    char* mpWaveBuffers;  ///< Array of nNumInBuffers wave buffers.
    int mCurBuff;         ///< Number of buffer in which will be store pushed data
 
+   MpOSSDeviceWrapperContainer* mpCont; ///< Pointer to Wrapper container
+
      /// @brief Allocating internal OSS buffers.
    OsStatus initBuffers();
 

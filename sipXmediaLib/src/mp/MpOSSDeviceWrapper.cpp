@@ -49,7 +49,7 @@
 #ifndef OSS_SINGLE_DEVICE
 extern MpOSSDeviceWrapperContainer mOSSContainer;
 #else
-MpOSSDeviceWrapper ossSingleDriver;
+//MpOSSDeviceWrapper ossSingleDriver;
 #endif
 
 //#define FULLY_NONBLOCK
@@ -66,7 +66,7 @@ static inline void addToTimespec(struct timespec& ts, int nsec)
 }
 
 
-#define DEBUG_OSS_TIMERS
+//#define DEBUG_OSS_TIMERS
 
 #ifdef DEBUG_OSS_TIMERS
 #  define dossprintf(x)  do { osPrintf(x); fflush(stdout); } while (0)
@@ -301,7 +301,8 @@ void MpOSSDeviceWrapper::noMoreNeeded()
    freeDevice();
 #ifndef OSS_SINGLE_DEVICE
    //Remove this wrapper from container
-   mOSSContainer.excludeFromContainer(this);
+   //mOSSContainer.excludeFromContainer(this);
+   MpOSSDeviceWrapperContainer::excludeWrapperFromContainer(this);
 #endif
 }
 

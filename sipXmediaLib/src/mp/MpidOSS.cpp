@@ -47,7 +47,7 @@
 #ifdef OSS_SINGLE_DEVICE
 extern MpOSSDeviceWrapper ossSingleDriver;
 #else
-extern MpOSSDeviceWrapperContainer mOSSContainer;
+//extern MpOSSDeviceWrapperContainer mOSSContainer;
 #endif
 
 // CONSTANTS
@@ -68,7 +68,16 @@ MpidOSS::MpidOSS(const UtlString& name,
 #ifdef OSS_SINGLE_DEVICE
    pDevWrapper = &ossSingleDriver;
 #else
-   pDevWrapper = mOSSContainer.getOSSDeviceWrapper(name);
+   //pDevWrapper = mOSSContainer.getOSSDeviceWrapper(name);
+   mpCont = MpOSSDeviceWrapperContainer::getContainer();
+   if (mpCont != NULL)
+   {
+      pDevWrapper = mpCont->getOSSDeviceWrapper(name);
+   }
+   else
+   {
+      pDevWrapper = NULL;
+   }
 #endif
    if (pDevWrapper)
    {
@@ -90,6 +99,11 @@ MpidOSS::~MpidOSS()
    if (isDeviceValid())
    {
       pDevWrapper->freeInputDevice();
+   }
+
+   if (mpCont != NULL)
+   {
+      MpOSSDeviceWrapperContainer::releaseContainer(mpCont);
    }
 }
 /* ============================ MANIPULATORS ============================== */
