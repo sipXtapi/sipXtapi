@@ -73,10 +73,6 @@
                                              the userid portion of the SIP url. */
 #define DEFAULT_BIND_ADDRESS    "0.0.0.0" /**< Bind to the first physical interface discovered */
 
-#define CODEC_G711_PCMU         "258"   /**< ID for PCMU vocodec */
-#define CODEC_G711_PCMA         "257"   /**< ID for PCMA vocodec*/
-#define CODEC_DTMF_RFC2833      "128"   /**< ID for RFC2833 DMTF (out of band DTMF codec) */
-
 #define GAIN_MIN                0       /**< Min acceptable gain value. This gain will mute mic. */
 #define GAIN_MAX                100     /**< Max acceptable gain value */
 #define GAIN_DEFAULT            70      /**< Nominal gain value */
@@ -156,17 +152,18 @@ typedef enum SPEAKER_TYPE
  * Bandwidth requirements for supported codecs:
  *
  * <pre>
- * High:     IPCMWB  ~ 80 kbps
- * Normal:   G711U   64 kpbs
- *           G711A   64 kbps, 20 ms frame size
- *           PCMU    64 kbps
- *           PCMA    64 kbps
- * Low:      iLBC    13.33 kbps, 30 ms frame size and
- *                   15.2 kbps, 20 ms frame size
- *           GSM     13 kbps, 20 ms frame size
- *           G729    8 Kbps, 10ms frame size
- * Variable: ISAC    variable bitrate
- *           SPEEX   variable bitrate
+ * High:     IPCMWB    ~ 80 kbps
+ * Normal:   PCMU      64 kbps
+ *           PCMA      64 kbps
+ * Low:      iLBC      13.33 kbps, 30 ms frame size and
+ *                     15.2 kbps, 20 ms frame size
+ *           GSM       13 kbps, 20 ms frame size
+ *           G729      8 Kbps, 10ms frame size
+ *           SPEEX     8 Kbps
+ *           SPEEX_5   5.95 Kbps
+ *           SPEEX_15  15 Kbps
+ *           SPEEX_24  24.6 Kbps
+ * Variable: ISAC      variable bitrate
  * </pre>
  */
 typedef enum SIPX_AUDIO_BANDWIDTH_ID
