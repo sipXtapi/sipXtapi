@@ -624,8 +624,6 @@ OsStatus MpOSSDeviceWrapper::initDevice(const char* devname)
       char buff[8] = {0};
       OsStatus st = doOutput(buff, 8);
 
-      printf(" res = %d \n", st);
-
       mbWriteCap = (st == OS_SUCCESS);
       mbReadCap = !mbWriteCap;
 
@@ -642,13 +640,27 @@ OsStatus MpOSSDeviceWrapper::initDevice(const char* devname)
                     "OSS: Sound card has internal buffers (increases latency)");
    }
 
-   if (!getOSpace(fullOSpace))
+   if (mbWriteCap)
    {
-      OsSysLog::add(FAC_MP, PRI_EMERG,
-                    "OSS: this device dosen't support OSPACE ioctl!"
-                    " *** NO SOUND! ***");
-      freeDevice();
-      return ret;
+      if (!getOSpace(fullOSpace))
+      {
+          OsSysLog::add(FAC_MP, PRI_EMERG,
+                        "OSS: this device dosen't support OSPACE ioctl!"
+                        " *** NO SOUND! ***");
+          freeDevice();
+          return ret;
+      }
+   }
+   else
+   {
+      if (!getISpace(fullOSpace))
+      {
+          OsSysLog::add(FAC_MP, PRI_EMERG,
+                        "OSS: this device dosen't support ISPACE ioctl!"
+                        " *** NO SOUND! ***");
+          freeDevice();
+          return ret;
+      }
    }
 
    ret = OS_SUCCESS;
