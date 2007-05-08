@@ -561,8 +561,6 @@ OsStatus MpOSSDeviceWrapper::initDevice(const char* devname)
       {
          OsSysLog::add(FAC_MP, PRI_WARNING,
                        "OSS: could not set full duplex");
-         //            freeDevice();
-         //            return ret;
       }
    }
    // magic number, reduces latency (0x0004 dma buffers of 2 ^ 0x0008 = 256 bytes each)
@@ -577,25 +575,11 @@ OsStatus MpOSSDeviceWrapper::initDevice(const char* devname)
       return ret;
    }
 
-
-   res = ioctl(mfdDevice, SNDCTL_DSP_STEREO, &stereo);
-   if (res == -1)
-   {
-      OsSysLog::add(FAC_MP, PRI_WARNING,
-                    "OSS: could not set single channel audio");
-      // freeDevice();
-      //return ret;
-   }
-
    res = ioctl(mfdDevice, SNDCTL_DSP_SAMPLESIZE, &samplesize);
    if ((res == -1) || (samplesize != (8 * sizeof(MpAudioSample))))
    {
-      OsSysLog::add(FAC_MP, PRI_EMERG,
-                    "OSS: could not set sample size (samplesize = %d);"
-                    " *** NO SOUND! ***",
-                    samplesize);
-      //freeDevice();
-      //return ret;
+      res = AFMT_S16_LE;
+      ioctl(mfdDevice ,SNDCTL_DSP_SETFMT, &res);
    }
 
    // Make sure the sound card has the capabilities we need
@@ -606,6 +590,15 @@ OsStatus MpOSSDeviceWrapper::initDevice(const char* devname)
    {
       OsSysLog::add(FAC_MP, PRI_EMERG,
                     "OSS: could not set sample format; *** NO SOUND! ***");
+      freeDevice();
+      return ret;
+   }
+
+   res = ioctl(mfdDevice, SNDCTL_DSP_STEREO, &stereo);
+   if (res == -1)
+   {
+      OsSysLog::add(FAC_MP, PRI_WARNING,
+                    "OSS: could not set single channel audio");
       freeDevice();
       return ret;
    }
