@@ -1,6 +1,6 @@
-//  
-// Copyright (C) 2007 SIPez LLC. 
-// Licensed to SIPfoundry under a Contributor Agreement. 
+//
+// Copyright (C) 2007 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // Copyright (C) 2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -8,7 +8,7 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
-// Author:
+// Author: Sergey Kostanbaev <Sergey DOT Kostanbaev AT sipez DOT com>
 
 #ifndef _MpOSSDeviceWrapperContainer_h_
 #define _MpOSSDeviceWrapperContainer_h_
@@ -18,7 +18,7 @@
 // APPLICATION INCLUDES
 #include "utl/UtlString.h"
 #include "utl/UtlHashMap.h"
-#include "os/OsRWMutex.h"
+#include "os/OsMutex.h"
 
 // DEFINES
 // MACROS
@@ -37,17 +37,20 @@ public:
 /* ============================ CREATORS ================================== */
 ///@name Creators
 //@{
-    MpOSSDeviceWrapperContainer();
 
-    ~MpOSSDeviceWrapperContainer();
+   MpOSSDeviceWrapperContainer();
+
+   ~MpOSSDeviceWrapperContainer();
 //@}
 
 /* ============================ MANIPULATORS ============================== */
 ///@name Manipulators
 //@{
-    MpOSSDeviceWrapper* getOSSDeviceWrapper(const UtlString& ossdev);
-    
-    void excludeFromContainer(MpOSSDeviceWrapper* pDev);
+
+   MpOSSDeviceWrapper* getOSSDeviceWrapper(const UtlString& ossdev);
+
+   void excludeFromContainer(MpOSSDeviceWrapper* pDev);
+
 //@}
 
 /* ============================ ACCESSORS ================================= */
@@ -64,11 +67,10 @@ public:
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
-    
-    
+
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-    OsRWMutex mMutex;
+   OsMutex mMutex;
 };
 
 /* ============================ INLINE METHODS ============================ */

@@ -1,6 +1,6 @@
-//  
-// Copyright (C) 2007 SIPez LLC. 
-// Licensed to SIPfoundry under a Contributor Agreement. 
+//
+// Copyright (C) 2007 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // Copyright (C) 2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -8,7 +8,7 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
-// Author: REFACTORING CODE
+// Author: Sergey Kostanbaev <Sergey DOT Kostanbaev AT sipez DOT com>
 
 #ifndef _MpidOSS_h_
 #define _MpidOSS_h_
@@ -28,8 +28,7 @@
 #include "mp/MpOSSDeviceWrapper.h"
 
 // DEFINES
-#define DEFAULT_N_INPUT_BUFS 32
-//#define NUM_SAMPLES 80
+#define DEFAULT_N_INPUT_BUFS    8
 
 // MACROS
 // EXTERNAL FUNCTIONS
@@ -45,7 +44,7 @@ class MpInputDeviceManager;
 */
 class MpidOSS : public MpInputDeviceDriver
 {
-    friend class MpOSSDeviceWrapper;
+   friend class MpOSSDeviceWrapper;
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
@@ -53,15 +52,16 @@ public:
 ///@name Creators
 //@{
 
-     /// @brief Default constructor
+     /// @brief Default constructor.
    MpidOSS(const UtlString& name,
-                          MpInputDeviceManager& deviceManager,
-                          unsigned nInputBuffers = DEFAULT_N_INPUT_BUFS);
+           MpInputDeviceManager& deviceManager,
+           unsigned nInputBuffers = DEFAULT_N_INPUT_BUFS);
      /**<
-     *  @param name - unique device driver name (e.g. "/dev/dsp", 
-     *         "YAMAHA AC-XG WDM Audio", etc.)
-     *  @param deviceManager - MpInputDeviceManager this device is to
-     *         push frames to via pushFrame method
+     *  @param name - (in) unique device driver name (e.g. "/dev/dsp",
+     *         "YAMAHA AC-XG WDM Audio", etc.).
+     *  @param deviceManager - (in) MpInputDeviceManager this device is to
+     *         push frames to via pushFrame method.
+     *  @param nInputBuffers - (in) Maximum number of frames in internal buffer.
      */
 
      /// @brief Destructor
@@ -73,31 +73,33 @@ public:
 ///@name Manipulators
 //@{
 
-      /// @brief Initialize device driver and state
-    OsStatus enableDevice(unsigned samplesPerFrame, 
-                          unsigned samplesPerSec,
-                          MpFrameTime currentFrameTime);
-      /**<
-      *  This method enables the device driver.
-      *
-      *  @NOTE this SHOULD NOT be used to mute/unmute a device. Disabling and
-      *  enabling a device results in state and buffer queues being cleared.
-      *
-      *  @param samplesPerFrame - the number of samples in a frame of media
-      *  @param samplesPerSec - sample rate for media frame in samples per second
-      *  @param currentFrameTime - time in milliseconds for beginning of frame
-      *         relative to the MpInputDeviceManager reference time
-      */
+     /// @brief Initialize device driver and state.
+   OsStatus enableDevice(unsigned samplesPerFrame,
+                         unsigned samplesPerSec,
+                         MpFrameTime currentFrameTime);
+     /**<
+     *  This method enables the device driver.
+     *
+     *  @NOTE this SHOULD NOT be used to mute/unmute a device. Disabling and
+     *  enabling a device results in state and buffer queues being cleared.
+     *
+     *  @param samplesPerFrame - (in) the number of samples in a frame of media
+     *  @param samplesPerSec - (in) sample rate for media frame in samples per
+     *         second
+     *  @param currentFrameTime - (in) time in milliseconds for beginning of
+     *         frame relative to the MpInputDeviceManager reference time
+     */
 
-      /// @brief Uninitialize device driver
-    OsStatus disableDevice();
-      /**<
-      *  This method disables the device driver and should release any
-      *  platform device resources so that the device might be used else where.
-      *
-      *  @NOTE this SHOULD NOT be used to mute/unmute a device. Disabling and
-      *        enabling a device results in state and buffer queues being cleared.
-      */
+     /// @brief Uninitialize device driver.
+   OsStatus disableDevice();
+     /**<
+     *  This method disables the device driver and should release any
+     *  platform device resources so that the device might be used else where.
+     *
+     *  @NOTE this SHOULD NOT be used to mute/unmute a device. Disabling and
+     *        enabling a device results in state and buffer queues being
+     *        cleared.
+     */
 
 //@}
 
@@ -111,43 +113,39 @@ public:
 ///@name Inquiry
 //@{
 
-      /// @brief Inquire if the OSS device is valid
-    inline UtlBoolean isDeviceValid();
+     /// @brief Inquire if the OSS device is valid.
+   inline UtlBoolean isDeviceValid();
 
 //@}
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
-    unsigned mNumInBuffers;   ///< The number of buffers to supply to OSS
-                              ///< for audio processing.
-    char* mpWaveBuffers;      ///< Array of nNumInBuffers wave buffers.
-    
-    int mCurBuff;
+   int mNumInBuffers;    ///< The number of buffers to supply to OSS
+                         ///< for audio processing.
+   char* mpWaveBuffers;  ///< Array of nNumInBuffers wave buffers.
+   int mCurBuff;         ///< Number of buffer in which will be store pushed data
 
-protected:    
-    OsStatus initBuffers();
-    void freeBuffers();
-    MpAudioSample* getBuffer();
-    
-    void pushFrame(MpAudioSample* frm);
+     /// @brief Allocating internal OSS buffers.
+   OsStatus initBuffers();
+
+     /// @brief Freeing internal OSS buffers.
+   void freeBuffers();
+
+     /// @brief Getting buffer from internal buffers.
+   MpAudioSample* getBuffer();
+
+     /// @brief Pushing <tt>frm</tt> to InputDeviceManager.
+   void pushFrame(MpAudioSample* frm);
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
+   MpOSSDeviceWrapper *pDevWrapper;
 
-    //int mfdOssDev;            ///< The fd of the OSS device (e.g. /dev/dsp)
-    MpOSSDeviceWrapper *pDevWrapper;
+     /// @brief Copy constructor (not implemented for this class).
+   MpidOSS(const MpidOSS& rMpInputDeviceDriver);
 
-
-   // UtlBoolean mIsInit;       ///< Boolean indicating intialization 
-                              ///  sucsessfully completed.
-  
-
-      /// @brief Copy constructor (not implemented for this class)
-    MpidOSS(const MpidOSS& rMpInputDeviceDriver);
-
-      /// @brief Assignment operator (not implemented for this class)
-    MpidOSS& operator=(const MpidOSS& rhs);
-
+     /// @brief Assignment operator (not implemented for this class).
+   MpidOSS& operator=(const MpidOSS& rhs);
 
 };
 
@@ -155,7 +153,7 @@ private:
 
 UtlBoolean MpidOSS::isDeviceValid()
 {
-   return ((pDevWrapper != NULL) && pDevWrapper->isDeviceValid()); 
+   return ((pDevWrapper != NULL) && pDevWrapper->isDeviceValid());
 }
 
 #endif  // _MpidOSS_h_

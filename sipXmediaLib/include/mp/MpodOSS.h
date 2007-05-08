@@ -1,6 +1,6 @@
-//  
-// Copyright (C) 2007 SIPez LLC. 
-// Licensed to SIPfoundry under a Contributor Agreement. 
+//
+// Copyright (C) 2007 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // Copyright (C) 2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -8,7 +8,7 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
-// Author: REFACTORING CODE
+// Author: Sergey Kostanbaev <Sergey DOT Kostanbaev AT sipez DOT com>
 
 #ifndef _MpodOSS_h_
 #define _MpodOSS_h_
@@ -29,7 +29,6 @@
 
 // DEFINES
 #define DEFAULT_N_OUTPUT_BUFS 64
-//#define NUM_SAMPLES 80
 
 // MACROS
 // EXTERNAL FUNCTIONS
@@ -54,14 +53,13 @@ public:
 ///@name Creators
 //@{
 
-     /// @brief Default constructor
+     /// @brief Default constructor.
    MpodOSS(const UtlString& name,
-                          unsigned nInputBuffers = DEFAULT_N_OUTPUT_BUFS);
+           unsigned nInputBuffers = DEFAULT_N_OUTPUT_BUFS);
      /**<
-     *  @param name - unique device driver name (e.g. "/dev/dsp", 
-     *         "YAMAHA AC-XG WDM Audio", etc.)
-     *  @param deviceManager - MpOutputDeviceManager this device is to
-     *         recive frames throught pushFrame method
+     *  @param name - (in) unique device driver name (e.g. "/dev/dsp",
+     *         "YAMAHA AC-XG WDM Audio", etc.).
+     *  @param nInputBuffers - (in) Maximum number of frames in internal buffer.
      */
 
      /// @brief Destructor
@@ -74,33 +72,34 @@ public:
 //@{
 
      /// @brief  Initialize OSS device driver and state.
-     OsStatus enableDevice(unsigned samplesPerFrame, 
-                                 unsigned samplesPerSec,
-                                 MpFrameTime currentFrameTime);
-      /**<
-      *  This method enables the device driver.
-      *
-      *  @NOTE this SHOULD NOT be used to mute/unmute a device. Disabling and
-      *  enabling a device results in state and buffer queues being cleared.
-      *
-      *  @param samplesPerFrame - the number of samples in a frame of media
-      *  @param samplesPerSec - sample rate for media frame in samples per second
-      *  @param currentFrameTime - time in milliseconds for beginning of frame
-      *         relative to the MpInputDeviceManager reference time
-      */
+   OsStatus enableDevice(unsigned samplesPerFrame,
+                         unsigned samplesPerSec,
+                         MpFrameTime currentFrameTime);
+     /**<
+     *  This method enables the device driver.
+     *
+     *  @NOTE this SHOULD NOT be used to mute/unmute a device. Disabling and
+     *  enabling a device results in state and buffer queues being cleared.
+     *
+     *  @param samplesPerFrame - (in) the number of samples in a frame of media.
+     *  @param samplesPerSec - (in) sample rate for media frame in samples per
+     *         second.
+     *  @param currentFrameTime - (in) time in milliseconds for beginning of frame
+     *         relative to the MpInputDeviceManager reference time.
+     */
 
-      /// @brief Uninitialize OSS device driver
-    OsStatus disableDevice();
-      /**<
-      *  This method disables the device driver and should release any
-      *  platform device resources so that the device might be used else where.
-      *
-      *  @NOTE this SHOULD NOT be used to mute/unmute a device. Disabling and
-      *        enabling a device results in state and buffer queues being cleared.
-      */
-      
+     /// @brief Uninitialize OSS device driver
+   OsStatus disableDevice();
+     /**<
+     *  This method disables the device driver and should release any
+     *  platform device resources so that the device might be used else where.
+     *
+     *  @note this SHOULD NOT be used to mute/unmute a device. Disabling and
+     *        enabling a device results in state and buffer queues being cleared.
+     */
+
      /// @brief Send data to OSS output device.
-    OsStatus pushFrame(unsigned int numSamples,
+   OsStatus pushFrame(unsigned int numSamples,
                       MpAudioSample* samples);
      /**<
      *  This method is usually called from MpAudioOutputConnection::pushFrame().
@@ -110,7 +109,7 @@ public:
      */
 
      /// Set frame ticker notification which this device should signal.
-    OsStatus setTickerNotification(OsNotification *pFrameTicker);
+   OsStatus setTickerNotification(OsNotification *pFrameTicker);
      /**<
      *  @param pFrameTicker - (in) notification to signal when device become
      *         ready. Pass NULL to pFrameTicker if you do not want receive
@@ -125,7 +124,7 @@ public:
      *           frame ticker notification.
      */
 
-     OsStatus setNotificationMode(UtlBoolean bThreadNotification);
+    OsStatus setNotificationMode(UtlBoolean bThreadNotification);
 
 //@}
 
@@ -133,13 +132,13 @@ public:
 ///@name Accessors
 //@{
 
-     /// Is frame ticker notification support by this driver notification.
-   UtlBoolean isFrameTickerSupported() const;
-     /**<
-     *  If this method returns TRUE, setTickerNotification() method may be
-     *  used to set frame ticker notification. If this method returns FALSE,
-     *  setTickerNotification() must return OS_NOT_SUPPORTED.
-     */
+    /// Is frame ticker notification support by this driver notification.
+  UtlBoolean isFrameTickerSupported() const;
+    /**<
+    *  If this method returns TRUE, setTickerNotification() method may be
+    *  used to set frame ticker notification. If this method returns FALSE,
+    *  setTickerNotification() must return OS_NOT_SUPPORTED.
+    */
 
 //@}
 
@@ -147,54 +146,58 @@ public:
 ///@name Inquiry
 //@{
 
-      /// @brief Inquire if the OSS device is valid
-    inline UtlBoolean isDeviceValid();
+     /// @brief Inquire if the OSS device is valid
+   inline UtlBoolean isDeviceValid();
 
-      /// @brief Inquire if the notification is needed
-    inline UtlBoolean isNotificationNeeded();    
+     /// @brief Inquire if the notification is needed
+   inline UtlBoolean isNotificationNeeded();
 //@}
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
-    unsigned mNumInBuffers;   ///< The number of buffers to supply to OSS
-                              ///< for audio processing.
-    char* mpWaveBuffers;      ///< Array of nNumInBuffers wave buffers.
-    
-    int mCurBuff; /// Number of buffer in which will be store pushed data
-    int mLastReceived; /// Number of buffer will be send send to OSS device
-    
-    OsNotification *pNotificator;
-        
-    sem_t mPushPopSem;
-    
-    MpFrameTime mCurrentFrameTime; ///< TODO: Fill in mCurrentFrameTime description
-    
-    int mQueueLen;
-    UtlBoolean mNotificationThreadEn;
+   int mNumInBuffers;        ///< The number of buffers to supply to OSS
+                             ///< for audio processing.
+   char* mpWaveBuffers;      ///< Array of nNumInBuffers wave buffers.
 
-protected:    
-    OsStatus initBuffers();
-    void freeBuffers();
-    
+   int mCurBuff;             ///< Number of buffer in which will be store
+                             ///< pushed data
+   int mLastReceived;        ///< Number of buffer will be send to OSS device
+
+   OsNotification *pNotificator; ///< Notificator used for signaling next frame
+
+   sem_t mPushPopSem;        ///< Controlling semaphore push/pull operation
+
+   MpFrameTime mCurrentFrameTime; ///< TODO: Fill in mCurrentFrameTime description
+
+   int mQueueLen;            ///< Depth of queue of stored frames
+   UtlBoolean mNotificationThreadEn;
+
+     /// @brief Allocating internal OSS buffers
+   OsStatus initBuffers();
+
+     /// @brief Freeing internal OSS buffers
+   void freeBuffers();
+
      /// @brief Get data from buffer.
-    MpAudioSample* popFrame(unsigned& size);
-     /**< 
-      *  If successed return value is pointer to data and in 
-      *  <tt>size</tt> strored size of sample in bytes
-      *  otherwise return value is NULL
-      */
-     
-    OsStatus signalForNextFrame();
-     
+   MpAudioSample* popFrame(unsigned& size);
+     /**<
+     *  If succeed return value is pointer to data and in
+     *  <tt>size</tt> strored size of sample in bytes
+     *  otherwise return value is NULL
+     */
+
+     /// @brief Signaling for next frame if notificator used do nothing otherwise
+   OsStatus signalForNextFrame();
+
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-    MpOSSDeviceWrapper *pDevWrapper;
+   MpOSSDeviceWrapper *pDevWrapper;
 
-      /// @brief Copy constructor (not implemented for this class)
-    MpodOSS(const MpodOSS& rMpOutputDeviceDriver);
+     /// @brief Copy constructor (not implemented for this class)
+   MpodOSS(const MpodOSS& rMpOutputDeviceDriver);
 
-      /// @brief Assignment operator (not implemented for this class)
-    MpodOSS& operator=(const MpodOSS& rhs);
+     /// @brief Assignment operator (not implemented for this class)
+   MpodOSS& operator=(const MpodOSS& rhs);
 
 
 };
@@ -203,14 +206,12 @@ private:
 
 UtlBoolean MpodOSS::isDeviceValid()
 {
-   return ((pDevWrapper != NULL) && pDevWrapper->isDeviceValid()); 
+   return ((pDevWrapper != NULL) && pDevWrapper->isDeviceValid());
 }
 
 UtlBoolean MpodOSS::isNotificationNeeded()
 {
-    return (isDeviceValid() && 
-            /* isEnabled() && */
-            pNotificator != NULL);
+   return (isDeviceValid() && (pNotificator != NULL));
 }
 
 #endif  // _MpodOSS_h_

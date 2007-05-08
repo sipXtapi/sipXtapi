@@ -1,6 +1,6 @@
-//  
-// Copyright (C) 2007 SIPez LLC. 
-// Licensed to SIPfoundry under a Contributor Agreement. 
+//
+// Copyright (C) 2007 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // Copyright (C) 2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -8,7 +8,7 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
-// Author: 
+// Author: Sergey Kostanbaev <Sergey DOT Kostanbaev AT sipez DOT com>
 
 
 // SYSTEM INCLUDES
@@ -57,273 +57,274 @@ extern MpOSSDeviceWrapperContainer mOSSContainer;
 /* ============================ CREATORS ================================== */
 // Default constructor
 MpodOSS::MpodOSS(const UtlString& name,
-                          unsigned nInputBuffers)
-                          : MpOutputDeviceDriver(name)
-                          , mNumInBuffers(nInputBuffers)
-                          , mpWaveBuffers(NULL)
-                          , mCurBuff(-1)
-                          , mLastReceived(-1)
-                          , pNotificator(NULL)
-                          , mNotificationThreadEn(FALSE)
-                          , pDevWrapper(NULL)
+                 unsigned nInputBuffers)
+: MpOutputDeviceDriver(name)
+, mNumInBuffers(nInputBuffers)
+, mpWaveBuffers(NULL)
+, mCurBuff(-1)
+, mLastReceived(-1)
+, pNotificator(NULL)
+, mNotificationThreadEn(FALSE)
+, pDevWrapper(NULL)
 {
-    int result = sem_init(&mPushPopSem, 0, 1);
-    assert(result != -1);
+   int result = sem_init(&mPushPopSem, 0, 1);
+   assert(result != -1);
 
 #ifdef OSS_SINGLE_DEVICE
-    pDevWrapper = &ossSingleDriver;
+   pDevWrapper = &ossSingleDriver;
 #else
-    pDevWrapper = mOSSContainer.getOSSDeviceWrapper(name);
+   pDevWrapper = mOSSContainer.getOSSDeviceWrapper(name);
 #endif
-    if (pDevWrapper) 
-    {
-        OsStatus res = pDevWrapper->setOutputDevice(this);
-        if (res != OS_SUCCESS) 
-        {
-            pDevWrapper = NULL;
-        }
-        else if (!pDevWrapper->mbWriteCap)
-        {
-            //Device dosen't support output
-            pDevWrapper->freeOutputDevice();
-            pDevWrapper = NULL;
-        }
-    }
+   if (pDevWrapper)
+   {
+      OsStatus res = pDevWrapper->setOutputDevice(this);
+      if (res != OS_SUCCESS)
+      {
+         pDevWrapper = NULL;
+      }
+      else if (!pDevWrapper->mbWriteCap)
+      {
+         //Device dosen't support output
+         pDevWrapper->freeOutputDevice();
+         pDevWrapper = NULL;
+      }
+   }
 }
 
 MpodOSS::~MpodOSS()
 {
-    if (isDeviceValid())
-    {
-        pDevWrapper->freeOutputDevice();
-    }
+   if (isDeviceValid())
+   {
+      pDevWrapper->freeOutputDevice();
+   }
 
-    sem_wait(&mPushPopSem);
-    sem_destroy(&mPushPopSem);
+   sem_wait(&mPushPopSem);
+   sem_destroy(&mPushPopSem);
 }
 /* ============================ MANIPULATORS ============================== */
 OsStatus MpodOSS::setNotificationMode(UtlBoolean bThreadNotification)
 {
-    if (isEnabled())
-    {
-        return OS_INVALID_STATE;
-    }
+   if (isEnabled())
+   {
+      return OS_INVALID_STATE;
+   }
 
-    mNotificationThreadEn = bThreadNotification;
+   mNotificationThreadEn = bThreadNotification;
+   return OS_SUCCESS;
 }
 
-OsStatus MpodOSS::enableDevice(unsigned samplesPerFrame, 
+OsStatus MpodOSS::enableDevice(unsigned samplesPerFrame,
                           unsigned samplesPerSec,
                           MpFrameTime currentFrameTime)
 {
-    OsStatus ret;
-    
-    // If the device is not valid, let the user know it's bad.
-    if (!isDeviceValid())
-    {
-        return OS_INVALID_STATE;
-    }
-    if (isEnabled())
-    {
-        return OS_FAILED;
-    }
+   OsStatus ret;
 
-    // Set some wave header stat information.
-    mSamplesPerFrame = samplesPerFrame;
-    mSamplesPerSec = samplesPerSec;
-    mCurrentFrameTime = currentFrameTime;
+   // If the device is not valid, let the user know it's bad.
+   if (!isDeviceValid())
+   {
+      return OS_INVALID_STATE;
+   }
+   if (isEnabled())
+   {
+      return OS_FAILED;
+   }
 
-    ret = initBuffers();
-    if (ret != OS_SUCCESS) 
-    {
-        return ret;
-    }
-    
-    ret = pDevWrapper->attachWriter();
-    if (ret != OS_SUCCESS)
-    {
-        return ret;
-    }
-    mIsEnabled = TRUE;
-    mQueueLen = 0;
-    return ret;
+   // Set some wave header stat information.
+   mSamplesPerFrame = samplesPerFrame;
+   mSamplesPerSec = samplesPerSec;
+   mCurrentFrameTime = currentFrameTime;
+
+   ret = initBuffers();
+   if (ret != OS_SUCCESS)
+   {
+      return ret;
+   }
+
+   ret = pDevWrapper->attachWriter();
+   if (ret != OS_SUCCESS)
+   {
+      return ret;
+   }
+   mIsEnabled = TRUE;
+   mQueueLen = 0;
+   return ret;
 }
 
 OsStatus MpodOSS::disableDevice()
 {
-    OsStatus ret;
-    
-    // If the device is not valid, let the user know it's bad.
-    if (!isDeviceValid())
-    {
-        return OS_INVALID_STATE;
-    }
-    if (!isEnabled())
-    {
-        return OS_FAILED;
-    }
-    ret = pDevWrapper->detachWriter();
-    if (ret != OS_SUCCESS) 
-    {
-        return ret;
-    }
-    freeBuffers();
-    mIsEnabled = FALSE; 
-    
-    return ret;
+   OsStatus ret;
+
+   // If the device is not valid, let the user know it's bad.
+   if (!isDeviceValid())
+   {
+      return OS_INVALID_STATE;
+   }
+   if (!isEnabled())
+   {
+      return OS_FAILED;
+   }
+   ret = pDevWrapper->detachWriter();
+   if (ret != OS_SUCCESS)
+   {
+      return ret;
+   }
+   freeBuffers();
+   mIsEnabled = FALSE;
+
+   return ret;
 }
 
-OsStatus MpodOSS::pushFrame(unsigned int numSamples, 
+OsStatus MpodOSS::pushFrame(unsigned int numSamples,
                                                 MpAudioSample* samples)
 {
-    if (!isEnabled()) 
-        return OS_FAILED;
+   if (!isEnabled())
+      return OS_FAILED;
 
-    OsStatus status = OS_FAILED;
-    // Currently only full frame supported
-    assert(numSamples == mSamplesPerFrame);
+   OsStatus status = OS_FAILED;
+   // Currently only full frame supported
+   assert(numSamples == mSamplesPerFrame);
 
 
-    RTL_BLOCK("MpodOSS::pushFrame");
-    int res = sem_wait(&mPushPopSem);
-    int doSignal = 0;
-    assert (res != -1);
-    do 
-    { 
-        if (((mCurBuff + 1 ) == mLastReceived) ||
-            ((mCurBuff + 1  == mNumInBuffers) && (mLastReceived == 0)))
-        {
-            //Overwritting existing buffer
-            //Need more buffs
-            OsSysLog::add(FAC_MP, PRI_DEBUG,
-                    "OSS: MpodOSS out buffer is overflowing\n");
-            
-            status = OS_LIMIT_REACHED;
-            break;
-        }
-        MpAudioSample* buff = (MpAudioSample*)(mpWaveBuffers + 
-                        mCurBuff * mSamplesPerFrame * sizeof(MpAudioSample) * 
-                        (OSS_SOUND_STEREO ? 2 : 1));
-        mCurBuff++;
-        if (mCurBuff == mNumInBuffers)
-        {
-            mCurBuff = 0;
-        }
-        memcpy(buff, samples, numSamples * sizeof(MpAudioSample) * 
-                        (OSS_SOUND_STEREO ? 2 : 1));
-        
-        mCurrentFrameTime += getFramePeriod();
-        doSignal = 1;
-        mQueueLen ++;
-        RTL_EVENT("MpodOSS::queue", mQueueLen);
+   RTL_BLOCK("MpodOSS::pushFrame");
+   int res = sem_wait(&mPushPopSem);
+   int doSignal = 0;
+   assert (res != -1);
+   do
+   {
+      if (((mCurBuff + 1 ) == mLastReceived) ||
+         ((mCurBuff + 1  == mNumInBuffers) && (mLastReceived == 0)))
+      {
+         //Overwriting existing buffer
+         //Need more buffs
+         OsSysLog::add(FAC_MP, PRI_DEBUG,
+            "OSS: MpodOSS out buffer is overflowing\n");
 
-        status = OS_SUCCESS;
-    } while (FALSE);
-    res = sem_post(&mPushPopSem);
-    assert (res != -1);
-    
-    if (doSignal)
-    {
-        res = pthread_cond_signal(&pDevWrapper->mNewQueueFrame);
-        assert (res != -1);
-    }
-    
-    return status;
+         status = OS_LIMIT_REACHED;
+         break;
+      }
+      MpAudioSample* buff = (MpAudioSample*)(mpWaveBuffers +
+                            mCurBuff * mSamplesPerFrame * sizeof(MpAudioSample) *
+                            (OSS_SOUND_STEREO ? 2 : 1));
+      mCurBuff++;
+      if (mCurBuff == mNumInBuffers)
+      {
+         mCurBuff = 0;
+      }
+      memcpy(buff, samples,
+             numSamples * sizeof(MpAudioSample) * (OSS_SOUND_STEREO ? 2 : 1));
+
+      mCurrentFrameTime += getFramePeriod();
+      doSignal = 1;
+      mQueueLen ++;
+      RTL_EVENT("MpodOSS::queue", mQueueLen);
+
+      status = OS_SUCCESS;
+   } while (FALSE);
+   res = sem_post(&mPushPopSem);
+   assert (res != -1);
+
+   if (doSignal)
+   {
+      res = pthread_cond_signal(&pDevWrapper->mNewQueueFrame);
+      assert (res != -1);
+   }
+
+   return status;
 }
 
 OsStatus MpodOSS::setTickerNotification(OsNotification *pFrameTicker)
 {
-    if (!isDeviceValid())
-    {
-        return OS_FAILED;
-    }
-    pNotificator = pFrameTicker;
-    return OS_SUCCESS;
+   if (!isDeviceValid())
+   {
+      return OS_FAILED;
+   }
+   pNotificator = pFrameTicker;
+   return OS_SUCCESS;
 }
 
 /* ============================ ACCESSORS ================================= */
 UtlBoolean MpodOSS::isFrameTickerSupported() const
 {
-    return TRUE;
+   return TRUE;
 }
 
 /* ============================ INQUIRY =================================== */
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 OsStatus MpodOSS::initBuffers()
 {
-    int total_size = mNumInBuffers * mSamplesPerFrame * sizeof(MpAudioSample) * 
-                        (OSS_SOUND_STEREO ? 2 : 1);
+   int total_size = mNumInBuffers * mSamplesPerFrame * sizeof(MpAudioSample) *
+                    (OSS_SOUND_STEREO ? 2 : 1);
 
-    mpWaveBuffers = new char[total_size];
-    if (mpWaveBuffers != NULL) 
-    {
-        mCurBuff = 0;
-        mLastReceived = 0;
-        return OS_SUCCESS;
-    } else {
-        mCurBuff = -1;
-        mLastReceived = -1;
-    }
-    return OS_FAILED;
+   mpWaveBuffers = new char[total_size];
+   if (mpWaveBuffers != NULL)
+   {
+      mCurBuff = 0;
+      mLastReceived = 0;
+      return OS_SUCCESS;
+   } else {
+      mCurBuff = -1;
+      mLastReceived = -1;
+   }
+   return OS_FAILED;
 }
 
 void MpodOSS::freeBuffers()
 {
-    int res = sem_wait(&mPushPopSem);
-    assert (res != -1);
-    
-    delete[] mpWaveBuffers;
-    mCurBuff = -1;
-    mpWaveBuffers = NULL;
-    
-    res = sem_post(&mPushPopSem);
-    assert (res != -1);
+   int res = sem_wait(&mPushPopSem);
+   assert (res != -1);
+
+   delete[] mpWaveBuffers;
+   mCurBuff = -1;
+   mpWaveBuffers = NULL;
+
+   res = sem_post(&mPushPopSem);
+   assert (res != -1);
 }
 
 MpAudioSample* MpodOSS::popFrame(unsigned& size)
 {
-    MpAudioSample* ret = NULL;
-    if (!isEnabled()) 
-        return ret;
-    
-    int res = sem_wait(&mPushPopSem);
-    assert (res != -1);
-    do
-    {
-        if (mLastReceived == mCurBuff) 
-        {
-            //No data stored in buffer
-            break;
-        }
-        unsigned sampleSize = mSamplesPerFrame * sizeof(MpAudioSample) * 
-                           (OSS_SOUND_STEREO ? 2 : 1);
-        ret = (MpAudioSample*)(mpWaveBuffers + 
-                           mLastReceived * sampleSize);
-        
-        mLastReceived++;
-        if (mLastReceived == mNumInBuffers) 
-        {
-            mLastReceived = 0;
-        }
-        size = sampleSize;
-        mQueueLen --;
-        RTL_EVENT("MpodOSS::queue", mQueueLen);
-    } while (FALSE);
-    res = sem_post(&mPushPopSem);
-    assert (res != -1);
-    
-    return ret;
+   MpAudioSample* ret = NULL;
+   if (!isEnabled())
+      return ret;
+
+   int res = sem_wait(&mPushPopSem);
+   assert (res != -1);
+   do
+   {
+      if (mLastReceived == mCurBuff)
+      {
+         //No data stored in buffer
+         break;
+      }
+      unsigned sampleSize = mSamplesPerFrame * sizeof(MpAudioSample) *
+                            (OSS_SOUND_STEREO ? 2 : 1);
+      ret = (MpAudioSample*)(mpWaveBuffers +
+         mLastReceived * sampleSize);
+
+      mLastReceived++;
+      if (mLastReceived == mNumInBuffers)
+      {
+         mLastReceived = 0;
+      }
+      size = sampleSize;
+      mQueueLen --;
+      RTL_EVENT("MpodOSS::queue", mQueueLen);
+   } while (FALSE);
+   res = sem_post(&mPushPopSem);
+   assert (res != -1);
+
+   return ret;
 }
 
 OsStatus MpodOSS::signalForNextFrame()
 {
-    OsStatus ret = OS_FAILED;
+   OsStatus ret = OS_FAILED;
 
-    if (!isNotificationNeeded())
-        return ret;
+   if (!isNotificationNeeded())
+      return ret;
 
-    ret = pNotificator->signal(mCurrentFrameTime);
-    return ret;
+   ret = pNotificator->signal(mCurrentFrameTime);
+   return ret;
 }
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
