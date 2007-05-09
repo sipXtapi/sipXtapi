@@ -226,7 +226,7 @@ private:
    OsNotification* mpNotify;
 
      /// @brief Convert generic audio data into flowgraph audio data.
-   static OsStatus MprFromFile::genericAudioBufToFGAudioBuf(
+   static OsStatus genericAudioBufToFGAudioBuf(
                                              UtlString*& fgAudioBuf,
                                              const char* audioBuffer, 
                                              unsigned long bufSize, 
@@ -249,9 +249,9 @@ private:
      */
 
      /// Read in an audio file into a new UtlString audio buffer.
-   static OsStatus MprFromFile::readAudioFile(UtlString*& audioBuffer,
-                                              const char* audioFileName,
-                                              OsNotification* notify);
+   static OsStatus readAudioFile(UtlString*& audioBuffer,
+                                 const char* audioFileName,
+                                 OsNotification* notify);
      /**<
      *  @param audioBuffer - a reference to a pointer that will be filled
      *   with a new buffer holding the audio data.  Ownership will then
