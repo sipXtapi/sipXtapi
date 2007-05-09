@@ -156,21 +156,6 @@ void destroyCallData(SIPX_CALL_DATA* pData)
 }
 
 // jaro: CHECKED
-static void destroyLineData(SIPX_LINE_DATA* pData)
-{
-   if (pData)
-   {
-      delete pData->pMutex;
-      pData->pMutex = NULL;
-      delete pData->lineURI;
-      pData->lineURI = NULL;
-      delete pData->pLineAliases;
-      pData->pLineAliases = NULL;
-      delete pData;
-   }
-}
-
-// jaro: CHECKED
 static SIPX_LINE_DATA* createLineData(SIPX_INSTANCE_DATA* pInst, const Url& uri)
 {
    SIPX_LINE_DATA* pData = new SIPX_LINE_DATA();
