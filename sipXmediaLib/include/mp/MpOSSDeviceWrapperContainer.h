@@ -85,7 +85,7 @@ protected:
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-   OsMutex mMutex;      ///< Internal syncronization mutex
+   OsMutex mMutex;      ///< Internal synchronization mutex
 };
 
 /* ============================ INLINE METHODS ============================ */
