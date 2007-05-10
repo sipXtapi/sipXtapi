@@ -63,7 +63,7 @@ public:
 
     virtual ~MpSineWaveGeneratorServer()
     {
-        OsSysLog::add(FAC_MP, PRI_DEBUG,"~MpSineWaveGeneratorServer start\n");
+        OsSysLog::add(FAC_MP, PRI_DEBUG,"~MpSineWaveGeneratorServer start");
 
         // Do not continue until the task is safely shutdown
         waitUntilShutDown();
@@ -74,12 +74,12 @@ public:
             delete mpFrameData;
             mpFrameData = NULL;
         }
-        OsSysLog::add(FAC_MP, PRI_DEBUG,"~MpSineWaveGeneratorServer end\n");
+        OsSysLog::add(FAC_MP, PRI_DEBUG,"~MpSineWaveGeneratorServer end");
     };
 
     virtual UtlBoolean start(void)
     {
-        OsSysLog::add(FAC_MP, PRI_DEBUG,"MpSineWaveGeneratorServer::start start\n");
+        OsSysLog::add(FAC_MP, PRI_DEBUG,"MpSineWaveGeneratorServer::start start");
         // start the task
         UtlBoolean result = OsServerTask::start();
 
@@ -92,19 +92,19 @@ public:
         // Start re-occurring timer which causes handleMessage to be called
         // periodically
         mTimer.periodicEvery(noDelay, framePeriod);
-        OsSysLog::add(FAC_MP, PRI_DEBUG,"MpSineWaveGeneratorServer::start end\n");
+        OsSysLog::add(FAC_MP, PRI_DEBUG,"MpSineWaveGeneratorServer::start end");
         return(result);
     };
 
     virtual void requestShutdown(void)
     {
-        OsSysLog::add(FAC_MP, PRI_DEBUG,"MpSineWaveGeneratorServer::requestShutdown start\n");
+        OsSysLog::add(FAC_MP, PRI_DEBUG,"MpSineWaveGeneratorServer::requestShutdown start");
         // Stop the timer first so it stops queuing messages
         mTimer.stop();
 
         // Then stop the server task
         OsServerTask::requestShutdown();
-        OsSysLog::add(FAC_MP, PRI_DEBUG,"MpSineWaveGeneratorServer::requestShutdown end\n");
+        OsSysLog::add(FAC_MP, PRI_DEBUG,"MpSineWaveGeneratorServer::requestShutdown end");
     };
 
     UtlBoolean handleMessage(OsMsg& rMsg)
@@ -170,13 +170,13 @@ mpReaderTask(NULL)
 // Destructor
 MpSineWaveGeneratorDeviceDriver::~MpSineWaveGeneratorDeviceDriver()
 {
-    OsSysLog::add(FAC_MP, PRI_DEBUG,"~MpSineWaveGeneratorDeviceDriver start\n");
+    OsSysLog::add(FAC_MP, PRI_DEBUG,"~MpSineWaveGeneratorDeviceDriver start");
     if(mpReaderTask)
     {
         OsStatus stat = disableDevice();
         assert(stat == OS_SUCCESS);
     }
-    OsSysLog::add(FAC_MP, PRI_DEBUG,"~MpSineWaveGeneratorDeviceDriver end\n");
+    OsSysLog::add(FAC_MP, PRI_DEBUG,"~MpSineWaveGeneratorDeviceDriver end");
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -185,7 +185,7 @@ OsStatus MpSineWaveGeneratorDeviceDriver::enableDevice(unsigned samplesPerFrame,
                                                       unsigned samplesPerSec,
                                                       MpFrameTime currentFrameTime)
 {
-    OsSysLog::add(FAC_MP, PRI_DEBUG,"MpSineWaveGeneratorDeviceDriver::enableDevice start\n");
+    OsSysLog::add(FAC_MP, PRI_DEBUG,"MpSineWaveGeneratorDeviceDriver::enableDevice start");
     OsStatus result = OS_INVALID;
     assert(mpReaderTask == NULL);
 
@@ -208,13 +208,13 @@ OsStatus MpSineWaveGeneratorDeviceDriver::enableDevice(unsigned samplesPerFrame,
 
         }
     }
-    OsSysLog::add(FAC_MP, PRI_DEBUG,"MpSineWaveGeneratorDeviceDriver::enableDevice end\n");
+    OsSysLog::add(FAC_MP, PRI_DEBUG,"MpSineWaveGeneratorDeviceDriver::enableDevice end");
     return(result);
 }
 
 OsStatus MpSineWaveGeneratorDeviceDriver::disableDevice()
 {
-    OsSysLog::add(FAC_MP, PRI_DEBUG,"MpSineWaveGeneratorDeviceDriver::disableDevice start\n");
+    OsSysLog::add(FAC_MP, PRI_DEBUG,"MpSineWaveGeneratorDeviceDriver::disableDevice start");
     OsStatus result = OS_TASK_NOT_STARTED;
     //assert(mpReaderTask);
 
@@ -226,7 +226,7 @@ OsStatus MpSineWaveGeneratorDeviceDriver::disableDevice()
         result = OS_SUCCESS;
         mIsEnabled = FALSE;
     }
-    OsSysLog::add(FAC_MP, PRI_DEBUG,"MpSineWaveGeneratorDeviceDriver::disableDevice end\n");
+    OsSysLog::add(FAC_MP, PRI_DEBUG,"MpSineWaveGeneratorDeviceDriver::disableDevice end");
     return(result);
 }
 
