@@ -46,6 +46,7 @@
 // OS-specific device drivers
 #ifdef __pingtel_on_posix__ // [
 #  define USE_OSS_INPUT_DRIVER
+#  define USE_OSS_OUTPUT_DRIVER
 #endif // __pingtel_on_posix__ ]
 #ifdef WIN32 // [
 #  define USE_WNT_INPUT_DRIVER
@@ -61,22 +62,12 @@
 #  include <mp/MpidOSS.h>
 #endif // __pingtel_on_posix__ ]
 
-#ifdef USE_TEST_OUTPUT_DRIVER // USE_TEST_DRIVER [
-#include <mp/MpodBufferRecorder.h>
-#define OUTPUT_DRIVER MpodBufferRecorder
-#define OUTPUT_DRIVER_CONSTRUCTOR_PARAMS "BufferRecorder", TEST_TIME_MS
-
-#elif defined(WIN32) // USE_TEST_DRIVER ][ WIN32
-#error No output driver for Windows exist!
-
-#elif defined(__pingtel_on_posix__) // WIN32 ][ __pingtel_on_posix__
-#include <mp/MpodOSS.h>
-#define OUTPUT_DRIVER MpodOSS
-#define OUTPUT_DRIVER_CONSTRUCTOR_PARAMS "/dev/dsp"
-
-#else // __pingtel_on_possix__ ]
-#error Unknown platform!
-#endif
+#ifdef USE_TEST_OUTPUT_DRIVER // [
+#  include <mp/MpodBufferRecorder.h>
+#endif // USE_TEST_OUTPUT_DRIVER ]
+#ifdef __pingtel_on_posix__ // [
+#  include <mp/MpodOSS.h>
+#endif // __pingtel_on_posix__ ]
 
 
 ///  Unit test for MprSplitter
@@ -88,6 +79,7 @@ class MpInputOutputFrameworkTest : public CppUnit::TestCase
 
 public:
 
+   // This function will be called before every test to setup framework.
    void setUp()
    {
       // Setup media task
@@ -124,8 +116,11 @@ public:
       createTestInputDriver();
       createWntInputDrivers();
       createOSSInputDrivers();
+      createTestOutputDriver();
+      createOSSOutputDrivers();
    }
 
+   // This function will be called after every test to clean up framework.
    void tearDown()
    {
       // This should normally be done by haltFramework, but if we aborted due
@@ -142,10 +137,25 @@ public:
          mpFlowGraph->processNextFrame();
       }
 
+#ifdef xUSE_TEST_OUTPUT_DRIVER // [
+      OsFile::openAndWrite("capture.raw",
+                           (const char*)sinkDevice.getBufferData(),
+                           sinkDevice.getBufferLength()*sizeof(MpAudioSample));
+#endif // USE_TEST_OUTPUT_DRIVER ]
+
       // Free all input device drivers
       for (; mInputDeviceNumber>0; mInputDeviceNumber--)
       {
          MpInputDeviceDriver *pDriver = mpInputDeviceManager->removeDevice(mInputDeviceNumber);
+         CPPUNIT_ASSERT(pDriver != NULL);
+         CPPUNIT_ASSERT(!pDriver->isEnabled());
+         delete pDriver;
+      }
+
+      // Free all output device drivers
+      for (; mOutputDeviceNumber>0; mOutputDeviceNumber--)
+      {
+         MpOutputDeviceDriver *pDriver = mpOutputDeviceManager->removeDevice(mOutputDeviceNumber);
          CPPUNIT_ASSERT(pDriver != NULL);
          CPPUNIT_ASSERT(!pDriver->isEnabled());
          delete pDriver;
@@ -182,11 +192,10 @@ public:
                            mpInputDeviceManager->getDeviceId("SineGenerator",
                                                              sourceDeviceId));
 
-      // Create sink (output) device and add it to manager.
-      OUTPUT_DRIVER sinkDevice(OUTPUT_DRIVER_CONSTRUCTOR_PARAMS);
-      MpOutputDeviceHandle  sinkDeviceId = mpOutputDeviceManager->addDevice(&sinkDevice);
-      CPPUNIT_ASSERT(sinkDeviceId > 0);
-      CPPUNIT_ASSERT(!mpOutputDeviceManager->isDeviceEnabled(sinkDeviceId));
+      MpOutputDeviceHandle  sinkDeviceId = 0;
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                           mpOutputDeviceManager->getDeviceId("BufferRecorder",
+                                                              sinkDeviceId));
 
       // Create source (input) and sink (output) resources.
       MprFromInputDevice pSource("MprFromInputDevice",
@@ -245,12 +254,6 @@ public:
          CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, mpMediaTask->unmanageFlowGraph(*mpFlowGraph));
          MpMediaTask::signalFrameStart();
 
-#ifdef USE_TEST_OUTPUT_DRIVER // [
-         OsFile::openAndWrite("capture.raw",
-                              (const char*)sinkDevice.getBufferData(),
-                              sinkDevice.getBufferLength()*sizeof(MpAudioSample));
-#endif // USE_TEST_OUTPUT_DRIVER ]
-
          // Disable devices
          CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
                               mpInputDeviceManager->disableDevice(sourceDeviceId));
@@ -277,12 +280,6 @@ public:
          throw(e);
       }
 
-      // Remove devices from managers.
-//      CPPUNIT_ASSERT_EQUAL((MpInputDeviceDriver*)&sourceDevice,
-//                           mpInputDeviceManager->removeDevice(sourceDeviceId));
-      CPPUNIT_ASSERT_EQUAL((MpOutputDeviceDriver*)&sinkDevice,
-                           mpOutputDeviceManager->removeDevice(sinkDeviceId));
-
 #ifdef RTL_ENABLED
       RTL_WRITE("testShortCircuit.rtl");
 #endif
@@ -293,11 +290,13 @@ protected:
    MpFlowGraphBase  *mpFlowGraph; ///< Flowgraph for our fromInputDevice and
                                   ///< toOutputDevice resources.
    MpMediaTask *mpMediaTask;      ///< Pointer to media task instance.
-   MpInputDeviceManager *mpInputDeviceManager;   ///< Manager for input devices.
+   MpInputDeviceManager  *mpInputDeviceManager;  ///< Manager for input devices.
    MpOutputDeviceManager *mpOutputDeviceManager; ///< Manager for output devices.
    unsigned     mInputDeviceNumber;
    unsigned     mOutputDeviceNumber;
 
+
+   /// Add passed device to input device manager.
    void manageInputDevice(MpInputDeviceDriver *pDriver)
    {
       // Add driver to manager
@@ -307,6 +306,18 @@ protected:
 
       // Driver is successfully added
       mInputDeviceNumber++;
+   }
+
+     /// Add passed device to output device manager.
+   void manageOutputDevice(MpOutputDeviceDriver *pDriver)
+   {
+      // Add driver to manager
+      MpOutputDeviceHandle deviceId = mpOutputDeviceManager->addDevice(pDriver);
+      CPPUNIT_ASSERT(deviceId > 0);
+      CPPUNIT_ASSERT(!mpOutputDeviceManager->isDeviceEnabled(deviceId));
+
+      // Driver is successfully added
+      mOutputDeviceNumber++;
    }
 
    void createTestInputDriver()
@@ -347,6 +358,31 @@ protected:
       // Add driver to manager
       manageInputDevice(pDriver);
 #endif // USE_OSS_INPUT_DRIVER ]
+   }
+
+   void createTestOutputDriver()
+   {
+#ifdef USE_TEST_OUTPUT_DRIVER // [
+      // Create driver
+      MpodBufferRecorder *pDriver = new MpodBufferRecorder("BufferRecorder",
+                                                           TEST_TIME_MS);
+      CPPUNIT_ASSERT(pDriver != NULL);
+
+      // Add driver to manager
+      manageOutputDevice(pDriver);
+#endif // USE_TEST_OUTPUT_DRIVER ]
+   }
+
+   void createOSSOutputDrivers()
+   {
+#ifdef USE_OSS_OUTPUT_DRIVER // [
+      // Create driver
+      MpodOSS *pDriver = new MpodOSS("/dev/dsp");
+      CPPUNIT_ASSERT(pDriver != NULL);
+
+      // Add driver to manager
+      manageOutputDevice(pDriver);
+#endif // USE_OSS_OUTPUT_DRIVER ]
    }
 
 };
