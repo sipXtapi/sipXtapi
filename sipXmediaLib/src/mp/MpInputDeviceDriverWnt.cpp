@@ -68,6 +68,10 @@ MpInputDeviceDriverWnt::MpInputDeviceDriverWnt(const UtlString& name,
     // buffer size (#samplesPerFrame) until then.
     mpWaveHeaders = new WAVEHDR[mNumInBuffers];
     mpWaveBuffers = new LPSTR[mNumInBuffers];
+    for (i = 0; i < mNumInBuffers; i++)
+    {
+        mpWaveBuffers[i] = NULL;
+    }
 }
 
 // Destructor
