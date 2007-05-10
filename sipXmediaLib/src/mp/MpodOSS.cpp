@@ -84,28 +84,18 @@ MpodOSS::MpodOSS(const UtlString& name,
       pDevWrapper = NULL;
    }
 #endif
-   if (pDevWrapper)
-   {
-      OsStatus res = pDevWrapper->setOutputDevice(this);
-      if (res != OS_SUCCESS)
-      {
-         pDevWrapper = NULL;
-      }
-      else if (!pDevWrapper->mbWriteCap)
-      {
-         //Device dosen't support output
-         pDevWrapper->freeOutputDevice();
-         pDevWrapper = NULL;
-      }
-   }
 }
 
 MpodOSS::~MpodOSS()
 {
+    /*
    if (isDeviceValid())
    {
       pDevWrapper->freeOutputDevice();
-   }
+   }*/
+
+   // OSS Device must be freed
+   assert (!isDeviceValid());
 
    if (mpCont != NULL)
    {
@@ -128,19 +118,35 @@ OsStatus MpodOSS::setNotificationMode(UtlBoolean bThreadNotification)
 }
 
 OsStatus MpodOSS::enableDevice(unsigned samplesPerFrame,
-                          unsigned samplesPerSec,
-                          MpFrameTime currentFrameTime)
+                               unsigned samplesPerSec,
+                               MpFrameTime currentFrameTime)
 {
    OsStatus ret;
+   if (isEnabled())
+   {
+       return OS_FAILED;
+   }
+
+   //Opening OSS device
+   if (pDevWrapper)
+   {
+       OsStatus res = pDevWrapper->setOutputDevice(this);
+       if (res != OS_SUCCESS)
+       {
+           pDevWrapper = NULL;
+       }
+       else if (!pDevWrapper->mbWriteCap)
+       {
+           //Device dosen't support output
+           pDevWrapper->freeOutputDevice();
+           pDevWrapper = NULL;
+       }
+   }
 
    // If the device is not valid, let the user know it's bad.
    if (!isDeviceValid())
    {
       return OS_INVALID_STATE;
-   }
-   if (isEnabled())
-   {
-      return OS_FAILED;
    }
 
    // Set some wave header stat information.
@@ -167,16 +173,17 @@ OsStatus MpodOSS::enableDevice(unsigned samplesPerFrame,
 OsStatus MpodOSS::disableDevice()
 {
    OsStatus ret;
+   if (!isEnabled())
+   {
+       return OS_FAILED;
+   }
 
    // If the device is not valid, let the user know it's bad.
    if (!isDeviceValid())
    {
       return OS_INVALID_STATE;
    }
-   if (!isEnabled())
-   {
-      return OS_FAILED;
-   }
+
    ret = pDevWrapper->detachWriter();
    if (ret != OS_SUCCESS)
    {
@@ -185,11 +192,13 @@ OsStatus MpodOSS::disableDevice()
    freeBuffers();
    mIsEnabled = FALSE;
 
+   pDevWrapper->freeOutputDevice();   
+
    return ret;
 }
 
 OsStatus MpodOSS::pushFrame(unsigned int numSamples,
-                                                MpAudioSample* samples)
+                            MpAudioSample* samples)
 {
    if (!isEnabled())
       return OS_FAILED;
@@ -198,11 +207,13 @@ OsStatus MpodOSS::pushFrame(unsigned int numSamples,
    // Currently only full frame supported
    assert(numSamples == mSamplesPerFrame);
 
-
    RTL_BLOCK("MpodOSS::pushFrame");
+   
    int res = sem_wait(&mPushPopSem);
-   int doSignal = 0;
    assert (res != -1);
+
+   UtlBoolean doSignal = FALSE;
+   
    do
    {
       if (((mCurBuff + 1 ) == mLastReceived) ||
@@ -226,9 +237,9 @@ OsStatus MpodOSS::pushFrame(unsigned int numSamples,
       }
       memcpy(buff, samples,
              numSamples * sizeof(MpAudioSample) * (OSS_SOUND_STEREO ? 2 : 1));
-
       mCurrentFrameTime += getFramePeriod();
-      doSignal = 1;
+
+      doSignal = TRUE;
       mQueueLen ++;
       RTL_EVENT("MpodOSS::queue", mQueueLen);
 
@@ -247,11 +258,12 @@ OsStatus MpodOSS::pushFrame(unsigned int numSamples,
 }
 
 OsStatus MpodOSS::setTickerNotification(OsNotification *pFrameTicker)
-{
+{/*
    if (!isDeviceValid())
    {
       return OS_FAILED;
-   }
+   }*/
+
    pNotificator = pFrameTicker;
    return OS_SUCCESS;
 }
@@ -303,6 +315,7 @@ MpAudioSample* MpodOSS::popFrame(unsigned& size)
 
    int res = sem_wait(&mPushPopSem);
    assert (res != -1);
+
    do
    {
       if (mLastReceived == mCurBuff)
@@ -324,6 +337,7 @@ MpAudioSample* MpodOSS::popFrame(unsigned& size)
       mQueueLen --;
       RTL_EVENT("MpodOSS::queue", mQueueLen);
    } while (FALSE);
+
    res = sem_post(&mPushPopSem);
    assert (res != -1);
 

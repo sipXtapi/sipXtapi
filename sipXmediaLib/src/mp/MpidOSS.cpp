@@ -79,6 +79,31 @@ MpidOSS::MpidOSS(const UtlString& name,
       pDevWrapper = NULL;
    }
 #endif
+}
+
+MpidOSS::~MpidOSS()
+{/*
+   if (isDeviceValid())
+   {
+      pDevWrapper->freeInputDevice();
+   }
+*/
+   if (mpCont != NULL)
+   {
+      MpOSSDeviceWrapperContainer::releaseContainer(mpCont);
+   }
+}
+/* ============================ MANIPULATORS ============================== */
+OsStatus MpidOSS::enableDevice(unsigned samplesPerFrame,
+                               unsigned samplesPerSec,
+                               MpFrameTime currentFrameTime)
+{
+   OsStatus ret;
+   if (isEnabled())
+   {
+      return OS_FAILED;
+   }
+
    if (pDevWrapper)
    {
       OsStatus res = pDevWrapper->setInputDevice(this);
@@ -87,40 +112,16 @@ MpidOSS::MpidOSS(const UtlString& name,
       }
       else if (!pDevWrapper->mbReadCap)
       {
-         //Device dosen't support output
-         pDevWrapper->freeOutputDevice();
+         //Device dosen't support input
+         pDevWrapper->freeInputDevice();
          pDevWrapper = NULL;
       }
    }
-}
-
-MpidOSS::~MpidOSS()
-{
-   if (isDeviceValid())
-   {
-      pDevWrapper->freeInputDevice();
-   }
-
-   if (mpCont != NULL)
-   {
-      MpOSSDeviceWrapperContainer::releaseContainer(mpCont);
-   }
-}
-/* ============================ MANIPULATORS ============================== */
-OsStatus MpidOSS::enableDevice(unsigned samplesPerFrame,
-                          unsigned samplesPerSec,
-                          MpFrameTime currentFrameTime)
-{
-   OsStatus ret;
 
    // If the device is not valid, let the user know it's bad.
    if (!isDeviceValid())
    {
       return OS_INVALID_STATE;
-   }
-   if (isEnabled())
-   {
-      return OS_FAILED;
    }
 
    // Set some wave header stat information.
@@ -148,15 +149,16 @@ OsStatus MpidOSS::disableDevice()
 {
    OsStatus ret;
 
+   if (!isEnabled())
+   {
+      return OS_FAILED;
+   }
    // If the device is not valid, let the user know it's bad.
    if (!isDeviceValid())
    {
       return OS_INVALID_STATE;
    }
-   if (!isEnabled())
-   {
-      return OS_FAILED;
-   }
+
    ret = pDevWrapper->detachReader();
    if (ret != OS_SUCCESS)
    {
@@ -164,8 +166,9 @@ OsStatus MpidOSS::disableDevice()
    }
 
    freeBuffers();
-
    mIsEnabled = FALSE;
+
+   pDevWrapper->freeInputDevice();
 
    return ret;
 }
