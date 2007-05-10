@@ -400,8 +400,8 @@ int MpInputDeviceManager::addDevice(MpInputDeviceDriver& newDevice)
    // Map by device name string
    UtlInt* idValue = new UtlInt(newDeviceId);
    OsSysLog::add(FAC_MP, PRI_DEBUG,
-                 "MpInputDeviceManager::addDevice dev: %p value: %p id: %d\n", 
-                 &newDevice, idValue, newDeviceId);
+                 "MpInputDeviceManager::addDevice dev: %s id: %d", 
+                 newDevice.data(), newDeviceId);
    mConnectionsByDeviceName.insertKeyAndValue(&newDevice, idValue);
 
    // Map by device ID
@@ -468,9 +468,8 @@ MpInputDeviceDriver* MpInputDeviceManager::removeDevice(MpInputDeviceHandle devi
       if (deviceIdInt)
       {
          OsSysLog::add(FAC_MP, PRI_DEBUG,
-                       "MpInputDeviceManager::removeDevice dev: %p int: %p id: %d\n", 
-                       deviceDriver, deviceIdInt, 
-                       deviceIdInt->getValue());
+                       "MpInputDeviceManager::removeDevice dev: %s id: %d",
+                       deviceDriver->data(), deviceIdInt->getValue());
          delete deviceIdInt;
          deviceIdInt = NULL;
       }

@@ -80,8 +80,8 @@ int MpOutputDeviceManager::addDevice(MpOutputDeviceDriver *newDevice)
    // Map by device name string
    UtlInt* idValue = new UtlInt(newDeviceId);
    OsSysLog::add(FAC_MP, PRI_DEBUG,
-                 "MpOutputDeviceManager::addDevice dev: %p value: %p id: %d\n", 
-                 newDevice, idValue, newDeviceId);
+                 "MpOutputDeviceManager::addDevice dev: %s id: %d", 
+                 newDevice->data(), newDeviceId);
    mConnectionsByDeviceName.insertKeyAndValue(newDevice, idValue);
 
    // Map by device ID
@@ -116,6 +116,9 @@ MpOutputDeviceDriver* MpOutputDeviceManager::removeDevice(MpOutputDeviceHandle d
       mConnectionsByDeviceName.remove(deviceDriver);
       if (deviceIdInt)
       {
+         OsSysLog::add(FAC_MP, PRI_DEBUG,
+                       "MpOutputDeviceManager::removeDevice dev: %s id: %d", 
+                       deviceDriver->data(), deviceIdInt->getValue());
          delete deviceIdInt;
          deviceIdInt = NULL;
       }
