@@ -216,15 +216,15 @@ public:
 
       try {
 
-         // Set flowgraph ticker
-         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
-                              mpOutputDeviceManager->setFlowgraphTickerSource(sinkDeviceId));
-
          // Enable devices
          CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
                               mpInputDeviceManager->enableDevice(sourceDeviceId));
          CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
                               mpOutputDeviceManager->enableDevice(sinkDeviceId));
+
+         // Set flowgraph ticker
+         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                              mpOutputDeviceManager->setFlowgraphTickerSource(sinkDeviceId));
 
          // Enable resources
          CPPUNIT_ASSERT(pSource.enable());
