@@ -693,7 +693,7 @@ OsStatus MpInputDeviceManager::getDeviceId(const UtlString& deviceName,
 
    OsReadLock lock(mRwMutex);
 
-   UtlInt* deviceKey = (UtlInt*) mConnectionsByDeviceName.find(&deviceString);
+   UtlInt* deviceKey = (UtlInt*) mConnectionsByDeviceName.findValue(&deviceString);
 
    if (deviceKey != NULL)
    {
