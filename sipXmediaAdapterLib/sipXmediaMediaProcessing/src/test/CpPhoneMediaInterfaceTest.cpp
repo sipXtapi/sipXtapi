@@ -15,7 +15,6 @@
 #include <mi/CpMediaInterfaceFactory.h>
 #include <mi/CpMediaInterfaceFactoryFactory.h>
 #include <mi/CpMediaInterface.h>
-#include <mp/MprFromFile.h>
 #include <os/OsTask.h>
 #include <utl/UtlSList.h>
 #include <utl/UtlInt.h>
@@ -30,7 +29,7 @@
 #  include <rtl_macro.h>
    RTL_DECLARE
 #else
-#  define RTL_EVENT
+#  define RTL_EVENT(x)
 #endif
 
 class StoreSignalNotification : public OsNotification
@@ -278,8 +277,6 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
            printf("%d ", evtData);
         }
         printf("\n");
-//        playAudNote.popLastEvent(evtData);
-//        CPPUNIT_ASSERT_EQUAL((int)MprFromFile::PLAY_FINISHED, evtData);
 
         mediaInterface->stopAudio() ;
         
