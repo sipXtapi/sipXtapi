@@ -83,6 +83,17 @@ OsNatAgentTask::~OsNatAgentTask()
         mTimerPool.destroy(pKey) ;        
         delete pTimer ;
     }
+
+    // Clear external binding list
+    OsWriteLock bindingLock(mExternalBindingMutex);
+
+    UtlSListIterator itor(mExternalBindingsList);
+    while (pKey = (UtlVoidPtr*)itor())
+    {
+       NAT_AGENT_EXTERNAL_CONTEXT* pContext = (NAT_AGENT_EXTERNAL_CONTEXT*)pKey->getValue();
+       mExternalBindingsList.destroy(pKey);
+       delete pContext;
+    }
 }
 
 
