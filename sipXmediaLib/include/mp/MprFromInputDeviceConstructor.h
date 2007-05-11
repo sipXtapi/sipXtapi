@@ -29,7 +29,8 @@
 // FORWARD DECLARATIONS
 
 /**
-*  @brief MprFromInputDeviceConstructor is used to contruct a FromInputDevice resource
+*  @brief MprFromInputDeviceConstructor is used to construct a FromInputDevice
+*         resource.
 *
 */
 class MprFromInputDeviceConstructor : public MpAudioResourceConstructor
@@ -39,11 +40,10 @@ public:
 
 /* ============================ CREATORS ================================== */
 
-    /** Constructor
-     */
+      /// Constructor
     MprFromInputDeviceConstructor(int samplesPerFrame = 80, 
-                           int samplesPerSecond = 8000) :
-      MpAudioResourceConstructor(DEFAULT_FROM_INPUT_DEVICE_RESOURCE_TYPE,
+                                  int samplesPerSecond = 8000)
+    : MpAudioResourceConstructor(DEFAULT_FROM_INPUT_DEVICE_RESOURCE_TYPE,
                                  0, //minInputs,
                                  1, //maxInputs,
                                  1, //minOutputs,
@@ -53,13 +53,12 @@ public:
     {
     };
 
-    /** Destructor
-     */
+      /// Destructor
     virtual ~MprFromInputDeviceConstructor(){};
 
 /* ============================ MANIPULATORS ============================== */
 
-    /// Create a new resource
+      /// Create a new resource
     virtual MpResource* newResource(const UtlString& resourceName)
     {
         assert(mSamplesPerFrame > 0);
@@ -82,13 +81,11 @@ protected:
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
 
-    /** Disabled copy constructor
-     */
+      /// Disable copy constructor
     MprFromInputDeviceConstructor(const MprFromInputDeviceConstructor& rMprFromInputDeviceConstructor);
 
 
-    /** Disable assignment operator
-     */
+      /// Disable assignment operator
     MprFromInputDeviceConstructor& operator=(const MprFromInputDeviceConstructor& rhs);
 
 };
