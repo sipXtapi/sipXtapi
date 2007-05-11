@@ -28,6 +28,7 @@
 class MpResourceTopology;
 class MpResourceFactory;
 class MpInputDeviceManager;
+class MpOutputDeviceManager;
 
 /** 
 *  @brief Subsystem manager and creator of CpTopologyGraphInterfaces
@@ -155,10 +156,11 @@ protected:
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
 
-    MpResourceTopology* mpInitialResourceTopology;
-    MpResourceFactory* mpResourceFactory;
-    MpResourceTopology* mpConnectionResourceTopology;
-    MpInputDeviceManager* mpInputDeviceManager;
+    MpResourceTopology    *mpInitialResourceTopology;
+    MpResourceFactory     *mpResourceFactory;
+    MpResourceTopology    *mpConnectionResourceTopology;
+    MpInputDeviceManager  *mpInputDeviceManager;
+    MpOutputDeviceManager *mpOutputDeviceManager;
 
 };
 

@@ -14,6 +14,7 @@
 
 // APPLICATION INCLUDES
 #include <mp/MpInputDeviceManager.h>
+#include <mp/MpOutputDeviceManager.h>
 #include <mp/MpMisc.h>
 #include <mp/MpResourceFactory.h>
 #include <mp/MpResourceTopology.h>
@@ -78,16 +79,23 @@ sipXmediaFactoryImpl(pConfigDb)
 
     assert(MpMisc.RawAudioPool);
     mpInputDeviceManager = 
-        new MpInputDeviceManager(80, // samples per frame
+        new MpInputDeviceManager(80,   // samples per frame
                                  8000, // samples per second
-                                 4, // number of buffered frames saved
+                                 4,    // number of buffered frames saved
                                  *MpMisc.RawAudioPool);
+
+    mpOutputDeviceManager = new MpOutputDeviceManager(80,   // samples per frame
+                                                      8000, // samples per second
+                                                      0);   // mixer buffer length (ms)
 }
 
 
 // Destructor
 CpTopologyGraphFactoryImpl::~CpTopologyGraphFactoryImpl()
 {
+   // Free input and output device managers.
+   delete mpInputDeviceManager;
+   delete mpOutputDeviceManager;
 }
 
 /* ============================ MANIPULATORS ============================== */
