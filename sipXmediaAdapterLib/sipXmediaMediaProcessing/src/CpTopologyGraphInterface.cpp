@@ -31,6 +31,7 @@
 #include <mp/MpRtpInputAudioConnection.h>
 #include <mp/MpRtpOutputAudioConnection.h>
 #include <mp/dtmflib.h>
+#include <mp/MpMediaTask.h>
 #include <include/CpTopologyGraphInterface.h>
 #include <include/CpTopologyGraphFactoryImpl.h>
 
@@ -1458,12 +1459,30 @@ OsStatus CpTopologyGraphInterface::stopChannelTone(int connectionId)
 
 OsStatus CpTopologyGraphInterface::giveFocus()
 {
-    return OS_NOT_SUPPORTED;
+    if(mpTopologyGraph)
+    {
+        // Set the flow graph to have the focus
+        MpMediaTask* mediaTask = MpMediaTask::getMediaTask(0);
+        mediaTask->setFocus(mpTopologyGraph);
+   }
+
+   return OS_SUCCESS ;
 }
 
 OsStatus CpTopologyGraphInterface::defocus()
 {
-    return OS_NOT_SUPPORTED;
+   if(mpTopologyGraph)
+   {
+      MpMediaTask* mediaTask = MpMediaTask::getMediaTask(0);
+
+      // take focus away from the flow graph if it is focus
+      if (mpTopologyGraph == (MpTopologyGraph*) mediaTask->getFocus())
+      {
+         mediaTask->setFocus(NULL);
+      }
+   }
+
+   return OS_SUCCESS ;
 }
 
 
