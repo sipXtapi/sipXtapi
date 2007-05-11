@@ -169,11 +169,7 @@ public:
       delete mpFlowGraph;
       mpFlowGraph = NULL;
 
-      // Free media task
-      delete mpMediaTask;
-      mpMediaTask = NULL;
-
-      // Clear all Media Tasks data
+      // Clear all media processing data and delete MpMediaTask instance.
       CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, mpShutdown());
    }
 
