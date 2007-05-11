@@ -29,99 +29,125 @@ class MpResourceTopology;
 class MpResourceFactory;
 class MpInputDeviceManager;
 
-/** Subsystem manager and creator of CpTopologyGraphInterfaces specialization of CpMediaInterface
- *
- *  When createMediaInterface is invoked a new CpTopologyGraph (flowgraph)
- *  is constructed and used inside the CpTopologyGraphInterface (CpMediaInterface).
- *  The topology and types of the resources in the new flowgraph are determined
- *  by the MpResourceTopology last set via setInitialResourceTopology.  The
- *  specific resources are instantiated using the MpResourceFactory last set
- *  via setResourceFactory
- */
+/** 
+*  @brief Subsystem manager and creator of CpTopologyGraphInterfaces
+*         specialization of CpMediaInterface.
+*
+*  When createMediaInterface is invoked a new CpTopologyGraph (flowgraph)
+*  is constructed and used inside the CpTopologyGraphInterface (CpMediaInterface).
+*  The topology and types of the resources in the new flowgraph are determined
+*  by the MpResourceTopology last set via setInitialResourceTopology.  The
+*  specific resources are instantiated using the MpResourceFactory last set
+*  via setResourceFactory.
+*/
 class CpTopologyGraphFactoryImpl : public sipXmediaFactoryImpl
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
 /* ============================ CREATORS ================================== */
+///@name Creators
+//@{
 
-    //! Default constructor
+      /// Constructor.
     CpTopologyGraphFactoryImpl(OsConfigDb* pConfigDb);
      
 
-    //! Destructor
-    virtual ~CpTopologyGraphFactoryImpl();
+      /// Destructor.
+    virtual
+    ~CpTopologyGraphFactoryImpl();
+
+//@}
 
 /* ============================ MANIPULATORS ============================== */
+///@name Manipulators
+//@{
 
-    //! factory method to construct new flowgraph and media interface using CpTopologyFlowgraph
-    virtual CpMediaInterface* createMediaInterface(const char* publicAddress,
-                                                   const char* localAddress,
-                                                   int numCodecs,
-                                                   SdpCodec* sdpCodecArray[],
-                                                   const char* locale,
-                                                   int expeditedIpTos,
-                                                   const char* stunServer,
-                                                   int stunOptions,
-                                                   int stunKeepAliveSecs,
-                                                   const char* turnServer,
-                                                   int turnPort,
-                                                   const char* turnUserName,
-                                                   const char* turnPassword,
-                                                   int turnKeepAlivePeriodSecs,
-                                                   UtlBoolean enableIce);
+      /// @brief Factory method to construct new flowgraph and media interface
+      /// using CpTopologyFlowgraph.
+    virtual
+    CpMediaInterface* createMediaInterface(const char* publicAddress,
+                                           const char* localAddress,
+                                           int numCodecs,
+                                           SdpCodec* sdpCodecArray[],
+                                           const char* locale,
+                                           int expeditedIpTos,
+                                           const char* stunServer,
+                                           int stunOptions,
+                                           int stunKeepAliveSecs,
+                                           const char* turnServer,
+                                           int turnPort,
+                                           const char* turnUserName,
+                                           const char* turnPassword,
+                                           int turnKeepAlivePeriodSecs,
+                                           UtlBoolean enableIce);
 
     // For now inherit all of the modification methods from parent
-    // Eventially they will all need to be replaced with specific 
+    // Eventually they will all need to be replaced with specific 
     // implementations
 
+//@}
+
 /* ============================ ACCESSORS ================================= */
+///@name Accessors
+//@{
 
+      /// Set the resource topology to be used when creating new flowgraph.
+    virtual
+    void setInitialResourceTopology(MpResourceTopology& resourceTopology);
+      /**<
+      *  The given CpTopolgyGraph defines the topology and types of resources
+      *  that are instantiated in the new flowgraph.
+      */
 
-    //! Set the resource topology to be used when creating new flowgraph
-    /** The given CpTopolgyGraph defines the topology and types of resources
-     *  that are instantiated in the new flowgraph.
-     */
-    virtual void setInitialResourceTopology(MpResourceTopology& resourceTopology);
+      /// @brief Get the resource topology defining the resources connections
+      /// for a new flowgraph.
+    virtual
+    MpResourceTopology* getInitialResourceTopology() const;
 
-    /** Get the resource topology defining the resources connections for a new flowgraph.
-     */
-    virtual MpResourceTopology* getInitialResourceTopology() const;
+      /// Set the factory used to create resources for the new flowgraph contained .
+    virtual
+    void setResourceFactory(MpResourceFactory& resourceFactory);
 
-    //! Set the factory used to create resources for the new flowgraph contained 
-    virtual void setResourceFactory(MpResourceFactory& resourceFactory);
+      /// Get the factory for constructing new resources.
+    virtual
+    MpResourceFactory* getResourceFactory() const;
 
-    /** Get the factory for constructing new resources.
-     */
-    virtual MpResourceFactory* getResourceFactory() const;
+      /// @brief Set the resource topology to be added to the flow graph when
+      /// adding an RTP connection.
+    virtual
+    void setConnectionResourceTopology(MpResourceTopology& connectionTopology);
 
-    /** Set the resource topology to be added to the flow graph when adding an RTP connection
-     */
-    virtual void setConnectionResourceTopology(MpResourceTopology& connectionTopology);
-
-    /** Get the resource topology defining what resources get added when adding an RTP connection.
-     */
-    virtual MpResourceTopology* getConnectionResourceTopology() const;
+      /// @brief Get the resource topology defining what resources get added
+      /// when adding an RTP connection.
+    virtual
+    MpResourceTopology* getConnectionResourceTopology() const;
 
     MpInputDeviceManager* getInputDeviceManager() const;
 
     // For now inherit all of the accessors methods from parent
-    // Eventially they will all need to be replaced with specific 
+    // Eventually they will all need to be replaced with specific 
     // implementations
 
-    /** Build a resource factory with the default set of resource constructors
-     */
-    static MpResourceFactory* buildDefaultResourceFactory();
+//@}
 
-    /** Build a default initial resource topology
-     */
-    static MpResourceTopology* buildDefaultInitialResourceTopology();
+      /// Build a resource factory with the default set of resource constructors.
+    static
+    MpResourceFactory* buildDefaultResourceFactory();
 
-    /** Build a default incremental resource topology for RTP connections
-     */
-    static MpResourceTopology* buildDefaultIncrementalResourceTopology();
+      /// Build a default initial resource topology.
+    static
+    MpResourceTopology* buildDefaultInitialResourceTopology();
+
+      /// Build a default incremental resource topology for RTP connections.
+    static
+    MpResourceTopology* buildDefaultIncrementalResourceTopology();
 
 /* ============================ INQUIRY =================================== */
+///@name Inquiry
+//@{
+
+//@}
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
