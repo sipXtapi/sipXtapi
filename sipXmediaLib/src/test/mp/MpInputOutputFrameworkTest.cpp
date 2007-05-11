@@ -148,7 +148,6 @@ public:
       {
          MpInputDeviceDriver *pDriver = mpInputDeviceManager->removeDevice(mInputDeviceNumber);
          CPPUNIT_ASSERT(pDriver != NULL);
-         CPPUNIT_ASSERT(!pDriver->isEnabled());
          delete pDriver;
       }
 
@@ -157,7 +156,6 @@ public:
       {
          MpOutputDeviceDriver *pDriver = mpOutputDeviceManager->removeDevice(mOutputDeviceNumber);
          CPPUNIT_ASSERT(pDriver != NULL);
-         CPPUNIT_ASSERT(!pDriver->isEnabled());
          delete pDriver;
       }
 
@@ -226,24 +224,33 @@ public:
          CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
                               mpOutputDeviceManager->setFlowgraphTickerSource(sinkDeviceId));
 
-         // Enable resources
-         CPPUNIT_ASSERT(sourceResource.enable());
-         CPPUNIT_ASSERT(sinkResource.enable());
+         try {
+            // Enable resources
+            CPPUNIT_ASSERT(sourceResource.enable());
+            CPPUNIT_ASSERT(sinkResource.enable());
 
-         // Manage flowgraph with media task.
-         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, mpMediaTask->manageFlowGraph(*mpFlowGraph));
+            // Manage flowgraph with media task.
+            CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, mpMediaTask->manageFlowGraph(*mpFlowGraph));
 
-         // Start flowgraph
-         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, mpMediaTask->startFlowGraph(*mpFlowGraph));
+            // Start flowgraph
+            CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, mpMediaTask->startFlowGraph(*mpFlowGraph));
 
-         // Run test!
-         OsTask::delay(TEST_TIME_MS);
+            // Run test!
+            OsTask::delay(TEST_TIME_MS);
 
-         // Clear flowgraph ticker
-         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
-                              mpOutputDeviceManager->setFlowgraphTickerSource(MP_INVALID_OUTPUT_DEVICE_HANDLE));
+            // Clear flowgraph ticker
+            CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                                 mpOutputDeviceManager->setFlowgraphTickerSource(MP_INVALID_OUTPUT_DEVICE_HANDLE));
+         }
+         catch (CppUnit::Exception& e)
+         {
+            // Clear flowgraph ticker if assert failed.
+            CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                                 mpOutputDeviceManager->setFlowgraphTickerSource(MP_INVALID_OUTPUT_DEVICE_HANDLE));
 
-//         OsTask::delay(50);
+            // Rethrow exception.
+            throw(e);
+         }
 
          // Disable resources
          CPPUNIT_ASSERT(sourceResource.disable());
