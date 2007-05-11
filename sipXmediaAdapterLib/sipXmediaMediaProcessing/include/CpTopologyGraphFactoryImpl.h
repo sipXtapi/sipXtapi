@@ -126,15 +126,14 @@ public:
 
     MpInputDeviceManager* getInputDeviceManager() const;
 
+      /// Build a resource factory with the default set of resource constructors.
+    MpResourceFactory* buildDefaultResourceFactory();
+
     // For now inherit all of the accessors methods from parent
     // Eventually they will all need to be replaced with specific 
     // implementations
 
 //@}
-
-      /// Build a resource factory with the default set of resource constructors.
-    static
-    MpResourceFactory* buildDefaultResourceFactory();
 
       /// Build a default initial resource topology.
     static

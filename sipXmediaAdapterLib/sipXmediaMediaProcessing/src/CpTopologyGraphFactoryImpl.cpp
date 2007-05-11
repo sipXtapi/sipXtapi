@@ -30,6 +30,58 @@
 #include <mi/CpMediaInterfaceFactory.h>
 #include <include/CpTopologyGraphInterface.h>
 
+// REMOVE THIS when device enumerator/monitor would be implemented
+#define USE_DEVICE_ADD_HACK
+
+#ifdef USE_DEVICE_ADD_HACK // [
+
+//#define USE_TEST_INPUT_DRIVER
+//#define USE_TEST_OUTPUT_DRIVER
+#ifdef WIN32 // [
+#  define USE_TEST_OUTPUT_DRIVER
+#endif // WIN32 ]
+
+#ifdef USE_TEST_INPUT_DRIVER // USE_TEST_DRIVER [
+#  include <mp/MpSineWaveGeneratorDeviceDriver.h>
+#  define INPUT_DRIVER MpSineWaveGeneratorDeviceDriver
+#  define INPUT_DRIVER_CONSTRUCTOR_PARAMS(manager) "SineGenerator", (manager), 32000, 3000, 0
+
+#elif defined(WIN32) // USE_TEST_DRIVER ][ WIN32
+#  include <mp/MpInputDeviceDriverWnt.h>
+#  define INPUT_DRIVER MpInputDeviceDriverWnt
+#  define INPUT_DRIVER_CONSTRUCTOR_PARAMS(manager) "SoundMAX HD Audio", (manager)
+
+#elif defined(__pingtel_on_posix__) // WIN32 ][ __pingtel_on_posix__
+#  include <mp/MpidOSS.h>
+#  define INPUT_DRIVER MpidOSS
+#  define INPUT_DRIVER_CONSTRUCTOR_PARAMS(manager) "/dev/dsp", (manager)
+
+#else // __pingtel_on_possix__ ]
+#  error Unknown platform!
+#endif
+
+#ifdef USE_TEST_OUTPUT_DRIVER // USE_TEST_DRIVER [
+#  include <mp/MpodBufferRecorder.h>
+#  define OUTPUT_DRIVER MpodBufferRecorder
+#  define OUTPUT_DRIVER_CONSTRUCTOR_PARAMS "default", 60*1000*1000
+
+#  include <os/OsFS.h> // for OpenAndWrite() to write captured data.
+
+#elif defined(WIN32) // USE_TEST_DRIVER ][ WIN32
+#  error No output driver for Windows exist!
+
+#elif defined(__pingtel_on_posix__) // WIN32 ][ __pingtel_on_posix__
+#  include <mp/MpodOSS.h>
+#  define OUTPUT_DRIVER MpodOSS
+#  define OUTPUT_DRIVER_CONSTRUCTOR_PARAMS "/dev/dsp"
+
+#else // __pingtel_on_possix__ ]
+#  error Unknown platform!
+#endif
+
+#endif // USE_DEVICE_ADD_HACK ]
+
+
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
@@ -66,6 +118,37 @@ extern "C" CpMediaInterfaceFactory* sipXmediaFactoryFactory(OsConfigDb* pConfigD
 CpTopologyGraphFactoryImpl::CpTopologyGraphFactoryImpl(OsConfigDb* pConfigDb) :
 sipXmediaFactoryImpl(pConfigDb)
 {    
+    assert(MpMisc.RawAudioPool);
+    mpInputDeviceManager = 
+       new MpInputDeviceManager(80,   // samples per frame
+                                8000, // samples per second
+                                4,    // number of buffered frames
+                                *MpMisc.RawAudioPool);
+
+    mpOutputDeviceManager =
+       new MpOutputDeviceManager(80,   // samples per frame
+                                 8000, // samples per second
+                                 0);   // mixer buffer length (ms)
+
+#ifdef USE_DEVICE_ADD_HACK // [
+    // Create source (input) device and add it to manager.
+    INPUT_DRIVER *sourceDevice = new INPUT_DRIVER(INPUT_DRIVER_CONSTRUCTOR_PARAMS(*mpInputDeviceManager));
+    MpInputDeviceHandle  sourceDeviceId = mpInputDeviceManager->addDevice(*sourceDevice);
+    assert(sourceDeviceId > 0);
+
+    // Create sink (output) device and add it to manager.
+    OUTPUT_DRIVER *sinkDevice = new OUTPUT_DRIVER(OUTPUT_DRIVER_CONSTRUCTOR_PARAMS);
+    MpOutputDeviceHandle  sinkDeviceId = mpOutputDeviceManager->addDevice(sinkDevice);
+    assert(sinkDeviceId > 0);
+
+    // Enable devices
+    assert(mpInputDeviceManager->enableDevice(sourceDeviceId) == OS_SUCCESS);
+    assert(mpOutputDeviceManager->enableDevice(sinkDeviceId) == OS_SUCCESS);
+
+    // Set flowgraph ticker
+    assert(mpOutputDeviceManager->setFlowgraphTickerSource(sinkDeviceId) == OS_SUCCESS);
+#endif // USE_DEVICE_ADD_HACK ]
+
     mpInitialResourceTopology = buildDefaultInitialResourceTopology();
     mpResourceFactory = buildDefaultResourceFactory();
     int firstInvalidResourceIndex;
@@ -76,23 +159,33 @@ sipXmediaFactoryImpl(pConfigDb)
     assert(firstInvalidResourceIndex == -1);
 
     mpConnectionResourceTopology = buildDefaultIncrementalResourceTopology();
-
-    assert(MpMisc.RawAudioPool);
-    mpInputDeviceManager = 
-        new MpInputDeviceManager(80,   // samples per frame
-                                 8000, // samples per second
-                                 4,    // number of buffered frames saved
-                                 *MpMisc.RawAudioPool);
-
-    mpOutputDeviceManager = new MpOutputDeviceManager(80,   // samples per frame
-                                                      8000, // samples per second
-                                                      0);   // mixer buffer length (ms)
 }
 
 
 // Destructor
 CpTopologyGraphFactoryImpl::~CpTopologyGraphFactoryImpl()
 {
+#ifdef USE_DEVICE_ADD_HACK // [
+
+
+   // Clear flowgraph ticker
+   assert(mpOutputDeviceManager->setFlowgraphTickerSource(MP_INVALID_OUTPUT_DEVICE_HANDLE) == OS_SUCCESS);
+
+   // Disable devices
+   assert(mpInputDeviceManager->disableDevice(1) == OS_SUCCESS);
+   assert(mpOutputDeviceManager->disableDevice(1) == OS_SUCCESS);
+
+   // Free input device driver
+   MpInputDeviceDriver *pInDriver = mpInputDeviceManager->removeDevice(1);
+   assert(pInDriver != NULL);
+   delete pInDriver;
+
+   // Free output device driver
+   MpOutputDeviceDriver *pOutDriver = mpOutputDeviceManager->removeDevice(1);
+   assert(pOutDriver != NULL);
+   delete pOutDriver;
+#endif // USE_DEVICE_ADD_HACK ]
+
    // Free input and output device managers.
    delete mpInputDeviceManager;
    delete mpOutputDeviceManager;
@@ -141,10 +234,10 @@ MpResourceFactory* CpTopologyGraphFactoryImpl::buildDefaultResourceFactory()
         new MpResourceFactory();
 
     // Input device
-    resourceFactory->addConstructor(*(new MprFromInputDeviceConstructor()));
+    resourceFactory->addConstructor(*(new MprFromInputDeviceConstructor(mpInputDeviceManager)));
 
     // Output device
-    resourceFactory->addConstructor(*(new MprToOutputDeviceConstructor()));
+    resourceFactory->addConstructor(*(new MprToOutputDeviceConstructor(mpOutputDeviceManager)));
 
     // Tonegen
     resourceFactory->addConstructor(*(new MprToneGenConstructor()));

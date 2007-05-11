@@ -87,7 +87,27 @@ public:
 
 
      /// Extended processNextFrame() for diagnostic reasons.
-   virtual OsStatus processNextFrame(void);
+   virtual OsStatus processNextFrame();
+
+     /// Informs the flow graph that it now has the MpMediaTask focus.
+   virtual OsStatus gainFocus();
+     /**<
+     *  Only the flow graph that has the focus is permitted to access
+     *  the audio hardware.  This may only be called if this flow graph
+     *  is managed and started!
+     *
+     *  @returns  OS_SUCCESS, always
+     */
+
+     /// Informs the flow graph that it has lost the MpMediaTask focus.
+   virtual OsStatus loseFocus();
+     /**<
+     *  Only the flow graph that has the focus is permitted to access
+     *  the audio hardware.  This should only be called if this flow graph
+     *  is managed and started!
+     *
+     *  @returns  OS_SUCCESS, always
+     */
 
 //@}
 

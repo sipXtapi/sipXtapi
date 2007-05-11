@@ -16,8 +16,8 @@
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
 #include <mp/MpAudioResourceConstructor.h>
-//#include <mp/MprToOutputDevice.h>
-#include <mp/MprToSpkr.h>
+#include <mp/MprToOutputDevice.h>
+//#include <mp/MprToSpkr.h>
 
 // DEFINES
 // MACROS
@@ -27,9 +27,11 @@
 // STRUCTS
 // TYPEDEFS
 // FORWARD DECLARATIONS
+class MpOutputDeviceManager;
 
 /**
-*  @brief MprToOutputDeviceConstructor is used to contruct a ToOutputDevice resource
+*  @brief MprToOutputDeviceConstructor is used to construct a ToOutputDevice
+*         resource.
 *
 */
 class MprToOutputDeviceConstructor : public MpAudioResourceConstructor
@@ -39,38 +41,40 @@ public:
 
 /* ============================ CREATORS ================================== */
 
-    /** Constructor
-     */
-    MprToOutputDeviceConstructor(int samplesPerFrame = 80, 
-                           int samplesPerSecond = 8000) :
-      MpAudioResourceConstructor(DEFAULT_TO_OUTPUT_DEVICE_RESOURCE_TYPE,
+      /// Constructor
+    MprToOutputDeviceConstructor(MpOutputDeviceManager *defaultManager,
+                                 MpOutputDeviceHandle   defaultDriver = 1,
+                                 int samplesPerFrame = 80, 
+                                 int samplesPerSecond = 8000)
+    : MpAudioResourceConstructor(DEFAULT_TO_OUTPUT_DEVICE_RESOURCE_TYPE,
                                  0, //minInputs,
                                  1, //maxInputs,
                                  1, //minOutputs,
                                  1, //maxOutputs,
                                  samplesPerFrame,
                                  samplesPerSecond)
+    , mpDefaultManager(defaultManager)
+    , mDefaultDriver(defaultDriver)
     {
     };
 
-    /** Destructor
-     */
+      /// Destructor
     virtual ~MprToOutputDeviceConstructor(){};
 
 /* ============================ MANIPULATORS ============================== */
 
-    /// Create a new resource
+      /// Create a new resource
     virtual MpResource* newResource(const UtlString& resourceName)
     {
         assert(mSamplesPerFrame > 0);
         assert(mSamplesPerSecond > 0);
 
         // TODO: use MprToOutputDevice instead
-        return(new MprToSpkr(resourceName,
-                             mSamplesPerFrame,
-                             mSamplesPerSecond,
-                             MpMisc.pSpkQ,
-                             MpMisc.pEchoQ));
+        return(new MprToOutputDevice(resourceName,
+                                     mSamplesPerFrame,
+                                     mSamplesPerSecond,
+                                     mpDefaultManager,
+                                     mDefaultDriver));
     }
 
 /* ============================ ACCESSORS ================================= */
@@ -80,16 +84,19 @@ public:
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 
+   MpOutputDeviceManager *mpDefaultManager; ///< Manager that will be passed to
+                                            ///< newly created resources.
+   MpOutputDeviceHandle   mDefaultDriver;   ///< Device that will be used for
+                                            ///< newly created resources.
+
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
 
-    /** Disabled copy constructor
-     */
+      /// Disable copy constructor
     MprToOutputDeviceConstructor(const MprToOutputDeviceConstructor& rMprToOutputDeviceConstructor);
 
 
-    /** Disable assignment operator
-     */
+      /// Disable assignment operator
     MprToOutputDeviceConstructor& operator=(const MprToOutputDeviceConstructor& rhs);
 
 };

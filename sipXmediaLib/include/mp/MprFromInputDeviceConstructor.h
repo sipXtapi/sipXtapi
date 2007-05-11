@@ -16,8 +16,8 @@
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
 #include <mp/MpAudioResourceConstructor.h>
-//#include <mp/MprFromInputDevice.h>
-#include <mp/MprFromMic.h>
+#include <mp/MprFromInputDevice.h>
+//#include <mp/MprFromMic.h>
 
 // DEFINES
 // MACROS
@@ -27,6 +27,7 @@
 // STRUCTS
 // TYPEDEFS
 // FORWARD DECLARATIONS
+class MpInputDeviceManager;
 
 /**
 *  @brief MprFromInputDeviceConstructor is used to construct a FromInputDevice
@@ -41,7 +42,9 @@ public:
 /* ============================ CREATORS ================================== */
 
       /// Constructor
-    MprFromInputDeviceConstructor(int samplesPerFrame = 80, 
+    MprFromInputDeviceConstructor(MpInputDeviceManager *defaultManager,
+                                  MpInputDeviceHandle   defaultDriver = 1,
+                                  int samplesPerFrame = 80, 
                                   int samplesPerSecond = 8000)
     : MpAudioResourceConstructor(DEFAULT_FROM_INPUT_DEVICE_RESOURCE_TYPE,
                                  0, //minInputs,
@@ -50,6 +53,8 @@ public:
                                  1, //maxOutputs,
                                  samplesPerFrame,
                                  samplesPerSecond)
+    , mpDefaultManager(defaultManager)
+    , mDefaultDriver(defaultDriver)
     {
     };
 
@@ -65,10 +70,11 @@ public:
         assert(mSamplesPerSecond > 0);
 
         // TODO: use MprFromInputDevice instead
-        return(new MprFromMic(resourceName,
-                              mSamplesPerFrame,
-                              mSamplesPerSecond,
-                              MpMisc.pMicQ));
+        return(new MprFromInputDevice(resourceName,
+                                      mSamplesPerFrame,
+                                      mSamplesPerSecond,
+                                      mpDefaultManager,
+                                      mDefaultDriver));
     }
 
 /* ============================ ACCESSORS ================================= */
@@ -77,6 +83,11 @@ public:
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
+
+   MpInputDeviceManager *mpDefaultManager; ///< Manager that will be passed to
+                                           ///< newly created resources.
+   MpInputDeviceHandle   mDefaultDriver;   ///< Device that will be used for
+                                           ///< newly created resources.
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:

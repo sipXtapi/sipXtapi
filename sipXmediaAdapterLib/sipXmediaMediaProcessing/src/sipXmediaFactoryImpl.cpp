@@ -33,6 +33,10 @@ typedef int MpConnectionID;
 #include "rtcp/RTCManager.h"
 #endif /* INCLUDE_RTCP ] */
 
+#ifdef ENABLE_TOPOLOGY_FLOWGRAPH_INTERFACE_FACTORY
+#include "mp/NetInTask.h"
+#endif
+
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -182,7 +186,14 @@ sipXmediaFactoryImpl::sipXmediaFactoryImpl(OsConfigDb* pConfigDb)
 
     if (miInstanceCount == 0)
     {
+#ifndef ENABLE_TOPOLOGY_FLOWGRAPH_INTERFACE_FACTORY
         mpStartTasks();  
+#else
+        if (OS_SUCCESS != startNetInTask()) {
+           OsSysLog::add(FAC_MP, PRI_ERR,
+                         "Could not start NetInTask!!");
+        }
+#endif
     }
 
     miGain = 7 ;
