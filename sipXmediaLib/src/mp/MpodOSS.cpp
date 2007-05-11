@@ -192,7 +192,7 @@ OsStatus MpodOSS::disableDevice()
    freeBuffers();
    mIsEnabled = FALSE;
 
-   pDevWrapper->freeOutputDevice();   
+   pDevWrapper->freeOutputDevice();
 
    return ret;
 }
@@ -287,7 +287,9 @@ OsStatus MpodOSS::initBuffers()
       mCurBuff = 0;
       mLastReceived = 0;
       return OS_SUCCESS;
-   } else {
+   }
+   else
+   {
       mCurBuff = -1;
       mLastReceived = -1;
    }
@@ -354,6 +356,12 @@ OsStatus MpodOSS::signalForNextFrame()
    ret = pNotificator->signal(mCurrentFrameTime);
    return ret;
 }
+
+void MpodOSS::skipFrame()
+{
+   mCurrentFrameTime += getFramePeriod();
+}
+
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 

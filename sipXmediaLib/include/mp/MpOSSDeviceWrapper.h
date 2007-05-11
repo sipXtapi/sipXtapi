@@ -211,8 +211,13 @@ protected:
    void soundIOThread();
    void soundNotify();
 
+     /// @brief Call when underruns occur
+   void doSkipWrite(int silenceSize);
+
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
+   int lastISpace; ///< Previous value of ISpace during last IO
+   int lastOSpace; ///< Previous value of OSpace during last IO
 
    void soundIOThreadLockUnlock(bool bLock);
    void soundIOThreadAfterBlocking();

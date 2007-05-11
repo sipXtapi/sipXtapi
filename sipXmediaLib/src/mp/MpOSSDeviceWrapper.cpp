@@ -100,7 +100,6 @@ MpOSSDeviceWrapper::MpOSSDeviceWrapper()
 , mCTimeDown(0)
 {
    int res;
-
    dossprintf("MpOSSDeviceWrapper::MpOSSDeviceWrapper...");
 
    pthread_mutex_init(&mWrMutex, NULL);
@@ -113,7 +112,6 @@ MpOSSDeviceWrapper::MpOSSDeviceWrapper()
    pthread_cond_init(&mNewQueueFrame, NULL);
    pthread_cond_init(&mBlockCondition, NULL);
    pthread_cond_init(&mUnBlockCondition, NULL);
-
 
    pthread_mutex_lock(&mWrMutexBuff);
 
@@ -657,8 +655,10 @@ OsStatus MpOSSDeviceWrapper::initDevice(const char* devname)
       }
    }
 
-   ret = OS_SUCCESS;
-   return ret;
+   lastISpace = 0;
+   lastOSpace = fullOSpace;
+
+   return OS_SUCCESS;
 }
 
 OsStatus MpOSSDeviceWrapper::freeDevice()
@@ -757,7 +757,7 @@ UtlBoolean MpOSSDeviceWrapper::getISpace(int& ispace)
 
    if (res != -1) {
       ispace = bi.bytes;
-
+      lastISpace = ispace;
       RTL_EVENT("OSS::ISpace", ispace);
       return TRUE;
    }
@@ -771,7 +771,7 @@ UtlBoolean MpOSSDeviceWrapper::getOSpace(int& ospace)
 
    if (res != -1) {
       ospace = bi.bytes;
-
+      lastOSpace = ospace;
       RTL_EVENT("OSS::OSpace", ospace);
       return TRUE;
    }
@@ -812,7 +812,7 @@ void MpOSSDeviceWrapper::performOnlyRead()
 #endif
 }
 
-#define USEC_CORRECT_STEP   50
+#define USEC_CORRECT_STEP   1
 
 void MpOSSDeviceWrapper::performReaderNoDelay()
 {
@@ -853,6 +853,20 @@ int MpOSSDeviceWrapper::getDMAPlayingQueue()
    int iPlQueue = (fullOSpace - cIsp - cOsp);
    RTL_EVENT("MpOSSDeviceWrapper::iPlQueue", iPlQueue);
    return iPlQueue;
+}
+
+void MpOSSDeviceWrapper::doSkipWrite(int silenceSize)
+{
+   assert (silenceSize > 0);
+   {
+      char silenceData[silenceSize];
+      memset(silenceData, 0, silenceSize);
+      doOutput(silenceData, silenceSize);
+   }
+   mFramesWrUnderruns++;
+
+   // Informing writer to correct next frame time
+   pWriter->skipFrame();
 }
 
 void MpOSSDeviceWrapper::performWithWrite(UtlBoolean bReaderEn)
@@ -928,6 +942,7 @@ void MpOSSDeviceWrapper::performWithWrite(UtlBoolean bReaderEn)
          getOSpace(currecntOSpace);
          if (bReaderEn)
          {
+            /*
             getISpace(correctOSpace);
             int pSize = pReader->mSamplesPerFrame * sizeof(MpAudioSample);
             if (correctOSpace > 3 * pSize)
@@ -940,6 +955,7 @@ void MpOSSDeviceWrapper::performWithWrite(UtlBoolean bReaderEn)
                getOSpace(currecntOSpace);
                mFramesDropRead += 2;
             }
+           */
          }
 
          if (((currecntOSpace /*- correctOSpace*/))
@@ -979,7 +995,12 @@ void MpOSSDeviceWrapper::performWithWrite(UtlBoolean bReaderEn)
       musecJitterCorrect * 1000);
 
    if (bReaderEn)
-      performReaderNoDelay();
+   {
+      do
+      {
+         performReaderNoDelay();
+      } while (lastISpace > pReader->mSamplesPerFrame * sizeof(MpAudioSample));
+   }
 
    if (!pWriter->mNotificationThreadEn)
    {
@@ -1003,6 +1024,9 @@ void MpOSSDeviceWrapper::performWithWrite(UtlBoolean bReaderEn)
       }
    }
 
+   if (bReaderEn)
+      performReaderNoDelay();
+
    if (!bTimedOut)
    {
       RTL_EVENT("MpOSSDeviceWrapper::pww", 4);
@@ -1015,11 +1039,8 @@ void MpOSSDeviceWrapper::performWithWrite(UtlBoolean bReaderEn)
       int silenceSize = pWriter->mSamplesPerFrame * sizeof(MpAudioSample);
       if (getDMAPlayingQueue() < (silenceSize * 13) / 10)
       {
-         char silenceData[silenceSize];
-         memset(silenceData, 0, silenceSize);
-         doOutput(silenceData, silenceSize);
-
-         mFramesWrUnderruns++;
+         RTL_BLOCK("MpOSSDeviceWrapper::underruns");
+         doSkipWrite(silenceSize);
       }
       else
       {

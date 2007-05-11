@@ -191,6 +191,9 @@ protected:
      /// @brief Signaling for next frame if notificator used do nothing otherwise
    OsStatus signalForNextFrame();
 
+     /// @brief Adding frame time to <tt>mCurrentFrameTime</tt>.
+   void skipFrame();
+
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
    MpOSSDeviceWrapper *pDevWrapper;

@@ -225,5 +225,10 @@ void MpidOSS::pushFrame(MpAudioSample* frm)
    mCurrentFrameTime += getFramePeriod();
 }
 
+void MpidOSS::skipFrame()
+{
+   mCurrentFrameTime += getFramePeriod();
+}
+
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 

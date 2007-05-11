@@ -127,17 +127,20 @@ protected:
 
    MpOSSDeviceWrapperContainer* mpCont; ///< Pointer to Wrapper container
 
-     /// @brief Allocating internal OSS buffers.
+     /// @brief Allocate internal OSS buffers.
    OsStatus initBuffers();
 
-     /// @brief Freeing internal OSS buffers.
+     /// @brief Free internal OSS buffers.
    void freeBuffers();
 
-     /// @brief Getting buffer from internal buffers.
+     /// @brief Get buffer from internal buffers.
    MpAudioSample* getBuffer();
 
-     /// @brief Pushing <tt>frm</tt> to InputDeviceManager.
+     /// @brief Push audio frame to InputDeviceManager.
    void pushFrame(MpAudioSample* frm);
+
+     /// @brief Add frame time to <tt>mCurrentFrameTime</tt>.
+   void skipFrame();
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
