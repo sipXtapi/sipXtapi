@@ -51,6 +51,8 @@ class MpTopologyGraph : public MpFlowGraphBase
 public:
 
 /* ============================ CREATORS ================================== */
+///@name Creators
+//@{
 
      /// Constructor
    MpTopologyGraph(int samplesPerFrame, 
@@ -61,7 +63,11 @@ public:
      /// Destructor
    virtual ~MpTopologyGraph();
 
+//@}
+
 /* ============================ MANIPULATORS ============================== */
+///@name Manipulators
+//@{
 
      /// @brief Add resource to the existing flowgraph as defined by given
      /// topology and optional factory.
@@ -83,16 +89,26 @@ public:
      /// Extended processNextFrame() for diagnostic reasons.
    virtual OsStatus processNextFrame(void);
 
+//@}
+
 /* ============================ ACCESSORS ================================= */
+///@name Accessors
+//@{
+
+//@}
 
 /* ============================ INQUIRY =================================== */
+///@name Inquiry
+//@{
+
+//@}
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 
      /// Post a message to be handled by this flowgraph.
    virtual OsStatus postMessage(const MpFlowGraphMsg& message,
-                        const OsTime& waitTime = OsTime::NO_WAIT_TIME);
+                                const OsTime& waitTime = OsTime::NO_WAIT_TIME);
 
 
      /// Handle a message for this flowgraph.
