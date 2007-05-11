@@ -29,10 +29,11 @@ class MpResourceTopology;
 class MpResourceFactory;
 
 /**
-*  @brief Flowgraph with resources wired as defined in given topology and factory
+*  @brief Flowgraph with resources wired as defined in given topology and factory.
+*
 *  The MpTopologyGraph is a MpFlowGraphBase which is constructed with resources
 *  connected as defined by the given MpResourceTopology.  The resources are
-*  constructed using the given MpResourceFactory.  This allows for a flexable
+*  constructed using the given MpResourceFactory.  This allows for a flexible
 *  construction of flowgraphs containing different resources, connected in
 *  a custom (as opposed to hardcoded) graph topology.
 *
@@ -51,35 +52,36 @@ public:
 
 /* ============================ CREATORS ================================== */
 
-    /** Constructor
-     */
-    MpTopologyGraph(int samplesPerFrame, 
-                    int samplesPerSec,
-                    MpResourceTopology& initialResourceTopology,
-                    MpResourceFactory& resourceFactory);
+     /// Constructor
+   MpTopologyGraph(int samplesPerFrame, 
+                   int samplesPerSec,
+                   MpResourceTopology& initialResourceTopology,
+                   MpResourceFactory& resourceFactory);
 
-    /** Destructor
-     */
-    virtual ~MpTopologyGraph();
+     /// Destructor
+   virtual ~MpTopologyGraph();
 
 /* ============================ MANIPULATORS ============================== */
 
-    /** Add resource to the existing flowgraph as defined by given topology and optional factory
+     /// @brief Add resource to the existing flowgraph as defined by given
+     /// topology and optional factory.
+   OsStatus addResources(MpResourceTopology& incrementalTopology,
+                         MpResourceFactory* resourceFactory,
+                         int resourceInstanceId);
+     /**<
      *  If the resourceFactory is NULL, the factory provided when constructing this
      *  flowgraph is used as the default factory.
+     *
      *  @param incrementalTopology - defines the resources to be added to the
      *         flowgraph and the in which they are connected.
      *  @param resourceFactory - factory to construct the resources added named in the incrementalTopology
      *  @param resourceInstanceId - instance ID to be used to make resource names
      *         unique in the flowgraph.
      */
-    OsStatus addResources(MpResourceTopology& incrementalTopology,
-                          MpResourceFactory* resourceFactory,
-                          int resourceInstanceId);
 
 
-    // extended for diagnostic reasons
-    virtual OsStatus processNextFrame(void);
+     /// Extended processNextFrame() for diagnostic reasons.
+   virtual OsStatus processNextFrame(void);
 
 /* ============================ ACCESSORS ================================= */
 
@@ -87,44 +89,40 @@ public:
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
-    /** Post a message to be handled by this flowgraph.
-     */
-    virtual OsStatus postMessage(const MpFlowGraphMsg& message,
-                         const OsTime& waitTime = OsTime::NO_WAIT_TIME);
+
+     /// Post a message to be handled by this flowgraph.
+   virtual OsStatus postMessage(const MpFlowGraphMsg& message,
+                        const OsTime& waitTime = OsTime::NO_WAIT_TIME);
 
 
-    /** Handle a message for this flowgraph
-     */
-    virtual UtlBoolean handleMessage(OsMsg& message);
+     /// Handle a message for this flowgraph.
+   virtual UtlBoolean handleMessage(OsMsg& message);
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
 
+   MpResourceFactory* mpResourceFactory;
 
-    /// Adds all new resources defined in a topology
-    int addTopologyResources(MpResourceTopology& resourceTopology,
-                             MpResourceFactory& resourceFactory,
+     /// Adds all new resources defined in a topology.
+   int addTopologyResources(MpResourceTopology& resourceTopology,
+                            MpResourceFactory& resourceFactory,
+                            UtlHashBag& newResources,
+                            UtlBoolean replaceNumInName = FALSE,
+                            int resourceNum = -1);
+
+     /// Adds links defined for resources in resource topology.
+   int linkTopologyResources(MpResourceTopology& resourceTopology,
                              UtlHashBag& newResources,
                              UtlBoolean replaceNumInName = FALSE,
                              int resourceNum = -1);
 
-    /// Adds links defined for resources in resource topology
-    int linkTopologyResources(MpResourceTopology& resourceTopology,
-                              UtlHashBag& newResources,
-                              UtlBoolean replaceNumInName = FALSE,
-                              int resourceNum = -1);
+
+     ///Disabled copy constructor.
+   MpTopologyGraph(const MpTopologyGraph& rMpTopologyGraph);
 
 
-    /** Disabled copy constructor
-     */
-    MpTopologyGraph(const MpTopologyGraph& rMpTopologyGraph);
-
-
-    /** Disable assignment operator
-     */
-    MpTopologyGraph& operator=(const MpTopologyGraph& rhs);
-
-    MpResourceFactory* mpResourceFactory;
+     /// Disable assignment operator.
+   MpTopologyGraph& operator=(const MpTopologyGraph& rhs);
 };
 
 /* ============================ INLINE METHODS ============================ */
