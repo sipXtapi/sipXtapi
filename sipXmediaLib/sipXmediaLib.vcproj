@@ -2532,6 +2532,9 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\src\mp\MpResourceFactory.cpp">
+			</File>
+			<File
 				RelativePath=".\src\mp\MpResourceMsg.cpp">
 			</File>
 			<File
@@ -2570,6 +2573,9 @@
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\src\mp\MpResourceTopology.cpp">
 			</File>
 			<File
 				RelativePath="src\mp\MprFromFile.cpp">
@@ -4542,10 +4548,19 @@
 				RelativePath="include\mp\MpResource.h">
 			</File>
 			<File
+				RelativePath=".\include\mp\MpResourceConstructor.h">
+			</File>
+			<File
+				RelativePath=".\include\mp\MpResourceFactory.h">
+			</File>
+			<File
 				RelativePath=".\include\mp\MpResourceMsg.h">
 			</File>
 			<File
 				RelativePath="include\mp\MpResourceSortAlg.h">
+			</File>
+			<File
+				RelativePath=".\include\mp\MpResourceTopology.h">
 			</File>
 			<File
 				RelativePath="include\mp\MprFromFile.h">
