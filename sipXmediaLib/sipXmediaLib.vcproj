@@ -4365,6 +4365,9 @@
 				RelativePath=".\include\mp\MpAudioResource.h">
 			</File>
 			<File
+				RelativePath=".\include\mp\MpAudioResourceConstructor.h">
+			</File>
+			<File
 				RelativePath="include\mp\MpAudioUtils.h">
 			</File>
 			<File
@@ -4533,6 +4536,9 @@
 				RelativePath="include\mp\MprBridge.h">
 			</File>
 			<File
+				RelativePath=".\include\mp\MprBridgeConstructor.h">
+			</File>
+			<File
 				RelativePath="include\mp\MprDecode.h">
 			</File>
 			<File
@@ -4566,7 +4572,13 @@
 				RelativePath="include\mp\MprFromFile.h">
 			</File>
 			<File
+				RelativePath=".\include\mp\MprFromFileConstructor.h">
+			</File>
+			<File
 				RelativePath=".\include\mp\MprFromInputDevice.h">
+			</File>
+			<File
+				RelativePath=".\include\mp\MprFromInputDeviceConstructor.h">
 			</File>
 			<File
 				RelativePath="include\mp\MprFromMic.h">
@@ -4584,7 +4596,16 @@
 				RelativePath=".\include\mp\MprNull.h">
 			</File>
 			<File
+				RelativePath=".\include\mp\MprNullConstructor.h">
+			</File>
+			<File
 				RelativePath="include\mp\MprRecorder.h">
+			</File>
+			<File
+				RelativePath=".\include\mp\MprRtpInputAudioConnectionConstructor.h">
+			</File>
+			<File
+				RelativePath=".\include\mp\MprRtpOutputAudioConnectionConstructor.h">
 			</File>
 			<File
 				RelativePath=".\include\mp\MprSpeexEchoCancel.h">
@@ -4599,10 +4620,16 @@
 				RelativePath="include\mp\MprToneGen.h">
 			</File>
 			<File
+				RelativePath=".\include\mp\MprToneGenConstructor.h">
+			</File>
+			<File
 				RelativePath="include\mp\MprToNet.h">
 			</File>
 			<File
 				RelativePath=".\include\mp\MprToOutputDevice.h">
+			</File>
+			<File
+				RelativePath=".\include\mp\MprToOutputDeviceConstructor.h">
 			</File>
 			<File
 				RelativePath="include\mp\MprToSpkr.h">
