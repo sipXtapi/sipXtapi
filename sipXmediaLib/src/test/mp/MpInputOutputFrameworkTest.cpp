@@ -198,23 +198,23 @@ public:
                                                               sinkDeviceId));
 
       // Create source (input) and sink (output) resources.
-      MprFromInputDevice pSource("MprFromInputDevice",
-                                 TEST_SAMPLES_PER_FRAME,
-                                 TEST_SAMPLES_PER_SECOND,
-                                 mpInputDeviceManager,
-                                 sourceDeviceId);
-      MprToOutputDevice pSink("MprToOutputDevice",
-                              TEST_SAMPLES_PER_FRAME,
-                              TEST_SAMPLES_PER_SECOND,
-                              mpOutputDeviceManager,
-                              sinkDeviceId);
-
-      // Add source and sink resources to flowgraph and link them together.
-      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, mpFlowGraph->addResource(pSource));
-      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, mpFlowGraph->addResource(pSink));
-      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, mpFlowGraph->addLink(pSource, 0, pSink, 0));
+      MprFromInputDevice sourceResource("MprFromInputDevice",
+                                        TEST_SAMPLES_PER_FRAME,
+                                        TEST_SAMPLES_PER_SECOND,
+                                        mpInputDeviceManager,
+                                        sourceDeviceId);
+      MprToOutputDevice sinkResource("MprToOutputDevice",
+                                     TEST_SAMPLES_PER_FRAME,
+                                     TEST_SAMPLES_PER_SECOND,
+                                     mpOutputDeviceManager,
+                                     sinkDeviceId);
 
       try {
+
+         // Add source and sink resources to flowgraph and link them together.
+         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, mpFlowGraph->addResource(sourceResource));
+         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, mpFlowGraph->addResource(sinkResource));
+         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, mpFlowGraph->addLink(sourceResource, 0, sinkResource, 0));
 
          // Enable devices
          CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
@@ -227,8 +227,8 @@ public:
                               mpOutputDeviceManager->setFlowgraphTickerSource(sinkDeviceId));
 
          // Enable resources
-         CPPUNIT_ASSERT(pSource.enable());
-         CPPUNIT_ASSERT(pSink.enable());
+         CPPUNIT_ASSERT(sourceResource.enable());
+         CPPUNIT_ASSERT(sinkResource.enable());
 
          // Manage flowgraph with media task.
          CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, mpMediaTask->manageFlowGraph(*mpFlowGraph));
@@ -246,8 +246,8 @@ public:
 //         OsTask::delay(50);
 
          // Disable resources
-         CPPUNIT_ASSERT(pSource.disable());
-         CPPUNIT_ASSERT(pSink.disable());
+         CPPUNIT_ASSERT(sourceResource.disable());
+         CPPUNIT_ASSERT(sinkResource.disable());
          MpMediaTask::signalFrameStart();
 
          // Unmanage flowgraph with media task.
@@ -262,8 +262,8 @@ public:
 
          // Remove resources from flowgraph. We should remove them explicitly
          // here, because they are stored on the stack and will be destroyed.
-         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, mpFlowGraph->removeResource(pSink));
-         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, mpFlowGraph->removeResource(pSource));
+         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, mpFlowGraph->removeResource(sinkResource));
+         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, mpFlowGraph->removeResource(sourceResource));
          mpFlowGraph->processNextFrame();
       }
       catch (CppUnit::Exception& e)
@@ -272,8 +272,14 @@ public:
          // here, because they are stored on the stack and will be destroyed.
          // If we will not catch this assert we'll have this resources destroyed
          // while still referenced in flowgraph, causing crash.
-         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, mpFlowGraph->removeResource(pSink));
-         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, mpFlowGraph->removeResource(pSource));
+         if (sinkResource.getFlowGraph() != NULL)
+         {
+            CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, mpFlowGraph->removeResource(sinkResource));
+         }
+         if (sourceResource.getFlowGraph() != NULL)
+         {
+            CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, mpFlowGraph->removeResource(sourceResource));
+         }
          mpFlowGraph->processNextFrame();
 
          // Rethrow exception.
