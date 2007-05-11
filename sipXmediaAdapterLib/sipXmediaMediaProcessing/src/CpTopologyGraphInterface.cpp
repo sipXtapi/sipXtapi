@@ -178,7 +178,7 @@ CpTopologyGraphInterface::CpTopologyGraphInterface(CpTopologyGraphFactoryImpl* p
                                          8000,
                                          *(pFactoryImpl->getInitialResourceTopology()),
                                          *(pFactoryImpl->getResourceFactory()));
-   OsSysLog::add(FAC_CP, PRI_DEBUG, "CpTopologyGraphInterface::CpTopologyGraphInterface creating a new MpCallFlowGraph %p",
+   OsSysLog::add(FAC_CP, PRI_DEBUG, "CpTopologyGraphInterface::CpTopologyGraphInterface creating a new MpTopologyGraph %p",
                  mpTopologyGraph);
    
    mStunServer = stunServer;
@@ -317,7 +317,7 @@ CpTopologyGraphInterface::~CpTopologyGraphInterface()
 
         OsSysLog::add(FAC_CP, PRI_DEBUG, 
         //printf(
-                      "CpTopologyGraphInterface::~CpTopologyGraphInterface deleting the MpCallFlowGraph %p",
+                      "CpTopologyGraphInterface::~CpTopologyGraphInterface deleting the MpTopologyGraph %p",
                       mpTopologyGraph);
         delete mpTopologyGraph;
         mpTopologyGraph = NULL;
