@@ -91,6 +91,7 @@ OsStatus MpodBufferRecorder::disableDevice()
 
    if (mpBuffer != NULL)
    {
+      delete[] mpBuffer;
       mpBuffer = NULL;
       mBufferLength = 0;
       mBufferEnd = 0;
