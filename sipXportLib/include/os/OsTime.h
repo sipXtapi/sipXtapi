@@ -36,8 +36,14 @@ class OsTime
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
-   static const OsTime OS_INFINITY;
-   static const OsTime NO_WAIT_TIME;
+
+   /// Time quantity enum for special time values
+   typedef enum
+   {
+      OS_INFINITY = 0,
+      NO_WAIT_TIME
+   }TimeQuantity;
+
    static const long MSECS_PER_SEC;
    static const long USECS_PER_MSEC;
    static const long USECS_PER_SEC;
@@ -50,6 +56,9 @@ public:
    OsTime(const long msecs);
      //:Constructor specifying time/duration in terms of milliseconds
 
+   OsTime(TimeQuantity quantity);
+     //:Constructor specifying time/duration in terms of TimeQuantity enum
+
    OsTime(const long seconds, const long usecs);
      //:Constructor specifying time/duration in terms of seconds and microseconds
 
@@ -61,6 +70,9 @@ public:
      //:Destructor
 
 /* ============================ MANIPULATORS ============================== */
+
+   OsTime& operator=(TimeQuantity rhs);
+     //:Assignment operator
 
    OsTime& operator=(const OsTime& rhs);
      //:Assignment operator

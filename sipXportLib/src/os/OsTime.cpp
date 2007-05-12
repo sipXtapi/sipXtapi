@@ -14,6 +14,9 @@
 // APPLICATION INCLUDES
 #include "os/OsTime.h"
 
+// DEFINES 
+#define INFINITE_TIME 0x7FFFFFFF
+
 // EXTERNAL FUNCTIONS
 
 // EXTERNAL VARIABLES
@@ -21,8 +24,6 @@
 // CONSTANTS
 
 // STATIC VARIABLE INITIALIZATIONS
-const OsTime OsTime::OS_INFINITY(0x7FFFFFFF,0x7FFFFFFF);
-const OsTime OsTime::NO_WAIT_TIME(0,0);
 const long OsTime::MSECS_PER_SEC   = 1000;
 const long OsTime::USECS_PER_MSEC  = 1000;
 const long OsTime::USECS_PER_SEC   = 1000000;
@@ -58,6 +59,24 @@ OsTime::OsTime(const long msecs)
    else     // 0 <= msecs < MSECS_PER_SEC
    {
        mUsecs = msecs * USECS_PER_MSEC;
+   }
+}
+
+// Constructor
+OsTime::OsTime(TimeQuantity quantity)
+{
+   init();
+
+   if (quantity == OS_INFINITY)
+   {
+      mSeconds = INFINITE_TIME;
+      mUsecs = INFINITE_TIME;
+   }
+   else
+   {
+      // NO_WAIT_TIME
+      mSeconds = 0;
+      mUsecs   = 0;
    }
 }
 
@@ -100,6 +119,24 @@ OsTime::~OsTime()
 }
 
 /* ============================ MANIPULATORS ============================== */
+
+// Assignment operator
+OsTime& OsTime::operator=(TimeQuantity rhs)
+{
+   if (rhs == OS_INFINITY)
+   {
+      mSeconds = INFINITE_TIME;
+      mUsecs = INFINITE_TIME;
+   }
+   else
+   {
+      // NO_WAIT_TIME
+      mSeconds = 0;
+      mUsecs   = 0;
+   }
+
+   return *this;
+}
 
 // Assignment operator
 OsTime& 
@@ -239,9 +276,7 @@ long OsTime::cvtToMsecs(void) const
 // Return TRUE if the time interval is infinite
 UtlBoolean OsTime::isInfinite(void) const
 {
-   if (this == &OS_INFINITY ||
-       (seconds() == OS_INFINITY.seconds() &&
-        usecs()   == OS_INFINITY.usecs()))
+   if (mSeconds == INFINITE_TIME && mUsecs == INFINITE_TIME)
       return TRUE;
    else
       return FALSE;
@@ -250,8 +285,7 @@ UtlBoolean OsTime::isInfinite(void) const
 // Return TRUE if the time interval is zero (no wait)
 UtlBoolean OsTime::isNoWait(void) const
 {
-   if (this == &NO_WAIT_TIME || 
-       (seconds() == 0 && usecs() == 0))
+   if (mSeconds == 0 && mUsecs == 0)
       return TRUE;
    else
       return FALSE;
