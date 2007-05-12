@@ -37,11 +37,10 @@ class OsTime
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
    static const OsTime OS_INFINITY;
-   static const OsTime NO_WAIT;
    static const OsTime NO_WAIT_TIME;
-   static const long MSECS_PER_SEC ; 
-   static const long USECS_PER_MSEC ;
-   static const long USECS_PER_SEC ;
+   static const long MSECS_PER_SEC;
+   static const long USECS_PER_MSEC;
+   static const long USECS_PER_SEC;
 
 /* ============================ CREATORS ================================== */
 

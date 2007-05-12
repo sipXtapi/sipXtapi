@@ -22,7 +22,6 @@
 
 // STATIC VARIABLE INITIALIZATIONS
 const OsTime OsTime::OS_INFINITY(0x7FFFFFFF,0x7FFFFFFF);
-const OsTime OsTime::NO_WAIT(0,0);
 const OsTime OsTime::NO_WAIT_TIME(0,0);
 const long OsTime::MSECS_PER_SEC   = 1000;
 const long OsTime::USECS_PER_MSEC  = 1000;
