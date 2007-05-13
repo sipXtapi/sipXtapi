@@ -23,8 +23,11 @@
 #ifdef RTL_ENABLED
 #  include <rtl_macro.h>
 #else
+#  define RTL_START(x)
 #  define RTL_BLOCK(x)
 #  define RTL_EVENT(x,y)
+#  define RTL_WRITE(x)
+#  define RTL_STOP
 #endif
 
 #include <os/OsFS.h>
@@ -39,6 +42,11 @@
 
 #define BUFFER_ON_OUTPUT_MS           (BUFFERS_TO_BUFFER_ON_OUTPUT*TEST_SAMPLES_PER_FRAME*1000/TEST_SAMPLES_PER_SECOND)
                                             ///< Buffer size in output manager in milliseconds.
+
+#define TEST_INPUT_DRIVERS            10    ///< Number of sine generators
+#define TEST_OUTPUT_DRIVERS           10    ///< Number of buffer recorders
+#define OSS_INPUT_DRIVERS             2     ///< Number of OSS input drivers
+#define OSS_OUTPUT_DRIVERS            2     ///< Number of OSS output drivers
 
 #define USE_TEST_INPUT_DRIVER
 #define USE_TEST_OUTPUT_DRIVER
@@ -113,10 +121,10 @@ public:
 
       // NOTE: Next functions would add devices only if they are available in
       //       current environment.
-      createTestInputDriver();
+      createTestInputDrivers();
       createWntInputDrivers();
       createOSSInputDrivers();
-      createTestOutputDriver();
+      createTestOutputDrivers();
       createOSSOutputDrivers();
    }
 
@@ -176,19 +184,16 @@ public:
    void testShortCircuit()
    {
       enableConsoleOutput(1);
-
-#ifdef RTL_ENABLED
       RTL_START(10000000);
-#endif
 
       MpInputDeviceHandle sourceDeviceId = 0;
       CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
-                           mpInputDeviceManager->getDeviceId("SineGenerator",
+                           mpInputDeviceManager->getDeviceId("SineGenerator1",
                                                              sourceDeviceId));
 
       MpOutputDeviceHandle  sinkDeviceId = 0;
       CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
-                           mpOutputDeviceManager->getDeviceId("BufferRecorder",
+                           mpOutputDeviceManager->getDeviceId("BufferRecorder1",
                                                               sinkDeviceId));
 
       // Create source (input) and sink (output) resources.
@@ -289,10 +294,8 @@ public:
          throw(e);
       }
 
-#ifdef RTL_ENABLED
       RTL_WRITE("testShortCircuit.rtl");
-#endif
-
+      RTL_STOP
    }
 
 protected:
@@ -329,18 +332,24 @@ protected:
       mOutputDeviceNumber++;
    }
 
-   void createTestInputDriver()
+   void createTestInputDrivers()
    {
 #ifdef USE_TEST_INPUT_DRIVER // [
-      // Create driver
-      MpSineWaveGeneratorDeviceDriver *pDriver
-         = new MpSineWaveGeneratorDeviceDriver("SineGenerator",
-                                                *mpInputDeviceManager,
-                                                32000, 3000, 0);
-      CPPUNIT_ASSERT(pDriver != NULL);
+      for (int i=0; i < TEST_INPUT_DRIVERS; i++)
+      {
+         char devName[1024];
+         snprintf(devName, 1024, "SineGenerator%d", i);
 
-      // Add driver to manager
-      manageInputDevice(pDriver);
+         // Create driver
+         MpSineWaveGeneratorDeviceDriver *pDriver
+            = new MpSineWaveGeneratorDeviceDriver(devName,
+                                                  *mpInputDeviceManager,
+                                                  32000, 3000, 0);
+         CPPUNIT_ASSERT(pDriver != NULL);
+
+         // Add driver to manager
+         manageInputDevice(pDriver);
+      }
 #endif // USE_TEST_INPUT_DRIVER ]
    }
 
@@ -360,37 +369,55 @@ protected:
    void createOSSInputDrivers()
    {
 #ifdef USE_OSS_INPUT_DRIVER // [
-      // Create driver
-      MpidOSS *pDriver = new MpidOSS("/dev/dsp", *mpInputDeviceManager);
-      CPPUNIT_ASSERT(pDriver != NULL);
+      for (int i=0; i < OSS_INPUT_DRIVERS; i++)
+      {
+         char devName[1024];
+         snprintf(devName, 1024, "/dev/dsp%d", i);
 
-      // Add driver to manager
-      manageInputDevice(pDriver);
+         // Create driver
+         MpidOSS *pDriver = new MpidOSS(devName, *mpInputDeviceManager);
+         CPPUNIT_ASSERT(pDriver != NULL);
+
+         // Add driver to manager
+         manageInputDevice(pDriver);
+      }
 #endif // USE_OSS_INPUT_DRIVER ]
    }
 
-   void createTestOutputDriver()
+   void createTestOutputDrivers()
    {
 #ifdef USE_TEST_OUTPUT_DRIVER // [
-      // Create driver
-      MpodBufferRecorder *pDriver = new MpodBufferRecorder("BufferRecorder",
-                                                           TEST_TIME_MS);
-      CPPUNIT_ASSERT(pDriver != NULL);
+      for (int i=0; i < TEST_OUTPUT_DRIVERS; i++)
+      {
+         char devName[1024];
+         snprintf(devName, 1024, "BufferRecorder%d", i);
 
-      // Add driver to manager
-      manageOutputDevice(pDriver);
+         // Create driver
+         MpodBufferRecorder *pDriver = new MpodBufferRecorder(devName,
+                                                              TEST_TIME_MS);
+         CPPUNIT_ASSERT(pDriver != NULL);
+
+         // Add driver to manager
+         manageOutputDevice(pDriver);
+      }
 #endif // USE_TEST_OUTPUT_DRIVER ]
    }
 
    void createOSSOutputDrivers()
    {
 #ifdef USE_OSS_OUTPUT_DRIVER // [
-      // Create driver
-      MpodOSS *pDriver = new MpodOSS("/dev/dsp");
-      CPPUNIT_ASSERT(pDriver != NULL);
+      for (int i=0; i < OSS_OUTPUT_DRIVERS; i++)
+      {
+         char devName[1024];
+         snprintf(devName, 1024, "/dev/dsp%d", i);
 
-      // Add driver to manager
-      manageOutputDevice(pDriver);
+         // Create driver
+         MpodOSS *pDriver = new MpodOSS(devName);
+         CPPUNIT_ASSERT(pDriver != NULL);
+
+         // Add driver to manager
+         manageOutputDevice(pDriver);
+      }
 #endif // USE_OSS_OUTPUT_DRIVER ]
    }
 
