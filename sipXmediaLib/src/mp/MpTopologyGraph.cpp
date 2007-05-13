@@ -38,11 +38,10 @@
 MpTopologyGraph::MpTopologyGraph(int samplesPerFrame, 
                                  int samplesPerSec,
                                  MpResourceTopology& initialResourceTopology,
-                                 MpResourceFactory& resourceFactory) :
-MpFlowGraphBase(samplesPerFrame, samplesPerSec)
+                                 MpResourceFactory& resourceFactory)
+: MpFlowGraphBase(samplesPerFrame, samplesPerSec)
+, mpResourceFactory(&resourceFactory)
 {
-    mpResourceFactory = &resourceFactory;
-
     // construct the new resources defined in the topology and add to the flowgraph
     UtlHashBag newResourcesAdded;
     addTopologyResources(initialResourceTopology, 
