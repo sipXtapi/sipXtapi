@@ -115,8 +115,13 @@ extern "C" CpMediaInterfaceFactory* sipXmediaFactoryFactory(OsConfigDb* pConfigD
 /* ============================ CREATORS ================================== */
 
 // Constructor
-CpTopologyGraphFactoryImpl::CpTopologyGraphFactoryImpl(OsConfigDb* pConfigDb) :
-sipXmediaFactoryImpl(pConfigDb)
+CpTopologyGraphFactoryImpl::CpTopologyGraphFactoryImpl(OsConfigDb* pConfigDb)
+: sipXmediaFactoryImpl(pConfigDb)
+, mpInitialResourceTopology(NULL)
+, mpResourceFactory(NULL)
+, mpConnectionResourceTopology(NULL)
+, mpInputDeviceManager(NULL)
+, mpOutputDeviceManager(NULL)
 {    
     assert(MpMisc.RawAudioPool);
     mpInputDeviceManager = 
@@ -185,6 +190,11 @@ CpTopologyGraphFactoryImpl::~CpTopologyGraphFactoryImpl()
    assert(pOutDriver != NULL);
    delete pOutDriver;
 #endif // USE_DEVICE_ADD_HACK ]
+
+   // Free factory and topologies.
+   delete mpResourceFactory;
+   delete mpInitialResourceTopology;
+   delete mpConnectionResourceTopology;
 
    // Free input and output device managers.
    delete mpInputDeviceManager;
