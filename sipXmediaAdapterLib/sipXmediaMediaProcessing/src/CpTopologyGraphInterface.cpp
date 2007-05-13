@@ -1172,6 +1172,9 @@ OsStatus CpTopologyGraphInterface::doDeleteConnection(CpTopologyMediaConnection*
        }
        mediaConnection->setValue(-1);
        mpTopologyGraph->synchronize();
+
+       delete inConnectionResource;
+       delete outConnectionResource;
    }
 
    mpFactoryImpl->releaseRtpPort(mediaConnection->mRtpAudioReceivePort) ;
