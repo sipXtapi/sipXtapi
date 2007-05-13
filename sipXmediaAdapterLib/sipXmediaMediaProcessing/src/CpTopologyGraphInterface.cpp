@@ -346,15 +346,11 @@ OsStatus CpTopologyGraphInterface::createConnection(int& connectionId,
                                                  const RtpTransportOptions rtpTransportOptions)
 {
    CpTopologyMediaConnection* mediaConnection=NULL;
+   CpTopologyGraphFactoryImpl* pTopologyFactoryImpl = (CpTopologyGraphFactoryImpl*)mpFactoryImpl;
 
-
-   MpResourceTopology* connectionTopology =
-       ((CpTopologyGraphFactoryImpl*)mpFactoryImpl)->getConnectionResourceTopology();
-   MpResourceFactory* topologyFactory =
-       ((CpTopologyGraphFactoryImpl*)mpFactoryImpl)->getResourceFactory();
    connectionId = getNextConnectionId();
-   mpTopologyGraph->addResources(*connectionTopology, 
-                                 topologyFactory,
+   mpTopologyGraph->addResources(*pTopologyFactoryImpl->getConnectionResourceTopology(),
+                                 pTopologyFactoryImpl->getResourceFactory(),
                                  connectionId);
 
    mediaConnection = new CpTopologyMediaConnection();
