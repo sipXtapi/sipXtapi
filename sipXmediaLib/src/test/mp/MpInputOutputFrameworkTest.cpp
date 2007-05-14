@@ -16,6 +16,8 @@
 #include "mp/MprFromInputDevice.h"
 #include "mp/MpOutputDeviceManager.h"
 #include "mp/MprToOutputDevice.h"
+#include "mp/MprToneGen.h"
+#include "mp/MprSplitter.h"
 #include "mp/MpFlowGraphBase.h"
 #include "mp/MpMisc.h"
 #include "mp/MpMediaTask.h"
@@ -83,6 +85,7 @@ class MpInputOutputFrameworkTest : public CppUnit::TestCase
 {
    CPPUNIT_TEST_SUITE(MpInputOutputFrameworkTest);
    CPPUNIT_TEST(testShortCircuit);
+   CPPUNIT_TEST(testManyOutputDevices);
    CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -90,6 +93,8 @@ public:
    // This function will be called before every test to setup framework.
    void setUp()
    {
+      enableConsoleOutput(1);
+
       // Setup media task
       CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
                            mpStartUp(TEST_SAMPLES_PER_SECOND,
@@ -183,7 +188,6 @@ public:
 
    void testShortCircuit()
    {
-      enableConsoleOutput(1);
       RTL_START(10000000);
 
       MpInputDeviceHandle sourceDeviceId = 0;
@@ -253,14 +257,11 @@ public:
             throw(e);
          }
 
-         // Disable resources
-         CPPUNIT_ASSERT(sourceResource.disable());
-         CPPUNIT_ASSERT(sinkResource.disable());
-         MpMediaTask::signalFrameStart();
-
          // Unmanage flowgraph with media task.
          CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, mpMediaTask->unmanageFlowGraph(*mpFlowGraph));
          MpMediaTask::signalFrameStart();
+         // MediaTask need some time to receive unmanage message.
+         OsTask::delay(20);
 
          // Disable devices
          CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
@@ -295,6 +296,148 @@ public:
       }
 
       RTL_WRITE("testShortCircuit.rtl");
+      RTL_STOP
+   }
+
+   void testManyOutputDevices()
+   {
+      unsigned sinkDeviceId;
+
+      RTL_START(10000000);
+
+      // Create generator resource.
+      MprToneGen toneGen("ToneGenerator",
+                         TEST_SAMPLES_PER_FRAME,
+                         TEST_SAMPLES_PER_SECOND,
+                         NULL);
+
+      MprSplitter splitter("Splitter",
+                           mOutputDeviceNumber,
+                           TEST_SAMPLES_PER_FRAME,
+                           TEST_SAMPLES_PER_SECOND);
+
+      // Create resources for all available output devices.
+      MprToOutputDevice **pSinkResources = new MprToOutputDevice*[mOutputDeviceNumber];
+      for (sinkDeviceId=0; sinkDeviceId<mOutputDeviceNumber; sinkDeviceId++)
+      {
+         char devName[1024];
+         snprintf(devName, 1024, "MprToOutputDevice%d", sinkDeviceId);
+
+         pSinkResources[sinkDeviceId] = new MprToOutputDevice(devName,
+                                                              TEST_SAMPLES_PER_FRAME,
+                                                              TEST_SAMPLES_PER_SECOND,
+                                                              mpOutputDeviceManager,
+                                                              sinkDeviceId+1);
+      }
+
+      try {
+
+         // Add resources to flowgraph, link them together and enable devices.
+         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, mpFlowGraph->addResource(toneGen));
+         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, mpFlowGraph->addResource(splitter));
+         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, mpFlowGraph->addLink(toneGen, 0, splitter, 0));
+         for (sinkDeviceId=0; sinkDeviceId<mOutputDeviceNumber; sinkDeviceId++)
+         {
+            CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, mpFlowGraph->addResource(*pSinkResources[sinkDeviceId]));
+            CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, mpFlowGraph->addLink(splitter, sinkDeviceId,
+                                                                  *pSinkResources[sinkDeviceId], 0));
+
+            // Enable devices
+            CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                                 mpOutputDeviceManager->enableDevice(sinkDeviceId+1));
+         }
+
+         // Enable all resources in flowgraph.
+         mpFlowGraph->enable();
+
+         // Set flowgraph ticker
+         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                              mpOutputDeviceManager->setFlowgraphTickerSource(1));
+
+         try {
+            // Manage flowgraph with media task.
+            CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, mpMediaTask->manageFlowGraph(*mpFlowGraph));
+
+            // Start flowgraph
+            CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, mpMediaTask->startFlowGraph(*mpFlowGraph));
+
+            // Run test!
+            toneGen.startTone(0);
+            OsTask::delay(TEST_TIME_MS);
+            toneGen.stopTone();
+
+            // Clear flowgraph ticker
+            CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                                 mpOutputDeviceManager->setFlowgraphTickerSource(MP_INVALID_OUTPUT_DEVICE_HANDLE));
+
+         }
+         catch (CppUnit::Exception& e)
+         {
+            // Clear flowgraph ticker if assert failed.
+            CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                                 mpOutputDeviceManager->setFlowgraphTickerSource(MP_INVALID_OUTPUT_DEVICE_HANDLE));
+
+            // Rethrow exception.
+            throw(e);
+         }
+
+         // Unmanage flowgraph with media task.
+         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, mpMediaTask->unmanageFlowGraph(*mpFlowGraph));
+         MpMediaTask::signalFrameStart();
+         // MediaTask need some time to receive unmanage message.
+         OsTask::delay(20);
+
+         // Disable devices
+         for (sinkDeviceId=0; sinkDeviceId<mOutputDeviceNumber; sinkDeviceId++)
+         {
+            CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                                 mpOutputDeviceManager->disableDevice(sinkDeviceId+1));
+         }
+
+         // Remove resources from flowgraph.
+         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, mpFlowGraph->removeResource(toneGen));
+         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, mpFlowGraph->removeResource(splitter));
+         for (sinkDeviceId=0; sinkDeviceId<mOutputDeviceNumber; sinkDeviceId++)
+         {
+            CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, mpFlowGraph->removeResource(*pSinkResources[sinkDeviceId]));
+         }
+         mpFlowGraph->processNextFrame();
+      }
+      catch (CppUnit::Exception& e)
+      {
+         // Remove resources from flowgraph. We should remove them explicitly
+         // here, because they are stored on the stack and will be destroyed.
+         // If we will not catch this assert we'll have this resources destroyed
+         // while still referenced in flowgraph, causing crash.
+         if (toneGen.getFlowGraph() != NULL)
+         {
+            CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, mpFlowGraph->removeResource(toneGen));
+         }
+         if (splitter.getFlowGraph() != NULL)
+         {
+            CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, mpFlowGraph->removeResource(splitter));
+         }
+         for (unsigned i=0; i<mOutputDeviceNumber; i++)
+         {
+            if (pSinkResources[i]->getFlowGraph() != NULL)
+            {
+               CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, mpFlowGraph->removeResource(*pSinkResources[i]));
+            }
+         }
+         mpFlowGraph->processNextFrame();
+
+         // Rethrow exception.
+         throw(e);
+      }
+
+      // Free output resources.
+      for (sinkDeviceId=0; sinkDeviceId<mOutputDeviceNumber; sinkDeviceId++)
+      {
+         delete pSinkResources[sinkDeviceId];
+      }
+      delete[] pSinkResources;
+
+      RTL_WRITE("testManyOutputDevices.rtl");
       RTL_STOP
    }
 
@@ -372,7 +515,14 @@ protected:
       for (int i=0; i < OSS_INPUT_DRIVERS; i++)
       {
          char devName[1024];
-         snprintf(devName, 1024, "/dev/dsp%d", i);
+         if (i == 0)
+         {
+            snprintf(devName, 1024, "/dev/dsp");
+         }
+         else
+         {
+            snprintf(devName, 1024, "/dev/dsp%d", i);
+         }
 
          // Create driver
          MpidOSS *pDriver = new MpidOSS(devName, *mpInputDeviceManager);
@@ -409,7 +559,14 @@ protected:
       for (int i=0; i < OSS_OUTPUT_DRIVERS; i++)
       {
          char devName[1024];
-         snprintf(devName, 1024, "/dev/dsp%d", i);
+         if (i == 0)
+         {
+            snprintf(devName, 1024, "/dev/dsp");
+         }
+         else
+         {
+            snprintf(devName, 1024, "/dev/dsp%d", i);
+         }
 
          // Create driver
          MpodOSS *pDriver = new MpodOSS(devName);
