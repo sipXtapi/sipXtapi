@@ -18,6 +18,7 @@
 #include "mp/MprToOutputDevice.h"
 #include "mp/MprToneGen.h"
 #include "mp/MprSplitter.h"
+#include "mp/MprNull.h"
 #include "mp/MpFlowGraphBase.h"
 #include "mp/MpMisc.h"
 #include "mp/MpMediaTask.h"
@@ -86,6 +87,7 @@ class MpInputOutputFrameworkTest : public CppUnit::TestCase
    CPPUNIT_TEST_SUITE(MpInputOutputFrameworkTest);
    CPPUNIT_TEST(testShortCircuit);
    CPPUNIT_TEST(testManyOutputDevices);
+   CPPUNIT_TEST(testManyInputDevices);
    CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -438,6 +440,140 @@ public:
       delete[] pSinkResources;
 
       RTL_WRITE("testManyOutputDevices.rtl");
+      RTL_STOP
+   }
+
+
+   void testManyInputDevices()
+   {
+      unsigned sourceDeviceId;
+
+      RTL_START(10000000);
+
+      // Create sink resource.
+      MprNull blackHole("MprNull",
+                        mInputDeviceNumber,
+                        TEST_SAMPLES_PER_FRAME,
+                        TEST_SAMPLES_PER_SECOND);
+
+      // Create resources for all available input devices.
+      MprFromInputDevice **pSourceResources = new MprFromInputDevice*[mInputDeviceNumber];
+      for (sourceDeviceId=0; sourceDeviceId<mInputDeviceNumber; sourceDeviceId++)
+      {
+         char devName[1024];
+         snprintf(devName, 1024, "MprFromInputDevice%d", sourceDeviceId);
+
+         pSourceResources[sourceDeviceId] = new MprFromInputDevice(devName,
+                                                                   TEST_SAMPLES_PER_FRAME,
+                                                                   TEST_SAMPLES_PER_SECOND,
+                                                                   mpInputDeviceManager,
+                                                                   sourceDeviceId+1);
+      }
+
+      try {
+
+         // Add resources to flowgraph, link them together and enable devices.
+         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, mpFlowGraph->addResource(blackHole));
+         for (sourceDeviceId=0; sourceDeviceId<mInputDeviceNumber; sourceDeviceId++)
+         {
+            CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, mpFlowGraph->addResource(*pSourceResources[sourceDeviceId]));
+            CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, mpFlowGraph->addLink(*pSourceResources[sourceDeviceId], 0,
+                                                                  blackHole, sourceDeviceId));
+
+            // Enable devices
+            CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                                 mpInputDeviceManager->enableDevice(sourceDeviceId+1));
+         }
+
+         // Enable all resources in flowgraph.
+         mpFlowGraph->enable();
+
+         // Enable one of output devices to get ticks from it and set flowgraph ticker
+         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                              mpOutputDeviceManager->enableDevice(1));
+         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                              mpOutputDeviceManager->setFlowgraphTickerSource(1));
+
+         try {
+            // Manage flowgraph with media task.
+            CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, mpMediaTask->manageFlowGraph(*mpFlowGraph));
+
+            // Start flowgraph
+            CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, mpMediaTask->startFlowGraph(*mpFlowGraph));
+
+            // Run test!
+            OsTask::delay(TEST_TIME_MS);
+
+            // Clear flowgraph ticker and disable device provided it.
+            CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                                 mpOutputDeviceManager->setFlowgraphTickerSource(MP_INVALID_OUTPUT_DEVICE_HANDLE));
+            CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                                 mpOutputDeviceManager->disableDevice(1));
+         }
+         catch (CppUnit::Exception& e)
+         {
+            // Clear flowgraph ticker if assert failed.
+            CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                                 mpOutputDeviceManager->setFlowgraphTickerSource(MP_INVALID_OUTPUT_DEVICE_HANDLE));
+            CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                                 mpOutputDeviceManager->disableDevice(1));
+
+            // Rethrow exception.
+            throw(e);
+         }
+
+         // Unmanage flowgraph with media task.
+         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, mpMediaTask->unmanageFlowGraph(*mpFlowGraph));
+         MpMediaTask::signalFrameStart();
+         // MediaTask need some time to receive unmanage message.
+         OsTask::delay(20);
+
+         // Disable devices
+         for (sourceDeviceId=0; sourceDeviceId<mInputDeviceNumber; sourceDeviceId++)
+         {
+            CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                                 mpInputDeviceManager->disableDevice(sourceDeviceId+1));
+         }
+
+         // Remove resources from flowgraph.
+         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, mpFlowGraph->removeResource(blackHole));
+         for (sourceDeviceId=0; sourceDeviceId<mInputDeviceNumber; sourceDeviceId++)
+         {
+            CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, mpFlowGraph->removeResource(*pSourceResources[sourceDeviceId]));
+         }
+         mpFlowGraph->processNextFrame();
+      }
+      catch (CppUnit::Exception& e)
+      {
+         // Remove resources from flowgraph. We should remove them explicitly
+         // here, because they are stored on the stack and will be destroyed.
+         // If we will not catch this assert we'll have this resources destroyed
+         // while still referenced in flowgraph, causing crash.
+         if (blackHole.getFlowGraph() != NULL)
+         {
+            CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, mpFlowGraph->removeResource(blackHole));
+         }
+         for (unsigned i=0; i<mInputDeviceNumber; i++)
+         {
+            if (pSourceResources[i]->getFlowGraph() != NULL)
+            {
+               CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, mpFlowGraph->removeResource(*pSourceResources[i]));
+            }
+         }
+         mpFlowGraph->processNextFrame();
+
+         // Rethrow exception.
+         throw(e);
+      }
+
+      // Free output resources.
+      for (sourceDeviceId=0; sourceDeviceId<mInputDeviceNumber; sourceDeviceId++)
+      {
+         delete pSourceResources[sourceDeviceId];
+      }
+      delete[] pSourceResources;
+
+      RTL_WRITE("testManyInputDevices.rtl");
       RTL_STOP
    }
 
