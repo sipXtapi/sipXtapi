@@ -103,7 +103,8 @@ OsStatus MpodBufferRecorder::disableDevice()
 }
 
 OsStatus MpodBufferRecorder::pushFrame(unsigned int numSamples,
-                                       MpAudioSample* samples)
+                                       MpAudioSample* samples,
+                                       MpFrameTime frameTime)
 {
    if (!isEnabled())
    {

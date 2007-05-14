@@ -103,12 +103,19 @@ public:
      /// @brief Send data to output device.
    virtual
    OsStatus pushFrame(unsigned int numSamples,
-                      MpAudioSample* samples);
+                      MpAudioSample* samples,
+                      MpFrameTime frameTime);
      /**<
      *  This method is usually called from MpAudioOutputConnection::pushFrame().
      *
      *  @param numSamples - (in) Number of samples in <tt>samples</tt> array.
      *  @param samples - (in) Array of samples to push to device.
+     *  @param frameTime - (in) This driver ignore frame time.
+     *
+     *  @returns OS_LIMIT_REACHED if mixer buffer is full, i.e. frame come too
+     *           early.
+     *  @returns OS_FAILED for other errors.
+     *  @returns OS_SUCCESS if frame sent correctly.
      */
 
      /// Set frame ticker notification which this device should signal.

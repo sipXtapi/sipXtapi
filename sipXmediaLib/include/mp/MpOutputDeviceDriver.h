@@ -123,12 +123,20 @@ public:
      /// @brief Send data to output device.
    virtual
    OsStatus pushFrame(unsigned int numSamples,
-                      MpAudioSample* samples) = 0;
+                      MpAudioSample* samples,
+                      MpFrameTime frameTime) = 0;
      /**<
      *  This method is usually called from MpAudioOutputConnection::pushFrame().
      *
      *  @param numSamples - (in) Number of samples in <tt>samples</tt> array.
      *  @param samples - (in) Array of samples to push to device.
+     *  @param frameTime - (in) Time of pushed frame. Device may consider
+     *         does it want it or not internally. If frame come too late
+     *         driver should return OS_SUCCESS and throw out it silently.
+     *         Common problem is when MediaTask queue is jammed - no frames
+     *         are processed for some time and then they are processed bursty.
+     *         Using given frameTime driver may keep its internal queue short.
+     *         It is guaranteed that frame time would increase monotonically.
      *
      *  @returns OS_LIMIT_REACHED if mixer buffer is full, i.e. frame come too
      *           early.

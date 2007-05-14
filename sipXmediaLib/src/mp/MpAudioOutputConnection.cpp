@@ -205,6 +205,7 @@ OsStatus MpAudioOutputConnection::pushFrame(unsigned int numSamples,
                                             MpFrameTime frameTime)
 {
    OsStatus result = OS_FAILED;
+   RTL_BLOCK("MpAudioOutputConnection::pushFrame");
 
    assert(samples != NULL);
    assert(numSamples > 0);
@@ -224,12 +225,12 @@ OsStatus MpAudioOutputConnection::pushFrame(unsigned int numSamples,
 
    // From now we access internal data. Take lock.
    OsLock lock(mMutex);
+   RTL_EVENT("MpAudioOutputConnection::pushFrame", this->getValue());
 
    // Do we have mixer buffer, i.e. are we in direct write mode or not?
    if (isMixerBufferAvailable())
    {
       // We're in mixer mode.
-      RTL_BLOCK("MpAudioOutputConnection::mixFrame");
 
       // Convert frameTime to offset in mixer buffer.
       // Note: frameTime >= mCurrentFrameTime.
@@ -242,7 +243,6 @@ OsStatus MpAudioOutputConnection::pushFrame(unsigned int numSamples,
    }
    else
    {
-      RTL_BLOCK("MpAudioOutputConnection::directWrite");
       // We're in direct write mode.
       // In this mode pushed frame should have same size as device driver frame.
       // Later we may write code which enable pushing frames containing multiple
@@ -250,7 +250,7 @@ OsStatus MpAudioOutputConnection::pushFrame(unsigned int numSamples,
       assert(numSamples == mpDeviceDriver->getSamplesPerFrame());
 
       // So, push data to device driver and forget.
-      result = mpDeviceDriver->pushFrame(numSamples, samples);
+      result = mpDeviceDriver->pushFrame(numSamples, samples, frameTime);
 
       // But do not forget to advance our frame time.
       mCurrentFrameTime += numSamples * 1000 / mpDeviceDriver->getSamplesPerSec();
@@ -467,7 +467,8 @@ void MpAudioOutputConnection::tickerCallback(const int userData, const int event
          // So, push data to device driver and forget.
          result = pConnection->mpDeviceDriver->pushFrame(
                         pConnection->mpDeviceDriver->getSamplesPerFrame(),
-                        pConnection->mpMixerBuffer+pConnection->mMixerBufferBegin);
+                        pConnection->mpMixerBuffer+pConnection->mMixerBufferBegin,
+                        pConnection->mCurrentFrameTime);
          osPrintf("MpAudioOutputConnection::tickerCallback()"
                   " frame=%d, pushFrame result=%d\n",
                   pConnection->mCurrentFrameTime, result);
