@@ -45,6 +45,16 @@
 
 #define DEFAULT_BUFFER_ON_OUTPUT_MS   (BUFFERS_TO_BUFFER_ON_OUTPUT*TEST_SAMPLES_PER_FRAME*1000/TEST_SAMPLES_PER_SECOND)
                                             ///< Buffer size in output manager in milliseconds.
+#define DEFAULT_INPUT_DEVICE          "SineGenerator1"
+                                            ///< This device would be used if
+                                            ///< test does require single input
+                                            ///< device.
+#define DEFAULT_OUTPUT_DEVICE         "BufferRecorder1"
+                                            ///< This device would be used if
+                                            ///< test does require single output
+                                            ///< device. It would be also used
+                                            ///< to select ticker source if test
+                                            ///< engage all output devices.
 
 #define TEST_INPUT_DRIVERS            10    ///< Number of sine generators
 #define TEST_OUTPUT_DRIVERS           10    ///< Number of buffer recorders
@@ -186,14 +196,14 @@ public:
    {
       RTL_START(10000000);
 
-      MpInputDeviceHandle sourceDeviceId = 0;
+      MpInputDeviceHandle sourceDeviceId;
       CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
-                           mpInputDeviceManager->getDeviceId("SineGenerator1",
+                           mpInputDeviceManager->getDeviceId(DEFAULT_INPUT_DEVICE,
                                                              sourceDeviceId));
 
-      MpOutputDeviceHandle  sinkDeviceId = 0;
+      MpOutputDeviceHandle  sinkDeviceId;
       CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
-                           mpOutputDeviceManager->getDeviceId("BufferRecorder1",
+                           mpOutputDeviceManager->getDeviceId(DEFAULT_OUTPUT_DEVICE,
                                                               sinkDeviceId));
 
       // Create source (input) and sink (output) resources.
@@ -299,6 +309,11 @@ public:
    {
       unsigned sinkDeviceId;
 
+      MpOutputDeviceHandle  tickerDeviceId;
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                           mpOutputDeviceManager->getDeviceId(DEFAULT_OUTPUT_DEVICE,
+                                                              tickerDeviceId));
+
       RTL_START(10000000);
 
       // Create generator resource.
@@ -348,7 +363,7 @@ public:
 
          // Set flowgraph ticker
          CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
-                              mpOutputDeviceManager->setFlowgraphTickerSource(1));
+                              mpOutputDeviceManager->setFlowgraphTickerSource(tickerDeviceId));
 
          try {
             // Manage flowgraph with media task.
@@ -441,6 +456,11 @@ public:
    {
       unsigned sourceDeviceId;
 
+      MpOutputDeviceHandle  tickerDeviceId;
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                           mpOutputDeviceManager->getDeviceId(DEFAULT_OUTPUT_DEVICE,
+                                                              tickerDeviceId));
+
       RTL_START(10000000);
 
       // Create sink resource.
@@ -483,9 +503,9 @@ public:
 
          // Enable one of output devices to get ticks from it and set flowgraph ticker
          CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
-                              mpOutputDeviceManager->enableDevice(1));
+                              mpOutputDeviceManager->enableDevice(tickerDeviceId));
          CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
-                              mpOutputDeviceManager->setFlowgraphTickerSource(1));
+                              mpOutputDeviceManager->setFlowgraphTickerSource(tickerDeviceId));
 
          try {
             // Manage flowgraph with media task.
@@ -501,7 +521,7 @@ public:
             CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
                                  mpOutputDeviceManager->setFlowgraphTickerSource(MP_INVALID_OUTPUT_DEVICE_HANDLE));
             CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
-                                 mpOutputDeviceManager->disableDevice(1));
+                                 mpOutputDeviceManager->disableDevice(tickerDeviceId));
          }
          catch (CppUnit::Exception& e)
          {
@@ -509,7 +529,7 @@ public:
             CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
                                  mpOutputDeviceManager->setFlowgraphTickerSource(MP_INVALID_OUTPUT_DEVICE_HANDLE));
             CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
-                                 mpOutputDeviceManager->disableDevice(1));
+                                 mpOutputDeviceManager->disableDevice(tickerDeviceId));
 
             // Rethrow exception.
             throw(e);
