@@ -43,7 +43,7 @@
 #define TEST_SAMPLES_PER_FRAME        80    ///< in samples
 #define TEST_SAMPLES_PER_SECOND       8000  ///< in samples/sec (Hz)
 
-#define BUFFER_ON_OUTPUT_MS           (BUFFERS_TO_BUFFER_ON_OUTPUT*TEST_SAMPLES_PER_FRAME*1000/TEST_SAMPLES_PER_SECOND)
+#define DEFAULT_BUFFER_ON_OUTPUT_MS   (BUFFERS_TO_BUFFER_ON_OUTPUT*TEST_SAMPLES_PER_FRAME*1000/TEST_SAMPLES_PER_SECOND)
                                             ///< Buffer size in output manager in milliseconds.
 
 #define TEST_INPUT_DRIVERS            10    ///< Number of sine generators
@@ -119,7 +119,7 @@ public:
       CPPUNIT_ASSERT(mpInputDeviceManager != NULL);
       mpOutputDeviceManager = new MpOutputDeviceManager(TEST_SAMPLES_PER_FRAME,
                                                         TEST_SAMPLES_PER_SECOND,
-                                                        BUFFER_ON_OUTPUT_MS);
+                                                        DEFAULT_BUFFER_ON_OUTPUT_MS);
       CPPUNIT_ASSERT(mpOutputDeviceManager != NULL);
 
       // No drivers in managers
@@ -151,12 +151,6 @@ public:
          // message gets handled
          mpFlowGraph->processNextFrame();
       }
-
-#ifdef xUSE_TEST_OUTPUT_DRIVER // [
-      OsFile::openAndWrite("capture.raw",
-                           (const char*)sinkDevice.getBufferData(),
-                           sinkDevice.getBufferLength()*sizeof(MpAudioSample));
-#endif // USE_TEST_OUTPUT_DRIVER ]
 
       // Free all input device drivers
       for (; mInputDeviceNumber>0; mInputDeviceNumber--)
@@ -442,7 +436,6 @@ public:
       RTL_WRITE("testManyOutputDevices.rtl");
       RTL_STOP
    }
-
 
    void testManyInputDevices()
    {
