@@ -30,7 +30,7 @@
 #define BUFFER_NUM                    50
 #define TEST_SAMPLES_PER_SECOND       8000
 #define TEST_MIXER_BUFFER_LENGTH      10
-#define TEST_SAMPLE_DATA_LENGTH_SEC   5  // test length in seconds
+#define TEST_SAMPLE_DATA_LENGTH_SEC   2  // test length in seconds
 #define TEST_SAMPLE_DATA_SIZE         (TEST_SAMPLES_PER_SECOND*TEST_SAMPLE_DATA_LENGTH_SEC)
 #define TEST_SAMPLE_DATA_MAGNITUDE    32000
 #define TEST_SAMPLE_DATA_PERIOD       7  // in milliseconds
@@ -184,7 +184,7 @@ public:
       for (int frame=0; frame<TEST_SAMPLE_DATA_SIZE/TEST_SAMPLES_PER_FRAME_SIZE; frame++)
       {
          OsTask::delay(1000*TEST_SAMPLES_PER_FRAME_SIZE/TEST_SAMPLES_PER_SECOND);
-         driver.pushFrame(TEST_SAMPLES_PER_FRAME_SIZE, sampleData + TEST_SAMPLES_PER_FRAME_SIZE*frame);
+         driver.pushFrame(TEST_SAMPLES_PER_FRAME_SIZE, sampleData + TEST_SAMPLES_PER_FRAME_SIZE*frame, -1);
       }
 
       driver.disableDevice();
@@ -208,7 +208,7 @@ public:
          notificationEvent.wait(OsTime(500));
          notificationEvent.reset();
          RTL_BLOCK("test ticker loop");
-         driver.pushFrame(TEST_SAMPLES_PER_FRAME_SIZE, sampleData + TEST_SAMPLES_PER_FRAME_SIZE*frame);
+         driver.pushFrame(TEST_SAMPLES_PER_FRAME_SIZE, sampleData + TEST_SAMPLES_PER_FRAME_SIZE*frame, -1);
       }
 
       driver.disableDevice();

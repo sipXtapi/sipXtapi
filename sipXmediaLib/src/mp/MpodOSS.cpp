@@ -198,7 +198,8 @@ OsStatus MpodOSS::disableDevice()
 }
 
 OsStatus MpodOSS::pushFrame(unsigned int numSamples,
-                            MpAudioSample* samples)
+                            MpAudioSample* samples,
+                            MpFrameTime frameTime)
 {
    if (!isEnabled())
       return OS_FAILED;
