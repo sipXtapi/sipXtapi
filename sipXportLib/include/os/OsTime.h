@@ -40,8 +40,8 @@ public:
    /// Time quantity enum for special time values
    typedef enum
    {
-      OS_INFINITY = 0,
-      NO_WAIT_TIME
+      OS_INFINITY = -1,
+      NO_WAIT_TIME = 0
    }TimeQuantity;
 
    static const long MSECS_PER_SEC;
