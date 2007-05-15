@@ -1477,8 +1477,7 @@ SIPXTAPI_API SIPX_RESULT sipxCallGetRemoteUserAgent(const SIPX_CALL hCall,
  * If a sipxCallDestroy is attempted while a tone is playing,
  * sipxCallDestroy will fail with a SIPX_RESULT_BUSY return code.
  * Call sipxCallStopTone before making the call to
- * sipxConferenceDestroy. DTMF is sent in-band, sending DTMF via 
- * RFC 2833 method is not supported.
+ * sipxConferenceDestroy. DTMF is sent via RFC 2833 method.
  *
  * @param hCall Handle to a call.  Call handles are obtained either by 
  *        invoking sipxCallCreate or passed to your application through
@@ -3115,7 +3114,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigEnableOutOfBandDTMF(const SIPX_INST hInst,
 
 /**
  * Enable/disable sending of in-band DTMF tones. In-band DTMF
- * is enabled by default.
+ * is disabled by default.
  *
  * This function is currently not implemented.
  *
