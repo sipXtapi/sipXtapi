@@ -645,7 +645,7 @@ public:
          // Enable all resources in flowgraph.
          mpFlowGraph->enable();
 
-         // Enable one of output devices to get ticks from it and set flowgraph ticker
+         // Set flowgraph ticker
          CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
                               mpOutputDeviceManager->setFlowgraphTickerSource(sinkDeviceId));
 
@@ -726,7 +726,7 @@ public:
       }
       delete[] pSourceResources;
 
-      RTL_WRITE("testManyInputDevices.rtl");
+      RTL_WRITE("testManyInputDevicesToOneOutputDevice.rtl");
       RTL_STOP
    }
 
