@@ -169,6 +169,8 @@ public:
 
       for (int i=0; i<DIRECT_WRITE_TEST_RUNS_NUMBER; i++)
       {
+         MpFrameTime frameTime=0;
+
          driver.enableDevice(TEST_SAMPLES_PER_FRAME_SIZE, TEST_SAMPLES_PER_SECOND, 0);
          CPPUNIT_ASSERT(driver.isEnabled());
 
@@ -176,9 +178,12 @@ public:
          for (int frame=0; frame<TEST_SAMPLE_DATA_SIZE/TEST_SAMPLES_PER_FRAME_SIZE; frame++)
          {
             OsTask::delay(1000*TEST_SAMPLES_PER_FRAME_SIZE/TEST_SAMPLES_PER_SECOND);
-            CPPUNIT_ASSERT(driver.pushFrame(TEST_SAMPLES_PER_FRAME_SIZE,
-                                            sampleData + TEST_SAMPLES_PER_FRAME_SIZE*frame)
-                           == OS_SUCCESS);
+            CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                                 driver.pushFrame(TEST_SAMPLES_PER_FRAME_SIZE,
+                                                  sampleData + TEST_SAMPLES_PER_FRAME_SIZE*frame,
+                                                  frameTime));
+
+            frameTime += TEST_SAMPLES_PER_FRAME_SIZE*1000/TEST_SAMPLES_PER_SECOND;
          }
 
          driver.disableDevice();
@@ -197,6 +202,8 @@ public:
 
       for (int i=0; i<TICKER_TEST_WRITE_RUNS_NUMBER; i++)
       {
+         MpFrameTime frameTime=0;
+
          driver.enableDevice(TEST_SAMPLES_PER_FRAME_SIZE, TEST_SAMPLES_PER_SECOND, 0);
          CPPUNIT_ASSERT(driver.isEnabled());
 
@@ -209,7 +216,10 @@ public:
             notificationEvent.reset();
             CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
                                  driver.pushFrame(TEST_SAMPLES_PER_FRAME_SIZE,
-                                                  sampleData + TEST_SAMPLES_PER_FRAME_SIZE*frame));
+                                                  sampleData + TEST_SAMPLES_PER_FRAME_SIZE*frame,
+                                                  frameTime));
+
+            frameTime += TEST_SAMPLES_PER_FRAME_SIZE*1000/TEST_SAMPLES_PER_SECOND;
          }
 
          CPPUNIT_ASSERT(driver.setTickerNotification(NULL) == OS_SUCCESS);
