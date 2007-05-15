@@ -42,7 +42,7 @@ public:
    {
       OS_INFINITY = -1,
       NO_WAIT_TIME = 0
-   }TimeQuantity;
+   } TimeQuantity;
 
    static const long MSECS_PER_SEC;
    static const long USECS_PER_MSEC;
