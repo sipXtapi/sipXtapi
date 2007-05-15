@@ -1477,8 +1477,9 @@ SIPXTAPI_API SIPX_RESULT sipxCallGetRemoteUserAgent(const SIPX_CALL hCall,
  * If a sipxCallDestroy is attempted while a tone is playing,
  * sipxCallDestroy will fail with a SIPX_RESULT_BUSY return code.
  * Call sipxCallStopTone before making the call to
- * sipxConferenceDestroy.
-
+ * sipxConferenceDestroy. DTMF is sent in-band, sending DTMF via 
+ * RFC 2833 method is not supported.
+ *
  * @param hCall Handle to a call.  Call handles are obtained either by 
  *        invoking sipxCallCreate or passed to your application through
  *        a listener interface.
@@ -3093,8 +3094,8 @@ SIPXTAPI_API SIPX_RESULT sipxConfigKeepAliveRemove(const SIPX_INST     hInst,
 
 
 /**
- * Enable/disable sending of out-of-band DTMF tones. If disabled the tones
- * will be sent inband (if in-band DTMF is enabled).  Out-of-band DTMF
+ * Enable/disable sending of RFC 2833 DTMF tones. If disabled the tones
+ * will be sent in-band (if in-band DTMF is enabled). RFC 2833 DTMF
  * is enabled by default.
  *
  * Generally, out-of-band DTMF should always be enabled.  In-band DTMF
@@ -3104,6 +3105,8 @@ SIPXTAPI_API SIPX_RESULT sipxConfigKeepAliveRemove(const SIPX_INST     hInst,
  * need to disable out-of-band DTMF (due to duplicate DTMF signals) on 
  * another device, please consider reconfiguring that other device.
  *
+ * This function is currently not implemented.
+ *
  * @param hInst Instance pointer obtained by sipxInitialize
  * @param bEnable Enable or disable out-of-band DTMF tones.
  */
@@ -3111,9 +3114,10 @@ SIPXTAPI_API SIPX_RESULT sipxConfigEnableOutOfBandDTMF(const SIPX_INST hInst,
                                                        const bool bEnable) ;
 
 /**
- * Enable/disable sending of in-band DTMF tones.  If disabled, the tones
- * will be sent out of band (if out-of-band is enabled).  In-band DTMF
+ * Enable/disable sending of in-band DTMF tones. In-band DTMF
  * is enabled by default.
+ *
+ * This function is currently not implemented.
  *
  * @param hInst Instance pointer obtained by sipxInitialize
  * @param bEnable Enable or disable in-band DTMF tones.

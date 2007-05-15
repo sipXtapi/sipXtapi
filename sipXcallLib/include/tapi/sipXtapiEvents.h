@@ -651,7 +651,7 @@ typedef struct
                                          events. */
     SIPX_TONE_ID        toneId;	    /**< DTMF tone received from remote party;
                                          only supplied on MEDIA_REMOTE_DTMF event).
-                                         Note: Only out-of-band DTMF is supported
+                                         Note: Only RFC 2833 DTMF detection is supported
                                          (not in-band DTMF or dialtone detection, 
                                          etc.)*/
 } SIPX_MEDIA_INFO ;
