@@ -211,8 +211,11 @@ sipXmediaFactoryImpl::~sipXmediaFactoryImpl()
     --miInstanceCount;
     if (miInstanceCount == 0)
     {
-        // Temporarily comment out this function because it causes the program hung.
+#ifndef ENABLE_TOPOLOGY_FLOWGRAPH_INTERFACE_FACTORY
         mpStopTasks();
+#else
+        shutdownNetInTask();
+#endif
         mpShutdown();
     }
 }
