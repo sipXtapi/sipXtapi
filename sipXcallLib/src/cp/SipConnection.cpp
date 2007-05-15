@@ -1369,6 +1369,8 @@ UtlBoolean SipConnection::answer(const void* pDisplay)
                             {
                                 mpMediaInterface->startRtpSend(mConnectionId,
                                     numMatchingCodecs, matchingCodecs);
+                                mpMediaInterface->addToneListener(getDtmfQueuedEvent(),
+                                    mConnectionId);
                             }
                             fireAudioStartEvents() ;
                         }
@@ -1571,6 +1573,8 @@ UtlBoolean SipConnection::accept(int ringingTimeOutSeconds,
                         mpMediaInterface->startRtpSend(mConnectionId,
                                                        numMatchingCodecs, 
                                                        matchingCodecs);
+                        mpMediaInterface->addToneListener(getDtmfQueuedEvent(),
+                                                          mConnectionId);
                     }
                     fireAudioStartEvents();
                 }
@@ -3950,7 +3954,8 @@ void SipConnection::processAckRequest(const SipMessage* request)
 
             mpMediaInterface->startRtpSend(mConnectionId,
                 numMatchingCodecs, matchingCodecs);
-
+            mpMediaInterface->addToneListener(getDtmfQueuedEvent(),
+                mConnectionId);
             fireAudioStartEvents() ;
         }
 #ifdef TEST_PRINT
