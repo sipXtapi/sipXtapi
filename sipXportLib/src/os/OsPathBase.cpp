@@ -359,7 +359,7 @@ void OsPathBase::Split()
     char path[256];
     char fname[256];
     char name[256];
-    char ext[32];
+    char ext[256];
 
     fnSplit((char *)data(),             /* Original file spec         */
             drive,            /* Drive spec                 */
