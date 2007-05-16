@@ -206,7 +206,7 @@ public:
    virtual void forceHangUp(int connectionState = CONNECTION_DISCONNECTED)
    {
 	   setState(connectionState, CONNECTION_REMOTE);
-      fireSipXEvent(CALLSTATE_CONNECTED, CALLSTATE_CAUSE_NORMAL) ;
+      fireSipXCallEvent(CALLSTATE_CONNECTED, CALLSTATE_CAUSE_NORMAL) ;
    }
 
    virtual UtlBoolean dequeue(UtlBoolean callInFocus) = 0;
@@ -304,7 +304,7 @@ public:
       //:Gets the media interface pointer for this connection.
 
     UtlBoolean validStateTransition(SIPX_CALLSTATE_EVENT eFrom, SIPX_CALLSTATE_EVENT eTo) ;
-    void fireSipXEvent(SIPX_CALLSTATE_EVENT eMajor, SIPX_CALLSTATE_CAUSE eMinor, void *pEventData=NULL) ;
+    void fireSipXCallEvent(SIPX_CALLSTATE_EVENT eMajor, SIPX_CALLSTATE_CAUSE eMinor, void *pEventData=NULL) ;
     void fireSipXSecurityEvent(SIPX_SECURITY_INFO *pEventData) ;
     void fireSipXMediaEvent(SIPX_MEDIA_EVENT event, 
                             SIPX_MEDIA_CAUSE cause, 

@@ -738,7 +738,7 @@ UtlBoolean CpPeerCall::handleDropConnection(OsMsg* pEventMessage)
             pGhost = dynamic_cast<CpGhostConnection*>(connection);
             if (!pGhost)
             {
-                connection->fireSipXEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_NORMAL) ;
+                connection->fireSipXCallEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_NORMAL) ;
             }
             connection->hangUp();
         }
@@ -3321,11 +3321,11 @@ void CpPeerCall::inFocus(int talking)
             {
                 if (connection->isHeld())
                 {
-                    connection->fireSipXEvent(CALLSTATE_REMOTE_HELD, CALLSTATE_CAUSE_NORMAL) ;
+                    connection->fireSipXCallEvent(CALLSTATE_REMOTE_HELD, CALLSTATE_CAUSE_NORMAL) ;
                 }
                 else
                 {
-                    connection->fireSipXEvent(CALLSTATE_CONNECTED, CALLSTATE_CAUSE_NORMAL) ;
+                    connection->fireSipXCallEvent(CALLSTATE_CONNECTED, CALLSTATE_CAUSE_NORMAL) ;
                 }
             }
         }
@@ -3367,11 +3367,11 @@ void CpPeerCall::outOfFocus()
         {
             if (connection->isHeld())
             {
-                connection->fireSipXEvent(CALLSTATE_HELD, CALLSTATE_CAUSE_NORMAL) ;
+                connection->fireSipXCallEvent(CALLSTATE_HELD, CALLSTATE_CAUSE_NORMAL) ;
             }
             else
             {
-                connection->fireSipXEvent(CALLSTATE_BRIDGED, CALLSTATE_CAUSE_NORMAL) ;
+                connection->fireSipXCallEvent(CALLSTATE_BRIDGED, CALLSTATE_CAUSE_NORMAL) ;
             }
         }
     }
@@ -3402,7 +3402,7 @@ void CpPeerCall::onHook()
             pGhost = dynamic_cast<CpGhostConnection*>(connection);
             if (!pGhost)
             {
-                connection->fireSipXEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_NORMAL) ;
+                connection->fireSipXCallEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_NORMAL) ;
             }
         }       
     }
@@ -3498,7 +3498,7 @@ void CpPeerCall::dropIfDead()
                         pGhost = dynamic_cast<CpGhostConnection*>(connection);
                         if (!pGhost)
                         {
-                            connection->fireSipXEvent(CALLSTATE_DESTROYED, CALLSTATE_CAUSE_NORMAL) ;
+                            connection->fireSipXCallEvent(CALLSTATE_DESTROYED, CALLSTATE_CAUSE_NORMAL) ;
                         }
                     }                
                     // Drop the call immediately
@@ -3571,7 +3571,7 @@ void CpPeerCall::dropDeadConnections()
                     pGhost = dynamic_cast<CpGhostConnection*>(connection);
                     if (!pGhost)
                     {
-                        connection->fireSipXEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_NORMAL) ;
+                        connection->fireSipXCallEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_NORMAL) ;
                     }
 
                     postTaoListenerMessage(connection->getResponseCode(), responseText, PtEvent::TERMINAL_CONNECTION_DROPPED, TERMINAL_CONNECTION_STATE);
@@ -3589,7 +3589,7 @@ void CpPeerCall::dropDeadConnections()
                     // do not fire the tapi event if it is a ghost connection
                     if (!pGhost)
                     {
-                        connection->fireSipXEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_NORMAL) ;    
+                        connection->fireSipXCallEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_NORMAL) ;    
                     }
                 }               
 

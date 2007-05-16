@@ -507,7 +507,7 @@ void Connection::fireSipXSecurityEvent(SIPX_SECURITY_INFO *pEventData)
     TapiMgr::getInstance().fireEvent(mpCallManager, EVENT_CATEGORY_SECURITY, pEventData);
 }
 
-void Connection::fireSipXEvent(SIPX_CALLSTATE_EVENT eventCode, SIPX_CALLSTATE_CAUSE causeCode, void* pEventData)
+void Connection::fireSipXCallEvent(SIPX_CALLSTATE_EVENT eventCode, SIPX_CALLSTATE_CAUSE causeCode, void* pEventData)
 {
     UtlString callId ;
     UtlString remoteAddress ;

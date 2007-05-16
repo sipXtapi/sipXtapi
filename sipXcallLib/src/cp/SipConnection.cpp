@@ -825,7 +825,7 @@ UtlBoolean SipConnection::dial(const char* dialString,
                 fireSipXMediaEvent(MEDIA_DEVICE_FAILURE, MEDIA_CAUSE_DEVICE_UNAVAILABLE, MEDIA_TYPE_AUDIO);
             }
             setState(CONNECTION_FAILED, CONNECTION_REMOTE, CONNECTION_CAUSE_RESOURCES_NOT_AVAILABLE);
-            fireSipXEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_RESOURCE_LIMIT) ;
+            fireSipXCallEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_RESOURCE_LIMIT) ;
         }
         else
         {
@@ -877,7 +877,7 @@ UtlBoolean SipConnection::dial(const char* dialString,
                     // get the original callid from the call object
                     mpCall->getOriginalCallId(origCallId);
                 }
-                fireSipXEvent(CALLSTATE_NEWCALL, CALLSTATE_CAUSE_TRANSFER, (void*) origCallId.data()) ;
+                fireSipXCallEvent(CALLSTATE_NEWCALL, CALLSTATE_CAUSE_TRANSFER, (void*) origCallId.data()) ;
             }
 
             // Create and send an INVITE
@@ -941,7 +941,7 @@ UtlBoolean SipConnection::dial(const char* dialString,
             if (!prepareInviteSdpForSend(&sipInvite, mConnectionId, pSecurity))
             {
                 setState(Connection::CONNECTION_FAILED, Connection::CONNECTION_LOCAL);
-                fireSipXEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_SMIME_FAILURE) ;
+                fireSipXCallEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_SMIME_FAILURE) ;
             }
             else
             {
@@ -964,7 +964,7 @@ UtlBoolean SipConnection::dial(const char* dialString,
                     setState(CONNECTION_INITIATED, CONNECTION_REMOTE, cause);
                     setState(CONNECTION_OFFERING, CONNECTION_REMOTE, cause);
                     dialOk = TRUE;
-                    fireSipXEvent(CALLSTATE_REMOTE_OFFERING, CALLSTATE_CAUSE_NORMAL) ;
+                    fireSipXCallEvent(CALLSTATE_REMOTE_OFFERING, CALLSTATE_CAUSE_NORMAL) ;
 
                     // Prepare to receive the codecs, without any srtp
                     // for early media
@@ -983,7 +983,7 @@ UtlBoolean SipConnection::dial(const char* dialString,
                     osPrintf("INVITE send failed\n");
     #endif
                     setState(CONNECTION_FAILED, CONNECTION_REMOTE, CONNECTION_CAUSE_DEST_NOT_OBTAINABLE);
-                    fireSipXEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_BAD_ADDRESS) ;
+                    fireSipXCallEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_BAD_ADDRESS) ;
                     // Failed to send a message for transfer
                     if(callController && !goodToAddress.isNull())
                     {
@@ -1148,7 +1148,7 @@ UtlBoolean SipConnection::answer(const void* pDisplay)
             send(notAcceptable);
 
             setState(CONNECTION_FAILED, CONNECTION_REMOTE);
-            fireSipXEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_REMOTE_SMIME_UNSUPPORTED) ;
+            fireSipXCallEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_REMOTE_SMIME_UNSUPPORTED) ;
 
         }
         else
@@ -1181,7 +1181,7 @@ UtlBoolean SipConnection::answer(const void* pDisplay)
                 send(sipResponse);
 
                 setState(CONNECTION_FAILED, CONNECTION_LOCAL, CONNECTION_CAUSE_RESOURCES_NOT_AVAILABLE);
-                fireSipXEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_REMOTE_SMIME_UNSUPPORTED) ;
+                fireSipXCallEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_REMOTE_SMIME_UNSUPPORTED) ;
             }
             // Compatable codecs send OK response
             else
@@ -1305,7 +1305,7 @@ UtlBoolean SipConnection::answer(const void* pDisplay)
                         "SipConnection::answer: CONNECTION_FAILED, CONNECTION_LOCAL, CONNECTION_CAUSE_NORMAL");
 
                     setState(CONNECTION_FAILED, CONNECTION_LOCAL, CONNECTION_CAUSE_NORMAL);
-                    fireSipXEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_NETWORK) ;
+                    fireSipXCallEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_NETWORK) ;
                 }
                 else
                 {
@@ -1321,22 +1321,22 @@ UtlBoolean SipConnection::answer(const void* pDisplay)
                     {
                         if (mHoldState == TERMCONNECTION_TALKING)
                         {
-                            fireSipXEvent(CALLSTATE_CONNECTED, CALLSTATE_CAUSE_NORMAL);
+                            fireSipXCallEvent(CALLSTATE_CONNECTED, CALLSTATE_CAUSE_NORMAL);
                         }
                         else
                         {
-                            fireSipXEvent(CALLSTATE_REMOTE_HELD, CALLSTATE_CAUSE_NORMAL);
+                            fireSipXCallEvent(CALLSTATE_REMOTE_HELD, CALLSTATE_CAUSE_NORMAL);
                         }
                     }
                     else
                     {
                         if (mHoldState == TERMCONNECTION_TALKING)
                         {
-                            fireSipXEvent(CALLSTATE_BRIDGED, CALLSTATE_CAUSE_NORMAL);
+                            fireSipXCallEvent(CALLSTATE_BRIDGED, CALLSTATE_CAUSE_NORMAL);
                         }
                         else
                         {
-                            fireSipXEvent(CALLSTATE_HELD, CALLSTATE_CAUSE_NORMAL);
+                            fireSipXCallEvent(CALLSTATE_HELD, CALLSTATE_CAUSE_NORMAL);
                         }
                     }
 
@@ -1475,7 +1475,7 @@ UtlBoolean SipConnection::accept(int ringingTimeOutSeconds,
 #endif
             OsSysLog::add(FAC_CP, PRI_ERR, "SipConnection::accept - incoming call part of a transfer");
             setState(CONNECTION_FAILED, CONNECTION_REMOTE, CONNECTION_CAUSE_BUSY);
-            fireSipXEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_TRANSACTION_DOES_NOT_EXIST) ;
+            fireSipXCallEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_TRANSACTION_DOES_NOT_EXIST) ;
         }
         else if (!pSecurity && contentType.compareTo(CONTENT_SMIME_PKCS7) == 0)
         {
@@ -1484,7 +1484,7 @@ UtlBoolean SipConnection::accept(int ringingTimeOutSeconds,
                 SIP_REQUEST_UNDECIPHERABLE_TEXT);
             setState(CONNECTION_FAILED, CONNECTION_REMOTE, CONNECTION_CAUSE_NOT_ALLOWED);
             setState(CONNECTION_FAILED, CONNECTION_LOCAL, CONNECTION_CAUSE_NOT_ALLOWED);
-            fireSipXEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_SMIME_FAILURE) ;
+            fireSipXCallEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_SMIME_FAILURE) ;
             send(undecipherable);
         }
         else
@@ -1548,7 +1548,7 @@ UtlBoolean SipConnection::accept(int ringingTimeOutSeconds,
                 cause = CONNECTION_CAUSE_NORMAL;
             }
             setState(CONNECTION_ALERTING, CONNECTION_LOCAL, cause);
-            fireSipXEvent(CALLSTATE_ALERTING, CALLSTATE_CAUSE_NORMAL) ;
+            fireSipXCallEvent(CALLSTATE_ALERTING, CALLSTATE_CAUSE_NORMAL) ;
 
             // Try to setup for early receipt of media.
             if(numMatchingCodecs > 0)
@@ -1626,7 +1626,7 @@ UtlBoolean SipConnection::reject()
                 osPrintf("SipConnection::reject - CONNECTION_FAILED, cause BUSY : 825\n");
 #endif
                 setState(CONNECTION_FAILED, CONNECTION_REMOTE, CONNECTION_CAUSE_BUSY);
-                fireSipXEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_TRANSACTION_DOES_NOT_EXIST) ;
+                fireSipXCallEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_TRANSACTION_DOES_NOT_EXIST) ;
             }
             else
             {
@@ -1637,7 +1637,7 @@ UtlBoolean SipConnection::reject()
                 osPrintf("SipConnection::reject - CONNECTION_FAILED, cause BUSY : 833\n");
 #endif
                 setState(CONNECTION_FAILED, CONNECTION_REMOTE, CONNECTION_CAUSE_BUSY);
-                fireSipXEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_NORMAL) ;
+                fireSipXCallEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_NORMAL) ;
             }
         }
         else if (state == CONNECTION_ALERTING)
@@ -1649,7 +1649,7 @@ UtlBoolean SipConnection::reject()
             osPrintf("SipConnection::reject - CONNECTION_DISCONNECTED, cause CONNECTION_CAUSE_CANCELLED : 845\n");
 #endif
             setState(CONNECTION_DISCONNECTED, CONNECTION_REMOTE, CONNECTION_CAUSE_CANCELLED);
-            fireSipXEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_NORMAL) ;
+            fireSipXCallEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_NORMAL) ;
         }
     }
     return(responseSent);
@@ -1679,7 +1679,7 @@ UtlBoolean SipConnection::redirect(const char* forwardAddress)
         redirectSent = send(redirectResponse);
         setState(CONNECTION_DISCONNECTED, CONNECTION_REMOTE, CONNECTION_CAUSE_REDIRECTED);
         setState(CONNECTION_DISCONNECTED, CONNECTION_LOCAL, CONNECTION_CAUSE_REDIRECTED);
-        fireSipXEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_REDIRECTED) ;
+        fireSipXCallEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_REDIRECTED) ;
 
         targetUrl = OsUtil::NULL_OS_STRING;
         dummyFrom = OsUtil::NULL_OS_STRING;
@@ -1997,7 +1997,7 @@ UtlBoolean SipConnection::originalCallTransfer(UtlString&  dialString,
 
         if(isMethodAllowed(SIP_REFER_METHOD))
         {
-            fireSipXEvent(CALLSTATE_TRANSFER_EVENT, CALLSTATE_CAUSE_TRANSFER_INITIATED) ;
+            fireSipXCallEvent(CALLSTATE_TRANSFER_EVENT, CALLSTATE_CAUSE_TRANSFER_INITIATED) ;
 
             mTargetCallConnectionAddress = dialString;
             mTargetCallId = targetCallId;
@@ -2027,7 +2027,7 @@ UtlBoolean SipConnection::originalCallTransfer(UtlString&  dialString,
         }
         else
         {
-            fireSipXEvent(CALLSTATE_TRANSFER_EVENT, CALLSTATE_CAUSE_TRANSFER_FAILURE) ;
+            fireSipXCallEvent(CALLSTATE_TRANSFER_EVENT, CALLSTATE_CAUSE_TRANSFER_FAILURE) ;
         }
     }
     return(ret);
@@ -2370,7 +2370,7 @@ UtlBoolean SipConnection::doHangUp(const char* dialString,
                         "SipConnection::doHangUp: Sending BYE failed.  "
                         "Terminating connection.");
                     setState(CONNECTION_DISCONNECTED, CONNECTION_REMOTE);
-                    fireSipXEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_NORMAL);
+                    fireSipXCallEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_NORMAL);
                 }
                 else
                 {
@@ -2498,7 +2498,7 @@ UtlBoolean SipConnection::processMessage(OsMsg& eventMessage,
                 // THis call was not setup (i.e. did not try to sent an
                 // invite and we did not receive one.  This is a bad call
                 setState(CONNECTION_FAILED, CONNECTION_REMOTE, CONNECTION_CAUSE_DEST_NOT_OBTAINABLE);
-                fireSipXEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_BAD_ADDRESS) ;
+                fireSipXCallEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_BAD_ADDRESS) ;
             }
             // We only care about INVITE.
             // BYE, CANCLE and ACK are someone else's problem.
@@ -2510,7 +2510,7 @@ UtlBoolean SipConnection::processMessage(OsMsg& eventMessage,
                 osPrintf("No response to INVITE\n");
 #endif
                 setState(CONNECTION_FAILED, CONNECTION_REMOTE, CONNECTION_CAUSE_DEST_NOT_OBTAINABLE);
-                fireSipXEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_BAD_ADDRESS) ;
+                fireSipXCallEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_BAD_ADDRESS) ;
 
 #ifdef TEST_PRINT
                 osPrintf("SipConnection::processMessage originalConnectionAddress: %s connection state: CONNECTION_FAILED transport failed\n",
@@ -2559,7 +2559,7 @@ UtlBoolean SipConnection::processMessage(OsMsg& eventMessage,
                 osPrintf("SipConnection::processMessage failed BYE\n");
 #endif
                 setState(CONNECTION_DISCONNECTED, CONNECTION_REMOTE, CONNECTION_CAUSE_DEST_NOT_OBTAINABLE);
-                fireSipXEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_NETWORK) ;
+                fireSipXCallEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_NETWORK) ;
             }
 
             // We we fail to send a response to the invite, (e.g. ACK not
@@ -2577,7 +2577,7 @@ UtlBoolean SipConnection::processMessage(OsMsg& eventMessage,
                       (responseCseq == inviteCseq))
                 {
                     setState(CONNECTION_DISCONNECTED, CONNECTION_REMOTE, CONNECTION_CAUSE_DEST_NOT_OBTAINABLE);
-                    fireSipXEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_NETWORK) ;
+                    fireSipXCallEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_NETWORK) ;
                 }
                 else
                 {
@@ -2738,7 +2738,7 @@ UtlBoolean SipConnection::extendSessionReinvite()
         // A stray timer expired and the call does not exist.
 
         setState(CONNECTION_FAILED, CONNECTION_REMOTE);
-        fireSipXEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_RESOURCE_LIMIT) ;
+        fireSipXCallEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_RESOURCE_LIMIT) ;
     }
 
     return(messageSent);
@@ -2902,7 +2902,7 @@ void SipConnection::processInviteRequestBadRefer(const SipMessage* request, int 
     mpCall->setDropState(TRUE);
     setState(CONNECTION_DISCONNECTED, CONNECTION_REMOTE);
     setState(CONNECTION_DISCONNECTED, CONNECTION_LOCAL);
-    fireSipXEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_BAD_REFER) ;
+    fireSipXCallEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_BAD_REFER) ;
 
 }
 
@@ -2972,7 +2972,7 @@ void SipConnection::processInviteRequestOffering(const SipMessage* request,
             2, metaEventCallIds);
         mpCall->setCallType(CpCall::CP_TRANSFER_TARGET_TARGET_CALL);
 
-        fireSipXEvent(CALLSTATE_NEWCALL, CALLSTATE_CAUSE_TRANSFERRED, (void*) replaceCallId.data()) ;
+        fireSipXCallEvent(CALLSTATE_NEWCALL, CALLSTATE_CAUSE_TRANSFERRED, (void*) replaceCallId.data()) ;
     }
     else
     {
@@ -2999,7 +2999,7 @@ void SipConnection::processInviteRequestOffering(const SipMessage* request,
             mpCall->setCallState(mResponseCode, mResponseText, PtCall::ACTIVE);
             setState(CONNECTION_ESTABLISHED, CONNECTION_REMOTE, PtEvent::CAUSE_NEW_CALL);
             setState(CONNECTION_INITIATED, CONNECTION_LOCAL, PtEvent::CAUSE_NEW_CALL);
-            fireSipXEvent(CALLSTATE_NEWCALL, CALLSTATE_CAUSE_NORMAL) ;
+            fireSipXCallEvent(CALLSTATE_NEWCALL, CALLSTATE_CAUSE_NORMAL) ;
         }
     }
 
@@ -3010,7 +3010,7 @@ void SipConnection::processInviteRequestOffering(const SipMessage* request,
     if(!doesReplaceCallLegExist)
     {
         setState(CONNECTION_OFFERING, CONNECTION_LOCAL, cause);
-        fireSipXEvent(CALLSTATE_OFFERING, CALLSTATE_CAUSE_NORMAL) ;
+        fireSipXCallEvent(CALLSTATE_OFFERING, CALLSTATE_CAUSE_NORMAL) ;
 
     }
 
@@ -3148,11 +3148,11 @@ void SipConnection::processInviteRequestReinvite(const SipMessage* request, int 
 
                 if (mpCall->isInFocus())
                 {
-                    fireSipXEvent(CALLSTATE_REMOTE_HELD, CALLSTATE_CAUSE_NORMAL);
+                    fireSipXCallEvent(CALLSTATE_REMOTE_HELD, CALLSTATE_CAUSE_NORMAL);
                 }
                 else
                 {
-                    fireSipXEvent(CALLSTATE_HELD, CALLSTATE_CAUSE_NORMAL);
+                    fireSipXCallEvent(CALLSTATE_HELD, CALLSTATE_CAUSE_NORMAL);
                 }
                 mHoldState = TERMCONNECTION_HELD ;
                 mRemoteRequestedHold = TRUE;
@@ -3171,11 +3171,11 @@ void SipConnection::processInviteRequestReinvite(const SipMessage* request, int 
                     // We are refusing to come off hold
                     if (mpCall->isInFocus())
                     {
-                        fireSipXEvent(CALLSTATE_REMOTE_HELD, CALLSTATE_CAUSE_NORMAL);
+                        fireSipXCallEvent(CALLSTATE_REMOTE_HELD, CALLSTATE_CAUSE_NORMAL);
                     }
                     else
                     {
-                        fireSipXEvent(CALLSTATE_HELD, CALLSTATE_CAUSE_NORMAL);
+                        fireSipXCallEvent(CALLSTATE_HELD, CALLSTATE_CAUSE_NORMAL);
                     }
                     mHoldState = TERMCONNECTION_HELD ;
                 }
@@ -3200,11 +3200,11 @@ void SipConnection::processInviteRequestReinvite(const SipMessage* request, int 
                     // us off hold
                     if (mpCall->isInFocus())
                     {
-                        fireSipXEvent(CALLSTATE_CONNECTED, CALLSTATE_CAUSE_NORMAL);
+                        fireSipXCallEvent(CALLSTATE_CONNECTED, CALLSTATE_CAUSE_NORMAL);
                     }
                     else
                     {
-                        fireSipXEvent(CALLSTATE_BRIDGED, CALLSTATE_CAUSE_NORMAL);
+                        fireSipXCallEvent(CALLSTATE_BRIDGED, CALLSTATE_CAUSE_NORMAL);
                     }
 
                     fireAudioStartEvents(MEDIA_CAUSE_UNHOLD) ;
@@ -3454,7 +3454,7 @@ void SipConnection::processInviteRequest(const SipMessage* request)
         send(busyMessage);
 
         setState(CONNECTION_FAILED, CONNECTION_REMOTE, CONNECTION_CAUSE_RESOURCES_NOT_AVAILABLE);
-        fireSipXEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_RESOURCE_LIMIT) ;
+        fireSipXCallEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_RESOURCE_LIMIT) ;
     }
     else
     {
@@ -3768,21 +3768,21 @@ void SipConnection::processNotifyRequest(const SipMessage* request)
                 state = CONNECTION_ESTABLISHED;
                 cause = CONNECTION_CAUSE_NORMAL;
 
-                fireSipXEvent(CALLSTATE_TRANSFER_EVENT, CALLSTATE_CAUSE_TRANSFER_SUCCESS) ;
+                fireSipXCallEvent(CALLSTATE_TRANSFER_EVENT, CALLSTATE_CAUSE_TRANSFER_SUCCESS) ;
             }
             else if(responseCode == SIP_DECLINE_CODE)
             {
                 state = CONNECTION_FAILED;
                 cause = CONNECTION_CAUSE_CANCELLED;
 
-                fireSipXEvent(CALLSTATE_TRANSFER_EVENT, CALLSTATE_CAUSE_TRANSFER_FAILURE) ;
+                fireSipXCallEvent(CALLSTATE_TRANSFER_EVENT, CALLSTATE_CAUSE_TRANSFER_FAILURE) ;
             }
             else if(responseCode == SIP_BAD_METHOD_CODE ||
                 responseCode == SIP_UNIMPLEMENTED_METHOD_CODE)
             {
                 state = CONNECTION_FAILED;
                 cause = CONNECTION_CAUSE_INCOMPATIBLE_DESTINATION;
-                fireSipXEvent(CALLSTATE_TRANSFER_EVENT, CALLSTATE_CAUSE_TRANSFER_FAILURE) ;
+                fireSipXCallEvent(CALLSTATE_TRANSFER_EVENT, CALLSTATE_CAUSE_TRANSFER_FAILURE) ;
             }
             else if(responseCode == SIP_RINGING_CODE)
             {
@@ -3792,7 +3792,7 @@ void SipConnection::processNotifyRequest(const SipMessage* request)
                 // which is actually ringing)
                 state = CONNECTION_OFFERING;
                 cause = CONNECTION_CAUSE_NORMAL;
-                fireSipXEvent(CALLSTATE_TRANSFER_EVENT, CALLSTATE_CAUSE_TRANSFER_RINGING) ;
+                fireSipXCallEvent(CALLSTATE_TRANSFER_EVENT, CALLSTATE_CAUSE_TRANSFER_RINGING) ;
             }
             else if(responseCode == SIP_EARLY_MEDIA_CODE)
             {
@@ -3803,19 +3803,19 @@ void SipConnection::processNotifyRequest(const SipMessage* request)
                 state = CONNECTION_ESTABLISHED;
                 cause = CONNECTION_CAUSE_UNKNOWN;
 
-                fireSipXEvent(CALLSTATE_TRANSFER_EVENT, CALLSTATE_CAUSE_TRANSFER_RINGING) ;
+                fireSipXCallEvent(CALLSTATE_TRANSFER_EVENT, CALLSTATE_CAUSE_TRANSFER_RINGING) ;
             }
             else if (responseCode == SIP_SERVICE_UNAVAILABLE_CODE)
             {
                 state = CONNECTION_FAILED;
                 cause = CONNECTION_CAUSE_SERVICE_UNAVAILABLE;
-                fireSipXEvent(CALLSTATE_TRANSFER_EVENT, CALLSTATE_CAUSE_TRANSFER_FAILURE) ;
+                fireSipXCallEvent(CALLSTATE_TRANSFER_EVENT, CALLSTATE_CAUSE_TRANSFER_FAILURE) ;
             }
             else if (responseCode >= SIP_4XX_CLASS_CODE)
             {
                 state = CONNECTION_FAILED;
                 cause = CONNECTION_CAUSE_BUSY;
-                fireSipXEvent(CALLSTATE_TRANSFER_EVENT, CALLSTATE_CAUSE_TRANSFER_FAILURE) ;
+                fireSipXCallEvent(CALLSTATE_TRANSFER_EVENT, CALLSTATE_CAUSE_TRANSFER_FAILURE) ;
             }
             else
             {
@@ -3981,11 +3981,11 @@ void SipConnection::processAckRequest(const SipMessage* request)
                 setState(CONNECTION_ESTABLISHED, CONNECTION_REMOTE);
                 if (mpCall->isInFocus())
                 {
-                    fireSipXEvent(CALLSTATE_CONNECTED, CALLSTATE_CAUSE_NORMAL);
+                    fireSipXCallEvent(CALLSTATE_CONNECTED, CALLSTATE_CAUSE_NORMAL);
                 }
                 else
                 {
-                    fireSipXEvent(CALLSTATE_BRIDGED, CALLSTATE_CAUSE_NORMAL);
+                    fireSipXCallEvent(CALLSTATE_BRIDGED, CALLSTATE_CAUSE_NORMAL);
                 }
             }
 
@@ -4035,7 +4035,7 @@ void SipConnection::processAckRequest(const SipMessage* request)
         if(!inviteMsg)
         {
             setState(CONNECTION_FAILED, CONNECTION_LOCAL);
-            fireSipXEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_NO_KNOWN_INVITE) ;
+            fireSipXCallEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_NO_KNOWN_INVITE) ;
         }
 
         // ACKs do not get a response
@@ -4072,7 +4072,7 @@ void SipConnection::processByeRequest(const SipMessage* request)
         send(sipResponse);
 
         setState(CONNECTION_DISCONNECTED, CONNECTION_REMOTE);
-        fireSipXEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_NORMAL) ;
+        fireSipXCallEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_NORMAL) ;
     }
 
     // BYE is not legal in the current state
@@ -4090,14 +4090,14 @@ void SipConnection::processByeRequest(const SipMessage* request)
         if(getState() == CONNECTION_IDLE)
         {
             setState(CONNECTION_FAILED, CONNECTION_LOCAL);
-            fireSipXEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_BYE_DURING_IDLE) ;
+            fireSipXCallEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_BYE_DURING_IDLE) ;
         }
         else if(!inviteMsg)
         {
             // If an invite was not sent or received something
             // is wrong.  This bye is invalid.
             setState(CONNECTION_FAILED, CONNECTION_LOCAL);
-            fireSipXEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_NO_KNOWN_INVITE) ;
+            fireSipXCallEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_NO_KNOWN_INVITE) ;
         }
     }
 #ifdef TEST_PRINT
@@ -4140,7 +4140,7 @@ void SipConnection::processCancelRequest(const SipMessage* request)
 
         setState(CONNECTION_DISCONNECTED, CONNECTION_REMOTE, CONNECTION_CAUSE_CANCELLED);
         setState(CONNECTION_DISCONNECTED, CONNECTION_LOCAL, CONNECTION_CAUSE_CANCELLED);
-        fireSipXEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_CANCEL) ;
+        fireSipXCallEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_CANCEL) ;
 
         // Build an OK response
         SipMessage cancelResponse;
@@ -4162,7 +4162,7 @@ void SipConnection::processCancelRequest(const SipMessage* request)
         if(!inviteMsg)
         {
             setState(CONNECTION_FAILED, CONNECTION_LOCAL, CONNECTION_CAUSE_CANCELLED);
-            fireSipXEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_NO_KNOWN_INVITE) ;
+            fireSipXCallEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_NO_KNOWN_INVITE) ;
         }
     }
 } // End of processCancelRequest
@@ -4222,7 +4222,7 @@ UtlBoolean SipConnection::getInitialSdpCodecs(const SipMessage* sdpMessage,
                 // if the message had an unencrypted SDP body,
                 // but we are expecting encrypted, then fail
                 setState(CONNECTION_FAILED, CONNECTION_REMOTE);
-                fireSipXEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_NORMAL) ;
+                fireSipXCallEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_NORMAL) ;
                 sdpBody = NULL;
             }
     }
@@ -4257,7 +4257,7 @@ UtlBoolean SipConnection::processResponse(const SipMessage* response,
     {
         // An invite was not sent or received.  This call is invalid.
         setState(CONNECTION_FAILED, CONNECTION_REMOTE);
-        fireSipXEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_NORMAL) ;
+        fireSipXCallEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_NORMAL) ;
     }
     else if(strcmp(sequenceMethod.data(), SIP_INVITE_METHOD) == 0)
     {
@@ -4398,7 +4398,7 @@ UtlBoolean SipConnection::processResponse(const SipMessage* response,
                     "SipConnection::processResponse: Response %d "
                     "received for BYE", responseCode);
                 setState(CONNECTION_DISCONNECTED, CONNECTION_REMOTE);
-                fireSipXEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_NORMAL) ;
+                fireSipXCallEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_NORMAL) ;
 
                 // If we are in the middle of a transfer meta event
                 // on the target phone and target call it ends here
@@ -4623,11 +4623,11 @@ void SipConnection::processInviteResponseRinging(const SipMessage* response)
     setState(CONNECTION_ALERTING, CONNECTION_REMOTE, cause);
     if ((pBody != NULL) || (responseCode == SIP_EARLY_MEDIA_CODE))
     {
-        fireSipXEvent(CALLSTATE_REMOTE_ALERTING, CALLSTATE_CAUSE_EARLY_MEDIA) ;
+        fireSipXCallEvent(CALLSTATE_REMOTE_ALERTING, CALLSTATE_CAUSE_EARLY_MEDIA) ;
     }
     else
     {
-        fireSipXEvent(CALLSTATE_REMOTE_ALERTING, CALLSTATE_CAUSE_NORMAL) ;
+        fireSipXCallEvent(CALLSTATE_REMOTE_ALERTING, CALLSTATE_CAUSE_NORMAL) ;
     }
 }
 
@@ -4638,7 +4638,7 @@ void SipConnection::processInviteResponseBusy(const SipMessage* response)
      * Set States
      */
     setState(CONNECTION_FAILED, CONNECTION_REMOTE, CONNECTION_CAUSE_BUSY);
-    fireSipXEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_BUSY) ;
+    fireSipXCallEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_BUSY) ;
 
     reinviteState = ACCEPT_INVITE ;
 
@@ -4732,41 +4732,41 @@ void SipConnection::processInviteResponseFailed(const SipMessage* response)
         {
             cause = CONNECTION_CAUSE_CANCELLED;
             setState(CONNECTION_DISCONNECTED, CONNECTION_REMOTE, cause);
-            fireSipXEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_BUSY) ;
+            fireSipXCallEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_BUSY) ;
         }
         else if (responseCode == SIP_NOT_FOUND_CODE)
         {
             cause = CONNECTION_CAUSE_DEST_NOT_OBTAINABLE;
             setState(CONNECTION_DISCONNECTED, CONNECTION_REMOTE, cause);
-            fireSipXEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_BAD_ADDRESS) ;
+            fireSipXCallEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_BAD_ADDRESS) ;
         }
         else if (responseCode == SIP_REQUEST_UNDECIPHERABLE_CODE)
         {
             cause = CONNECTION_CAUSE_NOT_ALLOWED;
             setState(CONNECTION_DISCONNECTED, CONNECTION_REMOTE, cause);
-            fireSipXEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_REMOTE_SMIME_UNSUPPORTED);
+            fireSipXCallEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_REMOTE_SMIME_UNSUPPORTED);
         }
         else if (responseCode == SIP_REQUEST_NOT_ACCEPTABLE_HERE_CODE)
         {
             setState(CONNECTION_DISCONNECTED, CONNECTION_REMOTE, cause);
 
             // BUG: Not accepted here isn't an SMIME failure
-            fireSipXEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_SMIME_FAILURE);
+            fireSipXCallEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_SMIME_FAILURE);
         }
         else if (responseCode == SIP_REQUEST_TIMEOUT_CODE)
         {
             setState(CONNECTION_FAILED, CONNECTION_REMOTE, cause);
-            fireSipXEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_NO_RESPONSE);
+            fireSipXCallEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_NO_RESPONSE);
         }
         else if (responseCode == SIP_BAD_ADDRESS_CODE)
         {
            setState(CONNECTION_FAILED, CONNECTION_REMOTE, cause);
-           fireSipXEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_BAD_ADDRESS);
+           fireSipXCallEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_BAD_ADDRESS);
         }
         else
         {
             setState(CONNECTION_FAILED, CONNECTION_REMOTE, cause);
-            fireSipXEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_UNKNOWN);
+            fireSipXCallEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_UNKNOWN);
         }
 
         mbCancelling = FALSE;   // if was cancelling, now cancelled.
@@ -4787,7 +4787,7 @@ void SipConnection::processInviteResponseFailed(const SipMessage* response)
         // reinvite failed -- or make hold/unhold blocking. (Bob 8/14/02)
 
         postTaoListenerMessage(CONNECTION_FAILED, CONNECTION_CAUSE_INCOMPATIBLE_DESTINATION, false);
-        fireSipXEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_RESOURCE_LIMIT) ;
+        fireSipXCallEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_RESOURCE_LIMIT) ;
     }
     else if (reinviteState == REINVITING &&
             responseCode == SIP_REQUEST_NOT_ACCEPTABLE_HERE_CODE)
@@ -4817,7 +4817,7 @@ void SipConnection::processInviteResponseFailed(const SipMessage* response)
         // my interpretation of this is that we need to continue the session
         // and not cause a disconnect - MDC 6/23/2005
 
-        fireSipXEvent(CALLSTATE_CONNECTED, CALLSTATE_CAUSE_REQUEST_NOT_ACCEPTED) ;
+        fireSipXCallEvent(CALLSTATE_CONNECTED, CALLSTATE_CAUSE_REQUEST_NOT_ACCEPTED) ;
     }
 }
 
@@ -4908,7 +4908,7 @@ void SipConnection::processInviteResponseNormal(const SipMessage* response)
          */
 
         setState(CONNECTION_DISCONNECTED, CONNECTION_LOCAL);
-        fireSipXEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_REMOTE_SMIME_UNSUPPORTED) ;
+        fireSipXCallEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_REMOTE_SMIME_UNSUPPORTED) ;
 
         // Send a BYE
         SipMessage sipByeRequest;
@@ -5099,11 +5099,11 @@ void SipConnection::processInviteResponseNormal(const SipMessage* response)
                 mHoldState = TERMCONNECTION_HELD ;
                 if (mpCall->isInFocus())
                 {
-                    fireSipXEvent(CALLSTATE_REMOTE_HELD, CALLSTATE_CAUSE_NORMAL);
+                    fireSipXCallEvent(CALLSTATE_REMOTE_HELD, CALLSTATE_CAUSE_NORMAL);
                 }
                 else
                 {
-                    fireSipXEvent(CALLSTATE_HELD, CALLSTATE_CAUSE_NORMAL);
+                    fireSipXCallEvent(CALLSTATE_HELD, CALLSTATE_CAUSE_NORMAL);
                 }
 
                 mpMediaInterface->stopRtpSend(mConnectionId);
@@ -5130,11 +5130,11 @@ void SipConnection::processInviteResponseNormal(const SipMessage* response)
 
                 if (mpCall->isInFocus())
                 {
-                    fireSipXEvent(CALLSTATE_CONNECTED, CALLSTATE_CAUSE_NORMAL) ;
+                    fireSipXCallEvent(CALLSTATE_CONNECTED, CALLSTATE_CAUSE_NORMAL) ;
                 }
                 else
                 {
-                    fireSipXEvent(CALLSTATE_BRIDGED, CALLSTATE_CAUSE_NORMAL) ;
+                    fireSipXCallEvent(CALLSTATE_BRIDGED, CALLSTATE_CAUSE_NORMAL) ;
                 }
 
                 fireAudioStartEvents() ;
@@ -5145,7 +5145,7 @@ void SipConnection::processInviteResponseNormal(const SipMessage* response)
             // Initial INVITE -- and incompatible codecs or no codecs
 
             setState(CONNECTION_FAILED, CONNECTION_REMOTE, CONNECTION_CAUSE_INCOMPATIBLE_DESTINATION);
-            fireSipXEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_RESOURCE_LIMIT) ;
+            fireSipXCallEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_RESOURCE_LIMIT) ;
 
             // Send a BYE
             SipMessage sipByeRequest;
@@ -5272,7 +5272,7 @@ void SipConnection::processInviteResponseRedirect(const SipMessage* response)
             {
                 // Change the state back to Offering
                 setState(CONNECTION_OFFERING, CONNECTION_REMOTE, CONNECTION_CAUSE_REDIRECTED);
-                fireSipXEvent(CALLSTATE_REMOTE_OFFERING, CALLSTATE_CAUSE_NORMAL) ;
+                fireSipXCallEvent(CALLSTATE_REMOTE_OFFERING, CALLSTATE_CAUSE_NORMAL) ;
             }
             else
             {
@@ -5282,14 +5282,14 @@ void SipConnection::processInviteResponseRedirect(const SipMessage* response)
 
                 // The send failed
                 setState(CONNECTION_FAILED, CONNECTION_REMOTE, CONNECTION_CAUSE_NETWORK_NOT_OBTAINABLE);
-                fireSipXEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_NETWORK) ;
+                fireSipXCallEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_NETWORK) ;
             }
         }
         else
         {
             // Receive a redirect with NO contact or a RANDOM redirect
             setState(CONNECTION_FAILED, CONNECTION_REMOTE);
-            fireSipXEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_BAD_REDIRECT) ;
+            fireSipXCallEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_BAD_REDIRECT) ;
         }
     }
 }
@@ -5531,21 +5531,21 @@ void SipConnection::processReferResponse(const SipMessage* response)
             state = CONNECTION_DIALING;
             cause = CONNECTION_CAUSE_NORMAL;
 
-            fireSipXEvent(CALLSTATE_TRANSFER_EVENT, CALLSTATE_CAUSE_TRANSFER_ACCEPTED) ;
+            fireSipXCallEvent(CALLSTATE_TRANSFER_EVENT, CALLSTATE_CAUSE_TRANSFER_ACCEPTED) ;
         }
         else if(responseCode == SIP_ACCEPTED_CODE)
         {
             state = CONNECTION_OFFERING;
             cause = CONNECTION_CAUSE_NORMAL;
 
-            fireSipXEvent(CALLSTATE_TRANSFER_EVENT, CALLSTATE_CAUSE_TRANSFER_ACCEPTED) ;
+            fireSipXCallEvent(CALLSTATE_TRANSFER_EVENT, CALLSTATE_CAUSE_TRANSFER_ACCEPTED) ;
         }
         else if(responseCode == SIP_DECLINE_CODE)
         {
             state = CONNECTION_FAILED;
             cause = CONNECTION_CAUSE_CANCELLED;
 
-            fireSipXEvent(CALLSTATE_TRANSFER_EVENT, CALLSTATE_CAUSE_TRANSFER_FAILURE) ;
+            fireSipXCallEvent(CALLSTATE_TRANSFER_EVENT, CALLSTATE_CAUSE_TRANSFER_FAILURE) ;
         }
         else if(responseCode == SIP_BAD_METHOD_CODE ||
             responseCode == SIP_UNIMPLEMENTED_METHOD_CODE)
@@ -5553,14 +5553,14 @@ void SipConnection::processReferResponse(const SipMessage* response)
             state = CONNECTION_FAILED;
             cause = CONNECTION_CAUSE_INCOMPATIBLE_DESTINATION;
 
-            fireSipXEvent(CALLSTATE_TRANSFER_EVENT, CALLSTATE_CAUSE_TRANSFER_FAILURE) ;
+            fireSipXCallEvent(CALLSTATE_TRANSFER_EVENT, CALLSTATE_CAUSE_TRANSFER_FAILURE) ;
         }
         else if(responseCode >= SIP_MULTI_CHOICE_CODE)
         {
             state = CONNECTION_FAILED;
             cause = CONNECTION_CAUSE_BUSY;
 
-            fireSipXEvent(CALLSTATE_TRANSFER_EVENT, CALLSTATE_CAUSE_TRANSFER_FAILURE) ;
+            fireSipXCallEvent(CALLSTATE_TRANSFER_EVENT, CALLSTATE_CAUSE_TRANSFER_FAILURE) ;
         }
 
         // We change state on the target/consultative call
