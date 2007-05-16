@@ -79,7 +79,7 @@ public:
 
     /// compare two frames of audio to see if they are the same or similar
     /** 
-    *  @param tolerance - the allowed difference between the cooresponding
+    *  @param tolerance - the allowed difference between the corresponding
     *         samples in the two frames which are considered to still be
     *         the same.
     *  @returns 0, positive or negative value.  Zero means the samples
@@ -179,7 +179,7 @@ public:
 
     /// compare two frames of audio to see if they are the same or similar
     /** 
-    *  @param tolerance - the allowed difference between the cooresponding
+    *  @param tolerance - the allowed difference between the corresponding
     *         samples in the two frames which are considered to still be
     *         the same.
     *  @returns 0, positive or negative value.  Zero means the samples
@@ -199,7 +199,9 @@ public:
         }
         else
         {
-            compareValue = // Need to down caste before dereferencing to avoid implicit construction of MpAudioBuf from MpBuf
+            // Need to downcast before dereferencing to avoid implicit
+            // construction of MpAudioBuf from MpBuf
+            compareValue =
                 MpAudioBuf::compareSamples(*((MpAudioBuf*)mpBuffer), 
                                            *((MpAudioBuf*)frame2.mpBuffer), 
                                            tolerance);
