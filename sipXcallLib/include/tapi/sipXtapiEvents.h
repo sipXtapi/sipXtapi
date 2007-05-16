@@ -163,78 +163,78 @@ typedef bool (SIPX_CALLING_CONVENTION *SIPX_EVENT_CALLBACK_PROC)(SIPX_EVENT_CATE
  */
 typedef enum SIPX_CALLSTATE_EVENT
 {
-    CALLSTATE_UNKNOWN         = 0,/**< An UNKNOWN event is generated when the state for a call 
-                                 is no longer known.  This is generally an error 
-                                 condition; see the minor event for specific causes. */
-    CALLSTATE_NEWCALL         = 1000, /**< The NEWCALL event indicates that a new call has been 
-                                 created automatically by the sipXtapi.  This event is 
-                                 most frequently generated in response to an inbound 
-                                 call request.  */
-	CALLSTATE_DIALTONE        = 2000, /**< The DIALTONE event indicates that a new call has been 
-                                 created for the purpose of placing an outbound call.  
-                                 The application layer should determine if it needs to 
-                                 simulate dial tone for the end user. */
-	CALLSTATE_REMOTE_OFFERING = 2500, /**< The REMOTE_OFFERING event indicates that a call setup 
-                                 invitation has been sent to the remote party.  The 
-                                 invitation may or may not every receive a response.  If
-                                 a response is not received in a timely manor, sipXtapi 
-                                 will move the call into a disconnected state.  If 
-                                 calling another sipXtapi user agent, the reciprocal 
-                                 state is OFFER. */
-	CALLSTATE_REMOTE_ALERTING = 3000, /**< The REMOTE_ALERTING event indicates that a call setup 
-                                 invitation has been accepted and the end user is in the
-                                 alerting state (ringing).  Depending on the SIP 
-                                 configuration, end points, and proxy servers involved, 
-                                 this event should only last for 3 minutes.  Afterwards,
-                                 the state will automatically move to DISCONNECTED.  If 
-                                 calling another sipXtapi user agent, the reciprocate 
-                                 state is ALERTING. 
-                                 
-                                 Pay attention to the cause code for this event.  If
-                                 the cause code is "CALLSTATE_CAUSE_EARLY_MEDIA", the 
-                                 remote the party is sending early media (e.g. gateway is
-                                 producing ringback or audio feedback).  In this case, the
-                                 user agent should not produce local ringback. */
-	CALLSTATE_CONNECTED       = 4000, /**< The CONNECTED state indicates that call has been setup 
-                                 between the local and remote party.  Network audio should be 
-                                 flowing provided and the microphone and speakers should
-                                 be engaged. */
-    CALLSTATE_BRIDGED         = 5000, /** The BRIDGED state indicates that a call is active,
-                                 however, the local microphone/speaker are not engaged.  If
-                                 this call is part of a conference, the party will be able
-                                 to talk with other BRIDGED conference parties.  Application
-                                 developers can still play and record media. */
-    CALLSTATE_HELD            = 6000, /** The HELD state indicates that a call is
-                                 both locally and remotely held.  No network audio is flowing 
-                                 and the local microphone and speaker are not engaged. */
-    CALLSTATE_REMOTE_HELD     = 7000, /** The REMOTE_HELD state indicates that the remote 
-                                 party is on hold.  Locally, the microphone and speaker are
-                                 still engaged, however, no network audio is flowing. */
+   CALLSTATE_UNKNOWN         = 0,    /**< An UNKNOWN event is generated when the state for a call 
+                                       is no longer known.  This is generally an error 
+                                       condition; see the minor event for specific causes. */
+   CALLSTATE_NEWCALL         = 1000, /**< The NEWCALL event indicates that a new call has been 
+                                       created automatically by the sipXtapi.  This event is 
+                                       most frequently generated in response to an inbound 
+                                       call request.  */
+   CALLSTATE_DIALTONE        = 2000, /**< The DIALTONE event indicates that a new call has been 
+                                       created for the purpose of placing an outbound call.  
+                                       The application layer should determine if it needs to 
+                                       simulate dial tone for the end user. */
+   CALLSTATE_REMOTE_OFFERING = 2500, /**< The REMOTE_OFFERING event indicates that a call setup 
+                                       invitation has been sent to the remote party.  The 
+                                       invitation may or may not every receive a response.  If
+                                       a response is not received in a timely manor, sipXtapi 
+                                       will move the call into a disconnected state.  If 
+                                       calling another sipXtapi user agent, the reciprocal 
+                                       state is OFFER. */
+   CALLSTATE_REMOTE_ALERTING = 3000, /**< The REMOTE_ALERTING event indicates that a call setup 
+                                       invitation has been accepted and the end user is in the
+                                       alerting state (ringing).  Depending on the SIP 
+                                       configuration, end points, and proxy servers involved, 
+                                       this event should only last for 3 minutes.  Afterwards,
+                                       the state will automatically move to DISCONNECTED.  If 
+                                       calling another sipXtapi user agent, the reciprocate 
+                                       state is ALERTING. 
+                                    
+                                       Pay attention to the cause code for this event.  If
+                                       the cause code is "CALLSTATE_CAUSE_EARLY_MEDIA", the 
+                                       remote the party is sending early media (e.g. gateway is
+                                       producing ringback or audio feedback).  In this case, the
+                                       user agent should not produce local ringback. */
+   CALLSTATE_CONNECTED       = 4000, /**< The CONNECTED state indicates that call has been setup 
+                                       between the local and remote party.  Network audio should be 
+                                       flowing provided and the microphone and speakers should
+                                       be engaged. */
+   CALLSTATE_BRIDGED         = 5000, /** The BRIDGED state indicates that a call is active,
+                                       however, the local microphone/speaker are not engaged.  If
+                                       this call is part of a conference, the party will be able
+                                       to talk with other BRIDGED conference parties.  Application
+                                       developers can still play and record media. */
+   CALLSTATE_HELD            = 6000, /** The HELD state indicates that a call is
+                                       both locally and remotely held.  No network audio is flowing 
+                                       and the local microphone and speaker are not engaged. */
+   CALLSTATE_REMOTE_HELD     = 7000, /** The REMOTE_HELD state indicates that the remote 
+                                       party is on hold.  Locally, the microphone and speaker are
+                                       still engaged, however, no network audio is flowing. */
 
-	CALLSTATE_DISCONNECTED    = 8000, /**< The DISCONNECTED state indicates that a call was 
-                                 disconnected or failed to connect.  A call may move 
-                                 into the DISCONNECTED states from almost every other 
-                                 state.  Please review the DISCONNECTED minor events to
-                                 understand the cause. */
-	CALLSTATE_OFFERING        = 9000, /**< An OFFERING state indicates that a new call invitation 
-                                 has been extended this user agent.  Application 
-                                 developers should invoke sipxCallAccept(), 
-                                 sipxCallReject() or sipxCallRedirect() in response.  
-                                 Not responding will result in an implicit call 
-                                 sipXcallReject(). */                                
-    CALLSTATE_ALERTING        = 10000, /**< An ALERTING state indicates that an inbound call has 
-                                 been accepted and the application layer should alert 
-                                 the end user.  The alerting state is limited to 3 
-                                 minutes in most configurations; afterwards the call 
-                                 will be canceled.  Applications will generally play 
-                                 some sort of ringing tone in response to this event. */
-    CALLSTATE_DESTROYED       = 11000, /**< The DESTORYED event indicates the underlying resources 
-                                 have been removed for a call.  This is the last event 
-                                 that the application will receive for any call.  The 
-                                 call handle is invalid after this event is received. */
-    CALLSTATE_TRANSFER_EVENT   = 12000, /**< The transfer state indicates a state change in a 
-                                 transfer attempt.  Please see the CALLSTATE_TRANSFER_EVENT cause 
-                                 codes for details on each state transition */
+   CALLSTATE_DISCONNECTED    = 8000, /**< The DISCONNECTED state indicates that a call was 
+                                       disconnected or failed to connect.  A call may move 
+                                       into the DISCONNECTED states from almost every other 
+                                       state.  Please review the DISCONNECTED minor events to
+                                       understand the cause. */
+   CALLSTATE_OFFERING        = 9000, /**< An OFFERING state indicates that a new call invitation 
+                                       has been extended this user agent.  Application 
+                                       developers should invoke sipxCallAccept(), 
+                                       sipxCallReject() or sipxCallRedirect() in response.  
+                                       Not responding will result in an implicit call 
+                                       sipXcallReject(). */                                
+   CALLSTATE_ALERTING        = 10000, /**< An ALERTING state indicates that an inbound call has 
+                                       been accepted and the application layer should alert 
+                                       the end user.  The alerting state is limited to 3 
+                                       minutes in most configurations; afterwards the call 
+                                       will be canceled.  Applications will generally play 
+                                       some sort of ringing tone in response to this event. */
+   CALLSTATE_DESTROYED       = 11000, /**< The DESTORYED event indicates the underlying resources 
+                                       have been removed for a call.  This is the last event 
+                                       that the application will receive for any call.  The 
+                                       call handle is invalid after this event is received. */
+   CALLSTATE_TRANSFER_EVENT   = 12000, /**< The transfer state indicates a state change in a 
+                                       transfer attempt.  Please see the CALLSTATE_TRANSFER_EVENT cause 
+                                       codes for details on each state transition */
 } SIPX_CALLSTATE_EVENT;
 
  
@@ -244,81 +244,81 @@ typedef enum SIPX_CALLSTATE_EVENT
  */
 typedef enum SIPX_CALLSTATE_CAUSE
 {
-    CALLSTATE_CAUSE_UNKNOWN,        /**< Unknown cause */
-    CALLSTATE_CAUSE_NORMAL,         /**< The stage changed due to normal operation */
-	CALLSTATE_CAUSE_TRANSFERRED,	/**< A call is being transferred to this user 
-                                         agent from another user agent.*/
-	CALLSTATE_CAUSE_TRANSFER,	    /**< A call on this user agent is being transferred 
-                                         to another user agent. */                                     
-	CALLSTATE_CAUSE_CONFERENCE,     /**< A conference operation caused a stage change */
-	CALLSTATE_CAUSE_EARLY_MEDIA,    /**< The remote party is alerting and providing 
-                                         ringback audio (early media) */
+   CALLSTATE_CAUSE_UNKNOWN,        /**< Unknown cause */
+   CALLSTATE_CAUSE_NORMAL,         /**< The stage changed due to normal operation */
+   CALLSTATE_CAUSE_TRANSFERRED,	  /**< A call is being transferred to this user 
+                                        agent from another user agent.*/
+   CALLSTATE_CAUSE_TRANSFER,	     /**< A call on this user agent is being transferred 
+                                        to another user agent. */                                     
+   CALLSTATE_CAUSE_CONFERENCE,     /**< A conference operation caused a stage change */
+   CALLSTATE_CAUSE_EARLY_MEDIA,    /**< The remote party is alerting and providing 
+                                        ringback audio (early media) */
 
-    CALLSTATE_CAUSE_REQUEST_NOT_ACCEPTED, 
-                                    /**< The callee rejected a request (e.g. hold) */
-	CALLSTATE_CAUSE_BAD_ADDRESS,    /**< The state changed due to a bad address.  This 
-                                         can be caused by a malformed URL or network
-                                         problems with your DNS server */
-	CALLSTATE_CAUSE_BUSY,           /**< The state cahnged because the remote party is
-                                         busy */
-    CALLSTATE_CAUSE_RESOURCE_LIMIT, /**< Not enough resources are available to complete
-                                         the desired operation */
-    CALLSTATE_CAUSE_NETWORK,        /**< A network error caused the desired operation to 
-                                         fail */
-	CALLSTATE_CAUSE_REDIRECTED,     /**< The stage changed due to a redirection of a call. */
-	CALLSTATE_CAUSE_NO_RESPONSE,    /**< No response was received from the remote party or 
-                                         network node. */
-    CALLSTATE_CAUSE_AUTH,           /**< Unable to authenticate due to either bad or 
-                                         missing credentials */
-    CALLSTATE_CAUSE_TRANSFER_INITIATED,  
-                                   /**< A transfer attempt has been initiated.  This event
-                                        is sent when a user agent attempts either a blind
-                                        or consultative transfer. */
-    CALLSTATE_CAUSE_TRANSFER_ACCEPTED,  
-                                   /**< A transfer attempt has been accepted by the remote
-                                        transferee.  This event indicates that the 
-                                        transferee supports transfers (REFER method).  The
-                                        event is fired upon a 2xx class response to the SIP
-                                        REFER request. */
-    CALLSTATE_CAUSE_TRANSFER_TRYING,
-                                   /**< The transfer target is attempting the transfer.  
-                                        This event is sent when transfer target (or proxy /
-                                        B2BUA) receives the call invitation, but before the
-                                        the tranfer target accepts is. */
-    CALLSTATE_CAUSE_TRANSFER_RINGING,   
-                                   /**< The transfer target is ringing.  This event is 
-                                        generally only sent during blind transfer.  
-                                        Consultative transfer should proceed directly to 
-                                        TRANSFER_SUCCESS or TRANSFER_FAILURE. */
-    CALLSTATE_CAUSE_TRANSFER_SUCCESS,
-                                   /**< The transfer was completed successfully.  The
-                                        original call to transfer target will
-                                        automatically disconnect.*/
-    CALLSTATE_CAUSE_TRANSFER_FAILURE,
-                                   /**< The transfer failed.  After a transfer fails,
-                                        the application layer is responsible for 
-                                        recovering original call to the transferee. 
-                                        That call is left on hold. */
-    CALLSTATE_CAUSE_REMOTE_SMIME_UNSUPPORTED,
-                                   /**< Fired if the remote party's user-agent does not
-                                        support S/MIME. */
-    CALLSTATE_CAUSE_SMIME_FAILURE,
-                                   /**< Fired if a local S/MIME operation failed. 
-                                        For more information, applications should 
-                                        process the SECURITY event. */
-    CALLSTATE_CAUSE_SHUTDOWN,      /**< The even was fired as part of sipXtapi 
-                                        shutdown. */
-    CALLSTATE_CAUSE_BAD_REFER,     /**< An unusable refer was sent to this user-agent. */    
-    CALLSTATE_CAUSE_NO_KNOWN_INVITE, /**< This user-agent received a request or response, 
-                                          but there is no known matching invite. */  
-    CALLSTATE_CAUSE_BYE_DURING_IDLE, /**< A BYE message was received, however, the call is in
-                                          in an idle state. */       
-    CALLSTATE_CAUSE_UNKNOWN_STATUS_CODE, /**< A response was received with an unknown status code. */
-    CALLSTATE_CAUSE_BAD_REDIRECT,    /**< Receive a redirect with NO contact or a RANDOM redirect. */
-    CALLSTATE_CAUSE_TRANSACTION_DOES_NOT_EXIST, /**< No such transaction;  Accepting or Rejecting a call that
-                                                     is part of a transfer. */
-    CALLSTATE_CAUSE_CANCEL,        /**< The event was fired in response to a cancel
-                                        attempt from the remote party */
+   CALLSTATE_CAUSE_REQUEST_NOT_ACCEPTED, 
+                                   /**< The callee rejected a request (e.g. hold) */
+   CALLSTATE_CAUSE_BAD_ADDRESS,    /**< The state changed due to a bad address.  This 
+                                        can be caused by a malformed URL or network
+                                        problems with your DNS server */
+   CALLSTATE_CAUSE_BUSY,           /**< The state cahnged because the remote party is
+                                        busy */
+   CALLSTATE_CAUSE_RESOURCE_LIMIT, /**< Not enough resources are available to complete
+                                        the desired operation */
+   CALLSTATE_CAUSE_NETWORK,        /**< A network error caused the desired operation to 
+                                        fail */
+   CALLSTATE_CAUSE_REDIRECTED,     /**< The stage changed due to a redirection of a call. */
+   CALLSTATE_CAUSE_NO_RESPONSE,    /**< No response was received from the remote party or 
+                                        network node. */
+   CALLSTATE_CAUSE_AUTH,           /**< Unable to authenticate due to either bad or 
+                                        missing credentials */
+   CALLSTATE_CAUSE_TRANSFER_INITIATED,  
+                                /**< A transfer attempt has been initiated.  This event
+                                     is sent when a user agent attempts either a blind
+                                     or consultative transfer. */
+   CALLSTATE_CAUSE_TRANSFER_ACCEPTED,  
+                                /**< A transfer attempt has been accepted by the remote
+                                     transferee.  This event indicates that the 
+                                     transferee supports transfers (REFER method).  The
+                                     event is fired upon a 2xx class response to the SIP
+                                     REFER request. */
+   CALLSTATE_CAUSE_TRANSFER_TRYING,
+                                /**< The transfer target is attempting the transfer.  
+                                     This event is sent when transfer target (or proxy /
+                                     B2BUA) receives the call invitation, but before the
+                                     the tranfer target accepts is. */
+   CALLSTATE_CAUSE_TRANSFER_RINGING,   
+                                /**< The transfer target is ringing.  This event is 
+                                     generally only sent during blind transfer.  
+                                     Consultative transfer should proceed directly to 
+                                     TRANSFER_SUCCESS or TRANSFER_FAILURE. */
+   CALLSTATE_CAUSE_TRANSFER_SUCCESS,
+                                /**< The transfer was completed successfully.  The
+                                     original call to transfer target will
+                                     automatically disconnect.*/
+   CALLSTATE_CAUSE_TRANSFER_FAILURE,
+                                /**< The transfer failed.  After a transfer fails,
+                                     the application layer is responsible for 
+                                     recovering original call to the transferee. 
+                                     That call is left on hold. */
+   CALLSTATE_CAUSE_REMOTE_SMIME_UNSUPPORTED,
+                                /**< Fired if the remote party's user-agent does not
+                                     support S/MIME. */
+   CALLSTATE_CAUSE_SMIME_FAILURE,
+                                /**< Fired if a local S/MIME operation failed. 
+                                     For more information, applications should 
+                                     process the SECURITY event. */
+   CALLSTATE_CAUSE_SHUTDOWN,      /**< The even was fired as part of sipXtapi 
+                                       shutdown. */
+   CALLSTATE_CAUSE_BAD_REFER,     /**< An unusable refer was sent to this user-agent. */    
+   CALLSTATE_CAUSE_NO_KNOWN_INVITE, /**< This user-agent received a request or response, 
+                                         but there is no known matching invite. */  
+   CALLSTATE_CAUSE_BYE_DURING_IDLE, /**< A BYE message was received, however, the call is in
+                                         in an idle state. */       
+   CALLSTATE_CAUSE_UNKNOWN_STATUS_CODE, /**< A response was received with an unknown status code. */
+   CALLSTATE_CAUSE_BAD_REDIRECT,    /**< Receive a redirect with NO contact or a RANDOM redirect. */
+   CALLSTATE_CAUSE_TRANSACTION_DOES_NOT_EXIST, /**< No such transaction;  Accepting or Rejecting a call that
+                                                    is part of a transfer. */
+   CALLSTATE_CAUSE_CANCEL,        /**< The event was fired in response to a cancel
+                                       attempt from the remote party */
 } SIPX_CALLSTATE_CAUSE ;
 
 /**
@@ -330,35 +330,35 @@ typedef enum SIPX_CALLSTATE_CAUSE
 {
     LINESTATE_UNKNOWN         = 0,        /**< This is the initial Line event state. */
     LINESTATE_REGISTERING     = 20000,    /**< The REGISTERING event is fired when sipXtapi
-                                             has successfully sent a REGISTER message,
-                                             but has not yet received a success response from the
-                                             registrar server */    
+                                               has successfully sent a REGISTER message,
+                                               but has not yet received a success response from the
+                                               registrar server */    
     LINESTATE_REGISTERED      = 21000,    /**< The REGISTERED event is fired after sipXtapi has received
-                                             a response from the registrar server, indicating a successful
-                                             registration. */
+                                               a response from the registrar server, indicating a successful
+                                               registration. */
     LINESTATE_UNREGISTERING   = 22000,    /**< The UNREGISTERING event is fired when sipXtapi
-                                             has successfully sent a REGISTER message with an expires=0 parameter,
-                                             but has not yet received a success response from the
-                                             registrar server */
+                                               has successfully sent a REGISTER message with an expires=0 parameter,
+                                               but has not yet received a success response from the
+                                               registrar server */
     LINESTATE_UNREGISTERED    = 23000,    /**< The UNREGISTERED event is fired after sipXtapi has received
-                                             a response from the registrar server, indicating a successful
-                                             un-registration. */
+                                               a response from the registrar server, indicating a successful
+                                               un-registration. */
     LINESTATE_REGISTER_FAILED = 24000,    /**< The REGISTER_FAILED event is fired to indicate a failure of REGISTRATION.
-                                             It is fired in the following cases:  
-                                             The client could not connect to the registrar server.
-                                             The registrar server challenged the client for authentication credentials,
-                                             and the client failed to supply valid credentials.
-                                             The registrar server did not generate a success response (status code == 200)
-                                             within a timeout period.  */
+                                               It is fired in the following cases:  
+                                               The client could not connect to the registrar server.
+                                               The registrar server challenged the client for authentication credentials,
+                                               and the client failed to supply valid credentials.
+                                               The registrar server did not generate a success response (status code == 200)
+                                               within a timeout period.  */
     LINESTATE_UNREGISTER_FAILED  = 25000, /**< The UNREGISTER_FAILED event is fired to indicate a failure of un-REGISTRATION.
-                                             It is fired in the following cases:  
-                                             The client could not connect to the registrar server.
-                                             The registrar server challenged the client for authentication credentials,
-                                             and the client failed to supply valid credentials.
-                                             The registrar server did not generate a success response (status code == 200)
-                                             within a timeout period.  */
+                                               It is fired in the following cases:  
+                                               The client could not connect to the registrar server.
+                                               The registrar server challenged the client for authentication credentials,
+                                               and the client failed to supply valid credentials.
+                                               The registrar server did not generate a success response (status code == 200)
+                                               within a timeout period.  */
     LINESTATE_PROVISIONED      = 26000,   /**< The PROVISIONED event is fired when a sipXtapi Line is added, and Registration is not 
-                                             requested (i.e. - sipxLineAdd is called with a bRegister parameter of false. */ 
+                                               requested (i.e. - sipxLineAdd is called with a bRegister parameter of false. */ 
 } SIPX_LINESTATE_EVENT;  
 
 
