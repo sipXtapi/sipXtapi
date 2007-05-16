@@ -497,13 +497,6 @@ SIPXTAPI_API SIPX_RESULT sipxInitialize(SIPX_INST*  phInst,
     gpSessionList->insert(new UtlVoidPtr(pInst)) ;
     sipxIncSessionCount();
     
-#ifdef _WIN32
-#ifndef VOICE_ENGINE
-    Sleep(500) ;    // Need to wait for UA and MP to startup
-                    // TODO: Need to synchronize startup
-#endif
-#endif
-
     // create the message observer
     pInst->pMessageObserver = new SipXMessageObserver(pInst);
     pInst->pMessageObserver->start();
