@@ -280,7 +280,7 @@ public:
 
     /// Swap to buffers.
     /**
-    *  This ponter will point to buffer pointed by pBuffer, and pBuffer will
+    *  This pointer will point to buffer pointed by pBuffer, and pBuffer will
     *  point to buffer, pointed by this pointer. Swap does not modify reference
     *  counters of buffers.
     */
