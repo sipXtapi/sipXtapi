@@ -101,10 +101,10 @@ public:
 //@{
 
     /// Get buffer type.
-    MP_BUFFERS_TREE getType() {return mType;};
+    MP_BUFFERS_TREE getType() const {return mType;};
 
     /// Get parent pool of this buffer.
-    MpBufPool *getBufferPool() {return mpPool;};
+    MpBufPool *getBufferPool() const {return mpPool;};
 
 //@}
 
@@ -385,7 +385,7 @@ private:
 
 /// Copy object from base type with type check.
 #define MPBUF_TYPECHECKED_COPY(classname, buffer_type, base_classname)      \
-    classname##Ptr(MpBufPtr &buffer)                                        \
+    classname##Ptr(const MpBufPtr &buffer)                                  \
         : base_classname##Ptr(buffer)                                       \
     {                                                                       \
         assert( (!buffer.isValid())                                         \

@@ -776,7 +776,7 @@ protected:
          MpSineWaveGeneratorDeviceDriver *pDriver
             = new MpSineWaveGeneratorDeviceDriver(devName,
                                                   *mpInputDeviceManager,
-                                                  32000, 3000, 0);
+                                                  3000, 3000, 0);
          CPPUNIT_ASSERT(pDriver != NULL);
 
          // Add driver to manager

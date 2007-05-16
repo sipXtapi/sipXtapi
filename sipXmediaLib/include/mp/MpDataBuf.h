@@ -161,27 +161,6 @@ public:
 ///@name Manipulators
 //@{
 
-    /// Smart assignment.
-    /**
-    * Decrement reference counter of our old buffer and increment in new one.
-    */
-    MpDataBufPtr &operator=(const MpDataBufPtr &buffer)
-    {
-        // Check for (a == a) case;
-        if (&buffer == this) {
-            return *this;
-        }
-
-        if (mpBuffer != NULL) {
-            ((MpDataBuf*)mpBuffer)->detach();
-        }
-        mpBuffer = buffer.mpBuffer;
-        if (mpBuffer != NULL) {
-            mpBuffer->attach();
-        }
-
-        return *this;
-    }
 
 //@}
 

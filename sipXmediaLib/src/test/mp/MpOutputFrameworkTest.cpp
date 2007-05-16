@@ -214,6 +214,7 @@ public:
       driver.disableDevice();
 
       RTL_WRITE("testTickerNotification.rtl");
+      RTL_STOP
    }
 
 protected:

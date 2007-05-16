@@ -28,7 +28,8 @@ class MpBufTest : public CppUnit::TestCase
    CPPUNIT_TEST(testDataBuffersExchangeData);
    CPPUNIT_TEST(testDataBuffersAssignment);
    CPPUNIT_TEST(testTypesafeCasts);
-   CPPUNIT_TEST(testCloning);
+   CPPUNIT_TEST(testCloningAllTypes);
+   CPPUNIT_TEST(testCloningWithDataCheck);
    CPPUNIT_TEST(testRequestWrite);
    CPPUNIT_TEST_SUITE_END();
 
@@ -184,7 +185,42 @@ public:
 //      MpArrayBufPtr wrong(parent);
    }
 
-   void testCloning()
+   void testCloningAllTypes()
+   {
+      // This test is supposed to be compile-only test.
+      // That is it test does all copy constructors and equality operators
+      // could be found by compiler correctly. GCC seems to be the most
+      // problematic here.
+      {
+         MpBufPtr buf1;
+         MpBufPtr buf2;
+         buf2 = buf1.clone();
+         MpBufPtr buf3(buf1.clone());
+      }
+
+      {
+         MpArrayBufPtr buf1;
+         MpArrayBufPtr buf2;
+         buf2 = buf1.clone();
+         MpArrayBufPtr buf3(buf1.clone());
+      }
+
+      {
+         MpDataBufPtr buf1;
+         MpDataBufPtr buf2;
+         buf2 = buf1.clone();
+         MpDataBufPtr buf3(buf1.clone());
+      }
+
+      {
+         MpAudioBufPtr buf1;
+         MpAudioBufPtr buf2;
+         buf2 = buf1.clone();
+         MpAudioBufPtr buf3(buf1.clone());
+      }
+   }
+
+   void testCloningWithDataCheck()
    {
       // Allocate audio buffer and make its clone.
       unsigned i;
