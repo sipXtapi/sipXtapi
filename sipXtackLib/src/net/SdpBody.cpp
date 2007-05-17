@@ -1060,7 +1060,8 @@ void SdpBody::getBestAudioCodecs(int numRtpCodecs, SdpCodec rtpCodecs[],
 
 void SdpBody::getBestAudioCodecs(SdpCodecFactory& localRtpCodecs,
                                  int& numCodecsInCommon,
-                                 SdpCodec**& codecsInCommonArray,
+                                 SdpCodec**& commonCodecsForEncoder,
+                                 SdpCodec**& commonCodecsForDecoder,
                                  UtlString& rtpAddress, 
                                  int& rtpPort,
                                  int& rtcpPort,
@@ -1073,7 +1074,6 @@ void SdpBody::getBestAudioCodecs(SdpCodecFactory& localRtpCodecs,
                                  int localVideoFramerate,
                                  int& matchingVideoFramerate) const
 {
-
    int mediaAudioIndex = 0;
    int mediaVideoIndex = 0;
    int numAudioTypes;
@@ -1083,7 +1083,8 @@ void SdpBody::getBestAudioCodecs(SdpCodecFactory& localRtpCodecs,
    int audioPayloadTypes[MAXIMUM_MEDIA_TYPES];
    int videoPayloadTypes[MAXIMUM_MEDIA_TYPES];
    numCodecsInCommon = 0;
-   codecsInCommonArray = new SdpCodec*[localRtpCodecs.getCodecCount()];
+   commonCodecsForEncoder = new SdpCodec*[localRtpCodecs.getCodecCount()];
+   commonCodecsForDecoder = new SdpCodec*[localRtpCodecs.getCodecCount()];
    SdpSrtpParameters remoteSrtpParams;
 
    memset((void*)&remoteSrtpParams, 0, sizeof(SdpSrtpParameters));
@@ -1130,7 +1131,8 @@ void SdpBody::getBestAudioCodecs(SdpCodecFactory& localRtpCodecs,
                               videoRtpPort,
                               localRtpCodecs,
                               numCodecsInCommon,
-                              codecsInCommonArray);
+                              commonCodecsForEncoder,
+                              commonCodecsForDecoder);
 
             getEncryptionInCommon(localSrtpParams, remoteSrtpParams, matchingSrtpParams);
 
@@ -1203,7 +1205,8 @@ void SdpBody::getCodecsInCommon(int audioPayloadIdCount,
                                 int videoRtpPort,
                                 SdpCodecFactory& localRtpCodecs,
                                 int& numCodecsInCommon,
-                                SdpCodec* codecsInCommonArray[]) const
+                                SdpCodec* commonCodecsForEncoder[],
+                                SdpCodec* commonCodecsForDecoder[]) const
 {
    UtlString mimeSubtype;
    UtlString fmtp;
@@ -1297,12 +1300,16 @@ void SdpBody::getCodecsInCommon(int audioPayloadIdCount,
             // the payload type for it
             if (commonCodec)
             {
-               codecsInCommonArray[numCodecsInCommon] =
-                  new SdpCodec(*matchingCodec);
-               codecsInCommonArray[numCodecsInCommon]->setCodecPayloadFormat(audioPayloadTypes[typeIndex]);
+               commonCodecsForEncoder[numCodecsInCommon] = new SdpCodec(*matchingCodec);
+               commonCodecsForDecoder[numCodecsInCommon] = new SdpCodec(*matchingCodec);
+
+               commonCodecsForEncoder[numCodecsInCommon]->setCodecPayloadFormat(audioPayloadTypes[typeIndex]);
+               // decoder uses our own SDP payload IDs, not remote
+
                if (frameSize)
                {
-                  codecsInCommonArray[numCodecsInCommon]->setPacketSize(frameSize*1000);
+                  commonCodecsForEncoder[numCodecsInCommon]->setPacketSize(frameSize*1000);
+                  commonCodecsForDecoder[numCodecsInCommon]->setPacketSize(frameSize*1000);
                }
 
             }
@@ -1320,16 +1327,15 @@ void SdpBody::getCodecsInCommon(int audioPayloadIdCount,
       {
          if((matchingCodec = localRtpCodecs.getCodecByType(audioPayloadTypes[typeIndex])))
          {
-            // Create a copy of the SDP codec and set
-            // the payload type for it
-            codecsInCommonArray[numCodecsInCommon] =
-               new SdpCodec(*matchingCodec);
-            codecsInCommonArray[numCodecsInCommon]->setCodecPayloadFormat(audioPayloadTypes[typeIndex]);
+            // Create a copy of the SDP codec
+            commonCodecsForEncoder[numCodecsInCommon] = new SdpCodec(*matchingCodec);
+            commonCodecsForDecoder[numCodecsInCommon] = new SdpCodec(*matchingCodec);
 
             // Set the preferred frame size if ptime was set
             if (defaultPtime > 0)
             {
-               codecsInCommonArray[numCodecsInCommon]->setPacketSize(defaultPtime*1000);
+               commonCodecsForEncoder[numCodecsInCommon]->setPacketSize(defaultPtime*1000);
+               commonCodecsForDecoder[numCodecsInCommon]->setPacketSize(defaultPtime*1000);
             }
 
             numCodecsInCommon++;
@@ -1398,11 +1404,13 @@ void SdpBody::getCodecsInCommon(int audioPayloadIdCount,
                         {
                             // Create a copy of the SDP codec and set
                             // the payload type for it
-                            codecsInCommonArray[numCodecsInCommon] =
-                            new SdpCodec(*matchingCodec);
-                            codecsInCommonArray[numCodecsInCommon]->setCodecPayloadFormat(videoPayloadTypes[typeIndex]);
-                            numCodecsInCommon++;
+                            commonCodecsForEncoder[numCodecsInCommon] = new SdpCodec(*matchingCodec);
+                            commonCodecsForDecoder[numCodecsInCommon] = new SdpCodec(*matchingCodec);
 
+                            commonCodecsForEncoder[numCodecsInCommon]->setCodecPayloadFormat(videoPayloadTypes[typeIndex]);
+                            // decoder will use our SDP payload IDs, not those we received
+
+                            numCodecsInCommon++;
                         }
 
                     }
@@ -1429,9 +1437,8 @@ void SdpBody::getCodecsInCommon(int audioPayloadIdCount,
                 {
                     // Create a copy of the SDP codec and set
                     // the payload type for it
-                    codecsInCommonArray[numCodecsInCommon] =
-                    new SdpCodec(*matchingCodec);
-                    codecsInCommonArray[numCodecsInCommon]->setCodecPayloadFormat(videoPayloadTypes[typeIndex]);
+                    commonCodecsForEncoder[numCodecsInCommon] = new SdpCodec(*matchingCodec);
+                    commonCodecsForDecoder[numCodecsInCommon] = new SdpCodec(*matchingCodec);
 
                     numCodecsInCommon++;
                 }
@@ -1853,6 +1860,7 @@ void SdpBody::addCodecsAnswer(int iNumAddresses,
    int remoteTotalBandwidth;
    int matchingBandwidth;
    SdpCodec* codecsInCommon[MAXIMUM_MEDIA_TYPES];
+   SdpCodec* codecsDummy[MAXIMUM_MEDIA_TYPES]; // just a dummy codec array
    int supportedPayloadCount;
    int destIndex;
    int firstMimeSubTypeIndex;
@@ -1957,9 +1965,14 @@ void SdpBody::addCodecsAnswer(int iNumAddresses,
                                     rtpCodecs);
 
    supportedPayloadCount = 0;
-   sdpRequest->getCodecsInCommon(numAudioPayloadTypes, numVideoPayloadTypes, 
-                                 audioPayloadTypes, videoPayloadTypes, videoPort,
-                                 codecFactory, supportedPayloadCount,
+   sdpRequest->getCodecsInCommon(numAudioPayloadTypes,
+                                 numVideoPayloadTypes, 
+                                 audioPayloadTypes,
+                                 videoPayloadTypes,
+                                 videoPort,
+                                 codecFactory,
+                                 supportedPayloadCount,
+                                 codecsDummy,
                                  codecsInCommon);
 
    SdpSrtpParameters commonAudioSrtpParams;
@@ -2150,12 +2163,13 @@ void SdpBody::addCodecsAnswer(int iNumAddresses,
     }
 
     // Free up the codec copies
-    if (codecsInCommon != NULL) {
-        for(int codecIndex = 0; codecIndex < supportedPayloadCount; codecIndex++)
-        {
-            delete codecsInCommon[codecIndex];
-            codecsInCommon[codecIndex] = NULL;
-        }
+    for(int codecIndex = 0; codecIndex < supportedPayloadCount; codecIndex++)
+    {
+        delete codecsInCommon[codecIndex];
+        codecsInCommon[codecIndex] = NULL;
+
+        delete codecsDummy[codecIndex];
+        codecsDummy[codecIndex] = NULL;
     }
 
 
