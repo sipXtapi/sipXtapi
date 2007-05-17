@@ -4563,6 +4563,9 @@
 				RelativePath=".\include\mp\MpResourceMsg.h">
 			</File>
 			<File
+				RelativePath=".\include\mp\MpResourceNotificationMsg.h">
+			</File>
+			<File
 				RelativePath="include\mp\MpResourceSortAlg.h">
 			</File>
 			<File
@@ -4606,6 +4609,12 @@
 			</File>
 			<File
 				RelativePath=".\include\mp\MprRtpOutputAudioConnectionConstructor.h">
+			</File>
+			<File
+				RelativePath=".\include\mp\MprRtpStartReceiveMsg.h">
+			</File>
+			<File
+				RelativePath=".\include\mp\MprRtpStartSendMsg.h">
 			</File>
 			<File
 				RelativePath=".\include\mp\MprSpeexEchoCancel.h">
