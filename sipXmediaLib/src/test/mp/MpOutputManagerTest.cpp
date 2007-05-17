@@ -23,7 +23,7 @@
 #define TEST_SAMPLES_PER_FRAME_SIZE   80    ///< in samples
 #define BUFFER_NUM                    500
 #define TEST_SAMPLES_PER_SECOND       8000  ///< in samples/sec (Hz)
-#define TEST_MIXER_BUFFER_LENGTH      20    ///< in milliseconds
+#define TEST_MIXER_BUFFER_LENGTH      100   ///< in milliseconds
 #define TEST_SAMPLE_FRAMES            100   ///< test length in frames
 #define TEST_SAMPLE_DATA_MAGNITUDE    32000 ///< absolute value
 #define TEST_SAMPLE_DATA_PERIOD       11    ///< in milliseconds
@@ -308,8 +308,12 @@ public:
          deviceManager.enableDevice(deviceId);
          CPPUNIT_ASSERT(deviceManager.isDeviceEnabled(deviceId));
 
-         // Write some data to device.
+         // Get current frame time and step to middle of mixer buffer to be in
+         // time with output audio connection.
          MpFrameTime frameTime=deviceManager.getCurrentFrameTime();
+         frameTime += TEST_MIXER_BUFFER_LENGTH/2;
+
+         // Write some data to device.
          for (int frame=0; frame<TEST_SAMPLE_FRAMES/TEST_SAMPLES_PER_FRAME_SIZE; frame++)
          {
             calculateSampleData(frameTime, pBuffer);
