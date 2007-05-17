@@ -29,7 +29,7 @@
 #  include <rtl_macro.h>
    RTL_DECLARE
 #else
-#  define RTL_EVENT(x)
+#  define RTL_EVENT(x, y)
 #endif
 
 class StoreSignalNotification : public OsNotification
