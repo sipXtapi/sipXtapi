@@ -580,8 +580,7 @@ OsStatus MpInputDeviceManager::disableDevice(MpInputDeviceHandle deviceId)
       assert(deviceDriver);
       if (deviceDriver)
       {
-         status = 
-            deviceDriver->disableDevice();
+         status = deviceDriver->disableDevice();
       }
 
       mRwMutex.acquireWrite();
@@ -645,9 +644,9 @@ OsStatus MpInputDeviceManager::getFrame(MpInputDeviceHandle deviceId,
    {
       status = 
          connectionFound->getFrame(frameTime,
-         buffer,
-         numFramesBefore,
-         numFramesAfter);
+                                   buffer,
+                                   numFramesBefore,
+                                   numFramesAfter);
    }
 
 #ifdef RTL_ENABLED
