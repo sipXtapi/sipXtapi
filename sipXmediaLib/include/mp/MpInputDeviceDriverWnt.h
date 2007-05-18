@@ -128,8 +128,7 @@ protected:
       /// @brief Processes incoming audio data.
     void processAudioInput(HWAVEIN hwi, 
                            UINT uMsg, 
-                           DWORD_PTR dwParam1,
-                           DWORD_PTR dwParam2);
+                           void* dwParam1);
       /**<
       *  This method, called by the static callback function 
       *  waveInCallbackStatic, processes audio input data from the windows
@@ -139,9 +138,9 @@ protected:
       /// @brief Callback function for receiving data from windows audio.
     static void CALLBACK waveInCallbackStatic(HWAVEIN hwi,
                                               UINT uMsg,
-                                              DWORD_PTR dwInstance,
-                                              DWORD_PTR dwParam1,
-                                              DWORD_PTR dwParam2);
+                                              void* dwInstance,
+                                              void* dwParam1,
+                                              void* dwParam2);
       /**<
       *  This static method is called by the windows waveform audio functions
       *  passing incoming audio data to be processed.

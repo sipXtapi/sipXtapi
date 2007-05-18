@@ -140,8 +140,15 @@ OsStatus MpInputDeviceDriverWnt::enableDevice(unsigned samplesPerFrame,
     // tell it to send the data to our callback yet, just to get it ready
     // to do so..
     MMRESULT res = waveInOpen(&mDevHandle, mWntDeviceId,
-                              &wavFormat, (DWORD_PTR)waveInCallbackStatic,
-                              (DWORD_PTR)this, CALLBACK_FUNCTION);
+                              &wavFormat,
+#if defined(_MSC_VER) && (_MSC_VER < 1300) // if < msvc7 (2003)
+                              (DWORD)waveInCallbackStatic,
+                              (DWORD)this, 
+#else
+                              (DWORD_PTR)waveInCallbackStatic,
+                              (DWORD_PTR)this, 
+#endif
+                              CALLBACK_FUNCTION);
     if (res != MMSYSERR_NOERROR)
     {
         // If waveInOpen failed, print out the error info,
@@ -298,8 +305,7 @@ OsStatus MpInputDeviceDriverWnt::disableDevice()
 
 void MpInputDeviceDriverWnt::processAudioInput(HWAVEIN hwi,
                                                UINT uMsg,
-                                               DWORD_PTR dwParam1,
-                                               DWORD_PTR dwParam2)
+                                               void* dwParam1)
 {
     if (!mIsOpen)
     {
@@ -337,13 +343,13 @@ void MpInputDeviceDriverWnt::processAudioInput(HWAVEIN hwi,
 void CALLBACK 
 MpInputDeviceDriverWnt::waveInCallbackStatic(HWAVEIN hwi,
                                              UINT uMsg, 
-                                             DWORD_PTR dwInstance,
-                                             DWORD_PTR dwParam1, 
-                                             DWORD_PTR dwParam2)
+                                             void* dwInstance,
+                                             void* dwParam1, 
+                                             void* dwParam2)
 {
     assert(dwInstance != NULL);
     MpInputDeviceDriverWnt* iddWntPtr = (MpInputDeviceDriverWnt*)dwInstance;
-    iddWntPtr->processAudioInput(hwi, uMsg, dwParam1, dwParam2);
+    iddWntPtr->processAudioInput(hwi, uMsg, dwParam1);
 }
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
