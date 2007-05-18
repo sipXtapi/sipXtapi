@@ -1685,7 +1685,7 @@
 				RelativePath=".\src\utl\UtlBool.cpp">
 			</File>
 			<File
-				RelativePath=".\src\os\UtlChainPool.cpp">
+				RelativePath=".\src\utl\UtlChainPool.cpp">
 			</File>
 			<File
 				RelativePath="src\utl\UtlContainable.cpp">
@@ -1874,7 +1874,7 @@
 				RelativePath=".\src\utl\UtlHistogram.cpp">
 			</File>
 			<File
-				RelativePath=".\src\os\UtlInit.cpp">
+				RelativePath=".\src\utl\UtlInit.cpp">
 			</File>
 			<File
 				RelativePath="src\utl\UtlInt.cpp">
