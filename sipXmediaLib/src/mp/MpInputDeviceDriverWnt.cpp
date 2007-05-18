@@ -359,23 +359,23 @@ WAVEHDR* MpInputDeviceDriverWnt::initWaveHeader(int n)
     assert((n >= 0) && (n < (int)mNumInBuffers));
     assert(mpWaveHeaders != NULL);
     assert((mpWaveBuffers != NULL) && (mpWaveBuffers[n] != NULL));
-    WAVEHDR& wave_hdr(mpWaveHeaders[n]);
+    WAVEHDR* pWave_hdr = &(mpWaveHeaders[n]);
     LPSTR    wave_data(mpWaveBuffers[n]);
 
     // zero out the wave buffer.
     memset(wave_data, 0, mWaveBufSize);
 
     // Set wave header data to initial values.
-    wave_hdr.lpData = wave_data;
-    wave_hdr.dwBufferLength = mWaveBufSize;
-    wave_hdr.dwBytesRecorded = 0;  // Filled in by wave functions
-    wave_hdr.dwUser = n;
-    wave_hdr.dwFlags = 0;
-    wave_hdr.dwLoops = 0;
-    wave_hdr.lpNext = NULL;
-    wave_hdr.reserved = 0;
+    pWave_hdr->lpData = wave_data;
+    pWave_hdr->dwBufferLength = mWaveBufSize;
+    pWave_hdr->dwBytesRecorded = 0;  // Filled in by wave functions
+    pWave_hdr->dwUser = n;
+    pWave_hdr->dwFlags = 0;
+    pWave_hdr->dwLoops = 0;
+    pWave_hdr->lpNext = NULL;
+    pWave_hdr->reserved = 0;
 
-    return &wave_hdr;
+    return pWave_hdr;
 }
 
 // Copy constructor (not implemented for this class)
