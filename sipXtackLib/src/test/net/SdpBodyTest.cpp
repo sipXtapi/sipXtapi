@@ -951,13 +951,17 @@ public:
         int audioPayloads[5] = {99,0,0,0,0};
         int videoPayloads[5] = {100,0,0,0,0};
         int numInCommon;
-        SdpCodec* codecsInCommon[5];
+        SdpCodec* codecsInCommonForEncoder[5];
+        SdpCodec* codecsInCommonForDecoder[5];
 
-        remote.getCodecsInCommon(1, 1, audioPayloads, videoPayloads, 8801, fac, numInCommon, codecsInCommon);
+        remote.getCodecsInCommon(1, 1, audioPayloads, videoPayloads, 8801, fac,
+                     numInCommon, codecsInCommonForEncoder, codecsInCommonForDecoder);
         CPPUNIT_ASSERT(numInCommon == 2);
 
-        CPPUNIT_ASSERT(codecsInCommon[0]->getVideoFormat() == SDP_VIDEO_FORMAT_QCIF);
-        CPPUNIT_ASSERT(codecsInCommon[1]->getVideoFormat() == SDP_VIDEO_FORMAT_SQCIF);
+        CPPUNIT_ASSERT(codecsInCommonForEncoder[0]->getVideoFormat() == SDP_VIDEO_FORMAT_QCIF);
+        CPPUNIT_ASSERT(codecsInCommonForEncoder[1]->getVideoFormat() == SDP_VIDEO_FORMAT_SQCIF);
+        CPPUNIT_ASSERT(codecsInCommonForDecoder[0]->getVideoFormat() == SDP_VIDEO_FORMAT_QCIF);
+        CPPUNIT_ASSERT(codecsInCommonForDecoder[1]->getVideoFormat() == SDP_VIDEO_FORMAT_SQCIF);
     };
 
     void testPtime()
@@ -1078,7 +1082,8 @@ public:
         sdpFactory.addCodec(*pQvgaCodec);
         CPPUNIT_ASSERT_EQUAL(5, sdpFactory.getCodecCount());
 
-        SdpCodec* codecArray[5];
+        SdpCodec* codecArrayForEncoder[5];
+        SdpCodec* codecArrayForDecoder[5];
         int numCodecsInCommon = 0;
         int videoRtpPort = -1;
         // This is insanely stupid.  I need to get the payload types from
@@ -1086,15 +1091,20 @@ public:
         int audioPayloads[4] = {96, 97, 98, 99};
         int videoPayloads[1] = {100};
         sloppyPtimeSdpBody.getCodecsInCommon(4, 1, audioPayloads, videoPayloads,
-            videoRtpPort, sdpFactory, numCodecsInCommon, codecArray);
+            videoRtpPort, sdpFactory, numCodecsInCommon, codecArrayForEncoder,
+            codecArrayForDecoder);
         CPPUNIT_ASSERT_EQUAL(5, numCodecsInCommon);
 
         int codecIndex;
-        int payloadId;
+        int encoderPayloadId;
+        int decoderPayloadId;
         for(codecIndex = 0; codecIndex < numCodecsInCommon; codecIndex++)
         {
-            payloadId = codecArray[codecIndex]->getCodecPayloadFormat();
-            switch(payloadId)
+            encoderPayloadId = codecArrayForEncoder[codecIndex]->getCodecPayloadFormat();
+            decoderPayloadId = codecArrayForDecoder[codecIndex]->getCodecPayloadFormat();
+            CPPUNIT_ASSERT_EQUAL(encoderPayloadId, decoderPayloadId);
+
+            switch(encoderPayloadId)
             {
             case 98:
             case 99:
@@ -1109,18 +1119,22 @@ public:
             case 96:
             case 97:
                 CPPUNIT_ASSERT_EQUAL(11000,
-                                     codecArray[codecIndex]->getPacketLength());
+                                     codecArrayForEncoder[codecIndex]->getPacketLength());
+                CPPUNIT_ASSERT_EQUAL(11000,
+                                     codecArrayForDecoder[codecIndex]->getPacketLength());
                 break;
 
             case 100:
                 // currently video ptime is ignored in SdpBody
                 // Should be 33000
                 CPPUNIT_ASSERT_EQUAL(20000, 
-                                     codecArray[codecIndex]->getPacketLength());
+                                     codecArrayForEncoder[codecIndex]->getPacketLength());
+                CPPUNIT_ASSERT_EQUAL(20000, 
+                                     codecArrayForDecoder[codecIndex]->getPacketLength());
                 break;
 
             default:
-                CPPUNIT_ASSERT_EQUAL(-2, payloadId);
+                CPPUNIT_ASSERT_EQUAL(-2, encoderPayloadId);
                 break;
             }
 
