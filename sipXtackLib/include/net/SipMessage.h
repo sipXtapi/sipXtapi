@@ -1226,6 +1226,7 @@ private:
          public:
 
           SipMessageFieldProps();
+          ~SipMessageFieldProps(); 
 
           UtlHashBag mShortFieldNames;
           UtlHashBag mLongFieldNames;
@@ -1240,7 +1241,7 @@ private:
        };
 
     // Singleton object to carry the field properties.
-    static SipMessageFieldProps* spSipMessageFieldProps;
+    static SipMessageFieldProps sSipMessageFieldProps;
 };
 
 /* ============================ INLINE METHODS ============================ */

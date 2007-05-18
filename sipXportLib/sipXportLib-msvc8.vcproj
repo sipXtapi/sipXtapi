@@ -1960,6 +1960,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\src\os\OsNameDbInit.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\src\os\OsNatConnectionSocket.cpp"
 				>
 			</File>
@@ -2009,6 +2013,10 @@
 			</File>
 			<File
 				RelativePath=".\src\os\OsProtectEventMgr.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\src\os\OsProtectEventMgrInit.cpp"
 				>
 			</File>
 			<File
@@ -2298,6 +2306,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\src\utl\UtlChainPool.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\src\utl\UtlContainable.cpp"
 				>
 			</File>
@@ -2351,6 +2363,10 @@
 			</File>
 			<File
 				RelativePath=".\src\utl\UtlHistogram.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\src\utl\UtlInit.cpp"
 				>
 			</File>
 			<File
@@ -2611,6 +2627,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\include\os\OsNameDbInit.h"
+				>
+			</File>
+			<File
 				RelativePath=".\include\os\OsNatConnectionSocket.h"
 				>
 			</File>
@@ -2664,6 +2684,10 @@
 			</File>
 			<File
 				RelativePath="include\os\OsProtectEventMgr.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\os\OsProtectEventMgrInit.h"
 				>
 			</File>
 			<File
@@ -2827,6 +2851,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\include\SipXportLibInit.h"
+				>
+			</File>
+			<File
 				RelativePath=".\include\tapi\sipXtapi.h"
 				>
 			</File>
@@ -2856,6 +2884,10 @@
 			</File>
 			<File
 				RelativePath=".\include\utl\UtlBool.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\utl\UtlChainPool.h"
 				>
 			</File>
 			<File
@@ -2920,6 +2952,10 @@
 			</File>
 			<File
 				RelativePath=".\include\utl\UtlHistogram.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\utl\UtlInit.h"
 				>
 			</File>
 			<File

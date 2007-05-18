@@ -150,6 +150,7 @@ public:
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
     friend class UtlIterator;
+    friend class UtlInit;
 
     /// Add an iterator to the list to be notified of changes to this container.
     void addIterator(UtlIterator* newIterator ///< to be notified of container changes

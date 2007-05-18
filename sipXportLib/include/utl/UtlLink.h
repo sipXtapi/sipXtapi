@@ -14,11 +14,16 @@
 
 // SYSTEM INCLUDES
 #include "os/OsDefs.h"
+#include "os/OsBSem.h"
 
 // APPLICATION INCLUDES
 #include "utl/UtlContainable.h"
 
 // DEFINES
+#ifndef UTLLINK_BLOCK_SIZE
+#define UTLLINK_BLOCK_SIZE 1000
+#endif
+
 // MACROS
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -221,6 +226,7 @@ class UtlChain
   private:
 };
 
+
 /**
  * UtlLink implements linked lists of data blocks.
  * It may not be used directly because it is not thread safe; use one of the
@@ -313,6 +319,7 @@ class UtlLink : public UtlChain
    friend class UtlHashBag;
    friend class UtlHashBagIterator;
    friend class UtlLinkTest;
+   friend class UtlInit;
 
    // ================================================================
    /** @name                  Link Manipulation in a Chain
@@ -453,6 +460,7 @@ class UtlPair : public UtlLink
    friend class UtlHashMap;
    friend class UtlHashMapIterator;
    friend class UtlHashBagIterator;
+   friend class UtlInit;
 
    UtlContainable* value;
 

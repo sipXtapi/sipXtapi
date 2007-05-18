@@ -235,6 +235,10 @@ SOURCE=.\src\os\OsNameDb.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\os\OsNameDbInit.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\os\OsNatAgentTask.cpp
 # End Source File
 # Begin Source File
@@ -284,6 +288,10 @@ SOURCE=.\src\os\OsProtectEvent.cpp
 # Begin Source File
 
 SOURCE=.\src\os\OsProtectEventMgr.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\os\OsProtectEventMgrInit.cpp
 # End Source File
 # Begin Source File
 
@@ -439,6 +447,10 @@ SOURCE=.\src\utl\UtlBool.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\utl\UtlChainPool.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\utl\UtlContainable.cpp
 # End Source File
 # Begin Source File
@@ -488,6 +500,10 @@ SOURCE=.\src\utl\UtlHashMap.cpp
 # Begin Source File
 
 SOURCE=.\src\utl\UtlHashMapIterator.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\utl\UtlInit.cpp
 # End Source File
 # Begin Source File
 
@@ -743,6 +759,10 @@ SOURCE=.\include\os\OsNameDb.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\include\os\OsNameDbInit.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\include\os\OsNatAgentTask.h
 # End Source File
 # Begin Source File
@@ -800,6 +820,10 @@ SOURCE=.\include\os\OsProtectEvent.h
 # Begin Source File
 
 SOURCE=.\include\os\OsProtectEventMgr.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\os\OsProtectEventMgrInit.h
 # End Source File
 # Begin Source File
 
@@ -963,6 +987,10 @@ SOURCE=.\include\os\OsWriteLock.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\include\SipXportLibInit.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\include\utl\Plugin.h
 # End Source File
 # Begin Source File
@@ -1015,6 +1043,10 @@ SOURCE=.\include\utl\UtlBool.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\include\utl\UtlChainPool.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\include\utl\UtlContainable.h
 # End Source File
 # Begin Source File
@@ -1064,6 +1096,10 @@ SOURCE=.\include\utl\UtlHashMapIterator.h
 # Begin Source File
 
 SOURCE=.\include\utl\UtlHistogram.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\utl\UtlInit.h
 # End Source File
 # Begin Source File
 

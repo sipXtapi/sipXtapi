@@ -15,7 +15,7 @@
 // EXTERNAL VARIABLES
 // CONSTANTS
 // STATIC VARIABLE INITIALIZATIONS
-TapiMgr* TapiMgr::spTapiMgr = 0;
+TapiMgr TapiMgr::sTapiMgr;
 
 // Constructor - private, this is a singleton
 TapiMgr::TapiMgr() :
@@ -33,11 +33,7 @@ TapiMgr::~TapiMgr()
 // static accessor for the singleton instance
 TapiMgr& TapiMgr::getInstance()
 {
-   if (TapiMgr::spTapiMgr == 0)
-   {
-      TapiMgr::spTapiMgr = new TapiMgr();
-   }
-   return *(TapiMgr::spTapiMgr);
+   return sTapiMgr;
 }
 
 // setting the Call event callback pointer

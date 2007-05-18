@@ -135,7 +135,7 @@ private:
     /**
      * Private, static pointer, holding on to the singleton class instance.
      */
-    static TapiMgr* spTapiMgr;
+    static TapiMgr sTapiMgr;
 
     /**
      * function pointer for the Unified Event callback proc in sipXtapi.

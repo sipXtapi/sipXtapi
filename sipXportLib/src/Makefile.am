@@ -49,8 +49,10 @@ libsipXport_la_SOURCES =  \
     utl/UtlLink.cpp \
     utl/UtlVoidPtr.cpp \
     utl/UtlHistogram.cpp \
+    utl/UtlInit.cpp \
     utl/UtlInt.cpp \
     utl/UtlString.cpp \
+    utl/UtlChainPool.cpp \
     utl/UtlContainable.cpp \
     utl/UtlContainer.cpp \
     utl/UtlContainableAtomic.cpp \
@@ -100,6 +102,7 @@ libsipXport_la_SOURCES =  \
     os/OsMsgQ.cpp \
     os/OsMulticastSocket.cpp \
     os/OsNameDb.cpp \
+    os/OsNameDbInit.cpp \
     os/OsNatAgentTask.cpp \
     os/OsNatDatagramSocket.cpp \
     os/OsNatConnectionSocket.cpp \
@@ -111,6 +114,7 @@ libsipXport_la_SOURCES =  \
     os/OsProcessMgr.cpp \
     os/OsProtectEvent.cpp \
     os/OsProtectEventMgr.cpp \
+    os/OsProtectEventMgrInit.cpp \
     os/OsPtrMsg.cpp \
     os/OsQueuedEvent.cpp \
     os/OsRpcMsg.cpp \

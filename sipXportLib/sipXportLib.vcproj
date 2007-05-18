@@ -833,6 +833,9 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\src\os\OsNameDbInit.cpp">
+			</File>
+			<File
 				RelativePath=".\src\os\OsNatConnectionSocket.cpp">
 			</File>
 			<File
@@ -1047,6 +1050,9 @@
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\src\os\OsProtectEventMgrInit.cpp">
 			</File>
 			<File
 				RelativePath="src\os\OsPtrMsg.cpp">
@@ -1679,6 +1685,9 @@
 				RelativePath=".\src\utl\UtlBool.cpp">
 			</File>
 			<File
+				RelativePath=".\src\os\UtlChainPool.cpp">
+			</File>
+			<File
 				RelativePath="src\utl\UtlContainable.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -1863,6 +1872,9 @@
 			</File>
 			<File
 				RelativePath=".\src\utl\UtlHistogram.cpp">
+			</File>
+			<File
+				RelativePath=".\src\os\UtlInit.cpp">
 			</File>
 			<File
 				RelativePath="src\utl\UtlInt.cpp">
@@ -2382,6 +2394,9 @@
 				RelativePath="include\os\OsNameDb.h">
 			</File>
 			<File
+				RelativePath="include\os\OsNameDbInit.h">
+			</File>
+			<File
 				RelativePath=".\include\os\OsNatConnectionSocket.h">
 			</File>
 			<File
@@ -2419,6 +2434,9 @@
 			</File>
 			<File
 				RelativePath="include\os\OsProtectEventMgr.h">
+			</File>
+			<File
+				RelativePath="include\os\OsProtectEventMgrInit.h">
 			</File>
 			<File
 				RelativePath="include\os\OsPtrMsg.h">
@@ -2547,7 +2565,13 @@
 				RelativePath="include\aes\uitypes.h">
 			</File>
 			<File
+				RelativePath="include\SipXportLibInit.h">
+			</File>
+			<File
 				RelativePath=".\include\utl\UtlBool.h">
+			</File>
+			<File
+				RelativePath="include\utl\UtlChainPool.h">
 			</File>
 			<File
 				RelativePath="include\utl\UtlContainable.h">
@@ -2596,6 +2620,9 @@
 			</File>
 			<File
 				RelativePath=".\include\utl\UtlHistogram.h">
+			</File>
+			<File
+				RelativePath="include\utl\UtlInit.h">
 			</File>
 			<File
 				RelativePath="include\utl\UtlInt.h">
