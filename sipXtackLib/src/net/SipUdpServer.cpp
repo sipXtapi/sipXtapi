@@ -258,7 +258,7 @@ OsStatus SipUdpServer::createServerSocket(const char* szBoundIp,
 {
     OsStatus rc = OS_FAILED;
     OsNatDatagramSocket* pSocket =
-      new OsNatDatagramSocket(0, NULL, port, szBoundIp, FALSE);
+      new OsNatDatagramSocket(0, NULL, port, szBoundIp, NULL);
    
     if (pSocket)
     {
@@ -269,7 +269,7 @@ OsStatus SipUdpServer::createServerSocket(const char* szBoundIp,
             for (int i=1; i<=SIP_MAX_PORT_RANGE; i++)
             {
                 delete pSocket ;
-                pSocket = new OsNatDatagramSocket(0, NULL, port+i, szBoundIp, FALSE);
+                pSocket = new OsNatDatagramSocket(0, NULL, port+i, szBoundIp, NULL);
                 if (pSocket->isOk())
                 {
                     break ;
