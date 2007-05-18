@@ -122,7 +122,7 @@ public:
         OsEvent* pEvent;
 
         pEvent = new OsEvent(12345);
-        int epochTime = time(NULL);
+        time_t epochTime = time(NULL);
         CPPUNIT_ASSERT(pEvent->wait(eventTimeout) != OS_SUCCESS);
         pEvent->signal(67890);
         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pEvent->wait(eventTimeout));

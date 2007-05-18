@@ -64,7 +64,7 @@ public:
         CPPUNIT_ASSERT(s->getSocketDescriptor() >= 0);
         CPPUNIT_ASSERT(s->isOk());
         const char* msg = "hello\n";
-        int len = strlen(msg);
+        int len = (int)strlen(msg);
         int bytesWritten = s->write(msg, len);
         CPPUNIT_ASSERT_EQUAL_MESSAGE("write correct number of bytes", 
             bytesWritten, len);
@@ -119,7 +119,7 @@ public:
                                serverClient != NULL);
 
         const char* msg = "hello\n";
-        int len = strlen(msg) + 1; // +1 for NULL
+        int len = (int)strlen(msg) + 1; // +1 for NULL
         int bytesWritten = client->write(msg, len, socketTimeout);
         CPPUNIT_ASSERT_EQUAL_MESSAGE("write correct number of bytes", 
                 bytesWritten, len);
@@ -131,7 +131,7 @@ public:
         ASSERT_STR_EQUAL_MESSAGE("message same as was sent", msg, recvBuf);
 
         const char *resp = "bye";
-        len = strlen(resp) + 1; // +1 for NULL
+        len = (int)strlen(resp) + 1; // +1 for NULL
         bytesWritten = serverClient->write(resp, len, socketTimeout);
 
         CPPUNIT_ASSERT_EQUAL_MESSAGE("write correct number of bytes on 2nd msg", 

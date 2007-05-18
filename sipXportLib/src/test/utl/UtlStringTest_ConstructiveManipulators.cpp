@@ -675,10 +675,10 @@ public:
         string strExp ;
         for (int i = 0 ; i < commonTestSetLength ; i++)
         {
-            int len_baseString = strlen(commonTestSet[i].input) ;
+            size_t len_baseString = strlen(commonTestSet[i].input) ;
             for(int j =0 ; j < commonTestSetLength; j++)
             {
-                int len_stringToAppend = strlen(commonTestSet[j].input) ;
+                size_t len_stringToAppend = strlen(commonTestSet[j].input) ;
                 UtlString baseString(commonTestSet[i].input) ;
 
                 strExp.erase() ;
@@ -764,7 +764,7 @@ public:
 
          int charLength = 257 ;
          const char* stringToAppend ="AnotherString123O-abz@B\")";
-         int appendLength = strlen(stringToAppend) ;
+         size_t appendLength = strlen(stringToAppend) ;
 
          UtlString baseString(longAlphaString) ;
          baseString.capacity(charLength) ;
@@ -905,7 +905,7 @@ public:
         // every type (common) of string
         for (int i = 0 ; i < commonTestSetLength ; i++)
         {
-            int len_baseString = strlen(commonTestSet[i].input) ;
+            size_t len_baseString = strlen(commonTestSet[i].input) ;
             for(int j =0 ; j < commonTestSetLength; j++)
             {
                 UtlString baseString(commonTestSet[i].input) ;
@@ -1012,7 +1012,7 @@ public:
              const char* returnValue ;
              UtlString stringToAppend(commonTestSet[i].input) ;
 
-             int sizeToCopy = commonTestSet[i].length - 1 ;
+             int sizeToCopy = (int)commonTestSet[i].length - 1 ;
              sizeToCopy = sizeToCopy < 0 ? 0 : sizeToCopy ;
              if (type == TYPE_CHARSTAR)
              {
@@ -1069,8 +1069,8 @@ public:
         {
             const char* testDescription ;
             const char* input ;
-            int length ;
-            int lengthToCopy ;
+            size_t length ;
+            size_t lengthToCopy ;
             const char* expectedValue ;
         };
 
@@ -1093,8 +1093,8 @@ public:
 
         const char* expectedForSplChars = "Ð墀%$',+*\"?+*"   ;
 
-        const int lenLongString = strlen(longAlphaString) ;
-        const int lenSplChars = strlen(splCharString) ;
+        const size_t lenLongString = strlen(longAlphaString) ;
+        const size_t lenSplChars = strlen(splCharString) ;
         const LimitedSizeTestStructure testData[] = { \
             {"single character string", "g", 1, 0, ""}, \
             {"very long string", longAlphaString, lenLongString, \

@@ -10,7 +10,6 @@
 
 #include <utl/UtlStringTest.h>
 
-const int UtlStringTest::INDEX_NOT_FOUND = -1 ; 
 const char* UtlStringTest::longAlphaString = \
                    "abcdefghijklmnopqrstuvwzyz"
                    "abcdefghijklmnopqrstuvwzyz"

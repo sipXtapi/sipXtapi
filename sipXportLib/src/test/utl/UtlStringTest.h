@@ -22,10 +22,9 @@ protected :
     {
         const char* testDescription ; 
         const char* input ; 
-        int length ; 
+        size_t length ; 
     };
     
-    static const int INDEX_NOT_FOUND ; 
     static const char* longAlphaString  ;
     static const char* splCharString ;
     

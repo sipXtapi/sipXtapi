@@ -377,7 +377,7 @@ public:
             // 
             // cannot assume starting pool size to be zero.
             //
-            for (unsigned i = startingPoolSize; i < (peakPoolSize - startingPoolSize); i++) 
+            for (size_t i = startingPoolSize; i < (peakPoolSize - startingPoolSize); i++) 
             {
                UtlLink::after(&start, &data1);
             }
