@@ -38,6 +38,11 @@ class TapiMgr
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
     /**
+    * TapiMgr destructor.
+    */
+    virtual ~TapiMgr();
+
+    /**
     * Accessor for the single class instance.
     */
     static TapiMgr& getInstance();
@@ -126,11 +131,6 @@ private:
     */
     TapiMgr(const TapiMgr& src);
 
-
-    /**
-    * TapiMgr destructor.
-    */
-    virtual ~TapiMgr();
 
     /**
      * Private, static pointer, holding on to the singleton class instance.
