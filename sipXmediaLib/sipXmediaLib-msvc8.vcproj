@@ -1666,6 +1666,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\src\mp\MpNotificationDispatcher.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\src\mp\MpodBufferRecorder.cpp"
 					>
 				</File>

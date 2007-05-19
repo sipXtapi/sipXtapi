@@ -2227,6 +2227,9 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\src\mp\MpNotificationDispatcher.cpp">
+			</File>
+			<File
 				RelativePath=".\src\mp\MpodBufferRecorder.cpp">
 			</File>
 			<File
@@ -4510,6 +4513,9 @@
 			</File>
 			<File
 				RelativePath="include\mp\MpMisc.h">
+			</File>
+			<File
+				RelativePath=".\include\mp\MpNotificationDispatcher.h">
 			</File>
 			<File
 				RelativePath=".\include\mp\MpodBufferRecorder.h">

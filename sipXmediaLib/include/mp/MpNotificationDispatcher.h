@@ -41,42 +41,28 @@
 */
 class MpNotificationDispatcher : public OsMsgQ
 {
-   /* //////////////////////////// PUBLIC //////////////////////////////////// */
+/* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
-   /* ============================ CREATORS ================================== */
-   ///@name Creators
-   //@{
+/* ============================ CREATORS ================================== */
+///@name Creators
+//@{
 
-   /// Default constructor
+     /// Default constructor
    MpNotificationDispatcher()
-      : OsMsgQ() {};
-   /**<
-   */
+      : OsMsgQ()
+      {};
 
-   /// Destructor
+     /// Destructor
    virtual ~MpNotificationDispatcher() {};
 
-   //@}
+//@}
 
-   /* ============================ MANIPULATORS ============================== */
-     ///@name Manipulators
-     //@{
+/* ============================ MANIPULATORS ============================== */
+///@name Manipulators
+//@{
      /// Post a resource notification message.
-   virtual OsStatus postNotification(const MpResourceNotificationMsg& msg)
-   {
-      if(numMsgs() == maxMsgs())
-      {
-         setNotificationsLost();
-         return OS_LIMIT_REACHED;
-      }
-      else
-      {
-         // Send the message, give it 1 millisecond to send.
-         send(msg, OsTime(1));
-         return OS_SUCCESS;
-      }
-   };
+   virtual OsStatus postNotification(const MpResourceNotificationMsg& msg);
      /**<
      *  This posts a resource notification message to the Notification queue.
      *  @NOTE If the queue is full, a flag will be set that notifications
@@ -92,8 +78,7 @@ public:
 
      /// Receive a notification message from the queue.
    virtual OsStatus receive(MpResourceNotificationMsg*& rpMsg,
-      const OsTime& rTimeout=OsTime::OS_INFINITY)
-   { return receive(rpMsg, rTimeout); };
+                            const OsTime& rTimeout=OsTime::OS_INFINITY);
      /**< 
      *  Remove a message from the head of the queue
      *  Wait until either a message arrives or the timeout expires.
@@ -103,27 +88,28 @@ public:
      *  @param rTimeout - how long to wait for a notification..
      */
 
-   //@}
+//@}
 
-   /* ============================ ACCESSORS ================================= */
-   ///@name Accessors
-   //@{
+/* ============================ ACCESSORS ================================= */
+///@name Accessors
+//@{
 
-   /* ============================ INQUIRY =================================== */
-   ///@name Inquiry
-   //@{
+/* ============================ INQUIRY =================================== */
+///@name Inquiry
+//@{
 
-   //@}
+//@}
 
-   /* //////////////////////////// PROTECTED ///////////////////////////////// */
+/* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 
    UtlBoolean mNotificationsLost; ///< Whether any notifications have 
      ///< have been dropped on the floor due to the queue being full.
 
-   /* //////////////////////////// PRIVATE /////////////////////////////////// */
+/* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-     /// set that there were notifications lost.
+
+     /// Set that there were notifications lost.
    void setNotificationsLost() { mNotificationsLost = TRUE; };
 
      /// Copy constructor (not implemented for this class)

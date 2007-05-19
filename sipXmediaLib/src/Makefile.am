@@ -104,6 +104,7 @@ libsipXmedia_la_SOURCES =  \
     mp/MpMediaTask.cpp \
     mp/MpMediaTaskMsg.cpp \
     mp/MpMisc.cpp \
+    mp/MpNotificationDispatcher.cpp \
     mp/MpodBufferRecorder.cpp \
     mp/MpodOSS.cpp \
     mp/MpOSSDeviceWrapper.cpp \
