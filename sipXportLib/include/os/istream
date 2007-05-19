@@ -1,0 +1,22 @@
+// 
+//
+// Copyright (C) 2004, 2005 Pingtel Corp.
+// 
+//
+// $$
+//////////////////////////////////////////////////////////////////////////////
+
+#ifndef _istream_h_
+#define _istream_h_
+
+// If we are compiling for VxWorks, use the old form of istream.h
+// We do this to stay compatible with the version of the tools++
+// object modules that are distributed with VxWorks.
+
+#if defined(_VXWORKS)
+#include <istream.h>
+#else
+#include <istream>
+#endif
+
+#endif  // _istream_h_

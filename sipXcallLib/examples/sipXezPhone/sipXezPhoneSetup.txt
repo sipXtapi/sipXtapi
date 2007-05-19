@@ -1,0 +1,25 @@
+Configuration Settings for the SIPFoundry sipXezPhone:
+
+Identity: 	The sip url that can be used to contact you at this phone
+		e.g. - sip:115@pingtel.com
+
+Realm:		The "group" name on the proxy/registrar server that
+		your Username belongs to.
+		e.g. - pingtel.com
+
+Username:	The authentication username for the account on
+		your proxy/registrar server.
+
+Password:	The authentication password for the account on
+		your proxy/registrar server.
+
+Proxy Server:	Hostname of your proxy/registrar server.
+
+Enable r-port:	Check this box if your want SIP signal and RTP packets to
+		be sent back to the original (return) port that requested them.
+		This setting is useful if you are behind a firewall.
+
+Stun Server:	Hostname of a server running a STUN service.
+		STUN is an IP address "reflection" service that will allow
+		you to use the phone if you are behind a firewall.
+		e.g. - larry.gloo.net

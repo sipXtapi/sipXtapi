@@ -1,0 +1,23 @@
+// 
+//
+// Copyright (C) 2004, 2005 Pingtel Corp.
+// 
+//
+// $$
+//////////////////////////////////////////////////////////////////////////////
+
+#ifndef _ostream_h_
+#define _ostream_h_
+
+// If we are compiling for VxWorks, use the old form of ostream.h
+// We do this to stay compatible with the version of the tools++
+// object modules that are distributed with VxWorks.
+
+#if defined(_VXWORKS)
+#include <ostream.h>
+#else
+#include <ostream>
+using namespace std;
+#endif
+
+#endif  // _ostream_h_
