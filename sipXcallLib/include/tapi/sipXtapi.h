@@ -221,7 +221,13 @@ typedef enum SIPX_VIDEO_FORMAT
     VIDEO_FORMAT_CIF=0,          /**< 352x288   */ 
     VIDEO_FORMAT_QCIF,           /**< 176x144   */
     VIDEO_FORMAT_SQCIF,          /**< 128x96    */
-    VIDEO_FORMAT_QVGA            /**< 320x240   */
+    VIDEO_FORMAT_QVGA,           /**< 320x240   */
+    VIDEO_FORMAT_VGA,            /**< 640x480   */
+    VIDEO_FORMAT_4CIF,           /**< 704x576   */
+    VIDEO_FORMAT_16CIF,           /**< 1408x1152 */
+
+    VIDEO_FORMAT_DEFAULT = VIDEO_FORMAT_VGA      /**< Default video format */
+
 } SIPX_VIDEO_FORMAT;
 
 
@@ -729,10 +735,20 @@ typedef struct
     int cbSize;                          /**< Size of structure          */
     SIPX_AUDIO_BANDWIDTH_ID bandwidthId; /**< Bandwidth range            */
     bool sendLocation;                   /**< True sends location header */
-    SIPX_CONTACT_ID contactId;           /**< desired contactId (only used for 
-                                              sipxCallAccept at this moment) */
-    SIPX_RTP_TRANSPORT rtpTransportOptions; /**< true if media to be sent over tcp. */
+    SIPX_CONTACT_ID contactId;            /**< desired contactId -- NOTE: 
+                                               This is only read by 
+                                               sipXcallAccept today. */
+    SIPX_RTP_TRANSPORT rtpTransportFlags; /**< specifies protocols(s)/role for media */
 
+    bool disableICE ;       /**< Disable ICE for this call.  ICE is only
+                                 enabled if this parameter is set to false 
+                                 (default) and ICE has been enabled globally 
+                                 using sipxConfigEnableIce. */
+
+    bool disableTURN ;      /**< Disable TURN for this call.  TURN is only
+                                 enabled if this parameter is set to false 
+                                 (default) and TURN has been enabled globally
+                                 using sipxConfigEnableTurn. */
     /*
      * NOTE: When adding new data to this structure, please always add it to
      *       the end.  This will allow us to maintain some drop-in 
@@ -1949,6 +1965,8 @@ SIPXTAPI_API SIPX_RESULT sipxCallGetAudioRtpSourceIds(const SIPX_CALL hCall,
 SIPXTAPI_API SIPX_RESULT sipxCallGetAudioRtcpStats(const SIPX_CALL hCall,
                                                    SIPX_RTCP_STATS* pStats) ;
 
+
+
 /**
  * Limits the codec preferences on a per-call basis.  This API will force a 
  * codec renegotiation with the specified call regardless if the codecs 
@@ -2564,7 +2582,7 @@ SIPXTAPI_API SIPX_RESULT sipxAudioSetRingerOutputDevice(const SIPX_INST hInst,
  */
 SIPXTAPI_API SIPX_RESULT sipxAudioSetCallOutputDevice(const SIPX_INST hInst,
                                                       const char* szDevice) ;
-
+                                                
 
 //@}
 /** @name Line / Identity Methods*/
@@ -3237,6 +3255,8 @@ SIPXTAPI_API SIPX_RESULT sipxConfigGetAudioCodec(const SIPX_INST hInst,
                                                  const int index, 
                                                  SIPX_AUDIO_CODEC* pCodec) ;
 
+
+
 /**
  * Set the bandwidth parameters for video codecs.Depending on the bandwidth
  * parameter that is passed in the settings will be set to:
@@ -3374,6 +3394,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigSetVideoFormat(const SIPX_INST hInst,
 SIPXTAPI_API SIPX_RESULT sipxConfigGetVideoCodec(const SIPX_INST hInst, 
                                                  const int index, 
                                                  SIPX_VIDEO_CODEC* pCodec) ;
+
 
 /**
  * Get the local contact address available for outbound/inbound signaling and

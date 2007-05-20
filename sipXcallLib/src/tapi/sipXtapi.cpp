@@ -1242,6 +1242,8 @@ SIPXTAPI_API SIPX_RESULT sipxCallConnect(SIPX_CALL hCall,
     {
         bEnableLocationHeader = options->sendLocation;
         bandWidth = options->bandwidthId;
+/*
+        // TEMP disable: TCP not working w/ this branch/code base
 
         if (options->cbSize == sizeof(SIPX_CALL_OPTIONS))
         {
@@ -1252,6 +1254,7 @@ SIPXTAPI_API SIPX_RESULT sipxCallConnect(SIPX_CALL hCall,
             // try to provide some drop-in compability.
             rtpTransportOptions = UDP_ONLY;
         }
+*/
     }
 
     OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
@@ -3548,6 +3551,9 @@ SIPXTAPI_API SIPX_RESULT sipxConferenceAdd(const SIPX_CONF hConf,
     int bandWidth=AUDIO_CODEC_BW_DEFAULT;
     SIPX_RTP_TRANSPORT rtpTransportOptions = UDP_ONLY;
 
+/*
+    // TEMP disable: TCP not working w/ this branch/code base
+
     if (options != NULL && options->cbSize)
     {
         bEnableLocationHeader = options->sendLocation;
@@ -3563,6 +3569,7 @@ SIPXTAPI_API SIPX_RESULT sipxConferenceAdd(const SIPX_CONF hConf,
             rtpTransportOptions = UDP_ONLY;
         }
     }
+*/
 
     OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
         "sipxConferenceAdd hConf=%d hLine=%d szAddress=%s contactId=%d, pDisplay=%p "
@@ -5996,8 +6003,10 @@ SIPXTAPI_API SIPX_RESULT sipxConfigEnableTurn(const SIPX_INST hInst,
     assert(pInst);
     if (pInst)
     {      
-        pInst->pCallManager->enableTurn(szServer, iServerPort, szUsername, 
-                szPassword, iKeepAliveInSecs) ;
+        // TEMP: Disabled (silent) on this branch until updates are merged in
+        //
+        // pInst->pCallManager->enableTurn(szServer, iServerPort, szUsername, 
+        //          szPassword, iKeepAliveInSecs) ;
         rc = SIPX_RESULT_SUCCESS ;
     }
 
@@ -6038,7 +6047,9 @@ SIPXTAPI_API SIPX_RESULT sipxConfigEnableIce(const SIPX_INST hInst)
     assert(pInst);
     if (pInst)
     {      
-        pInst->pCallManager->enableIce(true) ;
+        // TEMP: Disabled (silent) on this branch until updates are merged in
+        //
+        // pInst->pCallManager->enableIce(true) ;
         rc = SIPX_RESULT_SUCCESS ;
     }
 
@@ -7866,6 +7877,9 @@ SIPXTAPI_API SIPX_RESULT sipxConfigExternalTransportAdd(SIPX_INST const         
                                                         const char*               szLocalRoutingId,
                                                         const void*               pUserData)
 {
+    // TEMP: Disabling external transport support
+    return SIPX_RESULT_FAILURE ;
+/*
     SIPX_RESULT rc = SIPX_RESULT_FAILURE;
     SIPX_TRANSPORT_DATA* pData = new SIPX_TRANSPORT_DATA;
 
@@ -7901,6 +7915,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigExternalTransportAdd(SIPX_INST const         
         rc = SIPX_RESULT_SUCCESS;
     }
     return rc;
+*/
 }    
 SIPXTAPI_API SIPX_RESULT sipxConfigExternalTransportRemove(const SIPX_TRANSPORT hTransport)
 {
