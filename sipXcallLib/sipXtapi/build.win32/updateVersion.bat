@@ -1,4 +1,6 @@
+@ECHO OFF
 call setRepoEnvVar
+ECHO Setting version to %REPRO_VERSION%
 sed -i "s/SIPXTAPI_BUILDNUMBER.*\".*\"/SIPXTAPI_BUILDNUMBER \"%REPRO_VERSION%\"/g" ..\..\include\tapi\sipXtapi.h 
 sed -i "s/SIPXTAPI_BUILD_WORD [0-9,,]*/SIPXTAPI_BUILD_WORD 2,9,1,%REPRO_VERSION%/g" ..\..\include\tapi\sipXtapi.h
 sed -i "s/SIPXTAPI_FULL_VERSION.*\".*\"/SIPXTAPI_FULL_VERSION \"2.9.1.%REPRO_VERSION%\"/g" ..\..\include\tapi\sipXtapi.h
