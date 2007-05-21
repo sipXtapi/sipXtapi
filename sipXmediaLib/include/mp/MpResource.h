@@ -241,6 +241,9 @@ static const UtlContainableType TYPE;
      *  <i>inPortIdx</i> input on this resource.  If <i>inPortIdx</i> is 
      *  invalid or there is no connection, then <i>rpUpstreamResource</i> 
      *  will be set to NULL.
+     *
+     *  Note: this method locks to avoid contension over port allocation.
+     *  For this reason it SHOULD NOT be used in process frame.
      */
 
      /// Returns the name associated with this resource.
@@ -254,6 +257,9 @@ static const UtlContainableType TYPE;
      *  <i>outPortIdx</i> output on this resource.  If <i>outPortIdx</i> is 
      *  invalid or there is no connection, then <i>rpDownstreamResource</i> 
      *  will be set to NULL.
+     *
+     *  Note: this method locks to avoid contension over port allocation.
+     *  For this reason it SHOULD NOT be used in process frame.
      */
 
      /// Returns the current visit state for this resource
@@ -283,6 +289,9 @@ static const UtlContainableType TYPE;
        * Reserving a port does not prevent someone from connecting to
        * that port.
        * @returns -1 if no free ports
+       *
+       *  Note: this method locks to avoid contension over port allocation.
+       *  It SHOULD NOT be used in process frame.
        */
    int reserveFirstUnconnectedInput();
 
@@ -291,6 +300,9 @@ static const UtlContainableType TYPE;
        * Reserving a port does not prevent someone from connecting to
        * that port.
        * @returns -1 if no free ports
+       *
+       *  Note: this method locks to avoid contension over port allocation.
+       *  For this reason it SHOULD NOT be used in process frame.
        */
    int reserveFirstUnconnectedOutput();
 
@@ -307,15 +319,31 @@ static const UtlContainableType TYPE;
    UtlBoolean isEnabled(void) const;
 
      /// Returns TRUE if portIdx is valid and the indicated input is connected, FALSE otherwise.
+     /*
+      *  Note: this method locks to avoid contension over port allocation.
+      *  For this reason it SHOULD NOT be used in processFrame.
+      */
    UtlBoolean isInputConnected(int portIdx);
 
      /// Returns TRUE if portIdx is valid and the indicated input is not connected, FALSE otherwise.
+     /*
+      *  Note: this method locks to avoid contension over port allocation.
+      *  For this reason it SHOULD NOT be used in processFrame.
+      */
    UtlBoolean isInputUnconnected(int portIdx);
 
      /// Returns TRUE if portIdx is valid and the indicated output is connected, FALSE otherwise.
+     /*
+      *  Note: this method locks to avoid contension over port allocation.
+      *  For this reason it SHOULD NOT be used in processFrame.
+      */
    UtlBoolean isOutputConnected(int portIdx);
 
      /// Returns TRUE if portIdx is valid and the indicated output is not connected, FALSE otherwise.
+     /*
+      *  Note: this method locks to avoid contension over port allocation.
+      *  For this reason it SHOULD NOT be used in processFrame.
+      */
    UtlBoolean isOutputUnconnected(int portIdx);
 
 //@}
@@ -401,19 +429,35 @@ private:
 
      /// @brief Connects the <i>toPortIdx</i> input port on this resource to the 
      /// <i>fromPortIdx</i> output port of the <i>rFrom</i> resource.
+     /*
+      *  Note: this method locks to avoid contension over port allocation.
+      *  For this reason it SHOULD NOT be used in process frame.
+      */
    UtlBoolean connectInput(MpResource& rFrom, int fromPortIdx, int toPortIdx);
      /**< @returns TRUE if successful, FALSE otherwise. */
 
      /// @brief Connects the <i>fromPortIdx</i> output port on this resource to the 
      /// <i>toPortIdx</i> input port of the <i>rTo</i> resource.
+     /*
+      *  Note: this method locks to avoid contension over port allocation.
+      *  For this reason it SHOULD NOT be used in process frame.
+      */
    UtlBoolean connectOutput(MpResource& rTo, int toPortIdx, int fromPortIdx);
      /**< @returns TRUE if successful, FALSE otherwise. */
 
      /// @brief Removes the connection to the <i>inPortIdx</i> input port of this resource.
+     /*
+      *  Note: this method locks to avoid contension over port allocation.
+      *  For this reason it SHOULD NOT be used in process frame.
+      */
    UtlBoolean disconnectInput(int inPortIdx);
      /**< @returns TRUE if successful, FALSE otherwise. */
 
      /// @brief Removes the connection to the <i>outPortIdx</i> output port of this resource.
+     /*
+      *  Note: this method locks to avoid contension over port allocation.
+      *  For this reason it SHOULD NOT be used in process frame.
+      */
    UtlBoolean disconnectOutput(int outPortIdx);
      /**< @returns TRUE if successful, FALSE otherwise. */
 

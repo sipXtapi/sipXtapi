@@ -550,8 +550,9 @@ UtlBoolean MpResource::handleDisable()
 // Then store pBuf for the indicated input port.
 void MpResource::setInputBuffer(int inPortIdx, const MpBufPtr &pBuf)
 {
-    OsLock lock(mLock);
    // make sure we have a valid port that is connected to a resource
+   // Not locking mpInConns here as we only lock for setting/accessing
+   // reservation state (the only thing set in mpInConns outside media task)
    assert((inPortIdx >= 0) && (inPortIdx < mMaxInputs) &&
           (mpInConns[inPortIdx].pResource != NULL));
 
@@ -567,10 +568,12 @@ UtlBoolean MpResource::pushBufferDownsream(int outPortIdx, const MpBufPtr &pBuf)
    MpResource* pDownstreamInput;
    int         downstreamPortIdx;
 
+   // Not locking mpOutConns here as we only lock for setting/accessing
+   // reservation state (the only thing set in mpOutConns outside media task)
+
    if (outPortIdx < 0 || outPortIdx >= mMaxOutputs)  // port  out of range
       return FALSE;
 
-   OsLock lock(mLock);
    pDownstreamInput  = mpOutConns[outPortIdx].pResource;
    downstreamPortIdx = mpOutConns[outPortIdx].portIndex;
    if (pDownstreamInput == NULL)                     // no connected resource
