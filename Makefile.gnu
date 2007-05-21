@@ -35,11 +35,11 @@ PROJECTS=sipXportLib \
 
 
 libs : 
-	$(foreach PROJ, $(PROJECTS), $(MAKE) $(PROJ)/src/$(patsubst %Lib,lib%.la,$(PROJ)); )
+	$(foreach PROJ, $(PROJECTS), $(MAKE) -f Makefile.gnu $(PROJ)/src/$(patsubst %Lib,lib%.la,$(PROJ)); )
 makefiles Makefiles : 
-	$(foreach PROJ, $(PROJECTS), $(MAKE) $(PROJ)/Makefile; )
+	$(foreach PROJ, $(PROJECTS), $(MAKE) -f Makefile.gnu $(PROJ)/Makefile; )
 configure : 
-	$(foreach PROJ, $(PROJECTS), $(MAKE) $(PROJ)/configure; )
+	$(foreach PROJ, $(PROJECTS), $(MAKE) -f Makefile.gnu $(PROJ)/configure; )
 check : 
 	$(foreach PROJ, $(PROJECTS), \
 	  $(warning "$(PROJ): Building and running unit tests") \
@@ -56,14 +56,14 @@ $(addsuffix /configure,$(PROJECTS)) : #$(addsuffix /configure.ac,$(PROJECTS)) $(
 
 
 $(addsuffix /Makefile,$(PROJECTS)) : #$(addsuffix /configure,$(PROJECTS))
-	$(MAKE) $(@D)/configure
+	$(MAKE) -f Makefile.gnu $(@D)/configure
 	$(warning "$(@D): creating Makefiles with configure")
 	cd $(@D); ./configure --disable-sipviewer --enable-local-audio $(CONFIGFLAGS); cd ..
 
 
 LIB_LA_FILES = $(foreach PROJECT, $(PROJECTS), $(PROJECT)/src/$(patsubst %Lib,lib%.la,$(PROJECT)) )
 $(LIB_LA_FILES) : 
-	$(MAKE) $(dir $(@D))Makefile
+	$(MAKE) -f Makefile.gnu $(dir $(@D))Makefile
 	$(warning "$(patsubst %/,%,$(dir $(@D))): Building library")
 	cd $(dir $(@D)); make; cd ..
 
