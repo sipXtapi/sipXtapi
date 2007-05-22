@@ -176,6 +176,14 @@ CpTopologyGraphFactoryImpl::CpTopologyGraphFactoryImpl(OsConfigDb* pConfigDb)
           }
           else // (err != ERROR_SUCCESS)
           {
+             // It has been determined that this reg entry 
+             // (the entirety of the Sound Mapper key)
+             // is not present on a machine until someone goes into 
+             // Control Panel->Sounds and Audio Devices->Audio tab
+             //
+             // If this fails, we should use the wave routines to get
+             // the name of the 0th device, and use that.
+
              OsSysLog::add(FAC_AUDIO, PRI_ERR, 
                 "Error reading default waveform input device from "
                 "Windows registry in WINDOWS_DEFAULT_DEVICE_HACK");
@@ -200,6 +208,8 @@ CpTopologyGraphFactoryImpl::CpTopologyGraphFactoryImpl(OsConfigDb* pConfigDb)
           }
           else // (err != ERROR_SUCCESS)
           {
+             // See above to error case of looking up record default
+             // for information on why this would fail.
              OsSysLog::add(FAC_AUDIO, PRI_ERR, 
                 "Error reading default waveform output device from "
                 "Windows registry in WINDOWS_DEFAULT_DEVICE_HACK");
