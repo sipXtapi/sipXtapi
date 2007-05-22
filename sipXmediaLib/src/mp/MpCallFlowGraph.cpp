@@ -934,7 +934,7 @@ OsStatus MpCallFlowGraph::recordMic(int ms,
     }
 
     closeRecorders();
-    // If the event has already been signalled, clean up
+    // If the event has already been signaled, clean up
     if(OS_ALREADY_SIGNALED == recordEvent->signal(0))
     {
         eventMgr->release(recordEvent);
