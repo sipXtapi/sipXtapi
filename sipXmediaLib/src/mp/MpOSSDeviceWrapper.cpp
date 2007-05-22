@@ -37,6 +37,7 @@
 #include "rtl_macro.h"
 #else
 #define RTL_BLOCK(x)
+#define RTL_WRITE(x)
 #define RTL_EVENT(x,y)
 #endif
 
@@ -69,7 +70,7 @@ static inline void addToTimespec(struct timespec& ts, int nsec)
 //#define DEBUG_OSS_TIMERS
 
 #ifdef DEBUG_OSS_TIMERS
-#  define dossprintf(x)  do { osPrintf(x); fflush(stdout); } while (0)
+#  define dossprintf(x)  do { osPrintf(x); /*fflush(stdout);*/ } while (0)
 #else
 #  define dossprintf(x)
 #endif
@@ -308,6 +309,9 @@ OsStatus MpOSSDeviceWrapper::attachReader()
 {
    dossprintf("OSS: AttachReader\n");
    OsStatus ret = OS_FAILED;
+   pthread_mutex_lock(&mWrMutexBuff);
+   pthread_mutex_lock(&mWrMutexBuff1);
+
    if ((pReader == NULL) || (pReaderEnabled == TRUE))
    {
       return ret;
@@ -315,8 +319,6 @@ OsStatus MpOSSDeviceWrapper::attachReader()
 
    assert(mbReadCap == TRUE);
 
-   pthread_mutex_lock(&mWrMutexBuff);
-   pthread_mutex_lock(&mWrMutexBuff1);
    ret = setSampleRate(pReader->mSamplesPerSec);
    if (ret == OS_SUCCESS) {
       pReaderEnabled = TRUE;
@@ -340,15 +342,15 @@ OsStatus MpOSSDeviceWrapper::attachWriter()
 {
    dossprintf("OSS: AttachWriter..");
    OsStatus ret = OS_FAILED;
+   pthread_mutex_lock(&mWrMutexBuff);
+   pthread_mutex_lock(&mWrMutexBuff1);
+
    if ((pWriter == NULL) || (pWriterEnabled == TRUE))
       return ret;
 
    assert(mbWriteCap == TRUE);
 
-   pthread_mutex_lock(&mWrMutexBuff);
-   pthread_mutex_lock(&mWrMutexBuff1);
    ret = setSampleRate(pWriter->mSamplesPerSec);
-
    if (ret == OS_SUCCESS)
    {
       pWriterEnabled = TRUE;
@@ -368,11 +370,12 @@ OsStatus MpOSSDeviceWrapper::detachReader()
 {
    dossprintf("OSS: DetachReader..");
    OsStatus ret = OS_FAILED;
+   pthread_mutex_lock(&mWrMutexBuff);
+   pthread_mutex_lock(&mWrMutexBuff1);
+
    if ((pReader == NULL) || (pReaderEnabled == FALSE))
       return ret;
 
-   pthread_mutex_lock(&mWrMutexBuff);
-   pthread_mutex_lock(&mWrMutexBuff1);
    pReaderEnabled = FALSE;
    soundIOThreadBlocking(TRUE);
 
@@ -394,11 +397,12 @@ OsStatus MpOSSDeviceWrapper::detachWriter()
 {
    dossprintf("OSS: DetachWriter...");
    OsStatus ret = OS_FAILED;
+   pthread_mutex_lock(&mWrMutexBuff);
+   pthread_mutex_lock(&mWrMutexBuff1);
+
    if ((pWriter == NULL) || (pWriterEnabled == FALSE))
       return ret;
 
-   pthread_mutex_lock(&mWrMutexBuff);
-   pthread_mutex_lock(&mWrMutexBuff1);
    pWriterEnabled = FALSE;
    soundIOThreadBlocking(TRUE);
 
@@ -913,6 +917,14 @@ void MpOSSDeviceWrapper::performWithWrite(UtlBoolean bReaderEn)
                        delta, silenceSize, ospace, ospace2);
       }
 
+      int iSpace;
+      getISpace(iSpace);
+      if (iSpace > 0)
+      {
+          char dummyData[iSpace];
+          doInput(dummyData, iSpace);
+      }
+
       // Ensure buffer would not emptying
       musecJitterCorrect = 0;
       clock_gettime(CLOCK_REALTIME, &mWrTimeStarted);
@@ -1091,12 +1103,17 @@ void MpOSSDeviceWrapper::soundIOThread()
 
       if ((bLock) || (bModeChanged))
       {
+         dossprintf("i");
          pthread_mutex_lock(&mWrMutexBuff);
-         dossprintf("+");
+         dossprintf("p");
          pthread_cond_signal(&mBlockCondition);
          pthread_mutex_unlock(&mWrMutexBuff);
 
+         //Wait for thread blocking there
+         //If current thread not using (reader & writer are disabled)
+         // then blocking occure there
          res = pthread_cond_wait(&mNewDataArrived, &mNotifyBlk);
+         dossprintf("u");
 
          // Updating flags
          if (bLock) {
