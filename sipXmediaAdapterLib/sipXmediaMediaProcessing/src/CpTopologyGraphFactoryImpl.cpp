@@ -29,9 +29,11 @@
 #include <include/CpTopologyGraphFactoryImpl.h>
 #include <mi/CpMediaInterfaceFactory.h>
 #include <include/CpTopologyGraphInterface.h>
+#include <os/OsSysLog.h>
 
 // REMOVE THIS when device enumerator/monitor would be implemented
 #define USE_DEVICE_ADD_HACK
+#define WINDOWS_DEFAULT_DEVICE_HACK
 
 #ifdef USE_DEVICE_ADD_HACK // [
 
@@ -135,9 +137,97 @@ CpTopologyGraphFactoryImpl::CpTopologyGraphFactoryImpl(OsConfigDb* pConfigDb)
                                  8000, // samples per second
                                  0);   // mixer buffer length (ms)
 
+
+#if defined(WINDOWS_DEFAULT_DEVICE_HACK) && defined (WIN32) // [
+    UtlString defaultWinInputDevName = "";
+    UtlString defaultWinOutputDevName = "";
+
+    {
+       UtlString strSndMapperKey("Software\\Microsoft\\Multimedia\\Sound Mapper");
+       UtlString strRecordVal("Record");
+       UtlString strPlaybackVal("Playback");
+       HKEY hKey;
+       BYTE  data[255];
+       DWORD cbData = sizeof(data);
+       DWORD dataType;
+       DWORD err;
+
+       // Try to get the default input audio device.
+       err = RegOpenKeyEx(
+          HKEY_CURRENT_USER, // handle to open key
+          strSndMapperKey,  // subkey name
+          0,   // reserved
+          KEY_READ, // security access mask
+          &hKey);    // handle to open key
+
+       if (err == ERROR_SUCCESS)
+       {
+          err = RegQueryValueEx(
+             hKey,       // Handle to key
+             strRecordVal,  // The value name
+             0,          // Reserved
+             &dataType,  // Data type returned (REG_SZ, etc)
+             data,       // data buffer
+             &cbData);   // in: size of the data buffer, out: size of returned data
+
+          if (err == ERROR_SUCCESS)
+          {
+             defaultWinInputDevName.append((char*)data);
+          }
+          else // (err != ERROR_SUCCESS)
+          {
+             OsSysLog::add(FAC_AUDIO, PRI_ERR, 
+                "Error reading default waveform input device from "
+                "Windows registry in WINDOWS_DEFAULT_DEVICE_HACK");
+             assert(0);
+          }
+
+          // Reset the data size, as previous call of RegQueryValueEx overwrote it.
+          cbData = sizeof(data);
+
+          // Try to get the default output audio device.
+          err = RegQueryValueEx(
+             hKey,       // Handle to key
+             strPlaybackVal,  // The value name
+             0,          // Reserved
+             &dataType,  // Data type returned (REG_SZ, etc)
+             data,       // data buffer
+             &cbData);   // in: size of the data buffer, out: size of returned data
+
+          if (err == ERROR_SUCCESS)
+          {
+             defaultWinOutputDevName.append((char*)data);
+          }
+          else // (err != ERROR_SUCCESS)
+          {
+             OsSysLog::add(FAC_AUDIO, PRI_ERR, 
+                "Error reading default waveform output device from "
+                "Windows registry in WINDOWS_DEFAULT_DEVICE_HACK");
+             assert(0);
+          }
+
+          RegCloseKey(hKey);
+       }
+       else
+       {
+          OsSysLog::add(FAC_KERNEL, PRI_ERR, "Error opening registry while "
+                        "getting default audio devices in "
+                        "WINDOWS_DEFAULT_DEVICE_HACK");
+       }
+    }
+#endif // ]
+
+
+
+
+
 #ifdef USE_DEVICE_ADD_HACK // [
     // Create source (input) device and add it to manager.
+#if defined(WINDOWS_DEFAULT_DEVICE_HACK) && defined (WIN32) // [
+    INPUT_DRIVER *sourceDevice = new INPUT_DRIVER(defaultWinInputDevName, *mpInputDeviceManager);
+#else
     INPUT_DRIVER *sourceDevice = new INPUT_DRIVER(INPUT_DRIVER_CONSTRUCTOR_PARAMS(*mpInputDeviceManager));
+#endif
     MpInputDeviceHandle  sourceDeviceId = mpInputDeviceManager->addDevice(*sourceDevice);
     assert(sourceDeviceId > 0);
 
