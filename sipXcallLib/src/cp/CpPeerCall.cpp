@@ -576,8 +576,17 @@ UtlBoolean CpPeerCall::handleTransfereeConnection(OsMsg* pEventMessage)
 #ifdef TEST_PRINT
             osPrintf("%s-CpPeerCall:CP_TRANSFEREE_CONNECTION creating connection via addParty\n", mName.data());
 #endif
-            addParty(referTo, referredBy, originalConnectionAddress, NULL, 0, 
-                    NULL, NULL, FALSE, AUDIO_CODEC_BW_DEFAULT, bOnHold, originalCallId);
+            addParty(referTo, 
+                     referredBy, 
+                     originalConnectionAddress, 
+                     NULL, 
+                     0, 
+                     NULL, 
+                     NULL, 
+                     NULL, // locationHeader
+                     AUDIO_CODEC_BW_DEFAULT, 
+                     bOnHold, 
+                     originalCallId);
             // Note: The connection is added to the call in addParty
         }
 #ifdef TEST_PRINT
