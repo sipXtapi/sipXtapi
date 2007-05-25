@@ -560,80 +560,64 @@ UtlBoolean MprFromFile::doProcessFrame(MpBufPtr inBufs[],
        return FALSE;
 
    if (isEnabled) {
-
-      // Get new buffer
-      out = MpMisc.RawAudioPool->getBuffer();
-      if (!out.isValid())
-          return FALSE;
-      out->setSamplesNumber(samplesPerFrame);
-      count = out->getSamplesNumber();
-      out->setSpeechType(MpAudioBuf::MP_SPEECH_TONE);
-      outbuf = out->getSamples();
-
-      int bytesPerFrame = count * sizeof(MpAudioSample);
       if (mpFileBuffer)
       {
-          int bufferLength = mpFileBuffer->length();
-          int totalBytesRead = 0;
+         // Get new buffer
+         out = MpMisc.RawAudioPool->getBuffer();
+         if (!out.isValid())
+            return FALSE;
+         out->setSpeechType(MpAudioBuf::MP_SPEECH_TONE);
+         out->setSamplesNumber(samplesPerFrame);
+         count = out->getSamplesNumber();
+         outbuf = out->getSamples();
 
-          if(mFileBufferIndex < bufferLength)
-          {
-              totalBytesRead = bufferLength - mFileBufferIndex;
-              totalBytesRead = min(totalBytesRead, bytesPerFrame);
-              memcpy(outbuf, &(mpFileBuffer->data()[mFileBufferIndex]),
-                     totalBytesRead);
-              mFileBufferIndex += totalBytesRead;
+         int bytesPerFrame = count * sizeof(MpAudioSample);
+         int bufferLength = mpFileBuffer->length();
+         int totalBytesRead = 0;
 
-          }
-          // Make sure we zero out the frame as we do not have enough
-          // to fill it
-          else
-          {
-              memset(outbuf, 0, samplesPerFrame * sizeof(MpAudioSample));
-          }
+         if(mFileBufferIndex < bufferLength)
+         {
+            totalBytesRead = bufferLength - mFileBufferIndex;
+            totalBytesRead = min(totalBytesRead, bytesPerFrame);
+            memcpy(outbuf, &(mpFileBuffer->data()[mFileBufferIndex]),
+               totalBytesRead);
+            mFileBufferIndex += totalBytesRead;
 
-          if (totalBytesRead != bytesPerFrame && mFileBufferIndex < bufferLength)
-                osPrintf("MprFromFile: only got %d bytes from buffer\n",
-                    totalBytesRead);
+         }
 
-          if (mFileRepeat) {
-             bytesLeft = 1;
-             while((totalBytesRead < bytesPerFrame) && (bytesLeft > 0))
-             {
-                 mFileBufferIndex = 0;
-                 bytesLeft = min(bufferLength - mFileBufferIndex,
-                                 bytesPerFrame - totalBytesRead);
-                 memcpy(&outbuf[(totalBytesRead/sizeof(MpAudioSample))],
-                        &(mpFileBuffer->data()[mFileBufferIndex]), bytesLeft);
-                 totalBytesRead += bytesLeft;
-                 mFileBufferIndex += bytesLeft;
-             }
-          } else {
-             if (mFileBufferIndex >= bufferLength) {
-                bytesLeft = bytesPerFrame - totalBytesRead;
-                memset(&outbuf[(totalBytesRead/sizeof(MpAudioSample))], 0, bytesLeft);
+         if (mFileRepeat) {
+            bytesLeft = 1;
+            while((totalBytesRead < bytesPerFrame) && (bytesLeft > 0))
+            {
+               mFileBufferIndex = 0;
+               bytesLeft = min(bufferLength - mFileBufferIndex,
+                  bytesPerFrame - totalBytesRead);
+               memcpy(&outbuf[(totalBytesRead/sizeof(MpAudioSample))],
+                  &(mpFileBuffer->data()[mFileBufferIndex]), bytesLeft);
+               totalBytesRead += bytesLeft;
+               mFileBufferIndex += bytesLeft;
+            }
+         } else {
+            if (mFileBufferIndex >= bufferLength) {
+               bytesLeft = bytesPerFrame - totalBytesRead;
+               memset(&outbuf[(totalBytesRead/sizeof(MpAudioSample))], 0, bytesLeft);
 
-                // TODO: remove reference to MpCallFlowGraph
-                OsMsgQ* fgQ = getFlowGraph()->getMsgQ();
-                assert(fgQ != NULL);
+               // TODO: remove reference to MpCallFlowGraph
+               OsMsgQ* fgQ = getFlowGraph()->getMsgQ();
+               assert(fgQ != NULL);
 
-                // Let the flowgraph handle the bits of stopping play 
-                // it needs to do... (new connector code for legacy code)
-                if(dynamic_cast<MpCallFlowGraph*>(getFlowGraph()) != NULL)
-                {
-                   MpFlowGraphMsg msg(MpFlowGraphMsg::FLOWGRAPH_STOP_PLAY);
-                   fgQ->send(msg, sOperationQueueTimeout);
-                }
+               // Let the flowgraph handle the bits of stopping play 
+               // it needs to do... (new connector code for legacy code)
+               if(dynamic_cast<MpCallFlowGraph*>(getFlowGraph()) != NULL)
+               {
+                  MpFlowGraphMsg msg(MpFlowGraphMsg::FLOWGRAPH_STOP_PLAY);
+                  fgQ->send(msg, sOperationQueueTimeout);
+               }
 
-                MprFromFile::stopFile(getName(), *fgQ);
-                MpResource::disable(getName(), *fgQ);
-             }
-          }
-      }
-      // Release the buffer as we have nothing to put in it
-      else
-      {
-          out.release();
+               MprFromFile::stopFile(getName(), *fgQ);
+               MpResource::disable(getName(), *fgQ);
+            }
+         }
       }
    }
    else
