@@ -3116,6 +3116,7 @@ Connection* CpPeerCall::addParty(const char* transferTargetAddress,
                                  SIPX_TRANSPORT_DATA* pTransport,
                                  const SIPX_RTP_TRANSPORT rtpTransportOptions)
 {
+    UtlString tempAddress ;
     SipConnection* connection = NULL;
 
     // add transport tag to target address, for custom transport
@@ -3123,9 +3124,8 @@ Connection* CpPeerCall::addParty(const char* transferTargetAddress,
     {
         Url targetUrl(transferTargetAddress);
         targetUrl.setUrlParameter("transport", pTransport->szTransport);
-        UtlString sTransferTargetAddress;
-        targetUrl.toString(sTransferTargetAddress);   
-        transferTargetAddress = sTransferTargetAddress.data();
+        targetUrl.toString(tempAddress);   
+        transferTargetAddress = tempAddress.data();
     }    
     
     // Should be using the outgoing call type here
