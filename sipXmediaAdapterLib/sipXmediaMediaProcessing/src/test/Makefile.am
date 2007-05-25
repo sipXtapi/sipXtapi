@@ -34,7 +34,7 @@ testsuite_SOURCES = \
 #   ./sandbox
 #
 
-sandbox_CXXFLAGS = $(testsuite_CXXFLAGS)
+sandbox_CXXFLAGS = -DSANDBOX $(testsuite_CXXFLAGS)
 
 sandbox_CPPFLAGS = $(testsuite_CPPFLAGS)
 

@@ -67,9 +67,11 @@ private:
 class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
 {
     CPPUNIT_TEST_SUITE(CpPhoneMediaInterfaceTest);
+#ifndef SANDBOX
     CPPUNIT_TEST(testProperties);
     CPPUNIT_TEST(testTones);
     CPPUNIT_TEST(testTwoTones);
+#endif
     CPPUNIT_TEST(testRecordPlayback);
     CPPUNIT_TEST_SUITE_END();
 
@@ -84,6 +86,14 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
 
     virtual void setUp()
     {
+#ifndef DISABLE_DEFAULT_PHONE_MEDIA_INTERFACE_FACTORY
+	printf("Phone media interface enabled\n");
+#endif
+#ifdef ENABLE_TOPOLOGY_FLOWGRAPH_INTERFACE_FACTORY
+	printf("Topology flowgraph interface enabled\n");
+#endif
+
+
         if(mInitialized != 1234567890)
         {
             mInitialized = 1234567890;
