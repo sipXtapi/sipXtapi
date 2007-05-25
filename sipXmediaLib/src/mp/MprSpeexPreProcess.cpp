@@ -36,7 +36,7 @@ MprSpeexPreprocess::MprSpeexPreprocess(const UtlString& rName,
                           int samplesPerFrame, int samplesPerSec)
 :  MpAudioResource(rName, 1, 2, 1, 1, samplesPerFrame, samplesPerSec)
 {
-   //Initilize Speex preprocessor state
+   // Initialize Speex preprocessor state
    mpPreprocessState = speex_preprocess_state_init(samplesPerFrame, samplesPerSec);
 }
 
