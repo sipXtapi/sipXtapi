@@ -585,6 +585,13 @@ UtlBoolean MprFromFile::doProcessFrame(MpBufPtr inBufs[],
               mFileBufferIndex += totalBytesRead;
 
           }
+          // Make sure we zero out the frame as we do not have enough
+          // to fill it
+          else
+          {
+              memset(outbuf, 0, samplesPerFrame * sizeof(MpAudioSample));
+          }
+
           if (totalBytesRead != bytesPerFrame && mFileBufferIndex < bufferLength)
                 osPrintf("MprFromFile: only got %d bytes from buffer\n",
                     totalBytesRead);
@@ -622,6 +629,11 @@ UtlBoolean MprFromFile::doProcessFrame(MpBufPtr inBufs[],
                 MpResource::disable(getName(), *fgQ);
              }
           }
+      }
+      // Release the buffer as we have nothing to put in it
+      else
+      {
+          out.release();
       }
    }
    else
