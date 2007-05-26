@@ -278,7 +278,7 @@ OsStatus MprFromFile::readAudioFile(UtlString*& audioBuffer,
 
    ifstream inputFile(audioFileName,ios::in|ios::binary);
 
-   if (!inputFile)
+   if (!inputFile.good())
    {
       return OS_INVALID_ARGUMENT;
    }
