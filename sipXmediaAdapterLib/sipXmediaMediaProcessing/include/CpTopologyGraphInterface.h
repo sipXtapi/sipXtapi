@@ -364,6 +364,7 @@ public:
                                      const UtlString& propertyName,
                                      UtlString& propertyValue);
 
+   virtual UtlString getType() { return "CpTopologyGraphInterface"; };
 
 /* ============================ INQUIRY =================================== */
 

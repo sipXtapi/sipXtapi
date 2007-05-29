@@ -642,6 +642,8 @@ public:
                                      const UtlString& propertyName,
                                      UtlString& propertyValue) = 0;
 
+     ///< Get the specific type of this media interface
+   virtual UtlString getType() = 0;
 
 
 

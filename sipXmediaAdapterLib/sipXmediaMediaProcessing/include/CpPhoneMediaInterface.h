@@ -332,6 +332,8 @@ public:
                                     int* videoPayloadType,
                                     bool& isEncrypted) ;
 
+   virtual UtlString getType() { return "CpPhoneMediaInterface"; };
+
 /* ============================ INQUIRY =================================== */
 
    virtual UtlBoolean isSendingRtpAudio(int connectionId);

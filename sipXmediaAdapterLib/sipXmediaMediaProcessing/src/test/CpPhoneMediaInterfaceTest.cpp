@@ -19,7 +19,7 @@
 #include <utl/UtlSList.h>
 #include <utl/UtlInt.h>
 //#define DISABLE_RECORDING
-#define EMBED_PROMPTS
+//#define EMBED_PROMPTS
 #ifdef EMBED_PROMPTS
 #  include "playback_prompt.h"
 #  include "record_prompt.h"
@@ -67,6 +67,7 @@ private:
 class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
 {
     CPPUNIT_TEST_SUITE(CpPhoneMediaInterfaceTest);
+    CPPUNIT_TEST(printMediaInterfaceType); // Just prints the media interface type.
 #ifndef SANDBOX
     CPPUNIT_TEST(testProperties);
     CPPUNIT_TEST(testTones);
@@ -86,14 +87,6 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
 
     virtual void setUp()
     {
-#ifndef DISABLE_DEFAULT_PHONE_MEDIA_INTERFACE_FACTORY
-	printf("Phone media interface enabled\n");
-#endif
-#ifdef ENABLE_TOPOLOGY_FLOWGRAPH_INTERFACE_FACTORY
-	printf("Topology flowgraph interface enabled\n");
-#endif
-
-
         if(mInitialized != 1234567890)
         {
             mInitialized = 1234567890;
@@ -105,6 +98,28 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
     {
         //sipxDestroyMediaFactoryFactory() ;
         //mpMediaFactory = NULL ;
+    }
+
+    void printMediaInterfaceType()
+    {
+        CPPUNIT_ASSERT(mpMediaFactory);
+        CpMediaInterface* mediaInterface = 
+            mpMediaFactory->createMediaInterface(NULL, "", 0, NULL, 
+                                                 "", 0, "", 0, 0, "",
+                                                 0, "", "", 0, false);
+        UtlString miType = mediaInterface->getType();
+        if(miType == "CpPhoneMediaInterface")
+        {
+            printf("Phone media interface enabled\n");
+        }
+        else if(miType == "CpTopologyGraphInterface")
+        {
+            printf("Topology flowgraph interface enabled\n");
+        }
+        else
+        {
+            CPPUNIT_FAIL("ERROR: Unknown type of media interface!");
+        }
     }
 
     void testProperties()
