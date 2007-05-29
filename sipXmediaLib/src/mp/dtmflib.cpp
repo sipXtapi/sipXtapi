@@ -257,13 +257,14 @@ OsStatus MpToneGen_getNextBuff(MpToneGenPtr pThis, short *b, int N)
         pThis->mpMutex->acquire();
         d = pThis->currentDtmfSound;
         if (NULL == d) {
-                n = 0;
+            n = 0;
+            ret = OS_NO_MORE_DATA;
         } else {
             p = &(d->pairs[d->curpair]);
             while (n<N) {
                 i = (p->usecs - p->curusecs) / pThis->usecspersample;
                 if (i > 0) {
-                  /* for as many as remain, do setsw() and addsw() as needed */
+                  /* for as many as remain, do setsw() as needed */
                     i = min(i, (N-n));
                     if(NULL!=(p->low) || NULL!=(p->high)) {
                         setsw(p, b, i);
