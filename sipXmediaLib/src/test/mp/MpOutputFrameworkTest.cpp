@@ -24,6 +24,7 @@
 #  define RTL_WRITE(x)
 #  define RTL_BLOCK(x)
 #  define RTL_START(x)
+#  define RTL_STOP
 #endif // RTL_ENABLED ]
 
 #define TEST_SAMPLES_PER_FRAME_SIZE   80
