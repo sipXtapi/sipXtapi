@@ -25,10 +25,11 @@
 /* ============================ CREATORS ================================== */
 
 // Constructor
-OsTimerMsg::OsTimerMsg(const unsigned char subType, OsEvent& rEvent,
-                       OsTimer& rTimer)
-: OsRpcMsg(OsMsg::OS_TIMER, subType, rEvent),
-  mpTimer(&rTimer)
+OsTimerMsg::OsTimerMsg(const unsigned char subType,
+                       OsTimer* pTimer,
+                       OsEvent* pEvent)
+: OsRpcMsg(OsMsg::OS_TIMER, subType, *pEvent),
+  mpTimer(pTimer)
 {
    init();
 }
@@ -79,12 +80,6 @@ int OsTimerMsg::getMsgSize(void) const
    return sizeof(*this);
 }
 
-// Return a pointer to the OsTimer object associated with this message
-OsTimer* OsTimerMsg::getTimer(void) const
-{
-   return mpTimer;
-}
-
 /* ============================ INQUIRY =================================== */
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
@@ -97,5 +92,3 @@ void OsTimerMsg::init(void)
 }
 
 /* ============================ FUNCTIONS ================================= */
-
-

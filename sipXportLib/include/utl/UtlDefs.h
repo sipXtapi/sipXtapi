@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -38,7 +41,6 @@
 
 typedef int UtlBoolean ;
 
-typedef long long int intll;
 
 /** FORMAT_INTLL is a string containing the format length specifier
  *  for printing an intll with the 'd', 'x', etc. format specifiers.  E.g.:

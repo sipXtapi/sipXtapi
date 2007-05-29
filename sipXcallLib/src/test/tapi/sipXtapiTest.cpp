@@ -107,22 +107,26 @@ void sipXtapiTestSuite::setUp()
 
     if (g_hInst == NULL)
     {
-	    sipxInitialize(&g_hInst, 8000, 8000, 8001, 8050, 32, HINST_ADDRESS, "127.0.0.1") ;
+        sipxInitialize(&g_hInst, 8000, 8000, 8001, 8050, 32, HINST_ADDRESS, "127.0.0.1") ;
+        sipxConfigSetConnectionIdleTimeout(g_hInst, 7) ;
     }
 
     if (g_hInst2 == NULL)
     {
-	    sipxInitialize(&g_hInst2, 9100, 9100, 9101, 9050, 32, HINST2_ADDRESS, "127.0.0.1") ;
+        sipxInitialize(&g_hInst2, 9100, 9100, 9101, 9050, 32, HINST2_ADDRESS, "127.0.0.1") ;
+        sipxConfigSetConnectionIdleTimeout(g_hInst2, 7) ;
     }
 
     if (g_hInst3 == NULL)
     {
-	    sipxInitialize(&g_hInst3, 10000, 10000, 10001, 10050, 32, HINST3_ADDRESS, "127.0.0.1") ;
+        sipxInitialize(&g_hInst3, 10000, 10000, 10001, 10050, 32, HINST3_ADDRESS, "127.0.0.1") ;
+        sipxConfigSetConnectionIdleTimeout(g_hInst3, 7) ;
     }
 
     if (g_hInst4 == NULL)
     {
-	    sipxInitialize(&g_hInst4, 12070, 12070, 12071, 12050, 32, HINST4_ADDRESS, "127.0.0.1") ;
+        sipxInitialize(&g_hInst4, 12070, 12070, 12071, 12050, 32, HINST4_ADDRESS, "127.0.0.1") ;
+        sipxConfigSetConnectionIdleTimeout(g_hInst4, 7) ;
     }
 
 

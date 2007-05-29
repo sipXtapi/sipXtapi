@@ -17,10 +17,10 @@
 #if defined(_WIN32)
 #   include <io.h>
 #   include <string.h>
-#elif defined(__linux__)
+#elif defined(__pingtel_on_posix__)
 #   include <unistd.h>
-#elif defined(__MACH__)
-#   include <unistd.h>
+#   include <sys/types.h>
+#   include <sys/uio.h>
 #endif
 
 #define BUFFER_SIZE 8192

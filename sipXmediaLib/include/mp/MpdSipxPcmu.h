@@ -47,10 +47,21 @@ public:
      //!retcode: OS_SUCCESS - Success
      //!retcode: OS_NO_MEMORY - Memory allocation failure
 
+   virtual int decodeIn(MpBufPtr pPacket);
+     //:Receive a packet of RTP data
+     //!param: pPacket - (in) Pointer to a media buffer
+     //!retcode: length of packet to hand to jitter buffer, 0 means don't.
+
+  virtual  int reportBufferLength(int i);
+
    virtual OsStatus freeDecode(void);
      //:Frees all memory allocated to the decoder by <i>initDecode</i>
      //!retcode: OS_SUCCESS - Success
      //!retcode: OS_DELETED - Object has already been deleted
+
+   int decode(JB_uchar *encoded,int inSamples,Sample *decoded);
+
+   virtual void FrameIncrement(void);
 
 /* ============================ MANIPULATORS ============================== */
 
@@ -62,6 +73,14 @@ public:
 private:
    static const MpCodecInfo smCodecInfo;  // static information about the codec
    JB_inst* pJBState;
+   int mTimerCountIncrement;  // Restart the timer watcher
+   unsigned int mNextPullTimerCount;
+   int mWaitTimeInFrames;
+   int mUnderflowCount;
+   int mLastSeqNo;   // Keep track of the last sequence number so that we don't take out-of-order packets
+   int mTooFewPacketsInBuffer;
+   int mTooManyPacketsInBuffer;
+   int mLastReportSize;
 };
 
 #endif  // _MpdSipxPcmu_h_

@@ -54,7 +54,7 @@ enum MpBufFormat {
         MP_FMT_G711M,          /* G711 mu, mu-law */
         MP_FMT_G711A,          /* G711 A, A-law */
         MP_FMT_L16,            /* Linear 16, in "network byte order" */
-        MP_FMT_G729,           /* ITU-G729A standard */
+        MP_FMT_G729           /* ITU-G729A standard */
 };
 typedef enum MpBufFormat MpBufFormat;
 
@@ -64,7 +64,7 @@ enum MpBufSpeech {
         MP_SPEECH_COMFORT_NOISE,  /* to be replaced by comfort noise */
         MP_SPEECH_ACTIVE,         /* found to contain speech */
         MP_SPEECH_MUTED,          /* may contain speech, but must be muted */
-        MP_SPEECH_TONE,           /* our tonegen filled with active (not silent) tone data */
+        MP_SPEECH_TONE           /* our tonegen filled with active (not silent) tone data */
 };
 typedef enum MpBufSpeech MpBufSpeech;
 

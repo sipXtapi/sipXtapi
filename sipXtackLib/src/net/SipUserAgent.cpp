@@ -124,7 +124,9 @@ SipUserAgent::SipUserAgent(int sipTcpPort,
                            UtlBoolean bUseNextAvailablePort,
                            UtlString certNickname,
                            UtlString certPassword,
-                           UtlString dbLocation) 
+                           UtlString dbLocation,
+                           UtlBoolean doUaMessageChecks
+                           ) 
         : SipUserAgentBase(sipTcpPort, sipUdpPort, sipTlsPort, queueSize)
         , mSipTcpServer(NULL)
         , mSipUdpServer(NULL)
@@ -134,11 +136,12 @@ SipUserAgent::SipUserAgent(int sipTcpPort,
         , mMessageLogRMutex(OsRWMutex::Q_FIFO)
         , mMessageLogWMutex(OsRWMutex::Q_FIFO)
         , mpLineMgr(NULL)
+        , mIsUaTransactionByDefault(defaultToUaTransactions)
         , mbUseRport(FALSE)
         , mbUseLocationHeader(FALSE)
         , mbIncludePlatformInUserAgentName(TRUE)
+        , mDoUaMessageChecks(doUaMessageChecks)
         , mbShuttingDown(FALSE)
-        , mbShutdownDone(FALSE)
         , mRegisterTimeoutSeconds(4)        
         , mbAllowHeader(true)
         , mbDateHeader(true)
@@ -146,6 +149,10 @@ SipUserAgent::SipUserAgent(int sipTcpPort,
         , mAcceptLanguage("")
         , mpLastSipMessage(NULL)
 {    
+   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                 "SipUserAgent::_ sipTcpPort = %d, sipUdpPort = %d, sipTlsPort = %d",
+                 sipTcpPort, sipUdpPort, sipTlsPort);
+                 
     // Get pointer to line manager
     mpLineMgr = lineMgr;
 
@@ -306,9 +313,18 @@ SipUserAgent::SipUserAgent(int sipTcpPort,
         contact.eContactType = CONTACT_CONFIG;
         strcpy(contact.cIpAddress, publicAddress);
 
-        getContactAdapterName(szAdapter, defaultAddress, false);
-
-        strcpy(contact.cInterface, szAdapter);
+        if (getContactAdapterName(szAdapter, defaultSipAddress, false))
+        {
+            strcpy(contact.cInterface, szAdapter);
+        }
+        else
+        {
+           // If getContactAdapterName can't find an adapter.
+           OsSysLog::add(FAC_SIP, PRI_WARNING,
+                         "SipUserAgent::_ no adaptor found for address '%s'",
+                         defaultSipAddress.data());
+           strcpy(contact.cInterface, "(unknown)");
+        }
         contact.iPort = mUdpPort; // what about the tcp port?
         contact.eTransportType = TRANSPORT_UDP;  // what about tcp transport?        
         addContactAddress(contact);
@@ -379,7 +395,9 @@ SipUserAgent::SipUserAgent(int sipTcpPort,
     allowMethod(SIP_OPTIONS_METHOD);
     allowMethod(SIP_PING_METHOD);
 
-    defaultUserAgentName.append( VENDOR "/" SIP_STACK_VERSION);
+    defaultUserAgentName.append( VENDOR );
+    defaultUserAgentName.append( "/" );
+    defaultUserAgentName.append( SIP_STACK_VERSION );
 
     OsMsgQ* incomingQ = getMessageQueue();
     mpTimer = new OsTimer(incomingQ, 0);
@@ -391,6 +409,8 @@ SipUserAgent::SipUserAgent(int sipTcpPort,
     OsDateTime::getCurTimeSinceBoot(time);
     mLastCleanUpTime = time.seconds();
 
+    // bandreasen: This was removed on main -- not sure why
+    //     given that this boolean is passed in
     mIsUaTransactionByDefault = defaultToUaTransactions;
 }
 
@@ -600,16 +620,6 @@ UtlBoolean SipUserAgent::removeMessageObserver(OsMsgQ& messageQueue, void* pObse
 
     return bRemovedObservers ;
 }
-
-//void SipUserAgent::removeMessageConsumer(OsServerTask* messageEventListener)
-//{
-        // Need to do the real thing by keeping a list of consumers
-        // and putting a mutex around the add to list
-//      if(messageListener == messageEventListener)
-//      {
-//              messageListener = NULL;
-//      }
-//}
 
 void SipUserAgent::allowMethod(const char* methodName, const bool bAllow)
 {
@@ -846,7 +856,8 @@ UtlBoolean SipUserAgent::send(SipMessage& message,
          }
          else if(!isUaTransaction)
          {
-            OsSysLog::add(FAC_SIP, PRI_WARNING,
+            // this happens all the time in the authproxy, so log only at debug
+            OsSysLog::add(FAC_SIP, PRI_DEBUG,
                           "SipUserAgent::send proxied client transaction does not have parent");
          }
          else if(parentTransaction)
@@ -863,17 +874,20 @@ UtlBoolean SipUserAgent::send(SipMessage& message,
       // Make sure the User Agent field is set
       if(isUaTransaction)
       {
-         setUserAgentHeader(message);
+         setSelfHeader(message);
 
          // Make sure the accept language is set
          UtlString language;
          message.getAcceptLanguageField(&language);
          if(language.isNull())
          {
-            if (mAcceptLanguage.length() != 0)
-            {
-                message.setAcceptLanguageField(mAcceptLanguage.data());
-            }
+            // Beware that this value does not describe the desired media
+            // sessions, but rather the preferred languages for reason
+            // phrases, etc. (RFC 3261 sec. 20.3)  Thus, it is useful to
+            // have a value for this header even in requests like
+            // SUBSCRIBE/NOTIFY which are expected to not be seen by a human.
+            // This value should be configurable, though.
+            message.setAcceptLanguageField(mAcceptLanguage);
          }
 
          // add allow field to Refer and Invite request . It is
@@ -1048,7 +1062,7 @@ UtlBoolean SipUserAgent::sendUdp(SipMessage* message,
       messageStatusString.append(serverAddress);
       messageStatusString.append("---- Port: ");
       char buff[10];
-      sprintf(buff, "%d", port);
+      sprintf(buff, "%d", !portIsValid(port) ? 5060 : port);
       messageStatusString.append(buff);
       messageStatusString.append("----\n");
 
@@ -1063,7 +1077,7 @@ UtlBoolean SipUserAgent::sendUdp(SipMessage* message,
       messageStatusString.append(serverAddress);
       messageStatusString.append("---- Port: ");
       char buff[10];
-      sprintf(buff, "%d", port);
+      sprintf(buff, "%d", !portIsValid(port) ? 5060 : port);
       messageStatusString.append(buff);
       messageStatusString.append("----\n");
       message->logTimeEvent("FAILED");
@@ -1122,7 +1136,7 @@ UtlBoolean SipUserAgent::sendSymmetricUdp(SipMessage& message,
         message.getBytes(&msgBytes, &msgLen);
         UtlString outcomeMsg;
         char portString[20];
-        sprintf(portString, "%d", port);
+        sprintf(portString, "%d", !portIsValid(port) ? 5060 : port);
 
         if(sentOk)
         {
@@ -1173,14 +1187,86 @@ UtlBoolean SipUserAgent::sendCustom(SIPX_TRANSPORT_DATA* pTransport,
     }    
     if (pTransport)
     {
-        bSent = pTransport->pFnWriteProc(pTransport->hTransport,
-                                        sendAddress,
-                                        sendPort,
-                                        pTransport->szLocalIp,
-                                        pTransport->iLocalPort,
-                                        (void*)bytes.data(),
-                                        length,
-                                        pTransport->pUserData);
+        if (pTransport->bRouteByUser)
+        {
+            UtlString from, to ;
+            Url fromUrl, toUrl ;
+            UtlString temp ;
+
+            /*
+             * Routing by "user" mode is a bit odd.  Ideally, we return the
+             * identity of the user (user@domain) without a port value.  
+             * However, if we only have hostname, we will return just that 
+             * (as opposed to "@hostname" which getIndentity returns).
+             */           
+            message->getFromUrl(message->isResponse() ? toUrl : fromUrl) ;
+            message->getToUrl(message->isResponse() ? fromUrl : toUrl) ;
+
+            // Parse From routing id
+            fromUrl.setHostPort(-1) ;
+            fromUrl.getUserId(temp) ;
+            if (temp.isNull())
+                fromUrl.getHostAddress(from) ;
+            else
+            {
+                fromUrl.getUserId(from) ;
+            }
+
+            // Parse To routing it
+            toUrl.setHostPort(-1) ;
+            toUrl.getUserId(temp) ;
+            if (temp.isNull())
+                toUrl.getHostAddress(to) ;
+            else
+            {
+                toUrl.getHostAddress(temp) ;
+                if (temp.compareTo("aol.com", UtlString::ignoreCase) == 0)
+                    toUrl.getUserId(to) ;
+                else
+                    toUrl.getIdentity(to) ;
+            }
+
+            if (OsSysLog::willLog(FAC_SIP_CUSTOM, PRI_DEBUG))
+            {
+                UtlString data((const char*) bytes.data(), length) ;
+                OsSysLog::add(FAC_SIP_CUSTOM, PRI_DEBUG, "[Sent] From: %s To: %s\r\n%s\r\n", 
+                        from.data(),
+                        to.data(),
+                        data.data()) ;
+            }
+
+            bSent = pTransport->pFnWriteProc(pTransport->hTransport,
+                                             to.data(),
+                                             -1,
+                                             from.data(),
+                                             -1,
+                                             (void*)bytes.data(),
+                                             length,
+                                             pTransport->pUserData);
+           
+        }
+        else
+        {
+
+            if (OsSysLog::willLog(FAC_SIP_CUSTOM, PRI_DEBUG))
+            {
+                UtlString data((const char*) bytes.data(), length) ;
+                OsSysLog::add(FAC_SIP_CUSTOM, PRI_DEBUG, "[Sent] From: %s To: %s\r\n%s\r\n", 
+                        pTransport->szLocalIp,
+                        sendAddress,
+                        data.data()) ;
+            }
+
+
+            bSent = pTransport->pFnWriteProc(pTransport->hTransport,
+                                             sendAddress,
+                                             sendPort,
+                                             pTransport->szLocalIp,
+                                             pTransport->iLocalPort,
+                                             (void*)bytes.data(),
+                                             length,
+                                             pTransport->pUserData);
+        }
     }
     else
     {
@@ -1247,7 +1333,7 @@ UtlBoolean SipUserAgent::sendStatelessResponse(SipMessage& rresponse)
 UtlBoolean SipUserAgent::sendStatelessRequest(SipMessage& request,
                            UtlString& address,
                            int port,
-                           enum OsSocket::SocketProtocolTypes protocol,
+                           OsSocket::IpProtocolSocketType protocol,
                            UtlString& branchId)
 {
     // Convert the enum to a protocol string
@@ -1354,7 +1440,7 @@ UtlBoolean SipUserAgent::sendTcp(SipMessage* message,
             messageStatusString.append(serverAddress);
             messageStatusString.append("---- Port: ");
             char buff[10];
-            sprintf(buff, "%d", port);
+            sprintf(buff, "%d", !portIsValid(port) ? 5060 : port);
             messageStatusString.append(buff);
             messageStatusString.append("----\n");
 
@@ -1430,7 +1516,7 @@ UtlBoolean SipUserAgent::sendTls(SipMessage* message,
       messageStatusString.append(serverAddress);
       messageStatusString.append("---- Port: ");
       char buff[10];
-      sprintf(buff, "%d", port);
+      sprintf(buff, "%d", !portIsValid(port) ? 5060 : port);
       messageStatusString.append(buff);
       messageStatusString.append("----\n");
 
@@ -1448,8 +1534,6 @@ UtlBoolean SipUserAgent::sendTls(SipMessage* message,
    return FALSE ;
 #endif
 }
-
-// #define LOG_TIME
 
 void SipUserAgent::dispatch(SipMessage* message, int messageType, SIPX_TRANSPORT_DATA* pTransport)
 {
@@ -1815,8 +1899,9 @@ void SipUserAgent::dispatch(SipMessage* message, int messageType, SIPX_TRANSPORT
             message->getCallIdField(&callIdField);
 
             // Check if the method is supported
-            if(isUaTransaction &&
-               !isMethodAllowed(method.data()))
+            if(   isUaTransaction
+               && !isMethodAllowed(method.data())
+               )
             {
                response = new SipMessage();
 
@@ -1824,8 +1909,10 @@ void SipUserAgent::dispatch(SipMessage* message, int messageType, SIPX_TRANSPORT
             }
 
             // Check if the extensions are supported
-            else if(isUaTransaction &&
-                    !disallowedExtensions.isNull())
+            else if(   mDoUaMessageChecks
+                    && isUaTransaction
+                    && !disallowedExtensions.isNull()
+                    )
             {
                response = new SipMessage();
                response->setRequestBadExtension(message,
@@ -1834,8 +1921,10 @@ void SipUserAgent::dispatch(SipMessage* message, int messageType, SIPX_TRANSPORT
 
             // Check if the encoding is supported
             // i.e. no encoding
-            else if(isUaTransaction &&
-                    !contentEncoding.isNull())
+            else if(   mDoUaMessageChecks
+                    && isUaTransaction
+                    && !contentEncoding.isNull()
+                    )
             {
                response = new SipMessage();
                response->setRequestBadContentEncoding(message,"");
@@ -1889,7 +1978,7 @@ void SipUserAgent::dispatch(SipMessage* message, int messageType, SIPX_TRANSPORT
 #endif //TEST_PRINT
             }
 
-            // Process Options requests
+            // Process Options requests :TODO: - in the redirect server does this route?
             else if(isUaTransaction &&
                     !message->isResponse() &&
                     method.compareTo(SIP_OPTIONS_METHOD) == 0)
@@ -1908,14 +1997,16 @@ void SipUserAgent::dispatch(SipMessage* message, int messageType, SIPX_TRANSPORT
             {
                if(maxForwards <= 0)
                {
-
-
                   response = new SipMessage();
                   response->setResponseData(message,
                                             SIP_TOO_MANY_HOPS_CODE,
                                             SIP_TOO_MANY_HOPS_TEXT);
 
-                  setUserAgentHeader(*response);
+                  response->setWarningField(SIP_WARN_MISC_CODE, sipIpAddress.data(),
+                                            SIP_TOO_MANY_HOPS_TEXT
+                                            );
+
+                  setSelfHeader(*response);
                   
                   // If we are suppose to return the vias in the
                   // error response for Max-Forwards exeeded
@@ -2485,6 +2576,23 @@ UtlBoolean SipUserAgent::handleMessage(OsMsg& eventMessage)
                                       delayMsgString.data());
                      }
 
+                     // if the request has a responseQueue, post the response.
+                     OsMsgQ* responseQ = NULL;
+                     responseQ =  sipMessage->getResponseListenerQueue();
+                     if ( responseQ &&
+                          !sipMessage->isResponse() &&
+                          delayedDispatchMessage->isResponse())
+                     {
+                        SipMessage *messageToQ = new SipMessage(*delayedDispatchMessage);
+
+                        messageToQ->setResponseListenerData(sipMessage->getResponseListenerData());
+                        SipMessageEvent eventMsg(messageToQ);
+                        eventMsg.setMessageStatus(SipMessageEvent::APPLICATION);
+                        responseQ->send(eventMsg);
+                        // The SipMessage gets freed with the SipMessageEvent
+                        messageToQ = NULL;
+                     }
+
                      queueMessageToObservers(delayedDispatchMessage,
                                              SipMessageEvent::APPLICATION
                                              );
@@ -2618,6 +2726,24 @@ UtlBoolean SipUserAgent::handleMessage(OsMsg& eventMessage)
                                       delayMsgString.data());
                      }
 
+                     // wdn - if the request has a responseQueue, post the response.
+                     OsMsgQ* responseQ = NULL;
+                     responseQ =  sipMessage->getResponseListenerQueue();
+                     if ( responseQ &&
+                          !sipMessage->isResponse() &&
+                          delayedDispatchMessage->isResponse())
+                     {
+                         SipMessage *messageToQ = new SipMessage(*delayedDispatchMessage);
+
+                         messageToQ->setResponseListenerData(sipMessage->getResponseListenerData());
+                         SipMessageEvent eventMsg(messageToQ);
+                         eventMsg.setMessageStatus(SipMessageEvent::APPLICATION);
+                         responseQ->send(eventMsg);
+                         // The SipMessage gets freed with the SipMessageEvent
+                         messageToQ = NULL;
+                     }
+
+                     // delayedDispatchMessage gets freed in queueMessageToObservers
                      queueMessageToObservers(delayedDispatchMessage,
                                              SipMessageEvent::APPLICATION
                                              );
@@ -2671,11 +2797,14 @@ UtlBoolean SipUserAgent::handleMessage(OsMsg& eventMessage)
       messageProcessed = TRUE;
    }
 
-   // Only GC if not messages are waiting -- othewise we may delete a timer 
-   // that is queued up for is.
+   // Only GC if no messages are waiting -- othewise we may delete a timer 
+   // that is queued up for us.
    if (getMessageQueue()->isEmpty())
    {
       garbageCollection();
+      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                    "SipUserAgent::handleMessage after GC, queue size = %d",
+                    getMessageQueue()->numMsgs());
    }
    return(messageProcessed);
 }
@@ -2700,28 +2829,47 @@ void SipUserAgent::garbageCollection()
 
     if(mLastCleanUpTime < then)
     {
-#ifdef TEST_PRINT
+#      ifdef LOG_TIME
         OsSysLog::add(FAC_SIP, PRI_DEBUG,
             "SipUserAgent::garbageCollection"
-            " bootime: %d then: %d tcpThen: %d"
-            " oldTransaction: %d oldInviteTransaction: %d",
-            bootime, then, tcpThen, oldTransaction, oldInviteTransaction);
+                     " bootime: %ld then: %ld tcpThen: %ld"
+                     " oldTransaction: %ld oldInviteTransaction: %ld",
+                     bootime, then, tcpThen, oldTransaction,
+                     oldInviteTransaction);
 #endif
-
         mSipTransactions.removeOldTransactions(oldTransaction,
-            oldInviteTransaction); //temp double of transaction life
+                                              oldInviteTransaction);
+#      ifdef LOG_TIME
+       OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                     "SipUserAgent::garbageCollection starting removeOldClients(udp)");
+#      endif
 
+       // Changed by Udit for null pointer check
+       if (mSipUdpServer)
+       {
         mSipUdpServer->removeOldClients(then);
+       }
+
         if (mSipTcpServer)
         {
+#         ifdef LOG_TIME
+          OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                        "SipUserAgent::garbageCollection starting removeOldClients(tcp)");
+#         endif
             mSipTcpServer->removeOldClients(tcpThen);
         }
 #ifdef SIP_TLS
         if (mSipTlsServer)
         {
+          OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                        "SipUserAgent::garbageCollection starting removeOldClients(tls)");
             mSipTlsServer->removeOldClients(tcpThen);
         }
 #endif
+#      ifdef LOG_TIME
+       OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                     "SipUserAgent::garbageCollection done");
+#      endif
         mLastCleanUpTime = bootime;
     }
 }
@@ -2946,6 +3094,20 @@ void SipUserAgent::setIsUserAgent(UtlBoolean isUserAgent)
 {
     mIsUaTransactionByDefault = isUserAgent;
 }
+
+/// Add either Server or User-Agent header, as appropriate
+void SipUserAgent::setSelfHeader(SipMessage& message)
+{
+   if (mIsUaTransactionByDefault)
+   {
+      setUserAgentHeader(message);
+   }
+   else
+   {
+      setServerHeader(message);
+   }
+}
+    
 
 // setUserAgentHeaderProperty
 //      provides a string to be appended to the standard User-Agent
@@ -3559,10 +3721,23 @@ int SipUserAgent::getTlsPort() const
 
 /* ============================ INQUIRY =================================== */
 
-UtlBoolean SipUserAgent::isMethodAllowed(const char* method) const
+UtlBoolean SipUserAgent::isMethodAllowed(const char* method)
 {
         UtlString methodName(method);
-        return(allowedSipMethods.occurrencesOf(&methodName) > 0);
+        UtlBoolean isAllowed = (allowedSipMethods.occurrencesOf(&methodName) > 0);
+
+        if (!isAllowed)
+        {
+           /* The method was not explicitly requested, but check for whether the 
+            * application has registered for the wildcard.  If so, the method is 
+            * allowed, but we do not advertise that fact in the Allow header.*/
+           UtlString wildcardMethod;
+           
+           OsReadLock lock(mObserverMutex);
+           isAllowed = mMessageObservers.contains(&wildcardMethod);
+        }
+        
+        return(isAllowed);
 }
 
 UtlBoolean SipUserAgent::isExtensionAllowed(const char* extension) const
@@ -3629,7 +3804,7 @@ UtlBoolean SipUserAgent::isForkingEnabled()
     return(mForkingEnabled);
 }
 
-UtlBoolean SipUserAgent::isMyHostAlias(Url& route)
+UtlBoolean SipUserAgent::isMyHostAlias(Url& route) const
 {
     UtlString hostAlias;
     route.getHostAddress(hostAlias);
@@ -3658,7 +3833,7 @@ UtlBoolean SipUserAgent::recurseOnlyOne300Contact()
 }
 
 
-UtlBoolean SipUserAgent::isOk(OsSocket::SocketProtocolTypes socketType)
+UtlBoolean SipUserAgent::isOk(OsSocket::IpProtocolSocketType socketType)
 {
     UtlBoolean retval = FALSE;
     switch(socketType)
@@ -3870,7 +4045,7 @@ UtlBoolean SipUserAgent::resendWithAuthorization(SipMessage* response,
 
 void SipUserAgent::lookupSRVSipAddress(UtlString protocol, UtlString& sipAddress, int& port, UtlString& srcIp)
 {
-    enum OsSocket::SocketProtocolTypes transport = OsSocket::UNKNOWN;
+    OsSocket::IpProtocolSocketType transport = OsSocket::UNKNOWN;
 
     if (sipIpAddress != "127.0.0.1")
     {
@@ -3983,6 +4158,20 @@ void SipUserAgent::lookupSRVSipAddress(UtlString protocol, UtlString& sipAddress
     }
 }
 
+void SipUserAgent::setServerHeader(SipMessage& message)
+{
+   UtlString existing;
+   message.getServerField(&existing);
+
+   if(existing.isNull())
+   {
+      UtlString headerValue;
+      selfHeaderValue(headerValue);
+
+      message.setServerField(headerValue.data());
+   }
+}
+
 void SipUserAgent::setUserAgentHeader(SipMessage& message)
 {
    UtlString uaName;
@@ -3990,20 +4179,24 @@ void SipUserAgent::setUserAgentHeader(SipMessage& message)
 
    if(uaName.isNull())
    {
-      uaName = defaultUserAgentName;
-
-      if ( !mUserAgentHeaderProperties.isNull() )
-      {
-         uaName.append(mUserAgentHeaderProperties);
-      }
-
-      if (mbIncludePlatformInUserAgentName)
-      {
-         uaName.append(PLATFORM_UA_PARAM);
-      }      
-
-      message.setUserAgentField(uaName);
+      selfHeaderValue(uaName);
+      message.setUserAgentField(uaName.data());
    }
+}
+
+void SipUserAgent::selfHeaderValue(UtlString& self)
+{
+    self = defaultUserAgentName;
+
+     if ( !mUserAgentHeaderProperties.isNull() )
+     {
+         self.append(mUserAgentHeaderProperties);
+     }
+
+     if (mbIncludePlatformInUserAgentName)
+     {
+         self.append(PLATFORM_UA_PARAM);
+    }
 }
 
 void SipUserAgent::setIncludePlatformInUserAgentName(const bool bInclude)
@@ -4038,7 +4231,7 @@ void SipUserAgent::setHeaderOptions(const bool bAllowHeader,
 
 void SipUserAgent::prepareVia(SipMessage& message,
                               UtlString&  branchId, 
-                              OsSocket::SocketProtocolTypes& toProtocol,
+                              OsSocket::IpProtocolSocketType& toProtocol,
                               const char* szTargetAddress, 
                               const int*  piTargetPort,
                               SIPX_TRANSPORT_DATA* pTransport)

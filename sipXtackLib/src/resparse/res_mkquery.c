@@ -75,7 +75,11 @@ static char orig_rcsid[] = "From: Id: res_mkquery.c,v 8.9 1997/04/24 22:22:36 vi
 static char rcsid[] = "";
 #endif /* LIBC_SCCS and not lint */
 
-#include <sys/types.h>
+#ifdef WINCE
+#   include <types.h>
+#else
+#   include <sys/types.h>
+#endif
 /* Reordered includes and separated into win/vx --GAT */
 #if defined(_WIN32)
 #       include <resparse/wnt/sys/param.h>
@@ -100,6 +104,8 @@ static char rcsid[] = "";
 #include <resparse/bzero.h>
 
 #include "resparse/res_config.h"
+
+extern struct __res_state _sip_res ;
 
 /* Copied define from res_query, NETDB_INTERNAL not defined for win32 --GAT */
 #define NETDB_INTERNAL  -1      /* see errno, in netdb.h */
@@ -126,12 +132,12 @@ res_mkquery(op, dname, class, type, data, datalen, newrr_in, buf, buflen)
         register int n;
         u_char *dnptrs[20], **dpp, **lastdnptr;
 
-        if ((_res.options & RES_INIT) == 0 && res_init() == -1) {
+        if ((_sip_res.options & RES_INIT) == 0 && res_init() == -1) {
                 h_reserrno = NETDB_INTERNAL;
                 return (-1);
         }
 #ifdef DEBUG
-        if (_res.options & RES_DEBUG)
+        if (_sip_res.options & RES_DEBUG)
                 printf(";; res_mkquery(%d, %s, %d, %d)\n",
                        op, dname, class, type);
 #endif
@@ -142,9 +148,9 @@ res_mkquery(op, dname, class, type, data, datalen, newrr_in, buf, buflen)
                 return (-1);
         res_memset(buf, 0, HFIXEDSZ);
         hp = (HEADER *) buf;
-        hp->id = htons(++_res.id);
+        hp->id = htons(++_sip_res.id);
         hp->opcode = op;
-        hp->rd = (_res.options & RES_RECURSE) != 0;
+        hp->rd = (_sip_res.options & RES_RECURSE) != 0;
         hp->rcode = NOERROR;
         cp = buf + HFIXEDSZ;
         buflen -= HFIXEDSZ;

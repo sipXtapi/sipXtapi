@@ -99,7 +99,7 @@ public:
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
-   static UtlContainableType TYPE;           /** < Class type used for runtime checking */ 
+   static const UtlContainableType TYPE;           /** < Class type used for runtime checking */ 
 
    TiXmlDocument*      mpXmlConfigDoc;       /* The TinyXml persistant store for
                                               * this Provisioning Class. */

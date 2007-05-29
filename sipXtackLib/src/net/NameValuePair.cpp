@@ -86,7 +86,7 @@ NameValuePair::operator=(const NameValuePair& rhs)
    if (this == &rhs)            // handle the assignment to self case
       return *this;
 
-   ((UtlString) *this) = rhs.data();
+   ((UtlString&) *this) = rhs.data();
    setValue(rhs.valueString);
 
    return *this;

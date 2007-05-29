@@ -124,7 +124,7 @@ private:
       SOURCE_REWIND,
       SOURCE_STOP,
       SOURCE_DESTROY,
-      SOURCE_RENDER,
+      SOURCE_RENDER
    };
 
 

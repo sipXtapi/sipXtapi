@@ -94,7 +94,7 @@ private:
 #  include "os/wnt/OsSharedLibMgrWnt.h"
    typedef class OsSharedLibMgrWnt OsSharedLibMgr;
 #elif defined(_VXWORKS)
-#  include "os/vxw/OsSharedLibMgrVxw.h"
+#  include "os/Vxw/OsSharedLibMgrVxw.h"
    typedef class OsSharedLibMgrVxw OsSharedLibMgr;
 #elif defined(__pingtel_on_posix__)
 #  include "os/linux/OsSharedLibMgrLinux.h"

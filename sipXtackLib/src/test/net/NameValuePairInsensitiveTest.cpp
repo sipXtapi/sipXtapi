@@ -14,10 +14,11 @@
 
 #include <net/NameValuePairInsensitive.h>
 
-class TestTemplate : public CppUnit::TestCase
+class NameValuePairInsensitiveTest : public CppUnit::TestCase
 {
-    CPPUNIT_TEST_SUITE(TestTemplate);
+    CPPUNIT_TEST_SUITE(NameValuePairInsensitiveTest);
     CPPUNIT_TEST(testAccessors);
+    CPPUNIT_TEST(testHash);
     CPPUNIT_TEST_SUITE_END();
 
 
@@ -50,6 +51,24 @@ public:
 
         delete nv;
     }
+
+   void testHash()
+      {
+         const char* name = "eventtype";
+         const char* name_different_case = "eventType";
+
+         NameValuePairInsensitive* nv = new NameValuePairInsensitive(name);
+         NameValuePairInsensitive* nv_different_case =
+            new NameValuePairInsensitive(name_different_case);
+
+         CPPUNIT_ASSERT_MESSAGE("values do not compare equal",
+                                nv->isEqual(nv_different_case)
+                                );
+         CPPUNIT_ASSERT_MESSAGE("hash values do not match",
+                                nv->hash() == nv_different_case->hash()
+                                );
+      }
+
 };
 
-CPPUNIT_TEST_SUITE_REGISTRATION(TestTemplate);
+CPPUNIT_TEST_SUITE_REGISTRATION(NameValuePairInsensitiveTest);

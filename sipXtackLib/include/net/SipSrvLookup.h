@@ -39,6 +39,8 @@
 
 // FORWARD DECLARATIONS
 class server_t;
+typedef struct s_res_response
+    res_response;
 
 /**
  * A class (with no members) whose 'servers' method implements the RFC
@@ -55,7 +57,7 @@ public:
                             ///< SIP domain name or host name
                             const char *service,
                             ///< "sip" or "sips"
-                            OsSocket::SocketProtocolTypes socketType,
+                            OsSocket::IpProtocolSocketType socketType,
                             ///< types of transport
                             int port,
                             ///< port number from URI, or PORT_NONE
@@ -76,7 +78,7 @@ public:
     * "sips" service.
     *
     * The 'socketType' restricts the search to that sort of transport,
-    * and may have the values (within enum SocketProtocolTypes):
+    * and may have the values (within IpProtocolSocketType):
     *    TCP
     *    UDP
     *    SSL_SOCKET
@@ -106,7 +108,7 @@ public:
       OptionCodeCNAMELimit,     ///< Max. number of CNAMEs to follow.
       OptionCodeNoDefaultTCP,   /**< If 1, do not add TCP contacts by default,
                                  *   for better RFC 3263 conformance. */
-      OptionCodeLast,           ///< End of range
+      OptionCodeLast           ///< End of range
    };
    /**<
     * All options have a code name in this enumeration.  All codes are in the
@@ -152,6 +154,37 @@ public:
       );
    ///< Defaults are: timeout = 5, retries = 4.
 
+   /// Perform a DNS query and parse the results.  Follows CNAME records.
+   static void res_query_and_parse(const char* in_name,
+                                   ///< domain name to look up
+                                   int type,
+                                   ///< RR type to look up
+                                   res_response* in_response,
+                                   /**< response structure to
+                                    *   look in before calling
+                                    *   res_query, or NULL */
+                                   const char*& out_name,
+                                   ///< canonical name for in_name
+                                   res_response*& out_response
+                                   ///< response structure containing RRs
+      );
+   /**<
+    * Performs a DNS query for a particular type of RR on a given name,
+    * doing all the work to follow CNAMEs.  The 'in_name' and 'type'
+    * arguments specify the RRs to look for.  If 'in_response' is not NULL,
+    * it is the results of some previous search for the same name, for
+    * a different type of RR, which might contain RRs for this search.
+    *
+    * @return out_response is a pointer to a response structure, or NULL.
+    * If non-NULL, the RRs of the required type (if any) are in out_response
+    * (in either the answer section or the additional section), under the name
+    * out_name.
+    *
+    * The caller is responsible for freeing out_name if it is non-NULL
+    * and != in_name.  The caller is responsible for freeing out_response if it
+    * is non-NULL and != in_response.
+    */
+
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 
@@ -176,7 +209,7 @@ class server_t {
    static void setDnsSrvResolveEnabled(UtlBoolean& enabled);   
 
    char *host;                  ///< Host name. (Owned by this object.)
-   OsSocket::SocketProtocolTypes type;
+   OsSocket::IpProtocolSocketType type;
                                 ///< OsSocket:{TCP,UDP,SSL_SOCKET}
    struct sockaddr_in sin;      ///< IP address and port
    unsigned int priority;       ///< SRV priority value
@@ -187,7 +220,6 @@ class server_t {
    server_t();
    static UtlBoolean mDnsSrvResolveEnabled;
    
-
    /// Copy constructor for server_t
    server_t(const server_t& rserver_t);
 
@@ -220,7 +252,7 @@ class server_t {
    unsigned int getPriorityFromServerT();
 
    /// Accessor for protocol
-   OsSocket::SocketProtocolTypes getProtocolFromServerT();
+   OsSocket::IpProtocolSocketType getProtocolFromServerT();
 };
 
 #endif  // _SipSrvLookup_h_

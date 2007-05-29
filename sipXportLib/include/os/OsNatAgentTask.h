@@ -307,7 +307,8 @@ protected:
     virtual UtlBoolean sendMessage(StunMessage* pMsg, 
                                    IStunSocket* pSocket, 
                                    const UtlString& toAddress, 
-                                   unsigned short toPort) ;
+                                   unsigned short toPort,
+                                   PacketType packetType = UNKNOWN_PACKET) ;
 
     NAT_AGENT_CONTEXT* getBinding(IStunSocket* pSocket, NAT_AGENT_BINDING_TYPE type) ;
 

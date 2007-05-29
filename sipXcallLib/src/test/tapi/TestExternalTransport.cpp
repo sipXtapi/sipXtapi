@@ -103,6 +103,7 @@ int TransportTask::run(void* pArg)
            mState != SHUT_DOWN )
     {
         OsStatus rc = transportMutex.acquire(timeout);
+        OsTask::delay(10) ;
         
         
         if (OS_SUCCESS == rc)

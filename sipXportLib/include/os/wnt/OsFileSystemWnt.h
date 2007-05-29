@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -15,9 +18,13 @@
 // SYSTEM INCLUDES
 #include <stdio.h>
 #if defined(_WIN32)
+
+#ifndef WINCE
 #   include <io.h>
 #   include <direct.h>
 #   include <share.h>
+#endif
+
 #elif defined(_VXWORKS)
 #   include <unistd.h>
 #   include <dirent.h>
@@ -29,9 +36,13 @@
 #else
 #   error Unsupported target platform.
 #endif
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h> 
+
+#ifndef WINCE
+#	include <sys/types.h>
+#	include <sys/stat.h>
+#	include <fcntl.h> 
+#endif
+
 #include <errno.h>
 
 // APPLICATION INCLUDES

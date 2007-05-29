@@ -60,6 +60,7 @@ static OsMutex sSessionLock(OsMutex::Q_FIFO) ;
 SdpBody::SdpBody(const char* bodyBytes, int byteCount)
  : HttpBody(bodyBytes, byteCount)
 {
+   mClassType = SDP_BODY_CLASS;
    remove(0);
    append(SDP_CONTENT_TYPE);
 
@@ -92,6 +93,7 @@ SdpBody::SdpBody(const char* bodyBytes, int byteCount)
 SdpBody::SdpBody(const SdpBody& rSdpBody) :
    HttpBody(rSdpBody)
 {
+   mClassType = SDP_BODY_CLASS;
    if(rSdpBody.sdpFields)
    {
       sdpFields = new UtlSList();
@@ -191,6 +193,8 @@ SdpBody::operator=(const SdpBody& rhs)
       }
    }
 
+   // Set the class type just to play it safe
+   mClassType = SDP_BODY_CLASS;
    return *this;
 }
 
@@ -335,24 +339,39 @@ UtlBoolean SdpBody::getMediaProtocol(int mediaIndex, UtlString* transportProtoco
 UtlBoolean SdpBody::getMediaPayloadType(int mediaIndex, int maxTypes,
                                         int* numTypes, int payloadTypes[]) const
 {
-   UtlString payloadTypeString;
-   int typeCount = 0;
+    UtlString payloadTypeString;
+    int typeCount = 0;
+    int index = 0 ;
 
-   while(typeCount < maxTypes &&
-         getMediaSubfield(mediaIndex, 3 + typeCount,
-                          &payloadTypeString))
-   {
+    while (index < maxTypes &&
+            getMediaSubfield(mediaIndex, 3 + index++, &payloadTypeString))
+    {
+        if(!payloadTypeString.isNull())
+        {
+            // Add the payload type and increment typeCount if not 
+            // already in the list
+            bool bFound = false ;
+            int payload = atoi(payloadTypeString.data()) ;
+            for (int i=0; i<typeCount; i++)
+            {
+                if (payloadTypes[i] == payload)
+                {
+                    bFound = true ;
+                    break ;
+                }
+            }
 
-      if(!payloadTypeString.isNull())
-      {
-         payloadTypes[typeCount] = atoi(payloadTypeString.data());
-         typeCount++;
-      }
-   }
+            if (!bFound)
+            {            
+                payloadTypes[typeCount] = payload ;
+                typeCount++;
+            }
+        }
+    }
 
-   *numTypes = typeCount;
+    *numTypes = typeCount;
 
-   return(typeCount > 0);
+    return(typeCount > 0);
 }
 
 UtlBoolean SdpBody::getMediaSubfield(int mediaIndex, int subfieldIndex, UtlString* subField) const
@@ -1324,18 +1343,19 @@ void SdpBody::getCodecsInCommon(int audioPayloadIdCount,
 }
 
 
-void SdpBody::addAudioCodecs(int iNumAddresses,
+void SdpBody::addCodecsOffer(int iNumAddresses,
                              UtlString mediaAddresses[],
                              int rtpAudioPorts[],
                              int rtcpAudioPorts[],
                              int rtpVideoPorts[],
                              int rtcpVideoPorts[],
+                             RTP_TRANSPORT transportTypes[],
                              int numRtpCodecs,
                              SdpCodec* rtpCodecs[],
                              SdpSrtpParameters& srtpParams,
                              int totalBandwidth,
                              int videoFramerate,
-                             OsSocket::SocketProtocolTypes transportType)
+                             RTP_TRANSPORT transportOffering)
 {
     int codecArray[MAXIMUM_MEDIA_TYPES];
     int formatArray[MAXIMUM_MEDIA_TYPES];
@@ -1354,27 +1374,13 @@ void SdpBody::addAudioCodecs(int iNumAddresses,
 
     assert(iNumAddresses > 0) ;
 
-
-    if (transportType == OsSocket::UDP)
-    {
-        szTransportType = SDP_RTP_MEDIA_TRANSPORT_TYPE;
-    }
-    else if (transportType == OsSocket::TCP)
-    {
-        szTransportType = SDP_RTP_TCP_MEDIA_TRANSPORT_TYPE;
-    }
-    else
-    {
-        assert(false);
-    }
-
     memset(formatArray, 0, sizeof(int)*MAXIMUM_MEDIA_TYPES);
 
     // If there are not media fields we only need one global one
     // for the SDP body
     if(!preExistingMedia)
     {
-        addConnectionAddress(mediaAddresses[0]);
+        setConnectionAddress(mediaAddresses[0]);
         char timeString[100];
         sprintf(timeString, "%d %d", 0, //OsDateTime::getSecsSinceEpoch(),
             0);
@@ -1415,7 +1421,14 @@ void SdpBody::addAudioCodecs(int iNumAddresses,
         }
         else
         {
-
+            if ((transportTypes[0] & RTP_TRANSPORT_UDP) == RTP_TRANSPORT_UDP)
+            {
+                szTransportType = SDP_RTP_MEDIA_TRANSPORT_TYPE;
+            }                        
+            else
+            {
+                szTransportType = SDP_RTP_TCP_MEDIA_TRANSPORT_TYPE;
+            }
             // Add the media record
             addMediaData(SDP_AUDIO_MEDIA_TYPE, rtpAudioPorts[0], 1,
                 szTransportType, numAudioCodecs,
@@ -1441,19 +1454,29 @@ void SdpBody::addAudioCodecs(int iNumAddresses,
         // Add candidate addresses if available
         if (iNumAddresses > 1)
         {
+            char szTransportString[16];
+
             for (int i=0; i<iNumAddresses; i++)
             {
+                if ((transportTypes[i] & RTP_TRANSPORT_UDP) == RTP_TRANSPORT_UDP)
+                {
+                    szTransportType = SDP_RTP_MEDIA_TRANSPORT_TYPE;
+                }                        
+                else
+                {
+                    szTransportType = SDP_RTP_TCP_MEDIA_TRANSPORT_TYPE;
+                }            
                 double priority = (double) (iNumAddresses-i) / (double) iNumAddresses ;
 
                 assert(mediaAddresses[i].length() > 0) ;
                 if (rtpAudioPorts[0] && rtpAudioPorts[i] && mediaAddresses[i])
                 {
-                    addCandidateAttribute(i, "t", "UDP", priority, mediaAddresses[i], rtpAudioPorts[i]) ;
+                    addCandidateAttribute(i, "t", szTransportString, priority, mediaAddresses[i], rtpAudioPorts[i]) ;
                 }
 
                 if (rtcpAudioPorts[0] && rtcpAudioPorts[i] && mediaAddresses[i])
                 {
-                    addCandidateAttribute(i, "t", "UDP", priority, mediaAddresses[i], rtcpAudioPorts[i]) ;
+                    addCandidateAttribute(i, "t", szTransportString, priority, mediaAddresses[i], rtcpAudioPorts[i]) ;
                 }
             }
         }
@@ -1520,6 +1543,14 @@ void SdpBody::addAudioCodecs(int iNumAddresses,
         }
         else
         {
+            if ((transportTypes[0] & RTP_TRANSPORT_UDP) == RTP_TRANSPORT_UDP)
+            {
+                szTransportType = SDP_RTP_MEDIA_TRANSPORT_TYPE;
+            }                        
+            else
+            {
+                szTransportType = SDP_RTP_TCP_MEDIA_TRANSPORT_TYPE;
+            }
             // Add the media record
             addMediaData(SDP_VIDEO_MEDIA_TYPE, rtpVideoPorts[0], 1,
                 szTransportType, numVideoCodecs,
@@ -1545,19 +1576,27 @@ void SdpBody::addAudioCodecs(int iNumAddresses,
         // Add candidate addresses if available
         if (iNumAddresses > 1)
         {
+            char szTransportString[16];
             for (int i=0; i<iNumAddresses; i++)
             {
                 double priority = (double) (iNumAddresses-i) / (double) iNumAddresses ;
-
+                if ((transportTypes[0] & RTP_TRANSPORT_UDP) == RTP_TRANSPORT_UDP)
+                {
+                    szTransportType = SDP_RTP_MEDIA_TRANSPORT_TYPE;
+                }                        
+                else
+                {
+                    szTransportType = SDP_RTP_TCP_MEDIA_TRANSPORT_TYPE;
+                }
                 assert(mediaAddresses[i].length() > 0) ;
                 if (rtpVideoPorts[0] && rtpVideoPorts[i] && mediaAddresses[i])
                 {
-                    addCandidateAttribute(i, "t", "UDP", priority, mediaAddresses[i], rtpVideoPorts[i]) ;
+                    addCandidateAttribute(i, "t", szTransportString, priority, mediaAddresses[i], rtpVideoPorts[i]) ;
                 }
 
                 if (rtcpVideoPorts[0] && rtcpVideoPorts[i] && mediaAddresses[i])
                 {
-                    addCandidateAttribute(i, "t", "UDP", priority, mediaAddresses[i], rtcpVideoPorts[i]) ;
+                    addCandidateAttribute(i, "t", szTransportString, priority, mediaAddresses[i], rtcpVideoPorts[i]) ;
                 }
             }
         }
@@ -1663,19 +1702,19 @@ void SdpBody::addCodecParameters(int numRtpCodecs,
 }
 
 
-void SdpBody::addAudioCodecs(int iNumAddresses,
+void SdpBody::addCodecsAnswer(int iNumAddresses,
                              UtlString hostAddresses[],
                              int rtpAudioPorts[],
                              int rtcpAudioPorts[],
                              int rtpVideoPorts[],
                              int rtcpVideoPorts[],
+                             RTP_TRANSPORT transportTypes[],
                              int numRtpCodecs, 
                              SdpCodec* rtpCodecs[], 
                              SdpSrtpParameters& srtpParams,
                              int totalBandwidth,
                              int videoFramerate,
-                             const SdpBody* sdpRequest,
-                             OsSocket::SocketProtocolTypes transportType)
+                             const SdpBody* sdpRequest)
 {
    int preExistingMedia = getMediaSetCount();
    int mediaIndex = 0;
@@ -1709,7 +1748,7 @@ void SdpBody::addAudioCodecs(int iNumAddresses,
    // address field
    if(!preExistingMedia)
    {
-      addConnectionAddress(hostAddresses[0]);
+      setConnectionAddress(hostAddresses[0]);
       char timeString[100];
       sprintf(timeString, "%d %d", 0, //OsDateTime::getSecsSinceEpoch(),
               0);
@@ -2277,7 +2316,6 @@ void SdpBody::addMediaData(const char* mediaType,
 }
 
 
-
 void SdpBody::addConnectionAddress(const char* ipAddress)
 {
 
@@ -2297,6 +2335,27 @@ void SdpBody::addConnectionAddress(const char* networkType, const char* addressT
    value.append(ipAddress);
 
    addValue("c", value.data());
+}
+
+void SdpBody::setConnectionAddress(const char* ipAddress)
+{
+
+   const char* networkType = SDP_NETWORK_TYPE;
+   const char* addressType = SDP_IP4_ADDRESS_TYPE;
+   setConnectionAddress(networkType, addressType, ipAddress);
+}
+
+void SdpBody::setConnectionAddress(const char* networkType, const char* addressType, const char* ipAddress)
+{
+   UtlString value;
+
+   value.append(networkType);
+   value.append(SDP_SUBFIELD_SEPARATOR);
+   value.append(addressType);
+   value.append(SDP_SUBFIELD_SEPARATOR);
+   value.append(ipAddress);
+
+   setValue("c", value.data());
 }
 
 void SdpBody::addValue(const char* name, const char* value, int fieldIndex)
@@ -2539,7 +2598,7 @@ UtlBoolean SdpBody::findValueInField(const char* pField, const char* pvalue) con
    return FALSE;
 }
 
-const bool SdpBody::isTransportAvailable(const OsSocket::SocketProtocolTypes protocol,
+const bool SdpBody::isTransportAvailable(const OsSocket::IpProtocolSocketType protocol,
                                          const SIPX_MEDIA_TYPE mediaType) const
 {
     bool bIsAvailable = false;
@@ -2598,23 +2657,23 @@ const bool SdpBody::isTransportAvailable(const OsSocket::SocketProtocolTypes pro
     return bIsAvailable;
 }
                          
-// set all media attributes to either a=setup:ACTPASS, a=setup:ACTIVE, or a=setup:PASSIVE                   
+// set all media attributes to either a=setup:actpass, a=setup:active, or a=setup:passive                   
 void SdpBody::setRtpTcpRole(RtpTcpRoles role)
 {
     UtlString sRole;
-    switch (role)
-    {
-        case ACTPASS:
-            sRole = "actpass";
-            break;
-        case ACTIVE:
-            sRole = "active";
-            break;
-        case PASSIVE:
-            sRole = "passive";
-            break;
-    }
     
+    if ((role & RTP_TCP_ROLE_ACTPASS) == RTP_TCP_ROLE_ACTPASS)
+    {
+            sRole = "actpass";
+    }
+    else if ((role & RTP_TCP_ROLE_ACTIVE) == RTP_TCP_ROLE_ACTIVE)
+    {
+            sRole = "active";
+    }
+    else
+    {
+            sRole = "passive";
+    }
     UtlSListIterator iterator((UtlSList&)(*(sdpFields)));
     NameValuePair* headerField;
     UtlString value;

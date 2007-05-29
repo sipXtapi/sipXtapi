@@ -210,7 +210,6 @@ copy_rr(oldr)
                         free_rr(newr);
                         return(NULL);
                 }
-
                 nrd->mx.preference  = ord->mx.preference;
                 strcpy(nrd->mx.exchange, ord->mx.exchange);
                 break;
@@ -224,6 +223,31 @@ copy_rr(oldr)
                 nrd->srv.weight   = ord->srv.weight;
                 nrd->srv.port     = ord->srv.port;
                 strcpy(nrd->srv.target, ord->srv.target);
+                break;
+
+        case T_NAPTR:
+                nrd->naptr.order = ord->naptr.order;
+                nrd->naptr.preference = ord->naptr.preference;
+                if ((nrd->naptr.flags = (char *)malloc(strlen(ord->naptr.flags)+1)) == NULL ) {
+                        free_rr(newr);
+                        return(NULL);
+                }
+                strcpy(nrd->naptr.services, ord->naptr.services);
+                if ((nrd->naptr.services = (char *)malloc(strlen(ord->naptr.services)+1)) == NULL ) {
+                        free_rr(newr);
+                        return(NULL);
+                }
+                strcpy(nrd->naptr.regexp, ord->naptr.regexp);
+                if ((nrd->naptr.regexp = (char *)malloc(strlen(ord->naptr.regexp)+1)) == NULL ) {
+                        free_rr(newr);
+                        return(NULL);
+                }
+                strcpy(nrd->naptr.regexp, ord->naptr.regexp);
+                if ((nrd->naptr.replacement = (char *)malloc(strlen(ord->naptr.replacement)+1)) == NULL ) {
+                        free_rr(newr);
+                        return(NULL);
+                }
+                strcpy(nrd->naptr.replacement, ord->naptr.replacement);
                 break;
 
         case T_TXT:                             /* Text string */

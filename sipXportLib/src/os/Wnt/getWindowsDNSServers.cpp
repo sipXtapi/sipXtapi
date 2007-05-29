@@ -65,7 +65,6 @@ static DWORD (WINAPI *GetInterfaceInfo)(
 
 static HMODULE hIpHelperModule = NULL;
 
-
 //retrieves the current windows version and returns
 //one of the WINDOWS_VERSION definitions.
 static int getWindowsVersion()
@@ -107,20 +106,22 @@ static int getWindowsVersion()
 //loads the iphlpapi.dll and sets any func pointers we may need
 static HMODULE loadIPHelperAPI()
 {
-    char caFullDLLPath[256];
+    char caFullDLLPath[_MAX_PATH];
 
     if (hIpHelperModule == NULL)
     {
         //first try loading it using the systems path
         hIpHelperModule = LoadLibrary("iphlpapi.dll");
         
-        //if that fails, (it shouldn't), try using the GetSystemPath func 
-        GetSystemDirectory(caFullDLLPath,sizeof(caFullDLLPath));
-        strcat(caFullDLLPath,"\\iphlpapi.dll");
+		if (!hIpHelperModule)
+		{
+			//if that fails, (it shouldn't), try using the GetSystemPath func 
+			GetSystemDirectory(caFullDLLPath,sizeof(caFullDLLPath));
+			strcat(caFullDLLPath,"\\iphlpapi.dll");
 
-        //try again
-        hIpHelperModule = LoadLibrary(caFullDLLPath);
-
+			//try again
+			hIpHelperModule = LoadLibrary(caFullDLLPath);
+		}
         //ok, I give up...where the heck did they put the iphlpapi.dll???????
         if (!hIpHelperModule)
         {

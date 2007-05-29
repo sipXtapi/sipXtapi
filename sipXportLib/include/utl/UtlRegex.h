@@ -61,7 +61,8 @@ class RegEx
    
    /// Compile a regular expression to create the matching object.
   RegEx( const char * regex, //< the regular expression
-         int options = 0     //< any sum of PCRE options bits
+         int               options = 0, //< any sum of PCRE options bits
+         unsigned long int maxDepth = MAX_RECURSION // see MAX_RECURSION
          );
   /**<
    * If compiling the regular expression fails, an error message string is
@@ -69,6 +70,30 @@ class RegEx
    * For options documentation, see 'man pcre'
    */
 
+  /// Default maximum for the recursion depth in searches.
+  static const unsigned long int MAX_RECURSION;
+  /**<
+   * The PCRE internal match() function implements some searches by recursion.
+   * This value is the default maximumm allowed depth for that recursion.  It can
+   * be changed to some other value by passing the maxDepth option argument to the
+   * RegEx constructor.  It is set at compile time from the SIPX_MAX_REGEX_RECURSION
+   * macro, if that value is defined.
+   *
+   * If the maximum is exceeded, the match fails.
+   *
+   * If this or the maxDepth constructor argument are set to zero, then no limit
+   * is enforced (use with caution).
+   *
+   * See the discussions of stack size in the pcre documentation.
+   *
+   * @note Caution
+   * Test your limits carefully - in versions of PCRE prior to 6.5, there is no
+   * way to limit recursive matches, so this is implemented as a limit on the
+   * total number of calls to 'match' (PCRE_EXTRA_MATCH_LIMIT); this can dramatically
+   * shorten the length of the strings that a pattern that has nested parenthesis
+   * will match.
+   */
+  
   /// Construct from a constant regex to save compilation time. 
   RegEx( const RegEx& );
   /**<

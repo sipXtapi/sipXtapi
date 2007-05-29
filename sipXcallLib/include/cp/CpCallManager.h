@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2005-2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -8,6 +11,7 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
+// Author: Daniel Petrie dpetrie AT SIPez DOT com
 
 #ifndef _CpCallManager_h_
 #define _CpCallManager_h_
@@ -39,7 +43,6 @@
 // FORWARD DECLARATIONS
 class CpCall;
 class CpMediaInterface;
-class PtAddressForwarding;
 class SipSession;
 class SipDialog;
 class MpStreamPlayer;
@@ -335,7 +338,7 @@ public:
                              const char* locationHeader = NULL,
                              const int bandWidth=AUDIO_CODEC_BW_DEFAULT,
                              SIPX_TRANSPORT_DATA* pTransportData = NULL,
-                             const SIPX_RTP_TRANSPORT rtpTransportOptions = UDP_ONLY) = 0;
+                             const RTP_TRANSPORT rtpTransportOptions = RTP_TRANSPORT_UDP) = 0;
 
     //! Create a new call and associate it with an existing call.
     /*! This is usually done to create the consultative call as a
@@ -682,11 +685,6 @@ public:
     //@}
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-        //! address forwarding
-        virtual void setAddressForwarding(int size, PtAddressForwarding *pForwards);
-
-        virtual void cancelAddressForwarding(int size, PtAddressForwarding *pForwards);
-
         //! do-not-disturb flag
         virtual void setDoNotDisturb(int flag);
 
@@ -813,6 +811,11 @@ public:
      */
     virtual UtlBoolean getVoiceQualityReportTarget(UtlString& reportSipUrl) ;
 
+    /**
+     * Get the configured local address
+     */
+    virtual void getLocalAddress(UtlString& address) ;
+
 /* ============================ INQUIRY =================================== */
 
     UtlBoolean isCallStateLoggingEnabled();
@@ -865,10 +868,6 @@ protected:
                               // it is used to set the ringing expired timer if there
                               // is no Expires header field from an incoming INVITE
 
-    OsRWMutex mAddressForwardMutex;
-        int mAddressForwardingCnt;
-        PtAddressForwarding *mpAddressForwards;
-
         UtlBoolean mCallStateLogEnabled;
         // If true, the call state log is written to the log file
         // automatically whenever it gets too large.
@@ -894,7 +893,7 @@ private:
     UtlString mVoiceQualityReportTarget ;
 
     // Every CallManager shares the same call counter for generating Call-IDs.
-    static intll mCallNum;
+    static Int64 mCallNum;
  
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 

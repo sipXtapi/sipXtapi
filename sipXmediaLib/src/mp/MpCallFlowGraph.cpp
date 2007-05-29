@@ -20,10 +20,10 @@
 // SYSTEM INCLUDES
 #include <assert.h>
 
-#ifdef WIN32 /* [ */
-#include <io.h>
-#include <fcntl.h>
-#endif /* WIN32 ] */
+#if defined(WIN32) && !defined(WINCE) /* [ */
+#   include <io.h>
+#   include <fcntl.h>
+#endif /* WIN32 && !WINCE ] */
 
 #ifdef __pingtel_on_posix__
 #include <unistd.h>
@@ -85,7 +85,7 @@ UtlBoolean MpCallFlowGraph::sbSendInBandDTMF = true ;
 UtlBoolean MpCallFlowGraph::sbEnableAEC = false ;
 
 #define INSERT_RECORDERS // splices recorders into flowgraph
-#undef INSERT_RECORDERS 
+// #undef INSERT_RECORDERS 
 
 #ifdef INSERT_RECORDERS /* [ */
 static int WantRecorders = 1;
@@ -840,6 +840,54 @@ OsStatus MpCallFlowGraph::mediaRecord(int ms,
 
 }
 
+OsStatus MpCallFlowGraph::recordMic(int ms,
+                                    int silenceLength,
+                                    const char* fileName)
+{
+    OsStatus ret = OS_WAIT_TIMEOUT ;
+    double duration ;
+
+    MprRecorderStats rs;
+    OsProtectEventMgr* eventMgr = OsProtectEventMgr::getEventMgr();
+    OsProtectedEvent* recordEvent = eventMgr->alloc();
+    recordEvent->setUserData((int)&rs);
+
+    int timeoutSecs = (ms/1000 + 1);
+    OsTime maxEventTime(timeoutSecs, 0);
+
+    record(ms, silenceLength, fileName, NULL, NULL,
+                 NULL, NULL, NULL, NULL, NULL, 0, 0, 
+                 NULL, MprRecorder::WAV_PCM_16);
+
+    // Wait until the call sets the number of connections
+    while(recordEvent->wait(0, maxEventTime) == OS_SUCCESS)
+    {
+        int info;
+        recordEvent->getUserData(info);
+        if (info)
+        {
+            rs = *((MprRecorderStats *)info);
+            duration = rs.mDuration;
+            if (rs.mFinalStatus != MprRecorder::RECORDING)
+            {
+                ret = OS_SUCCESS;
+                break;
+            }
+            else
+                recordEvent->reset();
+        }
+    }
+
+    closeRecorders();
+    // If the event has already been signalled, clean up
+    if(OS_ALREADY_SIGNALED == recordEvent->signal(0))
+    {
+        eventMgr->release(recordEvent);
+    }
+    return ret;
+}
+
+
 OsStatus MpCallFlowGraph::ezRecord(int ms, 
                                    int silenceLength, 
                                    const char* fileName, 
@@ -858,7 +906,8 @@ OsStatus MpCallFlowGraph::ezRecord(int ms,
 
 
    record(ms, silenceLength, NULL, NULL, fileName,
-                 NULL, NULL, NULL, NULL, NULL, 0, 0, recordEvent,format);
+                 NULL, NULL, NULL, NULL, NULL, 0, 
+                 0, recordEvent,format);
 
    if (dtmfTerm)
    {
@@ -1025,7 +1074,7 @@ OsStatus MpCallFlowGraph::playBuffer(char* audioBuf,
                                      int type, 
                                      UtlBoolean repeat,
                                      int toneOptions, 
-                                     OsNotification* event)
+                                     OsProtectedEvent* event)
 {
    OsStatus  res;
 

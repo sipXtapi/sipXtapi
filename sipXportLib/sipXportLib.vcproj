@@ -126,6 +126,9 @@
 			Name="Source Files"
 			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat">
 			<File
+				RelativePath=".\src\xmlparser\ExtractContent.cpp">
+			</File>
+			<File
 				RelativePath="src\os\Wnt\getWindowsDNSServers.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -145,6 +148,9 @@
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\src\os\NatMsg.cpp">
 			</File>
 			<File
 				RelativePath="src\os\OsAssert.c">
@@ -250,6 +256,12 @@
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\src\os\OsContact.cpp">
+			</File>
+			<File
+				RelativePath=".\src\os\OsContactList.cpp">
 			</File>
 			<File
 				RelativePath="src\os\OsCSemBase.cpp">
@@ -819,6 +831,12 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\src\os\OsNatConnectionSocket.cpp">
+			</File>
+			<File
+				RelativePath=".\src\os\OsNatSocketBaseImpl.cpp">
+			</File>
+			<File
 				RelativePath="src\os\OsPathBase.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -1302,48 +1320,6 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\os\Wnt\OsSysSoftTimer.cpp">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="src\os\OsSysTimer.cpp">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
-				</FileConfiguration>
-			</File>
-			<File
 				RelativePath="src\os\OsTask.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -1429,27 +1405,6 @@
 			</File>
 			<File
 				RelativePath="src\os\OsTimer.cpp">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="src\os\OsTimerDb.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -1611,6 +1566,9 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\src\utl\PluginHooks.cpp">
+			</File>
+			<File
 				RelativePath="src\xmlparser\tinystr.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -1716,6 +1674,9 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\src\utl\UtlBool.cpp">
+			</File>
+			<File
 				RelativePath="src\utl\UtlContainable.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -1756,6 +1717,12 @@
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\src\utl\UtlCrc32.cpp">
+			</File>
+			<File
+				RelativePath=".\src\utl\UtlDateTime.cpp">
 			</File>
 			<File
 				RelativePath="src\utl\UtlDList.cpp">
@@ -1884,6 +1851,9 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\src\utl\UtlHistogram.cpp">
+			</File>
+			<File
 				RelativePath="src\utl\UtlInt.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -1987,6 +1957,9 @@
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\src\utl\UtlLongLongInt.cpp">
 			</File>
 			<File
 				RelativePath="src\utl\UtlRandom.cpp">
@@ -2266,7 +2239,19 @@
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl">
 			<File
+				RelativePath=".\include\xmlparser\ExtractContent.h">
+			</File>
+			<File
 				RelativePath="include\os\wnt\getWindowsDNSServers.h">
+			</File>
+			<File
+				RelativePath=".\include\os\HostAdapterAddress.h">
+			</File>
+			<File
+				RelativePath=".\include\os\IStunSocket.h">
+			</File>
+			<File
+				RelativePath=".\include\os\NatMsg.h">
 			</File>
 			<File
 				RelativePath="include\os\OsAssert.h">
@@ -2288,6 +2273,12 @@
 			</File>
 			<File
 				RelativePath="include\os\OsConnectionSocket.h">
+			</File>
+			<File
+				RelativePath=".\include\os\OsContact.h">
+			</File>
+			<File
+				RelativePath=".\include\os\OsContactList.h">
 			</File>
 			<File
 				RelativePath="include\os\OsCSem.h">
@@ -2380,6 +2371,15 @@
 				RelativePath="include\os\OsNameDb.h">
 			</File>
 			<File
+				RelativePath=".\include\os\OsNatConnectionSocket.h">
+			</File>
+			<File
+				RelativePath=".\include\os\OsNatKeepaliveListener.h">
+			</File>
+			<File
+				RelativePath=".\include\os\OsNatSocketBaseImpl.h">
+			</File>
+			<File
 				RelativePath="include\os\OsNotification.h">
 			</File>
 			<File
@@ -2440,6 +2440,9 @@
 				RelativePath="include\os\OsSocket.h">
 			</File>
 			<File
+				RelativePath=".\include\os\OsSSL.h">
+			</File>
+			<File
 				RelativePath="include\os\OsSSLConnectionSocket.h">
 			</File>
 			<File
@@ -2464,9 +2467,6 @@
 				RelativePath="include\os\OsSysLogTask.h">
 			</File>
 			<File
-				RelativePath="include\os\OsSysTimer.h">
-			</File>
-			<File
 				RelativePath="include\os\OsTask.h">
 			</File>
 			<File
@@ -2480,9 +2480,6 @@
 			</File>
 			<File
 				RelativePath="include\os\OsTimer.h">
-			</File>
-			<File
-				RelativePath="include\os\OsTimerDb.h">
 			</File>
 			<File
 				RelativePath="include\os\OsTimerMsg.h">
@@ -2518,7 +2515,13 @@
 				RelativePath="include\os\OsWriteLock.h">
 			</File>
 			<File
+				RelativePath=".\include\utl\PluginHooks.h">
+			</File>
+			<File
 				RelativePath="include\utl\PtTest.h">
+			</File>
+			<File
+				RelativePath=".\include\os\qsTypes.h">
 			</File>
 			<File
 				RelativePath="include\xmlparser\tinystr.h">
@@ -2533,10 +2536,22 @@
 				RelativePath="include\aes\uitypes.h">
 			</File>
 			<File
+				RelativePath=".\include\utl\UtlBool.h">
+			</File>
+			<File
 				RelativePath="include\utl\UtlContainable.h">
 			</File>
 			<File
+				RelativePath=".\include\utl\UtlContainableAtomic.h">
+			</File>
+			<File
 				RelativePath="include\utl\UtlContainer.h">
+			</File>
+			<File
+				RelativePath=".\include\utl\UtlCrc32.h">
+			</File>
+			<File
+				RelativePath=".\include\utl\UtlDateTime.h">
 			</File>
 			<File
 				RelativePath="include\utl\UtlDefs.h">
@@ -2560,16 +2575,31 @@
 				RelativePath="include\utl\UtlHashMapIterator.h">
 			</File>
 			<File
+				RelativePath=".\include\utl\UtlHistogram.h">
+			</File>
+			<File
 				RelativePath="include\utl\UtlInt.h">
 			</File>
 			<File
 				RelativePath="include\utl\UtlIterator.h">
 			</File>
 			<File
+				RelativePath=".\include\utl\UtlLink.h">
+			</File>
+			<File
 				RelativePath="include\utl\UtlList.h">
 			</File>
 			<File
 				RelativePath="include\utl\UtlListIterator.h">
+			</File>
+			<File
+				RelativePath=".\include\utl\UtlLongLongInt.h">
+			</File>
+			<File
+				RelativePath=".\include\utl\UtlObservable.h">
+			</File>
+			<File
+				RelativePath=".\include\utl\UtlObservableImpl.h">
 			</File>
 			<File
 				RelativePath="include\utl\UtlRandom.h">
@@ -2599,10 +2629,16 @@
 				RelativePath="include\utl\UtlString.h">
 			</File>
 			<File
+				RelativePath=".\include\utl\UtlTokenizer.h">
+			</File>
+			<File
 				RelativePath="include\utl\UtlVoidPtr.h">
 			</File>
 			<File
 				RelativePath="include\os\wnt\WIndowsAdapterInfo.h">
+			</File>
+			<File
+				RelativePath=".\include\utl\XmlContent.h">
 			</File>
 		</Filter>
 		<Filter

@@ -55,7 +55,7 @@ public:
    enum SourceType
    {
       SourceUrl,
-      SourceBuffer,
+      SourceBuffer
    } ;
 
 /* ============================ CREATORS ================================== */
@@ -177,7 +177,7 @@ private:
       EVENT_DEQUEUE,
       EVENT_PLAY_NEXT,
       EVENT_REMOVE_FAILED,
-      EVENT_RESET,
+      EVENT_PLAY_RESET
    } ;
 
    struct PlaylistQueue             // Definition for a playlist entry

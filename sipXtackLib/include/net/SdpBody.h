@@ -1,12 +1,16 @@
 //
-// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Copyright (C) 2005 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
+// Copyright (C) 2004 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-///////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+// Author: Daniel Petrie (dpetrie AT SIPez DOT com)
 
 #ifndef _SdpBody_h_
 #define _SdpBody_h_
@@ -180,18 +184,19 @@ class SdpBody : public HttpBody
  */
 
    /// Create a set of media codec and address entries
-   void addAudioCodecs(int iNumAddresses,
+   void addCodecsOffer(int iNumAddresses,
                        UtlString mediaAddresses[],
                        int rtpAudioPorts[],
                        int rtcpAudioPorts[],
                        int rtpVideoPorts[],
                        int rtcpVideoPorts[],
+                       RTP_TRANSPORT transportTypes[],
                        int numRtpCodecs,
                        SdpCodec* rtpCodecs[],
                        SdpSrtpParameters& srtpParams,
                        int videoBandwidth,
                        int videoFramerate,
-                       OsSocket::SocketProtocolTypes transportType = OsSocket::UDP
+                       RTP_TRANSPORT transportOffering
                        );
 
    /**<
@@ -200,19 +205,20 @@ class SdpBody : public HttpBody
     */
 
    /// Create a response to a set of media codec and address entries.
-   void addAudioCodecs(int iNumAddresses,
+   void addCodecsAnswer(int iNumAddresses,
                        UtlString mediaAddresses[],
                        int rtpAudioPorts[],
                        int rtcpAudioPorts[],
                        int rtpVideoPorts[],
                        int rtcpVideoPorts[],
+                       RTP_TRANSPORT transportTypes[],
                        int numRtpCodecs, 
                        SdpCodec* rtpCodecs[],
                        SdpSrtpParameters& srtpParams,
                        int videoBandwidth,
                        int videoFramerate,
-                       const SdpBody* sdpRequest, ///< Sdp we are responding to
-                       OsSocket::SocketProtocolTypes transportType);
+                       const SdpBody* sdpRequest  ///< Sdp we are responding to
+                       ); 
    /**<
     * This method is for building a SdpBody which is in response
     * to a SdpBody send from the other side
@@ -249,6 +255,19 @@ class SdpBody : public HttpBody
      */
 
    void addConnectionAddress(const char* networkType, ///< network type - should be "IN"
+                       const char* addressType, ///< address type - should be "IP4"
+                       const char* ipAddress    ///< IP address
+                       );
+
+   /// Set address.
+   void setConnectionAddress(const char* ipAddress /**< for IP4 this is of the format:
+                                              * nnn.nnn.nnn.nnn where nnn is 0 to 255 */
+                       );
+    /**<
+     * Set address for SDP message header or specific media set if called
+     * after addAddressData.
+     */
+   void setConnectionAddress(const char* networkType, ///< network type - should be "IN"
                        const char* addressType, ///< address type - should be "IP4"
                        const char* ipAddress    ///< IP address
                        );
@@ -312,7 +331,7 @@ class SdpBody : public HttpBody
 
    /// Inspects whether the given transport type and media type combination is specified 
    /// as an m-line in the sdp
-   const bool isTransportAvailable(const OsSocket::SocketProtocolTypes protocol,
+   const bool isTransportAvailable(const OsSocket::IpProtocolSocketType protocol,
                                    const SIPX_MEDIA_TYPE mediaType) const;
                                    
    /// Read whether the media network type is IP4 or IP6.

@@ -63,12 +63,13 @@ void TapiMgr::setTapiCallback(sipxEventCallbackFn fp)
 }
 
 void TapiMgr::fireCallEvent(const void*          pSrc,
-                            const char*		     szCallId,
+                            const char*		 szCallId,
                             SipSession*          pSession,
-				            const char*          szRemoteAddress,                   
-				            SIPX_CALLSTATE_EVENT event,
-				            SIPX_CALLSTATE_CAUSE cause,
-                            void*                pEventData)
+                            const char*          szRemoteAddress,                   
+                            SIPX_CALLSTATE_EVENT event,
+                            SIPX_CALLSTATE_CAUSE cause,
+                            void*                pEventData,
+                            const char*          remoteAssertedIdentity)
 {
     static SIPX_CALLSTATE_EVENT lastEvent = CALLSTATE_UNKNOWN;
     static SIPX_CALLSTATE_CAUSE lastCause = CALLSTATE_CAUSE_UNKNOWN;
@@ -88,7 +89,8 @@ void TapiMgr::fireCallEvent(const void*          pSrc,
         else
         {
             (*sipxCallEventCallbackPtr)(pSrc, szCallId, pSession, szRemoteAddress,
-                                        event, cause, pEventData);
+                                        event, cause, pEventData,
+                                        remoteAssertedIdentity);
             lastEvent = event;
             lastCause = cause;
             strncpy(szLastCallId, szCallId, sizeof(szLastCallId));
@@ -109,36 +111,11 @@ void TapiMgr::fireMediaEvent(const void*         pSrc,
                              SIPX_MEDIA_TYPE     type,
                              void*               pEventData) 
 {
-    static void* lastSrc;
-    static char lastCallId[256];
-    static char lastRemoteAddress[256];
-    static SIPX_MEDIA_EVENT lastEvent;
-    static SIPX_MEDIA_CAUSE lastCause;
-    static SIPX_MEDIA_TYPE lastType;
-    static void* lastEventData;
-
     if (sipxMediaCallbackPtr)
     {
-        // Commenting out for now - detection of duplicate events is handled in tapi layer
-        /*if (lastSrc != pSrc ||
-            strcmp(lastCallId, szCallId) != 0 ||
-            strcmp(lastRemoteAddress, szRemoteAddress) != 0 ||
-            lastEvent != event ||
-            lastCause != cause ||
-            lastType != type ||
-            lastEventData != pEventData)
-        {*/
             (*sipxMediaCallbackPtr)(pSrc, szCallId, szRemoteAddress, event, 
                     cause, type, pEventData);
 
-            lastSrc = (void*)pSrc;
-            strncpy(lastCallId, szCallId, sizeof(lastCallId));
-            strncpy(lastRemoteAddress, szRemoteAddress, sizeof(lastRemoteAddress));
-            lastEvent = event;
-            lastCause = cause;
-            lastType = type;
-            lastEventData = pEventData;
-        //}
     }
 }
     
@@ -146,11 +123,16 @@ void TapiMgr::fireMediaEvent(const void*         pSrc,
 void TapiMgr::fireLineEvent(const void* pSrc,
                         const char* szLineIdentifier,
                         SIPX_LINESTATE_EVENT event,
-                        SIPX_LINESTATE_CAUSE cause)
+                        SIPX_LINESTATE_CAUSE cause,
+                        const char *bodyBytes )
 {
     if (sipxLineEventCallbackPtr)
     {
-        (*sipxLineEventCallbackPtr)(pSrc, szLineIdentifier, event, cause);
+        (*sipxLineEventCallbackPtr)(pSrc, 
+                szLineIdentifier, 
+                event, 
+                cause,
+                bodyBytes);
     }
 }
 

@@ -15,23 +15,16 @@
 #include "os/OsMsgQ.h"
 #include "os/OsTimer.h"
 #include "os/OsQueuedEvent.h"
-#include "tapi/sipXtapi.h"
 #include "os/OsRWMutex.h"
+#include "os/OsNatSocketBaseImpl.h"
+#include "utl/UtlHashMap.h"
+
 
 // MACROS
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
 // STRUCTS
-/**
- * Possible roles that a Media connection can have.
- */
-typedef enum RtpTcpRoles
-{
-    ACTIVE,     /**< Connection is acting as a tcp client. */
-    PASSIVE,    /**< Connection is acting as a tcp server. */
-    ACTPASS     /**< Connection is acting as both a tcp client and server. */
-};
 
 // TYPEDEFS
 // FORWARD DECLARATIONS
@@ -54,7 +47,7 @@ class OsNatKeepaliveListener;
  * received/processed.  Internally, the implemenation peeks at the read 
  * data and passes the message to the OsNatAgentTask for processing.
  */
-class OsNatConnectionSocket : public OsConnectionSocket, public IStunSocket
+class OsNatConnectionSocket : public OsConnectionSocket, public OsNatSocketBaseImpl
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
@@ -113,6 +106,12 @@ public:
      * Standard write, see OsDatagramSocket for details.
      */
     virtual int write(const char* buffer, int bufferLength);
+
+    /**
+     * Standard write, see OsDatagramSocket for details.
+     */
+    virtual int socketWrite(const char* buffer, int bufferLength,
+                      const char* ipAddress, int port, PacketType packetType=UNKNOWN_PACKET);
 
 
     /**
@@ -202,7 +201,6 @@ public:
      */
     virtual void addAlternateDestination(const char* szAddress, int iPort, int priority) ;
 
-
     /**
      * Prepares a destination under TURN usage.
      */
@@ -269,31 +267,36 @@ public:
     */
    virtual UtlBoolean applyDestinationAddress(const char* szAddress, int iPort) ;
 
-   /**
-    * Get the timestamp of the first read data packet (excluding any 
-    * STUN/TURN/NAT packets).
-    */
-   virtual bool getFirstReadTime(OsDateTime& time) ;
 
    /**
-    * Get the timestamp of the last read data packet (excluding any 
-    * STUN/TURN/NAT packets).
+    * Applies framing to buffers sent over streaming connections
+    * to a TURN server.
+    * Framing prepends with a header like so:
+    *
+    *   0                   1                   2                   3
+    *   0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+    *  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    *  |     Type      |  Reserved = 0 |            Length             |
+    *  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    *
+    * 
+    * @param type Type of framed buffer - STUN or DATA
+    * @param buffer Buffer to be framed.
+    * @param bufferLenght Length of the buffer to be framed.
+    * @param framedBufferLength Output parameter for the length of the 
+    *        framed buffer.
+    *
+    * @returns Pointer to a newly allocated buffer.  Must be freed by caller.
     */
-   virtual bool getLastReadTime(OsDateTime& time) ;
-
-   /**
-    * Get the timestamp of the first written data packet (excluding any
-    * STUN/TURN/NAT packets).
-    */
-   virtual bool getFirstWriteTime(OsDateTime& time) ;
-
-   /**
-    * Get the timestamp of the last written data packet (excluding any
-    * STUN/TURN/NAT packets).
-    */
-   virtual bool getLastWriteTime(OsDateTime& time) ;
-
+   const char* frameBuffer(TURN_FRAMING_TYPE type,
+                            const char* buffer,
+                            const int bufferLength,
+                            int& framedBufferLen);
    virtual void destroy();
+   
+    virtual int clientConnect(const char* szServer, const int port);
+    virtual bool isClientConnected(const char* szServer, const int port);
+    virtual OsNatConnectionSocket* getClientConnection(const char* szServer, const int port);
 
 
 /* ============================ INQUIRY =================================== */
@@ -302,11 +305,12 @@ public:
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
     /**
-     * ACTIVE, PASSIVE, or ACTPASS
+     * active, passive, or actpass
      */
     RtpTcpRoles mRole;
     
     mutable OsRWMutex mRoleMutex;
+    mutable OsMutex mStreamHandlerMutex;
 
     /**
      * Set the STUN-derived address for this socket.
@@ -362,25 +366,34 @@ protected:
     void evaluateDestinationAddress(const UtlString& address, int iPort, int priority) ;    
     
 
+
+    virtual void handleFramedStream(   char* pData,
+                                       const int size,
+                                       const char* receivedIp,
+                                       const int port);
+                                                      
+    virtual bool handleUnframedBuffer(const TURN_FRAMING_TYPE type,
+                                        const char* buff,
+                                        const int buffSize,
+                                        const char* receivedIp,
+                                        const int port);                                                      
+    
+    bool mbTransparentReads ;        /**< Block until a non-stun/turn packet is read */
+    
     /**
-     * Handle/process an inbound STUN message.
+     * This is the connection socket's analogous UDP socket.
+     * Used for STUN and other requests that require UDP.
      */
-    void handleStunMessage(char* pBuf, int length, UtlString& fromAddress, int fromPort) ;
+    OsNatDatagramSocket* mpDatagramSocket;    
+    
+    void addClientConnection(const char* ipAddress, const int port, OsNatConnectionSocket* pClient);
+    UtlHashMap mClientConnectionSockets;    // map of client connection sockets
+                                            // key = destination IP address
+                                            // value = OsNatConnectionSocket pointer
 
-
-    /**
-     * Handle/process an inbound TURN message.
-     */
-    void handleTurnMessage(char* pBuf, int length, UtlString& fromAddress, int fromPort) ;
-
-    void markReadTime() ;
-
-    void markWriteTime() ;
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-    
-
 
     STUN_STATE mStunState ; /**< STUN status/state */
     TURN_STATE mTurnState ; /**< TURN status/state */
@@ -388,7 +401,6 @@ private:
 
     /* Global Attributes */
     OsNatAgentTask* mpNatAgent;      /**< Pointer to Nat agent task (handles refreshes) */
-    bool mbTransparentReads ;        /**< Block until a non-stun/turn packet is read */
     OsNotification* mpNotification ; /** Notify on initial stun success or failure */
     bool            mbNotified ;     /** Have we notified the requestor? */
 
@@ -397,12 +409,8 @@ private:
     UtlString mDestAddress;     /**< Destination address */
     int miDestPort ;            /**< Destination port */      
 
-    unsigned int          miRecordTimes ;   // Bitmask populated w/ ONDS_MARK_*
-    OsDateTime            mFirstRead ;
-    OsDateTime            mLastRead ;
-    OsDateTime            mFirstWrite ;
-    OsDateTime            mLastWrite ;
-
+    char      mszFragment[(MAX_RTP_BYTES + 4)];
+    int       mFragmentSize;
 };
 
 

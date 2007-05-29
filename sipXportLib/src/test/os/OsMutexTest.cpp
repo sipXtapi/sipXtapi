@@ -18,11 +18,28 @@ class OsMutexTest : public CppUnit::TestCase
 {
     CPPUNIT_TEST_SUITE(OsMutexTest);
     CPPUNIT_TEST(testMutex);
+    CPPUNIT_TEST(testRWMutex);
     CPPUNIT_TEST_SUITE_END();
 
 
 public:
     void testMutex()
+    {
+        OsMutex* pMutex;
+
+        pMutex = new OsMutex(OsMutex::Q_FIFO);
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pMutex->acquire());
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pMutex->acquire(100));
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pMutex->tryAcquire());
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pMutex->release());
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pMutex->release());
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pMutex->release());
+
+        // TBD: test mutex locked by another thread!
+        delete pMutex;    
+    }
+
+    void testRWMutex()
     {
         OsRWMutex* pRWMutex;
 

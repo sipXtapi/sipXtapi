@@ -42,7 +42,7 @@
 #define SIPUA_DEFAULT_SERVER_UDP_BUFFER_SIZE 1000000
 
 // proxy, registrar, etc. OsServerTask OsMsg queue size
-#define SIPUA_DEFAULT_SERVER_OSMSG_QUEUE_SIZE 1000
+#define SIPUA_DEFAULT_SERVER_OSMSG_QUEUE_SIZE 10000
 
 // MACROS
 // EXTERNAL FUNCTIONS
@@ -223,6 +223,12 @@ public:
      *        ports, select the next available port if the supplied
      *        port is busy.  If enable, this will attempt at most
      *        10 sequential ports.
+     * \param doUaMessageChecks - check the acceptability of method,
+     *        extensions, and encoding.  The default is TRUE; it may 
+     *        be set to false in applications such as a redirect server
+     *        that will never actually send a 2xx response, so the
+     *        checks might cause errors that the application should
+     *        never generate.
      */
     SipUserAgent(int sipTcpPort = SIP_PORT,
                 int sipUdpPort = SIP_PORT,
@@ -246,7 +252,8 @@ public:
                 UtlBoolean bUseNextAvailablePort = FALSE,
                 UtlString certNickname = "",
                 UtlString certPassword = "",
-                UtlString dbLocation = ".");
+                UtlString dbLocation = ".",
+                UtlBoolean doUaMessageChecks = TRUE);
 
     //! Destructor
     virtual
@@ -275,7 +282,7 @@ public:
     //! For internal use only
     virtual UtlBoolean handleMessage(OsMsg& eventMessage);
 
-    //! Depricated (Add a SIP message recipient)
+    //! Deprecated (Add a SIP message recipient)
     virtual void addMessageConsumer(OsServerTask* messageConsumer);
 
     //! Add a SIP message observer for receiving SIP messages meeting the
@@ -311,8 +318,6 @@ public:
                               SipSession* pSession = NULL,
                               void* observerData = NULL);
 
-    //void removeMessageConsumer(OsServerTask* messageConsumer);
-    //: Remove a SIP message recipient
 
     //! Removes all SIP message observers for the given message/queue
     //! observer
@@ -435,12 +440,13 @@ public:
 
     void setIsUserAgent(UtlBoolean isUserAgent);
 
-    // setUserAgentHeaderProperty
-    //      provides a string to be appended to the standard User-Agent
-    //      header value between "Pingtel/<version>" and the platform (eg "(VxWorks)")
-    //      Value should be formated either as "token/token" or "(string)"
-    //      with no leading or trailing space.
+    /// Provides a string to be appended to the standard User-Agent header.
     void setUserAgentHeaderProperty( const char* property );
+    /**<
+     * The property is added between "<product>/<version>" and the platform (eg "(VxWorks)")
+     * The value should be formated either as "token/token", "token", or "(string)"
+     * with no leading or trailing space.
+     */
 
     //! Set the limit of allowed hops a message can make
     void setMaxForwards(int maxForwards);
@@ -581,17 +587,17 @@ public:
     virtual UtlBoolean waitUntilReady();
     //: Block and wait until the UA is started and initialized
 
-    UtlBoolean isMethodAllowed(const char* method) const;
+    UtlBoolean isMethodAllowed(const char* method);
 
     UtlBoolean isExtensionAllowed(const char* extension) const;
 
     UtlBoolean isForkingEnabled();
 
-    UtlBoolean isMyHostAlias(Url& route);
+    UtlBoolean isMyHostAlias(Url& route) const;
 
     UtlBoolean recurseOnlyOne300Contact();
 
-    UtlBoolean isOk(OsSocket::SocketProtocolTypes socketType);
+    UtlBoolean isOk(OsSocket::IpProtocolSocketType socketType);
 
     //! Find out if SipUserAgent has finished shutting down.
     /*! Useful when using the non-blocking form of \ref shutdown.
@@ -601,6 +607,11 @@ public:
     UtlBoolean isShutdownDone();
 
     void setUserAgentHeader(SipMessage& message);
+
+    void setServerHeader(SipMessage& message);
+
+    /// Add either Server or User-Agent header, as appropriate based on isUserAgent
+    void setSelfHeader(SipMessage& message);
 
     SipContactDb& getContactDb() { return mContactDb; }
 
@@ -612,7 +623,7 @@ public:
 
     void prepareVia(SipMessage&          message,
                     UtlString&           branchId, 
-                    OsSocket::SocketProtocolTypes& toProtocol,
+                    OsSocket::IpProtocolSocketType& toProtocol,
                     const char*          szTargetAddress, 
                     const int*           piTargetPort,
                     SIPX_TRANSPORT_DATA* pTransport = NULL) ;
@@ -630,10 +641,12 @@ public:
     
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
-
     void prepareContact(SipMessage& message, 
                         const char* szTargetAddress, 
                         const int*  piTargetPort) ;
+
+    /// constuct the value to be used in either user-agent or server header.
+    void selfHeaderValue(UtlString& self);
 
     void getAllowedMethods(UtlString* allowedMethods);
 
@@ -649,7 +662,7 @@ protected:
     UtlBoolean sendStatelessRequest(SipMessage& request,
                                     UtlString& address,
                                     int port,
-                                    enum OsSocket::SocketProtocolTypes protocol,
+                                    OsSocket::IpProtocolSocketType protocol,
                                     UtlString& branchId);
 
     UtlBoolean sendTls(SipMessage* message,
@@ -759,6 +772,13 @@ private:
     UtlBoolean mbUseLocationHeader;
     bool mbIncludePlatformInUserAgentName;  // whether or not the platform name should
                                             // be appended to the user agent name
+
+    /** check the acceptability of method, extensions, and encoding.
+     * The default is TRUE; it may be set to false in applications such as a redirect server
+     * that will never actually send a 2xx response, so the checks might cause errors that
+     * the application should never generate.
+     */
+    UtlBoolean mDoUaMessageChecks;
 
     void garbageCollection();
 

@@ -88,6 +88,11 @@ protected:
    virtual OsStatus receiveMessage(OsMsg*& rpMsg);
      //:Waits for a message to arrive on the task's incoming message queue
 
+   virtual OsStatus receiveMessage(OsMsg*& rpMsg,
+                                   const OsTime& rTimeout);
+     //:Waits for a message to arrive on the task's incoming message queue,
+     // with timeout.
+
    virtual int run(void* pArg);
      //:The entry point for the task
      // This method executes a message processing loop until either 

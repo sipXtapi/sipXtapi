@@ -35,7 +35,7 @@ class OsPtrMsg : public OsMsg
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
-
+   static const UtlContainableType TYPE ;    /** < Class type used for runtime checking */
 
 /* ============================ CREATORS ================================== */
 
@@ -58,15 +58,14 @@ public:
 
 
 /* ============================ ACCESSORS ================================= */
-   void* OsPtrMsg::getPtr();
-   void* OsPtrMsg::getPtr2();
+   void* getPtr();
+   void* getPtr2();
    
 
 /* ============================ INQUIRY =================================== */
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
-   static const UtlContainableType TYPE ;    /** < Class type used for runtime checking */
    void* mpData;
    void* mpData2;
 

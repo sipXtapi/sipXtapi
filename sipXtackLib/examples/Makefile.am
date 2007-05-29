@@ -1,3 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 
-SUBDIRS = im
+SUBDIRS = \
+	im \
+	xmlrpc
+

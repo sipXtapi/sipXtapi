@@ -25,16 +25,18 @@
 // FORWARD DECLARATIONS
 
 /**
- * An UtlContainable object is an abstract objected that serves as base 
- * class for anything that can be contained in one of the UtlContainer 
- * derived classes.  One of the largest values of a UtlContainable derived 
- * object is ability for any of UtlContainers to destroy objects, sort 
+ * An UtlContainable object is an abstract object that serves as the base 
+ * class for anything that can be contained in one of the UtlContainer- 
+ * derived classes.  One of the largest values of a UtlContainable-derived 
+ * object is the ability for any UtlContainer to destroy objects, sort 
  * objects, etc.
  */
 class UtlContainable 
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
+
+    static const UtlContainableType TYPE ;    /** < Class type used for runtime checking */
 
 /* ============================ CREATORS ================================== */
 
@@ -44,7 +46,7 @@ public:
     virtual ~UtlContainable();
 
     /**
-     * Get the ContainableType for a UtlContainable derived class.
+     * Get the ContainableType for a UtlContainable-derived class.
      */
     virtual UtlContainableType getContainableType() const = 0 ;
 
@@ -80,14 +82,10 @@ public:
      * {
      *    int result ; 
      * 
-     *    if (inVal->isInstanceOf(Foo::TYPE))
-     *    {
-     *       result = ((unsigned) this) - ((unsigned) (Foo*) inVal);
-     *    }
-     *    else
-     *    {
-     *       result = -1; 
-     *    }
+     *    result =
+     *       this > other ? 1 :
+     *       this < other ? -1 :
+     *       0;
      *
      *    return result;
      * }
@@ -105,7 +103,7 @@ public:
      * </pre>
      */
 
-    /// Compare the this object to another object. 
+    /// Compare this object to another object. 
     virtual int compareTo(UtlContainable const *) const = 0  ;    
     /**<
      * Results of comparison to an object not of the same UtlContainableType
@@ -150,7 +148,6 @@ public:
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
-    static const UtlContainableType TYPE ;    /** < Class type used for runtime checking */
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
@@ -160,4 +157,3 @@ private:
 /* ============================ INLINE METHODS ============================ */
 
 #endif    // _UtlContainable_h_
-

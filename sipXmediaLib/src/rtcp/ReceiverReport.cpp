@@ -19,7 +19,9 @@
 
     // Includes
 #ifdef WIN32
-#include <sys/timeb.h>
+#   ifndef WINCE
+#       include <sys/timeb.h>
+#   endif
 #elif defined(_VXWORKS)
 #include <timers.h>
 #elif defined(__pingtel_on_posix__)
@@ -28,6 +30,10 @@
 #include <time.h>
 #include <sys/time.h>
 #define ERROR (-1)
+#endif
+
+#ifdef WINCE
+#   include <winsock.h>
 #endif
 
 #include "rtcp/ReceiverReport.h"

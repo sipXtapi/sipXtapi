@@ -1,5 +1,7 @@
 ## Process this file with automake to produce Makefile.in
 
+SUBDIRS = . test
+
 INCLUDES = \
 	-I$(top_srcdir)/interface \
 	-I$(top_srcdir)/sipXmediaMediaProcessing

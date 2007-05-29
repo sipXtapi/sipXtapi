@@ -220,6 +220,8 @@ res_type(int type)
                 return("SOA");
         case T_SRV:             /* service */
                 return("SRV");
+        case T_NAPTR:           /* naming authority pointer */
+                return("NAPTR");
         case T_TXT:             /* text */
                 return("TXT");
         case T_WKS:             /* well known service */
@@ -305,6 +307,8 @@ extern "C" {
                 return(T_SOA);
         if ( !strcmp( str, "SRV" ))
                 return(T_SRV);
+        if ( !strcmp( str, "NAPTR" ))
+                return(T_NAPTR);
         if ( !strcmp( str, "TXT" ))
                 return(T_TXT);
         if ( !strcmp( str, "WKS" ))

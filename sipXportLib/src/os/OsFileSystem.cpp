@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -10,16 +13,22 @@
 
 // SYSTEM INCLUDES
 #include <os/OsDefs.h>
-#include <sys/types.h>
-#include <sys/stat.h>
+#ifdef WINCE
+#   include <types.h>
+#else
+#   include <sys/types.h>
+#   include <sys/stat.h>
+#endif
 
 #ifdef __posix_under_pingtel__
 #include <unistd.h>
 #endif
 
 #ifdef _WIN32
-#include <io.h>
-#include <direct.h>
+#   ifndef WINCE
+#       include <io.h>
+#       include <direct.h>
+#   endif
 #endif
 
 #ifdef TEST
@@ -80,6 +89,7 @@ OsStatus OsFileSystem::setReadOnly(const OsPath& rPath, UtlBoolean isReadOnly)
 #ifdef _VXWORKS
 
 #else
+#ifndef WINCE
     int mode = S_IREAD;
 
     if (!isReadOnly)
@@ -87,6 +97,7 @@ OsStatus OsFileSystem::setReadOnly(const OsPath& rPath, UtlBoolean isReadOnly)
 
     if (chmod(rPath.data(),mode) != -1)
         retval = OS_SUCCESS;
+#endif
 #endif
 
     return retval;
@@ -156,10 +167,20 @@ OsStatus OsFileSystem::change(const OsPath& path)
 
 //: Creates the specified directory
 //  Fails if a file by the same name exist in the parent directory
-OsStatus OsFileSystem::createDir(const OsPath& path)
+OsStatus OsFileSystem::createDir(const OsPath& path, const UtlBoolean createParent)
+{
+    OsStatus stat = OS_SUCCESS;
+    
+    if (createParent)
+    {
+        stat = createDirRecursive(path);
+    }
+    if ( stat == OS_SUCCESS)
 {
     OsDir dir(path);
-    return dir.create();
+        stat = dir.create();
+    }
+    return stat;
 }
 
 //: returns the current working directory for the process
@@ -273,6 +294,52 @@ OsStatus OsFileSystem::removeTree(const OsPath& path,UtlBoolean bForce)
           }
       }
     }
+    return retval;
+}
+
+OsStatus OsFileSystem::createDirRecursive(const OsPath& rOsPath)
+{
+    OsStatus retval = OS_FAILED;
+    
+    UtlString parentDir;
+    
+    if (!exists(rOsPath))
+    {
+        // Find last separator and chop last name off path
+        UtlString sep = OsPath::separator;
+        
+        int lastSep = -1;
+        unsigned int nextSep = rOsPath.index(sep);
+        
+        while (nextSep != UtlString::UTLSTRING_NOT_FOUND)
+        {
+            lastSep = nextSep;
+            nextSep = rOsPath.index(sep, lastSep+1);
+        }
+        if (lastSep != -1)
+        {
+            parentDir = rOsPath(0, lastSep);
+            OsPath parent(parentDir);
+            if (!exists(parent))
+            {
+                retval = createDirRecursive(parent);
+                if (retval == OS_SUCCESS)
+                {
+                    OsDir dir(parent);
+                    retval = dir.create();
+                }
+            }
+            else
+            {
+                retval = OS_SUCCESS;
+            }
+        }
+    }
+    else
+    {
+        retval = OS_SUCCESS;
+    }
+    
     return retval;
 }
 

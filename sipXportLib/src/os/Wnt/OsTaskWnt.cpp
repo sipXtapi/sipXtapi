@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -19,7 +22,9 @@
 #include "os/OsDateTime.h"
 #include "os/Wnt/OsTaskWnt.h"
 #include "os/Wnt/OsUtilWnt.h"
-#include <process.h>
+#ifndef WINCE
+#   include <process.h>
+#endif
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
@@ -443,17 +448,19 @@ UtlBoolean OsTaskWnt::isSuspended(void)
 // The mDataGuard lock should be held upon entry into this method.
 UtlBoolean OsTaskWnt::doWntCreateTask(void)
 {
+   //  JEP - TODO - implement this...
    char  idString[15];
    unsigned int threadId;
 
-   mThreadH = (void *)_beginthreadex(
+//   mThreadH = (void *)_beginthreadex(
+   mThreadH = (void *)CreateThread(
                 0,             // don't specify any thread attributes
                 mStackSize,    // stack size (in bytes)
-                threadEntry,   // starting address of the new thread
+                (LPTHREAD_START_ROUTINE) threadEntry,   // starting address of the new thread
                 (void*) this,  // parameter value that will be passed
                                //  to the new thread
                 CREATE_SUSPENDED, // suspend thread until priority is set
-                &threadId);    // thread identifier return value
+                (unsigned long *) &threadId);    // thread identifier return value
 
    mSuspendCnt = 0;
    mThreadId   = threadId;

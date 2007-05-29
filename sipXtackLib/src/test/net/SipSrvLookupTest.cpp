@@ -10,18 +10,25 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 #include <cppunit/TestCase.h>
+
+
+#if !defined(_WIN32) && !defined(WINCE)
 #include <sys/types.h>
-#ifndef _WIN32
 #include <unistd.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <sys/stat.h>
+
+#ifndef _VXWORKS
 #include <resolv.h>
+#endif 
+
 #endif 
 
 #include <stdlib.h>
 #include <signal.h>
-#include <sys/stat.h>
+
 
 #include "net/SipSrvLookup.h"
 #include "os/OsSocket.h"
@@ -42,16 +49,17 @@
 // Forward references.
 
 // Get a printable representation of a protocol value.
-const char* printable_proto(OsSocket::SocketProtocolTypes type);
+const char* printable_proto(OsSocket::IpProtocolSocketType type);
 
 /**
  * Unit test for SipSrvLookup
  */
 class SipSrvLookupTest : public CppUnit::TestCase
 {
-   // Take out SipSrvLookupTest for the time being 
    CPPUNIT_TEST_SUITE(SipSrvLookupTest);
-  //CPPUNIT_TEST(lookup);
+#ifndef WIN32
+    CPPUNIT_TEST(lookup);
+#endif
    CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -129,7 +137,7 @@ public:
 
       // Rewrite the in-memory resolver configuration so it talks to
       // our private bind.
-      // Force the resolver to start.
+      // Force the resolver to initialize.
       res_init();
       _res.nscount = 1;
       inet_aton("127.0.0.1", &_res.nsaddr_list[0].sin_addr);
@@ -149,7 +157,7 @@ public:
          // Arguments to SipSrvLookup::servers:
          const char* name;
          const char* service;
-         OsSocket::SocketProtocolTypes type;
+         OsSocket::IpProtocolSocketType type;
          int port;
          // List of option values to set for this test, or NULL.
          // If not NULL, is a pointer to a list of int's, which are:
@@ -678,7 +686,7 @@ public:
       // Report error if any test has failed.
       CPPUNIT_ASSERT(!failure_seen);
 #else /* NAMED_PROGRAM */
-      printf("test1 not executed because named was not found.\n");
+      printf("... not executed because 'named' was not available.\n");
 #endif /* NAMED_PROGRAM */
    }
 };
@@ -686,7 +694,7 @@ public:
 CPPUNIT_TEST_SUITE_REGISTRATION(SipSrvLookupTest);
 
 // Get a printable representation of a protocol value.
-const char* printable_proto(OsSocket::SocketProtocolTypes type)
+const char* printable_proto(OsSocket::IpProtocolSocketType type)
 {
    const char* s;
    switch (type)

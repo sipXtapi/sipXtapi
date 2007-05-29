@@ -107,6 +107,10 @@ OsStatus Record(int ms,
       const char* endName,      //if NULL, defaults to previous string
       int recorderMask);
 
+OsStatus recordMic(int ms,
+                   int silenceLength,
+                   const char* fileName) ;
+
 OsStatus ezRecord(int ms, 
                    int silenceLength, 
                    const char* fileName, 
@@ -146,7 +150,7 @@ OsStatus playBuffer(char* audioBuf,
                    int type, 
                    UtlBoolean repeat,
                    int toneOptions, 
-                   OsNotification* event = NULL);
+                   OsProtectedEvent* event = NULL);
 OsStatus playFile(const char* audioFileName, UtlBoolean repeat,
                     int toneOptions, OsNotification* completion = NULL);
   //: Start playing audio from a file

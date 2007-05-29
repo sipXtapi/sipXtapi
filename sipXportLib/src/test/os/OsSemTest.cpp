@@ -31,6 +31,10 @@ public:
         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pBSem->acquire());
         CPPUNIT_ASSERT_EQUAL(OS_BUSY, pBSem->tryAcquire());
         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pBSem->release());
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pBSem->acquire(100));
+        CPPUNIT_ASSERT_EQUAL(OS_WAIT_TIMEOUT, pBSem->acquire(100));
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pBSem->release());
+
         delete pBSem;
     }
 
@@ -40,11 +44,16 @@ public:
 
         // the initial count on the semaphore will be 2
         pCSem = new OsCSem(OsCSem::Q_PRIORITY, 2);
-        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pCSem->acquire());  // take it once
+                                                             // take it once
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pCSem->acquire(100));
         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pCSem->acquire());  // take it twice
-        CPPUNIT_ASSERT_EQUAL(OS_BUSY, pCSem->tryAcquire());
+        CPPUNIT_ASSERT_EQUAL(OS_BUSY, pCSem->tryAcquire());  // try thrice
+                                                             // try once more
+        CPPUNIT_ASSERT_EQUAL(OS_WAIT_TIMEOUT, pCSem->acquire(100));  
         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pCSem->release());  // release once
         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pCSem->release());  // release twice
+        CPPUNIT_ASSERT_EQUAL(OS_BUSY, pCSem->release());     // release thrice
+
         delete pCSem;
     }
 };

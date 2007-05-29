@@ -39,6 +39,9 @@ class UtlContainer : public UtlContainable
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
+
+    static const UtlContainableType TYPE ;    /** < Class type used for runtime checking */ 
+
 /* ============================ CREATORS ================================== */
    
     /**
@@ -196,8 +199,6 @@ protected:
      * see sIteratorConnectionLock
      */
     UtlChain mIteratorList; 
-
-    static UtlContainableType TYPE ;    /** < Class type used for runtime checking */ 
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:

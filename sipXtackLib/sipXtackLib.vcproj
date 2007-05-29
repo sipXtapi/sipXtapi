@@ -168,6 +168,12 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\src\net\HttpConnection.cpp">
+			</File>
+			<File
+				RelativePath=".\src\net\HttpConnectionMap.cpp">
+			</File>
+			<File
 				RelativePath="src\net\HttpMessage.cpp">
 				<FileConfiguration
 					Name="Release|Win32">
@@ -445,6 +451,9 @@
 						BasicRuntimeChecks="3"
 						BrowseInformation="1"/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\src\net\PidfBody.cpp">
 			</File>
 			<File
 				RelativePath=".\src\net\pk12wrapper.cpp">
@@ -1610,6 +1619,21 @@
 						BrowseInformation="1"/>
 				</FileConfiguration>
 			</File>
+			<File
+				RelativePath=".\src\net\XmlRpcBody.cpp">
+			</File>
+			<File
+				RelativePath=".\src\net\XmlRpcDispatch.cpp">
+			</File>
+			<File
+				RelativePath=".\src\net\XmlRpcMethod.cpp">
+			</File>
+			<File
+				RelativePath=".\src\net\XmlRpcRequest.cpp">
+			</File>
+			<File
+				RelativePath=".\src\net\XmlRpcResponse.cpp">
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -1622,6 +1646,12 @@
 			</File>
 			<File
 				RelativePath="include\net\HttpBody.h">
+			</File>
+			<File
+				RelativePath=".\include\net\HttpConnection.h">
+			</File>
+			<File
+				RelativePath=".\include\net\HttpConnectionMap.h">
 			</File>
 			<File
 				RelativePath="include\net\HttpMessage.h">
@@ -1673,6 +1703,9 @@
 			</File>
 			<File
 				RelativePath="include\resparse\wnt\sys\param.h">
+			</File>
+			<File
+				RelativePath=".\include\net\PidfBody.h">
 			</File>
 			<File
 				RelativePath="include\resparse\poll.h">
@@ -1841,6 +1874,21 @@
 			</File>
 			<File
 				RelativePath="include\net\version.h">
+			</File>
+			<File
+				RelativePath=".\include\net\XmlRpcBody.h">
+			</File>
+			<File
+				RelativePath=".\include\net\XmlRpcDispatch.h">
+			</File>
+			<File
+				RelativePath=".\include\net\XmlRpcMethod.h">
+			</File>
+			<File
+				RelativePath=".\include\net\XmlRpcRequest.h">
+			</File>
+			<File
+				RelativePath=".\include\net\XmlRpcResponse.h">
 			</File>
 		</Filter>
 	</Files>

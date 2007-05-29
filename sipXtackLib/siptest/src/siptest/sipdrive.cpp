@@ -142,6 +142,9 @@ int main(int argc, char* argv[])
    int proxyTlsPort;
    OsConfigDb configDb;
 
+   // siptest uses osPrintf for output, so we have to un-suppress it.
+   enableConsoleOutput(TRUE);
+
    if(configDb.loadFromFile(configFileName) == OS_SUCCESS)
    {
       osPrintf("Found config file: %s\n", configFileName);
@@ -191,6 +194,7 @@ int main(int argc, char* argv[])
       );
    sipUA->allowMethod(SIP_REGISTER_METHOD);
    sipUA->allowMethod(SIP_SUBSCRIBE_METHOD);
+   sipUA->allowMethod(SIP_NOTIFY_METHOD);
 
    sipUA->start();
 

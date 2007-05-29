@@ -1,5 +1,9 @@
 //
-// Copyright (C) 2004-2006 SIPfoundry Inc.
+// 
+// Copyright (C) 2005, 2006 SIPez LLC
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// Copyright (C) 2005, 2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -18,7 +22,7 @@
 
 // APPLICATION INCLUDES
 #include <utl/UtlHashBag.h>
-
+#include <os/OsSocket.h>
 #include <net/HttpMessage.h>
 #include <net/SdpBody.h>
 #include <net/SdpCodec.h>
@@ -30,6 +34,8 @@
 
 class UtlHashMap;
 class SipUserAgent;
+class SipRegInfoBody;        // for RFC 3680
+
 
 // DEFINES
 
@@ -37,6 +43,7 @@ class SipUserAgent;
 #define SIP_CALL_CONTROL_EXTENSION "sip-cc"
 #define SIP_SESSION_TIMER_EXTENSION "timer"
 #define SIP_REPLACES_EXTENSION "replaces"
+#define SIP_JOIN_EXTENSION "join"
 
 // SIP Methods
 #define SIP_INVITE_METHOD "INVITE"
@@ -76,13 +83,17 @@ class SipUserAgent;
 #define SIP_CONTENT_ENCODING_FIELD "CONTENT-ENCODING"
 #define SIP_SHORT_CONTENT_ENCODING_FIELD "e"
 #define SIP_CSEQ_FIELD "CSEQ"
+#define SIP_DIVERSION_FIELD "DIVERSION"   // draft-levy-sip-diversion-08 Diversion header
 #define SIP_EVENT_FIELD "EVENT"
 #define SIP_SHORT_EVENT_FIELD "o"
 #define SIP_EXPIRES_FIELD "EXPIRES"
-#define SIP_Q_FIELD "Q"
 #define SIP_FROM_FIELD "FROM"
+#define SIP_IF_MATCH_FIELD "SIP-IF-MATCH"
 #define SIP_SHORT_FROM_FIELD "f"
 #define SIP_MAX_FORWARDS_FIELD "MAX-FORWARDS"
+#define SIP_P_ASSERTED_IDENTITY_FIELD "P-ASSERTED-IDENTITY"
+#define SIP_Q_FIELD "Q"
+#define SIP_REASON_FIELD "REASON"          //  RFC 3326 Reason header
 #define SIP_RECORD_ROUTE_FIELD "RECORD-ROUTE"
 #define SIP_REFER_TO_FIELD "REFER-TO"
 #define SIP_SHORT_REFER_TO_FIELD "r"
@@ -92,7 +103,9 @@ class SipUserAgent;
 #define SIP_REQUEST_DISPOSITION_FIELD "REQUEST-DISPOSITION"
 #define SIP_REQUESTED_BY_FIELD "REQUESTED-BY"
 #define SIP_REQUIRE_FIELD "REQUIRE"
+#define SIP_PROXY_REQUIRE_FIELD "PROXY-REQUIRE"
 #define SIP_ROUTE_FIELD "ROUTE"
+#define SIP_SERVER_FIELD "SERVER"
 #define SIP_SESSION_EXPIRES_FIELD "SESSION-EXPIRES"
 #define SIP_IF_MATCH_FIELD "SIP-IF-MATCH"
 #define SIP_ETAG_FIELD "SIP-ETAG"
@@ -112,7 +125,7 @@ class SipUserAgent;
 
 ///custom fields
 #define SIP_LINE_IDENTIFIER "LINEID"
-
+#define SIPX_IMPLIED_SUB "sipx-implied" ///< integer expiration duration for subscription
 // Response codes and text
 #define SIP_TRYING_CODE 100
 #define SIP_TRYING_TEXT "Trying"
@@ -175,7 +188,7 @@ class SipUserAgent;
 #define SIP_UNSUPPORTED_URI_SCHEME_TEXT "Unsupported URI Scheme"
 
 #define SIP_BAD_EXTENSION_CODE 420
-#define SIP_BAD_EXTENSION_TEXT "Bad Extension"
+#define SIP_BAD_EXTENSION_TEXT "Extension Not Supported"
 
 #define SIP_TOO_BRIEF_CODE 423
 #define SIP_TOO_BRIEF_TEXT "Registration Too Brief"
@@ -238,6 +251,7 @@ class SipUserAgent;
 #define SIP_WARN_MEDIA_NAVAIL_TEXT "Media type not available"
 #define SIP_WARN_MEDIA_INCOMPAT_CODE 305
 #define SIP_WARN_MEDIA_INCOMPAT_TEXT "Insufficient compatible media types"
+#define SIP_WARN_MISC_CODE 399
 
 // Transport stuff
 #define SIP_PORT 5060
@@ -253,7 +267,7 @@ class SipUserAgent;
 #define SIP_TRANSPORT_TLS "TLS"
 #define SIP_URL_TYPE "SIP:"
 #define SIPS_URL_TYPE "SIPS:"
-#define SIP_DEFAULT_MAX_FORWARDS 20
+#define SIP_DEFAULT_MAX_FORWARDS 70
 
 // Caller preference request dispostions tokens
 #define SIP_DISPOSITION_QUEUE "QUEUE"
@@ -265,6 +279,8 @@ class SipUserAgent;
 #define SIP_EVENT_REFER                     "refer"
 #define SIP_EVENT_CONFIG                    "sip-config"
 #define SIP_EVENT_UA_PROFILE                "ua-profile"
+#define SIP_EVENT_REGISTER                  "reg" //  RFC 3680 
+#define SIP_EVENT_PRESENCE                  "presence"
 
 // NOTIFY Subscription-State values
 #define SIP_SUBSCRIPTION_ACTIVE             "active"
@@ -278,8 +294,24 @@ class SipUserAgent;
 #define CONTENT_TYPE_XPRESSA_SCRIPT         "text/xpressa-script"
 #define CONTENT_TYPE_VQ_RTCP_XR             "application/vq-rtcpxr"
 
+// Added for RFC 3680 
+#define CONTENT_TYPE_REG_INFO 		"application/reg-info+xml"
+
 #define SIP_REFER_SUCCESS_STATUS "SIP/2.0 200 OK\r\n"
 #define SIP_REFER_FAILURE_STATUS "SIP/2.0 503 Service Unavailable\r\n"
+
+//Added for Diversion header reason parameters
+
+#define SIP_DIVERSION_UNKNOWN "unknown"
+#define SIP_DIVERSION_BUSY "user-busy"
+#define SIP_DIVERSION_UNAVAILABLE "unavailable"
+#define SIP_DIVERSION_UNCONDITIONAL "unconditional"
+#define SIP_DIVERSION_TIMEOFDAY "time-of-day"
+#define SIP_DIVERSION_DND "do-not-disturb"
+#define SIP_DIVERSION_DEFLECTION "deflection"
+#define SIP_DIVERSION_OTOFSERVICE "out-of-service"
+#define SIP_DIVERSION_FOLLOWME "follow-me"
+#define SIP_DIVERSION_AWAY "away"
 
 // MACROS
 // EXTERNAL FUNCTIONS
@@ -290,11 +322,14 @@ class SipUserAgent;
 // FORWARD DECLARATIONS
 class SipTransaction;
 
-//:Specialization of HttpMessage to contain and manipulate SIP messages
-/*! See HttpMessage for the descriptions of the general constructs
+/// Specialization of HttpMessage to contain and manipulate SIP messages
+/**
+ * @see HttpMessage for the descriptions of the general constructs
  * manipulators and accessors for the three basic parts of a SIP
  * message.  A message can be queried as to whether it is a request or a
  * response via the isResponse method.
+ *
+ * @nosubgrouping
  */
 class SipMessage : public HttpMessage, public ISmimeNotifySink
 {
@@ -430,9 +465,11 @@ public:
 
     void setCancelData(const char* fromAddress, const char* toAddress,
                        const char* callId,
-                       int sequenceNumber = 1);
+                       int sequenceNumber = 1,
+                       const char* localContact=NULL);
 
-    void setCancelData(const SipMessage* inviteResponse);
+    void setCancelData(const SipMessage* inviteResponse,
+                       const char* localContact=NULL);
 
     void setInviteData(const char* fromAddress,
                        const char* toAddress,
@@ -500,6 +537,41 @@ public:
                            const char* profileField,
                            int expiresInSeconds = -1);
 
+    /* RFC 3428 - MWI*/
+    void setMessageSummaryData(
+                  UtlString& msgSummaryData,
+                  const char* msgAccountUri,
+                  UtlBoolean bNewMsgs=FALSE,
+                  UtlBoolean bVoiceMsgs=FALSE,
+                  UtlBoolean bFaxMsgs=FALSE,
+                  UtlBoolean bEmailMsgs=FALSE,
+                  int numNewMsgs=-1,
+                  int numOldMsgs=-1,
+                  int numFaxNewMsgs=-1,
+                  int numFaxOldMsgs=-1,
+                  int numEmailNewMsgs=-1,
+                  int numEmailOldMsgs=-1);
+
+    /* RFC 3428 - MWI */
+    void setMWIData(const char *method,
+				  const char* fromField,
+                  const char* toField,
+                  const char* uri,
+                  const char* contactUrl,
+                  const char* callId,
+                  int CSeq,
+                  UtlString bodyString);
+
+    /* RFC 3680 - Registration event */
+    void setRegInfoData(const char *method,
+		    const char* fromField,
+                  const char* toField,
+                  const char* uri,
+                  const char* contactUrl,
+                  const char* callId,
+                  int CSeq,
+                  SipRegInfoBody& regInfoBody);
+
     void setVoicemailData(const char* fromField,
                            const char* toField,
                            const char* Uri,
@@ -545,6 +617,26 @@ public:
                          const char* sipIfMatchField,
                          int expiresInSeconds,
                          const char* contact);
+    /// Apply any header parameters in the request uri to the message
+    void applyTargetUriHeaderParams();
+    /**
+     * There are some special rules implemented by this routine:
+     *
+     * - The header must not be forbidden by isUrlHeaderAllowed
+     *
+     * - If the header is a From, then any tag parameter on that
+     *   new From header value is removed, and the tag parameter
+     *   from the original From header is inserted.  The original
+     *   From header value is inserted in an X-Original-From header.
+     *
+     * - If the header is a Route, it is forced to be a loose route
+     *   and inserted as the topmost Route.
+     *
+     * - If it a unique header per isUrlHeaderUnique, then the new
+     *   value replaces the old one.
+     *
+     * - otherwise, the new header is just added.to the message.
+     */
 
     //@}
 
@@ -554,13 +646,14 @@ public:
                     int rtcpAudiopPorts[],
                     int rtpVideoPorts[],
                     int rtcpVideoPorts[],
+                    RTP_TRANSPORT transportTypes[],
                     int numRtpCodecs,
                     SdpCodec* rtpCodecs[],
                     SdpSrtpParameters* srtpParams,
                     int videoBandwidth,
                     int videoFramerate,
                     SipMessage* pRequest = NULL,
-                    const SIPX_RTP_TRANSPORT rtpTransportOptions = UDP_ONLY);
+                    const RTP_TRANSPORT rtpTransportOptions = RTP_TRANSPORT_UDP);
 
     void setSecurityAttributes(const SIPXTACK_SECURITY_ATTRIBUTES* const pSecurity);
     SIPXTACK_SECURITY_ATTRIBUTES* const getSecurityAttributes() const { return mpSecurity; } 
@@ -570,6 +663,7 @@ public:
                            SIPXTACK_SECURITY_ATTRIBUTES* const pSecurity,
                            void* pCert = NULL,
                            char* szSubjectAltName = NULL) const;
+    bool smimeEncryptSdp(const void *pEventData) ;
 
     //! Accessor to get SDP body, optionally decrypting it if key info. is provided
     const SdpBody* getSdpBody(SIPXTACK_SECURITY_ATTRIBUTES* const pSecurity = NULL,
@@ -744,6 +838,8 @@ public:
 
     void addRequestDisposition(const char* dispositionToken);
 
+    void setWarningField(int code, const char* hostname, const char* text);
+    
     void getFromLabel(UtlString* fromLabel) const;
 
     void getToLabel(UtlString* toLabel) const;
@@ -758,20 +854,42 @@ public:
                         UtlString* user = NULL, UtlString* userLabel = NULL,
                         UtlString* tag = NULL) const;
 
+    //! Get the identity value from the P-Asserted-Identity header field
+    /*! Get the identity from the index'th P-Asserted-Identity header
+     *  field if it exists.
+     *  \param identity - network asserted SIP identity (name-addr or
+     *                  addr-spec format).  Use the Url class to parse the identity
+     *  \param index - indicates which occurrance of P-Asserted-Identity header
+     *                 to retrieve.
+     *  \return TRUE/FALSE if the header of the given index exists
+     */
+    UtlBoolean getPAssertedIdentityField(UtlString& identity, int index = 0) const;
+
+    //! Remove all of the P-Asserted-Identity header fields
+    void removePAssertedIdentityFields();
+
+    //! Add the P-Asserted-Identity value 
+    void addPAssertedIdentityField(const UtlString& identity);
+
     UtlBoolean getResponseSendAddress(UtlString& address,
                                      int& port,
                                      UtlString& protocol) const;
 
     static void convertProtocolStringToEnum(const char* protocolString,
-                        enum OsSocket::SocketProtocolTypes& protocolEnum);
+                        OsSocket::IpProtocolSocketType& protocolEnum);
 
-    static void convertProtocolEnumToString(enum OsSocket::SocketProtocolTypes protocolEnum,
+    static void convertProtocolEnumToString(OsSocket::IpProtocolSocketType protocolEnum,
                                             UtlString& protocolString);
 
     UtlBoolean getWarningCode(int* warningCode, int index = 0) const;
 
+    // Retrieves the index-th Via: header as it appears in the message,
+    // but does not parse Via: headers for ",".
+    // You probably want to use getViaFieldSubField().
     UtlBoolean getViaField(UtlString* viaField, int index) const;
 
+    // Retrieves the index-th logical Via: header value, folding together
+    // all the Via: headers and parsing ",".
     UtlBoolean getViaFieldSubField(UtlString* viaSubField, int subFieldIndex) const;
 
     void getLastVia(UtlString* viaAddress,
@@ -805,6 +923,8 @@ public:
 
     UtlBoolean getRequireExtension(int extensionIndex, UtlString* extension) const;
 
+    UtlBoolean getProxyRequireExtension(int extensionIndex, UtlString* extension) const;
+
     void addRequireExtension(const char* extension);
 
     UtlBoolean getContentEncodingField(UtlString* contentEncodingField) const;
@@ -833,6 +953,9 @@ public:
     UtlBoolean getSupportedField(UtlString& supportedField) const;
 
     void setSupportedField(const char* supportedField);
+
+    //! Test whether "token" is present in the Supported: header.
+    UtlBoolean isInSupportedField(const char* token) const;
 
     //! Get the SIP-IF-MATCH field from the PUBLISH request
     UtlBoolean getSipIfMatchField(UtlString& sipIfMatchField) const;
@@ -892,6 +1015,24 @@ public:
     void setRouteField(const char* routeField);
 
     UtlBoolean buildRouteField(UtlString* routeField) const;
+
+    /// Adjust route values as required when receiving at a proxy.
+    void normalizeProxyRoutes(const SipUserAgent* sipUA, ///< used to check isMyHostAlias
+                              Url& requestUri,           ///< returns normalized request uri
+                              UtlSList* removedRoutes = NULL // route headers popped 
+                              );
+    /**<
+     * Check the request URI and the topmost route
+     *   - Detect and correct for any strict router upstream
+     *     as specified by RFC 3261 section 16.4 Route Information Preprocessing
+     *   - Pop off the topmost route until it is not me
+     *  
+     * If the removedRoutes is non-NULL, then any removed routes are returned
+     *   on this list (in the order returned - topmost first) as UtlString objects.
+     *   The caller is responsible for deleting these UtlStrings (a call to
+     *   removedRoutes->destroyAll will delete them all).
+     */
+
     //@}
 
 
@@ -928,6 +1069,35 @@ public:
     UtlBoolean getReplacesData(UtlString& callId,
                               UtlString& toTag,
                               UtlString& fromTag) const;
+
+    /// @returns true if the message has either a User-Agent or Server header
+    bool hasSelfHeader() const;
+
+    // SERVER-header accessors
+    void getServerField(UtlString* serverFieldValue) const;
+    void setServerField(const char* serverField);
+    void setAcceptField(const char* acceptField);
+    void setAuthField(const char* authField);
+
+    // RFC 3326 REASON-header
+    void setReasonField(const char* reasonField);
+
+    UtlBoolean getReasonField(UtlString& reasonField) const;
+
+	
+    // Diversion-header
+    void addDiversionField(const char* addr, const char* reasonParam,
+    								UtlBoolean afterOtherDiversions=FALSE);
+
+    void addDiversionField(const char* diversionField, UtlBoolean afterOtherDiversions=FALSE);
+
+	
+    UtlBoolean getLastDiversionField(UtlString& diversionField,int& lastIndex);
+
+    UtlBoolean getDiversionField(int index, UtlString& diversionField);
+
+    UtlBoolean getDiversionField(int index, UtlString& addr, UtlString& reasonParam);
+	
     //@}
 
     // This method is needed to cover the symetrical situation which is
@@ -1008,8 +1178,6 @@ public:
 
     UtlBoolean isRequireExtensionSet(const char* extension) const;
 
-    bool smimeEncryptSdp(const void* pEventData);
-    
     //! Is this a header parameter we want to allow users or apps. to
     //  pass through in the URL
     static UtlBoolean isUrlHeaderAllowed(const char*);

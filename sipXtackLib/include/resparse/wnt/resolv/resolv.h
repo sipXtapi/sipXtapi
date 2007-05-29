@@ -61,7 +61,12 @@
 #ifndef _RESOLV_H_
 #define	_RESOLV_H_
 
-#include <sys/types.h>
+#ifdef WINCE
+#   include <types.h>
+#else
+#   include <sys/types.h>
+#endif
+
 #include <stdio.h>
 #include <winsock.h>
 
@@ -189,7 +194,7 @@ typedef res_sendhookact (*res_send_rhook)(const struct sockaddr_in *ns,
 					      int anssiz,
 					      int *resplen);
 
-extern struct __res_state _res;
+extern struct __res_state _sip_res;
 
 /* Private routines shared between libc/net, named, nslookup and others. */
 #define	dn_skipname	__dn_skipname

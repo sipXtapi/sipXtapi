@@ -25,6 +25,8 @@
 #define END_LINE ">\n"
 
 // STATIC VARIABLE INITIALIZATIONS
+const UtlContainableType Tuple::TYPE = "Tuple";
+
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
@@ -113,11 +115,9 @@ unsigned int Tuple::hash() const
 }
 
 
-static UtlContainableType DB_ENTRY_TYPE = "PresenceEvent";
-
 const UtlContainableType Tuple::getContainableType() const
 {
-    return DB_ENTRY_TYPE;
+    return TYPE;
 }
 
 
@@ -242,7 +242,7 @@ void SipPresenceEvent::insertTuple(Tuple* tuple)
    mLock.acquire();
    if (mTuples.insert(tuple) != NULL)   
    {                 
-      OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipPresenceEvent::insertTuple Tuple = %p", 
+      OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipPresenceEvent::insertTuple Tuple = %p succeeded", 
                     tuple);
    }
    else
@@ -274,7 +274,7 @@ Tuple* SipPresenceEvent::getTuple(UtlString& tupleId)
    UtlHashMapIterator tupleIterator(mTuples);
    Tuple* pTuple;
    UtlString foundValue;
-   while (pTuple = (Tuple *) tupleIterator())
+   while ((pTuple = (Tuple *) tupleIterator()))
    {
       pTuple->getTupleId(foundValue);
       
@@ -329,7 +329,7 @@ void SipPresenceEvent::buildBody() const
    ((SipPresenceEvent*)this)->mLock.acquire();
    UtlHashMapIterator tupleIterator(mTuples);
    Tuple* pTuple;
-   while (pTuple = (Tuple *) tupleIterator())
+   while ((pTuple = (Tuple *) tupleIterator()))
    {
       
       UtlString tupleId;

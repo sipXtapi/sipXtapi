@@ -287,12 +287,12 @@ OsStatus MpStreamQueuePlayer::reset()
       return OS_FAILED ;
 
 #ifdef PLAYER_STUBS
-   mpQueueEvent->signal(EVENT_RESET) ;
+   mpQueueEvent->signal(EVENT_PLAY_RESET) ;
    return OS_SUCCESS ;
 #else
    OsStatus status = OS_SUCCESS ;
    
-   mpQueueEvent->signal(EVENT_RESET) ;
+   mpQueueEvent->signal(EVENT_PLAY_RESET) ;
    wait() ;
 
    return status ;
@@ -511,7 +511,7 @@ UtlBoolean MpStreamQueuePlayer::handleMessage(OsMsg& rMsg)
                   handleRemoveFailed() ;
 #endif
                   break ;
-               case EVENT_RESET:
+               case EVENT_PLAY_RESET:
 #ifdef PLAYER_STUBS
                   fireQueuePlayerStopped() ;
 #else
@@ -855,7 +855,7 @@ void MpStreamQueuePlayer::playerStopped(MpPlayerEvent& event)
 
    if (event.getState() == PlayerAborted)
    {
-      mpQueueEvent->signal(EVENT_RESET) ;      
+      mpQueueEvent->signal(EVENT_PLAY_RESET) ;      
    }
    else
    {

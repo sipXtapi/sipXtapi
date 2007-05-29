@@ -145,7 +145,7 @@ void sipxConferenceDestroyAll(const SIPX_INST hInst)
     UtlVoidPtr* pValue ;
     SIPX_CONF hConf ;
         
-    while (pKey = (UtlInt*) pubIter())
+    while ((pKey = (UtlInt*) pubIter()))
     {
         pValue = (UtlVoidPtr*) gpConfHandleMap->findValue(pKey) ;
         hConf = (SIPX_CONF) pValue->getValue();
@@ -184,7 +184,7 @@ void sipxPublisherDestroyAll(const SIPX_INST hInst)
     UtlVoidPtr* pValue ;
     SIPX_PUB hPub;        
 
-    while (pKey = (UtlInt*) pubIter())
+    while ((pKey = (UtlInt*) pubIter()))
     {
         pValue = (UtlVoidPtr*) gpPubHandleMap->findValue(pKey) ;
         hPub = (SIPX_PUB)pValue->getValue();
@@ -208,7 +208,7 @@ void sipxSubscribeDestroyAll(const SIPX_INST hInst)
     UtlVoidPtr* pValue ;
     SIPX_SUB hSub;
         
-    while (pKey = (UtlInt*) iter())
+    while ((pKey = (UtlInt*) iter()))
     {
         pValue = (UtlVoidPtr*) gpSubHandleMap->findValue(pKey) ;
         hSub = (SIPX_SUB)pValue->getValue();
@@ -699,18 +699,21 @@ SIPX_TRANSPORT_DATA* sipxTransportLookup(const SIPX_TRANSPORT hTransport, SIPX_L
     SIPX_TRANSPORT_DATA* pRC ;
 
     pRC = (SIPX_TRANSPORT_DATA*) gpTransportHandleMap->findHandle(hTransport) ;
-    switch (type)
+    if (pRC)
     {
-    case SIPX_LOCK_READ:
-        // TODO: What happens if this fails?
-        pRC->pMutex->acquireRead() ;
-        break ;
-    case SIPX_LOCK_WRITE:
-        // TODO: What happens if this fails?
-        pRC->pMutex->acquireWrite() ;
-        break ;
-    default:
-        break ;
+        switch (type)
+        {
+        case SIPX_LOCK_READ:
+            // TODO: What happens if this fails?
+            pRC->pMutex->acquireRead() ;
+            break ;
+        case SIPX_LOCK_WRITE:
+            // TODO: What happens if this fails?
+            pRC->pMutex->acquireWrite() ;
+            break ;
+        default:
+            break ;
+        }
     }
 
 
@@ -1067,6 +1070,44 @@ void sipxTransportObjectFree(SIPX_TRANSPORT hTransport)
     }
 }
 
+// Remove/Destroy all Publishers
+void sipxTransportDestroyAll(const SIPX_INST hInst) 
+{
+    gpTransportHandleMap->lock() ;
+
+    UtlHashMapIterator transportIterator(*gpTransportHandleMap) ;
+    UtlInt*            pKey ;
+    UtlVoidPtr*        pValue ;
+    SIPX_TRANSPORT     hTransport ;
+
+    while ((pKey = (UtlInt*) transportIterator()))
+    {
+        pValue = (UtlVoidPtr*) gpTransportHandleMap->findValue(pKey) ;
+        hTransport = (SIPX_TRANSPORT) pValue->getValue();
+        if (hTransport)
+        {
+            bool bRemove = false ;
+            SIPX_TRANSPORT_DATA* pData = sipxTransportLookup(hTransport, SIPX_LOCK_READ) ;
+            if (pData)                
+            {
+                if (pData->pInst == hInst)
+                {
+                    bRemove = true ;
+                }
+                sipxTransportReleaseLock(pData, SIPX_LOCK_READ) ;
+            }
+
+            if (bRemove)
+            {
+                sipxTransportObjectFree(hTransport) ;
+            }
+        }
+    }
+
+    gpTransportHandleMap->unlock() ;
+}
+
+
 void sipxTransportFree(SIPX_TRANSPORT_DATA* pData)
 {
     if (pData)
@@ -1282,27 +1323,30 @@ UtlBoolean sipxRemoveCallHandleFromConf(const SIPX_CONF hConf,
     SIPX_CONF_DATA* pConfData = (SIPX_CONF_DATA*) gpConfHandleMap->findHandle(hConf) ;
     size_t idx ;
 
-    // First find the handle
-    for (idx=0; idx < pConfData->nCalls; idx++)
+    if (validConfData(pConfData))
     {
-        if (pConfData->hCalls[idx] == hCall)
+        // First find the handle
+        for (idx=0; idx < pConfData->nCalls; idx++)
         {
-            bFound = true ;
-            break ; 
-        }
-    }
-
-    if (bFound)
-    {
-        // Next step on it.
-        pConfData->nCalls-- ;
-
-        for (; idx < pConfData->nCalls; idx++)
-        {
-            pConfData->hCalls[idx] = pConfData->hCalls[idx+1] ;
+            if (pConfData->hCalls[idx] == hCall)
+            {
+                bFound = true ;
+                break ; 
+            }
         }
 
-        pConfData->hCalls[pConfData->nCalls] = SIPX_CALL_NULL ;
+        if (bFound)
+        {
+            // Next step on it.
+            pConfData->nCalls-- ;
+    
+            for (; idx < pConfData->nCalls; idx++)
+            {
+                pConfData->hCalls[idx] = pConfData->hCalls[idx+1] ;
+            }
+
+            pConfData->hCalls[pConfData->nCalls] = SIPX_CALL_NULL ;
+        }
     }
 
     return bFound ;
@@ -1480,7 +1524,7 @@ void sipxGetContactHostPort(SIPX_INSTANCE_DATA* pData,
     if (!bSet)
     {
         /*
-        OsSocket::SocketProtocolTypes protocol = OsSocket::UDP;
+        OsSocket::IpProtocolSocketType protocol = OsSocket::UDP;
         switch (sipx_protocol)
         {
             case TRANSPORT_UDP:

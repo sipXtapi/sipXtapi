@@ -21,9 +21,11 @@
 #include <utl/UtlHashBag.h>
 #include <os/OsTask.h>
 #include <os/OsConfigDb.h>
-
+#include <net/HttpConnection.h>
 
 // DEFINES
+#define MAX_PERSISTENT_HTTP_CONNECTIONS  5
+
 // MACROS
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -34,8 +36,10 @@
 class HttpMessage;
 class HttpBody;
 class OsServerSocket;
+class OsConnectionSocket;
 class HttpRequestContext;
 class HttpService;
+class HttpConnection;
 
 //:Class short description which may consist of multiple lines (note the ':')
 // Class detailed description which may extend to multiple lines
@@ -43,11 +47,13 @@ class HttpServer : public OsTask
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
+   friend class HttpConnection;
 
 /* ============================ CREATORS ================================== */
 
    HttpServer(OsServerSocket *pSocket, OsConfigDb* userPasswordDb,
-                       const char* realm, OsConfigDb* validIpAddressDB = NULL);
+                       const char* realm, OsConfigDb* validIpAddressDB = NULL,
+                       bool bPersistentConnection = false);
      //:Default constructor
 
    virtual
@@ -95,11 +101,19 @@ public:
 
     void addUriMap(const char* fromUri, const char* toUri);
 
-    void addRequestProcessor(const char* fileUrl, void (*requestProcessor)(const HttpRequestContext& requestContext,
-                const HttpMessage& request, HttpMessage*& response));
+    typedef void RequestProcessor(const HttpRequestContext& requestContext,
+                                  const HttpMessage& request,
+                                  HttpMessage*& response
+                                  );
+    
+    void addRequestProcessor(const char* fileUrl, RequestProcessor* requestProcessor);
 
     void addHttpService(const char* fileUrl, HttpService* service);
 
+    /// set permission for access to mapped file names
+    void allowFileAccess(bool fileAccess ///< true => allow access, false => disallow access
+                         );
+    
     void setPasswordDigest(const char* user, const char* password,
                            UtlString& userPasswordDigest);
 
@@ -129,7 +143,10 @@ public:
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 
-    void processRequest(const HttpMessage& request, HttpMessage*& response);
+    void processRequest(const HttpMessage& request,          ///< request to be dispatched
+                        HttpMessage*& response,              ///< build response in this message
+                        const OsConnectionSocket* connection ///< for access to security info
+                        );
 
     UtlBoolean processRequestIpAddr(const UtlString& remoteIp,
        const HttpMessage& request,
@@ -149,12 +166,13 @@ protected:
     void putFile(const char* fileName, HttpBody& body);
 
     UtlBoolean findRequestProcessor(const char* fileUri,
-            void (*&requestProcessor)(const HttpRequestContext& requestContext,
-                const HttpMessage& request, HttpMessage*& response));
+                                    RequestProcessor*& requestProcessor
+                                    );
 
     UtlBoolean findHttpService(const char* fileUri, HttpService*& service);
 
     void loadValidIpAddrList();
+    
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
    HttpServer(const HttpServer& rHttpServer);
@@ -172,10 +190,11 @@ private:
    UtlString mRealm;
    UtlHashMap mRequestProcessorMethods;
    UtlHashMap mHttpServices;
-
-        UtlHashBag mValidIpAddrList;
-
-
+   bool       mAllowMappedFiles;
+   UtlHashBag mValidIpAddrList;
+   UtlBoolean mbPersistentConnection;
+   int mHttpConnections;
+   UtlSList* mpHttpConnectionList;
 };
 
 /* ============================ INLINE METHODS ============================ */

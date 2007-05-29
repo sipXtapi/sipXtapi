@@ -90,7 +90,7 @@ public:
       ATTEN_QUIETEST = 1-GTABLE_SIZE,   // -6.00 dB
       ATTEN_QUIET = 1-GTABLE_SIZE,      // -6.00 dB
       ATTEN_MIDDLE = 1-GTABLE_SIZE,     // -6.00 dB
-      ATTEN_RAMP_DELTA = 1,             //  1.00 dB
+      ATTEN_RAMP_DELTA = 1             //  1.00 dB
    };
 #endif
 /* ============================ MANIPULATORS ============================== */

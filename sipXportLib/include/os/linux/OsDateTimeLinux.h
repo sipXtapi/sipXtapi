@@ -37,7 +37,7 @@ public:
    OsDateTimeLinux();
      //:Default constructor
 
-   OsDateTimeLinux(const unsigned short year,
+   OsDateTimeLinux(const unsigned short year, ///< 4-digit year
                  const unsigned char  month,
                  const unsigned char  day,
                  const unsigned char  hour,

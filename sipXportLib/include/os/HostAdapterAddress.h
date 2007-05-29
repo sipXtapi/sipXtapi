@@ -37,7 +37,7 @@ public:
     /**
      * Constructor accepting an optional default value.
      */
-    HostAdapterAddress(char* szAdapter, char* szAddress) :
+    HostAdapterAddress(const char* szAdapter, const char* szAddress) :
         mAdapter(szAdapter), 
         mAddress(szAddress)
         {

@@ -482,6 +482,7 @@ void sipXtapiTestSuite::testConfigExternalTransport()
                                        -1,                                        
                                        FlibbleTransportCallback,
                                        "fibble");
+        sipxConfigExternalTransportRouteByUser(hTransport, false) ;
         CPPUNIT_ASSERT((int)hTransport > 3);
         
         memset(addresses, 0, sizeof(SIPX_CONTACT_ADDRESS)*32);
@@ -911,7 +912,7 @@ void sipXtapiTestSuite::testConfigCodecPreferences()
         g_recorder.addCompareEvent(hLine, CALLSTATE_CONNECTED, CALLSTATE_CAUSE_NORMAL) ;
 //        g_recorder.addCompareEvent(hLine, CALLSTATE_AUDIO_EVENT, CALLSTATE_CAUSE_AUDIO_START) ;
 //        g_recorder.addCompareMsgString(hLine, "Codec IPCMWB");
-        g_recorder.addCompareEvent(hLine, CALLSTATE_BRIDGED, CALLSTATE_CAUSE_NORMAL) ;
+//        g_recorder.addCompareEvent(hLine, CALLSTATE_BRIDGED, CALLSTATE_CAUSE_NORMAL) ;
 //        g_recorder.addCompareEvent(hLine, CALLSTATE_AUDIO_EVENT, CALLSTATE_CAUSE_AUDIO_STOP) ;
         g_recorder.addCompareEvent(hLine, CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_NORMAL) ;
         g_recorder.addCompareEvent(hLine, CALLSTATE_DESTROYED, CALLSTATE_CAUSE_NORMAL) ;    
@@ -1622,8 +1623,6 @@ void sipXtapiTestSuite::testConfigEnableShortNames()
         destroyCall(hCall) ;
 
         // Validate Calling Side
-        bRC = validatorCalling.waitForCallEvent(hLine, hDestroyedCall, CALLSTATE_BRIDGED, CALLSTATE_CAUSE_NORMAL, true) ;
-        CPPUNIT_ASSERT(bRC) ;
 //        bRC = validatorCalling.waitForCallEvent(hLine, hDestroyedCall, CALLSTATE_AUDIO_EVENT, CALLSTATE_CAUSE_AUDIO_STOP, true) ;
 //        CPPUNIT_ASSERT(bRC) ;
         bRC = validatorCalling.waitForCallEvent(hLine, hDestroyedCall, CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_NORMAL, true) ;

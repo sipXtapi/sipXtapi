@@ -24,6 +24,19 @@
 
 // MACROS
 // EXTERNAL FUNCTIONS
+#if defined(_VXWORKS)
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+extern int strncasecmp( const char *s1, const char *s2, int N );
+
+#ifdef __cplusplus
+}
+#endif
+#endif
+
+
 // EXTERNAL VARIABLES
 // CONSTANTS
 // STRUCTS
@@ -45,6 +58,8 @@ class UtlString : public UtlContainable
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
+    static const UtlContainableType TYPE;    /** < Class type used for runtime checking */
+
     static const char* ssNull;
 
     static const size_t UTLSTRING_NOT_FOUND; ///< Returned from a search that failed.
@@ -198,7 +213,7 @@ public:
     UtlBoolean isNull() const;
 
     /// Compare this string to a null terminated string (case sensitive).
-    int compareTo(const char *) const;
+    virtual int compareTo(const char *) const;
     /**<
      * @returns 0 if equal, < 0 if less then and >0 if greater.
      */
@@ -637,7 +652,6 @@ public:
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
-    static UtlContainableType TYPE;    /** < Class type used for runtime checking */
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:

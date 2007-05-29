@@ -254,6 +254,9 @@ AC_DEFUN([CHECK_SSL],
                 [openssl_path=$withval],
                 [openssl_path="/usr/local /usr/local/ssl /usr/ssl /usr/pkg /usr / /sw/lib"]
                 )
+    if test "$withval" != "no" ; then
+    
+    AC_MSG_RESULT(openssl option: ${with-openssl} withval: ${withval})
     AC_PATH_PROG([OPENSSL],[openssl])
     AC_MSG_CHECKING([for openssl includes])
     found_ssl_inc="no";
@@ -336,6 +339,8 @@ AC_DEFUN([CHECK_SSL],
 
     AC_SUBST(SSL_CFLAGS,"$SSL_CFLAGS")
     AC_SUBST(SSL_CXXFLAGS,"$SSL_CFLAGS")
+
+    fi # end if with openssl
 ])
 
 

@@ -13,7 +13,7 @@
 
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
-#include "os/IStunSocket.h"
+#include "os/OsNatSocketBaseImpl.h"
 #include "os/OsDatagramSocket.h"
 #include "os/OsMsgQ.h"
 #include "os/OsTimer.h"
@@ -21,14 +21,6 @@
 
 // DEFINES
 #define NAT_MSG_TYPE         (OsMsg::USER_START + 1) /**< Stun Msg type/Id */
-
-// The follow defines are used to keep track of what has been recorded for
-// various time-based metrics.
-#define ONDS_MARK_NONE           0x00000000
-#define ONDS_MARK_FIRST_READ     0x00000001
-#define ONDS_MARK_LAST_READ      0x00000002
-#define ONDS_MARK_FIRST_WRITE    0x00000004
-#define ONDS_MARK_LAST_WRITE     0x00000008
 
 // MACROS
 // EXTERNAL FUNCTIONS
@@ -41,6 +33,7 @@ class NatMsg ;
 class OsEvent ;
 class OsNatAgentTask;
 class OsNatKeepaliveListener;
+class OsNotification;
 
 
 /**
@@ -96,7 +89,7 @@ typedef struct
  * received/processed.  Internally, the implemenation peeks at the read 
  * data and passes the message to the OsNatAgentTask for processing.
  */
-class OsNatDatagramSocket : public OsDatagramSocket, public IStunSocket
+class OsNatDatagramSocket : public OsDatagramSocket, public OsNatSocketBaseImpl
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
@@ -162,6 +155,12 @@ public:
      */
     virtual int write(const char* buffer, int bufferLength);
 
+    /**
+     * Standard write - used to invoke the base class write,
+     * without timestamping.
+     */
+    virtual int socketWrite(const char* buffer, int bufferLength,
+                      const char* ipAddress, int port, PacketType packetType=UNKNOWN_PACKET);
 
     /**
      * Standard write, see OsDatagramSocket for details.
@@ -252,6 +251,14 @@ public:
 
 
     /**
+     * Set a notification object to be signaled when the first the data 
+     * packet is received from the socket.  Once this is signaled, the 
+     * notification object is discarded.
+     */
+    virtual void setReadNotification(OsNotification* pNotification) ;
+
+
+    /**
      * Prepares a destination under TURN usage.
      */
     virtual void readyDestination(const char* szAddress, int iPort) ;
@@ -316,30 +323,6 @@ public:
     * TODO: DOCS
     */
    virtual UtlBoolean applyDestinationAddress(const char* szAddress, int iPort) ;
-
-   /**
-    * Get the timestamp of the first read data packet (excluding any 
-    * STUN/TURN/NAT packets).
-    */
-   virtual bool getFirstReadTime(OsDateTime& time) ;
-
-   /**
-    * Get the timestamp of the last read data packet (excluding any 
-    * STUN/TURN/NAT packets).
-    */
-   virtual bool getLastReadTime(OsDateTime& time) ;
-
-   /**
-    * Get the timestamp of the first written data packet (excluding any
-    * STUN/TURN/NAT packets).
-    */
-   virtual bool getFirstWriteTime(OsDateTime& time) ;
-
-   /**
-    * Get the timestamp of the last written data packet (excluding any
-    * STUN/TURN/NAT packets).
-    */
-   virtual bool getLastWriteTime(OsDateTime& time) ;
    
    virtual void destroy();
 
@@ -402,23 +385,7 @@ protected:
      * @param port The new destination port
      * @param priority Priority of the destination address
      */
-    void evaluateDestinationAddress(const UtlString& address, int iPort, int priority) ;    
-    
-
-    /**
-     * Handle/process an inbound STUN message.
-     */
-    void handleStunMessage(char* pBuf, int length, UtlString& fromAddress, int fromPort) ;
-
-
-    /**
-     * Handle/process an inbound TURN message.
-     */
-    void handleTurnMessage(char* pBuf, int length, UtlString& fromAddress, int fromPort) ;
-
-    void markReadTime() ;
-
-    void markWriteTime() ;
+    void evaluateDestinationAddress(const UtlString& address, int iPort, int priority) ;       
 
     /* ICE Settings */
     int miDestPriority ;        /**< Priority of destination address / port. */
@@ -427,9 +394,6 @@ protected:
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-    
-
-
     STUN_STATE mStunState ; /**< STUN status/state */
     TURN_STATE mTurnState ; /**< TURN status/state */
 
@@ -439,14 +403,6 @@ private:
     bool mbTransparentReads ;        /**< Block until a non-stun/turn packet is read */
     OsNotification* mpNotification ; /** Notify on initial stun success or failure */
     bool            mbNotified ;     /** Have we notified the requestor? */
-
-
-    unsigned int          miRecordTimes ;   // Bitmask populated w/ ONDS_MARK_*
-    OsDateTime            mFirstRead ;
-    OsDateTime            mLastRead ;
-    OsDateTime            mFirstWrite ;
-    OsDateTime            mLastWrite ;
-
 };
 
 /* ============================ INLINE METHODS ============================ */

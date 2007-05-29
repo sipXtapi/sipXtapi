@@ -1,4 +1,7 @@
-//
+// 
+// Copyright (C) 2005-2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -6,7 +9,9 @@
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-///////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+
+// Author: Dan Petrie (dpetrie AT SIPez DOT com)
 
 #ifndef _CpMediaInterface_h_
 #define _CpMediaInterface_h_
@@ -59,13 +64,17 @@ typedef enum SIPXMI_AUDIO_BANDWIDTH_ID
 /**
  * Interface declaration for receiving socket idle notifications.
  */
-class ISocketIdle
+class ISocketEvent
 {
 public:
     virtual void onIdleNotify(IStunSocket* const pSocket,
                           SocketPurpose purpose,
                           const int millisecondsIdle) = 0;
-    virtual ~ISocketIdle() { } ;
+
+    virtual void onReadData(IStunSocket* const pSocket,
+                            SocketPurpose purpose) = 0;
+
+    virtual ~ISocketEvent() { } ;
 };
 
 class IMediaEventEmitter
@@ -122,7 +131,7 @@ class CpMediaInterfaceFactoryImpl ;
  * This abstract class must be sub-classed and implemented to
  * replace the default media sub-system.
  */
-class CpMediaInterface
+class CpMediaInterface : public UtlInt
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
@@ -165,16 +174,15 @@ public:
     *        connection.
     * @param pSecurityAttributes Pointer to a SIPXVE_SECURITY_ATTRIBUTES
     *        object.  
-    * @param rtpTransportOptions UDP_ONLY, TCP_ONLY, or BOTH
+    * @param rtpTransportOptions RTP_TRANSPORT_UDP, RTP_TRANSPORT_TCP, or BOTH
     */ 
    virtual OsStatus createConnection(int& connectionId,
                                      const char* szLocalAddress,
                                      void* videoWindowHandle, 
                                      void* const pSecurityAttributes = NULL,
-                                     ISocketIdle* pSocketIdleSink = NULL,
+                                     ISocketEvent* pSocketIdleSink = NULL,
                                      IMediaEventListener* pMediaEventListener = NULL,
-                                     const SIPX_RTP_TRANSPORT rtpTransportOptions=UDP_ONLY,
-                                     const RtpTcpRoles role=ACTPASS) = 0 ;
+                                     const RtpTransportOptions rtpTransportOptions=RTP_TRANSPORT_UDP) = 0 ;
    
 
 
@@ -266,6 +274,16 @@ public:
    virtual OsStatus startRtpReceive(int connectionId,
                                     int numCodecs,
                                     SdpCodec* sendCodec[]) = 0;
+
+   /**
+    * Enables read notification through the ISocketEvent listener passed in 
+    * via createConnection.  This should be enabled immediately after calling
+    * startRtpReceive.  It is automatically disabled as part of 
+    * stopRtpReceive.
+    */ 
+   virtual OsStatus enableRtpReadNotification(int connectionId,
+                                              UtlBoolean bEnable = TRUE) 
+       { return OS_NOT_SUPPORTED ;} ;
 
 
    /**
@@ -372,7 +390,7 @@ public:
                                UtlBoolean repeat,
                                UtlBoolean local, 
                                UtlBoolean remote,
-                               OsNotification* event = NULL,
+                               OsProtectedEvent* event = NULL,
                                UtlBoolean mixWithMic = false,
                                int downScaling = 100) = 0 ;
 
@@ -451,6 +469,11 @@ public:
                              int& dtmfterm,
                              OsProtectedEvent* ev = NULL) = 0;
 
+   //! Record the microphone data -- the flowgraph must be in focus
+   virtual OsStatus recordMic(int ms,
+                              int silenceLength,
+                              const char* fileName) = 0 ;
+
    //! Stop recording for this call.
    virtual OsStatus stopRecording() = 0;
 
@@ -527,6 +550,7 @@ public:
                                       int rtcpAudioPorts[],
                                       int rtpVideoPorts[],
                                       int rtcpVideoPorts[],
+                                      RTP_TRANSPORT transportTypes[],
                                       int& nActualAddresses,
                                       SdpCodecFactory& supportedCodecs,
                                       SdpSrtpParameters& srtpParameters,
@@ -573,15 +597,50 @@ public:
                                          unsigned int& uiReceivingSSRC) 
         { return OS_NOT_SUPPORTED ;} ;
 
-   virtual OsStatus enableAudioTransport(int connectionId, bool bEnable)
+   virtual OsStatus enableAudioTransport(int connectionId, UtlBoolean bEnable)
    {
        return OS_NOT_SUPPORTED; 
    };
 
-   virtual OsStatus enableVideoTransport(int connectionId, bool bEnable)
+   virtual OsStatus enableVideoTransport(int connectionId, UtlBoolean bEnable)
    {
        return OS_NOT_SUPPORTED; 
    };
+
+
+   //! Set a media property on the media interface
+    /*
+     * Media interfaces that wish to interoperate should implement the following properties
+     * and values:
+     *
+     * Property Name                  Property Values
+     * =======================        ===============
+     * "audioInput1.muteState"        "true", "false" for systems that may have a microphone for each conference or 2-way call
+     * "audioInput1.device"           same value as szDevice in sipxAudioSetCallInputDevice
+     * "audioOutput1.deviceType"      "speaker", "ringer" same as sipxAudioEnableSpeaker, but for specific conference or 2-way call
+     * "audioOutput1.ringerDevice"    same value as szDevice in sipxAudioSetRingerOutputDevice 
+     * "audioOutput1.speakerDevice"   same values as szDevice in sipxAudioSetCallOutputDevice
+     * "audioOutput1.volume"          string value of iLevel in sipxAudioSetVolume
+     */
+   virtual OsStatus setMediaProperty(const UtlString& propertyName,
+                                     const UtlString& propertyValue) = 0;
+
+   //! Get a media property on the media interface
+   virtual OsStatus getMediaProperty(const UtlString& propertyName,
+                                     UtlString& propertyValue) = 0;
+
+   //! Set a media property associated with a connection
+   virtual OsStatus setMediaProperty(int connectionId,
+                                     const UtlString& propertyName,
+                                     const UtlString& propertyValue) = 0;
+
+   //! Get a media property associated with a connection
+   virtual OsStatus getMediaProperty(int connectionId,
+                                     const UtlString& propertyName,
+                                     UtlString& propertyValue) = 0;
+
+
+
 
 /* ============================ INQUIRY =================================== */
 
@@ -609,16 +668,16 @@ public:
    virtual UtlBoolean canAddParty() = 0 ;
 
    //! Query whether the connection has started sending or receiving video
-   virtual bool isVideoInitialized(int connectionId) = 0 ;
+   virtual UtlBoolean isVideoInitialized(int connectionId) = 0 ;
 
    //! Query whether the connection has started sending or receiving audio
-   virtual bool isAudioInitialized(int connectionId) = 0 ;
+   virtual UtlBoolean isAudioInitialized(int connectionId) = 0 ;
 
    //! Query if the audio device is available.
-   virtual bool isAudioAvailable() = 0;
+   virtual UtlBoolean isAudioAvailable() = 0;
 
    //! Query if we are mixing a video conference
-   virtual bool isVideoConferencing() = 0 ;
+   virtual UtlBoolean isVideoConferencing() = 0 ;
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:

@@ -177,6 +177,12 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\src\net\HttpConnection.cpp">
+			</File>
+			<File
+				RelativePath=".\src\net\HttpConnectionMap.cpp">
+			</File>
+			<File
 				RelativePath="src\net\HttpMessage.cpp">
 				<FileConfiguration
 					Name="Release|Win32">
@@ -454,6 +460,9 @@
 						BasicRuntimeChecks="3"
 						BrowseInformation="1"/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\src\net\PidfBody.cpp">
 			</File>
 			<File
 				RelativePath=".\src\net\pk12wrapper.cpp">
@@ -1619,6 +1628,21 @@
 						BrowseInformation="1"/>
 				</FileConfiguration>
 			</File>
+			<File
+				RelativePath=".\src\net\XmlRpcBody.cpp">
+			</File>
+			<File
+				RelativePath=".\src\net\XmlRpcDispatch.cpp">
+			</File>
+			<File
+				RelativePath=".\src\net\XmlRpcMethod.cpp">
+			</File>
+			<File
+				RelativePath=".\src\net\XmlRpcRequest.cpp">
+			</File>
+			<File
+				RelativePath=".\src\net\XmlRpcResponse.cpp">
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -1640,6 +1664,9 @@
 			</File>
 			<File
 				RelativePath="include\net\HttpServer.h">
+			</File>
+			<File
+				RelativePath=".\include\net\HttpService.h">
 			</File>
 			<File
 				RelativePath="include\resparse\wnt\netinet\in.h">
@@ -1726,6 +1753,9 @@
 				RelativePath="include\net\SipDialog.h">
 			</File>
 			<File
+				RelativePath=".\include\net\SipDialogEvent.h">
+			</File>
+			<File
 				RelativePath="include\net\SipDialogMgr.h">
 			</File>
 			<File
@@ -1763,6 +1793,9 @@
 			</File>
 			<File
 				RelativePath="include\net\SipPimClient.h">
+			</File>
+			<File
+				RelativePath=".\include\net\SipPresenceEvent.h">
 			</File>
 			<File
 				RelativePath="include\net\SipProtocolServerBase.h">

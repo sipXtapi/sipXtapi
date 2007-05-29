@@ -1,3 +1,4 @@
+/*
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -7,7 +8,7 @@
 //
 // $$
 ///////////////////////////////////////////////////////////////////////////////
-
+*/
 
 #ifndef __pingtel_on_posix__
 #define BZERO

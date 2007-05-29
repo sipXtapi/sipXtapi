@@ -1233,7 +1233,7 @@ OsStatus MpFlowGraphBase::processMessages(void)
       // get the next message
       OsMsg* pMsg ;
 
-      res = mMessages.receive(pMsg, OsTime::NO_WAIT);      
+      res = mMessages.receive(pMsg, OsTime::NO_WAIT_TIME);      
 
       assert(res == OS_SUCCESS);
       

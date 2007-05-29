@@ -1,5 +1,8 @@
 //
-// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Copyright (C) 2005 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
+// Copyright (C) 2004 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -24,7 +27,9 @@
 #define CONTENT_TYPE_TEXT_PLAIN "text/plain"
 #define CONTENT_TYPE_TEXT_HTML "text/html"
 #define CONTENT_SMIME_PKCS7 "application/pkcs7-mime"
+#define CONTENT_TYPE_PIDF "application/pidf+xml"
 #define CONTENT_TYPE_MULTIPART "multipart/"
+#define DIALOG_EVENT_CONTENT_TYPE "application/dialog-info+xml"
 
 #define MULTIPART_BOUNDARY_PARAMETER "boundary"
 
@@ -49,6 +54,16 @@ class HttpBody : public UtlString
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
+
+    enum BodyClassTypes
+    {
+        UNKNOWN_BODY_CLASS = 0,
+        HTTP_BODY_CLASS,
+        SMIME_BODY_CLASS,
+        SDP_BODY_CLASS,
+        PIDF_BODY_CLASS,
+        DIALOG_EVENT_BODY_CLASS
+    };
 
 /* ============================ CREATORS ================================== */
 
@@ -82,16 +97,22 @@ public:
 
    virtual int getLength() const;
 
-   virtual void getBytes(const char** bytes, int* length) const;
-   virtual void getBytes(UtlString* bytes, int* length) const;
    // Note: for conveniece bytes is null terminated
    // However depending upon the content type, the body may
    // contain more than one null character.
+   // *bytes != NULL, even if *length == 0.
+   virtual void getBytes(const char** bytes, int* length) const;
+   virtual void getBytes(UtlString* bytes, int* length) const;
+   virtual const char* getBytes() const;
 
    UtlBoolean getMultipartBytes(int partIndex, 
        const char** bytes, int* length) const;
 
    const MimeBodyPart* getMultipart(int partIndex) const;
+
+   int getMultipartCount() const;
+
+   BodyClassTypes getClassType() const;
 
    const char*  getContentType() const;
 
@@ -104,7 +125,9 @@ protected:
    int bodyLength;
    UtlString mBody;
    UtlString  mMultipartBoundary;
+   int mBodyPartCount;
    MimeBodyPart* mpBodyParts[MAX_HTTP_BODY_PARTS];
+   BodyClassTypes mClassType;
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:

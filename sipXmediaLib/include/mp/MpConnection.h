@@ -61,7 +61,7 @@ public:
    friend class MpCallFlowGraph;
 
    enum {NUM_PAYLOAD_TYPES = (2<<7),
-         MAX_ACTIVE_PAYLOAD_TYPES = 10,
+         MAX_ACTIVE_PAYLOAD_TYPES = 10
    };
 
    enum PremiumSoundOptions

@@ -13,7 +13,9 @@
 #include <assert.h>
 #include <stdio.h>
 #if defined(_WIN32)
-#   include <io.h>
+#   ifndef WINCE
+#       include <io.h>
+#   endif
 #elif defined(_VXWORKS)
 #   include <unistd.h>
 #   include <dirent.h>
@@ -25,12 +27,17 @@
 #else
 #   error Unsupported target platform.
 #endif
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
+
+#ifdef WINCE
+#   include <types.h>
+#else
+#   include <sys/types.h>
+#   include <sys/stat.h>
+#   include <fcntl.h>
+#endif
+
 #include "os/OsDefs.h"
 #include "os/OsSysLog.h"
-//#include "pingerjni/JXAPI.h"
 
 // APPLICATION INCLUDES
 #include <os/OsServerSocket.h>
@@ -45,8 +52,7 @@
 #include <net/HttpRequestContext.h>
 #include <net/NetAttributeTokenizer.h>
 #include <net/NetMd5Codec.h>
-
-//#include <pinger/Pinger.h>
+#include <utl/UtlSListIterator.h>
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -77,7 +83,8 @@ void incrementalCheckSum(unsigned int* checkSum, const char* buffer, int bufferL
 
 // Constructor
 HttpServer::HttpServer(OsServerSocket *pSocket, OsConfigDb* userPasswordDb,
-                       const char* realm, OsConfigDb* validIpAddressDB) :
+                       const char* realm, OsConfigDb* validIpAddressDB,
+                       bool bPersistentConnection) :
    OsTask("HttpServer-%d"),
    httpStatus(OS_TASK_NOT_STARTED),
    mpServerSocket(pSocket),
@@ -85,7 +92,11 @@ HttpServer::HttpServer(OsServerSocket *pSocket, OsConfigDb* userPasswordDb,
    mpUserPasswordBasicDb(userPasswordDb),
    mpValidIpAddressDB(validIpAddressDB),
    mpNonceDb(new OsConfigDb),
-   mRealm(realm)
+   mRealm(realm),
+   mAllowMappedFiles(true), // :TODO: should be false, but allow now for backward compatibility
+   mbPersistentConnection(bPersistentConnection),
+   mHttpConnections(0),
+   mpHttpConnectionList(new UtlSList)
 {
    if(mpValidIpAddressDB)
    {
@@ -94,7 +105,13 @@ HttpServer::HttpServer(OsServerSocket *pSocket, OsConfigDb* userPasswordDb,
 
    if (!mpNonceDb)
    {
-      OsSysLog::add( FAC_SIP, PRI_ERR, "HttpServer failed to allocate mpNonceDb\n");
+      OsSysLog::add( FAC_SIP, PRI_ERR, "HttpServer failed to allocate mpNonceDb");
+   }
+   
+   if (!mpHttpConnectionList)
+   {
+      mbPersistentConnection = false;
+      OsSysLog::add( FAC_SIP, PRI_ERR, "HttpServer failed to allocate mpHttpConnectionList");
    }
 }
 
@@ -175,6 +192,13 @@ HttpServer::~HttpServer()
 
     // Delete all of the processor mappings
     mRequestProcessorMethods.destroyAll();
+    
+    // Delete remaining HttpConnections
+    if (mpHttpConnectionList)
+    {
+        mpHttpConnectionList->destroyAll();
+        delete mpHttpConnectionList;
+    }
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -207,8 +231,73 @@ int HttpServer::run(void* runArg)
     while(! isShuttingDown() && mpServerSocket->isOk())
     {
         requestSocket = mpServerSocket->accept();
+        
         if(requestSocket)
         {
+            if (mbPersistentConnection)
+            {
+                OsSysLog::add(FAC_SIP, PRI_DEBUG, "HttpServer: Using persistent connection" );
+                   
+                // Check for any old HttpConnections that can be deleted
+                int items = mpHttpConnectionList->entries();
+                if (items != 0)
+                {
+                    int deleted = 0;
+                    
+                    UtlSListIterator iterator(*mpHttpConnectionList);
+                    HttpConnection* connection;
+                    while ((connection = dynamic_cast<HttpConnection*>(iterator())))
+                    {
+                        if (connection->toBeDeleted())
+                        {
+                            OsSysLog::add(FAC_SIP, PRI_DEBUG, "Destroying connection %p",
+                                          connection);
+                            mpHttpConnectionList->destroy(connection);                            
+                            ++deleted;
+                            
+                            if (mHttpConnections > 0)
+                            {
+                                --mHttpConnections;
+                            }
+                        }
+                    }
+                    items = mpHttpConnectionList->entries();
+                    OsSysLog::add(FAC_SIP, PRI_DEBUG, 
+                                  "Destroyed %d inactive HttpConnections, %d remaining", 
+                                  deleted, items);                    
+                }
+                // Create new persistent connection             
+                if (mHttpConnections < MAX_PERSISTENT_HTTP_CONNECTIONS)
+                {
+                    ++mHttpConnections;
+                    HttpConnection* newConnection = new HttpConnection(requestSocket, this);
+                    mpHttpConnectionList->append(newConnection);
+                    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                                  "HttpServer: starting persistent connection %d (%p)", 
+                                  mHttpConnections, newConnection);                    
+                    newConnection->start();
+                }
+                else
+                {
+                   OsSysLog::add(FAC_SIP, PRI_WARNING,
+                                  "HttpServer::run out of persistent connections - sending 503");
+                    HttpMessage request;
+                    HttpMessage response;
+                    // Read the http request from the socket
+                    request.read(requestSocket);
+                    
+                    // Send out of resources message
+                    response.setResponseFirstHeaderLine(HTTP_PROTOCOL_VERSION,
+                                                        HTTP_OUT_OF_RESOURCES_CODE,
+                                                        HTTP_OUT_OF_RESOURCES_TEXT);
+                    response.write(requestSocket);
+                    requestSocket->close();
+                    delete requestSocket;
+                    requestSocket = NULL;                                                         
+                }
+            }
+            else
+            {
             HttpMessage request;
             // Read a http request from the socket
             request.read(requestSocket);
@@ -222,7 +311,7 @@ int HttpServer::run(void* runArg)
             if( processRequestIpAddr(remoteIp, request, response))
             {
                // If the request is authorized
-               processRequest(request, response);
+                   processRequest(request, response, requestSocket);
             }
 
             if(response)
@@ -236,12 +325,18 @@ int HttpServer::run(void* runArg)
             delete requestSocket;
             requestSocket = NULL;
         }
+        }
         else
         {
            httpStatus = OS_PORT_IN_USE;
         }
     } // while (! isShuttingDown && mpServerSocket->isOk()) 
 
+    if ( !isShuttingDown() )
+    {
+       OsSysLog::add( FAC_SIP, PRI_ERR, "HttpServer: exit due to port failure" );
+    }
+    
     httpStatus = OS_TASK_NOT_STARTED;
 
     return(TRUE);
@@ -384,7 +479,7 @@ UtlBoolean HttpServer::isRequestAuthorized(const HttpMessage& request,
                 // Passwords stored as digest in user-config.
                 // Must convert passwords to encrypted ones also
                 UtlString digestPassword ;
-                UtlString realm(PASSWORD_SECRET) ;
+                UtlString realm(mRealm) ;
                 HttpMessage::buildMd5UserPasswordDigest((const char*) user.data(),
                                                                                         (const char*) realm.data(),
                                                                                         (const char*) msgPassword.data(),
@@ -461,7 +556,7 @@ UtlBoolean HttpServer::processRequestIpAddr(const UtlString& remoteIp,
    UtlString remoteAddress(remoteIp);
    UtlString matchIp(remoteAddress);
 
-   if(mValidIpAddrList.isEmpty() || (!mValidIpAddrList.isEmpty() && mValidIpAddrList.find(&matchIp)))
+   if(mValidIpAddrList.isEmpty() || mValidIpAddrList.find(&matchIp))
    {
       isValidIp = TRUE;
    }
@@ -479,7 +574,9 @@ UtlBoolean HttpServer::processRequestIpAddr(const UtlString& remoteIp,
 }
 
 void HttpServer::processRequest(const HttpMessage& request,
-                                HttpMessage*& response)
+                                HttpMessage*& response,
+                                const OsConnectionSocket* connection
+                                )
 {
     UtlString method;
     response = NULL;
@@ -496,18 +593,22 @@ void HttpServer::processRequest(const HttpMessage& request,
         if(method.compareTo(HTTP_GET_METHOD) == 0)
         {
             fileNameEnd = uriFileName.first('?');
-            if(fileNameEnd > 0) uriFileName.remove(fileNameEnd);
+            if(fileNameEnd > 0)
+            {
+               uriFileName.remove(fileNameEnd);
+            }
         }
 
         UtlString mappedUriFileName;
         int badCharsIndex = uriFileName.index("..");
-        if(badCharsIndex < 0) badCharsIndex = uriFileName.index("//");
+        if(badCharsIndex < 0)
+        {
+           badCharsIndex = uriFileName.index("//");
+        }
         if(badCharsIndex >= 0)
         {
-#ifdef TEST_PRINT
-            osPrintf("Disallowing URI: \"%s\" %d %d\n", uriFileName.data(),
-                uriFileName.index(".."),uriFileName.index("//"));
-#endif
+            OsSysLog::add(FAC_SIP, PRI_ERR, "Disallowing URI: \"%s\"", uriFileName.data());
+
             // Disallow relative path names going up for security reasons
             mappedUriFileName.append("/");
         }
@@ -517,27 +618,36 @@ void HttpServer::processRequest(const HttpMessage& request,
             mapUri(mUriMaps, uriFileName.data(), mappedUriFileName);
         }
 
+        OsSysLog::add(FAC_SIP, PRI_DEBUG, "HTTP '%s' '%s' mapped to: '%s'",
+                      method.data(), uriFileName.data(), mappedUriFileName.data());
+
         // Build the request context
-        HttpRequestContext requestContext(method.data(), uri.data(),
-            mappedUriFileName.data(), NULL,
-            !userId.isNull() ? userId.data() : NULL);
+        HttpRequestContext requestContext(method.data(),
+                                          uri.data(),
+                                          mappedUriFileName.data(),
+                                          NULL,
+                                          !userId.isNull() ? userId.data() : NULL,
+                                          connection
+                                          );
 
         if(method.compareTo(HTTP_POST_METHOD) == 0)
         {
             //Need to get the CGI/form variables from the body.
             const HttpBody* body = request.getBody();
             if(body  && !body->isMultipart())
+            {
                 requestContext.extractPostCgiVariables(*body);
         }
+        }
 
-        if(method.compareTo(HTTP_GET_METHOD) == 0 ||
-            method.compareTo(HTTP_POST_METHOD) == 0)
+        if(   method.compareTo(HTTP_GET_METHOD) == 0
+           || method.compareTo(HTTP_POST_METHOD) == 0
+           )
         {
             // If there is a request processor for this URI
-            void (*requestProcessorPtr)(const HttpRequestContext& requestContext,
-                const HttpMessage& request, HttpMessage*& response);
-            if(findRequestProcessor(uriFileName.data(), requestProcessorPtr) &&
-                requestProcessorPtr)
+            RequestProcessor* requestProcessorPtr;
+
+            if(findRequestProcessor(uriFileName.data(), requestProcessorPtr))
             {
                 requestProcessorPtr(requestContext, request, response);
             }
@@ -549,14 +659,17 @@ void HttpServer::processRequest(const HttpMessage& request,
                 {
                     pService->processRequest(requestContext, request, response);
                 }
-                else
+                else if (mAllowMappedFiles)
                 {
                     // Use the default request processor
                     processFileRequest(requestContext, request, response);
                 }
+                else
+                {
+                   // This is not allowed, but there is no reason to tell them that
+                   processFileNotFound(requestContext, request, response);
+                }
             }
-            OsSysLog::add(FAC_SIP, PRI_DEBUG, "HTTP %s %s mapped to: %s",
-                          method.data(), uriFileName.data(), mappedUriFileName.data());
         }
         else if(method.compareTo(HTTP_PUT_METHOD) == 0)
         {
@@ -566,12 +679,14 @@ void HttpServer::processRequest(const HttpMessage& request,
         {
             processNotSupportedRequest(requestContext, request, response);
         }
-                uri.remove(0);
-                uriFileName.remove(0);
-                mappedUriFileName.remove(0);
     }
-        method.remove(0);
-        userId.remove(0);
+}
+
+/// set permission for access to mapped file names
+void HttpServer::allowFileAccess(bool fileAccess ///< true => allow access, false => disallow access
+                                 )
+{
+   mAllowMappedFiles = fileAccess;
 }
 
 void HttpServer::processFileRequest(const HttpRequestContext& requestContext,
@@ -582,35 +697,21 @@ void HttpServer::processFileRequest(const HttpRequestContext& requestContext,
     request.getRequestUri(&uri);
     UtlString uriFileName;
     UtlString method;
+
     requestContext.getEnvironmentVariable(HttpRequestContext::HTTP_ENV_MAPPED_FILE,
         uriFileName);
     request.getRequestMethod(&method);
-    /*int fileNameEnd = -1;
-    if(method.compareTo(HTTP_GET_METHOD) == 0)
-    {
-        fileNameEnd = uriFileName.first('?');
-        if(fileNameEnd > 0) uriFileName.remove(fileNameEnd);
-    }*/
-    //HttpMessage::convertToPlatformPath(uriFileName.data(), uriFileName);
 
     if(!uriFileName.isNull())
     {
-#ifdef TEST_PRINT
-        osPrintf("HttpServer: Trying to open: \"%s\"\n", uriFileName.data());
         OsSysLog::add(FAC_SIP, PRI_DEBUG, "HttpServer: Trying to open: \"%s\"\n", uriFileName.data());
-#endif
+
         int fileDesc = open(uriFileName.data(), O_BINARY | O_RDONLY, 0);
-#ifdef TEST_PRINT
-        osPrintf("File descriptor: %d\n", fileDesc);
-        OsSysLog::add(FAC_SIP, PRI_DEBUG, "File descriptor: %d\n", fileDesc);
-#endif
         if(fileDesc < 0)
         {
-#ifdef TEST_PRINT
-            perror("failed to open dir");
-            osPrintf("Errno: %d\n", errno);
-            OsSysLog::add(FAC_SIP, PRI_ERR, "Errno: %d\n", errno);
-#endif
+            OsSysLog::add(FAC_SIP, PRI_ERR, "HttpServer::processFileRequest"
+                          " failed to open '%s' Errno: %d",
+                          uriFileName.data(), errno);
         }
         struct stat fileStatInfo;
         if(fileDesc >= 0 && !fstat(fileDesc, &fileStatInfo))
@@ -632,7 +733,7 @@ void HttpServer::processFileRequest(const HttpRequestContext& requestContext,
 #ifdef TEST_PRINT
                 osPrintf("HttpServer: Trying to open: \"%s\"\n",
                     indexFileName.data());
-                OsSysLog::add(FAC_SIP, PRI_DEBUG, "HttpServer: Trying to open: \"%s\"\n",
+                OsSysLog::add(FAC_SIP, PRI_DEBUG, "HttpServer: Trying to open: \"%s\"",
                     indexFileName.data());
 #endif
 
@@ -644,7 +745,7 @@ void HttpServer::processFileRequest(const HttpRequestContext& requestContext,
 #ifdef TEST_PRINT
                     osPrintf("HttpServer: Trying to open: \"%s\"\n",
                         indexFileName.data());
-                    OsSysLog::add(FAC_SIP, PRI_DEBUG, "HttpServer: Trying to open: \"%s\"\n",
+                    OsSysLog::add(FAC_SIP, PRI_DEBUG, "HttpServer: Trying to open: \"%s\"",
                         indexFileName.data());
 #endif
 
@@ -751,11 +852,7 @@ void HttpServer::processFileRequest(const HttpRequestContext& requestContext,
         {
             processFileNotFound(requestContext, request, response);
         }
-
     }
-        uri.remove(0);
-        uriFileName.remove(0);
-        method.remove(0);
 }
 
 void HttpServer::constructFileList(UtlString & indexText, UtlString uri, UtlString uriFileName)
@@ -1386,13 +1483,21 @@ void HttpServer::createHtmlResponse(int responseCode, const char* responseCodeTe
 
 void HttpServer::addUriMap(const char* fromUri, const char* toUri)
 {
+   OsSysLog::add(FAC_SIP, PRI_DEBUG, "HttpServer::addUriMap '%s' to '%s'",
+                 fromUri, toUri);
+   
     mUriMaps.set(fromUri, toUri);
 }
 
 void HttpServer::addRequestProcessor(const char* fileUrl,
-                                     void (*requestProcessor)(const HttpRequestContext& requestContext,
-                                     const HttpMessage& request, HttpMessage*& response))
+                                     RequestProcessor* requestProcessor
+                                     )
 {
+   OsSysLog::add(FAC_SIP, PRI_DEBUG, "HttpServer::addRequestProcessor '%s' to %p",
+                 fileUrl, requestProcessor);
+
+   addUriMap( fileUrl, fileUrl );
+   
     UtlString* name = new UtlString(fileUrl);
     UtlInt* value = new UtlInt((int)requestProcessor);
     mRequestProcessorMethods.insertKeyAndValue(name, value);
@@ -1400,6 +1505,9 @@ void HttpServer::addRequestProcessor(const char* fileUrl,
 
 void HttpServer::addHttpService(const char* fileUrl, HttpService* service)
 {
+   OsSysLog::add(FAC_SIP, PRI_DEBUG, "HttpServer::addHttpService '%s' to %p",
+                 fileUrl, service);
+
     UtlString* name = new UtlString(fileUrl);
     UtlVoidPtr* value = new UtlVoidPtr(service);
     mHttpServices.insertKeyAndValue(name, value);
@@ -1482,8 +1590,8 @@ void HttpServer::removeUser(const char* user, const char* password)
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
 UtlBoolean HttpServer::findRequestProcessor(const char* fileUri,
-            void (*&requestProcessor)(const HttpRequestContext& requestContext,
-                const HttpMessage& request, HttpMessage*& response))
+                                            RequestProcessor* &requestProcessor
+                                            )
 {
     UtlString uriCollectable(fileUri);
     UtlInt* processorCollectable;
@@ -1493,10 +1601,7 @@ UtlBoolean HttpServer::findRequestProcessor(const char* fileUri,
         (UtlInt*) mRequestProcessorMethods.findValue(&uriCollectable);
     if(processorCollectable)
     {
-        requestProcessor =
-            (void (*)(const HttpRequestContext& requestContext,
-                const HttpMessage& request, HttpMessage*& response))
-                processorCollectable->getValue();
+        requestProcessor = (RequestProcessor*)processorCollectable->getValue();
     }
 
     return(requestProcessor != NULL);
@@ -1527,21 +1632,15 @@ UtlBoolean HttpServer::mapUri(OsConfigDb& uriMaps, const char* uri, UtlString& m
         UtlString mapFromUri(uri);
         UtlString mapToUri;
         int dirSeparatorIndex;
+
+        OsSysLog::add(FAC_SIP, PRI_DEBUG, "HttpServer::mapUri looking for \"%s\"",
+                      mapFromUri.data());
+
         do
         {
-#ifdef TEST_PRINT
-            osPrintf("Looking for map of: \"%s\"\n", mapFromUri.data());
-            OsSysLog::add(FAC_SIP, PRI_DEBUG, "Looking for map of: \"%s\"\n", mapFromUri.data());
-#endif
-
             uriMaps.get(mapFromUri, mapToUri);
             if(!mapToUri.isNull())
             {
-#ifdef TEST_PRINT
-                osPrintf("Found map to uri: \"%s\"\n", mapToUri.data());
-                OsSysLog::add(FAC_SIP, PRI_DEBUG, "Found map to uri: \"%s\"\n", mapToUri.data());
-#endif
-
                 mappedUri.remove(0);
                 mappedUri.append(mapToUri.data());
                 if(mappedUri.data()[mappedUri.length() - 1] != '/' &&
@@ -1556,23 +1655,25 @@ UtlBoolean HttpServer::mapUri(OsConfigDb& uriMaps, const char* uri, UtlString& m
                 break;
             }
             dirSeparatorIndex = mapFromUri.last('/');
-            if(dirSeparatorIndex == 0 && mapFromUri.length() > 1) mapFromUri.remove(1);
-            else if(dirSeparatorIndex >= 0) mapFromUri.remove(dirSeparatorIndex);
-                        else break;
+            if(dirSeparatorIndex == 0 && mapFromUri.length() > 1)
+            {
+               mapFromUri.remove(1);
         }
-        while(!mapFound && !mapFromUri.isNull() != 0);
-        originalUri.remove(0);
-        mapFromUri.remove(0);
-        mapToUri.remove(0);
+            else if(dirSeparatorIndex >= 0)
+            {
+               mapFromUri.remove(dirSeparatorIndex);
     }
-#ifdef TEST_PRINT
-    osPrintf("Map to uri: \"%s\"\n", mappedUri.data());
-    OsSysLog::add(FAC_SIP, PRI_DEBUG, "Map to uri: \"%s\"\n", mappedUri.data());
-#endif
+            else
+            {
+               break;
+            }
+        } while(!mapFound && !mapFromUri.isNull() != 0);
+    }
+
+    OsSysLog::add(FAC_SIP, PRI_DEBUG, "Map to uri: \"%s\"", mappedUri.data());
 
     return(mapFound);
 }
-
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 

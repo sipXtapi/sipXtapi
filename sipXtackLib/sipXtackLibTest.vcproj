@@ -20,7 +20,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories=".\include;.\include\nss;..\sipXportLib\include;..\sipXportLib\src\test;..\sipXbuild\vendors\Mozilla\wnt\nspr-4.4.1_dbg\include,..\sipXbuild\vendors\Mozilla\wnt\nss-3.9_dbg\include"
+				AdditionalIncludeDirectories=".\include;.\include\nss;..\sipXportLib\include;..\sipXportLib\src\test;&quot;..\sipXbuild\vendors\Mozilla\wnt\nspr-4.4.1_dbg\include&quot;;&quot;..\sipXbuild\vendors\Mozilla\wnt\nss-3.9_dbg\include&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
@@ -31,11 +31,7 @@
 				Detect64BitPortabilityProblems="TRUE"
 				DebugInformationFormat="4"/>
 			<Tool
-				Name="VCCustomBuildTool"
-				CommandLine="copy ..\sipXbuild\vendors\Mozilla\wnt\nss-3.9_dbg\lib\*.dll
-copy ..\sipXbuild\vendors\Mozilla\wnt\nspr-4.4.1_dbg\lib\*.dll
-"
-				Outputs="nss3.dll;smime3.dll"/>
+				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="msvcrtd.lib MSVCPRTd.lib wsock32.lib cppunitd.lib sipXtackLib.lib sipXportLib.lib libpcre.a"
@@ -128,10 +124,64 @@ copy ..\sipXbuild\vendors\Mozilla\wnt\nspr-4.4.1_dbg\lib\*.dll
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx"
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}">
 			<File
+				RelativePath=".\src\test\net\HttpMessageTest.cpp">
+			</File>
+			<File
+				RelativePath=".\src\test\net\NameValuePairInsensitiveTest.cpp">
+			</File>
+			<File
+				RelativePath=".\src\test\net\NameValuePairTest.cpp">
+			</File>
+			<File
+				RelativePath=".\src\test\net\NetAttributeTokenizerTest.cpp">
+			</File>
+			<File
+				RelativePath=".\src\test\net\NetMd5CodecTest.cpp">
+			</File>
+			<File
+				RelativePath=".\src\test\net\SdpBodyTest.cpp">
+			</File>
+			<File
+				RelativePath=".\src\test\net\SipContactDbTest.cpp">
+			</File>
+			<File
+				RelativePath=".\src\test\net\SipDialogEventTest.cpp">
+			</File>
+			<File
+				RelativePath=".\src\test\net\SipDialogMonitorTest.cpp">
+			</File>
+			<File
+				RelativePath=".\src\test\net\SipDialogTest.cpp">
+			</File>
+			<File
+				RelativePath=".\src\test\net\SipMessageTest.cpp">
+			</File>
+			<File
+				RelativePath=".\src\test\net\SipPresenceEventTest.cpp">
+			</File>
+			<File
+				RelativePath=".\src\test\net\SipProxyMessageTest.cpp">
+			</File>
+			<File
+				RelativePath=".\src\test\net\SipPublishContentMgrTest.cpp">
+			</File>
+			<File
 				RelativePath=".\src\test\net\SipRefreshManagerTest.cpp">
 			</File>
-	                <File
-				RelativePath=".\src\test\net\SdpBodyTest.cpp">
+			<File
+				RelativePath=".\src\test\net\SipServerShutdownTest.cpp">
+			</File>
+			<File
+				RelativePath=".\src\test\net\SipSrvLookupTest.cpp">
+			</File>
+			<File
+				RelativePath=".\src\test\net\SipSubcribeServerTest.cpp">
+			</File>
+			<File
+				RelativePath=".\src\test\net\SipSubcriptionClientTest.cpp">
+			</File>
+			<File
+				RelativePath=".\src\test\net\SipUserAgentTest.cpp">
 			</File>
 			<File
 				RelativePath="..\sipXportLib\src\test\sipxunit\TestMonitor.cpp">
@@ -151,6 +201,12 @@ copy ..\sipXbuild\vendors\Mozilla\wnt\nspr-4.4.1_dbg\lib\*.dll
 			<File
 				RelativePath="..\sipXportLib\src\test\sipxunit\unitmain.cpp">
 			</File>
+			<File
+				RelativePath=".\src\test\net\UrlTest.cpp">
+			</File>
+			<File
+				RelativePath=".\src\test\net\XmlRpcTest.cpp">
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -165,9 +221,6 @@ copy ..\sipXbuild\vendors\Mozilla\wnt\nspr-4.4.1_dbg\lib\*.dll
 			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx"
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}">
 		</Filter>
-		<File
-			RelativePath=".\ReadMe.txt">
-		</File>
 	</Files>
 	<Globals>
 	</Globals>

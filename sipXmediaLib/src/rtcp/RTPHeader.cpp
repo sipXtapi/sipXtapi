@@ -16,6 +16,10 @@
 #include <netinet/in.h>
 #endif
 
+#ifdef WINCE
+#   include <winsock.h>
+#endif
+
 #ifdef INCLUDE_RTCP /* [ */
 
     // Constants

@@ -39,18 +39,20 @@ class UtlContainer;
  *    FooIterator itor(myContentSource);
  *    MyObject* pObj;
  *    // Fetch a pointer to each element of myContentSource into pObj.
- *    while (pObj = itor())
+ *    while ((pObj = itor()))
  *    {
  *       // Do something to *pObj.
  *    }
  *    // Reset itor to its initial state, so itor() starts walking through the
  *    // elements of myContentSource all over again.
  *    itor.reset();
- *    while (pObj = itor())
+ *    while ((pObj = itor()))
  *    {
  *       // Do something else to *pObj.
  *    }
  * </pre>
+ * (The extra parentheses in the while clauses are to mark that that
+ * operation is an assignment, not a comparison.)
  */
 class UtlIterator
 {

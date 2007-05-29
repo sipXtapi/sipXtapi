@@ -18,14 +18,18 @@ testsuite_CXXFLAGS = \
 	-I$(top_srcdir)/include \
 	@PCRE_CFLAGS@ \
 	@SSL_CXXFLAGS@ \
+    @CPPUNIT_CFLAGS@ \
 	-DSIPX_TMPDIR=\"@SIPX_TMPDIR@\" \
 	-DTEST_DIR=\"@abs_builddir@\" \
 	-fno-gcse -O0
+
+testsuite_CPPFLAGS = @CPPUNIT_CFLAGS@
 
 # ORDER NOTE: the utl/UtlLinkTest and utl/UtlChainTest must be before
 #             any test that uses any UtlContainer.
 testsuite_SOURCES = \
     utl/UtlChainTest.cpp \
+    utl/UtlCrc32Test.cpp \
     utl/UtlLinkTest.cpp \
     utl/UtlContainableTestStub.cpp \
     utl/UtlContainableTestStub.h \

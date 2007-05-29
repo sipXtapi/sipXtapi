@@ -29,6 +29,13 @@
 #include "os/OsSocket.h"
 
 // EXTERNAL FUNCTIONS
+#if defined(_VXWORKS)
+extern "C" char* strdup(const char* str);
+#else
+extern char* strdup(const char*) ;
+#endif
+
+
 // EXTERNAL VARIABLES
 // CONSTANTS
 #if defined(_WIN32)
@@ -37,6 +44,9 @@
 #elif defined(__pingtel_on_posix__)
      // Posix va_arg function takes a const
 #    define OS_VA_ARG_CONST const
+#elif _VXWORKS
+     // Vxworks va_arg function does not take a const 
+#    define OS_VA_ARG_CONST 
 #else
 #error Unsupported target platform.
 #endif
@@ -95,6 +105,22 @@ OsStatus OsSysLog::initialize(const int   maxInMemoryLogEntries,
 
    return rc ;   
 }
+     
+// Shutdown log
+OsStatus OsSysLog::shutdown()
+{
+   OsSysLogTask* pTask = spOsSysLogTask ;
+   spOsSysLogTask = NULL ;
+   if (pTask != NULL)
+   {
+      pTask->flush() ;
+      pTask->requestShutdown() ;
+      delete pTask ;
+   }
+
+   return OS_SUCCESS ;
+}
+
      
 OsTimer* OsSysLog::getTimer()
 {
@@ -268,9 +294,7 @@ OsStatus OsSysLog::add(const char*            taskName,
       {
          va_list ap;
          va_start(ap, format);
-         osPrintf("before add::vadd") ;
          rc = vadd(taskName, taskId, facility, priority, format, ap);
-         osPrintf("after add::vadd") ;
          va_end(ap);
       }  
    }
@@ -366,12 +390,18 @@ OsStatus OsSysLog::vadd(const char*            taskName,
          else
          {
              char* szPtr = strdup(logEntry.data()) ;
-        
              OsSysLogMsg msg(OsSysLogMsg::LOG, szPtr) ;
-             spOsSysLogTask->postMessage(msg) ;                 
-         }
-      }
+             OsTime timeout(1000) ;
+             if (spOsSysLogTask->postMessage(msg, timeout) != OS_SUCCESS)
+             {
+                 printf("OsSysLog jamed: %s\n", szPtr) ;
+                 free(szPtr) ;
+                 OsTask::yield() ;
+              }
+          }
+       }
    }
+
    return OS_SUCCESS ;
 }
 

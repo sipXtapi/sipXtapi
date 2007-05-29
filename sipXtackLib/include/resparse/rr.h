@@ -10,8 +10,19 @@
 #define _Resparse_RR_h_
 
 #include        <stdio.h>
-#include        <sys/types.h>
+
+#ifdef WINCE
+#   include        <types.h>
+#else
+#   include        <sys/types.h>
+#endif
+
 #include "resparse/types.h"
+
+/* #define RES_PARSE_NAPTR to define the NAPTR record support routines. */
+#ifdef RES_PARSE_NAPTR
+#include <regex.h>
+#endif
 
 /* Reordered includes and separated into win/vx --GAT */
 #if defined(_WIN32)
@@ -65,6 +76,9 @@ extern "C" {
 #endif
 #ifndef T_SRV
 #define T_SRV   33
+#endif
+#ifndef T_NAPTR
+#define T_NAPTR 35
 #endif
 
         /* additional RFC 1183 types */
@@ -150,6 +164,16 @@ struct s_SRV
     char *target;
 };
 
+struct s_NAPTR
+{
+    u_short order;
+    u_short preference;
+    char *flags;
+    char *services;
+    char *regexp;
+    char *replacement;
+};
+
 
         /*
          *  New RR types - RFC 1183
@@ -201,6 +225,8 @@ union u_rdata
     struct s_MX         mx;
     struct s_TXT        txt;
     struct s_SRV    srv;
+                                        /* RFC 2915 RR type */
+    struct s_NAPTR      naptr;
                                         /* RFC 1183 RR types */
     struct s_AFSDB      afsdb;
     struct s_RP         rp;
@@ -248,6 +274,53 @@ extern  res_response *  res_parse(char *msg);
 extern  res_response *  res_copy(res_response   *resp);
 extern  void            res_print(res_response  *resp);
 extern  void            res_free(res_response   *resp);
+
+/* Support functions for NAPTR records */
+
+#ifdef RES_PARSE_NAPTR
+
+/* Split the 'regexp' field of a NAPTR record into the regexp to match
+ * and the replacement part, as well as test for flag values.
+ * Processes the field according to the rules in RFC 2915 section 3.
+ * Input: field points to a string which is the contents of the NAPTR
+ * regexp field.
+ * Returns: 1 if splitting operation is successful, 0 if not.
+ * (Success includes syntax-checking the replacement field, but not the
+ * match field.)
+ * Outputs: *delim_p will be set to the delimiter character (needed by
+ * res_naptr_replace).
+ * match will have written into it the POSIX extended regexp to match,
+ * with the extra escaping of *delim removed.  (match must be at least
+ * as large as field.)
+ * *replace_p will have written into it the pointer to the beginning
+ * of the replacement string within field (needed by res_naptr_replace).
+ * (There is no benefit in de-escaping the replacement string at this point.)
+ * *i_flag_p will be set to 1 if the 'i' (case-insensitive) flag is found,
+ * 0 otherwise.
+ */
+extern  int             res_naptr_split_regexp(const char *field,
+                                               char       *delim_p,
+                                               char       *match,
+                                               const char **replace_p,
+                                               int        *i_flag_p);
+
+/* Construct the replacement string after a successful match.
+ * Inputs: replace is the replace string as returned by a successful
+ * call to res_naptr_split_regexp.
+ * delim is the delimiter character, as returned by res_naptr_split_regexp.
+ * match points to regmatch_t[9], as filled by a successful call to
+ * regexec.
+ * original is the string that was matched against.
+ * Return: pointer to malloc'ed character string containing the replacement.
+ * (Must be free'd by caller.)
+ */
+extern  char             *res_naptr_replace(const char *replace,
+                                            char       delim,
+                                            regmatch_t *match,
+                                            const char *original,
+                                            int        keep_context);
+
+#endif /* RES_PARSE_NAPTR */
 
 #ifdef  __cplusplus
 }

@@ -12,8 +12,8 @@
  *    documentation and/or other materials provided with the distribution.
  * 3. All advertising materials mentioning features or use of this software
  *    must display the following acknowledgement:
- *      This product includes software developed by the University of
- *      California, Berkeley and its contributors.
+ * 	This product includes software developed by the University of
+ * 	California, Berkeley and its contributors.
  * 4. Neither the name of the University nor the names of its contributors
  *    may be used to endorse or promote products derived from this software
  *    without specific prior written permission.
@@ -75,31 +75,36 @@ static char orig_rcsid = "From: Id: res_query.c,v 8.14 1997/06/09 17:47:05 halle
 static char rcsid[] = "";
 #endif /* LIBC_SCCS and not lint */
 
-#include <sys/types.h>
+#ifdef WINCE
+#   include <types.h>
+#else
+#   include <sys/types.h>
+#endif
+
 #include <errno.h>
 
 /* Reordered includes and separated into win/vx --GAT */
 #if defined(_WIN32)
-#       include <resparse/wnt/sys/param.h>
-#       include <winsock.h>
-#       include <resparse/wnt/netinet/in.h>
-#       include <resparse/wnt/arpa/inet.h>
-#       include <resparse/wnt/arpa/nameser.h>
-#       include <resparse/wnt/nterrno.h>  /* Additional errors not in errno.h --GAT */
-#       include <resparse/wnt/resolv/resolv.h>
+#   include <resparse/wnt/sys/param.h>
+#   include <winsock.h>
+#   include <resparse/wnt/netinet/in.h>
+#   include <resparse/wnt/arpa/inet.h>
+#   include <resparse/wnt/arpa/nameser.h>
+#   include <resparse/wnt/nterrno.h>  /* Additional errors not in errno.h --GAT */
+#   include <resparse/wnt/resolv/resolv.h>
 #elif defined (_VXWORKS)
-#       include <netdb.h>
-#       include <netinet/in.h>
-#       include <arpa/inet.h>
+#   include <netdb.h>
+#   include <netinet/in.h>
+#   include <arpa/inet.h>
 /* Use local lnameser.h for info missing from VxWorks version --GAT */
 /* lnameser.h is a subset of resparse/wnt/arpa/nameser.h                */
-#       include <resolv/nameser.h>
-#       include <resparse/vxw/arpa/lnameser.h>
+#   include <resolv/nameser.h>
+#   include <resparse/vxw/arpa/lnameser.h>
 /* Use local lresolv.h for info missing from VxWorks version --GAT */
 /* lresolv.h is a subset of resparse/wnt/resolv/resolv.h               */
-#       include <resolv/resolv.h>
-#       include <resparse/vxw/resolv/lresolv.h>
-#       include "resparse/vxw/hd_string.h" /* Added string functions not in VxWorks --GAT */
+#   include <resolv/resolv.h>
+#   include <resparse/vxw/resolv/lresolv.h>
+#   include "resparse/vxw/hd_string.h" /* Added string functions not in VxWorks --GAT */
 #endif
 #include <ctype.h>
 #include <stdio.h>
@@ -108,15 +113,16 @@ static char rcsid[] = "";
 #include "resparse/types.h"
 #include "resparse/res_config.h"
 
+extern struct __res_state _sip_res ;
 /* following unnecessary, in errno.h (VxWorks) or nterrno.h (win32) --GAT */
 /* #define ECONNREFUSED    146  */ /* Connection refused */
 #define NETDB_INTERNAL  -1      /* see errno, in netdb.h */
-                                                                /* issetugid(), function can not be found */
+                                /* issetugid(), function can not be found */
 
 #if PACKETSZ > 1024
-#define MAXPACKET       PACKETSZ
+#define MAXPACKET PACKETSZ
 #else
-#define MAXPACKET       1024
+#define MAXPACKET 1024
 #endif
 
 extern int h_reserrno;
@@ -133,72 +139,72 @@ extern int h_reserrno;
  */
 int
 res_query(name, class, type, answer, anslen)
-        const char *name;       /* domain name */
-        int class, type;        /* class and type of query */
-        u_char *answer;         /* buffer to put answer */
-        int anslen;             /* size of answer buffer */
+    const char *name;       /* domain name */
+    int class, type;        /* class and type of query */
+    u_char *answer;         /* buffer to put answer */
+    int anslen;             /* size of answer buffer */
 {
-        u_char buf[MAXPACKET];
-        HEADER *hp = (HEADER *) answer;
-        int n;
+    u_char buf[MAXPACKET];
+    HEADER *hp = (HEADER *) answer;
+    int n;
 
-        hp->rcode = NOERROR;    /* default */
+    hp->rcode = NOERROR;    /* default */
 
-        if ((_res.options & RES_INIT) == 0 && res_init() == -1) {
-                h_reserrno = NETDB_INTERNAL;
-                return (-1);
-        }
+    if ((_sip_res.options & RES_INIT) == 0 && res_init() == -1) {
+        h_reserrno = NETDB_INTERNAL;
+        return (-1);
+	}
 #ifdef DEBUG
-        if (_res.options & RES_DEBUG)
-                printf(";; res_query(%s, %d, %d)\n", name, class, type);
+    if (_sip_res.options & RES_DEBUG)
+        printf(";; res_query(%s, %d, %d)\n", name, class, type);
 #endif
 
-        n = res_mkquery(QUERY, name, class, type, NULL, 0, NULL,
-                        buf, sizeof(buf));
-        if (n <= 0) {
+    n = res_mkquery(QUERY, name, class, type, NULL, 0, NULL,
+                    buf, sizeof(buf));
+    if (n <= 0) {
 #ifdef DEBUG
-                if (_res.options & RES_DEBUG)
-                        printf(";; res_query: mkquery failed\n");
+        if (_sip_res.options & RES_DEBUG)
+            printf(";; res_query: mkquery failed\n");
 #endif
-                h_reserrno = NO_RECOVERY;
-                return (n);
-        }
-        n = res_send(buf, n, answer, anslen);
-        if (n < 0) {
-#ifdef DEBUG
-                if (_res.options & RES_DEBUG)
-                        printf(";; res_query: send error\n");
-#endif
-                h_reserrno = TRY_AGAIN;
-                return (n);
-        }
-
-        if (hp->rcode != NOERROR || ntohs((u_short)hp->ancount) == 0) {
-#ifdef DEBUG
-                if (_res.options & RES_DEBUG)
-                        printf(";; rcode = %d, ancount=%d\n", hp->rcode,
-                            ntohs((u_short)hp->ancount));
-#endif
-                switch (hp->rcode) {
-                case NXDOMAIN:
-                        h_reserrno = HOST_NOT_FOUND;
-                        break;
-                case SERVFAIL:
-                        h_reserrno = TRY_AGAIN;
-                        break;
-                case NOERROR:
-                        h_reserrno = NO_DATA;
-                        break;
-                case FORMERR:
-                case NOTIMP:
-                case REFUSED:
-                default:
-                        h_reserrno = NO_RECOVERY;
-                        break;
-                }
-                return (-1);
-        }
+        h_reserrno = NO_RECOVERY;
         return (n);
+	}
+	n = res_send(buf, n, answer, anslen);
+	if (n < 0) {
+#ifdef DEBUG
+        if (_sip_res.options & RES_DEBUG)
+            printf(";; res_query: send error\n");
+#endif
+        h_reserrno = TRY_AGAIN;
+        return (n);
+	}
+
+    if (hp->rcode != NOERROR || ntohs((u_short)hp->ancount) == 0) {
+#ifdef DEBUG
+        if (_sip_res.options & RES_DEBUG)
+            printf(";; rcode = %d, ancount=%d\n", hp->rcode,
+                   ntohs((u_short)hp->ancount));
+#endif
+        switch (hp->rcode) {
+        case NXDOMAIN:
+            h_reserrno = HOST_NOT_FOUND;
+            break;
+        case SERVFAIL:
+            h_reserrno = TRY_AGAIN;
+            break;
+        case NOERROR:
+            h_reserrno = NO_DATA;
+            break;
+        case FORMERR:
+        case NOTIMP:
+        case REFUSED:
+        default:
+            h_reserrno = NO_RECOVERY;
+            break;
+        }
+        return (-1);
+    }
+    return (n);
 }
 
 /*
@@ -209,136 +215,136 @@ res_query(name, class, type, answer, anslen)
  */
 int
 res_search(name, class, type, answer, anslen)
-        const char *name;       /* domain name */
-        int class, type;        /* class and type of query */
-        u_char *answer;         /* buffer to put answer */
-        int anslen;             /* size of answer */
+    const char *name;       /* domain name */
+    int class, type;        /* class and type of query */
+    u_char *answer;         /* buffer to put answer */
+    int anslen;             /* size of answer */
 {
-        const char *cp, * const *domain;
-        HEADER *hp = (HEADER *) answer;
-        u_int dots;
-        int trailing_dot, ret, saved_herrno;
-        int got_nodata = 0, got_servfail = 0, tried_as_is = 0;
+    const char *cp, * const *domain;
+    HEADER *hp = (HEADER *) answer;
+    u_int dots;
+    int trailing_dot, ret, saved_herrno;
+    int got_nodata = 0, got_servfail = 0, tried_as_is = 0;
 
-        if ((_res.options & RES_INIT) == 0 && res_init() == -1) {
-                h_reserrno = NETDB_INTERNAL;
-                return (-1);
-        }
-        errno = 0;
-        h_reserrno = HOST_NOT_FOUND;    /* default, if we never query */
-        dots = 0;
-        for (cp = name; *cp; cp++)
-                dots += (*cp == '.');
-        trailing_dot = 0;
-        if (cp > name && *--cp == '.')
-                trailing_dot++;
-
-        /* If there aren't any dots, it could be a user-level alias */
-        if (!dots && (cp = hostalias(name)) != NULL)
-                return (res_query(cp, class, type, answer, anslen));
-
-        /*
-         * If there are dots in the name already, let's just give it a try
-         * 'as is'.  The threshold can be set with the "ndots" option.
-         */
-        saved_herrno = -1;
-        if (dots >= _res.ndots) {
-                ret = res_local_querydomain(name, NULL, class, type, answer, anslen);
-                if (ret > 0)
-                        return (ret);
-                saved_herrno = h_reserrno;
-                tried_as_is++;
-        }
-
-        /*
-         * We do at least one level of search if
-         *      - there is no dot and RES_DEFNAME is set, or
-         *      - there is at least one dot, there is no trailing dot,
-         *        and RES_DNSRCH is set.
-         */
-        if ((!dots && (_res.options & RES_DEFNAMES)) ||
-            (dots && !trailing_dot && (_res.options & RES_DNSRCH))) {
-                int done = 0;
-
-                for (domain = (const char * const *)_res.dnsrch;
-                     *domain && strlen(*domain) && !done;
-                     domain++) {
-
-                        ret = res_local_querydomain(name, *domain, class, type,
-                                              answer, anslen);
-                        if (ret > 0)
-                                return (ret);
-
-                        /*
-                         * If no server present, give up.
-                         * If name isn't found in this domain,
-                         * keep trying higher domains in the search list
-                         * (if that's enabled).
-                         * On a NO_DATA error, keep trying, otherwise
-                         * a wildcard entry of another type could keep us
-                         * from finding this entry higher in the domain.
-                         * If we get some other error (negative answer or
-                         * server failure), then stop searching up,
-                         * but try the input name below in case it's
-                         * fully-qualified.
-                         */
-                        if (errno == ECONNREFUSED) {
-                                h_reserrno = TRY_AGAIN;
-                                return (-1);
-                        }
-
-                        switch (h_reserrno) {
-                        case NO_DATA:
-                                got_nodata++;
-                                /* FALLTHROUGH */
-                        case HOST_NOT_FOUND:
-                                /* keep trying */
-                                break;
-                        case TRY_AGAIN:
-                                if (hp->rcode == SERVFAIL) {
-                                        /* try next search element, if any */
-                                        got_servfail++;
-                                        break;
-                                }
-                                /* FALLTHROUGH */
-                        default:
-                                /* anything else implies that we're done */
-                                done++;
-                        }
-
-                        /* if we got here for some reason other than DNSRCH,
-                         * we only wanted one iteration of the loop, so stop.
-                         */
-                        if (!(_res.options & RES_DNSRCH))
-                                done++;
-                }
-        }
-
-        /*
-         * If we have not already tried the name "as is", do that now.
-         * note that we do this regardless of how many dots were in the
-         * name or whether it ends with a dot unless NOTLDQUERY is set.
-         */
-        if (!tried_as_is && (dots || !(_res.options & RES_NOTLDQUERY))) {
-                ret = res_local_querydomain(name, NULL, class, type, answer, anslen);
-                if (ret > 0)
-                        return (ret);
-        }
-
-        /* if we got here, we didn't satisfy the search.
-         * if we did an initial full query, return that query's h_reserrno
-         * (note that we wouldn't be here if that query had succeeded).
-         * else if we ever got a nodata, send that back as the reason.
-         * else send back meaningless h_reserrno, that being the one from
-         * the last DNSRCH we did.
-         */
-        if (saved_herrno != -1)
-                h_reserrno = saved_herrno;
-        else if (got_nodata)
-                h_reserrno = NO_DATA;
-        else if (got_servfail)
-                h_reserrno = TRY_AGAIN;
+    if ((_sip_res.options & RES_INIT) == 0 && res_init() == -1) {
+        h_reserrno = NETDB_INTERNAL;
         return (-1);
+    }
+    errno = 0;
+    h_reserrno = HOST_NOT_FOUND;    /* default, if we never query */
+    dots = 0;
+    for (cp = name; *cp; cp++)
+            dots += (*cp == '.');
+    trailing_dot = 0;
+    if (cp > name && *--cp == '.')
+            trailing_dot++;
+
+    /* If there aren't any dots, it could be a user-level alias */
+    if (!dots && (cp = hostalias(name)) != NULL)
+        return (res_query(cp, class, type, answer, anslen));
+
+	/*
+	 * If there are dots in the name already, let's just give it a try
+	 * 'as is'.  The threshold can be set with the "ndots" option.
+	 */
+	saved_herrno = -1;
+	if (dots >= _sip_res.ndots) {
+		ret = res_local_querydomain(name, NULL, class, type, answer, anslen);
+		if (ret > 0)
+			return (ret);
+		saved_herrno = h_reserrno;
+		tried_as_is++;
+	}
+
+	/*
+	 * We do at least one level of search if
+	 *	- there is no dot and RES_DEFNAME is set, or
+	 *	- there is at least one dot, there is no trailing dot,
+	 *	  and RES_DNSRCH is set.
+	 */
+	if ((!dots && (_sip_res.options & RES_DEFNAMES)) ||
+	    (dots && !trailing_dot && (_sip_res.options & RES_DNSRCH))) {
+		int done = 0;
+
+		for (domain = (const char * const *)_sip_res.dnsrch;
+             *domain && strlen(*domain) && !done;
+		     domain++) {
+
+			ret = res_local_querydomain(name, *domain, class, type,
+					      answer, anslen);
+			if (ret > 0)
+				return (ret);
+
+			/*
+			 * If no server present, give up.
+			 * If name isn't found in this domain,
+			 * keep trying higher domains in the search list
+			 * (if that's enabled).
+			 * On a NO_DATA error, keep trying, otherwise
+			 * a wildcard entry of another type could keep us
+			 * from finding this entry higher in the domain.
+			 * If we get some other error (negative answer or
+			 * server failure), then stop searching up,
+			 * but try the input name below in case it's
+			 * fully-qualified.
+			 */
+			if (errno == ECONNREFUSED) {
+				h_reserrno = TRY_AGAIN;
+				return (-1);
+			}
+
+			switch (h_reserrno) {
+			case NO_DATA:
+				got_nodata++;
+				/* FALLTHROUGH */
+			case HOST_NOT_FOUND:
+				/* keep trying */
+				break;
+			case TRY_AGAIN:
+				if (hp->rcode == SERVFAIL) {
+					/* try next search element, if any */
+					got_servfail++;
+					break;
+				}
+				/* FALLTHROUGH */
+			default:
+				/* anything else implies that we're done */
+				done++;
+			}
+
+			/* if we got here for some reason other than DNSRCH,
+			 * we only wanted one iteration of the loop, so stop.
+			 */
+			if (!(_sip_res.options & RES_DNSRCH))
+				done++;
+		}
+	}
+
+	/*
+	 * If we have not already tried the name "as is", do that now.
+	 * note that we do this regardless of how many dots were in the
+	 * name or whether it ends with a dot unless NOTLDQUERY is set.
+	 */
+	if (!tried_as_is && (dots || !(_sip_res.options & RES_NOTLDQUERY))) {
+		ret = res_local_querydomain(name, NULL, class, type, answer, anslen);
+		if (ret > 0)
+			return (ret);
+	}
+
+    /* if we got here, we didn't satisfy the search.
+     * if we did an initial full query, return that query's h_reserrno
+     * (note that we wouldn't be here if that query had succeeded).
+     * else if we ever got a nodata, send that back as the reason.
+     * else send back meaningless h_reserrno, that being the one from
+     * the last DNSRCH we did.
+	 */
+	if (saved_herrno != -1)
+		h_reserrno = saved_herrno;
+	else if (got_nodata)
+		h_reserrno = NO_DATA;
+	else if (got_servfail)
+		h_reserrno = TRY_AGAIN;
+ 	return (-1);
 }
 
 /*
@@ -347,91 +353,93 @@ res_search(name, class, type, answer, anslen)
  */
 int
 res_local_querydomain(name, domain, class, type, answer, anslen)
-        const char *name, *domain;
-        int class, type;        /* class and type of query */
-        u_char *answer;         /* buffer to put answer */
-        int anslen;             /* size of answer */
+    const char *name, *domain;
+    int class, type;        /* class and type of query */
+    u_char *answer;         /* buffer to put answer */
+    int anslen;             /* size of answer */
 {
-        char nbuf[MAXDNAME];
-        const char *longname = nbuf;
-        int n, d;
+    char nbuf[MAXDNAME];
+    const char *longname = nbuf;
+    int n, d;
 
-        if ((_res.options & RES_INIT) == 0 && res_init() == -1) {
-                h_reserrno = NETDB_INTERNAL;
-                return (-1);
-        }
+    if ((_sip_res.options & RES_INIT) == 0 && res_init() == -1) {
+        h_reserrno = NETDB_INTERNAL;
+        return (-1);
+    }
 #ifdef DEBUG
-        if (_res.options & RES_DEBUG)
-                printf(";; res_local_querydomain(%s, %s, %d, %d)\n",
-                       name, domain?domain:"<Nil>", class, type);
+    if (_sip_res.options & RES_DEBUG)
+        printf(";; res_local_querydomain(%s, %s, %d, %d)\n",
+               name, domain?domain:"<Nil>", class, type);
 #endif
-        if (domain == NULL) {
-                /*
-                 * Check for trailing '.';
-                 * copy without '.' if present.
-                 */
-                n = strlen(name);
-                if (n >= MAXDNAME) {
-                        h_reserrno = NO_RECOVERY;
-                        return (-1);
-                }
-                n--;
-                if (n >= 0 && name[n] == '.') {
-                        strncpy(nbuf, name, n);
-                        nbuf[n] = '\0';
-                } else
-                        longname = name;
-        } else {
-                n = strlen(name);
-                d = strlen(domain);
-                if (n + d + 1 >= MAXDNAME) {
-                        h_reserrno = NO_RECOVERY;
-                        return (-1);
-                }
-                sprintf(nbuf, "%s.%s", name, domain);
+    if (domain == NULL) {
+        /*
+         * Check for trailing '.';
+         * copy without '.' if present.
+         */
+        n = strlen(name);
+        if (n >= MAXDNAME) {
+            h_reserrno = NO_RECOVERY;
+            return (-1);
         }
-        return (res_query(longname, class, type, answer, anslen));
+        n--;
+        if (n >= 0 && name[n] == '.') {
+            strncpy(nbuf, name, n);
+            nbuf[n] = '\0';
+        } else
+            longname = name;
+    } else {
+        n = strlen(name);
+        d = strlen(domain);
+        if (n + d + 1 >= MAXDNAME) {
+            h_reserrno = NO_RECOVERY;
+            return (-1);
+        }
+    sprintf(nbuf, "%s.%s", name, domain);
+    }
+    return (res_query(longname, class, type, answer, anslen));
 }
 
 char *
 hostalias(name)
-        const char *name;
+    const char *name;
 {
-        register char *cp1, *cp2;
-        FILE *fp;
-        char *file;
-        char buf[BUFSIZ];
-        static char abuf[MAXDNAME];
+#ifndef WINCE
+    register char *cp1, *cp2;
+    FILE *fp;
+    char *file;
+    char buf[BUFSIZ];
+    static char abuf[MAXDNAME];
 
-        if (_res.options & RES_NOALIASES)
-                return (NULL);
-/*      if (issetugid())
-                return (NULL); */
-        file = getenv("HOSTALIASES");
-        if (file == NULL || (fp = fopen(file, "r")) == NULL)
-                return (NULL);
-        setbuf(fp, NULL);
-        buf[sizeof(buf) - 1] = '\0';
-        while (fgets(buf, sizeof(buf), fp)) {
-                for (cp1 = buf; *cp1 && !isspace(*cp1); ++cp1)
-                        ;
-                if (!*cp1)
-                        break;
-                *cp1 = '\0';
-                if (!_stricmp(buf, name)) {
-                        while (isspace(*++cp1))
-                                ;
-                        if (!*cp1)
-                                break;
-                        for (cp2 = cp1 + 1; *cp2 && !isspace(*cp2); ++cp2)
-                                ;
-                        abuf[sizeof(abuf) - 1] = *cp2 = '\0';
-                        strncpy(abuf, cp1, sizeof(abuf) - 1);
-                        fclose(fp);
-                        return (abuf);
-                }
-        }
-        fclose(fp);
+    if (_sip_res.options & RES_NOALIASES)
         return (NULL);
+/*  if (issetugid())
+        return (NULL); */
+	file = getenv("HOSTALIASES");
+	if (file == NULL || (fp = fopen(file, "r")) == NULL)
+		return (NULL);
+	setbuf(fp, NULL);
+	buf[sizeof(buf) - 1] = '\0';
+	while (fgets(buf, sizeof(buf), fp)) {
+		for (cp1 = buf; *cp1 && !isspace(*cp1); ++cp1)
+			;
+		if (!*cp1)
+			break;
+		*cp1 = '\0';
+		if (!_stricmp(buf, name)) {
+			while (isspace(*++cp1))
+				;
+			if (!*cp1)
+				break;
+			for (cp2 = cp1 + 1; *cp2 && !isspace(*cp2); ++cp2)
+				;
+			abuf[sizeof(abuf) - 1] = *cp2 = '\0';
+			strncpy(abuf, cp1, sizeof(abuf) - 1);
+			fclose(fp);
+			return (abuf);
+		}
+	}
+	fclose(fp);
+#endif
+	return (NULL);
 }
 #endif /* __pingtel_on_posix__ */

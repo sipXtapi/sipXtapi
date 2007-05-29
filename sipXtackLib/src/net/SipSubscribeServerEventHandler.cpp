@@ -87,7 +87,8 @@ SipSubscribeServerEventHandler::operator=(const SipSubscribeServerEventHandler& 
 
 UtlBoolean SipSubscribeServerEventHandler::getKeys(const SipMessage& subscribeRequest,
                                                    UtlString& resourceId,
-                                                   UtlString& eventTypeKey)
+                                                   UtlString& eventTypeKey,
+                                                   UtlString& eventType)
 {
     // default resourceId is the identity
     UtlString uriString;
@@ -97,6 +98,8 @@ UtlBoolean SipSubscribeServerEventHandler::getKeys(const SipMessage& subscribeRe
 
     // Default event key is the event type with no parameters
     subscribeRequest.getEventField(&eventTypeKey, NULL);
+    // Event type is the same.
+    eventType = eventTypeKey;
 
     return(TRUE);
 }
@@ -121,6 +124,7 @@ UtlBoolean SipSubscribeServerEventHandler::isAuthorized(const SipMessage& subscr
 
 UtlBoolean SipSubscribeServerEventHandler::getNotifyContent(const UtlString& resourceId,
                                                             const UtlString& eventTypeKey,
+                                                            const UtlString& eventType,
                                                             SipPublishContentMgr& contentMgr,
                                                             const char* acceptHeaderValue,
                                                             SipMessage& notifyRequest)
@@ -132,6 +136,7 @@ UtlBoolean SipSubscribeServerEventHandler::getNotifyContent(const UtlString& res
     UtlBoolean isDefaultEventContent;
     gotBody = contentMgr.getContent(resourceId,
                           eventTypeKey,
+                          eventType,
                           acceptHeaderValue,
                           messageBody,
                           isDefaultEventContent);

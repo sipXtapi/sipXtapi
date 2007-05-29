@@ -11,6 +11,8 @@ check_PROGRAMS = testsuite
 testsuite_LDADD = \
     @SIPXUNIT_LIBS@ \
     @SIPXMEDIA_MP_LIBS@ \
+    @SIPXTACK_LIBS@ \
+    @SIPXPORT_LIBS@ \
     @CA_LIBS@ \
     ../libsipXcall.la
 

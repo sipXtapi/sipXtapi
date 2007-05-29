@@ -75,7 +75,12 @@ static char orig_rcsid[] = "From: Id: res_comp.c,v 8.11 1997/05/21 19:31:04 hall
 static char rcsid[] = "";
 #endif /* LIBC_SCCS and not lint */
 
-#include <sys/types.h>
+#ifdef WINCE
+#   include <types.h>
+#else
+#   include <sys/types.h>
+#endif
+
 #include <ctype.h>
 /* Reordered includes and separated into win/vx --GAT */
 #if defined (_WIN32) /* Use Columbia versions for win32 only --GAT */
@@ -176,6 +181,12 @@ dn_skipname(const u_char *ptr, const u_char *eom) {
 #define middlechar(c) (borderchar(c) || hyphenchar(c))
 #define domainchar(c) ((c) > 0x20 && (c) < 0x7f)
 
+#if !defined(_VXWORKS)
+/*
+ *  wdn - it is defined in 
+ * 
+ *    TORNADO2.2\target\src\wrn\coreip\apps\dns\v6\client\res_comp.c
+ */
 int
 res_hnok(dn)
         const char *dn;
@@ -201,6 +212,8 @@ res_hnok(dn)
         }
         return (1);
 }
+#endif
+
 
 /*
  * hostname-like (A, MX, WKS) owners can have "*" as their first label
@@ -249,6 +262,13 @@ res_mailok(dn)
         return (0);
 }
 
+
+#if !defined(_VXWORKS)
+/*
+ *  wdn - it is defined in 
+ * 
+ *    TORNADO2.2\target\src\wrn\coreip\apps\dns\v6\client\res_comp.c
+ */
 /*
  * This function is quite liberal, since RFC 1034's character sets are only
  * recommendations.
@@ -264,6 +284,7 @@ res_dnok(dn)
                         return (0);
         return (1);
 }
+#endif
 
 
 #ifdef BIND_4_COMPAT

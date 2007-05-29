@@ -1,5 +1,8 @@
 //
-// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Copyright (C) 2005 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
+// Copyright (C) 2004 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -16,6 +19,7 @@
 #include <net/HttpMessage.h>
 #include <net/SdpBody.h>
 #include <net/SdpCodecFactory.h>
+#include <net/NetBase64Codec.h>
 
 
 /**
@@ -32,6 +36,7 @@ class SdpBodyTest : public CppUnit::TestCase
     CPPUNIT_TEST(testGetMediaAddress);
     //CPPUNIT_TEST(testCandidateParsing);
     CPPUNIT_TEST(testRtcpPortParsing);
+    // CPPUNIT_TEST(testCryptoParsing);
     CPPUNIT_TEST(testVideoCodecSelection);
     CPPUNIT_TEST_SUITE_END();
 
@@ -759,6 +764,8 @@ public:
         int rtcpAudioPorts[1];
         int rtpVideoPorts[1];
         int rtcpVideoPorts[1];
+        RTP_TRANSPORT transportTypes[1];
+        
 
         testSrtp.securityLevel = 0;
 
@@ -773,9 +780,10 @@ public:
         rtcpAudioPorts[0] = 8701;
         rtpVideoPorts[0] = 0;
         rtcpVideoPorts[0] = 0;
-        testBody.addAudioCodecs(1, hostAddresses, rtpAudioPorts, rtcpAudioPorts, 
-                                rtpVideoPorts, rtcpVideoPorts, 
-                                1, &pAudioCodec, testSrtp, 0, 0) ;
+        transportTypes[0] = RTP_TRANSPORT_UDP;
+        testBody.addCodecsOffer(1, hostAddresses, rtpAudioPorts, rtcpAudioPorts, 
+                                rtpVideoPorts, rtcpVideoPorts, transportTypes,
+                                1, &pAudioCodec, testSrtp, 0, 0, RTP_TRANSPORT_UDP) ;
                                 
                                 
         hostAddresses[0] = "10.1.1.30";
@@ -783,26 +791,27 @@ public:
         rtcpAudioPorts[0] = 18701;
         rtpVideoPorts[0] = 0;
         rtcpVideoPorts[0] = 0;
-        testBody.addAudioCodecs(1, hostAddresses, rtpAudioPorts, rtcpAudioPorts, 
-                                rtpVideoPorts, rtcpVideoPorts, 
-                                1, &pAudioCodec, testSrtp, 0, 0, OsSocket::TCP) ;
+        transportTypes[0] = RTP_TRANSPORT_TCP;
+        testBody.addCodecsOffer(1, hostAddresses, rtpAudioPorts, rtcpAudioPorts, 
+                                rtpVideoPorts, rtcpVideoPorts, transportTypes,
+                                1, &pAudioCodec, testSrtp, 0, 0, RTP_TRANSPORT_TCP) ;
                                 
         hostAddresses[0] = "10.1.1.31";
         rtpAudioPorts[0] = 0;
         rtcpAudioPorts[0] = 0;
         rtpVideoPorts[0] = 8801;
         rtcpVideoPorts[0] = 8802;
-        testBody.addAudioCodecs(1, hostAddresses, rtpAudioPorts, rtcpAudioPorts, 
-                                rtpVideoPorts, rtcpVideoPorts, 
-                                1, &pVideoCodec, testSrtp, 0, 0) ;
+        testBody.addCodecsOffer(1, hostAddresses, rtpAudioPorts, rtcpAudioPorts, 
+                                rtpVideoPorts, rtcpVideoPorts, transportTypes,
+                                1, &pVideoCodec, testSrtp, 0, 0, RTP_TRANSPORT_TCP) ;
         hostAddresses[0] = "10.1.1.32";
         rtpAudioPorts[0] = 8900;
         rtcpAudioPorts[0] = 8999;
         rtpVideoPorts[0] = 0;
         rtcpVideoPorts[0] = 0;
-        testBody.addAudioCodecs(1, hostAddresses, rtpAudioPorts, rtcpAudioPorts, 
-                                rtpVideoPorts, rtcpVideoPorts, 
-                                1, &pAppCodec, testSrtp, 0, 0) ;
+        testBody.addCodecsOffer(1, hostAddresses, rtpAudioPorts, rtcpAudioPorts, 
+                                rtpVideoPorts, rtcpVideoPorts, transportTypes,
+                                1, &pAppCodec, testSrtp, 0, 0, RTP_TRANSPORT_TCP) ;
 
         const char* testBodyExpected = 
             "v=0\r\n"
@@ -815,12 +824,12 @@ public:
             "m=audio 18700 TCP/RTP/AVP 99\r\n"
             "c=IN IP4 10.1.1.30\r\n"
             "a=rtpmap:99 superaudio/8000/1\r\n"
-            "m=video 8801 RTP/AVP 100\r\n"
+            "m=video 8801 TCP/RTP/AVP 100\r\n"
             "c=IN IP4 10.1.1.31\r\n"
             "a=rtcp:8802\r\n"
             "a=rtpmap:100 supervideo/8000/1\r\n"
             "a=fmtp:100 size:QCIF\r\n"
-            "m=audio 8900 RTP/AVP 101\r\n"
+            "m=audio 8900 TCP/RTP/AVP 101\r\n"
             "c=IN IP4 10.1.1.32\r\n" 
             "a=rtcp:8999\r\n"
             "a=rtpmap:101 superapp/8000/1\r\n";

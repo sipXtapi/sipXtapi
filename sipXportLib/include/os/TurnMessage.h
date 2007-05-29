@@ -49,9 +49,9 @@
 #define ATTR_TURN_REMOTE_ADDRESS                0x0012  // rename from ATTR_TURN_SOURCE_ADDRESS
 #define ATTR_TURN_DATA                          0x0013
 #define ATTR_TURN_RELAY_ADDRESS                 0x0016
-// #define ATTR_TURN_REQUESTED_PORT                0x0018
+#define ATTR_TURN_REQUESTED_PORT                0x0018
 #define ATTR_TURN_REQUESTED_TRANSPORT           0x0019
-// #define ATTR_TURN_TIMER_VAL                     0x0021
+//#define ATTR_TURN_TIMER_VAL                     0x0021
 #define ATTR_TURN_REQUESTED_IP                  0x0022
 
 #define ATTR_MAGIC_COOKIE                       0x72c64bc6
@@ -110,7 +110,8 @@ class TurnMessage : public StunMessage
    /**
     * Default constructor
     */
-   TurnMessage();
+   TurnMessage(TurnMessage* pRequest = NULL,
+               bool         bLegacyMode = true) ;
      
    /**
     * Destructor
@@ -163,7 +164,9 @@ class TurnMessage : public StunMessage
 
     virtual bool validateMessageType(unsigned short type) ;
 
-    static bool isTurnMessage(const char* pBuf, unsigned short nBufLength) ;
+    static bool isTurnMessage(const char*    pBuf, 
+                             unsigned short nBufLength, 
+                             bool*          pbDataIndication = NULL) ;  
 
     virtual bool isRequestOrNonErrorResponse() ;
 

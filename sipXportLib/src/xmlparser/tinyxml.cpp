@@ -23,11 +23,20 @@ distribution.
 */
 
 #include <ctype.h>
+#ifdef _WIN32
+#   ifndef WINCE
+#       include <io.h>
+#   endif
+#else
+#   include <unistd.h>
+#endif
 #include "xmlparser/tinyxml.h"
 
 #ifdef TIXML_USE_STL
 #include <sstream>
 #endif
+
+#include <os/OsFS.h>
 
 
 bool TiXmlBase::condenseWhiteSpace = true;
@@ -985,15 +994,36 @@ bool TiXmlDocument::LoadFile( const char* filename, TiXmlEncoding encoding )
 
 bool TiXmlDocument::SaveFile( const char * filename ) const
 {
+   bool result = false;
+
+   // the filename is what we want to write, but if we crash or are restarted
+   // when it is only partially written, then the resulting file will not be
+   // well-formed, so we first write to a .new file and then only when that is
+   // done do we change the name to the real filename
+   const char* newsuffix = ".new";
+   char* newfilename = new char[strlen(filename) + strlen(newsuffix) + 1];
+   if (newfilename)
+   {
+      strcpy(newfilename,filename);
+      strcat(newfilename,newsuffix);
+   
 	// The old c stuff lives on...
-	FILE* fp = fopen( filename, "w" );
+      FILE* fp = fopen( newfilename, "w" );
 	if ( fp )
 	{
 		Print( fp, 0 );
+         fflush( fp ); // flush user space buffers
+         fflush(fp); // sync kernel buffers to disk
 		fclose( fp );
-		return true;
+         // file is safe on disk - rename atomically changes it to filename,
+         // ensuring that at all times there is a well-formed file on disk.xo
+         OsFile tempFile(newfilename);
+         tempFile.rename(filename);
+         result = true;
 	}
-	return false;
+      delete [] newfilename;
+	}
+	return result;
 }
 
 

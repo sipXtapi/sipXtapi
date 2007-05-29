@@ -19,7 +19,6 @@
 #include "os/OsBSem.h"
 #include "os/OsMsgQ.h"
 #include "os/OsServerTask.h"
-#include "os/OsSysTimer.h"
 
 // DEFINES
 // MACROS
@@ -39,7 +38,6 @@ class OsTimerMsg;
 
 class OsTimerTask : public OsServerTask
 {
-
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
@@ -48,20 +46,17 @@ public:
    static OsTimerTask* getTimerTask(void);
      //:Return a pointer to the timer task, creating it if necessary
 
-   static void destroyTimer(void);
+   static void destroyTimerTask(void);
      //: Destroy the singleton instance of the sys timer
+     // Should only be called when timers are not being started or stopped.
+     // All current timers are stopped.
 
    virtual
    ~OsTimerTask();
      //:Destructor
+     // Should not be called directly.  Use destroyTimerTask().
 
 /* ============================ MANIPULATORS ============================== */
-
-   static void startTimer(OsTimer& rTimer);
-      //:Submit a service request to start (arm) the specified timer
-
-   static void stopTimer(OsTimer& rTimer);
-      //:Submit a service request to cancel (disarm) the specified timer
 
 /* ============================ ACCESSORS ================================= */
 
@@ -70,36 +65,54 @@ public:
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 
+   /// Constructor (called only indirectly via getTimerTask())
    OsTimerTask();
-     //:Constructor (called only indirectly via getTimerTask())
-     // We identify this as a protected (rather than a private) method so
-     // that gcc doesn't complain that the class only defines a private
-     // constructor and has no friends.
+   /**< We identify this as a protected (rather than a private) method so
+    *   that gcc doesn't complain that the class only defines a private
+    *   constructor and has no friends.
+    */
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
    static const int TIMER_MAX_REQUEST_MSGS;   // Maximum number of request messages
  
+   /// The entry point for the task
+   virtual int run(void* pArg);
+   /**< We replace OsServerTask::run() so that it will simultaneously wait
+    *   for an incoming message or for the next timer to fire.
+    */
+
+   /// Handle a timer service request.
    virtual UtlBoolean handleMessage(OsMsg& rMsg);
-     //:Handle a timer service request.
-     // Return TRUE if the request was handled, otherwise FALSE.
+   ///< Return TRUE if the request was handled, otherwise FALSE.
 
-   static OsTimerTask* spInstance;  // pointer to the single instance of
-                                    //  the OsTimerTask class
-   static OsBSem       sLock;       // semaphore used to ensure that there
-                                    //  is only one instance of this class
-   OsSysTimer*         mpTimerSubsys; // Object used to access the underlying
-                                      //  operating system's timer subsystem
+   /// Fire a timer because it has expired.
+   virtual void fireTimer(OsTimer* timer);
 
+   /// Pointer to the single instance of the OsTimerTask class.
+   static volatile OsTimerTask* spInstance;
+   ///< Declare as volatile because it is set and tested concurrently.
+
+   /// Semaphore used to protect manipulations of spInstance.
+   static OsBSem *sLock;
+
+   /// The queue of timer requests, ordered by increasing firing time.
+   OsTimer* mTimerQueue;
+
+   /// Insert a timer into the timer queue.
+   void insertTimer(OsTimer* timer);
+
+   /// Remove a timer from the timer queue.
+   void removeTimer(OsTimer* timer);
+
+   /// Copy constructor (not implemented for this class)
    OsTimerTask(const OsTimerTask& rOsTimerTask);
-     //:Copy constructor (not implemented for this task)
 
+   /// Assignment operator (not implemented for this class)
    OsTimerTask& operator=(const OsTimerTask& rhs);
-     //:Assignment operator (not implemented for this task)
 
 };
 
 /* ============================ INLINE METHODS ============================ */
 
 #endif  // _OsTimerTask_h_
-

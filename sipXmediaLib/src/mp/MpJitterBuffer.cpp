@@ -28,7 +28,6 @@ MpJitterBuffer::MpJitterBuffer(void)
    int i;
 
    for (i=0; i<JbPayloadMapSize; i++) payloadMap[i] = NULL;
-   JbQWait = JbLatencyInit;
    JbQCount = 0;
    JbQIn = 0;
    JbQOut = 0;
@@ -43,6 +42,17 @@ MpJitterBuffer::~MpJitterBuffer()
 
 /* ============================ MANIPULATORS ============================== */
 
+int MpJitterBuffer::SetCodecList(MpDecoderBase** codecList, int codecCount) {
+	// For every payload type, load in a codec pointer, or a NULL if it isn't there
+	for(int i=0;i<codecCount;i++) {
+		int payloadType = codecList[i]->getPayloadType();
+		if(payloadType < JbPayloadMapSize) {
+			payloadMap[payloadType] = codecList[i];
+		}
+	}
+	return 1;
+}
+
 int MpJitterBuffer::ReceivePacket(JB_uchar* RTPpacket, JB_size RTPlength, JB_ulong TS)
 {
    int numSamples = 0;
@@ -51,68 +61,32 @@ int MpJitterBuffer::ReceivePacket(JB_uchar* RTPpacket, JB_size RTPlength, JB_ulo
    int cc;
    int payloadType;
    int overhead;
+   // TS appears to be set to 0 by the caller
 
    payloadType = (pHdr->mpt) & 0x7f;
    cc = (pHdr->vpxcc) & 0x0f;
 
    overhead = sizeof(struct rtpHeader) + (cc*sizeof(int));
-   switch (payloadType) {
-   case 0: // G.711 u-Law
-   case 8: // G.711 a-Law
       numSamples = RTPlength - overhead;;
       pRtpData = RTPpacket + overhead;
-      break;
-   default:
-      break;
-   }
 
-   if (0 == numSamples) 
-   {
-      return 0;
+   if(payloadType >= JbPayloadMapSize) return 0;  // Ignore illegal payload types
+   MpDecoderBase* decoder = payloadMap[payloadType];
+   // JbQ is a buffer of "Sample"
+   if(decoder != NULL) {
+      decoder->decode(pRtpData,numSamples,JbQ+JbQIn);
+   } else {
+	   return 0; // If we can't decode it, we must ignore it?
    }
+   int outSamples = decoder->getInfo()->getNumSamplesPerFrame();
+   JbQCount += outSamples;
+   JbQIn += outSamples;
+   if (JbQIn >= JbQueueSize) JbQIn -= JbQueueSize;
+   // This will blow up if Samples Per Frame is not an exact multiple of 80
 
-   if (numSamples != 160) 
-   {
-/*
-      if (debugCount++ < 10) 
-      {
-	        printf("RTPlength=%d, cc=%d, payloadType=%d\n", RTPlength, 
-                    cc, payloadType);
-      }
-*/
-   }
-
-   if (JbQWait > 0) 
-   {
-      JbQWait--;
-   }
-
-   if (JbQueueSize == JbQCount) 
-   { 
-      // discard some data...
-      JbQOut = JbQIn + numSamples;
-      JbQCount -= numSamples;
-   }
-
-   switch (payloadType) 
-   {
-   case 0: // G.711 u-Law
-      G711U_Decoder(numSamples, pRtpData, JbQ+JbQIn);
-      break;
-   case 8: // G.711 a-Law
-      G711A_Decoder(numSamples, pRtpData, JbQ+JbQIn);
-      break;
-   default:
-      break;
-   }
-
-   JbQCount += numSamples;
-   JbQIn += numSamples;
-
-   if (JbQIn >= JbQueueSize) 
-   {
-       JbQIn -= JbQueueSize;
-   }
+   //if (JbQWait > 0) {
+   //   JbQWait--;
+   //}
    return 0;
 }
 
@@ -120,21 +94,21 @@ int MpJitterBuffer::GetSamples(Sample *voiceSamples, JB_size *pLength)
 {
     int numSamples = 80;
 
-    if (JbQCount == 0) 
-    {
-        JbQWait = JbLatencyInit; // No data, prime the buffer (again).
-        memset((char*) voiceSamples, 0x00, 80 * sizeof(Sample));
-    }
-    else
-    {
+   //if (0 >= JbQCount) {
+   //   JbQWait = JbLatencyInit; // No data, prime the buffer (again).
+	//  JbQCount=0; 
+   //}
+  // if (JbQWait > 0) {
+   //   memset((char*) voiceSamples, 0, 80 * sizeof(Sample));
+   //} else {
+   if(JbQOut == JbQIn) {
+		// No packet available
+   } else {
         memcpy(voiceSamples, JbQ+JbQOut, numSamples * sizeof(Sample));
 
         JbQCount -= numSamples;
         JbQOut += numSamples;
-        if (JbQOut >= JbQueueSize) 
-        {
-            JbQOut -= JbQueueSize;
-        }
+      if (JbQOut >= JbQueueSize) JbQOut -= JbQueueSize;
     }
 
     *pLength = numSamples;

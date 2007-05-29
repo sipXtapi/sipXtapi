@@ -20,7 +20,6 @@
 #include "os/OsDefs.h"
 #include "os/OsStatus.h"
 #include "os/OsTime.h"
-#include "os/OsTimer.h"
 
 // DEFINES
 #define SYSLOG_NUM_PRIORITIES    8  // Number of OsSysLogPriority entries
@@ -41,7 +40,7 @@ typedef enum tagOsSysLogPriority
    PRI_ERR,       // error conditions
    PRI_CRIT,      // critical conditions
    PRI_ALERT,     // action must be taken immediately
-   PRI_EMERG,     // system is unusable
+   PRI_EMERG     // system is unusable
 
    // NOTE: If adding/removing priorities, please adjust static name
    // initializer in OsSysLog.cpp and the SYSLOG_NUM_PRIORITIES define above.
@@ -101,6 +100,7 @@ typedef void (*OsSysLogCallback)(const char* szPriority,
 
 // FORWARD DECLARATIONS
 class OsSysLogTask;
+class OsTimer;
 
 //:The OsSysLog provides a system wide logger and alternative to printf or
 //:osPrintf for error/informational/debugging purposes.
@@ -187,7 +187,7 @@ public:
    enum OsSysLogOptions
    {
         OPT_NONE           = 0x00000000,     // No Options
-        OPT_SHARED_LOGFILE = 0x00000001,     // Assume a shared log file
+        OPT_SHARED_LOGFILE = 0x00000001      // Assume a shared log file
 
      // NOTE: Options are designed to be used as bitmasks (and ORed together).
      //       Make sure new additions are defined as power of twos (0x01,
@@ -227,6 +227,9 @@ public:
      //
      //!param options - This parameter defines instance specific options.  See
      //       the OsSysLogOptions enum defined above for valid settings.
+
+   static OsStatus shutdown() ;
+     //:Shutdown the OsSysLog task
 
    static OsStatus setOutputFile(const int minFlushPeriod,
                                  const char* logfile);

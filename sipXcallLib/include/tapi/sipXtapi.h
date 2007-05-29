@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2005-2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -110,6 +113,8 @@
 #if defined(_WIN32)
 #  ifdef SIPXTAPI_EXPORTS
 #    define SIPXTAPI_API extern "C" __declspec(dllexport)  /**< Used for Win32 imp lib creation */
+#  elif defined(SIPXTAPI_STATIC)
+#    define SIPXTAPI_API extern "C"  /**< Used for Win32 imp lib creation */
 #  else
 #    define SIPXTAPI_API extern "C" __declspec(dllimport)  /**< Used for Win32 imp lib creation */
 #  endif
@@ -719,12 +724,22 @@ typedef struct
     bool bIsEncrypted;               /**< SRTP enabled */
 } SIPX_CODEC_INFO;
 
-typedef enum 
+/**
+ * Possible roles that a Media connection can have.
+ */
+ typedef enum SIPX_RTP_TRANSPORT
 {
-    UDP_ONLY,
-    TCP_ONLY,
-    BOTH
-} SIPX_RTP_TRANSPORT;
+   SIPX_RTP_TRANSPORT_UNKNOWN = 0x00000000,
+   SIPX_RTP_TRANSPORT_UDP = 0x00000001,
+   SIPX_RTP_TRANSPORT_TCP = 0x00000002,
+   SIPX_RTP_TCP_ROLE_ACTIVE = 0x00000004,
+   SIPX_RTP_TCP_ROLE_PASSIVE = 0x00000008,
+   SIPX_RTP_TCP_ROLE_ACTPASS = 0x00000010,
+   SIPX_RTP_TCP_ROLE_CONNECTION = 0x00000020,
+};
+
+typedef int SipxtapiRtpTransportOptions;
+typedef int SipxtapiRtpTcpRoles;
 
 /**
  * This structure gets passed into sipxCallConnect, sipxCallAccept, and
@@ -735,10 +750,9 @@ typedef struct
     int cbSize;                          /**< Size of structure          */
     SIPX_AUDIO_BANDWIDTH_ID bandwidthId; /**< Bandwidth range            */
     bool sendLocation;                   /**< True sends location header */
-    SIPX_CONTACT_ID contactId;            /**< desired contactId -- NOTE: 
-                                               This is only read by 
-                                               sipXcallAccept today. */
-    SIPX_RTP_TRANSPORT rtpTransportFlags; /**< specifies protocols(s)/role for media */
+    SIPX_CONTACT_ID contactId;           /**< desired contactId (only used for 
+                                              sipxCallAccept at this moment) */
+    SIPX_RTP_TRANSPORT rtpTransportFlags; /**< specifies protocols(s)/role for media. */
 
     bool disableICE ;       /**< Disable ICE for this call.  ICE is only
                                  enabled if this parameter is set to false 
@@ -3741,6 +3755,17 @@ SIPXTAPI_API SIPX_RESULT sipxConfigExternalTransportAdd(SIPX_INST const         
  */
 SIPXTAPI_API SIPX_RESULT sipxConfigExternalTransportRemove(const SIPX_TRANSPORT hTransport);
 
+/**
+ * The external transport mechanism can be configured to route by user or by 
+ * destination ip/port.  User is the default.
+ *
+ * @param hTransport Handle to the external transport object.  Obtained via a 
+ *        call to sipxConfigExternalTransportAdd 
+ * @param bRouteByUser true to route by user (default), false to route by 
+ *        destination ip/port.
+ */
+SIPXTAPI_API SIPX_RESULT sipxConfigExternalTransportRouteByUser(const SIPX_TRANSPORT hTransport,
+                                                                bool                 bRouteByUser) ;
 
 /**
  * Called by the application when it receives a complete SIP message via
@@ -3798,6 +3823,13 @@ SIPXTAPI_API SIPX_RESULT sipxUtilUrlParse(const char* szUrl,
                                           char* szUsername,
                                           char* szHostname,
                                           int*  iPort) ;
+
+/**
+ * Simple utility function to parse the display name from a SIP URL.
+ */
+SIPXTAPI_API SIPX_RESULT sipxUtilUrlGetDisplayName(const char* szUrl,
+                                                   char*       szDisplayName,
+                                                   size_t      nDisplayName) ;
 
 /**
  * Simple utility function to update a URL.  If the szUrl isn't large enough,

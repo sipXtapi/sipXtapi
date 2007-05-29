@@ -25,6 +25,12 @@
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
+
+//#define TIME_LOG /* turns on timestamping of finding and garbage collecting transactions */
+#ifdef TIME_LOG
+#  include <os/OsTimeLog.h>
+#endif
+
 // STATIC VARIABLE INITIALIZATIONS
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
@@ -170,18 +176,25 @@ SipTransactionList::findTransactionFor(const SipMessage& message,
         }
     }
 
-#if 1 // 
+#if 0 // enable only for transaction match debugging - log is confusing otherwise
     UtlString relationString;
     SipTransaction::getRelationshipString(relationship, relationString);
     UtlString bytes;
     int len;
     message.getBytes(&bytes, &len);
-    OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                  "SipTransactionList::findTransactionFor %p %s %s %s",
-                  &message,
-                  isOutgoing ? "OUTGOING" : "INCOMING", 
-                  transactionFound ? "FOUND" : "NOT FOUND",
-                  relationString.data());
+    OsSysLog::add(FAC_SIP, PRI_DEBUG
+                  ,"SipTransactionList::findTransactionFor %p %s %s %s"
+#                 ifdef TIME_LOG
+                  "\n\tTime Log %s"
+#                 endif
+                  ,&message
+                  ,isOutgoing ? "OUTGOING" : "INCOMING"
+                  ,transactionFound ? "FOUND" : "NOT FOUND"
+                  ,relationString.data()
+#                 ifdef TIME_LOG
+                  ,findTimeLog.data()
+#                 endif
+                  );
     
 #endif
 
@@ -195,6 +208,11 @@ void SipTransactionList::removeOldTransactions(long oldTransaction,
     SipTransaction** transactionsToBeDeleted = NULL;
     int deleteCount = 0;
     int busyCount = 0;
+
+#   ifdef TIME_LOG
+    OsTimeLog gcTimes;
+    gcTimes.addEvent("start");
+#   endif
 
     lock();
 
@@ -255,12 +273,38 @@ void SipTransactionList::removeOldTransactions(long oldTransaction,
     }
 
     // Delete the transactions in the array
+    if (transactionsToBeDeleted)
+    {
+#      ifdef TIME_LOG
+       gcTimes.addEvent("start delete");
+#      endif
+
     for(int txIndex = 0; txIndex < deleteCount; txIndex++)
     {
         delete transactionsToBeDeleted[txIndex];
+#         ifdef TIME_LOG
+          gcTimes.addEvent("transaction deleted");
+#         endif
     }
 
-    if(transactionsToBeDeleted) delete[] transactionsToBeDeleted;
+#      ifdef TIME_LOG
+       gcTimes.addEvent("finish delete");
+#      endif
+/*
+        while((transactionFound = (SipTransaction*) iterator()))
+        {
+            transactionFound->stopTimers();
+        }
+*/
+    }
+
+#   ifdef TIME_LOG
+    UtlString timeString;
+    gcTimes.getLogString(timeString);
+    OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTransactionList::removeOldTransactions "
+                  "%s", timeString.data()
+                  );
+#   endif
 }
 
 void SipTransactionList::stopTransactionTimers()

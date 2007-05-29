@@ -1,4 +1,7 @@
-//
+// 
+// Copyright (C) 2005-2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -50,14 +53,17 @@ typedef unsigned int UINT;
 
 /* 64 bit integers; unsigned is not defined since it is not likely needed */
 #ifdef WIN32
-typedef unsigned __int64 UINT64;
+typedef unsigned __int64 UInt64;
+typedef __int64 Int64;
 #else
-typedef unsigned long long UINT64;
+typedef unsigned long long UInt64;
+typedef long long int Int64;
 #endif /* WIN32 */
 
 /* 128 bit integers; unsigned is not defined since it is not likely needed */
+#ifndef WINCE
 typedef struct {
     unsigned char octet[16];
 } UINT128;
-
+#endif
 #endif /* LOCALTYPES__H__ */

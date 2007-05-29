@@ -21,8 +21,21 @@
 #include "assert.h"
 #include "utl/UtlRegex.h"
 
+#ifndef    SIPX_MAX_REGEX_RECURSION
+#   define SIPX_MAX_REGEX_RECURSION 800
+#endif
+
+const unsigned long int RegEx::MAX_RECURSION = SIPX_MAX_REGEX_RECURSION;
+
+// Some versions do not separately define a limit for stack recursion;
+// for those, we must just limit the number of matches.
+#ifndef   PCRE_EXTRA_MATCH_LIMIT_RECURSION
+#  define PCRE_EXTRA_MATCH_LIMIT_RECURSION PCRE_EXTRA_MATCH_LIMIT
+#  define match_limit_recursion match_limit
+#endif
+
 /////////////////////////////////
-RegEx::RegEx(const char * regex, int options)
+RegEx::RegEx(const char * regex, int options, unsigned long int maxDepth)
 {
    const char*  pcre_error;
    int          erroffset;
@@ -58,6 +71,18 @@ RegEx::RegEx(const char * regex, int options)
       study_size = 0;
    }
    
+   if (!pe)
+   {
+      // pcre_study didn't return any study data,
+      // but we need the pcre_extra block anyway for the recursion limit,
+      // so get one
+      pe = (pcre_extra*)pcre_malloc(sizeof(pcre_extra));
+      memset(pe, 0, sizeof(pcre_extra));
+   }
+   // set the maximum recursion depth option in the pcre_extra (pe) block
+   pe->flags |= PCRE_EXTRA_MATCH_LIMIT_RECURSION;
+   pe->match_limit_recursion = maxDepth;
+      
    // allocate space for match results based on how many substrings
    // there are in the expression (+1 for the entire match)
    pcre_fullinfo(re, pe, PCRE_INFO_CAPTURECOUNT, &substrcount);
@@ -79,11 +104,9 @@ RegEx::RegEx(const RegEx& regex)
       memcpy(re, regex.re, regex.re_size);
       re_size = regex.re_size;
          
-      if (   (regex.pe) // did the original pcre_study return anything?
-          && (0 < regex.study_size)
-          )
+      if (regex.pe) // should always be true, because constructor allocates it
       {
-         // allocate memory for the extra study information
+         // allocate memory for the extra study information and recursion limit
          pe = (pcre_extra*)pcre_malloc(sizeof(pcre_extra));
          if (pe)
          {
@@ -99,16 +122,14 @@ RegEx::RegEx(const RegEx& regex)
             }
             else
             {
-               // failed to allocate the study data, so drop pe completely.
-               pcre_free(pe);
-               pe = NULL;
+               // failed to allocate the study data - not optimal, but we can continue
                study_size = 0;
                allocated_study = false;
             }
          }
          else
          {
-            // failed to allocate extra data
+            // failed to allocate extra data - not good, but try to continue
             study_size = 0;
             allocated_study = false;
          }
@@ -116,6 +137,7 @@ RegEx::RegEx(const RegEx& regex)
       else
       {
          // no extra or study data to copy
+         // this should not happen because we always want the recursion limit
          pe = NULL;
          study_size = 0;
          allocated_study = false;

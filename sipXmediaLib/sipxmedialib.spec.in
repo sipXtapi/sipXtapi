@@ -3,11 +3,11 @@ Version: @VERSION@
 Release: %{buildno}
 
 Summary: Media processing library
-License: Pingtel Commercial License
+License: LGPL
 Group: Development/Libraries
-Vendor: Pingtel Corp.
-Packager: Pingtel <support@pingtel.com>
-Url: http://www.pingtel.com
+Vendor: SIPfoundry
+Packager: SIPfoundry <sipx-dev@sipfoundry.org>
+Url: http://www.sipfoundry.org/sipXmediaLib
 
 Source: %name-%version.tar.gz
 
@@ -62,14 +62,14 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
-%doc CONTRIBUTORS INSTALL README NEWS TODO ChangeLog %name.configlog
+%doc CONTRIBUTORS LICENSE INSTALL README NEWS TODO ChangeLog %name.configlog
 %attr(755,root,root) %{_libdir}/libsipXmedia.la
 %attr(755,root,root) %{_libdir}/libsipXmedia.so*
 %attr(755,root,root) %{_bindir}/%name-config
 
 %files devel
 %defattr(644,root,root,755)
-%doc CONTRIBUTORS INSTALL README NEWS TODO ChangeLog %name.configlog
+%doc CONTRIBUTORS LICENSE INSTALL README NEWS TODO ChangeLog %name.configlog
 %doc %{_datadir}/doc/sipx/%name/*
 # %attr(755,root,root) %{_libdir}/debug/usr/lib/libsipXmedia.so*
 %{_libdir}/libsipXmedia.a

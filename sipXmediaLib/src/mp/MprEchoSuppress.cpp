@@ -252,7 +252,7 @@ void MprEchoSuppress::frame_match(MpBufPtr in)
     }
     while ((NULL == mpPrev) && (0 < MpMisc.pEchoQ->numMsgs())) {
         if (OS_SUCCESS == MpMisc.pEchoQ->receive((OsMsg*&) pMsg,
-                                                          OsTime::NO_WAIT)) {
+                                                          OsTime::NO_WAIT_TIME)) {
             mpPrev = pMsg->getTag();
             // MpBuf_delRef(pMsg->getTag(1));
             pMsg->releaseMsg();
@@ -371,7 +371,7 @@ UtlBoolean MprEchoSuppress::doProcessFrame(MpBufPtr inBufs[],
     in32 = NULL;
 #endif /* FLOWGRAPH_DOES_RESAMPLING ] */
 #else
-	
+in32=NULL;	
     
 #endif
     in8 = inBufs[0];

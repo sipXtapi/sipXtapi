@@ -17,6 +17,8 @@
 // SYSTEM INCLUDES
 #ifdef _WIN32 /* [ */
 #include <winsock.h>
+#elif defined(__pingtel_on_posix__)
+#include <sys/types.h>
 #endif /* _WIN32 ] */
 
 // APPLICATION INCLUDES

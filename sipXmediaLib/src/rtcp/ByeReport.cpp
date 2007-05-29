@@ -11,6 +11,9 @@
 
 //  Includes
 #include "rtcp/ByeReport.h"
+#ifdef WINCE
+#   include <winsock.h>
+#endif
 #ifdef __pingtel_on_posix__
 #include <netinet/in.h>
 #endif

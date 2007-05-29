@@ -12,16 +12,25 @@
 #include <assert.h>
 #include <stdio.h>
 #ifndef _WIN32
+#include <sys/types.h>
+#include <sys/socket.h>
 #include <netinet/in.h>
+#include <arpa/inet.h>     
 #endif
 
 // APPLICATION INCLUDES
+#include "os/OsSocket.h"
 #include "os/OsNatConnectionSocket.h"
 #include "os/OsNatAgentTask.h"
 #include "os/OsLock.h"
 #include "os/OsSysLog.h"
 #include "os/OsEvent.h"
 #include "tapi/sipXtapi.h"
+#include "os/OsProtectEvent.h"
+#include "os/OsProtectEventMgr.h"
+#include "utl/UtlInt.h"
+#include "utl/UtlHashMapIterator.h"
+
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -42,9 +51,21 @@ OsNatConnectionSocket::OsNatConnectionSocket(int connectedSocketDescriptor,
                                              const RtpTcpRoles role)
     : OsConnectionSocket(connectedSocketDescriptor),
       mRole(role),
-      mRoleMutex(OsMutex::Q_FIFO)
-{
-        socketDescriptor = connectedSocketDescriptor;
+      mRoleMutex(OsMutex::Q_FIFO),
+      mStreamHandlerMutex(OsMutex::Q_FIFO),
+      mFragmentSize(0),
+      mpDatagramSocket(NULL),
+      mpNatAgent(NULL)
+{    
+    if (0 == mRole)
+    {
+        mRole = RTP_TCP_ROLE_ACTPASS;
+    }
+    socketDescriptor = connectedSocketDescriptor;
+    mpNatAgent = OsNatAgentTask::getInstance() ;
+    mbTransparentReads = TRUE ;    
+    mDestAddress = mRemoteIpAddress ;
+    miDestPriority = -1 ;
 }
 
 OsNatConnectionSocket::OsNatConnectionSocket(const char* szLocalIp,
@@ -52,10 +73,23 @@ OsNatConnectionSocket::OsNatConnectionSocket(const char* szLocalIp,
                                              const RtpTcpRoles role)
     : OsConnectionSocket(szLocalIp, connectedSocketDescriptor),
       mRole(role),
-      mRoleMutex(OsMutex::Q_FIFO)
+      mRoleMutex(OsMutex::Q_FIFO),
+      mStreamHandlerMutex(OsMutex::Q_FIFO),
+      mFragmentSize(0),
+      mpDatagramSocket(NULL),
+      mpNatAgent(NULL)
+      
 {
-        socketDescriptor = connectedSocketDescriptor;
-        mLocalIp = szLocalIp;
+    if (0 == mRole)
+    {
+        mRole = RTP_TCP_ROLE_ACTPASS;
+    }
+    socketDescriptor = connectedSocketDescriptor;
+    mLocalIp = szLocalIp;
+    mpNatAgent = OsNatAgentTask::getInstance() ;
+    mbTransparentReads = TRUE ;    
+    mDestAddress = mRemoteIpAddress ;
+    miDestPriority = -1 ;
 }
 
 // Constructor
@@ -67,9 +101,16 @@ OsNatConnectionSocket::OsNatConnectionSocket(int serverPort,
                                        const RtpTcpRoles role)
         : OsConnectionSocket(serverPort, serverName, blockingConnect, localIp, bConnect),
           mRole(role),
-          mRoleMutex(OsMutex::Q_FIFO)
+          mRoleMutex(OsMutex::Q_FIFO),
+          mStreamHandlerMutex(OsMutex::Q_FIFO),
+          mFragmentSize(0),
+          mpDatagramSocket(NULL),
+          mpNatAgent(NULL)
 {    
-    miRecordTimes = ONDS_MARK_NONE ;
+    if (0 == mRole)
+    {
+        mRole = RTP_TCP_ROLE_ACTPASS;
+    }
 
     // Init Stun state
     mStunState.bEnabled = false ;
@@ -89,14 +130,13 @@ OsNatConnectionSocket::OsNatConnectionSocket(int serverPort,
     mDestAddress = mRemoteIpAddress ;
     miDestPort = remoteHostPort ;
     miDestPriority = -1 ;
-
 }
 
 
 // Destructor
 OsNatConnectionSocket::~OsNatConnectionSocket()
 {
-
+    destroy();
 }
  
  
@@ -117,8 +157,11 @@ const RtpTcpRoles OsNatConnectionSocket::getRole() const
  
 void OsNatConnectionSocket::destroy()
 {
-    mpNatAgent->removeKeepAlives(this) ;
-    mpNatAgent->removeStunProbes(this) ;
+    if (mpNatAgent)
+    {
+        mpNatAgent->removeKeepAlives(this) ;
+        mpNatAgent->removeStunProbes(this) ;
+    }
     disableStun() ;
     disableTurn() ;
 
@@ -130,46 +173,12 @@ void OsNatConnectionSocket::destroy()
 
 int OsNatConnectionSocket::read(char* buffer, int bufferLength)
 {
-    bool bNatPacket ;
     int iRC ;
     UtlString receivedIp ;
     int iReceivedPort ;
 
-    do
-    {   
-        bNatPacket = FALSE ;
-        iRC = OsSocket::read(buffer, bufferLength, &receivedIp, &iReceivedPort) ;
-        if ((iRC > 0) && TurnMessage::isTurnMessage(buffer, iRC))
-        {
-            handleTurnMessage(buffer, iRC, receivedIp, iReceivedPort) ;
-            if (!mbTransparentReads)
-            {
-                iRC = 0 ;
-            }
-            else
-            {
-                bNatPacket = TRUE ;
-            }
-        }
-        else if ((iRC > 0) && StunMessage::isStunMessage(buffer, iRC))
-        {
-            handleStunMessage(buffer, iRC, receivedIp, iReceivedPort) ;
-            if (!mbTransparentReads)
-            {
-                iRC = 0 ;
-            }
-            else
-            {
-                bNatPacket = TRUE ;
-            }
-        }
-    } while ((iRC >= 0) && bNatPacket) ;
-
-    // Make read time for non-NAT packets
-    if (iRC > 0 && !bNatPacket)
-    {
-        markReadTime() ;
-    }
+    iRC = OsSocket::read(buffer, bufferLength, &receivedIp, &iReceivedPort) ;
+    handleFramedStream(buffer, bufferLength,  receivedIp.data(), iReceivedPort);
 
     return iRC ;
 }
@@ -177,56 +186,11 @@ int OsNatConnectionSocket::read(char* buffer, int bufferLength)
 int OsNatConnectionSocket::read(char* buffer, int bufferLength,
        UtlString* ipAddress, int* port)
 {
-    bool bNatPacket ;
     int iRC ;
-    UtlString receivedIp ;
-    int iReceivedPort ;
 
-    do
-    {
-        bNatPacket = FALSE ;
-        iRC = OsSocket::read(buffer, bufferLength, &receivedIp, &iReceivedPort) ;       
-        if ((iRC > 0) && TurnMessage::isTurnMessage(buffer, iRC))
-        {
-            handleTurnMessage(buffer, iRC, receivedIp, iReceivedPort) ;
-            if (!mbTransparentReads)
-            {
-                iRC = 0 ;
-            }
-            else
-            {
-                bNatPacket = TRUE ;
-            }
-        }
-        else if ((iRC > 0) && StunMessage::isStunMessage(buffer, iRC))
-        {
-            handleStunMessage(buffer, iRC, receivedIp, iReceivedPort) ;
-            if (!mbTransparentReads)
-            {
-                iRC = 0 ;
-            }
-            else
-            {
-                bNatPacket = TRUE ;
-            }
-        }
-    } while ((iRC >= 0) && bNatPacket) ;
+    iRC = OsSocket::read(buffer, bufferLength, ipAddress, port) ;       
+    handleFramedStream(buffer, iRC, ipAddress->data(), *port);
 
-    if (ipAddress)
-    {
-        *ipAddress = receivedIp ;
-    }
-
-    if (port)
-    {
-        *port = iReceivedPort ;
-    }
-
-    // Make read time for non-NAT packets
-    if (iRC > 0 && !bNatPacket)
-    {
-        markReadTime() ;
-    }
 
     return iRC ;
 }
@@ -234,60 +198,19 @@ int OsNatConnectionSocket::read(char* buffer, int bufferLength,
 int OsNatConnectionSocket::read(char* buffer, int bufferLength,
        struct in_addr* ipAddress, int* port)
 {
-    bool bNatPacket ;
-    int iRC ;    
-    struct in_addr fromSockAddress;
+    int iRC ;
     int iReceivedPort ;
+    UtlString receivedIp ;
+
+    iRC = read(buffer, bufferLength, &receivedIp, &iReceivedPort) ;
    
-    do
-    {
-        bNatPacket = FALSE ;
-        iRC = OsSocket::read(buffer, bufferLength, &fromSockAddress, &iReceivedPort) ;      
-        if ((iRC > 0) && TurnMessage::isTurnMessage(buffer, iRC))
-        {
-            UtlString receivedIp ;
-            inet_ntoa_pt(fromSockAddress, receivedIp);
-            handleTurnMessage(buffer, iRC, receivedIp, iReceivedPort) ;
-            if (!mbTransparentReads)
-            {
-                iRC = 0 ;
-            }
-            else
-            {
-                bNatPacket = TRUE ;
-            }
-        }
-        else if ((iRC > 0) && StunMessage::isStunMessage(buffer, iRC))
-        {
-            UtlString receivedIp ;
-            inet_ntoa_pt(fromSockAddress, receivedIp);
-            handleStunMessage(buffer, iRC, receivedIp, iReceivedPort) ;
-            if (!mbTransparentReads)
-            {
-                iRC = 0 ;
-            }
-            else
-            {
-                bNatPacket = TRUE ;
-            }
-        }
-    } while ((iRC >= 0) && bNatPacket) ;
+    if (ipAddress)
+        ipAddress->s_addr = inet_addr(receivedIp) ;
 
-    if (ipAddress != NULL)
-    {
-        memcpy(ipAddress, &fromSockAddress, sizeof(struct in_addr)) ;
-    }
-
-    if (port != NULL)
-    {
+    if (port)
         *port = iReceivedPort ;
-    }
 
-    // Make read time for non-NAT packets
-    if (iRC > 0 && !bNatPacket)
-    {
-        markReadTime() ;
-    }
+    handleFramedStream(buffer, bufferLength, receivedIp.data(), iReceivedPort);
 
     return iRC ;
 }
@@ -306,29 +229,12 @@ int OsNatConnectionSocket::read(char* buffer, int bufferLength, long waitMillise
         {
             bNatPacket = FALSE ;
             iRC = OsSocket::read(buffer, bufferLength, &receivedIp, &iReceivedPort) ;            
-            if ((iRC > 0) && TurnMessage::isTurnMessage(buffer, iRC))
+            if (handleSturnData(buffer, iRC, receivedIp, iReceivedPort))
             {
-                handleTurnMessage(buffer, iRC, receivedIp, iReceivedPort) ;
                 if (!mbTransparentReads)
-                {
                     iRC = 0 ;
-                }
                 else
-                {
                     bNatPacket = TRUE ;
-                }
-            }
-            else if ((iRC > 0) && StunMessage::isStunMessage(buffer, iRC))
-            {
-                handleStunMessage(buffer, iRC, receivedIp, iReceivedPort) ;
-                if (!mbTransparentReads)
-                {
-                    iRC = 0 ;
-                }
-                else
-                {
-                    bNatPacket = TRUE ;
-                }
             }
         }
         else
@@ -349,60 +255,71 @@ int OsNatConnectionSocket::read(char* buffer, int bufferLength, long waitMillise
 
 int OsNatConnectionSocket::write(const char* buffer, int bufferLength)
 {
+    int framedLength = 0;
+    const char* framedBuffer = frameBuffer(STUN /* use the STUN octet*/, buffer, bufferLength, framedLength);
+    int written = 0;
     markWriteTime() ;
-    return OsConnectionSocket::write(buffer, bufferLength) ;
+    written = OsConnectionSocket::write(framedBuffer, framedLength);
+    free((void*)framedBuffer);
+    return written;
 }
 
+
+int OsNatConnectionSocket::socketWrite(const char* buffer, int bufferLength,
+                               const char* ipAddress, int port, PacketType packetType)
+{
+    TURN_FRAMING_TYPE type = STUN;
+    
+    // ironically, STUN probes must be sent with the DATA type, not the STUN type,
+    // all other requests are written with the STUN (TURN) type.
+    if (STUN_PROBE_PACKET == packetType)
+    {
+        type = DATA;
+    }
+    int framedLength = 0;
+    const char* framedBuffer = frameBuffer(type, buffer, bufferLength, framedLength);
+    
+    int written = 0;
+    if (MEDIA_PACKET == packetType)
+    {
+        markWriteTime() ;
+    }
+    written = OsConnectionSocket::write(framedBuffer, framedLength, ipAddress, port) ;
+    free((void*)framedBuffer);
+    return written;
+}
 
 int OsNatConnectionSocket::write(const char* buffer, int bufferLength,
                                const char* ipAddress, int port)
 {
+    int framedLength = 0;
+    const char* framedBuffer = frameBuffer(STUN, buffer, bufferLength, framedLength);
+    
+    int written = 0;
     markWriteTime() ;
-    return OsConnectionSocket::write(buffer, bufferLength, ipAddress, port) ;
+    written = OsConnectionSocket::write(framedBuffer, framedLength, ipAddress, port) ;
+    free((void*)framedBuffer);
+    return written;
 }
 
 
 int OsNatConnectionSocket::write(const char* buffer, int bufferLength, 
                                long waitMilliseconds)
 {
+    int framedLength = 0;
+    const char* framedBuffer = frameBuffer(STUN, buffer, bufferLength, framedLength);
+    
+    int written = 0;
     markWriteTime() ;
-    return OsConnectionSocket::write(buffer, bufferLength, waitMilliseconds) ;
+    written = OsConnectionSocket::write(framedBuffer, framedLength, waitMilliseconds) ;
+    free((void*)framedBuffer);
+    return written;
 }
 
 
 void OsNatConnectionSocket::enableStun(const char* szStunServer, int stunPort, int iKeepAlive,  int iStunOptions, bool bReadFromSocket) 
 {    
-    if (!mStunState.bEnabled)
-    {
-        mStunState.bEnabled = true ;
-
-        bool bRC = mpNatAgent->enableStun(this, szStunServer, stunPort, iStunOptions, iKeepAlive) ;
-        if (bRC)
-        {
-            if (bReadFromSocket)
-            {
-                bool bTransparent = mbTransparentReads ;
-                mbTransparentReads = false ;
-
-                char cBuf[2048] ;            
-
-                while (mStunState.status == NAT_STATUS_UNKNOWN)
-                {
-                    read(cBuf, sizeof(cBuf), 500) ;                
-                    if (mStunState.status == NAT_STATUS_UNKNOWN)
-                    {
-                        OsTask::yield() ;
-                    }
-                }
-
-                mbTransparentReads = bTransparent ;
-            }
-        }
-        else
-        {
-            mStunState.status = NAT_STATUS_FAILURE ;
-        }
-    }
+    assert(false);
 }
 
 
@@ -416,7 +333,7 @@ void OsNatConnectionSocket::disableStun()
 }
 
 
-void OsNatConnectionSocket::enableTurn(const char* szTurnSever,
+void OsNatConnectionSocket::enableTurn(const char* szTurnServer,
                                      int turnPort,
                                      int iKeepAlive,
                                      const char* username,
@@ -426,8 +343,14 @@ void OsNatConnectionSocket::enableTurn(const char* szTurnSever,
     if (!mTurnState.bEnabled)
     {
         mTurnState.bEnabled = true ;
+        
+        if (!isClientConnected(szTurnServer, turnPort))
+        {
+            //initialize(szTurnServer, turnPort, true) ;
+            clientConnect(szTurnServer, turnPort);
+        }
     
-        bool bRC = mpNatAgent->enableTurn(this, szTurnSever, turnPort, iKeepAlive, username, password) ;
+        bool bRC = mpNatAgent->enableTurn(this, szTurnServer, turnPort, iKeepAlive, username, password) ;
         if (bRC)
         { 
             if (bReadFromSocket)
@@ -509,37 +432,12 @@ UtlBoolean OsNatConnectionSocket::removeStunKeepAlive(const char* szRemoteIp,
 // Return the external mapped IP address for this socket.
 UtlBoolean OsNatConnectionSocket::getMappedIp(UtlString* ip, int* port) 
 {
-    UtlBoolean bSuccess = false ;
-
-    // Wait for mapped IP to become available
-    while (mStunState.status == NAT_STATUS_UNKNOWN && mStunState.bEnabled)
+    UtlBoolean result(false);
+    if (mpDatagramSocket)
     {
-        if (mStunState.status == NAT_STATUS_UNKNOWN && mStunState.bEnabled)
-        {
-            OsTask::yield() ;
-        }
+        mpDatagramSocket->getMappedIp(ip, port);
     }
-
-    if (mStunState.mappedAddress.length() && mStunState.bEnabled) 
-    {
-        if (ip)
-        {
-            *ip = mStunState.mappedAddress ;
-        }
-
-        if (port)
-        {
-            *port = mStunState.mappedPort ;
-        }
-
-        // Success if we were able to set either the ip or port
-        if (ip || port)
-        {
-            bSuccess = true ;
-        }
-    }
-
-    return bSuccess ;
+    return result;
 }
 
 // Return the external relay/return IP address for this socket.
@@ -585,6 +483,7 @@ void OsNatConnectionSocket::addAlternateDestination(const char* szAddress, int i
     mpNatAgent->sendStunProbe(this, szAddress, iPort, priority) ;
 }
 
+
 void OsNatConnectionSocket::readyDestination(const char* szAddress, int iPort) 
 {
     if (mTurnState.bEnabled && (mTurnState.status == NAT_STATUS_SUCCESS))
@@ -600,61 +499,6 @@ void OsNatConnectionSocket::setNotifier(OsNotification* pNotification)
     mbNotified = false ;
 }
 
-
-bool OsNatConnectionSocket::getFirstReadTime(OsDateTime& time) 
-{
-    bool bRC = (miRecordTimes & ONDS_MARK_FIRST_READ) == 
-            ONDS_MARK_FIRST_READ ;
-
-    if (bRC)
-    {
-        time = mFirstRead ;
-    }
-
-    return bRC ;
-}
-
-
-bool OsNatConnectionSocket::getLastReadTime(OsDateTime& time)
-{
-    bool bRC = (miRecordTimes & ONDS_MARK_LAST_READ) == 
-            ONDS_MARK_LAST_READ ;
-
-    if (bRC)
-    {
-        time = mLastRead ;
-    }
-
-    return bRC ;
-}
-
-
-bool OsNatConnectionSocket::getFirstWriteTime(OsDateTime& time) 
-{
-    bool bRC = (miRecordTimes & ONDS_MARK_FIRST_WRITE) == 
-            ONDS_MARK_FIRST_WRITE ;
-
-    if (bRC)
-    {
-        time = mFirstWrite ;
-    }
-
-    return bRC ;
-}
-
-
-bool OsNatConnectionSocket::getLastWriteTime(OsDateTime& time) 
-{
-    bool bRC = (miRecordTimes & ONDS_MARK_LAST_WRITE) == 
-            ONDS_MARK_LAST_WRITE ;
-
-    if (bRC)
-    {
-        time = mLastWrite ;
-    }
-
-    return bRC ;
-}
 
 
 /* ============================ INQUIRY =================================== */
@@ -798,65 +642,195 @@ UtlBoolean OsNatConnectionSocket::applyDestinationAddress(const char* szAddress,
     return bRC ;
 }
 
-
-void OsNatConnectionSocket::handleStunMessage(char* pBuf, 
-                                            int length, 
-                                            UtlString& fromAddress, 
-                                            int fromPort) 
+const char* OsNatConnectionSocket::frameBuffer(TURN_FRAMING_TYPE type,
+                                                    const char* buffer,
+                                                    const int bufferLength,
+                                                    int& framedBufferLen)
 {
-    // Make copy and queue it. 
-    char* szCopy = (char*) malloc(length) ;
-    if (szCopy)
-    {
-        memcpy(szCopy, pBuf, length) ;
-        NatMsg msg(NatMsg::STUN_MESSAGE, szCopy, length, this, fromAddress, fromPort);
-        mpNatAgent->postMessage(msg) ;
-    }
+   /*
+    *   0                   1                   2                   3
+    *   0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+    *  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    *  |     Type      |  Reserved = 0 |            Length             |
+    *  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    *
+    */
+    char* pBuff = NULL;
+    char* szFramedBuffer = (char*) malloc(MAX_RTP_BYTES + 4);
+    
+    
+    u_short typeByte = 0;
+    typeByte = type;
+    typeByte = typeByte << 8;
+    typeByte = htons((u_short) typeByte);
+    memcpy(szFramedBuffer, &typeByte, sizeof(u_short));
+
+    u_short packetLength = htons((u_short) bufferLength);
+    memcpy(szFramedBuffer + sizeof(u_short), &packetLength, sizeof(u_short));
+    
+    memcpy(szFramedBuffer + (2 * sizeof(u_short)), buffer, bufferLength);
+    framedBufferLen = bufferLength + (2 * sizeof(u_short));
+    return szFramedBuffer;
 }
 
-
-void OsNatConnectionSocket::handleTurnMessage(char* pBuf, 
-                                            int length, 
-                                            UtlString& fromAddress, 
-                                            int fromPort) 
+void OsNatConnectionSocket::handleFramedStream(       char* pData,
+                                                      const int size,
+                                                      const char* receivedIp,
+                                                      const int port)
 {
-    // Make copy and queue it. 
-    char* szCopy = (char*) malloc(length) ;
-    if (szCopy)
+    mStreamHandlerMutex.acquire();
+    char szStreamChunk [(MAX_RTP_BYTES + 4) * 2];
+    
+    unsigned int streamBufferSize = size;
+    if (size < 1 || size > (MAX_RTP_BYTES+4))
     {
-        memcpy(szCopy, pBuf, length) ;
-        NatMsg msg(NatMsg::TURN_MESSAGE, szCopy, length, this, fromAddress, fromPort);
-        mpNatAgent->postMessage(msg) ;
-    }    
+        mStreamHandlerMutex.release();
+        return;  // can't handle this
+    }
+
+    // first memcpy in any leftover fragments
+    if (mFragmentSize < 0 || mFragmentSize > ((MAX_RTP_BYTES + 4) * 2))
+    {
+        assert(false);
+        mFragmentSize = 0;
+    }
+    if (mFragmentSize)
+    {
+        memcpy(szStreamChunk, mszFragment, mFragmentSize);
+        memcpy(szStreamChunk + mFragmentSize, pData, size);
+        streamBufferSize += mFragmentSize;
+        mFragmentSize = 0;        
+    }
+    else
+    {
+        memcpy(szStreamChunk, pData, size);
+    }
+
+    
+    u_short packLen;
+    memcpy(&packLen, szStreamChunk + sizeof(u_short), sizeof(u_short));
+    packLen = ntohs(packLen);
+    assert(packLen > 0);
+    assert(packLen <= MAX_RTP_BYTES);
+    
+    if (packLen > MAX_RTP_BYTES)
+    {
+        OsSysLog::add(FAC_STREAMING, PRI_DEBUG, "OsNatConnectionSocket::handleFramedStream - Received invalid framing header.");
+        mStreamHandlerMutex.release();
+        return;
+    }
+    
+    TURN_FRAMING_TYPE type;
+    char* pStreamBuffer = szStreamChunk;
+    if (streamBufferSize >= (packLen + (2*sizeof(u_short))) )
+    {
+        u_short typeByte = *pStreamBuffer;
+        typeByte = ntohs((u_short)typeByte);
+        type = (TURN_FRAMING_TYPE)typeByte;
+        
+        handleUnframedBuffer(type, pStreamBuffer + (2*sizeof(u_short)), packLen, receivedIp, port);
+
+        streamBufferSize = streamBufferSize - packLen - (2*sizeof(u_short));
+        pStreamBuffer = pStreamBuffer + (2*sizeof(u_short)) + packLen;        
+
+        if (streamBufferSize)
+        {
+            handleFramedStream(pStreamBuffer, streamBufferSize, receivedIp, port);
+        }
+    }
+    else
+    {
+        mFragmentSize = streamBufferSize;
+        if (mFragmentSize)
+        {
+            memcpy(mszFragment, pStreamBuffer, mFragmentSize);
+        }
+      
+    }
+    mStreamHandlerMutex.release();
+    return;    
+}                      
+
+ bool OsNatConnectionSocket::handleUnframedBuffer(const TURN_FRAMING_TYPE type,
+                                        const char* buff,
+                                        const int buffSize,
+                                        const char* receivedIp,
+                                        const int port)
+{
+    bool bNatPacket = false;
+    
+    int iRC = buffSize;
+    int receivedPort ;
+    UtlString sReceivedIp(receivedIp);
+    bool bHandled = handleSturnData((char*)buff, iRC, sReceivedIp, receivedPort);
+    if (iRC)
+    {
+        if (!mbTransparentReads)
+            iRC = 0 ;
+        else
+            bNatPacket = TRUE ;
+    }
+    
+    // Make read time for non-NAT packets
+    if (iRC > 0 && !bNatPacket)
+    {
+        markReadTime() ;
+    }
+    
+    return bHandled;
+}                                    
+
+void OsNatConnectionSocket::addClientConnection(const char* ipAddress, const int port, OsNatConnectionSocket* pClient)
+{
+    char szPort[16];
+    sprintf(szPort, "%d", port);
+    UtlString* key = new UtlString();;
+    *key = UtlString(ipAddress) + UtlString(":") + UtlString(szPort);
+    UtlInt* container = new UtlInt((int) pClient);
+    mClientConnectionSockets.insertKeyAndValue(key, container);
+
 }
 
-
-void OsNatConnectionSocket::markReadTime()
+int OsNatConnectionSocket::clientConnect(const char* szServer, const int port)
 {
-    // Always mark last read
-    miRecordTimes |= ONDS_MARK_LAST_READ ;
-    OsDateTime::getCurTime(mLastRead) ;
-
-    // Mark first read if not already set
-    if ((miRecordTimes & ONDS_MARK_FIRST_READ) == 0)
+    int iRet = -1;
+    OsNatConnectionSocket* pClient = getClientConnection(szServer, port);
+    if (pClient && !pClient->isConnected())
     {
-        miRecordTimes |= ONDS_MARK_FIRST_READ ;
-        mFirstRead = mLastRead ;
+        iRet = pClient->connect();
     }
+
+    return iRet;
 }
 
-void OsNatConnectionSocket::markWriteTime()
+bool OsNatConnectionSocket::isClientConnected(const char* szServer, const int port)
 {
-    // Always mark last write
-    miRecordTimes |= ONDS_MARK_LAST_WRITE ;
-    OsDateTime::getCurTime(mLastWrite) ;
-
-    // Mark first write if not already set
-    if ((miRecordTimes & ONDS_MARK_FIRST_WRITE) == 0)
+    bool bRet = false;
+    OsNatConnectionSocket* pClient = getClientConnection(szServer, port);
+    if (pClient)
     {
-        miRecordTimes |= ONDS_MARK_FIRST_WRITE ;
-        mFirstWrite = mLastWrite ;
+        bRet = pClient->isConnected();
     }
+    return bRet;
+}
+
+OsNatConnectionSocket* OsNatConnectionSocket::getClientConnection(const char* szServer, const int port)
+{
+     OsNatConnectionSocket* pClient = NULL;
+    
+    UtlInt* pSocketContainer = NULL;
+    UtlString key(szServer);
+    key += ":";
+    char szPort[16];
+    sprintf(szPort, "%d", port);
+    key += szPort;
+    pSocketContainer = (UtlInt*)mClientConnectionSockets.findValue(&key);
+    if (pSocketContainer)
+    {
+        pClient = (OsNatConnectionSocket*)pSocketContainer->getValue();
+    }
+    
+    return pClient;
 }
 
 
@@ -865,4 +839,3 @@ void OsNatConnectionSocket::markWriteTime()
 /* ============================ FUNCTIONS ================================= */
 
 /* ///////////////////////// HELPER CLASSES /////////////////////////////// */
-

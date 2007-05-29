@@ -218,7 +218,7 @@ public:
                            const int bandWidth = AUDIO_MICODEC_BW_DEFAULT,
                            UtlBoolean bOnHold = FALSE,
                            const char* originalCallId = NULL,
-                           const SIPX_RTP_TRANSPORT rtpTransportOptions = UDP_ONLY) = 0;
+                           const RTP_TRANSPORT rtpTransportOptions = RTP_TRANSPORT_UDP) = 0;
    //! param: requestQueuedCall - indicates that the caller wishes to have the callee queue the call if busy
 
    virtual UtlBoolean originalCallTransfer(UtlString& transferTargetAddress,

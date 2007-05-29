@@ -20,7 +20,7 @@
  *              Handle network/host ordering
  *                      July 1997
  */
-
+#include <stdio.h>
 #include "resparse/rr.h"
 #ifdef __pingtel_on_posix__
 #include <resolv.h>
@@ -291,6 +291,32 @@ parse_rr(
                 rd->srv.port = _getshort(*cpp);
                 *cpp += sizeof(u_short);
                 rd->srv.target = expand_cdname(cpp, msg);
+                break;
+
+        case T_NAPTR:                           /* Naming authority pointer */
+        {
+                // This is copied from the other cases, but I think that
+                // all cases should be setting *cpp += dlen, not
+                // cpp += dlen.
+                char **cpp_end = cpp + dlen;
+                rd->naptr.order = _getshort(*cpp);
+                *cpp += sizeof(u_short);
+                rd->naptr.preference = _getshort(*cpp);
+                *cpp += sizeof(u_short);
+                if (( rd->naptr.flags = expand_charstring(cpp, msg)) == NULL ) {
+                        cpp = cpp_end;
+                        break;
+                }
+                if (( rd->naptr.services = expand_charstring(cpp, msg)) == NULL ) {
+                        cpp = cpp_end;
+                        break;
+                }
+                if (( rd->naptr.regexp = expand_charstring(cpp, msg)) == NULL ) {
+                        cpp = cpp_end;
+                        break;
+                }
+                rd->naptr.replacement = expand_cdname(cpp, msg);
+        }
                 break;
 
         case T_TXT:                             /* Text string */

@@ -30,7 +30,7 @@ typedef enum                  // Data source event definitions
    LoadingStartedEvent,       // Data source statred loading
    LoadingThrottledEvent,     // Data source throttled
    LoadingCompletedEvent,     // Data source completed loading
-   LoadingErrorEvent,         // Data source error
+   LoadingErrorEvent         // Data source error
 
 } StreamDataSourceEvent;
 

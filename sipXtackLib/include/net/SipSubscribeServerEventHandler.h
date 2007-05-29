@@ -63,8 +63,9 @@ public:
 
 /* ============================ MANIPULATORS ============================== */
 
-    //! Determine what the resourceId ad eventTypeKey should be for this SUBSCRIBE request
-    /*! The default behavior is to use the identify from the request URI
+    /** Determine what the resourceId, eventTypeKey, and eventType
+     *  should be for this SUBSCRIBE request.
+     *  The default behavior is to use the identify from the request URI
      *  as the resourceId and the event type token from the Event header
      *  as the eventTypeKey.  Some event packages may wish to override
      *  this (e.g. the host part of the resourceID, which will usually be an
@@ -76,7 +77,8 @@ public:
      */
     virtual UtlBoolean getKeys(const SipMessage& subscribeRequest,
                                UtlString& resourceId,
-                               UtlString& eventTypeKey);
+                               UtlString& eventTypeKey,
+                               UtlString& eventType);
 
     //! Determine if the given SUBSCRIBE request is authenticated to subscribe
     /*! Default behavior is to not require any authentication.
@@ -100,6 +102,7 @@ public:
      */
     virtual UtlBoolean getNotifyContent(const UtlString& resourceId,
                                         const UtlString& eventTypeKey,
+                                        const UtlString& eventType,
                                         SipPublishContentMgr& contentMgr,
                                         const char* allowHeaderValue,
                                         SipMessage& notifyRequest);

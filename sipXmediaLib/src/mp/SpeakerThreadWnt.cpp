@@ -11,7 +11,9 @@
 
 // SYSTEM INCLUDES
 #include <windows.h>
-#include <process.h>
+#ifndef WINCE
+#   include <process.h>
+#endif
 #include <mmsystem.h>
 #include <assert.h>
 
@@ -21,6 +23,7 @@
 #include "mp/MpBuf.h"
 #include "mp/MprToSpkr.h"
 #include "mp/MpMediaTask.h"
+#include "os/OsDefs.h"
 
 // DEFINES
 #undef OHISTORY
@@ -252,7 +255,7 @@ static WAVEHDR* outPrePrep(int n, DWORD bufLen)
    while (MpMisc.pSpkQ && MprToSpkr::MAX_SPKR_BUFFERS < MpMisc.pSpkQ->numMsgs()) {
       OsStatus  res;
       flushes++;
-      res = MpMisc.pSpkQ->receive((OsMsg*&) pFlush, OsTime::NO_WAIT);
+      res = MpMisc.pSpkQ->receive((OsMsg*&) pFlush, OsTime::NO_WAIT_TIME);
       if (OS_SUCCESS == res) {
          MpBuf_delRef(pFlush->getTag());
          pFlush->releaseMsg();
@@ -276,7 +279,7 @@ static WAVEHDR* outPrePrep(int n, DWORD bufLen)
 
    ob = NULL;
    if (0 == skip) {
-      if (MpMisc.pSpkQ && OS_SUCCESS == MpMisc.pSpkQ->receive((OsMsg*&)msg, OsTime::NO_WAIT)) {
+      if (MpMisc.pSpkQ && OS_SUCCESS == MpMisc.pSpkQ->receive((OsMsg*&)msg, OsTime::NO_WAIT_TIME)) {
          ob = msg->getTag();
          msg->releaseMsg();
       }
@@ -350,7 +353,8 @@ static int openSpeakerDevices(WAVEHDR*& pWH, HWAVEOUT& hOut)
 
 
     // If either the ringer or call device is set to NONE, don't engage any audio devices
-    if ((stricmp(DmaTask::getRingDevice(), "NONE") == 0) || (stricmp(DmaTask::getCallDevice(), "NONE") == 0))
+    if ((strcasecmp(DmaTask::getRingDevice(), "NONE") == 0) ||
+        (strcasecmp(DmaTask::getCallDevice(), "NONE") == 0))
     {
         ResumeThread(hMicThread);
         return 1;

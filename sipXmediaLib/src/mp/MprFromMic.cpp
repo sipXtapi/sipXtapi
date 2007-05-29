@@ -118,7 +118,7 @@ UtlBoolean MprFromMic::doProcessFrame(MpBufPtr inBufs[],
 		while (pMicOutQ && MpMisc.max_mic_buffers < pMicOutQ->numMsgs()) 
 		{
 	        if (OS_SUCCESS == pMicOutQ->receive((OsMsg*&) pMsg,
-					OsTime::NO_WAIT)) 
+					OsTime::NO_WAIT_TIME)) 
 			{
 				MpBuf_delRef(pMsg->getTag());
 				MpBuf_delRef(pMsg->getTag(1));
@@ -134,7 +134,7 @@ UtlBoolean MprFromMic::doProcessFrame(MpBufPtr inBufs[],
 		else
 		{
 			if (pMicOutQ && OS_SUCCESS == pMicOutQ->receive((OsMsg*&) pMsg, 
-					OsTime::NO_WAIT)) 
+					OsTime::NO_WAIT_TIME)) 
 			{
 				out = pMsg->getTag();
 				pMsg->releaseMsg();

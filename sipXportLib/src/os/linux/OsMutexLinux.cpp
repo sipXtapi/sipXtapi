@@ -36,6 +36,11 @@ OsMutexLinux::OsMutexLinux(const unsigned options)
 
    res = pt_mutex_init(&mMutexImp);
    assert(res == POSIX_OK);
+
+#  ifdef OS_SYNC_DEBUG
+   mSyncCrumbs.dropCrumb(pthread_self(), crumbCreated);
+#  endif
+
 }
 
 // Destructor
@@ -44,12 +49,13 @@ OsMutexLinux::~OsMutexLinux()
    int res;
    res = pt_mutex_destroy(&mMutexImp);
 
-   //assert(res == POSIX_OK);        // pt_mutex_destroy should always return TRUE
    if(res != POSIX_OK)
    {
        osPrintf("**** ERROR: OsMutex at %p could not be destroyed in thread %ld! ****\n", this, pthread_self());
-//       osPrintf("****        OsMutex could not be destroyed in task \"%s\" ****\n", OsTask::getCurrentTask()->getName().data());
    }
+#  ifdef OS_SYNC_DEBUG
+   mSyncCrumbs.dropCrumb(pthread_self(), crumbDeleted);
+#  endif
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -58,24 +64,56 @@ OsMutexLinux::~OsMutexLinux()
 OsStatus OsMutexLinux::acquire(const OsTime& rTimeout)
 {
    struct timespec timeout;
+   OsStatus status;
+   
    if(rTimeout.isInfinite())
-      return (pt_mutex_lock(&mMutexImp) == POSIX_OK) ? OS_SUCCESS : OS_BUSY;
-   if(rTimeout.isNoWait())
-      return (pt_mutex_trylock(&mMutexImp) == POSIX_OK) ? OS_SUCCESS : OS_BUSY;
+   {      
+      status = (pt_mutex_lock(&mMutexImp) == POSIX_OK) ? OS_SUCCESS : OS_BUSY;
+   }
+   else if(rTimeout.isNoWait())
+   {
+      status = (pt_mutex_trylock(&mMutexImp) == POSIX_OK) ? OS_SUCCESS : OS_BUSY;
+   }
+   else
+   {
    OsUtilLinux::cvtOsTimeToTimespec(rTimeout, &timeout);
-   return (pt_mutex_timedlock(&mMutexImp, &timeout) == POSIX_OK) ? OS_SUCCESS : OS_WAIT_TIMEOUT;
+      status = (pt_mutex_timedlock(&mMutexImp, &timeout) == POSIX_OK)
+         ? OS_SUCCESS : OS_WAIT_TIMEOUT;
+   }
+
+#ifdef OS_SYNC_DEBUG
+   if (status == OS_SUCCESS)
+   {
+      mSyncCrumbs.dropCrumb(pthread_self(), crumbAcquired);
+   }
+#endif
+   return status;
 }
 
 // Conditionally acquire the mutex (i.e., don't block)
 // Return OS_BUSY if the lock is held by some other task
 OsStatus OsMutexLinux::tryAcquire(void)
 {
-   return (pt_mutex_trylock(&mMutexImp) == POSIX_OK) ? OS_SUCCESS : OS_BUSY;
+   OsStatus status = (pt_mutex_trylock(&mMutexImp) == POSIX_OK) ? OS_SUCCESS : OS_BUSY;
+
+#ifdef OS_SYNC_DEBUG
+   if (status == OS_SUCCESS)
+   {
+      mSyncCrumbs.dropCrumb(pthread_self(), crumbAcquired);
+   }
+#endif
+
+   return status;
 }
 
 // Release the mutex
 OsStatus OsMutexLinux::release(void)
 {
+#ifdef OS_SYNC_DEBUG
+   // change these while still holding the lock...
+   mSyncCrumbs.dropCrumb(pthread_self(), crumbReleased);
+#endif
+
    return (pt_mutex_unlock(&mMutexImp) == POSIX_OK) ? OS_SUCCESS : OS_BUSY;
 }
 

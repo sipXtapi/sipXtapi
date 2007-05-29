@@ -19,6 +19,8 @@
 // MACROS
 // EXTERNAL FUNCTIONS
 
+class OsConfigDb; // forward declaration
+
 /**
  * Well known function that is called to create a CpMediaInterfaceFactory object,
  * which owns a CpMediaInterfaceFactoryImpl object, which this function also

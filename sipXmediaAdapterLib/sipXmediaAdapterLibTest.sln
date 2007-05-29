@@ -1,0 +1,25 @@
+Microsoft Visual Studio Solution File, Format Version 8.00
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXmediaAdapterLibTest", "sipXmediaAdapterLibTest.vcproj", "{4D2F60E7-A4A4-4429-A640-2894F33824CA}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfiguration) = preSolution
+		Debug = Debug
+		Release = Release
+	EndGlobalSection
+	GlobalSection(ProjectDependencies) = postSolution
+	EndGlobalSection
+	GlobalSection(ProjectDependencies) = postSolution
+	EndGlobalSection
+	GlobalSection(ProjectConfiguration) = postSolution
+		{4D2F60E7-A4A4-4429-A640-2894F33824CA}.Debug.ActiveCfg = Debug|Win32
+		{4D2F60E7-A4A4-4429-A640-2894F33824CA}.Debug.Build.0 = Debug|Win32
+		{4D2F60E7-A4A4-4429-A640-2894F33824CA}.Release.ActiveCfg = Release|Win32
+		{4D2F60E7-A4A4-4429-A640-2894F33824CA}.Release.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+	EndGlobalSection
+	GlobalSection(ExtensibilityAddIns) = postSolution
+	EndGlobalSection
+EndGlobal

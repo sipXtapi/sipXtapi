@@ -46,7 +46,7 @@ public:
       ADD_SOCKET,       // Add a target output socket
       SET_FLUSH_PERIOD, // Set the flush period
       FLUSH_LOG,        // Flush the log (write to disk)
-      SET_CALLBACK,     // Set the callback function
+      SET_CALLBACK     // Set the callback function
    } ;
   //: Defines the various SysLog Msg Subtypes
   //

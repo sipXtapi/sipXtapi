@@ -18,6 +18,7 @@
 #include "mp/StreamDefs.h"
 #include "net/Url.h"
 #include "os/OsBSem.h"
+#include "os/OsEvent.h"
 #include "os/OsDefs.h"
 #include "os/OsServerTask.h"
 #include "os/OsStatus.h"
@@ -51,7 +52,7 @@ public:
    enum SourceType
    {
       SourceUrl,
-      SourceBuffer,
+      SourceBuffer
    } ;
 
 /* ============================ CREATORS ================================== */
@@ -245,7 +246,7 @@ private:
    OsBSem mSemStateChange;          // used to block for state changes
    OsMsgQ* mpMsgQ;                  // MsgQ to send commands
    UtlString mTarget;               // target used for MsgQ receive to help dispatch
-   OsBSem mSemWaitSync;             // used to block until player completes
+   OsEvent mWaitEvent;              // used to block until player completes
    OsTime mRealizeTimeout;          // Timeout for Realize operation
    OsTime mPrefetchTimeout;         // Timeout for Prefetch operation
    OsTime mPlayTimeout;             // Timeout for Play operation

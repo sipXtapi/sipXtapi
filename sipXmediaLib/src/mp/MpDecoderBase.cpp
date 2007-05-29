@@ -34,6 +34,22 @@ int MpDecoderBase::decodeIn(MpBufPtr pPacket)
    return MpBuf_getContentLen(pPacket);
 }
 
+int MpDecoderBase::decode(JB_uchar *encoded, int inSamples, Sample *decoded)
+{
+	return 0;  // Base really can't do any decoding
+}
+
+int MpDecoderBase::reportBufferLength(int iAvePackets)
+{
+	// When implemented, this method allows a codec to take action based on the length of
+	// the jitter buffer since last asked
+	return 0;
+}
+
+void MpDecoderBase::FrameIncrement(void){
+	return;
+}
+
 /* ============================ ACCESSORS ================================= */
 
 // Get static information about the decoder

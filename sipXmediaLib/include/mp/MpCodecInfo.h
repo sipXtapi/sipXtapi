@@ -35,7 +35,7 @@ public:
 /* ============================ CREATORS ================================== */
 
    MpCodecInfo(SdpCodec::SdpCodecTypes codecType,
-               UtlString    codecVersion,
+               const char*  codecVersion,
                UtlBoolean   usesNetEq,
                unsigned    samplingRate,
                unsigned    numBitsPerSample,
@@ -46,6 +46,7 @@ public:
                unsigned    avgPacketBits,
                unsigned    maxPacketBits,
                unsigned    numSamplesPerFrame,
+               unsigned    preCodecJitterBufferSize = 0,
                UtlBoolean   signalingCodec = FALSE,
                UtlBoolean   doesVadCng = FALSE);
      //:Constructor
@@ -109,6 +110,11 @@ public:
    unsigned getMaxPacketBits(void) const;
      //:Returns the maximum number of bits in an encoded frame
 
+   unsigned getPreCodecJitterBufferSize(void) const;
+     // Returns the size of the jitter buffer that the flowgraph should apply to the stream
+     // prior to getting packets for the codec. If set to 0, then there is NO jitter buffer, 
+     // which implies that the codec itself is doing the JB function.
+
 /* ============================ INQUIRY =================================== */
 
    UtlBoolean usesNetEq(void) const;
@@ -137,6 +143,7 @@ private:
    unsigned    mMinPacketBits;
    unsigned    mAvgPacketBits;
    unsigned    mMaxPacketBits;
+   unsigned    mPreCodecJitterBufferSize;
    UtlBoolean   mIsSignalingCodec;
    UtlBoolean   mDoesVadCng;
 

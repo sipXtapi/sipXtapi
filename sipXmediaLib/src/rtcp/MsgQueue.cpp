@@ -14,7 +14,9 @@
 #ifdef _VXWORKS /* [ */
 #include <taskLib.h>
 #elif defined(_WIN32)
-#include <process.h>
+#   ifndef WINCE
+#       include <process.h>
+#   endif
 #elif defined(__pingtel_on_posix__)
 #include "os/OsMsgQ.h"
 #include <pthread.h> /* OS-SPECIFIC!!! (Well, POSIX anyway) Eventually to be
@@ -260,7 +262,7 @@ bool CMsgQueue::Post(CMessage *poMessage)
 #ifdef RTCP_LINUX_DEBUG
     osPrintf("DEBUG: RTCP Message queue queueing message! (type %X)\n", poMessage->GetMsgType());
 #endif
-    if(m_pMsgQ->send(*(OsMsg *)poMessage, OsTime::NO_WAIT))
+    if(m_pMsgQ->send(*(OsMsg *)poMessage, OsTime::NO_WAIT_TIME))
         return(FALSE);
     poMessage->releaseMsg();
 #endif /* ] */
@@ -394,7 +396,7 @@ void CMsgQueue::FlushMessages(void)
 
     // Block Waiting for a new message to arrive on the FIFO
     while(ERROR != msgQReceive(m_ulMsgQID,
-        (char *)&poMessage, sizeof(CMessage *), NO_WAIT))
+        (char *)&poMessage, sizeof(CMessage *), NO_WAIT_TIME))
             delete poMessage;
 #elif defined(__pingtel_on_posix__)
     m_pMsgQ->flush();
@@ -511,13 +513,14 @@ bool CMsgQueue::CreateThreadEvents()
 ************************************************************************|<>|*/
 bool CMsgQueue::CreateMessageThread()
 {
-    unsigned int iMessageThreadID;
+    unsigned long iMessageThreadID;
 
 //  We need to create a separate thread for managing the message queue
-    m_hMessageThread = (int *)_beginthreadex(
+//    m_hMessageThread = (int *)_beginthreadex(
+    m_hMessageThread = (int *)CreateThread(
                 NULL,                // No Special Security Attributes
                 0,                   // Default Stack Size
-                InitMessageThread,   // Thread Function
+                (LPTHREAD_START_ROUTINE) InitMessageThread,   // Thread Function
                 this,                // Argument to the thread function
                 0 ,                  // Run immediately
                 &iMessageThreadID);  // Thread identifier returned

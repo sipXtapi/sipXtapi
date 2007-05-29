@@ -20,7 +20,11 @@
 
 /* Import. */
 
-#include <sys/types.h>
+#ifdef WINCE
+#   include <types.h>
+#else
+#   include <sys/types.h>
+#endif
 
 /* Reordered includes and separated into win/vx --GAT */
 #if defined (_WIN32) /* Use Columbia versions for win32 only --GAT */

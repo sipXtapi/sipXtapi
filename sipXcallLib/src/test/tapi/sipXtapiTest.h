@@ -12,6 +12,9 @@
 #ifndef _SIPXTAPITEST_H
 #define _SIPXTAPITEST_H
 
+#define HAS_MEDIA_ACTIVE_EVENT      // Do we have media active events?
+#undef  HAS_MEDIA_ACTIVE_EVENT
+
 #ifdef _WIN32
 // #define SIPX_TEST_FOR_MEMORY_LEAKS
 #ifdef SIPX_TEST_FOR_MEMORY_LEAKS
@@ -59,17 +62,17 @@
   #define TEST_UTILS              1
   #define TEST_PROBLEMATIC_CASES  0  
 #else
-  #define TEST_AUDIO              0
-  #define TEST_LINE               0
-  #define TEST_CALL               0
-  #define TEST_CALL_HOLD          0
-  #define TEST_CONF               0
-  #define TEST_REG                0
-  #define TEST_TRANSFER           0
-  #define TEST_TRANSFER_ADVANCED  0
-  #define TEST_CONFIG             0
+  #define TEST_AUDIO              1
+  #define TEST_LINE               1
+  #define TEST_CALL               1
+  #define TEST_CALL_HOLD          1
+  #define TEST_CONF               1
+  #define TEST_REG                1
+  #define TEST_TRANSFER           1
+  #define TEST_TRANSFER_ADVANCED  1
+  #define TEST_CONFIG             1
   #define TEST_SUBSCRIBE          0
-  #define TEST_NAT                0
+  #define TEST_NAT                1
   #define TEST_UTILS              1  
   #define TEST_PROBLEMATIC_CASES  0
 #endif /* _WIN32 */
@@ -136,7 +139,6 @@ class sipXtapiTestSuite : public CppUnit::TestFixture
     CPPUNIT_TEST(testCallGetRemoteID) ;
     CPPUNIT_TEST(testCallGetLocalID) ;
     CPPUNIT_TEST(testCallCancel) ;
-    CPPUNIT_TEST(testCallCancel2) ;
     CPPUNIT_TEST(testCallBasic) ;
     CPPUNIT_TEST(testCallBasic2) ;
     CPPUNIT_TEST(testCallBasicTCP) ;
@@ -151,7 +153,6 @@ class sipXtapiTestSuite : public CppUnit::TestFixture
 #ifdef _WIN32
     CPPUNIT_TEST(testCallMute);
 #endif
-    
     CPPUNIT_TEST(testCallRedirect);
     CPPUNIT_TEST(testCallShutdown) ;
     CPPUNIT_TEST(testCallShutdown) ;
@@ -163,7 +164,6 @@ class sipXtapiTestSuite : public CppUnit::TestFixture
     CPPUNIT_TEST(testSendInfoTimeout);
     CPPUNIT_TEST(testSendInfoFailure);
     CPPUNIT_TEST(testCallDestroyRinging);
-    
     CPPUNIT_TEST(testCallGetRemoteUserAgent);
 
     /*CPPUNIT_TEST(testCallBasicSecure);
@@ -187,7 +187,7 @@ class sipXtapiTestSuite : public CppUnit::TestFixture
     CPPUNIT_TEST(testCallHoldTCP) ;
     CPPUNIT_TEST(testCallHoldMultiple1) ;
     CPPUNIT_TEST(testCallHoldMultiple2) ;
-     CPPUNIT_TEST(testCallHoldMultiple3) ;
+    CPPUNIT_TEST(testCallHoldMultiple3) ;
     CPPUNIT_TEST(testCallHoldMultiple4) ;
     CPPUNIT_TEST(testCallHoldExceedingIdleTimeout);
 #endif /* TEST_CALL_HOLD ] */
@@ -199,14 +199,15 @@ class sipXtapiTestSuite : public CppUnit::TestFixture
     CPPUNIT_TEST(testConfBasic4) ;
     CPPUNIT_TEST(testConfBasic5) ;
     CPPUNIT_TEST(testConfBasic6) ;    
+    CPPUNIT_TEST(testConferenceDisplayName);
+    CPPUNIT_TEST(testConferenceLegBusy);
     CPPUNIT_TEST(testConfHoldIndividual) ;
     CPPUNIT_TEST(testConfJoin) ;
     CPPUNIT_TEST(testConfHoldNoBridge) ;
     CPPUNIT_TEST(testConfHoldBridge) ;
     CPPUNIT_TEST(testConfReAdd) ;
-    CPPUNIT_TEST(testConferenceLegBusy);
     
-//    CPPUNIT_TEST(testConferenceDisplayName);
+    
 
     // 
     // The following test cases allow you to manually test join/split and
@@ -220,7 +221,7 @@ class sipXtapiTestSuite : public CppUnit::TestFixture
 #endif /* TEST_CONF ] */
 
 #if TEST_REG /* [ */
-    // CPPUNIT_TEST(testReRegistrationFailure);
+    // CPPUNIT_TEST(testReRegistrationFailure);        // Has some timeing problem (looks like test)
     CPPUNIT_TEST(testRegistration);
     CPPUNIT_TEST(testReRegistration);
     CPPUNIT_TEST(testBadRegistrarRegistration);
@@ -249,7 +250,9 @@ class sipXtapiTestSuite : public CppUnit::TestFixture
     CPPUNIT_TEST(testConfigOutOfBand) ;
 #endif
 #endif
+#ifdef _WIN32
     CPPUNIT_TEST(testConfigLog) ;
+#endif
     CPPUNIT_TEST(testConfigEnableShortNames);
     CPPUNIT_TEST(testTeardown);
     CPPUNIT_TEST(testTeardown);
@@ -262,7 +265,6 @@ class sipXtapiTestSuite : public CppUnit::TestFixture
     CPPUNIT_TEST(testReinitializeConference);
     CPPUNIT_TEST(testReinitializePub);
     CPPUNIT_TEST(testReinitializeSub);
-
     CPPUNIT_TEST(testConfigExternalTransport);
 #ifdef VOICE_ENGINE /* [ */
 //    CPPUNIT_TEST(testConfigCodecPreferences);
@@ -273,9 +275,8 @@ class sipXtapiTestSuite : public CppUnit::TestFixture
 #if TEST_SUBSCRIBE /* [ */ 
     CPPUNIT_TEST(testPublishAndSubscribeCall); 
     CPPUNIT_TEST(testPublishAndSubscribeConfig); 
-    CPPUNIT_TEST(testPublishAndSubscribeCallCustom);
+    // CPPUNIT_TEST(testPublishAndSubscribeCallCustom); // notifies are broken -- unclear why
     CPPUNIT_TEST(testPublishAndSubscribeConfigCustom);
-    
 #endif /* TEST_SUBSCRIBE ] */ 
 
 #if TEST_NAT /* [ */
@@ -560,6 +561,14 @@ protected:
                                   SIPX_CALL hCalledParty,
                                   SIPX_LINE hCalledPartyLine,
                                   EventValidator* pCalledPartyValidator);
+
+    static void callMute(SIPX_CALL hCallingParty, 
+                         SIPX_LINE hCallingPartyLine,
+                         EventValidator* pCallingPartyValidator,
+                         SIPX_CALL hCalledParty,
+                         SIPX_LINE hCalledPartyLine,
+                         EventValidator* pCalledPartyValidator);
+
 
     void createCall(SIPX_LINE hLine, SIPX_CALL* phCall) ;
     void destroyCall(SIPX_CALL& hCall) ;

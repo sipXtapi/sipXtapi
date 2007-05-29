@@ -37,17 +37,14 @@ XmlRpcRequest::XmlRpcRequest(Url& uri, const char* methodName)
    
    // Start to construct the XML-RPC body
    mpRequestBody = new XmlRpcBody();
+   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                 "XmlRpcRequest::XmlRpcRequest creating a XmlRpcBody %p", mpRequestBody);
    mpRequestBody->append(BEGIN_METHOD_CALL);
    
    UtlString methodCall = BEGIN_METHOD_NAME + UtlString(methodName) + END_METHOD_NAME;
    mpRequestBody->append(methodCall);
    
    mpRequestBody->append(BEGIN_PARAMS);   
-}
-
-// Copy constructor
-XmlRpcRequest::XmlRpcRequest(const XmlRpcRequest& rXmlRpcRequest)
-{
 }
 
 // Destructor
@@ -80,16 +77,10 @@ bool XmlRpcRequest::execute(XmlRpcResponse& response)
 
    // Create an empty response object and sent the built up request
    // to the XML-RPC server
-   HttpMessage *pResponse =
-      new HttpMessage(static_cast< const HttpMessage& >(*mpHttpRequest));
+   HttpMessage *pResponse = new HttpMessage();
 
-   pResponse->get(mUrl, *mpHttpRequest, XML_RPC_TIMEOUT);
-
-   UtlString status;
-   
-   pResponse->getResponseStatusText(&status);
-      
-   if (status.compareTo("OK") == 0)
+   int statusCode = pResponse->get(mUrl, *mpHttpRequest, XML_RPC_TIMEOUT, true /* persist conn */ );
+   if (statusCode/100 == 2)
    {
       const HttpBody* pResponseBody = pResponse->getBody();
       pResponseBody->getBytes(&bodyString, &bodyLength);
@@ -100,15 +91,24 @@ bool XmlRpcRequest::execute(XmlRpcResponse& response)
       {
          result = true;
       }
-      else
-      {
-         result = false;
-      }
+   }
+   else if (statusCode == -1)
+   {
+      response.setFault(XmlRpcResponse::ConnectionFailure, CONNECTION_FAILURE_FAULT_STRING);
+
+      OsSysLog::add(FAC_SIP, PRI_WARNING,
+                    "XmlRpcRequest::execute http connection failed\n");
    }
    else
    {
+      UtlString statusText;
+   
+      pResponse->getResponseStatusText(&statusText);
+      response.setFault(XmlRpcResponse::HttpFailure, statusText.data());
+
       OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                    "XmlRpcRequest::execute failed with status = %s\n", status.data());
+                    "XmlRpcRequest::execute failed with status = %d %s\n",
+                    statusCode, statusText.data());
    }
 
    delete pResponse;
@@ -118,14 +118,6 @@ bool XmlRpcRequest::execute(XmlRpcResponse& response)
 
 /* ============================ MANIPULATORS ============================== */
 
-
-// Assignment operator
-XmlRpcRequest&
-XmlRpcRequest::operator=(const XmlRpcRequest& rhs)
-{
-   if (this == &rhs)            // handle the assignment to self case
-      return *this;
-}
 
 /* ============================ ACCESSORS ================================= */
 
@@ -151,4 +143,3 @@ bool XmlRpcRequest::addParam(UtlContainable* value)
 
 
 /* ============================ FUNCTIONS ================================= */
-

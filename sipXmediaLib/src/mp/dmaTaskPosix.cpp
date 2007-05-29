@@ -17,6 +17,7 @@
  * up), and begin calling MpMediaTask::signalFrameStart() every 10 ms.
 */
 
+
 /* Only for Linux. Needs root priveleges. */
 //#define _REALTIME_LINUX_AUDIO_THREADS
 
@@ -62,7 +63,42 @@
 
 #define timediff(early, late) ((late.tv_sec-early.tv_sec)*1000000+(late.tv_usec-early.tv_usec))
 
+// The following is a quick, short term abstraction of the audio device to allow
+// compile time plugin of different speaker and mike devices.  A second pass will
+// be made on this to make it dynamic.
+
+typedef UtlBoolean (*MpAudioDeviceInitFunc) (void);
+typedef int (*MpAudioSpeakerWriteFunc) (Sample *writeBufferSamples, int numSamples);
+typedef int (*MpAudioMicReadFunc) (Sample *readBufferSamples, int numSamples);
+
+extern UtlBoolean defaultAudioDeviceInit();
+#ifdef MP_AUDIO_DEVICE_INIT_FUNC
+extern UtlBoolean MP_AUDIO_DEVICE_INIT_FUNC ();
+MpAudioDeviceInitFunc sMpAudioDeviceInitFuncPtr = MP_AUDIO_DEVICE_INIT_FUNC;
+#else
+MpAudioDeviceInitFunc sMpAudioDeviceInitFuncPtr = defaultAudioDeviceInit;
+#endif
+
+extern int defaultAudioSpeakerWrite(Sample *writeBufferSamples, int numSamples);
+#ifdef MP_AUDIO_SPEAKER_WRITE_FUNC
+extern int MP_AUDIO_SPEAKER_WRITE_FUNC (Sample *writeBufferSamples, int numSamples);
+MpAudioSpeakerWriteFunc sMpAudioSpeakerWriteFuncPtr = MP_AUDIO_SPEAKER_WRITE_FUNC;
+#else
+MpAudioSpeakerWriteFunc sMpAudioSpeakerWriteFuncPtr = defaultAudioSpeakerWrite;
+#endif;
+
+extern int defaultAudioMicRead(Sample *readBufferSamples, int numSamples);
+#ifdef MP_AUDIO_MIC_READ_FUNC
+extern int MP_AUDIO_MIC_READ_FUNC (Sample *readBufferSamples, int numSamples);
+MpAudioMicReadFunc sMpAudioMicReadFuncPtr = MP_AUDIO_MIC_READ_FUNC;
+#else
+MpAudioMicReadFunc sMpAudioMicReadFuncPtr = defaultAudioMicRead;
+#endif
+
 // STATIC VARIABLE INITIALIZATIONS
+const int DmaTask::DEF_DMA_TASK_OPTIONS = 0; // default task options
+const int DmaTask::DEF_DMA_TASK_PRIORITY = 128; // default task priority
+const int DmaTask::DEF_DMA_TASK_STACKSIZE = 16384; // default task stacksize
 UtlString DmaTask::mRingDeviceName = "" ;
 UtlString DmaTask::mCallDeviceName = "" ;
 UtlString DmaTask::mMicDeviceName = "" ;
@@ -118,7 +154,7 @@ static void * mediaSignaller(void * arg)
    struct sched_param realtime;
    int res;
 
-   if(geteuid() != 0)
+   if(geteuid() != 0 && getuid() != 0)
    {
       OsSysLog::add(FAC_MP, PRI_WARNING, "_REALTIME_LINUX_AUDIO_THREADS was defined but application does not have ROOT priv.");
    }
@@ -231,9 +267,58 @@ void dmaShutdown(void)
    }
 }
 
-#ifdef _INCLUDE_AUDIO_SUPPORT /* [ */
+int defaultAudioMicRead(Sample *readBufferSamples, int numSamples)
+{
+#ifdef _INCLUDE_AUDIO_SUPPORT 
+   int justRead;
+   int recorded = 0;
+   while(recorded < N_SAMPLES)
+   {
+      justRead = read(soundCard, &readBufferSamples[recorded], BUFLEN - (recorded * sizeof(Sample)));
+
+      assert(justRead > 0);
+      recorded += justRead/sizeof(Sample);
+   }
+   return(recorded);
+#else
+   memset(readBufferSamples, 0, numSamples) ;
+   return numSamples ;
+#endif
+}
+
+int defaultAudioSpeakerWrite(Sample *writeBufferSamples, int numSamples)
+{
+#ifdef _INCLUDE_AUDIO_SUPPORT 
+   int played = 0;
+   while(played < N_SAMPLES)
+   {
+      int justWritten;
+      justWritten = write(soundCard, &writeBufferSamples[played], BUFLEN - (played * sizeof(Sample)));
+      assert(justWritten > 0);
+      played += justWritten/sizeof(Sample);
+   }
+   return(played);
+#else
+   return numSamples;
+#endif
+}
+
 /* This will be defined by the OS-specific section below. */
 static int setupSoundCard(void);
+
+UtlBoolean defaultAudioDeviceInit()
+{
+#ifdef _INCLUDE_AUDIO_SUPPORT 
+   soundCard = setupSoundCard();
+
+   // Indicate if soundCard was setup successfully
+   return(soundCard >= 0);
+#else
+   return true;
+#endif
+}
+
+#ifdef _INCLUDE_AUDIO_SUPPORT /* [ */
 
 static void * soundCardReader(void * arg)
 {
@@ -242,7 +327,6 @@ static void * soundCardReader(void * arg)
    MpBufPtr ob;
    Sample* buffer;
    int recorded;
-   int justRead;
 
    osPrintf(" **********START MIC!**********\n");
 
@@ -253,13 +337,8 @@ static void * soundCardReader(void * arg)
       buffer = MpBuf_getSamples(ob);
       recorded = 0;
       sem_wait(&read_sem);
-      while(recorded < N_SAMPLES)
-      {
-         justRead = read(soundCard, &buffer[recorded], BUFLEN - (recorded * sizeof(Sample)));
-
-         assert(justRead > 0);
-         recorded += justRead/sizeof(Sample);
-      }
+      assert(sMpAudioMicReadFuncPtr);
+      recorded = sMpAudioMicReadFuncPtr(buffer, N_SAMPLES);
       sem_post(&write_sem);
 
       if (DmaTask::isMuteEnabled())
@@ -276,10 +355,10 @@ static void * soundCardReader(void * arg)
       pMsg->setBuf(MpBuf_getSamples(ob));
       pMsg->setLen(MpBuf_getNumSamples(ob));
 
-      if(MpMisc.pMicQ->send(*pMsg, OsTime::NO_WAIT) != OS_SUCCESS)
+      if(MpMisc.pMicQ && MpMisc.pMicQ->send(*pMsg, OsTime::NO_WAIT_TIME) != OS_SUCCESS)
       {
          OsStatus  res;
-         res = MpMisc.pMicQ->receive((OsMsg*&) pFlush, OsTime::NO_WAIT);
+         res = MpMisc.pMicQ->receive((OsMsg*&) pFlush, OsTime::NO_WAIT_TIME);
          if (OS_SUCCESS == res) {
             MpBuf_delRef(pFlush->getTag());
             pFlush->releaseMsg();
@@ -287,16 +366,17 @@ static void * soundCardReader(void * arg)
             osPrintf("DmaTask: queue was full, now empty (5)!"
                " (res=%d)\n", res);
          }
-         if(MpMisc.pMicQ->send(*pMsg, OsTime::NO_WAIT) != OS_SUCCESS)
+         if(MpMisc.pMicQ->send(*pMsg, OsTime::NO_WAIT_TIME) != OS_SUCCESS)
             MpBuf_delRef(ob);
       }
       if(!pMsg->isMsgReusable())
          delete pMsg;
    }
 
-   osPrintf(" ***********STOP MIC!**********\n");
+   osPrintf(" ***********STOP!**********\n");
    return NULL;
 }
+
 
 static void * soundCardWriter(void * arg)
 {
@@ -346,7 +426,7 @@ static void * soundCardWriter(void * arg)
          }
       }
 
-      if(MpMisc.pSpkQ->receive((OsMsg*&) pMsg, OsTime::NO_WAIT) == OS_SUCCESS)
+      if(MpMisc.pSpkQ && MpMisc.pSpkQ->receive((OsMsg*&) pMsg, OsTime::NO_WAIT_TIME) == OS_SUCCESS)
       {
          ob = (MpBufPtr) pMsg->getTag();
          assert(ob != NULL);
@@ -359,13 +439,7 @@ static void * soundCardWriter(void * arg)
             memcpy(&last_buffer[N_SAMPLES / 2], &buffer[N_SAMPLES / 2], BUFLEN / 2);
             
             sem_wait(&write_sem);
-            while(played < N_SAMPLES)
-            {
-               int justWritten;
-               justWritten = write(soundCard, &buffer[played], BUFLEN - (played * sizeof(Sample)));
-               assert(justWritten > 0);
-               played += justWritten/sizeof(Sample);
-            }
+            played = sMpAudioSpeakerWriteFuncPtr(buffer, N_SAMPLES);
             sem_post(&read_sem);
             assert(played == N_SAMPLES);
             framesPlayed++;
@@ -386,46 +460,51 @@ static void * soundCardWriter(void * arg)
             last_buffer[i] = last_buffer[N_SAMPLES - i - 1];
          
          sem_wait(&write_sem);
-         while(played < N_SAMPLES)
-         {
-            int justWritten;
-            justWritten = write(soundCard, &last_buffer[played], BUFLEN - (played * sizeof(Sample)));
-            assert(justWritten > 0);
-            played += justWritten/sizeof(Sample);
-         }
+         played = sMpAudioSpeakerWriteFuncPtr(last_buffer, N_SAMPLES);
          sem_post(&read_sem);
          assert(played == N_SAMPLES);
       }
    }
 
-   osPrintf(" ***********STOP SPKR!**********\n"); 
+   osPrintf(" ***********STOP!**********\n");
    return NULL;
 }
+
+
+
 
 static void startAudioSupport(void)
 {
    int res;
 
-   soundCard = setupSoundCard();
+   // Invoke the audio device initialization function if it is setup
+   if(sMpAudioDeviceInitFuncPtr)
+   {
+       // If the audio device initialization goes ok
+       if(sMpAudioDeviceInitFuncPtr())
+       {
 
-   if(soundCard == -1)
-      return;
+           /* OsMsgPool setup */
+           MpBufferMsg* pMsg = new MpBufferMsg(MpBufferMsg::AUD_RECORDED);
+           DmaMsgPool = new OsMsgPool("DmaTask", *(OsMsg*)pMsg,
+                 40, 60, 100, 5,
+                 OsMsgPool::SINGLE_CLIENT);
 
-   /* OsMsgPool setup */
-   MpBufferMsg* pMsg = new MpBufferMsg(MpBufferMsg::AUD_RECORDED);
-   DmaMsgPool = new OsMsgPool("DmaTask", *(OsMsg*)pMsg,
-         40, 60, 100, 5,
-         OsMsgPool::SINGLE_CLIENT);
-
-   /* let the read thread go first */
-   sem_init(&write_sem, 0, 0);
-   sem_init(&read_sem, 0, 1);
+           /* let the read thread go first */
+           sem_init(&write_sem, 0, 0);
+           sem_init(&read_sem, 0, 1);
    
-   /* Start the reader and writer threads */
-   res = pthread_create(&mic_thread, NULL, soundCardReader, NULL);
-   assert(res == 0);
-   res = pthread_create(&spkr_thread, NULL, soundCardWriter, NULL);
-   assert(res == 0);
+           /* Start the reader and writer threads */
+           res = pthread_create(&mic_thread, NULL, soundCardReader, NULL);
+           assert(res == 0);
+           res = pthread_create(&spkr_thread, NULL, soundCardWriter, NULL);
+           assert(res == 0);
+       }
+   }
+   else
+   {
+       assert(sMpAudioDeviceInitFuncPtr);
+   }
 }
 
 static void stopAudioSupport(void)
@@ -536,7 +615,7 @@ static int setupSoundCard(void)
 
 #include <sys/audio.h>
 
-int setupSoundCard(void)
+static int setupSoundCard(void)
 {
    int res, fd;
    audio_info_t info;
@@ -588,7 +667,7 @@ int setupSoundCard(void)
 #include <CoreAudio/CoreAudio.h>
 #include <AudioToolbox/AudioConverter.h>
 
-#define UPDATE_FREQUENCY 50
+#define UPDATE_FREQUENCY 20
 
 static AudioDeviceID CoreAudio_output_id;
 static AudioStreamBasicDescription CoreAudio_device_desc, CoreAudio_local_desc;
@@ -645,7 +724,6 @@ static OSStatus CoreAudio_io(AudioDeviceID CoreAudio_output_id, const AudioTimeS
    
    return kAudioHardwareNoError;
 }
-
 
 static int setupSoundCard(void)
 {
@@ -718,8 +796,6 @@ fail_socket:
 fail:
    return -1;
 }
-
-
 
 static int CoreAudio_shutdown(void)
 {

@@ -89,7 +89,6 @@ nobase_include_HEADERS = \
     os/OsSysLogFacilities.h \
     os/OsSysLogMsg.h \
     os/OsSysLogTask.h \
-    os/OsSysTimer.h \
     os/OsTask.h \
     os/OsTime.h \
     os/OsTimeLog.h \
@@ -100,12 +99,11 @@ nobase_include_HEADERS = \
     os/OsTLSConnectionSocket.h \
     os/OsTLSClientConnectionSocket.h \
     os/OsTokenizer.h \
-	os/OsTLS.h \
+    os/OsTLS.h \
     os/ostream \
     os/OsUtil.h \
     os/OsWriteLock.h \
     os/shared/OsMsgQShared.h \
-    os/shared/OsSysSoftTimer.h \
     os/shared/OsTimerMessage.h \
     os/qsTypes.h \
     os/StunMessage.h \
@@ -114,10 +112,13 @@ nobase_include_HEADERS = \
     xmlparser/tinystr.h \
     xmlparser/tinyxml.h \
     xmlparser/TiXmlIterator.h \
+    utl/UtlLongLongInt.h \
     utl/UtlBool.h \
+    utl/UtlCrc32.h \
     utl/UtlLink.h \
     utl/UtlContainable.h \
     utl/UtlContainer.h \
+    utl/UtlContainableAtomic.h \
     utl/UtlDateTime.h \
     utl/UtlDList.h \
     utl/UtlDListIterator.h \
@@ -145,8 +146,8 @@ nobase_include_HEADERS = \
     utl/XmlContent.h \
     utl/UtlSortedListIterator.h \
     utl/UtlRandom.h \
-	 utl/Plugin.h \
-	 utl/PluginHooks.h
+    utl/Plugin.h \
+    utl/PluginHooks.h
 
 EXTRA_DIST= \
     os/wnt/getWindowsDNSServers.h \

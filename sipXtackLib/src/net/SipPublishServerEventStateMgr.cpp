@@ -212,6 +212,7 @@ UtlBoolean SipPublishServerEventStateMgr::isExpired(UtlString& entityTag)
 UtlBoolean
 SipPublishServerEventStateMgr::checkExpiration(int* expiration)
 {
+	return 0;
 }
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */

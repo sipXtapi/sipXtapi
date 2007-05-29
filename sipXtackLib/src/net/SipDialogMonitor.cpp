@@ -1,20 +1,25 @@
-//
-// Copyright (C) 2004-2006 SIPfoundry Inc.
+// 
+// 
+// Copyright (C) 2005 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// 
+// Copyright (C) 2005 Pingtel Corp.
 // Licensed to SIPfoundry under a Contributor Agreement.
-//
+// 
 // $$
-///////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
 
 // APPLICATION INCLUDES
 #include <os/OsFS.h>
 #include <os/OsSysLog.h>
+#include <utl/UtlSList.h>
+#include <utl/UtlSListIterator.h>
+#include <utl/UtlHashMap.h>
 #include <utl/UtlHashMapIterator.h>
-#include <net/SipTransaction.h>
+#include <utl/UtlHashBag.h>
+#include <utl/UtlHashBagIterator.h>
 #include <net/SipResourceList.h>
 #include <net/NetMd5Codec.h>
 #include <net/SipMessage.h>
@@ -47,6 +52,7 @@ SipDialogMonitor::SipDialogMonitor(SipUserAgent* userAgent,
    
    Url url(localAddress);
    url.setHostPort(hostPort);
+   url.includeAngleBrackets();
    mContact = url.toString();
    mRefreshTimeout = refreshTimeout;
    mToBePublished = toBePublished;
@@ -61,26 +67,32 @@ SipDialogMonitor::SipDialogMonitor(SipUserAgent* userAgent,
    if (mToBePublished)
    {
       // Create the SIP Subscribe Server
-      mpSubscriptionMgr = new SipSubscriptionMgr(mDialogMgr); // Component for holding the subscription data
+      mpSubscriptionMgr = new SipSubscriptionMgr(); // Component for holding the subscription data
 
       mpSubscribeServer = new SipSubscribeServer(*mpUserAgent, mSipPublishContentMgr,
                                               *mpSubscriptionMgr, mPolicyHolder);
       mpSubscribeServer->enableEventType(DIALOG_EVENT_TYPE);
       mpSubscribeServer->start();
    }
+   else
+   {
+      mpSubscriptionMgr = NULL;
+      mpSubscribeServer = NULL;
+   }
 }
 
 // Destructor
 SipDialogMonitor::~SipDialogMonitor()
 {
+   if (mpSipSubscribeClient)
+   {
+      mpSipSubscribeClient->endAllSubscriptions();
+      delete mpSipSubscribeClient;
+   }
+   
    if (mpRefreshMgr)
    {
       delete mpRefreshMgr;
-   }
-   
-   if (mpSipSubscribeClient)
-   {
-      delete mpSipSubscribeClient;
    }
    
    if (mpSubscriptionMgr)
@@ -93,20 +105,11 @@ SipDialogMonitor::~SipDialogMonitor()
       delete mpSubscribeServer;
    }
    
-   if (!mMonitoredLists.isEmpty())
-   {
-      mMonitoredLists.destroyAll();
-   }
+   mMonitoredLists.destroyAll();
 
-   if (!mDialogEventList.isEmpty())
-   {
-      mDialogEventList.destroyAll();
-   }
+   mDialogEventList.destroyAll();
 
-   if (!mStateChangeNotifiers.isEmpty())
-   {
-      mStateChangeNotifiers.destroyAll();
-   }   
+   mStateChangeNotifiers.destroyAll();
 }
 
 
@@ -115,24 +118,28 @@ bool SipDialogMonitor::addExtension(UtlString& groupName, Url& contactUrl)
    bool result = false;
    mLock.acquire();
    
-   // Check whether the group has already existed. If not, create one.
-   SipResourceList* list = dynamic_cast <SipResourceList *> (mMonitoredLists.findValue(&groupName));
+   // Check whether the group already exists. If not, create one.
+   SipResourceList* list =
+      dynamic_cast <SipResourceList *> (mMonitoredLists.findValue(&groupName));
    if (list == NULL)
    {
       UtlString* listName = new UtlString(groupName);
-      list = new SipResourceList((UtlBoolean)TRUE, listName->data(), DIALOG_EVENT_TYPE);
+      list = new SipResourceList((UtlBoolean)TRUE, listName->data(),
+                                 DIALOG_EVENT_TYPE);
       
       mMonitoredLists.insertKeyAndValue(listName, list);
-      OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipDialogMonitor::addExtension insert listName %s and object %p to the resource list",
+      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                    "SipDialogMonitor::addExtension insert listName %s and object %p to the resource list",
                     groupName.data(), list);   
    }
 
-   // Check whether the contact has already being added to the group
+   // Check whether the contact has already been added to the group.
    UtlString resourceId;
    contactUrl.getIdentity(resourceId);
    Resource* resource = list->getResource(resourceId);
    if (resource == NULL)
    {
+      // If not, add it.
       resource = new Resource(resourceId);
       
       UtlString userName;
@@ -144,7 +151,7 @@ bool SipDialogMonitor::addExtension(UtlString& groupName, Url& contactUrl)
       resource->setInstance(id, STATE_PENDIND);
       list->insertResource(resource);
       
-      // Send out the SUBSCRIBE
+      // Set up the subscription to the URI.
       OsSysLog::add(FAC_LOG, PRI_DEBUG,
                     "SipDialogMonitor::addExtension Sending out the SUBSCRIBE to contact %s",
                     resourceId.data());
@@ -157,7 +164,7 @@ bool SipDialogMonitor::addExtension(UtlString& groupName, Url& contactUrl)
             
       UtlBoolean status = mpSipSubscribeClient->addSubscription(resourceId.data(),
                                                                 DIALOG_EVENT_TYPE,
-                                                                NULL,
+                                                                DIALOG_EVENT_CONTENT_TYPE,
                                                                 fromUri.data(),
                                                                 toUrl.data(),
                                                                 mContact.data(),
@@ -176,6 +183,12 @@ bool SipDialogMonitor::addExtension(UtlString& groupName, Url& contactUrl)
       }
       else
       {
+         mDialogHandleList.insertKeyAndValue(new UtlString(resourceId),
+                                             new UtlString(earlyDialogHandle));
+         createDialogState(&earlyDialogHandle);
+         OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                       "SipDialogMonitor::addExtension Added earlyDialogHandle: %s",
+                       earlyDialogHandle.data());
          result = true;
       }
    }
@@ -196,21 +209,54 @@ bool SipDialogMonitor::removeExtension(UtlString& groupName, Url& contactUrl)
 {
    bool result = false;
    mLock.acquire();
-   // Check whether the group has existed or not. If not, return false.
-   SipResourceList* list = dynamic_cast <SipResourceList *> (mMonitoredLists.findValue(&groupName));
+   // Check whether the group exists or not. If not, return false.
+   SipResourceList* list =
+      dynamic_cast <SipResourceList *> (mMonitoredLists.findValue(&groupName));
    if (list == NULL)
    {
-      OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipDialogMonitor::removeExtension group %s does not exist",
+      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                    "SipDialogMonitor::removeExtension group %s does not exist",
                     groupName.data());   
    }
    else
    {
-      // Check whether the contact has existed or not
+      // Check whether the contact exists in the group or not.
       UtlString resourceId;
       contactUrl.getIdentity(resourceId);
       Resource* resource = list->getResource(resourceId);
       if (resource)
       {
+         // If it exists, get the early dialog handle for the SUBSCRIBE,
+         // which specifies all of its subscriptions.
+         UtlString* earlyDialogHandle =
+            dynamic_cast <UtlString *> (mDialogHandleList.findValue(&resourceId));
+         if (earlyDialogHandle)
+         {
+            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                          "SipDialogMonitor::removeExtension Calling endSubscription(%s)",
+                          earlyDialogHandle->data());
+            // Terminate the subscription.
+            UtlBoolean status = mpSipSubscribeClient->endSubscription(earlyDialogHandle->data());
+                     
+            if (!status)
+            {
+               OsSysLog::add(FAC_SIP, PRI_ERR,
+                             "SipDialogMonitor::removeExtension Unsubscription failed for %s.",
+                             resourceId.data());
+            }
+
+            // Remove the remembered state for dialog event notices.
+            destroyDialogState(earlyDialogHandle);
+         }
+         else
+         {
+            OsSysLog::add(FAC_SIP, PRI_ERR,
+                          "SipDialogMonitor::removeExtension no dialogHandle for %s.",
+                          resourceId.data());
+         }
+         
+         // Now delete all the references to this URI.
+         mDialogHandleList.destroy(&resourceId);
          resource = list->removeResource(resource);
          delete resource;
          
@@ -228,16 +274,23 @@ bool SipDialogMonitor::removeExtension(UtlString& groupName, Url& contactUrl)
    return result;   
 }
 
-void SipDialogMonitor::addDialogEvent(UtlString& contact, SipDialogEvent* dialogEvent)
+// Add 'dialogEvent' to mDialogEventList as the last dialog event for
+// AOR 'contact'.
+// Call notifyStateChange(), and if mToBePUblished, publishContent()
+// to report this information.
+void SipDialogMonitor::addDialogEvent(UtlString& contact,
+                                      SipDialogEvent* dialogEvent,
+                                      const char* earlyDialogHandle,
+                                      const char* dialogHandle)
 {
    if (mDialogEventList.find(&contact) == NULL)
    {
-      OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipDialogMonitor::addDialogEvent adding the dialogEvent %p for contact %s",
+      OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipDialogMonitor::addDialogEvent adding dialogEvent %p for contact '%s'",
                     dialogEvent, contact.data());
    }
    else
    {
-      OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipDialogMonitor::addDialogEvent dialogEvent %p for contact %s already exists, just update the content.",
+      OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipDialogMonitor::addDialogEvent dialogEvent %p for contact '%s' already exists, updating the content.",
                     dialogEvent, contact.data());
                     
       // Get the object from the dialog event list
@@ -247,7 +300,7 @@ void SipDialogMonitor::addDialogEvent(UtlString& contact, SipDialogEvent* dialog
       delete oldKey;
       SipDialogEvent* oldDialogEvent = dynamic_cast <SipDialogEvent *> (foundValue);
 
-      OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipDialogMonitor::addDialogEvent remove the dialogEvent %p for contact %s",
+      OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipDialogMonitor::addDialogEvent removing the dialogEvent %p for contact '%s'",
                     oldDialogEvent, contact.data()); 
 
       if (oldDialogEvent)
@@ -256,25 +309,36 @@ void SipDialogMonitor::addDialogEvent(UtlString& contact, SipDialogEvent* dialog
       }
    }
          
-   // Modify the entity
+   // Insert the AOR that we subscribed to into the DialogEvent
+   // object, to overwrite the entity URI provided in the body of the
+   // dialog event.
    dialogEvent->setEntity(contact.data());   
+   // Rebuild the body.
    dialogEvent->buildBody();
    
    // Insert it into the dialog event list
+   // :TODO: This does not merge partial dialogs with the previous state.
    mDialogEventList.insertKeyAndValue(new UtlString(contact), dialogEvent);
    
    if (mToBePublished)
    {
-      // Publish the content to the resource list
+      // Publish the content to the resource list.
       publishContent(contact, dialogEvent);
    }
    
-   // Notify the state change
-   notifyStateChange(contact, dialogEvent);
+   // Merge the information in the current NOTIFY with the recorded state.
+   // Return the on/off hook status.
+   StateChangeNotifier::Status status = mergeEventInformation(dialogEvent,
+                                                              earlyDialogHandle,
+                                                              dialogHandle);
+
+   // Notify listeners of the state change.
+   notifyStateChange(contact, status);
 }
 
 
-void SipDialogMonitor::publishContent(UtlString& contact, SipDialogEvent* dialogEvent)
+void SipDialogMonitor::publishContent(UtlString& contact,
+                                      SipDialogEvent* dialogEvent)
 {
    bool contentChanged;
    
@@ -284,12 +348,13 @@ void SipDialogMonitor::publishContent(UtlString& contact, SipDialogEvent* dialog
    SipResourceList* list;
    Resource* resource;
    UtlString id, state;
-   while (listUri = dynamic_cast <UtlString *> (iterator()))
+   while ((listUri = dynamic_cast <UtlString *> (iterator())))
    {
       contentChanged = false;
       
       list = dynamic_cast <SipResourceList *> (mMonitoredLists.findValue(listUri));
-      OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipDialogMonitor::publishContent listUri %s list %p",
+      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                    "SipDialogMonitor::publishContent listUri %s list %p",
                     listUri->data(), list); 
 
       // Search for the contact in this list
@@ -298,25 +363,20 @@ void SipDialogMonitor::publishContent(UtlString& contact, SipDialogEvent* dialog
       {
          resource->getInstance(id, state);
          
+         // :TODO:
+         // The following code is incorrect.  The "state" of a resource in a
+         // resource list reports on the status of the subscription
+         // from the resource list server to the resource's event
+         // publisher (draft-ietf-simple-event-list-07, top of p. 10),
+         // not the on-hook/off-hook status of a SIP agent for an AOR.
+
          if (dialogEvent->isEmpty())
          {
             resource->setInstance(id, STATE_TERMINATED);
          }
          else
          {
-            Dialog* dialog = dialogEvent->getFirstDialog();
-            
-            UtlString state, event, code;
-            dialog->getState(state, event, code);
-            
-            if (state.compareTo(STATE_TERMINATED) == 0)
-            {
-               resource->setInstance(id, STATE_TERMINATED);
-            }
-            else
-            {     
-               resource->setInstance(id, STATE_ACTIVE);
-            }
+            resource->setInstance(id, STATE_ACTIVE);
          }
          
          list->buildBody();
@@ -325,19 +385,12 @@ void SipDialogMonitor::publishContent(UtlString& contact, SipDialogEvent* dialog
       
       if (contentChanged)
       {
-         int numOldContents;
-         HttpBody* oldContent[1];           
-   
          // Publish the content to the subscribe server
-         if (!mSipPublishContentMgr.publish(listUri->data(), DIALOG_EVENT_TYPE, DIALOG_EVENT_TYPE, 1, (HttpBody**)&list, 1, numOldContents, oldContent))
-         {
-            UtlString dialogContent;
-            int length;
-            
-            list->getBytes(&dialogContent, &length);
-            OsSysLog::add(FAC_SIP, PRI_ERR, "SipDialogMonitor::publishContent DialogEvent %s\n was not successfully published to the subscribe server",
-                          dialogContent.data());
-         }
+         // Make a copy, because mpSipPublishContentMgr will own it.
+         HttpBody* pHttpBody = new HttpBody(*(HttpBody*)list);
+	 mSipPublishContentMgr.publish(listUri->data(), DIALOG_EVENT_TYPE,
+                                       DIALOG_EVENT_TYPE, 1,
+                                       &pHttpBody);
       }
    }
 }
@@ -356,19 +409,24 @@ void SipDialogMonitor::subscriptionStateCallback(SipSubscribeClient::Subscriptio
 }                                            
 
 
+// Callback to handle incoming NOTIFYs.
 void SipDialogMonitor::notifyEventCallback(const char* earlyDialogHandle,
                                            const char* dialogHandle,
                                            void* applicationData,
                                            const SipMessage* notifyRequest)
 {
    // Receive the notification and process the message
+   // Our SipdialogMonitor is pointed to by the applicationData.
    SipDialogMonitor* pThis = (SipDialogMonitor *) applicationData;
    
-   pThis->handleNotifyMessage(notifyRequest);
+   pThis->handleNotifyMessage(notifyRequest, earlyDialogHandle, dialogHandle);
 }
 
 
-void SipDialogMonitor::handleNotifyMessage(const SipMessage* notifyMessage)
+/// Non-static callback to handle incoming NOTIFYs.
+void SipDialogMonitor::handleNotifyMessage(const SipMessage* notifyMessage,
+                                           const char* earlyDialogHandle,
+                                           const char* dialogHandle)
 {
    Url fromUrl;
    notifyMessage->getFromUrl(fromUrl);
@@ -391,83 +449,204 @@ void SipDialogMonitor::handleNotifyMessage(const SipMessage* notifyMessage)
       SipDialogEvent* sipDialogEvent = new SipDialogEvent(messageContent);
       
       // Add the SipDialogEvent object to the hash table
-      addDialogEvent(contact, sipDialogEvent);
+      addDialogEvent(contact, sipDialogEvent, earlyDialogHandle, dialogHandle);
    }
    else
    {
-      OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipDialogMonitor::handleNotifyMessage receiving an empty notify body from %s",
+      OsSysLog::add(FAC_SIP, PRI_WARNING,
+                    "SipDialogMonitor::handleNotifyMessage receiving an empty notify body from %s",
                     contact.data()); 
    }
 }
 
-void SipDialogMonitor::addStateChangeNotifier(const char* fileUrl, StateChangeNotifier* notifier)
+void SipDialogMonitor::addStateChangeNotifier(const char* listUri, StateChangeNotifier* notifier)
 {
    mLock.acquire();
-   UtlString* name = new UtlString(fileUrl);
+   UtlString* name = new UtlString(listUri);
    UtlVoidPtr* value = new UtlVoidPtr(notifier);
    mStateChangeNotifiers.insertKeyAndValue(name, value);
    mLock.release();
 }
 
-void SipDialogMonitor::removeStateChangeNotifier(const char* fileUrl)
+void SipDialogMonitor::removeStateChangeNotifier(const char* listUri)
 {
    mLock.acquire();
-   UtlString name(fileUrl);
+   UtlString name(listUri);
    mStateChangeNotifiers.destroy(&name);
    mLock.release();
 }
 
-void SipDialogMonitor::notifyStateChange(UtlString& contact, SipDialogEvent* dialogEvent)
+// Report to all the notifiers in mStateChangeNotifiers a new event
+// 'dialogEvent' for AOR 'contact'.
+void SipDialogMonitor::notifyStateChange(UtlString& contact,
+                                         StateChangeNotifier::Status status)
 {
-   OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipDialogMonitor::notifyStateChange contact = %s",
-                 contact.data());
+   OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipDialogMonitor::notifyStateChange "
+                 "AOR = '%s', status = %s",
+                 contact.data(),
+                 (status == StateChangeNotifier::ON_HOOK ? "ON_HOOK" :
+                  status == StateChangeNotifier::OFF_HOOK ? "OFF_HOOK" :
+                  "UNKNOWN"));
+   Url contactUrl(contact);
 
-   // Loop through the notifier list
+   // Loop through the notifier list, reporting the status to the notifiers.
    UtlHashMapIterator iterator(mStateChangeNotifiers);
    UtlString* listUri;
    UtlVoidPtr* container;
    StateChangeNotifier* notifier;
-   Url contactUrl(contact);
-   mLock.acquire();
-   while (listUri = dynamic_cast <UtlString *> (iterator()))
+   while ((listUri = dynamic_cast <UtlString *> (iterator())))
    {
       container = dynamic_cast <UtlVoidPtr *> (mStateChangeNotifiers.findValue(listUri));
       notifier = (StateChangeNotifier *) container->getValue();
-
-      if (dialogEvent->isEmpty())
-      {
-         notifier->setStatus(contactUrl, StateChangeNotifier::ON_HOOK);
-         OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipDialogMonitor::notifyStateChange dialog is empty, setting state to on hook");
-      }
-      else
-      {
-         Dialog* dialog = dialogEvent->getFirstDialog();
-            
-         UtlString state, event, code;
-         dialog->getState(state, event, code);
-            
-         OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipDialogMonitor::notifyStateChange dialog state = %s",
-                       state.data());
-         if (state.compareTo(STATE_CONFIRMED) == 0)
-         {
-            notifier->setStatus(contactUrl, StateChangeNotifier::OFF_HOOK);
-            OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipDialogMonitor::notifyStateChange setting state to off hook");
-         }
-         else
-         {     
-            if (state.compareTo(STATE_TERMINATED) == 0)
-            {
-               notifier->setStatus(contactUrl, StateChangeNotifier::ON_HOOK);
-               OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipDialogMonitor::notifyStateChange setting state to on hook");
-            }
-            else
-            {
-               notifier->setStatus(contactUrl, StateChangeNotifier::RINGING);
-               OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipDialogMonitor::notifyStateChange setting state to ringing");
-            }
-         }
-      }
+      // Report the status to the notifier.
+      notifier->setStatus(contactUrl, status);
+      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                    "SipDialogMonitor::notifyStateChange setting state to %d",
+                    status);
    }
-   mLock.release();
 }
 
+StateChangeNotifier::Status
+SipDialogMonitor::mergeEventInformation(SipDialogEvent* dialogEvent,
+                                        const char* earlyDialogHandle,
+                                        const char* dialogHandle)
+{
+   // Status to be returned to caller.
+   StateChangeNotifier::Status rc;
+
+   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                 "SipDialogMonitor::mergeEventInformation "
+                 "earlyDialogHandle = '%s', dialogHandle = '%s'",
+                 earlyDialogHandle, dialogHandle);
+
+   // Get the list of active dialogs for the group of subscriptions generated
+   // by this SUBSCRIBE.
+   UtlString earlyDialogHandleString(earlyDialogHandle);
+   UtlHashBag* active_dialog_list =
+      dynamic_cast <UtlHashBag*> (mDialogState.findValue(&earlyDialogHandleString));
+   // Ignore the event if there is no entry in mDialogState -- this is a
+   // NOTIFY that arrived after and un-SUBSCRIBE terminated its subscription.
+   if (active_dialog_list)
+   {
+      // If this is a full update, remove from the active list any dialog
+      // for this dialog handle.
+      UtlString notify_state;
+      dialogEvent->getState(notify_state);
+      if (notify_state.compareTo("full") == 0)
+      {
+         OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                       "SipDialogMonitor::mergeEventInformation "
+                       "active_dialog_list elements for handle '%s'",
+                       dialogHandle);
+         // Iterate through the active dialog list, removing elements
+         // for this dialog handle.
+         UtlHashBagIterator dialog_id_itor(*active_dialog_list);
+         UtlString* dialog_id;
+         while ((dialog_id = dynamic_cast <UtlString*> (dialog_id_itor())))
+         {
+            // Extract the dialog handle part of the dialog identifier string
+            // and compare it to the dialog handle of this event notice.
+            if (strcmp(dialogHandle,
+                       dialog_id->data() + dialog_id->index("\001") + 1) == 0)
+            {
+               // This is a dialog for this subscription, so remove it.
+               active_dialog_list->remove(dialog_id);
+            }
+         }
+      }
+
+      // Iterate through the dialog event, updating active_dialog_list for
+      // each dialog mentioned.
+      UtlSListIterator* dialog_itor = dialogEvent->getDialogIterator();
+      Dialog* dialog;
+      UtlString state, event, code, dialogId;
+      while ((dialog = dynamic_cast <Dialog*> ((*dialog_itor)())))
+      {
+         // Construct the dialog identifier string,
+         // <dialog id><ctrl-A><dialog handle>
+         dialog->getDialogId(dialogId);
+         dialogId.append("\001");
+         dialogId.append(dialogHandle);
+
+         dialog->getState(state, event, code);
+         OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                       "SipDialogMonitor::mergeEventInformation "
+                       "dialogId '%s' state '%s' event '%s' code '%s'",
+                       dialogId.data(), state.data(), event.data(), code.data());
+         if (state.compareTo("terminated") != 0)
+         {
+            // Active dialog.
+            // If it is not in active_dialog_list, add it.
+            if (!active_dialog_list->contains(&dialogId))
+            {
+               OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                             "SipDialogMonitor::mergeEventInformation "
+                             "adding dialog '%s'",
+                             dialogId.data());
+               active_dialog_list->insert(new UtlString(dialogId));
+            }
+         }
+         else
+         {
+            // Terminated dialog
+            // If it is in active_dialog_list, remove it.
+            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                          "SipDialogMonitor::mergeEventInformation "
+                          "removing dialog '%s'",
+                          dialogId.data());
+            active_dialog_list->destroy(&dialogId);
+         }
+      }
+      delete dialog_itor;
+
+      // If debugging, list the active dialog list.
+      if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
+      {
+         UtlHashBagIterator dialog_list_itor(*active_dialog_list);
+         UtlString* dialog;
+         while ((dialog = dynamic_cast <UtlString*> (dialog_list_itor())))
+         {
+            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                          "SipDialogMonitor::mergeEventInformation "
+                          "active dialog '%s'",
+                          dialog->data());
+         }
+         OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                       "SipDialogMonitor::mergeEventInformation "
+                       "End of list");
+      }
+
+      // Set the return code based on whether there are any active dialogs.
+      rc = active_dialog_list->isEmpty() ?
+         StateChangeNotifier::ON_HOOK :
+         StateChangeNotifier::OFF_HOOK;
+   }
+   else
+   {
+      // This is a late NOTIFY and there are (should be) no notifiers for it,
+      // so the return code is arbitrary.
+      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                    "SipDialogMonitor::mergeEventInformation "
+                    "No active dialog list found");
+      rc = StateChangeNotifier::ON_HOOK;
+   }
+   return rc;
+}
+
+void SipDialogMonitor::createDialogState(UtlString* earlyDialogHandle)
+{
+   mDialogState.insertKeyAndValue(new UtlString(*earlyDialogHandle),
+                                  new UtlHashBag);
+}
+
+void SipDialogMonitor::destroyDialogState(UtlString* earlyDialogHandle)
+{
+   // Remove the remembered state for the subscriptions with this
+   // early dialog handle.
+   UtlHashBag* active_dialog_list =
+      dynamic_cast <UtlHashBag*> (mDialogState.findValue(earlyDialogHandle));
+   // Remove the contents of the UtlHashBag which is the value.
+   active_dialog_list->destroyAll();
+   // Now remove the entry in mDialogState and the UtlHashBag itself.
+   mDialogState.destroy(earlyDialogHandle);
+}

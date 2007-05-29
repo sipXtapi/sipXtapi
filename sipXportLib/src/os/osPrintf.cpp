@@ -42,7 +42,7 @@ void PrintIt(const char *s)
 // EXTERNAL VARIABLES
 // CONSTANTS
 // STATIC VARIABLE INITIALIZATIONS
-static int bEnableConsoleOutput = TRUE ;  /**< Should osPrintf print to console */
+static int bEnableConsoleOutput = FALSE ;  /**< Should osPrintf print to console? */
 // FUNCTIONS
 
 

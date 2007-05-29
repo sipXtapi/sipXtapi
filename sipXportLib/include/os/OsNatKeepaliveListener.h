@@ -65,12 +65,17 @@ public:
     // Equals operator
     OsNatKeepaliveEvent& operator=(const OsNatKeepaliveEvent& r)
     {
+        if (this == &r)            // handle the assignment to self case
+	    return *this;
+
         type          = r.type ;
         remoteAddress = r.remoteAddress ;
         remotePort    = r.remotePort ;
         keepAliveSecs = r.keepAliveSecs ;
         mappedAddress = r.mappedAddress ;
         mappedPort    = r.mappedPort ;
+
+	return *this ;
     } ;
 
     // Attribute

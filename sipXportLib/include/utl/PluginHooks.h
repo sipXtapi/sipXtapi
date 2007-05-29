@@ -110,6 +110,11 @@ class PluginHooks
     *
     */
 
+   /**
+    * Return the total number of plugins within.
+    */
+   size_t entries() const;
+
   protected:
    friend class PluginIterator;
 

@@ -11,22 +11,27 @@
 
 // SYSTEM INCLUDES
 #include <assert.h>
-#ifdef __pingtel_on_posix__
-#  include <pthread.h>
-#endif
-
-#include "utl/UtlRscTrace.h"
 
 // APPLICATION INCLUDES
 #include "os/OsTimer.h"
 #include "os/OsTimerTask.h"
 #include "os/OsQueuedEvent.h"
+#include "os/OsLock.h"
+#include "os/OsEvent.h"
+#include "os/OsTimerMsg.h"
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
+
 // STATIC VARIABLE INITIALIZATIONS
 const UtlContainableType OsTimer::TYPE = "OsTimer" ;
+const OsTimer::Interval OsTimer::nullInterval = 0;
+
+#ifdef VALGRIND_TIMER_ERROR
+// Dummy static variable to receive values from tracking variables.
+static char dummy;
+#endif /* VALGRIND_TIMER_ERROR */
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
@@ -35,52 +40,116 @@ const UtlContainableType OsTimer::TYPE = "OsTimer" ;
 // Constructor
 // Timer expiration event notification happens using the 
 // newly created OsQueuedEvent object
-// The address of "this" OsTimer object is the eventData that is
-// conveyed to the Listener when the notification is signaled.
+
 OsTimer::OsTimer(OsMsgQ* pQueue, const int userData) :
+   mBSem(OsBSem::Q_PRIORITY, OsBSem::FULL),
+   mApplicationState(0),
+   mTaskState(0),
+   mDeleting(FALSE),
    mpNotifier(new OsQueuedEvent(*pQueue, userData)) ,
-   mState(CREATED),
-   mTimerId(0),
-   mType(UNSPECIFIED),
-   mbManagedNotifier(true),
-   mUserData(userData)   
+   mbManagedNotifier(TRUE),
+   mOutstandingMessages(0),
+   mTimerQueueLink(0)
 {
+#ifdef VALGRIND_TIMER_ERROR
+   // Initialize the variables for tracking timer access.
+   mLastStartBacktrace = NULL;
+   mLastDestructorBacktrace = NULL;
+#endif /* VALGRIND_TIMER_ERROR */
 }
 
+// The address of "this" OsTimer object is the eventData that is
+// conveyed to the Listener when the notification is signaled.
 OsTimer::OsTimer(OsNotification& rNotifier) :
+   mBSem(OsBSem::Q_PRIORITY, OsBSem::FULL),
+   mApplicationState(0),
+   mTaskState(0),
+   mDeleting(FALSE),
    mpNotifier(&rNotifier) ,
-   mState(CREATED),
-   mTimerId(0),
-   mType(UNSPECIFIED),
-   mbManagedNotifier(false),
-   mUserData(0)
+   mbManagedNotifier(FALSE),
+   mOutstandingMessages(0),
+   mTimerQueueLink(0)
 {
-    // deprecated.  Please use the other constructor.
+#ifdef VALGRIND_TIMER_ERROR
+   // Initialize the variables for tracking timer access.
+   mLastStartBacktrace = NULL;
+   mLastDestructorBacktrace = NULL;
+#endif /* VALGRIND_TIMER_ERROR */
 }
 
 // Destructor
 OsTimer::~OsTimer()
 {
-   OsStatus res;
-
-   switch (mState)
+   // Update members and determine whether we need to send an UPDATE_SYNC
+   // to stop the timer or ensure that the timer task has no queued message
+   // about this timer.
+   UtlBoolean sendMessage = FALSE;
    {
-   case CREATED: // fall through and do nothing
-   case STOPPED:
-      break;
-   case STARTED:
-      res = stop();
+      OsLock lock(mBSem);
+
+      assert(!mDeleting);
+      // Lock out all further application methods.
+#ifndef NDEBUG
+      mDeleting = TRUE;
+#endif
+
+      // Check if the timer needs to be stopped.
+      if (isStarted(mApplicationState)) {
+         sendMessage = TRUE;
+         mApplicationState++;
+      }
+      // Check if there are outstanding messages that have to be waited for.
+      if (mOutstandingMessages > 0) {
+         sendMessage = TRUE;
+      }
+      // If we have to send a message, make note of it.
+      if (sendMessage) {
+         mOutstandingMessages++;
+      }
+   }
+
+   // Send a message to the timer task if we need to.
+   if (sendMessage) {
+      OsEvent event;
+      OsTimerMsg msg(OsTimerMsg::UPDATE_SYNC, this, &event);
+      OsStatus res = OsTimerTask::getTimerTask()->postMessage(msg);
       assert(res == OS_SUCCESS);
-      break;
-   default:
-      assert(FALSE);
+      event.wait();
    }
    
-   if (mbManagedNotifier)
-   {
+   // If mbManagedNotifier, free *mpNotifier.
+   if (mbManagedNotifier) {
       delete mpNotifier;
    }
-   mpNotifier = NULL;
+}
+
+// Non-blocking asynchronous delete operation
+void OsTimer::deleteAsync(OsTimer* timer)
+{
+   // Update members.
+   {
+      OsLock lock(mBSem);
+
+      assert(!mDeleting);
+      // Lock out all further application methods.
+#ifndef NDEBUG
+      mDeleting = TRUE;
+#endif
+
+      // Check if the timer needs to be stopped.
+      if (isStarted(mApplicationState))
+{
+         mApplicationState++;
+      }
+
+      // Note we will be sending a message.
+      mOutstandingMessages++;
+   }
+
+   // Send the message.
+   OsTimerMsg msg(OsTimerMsg::UPDATE_DELETE, this, NULL);
+   OsStatus res = OsTimerTask::getTimerTask()->postMessage(msg);
+   assert(res == OS_SUCCESS);
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -88,84 +157,99 @@ OsTimer::~OsTimer()
 // Arm the timer to fire once at the indicated date and time
 OsStatus OsTimer::oneshotAt(const OsDateTime& when)
 {
-   OsTime   curTime;
-   OsTime   expireTime;
-   OsStatus res;
-
-   OsDateTimeBase::getCurTime(curTime);
-   res = when.cvtToTimeSinceEpoch(expireTime);
-   assert(res == OS_SUCCESS);
-
-   mExpiresAt = expireTime - curTime;
-   mPeriod    = OsTime::OS_INFINITY;
-   mType      = ONESHOT;
-   doStartTimer();
-
-   return OS_SUCCESS;
+   return startTimer(cvtToTime(when), FALSE, nullInterval);
 }
      
 // Arm the timer to fire once at the current time + offset
 OsStatus OsTimer::oneshotAfter(const OsTime& offset)
 {
-   mExpiresAt = offset;
-   mPeriod    = OsTime::OS_INFINITY;
-   mType      = ONESHOT;
-   doStartTimer();
-
-   return OS_SUCCESS;
+   return startTimer(now() + cvtToInterval(offset), FALSE, nullInterval);
 }
 
 // Arm the timer to fire periodically starting at the indicated date/time
 OsStatus OsTimer::periodicAt(const OsDateTime& when, OsTime period)
 {
-   OsTime   curTime;
-   OsTime   expireTime;
-   OsStatus res;
-
-   OsDateTimeBase::getCurTime(curTime);
-   res = when.cvtToTimeSinceEpoch(expireTime);
-   assert(res == OS_SUCCESS);
-
-   mExpiresAt = expireTime - curTime;
-   mPeriod    = period;
-
-   // Since periodic timers are specified to start at a particular time,
-   //  they are given a timer type of ONESHOT + PERIODIC.  After the
-   //  first timer event occurs, the timer type is changed to just PERIODIC
-   mType      = ONESHOT + PERIODIC;
-   doStartTimer();
-
-   return OS_SUCCESS;
+   return startTimer(cvtToTime(when), TRUE, cvtToInterval(period));
 }
 
 // Arm the timer to fire periodically starting at current time + offset
 OsStatus OsTimer::periodicEvery(OsTime offset, OsTime period)
 {
-   mExpiresAt = offset;
-   mPeriod    = period;
-
-   // Since periodic timers are specified to start at a particular time,
-   //  they are given a timer type of ONESHOT + PERIODIC.  After the
-   //  first timer event occurs, the timer type is changed to just PERIODIC
-   mType      = ONESHOT + PERIODIC;
-   doStartTimer();
-
-   return OS_SUCCESS;
+   return startTimer(now() + cvtToInterval(offset), TRUE,
+                     cvtToInterval(period));
 }
 
 // Disarm the timer
-OsStatus OsTimer::stop(void)
+OsStatus OsTimer::stop(UtlBoolean synchronous)
 {
-   doStopTimer();
-   return OS_SUCCESS;
+   OsStatus result;
+   UtlBoolean sendMessage = FALSE;
+
+   // Update members.
+   {
+      OsLock lock(mBSem);
+
+      assert(!mDeleting);
+
+      // Determine whether the call is successful.
+      if (isStarted(mApplicationState))
+      {
+         // Update state to stopped.
+         mApplicationState++;
+         result = OS_SUCCESS;
+         if (mOutstandingMessages == 0)
+         {
+            // We will send a message.
+            sendMessage = TRUE;
+            mOutstandingMessages++;
+         }
+      }
+      else
+      {
+         result = OS_FAILED;
+      }
+}
+
+   // If we need to, send an UPDATE message to the timer task.
+   if (sendMessage)
+{
+      if (synchronous) {
+         // Send message and wait.
+         OsEvent event;
+         OsTimerMsg msg(OsTimerMsg::UPDATE_SYNC, this, &event);
+         OsStatus res = OsTimerTask::getTimerTask()->postMessage(msg);
+         assert(res == OS_SUCCESS);
+         event.wait();
+      }
+      else
+      {
+         // Send message.
+         OsTimerMsg msg(OsTimerMsg::UPDATE, this, NULL);
+         OsStatus res = OsTimerTask::getTimerTask()->postMessage(msg);
+         assert(res == OS_SUCCESS);
+      }
+   }
+
+   return result;
 }
 
 /* ============================ ACCESSORS ================================= */
 
-// Return the OsNotification object for this timer.
+// Return the OsNotification object for this timer
 OsNotification* OsTimer::getNotifier(void) const
 {
    return mpNotifier;
+}
+
+// Get the userData value of a timer constructed with OsTimer(OsMsgQ*, int).
+int OsTimer::getUserData()
+{
+   // Have to cast mpNotifier into OsQueuedEvent* to get the userData.
+   OsQueuedEvent* e = dynamic_cast <OsQueuedEvent*> (mpNotifier);
+   assert(e != 0);
+   int userData;
+   e->getUserData(userData);
+   return userData;
 }
 
 unsigned OsTimer::hash() const
@@ -180,6 +264,13 @@ UtlContainableType OsTimer::getContainableType() const
 }
 
 /* ============================ INQUIRY =================================== */
+
+// Return the state value for this OsTimer object
+OsTimer::OsTimerState OsTimer::getState(void)
+{
+   OsLock lock(mBSem);
+   return isStarted(mApplicationState) ? STARTED : STOPPED;
+}
 
 int OsTimer::compareTo(UtlContainable const * inVal) const
 {
@@ -199,86 +290,62 @@ int OsTimer::compareTo(UtlContainable const * inVal) const
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
-/* //////////////////////////// PRIVATE /////////////////////////////////// */
-
-// Start the OsTime object and indicate that it has entered the STARTED state
-void OsTimer::doStartTimer(void)
+// Get the current time as a Time.
+OsTimer::Time OsTimer::now()
 {
-   assert(mState == CREATED || mState == STOPPED);
-
-   mState = STARTED;
-   OsTimerTask::startTimer(*this);
+   OsTime t;
+   OsDateTime::getCurTime(t);
+   return (Time)(t.seconds()) * 1000000 + t.usecs();
 }
 
-// Stop the OsTimer object and modify its object state accordingly
-void OsTimer::doStopTimer(void)
+// Start the OsTimer object.
+OsStatus OsTimer::startTimer(Time start,
+                             UtlBoolean periodic,
+                             Interval period)
 {
-   if (mState == CREATED || mState == STOPPED) // already stopped, just return
-      return;
+   OsStatus result;
+   UtlBoolean sendMessage = FALSE;
 
-   // in the following assertion, we allow mState == STOPPED because the timer
-   //  may have expired while we are in the midst of stopping it
-   assert(mState == STARTED || mState == STOPPED);
-
-   OsTimerTask::stopTimer(*this);
-   mState = STOPPED;
-}
-
-// Return the period of a periodic timer.
-// If the timer is not periodic, return an infinite period.
-const OsTime& OsTimer::getPeriod(void) const
+   // Update members.
 {
-   return mPeriod;
-}
+      OsLock lock(mBSem);
      
-// Return the state value for this OsTimer object
-int OsTimer::getState(void) const
+      assert(!mDeleting);
+
+      // Determine whether the call is successful.
+      if (isStopped(mApplicationState))
 {
-   return mState;
+         // Update state to started.
+         mApplicationState++;
+         result = OS_SUCCESS;
+         if (mOutstandingMessages == 0)
+{
+            // We will send a message.
+            sendMessage = TRUE;
+            mOutstandingMessages++;
+}
+         // Set time values.
+         mExpiresAt = start;
+         mPeriodic = periodic;
+         mPeriod = period;
+}
+      else
+{
+         result = OS_FAILED;
+}
 }
 
-// Return the system timer id for this object.
-// This method should only be called by the OsSysTimer object.
-int OsTimer::getTimerId(void) const
+   // If we need to, send an UPDATE message to the timer task.
+   if (sendMessage)
 {
-   return mTimerId;
+      OsTimerMsg msg(OsTimerMsg::UPDATE, this, NULL);
+      OsStatus res = OsTimerTask::getTimerTask()->postMessage(msg);
+      assert(res == OS_SUCCESS);
 }
 
-// Return the timer type.
-int OsTimer::getType(void) const
-{
-   return mType;
+   return result;
 }
 
-// Return TRUE if this is a one-shot timer, otherwise FALSE.
-UtlBoolean OsTimer::isOneshot(void) const
-{
-   return ((mType & ONESHOT) == ONESHOT);
-}
-
-// Return TRUE if this is a periodic timer, otherwise FALSE.
-UtlBoolean OsTimer::isPeriodic(void) const
-{
-   return ((mType & PERIODIC) == PERIODIC);
-}
-
-// Set the state value for this OsTimer object
-void OsTimer::setState(int state)
-{
-   mState = state;
-}
-
-// Set the system timer id for this object
-// This method should only be called by the OsSysTimer object.
-void OsTimer::setTimerId(int id)
-{
-   mTimerId = id;
-}
-
-// Set the timer type for this object.
-void OsTimer::setTimerType(int timerType)
-{
-   mType = timerType;
-}
+/* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 /* ============================ FUNCTIONS ================================= */

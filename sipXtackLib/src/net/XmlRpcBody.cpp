@@ -1,5 +1,8 @@
 //
-// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Copyright (C) 2005-2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
+// Copyright (C) 2005 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -14,8 +17,10 @@
 #include <os/OsSysLog.h>
 #include <os/OsDateTime.h>
 #include <utl/UtlInt.h>
+#include <utl/UtlLongLongInt.h>
 #include <utl/UtlBool.h>
 #include <utl/UtlDateTime.h>
+#include <utl/UtlSList.h>
 #include <utl/UtlSListIterator.h>
 #include <utl/UtlHashMapIterator.h>
 #include <utl/XmlContent.h>
@@ -36,26 +41,12 @@ XmlRpcBody::XmlRpcBody()
    mBody = XML_VERSION_1_0;
 }
 
-// Copy constructor
-XmlRpcBody::XmlRpcBody(const XmlRpcBody& rXmlRpcBody)
-{
-}
-
 // Destructor
 XmlRpcBody::~XmlRpcBody()
 {
 }
 
 /* ============================ MANIPULATORS ============================== */
-
-
-// Assignment operator
-XmlRpcBody&
-XmlRpcBody::operator=(const XmlRpcBody& rhs)
-{
-   if (this == &rhs)            // handle the assignment to self case
-      return *this;
-}
 
 
 void XmlRpcBody::append(const char* string)
@@ -92,82 +83,72 @@ bool XmlRpcBody::addValue(UtlContainable* value)
 {
    bool result = false;
 
-   UtlString paramType(value->getContainableType());
    UtlString paramValue; 
 
    // UtlInt
-   char temp[10];
-   if (paramType.compareTo("UtlInt") == 0)
+   if (value->isInstanceOf(UtlInt::TYPE))
    {
       UtlInt* pValue = (UtlInt *)value;
+      // allow room for the widest possible value, INT_MIN = -2147483648
+      char temp[11];
       sprintf(temp, "%d", pValue->getValue());
-      paramValue = BEGIN_INT + UtlString(temp) + END_INT;
+      paramValue.append(BEGIN_INT);
+      paramValue.append(temp);
+      paramValue.append(END_INT);
       result = true;
+   }
+   // UtlLongLongInt
+   else if (value->isInstanceOf(UtlLongLongInt::TYPE))
+   {
+      UtlLongLongInt* pValue = (UtlLongLongInt *)value;
+      // always encode these in hex - more readable for values this big
+      char temp[19];
+      sprintf(temp, "%0#16llx", static_cast<UInt64>(pValue->getValue()));
+      paramValue.append(BEGIN_I8);
+      paramValue.append(temp);
+      paramValue.append(END_I8);
+      result = true;
+   }
+   else if (value->isInstanceOf(UtlBool::TYPE))
+   {
+      UtlBool* pValue = (UtlBool *)value;
+      paramValue.append(BEGIN_BOOLEAN);
+      paramValue.append(pValue->getValue() ? "1" : "0");
+      paramValue.append(END_BOOLEAN);
+      result = true;
+   }
+   else if (value->isInstanceOf(UtlString::TYPE))
+   {
+      UtlString* pValue = (UtlString *)value;
+
+      // Fix XSL-116: XML-RPC must escape special chars in string values
+      result = XmlEscape(paramValue, *pValue);
+
+      paramValue.insert(0, BEGIN_STRING);
+      paramValue.append(END_STRING);
+   }
+   else if (value->isInstanceOf(UtlDateTime::TYPE))
+   {
+      UtlDateTime* pTime = (UtlDateTime *)value;
+      OsDateTime time;
+      pTime->getTime(time);
+      UtlString isoTime;
+      time.getIsoTimeStringZ(isoTime);               
+      paramValue = BEGIN_TIME + isoTime + END_TIME;
+      result = true;
+   }
+   else if (value->isInstanceOf(UtlHashMap::TYPE))
+   {
+      result = addStruct((UtlHashMap *)value);
+   }
+   else if (value->isInstanceOf(UtlSList::TYPE))
+   {
+      result = addArray((UtlSList *)value);
    }
    else
    {
-      // UtlBool
-      if (paramType.compareTo("UtlBool") == 0)
-      {
-         UtlBool* pValue = (UtlBool *)value;
-         if (pValue->getValue())
-         {
-            sprintf(temp, "1");
-         }
-         else
-         {
-            sprintf(temp, "0");
-         }
-               
-         paramValue = BEGIN_BOOLEAN + UtlString(temp) + END_BOOLEAN;
-         result = true;
-      }
-      else
-      {
-         // UtlString
-         if (paramType.compareTo("UtlString") == 0)
-         {
-            UtlString* pValue = (UtlString *)value;
-            paramValue = BEGIN_STRING + *pValue + END_STRING;
-            result = true;
-         }
-         else
-         {
-            // UtlDateTime
-            if (paramType.compareTo("UtlDateTime") == 0)
-            {
-               UtlDateTime* pTime = (UtlDateTime *)value;
-               OsDateTime time;
-               pTime->getTime(time);
-               UtlString isoTime;
-               time.getIsoTimeStringZ(isoTime);               
-               paramValue = BEGIN_TIME + isoTime + END_TIME;
-               result = true;
-            }
-            else
-            {
-               // UtlHashMap
-               if (paramType.compareTo("UtlHashMap") == 0)
-               {
-                  result = addStruct((UtlHashMap *)value);
-               }
-               else
-               {
-                  // UtlSList
-                  if (paramType.compareTo("UtlSList") == 0)
-                  {
-                     result = addArray((UtlSList *)value);
-                  }
-                  else
-                  {
-                     OsSysLog::add(FAC_SIP, PRI_WARNING,
-                                   "XmlRpcBody::addValue unspported type = %s\n", paramType.data());                     
-                  }                     
-               }
-            }
-         }
-      }
-   }
+      assert(false); // unsupported type
+   }                     
             
    mBody.append(paramValue);
    return result;
@@ -181,29 +162,25 @@ bool XmlRpcBody::addArray(UtlSList* array)
    
    UtlSListIterator iterator(*array);
    UtlContainable* pObject;
-   while (pObject = iterator())
+   while (   (pObject = iterator())
+          && (result = addValue(pObject))
+          )
    {
-      result = addValue(pObject);
-      if (!result)
-      {
-         break;
-      }
    }
-   
    mBody.append(END_ARRAY);
    return result;
 }
 
 bool XmlRpcBody::addStruct(UtlHashMap* members)
 {
-   bool result = false;
+   bool result = true;
    mBody.append(BEGIN_STRUCT);
    
    UtlHashMapIterator iterator(*members);
    UtlString* pName;
    UtlContainable* pObject;
    UtlString structName;
-   while (pName = (UtlString *)iterator())
+   while (result && (pName = (UtlString *)iterator()))
    {
       mBody.append(BEGIN_MEMBER);
 
@@ -212,12 +189,6 @@ bool XmlRpcBody::addStruct(UtlHashMap* members)
       
       pObject = members->findValue(pName);
       result = addValue(pObject);
-      if (!result)
-      {
-         mBody.append(END_MEMBER);
-         break;
-      }
-      
       mBody.append(END_MEMBER);
    }
    
@@ -234,4 +205,3 @@ bool XmlRpcBody::addStruct(UtlHashMap* members)
 
 
 /* ============================ FUNCTIONS ================================= */
-

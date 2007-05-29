@@ -65,7 +65,7 @@ public:
    //! returns: The number of bytes actually read.
 
 /* ============================ ACCESSORS ================================= */
-   virtual int getIpProtocol() const;
+   virtual OsSocket::IpProtocolSocketType getIpProtocol() const;
    //: Returns the protocol type of this socket
 
 

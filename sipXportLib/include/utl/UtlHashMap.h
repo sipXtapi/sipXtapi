@@ -39,6 +39,7 @@ class UtlHashMap : public UtlContainer
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
+    static const UtlContainableType TYPE;
 
 /* ============================ CREATORS ================================== */
 
@@ -72,6 +73,8 @@ public:
      * Inserts the designated containable object into the list
      * with a NULL value (see note regarding use of NULL value
      * in insertKeyAndValue).
+     * If there is an equal key in the UtlHashMap already,
+     * the insert will fail.
      * 
      * @return the object if successful, otherwise NULL
      */
@@ -105,7 +108,7 @@ public:
 
     /**
      * Removes the designated key and its associated value from the map
-     * and frees the object by calling delete.
+     * and frees the key and the value (if not NULL) by calling delete.
      */ 
     virtual UtlBoolean destroy(UtlContainable* key);    
 
@@ -205,8 +208,6 @@ protected:
 
     static    UtlChainPool* spPairPool; ///< pool of available UtlPair objects.
     
-    static const UtlContainableType TYPE;
-
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
 

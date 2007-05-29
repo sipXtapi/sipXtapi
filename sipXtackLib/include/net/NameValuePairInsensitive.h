@@ -76,11 +76,8 @@ public:
      * objects must return the same hashcode.
      */
 
-    /// Determine whether or not the values in a containable are comparable.
+    /// Return the unique type value for this class.
     virtual UtlContainableType getContainableType() const;
-    /**<
-     * This returns a unique type for UtlString
-     */
 
     /// Compare to any other UtlContainable
     virtual int compareTo(UtlContainable const *other) const;

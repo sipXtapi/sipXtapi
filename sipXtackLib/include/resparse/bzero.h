@@ -1,3 +1,4 @@
+/*
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -7,6 +8,7 @@
 //
 // $$
 ///////////////////////////////////////////////////////////////////////////////
+*/
 
 #ifndef INCLUDE_RESPARSE_BZERO_H
 #define INCLUDE_RESPARSE_BZERO_H

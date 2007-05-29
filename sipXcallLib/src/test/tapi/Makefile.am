@@ -27,6 +27,7 @@ testsuite_SOURCES = \
   TestRegistryCollection.cpp \
   TestRegistryData.cpp \
   TestStunServerTask.cpp \
+  sipXtapiTestSubscribe.cpp \
   ../jnibutton.cpp
 
 DISTCLEANFILES = Makefile.in

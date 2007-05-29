@@ -71,6 +71,12 @@ free_rr(rrp)
         case T_SRV:
                 free(rrp->rdata.srv.target);
                 break;
+        case T_NAPTR:
+                free(rrp->rdata.naptr.flags);
+                free(rrp->rdata.naptr.services);
+                free(rrp->rdata.naptr.regexp);
+                free(rrp->rdata.naptr.replacement);
+                break;
         case T_TXT:
                 free(rrp->rdata.txt.text);
                 if (rrp->rdata.txt.next != NULL) {

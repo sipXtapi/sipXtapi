@@ -30,7 +30,6 @@
 #endif
 
 #ifdef _VXWORKS
-#include <../config/pingtel/pingtel.h>
 #include <resolvLib.h>
 #endif
 

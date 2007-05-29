@@ -41,12 +41,13 @@ OsServerTask::OsServerTask(const UtlString& name,
 /*
    // Only useful when debugging queue problems -- very small case and doesn't
    // warrant spam in general case -- my opinion anyways.
+
    if (OsSysLog::willLog(FAC_KERNEL, PRI_INFO))
    {
 
            OsSysLog::add(FAC_KERNEL, PRI_INFO,
-                                "OsServerTask::OsServerTask %s queue: %p",
-                                mName.data(), &mIncomingQ);
+                                "OsServerTask::OsServerTask %s queue: %p queue limit: %d",
+                                mName.data(), &mIncomingQ, maxRequestQMsgs);
    }
 */
 }
@@ -129,6 +130,13 @@ OsMsgQ* OsServerTask::getMessageQueue()
 OsStatus OsServerTask::receiveMessage(OsMsg*& rpMsg)
 {
    return mIncomingQ.receive(rpMsg);
+}
+
+// Waits for a message to arrive on the task's incoming message queue.
+OsStatus OsServerTask::receiveMessage(OsMsg*& rpMsg,
+                                      const OsTime& rTimeout)
+{
+   return mIncomingQ.receive(rpMsg, rTimeout);
 }
 
 // The entry point for the task.

@@ -22,7 +22,7 @@
 // CONSTANTS
 // STATIC VARIABLE INITIALIZATIONS
 // MACROS
-#ifdef WIN32
+#if defined(WIN32) && !defined(WINCE)
 #  define strcasecmp stricmp
 #  define strncasecmp strnicmp
 #endif
@@ -194,7 +194,10 @@ SIPX_CONTACT_ADDRESS* SipContactDb::findByType(SIPX_CONTACT_TYPE type, SIPX_TRAN
         
         pContact = (SIPX_CONTACT_ADDRESS*)pValue->getValue();
         assert(pContact) ;
-        if (transportType != OsSocket::UNKNOWN && transportType == pContact->eTransportType)
+
+        if (transportType != OsSocket::UNKNOWN && 
+            (((transportType < TRANSPORT_CUSTOM) && transportType == pContact->eTransportType) ||
+            ((transportType == TRANSPORT_CUSTOM) && pContact->eTransportType >= TRANSPORT_CUSTOM)))
         {
             if (pContact->eContactType == type)
             {
@@ -423,12 +426,19 @@ const bool SipContactDb::getRecordForAdapter(SIPX_CONTACT_ADDRESS& contact,
         pContact = (SIPX_CONTACT_ADDRESS*)pValue->getValue();
         
         if (0 != strcmp(pContact->cInterface, szAdapter))
+            continue;
+
+        if (pContact->eContactType != contactFilter)
+            continue ;
+
+        if (transportFilter == TRANSPORT_CUSTOM)
         {
+            if (pContact->eTransportType < TRANSPORT_CUSTOM)
             continue;
         }
-        if ((pContact->eContactType != contactFilter) || 
-                (pContact->eTransportType != transportFilter))
+        else
         {
+            if (pContact->eTransportType != transportFilter)
             continue;
         }
 

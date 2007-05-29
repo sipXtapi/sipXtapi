@@ -35,6 +35,7 @@
 
 // STATIC VARIABLE INITIALIZATIONS
 static OsConfigEncryption *gEncryption = NULL;
+const UtlContainableType DbEntry::TYPE = "DbEntry";
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
@@ -129,84 +130,102 @@ OsStatus OsConfigDb::loadFromFile(FILE* fp)
 
 void OsConfigDb::insertEntry(const char* fileLine)
 {
-        char* name;
-        char* nameEnd;
-        char* value;
-        char* valueEnd;
+   /* Format of a config line is:
+    *     whitespace name whitespace : whitespace value whitespace EOL
+    */
 
-     // Get rid of initial white space
-     name = (char*)fileLine;
-     value = (char*)fileLine + strlen(fileLine);
-     valueEnd = value;
-     if(name < value)
+   const char* p = fileLine;    // Scanning pointer.
+
+   // Skip initial white space.
+   while (*p != '\0' && isspace(*p))
      {
-        valueEnd--;
+      p++;
      }
 
-     while(isspace(*name))
+   // If the first non-whitespace character is '#', this is a comment line.
+   // Similarly, if it is NUL, this line is empty.
+   // In either case, ignore this line.
+   if (*p != '#' && *p != '\0')
+   {
+      // Save start of name.
+      const char* name_start = p;
+
+      // The name continues till EOL, whitespace, or colon.
+      while (*p != '\0' && !isspace(*p) && *p != ':')
      {
-        name++;
+         p++;
      }
 
-     // Find the end of the name
-     nameEnd = name;
+      // Save length of name.
+      int name_len = p - name_start;
 
-     while(!isspace(*nameEnd) && *nameEnd != '\0')
+      // If the found name is null, do nothing.
+      // (Probably due to an empty line.)
+      if (name_len != 0)
      {
-        nameEnd++;
-     }
-
-     *nameEnd = '\0';
-
-     if(nameEnd < value)
+         // Skip whitespace.
+         while (*p != '\0' && isspace(*p))
      {
-        value = nameEnd + 1;
-     }
-
-#if 0 /* [ */
-     // Get rid of terminators
-     if(*valueEnd == '\n' || *valueEnd == '\r')
-     {
-        *valueEnd = '\0';
-        if(valueEnd > value)
+            p++;
+         }
+         // Skip colon, if any.
+         // (There should be a colon, but if the line's format is bad,
+         // it might not be there.)
+         if (*p == ':')
         {
-           valueEnd--;
-           if(*valueEnd == '\n' || *valueEnd == '\r')
+            p++;
+
+            // Skip whitespace.
+            while (*p != '\0' && isspace(*p))
            {
-              *valueEnd = '\0';
-           }
-        }
+               p++;
      }
-#endif /* ] */
 
-     // Get rid of separators at the begining
-     while(isspace(*value) || *value == ':')
+            // Save start of value.
+            const char* value_start = p;
+
+            // Scan string back from the end skipping whitespace.
+            p = fileLine + strlen(fileLine);
+            while (p > value_start && isspace(p[-1]))
      {
-        value++;
+               p--;
      }
 
-     //if the value has any leading space characters, get rid of them
-     while (isspace(*value))
-        value++;
+            // Save length of value.
+            int value_len = p - value_start;
 
-     // Get rid of separators and terminators at the end
-     while(value <= valueEnd && isspace(*valueEnd))
+            // Construct UtlString's, which insertEntry(*, *) needs as arguments.
+            UtlString name(name_start, name_len);
+            UtlString value(value_start, value_len);
+
+            // Capitalize the name if required.
+            if (mCapitalizeName)
      {
-        *valueEnd = '\0';
-        valueEnd--;
+               name.toUpper();
      }
 
-     // Insert key/value if key is not null
-     if (*name!='\0') {
-                 if (mCapitalizeName)
+            // Insert the entry.
+            insertEntry(name, value);
+         }
+         else
                  {
-                         UtlString capName(name);
-                         capName.toUpper();
-                         insertEntry(capName.data(), value);
+            // The colon was not found.
+            OsSysLog::add(FAC_KERNEL, PRI_CRIT,
+                          "Invalid config line format in file '%s', "
+                          "no colon found: '%s'",
+                          mIdentityLabel.data(),
+                          fileLine);
+         }
                  }
                  else
-                        insertEntry(name, value);
-        // osPrintf("Read Name: \"%s\" Value: \"%s\"\n", name, value);
+      {
+         // The colon was not found.
+         OsSysLog::add(FAC_KERNEL, PRI_CRIT,
+                       "Invalid config line format in file '%s', "
+                       "name is missing: '%s'",
+                       mIdentityLabel.data(),
+                       fileLine);
+      }
      }
 }
 
@@ -277,10 +296,11 @@ OsStatus OsConfigDb::remove(const UtlString& rKey)
 // Remove all the key/value pairs starting with the designated prefix
 OsStatus OsConfigDb::removeByPrefix(const UtlString& rPrefix) 
 {
+   OsWriteLock lock(mRWMutex);
    DbEntry* pEntry ;
 
    UtlSortedListIterator itor(mDb) ;
-   while (pEntry = (DbEntry*) itor())
+   while ((pEntry = (DbEntry*) itor()))
    {
        if (pEntry->key.length() >= rPrefix.length())
        {
@@ -341,7 +361,7 @@ void OsConfigDb::setIdentityLabel(const char *idLabel)
 
 // filename, url, etc that would help identity the source of this config
 // return NULL if no idenity was set
-const char *OsConfigDb::getIdentityLabel()
+const char *OsConfigDb::getIdentityLabel() const
 {
     return mIdentityLabel.data();
 }
@@ -349,7 +369,7 @@ const char *OsConfigDb::getIdentityLabel()
 // Encryption Rules for this instance.
 // SUBCLASS NOTE:  no setter method, requires subclassing to override instance
 // only rules
-OsConfigEncryption *OsConfigDb::getEncryption()
+OsConfigEncryption *OsConfigDb::getEncryption() const
 {
     return getStaticEncryption();
 }
@@ -369,7 +389,7 @@ OsConfigEncryption *OsConfigDb::getStaticEncryption()
 // Sets rValue to the value in the database associated with rKey.
 // If rKey is found in the database, returns OS_SUCCESS.  Otherwise,
 // returns OS_NOT_FOUND and sets rValue to the empty string.
-OsStatus OsConfigDb::get(const UtlString& rKey, UtlString& rValue)
+OsStatus OsConfigDb::get(const UtlString& rKey, UtlString& rValue) const
 {
    OsReadLock lock(mRWMutex);
    DbEntry   lookupPair(rKey);
@@ -392,67 +412,42 @@ OsStatus OsConfigDb::get(const UtlString& rKey, UtlString& rValue)
 
 // Gets a db subset of name value pairs which have the given hashSubKey as
 // a prefix for the key
-OsStatus OsConfigDb::getSubHash(const UtlString& rHashSubKey, OsConfigDb& rSubDb)
+OsStatus OsConfigDb::getSubHash(const UtlString& rHashSubKey,
+                                OsConfigDb& rSubDb) const
 {
-   UtlString dummy;
-   UtlString previousKey(rHashSubKey);
-   UtlString key;
-   UtlString value;
-   UtlBoolean bAddedSubKey = false ;
-   int keyOffset = strlen(rHashSubKey);
-   int keyPrefixIndex;
-#ifdef TEST
-   osPrintf("Key prefix: \"%s\"\n", rHashSubKey.data());
-#endif
+   UtlSortedListIterator itor(mDb);
 
-   // Need to have the prefix as a key so that there is a next
-   if(get(rHashSubKey, dummy) != OS_SUCCESS)
+   DbEntry* entry;
+   // Skip the initial entries in the list that do not match.
+   while ((entry = dynamic_cast <DbEntry*> (itor())))
    {
-       set(rHashSubKey, "");
-       bAddedSubKey = true ;
-   }
-
-   while(getNext(previousKey, key, value) == OS_SUCCESS)
-   {
-      //osPrintf("key: \"%s\" value: \"%s\"\n",
-      //         key.data(), value.data());
-      keyPrefixIndex = key.index(rHashSubKey);
-      previousKey = key;
-
-      // The prefix should start at the first char
-      if(keyPrefixIndex == 0)
-      {
-#ifdef TEST
-         osPrintf("sub-key: \"%s\" value: \"%s\"\n",
-                  &((key.data())[keyOffset]), value.data());
-#endif
-         rSubDb.insertEntry(&((key.data())[keyOffset]),
-                      value.data());
-      }
-      else
+      if (strncmp(entry->key.data(), rHashSubKey.data(),
+                  rHashSubKey.length()) >= 0)
       {
          break;
       }
-
-      //osPrintf("Previous key: \"%s\"\n", previousKey.data());
    }
-#ifdef TEST
-   osPrintf("last key found: \"%s\" value: \"%s\"\n",
-            key.data(), value.data());
-#endif
-   if (bAddedSubKey)
-      remove(rHashSubKey);
-   dummy.remove(0);
-   previousKey.remove(0);
-   key.remove(0);
-   value.remove(0);
-   return(OS_SUCCESS);
+
+   // Process the entries in the list that do match.
+   for (; entry &&
+           strncmp(entry->key.data(), rHashSubKey.data(),
+                   rHashSubKey.length()) == 0;
+        entry = dynamic_cast <DbEntry*> (itor()))
+   {
+      // Construct and add the entry to the subhash.
+      // Make temporary UtlString, because that's what insertEntry demands
+      // as an argument.
+      UtlString key(&entry->key.data()[rHashSubKey.length()]);
+      rSubDb.insertEntry(key, entry->value);
+   }
+
+   return OS_SUCCESS;
 }
 
 // Sets rValue to the value in the database associated with rKey.
 // If rKey is found in the database, returns OS_SUCCESS.  Otherwise,
 // returns OS_NOT_FOUND and sets rValue to -1.
-OsStatus OsConfigDb::get(const UtlString& rKey, int& rValue)
+OsStatus OsConfigDb::get(const UtlString& rKey, int& rValue) const
 {
    UtlString value;
    OsStatus returnStatus = get(rKey, value);
@@ -480,7 +475,8 @@ OsStatus OsConfigDb::get(const UtlString& rKey, int& rValue)
 //      empty string
 //   OS_NO_MORE_DATA if there is no "next" entry
 OsStatus OsConfigDb::getNext(const UtlString& rKey,
-                         UtlString& rNextKey, UtlString& rNextValue)
+                             UtlString& rNextKey,
+                             UtlString& rNextValue) const
 {
    OsReadLock lock(mRWMutex);
    UtlBoolean  foundMatch;
@@ -529,12 +525,13 @@ OsStatus OsConfigDb::getNext(const UtlString& rKey,
 void OsConfigDb::addList(const UtlString& rPrefix,
                          UtlSList& rList) 
 {
-    // First remove all items start with the specified prefix
-    removeByPrefix(rPrefix) ;
+    OsWriteLock lock(mRWMutex);
     int iNumEntries ;
     UtlString key ;
     UtlString* pValue ;
 
+    // First remove all items start with the specified prefix
+    removeByPrefix(rPrefix) ;
 
     // Next add all of the new items
     iNumEntries = rList.entries() ;
@@ -547,7 +544,7 @@ void OsConfigDb::addList(const UtlString& rPrefix,
         UtlSListIterator itor(rList) ;        
         int iCount = 1 ;
         char cTemp[64] ;
-        while (pValue = (UtlString*) itor())
+        while ((pValue = (UtlString*) itor()))
         {
             sprintf(cTemp, "%d", iCount++);   
             key = rPrefix ;
@@ -563,7 +560,7 @@ void OsConfigDb::addList(const UtlString& rPrefix,
 // Loads a list of strings from the configuration datadase using the 
 // designated prefix as the base for the list items.
 int OsConfigDb::loadList(const UtlString& rPrefix,
-                         UtlSList& rList) 
+                         UtlSList& rList) const
 {
     OsReadLock lock(mRWMutex);
     int iNumEntries ;
@@ -597,7 +594,7 @@ int OsConfigDb::loadList(const UtlString& rPrefix,
 
 
 // Get a port number from the configuration database
-int OsConfigDb::getPort(const char* szKey)
+int OsConfigDb::getPort(const char* szKey) const
 {
     assert(szKey) ;
 
@@ -624,8 +621,8 @@ int OsConfigDb::getPort(const char* szKey)
               {
                  port = PORT_NONE;
                  OsSysLog::add(FAC_KERNEL, PRI_CRIT,
-                               "Invalid port number value '%s' for config variable '%s'.",
-                               value.data(), szKey);
+                               "Invalid port number value '%s' for config variable '%s' in file '%'.",
+                               value.data(), szKey, mIdentityLabel.data());
               }
            }
         }
@@ -647,11 +644,10 @@ void OsConfigDb::clear()
     }
 }
 
-
 /* ============================ INQUIRY =================================== */
 
 // Return TRUE if the database is empty, otherwise FALSE.
-UtlBoolean OsConfigDb::isEmpty(void)
+UtlBoolean OsConfigDb::isEmpty(void) const
 {
    OsReadLock lock(mRWMutex);
 
@@ -659,14 +655,14 @@ UtlBoolean OsConfigDb::isEmpty(void)
 }
 
 // Return the number of entries in the config database
-int OsConfigDb::numEntries(void)
+int OsConfigDb::numEntries(void) const
 {
    OsReadLock lock(mRWMutex);
 
    return mDb.entries();
 }
 
-void OsConfigDb::storeToBuffer(char *buff)
+void OsConfigDb::storeToBuffer(char *buff) const
 {
     char *p = buff;
     int n = numEntries();
@@ -684,7 +680,7 @@ void OsConfigDb::storeToBuffer(char *buff)
 }
 
 // important that it be big enough, not so important it's exact
-int OsConfigDb::calculateBufferSize()
+int OsConfigDb::calculateBufferSize() const
 {
     int n = numEntries();
     int size = n * strlen(DB_LINE_FORMAT);
@@ -858,7 +854,7 @@ OsStatus OsConfigDb::loadFromUnencryptedFile(FILE* fp)
 #  define OK VX_OK
 #  endif
 
-   // step through the file writing out one entry per line
+   // step through the file reading one entry per line
    // each entry is of the form "%s: %s\n"
    while (!feof(fp))
    {
@@ -874,10 +870,6 @@ OsStatus OsConfigDb::loadFromUnencryptedFile(FILE* fp)
          retval = OS_UNSPECIFIED;
          break;
       }
-      //else if (result == EOF)
-      //   break;                   // end of file, exit the loop
-      //else
-      //   assert(FALSE);           // unexpected return code
    }
 
    return retval;
@@ -1031,11 +1023,9 @@ unsigned int DbEntry::hash() const
     return key.hash();
 }
 
-static UtlContainableType DB_ENTRY_TYPE = "DbEntry";
-
 const UtlContainableType DbEntry::getContainableType() const
 {
-    return DB_ENTRY_TYPE;
+    return TYPE;
 }
 
 /* ============================ FUNCTIONS ================================= */

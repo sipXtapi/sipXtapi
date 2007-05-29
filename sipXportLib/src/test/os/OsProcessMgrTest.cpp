@@ -17,6 +17,16 @@
 
 #include <sipxunit/TestUtilities.h>
 
+// Short circuit the autotools config as the path will most likely not work
+// for cross compile test runs off the machine the unit tests were built on.
+//#ifndef TEST_DIR
+#ifdef WIN32
+#define TEST_DIR "C:\\windows\\temp\\"
+#else
+#define TEST_DIR "/tmp/"
+#endif
+//#endif
+
 class OsProcessMgrTest : public CppUnit::TestCase
 {
     CPPUNIT_TEST_SUITE(OsProcessMgrTest);
@@ -29,7 +39,8 @@ public:
     void testManager()
     {
         OsStatus stat;
-        OsProcessMgr processManager;
+        printf("Creating process lock file in dir: %s\n", TEST_DIR);
+        OsProcessMgr processManager(TEST_DIR);
 
         UtlString alias = "MyPing1";
 
@@ -49,11 +60,8 @@ public:
         
         UtlString MyPing1("MyPing1");
         UtlString MyPing2("MyPing2");
-#ifdef _WIN32
-        OsPath startupDir = "";
-#else
         OsPath startupDir = ".";
-#endif
+
         stat = processManager.startProcess(MyPing1, appName, params, startupDir);
         CPPUNIT_ASSERT_MESSAGE("Started first proccess", stat == OS_SUCCESS);
 
@@ -82,5 +90,8 @@ public:
     }
 };
 
+#ifdef WINCE
+#pragma message( "OsProcessMgrTest disabled undef Win CE" )
+#else
 CPPUNIT_TEST_SUITE_REGISTRATION(OsProcessMgrTest);
-
+#endif

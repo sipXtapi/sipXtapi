@@ -17,6 +17,7 @@
 #include <net/SipDialog.h>
 #include <net/SipMessage.h>
 #include <utl/UtlHashMapIterator.h>
+#include <os/OsSysLog.h>
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -222,6 +223,11 @@ void SipDialog::updateDialogData(const SipMessage& message)
             if(message.getContactUri(0, &messageContact) &&
                 !messageContact.isNull())
             {
+                // Add the angle brackets for contact
+                Url url(messageContact);
+                url.includeAngleBrackets();
+                messageContact = url.toString();
+                
                 if(message.isResponse())
                 {
                     mRemoteContact = messageContact;
@@ -336,7 +342,18 @@ void SipDialog::setRequestData(SipMessage& request, const char* method)
     mRemoteContact.removeAngleBrackets();
     mRemoteContact.removeUrlParameters();
     mRemoteContact.toString(remoteContact);
+    
+    // If the remote contact is empty, use the remote request uri
+    if (remoteContact.compareTo("sip:") == 0)
+    {
+         OsSysLog::add(FAC_ACD, PRI_DEBUG, "SipDialog::setRequestData - using remote request uri %s",
+                       msRemoteRequestUri.data());
+         request.setSipRequestFirstHeaderLine(methodString, msRemoteRequestUri);
+    }
+    else
+    {
     request.setSipRequestFirstHeaderLine(methodString, remoteContact);
+    }
 
     // The local field is the From field
     UtlString fromField;
@@ -878,16 +895,16 @@ void SipDialog::getStateString(DialogState state,
         stateString = "DIALOG_UNKNOWN";
         break;
     case DIALOG_EARLY:
-        stateString = "DIALOG_UNKNOWN";
+        stateString = "DIALOG_EARLY";
         break;
     case DIALOG_ESTABLISHED:
-        stateString = "DIALOG_UNKNOWN";
+        stateString = "DIALOG_ESTABLISHED";
         break;
     case DIALOG_FAILED:
-        stateString = "DIALOG_UNKNOWN";
+        stateString = "DIALOG_FAILED";
         break;
     case DIALOG_TERMINATED:
-        stateString = "DIALOG_UNKNOWN";
+        stateString = "DIALOG_TERMINATED";
         break;
 
     // This should not happen

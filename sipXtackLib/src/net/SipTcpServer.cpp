@@ -94,7 +94,7 @@ UtlBoolean SipTcpServer::startListener()
     SipServerBroker* pBroker = NULL;
     UtlString* pKey = NULL;
     
-    while(pKey = (UtlString*)iterator())
+    while((pKey = (UtlString*)iterator()))
     {
         pBrokerContainer = (UtlVoidPtr*) iterator.value();
         if (pBrokerContainer)
@@ -184,7 +184,7 @@ SipTcpServer::~SipTcpServer()
         UtlVoidPtr* pBrokerContainer = NULL;
         UtlString* pKey = NULL;
         
-        while (pKey = (UtlString*)iterator())
+        while ((pKey = (UtlString*)iterator()))
         {
             pBrokerContainer = (UtlVoidPtr*)iterator.value();
             if (pBrokerContainer)

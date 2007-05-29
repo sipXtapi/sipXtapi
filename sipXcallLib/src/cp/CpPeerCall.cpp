@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2005-2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -7,6 +10,8 @@
 //
 // $$
 ///////////////////////////////////////////////////////////////////////////////
+
+// Author: Daniel Petrie dpetrie AT SIPez DOT com
 
 // SYSTEM INCLUDES
 #include "os/OsDefs.h"
@@ -252,7 +257,7 @@ UtlBoolean CpPeerCall::handleDialString(OsMsg* pEventMessage)
     void* pSecurity = (void*) ((CpMultiStringMessage*)pEventMessage)->getInt3Data();
     int bandWidth = ((CpMultiStringMessage*)pEventMessage)->getInt4Data();
     SIPX_TRANSPORT_DATA* pTransport = (SIPX_TRANSPORT_DATA*)((CpMultiStringMessage*)pEventMessage)->getInt5Data();
-    SIPX_RTP_TRANSPORT rtpTransportOptions = (SIPX_RTP_TRANSPORT)((CpMultiStringMessage*)pEventMessage)->getInt6Data();
+    RTP_TRANSPORT rtpTransportOptions = (RTP_TRANSPORT)((CpMultiStringMessage*)pEventMessage)->getInt6Data();
     const char* locationHeaderData = (locationHeader.length() == 0) ? NULL : locationHeader.data();
 
 #ifdef TEST_PRINT
@@ -422,7 +427,6 @@ UtlBoolean CpPeerCall::handleTransfer(OsMsg* pEventMessage)
 UtlBoolean CpPeerCall::handleTransferAddress(OsMsg* pEventMessage)
 {
     CpMultiStringMessage* pMessage = (CpMultiStringMessage*) pEventMessage ;
-    int msgSubType = pEventMessage->getMsgSubType() ;
 
     UtlString sourceCallId ;
     UtlString sourceAddress ;
@@ -542,8 +546,8 @@ UtlBoolean CpPeerCall::handleTransfereeConnection(OsMsg* pEventMessage)
     ((CpMultiStringMessage*)pEventMessage)->getString3Data(referredBy);
     ((CpMultiStringMessage*)pEventMessage)->getString4Data(originalCallId);
     ((CpMultiStringMessage*)pEventMessage)->getString5Data(originalConnectionAddress);
-    bool bOnHold = (bool) ((CpMultiStringMessage*)pEventMessage)->getInt1Data() ;
-    SIPX_RTP_TRANSPORT rtpTransportOptions = (SIPX_RTP_TRANSPORT) ((CpMultiStringMessage*)pEventMessage)->getInt2Data() ;
+    UtlBoolean bOnHold = ((CpMultiStringMessage*)pEventMessage)->getInt1Data() ;
+    RTP_TRANSPORT rtpTransportOptions = (RTP_TRANSPORT) ((CpMultiStringMessage*)pEventMessage)->getInt2Data() ;
 
 #ifdef TEST_PRINT
     osPrintf("%s-CpPeerCall::CP_TRANSFEREE_CONNECTION referTo: %s referredBy: \"%s\" originalCallId: %s originalConnectionAddress: %s\n",
@@ -1499,7 +1503,7 @@ UtlBoolean CpPeerCall::handleGetSession(OsMsg* pEventMessage)
         ((CpMultiStringMessage*)pEventMessage)->getInt1Data();
     getFieldEvent->getIntData((int&)sessionPtr);
 
-    OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPeerCall::handleGetSession session: 0x%x for callId %s address %s",
+    OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPeerCall::handleGetSession session: %p for callId %s address %s",
                   sessionPtr, callId.data(), address.data());
 
     // Check whether the tag is set in addresses or not. If so, do not need to use callId
@@ -1529,7 +1533,7 @@ UtlBoolean CpPeerCall::handleGetSession(OsMsg* pEventMessage)
         {
             SipSession session;
             connection->getSession(session);
-            OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPeerCall::handleGetSession copying session: 0x%x",
+            OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPeerCall::handleGetSession copying session: %p",
                           sessionPtr);
 
             *sessionPtr = SipSession(session);
@@ -1586,14 +1590,10 @@ UtlBoolean CpPeerCall::handleGetUserAgent(OsMsg* pEventMessage)
 
     CpMultiStringMessage* pMultiMessage = (CpMultiStringMessage*) pEventMessage;
         
-    UtlString callId;
     UtlString remoteAddress;
     
-    pMultiMessage->getString1Data(callId);
     pMultiMessage->getString2Data(remoteAddress);
 
-    void* pInstData = NULL;
-    
     Connection* connection = NULL;
     OsReadLock lock(mConnectionMutex);
     UtlDListIterator iterator(mConnections);
@@ -2124,7 +2124,6 @@ UtlBoolean CpPeerCall::handleCallMessage(OsMsg& eventMessage)
         CpMultiStringMessage* pMessage = (CpMultiStringMessage*)&eventMessage;
         const void* pDisplay = (void*) pMessage->getInt1Data();
         offHook(pDisplay);
-        delete pDisplay;
         break;
     }
     
@@ -2366,7 +2365,8 @@ UtlBoolean CpPeerCall::handleCallMessage(OsMsg& eventMessage)
             }     
             else if (mpMediaInterface)
             {
-                mpMediaInterface->playAudio(url, repeat, local, remote);
+                mpMediaInterface->playAudio(url, repeat, local, remote, 
+                        mixWithMic, downScaling);
             }
 
         }
@@ -2502,7 +2502,7 @@ UtlBoolean CpPeerCall::handleNotifyMessage(OsEventMsg& eventMsg)
 		{	
             bool bButtonUp = ((eventData & 0x80000000) == 0x80000000) ;
 			SIPX_TONE_ID id = (SIPX_TONE_ID) (eventData  >> 16) ;
-            int iDuration = (eventData & 0xFFFF) ;	// not used
+            // int iDuration = (eventData & 0xFFFF) ;	// not used
 
 			pConnection->fireSipXMediaEvent(
 					MEDIA_REMOTE_DTMF,
@@ -3114,7 +3114,7 @@ Connection* CpPeerCall::addParty(const char* transferTargetAddress,
                                  UtlBoolean bOnHold,
 								 const char* originalCallId,
                                  SIPX_TRANSPORT_DATA* pTransport,
-                                 const SIPX_RTP_TRANSPORT rtpTransportOptions)
+                                 const RTP_TRANSPORT rtpTransportOptions)
 {
     UtlString tempAddress ;
     SipConnection* connection = NULL;
@@ -3336,7 +3336,7 @@ void CpPeerCall::outOfFocus()
     UtlDListIterator iterator(mConnections);
     Connection* connection = NULL;
 
-    while (connection = (Connection*)iterator())
+    while ((connection = (Connection*)iterator()))
     {
         if(connection->isHeld())
         {
@@ -3358,7 +3358,7 @@ void CpPeerCall::outOfFocus()
             postTaoListenerMessage(connection->getResponseCode(), responseText, PtEvent::TERMINAL_CONNECTION_HELD, TERMINAL_CONNECTION_STATE, PtEvent::CAUSE_NORMAL, remoteIsCallee, remoteAddress);
         }
 
-        if (!connection->isHoldInProgress())
+        if (!connection->isHoldInProgress() && !mDropping)
         {
             if (connection->isHeld())
             {

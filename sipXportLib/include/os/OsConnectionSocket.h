@@ -26,6 +26,7 @@
 // STRUCTS
 // TYPEDEFS
 // FORWARD DECLARATIONS
+class UtlSList;
 
 //: Implements TCP version of OsSocket
 // This class provides the implementation of the TCP datagram 
@@ -88,11 +89,31 @@ public:
    //!param: waitMilliseconds - The maximum number of milliseconds to block. This may be set to zero in which case it does not block.
 
 /* ============================ ACCESSORS ================================= */
-   virtual int getIpProtocol() const;
+   virtual OsSocket::IpProtocolSocketType getIpProtocol() const;
    //: Returns the protocol type of this socket
 
 
 /* ============================ INQUIRY =================================== */
+
+   /// Is this connection encrypted using TLS/SSL?
+   virtual bool isEncrypted() const;
+   
+   /// Get any authenticated peer host names.
+   virtual bool peerIdentity( UtlSList* altNames = NULL /**< UtlStrings for verfied subjectAltNames
+                                                         *   are added to this
+                                                         *   @note caller must free them.
+                                                         */
+                             ,UtlString* commonName = NULL ///< the Subject name is returned here
+                             ) const;
+   /**<
+    * Usually, the names in the altNames will be easier to parse and use than commonName
+    * Either or both of altNames or commonName may be NULL, in which case no names are returned;
+    * the return value still indicates the trust relationship with the peer certificate.
+    * @returns
+    * - true if the connection is TLS/SSL and the peer has presented
+    *        a certificate signed by a trusted certificate authority
+    * - false if not
+    */
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:

@@ -126,18 +126,9 @@ public:
 
     static PID getCurrentPID();
      //: returns the current process ID.
-     // This Id is unique within the entire host.
-     //
-     // Thus, one can construct a globally unique identifier by combining:
-     // - the name (or address) of the host
-     // - OsTask::getCurrentProcessId() (identify a single process)
-     // - OsDateTime::getSecsSinceEpoch() (to compensate for the recycling of
-     //   the process IDs of processes that have terminated)
-     // - a sequence number within the process (not just within the thread)
-     //   to allow multiple identifiers to be created, and also to avoid the
-     //   problem of the process ID being recycled within 1 second (assuming
-     //   the process lasts longer than 1 second and generates several
-     //   identifiers)
+     // This Id is unique within the entire host, in that any two simultaneous
+     // executions that do not share their memory space will have different
+     // values from getCurrentPID().
 
     virtual PID getPID();
     //: Returns the process id contained by this object

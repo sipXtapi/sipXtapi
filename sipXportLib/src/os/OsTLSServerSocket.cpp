@@ -278,7 +278,7 @@ int OsTLSServerSocket::getLocalHostPort() const
 
 /* ============================ INQUIRY =================================== */
 
-int OsTLSServerSocket::getIpProtocol() const
+OsSocket::IpProtocolSocketType OsTLSServerSocket::getIpProtocol() const
 {
     return(OsSocket::SSL_SOCKET);
 }

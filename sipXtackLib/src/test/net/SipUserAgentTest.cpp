@@ -145,10 +145,7 @@ public:
          sipUA->send(testMsg);
 
          // Wait long enough for some stack timeouts/retansmits to occur
-         for(int i = 0; i < 10; ++i)
-         {
-             OsTask::delay(1000);
-         }
+         OsTask::delay(10000); // 10 seconds
 
          sipUA->shutdown(TRUE);
          lineMgr->requestShutdown();
@@ -159,9 +156,14 @@ public:
          delete sipUA;
          delete refreshMgr;
          delete lineMgr;
-         OsTimerTask::destroyTimer();
+         OsTimerTask::destroyTimerTask();
          OsNatAgentTask::releaseInstance();
 
+         // Test to see that all the threads created by the above operations
+         // get properly shut down.
+         // Since the threads do not shut down synchronously with the above
+         // calls, we have to wait before we know they will be cleared.
+         OsTask::delay(1000);   // 1 second
          int numThreads = getNumThreads(myPID);
          CPPUNIT_ASSERT(numThreads == 1);
       }
@@ -215,10 +217,7 @@ public:
          sipUA->send(testMsg);
 
          // Wait long enough for some stack timeouts/retansmits to occur
-         for(int i = 0; i < 10; ++i)
-         {
-             OsTask::delay(1000);
-         }
+         OsTask::delay(10000); // 10 seconds
 
          sipUA->shutdown(FALSE);
          lineMgr->requestShutdown();
@@ -233,9 +232,14 @@ public:
          delete sipUA;
          delete refreshMgr;
          delete lineMgr;
-         OsTimerTask::destroyTimer();
+         OsTimerTask::destroyTimerTask();
          OsNatAgentTask::releaseInstance();
 
+         // Test to see that all the threads created by the above operations
+         // get properly shut down.
+         // Since the threads do not shut down synchronously with the above
+         // calls, we have to wait before we know they will be cleared.
+         OsTask::delay(1000);   // 1 second
          int numThreads = getNumThreads(myPID);
          CPPUNIT_ASSERT(numThreads == 1);
       }

@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2005-2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -324,7 +327,7 @@ int LoopBack(int on) {
    MpMisc.doLoopBack = on;
    while (0 < MpMisc.pLoopBackQ->numMsgs()) {
       if (OS_SUCCESS == MpMisc.pLoopBackQ->receive((OsMsg*&) pMsg,
-                                                    OsTime::NO_WAIT)) {
+                                                    OsTime::NO_WAIT_TIME)) {
          MpBuf_delRef(pMsg->getTag());
          MpBuf_delRef(pMsg->getTag(1));
          pMsg->releaseMsg();
@@ -555,21 +558,25 @@ OsStatus mpStartUp(int sampleRate, int samplesPerFrame,
 #endif /* _VXWORKS ] */
 
         if (NULL != MpMisc.pMicQ) {
-            delete MpMisc.pMicQ;
+            OsMsgQ* q = MpMisc.pMicQ;
             MpMisc.pMicQ = NULL;
+            delete q;
         }
         if (NULL != MpMisc.pSpkQ) {
-            delete MpMisc.pSpkQ;
+            OsMsgQ* q = MpMisc.pSpkQ;
             MpMisc.pSpkQ = NULL;
+            delete q;
         }
         if (NULL != MpMisc.pEchoQ) {
-            delete MpMisc.pEchoQ;
+            OsMsgQ* q = MpMisc.pEchoQ;
             MpMisc.pEchoQ = NULL;
+            delete q;
         }
 #ifdef _VXWORKS /* [ */
         if (NULL != MpMisc.pLoopBackQ) {
-            delete MpMisc.pLoopBackQ;
+            OsMsgQ* q = MpMisc.pLoopBackQ;
             MpMisc.pLoopBackQ = NULL;
+            delete q;
         }
 #endif /* _VXWORKS ] */
         assert(
@@ -598,21 +605,25 @@ OsStatus mpStartUp(int sampleRate, int samplesPerFrame,
 OsStatus mpShutdown(void)
 {
         if (NULL != MpMisc.pMicQ) {
-            delete MpMisc.pMicQ;
+            OsMsgQ* q = MpMisc.pMicQ;
             MpMisc.pMicQ = NULL;
+            delete q;
         }
         if (NULL != MpMisc.pSpkQ) {
-            delete MpMisc.pSpkQ;
+            OsMsgQ* q = MpMisc.pSpkQ;
             MpMisc.pSpkQ = NULL;
+            delete q;
         }
         if (NULL != MpMisc.pEchoQ) {
-            delete MpMisc.pEchoQ;
+            OsMsgQ* q = MpMisc.pEchoQ;
             MpMisc.pEchoQ = NULL;
+            delete q;
         }
 #ifdef _VXWORKS /* [ */
         if (NULL != MpMisc.pLoopBackQ) {
-            delete MpMisc.pLoopBackQ;
+            OsMsgQ* q = MpMisc.pLoopBackQ;
             MpMisc.pLoopBackQ = NULL;
+            delete q;
         }
 #endif /* _VXWORKS ] */
     return OS_SUCCESS;
@@ -634,6 +645,7 @@ OsStatus mpStartTasks(void)
 OsStatus mpStopTasks(void)
 {
 
+    mpShutdown();
     shutdownNetInTask();
     dmaShutdown();
     

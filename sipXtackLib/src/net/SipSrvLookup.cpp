@@ -5,6 +5,9 @@
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
+// Rewritten based on DomainSearch by Christian Zahl, and SipSrvLookup
+// by Henning Schulzrinne.
+//
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -18,8 +21,10 @@ extern "C" {
 #       include "resparse/wnt/inet_aton.h"       
 }
 #elif defined(_VXWORKS)
+#       include <stdio.h>
 #       include <netdb.h>
 #       include <netinet/in.h>
+#       include <vxWorks.h>
 /* Use local lnameser.h for info missing from VxWorks version --GAT */
 /* lnameser.h is a subset of resparse/wnt/arpa/nameser.h                */
 #       include <resolv/nameser.h>
@@ -42,8 +47,14 @@ extern "C" {
 #       error Unsupported target platform.
 #endif
 
-#include <sys/types.h>
-
+#ifndef __pingtel_on_posix__
+extern struct __res_state _sip_res;
+#endif
+#ifdef WINCE
+#   include <types.h>
+#else
+#   include <sys/types.h>
+#endif
 // Standard C includes.
 #include <stdlib.h>
 #include <assert.h>
@@ -57,7 +68,7 @@ extern "C" {
 #include "os/OsSocket.h"
 #include "os/OsLock.h"
 #include "net/SipSrvLookup.h"
-
+#include "os/OsDefs.h"
 #include "os/OsSysLog.h"
 #include "resparse/rr.h"
 
@@ -103,7 +114,7 @@ static void server_insert_addr(
    /// Components of the server_t.
    const char *host,
    ///< (copied)
-   OsSocket::SocketProtocolTypes type,
+   OsSocket::IpProtocolSocketType type,
    struct sockaddr_in sin,
    unsigned int priority,
    unsigned int weight);
@@ -125,7 +136,7 @@ static void server_insert(
    /// Components of the server_t.
    const char *host,
    ///< (copied)
-   OsSocket::SocketProtocolTypes type,
+   OsSocket::IpProtocolSocketType type,
    struct sockaddr_in sin,
    unsigned int priority,
    unsigned int weight);
@@ -143,7 +154,7 @@ static void lookup_SRV(server_t*& list,
                        ///< "sip" or "sips"
                        const char *proto_string,
                        ///< protocol string for DNS lookup
-                       OsSocket::SocketProtocolTypes proto_code,
+                       OsSocket::IpProtocolSocketType proto_code,
                        ///< protocol code for result list
                        const char* srcIp
    );
@@ -157,7 +168,7 @@ static void lookup_A(server_t*& list,
                      int& list_length_used,
                      const char *domain,
                      ///< domain name
-                     OsSocket::SocketProtocolTypes proto_code,
+                     OsSocket::IpProtocolSocketType proto_code,
                      /**< protocol code for result list
                       *   UNKNOWN means both UDP and TCP are acceptable
                       *   SSL must be set explicitly. */
@@ -174,37 +185,6 @@ static void lookup_A(server_t*& list,
  * If in_response is non-NULL, use it as an initial source of A records.
  *
  * @returns TRUE if one or more addresses were added to the list.
- */
-
-/// Perform a DNS query and parse the results.  Follows CNAME records.
-static void res_query_and_parse(const char* in_name,
-                                ///< domain name to look up
-                                int type,
-                                ///< RR type to look up
-                                res_response* in_response,
-                                /**< response structure to
-                                 *   look in before calling
-                                 *   res_query, or NULL */
-                                const char*& out_name,
-                                ///< canonical name for in_name
-                                res_response*& out_response
-                                ///< response structure containing RRs
-   );
-/**<
- * Performs a DNS query for a particular type of RR on a given name,
- * doing all the work to follow CNAMEs.  The 'in_name' and 'type'
- * arguments specify the RRs to look for.  If 'in_response' is not NULL,
- * it is the results of some previous search for the same name, for
- * a different type of RR, which might contain RRs for this search.
- *
- * @return out_response is a pointer to a response structure, or NULL.
- * If non-NULL, the RRs of the required type (if any) are in out_response
- * (in either the answer section or the additional section), under the name
- * out_name.
- *
- * The caller is responsible for freeing out_name if it is non-NULL
- * and != in_name.  The caller is responsible for freeing out_response if it
- * is non-NULL and != in_response.
  */
 
 /**
@@ -262,7 +242,7 @@ server_t* SipSrvLookup::servers(const char* domain,
                                 ///< SIP domain name or host name
                                 const char* service,
                                 ///< "sip" or "sips"
-                                enum OsSocket::SocketProtocolTypes socketType,
+                                OsSocket::IpProtocolSocketType socketType,
                                 ///< types of transport
                                 int port,
                                 ///< port number from URI, or PORT_NONE
@@ -277,8 +257,8 @@ server_t* SipSrvLookup::servers(const char* domain,
 
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
                  "SipSrvLookup::servers domain = '%s', service = '%s', "
-                 "socketType = %d, port = %d srcIp = %s",
-                 domain, service, socketType, port, srcIp);
+                 "socketType = %s, port = %d",
+                 domain, service, OsSocket::ipProtocolString(socketType), port);
 
    // Initialize the list of servers.
    server_list_initialize(list, list_length_allocated, list_length_used);
@@ -288,13 +268,9 @@ server_t* SipSrvLookup::servers(const char* domain,
 
    // Case 0: Eliminate contradictory combinations of service and type.
    
-   // 2006-08-18: bandreasen: This code was guarding against a sip: url
-   //     mixed with a socketType of SSL_SOCKET.  This is a prefectly
-   //     reasonable request <sip:foo@example.com;transport=tls>. 
-   //     This indicates that the next hop should use tls, however, tls
-   //     is not required for the entire path (proxy to proxy).
-   //
-   //     Check deleted and rest of the code has been adapted.
+   // While a sip: URI can be used with a socketType of SSL_SOCKET
+   // (e.g., <sip:foo@example.com;transport=tls>), a sips: URI must
+   // be used with TLS.
    if ((strcmp(service, "sips") == 0 &&
         (socketType == OsSocket::TCP || socketType == OsSocket::UDP)))
    {
@@ -306,7 +282,7 @@ server_t* SipSrvLookup::servers(const char* domain,
    }
    else
    // Case 1: Domain name is a numeric IP address.
-   if (inet_aton(domain, &in.sin_addr))
+   if ( IS_INET_RETURN_OK( inet_aton((char *)domain, &in.sin_addr)) )
    {
       in.sin_family = AF_INET;
       // Set up the port number.
@@ -400,13 +376,14 @@ server_t* SipSrvLookup::servers(const char* domain,
             OsSysLog::add(FAC_SIP, PRI_DEBUG,
                           "SipSrvLookup::servers host = '%s', IP addr = '%s', "
                           "port = %d, weight = %u, score = %f, "
-                          "priority = %u, proto = %d",
+                          "priority = %u, proto = %s",
                           host.data(), ip_addr.data(),
                           list[j].getPortFromServerT(),
                           list[j].getWeightFromServerT(),
                           list[j].getScoreFromServerT(),
                           list[j].getPriorityFromServerT(),
-                          list[j].getProtocolFromServerT());
+                          OsSocket::ipProtocolString(list[j].getProtocolFromServerT())
+                          );
          }
       }
    }
@@ -427,12 +404,20 @@ void SipSrvLookup::setDnsSrvTimeouts(int initialTimeoutInSecs, int retries)
 {
    if (initialTimeoutInSecs > 0)
    {
+#if defined(__pingtel_on_posix__)
       _res.retrans = initialTimeoutInSecs;
+#else
+      _sip_res.retrans = initialTimeoutInSecs;
+#endif
    }
 
    if (retries > 0)
    {
+#if defined(__pingtel_on_posix__)
       _res.retry = retries;
+#else
+      _sip_res.retry = retries;
+#endif
    }
 }
 
@@ -461,7 +446,7 @@ void server_insert_addr(server_t*& list,
                         int& list_length_allocated,
                         int& list_length_used,
                         const char* host,
-                        OsSocket::SocketProtocolTypes type,
+                        OsSocket::IpProtocolSocketType type,
                         struct sockaddr_in sin,
                         unsigned int priority,
                         unsigned int weight)
@@ -491,7 +476,7 @@ void server_insert(server_t*& list,
                    int& list_length_allocated,
                    int& list_length_used,
                    const char* host,
-                   OsSocket::SocketProtocolTypes type,
+                   OsSocket::IpProtocolSocketType type,
                    struct sockaddr_in sin,
                    unsigned int priority,
                    unsigned int weight)
@@ -561,7 +546,7 @@ void lookup_SRV(server_t*& list,
                 ///< "sip" or "sips"
                 const char* proto_string,
                 ///< protocol string for DNS lookup
-                OsSocket::SocketProtocolTypes proto_code,
+                OsSocket::IpProtocolSocketType proto_code,
                 ///< protocol code for result list
                 const char* srcIp
    )
@@ -587,7 +572,8 @@ void lookup_SRV(server_t*& list,
 #endif
 
    // Make the query and parse the response.
-   res_query_and_parse(lookup_name, T_SRV, NULL, canonical_name, response);
+   SipSrvLookup::res_query_and_parse(lookup_name, T_SRV, NULL, canonical_name,
+                                     response);
    if (response != NULL)
    {
        unsigned int i;
@@ -656,7 +642,7 @@ void lookup_A(server_t*& list,
               int& list_length_used,
               const char* domain,
               ///< domain name
-              OsSocket::SocketProtocolTypes proto_code,
+              OsSocket::IpProtocolSocketType proto_code,
               ///< protocol code for result list
               res_response* in_response,
               ///< current DNS response, or NULL
@@ -673,7 +659,8 @@ void lookup_A(server_t*& list,
    const char* canonical_name;
 
    // Make the query and parse the response.
-   res_query_and_parse(domain, T_A, in_response, canonical_name, response);
+   SipSrvLookup::res_query_and_parse(domain, T_A, in_response, canonical_name,
+                                     response);
 
    // Search the list of RRs.
    // For each answer that is an SRV record for this domain name.
@@ -734,7 +721,7 @@ void lookup_A(server_t*& list,
 }
 
 // Perform a DNS query and parse the results.  Follows CNAME records.
-void res_query_and_parse(const char* in_name,
+void SipSrvLookup::res_query_and_parse(const char* in_name,
                          int type,
                          res_response* in_response,
                          const char*& out_name,
@@ -1011,8 +998,7 @@ unsigned int server_t::getPriorityFromServerT()
 }
 
 /// Accessor for protocol
-enum OsSocket::SocketProtocolTypes
-server_t::getProtocolFromServerT()
+OsSocket::IpProtocolSocketType server_t::getProtocolFromServerT()
 {
    return type;
 }

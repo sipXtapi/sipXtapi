@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2005-2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -28,9 +31,11 @@ class SipMessageTest : public CppUnit::TestCase
 {
       CPPUNIT_TEST_SUITE(SipMessageTest);
       CPPUNIT_TEST(testGetVia);
+      CPPUNIT_TEST(testGetViaShort);
       CPPUNIT_TEST(testGetAddrVia);
       CPPUNIT_TEST(testGetNoBranchVia);
       CPPUNIT_TEST(testGetViaPort);
+      CPPUNIT_TEST(testGetViaFieldSubField);
       CPPUNIT_TEST(testGetEventField);
       CPPUNIT_TEST(testGetToAddress);
       CPPUNIT_TEST(testGetFromAddress);
@@ -40,10 +45,14 @@ class SipMessageTest : public CppUnit::TestCase
       CPPUNIT_TEST(testMultipartBody);
       CPPUNIT_TEST(testCodecError);
       CPPUNIT_TEST(testSdpParse);
+      CPPUNIT_TEST(testSdpShortHeaderNames);
       CPPUNIT_TEST(testNonSdpSipMessage);
       CPPUNIT_TEST(testSetInviteDataHeaders);
       CPPUNIT_TEST(testSetInviteDataHeadersUnique);
       CPPUNIT_TEST(testSetInviteDataHeadersForbidden);
+      CPPUNIT_TEST(testCompactNames);
+      CPPUNIT_TEST(testHeaderFieldAccessors);
+      CPPUNIT_TEST(testApplyTargetUriHeaderParams);
       CPPUNIT_TEST_SUITE_END();
 
       public:
@@ -87,6 +96,50 @@ class SipMessageTest : public CppUnit::TestCase
          ASSERT_STR_EQUAL("TCP",protocol.data());
 
       };
+
+   void testGetViaShort()
+      {
+         const char* SimpleMessage =
+            "REGISTER sip:sipx.local SIP/2.0\r\n"
+            "v: SIP/2.0/TCP sipx.local:33855;branch=z9hG4bK-9378a12d4218e10ef4dc78ea3d\r\n"
+            "v: SIP/2.0/UDP sipx.remote:9999;branch=z9hG4bK-10cb6f\r\n"
+            "To: sip:sipx.local\r\n"
+            "From: Sip Send <sip:sipsend@pingtel.org>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
+            "Call-ID: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+            "Cseq: 1 REGISTER\r\n"
+            "Max-Forwards: 20\r\n"
+            "User-Agent: sipsend/0.01\r\n"
+            "Contact: me@127.0.0.1\r\n"
+            "Expires: 300\r\n"
+            "Date: Fri, 16 Jul 2004 02:16:15 GMT\r\n"
+            "Content-Length: 0\r\n"
+            "\r\n";
+         SipMessage testMsg( SimpleMessage, strlen( SimpleMessage ) );
+
+         UtlString viaAddress;
+         int viaPort;
+         UtlString protocol;
+         int recievedPort;
+         UtlBoolean receivedSet;
+         UtlBoolean maddrSet;
+         UtlBoolean receivePortSet;
+         
+         testMsg.removeLastVia();
+
+         testMsg.getLastVia(&viaAddress,
+                            &viaPort,
+                            &protocol,
+                            &recievedPort,
+                            &receivedSet,
+                            &maddrSet,
+                            &receivePortSet);
+
+         ASSERT_STR_EQUAL("sipx.remote",viaAddress.data());
+         CPPUNIT_ASSERT_EQUAL(9999, viaPort);
+         ASSERT_STR_EQUAL("UDP",protocol.data());
+
+      };
+
 
    void testGetAddrVia()
       {
@@ -342,6 +395,87 @@ class SipMessageTest : public CppUnit::TestCase
          
          ASSERT_STR_EQUAL(correctBody,theBody.data());
       };
+
+
+   void testGetViaFieldSubField()
+      {
+         // Test that the getViaFieldSubField method returns the right results,
+         // especially when Via values are combined in one header.
+
+         const char* message1 = 
+            "SIP/2.0 481 Call Leg/Transaction Does Not Exist\r\n"
+            "Via: SIP/2.0/UDP 10.0.11.35:5080;branch=z9hG4bK-80e0607bee4944e9ecb678caae8638d5;received=10.0.11.37,"
+            "SIP/2.0/UDP 10.0.11.35;branch=z9hG4bK-379fceb40dc3c5716a3f167d93ceadf4;received=10.0.11.37,"
+            "SIP/2.0/UDP 10.0.11.35:5080;branch=z9hG4bK-d05de917f970cd88ea048891ea57f140;received=10.0.11.37,"
+            "SIP/2.0/UDP 10.0.11.35;branch=z9hG4bK-09d4d158ad31b82192efa4795b49df90;received=10.0.11.37,"
+            "SIP/2.0/UDP 10.0.8.90:5060;branch=z9hG4bK5fa09267\r\n"
+            "From: \"joanne brunet\" <sip:245@jaguar.local>;tag=0002fd3bb5770ab64fcc4d65-34791f85\r\n"
+            "To: <sip:*4706@jaguar.local>\r\n"
+            "Call-ID: 0002fd3b-b5770020-6a00fe74-11feac1a@10.0.8.90\r\n"
+            "Date: Wed, 19 Apr 2006 13:19:40 GMT\r\n"
+            "CSeq: 101 INVITE\r\n"
+            "Content-Length: 0\r\n"
+            "\r\n";
+
+         // Same as message1, but with each Via value in a separate header.
+         const char* message2 = 
+            "SIP/2.0 481 Call Leg/Transaction Does Not Exist\r\n"
+            "Via: SIP/2.0/UDP 10.0.11.35:5080;branch=z9hG4bK-80e0607bee4944e9ecb678caae8638d5;received=10.0.11.37\r\n"
+            "Via: SIP/2.0/UDP 10.0.11.35;branch=z9hG4bK-379fceb40dc3c5716a3f167d93ceadf4;received=10.0.11.37\r\n"
+            "Via: SIP/2.0/UDP 10.0.11.35:5080;branch=z9hG4bK-d05de917f970cd88ea048891ea57f140;received=10.0.11.37\r\n"
+            "Via: SIP/2.0/UDP 10.0.11.35;branch=z9hG4bK-09d4d158ad31b82192efa4795b49df90;received=10.0.11.37\r\n"
+            "Via: SIP/2.0/UDP 10.0.8.90:5060;branch=z9hG4bK5fa09267\r\n"
+            "From: \"joanne brunet\" <sip:245@jaguar.local>;tag=0002fd3bb5770ab64fcc4d65-34791f85\r\n"
+            "To: <sip:*4706@jaguar.local>\r\n"
+            "Call-ID: 0002fd3b-b5770020-6a00fe74-11feac1a@10.0.8.90\r\n"
+            "Date: Wed, 19 Apr 2006 13:19:40 GMT\r\n"
+            "CSeq: 101 INVITE\r\n"
+            "Content-Length: 0\r\n"
+            "\r\n";
+
+         // The Via values.
+         const char* (vias[]) = {
+            "SIP/2.0/UDP 10.0.11.35:5080;branch=z9hG4bK-80e0607bee4944e9ecb678caae8638d5;received=10.0.11.37",
+            "SIP/2.0/UDP 10.0.11.35;branch=z9hG4bK-379fceb40dc3c5716a3f167d93ceadf4;received=10.0.11.37",
+            "SIP/2.0/UDP 10.0.11.35:5080;branch=z9hG4bK-d05de917f970cd88ea048891ea57f140;received=10.0.11.37",
+            "SIP/2.0/UDP 10.0.11.35;branch=z9hG4bK-09d4d158ad31b82192efa4795b49df90;received=10.0.11.37",
+            "SIP/2.0/UDP 10.0.8.90:5060;branch=z9hG4bK5fa09267",
+         };
+
+         UtlString value;
+         unsigned int i;
+
+         SipMessage testMessage1(message1, strlen(message1));
+
+         for (i = 0;
+              i < sizeof (vias) / sizeof (vias[0]) &&
+                 testMessage1.getViaFieldSubField(&value, i);
+              i++)
+         {
+            char buffer[100];
+            sprintf(buffer,
+                    "testMessage1.getViaFieldSubField(..., %d) == vias[%d]",
+                    i, i);
+            ASSERT_STR_EQUAL_MESSAGE(buffer, vias[i], value.data());
+         }
+         CPPUNIT_ASSERT_EQUAL(i, (unsigned int) (sizeof (vias) / sizeof (vias[0])));
+
+         SipMessage testMessage2(message2, strlen(message2));
+
+         for (i = 0;
+              i < sizeof (vias) / sizeof (vias[0]) &&
+                 testMessage2.getViaFieldSubField(&value, i);
+              i++)
+         {
+            char buffer[100];
+            sprintf(buffer,
+                    "testMessage2.getViaFieldSubField(..., %d) == vias[%d]",
+                    i, i);
+            ASSERT_STR_EQUAL_MESSAGE(buffer, vias[i], value.data());
+         }
+         CPPUNIT_ASSERT_EQUAL(i, (unsigned int) (sizeof (vias) / sizeof (vias[0])));
+      };
+
 
    void testGetEventField()
       {
@@ -699,7 +833,7 @@ class SipMessageTest : public CppUnit::TestCase
          ASSERT_STR_EQUAL("1234-2345", tag);
          ASSERT_STR_EQUAL("sipserver", address);
 
-         OsSocket::SocketProtocolTypes protoNumber;
+         OsSocket::IpProtocolSocketType protoNumber;
          SipMessage::convertProtocolStringToEnum(protocol.data(), protoNumber);
 
          CPPUNIT_ASSERT_EQUAL(OsSocket::TCP, protoNumber);
@@ -721,7 +855,7 @@ class SipMessageTest : public CppUnit::TestCase
             "Content-Length: 0\r\n"
             "\r\n";
          // Construct a message.
-         SipMessage* pTestMsg = new SipMessage(message, strlen(message));
+         SipMessage testMsg(message, strlen(message));
 
          // Construct a SipUserAgent to provide the "agent name" for
          // the Warning header.
@@ -747,7 +881,7 @@ class SipMessageTest : public CppUnit::TestCase
 
          // Construct error response for insufficient codeecs.
          SipMessage response;
-         response.setInviteBadCodecs(pTestMsg, &user_agent);
+         response.setInviteBadCodecs(&testMsg, &user_agent);
 
          // Check that the response code is 488.
          // Note this code is hard-coded here, because it is fixed by the
@@ -777,18 +911,61 @@ class SipMessageTest : public CppUnit::TestCase
          user_agent.getViaInfo(OsSocket::UDP, address, port, NULL, NULL);
          char agent_expected[128];
          strcpy(agent_expected, address.data());
-         if (port != 5060)      // PORT_NONE
+         if ((port != 5060) && (port > 0))      // PORT_NONE
          {
             sprintf(&agent_expected[strlen(agent_expected)], ":%d", port);
          }
          // Check the agent value.
          ASSERT_STR_EQUAL(agent_expected, agent);
-         delete pTestMsg;
       }
 
  void testSdpParse()
    {
         const char* sip = "INVITE 14 SIP/2.0\nContent-Type:application/sdp\n\n"
+            "v=0\nm=audio 49170 RTP/AVP 0\nc=IN IP4 224.2.17.12/127";
+
+        SipMessage *msg = new SipMessage(sip);
+        const SdpBody *sdp = msg->getSdpBody();
+
+        CPPUNIT_ASSERT_MESSAGE("Null sdp buffer", sdp != NULL);
+
+        int mediaCount = sdp->getMediaSetCount();
+        CPPUNIT_ASSERT_EQUAL_MESSAGE("incorrect media count", 1, mediaCount);
+
+        const char* referenceSdp = 
+            "v=0\r\nm=audio 49170 RTP/AVP 0\r\nc=IN IP4 224.2.17.12/127\r\n";
+        const char* sdpBytes = NULL;
+        int sdpByteLength = 0;
+        sdp->getBytes(&sdpBytes, &sdpByteLength);
+        for(int iii = 0; iii < sdpByteLength; iii++)
+        {
+            if(referenceSdp[iii] != sdpBytes[iii])
+            {
+                printf("index[%d]: expected: %d got: %d\n",
+                    iii, referenceSdp[iii], sdpBytes[iii]);
+            }
+        }
+        CPPUNIT_ASSERT_MESSAGE("Null sdp serialized content", sdpBytes != NULL);
+        CPPUNIT_ASSERT_MESSAGE("SDP does not match expected content",
+            strcmp(referenceSdp, sdpBytes) == 0);
+
+        SipMessage* msgCopy = new SipMessage(*msg);
+        CPPUNIT_ASSERT_MESSAGE("NULL message copy", msgCopy != NULL);
+        const SdpBody *sdpCopy = msgCopy->getSdpBody();
+        CPPUNIT_ASSERT_MESSAGE("NULL SDP copy", sdpCopy != NULL);
+        const char* sdpCopyBytes = NULL;
+        int sdpCopyLen = 0;
+        sdpCopy->getBytes(&sdpCopyBytes, &sdpCopyLen);
+        //printf("SDP copy length: %d\n%s\n", sdpCopyLen, sdpCopyBytes);
+        CPPUNIT_ASSERT_MESSAGE("Null sdp copy serialized content", sdpCopyBytes != NULL);
+        CPPUNIT_ASSERT_MESSAGE("SDP does not match expected content",
+            strcmp(referenceSdp, sdpCopyBytes) == 0);
+   }
+
+
+void testSdpShortHeaderNames()
+   {
+        const char* sip = "INVITE 14 SIP/2.0\nc:application/sdp\n\n"
             "v=0\nm=audio 49170 RTP/AVP 0\nc=IN IP4 224.2.17.12/127";
 
         SipMessage *msg = new SipMessage(sip);
@@ -1046,13 +1223,12 @@ class SipMessageTest : public CppUnit::TestCase
       const char* non_settable_headers[] =
          {
             SIP_CONTACT_FIELD,
-            SIP_FROM_FIELD,
             SIP_CALLID_FIELD,
             SIP_CSEQ_FIELD,
             SIP_VIA_FIELD,
-            SIP_RECORD_ROUTE_FIELD,
-            SIP_ROUTE_FIELD,
+            SIP_RECORD_ROUTE_FIELD
          };
+
 
       // For each field.
       for (unsigned int i = 0; i < sizeof (non_settable_headers) / sizeof (non_settable_headers[0]); i++)
@@ -1095,6 +1271,444 @@ class SipMessageTest : public CppUnit::TestCase
          delete msg;
       }
    }
+
+   void testApplyTargetUriHeaderParams()
+      {
+         UtlString dumpStr;
+         int       dumpLength;
+
+         dumpLength = 0;
+         dumpLength = dumpLength; // suppress compiler warnings about unused variables
+         
+         {
+            // add an arbitrary unknown header
+            const char* rawmsg =
+               "INVITE sip:sipx.local?arbitrary-header=foobar SIP/2.0\r\n"
+               "To: sip:sipx.local\r\n"
+               "From: Sip Send <sip:sender@example.org>; tag=ORIG-TAG\r\n"
+               "Call-ID: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+               "Cseq: 1 INVITE\r\n"
+               "Max-Forwards: 20\r\n"
+               "Contact: me@127.0.0.1\r\n"
+               "Content-Length: 0\r\n"
+               "\r\n";
+
+            SipMessage sipmsg(rawmsg, strlen(rawmsg));
+            sipmsg.applyTargetUriHeaderParams();
+         
+            // sipmsg.getBytes(&dumpStr, &dumpLength);
+            // printf( "\nMSG BEFORE:\n%s\nAFTER:\n%s\n", rawmsg, dumpStr.data());
+         
+            CPPUNIT_ASSERT_EQUAL(1, sipmsg.getCountHeaderFields("arbitrary-header"));
+            ASSERT_STR_EQUAL("foobar", sipmsg.getHeaderValue(0, "arbitrary-header"));
+            ASSERT_STR_EQUAL("INVITE sip:sipx.local SIP/2.0", sipmsg.getFirstHeaderLine());
+         }
+         
+         {
+            // add 2 of an arbitrary unknown header
+            const char* rawmsg =
+               "INVITE sip:sipx.local?arbitrary-header=foobar&arbitrary-header=again SIP/2.0\r\n"
+               "To: sip:sipx.local\r\n"
+               "From: Sip Send <sip:sender@example.org>; tag=ORIG-TAG\r\n"
+               "Call-ID: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+               "Cseq: 1 INVITE\r\n"
+               "Max-Forwards: 20\r\n"
+               "Contact: me@127.0.0.1\r\n"
+               "Content-Length: 0\r\n"
+               "\r\n";
+
+            SipMessage sipmsg(rawmsg, strlen(rawmsg));
+            sipmsg.applyTargetUriHeaderParams();
+
+            // sipmsg.getBytes(&dumpStr, &dumpLength);
+            // printf( "\nMSG BEFORE:\n%s\nAFTER:\n%s\n", rawmsg, dumpStr.data());
+         
+            CPPUNIT_ASSERT_EQUAL(2, sipmsg.getCountHeaderFields("arbitrary-header"));
+            ASSERT_STR_EQUAL("foobar", sipmsg.getHeaderValue(0, "arbitrary-header"));
+            ASSERT_STR_EQUAL("again", sipmsg.getHeaderValue(1, "arbitrary-header"));
+            ASSERT_STR_EQUAL("INVITE sip:sipx.local SIP/2.0", sipmsg.getFirstHeaderLine());
+         }
+         
+         {
+            // add an expires header
+            const char* rawmsg =
+               "INVITE sip:sipx.local?expires=10 SIP/2.0\r\n"
+               "To: sip:sipx.local\r\n"
+               "From: Sip Send <sip:sender@example.org>; tag=ORIG-TAG\r\n"
+               "Call-ID: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+               "Cseq: 1 INVITE\r\n"
+               "Max-Forwards: 20\r\n"
+               "Contact: me@127.0.0.1\r\n"
+               "Content-Length: 0\r\n"
+               "\r\n";
+
+            SipMessage sipmsg(rawmsg, strlen(rawmsg));
+            sipmsg.applyTargetUriHeaderParams();
+
+            // sipmsg.getBytes(&dumpStr, &dumpLength);
+            // printf( "\nMSG BEFORE:\n%s\nAFTER:\n%s\n", rawmsg, dumpStr.data());
+         
+            CPPUNIT_ASSERT_EQUAL(1, sipmsg.getCountHeaderFields("expires"));
+            ASSERT_STR_EQUAL("10", sipmsg.getHeaderValue(0, "expires"));
+            ASSERT_STR_EQUAL("INVITE sip:sipx.local SIP/2.0", sipmsg.getFirstHeaderLine());
+         }
+         
+         {
+            // try to add 2 expires headers
+            const char* rawmsg =
+               "INVITE sip:sipx.local?expires=10&expires=20 SIP/2.0\r\n"
+               "To: sip:sipx.local\r\n"
+               "From: Sip Send <sip:sender@example.org>; tag=ORIG-TAG\r\n"
+               "Call-ID: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+               "Cseq: 1 INVITE\r\n"
+               "Max-Forwards: 20\r\n"
+               "Contact: me@127.0.0.1\r\n"
+               "Content-Length: 0\r\n"
+               "\r\n";
+
+            SipMessage sipmsg(rawmsg, strlen(rawmsg));
+            sipmsg.applyTargetUriHeaderParams();
+
+            // sipmsg.getBytes(&dumpStr, &dumpLength);
+            // printf( "\nMSG BEFORE:\n%s\nAFTER:\n%s\n", rawmsg, dumpStr.data());
+         
+            CPPUNIT_ASSERT_EQUAL(1, sipmsg.getCountHeaderFields("expires"));
+            ASSERT_STR_EQUAL("20", sipmsg.getHeaderValue(0, "expires"));
+            ASSERT_STR_EQUAL("INVITE sip:sipx.local SIP/2.0", sipmsg.getFirstHeaderLine());
+         }
+
+         {
+            // add a From header
+            const char* rawmsg =
+               "INVITE sip:sipx.local?from=sip%3Afoo%40bar SIP/2.0\r\n"
+               "To: sip:sipx.local\r\n"
+               "From: Sip Send <sip:sender@example.org>; tag=ORIG-TAG\r\n"
+               "Call-ID: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+               "Cseq: 1 INVITE\r\n"
+               "Max-Forwards: 20\r\n"
+               "Contact: me@127.0.0.1\r\n"
+               "Content-Length: 0\r\n"
+               "\r\n";
+
+            SipMessage sipmsg(rawmsg, strlen(rawmsg));
+            sipmsg.applyTargetUriHeaderParams();
+
+            // sipmsg.getBytes(&dumpStr, &dumpLength);
+            // printf( "\nMSG BEFORE:\n%s\nAFTER:\n%s\n", rawmsg, dumpStr.data());
+         
+            CPPUNIT_ASSERT_EQUAL(1, sipmsg.getCountHeaderFields("from"));
+            ASSERT_STR_EQUAL("<sip:foo@bar>;tag=ORIG-TAG", sipmsg.getHeaderValue(0, "from"));
+
+            CPPUNIT_ASSERT_EQUAL(1, sipmsg.getCountHeaderFields("x-original-from"));
+            ASSERT_STR_EQUAL("Sip Send <sip:sender@example.org>; tag=ORIG-TAG",
+                             sipmsg.getHeaderValue(0, "x-original-from"));
+            
+            ASSERT_STR_EQUAL("INVITE sip:sipx.local SIP/2.0", sipmsg.getFirstHeaderLine());
+         }
+
+         {
+            // add a From header with a tag - the tag should be ignored
+            const char* rawmsg =
+               "INVITE sip:sipx.local?from=sip%3Afoo%40bar%3Btag%3DBAD-TAG SIP/2.0\r\n"
+               "To: sip:sipx.local\r\n"
+               "From: Sip Send <sip:sender@example.org>; tag=ORIG-TAG\r\n"
+               "Call-ID: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+               "Cseq: 1 INVITE\r\n"
+               "Max-Forwards: 20\r\n"
+               "Contact: me@127.0.0.1\r\n"
+               "Content-Length: 0\r\n"
+               "\r\n";
+
+            SipMessage sipmsg(rawmsg, strlen(rawmsg));
+            sipmsg.applyTargetUriHeaderParams();
+
+            // sipmsg.getBytes(&dumpStr, &dumpLength);
+            // printf( "\nMSG BEFORE:\n%s\nAFTER:\n%s\n", rawmsg, dumpStr.data());
+         
+            CPPUNIT_ASSERT_EQUAL(1, sipmsg.getCountHeaderFields("from"));
+            ASSERT_STR_EQUAL("<sip:foo@bar>;tag=ORIG-TAG", sipmsg.getHeaderValue(0, "from"));
+
+            CPPUNIT_ASSERT_EQUAL(1, sipmsg.getCountHeaderFields("x-original-from"));
+            ASSERT_STR_EQUAL("Sip Send <sip:sender@example.org>; tag=ORIG-TAG",
+                             sipmsg.getHeaderValue(0, "x-original-from"));
+            
+            ASSERT_STR_EQUAL("INVITE sip:sipx.local SIP/2.0", sipmsg.getFirstHeaderLine());
+         }
+
+
+         {
+            // try to add two From headers
+            //   this should work, but the second one should overwrite the first
+            //   and there will be 2 x-original-from headers (odd, but ok)
+            const char* rawmsg =
+               "INVITE sip:sipx.local?from=sip%3Afoo%40bar&from=sip%3Asecond%40try SIP/2.0\r\n"
+               "To: sip:sipx.local\r\n"
+               "From: Sip Send <sip:sender@example.org>; tag=ORIG-TAG\r\n"
+               "Call-ID: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+               "Cseq: 1 INVITE\r\n"
+               "Max-Forwards: 20\r\n"
+               "Contact: me@127.0.0.1\r\n"
+               "Content-Length: 0\r\n"
+               "\r\n";
+
+            SipMessage sipmsg(rawmsg, strlen(rawmsg));
+            sipmsg.applyTargetUriHeaderParams();
+
+            // sipmsg.getBytes(&dumpStr, &dumpLength);
+            // printf( "\nMSG BEFORE:\n%s\nAFTER:\n%s\n", rawmsg, dumpStr.data());
+         
+            CPPUNIT_ASSERT_EQUAL(1, sipmsg.getCountHeaderFields("from"));
+            ASSERT_STR_EQUAL("<sip:second@try>;tag=ORIG-TAG", sipmsg.getHeaderValue(0, "from"));
+
+            CPPUNIT_ASSERT_EQUAL(2, sipmsg.getCountHeaderFields("x-original-from"));
+            ASSERT_STR_EQUAL("Sip Send <sip:sender@example.org>; tag=ORIG-TAG",
+                             sipmsg.getHeaderValue(0, "x-original-from"));
+            ASSERT_STR_EQUAL("<sip:foo@bar>;tag=ORIG-TAG",
+                             sipmsg.getHeaderValue(1, "x-original-from"));
+            
+            ASSERT_STR_EQUAL("INVITE sip:sipx.local SIP/2.0", sipmsg.getFirstHeaderLine());
+         }
+
+#        if 0
+         // these next two are broken because of un-escaping problems...
+         {
+            // try to add a From header with a display name
+            const char* rawmsg =
+               "INVITE sip:sipx.local?from=%22Foo+Bar%22+sip%3Afoo%40bar SIP/2.0\r\n"
+               "To: sip:sipx.local\r\n"
+               "From: Sip Send <sip:sender@example.org>; tag=ORIG-TAG\r\n"
+               "Call-ID: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+               "Cseq: 1 INVITE\r\n"
+               "Max-Forwards: 20\r\n"
+               "Contact: me@127.0.0.1\r\n"
+               "Content-Length: 0\r\n"
+               "\r\n";
+
+            SipMessage sipmsg(rawmsg, strlen(rawmsg));
+            sipmsg.applyTargetUriHeaderParams();
+
+            sipmsg.getBytes(&dumpStr, &dumpLength);
+            printf( "\nMSG BEFORE:\n%s\nAFTER:\n%s\n", rawmsg, dumpStr.data());
+         
+            CPPUNIT_ASSERT_EQUAL(1, sipmsg.getCountHeaderFields("from"));
+            ASSERT_STR_EQUAL("Foo Bar<sip:foo@bar>;tag=ORIG-TAG", sipmsg.getHeaderValue(0, "from"));
+
+            CPPUNIT_ASSERT_EQUAL(1, sipmsg.getCountHeaderFields("x-original-from"));
+            ASSERT_STR_EQUAL("From: Sip Send <sip:sender@example.org>; tag=ORIG-TAG",
+                             sipmsg.getHeaderValue(0, "x-original-from"));
+            
+            ASSERT_STR_EQUAL("INVITE sip:sipx.local SIP/2.0", sipmsg.getFirstHeaderLine());
+         }
+
+         {
+            // try to add a From header with a display name
+            const char* rawmsg =
+               "INVITE sip:sipx.local?from=Foo+Bar+%3Csip%3Afoo%40bar%3A SIP/2.0\r\n"
+               "To: sip:sipx.local\r\n"
+               "From: Sip Send <sip:sender@example.org>; tag=ORIG-TAG\r\n"
+               "Call-ID: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+               "Cseq: 1 INVITE\r\n"
+               "Max-Forwards: 20\r\n"
+               "Contact: me@127.0.0.1\r\n"
+               "Content-Length: 0\r\n"
+               "\r\n";
+
+            SipMessage sipmsg(rawmsg, strlen(rawmsg));
+            sipmsg.applyTargetUriHeaderParams();
+
+            sipmsg.getBytes(&dumpStr, &dumpLength);
+            printf( "\nMSG BEFORE:\n%s\nAFTER:\n%s\n", rawmsg, dumpStr.data());
+         
+            CPPUNIT_ASSERT_EQUAL(1, sipmsg.getCountHeaderFields("from"));
+            ASSERT_STR_EQUAL("Foo Bar<sip:foo@bar>;tag=ORIG-TAG", sipmsg.getHeaderValue(0, "from"));
+
+            CPPUNIT_ASSERT_EQUAL(1, sipmsg.getCountHeaderFields("x-original-from"));
+            ASSERT_STR_EQUAL("From: Sip Send <sip:sender@example.org>; tag=ORIG-TAG",
+                             sipmsg.getHeaderValue(0, "x-original-from"));
+            
+            ASSERT_STR_EQUAL("INVITE sip:sipx.local SIP/2.0", sipmsg.getFirstHeaderLine());
+         }
+#        endif
+
+         {
+            // try to add a Route header
+            const char* rawmsg =
+               "INVITE sip:sipx.local?route=%3Csip%3Afoo%40bar%3Blr%3E SIP/2.0\r\n"
+               "To: sip:sipx.local\r\n"
+               "From: Sip Send <sip:sender@example.org>; tag=ORIG-TAG\r\n"
+               "Call-ID: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+               "Cseq: 1 INVITE\r\n"
+               "Max-Forwards: 20\r\n"
+               "Contact: me@127.0.0.1\r\n"
+               "Content-Length: 0\r\n"
+               "\r\n";
+
+            SipMessage sipmsg(rawmsg, strlen(rawmsg));
+            sipmsg.applyTargetUriHeaderParams();
+
+            // sipmsg.getBytes(&dumpStr, &dumpLength);
+            // printf( "\nMSG BEFORE:\n%s\nAFTER:\n%s\n", rawmsg, dumpStr.data());
+         
+            CPPUNIT_ASSERT_EQUAL(1, sipmsg.getCountHeaderFields("route"));
+            ASSERT_STR_EQUAL("<sip:foo@bar;lr>", sipmsg.getHeaderValue(0, "route"));
+            ASSERT_STR_EQUAL("INVITE sip:sipx.local SIP/2.0", sipmsg.getFirstHeaderLine());
+         }
+
+         {
+            // try to add a Route header when there is already one present
+            const char* rawmsg =
+               "INVITE sip:sipx.local?route=%3Csip%3Afoo%40bar%3Blr%3E SIP/2.0\r\n"
+               "Route: <sip:original@route;lr>\r\n"
+               "To: sip:sipx.local\r\n"
+               "From: Sip Send <sip:sender@example.org>; tag=ORIG-TAG\r\n"
+               "Call-ID: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+               "Cseq: 1 INVITE\r\n"
+               "Max-Forwards: 20\r\n"
+               "Contact: me@127.0.0.1\r\n"
+               "Content-Length: 0\r\n"
+               "\r\n";
+
+            SipMessage sipmsg(rawmsg, strlen(rawmsg));
+            sipmsg.applyTargetUriHeaderParams();
+
+            // sipmsg.getBytes(&dumpStr, &dumpLength);
+            // printf( "\nMSG BEFORE:\n%s\nAFTER:\n%s\n", rawmsg, dumpStr.data());
+         
+            CPPUNIT_ASSERT_EQUAL(1, sipmsg.getCountHeaderFields("route"));
+            ASSERT_STR_EQUAL("<sip:foo@bar;lr>,<sip:original@route;lr>", sipmsg.getHeaderValue(0, "route"));
+            ASSERT_STR_EQUAL("INVITE sip:sipx.local SIP/2.0", sipmsg.getFirstHeaderLine());
+         }
+      }
+
+   void testCompactNames()
+      {
+         const char* CompactMessage =
+            "METHOD sip:sipx.local SIP/2.0\r\n"
+            "v: SIP/2.0/TCP sipx.local:33855;branch=z9hG4bK-10cb6f9378a12d4218e10ef4dc78ea3d\r\n"
+            "v: SIP/2.0/TCP sipx.remote:999999;branch=z9hG4bK-remote-tid\r\n"
+            "t: sip:sipx.local\r\n"
+            "f: Sip Send <sip:sipsend@pingtel.org>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
+            "i: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+            "Cseq: 1 REGISTER\r\n"
+            "Max-Forwards: 20\r\n"
+            "o: event-package\r\n"
+            "r: sip:refer@address.example.com\r\n"
+            "b: sip:refered-by@address.example.com\r\n"
+            "User-Agent: sipsend/0.01\r\n"
+            "s: Some silly subject\r\n"
+            "k: a-supported-token\r\n"
+            "m: me@127.0.0.1\r\n"
+            "Expires: 300\r\n"
+            "Date: Fri, 16 Jul 2004 02:16:15 GMT\r\n"
+            "l: 0\r\n"
+            "c: application/sdp\r\n"
+            "e: gzip\r\n"
+            "\r\n";
+         SipMessage testMsg( CompactMessage, strlen( CompactMessage ) );
+
+         const char* LongForm =
+            "METHOD sip:sipx.local SIP/2.0\r\n"
+            "Via: SIP/2.0/TCP sipx.local:33855;branch=z9hG4bK-10cb6f9378a12d4218e10ef4dc78ea3d\r\n"
+            "Via: SIP/2.0/TCP sipx.remote:999999;branch=z9hG4bK-remote-tid\r\n"
+            "To: sip:sipx.local\r\n"
+            "From: Sip Send <sip:sipsend@pingtel.org>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
+            "Call-Id: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+            "Cseq: 1 REGISTER\r\n"
+            "Max-Forwards: 20\r\n"
+            "Event: event-package\r\n"
+            "Refer-To: sip:refer@address.example.com\r\n"
+            "Referred-By: sip:refered-by@address.example.com\r\n"
+            "User-Agent: sipsend/0.01\r\n"
+            "Subject: Some silly subject\r\n"
+            "Supported: a-supported-token\r\n"
+            "Contact: me@127.0.0.1\r\n"
+            "Expires: 300\r\n"
+            "Date: Fri, 16 Jul 2004 02:16:15 GMT\r\n"
+            "Content-Length: 0\r\n"
+            "Content-Type: application/sdp\r\n"
+            "Content-Encoding: gzip\r\n"
+            "\r\n";
+
+         UtlString translated;
+         int length;
+         
+         testMsg.getBytes(&translated, &length);
+         
+         ASSERT_STR_EQUAL(LongForm, translated.data());
+         
+      };
+
+      void testHeaderFieldAccessors()
+      {
+          const char* messageBlob =
+              "INVITE sip:fred@example.com SIP/2.0\n\
+From: sip:betty@example.com\n\
+To: Fred<sip:fred@example.com\n\
+CSeq: 3 INVITE\n\
+Call-Id: 1234\n\
+Via: SIP/2.0/UDP 127.0.0.1:4444;branch=z9hG4bK-10\n\
+P-Asserted-Identity: Fredrick<freddy@east.example.com>    ,     \
+    tel:1234567890  \n\
+P-ASSerted-IDENTITY: foo<sip:bar@my.example.com\n\
+Content-Length: 0\n\
+\n";
+
+
+          SipMessage message(messageBlob);
+
+          UtlString identity;
+          UtlString testErrorMessage;
+          CPPUNIT_ASSERT(message.getPAssertedIdentityField(identity, 0));
+          const char* expectedIdentity0 = "Fredrick<freddy@east.example.com>";
+          testErrorMessage = "expected: ";
+          testErrorMessage.append(expectedIdentity0);
+          CPPUNIT_ASSERT_MESSAGE(testErrorMessage.data(),
+              identity.compareTo(expectedIdentity0) == 0);
+
+          const char* expectedIdentity1 = "tel:1234567890";
+          testErrorMessage = "expected: ";
+          testErrorMessage.append(expectedIdentity1);
+          CPPUNIT_ASSERT(message.getPAssertedIdentityField(identity, 1));
+          CPPUNIT_ASSERT_MESSAGE(testErrorMessage.data(),
+              identity.compareTo(expectedIdentity1) == 0);
+
+          const char* expectedIdentity2 = "foo<sip:bar@my.example.com";
+          testErrorMessage = "expected: ";
+          testErrorMessage.append(expectedIdentity2);
+          CPPUNIT_ASSERT(message.getPAssertedIdentityField(identity, 2));
+          CPPUNIT_ASSERT_MESSAGE(testErrorMessage.data(),
+              identity.compareTo(expectedIdentity2) == 0);
+
+          message.removePAssertedIdentityFields();
+          CPPUNIT_ASSERT(!message.getPAssertedIdentityField(identity, 0));
+
+          const char* messageHeaderLine = "FOO sip:fred@example.com SIP/2.0\r\n";
+          SipMessage writeMessage(messageHeaderLine);
+          writeMessage.addPAssertedIdentityField(expectedIdentity2);
+          writeMessage.addPAssertedIdentityField(expectedIdentity1);
+          writeMessage.addPAssertedIdentityField(expectedIdentity0);
+
+          UtlString expectedMessage = messageHeaderLine;
+          expectedMessage.append("P-Asserted-Identity: ");
+          expectedMessage.append(expectedIdentity2 );
+          expectedMessage.append(", ");
+          expectedMessage.append(expectedIdentity1);
+          expectedMessage.append(", ");
+          expectedMessage.append(expectedIdentity0);
+          expectedMessage.append("\r\nContent-Length: 0\r\n\r\n");
+          UtlString messageBytes;
+          int len;
+          writeMessage.getBytes(&messageBytes, &len);
+
+          testErrorMessage = "expected: ";
+          testErrorMessage.append(expectedMessage);
+          if(messageBytes.compareTo(expectedMessage))
+          {
+              printf("Actual: %s\n", messageBytes.data());
+              printf("Expected: %s\n", expectedMessage.data());
+          }
+          CPPUNIT_ASSERT( messageBytes.compareTo(expectedMessage) == 0);
+      }
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(SipMessageTest);

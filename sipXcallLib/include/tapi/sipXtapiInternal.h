@@ -62,14 +62,14 @@ typedef struct MIC_SETTING
         bool bInitialized ;     /**< Is the data valid */
         bool bMuted ;           /**< Muted state (regain gain) */
         int  iGain ;            /**< Gain setting (GAIN_MIN-GAIN_MAX) */
-        UtlString device;       /**< Desired auto device */
+        char device[MAX_VIDEO_DEVICE_LENGTH]; /**< Desired auto device */
 } MIC_SETTING ;
 
 typedef struct SPEAKER_SETTING
 {
         bool bInitialized ;     /**< Is the data valid */
         int  iVol ;             /**< Gain setting (VOLUME_MIN-VOLUME_MAX) */
-        UtlString device;       /**< Desired auto device */
+        char device[MAX_VIDEO_DEVICE_LENGTH];       /**< Desired auto device */
 } SPEAKER_SETTING ;
 
 typedef struct AEC_SETTING
@@ -94,12 +94,12 @@ typedef struct NOISE_REDUCTION_SETTING
 
 typedef struct AUDIO_CODEC_PREFERENCES
 {
-    bool              bInitialized;  /**< Is the data valid */
-    int               numCodecs;     /**< Number of codecs */
+    bool              bInitialized;     /**< Is the data valid */
+    int               numCodecs;       /**< Number of codecs */
     SIPX_AUDIO_BANDWIDTH_ID codecPref; /**< Numeric Id of codec preference */
     SIPX_AUDIO_BANDWIDTH_ID fallBack;  /**< Fallback id if codec setting fails */
-    UtlString         sPreferences;  /**< List of preferred codecs */
-    SdpCodec**        sdpCodecArray; /**< Pointer to an array of codecs */
+    UtlString*        pPreferences;    /**< List of preferred codecs */
+    SdpCodec**        sdpCodecArray;   /**< Pointer to an array of codecs */
 } AUDIO_CODEC_PREFERENCES;
 
 typedef struct VIDEO_CODEC_PREFERENCES
@@ -108,7 +108,7 @@ typedef struct VIDEO_CODEC_PREFERENCES
     int               numCodecs;       /**< Number of codecs */
     SIPX_VIDEO_BANDWIDTH_ID codecPref; /**< Numeric Id of codec preference */
     SIPX_VIDEO_BANDWIDTH_ID fallBack;  /**< Fallback id if codec setting fails */
-    UtlString         sPreferences;    /**< List of preferred codecs */
+    UtlString*        pPreferences;    /**< List of preferred codecs */
     SdpCodec**        sdpCodecArray;   /**< Pointer to an array of codecs */
 } VIDEO_CODEC_PREFERENCES;
 
@@ -282,15 +282,16 @@ typedef struct
 class SIPX_TRANSPORT_DATA
 {
 public:
-    SIPX_TRANSPORT_DATA() :
-        pInst(NULL),
-        bIsReliable(false),
-        iLocalPort(-1),
-        pFnWriteProc(NULL),
-        pMutex(NULL),
-        hTransport(0),
-        pUserData(NULL)
+    SIPX_TRANSPORT_DATA() 
     {
+        pInst = NULL;
+        bIsReliable = false;
+        iLocalPort = -1;
+        pFnWriteProc = NULL;
+        pMutex = NULL;
+        hTransport = 0;
+        pUserData = NULL;
+        bRouteByUser = true;
         memset(szLocalIp, 0, sizeof(szLocalIp));
         memset(szTransport, 0, sizeof(szTransport));
         memset(cRoutingId, 0, sizeof(cRoutingId)) ;
@@ -323,6 +324,7 @@ public:
         iLocalPort = ref.iLocalPort;
         pFnWriteProc = ref.pFnWriteProc;
         pUserData = ref.pUserData ;        
+        bRouteByUser = ref.bRouteByUser;
         return *this;
     }
 
@@ -349,6 +351,7 @@ public:
     OsRWMutex*                pMutex;
     const void*               pUserData;
     char                      cRoutingId[64] ;
+    bool                      bRouteByUser;
 } ;
 
 /**
@@ -379,7 +382,8 @@ typedef void (*sipxCallEventCallbackFn)(const void* pSrc,
                                         const char* szRemoteAddress,
                                         SIPX_CALLSTATE_EVENT event,
                                         SIPX_CALLSTATE_CAUSE cause,
-                                        void* pEventData);
+                                        void* pEventData,
+                                        const char* assertedIdentity);
 
 typedef void (*sipxMediaCallbackFn)(const void*      pSrc,
                                     const char*      szCallId,
@@ -392,7 +396,8 @@ typedef void (*sipxMediaCallbackFn)(const void*      pSrc,
 typedef void (*sipxLineEventCallbackFn)(const void* pSrc,
                                         const char* szLineIdentifier,
                                         SIPX_LINESTATE_EVENT event,
-                                        SIPX_LINESTATE_CAUSE cause);	
+                                        SIPX_LINESTATE_CAUSE cause,
+                                        const char *bodyBytes);	
 
 
 typedef bool (*sipxEventCallbackFn)(const void* pSrc,
@@ -448,7 +453,8 @@ void sipxFireCallEvent(const void* pSrc,
                        const char* szRemoteAddress,
                        SIPX_CALLSTATE_EVENT event,
                        SIPX_CALLSTATE_CAUSE cause,
-                       void* pEventData=NULL) ;
+                       void* pEventData=NULL,
+                       const char* szRemoteAssertedIdentity = NULL) ;
 
 /**
  * Fires events to interested listener (media events only)
@@ -480,7 +486,8 @@ void sipxFireKeepaliveEvent(const void*          pSrc,
 void sipxFireLineEvent(const void* pSrc,
                        const char* szLineIdentifier,
                        SIPX_LINESTATE_EVENT event,
-                       SIPX_LINESTATE_CAUSE cause);
+                       SIPX_LINESTATE_CAUSE cause,
+                       const char *bodyBytes = NULL);
 
 /**
  * Bubbles up all non-line and non-call events to the application layer
@@ -628,6 +635,11 @@ SIPX_TRANSPORT_DATA* sipxTransportLookup(const SIPX_TRANSPORT hTransport, SIPX_L
  * @param type Type of lock (read or write)
  */
 void sipxTransportReleaseLock(SIPX_TRANSPORT_DATA* pData, SIPX_LOCK_TYPE type);
+
+/**
+ * Destroy all external transports for a given instance
+ */
+void sipxTransportDestroyAll(const SIPX_INST hInst) ;
 
 /**
  * Adds a log entry to the system log - made necessary to add logging

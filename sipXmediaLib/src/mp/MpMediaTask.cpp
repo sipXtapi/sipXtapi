@@ -116,7 +116,7 @@ OsStatus MpMediaTask::manageFlowGraph(MpFlowGraphBase& rFlowGraph)
       return OS_INVALID_ARGUMENT;
    }
 
-   res = postMessage(msg, OsTime::NO_WAIT);
+   res = postMessage(msg, OsTime::NO_WAIT_TIME);
    assert(res == OS_SUCCESS);
 
    return OS_SUCCESS;
@@ -135,7 +135,7 @@ OsStatus MpMediaTask::unmanageFlowGraph(MpFlowGraphBase& rFlowGraph)
    MpMediaTaskMsg msg(MpMediaTaskMsg::UNMANAGE, &rFlowGraph);
    OsStatus       res;
 
-   res = postMessage(msg, OsTime::NO_WAIT);
+   res = postMessage(msg, OsTime::NO_WAIT_TIME);
    assert(res == OS_SUCCESS);
 
    return OS_SUCCESS;
@@ -164,7 +164,7 @@ OsStatus MpMediaTask::setFocus(MpFlowGraphBase* pFlowGraph)
    MpMediaTaskMsg msg(MpMediaTaskMsg::SET_FOCUS, pFlowGraph);
    OsStatus       res;
 
-   res = postMessage(msg, OsTime::NO_WAIT);
+   res = postMessage(msg, OsTime::NO_WAIT_TIME);
    assert(res == OS_SUCCESS);
 
    return OS_SUCCESS;
@@ -244,7 +244,7 @@ OsStatus MpMediaTask::signalFrameStart(void)
          sSignalTicks = now; // record the time
 #endif /* _PROFILE, __pingtel_on_posix__ ] */
 
-         ret = spInstance->postMessage(*pMsg, OsTime::NO_WAIT);
+         ret = spInstance->postMessage(*pMsg, OsTime::NO_WAIT_TIME);
       }
    }
    return ret;
@@ -260,7 +260,7 @@ OsStatus MpMediaTask::startFlowGraph(MpFlowGraphBase& rFlowGraph)
    MpMediaTaskMsg msg(MpMediaTaskMsg::START, &rFlowGraph);
    OsStatus       res;
 
-   res = postMessage(msg, OsTime::NO_WAIT);
+   res = postMessage(msg, OsTime::NO_WAIT_TIME);
    if (res != OS_SUCCESS)
    {
       OsSysLog::add(FAC_MP, PRI_DEBUG, " MpMediaTask::startFlowGraph - post"
@@ -284,7 +284,7 @@ OsStatus MpMediaTask::stopFlowGraph(MpFlowGraphBase& rFlowGraph)
    MpMediaTaskMsg msg(MpMediaTaskMsg::STOP, &rFlowGraph);
    OsStatus       res;
 
-   res = postMessage(msg, OsTime::NO_WAIT);
+   res = postMessage(msg, OsTime::NO_WAIT_TIME);
    assert(res == OS_SUCCESS);
 
    return OS_SUCCESS;

@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -13,6 +16,8 @@
 #include <stdio.h>
 #ifndef _WIN32
 #include <netinet/in.h>
+#include <sys/socket.h>
+#include <arpa/inet.h>
 #endif
 
 // APPLICATION INCLUDES
@@ -23,6 +28,7 @@
 #include "os/OsLock.h"
 #include "os/OsSysLog.h"
 #include "os/OsEvent.h"
+#include "os/OsNotification.h"
 #include "tapi/sipXtapi.h"
 
 // EXTERNAL FUNCTIONS
@@ -48,6 +54,7 @@ OsNatDatagramSocket::OsNatDatagramSocket(int remoteHostPortNum,
         : OsDatagramSocket(remoteHostPortNum, remoteHost, localHostPortNum, localHost)
 {    
     miRecordTimes = ONDS_MARK_NONE ;
+    mpReadNotification = NULL ;
 
     // Init Stun state
     mStunState.bEnabled = false ;
@@ -106,40 +113,21 @@ int OsNatDatagramSocket::read(char* buffer, int bufferLength)
     int iReceivedPort ;
 
     do
-    {   
+    {
         bNatPacket = FALSE ;
         iRC = OsSocket::read(buffer, bufferLength, &receivedIp, &iReceivedPort) ;
-        if ((iRC > 0) && TurnMessage::isTurnMessage(buffer, iRC))
+        if (handleSturnData(buffer, iRC, receivedIp, iReceivedPort))
         {
-            handleTurnMessage(buffer, iRC, receivedIp, iReceivedPort) ;
             if (!mbTransparentReads)
-            {
                 iRC = 0 ;
-            }
             else
-            {
                 bNatPacket = TRUE ;
-            }
         }
-        else if ((iRC > 0) && StunMessage::isStunMessage(buffer, iRC))
-        {
-            handleStunMessage(buffer, iRC, receivedIp, iReceivedPort) ;
-            if (!mbTransparentReads)
-            {
-                iRC = 0 ;
-            }
-            else
-            {
-                bNatPacket = TRUE ;
-            }
-        }
-    } while ((iRC >= 0) && bNatPacket) ;   
+    } while ((iRC >= 0) && bNatPacket) ;
 
     // Make read time for non-NAT packets
     if (iRC > 0 && !bNatPacket)
-    {
         markReadTime() ;
-    }
 
     return iRC ;
 }
@@ -156,30 +144,13 @@ int OsNatDatagramSocket::read(char* buffer, int bufferLength,
     {
         bNatPacket = FALSE ;
         iRC = OsSocket::read(buffer, bufferLength, &receivedIp, &iReceivedPort) ;       
-        if ((iRC > 0) && TurnMessage::isTurnMessage(buffer, iRC))
+        if (handleSturnData(buffer, iRC, receivedIp, iReceivedPort))
         {
-            handleTurnMessage(buffer, iRC, receivedIp, iReceivedPort) ;
             if (!mbTransparentReads)
-            {
                 iRC = 0 ;
-            }
             else
-            {
                 bNatPacket = TRUE ;
-            }
-        }
-        else if ((iRC > 0) && StunMessage::isStunMessage(buffer, iRC))
-        {
-            handleStunMessage(buffer, iRC, receivedIp, iReceivedPort) ;
-            if (!mbTransparentReads)
-            {
-                iRC = 0 ;
-            }
-            else
-            {
-                bNatPacket = TRUE ;
-            }
-        }
+        }    
     } while ((iRC >= 0) && bNatPacket) ;
 
     if (ipAddress)
@@ -204,60 +175,16 @@ int OsNatDatagramSocket::read(char* buffer, int bufferLength,
 int OsNatDatagramSocket::read(char* buffer, int bufferLength,
        struct in_addr* ipAddress, int* port)
 {
-    bool bNatPacket ;
-    int iRC ;    
-    struct in_addr fromSockAddress;
+    int iRC ;
     int iReceivedPort ;
-   
-    do
-    {
-        bNatPacket = FALSE ;
-        iRC = OsSocket::read(buffer, bufferLength, &fromSockAddress, &iReceivedPort) ;      
-        if ((iRC > 0) && TurnMessage::isTurnMessage(buffer, iRC))
-        {
-            UtlString receivedIp ;
-            inet_ntoa_pt(fromSockAddress, receivedIp);
-            handleTurnMessage(buffer, iRC, receivedIp, iReceivedPort) ;
-            if (!mbTransparentReads)
-            {
-                iRC = 0 ;
-            }
-            else
-            {
-                bNatPacket = TRUE ;
-            }
-        }
-        else if ((iRC > 0) && StunMessage::isStunMessage(buffer, iRC))
-        {
-            UtlString receivedIp ;
-            inet_ntoa_pt(fromSockAddress, receivedIp);
-            handleStunMessage(buffer, iRC, receivedIp, iReceivedPort) ;
-            if (!mbTransparentReads)
-            {
-                iRC = 0 ;
-            }
-            else
-            {
-                bNatPacket = TRUE ;
-            }
-        }
-    } while ((iRC >= 0) && bNatPacket) ;
+    UtlString receivedIp ;
 
-    if (ipAddress != NULL)
-    {
-        memcpy(ipAddress, &fromSockAddress, sizeof(struct in_addr)) ;
-    }
+    iRC = read(buffer, bufferLength, &receivedIp, &iReceivedPort) ;
+    if (ipAddress)
+        ipAddress->s_addr = inet_addr(receivedIp) ;
 
-    if (port != NULL)
-    {
+    if (port)
         *port = iReceivedPort ;
-    }
-
-    // Make read time for non-NAT packets
-    if (iRC > 0 && !bNatPacket)
-    {
-        markReadTime() ;
-    }
 
     return iRC ;
 }
@@ -265,40 +192,23 @@ int OsNatDatagramSocket::read(char* buffer, int bufferLength,
 
 int OsNatDatagramSocket::read(char* buffer, int bufferLength, long waitMilliseconds)
 {        
-    bool bNatPacket = FALSE ;
+    bool bNatPacket ;
     int iRC = 0 ;
     UtlString receivedIp ;
     int iReceivedPort ;
 
     do
     {
+        bNatPacket = FALSE ;
         if (isReadyToRead(waitMilliseconds))
         {
-            bNatPacket = FALSE ;
             iRC = OsSocket::read(buffer, bufferLength, &receivedIp, &iReceivedPort) ;            
-            if ((iRC > 0) && TurnMessage::isTurnMessage(buffer, iRC))
+            if (handleSturnData(buffer, iRC, receivedIp, iReceivedPort))
             {
-                handleTurnMessage(buffer, iRC, receivedIp, iReceivedPort) ;
                 if (!mbTransparentReads)
-                {
                     iRC = 0 ;
-                }
                 else
-                {
                     bNatPacket = TRUE ;
-                }
-            }
-            else if ((iRC > 0) && StunMessage::isStunMessage(buffer, iRC))
-            {
-                handleStunMessage(buffer, iRC, receivedIp, iReceivedPort) ;
-                if (!mbTransparentReads)
-                {
-                    iRC = 0 ;
-                }
-                else
-                {
-                    bNatPacket = TRUE ;
-                }
             }
         }
         else
@@ -316,6 +226,16 @@ int OsNatDatagramSocket::read(char* buffer, int bufferLength, long waitMilliseco
     return iRC ;    
 }
 
+int OsNatDatagramSocket::socketWrite(const char* buffer, int bufferLength,
+                               const char* ipAddress, int port, PacketType packetType)
+{
+    if (packetType == MEDIA_PACKET)
+    {
+        markWriteTime() ;
+    }
+
+    return OsDatagramSocket::write(buffer, bufferLength, ipAddress, port) ;
+}
 
 int OsNatDatagramSocket::write(const char* buffer, int bufferLength)
 {
@@ -327,7 +247,6 @@ int OsNatDatagramSocket::write(const char* buffer, int bufferLength)
     // by allowing a connect().  This filters inbound packets from others (on 
     // Win32 -- not sure if this is the case for all platforms) and breaks 
     // ICE.
-
     if (mIsConnected)
     {
         rc = OsDatagramSocket::write(buffer, bufferLength) ;
@@ -359,7 +278,6 @@ int OsNatDatagramSocket::write(const char* buffer,
     return OsDatagramSocket::write(buffer, bufferLength, ipAddress, port) ;
 }
 
-
 int OsNatDatagramSocket::write(const char* buffer, int bufferLength, 
                                long waitMilliseconds)
 {
@@ -367,15 +285,13 @@ int OsNatDatagramSocket::write(const char* buffer, int bufferLength,
     return OsSocket::write(buffer, bufferLength, waitMilliseconds) ;
 }
 
-
-
 void OsNatDatagramSocket::enableStun(const char* szStunServer, int stunPort, int iKeepAlive,  int iStunOptions, bool bReadFromSocket) 
 {    
     if (!mStunState.bEnabled)
     {
         mStunState.bEnabled = true ;
 
-        bool bRC = mpNatAgent->enableStun(this, szStunServer, stunPort, iStunOptions, iKeepAlive) ;
+        UtlBoolean bRC = mpNatAgent->enableStun(this, szStunServer, stunPort, iStunOptions, iKeepAlive) ;
         if (bRC)
         {
             if (bReadFromSocket)
@@ -426,7 +342,7 @@ void OsNatDatagramSocket::enableTurn(const char* szTurnSever,
     {
         mTurnState.bEnabled = true ;
     
-        bool bRC = mpNatAgent->enableTurn(this, szTurnSever, turnPort, iKeepAlive, username, password) ;
+        UtlBoolean bRC = mpNatAgent->enableTurn(this, szTurnSever, turnPort, iKeepAlive, username, password) ;
         if (bRC)
         { 
             if (bReadFromSocket)
@@ -584,6 +500,15 @@ void OsNatDatagramSocket::addAlternateDestination(const char* szAddress, int iPo
     mpNatAgent->sendStunProbe(this, szAddress, iPort, priority) ;
 }
 
+
+void OsNatDatagramSocket::setReadNotification(OsNotification* pNotification)
+{
+    OsLock lock(mReadNotificationLock) ;
+
+    mpReadNotification = pNotification ;
+}
+
+
 void OsNatDatagramSocket::readyDestination(const char* szAddress, int iPort) 
 {
     if (mTurnState.bEnabled && (mTurnState.status == NAT_STATUS_SUCCESS))
@@ -598,63 +523,6 @@ void OsNatDatagramSocket::setNotifier(OsNotification* pNotification)
     mpNotification = pNotification ;
     mbNotified = false ;
 }
-
-
-bool OsNatDatagramSocket::getFirstReadTime(OsDateTime& time) 
-{
-    bool bRC = (miRecordTimes & ONDS_MARK_FIRST_READ) == 
-            ONDS_MARK_FIRST_READ ;
-
-    if (bRC)
-    {
-        time = mFirstRead ;
-    }
-
-    return bRC ;
-}
-
-
-bool OsNatDatagramSocket::getLastReadTime(OsDateTime& time)
-{
-    bool bRC = (miRecordTimes & ONDS_MARK_LAST_READ) == 
-            ONDS_MARK_LAST_READ ;
-
-    if (bRC)
-    {
-        time = mLastRead ;
-    }
-
-    return bRC ;
-}
-
-
-bool OsNatDatagramSocket::getFirstWriteTime(OsDateTime& time) 
-{
-    bool bRC = (miRecordTimes & ONDS_MARK_FIRST_WRITE) == 
-            ONDS_MARK_FIRST_WRITE ;
-
-    if (bRC)
-    {
-        time = mFirstWrite ;
-    }
-
-    return bRC ;
-}
-
-
-bool OsNatDatagramSocket::getLastWriteTime(OsDateTime& time) 
-{
-    bool bRC = (miRecordTimes & ONDS_MARK_LAST_WRITE) == 
-            ONDS_MARK_LAST_WRITE ;
-
-    if (bRC)
-    {
-        time = mLastWrite ;
-    }
-
-    return bRC ;
-}
-
 
 /* ============================ INQUIRY =================================== */
 
@@ -800,68 +668,6 @@ UtlBoolean OsNatDatagramSocket::applyDestinationAddress(const char* szAddress, i
 
     return bRC ;
 }
-
-
-void OsNatDatagramSocket::handleStunMessage(char* pBuf, 
-                                            int length, 
-                                            UtlString& fromAddress, 
-                                            int fromPort) 
-{
-    // Make copy and queue it. 
-    char* szCopy = (char*) malloc(length) ;
-    if (szCopy)
-    {
-        memcpy(szCopy, pBuf, length) ;
-        NatMsg msg(NatMsg::STUN_MESSAGE, szCopy, length, this, fromAddress, fromPort);
-        mpNatAgent->postMessage(msg) ;
-    }
-}
-
-
-void OsNatDatagramSocket::handleTurnMessage(char* pBuf, 
-                                            int length, 
-                                            UtlString& fromAddress, 
-                                            int fromPort) 
-{
-    // Make copy and queue it. 
-    char* szCopy = (char*) malloc(length) ;
-    if (szCopy)
-    {
-        memcpy(szCopy, pBuf, length) ;
-        NatMsg msg(NatMsg::TURN_MESSAGE, szCopy, length, this, fromAddress, fromPort);
-        mpNatAgent->postMessage(msg) ;
-    }    
-}
-
-
-void OsNatDatagramSocket::markReadTime()
-{
-    // Always mark last read
-    miRecordTimes |= ONDS_MARK_LAST_READ ;
-    OsDateTime::getCurTime(mLastRead) ;
-
-    // Mark first read if not already set
-    if ((miRecordTimes & ONDS_MARK_FIRST_READ) == 0)
-{
-        miRecordTimes |= ONDS_MARK_FIRST_READ ;
-        mFirstRead = mLastRead ;
-}
-}
-
-void OsNatDatagramSocket::markWriteTime()
-{
-    // Always mark last write
-    miRecordTimes |= ONDS_MARK_LAST_WRITE ;
-    OsDateTime::getCurTime(mLastWrite) ;
-
-    // Mark first write if not already set
-    if ((miRecordTimes & ONDS_MARK_FIRST_WRITE) == 0)
-{
-        miRecordTimes |= ONDS_MARK_FIRST_WRITE ;
-        mFirstWrite = mLastWrite ;
-}
-}
-
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 

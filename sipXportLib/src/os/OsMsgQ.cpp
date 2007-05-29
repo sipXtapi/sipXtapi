@@ -83,7 +83,7 @@ void OsMsgQBase::flush(void)
 {
    OsMsg* pMsg;
 
-   while (receive(pMsg, OsTime::NO_WAIT) != OS_WAIT_TIMEOUT)
+   while (receive(pMsg, OsTime::NO_WAIT_TIME) != OS_WAIT_TIMEOUT)
    {
       if (mFlushHookFunc != NULL)
          mFlushHookFunc(*pMsg);

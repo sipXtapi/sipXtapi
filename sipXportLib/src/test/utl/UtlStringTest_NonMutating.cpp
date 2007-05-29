@@ -1105,6 +1105,12 @@ public:
                      testData[i].startPosition, UtlString::ignoreCase); 
 
             TestUtilities::createMessage(2, &Message, prefix, testData[i].testDescription); 
+            if (testData[i].expectedValue != result)
+            {
+
+               printf("\n[%d]: expectedValue: %d, result: %d\n", i, testData[i].expectedValue, result );
+               printf("\n");
+            }
             CPPUNIT_ASSERT_EQUAL_MESSAGE(Message.data(), testData[i].expectedValue, result); 
         }
     } //testIndex_CaseInsensitiveMatch

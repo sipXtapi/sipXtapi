@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2005-2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -68,7 +71,7 @@ void CpMediaInterfaceFactoryImpl::setRtpPortRange(int startRtpPort, int lastRtpP
     miNextRtpPort = miStartRtpPort ;
 }
 
-#define MAX_PORT_CHECK_ATTEMPTS     4
+#define MAX_PORT_CHECK_ATTEMPTS     miLastRtpPort - miStartRtpPort
 #define MAX_PORT_CHECK_WAIT_MS      50
 OsStatus CpMediaInterfaceFactoryImpl::getNextRtpPort(int &rtpPort) 
 {
@@ -135,8 +138,12 @@ OsStatus CpMediaInterfaceFactoryImpl::releaseRtpPort(const int rtpPort)
     // port)
     if (miNextRtpPort != 0)
     {
-        // Release port to head of list (generally want to reuse ports)
-        mlistFreePorts.insert(new UtlInt(rtpPort)) ;
+        // if it is not already in the list...
+        if (!mlistFreePorts.find(new UtlInt(rtpPort)))
+        {
+            // Release port to head of list (generally want to reuse ports)
+            mlistFreePorts.insert(new UtlInt(rtpPort)) ;
+        }
     }
 
     return OS_SUCCESS ;
@@ -148,9 +155,9 @@ OsStatus CpMediaInterfaceFactoryImpl::releaseRtpPort(const int rtpPort)
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
-bool CpMediaInterfaceFactoryImpl::isPortBusy(int iPort, int checkTimeMS) 
+UtlBoolean CpMediaInterfaceFactoryImpl::isPortBusy(int iPort, int checkTimeMS) 
 {
-    bool bBusy = false ;
+    UtlBoolean bBusy = FALSE ;
 
     if (iPort > 0)
     {
@@ -171,7 +178,7 @@ bool CpMediaInterfaceFactoryImpl::isPortBusy(int iPort, int checkTimeMS)
         {
             if (!pTcpSocket->isOk())
             {
-                bBusy = true;
+                bBusy = TRUE;
             }
             pTcpSocket->close();
             delete pTcpSocket;

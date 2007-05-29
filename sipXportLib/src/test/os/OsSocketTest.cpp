@@ -12,6 +12,7 @@
 #include <cppunit/TestCase.h>
 
 #include <os/OsFS.h>
+#include <os/OsTask.h>
 #include <sipxunit/TestUtilities.h>
 #include <os/OsTestUtilities.h>
 #include <os/OsDatagramSocket.h>
@@ -22,19 +23,43 @@
 class SocketsTest : public CppUnit::TestCase
 {
     CPPUNIT_TEST_SUITE(SocketsTest);
+    CPPUNIT_TEST(testSocketUtils);
     CPPUNIT_TEST(testWriteMsg);
     CPPUNIT_TEST(testWriteAndAcceptMsg);
     CPPUNIT_TEST_SUITE_END();
 
 
 public:
+    static UtlString mLocalHost;
+   
+    void testSocketUtils()
+    {
+        OsSocket::getHostIp(&mLocalHost);
 
+        if(mLocalHost.isNull())
+        {
+            // Otherwise all subsequent tests will fail
+            mLocalHost = "127.0.0.1";
+        }
+
+        printf("testSocketUtils setting mLocalHost=\"%s\"\n", mLocalHost.data());
+        CPPUNIT_ASSERT(!mLocalHost.isNull());
+        CPPUNIT_ASSERT(OsSocket::isIp4Address(mLocalHost));
+    }
+    
     /**
      * Open datagram socket and send a few bytes.
      */
     void testWriteMsg()
     {
-        OsSocket* s = new OsDatagramSocket(8020, "localhost");
+        OsSocket* s = new OsDatagramSocket(8020, mLocalHost);
+        if(!s->isOk() || s->getSocketDescriptor() < 0)
+        {
+            printf("socket descripter not valid: %d\n", s->getSocketDescriptor());
+        }
+
+        CPPUNIT_ASSERT(s->getSocketDescriptor() >= 0);
+        CPPUNIT_ASSERT(s->isOk());
         const char* msg = "hello\n";
         int len = strlen(msg);
         int bytesWritten = s->write(msg, len);
@@ -49,9 +74,34 @@ public:
      */
     void testWriteAndAcceptMsg()
     {
-        OsServerSocket* server = new OsServerSocket(50, 8021);
-        OsSocket* client = new OsConnectionSocket(8021, "localhost");
-        OsSocket* serverClient = server->accept();
+        int port = 8021;
+        OsServerSocket* server = new OsServerSocket(50, port, mLocalHost);
+        printf("binding to %s:%d\n", mLocalHost.data(), port);
+        // This test being single threaded stresses some platform specific issues
+        // On some platforms you can do a blocking connect on the client and then accept on the
+        // server side.  On others its the other way around.  So we do a non-blocking connect on
+        // the client side.  We block latter after the accept to assure it connects.
+        UtlBoolean block = FALSE;
+        OsSocket* client = new OsConnectionSocket(port, mLocalHost, block);
+        OsSocket* serverClient = NULL;
+        /*int delayCount = 0;
+        while(!server->isConnectionReady())
+        {
+            OsTask::delay(100);
+            delayCount++;
+            if(delayCount > 50) break;
+        }
+        if(server->isConnectionReady())
+        {*/
+            serverClient = server->accept();
+            CPPUNIT_ASSERT(serverClient);
+        /*}
+        else
+        {
+            CPPUNIT_ASSERT_MESSAGE("server->isConnectionReady returned false", 0);
+        }*/
+
+        CPPUNIT_ASSERT(client->isReadyToWrite(5000));
 
         CPPUNIT_ASSERT_MESSAGE("socket server failed to accept connection", 
                                serverClient != NULL);
@@ -93,6 +143,8 @@ public:
         delete server;
     }
 };
+
+UtlString SocketsTest::mLocalHost;
 
 CPPUNIT_TEST_SUITE_REGISTRATION(SocketsTest);
 

@@ -75,7 +75,12 @@ static char orig_rcsid[] = "From: Id: res_init.c,v 8.7 1996/11/18 09:10:04 vixie
 static char rcsid[] = "";
 #endif /* LIBC_SCCS and not lint */
 
-#include <sys/types.h>
+#ifdef WINCE
+#   include <types.h>
+#else
+#   include <sys/types.h>
+#endif
+
 #include <time.h>
 
 /* Reordered includes and separated into win/vx --GAT */
@@ -86,14 +91,18 @@ static char rcsid[] = "";
 #       include <resparse/wnt/arpa/inet.h>
 #       include <resparse/wnt/arpa/nameser.h>
 #       include <resparse/wnt/resolv/resolv.h>
+#ifndef WINCE
 #       include <process.h>
+#endif
 #       include "resparse/wnt/inet_aton.h"
+#       include "os/wnt/getWindowsDNSServers.h"
 //#     include <iphlpapi.h>
 #elif defined(_VXWORKS)
 #       include <sys/socket.h>
 #       include <hostLib.h>
 #       include <netinet/in.h>
 #       include <arpa/inet.h>
+#       include <sys/times.h>
 /* Use local lnameser.h for info missing from VxWorks version --GAT */
 /* lnameser.h is a subset of resparse/wnt/arpa/nameser.h                */
 #       include <resolv/nameser.h>
@@ -111,7 +120,6 @@ static char rcsid[] = "";
 #include <stdlib.h>
 #include <string.h>
 #include "resparse/res_config.h"
-#include "os/wnt/getWindowsDNSServers.h"
 #include <os/OsDefs.h>
 
 /* defined in OsSocket */
@@ -139,7 +147,7 @@ static const char sort_mask[] = "/&";
  * Resolver state default settings.
  */
 
-struct __res_state _res
+struct __res_state _sip_res /* Changed to avoiding clash with previoud defn*/
 # if defined(__BIND_RES_TEXT)
         = { RES_TIMEOUT, }      /* Motorola, et al. */
 # endif
@@ -151,7 +159,7 @@ u_int res_random_id()
 {
         struct timeval now;
 
-        now.tv_sec = time(&now.tv_sec);
+	now.tv_sec = time((time_t*) &now.tv_sec);
     now.tv_usec = 0;
 #if defined(_WIN32)
         return (0xffff & (now.tv_sec ^ now.tv_usec ^ _getpid()));
@@ -272,34 +280,34 @@ int res_init_ip(const char* localIp)
          * set in RES_DEFAULT).  Our solution is to declare such applications
          * "broken".  They could fool us by setting RES_INIT but none do (yet).
          */
-        if (!_res.retrans)
-                _res.retrans = RES_TIMEOUT;
-        if (!_res.retry)
-                _res.retry = 4;
-        if (!(_res.options & RES_INIT))
-                _res.options = RES_DEFAULT;
+	if (!_sip_res.retrans)
+		_sip_res.retrans = RES_TIMEOUT;
+	if (!_sip_res.retry)
+		_sip_res.retry = 4;
+	if (!(_sip_res.options & RES_INIT))
+		_sip_res.options = RES_DEFAULT;
 
         /*
          * This one used to initialize implicitly to zero, so unless the app
          * has set it to something in particular, we can randomize it now.
          */
-        if (!_res.id)
-                _res.id = res_random_id();
+	if (!_sip_res.id)
+		_sip_res.id = res_random_id();
 
 #ifdef USELOOPBACK
 #if defined(_WIN32)  /* added win32 version for loopback --GAT */
-   _res.nsaddr.sin_addr.s_addr  = INADDR_LOOPBACK;
+   _sip_res.nsaddr.sin_addr.s_addr  = INADDR_LOOPBACK;
 #elif defined(_VXWORKS)
-        _res.nsaddr.sin_addr = inet_makeaddr(IN_LOOPBACKNET, 1);
+	_sip_res.nsaddr.sin_addr = inet_makeaddr(IN_LOOPBACKNET, 1);
 #endif
 #else
-        _res.nsaddr.sin_addr.s_addr = inet_addr(szLocalIp);
+	_sip_res.nsaddr.sin_addr.s_addr = osSocketGetDefaultBindAddress();
 #endif
-        _res.nsaddr.sin_family = AF_INET;
-        _res.nsaddr.sin_port = htons(NAMESERVER_PORT);
-        _res.nscount = 1;
-        _res.ndots = 1;
-        _res.pfcode = 0;
+	_sip_res.nsaddr.sin_family = AF_INET;
+	_sip_res.nsaddr.sin_port = htons(NAMESERVER_PORT);
+	_sip_res.nscount = 1;
+	_sip_res.ndots = 1;
+	_sip_res.pfcode = 0;
 
         if (dnsSvrCnt = getWindowsDNSServers(DNSServers, 6, szLocalIp))
         {
@@ -309,11 +317,11 @@ int res_init_ip(const char* localIp)
               (nserv < MAXNS)) // do not insert more than
               // the list will hold
                 {
-                        if (inet_aton(DNSServers[nservIndex], &a))
+			if (IS_INET_RETURN_OK( inet_aton(DNSServers[nservIndex], &a)) )
                         {
-                                _res.nsaddr_list[nserv].sin_addr = a;
-                                _res.nsaddr_list[nserv].sin_family = AF_INET;
-                                _res.nsaddr_list[nserv].sin_port =
+				_sip_res.nsaddr_list[nserv].sin_addr = a;
+				_sip_res.nsaddr_list[nserv].sin_family = AF_INET;
+				_sip_res.nsaddr_list[nserv].sin_port =
                                         htons(NAMESERVER_PORT);
                 nserv++;
                         }
@@ -326,9 +334,10 @@ int res_init_ip(const char* localIp)
                 }
         }
         /* Allow user to override the local domain definition */
+#if !defined(WINCE)
         if (/*issetugid() == 0 && */(cp = getenv("LOCALDOMAIN")) != NULL) {
-                (void)strncpy(_res.defdname, cp, sizeof(_res.defdname) - 1);
-                _res.defdname[sizeof(_res.defdname) - 1] = '\0';
+		(void)strncpy(_sip_res.defdname, cp, sizeof(_sip_res.defdname) - 1);
+		_sip_res.defdname[sizeof(_sip_res.defdname) - 1] = '\0';
                 haveenv++;
 
                 /*
@@ -338,10 +347,10 @@ int res_init_ip(const char* localIp)
                  * one that they want to use as an individual (even more
                  * important now that the rfc1535 stuff restricts searches)
                  */
-                cp = _res.defdname;
-                pp = _res.dnsrch;
+		cp = _sip_res.defdname;
+		pp = _sip_res.dnsrch;
                 *pp++ = cp;
-                for (n = 0; *cp && pp < _res.dnsrch + MAXDNSRCH; cp++) {
+		for (n = 0; *cp && pp < _sip_res.dnsrch + MAXDNSRCH; cp++) {
                         if (*cp == '\n')        /* silly backwards compat */
                                 break;
                         else if (*cp == ' ' || *cp == '\t') {
@@ -359,7 +368,7 @@ int res_init_ip(const char* localIp)
                 *cp = '\0';
                 *pp++ = 0;
         }
-
+#endif
 #define MATCH(line, name) \
         (!strncmp(line, name, sizeof(name) - 1) && \
         (line[sizeof(name) - 1] == ' ' || \
@@ -380,9 +389,9 @@ int res_init_ip(const char* localIp)
                             cp++;
                     if ((*cp == '\0') || (*cp == '\n'))
                             continue;
-                    strncpy(_res.defdname, cp, sizeof(_res.defdname) - 1);
-                    _res.defdname[sizeof(_res.defdname) - 1] = '\0';
-                    if ((cp = strpbrk(_res.defdname, " \t\n")) != NULL)
+		    strncpy(_sip_res.defdname, cp, sizeof(_sip_res.defdname) - 1);
+		    _sip_res.defdname[sizeof(_sip_res.defdname) - 1] = '\0';
+		    if ((cp = strpbrk(_sip_res.defdname, " \t\n")) != NULL)
                             *cp = '\0';
                     havesearch = 0;
                     continue;
@@ -396,18 +405,18 @@ int res_init_ip(const char* localIp)
                             cp++;
                     if ((*cp == '\0') || (*cp == '\n'))
                             continue;
-                    strncpy(_res.defdname, cp, sizeof(_res.defdname) - 1);
-                    _res.defdname[sizeof(_res.defdname) - 1] = '\0';
-                    if ((cp = strchr(_res.defdname, '\n')) != NULL)
+		    strncpy(_sip_res.defdname, cp, sizeof(_sip_res.defdname) - 1);
+		    _sip_res.defdname[sizeof(_sip_res.defdname) - 1] = '\0';
+		    if ((cp = strchr(_sip_res.defdname, '\n')) != NULL)
                             *cp = '\0';
                     /*
                      * Set search list to be blank-separated strings
                      * on rest of line.
                      */
-                    cp = _res.defdname;
-                    pp = _res.dnsrch;
+		    cp = _sip_res.defdname;
+		    pp = _sip_res.dnsrch;
                     *pp++ = cp;
-                    for (n = 0; *cp && pp < _res.dnsrch + MAXDNSRCH; cp++) {
+		    for (n = 0; *cp && pp < _sip_res.dnsrch + MAXDNSRCH; cp++) {
                             if (*cp == ' ' || *cp == '\t') {
                                     *cp = 0;
                                     n = 1;
@@ -431,10 +440,10 @@ int res_init_ip(const char* localIp)
                     cp = buf + sizeof("nameserver") - 1;
                     while (*cp == ' ' || *cp == '\t')
                         cp++;
-                    if ((*cp != '\0') && (*cp != '\n') && inet_aton(cp, &a)) {
-                        _res.nsaddr_list[nserv].sin_addr = a;
-                        _res.nsaddr_list[nserv].sin_family = AF_INET;
-                        _res.nsaddr_list[nserv].sin_port =
+		    if ((*cp != '\0') && (*cp != '\n') && IS_INET_RETURN_OK( inet_aton(cp, &a)) ) {
+			_sip_res.nsaddr_list[nserv].sin_addr = a;
+			_sip_res.nsaddr_list[nserv].sin_family = AF_INET;
+			_sip_res.nsaddr_list[nserv].sin_port =
                                 htons(NAMESERVER_PORT);
                         nserv++;
                     }
@@ -456,8 +465,8 @@ int res_init_ip(const char* localIp)
                                 cp++;
                         n = *cp;
                         *cp = 0;
-                        if (inet_aton(net, &a)) {
-                            _res.sort_list[nsort].addr = a;
+			if (IS_INET_RETURN_OK( inet_aton(net, &a)) ){
+			    _sip_res.sort_list[nsort].addr = a;
                             if (ISSORTMASK(n)) {
                                 *cp++ = n;
                                 net = cp;
@@ -466,15 +475,15 @@ int res_init_ip(const char* localIp)
                                     cp++;
                                 n = *cp;
                                 *cp = 0;
-                                if (inet_aton(net, &a)) {
-                                    _res.sort_list[nsort].mask = a.s_addr;
+				if (IS_INET_RETURN_OK( inet_aton(net, &a)) ){
+				    _sip_res.sort_list[nsort].mask = a.s_addr;
                                 } else {
-                                    _res.sort_list[nsort].mask =
-                                        net_mask(_res.sort_list[nsort].addr);
+				    _sip_res.sort_list[nsort].mask = 
+					net_mask(_sip_res.sort_list[nsort].addr);
                                 }
                             } else {
-                                _res.sort_list[nsort].mask =
-                                    net_mask(_res.sort_list[nsort].addr);
+				_sip_res.sort_list[nsort].mask = 
+				    net_mask(_sip_res.sort_list[nsort].addr);
                             }
                             nsort++;
                         }
@@ -489,30 +498,30 @@ int res_init_ip(const char* localIp)
                 }
             }
             if (nserv > 1)
-                _res.nscount = nserv;
+		_sip_res.nscount = nserv;
 #ifdef RESOLVSORT
-            _res.nsort = nsort;
+	    _sip_res.nsort = nsort;
 #endif
             (void) fclose(fp);
         }
-        if (_res.defdname[0] == 0 &&
-            gethostname(buf, sizeof(_res.defdname) - 1) == 0 &&
+	if (_sip_res.defdname[0] == 0 &&
+	    gethostname(buf, sizeof(_sip_res.defdname) - 1) == 0 &&
             (cp = strchr(buf, '.')) != NULL)
-                strcpy(_res.defdname, cp + 1);
+		strcpy(_sip_res.defdname, cp + 1);
 
         /* find components of local domain that might be searched */
         if (havesearch == 0) {
-                pp = _res.dnsrch;
-                *pp++ = _res.defdname;
+		pp = _sip_res.dnsrch;
+		*pp++ = _sip_res.defdname;
                 *pp = NULL;
 
 #ifndef RFC1535
                 dots = 0;
-                for (cp = _res.defdname; *cp; cp++)
+		for (cp = _sip_res.defdname; *cp; cp++)
                         dots += (*cp == '.');
 
-                cp = _res.defdname;
-                while (pp < _res.dnsrch + MAXDFLSRCH) {
+		cp = _sip_res.defdname;
+		while (pp < _sip_res.dnsrch + MAXDFLSRCH) {
                         if (dots < LOCALDOMAINPARTS)
                                 break;
                         cp = strchr(cp, '.') + 1;    /* we know there is one */
@@ -521,9 +530,9 @@ int res_init_ip(const char* localIp)
                 }
                 *pp = NULL;
 #ifdef DEBUG
-                if (_res.options & RES_DEBUG) {
+		if (_sip_res.options & RES_DEBUG) {
                         printf(";; res_init()... default dnsrch list:\n");
-                        for (pp = _res.dnsrch; *pp; pp++)
+			for (pp = _sip_res.dnsrch; *pp; pp++)
                                 printf(";;\t%s\n", *pp);
                         printf(";;\t..END..\n");
                 }
@@ -532,10 +541,13 @@ int res_init_ip(const char* localIp)
         }
 
 /*      if (issetugid())
-                _res.options |= RES_NOALIASES;
-        else */if ((cp = getenv("RES_OPTIONS")) != NULL)
+		_sip_res.options |= RES_NOALIASES;
+        else */
+#ifndef WINCE
+		if ((cp = getenv("RES_OPTIONS")) != NULL)
                 res_setoptions(cp, "env");
-        _res.options |= RES_INIT;
+#endif
+	_sip_res.options |= RES_INIT;
         return (0);
 }
 #endif
@@ -549,7 +561,7 @@ res_setoptions(options, source)
         int i;
 
 #ifdef DEBUG
-        if (_res.options & RES_DEBUG)
+	if (_sip_res.options & RES_DEBUG)
                 printf(";; res_setoptions(\"%s\", \"%s\")...\n",
                        options, source);
 #endif
@@ -561,26 +573,26 @@ res_setoptions(options, source)
                 if (!strncmp(cp, "ndots:", sizeof("ndots:") - 1)) {
                         i = atoi(cp + sizeof("ndots:") - 1);
                         if (i <= RES_MAXNDOTS)
-                                _res.ndots = i;
+				_sip_res.ndots = i;
                         else
-                                _res.ndots = RES_MAXNDOTS;
+				_sip_res.ndots = RES_MAXNDOTS;
 #ifdef DEBUG
-                        if (_res.options & RES_DEBUG)
-                                printf(";;\tndots=%d\n", _res.ndots);
+			if (_sip_res.options & RES_DEBUG)
+				printf(";;\tndots=%d\n", _sip_res.ndots);
 #endif
                 } else if (!strncmp(cp, "debug", sizeof("debug") - 1)) {
 #ifdef DEBUG
-                        if (!(_res.options & RES_DEBUG)) {
+			if (!(_sip_res.options & RES_DEBUG)) {
                                 printf(";; res_setoptions(\"%s\", \"%s\")..\n",
                                        options, source);
-                                _res.options |= RES_DEBUG;
+				_sip_res.options |= RES_DEBUG;
                         }
                         printf(";;\tdebug\n");
 #endif
                 } else if (!strncmp(cp, "inet6", sizeof("inet6") - 1)) {
-                        _res.options |= RES_USE_INET6;
+			_sip_res.options |= RES_USE_INET6;
                 } else if (!strncmp(cp, "no_tld_query", sizeof("no_tld_query") - 1)) {
-                        _res.options |= RES_NOTLDQUERY;
+			_sip_res.options |= RES_NOTLDQUERY;
                 } else {
                         /* XXX - print a warning here? */
                 }

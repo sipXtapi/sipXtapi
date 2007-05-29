@@ -55,5 +55,8 @@ public:
     }
 };
 
+#ifdef WINCE
+#pragma message( "OsProcessIteratorTest disabled undef Win CE" )
+#else
 CPPUNIT_TEST_SUITE_REGISTRATION(OsProcessIteratorTest);
-
+#endif

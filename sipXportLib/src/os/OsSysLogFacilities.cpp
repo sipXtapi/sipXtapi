@@ -49,6 +49,7 @@ const char* OsSysLog::sFacilityNames[] =
    "MEDIASERVER_CGI",
    "MEDIASERVER_VXI",
    "ACD",
+   "PARK",
    "APACHE_AUTH",
    "UPGRADE",
    "LINE_MGR",
@@ -62,10 +63,13 @@ const char* OsSysLog::sFacilityNames[] =
    "SIPXTAPI",
    "AUDIO",
    "CONFERENCE",
+   "ODBC",
+   "CDR",
    "VOICEENGINE",
    "VIDEOENGINE",
    "APP",
-   "UNKNOWN",
+   "SIP_CUSTOM",
+   "UNKNOWN"
 } ;
 
 

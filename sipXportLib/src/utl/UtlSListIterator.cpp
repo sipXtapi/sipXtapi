@@ -84,6 +84,7 @@ UtlContainable* UtlSListIterator::insertAfterPoint(UtlContainable* insertedObjec
 {
    UtlContainable*    result = NULL;
 
+   UtlContainer::acquireIteratorConnectionLock();
    OsLock takeContainer(mContainerRefLock);
    UtlSList* myList = dynamic_cast<UtlSList*>(mpMyContainer);
 

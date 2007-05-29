@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -24,20 +27,20 @@ extern SIPX_TRANSPORT ghTransport2;
 
 void sipXtapiTestSuite::testPublishAndSubscribeCallCustom() 
 {
-    return testPublishAndSubscribe(true, true, "testPublishAndSubscribeCallCustom");
+    testPublishAndSubscribe(true, true, "testPublishAndSubscribeCallCustom");
 }
 void sipXtapiTestSuite::testPublishAndSubscribeConfigCustom() 
 {
-    return testPublishAndSubscribe(false, true, "testPublishAndSubscribeConfigCustom");
+    testPublishAndSubscribe(false, true, "testPublishAndSubscribeConfigCustom");
 }
 
 void sipXtapiTestSuite::testPublishAndSubscribeCall() 
 {
-    return testPublishAndSubscribe(true, false, "testPublishAndSubscribeCall");
+    testPublishAndSubscribe(true, false, "testPublishAndSubscribeCall");
 }
 void sipXtapiTestSuite::testPublishAndSubscribeConfig() 
 {
-    return testPublishAndSubscribe(false, false, "testPublishAndSubscribeConfig");
+    testPublishAndSubscribe(false, false, "testPublishAndSubscribeConfig");
 }
 
 void sipXtapiTestSuite::testPublishAndSubscribe(bool bCallContext,
@@ -78,7 +81,9 @@ void sipXtapiTestSuite::testPublishAndSubscribe(bool bCallContext,
             pTask2->start();
             
             sipxConfigExternalTransportAdd(g_hInst, ghTransport1, true, "sub-tunnel", "127.0.0.1", -1, transportProc1, "sub-token1", "inst1");
+            sipxConfigExternalTransportRouteByUser(ghTransport1, false) ;
             sipxConfigExternalTransportAdd(g_hInst2, ghTransport2, true, "sub-tunnel", "127.0.0.1", -1, transportProc2, "sub-token2", "inst2");
+            sipxConfigExternalTransportRouteByUser(ghTransport2, false) ;
         }        
 
 
@@ -93,8 +98,12 @@ void sipXtapiTestSuite::testPublishAndSubscribe(bool bCallContext,
         }
         
         validatorPublish.reset();
+        validatorPublish.ignoreEventCategory(EVENT_CATEGORY_MEDIA);
+
         validatorSubscribe1.reset();
+        validatorSubscribe1.ignoreEventCategory(EVENT_CATEGORY_MEDIA);
         validatorSubscribe2.reset();
+        validatorSubscribe2.ignoreEventCategory(EVENT_CATEGORY_MEDIA);
             
         sipxEventListenerAdd(g_hInst, UniversalEventValidatorCallback, &validatorPublish) ;
         sipxEventListenerAdd(g_hInst2, UniversalEventValidatorCallback, &validatorSubscribe1) ;
@@ -114,10 +123,6 @@ void sipXtapiTestSuite::testPublishAndSubscribe(bool bCallContext,
         validatorSubscribe2.waitForLineEvent(hLine3, LINESTATE_PROVISIONED, LINESTATE_PROVISIONED_NORMAL) ;        
         
         UtlString publisherUrl1("foo@127.0.0.1:8000");
-        if (bCustomTransport)
-        {
-            //publisherUrl1.append(";transport=sub-tunnel");
-        }        
 
         rc = sipxPublisherCreate(g_hInst, &hPub_coffee, publisherUrl1.data(), "coffee", "application/coffeeStuff", "java ready", 10);
         CPPUNIT_ASSERT(SIPX_RESULT_SUCCESS == rc);
@@ -166,17 +171,9 @@ void sipXtapiTestSuite::testPublishAndSubscribe(bool bCallContext,
             CPPUNIT_ASSERT(bRC) ;
             bRC = validatorSubscribe1.waitForCallEvent(hLine2, hCall1, CALLSTATE_CONNECTED, CALLSTATE_CAUSE_NORMAL, true) ;
             CPPUNIT_ASSERT(bRC) ;
-            bRC = validatorSubscribe1.waitForMediaEvent(MEDIA_LOCAL_START, MEDIA_CAUSE_NORMAL, MEDIA_TYPE_AUDIO, true);
-            CPPUNIT_ASSERT(bRC) ;
-            bRC = validatorSubscribe1.waitForMediaEvent(MEDIA_REMOTE_START, MEDIA_CAUSE_NORMAL, MEDIA_TYPE_AUDIO, true);
-            CPPUNIT_ASSERT(bRC) ;
 
             sipxCallHold(g_hAutoAnswerCallbackCall, true);
 
-            bRC = validatorSubscribe1.waitForMediaEvent(MEDIA_LOCAL_STOP, MEDIA_CAUSE_HOLD, MEDIA_TYPE_AUDIO, false);
-            CPPUNIT_ASSERT(bRC) ;
-            bRC = validatorSubscribe1.waitForMediaEvent(MEDIA_REMOTE_STOP, MEDIA_CAUSE_HOLD, MEDIA_TYPE_AUDIO, false);
-            CPPUNIT_ASSERT(bRC) ;
             bRC = validatorSubscribe1.waitForCallEvent(hLine2, hCall1, CALLSTATE_REMOTE_HELD, CALLSTATE_CAUSE_NORMAL, false) ;
             CPPUNIT_ASSERT(bRC) ;
 
@@ -215,20 +212,19 @@ void sipXtapiTestSuite::testPublishAndSubscribe(bool bCallContext,
                 CPPUNIT_ASSERT(bRC) ;
                 bRC = validatorSubscribe2.waitForCallEvent(hLine3, hCall2, CALLSTATE_CONNECTED, CALLSTATE_CAUSE_NORMAL, false) ;
                 CPPUNIT_ASSERT(bRC) ;
-                bRC = validatorSubscribe2.waitForMediaEvent(MEDIA_LOCAL_START, MEDIA_CAUSE_NORMAL, MEDIA_TYPE_AUDIO, false);
-                CPPUNIT_ASSERT(bRC) ;
-                bRC = validatorSubscribe2.waitForMediaEvent(MEDIA_REMOTE_START, MEDIA_CAUSE_NORMAL, MEDIA_TYPE_AUDIO, false);
-                CPPUNIT_ASSERT(bRC) ;
 
                 sipxCallHold(g_hAutoAnswerCallbackCall, true);
-                validatorSubscribe2.waitForMediaEvent(MEDIA_LOCAL_STOP, MEDIA_CAUSE_HOLD, MEDIA_TYPE_AUDIO, false);
-                validatorSubscribe2.waitForMediaEvent(MEDIA_REMOTE_STOP, MEDIA_CAUSE_HOLD, MEDIA_TYPE_AUDIO, false);
+
+                bRC = validatorSubscribe2.waitForCallEvent(hLine3, hCall2, CALLSTATE_REMOTE_HELD, CALLSTATE_CAUSE_NORMAL, false) ;
+                CPPUNIT_ASSERT(bRC) ;
             }
             
             // ok, now we have a publisher set up, and two calls hCall1, hCall2, have called into
             // the publisher
             validatorSubscribe1.reset();
+            validatorSubscribe1.ignoreEventCategory(EVENT_CATEGORY_MEDIA) ;
             validatorSubscribe2.reset();
+            validatorSubscribe2.ignoreEventCategory(EVENT_CATEGORY_MEDIA) ;
 
             // hCall1 subscribes to the coffee publisher
             rc = sipxCallSubscribe(hCall1, "coffee", "application/coffeeStuff", &hSub1_coffee, false);
@@ -361,14 +357,14 @@ void sipXtapiTestSuite::testPublishAndSubscribe(bool bCallContext,
 
                 hTemp = hCall2;
                 sipxCallDestroy(hCall2);
-                validatorSubscribe2.waitForCallEvent(hLine3, hTemp, CALLSTATE_HELD, CALLSTATE_CAUSE_NORMAL, false);
+                // validatorSubscribe2.waitForCallEvent(hLine3, hTemp, CALLSTATE_HELD, CALLSTATE_CAUSE_NORMAL, false);
                 validatorSubscribe2.waitForCallEvent(hLine3, hTemp, CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_NORMAL, false);
                 validatorSubscribe2.waitForCallEvent(hLine3, hTemp, CALLSTATE_DESTROYED, CALLSTATE_CAUSE_NORMAL, false);
             }
             
             hTemp = hCall1;
             sipxCallDestroy(hCall1);
-            validatorSubscribe1.waitForCallEvent(hLine2, hTemp, CALLSTATE_HELD, CALLSTATE_CAUSE_NORMAL, false);
+            //validatorSubscribe1.waitForCallEvent(hLine2, hTemp, CALLSTATE_HELD, CALLSTATE_CAUSE_NORMAL, false);
             validatorSubscribe1.waitForCallEvent(hLine2, hTemp, CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_NORMAL, false);
             validatorSubscribe1.waitForCallEvent(hLine2, hTemp, CALLSTATE_DESTROYED, CALLSTATE_CAUSE_NORMAL, false);
 

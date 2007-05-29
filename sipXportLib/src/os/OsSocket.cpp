@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2005-2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -11,7 +14,9 @@
 // SYSTEM INCLUDES
 #include <assert.h>
 #include <stdio.h>
-#include <fcntl.h>
+#ifndef WINCE
+#   include <fcntl.h>
+#endif
 
 //uncomment and recompile to make the socket layer fail after 20 calls.
 //after that, every 10 calls
@@ -27,6 +32,8 @@
 #   include <inetLib.h>
 #   include <netdb.h>
 #   include <resolvLib.h>
+#   include <selectLib.h>
+#   include <ifLib.h>
 #   include <sockLib.h>
 #   include <unistd.h>
 #elif defined(__pingtel_on_posix__)
@@ -65,6 +72,17 @@
 #ifdef _VXWORKS
 extern "C" int enetIsLinkActive(void);
 #endif
+
+/*---------------------------------------------------------------------------
+** Define VxWorks ethernet, sem copied from NCP
+**-------------------------------------------------------------------------*/
+#if defined(_VXWORKS)
+
+#define ECTRL_NAME    "cpmac"       
+#define IF_UNIT_NAME  "cpmac0"      /* includes the Unit number ie "0" */ 
+
+#endif
+
 
 // EXTERNAL VARIABLES
 // CONSTANTS
@@ -140,11 +158,7 @@ int OsSocket::write(const char* buffer, int bufferLength)
    {
       count = 0;
       numForFailure = 10;
-#ifdef _WIN32
-      closesocket(socketDescriptor);
-#else
-      ::close(socketDescriptor);
-#endif
+      close();
       return 0;
    }
 #endif // FORCE_SOCKET_ERRORS
@@ -204,11 +218,8 @@ int OsSocket::read(char* buffer, int bufferLength)
    {
       count = 0;
       numForFailure = 10;
-#ifdef _WIN32
-      closesocket(socketDescriptor);
-#else
-      ::close(socketDescriptor);
-#endif
+
+      close();
       return 0;
    }
 #endif //FORCE_SOCKET_ERRORS
@@ -225,13 +236,18 @@ int OsSocket::read(char* buffer, int bufferLength)
    flags = MSG_NOSIGNAL;
 #endif
 
-   int error;
    int bytesRead = recv(socketDescriptor, buffer, bufferLength, flags);
-   if (bytesRead < 0)
+#ifdef _WIN32   
+   if ((bytesRead == 0) && (OsSocketGetERRNO() == 0))
    {
-      error = OsSocketGetERRNO();
-      // WIN32: 10038 WSAENOTSOCK not a valid socket descriptor
+       // Under windows, recv returns 0 and the errno is zero if the
+       // socket has been closed down.  We need to close it down for
+       // our bookwork.  We also need to -1 to signal the upper 
+       // layers (what unix returns).
+       close() ;
+       bytesRead = -1 ;
    }
+#endif
 
    return bytesRead;
 }
@@ -250,11 +266,8 @@ int OsSocket::read(char* buffer, int bufferLength,
    {
       count = 0;
       numForFailure = 10;
-#ifdef _WIN32
-      closesocket(socketDescriptor);
-#else
-      ::close(socketDescriptor);
-#endif
+
+      close();
       return 0;
    }
 
@@ -293,10 +306,10 @@ int OsSocket::read(char* buffer, int bufferLength,
       if(error)
       {
 #ifdef _WIN32
-          if (error != WSAECONNRESET)
-          {
+         if (error != WSAECONNRESET)
+         {
             close();
-          }
+         }
 #else
          close();
 #endif
@@ -330,11 +343,8 @@ int OsSocket::read(char* buffer, int bufferLength,
    {
       count = 0;
       numForFailure = 10;
-#ifdef _WIN32
-                closesocket(socketDescriptor);
-#else
-                ::close(socketDescriptor);
-#endif
+
+      close();
       return 0;
    }
 #endif //FORCE_SOCKET_ERRORS
@@ -344,7 +354,7 @@ int OsSocket::read(char* buffer, int bufferLength,
 
    if (NULL != fromAddress) fromAddress->remove(0);
 
-   bytesRead = read(buffer, bufferLength, &fromSockAddress, fromPort);
+   bytesRead = OsSocket::read(buffer, bufferLength, &fromSockAddress, fromPort);
    if(bytesRead != -1)
    {
       if (NULL != fromAddress)
@@ -359,7 +369,7 @@ int OsSocket::read(char* buffer, int bufferLength, long waitMilliseconds)
     int numBytes = 0;
     if(isReadyToRead(waitMilliseconds))
     {
-        numBytes = read(buffer, bufferLength);
+        numBytes = OsSocket::read(buffer, bufferLength);
     }
 
         return(numBytes);
@@ -380,11 +390,7 @@ UtlBoolean OsSocket::isReadyToReadEx(long waitMilliseconds,UtlBoolean &rSocketEr
       count = 0;
       numForFailure = 10;
 
-#ifdef _WIN32
-                closesocket(socketDescriptor);
-#else
-                ::close(socketDescriptor);
-#endif
+      close();
       rSocketError = TRUE;
       return FALSE;
    }
@@ -438,7 +444,8 @@ UtlBoolean OsSocket::isReadyToReadEx(long waitMilliseconds,UtlBoolean &rSocketEr
         {
             numReady = -1;
             OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
-                "OsSocket::isReadyToRead poll %d POLLIN: %d POLLPRI: %d POLLERR: %d POLLHUP: %d POLLNVAL: %d\n",
+                          "OsSocket::isReadyToRead polllState.revents = %d: "
+                          "POLLIN: %d POLLPRI: %d POLLERR: %d POLLHUP: %d POLLNVAL: %d\n",
                 pollState.revents, POLLSET(POLLIN), POLLSET(POLLPRI), POLLSET(POLLERR), POLLSET(POLLHUP), POLLSET(POLLNVAL));
         }
         else if(resCode > 0 && POLLSET(POLLIN))
@@ -558,11 +565,7 @@ UtlBoolean OsSocket::isReadyToWrite(long waitMilliseconds) const
       count = 0;
       numForFailure = 10;
 
-#ifdef _WIN32
-                closesocket(socketDescriptor);
-#else
-                ::close(socketDescriptor);
-#endif
+      close();
       return FALSE;
    }
 #endif //FORCE_SOCKET_ERRORS
@@ -660,26 +663,33 @@ UtlBoolean OsSocket::isReadyToWrite(long waitMilliseconds) const
 
 void OsSocket::close()
 {
-        if(socketDescriptor > OS_INVALID_SOCKET_DESCRIPTOR)
+    // There seems to be a race condition in the unit tests where
+    // close is called twice.  Trying to avoid adding a lock on the
+    // socket itself as locking of the socket is supposed to be an
+    // application problem.  For now close the window where a socket
+    // descriptor can be closed twice in two threads at nearly the
+    // same time as this seems to be a bad thing.
+    int tempSocketDescriptor = socketDescriptor;
+    socketDescriptor = OS_INVALID_SOCKET_DESCRIPTOR;
+        if(tempSocketDescriptor > OS_INVALID_SOCKET_DESCRIPTOR)
         {
 #ifdef TEST_PRINT
-                osPrintf("Closing type: %d socket: %d\n", getIpProtocol(), socketDescriptor);
+                osPrintf("Closing type: %d socket: %d\n", getIpProtocol(), tempSocketDescriptor);
 #endif
 #       if defined(_WIN32)
-                closesocket(socketDescriptor);
+                closesocket(tempSocketDescriptor);
 #       elif defined(_VXWORKS) || defined(__pingtel_on_posix__)
 
 #          if defined(__pingtel_on_posix__)
               // This forces any selects which are blocked on
               // this socket to return
-              shutdown(socketDescriptor, SHUT_RDWR);
+              shutdown(tempSocketDescriptor, SHUT_RDWR);
 #           endif
 
-                ::close(socketDescriptor);
+                ::close(tempSocketDescriptor);
 #       else
 #       error Unsupported target platform.
 #       endif
-                socketDescriptor = OS_INVALID_SOCKET_DESCRIPTOR;
         }
 }
 
@@ -691,9 +701,9 @@ const char* socketType_SSL = "TLS";
 const char* socketType_custom = "CUSTOM";
 const char* socketType_invalid = "INVALID";
 
-const char* OsSocket::ipProtocolString() const
+const char* OsSocket::ipProtocolString(OsSocket::IpProtocolSocketType type)
 {
-   switch (getIpProtocol())
+   switch (type)
    {
    case OsSocket::UNKNOWN:
       return socketType_UNKNOWN;
@@ -713,10 +723,6 @@ const char* OsSocket::ipProtocolString() const
    case OsSocket::CUSTOM:
 	   return socketType_custom;
    default:
-      if (getIpProtocol() > OsSocket::CUSTOM)
-      {
-        return socketType_custom;
-      }
       return socketType_invalid;
    }
 }
@@ -919,7 +925,7 @@ void OsSocket::getHostIp(UtlString* hostAddress)
       char ipAddr[100];
       ipAddr[0] = '\0';
       hostAddress->remove(0);
-      if(!ifAddrGet("csp0", ipAddr))
+      if(!ifAddrGet(IF_UNIT_NAME, ipAddr))
          hostAddress->append(ipAddr);
 
 #elif defined(__pingtel_on_posix__) /* ] [ */
@@ -1047,6 +1053,18 @@ UtlBoolean OsSocket::getHostIpByName(const char* hostName, UtlString* hostAddres
       *hostAddress = "127.0.0.1";
       bSuccess = TRUE ;
    }
+#ifdef _VXWORKS
+   // $$$ (rschaaf)
+   // ToDo: Extend the OS abstraction layer with a method to determine
+   //       whether the network interface is available.
+   else if (!enetIsLinkActive())
+   {
+      *hostAddress = "0.0.0.0";
+      osPrintf("getHostIpByName failed for %s %s\n   %s\n",
+               hostName, hostAddress->data(),
+               "network is unavailable");
+   }
+#endif
    // if no default domain name and host name not fully qualified
    else if (!hasDefaultDnsDomain() && (strchr(hostName, '.') == NULL))
    {
@@ -1055,10 +1073,19 @@ UtlBoolean OsSocket::getHostIpByName(const char* hostName, UtlString* hostAddres
    else
    {
 #if defined(_WIN32) || defined(__pingtel_on_posix__)
+	   
         server = gethostbyname(hostName);
+		
+
+#elif defined(_VXWORKS)
+	   char hostentBuf[512];
+	   server = resolvGetHostByName((char*) hostName,
+				                       hostentBuf, sizeof(hostentBuf));
 #else
 #error Unsupported target platform.
-#endif
+#endif //_VXWORKS
+
+
         if(server)
         {
             inet_ntoa_pt(*((in_addr*) (server->h_addr)), *hostAddress);
@@ -1066,13 +1093,23 @@ UtlBoolean OsSocket::getHostIpByName(const char* hostName, UtlString* hostAddres
         }
         else
         {                                                
-            *hostAddress = "0.0.0.0";
+            //osPrintf("getHostIpByName DNS look up failed: %s %s\n", 
+            //	      hostName, hostAddress->data());
+
+            // if host name has valid ip, then use the name 
+            if(INADDR_NONE != inet_addr(hostName))
+            {
+                *hostAddress = hostName;
+            }
+            else
+            {
+                *hostAddress = "0.0.0.0";
+            }
         }
-    }
+   }
 
    return bSuccess ;
 }
-
 
 void OsSocket::getLocalHostIp(UtlString* localHostAddress) const
 {
@@ -1217,6 +1254,33 @@ void OsSocket::inet_ntoa_pt(struct in_addr input_address,
 #else
 #error Unsupported target platform.
 #endif
+}
+
+//:Returns TRUE if the given IpProtocolSocketType is a framed message protocol
+// (that is, every read returns exactly one message), and so the Content-Length
+// header may be omitted.
+UtlBoolean OsSocket::isFramed(IpProtocolSocketType type)
+{
+   UtlBoolean r;
+
+   switch (type)
+   {
+   case TCP:
+   case SSL_SOCKET:
+      // UNKNOWN and all other values return TRUE for safety.
+   case UNKNOWN:
+   case CUSTOM:
+   default:
+      r = FALSE;
+      break;
+
+   case UDP:
+   case MULTICAST:
+      r = TRUE;
+      break;
+   }
+
+   return r;
 }
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */

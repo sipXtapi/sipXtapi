@@ -138,10 +138,18 @@ public:
      */
     Url& operator=(const char* urlString);
 
-    //! Serialize this URL to a string
+    /// set the value of this url by parsing the given string.
+    void fromString(const UtlString& urlString,
+                    UtlBoolean isAddrSpec = FALSE
+                    );
+    ///< all arguments are the same as for the constructor.
+
+    //! Serialize this URL to a string in name-addr format, suitable for use
+    //  as a field in a header.
     void toString(UtlString& urlString) const;
 
-    //! Serialize this URL to a string
+    //! Serialize this URL to a string in name-addr format, suitable for use
+    //  as a field in a header.
     UtlString toString() const;
 
     //! Debug dump to STDOUT
@@ -209,6 +217,9 @@ public:
     /// Get the URL host name or IP address
     void getHostAddress(UtlString& address) const;
 
+    /// Get the host and port together as a string "host:port"
+    void getHostWithPort(UtlString& domain) const;
+    
     /// Set the URL host name or IP address
     void setHostAddress(const char* address);
 
@@ -239,7 +250,7 @@ public:
                                int index = 0 
                                );
     /**<
-     * Gets the index occurance of the named parameter (the same parameter name may
+     * Gets the index occurrence of the named parameter (the same parameter name may
      * occur multiple times in a URL).
      * @return TRUE if the indicated parameter exists
      */
@@ -295,8 +306,7 @@ public:
                                  UtlString& value, 
                                  int index = 0);
 
-    /// Get the name and value of the header parameter at the indicated
-    //! index
+    /// Get the name and value of the header parameter at the indicated index
     /*! \param headerIndex - the index indicting which header parameter to 
      *          get (starting at 0 for the first one).
      * \param name - the parameter name at headerIndex
@@ -308,13 +318,18 @@ public:
                                  UtlString& headerValue);
 
     /// Set the named header parameter to the given value
-    /*! Adds the parameter if it does not exist, sets the value if
-     * it does exist.
-     * \param name - the parameter name
-     * \param value - the value of the parameter
+    void setHeaderParameter(const char* name,  ///< the parameter name
+                            const char* value  ///< the value of the parameter
+                            );
+    /**<
+     * For sip and sips URLs, this sets the header parameter to the value if the header name
+     * is unique according to SipMessage::isUrlHeaderUnique, overwriting any previous value.
+     * If the header is not unique, then this appends the header parameter.
+     *
+     * For all other URL schemes, the parameter is always appended.
+     *
+     * To ensure that any previous value is replaced, call removeHeaderParameter(name) first.
      */
-    void setHeaderParameter(const char* name, 
-                            const char* value);
 
     /// Removes all of the header parameters
     void removeHeaderParameters();
@@ -405,8 +420,13 @@ public:
      * possible to omit them.
      */
 
-    /// Gets the serialized URL as a string (with no display name or 
-    //! field parameters)
+    /// Escape a string as a gen_value, which is what field-parameters use for values.
+    static void gen_value_escape(UtlString& escapedText);
+
+    /// Un-escape a string as a gen_value, which is what field-parameters use for values.
+    static void gen_value_unescape(UtlString& escapedText);
+
+    /// Gets the serialized URL as a string (with no display name or field parameters)
     void getUri(UtlString& Uri);
 
 /* ============================ INQUIRY =================================== */
@@ -419,19 +439,49 @@ public:
    static UtlBoolean isDigitString(const char* dialedCharacters);
 
    /// Compare two URLs to see if the have the same user, host and port
-   /* Assumes that no port set is the same as the default port for
-    * the URL type/protocol.  Also assumes that host is \a not case 
-    * sensative, but that user id \a is case sensative.
-    * \return TRUE if the user Id, host and port are the same
+   UtlBoolean isUserHostPortEqual(const Url& uri,
+                                  int impliedPort = PORT_NONE 
+                                  ) const ;
+   /**<
+    * Follows the rules of RFC 3261 section 19.1.4, especially that
+    * that no port specifies is NOT the same as the default port for
+    * the URL type/protocol (but see the description of impliedPort).
+    *
+    * Assumes that host is not case sensitive (because DNS names are not by definition),
+    * but that user id is case sensitive.
+    *
+    * If the impliedPort is some value other than PORT_NONE, then that port number
+    * is considered to be equal to an unspecified port number.  For example:
+    * @code
+    *   Url implicitPortUrl("sip:user@example.com");
+    *   UtlBoolean result;
+    *   
+    *   Url explicitPortUrl("<sip:user@Example.COM:5060>;param=x");
+    *   result = implicitPortUrl.isUserHostPortEqual(explicitPortUrl);
+    *   // result is FALSE because an implicit port != 5060
+    *
+    *   Url unspecifiedPortUrl("<sip:user@Example.COM>;param=x");
+    *   result = implicitPortUrl.isUserHostPortEqual(unspecifiedPortUrl);
+    *   // result is TRUE, despite case difference in domain name
+    *
+    *   Url otherPortUrl("<sip:user@Example.COM:5999>;param=x");
+    *   result = implicitPortUrl.isUserHostPortEqual(otherPortUrl, 5999);
+    *   // result is TRUE because the specified implicit port is
+    *   // considered to be that implied by the unspecified port in implicitPortUrl
+    *
+    *   result = implicitPortUrl.isUserHostPortEqual(otherPortUrl, 5060);
+    *   // result is FALSE because the specified implicit port does not match
+    * @endcode
+    *
+    * @return TRUE if the user Id, host and port are the same
     */
-   UtlBoolean isUserHostPortEqual(const Url& uri) const ;
 
    /// Compare two URLs to see if the have the same user and host
-   /* Assumes that host is \a not case sensative, but that user id 
-    * \a is case sensative.
-    * \return TRUE if the user Id and host are the same
-    */   
    UtlBoolean isUserHostEqual(const Url& uri) const ;
+   /**<
+    * Assumes that host is not case sensitive, but that user id is case sensitive.
+    * @return TRUE if the user Id and host are the same
+    */   
 
    /// Are angle brackets explicitly included
    UtlBoolean isIncludeAngleBracketsSet() const ;

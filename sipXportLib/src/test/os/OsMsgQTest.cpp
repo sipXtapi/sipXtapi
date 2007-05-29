@@ -13,6 +13,7 @@
 
 #include <sipxunit/TestUtilities.h>
 #include <os/OsExcept.h>
+#include <os/OsMsg.h>
 #include <os/OsMsgQ.h>
 
 UtlBoolean gMsgReceived;

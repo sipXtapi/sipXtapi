@@ -11,7 +11,9 @@
 
 // SYSTEM INCLUDES
 #include <windows.h>
-#include <process.h>
+#ifndef WINCE
+#   include <process.h>
+#endif
 #include <mmsystem.h>
 #include <assert.h>
 
@@ -22,6 +24,7 @@
 #include "mp/MprToSpkr.h"
 #include "mp/MpMediaTask.h"
 #include "os/OsMsgPool.h"
+#include "os/OsDefs.h"
 
 // DEFINES
 // EXTERNAL FUNCTIONS
@@ -246,7 +249,7 @@ bool inPostUnprep(int n, int discard, DWORD bufLen, bool bFree)
             // if its full, flush one and send
             OsStatus  res;
             flushes++;
-            res = MpMisc.pMicQ->receive((OsMsg*&) pFlush, OsTime::NO_WAIT);
+            res = MpMisc.pMicQ->receive((OsMsg*&) pFlush, OsTime::NO_WAIT_TIME);
             if (OS_SUCCESS == res) {
                MpBuf_delRef(pFlush->getTag());
                pFlush->releaseMsg();
@@ -254,14 +257,17 @@ bool inPostUnprep(int n, int discard, DWORD bufLen, bool bFree)
                osPrintf("DmaTask: queue was full, now empty (3)!"
                   " (res=%d)\n", res);
             }
-            if (MpMisc.pMicQ && OS_SUCCESS != MpMisc.pMicQ->send(*pMsg, OsTime::NO_WAIT))
+            if (MpMisc.pMicQ && OS_SUCCESS != MpMisc.pMicQ->send(*pMsg, OsTime::NO_WAIT_TIME))
             {
                MpBuf_delRef(ob);
             }
          }
          else
          {
-             MpMisc.pMicQ->send(*pMsg, OsTime::NO_WAIT);
+             if (MpMisc.pMicQ)
+             {
+                MpMisc.pMicQ->send(*pMsg, OsTime::NO_WAIT_TIME);
+             }
          }
          if (!pMsg->isMsgReusable()) delete pMsg;
       }
@@ -300,7 +306,7 @@ int openMicDevice(bool& bRunning, WAVEHDR*& pWH)
     gMicDeviceId = WAVE_MAPPER;
 
     // If the mic device is set to NONE, don't engage
-    if (stricmp(DmaTask::getMicDevice(), "NONE") == 0)
+    if (strcasecmp(DmaTask::getMicDevice(), "NONE") == 0)
     {
         ResumeThread(hSpkrThread);
         return 1;

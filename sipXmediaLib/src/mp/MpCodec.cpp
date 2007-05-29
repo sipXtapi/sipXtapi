@@ -1,13 +1,16 @@
-//
+// 
+// 
+// Copyright (C) 2005-2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// 
+// Copyright (C) 2004-2006 Pingtel Corp.
 // Licensed to SIPfoundry under a Contributor Agreement.
-//
+// 
 // $$
-///////////////////////////////////////////////////////////////////////////////
-
+//////////////////////////////////////////////////////////////////////////////
 
 #include "mp/MpCodec.h"
 
@@ -40,61 +43,70 @@ OsStatus MpCodec_setGain(int level)
 {
    s_iGainLevel = level ;
    OsStatus ret = OS_UNSPECIFIED;
-   
+   MMRESULT mmresult;
+
    // Open the mixer device
    HMIXER hmx;
-   mixerOpen(&hmx, 0, 0, 0, 0);
+   mmresult = mixerOpen(&hmx, 0, 0, 0, MIXER_OBJECTF_MIXER );
 
-   // Get the line info for the wave in destination line
-   MIXERLINE mxl;
-   mxl.cbStruct = sizeof(mxl);
-   mxl.dwComponentType = MIXERLINE_COMPONENTTYPE_DST_WAVEIN;
-   mixerGetLineInfo((HMIXEROBJ)hmx, &mxl, MIXER_GETLINEINFOF_COMPONENTTYPE);
-
-   // Now find the microphone source line connected to this wave in
-   // destination
-   DWORD cConnections = mxl.cConnections;
-   for(DWORD j=0; j<cConnections; j++)
+   if (MMSYSERR_NOERROR == mmresult)
    {
-      mxl.dwSource = j;
-      mixerGetLineInfo((HMIXEROBJ)hmx, &mxl, MIXER_GETLINEINFOF_SOURCE);
-      if (MIXERLINE_COMPONENTTYPE_SRC_MICROPHONE == mxl.dwComponentType)
-         break;
+	   // Get the line info for the wave in destination line
+	   MIXERLINE mxl;
+	   memset(&mxl, 0, sizeof(MIXERLINE));
+	   mxl.cbStruct = sizeof(mxl);
+	   mxl.dwComponentType = MIXERLINE_COMPONENTTYPE_SRC_MICROPHONE;
+	   mmresult = mixerGetLineInfo((HMIXEROBJ)hmx, &mxl, MIXER_GETLINEINFOF_COMPONENTTYPE);
+
+	   if (MMSYSERR_NOERROR == mmresult)
+	   {
+		   // Now find the microphone source line connected to this wave in
+		   // destination
+		   DWORD cConnections = mxl.cConnections;
+
+		   for(DWORD j=0; j<cConnections; j++)
+		   {
+			  mxl.dwSource = j;
+			  mixerGetLineInfo((HMIXEROBJ)hmx, &mxl, MIXER_GETLINEINFOF_SOURCE);
+			  if (MIXERLINE_COMPONENTTYPE_SRC_MICROPHONE == mxl.dwComponentType)
+				 break;
+		   }
+		   
+		   // Find a volume control, if any, of the microphone line
+		   LPMIXERCONTROL pmxctrl = (LPMIXERCONTROL)calloc(1, sizeof MIXERCONTROL);
+		   MIXERLINECONTROLS mxlctrl = {sizeof mxlctrl, mxl.dwLineID, MIXERCONTROL_CONTROLTYPE_VOLUME, 1, sizeof MIXERCONTROL, pmxctrl};
+		   
+		   if(!mixerGetLineControls((HMIXEROBJ) hmx, &mxlctrl, MIXER_GETLINECONTROLSF_ONEBYTYPE))
+		   {
+			  // Found!
+			  DWORD cChannels = mxl.cChannels;
+			  if (MIXERCONTROL_CONTROLF_UNIFORM & pmxctrl->fdwControl)
+				 cChannels = 1;
+
+			  LPMIXERCONTROLDETAILS_UNSIGNED pUnsigned =
+			  (LPMIXERCONTROLDETAILS_UNSIGNED)  malloc(cChannels * sizeof MIXERCONTROLDETAILS_UNSIGNED);
+		      
+			  MIXERCONTROLDETAILS mxcd = {sizeof(mxcd), pmxctrl->dwControlID, cChannels, (HWND)0, 
+				 sizeof MIXERCONTROLDETAILS_UNSIGNED, (LPVOID) pUnsigned};
+			  mixerGetControlDetails((HMIXEROBJ)hmx, &mxcd, MIXER_SETCONTROLDETAILSF_VALUE);
+
+			  // Set the volume to the the level  (for both channels as needed)
+			  pUnsigned[0].dwValue = pUnsigned[cChannels - 1].dwValue = (DWORD)((float)pmxctrl->Bounds.dwMinimum+(float)pmxctrl->Bounds.dwMaximum) * ( (float)((float)level-1.0f) / 9.0f )  ;
+			  mixerSetControlDetails((HMIXEROBJ)hmx, &mxcd, MIXER_SETCONTROLDETAILSF_VALUE);
+
+			  free(pmxctrl);
+			  free(pUnsigned);
+		   }
+		   else
+		   {
+			  free(pmxctrl);
+		   }
+		   mixerClose(hmx);
+
+		   DmaTask::setMuteEnabled(s_iGainLevel <= 1); // if Mic level is 1 or less, mute
+		   ret = OS_SUCCESS;
+	   }
    }
-   
-   // Find a volume control, if any, of the microphone line
-   LPMIXERCONTROL pmxctrl = (LPMIXERCONTROL)malloc(sizeof MIXERCONTROL);
-   MIXERLINECONTROLS mxlctrl = {sizeof mxlctrl, mxl.dwLineID, MIXERCONTROL_CONTROLTYPE_VOLUME, 1, sizeof MIXERCONTROL, pmxctrl};
-   
-   if(!mixerGetLineControls((HMIXEROBJ) hmx, &mxlctrl, MIXER_GETLINECONTROLSF_ONEBYTYPE))
-   {
-      // Found!
-      DWORD cChannels = mxl.cChannels;
-      if (MIXERCONTROL_CONTROLF_UNIFORM & pmxctrl->fdwControl)
-         cChannels = 1;
-
-      LPMIXERCONTROLDETAILS_UNSIGNED pUnsigned =
-      (LPMIXERCONTROLDETAILS_UNSIGNED)  malloc(cChannels * sizeof MIXERCONTROLDETAILS_UNSIGNED);
-      
-      MIXERCONTROLDETAILS mxcd = {sizeof(mxcd), pmxctrl->dwControlID, cChannels, (HWND)0, 
-         sizeof MIXERCONTROLDETAILS_UNSIGNED, (LPVOID) pUnsigned};
-      mixerGetControlDetails((HMIXEROBJ)hmx, &mxcd, MIXER_SETCONTROLDETAILSF_VALUE);
-
-      // Set the volume to the the level  (for both channels as needed)
-      pUnsigned[0].dwValue = pUnsigned[cChannels - 1].dwValue = (DWORD)((float)pmxctrl->Bounds.dwMinimum+(float)pmxctrl->Bounds.dwMaximum) * ( (float)((float)level-1.0f) / 9.0f )  ;
-      mixerSetControlDetails((HMIXEROBJ)hmx, &mxcd, MIXER_SETCONTROLDETAILSF_VALUE);
-
-      free(pmxctrl);
-      free(pUnsigned);
-   }
-   else
-   {
-      free(pmxctrl);
-   }
-   mixerClose(hmx);
-
-   DmaTask::setMuteEnabled(s_iGainLevel <= 1); // if Mic level is 1 or less, mute
-   ret = OS_SUCCESS;
 
    return ret;
 }
@@ -161,7 +173,7 @@ int MpCodec_getVolume()
    
    if (hOut != NULL)
    {
-      waveOutGetVolume(audioOutH, &bothVolume) ;
+      waveOutGetVolume(hOut, &bothVolume) ;
 
       //mask out one
       unsigned short rightChannel = ((unsigned short) bothVolume & 0xFFFF) ;
@@ -215,10 +227,23 @@ int MpCodec_getGain()
    return s_iGainLevel;
 }
 
+static int dummy_volume = 0;
+
 OsStatus MpCodec_setVolume(int level)
 {
    OsStatus ret = OS_SUCCESS;
+   dummy_volume = level;
    return ret;
+}
+
+int MpCodec_getVolume()
+{
+	return dummy_volume;
+}
+
+int MpCodec_isBaseSpeakerOn()
+{
+	return 0;
 }
 
 

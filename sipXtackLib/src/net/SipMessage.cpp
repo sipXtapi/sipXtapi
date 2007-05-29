@@ -34,6 +34,8 @@
 #include <os/OsSysLog.h>
 #include <net/TapiMgr.h>
 #include <tapi/sipXtapiEvents.h>
+#include <net/HttpBody.h>
+#include <os/OsDefs.h>
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -44,8 +46,13 @@
 SipMessage::SipMessageFieldProps* SipMessage::spSipMessageFieldProps = NULL ;
 
 #ifdef WIN32
-#  define strcasecmp stricmp
-#  define strncasecmp strnicmp
+#   ifdef WINCE
+#       define strcasecmp _stricmp
+#       define strncasecmp _strnicmp
+#   else
+#       define strcasecmp stricmp
+#       define strncasecmp strnicmp
+#   endif
 #endif
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
@@ -64,6 +71,7 @@ SipMessage::SipMessage(const char* messageBytes,
    mLocalIp = "";
    mpSipTransaction = NULL;
    replaceShortFieldNames();
+
 #ifdef TRACK_LIFE
    osPrintf("Created SipMessage @ address:%X\n",this);
 #endif
@@ -389,7 +397,9 @@ void SipMessage::setInviteData(const char* fromField,
         }
         else
         {
-            osPrintf("WARNING: SipMessage::setInviteData URL header disallowed: %s: %s\n",
+           OsSysLog::add(FAC_SIP, PRI_WARNING,
+                         "SipMessage::setInviteData "
+                         "URL header '%s: %s' may not be added using a header parameter",
                 headerName.data(), headerValue.data());
         }
 
@@ -425,13 +435,14 @@ void SipMessage::addSdpBody(int nRtpContacts,
                             int rtcpAudioPorts[],
                             int rtpVideoPorts[], 
                             int rtcpVideoPorts[],
+                            RTP_TRANSPORT transportTypes[],
                             int numRtpCodecs, 
                             SdpCodec* rtpCodecs[],
                             SdpSrtpParameters* srtpParams,
                             int videoBandwidth,
                             int videoFramerate,
                             SipMessage* pRequest,
-                            SIPX_RTP_TRANSPORT rtpTransportOptions)
+                            RTP_TRANSPORT rtpTransportOptions)
 {
    if(numRtpCodecs > 0)
    {
@@ -444,43 +455,38 @@ void SipMessage::addSdpBody(int nRtpContacts,
                                        NULL,
                                        NULL,
                                        hostAddresses[0]); // Originator address
-      OsSocket::SocketProtocolTypes transport = OsSocket::UDP;
-      
-      if (rtpTransportOptions == TCP_ONLY)
-      {
-        transport = OsSocket::TCP;
-      }
       
       if (pRequest && pRequest->getSdpBody())
       {
-        sdpBody->addAudioCodecs(nRtpContacts,
+        sdpBody->addCodecsAnswer(nRtpContacts,
                                 hostAddresses, 
                                 rtpAudioPorts, 
                                 rtcpAudioPorts, 
                                 rtpVideoPorts, 
                                 rtcpVideoPorts,
+                                transportTypes,
                                 numRtpCodecs, 
                                 rtpCodecs,
                                 *srtpParams,
                                 videoBandwidth,
                                 videoFramerate,
-                                pRequest->getSdpBody(),
-                                transport) ;
+                                pRequest->getSdpBody());
       }
       else
       {
-        sdpBody->addAudioCodecs(nRtpContacts,
+        sdpBody->addCodecsOffer(nRtpContacts,
                                 hostAddresses, 
                                 rtpAudioPorts, 
                                 rtcpAudioPorts, 
                                 rtpVideoPorts, 
                                 rtcpVideoPorts,
+                                transportTypes,
                                 numRtpCodecs, 
                                 rtpCodecs,
                                 *srtpParams,
                                 videoBandwidth,
                                 videoFramerate,
-                                transport);
+                                rtpTransportOptions);
       }
 
       setBody(sdpBody);
@@ -523,7 +529,7 @@ const SdpBody* SipMessage::getSdpBody(SIPXTACK_SECURITY_ATTRIBUTES* const pSecur
     {
         body = (const SdpBody*) getBody();
     }
-
+#if __SMIME
     // If we have a private key and this is a S/MIME body
     else if(pSecurity &&
             dynamic_cast<const SmimeBody*>(getBody()) )
@@ -567,6 +573,7 @@ const SdpBody* SipMessage::getSdpBody(SIPXTACK_SECURITY_ATTRIBUTES* const pSecur
             }
         }
     }
+#endif
 
     // Else if this is a multipart MIME body see
     // if there is an SDP part
@@ -585,7 +592,7 @@ const SdpBody* SipMessage::getSdpBody(SIPXTACK_SECURITY_ATTRIBUTES* const pSecur
                     body = (const SdpBody*) bodyPart;
                     break;
                 }
-
+#ifdef SMIME
                 // Check for S/MIME body
                 else if(strcmp(bodyPart->getContentType(), smimeType) == 0 &&
                         pSecurity)
@@ -621,6 +628,7 @@ const SdpBody* SipMessage::getSdpBody(SIPXTACK_SECURITY_ATTRIBUTES* const pSecur
                         OsSysLog::add(FAC_SIP, PRI_WARNING, "Could not decrypt S/MIME body");
                     }
                 }
+#endif
                 partIndex++ ;
             }
         }
@@ -808,7 +816,8 @@ void SipMessage::setInviteBadCodecs(const SipMessage* inviteRequest,
    inviteRequest->getSendAddress(&receivedFromAddress, &receivedFromPort) ;
    ua->getViaInfo(OsSocket::UDP, address, port, receivedFromAddress.data(), &receivedFromPort) ;
    warningField.append(address);
-   if (port != 0)               // PORT_NONE
+
+   if ((port != 5060) && (port > 0))      // Port 5060 is treated as default port
    {
       sprintf(warningCodeString, ":%d", port);
       warningField.append(warningCodeString);
@@ -1114,7 +1123,7 @@ void SipMessage::setSubscribeData(const char* uri,
                      cseq,
                      contact);
 
-    // Set the event type
+   // Set the event type, if any.
     if( eventField && *eventField )
     {
         UtlString eventHeaderValue(eventField);
@@ -1127,13 +1136,17 @@ void SipMessage::setSubscribeData(const char* uri,
         setHeaderValue(SIP_EVENT_FIELD, eventHeaderValue, 0);
     }
 
-    // Set the accept type
+   // Set the content type, if any.
     if( acceptField && *acceptField )
     {
         setHeaderValue(SIP_ACCEPT_FIELD, acceptField, 0);
     }
 
-    setRouteField(routeField);
+    // Set the route, if any.
+    if (routeField && *routeField)
+    {
+        setRouteField(routeField);
+    }
     
    //setExpires
    setExpiresField(expiresInSeconds);
@@ -1166,6 +1179,119 @@ void SipMessage::setEnrollmentData(const char* uri,
 
    //setRxpires
    setExpiresField(expiresInSeconds);
+}
+
+
+// RFC 3248 MWI
+
+/******** SAMPLE CODE FOR CREATING MWI NOTIFY message****************************
+
+			SipMessage notifyRequest;
+			UtlString fromField;
+			UtlString toData;
+			UtlString contactField;
+			UtlString msgSummaryData;
+			
+			char *uri = "sip:100@127.0.0.1:3000";
+
+			sipMessage->getFromField(&fromField);
+			sipMessage->getToField(&toData);
+			sipMessage->getContactField(0,contactField);
+			
+		       notifyRequest.setMessageSummaryData(msgSummaryData,"udit@3com.com",TRUE,
+		       								TRUE,FALSE,FALSE,4,2);
+			notifyRequest.setMWIData(SIP_NOTIFY_METHOD, fromField.data(), toData.data(),uri,
+							contactField.data(),"1",1,msgSummaryData);			
+			
+**********************************************************************************/
+
+void SipMessage::setMessageSummaryData(
+                  UtlString& msgSummaryData,
+                  const char* msgAccountUri,
+                  UtlBoolean bNewMsgs,
+                  UtlBoolean bVoiceMsgs,
+                  UtlBoolean bFaxMsgs,
+                  UtlBoolean bEmailMsgs,
+                  int numNewMsgs,
+                  int numOldMsgs,
+                  int numFaxNewMsgs,
+                  int numFaxOldMsgs,
+                  int numEmailNewMsgs,
+                  int numEmailOldMsgs
+)
+{
+    char integerString[255];
+	
+    // Adding  Message-summary information
+    sprintf(integerString,"\r\n");
+    msgSummaryData.append(integerString);
+
+    if(NULL != msgAccountUri)
+    {
+        sprintf(integerString,"Message-Account: %s\r\n",msgAccountUri);
+        msgSummaryData.append(integerString);
+    }
+	
+    if (TRUE == bNewMsgs)
+    {
+         // Adding Messages-waiting Yes  
+         sprintf(integerString,"Messages-Waiting: yes\r\n");
+    }
+    else
+    {
+         // Adding Messages-waiting No
+        sprintf(integerString,"Messages-Waiting: no\r\n");
+    }
+    msgSummaryData.append(integerString);	
+
+    if (bVoiceMsgs)
+    {
+        sprintf(integerString,"Voice-Message: %d/%d\r\n",numNewMsgs,numOldMsgs);
+        msgSummaryData.append(integerString);
+    }
+
+    if (bFaxMsgs)
+    {
+        sprintf(integerString,"Fax-Message: %d/%d\r\n",numFaxNewMsgs,numFaxOldMsgs);
+        msgSummaryData.append(integerString);
+    }
+
+    if (bEmailMsgs)
+    {
+        sprintf(integerString,"Email-Message: %d/%d\r\n",numEmailNewMsgs,numEmailOldMsgs);
+        msgSummaryData.append(integerString);
+    }
+	
+}
+
+// Added by Udit for RFC 3248 MWI
+void SipMessage::setMWIData(const char *method,
+				  const char* fromField,
+                  const char* toField,
+                  const char* uri,
+                  const char* contactUrl,
+                  const char* callId,
+                  int CSeq,
+                  UtlString bodyString)
+{
+    setRequestData(method, uri,
+                     fromField, toField,
+                     callId,
+                     CSeq,
+                     contactUrl);
+    // Set the allow field
+    setHeaderValue(SIP_ACCEPT_FIELD, CONTENT_TYPE_SIMPLE_MESSAGE_SUMMARY, 0);
+    // Set the event type
+    setHeaderValue(SIP_EVENT_FIELD, SIP_EVENT_MESSAGE_SUMMARY, 0);
+    
+     // Add the content type
+    setContentType(CONTENT_TYPE_SIMPLE_MESSAGE_SUMMARY);
+	// Create and add the Http body
+    HttpBody *httpBody = new HttpBody(bodyString.data(),bodyString.length(),
+    	CONTENT_TYPE_SIMPLE_MESSAGE_SUMMARY);
+
+    setContentLength(bodyString.length());
+    setBody(httpBody);  
 }
 
 void SipMessage::setVoicemailData(const char* fromField,
@@ -1409,6 +1535,9 @@ void SipMessage::setAckData(const SipMessage* inviteResponse,
    {
       if( inviteRequest->getContactUri(0, &requestContact))
       {
+         Url contactUrl(requestContact, true) ;
+         contactUrl.includeAngleBrackets() ;
+         contactUrl.toString(requestContact) ;
          setContactField(requestContact);
       }
    }
@@ -1734,14 +1863,15 @@ void SipMessage::setByeErrorData(const SipMessage* byeRequest)
 
 void SipMessage::setCancelData(const char* fromField, const char* toField,
                const char* callId,
-               int sequenceNumber)
+               int sequenceNumber, const char* localContact)
 {
    setRequestData(SIP_CANCEL_METHOD, toField,
                      fromField, toField,
-                     callId, sequenceNumber);
+                     callId, sequenceNumber, localContact);
 }
 
-void SipMessage::setCancelData(const SipMessage* inviteRequest)
+void SipMessage::setCancelData(const SipMessage* inviteRequest,
+                               const char* localContact)
 {
     UtlString uri;
    UtlString fromField;
@@ -1758,10 +1888,9 @@ void SipMessage::setCancelData(const SipMessage* inviteRequest)
    inviteRequest->getCSeqField(&sequenceNum, &sequenceMethod);
     inviteRequest->getRequestUri(&uri);
 
-   //setCancelData(fromField.data(), toField.data(), callId, sequenceNum);
     setRequestData(SIP_CANCEL_METHOD, uri,
                   fromField, toField,
-                  callId, sequenceNum);
+                  callId, sequenceNum, localContact);
 }
 
 
@@ -1803,6 +1932,126 @@ void SipMessage::setPublishData(const char* uri,
     
     // setExpires
     setExpiresField(expiresInSeconds);
+}
+
+void SipMessage::applyTargetUriHeaderParams()
+{
+   UtlString uriWithHeaderParams;
+   getRequestUri(&uriWithHeaderParams);
+
+   Url requestUri(uriWithHeaderParams, TRUE);
+
+   int header;
+   UtlString hdrName;
+   UtlString hdrValue;
+   for (header=0; requestUri.getHeaderParameter(header, hdrName, hdrValue); header++ )
+   {
+      // If the header is allowed in a header parameter?
+      if(isUrlHeaderAllowed(hdrName.data()))
+      {
+         if (0 == hdrName.compareTo(SIP_FROM_FIELD, UtlString::ignoreCase))
+         {
+            /*
+             * The From header requires special handling
+             * - we need to preserve the tag, if any, from the original header
+             */
+            UtlString originalFromHeader;
+            getFromField(&originalFromHeader);
+            Url originalFromUrl(originalFromHeader);
+
+            UtlString originalFromTag;
+            originalFromUrl.getFieldParameter("tag", originalFromTag);
+
+            Url newFromUrl(hdrValue.data());
+            newFromUrl.removeFieldParameter("tag"); // specifying a tag is a no-no
+            if ( !originalFromTag.isNull() )
+            {
+               newFromUrl.setFieldParameter("tag", originalFromTag.data());
+            }
+            UtlString newFromFieldValue;
+            newFromUrl.toString(newFromFieldValue);
+                   
+            setRawFromField(newFromFieldValue.data());
+
+            // I suspect that this really should be adding a History-Info element of some kind
+            addHeaderField("X-Original-From", originalFromHeader);
+         }
+         else if (0 == hdrName.compareTo(SIP_ROUTE_FIELD, UtlString::ignoreCase))
+         {
+            /*
+             * The Route header requires special handling
+             *   Examine each redirected route and ensure that it is a loose route
+             */
+            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                          "SipMessage::applyTargetUriHeaderParams found route header '%s'",
+                          hdrValue.data()
+                          );
+
+            UtlString routeParams;
+            int route;
+            UtlString thisRoute;
+            for (route=0;
+                 NameValueTokenizer::getSubField(hdrValue.data(), route,
+                                                 SIP_MULTIFIELD_SEPARATOR, &thisRoute);
+                 thisRoute.remove(0), route++
+                 )
+            {
+               Url newRouteUrl(thisRoute.data());
+               UtlString unusedValue;
+               if ( ! newRouteUrl.getUrlParameter("lr", unusedValue, 0))
+               {
+                  newRouteUrl.setUrlParameter("lr",NULL); // force a loose route
+               }
+            
+               UtlString newRoute;
+               newRouteUrl.toString(newRoute);
+               if (!routeParams.isNull())
+               {
+                  routeParams.append(SIP_MULTIFIELD_SEPARATOR);
+               }
+               routeParams.append(newRoute);
+            }
+            // If we found any routes, push them onto the route set
+            if (!routeParams.isNull())
+            {
+               OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                             "SipMessage::applyTargetUriHeaderParams adding route(s) '%s'",
+                             routeParams.data()
+                             );
+               addRouteUri(routeParams.data());
+            }
+            
+         }
+         else if (isUrlHeaderUnique(hdrName.data()))
+         {
+            // If the field exists, change it,
+            // if does not exist, create it.
+            setHeaderValue(hdrName.data(), hdrValue.data(), 0);
+         }
+         else
+         {
+            addHeaderField(hdrName.data(), hdrValue.data());
+         }
+      }
+      else
+      {
+         OsSysLog::add(FAC_SIP, PRI_WARNING, "URL header disallowed: %s: %s",
+                       hdrName.data(), hdrValue.data());
+      }
+   }
+   if (header)
+   {
+      // Remove the header fields from the URL as they
+      // have been added to the message
+      UtlString uriWithoutHeaderParams;
+      requestUri.removeHeaderParameters();
+      // Use getUri to get the addr-spec formmat, not the name-addr
+      // format, because uriWithoutHeaderParams will be used as the
+      // request URI of the request.
+      requestUri.getUri(uriWithoutHeaderParams);
+
+      changeRequestUri(uriWithoutHeaderParams);
+   }
 }
 
 
@@ -2121,12 +2370,7 @@ void SipMessage::setFromField(const char* address, int port,
                        const char* user, const char* userLabel)
 {
    UtlString url;
-   //UtlString field;
-
    buildSipUrl(&url, address, port, protocol, user, userLabel);
-
-
-   //buildSipToFromField(&field, url.data(), label);
 
    // If the field exists change it, if does not exist create it
    setHeaderValue(SIP_FROM_FIELD, url.data(), 0);
@@ -2134,38 +2378,11 @@ void SipMessage::setFromField(const char* address, int port,
 
 void SipMessage::setRawToField(const char* url)
 {
-   //UtlString value;
-   //UtlString address;
-   //UtlString protocol;
-   //UtlString user;
-   //UtlString userLabel;
-   //UtlString tag;
-   //int port;
-
-   //parseAddressFromUri(url, &address, &port, &protocol, &user,
-   // &userLabel, &tag);
-   //buildSipUrl(&value, address.data(), port, protocol.data(),
-   // user.data(), userLabel.data(), tag.data());
-
-   // If the field exists change it, if does not exist create it
    setHeaderValue(SIP_TO_FIELD, url, 0);
 }
 
 void SipMessage::setRawFromField(const char* url)
 {
-   //UtlString value;
-   //UtlString address;
-   //UtlString protocol;
-   //UtlString user;
-   //UtlString userLabel;
-   //UtlString tag;
-   //int port;
-
-   //parseAddressFromUri(url, &address, &port, &protocol, &user,
-   // &userLabel, &tag);
-   //buildSipUrl(&value, address.data(), port, protocol.data(),
-   // user.data(), userLabel.data(), tag.data());
-
    // If the field exists change it, if does not exist create it
    setHeaderValue(SIP_FROM_FIELD, url, 0);
 }
@@ -2190,8 +2407,8 @@ void SipMessage::setExpiresField(int expiresInSeconds)
       char secondsString[MAXIMUM_INTEGER_STRING_LENGTH];
       sprintf(secondsString, "%d", expiresInSeconds);
 
-      // If the field exists change it, if does not exist create it
-      setHeaderValue(SIP_EXPIRES_FIELD, secondsString, 0);
+       // If the field exists change it, if does not exist create it
+       setHeaderValue(SIP_EXPIRES_FIELD, secondsString, 0);
    }
 }
 
@@ -2230,18 +2447,30 @@ void SipMessage::addRequestDisposition(const char* dispositionToken)
     setRequestDispositionField(field.data());
 }
 
+void SipMessage::setWarningField(int code, const char* hostname, const char* text)
+{
+   UtlString warningContent;
+   size_t sizeNeeded = 3 /* warning code size */ + strlen(hostname) + strlen(text) + 3 /* blanks & null */;
+   size_t allocated = warningContent.capacity(sizeNeeded);
+
+   if (allocated >= sizeNeeded)
+   {
+      sprintf((char*)warningContent.data(), "%3d %s %s", code, hostname, text);
+      
+      setHeaderValue(SIP_WARNING_FIELD, warningContent.data());
+   }
+   else
+   {
+      OsSysLog::add(FAC_SIP, PRI_WARNING,
+                    "SipMessage::setWarningField value too large (max %d) host '%s' text '%s'",
+                    allocated, hostname, text
+                    );
+   }
+}
 
 void SipMessage::changeUri(const char* newUri)
 {
-   //UtlString address;
-   //UtlString protocol;
-   //int port;
    UtlString uriString;
-    //UtlString user;
-
-   //parseAddressFromUri(newUri, &address, &port, &protocol, &user);
-   //buildSipUrl(&uriString, address.data(), port, protocol.data(),
-    //    user.data());
 
     // Remove the stuff that should not be in a URI
     Url cleanUri(newUri);
@@ -2337,12 +2566,50 @@ void SipMessage::getFromLabel(UtlString* label) const
    if(!field.isNull())
    {
       labelEnd = field.index(" <");
+      if(labelEnd < 0)   // seen without space too 
+      {
+         labelEnd = field.index("<");
+      }
+
       if(labelEnd >= 0)
       {
          label->append(field.data());
          label->remove(labelEnd);
       }
    }
+}
+
+UtlBoolean SipMessage::getPAssertedIdentityField(UtlString& identity,
+                                                 int index) const
+{
+    UtlBoolean fieldExists = 
+        getFieldSubfield(SIP_P_ASSERTED_IDENTITY_FIELD, index, &identity);
+    NameValueTokenizer::frontBackTrim(&identity, " \t");
+    return(fieldExists && !identity.isNull());
+}
+
+void SipMessage::removePAssertedIdentityFields()
+{
+    while(removeHeader(SIP_P_ASSERTED_IDENTITY_FIELD, 0))
+    {
+    }
+}
+
+void SipMessage::addPAssertedIdentityField(const UtlString& identity)
+{
+    // Order does not matter so just get the first occurance and 
+    // add a field seperator and the new identity value
+    UtlString firstValue;
+    const char* value = getHeaderValue(0, SIP_P_ASSERTED_IDENTITY_FIELD);
+    if(value)
+    {
+        firstValue = value;
+        firstValue.append(SIP_MULTIFIELD_SEPARATOR);
+        firstValue.append(' ');
+    }
+    firstValue.append(identity);
+
+    setHeaderValue(SIP_P_ASSERTED_IDENTITY_FIELD, firstValue, 0);
 }
 
 void SipMessage::getToLabel(UtlString* label) const
@@ -2357,6 +2624,11 @@ void SipMessage::getToLabel(UtlString* label) const
    if(!field.isNull())
    {
       labelEnd = field.index(" <");
+      if(labelEnd < 0)  // seen without space too 
+      {
+         labelEnd = field.index("<");
+      }
+
       if(labelEnd >= 0)
       {
          label->append(field.data());
@@ -2652,7 +2924,7 @@ UtlBoolean SipMessage::getResponseSendAddress(UtlString& address,
 }
 
 void SipMessage::convertProtocolStringToEnum(const char* protocolString,
-                        enum OsSocket::SocketProtocolTypes& protocolEnum)
+                        OsSocket::IpProtocolSocketType& protocolEnum)
 {
     if(strcasecmp(protocolString, SIP_TRANSPORT_UDP) == 0)
     {
@@ -2674,27 +2946,10 @@ void SipMessage::convertProtocolStringToEnum(const char* protocolString,
 
 }
 
-void SipMessage::convertProtocolEnumToString(enum OsSocket::SocketProtocolTypes protocolEnum,
+void SipMessage::convertProtocolEnumToString(OsSocket::IpProtocolSocketType protocolEnum,
                                             UtlString& protocolString)
 {
-    switch(protocolEnum)
-    {
-    case OsSocket::UDP:
-        protocolString = SIP_TRANSPORT_UDP;
-        break;
-
-    case OsSocket::TCP:
-        protocolString = SIP_TRANSPORT_TCP;
-        break;
-
-    case OsSocket::SSL_SOCKET:
-        protocolString = SIP_TRANSPORT_TLS;
-        break;
-
-    default:
-        protocolString = SIP_TRANSPORT_UDP;
-        break;
-    }
+   protocolString = OsSocket::ipProtocolString(protocolEnum);
 }
 
 void SipMessage::getToUri(UtlString* uri) const
@@ -3041,8 +3296,10 @@ UtlBoolean SipMessage::getCSeqField(int* sequenceNum, UtlString* sequenceMethod)
 
 		if(numStringLen > MAXIMUM_INTEGER_STRING_LENGTH)
         {
-			osPrintf("WARNING: SipMessage::getCSeqField CSeq number %d characters: %s.\nTruncating to %d\n",
-					numStringLen, &value[valueStart], MAXIMUM_INTEGER_STRING_LENGTH);
+               OsSysLog::add(FAC_SIP, PRI_ERR,
+                             "SipMessage::getCSeqField CSeq field '%.*s' containes %d digits, which exceeds MAXIMUM_INTEGER_STRING_LENGTH (%d).  Truncated.\n",
+                             numStringLen, &value[valueStart], numStringLen,
+                             MAXIMUM_INTEGER_STRING_LENGTH);
 			numStringLen = MAXIMUM_INTEGER_STRING_LENGTH;
 		}
 
@@ -3186,6 +3443,12 @@ UtlBoolean SipMessage::getRequireExtension(int extensionIndex,
                                 UtlString* extension) const
 {
    return(getFieldSubfield(SIP_REQUIRE_FIELD, extensionIndex, extension));
+}
+
+UtlBoolean SipMessage::getProxyRequireExtension(int extensionIndex,
+                                                UtlString* extension) const
+{
+   return(getFieldSubfield(SIP_PROXY_REQUIRE_FIELD, extensionIndex, extension));
 }
 
 void SipMessage::addRequireExtension(const char* extension)
@@ -3437,11 +3700,16 @@ void SipMessage::addRouteUri(const char* routeUri)
    UtlString routeField;
    UtlString routeParameter;
     const char* bracketPtr = strchr(routeUri, '<');
-   if(bracketPtr == NULL) routeParameter.append('<');
+   if(bracketPtr == NULL)
+   {
+      routeParameter.append('<');
+   }
    routeParameter.append(routeUri);
     bracketPtr = strchr(routeUri, '>');
-   if(bracketPtr == NULL) routeParameter.append('>');
-
+   if(bracketPtr == NULL)
+   {
+      routeParameter.append('>');
+   }
     // If there is already a route header
    if(getRouteField( &routeField))
     {
@@ -3846,6 +4114,32 @@ void SipMessage::setSessionExpires(int sessionExpiresSeconds)
    setHeaderValue(SIP_SESSION_EXPIRES_FIELD, numString);
 }
 
+bool SipMessage::hasSelfHeader() const
+{
+   UtlString value;
+   getUserAgentField(&value);
+   if (value.isNull())
+   {
+      getServerField(&value);
+   }
+   return ! value.isNull();
+}
+
+void SipMessage::getServerField(UtlString* serverFieldValue) const
+{
+   const char* server = getHeaderValue(0, SIP_SERVER_FIELD);
+   serverFieldValue->remove(0);
+   if(server)
+   {
+      serverFieldValue->append(server);
+   }
+}
+
+void SipMessage::setServerField(const char* serverField)
+{
+   setHeaderValue(SIP_SERVER_FIELD, serverField);
+}
+
 UtlBoolean SipMessage::getSupportedField(UtlString& supportedField) const
 {
     return(getFieldSubfield(SIP_SUPPORTED_FIELD, 0, &supportedField));
@@ -3854,6 +4148,53 @@ UtlBoolean SipMessage::getSupportedField(UtlString& supportedField) const
 void SipMessage::setSupportedField(const char* supportedField)
 {
     setHeaderValue(SIP_SUPPORTED_FIELD, supportedField);
+}
+
+UtlBoolean SipMessage::isInSupportedField(const char* token) const
+{
+   UtlBoolean tokenFound = FALSE;
+   UtlString url;
+   int fieldIndex = 0;
+   int subFieldIndex = 0;
+   const char* value = getHeaderValue(fieldIndex, SIP_SUPPORTED_FIELD);
+
+   while (value && !tokenFound)
+   {
+      subFieldIndex = 0;
+      NameValueTokenizer::getSubField(value, subFieldIndex,
+                                      SIP_MULTIFIELD_SEPARATOR, &url);
+#ifdef TEST
+      OsSysLog::add(FAC_SIP, PRI_DEBUG, "Got field: \"%s\" subfield[%d]: %s\n", value,
+               fieldIndex, url.data());
+#endif
+      url.strip(UtlString::both);
+      if (url.compareTo(token, UtlString::ignoreCase) == 0)
+      {
+         tokenFound = TRUE;
+      }
+
+      while (!url.isNull() && !tokenFound)
+      {
+         subFieldIndex++;
+         NameValueTokenizer::getSubField(value, subFieldIndex,
+                                         SIP_MULTIFIELD_SEPARATOR, &url);
+         url.strip(UtlString::both);
+#ifdef TEST
+         OsSysLog::add(FAC_SIP, PRI_DEBUG, "Got field: \"%s\" subfield[%d]: %s\n", SIP_SUPPORTED_FIELD,
+                  fieldIndex, url.data());
+#endif
+
+         if (url.compareTo(token, UtlString::ignoreCase) == 0)
+         {
+            tokenFound = TRUE;
+         }
+      }
+
+      fieldIndex++;
+      value = getHeaderValue(fieldIndex, SIP_SUPPORTED_FIELD);
+   }
+
+   return(tokenFound);
 }
 
 // Call control accessors
@@ -4024,6 +4365,160 @@ UtlBoolean SipMessage::getAllowField(UtlString& allowField) const
     }
     return(value != NULL);
 }
+
+///// RFC 3326 ///
+void SipMessage::setReasonField(const char* reasonField)
+{
+    if(NULL != reasonField)
+    {
+	setHeaderValue(SIP_REASON_FIELD, reasonField);
+    }
+}
+
+UtlBoolean SipMessage::getReasonField(UtlString& reasonField) const
+{
+    const char* value;
+    reasonField.remove(0);
+    value = getHeaderValue(0, SIP_REASON_FIELD);
+    if(value && *value)
+    {
+        reasonField.append(value);
+	 NameValueTokenizer::frontBackTrim(&reasonField, " \t\n\r");
+    }
+    return(value != NULL);
+}
+////////////////////////////////
+
+
+
+
+// for Diversion-header
+void SipMessage::addDiversionField(const char* addr, const char* reasonParam, UtlBoolean afterOtherDiversions)
+{
+   if (NULL == addr || NULL == reasonParam)
+   {
+	return;
+   }
+
+   char diversionString[255];
+   sprintf(diversionString,"%s;reason=%s",addr,reasonParam);
+   
+   addDiversionField(diversionString,afterOtherDiversions);
+}
+
+void SipMessage::addDiversionField(const char* diversionField, UtlBoolean afterOtherDiversions)
+{
+    if(NULL != diversionField)
+    {
+       mHeaderCacheClean = FALSE;
+
+       NameValuePair* nv = new NameValuePair(SIP_DIVERSION_FIELD, diversionField);
+       // Look for other diversion fields
+       size_t fieldIndex = mNameValues.index(nv);
+
+#  ifdef TEST_PRINT
+	if(fieldIndex == UTL_NOT_FOUND)
+	{
+        UtlDListIterator iterator(nameValues);
+
+        	remove whole line
+       	NameValuePair* nv = NULL;
+		while(nv = (NameValuePair*) iterator())
+        	{
+            		osPrintf("\tName: %s\n", nv->data());
+        	}
+	}
+#  endif
+
+	mHeaderCacheClean = FALSE;
+
+	if(fieldIndex == UTL_NOT_FOUND || afterOtherDiversions)
+	{
+		mNameValues.insert(nv);
+	}
+	else
+	{
+		mNameValues.insertAt(fieldIndex, nv);
+	}
+    }
+}
+
+UtlBoolean SipMessage::getLastDiversionField(UtlString& diversionField,
+                                      int& lastIndex)
+{
+    int index = 0;
+
+    UtlString tempDiversion;
+    while(getFieldSubfield(SIP_DIVERSION_FIELD, index, &tempDiversion))
+    {
+        index++;
+        diversionField = tempDiversion;
+    }
+
+    index--;
+    lastIndex = index;
+
+    return(!diversionField.isNull());
+}
+	
+UtlBoolean SipMessage::getDiversionField(int index, UtlString& diversionField) 
+{
+    diversionField.remove(0);
+
+    return getFieldSubfield(SIP_DIVERSION_FIELD,index,&diversionField);
+}
+
+UtlBoolean SipMessage::getDiversionField(int index, UtlString& addr, UtlString& reasonParam) 
+{
+    UtlString divString;
+    addr.remove(0);
+    reasonParam.remove(0);
+	
+    if (getFieldSubfield(SIP_DIVERSION_FIELD,index,&divString))
+    {
+                            
+         // Parse addr
+	  int parameterIndex = divString.index(";");
+	  if(parameterIndex > 0)
+	  {
+		addr.append(divString);
+		addr.remove(parameterIndex);
+		NameValueTokenizer::frontBackTrim(&addr, " \t\n\r");
+		
+		// Parse reason
+	       int reasonIndex = divString.index("reason=", 0, UtlString::ignoreCase); // wdn ??? - RWString::ignoreCase
+
+	       if(reasonIndex > parameterIndex)
+	       {
+		    reasonParam.append(&((divString.data())[reasonIndex + 7]));
+
+		    int endIndex = reasonParam.length()-1;
+		    int semicolonIndex = reasonParam.index(";");
+		    if (endIndex > semicolonIndex && semicolonIndex > 0)
+		    {
+			endIndex = semicolonIndex;
+ 		       reasonParam.remove(endIndex);
+			NameValueTokenizer::frontBackTrim(&reasonParam, " \t\n\r");
+		    }
+
+	       }
+	  }
+	  else if(parameterIndex)
+	  {
+		addr.append(divString);
+		NameValueTokenizer::frontBackTrim(&addr, " \t\n\r");
+	  }
+ 	  else
+ 	  {
+ 	  	return FALSE;
+ 	  }
+	  return TRUE;
+    }
+    return(FALSE);
+
+}
+	
+
 /* ============================ INQUIRY =================================== */
 
 UtlBoolean SipMessage::isResponse() const
@@ -4427,20 +4922,26 @@ UtlBoolean SipMessage::isUrlHeaderAllowed(const char* headerFieldName)
 {
     UtlString name(headerFieldName);
     name.toUpper();
-    UtlString nameCollectable(name);
 
-    return (NULL ==
-            spSipMessageFieldProps->mDisallowedUrlHeaders.find(&nameCollectable));
+    if (spSipMessageFieldProps == NULL)
+    {
+      spSipMessageFieldProps = new SipMessage::SipMessageFieldProps() ;
+    }
+
+    return (!spSipMessageFieldProps->mDisallowedUrlHeaders.contains(&name));
 }
 
 UtlBoolean SipMessage::isUrlHeaderUnique(const char* headerFieldName)
 {
     UtlString name(headerFieldName);
     name.toUpper();
-    UtlString nameCollectable(name);
     
-    return (NULL !=
-            spSipMessageFieldProps->mUniqueUrlHeaders.find(&nameCollectable));
+    if (spSipMessageFieldProps == NULL)
+    {
+       spSipMessageFieldProps = new SipMessage::SipMessageFieldProps() ;
+    }
+
+    return (spSipMessageFieldProps->mUniqueUrlHeaders.contains(&name));
 }
 
 //SDUA
@@ -4496,16 +4997,25 @@ SipTransaction* SipMessage::getSipTransaction() const
 const UtlString SipMessage::getTransportName(bool& bCustom) const
 {
     UtlString transport;
+
     UtlString toField;
     getToField(&toField);
     Url toUrl(toField);
+    UtlString topRoute ;
+    getRouteUri(0, &topRoute) ;
+    Url route(topRoute) ;
     
+    route.getUrlParameter("transport", transport);
+    if (transport.isNull())
+    {
     toUrl.getUrlParameter("transport", transport);
-    if (transport.length() < 1)
+        if (transport.isNull())
     {
         bCustom = false;
     }
-    else if ("UDP" == transport ||
+    }
+
+    if ("UDP" == transport ||
         "TCP" == transport ||
         "TLS" == transport)
     {
@@ -4515,6 +5025,7 @@ const UtlString SipMessage::getTransportName(bool& bCustom) const
     {
         bCustom = true;
     }
+
     return transport;
 
 }
@@ -4808,11 +5319,9 @@ void SipMessage::SipMessageFieldProps::initDisallowedUrlHeaders()
    mDisallowedUrlHeaders.insert(new UtlString(SIP_CONTENT_ENCODING_FIELD));
    mDisallowedUrlHeaders.insert(new UtlString(SIP_SHORT_CONTENT_ENCODING_FIELD));
    mDisallowedUrlHeaders.insert(new UtlString(SIP_CSEQ_FIELD));
-   mDisallowedUrlHeaders.insert(new UtlString(SIP_FROM_FIELD));
    mDisallowedUrlHeaders.insert(new UtlString(SIP_RECORD_ROUTE_FIELD));
    mDisallowedUrlHeaders.insert(new UtlString(SIP_REFER_TO_FIELD));
    mDisallowedUrlHeaders.insert(new UtlString(SIP_REFERRED_BY_FIELD));
-   mDisallowedUrlHeaders.insert(new UtlString(SIP_ROUTE_FIELD));
    mDisallowedUrlHeaders.insert(new UtlString(SIP_TO_FIELD));
    mDisallowedUrlHeaders.insert(new UtlString(SIP_SHORT_TO_FIELD));
    mDisallowedUrlHeaders.insert(new UtlString(SIP_USER_AGENT_FIELD));
@@ -4826,6 +5335,7 @@ void SipMessage::SipMessageFieldProps::initUniqueUrlHeaders()
    // parameter overrides the existing header in the message.
 
    mUniqueUrlHeaders.insert(new UtlString(SIP_EXPIRES_FIELD));
+   mUniqueUrlHeaders.insert(new UtlString(SIP_ROUTE_FIELD));
 }
 
 bool SipMessage::smimeEncryptSdp(const void *pEventData)
@@ -4883,6 +5393,7 @@ bool SipMessage::smimeEncryptSdp(const void *pEventData)
 
     return bRet;
 }
+
 
 bool SipMessage::fireSecurityEvent(const void* pEventData,
                         const enum SIPX_SECURITY_EVENT event,
@@ -4963,4 +5474,142 @@ bool SipMessage::OnSignature(void* pCert, char* szSubjAltName)
                              mpSecurity,
                              pCert,
                              szSubjAltName);
+}
+
+void SipMessage::normalizeProxyRoutes(const SipUserAgent* sipUA,
+                                      Url& requestUri,
+                                      UtlSList* removedRoutes
+                                      )
+{
+   UtlString requestUriString;
+   Url topRouteUrl;
+   UtlString topRouteValue;
+
+   /*
+    * Check the request URI and the topmost route
+    *   - Detect and correct for any strict router upstream
+    *     as specified by RFC 3261 section 16.4 Route Information Preprocessing:
+    *
+    *       The proxy MUST inspect the Request-URI of the request.  If the
+    *       Request-URI of the request contains a value this proxy previously
+    *       placed into a Record-Route header field (see Section 16.6 item 4),
+    *       the proxy MUST replace the Request-URI in the request with the last
+    *       value from the Route header field, and remove that value from the
+    *       Route header field.  The proxy MUST then proceed as if it received
+    *       this modified request.
+    *
+    *   - Pop off the topmost route until it is not me
+    *
+    * Note that this loop always executes at least once, and that:
+    *   - it leaves requestUri set correctly
+    */
+   bool doneNormalizingRouteSet = false;
+   while (! doneNormalizingRouteSet)
+   {
+      // Check the request URI.
+      //    If it has 'lr' parameter that is me, then the sender was a 
+      //    strict router (it didn't recognize the loose route indication)
+      getRequestUri(&requestUriString);
+      requestUri.fromString(requestUriString, TRUE /* is a request uri */);
+
+      UtlString noValue;
+      if (   requestUri.getUrlParameter("lr", noValue, 0)
+          && sipUA->isMyHostAlias(requestUri)
+          )
+      {
+         /*
+          * We need to fix it (convert it back to a loose route)..
+          * - pop the last route and put it in the request URI
+          *   see RFC 3261 section 16.4
+          *
+          * For example:
+          *   INVITE sip:mydomain.com;lr SIP/2.0
+          *   Route: <sip:proxy.example.com;lr>, <sip:user@elsewhere.example.com>
+          * becomes:
+          *   INVITE sip:user@elsewhere.example.com SIP/2.0
+          *   Route: <sip:proxy.example.com;lr>
+          */
+         UtlString lastRouteValue;
+         int lastRouteIndex;
+         if ( getLastRouteUri(lastRouteValue, lastRouteIndex) )
+         {
+            removeRouteUri(lastRouteIndex, &lastRouteValue);
+
+            // Put the last route in as the request URI
+            changeUri(lastRouteValue); // this strips appropriately
+                     
+            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                          "SipMessage::normalizeProxyRoutes "
+                          "strict route '%s' replaced with uri from '%s'",
+                          requestUriString.data(), lastRouteValue.data());
+            if (removedRoutes)
+            {
+               // save a copy of the route we're removing for the caller.
+               // this looks just like this was properly loose routed.
+               // use the output from Url::toString so that all are normalized.
+               UtlString* removedRoute = new UtlString;
+               requestUri.toString(*removedRoute);
+               removedRoutes->append(removedRoute);
+               // caller is responsible for deleting the savedRoute
+            }
+         }
+         else
+         {
+            OsSysLog::add(FAC_SIP, PRI_WARNING, "SipMessage::normalizeProxyRoutes  "
+                          "found 'lr' in Request-URI with no Route; stripped 'lr'"
+                          );
+
+            requestUri.removeUrlParameter("lr");
+            UtlString newUri;
+            requestUri.toString(newUri);
+            changeRequestUri(newUri); // this strips appropriately
+         }
+
+         // note: we've changed the request uri and the route set,
+         //       but not set doneNormalizingRouteSet, so we go around again...
+      }
+      else // topmost route was not a loose route uri we put there... 
+      {
+         if ( getRouteUri(0, &topRouteValue) )
+         {
+            /*
+             * There is a Route header... if it is a route to this proxy, pop it off.
+             * For example:
+             *   INVITE sip:user@elsewhere.example.com SIP/2.0
+             *   Route: <sip:mydomain.com;lr>, <sip:proxy.example.com;lr>
+             * becomes:
+             *   INVITE sip:user@elsewhere.example.com SIP/2.0
+             *   Route: <sip:proxy.example.com;lr>
+             */
+            topRouteUrl.fromString(topRouteValue,FALSE /* not a request uri */);
+            if ( sipUA->isMyHostAlias(topRouteUrl) )
+            {
+               if (removedRoutes)
+               {
+                  // save a copy of the route we're removing for the caller.
+                  // use the output from Url::toString so that all are normalized.
+                  UtlString* savedRoute = new UtlString();
+                  topRouteUrl.toString(*savedRoute);
+                  removedRoutes->append(savedRoute);
+                  // caller is responsible for deleting the savedRoute
+               }
+               UtlString removedRoute;
+               removeRouteUri(0, &removedRoute);
+                           
+               OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                             "SipMessage::normalizeProxyRoutes popped route to self '%s'",
+                             removedRoute.data()
+                             );
+            }
+            else // topmost route is someone else
+            {
+               doneNormalizingRouteSet = true;
+            }
+         }
+         else // no more routes
+         {
+            doneNormalizingRouteSet = true;
+         }
+      }
+   } // while ! doneNormalizingRouteSet
 }

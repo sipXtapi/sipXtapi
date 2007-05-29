@@ -36,7 +36,7 @@ static int debugCtr = 0;
 
 const MpCodecInfo MpdPtAVT::smCodecInfo(
          SdpCodec::SDP_CODEC_TONES, "Pingtel_1.0", false,
-         8000, 0, 1, 0, 6400, 128, 128, 128, 160, TRUE);
+         8000, 0, 1, 0, 6400, 128, 128, 128, 0, 0, TRUE, FALSE);
 
 MpdPtAVT::MpdPtAVT(int payloadType)
    : MpDecoderBase(payloadType, &smCodecInfo),
@@ -129,7 +129,7 @@ int MpdPtAVT::decodeIn(MpBufPtr pPacket)
 
    pAvt = (struct avtPacket*) MpBuf_getStorage(pPacket);
 
-   dumpRawAvtPacket(pAvt, (int)this);
+   //dumpRawAvtPacket(pAvt, (int)this);
 
    ts = pAvt->rh.timestamp;
 
@@ -146,7 +146,7 @@ int MpdPtAVT::decodeIn(MpBufPtr pPacket)
    }
 
    // Key Down (start of tone)
-   if ((0x80 == (0x80 & (pAvt->rh.mpt))) && (ts != mCurrentToneSignature)) {
+   if ((0x80 == (0x80 & (pAvt->rh.mpt))) && (ts != mCurrentToneSignature) && (ts != mPrevToneSignature)) {
      // start bit marked
       OsSysLog::add(FAC_MP, PRI_INFO, "++++ MpdPtAvt(0x%X) RECEIVED KEYDOWN"
          " (marker bit set), duration=%d, TSs: old=0x%08x, new=0x%08x,"
@@ -217,6 +217,14 @@ void MpdPtAVT::signalKeyDown(MpBufPtr pPacket)
    pAvt = (struct avtPacket*) MpBuf_getStorage(pPacket);
 
    ts = pAvt->rh.timestamp;
+   if(mCurrentToneSignature != ts) {
+        // must have missed a KeyUp
+       if(mCurrentToneKey != -1) {
+            OsSysLog::add(FAC_MP, PRI_INFO, "++++ MpdPtAvt(0x%X) SYNTHESIZING KEYUP for old key (%d)"
+               " duration=%d ++++\n", (int) this, mCurrentToneKey, mToneDuration);
+            signalKeyUp(pPacket);
+       }
+   }
    OsSysLog::add(FAC_MP, PRI_INFO, "MpdPtAvt(0x%X) Start Rcv Tone key=%d"
       " dB=%d TS=0x%08x\n", (int) this, pAvt->key, pAvt->dB, ntohl(ts));
    if (mpRecorder) 
@@ -234,6 +242,16 @@ void MpdPtAVT::signalKeyDown(MpBufPtr pPacket)
                   "MpdPtAvt(%p) Signal Start returned %d", this, ret);
             }
          }
+         else
+         {
+            OsSysLog::add(FAC_MP, PRI_DEBUG,
+               "MpdPtAvt(%p) Signal Start sent successfully", this);
+         }
+   }
+   else
+   {
+      OsSysLog::add(FAC_MP, PRI_DEBUG,
+                    "MpdPtAvt(%p) No application registered to receive Signal KeyDown", this);
    }
    mCurrentToneKey = pAvt->key;
    mCurrentToneSignature = ts;
@@ -272,6 +290,16 @@ void MpdPtAVT::signalKeyUp(MpBufPtr pPacket)
                   "MpdPtAvt(%p) Signal Stop returned %d", this, ret);
             }
          }
+         else
+         {
+            OsSysLog::add(FAC_MP, PRI_DEBUG,
+               "MpdPtAvt(%p) Signal Stop sent successfully", this);
+         }
+      }
+      else
+      {
+         OsSysLog::add(FAC_MP, PRI_DEBUG,
+                       "MpdPtAvt(%p) No application registered to receive Signal KeyUp", this);
       }
       if (mpRecorder) {
         mpRecorder->termDtmf(-1);

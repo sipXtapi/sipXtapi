@@ -123,6 +123,9 @@ libsipXtack_la_SOURCES =  \
     net/XmlRpcMethod.cpp \
     net/XmlRpcRequest.cpp \
     net/XmlRpcResponse.cpp \
+    net/HttpConnection.cpp \
+    net/HttpConnectionMap.cpp \
+    net/PidfBody.cpp \
     resparse/bzero.c \
     resparse/memset.c \
     resparse/ns_name.c \

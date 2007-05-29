@@ -38,6 +38,7 @@ class OsTime
 public:
    static const OsTime OS_INFINITY;
    static const OsTime NO_WAIT;
+   static const OsTime NO_WAIT_TIME;
    static const long MSECS_PER_SEC ; 
    static const long USECS_PER_MSEC ;
    static const long USECS_PER_SEC ;
@@ -97,10 +98,16 @@ public:
 
 /* ============================ ACCESSORS ================================= */
 
-   virtual long seconds(void) const;
+   virtual long seconds(void) const
+   {
+      return mSeconds;
+   }
      //:Return the seconds portion of the time interval
 
-   virtual long usecs(void) const;
+   virtual long usecs(void) const
+   {
+      return mUsecs;
+   }
      //:Return the microseconds portion of the time interval
 
    virtual long cvtToMsecs(void) const;

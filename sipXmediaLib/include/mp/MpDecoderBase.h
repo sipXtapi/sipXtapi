@@ -17,6 +17,7 @@
 #include "os/OsStatus.h"
 #include "mp/MpCodecInfo.h"
 #include "mp/MpBuf.h"
+#include "mp/JB/JB_API.h"
 
 // DEFINES
 // MACROS
@@ -82,6 +83,15 @@ public:
      //:Receive a packet of RTP data
      //!param: pPacket - (in) Pointer to a media buffer
      //!retcode: length of packet to hand to jitter buffer, 0 means don't.
+
+   virtual int decode(JB_uchar *encoded, int inSamples, Sample *decoded);
+     // Sample is now defined as a short
+     //:Receive a packet of RTP data
+     //!param: pPacket - (in) Pointer to a media buffer
+     //!retcode: length of packet to hand to jitter buffer, 0 means don't.
+
+   virtual int reportBufferLength(int iAvePackets);
+   virtual void FrameIncrement(void);
 
    virtual UtlBoolean handleSetDtmfNotify(OsNotification* pNotify);
      //:Handle the FLOWGRAPH_SET_DTMF_NOTIFY message.

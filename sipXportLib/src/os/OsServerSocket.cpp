@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -18,6 +21,7 @@
 #undef OsSS_CONST
 #define OsSS_CONST const
 #elif defined(_VXWORKS)
+#define OsSS_CONST
 #   include <inetLib.h>
 #   include <sockLib.h>
 #   include <unistd.h>
@@ -77,12 +81,18 @@ OsServerSocket::OsServerSocket(int connectionQueueSize,
 
    localHostPort = serverPort;
 
+   OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
+                 "OsServerSocket::_ queue=%d port=%d bindaddr=%s",
+                 connectionQueueSize, serverPort, szBindAddr
+                 );
+
    // Create the socket
    socketDescriptor = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
    if(socketDescriptor == OS_INVALID_SOCKET_DESCRIPTOR)
    {
       error = OsSocketGetERRNO();
-      OsSysLog::add(FAC_KERNEL, PRI_ERR, "OsServerSocket: socket call failed with error: %d=0x%x\n",
+      OsSysLog::add(FAC_KERNEL, PRI_ERR,
+                    "OsServerSocket: socket call failed with error: %d=0x%x",
          error, error);
       socketDescriptor = OS_INVALID_SOCKET_DESCRIPTOR;
       goto EXIT;
@@ -90,9 +100,12 @@ OsServerSocket::OsServerSocket(int connectionQueueSize,
 
 #ifndef WIN32
    if(setsockopt(socketDescriptor, SOL_SOCKET, SO_REUSEADDR, (char *)&one, sizeof(one)))
-      OsSysLog::add(FAC_KERNEL, PRI_ERR, "OsServerSocket: setsockopt(SO_REUSEADDR) failed!\n");
+      OsSysLog::add(FAC_KERNEL, PRI_ERR, "OsServerSocket: setsockopt(SO_REUSEADDR) failed!");
 #endif
+/*
+    Don't know why we don't want to route...we do support subnets, do we not?
     setsockopt(socketDescriptor, SOL_SOCKET, SO_DONTROUTE, (char *)&one, sizeof(one)) ;
+*/
 
 #  if defined(__MACH__)
    // Under OS X, we use SO_NOSIGPIPE here because MSG_NOSIGNAL
@@ -101,8 +114,9 @@ OsServerSocket::OsServerSocket(int connectionQueueSize,
    {
       error = OsSocketGetERRNO();
       close();
-      perror("call to setsockopt failed in OsServerSocket::OsServerSocket\n");
-      OsSysLog::add(FAC_SIP, PRI_ERR, "setsockopt call failed with error: 0x%x in OsServerSocket::OsServerSocket\n", error);
+      OsSysLog::add(FAC_SIP, PRI_ERR,
+                    "setsockopt call failed with error: 0x%x in OsServerSocket::OsServerSocket",
+                    error);
       goto EXIT;
    }
 #       endif
@@ -139,7 +153,7 @@ OsServerSocket::OsServerSocket(int connectionQueueSize,
         {
             error = OsSocketGetERRNO();
             OsSysLog::add(FAC_KERNEL, PRI_ERR,
-                            "OsServerSocket:  bind to port %d failed with error: %d = 0x%x\n",
+                    "OsServerSocket:  bind to port %d failed with error: %d = 0x%x",
                             ((PORT_DEFAULT == serverPort) ? 0 : serverPort), error, error);
             socketDescriptor = OS_INVALID_SOCKET_DESCRIPTOR;
             goto EXIT;
@@ -150,7 +164,7 @@ OsServerSocket::OsServerSocket(int connectionQueueSize,
                            (struct sockaddr*) &localAddr, SOCKET_LEN_TYPE &addrSize);
    if (error) {
       error = OsSocketGetERRNO();
-      OsSysLog::add(FAC_KERNEL, PRI_ERR, "OsServerSocket: getsockname call failed with error: %d=0x%x\n",
+      OsSysLog::add(FAC_KERNEL, PRI_ERR, "OsServerSocket: getsockname call failed with error: %d=0x%x",
          error, error);
    } else {
       localHostPort = htons(localAddr.sin_port);
@@ -163,11 +177,12 @@ OsServerSocket::OsServerSocket(int connectionQueueSize,
         if (error)
         {
             error = OsSocketGetERRNO();
-            OsSysLog::add(FAC_KERNEL, PRI_ERR, "OsServerSocket: listen call failed with error: %d=0x%x\n",
+            OsSysLog::add(FAC_KERNEL, PRI_ERR, "OsServerSocket: listen call failed with error: %d=0x%x",
                 error, error);
             socketDescriptor = OS_INVALID_SOCKET_DESCRIPTOR;
         }
     }
+
 EXIT:
    ;
 
@@ -204,16 +219,18 @@ OsConnectionSocket* OsServerSocket::accept()
    if (clientSocket < 0)
    {
       int error = OsSocketGetERRNO();
-      OsSysLog::add(FAC_KERNEL, PRI_ERR, "OsServerSocket: accept call failed with error: %d=0x%x\n",
+      OsSysLog::add(FAC_KERNEL, PRI_ERR, "OsServerSocket: accept call failed with error: %d=0x%x",
          error, error);
       socketDescriptor = OS_INVALID_SOCKET_DESCRIPTOR;
       return NULL;
    }
    
+#ifdef WIN32
    const int one = 1 ;
    setsockopt(clientSocket, SOL_SOCKET, SO_DONTROUTE, (char *)&one, sizeof(one)) ;
+#endif
 
-   connectSock = new OsConnectionSocket(mLocalIp,clientSocket);
+   connectSock = createConnectionSocket(mLocalIp, clientSocket);
 
    return(connectSock);
 }
@@ -237,9 +254,22 @@ void OsServerSocket::close()
 
 /* ============================ ACCESSORS ================================= */
 
+// Returns the socket descriptor
+// Warning: use of this method risks the creation of platform
+// dependent code.
+int OsServerSocket::getSocketDescriptor() const
+{
+        return(socketDescriptor);
+}
+
 int OsServerSocket::getLocalHostPort() const
 {
    return(localHostPort);
+}
+
+void OsServerSocket::getBindIp(UtlString& ip) const
+{
+   ip = mLocalIp ;
 }
 
 /* ============================ INQUIRY =================================== */
@@ -249,7 +279,12 @@ UtlBoolean OsServerSocket::isOk() const
     return(socketDescriptor != OS_INVALID_SOCKET_DESCRIPTOR);
 }
 
+
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
+OsConnectionSocket* OsServerSocket::createConnectionSocket(UtlString localIp, int descriptor)
+{
+    return new OsConnectionSocket(localIp, descriptor);
+}
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 

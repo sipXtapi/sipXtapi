@@ -1,4 +1,7 @@
-//
+// 
+// Copyright (C) 2005-2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -6,7 +9,9 @@
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-///////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+
+// Author: Dan Petrie (dpetrie AT SIPez DOT com)
 
 #ifndef _CpPhoneMediaInterface_h_
 #define _CpPhoneMediaInterface_h_
@@ -33,6 +38,7 @@ class MpCallFlowGraph;
 class SdpCodec;
 class OsDatagramSocket;
 class CpPhoneMediaConnection;
+class ISocketEvent ;
 
 //:Class short description which may consist of multiple lines (note the ':')
 // Class detailed description which may extend to multiple lines
@@ -66,7 +72,7 @@ public:
                          const char* szTurnUsername = NULL,
                          const char* szTurnPassword = NULL,
                          int iTurnKeepAlivePeriodSecs = 28,
-                         bool mbEnableICE = false);
+                         UtlBoolean mbEnableICE = FALSE);
      //:Default constructor
 
   protected:
@@ -87,10 +93,9 @@ public:
                                      const char* szLocalAddress,
                                      void* videoWindowHandle, 
                                      void* const pSecurityAttributes = NULL,
-                                     ISocketIdle* pIdleSink = NULL,
+                                     ISocketEvent* pIdleEvent = NULL,
                                      IMediaEventListener* pMediaEventListener = NULL,
-                                     const SIPX_RTP_TRANSPORT rtpTransportOptions = UDP_ONLY,
-                                     const RtpTcpRoles role=ACTPASS);
+                                     const RtpTransportOptions rtpTransportOptions=RTP_TRANSPORT_UDP);
    
    virtual OsStatus getCapabilities(int connectionId, 
                                     UtlString& rtpHostAddress, 
@@ -111,6 +116,7 @@ public:
                                       int rtcpAudioPorts[],
                                       int rtpVideoPorts[],
                                       int rtcpVideoPorts[],
+                                      RTP_TRANSPORT transportTypes[],
                                       int& nActualAddresses,
                                       SdpCodecFactory& supportedCodecs,
                                       SdpSrtpParameters& srtpParameters,
@@ -158,7 +164,7 @@ public:
                               UtlBoolean repeat,
                               UtlBoolean local, 
                               UtlBoolean remote,
-                              OsNotification* event = NULL,
+                              OsProtectedEvent* event = NULL,
                               UtlBoolean mixWithMic = false,
                               int downScaling = 100);
 
@@ -215,6 +221,11 @@ public:
            double& duration, 
            int& dtmfterm,
            OsProtectedEvent* ev = NULL);
+
+   //! Record the microphone data -- the flowgraph must be in focus
+   virtual OsStatus recordMic(int ms,
+                              int silenceLength,
+                              const char* fileName) ; 
 
     virtual void setContactType(int connectionId, SIPX_CONTACT_TYPE eType, SIPX_CONTACT_ID contactId) ;
      //: Set the contact type for this Phone media interface.  
@@ -288,6 +299,26 @@ public:
    virtual OsStatus setVideoWindowDisplay(const void* hWnd);
    virtual const void* getVideoWindowDisplay();
 
+   //! Set a media property on the media interface
+   virtual OsStatus setMediaProperty(const UtlString& propertyName,
+                                     const UtlString& propertyValue);
+
+   //! Get a media property on the media interface
+   virtual OsStatus getMediaProperty(const UtlString& propertyName,
+                                     UtlString& propertyValue);
+
+   //! Set a media property associated with a connection
+   virtual OsStatus setMediaProperty(int connectionId,
+                                     const UtlString& propertyName,
+                                     const UtlString& propertyValue);
+
+   //! Get a media property associated with a connection
+   virtual OsStatus getMediaProperty(int connectionId,
+                                     const UtlString& propertyName,
+                                     UtlString& propertyValue);
+
+
+
    virtual OsStatus setVideoQuality(int quality);
    virtual OsStatus setVideoParameters(int bitRate, int frameRate);
 
@@ -307,36 +338,36 @@ public:
    virtual UtlBoolean isReceivingRtpVideo(int connectionId);
    virtual UtlBoolean isDestinationSet(int connectionId);   
    virtual UtlBoolean canAddParty() ;
-   virtual bool isVideoInitialized(int connectionId) ;
-   virtual bool isAudioInitialized(int connectionId) ;
-   virtual bool isAudioAvailable() ;
-   virtual bool isVideoConferencing() { return false; } ;
+   virtual UtlBoolean isVideoInitialized(int connectionId) ;
+   virtual UtlBoolean isAudioInitialized(int connectionId) ;
+   virtual UtlBoolean isAudioAvailable() ;
+   virtual UtlBoolean isVideoConferencing() { return false; } ;
 
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 
-    bool getLocalAddresses( int connectionId,
-                            UtlString& hostIp,
-                            int& rtpAudioPort,
-                            int& rtcpAudioPort,
-                            int& rtpVideoPort,
-                            int& rtcpVideoPort) ;
+    UtlBoolean getLocalAddresses( int connectionId,
+                                  UtlString& hostIp,
+                                  int& rtpAudioPort,
+                                  int& rtcpAudioPort,
+                                  int& rtpVideoPort,
+                                  int& rtcpVideoPort) ;
 
-    bool getNatedAddresses( int connectionId,
-                            UtlString& hostIp,
-                            int& rtpAudioPort,
-                            int& rtcpAudioPort,
-                            int& rtpVideoPort,
-                            int& rtcpVideoPort) ;
+    UtlBoolean getNatedAddresses( int connectionId,
+                                  UtlString& hostIp,
+                                  int& rtpAudioPort,
+                                  int& rtcpAudioPort,
+                                  int& rtpVideoPort,
+                                  int& rtcpVideoPort) ;
 
 
-    bool getRelayAddresses( int connectionId,
-                            UtlString& hostIp,
-                            int& rtpAudioPort,
-                            int& rtcpAudioPort,
-                            int& rtpVideoPort,
-                            int& rtcpVideoPort) ;
+    UtlBoolean getRelayAddresses( int connectionId,
+                                  UtlString& hostIp,
+                                  int& rtpAudioPort,
+                                  int& rtcpAudioPort,
+                                  int& rtpVideoPort,
+                                  int& rtcpVideoPort) ;
 
 
     OsStatus addLocalContacts(  int connectionId, 
@@ -391,6 +422,7 @@ private:
    UtlString mTurnUsername ;
    UtlString mTurnPassword ;
    UtlBoolean mbEnableICE ;
+   UtlHashMap mInterfaceProperties;
 
 
    // Disabled copy constructor

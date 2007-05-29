@@ -222,12 +222,15 @@ UtlString& UtlString::append(const char* szStr, size_t N)
         // If necessary, reallocate the data area to hold maxCap bytes.
         if (maxCap <= capacity(maxCap))
         {
+            if (mpData)
+            {
             // Copy the N bytes after the existing mSize bytes in the string.
             memcpy(&mpData[mSize], szStr, N);
             // Update the size of the string.
             mSize += N;
             // Append a final zero byte.
             mpData[mSize] = '\0';
+        }
         }
         else
         {
@@ -290,6 +293,8 @@ UtlString& UtlString::insert(size_t position, const char* source, size_t sourceL
          capacity(mSize + sourceLength + 1);
       }
 
+      if (mpData)
+      {
       memmove(&mpData[position + sourceLength],
               &mpData[position],
               mSize - position);
@@ -300,6 +305,7 @@ UtlString& UtlString::insert(size_t position, const char* source, size_t sourceL
 
       mSize+= sourceLength;
       mpData[mSize] = '\0';
+   }
    }
 
    // Else do nothing
@@ -399,7 +405,12 @@ UtlString& UtlString::replace(size_t pos, size_t N, const UtlString& replaceStr)
 UtlString& UtlString::replace(size_t pos, size_t N, const char* replaceStr, size_t L)
 {
     // FIX: need to avoid the allocation and extra copy if possible
-    if (replaceStr != NULL && pos >= 0 && N >= 0 && strlen(replaceStr) >= L)
+    if ((replaceStr != NULL)      && 
+        (pos >= 0)                && 
+        (N >= 0)                  && 
+        (strlen(replaceStr) >= L) &&
+        (mpData)
+       )
     {
         UtlString newUtlString;
         newUtlString.append(mpData, pos);
@@ -825,6 +836,9 @@ size_t UtlString::index(const UtlString& searchString, size_t start, CompareCase
         // static empty string if mpData is null
         const char* dataPtr = data();
 
+        if (!dataPtr)
+            assert(0);
+
         if(searchStrSize <= mSize)
         {
             for (size_t pos = startIndex;
@@ -832,15 +846,9 @@ size_t UtlString::index(const UtlString& searchString, size_t start, CompareCase
                  && foundPosition == UTLSTRING_NOT_FOUND;
                  pos++)
             {
-#ifdef WIN32
-                if (strnicmp(dataPtr + pos,
-                             searchString.data(),
-                             searchStrSize) == 0)
-#else
                 if(strncasecmp(dataPtr + pos,
                                searchString.data(),
                                searchStrSize) == 0)
-#endif
                 {
                     foundPosition = pos;
                 }
@@ -870,6 +878,10 @@ size_t UtlString::index(const char* searchStr, size_t start) const
         // mpData may be null, so use data() which returns an
         // static empty string if mpData is null
         const char* dataPtr = data();
+
+        // dataPtr better not be NULL
+        if (!dataPtr)
+            assert(0);
 
         size_t searchStrSize = strlen(searchStr);
         size_t startIndex = start;
@@ -914,16 +926,15 @@ size_t UtlString::index(const char* searchStr, size_t start, CompareCase type) c
             // static empty string if mpData is null
             const char* dataPtr = data();
 
+            if (!dataPtr)
+                assert(0);
+
             for (int pos = startIndex;
                  pos <= int(mSize - searchStrSize)
                  && foundPosition == UTLSTRING_NOT_FOUND;
                  pos++)
             {
-#ifdef WIN32
-                if (strnicmp(dataPtr + pos, searchStr, searchStrSize) == 0)
-#else
                 if(strncasecmp(dataPtr + pos, searchStr, searchStrSize) == 0)
-#endif
                 {
                     foundPosition = pos;
                 }
@@ -987,7 +998,7 @@ UtlString UtlString::operator() (size_t start, size_t len) const
 
 
 #if 0
-UtlString UtlString::operator()(const RWCRegexp& re) const
+UtlString UtlString::operator()(const RegEx& re) const
 {
 
 }
@@ -1167,11 +1178,7 @@ int UtlString::compareTo(UtlString const * compareStr, CompareCase type) const
             }
             else
             {
-#ifdef WIN32
-                compareFlag = stricmp(mpData ? mpData : "", compareStr->mpData);
-#else
                 compareFlag = strcasecmp(mpData ? mpData : "", compareStr->mpData);
-#endif
             }
         }
     }
@@ -1194,13 +1201,8 @@ int UtlString::compareTo(const char* compareStr, CompareCase type) const
     }
     else
         {
-#ifdef WIN32
-      compareFlag = _stricmp(mpData ? mpData : "",
-                             compareStr ? compareStr : "");
-#else
       compareFlag = strcasecmp(mpData ? mpData : "",
                                compareStr ? compareStr : "");
-#endif
         }
 
     return compareFlag;
@@ -1232,5 +1234,79 @@ UtlBoolean UtlString::isNull() const
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
+
+#if defined(_VXWORKS)
+/*
+ *  perform string compare not caring for case of the
+ *  characters. Compare only first N characters of the
+ *  string.
+ */
+
+int strncasecmp( const char *s1, const char *s2, int N )
+{
+    int i;
+    char c1, c2;
+
+
+    // check simple case
+    if ((s1 == s2) || (0 == N))
+    {
+        // match found 
+        return 0; 
+    }
+
+    // if just one of them is NULL then there is a mistmatch
+    if (!s1)
+    {
+       // NO match
+       return -1;
+    }
+    else if (!s2)
+    {
+       // NO match
+       return 1;
+    }
+
+    // loop thru all N entries
+    for (i=0; i<N; i++, s1++, s2++)
+    {
+       c1 = *s1;
+       c2 = *s2;
+
+       // if either char is NULL, then break the test
+       if (!c1 || !c2)
+       {
+          // match of BOTH are NULL
+          break;
+       }
+          
+       // quick compare without converting 
+       if (c1 == c2)
+       {
+          continue;
+       }
+
+       // Now convert to lower case
+       c1 = tolower(c1);
+       c2 = tolower(c2);
+
+       if (c1 == c2)
+       {
+          // same chars non-case sensitive 
+          continue;
+       }
+       else
+       {
+          // mismatch
+          break;
+       }
+    }
+
+    // all characters same, match found
+    return( c1 - c2 );
+}
+
+#endif  // #if defined(_VXWORKS)
+
 
 /* ============================ INLINE METHODS ============================ */

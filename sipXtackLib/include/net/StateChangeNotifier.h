@@ -48,7 +48,9 @@ public:
       AWAY,
       OFF_HOOK,
       RINGING,
-      ON_HOOK
+      ON_HOOK,
+      SIGN_IN,
+      SIGN_OUT
    };
 
 /* ============================ CREATORS ================================== */

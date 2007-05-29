@@ -68,6 +68,7 @@ public:
    //!enumcode: OS_SYSLOG - OS SysLog Messages
    //!enumcode: USER_START - User defined message type categories start at USER_START
 
+   static const UtlContainableType TYPE ;    /** < Class type used for runtime checking */
 /* ============================ CREATORS ================================== */
 
    OsMsg(const unsigned char msgType, const unsigned char msgSubType);
@@ -137,7 +138,6 @@ public:
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
-   static const UtlContainableType TYPE ;    /** < Class type used for runtime checking */
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:

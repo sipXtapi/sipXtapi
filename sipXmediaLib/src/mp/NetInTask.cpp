@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2005-2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -27,7 +30,9 @@
 #endif /* _VXWORKS ] */
 
 #ifdef WIN32 /* [ */
-#include <io.h>
+#   ifndef WINCE
+#       include <io.h>
+#   endif
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
@@ -157,43 +162,52 @@ int NetInTaskHelper::run(void* pInst)
 /************************************************************************/
 void NetInTask::openWriteFD()
 {
-    mpWriteSocket = new OsConnectionSocket(mCmdPort, NULL);
+    mpWriteSocket = new OsConnectionSocket(mCmdPort, "127.0.0.1");
 }
 
 int NetInTask::getWriteFD()
 {
-    if (NULL != mpWriteSocket) {
-        return mpWriteSocket->getSocketDescriptor();
+    int writeSocketDescriptor = -1;
+    if (NULL != mpWriteSocket)
+    {
+        writeSocketDescriptor = mpWriteSocket->getSocketDescriptor();
     }
 
-    // connect to the socket
-    sLock.acquireRead();
-    if (NULL != mpWriteSocket) {
-        sLock.releaseWrite();
-        return mpWriteSocket->getSocketDescriptor();
-    }
-
-    if (OsTask::getCurrentTask() == NetInTask::spInstance) {
-        OsEvent* pNotify;
-        NetInTaskHelper* pHelper;
-
-        // Start our helper thread to go open the socket
-        pNotify = new OsEvent;
-        pHelper = new NetInTaskHelper(this, pNotify);
-        if (!pHelper->isStarted()) {
-            pHelper->start();
+    else
+    {
+        // connect to the socket
+        sLock.acquireWrite();
+        if (NULL != mpWriteSocket) 
+        {
+            // We lost a race for the lock, don't need to do anything
         }
-        pNotify->wait();
-        delete pHelper;
-        delete pNotify;
-    } else {
-        // we are in a different thread already, go do it ourselves.
-        osPrintf("Not NetInTask: opening connection directly\n");
-        OsSysLog::add(FAC_MP, PRI_DEBUG, "Not NetInTask: opening connection directly\n");
-        openWriteFD();
+
+        else if (OsTask::getCurrentTask() == NetInTask::spInstance) 
+        {
+            OsEvent* pNotify;
+            NetInTaskHelper* pHelper;
+
+            // Start our helper thread to go open the socket
+            pNotify = new OsEvent;
+            pHelper = new NetInTaskHelper(this, pNotify);
+            if (!pHelper->isStarted()) {
+                pHelper->start();
+            }
+            pNotify->wait();
+            delete pHelper;
+            delete pNotify;
+        } 
+        else 
+        {
+            // we are in a different thread already, go do it ourselves.
+            osPrintf("Not NetInTask: opening connection directly\n");
+            OsSysLog::add(FAC_MP, PRI_DEBUG, "Not NetInTask: opening connection directly\n");
+            openWriteFD();
+        }
+        writeSocketDescriptor = mpWriteSocket->getSocketDescriptor();
+        sLock.releaseWrite();
     }
-    sLock.releaseRead();
-    return mpWriteSocket->getSocketDescriptor();
+    return(writeSocketDescriptor);
 }
 
 OsConnectionSocket* NetInTask::getWriteSocket()
@@ -408,9 +422,9 @@ int NetInTask::run(void *pNotUsed)
         int     ostc;
 
         while (NetInWait) {
-         ;
+            OsTask::yield();
         }
-        pBindSocket = new OsServerSocket(1);
+        pBindSocket = new OsServerSocket(1, PORT_DEFAULT, "127.0.0.1");
         mCmdPort = pBindSocket->getLocalHostPort();
         // osPrintf("\n NetInTask: local comm port is %d\n\n", mCmdPort);
         assert(-1 != mCmdPort);
@@ -459,9 +473,17 @@ int NetInTask::run(void *pNotUsed)
             for (i=0, ppr=pairs; i<NET_TASK_MAX_FD_PAIRS; i++) {
               if (NULL != ppr->fwdTo) {
                 if (NULL != ppr->pRtpSocket)
-                  FD_SET((UINT)(ppr->pRtpSocket->getSocketDescriptor()), fds);
+                {
+                  int fd = ppr->pRtpSocket->getSocketDescriptor();
+                  if (fd > 0)
+                    FD_SET(fd, fds);
+                }
                 if (NULL != ppr->pRtcpSocket)
-                  FD_SET((UINT)(ppr->pRtcpSocket->getSocketDescriptor()), fds);
+                {
+                  int fd = ppr->pRtcpSocket->getSocketDescriptor();
+                  if (fd > 0)
+                    FD_SET(fd, fds);
+                }
               }
               ppr++;
             }
@@ -675,6 +697,15 @@ NetInTask* NetInTask::getNetInTask()
       assert(isStarted);
    }
    sLock.releaseRead();
+
+   // Synchronize with NetInTask starutp
+   int numDelays = 0;
+   while (spInstance->mCmdPort == -1)
+   {
+       OsTask::delay(20) ;
+       numDelays++;
+       if((numDelays % 50) == 0) osPrintf("NetInTask::getNetInTask %d delays\n", numDelays);
+   }
    return spInstance;
 }
 
@@ -704,6 +735,7 @@ NetInTask::NetInTask(int prio, int options, int stack)
    mpWriteSocket(NULL),
    mpReadSocket(NULL)
 {
+    mCmdPort = -1;
 }
 
 // Destructor
@@ -767,8 +799,12 @@ OsStatus addNetInputSources(OsSocket* pRtpSocket, OsSocket* pRtcpSocket,
             {
                 OsSysLog::add(FAC_MP, PRI_ERR,
                     "addNetInputSources - writeSocket error: 0x%08x,%d wrote %d",
-                (int)writeSocket, writeSocket->getSocketDescriptor(), wrote);
+                    (int)writeSocket, writeSocket->getSocketDescriptor(), wrote);
             }
+        }
+        else
+        {
+            osPrintf("fwdTo NULL\n");
         }
         return ((NET_TASK_MAX_MSG_LEN == wrote) ? OS_SUCCESS : OS_BUSY);
 }

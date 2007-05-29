@@ -72,7 +72,8 @@ AudioSample MuLawDecode(AudioByte ulaw)
    unsigned char exponent = (ulaw >> 4) & 0x7;
    unsigned char mantissa = (ulaw & 0xF) + 16;
    unsigned long adjusted = (mantissa << (exponent + 3)) - 128 - 4;
-   return (ulaw & 0x80)? adjusted : -adjusted;
+   AudioSample  sRet = (AudioSample) adjusted;
+   return (ulaw & 0x80)? sRet : -sRet;
 }
 
 static bool aLawDecodeTableInitialized = false;
@@ -116,5 +117,6 @@ AudioSample ALawDecode(AudioByte alaw)
    unsigned char exponent = (alaw >> 4) & 0x7;
    unsigned char mantissa = (alaw & 0xF) + (exponent?16:0);
    unsigned long adjusted = (mantissa << (exponent + 4));
-   return (alaw & 0x80)? -adjusted : adjusted;
+   AudioSample  sRet = (AudioSample) adjusted;
+   return (alaw & 0x80)? -sRet : sRet;
 }

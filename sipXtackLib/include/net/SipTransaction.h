@@ -23,7 +23,7 @@
 #include <os/OsMsgQ.h>
 #include <net/Url.h>
 #include <net/SipSrvLookup.h>
-
+#include <utl/UtlSList.h>
 
 // DEFINES
 // MACROS
@@ -336,15 +336,15 @@ private:
                           SipUserAgent& userAgent,
                           UtlString& toAddress,
                           int& port,
-                          enum OsSocket::SocketProtocolTypes& toProtocol,
-                          SIPX_TRANSPORT_DATA* pTransport = NULL);
+                          OsSocket::IpProtocolSocketType& toProtocol,
+                          SIPX_TRANSPORT_DATA* pTransport);
 
     void prepareRequestForSend(SipMessage& request,
                                SipUserAgent& userAgent,
                                UtlBoolean& addressRequiresDnsSrvLookup,
                                UtlString& toAddress,
                                int& port,
-                               enum OsSocket::SocketProtocolTypes& toProtocol);
+                               OsSocket::IpProtocolSocketType& toProtocol);
 
     // CallId  + 's' or 'c' (for server or client) is used as
     // the key for the hash (i.e. stored as the string/data in
@@ -362,7 +362,7 @@ private:
     // Address and transport that have been established for this transaction.
     UtlString mSendToAddress;
     int mSendToPort;
-    enum OsSocket::SocketProtocolTypes mSendToProtocol;
+    OsSocket::IpProtocolSocketType mSendToProtocol;
 
     server_t* mpDnsSrvRecords;
     SipMessage* mpRequest;
@@ -395,7 +395,7 @@ private:
                                 * Note only a parent tx should have a waiting list */
     SIPX_TRANSPORT_DATA* mpTransport; 
     //: An optional external transport mechanism pointer.  If this value is non-null, the
-    //: transaction will use teh SipUserAgent::sendCustom method, instead of sendUdp, sendTcp, etc.
+    //: transaction will use the SipUserAgent::sendCustom method, instead of sendUdp, sendTcp, etc.
 
 };
 

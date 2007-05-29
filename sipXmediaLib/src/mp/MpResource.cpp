@@ -21,6 +21,8 @@
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
+const UtlContainableType MpResource::TYPE = "MpResource";
+
 // STATIC VARIABLE INITIALIZATIONS
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
@@ -387,7 +389,7 @@ unsigned MpResource::hash() const
 // Get the ContainableType for a UtlContainable derived class.
 UtlContainableType MpResource::getContainableType() const
 {
-    return "MpResource" ;
+    return TYPE;
 }
 
 /* ============================ INQUIRY =================================== */
@@ -532,7 +534,7 @@ OsStatus MpResource::postMessage(MpFlowGraphMsg& rMsg)
    }
    else
    {
-      return mpFlowGraph->postMessage(rMsg, OsTime::NO_WAIT);
+      return mpFlowGraph->postMessage(rMsg, OsTime::NO_WAIT_TIME);
    }
 }
 

@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -8,6 +11,7 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
+#if defined(HAVE_SSL)
 // SYSTEM INCLUDES
 #include <assert.h>
 #include <stdio.h>
@@ -93,11 +97,14 @@ OsSSLConnectionSocket::OsSSLConnectionSocket(int serverPort, const char* serverN
     mSSL(NULL)
 {
     mbExternalSSLSocket = FALSE;
+    if (mIsConnected)
+    {
     SSLInitSocket(socketDescriptor, timeoutInSecs);
     OsSysLog::add(FAC_KERNEL, PRI_DEBUG, 
                   "OsSSLConnectionSocket::_(port %d, name '%s', timeout %ld)",
                   serverPort, serverName, timeoutInSecs
                   );
+}
 }
 
 
@@ -249,9 +256,29 @@ int OsSSLConnectionSocket::read(char* buffer,
 
 /* ============================ ACCESSORS ================================= */
 /* ============================ INQUIRY =================================== */
-int OsSSLConnectionSocket::getIpProtocol() const
+OsSocket::IpProtocolSocketType OsSSLConnectionSocket::getIpProtocol() const
 {
     return(OsSocket::SSL_SOCKET);
+}
+
+/// Is this connection encrypted using TLS/SSL?
+bool OsSSLConnectionSocket::isEncrypted() const
+{
+   return false;
+}
+
+   
+/// Get any authenticated peer host names.
+bool OsSSLConnectionSocket::peerIdentity( UtlSList* altNames
+                                         ,UtlString* commonName
+                                         ) const
+{
+   /*
+    * - true if the connection is TLS/SSL and the peer has presented
+    *        a certificate signed by a trusted certificate authority
+    * - false if not
+    */
+   return OsSSL::peerIdentity( mSSL, altNames, commonName );
 }
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
@@ -284,7 +311,8 @@ void OsSSLConnectionSocket::SSLInitSocket(int socket, long timeoutInSecs)
           else
           {
              OsSSL::logError(FAC_KERNEL, PRI_ERR,
-                             "OsSSLConnectionSocket SSL_connect failed: %s", SSL_get_error(mSSL, err));
+                             "OsSSLConnectionSocket SSL_connect failed: ",
+                             SSL_get_error(mSSL, err));
              mIsConnected = FALSE;
              OsConnectionSocket::close();
              socketDescriptor = OS_INVALID_SOCKET_DESCRIPTOR;          
@@ -308,3 +336,4 @@ void OsSSLConnectionSocket::SSLInitSocket(int socket, long timeoutInSecs)
     }
 }
 /* ============================ FUNCTIONS ================================= */
+#endif // HAVE_SSL

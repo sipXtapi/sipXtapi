@@ -62,12 +62,12 @@ public:
     UtlString m_sendIp ;
     int       m_sendPort ;
 
-    SipKeepAliveBinding::SipKeepAliveBinding(OsSocket*        pSocket,
-                                             const UtlString& targetIp,
-                                             int              targetPort,
-                                             const UtlString& method,
-                                             int              iKeepAlive,
-                                             OsNatKeepaliveListener* pListener)
+    SipKeepAliveBinding(OsSocket*        pSocket,
+                        const UtlString& targetIp,
+                        int              targetPort,
+                        const UtlString& method,
+                        int              iKeepAlive,
+                        OsNatKeepaliveListener* pListener)
     {
         m_pSocket = pSocket ;
         m_targetIp = targetIp ;
@@ -156,7 +156,7 @@ public:
                 (m_method.compareTo(szMethod) == 0)) ;
     }
 
-    SipKeepAliveBinding::~SipKeepAliveBinding()
+    ~SipKeepAliveBinding()
     {
         stop() ;
         delete m_pTimer ;
@@ -233,7 +233,7 @@ SipUdpServer::~SipUdpServer()
     UtlVoidPtr* pServerContainer = NULL;
     UtlString* pKey = NULL;
     
-    while (pKey = (UtlString*)iterator())
+    while ((pKey = (UtlString*)iterator()))
     {
         pServerContainer = (UtlVoidPtr*)iterator.value();
         if (pServerContainer)
@@ -444,7 +444,7 @@ void SipUdpServer::shutdownListener()
     UtlVoidPtr* pServerContainer = NULL;
     UtlString* pKey = NULL;
     
-    while (pKey = (UtlString*)iterator())
+    while ((pKey = (UtlString*)iterator()))
     {
         pServerContainer = (UtlVoidPtr*) iterator.value();
         pServer = (SipClient*)pServerContainer->getValue();
@@ -825,7 +825,7 @@ void SipUdpServer::printStatus()
     UtlVoidPtr* pServerContainer = NULL;
     UtlString* pKey = NULL;
     
-    while (pKey = (UtlString*)iterator())
+    while ((pKey = (UtlString*)iterator()))
     {
         pServerContainer = (UtlVoidPtr*) iterator.value();
         if (pServerContainer)
@@ -1058,6 +1058,9 @@ void SipUdpServer::sendSipKeepAlive(OsTimer* pTimer)
 
                 pBinding->m_pSipMessage->setRequestData(pBinding->m_method, 
                         to, from, to, callId, rand() % 32768) ;
+
+                // Set User Agent header
+                mSipUserAgent->setUserAgentHeader(*pBinding->m_pSipMessage) ;
             }
             
             // Update Via                           
