@@ -289,7 +289,7 @@ int MpTopologyGraph::linkTopologyResources(MpResourceTopology& resourceTopology,
         }
 
         // Look in the container of new resources first as this is more 
-        // efficent and new resources are not added immediately to a running
+        // efficient and new resources are not added immediately to a running
         // flowgraph
         outputResource = (MpResource*) newResources.find(&outputResourceName);
         if(outputResource == NULL)

@@ -177,7 +177,7 @@ UtlBoolean MprToneGen::doProcessFrame(MpBufPtr inBufs[],
       // See what we get...
       switch (ret) {
       case OS_WAIT_TIMEOUT: /* one-shot tone completed */
-          // TODO: remove referene to MpCallFlowGraph
+          // TODO: remove reference to MpCallFlowGraph
           // MprToneGen::stopTone(mName, getFloGraph()->getMsgQ());
          ((MpCallFlowGraph*)getFlowGraph())->stopTone();
          out->setSpeechType(MpAudioBuf::MP_SPEECH_TONE);
