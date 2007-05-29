@@ -85,6 +85,8 @@
 
 
 // EXTERNAL FUNCTIONS
+extern void showWaveError(char *syscall, int e, int N, int line) ;  // dmaTaskWnt.cpp
+
 // EXTERNAL VARIABLES
 // CONSTANTS
 // GLOBAL FUNCTION
@@ -143,87 +145,64 @@ CpTopologyGraphFactoryImpl::CpTopologyGraphFactoryImpl(OsConfigDb* pConfigDb)
     UtlString defaultWinOutputDevName = "";
 
     {
-       UtlString strSndMapperKey("Software\\Microsoft\\Multimedia\\Sound Mapper");
-       UtlString strRecordVal("Record");
-       UtlString strPlaybackVal("Playback");
-       HKEY hKey;
-       BYTE  data[255];
-       DWORD cbData = sizeof(data);
-       DWORD dataType;
-       DWORD err;
-
-       // Try to get the default input audio device.
-       err = RegOpenKeyEx(
-          HKEY_CURRENT_USER, // handle to open key
-          strSndMapperKey,  // subkey name
-          0,   // reserved
-          KEY_READ, // security access mask
-          &hKey);    // handle to open key
-
-       if (err == ERROR_SUCCESS)
+       // Get windows default input device name
+       unsigned nDevs = waveInGetNumDevs();
+       if (nDevs == 0)
        {
-          err = RegQueryValueEx(
-             hKey,       // Handle to key
-             strRecordVal,  // The value name
-             0,          // Reserved
-             &dataType,  // Data type returned (REG_SZ, etc)
-             data,       // data buffer
-             &cbData);   // in: size of the data buffer, out: size of returned data
+          OsSysLog::add(FAC_AUDIO, PRI_ERR, 
+                        "WINDOWS_DEFAULT_DEVICE_HACK: "
+                        "No input audio devices present!");
+       }
+       assert(nDevs != 0);
 
-          if (err == ERROR_SUCCESS)
-          {
-             defaultWinInputDevName.append((char*)data);
-          }
-          else // (err != ERROR_SUCCESS)
-          {
-             // It has been determined that this reg entry 
-             // (the entirety of the Sound Mapper key)
-             // is not present on a machine until someone goes into 
-             // Control Panel->Sounds and Audio Devices->Audio tab
-             //
-             // If this fails, we should use the wave routines to get
-             // the name of the 0th device, and use that.
-
-             OsSysLog::add(FAC_AUDIO, PRI_ERR, 
-                "Error reading default waveform input device from "
-                "Windows registry in WINDOWS_DEFAULT_DEVICE_HACK");
-             assert(0);
-          }
-
-          // Reset the data size, as previous call of RegQueryValueEx overwrote it.
-          cbData = sizeof(data);
-
-          // Try to get the default output audio device.
-          err = RegQueryValueEx(
-             hKey,       // Handle to key
-             strPlaybackVal,  // The value name
-             0,          // Reserved
-             &dataType,  // Data type returned (REG_SZ, etc)
-             data,       // data buffer
-             &cbData);   // in: size of the data buffer, out: size of returned data
-
-          if (err == ERROR_SUCCESS)
-          {
-             defaultWinOutputDevName.append((char*)data);
-          }
-          else // (err != ERROR_SUCCESS)
-          {
-             // See above to error case of looking up record default
-             // for information on why this would fail.
-             OsSysLog::add(FAC_AUDIO, PRI_ERR, 
-                "Error reading default waveform output device from "
-                "Windows registry in WINDOWS_DEFAULT_DEVICE_HACK");
-             assert(0);
-          }
-
-          RegCloseKey(hKey);
+       MMRESULT wavResult = MMSYSERR_NOERROR;
+       WAVEINCAPS devCaps;
+       int defaultWinDeviceId = 0;
+       wavResult = 
+          waveInGetDevCaps(defaultWinDeviceId, &devCaps, sizeof(devCaps));
+       if (wavResult != MMSYSERR_NOERROR)
+       {
+          OsSysLog::add(FAC_AUDIO, PRI_ERR, 
+                        "WINDOWS_DEFAULT_DEVICE_HACK: "
+                        "Couldn't get default input device capabilities!");
+          showWaveError("WINDOWS_DEFAULT_DEVICE_HACK",
+                        wavResult, -1, __LINE__);
        }
        else
        {
-          OsSysLog::add(FAC_KERNEL, PRI_ERR, "Error opening registry while "
-                        "getting default audio devices in "
-                        "WINDOWS_DEFAULT_DEVICE_HACK");
+          defaultWinInputDevName = devCaps.szPname;
        }
+       assert(wavResult == MMSYSERR_NOERROR);
+    }
+    {
+       // Get windows default output device name
+       unsigned nDevs = waveOutGetNumDevs();
+       if (nDevs == 0)
+       {
+          OsSysLog::add(FAC_AUDIO, PRI_ERR, 
+                        "WINDOWS_DEFAULT_DEVICE_HACK: "
+                        "No output audio devices present!");
+       }
+       assert(nDevs != 0);
+
+       MMRESULT wavResult = MMSYSERR_NOERROR;
+       WAVEOUTCAPS devCaps;
+       int defaultWinDeviceId = 0;
+       wavResult = 
+          waveOutGetDevCaps(defaultWinDeviceId, &devCaps, sizeof(devCaps));
+       if (wavResult != MMSYSERR_NOERROR)
+       {
+          OsSysLog::add(FAC_AUDIO, PRI_ERR, 
+             "WINDOWS_DEFAULT_DEVICE_HACK: "
+             "Couldn't get default output device capabilities!");
+          showWaveError("WINDOWS_DEFAULT_DEVICE_HACK",
+             wavResult, -1, __LINE__);
+       }
+       else
+       {
+          defaultWinOutputDevName = devCaps.szPname;
+       }
+       assert(wavResult == MMSYSERR_NOERROR);
     }
 #endif // ]
 
