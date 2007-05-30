@@ -513,11 +513,6 @@ void OsDateTimeBase::getCurTime(OsTime& rTime)
    rTime = curTime;
 }
 
-int OsDateTimeBase::usecs()
-{
-    return(mMicrosecond);
-}
-
 /* ============================ INQUIRY =================================== */
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */

@@ -401,7 +401,7 @@ public:
                  (unsigned char)gmtPlus2->tm_hour, 
                  (unsigned char)gmtPlus2->tm_min, 
                  (unsigned char)gmtPlus2->tm_sec, 
-          (unsigned int) current.usecs()
+          (unsigned int) current.getMicrosecond()
                  );
         g_get_current_time(&startTV);
         gCallBackCount = 0;
