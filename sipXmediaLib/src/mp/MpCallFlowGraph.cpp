@@ -14,8 +14,6 @@
 
 #include "rtcp/RtcpConfig.h"
 
-// #define DISABLE_LOCAL_AUDIO
-
 // SYSTEM INCLUDES
 #include <assert.h>
 
@@ -336,6 +334,7 @@ MpCallFlowGraph::MpCallFlowGraph(const char* locale,
 #ifdef INSERT_RECORDERS /* [ */
    ////////////////////////////////////////////////////////////////////
  if (WantRecorders) {
+#ifndef DISABLE_LOCAL_AUDIO // [
    mpRecorders[RECORDER_MIC] = new MprRecorder("RecordMic",
                                  samplesPerFrame, samplesPerSec);
    res = insertResourceAfter(*(mpRecorders[RECORDER_MIC]), *mpFromMic, 0);
@@ -368,14 +367,13 @@ MpCallFlowGraph::MpCallFlowGraph(const char* locale,
 #endif // HIGH_SAMPLERATE_AUDIO ]
 #endif /* DOING_ECHO_CANCELATION ] */
 
-#ifndef DISABLE_LOCAL_AUDIO
 #ifdef HIGH_SAMPLERATE_AUDIO // [
    mpRecorders[RECORDER_SPKR32K] = new MprRecorder("RecordSpkrH",
                                  samplesPerFrame, samplesPerSec);
    res = insertResourceAfter(*(mpRecorders[RECORDER_SPKR32K]), *mpToSpkr, 1);
    assert(res == OS_SUCCESS);
 #endif // HIGH_SAMPLERATE_AUDIO ]
-#endif
+#endif // DISABLE_LOCAL_AUDIO ]
    ////////////////////////////////////////////////////////////////////
  }
 #endif /* INSERT_RECORDERS ] */
@@ -478,18 +476,18 @@ MpCallFlowGraph::~MpCallFlowGraph()
    res = removeLink(*mpToneFileSplitter, 1); assert(res == OS_SUCCESS);
 
    // now remove (and destroy) the resources
-#ifndef DISABLE_LOCAL_AUDIO
+#ifndef DISABLE_LOCAL_AUDIO // [
    res = removeResource(*mpFromMic);
    assert(res == OS_SUCCESS);
    delete mpFromMic;
-#endif
-   mpFromMic = 0;
+   mpFromMic = NULL;
 
-#ifdef DOING_ECHO_CANCELATION /* [ */
+#ifdef DOING_ECHO_CANCELATION // [
    res = removeResource(*mpEchoCancel);
    assert(res == OS_SUCCESS);
    delete mpEchoCancel;
-#endif /* DOING_ECHO_CANCELATION ] */
+#endif // DOING_ECHO_CANCELATION ]
+#endif // DISABLE_LOCAL_AUDIO ]
 
    res = removeResource(*mpTFsMicMixer);
    assert(res == OS_SUCCESS);
@@ -503,11 +501,11 @@ MpCallFlowGraph::~MpCallFlowGraph()
    assert(res == OS_SUCCESS);
    delete mpToneFileSplitter;
 
-#ifndef DISABLE_LOCAL_AUDIO
+#ifndef DISABLE_LOCAL_AUDIO // [
    res = removeResource(*mpToSpkr);
    assert(res == OS_SUCCESS);
    delete mpToSpkr;
-#endif
+#endif // DISABLE_LOCAL_AUDIO ]
 
    res = removeResource(*mpToneGen);
    assert(res == OS_SUCCESS);
@@ -1024,16 +1022,13 @@ OsStatus MpCallFlowGraph::record(int ms, int silenceLength, const char* micName,
       return OS_INVALID;
    }
 
+#ifndef DISABLE_LOCAL_AUDIO // [
    if (NULL != micName) {
       setupRecorder(RECORDER_MIC, micName,
                     ms, silenceLength, completion, format);
    }
    if (NULL != echoOutName) {
       setupRecorder(RECORDER_ECHO_OUT, echoOutName,
-                    ms, silenceLength, completion, format);
-   }
-   if (NULL != spkrName) {
-      setupRecorder(RECORDER_SPKR, spkrName,
                     ms, silenceLength, completion, format);
    }
    if (NULL != echoIn8Name) {
@@ -1054,6 +1049,11 @@ OsStatus MpCallFlowGraph::record(int ms, int silenceLength, const char* micName,
                     echoIn32Name, ms, silenceLength, completion, format);
    }
 #endif // HIGH_SAMPLERATE_AUDIO ]
+#endif // DISABLE_LOCAL_AUDIO ]
+   if (NULL != spkrName) {
+      setupRecorder(RECORDER_SPKR, spkrName,
+                    ms, silenceLength, completion, format);
+   }
    return startRecording(playName, repeat, toneOptions, completion);
 }
 
@@ -1842,9 +1842,11 @@ UtlBoolean MpCallFlowGraph::handleStartPlay(MpFlowGraphMsg& rMsg)
       // shutting off the other audio input
       boolRes = mpTFsMicMixer->disable();   assert(boolRes);
    }
-#ifdef DOING_ECHO_CANCELATION /* [ */
+#ifndef DISABLE_LOCAL_AUDIO // [
+#ifdef DOING_ECHO_CANCELATION // [
    boolRes = mpEchoCancel->disable();  assert(boolRes);
-#endif /* DOING_ECHO_CANCELATION ] */
+#endif // DOING_ECHO_CANCELATION ]
+#endif // DISABLE_LOCAL_AUDIO ]
    return TRUE;
 }
 
@@ -1877,9 +1879,11 @@ UtlBoolean MpCallFlowGraph::handleStartTone(MpFlowGraphMsg& rMsg)
          boolRes = mpTFsMicMixer->setWeight(0, 1);      assert(boolRes);
       }
    }
-#ifdef DOING_ECHO_CANCELATION /* [ */
+#ifndef DISABLE_LOCAL_AUDIO // [
+#ifdef DOING_ECHO_CANCELATION // [
    boolRes = mpEchoCancel->disable();  assert(boolRes);
-#endif /* DOING_ECHO_CANCELATION ] */
+#endif // DOING_ECHO_CANCELATION ]
+#endif // DISABLE_LOCAL_AUDIO ]
    return TRUE;
 }
 
@@ -1918,12 +1922,14 @@ UtlBoolean MpCallFlowGraph::handleStopToneOrPlay()
    {
       boolRes = mpTFsMicMixer->setWeight(1, 1); assert(boolRes);
    }
-#ifdef DOING_ECHO_CANCELATION /* [ */
+#ifndef DISABLE_LOCAL_AUDIO // [
+#ifdef DOING_ECHO_CANCELATION // [
    if (sbEnableAEC && (this == pMediaTask->getFocus()))
    {
       boolRes = mpEchoCancel->enable();  assert(boolRes);
    }
-#endif /* DOING_ECHO_CANCELATION ] */
+#endif // DOING_ECHO_CANCELATION ]
+#endif // DISABLE_LOCAL_AUDIO ]
    return TRUE;
 }
 

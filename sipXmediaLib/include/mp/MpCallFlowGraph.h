@@ -34,6 +34,9 @@
 #define DEBUG_POSTPONE
 #undef DEBUG_POSTPONE
 
+#define DISABLE_LOCAL_AUDIO
+#undef DISABLE_LOCAL_AUDIO
+
 /// Undefine this to fully disable AEC
 #define DOING_ECHO_CANCELATION
 /// Undefine this to enable internal AEC.
@@ -106,15 +109,17 @@ public:
    } ToneOptions;
 
    enum RecorderChoice {
+#ifndef DISABLE_LOCAL_AUDIO // [
       RECORDER_MIC = 0,
       RECORDER_ECHO_OUT,
-      RECORDER_SPKR,
       RECORDER_ECHO_IN8,
 #ifdef HIGH_SAMPLERATE_AUDIO // [
       RECORDER_MIC32K,
       RECORDER_SPKR32K,
       RECORDER_ECHO_IN32,
 #endif // HIGH_SAMPLERATE_AUDIO ]
+#endif // DISABLE_LOCAL_AUDIO ]
+      RECORDER_SPKR,
       MAX_RECORDERS = 10
    };
 
@@ -456,19 +461,21 @@ private:
    MprBridge*    mpBridge;
    MprFromFile*  mpFromFile;
    MprFromStream*  mpFromStream;
+#ifndef DISABLE_LOCAL_AUDIO // [
    MprFromMic*   mpFromMic;
-#ifdef HAVE_SPEEX // [
-   MprSpeexPreprocess* mpSpeexPreProcess;
-#endif // HAVE_SPEEX ]
-#if defined (SPEEX_ECHO_CANCELATION)
-   MprSpeexEchoCancel* mpEchoCancel;
-#elif defined (SIPX_ECHO_CANCELATION) 
-   MprEchoSuppress*    mpEchoCancel;
-#endif
+#  ifdef HAVE_SPEEX // [
+      MprSpeexPreprocess* mpSpeexPreProcess;
+#  endif // HAVE_SPEEX ]
+#  if defined (SPEEX_ECHO_CANCELATION)
+      MprSpeexEchoCancel* mpEchoCancel;
+#  elif defined (SIPX_ECHO_CANCELATION) 
+      MprEchoSuppress*    mpEchoCancel;
+#  endif
+      MprToSpkr*    mpToSpkr;
+#endif // DISABLE_LOCAL_AUDIO ]
    MprMixer*     mpTFsMicMixer;
    MprMixer*     mpTFsBridgeMixer;
    MprSplitter*  mpToneFileSplitter;
-   MprToSpkr*    mpToSpkr;
    MprToneGen*   mpToneGen;
    OsBSem        mConnTableLock;
    UtlBoolean    mToneIsGlobal;
