@@ -740,6 +740,7 @@ NetInTask::NetInTask(int prio, int options, int stack)
 // Destructor
 NetInTask::~NetInTask()
 {
+   waitUntilShutDown();
    spInstance = NULL;
 }
 
@@ -747,30 +748,36 @@ NetInTask::~NetInTask()
 
 OsStatus shutdownNetInTask()
 {
-        NetInTask::getLockObj().acquireWrite();
+   int wrote;
 
-        netInTaskMsg msg;
-        int wrote;
-        NetInTask* pInst = NetInTask::getNetInTask();
-        OsConnectionSocket* writeSocket;
+   // Lock access to write socket.
+   NetInTask::getLockObj().acquireWrite();
 
-        // pInst->getWriteFD();
-        writeSocket = pInst->getWriteSocket();
+   NetInTask* pInst = NetInTask::getNetInTask();
 
-        msg.pRtpSocket = (OsSocket*) -2;
-        msg.pRtcpSocket = (OsSocket*) -1;
-        msg.fwdTo = NULL;
+   // Request shutdown here, so next msg will unblock select() and request
+   // will be processed.
+   pInst->requestShutdown();
 
-        wrote = writeSocket->write((char *) &msg, NET_TASK_MAX_MSG_LEN);
-        NetInTask::getLockObj().releaseWrite();
+   // Write message to socket to release sockets.
+   {
+      OsConnectionSocket* writeSocket = pInst->getWriteSocket();
 
-        pInst->shutdownSockets();
-        
-        NetInTask* pTask = NetInTask::getNetInTask();
-        NetInTask::getLockObj().acquireWrite();
-        pTask->requestShutdown();
-        NetInTask::getLockObj().releaseWrite();
-        return ((NET_TASK_MAX_MSG_LEN == wrote) ? OS_SUCCESS : OS_BUSY);
+      netInTaskMsg msg;
+      msg.pRtpSocket = (OsSocket*) -2;
+      msg.pRtcpSocket = (OsSocket*) -1;
+      msg.fwdTo = NULL;
+
+      wrote = writeSocket->write((char *) &msg, NET_TASK_MAX_MSG_LEN);
+   }
+
+   NetInTask::getLockObj().releaseWrite();
+
+   pInst->shutdownSockets();
+
+   delete pInst;
+
+   return ((NET_TASK_MAX_MSG_LEN == wrote) ? OS_SUCCESS : OS_BUSY);
 }
 
 // $$$ This is quite Unix-centric; on Win/NT these are handles...
