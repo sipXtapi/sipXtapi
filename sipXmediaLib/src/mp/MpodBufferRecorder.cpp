@@ -23,6 +23,13 @@
 // EXTERNAL VARIABLES
 // CONSTANTS
 // STATIC VARIABLE INITIALIZATIONS
+// DEFINES
+#define FINAL_RECORDED_DATA_WRITE
+#undef FINAL_RECORDED_DATA_WRITE
+
+#ifdef FINAL_RECORDED_DATA_WRITE // [
+#  include <os/OsFS.h>
+#endif // FINAL_RECORDED_DATA_WRITE ]
 
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
@@ -91,6 +98,22 @@ OsStatus MpodBufferRecorder::disableDevice()
 
    if (mpBuffer != NULL)
    {
+#ifdef FINAL_RECORDED_DATA_WRITE // [
+      OsDateTime now;
+      OsDateTime::getCurTime(now);
+      char fileName[1024];
+
+      snprintf(fileName,
+               1024, "MpodBufferRecorder-%4d.%02d.%02d.%02d-%02d-%02d.%03d.s16",
+               now.getYear(), now.getMonth(), now.getDay(),
+               now.getHour(), now.getMinute(), now.getSecond(),
+               now.getMicrosecond()/1000);
+
+      OsFile::openAndWrite(fileName,
+                           (char*)mpBuffer,
+                           mBufferEnd);
+#endif // FINAL_RECORDED_DATA_WRITE ]
+
       delete[] mpBuffer;
       mpBuffer = NULL;
       mBufferLength = 0;
