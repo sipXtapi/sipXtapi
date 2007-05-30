@@ -244,13 +244,6 @@ UtlBoolean MprToneGen::handleMessage(MpResourceMsg& rMsg)
    switch (msgType)
    {
    case MpResourceMsg::MPRM_START_TONE:
-      if(toneMsg == NULL)
-      {
-         // If it's not a ToneResourceMsg, 
-         //then pass it on to the parent class.
-         return MpResource::handleMessage(rMsg);
-      }
-
       MpToneGen_startTone(mpToneGenState, toneMsg->getToneId());
       enable();
       msgHandled = TRUE;
