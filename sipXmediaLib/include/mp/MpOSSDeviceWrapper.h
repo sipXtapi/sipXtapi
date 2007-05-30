@@ -210,7 +210,7 @@ protected:
    UtlBoolean performReaderNoDelay();
      /**<
      *  @returns TRUE if frame has been pushed
-     *           FALSE if are not sufficient data in buffer
+     *  @returns FALSE if are not sufficient data in buffer
      */
 
      /// @brief Thread subroutine
