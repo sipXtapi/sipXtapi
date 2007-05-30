@@ -1400,14 +1400,6 @@ OsStatus CpTopologyGraphInterface::startTone(int toneId,
                                           UtlBoolean local,
                                           UtlBoolean remote)
 {
-   // For some reason, Tones are still not being generated...
-   // Despite the message being propagated to the resource,
-   // and the code to start the tone is done.
-
-   // NOTE: For the full-tone hack in MpTopologyGraph to work, 
-   // uncomment the below line. and similar line in stopTone.
-//   return OS_NOT_SUPPORTED;
-
    // TODO: deal with "local" and "remote"...
    OsStatus stat = OS_FAILED;
    if(mpTopologyGraph != NULL)
