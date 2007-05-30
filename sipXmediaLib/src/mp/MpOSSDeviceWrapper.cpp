@@ -312,26 +312,24 @@ OsStatus MpOSSDeviceWrapper::attachReader()
    pthread_mutex_lock(&mWrMutexBuff);
    pthread_mutex_lock(&mWrMutexBuff1);
 
-   if ((pReader == NULL) || (pReaderEnabled == TRUE))
+   if (!((pReader == NULL) || (pReaderEnabled == TRUE)))
    {
-      return ret;
+      assert(mbReadCap == TRUE);
+
+      ret = setSampleRate(pReader->mSamplesPerSec);
+      if (ret == OS_SUCCESS) {
+         pReaderEnabled = TRUE;
+         soundIOThreadBlocking(pWriterEnabled);
+
+         ossSetTrigger(pReaderEnabled, pWriterEnabled);
+         dossprintf("A");
+         char silence[10];
+         doInput(silence, 10);
+         dossprintf("D");
+         soundIOThreadAfterBlocking();
+      }
+      dossprintf("ok\n");
    }
-
-   assert(mbReadCap == TRUE);
-
-   ret = setSampleRate(pReader->mSamplesPerSec);
-   if (ret == OS_SUCCESS) {
-      pReaderEnabled = TRUE;
-      soundIOThreadBlocking(pWriterEnabled);
-
-      ossSetTrigger(pReaderEnabled, pWriterEnabled);
-      dossprintf("A");
-      char silence[10];
-      doInput(silence, 10);
-      dossprintf("D");
-      soundIOThreadAfterBlocking();
-   }
-   dossprintf("ok\n");
    pthread_mutex_unlock(&mWrMutexBuff1);
    pthread_mutex_unlock(&mWrMutexBuff);
 
@@ -345,24 +343,25 @@ OsStatus MpOSSDeviceWrapper::attachWriter()
    pthread_mutex_lock(&mWrMutexBuff);
    pthread_mutex_lock(&mWrMutexBuff1);
 
-   if ((pWriter == NULL) || (pWriterEnabled == TRUE))
-      return ret;
+   if (!((pWriter == NULL) || (pWriterEnabled == TRUE)))
+   {    
+      assert(mbWriteCap == TRUE);
 
-   assert(mbWriteCap == TRUE);
+      ret = setSampleRate(pWriter->mSamplesPerSec);
+      if (ret == OS_SUCCESS)
+      {
+         pWriterEnabled = TRUE;
+         mbFisrtWriteCycle = TRUE;
+         soundIOThreadBlocking(pReaderEnabled);
 
-   ret = setSampleRate(pWriter->mSamplesPerSec);
-   if (ret == OS_SUCCESS)
-   {
-      pWriterEnabled = TRUE;
-      mbFisrtWriteCycle = TRUE;
-      soundIOThreadBlocking(pReaderEnabled);
-
-      ossSetTrigger(pReaderEnabled, pWriterEnabled);
-      soundIOThreadAfterBlocking();
+         ossSetTrigger(pReaderEnabled, pWriterEnabled);
+         soundIOThreadAfterBlocking();
+      }
+      dossprintf("ok\n");
    }
-   dossprintf("ok\n");
    pthread_mutex_unlock(&mWrMutexBuff1);
    pthread_mutex_unlock(&mWrMutexBuff);
+   
    return ret;
 }
 
@@ -373,24 +372,25 @@ OsStatus MpOSSDeviceWrapper::detachReader()
    pthread_mutex_lock(&mWrMutexBuff);
    pthread_mutex_lock(&mWrMutexBuff1);
 
-   if ((pReader == NULL) || (pReaderEnabled == FALSE))
-      return ret;
+   if (!((pReader == NULL) || (pReaderEnabled == FALSE)))
+   {
+      pReaderEnabled = FALSE;
+      soundIOThreadBlocking(TRUE);
 
-   pReaderEnabled = FALSE;
-   soundIOThreadBlocking(TRUE);
+      ossSetTrigger(pReaderEnabled, pWriterEnabled);
 
-   ossSetTrigger(pReaderEnabled, pWriterEnabled);
+      soundIOThreadAfterBlocking();
+      ret = OS_SUCCESS;   
+      dossprintf("ok\n");
+   }
 
-   soundIOThreadAfterBlocking();
    pthread_mutex_unlock(&mWrMutexBuff1);
    pthread_mutex_unlock(&mWrMutexBuff);
-
+   
    OsSysLog::add(FAC_MP, PRI_DEBUG,
                  "OSS: Reader Statistic: Captured %d, Dropped %d",
                  mFramesRead, mFramesDropRead);
-
-   dossprintf("ok\n");
-    return OS_SUCCESS;
+   return ret;
 }
 
 OsStatus MpOSSDeviceWrapper::detachWriter()
@@ -400,25 +400,28 @@ OsStatus MpOSSDeviceWrapper::detachWriter()
    pthread_mutex_lock(&mWrMutexBuff);
    pthread_mutex_lock(&mWrMutexBuff1);
 
-   if ((pWriter == NULL) || (pWriterEnabled == FALSE))
-      return ret;
+   if (!((pWriter == NULL) || (pWriterEnabled == FALSE)))
+   {
+      pWriterEnabled = FALSE;
+      soundIOThreadBlocking(TRUE);
 
-   pWriterEnabled = FALSE;
-   soundIOThreadBlocking(TRUE);
+      ossSetTrigger(pReaderEnabled, pWriterEnabled);
 
-   ossSetTrigger(pReaderEnabled, pWriterEnabled);
+      soundIOThreadAfterBlocking();
+      ret = OS_SUCCESS;   
+      dossprintf("ok\n");
+   }
 
-   soundIOThreadAfterBlocking();
    pthread_mutex_unlock(&mWrMutexBuff1);
    pthread_mutex_unlock(&mWrMutexBuff);
-
+   
    OsSysLog::add(FAC_MP, PRI_DEBUG,
                  "OSS: Writer Statistic: Played %d; Underruns %d; Reclocks %d; "
                  "TUps %d; TDowns %d",
                  mFramesWritten, mFramesWrUnderruns, mReClocks, mCTimeUp, mCTimeDown);
    dossprintf("ok\n");
 
-   return OS_SUCCESS;
+   return ret;
 }
 
 void MpOSSDeviceWrapper::soundIOThreadLockUnlock(bool bLock)
@@ -729,7 +732,7 @@ OsStatus MpOSSDeviceWrapper::doInput(char* buffer, int size)
       }
       bytesReadSoFar += bytesJustRead;
    }
-    return OS_SUCCESS;
+   return OS_SUCCESS;
 }
 
 OsStatus MpOSSDeviceWrapper::doOutput(char* buffer, int size)
@@ -749,7 +752,6 @@ OsStatus MpOSSDeviceWrapper::doOutput(char* buffer, int size)
       }
       bytesWritedSoFar += bytesJustWrite;
    }
-
    return OS_SUCCESS;
 }
 
@@ -818,11 +820,12 @@ void MpOSSDeviceWrapper::performOnlyRead()
 
 #define USEC_CORRECT_STEP   1
 
-void MpOSSDeviceWrapper::performReaderNoDelay()
+UtlBoolean MpOSSDeviceWrapper::performReaderNoDelay()
 {
    if (!pReaderEnabled)
-      return;
+      return FALSE;
 
+   UtlBoolean bRes = FALSE;
    int inSizeReady;
    getISpace(inSizeReady);
 
@@ -837,8 +840,12 @@ void MpOSSDeviceWrapper::performReaderNoDelay()
       {
          pReader->pushFrame(frm);
          mFramesRead++;
+
+         bRes = TRUE;
       }
    }
+   
+   return bRes;
 }
 
 int MpOSSDeviceWrapper::getDMAPlayingQueue()
@@ -883,7 +890,7 @@ void MpOSSDeviceWrapper::performWithWrite(UtlBoolean bReaderEn)
 
    if (mbFisrtWriteCycle)
    {
-      dossprintf("FIRST!!!\n");
+      dossprintf("FIRST!!!");
       musecFrameTime = (1000000 * pWriter->mSamplesPerFrame) / pWriter->mSamplesPerSec;
       mbFisrtWriteCycle = FALSE;
 
@@ -1008,17 +1015,17 @@ void MpOSSDeviceWrapper::performWithWrite(UtlBoolean bReaderEn)
 
    if (bReaderEn)
    {
+      UtlBoolean bRes;
       do
       {
-         performReaderNoDelay();
-      } while (lastISpace > pReader->mSamplesPerFrame * sizeof(MpAudioSample));
+         bRes = performReaderNoDelay(); 
+      } while ((bRes == TRUE) && (lastISpace > pReader->mSamplesPerFrame * sizeof(MpAudioSample)));
    }
 
    if (!pWriter->mNotificationThreadEn)
    {
       pWriter->signalForNextFrame();
    }
-
    // Trying get samples already stored in queue
    samples = pWriter->popFrame(bnFrameSize);
    if (samples == NULL)

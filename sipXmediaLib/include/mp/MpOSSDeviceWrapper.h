@@ -205,7 +205,13 @@ protected:
 
    void performOnlyRead();
    void performWithWrite(UtlBoolean bReaderEn);
-   void performReaderNoDelay();
+   
+     /// @brief Perform reading and pushing frame if sufficient data are in buffer
+   UtlBoolean performReaderNoDelay();
+     /**<
+     *  @returns TRUE if frame has been pushed
+     *           FALSE if are not sufficient data in buffer
+     */
 
      /// @brief Thread subroutine
    void soundIOThread();
