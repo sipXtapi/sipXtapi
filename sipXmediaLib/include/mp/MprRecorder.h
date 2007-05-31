@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2006 SIPez LLC. 
+// Copyright (C) 2006-2007 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
@@ -57,6 +57,7 @@ class MprRecorder : public MpAudioResource
 public:
 
    typedef enum {
+      UNINITIALIZED_FORMAT = -1,
       RAW_PCM_16 = 0,
       WAV_PCM_16
    }  RecordFileFormat;

@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2006 SIPez LLC. 
+// Copyright (C) 2006-2007 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
@@ -50,9 +50,11 @@ MprRecorder::MprRecorder(const UtlString& rName,
 :  MpAudioResource(rName, 1, 1, 0, 1, samplesPerFrame, samplesPerSec),
    mTermKey(-1),
    mFileDescriptor(-1),
+   mRecFormat(UNINITIALIZED_FORMAT),
    mTotalBytesWritten(0),
    mTotalSamplesWritten(0),
    mConsecutiveInactive(0),
+   mSilenceLength(0),
    mPrevEnergy(MIN_SPEECH_ENERGY_THRESHOLD),
    mpEvent(NULL),
    mFramesToRecord(0),
