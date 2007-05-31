@@ -91,6 +91,8 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
 
     virtual void setUp()
     {
+        enableConsoleOutput(0);
+
         if(mInitialized != 1234567890)
         {
             mInitialized = 1234567890;
@@ -471,10 +473,10 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
     {
         RTL_START(2400000);
 
-        // This test creates three flographs.  It streams RTP with tones
+        // This test creates three flowgraphs.  It streams RTP with tones
         // from the 2nd and 3rd to be received and mixed in the first flowgraph
         // So we test RTP and we test that we can generate 2 different tones in
-        // to different flowgraphs to ensure that the tonegen has no global
+        // to different flowgraphs to ensure that the ToneGen has no global
         // interactions or dependencies.
         CPPUNIT_ASSERT(mpMediaFactory);
 
@@ -499,7 +501,7 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
         int turnKeepAlivePeriodSecs = 25;
         bool enableIce = false ;
 
-        // Create a flowgraph (sink) to recieve and mix 2 sources
+        // Create a flowgraph (sink) to receive and mix 2 sources
         CpMediaInterface* mixedInterface = 
             mpMediaFactory->createMediaInterface(NULL, // public mapped RTP IP address
                                                  localRtpInterfaceAddress, 
