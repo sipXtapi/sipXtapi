@@ -157,6 +157,12 @@
 		<Filter
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl">
+			<File
+				RelativePath=".\sipXmediaMediaProcessing\src\test\playback_prompt.h">
+			</File>
+			<File
+				RelativePath=".\sipXmediaMediaProcessing\src\test\record_prompt.h">
+			</File>
 		</Filter>
 		<Filter
 			Name="Resource Files"

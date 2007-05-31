@@ -37,7 +37,7 @@
 				BrowseInformation="1"
 				WarningLevel="3"
 				SuppressStartupBanner="TRUE"
-				DebugInformationFormat="4"
+				DebugInformationFormat="3"
 				CompileAs="0"/>
 			<Tool
 				Name="VCCustomBuildTool"/>
@@ -2553,6 +2553,9 @@
 				RelativePath=".\include\os\qsTypes.h">
 			</File>
 			<File
+				RelativePath="include\SipXportLibInit.h">
+			</File>
+			<File
 				RelativePath="include\xmlparser\tinystr.h">
 			</File>
 			<File
@@ -2563,9 +2566,6 @@
 			</File>
 			<File
 				RelativePath="include\aes\uitypes.h">
-			</File>
-			<File
-				RelativePath="include\SipXportLibInit.h">
 			</File>
 			<File
 				RelativePath=".\include\utl\UtlBool.h">
