@@ -259,35 +259,6 @@ OsStatus MpAudioOutputConnection::pushFrame(unsigned int numSamples,
    return result;
 };
 
-/*
-OsStatus MpAudioOutputConnection::pushToDevice()
-{
-   OsStatus result = OS_FAILED;
-
-   OsLock lock(mMutex);
-
-   // Return error if connection is configured in direct write mode.
-   if (!isMixerBufferAvailable())
-   {
-      return OS_INVALID_STATE;
-   }
-
-   // Do not check does buffer wrap in the middle of the frame, because buffer
-   // was allocated to be multiple of frame size (see enableDevice()).
-
-   // Push frame to device.
-   result = mpDeviceDriver->pushFrame(mpDeviceDriver->getSamplesPerFrame(),
-                             mpMixerBuffer);
-
-   // Advance mixer buffer even if push was not successful.
-   // This may look strange, but really we do not want outdated frames to lay
-   // here, new frames are coming.
-   advanceMixerBuffer(mpDeviceDriver->getSamplesPerFrame());
-
-   return result;
-}
-*/
-
 /* ============================ ACCESSORS ================================= */
 
 /* ============================ INQUIRY =================================== */
@@ -461,7 +432,7 @@ void MpAudioOutputConnection::tickerCallback(const int userData, const int event
    if (pConnection->mMutex.acquire(OsTime(5)) == OS_SUCCESS)
    {
 
-      // If we're in mixer buffer - push frame to device.
+      // If we're in mixer mode - push frame to device.
       if (pConnection->isMixerBufferAvailable())
       {
          // So, push data to device driver and forget.

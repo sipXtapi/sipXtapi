@@ -151,16 +151,6 @@ public:
      *  @returns OS_SUCCESS if frame sent correctly.
      */
 
-     /// Send one frame from mixer buffer to device.
-//   OsStatus pushToDevice();
-     /**<
-     *  Get one frame from mixer buffer, push it to device and remove this frame
-     *  from mixer buffer. This method is called from timer callback usually.
-     *
-     *  @returns OS_INVALID_STATE if connection configured in direct write mode.
-     *  @returns The value returned by MpOutputDeviceDriver::pushFrame() otherwise.
-     */
-
      /// Add one more reference to this connection.
    inline
    unsigned increaseUseCount();
