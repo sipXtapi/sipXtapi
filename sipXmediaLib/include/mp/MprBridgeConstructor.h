@@ -28,7 +28,7 @@
 // FORWARD DECLARATIONS
 
 /**
-*  @brief MprBridgeConstructor is used to contruct a bridge mixer resource
+*  @brief MprBridgeConstructor is used to construct a bridge mixer resource
 *
 */
 class MprBridgeConstructor : public MpAudioResourceConstructor

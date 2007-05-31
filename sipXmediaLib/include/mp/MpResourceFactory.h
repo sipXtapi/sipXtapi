@@ -40,7 +40,7 @@ class MpResourceConstructor;
 class MpResource;
 
 /**
-*  @brief MpResourceFactory is used to contruct resources by type name.
+*  @brief MpResourceFactory is used to construct resources by type name.
 *
 *  MpResourceConstructors are added to the MpResourceFactory and registered 
 *  with a resource type name.  Resources are then constructed using the

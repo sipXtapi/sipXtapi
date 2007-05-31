@@ -28,7 +28,7 @@
 // FORWARD DECLARATIONS
 
 /**
-*  @brief MprFromFileConstructor is used to contruct a FromFile resource
+*  @brief MprFromFileConstructor is used to construct a FromFile resource
 *
 */
 class MprFromFileConstructor : public MpAudioResourceConstructor

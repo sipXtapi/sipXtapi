@@ -29,7 +29,7 @@
 // FORWARD DECLARATIONS
 
 /**
-*  @brief MprRtpOutputAudioConnectionConstructor is used to contruct a ToOutputDevice resource
+*  @brief MprRtpOutputAudioConnectionConstructor is used to construct a ToOutputDevice resource
 *
 */
 class MprRtpOutputAudioConnectionConstructor : public MpAudioResourceConstructor

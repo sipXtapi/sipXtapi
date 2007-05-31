@@ -28,7 +28,7 @@
 // FORWARD DECLARATIONS
 
 /**
-*  @brief MprToneGenConstructor is used to contruct a ToneGen resource
+*  @brief MprToneGenConstructor is used to construct a ToneGen resource
 *
 */
 class MprToneGenConstructor : public MpAudioResourceConstructor

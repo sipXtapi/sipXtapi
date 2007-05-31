@@ -27,7 +27,7 @@
 // FORWARD DECLARATIONS
 
 /**
-*  @brief MpAudioResourceConstructor is used to contruct a specific audio resource type
+*  @brief MpAudioResourceConstructor is used to construct a specific audio resource type
 *
 *  MpAudioResourceConstructors is an abstract class.  Derived types construct a
 *  specific type of MpAudioResource.

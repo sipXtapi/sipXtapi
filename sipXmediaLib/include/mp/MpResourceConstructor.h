@@ -27,7 +27,7 @@
 // FORWARD DECLARATIONS
 
 /**
-*  @brief MpResourceConstructor is used to contruct a spcific resource type
+*  @brief MpResourceConstructor is used to construct a spcific resource type
 *
 *  MpResourceConstructors is an abstract class.  Derived types construct a
 *  specific type of MpResource.

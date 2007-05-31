@@ -28,7 +28,7 @@
 // FORWARD DECLARATIONS
 
 /**
-*  @brief MprNullConstructor is used to contruct a Null resource (e.g. /dev/null)
+*  @brief MprNullConstructor is used to construct a Null resource (e.g. /dev/null)
 *
 */
 class MprNullConstructor : public MpAudioResourceConstructor
