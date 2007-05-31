@@ -218,6 +218,11 @@ public:
          // Ok, now disable it via the manager -- this time it should succeed.
          CPPUNIT_ASSERT(inDevMgr.disableDevice(iDrvHnd) == OS_SUCCESS);
 
+         // Remove the device from the manager explicitly, 
+         // Otherwise the manager will assert fail if there are devices
+         // still present when the manager is destroyed
+         inDevMgr.removeDevice(iDrvHnd);
+
          // Now print out our derivative results.
          printf(" derivatives: %s\n", derivPlotStr.data());
          printf("weighted avg: %s\n", derivWAvgStr.data());
