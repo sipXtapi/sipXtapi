@@ -261,7 +261,7 @@ OsStatus MprFromFile::readAudioFile(UtlString*& audioBuffer,
    int iTotalChannels = 1;
    unsigned long filesize;
    unsigned long trueFilesize;
-   int huhWhat;
+   int samplesReaded;
    int compressionType = 0;
    int channelsMin = 1, channelsMax = 2, channelsPreferred = 0;
    long rateMin = 8000, rateMax = 44100, ratePreferred = 22050;
@@ -354,25 +354,27 @@ OsStatus MprFromFile::readAudioFile(UtlString*& audioBuffer,
          audioFile->getAudioFormat() == AUDIO_FORMAT_WAV)
       {
 
+         // Get actual data size without header.
+         filesize = audioFile->getBytesSize();
+
          switch(compressionType) 
          {
          case MpAudioWaveFileRead::DePcm8Unsigned: //8
+            // We'll convert it to 16 bit
+            filesize *= sizeof(AudioSample);
+            charBuffer = (char*)malloc(filesize);
+            samplesReaded = audioFile->getSamples((AudioSample*)charBuffer,
+                                                  filesize);
 
-
-            charBuffer = (char*)malloc(filesize*sizeof(AudioSample));
-            huhWhat = audioFile->getSamples((AudioSample*)charBuffer,
-               filesize*sizeof(AudioSample));
-
-            if (huhWhat) 
+            if (samplesReaded) 
             {
-               //it's now longer since it's 16 bit now
-               filesize *=sizeof(AudioSample);
+               assert(samplesReaded*sizeof(AudioSample) == filesize);
 
-               //CHANGE TO MONO IF NEEDED
+               // Convert to mono if needed
                if (channelsPreferred > 1)
                   filesize = mergeChannels(charBuffer, filesize, iTotalChannels);
 
-               //RESAMPLE IF NEEDED
+               // Resample if needed
                if (ratePreferred > 8000)
                   filesize = reSample(charBuffer, filesize, ratePreferred, 8000);
             }
@@ -384,13 +386,17 @@ OsStatus MprFromFile::readAudioFile(UtlString*& audioBuffer,
 
          case MpAudioWaveFileRead::DePcm16LsbSigned: // 16
             charBuffer = (char*)malloc(filesize);
-            huhWhat = audioFile->getSamples((AudioSample*)charBuffer,
-               filesize/sizeof(AudioSample));
-            if (huhWhat)
+            samplesReaded = audioFile->getSamples((AudioSample*)charBuffer,
+                                                  filesize/sizeof(AudioSample));
+            if (samplesReaded)
             {
+               assert(samplesReaded*sizeof(AudioSample) == filesize);
+
+               // Convert to mono if needed
                if (iTotalChannels > 1)
                   filesize = mergeChannels(charBuffer, filesize, iTotalChannels);
 
+               // Resample if needed
                if (ratePreferred > 8000)
                   filesize = reSample(charBuffer, filesize, ratePreferred, 8000);
             }
@@ -405,6 +411,10 @@ OsStatus MprFromFile::readAudioFile(UtlString*& audioBuffer,
          if (bDetectedFormatIsOk && 
             audioFile->getAudioFormat() == AUDIO_FORMAT_AU)
          {
+
+            // Get actual data size without header.
+            filesize = audioFile->getBytesSize();
+
             switch(compressionType)
             {
             case MpAuRead::DePcm8Unsigned:
@@ -412,16 +422,18 @@ OsStatus MprFromFile::readAudioFile(UtlString*& audioBuffer,
 
             case MpAuRead::DeG711MuLaw:
                charBuffer = (char*)malloc(filesize*2);
-               huhWhat = audioFile->getSamples((AudioSample*)charBuffer, filesize);
-               if (huhWhat) 
+               samplesReaded = audioFile->getSamples((AudioSample*)charBuffer, filesize);
+               if (samplesReaded) 
                {
 
                   //it's now 16 bit so it's twice as long
                   filesize *= sizeof(AudioSample);
 
+                  // Convert to mono if needed
                   if (channelsPreferred > 1)
                      filesize = mergeChannels(charBuffer, filesize, iTotalChannels);
 
+                  // Resample if needed
                   if (ratePreferred > 8000)
                      filesize = reSample(charBuffer, filesize, ratePreferred, 8000);
                }
@@ -433,12 +445,17 @@ OsStatus MprFromFile::readAudioFile(UtlString*& audioBuffer,
 
             case MpAuRead::DePcm16MsbSigned:
                charBuffer = (char*)malloc(filesize);
-               huhWhat = audioFile->getSamples((AudioSample*)charBuffer, filesize/2);
-               if (huhWhat) 
+               samplesReaded = audioFile->getSamples((AudioSample*)charBuffer,
+                                                     filesize/sizeof(AudioSample));
+               if (samplesReaded) 
                {
+                  assert(samplesReaded*sizeof(AudioSample) == filesize);
+
+                  // Convert to mono if needed
                   if (channelsPreferred > 1)
                      filesize = mergeChannels(charBuffer, filesize, iTotalChannels);
 
+                  // Resample if needed
                   if (ratePreferred > 8000)
                      filesize = reSample(charBuffer, filesize, ratePreferred, 8000);
                }
@@ -476,21 +493,12 @@ OsStatus MprFromFile::readAudioFile(UtlString*& audioBuffer,
          audioFile = new MpAuRead(inputFile, 1);
          if (audioFile)
          {
-            long size = filesize*sizeof(AudioSample);
-            charBuffer = (char*)malloc(size);
+            filesize *= sizeof(AudioSample);
+            charBuffer = (char*)malloc(filesize);
 
-            huhWhat = audioFile->getSamples((AudioSample*)charBuffer, filesize);
-            if (huhWhat) 
-            {
-               filesize *= sizeof(AudioSample);
-
-               if (channelsPreferred > 1)
-                  filesize = mergeChannels(charBuffer, filesize, iTotalChannels);
-
-               if (ratePreferred > 8000)
-                  filesize = reSample(charBuffer, filesize, ratePreferred, 8000);
-            }
-            else
+            samplesReaded = audioFile->getSamples((AudioSample*)charBuffer,
+                                                  filesize/sizeof(AudioSample));
+            if (!samplesReaded) 
             {
                if (notify) notify->signal(INVALID_SETUP);
             }
@@ -580,9 +588,8 @@ UtlBoolean MprFromFile::doProcessFrame(MpBufPtr inBufs[],
             totalBytesRead = bufferLength - mFileBufferIndex;
             totalBytesRead = min(totalBytesRead, bytesPerFrame);
             memcpy(outbuf, &(mpFileBuffer->data()[mFileBufferIndex]),
-               totalBytesRead);
+                   totalBytesRead);
             mFileBufferIndex += totalBytesRead;
-
          }
 
          if (mFileRepeat) {
@@ -591,9 +598,9 @@ UtlBoolean MprFromFile::doProcessFrame(MpBufPtr inBufs[],
             {
                mFileBufferIndex = 0;
                bytesLeft = min(bufferLength - mFileBufferIndex,
-                  bytesPerFrame - totalBytesRead);
+                               bytesPerFrame - totalBytesRead);
                memcpy(&outbuf[(totalBytesRead/sizeof(MpAudioSample))],
-                  &(mpFileBuffer->data()[mFileBufferIndex]), bytesLeft);
+                      &(mpFileBuffer->data()[mFileBufferIndex]), bytesLeft);
                totalBytesRead += bytesLeft;
                mFileBufferIndex += bytesLeft;
             }
