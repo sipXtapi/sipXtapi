@@ -995,7 +995,7 @@ OsStatus MpCallFlowGraph::ezRecord(int ms,
    }
 
   closeRecorders();
-  // If the event has already been signalled, clean up
+  // If the event has already been signaled, clean up
   if(OS_ALREADY_SIGNALED == recordEvent->signal(0))
   {
      eventMgr->release(recordEvent);
@@ -1691,7 +1691,7 @@ UtlBoolean MpCallFlowGraph::writeWAVHeader(int handle)
     bytesWritten += write(handle,tmpbuf,strlen(tmpbuf));
     bytesWritten += write(handle, (char*)&length,sizeof(length)); //filled in on close
     
-    //total length at this point should be 48 bytes
+    //total length at this point should be 44 bytes
     if (bytesWritten == 44)
         retCode = TRUE;
 
