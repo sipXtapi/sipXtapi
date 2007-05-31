@@ -111,7 +111,7 @@ OsStatus MpodBufferRecorder::disableDevice()
 
       OsFile::openAndWrite(fileName,
                            (char*)mpBuffer,
-                           mBufferEnd);
+                           mBufferEnd*sizeof(MpAudioSample));
 #endif // FINAL_RECORDED_DATA_WRITE ]
 
       delete[] mpBuffer;
