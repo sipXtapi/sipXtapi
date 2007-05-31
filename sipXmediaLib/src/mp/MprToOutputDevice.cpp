@@ -131,6 +131,9 @@ UtlBoolean MprToOutputDevice::doProcessFrame(MpBufPtr inBufs[],
          && mpOutputDeviceManager->getMixerBufferLength(mDeviceId, mixerBufferLength) == OS_SUCCESS
          && (mixerBufferLength > 0) )
       {
+         // TODO:: This should be changed, to be done only once on startup,
+         // because it may cause several consecutive frames to be written
+         // with one timestamp and so, mixed together.
          while (status == OS_LIMIT_REACHED)
          {
             RTL_EVENT("MprToOutputDevice::overflow",1);
