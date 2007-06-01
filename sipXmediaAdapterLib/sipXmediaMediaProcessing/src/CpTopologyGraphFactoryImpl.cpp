@@ -328,7 +328,7 @@ MpResourceFactory* CpTopologyGraphFactoryImpl::buildDefaultResourceFactory()
     // Output device
     resourceFactory->addConstructor(*(new MprToOutputDeviceConstructor(mpOutputDeviceManager)));
 
-    // Tonegen
+    // ToneGen
     resourceFactory->addConstructor(*(new MprToneGenConstructor()));
 
     // FromFile

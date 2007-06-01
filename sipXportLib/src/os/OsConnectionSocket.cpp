@@ -75,7 +75,7 @@ OsConnectionSocket::OsConnectionSocket(int serverPort,
    socketDescriptor = OS_INVALID_SOCKET_DESCRIPTOR;
 
    remoteHostPort = serverPort;
-   
+
    if (!initialize(serverName, serverPort, blockingConnect))
    {
         goto EXIT;
@@ -303,7 +303,7 @@ UtlBoolean OsConnectionSocket::reconnect()
         return(FALSE);
 }
 
-// Because we have overided one read method, we
+// Because we have overrode one read method, we
 // must implement them all in OsConnectionSocket or
 // we end up hiding some of the methods.
 int OsConnectionSocket::read(char* buffer, int bufferLength)
@@ -318,7 +318,7 @@ int OsConnectionSocket::read(char* buffer,
                              UtlString* ipAddress,
                              int* port)
 {
-    // Overide base class version as recvfrom does not
+    // Override base class version as recvfrom does not
     // seem to return host info correctly for TCP
     // Use base class version without the remote host info
     int bytesRead = OsSocket::read(buffer, bufferLength);
