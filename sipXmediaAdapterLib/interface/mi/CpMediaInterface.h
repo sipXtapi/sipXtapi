@@ -469,10 +469,18 @@ public:
                              int& dtmfterm,
                              OsProtectedEvent* ev = NULL) = 0;
 
-   //! Record the microphone data -- the flowgraph must be in focus
+     /// Record the microphone data -- the flowgraph must be in focus
    virtual OsStatus recordMic(int ms,
                               int silenceLength,
                               const char* fileName) = 0 ;
+     /**<
+     *  Record the microphone data.
+     *  The flowgraph must be in focus for this to work properly.
+     *  @param ms The amount of time, in milliseconds, to record.
+     *  @param silenceLength The amount of silence, in SECONDS, before
+     *         recording is terminated.
+     *  @param fileName The path and name of a file to record to.
+     */
 
    //! Stop recording for this call.
    virtual OsStatus stopRecording() = 0;
