@@ -59,8 +59,12 @@ UtlBoolean MprNull::doProcessFrame(MpBufPtr inBufs[],
                                    int samplesPerFrame,
                                    int samplesPerSecond)
 {
-   int inIndex;
-   for (inIndex = 0; inIndex < inBufsSize; inIndex++)
+   if (!isEnabled)
+   {
+      return TRUE;
+   }
+
+   for (int inIndex = 0; inIndex < inBufsSize; inIndex++)
    {
       inBufs[inIndex].release();
    }
