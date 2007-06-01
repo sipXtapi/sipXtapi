@@ -420,6 +420,20 @@ OsStatus MpFlowGraphBase::processNextFrame(void)
    {
       res = computeOrder();
       assert(res == OS_SUCCESS);
+
+#ifdef TEST_PRINT_TOPOLOGY
+      for(i=0; i < mResourceCnt; i++)
+      {
+           int outIndex;
+           for(outIndex = 0; outIndex < mExecOrder[i]->mMaxOutputs; outIndex++)
+           {
+               printf("%s[%d]==>%s[%d]\n",
+                   mExecOrder[i]->data(), outIndex, 
+                   mExecOrder[i]->mpOutConns[outIndex].pResource ? mExecOrder[i]->mpOutConns[outIndex].pResource->data() : "",
+                   mExecOrder[i]->mpOutConns[outIndex].portIndex);
+           }
+      }
+#endif
    }
 
    // If the flow graph is "STOPPED" then there is no further processing
