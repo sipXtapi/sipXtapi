@@ -64,10 +64,12 @@ public:
     {
         assert(mSamplesPerFrame > 0);
         assert(mSamplesPerSecond > 0);
-        return(new MprNull(resourceName,
-                           mMaxInputs,
-                           mSamplesPerFrame,
-                           mSamplesPerSecond));
+        MpResource *resource = new MprNull(resourceName,
+                                           mMaxInputs,
+                                           mSamplesPerFrame,
+                                           mSamplesPerSecond);
+        resource->enable();
+        return resource;
     }
 
 /* ============================ ACCESSORS ================================= */

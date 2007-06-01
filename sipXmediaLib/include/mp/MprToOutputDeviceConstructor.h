@@ -68,13 +68,13 @@ public:
     {
         assert(mSamplesPerFrame > 0);
         assert(mSamplesPerSecond > 0);
-
-        // TODO: use MprToOutputDevice instead
-        return(new MprToOutputDevice(resourceName,
-                                     mSamplesPerFrame,
-                                     mSamplesPerSecond,
-                                     mpDefaultManager,
-                                     mDefaultDriver));
+        MpResource *resource = new MprToOutputDevice(resourceName,
+                                                     mSamplesPerFrame,
+                                                     mSamplesPerSecond,
+                                                     mpDefaultManager,
+                                                     mDefaultDriver);
+        resource->disable();
+        return resource;
     }
 
 /* ============================ ACCESSORS ================================= */

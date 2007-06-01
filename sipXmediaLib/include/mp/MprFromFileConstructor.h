@@ -63,9 +63,11 @@ public:
     {
         assert(mSamplesPerFrame > 0);
         assert(mSamplesPerSecond > 0);
-        return(new MprFromFile(resourceName,
-                               mSamplesPerFrame,
-                               mSamplesPerSecond));
+        MpResource *resource = new MprFromFile(resourceName,
+                                               mSamplesPerFrame,
+                                               mSamplesPerSecond);
+        resource->disable();
+        return resource;
     }
 
 /* ============================ ACCESSORS ================================= */

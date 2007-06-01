@@ -42,6 +42,8 @@ MpTopologyGraph::MpTopologyGraph(int samplesPerFrame,
 : MpFlowGraphBase(samplesPerFrame, samplesPerSec)
 , mpResourceFactory(&resourceFactory)
 {
+    OsStatus result;
+
     // construct the new resources defined in the topology and add to the flowgraph
     UtlHashBag newResourcesAdded;
     addTopologyResources(initialResourceTopology, 
@@ -50,10 +52,6 @@ MpTopologyGraph::MpTopologyGraph(int samplesPerFrame,
 
     // Add the links for the resources in the topology
     linkTopologyResources(initialResourceTopology, newResourcesAdded);
-
-    // Enable the flowgraph and all its resources
-    OsStatus result = enable();
-    assert(result == OS_SUCCESS);
 
 #if 0
     // DO NOT CHECK IN for test purposes until resource operation messages

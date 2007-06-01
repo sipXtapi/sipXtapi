@@ -66,11 +66,12 @@ public:
         assert(mSamplesPerFrame > 0);
         assert(mSamplesPerSecond > 0);
 
-        // TODO: use MprToneGen instead
-        return(new MprToneGen(resourceName,
-                             mSamplesPerFrame,
-                             mSamplesPerSecond,
-                             mLocale));
+        MpResource *resource = new MprToneGen(resourceName,
+                                              mSamplesPerFrame,
+                                              mSamplesPerSecond,
+                                              mLocale);
+        resource->disable();
+        return resource;
     }
 
 /* ============================ ACCESSORS ================================= */

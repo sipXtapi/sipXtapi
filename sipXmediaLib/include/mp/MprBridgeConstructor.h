@@ -66,10 +66,12 @@ public:
         assert(mSamplesPerFrame > 0);
         assert(mSamplesPerSecond > 0);
         assert(mMaxInputs == mMaxOutputs);
-        return(new MprBridge(resourceName,
-                             mMaxInputs,
-                             mSamplesPerFrame,
-                             mSamplesPerSecond));
+        MpResource *resource = new MprBridge(resourceName,
+                                             mMaxInputs,
+                                             mSamplesPerFrame,
+                                             mSamplesPerSecond);
+        resource->enable();
+        return resource;
     }
 
 /* ============================ ACCESSORS ================================= */

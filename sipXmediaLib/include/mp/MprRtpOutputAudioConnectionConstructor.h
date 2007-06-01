@@ -64,12 +64,12 @@ public:
     {
         assert(mSamplesPerFrame > 0);
         assert(mSamplesPerSecond > 0);
-
-        // TODO: use MprToOutputDevice instead
-        return(new MpRtpOutputAudioConnection(resourceName,
-                                              999, 
-                                              mSamplesPerFrame, 
-                                              mSamplesPerSecond));
+        MpResource *resource = new MpRtpOutputAudioConnection(resourceName,
+                                                              999, 
+                                                              mSamplesPerFrame, 
+                                                              mSamplesPerSecond);
+        resource->enable();
+        return resource;
     }
 
 /* ============================ ACCESSORS ================================= */
