@@ -284,7 +284,7 @@ UtlBoolean MprToSpkr::doProcessFrame(MpBufPtr inBufs[],
     }
 #endif /* DETECT_SPKR_OVERFLOW ] */
 
-    // Do processing if enabled and if data is avaliable
+    // Do processing if enabled and if data is available
     if (isEnabled && inBufs[0].isValid()) 
     {
 
