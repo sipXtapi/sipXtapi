@@ -28,6 +28,7 @@
 // STRUCTS
 // TYPEDEFS
 // FORWARD DECLARATIONS
+class MpContributorVector;
 
 /**
 *  @brief The conference bridge resource.
@@ -87,10 +88,14 @@ public:
 protected:
 
     UtlBoolean doMix(MpAudioBufPtr inBufs[], int inBufsSize,
-                     MpAudioBufPtr &out, int samplesPerFrame);
+                     MpAudioBufPtr &out, int samplesPerFrame,
+                     MpContributorVector& contributors);
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
+
+   MpContributorVector* mpMixContributors;
+   MpContributorVector** mpLastOutputContributors;
 
    virtual UtlBoolean doProcessFrame(MpBufPtr inBufs[],
                                      MpBufPtr outBufs[],

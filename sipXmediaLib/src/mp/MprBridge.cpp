@@ -18,14 +18,111 @@
 // APPLICATION INCLUDES
 // #include "os/OsDefs.h"
 // #include "mp/MpMisc.h"
-#include "mp/MpBuf.h"
-#include "mp/MprBridge.h"
-#include "mp/MpMisc.h"
+#include <mp/MpBuf.h>
+#include <mp/MprBridge.h>
+#include <mp/MpMisc.h>
+#ifdef RTL_ENABLED
+#   include <mp/MpFlowGraphBase.h>
+#   include <rtl_macro.h>
+#endif
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
 // STATIC VARIABLE INITIALIZATIONS
+
+#ifdef TEST_PRINT_CONTRIBUTORS
+class MpContributorVector
+{
+public:
+    MpContributorVector(int maxContributors = 0)
+    {
+        mMaxContributors = maxContributors;
+        if(mMaxContributors > 0)
+        {
+            mpContributorVector = new int[mMaxContributors];
+            zero();
+        }
+        else
+        {
+            mMaxContributors = 0;
+            mpContributorVector = NULL;
+        }
+    };
+
+    ~MpContributorVector()
+    {
+        if(mpContributorVector)
+        {
+            delete mpContributorVector;
+            mpContributorVector = NULL;
+        }
+    };
+
+    void zero()
+    {
+        if(mpContributorVector && mMaxContributors > 0)
+        {
+            memset(mpContributorVector, 0, sizeof(int) * mMaxContributors);
+        }
+    };
+
+    void set(int contributorIndex, int mixWeight)
+    {
+        if(mpContributorVector && 
+            contributorIndex >= 0 && 
+            contributorIndex < mMaxContributors)
+        {
+            mpContributorVector[contributorIndex] = mixWeight;
+        }
+    };
+    int get(int contributorIndex)
+    {
+        int retValue;
+        if(mpContributorVector && 
+            contributorIndex >= 0 && 
+            contributorIndex < mMaxContributors)
+        {
+            retValue = mpContributorVector[contributorIndex];
+        }
+        else
+        {
+            retValue = 0;
+        }
+        return(retValue);
+    };
+
+    UtlBoolean differs(const MpContributorVector& otherVector)
+    {
+        assert(otherVector.mMaxContributors == mMaxContributors);
+        UtlBoolean isDiff = FALSE;
+        for(int i = 0; i < mMaxContributors; i++)
+        {
+            if(mpContributorVector[i] !=
+                otherVector.mpContributorVector[i])
+            {
+                isDiff = TRUE;
+                break;
+            }
+        }
+        return(isDiff);
+    }
+
+    MpContributorVector& operator=(const MpContributorVector& source)
+    {
+        assert(source.mMaxContributors == mMaxContributors);
+        memcpy(mpContributorVector, source.mpContributorVector, sizeof(int) * mMaxContributors);
+        return(*this);
+    }
+
+private:
+    int mMaxContributors;
+    int* mpContributorVector;
+
+    MpContributorVector(const MpContributorVector&);
+
+};
+#endif
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
@@ -43,11 +140,33 @@ MprBridge::MprBridge(const UtlString& rName,
                    samplesPerSec)
 {
     handleDisable();
+
+#ifdef TEST_PRINT_CONTRIBUTORS
+    mpMixContributors = new MpContributorVector(maxInOutputs);
+    mpLastOutputContributors = new MpContributorVector*[maxInOutputs];
+    for(int i = 0; i < maxInOutputs; i++)
+    {
+        mpLastOutputContributors[i] = new MpContributorVector(maxInOutputs);
+    }
+#endif
 }
 
 // Destructor
 MprBridge::~MprBridge()
 {
+
+#ifdef TEST_PRINT_CONTRIBUTORS
+    delete mpMixContributors;
+    mpMixContributors = NULL;
+    for(int i = 0; i < mMaxOutputs; i++)
+    {
+        delete mpLastOutputContributors[i];
+        mpLastOutputContributors[i] = NULL;
+    }
+    delete[] mpLastOutputContributors;
+    mpLastOutputContributors = NULL;
+#endif
+
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -59,7 +178,8 @@ MprBridge::~MprBridge()
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
 UtlBoolean MprBridge::doMix(MpAudioBufPtr inBufs[], int inBufsSize,
-                            MpAudioBufPtr &out, int samplesPerFrame)
+                            MpAudioBufPtr &out, int samplesPerFrame,
+                            MpContributorVector& contributors)
 {
     int inputsConnected;  // Number of connected ports
     int inputsValid;      // Number of ports with available data
@@ -82,6 +202,9 @@ UtlBoolean MprBridge::doMix(MpAudioBufPtr inBufs[], int inBufsSize,
           lastConnected = inIdx;
           if (inBufs[inIdx].isValid())
           {
+#ifdef TEST_PRINT_CONTRIBUTORS
+             contributors.set(inIdx, 1);
+#endif
              inputsValid++;
              lastValid = inIdx;
              if (inBufs[inIdx]->isActiveAudio())
@@ -90,6 +213,18 @@ UtlBoolean MprBridge::doMix(MpAudioBufPtr inBufs[], int inBufsSize,
                 lastActive = inIdx;
              }
           }
+          else
+          {
+#ifdef TEST_PRINT_CONTRIBUTORS
+             contributors.set(inIdx, 0);
+#endif
+          }
+       }
+       else
+       {
+#ifdef TEST_PRINT_CONTRIBUTORS
+           contributors.set(inIdx, 0);
+#endif
        }
     }
 
@@ -160,7 +295,13 @@ UtlBoolean MprBridge::doProcessFrame(MpBufPtr inBufs[],
 {
    MpAudioBufPtr in;
    UtlBoolean ret = FALSE;
-   MpAudioBufPtr* inAudioBufs;
+
+#ifdef RTL_AUDIO_ENABLED
+   int frameIndex = mpFlowGraph ? mpFlowGraph->numFramesProcessed() : 0;
+   RTL_AUDIO_BUFFER("bridge_input_0", samplesPerSecond, ((MpAudioBufPtr)inBufs[0]), frameIndex);
+   RTL_AUDIO_BUFFER("bridge_input_1", samplesPerSecond, ((MpAudioBufPtr)inBufs[1]), frameIndex);
+   RTL_AUDIO_BUFFER("bridge_input_2", samplesPerSecond, ((MpAudioBufPtr)inBufs[2]), frameIndex);
+#endif
 
    if (outBufsSize == 0)
       return FALSE;
@@ -172,7 +313,7 @@ UtlBoolean MprBridge::doProcessFrame(MpBufPtr inBufs[],
    if (inBufsSize != outBufsSize)
       return FALSE;
 
-   inAudioBufs = new MpAudioBufPtr[inBufsSize];
+   MpAudioBufPtr* inAudioBufs = new MpAudioBufPtr[inBufsSize];
    for (int i=0; i<inBufsSize; i++) {
        inAudioBufs[i].swap(inBufs[i]);
    }
@@ -192,7 +333,29 @@ UtlBoolean MprBridge::doProcessFrame(MpBufPtr inBufs[],
 
       // Copy mixed remote inputs to local speaker and exit
       MpAudioBufPtr out;
-      ret = doMix(inAudioBufs, inBufsSize, out, samplesPerFrame);
+
+#ifdef TEST_PRINT_CONTRIBUTORS
+      mpMixContributors->zero();
+#endif
+
+      ret = doMix(inAudioBufs, inBufsSize, out, samplesPerFrame, *mpMixContributors);
+ 
+#ifdef TEST_PRINT_CONTRIBUTORS
+      // Keep track of the sources mixed for this output
+      if(mpLastOutputContributors[0]->differs(*mpMixContributors))
+      {
+          int contribIndex;
+          printf("Bridge output: %d vector change: %d", 
+                 outIdx, mpMixContributors->get(0));
+          for(contribIndex = 1; contribIndex < inBufsSize; contribIndex++)
+          {
+              printf(", %d", mpMixContributors->get(contribIndex));
+          }
+          printf("\n");
+          *(mpLastOutputContributors[0]) = *mpMixContributors;
+      }
+#endif
+
       outBufs[0] = out;
    } 
    else
@@ -204,20 +367,49 @@ UtlBoolean MprBridge::doProcessFrame(MpBufPtr inBufs[],
       for (int outIdx=0; outIdx < outBufsSize; outIdx++) {
          // Skip unconnected outputs
          if (!isPortActive(outIdx))
-            continue;
+         {
+             continue;
+         }
 
          // Exclude current input from mixing
          temp.swap(inAudioBufs[outIdx]);
 
          // Mix all inputs except outIdx together and put to the output
          MpAudioBufPtr out;
-         ret = doMix(inAudioBufs, inBufsSize, out, samplesPerFrame);
+
+#ifdef TEST_PRINT_CONTRIBUTORS
+         mpMixContributors->zero();
+#endif
+
+         ret = doMix(inAudioBufs, inBufsSize, out, samplesPerFrame, *mpMixContributors);
+
+#ifdef TEST_PRINT_CONTRIBUTORS
+         // Keep track of the sources mixed for this output
+         if(mpLastOutputContributors[outIdx]->differs(*mpMixContributors))
+         {
+             int contribIndex;
+             printf("Bridge output: %d vector change: %d", 
+                 outIdx, mpMixContributors->get(0));
+             for(contribIndex = 1; contribIndex < inBufsSize; contribIndex++)
+             {
+                 printf(", %d", mpMixContributors->get(contribIndex));
+             }
+             printf("\n");
+
+             *mpLastOutputContributors[outIdx] = *mpMixContributors;
+         }
+#endif
+
          outBufs[outIdx] = out;
 
          // Return current input to input buffers vector
          temp.swap(inAudioBufs[outIdx]);
       }
    }
+
+#ifdef RTL_AUDIO_ENABLED
+   RTL_AUDIO_BUFFER("bridge_output_0", samplesPerSecond, ((MpAudioBufPtr)outBufs[0]), frameIndex);
+#endif
 
    // Cleanup temporary buffers
    delete[] inAudioBufs;
