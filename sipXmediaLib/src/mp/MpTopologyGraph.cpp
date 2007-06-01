@@ -89,7 +89,6 @@ MpTopologyGraph::~MpTopologyGraph()
     // wait until the flowgraph is unmanaged.
     while (mediaTask->isManagedFlowGraph(this))
     {
-        printf("waiting to delete MpTopologyGraph: %p\n", this);
         OsTask::delay(20);   // wait 20 msecs before checking again
     }
 
