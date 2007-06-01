@@ -110,7 +110,7 @@ UtlBoolean MpRtpInputAudioConnection::processFrame(void)
                                           mpOutBufs,
                                           mMaxInputs, 
                                           mMaxOutputs, 
-                                          mIsEnabled,
+                                          mpDecode->mIsEnabled,
                                           mpDecode->getSamplesPerFrame(), 
                                           mpDecode->getSamplesPerSec());
     }
@@ -255,11 +255,11 @@ void MpRtpInputAudioConnection::handleStartReceiveRtp(SdpCodec* pCodecs[],
    {
        mpDecode->selectCodecs(pCodecs, numCodecs);       
    }
-   // No need to syncronize as the decoder is not part of the
+   // No need to synchronize as the decoder is not part of the
    // flowgraph.  It is part of this connection/resource
    //mpFlowGraph->synchronize();
    prepareStartReceiveRtp(rRtpSocket, rRtcpSocket);
-   // No need to syncronize as the decoder is not part of the
+   // No need to synchronize as the decoder is not part of the
    // flowgraph.  It is part of this connection/resource
    //mpFlowGraph->synchronize();
    if (numCodecs)
@@ -286,18 +286,19 @@ void MpRtpInputAudioConnection::handleStopReceiveRtp()
 
    JB_inst* pJB_inst; 
 
-   // No need to syncronize as the decoder is not part of the
+   // No need to synchronize as the decoder is not part of the
    // flowgraph.  It is part of this connection/resource
    //mpFlowGraph->synchronize();
 
+
    mpDecode->deselectCodec();
-   // No need to syncronize as the decoder is not part of the
+   // No need to synchronize as the decoder is not part of the
    // flowgraph.  It is part of this connection/resource
    //mpFlowGraph->synchronize();
 
    pJB_inst = getJBinst(TRUE);  // get NULL if not allocated
    mpJB_inst = NULL;
-   // No need to syncronize as the decoder is not part of the
+   // No need to synchronize as the decoder is not part of the
    // flowgraph.  It is part of this connection/resource
    //mpFlowGraph->synchronize();
 

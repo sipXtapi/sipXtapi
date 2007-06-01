@@ -58,7 +58,7 @@ MpRtpOutputAudioConnection::MpRtpOutputAudioConnection(const UtlString& resource
    mpEncode    = new MprEncode(name, samplesPerFrame, samplesPerSec);
 
    // encoder does not get added to the flowgraph, this connection
-   // gets added to do the encoding frameprocessing.
+   // gets added to do the encoding frame processing.
 
    //////////////////////////////////////////////////////////////////////////
    // connect Encode -> ToNet (Non synchronous resources)
@@ -96,7 +96,7 @@ UtlBoolean MpRtpOutputAudioConnection::processFrame(void)
                                 mpOutBufs,
                                 mMaxInputs, 
                                 mMaxOutputs, 
-                                mIsEnabled,
+                                mpEncode->mIsEnabled,
                                 mpEncode->getSamplesPerFrame(), 
                                 mpEncode->getSamplesPerSec());
     }
@@ -275,7 +275,7 @@ OsStatus MpRtpOutputAudioConnection::handleStartSendRtp(OsSocket& rRtpSocket,
    {
        result = OS_SUCCESS;
        mpEncode->selectCodecs(pPrimaryCodec, pDtmfCodec);
-       // No need to syncronize as the encoder is not part of the
+       // No need to synchronize as the encoder is not part of the
        // flowgraph.
        //mpFlowGraph->synchronize();
        mpEncode->enable();
@@ -294,7 +294,7 @@ OsStatus MpRtpOutputAudioConnection::handleStopSendRtp()
        result = OS_SUCCESS;
 //   osPrintf("MpRtpOutputAudioConnection::stopSendRtp resetting send codec\n");
        mpEncode->deselectCodecs();
-   // No need to syncronize as the encoder is not part of the
+   // No need to synchronize as the encoder is not part of the
    // flowgraph.
    //mpFlowGraph->synchronize();
        mpEncode->disable();
