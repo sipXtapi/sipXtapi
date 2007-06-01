@@ -290,7 +290,7 @@ MpCallFlowGraph::MpCallFlowGraph(const char* locale,
    boolRes = mpToSpkr->disable();                 assert(boolRes);
 #endif // DISABLE_LOCAL_AUDIO ]
 
-   // The next group of settings turns the mixers into 2-to-1 multiplexors.
+   // The next group of settings turns the mixers into 2-to-1 multiplexers.
    // When disabled, mixers default to passing input 0 to output, and with
    // this setup, when enabled, they pass input 1 to output.
    boolRes = mpTFsMicMixer->setWeight(0, 0);      assert(boolRes);
@@ -1233,16 +1233,13 @@ MpConnectionID MpCallFlowGraph::createConnection()
 
    Zprintf("bridgePort = %d\n", bridgePort, 0,0,0,0,0);
 
+   pInputConnection->enable();
+   pOutputConnection->enable();
+
    OsStatus stat = addResource(*pInputConnection);
    assert(OS_SUCCESS == stat);
    stat = addResource(*pOutputConnection);
    assert(OS_SUCCESS == stat);
-
-   // Not sure if this is still needed
-   this->synchronize();
-   pInputConnection->enable();
-   pOutputConnection->enable();
-   this->synchronize();
 
    stat = addLink(*mpBridge, bridgePort, *pOutputConnection, 0);
    assert(OS_SUCCESS == stat);
