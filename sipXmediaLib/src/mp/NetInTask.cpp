@@ -67,6 +67,16 @@
 static int dummy0 = 0;
 #endif /* _VXWORKS ] */
 
+#ifdef RTL_ENABLED
+#  include <rtl_macro.h>
+#else
+#  define RTL_START(x)
+#  define RTL_BLOCK(x)
+#  define RTL_EVENT(x,y)
+#  define RTL_WRITE(x)
+#  define RTL_STOP
+#endif
+
 // EXTERNAL FUNCTIONS
 
 // EXTERNAL VARIABLES
@@ -111,25 +121,37 @@ const int NetInTask::DEF_NET_IN_TASK_STACKSIZE = 4096;// default task stacksize
 
 /************************************************************************/
 
-// This task is launched when getWriteFD() called from the same task as
-// the one that is about to call accept.
-
+/**
+*  @brief Help create writer side of connection for NetInTask internal use.
+*
+*  This task is used to create connection to socket we're listening. Main task
+*  create OsServerConnection and wait call OsServerConnection::accept() to
+*  get reader side of connection. On the side of this task writer side of
+*  connection is connected.
+*/
 class NetInTaskHelper : public OsTask
 {
 public:
-    NetInTaskHelper(NetInTask* task, OsNotification* notify);
+    NetInTaskHelper(int port);
     ~NetInTaskHelper();
+
+    /// Do the task.
     virtual int run(void* pArg);
+
+    /// Wait for helper task to finish and return connected socket.
+    inline OsConnectionSocket* getSocket();
+
 private:
-    int port;
-    OsNotification* mpNotify;
+   OsConnectionSocket* mpSocket;
+   int                 mPort;
 };
 
 
-NetInTaskHelper::NetInTaskHelper(NetInTask* pNIT, OsNotification* pNotify)
-:  OsTask("NetInTaskHelper-%d", (void*)pNIT, 25, 0, 2000)
+NetInTaskHelper::NetInTaskHelper(int port)
+: OsTask("NetInTaskHelper-%d", NULL, 25, 0, 2000)
+, mpSocket(NULL)
+, mPort(port)
 {
-    mpNotify = pNotify;
 }
 
 NetInTaskHelper::~NetInTaskHelper()
@@ -137,32 +159,37 @@ NetInTaskHelper::~NetInTaskHelper()
     waitUntilShutDown();
 }
 
-int NetInTaskHelper::run(void* pInst)
+int NetInTaskHelper::run(void*)
 {
-    // osPrintf("NetInTaskHelper::run: Start\n");
-    NetInTask* pNIT = (NetInTask*) pInst;
-    int trying = 1000;
-    OsConnectionSocket* pWriteSocket = NULL;
-    while (trying > 0)
+    int numTry = 0;
+    while (numTry < 1000)
     {
-       OsTask::delay(1);
-       pNIT->openWriteFD();
-       pWriteSocket = pNIT->getWriteSocket();
-       if (pWriteSocket && pWriteSocket->isConnected()) break;
-       trying--;
+       // Delay for some time on consecutive runs.
+       if (numTry > 0)
+       {
+          OsTask::delay(1);
+       }
+
+       // Connect...
+       mpSocket = new OsConnectionSocket(mPort, "127.0.0.1");
+       if (mpSocket && mpSocket->isConnected()) break;
+
+       numTry++;
     }
-    mpNotify->signal(0);
+
     OsSysLog::add(FAC_MP, PRI_INFO,
-       "NetInTaskHelper::run()... returning 0, after %d tries\n", (1001 - trying));
+       "NetInTaskHelper::run()... returning 0, after %d tries\n", numTry);
 
     return 0;
 }
 
-/************************************************************************/
-void NetInTask::openWriteFD()
+OsConnectionSocket* NetInTaskHelper::getSocket()
 {
-    mpWriteSocket = new OsConnectionSocket(mCmdPort, "127.0.0.1");
+   waitUntilShutDown();
+   return mpSocket;
 }
+
+/************************************************************************/
 
 int NetInTask::getWriteFD()
 {
@@ -171,40 +198,9 @@ int NetInTask::getWriteFD()
     {
         writeSocketDescriptor = mpWriteSocket->getSocketDescriptor();
     }
-
     else
     {
-        // connect to the socket
-        sLock.acquireWrite();
-        if (NULL != mpWriteSocket) 
-        {
-            // We lost a race for the lock, don't need to do anything
-        }
-
-        else if (OsTask::getCurrentTask() == NetInTask::spInstance) 
-        {
-            OsEvent* pNotify;
-            NetInTaskHelper* pHelper;
-
-            // Start our helper thread to go open the socket
-            pNotify = new OsEvent;
-            pHelper = new NetInTaskHelper(this, pNotify);
-            if (!pHelper->isStarted()) {
-                pHelper->start();
-            }
-            pNotify->wait();
-            delete pHelper;
-            delete pNotify;
-        } 
-        else 
-        {
-            // we are in a different thread already, go do it ourselves.
-            osPrintf("Not NetInTask: opening connection directly\n");
-            OsSysLog::add(FAC_MP, PRI_DEBUG, "Not NetInTask: opening connection directly\n");
-            openWriteFD();
-        }
-        writeSocketDescriptor = mpWriteSocket->getSocketDescriptor();
-        sLock.releaseWrite();
+       assert(FALSE);
     }
     return(writeSocketDescriptor);
 }
@@ -215,17 +211,6 @@ OsConnectionSocket* NetInTask::getWriteSocket()
         getWriteFD();
     }
     return mpWriteSocket;
-}
-
-OsConnectionSocket* NetInTask::getReadSocket()
-{
-    int i;
-
-    for (i=0; ((i<10) && (NULL == mpReadSocket)); i++) {
-        getWriteFD();
-        OsTask::delay(100);
-    }
-    return mpReadSocket;
 }
 
 /************************************************************************/
@@ -367,12 +352,8 @@ int showNetInTable() {
    int     i;
    netInTaskMsgPtr ppr;
    NetInTask* pInst = NetInTask::getNetInTask();
-   OsConnectionSocket* readSocket;
 
-   // pInst->getWriteFD();
-   readSocket = pInst->getReadSocket();
-
-   pipeFd = readSocket->getSocketDescriptor();
+   pipeFd = pInst->getWriteFD();
 
    for (i=0, ppr=pairs; i<NET_TASK_MAX_FD_PAIRS; i++) {
       if (NULL != ppr->fwdTo) {
@@ -395,18 +376,6 @@ int showNetInTable() {
    return last;
 }
 
-volatile int NetInWait = 0;
-
-int NetInHalt() {
-   NetInWait = 1;
-   return 0;
-}
-
-int NetInResume() {
-   NetInWait = 0;
-   return 0;
-}
-
 int NetInTask::run(void *pNotUsed)
 {
         fd_set fdset;
@@ -417,27 +386,7 @@ int NetInTask::run(void *pNotUsed)
         int     numReady;
         netInTaskMsg    msg;
         netInTaskMsgPtr ppr;
-        OsServerSocket* pBindSocket;
         int     ostc;
-
-        while (NetInWait) {
-            OsTask::yield();
-        }
-        pBindSocket = new OsServerSocket(1, PORT_DEFAULT, "127.0.0.1");
-        mCmdPort = pBindSocket->getLocalHostPort();
-        // osPrintf("\n NetInTask: local comm port is %d\n\n", mCmdPort);
-        assert(-1 != mCmdPort);
-        // osPrintf("NetInTask: getting WriteFD\n");
-        getWriteFD();
-        // osPrintf("NetInTask: calling accept\n");
-        mpReadSocket = pBindSocket->accept();
-        // osPrintf("NetInTask: accept returned, closing server socket\n");
-        pBindSocket->close();
-        delete pBindSocket;
-        if (NULL == mpReadSocket) {
-            Zprintf(" *** NetInTask: accept() failed!\n", 0,0,0,0,0,0);
-            return 0;
-        }
 
         for (i=0, ppr=pairs; i<NET_TASK_MAX_FD_PAIRS; i++) {
             ppr->pRtpSocket =  NULL;
@@ -697,7 +646,7 @@ NetInTask* NetInTask::getNetInTask()
    }
    sLock.releaseRead();
 
-   // Synchronize with NetInTask starutp
+   // Synchronize with NetInTask startup
    int numDelays = 0;
    while (spInstance->mCmdPort == -1)
    {
@@ -734,7 +683,35 @@ NetInTask::NetInTask(int prio, int options, int stack)
    mpWriteSocket(NULL),
    mpReadSocket(NULL)
 {
-    mCmdPort = -1;
+    // Create temporary listening socket.
+    OsServerSocket *pBindSocket = new OsServerSocket(1, PORT_DEFAULT, "127.0.0.1");
+    RTL_EVENT("NetInTask::NetInTask", 1);
+    mCmdPort = pBindSocket->getLocalHostPort();
+    assert(-1 != mCmdPort);
+
+    // Start our helper thread to go open the socket
+    RTL_EVENT("NetInTask::NetInTask", 2);
+    NetInTaskHelper* pHelper = new NetInTaskHelper(mCmdPort);
+    if (!pHelper->isStarted()) {
+       RTL_EVENT("NetInTask::NetInTask", 3);
+       pHelper->start();
+    }
+
+    RTL_EVENT("NetInTask::NetInTask", 4);
+    mpReadSocket = pBindSocket->accept();
+
+    RTL_EVENT("NetInTask::NetInTask", 5);
+    pBindSocket->close();
+
+    RTL_EVENT("NetInTask::NetInTask", 6);
+    delete pBindSocket;
+
+    // Create socket for write side of connection.
+    mpWriteSocket = pHelper->getSocket();
+    assert(mpWriteSocket != NULL && mpWriteSocket->isConnected());
+
+    RTL_EVENT("NetInTask::NetInTask", 7);
+    delete pHelper;
 }
 
 // Destructor
@@ -838,11 +815,6 @@ OsStatus removeNetInputSources(MprFromNet* fwdTo, OsNotification* notify)
                     (int)writeSocket, writeSocket->getSocketDescriptor(), wrote);
             }
         }
-
-#ifdef WIN32 /* [ */
-        // Reduce the delay, not sure this is still needed
-      Sleep(100);
-#endif /* WIN32 ] */
 
         return ((NET_TASK_MAX_MSG_LEN == wrote) ? OS_SUCCESS : OS_BUSY);
 }

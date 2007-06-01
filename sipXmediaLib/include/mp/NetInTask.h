@@ -146,8 +146,6 @@ public:
 //@{
 
    OsConnectionSocket* getWriteSocket(void);
-   OsConnectionSocket* getReadSocket(void);
-   void openWriteFD(void);
    static OsRWMutex& getLockObj() { return sLock; }
 
 //@}
