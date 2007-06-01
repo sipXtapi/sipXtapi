@@ -125,9 +125,28 @@ UtlBoolean MpAudioResource::processFrame(void)
       mpInBufs[i].release();
    }
 
+#ifdef RTL_AUDIO_ENABLED
+   int frameIndex = mpFlowGraph ? mpFlowGraph->numFramesProcessed() : 0;
+#endif
+
    // pass the output buffers downstream
    for (i=0; i < mMaxOutputs; i++)
    {
+#ifdef RTL_AUDIO_ENABLED
+       // If there is a consumer of the output
+       if(mpOutConns[i].pResource)
+       {
+           UtlString outputLabel(*this);
+           outputLabel.append("_output_");
+           outputLabel.append((char) i < 10 ? ('0' + i) : ('A' + i - 10));
+           outputLabel.append('_');
+           outputLabel.append(*mpOutConns[i].pResource);
+           RTL_AUDIO_BUFFER(outputLabel, 
+                            mSamplesPerSec, 
+                            ((MpAudioBufPtr) mpOutBufs[i]), 
+                            frameIndex);
+       }
+#endif
        pushBufferDownsream(i, mpOutBufs[i]);
        mpOutBufs[i].release();
    }
