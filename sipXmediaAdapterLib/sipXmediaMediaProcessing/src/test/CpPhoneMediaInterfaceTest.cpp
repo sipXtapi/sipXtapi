@@ -319,7 +319,7 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
         printf("recording disabled\n");
 #else
         printf("Record record.tmp.wav\n");
-        mediaInterface->recordMic(10000, 10000, "record.tmp.wav") ;
+        mediaInterface->recordMic(10000, 10, "record.tmp.wav") ;
         mediaInterface->stopRecording() ;
 #endif
         OsTask::delay(100) ;
