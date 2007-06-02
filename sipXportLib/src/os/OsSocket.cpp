@@ -1268,7 +1268,7 @@ UtlBoolean OsSocket::isFramed(IpProtocolSocketType type)
    {
    case TCP:
    case SSL_SOCKET:
-      // UNKNOWN and all other values return TRUE for safety.
+      // UNKNOWN and all other values return FALSE for safety.
    case UNKNOWN:
    case CUSTOM:
    default:
