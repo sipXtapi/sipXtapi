@@ -2467,8 +2467,14 @@ void CpPhoneMediaInterface::createRtpSocketPair(UtlString localAddress,
       // Set the type of service (DiffServ code point) to low delay
       int tos = mExpeditedIpTos;
       
+#ifndef WIN32 // [
+            // Under Windows this options are supported under Win2000 only and
+            // are not recommended to use.
       setsockopt (sRtp, IPPROTO_IP, IP_TOS, (char *)&tos, sizeof(int));
       setsockopt (sRtcp, IPPROTO_IP, IP_TOS, (char *)&tos, sizeof(int));
+#else  // WIN32 ][
+      // TODO:: Implement QoS  request under Windows.
+#endif // WIN32 ]
    }
 
    // Enable Stun if we have a stun server and either non-local contact type or 
