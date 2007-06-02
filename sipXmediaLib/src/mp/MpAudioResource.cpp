@@ -1,5 +1,5 @@
 //  
-// Copyright (C) 2006 SIPez LLC. 
+// Copyright (C) 2006-2007 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
@@ -23,7 +23,10 @@
 #include "mp/MpFlowGraphMsg.h"
 #include "mp/MpAudioResource.h"
 #ifdef RTL_ENABLED
-#   include <rtl_macro.h>
+#  include <rtl_macro.h>
+#  ifdef RTL_AUDIO_ENABLED
+#     include <SeScopeAudioBuffer.h>
+#  endif
 #endif
 
 // EXTERNAL FUNCTIONS
@@ -133,19 +136,19 @@ UtlBoolean MpAudioResource::processFrame(void)
    for (i=0; i < mMaxOutputs; i++)
    {
 #ifdef RTL_AUDIO_ENABLED
-       // If there is a consumer of the output
-       if(mpOutConns[i].pResource)
-       {
-           UtlString outputLabel(*this);
-           outputLabel.append("_output_");
-           outputLabel.append((char) i < 10 ? ('0' + i) : ('A' + i - 10));
-           outputLabel.append('_');
-           outputLabel.append(*mpOutConns[i].pResource);
-           RTL_AUDIO_BUFFER(outputLabel, 
-                            mSamplesPerSec, 
-                            ((MpAudioBufPtr) mpOutBufs[i]), 
-                            frameIndex);
-       }
+      // If there is a consumer of the output
+      if(mpOutConns[i].pResource)
+      {
+         UtlString outputLabel(*this);
+         outputLabel.append("_output_");
+         outputLabel.append((char) i < 10 ? ('0' + i) : ('A' + i - 10));
+         outputLabel.append('_');
+         outputLabel.append(*mpOutConns[i].pResource);
+         RTL_AUDIO_BUFFER(outputLabel, 
+                          mSamplesPerSec, 
+                          ((MpAudioBufPtr) mpOutBufs[i]), 
+                          frameIndex);
+      }
 #endif
        pushBufferDownsream(i, mpOutBufs[i]);
        mpOutBufs[i].release();
