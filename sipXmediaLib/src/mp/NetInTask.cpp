@@ -620,7 +620,6 @@ OsStatus startNetInTask()
 NetInTask* NetInTask::getNetInTask()
 {
    UtlBoolean isStarted;
-   // OsStatus  stat;
 
    // If the task object already exists, and the corresponding low-level task
    // has been started, then use it
@@ -654,22 +653,14 @@ NetInTask* NetInTask::getNetInTask()
 
 void NetInTask::shutdownSockets()
 {
-        getLockObj().acquireWrite();
-        
-        if (mpWriteSocket)
-        {
-            mpWriteSocket->close();
-            delete mpWriteSocket;
-            mpWriteSocket = NULL;
-        }
-        
-        /*if (mpReadSocket)
-        {
-            mpReadSocket->close();
-            delete mpReadSocket;
-            mpReadSocket =  NULL;
-        }*/
-        getLockObj().releaseWrite();
+   getLockObj().acquireWrite();
+   if (mpWriteSocket)
+   {
+      mpWriteSocket->close();
+      delete mpWriteSocket;
+      mpWriteSocket = NULL;
+   }
+   getLockObj().releaseWrite();
 
 }
 // Default constructor (called only indirectly via getNetInTask())
