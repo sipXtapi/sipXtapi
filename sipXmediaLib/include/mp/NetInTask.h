@@ -28,8 +28,6 @@
 #include "mp/MpBuf.h"
 #include "mp/MpMisc.h"
 
-class OsNotification;
-
 // DEFINES
 #define IP_HEADER_SIZE  20    ///< Size of IP packet header
 #define UDP_HEADER_SIZE 8     ///< Size of UDP packet header
@@ -60,23 +58,26 @@ class OsNotification;
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
-// STRUCTS
-
+// FORWARD DECLARATIONS
+class MprFromNet;
 class OsConnectionSocket;
 class OsServerSocket;
 class OsSocket;
+class OsNotification;
+
+// STRUCTS
 
 struct rtpSession {
-        UCHAR vpxcc; ///< Usually: ((2<<6) | (0<<5) | (0<<4) | 0)
-        UCHAR mpt;   ///< Usually: ((0<<7) | 0)
-        USHORT seq;
-        UINT timestamp;
-        UINT ssrc;
-        OsSocket* socket;
-        int dir;
-        UINT packets;
-        UINT octets;
-        USHORT cycles;
+   UCHAR vpxcc; ///< Usually: ((2<<6) | (0<<5) | (0<<4) | 0)
+   UCHAR mpt;   ///< Usually: ((0<<7) | 0)
+   USHORT seq;
+   UINT timestamp;
+   UINT ssrc;
+   OsSocket* socket;
+   int dir;
+   UINT packets;
+   UINT octets;
+   USHORT cycles;
 };
 
 #ifndef INCLUDE_RTCP /* [ */
@@ -95,8 +96,6 @@ typedef struct __MprRtcpStats* MprRtcpStatsPtr;
 typedef struct rtpSession *rtpHandle;
 
 // FORWARD DECLARATIONS
-class MprFromNet;
-
 extern UINT rand_timer32(void);
 extern rtpHandle StartRtpSession(OsSocket* socket, int direction, char type);
 extern void FinishRtpSession(rtpHandle h);
@@ -104,9 +103,14 @@ extern void FinishRtpSession(rtpHandle h);
 extern OsStatus startNetInTask();
 extern OsStatus shutdownNetInTask();
 extern OsStatus addNetInputSources(OsSocket* pRtpSocket,
-            OsSocket* pRtcpSocket, MprFromNet* fwdTo, OsNotification* note);
+                                   OsSocket* pRtcpSocket,
+                                   MprFromNet* fwdTo,
+                                   OsNotification* note);
 extern OsStatus removeNetInputSources(MprFromNet* fwdTo, OsNotification* note);
 
+/**
+*  @brief Task that listen for packets in incoming RTP streams.
+*/
 class NetInTask : public OsTask
 {
 
@@ -121,9 +125,6 @@ public:
 ///@name Creators
 //@{
 
-     /// Return a pointer to the NetIn task, creating it if necessary
-   static NetInTask* getNetInTask();
-
      /// Destructor
    virtual
    ~NetInTask();
@@ -132,6 +133,11 @@ public:
    
    
    void shutdownSockets();   
+
+//@}
+
+     /// Return a pointer to the NetIn task, creating it if necessary
+   static NetInTask* getNetInTask();
 
 /* ============================ MANIPULATORS ============================== */
 ///@name Manipulators
@@ -146,11 +152,17 @@ public:
 //@{
 
    OsConnectionSocket* getWriteSocket(void);
-   static OsRWMutex& getLockObj() { return sLock; }
 
 //@}
 
+   static OsRWMutex& getLockObj() { return sLock; }
+
 /* ============================ INQUIRY =================================== */
+///@name Inquiry
+//@{
+
+//@}
+
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 
@@ -158,7 +170,7 @@ protected:
    NetInTask(
       int prio    = DEF_NET_IN_TASK_PRIORITY,      ///< default task priority
       int options = DEF_NET_IN_TASK_OPTIONS,       ///< default task options
-      int stack   = DEF_NET_IN_TASK_STACKSIZE);    ///< default task stacksize
+      int stack   = DEF_NET_IN_TASK_STACKSIZE);    ///< default task stack size
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
@@ -171,7 +183,7 @@ private:
 
    OsConnectionSocket* mpWriteSocket;
    OsConnectionSocket* mpReadSocket;
-   int               mCmdPort;      ///< internal socket port number
+   int                 mCmdPort;    ///< internal socket port number
 
      /// Copy constructor (not implemented for this task)
    NetInTask(const NetInTask& rNetInTask);

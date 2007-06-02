@@ -78,13 +78,8 @@ static int dummy0 = 0;
 #endif
 
 // EXTERNAL FUNCTIONS
-
 // EXTERNAL VARIABLES
-
 // CONSTANTS
-
-#define NET_TASK_PIPE_NAME "/pipe/tcas1NetInTask"
-#define NET_TASK_MAX_MSGS 10
 #define NET_TASK_MAX_MSG_LEN sizeof(netInTaskMsg)
 #define NET_TASK_MAX_FD_PAIRS 100
 
@@ -479,14 +474,14 @@ int NetInTask::run(void *pNotUsed)
                         mpReadSocket->getSocketDescriptor(), 0,0,0,0,0);
                     OsSysLog::add(FAC_MP, PRI_ERR, " *** NetInTask: closing pipeFd (%d)\n",
                         mpReadSocket->getSocketDescriptor());
-                    sLock.acquireWrite();
+                    getLockObj().acquireWrite();
                     if (mpReadSocket)
                     {
                         mpReadSocket->close();
-                       delete mpReadSocket;
+                        delete mpReadSocket;
                         mpReadSocket = NULL;
                     }
-                    sLock.releaseWrite();
+                    getLockObj().releaseWrite();
                 } else if (NULL != msg.fwdTo) {
                     if ((NULL != msg.pRtpSocket) || (NULL != msg.pRtcpSocket)) {
                         /* add a new pair of file descriptors */
@@ -634,7 +629,7 @@ NetInTask* NetInTask::getNetInTask()
 
    // If the task does not yet exist or hasn't been started, then acquire
    // the lock to ensure that only one instance of the task is started
-   sLock.acquireRead();
+   getLockObj().acquireRead();
    if (spInstance == NULL) {
        spInstance = new NetInTask();
    }
@@ -644,7 +639,7 @@ NetInTask* NetInTask::getNetInTask()
       isStarted = spInstance->start();
       assert(isStarted);
    }
-   sLock.releaseRead();
+   getLockObj().releaseRead();
 
    // Synchronize with NetInTask startup
    int numDelays = 0;
