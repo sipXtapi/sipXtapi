@@ -198,11 +198,6 @@ UtlBoolean MprToneGen::doProcessFrame(MpBufPtr inBufs[],
           out = inBufs[0];
    }
 
-   // Comment out this: Be honest, we failed.
-//   if (!out.isValid()) {
-//      out = MpMisc.mpFgSilence;
-//   }
-
    // Set output
    outBufs[0] = out;
    
