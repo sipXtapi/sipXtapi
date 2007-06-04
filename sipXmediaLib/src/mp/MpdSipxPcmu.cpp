@@ -101,6 +101,8 @@ void MpdSipxPcmu::FrameIncrement(void)
 }
 int MpdSipxPcmu::decodeIn(MpBufPtr pPacket)
 {
+    return MpBuf_getContentLen(pPacket);
+
     // THIS METHOD CAN BE CALLED MORE THAN ONE TIME PER FRAME INTERVAL
     // This method figures out if we want this packet or not. If no, return a 0, else return the packet size
     unsigned int rtpTimestamp = MprDejitter::getTimestamp(pPacket);

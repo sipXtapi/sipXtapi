@@ -62,8 +62,8 @@ public:
    // the completion callbacks:  the waveOut operations send completion
    // acknowledgements in bursts covering 60 to 100 msecs at once.  At
    // 10 msec per buffer, this resulted in frequent starvation.
-   enum { MAX_SPKR_BUFFERS = 12 };
-   enum { MIN_SPKR_BUFFERS = 1 };
+   enum { MAX_SPKR_BUFFERS = 20 };
+   enum { MIN_SPKR_BUFFERS =  8 };
    enum { SKIP_SPKR_BUFFERS = 2 };
 #ifdef REIMPLEMENT_CLARISIS_EQ /* [ */
    enum {EqFilterLen_ix = 24};

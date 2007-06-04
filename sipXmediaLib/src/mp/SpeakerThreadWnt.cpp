@@ -24,6 +24,7 @@
 #include "mp/MprToSpkr.h"
 #include "mp/MpMediaTask.h"
 #include "os/OsDefs.h"
+#include "os/OsDateTime.h"
 
 // DEFINES
 #undef OHISTORY
@@ -88,7 +89,7 @@ static void CALLBACK TimerCallbackProc(UINT wTimerID, UINT msg, DWORD dwUser, DW
     int retval = PostThreadMessage(dwUser, WM_ALT_HEARTBEAT, 0, GetTickCount());
     if (retval == 0)
     {
-        Sleep(500);
+        Sleep(100);
         retval = PostThreadMessage(dwUser, WM_ALT_HEARTBEAT, 0, GetTickCount());
         if (retval == 0)
             osPrintf("Could not PostTheadMessage after two tries.\n");
@@ -571,12 +572,10 @@ unsigned int __stdcall SpkrThread(LPVOID Unused)
         pOutHdr[i] = NULL;
     }
     
-    if (openSpeakerDevices(pWH, hOut))
-    {
-        // NOT using a sound card
-        // Set up a 10ms timer to call back to this routine
-        timeSetEvent(10, 0, TimerCallbackProc, GetCurrentThreadId(), TIME_PERIODIC);
-    }
+    openSpeakerDevices(pWH, hOut) ;
+
+    // Set up a 10ms timer to call back to this routine
+    timeSetEvent(10, 0, TimerCallbackProc, GetCurrentThreadId(), TIME_PERIODIC);
 
     played = 0;   
     bDone = false ;
@@ -645,10 +644,8 @@ unsigned int __stdcall SpkrThread(LPVOID Unused)
                 {                    
                     DmaTask::clearOutputDeviceChanged() ;
                     closeSpeakerDevices() ;
-                    if (openSpeakerDevices(pWH, hOut))
-                    {
-                        timeSetEvent(10, 0, TimerCallbackProc, GetCurrentThreadId(), TIME_PERIODIC);                    
-                    }
+                    openSpeakerDevices(pWH, hOut) ;
+                    // timeSetEvent(10, 0, TimerCallbackProc, GetCurrentThreadId(), TIME_PERIODIC);                    
                     continue ;                    
                 }
 
@@ -676,9 +673,8 @@ unsigned int __stdcall SpkrThread(LPVOID Unused)
                     }
                     played++;
 			    }
-
+#if 0
                 res = MpMediaTask::signalFrameStart();
-
                 switch (res) 
                 {
                 case OS_SUCCESS:
@@ -710,6 +706,7 @@ unsigned int __stdcall SpkrThread(LPVOID Unused)
                     break;
 #endif /* DEBUG_WINDOZE ] */
                 }
+#endif
                 break;
             case WOM_CLOSE:
                 // Audio device was closed on us (doesn't happen as far as I

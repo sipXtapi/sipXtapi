@@ -19,6 +19,7 @@
 // APPLICATION INCLUDES
 #include "os/OsLock.h"
 #include "os/OsMsgPool.h"
+#include "os/OsDateTime.h"
 #include "mp/MpFlowGraphBase.h"
 #include "mp/MpCallFlowGraph.h"
 #include "mp/MpMediaTask.h"
