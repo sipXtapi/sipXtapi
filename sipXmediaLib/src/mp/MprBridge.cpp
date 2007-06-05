@@ -32,7 +32,7 @@
 // CONSTANTS
 // STATIC VARIABLE INITIALIZATIONS
 #define TEST_PRINT_CONTRIBUTORS
-#undef  TEST_PRINT_CONTRIBUTORS
+//#undef  TEST_PRINT_CONTRIBUTORS
 
 
 #ifdef TEST_PRINT_CONTRIBUTORS
@@ -367,7 +367,7 @@ UtlBoolean MprBridge::doProcessFrame(MpBufPtr inBufs[],
       {
          int contribIndex;
          printf("Bridge output: %d vector changed: %d", 
-                outIdx, mpMixContributors->get(0));
+                0, mpMixContributors->get(0));
          for (contribIndex = 1; contribIndex < inBufsSize; contribIndex++)
          {
             printf(", %d", mpMixContributors->get(contribIndex));
