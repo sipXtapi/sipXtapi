@@ -18,7 +18,6 @@
 #include <os/OsTask.h>
 #include <utl/UtlSList.h>
 #include <utl/UtlInt.h>
-#include <mp/MpTypes.h>
 //#define DISABLE_RECORDING
 #define EMBED_PROMPTS
 #ifdef EMBED_PROMPTS
@@ -322,8 +321,8 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
         printf("Record to 10sec buffer\n");
 
         // Create a buffer to record to.
-        // HACK: assume 8000 samples per second
-        int bytesPerSec = 8000*sizeof(MpAudioSample);
+        // HACK: assume 8000 samples per second and 16 bit audio
+        int bytesPerSec = 8000*2;
         int nSecsToRecord = 10;
         UtlString audioBuffer;
         audioBuffer.resize(nSecsToRecord * bytesPerSec);
