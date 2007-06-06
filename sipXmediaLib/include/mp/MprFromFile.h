@@ -171,7 +171,7 @@ public:
 
      /// @brief Sends an MPRM_FROMFILE_PAUSE message to the named MprFromFile resource.
    static OsStatus pauseFile(const UtlString& namedResource,
-                            OsMsgQ& fgQ);
+                             OsMsgQ& fgQ);
      /**<
      *  Sends an MPRM_FROMFILE_PAUSE message to the named MprFromFile resource
      *  within the flowgraph who's queue is supplied. When the message 
