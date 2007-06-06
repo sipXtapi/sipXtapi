@@ -2350,6 +2350,43 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="src\mp\MprBufferRecorder.cpp">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="3"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug_NoVideo|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="3"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release_NoVideo|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath="src\mp\MprDecode.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -4386,6 +4423,9 @@
 				RelativePath=".\include\mp\MpBufPool.h">
 			</File>
 			<File
+				RelativePath="include\mp\MpBufRecStartResourceMsg.h">
+			</File>
+			<File
 				RelativePath="include\mp\MpCallFlowGraph.h">
 			</File>
 			<File
@@ -4543,6 +4583,12 @@
 			</File>
 			<File
 				RelativePath=".\include\mp\MprBridgeConstructor.h">
+			</File>
+			<File
+				RelativePath=".\include\mp\MprBufferRecorder.h">
+			</File>
+			<File
+				RelativePath=".\include\mp\MprBufferRecorderConstructor.h">
 			</File>
 			<File
 				RelativePath="include\mp\MprDecode.h">

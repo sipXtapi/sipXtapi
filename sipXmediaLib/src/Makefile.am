@@ -141,6 +141,7 @@ libsipXmedia_la_SOURCES =  \
     mp/MprToNet.cpp \
     mp/MprToOutputDevice.cpp \
     mp/MprToSpkr.cpp \
+    mp/MprBufferRecorder.cpp \
     mp/MpRtpInputAudioConnection.cpp \
     mp/MpRtpInputConnection.cpp \
     mp/MpRtpOutputAudioConnection.cpp \

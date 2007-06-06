@@ -94,6 +94,9 @@ nobase_include_HEADERS =  \
     mp/MpUdpBuf.h \
     mp/MprBridge.h \
     mp/MprBridgeConstructor.h \
+    mp/MprBufferRecorder.h \
+    mp/MprBufferRecorderConstructor.h \
+    mp/MpBufRecStartResourceMsg.h \
     mp/MprDecode.h \
     mp/MprDejitter.h \
     mp/MprEchoSuppress.h \
