@@ -336,14 +336,13 @@ UtlBoolean MprBridge::doProcessFrame(MpBufPtr inBufs[],
 
    MpAudioBufPtr* inAudioBufs = new MpAudioBufPtr[inBufsSize];
    for (int i=0; i<inBufsSize; i++) {
-       inAudioBufs[i].swap(inBufs[i]);
+      inAudioBufs[i].swap(inBufs[i]);
    }
 
    // If disabled, mix all remote inputs onto local speaker, and copy
    // our local microphone to all remote outputs.
    if (!isEnabled)
    {
-       printf("Bridge disabled\n");
       // Move local mic data to all remote parties
       in.swap(inAudioBufs[0]);
       for (int outIdx=1; outIdx < outBufsSize; outIdx++) {
@@ -389,7 +388,7 @@ UtlBoolean MprBridge::doProcessFrame(MpBufPtr inBufs[],
          // Skip unconnected outputs
          if (!isPortActive(outIdx))
          {
-             continue;
+            continue;
          }
 
          // Exclude current input from mixing
@@ -410,7 +409,7 @@ UtlBoolean MprBridge::doProcessFrame(MpBufPtr inBufs[],
          {
             int contribIndex;
             printf("Bridge output: %d vector change: %d", 
-               outIdx, mpMixContributors->get(0));
+                   outIdx, mpMixContributors->get(0));
             for (contribIndex = 1; contribIndex < inBufsSize; contribIndex++)
             {
                printf(", %d", mpMixContributors->get(contribIndex));
