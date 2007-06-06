@@ -26,6 +26,7 @@
 #include <os/OsSysLog.h>
 #include <mp/MpTopologyGraph.h>
 #include <mp/MpResourceTopology.h>
+#include <mp/MprBufferRecorder.h>
 #include <mp/MprToneGen.h>
 #include <mp/MprFromFile.h>
 #include <mp/MpRtpInputAudioConnection.h>
@@ -1487,13 +1488,24 @@ OsStatus CpTopologyGraphInterface::stopRecording()
    return OS_NOT_SUPPORTED;
 }
 
+OsStatus CpTopologyGraphInterface::recordMic(UtlString* pAudioBuffer)
+{
+   OsStatus stat = OS_NOT_FOUND;
+   if(mpTopologyGraph != NULL)
+   {
+      stat = MprBufferRecorder::startRecording(
+                DEFAULT_BUFFER_RECORDER_RESOURCE_NAME,
+                *mpTopologyGraph->getMsgQ(), pAudioBuffer);
+   }
+   return stat;
+}
+
 OsStatus CpTopologyGraphInterface::recordMic(int ms,
-                                          int silenceLength,
-                                          const char* fileName)
+                                             int silenceLength,
+                                             const char* fileName)
 {
     return OS_NOT_SUPPORTED;
 }
-
 
 OsStatus CpTopologyGraphInterface::ezRecord(int ms, 
                                          int silenceLength, 

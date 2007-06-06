@@ -116,8 +116,12 @@ protected:
      *  @returns TRUE if successful, FALSE otherwise.
      */
 
-     /// @brief Handles an incoming message for this media processing object.
-   virtual UtlBoolean handleMessage(MpFlowGraphMsg& rMsg);
+     /// @brief Handles an incoming flowgraph message for this media processing object.
+   virtual UtlBoolean handleMessage(MpFlowGraphMsg& fgMsg);
+     /**< @returns TRUE if the message was handled, otherwise FALSE. */
+
+     /// @brief Handles an incoming resource message for this media processing object.
+   virtual UtlBoolean handleMessage(MpResourceMsg& rMsg);
      /**< @returns TRUE if the message was handled, otherwise FALSE. */
 
      /// Return number of samples per frame

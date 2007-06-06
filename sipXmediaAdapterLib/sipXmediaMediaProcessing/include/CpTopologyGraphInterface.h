@@ -179,10 +179,13 @@ public:
            int& dtmfterm,
            OsProtectedEvent* ev = NULL);
 
-   //! Record the microphone data -- the flowgraph must be in focus
+     /// Record the microphone data -- the flowgraph must be in focus
+   virtual OsStatus recordMic(UtlString* pAudioBuffer);
+
+     /// Record the microphone data -- the flowgraph must be in focus
    virtual OsStatus recordMic(int ms,
                               int silenceLength,
-                              const char* fileName) ; 
+                              const char* fileName);
 
     virtual void setContactType(int connectionId, SIPX_CONTACT_TYPE eType, SIPX_CONTACT_ID contactId) ;
      //: Set the contact type for this Phone media interface.  

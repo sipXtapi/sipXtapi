@@ -18,6 +18,7 @@
 #include <os/OsTask.h>
 #include <utl/UtlSList.h>
 #include <utl/UtlInt.h>
+#include <mp/MpTypes.h>
 //#define DISABLE_RECORDING
 #define EMBED_PROMPTS
 #ifdef EMBED_PROMPTS
@@ -318,9 +319,17 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
 #ifdef DISABLE_RECORDING
         printf("recording disabled\n");
 #else
-        printf("Record record.tmp.wav\n");
-        mediaInterface->recordMic(10000, 10, "record.tmp.wav") ;
-        mediaInterface->stopRecording() ;
+        printf("Record to 10sec buffer\n");
+
+        // Create a buffer to record to.
+        // HACK: assume 8000 samples per second
+        int bytesPerSec = 8000*sizeof(MpAudioSample);
+        int nSecsToRecord = 10;
+        UtlString audioBuffer;
+        audioBuffer.resize(nSecsToRecord * bytesPerSec);
+
+        mediaInterface->recordMic(&audioBuffer);
+        OsTask::delay(nSecsToRecord * 1000);
 #endif
         OsTask::delay(100) ;
         mediaInterface->startTone(0, true, false) ;
@@ -346,8 +355,13 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
 #ifdef DISABLE_RECORDING
         printf("record disabled so no play back of recorded message\n");
 #else
-        printf("Play record.tmp.wav\n");
-        mediaInterface->playAudio("record.tmp.wav", false, true, false) ;
+        printf("Play record buffer\n");
+        mediaInterface->playBuffer((char*)audioBuffer.data(), 
+                                   audioBuffer.length(), 
+                                   0, // type (does not need conversion to raw)
+                                   false,  // repeat
+                                   true,   // local
+                                   false); // remote
         OsTask::delay(10000) ;
         mediaInterface->stopAudio() ;
 #endif

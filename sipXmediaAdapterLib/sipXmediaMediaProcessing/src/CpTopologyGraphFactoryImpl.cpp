@@ -26,6 +26,7 @@
 #include <mp/MprBridgeConstructor.h>
 #include <mp/MprRtpOutputAudioConnectionConstructor.h>
 #include <mp/MprRtpInputAudioConnectionConstructor.h>
+#include <mp/MprBufferRecorderConstructor.h>
 #include <include/CpTopologyGraphFactoryImpl.h>
 #include <mi/CpMediaInterfaceFactory.h>
 #include <include/CpTopologyGraphInterface.h>
@@ -346,6 +347,9 @@ MpResourceFactory* CpTopologyGraphFactoryImpl::buildDefaultResourceFactory()
     // Input RTP connection
     resourceFactory->addConstructor(*(new MprRtpInputAudioConnectionConstructor()));
 
+    // Buffer Recorder
+    resourceFactory->addConstructor(*(new MprBufferRecorderConstructor()));
+
     return(resourceFactory);
 }
 
@@ -376,6 +380,10 @@ MpResourceTopology* CpTopologyGraphFactoryImpl::buildDefaultInitialResourceTopol
                                            DEFAULT_TO_OUTPUT_DEVICE_RESOURCE_NAME);
     assert(result == OS_SUCCESS);
 
+    result = resourceTopology->addResource(DEFAULT_BUFFER_RECORDER_RESOURCE_TYPE,
+                                           DEFAULT_BUFFER_RECORDER_RESOURCE_NAME);
+    assert(result == OS_SUCCESS);
+
     result = resourceTopology->addResource(DEFAULT_NULL_RESOURCE_TYPE, 
                                            DEFAULT_NULL_RESOURCE_NAME);
     assert(result == OS_SUCCESS);
@@ -398,11 +406,12 @@ MpResourceTopology* CpTopologyGraphFactoryImpl::buildDefaultInitialResourceTopol
     result = resourceTopology->addConnection(DEFAULT_BRIDGE_RESOURCE_NAME, 0, DEFAULT_TO_OUTPUT_DEVICE_RESOURCE_NAME, 0);
     assert(result == OS_SUCCESS);
 
-    // Fill up the unpaired bridge outputs as it currently barfs if
-    // it does not have the same number of inputs and outputs.
-    result = resourceTopology->addConnection(DEFAULT_BRIDGE_RESOURCE_NAME, 1, DEFAULT_NULL_RESOURCE_NAME, 1);
+    // Link bridge to buffer recorder
+    result = resourceTopology->addConnection(DEFAULT_BRIDGE_RESOURCE_NAME, 1, DEFAULT_BUFFER_RECORDER_RESOURCE_NAME, 0);
     assert(result == OS_SUCCESS);
 
+    // Fill up the unpaired bridge outputs as it currently barfs if
+    // it does not have the same number of inputs and outputs.
     result = resourceTopology->addConnection(DEFAULT_BRIDGE_RESOURCE_NAME, 2, DEFAULT_NULL_RESOURCE_NAME, 2);
     assert(result == OS_SUCCESS);
 

@@ -44,6 +44,7 @@
 #include "mp/MprFromStream.h"
 #include "mp/MprFromFile.h"
 #include "mp/MprFromMic.h"
+#include "mp/MprBufferRecorder.h"
 
 #if defined (SPEEX_ECHO_CANCELATION)
 #include "mp/MprSpeexEchoCancel.h"
@@ -145,6 +146,10 @@ MpCallFlowGraph::MpCallFlowGraph(const char* locale,
 #ifndef DISABLE_LOCAL_AUDIO // [
    mpFromMic          = new MprFromMic("FromMic",
                                  samplesPerFrame, samplesPerSec, MpMisc.pMicQ);
+   mpMicSplitter      = new MprSplitter("MicSplitter", 2, 
+                                 samplesPerFrame, samplesPerSec);
+   mpBufferRecorder   = new MprBufferRecorder("BufferRecorder",
+                                 samplesPerFrame, samplesPerSec);
 #if defined (SPEEX_ECHO_CANCELATION)
    mpEchoCancel       = new MprSpeexEchoCancel("SpeexEchoCancel",
                                  samplesPerFrame, samplesPerSec);
@@ -182,6 +187,8 @@ MpCallFlowGraph::MpCallFlowGraph(const char* locale,
    res = addResource(*mpFromFile);          assert(res == OS_SUCCESS);
 #ifndef DISABLE_LOCAL_AUDIO // [
    res = addResource(*mpFromMic);           assert(res == OS_SUCCESS);
+   res = addResource(*mpMicSplitter);       assert(res == OS_SUCCESS);
+   res = addResource(*mpBufferRecorder);    assert(res == OS_SUCCESS);
 #ifdef DOING_ECHO_CANCELATION // [
    res = addResource(*mpEchoCancel);        assert(res == OS_SUCCESS);
 #endif // DOING_ECHO_CANCELATION ]
@@ -202,10 +209,22 @@ MpCallFlowGraph::MpCallFlowGraph(const char* locale,
 
 
 #ifndef DISABLE_LOCAL_AUDIO
-   // connect FromMic -> (EchoCancel) -> (PreProcessor) -> TFsMicMixer
+   // connect: 
+   // FromMic -> MicSplitter -> (EchoCancel) -> (PreProcessor) -> TFsMicMixer
+   //                       \-> BufferRecorder
 
    MpResource *pLastResource; // Last resource in the chain
    pLastResource = mpFromMic;
+
+   res = addLink(*pLastResource, 0, *mpMicSplitter, 0);
+   assert(res == OS_SUCCESS);
+   pLastResource = mpMicSplitter;
+
+   // Buffer recorder will use port 1 of the splitter.
+   res = addLink(*pLastResource, 1, *mpBufferRecorder, 0);
+   assert(res == OS_SUCCESS);
+   // We don't set last resource here on purpose, as the splitter
+   // should be used as input again next.
 
 #ifdef DOING_ECHO_CANCELATION /* [ */
    res = addLink(*pLastResource, 0, *mpEchoCancel, 0);
@@ -227,7 +246,8 @@ MpCallFlowGraph::MpCallFlowGraph(const char* locale,
 
    res = addLink(*pLastResource, 0, *mpTFsMicMixer, 1);
    assert(res == OS_SUCCESS);
-#endif
+
+#endif /* DISABLE_LOCAL_AUDIO ] */
 
    // connect TFsMicMixer -> Bridge
    res = addLink(*mpTFsMicMixer, 0, *mpBridge, 0);
@@ -458,6 +478,9 @@ MpCallFlowGraph::~MpCallFlowGraph()
    res = removeLink(*mpBridge, 0);           assert(res == OS_SUCCESS);
 #ifndef DISABLE_LOCAL_AUDIO
    res = removeLink(*mpFromMic, 0);          assert(res == OS_SUCCESS);
+   res = removeLink(*mpMicSplitter, 0);      assert(res == OS_SUCCESS);
+   // remove connection to buffer recorder.
+   res = removeLink(*mpMicSplitter, 1);      assert(res == OS_SUCCESS);
 #ifdef DOING_ECHO_CANCELATION // [
    res = removeLink(*mpEchoCancel, 0);       assert(res == OS_SUCCESS);
 #endif // DOING_ECHO_CANCELATION ]
@@ -481,6 +504,16 @@ MpCallFlowGraph::~MpCallFlowGraph()
    assert(res == OS_SUCCESS);
    delete mpFromMic;
    mpFromMic = NULL;
+
+   res = removeResource(*mpMicSplitter);
+   assert(res == OS_SUCCESS);
+   delete mpMicSplitter;
+   mpMicSplitter = NULL;
+
+   res = removeResource(*mpBufferRecorder);
+   assert(res == OS_SUCCESS);
+   delete mpBufferRecorder;
+   mpBufferRecorder = NULL;
 
 #ifdef DOING_ECHO_CANCELATION // [
    res = removeResource(*mpEchoCancel);
@@ -891,6 +924,15 @@ OsStatus MpCallFlowGraph::mediaRecord(int ms,
   return record(ms, silenceLength, NULL, NULL, fileName,
                  NULL, NULL, NULL, NULL, NULL, 0, 0, recordEvent, format);
 
+}
+
+OsStatus MpCallFlowGraph::recordMic(UtlString* pAudioBuffer)
+{
+   OsStatus stat = OS_FAILED;
+   stat = MprBufferRecorder::startRecording(
+             mpBufferRecorder->getName(),
+             *getMsgQ(), pAudioBuffer);
+   return stat;
 }
 
 OsStatus MpCallFlowGraph::recordMic(int ms,

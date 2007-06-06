@@ -482,6 +482,15 @@ public:
      *  @param fileName The path and name of a file to record to.
      */
 
+     /// Record the microphone data -- the flowgraph must be in focus
+   virtual OsStatus recordMic(UtlString* pAudioBuf) 
+      { return OS_NOT_SUPPORTED; };
+     /**<
+     *  Record the microphone data.
+     *  The flowgraph must be in focus for this to work properly.
+     *  @param pAudioBuf a fixed audio buffer to record to.
+     */
+
    //! Stop recording for this call.
    virtual OsStatus stopRecording() = 0;
 

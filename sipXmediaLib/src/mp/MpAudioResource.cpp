@@ -21,6 +21,7 @@
 #include "os/OsDefs.h"
 #include "mp/MpFlowGraphBase.h"
 #include "mp/MpFlowGraphMsg.h"
+#include "mp/MpResourceMsg.h"
 #include "mp/MpAudioResource.h"
 #ifdef RTL_ENABLED
 #  include <rtl_macro.h>
@@ -188,26 +189,36 @@ UtlBoolean MpAudioResource::setSamplesPerSec(int samplesPerSec)
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
-// Handles an incoming message for this media processing object.
+// Handles an incoming flowgraph message for this media processing object.
 // Returns TRUE if the message was handled, otherwise FALSE.
-UtlBoolean MpAudioResource::handleMessage(MpFlowGraphMsg& rMsg)
+UtlBoolean MpAudioResource::handleMessage(MpFlowGraphMsg& fgMsg)
 {
    UtlBoolean msgHandled;
 
    msgHandled = TRUE;                       // assume we'll handle the msg
-   switch (rMsg.getMsg())
+   switch (fgMsg.getMsg())
    {
    case MpFlowGraphMsg::RESOURCE_SET_SAMPLES_PER_FRAME:
-      mSamplesPerFrame = rMsg.getInt1();    // set the samples per frame
+      mSamplesPerFrame = fgMsg.getInt1();    // set the samples per frame
       break;
    case MpFlowGraphMsg::RESOURCE_SET_SAMPLES_PER_SEC:
-      mSamplesPerSec = rMsg.getInt1();      // set the samples per second
+      mSamplesPerSec = fgMsg.getInt1();      // set the samples per second
       break;
    default:
-      msgHandled = MpResource::handleMessage(rMsg);  // we didn't handle the msg
+      msgHandled = MpResource::handleMessage(fgMsg);  // we didn't handle the msg
       break;                                         // pass it to the parent
    }
 
+   return msgHandled;
+}
+
+
+// Handles an incoming resource message for this media processing object.
+// Returns TRUE if the message was handled, otherwise FALSE.
+UtlBoolean MpAudioResource::handleMessage(MpResourceMsg& rMsg)
+{
+   UtlBoolean msgHandled = TRUE; // assume we'll handle the msg
+   msgHandled = MpResource::handleMessage(rMsg);  // we didn't handle the msg
    return msgHandled;
 }
 
