@@ -55,6 +55,8 @@ class MpResourceMsg;
 *  MpResource inherits from UtlString and stores the resource name
 *  in the base class.  The resource name is used to uniquely identify
 *  the resource within the scope of a flowgraph.
+*
+*  @nosubgrouping
 */
 class MpResource : public UtlString
 {
@@ -239,9 +241,6 @@ static const UtlContainableType TYPE;
 
      /// Displays information on the console about the specified resource.
    static void resourceInfo(MpResource* pResource, int index);
-
-///@name Accessors
-//@{
 
      /// Returns parent flowgraph.
    MpFlowGraphBase* getFlowGraph(void) const;
