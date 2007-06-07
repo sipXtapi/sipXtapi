@@ -94,59 +94,63 @@ static const UtlContainableType TYPE;
      /// Disable this resource.
    virtual UtlBoolean disable(void);
      /**<
-     *  The "enabled" flag is passed to the <i>doProcessFrame()</i> method
-     *  and will likely affect the media processing that is performed by this
-     *  resource.  Typically, if a resource is not enabled,
-     *  <i>doProcessFrame()</i> will perform only minimal processing (for
-     *  example, passing the input straight through to the output in the case
-     *  of a one input / one output resource).
-     *  @returns TRUE if successful, FALSE otherwise.
+     *  The "enabled" flag is passed to the doProcessFrame() method and will
+     *  likely affect the media processing that is performed by this resource.
+     *  Typically, if a resource is not enabled, doProcessFrame() will perform
+     *  only minimal processing (for example, passing the input straight through
+     *  to the output in the case of a one input / one output resource).
+     *  
+     *  @retval TRUE if successful.
+     *  @retval FALSE otherwise.
      */
 
      /// Post a message to disable the resource named.
    static OsStatus disable(const UtlString& namedResource,
                            OsMsgQ& fgQ);
      /**<
-     *  Post a disable message for the named resource to the 
-     *  flowgraph queue supplied.
-     *  NOTE: This is an asynchronous operation.
+     *  Post a disable message for the named resource to the flowgraph queue
+     *  supplied.
+     *
+     *  @note This is an asynchronous operation.
      *        The status returned does not indicate that the disable
      *        happened - only that it was properly queued.
-     *  @param namedResource - the name of the resource to disable.
-     *  @param fgQ - The flowgraph message queue to post the message to.
-     *  @returns OS_SUCCESS if the message was successfully queued
-     *           to the message queue.
-     *  @returns OS_FAILED if the message could not be added to the
-     *           message queue.
+     *
+     *  @param[in] namedResource - the name of the resource to disable.
+     *  @param[in] fgQ - The flowgraph message queue to post the message to.
+     *
+     *  @retval OS_SUCCESS if the message was successfully queued
+     *          to the message queue.
+     *  @retval OS_FAILED if the message could not be added to the
+     *          message queue.
      */
 
      /// Enable this resource.
    virtual UtlBoolean enable(void);
      /**<
-     *  The "enabled" flag is passed to the <i>doProcessFrame()</i> method
-     *  and will likely affect the media processing that is performed by this
-     *  resource.  Typically, if a resource is not enabled,
-     *  <i>doProcessFrame()</i> will perform only minimal processing (for
-     *  example, passing the input straight through to the output in the case
-     *  of a one input / one output resource).
-     *  @returns TRUE if successful, FALSE otherwise.
+     *  @copydoc disable()
+     *  
+     *  @retval TRUE if successful.
+     *  @retval FALSE otherwise.
      */
 
      /// Post a message to enable the resource named.
    static OsStatus enable(const UtlString& namedResource,
                           OsMsgQ& fgQ);
      /**<
-     *  Post an enable message for the named resource to the 
-     *  flowgraph queue supplied.
-     *  NOTE: This is an asynchronous operation.
+     *  Post an enable message for the named resource to the flowgraph queue
+     *  supplied.
+     *
+     *  @note This is an asynchronous operation.
      *        The status returned does not indicate that the enable
      *        happened - only that it was properly queued.
-     *  @param namedResource - the name of the resource to enable.
-     *  @param fgQ - The flowgraph message queue to post the message to.
-     *  @returns OS_SUCCESS if the message was successfully queued
-     *           to the message queue.
-     *  @returns OS_FAILED if the message could not be added to the
-     *           message queue.
+     *
+     *  @param[in] namedResource - the name of the resource to enable.
+     *  @param[in] fgQ - The flowgraph message queue to post the message to.
+     *
+     *  @retval OS_SUCCESS if the message was successfully queued
+     *          to the message queue.
+     *  @retval OS_FAILED if the message could not be added to the
+     *          message queue.
      */
 
      /// @brief Post a message to enable resource notifications on the 
@@ -154,17 +158,20 @@ static const UtlContainableType TYPE;
    static OsStatus enableAllNotifications(const UtlString& namedResource,
                                           OsMsgQ& fgQ);
      /**<
-     *  Post a message to enable sending all notifications for the
-     *  named resource to the flowgraph queue supplied.
-     *  NOTE: This is an asynchronous operation.
+     *  Post a message to enable sending all notifications for the named
+     *  resource to the flowgraph queue supplied.
+     *
+     *  @note This is an asynchronous operation.
      *        The status returned does not indicate that notifications
      *        are enabled or disabled - only that it was properly queued.
-     *  @param namedResource - the name of the resource to operate on.
-     *  @param fgQ - The flowgraph message queue to post the message to.
-     *  @returns OS_SUCCESS if the message was successfully queued
-     *           to the message queue.
-     *  @returns OS_FAILED if the message could not be added to the
-     *           message queue.
+     *
+     *  @param[in] namedResource - the name of the resource to operate on.
+     *  @param[in] fgQ - The flowgraph message queue to post the message to.
+     *
+     *  @retval OS_SUCCESS if the message was successfully queued
+     *          to the message queue.
+     *  @retval OS_FAILED if the message could not be added to the
+     *          message queue.
      */
 
      /// @brief Post a message to disable resource notifications on the 
@@ -172,31 +179,37 @@ static const UtlContainableType TYPE;
    static OsStatus disableAllNotifications(const UtlString& namedResource,
                                            OsMsgQ& fgQ);
      /**<
-     *  Post a message to disable sending all notifications for the
-     *  named resource to the flowgraph queue supplied.
-     *  NOTE: This is an asynchronous operation.
+     *  Post a message to disable sending all notifications for the named
+     *  resource to the flowgraph queue supplied.
+     *
+     *  @note This is an asynchronous operation.
      *        The status returned does not indicate that notifications
      *        are enabled or disabled - only that it was properly queued.
-     *  @param namedResource - the name of the resource to operate on.
-     *  @param fgQ - The flowgraph message queue to post the message to.
-     *  @returns OS_SUCCESS if the message was successfully queued
-     *           to the message queue.
-     *  @returns OS_FAILED if the message could not be added to the
-     *           message queue.
+     *
+     *  @param[in] namedResource - the name of the resource to operate on.
+     *  @param[in] fgQ - The flowgraph message queue to post the message to.
+     *
+     *  @retval OS_SUCCESS if the message was successfully queued
+     *          to the message queue.
+     *  @retval OS_FAILED if the message could not be added to the
+     *          message queue.
      */
 
-     /// @brief Handles a queue-full of incoming messages for this media processing object.
+     /// @brief Handles a queue full of incoming messages for this media
+     /// processing object.
    UtlBoolean handleMessages(OsMsgQ& msgQ);
      /**<
-     *  handles a queue-full of incoming messages for this resource.
      *  This is intended to handle messages directly on a resource, 
      *  circumventing a flowgraph's queue, and allowing things like the
      *  application to get resources to process some operations directly.
      *  (usually before a flowgraph is set up, but perhaps else-when too.
-     *  NOTE: This makes an assumption that the destination of these 
+     *
+     *  @note This makes an assumption that the destination of these 
      *        messages is this resource.
      *
-     *  @param msgQ - a message queue full of messages intended for this resource.
+     *  @param[in] msgQ - a message queue full of messages intended for
+     *             this resource.
+     *
      *  @returns TRUE if all the messages were handled, otherwise FALSE. 
      */
 
@@ -204,15 +217,19 @@ static const UtlContainableType TYPE;
    virtual UtlBoolean processFrame(void) = 0;
      /**<
      *  This method prepares the input buffers before calling
-     *  <i>doProcessFrame()</i> and distributes the output buffers to the
-     *  appropriate downstream resources after <i>doProcessFrame()</i>
+     *  doProcessFrame() and distributes the output buffers to the
+     *  appropriate downstream resources after doProcessFrame()
      *  returns.
+     *
      *  @returns TRUE if successful, FALSE otherwise.
      */
 
      /// Sets the visit state for this resource.
    void setVisitState(int newState);
-     /**< Used in performing a topological sort on the resources contained within a flow graph. */
+     /**<
+     *  Used in performing a topological sort on the resources contained within
+     *  a flow graph.
+     */
 
 //@}
 
@@ -226,24 +243,24 @@ static const UtlContainableType TYPE;
 ///@name Accessors
 //@{
 
-     /// Returns parent flow praph.
+     /// Returns parent flowgraph.
    MpFlowGraphBase* getFlowGraph(void) const;
      /**<
      *  @returns the flow graph that contains this resource or NULL if the 
-     *  resource is not presently part of any flow graph.
+     *           resource is not presently part of any flow graph.
      */
 
      /// Returns information about the upstream end of a connection.
    void getInputInfo(int inPortIdx, MpResource*& rpUpstreamResource,
                      int& rUpstreamPortIdx);
      /**<
-     *  Returns information about the upstream end of a connection to the 
-     *  <i>inPortIdx</i> input on this resource.  If <i>inPortIdx</i> is 
-     *  invalid or there is no connection, then <i>rpUpstreamResource</i> 
+     *  Returns information about the upstream end of a connection to the
+     *  \p inPortIdx input on this resource.  If \p inPortIdx is
+     *  invalid or there is no connection, then \p rpUpstreamResource
      *  will be set to NULL.
      *
-     *  Note: this method locks to avoid contension over port allocation.
-     *  For this reason it SHOULD NOT be used in process frame.
+     *  @note This method locks to avoid contention over port allocation.
+     *        For this reason it SHOULD NOT be used in process frame.
      */
 
      /// Returns the name associated with this resource.
@@ -253,18 +270,21 @@ static const UtlContainableType TYPE;
    void getOutputInfo(int outPortIdx, MpResource*& rpDownstreamResource,
                       int& rDownstreamPortIdx);
      /**<
-     *  Returns information about the downstream end of a connection to the 
-     *  <i>outPortIdx</i> output on this resource.  If <i>outPortIdx</i> is 
-     *  invalid or there is no connection, then <i>rpDownstreamResource</i> 
+     *  Returns information about the downstream end of a connection to the
+     *  \p outPortIdx output on this resource.  If \p outPortIdx is
+     *  invalid or there is no connection, then \p rpDownstreamResource 
      *  will be set to NULL.
      *
-     *  Note: this method locks to avoid contension over port allocation.
-     *  For this reason it SHOULD NOT be used in process frame.
+     *  @note This method locks to avoid contention over port allocation.
+     *        For this reason it SHOULD NOT be used in process frame.
      */
 
      /// Returns the current visit state for this resource
    int getVisitState(void);
-     /**< Used in performing a topological sort on the resources contained within a flow graph. */
+     /**<
+     *  Used in performing a topological sort on the resources contained within
+     *  a flow graph.
+     */
 
      /// Returns the maximum number of inputs supported by this resource.
    int maxInputs(void) const;
@@ -285,26 +305,26 @@ static const UtlContainableType TYPE;
    int numOutputs(void) const;
 
      /// Find the first unconnected input port and reserve it
-     /** 
-       * Reserving a port does not prevent someone from connecting to
-       * that port.
-       * @returns -1 if no free ports
-       *
-       *  Note: this method locks to avoid contension over port allocation.
-       *  It SHOULD NOT be used in process frame.
-       */
    int reserveFirstUnconnectedInput();
+     /**<
+     *  Reserving a port does not prevent someone from connecting to that port.
+     *
+     *  @returns -1 if no free ports
+     *
+     *  @note This method locks to avoid contention over port allocation.
+     *        It SHOULD NOT be used in process frame.
+     */
 
      /// Find the first unconnected output port and reserve it
-     /** 
-       * Reserving a port does not prevent someone from connecting to
-       * that port.
-       * @returns -1 if no free ports
-       *
-       *  Note: this method locks to avoid contension over port allocation.
-       *  For this reason it SHOULD NOT be used in process frame.
-       */
    int reserveFirstUnconnectedOutput();
+     /**<
+     * Reserving a port does not prevent someone from connecting to that port.
+     *
+     * @returns -1 if no free ports
+     *
+     *  @note This method locks to avoid contention over port allocation.
+     *        It SHOULD NOT be used in process frame.
+     */
 
      /// Get the ContainableType for a UtlContainable derived class.
    //virtual UtlContainableType getContainableType() const ;
@@ -319,32 +339,32 @@ static const UtlContainableType TYPE;
    UtlBoolean isEnabled(void) const;
 
      /// Returns TRUE if portIdx is valid and the indicated input is connected, FALSE otherwise.
-     /*
-      *  Note: this method locks to avoid contension over port allocation.
-      *  For this reason it SHOULD NOT be used in processFrame.
-      */
    UtlBoolean isInputConnected(int portIdx);
+     /**<
+     *  @note This method locks to avoid contention over port allocation.
+     *        It SHOULD NOT be used in process frame.
+     */
 
      /// Returns TRUE if portIdx is valid and the indicated input is not connected, FALSE otherwise.
-     /*
-      *  Note: this method locks to avoid contension over port allocation.
-      *  For this reason it SHOULD NOT be used in processFrame.
-      */
    UtlBoolean isInputUnconnected(int portIdx);
+     /**<
+     *  @note This method locks to avoid contention over port allocation.
+     *        It SHOULD NOT be used in process frame.
+     */
 
      /// Returns TRUE if portIdx is valid and the indicated output is connected, FALSE otherwise.
-     /*
-      *  Note: this method locks to avoid contension over port allocation.
-      *  For this reason it SHOULD NOT be used in processFrame.
-      */
    UtlBoolean isOutputConnected(int portIdx);
+     /**<
+     *  @note This method locks to avoid contention over port allocation.
+     *        It SHOULD NOT be used in process frame.
+     */
 
      /// Returns TRUE if portIdx is valid and the indicated output is not connected, FALSE otherwise.
-     /*
-      *  Note: this method locks to avoid contension over port allocation.
-      *  For this reason it SHOULD NOT be used in processFrame.
-      */
    UtlBoolean isOutputUnconnected(int portIdx);
+     /**<
+     *  @note This method locks to avoid contention over port allocation.
+     *        It SHOULD NOT be used in process frame.
+     */
 
 //@}
 
@@ -387,37 +407,37 @@ protected:
    virtual UtlBoolean handleMessage(MpFlowGraphMsg& fgMsg);
      /**< @returns TRUE if the message was handled, otherwise FALSE. */
 
-   /// @brief Handles an incoming resource message for this media processing object.
+     /// @brief Handles an incoming resource message for this media processing object.
    virtual UtlBoolean handleMessage(MpResourceMsg& rMsg);
-   /**< @returns TRUE if the message was handled, otherwise FALSE. */
+     /**< @returns TRUE if the message was handled, otherwise FALSE. */
 
-   /// @brief perform the enable operation on the resource
+     /// @brief perform the enable operation on the resource
    virtual UtlBoolean handleEnable();
 
-   /// @brief perform the disable operation on the resource
+     /// @brief perform the disable operation on the resource
    virtual UtlBoolean handleDisable();
 
-   /// @brief If there already is a buffer stored for this input port, delete it. 
-     /// Then store <i>pBuf</i> for the indicated input port.
+     /// @brief If there already is a buffer stored for this input port,
+     /// delete it. Then store \p pBuf for the indicated input port.
    void setInputBuffer(int inPortIdx, const MpBufPtr &pBuf);
 
      /// Post a message from this resource.
    OsStatus postMessage(MpFlowGraphMsg& rMsg);
      /**<
-     *  If this resource is not part of a flow graph, then <i>rMsg</i> is
-     *  immediately passed to the <i>handleMessage()</i> method for <i>this</i>
+     *  If this resource is not part of a flow graph, then \p rMsg is
+     *  immediately passed to the handleMessage() method for this
      *  resource.  If this resource is part of a flow graph, then
-     *  <i>rMsg</i> will be sent to the message queue for the flow graph
-     *  that this resource belongs to.  The <i>handleMessage()</i> method
+     *  \p rMsg will be sent to the message queue for the flow graph
+     *  that this resource belongs to.  The handleMessage() method
      *  for <i>destination</i> resource will be invoked at the start of the next
      *  frame processing interval.
      *
-     * @warning Feel the difference in method behaviour if resource in the
-     *          flow graph and if it is not.
+     *  @warning Feel the difference in method behaviour if resource in the
+     *           flow graph and if it is not.
      */
 
-     /// @brief Makes <i>pBuf</i> available to resource connected to the
-     /// <i>outPortIdx</i> output port of this resource.
+     /// @brief Makes \p pBuf available to resource connected to the
+     /// \p outPortIdx output port of this resource.
    UtlBoolean pushBufferDownsream(int outPortIdx, const MpBufPtr &pBuf);
      /**<
      *  @returns TRUE if there is a resource connected to the specified output
@@ -427,39 +447,45 @@ protected:
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
 
-     /// @brief Connects the <i>toPortIdx</i> input port on this resource to the 
-     /// <i>fromPortIdx</i> output port of the <i>rFrom</i> resource.
-     /*
-      *  Note: this method locks to avoid contension over port allocation.
-      *  For this reason it SHOULD NOT be used in process frame.
-      */
+     /// @brief Connects the \p toPortIdx input port on this resource to the 
+     /// \p fromPortIdx output port of the \p rFrom resource.
    UtlBoolean connectInput(MpResource& rFrom, int fromPortIdx, int toPortIdx);
-     /**< @returns TRUE if successful, FALSE otherwise. */
+     /**<
+     *  @note This method locks to avoid contention over port allocation.
+     *        It SHOULD NOT be used in process frame.
+     *
+     *  @returns TRUE if successful, FALSE otherwise.
+     */
 
-     /// @brief Connects the <i>fromPortIdx</i> output port on this resource to the 
-     /// <i>toPortIdx</i> input port of the <i>rTo</i> resource.
-     /*
-      *  Note: this method locks to avoid contension over port allocation.
-      *  For this reason it SHOULD NOT be used in process frame.
-      */
+     /// @brief Connects the \p fromPortIdx output port on this resource to the 
+     /// \p toPortIdx input port of the \p rTo resource.
    UtlBoolean connectOutput(MpResource& rTo, int toPortIdx, int fromPortIdx);
-     /**< @returns TRUE if successful, FALSE otherwise. */
+     /**<
+     *  @note This method locks to avoid contention over port allocation.
+     *        It SHOULD NOT be used in process frame.
+     *
+     *  @returns TRUE if successful, FALSE otherwise.
+     */
 
-     /// @brief Removes the connection to the <i>inPortIdx</i> input port of this resource.
-     /*
-      *  Note: this method locks to avoid contension over port allocation.
-      *  For this reason it SHOULD NOT be used in process frame.
-      */
+     /// @brief Removes the connection to the \p inPortIdx input port
+     /// of this resource.
    UtlBoolean disconnectInput(int inPortIdx);
-     /**< @returns TRUE if successful, FALSE otherwise. */
+     /**<
+     *  @note This method locks to avoid contention over port allocation.
+     *        It SHOULD NOT be used in process frame.
+     *
+     *  @returns TRUE if successful, FALSE otherwise.
+     */
 
-     /// @brief Removes the connection to the <i>outPortIdx</i> output port of this resource.
-     /*
-      *  Note: this method locks to avoid contension over port allocation.
-      *  For this reason it SHOULD NOT be used in process frame.
-      */
+     /// @brief Removes the connection to the \p outPortIdx output port
+     /// of this resource.
    UtlBoolean disconnectOutput(int outPortIdx);
-     /**< @returns TRUE if successful, FALSE otherwise. */
+     /**<
+     *  @note This method locks to avoid contention over port allocation.
+     *        It SHOULD NOT be used in process frame.
+     *
+     *  @returns TRUE if successful, FALSE otherwise.
+     */
 
      /// @brief Associates this resource with the indicated flow graph.
    OsStatus setFlowGraph(MpFlowGraphBase* pFlowGraph);
