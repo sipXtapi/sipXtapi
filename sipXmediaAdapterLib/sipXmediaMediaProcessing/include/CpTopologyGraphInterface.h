@@ -179,10 +179,10 @@ public:
            int& dtmfterm,
            OsProtectedEvent* ev = NULL);
 
-     /// Record the microphone data -- the flowgraph must be in focus
+     /// @copydoc CpMediaInterface::recordMic(UtlString*)
    virtual OsStatus recordMic(UtlString* pAudioBuffer);
 
-     /// Record the microphone data -- the flowgraph must be in focus
+     /// @copydoc CpMediaInterface::recordMic(int, int, const char*)
    virtual OsStatus recordMic(int ms,
                               int silenceLength,
                               const char* fileName);

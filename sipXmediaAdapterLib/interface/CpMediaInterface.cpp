@@ -42,6 +42,8 @@ CpMediaInterface::~CpMediaInterface()
 {
 }
 
+/* ============================ MANIPULATORS ============================== */
+
 OsStatus CpMediaInterface::setSrtpParams(SdpSrtpParameters& srtpParameters)
 {
     if (srtpParameters.masterKey[0] != '\0') // only set the key if it comes from the caller
@@ -52,8 +54,16 @@ OsStatus CpMediaInterface::setSrtpParams(SdpSrtpParameters& srtpParameters)
     
 }
 
+OsStatus CpMediaInterface::enableRtpReadNotification(int connectionId,
+                                                     UtlBoolean bEnable) 
+{
+   return OS_NOT_SUPPORTED;
+};
 
-/* ============================ MANIPULATORS ============================== */
+OsStatus CpMediaInterface::recordMic(UtlString* pAudioBuf) 
+{ 
+   return OS_NOT_SUPPORTED; 
+};
 
 /* ============================ ACCESSORS ================================= */
 

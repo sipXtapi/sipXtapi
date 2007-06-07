@@ -407,7 +407,13 @@ MpResourceTopology* CpTopologyGraphFactoryImpl::buildDefaultInitialResourceTopol
     assert(result == OS_SUCCESS);
 
     // Link bridge to buffer recorder
-    result = resourceTopology->addConnection(DEFAULT_BRIDGE_RESOURCE_NAME, 1, DEFAULT_BUFFER_RECORDER_RESOURCE_NAME, 0);
+    // This buffer recorder is intended to record the microphone.
+    // Currently, this records all inputs from the bridge.  Once the bridge
+    // can configure what inputs go to what outputs, this will behave as 
+    // intended
+    result = resourceTopology->addConnection(
+                DEFAULT_BRIDGE_RESOURCE_NAME, 1, 
+                DEFAULT_BUFFER_RECORDER_RESOURCE_NAME, 0);
     assert(result == OS_SUCCESS);
 
     // Fill up the unpaired bridge outputs as it currently barfs if

@@ -280,9 +280,7 @@ public:
     * stopRtpReceive.
     */ 
    virtual OsStatus enableRtpReadNotification(int connectionId,
-                                              UtlBoolean bEnable = TRUE) 
-       { return OS_NOT_SUPPORTED ;} ;
-
+                                              UtlBoolean bEnable = TRUE);
 
    /**
     * Stop sending RTP (and RTCP) data for the specified connection
@@ -469,25 +467,27 @@ public:
                              int& dtmfterm,
                              OsProtectedEvent* ev = NULL) = 0;
 
-     /// Record the microphone data -- the flowgraph must be in focus
+     /// Record the microphone data
    virtual OsStatus recordMic(int ms,
                               int silenceLength,
                               const char* fileName) = 0 ;
      /**<
-     *  Record the microphone data.
-     *  The flowgraph must be in focus for this to work properly.
-     *  @param ms The amount of time, in milliseconds, to record.
-     *  @param silenceLength The amount of silence, in SECONDS, before
-     *         recording is terminated.
-     *  @param fileName The path and name of a file to record to.
+     *  Record a fixed amount of audio from the microphone to a file.
+     *  @note The flowgraph must be in focus for this to work properly.
+     *
+     *  @param[in] ms - The amount of time, in milliseconds, to record.
+     *  @param[in] silenceLength - The amount of silence, in SECONDS, before
+     *             recording is terminated.
+     *  @param[in] fileName The path and name of a file to record to.
      */
 
-     /// Record the microphone data -- the flowgraph must be in focus
-   virtual OsStatus recordMic(UtlString* pAudioBuf) 
-      { return OS_NOT_SUPPORTED; };
+     /// Record the microphone data
+   virtual OsStatus recordMic(UtlString* pAudioBuf);
      /**<
-     *  Record the microphone data.
-     *  The flowgraph must be in focus for this to work properly.
+     *  Record a fixed amount of audio from the microphone to a buffer 
+     *  passed in.
+     *  @note The flowgraph must be in focus for this to work properly.
+     *
      *  @param pAudioBuf a fixed audio buffer to record to.
      */
 
