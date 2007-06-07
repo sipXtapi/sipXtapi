@@ -49,7 +49,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="include;..\sipXportLib\include;..\sipXsdpLib\include;..\sipXtackLib\include;..\sipXmediaLib\include;..\sipXmediaAdapterLib\interface"
-				PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;LOG_TO_FILE;_USRDLL;SIPXTAPI_EXPORTS;_CRT_SECURE_NO_WARNINGS;HAVE_NSS;SIP_TLS"
+				PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;LOG_TO_FILE;_USRDLL;SIPXTAPI_EXPORTS;_CRT_SECURE_NO_DEPRECATE;HAVE_NSS;SIP_TLS"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
 				RuntimeTypeInfo="true"
@@ -72,7 +72,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="Ws2_32.lib pcre.lib winmm.lib libilbc.lib smime3.lib nss3.lib ssl3.lib libnspr4.lib libplc4.lib"
+				AdditionalDependencies="Ws2_32.lib pcre.lib winmm.lib smime3.lib nss3.lib ssl3.lib libnspr4.lib libplc4.lib"
 				OutputFile="bin\sipXtapid.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -148,7 +148,7 @@
 				Optimization="2"
 				InlineFunctionExpansion="1"
 				AdditionalIncludeDirectories="include;..\sipXportLib\include;..\sipXsdpLib\include;..\sipXtackLib\include;..\sipXmediaLib\include;..\sipXmediaAdapterLib\interface"
-				PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;LOG_TO_FILE;_USRDLL;SIPXTAPI_EXPORTS;_CRT_SECURE_NO_WARNINGS;HAVE_NSS;SIP_TLS"
+				PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;LOG_TO_FILE;_USRDLL;SIPXTAPI_EXPORTS;_CRT_SECURE_NO_DEPRECATE;HAVE_NSS;SIP_TLS"
 				StringPooling="true"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="false"
@@ -173,7 +173,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="Ws2_32.lib pcre.lib winmm.lib libilbc.lib smime3.lib nss3.lib ssl3.lib libnspr4.lib libplc4.lib"
+				AdditionalDependencies="Ws2_32.lib pcre.lib winmm.lib smime3.lib nss3.lib ssl3.lib libnspr4.lib libplc4.lib"
 				OutputFile="bin\sipXtapi.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -250,7 +250,7 @@
 				Optimization="2"
 				InlineFunctionExpansion="1"
 				AdditionalIncludeDirectories="include;..\sipXportLib\include;..\sipXsdpLib\include;..\sipXtackLib\include;..\sipXmediaLib\include;..\sipXmediaAdapterLib\interface"
-				PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;LOG_TO_FILE;_USRDLL;SIPXTAPI_EXPORTS;_CRT_SECURE_NO_WARNINGS"
+				PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;LOG_TO_FILE;_USRDLL;SIPXTAPI_EXPORTS;_CRT_SECURE_NO_DEPRECATE"
 				StringPooling="true"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="false"
@@ -275,7 +275,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="Ws2_32.lib pcre.lib winmm.lib libilbc.lib"
+				AdditionalDependencies="Ws2_32.lib pcre.lib winmm.lib"
 				OutputFile="bin\sipXtapi.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -351,7 +351,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="include;..\sipXportLib\include;..\sipXsdpLib\include;..\sipXtackLib\include;..\sipXmediaLib\include;..\sipXmediaAdapterLib\interface"
-				PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;LOG_TO_FILE;_USRDLL;SIPXTAPI_EXPORTS;_CRT_SECURE_NO_WARNINGS"
+				PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;LOG_TO_FILE;_USRDLL;SIPXTAPI_EXPORTS;_CRT_SECURE_NO_DEPRECATE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
 				RuntimeTypeInfo="true"
@@ -374,7 +374,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="Ws2_32.lib pcre.lib winmm.lib libilbc.lib"
+				AdditionalDependencies="Ws2_32.lib pcre.lib winmm.lib"
 				OutputFile="bin\sipXtapid.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -449,7 +449,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="include;..\sipXportLib\include;..\sipXsdpLib\include;..\sipXtackLib\include;..\sipXmediaLib\include;..\sipXmediaAdapterLib\interface"
-				PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;LOG_TO_FILE;_USRDLL;SIPXTAPI_EXPORTS;_CRT_SECURE_NO_WARNINGS"
+				PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;LOG_TO_FILE;_USRDLL;SIPXTAPI_EXPORTS;_CRT_SECURE_NO_DEPRECATE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
 				RuntimeTypeInfo="true"
@@ -472,7 +472,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="Ws2_32.lib pcre.lib winmm.lib libilbc.lib usc_speech_codec.lib vm.lib"
+				AdditionalDependencies="Ws2_32.lib pcre.lib winmm.lib usc_speech_codec.lib vm.lib"
 				OutputFile="bin\sipXtapid.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -548,7 +548,7 @@
 				Optimization="2"
 				InlineFunctionExpansion="1"
 				AdditionalIncludeDirectories="include;..\sipXportLib\include;..\sipXsdpLib\include;..\sipXtackLib\include;..\sipXmediaLib\include;..\sipXmediaAdapterLib\interface"
-				PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;LOG_TO_FILE;_USRDLL;SIPXTAPI_EXPORTS;_CRT_SECURE_NO_WARNINGS"
+				PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;LOG_TO_FILE;_USRDLL;SIPXTAPI_EXPORTS;_CRT_SECURE_NO_DEPRECATE"
 				StringPooling="true"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="false"
@@ -573,7 +573,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="Ws2_32.lib pcre.lib winmm.lib libilbc.lib usc_speech_codec.lib vm.lib"
+				AdditionalDependencies="Ws2_32.lib pcre.lib winmm.lib usc_speech_codec.lib vm.lib"
 				OutputFile="bin\sipXtapi.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"

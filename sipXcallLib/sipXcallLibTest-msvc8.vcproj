@@ -77,7 +77,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="Ws2_32.lib pcre.lib cppunitd.lib libilbc.lib winmm.lib"
+				AdditionalDependencies="Ws2_32.lib pcre.lib cppunitd.lib winmm.lib"
 				OutputFile="Debug/sipXcallLibTest.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
