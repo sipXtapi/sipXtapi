@@ -129,7 +129,11 @@ static const UtlContainableType TYPE;
      /// Enable this resource.
    virtual UtlBoolean enable(void);
      /**<
-     *  @copydoc disable()
+     *  The "enabled" flag is passed to the doProcessFrame() method and will
+     *  likely affect the media processing that is performed by this resource.
+     *  Typically, if a resource is not enabled, doProcessFrame() will perform
+     *  only minimal processing (for example, passing the input straight through
+     *  to the output in the case of a one input / one output resource).
      *  
      *  @retval TRUE if successful.
      *  @retval FALSE otherwise.
