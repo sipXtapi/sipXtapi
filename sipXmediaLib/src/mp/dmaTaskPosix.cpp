@@ -117,8 +117,8 @@ static OsMsgPool* DmaMsgPool = NULL;
 
 /* We want to keep these around to be able to shutdown... */
 /* in case we should ever decide to do that. */
-static pthread_mutex_t sNotifierMutex = PTHREAD_MUTEX_INITIALIZER;
-static pthread_cond_t sNotifierCond = PTHREAD_COND_INITIALIZER;
+static pthread_mutex_t sNotifierMutex;
+static pthread_cond_t sNotifierCond;
 static struct timespec sNotifierTime;
 static pthread_t sSignallerThread;
 
@@ -183,6 +183,7 @@ static void * mediaSignaller(void * arg)
 #endif
    pthread_mutex_lock(&sNotifierMutex);
 
+   osPrintf(" ***********START!**********\n");
    while(dmaOnline)
    {
       // Add 10 milliseconds onto the previous timeout
@@ -223,8 +224,6 @@ static void * mediaSignaller(void * arg)
    osPrintf(" ***********STOP!**********\n");
 
    pthread_mutex_unlock(&sNotifierMutex);
-   pthread_mutex_destroy(&sNotifierMutex);
-   pthread_cond_destroy(&sNotifierCond);
 
    return NULL;
 }
@@ -240,6 +239,9 @@ OsStatus dmaStartup(int samplesPerFrame)
    targetCpuSpeed = cpuSpeed();
    timeA = getRDTSC();
 #endif /* _JITTER_PROFILE ] */
+
+   pthread_mutex_init(&sNotifierMutex, NULL);
+   pthread_cond_init(&sNotifierCond, NULL);
 
    // Start the mediaSignaller thread
    res = pthread_create(&sSignallerThread, NULL, mediaSignaller, NULL);
@@ -260,6 +262,9 @@ void dmaShutdown(void)
       /* make sure the thread isn't wedged */
       pthread_cond_signal(&sNotifierCond);
       pthread_join(sSignallerThread, NULL);
+
+      pthread_mutex_destroy(&sNotifierMutex);
+      pthread_cond_destroy(&sNotifierCond);
 
 #ifdef _INCLUDE_AUDIO_SUPPORT /* [ */
       stopAudioSupport();
