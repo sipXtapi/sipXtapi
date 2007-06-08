@@ -101,9 +101,11 @@ static const UtlContainableType TYPE;
      *  to the output in the case of a one input / one output resource.
      *  @see enable()
      *
-     *  @note This is an asynchronous operation.
-     *        The status returned does not indicate that notifications
-     *        are enabled or disabled - only that it was properly queued.
+     *  @note This is an asynchronous operation, if this resource is a part
+     *        of flowgraph. In this case status returned does not indicate that
+     *        operation succeed - only that it was properly queued. If resource
+     *        is not part of flowgraph, then operation will be processed
+     *        synchronously.
      *
      *  @retval TRUE if successful.
      *  @retval FALSE otherwise.
@@ -139,9 +141,11 @@ static const UtlContainableType TYPE;
      *  to do what they supposed to.
      *  @see disable()
      *
-     *  @note This is an asynchronous operation.
-     *        The status returned does not indicate that notifications
-     *        are enabled or disabled - only that it was properly queued.
+     *  @note This is an asynchronous operation, if this resource is a part
+     *        of flowgraph. In this case status returned does not indicate that
+     *        operation succeed - only that it was properly queued. If resource
+     *        is not part of flowgraph, then operation will be processed
+     *        synchronously.
      *
      *  @retval TRUE if successful.
      *  @retval FALSE otherwise.

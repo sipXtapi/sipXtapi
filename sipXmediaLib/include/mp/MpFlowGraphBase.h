@@ -115,17 +115,17 @@ public:
    OsStatus addLink(MpResource& rFrom, int outPortIdx,
                     MpResource& rTo,   int inPortIdx);
      /**<
-     *  Creates a link between the <i>outPortIdx</i> port of the 
-     *  <i>rFrom</i> resource to the <i>inPortIdx</i> port of the <i>rTo</i> 
+     *  Creates a link between the \p outPortIdx port of the 
+     *  \p rFrom resource to the \p inPortIdx port of the \p rTo 
      *  resource.
      *
      *  If the flow graph is not "started", this call takes effect
      *  immediately.  Otherwise, the call takes effect at the start of the
      *  next frame processing interval.
      *
-     *  @returns <b>OS_SUCCESS</b> - successfully added the new link
-     *  @returns <b>OS_INVALID_ARGUMENT</b> - invalid port index
-     *  @returns <b>OS_UNSPECIFIED</b> - add link attempt failed
+     *  @retval OS_SUCCESS - successfully added the new link.
+     *  @retval OS_INVALID_ARGUMENT - invalid port index.
+     *  @retval OS_UNSPECIFIED - add link attempt failed.
      */
 
      /// Adds a dispatcher for notifications to the flowgraph.
@@ -136,15 +136,15 @@ public:
      *  letting the resources or the flowgraph tell the application 
      *  any interesting events.
      *
-     *  @returns <b>OS_SUCCESS</b> - successfully added the dispatcher.
-     *  @returns <b>OS_LIMIT_REACHED</b> - if we have a dispatcher already.
+     *  @retval OS_SUCCESS - successfully added the dispatcher.
+     *  @retval OS_LIMIT_REACHED - if we have a dispatcher already.
      */
 
      /// Adds the indicated media processing object to the flow graph.
    OsStatus addResource(MpResource& rResource, UtlBoolean makeNameUnique=TRUE);
      /**<
-     *  If <i>makeNameUnique</i> is TRUE, then if a resource with the same name 
-     *  already exists in the flow graph, the name for <i>rResource</i> will 
+     *  If \p makeNameUnique is TRUE, then if a resource with the same name 
+     *  already exists in the flow graph, the name for \p rResource will 
      *  be changed (by adding a numeric suffix) to make it unique within the 
      *  flow graph.
      *
@@ -152,8 +152,8 @@ public:
      *  immediately.  Otherwise, the call takes effect at the start of the
      *  next frame processing interval.
      *
-     *  @returns <b>OS_SUCCESS</b> - success
-     *  @returns <b>OS_UNSPECIFIED</b> - add resource attempt failed
+     *  @retval OS_SUCCESS - success.
+     *  @retval OS_UNSPECIFIED - add resource attempt failed.
      */
 
      /// @brief Stops the flow graph, removes all of the resources in the flow
@@ -163,29 +163,36 @@ public:
      *  If the flow graph is not "started", this call takes effect
      *  immediately.  Otherwise, the call takes effect at the start of the
      *  next frame processing interval.
-     *  @returns <b>OS_SUCCESS</b> - for now, this method always returns success
+     *
+     *  @retval OS_SUCCESS - for now, this method always returns success.
      */
 
-     /// Invokes the <i>disable()</i> method for each resource in the flow graph.
+     /// @brief Invokes the \link MpResource::disable() disable()\endlink
+     /// method for each resource in the flow graph.
    OsStatus disable(void);
      /**<
      *  Resources must be enabled before they will perform any meaningful
      *  processing on the media stream.
+     *
      *  If the flow graph is not "started", this call takes effect
      *  immediately.  Otherwise, the call takes effect at the start of the
      *  next frame processing interval.
-     *  @returns <b>OS_SUCCESS</b> - for now, this method always returns success
+     *
+     *  @retval OS_SUCCESS - for now, this method always returns success.
      */
 
-     /// Invokes the <i>enable()</i> method for each resource in the flow graph.
+     /// @brief Invokes the \link MpResource::enable() enable()\endlink
+     /// method for each resource in the flow graph.
    OsStatus enable(void);
      /**<
      *  Resources must be enabled before they will perform any meaningful
      *  processing on the media stream.
+     *
      *  If the flow graph is not "started", this call takes effect
      *  immediately.  Otherwise, the call takes effect at the start of the
      *  next frame processing interval.
-     *  @returns <b>OS_SUCCESS</b> - for now, this method always returns success
+     *
+     *  @retval OS_SUCCESS - for now, this method always returns success.
      */
 
      /// Informs the flow graph that it now has the MpMediaTask focus.
@@ -193,37 +200,42 @@ public:
      /**<
      *  Only the flow graph that has the focus is permitted to access
      *  the audio hardware.
-     *  @returns <b>OS_INVALID</b> - only a MpBasicFlowGraph can have focus.
+     *
+     *  @retval OS_INVALID - only a MpBasicFlowGraph can have focus.
      */
 
-     /// @brief Inserts <i>rResource</i> into the flow graph downstream of the
-     /// designated <i>rUpstreamResource</i> resource.
+     /// @brief Inserts \p rResource into the flow graph downstream of the
+     /// designated \p rUpstreamResource resource.
    OsStatus insertResourceAfter(MpResource& rResource,
                                 MpResource& rUpstreamResource,
                                 int outPortIdx);
      /**<
-     *  The new resource will be inserted on the <i>outPortIdx</i> output
-     *  link of <i>rUpstreamResource</i>.
+     *  The new resource will be inserted on the \p outPortIdx output
+     *  link of \p rUpstreamResource.
+     *
      *  If the flow graph is not "started", this call takes effect
      *  immediately.  Otherwise, the call takes effect at the start of the
      *  next frame processing interval.
-     *  @returns <b>OS_SUCCESS</b> - success
-     *  @returns <b>OS_INVALID_ARGUMENT</b> - invalid port index
+     *
+     *  @retval OS_SUCCESS - success.
+     *  @retval OS_INVALID_ARGUMENT - invalid port index.
      */
 
-     /// Inserts <i>rResource</i> into the flow graph upstream of the
-     /// designated <i>rDownstreamResource</i> resource.
+     /// Inserts \p rResource into the flow graph upstream of the
+     /// designated \p rDownstreamResource resource.
    OsStatus insertResourceBefore(MpResource& rResource,
                                  MpResource& rDownstreamResource,
                                  int inPortIdx);
      /**<
-     *  The new resource will be inserted on the <i>inPortIdx</i> input
-     *  link of <i>rDownstreamResource</i>.
+     *  The new resource will be inserted on the \p inPortIdx input
+     *  link of \p rDownstreamResource.
+     *
      *  If the flow graph is not "started", this call takes effect
      *  immediately.  Otherwise, the call takes effect at the start of the
      *  next frame processing interval.
-     *  @returns <b>OS_SUCCESS</b> - success
-     *  @returns <b>OS_INVALID_ARGUMENT</b> - invalid port index
+     *
+     *  @retval OS_SUCCESS - success.
+     *  @retval OS_INVALID_ARGUMENT - invalid port index.
      */
 
      /// Informs the flow graph that it has lost the MpMediaTask focus.
@@ -231,7 +243,8 @@ public:
      /**<
      *  Only the flow graph that has the focus is permitted to access
      *  the audio hardware.
-     *  @returns <b>OS_INVALID</b> - only a MpBasicFlowGraph can have focus.
+     *
+     *  @retval OS_INVALID - only a MpBasicFlowGraph can have focus.
      */
 
      /// @brief posts a resource notification message to the Notification dispatcher.
@@ -239,28 +252,31 @@ public:
      /**<
      *  If there is a notification dispatcher, this message is posted
      *  to it.  Otherwise, the message is dropped.
-     *  @param msg the notification message to post to the dispatcher.
-     *  @returns OS_SUCCESS if the message was successfully added to the dispatcher.
-     *  @returns OS_LIMIT_REACHED if the queue is full, and no more 
-     *           messages can be accepted.
-     *  @returns OS_NOT_FOUND if there's no dispatcher.
+     *
+     *  @param[in] msg - the notification message to post to the dispatcher.
+     *
+     *  @retval OS_SUCCESS if the message was successfully added to the dispatcher.
+     *  @retval OS_LIMIT_REACHED if the queue is full, and no more 
+     *          messages can be accepted.
+     *  @retval OS_NOT_FOUND if there's no dispatcher.
      */
 
      /// Processes the next frame interval's worth of media for the flow graph.
    virtual OsStatus processNextFrame(void);
      /**<
-     *  @returns <b>OS_SUCCESS</b> - for now, this method always returns success
+     *  @retval OS_SUCCESS - for now, this method always returns success
      */
 
-     /// @brief Removes the link between the <i>outPortIdx</i> port of the
-     /// <i>rFrom</i> resource and its downstream counterpart.
+     /// @brief Removes the link between the \p outPortIdx port of the
+     /// \p rFrom resource and its downstream counterpart.
    OsStatus removeLink(MpResource& rFrom, int outPortIdx);
      /**<
      *  If the flow graph is not "started", this call takes effect
      *  immediately.  Otherwise, the call takes effect at the start of the
      *  next frame processing interval.
-     *  @returns <b>OS_SUCCESS</b> - link has been removed
-     *  @returns <b>OS_INVALID_ARGUMENT</b> - invalid port index
+     *
+     *  @retval OS_SUCCESS - link has been removed.
+     *  @retval OS_INVALID_ARGUMENT - invalid port index.
      */
 
      /// Clears the pointer to notification dispatcher from the flow graph.
@@ -269,8 +285,8 @@ public:
      *  Clears the pointer to the notification dispatcher held in the flowgraph.
      *  If there is no notification dispatcher set, then it returns failure.
      *
-     *  @returns <b>OS_SUCCESS</b> - success, dispatcher has been removed
-     *  @returns <b>OS_NOT_FOUND</b> - no dispatcher to remove.
+     *  @retval OS_SUCCESS - success, dispatcher has been removed.
+     *  @retval OS_NOT_FOUND - no dispatcher to remove.
      */
 
      /// Removes the indicated media processing object from the flow graph.
@@ -279,8 +295,9 @@ public:
      *  If the flow graph is not "started", this call takes effect
      *  immediately.  Otherwise, the call takes effect at the start of the
      *  next frame processing interval.
-     *  @returns <b>OS_SUCCESS</b> - success, resource has been removed
-     *  @returns <b>OS_UNSPECIFIED</b> - remove resource operation failed
+     *
+     *  @retval OS_SUCCESS - success, resource has been removed.
+     *  @retval OS_UNSPECIFIED - remove resource operation failed.
      */
 
      /// Sets the number of samples expected per frame.
@@ -289,8 +306,9 @@ public:
      *  If the flow graph is not "started", this call takes effect
      *  immediately.  Otherwise, the call takes effect at the start of the
      *  next frame processing interval.
-     *  @returns <b>OS_SUCCESS</b> - success
-     *  @returns <b>OS_INVALID_ARGUMENT</b> - specified duration is not supported
+     *
+     *  @retval OS_SUCCESS - success.
+     *  @retval OS_INVALID_ARGUMENT - specified duration is not supported.
      */
 
      /// Sets the number of samples expected per second.
@@ -299,8 +317,9 @@ public:
      *  If the flow graph is not "started", this call takes effect
      *  immediately.  Otherwise, the call takes effect at the start of the
      *  next frame processing interval.
-     *  @returns <b>OS_SUCCESS</b> - success
-     *  @returns <b>OS_INVALID_ARGUMENT</b> - specified duration is not supported
+     *
+     *  @retval OS_SUCCESS - success.
+     *  @retval OS_INVALID_ARGUMENT - specified duration is not supported.
      */
 
      /// Start this flow graph.
@@ -308,7 +327,8 @@ public:
      /**<
      *  A flow graph must be "started" before it will process media streams.
      *  This call takes effect immediately.
-     *  @returns <b>OS_SUCCESS</b> - for now this method always returns success
+     *
+     *  @retval OS_SUCCESS - for now this method always returns success.
      */
 
      /// Stop this flow graph.
@@ -316,12 +336,13 @@ public:
      /**<
      *  Stop processing media streams with this flow graph.  This call takes
      *  effect at the start of the next frame processing interval.
-     *  @returns <b>OS_SUCCESS</b> - for now this method always returns success
+     *
+     *  @retval OS_SUCCESS - for now this method always returns success.
      */
 
 //@}
 
-     /// sends a message to self, and waits for reply.
+     /// Sends a message to self, and waits for reply.
    void synchronize(const char* tag=NULL, int val=0);
 
 /* ============================ ACCESSORS ================================= */
@@ -341,15 +362,16 @@ public:
      /// Returns the current state of flow graph.
    int getState(void) const;
 
-     /// @brief Sets <i>rpResource</i> to point to the resource that corresponds
-     /// to <i>name</i> or to NULL if no matching resource is found.
+     /// @brief Sets \p rpResource to point to the resource that corresponds
+     /// to \p name or to NULL if no matching resource is found.
    OsStatus lookupResource(const UtlString& name,
                            MpResource*& rpResource);
      /**<
-     *  @param name - the name of the resource to look up.
-     *  @param rpResource - [out] the resource pointer to store the resource in.
-     *  @returns <b>OS_SUCCESS</b> - success
-     *  @returns <b>OS_NOT_FOUND</b> - no resource with the specified name
+     *  @param[in] name - the name of the resource to look up.
+     *  @param[out] rpResource - the resource pointer to store the resource in.
+     *
+     *  @retval OS_SUCCESS - success
+     *  @retval OS_NOT_FOUND - no resource with the specified name
      *           rpResource is NULL if OS_NOT_FOUND.
      */
 
@@ -374,8 +396,8 @@ public:
      /// Is flow graph in @link MpFlowGraphBase::STARTED STARTED @endlink state.
    UtlBoolean isStarted(void) const;
      /**<
-     *  @returns <b>TRUE</b> - if the flow graph has been starte,
-     *  @returns <b>FALSE</b> - otherwise.
+     *  @retval TRUE if the flow graph has been started,
+     *  @retval FALSE otherwise.
      */
 
 //@}
@@ -394,29 +416,29 @@ protected:
      /// Handles an incoming message for the flow graph.
    virtual UtlBoolean handleMessage(OsMsg& rMsg);
      /**<
-     * @returns <b>TRUE</b> - if the message was handled,
-     * @returns <b>FALSE</b> - otherwise.
+     * @retval TRUE if the message was handled.
+     * @retval FALSE otherwise.
      */
 
      /// Handle the @link MpFlowGraphMsg::FLOWGRAPH_REMOVE_LINK FLOWGRAPH_REMOVE_LINK @endlink message.
    UtlBoolean handleRemoveLink(MpResource* pFrom, int outPortIdx);
      /**<
-     * @returns <b>TRUE</b> - if the message was handled,
-     * @returns <b>FALSE</b> - otherwise.
+     * @retval TRUE if the message was handled.
+     * @retval FALSE otherwise.
      */
 
      /// Handle the @link MpFlowGraphMsg::FLOWGRAPH_REMOVE_RESOURCE FLOWGRAPH_REMOVE_RESOURCE @endlink message.
    UtlBoolean handleRemoveResource(MpResource* pResource);
      /**<
-     * @returns <b>TRUE</b> - if the message was handled,
-     * @returns <b>FALSE</b> - otherwise.
+     * @retval TRUE if the message was handled.
+     * @retval FALSE otherwise.
      */
 
      /// Handle the FLOWGRAPH_SYNCHRONIZE message.
    UtlBoolean handleSynchronize(MpFlowGraphMsg& rMsg);
      /**<
-     *  @returns <b>TRUE</b> if the message was handled
-     *  @returns <b>FALSE</b> otherwise.
+     *  @retval TRUE if the message was handled.
+     *  @retval FALSE otherwise.
      */
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
@@ -438,118 +460,120 @@ private:
    int       mSamplesPerFrame; ///< number of samples per frame
    int       mSamplesPerSec;   ///< number of samples per second
    MpResource* mpResourceInProcess; ///< @brief For debugging, keep track of what
-                                    ///< resource we are working on in
-                                    ///< processNextFrame().
+                               ///< resource we are working on in processNextFrame().
 
      /// @brief Computes the execution order for the flow graph by performing a 
      /// topological sort on the resource graph.
    OsStatus computeOrder(void);
      /**<
-     *  @returns <b>OS_SUCCESS</b> - successfully computed an execution order
-     *  @returns <b>OS_LOOP_DETECTED</b> - detected a loop in the flow graph
+     *  @retval OS_SUCCESS - successfully computed an execution order.
+     *  @retval OS_LOOP_DETECTED - detected a loop in the flow graph.
      */
 
      /// @brief Disconnects all inputs (and the corresponding upstream outputs)
      /// for the indicated resource. 
    UtlBoolean disconnectAllInputs(MpResource* pResource);
      /**<
-     *  @returns <b>TRUE</b> - if successful,
-     *  @returns <b>FALSE</b> - otherwise.
+     *  @retval TRUE - if successful.
+     *  @retval FALSE - otherwise.
      */
 
-     /// Disconnects all outputs (and the corresponding downstream inputs) for 
-     /// the indicated resource.
+     /// @brief Disconnects all outputs (and the corresponding downstream inputs)
+     /// for the indicated resource.
    UtlBoolean disconnectAllOutputs(MpResource* pResource);
      /**<
-     *  @returns <b>TRUE</b> - if successful,
-     *  @returns <b>FALSE</b> - otherwise.
+     *  @retval TRUE - if successful.
+     *  @retval FALSE - otherwise.
      */
 
      /// Handle the @link MpFlowGraphMsg::FLOWGRAPH_ADD_LINK FLOWGRAPH_ADD_LINK @endlink message.
    UtlBoolean handleAddLink(MpResource* pFrom, int outPortIdx,
                             MpResource* pTo,   int inPortIdx);
      /**<
-     * @returns <b>TRUE</b> - if the message was handled,
-     * @returns <b>FALSE</b> - otherwise.
+     * @retval TRUE - if the message was handled.
+     * @retval FALSE - otherwise.
      */
 
      /// Handle the @link MpFlowGraphMsg::FLOWGRAPH_ADD_RESOURCE FLOWGRAPH_ADD_RESOURCE @endlink message.
    UtlBoolean handleAddResource(MpResource* pResource,
                                UtlBoolean makeNameUnique);
      /**<
-     * @returns <b>TRUE</b> - if the message was handled,
-     * @returns <b>FALSE</b> - otherwise.
+     * @retval TRUE - if the message was handled.
+     * @retval FALSE - otherwise.
      */
 
      /// Handle the @link MpFlowGraphMsg::FLOWGRAPH_DESTROY_RESOURCES FLOWGRAPH_DESTROY_RESOURCES @endlink message.
    UtlBoolean handleDestroyResources(void);
      /**<
-     * @returns <b>TRUE</b> - if the message was handled,
-     * @returns <b>FALSE</b> - otherwise.
+     * @retval TRUE - if the message was handled.
+     * @retval FALSE - otherwise.
      */
 
      /// Handle the @link MpFlowGraphMsg::FLOWGRAPH_DISABLE FLOWGRAPH_DISABLE @endlink message.
    UtlBoolean handleDisable(void);
      /**<
-     * @returns <b>TRUE</b> - if the message was handled,
-     * @returns <b>FALSE</b> - otherwise.
+     * @retval TRUE - if the message was handled.
+     * @retval FALSE - otherwise.
      */
 
      /// Handle the @link MpFlowGraphMsg::FLOWGRAPH_ENABLE FLOWGRAPH_ENABLE @endlink message.
    UtlBoolean handleEnable(void);
      /**<
-     * @returns <b>TRUE</b> - if the message was handled,
-     * @returns <b>FALSE</b> - otherwise.
+     * @retval TRUE - if the message was handled.
+     * @retval FALSE - otherwise.
      */
 
      /// Handle the @link MpFlowGraphMsg::FLOWGRAPH_SET_SAMPLES_PER_FRAME FLOWGRAPH_SET_SAMPLES_PER_FRAME @endlink message.
    UtlBoolean handleSetSamplesPerFrame(int samplesPerFrame);
      /**<
-     * @returns <b>TRUE</b> - if the message was handled,
-     * @returns <b>FALSE</b> - otherwise.
+     * @retval TRUE - if the message was handled.
+     * @retval FALSE - otherwise.
      */
 
      /// Handle the @link MpFlowGraphMsg::FLOWGRAPH_SET_SAMPLES_PER_SEC FLOWGRAPH_SET_SAMPLES_PER_SEC @endlink message.
    UtlBoolean handleSetSamplesPerSec(int samplesPerSec);
      /**<
-     * @returns <b>TRUE</b> - if the message was handled,
-     * @returns <b>FALSE</b> - otherwise.
+     * @retval TRUE - if the message was handled.
+     * @retval FALSE - otherwise.
      */
 
      /// Handle the @link MpFlowGraphMsg::FLOWGRAPH_START FLOWGRAPH_START @endlink message.
    UtlBoolean handleStart(void);
      /**<
-     * @returns <b>TRUE</b> - if the message was handled,
-     * @returns <b>FALSE</b> - otherwise.
+     * @retval TRUE - if the message was handled.
+     * @retval FALSE - otherwise.
      */
 
      /// Handle the @link MpFlowGraphMsg::FLOWGRAPH_STOP FLOWGRAPH_STOP @endlink message.
    UtlBoolean handleStop(void);
      /**<
-     * @returns <b>TRUE</b> - if the message was handled,
-     * @returns <b>FALSE</b> - otherwise.
+     * @retval TRUE - if the message was handled.
+     * @retval FALSE - otherwise.
      */
 
-     /// @brief Sets <i>rpResource</i> to point to the resource that corresponds
-     /// to <i>name</i> or to NULL if no matching resource is found.
+     /// @brief Sets \p rpResource to point to the resource that corresponds
+     /// to \p name or to NULL if no matching resource is found.
    OsStatus lookupResourcePrivate(const UtlString& name,
                                   MpResource*& rpResource);
      /**<
-     *  Does a lookup of name->resource, and sets \c rpResource to
-     *  point to the resource that corresponds to \c name, or to 
+     *  Does a lookup of name->resource, and sets \p rpResource to
+     *  point to the resource that corresponds to \p name, or to 
      *  \c NULL if no matching resource is found.
+     *
      *  This private version does no locking.
-     *  @param name - the name of the resource to look up.
-     *  @param rpResource - [out] the resource pointer to store the resource in.
-     *  @returns <b>OS_SUCCESS</b> - success
-     *  @returns <b>OS_NOT_FOUND</b> - no resource with the specified name
-     *           rpResource is NULL if OS_NOT_FOUND.
+     *
+     *  @param[in] name - the name of the resource to look up.
+     *  @param[out] rpResource - the resource pointer to store the resource in.
+     *
+     *  @retval OS_SUCCESS - success.
+     *  @retval OS_NOT_FOUND - no resource with the specified name
+     *          \p rpResource is \c NULL if \c OS_NOT_FOUND.
      */
 
      /// Processes all of the messages currently queued for this flow graph.
    OsStatus processMessages(void);
      /**<
-     *  For now, this method always returns OS_SUCCESS.
+     *  @returns Always OS_SUCCESS for nows.
      */
 
      /// Copy constructor (not implemented for this task)
