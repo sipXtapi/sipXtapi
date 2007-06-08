@@ -96,12 +96,15 @@ static const UtlContainableType TYPE;
      /// Disable this resource.
    virtual UtlBoolean disable(void);
      /**<
-     *  The "enabled" flag is passed to the doProcessFrame() method and will
-     *  likely affect the media processing that is performed by this resource.
-     *  Typically, if a resource is not enabled, doProcessFrame() will perform
-     *  only minimal processing (for example, passing the input straight through
-     *  to the output in the case of a one input / one output resource).
-     *  
+     *  If a resource is disabled, it will perform only minimal processing
+     *  typically. For example, passing the input straight through
+     *  to the output in the case of a one input / one output resource.
+     *  @see enable()
+     *
+     *  @note This is an asynchronous operation.
+     *        The status returned does not indicate that notifications
+     *        are enabled or disabled - only that it was properly queued.
+     *
      *  @retval TRUE if successful.
      *  @retval FALSE otherwise.
      */
@@ -112,6 +115,7 @@ static const UtlContainableType TYPE;
      /**<
      *  Post a disable message for the named resource to the flowgraph queue
      *  supplied.
+     *  @see disable() for more information.
      *
      *  @note This is an asynchronous operation.
      *        The status returned does not indicate that the disable
@@ -129,12 +133,16 @@ static const UtlContainableType TYPE;
      /// Enable this resource.
    virtual UtlBoolean enable(void);
      /**<
-     *  The "enabled" flag is passed to the doProcessFrame() method and will
-     *  likely affect the media processing that is performed by this resource.
-     *  Typically, if a resource is not enabled, doProcessFrame() will perform
-     *  only minimal processing (for example, passing the input straight through
-     *  to the output in the case of a one input / one output resource).
-     *  
+     *  If a resource is enabled, it will perform full featured processing
+     *  typically. For example, apply gain, mix several frames, remove noise,
+     *  etc. However resources such as MprFromFile should be further started
+     *  to do what they supposed to.
+     *  @see disable()
+     *
+     *  @note This is an asynchronous operation.
+     *        The status returned does not indicate that notifications
+     *        are enabled or disabled - only that it was properly queued.
+     *
      *  @retval TRUE if successful.
      *  @retval FALSE otherwise.
      */
@@ -145,6 +153,7 @@ static const UtlContainableType TYPE;
      /**<
      *  Post an enable message for the named resource to the flowgraph queue
      *  supplied.
+     *  @see enable() for more information.
      *
      *  @note This is an asynchronous operation.
      *        The status returned does not indicate that the enable
@@ -219,13 +228,14 @@ static const UtlContainableType TYPE;
      *  @returns TRUE if all the messages were handled, otherwise FALSE. 
      */
 
-     /// This method is called in every MpFlowGraph processing cycle.
+     /// This method is called in every flowgraph processing cycle.
    virtual UtlBoolean processFrame(void) = 0;
      /**<
-     *  This method prepares the input buffers before calling
-     *  doProcessFrame() and distributes the output buffers to the
-     *  appropriate downstream resources after doProcessFrame()
-     *  returns.
+     *  This method is called for each resource during frame processing cycle
+     *  to perform data processing and, hence, it should be implemented in all
+     *  child classes. Note, that this method is called regardless of enabled
+     *  or disabled state of resource. Resource should handle enabled flag
+     *  on its own.
      *
      *  @returns TRUE if successful, FALSE otherwise.
      */
