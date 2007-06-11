@@ -8,6 +8,7 @@ check_PROGRAMS = testsuite
 
 testsuite_LDADD = \
     @SIPXUNIT_LIBS@ \
+    @SIPXMEDIA_LIBS@ \
     @SIPXMEDIA_MP_LIBS@ \
     @SIPXSDP_LIBS@ \
     @SIPXTACK_LIBS@ \
