@@ -36,13 +36,13 @@ services.
 %package cdr
 Requires: %name >= %version
 Requires: ruby >= 1.8.4
-Requires: ruby-gems >= 0.8.11
-Requires: ruby-gems-actionmailer >= 1.1.5
-Requires: ruby-gems-actionpack >= 1.11.2
-Requires: ruby-gems-activerecord >= 1.13.2
-Requires: ruby-gems-activesupport >= 1.2.5
-Requires: ruby-gems-rails >= 1.0.0
-Requires: ruby-gems-rake >= 0.7.0
+Requires: rubygems >= 0.8.11
+Requires: rubygem-actionmailer >= 1.1.5
+Requires: rubygem-actionpack >= 1.11.2
+Requires: rubygem-activerecord >= 1.13.2
+Requires: rubygem-activesupport >= 1.2.5
+Requires: rubygem-rails >= 1.0.0
+Requires: rubygem-rake >= 0.7.0
 Requires: ruby-postgres >= 0.7.1
 Requires: unixODBC-devel >= 2.2
 Requires: sipxcommserverlib >= %version

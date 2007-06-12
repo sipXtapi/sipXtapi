@@ -7,30 +7,48 @@ AM_INIT_AUTOMAKE(foreign)
 
 SFAC_SRCDIR_EXPAND
 
-# default, fc5
-cgicc=yes
-mod_cplusplus=yes
-xerces_c=yes
-ruby_gems=yes
-ruby_rails=yes
-ruby_postgres=yes
-
 AC_ARG_ENABLE(fc4,
 	AC_HELP_STRING([--enable-fc4], [Enable dependencies for Fedora Core 4]),
 	[ 
+          cgicc=yes
+          mod_cplusplus=yes
+          xerces_c=yes
+          ruby_gems=yes
+          ruby_rails=yes
+          ruby_postgres=yes
           java_sun=yes
-echo "Got Here" > /tmp/delme
         ])
 
 AC_ARG_ENABLE(fc5,
 	AC_HELP_STRING([--enable-fc5], [Enable dependencies for Fedora Core 5]),
 	[ 
+          cgicc=yes
+          mod_cplusplus=yes
+          xerces_c=yes
+          ruby_gems=yes
+          ruby_rails=yes
+          ruby_postgres=yes
+          java_sun=yes
+        ])
+
+AC_ARG_ENABLE(fc6,
+        AC_HELP_STRING([--enable-fc6], [Enable dependencies for Fedora Core 6]),
+        [
+          cgicc=yes
+          mod_cplusplus=yes
+          ruby_rails=yes
           java_sun=yes
         ])
 
 AC_ARG_ENABLE(rhe4,
 	AC_HELP_STRING([--enable-rhe4], [Enable dependencies for RHE4 and Centos4]),
 	[ 
+          cgicc=yes
+          mod_cplusplus=yes
+          xerces_c=yes
+          ruby_gems=yes
+          ruby_rails=yes
+          ruby_postgres=yes
           java_sun=yes
           ruby=yes
           w3c_libwww=yes
@@ -72,10 +90,10 @@ AC_ARG_ENABLE(ruby,
 	[ ruby=${enableval} ])
 test x$ruby = xyes && AC_CONFIG_SUBDIRS(ruby)
 
-AC_ARG_ENABLE(ruby-gems,
-	AC_HELP_STRING([--enable-ruby-gems], [Build ruby gems dependency]),
+AC_ARG_ENABLE(rubygems,
+	AC_HELP_STRING([--enable-rubygems], [Build ruby gems dependency]),
 	[ ruby_gems=${enableval} ])
-test x$ruby_gems = xyes && AC_CONFIG_SUBDIRS(ruby-gems)
+test x$ruby_gems = xyes && AC_CONFIG_SUBDIRS(rubygems)
 
 AC_ARG_ENABLE(ruby-postgres,
 	AC_HELP_STRING([--enable-ruby-postgres], [Build ruby postgres dependency]),

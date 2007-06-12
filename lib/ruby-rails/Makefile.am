@@ -1,13 +1,13 @@
 RAILS_LIBSRC=$(LIBSRC)/ruby-rails
 
 RAILS = \
-	ruby-gems-actionmailer-1.1.5-1.noarch.rpm \
-	ruby-gems-actionpack-1.11.2-1.noarch.rpm \
-	ruby-gems-actionwebservice-1.0.0-1.noarch.rpm \
-	ruby-gems-activerecord-1.13.2-1.noarch.rpm \
-	ruby-gems-activesupport-1.2.5-1.noarch.rpm \
-	ruby-gems-rails-1.0.0-1.noarch.rpm \
-	ruby-gems-rake-0.7.0-1.noarch.rpm
+	rubygem-actionmailer-1.3.2-1.fc6.noarch.rpm \
+	rubygem-actionpack-1.13.2-1.fc6.noarch.rpm \
+	rubygem-actionwebservice-1.2.2-1.fc6.noarch.rpm \
+	rubygem-activerecord-1.15.2-1.fc6.noarch.rpm \
+	rubygem-activesupport-1.4.1-1.fc6.noarch.rpm \
+	rubygem-rails-1.2.2-1.fc6.noarch.rpm \
+	rubygem-rake-0.7.1-1.fc6.noarch.rpm
 
 DOWNLOAD = $(foreach file,$(RAILS),$(RAILS_LIBSRC)/$(file))
 RPMS = $(foreach file,$(RAILS),$(DEST_RPM)/$(file))
@@ -15,7 +15,7 @@ RPMS = $(foreach file,$(RAILS),$(DEST_RPM)/$(file))
 all : $(RPMS)
 
 $(DOWNLOAD) :
-	$(DOWNLOAD_FILE) $@ $(RUBY_AUX_RPMS_URL)/RPMS/`basename $@`
+	$(DOWNLOAD_FILE) $@ $(RUBY_AUX_RPMS_URL)/`basename $@`
 
 $(RPMS) : $(DOWNLOAD)
 	cp $(RAILS_LIBSRC)/`basename $@` $@

@@ -25,7 +25,7 @@ Requires: sipxtacklib >= 3.6
 Requires: sipxcommserverlib >= 3.6
 Requires: postgresql-server >= 7.3
 Requires: ruby >= 1.8.4
-Requires: ruby-gems >= 0.8.11
+Requires: rubygems >= 0.8.11
 
 # known incompatabilities w/gcj, unclear how to enforce. can be issue
 # when gcj gets to 1.5, until them sun and ibm jvms ok

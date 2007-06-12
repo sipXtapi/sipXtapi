@@ -40,7 +40,8 @@ BuildRoot: %{_tmppath}/%name-%version-root
 # Ensure that mod_cplusplus is installed with a compatible version of Apache.
 Requires: httpd-mmn = %{apache2_mmn}
 # Help the user guess what versions of Apache might work with mod_cplusplus.
-Provides: mod_cplusplus_apache_version = %{apache2_version}
+Provides: mod_cplusplus_apache_version
+########  = %{apache2_version}
 
 %description
 Easily implement object oriented apache-2.0 handlers with C++
