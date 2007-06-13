@@ -160,6 +160,8 @@ private:
     WAVEHDR* mpWaveHeaders;   ///< Array of nNumInBuffers wave headers.
     LPSTR* mpWaveBuffers;     ///< Array of nNumInBuffers wave buffers.
     UtlBoolean mIsOpen;       ///< Boolean indicating waveInOpen() completed.
+    unsigned mnAddBufferFailures;  ///< The number of times that addBuffer called 
+                                   ///< within the callback has failed since last enabled.
 
 
       /// @brief Copy constructor (not implemented for this class)

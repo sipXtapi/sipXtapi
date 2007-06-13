@@ -39,6 +39,7 @@ MpInputDeviceDriverWnt::MpInputDeviceDriverWnt(const UtlString& name,
 , mNumInBuffers(nInputBuffers)
 , mWaveBufSize(0)  // Unknown until enableDevice()
 , mIsOpen(FALSE)
+, mnAddBufferFailures(0)
 {
     WAVEINCAPS devCaps;
     // Grab the number of input devices that are available.
@@ -107,6 +108,9 @@ OsStatus MpInputDeviceDriverWnt::enableDevice(unsigned samplesPerFrame,
                                               MpFrameTime currentFrameTime)
 {
     OsStatus status = OS_SUCCESS;
+
+    // reset the number of addBuffer failures, as we're starting fresh now.
+    mnAddBufferFailures = 0;
 
     // If the device is not valid, let the user know it's bad.
     if (!isDeviceValid())
@@ -244,6 +248,9 @@ OsStatus MpInputDeviceDriverWnt::disableDevice()
 
     // Indicate we are no longer enabled -- Do this first,
     // since we'll be partially disabled from here on out.
+    // It is very important that this happen *before* waveInReset,
+    // as the callback will continue to add and process buffers
+    // while waveInReset is called causing a deadlock.
     mIsEnabled = FALSE;
 
     // Cleanup
@@ -325,13 +332,33 @@ void MpInputDeviceDriverWnt::processAudioInput(HWAVEIN hwi,
                == (mSamplesPerFrame*sizeof(MpAudioSample)));
         assert(pWaveHdr->lpData != NULL);
 
-        mpInputDeviceManager->pushFrame(mDeviceId,
-                                        mSamplesPerFrame,
-                                        (MpAudioSample*)pWaveHdr->lpData,
-                                        mCurrentFrameTime);
-        // Ok, we have received and pushed a frame to the manager,
-        // Now we advance the frame time.
-        mCurrentFrameTime += (mSamplesPerFrame*1000)/mSamplesPerSec;
+        // Only process if we're enabled..
+        if(mIsEnabled)
+        {
+           mpInputDeviceManager->pushFrame(mDeviceId,
+                                           mSamplesPerFrame,
+                                           (MpAudioSample*)pWaveHdr->lpData,
+                                           mCurrentFrameTime);
+           // Ok, we have received and pushed a frame to the manager,
+           // Now we advance the frame time.
+           mCurrentFrameTime += (mSamplesPerFrame*1000)/mSamplesPerSec;
+
+           // Put the wave header back in the pool..
+           MMRESULT res = MMSYSERR_NOERROR;
+
+           res = waveInAddBuffer(mDevHandle, pWaveHdr, sizeof(WAVEHDR));
+           if (res != MMSYSERR_NOERROR)
+           {
+              showWaveError("waveInAddBuffer", res, -1, __LINE__);
+              mnAddBufferFailures++;
+              if(mnAddBufferFailures >= mNumInBuffers)
+              {
+                 waveInClose(mDevHandle);
+                 mDevHandle = NULL;
+                 mWntDeviceId = -1;
+              }
+           }
+        }
     }
     else if (uMsg == WIM_CLOSE)
     {
