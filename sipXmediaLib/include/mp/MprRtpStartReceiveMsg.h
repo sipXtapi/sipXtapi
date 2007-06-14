@@ -123,7 +123,7 @@ public:
                    mpCodecs[codecIndex] = NULL;
                }
            }
-           delete mpCodecs;
+           delete[] mpCodecs;
            mpCodecs = NULL;
        }
    };
