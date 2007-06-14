@@ -116,6 +116,9 @@ bool getContactAdapterName(char* szAdapter, const char* szIp, bool unusedHere)
    const HostAdapterAddress* adapterAddresses[MAX_IP_ADDRESSES];
    getAllLocalHostIps(adapterAddresses, numAddresses);
 
+   // Return empty string if nothing will be found
+   szAdapter[0] = 0;
+
    for (int i = 0; i < numAddresses; i++)
    {
       if (ipAddress.compareTo(adapterAddresses[i]->mAddress.data()) == 0)
