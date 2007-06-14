@@ -730,6 +730,7 @@ OsStatus shutdownNetInTask()
       msg.pRtpSocket = (OsSocket*) -2;
       msg.pRtcpSocket = (OsSocket*) -1;
       msg.fwdTo = NULL;
+      msg.notify = NULL;
 
       wrote = writeSocket->write((char *) &msg, NET_TASK_MAX_MSG_LEN);
    }
