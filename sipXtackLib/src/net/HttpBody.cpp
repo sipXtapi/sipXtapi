@@ -198,7 +198,9 @@ HttpBody::HttpBody(const HttpBody& rHttpBody) :
    UtlString(rHttpBody),
    bodyLength(rHttpBody.bodyLength),
    mBody(rHttpBody.mBody),
-   mMultipartBoundary(rHttpBody.mMultipartBoundary)
+   mMultipartBoundary(rHttpBody.mMultipartBoundary),
+   mBodyPartCount(rHttpBody.mBodyPartCount),
+   mClassType(rHttpBody.mClassType)
 {
    for (int partIndex = 0; partIndex < MAX_HTTP_BODY_PARTS; partIndex++)
    {
