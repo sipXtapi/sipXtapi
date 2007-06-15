@@ -1060,7 +1060,8 @@ void sipxInfoFree(SIPX_INFO_DATA* pData)
 
 void sipxTransportReleaseLock(SIPX_TRANSPORT_DATA* pData, SIPX_LOCK_TYPE type) 
 {
-    if (type != SIPX_LOCK_NONE)
+    assert(pData != NULL);
+    if (pData != NULL && type != SIPX_LOCK_NONE)
     {
         switch (type)
         {
