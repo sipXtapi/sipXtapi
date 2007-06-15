@@ -300,7 +300,7 @@ bool SipXMessageObserver::handleStunOutcome(OsEventMsg* pMsg)
         SIPX_CONTACT_ADDRESS* pNewContact = NULL ;
 
         // TODO: At the point where we support multiple external 
-        // transports, this code needs to interate through ALL of
+        // transports, this code needs to iterate through ALL of
         // the external transports.
         if (pInst->pSipUserAgent->getContactDb().getRecordForAdapter(externalTransportContact, pContact->cInterface, CONTACT_LOCAL, TRANSPORT_CUSTOM))
         {
