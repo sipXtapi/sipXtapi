@@ -78,123 +78,123 @@ int HttpMessage::smHttpMessageCount = 0;
 // Constructor
 HttpMessage::HttpMessage(const char* messageBytes, int byteCount)
 {
-    smHttpMessageCount++;
+   smHttpMessageCount++;
 
-    mHeaderCacheClean = FALSE;
+   mHeaderCacheClean = FALSE;
 
-        //nameValues = new UtlHashBag(100);
-        body = NULL;
-        transportTimeStamp = 0;
-        lastResendDuration = 0;
-        timesSent = 0;
-        transportProtocol = OsSocket::UNKNOWN;
-    mFirstSent = FALSE;
-    mSendPort = PORT_NONE;
-    mpResponseListenerQueue = NULL;
-    mResponseListenerData = NULL;
+   //nameValues = new UtlHashBag(100);
+   body = NULL;
+   transportTimeStamp = 0;
+   lastResendDuration = 0;
+   timesSent = 0;
+   transportProtocol = OsSocket::UNKNOWN;
+   mFirstSent = FALSE;
+   mSendPort = PORT_NONE;
+   mpResponseListenerQueue = NULL;
+   mResponseListenerData = NULL;
 #ifdef HTTP_TIMELOG
-    mTimeLog.addEvent("CREATED");
+   mTimeLog.addEvent("CREATED");
 #endif
 
 
-        parseMessage(messageBytes, byteCount);
+   parseMessage(messageBytes, byteCount);
 }
 
 HttpMessage::HttpMessage(OsSocket* inSocket, int bufferSize)
 {
-    smHttpMessageCount++;
+   smHttpMessageCount++;
 
-    mHeaderCacheClean = FALSE;
+   mHeaderCacheClean = FALSE;
 
-        //mNameValues = new UtlHashBag(100);
-        body = NULL;
-        transportTimeStamp = 0;
-        lastResendDuration = 0;
-        timesSent = 0;
-        transportProtocol = OsSocket::UNKNOWN;
-    mFirstSent = FALSE;
-    mSendPort = PORT_NONE;
-    mpResponseListenerQueue = NULL;
-    mResponseListenerData = NULL;
+   //mNameValues = new UtlHashBag(100);
+   body = NULL;
+   transportTimeStamp = 0;
+   lastResendDuration = 0;
+   timesSent = 0;
+   transportProtocol = OsSocket::UNKNOWN;
+   mFirstSent = FALSE;
+   mSendPort = PORT_NONE;
+   mpResponseListenerQueue = NULL;
+   mResponseListenerData = NULL;
 #ifdef HTTP_TIMELOG
-    mTimeLog.addEvent("READ FROM SOCKET");
+   mTimeLog.addEvent("READ FROM SOCKET");
 #endif
 
-        read(inSocket, bufferSize);
+   read(inSocket, bufferSize);
 }
 
 
 // Copy constructor
 HttpMessage::HttpMessage(const HttpMessage& rHttpMessage)
 {
-    smHttpMessageCount++;
-        //UtlString messageBytes;
-        //int len;
-    mHeaderCacheClean = rHttpMessage.mHeaderCacheClean;
-        mFirstHeaderLine = rHttpMessage.mFirstHeaderLine;
-        body = NULL;
-    if(rHttpMessage.body)
-    {
-        body = HttpBody::copyBody(*(rHttpMessage.body));
-    }
-        //nameValues = new UtlHashBag(100);
-        transportTimeStamp = rHttpMessage.transportTimeStamp;
-        lastResendDuration = rHttpMessage.lastResendDuration;
-        transportProtocol = rHttpMessage.transportProtocol;
-        timesSent = rHttpMessage.timesSent;
-    mFirstSent = rHttpMessage.mFirstSent;
-    mSendPort = rHttpMessage.mSendPort;
-    mpResponseListenerQueue = rHttpMessage.mpResponseListenerQueue;
-    mResponseListenerData = rHttpMessage.mResponseListenerData;
-    // Hugely inefficient, but it was easy to code
-        //rHttpMessage.getBytes(&messageBytes, &len);
-        //parseMessage(messageBytes.data(), len);
+   smHttpMessageCount++;
+   //UtlString messageBytes;
+   //int len;
+   mHeaderCacheClean = rHttpMessage.mHeaderCacheClean;
+   mFirstHeaderLine = rHttpMessage.mFirstHeaderLine;
+   body = NULL;
+   if(rHttpMessage.body)
+   {
+      body = HttpBody::copyBody(*(rHttpMessage.body));
+   }
+   //nameValues = new UtlHashBag(100);
+   transportTimeStamp = rHttpMessage.transportTimeStamp;
+   lastResendDuration = rHttpMessage.lastResendDuration;
+   transportProtocol = rHttpMessage.transportProtocol;
+   timesSent = rHttpMessage.timesSent;
+   mFirstSent = rHttpMessage.mFirstSent;
+   mSendPort = rHttpMessage.mSendPort;
+   mpResponseListenerQueue = rHttpMessage.mpResponseListenerQueue;
+   mResponseListenerData = rHttpMessage.mResponseListenerData;
+   // Hugely inefficient, but it was easy to code
+   //rHttpMessage.getBytes(&messageBytes, &len);
+   //parseMessage(messageBytes.data(), len);
 
-    NameValuePair* headerField;
-    NameValuePair* copiedHeader = NULL;
-    UtlDListIterator iterator((UtlDList&)rHttpMessage.mNameValues);
-    while((headerField = (NameValuePair*) iterator()))
-        {
-        copiedHeader = new NameValuePair(*headerField);
-        mNameValues.append(copiedHeader);
-    }
+   NameValuePair* headerField;
+   NameValuePair* copiedHeader = NULL;
+   UtlDListIterator iterator((UtlDList&)rHttpMessage.mNameValues);
+   while((headerField = (NameValuePair*) iterator()))
+   {
+      copiedHeader = new NameValuePair(*headerField);
+      mNameValues.append(copiedHeader);
+   }
 
 #ifdef HTTP_TIMELOG
-    mTimeLog = rHttpMessage.mTimeLog;
+   mTimeLog = rHttpMessage.mTimeLog;
 #endif
-    mSendAddress = rHttpMessage.mSendAddress;
-    mSendPort = rHttpMessage.mSendPort;
+   mSendAddress = rHttpMessage.mSendAddress;
+   mSendPort = rHttpMessage.mSendPort;
 
-         //messageBytes = OsUtil::NULL_OS_STRING;
+   //messageBytes = OsUtil::NULL_OS_STRING;
 }
 
 // Destructor
 HttpMessage::~HttpMessage()
 {
-    smHttpMessageCount--;
-    //mFirstHeaderLine = OsUtil::NULL_OS_STRING;
+   smHttpMessageCount--;
+   //mFirstHeaderLine = OsUtil::NULL_OS_STRING;
 
-    //UtlDListIterator iterator((UtlDList&)nameValues);
-        NameValuePair* headerField = NULL;
+   //UtlDListIterator iterator((UtlDList&)nameValues);
+   NameValuePair* headerField = NULL;
 
-    mHeaderCacheClean = FALSE;
+   mHeaderCacheClean = FALSE;
 
-        // For each name value:
-        while((headerField = (NameValuePair*) mNameValues.get()))
-        {
-        //iterator.remove();
-        delete headerField;
-        headerField = NULL;
-    }
+   // For each name value:
+   while((headerField = (NameValuePair*) mNameValues.get()))
+   {
+      //iterator.remove();
+      delete headerField;
+      headerField = NULL;
+   }
 
-    // This appears to be very slow
-        //nameValues.destroyAll();
+   // This appears to be very slow
+   //nameValues.destroyAll();
 
-        if(body)
-        {
-                delete body;
-                body = 0;
-        }
+   if(body)
+   {
+      delete body;
+      body = 0;
+   }
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -204,66 +204,65 @@ HttpMessage::~HttpMessage()
 HttpMessage&
 HttpMessage::operator=(const HttpMessage& rHttpMessage)
 {
-   if (this == &rHttpMessage)            // handle the assignment to self case
+   // handle the assignment to self case
+   if (this == &rHttpMessage)
       return *this;
-   else
+
+   smHttpMessageCount--;
+   mHeaderCacheClean = rHttpMessage.mHeaderCacheClean;
+   mFirstHeaderLine = rHttpMessage.mFirstHeaderLine;
+   //nameValues.destroyAll();
+   // Get rid of any headers which exist in this message
+   NameValuePair* headerField = NULL;
+   while((headerField = (NameValuePair*) mNameValues.get()))
    {
-       smHttpMessageCount--;
-       mHeaderCacheClean = rHttpMessage.mHeaderCacheClean;
-       mFirstHeaderLine = rHttpMessage.mFirstHeaderLine;
-           //nameValues.destroyAll();
-       // Get rid of any headers which exist in this message
-       NameValuePair* headerField = NULL;
-       while((headerField = (NameValuePair*) mNameValues.get()))
-       {
-           delete headerField;
-           headerField = NULL;
-       }
+      delete headerField;
+      headerField = NULL;
+   }
 
-       if(body)
-       {
-           delete body;
-           body = NULL;
-       }
+   if(body)
+   {
+      delete body;
+      body = NULL;
+   }
 
-       if(rHttpMessage.body)
-       {
-           body = HttpBody::copyBody(*(rHttpMessage.body));
-       }
+   if(rHttpMessage.body)
+   {
+      body = HttpBody::copyBody(*(rHttpMessage.body));
+   }
 
-      //use copy constructor to copy values
-       smHttpMessageCount++;
-           //UtlString messageBytes;
-           //int len;
-           transportTimeStamp = rHttpMessage.transportTimeStamp;
-           lastResendDuration = rHttpMessage.lastResendDuration;
-           transportProtocol = rHttpMessage.transportProtocol;
-           timesSent = rHttpMessage.timesSent;
-       mFirstSent = rHttpMessage.mFirstSent;
-       mSendPort = rHttpMessage.mSendPort;
-       mpResponseListenerQueue = rHttpMessage.mpResponseListenerQueue;
-       mResponseListenerData = rHttpMessage.mResponseListenerData;
+   //use copy constructor to copy values
+   smHttpMessageCount++;
+   //UtlString messageBytes;
+   //int len;
+   transportTimeStamp = rHttpMessage.transportTimeStamp;
+   lastResendDuration = rHttpMessage.lastResendDuration;
+   transportProtocol = rHttpMessage.transportProtocol;
+   timesSent = rHttpMessage.timesSent;
+   mFirstSent = rHttpMessage.mFirstSent;
+   mSendPort = rHttpMessage.mSendPort;
+   mpResponseListenerQueue = rHttpMessage.mpResponseListenerQueue;
+   mResponseListenerData = rHttpMessage.mResponseListenerData;
 
-       // Hugely ineffient
-           //rHttpMessage.getBytes(&messageBytes, &len);
-           //parseMessage(messageBytes.data(), len);
+   // Hugely inefficient
+   //rHttpMessage.getBytes(&messageBytes, &len);
+   //parseMessage(messageBytes.data(), len);
 
-       NameValuePair* copiedHeader = NULL;
-       UtlDListIterator iterator((UtlDList&)rHttpMessage.mNameValues);
-       while((headerField = (NameValuePair*) iterator()))
-           {
-           copiedHeader = new NameValuePair(*headerField);
-           mNameValues.append(copiedHeader);
-       }
+   NameValuePair* copiedHeader = NULL;
+   UtlDListIterator iterator((UtlDList&)rHttpMessage.mNameValues);
+   while((headerField = (NameValuePair*) iterator()))
+   {
+      copiedHeader = new NameValuePair(*headerField);
+      mNameValues.append(copiedHeader);
+   }
 
 #ifdef HTTP_TIMELOG
-       mTimeLog = rHttpMessage.mTimeLog;
+   mTimeLog = rHttpMessage.mTimeLog;
 #endif
-       mSendAddress = rHttpMessage.mSendAddress;
-       mSendPort = rHttpMessage.mSendPort;
+   mSendAddress = rHttpMessage.mSendAddress;
+   mSendPort = rHttpMessage.mSendPort;
 
-           //messageBytes = OsUtil::NULL_OS_STRING;
-   }
+   //messageBytes = OsUtil::NULL_OS_STRING;
 
    return *this;
 }
@@ -291,29 +290,29 @@ int HttpMessage::parseFirstLine(const char* messageBytesPtr, int byteCount)
    mFirstHeaderLine = OsUtil::NULL_OS_STRING;
    int bytesConsumed = 0;
 
-    // Read the first header line
+   // Read the first header line
    int nextLineOffset;
-        int headerLineLength =
+   int headerLineLength =
       NameValueTokenizer::findNextLineTerminator(messageBytesPtr,
-                                                                                        byteCount,
-                                                                                        &nextLineOffset);
+                                                 byteCount,
+                                                 &nextLineOffset);
 
-        if(headerLineLength < 0)
-        {
-                headerLineLength = byteCount;
-        }
+   if(headerLineLength < 0)
+   {
+      headerLineLength = byteCount;
+   }
 
-        if(headerLineLength > 0)
-        {
-                mFirstHeaderLine.append(messageBytesPtr, headerLineLength);
+   if(headerLineLength > 0)
+   {
+      mFirstHeaderLine.append(messageBytesPtr, headerLineLength);
 
-                if(nextLineOffset > 0)
-                {
-                        bytesConsumed += nextLineOffset;
-                }
-                else
-                {
-                        bytesConsumed = byteCount;
+      if(nextLineOffset > 0)
+      {
+         bytesConsumed += nextLineOffset;
+      }
+      else
+      {
+         bytesConsumed = byteCount;
       }
    }
 
@@ -325,213 +324,214 @@ int HttpMessage::parseFirstLine(const char* messageBytesPtr, int byteCount)
 // the need arrises for it atomic functionality
 void HttpMessage::parseMessage(const char* messageBytes, int byteCount)
 {
-    mHeaderCacheClean = FALSE;
+   mHeaderCacheClean = FALSE;
 
-    if(byteCount <= 0)
-    {
-       if(messageBytes)
-       {
-                    byteCount = strlen(messageBytes);
-       }
-       else
-       {
-                    byteCount = 0;
-                        mFirstHeaderLine = OsUtil::NULL_OS_STRING;
-            if(body) delete body;
-                    body = NULL;
-       }
-    }
+   if(byteCount <= 0)
+   {
+      if(messageBytes)
+      {
+         byteCount = strlen(messageBytes);
+      }
+      else
+      {
+         byteCount = 0;
+         mFirstHeaderLine = OsUtil::NULL_OS_STRING;
+         if(body) delete body;
+         body = NULL;
+      }
+   }
 
-        if(byteCount > 0)
-        {
-                int bytesConsumed = 0;
-                const char* messageBytesPtr = messageBytes;
+   if(byteCount > 0)
+   {
+      int bytesConsumed = 0;
+      const char* messageBytesPtr = messageBytes;
 
-                // Read the first header line
-        bytesConsumed = parseFirstLine(messageBytes, byteCount);
+      // Read the first header line
+      bytesConsumed = parseFirstLine(messageBytes, byteCount);
 
-        // Parse the headers out and add them to the list
-                bytesConsumed += parseHeaders(messageBytes + bytesConsumed, byteCount - bytesConsumed,
-            mNameValues);
+      // Parse the headers out and add them to the list
+      bytesConsumed += parseHeaders(messageBytes + bytesConsumed, byteCount - bytesConsumed,
+         mNameValues);
 
-                // Create the body if there is stuff left
-                if(byteCount > bytesConsumed)
-                {
-                        messageBytesPtr = messageBytes + bytesConsumed;
+      // Create the body if there is stuff left
+      if(byteCount > bytesConsumed)
+      {
+         messageBytesPtr = messageBytes + bytesConsumed;
 
-                        if(body)
-                        {
-                                delete body;
-                        }
+         if(body)
+         {
+            delete body;
+         }
 
-            // Construct the body from the remaining bytes
-            parseBody(messageBytesPtr, byteCount - bytesConsumed);
+         // Construct the body from the remaining bytes
+         parseBody(messageBytesPtr, byteCount - bytesConsumed);
 
-        }
-        }
+      }
+   }
 }
 
 void HttpMessage::parseBody(const char* messageBytesPtr, int bodyLength)
 {
-    if (bodyLength <= 1 && 
-        messageBytesPtr && 
-        (messageBytesPtr[0] == '\n' || 
-         messageBytesPtr[0] == '\r'))
-    {
-        // do nothing
-    }
+   if (bodyLength <= 1 && 
+       messageBytesPtr && 
+       (messageBytesPtr[0] == '\n' || 
+       messageBytesPtr[0] == '\r'))
+   {
+      // do nothing
+   }
 
-    // Need to use a body factory
-    const char* contentType = getHeaderValue(0, HTTP_CONTENT_TYPE_FIELD);
-    if (NULL == contentType)
-    {
-        // "C" => SIP_SHORT_CONTENT_TYPE_FIELD); cannot use sipMessage.h
-        //
-        //        Could not find full header field name, so check for
-        //        short header field names.
-        //
-        contentType = getHeaderValue(0, "C");
-    }
+   // Need to use a body factory
+   const char* contentType = getHeaderValue(0, HTTP_CONTENT_TYPE_FIELD);
+   if (NULL == contentType)
+   {
+      // "C" => SIP_SHORT_CONTENT_TYPE_FIELD); cannot use sipMessage.h
+      //
+      //        Could not find full header field name, so check for
+      //        short header field names.
+      //
+      contentType = getHeaderValue(0, "C");
+   }
 
-    // HTTP_CONTENT_TRANSFER_ENCODING_FIELD  does not have a short form.
-    const char* contentEncodingString = 
-            getHeaderValue(0, HTTP_CONTENT_TRANSFER_ENCODING_FIELD);
-    if (contentEncodingString == NULL)
-    {
-        contentEncodingString = getHeaderValue(0, "E");
-    }
+   // HTTP_CONTENT_TRANSFER_ENCODING_FIELD  does not have a short form.
+   const char* contentEncodingString = 
+                      getHeaderValue(0, HTTP_CONTENT_TRANSFER_ENCODING_FIELD);
+   if (contentEncodingString == NULL)
+   {
+      contentEncodingString = getHeaderValue(0, "E");
+   }
 
-    body = HttpBody::createBody(messageBytesPtr,
-                                bodyLength,
-                                contentType,
-                                contentEncodingString);
+   body = HttpBody::createBody(messageBytesPtr,
+                               bodyLength,
+                               contentType,
+                               contentEncodingString);
 }
 
 int HttpMessage::findHeaderEnd(const char* headerBytes, int messageLength)
 {
-    int lineLength = 0;
-    int nextLineIndex = 0;
-    int bytesConsumed = 0;
-    while(messageLength - bytesConsumed > 0 &&
-          (lineLength =
-            NameValueTokenizer::findNextLineTerminator(&headerBytes[bytesConsumed],
-                messageLength - bytesConsumed, &nextLineIndex)))
-    {
-            if(nextLineIndex > 0)
-            {
-                    bytesConsumed += nextLineIndex;
-            }
-            else
-            {
-            if(lineLength < 0)
-            {
-                bytesConsumed += messageLength - bytesConsumed;
-            }
-            else
-            {
-                    bytesConsumed += lineLength;
-            }
-            }
-    }
+   int lineLength = 0;
+   int nextLineIndex = 0;
+   int bytesConsumed = 0;
+   while(messageLength - bytesConsumed > 0 &&
+         (lineLength =
+           NameValueTokenizer::findNextLineTerminator(&headerBytes[bytesConsumed],
+               messageLength - bytesConsumed, &nextLineIndex)))
+   {
+      if(nextLineIndex > 0)
+      {
+         bytesConsumed += nextLineIndex;
+      }
+      else
+      {
+         if(lineLength < 0)
+         {
+            bytesConsumed += messageLength - bytesConsumed;
+         }
+         else
+         {
+            bytesConsumed += lineLength;
+         }
+      }
+   }
 
-    // If we found a blank line:
-    if(nextLineIndex == 1 && (headerBytes[bytesConsumed] == NEWLINE ||
-        headerBytes[bytesConsumed] == CARRIAGE_RETURN))
-    {
-        bytesConsumed++;
-    }
-    else if(nextLineIndex == 2 && (headerBytes[bytesConsumed] == NEWLINE ||
-        headerBytes[bytesConsumed] == CARRIAGE_RETURN) &&
-        ((headerBytes[bytesConsumed + 1] == NEWLINE ||
-        headerBytes[bytesConsumed + 1] == CARRIAGE_RETURN)))
-    {
-        bytesConsumed += 2;
-    }
+   // If we found a blank line:
+   if(nextLineIndex == 1 && (headerBytes[bytesConsumed] == NEWLINE ||
+       headerBytes[bytesConsumed] == CARRIAGE_RETURN))
+   {
+       bytesConsumed++;
+   }
+   else if(nextLineIndex == 2 && (headerBytes[bytesConsumed] == NEWLINE ||
+           headerBytes[bytesConsumed] == CARRIAGE_RETURN) &&
+           ((headerBytes[bytesConsumed + 1] == NEWLINE ||
+           headerBytes[bytesConsumed + 1] == CARRIAGE_RETURN)))
+   {
+       bytesConsumed += 2;
+   }
+   else
+   {
+      // If we did not find a terminator, there is no explicit end to the
+      // headers
+      bytesConsumed = -1;
+   }
 
-    // If we did not find a terminator, there is no explicit end to the
-    // headers
-    else
-        bytesConsumed = -1;
-
-    return(bytesConsumed);
+   return(bytesConsumed);
 }
 
 int HttpMessage::parseHeaders(const char* headerBytes, int messageLength,
                               UtlDList& headerNameValues)
 {
-        UtlString name;
-        UtlString value;
-        char nameFirstChar;
-        NameValuePair* headerField = NULL;
-        NameValuePair* previousHeaderField = NULL;
-        NameValueTokenizer parser(headerBytes, messageLength);
-        int nameFound;
+   UtlString name;
+   UtlString value;
+   char nameFirstChar;
+   NameValuePair* headerField = NULL;
+   NameValuePair* previousHeaderField = NULL;
+   NameValueTokenizer parser(headerBytes, messageLength);
+   int nameFound;
 
-        // If this is a zero length line the rest is the body
-        do
-        {
-                nameFound = parser.getNextPair(HTTP_NAME_VALUE_DELIMITER,
-                        &name, & value);
-                if(nameFound)
-                {
-                        // If this is a line continuation
-                        nameFirstChar = name(0);
-                        if(previousHeaderField != NULL &&
-                                (nameFirstChar == ' ' || nameFirstChar == '\t'))
-                        {
-                                // Re-join the name and value if there is anything
-                                // in value
-                                if(!value.isNull())
-                                {
-                                        name.append(HTTP_NAME_VALUE_DELIMITER);
-                                        name.append(value.data());
-                                }
+   // If this is a zero length line the rest is the body
+   do
+   {
+      nameFound = parser.getNextPair(HTTP_NAME_VALUE_DELIMITER,
+                                     &name, & value);
+      if(nameFound)
+      {
+         // If this is a line continuation
+         nameFirstChar = name(0);
+         if(previousHeaderField != NULL &&
+            (nameFirstChar == ' ' || nameFirstChar == '\t'))
+         {
+            // Re-join the name and value if there is anything
+            // in value
+            if(!value.isNull())
+            {
+               name.append(HTTP_NAME_VALUE_DELIMITER);
+               name.append(value.data());
+            }
 
-                                // Append this to the previous headers's value
-                                name.insert(0, previousHeaderField->getValue());
-                                previousHeaderField->setValue(name.data());
-                        }
+            // Append this to the previous headers's value
+            name.insert(0, previousHeaderField->getValue());
+            previousHeaderField->setValue(name.data());
+         }
 
-                        // Create a new name value pair for the header line
-                        else
-                        {
-                                name.toUpper();
+         // Create a new name value pair for the header line
+         else
+         {
+            name.toUpper();
 
-                                // Remove trailing white space
-                                NameValueTokenizer::backTrim(&name, " \t");
+            // Remove trailing white space
+            NameValueTokenizer::backTrim(&name, " \t");
 
-                                headerField = new NameValuePair(name.data(), value.data());
-                                headerNameValues.append(headerField);
-                                previousHeaderField = headerField;
-                        }
-                }
-                //name = OsUtil::NULL_OS_STRING;
-                //value = OsUtil::NULL_OS_STRING;
-        }
-        while(nameFound);
+            headerField = new NameValuePair(name.data(), value.data());
+            headerNameValues.append(headerField);
+            previousHeaderField = headerField;
+         }
+      }
+      //name = OsUtil::NULL_OS_STRING;
+      //value = OsUtil::NULL_OS_STRING;
+   }
+   while(nameFound);
 
-        //name = OsUtil::NULL_OS_STRING;
-        //value= OsUtil::NULL_OS_STRING;
+   //name = OsUtil::NULL_OS_STRING;
+   //value= OsUtil::NULL_OS_STRING;
 
-        return(parser.getProcessedIndex());
+   return(parser.getProcessedIndex());
 }
 
 int HttpMessage::get(Url& httpUrl,
                      int maxWaitMilliSeconds,
                      bool bPersistent)
 {
-    OsSysLog::add(FAC_HTTP, PRI_DEBUG, "HttpMessage::get(2) httpUrl = '%s'",
-                  httpUrl.toString().data());
+   OsSysLog::add(FAC_HTTP, PRI_DEBUG, "HttpMessage::get(2) httpUrl = '%s'",
+                 httpUrl.toString().data());
 
-    HttpMessage request;
-    UtlString uriString;
-    
-    httpUrl.getPath(uriString, TRUE);
-    
-    request.setRequestFirstHeaderLine(HTTP_GET_METHOD,
-                                      uriString,
-                                      HTTP_PROTOCOL_VERSION);
-    return(get(httpUrl, request, maxWaitMilliSeconds, bPersistent));
+   HttpMessage request;
+   UtlString uriString;
+
+   httpUrl.getPath(uriString, TRUE);
+
+   request.setRequestFirstHeaderLine(HTTP_GET_METHOD,
+                                     uriString,
+                                     HTTP_PROTOCOL_VERSION);
+   return(get(httpUrl, request, maxWaitMilliSeconds, bPersistent));
 }
 
 OsStatus HttpMessage::get(Url& httpUrl,
