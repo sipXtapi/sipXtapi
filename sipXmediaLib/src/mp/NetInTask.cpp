@@ -472,7 +472,7 @@ int NetInTask::run(void *pNotUsed)
                     /* request to exit... */
                     Nprintf(" *** NetInTask: closing pipeFd (%d)\n",
                         mpReadSocket->getSocketDescriptor(), 0,0,0,0,0);
-                    OsSysLog::add(FAC_MP, PRI_ERR, " *** NetInTask: closing pipeFd (%d)\n",
+                    OsSysLog::add(FAC_MP, PRI_DEBUG, " *** NetInTask: closing pipeFd (%d)\n",
                         mpReadSocket->getSocketDescriptor());
                     getLockObj().acquireWrite();
                     if (mpReadSocket)
