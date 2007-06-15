@@ -74,6 +74,8 @@ MprToNet::MprToNet()
 #ifdef DEBUG /* [ */
 ,  mRtpSampleCounter(0)
 #endif /* DEBUG ] */
+,  mTimestampDelta(0)
+,  mSeqNum(0)
 ,  mSSRC(0)
 ,  mpRtpSocket(NULL)
 ,  mpRtcpSocket(NULL)
@@ -133,16 +135,13 @@ void MprToNet::setSSRC(int iSSRC)
 {
    mSSRC = htonl(iSSRC);
    mSeqNum = rand_timer32() | 0xfc00;
-#ifndef INCLUDE_RTCP /* [ */
    mTimestampDelta = rand_timer32();
-#endif /* INCLUDE_RTCP ] */
 }
 
 #ifdef INCLUDE_RTCP /* [ */
 void MprToNet::setRTPAccumulator(ISetSenderStatistics *piRTPAccumulator)
 {
    mpiRTPAccumulator = piRTPAccumulator;
-   mTimestampDelta = rand_timer32();
    if(mpiRTPAccumulator)
    {
        mpiRTPAccumulator->SetRTPTimestamp(mTimestampDelta);

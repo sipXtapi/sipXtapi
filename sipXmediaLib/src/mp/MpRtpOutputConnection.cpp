@@ -21,7 +21,6 @@
 #include "mp/MprEncode.h"
 #include "os/OsLock.h"
 #ifdef INCLUDE_RTCP /* [ */
-#include "rtcp/RtcpConfig.h"
 #include "rtcp/INetDispatch.h"
 #include "rtcp/IRTPDispatch.h"
 #include "rtcp/ISetSenderStatistics.h"
@@ -83,13 +82,13 @@ MpRtpOutputConnection::MpRtpOutputConnection(const UtlString& resourceName,
 #ifdef INCLUDE_RTCP /* [ */
    if(mpiRTCPSession)
    {
-// Set the Statistics interface to be used by the RTP stream to increment
-// packet and octet statistics
-       mpToNet->setRTPAccumulator(piRTPAccumulator);
+      // Set the Statistics interface to be used by the RTP stream to increment
+      // packet and octet statistics
+      mpToNet->setRTPAccumulator(piRTPAccumulator);
 
-// The RTP Stream associated with the MprToNet object must have its SSRC ID
-// set to the value generated from the Session.
-       mpToNet->setSSRC(mpiRTCPSession->GetSSRC());
+      // The RTP Stream associated with the MprToNet object must have its SSRC ID
+      // set to the value generated from the Session.
+      mpToNet->setSSRC(mpiRTCPSession->GetSSRC());
    }
    else
 #endif /* INCLUDE_RTCP ] */
