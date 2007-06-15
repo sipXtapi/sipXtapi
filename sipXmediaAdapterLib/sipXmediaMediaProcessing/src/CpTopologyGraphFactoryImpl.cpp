@@ -226,12 +226,17 @@ CpTopologyGraphFactoryImpl::CpTopologyGraphFactoryImpl(OsConfigDb* pConfigDb)
     MpOutputDeviceHandle  sinkDeviceId = mpOutputDeviceManager->addDevice(sinkDevice);
     assert(sinkDeviceId > 0);
 
+    OsStatus tempRes;
+
     // Enable devices
-    assert(mpInputDeviceManager->enableDevice(sourceDeviceId) == OS_SUCCESS);
-    assert(mpOutputDeviceManager->enableDevice(sinkDeviceId) == OS_SUCCESS);
+    tempRes = mpInputDeviceManager->enableDevice(sourceDeviceId);
+    assert(tempRes == OS_SUCCESS);
+    tempRes = mpOutputDeviceManager->enableDevice(sinkDeviceId);
+    assert(tempRes == OS_SUCCESS);
 
     // Set flowgraph ticker
-    assert(mpOutputDeviceManager->setFlowgraphTickerSource(sinkDeviceId) == OS_SUCCESS);
+    tempRes = mpOutputDeviceManager->setFlowgraphTickerSource(sinkDeviceId);
+    assert(tempRes == OS_SUCCESS);
 #endif // USE_DEVICE_ADD_HACK ]
 
     mpInitialResourceTopology = buildDefaultInitialResourceTopology();
@@ -251,14 +256,17 @@ CpTopologyGraphFactoryImpl::CpTopologyGraphFactoryImpl(OsConfigDb* pConfigDb)
 CpTopologyGraphFactoryImpl::~CpTopologyGraphFactoryImpl()
 {
 #ifdef USE_DEVICE_ADD_HACK // [
-
+   OsStatus result;
 
    // Clear flowgraph ticker
-   assert(mpOutputDeviceManager->setFlowgraphTickerSource(MP_INVALID_OUTPUT_DEVICE_HANDLE) == OS_SUCCESS);
+   result = mpOutputDeviceManager->setFlowgraphTickerSource(MP_INVALID_OUTPUT_DEVICE_HANDLE);
+   assert(result == OS_SUCCESS);
 
    // Disable devices
-   assert(mpInputDeviceManager->disableDevice(1) == OS_SUCCESS);
-   assert(mpOutputDeviceManager->disableDevice(1) == OS_SUCCESS);
+   result = mpInputDeviceManager->disableDevice(1);
+   assert(result == OS_SUCCESS);
+   result = mpOutputDeviceManager->disableDevice(1);
+   assert(result == OS_SUCCESS);
 
    // Free input device driver
    MpInputDeviceDriver *pInDriver = mpInputDeviceManager->removeDevice(1);
