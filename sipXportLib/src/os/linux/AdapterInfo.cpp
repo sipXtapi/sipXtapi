@@ -23,10 +23,12 @@
 #include <os/HostAdapterAddress.h>
 #include <os/OsSysLog.h>
 
-/* Get the addresses associated with all of the IP interfaces.
- * The core work is done by the SIOCGIFCONF ioctl, documented in the
- * netdevice(7) manual page, with additional hints in ioctl(2), ip(7) and inet(3).
- */
+/**
+*  Get the addresses associated with all of the IP interfaces.
+*
+*  The core work is done by the SIOCGIFCONF ioctl, documented in the
+*  netdevice(7) manual page, with additional hints in ioctl(2), ip(7) and inet(3).
+*/
 bool getAllLocalHostIps(const HostAdapterAddress* localHostAddresses[],
                         int &numAddresses)
 {
