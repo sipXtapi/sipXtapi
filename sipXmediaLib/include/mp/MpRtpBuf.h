@@ -203,12 +203,12 @@ public:
     void setRtpTimestamp(RtpTimestamp timestamp)
     { mRtpHeader.timestamp = htonl(timestamp);}
 
-    /// Set SSRC of this packet. (Big Endian, but random)
+    /// Set SSRC of this packet.
     /**
     *  @see See getRtpSSRC() for details.
     */
     void setRtpSSRC(RtpSRC ssrc)
-    { mRtpHeader.ssrc = ssrc;}
+    { mRtpHeader.ssrc = htonl(ssrc);}
 
 //@}
 
@@ -294,7 +294,7 @@ public:
     */
     RtpTimestamp getRtpTimestamp() const {return ntohl(mRtpHeader.timestamp);}
 
-    /// Get SSRC of this packet. (Big Endian, but random)
+    /// Get SSRC of this packet.
     /**
     *  @note From RFC 3550:
     *  <i>"The SSRC field identifies the synchronization source.  This
@@ -305,7 +305,7 @@ public:
     *  low, all RTP implementations must be prepared to detect and
     *  resolve collisions."</i>
     */
-    RtpSRC getRtpSSRC() const {return mRtpHeader.ssrc;}
+    RtpSRC getRtpSSRC() const {return ntohl(mRtpHeader.ssrc);}
 
 //@}
 
