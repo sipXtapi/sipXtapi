@@ -29,6 +29,8 @@
 // EXTERNAL VARIABLES
 // CONSTANTS
 // STATIC VARIABLE INITIALIZATIONS
+// FORWARD DECLARATIONS
+static void SetThreadName(DWORD dwThreadID, LPCTSTR szThreadName);
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
@@ -551,6 +553,9 @@ unsigned int __stdcall OsTaskWnt::threadEntry(LPVOID arg)
 
    pTask = (OsTaskWnt*) arg;
 
+   // This is a trick for Visual Studio debugger only.
+   SetThreadName(-1, pTask->mName.data());
+
    // Windows uses a different random number generator  each
    // thread.  This means that you need to initialized the
    // random number generator seed in each thread as well
@@ -584,3 +589,34 @@ unsigned int __stdcall OsTaskWnt::threadEntry(LPVOID arg)
 }
 
 /* ============================ FUNCTIONS ================================= */
+
+#define MS_VC_EXCEPTION 0x406d1388
+
+typedef struct tagTHREADNAME_INFO
+{
+   DWORD dwType;        // must be 0x1000
+   LPCSTR szName;       // pointer to name (in same addr space)
+   DWORD dwThreadID;    // thread ID (-1 caller thread)
+   DWORD dwFlags;       // reserved for future use, most be zero
+} THREADNAME_INFO;
+
+/// This is a trick to show thread names in Visual Studio debugger. 
+void SetThreadName(DWORD dwThreadID, LPCTSTR szThreadName)
+{
+#if defined(_DEBUG) && defined(_MSC_VER) // [
+   THREADNAME_INFO info;
+   info.dwType = 0x1000;
+   info.szName = szThreadName;
+   info.dwThreadID = dwThreadID;
+   info.dwFlags = 0;
+
+   __try
+   {
+      RaiseException(MS_VC_EXCEPTION, 0, sizeof(info) / sizeof(DWORD),
+                     (DWORD *)&info);
+   }
+   __except (EXCEPTION_CONTINUE_EXECUTION)
+   {
+   }
+#endif // _DEBUG && _MSC_VER ]
+}
