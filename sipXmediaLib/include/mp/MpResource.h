@@ -16,7 +16,6 @@
 #define _MpResource_h_
 
 // SYSTEM INCLUDES
-
 // APPLICATION INCLUDES
 #include "os/OsDefs.h"
 #include "os/OsRWMutex.h"
@@ -33,10 +32,6 @@
 // CONSTANTS
 // STRUCTS
 // TYPEDEFS
-
-// $$$ (rschaaf): keep for now
-// typedef int* MpBufPtr;
-
 // FORWARD DECLARATIONS
 class MpFlowGraphBase;
 class MpFlowGraphMsg;
