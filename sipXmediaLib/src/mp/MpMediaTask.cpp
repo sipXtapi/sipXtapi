@@ -846,10 +846,11 @@ UtlBoolean MpMediaTask::handleWaitForSignal(MpMediaTaskMsg* pMsg)
              mProcessedCnt, mManagedCnt, 0,0,0,0);
    }
 
-   if (mManagedCnt != lastmMCnt) {
+   if (mManagedCnt != lastmMCnt)
+   {
       // PRINTF("handleWaitForSignal: %d frames, %d managed flow graphs\n",
       mProcessedCnt, mManagedCnt, 0,0,0,0);
-   lastmMCnt = mManagedCnt;
+      lastmMCnt = mManagedCnt;
    }
 #endif /* MEDIA_VERBOSE ] */
 
