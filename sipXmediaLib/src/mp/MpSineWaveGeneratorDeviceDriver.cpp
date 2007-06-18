@@ -71,7 +71,7 @@ public:
 
         if(mpFrameData)
         {
-            delete mpFrameData;
+            delete[] mpFrameData;
             mpFrameData = NULL;
         }
         OsSysLog::add(FAC_MP, PRI_DEBUG,"~MpSineWaveGeneratorServer end");
