@@ -901,9 +901,9 @@ UtlBoolean MpFlowGraphBase::handleMessage(OsMsg& rMsg)
 static void complainAdd(const char *n1, int p1, const char *n2,
    int p2, const char *n3, int p3)
 {
-      Zprintf("MpFlowGraphBase::handleAddLink(%s:%d, %s:%d)\n"
-         " %s:%d is already connected!\n",
-         (int) n1, p1, (int) n2, p2, (int) n3, p3);
+   Zprintf("MpFlowGraphBase::handleAddLink(%s:%d, %s:%d)\n"
+           " %s:%d is already connected!\n",
+           (int) n1, p1, (int) n2, p2, (int) n3, p3);
 }
 
 UtlBoolean MpFlowGraphBase::handleSynchronize(MpFlowGraphMsg& rMsg)
@@ -940,20 +940,18 @@ UtlBoolean MpFlowGraphBase::handleAddLink(MpResource* pFrom, int outPortIdx,
    // make sure both ports are free
    if (pFrom->isOutputConnected(outPortIdx))
    {
-         complainAdd(
-         pFrom->getName(), outPortIdx,
-         pTo->getName(), inPortIdx,
-         pFrom->getName(), outPortIdx);
+      complainAdd(pFrom->getName(), outPortIdx,
+                  pTo->getName(), inPortIdx,
+                  pFrom->getName(), outPortIdx);
       // assert(FALSE);
       return FALSE;
    }
 
    if (pTo->isInputConnected(inPortIdx))
    {
-         complainAdd(
-         pFrom->getName(), outPortIdx,
-         pTo->getName(), inPortIdx,
-         pTo->getName(), inPortIdx);
+      complainAdd(pFrom->getName(), outPortIdx,
+                  pTo->getName(), inPortIdx,
+                  pTo->getName(), inPortIdx);
       // assert(FALSE);
       return FALSE;
    }
