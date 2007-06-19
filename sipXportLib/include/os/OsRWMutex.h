@@ -94,15 +94,15 @@ protected:
 private:
    OsBSem mGuard;             // binary semaphore used to implement the
                               //  critical section for protecting the RWMutex
-                                   //  structure from concurrent access
-        OsCSem mReadSem;           // semaphore used to signal readers
-        OsCSem mWriteSem;          // semaphore used to signal writers
+                              //  structure from concurrent access
+   OsCSem mReadSem;           // semaphore used to signal readers
+   OsCSem mWriteSem;          // semaphore used to signal writers
    OsBSem mWriteExclSem;      // binary semaphore used to ensure mutual
                               //  exclusion among multiple concurrent writers
-        int    mActiveReadersCnt;  // number of active reader tasks
-        int    mActiveWritersCnt;  // number of active writer tasks (always <= 1)
-        int    mRunningReadersCnt; // number of running reader tasks
-        int    mRunningWritersCnt; // number of running writer tasks (always <= 1)
+   int    mActiveReadersCnt;  // number of active reader tasks
+   int    mActiveWritersCnt;  // number of active writer tasks (always <= 1)
+   int    mRunningReadersCnt; // number of running reader tasks
+   int    mRunningWritersCnt; // number of running writer tasks (always <= 1)
 
    OsStatus doAcquireRead(UtlBoolean dontBlock);
      //:Helper function used to acquire the resource for reading

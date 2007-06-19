@@ -51,20 +51,20 @@ static int SEMAPHORE_CNT_MAX = 100;  // upper bound on the number of
 OsRWMutex::OsRWMutex(const int queueOptions) :
    mGuard(queueOptions, OsBSem::FULL),
    mReadSem(queueOptions, SEMAPHORE_CNT_MAX, 0),
-        mWriteSem(queueOptions, SEMAPHORE_CNT_MAX, 0),
+   mWriteSem(queueOptions, SEMAPHORE_CNT_MAX, 0),
    mWriteExclSem(queueOptions, OsBSem::FULL),
-        mActiveReadersCnt(0),
-        mActiveWritersCnt(0),
-        mRunningReadersCnt(0),
-        mRunningWritersCnt(0)
+   mActiveReadersCnt(0),
+   mActiveWritersCnt(0),
+   mRunningReadersCnt(0),
+   mRunningWritersCnt(0)
 {
-        // all of the work is done by the initializers
+   // all of the work is done by the initializers
 }
 
 // Destructor
 OsRWMutex::~OsRWMutex()
 {
-        // no work required
+   // no work required
 }
 
 /* ============================ MANIPULATORS ============================== */
