@@ -213,6 +213,9 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
         // delete interface
         mediaInterface->release(); 
 
+        // delete codecs set
+        delete[] codecArray;
+
         // delete mpMediaFactory ;
         delete codecFactory ;
     }
