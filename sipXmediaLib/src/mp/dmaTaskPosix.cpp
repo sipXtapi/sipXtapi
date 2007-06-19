@@ -487,8 +487,8 @@ static void startAudioSupport(void)
        {
 
            /* OsMsgPool setup */
-           MpBufferMsg* pMsg = new MpBufferMsg(MpBufferMsg::AUD_RECORDED);
-           DmaMsgPool = new OsMsgPool("DmaTask", *(OsMsg*)pMsg,
+           MpBufferMsg msg(MpBufferMsg::AUD_RECORDED);
+           DmaMsgPool = new OsMsgPool("DmaTask", msg,
                  40, 60, 100, 5,
                  OsMsgPool::SINGLE_CLIENT);
 
