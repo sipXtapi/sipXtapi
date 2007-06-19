@@ -561,29 +561,6 @@ MpCallFlowGraph::~MpCallFlowGraph()
       }
    }
 
-// For now, we just let the base class destructor mop up this mess...
-#ifdef IS_THIS_TOO_MUCH /* [ */
-#error foo
-// int          i;
-// MpResource*  pBridgeSource;
-// int          bridgePort;
-   for (i=1; i<MAX_CONNECTIONS; i++) {
-      if (NULL != mpConnections[i]) {
-         pBridgeSource = mpConnections[i]->getSourceResource();
-         printf("removing link from bridge input (connID=%d)\n", i);
-         pBridgeSource->resourceInfo(pBridgeSource, i);
-         res = removeLink(*pBridgeSource, 0);
-         assert(OS_SUCCESS == res);
-         bridgePort = mpConnections[i]->getBridgePort();
-         printf("removing link from Bridge:%d\n", bridgePort);
-         res = removeLink(*mpBridge, bridgePort);
-         assert(OS_SUCCESS == res);
-         delete mpConnections[i];
-         mpConnections[i] = NULL;
-      }
-   }
-
-#endif /* IS_THIS_TOO_MUCH ] */
    res = removeResource(*mpBridge);
    assert(res == OS_SUCCESS);
    delete mpBridge;
