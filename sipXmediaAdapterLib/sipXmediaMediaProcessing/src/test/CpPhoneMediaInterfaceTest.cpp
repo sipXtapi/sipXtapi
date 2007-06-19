@@ -214,6 +214,10 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
         mediaInterface->release(); 
 
         // delete codecs set
+        for ( numCodecs--; numCodecs>=0; numCodecs--)
+        {
+           delete codecArray[numCodecs];
+        }
         delete[] codecArray;
 
         // delete mpMediaFactory ;
@@ -375,6 +379,13 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
 
         mediaInterface->deleteConnection(connectionId) ;
 
+        // delete codecs set
+        for ( numCodecs--; numCodecs>=0; numCodecs--)
+        {
+           delete codecArray[numCodecs];
+        }
+        delete[] codecArray;
+
         delete codecFactory ;
         // delete interface
         mediaInterface->release(); 
@@ -472,6 +483,13 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
         RTL_STOP;
 
         mediaInterface->deleteConnection(connectionId) ;
+
+        // delete codecs set
+        for ( numCodecs--; numCodecs>=0; numCodecs--)
+        {
+           delete codecArray[numCodecs];
+        }
+        delete[] codecArray;
 
         // delete interface
         mediaInterface->release(); 
@@ -757,6 +775,23 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
 
         RTL_WRITE("testTwoTones.rtl");
         RTL_STOP;
+
+        // delete codecs set
+        for ( numCodecs--; numCodecs>=0; numCodecs--)
+        {
+           delete codecArray[numCodecs];
+        }
+        delete[] codecArray;
+        for ( numCodecsFactory1--; numCodecsFactory1>=0; numCodecsFactory1--)
+        {
+           delete codecArray1[numCodecsFactory1];
+        }
+        delete[] codecArray1;
+        for ( numCodecsFactory2--; numCodecsFactory2>=0; numCodecsFactory2--)
+        {
+           delete codecArray2[numCodecsFactory2];
+        }
+        delete[] codecArray2;
 
         delete codecFactory ;
     };
