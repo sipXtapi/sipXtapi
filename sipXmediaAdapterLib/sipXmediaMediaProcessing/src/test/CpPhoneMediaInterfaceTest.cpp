@@ -83,7 +83,6 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
     public:
 
     CpMediaInterfaceFactory* mpMediaFactory;
-    int mInitialized;
 
     CpPhoneMediaInterfaceTest()
     {
@@ -93,11 +92,7 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
     {
         enableConsoleOutput(0);
 
-        if(mInitialized != 1234567890)
-        {
-            mInitialized = 1234567890;
-            mpMediaFactory = sipXmediaFactoryFactory(NULL);
-        }
+        mpMediaFactory = sipXmediaFactoryFactory(NULL);
     } 
 
     virtual void tearDown()
