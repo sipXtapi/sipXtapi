@@ -23,6 +23,7 @@
 // APPLICATION INCLUDES
 #include "mp/MpDataBuf.h"
 #include "mp/MpTypes.h"
+#include "os/OsIntTypes.h"
 
 // MACROS
 // EXTERNAL FUNCTIONS
@@ -30,17 +31,17 @@
 // CONSTANTS
 // STRUCTS
 // TYPEDEFS
-typedef USHORT RtpSeq;      ///< RTP sequence number
-typedef UINT RtpTimestamp;  ///< RTP timestamp
-typedef UINT RtpSRC;        ///< RTP SSRC or CSRC identificator
+typedef uint16_t RtpSeq;        ///< RTP sequence number
+typedef uint32_t RtpTimestamp;  ///< RTP timestamp
+typedef uint32_t RtpSRC;        ///< RTP SSRC or CSRC identifier
 
 /// RTP header as described in RFC 3550.
 struct RtpHeader {
-   UCHAR vpxcc;             ///< Version, Padding, Extension and CSRC Count bits.
-   UCHAR mpt;               ///< Marker and Payload Type bits.
+   uint8_t vpxcc;           ///< Version, Padding, Extension and CSRC Count bits.
+   uint8_t mpt;             ///< Marker and Payload Type bits.
    RtpSeq seq;              ///< Sequence Number (Big Endian!)
    RtpTimestamp timestamp;  ///< Timestamp (Big Endian!)
-   RtpSRC ssrc;             ///< SSRC (Big Endian, but random)
+   RtpSRC ssrc;             ///< SSRC (Big Endian!)
 };
 
 // DEFINES
@@ -126,7 +127,7 @@ public:
     /**
     *  @see See getRtpVersion() for details.
     */
-    void setRtpVersion(UCHAR version)
+    void setRtpVersion(uint8_t version)
     { mRtpHeader.vpxcc = ( (version<<RTP_V_SHIFT)&RTP_V_MASK)
                          | (mRtpHeader.vpxcc&(~RTP_V_MASK));}
 
@@ -162,7 +163,7 @@ public:
     /**
     *  @see See getRtpCSRCCount() for details.
     */
-    void setRtpCSRCCount(UCHAR csrcCount)
+    void setRtpCSRCCount(uint8_t csrcCount)
     { mRtpHeader.vpxcc = ( (csrcCount<<RTP_CC_SHIFT)&RTP_CC_MASK)
                          | (mRtpHeader.vpxcc&(~RTP_CC_MASK));}
 
@@ -185,7 +186,7 @@ public:
     /**
     *  @see See getRtpPayloadType() for details.
     */
-    void setRtpPayloadType(UCHAR type)
+    void setRtpPayloadType(uint8_t type)
     { mRtpHeader.mpt = ( (type<<RTP_PT_SHIFT)&RTP_PT_MASK)
                        | (mRtpHeader.mpt&(~RTP_PT_MASK));}
 
@@ -239,7 +240,7 @@ public:
     *  draft version of RTP and the value 0 is used by the protocol
     *  initially implemented in the "vat" audio tool.)"</i>
     */
-    UCHAR getRtpVersion() const
+    uint8_t getRtpVersion() const
     {return (mRtpHeader.vpxcc&RTP_V_MASK) >> RTP_V_SHIFT;}
 
     /// Get CSRC Count for this packet.
@@ -248,7 +249,7 @@ public:
     *  <i>"The CSRC count contains the number of CSRC identifiers that follow
     *  the fixed header. "</i>
     */
-    UCHAR getRtpCSRCCount() const {return mRtpHeader.vpxcc & RTP_CC_MASK;}
+    uint8_t getRtpCSRCCount() const {return mRtpHeader.vpxcc & RTP_CC_MASK;}
 
     /// Get Payload Type of this packet.
     /**
@@ -265,7 +266,7 @@ public:
     *  A receiver MUST ignore packets with payload types that it does not
     *  understand."</i>
     */
-    UCHAR getRtpPayloadType() const
+    uint8_t getRtpPayloadType() const
     {return (mRtpHeader.mpt&RTP_PT_MASK) >> RTP_PT_SHIFT;}
 
     /// Get Sequence Number of this packet.
