@@ -2367,6 +2367,9 @@
 				RelativePath="include\os\OsFS.h">
 			</File>
 			<File
+				RelativePath=".\include\os\OsIntTypes.h">
+			</File>
+			<File
 				RelativePath="include\os\OsLock.h">
 			</File>
 			<File
@@ -2733,6 +2736,16 @@
 			</File>
 			<File
 				RelativePath=".\src\hmac-sha1\sha1.h">
+			</File>
+		</Filter>
+		<Filter
+			Name="msinttypes"
+			Filter="">
+			<File
+				RelativePath=".\include\os\msinttypes\inttypes.h">
+			</File>
+			<File
+				RelativePath=".\include\os\msinttypes\stdint.h">
 			</File>
 		</Filter>
 	</Files>

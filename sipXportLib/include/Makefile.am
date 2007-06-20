@@ -51,6 +51,7 @@ nobase_include_HEADERS = \
     os/OsFileIteratorBase.h \
     os/OsFileSystem.h \
     os/OsFS.h \
+    os/OsIntTypes.h \
     os/OsLock.h \
     os/OsLockingList.h \
     os/OsMsg.h \

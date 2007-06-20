@@ -723,6 +723,10 @@ SOURCE=.\include\os\OsFS.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\include\os\OsIntTypes.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\include\os\OsLock.h
 # End Source File
 # Begin Source File
@@ -1184,6 +1188,14 @@ SOURCE=.\include\os\wnt\WIndowsAdapterInfo.h
 # Begin Source File
 
 SOURCE=.\include\utl\XmlContent.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\os\msinttypes\inttypes.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\os\msinttypes\stdint.h
 # End Source File
 # End Group
 # End Target

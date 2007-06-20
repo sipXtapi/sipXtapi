@@ -2591,6 +2591,10 @@
 				>
 			</File>
 			<File
+				RelativePath="include\os\OsIntTypes.h"
+				>
+			</File>
+			<File
 				RelativePath="include\os\OsLock.h"
 				>
 			</File>
@@ -3144,6 +3148,18 @@
 			</File>
 			<File
 				RelativePath=".\src\xmlparser\TiXmlIterator.cpp"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="msinttypes"
+			>
+			<File
+				RelativePath=".\include\os\msinttypes\inttypes.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\os\msinttypes\stdint.h"
 				>
 			</File>
 		</Filter>
