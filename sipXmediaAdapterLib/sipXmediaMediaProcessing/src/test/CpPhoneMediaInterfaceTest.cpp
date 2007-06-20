@@ -42,7 +42,7 @@ public:
    StoreSignalNotification() {}
    virtual ~StoreSignalNotification() {}
 
-   OsStatus signal(const int eventData) 
+   OsStatus signal(const intptr_t eventData) 
    { 
       UtlInt* pED = new UtlInt(eventData);
       return (mEDataList.insert(pED) == pED) ?

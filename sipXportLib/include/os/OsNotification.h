@@ -15,7 +15,8 @@
 // SYSTEM INCLUDES
 
 // APPLICATION INCLUDES
-#include "os/OsStatus.h"
+#include <os/OsStatus.h>
+#include <os/OsIntTypes.h>
 
 // DEFINES
 // MACROS
@@ -44,7 +45,7 @@ public:
 
 /* ============================ MANIPULATORS ============================== */
 
-   virtual OsStatus signal(const int eventData) = 0;
+   virtual OsStatus signal(const intptr_t eventData) = 0;
      //:Signal the occurrence of the event
 
 /* ============================ ACCESSORS ================================= */
