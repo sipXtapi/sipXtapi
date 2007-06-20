@@ -67,6 +67,7 @@ mkdir examples\include\os
 copy ..\sipXportLib\include\os examples\include\os
 copy ..\sipXportLib\include\os\shared examples\include\os\shared
 copy ..\sipXportLib\include\os\wnt examples\include\os\wnt
+copy ..\sipXportLib\include\os\msinttypes examples\include\os\msinttypes
 copy ..\sipXportLib\include\utl examples\include\utl
 copy ..\sipXtackLib\include\net examples\include\net
 copy include\tapi\sipXtapi.h examples\include\tapi
@@ -151,6 +152,7 @@ mkdir examples\include\os
 copy ..\sipXportLib\include\os examples\include\os
 copy ..\sipXportLib\include\os\shared examples\include\os\shared
 copy ..\sipXportLib\include\os\wnt examples\include\os\wnt
+copy ..\sipXportLib\include\os\msinttypes examples\include\os\msinttypes
 copy ..\sipXportLib\include\utl examples\include\utl
 copy ..\sipXtackLib\include\net examples\include\net
 copy include\tapi\sipXtapi.h examples\include\tapi
@@ -235,6 +237,7 @@ mkdir examples\include\os
 copy ..\sipXportLib\include\os examples\include\os
 copy ..\sipXportLib\include\os\shared examples\include\os\shared
 copy ..\sipXportLib\include\os\wnt examples\include\os\wnt
+copy ..\sipXportLib\include\os\msinttypes examples\include\os\msinttypes
 copy ..\sipXportLib\include\utl examples\include\utl
 copy ..\sipXtackLib\include\net examples\include\net
 copy include\tapi\sipXtapi.h examples\include\tapi
@@ -315,6 +318,7 @@ mkdir examples\include\os
 copy ..\sipXportLib\include\os examples\include\os
 copy ..\sipXportLib\include\os\shared examples\include\os\shared
 copy ..\sipXportLib\include\os\wnt examples\include\os\wnt
+copy ..\sipXportLib\include\os\msinttypes examples\include\os\msinttypes
 copy ..\sipXportLib\include\utl examples\include\utl
 copy ..\sipXtackLib\include\net examples\include\net
 copy include\tapi\sipXtapi.h examples\include\tapi
