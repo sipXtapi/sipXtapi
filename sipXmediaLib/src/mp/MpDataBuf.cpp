@@ -32,10 +32,10 @@ void MpDataBuf::sDestroy(MpBuf *pBuffer)
 
 /* ============================ ACCESSORS ================================= */
 
-char *MpDataBuf::getWriteDataPtr()
+char *MpDataBuf::getDataWritePtr()
 {
    if (mpData.isValid())
-      return mpData->getWriteDataPtr();
+      return mpData->getDataWritePtr();
    else
       return NULL;
 };

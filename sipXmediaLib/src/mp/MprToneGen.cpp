@@ -171,7 +171,7 @@ UtlBoolean MprToneGen::doProcessFrame(MpBufPtr inBufs[],
       count = out->getSamplesNumber();
 
       // Generate new portion of tone
-      outbuf = out->getSamples();
+      outbuf = out->getSamplesWritePtr();
       ret = MpToneGen_getNextBuff(mpToneGenState, outbuf, count);
 
       // See what we get...

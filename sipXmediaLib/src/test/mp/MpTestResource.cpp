@@ -160,7 +160,7 @@ UtlBoolean MpTestResource::doProcessFrame(MpBufPtr inBufs[],
             // for the output port
             assert(MpMisc.RawAudioPool != NULL);
             MpAudioBufPtr pBuf = MpMisc.RawAudioPool->getBuffer();
-            memset(pBuf->getSamples(), 0,
+            memset(pBuf->getSamplesWritePtr(), 0,
                    pBuf->getSamplesNumber()*sizeof(MpAudioSample));
             outBufs[i] = pBuf;
          }

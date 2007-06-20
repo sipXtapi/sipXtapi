@@ -274,7 +274,7 @@ UtlBoolean MprBridge::doMix(MpAudioBufPtr inBufs[], int inBufsSize,
         out->setSamplesNumber(samplesPerFrame);
 
         // Fill output buffer with silence
-        MpAudioSample* outstart = out->getSamples();
+        MpAudioSample* outstart = out->getSamplesWritePtr();
         memset((char *) outstart, 0, samplesPerFrame * sizeof(MpAudioSample));
 
         // Mix them all
@@ -286,7 +286,7 @@ UtlBoolean MprBridge::doMix(MpAudioBufPtr inBufs[], int inBufsSize,
                 // Mix only non-silent audio
                 if (inBufs[inIdx].isValid() && inBufs[inIdx]->isActiveAudio())
                 { 
-                    MpAudioSample* input = inBufs[inIdx]->getSamples();
+                    const MpAudioSample* input = inBufs[inIdx]->getSamplesPtr();
                     int n = min(inBufs[inIdx]->getSamplesNumber(), samplesPerFrame);
                     for (int i=0; i<n; i++)
                         *output++ += (*input++) >> scale;

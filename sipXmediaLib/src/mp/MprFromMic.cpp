@@ -179,7 +179,7 @@ UtlBoolean MprFromMic::doProcessFrame(MpBufPtr inBufs[],
             int n = 0;
             MpAudioSample* s = NULL;
 
-            s = out->getSamples();
+            s = out->getSamplesWritePtr();
             n = out->getSamplesNumber();
             
             s_fnMicDataHook(n, s) ;
@@ -204,14 +204,14 @@ UtlBoolean MprFromMic::doProcessFrame(MpBufPtr inBufs[],
 
                   MpAudioSample *shpSamples;
                   int n = out->getSamplesNumber();
-                  shpSamples = out->getSamples();
+                  shpSamples = out->getSamplesWritePtr();
 
                   tpBuf = MpMisc.RawAudioPool->getBuffer();
                   if (!out.isValid())
                      return FALSE;
                   tpBuf->setSamplesNumber(n);
                   assert(tpBuf.isValid());
-                  shpTmpFrame = tpBuf->getSamples();
+                  shpTmpFrame = tpBuf->getSamplesWritePtr();
                   highpass_filter800(shpSamples, shpTmpFrame, n);
 
                   out->setSpeechType(speech_detected(shpTmpFrame,n));

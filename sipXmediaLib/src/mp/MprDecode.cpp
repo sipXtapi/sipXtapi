@@ -304,7 +304,7 @@ static int iFramesSinceLastReport=0;
       return FALSE;
    }
    out->setSamplesNumber(samplesPerFrame);
-   pSamples = out->getSamples();
+   pSamples = out->getSamplesWritePtr();
    memset(pSamples, 0, out->getSamplesNumber() * sizeof(MpAudioSample));
    out->setSpeechType(MpAudioBuf::MP_SPEECH_SILENT);
 

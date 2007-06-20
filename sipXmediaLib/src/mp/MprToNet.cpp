@@ -229,7 +229,7 @@ int MprToNet::writeRtp(int payloadType, UtlBoolean markerState,
 
    // Allocate UDP packet
    pUdpPacket = MpMisc.UdpPool->getBuffer();
-   pBuf = pUdpPacket->getWriteDataPtr();
+   pBuf = pUdpPacket->getDataWritePtr();
 
    // Set size of data to send
    assert(pUdpPacket->getMaximumPacketSize() >= sizeof(RtpHeader)+payloadOctets+paddingLength);

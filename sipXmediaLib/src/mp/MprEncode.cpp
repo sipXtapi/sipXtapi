@@ -383,7 +383,7 @@ void MprEncode::doPrimaryCodec(MpAudioBufPtr in, unsigned int startTs)
 {
    int numSamplesIn;
    int numSamplesOut;
-   MpAudioSample* pSamplesIn;
+   const MpAudioSample* pSamplesIn;
    int payloadBytesLeft;
    unsigned char* pDest;
    int bytesAdded; //$$$
@@ -399,7 +399,7 @@ void MprEncode::doPrimaryCodec(MpAudioBufPtr in, unsigned int startTs)
 
    // Initialize variables
    numSamplesIn = in->getSamplesNumber();
-   pSamplesIn = in->getSamples();
+   pSamplesIn = in->getSamplesPtr();
    content = MpAudioBuf::MP_SPEECH_UNKNOWN;
 
    while (numSamplesIn > 0)

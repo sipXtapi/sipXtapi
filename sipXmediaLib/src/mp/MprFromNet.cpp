@@ -240,7 +240,7 @@ MpRtpBufPtr MprFromNet::parseRtpPacket(const MpUdpBufPtr &buf)
    }
 
    // Copy payload to RTP buffer.
-   memcpy( rtpBuf->getWriteDataPtr(), buf->getDataPtr()+offset
+   memcpy( rtpBuf->getDataWritePtr(), buf->getDataPtr()+offset
          , rtpBuf->getPayloadSize());
 
    return rtpBuf;

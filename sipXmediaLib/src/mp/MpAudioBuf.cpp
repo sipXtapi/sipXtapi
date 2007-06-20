@@ -65,8 +65,8 @@ int MpAudioBuf::compareSamples(const MpAudioBuf& frame1,
 
     else
     {
-        MpAudioSample* samples1 = frame1.getSamples();
-        MpAudioSample* samples2 = frame2.getSamples();
+        const MpAudioSample* samples1 = frame1.getSamplesPtr();
+        const MpAudioSample* samples2 = frame2.getSamplesPtr();
 
         int sampleDiff;
         for(int sampleIndex = 0; sampleIndex < samplesInFrame1; sampleIndex++)

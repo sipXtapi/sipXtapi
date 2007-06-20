@@ -216,7 +216,7 @@ public:
        // Fill message with buffer. Set audio type to muted.
        pBuf = MpMisc.RawAudioPool->getBuffer();
        CPPUNIT_ASSERT(pBuf.isValid());
-       memset(pBuf->getSamples(), 0,
+       memset(pBuf->getSamplesWritePtr(), 0,
               pBuf->getSamplesNumber()*sizeof(MpAudioSample));
        pBuf->setSpeechType(MpAudioBuf::MP_SPEECH_UNKNOWN);
        pMsg->setBuffer(pBuf);
@@ -251,7 +251,7 @@ public:
        // Fill message with buffer. Set audio type to muted.
        pBuf = MpMisc.RawAudioPool->getBuffer();
        CPPUNIT_ASSERT(pBuf.isValid());
-       memset(pBuf->getSamples(), 0,
+       memset(pBuf->getSamplesWritePtr(), 0,
               pBuf->getSamplesNumber()*sizeof(MpAudioSample));
        pBuf->setSpeechType(MpAudioBuf::MP_SPEECH_UNKNOWN);
        pMsg->setBuffer(pBuf);

@@ -292,7 +292,7 @@ UtlBoolean MprToSpkr::doProcessFrame(MpBufPtr inBufs[],
         out = inBufs[0];
         inBufs[0].release();
 
-        shpSamples = out->getSamples();
+        shpSamples = out->getSamplesWritePtr();
         iLength = out->getSamplesNumber();
 
         /////////////////////////////////////////////////

@@ -61,9 +61,9 @@
 #endif
 
 static void calculateSampleData(MpFrameTime frameTime,
-                                const MpAudioBufPtr &frame)
+                                MpAudioBufPtr &frame)
 {
-   MpAudioSample *sampleData = frame->getSamples();
+   MpAudioSample *sampleData = frame->getSamplesWritePtr();
    for (unsigned i=0; i<frame->getSamplesNumber(); i++)
    {
       sampleData[i] = 

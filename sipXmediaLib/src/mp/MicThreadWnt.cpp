@@ -262,7 +262,7 @@ bool inPostUnprep(int n, int discard, DWORD bufLen, bool bFree)
 
          if (ob.isValid())
          {
-            memcpy( ob->getSamples()
+            memcpy( ob->getSamplesWritePtr()
                    , pWH->lpData
                    , min( pWH->dwBytesRecorded
                         , ob->getSamplesNumber()*sizeof(MpAudioSample)));
@@ -275,7 +275,7 @@ bool inPostUnprep(int n, int discard, DWORD bufLen, bool bFree)
                 int i, n;
                 MpAudioSample *s;
 
-                s = ob->getSamples();
+                s = ob->getSamplesPtr();
                 n = ob->getSamplesNumber();
                 for (i=0; i<n; i++)
                     *s++= ((i % 80) << 10);

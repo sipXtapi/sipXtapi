@@ -284,7 +284,7 @@ static WAVEHDR* outPrePrep(int n, DWORD bufLen)
    pWH->dwLoops = 0;
    pWH->lpNext = 0;
    pWH->reserved = 0;
-   memcpy(pWH->lpData, ob->getSamples(), bufLen);
+   memcpy(pWH->lpData, ob->getSamplesPtr(), bufLen);
 
 #ifdef RTL_ENABLED
    RTL_EVENT("SpeakerThreadWnt.outPrePrep", 0);

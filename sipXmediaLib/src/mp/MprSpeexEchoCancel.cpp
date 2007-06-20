@@ -136,14 +136,14 @@ UtlBoolean MprSpeexEchoCancel::doProcessFrame(MpBufPtr inBufs[],
             }
 
             if (outBuffer.isValid()) {
-               pEchoResidue = (spx_int32_t*)echoResidueBuffer->getWriteDataPtr();
+               pEchoResidue = (spx_int32_t*)echoResidueBuffer->getDataWritePtr();
             }
 
             // Do echo cancelation
             speex_echo_cancel(mpEchoState,
-                              (spx_int16_t*)inputBuffer->getSamples(),
-                              (spx_int16_t*)echoRefBuffer->getSamples(),
-                              (spx_int16_t*)outBuffer->getSamples(),
+                              (spx_int16_t*)inputBuffer->getSamplesPtr(),
+                              (spx_int16_t*)echoRefBuffer->getSamplesPtr(),
+                              (spx_int16_t*)outBuffer->getSamplesPtr(),
                               pEchoResidue);
          } else {
             //The sample count didn't match so we can't echo cancel.  Pass the frame.

@@ -65,8 +65,8 @@ public:
         MpAudioBufPtr frame2 = mpPool->getBuffer();
         CPPUNIT_ASSERT(frame1.isValid());
         CPPUNIT_ASSERT(frame2.isValid());
-        MpAudioSample* samples1 = frame1->getSamples();
-        MpAudioSample* samples2 = frame2->getSamples();
+        MpAudioSample* samples1 = frame1->getSamplesWritePtr();
+        MpAudioSample* samples2 = frame2->getSamplesWritePtr();
         CPPUNIT_ASSERT_EQUAL(frame1->getSamplesNumber(), (unsigned int)AUDIOBUF_TEST_SAMPLES_PER_FRAME);
         CPPUNIT_ASSERT_EQUAL(frame2->getSamplesNumber(), (unsigned int)AUDIOBUF_TEST_SAMPLES_PER_FRAME);
         frame1->setSamplesNumber(AUDIOBUF_TEST_SAMPLES_PER_FRAME);

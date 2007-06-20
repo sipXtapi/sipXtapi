@@ -97,7 +97,7 @@ public:
       CPPUNIT_ASSERT(buf1.isValid());
 
       // Fill buffer 1
-      pSamples = buf1->getSamples();
+      pSamples = buf1->getSamplesWritePtr();
       for (i=0; i<buf1->getSamplesNumber(); i++ ) {
          pSamples[i] = (MpAudioSample)0xFACE;
       }
@@ -107,19 +107,19 @@ public:
       CPPUNIT_ASSERT(buf2.isValid());
 
       // Fill buffer 2
-      pSamples = buf2->getSamples();
+      pSamples = buf2->getSamplesWritePtr();
       for (i=0; i<buf2->getSamplesNumber(); i++ ) {
          pSamples[i] = (MpAudioSample)0xCAFE;
       }
 
       // Check buffer 1
-      pSamples = buf1->getSamples();
+      pSamples = buf1->getSamplesWritePtr();
       for (i=0; i<buf1->getSamplesNumber(); i++ ) {
          CPPUNIT_ASSERT(pSamples[i] == (MpAudioSample)0xFACE);
       }
 
       // Check buffer 2
-      pSamples = buf2->getSamples();
+      pSamples = buf2->getSamplesWritePtr();
       for (i=0; i<buf2->getSamplesNumber(); i++ ) {
          CPPUNIT_ASSERT(pSamples[i] == (MpAudioSample)0xCAFE);
       }
@@ -240,7 +240,7 @@ public:
       CPPUNIT_ASSERT(buf1.isValid());
 
       // Fill buffer 1
-      pSamples = buf1->getSamples();
+      pSamples = buf1->getSamplesWritePtr();
       for (i=0; i<buf1->getSamplesNumber(); i++ ) {
          pSamples[i] = (MpAudioSample)0xFACE;
       }
@@ -256,7 +256,7 @@ public:
       CPPUNIT_ASSERT(buf1->getData() != buf2->getData());
 
       // Check buffer 2: its data should be equal to the original data
-      pSamples = buf2->getSamples();
+      pSamples = buf2->getSamplesWritePtr();
       for (i=0; i<buf2->getSamplesNumber(); i++ ) {
          CPPUNIT_ASSERT(pSamples[i] == (MpAudioSample)0xFACE);
       }

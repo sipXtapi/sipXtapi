@@ -66,7 +66,7 @@ public:
 //@{
 
     /// Get pointer to the buffer data with intent to write/change it.
-    char *getWriteDataPtr() {return mpData;}
+    char *getDataWritePtr() {return mpData;}
 
     /// Get read only pointer to the buffer data.
     const char *getDataPtr() const {return mpData;}

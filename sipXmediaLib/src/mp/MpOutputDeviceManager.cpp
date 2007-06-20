@@ -228,7 +228,7 @@ OsStatus MpOutputDeviceManager::pushFrame(MpOutputDeviceHandle deviceId,
 
       status = 
          connection->pushFrame(pAudioFrame->getSamplesNumber(),
-                               pAudioFrame->getSamples(),
+                               pAudioFrame->getSamplesPtr(),
                                frameTime);
    }
 

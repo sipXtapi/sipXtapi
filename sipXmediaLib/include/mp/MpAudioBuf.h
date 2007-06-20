@@ -99,7 +99,10 @@ public:
     SpeechType getSpeechType() const {return mSpeechType;};
 
     /// Get pointer to audio data.
-    MpAudioSample *getSamples() const {return (MpAudioSample*)getDataPtr();}
+    const MpAudioSample *getSamplesPtr() const {return (const MpAudioSample*)getDataPtr();}
+
+    /// Get writable pointer to audio data.
+    MpAudioSample *getSamplesWritePtr() {return (MpAudioSample*)getDataWritePtr();}
 
     /// Get current number of samples in audio data.
     unsigned getSamplesNumber() const {return mpData->getDataSize()/sizeof(MpAudioSample);}

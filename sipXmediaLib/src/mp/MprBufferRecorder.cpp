@@ -174,7 +174,7 @@ UtlBoolean MprBufferRecorder::doProcessFrame(MpBufPtr inBufs[],
       MpAudioSample* destSamples = 
          ((MpAudioSample*)mpBuffer->data()) + mnBufferSamplesUsed;
 
-      MpAudioSample* inputSamples = inBuf->getSamples();
+      const MpAudioSample* inputSamples = inBuf->getSamplesPtr();
 
       unsigned int numInSamples = inBuf->getSamplesNumber();
 

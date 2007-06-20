@@ -354,7 +354,7 @@ UtlBoolean MprFromStream::doProcessFrame(MpBufPtr inBufs[],
          if (!mpStreamRenderer->isMarkedPaused())
          {
             out->setSpeechType(MpAudioBuf::MP_SPEECH_TONE);
-            outbuf = out->getSamples();
+            outbuf = out->getSamplesWritePtr();
 
             if (mpStreamRenderer->getFrame((unsigned short*) outbuf) == OS_SUCCESS)
             {
@@ -401,7 +401,7 @@ UtlBoolean MprFromStream::doProcessFrame(MpBufPtr inBufs[],
 
       if (!bSentData) 
       {
-         outbuf = out->getSamples();
+         outbuf = out->getSamplesWritePtr();
          memset(outbuf, 0, out->getSamplesNumber()*sizeof(MpAudioSample));
          out->setSpeechType(MpAudioBuf::MP_SPEECH_SILENT);      
       }

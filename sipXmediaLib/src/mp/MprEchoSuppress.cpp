@@ -306,126 +306,127 @@ UtlBoolean MprEchoSuppress::doProcessFrame(MpBufPtr inBufs[],
                                      int samplesPerSecond)
 
 {
+   MpAudioBufPtr        out;
+   MpAudioBufPtr        in8;
+   MpAudioBufPtr        in32;
+   const MpAudioSample* shpMicSig;
 
+   static int Frame10msCount;
+   static short    shSpkState= MprToSpkr::ATTEN_LOUDEST;
 
-    MpAudioBufPtr        out;
-    MpAudioBufPtr        in8;
-    MpAudioBufPtr        in32;
-    MpAudioSample*       shpMicSig;
-
-    static int Frame10msCount;
-    static short    shSpkState= MprToSpkr::ATTEN_LOUDEST;
-
-    if ((1 > outBufsSize) || (3 < outBufsSize)) return FALSE;
-
-#if 0
-    if (1 != inBufsSize) return FALSE;
-    in32 = NULL;
-#else
-	
-    
-#endif
-    in8.swap(inBufs[0]);
-
-    if (1 < outBufsSize) outBufs[1] = NULL;
-    if (2 < outBufsSize) outBufs[2] = NULL;
-
-    if (in32 == NULL) {
-        out = MpMisc.mpFgSilence;
-        outBufs[0] = out;
-        return TRUE;
-    }
-
-
-    /* If the object is not enabled, pass input to output */
-    if (!isEnabled) {
-         out = in8;
-         outBufs[0] = out;
-         return TRUE;
-    }
-
-    frame_match(in8);               /* If match not found, mpPrev == NULL */
-
-
-    MpAudioBufPtr   out2;           /* To point to 8k speaker buffer */
-    if(mpPrev == NULL) 
-	 {
-         out2 = MpMisc.mpFgSilence;
-    }
-    else
-	 {
-	    out2.swap(mpPrev);
-	    outBufs[1] = out2;
-    }
-
-    if (!in8->isActiveAudio()) {
-        shpMicSig = in8->getSamples();
-		// short* shpSpkSig = outBufs->getSamples();
-        short* shpSpkSig = out2->getSamples();
-
-
+   if ((1 > outBufsSize) || (3 < outBufsSize))
    {
+      return FALSE;
+   }
+
+   in8.swap(inBufs[0]);
+
+   if (1 < outBufsSize)
+      outBufs[1] = NULL;
+   if (2 < outBufsSize)
+      outBufs[2] = NULL;
+
+   if (in32 == NULL)
+   {
+      out = MpMisc.mpFgSilence;
+      outBufs[0] = out;
+      return TRUE;
+   }
+
+
+   /* If the object is not enabled, pass input to output */
+   if (!isEnabled)
+   {
+      out = in8;
+      outBufs[0] = out;
+      return TRUE;
+   }
+
+   frame_match(in8);               /* If match not found, mpPrev == NULL */
+
+   MpAudioBufPtr   out2;           /* To point to 8k speaker buffer */
+   if(mpPrev == NULL) 
+   {
+      out2 = MpMisc.mpFgSilence;
+   }
+   else
+   {
+      out2.swap(mpPrev);
+      outBufs[1] = out2;
+   }
+
+   if (!in8->isActiveAudio())
+   {
+      shpMicSig = in8->getSamplesPtr();
+      MpAudioSample* shpSpkSig = out2->getSamplesWritePtr();
+
       if ( iSub == 0)
       {
          if (1) //speakers
          {
-            mpFilterBank->DoFilterBank(shpMicSig, shpSpkSig);
+            mpFilterBank->DoFilterBank((short*)shpMicSig, shpSpkSig);
          }
          else // handset
          {
-			 
+
             if (1 /*HandAEC == 1*/)
             {
-               mpHandsetFilterBank->DoHandsetFilterBank(shpMicSig, shpMicSig, shpSpkSig);
+               mpHandsetFilterBank->DoHandsetFilterBank((short*)shpMicSig, (short*)shpMicSig, shpSpkSig);
             }
-			
+
          }
 
       }
-   ///////////////////////////////////////////////////////////////////////////
-   //////////// Limiting signal //////////////////////////////////////////////
-   ///////////////////////////////////////////////////////////////////////////
+      ///////////////////////////////////////////////////////////////////////////
+      //////////// Limiting signal //////////////////////////////////////////////
+      ///////////////////////////////////////////////////////////////////////////
 
-      if (MpCodec_isBaseSpeakerOn()) {
+      // This code is commented out, because MpCodec_isBaseSpeakerOn() always
+      // return false now. And this code seems to operate on wrong array -
+      // shpMicSig is const and is not used in further calculations, so
+      // changing it is useless.
+#if 0 // [
+      if (MpCodec_isBaseSpeakerOn())
+      {
          int i;
          int Temp;
 
-         for ( i = 0; i < 80; i++) {
+         for ( i = 0; i < 80; i++)
+         {
             Temp = shpMicSig[i] << 2;  // +12dB boost AFTER AEC
 
-            if (Temp > sampleLimit) {
+            if (Temp > sampleLimit)
+            {
                Temp = sampleLimit;
-            } else if (Temp < -sampleLimit) {
+            }
+            else if (Temp < -sampleLimit)
+            {
                Temp = -sampleLimit;
             }
 
             shpMicSig[i] = Temp;
          }
       }
+#endif // 0 ]
 
-   ////////////////////////////////////////////////////////////////////////////
+      ////////////////////////////////////////////////////////////////////////////
+
+      {
+         int FadeDB = MpCodec_isBaseSpeakerOn() ?
+                         iLoudspeakerFadeDB : //speakerphone 
+                         0;                   //never fade earpiece
+         out = LoudspeakerFade(in8, shSpkState, FadeDB);
+      }
 
    }
 
-   {
-      int FadeDB = (MpCodec_isBaseSpeakerOn() ?
-                             iLoudspeakerFadeDB : //speakerphone 
-                             0);                  //never fade earpiece
-      out = LoudspeakerFade(in8, shSpkState, FadeDB);
+   if (!out.isValid()) {
+      out = MpMisc.mpFgSilence;
    }
 
-    }
-
-    if (!out.isValid()) {
-         out = MpMisc.mpFgSilence;
-    }
-
-    *outBufs = out;
-    return TRUE;
-} // end doProcessFrame
-
-
-
+   *outBufs = out;
+   return TRUE;
+}
 
 
 /* ============================ FUNCTIONS ================================= */

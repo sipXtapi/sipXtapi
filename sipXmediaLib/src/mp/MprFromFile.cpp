@@ -577,7 +577,7 @@ UtlBoolean MprFromFile::doProcessFrame(MpBufPtr inBufs[],
          out->setSpeechType(MpAudioBuf::MP_SPEECH_TONE);
          out->setSamplesNumber(samplesPerFrame);
          count = out->getSamplesNumber();
-         outbuf = out->getSamples();
+         outbuf = out->getSamplesWritePtr();
 
          int bytesPerFrame = count * sizeof(MpAudioSample);
          int bufferLength = mpFileBuffer->length();

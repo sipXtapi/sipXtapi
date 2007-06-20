@@ -499,7 +499,7 @@ OsStatus mpStartUp(int sampleRate, int samplesPerFrame,
             }
 
             sb->setSamplesNumber(samplesPerFrame);
-            memset(sb->getSamples(), 0, sb->getSamplesNumber()*sizeof(MpAudioSample));
+            memset(sb->getSamplesWritePtr(), 0, sb->getSamplesNumber()*sizeof(MpAudioSample));
             sb->setSpeechType(MpAudioBuf::MP_SPEECH_SILENT);
             MpMisc.mpFgSilence = sb;
             Zprintf("mpStartUp: MpMisc.silence = 0x%X\n",
@@ -522,7 +522,7 @@ OsStatus mpStartUp(int sampleRate, int samplesPerFrame,
             }
 
             cnb->setSamplesNumber(samplesPerFrame);
-            memset(cnb->getSamples(), 0, cnb->getSamplesNumber()*sizeof(MpAudioSample));
+            memset(cnb->getSamplesWritePtr(), 0, cnb->getSamplesNumber()*sizeof(MpAudioSample));
             cnb->setSpeechType(MpAudioBuf::MP_SPEECH_COMFORT_NOISE);
             MpMisc.comfortNoise = cnb;
             Zprintf("mpStartUp: MpMisc.comfortNoise = 0x%X\n",

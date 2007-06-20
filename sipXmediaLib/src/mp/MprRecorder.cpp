@@ -314,7 +314,7 @@ UtlBoolean MprRecorder::doProcessFrame(MpBufPtr inBufs[],
    int numBytes = 0;
    int numSamples = 0;
    MpAudioBufPtr in;
-   MpAudioSample* input;
+   const MpAudioSample* input;
 
    // Lock so that mFileDescriptor and file contents cannot be changed out
    // from under us while we are updating the file.
@@ -359,7 +359,8 @@ UtlBoolean MprRecorder::doProcessFrame(MpBufPtr inBufs[],
          " mConsecutiveInactive=%d", mFramesToRecord,
          mStatus, mSilenceLength, mConsecutiveInactive);
       disable(RECORD_FINISHED);
-   } else 
+   }
+   else 
    {
       //now write the buffer out
       int bytesWritten = 0;
@@ -378,7 +379,7 @@ UtlBoolean MprRecorder::doProcessFrame(MpBufPtr inBufs[],
          mConsecutiveInactive++;
       }
 
-      input = in->getSamples();
+      input = in->getSamplesPtr();
       numSamples = in->getSamplesNumber();
       numBytes = numSamples * sizeof(MpAudioSample);
       if (mFileDescriptor > -1)

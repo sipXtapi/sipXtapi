@@ -146,7 +146,7 @@ UtlBoolean MprMixer::doProcessFrame(MpBufPtr inBufs[],
    out->setSpeechType(MpAudioBuf::MP_SPEECH_UNKNOWN);
 
    // Fill buffer with silence
-   outstart = out->getSamples();
+   outstart = out->getSamplesWritePtr();
    memset((char *) outstart, 0, samplesPerFrame * sizeof(MpAudioSample));
 
    for (int i=0; i < inBufsSize; i++)
@@ -156,7 +156,7 @@ UtlBoolean MprMixer::doProcessFrame(MpBufPtr inBufs[],
       {
          MpAudioBufPtr  in = inBufs[i];
          MpAudioSample* output = outstart;
-         MpAudioSample* input = in->getSamples();
+         const MpAudioSample* input = in->getSamplesPtr();
          int n = min(in->getSamplesNumber(), samplesPerFrame);
          if (wgt == 1)
          {

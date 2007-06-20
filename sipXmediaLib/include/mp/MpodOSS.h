@@ -100,7 +100,7 @@ public:
 
      /// @brief Send data to OSS output device.
    OsStatus pushFrame(unsigned int numSamples,
-                      MpAudioSample* samples,
+                      const MpAudioSample* samples,
                       MpFrameTime frameTime);
      /**<
      *  This method is usually called from MpAudioOutputConnection::pushFrame().

@@ -201,7 +201,7 @@ OsStatus MpAudioOutputConnection::disableFlowgraphTicker()
 }
 
 OsStatus MpAudioOutputConnection::pushFrame(unsigned int numSamples,
-                                            MpAudioSample* samples,
+                                            const MpAudioSample* samples,
                                             MpFrameTime frameTime)
 {
    OsStatus result = OS_FAILED;
@@ -313,7 +313,7 @@ OsStatus MpAudioOutputConnection::freeMixerBuffer()
 }
 
 OsStatus MpAudioOutputConnection::mixFrame(unsigned frameOffset,
-                                           MpAudioSample* samples,
+                                           const MpAudioSample* samples,
                                            unsigned numSamples)
 {
    assert(numSamples > 0);

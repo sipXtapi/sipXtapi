@@ -172,7 +172,7 @@ public:
       // Stuff the data in a buffer
       if (thisFrameData->mFrameBuffer.isValid())
       {
-         memcpy(thisFrameData->mFrameBuffer->getSamples(), samples, numSamples * sizeof(MpAudioSample));
+         memcpy(thisFrameData->mFrameBuffer->getSamplesWritePtr(), samples, numSamples * sizeof(MpAudioSample));
          thisFrameData->mFrameBuffer->setSamplesNumber(numSamples);
          thisFrameData->mFrameBuffer->setSpeechType(MpAudioBuf::MP_SPEECH_UNKNOWN);
          result = OS_SUCCESS;

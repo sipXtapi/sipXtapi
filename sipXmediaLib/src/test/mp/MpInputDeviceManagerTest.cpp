@@ -285,7 +285,7 @@ public:
         int sampleIndex;
         MpAudioBufPtr referenceFrame = mpPool->getBuffer();
         CPPUNIT_ASSERT(referenceFrame.isValid());
-        MpAudioSample* referenceSamples = referenceFrame->getSamples();
+        MpAudioSample* referenceSamples = referenceFrame->getSamplesWritePtr();
         MpAudioSample* actualSamples;
         MpFrameTime frameTime = readerTask.mFirstFrameTime;
         for(frameIndex = 0; frameIndex < numBufferedFrames; frameIndex++)
@@ -297,7 +297,7 @@ public:
                                          storedSignal[frameIndex]->getSamplesNumber());
 
             // Calculate the reference frame data
-            actualSamples = storedSignal[frameIndex]->getSamples();
+            actualSamples = storedSignal[frameIndex]->getSamplesWritePtr();
             for(sampleIndex = 0; (unsigned)sampleIndex < samplesPerFrame; sampleIndex++)
             {
                 referenceSamples[sampleIndex] =

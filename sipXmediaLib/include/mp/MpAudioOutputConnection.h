@@ -123,7 +123,7 @@ public:
 
      /// Send data frame to output device.
    OsStatus pushFrame(unsigned int numSamples,
-                      MpAudioSample* samples,
+                      const MpAudioSample* samples,
                       MpFrameTime frameTime);
      /**<
      *  This method is used to push a frame to the MpOutputDeviceManager to be
@@ -255,7 +255,7 @@ protected:
 
      /// Mix frame to mixer buffer.
    OsStatus mixFrame(unsigned frameOffset,
-                     MpAudioSample* samples,
+                     const MpAudioSample* samples,
                      unsigned numSamples);
      /**<
      *  @param frameOffset - (in) Offset in samples of frame begin, relative

@@ -101,7 +101,7 @@ UtlBoolean MprSpeexPreprocess::doProcessFrame(MpBufPtr inBufs[],
       if (inBufs[1].isValid()) {
          echoResidue = (spx_int32_t*)((MpArrayBufPtr)inBufs[1])->getDataPtr();
       }
-      speex_preprocess(mpPreprocessState, (spx_int16_t*)inputBuffer->getSamples(), echoResidue);
+      speex_preprocess(mpPreprocessState, (spx_int16_t*)inputBuffer->getSamplesPtr(), echoResidue);
    }
 
    outBufs[0].swap(inputBuffer);

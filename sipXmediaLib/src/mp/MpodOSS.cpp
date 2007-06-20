@@ -198,7 +198,7 @@ OsStatus MpodOSS::disableDevice()
 }
 
 OsStatus MpodOSS::pushFrame(unsigned int numSamples,
-                            MpAudioSample* samples,
+                            const MpAudioSample* samples,
                             MpFrameTime frameTime)
 {
    if (!isEnabled())
