@@ -4861,7 +4861,7 @@ void SipConnection::processInviteResponseFailed(const SipMessage* response)
            setState(CONNECTION_FAILED, CONNECTION_REMOTE, cause);
            fireSipXCallEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_BAD_ADDRESS);
         }
-        else if (responseCode == SIP_DECLINE_CODE)
+        else if (responseCode == SIP_DECLINE_CODE || responseCode == SIP_FORBIDDEN_CODE)
         {
            setState(CONNECTION_FAILED, CONNECTION_REMOTE, cause);
            fireSipXCallEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_REQUEST_NOT_ACCEPTED);
