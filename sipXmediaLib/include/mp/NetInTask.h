@@ -25,7 +25,7 @@
 #include "os/OsSocket.h"
 #include "os/OsRWMutex.h"
 #include "mp/MpTypes.h"
-#include "mp/MpBuf.h"
+#include "mp/MpRtpBuf.h"
 #include "mp/MpMisc.h"
 
 // DEFINES
@@ -64,27 +64,15 @@ class OsConnectionSocket;
 class OsServerSocket;
 class OsSocket;
 class OsNotification;
+struct rtpSession;
 
 // STRUCTS
 
-struct rtpSession {
-   UCHAR vpxcc; ///< Usually: ((2<<6) | (0<<5) | (0<<4) | 0)
-   UCHAR mpt;   ///< Usually: ((0<<7) | 0)
-   USHORT seq;
-   UINT timestamp;
-   UINT ssrc;
-   OsSocket* socket;
-   int dir;
-   UINT packets;
-   UINT octets;
-   USHORT cycles;
-};
-
 #ifndef INCLUDE_RTCP /* [ */
 struct __MprRtcpStats {
-   UINT ssrc;
+   RtpSRC ssrc;
    short seqNumCycles;
-   USHORT highSeqNum;
+   uint16_t highSeqNum;
 };
 
 // TYPEDEFS
@@ -96,7 +84,7 @@ typedef struct __MprRtcpStats* MprRtcpStatsPtr;
 typedef struct rtpSession *rtpHandle;
 
 // FORWARD DECLARATIONS
-extern UINT rand_timer32(void);
+extern uint32_t rand_timer32(void);
 extern rtpHandle StartRtpSession(OsSocket* socket, int direction, char type);
 extern void FinishRtpSession(rtpHandle h);
 

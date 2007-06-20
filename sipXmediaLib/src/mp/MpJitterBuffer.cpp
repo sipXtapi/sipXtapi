@@ -49,7 +49,7 @@ int MpJitterBuffer::pushPacket(MpRtpBufPtr &rtpPacket)
 {
    int bufferSize;          // number of samples could be written to decoded buffer
    unsigned decodedSamples; // number of samples, returned from decoder
-   UCHAR payloadType;       // RTP packet payload type
+   uint8_t payloadType;     // RTP packet payload type
    MpDecoderBase* decoder;  // decoder for the packet
 
    payloadType = rtpPacket->getRtpPayloadType();

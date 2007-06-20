@@ -96,7 +96,7 @@ public:
      */
 
      /// Get next RTP packet with given timestamp, or NULL if none is available.
-   MpRtpBufPtr pullPacket(int payloadType, UINT timestamp, bool lockTimestamp=true);
+   MpRtpBufPtr pullPacket(int payloadType, RtpTimestamp timestamp, bool lockTimestamp=true);
      /**<
      *  This version of pullPacket() works exactly the same as above version
      *  of pullPacket() with one exception: if (lockTimestamp == true) it checks 

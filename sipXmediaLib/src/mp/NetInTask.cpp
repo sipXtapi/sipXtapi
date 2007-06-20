@@ -94,6 +94,19 @@ struct __netInTaskMsg {
 
 typedef struct __netInTaskMsg netInTaskMsg, *netInTaskMsgPtr;
 
+struct rtpSession {
+   uint8_t vpxcc; ///< Usually: ((2<<6) | (0<<5) | (0<<4) | 0)
+   uint8_t mpt;   ///< Usually: ((0<<7) | 0)
+   RtpSeq seq;
+   RtpTimestamp timestamp;
+   RtpSRC ssrc;
+   OsSocket* socket;
+   int dir;
+   uint32_t packets;
+   uint32_t octets;
+   uint16_t cycles;
+};
+
 // STATIC VARIABLE INITIALIZATIONS
 volatile int* pOsTC = OSTIMER_COUNTER_POINTER;
 
@@ -297,7 +310,7 @@ int isFdPoison(int fd)
         ptv = &tv;
         fds = &fdset;
         FD_ZERO(fds);
-        FD_SET((UINT) fd, fds);
+        FD_SET((unsigned) fd, fds);
         numReady = select(fd+1, fds, NULL, NULL, ptv);
         return (0 > numReady) ? TRUE : FALSE;
 }
@@ -412,7 +425,7 @@ int NetInTask::run(void *pNotUsed)
                }
             }
             FD_ZERO(fds);
-            FD_SET((UINT) mpReadSocket->getSocketDescriptor(), fds);
+            FD_SET((unsigned) mpReadSocket->getSocketDescriptor(), fds);
             for (i=0, ppr=pairs; i<NET_TASK_MAX_FD_PAIRS; i++) {
               if (NULL != ppr->fwdTo) {
                 if (NULL != ppr->pRtpSocket)
@@ -812,12 +825,12 @@ OsStatus removeNetInputSources(MprFromNet* fwdTo, OsNotification* notify)
 /************************************************************************/
 
 // return something random (32 bits)
-UINT rand_timer32()
+uint32_t rand_timer32()
 {
 #ifdef _VXWORKS /* [ */
 // On VxWorks, this is based on reading the 3.686400 MHz counter
-        UINT x;
-static  UINT last_timer = 0x12345678;
+        uint32_t x;
+static  uint32_t last_timer = 0x12345678;
 
         x = *pOsTC;
         if (x == last_timer) {
@@ -854,7 +867,7 @@ static  UINT last_timer = 0x12345678;
 rtpHandle StartRtpSession(OsSocket* socket, int direction, char type)
 {
         struct rtpSession *ret;
-        USHORT rseq;
+        RtpSeq rseq;
 
         rseq = 0xFFFF & rand_timer32();
 

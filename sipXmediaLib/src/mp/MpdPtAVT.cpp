@@ -72,15 +72,15 @@ OsStatus MpdPtAVT::freeDecode(void)
 
 void dumpRawAvtPacket(const MpRtpBufPtr &pRtp, int pThis)
 {
-   UCHAR vpxcc;
-   UCHAR mpt;
-   USHORT seq;
-   UINT timestamp;
-   UINT ssrc;
+   uint8_t vpxcc;
+   uint8_t mpt;
+   RtpSeq seq;
+   RtpTimestamp timestamp;
+   RtpSRC ssrc;
 
-   UCHAR  key;
-   UCHAR  dB;
-   short  duration;
+   uint8_t  key;
+   uint8_t  dB;
+   uint16_t duration;
 
    AvtPacket *pAvt;
 

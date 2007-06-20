@@ -1,8 +1,8 @@
 // 
-// Copyright (C) 2005-2006 SIPez LLC.
+// Copyright (C) 2005-2007 SIPez LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.
 // 
-// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -15,55 +15,27 @@
 #define QSTYPES__H__
 
 /*-----------------------------------------------------------------------------
- * File: qsTypes.h
- * Module: STUN
- * Description:
- *  This file contains the declaration of the types that are used in the STUN
- *  module.
- *-----------------------------------------------------------------------------
- */
-
-/*-----------------------------------------------------------------------------
  * Module history
  *
  * Date			Description
  * ----			-----------
- * 26 Feb 05		Initial version of the file
+ * 21 Jun 07      First attempt to remove this file and switch to C99 integer types.
+ * 26 Feb 05		Initial version of the file.
  *-----------------------------------------------------------------------------
  */
 
-/*-----------------------------------------------------------------------------
- * Declarations and definitions:
- *  This section contains the local declarations and definitions of constants,
- *  macros, typdefs, etc.
- *-----------------------------------------------------------------------------
- */
+//
+//                       !!!!!!!! ATTENTION !!!!!!!!
+//
+// Please, do not use these UInt64 and Int64. Use uint64_t and int64_t instead.
+// And, please, replace all existing references to UInt64 and Int64 with
+// uint64_t and int64_t.
 
-/* 8 bit integers */
-typedef char CHAR;
-typedef unsigned char UCHAR;
 
-/* 16 bit integers */
-typedef short SHORT;
-typedef unsigned short USHORT;
+#include <os/OsIntTypes.h>
 
-/* 32 bit integers */
-typedef int INT;
-typedef unsigned int UINT;
+/* 64 bit integers */
+typedef uint64_t UInt64;
+typedef int64_t  Int64;
 
-/* 64 bit integers; unsigned is not defined since it is not likely needed */
-#ifdef WIN32
-typedef unsigned __int64 UInt64;
-typedef __int64 Int64;
-#else
-typedef unsigned long long UInt64;
-typedef long long int Int64;
-#endif /* WIN32 */
-
-/* 128 bit integers; unsigned is not defined since it is not likely needed */
-#ifndef WINCE
-typedef struct {
-    unsigned char octet[16];
-} UINT128;
-#endif
-#endif /* LOCALTYPES__H__ */
+#endif /* QSTYPES__H__ */

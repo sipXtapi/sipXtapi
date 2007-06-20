@@ -203,7 +203,7 @@ MpRtpBufPtr MprFromNet::parseRtpPacket(const MpUdpBufPtr &buf)
    // Adjust packet size according to padding
    packetLength = buf->getPacketSize();
    if (rtpBuf->isRtpPadding()) {
-      UCHAR padBytes = *(buf->getDataPtr() + packetLength - 1);
+      uint8_t padBytes = *(buf->getDataPtr() + packetLength - 1);
 
       // Ipse: I'm not sure why we do this... Say me if you know.
       if ((padBytes & (~3)) != 0) {
@@ -215,7 +215,7 @@ MpRtpBufPtr MprFromNet::parseRtpPacket(const MpUdpBufPtr &buf)
    }
 
    // Copy CSRC list to RTP buffer
-   csrcSize = rtpBuf->getRtpCSRCCount() * sizeof(UINT);
+   csrcSize = rtpBuf->getRtpCSRCCount() * sizeof(RtpSRC);
    memcpy(rtpBuf->getRtpCSRCs(), buf->getDataPtr()+offset, csrcSize);
    offset += csrcSize;
 

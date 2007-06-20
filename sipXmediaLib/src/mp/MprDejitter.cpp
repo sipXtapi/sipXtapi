@@ -134,7 +134,7 @@ MpRtpBufPtr MprDejitter::pullPacket(int payloadType)
 }
 
 // Get next RTP packet with given timestamp, or NULL if none is available.
-MpRtpBufPtr MprDejitter::pullPacket(int payloadType, UINT maxTimestamp, bool lockToTimestamp)
+MpRtpBufPtr MprDejitter::pullPacket(int payloadType, RtpTimestamp maxTimestamp, bool lockToTimestamp)
 {
    OsLock locker(mRtpLock);
 
