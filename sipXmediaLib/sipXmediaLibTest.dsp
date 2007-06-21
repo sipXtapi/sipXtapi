@@ -109,6 +109,10 @@ SOURCE=.\src\test\mp\MpMediaTaskTest.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\test\mp\MpMMTimerTest.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\test\mp\MpOutputDriverTest.cpp
 # End Source File
 # Begin Source File

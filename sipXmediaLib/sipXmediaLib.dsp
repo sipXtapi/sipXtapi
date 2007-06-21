@@ -351,6 +351,14 @@ SOURCE=.\src\mp\MpMisc.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\mp\MpMMTimer.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\mp\MpMMTimerWnt.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\mp\MpNotificationDispatcher.cpp
 # End Source File
 # Begin Source File
@@ -1052,6 +1060,14 @@ SOURCE=.\include\mp\MpMediaTaskMsg.h
 # Begin Source File
 
 SOURCE=.\include\mp\MpMisc.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MpMMTimer.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MpMMTimerWnt.h
 # End Source File
 # Begin Source File
 
