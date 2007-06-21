@@ -32,28 +32,28 @@ class MpResourceMsg : public OsMsg
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
-   /// Phone set message types
+     /// Resource message types
    typedef enum
    {
-      MPRM_RESOURCE_DISABLE,
-      MPRM_RESOURCE_ENABLE,
-      MPRM_ENABLE_ALL_NOTIFICATIONS,
-      MPRM_DISABLE_ALL_NOTIFICATIONS,
+      MPRM_RESOURCE_DISABLE,           ///< Generic resource disable message
+      MPRM_RESOURCE_ENABLE,            ///< Generic resource enable message
+      MPRM_ENABLE_ALL_NOTIFICATIONS,   ///< Message to enable all notifications to be sent from resources
+      MPRM_DISABLE_ALL_NOTIFICATIONS,  ///< Message to disable all notification from being sent from resources
 
-      MPRM_START_TONE,
-      MPRM_STOP_TONE,
-      MPRM_FROMFILE_START,
-      MPRM_FROMFILE_PAUSE,
-      MPRM_FROMFILE_STOP,
+      MPRM_START_TONE,          ///< Start a tone.
+      MPRM_STOP_TONE,           ///< Stop a tone.
+      MPRM_FROMFILE_START,      ///< Start playing a file.
+      MPRM_FROMFILE_PAUSE,      ///< Pause a playing file.
+      MPRM_FROMFILE_STOP,       ///< Stop a playing file.
 
-      MPRM_BUF_RECORDER_START,
-      MPRM_BUF_RECORDER_STOP,
+      MPRM_BUF_RECORDER_START,  ///< Start recording to a buffer.
+      MPRM_BUF_RECORDER_STOP,   ///< Stop recording to a buffer.
 
       // Connection Resource messages
-      MPRM_START_RECEIVE_RTP,
-      MPRM_STOP_RECEIVE_RTP,
-      MPRM_START_SEND_RTP,
-      MPRM_STOP_SEND_RTP,
+      MPRM_START_RECEIVE_RTP,   ///< Start receiving RTP.
+      MPRM_STOP_RECEIVE_RTP,    ///< Stop receiving RTP.
+      MPRM_START_SEND_RTP,      ///< Start sending RTP.
+      MPRM_STOP_SEND_RTP,       ///< Stop sending RTP.
 
       // Add new built in resource operation messages above
 
