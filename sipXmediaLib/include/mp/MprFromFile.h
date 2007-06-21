@@ -283,7 +283,7 @@ private:
      /// Handle flowgraph messages for this resource.
    virtual UtlBoolean handleMessage(MpFlowGraphMsg& rMsg);
 
-   /// Handle resource messages for this resource.
+     /// Handle resource messages for this resource.
    virtual UtlBoolean handleMessage(MpResourceMsg& rMsg);
 
      /// Copy constructor (not implemented for this class)
