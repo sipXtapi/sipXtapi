@@ -31,10 +31,8 @@
 // EXTERNAL VARIABLES
 // CONSTANTS
 // STATIC VARIABLE INITIALIZATIONS
-#define TEST_PRINT_CONTRIBUTORS
-#undef  TEST_PRINT_CONTRIBUTORS
 
-
+// LOCAL CLASSES DECLARATION
 #ifdef TEST_PRINT_CONTRIBUTORS
 class MpContributorVector
 {
@@ -154,6 +152,14 @@ MprBridge::MprBridge(const UtlString& rName,
                    1, maxInOutputs, 
                    samplesPerFrame, 
                    samplesPerSec)
+#ifdef TEST_PRINT_CONTRIBUTORS  // [
+, mpMixContributors(NULL)
+, mpLastOutputContributors(NULL)
+#endif // TEST_PRINT_CONTRIBUTORS ]
+, mpGainMatrix(NULL)
+, mpMixAccumulator(NULL)
+, mpGainedInputs(NULL)
+, mpIsInputActive(NULL)
 {
    handleDisable();
 
@@ -165,11 +171,45 @@ MprBridge::MprBridge(const UtlString& rName,
       mpLastOutputContributors[i] = new MpContributorVector(maxInOutputs);
    }
 #endif
+
+   // Create temporary storage for mixing data.
+   mpMixAccumulator = new MpBridgeAccum[getSamplesPerFrame()];
+   assert(mpMixAccumulator != NULL);
+
+   // Allocate mix matrix.
+   mpGainMatrix = new MpBridgeGain[maxInputs()*maxOutputs()];
+   assert(mpGainMatrix != NULL);
+   
+   // Initially mute all inputs.
+/*   for (int j=maxInputs()*maxOutputs()-1; j>=0; j--)
+   {
+      mpGainMatrix[j] = MP_BRIDGE_GAIN_MUTED;
+   }
+*/
+   // Initially set matrix to inversed unity matrix, with zeros along
+   // main diagonal.
+   MpBridgeGain *pGain = mpGainMatrix;
+   *pGain = MP_BRIDGE_GAIN_MUTED;
+   pGain++;
+   for (int row=0; row<maxOutputs()-1; row++)
+   {
+      for (int i=0; i<maxInputs(); i++)
+      {
+         *pGain = MP_BRIDGE_GAIN_PASSTHROUGH;
+         pGain++;
+      }
+      *pGain = MP_BRIDGE_GAIN_MUTED;
+      pGain++;
+   }
 }
 
 // Destructor
 MprBridge::~MprBridge()
 {
+   delete[] mpGainMatrix;
+   delete[] mpMixAccumulator;
+   delete[] mpGainedInputs;
+   delete[] mpIsInputActive;
 
 #ifdef TEST_PRINT_CONTRIBUTORS
    delete mpMixContributors;
@@ -187,40 +227,194 @@ MprBridge::~MprBridge()
 
 /* ============================ MANIPULATORS ============================== */
 
+OsStatus MprBridge::setMixWeightsForOutput(int bridgeOutputPort,
+                                           int numWeights,
+                                           MpBridgeGain gain[])
+{
+   MpFlowGraphMsg msg(SET_WEIGHTS_FOR_OUTPUT, this,
+                      gain, NULL,
+                      bridgeOutputPort, numWeights);
+   return postMessage(msg);
+}
+
+OsStatus MprBridge::setMixWeightsForInput(int bridgeInputPort,
+                                          int numWeights,
+                                          MpBridgeGain gain[])
+{
+   MpFlowGraphMsg msg(SET_WEIGHTS_FOR_OUTPUT, this,
+                      gain, NULL,
+                      bridgeInputPort, numWeights);
+   return postMessage(msg);
+}
+
 /* ============================ ACCESSORS ================================= */
 
 /* ============================ INQUIRY =================================== */
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
-UtlBoolean MprBridge::doMix(MpAudioBufPtr inBufs[], int inBufsSize,
-                            MpAudioBufPtr &out, int samplesPerFrame,
-                            MpContributorVector& contributors)
+UtlBoolean MprBridge::doMix(MpBufPtr inBufs[], int inBufsSize,
+                            MpBufPtr outBufs[], int outBufsSize,
+                            int samplesPerFrame)
 {
-    int inputsConnected;  // Number of connected ports
+   assert(inBufsSize <= maxInputs());
+   assert(outBufsSize <= maxOutputs());
+
+   // Loop over all outputs
+   for (int outputNum=0; outputNum<outBufsSize; outputNum++)
+   {
+      MpBridgeGain *pInputGains = &mpGainMatrix[outputNum*maxInputs()];
+
+      // Initialize accumulator
+      for (int i=0; i<samplesPerFrame; i++)
+      {
+         mpMixAccumulator[i] = MPF_BRIDGE_FLOAT(0.0f);
+      }
+
+      // Get buffer for output data.
+      MpAudioBufPtr pOutBuf = MpMisc.RawAudioPool->getBuffer();
+      assert(pOutBuf.isValid());
+      pOutBuf->setSamplesNumber(samplesPerFrame);
+      pOutBuf->setSpeechType(MpAudioBuf::MP_SPEECH_UNKNOWN);
+
+      // Mix input data to accumulator
+      for (int inputNum=0; inputNum<inBufsSize; inputNum++)
+      {
+         if (inBufs[inputNum].isValid() &&
+             pInputGains[inputNum] != MP_BRIDGE_GAIN_MUTED)
+         {
+            MpAudioBufPtr pFrame = inBufs[inputNum];
+            assert(pFrame->getSamplesNumber() == samplesPerFrame);
+            if (pInputGains[inputNum] == MP_BRIDGE_GAIN_PASSTHROUGH)
+            {
+               MpDspUtils::add_IS(pFrame->getSamplesPtr(), mpMixAccumulator,
+                                  samplesPerFrame, MP_BRIDGE_FRAC_LENGTH);
+            }
+            else
+            {
+               MpDspUtils::addMul_I(pFrame->getSamplesPtr(),
+                                    pInputGains[inputNum],
+                                    mpMixAccumulator,
+                                    samplesPerFrame);
+            }
+         }
+      }
+
+      // Move data from accumulator to output.
+      MpDspUtils::convert_S(mpMixAccumulator, pOutBuf->getSamplesWritePtr(),
+                            samplesPerFrame, -MP_BRIDGE_FRAC_LENGTH);
+      outBufs[outputNum].swap(pOutBuf);
+   }
+
+   return TRUE;
+
+#if 0
+   // == High level algorithm description ==
+   //
+   // This description assume that we have N inputs and N outputs for simplicity.
+   //
+   // Phase 0: Apply gain to inputs.
+   //
+   // Apply gain to all inputs and by the way convert them to 32-bit integers
+   // to save precision.
+   //
+   // Phase 1: Collect sum of all inputs.
+   //
+   // Sum all inputs to accumulator array (32-bit). During this we'll get
+   // data for one output ready - we should copy data from accumulator
+   // to last output before last input will be added to accumulator.
+   // This will take (N-1) addition operations per sample.
+   //
+   // Phase 2: Calculate output signal.
+   //
+   // For all outputs (except one, filled on phase 1) subtract corresponding
+   // input signal from accumulator. Save calculated output data to provided
+   // buffers after saturation.
+   // This will take (N-1) subtraction operations per sample.
+   //
+   // Note: For outputs that do not have corresponding active input accumulator
+   //       data will be used after saturation.
+   //
+   //  Note: Input is considered active if:
+   //        - buffer pointer is not NULL;
+   //        - buffer contain not silent data;
+   //        - it does not muted by gain/attenuation.
+   //
+   int i;                  ///< Loop counter.
+   int32_t *pGainedData;   ///< Iterator for mpGainedInputs 2D array.
+   int lastNotMutedOutput; ///< Index of last output with not muted gain/attenuation.
+
+   // Phase 0: Apply gain to inputs.
+
+   // Get pointer to the end of gained data. This pointer will be decremented
+   // in the loop to always point to processed input data.
+   pGainedData = &mpGainedInputs[inBufsSize*samplesPerFrame];
+   for (i=inBufsSize; i>=0; i--)
+   {
+      MpAudioBufPtr tempBuf;
+      tempBuf.swap(inBufs[i]);
+
+      // Adjust pointer to gained input data.
+      pGainedData -= samplesPerFrame;
+
+      if (  tempBuf.isValid()
+         && mpInputGains[i] != MP_GAIN_MUTED
+         && mpInputAttenuations[i] != MP_ATTENUATION_MUTED
+         && tempBuf->isActiveAudio())
+      {
+         // Mark input as active.
+         mpIsInputActive[i] = true;
+
+         // Apply gain.
+         assert(tempBuf->getSamplesNumber() == samplesPerFrame);
+         MpDspUtils::mulConst_16s32s(tempBuf->getSamples(),
+                                     mpInputGains[i],
+                                     pGainedData,
+                                     samplesPerFrame);
+         MpDspUtils::divConst_32s_I(mpInputAttenuations[i],
+                                    pGainedData,
+                                    samplesPerFrame);
+      }
+      else
+      {
+         // Mark this input as silent. Do not touch gained data for
+         // this input, as it will not be used.
+         mpIsInputActive[i] = false;
+      }
+   }
+
+   // Note, that inBufs[] do not contain data from this point. Input data
+   // (already gained) could be found in mpGainedInputs buffer.
+
+   // Phase 1: Collect sum of all inputs.
+
+   // Phase 1.1: Search for first (from the end) not muted output. By the way
+   // sum data from first (from the end) inputs.
+   for (i=inBufsSize; i>=0; i--)
+   {
+   }
+
+   // Phase 2: Calculate output signal.
+
+   return TRUE;
+
+#endif // 0 ]
+
+#if 0
     int inputsValid;      // Number of ports with available data
     int inputsActive;     // Number of ports with active speech
-    int lastConnected;    // Port number of last connected port
     int lastValid;        // Port number of last port with available data
     int lastActive;       // Port number of last port with active speech
 
     // Count contributing inputs
-    inputsConnected = 0;
     inputsValid = 0;
     inputsActive = 0;
-    lastConnected = -1;
     lastValid = -1;
     lastActive = -1;
-    for (int inIdx=0; inIdx < inBufsSize; inIdx++) {
-       if (isPortActive(inIdx))
-       {
-          inputsConnected++;
-          lastConnected = inIdx;
+    for (int inIdx=0; inIdx < inBufsSize; inIdx++)
+    {
           if (inBufs[inIdx].isValid())
           {
-#ifdef TEST_PRINT_CONTRIBUTORS
-             contributors.set(inIdx, 1);
-#endif
              inputsValid++;
              lastValid = inIdx;
              if (inBufs[inIdx]->isActiveAudio())
@@ -229,19 +423,6 @@ UtlBoolean MprBridge::doMix(MpAudioBufPtr inBufs[], int inBufsSize,
                 lastActive = inIdx;
              }
           }
-          else
-          {
-#ifdef TEST_PRINT_CONTRIBUTORS
-             contributors.set(inIdx, 0);
-#endif
-          }
-       }
-       else
-       {
-#ifdef TEST_PRINT_CONTRIBUTORS
-          contributors.set(inIdx, 0);
-#endif
-       }
     }
 
     // If there is only one input we could skip all processing and copy it
@@ -296,14 +477,82 @@ UtlBoolean MprBridge::doMix(MpAudioBufPtr inBufs[], int inBufsSize,
     }
 
     return TRUE;
+#endif
 }
 
-/* //////////////////////////// PRIVATE /////////////////////////////////// */
-
-//Check whether this port is connected to both input and output
-UtlBoolean MprBridge::isPortActive(int portIdx)
+UtlBoolean MprBridge::handleMessage(MpFlowGraphMsg& rMsg)
 {
-   return (isInputConnected(portIdx) && isOutputConnected(portIdx));
+   switch (rMsg.getMsg()) {
+   case SET_WEIGHTS_FOR_INPUT:
+      return handleSetMixWeightsForInput(rMsg.getInt1(), rMsg.getInt2(),
+                                         (MpBridgeGain*)rMsg.getPtr1());
+      break;
+
+   case SET_WEIGHTS_FOR_OUTPUT:
+      return handleSetMixWeightsForOutput(rMsg.getInt1(), rMsg.getInt2(),
+                                          (MpBridgeGain*)rMsg.getPtr1());
+      break;
+
+   default:
+      return MpAudioResource::handleMessage(rMsg);
+      break;
+   }
+   return TRUE;
+}
+
+UtlBoolean MprBridge::handleMessage(MpResourceMsg& rMsg)
+{
+   return TRUE;
+}
+
+UtlBoolean MprBridge::handleSetMixWeightsForOutput(int bridgeOutputPort,
+                                                   int numWeights,
+                                                   MpBridgeGain gain[])
+{
+   // New gains vector must feet into matrix
+   assert(numWeights <= maxInputs());
+   if (numWeights > maxInputs())
+   {
+      return FALSE;
+   }
+
+   // Copy gain data to mix matrix row.
+   MpBridgeGain *pCurGain = &mpGainMatrix[bridgeOutputPort*maxInputs()];
+   for (int i=0; i<numWeights; i++)
+   {
+      if (gain[i] != MP_BRIDGE_GAIN_UNDEFINED)
+      {
+         *pCurGain = gain[i];
+      }
+      pCurGain ++;
+   }
+
+   return TRUE;
+}
+
+UtlBoolean MprBridge::handleSetMixWeightsForInput(int bridgeInputPort,
+                                                  int numWeights,
+                                                  MpBridgeGain gain[])
+{
+   // New gains vector must feet into matrix
+   assert(numWeights <= maxOutputs());
+   if (numWeights > maxOutputs())
+   {
+      return FALSE;
+   }
+
+   // Copy gain data to mix matrix column.
+   MpBridgeGain *pCurGain = &mpGainMatrix[bridgeInputPort];
+   for (int i=0; i<numWeights; i++)
+   {
+      if (gain[i] != MP_BRIDGE_GAIN_UNDEFINED)
+      {
+         *pCurGain = gain[i];
+      }
+      pCurGain += maxInputs();
+   }
+   
+   return TRUE;
 }
 
 UtlBoolean MprBridge::doProcessFrame(MpBufPtr inBufs[],
@@ -324,118 +573,49 @@ UtlBoolean MprBridge::doProcessFrame(MpBufPtr inBufs[],
    RTL_AUDIO_BUFFER("bridge_input_2", samplesPerSecond, ((MpAudioBufPtr)inBufs[2]), frameIndex);
 #endif
 
-   if (outBufsSize == 0)
-      return FALSE;
-
-   if (inBufsSize == 0)
-      return FALSE;
+   // We're disabled or have nothing to process.
+   if ( outBufsSize == 0 || inBufsSize == 0 || !isEnabled )
+   {
+      return TRUE;
+   }
 
    // We want correct in/out pairs
    if (inBufsSize != outBufsSize)
+   {
       return FALSE;
-
-   MpAudioBufPtr* inAudioBufs = new MpAudioBufPtr[inBufsSize];
-   for (int i=0; i<inBufsSize; i++) {
-      inAudioBufs[i].swap(inBufs[i]);
    }
 
-   // If disabled, mix all remote inputs onto local speaker, and copy
-   // our local microphone to all remote outputs.
-   if (!isEnabled)
-   {
-      // Move local mic data to all remote parties
-      in.swap(inAudioBufs[0]);
-      for (int outIdx=1; outIdx < outBufsSize; outIdx++) {
-         if (isPortActive(outIdx)) {
-            outBufs[outIdx] = in;
-         }
-      }
-
-      // Copy mixed remote inputs to local speaker and exit
-      MpAudioBufPtr out;
+   ret = doMix(inBufs, inBufsSize, outBufs, outBufsSize, samplesPerFrame);
 
 #ifdef TEST_PRINT_CONTRIBUTORS
+   for (int outIdx=0; outIdx < outBufsSize; outIdx++) {
       mpMixContributors->zero();
-#endif
 
-      ret = doMix(inAudioBufs, inBufsSize, out, samplesPerFrame, *mpMixContributors);
- 
-#ifdef TEST_PRINT_CONTRIBUTORS
       // Keep track of the sources mixed for this output
-      if (*mpLastOutputContributors[0] != *mpMixContributors)
+      if (*mpLastOutputContributors[outIdx] != *mpMixContributors)
       {
          int contribIndex;
-         printf("Bridge output: %d vector changed: %d", 
-                0, mpMixContributors->get(0));
+         printf("Bridge output: %d vector change: %d", 
+                outIdx, mpMixContributors->get(0));
          for (contribIndex = 1; contribIndex < inBufsSize; contribIndex++)
          {
             printf(", %d", mpMixContributors->get(contribIndex));
          }
          printf("\n");
-         *(mpLastOutputContributors[0]) = *mpMixContributors;
-      }
-#endif
 
-      outBufs[0] = out;
-   } 
-   else
-   {
-      MpAudioBufPtr temp;
-
-      // Enabled.  Mix together inputs onto outputs, with the requirement
-      // that no output receive its own input.
-      for (int outIdx=0; outIdx < outBufsSize; outIdx++) {
-         // Skip unconnected outputs
-         if (!isPortActive(outIdx))
-         {
-            continue;
-         }
-
-         // Exclude current input from mixing
-         temp.swap(inAudioBufs[outIdx]);
-
-         // Mix all inputs except outIdx together and put to the output
-         MpAudioBufPtr out;
-
-#ifdef TEST_PRINT_CONTRIBUTORS
-         mpMixContributors->zero();
-#endif
-
-         ret = doMix(inAudioBufs, inBufsSize, out, samplesPerFrame, *mpMixContributors);
-
-#ifdef TEST_PRINT_CONTRIBUTORS
-         // Keep track of the sources mixed for this output
-         if (*mpLastOutputContributors[outIdx] != *mpMixContributors)
-         {
-            int contribIndex;
-            printf("Bridge output: %d vector change: %d", 
-                   outIdx, mpMixContributors->get(0));
-            for (contribIndex = 1; contribIndex < inBufsSize; contribIndex++)
-            {
-               printf(", %d", mpMixContributors->get(contribIndex));
-            }
-            printf("\n");
-
-            *mpLastOutputContributors[outIdx] = *mpMixContributors;
-         }
-#endif
-
-         outBufs[outIdx] = out;
-
-         // Return current input to input buffers vector
-         temp.swap(inAudioBufs[outIdx]);
+         *mpLastOutputContributors[outIdx] = *mpMixContributors;
       }
    }
+#endif
 
 #ifdef RTL_AUDIO_ENABLED
    RTL_AUDIO_BUFFER("bridge_output_0", samplesPerSecond, ((MpAudioBufPtr)outBufs[0]), frameIndex);
 #endif
 
-   // Cleanup temporary buffers
-   delete[] inAudioBufs;
-
    return ret;
 }
+
+/* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 /* ============================ FUNCTIONS ================================= */
 
