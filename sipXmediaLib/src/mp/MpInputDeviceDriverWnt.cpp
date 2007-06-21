@@ -24,6 +24,13 @@ extern void showWaveError(char *syscall, int e, int N, int line) ;  // dmaTaskWn
 // EXTERNAL VARIABLES
 // CONSTANTS
 // STATIC VARIABLE INITIALIZATIONS
+// DEFINES
+#if defined(_MSC_VER) && (_MSC_VER < 1300) // if < msvc7 (2003)
+#  define CBTYPE DWORD
+#else
+#  define CBTYPE DWORD_PTR
+#endif
+
 
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
@@ -145,13 +152,8 @@ OsStatus MpInputDeviceDriverWnt::enableDevice(unsigned samplesPerFrame,
     // to do so..
     MMRESULT res = waveInOpen(&mDevHandle, mWntDeviceId,
                               &wavFormat,
-#if defined(_MSC_VER) && (_MSC_VER < 1300) // if < msvc7 (2003)
-                              (DWORD)waveInCallbackStatic,
-                              (DWORD)this, 
-#else
-                              (DWORD_PTR)waveInCallbackStatic,
-                              (DWORD_PTR)this, 
-#endif
+                              (CBTYPE)waveInCallbackStatic,
+                              (CBTYPE)this, 
                               CALLBACK_FUNCTION);
     if (res != MMSYSERR_NOERROR)
     {
@@ -376,6 +378,7 @@ MpInputDeviceDriverWnt::waveInCallbackStatic(HWAVEIN hwi,
 {
     assert(dwInstance != NULL);
     MpInputDeviceDriverWnt* iddWntPtr = (MpInputDeviceDriverWnt*)dwInstance;
+    assert(hwi == iddWntPtr->mDevHandle);
     iddWntPtr->processAudioInput(hwi, uMsg, dwParam1);
 }
 

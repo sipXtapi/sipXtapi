@@ -47,6 +47,7 @@ MpMMTimerWnt::MpMMTimerWnt(MpMMTimer::MMTimerType type)
    , mbTimerStarted(FALSE)
    , mPeriodUSec(0)
    , mbTimerFired(FALSE)
+   , mEventHandle(0)
 {
    // We only support linear timer, so only set initialized
    // true if it's constructed as linear.
@@ -137,6 +138,12 @@ OsStatus MpMMTimerWnt::runMultimedia(unsigned usecPeriodic)
       mbTimerStarted = TRUE;
    }
 
+   if(mTimerType == Linear)
+   {
+      // Create the event.
+      mEventHandle = CreateEvent(NULL, TRUE, FALSE, NULL);
+   }
+
    return status;
 }
 
@@ -188,6 +195,14 @@ OsStatus MpMMTimerWnt::stopMultimedia()
 
    mPeriodUSec = 0;
    mbTimerStarted = FALSE;
+
+   if(mTimerType == Linear)
+   {
+      // Close and reset the event handle.
+      CloseHandle(mEventHandle);
+      mEventHandle = 0;
+   }
+
    return OS_SUCCESS;
 }
 
@@ -210,11 +225,10 @@ OsStatus MpMMTimerWnt::waitForNextTick()
       return OS_FAILED;
    }
 
-   HANDLE eventHandle = CreateEvent(NULL, TRUE, FALSE, NULL);
    MMRESULT timerID = 
-      timeSetEvent(mPeriodUSec, mResolution, (LPTIMECALLBACK)eventHandle, 
+      timeSetEvent(mPeriodUSec, mResolution, (LPTIMECALLBACK)mEventHandle, 
                    NULL, TIME_CALLBACK_EVENT_SET);
-   if(WaitForSingleObject(eventHandle, INFINITE) == WAIT_FAILED)
+   if(WaitForSingleObject(mEventHandle, INFINITE) == WAIT_FAILED)
    {
       OsSysLog::add(FAC_MP, PRI_ERR, 
                     "MpMMTimerWnt - timer WaitForSingleObject failed with %s", 

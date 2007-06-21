@@ -91,6 +91,7 @@ private:
    unsigned mPeriodUSec; ///< The current period being used.  0 when no timer.
    BOOL mbTimerFired; ///< Set to false until the timer first fires, then set to true thereafter. reset on stop.
    unsigned mResolution; ///< Cached timer resolution, queried for and stored at startup.
+   HANDLE mEventHandle; ///< Only valid in Linear mode, holds handle to an event.
 };
 
 
