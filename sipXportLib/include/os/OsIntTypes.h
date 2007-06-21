@@ -23,6 +23,10 @@
 *  types implemented. 
 */
 
+// Define these macros to include support for minimum/maximum constants.
+#define __STDC_LIMIT_MACROS
+#define __STDC_CONSTANT_MACROS
+
 #ifdef _MSC_VER
 // Microsoft Visual Studio C/C++ compiler
 #  include <os/msinttypes/inttypes.h>
