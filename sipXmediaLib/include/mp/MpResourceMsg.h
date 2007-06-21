@@ -35,10 +35,10 @@ public:
      /// Resource message types
    typedef enum
    {
-      MPRM_RESOURCE_DISABLE,           ///< All resources: disable message
-      MPRM_RESOURCE_ENABLE,            ///< All resource:  enable message
-      MPRM_ENABLE_ALL_NOTIFICATIONS,   ///< All resources: Message to enable all notifications to be sent from resources
-      MPRM_DISABLE_ALL_NOTIFICATIONS,  ///< All resources: Message to disable all notification from being sent from resources
+      MPRM_RESOURCE_ENABLE,            ///< All resources:  Enable resource
+      MPRM_RESOURCE_DISABLE,           ///< All resources: Disable resource
+      MPRM_ENABLE_ALL_NOTIFICATIONS,   ///< All resources: Enable all notifications to be sent from resources
+      MPRM_DISABLE_ALL_NOTIFICATIONS,  ///< All resources: Disable all notification from being sent from resources
 
       MPRM_START_TONE,          ///< MprToneGen: Start a tone.
       MPRM_STOP_TONE,           ///< MprToneGen: Stop a tone.
@@ -50,7 +50,7 @@ public:
       MPRM_BUF_RECORDER_STOP,   ///< MprBufferRecorder: Stop recording to a buffer.
 
       // Connection Resource messages
-      MPRM_START_RECEIVE_RTP,   ///< MpRtpInputAudioConnection: receiving RTP.
+      MPRM_START_RECEIVE_RTP,   ///< MpRtpInputAudioConnection: Start receiving RTP.
       MPRM_STOP_RECEIVE_RTP,    ///< MpRtpInputAudioConnection: Stop receiving RTP.
       MPRM_START_SEND_RTP,      ///< MpRtpOutputAudioConnection: Start sending RTP.
       MPRM_STOP_SEND_RTP,       ///< MpRtpOutputAudioConnection: Stop sending RTP.
