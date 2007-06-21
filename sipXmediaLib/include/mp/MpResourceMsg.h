@@ -35,25 +35,25 @@ public:
      /// Resource message types
    typedef enum
    {
-      MPRM_RESOURCE_DISABLE,           ///< Generic resource disable message
-      MPRM_RESOURCE_ENABLE,            ///< Generic resource enable message
-      MPRM_ENABLE_ALL_NOTIFICATIONS,   ///< Message to enable all notifications to be sent from resources
-      MPRM_DISABLE_ALL_NOTIFICATIONS,  ///< Message to disable all notification from being sent from resources
+      MPRM_RESOURCE_DISABLE,           ///< All resources: disable message
+      MPRM_RESOURCE_ENABLE,            ///< All resource:  enable message
+      MPRM_ENABLE_ALL_NOTIFICATIONS,   ///< All resources: Message to enable all notifications to be sent from resources
+      MPRM_DISABLE_ALL_NOTIFICATIONS,  ///< All resources: Message to disable all notification from being sent from resources
 
-      MPRM_START_TONE,          ///< Start a tone.
-      MPRM_STOP_TONE,           ///< Stop a tone.
-      MPRM_FROMFILE_START,      ///< Start playing a file.
-      MPRM_FROMFILE_PAUSE,      ///< Pause a playing file.
-      MPRM_FROMFILE_STOP,       ///< Stop a playing file.
+      MPRM_START_TONE,          ///< MprToneGen: Start a tone.
+      MPRM_STOP_TONE,           ///< MprToneGen: Stop a tone.
+      MPRM_FROMFILE_START,      ///< MprFromFile: Start playing a file.
+      MPRM_FROMFILE_PAUSE,      ///< MprFromFile: Pause a playing file.
+      MPRM_FROMFILE_STOP,       ///< MprFromFile: Stop a playing file.
 
-      MPRM_BUF_RECORDER_START,  ///< Start recording to a buffer.
-      MPRM_BUF_RECORDER_STOP,   ///< Stop recording to a buffer.
+      MPRM_BUF_RECORDER_START,  ///< MprBufferRecorder: Start recording to a buffer.
+      MPRM_BUF_RECORDER_STOP,   ///< MprBufferRecorder: Stop recording to a buffer.
 
       // Connection Resource messages
-      MPRM_START_RECEIVE_RTP,   ///< Start receiving RTP.
-      MPRM_STOP_RECEIVE_RTP,    ///< Stop receiving RTP.
-      MPRM_START_SEND_RTP,      ///< Start sending RTP.
-      MPRM_STOP_SEND_RTP,       ///< Stop sending RTP.
+      MPRM_START_RECEIVE_RTP,   ///< MpRtpInputAudioConnection: receiving RTP.
+      MPRM_STOP_RECEIVE_RTP,    ///< MpRtpInputAudioConnection: Stop receiving RTP.
+      MPRM_START_SEND_RTP,      ///< MpRtpOutputAudioConnection: Start sending RTP.
+      MPRM_STOP_SEND_RTP,       ///< MpRtpOutputAudioConnection: Stop sending RTP.
 
       // Add new built in resource operation messages above
 
