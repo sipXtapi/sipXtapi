@@ -19,6 +19,7 @@
 #include <mp/MpBuf.h>
 #include <mp/MprBridge.h>
 #include <mp/MpMisc.h>
+#include <mp/MprBridgeSetGainsMsg.h>
 #ifdef RTL_ENABLED
 #  include <mp/MpFlowGraphBase.h>
 #  include <rtl_macro.h>
@@ -229,22 +230,52 @@ MprBridge::~MprBridge()
 
 OsStatus MprBridge::setMixWeightsForOutput(int bridgeOutputPort,
                                            int numWeights,
-                                           MpBridgeGain gain[])
+                                           const MpBridgeGain gains[])
 {
+   MpBridgeGain *pGainsCopy = new MpBridgeGain[numWeights];
+   memcpy(pGainsCopy, gains, numWeights*sizeof(MpBridgeGain));
+
    MpFlowGraphMsg msg(SET_WEIGHTS_FOR_OUTPUT, this,
-                      gain, NULL,
+                      (void*)pGainsCopy, NULL,
                       bridgeOutputPort, numWeights);
    return postMessage(msg);
 }
 
+OsStatus MprBridge::setMixWeightsForOutput(const UtlString& namedResource, 
+                                           OsMsgQ& fgQ, 
+                                           int bridgeOutputPort,
+                                           int numWeights,
+                                           const MpBridgeGain gains[])
+{
+   MprBridgeSetGainsMsg msg(namedResource, bridgeOutputPort, numWeights,
+                            gains,
+                            MprBridgeSetGainsMsg::GAINS_ROW);
+   return fgQ.send(msg, sOperationQueueTimeout);
+}
+
 OsStatus MprBridge::setMixWeightsForInput(int bridgeInputPort,
                                           int numWeights,
-                                          MpBridgeGain gain[])
+                                          const MpBridgeGain gains[])
 {
+   MpBridgeGain *pGainsCopy = new MpBridgeGain[numWeights];
+   memcpy(pGainsCopy, gains, numWeights*sizeof(MpBridgeGain));
+
    MpFlowGraphMsg msg(SET_WEIGHTS_FOR_OUTPUT, this,
-                      gain, NULL,
+                      (void*)pGainsCopy, NULL,
                       bridgeInputPort, numWeights);
    return postMessage(msg);
+}
+
+OsStatus MprBridge::setMixWeightsForInput(const UtlString& namedResource, 
+                                          OsMsgQ& fgQ, 
+                                          int bridgeInputPort,
+                                          int numWeights,
+                                          const MpBridgeGain gains[])
+{
+   MprBridgeSetGainsMsg msg(namedResource, bridgeInputPort, numWeights,
+                            gains,
+                            MprBridgeSetGainsMsg::GAINS_COLUMN);
+   return fgQ.send(msg, sOperationQueueTimeout);
 }
 
 /* ============================ ACCESSORS ================================= */
@@ -482,32 +513,78 @@ UtlBoolean MprBridge::doMix(MpBufPtr inBufs[], int inBufsSize,
 
 UtlBoolean MprBridge::handleMessage(MpFlowGraphMsg& rMsg)
 {
+   UtlBoolean msgHandled = FALSE;
+
    switch (rMsg.getMsg()) {
    case SET_WEIGHTS_FOR_INPUT:
-      return handleSetMixWeightsForInput(rMsg.getInt1(), rMsg.getInt2(),
-                                         (MpBridgeGain*)rMsg.getPtr1());
+      {
+         MpBridgeGain *pGains = (MpBridgeGain*)rMsg.getPtr1();
+         msgHandled = handleSetMixWeightsForInput(rMsg.getInt1(), rMsg.getInt2(),
+                                                  pGains);
+         delete[] pGains;
+      }
       break;
 
    case SET_WEIGHTS_FOR_OUTPUT:
-      return handleSetMixWeightsForOutput(rMsg.getInt1(), rMsg.getInt2(),
-                                          (MpBridgeGain*)rMsg.getPtr1());
+      {
+         MpBridgeGain *pGains = (MpBridgeGain*)rMsg.getPtr1();
+         msgHandled = handleSetMixWeightsForOutput(rMsg.getInt1(), rMsg.getInt2(),
+                                                   pGains);
+         delete[] pGains;
+      }
       break;
 
    default:
-      return MpAudioResource::handleMessage(rMsg);
+      msgHandled = MpAudioResource::handleMessage(rMsg);
       break;
    }
-   return TRUE;
+   return msgHandled;
 }
 
 UtlBoolean MprBridge::handleMessage(MpResourceMsg& rMsg)
 {
-   return TRUE;
+   UtlBoolean msgHandled = FALSE;
+
+   MprBridgeSetGainsMsg* pBridgeMsg = NULL;
+   switch (rMsg.getMsg()) 
+   {
+   case MpResourceMsg::MPRM_BRIDGE_SET_GAINS:
+      pBridgeMsg = (MprBridgeSetGainsMsg*)&rMsg;
+
+      if (pBridgeMsg->getType() == MprBridgeSetGainsMsg::GAINS_ROW)
+      {
+         // Set row in mix matrix
+         handleSetMixWeightsForOutput(pBridgeMsg->getPort(),
+                                      pBridgeMsg->getGainsNum(),
+                                      pBridgeMsg->getGains());
+      }
+      else if (pBridgeMsg->getType() == MprBridgeSetGainsMsg::GAINS_COLUMN)
+      {
+         // Set column in mix matrix
+         handleSetMixWeightsForInput(pBridgeMsg->getPort(),
+                                     pBridgeMsg->getGainsNum(),
+                                     pBridgeMsg->getGains());
+      }
+      else
+      {
+         // Unknown type
+         assert(false);
+      }
+
+      msgHandled = TRUE;
+      break;
+
+   default:
+      // If we don't handle the message here, let our parent try.
+      msgHandled = MpResource::handleMessage(rMsg); 
+      break;
+   }
+   return msgHandled;
 }
 
 UtlBoolean MprBridge::handleSetMixWeightsForOutput(int bridgeOutputPort,
                                                    int numWeights,
-                                                   MpBridgeGain gain[])
+                                                   const MpBridgeGain gain[])
 {
    // New gains vector must feet into matrix
    assert(numWeights <= maxInputs());
@@ -524,7 +601,7 @@ UtlBoolean MprBridge::handleSetMixWeightsForOutput(int bridgeOutputPort,
       {
          *pCurGain = gain[i];
       }
-      pCurGain ++;
+      pCurGain++;
    }
 
    return TRUE;
@@ -532,7 +609,7 @@ UtlBoolean MprBridge::handleSetMixWeightsForOutput(int bridgeOutputPort,
 
 UtlBoolean MprBridge::handleSetMixWeightsForInput(int bridgeInputPort,
                                                   int numWeights,
-                                                  MpBridgeGain gain[])
+                                                  const MpBridgeGain gain[])
 {
    // New gains vector must feet into matrix
    assert(numWeights <= maxOutputs());

@@ -49,6 +49,8 @@ public:
       MPRM_BUF_RECORDER_START,  ///< MprBufferRecorder: Start recording to a buffer.
       MPRM_BUF_RECORDER_STOP,   ///< MprBufferRecorder: Stop recording to a buffer.
 
+      MPRM_BRIDGE_SET_GAINS,    ///< MprBridge: Set row or column in mix matrix.
+
       // Connection Resource messages
       MPRM_START_RECEIVE_RTP,   ///< MpRtpInputAudioConnection: Start receiving RTP.
       MPRM_STOP_RECEIVE_RTP,    ///< MpRtpInputAudioConnection: Stop receiving RTP.

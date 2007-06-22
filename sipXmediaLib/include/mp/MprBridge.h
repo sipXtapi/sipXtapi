@@ -101,7 +101,7 @@ public:
      /// Send message to set mix weights for inputs to given output on bridge.
    OsStatus setMixWeightsForOutput(int bridgeOutputPort,
                                    int numWeights,
-                                   MpBridgeGain gain[]);
+                                   const MpBridgeGain gain[]);
      /**<
      *  Set the mix weights for the inputs (indices 0 to \p numWeights) going 
      *  to the output port: \p bridgeOutputPort of the named bridge.
@@ -123,13 +123,33 @@ public:
      *  @see setMixWeightsForInput()
      */
 
+     /// Send message to set mix weights for inputs to given output on bridge.
+   static OsStatus setMixWeightsForOutput(const UtlString& namedResource, 
+                                          OsMsgQ& fgQ,
+                                          int bridgeOutputPort,
+                                          int numWeights,
+                                          const MpBridgeGain gains[]);
+     /**<
+     *  @see setMixWeightsForOutput(int,int,MpBridgeGain[]) for description.
+     */
+
      /// Send message to set mix weights for one input to given number of outputs.
    OsStatus setMixWeightsForInput(int bridgeInputPort,
                                   int numWeights,
-                                  MpBridgeGain gain[]);
+                                  const MpBridgeGain gain[]);
      /**<
      *  @see This function is full analog of setMixWeightsForOutput(), applied
      *       for one input to outputs instead of inputs to one output.
+     */
+
+     /// Send message to set mix weights for one input to given number of outputs.
+   static OsStatus setMixWeightsForInput(const UtlString& namedResource, 
+                                         OsMsgQ& fgQ,
+                                         int bridgeInputPort,
+                                         int numWeights,
+                                         const MpBridgeGain gains[]);
+     /**<
+     *  @see setMixWeightsForOutput(int,int,MpBridgeGain[]) for description.
      */
 
 //@}
@@ -198,7 +218,7 @@ protected:
      /// Actually set mix weights for inputs to given output on bridge.
    virtual UtlBoolean handleSetMixWeightsForOutput(int bridgeOutputPort,
                                                    int numWeights,
-                                                   MpBridgeGain gain[]);
+                                                   const MpBridgeGain gain[]);
      /**<
      *  @see setMixWeightsForOutput() for explanation of parameters.
      */
@@ -206,7 +226,7 @@ protected:
      /// Actually set mix weights for one input to given number of outputs.
    virtual UtlBoolean handleSetMixWeightsForInput(int bridgeInputPort,
                                                   int numWeights,
-                                                  MpBridgeGain gain[]);
+                                                  const MpBridgeGain gain[]);
      /**<
      *  @see setMixWeightsForOutput() for explanation of parameters.
      */
