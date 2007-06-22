@@ -15,10 +15,7 @@
 #define _MprFromFile_h_
 
 // SYSTEM INCLUDES
-//#include <stdio.h>
-
 // APPLICATION INCLUDES
-//#include "mp/dtmflib.h"
 #include "mp/MpFlowGraphMsg.h"
 #include "mp/MpAudioResource.h"
 #include "os/OsProtectEvent.h"
@@ -67,21 +64,21 @@ public:
 ///@name Manipulators
 //@{
 
-     /// Play sound from buffer w/repeat option
+      /// Play sound from buffer w/repeat option
     OsStatus playBuffer(const char* audioBuffer, unsigned long bufSize, 
                         int type, UtlBoolean repeat, OsProtectedEvent* notify);
-     /**<
-     *  @param type - can be one of following:  (need a OsSoundType)<br>
-     *  0 = RAW<br>
-     *  1 = muLaw
-     *
-     *  @param repeat - TRUE/FALSE after the fromFile reaches the end of
-     *   the file, go back to the beginning and continue to play.  Note this
-     *   assumes that the file was opened for read.
-     *
-     *  @returns the result of attempting to queue the message to this
-     *  resource and/or opening the named file.
-     */
+      /**<
+      *  @param type - can be one of following:  (need a OsSoundType)<br>
+      *  0 = RAW<br>
+      *  1 = muLaw
+      *
+      *  @param repeat - TRUE/FALSE after the fromFile reaches the end of
+      *   the file, go back to the beginning and continue to play.  Note this
+      *   assumes that the file was opened for read.
+      *
+      *  @returns the result of attempting to queue the message to this
+      *  resource and/or opening the named file.
+      */
 
       /// Play sound from buffer w/repeat option
     static OsStatus playBuffer(const UtlString& namedResource, 
