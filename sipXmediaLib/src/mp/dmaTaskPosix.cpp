@@ -70,7 +70,7 @@
 // be made on this to make it dynamic.
 
 typedef UtlBoolean (*MpAudioDeviceInitFunc) (void);
-typedef int (*MpAudioSpeakerWriteFunc) (MpAudioSample *writeBufferSamples, int numSamples);
+typedef int (*MpAudioSpeakerWriteFunc) (const MpAudioSample *writeBufferSamples, int numSamples);
 typedef int (*MpAudioMicReadFunc) (MpAudioSample *readBufferSamples, int numSamples);
 
 extern UtlBoolean defaultAudioDeviceInit();
