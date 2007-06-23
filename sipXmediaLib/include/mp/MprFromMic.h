@@ -1,8 +1,8 @@
 //  
-// Copyright (C) 2006 SIPez LLC. 
+// Copyright (C) 2006-2007 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -86,15 +86,15 @@ private:
    enum{EqFilterLen = 24}; ///< Brant, 11 May 2001; was 13, allow for experiments.
 
    OsMsgQ *mpMicQ;                ///< We will read audio data from this queue.
-   short   shpFilterBuf[80 + 10];
+   int16_t   shpFilterBuf[80 + 10];
    int     mNumFrames;
 #ifndef REAL_SILENCE_DETECTION
    unsigned long MinVoiceEnergy;  ///< trigger threshold for silence detection.
 #endif
 
    void  Init_highpass_filter800();
-   void  highpass_filter800(short *, short *, short);
-   MpAudioBuf::SpeechType speech_detected(short*, int);
+   void  highpass_filter800(int16_t *, int16_t *, short);
+   MpAudioBuf::SpeechType speech_detected(int16_t*, int);
 
 
    virtual UtlBoolean doProcessFrame(MpBufPtr inBufs[],

@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2006 SIPez LLC.
+// Copyright (C) 2006-2007 SIPez LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
-// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -512,7 +512,7 @@ void FilterBankFinalReport(int total_simulations)
 /* ********************************************************************* */
 
 #if 1    // DEBUG!!!!!! feb 1, 2005  
-void FilterBank::DoFilterBank(short *mic, short *ldspkr)
+void FilterBank::DoFilterBank(MpAudioSample *mic, MpAudioSample *ldspkr)
 {
 #define MIC_GAIN_SHIFT 3
 
@@ -628,7 +628,7 @@ void FilterBank::DoFilterBank(short *mic, short *ldspkr)
 
 #if (VX1_PC0 == 1)
 
-void FilterBank::DoFilterBank(short mic[], short ldspkr[])
+void FilterBank::DoFilterBank(MpAudioSample mic[], MpAudioSample ldspkr[])
 {
 
 #ifdef _VXWORKS /* [ */
@@ -642,7 +642,7 @@ void FilterBank::DoFilterBank(short mic[], short ldspkr[])
 
 #else    // #else for VX1_PC0
 
-void FilterBank(short fbecmic[], short mic[], short ldspkr[], int TotalSamples)
+void FilterBank(MpAudioSample fbecmic[], MpAudioSample mic[], MpAudioSample ldspkr[], int TotalSamples)
 {
 
 #endif      // #endif for VX1_PC0

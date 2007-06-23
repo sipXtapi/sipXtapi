@@ -1,5 +1,8 @@
+//  
+// Copyright (C) 2007 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -170,7 +173,7 @@ void MpToneGen_stopTone(MpToneGenPtr p)
 #define AUDIO_A2D_MAX ((1<<(AUDIO_A2D_BITS-1))-1) /* i.e. 2047 */
 
 //static int setsw(tonePtr t, short *d, int l)
-static int setsw(tonePairPtr p, short *d, int l)
+static int setsw(tonePairPtr p, MpAudioSample *d, int l)
 {
        // int y, sinm2, sinm1, costh, range;
         int y1, sinm12, sinm11, costh1;
@@ -246,7 +249,7 @@ static int addsw(tonePtr t, short *d, int l)
  * dtmfGenNext -- put the next n samples for a DTMF sequence into buffer b.
  */
 
-OsStatus MpToneGen_getNextBuff(MpToneGenPtr pThis, short *b, int N)
+OsStatus MpToneGen_getNextBuff(MpToneGenPtr pThis, MpAudioSample *b, int N)
 {
         dtmfPatternPtr d;
         int n = 0;

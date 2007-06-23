@@ -1,8 +1,8 @@
 //  
-// Copyright (C) 2006 SIPez LLC. 
+// Copyright (C) 2006-2007 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -19,21 +19,6 @@
 
 // SYSTEM INCLUDES
 #include <assert.h>
-
-#ifdef __pingtel_on_posix__
-#  ifdef __linux__
-#     include <stdlib.h>
-      typedef __int64_t __int64;
-#  elif defined(sun)
-#     include <sys/int_types.h>
-      typedef int64_t __int64;
-#  elif defined(__MACH__) /* OS X */
-#     include <sys/types.h>
-      typedef int64_t __int64;
-#  else
-#     error Unsupported POSIX OS.
-#  endif
-#endif
 
 // APPLICATION INCLUDES
 #include "mp/MpBuf.h"
@@ -246,7 +231,7 @@ static const short         shLambdaSf = 32702;      // 0.998 in Q15
 static const short         shLambdaCSf =   67;      // 0.002 in Q15
 
 int FromMicThresh = 3;
-MpAudioBuf::SpeechType MprFromMic::speech_detected(MpAudioSample* shpSample, int iLength)
+MpAudioBuf::SpeechType MprFromMic::speech_detected(int16_t* shpSample, int iLength)
 {
    int i;
    static int64_t  llLTPower = 8000L;
@@ -314,11 +299,11 @@ MpAudioBuf::SpeechType MprFromMic::speech_detected(MpAudioSample* shpSample, int
 
 #else /* REAL_SILENCE_DETECTION ] [ */
 
-MpAudioBuf::SpeechType MprFromMic::speech_detected( MpAudioSample* shpSample
+MpAudioBuf::SpeechType MprFromMic::speech_detected( int16_t* shpSample
                                                   , int iLength)
 {
    int i;
-   MpAudioSample prev;
+   int16_t prev;
    unsigned long energy = 0;
    unsigned long t;
 
@@ -340,7 +325,7 @@ MpAudioBuf::SpeechType MprFromMic::speech_detected( MpAudioSample* shpSample
 static const int             HP800_N = 10;
 static const int             HP800_N_HALF = HP800_N/2 + 1;
 
-static const short           shpB800[] = {15, 0, -123, -446, -844, 1542};
+static const int16_t           shpB800[] = {15, 0, -123, -446, -844, 1542};
 /*
  * shpB800[0] =   15;   // 0.0036158;     in Q12
  * shpB800[1] =    0;   // 0.0;           in Q12
@@ -359,15 +344,15 @@ void MprFromMic::Init_highpass_filter800(void)
 }
 
 void MprFromMic::highpass_filter800(
-                short *signal,    /* input signal */
-                short *pOutput,   /* output signal */
+                int16_t *signal,    /* input signal */
+                int16_t *pOutput,   /* output signal */
                 short lg)         /* length of signal    */
 {
    short   i, j;
    int32_t lS;           //32bit temp storage
-   short*  shp1;
-   short*  shp2;
-   short*  shp0;
+   int16_t*  shp1;
+   int16_t*  shp2;
+   int16_t*  shp0;
 
    shp1 = shpFilterBuf;
    shp2 = shpFilterBuf + lg;

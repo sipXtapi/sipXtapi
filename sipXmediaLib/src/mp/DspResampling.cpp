@@ -1,8 +1,8 @@
 //  
-// Copyright (C) 2006 SIPez LLC. 
+// Copyright (C) 2006-2007 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -395,7 +395,7 @@ void DspResampling::down(MpAudioSample* output, MpAudioSample* input, int UseLef
    int*  lp1;
    int*  lp2;
    const int*  lp;
-   short*    shp = input;
+   MpAudioSample*    shp = input;
    int   lSam;
 
 #ifdef DETECT_OVERFLOW /* [ */
@@ -505,7 +505,7 @@ void DspResampling::downto16k(MpAudioSample* output, MpAudioSample* input, int U
 {
    //Low-pass filtering and decimation.
    int       i;
-   short*    shp = input;
+   MpAudioSample*    shp = input;
 	
 	if (UseLeft == 0) shp++; 
    	for (i = 0; i < mFrameSizeInHigherRate; i++) {
