@@ -81,9 +81,9 @@ MpAudioDeviceInitFunc sMpAudioDeviceInitFuncPtr = MP_AUDIO_DEVICE_INIT_FUNC;
 MpAudioDeviceInitFunc sMpAudioDeviceInitFuncPtr = defaultAudioDeviceInit;
 #endif
 
-extern int defaultAudioSpeakerWrite(MpAudioSample *writeBufferSamples, int numSamples);
+extern int defaultAudioSpeakerWrite(const MpAudioSample *writeBufferSamples, int numSamples);
 #ifdef MP_AUDIO_SPEAKER_WRITE_FUNC
-extern int MP_AUDIO_SPEAKER_WRITE_FUNC (MpAudioSample *writeBufferSamples, int numSamples);
+extern int MP_AUDIO_SPEAKER_WRITE_FUNC (const MpAudioSample *writeBufferSamples, int numSamples);
 MpAudioSpeakerWriteFunc sMpAudioSpeakerWriteFuncPtr = MP_AUDIO_SPEAKER_WRITE_FUNC;
 #else
 MpAudioSpeakerWriteFunc sMpAudioSpeakerWriteFuncPtr = defaultAudioSpeakerWrite;
@@ -291,7 +291,7 @@ int defaultAudioMicRead(MpAudioSample *readBufferSamples, int numSamples)
 #endif
 }
 
-int defaultAudioSpeakerWrite(MpAudioSample *writeBufferSamples, int numSamples)
+int defaultAudioSpeakerWrite(const MpAudioSample *writeBufferSamples, int numSamples)
 {
 #ifdef _INCLUDE_AUDIO_SUPPORT 
    int played = 0;
@@ -341,7 +341,7 @@ static void * soundCardReader(void * arg)
       ob = MpMisc.RawAudioPool->getBuffer();
       assert(ob.isValid());
       assert(ob->setSamplesNumber(N_SAMPLES));
-      buffer = ob->getSamples();
+      buffer = ob->getSamplesWritePtr();
       recorded = 0;
       sem_wait(&read_sem);
       assert(sMpAudioMicReadFuncPtr);
@@ -439,7 +439,7 @@ static void * soundCardWriter(void * arg)
          if(playFrame)
          {
             int played = 0;
-            MpAudioSample* buffer = ob->getSamples();
+            const MpAudioSample* buffer = ob->getSamplesPtr();
             
             /* copy the buffer for skip protection */
             memcpy(&last_buffer[N_SAMPLES / 2], &buffer[N_SAMPLES / 2], BUFLEN / 2);
