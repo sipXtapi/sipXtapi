@@ -123,7 +123,7 @@ MprEchoSuppress::MprEchoSuppress(const UtlString& rName,
    long lS;
    shpAttenTable[0] = 32768;
    for( i = 1; i < GTABLE_SIZE; i++) {
-      lS = (Word32) shpAttenTable[i-1] * 29205;  //29205 = 1.00 db in Q15
+      lS = (uint32_t) shpAttenTable[i-1] * 29205;  //29205 = 1.00 db in Q15
       shpAttenTable[i] = (short) ((lS >> 15));
    }
 
@@ -492,7 +492,7 @@ UtlBoolean MprEchoSuppress::doProcessFrame(MpBufPtr inBufs[],
       for (i = 0; i < iLength; i++)
       {
          //When there is no clipping the gain is 16/4 (12dB)
-         shpSamples[i] = ((Word32S)shpSamples[i] * iLoss) >> 2; 
+         shpSamples[i] = ((int32_t)shpSamples[i] * iLoss) >> 2; 
          
       }
 

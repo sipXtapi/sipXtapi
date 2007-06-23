@@ -250,38 +250,38 @@ int FromMicThresh = 3;
 MpAudioBuf::SpeechType MprFromMic::speech_detected(MpAudioSample* shpSample, int iLength)
 {
    int i;
-   static Word64S  llLTPower = 8000L;
-   static Word64S  llSTPower = 80000L;
+   static int64_t  llLTPower = 8000L;
+   static int64_t  llSTPower = 80000L;
 
    static int      iSpeechHangOver = 0;
-   static short    shThreshold = 21799;     // 2.661 in Q13
+   static int16_t  shThreshold = 21799;     // 2.661 in Q13
 
-   Word32  ulSample;
-   Word32  ulSampleH;
-   int     iSpeechCounter = 0;
-   Word32  tmp32;
+   uint32_t  ulSample;
+   uint32_t  ulSampleH;
+   int       iSpeechCounter = 0;
+   uint32_t  tmp32;
 
    for( i = 0; i < iLength; i++) {
-      ulSample = (Word32) abs(*shpSample++);
+      ulSample = (uint32_t) abs(*shpSample++);
       ulSampleH = ulSample << 8;
 
-      if( ulSampleH > (Word32) llSTPower) {
-         tmp32 = (Word32) shLambdaCSr * ulSample;
-         llSTPower *= (Word64S) shLambdaSr;
-         llSTPower += (((Word64S) tmp32) << 8);
+      if( ulSampleH > (uint32_t) llSTPower) {
+         tmp32 = (uint32_t) shLambdaCSr * ulSample;
+         llSTPower *= (int64_t) shLambdaSr;
+         llSTPower += (((int64_t) tmp32) << 8);
          llSTPower >>= 15;
       }
       else {
-         tmp32 = (Word32) shLambdaCSf * ulSample;
-         llSTPower *= (Word64S) shLambdaSf;
-         llSTPower += (((Word64S) tmp32) << 8);
+         tmp32 = (uint32_t) shLambdaCSf * ulSample;
+         llSTPower *= (int64_t) shLambdaSf;
+         llSTPower += (((int64_t) tmp32) << 8);
          llSTPower >>= 15;
       }
 
       //If STPower > 2.661 LTPower, then speech activity
       //Note 2.661 == 8.5 dB
 
-      Word64S tmp64 = llLTPower * (Word64S) shThreshold;
+      int64_t tmp64 = llLTPower * (int64_t) shThreshold;
       tmp64 >>= 13;
 
       if(iSpeechHangOver > 0) FromMicThresh = 2;
@@ -291,9 +291,9 @@ MpAudioBuf::SpeechType MprFromMic::speech_detected(MpAudioSample* shpSample, int
       }
       else if((2*llSTPower) <= (llLTPower*3) ) {
          /* long term */
-         tmp32 = (Word32) shLambdaC * ulSample;
-         llLTPower *= (Word64S) shLambda;
-         llLTPower += (((Word64S) tmp32) << 8);
+         tmp32 = (uint32_t) shLambdaC * ulSample;
+         llLTPower *= (int64_t) shLambda;
+         llLTPower += (((int64_t) tmp32) << 8);
          llLTPower >>= 15;
       }
 
@@ -365,7 +365,7 @@ void MprFromMic::highpass_filter800(
                 short lg)         /* length of signal    */
 {
    short   i, j;
-   Word32S lS;           //32bit temp storage
+   int32_t lS;           //32bit temp storage
    short*  shp1;
    short*  shp2;
    short*  shp0;
@@ -387,7 +387,7 @@ void MprFromMic::highpass_filter800(
       shp1 = shp0++;
       shp2 = shp1 + HP800_N;
       for(j = 0; j < HP800_N_HALF; j++) {
-         lS += (Word32S) (*shp1++ + *shp2--) * (Word32S) shpB800[j];
+         lS += (int32_t) (*shp1++ + *shp2--) * (int32_t) shpB800[j];
       }
       pOutput[i] = (lS>>12);
    }

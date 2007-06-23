@@ -2227,15 +2227,15 @@ for an entire 10 ms frame. */
            EcIndex = ECNumTaps[Band]-1;
            DLIndex = ECDLBandNewestIndex + FrameNum;
            
-           Word64S       LongTempR;
-           Word64S       LongTempI;
+           int64_t       LongTempR;
+           int64_t       LongTempI;
            LongTempR = 0;
            LongTempI = 0;
            while (EcIndex >= 0) {
-               Word64S   LTempR1;
-               Word64S   LTempI1;
-               Word64S   LTempR2;
-               Word64S   LTempI2;
+               int64_t   LTempR1;
+               int64_t   LTempI1;
+               int64_t   LTempR2;
+               int64_t   LTempI2;
                LTempR1 = EchoCancellerCoef[Band][EcIndex].r;
                LTempI1 = EchoCancellerCoef[Band][EcIndex].i;
                LTempR2 = ECDL[DLIndex].r;
@@ -2806,9 +2806,9 @@ void ComplexInnerProduct(icomplex *ResultPtr,
  } else 
 */{
 #if (VX1_PC0 == 1)
-   Word64S LongTempR, LongTempI;
-   Word64S CoefR, CoefI;      // These don't need to be long. They are long here only for compiler.
-   Word64S DLR, DLI;       // These don't need to be long. They are long here only for compiler.
+   int64_t LongTempR, LongTempI;
+   int64_t CoefR, CoefI;      // These don't need to be long. They are long here only for compiler.
+   int64_t DLR, DLI;       // These don't need to be long. They are long here only for compiler.
 #else
    int LongTempR, LongTempI;
    int CoefR, CoefI;

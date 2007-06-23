@@ -60,7 +60,7 @@ void init_CNG() {
 
 void white_noise_generator(MpAudioSample *shpSamples,
                            int            iLength,
-                           Word32         ulNoiseLevelAve)
+                           uint32_t       ulNoiseLevelAve)
 {
    int     i;
    short   *shp;
@@ -77,7 +77,7 @@ void white_noise_generator(MpAudioSample *shpSamples,
 
 void comfort_noise_generator(MpAudioSample *shpSamples,
                              int            iLength,
-                             Word32         ulNoiseLevelAve)
+                             uint32_t       ulNoiseLevelAve)
 {
    int  i;
    int  j;
@@ -123,18 +123,18 @@ void comfort_noise_generator(MpAudioSample *shpSamples,
 
 }
 
-void background_noise_level_estimation(Word32&        ulNoiseLevel, 
+void background_noise_level_estimation(uint32_t&      ulNoiseLevel, 
                                        MpAudioSample* shpSamples,          
                                        int            iLength)
 {
    int i;
-   Word32 ulStrength = 0;
+   uint32_t ulStrength = 0;
 
    for (i = 0; i < iLength; i++) {
-      ulStrength += (Word32) abs(*shpSamples++); 
+      ulStrength += (uint32_t) abs(*shpSamples++); 
    }
    if( ulStrength <  (ulNoiseLevel<<1) ) { //updating if 6dB < existing average
-      ulNoiseLevel = ulStrength  + (Word32) 31 * ulNoiseLevel;
+      ulNoiseLevel = ulStrength  + (uint32_t) 31 * ulNoiseLevel;
       ulNoiseLevel >>= 5; //Divide by 32
       //Averaging the absolute sum of a frame to reduce calculation
       //fading factor 31/32 = 0.969
@@ -164,12 +164,12 @@ void dspCopy16Sto32S(const short* src, int* dst, int count)
 #ifdef _VXWORKS /* [ */
 #ifdef NOT_USING_ASM /* [ */
 
-Word64S dspDotProd16x32(const short* v1, const int* v2, int count,
-                        Word64S* res)
+int64_t dspDotProd16x32(const short* v1, const int* v2, int count,
+                        int64_t* res)
 {
    int i;
-   Word64S result = 0;
-   Word64S a, b;
+   int64_t result = 0;
+   int64_t a, b;
 
    for (i=0; i<count; i++) {
       a = *v1++;
@@ -180,12 +180,12 @@ Word64S dspDotProd16x32(const short* v1, const int* v2, int count,
    return result;
 }
 
-Word64S dspDotProd16skip32(const short* v1, const int* v2, int count,
-                           Word64S* res)
+int64_t dspDotProd16skip32(const short* v1, const int* v2, int count,
+                           int64_t* res)
 {
    int i;
-   Word64S result = 0;
-   Word64S a, b;
+   int64_t result = 0;
+   int64_t a, b;
 
    for (i=0; i<count; i++) {
       a = *v1++; v1++; /* skip every other item in v1 */
@@ -197,12 +197,12 @@ Word64S dspDotProd16skip32(const short* v1, const int* v2, int count,
 }
 
 #ifdef NEVER_GOT_USED /* [ */
-Word64S dspDotProd32x32(const int* v1, const int* v2, int count,
-                        Word64S* res)
+int64_t dspDotProd32x32(const int* v1, const int* v2, int count,
+                        int64_t* res)
 {
    int i;
-   Word64S result = 0;
-   Word64S a, b;
+   int64_t result = 0;
+   int64_t a, b;
 
    for (i=0; i<count; i++) {
       a = *v1++;
@@ -241,12 +241,12 @@ void dspCoeffUpdate16skip32(const short* v1, int* v2, int count, int factor)
 
 #else /* NOT_USING_ASM ] [ */
 
-Word64S DspDotProd16x32(const short* v1, const int* v2, int count,
-                        Word64S* res)
+int64_t DspDotProd16x32(const short* v1, const int* v2, int count,
+                        int64_t* res)
 {
    int i;
-   Word64S result = 0;
-   Word64S a, b;
+   int64_t result = 0;
+   int64_t a, b;
 
    for (i=0; i<count; i++) {
       a = *v1++;
@@ -257,12 +257,12 @@ Word64S DspDotProd16x32(const short* v1, const int* v2, int count,
    return result;
 }
 
-Word64S DspDotProd16skip32(const short* v1, const int* v2, int count,
-                           Word64S* res)
+int64_t DspDotProd16skip32(const short* v1, const int* v2, int count,
+                           int64_t* res)
 {
    int i;
-   Word64S result = 0;
-   Word64S a, b;
+   int64_t result = 0;
+   int64_t a, b;
 
    for (i=0; i<count; i++) {
       a = *v1++; v1++; /* skip every other item in v1 */
@@ -273,12 +273,12 @@ Word64S DspDotProd16skip32(const short* v1, const int* v2, int count,
    return result;
 }
 
-Word64S DspDotProd32x32(const int* v1, const int* v2, int count,
-                        Word64S* res)
+int64_t DspDotProd32x32(const int* v1, const int* v2, int count,
+                        int64_t* res)
 {
    int i;
-   Word64S result = 0;
-   Word64S a, b;
+   int64_t result = 0;
+   int64_t a, b;
 
    for (i=0; i<count; i++) {
       a = *v1++;
@@ -319,7 +319,7 @@ int testDotProd1()
    int int2[10];
    short shorts[10] = {1, -2, 3, -4, 5, -6, 7, -8, 9, -10};
    short outs[10];
-   Word64S sum;
+   int64_t sum;
    int hi, lo;
    int i;
 
@@ -351,7 +351,7 @@ int testDotProd2()
    int int2[10];
    short shorts[10] = {1, -2, 3, -4, 5, -6, 7, -8, 9, -10};
    short outs[10];
-   Word64S sum, ret1, ret2;
+   int64_t sum, ret1, ret2;
    int hi, lo;
    int i;
 
@@ -397,7 +397,7 @@ int testDotProd3(int times, int count)
    int* ints = (int*) malloc(count * sizeof(int));
    int* int2 = (int*) malloc(count * sizeof(int));
    short* shorts = (short*) malloc(count * sizeof(short));
-   Word64S sum, ret1, ret2;
+   int64_t sum, ret1, ret2;
    int hi, lo;
    int i, x;
    int before, after;
@@ -471,12 +471,12 @@ int compilerCheck(int i, int j)
 #endif /* TESTING2 ] */
 #else /* _VXWORKS ] [ */
 
-Word64S dspDotProd16x32(const short* v1, const int* v2, int count,
-                        Word64S* res)
+int64_t dspDotProd16x32(const short* v1, const int* v2, int count,
+                        int64_t* res)
 {
    int i;
-   Word64S result = 0;
-   Word64S a, b;
+   int64_t result = 0;
+   int64_t a, b;
 
    for (i=0; i<count; i++) {
       a = *v1++;
@@ -487,12 +487,12 @@ Word64S dspDotProd16x32(const short* v1, const int* v2, int count,
    return result;
 }
 
-Word64S dspDotProd16skip32(const short* v1, const int* v2, int count,
-                           Word64S* res)
+int64_t dspDotProd16skip32(const short* v1, const int* v2, int count,
+                           int64_t* res)
 {
    int i;
-   Word64S result = 0;
-   Word64S a, b;
+   int64_t result = 0;
+   int64_t a, b;
 
    for (i=0; i<count; i++) {
       a = *v1++; v1++; /* skip every other item in v1 */
@@ -504,12 +504,12 @@ Word64S dspDotProd16skip32(const short* v1, const int* v2, int count,
 }
 
 #ifdef NEVER_GOT_USED /* [ */
-Word64S dspDotProd32x32(const int* v1, const int* v2, int count,
-                        Word64S* res)
+int64_t dspDotProd32x32(const int* v1, const int* v2, int count,
+                        int64_t* res)
 {
    int i;
-   Word64S result = 0;
-   Word64S a, b;
+   int64_t result = 0;
+   int64_t a, b;
 
    for (i=0; i<count; i++) {
       a = *v1++;
