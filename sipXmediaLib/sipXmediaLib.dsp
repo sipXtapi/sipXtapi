@@ -263,6 +263,10 @@ SOURCE=.\src\mp\MpdSipxSpeex.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\mp\MpDspUtils.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\mp\MpeGIPSG729ab.cpp
 # End Source File
 # Begin Source File
@@ -960,6 +964,10 @@ SOURCE=.\include\mp\MpdSipxPcmu.h
 # Begin Source File
 
 SOURCE=.\include\mp\MpdSipxSpeex.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MpDspUtils.h
 # End Source File
 # Begin Source File
 

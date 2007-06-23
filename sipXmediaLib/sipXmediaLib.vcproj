@@ -1543,6 +1543,9 @@
 				RelativePath=".\src\mp\MpdSipxSpeex.cpp">
 			</File>
 			<File
+				RelativePath=".\src\mp\MpDspUtils.cpp">
+			</File>
+			<File
 				RelativePath="src\mp\MpeGIPSG729ab.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -4478,6 +4481,9 @@
 			</File>
 			<File
 				RelativePath=".\include\mp\MpdSipxSpeex.h">
+			</File>
+			<File
+				RelativePath=".\include\mp\MpDspUtils.h">
 			</File>
 			<File
 				RelativePath="include\mp\MpeGIPSG729ab.h">

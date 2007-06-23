@@ -69,6 +69,7 @@ libsipXmedia_la_SOURCES =  \
     mp/MpCodecInfo.cpp \
     mp/MpDataBuf.cpp \
     mp/MpDecoderBase.cpp \
+    mp/MpDspUtils.cpp \
     mp/MpdGIPSG729ab.cpp \
     mp/MpdGIPSiLBC.cpp \
     mp/MpdGIPSiPCMA.cpp \

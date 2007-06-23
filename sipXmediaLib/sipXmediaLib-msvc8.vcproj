@@ -1554,6 +1554,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\src\mp\MpDspUtils.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\src\mp\MpeGIPSG729ab.cpp"
 					>
 				</File>
@@ -2144,6 +2148,10 @@
 				</File>
 				<File
 					RelativePath=".\include\mp\MpdSipxSpeex.h"
+					>
+				</File>
+				<File
+					RelativePath=".\include\mp\MpDspUtils.h"
 					>
 				</File>
 				<File
