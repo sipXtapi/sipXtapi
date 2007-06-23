@@ -28,9 +28,9 @@
 #endif /* _VXWORKS ] */
 
 struct AvtPacket {
-   UCHAR  key;
-   UCHAR  dB;
-   short  samplesSwapped;
+   uint8_t  key;
+   uint8_t  dB;
+   short    samplesSwapped;
 };
 
 static int debugCtr = 0;
