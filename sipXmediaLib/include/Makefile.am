@@ -9,7 +9,6 @@ nobase_includeHEADERS_INSTALL = $(INSTALL) -D -p -c -m 644
 
 nobase_include_HEADERS =  \
     mp/dmaTask.h \
-    mp/DSP_type.h \
     mp/dsplib.h \
     mp/DspResampling.h \
     mp/dtmflib.h \

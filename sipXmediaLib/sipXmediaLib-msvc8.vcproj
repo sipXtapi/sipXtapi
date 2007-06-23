@@ -1983,10 +1983,6 @@
 					>
 				</File>
 				<File
-					RelativePath=".\include\mp\DSP_type.h"
-					>
-				</File>
-				<File
 					RelativePath=".\include\mp\dsplib.h"
 					>
 				</File>

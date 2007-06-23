@@ -103,7 +103,6 @@ static int HS_UpdateControl = 1;
 //#define HS_EXTRA_MIC_DELAY 72      // Probably, this would be 0 in the real-time product
 static int ExtraLoudspeakerDelay = 0;
 //#include "mp/DSPAEC.h"
-#include "mp/DSP_type.h"
 #include "mp/MpBuf.h"
 #include "mp/dsplib.h"
 #include "mp/MpCodec.h"

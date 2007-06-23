@@ -40,7 +40,6 @@
 #include "mp/MprFromMic.h"
 #include "mp/MpBufferMsg.h"
 #include "mp/dmaTask.h"
-#include "mp/DSP_type.h"
 
 #ifdef RTL_ENABLED
 #   include <rtl_macro.h>

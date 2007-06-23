@@ -55,7 +55,6 @@
 #define COMPARE_FILTERS
 #endif /* _VXWORKS ] */
 
-#include "mp/DSP_type.h"
 #include "mp/MpTypes.h"
 #include "mp/resamplingby2.h"
 

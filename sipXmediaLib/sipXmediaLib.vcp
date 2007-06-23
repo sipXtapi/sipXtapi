@@ -1443,7 +1443,6 @@ DEP_CPP_DFT_C=\
 	"..\sipXportLib\include\utl\UtlList.h"\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
-	".\include\mp\DSP_type.h"\
 	".\include\mp\dsplib.h"\
 	".\include\mp\FilterBank.h"\
 	".\include\mp\HandsetFilterBank.h"\
@@ -1528,7 +1527,6 @@ DEP_CPP_DFT_C=\
 	"..\sipXportLib\include\os\wnt\OsDateTimeWnt.h"\
 	"..\sipXportLib\include\os\wnt\OsMutexWnt.h"\
 	"..\sipXportLib\include\utl\UtlDefs.h"\
-	".\include\mp\DSP_type.h"\
 	".\include\mp\dsplib.h"\
 	".\include\mp\FilterBank.h"\
 	".\include\mp\HandsetFilterBank.h"\
@@ -2260,7 +2258,6 @@ DEP_CPP_DSPLI=\
 	"..\sipXportLib\include\utl\UtlList.h"\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
-	".\include\mp\DSP_type.h"\
 	".\include\mp\dsplib.h"\
 	".\include\mp\MpBuf.h"\
 	".\include\mp\MpMisc.h"\
@@ -2344,7 +2341,6 @@ DEP_CPP_DSPLI=\
 	"..\sipXportLib\include\os\wnt\OsDateTimeWnt.h"\
 	"..\sipXportLib\include\os\wnt\OsMutexWnt.h"\
 	"..\sipXportLib\include\utl\UtlDefs.h"\
-	".\include\mp\DSP_type.h"\
 	".\include\mp\dsplib.h"\
 	".\include\mp\MpBuf.h"\
 	".\include\mp\MpBufPool.h"\
@@ -2561,7 +2557,6 @@ DEP_CPP_DSPRE=\
 	"..\sipXportLib\include\os\linux\OsLinuxDefs.h"\
 	"..\sipXportLib\include\os\OsDefs.h"\
 	"..\sipXportLib\include\os\qsTypes.h"\
-	".\include\mp\DSP_type.h"\
 	".\include\mp\DspResampling.h"\
 	".\include\mp\MpTypes.h"\
 	".\include\mp\resamplingby2.h"\
@@ -2584,7 +2579,6 @@ DEP_CPP_DSPRE=\
 	"..\sipXportLib\include\os\linux\OsLinuxDefs.h"\
 	"..\sipXportLib\include\os\OsDefs.h"\
 	"..\sipXportLib\include\os\qsTypes.h"\
-	".\include\mp\DSP_type.h"\
 	".\include\mp\DspResampling.h"\
 	".\include\mp\MpTypes.h"\
 	".\include\mp\resamplingby2.h"\
@@ -3202,7 +3196,6 @@ DEP_CPP_FILTE=\
 	"..\sipXportLib\include\utl\UtlList.h"\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
-	".\include\mp\DSP_type.h"\
 	".\include\mp\dsplib.h"\
 	".\include\mp\FilterBank.h"\
 	".\include\mp\MpBuf.h"\
@@ -3286,7 +3279,6 @@ DEP_CPP_FILTE=\
 	"..\sipXportLib\include\os\wnt\OsDateTimeWnt.h"\
 	"..\sipXportLib\include\os\wnt\OsMutexWnt.h"\
 	"..\sipXportLib\include\utl\UtlDefs.h"\
-	".\include\mp\DSP_type.h"\
 	".\include\mp\dsplib.h"\
 	".\include\mp\FilterBank.h"\
 	".\include\mp\MpBuf.h"\
@@ -3423,7 +3415,6 @@ SOURCE=.\src\mp\HandsetFilterBank.cpp
 !IF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSII_FP) Release"
 
 NODEP_CPP_HANDS=\
-	".\src\mp\mp\DSP_type.h"\
 	".\src\mp\mp\dsplib.h"\
 	".\src\mp\mp\FilterBank.h"\
 	".\src\mp\mp\HandsetFilterBank.h"\
@@ -3435,7 +3426,6 @@ NODEP_CPP_HANDS=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSII_FP) Debug"
 
 NODEP_CPP_HANDS=\
-	".\src\mp\mp\DSP_type.h"\
 	".\src\mp\mp\dsplib.h"\
 	".\src\mp\mp\FilterBank.h"\
 	".\src\mp\mp\HandsetFilterBank.h"\
@@ -3447,7 +3437,6 @@ NODEP_CPP_HANDS=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSII) Release"
 
 NODEP_CPP_HANDS=\
-	".\src\mp\mp\DSP_type.h"\
 	".\src\mp\mp\dsplib.h"\
 	".\src\mp\mp\FilterBank.h"\
 	".\src\mp\mp\HandsetFilterBank.h"\
@@ -3459,7 +3448,6 @@ NODEP_CPP_HANDS=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSII) Debug"
 
 NODEP_CPP_HANDS=\
-	".\src\mp\mp\DSP_type.h"\
 	".\src\mp\mp\dsplib.h"\
 	".\src\mp\mp\FilterBank.h"\
 	".\src\mp\mp\HandsetFilterBank.h"\
@@ -3471,7 +3459,6 @@ NODEP_CPP_HANDS=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE SH4) Release"
 
 NODEP_CPP_HANDS=\
-	".\src\mp\mp\DSP_type.h"\
 	".\src\mp\mp\dsplib.h"\
 	".\src\mp\mp\FilterBank.h"\
 	".\src\mp\mp\HandsetFilterBank.h"\
@@ -3483,7 +3470,6 @@ NODEP_CPP_HANDS=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE SH4) Debug"
 
 NODEP_CPP_HANDS=\
-	".\src\mp\mp\DSP_type.h"\
 	".\src\mp\mp\dsplib.h"\
 	".\src\mp\mp\FilterBank.h"\
 	".\src\mp\mp\HandsetFilterBank.h"\
@@ -3495,7 +3481,6 @@ NODEP_CPP_HANDS=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE SH3) Release"
 
 NODEP_CPP_HANDS=\
-	".\src\mp\mp\DSP_type.h"\
 	".\src\mp\mp\dsplib.h"\
 	".\src\mp\mp\FilterBank.h"\
 	".\src\mp\mp\HandsetFilterBank.h"\
@@ -3507,7 +3492,6 @@ NODEP_CPP_HANDS=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE SH3) Debug"
 
 NODEP_CPP_HANDS=\
-	".\src\mp\mp\DSP_type.h"\
 	".\src\mp\mp\dsplib.h"\
 	".\src\mp\mp\FilterBank.h"\
 	".\src\mp\mp\HandsetFilterBank.h"\
@@ -3519,7 +3503,6 @@ NODEP_CPP_HANDS=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSIV) Release"
 
 NODEP_CPP_HANDS=\
-	".\src\mp\mp\DSP_type.h"\
 	".\src\mp\mp\dsplib.h"\
 	".\src\mp\mp\FilterBank.h"\
 	".\src\mp\mp\HandsetFilterBank.h"\
@@ -3531,7 +3514,6 @@ NODEP_CPP_HANDS=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSIV) Debug"
 
 NODEP_CPP_HANDS=\
-	".\src\mp\mp\DSP_type.h"\
 	".\src\mp\mp\dsplib.h"\
 	".\src\mp\mp\FilterBank.h"\
 	".\src\mp\mp\HandsetFilterBank.h"\
@@ -3543,7 +3525,6 @@ NODEP_CPP_HANDS=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE emulator) Release"
 
 NODEP_CPP_HANDS=\
-	".\src\mp\mp\DSP_type.h"\
 	".\src\mp\mp\dsplib.h"\
 	".\src\mp\mp\FilterBank.h"\
 	".\src\mp\mp\HandsetFilterBank.h"\
@@ -3587,7 +3568,6 @@ DEP_CPP_HANDS=\
 	"..\sipXportLib\include\utl\UtlList.h"\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
-	".\include\mp\DSP_type.h"\
 	".\include\mp\dsplib.h"\
 	".\include\mp\FilterBank.h"\
 	".\include\mp\HandsetFilterBank.h"\
@@ -3653,7 +3633,6 @@ NODEP_CPP_HANDS=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4I) Release"
 
 NODEP_CPP_HANDS=\
-	".\src\mp\mp\DSP_type.h"\
 	".\src\mp\mp\dsplib.h"\
 	".\src\mp\mp\FilterBank.h"\
 	".\src\mp\mp\HandsetFilterBank.h"\
@@ -3681,7 +3660,6 @@ DEP_CPP_HANDS=\
 	"..\sipXportLib\include\utl\UtlBool.h"\
 	"..\sipXportLib\include\utl\UtlContainable.h"\
 	"..\sipXportLib\include\utl\UtlDefs.h"\
-	".\include\mp\DSP_type.h"\
 	".\include\mp\dsplib.h"\
 	".\include\mp\FilterBank.h"\
 	".\include\mp\HandsetFilterBank.h"\
@@ -3744,7 +3722,6 @@ NODEP_CPP_HANDS=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSIV_FP) Release"
 
 NODEP_CPP_HANDS=\
-	".\src\mp\mp\DSP_type.h"\
 	".\src\mp\mp\dsplib.h"\
 	".\src\mp\mp\FilterBank.h"\
 	".\src\mp\mp\HandsetFilterBank.h"\
@@ -3756,7 +3733,6 @@ NODEP_CPP_HANDS=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSIV_FP) Debug"
 
 NODEP_CPP_HANDS=\
-	".\src\mp\mp\DSP_type.h"\
 	".\src\mp\mp\dsplib.h"\
 	".\src\mp\mp\FilterBank.h"\
 	".\src\mp\mp\HandsetFilterBank.h"\
@@ -3768,7 +3744,6 @@ NODEP_CPP_HANDS=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4) Release"
 
 NODEP_CPP_HANDS=\
-	".\src\mp\mp\DSP_type.h"\
 	".\src\mp\mp\dsplib.h"\
 	".\src\mp\mp\FilterBank.h"\
 	".\src\mp\mp\HandsetFilterBank.h"\
@@ -3780,7 +3755,6 @@ NODEP_CPP_HANDS=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4) Debug"
 
 NODEP_CPP_HANDS=\
-	".\src\mp\mp\DSP_type.h"\
 	".\src\mp\mp\dsplib.h"\
 	".\src\mp\mp\FilterBank.h"\
 	".\src\mp\mp\HandsetFilterBank.h"\
@@ -3792,7 +3766,6 @@ NODEP_CPP_HANDS=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPS16) Release"
 
 NODEP_CPP_HANDS=\
-	".\src\mp\mp\DSP_type.h"\
 	".\src\mp\mp\dsplib.h"\
 	".\src\mp\mp\FilterBank.h"\
 	".\src\mp\mp\HandsetFilterBank.h"\
@@ -3804,7 +3777,6 @@ NODEP_CPP_HANDS=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPS16) Debug"
 
 NODEP_CPP_HANDS=\
-	".\src\mp\mp\DSP_type.h"\
 	".\src\mp\mp\dsplib.h"\
 	".\src\mp\mp\FilterBank.h"\
 	".\src\mp\mp\HandsetFilterBank.h"\
@@ -3816,7 +3788,6 @@ NODEP_CPP_HANDS=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4T) Release"
 
 NODEP_CPP_HANDS=\
-	".\src\mp\mp\DSP_type.h"\
 	".\src\mp\mp\dsplib.h"\
 	".\src\mp\mp\FilterBank.h"\
 	".\src\mp\mp\HandsetFilterBank.h"\
@@ -3828,7 +3799,6 @@ NODEP_CPP_HANDS=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4T) Debug"
 
 NODEP_CPP_HANDS=\
-	".\src\mp\mp\DSP_type.h"\
 	".\src\mp\mp\dsplib.h"\
 	".\src\mp\mp\FilterBank.h"\
 	".\src\mp\mp\HandsetFilterBank.h"\
@@ -3840,7 +3810,6 @@ NODEP_CPP_HANDS=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE x86) Release"
 
 NODEP_CPP_HANDS=\
-	".\src\mp\mp\DSP_type.h"\
 	".\src\mp\mp\dsplib.h"\
 	".\src\mp\mp\FilterBank.h"\
 	".\src\mp\mp\HandsetFilterBank.h"\
@@ -3852,7 +3821,6 @@ NODEP_CPP_HANDS=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE x86) Debug"
 
 NODEP_CPP_HANDS=\
-	".\src\mp\mp\DSP_type.h"\
 	".\src\mp\mp\dsplib.h"\
 	".\src\mp\mp\FilterBank.h"\
 	".\src\mp\mp\HandsetFilterBank.h"\
@@ -27505,7 +27473,6 @@ DEP_CPP_MPREC=\
 	"..\sipXportLib\include\utl\UtlList.h"\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
-	".\include\mp\DSP_type.h"\
 	".\include\mp\dsplib.h"\
 	".\include\mp\DspResampling.h"\
 	".\include\mp\FilterBank.h"\
@@ -27628,7 +27595,6 @@ DEP_CPP_MPREC=\
 	"..\sipXportLib\include\utl\UtlList.h"\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
-	".\include\mp\DSP_type.h"\
 	".\include\mp\dsplib.h"\
 	".\include\mp\DspResampling.h"\
 	".\include\mp\FilterBank.h"\
@@ -29953,7 +29919,6 @@ SOURCE=.\src\mp\MprFromMic.cpp
 
 NODEP_CPP_MPRFRO=\
 	".\src\mp\mp\dmaTask.h"\
-	".\src\mp\mp\DSP_type.h"\
 	".\src\mp\mp\MpBuf.h"\
 	".\src\mp\mp\MpBufferMsg.h"\
 	".\src\mp\mp\MprFromMic.h"\
@@ -29963,7 +29928,6 @@ NODEP_CPP_MPRFRO=\
 
 NODEP_CPP_MPRFRO=\
 	".\src\mp\mp\dmaTask.h"\
-	".\src\mp\mp\DSP_type.h"\
 	".\src\mp\mp\MpBuf.h"\
 	".\src\mp\mp\MpBufferMsg.h"\
 	".\src\mp\mp\MprFromMic.h"\
@@ -29973,7 +29937,6 @@ NODEP_CPP_MPRFRO=\
 
 NODEP_CPP_MPRFRO=\
 	".\src\mp\mp\dmaTask.h"\
-	".\src\mp\mp\DSP_type.h"\
 	".\src\mp\mp\MpBuf.h"\
 	".\src\mp\mp\MpBufferMsg.h"\
 	".\src\mp\mp\MprFromMic.h"\
@@ -29983,7 +29946,6 @@ NODEP_CPP_MPRFRO=\
 
 NODEP_CPP_MPRFRO=\
 	".\src\mp\mp\dmaTask.h"\
-	".\src\mp\mp\DSP_type.h"\
 	".\src\mp\mp\MpBuf.h"\
 	".\src\mp\mp\MpBufferMsg.h"\
 	".\src\mp\mp\MprFromMic.h"\
@@ -29993,7 +29955,6 @@ NODEP_CPP_MPRFRO=\
 
 NODEP_CPP_MPRFRO=\
 	".\src\mp\mp\dmaTask.h"\
-	".\src\mp\mp\DSP_type.h"\
 	".\src\mp\mp\MpBuf.h"\
 	".\src\mp\mp\MpBufferMsg.h"\
 	".\src\mp\mp\MprFromMic.h"\
@@ -30003,7 +29964,6 @@ NODEP_CPP_MPRFRO=\
 
 NODEP_CPP_MPRFRO=\
 	".\src\mp\mp\dmaTask.h"\
-	".\src\mp\mp\DSP_type.h"\
 	".\src\mp\mp\MpBuf.h"\
 	".\src\mp\mp\MpBufferMsg.h"\
 	".\src\mp\mp\MprFromMic.h"\
@@ -30013,7 +29973,6 @@ NODEP_CPP_MPRFRO=\
 
 NODEP_CPP_MPRFRO=\
 	".\src\mp\mp\dmaTask.h"\
-	".\src\mp\mp\DSP_type.h"\
 	".\src\mp\mp\MpBuf.h"\
 	".\src\mp\mp\MpBufferMsg.h"\
 	".\src\mp\mp\MprFromMic.h"\
@@ -30023,7 +29982,6 @@ NODEP_CPP_MPRFRO=\
 
 NODEP_CPP_MPRFRO=\
 	".\src\mp\mp\dmaTask.h"\
-	".\src\mp\mp\DSP_type.h"\
 	".\src\mp\mp\MpBuf.h"\
 	".\src\mp\mp\MpBufferMsg.h"\
 	".\src\mp\mp\MprFromMic.h"\
@@ -30033,7 +29991,6 @@ NODEP_CPP_MPRFRO=\
 
 NODEP_CPP_MPRFRO=\
 	".\src\mp\mp\dmaTask.h"\
-	".\src\mp\mp\DSP_type.h"\
 	".\src\mp\mp\MpBuf.h"\
 	".\src\mp\mp\MpBufferMsg.h"\
 	".\src\mp\mp\MprFromMic.h"\
@@ -30043,7 +30000,6 @@ NODEP_CPP_MPRFRO=\
 
 NODEP_CPP_MPRFRO=\
 	".\src\mp\mp\dmaTask.h"\
-	".\src\mp\mp\DSP_type.h"\
 	".\src\mp\mp\MpBuf.h"\
 	".\src\mp\mp\MpBufferMsg.h"\
 	".\src\mp\mp\MprFromMic.h"\
@@ -30053,7 +30009,6 @@ NODEP_CPP_MPRFRO=\
 
 NODEP_CPP_MPRFRO=\
 	".\src\mp\mp\dmaTask.h"\
-	".\src\mp\mp\DSP_type.h"\
 	".\src\mp\mp\MpBuf.h"\
 	".\src\mp\mp\MpBufferMsg.h"\
 	".\src\mp\mp\MprFromMic.h"\
@@ -30105,7 +30060,6 @@ DEP_CPP_MPRFRO=\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
 	".\include\mp\dmaTask.h"\
-	".\include\mp\DSP_type.h"\
 	".\include\mp\MpBuf.h"\
 	".\include\mp\MpBufferMsg.h"\
 	".\include\mp\MpCodec.h"\
@@ -30172,7 +30126,6 @@ NODEP_CPP_MPRFRO=\
 
 NODEP_CPP_MPRFRO=\
 	".\src\mp\mp\dmaTask.h"\
-	".\src\mp\mp\DSP_type.h"\
 	".\src\mp\mp\MpBuf.h"\
 	".\src\mp\mp\MpBufferMsg.h"\
 	".\src\mp\mp\MprFromMic.h"\
@@ -30226,7 +30179,6 @@ DEP_CPP_MPRFRO=\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
 	".\include\mp\dmaTask.h"\
-	".\include\mp\DSP_type.h"\
 	".\include\mp\MpArrayBuf.h"\
 	".\include\mp\MpAudioBuf.h"\
 	".\include\mp\MpAudioResource.h"\
@@ -30298,7 +30250,6 @@ NODEP_CPP_MPRFRO=\
 
 NODEP_CPP_MPRFRO=\
 	".\src\mp\mp\dmaTask.h"\
-	".\src\mp\mp\DSP_type.h"\
 	".\src\mp\mp\MpBuf.h"\
 	".\src\mp\mp\MpBufferMsg.h"\
 	".\src\mp\mp\MprFromMic.h"\
@@ -30308,7 +30259,6 @@ NODEP_CPP_MPRFRO=\
 
 NODEP_CPP_MPRFRO=\
 	".\src\mp\mp\dmaTask.h"\
-	".\src\mp\mp\DSP_type.h"\
 	".\src\mp\mp\MpBuf.h"\
 	".\src\mp\mp\MpBufferMsg.h"\
 	".\src\mp\mp\MprFromMic.h"\
@@ -30318,7 +30268,6 @@ NODEP_CPP_MPRFRO=\
 
 NODEP_CPP_MPRFRO=\
 	".\src\mp\mp\dmaTask.h"\
-	".\src\mp\mp\DSP_type.h"\
 	".\src\mp\mp\MpBuf.h"\
 	".\src\mp\mp\MpBufferMsg.h"\
 	".\src\mp\mp\MprFromMic.h"\
@@ -30328,7 +30277,6 @@ NODEP_CPP_MPRFRO=\
 
 NODEP_CPP_MPRFRO=\
 	".\src\mp\mp\dmaTask.h"\
-	".\src\mp\mp\DSP_type.h"\
 	".\src\mp\mp\MpBuf.h"\
 	".\src\mp\mp\MpBufferMsg.h"\
 	".\src\mp\mp\MprFromMic.h"\
@@ -30338,7 +30286,6 @@ NODEP_CPP_MPRFRO=\
 
 NODEP_CPP_MPRFRO=\
 	".\src\mp\mp\dmaTask.h"\
-	".\src\mp\mp\DSP_type.h"\
 	".\src\mp\mp\MpBuf.h"\
 	".\src\mp\mp\MpBufferMsg.h"\
 	".\src\mp\mp\MprFromMic.h"\
@@ -30348,7 +30295,6 @@ NODEP_CPP_MPRFRO=\
 
 NODEP_CPP_MPRFRO=\
 	".\src\mp\mp\dmaTask.h"\
-	".\src\mp\mp\DSP_type.h"\
 	".\src\mp\mp\MpBuf.h"\
 	".\src\mp\mp\MpBufferMsg.h"\
 	".\src\mp\mp\MprFromMic.h"\
@@ -30358,7 +30304,6 @@ NODEP_CPP_MPRFRO=\
 
 NODEP_CPP_MPRFRO=\
 	".\src\mp\mp\dmaTask.h"\
-	".\src\mp\mp\DSP_type.h"\
 	".\src\mp\mp\MpBuf.h"\
 	".\src\mp\mp\MpBufferMsg.h"\
 	".\src\mp\mp\MprFromMic.h"\
@@ -30368,7 +30313,6 @@ NODEP_CPP_MPRFRO=\
 
 NODEP_CPP_MPRFRO=\
 	".\src\mp\mp\dmaTask.h"\
-	".\src\mp\mp\DSP_type.h"\
 	".\src\mp\mp\MpBuf.h"\
 	".\src\mp\mp\MpBufferMsg.h"\
 	".\src\mp\mp\MprFromMic.h"\
@@ -30378,7 +30322,6 @@ NODEP_CPP_MPRFRO=\
 
 NODEP_CPP_MPRFRO=\
 	".\src\mp\mp\dmaTask.h"\
-	".\src\mp\mp\DSP_type.h"\
 	".\src\mp\mp\MpBuf.h"\
 	".\src\mp\mp\MpBufferMsg.h"\
 	".\src\mp\mp\MprFromMic.h"\
@@ -30388,7 +30331,6 @@ NODEP_CPP_MPRFRO=\
 
 NODEP_CPP_MPRFRO=\
 	".\src\mp\mp\dmaTask.h"\
-	".\src\mp\mp\DSP_type.h"\
 	".\src\mp\mp\MpBuf.h"\
 	".\src\mp\mp\MpBufferMsg.h"\
 	".\src\mp\mp\MprFromMic.h"\
@@ -34345,7 +34287,6 @@ DEP_CPP_MPRTOS=\
 	"..\sipXportLib\include\utl\UtlList.h"\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
-	".\include\mp\DSP_type.h"\
 	".\include\mp\dsplib.h"\
 	".\include\mp\MpBuf.h"\
 	".\include\mp\MpBufferMsg.h"\
@@ -34473,7 +34414,6 @@ DEP_CPP_MPRTOS=\
 	"..\sipXportLib\include\utl\UtlList.h"\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
-	".\include\mp\DSP_type.h"\
 	".\include\mp\dsplib.h"\
 	".\include\mp\MpArrayBuf.h"\
 	".\include\mp\MpAudioBuf.h"\

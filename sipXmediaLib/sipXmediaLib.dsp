@@ -667,10 +667,6 @@ SOURCE=.\include\mp\dmaTask.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\mp\DSP_type.h
-# End Source File
-# Begin Source File
-
 SOURCE=.\include\mp\dsplib.h
 # End Source File
 # Begin Source File

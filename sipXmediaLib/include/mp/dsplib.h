@@ -14,7 +14,6 @@
 #ifndef __INCdsplib_h /* [ */
 #define __INCdsplib_h
 
-#include "mp/DSP_type.h"
 #include "mp/MpBuf.h"
 #include "mp/MpTypes.h"
 
