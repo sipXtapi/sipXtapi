@@ -68,7 +68,7 @@ OsStatus MpeSipxILBC::freeEncode(void)
    return OS_SUCCESS;
 }
 
-OsStatus MpeSipxILBC::encode(const short* pAudioSamples,
+OsStatus MpeSipxILBC::encode(const MpAudioSample* pAudioSamples,
                               const int numSamples,
                               int& rSamplesConsumed,
                               unsigned char* pCodeBuf,

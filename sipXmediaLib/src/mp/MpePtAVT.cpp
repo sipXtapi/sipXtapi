@@ -39,14 +39,14 @@ OsStatus MpePtAVT::freeEncode(void)
    return OS_SUCCESS;
 }
 
-OsStatus MpePtAVT::encode(const short* pAudioSamples,
-                             const int numSamples,
-                             int& rSamplesConsumed,
-                             unsigned char* pCodeBuf,
-                             const int bytesLeft,
-                             int& rSizeInBytes,
-                             UtlBoolean& sendNow,
-                             MpAudioBuf::SpeechType& rAudioCategory)
+OsStatus MpePtAVT::encode(const MpAudioSample* pAudioSamples,
+                          const int numSamples,
+                          int& rSamplesConsumed,
+                          unsigned char* pCodeBuf,
+                          const int bytesLeft,
+                          int& rSizeInBytes,
+                          UtlBoolean& sendNow,
+                          MpAudioBuf::SpeechType& rAudioCategory)
 {
    assert(FALSE);
    rSizeInBytes = 0;

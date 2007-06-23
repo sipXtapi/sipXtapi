@@ -128,7 +128,7 @@ OsStatus MpeSipxSpeex::freeEncode(void)
 
 
 
-OsStatus MpeSipxSpeex::encode(const short* pAudioSamples,
+OsStatus MpeSipxSpeex::encode(const MpAudioSample* pAudioSamples,
                               const int numSamples,
                               int& rSamplesConsumed,
                               unsigned char* pCodeBuf,

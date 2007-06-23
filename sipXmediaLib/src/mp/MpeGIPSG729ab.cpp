@@ -107,7 +107,7 @@ static int actuallyDoVad = 1;
 static int actuallySendDummySID = 1;
 #endif /* READY_FOR_ANNEX_B ] */
 
-OsStatus MpeGIPSG729ab::encode(const short* pAudioSamples,
+OsStatus MpeGIPSG729ab::encode(const MpAudioSample* pAudioSamples,
                              const int numSamples,
                              int& rSamplesConsumed,
                              unsigned char* pCodeBuf,

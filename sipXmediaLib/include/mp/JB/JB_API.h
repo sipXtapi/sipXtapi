@@ -30,12 +30,12 @@ JB_EXTERN JB_ret JB_RecOut(JB_inst *JB_inst,
                            JB_size *length);
 
 JB_EXTERN JB_ret G711A_Encoder(JB_size noOfSamples,
-                               MpAudioSample* inBuff,
+                               const MpAudioSample* inBuff,
                                JB_uchar* codBuff, 
                                JB_size *size_in_bytes);
 
 JB_EXTERN JB_ret G711U_Encoder(JB_size noOfSamples,
-                               MpAudioSample* inBuff,
+                               const MpAudioSample* inBuff,
                                JB_uchar* codBuff, 
                                JB_size *size_in_bytes);
 

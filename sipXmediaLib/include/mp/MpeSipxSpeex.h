@@ -74,7 +74,7 @@ public:
 //@{
 
      /// Encode audio samples
-   virtual OsStatus encode(const short* pAudioSamples,
+   virtual OsStatus encode(const MpAudioSample* pAudioSamples,
                            const int numSamples,
                            int& rSamplesConsumed,
                            unsigned char* pCodeBuf,

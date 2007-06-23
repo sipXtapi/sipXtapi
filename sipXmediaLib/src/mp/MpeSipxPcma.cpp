@@ -44,7 +44,7 @@ OsStatus MpeSipxPcma::freeEncode(void)
    return OS_SUCCESS;
 }
 
-OsStatus MpeSipxPcma::encode(const short* pAudioSamples,
+OsStatus MpeSipxPcma::encode(const MpAudioSample* pAudioSamples,
                              const int numSamples,
                              int& rSamplesConsumed,
                              unsigned char* pCodeBuf,
@@ -56,7 +56,7 @@ OsStatus MpeSipxPcma::encode(const short* pAudioSamples,
    JB_ret res;
    JB_size size;
 
-   res = G711A_Encoder(numSamples, (short*) pAudioSamples, pCodeBuf, &size);
+   res = G711A_Encoder(numSamples, pAudioSamples, pCodeBuf, &size);
    rSizeInBytes = size;
    rAudioCategory = MpAudioBuf::MP_SPEECH_UNKNOWN;
    sendNow = FALSE;

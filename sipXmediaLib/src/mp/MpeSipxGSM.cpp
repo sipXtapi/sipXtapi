@@ -66,7 +66,7 @@ OsStatus MpeSipxGSM::freeEncode(void)
    return OS_SUCCESS;
 }
 
-OsStatus MpeSipxGSM::encode(const short* pAudioSamples,
+OsStatus MpeSipxGSM::encode(const MpAudioSample* pAudioSamples,
                             const int numSamples,
                             int& rSamplesConsumed,
                             unsigned char* pCodeBuf,

@@ -63,7 +63,7 @@ OsStatus MpeGIPSiPCMU::freeEncode(void)
    }
 }
 
-OsStatus MpeGIPSiPCMU::encode(const short* pAudioSamples,
+OsStatus MpeGIPSiPCMU::encode(const MpAudioSample* pAudioSamples,
                               const int numSamples,
                               int& rSamplesConsumed,
                               unsigned char* pCodeBuf,

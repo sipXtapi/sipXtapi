@@ -66,7 +66,7 @@ OsStatus MpeGIPSiPCMWB::freeEncode(void)
    return OS_NOT_YET_IMPLEMENTED;
 }
 
-OsStatus MpeGIPSiPCMWB::encode(const short* pAudioSamples,
+OsStatus MpeGIPSiPCMWB::encode(const MpAudioSample* pAudioSamples,
                                const int numSamples,
                                int& rSamplesConsumed,
                                unsigned char* pCodeBuf,

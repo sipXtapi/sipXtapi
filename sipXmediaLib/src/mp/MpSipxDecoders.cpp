@@ -182,7 +182,7 @@ LOCAL unsigned char Linear2ALaw(
         }
 }
 
-LOCAL int LinearToALaw(unsigned char *Dest, MpAudioSample *src, int samples)
+LOCAL int LinearToALaw(unsigned char *Dest,const  MpAudioSample *src, int samples)
 {
         int i;
 
@@ -194,7 +194,7 @@ LOCAL int LinearToALaw(unsigned char *Dest, MpAudioSample *src, int samples)
 }
 
 JB_ret G711A_Encoder(JB_size noOfSamples,
-                     MpAudioSample* inBuff,
+                     const MpAudioSample* inBuff,
                      JB_uchar* codBuff,
                      JB_size *size_in_bytes)
 {
@@ -235,7 +235,7 @@ LOCAL unsigned char hzm_Linear2ULaw(int L)
    return ((seg | ((0x3C00 & L) >> 10)) ^ signmask);
 }
 
-LOCAL int LinearToULaw(unsigned char *Dest, MpAudioSample *src, int samples)
+LOCAL int LinearToULaw(unsigned char *Dest, const MpAudioSample *src, int samples)
 {
    int i;
 
@@ -247,7 +247,7 @@ LOCAL int LinearToULaw(unsigned char *Dest, MpAudioSample *src, int samples)
 }
 
 JB_ret G711U_Encoder(JB_size noOfSamples,
-                     MpAudioSample* inBuff,
+                     const MpAudioSample* inBuff,
                      JB_uchar* codBuff,
                      JB_size *size_in_bytes)
 {

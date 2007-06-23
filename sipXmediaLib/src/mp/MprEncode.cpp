@@ -423,8 +423,8 @@ void MprEncode::doPrimaryCodec(MpAudioBufPtr in, unsigned int startTs)
 
       bytesAdded = 0;
       ret = mpPrimaryCodec->encode(pSamplesIn, numSamplesIn, numSamplesOut,
-                        pDest, payloadBytesLeft, bytesAdded,
-                        sendNow, content);
+                                   pDest, payloadBytesLeft, bytesAdded,
+                                   sendNow, content);
       mPayloadBytesUsed += bytesAdded;
       assert (mPacket1PayloadBytes >= mPayloadBytesUsed);
 

@@ -45,7 +45,7 @@ OsStatus MpeGIPSPCMA::freeEncode(void)
    return OS_SUCCESS;
 }
 
-OsStatus MpeGIPSPCMA::encode(const short* pAudioSamples,
+OsStatus MpeGIPSPCMA::encode(const MpAudioSample* pAudioSamples,
                              const int numSamples,
                              int& rSamplesConsumed,
                              unsigned char* pCodeBuf,

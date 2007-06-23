@@ -68,7 +68,7 @@ OsStatus MpeGIPSiLBC::freeEncode(void)
    }
 }
 
-OsStatus MpeGIPSiLBC::encode(const short* pAudioSamples,
+OsStatus MpeGIPSiLBC::encode(const MpAudioSample* pAudioSamples,
                               const int numSamples,
                               int& rSamplesConsumed,
                               unsigned char* pCodeBuf,

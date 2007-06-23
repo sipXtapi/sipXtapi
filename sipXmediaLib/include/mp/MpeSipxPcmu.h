@@ -58,14 +58,14 @@ public:
 //@{
 
      /// Encode audio samples
-   virtual OsStatus encode(const short* pAudioSamples,
-                   const int numSamples,
-                   int& rSamplesConsumed,
-                   unsigned char* pCodeBuf,
-                   const int bytesLeft,
-                   int& rSizeInBytes,
-                   UtlBoolean& sendNow,
-                   MpAudioBuf::SpeechType& rAudioCategory);
+   virtual OsStatus encode(const MpAudioSample* pAudioSamples,
+                           const int numSamples,
+                           int& rSamplesConsumed,
+                           unsigned char* pCodeBuf,
+                           const int bytesLeft,
+                           int& rSizeInBytes,
+                           UtlBoolean& sendNow,
+                           MpAudioBuf::SpeechType& rAudioCategory);
      /**<
      *  Processes the array of audio samples.  If sufficient samples to encode
      *  a frame are now available, the encoded data will be written to the
