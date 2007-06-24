@@ -8,10 +8,6 @@
 // $$ 
 ////////////////////////////////////////////////////////////////////////////// 
 
-#include <cppunit/extensions/HelperMacros.h>
-#include <cppunit/TestCase.h>
-#include <sipxunit/TestUtilities.h>
-
 #include <mp/MpMediaTask.h>
 #include <mp/MpFlowGraphBase.h>
 #include <mp/MpTestResource.h>

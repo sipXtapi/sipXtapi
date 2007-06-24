@@ -11,14 +11,14 @@
 #ifndef _GENERIC_RESOURCE_TEST_H_ // [
 #define _GENERIC_RESOURCE_TEST_H_
 
-#include <cppunit/extensions/HelperMacros.h>
-#include <cppunit/TestCase.h>
-#include <sipxunit/TestUtilities.h>
-
 #include <mp/MpMediaTask.h>
 #include <mp/MpFlowGraphBase.h>
 #include <mp/MpTestResource.h>
 #include <mp/MpMisc.h>
+
+#include <cppunit/extensions/HelperMacros.h>
+#include <cppunit/TestCase.h>
+#include <sipxunit/TestUtilities.h>
 
 ///  Generic framework for unit test of media resources.
 /**
