@@ -35,6 +35,7 @@ class mpFlowGraphMsg;
 /**
  * @brief Descendant of the MpAudioResource class used for testing.
  *
+ * @nosubgrouping
  */
 class MpTestResource : public MpAudioResource
 {
@@ -61,6 +62,12 @@ public:
    MpFlowGraphMsg mLastMsg;
    DoProcessArgs  mLastDoProcessArgs;
 
+   enum MpTestOutSignal
+   {
+      MP_TEST_SIGNAL_NULL,
+      MP_TEST_SIGNAL_SQUARE
+   };
+
 /* ============================ CREATORS ================================== */
 ///@name Creators
 //@{
@@ -83,22 +90,31 @@ public:
    void sendTestMessage(void* ptr1, void* ptr2, int int3, int int4);
 
      /// Specify the genOutBufMask.
-     /**
+   void setGenOutBufMask(int mask);
+     /**<
       * For each bit in the genOutBufMask that is set, if there is a
       * resource connected to the corresponding output port, doProcessFrame()
       * will create an output buffer on that output port.
       */
-   void setGenOutBufMask(int mask);
 
      /// Specify the processInBufMask.
-     /**
+   void setProcessInBufMask(int mask);
+     /**<
       * For each bit in the processInBufMask that is set, doProcessFrame()
       * will pass the input buffer from the corresponding input port,
       * straight through to the corresponding output port.  If nothing is
       * connected on the corresponding output port, the input buffer will
       * be deleted.
       */
-   void setProcessInBufMask(int mask);
+
+     /// Set type of signal, generated on outputs.
+   void setOutSignalType(MpTestOutSignal signalType);
+
+     /// Set period of signal (for signal types, supporting period).
+   void setSignalPeriod(int outputIndex, int periodInSamples);
+
+     /// Set amplitude of signal (for signal types, supporting amplitude).
+   void setSignalAmplitude(int outputIndex, int maxMinValue);
 
 //@}
 
@@ -109,9 +125,12 @@ public:
      /// Returns the count of the number of frames processed by this resource.
    int numFramesProcessed(void);
 
-     /// Returns the count of the number of messages successfully processed by 
-     /// this resource.
+     /// @brief Returns the count of the number of messages successfully
+     /// processed by this resource.
    int numMsgsProcessed(void);
+
+   MpAudioSample getSquareSampleValue(int outputIndex,
+                                      int sampleIndex);
 
 //@}
 
@@ -121,11 +140,25 @@ public:
 
 //@}
 
+/* ============================ UTILITY =================================== */
+///@name Utility
+//@{
+
+   static
+   MpAudioSample squareSampleValue(int squareWavePeriod,
+                                   int squareWaveAmplitude,
+                                   int sampleIndex);
+
+//@}
+
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 
    int            mProcessedCnt;      ///< Number of processed frames
    int            mMsgCnt;            ///< Number received messages
+   MpTestOutSignal mSignalType;       ///< Output signal type
+   int*           mpSignalPeriod;     ///< Period of signal if supported (in samples)
+   int*           mpSignalAmplitude;  ///< Magnitude of signal if supported
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:

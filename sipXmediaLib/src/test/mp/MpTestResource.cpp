@@ -47,10 +47,21 @@ MpTestResource::MpTestResource(const UtlString& rName
    mProcessInBufMask(0),
    mLastMsg(0),
    mProcessedCnt(0),
-   mMsgCnt(0)
+   mMsgCnt(0),
+   mSignalType(MP_TEST_SIGNAL_NULL),
+   mpSignalPeriod(NULL),
+   mpSignalAmplitude(NULL)
 {
    mLastDoProcessArgs.inBufs = new MpBufPtr[mMaxInputs];
    mLastDoProcessArgs.outBufs = new MpBufPtr[mMaxOutputs];
+   mpSignalPeriod = new int[maxOutputs];
+   mpSignalAmplitude = new int[maxOutputs];
+   int outIndex;
+   for(outIndex = 0; outIndex < maxOutputs; outIndex++)
+   {
+      mpSignalPeriod[outIndex] = 0;
+      mpSignalAmplitude[outIndex] = 0;
+   }
 }
 
 // Destructor
@@ -95,6 +106,23 @@ void MpTestResource::setProcessInBufMask(int mask)
    mProcessInBufMask = mask;
 }
 
+void MpTestResource::setOutSignalType(MpTestOutSignal signalType)
+{
+   mSignalType = signalType;
+}
+
+void MpTestResource::setSignalPeriod(int outputIndex, int periodInSamples)
+{
+   assert(outputIndex < maxOutputs());
+   mpSignalPeriod[outputIndex] = periodInSamples;
+}
+
+void MpTestResource::setSignalAmplitude(int outputIndex, int maxMinValue)
+{
+   assert(outputIndex < maxOutputs());
+   mpSignalAmplitude[outputIndex] = maxMinValue;
+}
+
 /* ============================ ACCESSORS ================================= */
 
 // Returns the count of the number of frames processed by this resource.
@@ -110,7 +138,36 @@ int MpTestResource::numMsgsProcessed(void)
    return mMsgCnt;
 }
 
+MpAudioSample MpTestResource::getSquareSampleValue(int outputIndex,
+                                                   int sampleIndex)
+{
+   return squareSampleValue(mpSignalPeriod[outputIndex],
+                            mpSignalAmplitude[outputIndex],
+                            sampleIndex);
+}
+
+
 /* ============================ INQUIRY =================================== */
+
+/* ============================ UTILITY =================================== */
+
+MpAudioSample MpTestResource::squareSampleValue(int squareWavePeriod,
+                                                int squareWaveAmplitude,
+                                                int sampleIndex)
+{
+   MpAudioSample sample;
+   int halfPeriod = squareWavePeriod / 2;
+   int periodMod = sampleIndex % squareWavePeriod;
+   if(periodMod >= halfPeriod)
+   {
+      sample = 0 - squareWaveAmplitude;
+   }
+   else
+   {
+      sample = squareWaveAmplitude;
+   }
+   return(sample);
+}
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
@@ -146,7 +203,7 @@ UtlBoolean MpTestResource::doProcessFrame(MpBufPtr inBufs[],
              (inBufsSize > i))
          {
             // if the corresponding bit in the mProcessInBufMask is set for
-            // the input port then pass the input buffer straight thru
+            // the input port then pass the input buffer straight through
             outBufs[i] = inBufs[i];
             inBufs[i].release();
          }
@@ -160,8 +217,23 @@ UtlBoolean MpTestResource::doProcessFrame(MpBufPtr inBufs[],
             // for the output port
             assert(MpMisc.RawAudioPool != NULL);
             MpAudioBufPtr pBuf = MpMisc.RawAudioPool->getBuffer();
-            memset(pBuf->getSamplesWritePtr(), 0,
-                   pBuf->getSamplesNumber()*sizeof(MpAudioSample));
+            if(mSignalType == MP_TEST_SIGNAL_NULL)
+            {
+               memset(pBuf->getSamplesWritePtr(), 0,
+                      pBuf->getSamplesNumber()*sizeof(MpAudioSample));
+            }
+
+            else if(mSignalType == MP_TEST_SIGNAL_SQUARE)
+            {
+               unsigned sampleIndex;
+               MpAudioSample* squareSamples = pBuf->getSamplesWritePtr();
+               assert(squareSamples);
+               for(sampleIndex = 0; sampleIndex < pBuf->getSamplesNumber(); sampleIndex++)
+               {
+                  squareSamples[sampleIndex] =
+                     getSquareSampleValue(i, sampleIndex);
+               }
+            }
             outBufs[i] = pBuf;
          }
       }

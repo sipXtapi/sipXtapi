@@ -21,6 +21,15 @@
 
 #include "mp/MpGenericResourceTest.h"
 
+#ifdef RTL_ENABLED // [
+#  include "rtl_macro.h"
+#else  // RTL_ENABLED ][
+#  define RTL_WRITE(x)
+#  define RTL_BLOCK(x)
+#  define RTL_START(x)
+#  define RTL_STOP
+#endif // RTL_ENABLED ]
+
 ///  Unit test for MprBridge
 class MprBridgeTest : public MpGenericResourceTest
 {
@@ -30,6 +39,7 @@ class MprBridgeTest : public MpGenericResourceTest
     CPPUNIT_TEST(testEnabledNoData);
     CPPUNIT_TEST(testEnabledWithOneActiveInput);
     CPPUNIT_TEST(testEnabledWithManyActiveInputs);
+    CPPUNIT_TEST(testSideBar);
     CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -214,6 +224,141 @@ public:
        haltFramework();
    }
 
+   void testSideBar()
+   {
+       RTL_START(1000000);
+
+       const int         numParticipants = 4;
+       MprBridge*        pBridge    = NULL;
+
+       pBridge = new MprBridge("MprBridge", numParticipants,
+                               TEST_SAMPLES_PER_FRAME, TEST_SAMPLES_PER_SEC);
+       CPPUNIT_ASSERT(pBridge != NULL);
+
+       setupFramework(pBridge);
+
+       // Generate square samples on all bridge inputs. Square period of data
+       // on input N is 2*N:
+       //   input 0:  -_-_-_-_-_-_-_-_
+       //   input 1:  --__--__--__--__
+       //   input 2:  ---___---___---_
+       //   input 3:  ----____----____
+       // Amplitude of generated signal is 100*N.
+       CPPUNIT_ASSERT(mpSourceResource->enable());
+       int outIndex;
+       mpSourceResource->setOutSignalType(MpTestResource::MP_TEST_SIGNAL_SQUARE);
+       for(outIndex = 0; outIndex < numParticipants; outIndex++)
+       {
+          mpSourceResource->setSignalPeriod(outIndex, (outIndex+1) * 2);
+          mpSourceResource->setSignalAmplitude(outIndex, (outIndex+1) * 100);
+       }
+
+       // Set the weights such that we have a side bar conversation
+       // between input 1 and 3 such that 1 & 3 hear 0 & 2 at a lower
+       // volume and 0 & 2 do not hear 1 & 3 at all.  The matrix for the
+       // weights is shown below, where x is the decrease in volume that
+       // 1 & 3 hear 0 & 2 at.
+       // 0 0 1 0
+       // x 0 x 1
+       // 1 0 0 0
+       // x 1 x 0
+       
+       // Use x = 0.75. If fixed point enabled, this value MUST BE convertible
+       // to selected fixed point format without data lose for this test to
+       // succeed. 
+       float quiterFloat = 0.75f;
+       MpBridgeGain quieter = MPF_BRIDGE_FLOAT(quiterFloat);
+       MpBridgeGain gainsOut[numParticipants][numParticipants] = {
+               {0, 0, MP_BRIDGE_GAIN_PASSTHROUGH, 0},
+               {quieter, 0, quieter, MP_BRIDGE_GAIN_PASSTHROUGH},
+               {MP_BRIDGE_GAIN_PASSTHROUGH, 0, 0, 0},
+               {quieter, MP_BRIDGE_GAIN_PASSTHROUGH, quieter, 0}};
+       OsMsgQ* flowgraphQueue = mpFlowGraph->getMsgQ();
+       CPPUNIT_ASSERT(flowgraphQueue != NULL);
+       for (int i=0; i<numParticipants; i++)
+       {
+          CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                               MprBridge::setMixWeightsForOutput("MprBridge",
+                                                                 *flowgraphQueue,
+                                                                 i,
+                                                                 numParticipants,
+                                                                 gainsOut[i]));
+       }
+       CPPUNIT_ASSERT(pBridge->enable());
+
+       CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                            mpFlowGraph->processNextFrame());
+
+       RTL_WRITE("testSideBar.rtl");
+       RTL_STOP
+
+       // Test samples, generated for output 0
+       {
+          MpAudioBufPtr pBuf = mpSinkResource->mLastDoProcessArgs.inBufs[0];
+          CPPUNIT_ASSERT(pBuf.isValid());
+          const MpAudioSample *pSamples = pBuf->getSamplesPtr();
+
+          for (unsigned i=0; i<pBuf->getSamplesNumber(); i++)
+          {
+             MpAudioSample curSample =
+                mpSourceResource->getSquareSampleValue(2, i);
+
+             CPPUNIT_ASSERT_EQUAL(curSample, pSamples[i]);
+          }
+       }
+
+       // Test samples, generated for output 1
+       {
+          MpAudioBufPtr pBuf = mpSinkResource->mLastDoProcessArgs.inBufs[1];
+          CPPUNIT_ASSERT(pBuf.isValid());
+          const MpAudioSample *pSamples = pBuf->getSamplesPtr();
+
+          for (unsigned i=0; i<pBuf->getSamplesNumber(); i++)
+          {
+             MpAudioSample curSample = (MpAudioSample)(
+                mpSourceResource->getSquareSampleValue(0, i)*quiterFloat +
+                mpSourceResource->getSquareSampleValue(2, i)*quiterFloat +
+                mpSourceResource->getSquareSampleValue(3, i));
+
+             CPPUNIT_ASSERT_EQUAL(curSample, pSamples[i]);
+          }
+       }
+
+       // Test samples, generated for output 2
+       {
+          MpAudioBufPtr pBuf = mpSinkResource->mLastDoProcessArgs.inBufs[2];
+          CPPUNIT_ASSERT(pBuf.isValid());
+          const MpAudioSample *pSamples = pBuf->getSamplesPtr();
+
+          for (unsigned i=0; i<pBuf->getSamplesNumber(); i++)
+          {
+             MpAudioSample curSample =
+                mpSourceResource->getSquareSampleValue(0, i);
+
+             CPPUNIT_ASSERT_EQUAL(curSample, pSamples[i]);
+          }
+       }
+
+       // Test samples, generated for output 3
+       {
+          MpAudioBufPtr pBuf = mpSinkResource->mLastDoProcessArgs.inBufs[3];
+          CPPUNIT_ASSERT(pBuf.isValid());
+          const MpAudioSample *pSamples = pBuf->getSamplesPtr();
+
+          for (unsigned i=0; i<pBuf->getSamplesNumber(); i++)
+          {
+             MpAudioSample curSample = (MpAudioSample)(
+                mpSourceResource->getSquareSampleValue(0, i)*quiterFloat +
+                mpSourceResource->getSquareSampleValue(1, i) +
+                mpSourceResource->getSquareSampleValue(2, i)*quiterFloat);
+
+             CPPUNIT_ASSERT_EQUAL(curSample, pSamples[i]);
+          }
+       }
+
+       // Stop flowgraph
+       haltFramework();
+   }
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(MprBridgeTest);
