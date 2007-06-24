@@ -378,7 +378,7 @@ MpInputDeviceDriverWnt::waveInCallbackStatic(HWAVEIN hwi,
 {
     assert(dwInstance != NULL);
     MpInputDeviceDriverWnt* iddWntPtr = (MpInputDeviceDriverWnt*)dwInstance;
-    assert(hwi == iddWntPtr->mDevHandle);
+    assert((uMsg == WIM_OPEN) || (hwi == iddWntPtr->mDevHandle));
     iddWntPtr->processAudioInput(hwi, uMsg, dwParam1);
 }
 
