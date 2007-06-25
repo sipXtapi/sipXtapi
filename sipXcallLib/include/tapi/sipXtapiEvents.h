@@ -1049,7 +1049,6 @@ SIPXTAPI_API char* sipxSecurityEventToString(SIPX_SECURITY_EVENT event,
 SIPXTAPI_API char* sipxSecurityCauseToString(SIPX_SECURITY_CAUSE cause, 
                                            char* szBuffer, 
                                            size_t nBuffer);
-                                     
 
 /**
  * Create a printable string version of the designated media event.
@@ -1062,6 +1061,7 @@ SIPXTAPI_API char* sipxSecurityCauseToString(SIPX_SECURITY_CAUSE cause,
 SIPXTAPI_API char* sipxMediaEventToString(SIPX_MEDIA_EVENT event,
                                           char* szBuffer,
                                           size_t nBuffer);
+
 /**
  * Create a printable string version of the designated media cause.
  * This is generally used for debugging.
@@ -1073,5 +1073,29 @@ SIPXTAPI_API char* sipxMediaEventToString(SIPX_MEDIA_EVENT event,
 SIPXTAPI_API char* sipxMediaCauseToString(SIPX_MEDIA_CAUSE cause,
                                           char* szBuffer,
                                           size_t nBuffer);
-                                                                                    
+
+/**
+* Create a printable string version of the designated keepalive event.
+* This is generally used for debugging.
+*
+* @param event Keepalive event id
+* @param szBuffer Buffer to store event string
+* @param nBuffer Length of string buffer szBuffer
+*/
+SIPXTAPI_API char* sipxKeepaliveEventToString(SIPX_KEEPALIVE_EVENT event,
+                                              char* szBuffer,
+                                              size_t nBuffer);
+
+/**
+* Create a printable string version of the designated keepalive cause.
+* This is generally used for debugging.
+*
+* @param cause Keepalive cause id
+* @param szBuffer Buffer to store cause string
+* @param nBuffer Length of string buffer szBuffer
+*/
+SIPXTAPI_API char* sipxKeepaliveCauseToString(SIPX_KEEPALIVE_CAUSE cause,
+                                              char* szBuffer,
+                                              size_t nBuffer);
+
 #endif /* ifndef _sipXtapiEvents_h_ */

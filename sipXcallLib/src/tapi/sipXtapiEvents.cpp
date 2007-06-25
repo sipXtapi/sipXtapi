@@ -1966,6 +1966,42 @@ SIPXTAPI_API char* sipxMediaCauseToString(SIPX_MEDIA_CAUSE cause,
     return szBuffer;
 }
 
+
+SIPXTAPI_API char* sipxKeepaliveEventToString(SIPX_KEEPALIVE_EVENT event, 
+                                              char* szBuffer, 
+                                              size_t nBuffer) 
+{
+    switch (event)
+    {
+        case KEEPALIVE_START:
+            SNPRINTF(szBuffer, nBuffer, "KEEPALIVE_START") ;
+            break ;
+        case KEEPALIVE_FEEDBACK:
+            SNPRINTF(szBuffer, nBuffer, "KEEPALIVE_FEEDBACK") ;
+            break ;
+        case KEEPALIVE_FAILURE:
+            SNPRINTF(szBuffer, nBuffer, "KEEPALIVE_FAILURE") ;
+            break ;
+        case KEEPALIVE_STOP:
+            SNPRINTF(szBuffer, nBuffer, "KEEPALIVE_STOP") ;
+            break ;
+    }
+    return szBuffer;
+}
+
+SIPXTAPI_API char* sipxKeepaliveCauseToString(SIPX_KEEPALIVE_CAUSE cause, 
+                                              char* szBuffer, 
+                                              size_t nBuffer) 
+{
+    switch (cause)
+    {
+        case KEEPALIVE_CAUSE_NORMAL:
+            SNPRINTF(szBuffer, nBuffer, "KEEPALIVE_CAUSE_NORMAL") ;
+            break ;
+    }
+    return szBuffer;
+}
+
 SIPXTAPI_API char* sipxSecurityEventToString(SIPX_SECURITY_EVENT event, 
                                            char* szBuffer, 
                                            size_t nBuffer) 

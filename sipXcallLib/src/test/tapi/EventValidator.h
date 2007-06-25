@@ -172,8 +172,11 @@ protected:
     UtlString* allocSecurityEvent(SIPX_SECURITY_EVENT hEvent,
                                   SIPX_SECURITY_CAUSE cause) ;
     UtlString* allocMediaEvent(SIPX_MEDIA_EVENT hEvent,
-                                  SIPX_MEDIA_CAUSE cause,
-                                  SIPX_MEDIA_TYPE type) ;
+                               SIPX_MEDIA_CAUSE cause,
+                               SIPX_MEDIA_TYPE type) ;
+    UtlString* allocKeepaliveEvent(SIPX_KEEPALIVE_EVENT hEvent,
+                                   SIPX_KEEPALIVE_CAUSE cause,
+                                   SIPX_KEEPALIVE_TYPE type) ;
     UtlString* allocNotifyEvent(SIPX_NOTIFY_INFO* pInfo); 
     UtlString* allocSubStatusEvent(SIPX_SUBSCRIPTION_STATE state, 
                                     SIPX_SUBSCRIPTION_CAUSE cause); 

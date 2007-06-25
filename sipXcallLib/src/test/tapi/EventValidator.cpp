@@ -633,6 +633,7 @@ void EventValidator::addEvent(SIPX_EVENT_CATEGORY category, void* pInfo)
                     m_semUnprocessed.release() ;
 
                 }
+                break;
             case EVENT_CATEGORY_MEDIA:
                 {
                     SIPX_MEDIA_INFO* pMediaInfo = (SIPX_MEDIA_INFO*) pInfo;
@@ -644,6 +645,22 @@ void EventValidator::addEvent(SIPX_EVENT_CATEGORY category, void* pInfo)
                     m_unprocessedEvents.append(pString) ; 
                     m_semUnprocessed.release() ;
                 }
+                break;
+            case EVENT_CATEGORY_KEEPALIVE:
+                {
+                    SIPX_KEEPALIVE_INFO* pKeepaliveInfo = (SIPX_KEEPALIVE_INFO*) pInfo;
+
+                    UtlString* pString = allocKeepaliveEvent(pKeepaliveInfo->event,
+                                                             pKeepaliveInfo->cause,
+                                                             pKeepaliveInfo->type) ;
+
+                    m_unprocessedEvents.append(pString) ; 
+                    m_semUnprocessed.release() ;
+                }
+                break;
+            default:
+                assert(FALSE);
+                break;
         }
     }
 }
@@ -807,8 +824,8 @@ UtlString* EventValidator::allocSecurityEvent(SIPX_SECURITY_EVENT event,
 }
 
 UtlString* EventValidator::allocMediaEvent(SIPX_MEDIA_EVENT event,
-                                              SIPX_MEDIA_CAUSE cause,
-                                              SIPX_MEDIA_TYPE type)
+                                           SIPX_MEDIA_CAUSE cause,
+                                           SIPX_MEDIA_TYPE type)
 {
     char szBuffer[2048] ;
     char szBuffer2[1024];
@@ -826,6 +843,39 @@ UtlString* EventValidator::allocMediaEvent(SIPX_MEDIA_EVENT event,
     sprintf(szBuffer, "<MEDIA> event=%s, cause=%s type=%s",
             sipxMediaEventToString(event, szBuffer2, sizeof(szBuffer2)),
             sipxMediaCauseToString(cause, szBuffer3, sizeof(szBuffer3)),
+            szType) ;
+
+    return new UtlString(szBuffer) ;
+
+}
+
+UtlString* EventValidator::allocKeepaliveEvent(SIPX_KEEPALIVE_EVENT event,
+                                               SIPX_KEEPALIVE_CAUSE cause,
+                                               SIPX_KEEPALIVE_TYPE type)
+{
+    char szBuffer[2048] ;
+    char szBuffer2[1024];
+    char szBuffer3[1024];
+    char szType[256];
+    
+    switch(type)
+    {
+        case SIPX_KEEPALIVE_CRLF:
+           strcpy(szType, "CRLF");
+           break;
+        case SIPX_KEEPALIVE_STUN:
+           strcpy(szType, "STUN");
+           break;
+        case SIPX_KEEPALIVE_SIP_PING:
+           strcpy(szType, "SIP_PING");
+           break;
+        case SIPX_KEEPALIVE_SIP_OPTIONS:
+           strcpy(szType, "SIP_OPTIONS");
+           break;
+    }
+    sprintf(szBuffer, "<KEEPALIVE> event=%s, cause=%s type=%s",
+            sipxKeepaliveEventToString(event, szBuffer2, sizeof(szBuffer2)),
+            sipxKeepaliveCauseToString(cause, szBuffer2, sizeof(szBuffer2)),
             szType) ;
 
     return new UtlString(szBuffer) ;
