@@ -972,7 +972,7 @@ void sipXtapiTestSuite::testConfigEnableStunSuccess()
         for (size_t i=0; i<nContacts; i++)
         {
             if ((strcmp(addresses[i].cInterface, "loopback")) != 0 && 
-                    addresses[i].eContactType == TRANSPORT_UDP)
+                    addresses[i].eTransportType == TRANSPORT_UDP)
             {
                 // SUCCESSes may come in in a different rate
                 bRC = validator.waitForMessage(0, "TestStunServerTask::handleStunMessage", false) ;
@@ -990,7 +990,7 @@ void sipXtapiTestSuite::testConfigEnableStunSuccess()
             for (size_t i=0; i<nContacts; i++)
             {
                 if ((strcmp(addresses[i].cInterface, "loopback")) != 0 && 
-                    addresses[i].eContactType == TRANSPORT_UDP)
+                    addresses[i].eTransportType == TRANSPORT_UDP)
                 {
                     bRC = validator.waitForMessage(0, "TestStunServerTask::handleStunMessage", false) ;
                     CPPUNIT_ASSERT(bRC) ;
@@ -1053,7 +1053,7 @@ void sipXtapiTestSuite::testConfigEnableStunNoResponse()
         for (size_t i=0; i<nContacts; i++)
         {
             if ((strcmp(addresses[i].cInterface, "loopback")) != 0 && 
-                    addresses[i].eContactType == TRANSPORT_UDP)
+                    addresses[i].eTransportType == TRANSPORT_UDP)
             {
                 // SUCCESSes may come in in a different rate
                 bRC = validator.waitForMessage(0, "TestStunServerTask::handleStunMessage", false) ;
@@ -1126,7 +1126,7 @@ void sipXtapiTestSuite::testConfigEnableStunError()
         for (size_t i=0; i<nContacts; i++)
         {
             if ((strcmp(addresses[i].cInterface, "loopback")) != 0 && 
-                    addresses[i].eContactType == TRANSPORT_UDP)
+                    addresses[i].eTransportType == TRANSPORT_UDP)
             {
                 // SUCCESSes may come in in a different rate
                 bRC = validator.waitForMessage(0, "TestStunServerTask::handleStunMessage", false) ;
@@ -1352,7 +1352,7 @@ void sipXtapiTestSuite::testConfigEnableStunDelay()
         for (size_t i=0; i<nContacts; i++)
         {
             if ((strcmp(addresses[i].cInterface, "loopback")) != 0 && 
-                    addresses[i].eContactType == TRANSPORT_UDP)
+                    addresses[i].eTransportType == TRANSPORT_UDP)
             {
                 // SUCCESSes may come in in a different rate
                 bRC = validator.waitForConfigEvent(CONFIG_STUN_SUCCESS, true) ;
