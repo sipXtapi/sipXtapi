@@ -1779,7 +1779,7 @@ void sipXtapiTestSuite::testSendInfoExternalTransport()
         memset(aAddress, 0, 32);
         sipxConfigGetLocalContacts(g_hInst, aAddress, 32, nDummy);
 
-        for (int j = 0; j < nDummy; j++)
+        for (size_t j = 0; j < nDummy; j++)
         {
            if (strcmp(aAddress[j].cCustomTransportName, "info-tunnel") == 0)
            {
