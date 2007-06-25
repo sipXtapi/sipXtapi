@@ -3008,7 +3008,7 @@ void sipXtapiTestSuite::callMultipleProc2(
     CPPUNIT_ASSERT(bRC);
     bRC = pCalledPartyValidator->waitForCallEvent(hCalledPartyLine, hCalledParty, CALLSTATE_CONNECTED, CALLSTATE_CAUSE_NORMAL, false);
     CPPUNIT_ASSERT(bRC);
-    bRC = pCalledPartyValidator->waitForMediaEvent(MEDIA_LOCAL_START, MEDIA_CAUSE_NORMAL, MEDIA_TYPE_AUDIO), false;
+    bRC = pCalledPartyValidator->waitForMediaEvent(MEDIA_LOCAL_START, MEDIA_CAUSE_NORMAL, MEDIA_TYPE_AUDIO, false);
     CPPUNIT_ASSERT(bRC);
 
 
