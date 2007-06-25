@@ -177,6 +177,9 @@ static const char* convertCallstateCauseToString(SIPX_CALLSTATE_CAUSE eMinor)
         case CALLSTATE_CAUSE_EARLY_MEDIA:
             str = "CAUSE_EARLY_MEDIA" ;
             break ;
+        case CALLSTATE_CAUSE_REQUEST_NOT_ACCEPTED:
+            str = "REQUEST_NOT_ACCEPTED" ;
+            break ;
         case CALLSTATE_CAUSE_BAD_ADDRESS:
             str = "CAUSE_BADADDRESS" ;
             break ;
@@ -245,7 +248,9 @@ static const char* convertCallstateCauseToString(SIPX_CALLSTATE_CAUSE eMinor)
             break;
         case CALLSTATE_CAUSE_CANCEL:
             str = "CAUSE_CANCEL";
+            break;
         default:
+            assert(FALSE);
             break ;
     }
     return str;
