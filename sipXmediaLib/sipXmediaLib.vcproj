@@ -2230,6 +2230,12 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\src\mp\MpMMTimer.cpp">
+			</File>
+			<File
+				RelativePath=".\src\mp\MpMMTimerWnt.cpp">
+			</File>
+			<File
 				RelativePath=".\src\mp\MpNotificationDispatcher.cpp">
 			</File>
 			<File
@@ -4556,6 +4562,12 @@
 			</File>
 			<File
 				RelativePath="include\mp\MpMisc.h">
+			</File>
+			<File
+				RelativePath=".\include\mp\MpMMTimer.h">
+			</File>
+			<File
+				RelativePath=".\include\mp\MpMMTimerWnt.h">
 			</File>
 			<File
 				RelativePath=".\include\mp\MpNotificationDispatcher.h">
