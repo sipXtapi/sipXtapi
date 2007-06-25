@@ -457,6 +457,9 @@ bool SIPX_CALLING_CONVENTION AutoAnswerHangupRingingCallback(SIPX_EVENT_CATEGORY
                     sipxCallDestroy(hDestroy) ;
                 }
                 break ;
+            default:
+               assert(FALSE);
+               break ;
         }
     }     
     
