@@ -32,7 +32,7 @@
 // CONSTANTS
 // STRUCTS
 // TYPEDEFS
-typedef void (*MICDATAHOOK)(const int nLength, MpAudioSample* samples) ;
+typedef void (*MICDATAHOOK)(const int nLength, short* samples) ;
 
 // FORWARD DECLARATIONS
 

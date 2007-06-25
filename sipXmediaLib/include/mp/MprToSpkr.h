@@ -37,7 +37,7 @@
 // CONSTANTS
 // STRUCTS
 // TYPEDEFS
-typedef void (*TOSPEAKERHOOK)(const int nLength, MpAudioSample* samples) ;
+typedef void (*TOSPEAKERHOOK)(const int nLength, short* samples) ;
 // FORWARD DECLARATIONS
 
 /**

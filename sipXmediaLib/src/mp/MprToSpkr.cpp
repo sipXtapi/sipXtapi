@@ -343,7 +343,7 @@ UtlBoolean MprToSpkr::doProcessFrame(MpBufPtr inBufs[],
             * abstracting a new CallFlowGraph is a lot of work.
             */
 
-            s_fnToSpeakerHook(iLength, shpSamples) ;
+            s_fnToSpeakerHook(iLength, (short*)shpSamples) ;
         }
 
         // TODO:: I don't know why we set attenuation to 0 here. BTW, it used only in the MprEchoSuppress().

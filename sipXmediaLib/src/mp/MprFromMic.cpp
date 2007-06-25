@@ -166,7 +166,7 @@ UtlBoolean MprFromMic::doProcessFrame(MpBufPtr inBufs[],
             s = out->getSamplesWritePtr();
             n = out->getSamplesNumber();
             
-            s_fnMicDataHook(n, s) ;
+            s_fnMicDataHook(n, (short*)s) ;
 
             out->setSpeechType(MpAudioBuf::MP_SPEECH_UNKNOWN);
          }
