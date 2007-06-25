@@ -96,7 +96,6 @@ void TestRegistrar::pause(bool bPause)
 UtlBoolean TestRegistrar::handleMessage(OsMsg& rMsg)
 {
     int msgType = rMsg.getMsgType();
-    int msgSubType = rMsg.getMsgSubType();
     UtlBoolean messageProcessed = FALSE;
 
     switch(msgType)

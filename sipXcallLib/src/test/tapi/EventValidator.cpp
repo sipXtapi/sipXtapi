@@ -855,7 +855,6 @@ UtlString* EventValidator::allocKeepaliveEvent(SIPX_KEEPALIVE_EVENT event,
 {
     char szBuffer[2048] ;
     char szBuffer2[1024];
-    char szBuffer3[1024];
     char szType[256];
     
     switch(type)
