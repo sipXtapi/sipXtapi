@@ -4806,7 +4806,7 @@ void SipConnection::processInviteResponseFailed(const SipMessage* response)
             response->getWarningCode(&warningCode);
             if(warningCode == SIP_WARN_MEDIA_NAVAIL_CODE)
             {
-                // incompatable media
+                // incompatible media
                 cause = CONNECTION_CAUSE_INCOMPATIBLE_DESTINATION;
             }
             break;

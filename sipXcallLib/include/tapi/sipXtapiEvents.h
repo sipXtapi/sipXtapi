@@ -239,7 +239,7 @@ typedef enum SIPX_CALLSTATE_EVENT
 
  
 /**
- * Callstate cuase events identify the reason for a Callstate event or 
+ * Callstate cause events identify the reason for a Callstate event or 
  * provide more detail.
  */
 typedef enum SIPX_CALLSTATE_CAUSE
@@ -259,7 +259,7 @@ typedef enum SIPX_CALLSTATE_CAUSE
    CALLSTATE_CAUSE_BAD_ADDRESS,    /**< The state changed due to a bad address.  This 
                                         can be caused by a malformed URL or network
                                         problems with your DNS server */
-   CALLSTATE_CAUSE_BUSY,           /**< The state cahnged because the remote party is
+   CALLSTATE_CAUSE_BUSY,           /**< The state changed because the remote party is
                                         busy */
    CALLSTATE_CAUSE_RESOURCE_LIMIT, /**< Not enough resources are available to complete
                                         the desired operation */
