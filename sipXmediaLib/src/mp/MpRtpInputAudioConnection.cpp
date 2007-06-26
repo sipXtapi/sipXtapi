@@ -178,7 +178,6 @@ UtlBoolean MpRtpInputAudioConnection::handleMessage(MpResourceMsg& rMsg)
         break;
 
     case MpResourceMsg::MPRM_STOP_RECEIVE_RTP:
-        printf("MpRtpInputAudioConnection::handleMessage MPRM_STOP_RECEIVE_RTP\n");
         handleStopReceiveRtp();
         result = TRUE;
         break;
