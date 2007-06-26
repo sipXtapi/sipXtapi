@@ -67,13 +67,13 @@ UtlTokenizer::~UtlTokenizer()
  */
 UtlBoolean UtlTokenizer::next(UtlString &token, const char *delim)
 {
-    int len = strlen(m_tokens);
+    size_t len = strlen(m_tokens);
     UtlBoolean done = FALSE;
 
     token.remove(0) ;
-    for (int i = m_tokenPosition; i < len && !done; i++)
+    for (size_t i = m_tokenPosition; i < len && !done; i++)
     {
-        // token starts at first non-delimitor
+        // token starts at first non-delimiter
         if (!isDelim(m_tokens[i], delim))
         {
             int end = nextDelim(m_tokens, i, len, delim);
@@ -97,8 +97,8 @@ int UtlTokenizer::nextDelim(const char *tokens, const int start, const int len, 
 UtlBoolean UtlTokenizer::isDelim(const char c, const char *delim)
 {
     UtlBoolean match = FALSE;
-    int delimLen = strlen(delim);
-    for (int i = 0; i < delimLen && !match; i++)
+    size_t delimLen = strlen(delim);
+    for (size_t i = 0; i < delimLen && !match; i++)
     {
         match = (delim[i] == c);
     }
