@@ -720,7 +720,7 @@ UtlBoolean OsNatAgentTask::sendStunProbe(IStunSocket* pSocket,
             {
                 OsTime errorAt(0, NAT_RESPONSE_TIMEOUT_MS * OsTime::USECS_PER_MSEC) ;
                 OsQueuedEvent* pEvent = (OsQueuedEvent*) pContext->pTimer->getNotifier() ;
-                pEvent->setUserData((int) pContext) ;
+                pEvent->setUserData((intptr_t) pContext) ;
 
                 pContext->pTimer->periodicEvery(errorAt, errorAt) ;
                 bSuccess = true ;
@@ -800,7 +800,7 @@ UtlBoolean OsNatAgentTask::enableStun(IStunSocket* pSocket,
             {
                 OsTime errorAt(0, NAT_RESPONSE_TIMEOUT_MS * OsTime::USECS_PER_MSEC) ;
                 OsQueuedEvent* pEvent = (OsQueuedEvent*) pContext->pTimer->getNotifier() ;
-                pEvent->setUserData((int) pContext) ;
+                pEvent->setUserData((intptr_t) pContext) ;
 
                 pContext->pTimer->periodicEvery(errorAt, errorAt) ;
                 bSuccess = true ;
@@ -902,7 +902,7 @@ UtlBoolean OsNatAgentTask::enableTurn(IStunSocket* pSocket,
             {
                 OsTime errorAt(0, NAT_RESPONSE_TIMEOUT_MS * OsTime::USECS_PER_MSEC) ;
                 OsQueuedEvent* pEvent = (OsQueuedEvent*) pContext->pTimer->getNotifier() ;
-                pEvent->setUserData((int) pContext) ;
+                pEvent->setUserData((intptr_t) pContext) ;
 
                 pContext->pTimer->periodicEvery(errorAt, errorAt) ;
                 bSuccess = true ;
@@ -1122,7 +1122,7 @@ UtlBoolean OsNatAgentTask::addCrLfKeepAlive(IStunSocket*    pSocket,
             {
                 OsTime refreshAt(keepAliveSecs, 0) ;
                 OsQueuedEvent* pEvent = (OsQueuedEvent*) pContext->pTimer->getNotifier() ;
-                pEvent->setUserData((int) pContext) ;
+                pEvent->setUserData((intptr_t) pContext) ;
 
                 pContext->pTimer->periodicEvery(refreshAt, refreshAt) ;
             }
@@ -1240,7 +1240,7 @@ UtlBoolean OsNatAgentTask::addStunKeepAlive(IStunSocket*    pSocket,
             {
                 OsTime refreshAt(keepAliveSecs, 0) ;
                 OsQueuedEvent* pEvent = (OsQueuedEvent*) pContext->pTimer->getNotifier() ;
-                pEvent->setUserData((int) pContext) ;
+                pEvent->setUserData((intptr_t) pContext) ;
 
                 pContext->pTimer->periodicEvery(refreshAt, refreshAt) ;
 
