@@ -114,13 +114,17 @@ UtlString::~UtlString()
 // Assignment operator, use append(const char*).
 UtlString& UtlString::operator=(const char* szStr)
 {
-    remove(0);
-    if(szStr && *szStr)
-    {
-        append(szStr);
-    }
+   // check for self assignment
+   if (mpData != szStr)
+   {
+      remove(0);
+      if(szStr && *szStr)
+      {
+         append(szStr);
+      }
+   }
 
-    return *this;
+   return *this;
 }
 
 
