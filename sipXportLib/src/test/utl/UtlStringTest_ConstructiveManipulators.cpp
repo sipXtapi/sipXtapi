@@ -49,6 +49,7 @@ class UtlStringTest_ConstructiveManipulators : public UtlStringTest
     CPPUNIT_TEST(testConstructor_4) ;
     CPPUNIT_TEST(testCapacity) ;
     CPPUNIT_TEST(testAssign_charstar) ;
+    CPPUNIT_TEST(testAssign_selfcharstar);
     CPPUNIT_TEST(testCharstarCastOperator) ;
     CPPUNIT_TEST(testAssign_UtlString) ;
     CPPUNIT_TEST(testAppendWithInt);
@@ -1488,6 +1489,25 @@ public:
         }
     }
 
+    /**  Test the Assign(char*) operator - assigning internal data to itself.
+    *   The test data for this case is the same as the char* constructor
+    */
+    void testAssign_selfcharstar()
+    {
+       const char* prefix = " Test ( UtlString = UtlString.data() ) when the old string is ";
+       string Message;
+       for (int i = 0 ; i < commonTestSetLength; i++)
+       {
+          UtlString testString("Old String...");
+          testString = commonTestSet[i].input; // first set string to something
+          testString = testString.data(); // now assign itself
+
+          TestUtilities::createMessage(2, &Message, prefix, \
+             commonTestSet[i].testDescription) ;
+          CPPUNIT_ASSERT_EQUAL_MESSAGE(Message.data(), \
+             string(commonTestSet[i].input), string(testString.data())) ;
+       }
+    }
 
     /** Testcase for the '= UtlString' assignment operator
     *
