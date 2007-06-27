@@ -49,7 +49,8 @@ public:
                 const int stackSize=DEF_STACKSIZE);
      /**<
      *  @param[in] name - the name of this OsServerTask
-     *  @param[in] pArg - TODO: DOCUMENT ME!
+     *  @param[in] pArg - argument that is passed to the new thread as a
+                   parameter of the thread run method.
      *  @param[in] maxRequestQMsgs - defines the size of the request message queue.
      *  @param[in] priority - the thread priority to use.  high = 0, low = 255
      *  @param[in] options - Thread execution options to set, such as whether
