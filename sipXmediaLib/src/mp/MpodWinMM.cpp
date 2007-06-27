@@ -407,7 +407,7 @@ OsStatus MpodWinMM::pushFrame(unsigned int numSamples,
       }
 
       // We found an empty buffer, now we fill it.
-      memcpy(pWaveHdr->lpData, samples, numSamples);
+      memcpy(pWaveHdr->lpData, samples, sizeof(MpAudioSample)*numSamples);
 
       // And send it on it's way to windows wave interface.
       res = waveOutWrite(mDevHandle, pWaveHdr, sizeof(WAVEHDR));
