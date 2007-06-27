@@ -71,13 +71,13 @@ private:
 class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
 {
     CPPUNIT_TEST_SUITE(CpPhoneMediaInterfaceTest);
-    CPPUNIT_TEST(printMediaInterfaceType); // Just prints the media interface type.
+//    CPPUNIT_TEST(printMediaInterfaceType); // Just prints the media interface type.
 #ifndef SANDBOX
-    CPPUNIT_TEST(testProperties);
-    CPPUNIT_TEST(testTones);
+//    CPPUNIT_TEST(testProperties);
+//    CPPUNIT_TEST(testTones);
     CPPUNIT_TEST(testTwoTones);
 #endif
-    CPPUNIT_TEST(testRecordPlayback);
+//    CPPUNIT_TEST(testRecordPlayback);
     CPPUNIT_TEST_SUITE_END();
 
     public:
