@@ -173,7 +173,7 @@ protected:
    DmaTask(MSG_Q_ID doneQ = NULL, int samplesPerFrame = 0,
       int prio    = DEF_DMA_TASK_PRIORITY,      // default task priority
       int options = DEF_DMA_TASK_OPTIONS,       // default task options
-      int stack   = DEF_DMA_TASK_STACKSIZE);    // default task stacksize
+      int stack   = DEF_DMA_TASK_STACKSIZE);    // default task stack size
      //:Default constructor
 
     static bool smIsRingerEnabled ;
@@ -185,14 +185,14 @@ private:
 
    static const int DEF_DMA_TASK_PRIORITY;      // default task priority
    static const int DEF_DMA_TASK_OPTIONS;       // default task options
-   static const int DEF_DMA_TASK_STACKSIZE;     // default task stacksize
+   static const int DEF_DMA_TASK_STACKSIZE;     // default task stack size
 
    int       mFrameSamples; // Number of samples per frame
    MSG_Q_ID  mDoneQ;        // Message queue to wait on
 
    static UtlString mRingDeviceName;   // Name of "ring" device (speaker)
    static UtlString mCallDeviceName;   // Name of in-call device (speaker)
-   static UtlString mMicDeviceName;    // Name of in-call input device (mic)
+   static UtlString mMicDeviceName;    // Name of in-call input device (microphone)
    static bool      mbOutputDevicesChanged;    // Has the output device changed?
    static bool      mbInputDeviceChanged;      // Has the output device changed?
 
