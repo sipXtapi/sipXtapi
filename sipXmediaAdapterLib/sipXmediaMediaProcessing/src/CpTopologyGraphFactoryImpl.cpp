@@ -40,9 +40,6 @@
 
 //#define USE_TEST_INPUT_DRIVER
 //#define USE_TEST_OUTPUT_DRIVER
-#ifdef WIN32 // [
-#  define USE_TEST_OUTPUT_DRIVER
-#endif // WIN32 ]
 
 #ifdef USE_TEST_INPUT_DRIVER // USE_TEST_DRIVER [
 #  include <mp/MpSineWaveGeneratorDeviceDriver.h>
@@ -71,14 +68,16 @@
 #  include <os/OsFS.h> // for OpenAndWrite() to write captured data.
 
 #elif defined(WIN32) // USE_TEST_DRIVER ][ WIN32
-#  error No output driver for Windows exist!
+#include <mp/MpodWinMM.h>
+#define OUTPUT_DRIVER MpodWinMM
+#define OUTPUT_DRIVER_CONSTRUCTOR_PARAMS MpodWinMM::getDefaultDeviceName()
 
 #elif defined(__pingtel_on_posix__) // WIN32 ][ __pingtel_on_posix__
 #  include <mp/MpodOSS.h>
 #  define OUTPUT_DRIVER MpodOSS
 #  define OUTPUT_DRIVER_CONSTRUCTOR_PARAMS "/dev/dsp"
 
-#else // __pingtel_on_possix__ ]
+#else // __pingtel_on_posix__ ]
 #  error Unknown platform!
 #endif
 
@@ -143,7 +142,6 @@ CpTopologyGraphFactoryImpl::CpTopologyGraphFactoryImpl(OsConfigDb* pConfigDb)
 
 #if defined(WINDOWS_DEFAULT_DEVICE_HACK) && defined (WIN32) // [
     UtlString defaultWinInputDevName = "";
-    UtlString defaultWinOutputDevName = "";
 
     {
        // Get windows default input device name
@@ -172,36 +170,6 @@ CpTopologyGraphFactoryImpl::CpTopologyGraphFactoryImpl(OsConfigDb* pConfigDb)
        else
        {
           defaultWinInputDevName = devCaps.szPname;
-       }
-       assert(wavResult == MMSYSERR_NOERROR);
-    }
-    {
-       // Get windows default output device name
-       unsigned nDevs = waveOutGetNumDevs();
-       if (nDevs == 0)
-       {
-          OsSysLog::add(FAC_AUDIO, PRI_ERR, 
-                        "WINDOWS_DEFAULT_DEVICE_HACK: "
-                        "No output audio devices present!");
-       }
-       assert(nDevs != 0);
-
-       MMRESULT wavResult = MMSYSERR_NOERROR;
-       WAVEOUTCAPS devCaps;
-       int defaultWinDeviceId = 0;
-       wavResult = 
-          waveOutGetDevCaps(defaultWinDeviceId, &devCaps, sizeof(devCaps));
-       if (wavResult != MMSYSERR_NOERROR)
-       {
-          OsSysLog::add(FAC_AUDIO, PRI_ERR, 
-             "WINDOWS_DEFAULT_DEVICE_HACK: "
-             "Couldn't get default output device capabilities!");
-          showWaveError("WINDOWS_DEFAULT_DEVICE_HACK",
-             wavResult, -1, __LINE__);
-       }
-       else
-       {
-          defaultWinOutputDevName = devCaps.szPname;
        }
        assert(wavResult == MMSYSERR_NOERROR);
     }
