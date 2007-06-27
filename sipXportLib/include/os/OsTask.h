@@ -317,7 +317,7 @@ protected:
      // The point of this method is to signal that no member variables are accessed
      // by the run() method and that the run method has exited such that it is now
      // safe to delete this class.  For this reason this method must be called
-     // AFTER run exists (not within).  Related to this handshake/signaling is
+     // AFTER run exits (not within).  Related to this handshake/signaling is
      // the waitUntilShutDown() method.  The waitUntilShutDown() MUST be called by
      // the destructors of all classes derived from OsTask.  waitUntilShutDown()
      // should be the first thing invoked in the destructor before any members
