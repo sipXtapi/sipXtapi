@@ -1298,13 +1298,17 @@ OsStatus CpTopologyGraphInterface::playBuffer(char* buf,
 
 OsStatus CpTopologyGraphInterface::stopAudio()
 {
-    OsStatus returnCode = OS_NOT_FOUND;
-    if(mpTopologyGraph)
-    {
-        //mpTopologyGraph->stopFile(TRUE);
-        returnCode = OS_SUCCESS;
-    }
-    return(returnCode);
+   OsStatus stat = OS_FAILED;
+   if(mpTopologyGraph != NULL)
+   {
+      stat = MprFromFile::stopFile(DEFAULT_FROM_FILE_RESOURCE_NAME, 
+                                  *mpTopologyGraph->getMsgQ());
+   }
+   else
+   {
+      stat = OS_NOT_FOUND;
+   }
+   return stat;
 }
 
 
