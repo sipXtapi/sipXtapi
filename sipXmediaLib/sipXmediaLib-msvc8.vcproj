@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8,00"
+	Version="8.00"
 	Name="sipXmediaLib-msvc8"
 	ProjectGUID="{0EC8287A-481E-45DC-8F95-BAD940AE1038}"
 	RootNamespace="sipXmediaLib-msvc8"
@@ -1670,6 +1670,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\src\mp\MpodWinMM.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\src\mp\MpOutputDeviceDriver.cpp"
 					>
 				</File>
@@ -2264,6 +2268,10 @@
 				</File>
 				<File
 					RelativePath=".\include\mp\MpodBufferRecorder.h"
+					>
+				</File>
+				<File
+					RelativePath=".\include\mp\MpodWinMM.h"
 					>
 				</File>
 				<File
