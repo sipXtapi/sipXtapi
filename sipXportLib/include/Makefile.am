@@ -60,6 +60,7 @@ nobase_include_HEADERS = \
     os/OsMulticastSocket.h \
     os/OsMutex.h \
     os/OsNameDb.h \
+    os/OsNameDbInit.h \
     os/OsNatAgentTask.h \
     os/OsNatConnectionSocket.h \
     os/OsNatDatagramSocket.h \
@@ -72,6 +73,7 @@ nobase_include_HEADERS = \
     os/OsProcessMgr.h \
     os/OsProtectEvent.h \
     os/OsProtectEventMgr.h \
+    os/OsProtectEventMgrInit.h \
     os/OsPtrMsg.h \
     os/OsQueuedEvent.h \
     os/OsReadLock.h \
@@ -152,7 +154,8 @@ nobase_include_HEADERS = \
     utl/UtlSortedListIterator.h \
     utl/UtlRandom.h \
     utl/Plugin.h \
-    utl/PluginHooks.h
+    utl/PluginHooks.h \
+    SipXportLibInit.h
 
 EXTRA_DIST= \
     os/wnt/getWindowsDNSServers.h \
