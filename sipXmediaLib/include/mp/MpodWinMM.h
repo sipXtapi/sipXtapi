@@ -57,8 +57,15 @@ public:
    MpodWinMM(const UtlString& name,
            unsigned nOutputBuffers = DEFAULT_N_OUTPUT_BUFS);
      /**<
+     *
      *  @param[in] name - unique windows device driver name 
      *             (e.g. "YAMAHA AC-XG WDM Audio", etc.)
+     *  @param[in] nOutputBuffers - The number of frame-sized buffers to 
+     *             have around for filling with data and passing to windows.
+     *  @note \p nOutputBuffers does not directly determine the latency -- 
+     *        this doesn't wait until all \p nOutputBuffers are full before
+     *        passing on to windows, it just makes them available if we're
+     *        passing frames faster than they're being output.
      */
 
      /// Destructor.
@@ -160,6 +167,12 @@ private:
 
      /// @brief Zero out a wave header, so it is ready to be filled in by us.
    WAVEHDR* initWaveHeader(int n);
+     /**<
+     *  Initialize all the values in the wave header indicated by <tt>n</tt>.
+     *  @param[in] n - The index into <tt>mpWaveHeaders</tt> indicating 
+     *             which wave header to initialize.
+     *  @returns a pointer to the wave header that was initialized.
+     */
 
      /// Copy constructor (not implemented for this class)
    MpodWinMM(const MpodWinMM& rMpodWinMM);
