@@ -48,7 +48,7 @@
 
 #elif defined(WIN32) // USE_TEST_DRIVER ][ WIN32
 #  include <mp/MpInputDeviceDriverWnt.h>
-#  define INPUT_DRIVER MpidWinMM
+#  define INPUT_DRIVER MpInputDeviceDriverWnt
 #  define INPUT_DRIVER_CONSTRUCTOR_PARAMS(manager) "SoundMAX HD Audio", (manager)
 
 #elif defined(__pingtel_on_posix__) // WIN32 ][ __pingtel_on_posix__
