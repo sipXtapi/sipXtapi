@@ -4306,7 +4306,7 @@ void SipUserAgent::prepareVia(SipMessage& message,
         int i = 0;
         bool bFound = false;
         while (!bFound && 
-                true == 
+                TRUE == 
                 message.getContactAddress(i++, &contactAddress, &contactPort, &contactProtocol))
         {
             int j = 0;

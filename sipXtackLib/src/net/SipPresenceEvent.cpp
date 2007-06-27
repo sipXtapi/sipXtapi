@@ -214,7 +214,7 @@ void SipPresenceEvent::parseBody(const char* bodyBytes)
                      priority = ucElement->Attribute("priority");
                   }
                   
-               pTuple->setContact(contact, atof(priority));
+               pTuple->setContact(contact, (float)atof(priority));
                }
              
                // Insert it into the list

@@ -159,7 +159,7 @@ u_int res_random_id()
 {
         struct timeval now;
 
-	now.tv_sec = time((time_t*) &now.tv_sec);
+	now.tv_sec = (long)time((time_t*) &now.tv_sec);
     now.tv_usec = 0;
 #if defined(_WIN32)
         return (0xffff & (now.tv_sec ^ now.tv_usec ^ _getpid()));
