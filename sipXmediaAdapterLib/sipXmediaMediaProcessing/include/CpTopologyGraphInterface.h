@@ -33,6 +33,8 @@
 class CpTopologyGraphFactoryImpl;
 class CpTopologyMediaConnection;
 class MpTopologyGraph;
+class MpResourceTopology;
+class MpResourceFactory;
 
 
 /** Subsystem manager and creator of CpTopologyGraphInterfaces specialization of CpMediaInterface
@@ -78,7 +80,11 @@ public:
                                      ISocketEvent* pIdleEvent = NULL,
                                      IMediaEventListener* pMediaEventListener = NULL,
                                      const RtpTransportOptions rtpTransportOptions=RTP_TRANSPORT_UDP);
-   
+
+   /// Look up the port on the bridge to which the indicated connection is connected
+   OsStatus getConnectionPortOnBridge(int connectionId, 
+                                      int& portOnBridge);
+
    virtual OsStatus setConnectionDestination(int connectionId,
                                              const char* rtpHostAddress, 
                                              int rtpAudioPort,
@@ -144,20 +150,31 @@ public:
 
    virtual OsStatus stopRecordChannelAudio(int connectionId) ;
 
+   /// Deprecated
    virtual OsStatus createPlayer(MpStreamPlayer** ppPlayer, 
                                  const char* szStream, 
                                  int flags, 
                                  OsMsgQ *pMsgQ = NULL, 
                                  const char* szTarget = NULL) ;
+
+   // Deprecated
    virtual OsStatus destroyPlayer(MpStreamPlayer* pPlayer);
+
+   // Deprecated
    virtual OsStatus createPlaylistPlayer(MpStreamPlaylistPlayer** 
                                          ppPlayer, 
                                          OsMsgQ *pMsgQ = NULL, 
                                          const char* szTarget = NULL);
+
+   // Deprecated
    virtual OsStatus destroyPlaylistPlayer(MpStreamPlaylistPlayer* pPlayer);
+
+   // Deprecated
    virtual OsStatus createQueuePlayer(MpStreamQueuePlayer** ppPlayer, 
                                       OsMsgQ *pMsgQ = NULL, 
                                       const char* szTarget = NULL);
+
+   // Deprecated
    virtual OsStatus destroyQueuePlayer(MpStreamQueuePlayer* pPlayer);
 
    virtual OsStatus giveFocus();
@@ -239,10 +256,6 @@ public:
                                                 UtlString&  report) ;
 
 /* ============================ ACCESSORS ================================= */
-
-    /** Get the next unique connection Id scoped to this flowgraph
-     */
-    int getNextConnectionId();
 
     /** soon to be deprecated in favor of getCapabilitiesEx
      */
@@ -336,7 +349,8 @@ public:
    };
 
 
-   //! Set a media property on the media interface
+   // Note: the followingproperties may be set or get, but have no effect
+   // Set a media property on the media interface
     /*
      * Media interfaces that wish to interoperate should implement the following properties
      * and values:
@@ -477,6 +491,11 @@ protected:
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
+
+    /** Get the next unique connection Id scoped to this flowgraph
+     */
+    int getNextConnectionId();
+
     CpTopologyMediaConnection* getMediaConnection(int connectionId);
     CpTopologyMediaConnection* removeMediaConnection(int connectionId);
     OsStatus doDeleteConnection(CpTopologyMediaConnection* mediaConnection);

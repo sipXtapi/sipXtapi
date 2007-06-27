@@ -24,6 +24,7 @@
 #include <os/OsNatDatagramSocket.h>
 #include <os/OsProtectEventMgr.h>
 #include <os/OsSysLog.h>
+#include <os/OsStatus.h>
 #include <mp/MpTopologyGraph.h>
 #include <mp/MpResourceTopology.h>
 #include <mp/MprBufferRecorder.h>
@@ -406,6 +407,31 @@ OsStatus CpTopologyGraphInterface::createConnection(int& connectionId,
     return OS_SUCCESS;
 }
 
+OsStatus CpTopologyGraphInterface::getConnectionPortOnBridge(int connectionId, 
+                                                             int& portOnBridge)
+{
+   assert(connectionId >=0);
+
+   UtlString connectionName(DEFAULT_RTP_INPUT_RESOURCE_NAME);
+   MpResourceTopology::replaceNumInName(connectionName, connectionId);
+
+   MpResource* inConnection = NULL;
+
+   OsStatus retStatus = mpTopologyGraph->lookupResource(connectionName, inConnection);
+   if(OS_SUCCESS == retStatus)
+   {
+      MpResource* doNotTouchResource = NULL;
+
+      inConnection->getOutputInfo(0, // first and only port on in connection
+                                  doNotTouchResource, // not safe to access
+                                  portOnBridge);
+   }
+   else
+   {
+      portOnBridge = -1;
+   }
+   return(retStatus);
+}
 
 OsStatus CpTopologyGraphInterface::getCapabilities(int connectionId,
                                                 UtlString& rtpHostAddress,
