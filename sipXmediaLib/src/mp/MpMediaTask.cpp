@@ -494,7 +494,7 @@ void MpMediaTask::getQueueUsage(int& numMsgs, int& softLimit, int& hardLimit)
 // Default constructor (called only indirectly via getMediaTask())
 MpMediaTask::MpMediaTask(int maxFlowGraph)
 :  OsServerTask("MpMedia", NULL, MPMEDIA_DEF_MAX_MSGS,
-                MEDIA_TASK_PRIO_NORMAL),
+                MEDIA_TASK_PRIORITY),
    mMutex(OsMutex::Q_PRIORITY),  // create mutex for protecting data
    mDebugEnabled(FALSE),
    mTimeLimitCnt(0),

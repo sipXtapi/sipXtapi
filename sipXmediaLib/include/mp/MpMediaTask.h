@@ -99,7 +99,7 @@ public:
        DEF_TIME_LIMIT_USECS    = 6000,  ///< processing limit  = 6 msecs
        DEF_SEM_WAIT_MSECS      =  500   ///< semaphore timeout = 0.5 secs
 #if defined(_WIN32) || defined(__pingtel_on_posix__) /* [ */
-     , MEDIA_TASK_PRIO_NORMAL  = 0      ///< media task execution priority
+     , MEDIA_TASK_PRIORITY    = 0      ///< media task execution priority
 #endif /* WIN32 || __pingtel_on_posix__ ] */
    };
 
