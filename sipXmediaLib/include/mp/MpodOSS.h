@@ -168,7 +168,7 @@ protected:
 
    sem_t mPushPopSem;        ///< Controlling semaphore push/pull operation
 
-   MpFrameTime mCurrentFrameTime; ///< TODO: Fill in mCurrentFrameTime description
+   MpFrameTime mCurrentFrameTime; ///< The current frame time for this device.
 
    int mQueueLen;            ///< Depth of queue of stored frames
    UtlBoolean mNotificationThreadEn;

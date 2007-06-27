@@ -41,15 +41,15 @@ class OsNotification;
 *  be enabled via the MpOutputDeviceManager to begin consuming frames.
 *
 *  Each audio output driver may be used in two modes: direct write mode and
-*  non direct write (mixer) mode. In direct write mode data is pushed to device
+*  non direct write (mixer) mode. In direct write mode data is pushed to the device
 *  as soon as it become available. In mixer mode data from several sources will
-*  be buffered and mixed inside connection and pushed to device only when
-*  mixer buffer become full. Direct write mode have less latency, but could be
-*  fed by one source only. If two or more sources will try to push data, only
-*  first will succeed. In opposite to direct write mode, mixer mode is supposed
-*  to accept several streams and mix them. In this mode device should provide
-*  timer which will notify MpAudioOutputConnection when device is ready to
-*  accept next frame of data.
+*  be buffered and mixed inside connection and pushed to the device only when the
+*  mixer buffer becomes full. Direct write mode has less latency, but can be
+*  fed by only one source. If two or more sources try to push data, only the
+*  first will succeed. Opposite to direct write mode, mixer mode is supposed
+*  to accept several streams and mix them. In this mode the device should provide
+*  a timer which will notify MpAudioOutputConnection when the device is ready to
+*  accept the next frame of data.
 *
 *  MpOutputDeviceDriver has a text name which is defined upon construction.
 *  This name will typically be the same as the OS defined name for the

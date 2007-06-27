@@ -199,7 +199,7 @@ int StreamWAVFormatDecoder::run(void* pArgs)
    int numOutSamples = 0;
    int iDataLength ;
 
-   //used if the files are aLaw or uLaw encodec
+   //used if the files are aLaw or uLaw encoded
    InitG711Tables();
  
    StreamDataSource* pSrc = getDataSource() ;
