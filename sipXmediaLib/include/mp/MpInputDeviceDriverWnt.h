@@ -32,20 +32,12 @@
 class MpInputDeviceManager;
 
 /**
-*  @brief Container for device specific input driver.
+*  @brief Container for the Microsoft Windows Multimedia specific input driver.
 *
-*  The MpInputDeviceDriver is the abstract container for the implementation
-*  of input media drivers.  An instance of MpInputDeviceDriver is created for
-*  every physical and logical input device (e.g. microphone).  A driver is
-*  instantiated and then added to the MpInputDeviceManager.  The driver must
-*  be enabled via the MpInputDeviceManager before it yields input frames.
-*
-*  The MpInputDeviceDriver obtains frames of audio from hardware and  
-*  provides them to the MpInputDeviceManager which makes the frames available to 
-*  MprFromInputDevice resources in flowgraphs.  The MpInputDeviceDriver may be 
-*  an OsTask which runs and gets frames for the OS and hardware specific device
-*  or MpInputDeviceDriver may be driven via callbacks from the OS/hardware
-*  input device driver.  This is an implementation choice.
+*  The MpidWinMM device driver wrapper is the concrete container containing the
+*  implementation of the windows multimedia wave audio input interface.
+*  This is currently driven by callbacks.
+*  @see MpInputDeviceDriver
 */
 class MpidWinMM : public MpInputDeviceDriver
 {
@@ -61,10 +53,13 @@ public:
                           MpInputDeviceManager& deviceManager,
                           unsigned nInputBuffers = DEFAULT_N_INPUT_BUFS);
      /**<
-     *  @param name - unique device driver name (e.g. "/dev/dsp", 
-     *         "YAMAHA AC-XG WDM Audio", etc.)
-     *  @param deviceManager - MpInputDeviceManager this device is to
-     *         push frames to via pushFrame method
+     *  @param[in] name - unique device driver name
+     *             (e.g. "YAMAHA AC-XG WDM Audio", etc.)
+     *  @param[in] deviceManager - MpInputDeviceManager this device is to
+     *             push frames to via pushFrame method
+     *  @param[in] nOutputBuffers - The number of frame-sized buffers to 
+     *             register with Windows to fill with frames of audio data,
+     *             in case we're not fast enough to process them.
      */
 
      /// @brief Destructor
@@ -87,12 +82,12 @@ public:
       *  @NOTE this SHOULD NOT be used to mute/unmute a device. Disabling and
       *  enabling a device results in state and buffer queues being cleared.
       *
-      *  @param samplesPerFrame - the number of samples in a frame of media
-      *  @param samplesPerSec - sample rate for media frame in samples per second
-      *  @param currentFrameTime - time in milliseconds for beginning of frame
-      *         relative to the MpInputDeviceManager reference time
-      *  @param deviceId - device Id used to identify this input device to 
-      *         MpInputDeviceManager for pushFrame calls.
+      *  @param[in] samplesPerFrame - the number of samples in a frame of media
+      *  @param[in] samplesPerSec - sample rate for media frame in samples per second
+      *  @param[in] currentFrameTime - time in milliseconds for beginning of frame
+      *             relative to the MpInputDeviceManager reference time
+      *  @param[in] deviceId - device Id used to identify this input device to 
+      *             MpInputDeviceManager for pushFrame calls.
       */
 
       /// @brief Uninitialize device driver
@@ -174,7 +169,7 @@ private:
     WAVEHDR* initWaveHeader(int n);
       /**<
       *  Initialize all the values in the wave header indicated by <tt>n</tt>.
-      *  @param n - The index into <tt>mpWaveHeaders</tt> indicating 
+      *  @param[in] n - The index into <tt>mpWaveHeaders</tt> indicating 
       *             which wave header to initialize.
       *  @returns a pointer to the wave header that was initialized.
       */
