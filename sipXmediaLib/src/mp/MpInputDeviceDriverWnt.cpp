@@ -37,11 +37,11 @@ extern void showWaveError(char *syscall, int e, int N, int line) ;  // dmaTaskWn
 
 /* ============================ CREATORS ================================== */
 // Default constructor
-MpInputDeviceDriverWnt::MpInputDeviceDriverWnt(const UtlString& name, 
-                                               MpInputDeviceManager& deviceManager,
-                                               unsigned nInputBuffers)
+MpidWinMM::MpidWinMM(const UtlString& name, 
+                     MpInputDeviceManager& deviceManager,
+                     unsigned nInputBuffers)
 : MpInputDeviceDriver(name, deviceManager)
-, mWntDeviceId(-1)
+, mWinMMDeviceId(-1)
 , mDevHandle(NULL)
 , mNumInBuffers(nInputBuffers)
 , mWaveBufSize(0)  // Unknown until enableDevice()
@@ -64,7 +64,7 @@ MpInputDeviceDriverWnt::MpInputDeviceDriverWnt(const UtlString& name,
         } 
         else if (strncmp(name, devCaps.szPname, MAXPNAMELEN) == 0)
         {
-            mWntDeviceId = i;
+            mWinMMDeviceId = i;
             break;
         }
     }
@@ -83,7 +83,7 @@ MpInputDeviceDriverWnt::MpInputDeviceDriverWnt(const UtlString& name,
 }
 
 // Destructor
-MpInputDeviceDriverWnt::~MpInputDeviceDriverWnt() 
+MpidWinMM::~MpidWinMM() 
 {
     // If we happen to still be enabled at this point, disable the device.
     assert(!isEnabled());
@@ -110,9 +110,9 @@ MpInputDeviceDriverWnt::~MpInputDeviceDriverWnt()
 
 /* ============================ MANIPULATORS ============================== */
 
-OsStatus MpInputDeviceDriverWnt::enableDevice(unsigned samplesPerFrame, 
-                                              unsigned samplesPerSec, 
-                                              MpFrameTime currentFrameTime)
+OsStatus MpidWinMM::enableDevice(unsigned samplesPerFrame, 
+                                 unsigned samplesPerSec, 
+                                 MpFrameTime currentFrameTime)
 {
     OsStatus status = OS_SUCCESS;
 
@@ -150,7 +150,7 @@ OsStatus MpInputDeviceDriverWnt::enableDevice(unsigned samplesPerFrame,
     // Tell windows to open the input audio device.  This doesn't
     // tell it to send the data to our callback yet, just to get it ready
     // to do so..
-    MMRESULT res = waveInOpen(&mDevHandle, mWntDeviceId,
+    MMRESULT res = waveInOpen(&mDevHandle, mWinMMDeviceId,
                               &wavFormat,
                               (CBTYPE)waveInCallbackStatic,
                               (CBTYPE)this, 
@@ -163,7 +163,7 @@ OsStatus MpInputDeviceDriverWnt::enableDevice(unsigned samplesPerFrame,
         showWaveError("MpInputDeviceDriverWnt::enableDevice", res, -1, __LINE__);
         waveInClose(mDevHandle);
         mDevHandle = NULL; // Open didn't work, reset device handle to NULL
-        mWntDeviceId = -1; // Make device invalid.
+        mWinMMDeviceId = -1; // Make device invalid.
 
         // and return OS_FAILED.
         return status;
@@ -195,7 +195,7 @@ OsStatus MpInputDeviceDriverWnt::enableDevice(unsigned samplesPerFrame,
             showWaveError("waveInPrepareHeader", res, i, __LINE__);
             waveInClose(mDevHandle);
             mDevHandle = NULL;
-            mWntDeviceId = -1;
+            mWinMMDeviceId = -1;
 
             // and return OS_FAILED.
             return status;
@@ -206,7 +206,7 @@ OsStatus MpInputDeviceDriverWnt::enableDevice(unsigned samplesPerFrame,
             showWaveError("waveInAddBuffer", res, i, __LINE__);
             waveInClose(mDevHandle);
             mDevHandle = NULL;
-            mWntDeviceId = -1;
+            mWinMMDeviceId = -1;
 
             // and return OS_FAILED.
             return status;
@@ -223,7 +223,7 @@ OsStatus MpInputDeviceDriverWnt::enableDevice(unsigned samplesPerFrame,
         showWaveError("waveInStart", res, -1, __LINE__);
         waveInClose(mDevHandle);
         mDevHandle = NULL;
-        mWntDeviceId = -1;
+        mWinMMDeviceId = -1;
 
         // and return OS_FAILED.
         return status;
@@ -238,7 +238,7 @@ OsStatus MpInputDeviceDriverWnt::enableDevice(unsigned samplesPerFrame,
     return status;
 }
 
-OsStatus MpInputDeviceDriverWnt::disableDevice()
+OsStatus MpidWinMM::disableDevice()
 {
     OsStatus status = OS_SUCCESS;
     MMRESULT   res;
@@ -312,9 +312,9 @@ OsStatus MpInputDeviceDriverWnt::disableDevice()
 /* ============================ INQUIRY =================================== */
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
-void MpInputDeviceDriverWnt::processAudioInput(HWAVEIN hwi,
-                                               UINT uMsg,
-                                               void* dwParam1)
+void MpidWinMM::processAudioInput(HWAVEIN hwi,
+                                  UINT uMsg,
+                                  void* dwParam1)
 {
     if (!mIsOpen)
     {
@@ -357,7 +357,7 @@ void MpInputDeviceDriverWnt::processAudioInput(HWAVEIN hwi,
               {
                  waveInClose(mDevHandle);
                  mDevHandle = NULL;
-                 mWntDeviceId = -1;
+                 mWinMMDeviceId = -1;
               }
            }
         }
@@ -370,21 +370,21 @@ void MpInputDeviceDriverWnt::processAudioInput(HWAVEIN hwi,
 }
 
 void CALLBACK 
-MpInputDeviceDriverWnt::waveInCallbackStatic(HWAVEIN hwi,
-                                             UINT uMsg, 
-                                             void* dwInstance,
-                                             void* dwParam1, 
-                                             void* dwParam2)
+MpidWinMM::waveInCallbackStatic(HWAVEIN hwi,
+                                UINT uMsg, 
+                                void* dwInstance,
+                                void* dwParam1, 
+                                void* dwParam2)
 {
     assert(dwInstance != NULL);
-    MpInputDeviceDriverWnt* iddWntPtr = (MpInputDeviceDriverWnt*)dwInstance;
+    MpidWinMM* iddWntPtr = (MpidWinMM*)dwInstance;
     assert((uMsg == WIM_OPEN) || (hwi == iddWntPtr->mDevHandle));
     iddWntPtr->processAudioInput(hwi, uMsg, dwParam1);
 }
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
-WAVEHDR* MpInputDeviceDriverWnt::initWaveHeader(int n)
+WAVEHDR* MpidWinMM::initWaveHeader(int n)
 {
     assert((n >= 0) && (n < (int)mNumInBuffers));
     assert(mpWaveHeaders != NULL);
@@ -407,8 +407,3 @@ WAVEHDR* MpInputDeviceDriverWnt::initWaveHeader(int n)
 
     return pWave_hdr;
 }
-
-// Copy constructor (not implemented for this class)
-//MpWntInputDeviceDriver::MpWntInputDeviceDriver(const MpInputDeviceDriver& rMpInputDeviceDriver) {}
-// Copy constructor (not implemented for this class)
-//MpWntInputDeviceDriver& MpWntInputDeviceDriver::operator =(const MpInputDeviceDriver &rhs) {}

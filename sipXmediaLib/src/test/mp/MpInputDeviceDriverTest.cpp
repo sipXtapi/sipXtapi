@@ -100,7 +100,7 @@ public:
 
       MpInputDeviceDriver* pInDevDriver = NULL;
 #ifdef WIN32
-      MpInputDeviceDriverWnt iDevDriverWnt(getDefaultWaveInDevice(), inDevMgr);
+      MpidWinMM iDevDriverWnt(getDefaultWaveInDevice(), inDevMgr);
       pInDevDriver = &iDevDriverWnt;
 #elif defined __linux__
       MpidOSS iDevDriverOSS(getDefaultWaveInDevice(), inDevMgr);

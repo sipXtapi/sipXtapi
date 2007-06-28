@@ -10,8 +10,8 @@
 
 // Author: Keith Kyzivat <kkyzivat AT SIPez DOT com>
 
-#ifndef _MpInputDeviceDriverWnt_h_
-#define _MpInputDeviceDriverWnt_h_
+#ifndef _MpidWinMM_h_
+#define _MpidWinMM_h_
 
 // SYSTEM INCLUDES
 
@@ -47,7 +47,7 @@ class MpInputDeviceManager;
 *  or MpInputDeviceDriver may be driven via callbacks from the OS/hardware
 *  input device driver.  This is an implementation choice.
 */
-class MpInputDeviceDriverWnt : public MpInputDeviceDriver
+class MpidWinMM : public MpInputDeviceDriver
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
@@ -57,7 +57,7 @@ public:
 //@{
 
      /// @brief Default constructor
-   MpInputDeviceDriverWnt(const UtlString& name,
+   MpidWinMM(const UtlString& name,
                           MpInputDeviceManager& deviceManager,
                           unsigned nInputBuffers = DEFAULT_N_INPUT_BUFS);
      /**<
@@ -69,7 +69,7 @@ public:
 
      /// @brief Destructor
    virtual
-   ~MpInputDeviceDriverWnt();
+   ~MpidWinMM();
 
 //@}
 
@@ -118,7 +118,7 @@ public:
 //@{
 
       /// @brief Inquire if the windows device is valid
-    virtual UtlBoolean isDeviceValid() { return (mWntDeviceId >= 0); };
+    virtual UtlBoolean isDeviceValid() { return (mWinMMDeviceId >= 0); };
 
 //@}
 
@@ -150,9 +150,9 @@ protected:
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
 
-    int mWntDeviceId;   ///< The underlying windows Device ID (not the logical
-                        ///< Mp device ID)
-    HWAVEIN mDevHandle; ///< The Microsoft handle for this audio input device
+    int mWinMMDeviceId;       ///< The underlying windows Device ID (not the
+                              ///< logical Mp device ID)
+    HWAVEIN mDevHandle;       ///< The Microsoft handle for this audio input device
     unsigned mNumInBuffers;   ///< The number of buffers to supply to windows
                               ///< for audio processing.
     unsigned mWaveBufSize;    ///< The size, in bytes, of mpWaveBuffer 
@@ -165,10 +165,10 @@ private:
 
 
       /// @brief Copy constructor (not implemented for this class)
-    MpInputDeviceDriverWnt(const MpInputDeviceDriver& rMpInputDeviceDriver);
+    MpidWinMM(const MpInputDeviceDriver& rMpInputDeviceDriver);
 
       /// @brief Assignment operator (not implemented for this class)
-    MpInputDeviceDriverWnt& operator=(const MpInputDeviceDriver& rhs);
+    MpidWinMM& operator=(const MpInputDeviceDriver& rhs);
 
       /// @brief Zero out a wave header, so it is ready to be filled in by windows.
     WAVEHDR* initWaveHeader(int n);
@@ -182,4 +182,4 @@ private:
 
 /* ============================ INLINE METHODS ============================ */
 
-#endif  // _MpInputDeviceDriverWnt_h_
+#endif  // _MpidWinMM_h_
