@@ -133,7 +133,19 @@ UtlBoolean MprRecorder::enable(void)
    {
       mStatus = RECORDING;
       OsSysLog::add(FAC_MP, PRI_DEBUG, "MprRecorder::enable");
-      return MpResource::enable();
+      UtlBoolean res = MpResource::enable();
+
+      if (res && mpFlowGraph)
+      {
+         /* resource is enabled, we started recording, inform flowgraph
+         so it can send media event to sipxtapi and enable some resources
+         if this is call recorder */
+         MpFlowGraphMsg msg(MpFlowGraphMsg::ON_MPRRECORDER_ENABLED,
+                            NULL, (void*) this, NULL, mStatus);
+         postMessage(msg);
+      }
+
+      return res;
    } else 
    {
       OsSysLog::add(FAC_MP, PRI_DEBUG, 
@@ -195,6 +207,16 @@ UtlBoolean MprRecorder::disable(Completion code)
          mFileDescriptor = -1;
       }
       res = (MpResource::disable() && (mFileDescriptor == -1));
+   }
+
+   if (res && mpFlowGraph)
+   {
+      /* resource is disabled, we stopped started recording, inform flowgraph
+      so it can send media event to sipxtapi and disable some resources
+      if this is call recorder */
+      MpFlowGraphMsg msg(MpFlowGraphMsg::ON_MPRRECORDER_DISABLED,
+         NULL, (void*) this, NULL, mStatus);
+      postMessage(msg);
    }
 
    // TODO: New Resource Notification message to indicate recording
@@ -576,4 +598,5 @@ UtlBoolean MprRecorder::handleMessage(MpFlowGraphMsg& rMsg)
 }
 
 /* ============================ FUNCTIONS ================================= */
+
 

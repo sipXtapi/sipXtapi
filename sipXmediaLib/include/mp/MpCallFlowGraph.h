@@ -121,6 +121,7 @@ public:
 #endif // HIGH_SAMPLERATE_AUDIO ]
 #endif // DISABLE_LOCAL_AUDIO ]
       RECORDER_SPKR,
+      RECORDER_CALL,    ///< full conversation recorder
       MAX_RECORDERS = 10
    };
 
@@ -180,14 +181,21 @@ public:
                    OsProtectedEvent* recordEvent = NULL);
 
 
-   OsStatus record(int timeMS, int silenceLength, const char* micName = NULL,
-                  const char* echoOutName = NULL, const char* spkrName = NULL,
-                  const char* mic32Name = NULL, const char* spkr32Name = NULL,
-                  const char* echoIn8Name = NULL, const char* echoIn32Name = NULL,
-                  const char* playName = NULL,
-                  int toneOptions = 0,
-                  int repeat = 0, OsNotification* completion = NULL, 
-                  MprRecorder::RecordFileFormat format = MprRecorder::RAW_PCM_16);
+   OsStatus record(int timeMS,
+                   int silenceLength,
+                   const char* micName = NULL,
+                   const char* echoOutName = NULL,
+                   const char* spkrName = NULL,
+                   const char* mic32Name = NULL,
+                   const char* spkr32Name = NULL,
+                   const char* echoIn8Name = NULL,
+                   const char* echoIn32Name = NULL,
+                   const char* playName = NULL,
+                   const char* callName = NULL,
+                   int toneOptions = 0,
+                   int repeat = 0,
+                   OsNotification* completion = NULL,
+                   MprRecorder::RecordFileFormat format = MprRecorder::RAW_PCM_16);
 
 
    OsStatus startRecording(const char* audioFileName, UtlBoolean repeat,
@@ -480,6 +488,9 @@ private:
 #endif // DISABLE_LOCAL_AUDIO ]
    MprMixer*     mpTFsMicMixer;
    MprMixer*     mpTFsBridgeMixer;
+   MprMixer*     mpCallrecMixer;
+   MprSplitter*  mpMicCallrecSplitter;
+   MprSplitter*  mpSpeakerCallrecSplitter;
    MprSplitter*  mpToneFileSplitter;
    MprToneGen*   mpToneGen;
    OsBSem        mConnTableLock;
@@ -552,6 +563,26 @@ private:
      *  @returns <b>TRUE</b> if the message was handled
      *  @returns <b>FALSE</b> otherwise.
      */
+
+   /** Handle the ON_MPRRECORDER_ENABLED message. It is sent when
+   *   a recorder is really enabled.
+   */
+   UtlBoolean handleOnMprRecorderEnabled(MpFlowGraphMsg& rMsg);
+   /**<
+   *  @returns <b>TRUE</b> if the message was handled
+   *  @returns <b>FALSE</b> otherwise.
+   */
+
+   /** Handle the ON_MPRRECORDER_DISABLED message. It is sent when
+   *   a recorder is really disabled, so we can send an event to
+   *   sipxtapi in the future. Currently we only disable some other
+   *   resources if the recorder is call recorder.
+   */
+   UtlBoolean handleOnMprRecorderDisabled(MpFlowGraphMsg& rMsg);
+   /**<
+   *  @returns <b>TRUE</b> if the message was handled
+   *  @returns <b>FALSE</b> otherwise.
+   */
 
 #ifdef DEBUG_POSTPONE /* [ */
      /// sends a message requesting a delay for race condition detection...

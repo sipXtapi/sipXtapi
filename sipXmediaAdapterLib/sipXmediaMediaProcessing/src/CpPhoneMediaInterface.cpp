@@ -1226,14 +1226,15 @@ OsStatus CpPhoneMediaInterface::recordChannelAudio(int connectionId,
     // TODO:: This API is designed to record the audio from a single channel.  
     // If the connectionId is -1, record all.
 
-    // 
-    // Also -- not sure of the if the spkr is the correct place to record -- 
-    // this probably doesn't include mic data...
-    ///
-
-    double duration = 0 ;
+    double duration = 0 ; // this means it will record for very long time
     int dtmf = 0 ;
-    return mpFlowGraph->record(1, -1, NULL, NULL, szFile) ;
+
+    /* use new call recorder
+       from now on, call recorder records both mic, speaker and local dtmf      
+       we don't want raw pcm, but wav pcm, raw pcm should be passed to a callback
+       meant for recording, for example for conversion to mp3 or other format */
+    return mpFlowGraph->record(0, -1, NULL, NULL, NULL, NULL, NULL, NULL,
+                               NULL, NULL, szFile, 0, 0, NULL, MprRecorder::WAV_PCM_16) ;
 }
 
 OsStatus CpPhoneMediaInterface::stopRecordChannelAudio(int connectionId) 
@@ -2521,4 +2522,5 @@ void CpPhoneMediaInterface::createRtpSocketPair(UtlString localAddress,
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 /* ============================ FUNCTIONS ================================= */
+
 

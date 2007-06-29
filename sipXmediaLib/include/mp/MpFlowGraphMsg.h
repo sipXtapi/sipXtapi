@@ -71,6 +71,13 @@ public:
 
       FLOWGRAPH_SET_DTMF_NOTIFY,
 
+      // Resource notification messages using old flowgraph msg approach
+      // NOTE: this is a temporary fix, and will be replaced by newer
+      //       notification messaging.  (see MpResourceNotificationMsg.h and 
+      //       MpNotificationDispatcher)
+      ON_MPRRECORDER_ENABLED,    ///< sent when recording is started
+      ON_MPRRECORDER_DISABLED,   ///< sent when recording is stopped
+
       RESOURCE_SPECIFIC_START = 100     ///< start of resource-specific messages
    } MpFlowGraphMsgType;
 
