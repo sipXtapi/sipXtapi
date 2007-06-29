@@ -335,6 +335,10 @@ SOURCE=.\src\mp\MpInputDeviceDriver.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\mp\MpidWinMM.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\mp\MpInputDeviceManager.cpp
 # End Source File
 # Begin Source File
@@ -1047,7 +1051,7 @@ SOURCE=.\include\mp\MpInputDeviceDriver.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\mp\MpInputDeviceDriverWnt.h
+SOURCE=.\include\mp\MpidWinMM.h
 # End Source File
 # Begin Source File
 

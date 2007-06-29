@@ -17,7 +17,7 @@
 #include <mp/MpAudioBuf.h>
 #include <mp/MpInputDeviceManager.h>
 #ifdef WIN32
-#include <mp/MpInputDeviceDriverWnt.h>
+#include <mp/MpidWinMM.h>
 #elif defined __linux__
 #include <mp/MpidOSS.h>
 #endif

@@ -2076,7 +2076,7 @@
 				RelativePath=".\src\mp\MpInputDeviceDriver.cpp">
 			</File>
 			<File
-				RelativePath=".\src\mp\MpInputDeviceDriverWnt.cpp">
+				RelativePath=".\src\mp\MpidWinMM.cpp">
 			</File>
 			<File
 				RelativePath=".\src\mp\MpInputDeviceManager.cpp">
@@ -4549,7 +4549,7 @@
 				RelativePath=".\include\mp\MpInputDeviceDriver.h">
 			</File>
 			<File
-				RelativePath=".\include\mp\MpInputDeviceDriverWnt.h">
+				RelativePath=".\include\mp\MpidWinMM.h">
 			</File>
 			<File
 				RelativePath=".\include\mp\MpInputDeviceManager.h">

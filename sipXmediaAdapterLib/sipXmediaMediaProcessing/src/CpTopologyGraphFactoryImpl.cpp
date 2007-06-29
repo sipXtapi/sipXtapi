@@ -47,7 +47,7 @@
 #  define INPUT_DRIVER_CONSTRUCTOR_PARAMS(manager) "SineGenerator", (manager), 32000, 3000, 0
 
 #elif defined(WIN32) // USE_TEST_DRIVER ][ WIN32
-#  include <mp/MpInputDeviceDriverWnt.h>
+#  include <mp/MpidWinMM.h>
 #  define INPUT_DRIVER MpidWinMM
 #  define INPUT_DRIVER_CONSTRUCTOR_PARAMS(manager) "SoundMAX HD Audio", (manager)
 

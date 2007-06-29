@@ -15,7 +15,7 @@
 #include <Windows.h>
 
 // APPLICATION INCLUDES
-#include "mp/MpInputDeviceDriverWnt.h"
+#include "mp/MpidWinMM.h"
 #include "mp/MpInputDeviceManager.h"
 
 // EXTERNAL FUNCTIONS
@@ -160,7 +160,7 @@ OsStatus MpidWinMM::enableDevice(unsigned samplesPerFrame,
         // If waveInOpen failed, print out the error info,
         // invalidate the handle, and the device driver itself,
         status = OS_FAILED;
-        showWaveError("MpInputDeviceDriverWnt::enableDevice", res, -1, __LINE__);
+        showWaveError("MpidWinMM::enableDevice", res, -1, __LINE__);
         waveInClose(mDevHandle);
         mDevHandle = NULL; // Open didn't work, reset device handle to NULL
         mWinMMDeviceId = -1; // Make device invalid.
