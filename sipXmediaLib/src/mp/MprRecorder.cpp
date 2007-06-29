@@ -129,7 +129,7 @@ OsStatus MprRecorder::stop(void)
 
 UtlBoolean MprRecorder::enable(void)
 {
-   if (mFileDescriptor > -1) 
+   if (mFileDescriptor > -1)
    {
       mStatus = RECORDING;
       OsSysLog::add(FAC_MP, PRI_DEBUG, "MprRecorder::enable");
@@ -146,7 +146,7 @@ UtlBoolean MprRecorder::enable(void)
       }
 
       return res;
-   } else 
+   } else
    {
       OsSysLog::add(FAC_MP, PRI_DEBUG, 
                     "MprRecorder::enable (No file designated!)");

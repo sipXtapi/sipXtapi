@@ -1,6 +1,6 @@
-//  
-// Copyright (C) 2006-2007 SIPez LLC. 
-// Licensed to SIPfoundry under a Contributor Agreement. 
+//
+// Copyright (C) 2006-2007 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -68,7 +68,7 @@
 // TYPEDEFS
 typedef enum FLOWGRAPH_AEC_MODE
 {
-    FLOWGRAPH_AEC_DISABLED, 
+    FLOWGRAPH_AEC_DISABLED,
     FLOWGRAPH_AEC_SUPPRESS,
     FLOWGRAPH_AEC_CANCEL,
     FLOWGRAPH_AEC_CANCEL_AUTO
@@ -152,7 +152,7 @@ public:
 
    int closeRecorders(void);
 
-   OsStatus Record(int ms, 
+   OsStatus Record(int ms,
             const char* playFilename, ///< if NULL, defaults to previous string
             const char* baseName,     ///< if NULL, defaults to previous string
             const char* endName,      ///< if NULL, defaults to previous string
@@ -164,19 +164,19 @@ public:
                    int silenceLength,
                    const char* fileName) ;
 
-   OsStatus ezRecord(int ms, 
-                   int silenceLength, 
-                   const char* fileName, 
+   OsStatus ezRecord(int ms,
+                   int silenceLength,
+                   const char* fileName,
                    double& duration,
-                   int& dtmfTerm, 
+                   int& dtmfTerm,
                    MprRecorder::RecordFileFormat format = MprRecorder::RAW_PCM_16);
 
 
-   OsStatus mediaRecord(int ms, 
-                   int silenceLength, 
-                   const char* fileName, 
+   OsStatus mediaRecord(int ms,
+                   int silenceLength,
+                   const char* fileName,
                    double& duration,
-                   int& dtmfTerm, 
+                   int& dtmfTerm,
                    MprRecorder::RecordFileFormat format = MprRecorder::RAW_PCM_16,
                    OsProtectedEvent* recordEvent = NULL);
 
@@ -202,14 +202,14 @@ public:
                   int toneOptions, OsNotification* completion = NULL);
 
    UtlBoolean setupRecorder(RecorderChoice which, const char* audioFileName,
-                  int timeMS, int silenceLength, OsNotification* event = NULL, 
+                  int timeMS, int silenceLength, OsNotification* event = NULL,
                   MprRecorder::RecordFileFormat format = MprRecorder::RAW_PCM_16);
 
-   OsStatus playBuffer(char* audioBuf, 
+   OsStatus playBuffer(char* audioBuf,
                   unsigned long bufSize,
-                  int type, 
+                  int type,
                   UtlBoolean repeat,
-                  int toneOptions, 
+                  int toneOptions,
                   OsProtectedEvent* event = NULL);
 
      /// Start playing audio from a file
@@ -308,7 +308,7 @@ public:
    OsStatus removeToneListener(MpConnectionID connectionId);
 
 //@}
-   
+
      /// Enables/Disable the transmission of inband DTMF audio
    static UtlBoolean setInbandDTMF(UtlBoolean bEnable);
 
@@ -317,7 +317,7 @@ public:
      /**<
      *  @warning Only available when Speex or internal AEC module is enabled!
      */
- 
+
      /// Enable/disable Automatic Gain Control.
    static UtlBoolean setAGC(UtlBoolean bEnable);
      /**<
@@ -328,7 +328,7 @@ public:
    static UtlBoolean setAudioNoiseReduction(UtlBoolean bEnable);
      /**<
      *  @note Enabling this also enables echo residue filtering.
-     *  
+     *
      *  @warning Only available when Speex is enabled!
      */
 
@@ -366,12 +366,12 @@ public:
  * Outputs:     None
  *
  * Returns:     unsigned long - Mask of Event Interests
- *              
+ *
  * Description: The GetEventInterest() event method shall allow the dispatcher
  *              of notifications to access the event interests of a subscriber
  *              and use these wishes to dispatch RTCP event notifications
- *               
- * Usage Notes: 
+ *
+ * Usage Notes:
  *
  */
     unsigned long GetEventInterest(void);
@@ -389,15 +389,15 @@ public:
  * Outputs:     None
  *
  * Returns:     None
- *              
+ *
  * Description: The LocalSSRCCollision() event method shall inform the
  *              recipient of a collision between the local SSRC and one
  *              used by one of the remote participants.
- *               
- * Usage Notes: 
+ *
+ * Usage Notes:
  *
  */
-    void LocalSSRCCollision(IRTCPConnection    *piRTCPConnection, 
+    void LocalSSRCCollision(IRTCPConnection    *piRTCPConnection,
                             IRTCPSession       *piRTCPSession);
 
 
@@ -414,15 +414,15 @@ public:
  * Outputs:     None
  *
  * Returns:     None
- *              
+ *
  * Description: The RemoteSSRCCollision() event method shall inform the
  *              recipient of a collision between two remote participants.
  *              .
- *               
- * Usage Notes: 
+ *
+ * Usage Notes:
  *
  */
-    void RemoteSSRCCollision(IRTCPConnection    *piRTCPConnection,  
+    void RemoteSSRCCollision(IRTCPConnection    *piRTCPConnection,
                              IRTCPSession       *piRTCPSession);
 
 
@@ -436,11 +436,11 @@ public:
  * Outputs:     None
  *
  * Returns:     None
- *              
+ *
  * Description: This implements the IBaseClass functions used and exposed by
  *              derived classes.
- *               
- * Usage Notes: 
+ *
+ * Usage Notes:
  *
  *
  */
@@ -481,7 +481,7 @@ private:
 #  endif // HAVE_SPEEX ]
 #  if defined (SPEEX_ECHO_CANCELATION)
       MprSpeexEchoCancel* mpEchoCancel;
-#  elif defined (SIPX_ECHO_CANCELATION) 
+#  elif defined (SIPX_ECHO_CANCELATION)
       MprEchoSuppress*    mpEchoCancel;
 #  endif
       MprToSpkr*    mpToSpkr;
@@ -509,9 +509,9 @@ private:
    ///
    ///  D.W.
    MprRecorder* mpRecorders[MAX_RECORDERS];
-    
+
    UtlBoolean mPremiumSoundEnabled;
-   
+
      ///  Write out standard 16bit 8k sampled WAV Header
    UtlBoolean writeWAVHeader(int handle);
 
@@ -684,18 +684,18 @@ inline IRTCPSession *MpCallFlowGraph::getRTCPSessionPtr(void)
  * Outputs:     None
  *
  * Returns:     unsigned long - Mask of Event Interests
- *              
+ *
  * Description: The GetEventInterest() event method shall allow the dispatcher
  *              of notifications to access the event interests of a subscriber
  *              and use these wishes to dispatch RTCP event notifications
- *               
- * Usage Notes: 
+ *
+ * Usage Notes:
  *
  */
-inline unsigned long MpCallFlowGraph::GetEventInterest(void) 
-{ 
-     
-    return(mulEventInterest); 
+inline unsigned long MpCallFlowGraph::GetEventInterest(void)
+{
+
+    return(mulEventInterest);
 }
 #endif /* INCLUDE_RTCP ] */
 
