@@ -238,7 +238,7 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath=".\inc\config.h"
+				RelativePath=".\inc\gsm\config.h"
 				>
 			</File>
 			<File
@@ -246,19 +246,19 @@
 				>
 			</File>
 			<File
-				RelativePath=".\inc\k6opt.h"
+				RelativePath=".\inc\gsm\k6opt.h"
 				>
 			</File>
 			<File
-				RelativePath=".\inc\private.h"
+				RelativePath=".\inc\gsm\private.h"
 				>
 			</File>
 			<File
-				RelativePath=".\inc\proto.h"
+				RelativePath=".\inc\gsm\proto.h"
 				>
 			</File>
 			<File
-				RelativePath=".\inc\unproto.h"
+				RelativePath=".\inc\gsm\unproto.h"
 				>
 			</File>
 		</Filter>
