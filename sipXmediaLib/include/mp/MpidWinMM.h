@@ -106,6 +106,9 @@ public:
 ///@name Accessors
 //@{
 
+     /// @brief get the windows name of the default wave input device.
+   static UtlString getDefaultDeviceName();
+
 //@}
 
 /* ============================ INQUIRY =================================== */

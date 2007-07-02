@@ -34,7 +34,6 @@
 
 // REMOVE THIS when device enumerator/monitor would be implemented
 #define USE_DEVICE_ADD_HACK
-#define WINDOWS_DEFAULT_DEVICE_HACK
 
 #ifdef USE_DEVICE_ADD_HACK // [
 
@@ -49,7 +48,7 @@
 #elif defined(WIN32) // USE_TEST_DRIVER ][ WIN32
 #  include <mp/MpidWinMM.h>
 #  define INPUT_DRIVER MpidWinMM
-#  define INPUT_DRIVER_CONSTRUCTOR_PARAMS(manager) "SoundMAX HD Audio", (manager)
+#  define INPUT_DRIVER_CONSTRUCTOR_PARAMS(manager) MpidWinMM::getDefaultDeviceName(), (manager)
 
 #elif defined(__pingtel_on_posix__) // WIN32 ][ __pingtel_on_posix__
 #  include <mp/MpidOSS.h>
@@ -140,52 +139,11 @@ CpTopologyGraphFactoryImpl::CpTopologyGraphFactoryImpl(OsConfigDb* pConfigDb)
                                  0);   // mixer buffer length (ms)
 
 
-#if defined(WINDOWS_DEFAULT_DEVICE_HACK) && defined (WIN32) // [
-    UtlString defaultWinInputDevName = "";
-
-    {
-       // Get windows default input device name
-       unsigned nDevs = waveInGetNumDevs();
-       if (nDevs == 0)
-       {
-          OsSysLog::add(FAC_AUDIO, PRI_ERR, 
-                        "WINDOWS_DEFAULT_DEVICE_HACK: "
-                        "No input audio devices present!");
-       }
-       assert(nDevs != 0);
-
-       MMRESULT wavResult = MMSYSERR_NOERROR;
-       WAVEINCAPS devCaps;
-       int defaultWinDeviceId = 0;
-       wavResult = 
-          waveInGetDevCaps(defaultWinDeviceId, &devCaps, sizeof(devCaps));
-       if (wavResult != MMSYSERR_NOERROR)
-       {
-          OsSysLog::add(FAC_AUDIO, PRI_ERR, 
-                        "WINDOWS_DEFAULT_DEVICE_HACK: "
-                        "Couldn't get default input device capabilities!");
-          showWaveError("WINDOWS_DEFAULT_DEVICE_HACK",
-                        wavResult, -1, __LINE__);
-       }
-       else
-       {
-          defaultWinInputDevName = devCaps.szPname;
-       }
-       assert(wavResult == MMSYSERR_NOERROR);
-    }
-#endif // ]
-
-
-
 
 
 #ifdef USE_DEVICE_ADD_HACK // [
     // Create source (input) device and add it to manager.
-#if defined(WINDOWS_DEFAULT_DEVICE_HACK) && defined (WIN32) // [
-    INPUT_DRIVER *sourceDevice = new INPUT_DRIVER(defaultWinInputDevName, *mpInputDeviceManager);
-#else
     INPUT_DRIVER *sourceDevice = new INPUT_DRIVER(INPUT_DRIVER_CONSTRUCTOR_PARAMS(*mpInputDeviceManager));
-#endif
     MpInputDeviceHandle  sourceDeviceId = mpInputDeviceManager->addDevice(*sourceDevice);
     assert(sourceDeviceId > 0);
 

@@ -13,6 +13,7 @@
 
 // SYSTEM INCLUDES
 #include <Windows.h>
+#include <os/OsSysLog.h>
 
 // APPLICATION INCLUDES
 #include "mp/MpidWinMM.h"
@@ -309,6 +310,44 @@ OsStatus MpidWinMM::disableDevice()
 }
 
 /* ============================ ACCESSORS ================================= */
+
+/* ////////////////////////// PUBLIC STATIC ///////////////////////////////// */
+UtlString MpidWinMM::getDefaultDeviceName()
+{
+   UtlString devName = "";
+
+   // Get windows default input device name
+   unsigned nDevs = waveInGetNumDevs();
+   if (nDevs == 0)
+   {
+      OsSysLog::add(FAC_AUDIO, PRI_ERR, 
+                    "MpidWinMM::getDefaultDeviceName: "
+                    "No input audio devices present!");
+   }
+   assert(nDevs != 0);
+
+   MMRESULT wavResult = MMSYSERR_NOERROR;
+   WAVEINCAPS devCaps;
+   int defaultWinDeviceId = 0;
+   wavResult = 
+      waveInGetDevCaps(defaultWinDeviceId, &devCaps, sizeof(devCaps));
+   if (wavResult != MMSYSERR_NOERROR)
+   {
+      OsSysLog::add(FAC_AUDIO, PRI_ERR, 
+                    "MpodWinMM::getDefaultDeviceName: "
+                    "Couldn't get default input device capabilities!");
+      showWaveError("WINDOWS_DEFAULT_DEVICE_HACK",
+                    wavResult, -1, __LINE__);
+   }
+   else
+   {
+      devName = devCaps.szPname;
+   }
+   assert(wavResult == MMSYSERR_NOERROR);
+   return devName;
+}
+
+
 /* ============================ INQUIRY =================================== */
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
