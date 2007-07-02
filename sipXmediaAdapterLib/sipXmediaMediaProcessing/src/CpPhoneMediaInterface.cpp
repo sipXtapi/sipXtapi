@@ -539,6 +539,17 @@ OsStatus CpPhoneMediaInterface::getCapabilitiesEx(int connectionId,
     CpPhoneMediaConnection* pMediaConn = getMediaConnection(connectionId);
     nActualAddresses = 0 ;
 
+    // Clear input rtpAudioPorts, rtcpAudioPorts, rtpVideoPorts, rtcpVideoPorts
+    // and transportTypes arrays. Do not suppose them to be cleaned by caller.
+    memset(rtpAudioPorts, 0, nMaxAddresses*sizeof(int));
+    memset(rtcpAudioPorts, 0, nMaxAddresses*sizeof(int));
+    memset(rtpVideoPorts, 0, nMaxAddresses*sizeof(int));
+    memset(rtcpVideoPorts, 0, nMaxAddresses*sizeof(int));
+    for (int i = 0; i < nMaxAddresses; i++)
+    {
+        transportTypes[i] = RTP_TRANSPORT_UNKNOWN;
+    }
+
     if (pMediaConn)
     {        
         switch (pMediaConn->mContactType)
