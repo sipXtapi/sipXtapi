@@ -19,6 +19,9 @@
 #include <mp/MprBridge.h>
 
 // DEFINES
+#ifndef DEFAULT_BRIDGE_MAX_IN_OUTPUTS
+#define DEFAULT_BRIDGE_MAX_IN_OUTPUTS 10
+#endif
 // MACROS
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -41,7 +44,7 @@ public:
     /** Constructor
      */
     MprBridgeConstructor(int minInOutputs = 1,
-                         int maxInOutputs = 10,
+                         int maxInOutputs = DEFAULT_BRIDGE_MAX_IN_OUTPUTS,
                          int samplesPerFrame = 80, 
                          int samplesPerSecond = 8000) :
       MpAudioResourceConstructor(DEFAULT_BRIDGE_RESOURCE_TYPE,
