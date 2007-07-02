@@ -184,9 +184,20 @@ private:
 
 /* ============================ INLINE METHODS ============================ */
 
-UtlBoolean MpodWinMM::isDeviceValid() { return (mWinMMDeviceId >= 0); }
-UtlBoolean MpodWinMM::isEnabled() { return (mIsEnabled); }
-UtlBoolean MpodWinMM::isFrameTickerSupported() const { return (TRUE); }
+UtlBoolean MpodWinMM::isDeviceValid()
+{
+   return (mWinMMDeviceId >= 0);
+}
+
+UtlBoolean MpodWinMM::isEnabled()
+{
+   return (mIsEnabled);
+}
+
+UtlBoolean MpodWinMM::isFrameTickerSupported() const
+{
+   return (TRUE);
+}
 
 
 #endif  // _MpodWinMM_h_

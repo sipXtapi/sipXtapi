@@ -180,7 +180,10 @@ private:
 
 /* ============================ INLINE METHODS ============================ */
 
-UtlBoolean MpidWinMM::isDeviceValid() { return (mWinMMDeviceId >= 0); };
+UtlBoolean MpidWinMM::isDeviceValid()
+{
+   return (mWinMMDeviceId >= 0);
+}
 
 
 #endif  // _MpidWinMM_h_
