@@ -1558,11 +1558,13 @@ SIPXTAPI_API SIPX_RESULT sipxCallAudioPlayFileStop(const SIPX_CALL hCall) ;
 
 /**
  * Record a call session (including other parties if this is a multi-party 
- * call / conference) to a file.  The resulting file will be a .WAV file
- * with L16 encoding (16000 samples/per second).
- *
- * This API is only supported when sipXtapi is bundled with VoiceEngine from 
- * GIPS. 
+ * call / conference) to a file.  The resulting file will be a PCM WAV file.
+ * Conference join operation on this call will cause the recording to stop.
+ * In case of conference recording, this function should be called for single
+ * conference call only. Conference recording will continue even after the
+ * original call had been dropped/split, as long as there is at least one call
+ * left in the conference. If the original call has been dropped, use handle
+ * of other call in the conference to stop recording.
  *
  * @param hCall Handle to a call.  Call handles are obtained either by 
  *        invoking sipxCallCreate or passed to your application through
