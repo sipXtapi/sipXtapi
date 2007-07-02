@@ -25,9 +25,6 @@
  */
 class MpMediaTaskTest : public CppUnit::TestCase
 {
-    //
-    // All commented out test cases are broken or surfacing real issues
-    //
     CPPUNIT_TEST_SUITE(MpMediaTaskTest);
     CPPUNIT_TEST(testCreators);
     CPPUNIT_TEST(testManagedAndUnmanagedFlowGraph);
