@@ -145,7 +145,7 @@ MpodWinMM::~MpodWinMM()
    delete[] mpWaveHeaders;
 }
 
-
+/* ============================ MANIPULATORS ================================ */
 OsStatus MpodWinMM::enableDevice(unsigned samplesPerFrame, 
                                  unsigned samplesPerSec, 
                                  MpFrameTime currentFrameTime)
@@ -453,50 +453,6 @@ OsStatus MpodWinMM::setTickerNotification(OsNotification *pFrameTicker)
    return OS_SUCCESS;
 }
 
-void MpodWinMM::addEmptyHeader(WAVEHDR* pWaveHdr)
-{
-   // CAUTION: THIS IS CALLED FROM THE WAVE CALLBACK CONTEXT!
-   OsLock lock(mEmptyHdrVPtrListsMutex);
-   // Check to see if we have any free pointers, and if we're enabled.
-   if(isEnabled() && mUnusedVPtrList.entries() > 0)
-   {
-      // Grab an unused voidptr, set it's value to pWaveHdr,
-      UtlVoidPtr* pvptr = (UtlVoidPtr*)(mUnusedVPtrList.get());
-      pvptr->setValue(pWaveHdr);
-      // And add it to the empty header list for use by pushFrame.
-      mEmptyHeaderList.insert(pvptr);
-
-      if(mpNotifier != NULL)
-      {
-         mpNotifier->signal(mCurFrameTime);
-      }
-   }
-}
-
-/* //////////////////////////// PRIVATE /////////////////////////////////// */
-WAVEHDR* MpodWinMM::initWaveHeader(int n)
-{
-   assert((n >= 0) && (n < (int)mNumOutBuffers));
-   assert(mpWaveHeaders != NULL);
-   assert((mpWaveBuffers != NULL) && (mpWaveBuffers[n] != NULL));
-   WAVEHDR* pWave_hdr = &(mpWaveHeaders[n]);
-   LPSTR    wave_data(mpWaveBuffers[n]);
-
-   // zero out the wave buffer.
-   memset(wave_data, 0, mWaveBufSize);
-
-   // Set wave header data to initial values.
-   pWave_hdr->lpData = wave_data;
-   pWave_hdr->dwBufferLength = mWaveBufSize;
-   pWave_hdr->dwBytesRecorded = 0;  // Filled in by us later
-   pWave_hdr->dwUser = n;
-   pWave_hdr->dwFlags = WHDR_DONE;  // Hack: indicate that the wave header has finished processing by WMM
-   pWave_hdr->dwLoops = 0;
-   pWave_hdr->lpNext = NULL;
-   pWave_hdr->reserved = 0;
-
-   return pWave_hdr;
-}
 
 /* ////////////////////////// PUBLIC STATIC ///////////////////////////////// */
 UtlString MpodWinMM::getDefaultDeviceName()
@@ -533,6 +489,52 @@ UtlString MpodWinMM::getDefaultDeviceName()
 
    return devName;
 }
+
+/* //////////////////////////// PROTECTED /////////////////////////////////// */
+WAVEHDR* MpodWinMM::initWaveHeader(int n)
+{
+   assert((n >= 0) && (n < (int)mNumOutBuffers));
+   assert(mpWaveHeaders != NULL);
+   assert((mpWaveBuffers != NULL) && (mpWaveBuffers[n] != NULL));
+   WAVEHDR* pWave_hdr = &(mpWaveHeaders[n]);
+   LPSTR    wave_data(mpWaveBuffers[n]);
+
+   // zero out the wave buffer.
+   memset(wave_data, 0, mWaveBufSize);
+
+   // Set wave header data to initial values.
+   pWave_hdr->lpData = wave_data;
+   pWave_hdr->dwBufferLength = mWaveBufSize;
+   pWave_hdr->dwBytesRecorded = 0;  // Filled in by us later
+   pWave_hdr->dwUser = n;
+   pWave_hdr->dwFlags = WHDR_DONE;  // Hack: indicate that the wave header has finished processing by WMM
+   pWave_hdr->dwLoops = 0;
+   pWave_hdr->lpNext = NULL;
+   pWave_hdr->reserved = 0;
+
+   return pWave_hdr;
+}
+
+void MpodWinMM::addEmptyHeader(WAVEHDR* pWaveHdr)
+{
+   // CAUTION: THIS IS CALLED FROM THE WAVE CALLBACK CONTEXT!
+   OsLock lock(mEmptyHdrVPtrListsMutex);
+   // Check to see if we have any free pointers, and if we're enabled.
+   if(isEnabled() && mUnusedVPtrList.entries() > 0)
+   {
+      // Grab an unused voidptr, set it's value to pWaveHdr,
+      UtlVoidPtr* pvptr = (UtlVoidPtr*)(mUnusedVPtrList.get());
+      pvptr->setValue(pWaveHdr);
+      // And add it to the empty header list for use by pushFrame.
+      mEmptyHeaderList.insert(pvptr);
+
+      if(mpNotifier != NULL)
+      {
+         mpNotifier->signal(mCurFrameTime);
+      }
+   }
+}
+
 /* //////////////////////// PROTECTED STATIC //////////////////////////////// */
 void CALLBACK 
 MpodWinMM::waveOutCallbackStatic(HWAVEOUT hwo,
@@ -567,3 +569,5 @@ MpodWinMM::waveOutCallbackStatic(HWAVEOUT hwo,
                     "sending unknown message!");
    }
 }
+
+/* ///////////////////////////// PRIVATE //////////////////////////////////// */

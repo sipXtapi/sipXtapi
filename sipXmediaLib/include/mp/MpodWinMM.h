@@ -93,27 +93,6 @@ public:
      /// @copydoc MpOutputDeviceDriver::setTickerNotification(OsNotification*)
    OsStatus setTickerNotification(OsNotification *pFrameTicker);
 
-protected:
-     /// @brief Adds a header/buffer to the empty header list.
-   void addEmptyHeader(WAVEHDR* pWaveHdr);
-     /**<
-     *  This method, called by the static callback function 
-     *  waveOutCallbackStatic, adds a header/buffer to a list of empty headers,
-     *  so pushFrame knows there are free buffers to fill and send to WMM.
-     *
-     *  @param[in] pWaveHdr - Pointer to a wave header that windows is done with.
-     */
-
-     /// @brief callback used by wave output multimedia interface
-   static void CALLBACK waveOutCallbackStatic(HWAVEOUT hwo, UINT uMsg, 
-                                              void* dwInstance,
-                                              void* dwParam1, void* dwParam2);
-     /**< 
-     *  This should only be called by the windows wave output multimedia.
-     */
-public:
-
-
 
 //@}
 
@@ -143,6 +122,36 @@ public:
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
+
+     /// @brief Zero out a wave header, so it is ready to be filled in by us.
+   WAVEHDR* initWaveHeader(int n);
+     /**<
+     *  Initialize all the values in the wave header indicated by <tt>n</tt>.
+     *  @param[in] n - The index into <tt>mpWaveHeaders</tt> indicating 
+     *             which wave header to initialize.
+     *  @returns a pointer to the wave header that was initialized.
+     */
+
+     /// @brief Adds a header/buffer to the empty header list.
+   void addEmptyHeader(WAVEHDR* pWaveHdr);
+     /**<
+     *  This method, called by the static callback function 
+     *  waveOutCallbackStatic, adds a header/buffer to a list of empty headers,
+     *  so pushFrame knows there are free buffers to fill and send to WMM.
+     *
+     *  @param[in] pWaveHdr - Pointer to a wave header that windows is done with.
+     */
+
+     /// @brief callback used by wave output multimedia interface
+   static void CALLBACK waveOutCallbackStatic(HWAVEOUT hwo, UINT uMsg, 
+                                              void* dwInstance,
+                                              void* dwParam1, void* dwParam2);
+     /**< 
+     *  This should only be called by the windows wave output multimedia.
+     */
+
+
+protected:
    OsMutex mEmptyHdrVPtrListsMutex; ///< Mutex to serialize access to vptr and empty header lists.
    OsNotification* mpNotifier; ///< Event signaled when windows is ready to receive a new buffer.
    int mWinMMDeviceId;         ///< The underlying windows Device ID (not the 
@@ -164,15 +173,6 @@ protected:
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-
-     /// @brief Zero out a wave header, so it is ready to be filled in by us.
-   WAVEHDR* initWaveHeader(int n);
-     /**<
-     *  Initialize all the values in the wave header indicated by <tt>n</tt>.
-     *  @param[in] n - The index into <tt>mpWaveHeaders</tt> indicating 
-     *             which wave header to initialize.
-     *  @returns a pointer to the wave header that was initialized.
-     */
 
      /// Copy constructor (not implemented for this class)
    MpodWinMM(const MpodWinMM& rMpodWinMM);
