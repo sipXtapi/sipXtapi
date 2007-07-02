@@ -113,12 +113,21 @@ public:
 //@{
 
       /// @brief Inquire if the windows device is valid
-    virtual UtlBoolean isDeviceValid() { return (mWinMMDeviceId >= 0); };
+    virtual inline UtlBoolean isDeviceValid();
 
 //@}
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
+
+      /// @brief Zero out a wave header, so it is ready to be filled in by windows.
+    WAVEHDR* initWaveHeader(int n);
+      /**<
+      *  Initialize all the values in the wave header indicated by <tt>n</tt>.
+      *  @param[in] n - The index into <tt>mpWaveHeaders</tt> indicating 
+      *             which wave header to initialize.
+      *  @returns a pointer to the wave header that was initialized.
+      */
 
       /// @brief Processes incoming audio data.
     void processAudioInput(HWAVEIN hwi, 
@@ -164,17 +173,11 @@ private:
 
       /// @brief Assignment operator (not implemented for this class)
     MpidWinMM& operator=(const MpInputDeviceDriver& rhs);
-
-      /// @brief Zero out a wave header, so it is ready to be filled in by windows.
-    WAVEHDR* initWaveHeader(int n);
-      /**<
-      *  Initialize all the values in the wave header indicated by <tt>n</tt>.
-      *  @param[in] n - The index into <tt>mpWaveHeaders</tt> indicating 
-      *             which wave header to initialize.
-      *  @returns a pointer to the wave header that was initialized.
-      */
 };
 
 /* ============================ INLINE METHODS ============================ */
+
+UtlBoolean MpidWinMM::isDeviceValid() { return (mWinMMDeviceId >= 0); };
+
 
 #endif  // _MpidWinMM_h_

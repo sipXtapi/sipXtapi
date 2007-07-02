@@ -312,6 +312,29 @@ OsStatus MpidWinMM::disableDevice()
 /* ============================ INQUIRY =================================== */
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
+WAVEHDR* MpidWinMM::initWaveHeader(int n)
+{
+    assert((n >= 0) && (n < (int)mNumInBuffers));
+    assert(mpWaveHeaders != NULL);
+    assert((mpWaveBuffers != NULL) && (mpWaveBuffers[n] != NULL));
+    WAVEHDR* pWave_hdr = &(mpWaveHeaders[n]);
+    LPSTR    wave_data(mpWaveBuffers[n]);
+
+    // zero out the wave buffer.
+    memset(wave_data, 0, mWaveBufSize);
+
+    // Set wave header data to initial values.
+    pWave_hdr->lpData = wave_data;
+    pWave_hdr->dwBufferLength = mWaveBufSize;
+    pWave_hdr->dwBytesRecorded = 0;  // Filled in by wave functions
+    pWave_hdr->dwUser = n;
+    pWave_hdr->dwFlags = 0;
+    pWave_hdr->dwLoops = 0;
+    pWave_hdr->lpNext = NULL;
+    pWave_hdr->reserved = 0;
+
+    return pWave_hdr;
+}
 void MpidWinMM::processAudioInput(HWAVEIN hwi,
                                   UINT uMsg,
                                   void* dwParam1)
@@ -383,27 +406,3 @@ MpidWinMM::waveInCallbackStatic(HWAVEIN hwi,
 }
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
-
-WAVEHDR* MpidWinMM::initWaveHeader(int n)
-{
-    assert((n >= 0) && (n < (int)mNumInBuffers));
-    assert(mpWaveHeaders != NULL);
-    assert((mpWaveBuffers != NULL) && (mpWaveBuffers[n] != NULL));
-    WAVEHDR* pWave_hdr = &(mpWaveHeaders[n]);
-    LPSTR    wave_data(mpWaveBuffers[n]);
-
-    // zero out the wave buffer.
-    memset(wave_data, 0, mWaveBufSize);
-
-    // Set wave header data to initial values.
-    pWave_hdr->lpData = wave_data;
-    pWave_hdr->dwBufferLength = mWaveBufSize;
-    pWave_hdr->dwBytesRecorded = 0;  // Filled in by wave functions
-    pWave_hdr->dwUser = n;
-    pWave_hdr->dwFlags = 0;
-    pWave_hdr->dwLoops = 0;
-    pWave_hdr->lpNext = NULL;
-    pWave_hdr->reserved = 0;
-
-    return pWave_hdr;
-}
