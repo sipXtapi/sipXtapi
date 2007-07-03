@@ -86,9 +86,9 @@ public:
    void testShiftLeft_int32()
    {
       int32_t a[] = {-2147483647-1, -2147483647, 2147483647};
-      CPPUNIT_ASSERT_EQUAL(0, a[0]<<1);
-      CPPUNIT_ASSERT_EQUAL(2, a[1]<<1);
-      CPPUNIT_ASSERT_EQUAL(-2, a[2]<<1);
+      CPPUNIT_ASSERT_EQUAL(INT32_C(0), a[0]<<1);
+      CPPUNIT_ASSERT_EQUAL(INT32_C(2), a[1]<<1);
+      CPPUNIT_ASSERT_EQUAL(INT32_C(-2), a[2]<<1);
    }
 
    void testAdd_int16()
@@ -235,7 +235,7 @@ public:
       {
          int32_t pSrcDst[ADD_INT16_INT32_TEST_LENGTH];
          memcpy(pSrcDst, &add_int16_int32_vec_src2[i], ADD_INT16_INT32_TEST_LENGTH*sizeof(int32_t));
-         MpDspUtils::addMul_I(add_int16_int32_vec_src1, 65535, pSrcDst, ADD_INT16_INT32_TEST_LENGTH);
+         MpDspUtils::addMul_I(add_int16_int32_vec_src1, INT16_C(65535), pSrcDst, ADD_INT16_INT32_TEST_LENGTH);
 //         printf("{");
          for (int j=0; j<ADD_INT16_INT32_TEST_LENGTH; j++)
          {
