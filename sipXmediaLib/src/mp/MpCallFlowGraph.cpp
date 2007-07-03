@@ -985,7 +985,7 @@ OsStatus MpCallFlowGraph::recordMic(int ms,
     MprRecorderStats rs;
     OsProtectEventMgr* eventMgr = OsProtectEventMgr::getEventMgr();
     OsProtectedEvent* recordEvent = eventMgr->alloc();
-    recordEvent->setUserData((int)&rs);
+    recordEvent->setUserData((intptr_t)&rs);
 
     int timeoutSecs = (ms/1000 + 1);
     OsTime maxEventTime(timeoutSecs, 0);
@@ -997,7 +997,7 @@ OsStatus MpCallFlowGraph::recordMic(int ms,
     // Wait until the call sets the number of connections
     while(recordEvent->wait(0, maxEventTime) == OS_SUCCESS)
     {
-        int info;
+        intptr_t info;
         recordEvent->getUserData(info);
         if (info)
         {
@@ -1034,7 +1034,7 @@ OsStatus MpCallFlowGraph::ezRecord(int ms,
    MprRecorderStats rs;
    OsProtectEventMgr* eventMgr = OsProtectEventMgr::getEventMgr();
    OsProtectedEvent* recordEvent = eventMgr->alloc();
-   recordEvent->setUserData((int)&rs);
+   recordEvent->setUserData((intptr_t)&rs);
 
    int timeoutSecs = (ms/1000 + 1);
    OsTime maxEventTime(timeoutSecs, 0);
@@ -1058,7 +1058,7 @@ OsStatus MpCallFlowGraph::ezRecord(int ms,
    // Wait until the call sets the number of connections
    while(recordEvent->wait(0, maxEventTime) == OS_SUCCESS)
    {
-      int info;
+      intptr_t info;
       recordEvent->getUserData(info);
       if (info)
       {
@@ -1757,20 +1757,20 @@ UtlBoolean MpCallFlowGraph::writeWAVHeader(int handle)
     //8 bytes written
     strcpy(tmpbuf,"RIFF");
     unsigned long length = 0;
-    bytesWritten += write(handle,tmpbuf, strlen(tmpbuf));
+    bytesWritten += write(handle, tmpbuf, (unsigned)strlen(tmpbuf));
     bytesWritten += write(handle, (char*)&length, sizeof(length)); //filled in on close
     
     //write WAVE & length
     //8 bytes written
     strcpy(tmpbuf,"WAVE");
-    bytesWritten += write(handle,tmpbuf, strlen(tmpbuf));
+    bytesWritten += write(handle, tmpbuf, (unsigned)strlen(tmpbuf));
 //    bytesWritten += write(handle,&length, sizeof(length)); //filled in on close
 
     //write fmt & length
     //8 bytes written
     strcpy(tmpbuf,"fmt ");
     length = 16;
-    bytesWritten += write(handle,tmpbuf,strlen(tmpbuf));
+    bytesWritten += write(handle, tmpbuf, (unsigned)strlen(tmpbuf));
     bytesWritten += write(handle, (char*)&length,sizeof(length)); //filled in on close
     
     //now write each piece of the format
@@ -1786,8 +1786,8 @@ UtlBoolean MpCallFlowGraph::writeWAVHeader(int handle)
     //write data and length
     strcpy(tmpbuf,"data");
     length = 0;
-    bytesWritten += write(handle,tmpbuf,strlen(tmpbuf));
-    bytesWritten += write(handle, (char*)&length,sizeof(length)); //filled in on close
+    bytesWritten += write(handle, tmpbuf, (unsigned)strlen(tmpbuf));
+    bytesWritten += write(handle, (char*)&length, sizeof(length)); //filled in on close
     
     //total length at this point should be 44 bytes
     if (bytesWritten == 44)
@@ -2093,7 +2093,7 @@ UtlBoolean MpCallFlowGraph::handleStreamRealizeUrl(MpStreamMsg& rMsg)
    mpFromStream->realize(*pUrl, flags, handle, pNotifyEvents) ;
    delete pUrl ;
 
-   pNotifyHandle->signal((int) handle) ;
+   pNotifyHandle->signal((intptr_t) handle) ;
 
    return TRUE ;
 }
@@ -2110,7 +2110,7 @@ UtlBoolean MpCallFlowGraph::handleStreamRealizeBuffer(MpStreamMsg& rMsg)
    
    mpFromStream->realize(pBuffer, flags, handle, pNotifyEvents) ;
 
-   pNotifyHandle->signal((int) handle) ;
+   pNotifyHandle->signal((intptr_t) handle) ;
    
    return TRUE ;
 }
