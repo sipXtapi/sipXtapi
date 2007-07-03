@@ -562,17 +562,16 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
 
                                 UtlString localAddress;
                                 int port;
-                                char szAdapter[256];
-                                
-                    
-                                localAddress = sipMsg->getLocalIp();                                
+                                UtlString adapterName;
 
-                                getContactAdapterName(szAdapter, localAddress.data(), false);
+                                localAddress = sipMsg->getLocalIp();
+
+                                getContactAdapterName(adapterName, localAddress, false);
 
                                 SIPX_CONTACT_ADDRESS contact;
-                                sipUserAgent->getContactDb().getRecordForAdapter(contact, szAdapter, CONTACT_LOCAL);
+                                sipUserAgent->getContactDb().getRecordForAdapter(contact, adapterName.data(), CONTACT_LOCAL);
                                 port = contact.iPort;
-                                                                
+
                                 pMediaInterface = mpMediaFactory->createMediaInterface(
                                     NULL, 
                                     localAddress, numCodecs, codecArray, 

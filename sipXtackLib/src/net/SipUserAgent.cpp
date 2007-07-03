@@ -1,5 +1,8 @@
+//  
+// Copyright (C) 2007 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -8,9 +11,7 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
-// Author: Daniel Petrie
-//         dgpetrie AT yahoo DOT com
-//////////////////////////////////////////////////////////////////////////////
+// Author: Daniel Petrie <dpetrie AT SIPez DOT com>
 
 // SYSTEM INCLUDES
 
@@ -308,25 +309,25 @@ SipUserAgent::SipUserAgent(int sipTcpPort,
         mConfigPublicAddress = publicAddress ;
         
         // make a config CONTACT entry
-        char szAdapter[256];
+        UtlString adapterName;
         SIPX_CONTACT_ADDRESS contact;
         contact.eContactType = CONTACT_CONFIG;
         strcpy(contact.cIpAddress, publicAddress);
 
-        if (getContactAdapterName(szAdapter, defaultSipAddress, false))
+        if (getContactAdapterName(adapterName, defaultSipAddress, false))
         {
-            strcpy(contact.cInterface, szAdapter);
+            strcpy(contact.cInterface, adapterName.data());
         }
         else
         {
            // If getContactAdapterName can't find an adapter.
            OsSysLog::add(FAC_SIP, PRI_WARNING,
-                         "SipUserAgent::_ no adaptor found for address '%s'",
+                         "SipUserAgent::_ no adapter found for address '%s'",
                          defaultSipAddress.data());
            strcpy(contact.cInterface, "(unknown)");
         }
-        contact.iPort = mUdpPort; // what about the tcp port?
-        contact.eTransportType = TRANSPORT_UDP;  // what about tcp transport?        
+        contact.iPort = mUdpPort; // what about the TCP port?
+        contact.eTransportType = TRANSPORT_UDP;  // what about TCP transport?        
         addContactAddress(contact);
     }
     else

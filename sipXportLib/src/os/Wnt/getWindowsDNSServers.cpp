@@ -1,8 +1,8 @@
 //  
-// Copyright (C) 2006 SIPez LLC. 
+// Copyright (C) 2006-2007 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -212,19 +212,19 @@ static int getIPHelperDNSEntries(char DNSServers[][MAXIPLEN], int max, const cha
                 assert (dwError == 0);
                 
                 // get the adapter's true name
-                char szAdapter[MAX_ADAPTER_NAME_LENGTH + 4];
+                UtlString contactAdapterName;
                 wchar_t szwAdapter[MAX_ADAPTER_NAME_LENGTH + 4];
                 unsigned long index = 0;
-                getContactAdapterName(szAdapter, szLocalIp, true);
+                getContactAdapterName(contactAdapterName, szLocalIp, true);
 
                 // convert to a wide character string                
-                mbstowcs(szwAdapter, szAdapter, sizeof(szAdapter));
+                mbstowcs(szwAdapter, contactAdapterName.data(), contactAdapterName.length());
                 
                 char szAdapterName[MAX_ADAPTER_NAME_LENGTH + 4];
                 for (int i = 0; i < pInfo->NumAdapters; i++)
                 {
                     wcstombs(szAdapterName, pInfo->Adapter[i].Name, sizeof(szAdapterName));
-                    if (strstr(szAdapterName, szAdapter) != NULL)
+                    if (contactAdapterName.contains(szAdapterName))
                     {
                         // we found it
                         index = pInfo->Adapter[i].Index;
@@ -458,17 +458,17 @@ extern "C" int getWindowsDNSServers(char DNSServers[][MAXIPLEN], int max, const 
 }
 
 
-bool getContactAdapterName(char* szAdapter, const char* szIp, bool trueName)
+bool getContactAdapterName(UtlString &adapterName, const UtlString &ipAddress, bool trueName)
 {
     bool rc = false;
-    if (0 == strcmp(szIp, "127.0.0.1"))
+
+    if (ipAddress == "127.0.0.1")
     {
         rc = true;
-        strcpy(szAdapter, "loopback");
+        adapterName = "loopback";
         return rc;
     }
-#ifdef _WIN32
-    if (loadIPHelperAPI())
+    else if (loadIPHelperAPI())
     {
         
         unsigned long outBufLen = 0;
@@ -491,15 +491,15 @@ bool getContactAdapterName(char* szAdapter, const char* szIp, bool trueName)
                 {
                     const char *szAddr = pNextAddress->IpAddress.String;
                     // if the target matches this address or if the target is any
-                    if (strcmp(szAddr, szIp) == 0 || strcmp(szIp, "0.0.0.0") == 0)
+                    if (ipAddress == szAddr || ipAddress == "0.0.0.0")
                     {
                         if (trueName)
                         {
-                            strcpy(szAdapter, pNextInfoRecord->AdapterName);
+                            adapterName = pNextInfoRecord->AdapterName;
                         }
                         else
                         {
-                            strcpy(szAdapter, szAdapterId);
+                            adapterName = szAdapterId;
                         }
                         bFound = true;
                         break;
@@ -512,9 +512,6 @@ bool getContactAdapterName(char* szAdapter, const char* szIp, bool trueName)
         }
         free((void*)pIpAdapterInfo);
     }                
-#else
-        rc = false;
-#endif
     
     return rc;
 }
@@ -524,7 +521,6 @@ bool getAllLocalHostIps(const HostAdapterAddress* localHostAddresses[], int &num
 {
     bool rc = false;
 
-#ifdef _WIN32
     if (loadIPHelperAPI())
     {
         PIP_ADAPTER_INFO pIpAdapterInfo = (PIP_ADAPTER_INFO)malloc(sizeof(IP_ADAPTER_INFO) * MAX_IP_ADDRESSES);
@@ -566,9 +562,7 @@ bool getAllLocalHostIps(const HostAdapterAddress* localHostAddresses[], int &num
         }
         free((void*)pIpAdapterInfo);
     }                
- #else
-    rc = false;
- #endif    
+
     return rc;
 }
 

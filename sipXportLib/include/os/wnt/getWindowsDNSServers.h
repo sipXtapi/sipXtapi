@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2006 SIPez LLC.
+// Copyright (C) 2006-2007 SIPez LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
-// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -21,6 +21,10 @@
 #endif
 
 #include <time.h>
+
+#ifdef __cplusplus
+#  include <utl/UtlString.h>
+#endif
 
 // Definitions and structures used by getnetworkparams and getadaptersinfo apis
 
@@ -287,7 +291,7 @@ typedef struct _IP_INTERFACE_INFO {
     *                      Output: Number of IPs found by the system.
     */
 
-    extern "C" bool getContactAdapterName(char* szAdapter, const char* szIp, bool trueName);
+    extern "C" bool getContactAdapterName(UtlString &adapterName, const UtlString &ipAddress, bool trueName);
     //: Returns a generated adapter name associated with the IP address
 #else
     int getWindowsDNSServers(char DNSServers[][MAXIPLEN], int max, const char* szLocalIp);

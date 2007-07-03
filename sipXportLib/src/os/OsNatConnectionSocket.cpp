@@ -1,5 +1,8 @@
+//  
+// Copyright (C) 2007 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2006 SIPfoundry Inc.
+// Copyright (C) 2006-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2006 Pingtel Corp.  All rights reserved.
@@ -527,25 +530,19 @@ void OsNatConnectionSocket::markStunSuccess(bool bAddressChanged)
     // Signal external identities interested in the STUN outcome.
     if (mpNotification && (!mbNotified || bAddressChanged))
     {   
-        char szAdapterName[256];
-        memset((void*)szAdapterName, 0, sizeof(szAdapterName));
+        UtlString adapterName;
         
-#ifdef _WIN32
-        getContactAdapterName(szAdapterName, mLocalIp.data(), false);
-#else
-        // TODO - call the appropriate Linux function to the adapter name
-        assert(false) ;
-#endif
+        getContactAdapterName(adapterName, mLocalIp, false);
 
         SIPX_CONTACT_ADDRESS* pContact = new SIPX_CONTACT_ADDRESS();
         
         strcpy(pContact->cIpAddress, mStunState.mappedAddress);
         pContact->iPort = mStunState.mappedPort;
-        strcpy(pContact->cInterface, szAdapterName);
+        strcpy(pContact->cInterface, adapterName.data());
         pContact->eContactType = CONTACT_NAT_MAPPED;
         pContact->eTransportType = TRANSPORT_UDP ;
                 
-        mpNotification->signal((int) pContact) ;
+        mpNotification->signal((intptr_t) pContact) ;
         mbNotified = true ;
     }
 }

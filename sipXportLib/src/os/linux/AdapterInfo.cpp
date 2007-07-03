@@ -1,5 +1,8 @@
+//  
+// Copyright (C) 2007 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -108,32 +111,43 @@ bool getAllLocalHostIps(const HostAdapterAddress* localHostAddresses[],
    return rc;
 }
 
-bool getContactAdapterName(char* szAdapter, const char* szIp, bool unusedHere)
+bool getContactAdapterName(UtlString &adapterName, const UtlString &ipAddress, bool unusedHere)
 {
    bool found = false;
-   
-   UtlString ipAddress(szIp);
-   
-   int numAddresses = 0;
-   const HostAdapterAddress* adapterAddresses[MAX_IP_ADDRESSES];
-   getAllLocalHostIps(adapterAddresses, numAddresses);
 
-   // Return empty string if nothing will be found
-   szAdapter[0] = 0;
-
-   for (int i = 0; i < numAddresses; i++)
+   // Explicitly check for loopback adapter, because getAllLocalHostIps never
+   // name it.
+   if (ipAddress == "127.0.0.1")
    {
-      if (ipAddress.compareTo(adapterAddresses[i]->mAddress.data()) == 0)
+      found = true;
+      // TODO:: It is not always true. You may set any name to loopback
+      //        adapter, afaik. So we may want to do real search here.
+      adapterName = "lo";
+      return found;
+   }
+   else
+   {
+      int numAddresses = 0;
+      const HostAdapterAddress* adapterAddresses[MAX_IP_ADDRESSES];
+      getAllLocalHostIps(adapterAddresses, numAddresses);
+
+      // Return empty string if nothing will be found
+      adapterName.remove(0);
+
+      for (int i = 0; i < numAddresses; i++)
       {
-         strcpy(szAdapter, adapterAddresses[i]->mAdapter.data());
+         if (ipAddress.compareTo(adapterAddresses[i]->mAddress.data()) == 0)
+         {
+            adapterName = adapterAddresses[i]->mAdapter;
 /*
-         OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
-                       "getContactAdapterName found name %s for ip %s",
-                       szAdapter, szIp);
+            OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
+                        "getContactAdapterName found name %s for ip %s",
+                        szAdapter, szIp);
 */
-         found = true;
+            found = true;
+         }
+         delete adapterAddresses[i];
       }
-      delete adapterAddresses[i];
    }
    
    return found;

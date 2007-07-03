@@ -1,5 +1,8 @@
+//  
+// Copyright (C) 2007 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -286,12 +289,11 @@ OsStatus SipUdpServer::createServerSocket(const char* szBoundIp,
         strcpy(contact.cIpAddress, szBoundIp);
         contact.iPort = port;
         contact.eContactType = CONTACT_LOCAL;
-        char szAdapterName[16];
-        memset((void*)szAdapterName, 0, sizeof(szAdapterName)); // null out the string
+        UtlString adapterName;
         
-        getContactAdapterName(szAdapterName, contact.cIpAddress, false);
+        getContactAdapterName(adapterName, contact.cIpAddress, false);
 
-        strcpy(contact.cInterface, szAdapterName);
+        strcpy(contact.cInterface, adapterName.data());
         contact.eTransportType = TRANSPORT_UDP;
         mSipUserAgent->addContactAddress(contact);
    

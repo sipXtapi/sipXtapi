@@ -514,16 +514,16 @@ SIPX_CONTACT_TYPE SipConnection::selectCompatibleContactType(const SipMessage& r
 
         SIPX_CONTACT_ADDRESS stun_contact;
         SIPX_CONTACT_ADDRESS local_contact;
-        char szAdapter[256];
+        UtlString adapterName;
         UtlString localAddress;
         getLocalAddress(&localAddress);
 
-        getContactAdapterName(szAdapter, localAddress.data(), false);
+        getContactAdapterName(adapterName, localAddress, false);
 
         // Look for matches against the request URI and our DB of IP addresses --
         // the user other side sent to our NAT address, then STICK to it.
         if (sipUserAgent->getContactDb().getRecordForAdapter(stun_contact,
-                szAdapter, CONTACT_NAT_MAPPED, eTransportType) &&
+                adapterName.data(), CONTACT_NAT_MAPPED, eTransportType) &&
                 (strcmp(stun_contact.cIpAddress, requestUriHost) == 0) &&
                 (requestUriPort == (!portIsValid(stun_contact.iPort) ?
                 5060 : stun_contact.iPort)))
@@ -532,7 +532,7 @@ SIPX_CONTACT_TYPE SipConnection::selectCompatibleContactType(const SipMessage& r
             contactType = CONTACT_NAT_MAPPED ;
         }
         else if (sipUserAgent->getContactDb().getRecordForAdapter(local_contact,
-                szAdapter, CONTACT_LOCAL, eTransportType) &&
+                adapterName.data(), CONTACT_LOCAL, eTransportType) &&
                 (strcmp(local_contact.cIpAddress, requestUriHost) == 0) &&
                 (requestUriPort == (!portIsValid(local_contact.iPort) ?
                 5060 : local_contact.iPort)))
@@ -545,13 +545,13 @@ SIPX_CONTACT_TYPE SipConnection::selectCompatibleContactType(const SipMessage& r
             // If using an external transport, this is unlikely to match --
             // assume NAT the local
             if (sipUserAgent->getContactDb().getRecordForAdapter(stun_contact,
-                szAdapter, CONTACT_NAT_MAPPED, eTransportType))
+                adapterName.data(), CONTACT_NAT_MAPPED, eTransportType))
             {
                 mContactId = stun_contact.id;
                 contactType = CONTACT_NAT_MAPPED ;
             }
             else if (sipUserAgent->getContactDb().getRecordForAdapter(local_contact,
-                szAdapter, CONTACT_LOCAL, eTransportType))
+                     adapterName.data(), CONTACT_LOCAL, eTransportType))
             {
                 mContactId = local_contact.id;
                 contactType = CONTACT_LOCAL ;
