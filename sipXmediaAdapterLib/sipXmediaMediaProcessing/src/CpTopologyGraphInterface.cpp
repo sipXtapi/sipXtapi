@@ -479,7 +479,7 @@ OsStatus CpTopologyGraphInterface::getCapabilities(int connectionId,
                     if (!pMediaConn->mpRtpAudioSocket->getMappedIp(&rtpHostAddress, &rtpAudioPort))
                     {
                         rtpAudioPort = pMediaConn->mRtpAudioReceivePort ;
-                        rtpHostAddress = mRtpReceiveHostAddress ;
+                        rtpHostAddress = pMediaConn->mLocalAddress ;
                     }
                 }
                 else if (pMediaConn->mContactType == CONTACT_LOCAL)
@@ -489,7 +489,7 @@ OsStatus CpTopologyGraphInterface::getCapabilities(int connectionId,
                      if (rtpAudioPort <= 0)
                      {
                          rtpAudioPort = pMediaConn->mRtpAudioReceivePort ;
-                         rtpHostAddress = mRtpReceiveHostAddress ;
+                         rtpHostAddress = pMediaConn->mLocalAddress ;
                      }
                 }
                 else
@@ -543,7 +543,7 @@ OsStatus CpTopologyGraphInterface::getCapabilities(int connectionId,
         }
         else
         {
-            rtpHostAddress = mRtpReceiveHostAddress ;
+            rtpHostAddress = pMediaConn->mLocalAddress ;
             rtpAudioPort = pMediaConn->mRtpAudioReceivePort ;
             rtcpAudioPort = pMediaConn->mRtcpAudioReceivePort ;
         }
