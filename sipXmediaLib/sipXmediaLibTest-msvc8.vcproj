@@ -615,6 +615,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\src\test\mp\MpDspUtilsTest.cpp"
+				>
+			</File>
+			<File
 				RelativePath="src\test\mp\MpFlowGraphTest.cpp"
 				>
 				<FileConfiguration

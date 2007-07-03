@@ -2159,6 +2159,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\include\mp\MpDspUtilsSum.h"
+					>
+				</File>
+				<File
 					RelativePath=".\include\mp\MpeGIPSG729ab.h"
 					>
 				</File>

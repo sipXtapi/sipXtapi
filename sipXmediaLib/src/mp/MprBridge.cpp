@@ -180,7 +180,7 @@ MprBridge::MprBridge(const UtlString& rName,
    // Allocate mix matrix.
    mpGainMatrix = new MpBridgeGain[maxInputs()*maxOutputs()];
    assert(mpGainMatrix != NULL);
-   
+
    // Initially mute all inputs.
 /*   for (int j=maxInputs()*maxOutputs()-1; j>=0; j--)
    {
@@ -318,7 +318,7 @@ UtlBoolean MprBridge::doMix(MpBufPtr inBufs[], int inBufsSize,
             assert(pFrame->getSamplesNumber() == samplesPerFrame);
             if (pInputGains[inputNum] == MP_BRIDGE_GAIN_PASSTHROUGH)
             {
-               MpDspUtils::add_IS(pFrame->getSamplesPtr(), mpMixAccumulator,
+               MpDspUtils::add_IGain(pFrame->getSamplesPtr(), mpMixAccumulator,
                                   samplesPerFrame, MP_BRIDGE_FRAC_LENGTH);
             }
             else
@@ -332,8 +332,8 @@ UtlBoolean MprBridge::doMix(MpBufPtr inBufs[], int inBufsSize,
       }
 
       // Move data from accumulator to output.
-      MpDspUtils::convert_S(mpMixAccumulator, pOutBuf->getSamplesWritePtr(),
-                            samplesPerFrame, -MP_BRIDGE_FRAC_LENGTH);
+      MpDspUtils::convert_Att(mpMixAccumulator, pOutBuf->getSamplesWritePtr(),
+                            samplesPerFrame, MP_BRIDGE_FRAC_LENGTH);
       outBufs[outputNum].swap(pOutBuf);
    }
 
@@ -687,6 +687,8 @@ UtlBoolean MprBridge::doProcessFrame(MpBufPtr inBufs[],
 
 #ifdef RTL_AUDIO_ENABLED
    RTL_AUDIO_BUFFER("bridge_output_0", samplesPerSecond, ((MpAudioBufPtr)outBufs[0]), frameIndex);
+   RTL_AUDIO_BUFFER("bridge_output_1", samplesPerSecond, ((MpAudioBufPtr)outBufs[1]), frameIndex);
+   RTL_AUDIO_BUFFER("bridge_output_2", samplesPerSecond, ((MpAudioBufPtr)outBufs[2]), frameIndex);
 #endif
 
    return ret;
