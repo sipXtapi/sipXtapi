@@ -435,11 +435,6 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
                                                  turnKeepAlivePeriodSecs,
                                                  enableIce);
 
-        // Properties specific to a connection
-        int connectionId = -1;
-        CPPUNIT_ASSERT(mediaInterface->createConnection(connectionId, NULL, NULL) == OS_SUCCESS);
-        CPPUNIT_ASSERT(connectionId > 0);
-
         mediaInterface->giveFocus() ;
 
         RTL_EVENT("Tone set", 0);
@@ -481,8 +476,6 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
 
         RTL_WRITE("testTones.rtl");
         RTL_STOP;
-
-        mediaInterface->deleteConnection(connectionId) ;
 
         // delete codecs set
         for ( numCodecs--; numCodecs>=0; numCodecs--)
