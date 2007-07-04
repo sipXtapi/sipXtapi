@@ -181,12 +181,6 @@ MprBridge::MprBridge(const UtlString& rName,
    mpGainMatrix = new MpBridgeGain[maxInputs()*maxOutputs()];
    assert(mpGainMatrix != NULL);
 
-   // Initially mute all inputs.
-/*   for (int j=maxInputs()*maxOutputs()-1; j>=0; j--)
-   {
-      mpGainMatrix[j] = MP_BRIDGE_GAIN_MUTED;
-   }
-*/
    // Initially set matrix to inversed unity matrix, with zeros along
    // main diagonal.
    MpBridgeGain *pGain = mpGainMatrix;
