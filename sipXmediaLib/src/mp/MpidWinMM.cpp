@@ -383,7 +383,7 @@ void MpidWinMM::processAudioInput(HWAVEIN hwi,
         assert(uMsg == WIM_OPEN);
         if (uMsg == WIM_OPEN)
         {
-            printf("received WIM_OPEN\n");
+            //printf("received WIM_OPEN\n");
             mIsOpen = TRUE;
         }
     }
