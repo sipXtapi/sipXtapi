@@ -387,7 +387,6 @@ MpCallFlowGraph::MpCallFlowGraph(const char* locale,
 //
 ////////////////////////////////////////////////////////////////////////////
 #ifdef INSERT_RECORDERS /* [ */
-   ////////////////////////////////////////////////////////////////////
  if (WantRecorders) {
 #ifndef DISABLE_LOCAL_AUDIO // [
    mpRecorders[RECORDER_MIC] = new MprRecorder("RecordMic",
@@ -413,14 +412,6 @@ MpCallFlowGraph::MpCallFlowGraph(const char* locale,
                                                     *mpEchoCancel, 1);
    assert(res == OS_SUCCESS);
 
-   // create Call recorder and connect it to mpCallrecMixer
-   mpRecorders[RECORDER_CALL] =
-      new MprRecorder("RecordCall", samplesPerFrame, samplesPerSec);
-   res = addResource(*(mpRecorders[RECORDER_CALL]));
-   assert(res == OS_SUCCESS);
-   res = addLink(*mpCallrecMixer, 0, *(mpRecorders[RECORDER_CALL]), 0);
-   assert(res == OS_SUCCESS);
-
 #ifdef HIGH_SAMPLERATE_AUDIO // [
    mpRecorders[RECORDER_ECHO_IN32] =
       new MprRecorder("RecordEchoIn32", samplesPerFrame, samplesPerSec);
@@ -436,8 +427,7 @@ MpCallFlowGraph::MpCallFlowGraph(const char* locale,
    res = insertResourceAfter(*(mpRecorders[RECORDER_SPKR32K]), *mpToSpkr, 1);
    assert(res == OS_SUCCESS);
 #endif // HIGH_SAMPLERATE_AUDIO ]
-#endif // DISABLE_LOCAL_AUDIO ]
-   ////////////////////////////////////////////////////////////////////
+#endif // ndef DISABLE_LOCAL_AUDIO ]
  }
 #endif /* INSERT_RECORDERS ] */
 
@@ -451,6 +441,14 @@ MpCallFlowGraph::MpCallFlowGraph(const char* locale,
    assert(res == OS_SUCCESS);
 ///////////////////////////////////////////////////////////////////////////////////
 
+   // Call Recording..  Always record calls.
+   // create Call recorder and connect it to mpCallrecMixer
+   mpRecorders[RECORDER_CALL] =
+      new MprRecorder("RecordCall", samplesPerFrame, samplesPerSec);
+   res = addResource(*(mpRecorders[RECORDER_CALL]));
+   assert(res == OS_SUCCESS);
+   res = addLink(*mpCallrecMixer, 0, *(mpRecorders[RECORDER_CALL]), 0);
+   assert(res == OS_SUCCESS);
 
    // ask the media processing task to manage the new flow graph
    pMediaTask = MpMediaTask::getMediaTask(0);
