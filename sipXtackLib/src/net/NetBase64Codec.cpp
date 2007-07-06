@@ -206,10 +206,11 @@ bool NetBase64Codec::decode(const UtlString encodedData, /* sizeis data.length()
    {
       size_t sizeNeeded = decodedSize(encodedData.length(), encodedData.data());
       {
-         char decodeBuffer[sizeNeeded+1];
+         char* decodeBuffer = new char[sizeNeeded+1];
          int size;
          decode(encodedData.length(), encodedData.data(), size, decodeBuffer);
          data.append(decodeBuffer, size);
+         delete decodeBuffer;
       }
    }
    return valid;

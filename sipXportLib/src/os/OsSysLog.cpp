@@ -34,6 +34,14 @@ extern char* strdup(const char*) ;
 #endif
 #endif
 
+#ifdef _WIN32  
+# ifndef va_copy  
+#  define va_copy(ap1, ap2) memcpy(&ap1, &ap2, sizeof(va_list))  
+# endif  
+# define vsnprintf      _vsnprintf  
+# define inline         _inline  
+#endif  
+
 
 // EXTERNAL VARIABLES
 // CONSTANTS
