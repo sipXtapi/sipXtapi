@@ -260,7 +260,7 @@ OsStatus OsSysLog::add(const OsSysLogFacility facility,
                        const char*            format,
                                               ...)
 {
-   OsStatus rc;
+   OsStatus rc=OS_SUCCESS;
 
    if (willLog(facility, priority))
    {
