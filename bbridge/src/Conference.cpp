@@ -19,11 +19,12 @@ using namespace std;
 
 Conference::Conference(bbridge::ConferenceUserAgent& ua,
                        const resip::Data& aor,
-                       OsConfigDb &configDb) : 
+                       OsConfigDb &configDb,
+                       const resip::Data& ipAddress) : 
    mAor(aor),
    mUa(ua),
-   mMedia(ua.mMediaFactory->createMediaInterface(resip::DnsUtil::getLocalIpAddress().c_str(),
-                                                 resip::DnsUtil::getLocalIpAddress().c_str(),
+   mMedia(ua.mMediaFactory->createMediaInterface(ipAddress.c_str(),
+                                                 ipAddress.c_str(),
                                                  ua.mNumCodecs, 
                                                  ua.mSdpCodecArray, 
                                                  "",  // locale

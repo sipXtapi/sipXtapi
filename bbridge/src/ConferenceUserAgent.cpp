@@ -12,6 +12,7 @@
 #include "resip/dum/ServerSubscription.hxx"
 #include "resip/stack/Aor.hxx"
 #include "resip/stack/PlainContents.hxx"
+#include "resip/stack/SipMessage.hxx"
 #include "resip/stack/SdpContents.hxx"
 #include "rutil/DnsUtil.hxx"
 #include "rutil/Log.hxx"
@@ -204,7 +205,7 @@ ConferenceUserAgent::onNewSession(resip::ServerInviteSessionHandle h,
    if (!mConferences.count(aor))
    {
      InfoLog (<< "Adding a conference for " << aor);
-     mConferences[aor] = new Conference(*this, aor, mConfigDb);
+     mConferences[aor] = new Conference(*this, aor, mConfigDb, msg.header(resip::h_Vias).front().sentHost());
    }
    part->assign(mConferences[aor]);
 

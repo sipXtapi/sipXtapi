@@ -44,7 +44,8 @@ class Conference
       */ 
       Conference(ConferenceUserAgent &ua,
                  const resip::Data& aor,
-                 OsConfigDb &configDb);
+                 OsConfigDb &configDb,
+                 const resip::Data& ipAddress);
 
       /**
          Terminates all subscriptions to the conference event package and
