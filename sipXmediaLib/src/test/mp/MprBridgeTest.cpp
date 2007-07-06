@@ -14,6 +14,7 @@
 #include <mp/MpMisc.h>
 #include <mp/MprBridge.h>
 #include <mp/MpBufferMsg.h>
+#include <os/OsDateTime.h>
 
 #include "mp/MpGenericResourceTest.h"
 
@@ -360,10 +361,10 @@ public:
 
    void testMixNormalWeights()
    {
-       const int         numParticipants = 7;
+       const int         numParticipants = 8;
        MprBridge*        pBridge    = NULL;
 
-       CPPUNIT_ASSERT(numParticipants < 8);
+       CPPUNIT_ASSERT(numParticipants <= 8);
        pBridge = new MprBridge("MprBridge", numParticipants,
                                TEST_SAMPLES_PER_FRAME, TEST_SAMPLES_PER_SEC);
        CPPUNIT_ASSERT(pBridge != NULL);
@@ -436,7 +437,7 @@ public:
                 magnitude += (1 << inputIndex);
              }
           }
-          printf("input[%d]] magnitude: %d\n", inputIndex, magnitude);
+          printf("input[%d] magnitude: %d\n", inputIndex, magnitude);
 
           // The even numbered samples should be equal to the magnitude of the
           // odd numberd ones.  The odd numbered should be negative
@@ -449,6 +450,25 @@ public:
              CPPUNIT_ASSERT(samplePtr[sampleIndex] > 0);
           }
        }
+
+       int framesToProcess = 10000;
+       int frameCount;
+       OsTime start;
+       OsTime end;
+       OsDateTime::getCurTime(start);
+
+       for(frameCount = 0; frameCount < framesToProcess; frameCount++)
+       {
+          CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                               mpFlowGraph->processNextFrame());
+       }
+       OsDateTime::getCurTime(end);
+
+       OsTime lapse = end - start;
+       printf("process %d bridge frames: %d.%6d\n", 
+              framesToProcess,
+              lapse.seconds(),
+              lapse.usecs());
 
        // Stop flowgraph
        haltFramework();
