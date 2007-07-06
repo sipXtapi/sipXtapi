@@ -310,8 +310,6 @@ int main(int argc, char* argv[])
    pt_signal(SIGUSR2,  sigHandler);
 #endif
 
-   enableConsoleOutput(TRUE);
-   
    UtlString argString;
    for(int argIndex = 1; argIndex < argc; argIndex++)
    {
