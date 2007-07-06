@@ -38,6 +38,7 @@ class MprBridgeTest : public MpGenericResourceTest
     CPPUNIT_TEST(testEnabledWithManyActiveInputs);
     CPPUNIT_TEST(testSideBar);
     CPPUNIT_TEST(testMixNormalWeights);
+    CPPUNIT_TEST(testSimpleMixPerformance);
     CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -371,7 +372,7 @@ public:
 
        setupFramework(pBridge);
 
-              CPPUNIT_ASSERT(mpSourceResource->enable());
+       CPPUNIT_ASSERT(mpSourceResource->enable());
        int outIndex;
        mpSourceResource->setOutSignalType(MpTestResource::MP_TEST_SIGNAL_SQUARE);
        // Each input is 2**N where N is port index with a fixed period of 2 samples
@@ -451,6 +452,69 @@ public:
           }
        }
 
+       // Stop flowgraph
+       haltFramework();
+
+   } // end testMixNormalWeights()
+
+   void testSimpleMixPerformance()
+   {
+       const int         numParticipants = 8;
+       MprBridge*        pBridge    = NULL;
+
+       CPPUNIT_ASSERT(numParticipants <= 8);
+       pBridge = new MprBridge("MprBridge", numParticipants,
+                               TEST_SAMPLES_PER_FRAME, TEST_SAMPLES_PER_SEC);
+       CPPUNIT_ASSERT(pBridge != NULL);
+
+       setupFramework(pBridge);
+
+       CPPUNIT_ASSERT(mpSourceResource->enable());
+       int outIndex;
+       mpSourceResource->setOutSignalType(MpTestResource::MP_TEST_SIGNAL_SQUARE);
+       // Each input is 2**N where N is port index with a fixed period of 2 samples
+       // (i.e. oscilating from peak to -peak every sample)  This has the advantage
+       // of being the same as a bit mask of input which contribute to any output.
+       int peak = 1;
+       for(outIndex = 0; outIndex < numParticipants; outIndex++)
+       {
+          mpSourceResource->setSignalPeriod(outIndex, 2);
+          mpSourceResource->setSignalAmplitude(outIndex, peak);
+          peak = peak * 2;
+       }
+
+       MpBridgeGain gainsOut[numParticipants][numParticipants];
+       int row, column;
+       for(row = 0; row < numParticipants; row++)
+       {
+          for(column = 0; column < numParticipants; column++)
+          {
+             if(row == column)
+             {
+                gainsOut[row][column] = 0;
+             }
+             else
+             {
+                gainsOut[row][column] = MPF_BRIDGE_FLOAT(2.0f);
+             }
+          }
+       }
+
+       OsMsgQ* flowgraphQueue = mpFlowGraph->getMsgQ();
+       CPPUNIT_ASSERT(flowgraphQueue != NULL);
+
+       int i;
+       for (i=0; i < numParticipants; i++)
+       {
+          CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                               MprBridge::setMixWeightsForOutput("MprBridge",
+                                                                 *flowgraphQueue,
+                                                                 i,
+                                                                 numParticipants,
+                                                                 gainsOut[i]));
+       }
+       CPPUNIT_ASSERT(pBridge->enable());
+
        int framesToProcess = 10000;
        int frameCount;
        OsTime start;
@@ -473,7 +537,8 @@ public:
        // Stop flowgraph
        haltFramework();
 
-   } // end testMixNormalWeights()
+   } // end testSimpleMixPerformance()
+
 };
 
 
