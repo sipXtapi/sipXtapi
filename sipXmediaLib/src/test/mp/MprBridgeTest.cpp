@@ -515,6 +515,10 @@ public:
        }
        CPPUNIT_ASSERT(pBridge->enable());
 
+       // Let flowgraph process all messages before we'll start
+       CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                            mpFlowGraph->processNextFrame());
+
        int framesToProcess = 10000;
        int frameCount;
        OsTime start;
