@@ -440,7 +440,7 @@ public:
           printf("input[%d] magnitude: %d\n", inputIndex, magnitude);
 
           // The even numbered samples should be equal to the magnitude of the
-          // odd numberd ones.  The odd numbered should be negative
+          // odd numbered ones.  The odd numbered should be negative
           int sampleIndex;
           for(sampleIndex = 0; sampleIndex < numSamples; sampleIndex+=2)
           {
