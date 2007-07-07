@@ -362,10 +362,10 @@ public:
 
    void testMixNormalWeights()
    {
-       const int         numParticipants = 8;
+       const int         numParticipants = 15;
        MprBridge*        pBridge    = NULL;
 
-       CPPUNIT_ASSERT(numParticipants <= 8);
+       CPPUNIT_ASSERT(numParticipants < 16);
        pBridge = new MprBridge("MprBridge", numParticipants,
                                TEST_SAMPLES_PER_FRAME, TEST_SAMPLES_PER_SEC);
        CPPUNIT_ASSERT(pBridge != NULL);
@@ -462,7 +462,7 @@ public:
        const int         numParticipants = 8;
        MprBridge*        pBridge    = NULL;
 
-       CPPUNIT_ASSERT(numParticipants <= 8);
+       CPPUNIT_ASSERT(numParticipants < 16);
        pBridge = new MprBridge("MprBridge", numParticipants,
                                TEST_SAMPLES_PER_FRAME, TEST_SAMPLES_PER_SEC);
        CPPUNIT_ASSERT(pBridge != NULL);
