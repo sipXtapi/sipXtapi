@@ -533,7 +533,7 @@ public:
        OsDateTime::getCurTime(end);
 
        OsTime lapse = end - start;
-       printf("process %d bridge frames: %d.%6d\n", 
+       printf("process %d bridge frames: %d.%06d\n", 
               framesToProcess,
               lapse.seconds(),
               lapse.usecs());
