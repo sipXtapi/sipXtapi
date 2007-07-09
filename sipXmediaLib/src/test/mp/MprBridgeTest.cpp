@@ -61,7 +61,6 @@ public:
    void testDisabled()
    {
        MprBridge*        pBridge    = NULL;
-       MpBufPtr          pBuf;
        OsStatus          res;
        int               i;
 
@@ -71,23 +70,6 @@ public:
 
        setupFramework(pBridge);
 
-       // TESTCASE 1:
-       // pBridge disabled, there are no buffers on the input 0.
-       CPPUNIT_ASSERT(mpSourceResource->disable());
-       CPPUNIT_ASSERT(pBridge->disable());
-
-       res = mpFlowGraph->processNextFrame();
-       CPPUNIT_ASSERT(res == OS_SUCCESS);
-
-       // We did not generated any buffers on remote parts
-       for (i=1; i<pBridge->maxOutputs(); i++)
-          CPPUNIT_ASSERT(!mpSinkResource->mLastDoProcessArgs.inBufs[i].isValid());
-
-       // Mixer does not generate data on the local output, cause it can't find
-       // any active audio.
-       CPPUNIT_ASSERT(!mpSinkResource->mLastDoProcessArgs.inBufs[0].isValid());
-
-       // TESTCASE 2:
        // pBridge disabled, there are buffers on all inputs.
        CPPUNIT_ASSERT(mpSourceResource->enable());
        CPPUNIT_ASSERT(pBridge->disable());
@@ -95,17 +77,9 @@ public:
        res = mpFlowGraph->processNextFrame();
        CPPUNIT_ASSERT(res == OS_SUCCESS);
 
-       // Local microphone data (input 0) should be copied to all remote parts
-       // (outputs 1..MAX_BRIDGE_PORTS)
-       pBuf = mpSourceResource->mLastDoProcessArgs.outBufs[0];
+       // No data should be generated.
        for (i=1; i<pBridge->maxOutputs(); i++)
-          CPPUNIT_ASSERT(mpSinkResource->mLastDoProcessArgs.inBufs[i] == pBuf);
-
-       // Mixer generate data on the local output, cause it try to do mixing.
-       CPPUNIT_ASSERT(mpSinkResource->mLastDoProcessArgs.inBufs[0].isValid());
-
-       // Free stored buffer
-       pBuf.release();
+          CPPUNIT_ASSERT(!mpSinkResource->mLastDoProcessArgs.inBufs[i].isValid());
 
        // Stop flowgraph
        haltFramework();
@@ -386,8 +360,24 @@ public:
           peak = peak * 2;
        }
 
-       MpBridgeGain gainsOut[numParticipants][numParticipants];
-       int row, column;
+       const MpBridgeGain I = MP_BRIDGE_GAIN_PASSTHROUGH;
+       MpBridgeGain gainsOut[numParticipants][numParticipants] = {
+          {0, 0, I, I, 0, 0, I, 0, 0, 0, I, 0, 0, 0, I},
+          {I, I, I, I, I, 0, I, I, I, 0, I, I, I, 0, I},
+          {I, 0, 0, 0, I, 0, 0, 0, I, 0, 0, 0, I, 0, 0},
+          {0, 0, I, 0, 0, 0, I, 0, 0, 0, I, 0, 0, 0, I},
+          {0, 0, I, 0, 0, 0, I, 0, 0, 0, I, 0, 0, 0, I},
+          {I, 0, I, I, I, 0, I, I, I, 0, I, I, I, 0, I},
+          {I, 0, 0, 0, I, 0, 0, 0, I, 0, 0, 0, I, 0, 0},
+          {0, 0, I, 0, 0, 0, I, 0, 0, 0, I, 0, 0, 0, I},
+          {0, 0, I, 0, 0, 0, I, 0, 0, 0, I, 0, 0, 0, I},
+          {I, 0, I, I, I, 0, I, I, I, 0, I, I, I, 0, I},
+          {I, 0, 0, 0, I, 0, 0, 0, I, 0, 0, 0, I, 0, 0},
+          {0, 0, I, 0, 0, 0, I, 0, 0, 0, I, 0, 0, 0, I},
+          {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+          {I, 0, I, I, I, 0, I, I, I, 0, I, I, I, 0, I},
+          {I, 0, 0, 0, I, 0, 0, 0, I, 0, 0, 0, I, 0, 0}};
+/*       int row, column;
        for(row = 0; row < numParticipants; row++)
        {
           for(column = 0; column < numParticipants; column++)
@@ -402,6 +392,7 @@ public:
              }
           }
        }
+*/
 
        OsMsgQ* flowgraphQueue = mpFlowGraph->getMsgQ();
        CPPUNIT_ASSERT(flowgraphQueue != NULL);
@@ -425,10 +416,6 @@ public:
        int outputIndex;
        for(outputIndex = 0; outputIndex < numParticipants; outputIndex++)
        {
-          MpAudioBufPtr pBuf = mpSinkResource->mLastDoProcessArgs.inBufs[outputIndex];
-          CPPUNIT_ASSERT(pBuf.isValid());
-          const MpAudioSample* samplePtr = pBuf->getSamplesPtr();
-          int numSamples = pBuf->getSamplesNumber();
           int inputIndex;
           MpAudioSample magnitude = 0;
           for(inputIndex = 0; inputIndex < numParticipants; inputIndex++)
@@ -438,17 +425,33 @@ public:
                 magnitude += (1 << inputIndex);
              }
           }
-          printf("input[%d] magnitude: %d\n", inputIndex, magnitude);
+          printf("Expected output[%d] magnitude: %d (0x%X)\n", outputIndex, magnitude, magnitude);
 
-          // The even numbered samples should be equal to the magnitude of the
-          // odd numbered ones.  The odd numbered should be negative
-          int sampleIndex;
-          for(sampleIndex = 0; sampleIndex < numSamples; sampleIndex+=2)
+          if (magnitude == 0)
           {
-             CPPUNIT_ASSERT_EQUAL(samplePtr[sampleIndex], magnitude);
-             CPPUNIT_ASSERT_EQUAL(samplePtr[sampleIndex], 
-                                  (MpAudioSample)(0 - samplePtr[sampleIndex+1]));
-             CPPUNIT_ASSERT(samplePtr[sampleIndex] > 0);
+             // Output should be silent.
+             CPPUNIT_ASSERT(!mpSinkResource->mLastDoProcessArgs.inBufs[outputIndex].isValid());
+          }
+          else
+          {
+             // Active (not silent) output.
+
+             // Get samples from produced buffer.
+             MpAudioBufPtr pBuf = mpSinkResource->mLastDoProcessArgs.inBufs[outputIndex];
+             CPPUNIT_ASSERT(pBuf.isValid());
+             const MpAudioSample* samplePtr = pBuf->getSamplesPtr();
+             int numSamples = pBuf->getSamplesNumber();
+
+             // The even numbered samples should be equal to the magnitude of the
+             // odd numbered ones.  The odd numbered should be negative
+             int sampleIndex;
+             for(sampleIndex = 0; sampleIndex < numSamples; sampleIndex+=2)
+             {
+                CPPUNIT_ASSERT_EQUAL(magnitude, samplePtr[sampleIndex]);
+                CPPUNIT_ASSERT_EQUAL((MpAudioSample)(0 - samplePtr[sampleIndex+1]),
+                   samplePtr[sampleIndex]);
+                CPPUNIT_ASSERT(samplePtr[sampleIndex] > 0);
+             }
           }
        }
 
