@@ -329,7 +329,8 @@ UtlBoolean MprBridge::doMix(MpBufPtr inBufs[], int inBufsSize,
    //
    //  Build list of active inputs (stored in mpActiveInputsList).
    //
-   for (int extInput=numExtendedInputs-1; extInput>=0; extInput--)
+   int extInput;
+   for ( extInput=numExtendedInputs-1; extInput>=0; extInput-- )
    {
       if (mExtendedInputs.isNotMuted(extInput))
       {
