@@ -321,6 +321,7 @@ UtlBoolean MprBridge::doMix(MpBufPtr inBufs[], int inBufsSize,
                             MpBufPtr outBufs[], int outBufsSize,
                             int samplesPerFrame)
 {
+#ifdef LINEAR_COMPLEXITY_BRIDGE // [
    int numActiveInputs = 0;
    const int numExtendedInputs = mExtendedInputs.getExtendedInputsNum();
 
@@ -698,7 +699,7 @@ UtlBoolean MprBridge::doMix(MpBufPtr inBufs[], int inBufsSize,
    printf("-----------------------------------\n");
 #endif // TEST_PRINT_MIXING ]
 
-   for (int action=mMixActionsStackTop; action>=0; action--)
+   for (int action=mMixActionsStackTop-1; action>=0; action--)
    {
       switch (mpMixActionsStack[action].mType)
       {
@@ -804,8 +805,7 @@ UtlBoolean MprBridge::doMix(MpBufPtr inBufs[], int inBufsSize,
    }
 
    return TRUE;
-
-#if 0
+#else // LINEAR_COMPLEXITY_BRIDGE ][
 
    // Loop over all outputs and mix
    for (int outputNum=0; outputNum<outBufsSize; outputNum++)
@@ -855,7 +855,7 @@ UtlBoolean MprBridge::doMix(MpBufPtr inBufs[], int inBufsSize,
 
    return TRUE;
 
-#endif // 0
+#endif // LINEAR_COMPLEXITY_BRIDGE ]
 
 #if 0
    // == High level algorithm description ==
