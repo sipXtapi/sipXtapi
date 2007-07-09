@@ -250,6 +250,7 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
         int turnKeepAlivePeriodSecs = 25;
         bool enableIce = false ;
 
+        //enableConsoleOutput(1);
 
         CpMediaInterface* mediaInterface = 
             mpMediaFactory->createMediaInterface(NULL, // public mapped RTP IP address
@@ -277,6 +278,9 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
 
         int taskId;
         OsTask::getCurrentTaskId(taskId);
+
+        // Record the entire "call" - all connections.
+        mediaInterface->recordChannelAudio(-1, "testRecordPlayback_call_recording.wav");
      
         StoreSignalNotification playAudNote;
 #ifdef EMBED_PROMPTS
@@ -300,6 +304,7 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
                                   &playAudNote);
 #endif
         OsTask::delay(3500);
+        //enableConsoleOutput(0);
 
         // Check via old OsNotification mechanism if the file finished playing.
         printf("%d event(s) on play event queue:  ", playAudNote.mEDataList.entries());
@@ -376,6 +381,9 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
 
         RTL_WRITE("testRecordPlayback.rtl");
         RTL_STOP;
+
+        // Stop recording the "call" -- all connections.
+        mediaInterface->stopRecordChannelAudio(-1);
 
         mediaInterface->deleteConnection(connectionId) ;
 
