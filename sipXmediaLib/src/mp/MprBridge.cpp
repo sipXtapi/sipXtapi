@@ -14,6 +14,7 @@
 
 // SYSTEM INCLUDES
 #include <assert.h>
+#include <limits.h>
 
 // APPLICATION INCLUDES
 #include <mp/MpBuf.h>
