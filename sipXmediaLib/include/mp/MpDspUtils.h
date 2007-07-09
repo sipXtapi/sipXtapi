@@ -154,6 +154,29 @@ public:
 ///@name Vector Logical and Shift Functions
 //@{
 
+   static inline
+   void shl16_I(int32_t &a, unsigned scale);
+     /**<
+     *  @TODO Write unittest!!!
+     */
+
+   static inline
+   int32_t shl16(int32_t a, unsigned scale);
+     /**<
+     *  @TODO Write unittest!!!
+     */
+
+   static inline
+   void shl32_I(int32_t &a, unsigned scale);
+     /**<
+     *  @TODO Write unittest!!!
+     */
+
+   static inline
+   int32_t shl32(int32_t a, unsigned scale);
+     /**<
+     *  @TODO Write unittest!!!
+     */
 
 //@}
 
@@ -172,8 +195,20 @@ public:
      /// Attenuate source vector by 2^src1ScaleFactor factor and add it to accumulator.
    static OsStatus add_IAtt(const int16_t *pSrc1, int32_t *pSrc2Dst, int dataLength, unsigned src1ScaleFactor);
 
+     /// Add two vectors.
+   static OsStatus add(const int32_t *pSrc1, const int32_t *pSrc2, int32_t *pDst, int dataLength);
+     /**<
+     *  @TODO Write unittest!!!
+     */
+
      /// Multiply source vector by given \p val and add it to accumulator.
    static OsStatus addMul_I(const int16_t *pSrc1, int16_t val, int32_t *pSrc2Dst, int dataLength);
+
+     /// Multiply vector by constant.
+   static OsStatus mul(const int16_t *pSrc, const int16_t val, int32_t *pDst, int dataLength);
+     /**<
+     *  @TODO Write unittest!!!
+     */
 
 #else  // MP_FIXED_POINT ][
 
@@ -192,8 +227,20 @@ public:
       return add_I(pSrc1, pSrc2Dst, dataLength);
    }
 
+     /// Add two vectors.
+   static OsStatus add(const float *pSrc1, const float *pSrc2, float *pDst, int dataLength);
+     /**<
+     *  @TODO Write unittest!!!
+     */
+
      /// Multiply source vector by given \p val and add it to accumulator.
    static OsStatus addMul_I(const int16_t *pSrc1, float val, float *pSrc2Dst, int dataLength);
+
+     /// Multiply vector by constant.
+   static OsStatus mul(const int16_t *pSrc, const float val, float *pDst, int dataLength);
+     /**<
+     *  @TODO Write unittest!!!
+     */
 
 #endif // MP_FIXED_POINT ]
 
@@ -214,6 +261,24 @@ public:
      /// Attenuate vector of 32-bit integers and convert them to 16-bit integers.
    static OsStatus convert_Att(const int32_t *pSrc, int16_t *pDst, int dataLength, unsigned srcScaleFactor);
 
+     /// Convert vector of 16-bit integers to 32-bit integers.
+   static OsStatus convert(const int16_t *pSrc, int32_t *pDst, int dataLength);
+     /**<
+     *  @TODO Write unittest!!!
+     */
+
+     /// Gain vector of 16-bit integers and convert them to 32-bit integers.
+   static OsStatus convert_Gain(const int16_t *pSrc, int32_t *pDst, int dataLength, unsigned srcScaleFactor);
+     /**<
+     *  @TODO Write unittest!!!
+     */
+
+     /// Attenuate vector of 16-bit integers and convert them to 32-bit integers.
+   static OsStatus convert_Att(const int16_t *pSrc, int32_t *pDst, int dataLength, unsigned srcScaleFactor);
+     /**<
+     *  @TODO Write unittest!!!
+     */
+
 #else  // MP_FIXED_POINT ][
 
      /// Convert type of source vector.
@@ -231,6 +296,24 @@ public:
       return convert(pSrc, pDst, dataLength);
    }
 
+     /// Convert type of source vector.
+   static OsStatus convert(const int16_t *pSrc, float *pDst, int dataLength);
+     /**<
+     *  @TODO Write unittest!!!
+     */
+
+     /// Stub for fixed-point mode compatibility. It DOES NOT gains values.
+   static inline OsStatus convert_Gain(const int16_t *pSrc, float *pDst, int dataLength, unsigned srcScaleFactor)
+   {
+      return convert(pSrc, pDst, dataLength);
+   }
+
+     /// Stub for fixed-point mode compatibility. It DOES NOT attenuate values.
+   static inline OsStatus convert_Att(const int16_t *pSrc, float *pDst, int dataLength, unsigned srcScaleFactor)
+   {
+      return convert(pSrc, pDst, dataLength);
+   }
+
 #endif // MP_FIXED_POINT ]
 
 //@}
@@ -240,5 +323,6 @@ public:
 /* ============================ INLINE METHODS ============================ */
 
 #include <mp/MpDspUtilsSum.h>
+#include <mp/MpDspUtilsShift.h>
 
 #endif  // _MpDspUtils_h_

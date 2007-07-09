@@ -44,6 +44,7 @@ nobase_include_HEADERS =  \
     mp/MpDataBuf.h \
     mp/MpDecoderBase.h \
     mp/MpDspUtils.h \
+    mp/MpDspUtilsShift.h \
     mp/MpDspUtilsSum.h \
     mp/MpdGIPSG729ab.h \
     mp/MpdGIPSiLBC.h \

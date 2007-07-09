@@ -2073,10 +2073,10 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\src\mp\MpInputDeviceDriver.cpp">
+				RelativePath=".\src\mp\MpidWinMM.cpp">
 			</File>
 			<File
-				RelativePath=".\src\mp\MpidWinMM.cpp">
+				RelativePath=".\src\mp\MpInputDeviceDriver.cpp">
 			</File>
 			<File
 				RelativePath=".\src\mp\MpInputDeviceManager.cpp">
@@ -4495,6 +4495,9 @@
 				RelativePath=".\include\mp\MpDspUtils.h">
 			</File>
 			<File
+				RelativePath=".\include\mp\MpDspUtilsShift.h">
+			</File>
+			<File
 				RelativePath=".\include\mp\MpDspUtilsSum.h">
 			</File>
 			<File
@@ -4549,10 +4552,10 @@
 				RelativePath="include\mp\MpFromFileStartResourceMsg.h">
 			</File>
 			<File
-				RelativePath=".\include\mp\MpInputDeviceDriver.h">
+				RelativePath=".\include\mp\MpidWinMM.h">
 			</File>
 			<File
-				RelativePath=".\include\mp\MpidWinMM.h">
+				RelativePath=".\include\mp\MpInputDeviceDriver.h">
 			</File>
 			<File
 				RelativePath=".\include\mp\MpInputDeviceManager.h">

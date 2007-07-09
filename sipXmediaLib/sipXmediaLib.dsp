@@ -979,6 +979,10 @@ SOURCE=.\include\mp\MpDspUtils.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\include\mp\MpDspUtilsShift.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\include\mp\MpDspUtilsSum.h
 # End Source File
 # Begin Source File
