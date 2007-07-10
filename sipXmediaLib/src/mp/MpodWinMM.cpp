@@ -18,6 +18,13 @@
 #include <utl/UtlVoidPtr.h>
 #include <os/OsNotification.h>
 
+#ifdef RTL_ENABLED
+#   include <rtl_macro.h>
+#else
+#define RTL_BLOCK(x)
+#define RTL_EVENT(x,y)
+#endif
+
 // APPLICATION INCLUDES
 #include "mp/MpodWinMM.h"
 #include "mp/MpOutputDeviceManager.h"
@@ -29,6 +36,8 @@ extern void showWaveError(char *syscall, int e, int N, int line) ;  // dmaTaskWn
 // CONSTANTS
 // STATIC VARIABLE INITIALIZATIONS
 // DEFINES
+#define LOW_WAVEBUF_LVL 3
+
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // if < msvc7 (2003)
 #  define CBTYPE DWORD
 #else
@@ -53,6 +62,7 @@ MpodWinMM::MpodWinMM(const UtlString& name,
 , mWaveBufSize(0)  // Unknown until enableDevice()
 , mIsOpen(FALSE)
 , mIsInit(FALSE)
+, mTotSampleCount(0)
 {
    WAVEOUTCAPS devCaps;
    // Grab the number of output devices that are available.
@@ -165,6 +175,7 @@ OsStatus MpodWinMM::enableDevice(unsigned samplesPerFrame,
    mSamplesPerFrame = samplesPerFrame;
    mSamplesPerSec = samplesPerSec;
    mCurFrameTime = currentFrameTime;
+   mTotSampleCount = 0;
 
    // Open the wave device.
    int nChannels = 1;
@@ -242,17 +253,22 @@ OsStatus MpodWinMM::enableDevice(unsigned samplesPerFrame,
       }
    }
 
+   // allocate and zero out the silence buffer.
+   mpSilenceBuffer = new char[mWaveBufSize];
+   memset(mpSilenceBuffer, 0, mWaveBufSize);
+
    mIsEnabled = TRUE;
 
    OsStatus pushStat = OS_SUCCESS;
    // Push silent frames to the device to kick-start it,
    // so that if it is in mixer mode, notifications are sent.
-   // Trying only half and seeing how that works.
-   for( i = 0; pushStat == OS_SUCCESS && i < (mNumOutBuffers/2); i++ )
+   // Push the minimum we can, as this adds latency equal to the number of
+   // silence frames we push (LOW_WAVEBUF_LVL frames).
+   for( i = 0; pushStat == OS_SUCCESS && i < LOW_WAVEBUF_LVL; i++ )
    {
       // any of the wave buffers will be zeroed out (silent) now, so go 
       // ahead and use the first one of those.
-      pushStat = pushFrame(mSamplesPerFrame, (MpAudioSample*)mpWaveBuffers[0], 
+      pushStat = pushFrame(mSamplesPerFrame, (MpAudioSample*)mpSilenceBuffer, 
                            getFramePeriod());
    }
 
@@ -359,6 +375,7 @@ OsStatus MpodWinMM::disableDevice()
    mSamplesPerFrame = 0;
    mSamplesPerSec = 0;
    mCurFrameTime = 0;
+   mTotSampleCount = 0;
 
    return status;
 }
@@ -428,6 +445,9 @@ OsStatus MpodWinMM::pushFrame(unsigned int numSamples,
       {
          // Increment the current frame time.
          mCurFrameTime += frameTime;
+
+         // Increase our sample count.
+         mTotSampleCount += numSamples;
 
          status = OS_SUCCESS;
       }
@@ -515,7 +535,7 @@ WAVEHDR* MpodWinMM::initWaveHeader(int n)
    return pWave_hdr;
 }
 
-void MpodWinMM::addEmptyHeader(WAVEHDR* pWaveHdr)
+void MpodWinMM::finalizeProcessedHeader(WAVEHDR* pWaveHdr)
 {
    // CAUTION: THIS IS CALLED FROM THE WAVE CALLBACK CONTEXT!
    OsLock lock(mEmptyHdrVPtrListsMutex);
@@ -528,6 +548,40 @@ void MpodWinMM::addEmptyHeader(WAVEHDR* pWaveHdr)
       // And add it to the empty header list for use by pushFrame.
       mEmptyHeaderList.insert(pvptr);
 
+      // Collect some metrics -- the sample number that windows is on 
+      // (since waveOutOpen)
+      MMTIME mmt;
+      mmt.wType = TIME_SAMPLES;
+      waveOutGetPosition(mDevHandle, &mmt, sizeof(mmt));
+      assert(mmt.wType == TIME_SAMPLES);
+
+      DWORD drvLatencyNSamp = mTotSampleCount - mmt.u.sample;
+      RTL_EVENT("MpodWinMM.callback.driverLatencyNSamples", drvLatencyNSamp);
+
+      // If the number of samples held within windows MME subsystem gets below
+      // 2 frames worth, inject a frame of silence.
+      if(drvLatencyNSamp < LOW_WAVEBUF_LVL*80)
+      {
+         OsStatus pushStat = OS_SUCCESS;
+
+         unsigned nSilenceFramesToPush = 1;
+         unsigned j;
+         for(j = 0; j < nSilenceFramesToPush; j++)
+         {
+            pushStat = 
+               pushFrame(mSamplesPerFrame, 
+                         (MpAudioSample*)mpSilenceBuffer, 
+                         getFramePeriod());
+            if( pushStat != OS_SUCCESS )
+            {
+               OsSysLog::add(FAC_MP, PRI_ERR, 
+                  "During windows output device tick (addEmptyHeader) low buffer "
+                  "level silent frame pumped, pushFrame failed!\n");
+            }
+         }
+      }
+
+      // send a ticker notification so that more frames can be sent.
       if(mpNotifier != NULL)
       {
          mpNotifier->signal(mCurFrameTime);
@@ -556,7 +610,7 @@ MpodWinMM::waveOutCallbackStatic(HWAVEOUT hwo,
       break;
    case WOM_DONE:
       // dwParam1 is a WAVEHDR* when uMsg == WOM_DONE, per windows documentation
-      oddWinMMPtr->addEmptyHeader((WAVEHDR*)dwParam1);
+      oddWinMMPtr->finalizeProcessedHeader((WAVEHDR*)dwParam1);
       break;
    case WOM_CLOSE:
       OsSysLog::add(FAC_MP, PRI_INFO, 

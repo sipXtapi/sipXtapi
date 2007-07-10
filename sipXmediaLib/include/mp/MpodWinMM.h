@@ -132,12 +132,14 @@ protected:
      *  @returns a pointer to the wave header that was initialized.
      */
 
-     /// @brief Adds a header/buffer to the empty header list.
-   void addEmptyHeader(WAVEHDR* pWaveHdr);
+     /// @brief Adds a header/buffer to the empty header list and notifies for a new frame.
+   void finalizeProcessedHeader(WAVEHDR* pWaveHdr);
      /**<
      *  This method, called by the static callback function 
-     *  waveOutCallbackStatic, adds a header/buffer to a list of empty headers,
-     *  so pushFrame knows there are free buffers to fill and send to WMM.
+     *  waveOutCallbackStatic, adds a header/buffer to a list of empty headers 
+     *  so pushFrame knows there are free buffers to fill and send to WMM,
+     *  pumps silence if we are critically low, and sends a ticker notification
+     *  to keep processing data.
      *
      *  @param[in] pWaveHdr - Pointer to a wave header that windows is done with.
      */
@@ -164,12 +166,14 @@ protected:
                                ///< after allocation.
    WAVEHDR* mpWaveHeaders;     ///< Array of nNumInBuffers wave headers.
    LPSTR* mpWaveBuffers;       ///< Array of nNumInBuffers wave buffers.
+   LPSTR  mpSilenceBuffer;     ///< A buffer of silence used during pumping when buffers go empty.
    UtlSList mEmptyHeaderList;  ///< List of pointers to the mpWaveHeaders that 
                                ///< are empty, waiting to be filled.
    UtlSList mUnusedVPtrList;   ///< List of unused UtlVoidPtrs.  Used ones are
                                ///< in mEmptyHeaderList.
    UtlBoolean mIsOpen;         ///< Boolean indicating waveInOpen() completed.
    UtlBoolean mIsInit;         ///< Boolean indicating initialization succeeded.
+   DWORD mTotSampleCount;        ///< A count of the samples coming in via pushFrame.
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
