@@ -56,6 +56,8 @@ class OsNotification;
 *  input device.  The name of the MpOutputDeviceDriver is accessed via the
 *  data() method inherited from UtlString.  This allows MpOutputDeviceDriver
 *  to be contained and accessed by name.
+*
+*  @nosubgrouping
 */
 class MpOutputDeviceDriver : public UtlString
 {
@@ -197,20 +199,19 @@ public:
      *  setTickerNotification() must return OS_NOT_SUPPORTED.
      */
 
-
-//@}
-
      /// Calculate the number of milliseconds that a frame occupies in time. 
    static inline
    MpFrameTime getFramePeriod(unsigned samplesPerFrame,
                               unsigned samplesPerSec);
+
+//@}
 
 /* ============================ INQUIRY =================================== */
 ///@name Inquiry
 //@{
 
      /// Inquire if this driver is enabled
-   virtual UtlBoolean isEnabled();
+   virtual UtlBoolean isEnabled() const;
 
 //@}
 

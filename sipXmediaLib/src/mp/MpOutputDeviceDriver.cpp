@@ -44,7 +44,7 @@ MpOutputDeviceDriver::~MpOutputDeviceDriver()
 
 /* ============================ INQUIRY =================================== */
 
-UtlBoolean MpOutputDeviceDriver::isEnabled()
+UtlBoolean MpOutputDeviceDriver::isEnabled() const
 {
    return mIsEnabled;
 };
