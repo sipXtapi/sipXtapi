@@ -61,35 +61,6 @@ struct RtpHeader {
 
 #define RTP_MAX_CSRCS       16      ///< Maximum number of CSRCs in RTP packet
 
-#define RTP_MAX_TIMESTAMP  (4294967295) ///< Maximum posible RTP timestamp (2^32-1)
-#define RTP_HALF_TIMESTAMP (2147483648) ///< Half of posible RTP timestamps (2^31)
-#define RTP_MAX_SEQ        (65535)      ///< Maximum posible RTP sequence number (2^16-1)
-#define RTP_HALF_SEQ       (32768)      ///< Half of posible RTP sequence numbers (2^15)
-
-// INLINE FUNCTIONS
-
-   /// Is one timestamp bigger, equal or lesser then other.
-int compare(RtpTimestamp timestamp1, RtpTimestamp timestamp2);
-   /**<
-   *  This function should be used instead of simple comparison, cause timestamp
-   *  will wrap around RTP_MAX_TIMESTAMP at some time.
-   *  
-   *  @return  0 if timestamp1 == timestamp2
-   *  @return  1 if timestamp1 > timestamp2
-   *  @return -1 if timestamp1 < timestamp2
-   */
-
-   /// Is one sequence number bigger, equal or lesser then other.
-int compare(RtpSeq seq1, RtpSeq seq2);
-   /**<
-   *  This function should be used instead of simple comparison, cause sequence
-   *  number will wrap around RTP_MAX_SEQ at some time.
-   *  
-   *  @return  0 if seq1 == seq2
-   *  @return  1 if seq1 > seq2
-   *  @return -1 if seq1 < seq2
-   */
-
 ///  Buffer for RTP packet data.
 /**
 *  This is only the header for RTP data. It contain some RTP-related

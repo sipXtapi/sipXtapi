@@ -2159,6 +2159,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\include\mp\MpDspUtilsSerials.h"
+					>
+				</File>
+				<File
 					RelativePath=".\include\mp\MpDspUtilsShift.h"
 					>
 				</File>

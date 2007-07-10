@@ -20,6 +20,7 @@
 #include "mp/MprDejitter.h"
 #include "mp/MpSipxDecoders.h"
 #include "mp/MpMisc.h"
+#include "mp/MpDspUtils.h"
 
 const MpCodecInfo MpdSipxPcma::smCodecInfo(
          SdpCodec::SDP_CODEC_PCMA, JB_API_VERSION, true,
@@ -160,12 +161,12 @@ int MpdSipxPcma::decodeIn(const MpRtpBufPtr &pPacket)
       return 0;
    }
 
-   if (compare(rtpTimestamp, mNextPullTimerCount) <= 0) {
+   if (MpDspUtils::compareSerials(rtpTimestamp, mNextPullTimerCount) <= 0) {
       // A packet is available within the allotted time span
       mUnderflowCount=0;
       // Process the frame if enough time has passed
       RtpSeq iSeqNo = pPacket->getRtpSequenceNumber();
-      if (compare(iSeqNo, mLastSeqNo) < 0)
+      if (MpDspUtils::compareSerials(iSeqNo, mLastSeqNo) < 0)
       {
          // Out of Order Discard
          return -1;  // Discard the packet, it is out of order

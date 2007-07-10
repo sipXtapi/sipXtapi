@@ -34,6 +34,7 @@
 #include "mp/MpBuf.h"
 #include "mp/MprDejitter.h"
 #include "mp/MpMisc.h"
+#include "mp/MpDspUtils.h"
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -103,7 +104,7 @@ OsStatus MprDejitter::pushPacket(const MpRtpBufPtr &pRtp)
       RtpSeq iBufSeqNo = mpPackets[codecIndex][index]->getRtpSequenceNumber();
       RtpSeq iNewSeqNo = pRtp->getRtpSequenceNumber();
 
-      if (compare(iNewSeqNo, iBufSeqNo) > 0) 
+      if (MpDspUtils::compareSerials(iNewSeqNo, iBufSeqNo) > 0) 
       {
          // Insert the new packet over the old packet
          mNumDiscarded[codecIndex]++;
@@ -164,7 +165,7 @@ MpRtpBufPtr MprDejitter::pullPacket(int payloadType, RtpTimestamp maxTimestamp, 
       // If we reach valid packet, move it out of the buffer and break search loop
       if (  mpPackets[codecIndex][iNextPull].isValid()
          && (!lockToTimestamp
-            || compare(mpPackets[codecIndex][iNextPull]->getRtpTimestamp(), maxTimestamp)<=0
+            || MpDspUtils::compareSerials(mpPackets[codecIndex][iNextPull]->getRtpTimestamp(), maxTimestamp)<=0
             )
          )
       {

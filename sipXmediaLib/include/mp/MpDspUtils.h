@@ -150,6 +150,44 @@ public:
 
 //@}
 
+/* ======================= Serial Number Arithmetic ======================= */
+///@name Serial Number Arithmetic (Arithmetic with Overflow)
+//@{
+
+      /// Is \p val1 bigger, equal or lesser then \p val2 (32-bit).
+   static inline
+   int compareSerials(uint32_t val1, uint32_t val2);
+      /**<
+      *  This function should be used when comparing two values that may
+      *  overflow. It assume that values could not differ by more then half
+      *  of their maximum value. See RFC1982 Serial Number Arithmetic
+      *  for better description and rules of use.
+      *
+      *  @retval  0 if val1 == val2
+      *  @retval  1 if val1 \> val2
+      *  @retval -1 if val1 \< val2
+      *
+      *  @TODO Write unittest!!!
+      */
+
+      /// Is \p val1 bigger, equal or lesser then \p val2 (16-bit).
+   static inline
+   int compareSerials(uint16_t val1, uint16_t val2);
+      /**<
+      *  This function should be used when comparing two values that may
+      *  overflow. It assume that values could not differ by more then half
+      *  of their maximum value. See RFC1982 Serial Number Arithmetic
+      *  for better description and rules of use.
+      *
+      *  @return  0 if val1 == val2
+      *  @return  1 if val1 \> val2
+      *  @return -1 if val1 \< val2
+      *
+      *  @TODO Write unittest!!!
+      */
+
+//@}
+
 /* ================== Vector Logical and Shift Functions ================== */
 ///@name Vector Logical and Shift Functions
 //@{
@@ -324,5 +362,6 @@ public:
 
 #include <mp/MpDspUtilsSum.h>
 #include <mp/MpDspUtilsShift.h>
+#include <mp/MpDspUtilsSerials.h>
 
 #endif  // _MpDspUtils_h_
