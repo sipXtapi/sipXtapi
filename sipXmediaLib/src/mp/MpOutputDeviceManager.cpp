@@ -140,7 +140,6 @@ OsStatus MpOutputDeviceManager::enableDevice(MpOutputDeviceHandle deviceId,
    OsStatus status = OS_NOT_FOUND;
    MpAudioOutputConnection* connection = NULL;
    UtlInt deviceKey(deviceId);
-   MpOutputDeviceDriver* deviceDriver = NULL;
 
    OsWriteLock lock(mRwMutex);
 
@@ -347,7 +346,6 @@ OsStatus MpOutputDeviceManager::getMixerBufferLength(MpOutputDeviceHandle device
    OsStatus status = OS_FAILED;
    MpAudioOutputConnection* connection = NULL;
    UtlInt deviceKey(deviceId);
-   MpOutputDeviceDriver* deviceDriver = NULL;
 
    OsReadLock lock(mRwMutex);
 
@@ -383,7 +381,6 @@ MpFrameTime MpOutputDeviceManager::getCurrentFrameTime() const
 
 UtlBoolean MpOutputDeviceManager::isDeviceEnabled(MpOutputDeviceHandle deviceId) const
 {
-   OsStatus status = OS_NOT_FOUND;
    UtlBoolean enabledState = FALSE;
    OsReadLock lock(mRwMutex);
 
