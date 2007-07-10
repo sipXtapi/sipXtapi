@@ -50,17 +50,17 @@ class XmlRpcDispatch;
  * the service in execute(). All the param values are stored in UtlContainable
  * types. The mapping between XML-RPC value types and UtlContainable types is:
  * 
- * - <i4> or <int> is UtlInt
- * - <i8> is UtlLongLongInt
- * - <boolean> is UtlBool
- * - <string> is UtlString
- * - <dateTime.iso8601> is UtlDateTime
- * - <array> is UtlSList
- * - <struct> is UtlHashMap
+ * - \<i4\> or \<int\> is UtlInt
+ * - \<i8\> is UtlLongLongInt
+ * - \<boolean\> is UtlBool
+ * - \<string\> is UtlString
+ * - \<dateTime.iso8601\> is UtlDateTime
+ * - \<array\> is UtlSList
+ * - \<struct\> is UtlHashMap
  * 
- * <i8> is a SIPfoundry extension to XML-RPC that is not compatible with other
+ * \<i8\> is a SIPfoundry extension to XML-RPC that is not compatible with other
  * XML-RPC implementations. 
- * <double> and <base64> are currently not supported.
+ * \<double\> and \<base64\> are currently not supported.
  * 
  */
 
