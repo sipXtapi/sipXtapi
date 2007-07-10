@@ -18,6 +18,14 @@
 //the decision. -Brian Puh
 //
 
+// APPLICATION INCLUDES
+#include "os/OsDefs.h"
+#include "os/OsLock.h"
+#include "mp/MpBuf.h"
+#include "mp/MprDejitter.h"
+#include "mp/MpMisc.h"
+#include "mp/MpDspUtils.h"
+
 // SYSTEM INCLUDES
 #include <assert.h>
 #if defined(_VXWORKS) || defined(__pingtel_on_posix__)
@@ -27,14 +35,6 @@
 #ifdef WIN32
 #include <winsock2.h>
 #endif
-
-// APPLICATION INCLUDES
-#include "os/OsDefs.h"
-#include "os/OsLock.h"
-#include "mp/MpBuf.h"
-#include "mp/MprDejitter.h"
-#include "mp/MpMisc.h"
-#include "mp/MpDspUtils.h"
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
