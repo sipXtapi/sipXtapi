@@ -36,7 +36,7 @@ extern void showWaveError(char *syscall, int e, int N, int line) ;  // dmaTaskWn
 // CONSTANTS
 // STATIC VARIABLE INITIALIZATIONS
 // DEFINES
-#define LOW_WAVEBUF_LVL 3
+#define LOW_WAVEBUF_LVL 4
 
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // if < msvc7 (2003)
 #  define CBTYPE DWORD
@@ -264,7 +264,7 @@ OsStatus MpodWinMM::enableDevice(unsigned samplesPerFrame,
    // so that if it is in mixer mode, notifications are sent.
    // Push the minimum we can, as this adds latency equal to the number of
    // silence frames we push (LOW_WAVEBUF_LVL frames).
-   for( i = 0; pushStat == OS_SUCCESS && i < LOW_WAVEBUF_LVL; i++ )
+   for( i = 0; pushStat == OS_SUCCESS && i < LOW_WAVEBUF_LVL+1; i++ )
    {
       pushStat = pushFrame(mSamplesPerFrame, (MpAudioSample*)mpSilenceBuffer, 
                            getFramePeriod());
@@ -558,9 +558,11 @@ void MpodWinMM::finalizeProcessedHeader(WAVEHDR* pWaveHdr)
 
       // If the number of samples held within windows MME subsystem gets below
       // 2 frames worth, inject a frame of silence.
-      if(drvLatencyNSamp < LOW_WAVEBUF_LVL*80)
+      if(drvLatencyNSamp <= LOW_WAVEBUF_LVL*80)
       {
          OsStatus pushStat = OS_SUCCESS;
+
+         RTL_BLOCK("MpodWinMM.callback.inject");
 
          unsigned nSilenceFramesToPush = 1;
          unsigned j;

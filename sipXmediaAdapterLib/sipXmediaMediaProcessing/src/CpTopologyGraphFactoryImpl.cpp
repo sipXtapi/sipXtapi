@@ -136,16 +136,7 @@ CpTopologyGraphFactoryImpl::CpTopologyGraphFactoryImpl(OsConfigDb* pConfigDb)
     mpOutputDeviceManager =
        new MpOutputDeviceManager(80,   // samples per frame
                                  8000, // samples per second
-#ifdef WIN32 
-                                 // On windows, temporarily enable output device 
-                                 // manager mixer mode, as there are currently
-                                 // problems keeping windows output device driver
-                                 // fed.
-                                 30
-#else
-                                 0
-#endif
-                                 );   // mixer buffer length (ms)
+                                 0);   // mixer buffer length (ms)
 
 
 
