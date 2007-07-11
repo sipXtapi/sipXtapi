@@ -219,9 +219,11 @@ MpCallFlowGraph::MpCallFlowGraph(const char* locale,
 
 #ifndef DISABLE_LOCAL_AUDIO
    // connect: 
-   // FromMic -> MicSplitter -> (EchoCancel) -> (PreProcessor) -> TFsMicMixer
+   // FromMic -> MicSplitter -> (EchoCancel) -> (PreProcessor) -> TFsMicMixer -> ..
    //                       \-> BufferRecorder
-
+   //
+   // .. -> TFsMicMixer -> MicCallrecSplitter -> Bridge
+   
    MpResource *pLastResource; // Last resource in the chain
    pLastResource = mpFromMic;
 
@@ -258,25 +260,29 @@ MpCallFlowGraph::MpCallFlowGraph(const char* locale,
 
 #endif /* DISABLE_LOCAL_AUDIO ] */
 
-   // connect TFsMicMixer -> MicCallrecSplitter
    res = addLink(*mpTFsMicMixer, 0, *mpMicCallrecSplitter, 0);
    assert(res == OS_SUCCESS);
 
-   // connect MicCallrecSplitter -> Bridge
    res = addLink(*mpMicCallrecSplitter, 0, *mpBridge, 0);
    assert(res == OS_SUCCESS);
 
    //////////////////////////////////////////////////////////////////////////
-   // connect Bridge -> SpeakerCallrecSplitter -> TFsBridgeMixer
+   // connect Bridge[0] -> [1]TFsBridgeMixer[0] -> [0]SpeakerCallrecSplitter[0] -> [0]ToSpkr
 
-   res = addLink(*mpBridge, 0, *mpSpeakerCallrecSplitter, 0);
+   res = addLink(*mpBridge, 0, *mpTFsBridgeMixer, 1);
    assert(res == OS_SUCCESS);
 
-   res = addLink(*mpSpeakerCallrecSplitter, 0, *mpTFsBridgeMixer, 1);
+   res = addLink(*mpTFsBridgeMixer, 0, *mpSpeakerCallrecSplitter, 0);
    assert(res == OS_SUCCESS);
+
+#ifndef DISABLE_LOCAL_AUDIO
+   res = addLink(*mpSpeakerCallrecSplitter, 0, *mpToSpkr, 0);
+   assert(res == OS_SUCCESS);
+#endif
 
    //////////////////////////////////////////////////////////////////////////
-   // connect SpeakerCallrecSplitter and MicCallrecSplitter -> CallrecMixer
+   // connect SpeakerCallrecSplitter -> CallrecMixer
+   //             MicCallrecSplitter --/ 
    res = addLink(*mpMicCallrecSplitter, 1, *mpCallrecMixer, 0);
    assert(res == OS_SUCCESS);
 
@@ -284,7 +290,7 @@ MpCallFlowGraph::MpCallFlowGraph(const char* locale,
    assert(res == OS_SUCCESS);
 
    //////////////////////////////////////////////////////////////////////////
-   // connect ToneGen -> FromStream -> FromFile -> Splitter -> TFsBridgeMixer -> ToSpkr
+   // connect ToneGen -> FromStream -> FromFile -> Splitter -> TFsBridgeMixer
    //                                                       -> Mixer
    
    res = addLink(*mpToneGen, 0, *mpFromStream, 0);
@@ -301,11 +307,6 @@ MpCallFlowGraph::MpCallFlowGraph(const char* locale,
 
    res = addLink(*mpToneFileSplitter, 1, *mpTFsMicMixer, 0);
    assert(res == OS_SUCCESS);
-
-#ifndef DISABLE_LOCAL_AUDIO
-   res = addLink(*mpTFsBridgeMixer, 0, *mpToSpkr, 0);
-   assert(res == OS_SUCCESS);
-#endif
 
    //////////////////////////////////////////////////////////////////////////
    // enable the flow graph (and all of the resources within it)
