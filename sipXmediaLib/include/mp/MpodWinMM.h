@@ -41,6 +41,11 @@ class OsNotification;
 *  The MpOutputDeviceDriver is the class for the Microsoft Windows output media 
 *  driver wrapper implementation.  An instance of MpodWinMM is created for
 *  every physical or logical output device (e.g. speaker).  
+*
+*  @note If stuttering occurs from this device driver, one can tweak the 
+*        LOW_WAVEBUF_LVL value in MpodWinMM.cpp, but keep in mind increasing 
+*        this directly increases latency in this device driver.
+*  
 *  @see MpOutputDeviceDriver
 */
 class MpodWinMM : public MpOutputDeviceDriver

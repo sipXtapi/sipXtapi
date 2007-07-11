@@ -266,8 +266,6 @@ OsStatus MpodWinMM::enableDevice(unsigned samplesPerFrame,
    // silence frames we push (LOW_WAVEBUF_LVL frames).
    for( i = 0; pushStat == OS_SUCCESS && i < LOW_WAVEBUF_LVL; i++ )
    {
-      // any of the wave buffers will be zeroed out (silent) now, so go 
-      // ahead and use the first one of those.
       pushStat = pushFrame(mSamplesPerFrame, (MpAudioSample*)mpSilenceBuffer, 
                            getFramePeriod());
    }
