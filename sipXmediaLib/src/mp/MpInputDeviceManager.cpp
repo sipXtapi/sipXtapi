@@ -129,9 +129,17 @@ public:
       OsStatus result = OS_FAILED;
       assert(samples);
 
+#ifdef RTL_AUDIO_ENABLED
+      RTL_RAW_AUDIO(UtlString("MpAudioInputConnection[")\
+                      .append(*mpInputDeviceDriver) \
+                      .append("].pushFrameAudio"), \
+                    mSamplesPerSecond/mSamplesPerFrame, \
+                    numSamples, samples, mLastPushedFrame);
+#endif
+
       //printf("pushFrame frameTime: %d\n", frameTime);
 
-      // TODO: could support reframing here.  For now
+      // TODO: could support re-framing here.  For now
       // the driver must do the correct framing.
       assert(numSamples == mSamplesPerFrame);
 
