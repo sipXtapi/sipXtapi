@@ -43,27 +43,38 @@ public:
    void testLinearTimer()
    {
       MpMMTimer* pMMTimer = NULL;
-
-#ifndef WIN32
+#ifdef WIN32
+      MpMMTimerWnt mmTimerWnt(MpMMTimer::Linear);
+      pMMTimer = &mmTimerWnt;
+#else
       // Right now MMTimers are only implemented for win32.
       // as other platforms are implemented, change this.
       printf("MMTimer not implemented for this platform.  Test disabled.\n");
       return;
 #endif
 
-#ifdef WIN32
-      MpMMTimerWnt mmTimerWnt(MpMMTimer::Linear);
-      pMMTimer = &mmTimerWnt;
-#else
-      printf("MpMMTimerTest::testLinearTimer Not implemented on this platform!");
-      return;
-#endif
-
-      OsTime t;
+      // Test getting the resolution, and get it..
       unsigned resolution;
       CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pMMTimer->getResolution(resolution));
-      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pMMTimer->run(resolution));
+
+      // Set the below two variables and preprocessor defines to tweak this test.
+      // TLT_LOOP_COUNT defines the number of timer fire repetitions to do 
+      // (set this to an even value),
+      // and periodUSecs defines how long to wait in each one.
+#     define TLT_LOOP_CNT 50
+      unsigned periodUSecs = resolution;
+
+
+
+      // Test the period range static method..
+      unsigned unusedMin = 0;
+      unsigned unusedMax = 0;
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, 
+                           MpMMTimer::getPeriodRange(&unusedMin, &unusedMax));
+
+
 #ifdef WIN32
+      // Initialize performance counting measurement tools
       LARGE_INTEGER perfFreqPerSec;
       CPPUNIT_ASSERT(QueryPerformanceFrequency(&perfFreqPerSec) > 0);
       //printf("Performance frequency is %I64d ticks per sec\n", 
@@ -72,10 +83,17 @@ public:
       double perfFreqPerUSec = double(perfFreqPerSec.QuadPart) / double(1000000.0);
       //printf("Performance frequency is %f ticks per usec\n", 
       //       perfFreqPerUSec);
-      LARGE_INTEGER perfCount[50];
+      LARGE_INTEGER perfCount[TLT_LOOP_CNT];
 #endif
+
+      // Initialize the timer.
+      printf("Minimum timer resolution is %d usecs\n", resolution);
+      printf("Firing every %d usecs\n", periodUSecs);
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pMMTimer->run(periodUSecs));
+
+      // Perform the timing measurements.
       int i;
-      for(i = 0; i < 50; i++)
+      for(i = 0; i < TLT_LOOP_CNT; i++)
       {
 #ifdef WIN32
          CPPUNIT_ASSERT(QueryPerformanceCounter(&perfCount[i]) > 0);
@@ -85,13 +103,27 @@ public:
 
 #ifdef WIN32
       __int64 delta;
-      for(i = 0; i < 50; i = i+2)
+      for(i = 0; i < TLT_LOOP_CNT; i = i+2)
       {
          delta = __int64(perfCount[i+1].QuadPart / perfFreqPerUSec) - 
                  __int64(perfCount[i].QuadPart / perfFreqPerUSec);
 
          printf("fireDeltaUSecs (%d-%d) == %I64d usec\n", 
                 i, i+1, delta);
+
+         // Assert when outside an error range of -0us to +2500us,
+         // not including the first value which seems to always be > +2500us.
+         if(i > 0)
+         {
+            // below -0us
+            CPPUNIT_ASSERT_MESSAGE("Timer error falls below lower "
+                                   "error threshold of -0us ", 
+                                   delta - periodUSecs > 0);
+            // above +2000us
+            CPPUNIT_ASSERT_MESSAGE("Timer error falls above upper "
+                                   "error threshold of +2500us ", 
+                                   delta - periodUSecs < 2500);
+         }
       }
 #endif
 

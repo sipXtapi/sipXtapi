@@ -45,17 +45,23 @@ MpMMTimerWnt::MpMMTimerWnt(MpMMTimer::MMTimerType type)
    : MpMMTimer(type)
    , mAlgorithm(Multimedia)  // This will get overwritten
    , mbTimerStarted(FALSE)
-   , mPeriodUSec(0)
+   , mPeriodMSec(0)
    , mbTimerFired(FALSE)
    , mEventHandle(0)
 {
    // We only support linear timer, so only set initialized
    // true if it's constructed as linear.
    mbInitialized = (type == Linear) ? TRUE : FALSE;
-   if(getResolution((unsigned)mResolution) != OS_SUCCESS)
+   unsigned usResolution;
+   if(getResolution(usResolution) != OS_SUCCESS)
    {
       mResolution = 0;
       mbInitialized = FALSE;
+   }
+   else
+   {
+      // Resolution we want is in ms, not us, so convert it..
+      mResolution = usResolution/1000;
    }
 }
 
@@ -111,29 +117,40 @@ OsStatus MpMMTimerWnt::runMultimedia(unsigned usecPeriodic)
       return OS_INVALID_STATE;
    }
 
-   unsigned minPeriod = 0;
-   unsigned maxPeriod = 0;
-   if(getPeriodRange(&minPeriod, &maxPeriod) != OS_SUCCESS)
+
+   unsigned minPeriodUsec = 0;
+   unsigned maxPeriodUsec = 0;
+   if(getPeriodRange(&minPeriodUsec, &maxPeriodUsec) != OS_SUCCESS)
    {
       // Couldn't get the timer resolution.
       return OS_FAILED;
    }
 
-   if(usecPeriodic < minPeriod || usecPeriodic > maxPeriod)
+   // Windows Multimedia timers are only offer millisecond resolution...
+   // If someone provides a usecPeriodic value requesting microsecond resolution,
+   // then bitch.  Also bitch if the requested resolution is outside our 
+   // resolution range.
+   if((usecPeriodic % 1000 > 0) ||
+      (usecPeriodic < minPeriodUsec || usecPeriodic > maxPeriodUsec))
    {
       return OS_INVALID_ARGUMENT;
    }
 
-   if(timeBeginPeriod(usecPeriodic) != TIMERR_NOERROR)
+   unsigned msecPeriodic = usecPeriodic / 1000;
+
+   // Set the timer resolution to the minimum possible,
+   // not the requested period we'll run for, to increase accuracy.
+   // (this used to be set to msecPeriodic)
+   if(timeBeginPeriod(mResolution) != TIMERR_NOERROR)
    {
       status = OS_LIMIT_REACHED;
       OsSysLog::add(FAC_MP, PRI_WARNING, 
-         "Couldn't set minimum MMTIMER begin period to %s", 
-         usecPeriodic);
+         "Couldn't set minimum MMTIMER begin period to %s ms", 
+         mResolution);
    }
    else
    {
-      mPeriodUSec = usecPeriodic;
+      mPeriodMSec = msecPeriodic;
       status = OS_SUCCESS;
       mbTimerStarted = TRUE;
    }
@@ -185,15 +202,16 @@ OsStatus MpMMTimerWnt::stopMultimedia()
 {
    // for multimedia timer, there must be a matching timeEndPeriod call to the
    // timeBeginPeriod call that was originally made.
-   if(timeEndPeriod(mPeriodUSec) != TIMERR_NOERROR)
+   if(timeEndPeriod(mResolution) != TIMERR_NOERROR)
    {
       OsSysLog::add(FAC_MP, PRI_WARNING, 
-         "Couldn't set minimum MMTIMER end period to %s", 
-         mPeriodUSec);
+         "Couldn't set minimum MMTIMER end period to %d ms", 
+         mResolution);
       return OS_FAILED;
    }
 
-   mPeriodUSec = 0;
+   // Reset vars to stopped state.
+   mPeriodMSec = 0;
    mbTimerStarted = FALSE;
 
    if(mTimerType == Linear)
@@ -226,14 +244,15 @@ OsStatus MpMMTimerWnt::waitForNextTick()
    }
 
    MMRESULT timerID = 
-      timeSetEvent(mPeriodUSec, mResolution, (LPTIMECALLBACK)mEventHandle, 
-                   NULL, TIME_CALLBACK_EVENT_SET);
-   if(WaitForSingleObject(mEventHandle, INFINITE) == WAIT_FAILED)
+      timeSetEvent(mPeriodMSec, mResolution, (LPTIMECALLBACK)mEventHandle, 
+                   NULL, TIME_CALLBACK_EVENT_PULSE);
+   if(WaitForSingleObject(mEventHandle, mPeriodMSec) == WAIT_FAILED)
    {
       OsSysLog::add(FAC_MP, PRI_ERR, 
                     "MpMMTimerWnt - timer WaitForSingleObject failed with %s", 
                     GetLastError());
-      return OS_FAILED;
+      // It failed, but it will just have waited till the period ended,
+      // which is exactly what we want... so continue on..
    }
    if(timeKillEvent(timerID) == MMSYSERR_INVALPARAM)
    {

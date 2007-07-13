@@ -43,16 +43,18 @@ OsStatus MpMMTimer::getPeriodRange(unsigned* pMinUSecs,
 #ifdef WIN32
    status = OS_FAILED;
    TIMECAPS timecaps;
+   // timeGetDevCaps deals in msecs, not usecs.. as does the 
+   // rest of the windows MMTimers - thus multiply by 1000.
    if(timeGetDevCaps(&timecaps, sizeof(TIMECAPS)) == TIMERR_NOERROR)
    {
       status = OS_SUCCESS;
       if(pMinUSecs)
       {
-         *pMinUSecs = (unsigned)(timecaps.wPeriodMin);
+         *pMinUSecs = (unsigned)(timecaps.wPeriodMin) * 1000;
       }
       if(pMaxUSecs)
       {
-         *pMaxUSecs = (unsigned)(timecaps.wPeriodMax);
+         *pMaxUSecs = (unsigned)(timecaps.wPeriodMax) * 1000;
       }
    }
    else
