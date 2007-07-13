@@ -51,6 +51,18 @@ ConferenceUserAgent::ConferenceUserAgent(OsConfigDb& db) :
    mNumCodecs(0),
    mMime("application", "conference-info+xml")
 {
+   // Get the IP Address to use for media
+   UtlString ipAddress;
+   mConfigDb.get("BOSTON_BRIDGE_MEDIA_IP_ADDRESS", ipAddress);  // If setting not specified or blank then query OS for IP Address
+   if(ipAddress.length() == 0)
+   {
+      mMediaIpAddress = resip::DnsUtil::getLocalIpAddress();
+   }
+   else
+   {
+      mMediaIpAddress = ipAddress.data();
+   }
+
    // Instruct the factory to use the specified port range
    int rtpPortStart, rtpPortEnd;
    mConfigDb.get("BOSTON_BRIDGE_RTP_START", rtpPortStart);
@@ -205,7 +217,8 @@ ConferenceUserAgent::onNewSession(resip::ServerInviteSessionHandle h,
    if (!mConferences.count(aor))
    {
      InfoLog (<< "Adding a conference for " << aor);
-     mConferences[aor] = new Conference(*this, aor, mConfigDb, msg.header(resip::h_Vias).front().sentHost());
+
+     mConferences[aor] = new Conference(*this, aor, mConfigDb, mMediaIpAddress);
    }
    part->assign(mConferences[aor]);
 

@@ -141,6 +141,7 @@ class ConferenceUserAgent : public resip::InviteSessionHandler,
       resip::Data getConferenceUrl(const resip::Uri& msg);
 
       OsConfigDb &mConfigDb;
+      resip::Data mMediaIpAddress;
       resip::SharedPtr<resip::MasterProfile> mProfile;
       resip::Security* mSecurity;
       resip::SipStack mStack;

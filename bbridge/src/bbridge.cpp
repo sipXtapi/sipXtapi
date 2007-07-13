@@ -51,6 +51,7 @@ const char* CONFIG_SETTING_UDP_PORT          = CONFIG_SETTING_PREFIX "_UDP_PORT"
 const char* CONFIG_SETTING_TCP_PORT          = CONFIG_SETTING_PREFIX "_TCP_PORT";
 const char* CONFIG_SETTING_TLS_PORT          = CONFIG_SETTING_PREFIX "_TLS_PORT";
 const char* CONFIG_SETTING_XMLRPC_PORT       = CONFIG_SETTING_PREFIX "_XMLRPC_PORT";
+const char* CONFIG_SETTING_MEDIA_IP_ADDRESS  = CONFIG_SETTING_PREFIX "_MEDIA_IP_ADDRESS";
 const char* CONFIG_SETTING_RTP_START         = CONFIG_SETTING_PREFIX "_RTP_START";
 const char* CONFIG_SETTING_RTP_END           = CONFIG_SETTING_PREFIX "_RTP_END";
 const char* CONFIG_SETTING_ENTER_SOUND       = CONFIG_SETTING_PREFIX "_ENTER_SOUND";
@@ -357,6 +358,7 @@ int main(int argc, char* argv[])
       configDb.set(CONFIG_SETTING_TCP_PORT, DEFAULT_TCP_PORT);
       configDb.set(CONFIG_SETTING_TLS_PORT, DEFAULT_TLS_PORT);
       configDb.set(CONFIG_SETTING_XMLRPC_PORT, DEFAULT_XMLRPC_PORT);
+      configDb.set(CONFIG_SETTING_MEDIA_IP_ADDRESS, "");
       configDb.set(CONFIG_SETTING_RTP_START, DEFAULT_RTP_START);
       configDb.set(CONFIG_SETTING_RTP_END, DEFAULT_RTP_END);
 
@@ -393,31 +395,37 @@ int main(int argc, char* argv[])
    int UdpPort;
    if (configDb.get(CONFIG_SETTING_UDP_PORT, UdpPort) != OS_SUCCESS)
    {
-      configDb.set(CONFIG_SETTING_UDP_PORT, DEFAULT_UDP_PORT);;
+      configDb.set(CONFIG_SETTING_UDP_PORT, DEFAULT_UDP_PORT);
    }
    
    int TcpPort;
    if (configDb.get(CONFIG_SETTING_TCP_PORT, TcpPort) != OS_SUCCESS)
    {
-      configDb.set(CONFIG_SETTING_TCP_PORT, DEFAULT_TCP_PORT);;
+      configDb.set(CONFIG_SETTING_TCP_PORT, DEFAULT_TCP_PORT);
    }
 
    int TlsPort;
    if (configDb.get(CONFIG_SETTING_TLS_PORT, TlsPort) != OS_SUCCESS)
    {
-      configDb.set(CONFIG_SETTING_TLS_PORT, DEFAULT_TLS_PORT);;
+      configDb.set(CONFIG_SETTING_TLS_PORT, DEFAULT_TLS_PORT);
+   }
+
+   UtlString ipAddress;
+   if (configDb.get(CONFIG_SETTING_MEDIA_IP_ADDRESS, ipAddress) != OS_SUCCESS)
+   {
+      configDb.set(CONFIG_SETTING_MEDIA_IP_ADDRESS, "");
    }
 
    int RtpStart;
    if (configDb.get(CONFIG_SETTING_RTP_START, RtpStart) != OS_SUCCESS)
    {
-      configDb.set(CONFIG_SETTING_RTP_START, DEFAULT_RTP_START);;
+      configDb.set(CONFIG_SETTING_RTP_START, DEFAULT_RTP_START);
    }
 
    int RtpEnd;
    if (configDb.get(CONFIG_SETTING_RTP_END, RtpEnd) != OS_SUCCESS)
    {
-      configDb.set(CONFIG_SETTING_RTP_END, DEFAULT_RTP_END);;
+      configDb.set(CONFIG_SETTING_RTP_END, DEFAULT_RTP_END);
    }
 
    UtlString sipDomain;
