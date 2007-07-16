@@ -14,6 +14,9 @@
 #define _MpidWinMM_h_
 
 // SYSTEM INCLUDES
+#define WIN32_LEAN_AND_MEAN
+#include <Windows.h>
+#include <MMSystem.h>
 
 // APPLICATION INCLUDES
 #include "mp/MpInputDeviceDriver.h"

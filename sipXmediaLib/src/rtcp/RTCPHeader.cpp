@@ -17,8 +17,8 @@
 #include <netinet/in.h>
 #endif
 
-#ifdef WINCE
-#   include <winsock.h>
+#ifdef WIN32
+#   include <winsock2.h>
 #endif
 
     // Constants

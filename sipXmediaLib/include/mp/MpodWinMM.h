@@ -14,6 +14,9 @@
 #define _MpodWinMM_h_
 
 // SYSTEM INCLUDES
+#define WIN32_LEAN_AND_MEAN
+#include <Windows.h>
+#include <MMSystem.h>
 #include <os/OsMutex.h>
 #include <utl/UtlSList.h>
 

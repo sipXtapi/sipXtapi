@@ -12,7 +12,6 @@
 
 
 // SYSTEM INCLUDES
-#include <Windows.h>
 #include <os/OsSysLog.h>
 #include <os/OsLock.h>
 #include <utl/UtlVoidPtr.h>

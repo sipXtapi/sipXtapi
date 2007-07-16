@@ -12,7 +12,6 @@
 
 
 // SYSTEM INCLUDES
-#include <Windows.h>
 #include <os/OsSysLog.h>
 
 // APPLICATION INCLUDES

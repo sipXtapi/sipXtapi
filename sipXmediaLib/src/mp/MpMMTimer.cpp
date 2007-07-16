@@ -11,6 +11,11 @@
 // Author: Keith Kyzivat <kkyzivat AT SIPez DOT com>
 
 // SYSTEM INCLUDES
+#ifdef WIN32 // [
+# define WIN32_LEAN_AND_MEAN
+# include <windows.h>
+# include <MMSystem.h>
+#endif // WIN32 ]
 #include <os/OsStatus.h>
 #include <os/OsSysLog.h>
 

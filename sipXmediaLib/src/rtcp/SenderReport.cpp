@@ -27,8 +27,8 @@
 #include "rtcp/SenderReport.h"
 #ifdef INCLUDE_RTCP /* [ */
 
-#ifdef WINCE
-#   include <winsock.h>
+#ifdef WIN32
+#   include <winsock2.h>
 #endif
 
 // Constants

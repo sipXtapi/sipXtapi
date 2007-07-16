@@ -16,8 +16,8 @@
 #  include <netinet/in.h>
 #endif // __pigntel_on_posix__ ]
 
-#ifdef WINCE
-#  include <winsock.h>
+#ifdef WIN32
+#  include <winsock2.h>
 #endif
 
 // APPLICATION INCLUDES

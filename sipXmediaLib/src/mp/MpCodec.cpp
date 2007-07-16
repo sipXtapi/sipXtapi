@@ -39,6 +39,9 @@ static int sInputMixerId = DEF_INPUTMIXER;
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
+#define WIN32_LEAN_AND_MEAN
+#include <Windows.h>
+#include <MMSystem.h>
 
 
 #include "os/OsUtil.h"
