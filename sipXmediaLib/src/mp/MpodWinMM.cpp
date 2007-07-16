@@ -471,6 +471,11 @@ OsStatus MpodWinMM::setTickerNotification(OsNotification *pFrameTicker)
 }
 
 
+int MpodWinMM::run(void* pUnused)
+{
+   return 0;
+}
+
 /* ////////////////////////// PUBLIC STATIC ///////////////////////////////// */
 UtlString MpodWinMM::getDefaultDeviceName()
 {
