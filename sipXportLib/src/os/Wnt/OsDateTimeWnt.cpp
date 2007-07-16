@@ -10,6 +10,7 @@
 
 
 // SYSTEM INCLUDES
+#define WIN32_LEAN_AND_MEAN
 #include <assert.h>
 #include <windows.h>
 #include <time.h>

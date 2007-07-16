@@ -13,6 +13,7 @@
 #define _OsProcessWnt_h_
 
 // SYSTEM INCLUDES
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
 // APPLICATION INCLUDES

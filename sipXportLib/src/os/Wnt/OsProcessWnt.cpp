@@ -12,6 +12,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
+#define WIN32_LEAN_AND_MEAN
 #include <stdio.h>
 #ifndef WINCE
 #   include <direct.h>

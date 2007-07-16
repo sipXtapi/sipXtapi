@@ -15,6 +15,7 @@
 #ifdef WIN32
 
 // SYSTEM INCLUDES
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <winreg.h>
 #include <stdio.h>

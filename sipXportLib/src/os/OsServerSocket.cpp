@@ -16,7 +16,7 @@
 #include <stdio.h>
 
 #if defined(_WIN32)
-#   include <winsock.h>
+#   include <winsock2.h>
 #undef OsSS_CONST
 #define OsSS_CONST const
 #elif defined(_VXWORKS)

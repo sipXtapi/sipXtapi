@@ -17,7 +17,7 @@
 #define OPTIONAL_VXW_CHARSTAR_CAST
 #define resolvGetHostByName(a, b, c) gethostbyname(a)
 #if defined(_WIN32)
-#   include <winsock.h>
+#   include <winsock2.h>
 #   include <time.h>
 #elif defined(_VXWORKS)
 #   undef resolvGetHostByName

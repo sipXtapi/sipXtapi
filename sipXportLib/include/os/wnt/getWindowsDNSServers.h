@@ -16,10 +16,7 @@
 #ifdef WIN32
 #define MAXIPLEN 40 
 
-#ifdef WINCE
-#include <winsock.h>
-#endif
-
+#include <winsock2.h>
 #include <time.h>
 
 #ifdef __cplusplus

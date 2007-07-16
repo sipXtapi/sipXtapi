@@ -43,6 +43,7 @@ distribution.
 #endif
 
 #if defined( DEBUG ) && defined( _MSC_VER )
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #define TIXML_LOG OutputDebugString
 #else
