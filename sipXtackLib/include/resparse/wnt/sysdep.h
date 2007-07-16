@@ -103,7 +103,7 @@ do { \
 #include <stdio.h>     /* required for compilation on win32.
                         * Probably types.h does not include WCHAR */
 
-#include <winsock.h> /* For NT socket */
+#include <winsock2.h> /* For NT socket */
 
 #ifndef WINCE
 #   include <sys/timeb.h> /* For _ftime() */

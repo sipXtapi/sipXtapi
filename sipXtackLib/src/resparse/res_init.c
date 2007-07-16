@@ -86,7 +86,7 @@ static char rcsid[] = "";
 /* Reordered includes and separated into win/vx --GAT */
 #if defined(_WIN32)
 #       include <resparse/wnt/sys/param.h>
-#       include <winsock.h>
+#       include <winsock2.h>
 #       include <resparse/wnt/netinet/in.h>
 #       include <resparse/wnt/arpa/inet.h>
 #       include <resparse/wnt/arpa/nameser.h>

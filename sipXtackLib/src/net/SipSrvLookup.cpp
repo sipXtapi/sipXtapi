@@ -19,7 +19,7 @@
 #       include <resparse/wnt/netinet/in.h>
 #       include <resparse/wnt/arpa/nameser.h>
 #       include <resparse/wnt/resolv/resolv.h>
-#       include <winsock.h>
+#       include <winsock2.h>
 extern "C" {
 #       include "resparse/wnt/inet_aton.h"       
 }
