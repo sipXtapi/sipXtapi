@@ -63,7 +63,7 @@ public:
       // (set this to an even value),
       // and periodUSecs defines how long to wait in each one.
 #     define TLT_LOOP_CNT 50
-      unsigned periodUSecs = 10000;
+      unsigned periodUSecs = resolution;
 
 
 
@@ -103,41 +103,29 @@ public:
       }
 
 #ifdef WIN32
-      printf("Timing values in microseconds, CSV: \n");
       __int64 delta;
-      __int64 valOutsideThreshs = 0;
       for(i = 0; i < TLT_LOOP_CNT; i = i+2)
       {
          delta = __int64(perfCount[i+1].QuadPart / perfFreqPerUSec) - 
                  __int64(perfCount[i].QuadPart / perfFreqPerUSec);
 
-         // Print output in CSV format, for easy graphing.
-         printf("%I64d", delta);
-         if(i < TLT_LOOP_CNT-2)
-         {
-            printf(", ");
-         }
-         else
-         {
-            printf("\n");
-         }
+         printf("fireDeltaUSecs (%d-%d) == %I64d usec\n", 
+                i, i+1, delta);
 
-         // Check if we're outside some reasonable thresholds.
-         if(i > 0 && // don't include the first value in our tests - it's always high.
-            valOutsideThreshs == 0) // Only check if we haven't already gone outside threshold.
+         // Assert when outside an error range of -0us to +2500us,
+         // not including the first value which seems to always be > +2500us.
+         if(i > 0)
          {
-            if(delta-periodUSecs > 0 ||
-               delta-periodUSecs < 2500)
-            {
-               valOutsideThreshs = delta;
-            }
+            // below -0us
+            CPPUNIT_ASSERT_MESSAGE("Timer error falls below lower "
+                                   "error threshold of -0us ", 
+                                   delta - periodUSecs > 0);
+            // above +2000us
+            CPPUNIT_ASSERT_MESSAGE("Timer error falls above upper "
+                                   "error threshold of +2500us ", 
+                                   delta - periodUSecs < 2500);
          }
       }
-
-      // Assert when outside an error range of -0us to +2500us,
-      CPPUNIT_ASSERT_MESSAGE("Timer error falls outside thresholds of -0 to +2500us",
-                             (valOutsideThreshs-periodUSecs > 0 && 
-                              valOutsideThreshs-periodUSecs < 2500));
 #endif
 
       CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pMMTimer->stop());

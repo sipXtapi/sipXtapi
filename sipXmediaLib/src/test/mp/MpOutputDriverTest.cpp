@@ -33,7 +33,7 @@
 #define DIRECT_WRITE_TEST_RUNS_NUMBER        3
 #define TICKER_TEST_WRITE_RUNS_NUMBER        3
 
-//#define USE_TEST_DRIVER
+#define USE_TEST_DRIVER
 
 #ifdef USE_TEST_DRIVER // USE_TEST_DRIVER [
 #include <mp/MpodBufferRecorder.h>
