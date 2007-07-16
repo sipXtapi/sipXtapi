@@ -14,10 +14,6 @@
 #  include <stddef.h>
 #endif
 
-#ifdef _WIN32
-#include <windows.h>
-#endif
-
 #include <assert.h>
 // APPLICATION INCLUDES
 #include "tapi/sipXtapiEvents.h"

@@ -15,8 +15,9 @@
 // SYSTEM INCLUDES
 #include <assert.h>
 #ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
-#include <winsock.h>
+#include <MMSystem.h>
 #else /* _WIN32 */
 #include <sys/types.h>
 #include <sys/socket.h>
