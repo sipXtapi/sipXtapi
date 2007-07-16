@@ -168,6 +168,7 @@ static SIPX_LINE_DATA* createLineData(SIPX_INSTANCE_DATA* pInst, const Url& uri)
    pData->lineURI = new Url(uri);
    pData->pInst = pInst;
    pData->pMutex = new OsRWMutex(OsRWMutex::Q_FIFO);
+   pData->pLineAliases = NULL;
 
    pInst->pLock->acquire();
    pInst->nLines++;
