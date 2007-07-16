@@ -152,7 +152,7 @@ OsStatus OsUtil::lookupKeyValue(const UtlString& rPrefix,
    assert(rName != "" || rPrefix != "");
 
    pDict = OsNameDb::getNameDb();
-   return pDict->lookup(rPrefix + rName, pValue);
+   return pDict?pDict->lookup(rPrefix + rName, pValue):OS_NOT_FOUND;
 }
 
 // Convert the value in rStr to an integer.
