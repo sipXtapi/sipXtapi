@@ -105,7 +105,7 @@ OsStatus MprFromFile::playBuffer(const char* audioBuffer, unsigned long bufSize,
 
         // Tell CpCall that we've copied the data out of the buffer, so it
         // can continue processing.
-        if (OS_ALREADY_SIGNALED == notify->signal(0))
+        if (notify && OS_ALREADY_SIGNALED == notify->signal(0))
         {
            OsProtectEventMgr* eventMgr = OsProtectEventMgr::getEventMgr();
            eventMgr->release(notify);
