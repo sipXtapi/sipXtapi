@@ -172,24 +172,18 @@ bool OsConnectionSocket::initialize(const char* serverName, int serverPort, UtlB
       serverName = "127.0.0.1";
 #elif defined(__pingtel_on_posix__) || defined(WIN32)
     unsigned long address_val = OsSocket::getDefaultBindAddress();
-#   ifndef _DISABLE_MULTIPLE_INTERFACE_SUPPORT      
     if (address_val == htonl(INADDR_ANY))
         serverName = "localhost";
     else
     {
         struct in_addr in;
-#       ifdef WIN32
+#       ifdef WIN32 // [
             in.S_un.S_addr = address_val;
-#       else
+#       else // WIN32 ]
             in.s_addr = address_val;
-#       endif        
+#       endif // WIN32 ]
         serverName = inet_ntoa(in);
     }
-#   else
-    struct in_addr in;
-    in.s_addr = address_val;
-    serverName = inet_ntoa(in);
-#   endif
 #else
 #error Unsupported target platform.
 #endif

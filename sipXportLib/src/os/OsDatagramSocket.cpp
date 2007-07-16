@@ -110,7 +110,6 @@ OsDatagramSocket::OsDatagramSocket(int remoteHostPortNum,
     }
 
     // Bind to the socket
-#ifndef _DISABLE_MULTIPLE_INTERFACE_SUPPORT
     memset(&localAddr, 0, sizeof(localAddr));
     localAddr.sin_family = AF_INET;
     localAddr.sin_port =
@@ -129,20 +128,14 @@ OsDatagramSocket::OsDatagramSocket(int remoteHostPortNum,
         localAddr.sin_addr.s_addr= ipAddr.s_addr;
         mLocalIp = localHost;
     }
-#else
-    localAddr.sin_family = AF_INET;
-    localAddr.sin_port = htons(localHostPort == PORT_DEFAULT ? 0 : localHostPort);
-    localAddr.sin_addr.s_addr=OsSocket::getDefaultBindAddress(); 
-    OsSocket::getHostIp(&mLocalIp) ;
-#endif
 
 #   if defined(_WIN32)
     error = bind( socketDescriptor, (const struct sockaddr*) &localAddr,
-            sizeof(localAddr));
+                  sizeof(localAddr));
 #   elif defined(_VXWORKS) || defined(__pingtel_on_posix__)
 
     error = bind( socketDescriptor, (struct sockaddr*) &localAddr,
-            sizeof(localAddr));
+                  sizeof(localAddr));
 #   endif
 
     if(error == OS_INVALID_SOCKET_DESCRIPTOR)

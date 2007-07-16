@@ -863,11 +863,7 @@ int OsSocket::getSocketDescriptor() const
 void OsSocket::setDefaultBindAddress(const unsigned long bind_address)
 {
     mInitializeSem.acquire();
-#ifndef _DISABLE_MULTIPLE_INTERFACE_SUPPORT
     m_DefaultBindAddress = bind_address;
-#else
-    OsSysLog::add(FAC_NET, PRI_WARNING, "Multiple interface support disabled on this platform") ;
-#endif
     mInitializeSem.release();
 }
 

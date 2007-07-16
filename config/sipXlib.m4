@@ -16,10 +16,6 @@ AC_DEFUN([SFAC_INIT_FLAGS],
     AC_SUBST(SIPX_LIBDIR, [${libdir}])
 
     SF_CXX_C_FLAGS="-D__pingtel_on_posix__ -D_linux_ -D_REENTRANT -D_FILE_OFFSET_BITS=64 -fmessage-length=0"
-    
-    if test "`uname`" == "Darwin"; then
-        SF_CXX_C_FLAGS="$SF_CXX_C_FLAGS -D_DISABLE_MULTIPLE_INTERFACE_SUPPORT"
-    fi
 
     SF_CXX_WARNINGS="-Wall -Wformat -Wwrite-strings -Wpointer-arith"
     CXXFLAGS="$CXXFLAGS $SF_CXX_C_FLAGS $SF_CXX_WARNINGS"

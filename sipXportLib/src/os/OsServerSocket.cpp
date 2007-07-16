@@ -128,7 +128,6 @@ OsServerSocket::OsServerSocket(int connectionQueueSize,
    // any available port number if PORT_DEFAULT.
    localAddr.sin_port = htons((PORT_DEFAULT == serverPort) ? 0 : serverPort);
 
-#ifndef _DISABLE_MULTIPLE_INTERFACE_SUPPORT
    // Allow IP in on any of this host's addresses or NICs.
    if (szBindAddr)
    {
@@ -140,10 +139,6 @@ OsServerSocket::OsServerSocket(int connectionQueueSize,
       localAddr.sin_addr.s_addr=OsSocket::getDefaultBindAddress();
       mLocalIp = inet_ntoa(localAddr.sin_addr);
    }
-#else
-   localAddr.sin_addr.s_addr=htonl(INADDR_ANY); // Allow IP in on
-   mLocalIp = inet_ntoa(localAddr.sin_addr);
-#endif
 
    if (bPerformBind)
    {

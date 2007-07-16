@@ -89,8 +89,8 @@ OsMulticastSocket::OsMulticastSocket(int multicastPortNum, const char* multicast
 
          /* avoid EADDRINUSE error on bind() */
         iTmp = TRUE;
-        if(setsockopt(socketDescriptor, SOL_SOCKET, SO_REUSEADDR, (char *)&iTmp,
-     sizeof(iTmp)))
+        if (setsockopt(socketDescriptor, SOL_SOCKET, SO_REUSEADDR, (char *)&iTmp,
+                       sizeof(iTmp)))
         {
                 error = OsSocketGetERRNO();
                 close();
@@ -99,7 +99,7 @@ OsMulticastSocket::OsMulticastSocket(int multicastPortNum, const char* multicast
                 goto EXIT;
         }
 
-
+        memset(&localAddr, 0, sizeof(localAddr));
         localAddr.sin_family = AF_INET;
         localAddr.sin_port = htons(multicastPortNum);
         if(localHost == NULL)
@@ -118,11 +118,11 @@ OsMulticastSocket::OsMulticastSocket(int multicastPortNum, const char* multicast
 
 #       if defined(_WIN32)
         error = bind( socketDescriptor, (const struct sockaddr*) &localAddr,
-                        sizeof(localAddr));
+                      sizeof(localAddr));
 #       elif defined(_VXWORKS) || defined(__pingtel_on_posix__)
 
         error = bind( socketDescriptor, (struct sockaddr*) &localAddr,
-                        sizeof(localAddr));
+                      sizeof(localAddr));
 #       else
 #       error Unsupported target platform.
 #       endif
