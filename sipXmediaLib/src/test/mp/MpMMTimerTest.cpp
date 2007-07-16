@@ -58,13 +58,16 @@ public:
       unsigned resolution;
       CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pMMTimer->getResolution(resolution));
 
-      // Set the below two variables and preprocessor defines to tweak this test.
+      // Set the below variables and preprocessor defines to tweak this test.
       // TLT_LOOP_COUNT defines the number of timer fire repetitions to do 
       // (set this to an even value),
       // and periodUSecs defines how long to wait in each one.
-#     define TLT_LOOP_CNT 50
+#     define TLT_LOOP_CNT 200
       unsigned periodUSecs = 10000;
-
+      long lowerThresh = -3000;    // Assert when outside an error range
+      long lowerMeanThresh = -50;  // specified below.
+      long upperThresh = 3000;     // One for single values
+      long upperMeanThresh = 50;   // One for mean values
 
 
       // Test the period range static method..
@@ -104,15 +107,19 @@ public:
 
 #ifdef WIN32
       printf("Timing values in microseconds, CSV: \n");
-      __int64 delta;
-      __int64 valOutsideThreshs = 0;
+      long delta;
+      long valOutsideThreshs = periodUSecs; // initialize to exactly what we want.
+      long meanAvg = 0;
       for(i = 0; i < TLT_LOOP_CNT; i = i+2)
       {
-         delta = __int64(perfCount[i+1].QuadPart / perfFreqPerUSec) - 
-                 __int64(perfCount[i].QuadPart / perfFreqPerUSec);
+         delta = (long)(__int64(perfCount[i+1].QuadPart / perfFreqPerUSec) - 
+                        __int64(perfCount[i].QuadPart / perfFreqPerUSec));
+
+         // Tack on the current delta to our mean avg
+         meanAvg += delta;
 
          // Print output in CSV format, for easy graphing.
-         printf("%I64d", delta);
+         printf("%ld", delta);
          if(i < TLT_LOOP_CNT-2)
          {
             printf(", ");
@@ -124,20 +131,38 @@ public:
 
          // Check if we're outside some reasonable thresholds.
          if(i > 0 && // don't include the first value in our tests - it's always high.
-            valOutsideThreshs == 0) // Only check if we haven't already gone outside threshold.
+            valOutsideThreshs == periodUSecs) // Only check if we haven't already gone outside threshold.
          {
-            if(delta-periodUSecs > 0 ||
-               delta-periodUSecs < 2500)
+            if(delta-(long)periodUSecs < lowerThresh ||
+               delta-(long)periodUSecs > upperThresh)
             {
                valOutsideThreshs = delta;
             }
          }
       }
 
-      // Assert when outside an error range of -0us to +2500us,
-      CPPUNIT_ASSERT_MESSAGE("Timer error falls outside thresholds of -0 to +2500us",
-                             (valOutsideThreshs-periodUSecs > 0 && 
-                              valOutsideThreshs-periodUSecs < 2500));
+      // Finalize determining mean.
+      meanAvg /= (TLT_LOOP_CNT/2);
+      printf("Mean: %ld\n", meanAvg);
+
+      // Assert when single value outside error range specified above.
+      char errStrBuf[256];
+      snprintf(errStrBuf, 256, 
+               "Single timer value %ld falls outside threshold of %ld to %ldus",
+               valOutsideThreshs, lowerThresh, upperThresh);
+
+      CPPUNIT_ASSERT_MESSAGE(errStrBuf,
+                             (valOutsideThreshs-(long)periodUSecs > lowerThresh && 
+                              valOutsideThreshs-(long)periodUSecs < upperThresh));
+
+      // Assert when mean is outside error range specified above.
+      snprintf(errStrBuf, 256, 
+         "Mean timer value %ld falls outside threshold of %ld to %ldus",
+         meanAvg, lowerMeanThresh, upperMeanThresh);
+
+      CPPUNIT_ASSERT_MESSAGE(errStrBuf,
+                             (meanAvg-(long)periodUSecs > lowerMeanThresh && 
+                              meanAvg-(long)periodUSecs < upperMeanThresh));
 #endif
 
       CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pMMTimer->stop());
