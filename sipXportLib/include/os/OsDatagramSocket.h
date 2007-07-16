@@ -1,5 +1,8 @@
+//  
+// Copyright (C) 2007 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -37,11 +40,13 @@ class OsDatagramSocket : public OsSocket
 public:
 
 /* ============================ CREATORS ================================== */
+   
    OsDatagramSocket(int remoteHostPort, const char* remoteHostName,
                     int localHostPort = PORT_DEFAULT,
                     const char* localHostName = NULL);
+     //:Constructor
 
-  virtual
+   virtual
    ~OsDatagramSocket();
      //:Destructor
 
@@ -99,16 +104,20 @@ public:
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 
+   OsDatagramSocket();
+     //:Bare-bones constructor
+     // Callers will need to call bind & doConnect on their own when this returns
+     // (This allows for children to set socket options before the bind call)
+
+   int bind(int localHostPortNum = PORT_DEFAULT, const char* localHost = NULL);
+
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
    OsDatagramSocket(const OsDatagramSocket& rOsDatagramSocket);
      //:Disable copy constructor
 
-   OsDatagramSocket();
-     //:Disable default constructor
-
    OsDatagramSocket& operator=(const OsDatagramSocket& rhs);
-     //:Assignment operator
+     //:Disable assignment operator
 
    time_t mLastWriteErrorTime;
    int    mNumTotalWriteErrors;
@@ -117,6 +126,9 @@ private:
    UtlBoolean mSimulatedConnect;
    UtlBoolean mToSockaddrValid;
    struct sockaddr_in* mpToSockaddr;
+
+   int ctorCommonCode();
+   //:Common code for both constructors.
 
    virtual int writeTo(const char* buffer, int bufferLength);
    //: Blocking write to the socket, with simulated connection

@@ -1,8 +1,8 @@
 //  
-// Copyright (C) 2006 SIPez LLC. 
+// Copyright (C) 2007 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -19,6 +19,7 @@
 #include <sipxunit/TestUtilities.h>
 #include <os/OsTestUtilities.h>
 #include <os/OsDatagramSocket.h>
+#include <os/OsMulticastSocket.h>
 #include <os/OsConnectionSocket.h>
 #include <os/OsServerSocket.h>
 #include <string.h>
@@ -29,6 +30,7 @@ class SocketsTest : public CppUnit::TestCase
     CPPUNIT_TEST(testSocketUtils);
     CPPUNIT_TEST(testWriteMsg);
     CPPUNIT_TEST(testWriteAndAcceptMsg);
+    CPPUNIT_TEST(testMulticast);
     CPPUNIT_TEST_SUITE_END();
 
 
@@ -153,6 +155,45 @@ public:
 
         delete client;
         delete server;
+    }
+
+    /**
+     * Open two multicast sockets and enable local loopback.
+     * Send a few bytes on the 1st & make sure we receive the data back on the 2nd.
+     */
+    void testMulticast()
+    {
+        OsMulticastSocket* writer = new OsMulticastSocket(8022, "224.10.11.12",
+                                                          8022, "224.10.11.12");
+        OsMulticastSocket* reader = new OsMulticastSocket(8022, "224.10.11.12",
+                                                          8022, "224.10.11.12");
+        writer->setHopCount(1);
+
+        // Make sure we'll receive our own message.
+        // * In Winsock, the IP_MULTICAST_LOOP option applies only to the receive path.
+        // * In the UNIX version, the IP_MULTICAST_LOOP option applies to the send path.
+#ifdef WIN32 // [
+        reader->setLoopback(true);
+#else // WIN32 ][
+        writer->setLoopback(true);
+#endif // WIN32 ]
+
+        const char* msg = "hello\n";
+        int len = strlen(msg) + 1; // +1 for NULL
+        int bytesWritten = writer->write(msg, len);
+        CPPUNIT_ASSERT_EQUAL_MESSAGE("write correct number of bytes", 
+                bytesWritten, len);
+
+        char recvBuf[1024];
+        int bytesRead = reader->OsSocket::read(recvBuf, sizeof(recvBuf) - 1, 100);
+        CPPUNIT_ASSERT_EQUAL_MESSAGE("read correct number of bytes", 
+                len, bytesRead);
+        ASSERT_STR_EQUAL_MESSAGE("message same as was sent", msg, recvBuf);
+
+        writer->close();
+        reader->close();
+        delete writer;
+        delete reader;
     }
 };
 
