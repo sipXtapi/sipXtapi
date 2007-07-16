@@ -49,13 +49,13 @@ public:
 
 #define HANDCHECK 0 /* unconditionally print results */
 
-   bool escape(const char* input, const char* correct)
+   UtlBoolean escape(const char* input, const char* correct)
       {
          UtlString in(input);
          UtlString out;
 
          XmlEscape(out,in);
-         bool result = (out == correct);
+         UtlBoolean result = (out == correct);
          if (!result || HANDCHECK)
          {
             printf("---- Escape\n"
@@ -68,13 +68,13 @@ public:
          return result;
       }
       
-   bool unescape(const char* input, const char* correct)
+   UtlBoolean unescape(const char* input, const char* correct)
       {
          UtlString in(input);
          UtlString out;
 
          XmlUnEscape(out,in);
-         bool result = (out == correct);
+         UtlBoolean result = (out == correct);
          if (!result || HANDCHECK)
          {
             printf("---- UnEscape\n"
