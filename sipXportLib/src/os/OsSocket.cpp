@@ -1188,6 +1188,17 @@ UtlBoolean OsSocket::isIp4Address(const char* address)
     return(isIp4);
 }
 
+UtlBoolean OsSocket::isMcastAddr(const char* ipAddress)
+{
+    int a, b, c, d;
+    if (!ipAddress || sscanf(ipAddress, "%d.%d.%d.%d", &a, &b, &c, &d) != 4)
+        return FALSE;
+
+    if (a >= 224 && a <= 239)
+        return FALSE;
+    else
+        return TRUE;
+}
 
 UtlBoolean OsSocket::isSameHost(const char* host1, const char* host2)
 {

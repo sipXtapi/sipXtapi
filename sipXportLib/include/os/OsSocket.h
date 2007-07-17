@@ -291,6 +291,9 @@ public:
    //:Is the address a dotted IP4 address
    // (i.e., nnn.nnn.nnn.nnn where 0 <= nnn <= 255)
 
+   static UtlBoolean isMcastAddr(const char* ipAddress);
+   //:Is the given dotted IP4 address a multicast address
+
    static UtlBoolean isLocalHost(const char* hostAddress);
    //:Is the given host name this host
 
