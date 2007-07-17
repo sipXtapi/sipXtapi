@@ -87,6 +87,9 @@ protected:
                                          UtlString* pRecvFromIp,
                                          int*       pRecvFromPort) ;
 
+    /**
+     *  Handle/process an inbound STUN or TURN message.
+     */
     virtual bool handleSturnData(char*      buffer, 
                                  int&       bufferLength,
                                  UtlString& receivedIp,
