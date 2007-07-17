@@ -16,7 +16,7 @@
 // SYSTEM INCLUDES
 #include <os/OsStatus.h>
 #include <os/OsTime.h>
-#include <os/OsCallback.h>
+#include <os/OsNotification.h>
 
 // APPLICATION INCLUDES
 #include "mp/MpTypes.h"
@@ -57,22 +57,24 @@ public:
 public:
    typedef enum 
    {
-      Linear = 0,         ///< For use with lockForNextTick()
-      Os_Callback = 1,     ///< For use with setOsCallback()
-      On_Fire = 2          ///< For use with onFire()
+      Linear = 0,         ///< For use with waitForNextTick()
+      Notification = 1,     ///< For use with setNotification()
    } MMTimerType;
 
    virtual
-   OsStatus setCallback(OsCallback* callbackFn);
+   OsStatus setNotification(OsNotification* notification);
      /**<
-      * @brief Set callback function for the OsCallback timer type.
+      * @brief Set notification for the OsNotification timer type.
       * 
-      * Signals will sent with pointer to this timer instance in \p eventData member.
-      * @param[in] callbackFn Callback function will be use for signaling.
-      * @retval OS_SUCCESS Returns when callback was set.
-      * @retval OS_INVALID_STATE Returns when calling this function for non-OsCallback timer type.
-      * @retval OS_FAILED Returns when mandatories initializations failed (maybe in constructor) and
-      *                   later calls will fails too for this instance.
+      * Signals will be sent to this notification when the timer ticks.
+      * Pointer to this timer instance will be set in \p eventData member.
+      * @param[in] notification - object to notify when timer fires/ticks.
+      * @retval OS_SUCCESS Returned when notification is set.
+      * @retval OS_INVALID_STATE Returned when calling this function for 
+      *                          non-Notification timer type.
+      * @retval OS_FAILED Returned when mandatory initialization failed 
+      *                   (maybe in the constructor) and later calls will fail
+      *                   for this instance also.
       */
 
    virtual 
@@ -123,14 +125,6 @@ public:
       * @retval OS_INVALID_STATE Returns when timer has not been started.
       */
 
-
-   virtual
-   void onFire(UtlBoolean bFirstFire) = 0;
-     /**< 
-      * Callback Function that should be implemented in the derived class
-      * 
-      * @param[in] bFirstFire Set to TRUE for first signal after stopping state.
-      */
 
    virtual
    OsStatus waitForNextTick();

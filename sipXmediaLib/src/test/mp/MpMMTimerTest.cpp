@@ -15,12 +15,30 @@
 #include <mp/MpMMTimer.h>
 #include <os/OsDateTime.h>
 #include <os/OsSysLog.h>
+#include <os/OsNotification.h>
+#include <os/OsTask.h>
 
 #ifdef WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <mp/MpMMTimerWnt.h>
 #endif
+
+// Forward Decl's
+class MpMMTimerTest;
+
+class TimerNotification : public OsNotification
+{
+public:
+   TimerNotification(MpMMTimerTest* pMMTimerTest);
+   virtual ~TimerNotification() {}
+   OsStatus signal(const intptr_t eventData);
+
+private:
+   MpMMTimerTest* mpMMTimerTest;
+};
+
+
 
 /**
  * Unittest for MpMMTimer and its successors
@@ -31,16 +49,27 @@ class MpMMTimerTest : public CppUnit::TestCase
    CPPUNIT_TEST(testGetResolution);
    CPPUNIT_TEST(testPeriodRange);
    CPPUNIT_TEST(testLinearTimer);
+   CPPUNIT_TEST(testNotificationTimer);
    CPPUNIT_TEST_SUITE_END();
 
 
 public:
    void setUp()
    {
+      mpPerfCounts = NULL;
+      mPerfCountsSz = 0;
+      mCurNPerfCounts = 0;
    }
 
    void tearDown()
    {
+      if(mpPerfCounts != NULL)
+      {
+         delete[] mpPerfCounts;
+      }
+      mpPerfCounts = NULL;
+      mPerfCountsSz = 0;
+      mCurNPerfCounts = 0;
    }
 
 #ifdef WIN32
@@ -94,12 +123,12 @@ public:
 
       // Finalize determining mean.
       meanAvg /= nDeltas;
-      printf("Mean: %ld\n", meanAvg);
+      printf("Mean: %ld us\n", meanAvg);
 
       // Assert when single value outside error range specified above.
       char errStrBuf[256];
       snprintf(errStrBuf, 256, 
-               "Single timer value %ld falls outside threshold of %ld to %ldus",
+               "Single timer value %ld falls outside threshold of %ld to %ld us",
                valOutsideThreshs, lowerThresh, upperThresh);
 
       CPPUNIT_ASSERT_MESSAGE(errStrBuf,
@@ -108,7 +137,7 @@ public:
 
       // Assert when mean is outside error range specified above.
       snprintf(errStrBuf, 256, 
-         "Mean timer value %ld falls outside threshold of %ld to %ldus",
+         "Mean timer value %ld falls outside threshold of %ld to %ld us",
          meanAvg, lowerMeanThresh, upperMeanThresh);
 
       CPPUNIT_ASSERT_MESSAGE(errStrBuf,
@@ -197,8 +226,125 @@ public:
       CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pMMTimer->stop());
    }
 
+   void notificationTimerRecordTick()
+   {
+#ifdef WIN32
+      int x;
+      x = mPerfCountsSz;
+      CPPUNIT_ASSERT(mpPerfCounts != NULL);
+      CPPUNIT_ASSERT(mPerfCountsSz > 0);
+
+      // Collect measurements while we have space left.
+      if(mCurNPerfCounts < mPerfCountsSz)
+      {
+         CPPUNIT_ASSERT(QueryPerformanceCounter(&mpPerfCounts[mCurNPerfCounts++]) > 0);
+      }
+#else
+      // Nothing is currently done on other platforms, as none are implemented
+      // on other platforms
+#endif
+   }
+
+   void testNotificationTimer()
+   {
+      // Set the below variables and preprocessor defines to tweak this test.
+      // mPerfCountsSz defines the number of timer fire repetitions to do 
+      // (set this to an even value),
+      // and periodUSecs defines how long to wait in each one.
+      mPerfCountsSz = 200;
+      unsigned periodUSecs = 10000;
+      long lowerThresh = -3000;    // Assert when outside an error range
+      long lowerMeanThresh = -50;  // specified below.
+      long upperThresh = 3000;     // One for single values
+      long upperMeanThresh = 50;   // One for mean values
+
+      TimerNotification timerNotification(this);
+      MpMMTimer* pMMTimer = NULL;
+#ifdef WIN32
+      MpMMTimerWnt mmTimerWnt(MpMMTimer::Notification);
+      pMMTimer = &mmTimerWnt;
+
+      double perfFreqPerUSec = initializeWin32PerfMeasurementTools();
+      mpPerfCounts = new LARGE_INTEGER[mPerfCountsSz];
+#else
+      // Right now MMTimers are only implemented for win32.
+      // as other platforms are implemented, change this.
+      printf("MMTimer not implemented for this platform.  Test disabled.\n");
+      return;
+#endif
+
+      // Set the notification..
+      pMMTimer->setNotification(&timerNotification);
+
+      // Initialize the timer.
+      printf("Firing every %d usecs\n", periodUSecs);
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pMMTimer->run(periodUSecs));
+
+      // Wait for the callbacks to perform the timing measurements.
+      OsTask::delay(periodUSecs*mPerfCountsSz/1000 + 50);
+      
+      // The callbacks should be done by now, so if they aren't,
+      // then bitch.
+      //We should have a current count of the actual size of the perf buffer.
+      CPPUNIT_ASSERT_EQUAL(mPerfCountsSz, mCurNPerfCounts);
+
+      // Clear the OsNotification, as it doesn't need to be continuing to notify.
+      pMMTimer->setNotification(NULL);
+
+      // Determine delta times from individual time measurements..
+      long* pDeltas = new long[mPerfCountsSz/2];
+      unsigned i;
+      for(i = 0; i < mPerfCountsSz; i = i+2)
+      {
+         pDeltas[(i+1)/2] = 
+#ifdef WIN32
+            (long)(__int64(mpPerfCounts[i+1].QuadPart / perfFreqPerUSec) - 
+                   __int64(mpPerfCounts[i].QuadPart / perfFreqPerUSec));
+#else
+            0;
+#endif
+      }
+
+      checkDeltasAgainstThresholds(pDeltas, mPerfCountsSz/2, 
+                                   periodUSecs, 
+                                   lowerThresh, upperThresh,
+                                   lowerMeanThresh, upperMeanThresh);
+
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pMMTimer->stop());
+
+      // Cleanup!
+      delete[] pDeltas;
+      pDeltas = NULL;
+      delete[] mpPerfCounts;
+      mpPerfCounts = NULL;
+      mCurNPerfCounts = 0;
+      mPerfCountsSz = 0;
+   }
+
 protected:
 
+#ifdef WIN32
+   LARGE_INTEGER* mpPerfCounts;
+   unsigned mPerfCountsSz;
+   unsigned mCurNPerfCounts;
+#endif
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(MpMMTimerTest);
+
+
+
+
+
+// Implementation of TimerNotification methods.
+TimerNotification::TimerNotification(MpMMTimerTest* pMMTimerTest) 
+   : mpMMTimerTest(pMMTimerTest)
+{
+   CPPUNIT_ASSERT(pMMTimerTest != NULL);
+}
+
+OsStatus TimerNotification::signal(const intptr_t eventData) 
+{
+   mpMMTimerTest->notificationTimerRecordTick();
+   return OS_SUCCESS;
+}

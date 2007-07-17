@@ -37,26 +37,24 @@ private:
 public:
    typedef enum 
    {
-      Multimedia = 0,         ///< Microsoft Multimedia timers (W95+, CE)
-      WaitableTimer = 1,      ///< Microsoft Waitable Timers (W98/NT+) (Not Implemented)
-      QueueTimer = 2          ///< Microsoft Queue Timers (W2k+) (Not Implemented)
+      Multimedia = 0         ///< Microsoft Multimedia timers (W95+, CE)
+      // Other possible choices, which have yet to be implemented: 
+      // Microsoft Waitable Timers (W98/NT+) (Not Implemented)
+      // Microsoft Queue Timers (W2k+) (Not Implemented)
    } MMTimerWntAlgorithms;
 
    MpMMTimerWnt(MpMMTimer::MMTimerType type);
    virtual ~MpMMTimerWnt();
 
-     /// @copydoc MpMMTimer::setCallback(OsCallback*)
-   virtual inline OsStatus setCallback(OsCallback* callbackFn);
+     /// @copydoc MpMMTimer::setNotification()
+   virtual inline OsStatus setNotification(OsNotification* notification);
 
-   /// @copydoc MpMMTimer::run(unsigned, unsigned)
+   /// @copydoc MpMMTimer::run()
    virtual OsStatus run(unsigned usecPeriodic, 
                         unsigned uAlgorithm = MPMMTIMER_ALGORITHM_DEFAULT);
 
      /// @copydoc MpMMTimer::stop()
    virtual OsStatus stop();
-
-     /// @copydoc MpMMTimer::onFire(UtlBoolean);
-   virtual void onFire(UtlBoolean bFirstFire);
 
      /// @copydoc MpMMTimer::waitForNextTick()
    OsStatus waitForNextTick();
@@ -92,9 +90,9 @@ private:
    BOOL mbInitialized; ///< Whether we're fully initialized or not, or are in some failure state.
    BOOL mbTimerStarted; ///< Indicator of timer started or not.
    unsigned mPeriodMSec; ///< The current millisecond period being used.  0 when no timer.
-   BOOL mbTimerFired; ///< Set to false until the timer first fires, then set to true thereafter. reset on stop.
    unsigned mResolution; ///< Cached timer resolution in ms, queried for and stored at startup.
    HANDLE mEventHandle; ///< Only valid in Linear mode, holds handle to an event.
+   OsNotification* mpNotification; ///< Notification object used to signal a tick of the timer.
    MMRESULT mTimerId; ///< The ID of the MM timer we're using.
 };
 
@@ -102,9 +100,10 @@ private:
 
 // Inline Function Implementation
 
-OsStatus MpMMTimerWnt::setCallback(OsCallback* callbackFn)
+OsStatus MpMMTimerWnt::setNotification(OsNotification* notification)
 { 
-   return OS_NOT_YET_IMPLEMENTED;
+   mpNotification = notification;
+   return OS_SUCCESS;
 }
 
 

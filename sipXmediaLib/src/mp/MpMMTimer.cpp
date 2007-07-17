@@ -72,7 +72,7 @@ OsStatus MpMMTimer::getPeriodRange(unsigned* pMinUSecs,
 }
 
 // Non-static methods
-OsStatus MpMMTimer::setCallback(OsCallback* callbackFn)
+OsStatus MpMMTimer::setNotification(OsNotification* notification)
 {
    return OS_INVALID_STATE;
 }

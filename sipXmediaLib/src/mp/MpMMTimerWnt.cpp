@@ -18,6 +18,7 @@
 
 // APPLICATION INCLUDES
 
+
 void CALLBACK 
 MpMMTimerWnt::timeProcCallback(UINT uID, UINT uMsg, DWORD dwUser, 
                                DWORD dw1, DWORD dw2)
@@ -25,16 +26,19 @@ MpMMTimerWnt::timeProcCallback(UINT uID, UINT uMsg, DWORD dwUser,
    MpMMTimerWnt* srcObj = (MpMMTimerWnt*)dwUser;
    if(srcObj == NULL) return;
 
-   if(srcObj->getTimerType() != On_Fire)
+   assert(srcObj->getTimerType() == Notification);
+   if(srcObj->getTimerType() != Notification)
    {
-      // Don't do anything
+      // Don't do anything if the timer type is not notification
+      // this shouldn't ever happen.
       return;
    }
-   else // if(srcObj->mTimerType == On_Fire)
+   
+   // If we have a notification pointer,
+   if(srcObj->mpNotification != NULL)
    {
-      BOOL firstFire = (srcObj->mbTimerFired == TRUE) ? FALSE : TRUE;
-      srcObj->onFire(firstFire);
-      srcObj->mbTimerFired = TRUE;
+      // Then signal it to indicate a tick.
+      srcObj->mpNotification->signal((intptr_t)srcObj);
    }
 }
 
@@ -45,13 +49,15 @@ MpMMTimerWnt::MpMMTimerWnt(MpMMTimer::MMTimerType type)
    , mAlgorithm(Multimedia)  // This will get overwritten
    , mbTimerStarted(FALSE)
    , mPeriodMSec(0)
-   , mbTimerFired(FALSE)
    , mEventHandle(0)
+   , mpNotification(NULL)
    , mTimerId(0)
 {
-   // We only support linear timer, so only set initialized
-   // true if it's constructed as linear.
-   mbInitialized = (type == Linear) ? TRUE : FALSE;
+   // We support both types of timers --
+   // Linear and Notification, so just indicate we're initialized,
+   // There's nothing to do.
+   mbInitialized = TRUE;
+
    unsigned usResolution;
    if(getResolution(usResolution) != OS_SUCCESS)
    {
@@ -110,14 +116,6 @@ OsStatus MpMMTimerWnt::runMultimedia(unsigned usecPeriodic)
       return OS_INVALID_STATE;
    }
 
-   if(mTimerType != Linear)
-   {
-      // We only support linear.. if this was constructed with something
-      // else then fail.
-      return OS_INVALID_STATE;
-   }
-
-
    unsigned minPeriodUsec = 0;
    unsigned maxPeriodUsec = 0;
    if(getPeriodRange(&minPeriodUsec, &maxPeriodUsec) != OS_SUCCESS)
@@ -155,7 +153,17 @@ OsStatus MpMMTimerWnt::runMultimedia(unsigned usecPeriodic)
       mbTimerStarted = TRUE;
    }
 
-   if(mTimerType == Linear)
+   if(mTimerType == Notification)
+   {
+      mTimerId =
+         timeSetEvent(mPeriodMSec, mResolution, 
+                      (LPTIMECALLBACK)&MpMMTimerWnt::timeProcCallback,
+                      (DWORD)this, 
+                      TIME_PERIODIC | TIME_CALLBACK_FUNCTION
+                      | TIME_KILL_SYNCHRONOUS
+                      );
+   }
+   else if(mTimerType == Linear)
    {
       // Create the event.
       mEventHandle = CreateEvent(NULL, TRUE, FALSE, NULL);
@@ -163,7 +171,9 @@ OsStatus MpMMTimerWnt::runMultimedia(unsigned usecPeriodic)
       mTimerId = 
          timeSetEvent(mPeriodMSec, mResolution, (LPTIMECALLBACK)mEventHandle, 
                       NULL, 
-                      TIME_PERIODIC | TIME_CALLBACK_EVENT_PULSE | TIME_KILL_SYNCHRONOUS);
+                      TIME_PERIODIC | TIME_CALLBACK_EVENT_PULSE
+                      | TIME_KILL_SYNCHRONOUS
+                      );
    }
 
    return status;
@@ -196,9 +206,6 @@ OsStatus MpMMTimerWnt::stop()
       // for that algorithm) in order to get here.
       stat = OS_FAILED;
    }
-
-   // Reset the timer fired state.
-   mbTimerFired = FALSE;
 
    return stat;
 }
@@ -237,10 +244,6 @@ OsStatus MpMMTimerWnt::stopMultimedia()
    }
 
    return OS_SUCCESS;
-}
-
-void MpMMTimerWnt::onFire(UtlBoolean bFirstFire) 
-{
 }
 
 OsStatus MpMMTimerWnt::waitForNextTick()
