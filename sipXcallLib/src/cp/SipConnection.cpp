@@ -1299,7 +1299,7 @@ UtlBoolean SipConnection::answer(const void* pDisplay)
 
                 if (mRtpTransport != RTP_TRANSPORT_UDP)
                 {
-                    // the callee must determime its TCP role,
+                    // the callee must determine its TCP role,
                     // which, in turn will determine the remote
                     // endpoint's TCP role.
                     // The tcp role will be communicated via the sdp
