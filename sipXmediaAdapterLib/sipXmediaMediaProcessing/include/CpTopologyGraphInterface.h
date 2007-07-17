@@ -75,7 +75,8 @@ public:
 
    virtual OsStatus createConnection(int& connectionId,
                                      const char* szLocalAddress,
-                                     void* videoWindowHandle, 
+                                     int localPort = 0,
+                                     void* videoWindowHandle = NULL,
                                      void* const pSecurityAttributes = NULL,
                                      ISocketEvent* pIdleEvent = NULL,
                                      IMediaEventListener* pMediaEventListener = NULL,
@@ -477,16 +478,18 @@ protected:
 
       /// Create socket pair for RTP/RTCP streams.
     void createRtpSocketPair(UtlString localAddress,
+                             int localPort,
                              SIPX_CONTACT_TYPE contactType,
                              OsNatDatagramSocket* &rtpSocket,
                              OsNatDatagramSocket* &rtcpSocket);
       /**<
       *  For RTP/RTCP port pair will be set next free port pair.
       *  
-      *  @param localAddress - (in) address to bind to (for multihomed hosts).
-      *  @param contactType - (in) contact type (see SIPX_CONTACT_TYPE).
-      *  @param rtpSocket - (out) created socket for RTP stream.
-      *  @param rtcpSocket - (out) created socket for RTCP stream.
+      *  @param[in] localAddress - Address to bind to (for multihomed hosts).
+      *  @param[in] localPort - Local port to bind to (0 for auto select).
+      *  @param[in] contactType - Contact type (see SIPX_CONTACT_TYPE).
+      *  @param[out] rtpSocket - Created socket for RTP stream.
+      *  @param[out] rtcpSocket - Created socket for RTCP stream.
       */
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */

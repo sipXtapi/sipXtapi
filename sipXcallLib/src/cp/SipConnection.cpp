@@ -824,6 +824,7 @@ UtlBoolean SipConnection::dial(const char* dialString,
         if (!bAudioAvailable ||
             mpMediaInterface->createConnection(mConnectionId,
                                                localAddress,
+                                               0,
                                                (void*)pDisplay,
                                                (void*)pSecurity,
                                                this,
@@ -3500,6 +3501,7 @@ void SipConnection::processInviteRequest(const SipMessage* request)
         createdConnection = mpMediaInterface->createConnection(
                 mConnectionId,
                 request->getLocalIp().data(),
+                0,
                 NULL /* VIDEO: WINDOW HANDLE */,
                 mpSecurity,
                 (ISocketEvent*)this,

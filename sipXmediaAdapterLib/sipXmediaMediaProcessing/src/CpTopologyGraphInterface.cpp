@@ -340,12 +340,13 @@ void CpTopologyGraphInterface::release()
 /* ============================ MANIPULATORS ============================== */
 
 OsStatus CpTopologyGraphInterface::createConnection(int& connectionId,
-                                                 const char* szLocalAddress,
-                                                 void* videoWindowHandle, 
-                                                 void* const pSecurityAttributes,
-                                                 ISocketEvent* pIdleEvent,
-                                                 IMediaEventListener* pMediaEventListener,
-                                                 const RtpTransportOptions rtpTransportOptions)
+                                                    const char* szLocalAddress,
+                                                    int localPort,
+                                                    void* videoWindowHandle, 
+                                                    void* const pSecurityAttributes,
+                                                    ISocketEvent* pIdleEvent,
+                                                    IMediaEventListener* pMediaEventListener,
+                                                    const RtpTransportOptions rtpTransportOptions)
 {
    CpTopologyMediaConnection* mediaConnection=NULL;
    CpTopologyGraphFactoryImpl* pTopologyFactoryImpl = (CpTopologyGraphFactoryImpl*)mpFactoryImpl;
@@ -372,7 +373,8 @@ OsStatus CpTopologyGraphInterface::createConnection(int& connectionId,
    }
 
    // Create the sockets for audio stream
-   createRtpSocketPair(mediaConnection->mLocalAddress, mediaConnection->mContactType,
+   createRtpSocketPair(mediaConnection->mLocalAddress, localPort,
+                       mediaConnection->mContactType,
                        mediaConnection->mpRtpAudioSocket, mediaConnection->mpRtcpAudioSocket);
 
    // Start the audio packet pump
@@ -2434,15 +2436,19 @@ OsStatus CpTopologyGraphInterface::getMediaProperty(int connectionId,
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
 void CpTopologyGraphInterface::createRtpSocketPair(UtlString localAddress,
-                                                SIPX_CONTACT_TYPE contactType,
-                                                OsNatDatagramSocket* &rtpSocket,
-                                                OsNatDatagramSocket* &rtcpSocket)
+                                                   int localPort,
+                                                   SIPX_CONTACT_TYPE contactType,
+                                                   OsNatDatagramSocket* &rtpSocket,
+                                                   OsNatDatagramSocket* &rtcpSocket)
 {
-   int localPort;
    int firstRtpPort;
+   bool localPortGiven = (localPort != 0); // Does user specified the local port?
 
-   mpFactoryImpl->getNextRtpPort(localPort);
-   firstRtpPort = localPort;
+   if (!localPortGiven)
+   {
+      mpFactoryImpl->getNextRtpPort(localPort);
+      firstRtpPort = localPort;
+   }
 
    // Eventually this should use a specified address as this
    // host may be multi-homed
@@ -2454,7 +2460,7 @@ void CpTopologyGraphInterface::createRtpSocketPair(UtlString localAddress,
    rtcpSocket->enableTransparentReads(false);
 
    // Validate local port is not auto-selecting.
-   if (localPort != 0)
+   if (localPort != 0 && !localPortGiven)
    {
       // If either of the sockets are bad (e.g. already in use) or
       // if either have stuff on them to read (e.g. someone is

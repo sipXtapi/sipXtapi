@@ -167,8 +167,12 @@ public:
     * @param connectionId A newly allocated connection id returned via this
     *        call.  The connection passed to many other media processing 
     *        methods in this interface.
-    * @param szLocalConnection Local address (interface) that should be used
+    * @param szLocalAddress Local address (interface) that should be used
     *        for this connection.
+    * @param localPort Local port that should be used for this connection.
+    *        If 0 is passed, port number will be selected automatically.
+    *        Note, that in fact two ports will be allocated - (localPort)
+    *        for RTP and (localPort+1) for RTCP.
     * @param videoWindowHandle Video Window handle if using video.  Supply 
     *        a window handle of NULL to disable video for this call/
     *        connection.
@@ -178,7 +182,8 @@ public:
     */ 
    virtual OsStatus createConnection(int& connectionId,
                                      const char* szLocalAddress,
-                                     void* videoWindowHandle, 
+                                     int localPort = 0,
+                                     void* videoWindowHandle = NULL,
                                      void* const pSecurityAttributes = NULL,
                                      ISocketEvent* pSocketIdleSink = NULL,
                                      IMediaEventListener* pMediaEventListener = NULL,
