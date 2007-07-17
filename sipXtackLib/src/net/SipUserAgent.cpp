@@ -1394,7 +1394,7 @@ UtlBoolean SipUserAgent::sendTcp(SipMessage* message,
                                  const char* serverAddress,
                                  int port)
 {
-    int sendSucceeded = FALSE;
+    UtlBoolean sendSucceeded = FALSE;
     int len;
     UtlString msgBytes;
     UtlString messageStatusString = "SipUserAgent::sendTcp ";

@@ -3936,7 +3936,7 @@ UtlBoolean CpPeerCall::isConnectionLive(int* localConnectionState)
     OsReadLock lock(mConnectionMutex);
     UtlDListIterator iterator(mConnections);
     Connection* connection = NULL;
-    UtlBoolean connectionState;
+    int connectionState;
     if(localConnectionState) 
     {
         *localConnectionState = getLocalConnectionState(mLocalConnectionState);

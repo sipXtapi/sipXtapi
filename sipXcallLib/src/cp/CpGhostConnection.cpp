@@ -220,7 +220,7 @@ UtlBoolean CpGhostConnection::getRemoteAddress(UtlString* remoteAddress, UtlBool
 UtlBoolean CpGhostConnection::getSession(SipSession& session)
 {
     unimplemented("CpGhostConnection::getSession");
-    return(OS_NOT_FOUND);
+    return(FALSE);
 }
 
 
