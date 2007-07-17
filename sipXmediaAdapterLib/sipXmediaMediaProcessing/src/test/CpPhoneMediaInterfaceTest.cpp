@@ -184,7 +184,7 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
 
         // Properties specific to a connection
         int connectionId = -1;
-        CPPUNIT_ASSERT(mediaInterface->createConnection(connectionId, NULL, NULL) == OS_SUCCESS);
+        CPPUNIT_ASSERT(mediaInterface->createConnection(connectionId, NULL) == OS_SUCCESS);
         CPPUNIT_ASSERT(connectionId > 0);
 
         propertyName = "connectionLabel";
@@ -271,7 +271,7 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
 
         // Properties specific to a connection
         int connectionId = -1;
-        CPPUNIT_ASSERT(mediaInterface->createConnection(connectionId, NULL, NULL) == OS_SUCCESS);
+        CPPUNIT_ASSERT(mediaInterface->createConnection(connectionId, NULL) == OS_SUCCESS);
         CPPUNIT_ASSERT(connectionId > 0);
 
         mediaInterface->giveFocus() ;
@@ -558,10 +558,10 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
 
         // Create connections for mixed(sink) flowgraph
         int mixedConnection1Id = -1;
-        CPPUNIT_ASSERT(mixedInterface->createConnection(mixedConnection1Id, NULL, NULL) == OS_SUCCESS);
+        CPPUNIT_ASSERT(mixedInterface->createConnection(mixedConnection1Id, NULL) == OS_SUCCESS);
         CPPUNIT_ASSERT(mixedConnection1Id > 0);
         int mixedConnection2Id = -1;
-        CPPUNIT_ASSERT(mixedInterface->createConnection(mixedConnection2Id, NULL, NULL) == OS_SUCCESS);
+        CPPUNIT_ASSERT(mixedInterface->createConnection(mixedConnection2Id, NULL) == OS_SUCCESS);
         CPPUNIT_ASSERT(mixedConnection2Id > 0);
         
         // Get the address of the connections so we can send RTP to them
@@ -667,7 +667,7 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
 
         // Create connection for source 1 flowgraph
         int source1ConnectionId = -1;
-        CPPUNIT_ASSERT(source1Interface->createConnection(source1ConnectionId, NULL, NULL) == OS_SUCCESS);
+        CPPUNIT_ASSERT(source1Interface->createConnection(source1ConnectionId, NULL) == OS_SUCCESS);
         CPPUNIT_ASSERT(source1ConnectionId > 0);
 
         // Set the destination for sending RTP from source 1 to connection 1 on
@@ -716,7 +716,7 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
 
         // Create connection for source 2 flowgraph
         int source2ConnectionId = -1;
-        CPPUNIT_ASSERT(source2Interface->createConnection(source2ConnectionId, NULL, NULL) == OS_SUCCESS);
+        CPPUNIT_ASSERT(source2Interface->createConnection(source2ConnectionId, NULL) == OS_SUCCESS);
         CPPUNIT_ASSERT(source2ConnectionId > 0);
 
         // Set the destination for sending RTP from source 2 to connection 2 on

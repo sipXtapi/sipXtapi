@@ -196,7 +196,7 @@ void Connection::prepareForJoin(CpCall* pNewCall, const char* szLocalAddress, Cp
     mpCall = pNewCall ;
     mpMediaInterface = pNewMediaInterface ;
 
-    mpMediaInterface->createConnection(mConnectionId, szLocalAddress, NULL) ;
+    mpMediaInterface->createConnection(mConnectionId, szLocalAddress) ;
 
     // VIDEO: Need to include window handle!
     // SECURITY:  What about the security attributes?
