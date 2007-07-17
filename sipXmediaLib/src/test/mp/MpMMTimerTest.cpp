@@ -56,37 +56,21 @@ class MpMMTimerTest : public CppUnit::TestCase
 public:
    void setUp()
    {
-      mpPerfCounts = NULL;
-      mPerfCountsSz = 0;
-      mCurNPerfCounts = 0;
+      mpPerfTimes = NULL;
+      mPerfTimesSz = 0;
+      mCurNPerfTimes = 0;
    }
 
    void tearDown()
    {
-      if(mpPerfCounts != NULL)
+      if(mpPerfTimes != NULL)
       {
-         delete[] mpPerfCounts;
+         delete[] mpPerfTimes;
       }
-      mpPerfCounts = NULL;
-      mPerfCountsSz = 0;
-      mCurNPerfCounts = 0;
+      mpPerfTimes = NULL;
+      mPerfTimesSz = 0;
+      mCurNPerfTimes = 0;
    }
-
-#ifdef WIN32
-   double initializeWin32PerfMeasurementTools()
-   {
-      // Initialize performance counting measurement tools
-      LARGE_INTEGER perfFreqPerSec;
-      CPPUNIT_ASSERT(QueryPerformanceFrequency(&perfFreqPerSec) > 0);
-      //printf("Performance frequency is %I64d ticks per sec\n", 
-      //       perfFreqPerSec.QuadPart);
-      // Convert it to per usec instead of per sec.
-      double perfFreqPerUSec = double(perfFreqPerSec.QuadPart) / double(1000000.0);
-      //printf("Performance frequency is %f ticks per usec\n", 
-      //       perfFreqPerUSec);
-      return perfFreqPerUSec;
-   }
-#endif
 
    void checkDeltasAgainstThresholds(long deltas[], long absDeltas[], unsigned nDeltas, 
                                      unsigned targetDelta, // <-- was periodUSecs
@@ -127,7 +111,8 @@ public:
                               valOutsideThreshs-(long)targetDelta <= upperThresh));
    }
 
-   void checkMeanAgainstThresholds(int64_t start, int64_t stop, unsigned nDeltas,
+   void checkMeanAgainstThresholds(const OsTime& start, const OsTime& stop, 
+                                   unsigned nDeltas,
                                    unsigned targetDelta, // <-- was periodUSecs
                                    long lowerMeanThresh, long upperMeanThresh)
    {
@@ -136,7 +121,10 @@ public:
 
       double meanAvg = 0;
 
-      meanAvg = (stop-start)/(double)nDeltas;
+      int64_t totStartUSecs = start.seconds()*1000*1000 + start.usecs();
+      int64_t totStopUSecs = stop.seconds()*1000*1000 + stop.usecs();
+
+      meanAvg = (totStopUSecs-totStartUSecs)/(double)nDeltas;
       printf("Mean: %.2f us\n", meanAvg);
 
       // Assert when mean is outside error range specified above.
@@ -177,7 +165,7 @@ public:
       unsigned periodUSecs = 10000;
       long lowerThresh = -(long)periodUSecs+1;    // Assert when outside an error range
       long lowerMeanThresh = -50;  // specified below.
-      long upperThresh = periodUSecs*2-1;     // One for single values
+      long upperThresh = periodUSecs*2;     // One for single values
       long upperMeanThresh = 50;   // One for mean values
 
 
@@ -185,15 +173,15 @@ public:
 #ifdef WIN32
       MpMMTimerWnt mmTimerWnt(MpMMTimer::Linear);
       pMMTimer = &mmTimerWnt;
-
-      double perfFreqPerUSec = initializeWin32PerfMeasurementTools();
-      LARGE_INTEGER perfCount[TLT_LOOP_CNT];
 #else
       // Right now MMTimers are only implemented for win32.
       // as other platforms are implemented, change this.
       printf("MMTimer not implemented for this platform.  Test disabled.\n");
       return;
 #endif
+
+      // Allocate time objects to hold measurements
+      OsTime perfTimes[TLT_LOOP_CNT];
 
       // Initialize the timer.
       printf("Firing every %d usecs\n", periodUSecs);
@@ -203,38 +191,33 @@ public:
       int i;
       for(i = 0; i < TLT_LOOP_CNT; i++)
       {
-#ifdef WIN32
-         CPPUNIT_ASSERT(QueryPerformanceCounter(&perfCount[i]) > 0);
-#endif
+         OsDateTime::getCurTime(perfTimes[i]);
          CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pMMTimer->waitForNextTick());
       }
 
       CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pMMTimer->stop());
 
       // Determine delta times from individual time measurements..
+      int64_t curUsec_i = 0;
+      int64_t curUsec_iPlus1 = 0;
+      int64_t curUsec_0 = 0;
       long deltas[TLT_LOOP_CNT-1];
       long absDeltas[TLT_LOOP_CNT-1];
       for(i = 0; i < TLT_LOOP_CNT-1; i++)
       {
-#ifdef WIN32
-         deltas[i] = 
-            (long)(__int64(perfCount[i+1].QuadPart / perfFreqPerUSec) - 
-                   __int64(perfCount[i].QuadPart / perfFreqPerUSec));
-         absDeltas[i] = 
-            (long)((int64_t)((perfCount[i+1].QuadPart-perfCount[0].QuadPart) / perfFreqPerUSec) - 
-                   (int64_t)(periodUSecs)*i+1);
-#else
-         deltas[i] = 0; 
-         absDeltas[i] = 0;
-#endif
+         curUsec_i = perfTimes[i].seconds()*1000*1000 + perfTimes[i].usecs();
+         curUsec_iPlus1 = perfTimes[i+1].seconds()*1000*1000 + perfTimes[i+1].usecs();
+         curUsec_0 = perfTimes[0].seconds()*1000*1000 + perfTimes[0].usecs();
+
+         deltas[i] = (long)(curUsec_iPlus1 - curUsec_i);
+         absDeltas[i] = (long)((curUsec_iPlus1 - curUsec_0) - periodUSecs*i+1);  // i+1 before mult? maybe no +1
       }
 
 
       checkDeltasAgainstThresholds(deltas, absDeltas, TLT_LOOP_CNT-1, 
                                    periodUSecs, 
                                    lowerThresh, upperThresh);
-      checkMeanAgainstThresholds((int64_t)(perfCount[0].QuadPart / perfFreqPerUSec),
-                                 (int64_t)(perfCount[TLT_LOOP_CNT-1].QuadPart / perfFreqPerUSec),
+      checkMeanAgainstThresholds(perfTimes[0], perfTimes[TLT_LOOP_CNT-1],
                                  TLT_LOOP_CNT-1, 
                                  periodUSecs, 
                                  lowerMeanThresh, upperMeanThresh);
@@ -242,21 +225,17 @@ public:
 
    void notificationTimerRecordTick()
    {
-#ifdef WIN32
       int x;
-      x = mPerfCountsSz;
-      CPPUNIT_ASSERT(mpPerfCounts != NULL);
-      CPPUNIT_ASSERT(mPerfCountsSz > 0);
+      x = mPerfTimesSz;
+      CPPUNIT_ASSERT(mpPerfTimes != NULL);
+      CPPUNIT_ASSERT(mPerfTimesSz > 0);
 
       // Collect measurements while we have space left.
-      if(mCurNPerfCounts < mPerfCountsSz)
+      if(mCurNPerfTimes < mPerfTimesSz)
       {
-         CPPUNIT_ASSERT(QueryPerformanceCounter(&mpPerfCounts[mCurNPerfCounts++]) > 0);
+         OsDateTime::getCurTime(mpPerfTimes[mCurNPerfTimes]);
+         mCurNPerfTimes++;
       }
-#else
-      // Nothing is currently done on other platforms, as none are implemented
-      // on other platforms
-#endif
    }
 
    void testNotificationTimer()
@@ -265,11 +244,11 @@ public:
       // mPerfCountsSz defines the number of timer fire repetitions to do 
       // (set this to an even value),
       // and periodUSecs defines how long to wait in each one.
-      mPerfCountsSz = 2000;
+      mPerfTimesSz = 2000;
       unsigned periodUSecs = 10000;
       long lowerThresh = -(long)periodUSecs+1;    // Assert when outside an error range
       long lowerMeanThresh = -50;  // specified below.
-      long upperThresh = periodUSecs*2-1;     // One for single values
+      long upperThresh = periodUSecs*2;     // One for single values
       long upperMeanThresh = 50;   // One for mean values
 
       TimerNotification timerNotification(this);
@@ -277,9 +256,6 @@ public:
 #ifdef WIN32
       MpMMTimerWnt mmTimerWnt(MpMMTimer::Notification);
       pMMTimer = &mmTimerWnt;
-
-      double perfFreqPerUSec = initializeWin32PerfMeasurementTools();
-      mpPerfCounts = new LARGE_INTEGER[mPerfCountsSz];
 #else
       // Right now MMTimers are only implemented for win32.
       // as other platforms are implemented, change this.
@@ -290,17 +266,20 @@ public:
       // Set the notification..
       pMMTimer->setNotification(&timerNotification);
 
+      // Allocate time objects to hold measurements
+      mpPerfTimes = new OsTime[mPerfTimesSz];
+
       // Initialize the timer.
       printf("Firing every %d usecs\n", periodUSecs);
       CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pMMTimer->run(periodUSecs));
 
       // Wait for the callbacks to perform the timing measurements.
-      OsTask::delay(periodUSecs*mPerfCountsSz/1000 + 50);
+      OsTask::delay(periodUSecs*mPerfTimesSz/1000 + 50);
       
       // The callbacks should be done by now, so if they aren't,
       // then bitch.
       //We should have a current count of the actual size of the perf buffer.
-      CPPUNIT_ASSERT_EQUAL(mPerfCountsSz, mCurNPerfCounts);
+      CPPUNIT_ASSERT_EQUAL(mPerfTimesSz, mCurNPerfTimes);
 
       // Clear the OsNotification, as it doesn't need to be continuing to notify.
       pMMTimer->setNotification(NULL);
@@ -308,30 +287,27 @@ public:
       CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pMMTimer->stop());
 
       // Determine delta times from individual time measurements..
-      long* pDeltas = new long[mPerfCountsSz-1];
-      long* pAbsDeltas = new long[mPerfCountsSz-1];
+      int64_t curUsec_i = 0;
+      int64_t curUsec_iPlus1 = 0;
+      int64_t curUsec_0 = 0;
+      long* pDeltas = new long[mPerfTimesSz-1];
+      long* pAbsDeltas = new long[mPerfTimesSz-1];
       unsigned i;
-      for(i = 0; i < mPerfCountsSz-1; i = i++)
+      for(i = 0; i < mPerfTimesSz-1; i = i++)
       {
-#ifdef WIN32
-         pDeltas[i] = 
-            (long)(__int64(mpPerfCounts[i+1].QuadPart / perfFreqPerUSec) - 
-                   __int64(mpPerfCounts[i].QuadPart / perfFreqPerUSec));
-         pAbsDeltas[i] = 
-            (long)((int64_t)((mpPerfCounts[i+1].QuadPart-mpPerfCounts[0].QuadPart) / perfFreqPerUSec) - 
-            (int64_t)(periodUSecs)*i+1);
-#else
-         pDeltas[i] = 0;
-         pAbsDeltas[i] = 0;
-#endif
+         curUsec_i = mpPerfTimes[i].seconds()*1000*1000 + mpPerfTimes[i].usecs();
+         curUsec_iPlus1 = mpPerfTimes[i+1].seconds()*1000*1000 + mpPerfTimes[i+1].usecs();
+         curUsec_0 = mpPerfTimes[0].seconds()*1000*1000 + mpPerfTimes[0].usecs();
+
+         pDeltas[i] = (long)(curUsec_iPlus1 - curUsec_i);
+         pAbsDeltas[i] = (long)((curUsec_iPlus1 - curUsec_0) - periodUSecs*i+1);  // i+1 before mult? maybe no +1
       }
 
-      checkDeltasAgainstThresholds(pDeltas, pAbsDeltas, mPerfCountsSz-1,
+      checkDeltasAgainstThresholds(pDeltas, pAbsDeltas, mPerfTimesSz-1,
                                    periodUSecs,
                                    lowerThresh, upperThresh);
-      checkMeanAgainstThresholds((int64_t)(mpPerfCounts[0].QuadPart / perfFreqPerUSec),
-                                 (int64_t)(mpPerfCounts[mPerfCountsSz-1].QuadPart / perfFreqPerUSec),
-                                 mPerfCountsSz-1, 
+      checkMeanAgainstThresholds(mpPerfTimes[0], mpPerfTimes[mPerfTimesSz-1],
+                                 mPerfTimesSz-1, 
                                  periodUSecs,
                                  lowerMeanThresh, upperMeanThresh);
 
@@ -340,19 +316,17 @@ public:
       pDeltas = NULL;
       delete[] pAbsDeltas;
       pAbsDeltas = NULL;
-      delete[] mpPerfCounts;
-      mpPerfCounts = NULL;
-      mCurNPerfCounts = 0;
-      mPerfCountsSz = 0;
+      delete[] mpPerfTimes;
+      mpPerfTimes = NULL;
+      mCurNPerfTimes = 0;
+      mPerfTimesSz = 0;
    }
 
 protected:
 
-#ifdef WIN32
-   LARGE_INTEGER* mpPerfCounts;
-   unsigned mPerfCountsSz;
-   unsigned mCurNPerfCounts;
-#endif
+   OsTime* mpPerfTimes;
+   unsigned mPerfTimesSz;
+   unsigned mCurNPerfTimes;
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(MpMMTimerTest);
