@@ -187,7 +187,6 @@ OsStatus OsDateTimeWnt::cvtToTimeSinceBoot(OsTime& rTime) const
 // Return the current time as an OsTime value
 void OsDateTimeWnt::getCurTime(OsTime& rTime)
 {
-#if WINCE
     typedef union 
     {
         FILETIME         ft ;
@@ -224,33 +223,10 @@ void OsDateTimeWnt::getCurTime(OsTime& rTime)
         FileTimeToSystemTime(&sOsFileTime.ft, &si) ;
     }
 
+   // Factor into this the conversion from Jan 01, 1601->Jan 01, 1970  windows epoch to Posix epoch.
    OsTime curTime((long)  ((sOsFileTime.int64 - ((unsigned __int64) 116444736000000000)) / ((unsigned __int64) 10000000)), 
                   (long) ((sOsFileTime.int64 / ((unsigned __int64) 10)) % ((unsigned __int64) 1000000)));
    rTime = curTime;
-#else
-   FILETIME theTime;
-
-   GetSystemTimeAsFileTime(&theTime);
-
-   // convert to __int64
-   __int64 theTime_i64;
-   theTime_i64 = theTime.dwHighDateTime;
-   theTime_i64 <<= 32;
-   theTime_i64 += theTime.dwLowDateTime;
-
-   // convert to seconds and microseconds since Jan 01 1601 (Windows time base)
-   __int64 osTimeSecs  = theTime_i64 / FILETIME_UNITS_PER_SEC;
-   int osTimeUsecs = (int)((theTime_i64 % FILETIME_UNITS_PER_SEC) / FILETIME_UNITS_PER_USEC);
-
-   // subtract to change the time base to since Jan 01 1970 (Unix/sipX time base)
-   osTimeSecs -= WINDOWSTIME2UNIXTIME;
-
-   //assert((osTimeSecs >> 32)  == 0);
-   //assert((osTimeUsecs >> 32) == 0);
-   OsTime curTime((long)osTimeSecs, osTimeUsecs);
-
-   rTime = curTime;
-#endif
 }
 
 
