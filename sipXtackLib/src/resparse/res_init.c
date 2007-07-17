@@ -243,20 +243,19 @@ int res_init_ip(const char* localIp)
         unsigned long defaultAddr = osSocketGetDefaultBindAddress();
         struct in_addr naddr;
     
-        if (localIp || localIp[0] == 0)
+        if (localIp == NULL || localIp[0] == 0)
         {
-            //osSocketGetHostIp(szBuff);
+            // localIp Not specified - use default
             naddr.S_un.S_addr = defaultAddr;
             szBuff = inet_ntoa(naddr);
             strncpy(szLocalIp, szBuff, 32);
         }
         else
         {
-            if (localIp && localIp[0] != 0 && strcmp(szLocalIp, localIp) == 0)
+            if (strcmp(szLocalIp, localIp) == 0)
             {
-                return 0; // no need to init again if the ip
-                        // address is the same as the last call
-                        // to this function.
+                return 0; // no need to init again if the ip address is the same
+                          // as the last call to this function.
             }
             strncpy(szLocalIp, localIp, 32);
         }
