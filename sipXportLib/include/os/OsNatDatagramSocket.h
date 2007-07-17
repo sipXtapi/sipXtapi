@@ -86,7 +86,7 @@ typedef struct
  *
  * For this mechanism to work, someone must pump inbound socket data by 
  * calling one of the ::read() methods.  Otherwise, the packets will not be 
- * received/processed.  Internally, the implemenation peeks at the read 
+ * received/processed.  Internally, the implementation peeks at the read 
  * data and passes the message to the OsNatAgentTask for processing.
  */
 class OsNatDatagramSocket : public OsDatagramSocket, public OsNatSocketBaseImpl
