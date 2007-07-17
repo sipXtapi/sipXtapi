@@ -24,9 +24,9 @@
 // that prevents timer events from firing after a timeKillEvent call has been made.
 // So, on Microsoft compilers before msvc7, turn it off.
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // if < msvc7 (2003)
-#define MPMMTIMER_EXTRA_TIMER_OPTIONS TIME_KILL_SYNCHRONOUS
-#else
 #define MPMMTIMER_EXTRA_TIMER_OPTIONS 0
+#else
+#define MPMMTIMER_EXTRA_TIMER_OPTIONS TIME_KILL_SYNCHRONOUS
 #endif
 
 
