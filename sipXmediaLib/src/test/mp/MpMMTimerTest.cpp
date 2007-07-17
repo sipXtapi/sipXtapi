@@ -152,8 +152,8 @@ public:
                valOutsideThreshs, lowerThresh, upperThresh);
 
       CPPUNIT_ASSERT_MESSAGE(errStrBuf,
-                             (valOutsideThreshs-(long)periodUSecs > lowerThresh && 
-                              valOutsideThreshs-(long)periodUSecs < upperThresh));
+                             (valOutsideThreshs-(long)periodUSecs >= lowerThresh && 
+                              valOutsideThreshs-(long)periodUSecs <= upperThresh));
 
       // Assert when mean is outside error range specified above.
       snprintf(errStrBuf, 256, 
@@ -161,8 +161,8 @@ public:
          meanAvg, lowerMeanThresh, upperMeanThresh);
 
       CPPUNIT_ASSERT_MESSAGE(errStrBuf,
-                             (meanAvg-(long)periodUSecs > lowerMeanThresh && 
-                              meanAvg-(long)periodUSecs < upperMeanThresh));
+                             (meanAvg-(long)periodUSecs >= lowerMeanThresh && 
+                              meanAvg-(long)periodUSecs <= upperMeanThresh));
 #endif
 
       CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pMMTimer->stop());
