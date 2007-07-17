@@ -19,6 +19,18 @@
 // APPLICATION INCLUDES
 
 
+// Precompiler Definitions
+// VC6 does not seem to have the MMTimer TIME_KILL_SYNCHRONOUS option
+// that prevents timer events from firing after a timeKillEvent call has been made.
+// So, on Microsoft compilers before msvc7, turn it off.
+#if defined(_MSC_VER) && (_MSC_VER < 1300) // if < msvc7 (2003)
+#define MPMMTIMER_EXTRA_TIMER_OPTIONS TIME_KILL_SYNCHRONOUS
+#else
+#define MPMMTIMER_EXTRA_TIMER_OPTIONS 0
+#endif
+
+
+
 void CALLBACK 
 MpMMTimerWnt::timeProcCallback(UINT uID, UINT uMsg, DWORD dwUser, 
                                DWORD dw1, DWORD dw2)
@@ -159,8 +171,8 @@ OsStatus MpMMTimerWnt::runMultimedia(unsigned usecPeriodic)
          timeSetEvent(mPeriodMSec, mResolution, 
                       (LPTIMECALLBACK)&MpMMTimerWnt::timeProcCallback,
                       (DWORD)this, 
-                      TIME_PERIODIC | TIME_CALLBACK_FUNCTION
-                      | TIME_KILL_SYNCHRONOUS
+                      TIME_PERIODIC | TIME_CALLBACK_FUNCTION |
+                      MPMMTIMER_EXTRA_TIMER_OPTIONS
                       );
    }
    else if(mTimerType == Linear)
@@ -171,8 +183,8 @@ OsStatus MpMMTimerWnt::runMultimedia(unsigned usecPeriodic)
       mTimerId = 
          timeSetEvent(mPeriodMSec, mResolution, (LPTIMECALLBACK)mEventHandle, 
                       NULL, 
-                      TIME_PERIODIC | TIME_CALLBACK_EVENT_PULSE
-                      | TIME_KILL_SYNCHRONOUS
+                      TIME_PERIODIC | TIME_CALLBACK_EVENT_PULSE |
+                      MPMMTIMER_EXTRA_TIMER_OPTIONS
                       );
    }
 
