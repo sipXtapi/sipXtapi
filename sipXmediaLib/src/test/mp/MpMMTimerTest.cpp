@@ -90,21 +90,16 @@ public:
 
    void checkDeltasAgainstThresholds(long deltas[], unsigned nDeltas, 
                                      unsigned targetDelta, // <-- was periodUSecs
-                                     long lowerThresh, long upperThresh,
-                                     long lowerMeanThresh, long upperMeanThresh)
+                                     long lowerThresh, long upperThresh)
    {
       CPPUNIT_ASSERT_MESSAGE("Timer didn't fire or deltas were not collected!",
                              nDeltas > 0);
 
       printf("Timing values in microseconds, CSV: \n");
       long valOutsideThreshs = targetDelta; // initialize to exactly what we want.
-      long meanAvg = 0;
       unsigned i;
       for(i = 0; i < nDeltas; i++)
       {
-         // Tack on the current delta to our mean avg
-         meanAvg += deltas[i];
-
          // Print output in CSV format, for easy graphing.
          printf("%ld", deltas[i]);
          printf((i < nDeltas-1) ? ", " : "\n");
@@ -121,10 +116,6 @@ public:
          }
       }
 
-      // Finalize determining mean.
-      meanAvg /= nDeltas;
-      printf("Mean: %ld us\n", meanAvg);
-
       // Assert when single value outside error range specified above.
       char errStrBuf[256];
       snprintf(errStrBuf, 256, 
@@ -134,8 +125,22 @@ public:
       CPPUNIT_ASSERT_MESSAGE(errStrBuf,
                              (valOutsideThreshs-(long)targetDelta >= lowerThresh && 
                               valOutsideThreshs-(long)targetDelta <= upperThresh));
+   }
+
+   void checkMeanAgainstThresholds(long start, long stop, unsigned nDeltas,
+                                   unsigned targetDelta, // <-- was periodUSecs
+                                   long lowerMeanThresh, long upperMeanThresh)
+   {
+      CPPUNIT_ASSERT_MESSAGE("Timer didn't fire or deltas were not collected!",
+                             nDeltas > 0);
+
+      double meanAvg = 0;
+
+      meanAvg = (stop-start)/(double)nDeltas;
+      printf("Mean: %.2f us\n", meanAvg);
 
       // Assert when mean is outside error range specified above.
+      char errStrBuf[256];
       snprintf(errStrBuf, 256, 
          "Mean timer value %ld falls outside threshold of %ld to %ld us",
          meanAvg, lowerMeanThresh, upperMeanThresh);
@@ -168,7 +173,7 @@ public:
       // TLT_LOOP_COUNT defines the number of timer fire repetitions to do 
       // (set this to an even value),
       // and periodUSecs defines how long to wait in each one.
-#     define TLT_LOOP_CNT 200
+#     define TLT_LOOP_CNT 500
       unsigned periodUSecs = 10000;
       long lowerThresh = -3000;    // Assert when outside an error range
       long lowerMeanThresh = -50;  // specified below.
@@ -204,11 +209,13 @@ public:
          CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pMMTimer->waitForNextTick());
       }
 
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pMMTimer->stop());
+
       // Determine delta times from individual time measurements..
-      long deltas[TLT_LOOP_CNT/2];
-      for(i = 0; i < TLT_LOOP_CNT; i = i+2)
+      long deltas[TLT_LOOP_CNT-1];
+      for(i = 0; i < TLT_LOOP_CNT-1; i++)
       {
-         deltas[(i+1)/2] = 
+         deltas[i] = 
 #ifdef WIN32
             (long)(__int64(perfCount[i+1].QuadPart / perfFreqPerUSec) - 
                    __int64(perfCount[i].QuadPart / perfFreqPerUSec));
@@ -218,12 +225,14 @@ public:
       }
 
 
-      checkDeltasAgainstThresholds(deltas, TLT_LOOP_CNT/2, 
+      checkDeltasAgainstThresholds(deltas, TLT_LOOP_CNT-1, 
                                    periodUSecs, 
-                                   lowerThresh, upperThresh,
-                                   lowerMeanThresh, upperMeanThresh);
-
-      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pMMTimer->stop());
+                                   lowerThresh, upperThresh);
+      checkMeanAgainstThresholds((long)(perfCount[0].QuadPart / perfFreqPerUSec),
+                                 (long)(perfCount[TLT_LOOP_CNT-1].QuadPart / perfFreqPerUSec),
+                                 TLT_LOOP_CNT-1, 
+                                 periodUSecs, 
+                                 lowerMeanThresh, upperMeanThresh);
    }
 
    void notificationTimerRecordTick()
@@ -251,7 +260,7 @@ public:
       // mPerfCountsSz defines the number of timer fire repetitions to do 
       // (set this to an even value),
       // and periodUSecs defines how long to wait in each one.
-      mPerfCountsSz = 200;
+      mPerfCountsSz = 500;
       unsigned periodUSecs = 10000;
       long lowerThresh = -3000;    // Assert when outside an error range
       long lowerMeanThresh = -50;  // specified below.
@@ -291,12 +300,14 @@ public:
       // Clear the OsNotification, as it doesn't need to be continuing to notify.
       pMMTimer->setNotification(NULL);
 
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pMMTimer->stop());
+
       // Determine delta times from individual time measurements..
-      long* pDeltas = new long[mPerfCountsSz/2];
+      long* pDeltas = new long[mPerfCountsSz-1];
       unsigned i;
-      for(i = 0; i < mPerfCountsSz; i = i+2)
+      for(i = 0; i < mPerfCountsSz-1; i = i++)
       {
-         pDeltas[(i+1)/2] = 
+         pDeltas[i] = 
 #ifdef WIN32
             (long)(__int64(mpPerfCounts[i+1].QuadPart / perfFreqPerUSec) - 
                    __int64(mpPerfCounts[i].QuadPart / perfFreqPerUSec));
@@ -305,12 +316,14 @@ public:
 #endif
       }
 
-      checkDeltasAgainstThresholds(pDeltas, mPerfCountsSz/2, 
-                                   periodUSecs, 
-                                   lowerThresh, upperThresh,
-                                   lowerMeanThresh, upperMeanThresh);
-
-      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pMMTimer->stop());
+      checkDeltasAgainstThresholds(pDeltas, mPerfCountsSz-1,
+                                   periodUSecs,
+                                   lowerThresh, upperThresh);
+      checkMeanAgainstThresholds((long)(mpPerfCounts[0].QuadPart / perfFreqPerUSec),
+                                 (long)(mpPerfCounts[mPerfCountsSz-1].QuadPart / perfFreqPerUSec),
+                                 mPerfCountsSz-1, 
+                                 periodUSecs,
+                                 lowerMeanThresh, upperMeanThresh);
 
       // Cleanup!
       delete[] pDeltas;
