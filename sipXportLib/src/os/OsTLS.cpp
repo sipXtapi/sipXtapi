@@ -17,6 +17,11 @@
 #include "utl/UtlInt.h"
 
 #include "prerror.h"
+
+#include <os/msinttypes/stdint.h>
+// hack to define int32 for nss-3.9.1 as they have a bug
+typedef int32_t int32;
+
 #include "pk11func.h"
 #include "secitem.h"
 #include "nspr.h"
