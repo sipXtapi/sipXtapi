@@ -11,9 +11,6 @@
 // Author: Keith Kyzivat <kkyzivat AT SIPez DOT com>
 
 // SYSTEM INCLUDES
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-#include <MMSystem.h>
 #include <os/OsSysLog.h>
 
 // APPLICATION INCLUDES
@@ -50,6 +47,7 @@ MpMMTimerWnt::MpMMTimerWnt(MpMMTimer::MMTimerType type)
    , mPeriodMSec(0)
    , mbTimerFired(FALSE)
    , mEventHandle(0)
+   , mTimerId(0)
 {
    // We only support linear timer, so only set initialized
    // true if it's constructed as linear.
@@ -161,6 +159,11 @@ OsStatus MpMMTimerWnt::runMultimedia(unsigned usecPeriodic)
    {
       // Create the event.
       mEventHandle = CreateEvent(NULL, TRUE, FALSE, NULL);
+
+      mTimerId = 
+         timeSetEvent(mPeriodMSec, mResolution, (LPTIMECALLBACK)mEventHandle, 
+                      NULL, 
+                      TIME_PERIODIC | TIME_CALLBACK_EVENT_PULSE | TIME_KILL_SYNCHRONOUS);
    }
 
    return status;
@@ -216,6 +219,16 @@ OsStatus MpMMTimerWnt::stopMultimedia()
    mPeriodMSec = 0;
    mbTimerStarted = FALSE;
 
+   // Stop periodic ticking.. Happens in all cases - Linear and Notification.
+   if(mTimerId == 0 || 
+      timeKillEvent(mTimerId) == MMSYSERR_INVALPARAM)
+   {
+      OsSysLog::add(FAC_MP, PRI_WARNING, 
+         "MpMMTimerWnt - No timer to kill!");
+   }
+
+   // If we're in linear mode, then we were using events, 
+   // so clean up the event used.
    if(mTimerType == Linear)
    {
       // Close and reset the event handle.
@@ -245,9 +258,6 @@ OsStatus MpMMTimerWnt::waitForNextTick()
       return OS_FAILED;
    }
 
-   MMRESULT timerID = 
-      timeSetEvent(mPeriodMSec, mResolution, (LPTIMECALLBACK)mEventHandle, 
-                   NULL, TIME_CALLBACK_EVENT_PULSE);
    if(WaitForSingleObject(mEventHandle, mPeriodMSec) == WAIT_FAILED)
    {
       OsSysLog::add(FAC_MP, PRI_ERR, 
@@ -256,12 +266,7 @@ OsStatus MpMMTimerWnt::waitForNextTick()
       // It failed, but it will just have waited till the period ended,
       // which is exactly what we want... so continue on..
    }
-   if(timeKillEvent(timerID) == MMSYSERR_INVALPARAM)
-   {
-      OsSysLog::add(FAC_MP, PRI_WARNING, 
-                    "MpMMTimerWnt - No timer to kill!");
-      return OS_FAILED;
-   }
+
    return OS_SUCCESS;
 }
 

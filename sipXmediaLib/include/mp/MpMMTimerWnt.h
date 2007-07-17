@@ -14,6 +14,9 @@
 #define _MpMMTimerWnt_h_
 
 // SYSTEM INCLUDES
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#include <MMSystem.h>
 
 // APPLICATION INCLUDES
 #include "mp/MpMMTimer.h"
@@ -92,6 +95,7 @@ private:
    BOOL mbTimerFired; ///< Set to false until the timer first fires, then set to true thereafter. reset on stop.
    unsigned mResolution; ///< Cached timer resolution in ms, queried for and stored at startup.
    HANDLE mEventHandle; ///< Only valid in Linear mode, holds handle to an event.
+   MMRESULT mTimerId; ///< The ID of the MM timer we're using.
 };
 
 
