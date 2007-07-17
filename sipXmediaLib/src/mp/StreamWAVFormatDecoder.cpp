@@ -227,7 +227,7 @@ int StreamWAVFormatDecoder::run(void* pArgs)
                 //we need to read 80 samples
                 iRead = __min(iDataLength, NUM_SAMPLES);
                  
-                retval = pSrc->read((char *)InBuffer, iRead, iRead);
+                retval = (pSrc->read((char *)InBuffer, iRead, iRead) == OS_SUCCESS);
                 
                 //now convert to 16bit unsigned, which is what we use internally
                 ConvertUnsigned8ToSigned16(InBuffer,OutBuffer,iRead);
@@ -239,7 +239,7 @@ int StreamWAVFormatDecoder::run(void* pArgs)
                 iRead = __min(iDataLength, NUM_SAMPLES*2);
                 
                 //just read in the data, because it's the format we need
-                retval = pSrc->read((char *)OutBuffer, iRead, iRead);
+                retval = (pSrc->read((char *)OutBuffer, iRead, iRead) == OS_SUCCESS);
                 numOutSamples = iRead/2;
             }
             else
@@ -248,7 +248,7 @@ int StreamWAVFormatDecoder::run(void* pArgs)
                 //we need to read 80 samples
                 iRead = __min(iDataLength, NUM_SAMPLES);
                  
-                retval = pSrc->read((char *)OutBuffer, iRead, iRead);
+                retval = (pSrc->read((char *)OutBuffer, iRead, iRead) == OS_SUCCESS);
                 //no conversion to 16bit will take place because we need to decompress this
             }
             else

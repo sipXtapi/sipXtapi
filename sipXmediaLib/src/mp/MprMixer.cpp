@@ -71,7 +71,7 @@ UtlBoolean MprMixer::setWeights(int *newWeights, int numWeights)
    msg.setPtr1(weights);
 
    res = postMessage(msg);
-   return res;
+   return (res == OS_SUCCESS);
 }
 
 // Sets the weighting factor for the "weightIndex" input.
@@ -83,7 +83,7 @@ UtlBoolean MprMixer::setWeight(int newWeight, int weightIndex)
    OsStatus       res;
 
    res = postMessage(msg);
-   return res;
+   return (res == OS_SUCCESS);
 }
 
 /* ============================ ACCESSORS ================================= */

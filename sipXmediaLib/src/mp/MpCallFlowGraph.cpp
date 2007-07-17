@@ -1181,7 +1181,7 @@ UtlBoolean MpCallFlowGraph::setupRecorder(RecorderChoice which,
    OsStatus  res = OS_INVALID_ARGUMENT;
 
    if (NULL == mpRecorders[which]) {
-      return res;
+      return FALSE;
    }
 
    if (NULL != audioFileName) {
@@ -1202,7 +1202,7 @@ UtlBoolean MpCallFlowGraph::setupRecorder(RecorderChoice which,
          "setupRecorder failed to open file %s, error code is %i",
          audioFileName, errno);
    }
-   return (file != -1);
+   return (file != -1 && res == OS_SUCCESS);
 }
 
 // Start playing the indicated audio file.

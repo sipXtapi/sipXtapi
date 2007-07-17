@@ -54,13 +54,13 @@ MprSpeexPreprocess::~MprSpeexPreprocess()
 UtlBoolean MprSpeexPreprocess::setAGC (UtlBoolean enable)
 {
    MpFlowGraphMsg msg(SET_AGC, this, NULL, NULL, enable);
-   return postMessage(msg);
+   return (postMessage(msg) == OS_SUCCESS);
 }
 
 UtlBoolean MprSpeexPreprocess::setNoiseReduction (UtlBoolean enable)
 {
    MpFlowGraphMsg msg(SET_NOISE_REDUCTION, this, NULL, NULL, enable);
-   return postMessage(msg);
+   return (postMessage(msg) == OS_SUCCESS);
 }
 
 /* ============================ ACCESSORS ================================= */

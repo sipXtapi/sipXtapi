@@ -344,7 +344,7 @@ SipClient* SipProtocolServerBase::createClient(const char* hostAddress,
     return(client);
 }
 
-int SipProtocolServerBase::isOk()
+UtlBoolean SipProtocolServerBase::isOk()
 {
     UtlBoolean bRet = true;
     
