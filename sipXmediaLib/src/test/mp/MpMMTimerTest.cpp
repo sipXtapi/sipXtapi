@@ -56,18 +56,22 @@ class MpMMTimerTest : public CppUnit::TestCase
 public:
    void setUp()
    {
+#ifdef WIN32
       mpPerfCounts = NULL;
+#endif
       mPerfCountsSz = 0;
       mCurNPerfCounts = 0;
    }
 
    void tearDown()
    {
+#ifdef WIN32
       if(mpPerfCounts != NULL)
       {
          delete[] mpPerfCounts;
       }
       mpPerfCounts = NULL;
+#endif
       mPerfCountsSz = 0;
       mCurNPerfCounts = 0;
    }
@@ -233,11 +237,15 @@ public:
       checkDeltasAgainstThresholds(deltas, absDeltas, TLT_LOOP_CNT-1, 
                                    periodUSecs, 
                                    lowerThresh, upperThresh);
+#ifdef WIN32
       checkMeanAgainstThresholds((int64_t)(perfCount[0].QuadPart / perfFreqPerUSec),
                                  (int64_t)(perfCount[TLT_LOOP_CNT-1].QuadPart / perfFreqPerUSec),
                                  TLT_LOOP_CNT-1, 
                                  periodUSecs, 
                                  lowerMeanThresh, upperMeanThresh);
+#else
+      printf("Mean performance timing not implemented on this platform\n");
+#endif
    }
 
    void notificationTimerRecordTick()
@@ -329,19 +337,25 @@ public:
       checkDeltasAgainstThresholds(pDeltas, pAbsDeltas, mPerfCountsSz-1,
                                    periodUSecs,
                                    lowerThresh, upperThresh);
+#ifdef WIN32
       checkMeanAgainstThresholds((int64_t)(mpPerfCounts[0].QuadPart / perfFreqPerUSec),
                                  (int64_t)(mpPerfCounts[mPerfCountsSz-1].QuadPart / perfFreqPerUSec),
                                  mPerfCountsSz-1, 
                                  periodUSecs,
                                  lowerMeanThresh, upperMeanThresh);
+#else
+      printf("Mean performance timing not implemented on this platform\n");
+#endif
 
       // Cleanup!
       delete[] pDeltas;
       pDeltas = NULL;
       delete[] pAbsDeltas;
       pAbsDeltas = NULL;
+#ifdef WIN32
       delete[] mpPerfCounts;
       mpPerfCounts = NULL;
+#endif
       mCurNPerfCounts = 0;
       mPerfCountsSz = 0;
    }
@@ -350,9 +364,9 @@ protected:
 
 #ifdef WIN32
    LARGE_INTEGER* mpPerfCounts;
+#endif
    unsigned mPerfCountsSz;
    unsigned mCurNPerfCounts;
-#endif
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(MpMMTimerTest);
