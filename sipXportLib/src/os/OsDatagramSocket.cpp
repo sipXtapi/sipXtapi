@@ -66,8 +66,8 @@
 /* ============================ CREATORS ================================== */
 
 // Constructor
-OsDatagramSocket::OsDatagramSocket(int remoteHostPortNum,
-       const char* remoteHost, int localHostPortNum, const char* localHost)
+OsDatagramSocket::OsDatagramSocket(int remoteHostPortNum, const char* remoteHost,
+                                   int localHostPortNum, const char* localHost)
 : mNumTotalWriteErrors(0)
 , mNumRecentWriteErrors(0)
 , mSimulatedConnect(FALSE)     // Simulated connection is off until
