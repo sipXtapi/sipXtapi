@@ -111,6 +111,7 @@ OsStatus MprDejitter::pushPacket(const MpRtpBufPtr &pRtp)
          // mNumPackets remain unchanged, since we discarded a packet, and added one
       } else {
          // Don't insert the new packet - it is a old delayed packet
+         return OS_FAILED;
       }
    } else {
       mLastPushed[codecIndex] = index;
