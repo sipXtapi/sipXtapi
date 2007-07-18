@@ -1195,9 +1195,9 @@ UtlBoolean OsSocket::isMcastAddr(const char* ipAddress)
         return FALSE;
 
     if (a >= 224 && a <= 239)
-        return FALSE;
-    else
         return TRUE;
+    else
+        return FALSE;
 }
 
 UtlBoolean OsSocket::isSameHost(const char* host1, const char* host2)
