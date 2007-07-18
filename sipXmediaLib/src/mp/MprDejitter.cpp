@@ -146,16 +146,11 @@ MpRtpBufPtr MprDejitter::pullPacket(int payloadType, RtpTimestamp maxTimestamp, 
       return MpRtpBufPtr();
 
    // We find a packet by starting to look in the JB just AFTER where the latest
-   // push was done, and loop around until we found valid packet or reach last
-   // pushed packet.
-   for (int iNextPull = mLastPushed[codecIndex] + 1;
-        iNextPull != mLastPushed[codecIndex];
-        iNextPull++)
-   {
-      // Wrap iNextPull counter if we reach end of buffer
-      if (iNextPull >= MAX_RTP_PACKETS)
-         iNextPull = 0;
+   // push was done, and loop MAX_RTP_PACKETS times or until we find a valid frame
+   int iNextPull = (mLastPushed[codecIndex] + 1) % MAX_RTP_PACKETS;
 
+   for (int i = 0; i < MAX_RTP_PACKETS; i++)
+   {
       // If we reach valid packet, move it out of the buffer and break search loop
       if (  mpPackets[codecIndex][iNextPull].isValid()
          && (!lockToTimestamp
@@ -167,6 +162,9 @@ MpRtpBufPtr MprDejitter::pullPacket(int payloadType, RtpTimestamp maxTimestamp, 
          mNumPackets[codecIndex]--;
          break;
       }
+
+      // Wrap iNextPull counter if we reach end of buffer
+      iNextPull = (iNextPull + 1) % MAX_RTP_PACKETS;
    }
 
    // Make sure we does not have copy of this buffer left in other threads.
