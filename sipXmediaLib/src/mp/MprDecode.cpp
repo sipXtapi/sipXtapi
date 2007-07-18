@@ -287,8 +287,16 @@ static int iFramesSinceLastReport=0;
             }
 
          } else if (packetLen == 0) {
-            break;  // The packet was not eaten by the codec, don't get any more now
-            // TKTK What would GIPS return for out-of-order packets? This or nothing? 
+            // The packet was not eaten by the codec, don't get any more now
+            OsStatus pushResult = pDej->pushPacket(rtp);
+            if (pushResult != OS_SUCCESS) {
+               osPrintf("\n\n *** pDej->pushPacket returned %d\n",
+                        pushResult);
+               osPrintf(" pt=%d, Ts=%d, Seq=%d\n\n",
+                        rtp->getRtpPayloadType(),
+                        rtp->getRtpTimestamp(), rtp->getRtpSequenceNumber());
+            }
+            break;
          } else if (packetLen == -1) {
             // packetLen < 0, this means that the codec wants us to discard
             // the packet. Out of order packet.
