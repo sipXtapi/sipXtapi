@@ -279,11 +279,11 @@ static int iFramesSinceLastReport=0;
 
             int res = JB_RecIn(pJBState, rtp);
             if (res != 0) {
-               osPrintf( "\n\n *** JB_RecIn(0x%X, %d) returned %d\n",
-                  (int) pJBState, packetLen, res);
-               osPrintf( " pt=%d, Ts=%d, Seq=%d\n\n",
-                  rtp->getRtpPayloadType(),
-                  rtp->getRtpTimestamp(), rtp->getRtpSequenceNumber());
+               osPrintf("\n\n *** JB_RecIn(%p, %d) returned %d\n",
+                        pJBState, packetLen, res);
+               osPrintf(" pt=%d, Ts=%d, Seq=%d\n\n",
+                        rtp->getRtpPayloadType(),
+                        rtp->getRtpTimestamp(), rtp->getRtpSequenceNumber());
             }
 
          } else if (packetLen == 0) {
