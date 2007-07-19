@@ -429,103 +429,93 @@ OsStatus CpPhoneMediaInterface::getCapabilities(int connectionId,
 
     if (pMediaConn)
     {
-        if (    (pMediaConn->mContactType == CONTACT_AUTO) || 
-                (pMediaConn->mContactType == CONTACT_NAT_MAPPED))
+        // Audio RTP
+        if (pMediaConn->mpRtpAudioSocket)
         {
-            // Audio RTP
-            if (pMediaConn->mpRtpAudioSocket)
+            // The "rtpHostAddress" is used for the first RTP stream -- 
+            // others are ignored.  They *SHOULD* be the same as the first.  
+            // Possible exceptions: STUN worked for the first, but not the
+            // others.  Not sure how to handle/recover from that case.
+            if (pMediaConn->mContactType == CONTACT_RELAY)
             {
-                // The "rtpHostAddress" is used for the first RTP stream -- 
-                // others are ignored.  They *SHOULD* be the same as the first.  
-                // Possible exceptions: STUN worked for the first, but not the
-                // others.  Not sure how to handle/recover from that case.
-                if (pMediaConn->mContactType == CONTACT_RELAY)
+                assert(!pMediaConn->mIsMulticast);
+                if (!((OsNatDatagramSocket*)pMediaConn->mpRtpAudioSocket)->
+                                            getRelayIp(&rtpHostAddress, &rtpAudioPort))
                 {
-                    assert(!pMediaConn->mIsMulticast);
-                    if (!((OsNatDatagramSocket*)pMediaConn->mpRtpAudioSocket)->
-                                                getRelayIp(&rtpHostAddress, &rtpAudioPort))
-                    {
-                        rtpAudioPort = pMediaConn->mRtpAudioReceivePort ;
-                        rtpHostAddress = mRtpReceiveHostAddress ;
-                    }
+                    rtpAudioPort = pMediaConn->mRtpAudioReceivePort ;
+                    rtpHostAddress = mRtpReceiveHostAddress ;
+                }
 
-                }
-                else if (pMediaConn->mContactType == CONTACT_AUTO || pMediaConn->mContactType == CONTACT_NAT_MAPPED)
-                {
-                    assert(!pMediaConn->mIsMulticast);
-                    if (!pMediaConn->mpRtpAudioSocket->getMappedIp(&rtpHostAddress, &rtpAudioPort))
-                    {
-                        rtpAudioPort = pMediaConn->mRtpAudioReceivePort ;
-                        rtpHostAddress = mRtpReceiveHostAddress ;
-                    }
-                }
-                else if (pMediaConn->mContactType == CONTACT_LOCAL)
-                {
-                     rtpHostAddress = pMediaConn->mpRtpAudioSocket->getLocalIp();
-                     rtpAudioPort = pMediaConn->mpRtpAudioSocket->getLocalHostPort();
-                     if (rtpAudioPort <= 0)
-                     {
-                         rtpAudioPort = pMediaConn->mRtpAudioReceivePort ;
-                         rtpHostAddress = mRtpReceiveHostAddress ;
-                     }
-                }
-                else
-                {
-                  assert(0);
-                }               
             }
-
-            // Audio RTCP
-            if (pMediaConn->mpRtcpAudioSocket)
+            else if (pMediaConn->mContactType == CONTACT_AUTO || pMediaConn->mContactType == CONTACT_NAT_MAPPED)
             {
-                if (pMediaConn->mContactType == CONTACT_RELAY)
+                assert(!pMediaConn->mIsMulticast);
+                if (!pMediaConn->mpRtpAudioSocket->getMappedIp(&rtpHostAddress, &rtpAudioPort))
                 {
-                    UtlString tempHostAddress;
-                    assert(!pMediaConn->mIsMulticast);
-                    if (!((OsNatDatagramSocket*)pMediaConn->mpRtcpAudioSocket)->
-                                                getRelayIp(&tempHostAddress, &rtcpAudioPort))
-                    {
-                        rtcpAudioPort = pMediaConn->mRtcpAudioReceivePort ;
-                    }
-                    else
-                    {
-                        // External address should match that of Audio RTP
-                        assert(tempHostAddress.compareTo(rtpHostAddress) == 0) ;
-                    }
-                }
-                else if (pMediaConn->mContactType == CONTACT_AUTO || pMediaConn->mContactType == CONTACT_NAT_MAPPED)
-                {
-                    UtlString tempHostAddress;
-                    assert(!pMediaConn->mIsMulticast);
-                    if (!pMediaConn->mpRtcpAudioSocket->getMappedIp(&tempHostAddress, &rtcpAudioPort))
-                    {
-                        rtcpAudioPort = pMediaConn->mRtcpAudioReceivePort ;
-                    }
-                    else
-                    {
-                        // External address should match that of Audio RTP
-                        assert(tempHostAddress.compareTo(rtpHostAddress) == 0) ;
-                    }
-                }
-                else if (pMediaConn->mContactType == CONTACT_LOCAL)
-                {
-                    rtcpAudioPort = pMediaConn->mpRtcpAudioSocket->getLocalHostPort();
-                    if (rtcpAudioPort <= 0)
-                    {
-                        rtcpAudioPort = pMediaConn->mRtcpAudioReceivePort ;
-                    }
-                }                
-                else
-                {
-                    assert(0);
+                    rtpAudioPort = pMediaConn->mRtpAudioReceivePort ;
+                    rtpHostAddress = mRtpReceiveHostAddress ;
                 }
             }
+            else if (pMediaConn->mContactType == CONTACT_LOCAL)
+            {
+                 rtpHostAddress = pMediaConn->mpRtpAudioSocket->getLocalIp();
+                 rtpAudioPort = pMediaConn->mpRtpAudioSocket->getLocalHostPort();
+                 if (rtpAudioPort <= 0)
+                 {
+                     rtpAudioPort = pMediaConn->mRtpAudioReceivePort ;
+                     rtpHostAddress = mRtpReceiveHostAddress ;
+                 }
+            }
+            else
+            {
+              assert(0);
+            }               
         }
-        else
+
+        // Audio RTCP
+        if (pMediaConn->mpRtcpAudioSocket)
         {
-            rtpHostAddress = mRtpReceiveHostAddress ;
-            rtpAudioPort = pMediaConn->mRtpAudioReceivePort ;
-            rtcpAudioPort = pMediaConn->mRtcpAudioReceivePort ;
+            if (pMediaConn->mContactType == CONTACT_RELAY)
+            {
+                UtlString tempHostAddress;
+                assert(!pMediaConn->mIsMulticast);
+                if (!((OsNatDatagramSocket*)pMediaConn->mpRtcpAudioSocket)->
+                                            getRelayIp(&tempHostAddress, &rtcpAudioPort))
+                {
+                    rtcpAudioPort = pMediaConn->mRtcpAudioReceivePort ;
+                }
+                else
+                {
+                    // External address should match that of Audio RTP
+                    assert(tempHostAddress.compareTo(rtpHostAddress) == 0) ;
+                }
+            }
+            else if (pMediaConn->mContactType == CONTACT_AUTO || pMediaConn->mContactType == CONTACT_NAT_MAPPED)
+            {
+                UtlString tempHostAddress;
+                assert(!pMediaConn->mIsMulticast);
+                if (!pMediaConn->mpRtcpAudioSocket->getMappedIp(&tempHostAddress, &rtcpAudioPort))
+                {
+                    rtcpAudioPort = pMediaConn->mRtcpAudioReceivePort ;
+                }
+                else
+                {
+                    // External address should match that of Audio RTP
+                    assert(tempHostAddress.compareTo(rtpHostAddress) == 0) ;
+                }
+            }
+            else if (pMediaConn->mContactType == CONTACT_LOCAL)
+            {
+                rtcpAudioPort = pMediaConn->mpRtcpAudioSocket->getLocalHostPort();
+                if (rtcpAudioPort <= 0)
+                {
+                    rtcpAudioPort = pMediaConn->mRtcpAudioReceivePort ;
+                }
+            }                
+            else
+            {
+                assert(0);
+            }
         }
 
         // Codecs
