@@ -178,7 +178,7 @@ CpPhoneMediaInterface::CpPhoneMediaInterface(CpMediaInterfaceFactoryImpl* pFacto
    mTurnRefreshPeriodSecs = iTurnKeepAlivePeriodSecs ;
    mTurnUsername = szTurnUsername ;
    mTurnPassword = szTurnPassword ;
-   mbEnableICE = bEnableICE ;
+   mEnableIce = bEnableICE ;
 
    if(localAddress && *localAddress)
    {
@@ -2507,14 +2507,14 @@ void CpPhoneMediaInterface::createRtpSocketPair(UtlString localAddress,
 
    // Enable Stun if we have a stun server and either non-local contact type or 
    // ICE is enabled.
-   if ((mStunServer.length() != 0) && ((contactType != CONTACT_LOCAL) || mbEnableICE))
+   if ((mStunServer.length() != 0) && ((contactType != CONTACT_LOCAL) || mEnableIce))
    {
       rtpSocket->enableStun(mStunServer, mStunPort, mStunRefreshPeriodSecs, 0, false) ;
    }
 
    // Enable Turn if we have a stun server and either non-local contact type or 
    // ICE is enabled.
-   if ((mTurnServer.length() != 0) && ((contactType != CONTACT_LOCAL) || mbEnableICE))
+   if ((mTurnServer.length() != 0) && ((contactType != CONTACT_LOCAL) || mEnableIce))
    {
       rtpSocket->enableTurn(mTurnServer, mTurnPort, 
                mTurnRefreshPeriodSecs, mTurnUsername, mTurnPassword, false) ;
@@ -2522,14 +2522,14 @@ void CpPhoneMediaInterface::createRtpSocketPair(UtlString localAddress,
 
    // Enable Stun if we have a stun server and either non-local contact type or 
    // ICE is enabled.
-   if ((mStunServer.length() != 0) && ((contactType != CONTACT_LOCAL) || mbEnableICE))
+   if ((mStunServer.length() != 0) && ((contactType != CONTACT_LOCAL) || mEnableIce))
    {
       rtcpSocket->enableStun(mStunServer, mStunPort, mStunRefreshPeriodSecs, 0, false) ;
    }
 
    // Enable Turn if we have a stun server and either non-local contact type or 
    // ICE is enabled.
-   if ((mTurnServer.length() != 0) && ((contactType != CONTACT_LOCAL) || mbEnableICE))
+   if ((mTurnServer.length() != 0) && ((contactType != CONTACT_LOCAL) || mEnableIce))
    {
       rtcpSocket->enableTurn(mTurnServer, mTurnPort, 
                mTurnRefreshPeriodSecs, mTurnUsername, mTurnPassword, false) ;

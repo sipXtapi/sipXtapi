@@ -445,7 +445,7 @@ private:
    int mTurnRefreshPeriodSecs ;
    UtlString mTurnUsername ;
    UtlString mTurnPassword ;
-   UtlBoolean mbEnableICE ;
+   UtlBoolean mEnableIce ;
    UtlHashMap mInterfaceProperties;
 
    // Disabled copy constructor
