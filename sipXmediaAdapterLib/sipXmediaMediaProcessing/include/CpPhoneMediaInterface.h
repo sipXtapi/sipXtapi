@@ -408,11 +408,11 @@ protected:
     void applyAlternateDestinations(int connectionId) ;
 
       /// Create socket pair for RTP/RTCP streams.
-    void createRtpSocketPair(UtlString localAddress,
-                             int localPort,
-                             SIPX_CONTACT_TYPE contactType,
-                             OsNatDatagramSocket* &rtpSocket,
-                             OsNatDatagramSocket* &rtcpSocket);
+    OsStatus createRtpSocketPair(UtlString localAddress,
+                                 int localPort,
+                                 SIPX_CONTACT_TYPE contactType,
+                                 OsDatagramSocket* &rtpSocket,
+                                 OsDatagramSocket* &rtcpSocket);
       /**<
       *  For RTP/RTCP port pair will be set next free port pair.
       *  

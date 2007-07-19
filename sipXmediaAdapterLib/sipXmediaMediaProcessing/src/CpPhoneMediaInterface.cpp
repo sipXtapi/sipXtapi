@@ -21,8 +21,8 @@
 #include <utl/UtlHashMap.h>
 #include <os/OsDatagramSocket.h>
 #include <os/OsNatDatagramSocket.h>
+#include <os/OsMulticastSocket.h>
 #include <os/OsProtectEventMgr.h>
-typedef int MpConnectionID;
 #include "include/CpPhoneMediaInterface.h"
 #include "mi/CpMediaInterfaceFactoryImpl.h"
 #include <mp/MpMediaTask.h>
@@ -63,6 +63,7 @@ public:
     : UtlInt(connectionId)
     , mRtpSendHostAddress()
     , mDestinationSet(FALSE)
+    , mIsMulticast(FALSE)
     , mpRtpAudioSocket(NULL)
     , mpRtcpAudioSocket(NULL)
     , mRtpAudioSendHostPort(0)
@@ -123,9 +124,9 @@ public:
 
     UtlString mRtpSendHostAddress;
     UtlBoolean mDestinationSet;
-
-    OsNatDatagramSocket* mpRtpAudioSocket;
-    OsNatDatagramSocket* mpRtcpAudioSocket;
+    UtlBoolean mIsMulticast;
+    OsDatagramSocket* mpRtpAudioSocket;
+    OsDatagramSocket* mpRtcpAudioSocket;
     int mRtpAudioSendHostPort;
     int mRtcpAudioSendHostPort;
     int mRtpAudioReceivePort;
@@ -336,14 +337,21 @@ OsStatus CpPhoneMediaInterface::createConnection(int& connectionId,
                                                  IMediaEventListener* pMediaEventListener,
                                                  const RtpTransportOptions rtpTransportOptions)
 {
+   OsStatus retValue = OS_SUCCESS;
    CpPhoneMediaConnection* mediaConnection=NULL;
 
    connectionId = mpFlowGraph->createConnection();
+   if (connectionId == -1)
+   {
+      return OS_LIMIT_REACHED;
+   }
 
-   mediaConnection = new CpPhoneMediaConnection();
-   OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPhoneMediaInterface::createConnection creating a new connection %p",
-                  mediaConnection);
-   mediaConnection->setValue(connectionId) ;
+
+   mediaConnection = new CpPhoneMediaConnection(connectionId);
+   OsSysLog::add(FAC_CP, PRI_DEBUG,
+                 "CpPhoneMediaInterface::createConnection "
+                 "creating a new connection %d (%p)",
+                 connectionId, mediaConnection);
    mMediaConnections.append(mediaConnection);
 
    // Set Local address
@@ -356,10 +364,20 @@ OsStatus CpPhoneMediaInterface::createConnection(int& connectionId,
       mediaConnection->mLocalAddress = mLocalAddress ;
    }
 
+   mediaConnection->mIsMulticast = OsSocket::isMcastAddr(mediaConnection->mLocalAddress);
+   if (mediaConnection->mIsMulticast)
+   {
+      mediaConnection->mContactType = CONTACT_LOCAL;
+   }
+
    // Create the sockets for audio stream
-   createRtpSocketPair(mediaConnection->mLocalAddress, localPort,
-                       mediaConnection->mContactType,
-                       mediaConnection->mpRtpAudioSocket, mediaConnection->mpRtcpAudioSocket);
+   retValue = createRtpSocketPair(mediaConnection->mLocalAddress, localPort,
+                                  mediaConnection->mContactType,
+                                  mediaConnection->mpRtpAudioSocket, mediaConnection->mpRtcpAudioSocket);
+   if (retValue != OS_SUCCESS)
+   {
+       return retValue;
+   }
 
    // Start the audio packet pump
    mpFlowGraph->startReceiveRtp(NULL, 0,
@@ -385,7 +403,7 @@ OsStatus CpPhoneMediaInterface::createConnection(int& connectionId,
             "CpPhoneMediaInterface::createConnection creating a new SdpCodecFactory %p",
             mediaConnection->mpCodecFactory);
 
-    return OS_SUCCESS;
+    return retValue;
 }
 
 
@@ -423,7 +441,9 @@ OsStatus CpPhoneMediaInterface::getCapabilities(int connectionId,
                 // others.  Not sure how to handle/recover from that case.
                 if (pMediaConn->mContactType == CONTACT_RELAY)
                 {
-                    if (!pMediaConn->mpRtpAudioSocket->getRelayIp(&rtpHostAddress, &rtpAudioPort))
+                    assert(!pMediaConn->mIsMulticast);
+                    if (!((OsNatDatagramSocket*)pMediaConn->mpRtpAudioSocket)->
+                                                getRelayIp(&rtpHostAddress, &rtpAudioPort))
                     {
                         rtpAudioPort = pMediaConn->mRtpAudioReceivePort ;
                         rtpHostAddress = mRtpReceiveHostAddress ;
@@ -432,6 +452,7 @@ OsStatus CpPhoneMediaInterface::getCapabilities(int connectionId,
                 }
                 else if (pMediaConn->mContactType == CONTACT_AUTO || pMediaConn->mContactType == CONTACT_NAT_MAPPED)
                 {
+                    assert(!pMediaConn->mIsMulticast);
                     if (!pMediaConn->mpRtpAudioSocket->getMappedIp(&rtpHostAddress, &rtpAudioPort))
                     {
                         rtpAudioPort = pMediaConn->mRtpAudioReceivePort ;
@@ -460,7 +481,9 @@ OsStatus CpPhoneMediaInterface::getCapabilities(int connectionId,
                 if (pMediaConn->mContactType == CONTACT_RELAY)
                 {
                     UtlString tempHostAddress;
-                    if (!pMediaConn->mpRtcpAudioSocket->getRelayIp(&tempHostAddress, &rtcpAudioPort))
+                    assert(!pMediaConn->mIsMulticast);
+                    if (!((OsNatDatagramSocket*)pMediaConn->mpRtcpAudioSocket)->
+                                                getRelayIp(&tempHostAddress, &rtcpAudioPort))
                     {
                         rtcpAudioPort = pMediaConn->mRtcpAudioReceivePort ;
                     }
@@ -473,6 +496,7 @@ OsStatus CpPhoneMediaInterface::getCapabilities(int connectionId,
                 else if (pMediaConn->mContactType == CONTACT_AUTO || pMediaConn->mContactType == CONTACT_NAT_MAPPED)
                 {
                     UtlString tempHostAddress;
+                    assert(!pMediaConn->mIsMulticast);
                     if (!pMediaConn->mpRtcpAudioSocket->getMappedIp(&tempHostAddress, &rtcpAudioPort))
                     {
                         rtcpAudioPort = pMediaConn->mRtcpAudioReceivePort ;
@@ -649,14 +673,34 @@ OsStatus CpPhoneMediaInterface::setConnectionDestination(int connectionId,
 
         if(pMediaConnection->mpRtpAudioSocket)
         {
-            pMediaConnection->mpRtpAudioSocket->readyDestination(remoteRtpHostAddress, remoteAudioRtpPort) ;
-            pMediaConnection->mpRtpAudioSocket->applyDestinationAddress(remoteRtpHostAddress, remoteAudioRtpPort) ;
+            if (!pMediaConnection->mIsMulticast)
+            {
+                OsNatDatagramSocket *pSocket = (OsNatDatagramSocket*)pMediaConnection->mpRtpAudioSocket;
+                pSocket->readyDestination(remoteRtpHostAddress, remoteAudioRtpPort) ;
+                pSocket->applyDestinationAddress(remoteRtpHostAddress, remoteAudioRtpPort) ;
+            }
+            else
+            {
+                pMediaConnection->mpRtpAudioSocket->doConnect(remoteAudioRtpPort,
+                                                              remoteRtpHostAddress,
+                                                              TRUE);
+            }
         }
 
         if(pMediaConnection->mpRtcpAudioSocket && (remoteAudioRtcpPort > 0))
         {
-            pMediaConnection->mpRtcpAudioSocket->readyDestination(remoteRtpHostAddress, remoteAudioRtcpPort) ;
-            pMediaConnection->mpRtcpAudioSocket->applyDestinationAddress(remoteRtpHostAddress, remoteAudioRtcpPort) ;
+            if (!pMediaConnection->mIsMulticast)
+            {
+                OsNatDatagramSocket *pSocket = (OsNatDatagramSocket*)pMediaConnection->mpRtcpAudioSocket;
+                pSocket->readyDestination(remoteRtpHostAddress, remoteAudioRtcpPort) ;
+                pSocket->applyDestinationAddress(remoteRtpHostAddress, remoteAudioRtcpPort) ;
+            }
+            else
+            {
+                pMediaConnection->mpRtcpAudioSocket->doConnect(remoteAudioRtpPort,
+                                                               remoteRtpHostAddress,
+                                                               TRUE);
+            }
         }
         else
         {
@@ -670,14 +714,34 @@ OsStatus CpPhoneMediaInterface::setConnectionDestination(int connectionId,
         if (pMediaConnection->mpRtpVideoSocket)
         {
             pMediaConnection->mRtpVideoSendHostPort = remoteVideoRtpPort ;                   
-            pMediaConnection->mpRtpVideoSocket->readyDestination(remoteRtpHostAddress, remoteVideoRtpPort) ;
-            pMediaConnection->mpRtpVideoSocket->applyDestinationAddress(remoteRtpHostAddress, remoteVideoRtpPort) ;
+            if (!pMediaConnection->mIsMulticast)
+            {
+                OsNatDatagramSocket *pRtpSocket = (OsNatDatagramSocket*)pMediaConnection->mpRtpVideoSocket;
+                pRtpSocket->readyDestination(remoteRtpHostAddress, remoteVideoRtpPort) ;
+                pRtpSocket->applyDestinationAddress(remoteRtpHostAddress, remoteVideoRtpPort) ;
+            }
+            else
+            {
+                pMediaConnection->mpRtcpAudioSocket->doConnect(remoteAudioRtpPort,
+                                                               remoteRtpHostAddress,
+                                                               TRUE);
+            }
 
             if(pMediaConnection->mpRtcpVideoSocket && (remoteVideoRtcpPort > 0))
             {
                 pMediaConnection->mRtcpVideoSendHostPort = remoteVideoRtcpPort ;               
-                pMediaConnection->mpRtcpVideoSocket->readyDestination(remoteRtpHostAddress, remoteVideoRtcpPort) ;
-                pMediaConnection->mpRtcpVideoSocket->applyDestinationAddress(remoteRtpHostAddress, remoteVideoRtcpPort) ;
+                if (!pMediaConnection->mIsMulticast)
+                {
+                   OsNatDatagramSocket *pRctpSocket = (OsNatDatagramSocket*)pMediaConnection->mpRtcpVideoSocket;
+                   pRctpSocket->readyDestination(remoteRtpHostAddress, remoteVideoRtcpPort) ;
+                   pRctpSocket->applyDestinationAddress(remoteRtpHostAddress, remoteVideoRtcpPort) ;
+                }
+                else
+                {
+                   pMediaConnection->mpRtcpAudioSocket->doConnect(remoteAudioRtpPort,
+                                                                  remoteRtpHostAddress,
+                                                                  TRUE);
+                }
             }
             else
             {
@@ -706,18 +770,24 @@ OsStatus CpPhoneMediaInterface::addAudioRtpConnectionDestination(int         con
 
     CpPhoneMediaConnection* mediaConnection = getMediaConnection(connectionId);
     if (mediaConnection) 
-    {        
+    {
+        // This is not applicable to multicast sockets
+        assert(!mediaConnection->mIsMulticast);
+        if (mediaConnection->mIsMulticast)
+        {
+            return OS_FAILED;
+        }
+
         if (    (candidateIp != NULL) && 
                 (strlen(candidateIp) > 0) && 
                 (strcmp(candidateIp, "0.0.0.0") != 0) &&
                 portIsValid(candidatePort) && 
                 (mediaConnection->mpRtpAudioSocket != NULL))
         {
-            mediaConnection->mbAlternateDestinations = true ;
-            mediaConnection->mpRtpAudioSocket->addAlternateDestination(
-                    candidateIp, candidatePort, iPriority) ;
-            mediaConnection->mpRtpAudioSocket->readyDestination(candidateIp, 
-                    candidatePort) ;
+            OsNatDatagramSocket *pSocket = (OsNatDatagramSocket*)mediaConnection->mpRtpAudioSocket;
+            mediaConnection->mbAlternateDestinations = TRUE;
+            pSocket->addAlternateDestination(candidateIp, candidatePort, iPriority);
+            pSocket->readyDestination(candidateIp, candidatePort);
 
             returnCode = OS_SUCCESS;
         }
@@ -740,17 +810,23 @@ OsStatus CpPhoneMediaInterface::addAudioRtcpConnectionDestination(int         co
     CpPhoneMediaConnection* mediaConnection = getMediaConnection(connectionId);
     if (mediaConnection) 
     {        
+        // This is not applicable to multicast sockets
+        assert(!mediaConnection->mIsMulticast);
+        if (mediaConnection->mIsMulticast)
+        {
+            return OS_FAILED;
+        }
+
         if (    (candidateIp != NULL) && 
                 (strlen(candidateIp) > 0) && 
                 (strcmp(candidateIp, "0.0.0.0") != 0) &&
                 portIsValid(candidatePort) && 
                 (mediaConnection->mpRtcpAudioSocket != NULL))
         {
-            mediaConnection->mbAlternateDestinations = true ;
-            mediaConnection->mpRtcpAudioSocket->addAlternateDestination(
-                    candidateIp, candidatePort, iPriority) ;
-            mediaConnection->mpRtcpAudioSocket->readyDestination(candidateIp, 
-                    candidatePort) ;
+            OsNatDatagramSocket *pSocket = (OsNatDatagramSocket*)mediaConnection->mpRtcpAudioSocket;
+            mediaConnection->mbAlternateDestinations = TRUE;
+            pSocket->addAlternateDestination(candidateIp, candidatePort, iPriority);
+            pSocket->readyDestination(candidateIp, candidatePort);
 
             returnCode = OS_SUCCESS;
         }
@@ -773,17 +849,23 @@ OsStatus CpPhoneMediaInterface::addVideoRtpConnectionDestination(int         con
     CpPhoneMediaConnection* mediaConnection = getMediaConnection(connectionId);
     if (mediaConnection) 
     {        
+        // This is not applicable to multicast sockets
+        assert(!mediaConnection->mIsMulticast);
+        if (mediaConnection->mIsMulticast)
+        {
+            return OS_FAILED;
+        }
+
         if (    (candidateIp != NULL) && 
                 (strlen(candidateIp) > 0) && 
                 (strcmp(candidateIp, "0.0.0.0") != 0) &&
                 portIsValid(candidatePort) && 
                 (mediaConnection->mpRtpVideoSocket != NULL))
         {
-            mediaConnection->mbAlternateDestinations = true ;
-            mediaConnection->mpRtpVideoSocket->addAlternateDestination(
-                    candidateIp, candidatePort, iPriority) ;
-            mediaConnection->mpRtpVideoSocket->readyDestination(candidateIp, 
-                    candidatePort) ;
+            OsNatDatagramSocket *pSocket = (OsNatDatagramSocket*)mediaConnection->mpRtpVideoSocket;
+            mediaConnection->mbAlternateDestinations = TRUE;
+            pSocket->addAlternateDestination(candidateIp, candidatePort, iPriority);
+            pSocket->readyDestination(candidateIp, candidatePort);
 
             returnCode = OS_SUCCESS;
         }
@@ -806,17 +888,23 @@ OsStatus CpPhoneMediaInterface::addVideoRtcpConnectionDestination(int         co
     CpPhoneMediaConnection* mediaConnection = getMediaConnection(connectionId);
     if (mediaConnection) 
     {        
+        // This is not applicable to multicast sockets
+        assert(!mediaConnection->mIsMulticast);
+        if (mediaConnection->mIsMulticast)
+        {
+            return OS_FAILED;
+        }
+
         if (    (candidateIp != NULL) && 
                 (strlen(candidateIp) > 0) && 
                 (strcmp(candidateIp, "0.0.0.0") != 0) &&
                 portIsValid(candidatePort) && 
                 (mediaConnection->mpRtcpVideoSocket != NULL))
         {
-            mediaConnection->mbAlternateDestinations = true ;
-            mediaConnection->mpRtcpVideoSocket->addAlternateDestination(
-                    candidateIp, candidatePort, iPriority) ;
-            mediaConnection->mpRtcpVideoSocket->readyDestination(candidateIp, 
-                    candidatePort) ;
+            OsNatDatagramSocket *pSocket = (OsNatDatagramSocket*)mediaConnection->mpRtcpVideoSocket;
+            mediaConnection->mbAlternateDestinations = TRUE;
+            pSocket->addAlternateDestination(candidateIp, candidatePort, iPriority);
+            pSocket->readyDestination(candidateIp, candidatePort);
 
             returnCode = OS_SUCCESS;
         }
@@ -1543,7 +1631,16 @@ void CpPhoneMediaInterface::setContactType(int connectionId, SIPX_CONTACT_TYPE e
 
     if (pMediaConn)
     {
-        pMediaConn->mContactType = eType ;
+        if (pMediaConn->mIsMulticast && eType == CONTACT_AUTO)
+        {
+            pMediaConn->mContactType = CONTACT_LOCAL;
+        }
+        else
+        {
+            // Only CONTACT_LOCAL is allowed for multicast addresses.
+            assert(!pMediaConn->mIsMulticast || eType == CONTACT_LOCAL);
+            pMediaConn->mContactType = eType;
+        }
     }
 }
 
@@ -2014,10 +2111,16 @@ UtlBoolean CpPhoneMediaInterface::getRelayAddresses(int connectionId,
 
     if (pMediaConn)
     {
+        assert(!pMediaConn->mIsMulticast);
+        if (pMediaConn->mIsMulticast)
+        {
+           return FALSE;
+        }
+
         // Audio rtp port (must exist)
         if (pMediaConn->mpRtpAudioSocket)
         {
-            if (pMediaConn->mpRtpAudioSocket->getRelayIp(&host, &port))
+            if (((OsNatDatagramSocket*)pMediaConn->mpRtpAudioSocket)->getRelayIp(&host, &port))
             {
                 if (port > 0)
                 {
@@ -2030,7 +2133,7 @@ UtlBoolean CpPhoneMediaInterface::getRelayAddresses(int connectionId,
                 // Audio rtcp port (optional) 
                 if (pMediaConn->mpRtcpAudioSocket && bRC)
                 {
-                    if (pMediaConn->mpRtcpAudioSocket->getRelayIp(&host, &port))
+                    if (((OsNatDatagramSocket*)pMediaConn->mpRtcpAudioSocket)->getRelayIp(&host, &port))
                     {
                         rtcpAudioPort = port ;
                         if (host.compareTo(hostIp) != 0)
@@ -2048,7 +2151,7 @@ UtlBoolean CpPhoneMediaInterface::getRelayAddresses(int connectionId,
         // Video rtp port (optional)
         if (pMediaConn->mpRtpVideoSocket && bRC)
         {
-            if (pMediaConn->mpRtpVideoSocket->getRelayIp(&host, &port))
+            if ((OsNatDatagramSocket*)pMediaConn->mpRtpVideoSocket)->getRelayIp(&host, &port))
             {
                 rtpVideoPort = port ;
                 if (host.compareTo(hostIp) != 0)
@@ -2061,7 +2164,7 @@ UtlBoolean CpPhoneMediaInterface::getRelayAddresses(int connectionId,
                 // Video rtcp port (optional)
                 if (pMediaConn->mpRtcpVideoSocket)
                 {
-                    if (pMediaConn->mpRtcpVideoSocket->getRelayIp(&host, &port))
+                    if ((OsNatDatagramSocket*)pMediaConn->mpRtcpVideoSocket)->getRelayIp(&host, &port))
                     {
                         rtcpVideoPort = port ;
                         if (host.compareTo(hostIp) != 0)
@@ -2250,6 +2353,12 @@ void CpPhoneMediaInterface::applyAlternateDestinations(int connectionId)
 
     if (pMediaConnection)
     {
+        assert(!pMediaConnection->mIsMulticast);
+        if (pMediaConnection->mIsMulticast)
+        {
+           return;
+        }
+
         assert(!pMediaConnection->mDestinationSet) ;
         pMediaConnection->mDestinationSet = true ;
 
@@ -2269,9 +2378,10 @@ void CpPhoneMediaInterface::applyAlternateDestinations(int connectionId)
         // Connect RTP Audio Socket
         if (pMediaConnection->mpRtpAudioSocket)
         {
-            if (pMediaConnection->mpRtpAudioSocket->getBestDestinationAddress(destAddress, destPort))
+           OsNatDatagramSocket *pSocket = (OsNatDatagramSocket*)pMediaConnection->mpRtpAudioSocket;
+            if (pSocket->getBestDestinationAddress(destAddress, destPort))
             {
-                pMediaConnection->mpRtpAudioSocket->applyDestinationAddress(destAddress, destPort) ;                                
+                pSocket->applyDestinationAddress(destAddress, destPort);
                 pMediaConnection->mRtpSendHostAddress = destAddress;
                 pMediaConnection->mRtpAudioSendHostPort = destPort;
             }
@@ -2280,9 +2390,10 @@ void CpPhoneMediaInterface::applyAlternateDestinations(int connectionId)
         // Connect RTCP Audio Socket
         if (pMediaConnection->mpRtcpAudioSocket)
         {
-            if (pMediaConnection->mpRtcpAudioSocket->getBestDestinationAddress(destAddress, destPort))
+            OsNatDatagramSocket *pSocket = (OsNatDatagramSocket*)pMediaConnection->mpRtcpAudioSocket;
+            if (pSocket->getBestDestinationAddress(destAddress, destPort))
             {
-                pMediaConnection->mpRtcpAudioSocket->applyDestinationAddress(destAddress, destPort) ;                
+                pSocket->applyDestinationAddress(destAddress, destPort) ;                
                 pMediaConnection->mRtcpAudioSendHostPort = destPort;                
             }            
         }
@@ -2293,9 +2404,10 @@ void CpPhoneMediaInterface::applyAlternateDestinations(int connectionId)
         // Connect RTP Video Socket
         if (pMediaConnection->mpRtpVideoSocket)
         {
-            if (pMediaConnection->mpRtpVideoSocket->getBestDestinationAddress(destAddress, destPort))
+            OsNatDatagramSocket *pSocket = (OsNatDatagramSocket*)pMediaConnection->mpRtpVideoSocket;
+            if (pSocket->getBestDestinationAddress(destAddress, destPort))
             {
-                pMediaConnection->mpRtpVideoSocket->applyDestinationAddress(destAddress, destPort) ;                
+                pSocket->applyDestinationAddress(destAddress, destPort) ;                
                 pMediaConnection->mRtpVideoSendHostPort = destPort;
             }            
         }
@@ -2303,9 +2415,10 @@ void CpPhoneMediaInterface::applyAlternateDestinations(int connectionId)
         // Connect RTCP Video Socket
         if (pMediaConnection->mpRtcpVideoSocket)
         {
-            if (pMediaConnection->mpRtcpVideoSocket->getBestDestinationAddress(destAddress, destPort))
+            OsNatDatagramSocket *pSocket = (OsNatDatagramSocket*)pMediaConnection->mpRtcpVideoSocket;
+            if (pSocket->getBestDestinationAddress(destAddress, destPort))
             {
-                pMediaConnection->mpRtcpVideoSocket->applyDestinationAddress(destAddress, destPort) ;                
+                pSocket->applyDestinationAddress(destAddress, destPort) ;                
                 pMediaConnection->mRtcpVideoSendHostPort = destPort;
             }            
         }
@@ -2421,14 +2534,15 @@ OsStatus CpPhoneMediaInterface::getMediaProperty(int connectionId,
 }
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
-void CpPhoneMediaInterface::createRtpSocketPair(UtlString localAddress,
-                                                int localPort,
-                                                SIPX_CONTACT_TYPE contactType,
-                                                OsNatDatagramSocket* &rtpSocket,
-                                                OsNatDatagramSocket* &rtcpSocket)
+OsStatus CpPhoneMediaInterface::createRtpSocketPair(UtlString localAddress,
+                                                    int localPort,
+                                                    SIPX_CONTACT_TYPE contactType,
+                                                    OsDatagramSocket* &rtpSocket,
+                                                    OsDatagramSocket* &rtcpSocket)
 {
    int firstRtpPort;
    bool localPortGiven = (localPort != 0); // Does user specified the local port?
+   UtlBoolean isMulticast = OsSocket::isMcastAddr(localAddress);
 
    if (!localPortGiven)
    {
@@ -2436,14 +2550,23 @@ void CpPhoneMediaInterface::createRtpSocketPair(UtlString localAddress,
       firstRtpPort = localPort;
    }
 
-   // Eventually this should use a specified address as this
-   // host may be multi-homed
-   rtpSocket = new OsNatDatagramSocket(0, NULL, localPort, localAddress, NULL);
-   rtpSocket->enableTransparentReads(false);
+   if (isMulticast)
+   {
+        rtpSocket = new OsMulticastSocket(localPort, localAddress,
+                                          localPort, localAddress);
+        rtcpSocket = new OsMulticastSocket(
+                              localPort == 0 ? 0 : localPort + 1, localAddress,
+                              localPort == 0 ? 0 : localPort + 1, localAddress);
+   }
+   else
+   {
+       rtpSocket = new OsNatDatagramSocket(0, NULL, localPort, localAddress, NULL);
+       ((OsNatDatagramSocket*)rtpSocket)->enableTransparentReads(false);
 
-   rtcpSocket = new OsNatDatagramSocket(0, NULL,localPort == 0 ? 0 : localPort+1,
-                                        localAddress, NULL);
-   rtcpSocket->enableTransparentReads(false);
+       rtcpSocket = new OsNatDatagramSocket(0, NULL,localPort == 0 ? 0 : localPort+1,
+                                            localAddress, NULL);
+       ((OsNatDatagramSocket*)rtcpSocket)->enableTransparentReads(false);
+   }
 
    // Validate local port is not auto-selecting.
    if (localPort != 0 && !localPortGiven)
@@ -2470,11 +2593,43 @@ void CpPhoneMediaInterface::createRtpSocketPair(UtlString localAddress,
 
             delete rtpSocket;
             delete rtcpSocket;
-            rtpSocket = new OsNatDatagramSocket(0, NULL, localPort,
-               mLocalAddress.data(), NULL);
-            rtcpSocket = new OsNatDatagramSocket(0, NULL, localPort + 1,
-               mLocalAddress.data(), NULL);
+            if (isMulticast)
+            {
+               OsMulticastSocket* rtpSocket = new OsMulticastSocket(
+                        localPort, localAddress,
+                        localPort, localAddress);
+               OsMulticastSocket* rtcpSocket = new OsMulticastSocket(
+                        localPort == 0 ? 0 : localPort + 1, localAddress,
+                        localPort == 0 ? 0 : localPort + 1, localAddress);
+            }
+            else
+            {
+               rtpSocket = new OsNatDatagramSocket(0, NULL, localPort, localAddress, NULL);
+               ((OsNatDatagramSocket*)rtpSocket)->enableTransparentReads(false);
+
+               rtcpSocket = new OsNatDatagramSocket(0, NULL,localPort == 0 ? 0 : localPort+1,
+                                                   localAddress, NULL);
+               ((OsNatDatagramSocket*)rtcpSocket)->enableTransparentReads(false);
+            }
       }
+   }
+
+   // Did our sockets get created OK?
+   if (!rtpSocket->isOk() || !rtcpSocket->isOk())
+   {
+       delete rtpSocket;
+       delete rtcpSocket;
+       return OS_NETWORK_UNAVAILABLE;
+   }
+
+   if (isMulticast)
+   {
+       // Set multicast options
+       const unsigned char MC_HOP_COUNT = 8;
+       ((OsMulticastSocket*)rtpSocket)->setHopCount(MC_HOP_COUNT);
+       ((OsMulticastSocket*)rtcpSocket)->setHopCount(MC_HOP_COUNT);
+       ((OsMulticastSocket*)rtpSocket)->setLoopback(false);
+       ((OsMulticastSocket*)rtcpSocket)->setLoopback(false);
    }
 
    // Set a maximum on the buffers for the sockets so
@@ -2505,35 +2660,42 @@ void CpPhoneMediaInterface::createRtpSocketPair(UtlString localAddress,
 #endif // WIN32 ]
    }
 
-   // Enable Stun if we have a stun server and either non-local contact type or 
-   // ICE is enabled.
-   if ((mStunServer.length() != 0) && ((contactType != CONTACT_LOCAL) || mEnableIce))
+   if (!isMulticast)
    {
-      rtpSocket->enableStun(mStunServer, mStunPort, mStunRefreshPeriodSecs, 0, false) ;
+       // Enable Stun if we have a stun server and either non-local contact type or 
+       // ICE is enabled.
+       if ((mStunServer.length() != 0) && ((contactType != CONTACT_LOCAL) || mEnableIce))
+       {
+          ((OsNatDatagramSocket*)rtpSocket)->enableStun(mStunServer, mStunPort,
+                                                        mStunRefreshPeriodSecs, 0, false) ;
+       }
+
+       // Enable Turn if we have a stun server and either non-local contact type or 
+       // ICE is enabled.
+       if ((mTurnServer.length() != 0) && ((contactType != CONTACT_LOCAL) || mEnableIce))
+       {
+          ((OsNatDatagramSocket*)rtpSocket)->enableTurn(mTurnServer, mTurnPort, 
+                   mTurnRefreshPeriodSecs, mTurnUsername, mTurnPassword, false) ;
+       }
+
+       // Enable Stun if we have a stun server and either non-local contact type or 
+       // ICE is enabled.
+       if ((mStunServer.length() != 0) && ((contactType != CONTACT_LOCAL) || mEnableIce))
+       {
+          ((OsNatDatagramSocket*)rtcpSocket)->enableStun(mStunServer, mStunPort,
+                                                         mStunRefreshPeriodSecs, 0, false) ;
+       }
+
+       // Enable Turn if we have a stun server and either non-local contact type or 
+       // ICE is enabled.
+       if ((mTurnServer.length() != 0) && ((contactType != CONTACT_LOCAL) || mEnableIce))
+       {
+          ((OsNatDatagramSocket*)rtcpSocket)->enableTurn(mTurnServer, mTurnPort, 
+                   mTurnRefreshPeriodSecs, mTurnUsername, mTurnPassword, false) ;
+       }
    }
 
-   // Enable Turn if we have a stun server and either non-local contact type or 
-   // ICE is enabled.
-   if ((mTurnServer.length() != 0) && ((contactType != CONTACT_LOCAL) || mEnableIce))
-   {
-      rtpSocket->enableTurn(mTurnServer, mTurnPort, 
-               mTurnRefreshPeriodSecs, mTurnUsername, mTurnPassword, false) ;
-   }
-
-   // Enable Stun if we have a stun server and either non-local contact type or 
-   // ICE is enabled.
-   if ((mStunServer.length() != 0) && ((contactType != CONTACT_LOCAL) || mEnableIce))
-   {
-      rtcpSocket->enableStun(mStunServer, mStunPort, mStunRefreshPeriodSecs, 0, false) ;
-   }
-
-   // Enable Turn if we have a stun server and either non-local contact type or 
-   // ICE is enabled.
-   if ((mTurnServer.length() != 0) && ((contactType != CONTACT_LOCAL) || mEnableIce))
-   {
-      rtcpSocket->enableTurn(mTurnServer, mTurnPort, 
-               mTurnRefreshPeriodSecs, mTurnUsername, mTurnPassword, false) ;
-   }
+   return OS_SUCCESS;
 }
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
