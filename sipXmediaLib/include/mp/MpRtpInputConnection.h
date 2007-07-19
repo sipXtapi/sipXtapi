@@ -30,6 +30,7 @@ struct IRTCPConnection;
 // APPLICATION INCLUDES
 #include <os/OsMutex.h>
 #include <mp/MpResource.h>
+#include <mp/MpTypes.h>
 
 // DEFINES
 // MACROS
@@ -38,7 +39,6 @@ struct IRTCPConnection;
 // CONSTANTS
 // STRUCTS
 // TYPEDEFS
-typedef int MpConnectionID;
 
 /**
 *  @brief Connection container for the inbound and outbound network paths to a

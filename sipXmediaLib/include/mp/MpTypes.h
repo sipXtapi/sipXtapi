@@ -50,4 +50,6 @@ typedef int MpOutputDeviceHandle; ///< Logical device ID identifying device
 typedef unsigned MpFrameTime;    ///< Time of frame begin relative to device
                                  ///< manager startup (in milliseconds).
 
+typedef int MpConnectionID;
+
 #endif /* _INCLUDED_MPTYPES_H ] */

@@ -23,7 +23,6 @@
 #include "mp/MpMediaTask.h"
 #include "mp/MpMisc.h"
 #include "mp/MpCodec.h"
-typedef int MpConnectionID;
 #include "mp/MpCallFlowGraph.h"
 #include "mp/dmaTask.h"
 #include "net/SdpCodecFactory.h"

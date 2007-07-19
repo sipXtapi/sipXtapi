@@ -23,7 +23,6 @@
 #include "mp/MpMisc.h"
 #include "mp/MpBuf.h"
 // TODO remove next two lines and reference to MpCallFlowGraph
-typedef int MpConnectionID;
 #include "mp/MpCallFlowGraph.h"
 #include "mp/MpToneResourceMsg.h"
 #include "mp/MprToneGen.h"
