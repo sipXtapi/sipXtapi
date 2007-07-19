@@ -33,7 +33,7 @@
 #include "mp/MpAudioWaveFileRead.h"
 #include "mp/MpFromFileStartResourceMsg.h"
 #include "mp/mpau.h"
-// TODO remove next two lines and reference to MpCallFlowGraph
+// TODO remove reference to MpCallFlowGraph
 #include "mp/MpCallFlowGraph.h"
 #include "os/OsSysLog.h"
 #include "os/OsProtectEventMgr.h"
