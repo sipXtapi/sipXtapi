@@ -61,17 +61,21 @@ public:
 /* ============================ MANIPULATORS ============================== */
 
     /// Create a new resource
-    virtual MpResource* newResource(const UtlString& resourceName)
+    virtual OsStatus newResource(const UtlString& resourceName,
+                                 int maxResourcesToCreate,
+                                 int& numResourcesCreated,
+                                 MpResource* resourceArray[])
     {
         assert(mSamplesPerFrame > 0);
         assert(mSamplesPerSecond > 0);
-
-        MpResource *resource = new MprToneGen(resourceName,
-                                              mSamplesPerFrame,
-                                              mSamplesPerSecond,
-                                              mLocale);
-        resource->disable();
-        return resource;
+        assert(maxResourcesToCreate >= 1);
+        numResourcesCreated = 1;
+        resourceArray[0] = new MprToneGen(resourceName,
+                                          mSamplesPerFrame,
+                                          mSamplesPerSecond,
+                                          mLocale);
+        (resourceArray[0])->disable();
+        return(OS_SUCCESS);
     }
 
 /* ============================ ACCESSORS ================================= */

@@ -64,17 +64,22 @@ public:
 /* ============================ MANIPULATORS ============================== */
 
       /// Create a new resource
-    virtual MpResource* newResource(const UtlString& resourceName)
+    virtual OsStatus newResource(const UtlString& resourceName,
+                                 int maxResourcesToCreate,
+                                 int& numResourcesCreated,
+                                 MpResource* resourceArray[])
     {
         assert(mSamplesPerFrame > 0);
         assert(mSamplesPerSecond > 0);
-        MpResource *resource = new MprToOutputDevice(resourceName,
+        assert(maxResourcesToCreate >= 1);
+        numResourcesCreated = 1;
+        resourceArray[0] = new MprToOutputDevice(resourceName,
                                                      mSamplesPerFrame,
                                                      mSamplesPerSecond,
                                                      mpDefaultManager,
                                                      mDefaultDriver);
-        resource->disable();
-        return resource;
+        (resourceArray[0])->disable();
+        return(OS_SUCCESS);
     }
 
 /* ============================ ACCESSORS ================================= */

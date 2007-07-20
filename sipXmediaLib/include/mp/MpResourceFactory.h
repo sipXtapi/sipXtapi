@@ -69,9 +69,25 @@ public:
     OsStatus addConstructor(MpResourceConstructor& resourceConstructor);
 
     /// Create a new resource of given type
-    MpResource* newResource(const UtlString& resourceType, 
-                            const UtlString& newResourceName) const;
-
+    OsStatus newResource(const UtlString& resourceType, 
+                         const UtlString& newResourceName,
+                         int maxResourcesToCreate,
+                         int& numResourcesCreated,
+                         MpResource* resourcesCreated[]) const;
+     /**<
+     *  Creates one or more resources as defined by the implementation of
+     *  the named resource constructor (typically of different resource types as
+     *  opposed to duplicates).  Some resources are created in sets as 
+     *  they work together in some way.  This interface allows the constructor
+     *  to create multiple resources and assocate or initialize them together.
+     *
+     *  @param[in] newResourceName - name to give the new resource, must be unique
+     *             to the target flowgraph that this resource is to be inserted.
+     *  @param[in] maxResourcesToCreate - the size of the resourcesCreated passed in
+     *  @param[out] numResourcesCreated - the actual number of resource created and
+     *             contained in the resourcesCreated array
+     *  @param[out] resourcesCreated - array containing the created resources.
+     */
 /* ============================ ACCESSORS ================================= */
 
 /* ============================ INQUIRY =================================== */

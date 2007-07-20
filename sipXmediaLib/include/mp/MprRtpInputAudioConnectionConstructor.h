@@ -60,16 +60,21 @@ public:
 /* ============================ MANIPULATORS ============================== */
 
     /// Create a new resource
-    virtual MpResource* newResource(const UtlString& resourceName)
+    virtual OsStatus newResource(const UtlString& resourceName,
+                                 int maxResourcesToCreate,
+                                 int& numResourcesCreated,
+                                 MpResource* resourceArray[])
     {
         assert(mSamplesPerFrame > 0);
         assert(mSamplesPerSecond > 0);
-        MpResource *resource = new MpRtpInputAudioConnection(resourceName,
+        assert(maxResourcesToCreate >= 1);
+        numResourcesCreated = 1;
+        resourceArray[0] = new MpRtpInputAudioConnection(resourceName,
                                                              999, 
                                                              mSamplesPerFrame, 
                                                              mSamplesPerSecond);
-        resource->enable();
-        return resource;
+        (resourceArray[0])->enable();
+        return(OS_SUCCESS);
     }
 
 /* ============================ ACCESSORS ================================= */

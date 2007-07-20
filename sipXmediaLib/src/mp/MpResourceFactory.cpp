@@ -56,13 +56,21 @@ OsStatus MpResourceFactory::addConstructor(MpResourceConstructor& resourceConstr
 }
 
     /// Create a new resource of given type
-MpResource* MpResourceFactory::newResource(const UtlString& resourceType,
-                                           const UtlString& newResourceName) const
+OsStatus MpResourceFactory::newResource(const UtlString& resourceType,
+                                        const UtlString& newResourceName,
+                                        int maxResourcesToCreate,
+                                        int& numResourcesCreated,
+                                        MpResource* resourcesCreated[]) const
 {
     MpResourceConstructor* constructor = 
         (MpResourceConstructor*) mConstructors.find(&resourceType);
 
-    return(constructor ? constructor->newResource(newResourceName) : NULL);
+    return(constructor ? 
+           constructor->newResource(newResourceName,
+                                    maxResourcesToCreate,
+                                    numResourcesCreated,
+                                    resourcesCreated) : 
+          OS_NOT_FOUND);
 }
 
 /* ============================ ACCESSORS ================================= */

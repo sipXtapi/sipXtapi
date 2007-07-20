@@ -28,6 +28,9 @@
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
+#define MAX_CONSTRUCTED_RESOURCES 10
+//#define TEST_PRINT
+
 // STATIC VARIABLE INITIALIZATIONS
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
@@ -223,7 +226,8 @@ int MpTopologyGraph::addTopologyResources(MpResourceTopology& resourceTopology,
 {
     // Add the resources
     int resourceIndex = 0;
-    MpResource* resource = NULL;
+    MpResource* resourcePtr = NULL;
+    MpResource* resourceArray[MAX_CONSTRUCTED_RESOURCES];
     UtlString resourceType;
     UtlString resourceName;
     OsStatus result;
@@ -233,18 +237,39 @@ int MpTopologyGraph::addTopologyResources(MpResourceTopology& resourceTopology,
         {
             resourceTopology.replaceNumInName(resourceName, resourceNum);
         }
-        resource = resourceFactory.newResource(resourceType, resourceName);
-        assert(resource);
-        if(resource)
+
+        int numConstructorResources;
+        OsStatus status;
+        status = resourceFactory.newResource(resourceType, resourceName, MAX_CONSTRUCTED_RESOURCES,
+           numConstructorResources, resourceArray);        
+        if(status == OS_SUCCESS)
         {
+           assert(numConstructorResources > 0);
+           int arrayIndex;
+           // We now can potentially get more than one resource back from the
+           // constructor
+           for(arrayIndex = 0; arrayIndex < numConstructorResources; arrayIndex++)
+           {
+              resourcePtr = resourceArray[arrayIndex];
+              assert(resourcePtr);
+              if(resourcePtr)
+              {
 #ifdef TEST_PRINT
-            printf("constructed and adding resource name: %s type: %s\n",
-                resource->getName().data(),
-                resourceType.data());
+                  printf("constructed and adding resource name: %s type: %s\n",
+                      resourcePtr->getName().data(),
+                      resourceType.data());
 #endif
-            newResources.insert(resource);
-            result = addResource(*resource, FALSE);
-            assert(result == OS_SUCCESS);
+                  newResources.insert(resourcePtr);
+                  result = addResource(*resourcePtr, FALSE);
+                  assert(result == OS_SUCCESS);
+               }
+           }
+        }
+        else
+        {
+           OsSysLog::add(FAC_MP, PRI_ERR, 
+              "Failed to create resource type: %s name: %s status: %d",
+              resourceType.data(), resourceName.data(), status);
         }
         resourceIndex++;
     }

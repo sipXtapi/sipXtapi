@@ -61,8 +61,25 @@ public:
 
 /* ============================ MANIPULATORS ============================== */
 
-    /// Create a new resource
-    virtual MpResource* newResource(const UtlString& resourceName) = 0;
+    /// Create new resource(s)
+    virtual OsStatus newResource(const UtlString& resourceName, 
+                                 int maxResourcesToCreate,
+                                 int& numResourcesCreated,
+                                 MpResource* resourcesCreated[]) = 0;
+     /**<
+     *  Creates one or more resources as defined by the implementation of
+     *  the resource constructor (typically of different resource types as
+     *  opposed to duplicates).  Some resources are created in sets as 
+     *  they work together in some way.  This interface allows the constructor
+     *  to create multiple resources and assocate or initialize them together.
+     *
+     *  @param[in] resourceName - name to give the new resource, must be unique
+     *             to the target flowgraph that this resource is to be inserted.
+     *  @param[in] maxResourcesToCreate - the size of the resourcesCreated passed in
+     *  @param[out] numResourcesCreated - the actual number of resource created and
+     *             contained in the resourcesCreated array
+     *  @param[out] resourcesCreated - array containing the created resources.
+     */
 
 /* ============================ ACCESSORS ================================= */
 
