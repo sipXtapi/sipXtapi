@@ -27,6 +27,7 @@
 #include <mp/MprRtpOutputAudioConnectionConstructor.h>
 #include <mp/MprRtpInputAudioConnectionConstructor.h>
 #include <mp/MprBufferRecorderConstructor.h>
+#include <mp/MprSplitterConstructor.h>
 #include <include/CpTopologyGraphFactoryImpl.h>
 #include <mi/CpMediaInterfaceFactory.h>
 #include <include/CpTopologyGraphInterface.h>
@@ -284,6 +285,9 @@ MpResourceFactory* CpTopologyGraphFactoryImpl::buildDefaultResourceFactory()
     // Buffer Recorder
     resourceFactory->addConstructor(*(new MprBufferRecorderConstructor()));
 
+    // Splitter
+    resourceFactory->addConstructor(*(new MprSplitterConstructor()));
+
     return(resourceFactory);
 }
 
@@ -322,7 +326,9 @@ MpResourceTopology* CpTopologyGraphFactoryImpl::buildDefaultInitialResourceTopol
                                            DEFAULT_NULL_RESOURCE_NAME);
     assert(result == OS_SUCCESS);
 
-
+    result = resourceTopology->addResource(DEFAULT_SPLITTER_RESOURCE_TYPE, 
+                                           DEFAULT_TO_OUTPUT_SPLITTER_RESOURCE_NAME);
+    assert(result == OS_SUCCESS);
 
     // Link fromFile to bridge
     result = resourceTopology->addConnection(DEFAULT_FROM_FILE_RESOURCE_NAME, 0, DEFAULT_BRIDGE_RESOURCE_NAME, 1);
@@ -336,10 +342,14 @@ MpResourceTopology* CpTopologyGraphFactoryImpl::buildDefaultInitialResourceTopol
     result = resourceTopology->addConnection(DEFAULT_TONE_GEN_RESOURCE_NAME, 0, DEFAULT_BRIDGE_RESOURCE_NAME, 2);
     assert(result == OS_SUCCESS);
 
-    // Link bridge to speaker
-    result = resourceTopology->addConnection(DEFAULT_BRIDGE_RESOURCE_NAME, 0, DEFAULT_TO_OUTPUT_DEVICE_RESOURCE_NAME, 0);
+    // Link bridge to splitter, the splitter leaves a tap for AEC to see the output to speaker
+    result = resourceTopology->addConnection(DEFAULT_BRIDGE_RESOURCE_NAME, 0, DEFAULT_TO_OUTPUT_SPLITTER_RESOURCE_NAME, 0);
     assert(result == OS_SUCCESS);
 
+    // Link splitter to speaker
+    result = resourceTopology->addConnection(DEFAULT_TO_OUTPUT_SPLITTER_RESOURCE_NAME, 0, DEFAULT_TO_OUTPUT_DEVICE_RESOURCE_NAME, 0);
+    assert(result == OS_SUCCESS);
+    
     // Link bridge to buffer recorder
     // This buffer recorder is intended to record the microphone.
     // Currently, this records all inputs from the bridge.  Once the bridge
