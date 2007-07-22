@@ -42,7 +42,7 @@
 // STRUCTS
 // TYPEDEFS
 #ifdef MP_FIXED_POINT // [
-   typedef int_fast16_t MpBridgeGain;
+   typedef int16_t MpBridgeGain;
 #else  // MP_FIXED_POINT ][
    typedef float MpBridgeGain;
 #endif // MP_FIXED_POINT ]
