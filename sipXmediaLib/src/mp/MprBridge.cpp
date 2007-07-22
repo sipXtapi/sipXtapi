@@ -751,7 +751,7 @@ UtlBoolean MprBridge::doMix(MpBufPtr inBufs[], int inBufsSize,
             {
                // This is direct input to output copy.
                const int origInput = mExtendedInputs.getOrigin(mpActiveInputsList[src]);
-               outBufs[mpMixActionsStack[action].mDst].swap(inBufs[origInput]);
+               outBufs[mpMixActionsStack[action].mDst] = inBufs[origInput];
 
 #ifdef TEST_PRINT_MIXING // [
                printf("COPY_TO_OUTPUT*: %2d -> %2d\n",
