@@ -331,23 +331,45 @@ UtlBoolean MprBridge::doMix(MpBufPtr inBufs[], int inBufsSize,
    //
    //  Build list of active inputs (stored in mpActiveInputsList).
    //
+#ifdef TEST_PRINT_CONTRIBUTORS // [
+   printf("Contributors (inversed order): ");
+#endif // TEST_PRINT_CONTRIBUTORS ]
    int extInput;
    for ( extInput=numExtendedInputs-1; extInput>=0; extInput-- )
    {
       if (mExtendedInputs.isNotMuted(extInput))
       {
+#ifdef TEST_PRINT_CONTRIBUTORS // [
+         printf("(%d)NM",extInput);
+#endif // TEST_PRINT_CONTRIBUTORS ]
          int origInput = mExtendedInputs.getOrigin(extInput);
          if (inBufs[origInput].isValid())
          {
+#ifdef TEST_PRINT_CONTRIBUTORS // [
+            printf("V");
+#endif // TEST_PRINT_CONTRIBUTORS ]
             MpAudioBufPtr pAudio = inBufs[origInput];
             if (pAudio->isActiveAudio())
             {
+#ifdef TEST_PRINT_CONTRIBUTORS // [
+               printf("A");
+#endif // TEST_PRINT_CONTRIBUTORS ]
                mpActiveInputsList[numActiveInputs] = extInput;
                numActiveInputs++;
+#ifdef TEST_PRINT_CONTRIBUTORS // [
+               printf("+");
+#endif // TEST_PRINT_CONTRIBUTORS ]
             }
          }
+#ifdef TEST_PRINT_CONTRIBUTORS // [
+         printf(" ");
+#endif // TEST_PRINT_CONTRIBUTORS ]
       }
    }
+#ifdef TEST_PRINT_CONTRIBUTORS // [
+   printf("\n");
+   printf("Total active inputs: %d\n", numActiveInputs);
+#endif // TEST_PRINT_CONTRIBUTORS ]
 
    //
    //  Build mix actions stack.
