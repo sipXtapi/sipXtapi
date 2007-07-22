@@ -4708,6 +4708,9 @@
 				RelativePath="include\mp\MprSplitter.h">
 			</File>
 			<File
+				RelativePath="include\mp\MprSplitterConstructor.h">
+			</File>
+			<File
 				RelativePath="include\mp\MprToneGen.h">
 			</File>
 			<File

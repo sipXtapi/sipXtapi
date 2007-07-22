@@ -126,6 +126,7 @@ nobase_include_HEADERS =  \
     mp/MprSpeexEchoCancel.h \
     mp/MprSpeexPreProcess.h \
     mp/MprSplitter.h \
+    mp/MprSplitterConstructor.h \
     mp/MprToneGen.h \
     mp/MprToneGenConstructor.h \
     mp/MprToNet.h \

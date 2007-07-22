@@ -1263,6 +1263,10 @@ SOURCE=.\include\mp\MprSplitter.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\include\mp\MprSplitterConstructor.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\include\mp\MprToneGen.h
 # End Source File
 # Begin Source File
