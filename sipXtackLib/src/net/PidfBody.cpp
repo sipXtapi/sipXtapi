@@ -295,7 +295,6 @@ UtlBoolean PidfBody::getBasicStatus(int tupleIndex,
     }
     else
     {
-        tuple->remove(0);
         isTupleStatusBasicOpen = FALSE;
         contact = "";
         tupleNote = "";
