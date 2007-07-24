@@ -44,6 +44,11 @@ MprAudioFrameBuffer::MprAudioFrameBuffer(const UtlString& rName,
 // Destructor
 MprAudioFrameBuffer::~MprAudioFrameBuffer()
 {
+   if(mpBufferedFrameArray)
+   {
+      delete mpBufferedFrameArray;
+      mpBufferedFrameArray = NULL;
+   }
 }
 
 /* ============================ MANIPULATORS ============================== */
