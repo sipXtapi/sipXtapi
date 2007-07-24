@@ -2325,6 +2325,9 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\src\mp\MprAudioFrameBuffer.cpp">
+			</File>
+			<File
 				RelativePath="src\mp\MprBridge.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -2819,6 +2822,9 @@
 			</File>
 			<File
 				RelativePath=".\src\mp\MprNull.cpp">
+			</File>
+			<File
+				RelativePath=".\src\mp\MprNullAec.cpp">
 			</File>
 			<File
 				RelativePath="src\mp\MprRecorder.cpp">
@@ -4609,6 +4615,9 @@
 				RelativePath="include\mp\MpQueuePlayerListener.h">
 			</File>
 			<File
+				RelativePath=".\include\mp\MprAudioFrameBuffer.h">
+			</File>
+			<File
 				RelativePath="include\mp\MprBridge.h">
 			</File>
 			<File
@@ -4679,6 +4688,12 @@
 			</File>
 			<File
 				RelativePath=".\include\mp\MprNull.h">
+			</File>
+			<File
+				RelativePath=".\include\mp\MprNullAec.h">
+			</File>
+			<File
+				RelativePath=".\include\mp\MprNullAecConstructor.h">
 			</File>
 			<File
 				RelativePath=".\include\mp\MprNullConstructor.h">

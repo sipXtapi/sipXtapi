@@ -1694,6 +1694,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\src\mp\MprAudioFrameBuffer.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\src\mp\MprBridge.cpp"
 					>
 				</File>
@@ -1763,6 +1767,10 @@
 				</File>
 				<File
 					RelativePath=".\src\mp\MprNull.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\src\mp\MprNullAec.cpp"
 					>
 				</File>
 				<File
@@ -2311,6 +2319,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\include\mp\MprAudioFrameBuffer.h"
+					>
+				</File>
+				<File
 					RelativePath=".\include\mp\MpRawAudioBuffer.h"
 					>
 				</File>
@@ -2408,6 +2420,14 @@
 				</File>
 				<File
 					RelativePath=".\include\mp\MprNull.h"
+					>
+				</File>
+				<File
+					RelativePath=".\include\mp\MprNullAec.h"
+					>
+				</File>
+				<File
+					RelativePath=".\include\mp\MprNullAecConstructor.h"
 					>
 				</File>
 				<File
