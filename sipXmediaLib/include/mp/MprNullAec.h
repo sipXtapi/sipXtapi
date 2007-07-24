@@ -32,6 +32,19 @@ class MprAudioFrameBuffer;
 *  @brief The MprNullAec resource a no-op AEC implementation intended to be a base calls for real AEC implementations..
 *
 *  This resource passes buffers from input 0 straight through to output 0.
+*
+*  Typically AEC looks at the output to the speaker and subtracts that signal
+*  in some form from the input from the mic to remove the echo.  So generically
+*  AEC has two inputs (mic and speaker) and one output (mic - echo). If this was
+*  done in a single resource this would create a loop in the process order of
+*  the resources (a resource must get all its inputs to generate its outputs).
+*
+*  To avoid this loop, AEC is broken into two resources.  The MprAudioFrameBuffer
+*  which simply stores references to the last MpBufs that went through it and 
+*  makes it availabe via an accessor.  AEC uses the MprAudioFrameBuffer to get
+*  the speaker output.  So the real AEC resource then has only one input (mic) and
+*  one output (mic - echo).  It gets the speaker output indirectly from the
+*  MprAudioFrameBuffer.
 */
 class MprNullAec : public MpAudioResource
 {

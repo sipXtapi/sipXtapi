@@ -31,7 +31,9 @@
 *  @brief The MprAudioFrameBuffer resource buffers frames of audio that pass through to be retrieved later.
 *
 *  This resource always passes input 0 through to output 0, but it keeps a
-*  reference of the buffer passed through for a configured length of time..
+*  reference of the buffer passed through for a configured length of time 
+*  (frame periods).  No latency is added to the input.  References are just 
+*  kept for the input buffers which can be accessed via the getFrame method.
 */
 class MprAudioFrameBuffer : public MpAudioResource
 {
