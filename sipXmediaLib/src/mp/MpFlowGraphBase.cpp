@@ -421,6 +421,7 @@ OsStatus MpFlowGraphBase::processNextFrame(void)
       res = computeOrder();
       assert(res == OS_SUCCESS);
 
+//#define TEST_PRINT_TOPOLOGY
 #ifdef TEST_PRINT_TOPOLOGY
       for(i=0; i < mResourceCnt; i++)
       {

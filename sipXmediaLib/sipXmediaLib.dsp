@@ -331,11 +331,11 @@ SOURCE=.\src\mp\mpG711.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\mp\MpInputDeviceDriver.cpp
+SOURCE=.\src\mp\MpidWinMM.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\mp\MpidWinMM.cpp
+SOURCE=.\src\mp\MpInputDeviceDriver.cpp
 # End Source File
 # Begin Source File
 
@@ -392,6 +392,10 @@ SOURCE=.\src\mp\MpPlayer.cpp
 # Begin Source File
 
 SOURCE=.\src\mp\MpPlayerEvent.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\mp\MprAudioFrameBuffer.cpp
 # End Source File
 # Begin Source File
 
@@ -464,6 +468,10 @@ SOURCE=.\src\mp\MprMixer.cpp
 # Begin Source File
 
 SOURCE=.\src\mp\MprNull.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\mp\MprNullAec.cpp
 # End Source File
 # Begin Source File
 
@@ -1059,11 +1067,11 @@ SOURCE=.\include\mp\MpFromFileStartResourceMsg.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\mp\MpInputDeviceDriver.h
+SOURCE=.\include\mp\MpidWinMM.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\mp\MpidWinMM.h
+SOURCE=.\include\mp\MpInputDeviceDriver.h
 # End Source File
 # Begin Source File
 
@@ -1128,6 +1136,10 @@ SOURCE=.\include\mp\MpPlayerListener.h
 # Begin Source File
 
 SOURCE=.\include\mp\MpQueuePlayerListener.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MprAudioFrameBuffer.h
 # End Source File
 # Begin Source File
 
@@ -1224,6 +1236,14 @@ SOURCE=.\include\mp\MprMixer.h
 # Begin Source File
 
 SOURCE=.\include\mp\MprNull.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MprNullAec.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MprNullAecConstructor.h
 # End Source File
 # Begin Source File
 

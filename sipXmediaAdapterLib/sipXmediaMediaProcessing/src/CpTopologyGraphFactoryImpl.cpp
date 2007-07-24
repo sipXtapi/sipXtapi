@@ -28,6 +28,7 @@
 #include <mp/MprRtpInputAudioConnectionConstructor.h>
 #include <mp/MprBufferRecorderConstructor.h>
 #include <mp/MprSplitterConstructor.h>
+#include <mp/MprNullAecConstructor.h>
 #include <include/CpTopologyGraphFactoryImpl.h>
 #include <mi/CpMediaInterfaceFactory.h>
 #include <include/CpTopologyGraphInterface.h>
@@ -288,6 +289,9 @@ MpResourceFactory* CpTopologyGraphFactoryImpl::buildDefaultResourceFactory()
     // Splitter
     resourceFactory->addConstructor(*(new MprSplitterConstructor()));
 
+    // NULL AEC
+    resourceFactory->addConstructor(*(new MprNullAecConstructor()));
+
     return(resourceFactory);
 }
 
@@ -330,12 +334,20 @@ MpResourceTopology* CpTopologyGraphFactoryImpl::buildDefaultInitialResourceTopol
                                            DEFAULT_TO_OUTPUT_SPLITTER_RESOURCE_NAME);
     assert(result == OS_SUCCESS);
 
+    result = resourceTopology->addResource(DEFAULT_NULL_AEC_RESOURCE_TYPE, 
+                                           DEFAULT_AEC_RESOURCE_NAME);
+    assert(result == OS_SUCCESS);
+
     // Link fromFile to bridge
     result = resourceTopology->addConnection(DEFAULT_FROM_FILE_RESOURCE_NAME, 0, DEFAULT_BRIDGE_RESOURCE_NAME, 1);
     assert(result == OS_SUCCESS);
 
-    // Link mic to bridge
-    result = resourceTopology->addConnection(DEFAULT_FROM_INPUT_DEVICE_RESOURCE_NAME, 0, DEFAULT_BRIDGE_RESOURCE_NAME, 0);
+    // Link mic to AEC
+    result = resourceTopology->addConnection(DEFAULT_FROM_INPUT_DEVICE_RESOURCE_NAME, 0, DEFAULT_AEC_RESOURCE_NAME, 0);
+    assert(result == OS_SUCCESS);
+
+    // Link AEC to bridge
+    result = resourceTopology->addConnection(DEFAULT_AEC_RESOURCE_NAME, 0, DEFAULT_BRIDGE_RESOURCE_NAME, 0);
     assert(result == OS_SUCCESS);
 
     // TODO: add a mixer for locally generated audio (e.g. tones, fromFile, etc)
@@ -350,6 +362,12 @@ MpResourceTopology* CpTopologyGraphFactoryImpl::buildDefaultInitialResourceTopol
     result = resourceTopology->addConnection(DEFAULT_TO_OUTPUT_SPLITTER_RESOURCE_NAME, 0, DEFAULT_TO_OUTPUT_DEVICE_RESOURCE_NAME, 0);
     assert(result == OS_SUCCESS);
     
+    // Link splitter to output buffer resource (part of AEC)
+    UtlString outBufferResourceName(DEFAULT_AEC_RESOURCE_NAME);
+    outBufferResourceName.append(AEC_OUTPUT_BUFFER_RESOURCE_NAME_SUFFIX);
+    result = resourceTopology->addConnection(DEFAULT_TO_OUTPUT_SPLITTER_RESOURCE_NAME, 1, outBufferResourceName, 0);
+    assert(result == OS_SUCCESS);
+
     // Link bridge to buffer recorder
     // This buffer recorder is intended to record the microphone.
     // Currently, this records all inputs from the bridge.  Once the bridge
