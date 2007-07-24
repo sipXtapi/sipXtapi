@@ -127,6 +127,7 @@ libsipXmedia_la_SOURCES =  \
     mp/MpResourceTopology.cpp \
     mp/MpRtpBuf.cpp \
     mp/MpUdpBuf.cpp \
+    mp/MprAudioFrameBuffer.cpp \
     mp/MprFromFile.cpp \
     mp/MprFromInputDevice.cpp \
     mp/MprFromMic.cpp \
@@ -134,6 +135,7 @@ libsipXmedia_la_SOURCES =  \
     mp/MprFromStream.cpp \
     mp/MprMixer.cpp \
     mp/MprNull.cpp \
+    mp/MprNullAec.cpp \
     mp/MprRecorder.cpp \
     mp/MpSineWaveGeneratorDeviceDriver.cpp \
     mp/MprSpeexEchoCancel.cpp \

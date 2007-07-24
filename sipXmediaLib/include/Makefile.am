@@ -96,6 +96,9 @@ nobase_include_HEADERS =  \
     mp/MpQueuePlayerListener.h \
     mp/MpRtpBuf.h \
     mp/MpUdpBuf.h \
+    mp/MprNullAec.h \
+    mp/MprNullAecConstructor.h \
+    mp/MprAudioFrameBuffer.h \
     mp/MprBridge.h \
     mp/MprBridgeConstructor.h \
     mp/MprBufferRecorder.h \
