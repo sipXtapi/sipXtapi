@@ -1560,7 +1560,9 @@ void SdpBody::addCodecsOffer(int iNumAddresses,
         if (iNumAddresses > 1)
         {
             char szTransportString[16];
-            memset(szTransportString, 0, sizeof(szTransportString));
+            // http://tools.ietf.org/html/draft-ietf-mmusic-ice-17
+            // currently only UDP is defined
+            strcpy(szTransportString, "UDP");
 
             for (int i=0; i<iNumAddresses; i++)
             {
@@ -1683,6 +1685,10 @@ void SdpBody::addCodecsOffer(int iNumAddresses,
         if (iNumAddresses > 1)
         {
             char szTransportString[16];
+            // http://tools.ietf.org/html/draft-ietf-mmusic-ice-17
+            // currently only UDP is defined
+            strcpy(szTransportString, "UDP");
+
             for (int i=0; i<iNumAddresses; i++)
             {
                 double priority = (double) (iNumAddresses-i) / (double) iNumAddresses ;
@@ -2297,7 +2303,7 @@ void SdpBody::addCandidateAttribute(int         candidateId,
     UtlString attributeData ;
     char buffer[64] ;    
     
-    attributeData.append("cand:") ;
+    attributeData.append("candidate:") ;
 
     sprintf(buffer, "%d", candidateId) ;
     attributeData.append(buffer) ;
