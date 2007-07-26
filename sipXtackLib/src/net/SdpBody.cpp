@@ -1560,6 +1560,7 @@ void SdpBody::addCodecsOffer(int iNumAddresses,
         if (iNumAddresses > 1)
         {
             char szTransportString[16];
+            memset(szTransportString, 0, sizeof(szTransportString));
 
             for (int i=0; i<iNumAddresses; i++)
             {
