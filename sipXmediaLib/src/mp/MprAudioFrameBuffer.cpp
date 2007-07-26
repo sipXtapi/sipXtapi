@@ -46,7 +46,7 @@ MprAudioFrameBuffer::~MprAudioFrameBuffer()
 {
    if(mpBufferedFrameArray)
    {
-      delete mpBufferedFrameArray;
+      delete[] mpBufferedFrameArray;
       mpBufferedFrameArray = NULL;
    }
 }
