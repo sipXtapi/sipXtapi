@@ -91,9 +91,9 @@ public:
     {
         OsNatKeepaliveEvent event ;
 
-        if (m_method.compareTo("OPTIONS"))
+        if (!m_method.compareTo("OPTIONS"))
             event.type = OS_NAT_KEEPALIVE_SIP_OPTIONS ;
-        else if (m_method.compareTo("PING"))
+        else if (!m_method.compareTo("PING"))
             event.type = OS_NAT_KEEPALIVE_SIP_PING ;        
         else
             event.type = OS_NAT_KEEPALIVE_INVALID ;
