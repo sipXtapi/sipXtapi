@@ -158,8 +158,14 @@ public:
    {
       // Test getting the resolution, and get it..
       unsigned resolution;
+
+#ifdef WIN32
       CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, MpMMTimer::getResolution(resolution));
       printf("Minimum timer resolution is %d usecs\n", resolution);
+#else
+      printf("MpMMTimer::getResolution() not yet implemented on this "
+             "platform, excluding test.\n");
+#endif
    }
 
    void testPeriodRange()
@@ -167,8 +173,13 @@ public:
       // Test the period range static method..
       unsigned unusedMin = 0;
       unsigned unusedMax = 0;
+#ifdef WIN32
       CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, 
          MpMMTimer::getPeriodRange(&unusedMin, &unusedMax));
+#else
+      printf("MpMMTimer::getPeriodRange() not yet implemented on this "
+             "platform, excluding test.\n");
+#endif
    }
 
    void testLinearTimer()
