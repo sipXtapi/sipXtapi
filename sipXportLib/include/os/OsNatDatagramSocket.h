@@ -50,6 +50,14 @@ typedef enum
 } NAT_STATUS ;
 
 
+typedef enum
+{
+   NO_BINDING,
+   STUN_BINDING,
+   TURN_BINDING,
+   STUN_TURN_BINDING
+} NAT_BINDING;
+
 /**
  * STUN_STATE holds state information for a STUN discovery binding/attempt 
  */
@@ -221,6 +229,19 @@ public:
      */
     virtual void disableTurn() ;
 
+    /**
+     * Waits for result of STUN/TURN binding on this socket. Must be
+     * called after STUN/TURN is enabled and reading is not done from
+     * socket.
+     *
+     * @param binding Binding type to wait for.
+     * @param bWaitUntilReady Whether we should block until bindings are
+     *        ready
+     * @return True if this function needs to be called again, because
+     *         some of bindings are not yet available. False if all requested
+     *         bindings are ready.
+     */
+    virtual bool waitForBinding(NAT_BINDING binding, bool bWaitUntilReady);
 
     /**
      * When a stun packet is received this socket can either call read again

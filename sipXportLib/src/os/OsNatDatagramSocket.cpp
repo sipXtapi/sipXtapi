@@ -303,7 +303,7 @@ void OsNatDatagramSocket::enableStun(const char* szStunServer, int stunPort, int
 
                 while (mStunState.status == NAT_STATUS_UNKNOWN)
                 {
-                    read(cBuf, sizeof(cBuf), 500) ;                
+                    read(cBuf, sizeof(cBuf), 100) ;                
                     if (mStunState.status == NAT_STATUS_UNKNOWN)
                     {
                         OsTask::yield() ;
@@ -354,7 +354,7 @@ void OsNatDatagramSocket::enableTurn(const char* szTurnSever,
 
                 while (mTurnState.status == NAT_STATUS_UNKNOWN)
                 {
-                    read(cBuf, sizeof(cBuf), 500) ;
+                    read(cBuf, sizeof(cBuf), 100) ;
                     if (mTurnState.status == NAT_STATUS_UNKNOWN)
                     {
                         OsTask::yield() ;
@@ -378,6 +378,49 @@ void OsNatDatagramSocket::disableTurn()
         mTurnState.bEnabled = false ;   
         mpNatAgent->disableTurn(this) ;
     }
+}
+
+
+bool OsNatDatagramSocket::waitForBinding(NAT_BINDING binding, bool bWaitUntilReady)
+{
+   bool result = false;
+
+   if (binding != NO_BINDING)
+   {
+      char cBuf[2048];
+
+      do
+      {
+         if (!(((binding == STUN_BINDING || binding == STUN_TURN_BINDING) &&
+            mStunState.status == NAT_STATUS_UNKNOWN)
+            ||
+            ((binding == TURN_BINDING || binding == STUN_TURN_BINDING) &&
+            mTurnState.status == NAT_STATUS_UNKNOWN)))
+         {
+            // leave loop, since stun/turn result is known
+            break;
+         }
+
+         read(cBuf, sizeof(cBuf), 50);
+      } while (bWaitUntilReady);
+
+      if (!(((binding == STUN_BINDING || binding == STUN_TURN_BINDING) &&
+         mStunState.status == NAT_STATUS_UNKNOWN)
+         ||
+         ((binding == TURN_BINDING || binding == STUN_TURN_BINDING) &&
+         mTurnState.status == NAT_STATUS_UNKNOWN)))
+      {
+         // if stun or turn result is known and is requested
+         result = false; // no need to call this function again
+      }
+      else
+      {
+         // either stun or turn result is not yet available and is requested
+         result = true; // we need to call this function again
+      }
+   }
+   
+   return result;
 }
 
 
@@ -661,6 +704,7 @@ UtlBoolean OsNatDatagramSocket::applyDestinationAddress(const char* szAddress, i
 
     return bRC ;
 }
+
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 

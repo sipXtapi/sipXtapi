@@ -2652,37 +2652,71 @@ OsStatus CpPhoneMediaInterface::createRtpSocketPair(UtlString localAddress,
 
    if (!isMulticast)
    {
-       // Enable Stun if we have a stun server and either non-local contact type or 
-       // ICE is enabled.
-       if ((mStunServer.length() != 0) && ((contactType != CONTACT_LOCAL) || mEnableIce))
-       {
-          ((OsNatDatagramSocket*)rtpSocket)->enableStun(mStunServer, mStunPort,
-                                                        mStunRefreshPeriodSecs, 0, false) ;
-       }
+      NAT_BINDING rtpBindingMode = NO_BINDING;
+      NAT_BINDING rtcpBindingMode = NO_BINDING;
 
-       // Enable Turn if we have a stun server and either non-local contact type or 
-       // ICE is enabled.
-       if ((mTurnServer.length() != 0) && ((contactType != CONTACT_LOCAL) || mEnableIce))
-       {
-          ((OsNatDatagramSocket*)rtpSocket)->enableTurn(mTurnServer, mTurnPort, 
-                   mTurnRefreshPeriodSecs, mTurnUsername, mTurnPassword, false) ;
-       }
+      // Enable Stun if we have a stun server and either non-local contact type or 
+      // ICE is enabled.
+      if ((mStunServer.length() != 0) && ((contactType != CONTACT_LOCAL) || mEnableIce))
+      {
+         ((OsNatDatagramSocket*)rtpSocket)->enableStun(mStunServer, mStunPort, mStunRefreshPeriodSecs, 0, false) ;
+         rtpBindingMode = STUN_BINDING;
+      }
 
-       // Enable Stun if we have a stun server and either non-local contact type or 
-       // ICE is enabled.
-       if ((mStunServer.length() != 0) && ((contactType != CONTACT_LOCAL) || mEnableIce))
-       {
-          ((OsNatDatagramSocket*)rtcpSocket)->enableStun(mStunServer, mStunPort,
-                                                         mStunRefreshPeriodSecs, 0, false) ;
-       }
+      // Enable Turn if we have a stun server and either non-local contact type or 
+      // ICE is enabled.
+      if ((mTurnServer.length() != 0) && ((contactType != CONTACT_LOCAL) || mEnableIce))
+      {
+         ((OsNatDatagramSocket*)rtpSocket)->enableTurn(mTurnServer, mTurnPort, 
+                  mTurnRefreshPeriodSecs, mTurnUsername, mTurnPassword, false) ;
 
-       // Enable Turn if we have a stun server and either non-local contact type or 
-       // ICE is enabled.
-       if ((mTurnServer.length() != 0) && ((contactType != CONTACT_LOCAL) || mEnableIce))
-       {
-          ((OsNatDatagramSocket*)rtcpSocket)->enableTurn(mTurnServer, mTurnPort, 
-                   mTurnRefreshPeriodSecs, mTurnUsername, mTurnPassword, false) ;
-       }
+         if (rtpBindingMode == STUN_BINDING)
+         {
+            rtpBindingMode = STUN_TURN_BINDING;
+         }
+         else
+         {
+            rtpBindingMode = TURN_BINDING;
+         }
+      }
+
+      // Enable Stun if we have a stun server and either non-local contact type or 
+      // ICE is enabled.
+      if ((mStunServer.length() != 0) && ((contactType != CONTACT_LOCAL) || mEnableIce))
+      {
+         ((OsNatDatagramSocket*)rtcpSocket)->enableStun(mStunServer, mStunPort, mStunRefreshPeriodSecs, 0, false) ;
+         rtcpBindingMode = STUN_BINDING;
+      }
+
+      // Enable Turn if we have a stun server and either non-local contact type or 
+      // ICE is enabled.
+      if ((mTurnServer.length() != 0) && ((contactType != CONTACT_LOCAL) || mEnableIce))
+      {
+         ((OsNatDatagramSocket*)rtcpSocket)->enableTurn(mTurnServer, mTurnPort, 
+                  mTurnRefreshPeriodSecs, mTurnUsername, mTurnPassword, false) ;
+
+         if (rtcpBindingMode == STUN_BINDING)
+         {
+            rtcpBindingMode = STUN_TURN_BINDING;
+         }
+         else
+         {
+            rtcpBindingMode = TURN_BINDING;
+         }
+      }
+
+      // wait until all sockets have results
+      if (rtpBindingMode != NO_BINDING || rtcpBindingMode!= NO_BINDING)
+      {
+         bool bRepeat = true;
+         while(bRepeat)
+         {
+            bRepeat = false;
+            bRepeat |= ((OsNatDatagramSocket*)rtpSocket)->waitForBinding(rtpBindingMode, false);
+            bRepeat |= ((OsNatDatagramSocket*)rtcpSocket)->waitForBinding(rtcpBindingMode, false);
+            // repeat as long as one of sockets is waiting for result
+         }
+      }
    }
 
    return OS_SUCCESS;
@@ -2691,5 +2725,4 @@ OsStatus CpPhoneMediaInterface::createRtpSocketPair(UtlString localAddress,
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 /* ============================ FUNCTIONS ================================= */
-
 
