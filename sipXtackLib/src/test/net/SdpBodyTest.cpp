@@ -1238,30 +1238,30 @@ public:
            switch(encoderPayloadId)
            {
            case 96:
-              CPPUNIT_ASSERT_EQUAL(11000,
+              CPPUNIT_ASSERT_EQUAL(20000,
                  codecArrayForEncoder[codecIndex]->getPacketLength());
-              CPPUNIT_ASSERT_EQUAL(11000,
+              CPPUNIT_ASSERT_EQUAL(20000,
                  codecArrayForDecoder[codecIndex]->getPacketLength());
               CPPUNIT_ASSERT_EQUAL((int)SdpCodec::SDP_CODEC_PCMU, decoderPayloadId);
               break;
            case 97:
-              CPPUNIT_ASSERT_EQUAL(11000,
+              CPPUNIT_ASSERT_EQUAL(20000,
                  codecArrayForEncoder[codecIndex]->getPacketLength());
-              CPPUNIT_ASSERT_EQUAL(11000,
+              CPPUNIT_ASSERT_EQUAL(20000,
                  codecArrayForDecoder[codecIndex]->getPacketLength());
               CPPUNIT_ASSERT_EQUAL((int)SdpCodec::SDP_CODEC_PCMA, decoderPayloadId);
               break;
            case 98:
-              CPPUNIT_ASSERT_EQUAL(11000,
+              CPPUNIT_ASSERT_EQUAL(20000,
                  codecArrayForEncoder[codecIndex]->getPacketLength());
-              CPPUNIT_ASSERT_EQUAL(11000,
+              CPPUNIT_ASSERT_EQUAL(20000,
                  codecArrayForDecoder[codecIndex]->getPacketLength());
               CPPUNIT_ASSERT_EQUAL(102, decoderPayloadId);
               break;
            case 99:
-              CPPUNIT_ASSERT_EQUAL(11000,
+              CPPUNIT_ASSERT_EQUAL(20000,
                  codecArrayForEncoder[codecIndex]->getPacketLength());
-              CPPUNIT_ASSERT_EQUAL(11000,
+              CPPUNIT_ASSERT_EQUAL(20000,
                  codecArrayForDecoder[codecIndex]->getPacketLength());
               CPPUNIT_ASSERT_EQUAL(103, decoderPayloadId);
               break;
