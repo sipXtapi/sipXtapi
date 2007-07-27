@@ -38,7 +38,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="Ws2_32.lib pcre.lib cppunit.lib"
+				AdditionalDependencies="Ws2_32.lib winmm.lib pcre.lib cppunit.lib"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
 				AdditionalLibraryDirectories="lib;..\sipXtackLib\release;..\sipXportLib\release;..\CPPUnit\lib"
@@ -99,7 +99,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/fixed:no /incremental:no"
-				AdditionalDependencies="Ws2_32.lib pcre.lib cppunitd.lib"
+				AdditionalDependencies="Ws2_32.lib winmm.lib pcre.lib cppunitd.lib"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
 				AdditionalLibraryDirectories="lib;..\sipXtackLib\debug;..\sipXportLib\debug;..\CPPUnit\lib"
@@ -161,7 +161,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/fixed:no /incremental:no"
-				AdditionalDependencies="Ws2_32.lib pcre.lib cppunitd.lib"
+				AdditionalDependencies="Ws2_32.lib winmm.lib pcre.lib cppunitd.lib"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
 				AdditionalLibraryDirectories="lib;..\sipXtackLib\debug;..\sipXportLib\debug;..\CPPUnit\lib"
