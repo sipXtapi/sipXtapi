@@ -64,7 +64,10 @@ HttpBody::HttpBody(const char* bytes, int length, const char* contentType) :
    {
       append(contentType);
       NameValueTokenizer::frontBackTrim(this, " \t");
-      //osPrintf("Content type: \"%s\"\n", mBodyContentType.data());
+      #ifdef TEST_PRINT
+         osPrintf("Content type: \"%s\"\n", contentType);
+      #endif
+
       int boundaryIndex = index(MULTIPART_BOUNDARY_PARAMETER,
                                 0, UtlString::ignoreCase);
 
@@ -73,8 +76,6 @@ HttpBody::HttpBody(const char* bytes, int length, const char* contentType) :
                0, UtlString::ignoreCase) == 0)
       {
          boundaryIndex += strlen(MULTIPART_BOUNDARY_PARAMETER);
-         //osPrintf("Boundary start:=>%s\n",
-         //    (mBodyContentType.data())[boundaryIndex]);
 
          // Allow white space before =
          int fieldLength = this->length();
@@ -91,7 +92,9 @@ HttpBody::HttpBody(const char* bytes, int length, const char* contentType) :
             if(whiteSpaceIndex > 0) mMultipartBoundary.remove(whiteSpaceIndex);
             whiteSpaceIndex = mMultipartBoundary.first('\t');
             if(whiteSpaceIndex > 0) mMultipartBoundary.remove(whiteSpaceIndex);
-            //osPrintf("HttpBody: boundary=\"%s\"\n", mMultipartBoundary.data());
+            #ifdef TEST_PRINT
+               osPrintf("HttpBody: boundary=%s\n", mMultipartBoundary.data());
+            #endif
          }
       }
    }
@@ -107,43 +110,20 @@ HttpBody::HttpBody(const char* bytes, int length, const char* contentType) :
          {
             for(int partIndex = 0; partIndex < MAX_HTTP_BODY_PARTS; partIndex++)
             {
-               //UtlString contentType;
-               //UtlString name;
-               //UtlString value;
                const char* partBytes;
                const char* parentBodyBytes;
                int partLength;
                int parentBodyLength;
                getBytes(&parentBodyBytes, &parentBodyLength);
                getMultipartBytes(partIndex, &partBytes, &partLength);
-               //osPrintf("Body part 1 length: %d\n", firstPart.length());
-               //osPrintf("++++ Multipart Body #1 ++++\n%s\n++++ End Multipart #1 ++++\n",
-               //    firstPart.data());
                if(partLength <= 0) break;
-
-               // Parse throught the header to the MIME part
-               // The first blank line is the begining of the part body
-               /*NameValueTokenizer parser(partBytes, partLength);
-                 do
-                 {
-                 parser.getNextPair(HTTP_NAME_VALUE_DELIMITER,
-                 &name, & value);
-                 if(name.compareTo(HTTP_CONTENT_TYPE_FIELD) == 0)
-                 {
-                 contentType = name;
-                 }
-                 }
-                 while(!name.isNull());*/
-
-               // This is a bit of a temporary kludge
-               //Prepend a HTTP header to make it look like a HTTP message
-               //partBytes.insert(0, "GET / HTTP/1.0\n");
-               //HttpMessage firstPartMessage(partBytes.data(), partBytes.length());
-               //const HttpBody* partFileBody = firstPartMessage.getBody();
-               //int bytesLeft = parser.getProcessedIndex() - partLength;
 
                if (partLength > 0)
                {
+                  #ifdef TEST_PRINT
+                     osPrintf("HttpBody constructor - MimeBodyPart %d added - partStart=%d - partLength=%d\n",
+                              partIndex, partStart, partLength );
+                  #endif
                   mpBodyParts[partIndex] = new MimeBodyPart(this, partBytes - parentBodyBytes,
                                                             partLength);
                   // Save the number of body parts.
@@ -503,9 +483,17 @@ UtlBoolean HttpBody::getMultipartBytes(int partIndex,
                                        const char** bytes,
                                        int* length) const
 {
+    #ifdef TEST_PRINT
+        osPrintf("GetMultipartBytes: PartIndex = %d\n", partIndex);
+    #endif
+
     UtlBoolean partFound = FALSE;
     if(!mMultipartBoundary.isNull())
     {
+        #ifdef TEST_PRINT
+            osPrintf("Multipart Boundary: %s\n", mMultipartBoundary.data() ); // JMJ
+        #endif
+
         int byteIndex = -1;
         int partNum = -1;
         int partStartIndex = -1;
@@ -513,27 +501,33 @@ UtlBoolean HttpBody::getMultipartBytes(int partIndex,
         do
         {
             byteIndex = mBody.index(mMultipartBoundary.data(), byteIndex + 1);
+            #ifdef TEST_PRINT
+                osPrintf("ByteIndex: %d\n", byteIndex);
+            #endif
+
             if(byteIndex >= 0)
             {
                 partNum++;
                 if(partNum == partIndex)
                 {
+                    #ifdef TEST_PRINT
+                        osPrintf("Part Num: %d\n", partNum);
+                    #endif
                     partStartIndex = byteIndex + mMultipartBoundary.length();
                     if((mBody.data())[partStartIndex] == '\r') partStartIndex++;
                     if((mBody.data())[partStartIndex] == '\n') partStartIndex++;
+                    #ifdef TEST_PRINT
+                        osPrintf("Part Start Index: %d\n", partStartIndex);
+                    #endif
                 }
                 else if(partNum == partIndex + 1)
                 {
                     partEndIndex = byteIndex - 3;
-                    //osPrintf("Part End Index: %d\n", partEndIndex);
-                    //osPrintf("End of file: %c %d\n", mBody.data()[partEndIndex],
-                    //    (int) ((mBody.data())[partEndIndex]));
                     if(((mBody.data())[partEndIndex]) == '\n') partEndIndex--;
-                    //osPrintf("End of file: %c %d\n", mBody.data()[partEndIndex],
-                    //    (int) ((mBody.data())[partEndIndex]));
                     if(((mBody.data())[partEndIndex]) == '\r') partEndIndex--;
-                    //osPrintf("End of file: %c %d\n", mBody.data()[partEndIndex],
-                    //    (int) ((mBody.data())[partEndIndex]));
+                    #ifdef TEST_PRINT
+                        osPrintf("Part End Index: %d\n", partEndIndex);
+                    #endif
                 }
             }
         }
