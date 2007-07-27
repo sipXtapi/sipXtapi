@@ -118,7 +118,8 @@ public:
 
    UtlBoolean getMultipartBytes(int partIndex, 
                                 const char** bytes,
-                                int* length) const;
+                                int* length,
+                                int* start) const;
 
    const MimeBodyPart* getMultipart(int partIndex) const;
 
