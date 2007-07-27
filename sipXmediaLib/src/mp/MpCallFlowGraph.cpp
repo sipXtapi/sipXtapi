@@ -544,7 +544,9 @@ MpCallFlowGraph::~MpCallFlowGraph()
    res = removeLink(*mpCallrecMixer, 0); assert(res == OS_SUCCESS);
    res = removeLink(*mpMicCallrecSplitter, 0); assert(res == OS_SUCCESS);
    res = removeLink(*mpMicCallrecSplitter, 1); assert(res == OS_SUCCESS);
+#ifndef DISABLE_LOCAL_AUDIO
    res = removeLink(*mpSpeakerCallrecSplitter, 0); assert(res == OS_SUCCESS);
+#endif
    res = removeLink(*mpSpeakerCallrecSplitter, 1); assert(res == OS_SUCCESS);
 
    // now remove (and destroy) the resources
