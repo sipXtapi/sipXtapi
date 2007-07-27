@@ -13,6 +13,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <assert.h>
 #include <windows.h>
+#include <MMSystem.h>
 #include <time.h>
 
 // APPLICATION INCLUDES
@@ -228,27 +229,50 @@ void OsDateTimeWnt::getCurTime(OsTime& rTime)
                   (long) ((sOsFileTime.int64 / ((unsigned __int64) 10)) % ((unsigned __int64) 1000000)));
    rTime = curTime;
 #else
-   FILETIME theTime;
+    typedef union 
+    {
+        FILETIME         ft ;
+        unsigned __int64 int64 ;        
+    } g_FILETIME ;
 
-   GetSystemTimeAsFileTime(&theTime);
+    DWORD systemMSecs;
+    static bool       sbInitialized = false ;
+    static g_FILETIME sOsFileTime ;
+    static DWORD sLastSystemMSecs = 0 ;
 
-   // convert to __int64
-   __int64 theTime_i64;
-   theTime_i64 = theTime.dwHighDateTime;
-   theTime_i64 <<= 32;
-   theTime_i64 += theTime.dwLowDateTime;
+    systemMSecs = timeGetTime();
 
-   // convert to seconds and microseconds since Jan 01 1601 (Windows time base)
-   __int64 osTimeSecs  = theTime_i64 / FILETIME_UNITS_PER_SEC;
-   int osTimeUsecs = (int)((theTime_i64 % FILETIME_UNITS_PER_SEC) / FILETIME_UNITS_PER_USEC);
+    if (!sbInitialized)
+    {
+        sbInitialized = true ;
+        FILETIME sft;
+        // Set the precision of timings got from timeGetTime.
+        timeBeginPeriod(1);
+        // Resample time, since we changed the precision.
+        systemMSecs = timeGetTime();
 
-   // subtract to change the time base to since Jan 01 1970 (Unix/sipX time base)
-   osTimeSecs -= WINDOWSTIME2UNIXTIME;
+        GetSystemTimeAsFileTime(&sft);
+        // Store in a temp and copy over to prevent datatype misalignment issues.
+        sOsFileTime.ft = sft;
+        sLastSystemMSecs = systemMSecs ;
+    }
+    else
+    {
+        DWORD delta = systemMSecs - sLastSystemMSecs ;
 
-   //assert((osTimeSecs >> 32)  == 0);
-   //assert((osTimeUsecs >> 32) == 0);
-   OsTime curTime((long)osTimeSecs, osTimeUsecs);
+        sLastSystemMSecs = systemMSecs;
+        sOsFileTime.int64 = sOsFileTime.int64 + 
+                            10000 * delta;  // convert delta msec to 100ns units
+        
+        SYSTEMTIME si ;
+        FileTimeToSystemTime(&sOsFileTime.ft, &si) ;
+    }
 
+   OsTime curTime((long) ((sOsFileTime.int64 - 
+                           ((unsigned __int64) WINDOWSTIME2UNIXTIME * 10000000)) 
+                          / ((unsigned __int64) 10000000)), 
+                  (long) ((sOsFileTime.int64 / ((unsigned __int64) 10)) % 
+                          ((unsigned __int64) 1000000)));
    rTime = curTime;
 #endif
 }
