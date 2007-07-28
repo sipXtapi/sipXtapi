@@ -33,8 +33,17 @@
 #  define N_IN_BUFFERS        N_BUFFERS
 #  define N_OUT_BUFFERS       N_BUFFERS
 
+// N_OUT_PRIME was previously set to 8. however, we found that on windows 
+// vista this would cause a bad stutter. this is because after calling
+// 8 waveOpenOut we got a batch of 8 WOM_DONE and then called another
+// 8 waveOpenOut. hence there was a gap. by using 16 buffers we find
+// that vista sends 5 WOM_DONE at a time. windows xp and windows 2000
+// send WOM_DONE one at a time at regular intervals. this is surely
+// a bug in windows vista! that said we can't fix vista and there
+// doesn't appear to be any harm with setting N_OUT_PRIME to 16.
+
 #  define N_IN_PRIME          32 // must not be more than N_IN_BUFFERS:
-#  define N_OUT_PRIME         8 // must not be more than N_OUT_BUFFERS:
+#  define N_OUT_PRIME         16 // must not be more than N_OUT_BUFFERS:
 
 #  define N_SAMPLES           80
 

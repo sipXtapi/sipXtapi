@@ -414,6 +414,38 @@ static int openSpeakerDevices(WAVEHDR*& pWH, HWAVEOUT& hOut)
     return 0 ;
 }
 
+// wait until all the buffers have been reset. previously the code 
+// waited exactly 100ms, however this wasn't always enough. now
+// it will wait until there are no buffers in the queue.
+// in order to avoid an infinite loop (although this should only happen
+// if waveOutReset was not called) we give up after 100 iterations
+// (equals 1 second). if this happens then we could be left with some 
+// active data in the buffers.
+void waitForDeviceResetCompletion()
+{
+    int i;
+    bool bStillResetting;
+    int iterations = 0;
+
+    do
+    {
+        bStillResetting = false;
+
+        for (i = 0; i < N_OUT_BUFFERS; i++) 
+        {
+            if (hOutHdr[i] && (pOutHdr[i]->dwFlags & WHDR_INQUEUE))
+            {
+                bStillResetting = true;
+            }
+        }
+
+        if (bStillResetting)
+        {
+            Sleep(10);
+        }
+    }
+    while (bStillResetting && ++iterations < 100);
+}
 
 void closeSpeakerDevices()
 {
@@ -427,10 +459,13 @@ void closeSpeakerDevices()
     if (audioOutH)
     {
         ret = waveOutReset(audioOutH);
-        Sleep(100) ;
         if (ret != MMSYSERR_NOERROR)
         {
             showWaveError("waveOutReset", ret, -1, __LINE__);
+        }
+        else
+        {
+            waitForDeviceResetCompletion();
         }
 
         for (i=0; i<N_OUT_BUFFERS; i++) 
@@ -463,10 +498,13 @@ void closeSpeakerDevices()
     if (audioOutCallH)
     {
         ret = waveOutReset(audioOutCallH);
-        Sleep(100) ;
         if (ret != MMSYSERR_NOERROR)
         {
             showWaveError("waveOutReset", ret, -1, __LINE__);
+        }
+        else
+        {
+            waitForDeviceResetCompletion();
         }
 
         for (i=0; i<N_OUT_BUFFERS; i++) 
@@ -567,11 +605,20 @@ unsigned int __stdcall SpkrThread(LPVOID Unused)
         {
             if (audioOutH)
             {
-                waveOutReset(audioOutH);
+                ret = waveOutReset(audioOutH);
             }
             if (audioOutCallH)
             {
-                waveOutReset(audioOutCallH);
+                ret = waveOutReset(audioOutCallH);
+            }
+
+            if (ret != MMSYSERR_NOERROR)
+            {
+                showWaveError("waveOutReset", ret, -1, __LINE__);
+            }
+            else
+            {
+                waitForDeviceResetCompletion();
             }
         }
 
@@ -619,13 +666,22 @@ unsigned int __stdcall SpkrThread(LPVOID Unused)
                     closeSpeakerDevices() ;
                     if (audioOutH)
                     {
-                        waveOutReset(audioOutH);
+                        ret = waveOutReset(audioOutH);
                     }
                     if (audioOutCallH)
                     {
-                        waveOutReset(audioOutCallH);
+                        ret = waveOutReset(audioOutCallH);
                     }
-                    //Sleep(100);
+
+                    if (ret != MMSYSERR_NOERROR)
+                    {
+                        showWaveError("waveOutReset", ret, -1, __LINE__);
+                    }
+                    else
+                    {
+                        waitForDeviceResetCompletion();
+                    }
+
                     // Kill the hearbeat timer if it exists
                     if (timerId>0)
                         timeKillEvent(timerId);
