@@ -359,24 +359,27 @@ public:
           mpSourceResource->setSignalAmplitude(outIndex, peak);
           peak = peak * 2;
        }
+       int generationMask = (1<<numParticipants)-1;
+       mpSourceResource->setGenOutBufMask(generationMask);
 
        const MpBridgeGain I = MP_BRIDGE_GAIN_PASSTHROUGH;
        MpBridgeGain gainsOut[numParticipants][numParticipants] = {
-          {0, 0, I, I, 0, 0, I, 0, 0, 0, I, 0, 0, 0, I},
-          {I, I, I, I, I, 0, I, I, I, 0, I, I, I, 0, I},
+          {0, I, I, I, 0, 0, I, 0, 0, 0, I, 0, 0, 0, I},
+          {I, 0, I, I, I, 0, I, I, I, 0, I, I, I, 0, I},
           {I, 0, 0, 0, I, 0, 0, 0, I, 0, 0, 0, I, 0, 0},
           {0, 0, I, 0, 0, 0, I, 0, 0, 0, I, 0, 0, 0, I},
           {0, 0, I, 0, 0, 0, I, 0, 0, 0, I, 0, 0, 0, I},
           {I, 0, I, I, I, 0, I, I, I, 0, I, I, I, 0, I},
-          {I, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-          {I, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+          {I, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // This output and next one
+          {I, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // just copy data from one input
           {0, 0, I, 0, 0, 0, I, 0, 0, 0, I, 0, 0, 0, I},
           {I, 0, I, I, I, 0, I, I, I, 0, I, I, I, 0, I},
           {I, 0, 0, 0, I, 0, 0, 0, I, 0, 0, 0, I, 0, 0},
           {0, 0, I, 0, 0, 0, I, 0, 0, 0, I, 0, 0, 0, I},
-          {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+          {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // Muted output
           {I, 0, I, I, I, 0, I, I, I, 0, I, I, I, 0, I},
           {I, 0, 0, 0, I, 0, 0, 0, I, 0, 0, 0, I, 0, 0}};
+       // Uncomment following code to set gain matrix to simple conference case.
 /*       int row, column;
        for(row = 0; row < numParticipants; row++)
        {
@@ -420,7 +423,8 @@ public:
           MpAudioSample magnitude = 0;
           for(inputIndex = 0; inputIndex < numParticipants; inputIndex++)
           {
-             if(gainsOut[outputIndex][inputIndex])
+             if(mpSourceResource->mLastDoProcessArgs.outBufs[inputIndex].isValid() &&
+                gainsOut[outputIndex][inputIndex])
              {
                 magnitude += (1 << inputIndex);
              }
