@@ -253,7 +253,7 @@ OsStatus MpodWinMM::enableDevice(unsigned samplesPerFrame,
    }
 
    // allocate and zero out the silence buffer.
-   mpSilenceBuffer = new char[mWaveBufSize];
+   mpSilenceBuffer = new MpAudioSample[mSamplesPerFrame];
    memset(mpSilenceBuffer, 0, mWaveBufSize);
 
    mIsEnabled = TRUE;
@@ -265,7 +265,7 @@ OsStatus MpodWinMM::enableDevice(unsigned samplesPerFrame,
    // silence frames we push (LOW_WAVEBUF_LVL frames).
    for( i = 0; pushStat == OS_SUCCESS && i < LOW_WAVEBUF_LVL+1; i++ )
    {
-      pushStat = pushFrame(mSamplesPerFrame, (MpAudioSample*)mpSilenceBuffer, 
+      pushStat = pushFrame(mSamplesPerFrame, mpSilenceBuffer, 
                            getFramePeriod());
    }
 
@@ -569,7 +569,7 @@ void MpodWinMM::finalizeProcessedHeader(WAVEHDR* pWaveHdr)
          {
             pushStat = 
                pushFrame(mSamplesPerFrame, 
-                         (MpAudioSample*)mpSilenceBuffer, 
+                         mpSilenceBuffer, 
                          getFramePeriod());
             if( pushStat != OS_SUCCESS )
             {
