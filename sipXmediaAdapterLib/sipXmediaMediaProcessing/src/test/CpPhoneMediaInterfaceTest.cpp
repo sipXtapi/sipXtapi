@@ -235,7 +235,6 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
         int numCodecs;
         SdpCodec** codecArray = NULL;
         codecFactory->getCodecs(numCodecs, codecArray);
-        printf("CpPhoneMediaInterfaceTest::testProperties numCodec: %d\n", numCodecs);
 
         UtlString localRtpInterfaceAddress("127.0.0.1");
         UtlString locale;
@@ -410,7 +409,6 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
         int numCodecs;
         SdpCodec** codecArray = NULL;
         codecFactory->getCodecs(numCodecs, codecArray);
-        printf("CpPhoneMediaInterfaceTest::testProperties numCodec: %d\n", numCodecs);
 
         UtlString localRtpInterfaceAddress("127.0.0.1");
         UtlString locale;
@@ -522,7 +520,6 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
         int numCodecs;
         SdpCodec** codecArray = NULL;
         codecFactory->getCodecs(numCodecs, codecArray);
-        printf("CpPhoneMediaInterfaceTest::testProperties numCodec: %d\n", numCodecs);
 
         UtlString localRtpInterfaceAddress("127.0.0.1");
         OsSocket::getHostIp(&localRtpInterfaceAddress);
