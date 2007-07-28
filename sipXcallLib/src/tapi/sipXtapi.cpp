@@ -5358,7 +5358,7 @@ SIPXTAPI_API SIPX_RESULT sipxLineAddCredential(const SIPX_LINE hLine,
     SIPX_LINE_DATA* pData = sipxLineLookup(hLine, SIPX_LOCK_READ, stackLogger) ;
     if (pData)
     {
-        if (szUserID && szPasswd && szRealm)
+        if (szUserID && szPasswd)
         {
             UtlBoolean rc = pData->pInst->pLineManager->addCredentialForLine(*pData->lineURI,
                     szRealm,

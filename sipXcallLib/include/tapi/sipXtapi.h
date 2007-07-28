@@ -2705,7 +2705,8 @@ SIPXTAPI_API SIPX_RESULT sipxLineRemove(SIPX_LINE hLine) ;
  *        a line event notification.
  * @param szUserID user id used for the line appearance.
  * @param szPasswd passwd used for the line appearance.
- * @param szRealm realm for which the user and passwd are valid.
+ * @param szRealm realm for which the user and passwd are valid. Supply
+ *        NULL for automatic realm. 
  */ 
 SIPXTAPI_API SIPX_RESULT sipxLineAddCredential(const SIPX_LINE hLine,                                                 
                                                const char* szUserID,
