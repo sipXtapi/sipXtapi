@@ -34,7 +34,8 @@ MpdSipxPcmu::MpdSipxPcmu(int payloadType)
   mLastSeqNo(0),
   mIsFirstFrame(true),
   mClockDrift(false),
-  mLastReportSize(-1)
+  mLastReportSize(-1),
+  mLastSSRC(0)
 {
 }
 
@@ -51,6 +52,7 @@ OsStatus MpdSipxPcmu::initDecode()
    mIsFirstFrame = true;
    mClockDrift = false;
    mLastReportSize = -1;
+   mLastSSRC = 0;
 
    return OS_SUCCESS;
 }
@@ -125,12 +127,20 @@ int MpdSipxPcmu::decodeIn(const MpRtpBufPtr &pPacket)
                            // rtpTimestamp and mNextPullTimerCount are unsigned,
                            // so a straight subtraction will fail.
 
+   if (!mIsFirstFrame && pPacket->getRtpSSRC() != mLastSSRC)
+   {
+      // SSRC changed, reset statistics, consider this as the first frame
+      freeDecode();
+      initDecode();
+   }
+
    // If this is our first packet
    if (mIsFirstFrame)
    {
       mIsFirstFrame = false;
       mNextPullTimerCount = rtpTimestamp + (160*(mWaitTimeInFrames*2));
       mLastSeqNo = pPacket->getRtpSequenceNumber();
+      mLastSSRC = pPacket->getRtpSSRC();
 
       // Always accept the first packet
       return pPacket->getPayloadSize();

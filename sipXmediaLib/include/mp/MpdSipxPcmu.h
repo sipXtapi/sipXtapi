@@ -118,6 +118,7 @@ private:
    bool mIsFirstFrame;       ///< True, if no frames decoded.
    bool mClockDrift;         ///< True, if clock drift detected.
    int mLastReportSize;
+   RtpSRC mLastSSRC;	     ///< RTP SSRC of currently processed stream
 };
 
 #endif  // _MpdSipxPcmu_h_
