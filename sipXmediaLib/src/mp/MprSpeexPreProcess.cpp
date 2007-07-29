@@ -81,6 +81,7 @@ UtlBoolean MprSpeexPreprocess::doProcessFrame(MpBufPtr inBufs[],
 {
    MpAudioBufPtr   inputBuffer;
    spx_int32_t*    echoResidue=NULL;
+   bool res = false;
 
    // We don't need to do anything if we don't have an output.
    if (outBufsSize != 1)
@@ -95,7 +96,8 @@ UtlBoolean MprSpeexPreprocess::doProcessFrame(MpBufPtr inBufs[],
       && (inputBuffer->getSamplesNumber() == samplesPerFrame))
    {
       // This buffer will be modified in place. Make sure we're the only owner.
-      assert(inputBuffer.requestWrite());
+      res = inputBuffer.requestWrite();
+      assert(res);
 
       // Get Echo residue if we have any
       if (inBufs[1].isValid()) {
