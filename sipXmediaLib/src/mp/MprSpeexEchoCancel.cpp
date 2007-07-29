@@ -84,6 +84,7 @@ UtlBoolean MprSpeexEchoCancel::doProcessFrame(MpBufPtr inBufs[],
    MpArrayBufPtr   echoResidueBuffer;
    MpBufferMsg*    bufferMsg;
    spx_int32_t*    pEchoResidue;
+   bool            res = false;
 
    // We don't need to do anything if we don't have an output.
    if (!isOutputConnected(0) && !isOutputConnected(1))
@@ -104,7 +105,8 @@ UtlBoolean MprSpeexEchoCancel::doProcessFrame(MpBufPtr inBufs[],
       && (inputBuffer->getSamplesNumber() == samplesPerFrame))
    {
       // This buffer will be modified in place. Make sure we're the only owner.
-      assert(inputBuffer.requestWrite());
+      res = inputBuffer.requestWrite();
+      assert(res);
 
       // Try to get a reference frame for echo cancelation.  21 = MAX_SPKR_BUFFERS(12) +
       if (MpMisc.pEchoQ->numMsgs() > MAX_ECHO_QUEUE) {
