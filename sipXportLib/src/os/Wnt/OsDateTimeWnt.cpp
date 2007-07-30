@@ -16,6 +16,12 @@
 #include <MMSystem.h>
 #include <time.h>
 
+#ifndef WINCE // [
+   // winmm.lib is required for OsDateTimeWnt::getCurTime() implementation
+   // (for timeGetTime() and timeBeginPeriod() functions).
+#  pragma comment(lib, "winmm.lib")
+#endif // WINCE ]
+
 // APPLICATION INCLUDES
 #include "os/OsDefs.h"
 #include "os/Wnt/OsDateTimeWnt.h"
