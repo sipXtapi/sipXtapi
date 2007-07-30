@@ -203,6 +203,10 @@ SOURCE=.\src\os\Wnt\OsFileWnt.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\os\OsIntPtrMsg.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\os\OsLockingList.cpp
 # End Source File
 # Begin Source File
@@ -720,6 +724,10 @@ SOURCE=.\include\os\wnt\OsFileWnt.h
 # Begin Source File
 
 SOURCE=.\include\os\OsFS.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\os\OsIntPtrMsg.h
 # End Source File
 # Begin Source File
 

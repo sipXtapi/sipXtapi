@@ -1928,6 +1928,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\src\os\OsIntPtrMsg.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\src\os\OsLockingList.cpp"
 				>
 			</File>
@@ -2588,6 +2592,10 @@
 			</File>
 			<File
 				RelativePath="include\os\OsFS.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\os\OsIntPtrMsg.h"
 				>
 			</File>
 			<File

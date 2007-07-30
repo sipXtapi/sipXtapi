@@ -97,6 +97,7 @@ libsipXport_la_SOURCES =  \
     os/OsFileIteratorBase.cpp \
     os/OsFileSystem.cpp \
     os/OsLockingList.cpp \
+    os/OsIntPtrMsg.cpp \
     os/OsMsg.cpp \
     os/OsMsgPool.cpp \
     os/OsMsgQ.cpp \

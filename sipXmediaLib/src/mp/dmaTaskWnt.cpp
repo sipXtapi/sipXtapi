@@ -31,6 +31,7 @@
 #include "mp/MpMediaTask.h"
 #include "mp/dmaTask.h"
 #include "os/OsMsgPool.h"
+#include "os/OsIntPtrMsg.h"
 
 // DEFINES
 
@@ -41,6 +42,11 @@ extern void closeMicDevice();
 extern void closeSpeakerDevices();
 
 // EXTERNAL VARIABLES
+extern OsMsgPool* gMicStatusPool; // MicThreadWnt
+extern OsMsgQ* gMicStatusQueue; // MicThreadWnt
+extern OsMsgPool* gSpeakerStatusPool; // SpeakerThreadWnt
+extern OsMsgQ* gSpeakerStatusQueue; // SpeakerThreadWnt
+
 // CONSTANTS
 // STATIC VARIABLE INITIALIZATIONS
 UtlString DmaTask::mRingDeviceName = "" ;
@@ -200,6 +206,18 @@ OsStatus dmaStartup(int samplesPerFrame)
         // fire off alt heartbeat mechanism.        
     }
 
+   OsIntPtrMsg msg(OsIntPtrMsg::MP_TASK_MSG, 0); // dummy message
+   gMicStatusPool = new OsMsgPool("MicStatusPool", msg,
+         40, 60, 100, 5,
+         OsMsgPool::SINGLE_CLIENT);
+   gSpeakerStatusPool = new OsMsgPool("SpeakerStatusPool", msg,
+      40, 60, 100, 5,
+      OsMsgPool::SINGLE_CLIENT);
+
+   gMicStatusQueue = new OsMsgQ(40, OsMsgQBase::DEF_MAX_MSG_LEN,
+         OsMsgQBase::Q_PRIORITY, "MicStatusQueue");
+   gSpeakerStatusQueue = new OsMsgQ(40, OsMsgQBase::DEF_MAX_MSG_LEN,
+      OsMsgQBase::Q_PRIORITY, "SpeakerStatusQueue");
 
     // start a thread to receive microphone input
     // mic thread will prime the device input queue
@@ -264,15 +282,41 @@ OsStatus dmaStartup(int samplesPerFrame)
  *      and that handle the audio input and output.
  */
 void dmaShutdown()
-{    
-    PostThreadMessage(dwMicThreadID, WIM_CLOSE, 0, 0L);
-    WaitForSingleObject(hMicThread, INFINITE);
-    PostThreadMessage(dwSpkrThreadID, WOM_CLOSE, 0, 0L);
-    WaitForSingleObject(hSpkrThread, INFINITE);
+{
+   OsIntPtrMsg *pMsg = (OsIntPtrMsg*)gMicStatusPool->findFreeMsg();
+   pMsg->setData1(WIM_CLOSE);
+   if (gMicStatusQueue->sendFromISR(*pMsg) != OS_SUCCESS)
+   {
+      osPrintf("Problem with sending message in dmaShutdown\n");
+   }
+
+   pMsg = (OsIntPtrMsg*)gSpeakerStatusPool->findFreeMsg();
+   pMsg->setData1(WOM_CLOSE);
+   if (gSpeakerStatusQueue->sendFromISR(*pMsg) != OS_SUCCESS)
+   {
+      osPrintf("Problem with sending message in dmaShutdown\n");
+   }
+
+   WaitForSingleObject(hMicThread, INFINITE);
+   WaitForSingleObject(hSpkrThread, INFINITE);
+
+   delete gMicStatusQueue;
+   gMicStatusQueue = NULL;
+   delete gMicStatusPool;
+   gMicStatusPool = NULL;
+   delete gSpeakerStatusQueue;
+   gSpeakerStatusQueue = NULL;
+   delete gSpeakerStatusPool;
+   gSpeakerStatusPool = NULL;
 }
 
 void dmaSignalMicDeviceChange()
 {
-    // We do simple signal WIM_DATA without data
-    PostThreadMessage(dwMicThreadID, WIM_DATA, 0, 0L);
+   // We do simple signal WIM_DATA without data
+   OsIntPtrMsg *pMsg = (OsIntPtrMsg*)gMicStatusPool->findFreeMsg();
+   pMsg->setData1(WIM_DATA);
+   if (gMicStatusQueue->sendFromISR(*pMsg) != OS_SUCCESS)
+   {
+      osPrintf("Problem with sending message in dmaSignalMicDeviceChange\n");
+   }
 }
