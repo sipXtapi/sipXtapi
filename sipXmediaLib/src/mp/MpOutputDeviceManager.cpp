@@ -223,12 +223,25 @@ OsStatus MpOutputDeviceManager::pushFrame(MpOutputDeviceHandle deviceId,
 
    if (connection != NULL)
    {
-      MpAudioBufPtr pAudioFrame(const_cast<MpBufPtr&>(frame));
+      if (frame.isValid())
+      {
+         // Send actual data to output device.
+         MpAudioBufPtr pAudioFrame(const_cast<MpBufPtr&>(frame));
 
-      status = 
-         connection->pushFrame(pAudioFrame->getSamplesNumber(),
-                               pAudioFrame->getSamplesPtr(),
-                               frameTime);
+         status = 
+            connection->pushFrame(pAudioFrame->getSamplesNumber(),
+                                  pAudioFrame->getSamplesPtr(),
+                                  frameTime);
+      } 
+      else
+      {
+         // Notify output device that no data will be sent during this
+         // processing interval.
+         status = 
+            connection->pushFrame(connection->getSamplesPerFrame(),
+                                  NULL,
+                                  frameTime);
+      }
    }
 
    return status;

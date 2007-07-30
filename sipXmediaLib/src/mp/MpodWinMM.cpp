@@ -44,6 +44,7 @@ extern void showWaveError(char *syscall, int e, int N, int line) ;  // dmaTaskWn
 // STATIC VARIABLE INITIALIZATIONS
 // DEFINES
 #define LOW_WAVEBUF_LVL 4
+//#define TEST_PRINT
 
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // if < msvc7 (2003)
 #  define CBTYPE DWORD
@@ -252,10 +253,6 @@ OsStatus MpodWinMM::enableDevice(unsigned samplesPerFrame,
       }
    }
 
-   // allocate and zero out the silence buffer.
-   mpSilenceBuffer = new MpAudioSample[mSamplesPerFrame];
-   memset(mpSilenceBuffer, 0, mWaveBufSize);
-
    mIsEnabled = TRUE;
 
    OsStatus pushStat = OS_SUCCESS;
@@ -265,8 +262,7 @@ OsStatus MpodWinMM::enableDevice(unsigned samplesPerFrame,
    // silence frames we push (LOW_WAVEBUF_LVL frames).
    for( i = 0; pushStat == OS_SUCCESS && i < LOW_WAVEBUF_LVL+1; i++ )
    {
-      pushStat = pushFrame(mSamplesPerFrame, mpSilenceBuffer, 
-                           getFramePeriod());
+      pushStat = pushFrame(getSamplesPerFrame(), NULL, mCurFrameTime);
    }
 
    if( pushStat != OS_SUCCESS )
@@ -390,6 +386,7 @@ OsStatus MpodWinMM::pushFrame(unsigned int numSamples,
    }
 
    // Only full frames are supported right now.
+   // If samples == NULL, then silent (full) frame should be inserted.
    assert(mSamplesPerFrame == numSamples);
 
    RTL_RAW_AUDIO("MpodWinMM_pushFrame", mSamplesPerSec, numSamples, samples, frameTime/10);
@@ -422,8 +419,21 @@ OsStatus MpodWinMM::pushFrame(unsigned int numSamples,
          return OS_FAILED;
       }
 
-      // We found an empty buffer, now we fill it.
-      memcpy(pWaveHdr->lpData, samples, sizeof(MpAudioSample)*numSamples);
+      // We found an empty buffer, now we fill it with data or silence.
+      if (samples)
+      {
+         memcpy(pWaveHdr->lpData, samples, sizeof(MpAudioSample)*numSamples);
+#ifdef TEST_PRINT // [
+         printf("|");
+#endif // TEST_PRINT ]
+      }
+      else
+      {
+         memset(pWaveHdr->lpData, 0, sizeof(MpAudioSample)*numSamples);
+#ifdef TEST_PRINT // [
+         printf(".");
+#endif // TEST_PRINT ]
+      }
 
       // And send it on it's way to windows wave interface.
       res = waveOutWrite(mDevHandle, pWaveHdr, sizeof(WAVEHDR));
@@ -443,7 +453,7 @@ OsStatus MpodWinMM::pushFrame(unsigned int numSamples,
       else // res != MMSYSERR_NOERROR
       {
          // Increment the current frame time.
-         mCurFrameTime += frameTime;
+         mCurFrameTime += getFramePeriod(numSamples, mSamplesPerSec);
 
          // Increase our sample count.
          mTotSampleCount += numSamples;
@@ -564,15 +574,15 @@ void MpodWinMM::finalizeProcessedHeader(WAVEHDR* pWaveHdr)
          OsStatus pushStat = OS_SUCCESS;
 
          RTL_BLOCK("MpodWinMM.callback.inject");
+#ifdef TEST_PRINT // [
+         printf("^");
+#endif // TEST_PRINT ]
 
          unsigned nSilenceFramesToPush = 1;
          unsigned j;
          for(j = 0; j < nSilenceFramesToPush; j++)
          {
-            pushStat = 
-               pushFrame(mSamplesPerFrame, 
-                         mpSilenceBuffer, 
-                         getFramePeriod());
+            pushStat = pushFrame(getSamplesPerFrame(), NULL, mCurFrameTime);
             if( pushStat != OS_SUCCESS )
             {
                OsSysLog::add(FAC_MP, PRI_ERR, 

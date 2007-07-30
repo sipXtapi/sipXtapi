@@ -118,12 +118,15 @@ UtlBoolean MprToOutputDevice::doProcessFrame(MpBufPtr inBufs[],
       mFrameTime += frameTimeInterval;
    }
 
+   // Push buffer to output device even if buffer is NULL. WIth NULL buffer we
+   // notify output device that we will not push more frames this time interval.
+   status = mpOutputDeviceManager->pushFrame(mDeviceId, mFrameTime, inBufs[0]);
+   osPrintf("MprToOutputDevice::doProcessFrame(): frameToPush=%d, pushResult=%d %s\n",
+            mFrameTime, status, inBufs[0].isValid()?"":"[NULL BUFFER]");
+
    // Do processing only if data is really present.
    if (inBufs[0].isValid())
    {
-      status = mpOutputDeviceManager->pushFrame(mDeviceId, mFrameTime, inBufs[0]);
-      osPrintf("MprToOutputDevice::doProcessFrame(): frameToPush=%d, pushResult=%d\n", mFrameTime, status);
-
       // If push frame fail and we're in mixer mode, advance our current frame
       // time to fit into mixer buffer.
       MpFrameTime mixerBufferLength;

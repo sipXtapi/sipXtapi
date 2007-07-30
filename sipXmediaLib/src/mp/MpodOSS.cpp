@@ -236,8 +236,16 @@ OsStatus MpodOSS::pushFrame(unsigned int numSamples,
       {
          mCurBuff = 0;
       }
-      memcpy(buff, samples,
-             numSamples * sizeof(MpAudioSample) * (OSS_SOUND_STEREO ? 2 : 1));
+      if (samples)
+      {
+           memcpy(buff, samples,
+                  numSamples * sizeof(MpAudioSample) * (OSS_SOUND_STEREO ? 2 : 1));
+      }
+      else
+      {
+           memset(buff, 0,
+                  numSamples * sizeof(MpAudioSample) * (OSS_SOUND_STEREO ? 2 : 1));
+      }
       mCurrentFrameTime += getFramePeriod();
 
       doSignal = TRUE;

@@ -17,6 +17,7 @@
 
 // APPLICATION INCLUDES
 #include <mp/MpTypes.h>
+#include <mp/MpOutputDeviceDriver.h>
 #include <utl/UtlInt.h>
 #include <os/OsMutex.h>
 
@@ -28,7 +29,6 @@
 // STRUCTS
 // TYPEDEFS
 // FORWARD DECLARATIONS
-class MpOutputDeviceDriver;
 class OsCallback;
 
 /**
@@ -210,6 +210,10 @@ public:
      *  @see increaseUseCount(), decreaseUseCount()
      */
 
+     /// Return number of samples per frame, this driver expect from flowgraph.
+   inline
+   unsigned getSamplesPerFrame() const;
+
 //@}
 
 /* ============================ INQUIRY =================================== */
@@ -372,6 +376,11 @@ MpFrameTime MpAudioOutputConnection::getMixerBufferLength() const
 unsigned MpAudioOutputConnection::getUseCount() const
 {
    return mUseCount;
+}
+
+unsigned MpAudioOutputConnection::getSamplesPerFrame() const
+{
+   return getDeviceDriver()->getSamplesPerFrame();
 }
 
 UtlBoolean MpAudioOutputConnection::isMixerBufferAvailable() const

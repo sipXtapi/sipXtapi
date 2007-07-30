@@ -174,7 +174,6 @@ protected:
                                ///< after allocation.
    WAVEHDR* mpWaveHeaders;     ///< Array of nNumInBuffers wave headers.
    LPSTR* mpWaveBuffers;       ///< Array of nNumInBuffers wave buffers.
-   MpAudioSample* mpSilenceBuffer; ///< A buffer of silence used during pumping when buffers go empty.
    UtlSList mEmptyHeaderList;  ///< List of pointers to the mpWaveHeaders that 
                                ///< are empty, waiting to be filled.
    UtlSList mUnusedVPtrList;   ///< List of unused UtlVoidPtrs.  Used ones are

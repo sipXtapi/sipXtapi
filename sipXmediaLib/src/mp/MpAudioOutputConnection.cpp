@@ -207,7 +207,6 @@ OsStatus MpAudioOutputConnection::pushFrame(unsigned int numSamples,
    OsStatus result = OS_FAILED;
    RTL_BLOCK("MpAudioOutputConnection::pushFrame");
 
-   assert(samples != NULL);
    assert(numSamples > 0);
 
    // Check for late frame. Check for too early frame is done inside mixFrame()
@@ -232,18 +231,24 @@ OsStatus MpAudioOutputConnection::pushFrame(unsigned int numSamples,
    {
       // We're in mixer mode.
 
-      // Convert frameTime to offset in mixer buffer.
-      // Note: frameTime >= mCurrentFrameTime.
-      // Note: this calculation may overflow (e.g. 10000msec*44100Hz > 4294967296smp).
-      unsigned mixerBufferOffset = 
-             ( (frameTime-mCurrentFrameTime) * mpDeviceDriver->getSamplesPerSec()) / 1000;
+      // Do nothing if no audio was pushed. Mixer buffer will be filled with
+      // silence or data from other sources.
+      if (samples != NULL)
+      {
+         // Convert frameTime to offset in mixer buffer.
+         // Note: frameTime >= mCurrentFrameTime.
+         // Note: this calculation may overflow (e.g. 10000msec*44100Hz > 4294967296smp).
+         unsigned mixerBufferOffset = 
+                  ( (frameTime-mCurrentFrameTime) * mpDeviceDriver->getSamplesPerSec()) / 1000;
 
-      // Mix this data with other sources.
-      result = mixFrame(mixerBufferOffset, samples, numSamples);
+         // Mix this data with other sources.
+         result = mixFrame(mixerBufferOffset, samples, numSamples);
+      }
    }
    else
    {
       // We're in direct write mode.
+
       // In this mode pushed frame should have same size as device driver frame.
       // Later we may write code which enable pushing frames containing multiple
       // device driver frames.
