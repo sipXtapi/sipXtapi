@@ -18,10 +18,18 @@
 #include <os/OsNotification.h>
 
 #ifdef RTL_ENABLED
-#   include <rtl_macro.h>
+#  include <rtl_macro.h>
+#  ifdef RTL_AUDIO_ENABLED
+#     include <SeScopeAudioBuffer.h>
+#  endif
 #else
-#define RTL_BLOCK(x)
-#define RTL_EVENT(x,y)
+#  define RTL_BLOCK(x)
+#  define RTL_EVENT(x,y)
+#endif
+
+#ifndef RTL_AUDIO_ENABLED
+#     define RTL_AUDIO_BUFFER(w,x,y,z)
+#     define RTL_RAW_AUDIO(v,w,x,y,z)
 #endif
 
 // APPLICATION INCLUDES
@@ -59,8 +67,6 @@ MpodWinMM::MpodWinMM(const UtlString& name,
 , mCurFrameTime(0)
 , mNumOutBuffers(nOutputBuffers)
 , mWaveBufSize(0)  // Unknown until enableDevice()
-, mIsOpen(FALSE)
-, mIsInit(FALSE)
 , mTotSampleCount(0)
 {
    WAVEOUTCAPS devCaps;
@@ -112,8 +118,6 @@ MpodWinMM::MpodWinMM(const UtlString& name,
       // add mNumOutBuffers new void pointers to the list.
       mUnusedVPtrList.insert(new UtlVoidPtr());
    }
-
-   mIsInit = TRUE;
 }
 
 
@@ -123,10 +127,6 @@ MpodWinMM::~MpodWinMM()
    // We shouldn't be enabled, assert that we aren't.
    // If we happen to still be enabled at this point, disable the device.
    //assert(!isEnabled());  // Commented out as it causes issues with unit test.
-   if ( mIsInit )
-   {
-      return;
-   }
 
    // Wait until the windows buffer fill thread finishes.
    //waitUntilShutDown();
@@ -310,7 +310,7 @@ OsStatus MpodWinMM::disableDevice()
    // Cleanup
    if ( mDevHandle == NULL )
    {
-      OsSysLog::add(FAC_MP, PRI_WARNING, 
+      OsSysLog::add(FAC_MP, PRI_ERR, 
                     "During windows device driver disable, "
                     "device handle was invalid while in enabled state!");
       // The device handle seems to be in a weird state - it's not valid.
@@ -391,6 +391,8 @@ OsStatus MpodWinMM::pushFrame(unsigned int numSamples,
 
    // Only full frames are supported right now.
    assert(mSamplesPerFrame == numSamples);
+
+   RTL_RAW_AUDIO("MpodWinMM_pushFrame", mSamplesPerSec, numSamples, samples, frameTime/10);
 
    // We'll be accessing the vptr and empty header lists, so acquire the mutex
    mEmptyHdrVPtrListsMutex.acquire();
@@ -556,7 +558,7 @@ void MpodWinMM::finalizeProcessedHeader(WAVEHDR* pWaveHdr)
       RTL_EVENT("MpodWinMM.callback.driverLatencyNSamples", drvLatencyNSamp);
 
       // If the number of samples held within windows MME subsystem gets below
-      // 2 frames worth, inject a frame of silence.
+      // LOW_WAVEBUF_LVL frames worth, inject a frame of silence.
       if(drvLatencyNSamp <= LOW_WAVEBUF_LVL*80)
       {
          OsStatus pushStat = OS_SUCCESS;

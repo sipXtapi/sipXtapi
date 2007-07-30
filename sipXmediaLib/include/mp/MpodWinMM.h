@@ -179,9 +179,7 @@ protected:
                                ///< are empty, waiting to be filled.
    UtlSList mUnusedVPtrList;   ///< List of unused UtlVoidPtrs.  Used ones are
                                ///< in mEmptyHeaderList.
-   UtlBoolean mIsOpen;         ///< Boolean indicating waveInOpen() completed.
-   UtlBoolean mIsInit;         ///< Boolean indicating initialization succeeded.
-   DWORD mTotSampleCount;        ///< A count of the samples coming in via pushFrame.
+   DWORD mTotSampleCount;      ///< A count of the samples coming in via pushFrame.
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
