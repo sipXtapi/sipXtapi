@@ -72,7 +72,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="Ws2_32.lib winmm.lib cppunitd.lib pcre.lib"
+				AdditionalDependencies="Ws2_32.lib cppunitd.lib pcre.lib"
 				OutputFile="$(OutDir)\sipXsdpLibTest.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories=".\Debug;..\CPPUnit\lib"
@@ -156,7 +156,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="Ws2.lib winmm.lib  Iphlpapi.lib  ../ppc2003/pcred.lib ../ppc2003/cppunitd_dll.lib ccrtrtti.lib toolhelp.lib sipxsdplib.lib sipxportlib.lib sipXtackLib.lib"
+				AdditionalDependencies="Ws2.lib  Iphlpapi.lib  ../ppc2003/pcred.lib ../ppc2003/cppunitd_dll.lib ccrtrtti.lib toolhelp.lib sipxsdplib.lib sipxportlib.lib sipXtackLib.lib"
 				OutputFile="$(OutDir)\sipXsdpLibTest.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;$(OutDir)\&quot;;&quot;..\sipXportLib\$(OutDir)\&quot;;&quot;..\sipXtackLib\$(OutDir)\&quot;;&quot;..\sipXportLib\$(PlatformName)\$(ConfigurationName)&quot;"
@@ -238,7 +238,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="Ws2.lib winmm.lib  Iphlpapi.lib  ../mobile5/pcred.lib ../mobile5/cppunitd_dll.lib ccrtrtti.lib toolhelp.lib sipxsdplib.lib sipxportlib.lib sipXtackLib.lib"
+				AdditionalDependencies="Ws2.lib  Iphlpapi.lib  ../mobile5/pcred.lib ../mobile5/cppunitd_dll.lib ccrtrtti.lib toolhelp.lib sipxsdplib.lib sipxportlib.lib sipXtackLib.lib"
 				OutputFile="$(OutDir)\sipXsdpLibTest.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;$(OutDir)\&quot;;&quot;..\sipXportLib\$(OutDir)\&quot;;&quot;..\sipXtackLib\$(OutDir)\&quot;;&quot;..\sipXportLib\$(PlatformName)\$(ConfigurationName)&quot;"
@@ -320,7 +320,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="Ws2.lib winmm.lib Iphlpapi.lib pcred.lib cppunitd_dll.lib ccrtrtti.lib toolhelp.lib sipxsdplib.lib sipxportlib.lib sipXtackLib.lib"
+				AdditionalDependencies="Ws2.lib Iphlpapi.lib pcred.lib cppunitd_dll.lib ccrtrtti.lib toolhelp.lib sipxsdplib.lib sipxportlib.lib sipXtackLib.lib"
 				OutputFile="$(OutDir)\sipXsdpLibTest.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;$(OutDir)\&quot;;&quot;..\sipXportLib\$(OutDir)\&quot;;&quot;..\sipXtackLib\$(OutDir)\&quot;;&quot;..\sipXportLib\$(PlatformName)\$(ConfigurationName)&quot;"
@@ -399,7 +399,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="Ws2.lib winmm.lib  Iphlpapi.lib  ../mobile5/pcre.lib ../mobile5/cppunit_dll.lib ccrtrtti.lib toolhelp.lib sipxsdplib.lib sipxportlib.lib sipXtackLib.lib"
+				AdditionalDependencies="Ws2.lib  Iphlpapi.lib  ../mobile5/pcre.lib ../mobile5/cppunit_dll.lib ccrtrtti.lib toolhelp.lib sipxsdplib.lib sipxportlib.lib sipXtackLib.lib"
 				OutputFile="$(OutDir)/sipXsdpLibTest.exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="&quot;$(OutDir)\&quot;;&quot;..\sipXportLib\$(OutDir)\&quot;;&quot;..\sipXtackLib\$(OutDir)\&quot;;&quot;..\sipXportLib\$(PlatformName)\$(ConfigurationName)&quot;"

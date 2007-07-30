@@ -75,7 +75,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="Ws2_32.lib winmm.lib cppunitd.lib pcre.lib"
+				AdditionalDependencies="Ws2_32.lib cppunitd.lib pcre.lib"
 				OutputFile="$(OutDir)/sipXtackLibTest.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories=".\Debug;..\sipXportLib\debug;..\CPPUnit\lib"
@@ -161,7 +161,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="ws2.lib winmm.lib ..\ppc2003\cppunitd_dll.lib sipXsdpLib.lib sipXtackLib.lib sipXportLib.lib ..\ppc2003\pcred.lib ccrtrtti.lib toolhelp.lib"
+				AdditionalDependencies="ws2.lib ..\ppc2003\cppunitd_dll.lib sipXsdpLib.lib sipXtackLib.lib sipXportLib.lib ..\ppc2003\pcred.lib ccrtrtti.lib toolhelp.lib"
 				OutputFile="$(OutDir)/sipXtackLibTest.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;$(OutDir)\&quot;;&quot;..\sipXportLib\$(OutDir)\&quot;;&quot;..\sipXsdpLib\$(OutDir)\&quot;;&quot;..\sipXsdpLib\$(PlatformName)\$(ConfigurationName)&quot;;&quot;..\sipXportLib\$(PlatformName)\$(ConfigurationName)&quot;"
@@ -246,7 +246,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="ws2.lib winmm.lib ..\mobile5\cppunitd_dll.lib sipXsdpLib.lib sipXtackLib.lib sipXportLib.lib ..\mobile5\pcred.lib ccrtrtti.lib toolhelp.lib"
+				AdditionalDependencies="ws2.lib ..\mobile5\cppunitd_dll.lib sipXsdpLib.lib sipXtackLib.lib sipXportLib.lib ..\mobile5\pcred.lib ccrtrtti.lib toolhelp.lib"
 				OutputFile="$(OutDir)/sipXtackLibTest.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;$(OutDir)\&quot;;&quot;..\sipXportLib\$(OutDir)\&quot;;&quot;..\sipXsdpLib\$(OutDir)\&quot;;&quot;..\sipXsdpLib\$(PlatformName)\$(ConfigurationName)&quot;;&quot;..\sipXportLib\$(PlatformName)\$(ConfigurationName)&quot;"
@@ -331,7 +331,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="ws2.lib winmm.lib cppunitd_dll.lib sipXsdpLib.lib sipXtackLib.lib sipXportLib.lib pcred.lib ccrtrtti.lib toolhelp.lib"
+				AdditionalDependencies="ws2.lib cppunitd_dll.lib sipXsdpLib.lib sipXtackLib.lib sipXportLib.lib pcred.lib ccrtrtti.lib toolhelp.lib"
 				OutputFile="$(OutDir)/sipXtackLibTest.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;$(OutDir)\&quot;;&quot;..\sipXportLib\$(OutDir)\&quot;;&quot;..\sipXsdpLib\$(OutDir)\&quot;;&quot;..\sipXsdpLib\$(PlatformName)\$(ConfigurationName)&quot;;&quot;..\sipXportLib\$(PlatformName)\$(ConfigurationName)&quot;"
@@ -413,7 +413,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="ws2.lib winmm.lib ..\mobile5\cppunit_dll.lib sipXsdpLib.lib sipXtackLib.lib sipXportLib.lib ..\mobile5\pcre.lib ccrtrtti.lib toolhelp.lib"
+				AdditionalDependencies="ws2.lib ..\mobile5\cppunit_dll.lib sipXsdpLib.lib sipXtackLib.lib sipXportLib.lib ..\mobile5\pcre.lib ccrtrtti.lib toolhelp.lib"
 				OutputFile="$(OutDir)/sipXtackLibTest.exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="&quot;$(OutDir)\&quot;;&quot;..\sipXportLib\$(OutDir)\&quot;;&quot;..\sipXsdpLib\$(OutDir)\&quot;;&quot;..\sipXsdpLib\$(PlatformName)\$(ConfigurationName)&quot;;&quot;..\sipXportLib\$(PlatformName)\$(ConfigurationName)&quot;"
@@ -495,7 +495,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="msvcrtd.lib MSVCPRTd.lib wsock32.lib winmm.lib cppunitd.lib sipXtackLib.lib sipXportLib.lib pcre.lib"
+				AdditionalDependencies="msvcrtd.lib MSVCPRTd.lib wsock32.lib cppunitd.lib sipXtackLib.lib sipXportLib.lib pcre.lib"
 				OutputFile="$(OutDir)/sipXtackLibTest.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories=".\Debug;..\sipXportLib\debug;..\sipXbuild\Vendors\Mozilla\wnt\nspr-3.4_dbg\lib;..\sipXbuild\Vendors\Mozilla\wnt\nss-3.9_dbg\lib;..\sipXbuild\vendors\Mozilla\wnt\nspr-4.4.1_dbg\lib"
@@ -575,7 +575,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="msvcrt.lib MSVCPRT.lib wsock32.lib winmm.lib cppunit.lib sipXportLib.lib sipXtackLib.lib libpcre.a"
+				AdditionalDependencies="msvcrt.lib MSVCPRT.lib wsock32.lib cppunit.lib sipXportLib.lib sipXtackLib.lib libpcre.a"
 				OutputFile="$(OutDir)/sipXtackLibTest.exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories=".\Release;..\sipXportLib\release;..\sipXbuild\Vendors\Mozilla\wnt\nspr-3.4\lib;..\sipXbuild\Vendors\Mozilla\wnt\nss-3.9\lib;..\sipXbuild\vendors\Mozilla\wnt\nspr-4.4.1\lib"

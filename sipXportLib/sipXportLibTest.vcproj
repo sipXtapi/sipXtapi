@@ -33,7 +33,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="Ws2_32.lib winmm.lib cppunitd.lib pcre.lib"
+				AdditionalDependencies="Ws2_32.lib cppunitd.lib pcre.lib"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="..\CPPUnit\lib"
 				GenerateDebugInformation="TRUE"
@@ -79,7 +79,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="Ws2_32.lib winmm.lib cppunit.lib pcre.lib"
+				AdditionalDependencies="Ws2_32.lib cppunit.lib pcre.lib"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="..\CPPUnit\lib"
 				SubSystem="1"

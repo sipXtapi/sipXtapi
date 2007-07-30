@@ -71,7 +71,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/fixed:no /incremental:no"
-				AdditionalDependencies="Ws2_32.lib pcre.lib winmm.lib cppunitd.lib"
+				AdditionalDependencies="Ws2_32.lib pcre.lib cppunitd.lib"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories="lib;..\sipXtackLib\debug;..\sipXportLib\debug;..\CPPUnit\lib"

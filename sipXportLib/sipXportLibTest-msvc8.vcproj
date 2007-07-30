@@ -75,7 +75,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="Ws2_32.lib winmm.lib cppunitd.lib pcre.lib"
+				AdditionalDependencies="Ws2_32.lib cppunitd.lib pcre.lib"
 				OutputFile="$(OutDir)\$(ProjectName).exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="..\CPPUnit\lib"
@@ -159,7 +159,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies=" ws2.lib winmm.lib sipXportLib.lib ../ppc2003/pcred.lib ../ppc2003/cppunitd_dll.lib ccrtrtti.lib toolhelp.lib"
+				AdditionalDependencies=" ws2.lib sipXportLib.lib ../ppc2003/pcred.lib ../ppc2003/cppunitd_dll.lib ccrtrtti.lib toolhelp.lib"
 				OutputFile="$(OutDir)/sipXportLibTest.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;$(OutDir)\&quot;"
@@ -243,7 +243,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies=" ws2.lib winmm.lib sipXportLib.lib ../mobile5/pcred.lib ../mobile5/cppunitd_dll.lib ccrtrtti.lib toolhelp.lib"
+				AdditionalDependencies=" ws2.lib sipXportLib.lib ../mobile5/pcred.lib ../mobile5/cppunitd_dll.lib ccrtrtti.lib toolhelp.lib"
 				OutputFile="$(OutDir)/sipXportLibTest.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;$(OutDir)\&quot;"
@@ -327,7 +327,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="ws2.lib winmm.lib sipXportLib.lib pcred.lib cppunitd_dll.lib ccrtrtti.lib toolhelp.lib"
+				AdditionalDependencies="ws2.lib sipXportLib.lib pcred.lib cppunitd_dll.lib ccrtrtti.lib toolhelp.lib"
 				OutputFile="$(OutDir)/sipXportLibTest.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;$(OutDir)\&quot;"
@@ -410,7 +410,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="sipXportLib.lib ws2.lib winmm.lib ../mobile5/cppunit_dll.lib  ../mobile5/pcre.lib ccrtrtti.lib toolhelp.lib"
+				AdditionalDependencies="sipXportLib.lib  ws2.lib ../mobile5/cppunit_dll.lib  ../mobile5/pcre.lib ccrtrtti.lib toolhelp.lib"
 				OutputFile="$(OutDir)/sipXportLibTest.exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="$(OutDir)\"
@@ -494,7 +494,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="msvcrtd.lib ws2.lib winmm.lib cppunit.lib sipXportLib.lib lib_pcre.lib ccrtrtti.lib toolhelp.lib"
+				AdditionalDependencies="msvcrtd.lib ws2.lib cppunit.lib sipXportLib.lib lib_pcre.lib ccrtrtti.lib toolhelp.lib"
 				OutputFile="$(OutDir)/sipXportLibTest.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="$(OutDir)/"
