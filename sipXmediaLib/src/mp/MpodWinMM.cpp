@@ -391,6 +391,57 @@ OsStatus MpodWinMM::pushFrame(unsigned int numSamples,
 
    RTL_RAW_AUDIO("MpodWinMM_pushFrame", mSamplesPerSec, numSamples, samples, frameTime/10);
 
+   // Push the frame of real data we got here out to the windows output device,
+   // using an internal method that actually performs writing to the audio
+   // device.
+   status = internalPushFrame(numSamples, samples, frameTime);
+
+   /////
+   // Now we determine if silence needs to be injected, and inject some.
+
+   // Collect some metrics -- the sample number that windows is on 
+   // since waveOutOpen was called.
+   MMTIME mmt;
+   mmt.wType = TIME_SAMPLES;
+   waveOutGetPosition(mDevHandle, &mmt, sizeof(mmt));
+   assert(mmt.wType == TIME_SAMPLES);
+
+   // Write out some statistics, if enabled.
+   DWORD drvLatencyNSamp = mTotSampleCount - mmt.u.sample;
+   RTL_EVENT("MpodWinMM.pushFrame.driverLatencyNSamples", drvLatencyNSamp);
+
+   // If the first internalPushFrame succeeded, then go on and see if we need
+   // to push any silence due to low buffers.
+   if(status == OS_SUCCESS)
+   {
+      // If the number of samples held within windows MME subsystem gets below
+      // LOW_WAVEBUF_LVL frames worth, inject a frame of silence.
+      if(drvLatencyNSamp <= LOW_WAVEBUF_LVL*80)
+      //if(drvLatencyNSamp < 1*80)
+      //if(false)
+      {
+         OsStatus pushStat = OS_SUCCESS;
+
+         RTL_BLOCK("MpodWinMM.pushFrame.inject");
+#ifdef TEST_PRINT // [
+         printf("^");
+#endif // TEST_PRINT ]
+
+         // write out silence to the device.
+         status = internalPushFrame(getSamplesPerFrame(), NULL, mCurFrameTime);
+      }
+   }
+
+   return status;
+}
+
+OsStatus MpodWinMM::internalPushFrame(unsigned int numSamples, 
+                                      const MpAudioSample* samples,
+                                      MpFrameTime frameTime)
+{
+   // Set up our status code that we'll return - assume failure.
+   OsStatus status = OS_FAILED;
+
    // We'll be accessing the vptr and empty header lists, so acquire the mutex
    mEmptyHdrVPtrListsMutex.acquire();
 
@@ -410,7 +461,8 @@ OsStatus MpodWinMM::pushFrame(unsigned int numSamples,
       MMRESULT res = waveOutPrepareHeader(mDevHandle, pWaveHdr, sizeof(WAVEHDR));
       if ( res != MMSYSERR_NOERROR )
       {
-         showWaveError("waveOutPrepareHeader", res, -1, __LINE__);
+         showWaveError("MpodWinMM::internalPushFrame - waveOutPrepareHeader", 
+                       res, -1, __LINE__);
          waveOutClose(mDevHandle);
          mDevHandle = NULL;
          mWinMMDeviceId = -1;
@@ -439,7 +491,7 @@ OsStatus MpodWinMM::pushFrame(unsigned int numSamples,
       res = waveOutWrite(mDevHandle, pWaveHdr, sizeof(WAVEHDR));
       if( res != MMSYSERR_NOERROR )
       {
-         showWaveError("MpodWinMM::pushFrame", res, -1, __LINE__);
+         showWaveError("MpodWinMM::internalPushFrame", res, -1, __LINE__);
          // If it's more than just an unprepared header
          // (invalid handle, no driver, or a memory allocation or lock error)
          if( res != WAVERR_UNPREPARED )
@@ -470,9 +522,10 @@ OsStatus MpodWinMM::pushFrame(unsigned int numSamples,
 
       // No buffers are empty! Cannot push this frame!
       OsSysLog::add(FAC_MP, PRI_WARNING, 
-                    "MpodWinMM::pushFrame: "
+                    "MpodWinMM::internalPushFrame: "
                     "No free buffers! Dropping frame.");
    }
+
    return status;
 }
 
@@ -557,41 +610,6 @@ void MpodWinMM::finalizeProcessedHeader(WAVEHDR* pWaveHdr)
       // And add it to the empty header list for use by pushFrame.
       mEmptyHeaderList.insert(pvptr);
 
-      // Collect some metrics -- the sample number that windows is on 
-      // (since waveOutOpen)
-      MMTIME mmt;
-      mmt.wType = TIME_SAMPLES;
-      waveOutGetPosition(mDevHandle, &mmt, sizeof(mmt));
-      assert(mmt.wType == TIME_SAMPLES);
-
-      DWORD drvLatencyNSamp = mTotSampleCount - mmt.u.sample;
-      RTL_EVENT("MpodWinMM.callback.driverLatencyNSamples", drvLatencyNSamp);
-
-      // If the number of samples held within windows MME subsystem gets below
-      // LOW_WAVEBUF_LVL frames worth, inject a frame of silence.
-      if(drvLatencyNSamp <= LOW_WAVEBUF_LVL*80)
-      {
-         OsStatus pushStat = OS_SUCCESS;
-
-         RTL_BLOCK("MpodWinMM.callback.inject");
-#ifdef TEST_PRINT // [
-         printf("^");
-#endif // TEST_PRINT ]
-
-         unsigned nSilenceFramesToPush = 1;
-         unsigned j;
-         for(j = 0; j < nSilenceFramesToPush; j++)
-         {
-            pushStat = pushFrame(getSamplesPerFrame(), NULL, mCurFrameTime);
-            if( pushStat != OS_SUCCESS )
-            {
-               OsSysLog::add(FAC_MP, PRI_ERR, 
-                  "During windows output device tick (addEmptyHeader) low buffer "
-                  "level silent frame pumped, pushFrame failed!\n");
-            }
-         }
-      }
-
       // send a ticker notification so that more frames can be sent.
       if(mpNotifier != NULL)
       {
@@ -615,6 +633,9 @@ MpodWinMM::waveOutCallbackStatic(HWAVEOUT hwo,
    switch(uMsg)
    {
    case WOM_OPEN:
+#ifdef TEST_PRINT // [
+      printf("WOM_OPEN\n");
+#endif // TEST_PRINT ]
       OsSysLog::add(FAC_MP, PRI_INFO, 
                     "Windows output device driver callback "
                     "device open (WOM_OPEN).");
@@ -624,6 +645,9 @@ MpodWinMM::waveOutCallbackStatic(HWAVEOUT hwo,
       oddWinMMPtr->finalizeProcessedHeader((WAVEHDR*)dwParam1);
       break;
    case WOM_CLOSE:
+#ifdef TEST_PRINT // [
+      printf("WOM_CLOSE\n");
+#endif // TEST_PRINT ]
       OsSysLog::add(FAC_MP, PRI_INFO, 
                     "Windows output device driver callback "
                     "device closed (WOM_CLOSE).");

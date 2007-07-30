@@ -162,6 +162,12 @@ protected:
 
 
 protected:
+     /// @brief internal method to handle final writing of audio to the output device
+   OsStatus internalPushFrame(unsigned int numSamples, 
+                              const MpAudioSample* samples, 
+                              MpFrameTime frameTime);
+
+protected:
    OsMutex mEmptyHdrVPtrListsMutex; ///< Mutex to serialize access to vptr and empty header lists.
    OsNotification* mpNotifier; ///< Event signaled when windows is ready to receive a new buffer.
    int mWinMMDeviceId;         ///< The underlying windows Device ID (not the 
