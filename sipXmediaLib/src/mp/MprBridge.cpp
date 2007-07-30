@@ -21,13 +21,6 @@
 #include <mp/MprBridge.h>
 #include <mp/MpMisc.h>
 #include <mp/MprBridgeSetGainsMsg.h>
-#ifdef RTL_ENABLED
-#  include <mp/MpFlowGraphBase.h>
-#  include <rtl_macro.h>
-#  ifdef RTL_AUDIO_ENABLED
-#     include <SeScopeAudioBuffer.h>
-#  endif
-#endif
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -1185,13 +1178,6 @@ UtlBoolean MprBridge::doProcessFrame(MpBufPtr inBufs[],
    MpAudioBufPtr in;
    UtlBoolean ret = FALSE;
 
-#ifdef RTL_AUDIO_ENABLED
-   int frameIndex = mpFlowGraph ? mpFlowGraph->numFramesProcessed() : 0;
-   RTL_AUDIO_BUFFER("bridge_input_0", samplesPerSecond, ((MpAudioBufPtr)inBufs[0]), frameIndex);
-   RTL_AUDIO_BUFFER("bridge_input_1", samplesPerSecond, ((MpAudioBufPtr)inBufs[1]), frameIndex);
-   RTL_AUDIO_BUFFER("bridge_input_2", samplesPerSecond, ((MpAudioBufPtr)inBufs[2]), frameIndex);
-#endif
-
    // We're disabled or have nothing to process.
    if ( outBufsSize == 0 || inBufsSize == 0 || !isEnabled )
    {
@@ -1227,16 +1213,11 @@ UtlBoolean MprBridge::doProcessFrame(MpBufPtr inBufs[],
    }
 #endif
 
-#ifdef RTL_AUDIO_ENABLED
-   RTL_AUDIO_BUFFER("bridge_output_0", samplesPerSecond, ((MpAudioBufPtr)outBufs[0]), frameIndex);
-   RTL_AUDIO_BUFFER("bridge_output_1", samplesPerSecond, ((MpAudioBufPtr)outBufs[1]), frameIndex);
-   RTL_AUDIO_BUFFER("bridge_output_2", samplesPerSecond, ((MpAudioBufPtr)outBufs[2]), frameIndex);
-#endif
-
    return ret;
 }
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 /* ============================ FUNCTIONS ================================= */
+
 
