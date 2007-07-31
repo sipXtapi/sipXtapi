@@ -43,7 +43,7 @@ extern void showWaveError(char *syscall, int e, int N, int line) ;  // dmaTaskWn
 // CONSTANTS
 // STATIC VARIABLE INITIALIZATIONS
 // DEFINES
-#define LOW_WAVEBUF_LVL 4
+#define LOW_WAVEBUF_LVL 6
 //#define TEST_PRINT
 
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // if < msvc7 (2003)
@@ -260,7 +260,7 @@ OsStatus MpodWinMM::enableDevice(unsigned samplesPerFrame,
    // so that if it is in mixer mode, notifications are sent.
    // Push the minimum we can, as this adds latency equal to the number of
    // silence frames we push (LOW_WAVEBUF_LVL frames).
-   for( i = 0; pushStat == OS_SUCCESS && i < LOW_WAVEBUF_LVL+1; i++ )
+   for( i = 0; pushStat == OS_SUCCESS && i < 1; i++ )
    {
       pushStat = pushFrame(getSamplesPerFrame(), NULL, mCurFrameTime);
    }
@@ -389,31 +389,31 @@ OsStatus MpodWinMM::pushFrame(unsigned int numSamples,
    // If samples == NULL, then silent (full) frame should be inserted.
    assert(mSamplesPerFrame == numSamples);
 
-   RTL_RAW_AUDIO("MpodWinMM_pushFrame", mSamplesPerSec, numSamples, samples, frameTime/10);
+   if(samples != NULL)
+   {
+      RTL_RAW_AUDIO("MpodWinMM_pushFrame", mSamplesPerSec, numSamples, samples, frameTime/10);
+   }
 
    // Push the frame of real data we got here out to the windows output device,
    // using an internal method that actually performs writing to the audio
    // device.
    status = internalPushFrame(numSamples, samples, frameTime);
 
-   /////
-   // Now we determine if silence needs to be injected, and inject some.
-
-   // Collect some metrics -- the sample number that windows is on 
-   // since waveOutOpen was called.
-   MMTIME mmt;
-   mmt.wType = TIME_SAMPLES;
-   waveOutGetPosition(mDevHandle, &mmt, sizeof(mmt));
-   assert(mmt.wType == TIME_SAMPLES);
-
-   // Write out some statistics, if enabled.
-   DWORD drvLatencyNSamp = mTotSampleCount - mmt.u.sample;
-   RTL_EVENT("MpodWinMM.pushFrame.driverLatencyNSamples", drvLatencyNSamp);
-
    // If the first internalPushFrame succeeded, then go on and see if we need
    // to push any silence due to low buffers.
-   if(status == OS_SUCCESS)
+   while(status == OS_SUCCESS)
    {
+      // Collect some metrics -- the sample number that windows is on 
+      // since waveOutOpen was called.
+      MMTIME mmt;
+      mmt.wType = TIME_SAMPLES;
+      waveOutGetPosition(mDevHandle, &mmt, sizeof(mmt));
+      assert(mmt.wType == TIME_SAMPLES);
+
+      // Write out some statistics, if enabled.
+      DWORD drvLatencyNSamp = mTotSampleCount - mmt.u.sample;
+      RTL_EVENT("MpodWinMM.pushFrame.driverLatencyNSamples", drvLatencyNSamp);
+
       // If the number of samples held within windows MME subsystem gets below
       // LOW_WAVEBUF_LVL frames worth, inject a frame of silence.
       if(drvLatencyNSamp <= LOW_WAVEBUF_LVL*80)
@@ -429,6 +429,10 @@ OsStatus MpodWinMM::pushFrame(unsigned int numSamples,
 
          // write out silence to the device.
          status = internalPushFrame(getSamplesPerFrame(), NULL, mCurFrameTime);
+      }
+      else
+      {
+         break;
       }
    }
 
