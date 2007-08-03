@@ -168,9 +168,9 @@ protected:
                               MpFrameTime frameTime);
 
 protected:
-   OsMutex mEmptyHdrVPtrListsMutex; ///< Mutex to serialize access to vptr and empty header lists.
+   OsMutex  mEmptyHdrVPtrListsMutex; ///< Mutex to serialize access to vptr and empty header lists.
    OsNotification* mpNotifier; ///< Event signaled when windows is ready to receive a new buffer.
-   int mWinMMDeviceId;         ///< The underlying windows Device ID (not the 
+   int      mWinMMDeviceId;    ///< The underlying windows Device ID (not the 
                                ///< logical Mp device ID)
    HWAVEOUT mDevHandle;        ///< The Microsoft handle for this audio input device
    MpFrameTime mCurFrameTime;  ///< The current frame time for this device.
@@ -179,12 +179,12 @@ protected:
    unsigned mWaveBufSize;      ///< The size, in bytes, of mpWaveBuffer 
                                ///< after allocation.
    WAVEHDR* mpWaveHeaders;     ///< Array of nNumInBuffers wave headers.
-   LPSTR* mpWaveBuffers;       ///< Array of nNumInBuffers wave buffers.
+   LPSTR*   mpWaveBuffers;     ///< Array of nNumInBuffers wave buffers.
    UtlSList mEmptyHeaderList;  ///< List of pointers to the mpWaveHeaders that 
                                ///< are empty, waiting to be filled.
    UtlSList mUnusedVPtrList;   ///< List of unused UtlVoidPtrs.  Used ones are
                                ///< in mEmptyHeaderList.
-   DWORD mTotSampleCount;      ///< A count of the samples coming in via pushFrame.
+   DWORD    mTotSampleCount;   ///< A count of the samples coming in via pushFrame.
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
