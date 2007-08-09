@@ -223,6 +223,10 @@ SOURCE=.\src\os\OsMsgQ.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\os\OsMsgDispatcher.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\os\shared\OsMsgQShared.cpp
 # End Source File
 # Begin Source File
@@ -752,6 +756,10 @@ SOURCE=.\include\os\OsMsgPool.h
 # Begin Source File
 
 SOURCE=.\include\os\OsMsgQ.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\os\OsMsgDispatcher.h
 # End Source File
 # Begin Source File
 

@@ -206,6 +206,10 @@ SOURCE=.\src\test\os\OsMsgQTest.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\test\os\OsMsgDispatcherTest.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\test\os\OsMutexTest.cpp
 # End Source File
 # Begin Source File

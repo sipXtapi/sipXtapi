@@ -1948,6 +1948,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\src\os\OsMsgDispatcher.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\src\os\shared\OsMsgQShared.cpp"
 				>
 			</File>
@@ -2620,6 +2624,10 @@
 			</File>
 			<File
 				RelativePath="include\os\OsMsgQ.h"
+				>
+			</File>
+			<File
+				RelativePath="include\os\OsMsgDispatcher.h"
 				>
 			</File>
 			<File

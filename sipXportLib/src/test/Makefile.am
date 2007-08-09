@@ -39,6 +39,7 @@ testsuite_SOURCES = \
     os/OsFileTest.cpp \
     os/OsLockTest.cpp \
     os/OsMsgQTest.cpp \
+    os/OsMsgDispatcherTest.cpp \
     os/OsMutexTest.cpp \
     os/OsNameDbTest.cpp \
     os/OsPathTest.cpp \

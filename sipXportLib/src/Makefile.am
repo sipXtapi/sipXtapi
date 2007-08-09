@@ -101,6 +101,7 @@ libsipXport_la_SOURCES =  \
     os/OsMsg.cpp \
     os/OsMsgPool.cpp \
     os/OsMsgQ.cpp \
+    os/OsMsgDispatcher.cpp \
     os/OsMulticastSocket.cpp \
     os/OsNameDb.cpp \
     os/OsNameDbInit.cpp \

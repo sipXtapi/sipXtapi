@@ -657,6 +657,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\src\test\os\OsMsgDispatcherTest.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\src\test\os\OsMutexTest.cpp"
 				>
 			</File>

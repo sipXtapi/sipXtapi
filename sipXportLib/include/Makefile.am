@@ -58,6 +58,7 @@ nobase_include_HEADERS = \
     os/OsMsg.h \
     os/OsMsgPool.h \
     os/OsMsgQ.h \
+    os/OsMsgDispatcher.h \
     os/OsMulticastSocket.h \
     os/OsMutex.h \
     os/OsNameDb.h \
