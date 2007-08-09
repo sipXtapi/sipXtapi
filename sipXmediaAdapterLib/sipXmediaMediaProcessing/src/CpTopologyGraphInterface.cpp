@@ -427,6 +427,14 @@ OsStatus CpTopologyGraphInterface::createConnection(int& connectionId,
     return retValue;
 }
 
+/// @copydoc CpMediaInterface::setMediaNotificationsEnabled()
+OsStatus 
+CpTopologyGraphInterface::setMediaNotificationsEnabled(bool enabled, 
+                                                       const UtlString& resourceName)
+{
+   return mpTopologyGraph->setNotificationsEnabled(enabled, resourceName);
+}
+
 OsStatus CpTopologyGraphInterface::getConnectionPortOnBridge(int connectionId, 
                                                              int& portOnBridge)
 {

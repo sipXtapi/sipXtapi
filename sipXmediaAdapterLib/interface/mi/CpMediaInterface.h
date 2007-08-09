@@ -27,6 +27,7 @@
 #include <net/SipContactDb.h>
 #include <net/SdpBody.h>
 #include <os/IStunSocket.h>
+#include <os/OsMsgDispatcher.h>
 
 // DEFINES
 // MACROS
@@ -206,6 +207,40 @@ public:
      *              failure codes to expect, etc. -- kkyzivat 20070801 >>
      */ 
 
+
+     /// @brief Add or replace the media notification dispatcher held by the MI.
+   virtual OsMsgDispatcher* 
+   setMediaNotificationDispatcher(OsMsgDispatcher* pNoteDisper);
+     /**<
+     *  Gives the Media Interface an object to help in the dispatching of 
+     *  notification messages to users of the media interface.  Users
+     *  are free to subclass OsMsgDispatcher to filter messages as
+     *  they see fit, and should hold on to it to receive their messages.
+     *  
+     *  @param[in] pNoteDisper - A notification dispatcher to give to the MI.
+     *  @retval Pointer to the previous media notification dispatcher set in this MI -
+     *          If there was no previous media notification dispatcher, NULL is returned.
+     */
+
+     /// @brief Enable or disable media notifications for one/all resource(s).
+   virtual OsStatus
+   setMediaNotificationsEnabled(bool enabled, 
+                                const UtlString& resourceName = NULL
+                                ) { return OS_NOT_YET_IMPLEMENTED; } //= 0;
+     /**<
+     *  Enable or disable media notifications for a given resource or all resources.
+     *
+     *  @NOTE If /p NULL is passed for resource name, then all resources 
+     *        will have all notifications enabled/disabled
+     *  
+     *  @param[in] enabled - Whether notification type is to be enabled or disabled.
+     *  @param[in] resourceName - the name of the resource to have notifications 
+     *             enabled/disabled on.
+     *  @retval OS_SUCCESS if the initial sending of a message to enable/disable
+     *          notifications succeeded.
+     *  @retval OS_NOT_FOUND if there is no resource named /p resourceName.
+     *  @retval OS_FAILED if some other failure in queueing the message occured.
+     */
 
      /// @brief Set the secure RTP parameters.
    virtual OsStatus setSrtpParams(SdpSrtpParameters& srtpParameters);
@@ -701,6 +736,9 @@ public:
    //!Returns the flowgraph's message queue
    virtual OsMsgQ* getMsgQ() = 0 ;
 
+   //!Returns the flowgraph's Media Notification dispatcher.
+   virtual OsMsgDispatcher* getMediaNotificationDispatcher();
+
    // Returns the primary codec for the connection
    virtual OsStatus getPrimaryCodec(int connectionId, 
                                     UtlString& audioCodec,
@@ -819,6 +857,7 @@ public:
 protected:
     CpMediaInterfaceFactoryImpl *mpFactoryImpl ;
     SdpSrtpParameters mSrtpParams;
+    OsMsgDispatcher* mpMediaNotfDispatcher;
 
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */

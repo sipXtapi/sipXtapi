@@ -82,6 +82,12 @@ public:
                                      IMediaEventListener* pMediaEventListener = NULL,
                                      const RtpTransportOptions rtpTransportOptions=RTP_TRANSPORT_UDP);
 
+
+     /// @copydoc CpMediaInterface::setMediaNotificationsEnabled()
+   virtual OsStatus setMediaNotificationsEnabled(bool enabled, 
+                                                 const UtlString& resourceName = NULL);
+
+
    /// Look up the port on the bridge to which the indicated connection is connected
    OsStatus getConnectionPortOnBridge(int connectionId, 
                                       int& portOnBridge);
