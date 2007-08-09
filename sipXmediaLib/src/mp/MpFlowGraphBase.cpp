@@ -122,7 +122,7 @@ OsStatus MpFlowGraphBase::addLink(MpResource& rFrom, int outPortIdx,
 }
 
 OsStatus 
-MpFlowGraphBase::addNotificationDispatcher(MpNotificationDispatcher* notifyDispatcher)
+MpFlowGraphBase::addNotificationDispatcher(OsMsgDispatcher* notifyDispatcher)
 {
    OsStatus stat = OS_SUCCESS;
    if(mNotifyDispatcher != NULL)
@@ -380,7 +380,7 @@ OsStatus MpFlowGraphBase::loseFocus(void)
 }
 
 // Post a notification message to the dispatcher.
-OsStatus MpFlowGraphBase::postNotification(const MpResourceNotificationMsg& msg)
+OsStatus MpFlowGraphBase::postNotification(const MpResNotificationMsg& msg)
 {
    // If there is no dispatcher, OS_NOT_FOUND is used.
    OsStatus stat = OS_NOT_FOUND;
@@ -389,7 +389,7 @@ OsStatus MpFlowGraphBase::postNotification(const MpResourceNotificationMsg& msg)
    {
       // If the limit is reached on the queue, OS_LIMIT_REACHED is sent.
       // otherwise success - OS_SUCCESS.
-      stat = mNotifyDispatcher->postNotification(msg);
+      stat = mNotifyDispatcher->post(msg);
    }
    return stat;
 }
@@ -521,6 +521,35 @@ OsStatus MpFlowGraphBase::removeResource(MpResource& rResource)
       return OS_SUCCESS;
    else
       return OS_UNSPECIFIED;
+}
+
+OsStatus MpFlowGraphBase::setNotificationsEnabled(bool enabled, 
+                                                  const UtlString& resourceName)
+{
+   OsWriteLock lock(mRWMutex);
+   OsStatus res = OS_SUCCESS;
+   MpResource* pResource = NULL;
+
+   // Check to see if the resource name is null -- if it is, this means
+   // send it to all resources, so just leave the null name in when sending
+   // the message.  No need to validate that name.
+
+   // Lookup the resource just to validate that the resource with that name exists
+   // in the flowgraph (if it isn't null).
+   if(!resourceName.isNull())
+   {
+      res = lookupResourcePrivate(resourceName, pResource);
+   }
+
+   if(res == OS_SUCCESS)
+   {
+      // If the resource exists or all resources are selected, 
+      // then call the static method to send a notification enable/disable 
+      // message to the actual named resource (or all resources).
+      res = MpResource::setAllNotificationsEnabled(enabled, resourceName, *getMsgQ());
+   }
+
+   return res;
 }
 
 // Sets the number of samples expected per frame.
@@ -1415,26 +1444,51 @@ OsStatus MpFlowGraphBase::processMessages(void)
          assert(pResourceMsg != NULL);
          if (pResourceMsg != NULL)
          {
-            // From the resource message, get the name of the resource, and look it up.
-            // If we find it, we call the resource's handleMessage method.
-            res = lookupResourcePrivate(pResourceMsg->getDestResourceName(), pMsgDest);
-            assert(res == OS_SUCCESS);
-            assert(pMsgDest != NULL);
-
-            if (pMsgDest != NULL)
+            // If the destination resource name is null, 
+            // then treat that as a desire to send this message to all
+            // resources.
+            if(pResourceMsg->getDestResourceName().isNull())
             {
-               handled = pMsgDest->handleMessage(*pResourceMsg);
-               assert(handled);
+               // Send this message to all resources in the flowgraph.
+               int i;
+               for(i = 0; i < mResourceCnt; i++)
+               {
+                  handled = mUnsorted[i]->handleMessage(*pResourceMsg);
+                  assert(handled);
+                  if(!handled)
+                  {
+                     OsSysLog::add(FAC_MP, PRI_WARNING, 
+                                   "MpFlowGraphBase::processMessages: "
+                                   "Resource message subtype %d directed to all "
+                                   "resources failed when sending to resource %s.",
+                                   pResourceMsg->getMsgSubType(),
+                                   mUnsorted[i]->getName());
+                  }
+               }
             }
             else
             {
-               OsSysLog::add(FAC_MP, PRI_DEBUG,
-                  "MpFlowGraphBase::processMessages - "
-                  "Failed looking up resource!: "
-                  "name=\"%s\", lookupResource status=0x%X, "
-                  "resource pointer returned = 0x%X",
-                  pResourceMsg->getDestResourceName().data(), 
-                  res, pMsgDest);
+               // From the resource message, get the name of the resource, and look it up.
+               // If we find it, we call the resource's handleMessage method.
+               res = lookupResourcePrivate(pResourceMsg->getDestResourceName(), pMsgDest);
+               assert(res == OS_SUCCESS);
+               assert(pMsgDest != NULL);
+
+               if (pMsgDest != NULL)
+               {
+                  handled = pMsgDest->handleMessage(*pResourceMsg);
+                  assert(handled);
+               }
+               else
+               {
+                  OsSysLog::add(FAC_MP, PRI_DEBUG,
+                     "MpFlowGraphBase::processMessages - "
+                     "Failed looking up resource!: "
+                     "name=\"%s\", lookupResource status=0x%X, "
+                     "resource pointer returned = 0x%X",
+                     pResourceMsg->getDestResourceName().data(), 
+                     res, pMsgDest);
+               }
             }
          }
          else // pResourceMsg == NULL

@@ -37,8 +37,8 @@ public:
    {
       MPRM_RESOURCE_ENABLE,            ///< All resources:  Enable resource
       MPRM_RESOURCE_DISABLE,           ///< All resources: Disable resource
-      MPRM_ENABLE_ALL_NOTIFICATIONS,   ///< All resources: Enable all notifications to be sent from resources
-      MPRM_DISABLE_ALL_NOTIFICATIONS,  ///< All resources: Disable all notification from being sent from resources
+      MPRM_ENABLE_ALL_NOTIFICATIONS,   ///< All resources: Enable all notifications to be sent from a resource
+      MPRM_DISABLE_ALL_NOTIFICATIONS,  ///< All resources: Disable all notification from being sent a from resource
 
       MPRM_START_TONE,          ///< MprToneGen: Start a tone.
       MPRM_STOP_TONE,           ///< MprToneGen: Stop a tone.

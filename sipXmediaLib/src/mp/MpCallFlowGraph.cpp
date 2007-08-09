@@ -1217,7 +1217,7 @@ OsStatus MpCallFlowGraph::playFile(const char* audioFileName, UtlBoolean repeat,
    // needed when the file stops playing, so CallFlowGraph can do 
    // it's cleanup.  (The old method was to have the resource directly
    // call stuff in the CallFlowGraph -- a big nono in terms of separation)
-   MpResource::enableAllNotifications(mpFromFile->getName(), *getMsgQ());
+   MpResource::setAllNotificationsEnabled(TRUE, mpFromFile->getName(), *getMsgQ());
 
    res = mpFromFile->playFile(audioFileName, repeat, event);
 
@@ -1244,7 +1244,7 @@ OsStatus MpCallFlowGraph::playBuffer(char* audioBuf,
    // needed when the buffer stops playing, so CallFlowGraph can do 
    // it's cleanup.  (The old method was to have the resource directly
    // call stuff in the CallFlowGraph -- a big nono in terms of separation)
-   MpResource::enableAllNotifications(mpFromFile->getName(), *getMsgQ());
+   MpResource::setAllNotificationsEnabled(TRUE, mpFromFile->getName(), *getMsgQ());
 
    res = mpFromFile->playBuffer(audioBuf, bufSize, type, repeat, event);
 

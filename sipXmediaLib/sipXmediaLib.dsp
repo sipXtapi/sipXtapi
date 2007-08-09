@@ -367,10 +367,6 @@ SOURCE=.\src\mp\MpMMTimerWnt.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\mp\MpNotificationDispatcher.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\src\mp\MpodBufferRecorder.cpp
 # End Source File
 # Begin Source File
@@ -1100,10 +1096,6 @@ SOURCE=.\include\mp\MpMMTimer.h
 # Begin Source File
 
 SOURCE=.\include\mp\MpMMTimerWnt.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\include\mp\MpNotificationDispatcher.h
 # End Source File
 # Begin Source File
 

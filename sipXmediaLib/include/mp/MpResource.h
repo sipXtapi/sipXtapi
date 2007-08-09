@@ -24,6 +24,7 @@
 #include "utl/UtlContainable.h"
 #include "utl/UtlString.h"
 #include "mp/MpBuf.h"
+#include "mp/MpResourceNotificationMsg.h"
 
 // DEFINES
 // MACROS
@@ -167,18 +168,20 @@ static const UtlContainableType TYPE;
      *          message queue.
      */
 
-     /// @brief Post a message to enable resource notifications on the 
-     /// named resource.
-   static OsStatus enableAllNotifications(const UtlString& namedResource,
-                                          OsMsgQ& fgQ);
+     /// @brief Post a message to enable or disable resource notifications on 
+     /// the named resource.
+   static OsStatus setAllNotificationsEnabled(UtlBoolean enable,
+                                              const UtlString& namedResource,
+                                              OsMsgQ& fgQ);
      /**<
-     *  Post a message to enable sending all notifications for the named
-     *  resource to the flowgraph queue supplied.
+     *  Post a message to either enable or disable sending all notifications for 
+     *  the named resource to the flowgraph queue supplied.
      *
      *  @note This is an asynchronous operation.
      *        The status returned does not indicate that notifications
      *        are enabled or disabled - only that it was properly queued.
      *
+     *  @param[in] enable - whether enabling or disabling is requested.
      *  @param[in] namedResource - the name of the resource to operate on.
      *  @param[in] fgQ - The flowgraph message queue to post the message to.
      *
@@ -188,26 +191,6 @@ static const UtlContainableType TYPE;
      *          message queue.
      */
 
-     /// @brief Post a message to disable resource notifications on the 
-     /// named resource.
-   static OsStatus disableAllNotifications(const UtlString& namedResource,
-                                           OsMsgQ& fgQ);
-     /**<
-     *  Post a message to disable sending all notifications for the named
-     *  resource to the flowgraph queue supplied.
-     *
-     *  @note This is an asynchronous operation.
-     *        The status returned does not indicate that notifications
-     *        are enabled or disabled - only that it was properly queued.
-     *
-     *  @param[in] namedResource - the name of the resource to operate on.
-     *  @param[in] fgQ - The flowgraph message queue to post the message to.
-     *
-     *  @retval OS_SUCCESS if the message was successfully queued
-     *          to the message queue.
-     *  @retval OS_FAILED if the message could not be added to the
-     *          message queue.
-     */
 
      /// @brief Handles a queue full of incoming messages for this media
      /// processing object.

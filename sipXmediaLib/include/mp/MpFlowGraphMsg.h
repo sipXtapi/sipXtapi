@@ -74,7 +74,7 @@ public:
       // Resource notification messages using old flowgraph msg approach
       // NOTE: this is a temporary fix, and will be replaced by newer
       //       notification messaging.  (see MpResourceNotificationMsg.h and 
-      //       MpNotificationDispatcher)
+      //       OsMsgDispatcher)
       ON_MPRRECORDER_ENABLED,    ///< sent when recording is started
       ON_MPRRECORDER_DISABLED,   ///< sent when recording is stopped
 

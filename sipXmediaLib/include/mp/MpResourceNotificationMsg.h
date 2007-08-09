@@ -8,8 +8,8 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef _MpResourceNotificationMsg_h_
-#define _MpResourceNotificationMsg_h_
+#ifndef _MpResNotificationMsg_h_
+#define _MpResNotificationMsg_h_
 
 // SYSTEM INCLUDES
 
@@ -27,7 +27,7 @@
 // FORWARD DECLARATIONS
 
 /// Message object used to communicate with the media processing task
-class MpResourceNotificationMsg : public OsMsg
+class MpResNotificationMsg : public OsMsg
 {
    /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
@@ -35,32 +35,35 @@ public:
    /// Phone set message types
    typedef enum
    {
+      MPRNM_MESSAGE_INVALID, ///< Message type is invalid (similar to NULL)
+      MPRNM_MESSAGE_ALL = MPRNM_MESSAGE_INVALID, ///< Select all message types (used in enabling/disabling)
+
       // MPRNM_MIXER_NEWFOCUS,
 
-      // Add new built in resource operation messages above
+      // Add new built in resource notification messages above
 
       // Non-builtin resource notification messages
       MPRNM_EXTERNAL_MESSAGE_START = 128
       // Do not add new message types after this
-   } MpResourceNotificationMsgType;
+   } RNMsgType;
 
    /* ============================ CREATORS ================================== */
    ///@name Creators
    //@{
 
    /// Constructor
-   MpResourceNotificationMsg(MpResourceNotificationMsgType msg, 
-                             const UtlString& namedResourceOriginator);
+   MpResNotificationMsg(RNMsgType msg, 
+                        const UtlString& namedResourceOriginator);
 
    /// Copy constructor
-   MpResourceNotificationMsg(const MpResourceNotificationMsg& rMpResNotifyMsg);
+   MpResNotificationMsg(const MpResNotificationMsg& rMpResNotifyMsg);
 
    /// Create a copy of this msg object (which may be of a derived type)
    virtual OsMsg* createCopy(void) const;
 
    /// Destructor
    virtual
-      ~MpResourceNotificationMsg();
+      ~MpResNotificationMsg();
 
    //@}
 
@@ -69,7 +72,7 @@ public:
    //@{
 
    /// Assignment operator
-   MpResourceNotificationMsg& operator=(const MpResourceNotificationMsg& rhs);
+   MpResNotificationMsg& operator=(const MpResNotificationMsg& rhs);
 
    /// Set the name of the resource this message applies to.
    void setOriginatingResourceName(const UtlString& resourceOriginator);
@@ -111,4 +114,4 @@ private:
 
 /* ============================ INLINE METHODS ============================ */
 
-#endif  // _MpResourceNotificationMsg_h_
+#endif  // _MpResNotificationMsg_h_
