@@ -1187,6 +1187,10 @@ SOURCE=.\include\mp\MpResourceMsg.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\include\mp\MpResNotificationMsg.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\include\mp\MpResourceSortAlg.h
 # End Source File
 # Begin Source File

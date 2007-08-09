@@ -4648,7 +4648,7 @@
 				RelativePath=".\include\mp\MpResourceMsg.h">
 			</File>
 			<File
-				RelativePath=".\include\mp\MpResourceNotificationMsg.h">
+				RelativePath=".\include\mp\MpResNotificationMsg.h">
 			</File>
 			<File
 				RelativePath="include\mp\MpResourceSortAlg.h">

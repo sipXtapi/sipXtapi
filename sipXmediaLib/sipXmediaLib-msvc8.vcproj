@@ -2367,7 +2367,7 @@
 					>
 				</File>
 				<File
-					RelativePath=".\include\mp\MpResourceNotificationMsg.h"
+					RelativePath=".\include\mp\MpResNotificationMsg.h"
 					>
 				</File>
 				<File

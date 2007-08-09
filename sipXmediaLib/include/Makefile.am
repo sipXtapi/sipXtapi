@@ -111,7 +111,7 @@ nobase_include_HEADERS =  \
     mp/MpResourceConstructor.h \
     mp/MpResourceFactory.h \
     mp/MpResourceMsg.h \
-    mp/MpResourceNotificationMsg.h \
+    mp/MpResNotificationMsg.h \
     mp/MpResourceSortAlg.h \
     mp/MpResourceTopology.h \
     mp/MprFromFile.h \

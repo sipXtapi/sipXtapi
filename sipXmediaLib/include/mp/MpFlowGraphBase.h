@@ -28,7 +28,7 @@
 #include "os/OsTime.h"
 #include "mp/MpResource.h"
 #include "os/OsMsgDispatcher.h"
-#include "mp/MpResourceNotificationMsg.h"
+#include "mp/MpResNotificationMsg.h"
 
 // DEFINES
 // MACROS
