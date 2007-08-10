@@ -160,14 +160,9 @@ OsStatus MpResource::setAllNotificationsEnabled(UtlBoolean enable,
                                                 const UtlString& namedResource, 
                                                 OsMsgQ& fgQ)
 {
-   // Default to disabling all resource msgs -- then check if it is enable.
-   MpResourceMsg msg(MpResourceMsg::MPRM_DISABLE_ALL_NOTIFICATIONS, namedResource);
-
-   // If we're enabling instead, then set it to enable all resource notifications.
-   if(enable)
-   {
-      msg.setMsgSubType(MpResourceMsg::MPRM_ENABLE_ALL_NOTIFICATIONS);
-   }
+   MpResourceMsg msg(enable?MpResourceMsg::MPRM_ENABLE_ALL_NOTIFICATIONS
+                           :MpResourceMsg::MPRM_DISABLE_ALL_NOTIFICATIONS,
+                     namedResource);
 
    return fgQ.send(msg, sOperationQueueTimeout);
 }
