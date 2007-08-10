@@ -24,7 +24,6 @@
 #include "utl/UtlContainable.h"
 #include "utl/UtlString.h"
 #include "mp/MpBuf.h"
-#include "mp/MpResNotificationMsg.h"
 
 // DEFINES
 // MACROS
