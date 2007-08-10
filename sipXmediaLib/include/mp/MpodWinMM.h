@@ -184,6 +184,7 @@ protected:
                                ///< are empty, waiting to be filled.
    UtlSList mUnusedVPtrList;   ///< List of unused UtlVoidPtrs.  Used ones are
                                ///< in mEmptyHeaderList.
+   int      mUnderrunLength;   ///< Length of underrun, taking place now (in frames).
    DWORD    mTotSampleCount;   ///< A count of the samples coming in via pushFrame.
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */

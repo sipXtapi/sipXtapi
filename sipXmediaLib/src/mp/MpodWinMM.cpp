@@ -43,7 +43,7 @@ extern void showWaveError(char *syscall, int e, int N, int line) ;  // dmaTaskWn
 // CONSTANTS
 // STATIC VARIABLE INITIALIZATIONS
 // DEFINES
-#define LOW_WAVEBUF_LVL 6
+#define LOW_WAVEBUF_LVL 5
 //#define TEST_PRINT
 
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // if < msvc7 (2003)
@@ -68,6 +68,7 @@ MpodWinMM::MpodWinMM(const UtlString& name,
 , mCurFrameTime(0)
 , mNumOutBuffers(nOutputBuffers)
 , mWaveBufSize(0)  // Unknown until enableDevice()
+, mUnderrunLength(0)
 , mTotSampleCount(0)
 {
    WAVEOUTCAPS devCaps;
@@ -175,6 +176,7 @@ OsStatus MpodWinMM::enableDevice(unsigned samplesPerFrame,
    mSamplesPerFrame = samplesPerFrame;
    mSamplesPerSec = samplesPerSec;
    mCurFrameTime = currentFrameTime;
+   mUnderrunLength = 0;
    mTotSampleCount = 0;
 
    // Open the wave device.
@@ -260,9 +262,10 @@ OsStatus MpodWinMM::enableDevice(unsigned samplesPerFrame,
    // so that if it is in mixer mode, notifications are sent.
    // Push the minimum we can, as this adds latency equal to the number of
    // silence frames we push (LOW_WAVEBUF_LVL frames).
-   for( i = 0; pushStat == OS_SUCCESS && i < 1; i++ )
+   for( i = 0; pushStat == OS_SUCCESS && i < LOW_WAVEBUF_LVL+1; i++ )
    {
-      pushStat = pushFrame(getSamplesPerFrame(), NULL, mCurFrameTime);
+      pushStat = internalPushFrame(getSamplesPerFrame(), NULL, mCurFrameTime);
+      RTL_EVENT("MpodWinMM::pushFrame::driverLatencyNSamples", (i+1)*getSamplesPerFrame());
    }
 
    if( pushStat != OS_SUCCESS )
@@ -401,7 +404,7 @@ OsStatus MpodWinMM::pushFrame(unsigned int numSamples,
 
    // If the first internalPushFrame succeeded, then go on and see if we need
    // to push any silence due to low buffers.
-   while(status == OS_SUCCESS)
+   if (status == OS_SUCCESS)
    {
       // Collect some metrics -- the sample number that windows is on 
       // since waveOutOpen was called.
@@ -412,27 +415,42 @@ OsStatus MpodWinMM::pushFrame(unsigned int numSamples,
 
       // Write out some statistics, if enabled.
       DWORD drvLatencyNSamp = mTotSampleCount - mmt.u.sample;
-      RTL_EVENT("MpodWinMM.pushFrame.driverLatencyNSamples", drvLatencyNSamp);
+      int numBuffersInPlay = mUnusedVPtrList.entries();
+      RTL_EVENT("MpodWinMM::pushFrame::driverLatencyNSamples", drvLatencyNSamp);
+      RTL_EVENT("MpodWinMM::pushFrame::emptyHeaders", mEmptyHeaderList.entries());
+      RTL_EVENT("MpodWinMM::pushFrame::numBuffersInPlay", numBuffersInPlay);
 
       // If the number of samples held within windows MME subsystem gets below
-      // LOW_WAVEBUF_LVL frames worth, inject a frame of silence.
-      if(drvLatencyNSamp <= LOW_WAVEBUF_LVL*80)
-      //if(drvLatencyNSamp < 1*80)
-      //if(false)
+      // LOW_WAVEBUF_LVL frames worth, count this as underrun.
+//      if (drvLatencyNSamp <= LOW_WAVEBUF_LVL*80)
+      if (numBuffersInPlay <= LOW_WAVEBUF_LVL)
       {
-         OsStatus pushStat = OS_SUCCESS;
+         mUnderrunLength++;
+      }
+      else
+      {
+         mUnderrunLength = 0;
+      }
 
-         RTL_BLOCK("MpodWinMM.pushFrame.inject");
+      // If underrun persist for more then 3 frames, inject a frame of silence.
+      // Note: Underrun length was introduced, because many windows drivers
+      //       generate WOM_DONE messages with slightly slower speed then real
+      //       playback is going. To keep them in sync driver sometimes fire
+      //       WOM_DONE twice without any delay. And at this moment (and for one
+      //       frame processing interval only) number of frames held is dropped
+      //       by one and then go up to normal level again. To avoid silence
+      //       insertion in this frequent case we're taking into account only
+      //       underruns with long enough length.
+      // P.S. Number 3 here is took from my mind as a small number bigger then 1.
+      if (mUnderrunLength > 3)
+      {
+         RTL_BLOCK("MpodWinMM::pushFrame::inject");
 #ifdef TEST_PRINT // [
          printf("^");
 #endif // TEST_PRINT ]
 
          // write out silence to the device.
          status = internalPushFrame(getSamplesPerFrame(), NULL, mCurFrameTime);
-      }
-      else
-      {
-         break;
       }
    }
 
