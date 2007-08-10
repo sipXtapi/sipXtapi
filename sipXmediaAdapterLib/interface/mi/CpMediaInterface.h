@@ -137,9 +137,9 @@ class CpMediaInterfaceFactoryImpl ;
  * @brief Abstract media control interface.
  * 
  * The CpCallManager creates a CpMediaInterface for each call created.
- * The media inteface is then used to control and query the media sub-system 
+ * The media interface is then used to control and query the media sub-system 
  * used for that call.  As connections are added to the call, the 
- * media inteface is used to add those connections to the media control system 
+ * media interface is used to add those connections to the media control system 
  * such that all connections in that call are bridged together.
  * 
  * @note This abstract class must be sub-classed and implemented to replace 
