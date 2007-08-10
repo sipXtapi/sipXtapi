@@ -635,6 +635,9 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
                                             codecArray1),
             OS_SUCCESS);
 
+        // Want to hear what is on the mixed flowgraph
+        mixedInterface->giveFocus();
+
         int numCodecsFactory2;
         SdpCodec** codecArray2 = NULL;
         supportedCodecs2.getCodecs(numCodecsFactory2, codecArray2);
@@ -738,9 +741,6 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
                                            numCodecsFactory2,
                                            codecArray2),
             OS_SUCCESS);
-
-        // Want to hear what is on the mixed flowgraph
-        mixedInterface->giveFocus();
 
         RTL_EVENT("Tone count", 1);
         printf("generate tones in source 1\n");
