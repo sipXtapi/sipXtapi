@@ -27,7 +27,6 @@
 #include <net/SipContactDb.h>
 #include <net/SdpBody.h>
 #include <os/IStunSocket.h>
-#include <os/OsMsgDispatcher.h>
 
 // DEFINES
 // MACROS
@@ -131,7 +130,8 @@ class SdpCodecFactory;
 class MpStreamPlaylistPlayer;
 class MpStreamPlayer;
 class MpStreamQueuePlayer;
-class CpMediaInterfaceFactoryImpl ;
+class CpMediaInterfaceFactoryImpl;
+class OsMsgDispatcher;
 
 /** 
  * @brief Abstract media control interface.
