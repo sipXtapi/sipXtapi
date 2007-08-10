@@ -226,7 +226,7 @@ public:
    virtual OsStatus
    setMediaNotificationsEnabled(bool enabled, 
                                 const UtlString& resourceName = NULL
-                                ) { return OS_NOT_YET_IMPLEMENTED; } //= 0;
+                                ); //= 0;
      /**<
      *  Enable or disable media notifications for a given resource or all resources.
      *

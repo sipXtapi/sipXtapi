@@ -63,6 +63,13 @@ CpMediaInterface::setMediaNotificationDispatcher(OsMsgDispatcher* pNoteDisper)
    return ret;
 }
 
+OsStatus
+CpMediaInterface::setMediaNotificationsEnabled(bool enabled, 
+                                               const UtlString& resourceName)
+{
+   return OS_NOT_YET_IMPLEMENTED;
+}
+
 OsStatus CpMediaInterface::enableRtpReadNotification(int connectionId,
                                                      UtlBoolean bEnable) 
 {
