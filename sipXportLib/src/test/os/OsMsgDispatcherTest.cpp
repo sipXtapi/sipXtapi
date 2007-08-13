@@ -52,6 +52,8 @@ public:
       CPPUNIT_ASSERT(pReceivedMsg != NULL);
       //CPPUNIT_ASSERT_EQUAL(&msg, pReceivedMsg); // This may not be true, as queue may make copy.
       CPPUNIT_ASSERT_EQUAL(msg.getMsgSubType(), pReceivedMsg->getMsgSubType());
+
+      delete pReceivedMsg;
    }
 
    void testFullDispatcher()
@@ -78,13 +80,14 @@ public:
       // Check all the messages in the queue to make sure that they start with
       // the contents of pMsgArray[1], all up through pMsgArray[maxMsgs-1], not
       // including that last one that was tried to be pushed.
-      OsMsg* pCurRMsg;
+      OsMsg* pCurRMsg = NULL;
       for(i = 0; i < dispatcher.maxMsgs(); i++)
       {
-         pCurRMsg = NULL;
          CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, dispatcher.receive(pCurRMsg));
          CPPUNIT_ASSERT(pCurRMsg != NULL);
          CPPUNIT_ASSERT_EQUAL(pMsgArray[i]->getMsgSubType(), pCurRMsg->getMsgSubType());
+         delete pCurRMsg;
+         pCurRMsg = NULL;
       }
 
       // Now, if we try to receive one more, with a timeout, it is expected to 
