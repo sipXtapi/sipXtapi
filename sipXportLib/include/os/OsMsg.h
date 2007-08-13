@@ -47,7 +47,8 @@ public:
       PHONE_APP,             // Phone application messages
       MP_TASK_MSG,           // Media processing task messages
       MP_FLOWGRAPH_MSG,      // Media processing flowgraph messages
-      MP_RESOURCE_MSG,       // Media resource messages.
+      MP_RESOURCE_MSG,       // Media resource messages
+      MP_RES_NOTF_MSG,       // Media resource notification messages
       MP_BUFFER_MSG,         // Media processing buffer queue messages
       SIP_PROXY_STATE,       // SIP proxy call state message
       TAO_MSG,               // Tao messages
