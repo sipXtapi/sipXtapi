@@ -26,7 +26,8 @@
 // TYPEDEFS
 // FORWARD DECLARATIONS
 
-/// Message object used to communicate with the media processing task
+  /// Message notification object used to communicate information from resources
+  /// outward towards the flowgraph, and up through to users above mediaLib and beyond.
 class MpResNotificationMsg : public OsMsg
 {
    /* //////////////////////////// PUBLIC //////////////////////////////////// */
@@ -52,8 +53,8 @@ public:
    //@{
 
    /// Constructor
-   MpResNotificationMsg(RNMsgType msg, 
-                        const UtlString& namedResourceOriginator);
+   MpResNotificationMsg(RNMsgType msgType, 
+                        const UtlString& namedResOriginator);
 
    /// Copy constructor
    MpResNotificationMsg(const MpResNotificationMsg& rMpResNotifyMsg);
@@ -75,7 +76,7 @@ public:
    MpResNotificationMsg& operator=(const MpResNotificationMsg& rhs);
 
    /// Set the name of the resource this message applies to.
-   void setOriginatingResourceName(const UtlString& resourceOriginator);
+   void setOriginatingResourceName(const UtlString& resOriginator);
    /**<
    *  Sets the name of the intended recipient for this message.
    */

@@ -46,9 +46,7 @@ public:
 //@{
 
      /// Default constructor
-   OsMsgDispatcher()
-      : OsMsgQ()
-      {};
+   OsMsgDispatcher();
 
      /// Destructor
    virtual ~OsMsgDispatcher() {};
@@ -97,6 +95,7 @@ public:
 /* ============================ INQUIRY =================================== */
 ///@name Inquiry
 //@{
+   inline UtlBoolean isMsgsLost() const;
 
 //@}
 
@@ -110,7 +109,7 @@ protected:
 private:
 
      /// Set that there were notifications lost.
-   void setMsgsLost() { mMsgsLost = TRUE; };
+   inline void setMsgsLost();
 
      /// Copy constructor (not implemented for this class)
    OsMsgDispatcher(const OsMsgDispatcher& rMsgDispatcher);
@@ -120,5 +119,15 @@ private:
 };
 
 /* ============================ INLINE METHODS ============================ */
+
+UtlBoolean OsMsgDispatcher::isMsgsLost() const
+{
+   return mMsgsLost;
+}
+
+void OsMsgDispatcher::setMsgsLost()
+{
+    mMsgsLost = TRUE;
+}
 
 #endif  // _OsMsgDispatcher_h_

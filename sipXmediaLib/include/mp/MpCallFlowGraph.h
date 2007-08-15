@@ -274,6 +274,9 @@ public:
      *  @returns  OS_SUCCESS, always
      */
 
+     /// @copydoc MpFlowGraphBase::postNotification()
+   OsStatus postNotification(const MpResNotificationMsg& msg);
+
      /// Creates a new MpAudioConnection; returns -1 if failure.
    MpConnectionID createConnection(void);
 

@@ -210,7 +210,7 @@ public:
 
      /// @brief Add or replace the media notification dispatcher held by the MI.
    virtual OsMsgDispatcher* 
-   setMediaNotificationDispatcher(OsMsgDispatcher* pNoteDisper);
+   setMediaNotificationDispatcher(OsMsgDispatcher* pNoteDisper) = 0;
      /**<
      *  Gives the Media Interface an object to help in the dispatching of 
      *  notification messages to users of the media interface.  Users
@@ -225,8 +225,7 @@ public:
      /// @brief Enable or disable media notifications for one/all resource(s).
    virtual OsStatus
    setMediaNotificationsEnabled(bool enabled, 
-                                const UtlString& resourceName = NULL
-                                ); //= 0;
+                                const UtlString& resourceName = NULL) = 0;
      /**<
      *  Enable or disable media notifications for a given resource or all resources.
      *
@@ -736,8 +735,8 @@ public:
    //!Returns the flowgraph's message queue
    virtual OsMsgQ* getMsgQ() = 0 ;
 
-   //!Returns the flowgraph's Media Notification dispatcher.
-   virtual OsMsgDispatcher* getMediaNotificationDispatcher();
+      /// Returns the flowgraph's Media Notification dispatcher.
+   virtual OsMsgDispatcher* getMediaNotificationDispatcher() = 0;
 
    // Returns the primary codec for the connection
    virtual OsStatus getPrimaryCodec(int connectionId, 
@@ -857,8 +856,6 @@ public:
 protected:
     CpMediaInterfaceFactoryImpl *mpFactoryImpl ;
     SdpSrtpParameters mSrtpParams;
-    OsMsgDispatcher* mpMediaNotfDispatcher;
-
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:

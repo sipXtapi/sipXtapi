@@ -23,6 +23,11 @@
 
 /* ============================ CREATORS ================================== */
 
+OsMsgDispatcher::OsMsgDispatcher()
+   : OsMsgQ()
+   , mMsgsLost(FALSE)
+{}
+
 /* ============================ MANIPULATORS ============================== */
 
 OsStatus OsMsgDispatcher::post(const OsMsg& msg)
@@ -55,4 +60,5 @@ OsStatus OsMsgDispatcher::receive(OsMsg*& rpMsg,
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 /* ============================ FUNCTIONS ================================= */
+
 

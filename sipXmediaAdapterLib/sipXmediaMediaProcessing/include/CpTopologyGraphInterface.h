@@ -83,6 +83,10 @@ public:
                                      const RtpTransportOptions rtpTransportOptions=RTP_TRANSPORT_UDP);
 
 
+      /// @copydoc CpMediaInterface::setMediaNotificationDispatcher()
+   virtual OsMsgDispatcher*
+   setMediaNotificationDispatcher(OsMsgDispatcher* pNoteDisper);
+
      /// @copydoc CpMediaInterface::setMediaNotificationsEnabled()
    virtual OsStatus setMediaNotificationsEnabled(bool enabled, 
                                                  const UtlString& resourceName = NULL);
@@ -308,6 +312,9 @@ public:
 
    //!Returns the flowgraph's message queue
    virtual OsMsgQ* getMsgQ();
+
+   /// @copydoc CpMediaInterface::getMediaNotificationDispatcher()
+   virtual OsMsgDispatcher* getMediaNotificationDispatcher();
 
 
    virtual OsStatus getVideoQuality(int& quality);

@@ -720,6 +720,34 @@ OsStatus MpCallFlowGraph::loseFocus(void)
    return OS_SUCCESS;
 }
 
+OsStatus MpCallFlowGraph::postNotification(const MpResNotificationMsg& msg)
+{
+   // This is here as a hook to do it's own things in response to notifications
+   // being sent up.
+   OsStatus stat = OS_SUCCESS;
+
+   if(msg.getMsg() == MpResNotificationMsg::MPRNM_FROMFILE_STOP)
+   {
+      // If a file just finished playing, there is some cleanup that needs to be 
+      // done at the flowgraph level that we can queue up to do now.
+      MpFlowGraphMsg cfgStopPlayMsg(MpFlowGraphMsg::FLOWGRAPH_STOP_PLAY);
+      OsMsgQ* pMsgQ = getMsgQ();
+      assert(pMsgQ != NULL);
+      // Send the cleanup message, use default timeout of infinity,
+      // as it should get processed no prob, and is important to get done,
+      // otherwise state would be inconsistent between fromfile resource and flowgraph.
+      stat = pMsgQ->send(cfgStopPlayMsg);
+   }
+
+   // Now, let the parent postNotification run and do it's work if the last operation
+   // succeeded.
+   if(stat == OS_SUCCESS)
+   {
+      stat = MpFlowGraphBase::postNotification(msg);
+   }
+   return stat;
+}
+
 // Start playing the indicated tone.
 void MpCallFlowGraph::startTone(int toneId, int toneOptions)
 {
@@ -2283,5 +2311,6 @@ UtlBoolean MpCallFlowGraph::handleOnMprRecorderDisabled(MpFlowGraphMsg& rMsg)
 }
 
 /* ============================ FUNCTIONS ================================= */
+
 
 

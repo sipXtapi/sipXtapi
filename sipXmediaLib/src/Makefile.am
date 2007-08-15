@@ -124,6 +124,7 @@ libsipXmedia_la_SOURCES =  \
     mp/MpResourceMsg.cpp \
     mp/MpResourceSortAlg.cpp \
     mp/MpResourceTopology.cpp \
+    mp/MpResNotificationMsg.cpp \
     mp/MpRtpBuf.cpp \
     mp/MpUdpBuf.cpp \
     mp/MprAudioFrameBuffer.cpp \

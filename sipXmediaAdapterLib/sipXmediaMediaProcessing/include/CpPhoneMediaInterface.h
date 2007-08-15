@@ -125,6 +125,12 @@ public:
                                       int& videoBandwidth,
                                       int& videoFramerate);
 
+   virtual OsMsgDispatcher*
+   setMediaNotificationDispatcher(OsMsgDispatcher* pNoteDisper);
+
+   virtual OsStatus setMediaNotificationsEnabled(bool enabled, 
+                                                 const UtlString& resourceName);
+
    virtual OsStatus setConnectionDestination(int connectionId,
                                              const char* rtpHostAddress, 
                                              int rtpAudioPort,
@@ -296,6 +302,9 @@ public:
 
    virtual OsMsgQ* getMsgQ();
      //:Returns the flowgraph's message queue
+
+     /// @copydoc CpMediaInterface::getMediaNotificationDispatcher()
+   virtual OsMsgDispatcher* getMediaNotificationDispatcher();
 
    virtual OsStatus getVideoQuality(int& quality);
    virtual OsStatus getVideoBitRate(int& bitRate);

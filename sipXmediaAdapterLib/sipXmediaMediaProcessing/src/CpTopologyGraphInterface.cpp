@@ -427,13 +427,25 @@ OsStatus CpTopologyGraphInterface::createConnection(int& connectionId,
     return retValue;
 }
 
+
+OsMsgDispatcher*  
+CpTopologyGraphInterface::setMediaNotificationDispatcher(OsMsgDispatcher* pNoteDisper)
+{
+   // If there is no topology graph, return NULL, otherwise return result of setting
+   // notification dispatcher on topology graph.
+   return mpTopologyGraph ? mpTopologyGraph->setNotificationDispatcher(pNoteDisper) : NULL;
+}
+
 /// @copydoc CpMediaInterface::setMediaNotificationsEnabled()
 OsStatus 
 CpTopologyGraphInterface::setMediaNotificationsEnabled(bool enabled, 
                                                        const UtlString& resourceName)
 {
-   return mpTopologyGraph->setNotificationsEnabled(enabled, resourceName);
-}
+   return mpTopologyGraph ? 
+      mpTopologyGraph->setNotificationsEnabled(enabled, resourceName) :
+      OS_FAILED;
+}  
+
 
 OsStatus CpTopologyGraphInterface::getConnectionPortOnBridge(int connectionId, 
                                                              int& portOnBridge)
@@ -1818,6 +1830,11 @@ int CpTopologyGraphInterface::getCodecCPULimit()
    return mpTopologyGraph->getMsgQ() ;
 }
 
+OsMsgDispatcher* CpTopologyGraphInterface::getMediaNotificationDispatcher()
+{
+   return mpTopologyGraph ? mpTopologyGraph->getNotificationDispatcher() : NULL;
+}
+
 OsStatus CpTopologyGraphInterface::getPrimaryCodec(int connectionId, 
                                                 UtlString& audioCodec,
                                                 UtlString& videoCodec,
@@ -2713,4 +2730,5 @@ OsStatus CpTopologyGraphInterface::createRtpSocketPair(UtlString localAddress,
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 /* ============================ FUNCTIONS ================================= */
+
 

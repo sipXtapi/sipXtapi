@@ -439,6 +439,10 @@ SOURCE=.\src\mp\MpResourceTopology.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\mp\MpResNotificationMsg.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\mp\MprFromFile.cpp
 # End Source File
 # Begin Source File

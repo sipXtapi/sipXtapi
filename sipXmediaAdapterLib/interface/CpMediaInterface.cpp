@@ -33,7 +33,6 @@ int CpMediaInterface::sInvalidConnectionId = -1;
 
 // Constructor
 CpMediaInterface::CpMediaInterface(CpMediaInterfaceFactoryImpl *pFactoryImpl)
-   : mpMediaNotfDispatcher(NULL)
 {
     mpFactoryImpl = pFactoryImpl ; 
 }
@@ -55,21 +54,6 @@ OsStatus CpMediaInterface::setSrtpParams(SdpSrtpParameters& srtpParameters)
     
 }
 
-OsMsgDispatcher* 
-CpMediaInterface::setMediaNotificationDispatcher(OsMsgDispatcher* pNoteDisper)
-{
-   OsMsgDispatcher* ret = mpMediaNotfDispatcher;
-   mpMediaNotfDispatcher = pNoteDisper;
-   return ret;
-}
-
-OsStatus
-CpMediaInterface::setMediaNotificationsEnabled(bool enabled, 
-                                               const UtlString& resourceName)
-{
-   return OS_NOT_YET_IMPLEMENTED;
-}
-
 OsStatus CpMediaInterface::enableRtpReadNotification(int connectionId,
                                                      UtlBoolean bEnable) 
 {
@@ -86,11 +70,6 @@ OsStatus CpMediaInterface::recordMic(UtlString* pAudioBuf)
 int CpMediaInterface::getInvalidConnectionId()
 {
     return(sInvalidConnectionId);
-}
-
-OsMsgDispatcher* CpMediaInterface::getMediaNotificationDispatcher()
-{
-   return mpMediaNotfDispatcher;
 }
 
 /* ============================ INQUIRY =================================== */

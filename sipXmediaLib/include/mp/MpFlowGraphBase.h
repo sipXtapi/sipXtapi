@@ -130,15 +130,18 @@ public:
      */
 
      /// Adds a dispatcher for notifications to the flowgraph.
-   OsStatus 
-   addNotificationDispatcher(OsMsgDispatcher* notifyDispatcher);
+   OsMsgDispatcher*  
+   setNotificationDispatcher(OsMsgDispatcher* notifyDispatcher);
      /**<
-     *  Adds a notification dispatcher to the flowgraph, for use in
+     *  Seta a notification dispatcher to the flowgraph, for use in
      *  letting the resources or the flowgraph tell the application 
      *  any interesting events.
      *
-     *  @retval OS_SUCCESS - successfully added the dispatcher.
-     *  @retval OS_LIMIT_REACHED - if we have a dispatcher already.
+     *  @param[in] notifyDispatcher - a pointer to a notification dispatcher that 
+     *             should be used to post media event notifications.
+     *  
+     *  @retval NULL if no previous notification dispatcher was set.
+     *  @retval pointer to previous notification dispatcher if one was set previously.
      */
 
      /// Adds the indicated media processing object to the flow graph.
@@ -288,16 +291,6 @@ public:
      *  @retval OS_INVALID_ARGUMENT - invalid port index.
      */
 
-     /// Clears the pointer to notification dispatcher from the flow graph.
-   OsStatus removeNotificationDispatcher();
-     /**<
-     *  Clears the pointer to the notification dispatcher held in the flowgraph.
-     *  If there is no notification dispatcher set, then it returns failure.
-     *
-     *  @retval OS_SUCCESS - success, dispatcher has been removed.
-     *  @retval OS_NOT_FOUND - no dispatcher to remove.
-     */
-
      /// Removes the indicated media processing object from the flow graph.
    OsStatus removeResource(MpResource& rResource);
      /**<
@@ -374,6 +367,9 @@ public:
 
      /// Returns the current state of flow graph.
    int getState(void) const;
+
+     /// Returns the current notification dispatcher, if any.  If none, returns NULL.
+   OsMsgDispatcher* getNotificationDispatcher() const;
 
      /// @brief Sets \p rpResource to point to the resource that corresponds
      /// to \p name or to NULL if no matching resource is found.

@@ -2630,6 +2630,9 @@
 				RelativePath=".\src\mp\MpResourceTopology.cpp">
 			</File>
 			<File
+				RelativePath=".\src\mp\MpResNotificationMsg.cpp">
+			</File>
+			<File
 				RelativePath="src\mp\MprFromFile.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
