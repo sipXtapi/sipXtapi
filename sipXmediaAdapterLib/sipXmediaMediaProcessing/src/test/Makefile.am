@@ -11,6 +11,7 @@ testsuite_LDADD = \
     $(CPPUNIT_LIBS) \
     @SIPXTACK_LIBS@ \
     @SIPXPORT_LIBS@ \
+    @SIPXMEDIA_LIBS@ \
     ../libsipXmediaProcessing.la \
     $(GIPS_OBJS)
 

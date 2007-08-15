@@ -148,7 +148,7 @@ private:
    UtlBoolean handleStopRecording(void);
 
      /// Send a record done notification message to the flowgraph.
-   OsStatus MprBufferRecorder::sendNotification(MpResNotificationMsg::RNMsgType type);
+   OsStatus sendNotification(MpResNotificationMsg::RNMsgType type);
 };
 
 /* ============================ INLINE METHODS ============================ */
