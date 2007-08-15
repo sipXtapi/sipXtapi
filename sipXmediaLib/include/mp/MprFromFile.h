@@ -263,7 +263,7 @@ private:
      *
      *  @returns OS_INVALID_ARGUMENT if the filename was null,
      *  the file was unopenable, or the file contained less than one sample.
-     *  @returns OS_SUCCESS if the file was read succesfully.
+     *  @returns OS_SUCCESS if the file was read successfully.
      */
 
    virtual UtlBoolean doProcessFrame(MpBufPtr inBufs[],
@@ -274,14 +274,17 @@ private:
                                     int samplesPerFrame=80,
                                     int samplesPerSecond=8000);
 
-   virtual UtlBoolean handleSetup(MpFlowGraphMsg& rMsg);
+     /// Perform resetting of state, etc. upon receiving request to stop playing.
    virtual UtlBoolean handleStop(void);
 
-     /// Handle flowgraph messages for this resource.
+     /// Handle flowgraph messages for this resource (old messaging model).
    virtual UtlBoolean handleMessage(MpFlowGraphMsg& rMsg);
 
-     /// Handle resource messages for this resource.
+     /// Handle resource messages for this resource (new messaging model - 2007).
    virtual UtlBoolean handleMessage(MpResourceMsg& rMsg);
+
+     /// Send a Resource Notification message indicating file is done playing.
+   OsStatus sendFileDoneNotification();
 
      /// Copy constructor (not implemented for this class)
    MprFromFile(const MprFromFile& rMprFromFile);

@@ -39,6 +39,7 @@ public:
       MPRNM_MESSAGE_INVALID, ///< Message type is invalid (similar to NULL)
       MPRNM_MESSAGE_ALL = MPRNM_MESSAGE_INVALID, ///< Select all message types (used in enabling/disabling)
 
+      MPRNM_FROMFILE_STOP,
       // MPRNM_MIXER_NEWFOCUS,
 
       // Add new built in resource notification messages above

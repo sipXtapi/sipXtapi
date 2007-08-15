@@ -33,10 +33,11 @@
 #include "mp/MpAudioWaveFileRead.h"
 #include "mp/MpFromFileStartResourceMsg.h"
 #include "mp/mpau.h"
-// TODO remove reference to MpCallFlowGraph
-#include "mp/MpCallFlowGraph.h"
+#include "mp/MpMisc.h"
+#include "mp/MpFlowGraphBase.h"
 #include "os/OsSysLog.h"
 #include "os/OsProtectEventMgr.h"
+#include "mp/MpResNotificationMsg.h"
 
 
 // EXTERNAL FUNCTIONS
@@ -560,19 +561,23 @@ UtlBoolean MprFromFile::doProcessFrame(MpBufPtr inBufs[],
    int count;
    int bytesLeft;
 
-   if (outBufsSize == 0)
+   // There's nothing to do if the output buffers or the number
+   // of samples per frame are zero, so just return.
+   if (outBufsSize == 0 || samplesPerFrame == 0)
+   {
        return FALSE;
+   }
 
-   if (samplesPerFrame == 0)
-       return FALSE;
-
-   if (isEnabled) {
+   if (isEnabled) 
+   {
       if (mpFileBuffer)
       {
          // Get new buffer
          out = MpMisc.RawAudioPool->getBuffer();
          if (!out.isValid())
+         {
             return FALSE;
+         }
          out->setSpeechType(MpAudioBuf::MP_SPEECH_TONE);
          out->setSamplesNumber(samplesPerFrame);
          count = out->getSamplesNumber();
@@ -591,7 +596,8 @@ UtlBoolean MprFromFile::doProcessFrame(MpBufPtr inBufs[],
             mFileBufferIndex += totalBytesRead;
          }
 
-         if (mFileRepeat) {
+         if (mFileRepeat) 
+         {
             bytesLeft = 1;
             while((totalBytesRead < bytesPerFrame) && (bytesLeft > 0))
             {
@@ -603,25 +609,21 @@ UtlBoolean MprFromFile::doProcessFrame(MpBufPtr inBufs[],
                totalBytesRead += bytesLeft;
                mFileBufferIndex += bytesLeft;
             }
-         } else {
-            if (mFileBufferIndex >= bufferLength) {
+         } else 
+         {
+            if (mFileBufferIndex >= bufferLength) 
+            {
+               // We're done playing..
+               // zero out the remaining bytes in the frame after the end
+               // of the real data before sending it off - it could be garbage.
                bytesLeft = bytesPerFrame - totalBytesRead;
                memset(&outbuf[(totalBytesRead/sizeof(MpAudioSample))], 0, bytesLeft);
 
-               // TODO: remove reference to MpCallFlowGraph
+               // Send a message to tell this resource to stop playing the file
+               // this resets some state, and sends a notification.
                OsMsgQ* fgQ = getFlowGraph()->getMsgQ();
                assert(fgQ != NULL);
-
-               // Let the flowgraph handle the bits of stopping play 
-               // it needs to do... (new connector code for legacy code)
-               if(dynamic_cast<MpCallFlowGraph*>(getFlowGraph()) != NULL)
-               {
-                  MpFlowGraphMsg msg(MpFlowGraphMsg::FLOWGRAPH_STOP_PLAY);
-                  fgQ->send(msg, sOperationQueueTimeout);
-               }
-
                MprFromFile::stopFile(getName(), *fgQ);
-               MpResource::disable(getName(), *fgQ);
             }
          }
       }
@@ -640,23 +642,14 @@ UtlBoolean MprFromFile::doProcessFrame(MpBufPtr inBufs[],
 
 // Handle messages for this resource.
 
-UtlBoolean MprFromFile::handleSetup(MpFlowGraphMsg& rMsg)
-{
-   if(mpFileBuffer) delete mpFileBuffer;
-   if (mpNotify) {
-      mpNotify->signal(PLAY_FINISHED);
-   }
-   mpNotify = (OsNotification*) rMsg.getPtr1();
-   mpFileBuffer = (UtlString*) rMsg.getPtr2();
-   if(mpFileBuffer) {
-      mFileBufferIndex = 0;
-      mFileRepeat = (rMsg.getInt1() == PLAY_ONCE) ? FALSE : TRUE;
-   }
-   return TRUE;
-}
-
+// this is used in both old and new messaging schemes to do reset state
+// and send notification when stop is requested.
 UtlBoolean MprFromFile::handleStop()
 {
+   // Send a notification -- we don't really care at this level if
+   // it succeeded or not.
+   sendFileDoneNotification();
+
    delete mpFileBuffer;
    mpFileBuffer = NULL;
    mFileBufferIndex = 0;
@@ -664,11 +657,28 @@ UtlBoolean MprFromFile::handleStop()
    return TRUE;
 }
 
+// Old flowgraph message approach to sending messages
+// DEPRECATED.  This will be removed once new messaging infrastructure
+// is solid.
 UtlBoolean MprFromFile::handleMessage(MpFlowGraphMsg& rMsg)
 {
-   switch (rMsg.getMsg()) {
+   switch (rMsg.getMsg()) 
+   {
    case PLAY_FILE:
-      return handleSetup(rMsg);
+      if(mpFileBuffer) delete mpFileBuffer;
+      if (mpNotify) 
+      {
+         mpNotify->signal(PLAY_FINISHED);
+      }
+      mpNotify = (OsNotification*) rMsg.getPtr1();
+      mpFileBuffer = (UtlString*) rMsg.getPtr2();      
+      if(mpFileBuffer) 
+      {
+         mFileBufferIndex = 0;
+         mFileRepeat = (rMsg.getInt1() == PLAY_ONCE) ? FALSE : TRUE;
+      }
+      
+      return TRUE;
       break;
 
    case STOP_FILE:
@@ -683,6 +693,8 @@ UtlBoolean MprFromFile::handleMessage(MpFlowGraphMsg& rMsg)
 }
 
 
+// New resource message handling.  This is part of the new
+// messaging infrastructure (2007).
 UtlBoolean MprFromFile::handleMessage(MpResourceMsg& rMsg)
 {
    UtlBoolean msgHandled = FALSE;
@@ -711,10 +723,7 @@ UtlBoolean MprFromFile::handleMessage(MpResourceMsg& rMsg)
       break;
 
    case MpResourceMsg::MPRM_FROMFILE_STOP:
-      delete mpFileBuffer;
-      mpFileBuffer = NULL;
-      mFileBufferIndex = 0;
-      disable();
+      handleStop();
       msgHandled = TRUE;
       break;
 
@@ -726,5 +735,15 @@ UtlBoolean MprFromFile::handleMessage(MpResourceMsg& rMsg)
    return msgHandled;
 }
 
+OsStatus MprFromFile::sendFileDoneNotification()
+{
+   MpFlowGraphBase* pFg = getFlowGraph();
+   assert(pFg != NULL);
+
+   MpResNotificationMsg msg(MpResNotificationMsg::MPRNM_FROMFILE_STOP, getName());
+   return pFg->postNotification(msg);
+}
+
 /* ============================ FUNCTIONS ================================= */
+
 

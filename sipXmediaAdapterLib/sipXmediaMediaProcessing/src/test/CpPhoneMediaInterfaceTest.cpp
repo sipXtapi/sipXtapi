@@ -18,6 +18,9 @@
 #include <os/OsTask.h>
 #include <utl/UtlSList.h>
 #include <utl/UtlInt.h>
+#include <os/OsMsgDispatcher.h>
+#include <mp/MpResNotificationMsg.h>
+
 //#define DISABLE_RECORDING
 #define EMBED_PROMPTS
 #ifdef EMBED_PROMPTS
@@ -121,6 +124,43 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
         {
             CPPUNIT_FAIL("ERROR: Unknown type of media interface!");
         }
+    }
+
+    OsStatus waitForNotf(OsMsgDispatcher& notfDispatcher,
+                         MpResNotificationMsg::RNMsgType notfType, 
+                         unsigned maxTotalDelayTime)
+    {
+       // keep count of the milliseconds we're gone
+       unsigned delayPeriod = 10; // Milliseconds in each delay
+       unsigned curMsecsDelayed = 0;
+       for(curMsecsDelayed = 0; 
+          notfDispatcher.isEmpty() && curMsecsDelayed < maxTotalDelayTime;
+          curMsecsDelayed += delayPeriod)
+       {
+          // Delay just a bit
+          OsTask::delay(delayPeriod);
+       }
+
+       if(curMsecsDelayed >= maxTotalDelayTime)
+       {
+          return OS_WAIT_TIMEOUT;
+       }
+
+       // Assert that there is a notification available now.
+       CPPUNIT_ASSERT_EQUAL(FALSE, notfDispatcher.isEmpty());
+
+       // Grab the message with a short timeout, since we know it's there.
+       OsMsg* pMsg = NULL;
+       MpResNotificationMsg* pNotfMsg = NULL;
+       notfDispatcher.receive(pMsg, OsTime(delayPeriod));
+       CPPUNIT_ASSERT(pMsg != NULL);
+       CPPUNIT_ASSERT_EQUAL(OsMsg::MP_RES_NOTF_MSG, 
+          (OsMsg::MsgTypes)pMsg->getMsgType());
+       pNotfMsg = (MpResNotificationMsg*)pMsg;
+       CPPUNIT_ASSERT_EQUAL(notfType, 
+                            (MpResNotificationMsg::RNMsgType)pNotfMsg->getMsg());
+
+       return OS_SUCCESS;
     }
 
     void testProperties()
@@ -273,6 +313,10 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
         CPPUNIT_ASSERT(mediaInterface->createConnection(connectionId, NULL) == OS_SUCCESS);
         CPPUNIT_ASSERT(connectionId > 0);
 
+        // Create a Media notification dispatcher and give it to the media interface.
+        OsMsgDispatcher notfDispatcher;
+        mediaInterface->setMediaNotificationDispatcher(&notfDispatcher);
+
         mediaInterface->giveFocus() ;
 
         int taskId;
@@ -302,7 +346,13 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
                                   100,
                                   &playAudNote);
 #endif
-        OsTask::delay(3500);
+        // Wait for a maximum of 5000 msecs to receive a stop playing message
+        OsStatus stat = waitForNotf(notfDispatcher,
+                                    MpResNotificationMsg::MPRNM_FROMFILE_STOP, 
+                                    5000);
+        CPPUNIT_ASSERT_MESSAGE("No FromFile Stop notification was sent while playing record prompt!",
+                               stat == OS_SUCCESS);
+
         //enableConsoleOutput(0);
 
         // Check via old OsNotification mechanism if the file finished playing.
@@ -314,8 +364,6 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
         }
         printf("\n");
 
-        mediaInterface->stopAudio() ;
-        
         mediaInterface->startTone(0, true, false) ;
         OsTask::delay(100) ;
         mediaInterface->stopTone() ;
@@ -355,8 +403,13 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
         printf("Play playback_prompt.wav\n");
         mediaInterface->playAudio("playback_prompt.wav", false, true, false) ;
 #endif
-        OsTask::delay(2500) ;
-        mediaInterface->stopAudio() ;
+        stat = waitForNotf(notfDispatcher,
+                           MpResNotificationMsg::MPRNM_FROMFILE_STOP,
+                           3500);
+        CPPUNIT_ASSERT_MESSAGE("No FromFile Stop notification was sent while playing playback prompt!",
+                               stat == OS_SUCCESS);
+
+
 #ifdef DISABLE_RECORDING
         printf("record disabled so no play back of recorded message\n");
 #else
@@ -367,8 +420,12 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
                                    false,  // repeat
                                    true,   // local
                                    false); // remote
-        OsTask::delay(10000) ;
-        mediaInterface->stopAudio() ;
+
+        stat = waitForNotf(notfDispatcher,
+                           MpResNotificationMsg::MPRNM_FROMFILE_STOP,
+                           15000);
+        CPPUNIT_ASSERT_MESSAGE("No FromFile Stop notification was sent while playing record buffer!",
+                               stat == OS_SUCCESS);
 #endif
 
         mediaInterface->startTone(0, true, false) ;
