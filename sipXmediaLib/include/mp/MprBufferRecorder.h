@@ -27,6 +27,7 @@
 #include "os/OsMutex.h"
 #include "mp/MpFlowGraphMsg.h"
 #include "mp/MpAudioResource.h"
+#include "mp/MpResNotificationMsg.h"
 
 // DEFINES
 // MACROS
@@ -146,6 +147,8 @@ private:
      /// Handle the message for stopping recording
    UtlBoolean handleStopRecording(void);
 
+     /// Send a record done notification message to the flowgraph.
+   OsStatus MprBufferRecorder::sendNotification(MpResNotificationMsg::RNMsgType type);
 };
 
 /* ============================ INLINE METHODS ============================ */

@@ -25,6 +25,7 @@
 #include "mp/MpBuf.h"
 #include "mp/MprBufferRecorder.h"
 #include "mp/MpBufRecStartResourceMsg.h"
+#include "mp/MpFlowGraphBase.h"
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -104,8 +105,18 @@ UtlBoolean MprBufferRecorder::disable(Completion code)
 
    res = (MpResource::disable());
 
-   // TODO: New Resource Notification message to indicate recording
-   //       complete should go here.
+   // If the recording was stopped or finished,
+   if(code == RECORD_FINISHED || code == RECORD_STOPPED)
+   {
+      // Send resource notification message to indicate recording complete.
+      sendNotification(MpResNotificationMsg::MPRNM_BUFRECORDER_STOP);
+   }
+   else if(code == NO_INPUT_DATA)
+   {
+      // Send resource notification message to indicate error - 
+      // no input data buffer provided.
+      sendNotification(MpResNotificationMsg::MPRNM_BUFRECORDER_NOINPUTDATA);
+   }
 
    return res;
 }
@@ -266,6 +277,15 @@ UtlBoolean MprBufferRecorder::handleMessage(MpResourceMsg& rMsg)
       break;
    }
    return MpAudioResource::handleMessage(rMsg);
+}
+
+OsStatus MprBufferRecorder::sendNotification(MpResNotificationMsg::RNMsgType type)
+{
+   MpFlowGraphBase* pFg = getFlowGraph();
+   assert(pFg != NULL);
+
+   MpResNotificationMsg msg(type, getName());
+   return pFg->postNotification(msg);
 }
 
 /* ============================ FUNCTIONS ================================= */

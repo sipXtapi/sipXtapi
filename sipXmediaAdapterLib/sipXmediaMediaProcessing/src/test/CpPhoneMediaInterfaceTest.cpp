@@ -382,7 +382,15 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
         audioBuffer.resize(nSecsToRecord * bytesPerSec);
 
         mediaInterface->recordMic(&audioBuffer);
-        OsTask::delay(nSecsToRecord * 1000);
+
+        // Wait for a maximum of the size of the buffer (10secs), plus an additional
+        // 10 seconds to receive a recording stopped message
+        stat = waitForNotf(notfDispatcher,
+                           MpResNotificationMsg::MPRNM_BUFRECORDER_STOP, 
+                           nSecsToRecord*1000 + 10000);
+        CPPUNIT_ASSERT_MESSAGE("No BufferRecorder Stop notification was sent while recording!",
+                               stat == OS_SUCCESS);
+
 #endif
         OsTask::delay(100) ;
         mediaInterface->startTone(0, true, false) ;
