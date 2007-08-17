@@ -17,6 +17,7 @@
 #include "assert.h"
 // APPLICATION INCLUDES
 #include "mp/MpeSipxPcmu.h"
+#include "mp/MpSipxDecoders.h"
 #include "mp/JB/JB_API.h"
 
 const MpCodecInfo MpeSipxPcmu::smCodecInfo(
@@ -53,11 +54,8 @@ OsStatus MpeSipxPcmu::encode(const MpAudioSample* pAudioSamples,
                              UtlBoolean& sendNow,
                              MpAudioBuf::SpeechType& rAudioCategory)
 {
-   JB_ret res;
-   JB_size size;
-
-   res = G711U_Encoder(numSamples, pAudioSamples, pCodeBuf, &size);
-   rSizeInBytes = size;
+   G711U_Encoder(numSamples, pAudioSamples, pCodeBuf);
+   rSizeInBytes = numSamples;
    rAudioCategory = MpAudioBuf::MP_SPEECH_UNKNOWN;
    sendNow = FALSE;
    rSamplesConsumed = numSamples;

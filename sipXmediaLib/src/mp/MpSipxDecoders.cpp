@@ -16,8 +16,6 @@
 
 #include "assert.h"
 
-#include "mp/JB/JB_API.h"
-#include "mp/MpJitterBuffer.h"
 #include "mp/MpSipxDecoders.h"
 
 #define LOCAL static
@@ -35,32 +33,36 @@
 
 #define BIAS            (0x84)          /* Bias for linear code. */
 
-LOCAL short hzm_ULaw2linear(unsigned char u)
+LOCAL MpAudioSample hzm_ULaw2linear(uint8_t u)
 {
-        int L;
-        int seg;
+   int L;
+   int seg;
 
-        u = ~u;
-        seg = (u & 0x70) >> 4;
-        L = ((0x0f & u) << 3) + BIAS;
-        L = (L << seg);
-        if (0x80 & u) {
-                L = BIAS - L;
-        } else {
-                L = L - BIAS;
-        }
-        return L;
+   u = ~u;
+   seg = (u & 0x70) >> 4;
+   L = ((0x0f & u) << 3) + BIAS;
+   L = (L << seg);
+   if (0x80 & u)
+   {
+      L = BIAS - L;
+   }
+   else
+   {
+      L = L - BIAS;
+   }
+   return L;
 }
 
 LOCAL int ULawToLinear(MpAudioSample *Dest, const unsigned char *Source, int samples)
 {
-        int i;
+   int i;
 
-        for (i=0; i<samples; i++) {
-            *Dest = hzm_ULaw2linear(*Source);
-            Dest++; Source++;
-        }
-        return samples;
+   for (i=0; i<samples; i++)
+   {
+      *Dest = hzm_ULaw2linear(*Source);
+      Dest++; Source++;
+   }
+   return samples;
 }
 
 
@@ -68,67 +70,72 @@ LOCAL int ULawToLinear(MpAudioSample *Dest, const unsigned char *Source, int sam
  * ALaw2Linear() - Convert an A-law value to 16-bit linear PCM
  *
  */
-LOCAL int ALaw2Linear(unsigned char a_val)
+LOCAL MpAudioSample ALaw2Linear(uint8_t a_val)
 {
-        int             t;
-        int             seg;
+   int t;
+   int seg;
 
-        a_val ^= 0x55;
+   a_val ^= 0x55;
 
-        t = (a_val & QUANT_MASK) << 4;
-        seg = ((unsigned)a_val & SEG_MASK) >> SEG_SHIFT;
-        switch (seg) {
-        case 0:
-                t += 8;
-                break;
-        case 1:
-                t += 0x108;
-                break;
-        default:
-                t += 0x108;
-                t <<= seg - 1;
-        }
-        return ((a_val & SIGN_BIT) ? t : -t);
+   t = (a_val & QUANT_MASK) << 4;
+   seg = ((unsigned)a_val & SEG_MASK) >> SEG_SHIFT;
+   switch (seg)
+   {
+   case 0:
+      t += 8;
+      break;
+   case 1:
+      t += 0x108;
+      break;
+   default:
+      t += 0x108;
+      t <<= seg - 1;
+   }
+   return ((a_val & SIGN_BIT) ? t : -t);
 }
 
 LOCAL int ALawToLinear(MpAudioSample *Dest, const unsigned char *src, int samples)
 {
-        int i;
+   int i;
 
-        for (i=0; i<samples; i++) {
-            *Dest = ALaw2Linear(*src);
-            Dest++; src++;
-        }
-        return samples;
+   for (i=0; i<samples; i++)
+   {
+      *Dest = ALaw2Linear(*src);
+      Dest++; src++;
+   }
+   return samples;
 }
 
-LOCAL short seg_end[8] = {0xFF, 0x1FF, 0x3FF, 0x7FF,
-                            0xFFF, 0x1FFF, 0x3FFF, 0x7FFF};
+LOCAL int16_t seg_end[8] = {0x00FF, 0x01FF, 0x03FF, 0x07FF,
+                            0x0FFF, 0x1FFF, 0x3FFF, 0x7FFF};
 
-LOCAL int search(int val, short *table, int size)
+LOCAL int search(MpAudioSample val, int16_t *table, int size)
 {
-        int             i;
+   int             i;
 
-        for (i = 0; i < size; i++) {
-                if (val <= *table++)
-                        return (i);
-        }
-        return (size);
+   for (i = 0; i < size; i++)
+   {
+      if (val <= *table++)
+      {
+         return i;
+      }
+   }
+   return size;
 }
 
-JB_ret G711A_Decoder(JB_size noOfSamples,
-                     const JB_uchar* codBuff,
-                     MpAudioSample* outBuff)
+int G711A_Decoder(int numSamples,
+                  const uint8_t* codBuff,
+                  MpAudioSample* outBuff)
 {
-   ALawToLinear(outBuff, codBuff, noOfSamples);
+   ALawToLinear(outBuff, codBuff, numSamples);
    return 0;
 }
 
-JB_ret G711U_Decoder(JB_size noOfSamples,
-                     const JB_uchar* codBuff,
-                     MpAudioSample* outBuff)
+int G711U_Decoder(int numSamples,
+                  const uint8_t* codBuff,
+                  MpAudioSample* outBuff)
 {
-   ULawToLinear(outBuff, codBuff, noOfSamples);
+   ULawToLinear(outBuff, codBuff, numSamples);
    return 0;
 }
 
@@ -151,62 +158,67 @@ JB_ret G711U_Decoder(JB_size noOfSamples,
  * For further information see John C. Bellamy's Digital Telephony, 1982,
  * John Wiley & Sons, pps 98-111 and 472-476.
  */
-LOCAL unsigned char Linear2ALaw(
-        int             pcm_val)        /* 2's complement (16-bit range) */
+LOCAL uint8_t Linear2ALaw(MpAudioSample pcm_val ///< 2's complement (16-bit range)
+                          )
 {
-        int             mask;
-        int             seg;
-        unsigned char   aval;
+   int      mask;
+   int      seg;
+   uint8_t  aval;
 
-        if (pcm_val >= 0) {
-                mask = 0xD5;            /* sign (7th) bit = 1 */
-        } else {
-                mask = 0x55;            /* sign bit = 0 */
-                pcm_val = -pcm_val - 8;
-        }
+   if (pcm_val >= 0)
+   {
+      mask = 0xD5;            /* sign (7th) bit = 1 */
+   }
+   else
+   {
+      mask = 0x55;            /* sign bit = 0 */
+      pcm_val = -pcm_val - 8;
+   }
 
-        /* Convert the scaled magnitude to segment number. */
-        seg = search(pcm_val, seg_end, 8);
+   /* Convert the scaled magnitude to segment number. */
+   seg = search(pcm_val, seg_end, 8);
 
-        /* Combine the sign, segment, and quantization bits. */
+   /* Combine the sign, segment, and quantization bits. */
 
-        if (seg >= 8)           /* out of range, return maximum value. */
-                return (0x7F ^ mask);
-        else {
-                aval = seg << SEG_SHIFT;
-                if (seg < 2)
-                        aval |= (pcm_val >> 4) & QUANT_MASK;
-                else
-                        aval |= (pcm_val >> (seg + 3)) & QUANT_MASK;
-                return (aval ^ mask);
-        }
+   if (seg >= 8)           /* out of range, return maximum value. */
+   {
+      return (0x7F ^ mask);
+   }
+   else
+   {
+      aval = seg << SEG_SHIFT;
+      if (seg < 2)
+         aval |= (pcm_val >> 4) & QUANT_MASK;
+      else
+         aval |= (pcm_val >> (seg + 3)) & QUANT_MASK;
+      return (aval ^ mask);
+   }
 }
 
-LOCAL int LinearToALaw(unsigned char *Dest,const  MpAudioSample *src, int samples)
+LOCAL int LinearToALaw(uint8_t *Dest,const MpAudioSample *src, int samples)
 {
-        int i;
+   int i;
 
-        for (i=0; i<samples; i++) {
-            *Dest = Linear2ALaw(*src);
-            Dest++; src++;
-        }
-        return samples;
+   for (i=0; i<samples; i++)
+   {
+      *Dest = Linear2ALaw(*src);
+      Dest++; src++;
+   }
+   return samples;
 }
 
-JB_ret G711A_Encoder(JB_size noOfSamples,
-                     const MpAudioSample* inBuff,
-                     JB_uchar* codBuff,
-                     JB_size *size_in_bytes)
+int G711A_Encoder(int numSamples,
+                  const MpAudioSample* inBuff,
+                  uint8_t* outBuf)
 {
-   LinearToALaw(codBuff, inBuff, noOfSamples);
-   *size_in_bytes = noOfSamples;
+   LinearToALaw(outBuf, inBuff, numSamples);
    return 0;
 }
 
-LOCAL unsigned char hzm_Linear2ULaw(int L)
+LOCAL uint8_t hzm_Linear2ULaw(MpAudioSample L)
 {
    int seg;
-   unsigned char signmask;
+   uint8_t signmask;
 
    if (0 > L) {
       L = BIAS - L;
@@ -235,7 +247,7 @@ LOCAL unsigned char hzm_Linear2ULaw(int L)
    return ((seg | ((0x3C00 & L) >> 10)) ^ signmask);
 }
 
-LOCAL int LinearToULaw(unsigned char *Dest, const MpAudioSample *src, int samples)
+LOCAL int LinearToULaw(uint8_t *Dest, const MpAudioSample *src, int samples)
 {
    int i;
 
@@ -246,13 +258,11 @@ LOCAL int LinearToULaw(unsigned char *Dest, const MpAudioSample *src, int sample
    return samples;
 }
 
-JB_ret G711U_Encoder(JB_size noOfSamples,
-                     const MpAudioSample* inBuff,
-                     JB_uchar* codBuff,
-                     JB_size *size_in_bytes)
+int G711U_Encoder(int numSamples,
+                  const MpAudioSample* inBuff,
+                  uint8_t* outBuf)
 {
-   LinearToULaw(codBuff, inBuff, noOfSamples);
-   *size_in_bytes = noOfSamples;
+   LinearToULaw(outBuf, inBuff, numSamples);
    return 0;
 }
 #endif /* NOT(HAVE_GIPS) ] */
