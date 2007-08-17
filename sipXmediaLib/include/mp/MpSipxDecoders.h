@@ -29,56 +29,6 @@
 
 // FORWARD DECLARATIONS
 
-/// Class for managing dejitter/decode of incoming RTP.
-class MpSipxDecoder
-{
-/* //////////////////////////// PUBLIC //////////////////////////////////// */
-public:
-
-/* ============================ CREATORS ================================== */
-///@name Creators
-//@{
-
-     /// Constructor
-   MpSipxDecoder(void);
-
-     /// Destructor
-   virtual
-   ~MpSipxDecoder(void);
-
-//@}
-
-/* ============================ MANIPULATORS ============================== */
-///@name Manipulators
-//@{
-
-//@}
-
-/* ============================ ACCESSORS ================================= */
-///@name Accessors
-//@{
-
-//@}
-
-/* ============================ INQUIRY =================================== */
-///@name Inquiry
-//@{
-
-//@}
-
-/* //////////////////////////// PROTECTED ///////////////////////////////// */
-
-/* //////////////////////////// PRIVATE /////////////////////////////////// */
-private:
-
-     /// Copy constructor
-   MpSipxDecoder(const MpSipxDecoder& rMpSipxDecoder);
-
-     /// Assignment operator
-   MpSipxDecoder& operator=(const MpSipxDecoder& rhs);
-
-};
-
 #ifdef __cplusplus
 extern "C" {
 #endif
