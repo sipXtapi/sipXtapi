@@ -360,6 +360,13 @@ static const UtlContainableType TYPE;
      *        It SHOULD NOT be used in process frame.
      */
 
+     /// Returns TRUE if notification sending is enabled on this resource.
+   UtlBoolean areNotificationsEnabled() const;
+     /**<
+     *  @see setAllNotificationsEnabled()
+     *  @see MpFlowGraphBase::setNotificationsEnabled()
+     */
+
 //@}
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */

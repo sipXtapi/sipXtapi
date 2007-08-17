@@ -422,6 +422,12 @@ UtlBoolean MpResource::isOutputUnconnected(int portIdx)
    return(isUnconnected);
 }
 
+UtlBoolean MpResource::areNotificationsEnabled() const
+{
+   // No need for lock, as this is atomic.
+   return mNotificationsEnabled;
+}
+
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
 // Handles an incoming flowgraph message for this media processing object.
