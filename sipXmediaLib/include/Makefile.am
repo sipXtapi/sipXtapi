@@ -3,7 +3,7 @@
 # projects
 nobase_includeHEADERS_INSTALL = $(INSTALL) -D -p -c -m 644
 
-# Should the subdirectory names (mp/GIPS mp/iG729 mp/JB) be in this
+# Should the subdirectory names (mp/iG729 mp/JB) be in this
 # list, or is that just an unintended side effect of how this list
 # was generated automatically? (HZM, 20040616)
 
@@ -13,10 +13,6 @@ nobase_include_HEADERS =  \
     mp/DspResampling.h \
     mp/dtmflib.h \
     mp/FilterBank.h \
-    mp/GIPS \
-    mp/GIPS/G729Interface.h \
-    mp/GIPS/GIPS_API.h \
-    mp/GIPS/gips_typedefs.h \
     mp/HandsetFilterBank.h \
     mp/HandsetFilterbankWindows.h \
     mp/JB \
@@ -47,25 +43,11 @@ nobase_include_HEADERS =  \
     mp/MpDspUtilsSerials.h \
     mp/MpDspUtilsShift.h \
     mp/MpDspUtilsSum.h \
-    mp/MpdGIPSG729ab.h \
-    mp/MpdGIPSiLBC.h \
-    mp/MpdGIPSiPCMA.h \
-    mp/MpdGIPSiPCMU.h \
-    mp/MpdGIPSiPCMWB.h \
-    mp/MpdGIPSPCMA.h \
-    mp/MpdGIPSPCMU.h \
     mp/MpdPtAVT.h \
     mp/MpdSipxGSM.h \
     mp/MpdSipxPcma.h \
     mp/MpdSipxPcmu.h \
     mp/MpdSipxSpeex.h \
-    mp/MpeGIPSG729ab.h \
-    mp/MpeGIPSiLBC.h \
-    mp/MpeGIPSiPCMA.h \
-    mp/MpeGIPSiPCMU.h \
-    mp/MpeGIPSiPCMWB.h \
-    mp/MpeGIPSPCMA.h \
-    mp/MpeGIPSPCMU.h \
     mp/MpeSipxGSM.h \
     mp/MpeSipxPcma.h \
     mp/MpeSipxPcmu.h \

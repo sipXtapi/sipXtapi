@@ -5745,8 +5745,6 @@ DEP_CPP_MPAUDIO=\
 	"..\sipXportLib\include\utl\UtlString.h"\
 	"..\sipXsdpLib\include\sdp\SdpCodec.h"\
 	"..\sipXtackLib\include\net\Url.h"\
-	".\include\mp\GIPS\GIPS_API.h"\
-	".\include\mp\GIPS\gips_typedefs.h"\
 	".\include\mp\JB\JB_API.h"\
 	".\include\mp\JB\jb_typedefs.h"\
 	".\include\mp\MpArrayBuf.h"\
@@ -5830,8 +5828,6 @@ NODEP_CPP_MPAUDIO=\
 	"..\sipXportLib\include\os\os\Vxw\OsMutexVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsTaskVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsVxwDefs.h"\
-	".\include\mp\GIPS\GIPS\Vendor_GIPS_API.h"\
-	".\include\mp\GIPS\GIPS\Vendor_gips_typedefs.h"\
 	".\include\mp\vxWorks.h"\
 	
 
@@ -5911,8 +5907,6 @@ DEP_CPP_MPAUDIO=\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
 	"..\sipXsdpLib\include\sdp\SdpCodec.h"\
-	".\include\mp\GIPS\GIPS_API.h"\
-	".\include\mp\GIPS\gips_typedefs.h"\
 	".\include\mp\JB\JB_API.h"\
 	".\include\mp\JB\jb_typedefs.h"\
 	".\include\mp\MpArrayBuf.h"\
@@ -6039,8 +6033,6 @@ NODEP_CPP_MPAUDIO=\
 	"..\sipXportLib\include\os\os\Vxw\OsMutexVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsTaskVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsVxwDefs.h"\
-	".\include\mp\GIPS\GIPS\Vendor_GIPS_API.h"\
-	".\include\mp\GIPS\GIPS\Vendor_gips_typedefs.h"\
 	".\include\mp\vxWorks.h"\
 	
 
@@ -9369,7 +9361,6 @@ DEP_CPP_MPCAL=\
 	"..\sipXportLib\include\utl\UtlVoidPtr.h"\
 	"..\sipXtackLib\include\net\Url.h"\
 	".\include\mp\dtmflib.h"\
-	".\include\mp\GIPS\gips_typedefs.h"\
 	".\include\mp\JB\jb_typedefs.h"\
 	".\include\mp\MpAudioUtils.h"\
 	".\include\mp\MpBuf.h"\
@@ -9468,7 +9459,6 @@ NODEP_CPP_MPCAL=\
 	"..\sipXportLib\include\os\os\Vxw\OsVxwDefs.h"\
 	"..\sipXtackLib\include\net\SdpCodec.h"\
 	".\cre.h"\
-	".\include\mp\GIPS\GIPS\Vendor_gips_typedefs.h"\
 	".\include\mp\vxWorks.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
@@ -9639,7 +9629,6 @@ DEP_CPP_MPCAL=\
 	"..\sipXsdpLib\include\sdp\SdpCodec.h"\
 	"..\sipXtackLib\include\net\Url.h"\
 	".\include\mp\dtmflib.h"\
-	".\include\mp\GIPS\gips_typedefs.h"\
 	".\include\mp\JB\jb_typedefs.h"\
 	".\include\mp\MpArrayBuf.h"\
 	".\include\mp\MpAudioBuf.h"\
@@ -9789,7 +9778,6 @@ NODEP_CPP_MPCAL=\
 	"..\sipXportLib\include\os\os\Vxw\OsPathVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsTaskVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsVxwDefs.h"\
-	".\include\mp\GIPS\GIPS\Vendor_gips_typedefs.h"\
 	".\include\mp\vxWorks.h"\
 	
 
@@ -10564,25 +10552,11 @@ SOURCE=.\src\mp\MpCodecFactory.cpp
 
 NODEP_CPP_MPCODE=\
 	".\src\mp\mp\MpCodecFactory.h"\
-	".\src\mp\mp\MpdGIPSG729ab.h"\
-	".\src\mp\mp\MpdGIPSiLBC.h"\
-	".\src\mp\mp\MpdGIPSiPCMA.h"\
-	".\src\mp\mp\MpdGIPSiPCMU.h"\
-	".\src\mp\mp\MpdGIPSiPCMWB.h"\
-	".\src\mp\mp\MpdGIPSPCMA.h"\
-	".\src\mp\mp\MpdGIPSPCMU.h"\
 	".\src\mp\mp\MpdPtAVT.h"\
 	".\src\mp\mp\MpdSipxGSM.h"\
 	".\src\mp\mp\MpdSipxPcma.h"\
 	".\src\mp\mp\MpdSipxPcmu.h"\
 	".\src\mp\mp\MpdSipxSpeex.h"\
-	".\src\mp\mp\MpeGIPSG729ab.h"\
-	".\src\mp\mp\MpeGIPSiLBC.h"\
-	".\src\mp\mp\MpeGIPSiPCMA.h"\
-	".\src\mp\mp\MpeGIPSiPCMU.h"\
-	".\src\mp\mp\MpeGIPSiPCMWB.h"\
-	".\src\mp\mp\MpeGIPSPCMA.h"\
-	".\src\mp\mp\MpeGIPSPCMU.h"\
 	".\src\mp\mp\MpePtAVT.h"\
 	".\src\mp\mp\MpeSipxGSM.h"\
 	".\src\mp\mp\MpeSipxPcma.h"\
@@ -10595,25 +10569,11 @@ NODEP_CPP_MPCODE=\
 
 NODEP_CPP_MPCODE=\
 	".\src\mp\mp\MpCodecFactory.h"\
-	".\src\mp\mp\MpdGIPSG729ab.h"\
-	".\src\mp\mp\MpdGIPSiLBC.h"\
-	".\src\mp\mp\MpdGIPSiPCMA.h"\
-	".\src\mp\mp\MpdGIPSiPCMU.h"\
-	".\src\mp\mp\MpdGIPSiPCMWB.h"\
-	".\src\mp\mp\MpdGIPSPCMA.h"\
-	".\src\mp\mp\MpdGIPSPCMU.h"\
 	".\src\mp\mp\MpdPtAVT.h"\
 	".\src\mp\mp\MpdSipxGSM.h"\
 	".\src\mp\mp\MpdSipxPcma.h"\
 	".\src\mp\mp\MpdSipxPcmu.h"\
 	".\src\mp\mp\MpdSipxSpeex.h"\
-	".\src\mp\mp\MpeGIPSG729ab.h"\
-	".\src\mp\mp\MpeGIPSiLBC.h"\
-	".\src\mp\mp\MpeGIPSiPCMA.h"\
-	".\src\mp\mp\MpeGIPSiPCMU.h"\
-	".\src\mp\mp\MpeGIPSiPCMWB.h"\
-	".\src\mp\mp\MpeGIPSPCMA.h"\
-	".\src\mp\mp\MpeGIPSPCMU.h"\
 	".\src\mp\mp\MpePtAVT.h"\
 	".\src\mp\mp\MpeSipxGSM.h"\
 	".\src\mp\mp\MpeSipxPcma.h"\
@@ -10626,25 +10586,11 @@ NODEP_CPP_MPCODE=\
 
 NODEP_CPP_MPCODE=\
 	".\src\mp\mp\MpCodecFactory.h"\
-	".\src\mp\mp\MpdGIPSG729ab.h"\
-	".\src\mp\mp\MpdGIPSiLBC.h"\
-	".\src\mp\mp\MpdGIPSiPCMA.h"\
-	".\src\mp\mp\MpdGIPSiPCMU.h"\
-	".\src\mp\mp\MpdGIPSiPCMWB.h"\
-	".\src\mp\mp\MpdGIPSPCMA.h"\
-	".\src\mp\mp\MpdGIPSPCMU.h"\
 	".\src\mp\mp\MpdPtAVT.h"\
 	".\src\mp\mp\MpdSipxGSM.h"\
 	".\src\mp\mp\MpdSipxPcma.h"\
 	".\src\mp\mp\MpdSipxPcmu.h"\
 	".\src\mp\mp\MpdSipxSpeex.h"\
-	".\src\mp\mp\MpeGIPSG729ab.h"\
-	".\src\mp\mp\MpeGIPSiLBC.h"\
-	".\src\mp\mp\MpeGIPSiPCMA.h"\
-	".\src\mp\mp\MpeGIPSiPCMU.h"\
-	".\src\mp\mp\MpeGIPSiPCMWB.h"\
-	".\src\mp\mp\MpeGIPSPCMA.h"\
-	".\src\mp\mp\MpeGIPSPCMU.h"\
 	".\src\mp\mp\MpePtAVT.h"\
 	".\src\mp\mp\MpeSipxGSM.h"\
 	".\src\mp\mp\MpeSipxPcma.h"\
@@ -10657,25 +10603,11 @@ NODEP_CPP_MPCODE=\
 
 NODEP_CPP_MPCODE=\
 	".\src\mp\mp\MpCodecFactory.h"\
-	".\src\mp\mp\MpdGIPSG729ab.h"\
-	".\src\mp\mp\MpdGIPSiLBC.h"\
-	".\src\mp\mp\MpdGIPSiPCMA.h"\
-	".\src\mp\mp\MpdGIPSiPCMU.h"\
-	".\src\mp\mp\MpdGIPSiPCMWB.h"\
-	".\src\mp\mp\MpdGIPSPCMA.h"\
-	".\src\mp\mp\MpdGIPSPCMU.h"\
 	".\src\mp\mp\MpdPtAVT.h"\
 	".\src\mp\mp\MpdSipxGSM.h"\
 	".\src\mp\mp\MpdSipxPcma.h"\
 	".\src\mp\mp\MpdSipxPcmu.h"\
 	".\src\mp\mp\MpdSipxSpeex.h"\
-	".\src\mp\mp\MpeGIPSG729ab.h"\
-	".\src\mp\mp\MpeGIPSiLBC.h"\
-	".\src\mp\mp\MpeGIPSiPCMA.h"\
-	".\src\mp\mp\MpeGIPSiPCMU.h"\
-	".\src\mp\mp\MpeGIPSiPCMWB.h"\
-	".\src\mp\mp\MpeGIPSPCMA.h"\
-	".\src\mp\mp\MpeGIPSPCMU.h"\
 	".\src\mp\mp\MpePtAVT.h"\
 	".\src\mp\mp\MpeSipxGSM.h"\
 	".\src\mp\mp\MpeSipxPcma.h"\
@@ -10688,25 +10620,11 @@ NODEP_CPP_MPCODE=\
 
 NODEP_CPP_MPCODE=\
 	".\src\mp\mp\MpCodecFactory.h"\
-	".\src\mp\mp\MpdGIPSG729ab.h"\
-	".\src\mp\mp\MpdGIPSiLBC.h"\
-	".\src\mp\mp\MpdGIPSiPCMA.h"\
-	".\src\mp\mp\MpdGIPSiPCMU.h"\
-	".\src\mp\mp\MpdGIPSiPCMWB.h"\
-	".\src\mp\mp\MpdGIPSPCMA.h"\
-	".\src\mp\mp\MpdGIPSPCMU.h"\
 	".\src\mp\mp\MpdPtAVT.h"\
 	".\src\mp\mp\MpdSipxGSM.h"\
 	".\src\mp\mp\MpdSipxPcma.h"\
 	".\src\mp\mp\MpdSipxPcmu.h"\
 	".\src\mp\mp\MpdSipxSpeex.h"\
-	".\src\mp\mp\MpeGIPSG729ab.h"\
-	".\src\mp\mp\MpeGIPSiLBC.h"\
-	".\src\mp\mp\MpeGIPSiPCMA.h"\
-	".\src\mp\mp\MpeGIPSiPCMU.h"\
-	".\src\mp\mp\MpeGIPSiPCMWB.h"\
-	".\src\mp\mp\MpeGIPSPCMA.h"\
-	".\src\mp\mp\MpeGIPSPCMU.h"\
 	".\src\mp\mp\MpePtAVT.h"\
 	".\src\mp\mp\MpeSipxGSM.h"\
 	".\src\mp\mp\MpeSipxPcma.h"\
@@ -10719,25 +10637,11 @@ NODEP_CPP_MPCODE=\
 
 NODEP_CPP_MPCODE=\
 	".\src\mp\mp\MpCodecFactory.h"\
-	".\src\mp\mp\MpdGIPSG729ab.h"\
-	".\src\mp\mp\MpdGIPSiLBC.h"\
-	".\src\mp\mp\MpdGIPSiPCMA.h"\
-	".\src\mp\mp\MpdGIPSiPCMU.h"\
-	".\src\mp\mp\MpdGIPSiPCMWB.h"\
-	".\src\mp\mp\MpdGIPSPCMA.h"\
-	".\src\mp\mp\MpdGIPSPCMU.h"\
 	".\src\mp\mp\MpdPtAVT.h"\
 	".\src\mp\mp\MpdSipxGSM.h"\
 	".\src\mp\mp\MpdSipxPcma.h"\
 	".\src\mp\mp\MpdSipxPcmu.h"\
 	".\src\mp\mp\MpdSipxSpeex.h"\
-	".\src\mp\mp\MpeGIPSG729ab.h"\
-	".\src\mp\mp\MpeGIPSiLBC.h"\
-	".\src\mp\mp\MpeGIPSiPCMA.h"\
-	".\src\mp\mp\MpeGIPSiPCMU.h"\
-	".\src\mp\mp\MpeGIPSiPCMWB.h"\
-	".\src\mp\mp\MpeGIPSPCMA.h"\
-	".\src\mp\mp\MpeGIPSPCMU.h"\
 	".\src\mp\mp\MpePtAVT.h"\
 	".\src\mp\mp\MpeSipxGSM.h"\
 	".\src\mp\mp\MpeSipxPcma.h"\
@@ -10750,25 +10654,11 @@ NODEP_CPP_MPCODE=\
 
 NODEP_CPP_MPCODE=\
 	".\src\mp\mp\MpCodecFactory.h"\
-	".\src\mp\mp\MpdGIPSG729ab.h"\
-	".\src\mp\mp\MpdGIPSiLBC.h"\
-	".\src\mp\mp\MpdGIPSiPCMA.h"\
-	".\src\mp\mp\MpdGIPSiPCMU.h"\
-	".\src\mp\mp\MpdGIPSiPCMWB.h"\
-	".\src\mp\mp\MpdGIPSPCMA.h"\
-	".\src\mp\mp\MpdGIPSPCMU.h"\
 	".\src\mp\mp\MpdPtAVT.h"\
 	".\src\mp\mp\MpdSipxGSM.h"\
 	".\src\mp\mp\MpdSipxPcma.h"\
 	".\src\mp\mp\MpdSipxPcmu.h"\
 	".\src\mp\mp\MpdSipxSpeex.h"\
-	".\src\mp\mp\MpeGIPSG729ab.h"\
-	".\src\mp\mp\MpeGIPSiLBC.h"\
-	".\src\mp\mp\MpeGIPSiPCMA.h"\
-	".\src\mp\mp\MpeGIPSiPCMU.h"\
-	".\src\mp\mp\MpeGIPSiPCMWB.h"\
-	".\src\mp\mp\MpeGIPSPCMA.h"\
-	".\src\mp\mp\MpeGIPSPCMU.h"\
 	".\src\mp\mp\MpePtAVT.h"\
 	".\src\mp\mp\MpeSipxGSM.h"\
 	".\src\mp\mp\MpeSipxPcma.h"\
@@ -10781,25 +10671,11 @@ NODEP_CPP_MPCODE=\
 
 NODEP_CPP_MPCODE=\
 	".\src\mp\mp\MpCodecFactory.h"\
-	".\src\mp\mp\MpdGIPSG729ab.h"\
-	".\src\mp\mp\MpdGIPSiLBC.h"\
-	".\src\mp\mp\MpdGIPSiPCMA.h"\
-	".\src\mp\mp\MpdGIPSiPCMU.h"\
-	".\src\mp\mp\MpdGIPSiPCMWB.h"\
-	".\src\mp\mp\MpdGIPSPCMA.h"\
-	".\src\mp\mp\MpdGIPSPCMU.h"\
 	".\src\mp\mp\MpdPtAVT.h"\
 	".\src\mp\mp\MpdSipxGSM.h"\
 	".\src\mp\mp\MpdSipxPcma.h"\
 	".\src\mp\mp\MpdSipxPcmu.h"\
 	".\src\mp\mp\MpdSipxSpeex.h"\
-	".\src\mp\mp\MpeGIPSG729ab.h"\
-	".\src\mp\mp\MpeGIPSiLBC.h"\
-	".\src\mp\mp\MpeGIPSiPCMA.h"\
-	".\src\mp\mp\MpeGIPSiPCMU.h"\
-	".\src\mp\mp\MpeGIPSiPCMWB.h"\
-	".\src\mp\mp\MpeGIPSPCMA.h"\
-	".\src\mp\mp\MpeGIPSPCMU.h"\
 	".\src\mp\mp\MpePtAVT.h"\
 	".\src\mp\mp\MpeSipxGSM.h"\
 	".\src\mp\mp\MpeSipxPcma.h"\
@@ -10812,25 +10688,11 @@ NODEP_CPP_MPCODE=\
 
 NODEP_CPP_MPCODE=\
 	".\src\mp\mp\MpCodecFactory.h"\
-	".\src\mp\mp\MpdGIPSG729ab.h"\
-	".\src\mp\mp\MpdGIPSiLBC.h"\
-	".\src\mp\mp\MpdGIPSiPCMA.h"\
-	".\src\mp\mp\MpdGIPSiPCMU.h"\
-	".\src\mp\mp\MpdGIPSiPCMWB.h"\
-	".\src\mp\mp\MpdGIPSPCMA.h"\
-	".\src\mp\mp\MpdGIPSPCMU.h"\
 	".\src\mp\mp\MpdPtAVT.h"\
 	".\src\mp\mp\MpdSipxGSM.h"\
 	".\src\mp\mp\MpdSipxPcma.h"\
 	".\src\mp\mp\MpdSipxPcmu.h"\
 	".\src\mp\mp\MpdSipxSpeex.h"\
-	".\src\mp\mp\MpeGIPSG729ab.h"\
-	".\src\mp\mp\MpeGIPSiLBC.h"\
-	".\src\mp\mp\MpeGIPSiPCMA.h"\
-	".\src\mp\mp\MpeGIPSiPCMU.h"\
-	".\src\mp\mp\MpeGIPSiPCMWB.h"\
-	".\src\mp\mp\MpeGIPSPCMA.h"\
-	".\src\mp\mp\MpeGIPSPCMU.h"\
 	".\src\mp\mp\MpePtAVT.h"\
 	".\src\mp\mp\MpeSipxGSM.h"\
 	".\src\mp\mp\MpeSipxPcma.h"\
@@ -10843,25 +10705,11 @@ NODEP_CPP_MPCODE=\
 
 NODEP_CPP_MPCODE=\
 	".\src\mp\mp\MpCodecFactory.h"\
-	".\src\mp\mp\MpdGIPSG729ab.h"\
-	".\src\mp\mp\MpdGIPSiLBC.h"\
-	".\src\mp\mp\MpdGIPSiPCMA.h"\
-	".\src\mp\mp\MpdGIPSiPCMU.h"\
-	".\src\mp\mp\MpdGIPSiPCMWB.h"\
-	".\src\mp\mp\MpdGIPSPCMA.h"\
-	".\src\mp\mp\MpdGIPSPCMU.h"\
 	".\src\mp\mp\MpdPtAVT.h"\
 	".\src\mp\mp\MpdSipxGSM.h"\
 	".\src\mp\mp\MpdSipxPcma.h"\
 	".\src\mp\mp\MpdSipxPcmu.h"\
 	".\src\mp\mp\MpdSipxSpeex.h"\
-	".\src\mp\mp\MpeGIPSG729ab.h"\
-	".\src\mp\mp\MpeGIPSiLBC.h"\
-	".\src\mp\mp\MpeGIPSiPCMA.h"\
-	".\src\mp\mp\MpeGIPSiPCMU.h"\
-	".\src\mp\mp\MpeGIPSiPCMWB.h"\
-	".\src\mp\mp\MpeGIPSPCMA.h"\
-	".\src\mp\mp\MpeGIPSPCMU.h"\
 	".\src\mp\mp\MpePtAVT.h"\
 	".\src\mp\mp\MpeSipxGSM.h"\
 	".\src\mp\mp\MpeSipxPcma.h"\
@@ -10874,25 +10722,11 @@ NODEP_CPP_MPCODE=\
 
 NODEP_CPP_MPCODE=\
 	".\src\mp\mp\MpCodecFactory.h"\
-	".\src\mp\mp\MpdGIPSG729ab.h"\
-	".\src\mp\mp\MpdGIPSiLBC.h"\
-	".\src\mp\mp\MpdGIPSiPCMA.h"\
-	".\src\mp\mp\MpdGIPSiPCMU.h"\
-	".\src\mp\mp\MpdGIPSiPCMWB.h"\
-	".\src\mp\mp\MpdGIPSPCMA.h"\
-	".\src\mp\mp\MpdGIPSPCMU.h"\
 	".\src\mp\mp\MpdPtAVT.h"\
 	".\src\mp\mp\MpdSipxGSM.h"\
 	".\src\mp\mp\MpdSipxPcma.h"\
 	".\src\mp\mp\MpdSipxPcmu.h"\
 	".\src\mp\mp\MpdSipxSpeex.h"\
-	".\src\mp\mp\MpeGIPSG729ab.h"\
-	".\src\mp\mp\MpeGIPSiLBC.h"\
-	".\src\mp\mp\MpeGIPSiPCMA.h"\
-	".\src\mp\mp\MpeGIPSiPCMU.h"\
-	".\src\mp\mp\MpeGIPSiPCMWB.h"\
-	".\src\mp\mp\MpeGIPSPCMA.h"\
-	".\src\mp\mp\MpeGIPSPCMU.h"\
 	".\src\mp\mp\MpePtAVT.h"\
 	".\src\mp\mp\MpeSipxGSM.h"\
 	".\src\mp\mp\MpeSipxPcma.h"\
@@ -10943,31 +10777,15 @@ DEP_CPP_MPCODE=\
 	"..\sipXportLib\include\utl\UtlList.h"\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
-	".\include\mp\GIPS\GIPS_API.h"\
-	".\include\mp\GIPS\gips_typedefs.h"\
 	".\include\mp\JB\JB_API.h"\
 	".\include\mp\JB\jb_typedefs.h"\
 	".\include\mp\MpBuf.h"\
 	".\include\mp\MpCodecFactory.h"\
 	".\include\mp\MpCodecInfo.h"\
 	".\include\mp\MpDecoderBase.h"\
-	".\include\mp\MpdGIPSG729ab.h"\
-	".\include\mp\MpdGIPSiLBC.h"\
-	".\include\mp\MpdGIPSiPCMA.h"\
-	".\include\mp\MpdGIPSiPCMU.h"\
-	".\include\mp\MpdGIPSiPCMWB.h"\
-	".\include\mp\MpdGIPSPCMA.h"\
-	".\include\mp\MpdGIPSPCMU.h"\
 	".\include\mp\MpdPtAVT.h"\
 	".\include\mp\MpdSipxPcma.h"\
 	".\include\mp\MpdSipxPcmu.h"\
-	".\include\mp\MpeGIPSG729ab.h"\
-	".\include\mp\MpeGIPSiLBC.h"\
-	".\include\mp\MpeGIPSiPCMA.h"\
-	".\include\mp\MpeGIPSiPCMU.h"\
-	".\include\mp\MpeGIPSiPCMWB.h"\
-	".\include\mp\MpeGIPSPCMA.h"\
-	".\include\mp\MpeGIPSPCMU.h"\
 	".\include\mp\MpEncoderBase.h"\
 	".\include\mp\MpePtAVT.h"\
 	".\include\mp\MpeSipxPcma.h"\
@@ -10984,8 +10802,6 @@ NODEP_CPP_MPCODE=\
 	"..\sipXportLib\include\os\os\Vxw\OsMutexVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsVxwDefs.h"\
 	"..\sipXtackLib\include\net\SdpCodec.h"\
-	".\include\mp\GIPS\GIPS\Vendor_GIPS_API.h"\
-	".\include\mp\GIPS\GIPS\Vendor_gips_typedefs.h"\
 	".\include\mp\mp\iG729\_ippdefs.h"\
 	".\include\mp\mp\iG729\_p729.h"\
 	".\include\mp\mp\iG729\ippdefs.h"\
@@ -11038,25 +10854,11 @@ NODEP_CPP_MPCODE=\
 
 NODEP_CPP_MPCODE=\
 	".\src\mp\mp\MpCodecFactory.h"\
-	".\src\mp\mp\MpdGIPSG729ab.h"\
-	".\src\mp\mp\MpdGIPSiLBC.h"\
-	".\src\mp\mp\MpdGIPSiPCMA.h"\
-	".\src\mp\mp\MpdGIPSiPCMU.h"\
-	".\src\mp\mp\MpdGIPSiPCMWB.h"\
-	".\src\mp\mp\MpdGIPSPCMA.h"\
-	".\src\mp\mp\MpdGIPSPCMU.h"\
 	".\src\mp\mp\MpdPtAVT.h"\
 	".\src\mp\mp\MpdSipxGSM.h"\
 	".\src\mp\mp\MpdSipxPcma.h"\
 	".\src\mp\mp\MpdSipxPcmu.h"\
 	".\src\mp\mp\MpdSipxSpeex.h"\
-	".\src\mp\mp\MpeGIPSG729ab.h"\
-	".\src\mp\mp\MpeGIPSiLBC.h"\
-	".\src\mp\mp\MpeGIPSiPCMA.h"\
-	".\src\mp\mp\MpeGIPSiPCMU.h"\
-	".\src\mp\mp\MpeGIPSiPCMWB.h"\
-	".\src\mp\mp\MpeGIPSPCMA.h"\
-	".\src\mp\mp\MpeGIPSPCMU.h"\
 	".\src\mp\mp\MpePtAVT.h"\
 	".\src\mp\mp\MpeSipxGSM.h"\
 	".\src\mp\mp\MpeSipxPcma.h"\
@@ -11102,8 +10904,6 @@ DEP_CPP_MPCODE=\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
 	"..\sipXsdpLib\include\sdp\SdpCodec.h"\
-	".\include\mp\GIPS\GIPS_API.h"\
-	".\include\mp\GIPS\gips_typedefs.h"\
 	".\include\mp\JB\JB_API.h"\
 	".\include\mp\JB\jb_typedefs.h"\
 	".\include\mp\MpArrayBuf.h"\
@@ -11114,25 +10914,11 @@ DEP_CPP_MPCODE=\
 	".\include\mp\MpCodecInfo.h"\
 	".\include\mp\MpDataBuf.h"\
 	".\include\mp\MpDecoderBase.h"\
-	".\include\mp\MpdGIPSG729ab.h"\
-	".\include\mp\MpdGIPSiLBC.h"\
-	".\include\mp\MpdGIPSiPCMA.h"\
-	".\include\mp\MpdGIPSiPCMU.h"\
-	".\include\mp\MpdGIPSiPCMWB.h"\
-	".\include\mp\MpdGIPSPCMA.h"\
-	".\include\mp\MpdGIPSPCMU.h"\
 	".\include\mp\MpdPtAVT.h"\
 	".\include\mp\MpdSipxGSM.h"\
 	".\include\mp\MpdSipxPcma.h"\
 	".\include\mp\MpdSipxPcmu.h"\
 	".\include\mp\MpdSipxSpeex.h"\
-	".\include\mp\MpeGIPSG729ab.h"\
-	".\include\mp\MpeGIPSiLBC.h"\
-	".\include\mp\MpeGIPSiPCMA.h"\
-	".\include\mp\MpeGIPSiPCMU.h"\
-	".\include\mp\MpeGIPSiPCMWB.h"\
-	".\include\mp\MpeGIPSPCMA.h"\
-	".\include\mp\MpeGIPSPCMU.h"\
 	".\include\mp\MpEncoderBase.h"\
 	".\include\mp\MpePtAVT.h"\
 	".\include\mp\MpeSipxGSM.h"\
@@ -11190,8 +10976,6 @@ NODEP_CPP_MPCODE=\
 	"..\sipXportLib\include\os\os\Vxw\OsDateTimeVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsMutexVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsVxwDefs.h"\
-	".\include\mp\GIPS\GIPS\Vendor_GIPS_API.h"\
-	".\include\mp\GIPS\GIPS\Vendor_gips_typedefs.h"\
 	".\include\mp\mp\iG729\_ippdefs.h"\
 	".\include\mp\mp\iG729\_p729.h"\
 	".\include\mp\mp\iG729\ippdefs.h"\
@@ -11202,25 +10986,11 @@ NODEP_CPP_MPCODE=\
 
 NODEP_CPP_MPCODE=\
 	".\src\mp\mp\MpCodecFactory.h"\
-	".\src\mp\mp\MpdGIPSG729ab.h"\
-	".\src\mp\mp\MpdGIPSiLBC.h"\
-	".\src\mp\mp\MpdGIPSiPCMA.h"\
-	".\src\mp\mp\MpdGIPSiPCMU.h"\
-	".\src\mp\mp\MpdGIPSiPCMWB.h"\
-	".\src\mp\mp\MpdGIPSPCMA.h"\
-	".\src\mp\mp\MpdGIPSPCMU.h"\
 	".\src\mp\mp\MpdPtAVT.h"\
 	".\src\mp\mp\MpdSipxGSM.h"\
 	".\src\mp\mp\MpdSipxPcma.h"\
 	".\src\mp\mp\MpdSipxPcmu.h"\
 	".\src\mp\mp\MpdSipxSpeex.h"\
-	".\src\mp\mp\MpeGIPSG729ab.h"\
-	".\src\mp\mp\MpeGIPSiLBC.h"\
-	".\src\mp\mp\MpeGIPSiPCMA.h"\
-	".\src\mp\mp\MpeGIPSiPCMU.h"\
-	".\src\mp\mp\MpeGIPSiPCMWB.h"\
-	".\src\mp\mp\MpeGIPSPCMA.h"\
-	".\src\mp\mp\MpeGIPSPCMU.h"\
 	".\src\mp\mp\MpePtAVT.h"\
 	".\src\mp\mp\MpeSipxGSM.h"\
 	".\src\mp\mp\MpeSipxPcma.h"\
@@ -11233,25 +11003,11 @@ NODEP_CPP_MPCODE=\
 
 NODEP_CPP_MPCODE=\
 	".\src\mp\mp\MpCodecFactory.h"\
-	".\src\mp\mp\MpdGIPSG729ab.h"\
-	".\src\mp\mp\MpdGIPSiLBC.h"\
-	".\src\mp\mp\MpdGIPSiPCMA.h"\
-	".\src\mp\mp\MpdGIPSiPCMU.h"\
-	".\src\mp\mp\MpdGIPSiPCMWB.h"\
-	".\src\mp\mp\MpdGIPSPCMA.h"\
-	".\src\mp\mp\MpdGIPSPCMU.h"\
 	".\src\mp\mp\MpdPtAVT.h"\
 	".\src\mp\mp\MpdSipxGSM.h"\
 	".\src\mp\mp\MpdSipxPcma.h"\
 	".\src\mp\mp\MpdSipxPcmu.h"\
 	".\src\mp\mp\MpdSipxSpeex.h"\
-	".\src\mp\mp\MpeGIPSG729ab.h"\
-	".\src\mp\mp\MpeGIPSiLBC.h"\
-	".\src\mp\mp\MpeGIPSiPCMA.h"\
-	".\src\mp\mp\MpeGIPSiPCMU.h"\
-	".\src\mp\mp\MpeGIPSiPCMWB.h"\
-	".\src\mp\mp\MpeGIPSPCMA.h"\
-	".\src\mp\mp\MpeGIPSPCMU.h"\
 	".\src\mp\mp\MpePtAVT.h"\
 	".\src\mp\mp\MpeSipxGSM.h"\
 	".\src\mp\mp\MpeSipxPcma.h"\
@@ -11264,25 +11020,11 @@ NODEP_CPP_MPCODE=\
 
 NODEP_CPP_MPCODE=\
 	".\src\mp\mp\MpCodecFactory.h"\
-	".\src\mp\mp\MpdGIPSG729ab.h"\
-	".\src\mp\mp\MpdGIPSiLBC.h"\
-	".\src\mp\mp\MpdGIPSiPCMA.h"\
-	".\src\mp\mp\MpdGIPSiPCMU.h"\
-	".\src\mp\mp\MpdGIPSiPCMWB.h"\
-	".\src\mp\mp\MpdGIPSPCMA.h"\
-	".\src\mp\mp\MpdGIPSPCMU.h"\
 	".\src\mp\mp\MpdPtAVT.h"\
 	".\src\mp\mp\MpdSipxGSM.h"\
 	".\src\mp\mp\MpdSipxPcma.h"\
 	".\src\mp\mp\MpdSipxPcmu.h"\
 	".\src\mp\mp\MpdSipxSpeex.h"\
-	".\src\mp\mp\MpeGIPSG729ab.h"\
-	".\src\mp\mp\MpeGIPSiLBC.h"\
-	".\src\mp\mp\MpeGIPSiPCMA.h"\
-	".\src\mp\mp\MpeGIPSiPCMU.h"\
-	".\src\mp\mp\MpeGIPSiPCMWB.h"\
-	".\src\mp\mp\MpeGIPSPCMA.h"\
-	".\src\mp\mp\MpeGIPSPCMU.h"\
 	".\src\mp\mp\MpePtAVT.h"\
 	".\src\mp\mp\MpeSipxGSM.h"\
 	".\src\mp\mp\MpeSipxPcma.h"\
@@ -11295,25 +11037,11 @@ NODEP_CPP_MPCODE=\
 
 NODEP_CPP_MPCODE=\
 	".\src\mp\mp\MpCodecFactory.h"\
-	".\src\mp\mp\MpdGIPSG729ab.h"\
-	".\src\mp\mp\MpdGIPSiLBC.h"\
-	".\src\mp\mp\MpdGIPSiPCMA.h"\
-	".\src\mp\mp\MpdGIPSiPCMU.h"\
-	".\src\mp\mp\MpdGIPSiPCMWB.h"\
-	".\src\mp\mp\MpdGIPSPCMA.h"\
-	".\src\mp\mp\MpdGIPSPCMU.h"\
 	".\src\mp\mp\MpdPtAVT.h"\
 	".\src\mp\mp\MpdSipxGSM.h"\
 	".\src\mp\mp\MpdSipxPcma.h"\
 	".\src\mp\mp\MpdSipxPcmu.h"\
 	".\src\mp\mp\MpdSipxSpeex.h"\
-	".\src\mp\mp\MpeGIPSG729ab.h"\
-	".\src\mp\mp\MpeGIPSiLBC.h"\
-	".\src\mp\mp\MpeGIPSiPCMA.h"\
-	".\src\mp\mp\MpeGIPSiPCMU.h"\
-	".\src\mp\mp\MpeGIPSiPCMWB.h"\
-	".\src\mp\mp\MpeGIPSPCMA.h"\
-	".\src\mp\mp\MpeGIPSPCMU.h"\
 	".\src\mp\mp\MpePtAVT.h"\
 	".\src\mp\mp\MpeSipxGSM.h"\
 	".\src\mp\mp\MpeSipxPcma.h"\
@@ -11326,25 +11054,11 @@ NODEP_CPP_MPCODE=\
 
 NODEP_CPP_MPCODE=\
 	".\src\mp\mp\MpCodecFactory.h"\
-	".\src\mp\mp\MpdGIPSG729ab.h"\
-	".\src\mp\mp\MpdGIPSiLBC.h"\
-	".\src\mp\mp\MpdGIPSiPCMA.h"\
-	".\src\mp\mp\MpdGIPSiPCMU.h"\
-	".\src\mp\mp\MpdGIPSiPCMWB.h"\
-	".\src\mp\mp\MpdGIPSPCMA.h"\
-	".\src\mp\mp\MpdGIPSPCMU.h"\
 	".\src\mp\mp\MpdPtAVT.h"\
 	".\src\mp\mp\MpdSipxGSM.h"\
 	".\src\mp\mp\MpdSipxPcma.h"\
 	".\src\mp\mp\MpdSipxPcmu.h"\
 	".\src\mp\mp\MpdSipxSpeex.h"\
-	".\src\mp\mp\MpeGIPSG729ab.h"\
-	".\src\mp\mp\MpeGIPSiLBC.h"\
-	".\src\mp\mp\MpeGIPSiPCMA.h"\
-	".\src\mp\mp\MpeGIPSiPCMU.h"\
-	".\src\mp\mp\MpeGIPSiPCMWB.h"\
-	".\src\mp\mp\MpeGIPSPCMA.h"\
-	".\src\mp\mp\MpeGIPSPCMU.h"\
 	".\src\mp\mp\MpePtAVT.h"\
 	".\src\mp\mp\MpeSipxGSM.h"\
 	".\src\mp\mp\MpeSipxPcma.h"\
@@ -11357,25 +11071,11 @@ NODEP_CPP_MPCODE=\
 
 NODEP_CPP_MPCODE=\
 	".\src\mp\mp\MpCodecFactory.h"\
-	".\src\mp\mp\MpdGIPSG729ab.h"\
-	".\src\mp\mp\MpdGIPSiLBC.h"\
-	".\src\mp\mp\MpdGIPSiPCMA.h"\
-	".\src\mp\mp\MpdGIPSiPCMU.h"\
-	".\src\mp\mp\MpdGIPSiPCMWB.h"\
-	".\src\mp\mp\MpdGIPSPCMA.h"\
-	".\src\mp\mp\MpdGIPSPCMU.h"\
 	".\src\mp\mp\MpdPtAVT.h"\
 	".\src\mp\mp\MpdSipxGSM.h"\
 	".\src\mp\mp\MpdSipxPcma.h"\
 	".\src\mp\mp\MpdSipxPcmu.h"\
 	".\src\mp\mp\MpdSipxSpeex.h"\
-	".\src\mp\mp\MpeGIPSG729ab.h"\
-	".\src\mp\mp\MpeGIPSiLBC.h"\
-	".\src\mp\mp\MpeGIPSiPCMA.h"\
-	".\src\mp\mp\MpeGIPSiPCMU.h"\
-	".\src\mp\mp\MpeGIPSiPCMWB.h"\
-	".\src\mp\mp\MpeGIPSPCMA.h"\
-	".\src\mp\mp\MpeGIPSPCMU.h"\
 	".\src\mp\mp\MpePtAVT.h"\
 	".\src\mp\mp\MpeSipxGSM.h"\
 	".\src\mp\mp\MpeSipxPcma.h"\
@@ -11388,25 +11088,11 @@ NODEP_CPP_MPCODE=\
 
 NODEP_CPP_MPCODE=\
 	".\src\mp\mp\MpCodecFactory.h"\
-	".\src\mp\mp\MpdGIPSG729ab.h"\
-	".\src\mp\mp\MpdGIPSiLBC.h"\
-	".\src\mp\mp\MpdGIPSiPCMA.h"\
-	".\src\mp\mp\MpdGIPSiPCMU.h"\
-	".\src\mp\mp\MpdGIPSiPCMWB.h"\
-	".\src\mp\mp\MpdGIPSPCMA.h"\
-	".\src\mp\mp\MpdGIPSPCMU.h"\
 	".\src\mp\mp\MpdPtAVT.h"\
 	".\src\mp\mp\MpdSipxGSM.h"\
 	".\src\mp\mp\MpdSipxPcma.h"\
 	".\src\mp\mp\MpdSipxPcmu.h"\
 	".\src\mp\mp\MpdSipxSpeex.h"\
-	".\src\mp\mp\MpeGIPSG729ab.h"\
-	".\src\mp\mp\MpeGIPSiLBC.h"\
-	".\src\mp\mp\MpeGIPSiPCMA.h"\
-	".\src\mp\mp\MpeGIPSiPCMU.h"\
-	".\src\mp\mp\MpeGIPSiPCMWB.h"\
-	".\src\mp\mp\MpeGIPSPCMA.h"\
-	".\src\mp\mp\MpeGIPSPCMU.h"\
 	".\src\mp\mp\MpePtAVT.h"\
 	".\src\mp\mp\MpeSipxGSM.h"\
 	".\src\mp\mp\MpeSipxPcma.h"\
@@ -11419,25 +11105,11 @@ NODEP_CPP_MPCODE=\
 
 NODEP_CPP_MPCODE=\
 	".\src\mp\mp\MpCodecFactory.h"\
-	".\src\mp\mp\MpdGIPSG729ab.h"\
-	".\src\mp\mp\MpdGIPSiLBC.h"\
-	".\src\mp\mp\MpdGIPSiPCMA.h"\
-	".\src\mp\mp\MpdGIPSiPCMU.h"\
-	".\src\mp\mp\MpdGIPSiPCMWB.h"\
-	".\src\mp\mp\MpdGIPSPCMA.h"\
-	".\src\mp\mp\MpdGIPSPCMU.h"\
 	".\src\mp\mp\MpdPtAVT.h"\
 	".\src\mp\mp\MpdSipxGSM.h"\
 	".\src\mp\mp\MpdSipxPcma.h"\
 	".\src\mp\mp\MpdSipxPcmu.h"\
 	".\src\mp\mp\MpdSipxSpeex.h"\
-	".\src\mp\mp\MpeGIPSG729ab.h"\
-	".\src\mp\mp\MpeGIPSiLBC.h"\
-	".\src\mp\mp\MpeGIPSiPCMA.h"\
-	".\src\mp\mp\MpeGIPSiPCMU.h"\
-	".\src\mp\mp\MpeGIPSiPCMWB.h"\
-	".\src\mp\mp\MpeGIPSPCMA.h"\
-	".\src\mp\mp\MpeGIPSPCMU.h"\
 	".\src\mp\mp\MpePtAVT.h"\
 	".\src\mp\mp\MpeSipxGSM.h"\
 	".\src\mp\mp\MpeSipxPcma.h"\
@@ -11450,25 +11122,11 @@ NODEP_CPP_MPCODE=\
 
 NODEP_CPP_MPCODE=\
 	".\src\mp\mp\MpCodecFactory.h"\
-	".\src\mp\mp\MpdGIPSG729ab.h"\
-	".\src\mp\mp\MpdGIPSiLBC.h"\
-	".\src\mp\mp\MpdGIPSiPCMA.h"\
-	".\src\mp\mp\MpdGIPSiPCMU.h"\
-	".\src\mp\mp\MpdGIPSiPCMWB.h"\
-	".\src\mp\mp\MpdGIPSPCMA.h"\
-	".\src\mp\mp\MpdGIPSPCMU.h"\
 	".\src\mp\mp\MpdPtAVT.h"\
 	".\src\mp\mp\MpdSipxGSM.h"\
 	".\src\mp\mp\MpdSipxPcma.h"\
 	".\src\mp\mp\MpdSipxPcmu.h"\
 	".\src\mp\mp\MpdSipxSpeex.h"\
-	".\src\mp\mp\MpeGIPSG729ab.h"\
-	".\src\mp\mp\MpeGIPSiLBC.h"\
-	".\src\mp\mp\MpeGIPSiPCMA.h"\
-	".\src\mp\mp\MpeGIPSiPCMU.h"\
-	".\src\mp\mp\MpeGIPSiPCMWB.h"\
-	".\src\mp\mp\MpeGIPSPCMA.h"\
-	".\src\mp\mp\MpeGIPSPCMU.h"\
 	".\src\mp\mp\MpePtAVT.h"\
 	".\src\mp\mp\MpeSipxGSM.h"\
 	".\src\mp\mp\MpeSipxPcma.h"\
@@ -11481,25 +11139,11 @@ NODEP_CPP_MPCODE=\
 
 NODEP_CPP_MPCODE=\
 	".\src\mp\mp\MpCodecFactory.h"\
-	".\src\mp\mp\MpdGIPSG729ab.h"\
-	".\src\mp\mp\MpdGIPSiLBC.h"\
-	".\src\mp\mp\MpdGIPSiPCMA.h"\
-	".\src\mp\mp\MpdGIPSiPCMU.h"\
-	".\src\mp\mp\MpdGIPSiPCMWB.h"\
-	".\src\mp\mp\MpdGIPSPCMA.h"\
-	".\src\mp\mp\MpdGIPSPCMU.h"\
 	".\src\mp\mp\MpdPtAVT.h"\
 	".\src\mp\mp\MpdSipxGSM.h"\
 	".\src\mp\mp\MpdSipxPcma.h"\
 	".\src\mp\mp\MpdSipxPcmu.h"\
 	".\src\mp\mp\MpdSipxSpeex.h"\
-	".\src\mp\mp\MpeGIPSG729ab.h"\
-	".\src\mp\mp\MpeGIPSiLBC.h"\
-	".\src\mp\mp\MpeGIPSiPCMA.h"\
-	".\src\mp\mp\MpeGIPSiPCMU.h"\
-	".\src\mp\mp\MpeGIPSiPCMWB.h"\
-	".\src\mp\mp\MpeGIPSPCMA.h"\
-	".\src\mp\mp\MpeGIPSPCMU.h"\
 	".\src\mp\mp\MpePtAVT.h"\
 	".\src\mp\mp\MpeSipxGSM.h"\
 	".\src\mp\mp\MpeSipxPcma.h"\
@@ -11994,8 +11638,6 @@ DEP_CPP_MPCON=\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
 	"..\sipXtackLib\include\net\Url.h"\
-	".\include\mp\GIPS\GIPS_API.h"\
-	".\include\mp\GIPS\gips_typedefs.h"\
 	".\include\mp\JB\JB_API.h"\
 	".\include\mp\JB\jb_typedefs.h"\
 	".\include\mp\MpBuf.h"\
@@ -12074,8 +11716,6 @@ NODEP_CPP_MPCON=\
 	"..\sipXportLib\include\os\os\Vxw\OsVxwDefs.h"\
 	"..\sipXtackLib\include\net\SdpCodec.h"\
 	".\cre.h"\
-	".\include\mp\GIPS\GIPS\Vendor_GIPS_API.h"\
-	".\include\mp\GIPS\GIPS\Vendor_gips_typedefs.h"\
 	".\include\mp\vxWorks.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
@@ -12815,8 +12455,6 @@ DEP_CPP_MPDEC=\
 	"..\sipXportLib\include\utl\UtlList.h"\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
-	".\include\mp\GIPS\GIPS_API.h"\
-	".\include\mp\GIPS\gips_typedefs.h"\
 	".\include\mp\JB\JB_API.h"\
 	".\include\mp\JB\jb_typedefs.h"\
 	".\include\mp\MpBuf.h"\
@@ -12851,8 +12489,6 @@ NODEP_CPP_MPDEC=\
 	"..\sipXportLib\include\os\os\Vxw\OsTaskVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsVxwDefs.h"\
 	"..\sipXtackLib\include\net\SdpCodec.h"\
-	".\include\mp\GIPS\GIPS\Vendor_GIPS_API.h"\
-	".\include\mp\GIPS\GIPS\Vendor_gips_typedefs.h"\
 	".\include\mp\vxWorks.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
@@ -13060,19 +12696,14 @@ NODEP_CPP_MPDEC=\
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\mp\MpdGIPSG729ab.cpp
 
 !IF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSII_FP) Release"
 
 NODEP_CPP_MPDGI=\
-	".\src\mp\mp\GIPS\G729Interface.h"\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\GIPS\gips_typedefs.h"\
 	".\src\mp\mp\iG729\_ippdefs.h"\
 	".\src\mp\mp\iG729\_p729.h"\
 	".\src\mp\mp\iG729\ippdefs.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSG729ab.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	".\src\mp\os\OsTask.h"\
 	
@@ -13080,14 +12711,10 @@ NODEP_CPP_MPDGI=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSII_FP) Debug"
 
 NODEP_CPP_MPDGI=\
-	".\src\mp\mp\GIPS\G729Interface.h"\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\GIPS\gips_typedefs.h"\
 	".\src\mp\mp\iG729\_ippdefs.h"\
 	".\src\mp\mp\iG729\_p729.h"\
 	".\src\mp\mp\iG729\ippdefs.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSG729ab.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	".\src\mp\os\OsTask.h"\
 	
@@ -13095,14 +12722,10 @@ NODEP_CPP_MPDGI=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSII) Release"
 
 NODEP_CPP_MPDGI=\
-	".\src\mp\mp\GIPS\G729Interface.h"\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\GIPS\gips_typedefs.h"\
 	".\src\mp\mp\iG729\_ippdefs.h"\
 	".\src\mp\mp\iG729\_p729.h"\
 	".\src\mp\mp\iG729\ippdefs.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSG729ab.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	".\src\mp\os\OsTask.h"\
 	
@@ -13110,14 +12733,10 @@ NODEP_CPP_MPDGI=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSII) Debug"
 
 NODEP_CPP_MPDGI=\
-	".\src\mp\mp\GIPS\G729Interface.h"\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\GIPS\gips_typedefs.h"\
 	".\src\mp\mp\iG729\_ippdefs.h"\
 	".\src\mp\mp\iG729\_p729.h"\
 	".\src\mp\mp\iG729\ippdefs.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSG729ab.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	".\src\mp\os\OsTask.h"\
 	
@@ -13125,14 +12744,10 @@ NODEP_CPP_MPDGI=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE SH4) Release"
 
 NODEP_CPP_MPDGI=\
-	".\src\mp\mp\GIPS\G729Interface.h"\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\GIPS\gips_typedefs.h"\
 	".\src\mp\mp\iG729\_ippdefs.h"\
 	".\src\mp\mp\iG729\_p729.h"\
 	".\src\mp\mp\iG729\ippdefs.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSG729ab.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	".\src\mp\os\OsTask.h"\
 	
@@ -13140,14 +12755,10 @@ NODEP_CPP_MPDGI=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE SH4) Debug"
 
 NODEP_CPP_MPDGI=\
-	".\src\mp\mp\GIPS\G729Interface.h"\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\GIPS\gips_typedefs.h"\
 	".\src\mp\mp\iG729\_ippdefs.h"\
 	".\src\mp\mp\iG729\_p729.h"\
 	".\src\mp\mp\iG729\ippdefs.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSG729ab.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	".\src\mp\os\OsTask.h"\
 	
@@ -13155,14 +12766,10 @@ NODEP_CPP_MPDGI=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE SH3) Release"
 
 NODEP_CPP_MPDGI=\
-	".\src\mp\mp\GIPS\G729Interface.h"\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\GIPS\gips_typedefs.h"\
 	".\src\mp\mp\iG729\_ippdefs.h"\
 	".\src\mp\mp\iG729\_p729.h"\
 	".\src\mp\mp\iG729\ippdefs.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSG729ab.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	".\src\mp\os\OsTask.h"\
 	
@@ -13170,14 +12777,10 @@ NODEP_CPP_MPDGI=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE SH3) Debug"
 
 NODEP_CPP_MPDGI=\
-	".\src\mp\mp\GIPS\G729Interface.h"\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\GIPS\gips_typedefs.h"\
 	".\src\mp\mp\iG729\_ippdefs.h"\
 	".\src\mp\mp\iG729\_p729.h"\
 	".\src\mp\mp\iG729\ippdefs.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSG729ab.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	".\src\mp\os\OsTask.h"\
 	
@@ -13185,14 +12788,10 @@ NODEP_CPP_MPDGI=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSIV) Release"
 
 NODEP_CPP_MPDGI=\
-	".\src\mp\mp\GIPS\G729Interface.h"\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\GIPS\gips_typedefs.h"\
 	".\src\mp\mp\iG729\_ippdefs.h"\
 	".\src\mp\mp\iG729\_p729.h"\
 	".\src\mp\mp\iG729\ippdefs.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSG729ab.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	".\src\mp\os\OsTask.h"\
 	
@@ -13200,14 +12799,10 @@ NODEP_CPP_MPDGI=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSIV) Debug"
 
 NODEP_CPP_MPDGI=\
-	".\src\mp\mp\GIPS\G729Interface.h"\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\GIPS\gips_typedefs.h"\
 	".\src\mp\mp\iG729\_ippdefs.h"\
 	".\src\mp\mp\iG729\_p729.h"\
 	".\src\mp\mp\iG729\ippdefs.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSG729ab.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	".\src\mp\os\OsTask.h"\
 	
@@ -13215,14 +12810,10 @@ NODEP_CPP_MPDGI=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE emulator) Release"
 
 NODEP_CPP_MPDGI=\
-	".\src\mp\mp\GIPS\G729Interface.h"\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\GIPS\gips_typedefs.h"\
 	".\src\mp\mp\iG729\_ippdefs.h"\
 	".\src\mp\mp\iG729\_p729.h"\
 	".\src\mp\mp\iG729\ippdefs.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSG729ab.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	".\src\mp\os\OsTask.h"\
 	
@@ -13274,16 +12865,12 @@ DEP_CPP_MPDGI=\
 	"..\sipXportLib\include\utl\UtlList.h"\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
-	".\include\mp\GIPS\G729Interface.h"\
-	".\include\mp\GIPS\GIPS_API.h"\
-	".\include\mp\GIPS\gips_typedefs.h"\
 	".\include\mp\JB\JB_API.h"\
 	".\include\mp\JB\jb_typedefs.h"\
 	".\include\mp\MpBuf.h"\
 	".\include\mp\MpCodecInfo.h"\
 	".\include\mp\MpConnection.h"\
 	".\include\mp\MpDecoderBase.h"\
-	".\include\mp\MpdGIPSG729ab.h"\
 	".\include\mp\MpFlowGraphMsg.h"\
 	".\include\mp\MpMisc.h"\
 	".\include\mp\MprDejitter.h"\
@@ -13313,9 +12900,6 @@ NODEP_CPP_MPDGI=\
 	"..\sipXportLib\include\os\os\Vxw\OsTaskVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsVxwDefs.h"\
 	"..\sipXtackLib\include\net\SdpCodec.h"\
-	".\include\mp\GIPS\GIPS\Vendor_G729Interface.h"\
-	".\include\mp\GIPS\GIPS\Vendor_GIPS_API.h"\
-	".\include\mp\GIPS\GIPS\Vendor_gips_typedefs.h"\
 	".\include\mp\mp\iG729\_ippdefs.h"\
 	".\include\mp\mp\iG729\_p729.h"\
 	".\include\mp\mp\iG729\ippdefs.h"\
@@ -13370,14 +12954,10 @@ NODEP_CPP_MPDGI=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4I) Release"
 
 NODEP_CPP_MPDGI=\
-	".\src\mp\mp\GIPS\G729Interface.h"\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\GIPS\gips_typedefs.h"\
 	".\src\mp\mp\iG729\_ippdefs.h"\
 	".\src\mp\mp\iG729\_p729.h"\
 	".\src\mp\mp\iG729\ippdefs.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSG729ab.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	".\src\mp\os\OsTask.h"\
 	
@@ -13430,9 +13010,6 @@ DEP_CPP_MPDGI=\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
 	"..\sipXsdpLib\include\sdp\SdpCodec.h"\
-	".\include\mp\GIPS\G729Interface.h"\
-	".\include\mp\GIPS\GIPS_API.h"\
-	".\include\mp\GIPS\gips_typedefs.h"\
 	".\include\mp\JB\jb_typedefs.h"\
 	".\include\mp\MpArrayBuf.h"\
 	".\include\mp\MpAudioConnection.h"\
@@ -13442,7 +13019,6 @@ DEP_CPP_MPDGI=\
 	".\include\mp\MpConnection.h"\
 	".\include\mp\MpDataBuf.h"\
 	".\include\mp\MpDecoderBase.h"\
-	".\include\mp\MpdGIPSG729ab.h"\
 	".\include\mp\MprDejitter.h"\
 	".\include\mp\MpRtpBuf.h"\
 	".\include\mp\MpTypes.h"\
@@ -13499,9 +13075,6 @@ NODEP_CPP_MPDGI=\
 	"..\sipXportLib\include\os\os\Vxw\OsMutexVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsTaskVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsVxwDefs.h"\
-	".\include\mp\GIPS\GIPS\Vendor_G729Interface.h"\
-	".\include\mp\GIPS\GIPS\Vendor_GIPS_API.h"\
-	".\include\mp\GIPS\GIPS\Vendor_gips_typedefs.h"\
 	".\include\mp\mp\iG729\_ippdefs.h"\
 	".\include\mp\mp\iG729\_p729.h"\
 	".\include\mp\mp\iG729\ippdefs.h"\
@@ -13514,14 +13087,10 @@ NODEP_CPP_MPDGI=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSIV_FP) Release"
 
 NODEP_CPP_MPDGI=\
-	".\src\mp\mp\GIPS\G729Interface.h"\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\GIPS\gips_typedefs.h"\
 	".\src\mp\mp\iG729\_ippdefs.h"\
 	".\src\mp\mp\iG729\_p729.h"\
 	".\src\mp\mp\iG729\ippdefs.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSG729ab.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	".\src\mp\os\OsTask.h"\
 	
@@ -13529,14 +13098,10 @@ NODEP_CPP_MPDGI=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSIV_FP) Debug"
 
 NODEP_CPP_MPDGI=\
-	".\src\mp\mp\GIPS\G729Interface.h"\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\GIPS\gips_typedefs.h"\
 	".\src\mp\mp\iG729\_ippdefs.h"\
 	".\src\mp\mp\iG729\_p729.h"\
 	".\src\mp\mp\iG729\ippdefs.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSG729ab.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	".\src\mp\os\OsTask.h"\
 	
@@ -13544,14 +13109,10 @@ NODEP_CPP_MPDGI=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4) Release"
 
 NODEP_CPP_MPDGI=\
-	".\src\mp\mp\GIPS\G729Interface.h"\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\GIPS\gips_typedefs.h"\
 	".\src\mp\mp\iG729\_ippdefs.h"\
 	".\src\mp\mp\iG729\_p729.h"\
 	".\src\mp\mp\iG729\ippdefs.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSG729ab.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	".\src\mp\os\OsTask.h"\
 	
@@ -13559,14 +13120,10 @@ NODEP_CPP_MPDGI=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4) Debug"
 
 NODEP_CPP_MPDGI=\
-	".\src\mp\mp\GIPS\G729Interface.h"\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\GIPS\gips_typedefs.h"\
 	".\src\mp\mp\iG729\_ippdefs.h"\
 	".\src\mp\mp\iG729\_p729.h"\
 	".\src\mp\mp\iG729\ippdefs.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSG729ab.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	".\src\mp\os\OsTask.h"\
 	
@@ -13574,14 +13131,10 @@ NODEP_CPP_MPDGI=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPS16) Release"
 
 NODEP_CPP_MPDGI=\
-	".\src\mp\mp\GIPS\G729Interface.h"\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\GIPS\gips_typedefs.h"\
 	".\src\mp\mp\iG729\_ippdefs.h"\
 	".\src\mp\mp\iG729\_p729.h"\
 	".\src\mp\mp\iG729\ippdefs.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSG729ab.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	".\src\mp\os\OsTask.h"\
 	
@@ -13589,14 +13142,10 @@ NODEP_CPP_MPDGI=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPS16) Debug"
 
 NODEP_CPP_MPDGI=\
-	".\src\mp\mp\GIPS\G729Interface.h"\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\GIPS\gips_typedefs.h"\
 	".\src\mp\mp\iG729\_ippdefs.h"\
 	".\src\mp\mp\iG729\_p729.h"\
 	".\src\mp\mp\iG729\ippdefs.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSG729ab.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	".\src\mp\os\OsTask.h"\
 	
@@ -13604,14 +13153,10 @@ NODEP_CPP_MPDGI=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4T) Release"
 
 NODEP_CPP_MPDGI=\
-	".\src\mp\mp\GIPS\G729Interface.h"\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\GIPS\gips_typedefs.h"\
 	".\src\mp\mp\iG729\_ippdefs.h"\
 	".\src\mp\mp\iG729\_p729.h"\
 	".\src\mp\mp\iG729\ippdefs.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSG729ab.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	".\src\mp\os\OsTask.h"\
 	
@@ -13619,14 +13164,10 @@ NODEP_CPP_MPDGI=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4T) Debug"
 
 NODEP_CPP_MPDGI=\
-	".\src\mp\mp\GIPS\G729Interface.h"\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\GIPS\gips_typedefs.h"\
 	".\src\mp\mp\iG729\_ippdefs.h"\
 	".\src\mp\mp\iG729\_p729.h"\
 	".\src\mp\mp\iG729\ippdefs.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSG729ab.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	".\src\mp\os\OsTask.h"\
 	
@@ -13634,14 +13175,10 @@ NODEP_CPP_MPDGI=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE x86) Release"
 
 NODEP_CPP_MPDGI=\
-	".\src\mp\mp\GIPS\G729Interface.h"\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\GIPS\gips_typedefs.h"\
 	".\src\mp\mp\iG729\_ippdefs.h"\
 	".\src\mp\mp\iG729\_p729.h"\
 	".\src\mp\mp\iG729\ippdefs.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSG729ab.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	".\src\mp\os\OsTask.h"\
 	
@@ -13649,14 +13186,10 @@ NODEP_CPP_MPDGI=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE x86) Debug"
 
 NODEP_CPP_MPDGI=\
-	".\src\mp\mp\GIPS\G729Interface.h"\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\GIPS\gips_typedefs.h"\
 	".\src\mp\mp\iG729\_ippdefs.h"\
 	".\src\mp\mp\iG729\_p729.h"\
 	".\src\mp\mp\iG729\ippdefs.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSG729ab.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	".\src\mp\os\OsTask.h"\
 	
@@ -13666,104 +13199,81 @@ NODEP_CPP_MPDGI=\
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\mp\MpdGIPSiLBC.cpp
 
 !IF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSII_FP) Release"
 
 NODEP_CPP_MPDGIP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSiLBC.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSII_FP) Debug"
 
 NODEP_CPP_MPDGIP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSiLBC.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSII) Release"
 
 NODEP_CPP_MPDGIP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSiLBC.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSII) Debug"
 
 NODEP_CPP_MPDGIP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSiLBC.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE SH4) Release"
 
 NODEP_CPP_MPDGIP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSiLBC.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE SH4) Debug"
 
 NODEP_CPP_MPDGIP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSiLBC.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE SH3) Release"
 
 NODEP_CPP_MPDGIP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSiLBC.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE SH3) Debug"
 
 NODEP_CPP_MPDGIP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSiLBC.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSIV) Release"
 
 NODEP_CPP_MPDGIP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSiLBC.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSIV) Debug"
 
 NODEP_CPP_MPDGIP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSiLBC.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE emulator) Release"
 
 NODEP_CPP_MPDGIP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSiLBC.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
@@ -13814,15 +13324,12 @@ DEP_CPP_MPDGIP=\
 	"..\sipXportLib\include\utl\UtlList.h"\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
-	".\include\mp\GIPS\GIPS_API.h"\
-	".\include\mp\GIPS\gips_typedefs.h"\
 	".\include\mp\JB\JB_API.h"\
 	".\include\mp\JB\jb_typedefs.h"\
 	".\include\mp\MpBuf.h"\
 	".\include\mp\MpCodecInfo.h"\
 	".\include\mp\MpConnection.h"\
 	".\include\mp\MpDecoderBase.h"\
-	".\include\mp\MpdGIPSiLBC.h"\
 	".\include\mp\MpFlowGraphMsg.h"\
 	".\include\mp\MpMisc.h"\
 	".\include\mp\MprDejitter.h"\
@@ -13852,8 +13359,6 @@ NODEP_CPP_MPDGIP=\
 	"..\sipXportLib\include\os\os\Vxw\OsTaskVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsVxwDefs.h"\
 	"..\sipXtackLib\include\net\SdpCodec.h"\
-	".\include\mp\GIPS\GIPS\Vendor_GIPS_API.h"\
-	".\include\mp\GIPS\GIPS\Vendor_gips_typedefs.h"\
 	".\include\mp\vxWorks.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
@@ -13902,9 +13407,7 @@ NODEP_CPP_MPDGIP=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4I) Release"
 
 NODEP_CPP_MPDGIP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSiLBC.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
@@ -13939,8 +13442,6 @@ DEP_CPP_MPDGIP=\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
 	"..\sipXsdpLib\include\sdp\SdpCodec.h"\
-	".\include\mp\GIPS\GIPS_API.h"\
-	".\include\mp\GIPS\gips_typedefs.h"\
 	".\include\mp\JB\jb_typedefs.h"\
 	".\include\mp\MpArrayBuf.h"\
 	".\include\mp\MpAudioConnection.h"\
@@ -13950,7 +13451,6 @@ DEP_CPP_MPDGIP=\
 	".\include\mp\MpConnection.h"\
 	".\include\mp\MpDataBuf.h"\
 	".\include\mp\MpDecoderBase.h"\
-	".\include\mp\MpdGIPSiLBC.h"\
 	".\include\mp\MprDejitter.h"\
 	".\include\mp\MpRtpBuf.h"\
 	".\include\mp\MpTypes.h"\
@@ -14004,98 +13504,76 @@ NODEP_CPP_MPDGIP=\
 	"..\sipXportLib\include\os\os\Vxw\OsDateTimeVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsMutexVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsVxwDefs.h"\
-	".\include\mp\GIPS\GIPS\Vendor_GIPS_API.h"\
-	".\include\mp\GIPS\GIPS\Vendor_gips_typedefs.h"\
 	".\include\mp\vxWorks.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSIV_FP) Release"
 
 NODEP_CPP_MPDGIP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSiLBC.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSIV_FP) Debug"
 
 NODEP_CPP_MPDGIP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSiLBC.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4) Release"
 
 NODEP_CPP_MPDGIP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSiLBC.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4) Debug"
 
 NODEP_CPP_MPDGIP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSiLBC.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPS16) Release"
 
 NODEP_CPP_MPDGIP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSiLBC.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPS16) Debug"
 
 NODEP_CPP_MPDGIP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSiLBC.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4T) Release"
 
 NODEP_CPP_MPDGIP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSiLBC.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4T) Debug"
 
 NODEP_CPP_MPDGIP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSiLBC.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE x86) Release"
 
 NODEP_CPP_MPDGIP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSiLBC.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE x86) Debug"
 
 NODEP_CPP_MPDGIP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSiLBC.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
@@ -14104,110 +13582,75 @@ NODEP_CPP_MPDGIP=\
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\mp\MpdGIPSiPCMA.cpp
 
 !IF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSII_FP) Release"
 
-NODEP_CPP_MPDGIPS=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSiPCMA.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSII_FP) Debug"
 
-NODEP_CPP_MPDGIPS=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSiPCMA.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSII) Release"
 
-NODEP_CPP_MPDGIPS=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSiPCMA.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSII) Debug"
 
-NODEP_CPP_MPDGIPS=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSiPCMA.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE SH4) Release"
 
-NODEP_CPP_MPDGIPS=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSiPCMA.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE SH4) Debug"
 
-NODEP_CPP_MPDGIPS=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSiPCMA.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE SH3) Release"
 
-NODEP_CPP_MPDGIPS=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSiPCMA.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE SH3) Debug"
 
-NODEP_CPP_MPDGIPS=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSiPCMA.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSIV) Release"
 
-NODEP_CPP_MPDGIPS=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSiPCMA.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSIV) Debug"
 
-NODEP_CPP_MPDGIPS=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSiPCMA.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE emulator) Release"
 
-NODEP_CPP_MPDGIPS=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSiPCMA.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE emulator) Debug"
 
-DEP_CPP_MPDGIPS=\
 	"..\sipXportLib\include\os\linux\AdapterInfo.h"\
 	"..\sipXportLib\include\os\linux\OsBSemLinux.h"\
 	"..\sipXportLib\include\os\linux\OsCSemLinux.h"\
@@ -14252,15 +13695,12 @@ DEP_CPP_MPDGIPS=\
 	"..\sipXportLib\include\utl\UtlList.h"\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
-	".\include\mp\GIPS\GIPS_API.h"\
-	".\include\mp\GIPS\gips_typedefs.h"\
 	".\include\mp\JB\JB_API.h"\
 	".\include\mp\JB\jb_typedefs.h"\
 	".\include\mp\MpBuf.h"\
 	".\include\mp\MpCodecInfo.h"\
 	".\include\mp\MpConnection.h"\
 	".\include\mp\MpDecoderBase.h"\
-	".\include\mp\MpdGIPSiPCMA.h"\
 	".\include\mp\MpFlowGraphMsg.h"\
 	".\include\mp\MpMisc.h"\
 	".\include\mp\MprDejitter.h"\
@@ -14280,7 +13720,6 @@ DEP_CPP_MPDGIPS=\
 	".\include\rtcp\ISetSenderStatistics.h"\
 	".\include\rtcp\RtcpConfig.h"\
 	
-NODEP_CPP_MPDGIPS=\
 	"..\..\..\..\usr\include\pthread.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsBSemVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsCSemVxw.h"\
@@ -14290,8 +13729,6 @@ NODEP_CPP_MPDGIPS=\
 	"..\sipXportLib\include\os\os\Vxw\OsTaskVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsVxwDefs.h"\
 	"..\sipXtackLib\include\net\SdpCodec.h"\
-	".\include\mp\GIPS\GIPS\Vendor_GIPS_API.h"\
-	".\include\mp\GIPS\GIPS\Vendor_gips_typedefs.h"\
 	".\include\mp\vxWorks.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
@@ -14339,16 +13776,12 @@ NODEP_CPP_MPDGIPS=\
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4I) Release"
 
-NODEP_CPP_MPDGIPS=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSiPCMA.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4I) Debug"
 
-DEP_CPP_MPDGIPS=\
 	"..\sipXportLib\include\os\linux\OsBSemLinux.h"\
 	"..\sipXportLib\include\os\linux\OsDateTimeLinux.h"\
 	"..\sipXportLib\include\os\linux\OsLinuxDefs.h"\
@@ -14377,8 +13810,6 @@ DEP_CPP_MPDGIPS=\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
 	"..\sipXsdpLib\include\sdp\SdpCodec.h"\
-	".\include\mp\GIPS\GIPS_API.h"\
-	".\include\mp\GIPS\gips_typedefs.h"\
 	".\include\mp\JB\jb_typedefs.h"\
 	".\include\mp\MpArrayBuf.h"\
 	".\include\mp\MpAudioConnection.h"\
@@ -14388,7 +13819,6 @@ DEP_CPP_MPDGIPS=\
 	".\include\mp\MpConnection.h"\
 	".\include\mp\MpDataBuf.h"\
 	".\include\mp\MpDecoderBase.h"\
-	".\include\mp\MpdGIPSiPCMA.h"\
 	".\include\mp\MprDejitter.h"\
 	".\include\mp\MpRtpBuf.h"\
 	".\include\mp\MpTypes.h"\
@@ -14436,104 +13866,71 @@ DEP_CPP_MPDGIPS=\
 	{$(INCLUDE)}"stl\_stlport_version.h"\
 	{$(INCLUDE)}"stl_user_config.h"\
 	
-NODEP_CPP_MPDGIPS=\
 	"..\..\..\..\usr\include\pthread.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsBSemVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsDateTimeVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsMutexVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsVxwDefs.h"\
-	".\include\mp\GIPS\GIPS\Vendor_GIPS_API.h"\
-	".\include\mp\GIPS\GIPS\Vendor_gips_typedefs.h"\
 	".\include\mp\vxWorks.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSIV_FP) Release"
 
-NODEP_CPP_MPDGIPS=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSiPCMA.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSIV_FP) Debug"
 
-NODEP_CPP_MPDGIPS=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSiPCMA.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4) Release"
 
-NODEP_CPP_MPDGIPS=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSiPCMA.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4) Debug"
 
-NODEP_CPP_MPDGIPS=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSiPCMA.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPS16) Release"
 
-NODEP_CPP_MPDGIPS=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSiPCMA.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPS16) Debug"
 
-NODEP_CPP_MPDGIPS=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSiPCMA.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4T) Release"
 
-NODEP_CPP_MPDGIPS=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSiPCMA.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4T) Debug"
 
-NODEP_CPP_MPDGIPS=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSiPCMA.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE x86) Release"
 
-NODEP_CPP_MPDGIPS=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSiPCMA.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE x86) Debug"
 
-NODEP_CPP_MPDGIPS=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSiPCMA.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
@@ -14542,110 +13939,75 @@ NODEP_CPP_MPDGIPS=\
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\mp\MpdGIPSiPCMU.cpp
 
 !IF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSII_FP) Release"
 
-NODEP_CPP_MPDGIPSI=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSiPCMU.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSII_FP) Debug"
 
-NODEP_CPP_MPDGIPSI=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSiPCMU.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSII) Release"
 
-NODEP_CPP_MPDGIPSI=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSiPCMU.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSII) Debug"
 
-NODEP_CPP_MPDGIPSI=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSiPCMU.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE SH4) Release"
 
-NODEP_CPP_MPDGIPSI=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSiPCMU.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE SH4) Debug"
 
-NODEP_CPP_MPDGIPSI=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSiPCMU.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE SH3) Release"
 
-NODEP_CPP_MPDGIPSI=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSiPCMU.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE SH3) Debug"
 
-NODEP_CPP_MPDGIPSI=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSiPCMU.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSIV) Release"
 
-NODEP_CPP_MPDGIPSI=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSiPCMU.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSIV) Debug"
 
-NODEP_CPP_MPDGIPSI=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSiPCMU.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE emulator) Release"
 
-NODEP_CPP_MPDGIPSI=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSiPCMU.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE emulator) Debug"
 
-DEP_CPP_MPDGIPSI=\
 	"..\sipXportLib\include\os\linux\AdapterInfo.h"\
 	"..\sipXportLib\include\os\linux\OsBSemLinux.h"\
 	"..\sipXportLib\include\os\linux\OsCSemLinux.h"\
@@ -14690,15 +14052,12 @@ DEP_CPP_MPDGIPSI=\
 	"..\sipXportLib\include\utl\UtlList.h"\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
-	".\include\mp\GIPS\GIPS_API.h"\
-	".\include\mp\GIPS\gips_typedefs.h"\
 	".\include\mp\JB\JB_API.h"\
 	".\include\mp\JB\jb_typedefs.h"\
 	".\include\mp\MpBuf.h"\
 	".\include\mp\MpCodecInfo.h"\
 	".\include\mp\MpConnection.h"\
 	".\include\mp\MpDecoderBase.h"\
-	".\include\mp\MpdGIPSiPCMU.h"\
 	".\include\mp\MpFlowGraphMsg.h"\
 	".\include\mp\MpMisc.h"\
 	".\include\mp\MprDejitter.h"\
@@ -14718,7 +14077,6 @@ DEP_CPP_MPDGIPSI=\
 	".\include\rtcp\ISetSenderStatistics.h"\
 	".\include\rtcp\RtcpConfig.h"\
 	
-NODEP_CPP_MPDGIPSI=\
 	"..\..\..\..\usr\include\pthread.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsBSemVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsCSemVxw.h"\
@@ -14728,8 +14086,6 @@ NODEP_CPP_MPDGIPSI=\
 	"..\sipXportLib\include\os\os\Vxw\OsTaskVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsVxwDefs.h"\
 	"..\sipXtackLib\include\net\SdpCodec.h"\
-	".\include\mp\GIPS\GIPS\Vendor_GIPS_API.h"\
-	".\include\mp\GIPS\GIPS\Vendor_gips_typedefs.h"\
 	".\include\mp\vxWorks.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
@@ -14777,16 +14133,12 @@ NODEP_CPP_MPDGIPSI=\
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4I) Release"
 
-NODEP_CPP_MPDGIPSI=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSiPCMU.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4I) Debug"
 
-DEP_CPP_MPDGIPSI=\
 	"..\sipXportLib\include\os\linux\OsBSemLinux.h"\
 	"..\sipXportLib\include\os\linux\OsDateTimeLinux.h"\
 	"..\sipXportLib\include\os\linux\OsLinuxDefs.h"\
@@ -14815,8 +14167,6 @@ DEP_CPP_MPDGIPSI=\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
 	"..\sipXsdpLib\include\sdp\SdpCodec.h"\
-	".\include\mp\GIPS\GIPS_API.h"\
-	".\include\mp\GIPS\gips_typedefs.h"\
 	".\include\mp\JB\jb_typedefs.h"\
 	".\include\mp\MpArrayBuf.h"\
 	".\include\mp\MpAudioConnection.h"\
@@ -14826,7 +14176,6 @@ DEP_CPP_MPDGIPSI=\
 	".\include\mp\MpConnection.h"\
 	".\include\mp\MpDataBuf.h"\
 	".\include\mp\MpDecoderBase.h"\
-	".\include\mp\MpdGIPSiPCMU.h"\
 	".\include\mp\MprDejitter.h"\
 	".\include\mp\MpRtpBuf.h"\
 	".\include\mp\MpTypes.h"\
@@ -14874,104 +14223,71 @@ DEP_CPP_MPDGIPSI=\
 	{$(INCLUDE)}"stl\_stlport_version.h"\
 	{$(INCLUDE)}"stl_user_config.h"\
 	
-NODEP_CPP_MPDGIPSI=\
 	"..\..\..\..\usr\include\pthread.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsBSemVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsDateTimeVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsMutexVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsVxwDefs.h"\
-	".\include\mp\GIPS\GIPS\Vendor_GIPS_API.h"\
-	".\include\mp\GIPS\GIPS\Vendor_gips_typedefs.h"\
 	".\include\mp\vxWorks.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSIV_FP) Release"
 
-NODEP_CPP_MPDGIPSI=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSiPCMU.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSIV_FP) Debug"
 
-NODEP_CPP_MPDGIPSI=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSiPCMU.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4) Release"
 
-NODEP_CPP_MPDGIPSI=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSiPCMU.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4) Debug"
 
-NODEP_CPP_MPDGIPSI=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSiPCMU.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPS16) Release"
 
-NODEP_CPP_MPDGIPSI=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSiPCMU.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPS16) Debug"
 
-NODEP_CPP_MPDGIPSI=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSiPCMU.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4T) Release"
 
-NODEP_CPP_MPDGIPSI=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSiPCMU.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4T) Debug"
 
-NODEP_CPP_MPDGIPSI=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSiPCMU.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE x86) Release"
 
-NODEP_CPP_MPDGIPSI=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSiPCMU.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE x86) Debug"
 
-NODEP_CPP_MPDGIPSI=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSiPCMU.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
@@ -14980,99 +14296,64 @@ NODEP_CPP_MPDGIPSI=\
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\mp\MpdGIPSiPCMWB.cpp
 
 !IF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSII_FP) Release"
 
-NODEP_CPP_MPDGIPSIP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSiPCMWB.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSII_FP) Debug"
 
-NODEP_CPP_MPDGIPSIP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSiPCMWB.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSII) Release"
 
-NODEP_CPP_MPDGIPSIP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSiPCMWB.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSII) Debug"
 
-NODEP_CPP_MPDGIPSIP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSiPCMWB.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE SH4) Release"
 
-NODEP_CPP_MPDGIPSIP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSiPCMWB.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE SH4) Debug"
 
-NODEP_CPP_MPDGIPSIP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSiPCMWB.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE SH3) Release"
 
-NODEP_CPP_MPDGIPSIP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSiPCMWB.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE SH3) Debug"
 
-NODEP_CPP_MPDGIPSIP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSiPCMWB.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSIV) Release"
 
-NODEP_CPP_MPDGIPSIP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSiPCMWB.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSIV) Debug"
 
-NODEP_CPP_MPDGIPSIP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSiPCMWB.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE emulator) Release"
 
-NODEP_CPP_MPDGIPSIP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSiPCMWB.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE emulator) Debug"
 
-DEP_CPP_MPDGIPSIP=\
 	"..\sipXportLib\include\os\linux\AdapterInfo.h"\
 	"..\sipXportLib\include\os\linux\OsBSemLinux.h"\
 	"..\sipXportLib\include\os\linux\OsCSemLinux.h"\
@@ -15117,15 +14398,12 @@ DEP_CPP_MPDGIPSIP=\
 	"..\sipXportLib\include\utl\UtlList.h"\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
-	".\include\mp\GIPS\GIPS_API.h"\
-	".\include\mp\GIPS\gips_typedefs.h"\
 	".\include\mp\JB\JB_API.h"\
 	".\include\mp\JB\jb_typedefs.h"\
 	".\include\mp\MpBuf.h"\
 	".\include\mp\MpCodecInfo.h"\
 	".\include\mp\MpConnection.h"\
 	".\include\mp\MpDecoderBase.h"\
-	".\include\mp\MpdGIPSiPCMWB.h"\
 	".\include\mp\MpFlowGraphMsg.h"\
 	".\include\mp\MpMisc.h"\
 	".\include\mp\MpResource.h"\
@@ -15144,7 +14422,6 @@ DEP_CPP_MPDGIPSIP=\
 	".\include\rtcp\ISetSenderStatistics.h"\
 	".\include\rtcp\RtcpConfig.h"\
 	
-NODEP_CPP_MPDGIPSIP=\
 	"..\..\..\..\usr\include\pthread.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsBSemVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsCSemVxw.h"\
@@ -15154,8 +14431,6 @@ NODEP_CPP_MPDGIPSIP=\
 	"..\sipXportLib\include\os\os\Vxw\OsTaskVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsVxwDefs.h"\
 	"..\sipXtackLib\include\net\SdpCodec.h"\
-	".\include\mp\GIPS\GIPS\Vendor_GIPS_API.h"\
-	".\include\mp\GIPS\GIPS\Vendor_gips_typedefs.h"\
 	".\include\mp\vxWorks.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
@@ -15203,15 +14478,11 @@ NODEP_CPP_MPDGIPSIP=\
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4I) Release"
 
-NODEP_CPP_MPDGIPSIP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSiPCMWB.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4I) Debug"
 
-DEP_CPP_MPDGIPSIP=\
 	"..\sipXportLib\include\os\linux\OsBSemLinux.h"\
 	"..\sipXportLib\include\os\linux\OsDateTimeLinux.h"\
 	"..\sipXportLib\include\os\linux\OsLinuxDefs.h"\
@@ -15240,8 +14511,6 @@ DEP_CPP_MPDGIPSIP=\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
 	"..\sipXsdpLib\include\sdp\SdpCodec.h"\
-	".\include\mp\GIPS\GIPS_API.h"\
-	".\include\mp\GIPS\gips_typedefs.h"\
 	".\include\mp\JB\jb_typedefs.h"\
 	".\include\mp\MpArrayBuf.h"\
 	".\include\mp\MpAudioConnection.h"\
@@ -15251,7 +14520,6 @@ DEP_CPP_MPDGIPSIP=\
 	".\include\mp\MpConnection.h"\
 	".\include\mp\MpDataBuf.h"\
 	".\include\mp\MpDecoderBase.h"\
-	".\include\mp\MpdGIPSiPCMWB.h"\
 	".\include\mp\MpRtpBuf.h"\
 	".\include\mp\MpTypes.h"\
 	".\include\rtcp\RtcpConfig.h"\
@@ -15298,95 +14566,62 @@ DEP_CPP_MPDGIPSIP=\
 	{$(INCLUDE)}"stl\_stlport_version.h"\
 	{$(INCLUDE)}"stl_user_config.h"\
 	
-NODEP_CPP_MPDGIPSIP=\
 	"..\..\..\..\usr\include\pthread.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsBSemVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsDateTimeVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsMutexVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsVxwDefs.h"\
-	".\include\mp\GIPS\GIPS\Vendor_GIPS_API.h"\
-	".\include\mp\GIPS\GIPS\Vendor_gips_typedefs.h"\
 	".\include\mp\vxWorks.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSIV_FP) Release"
 
-NODEP_CPP_MPDGIPSIP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSiPCMWB.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSIV_FP) Debug"
 
-NODEP_CPP_MPDGIPSIP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSiPCMWB.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4) Release"
 
-NODEP_CPP_MPDGIPSIP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSiPCMWB.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4) Debug"
 
-NODEP_CPP_MPDGIPSIP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSiPCMWB.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPS16) Release"
 
-NODEP_CPP_MPDGIPSIP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSiPCMWB.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPS16) Debug"
 
-NODEP_CPP_MPDGIPSIP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSiPCMWB.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4T) Release"
 
-NODEP_CPP_MPDGIPSIP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSiPCMWB.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4T) Debug"
 
-NODEP_CPP_MPDGIPSIP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSiPCMWB.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE x86) Release"
 
-NODEP_CPP_MPDGIPSIP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSiPCMWB.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE x86) Debug"
 
-NODEP_CPP_MPDGIPSIP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSiPCMWB.h"\
 	
 
 !ENDIF 
@@ -15394,110 +14629,75 @@ NODEP_CPP_MPDGIPSIP=\
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\mp\MpdGIPSPCMA.cpp
 
 !IF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSII_FP) Release"
 
-NODEP_CPP_MPDGIPSP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSPCMA.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSII_FP) Debug"
 
-NODEP_CPP_MPDGIPSP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSPCMA.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSII) Release"
 
-NODEP_CPP_MPDGIPSP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSPCMA.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSII) Debug"
 
-NODEP_CPP_MPDGIPSP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSPCMA.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE SH4) Release"
 
-NODEP_CPP_MPDGIPSP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSPCMA.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE SH4) Debug"
 
-NODEP_CPP_MPDGIPSP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSPCMA.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE SH3) Release"
 
-NODEP_CPP_MPDGIPSP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSPCMA.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE SH3) Debug"
 
-NODEP_CPP_MPDGIPSP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSPCMA.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSIV) Release"
 
-NODEP_CPP_MPDGIPSP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSPCMA.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSIV) Debug"
 
-NODEP_CPP_MPDGIPSP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSPCMA.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE emulator) Release"
 
-NODEP_CPP_MPDGIPSP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSPCMA.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE emulator) Debug"
 
-DEP_CPP_MPDGIPSP=\
 	"..\sipXportLib\include\os\linux\AdapterInfo.h"\
 	"..\sipXportLib\include\os\linux\OsBSemLinux.h"\
 	"..\sipXportLib\include\os\linux\OsCSemLinux.h"\
@@ -15542,15 +14742,12 @@ DEP_CPP_MPDGIPSP=\
 	"..\sipXportLib\include\utl\UtlList.h"\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
-	".\include\mp\GIPS\GIPS_API.h"\
-	".\include\mp\GIPS\gips_typedefs.h"\
 	".\include\mp\JB\JB_API.h"\
 	".\include\mp\JB\jb_typedefs.h"\
 	".\include\mp\MpBuf.h"\
 	".\include\mp\MpCodecInfo.h"\
 	".\include\mp\MpConnection.h"\
 	".\include\mp\MpDecoderBase.h"\
-	".\include\mp\MpdGIPSPCMA.h"\
 	".\include\mp\MpFlowGraphMsg.h"\
 	".\include\mp\MpMisc.h"\
 	".\include\mp\MprDejitter.h"\
@@ -15570,7 +14767,6 @@ DEP_CPP_MPDGIPSP=\
 	".\include\rtcp\ISetSenderStatistics.h"\
 	".\include\rtcp\RtcpConfig.h"\
 	
-NODEP_CPP_MPDGIPSP=\
 	"..\..\..\..\usr\include\pthread.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsBSemVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsCSemVxw.h"\
@@ -15580,8 +14776,6 @@ NODEP_CPP_MPDGIPSP=\
 	"..\sipXportLib\include\os\os\Vxw\OsTaskVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsVxwDefs.h"\
 	"..\sipXtackLib\include\net\SdpCodec.h"\
-	".\include\mp\GIPS\GIPS\Vendor_GIPS_API.h"\
-	".\include\mp\GIPS\GIPS\Vendor_gips_typedefs.h"\
 	".\include\mp\vxWorks.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
@@ -15629,16 +14823,12 @@ NODEP_CPP_MPDGIPSP=\
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4I) Release"
 
-NODEP_CPP_MPDGIPSP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSPCMA.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4I) Debug"
 
-DEP_CPP_MPDGIPSP=\
 	"..\sipXportLib\include\os\linux\OsBSemLinux.h"\
 	"..\sipXportLib\include\os\linux\OsDateTimeLinux.h"\
 	"..\sipXportLib\include\os\linux\OsLinuxDefs.h"\
@@ -15667,8 +14857,6 @@ DEP_CPP_MPDGIPSP=\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
 	"..\sipXsdpLib\include\sdp\SdpCodec.h"\
-	".\include\mp\GIPS\GIPS_API.h"\
-	".\include\mp\GIPS\gips_typedefs.h"\
 	".\include\mp\JB\jb_typedefs.h"\
 	".\include\mp\MpArrayBuf.h"\
 	".\include\mp\MpAudioConnection.h"\
@@ -15678,7 +14866,6 @@ DEP_CPP_MPDGIPSP=\
 	".\include\mp\MpConnection.h"\
 	".\include\mp\MpDataBuf.h"\
 	".\include\mp\MpDecoderBase.h"\
-	".\include\mp\MpdGIPSPCMA.h"\
 	".\include\mp\MprDejitter.h"\
 	".\include\mp\MpRtpBuf.h"\
 	".\include\mp\MpTypes.h"\
@@ -15726,104 +14913,71 @@ DEP_CPP_MPDGIPSP=\
 	{$(INCLUDE)}"stl\_stlport_version.h"\
 	{$(INCLUDE)}"stl_user_config.h"\
 	
-NODEP_CPP_MPDGIPSP=\
 	"..\..\..\..\usr\include\pthread.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsBSemVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsDateTimeVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsMutexVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsVxwDefs.h"\
-	".\include\mp\GIPS\GIPS\Vendor_GIPS_API.h"\
-	".\include\mp\GIPS\GIPS\Vendor_gips_typedefs.h"\
 	".\include\mp\vxWorks.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSIV_FP) Release"
 
-NODEP_CPP_MPDGIPSP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSPCMA.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSIV_FP) Debug"
 
-NODEP_CPP_MPDGIPSP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSPCMA.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4) Release"
 
-NODEP_CPP_MPDGIPSP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSPCMA.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4) Debug"
 
-NODEP_CPP_MPDGIPSP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSPCMA.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPS16) Release"
 
-NODEP_CPP_MPDGIPSP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSPCMA.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPS16) Debug"
 
-NODEP_CPP_MPDGIPSP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSPCMA.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4T) Release"
 
-NODEP_CPP_MPDGIPSP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSPCMA.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4T) Debug"
 
-NODEP_CPP_MPDGIPSP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSPCMA.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE x86) Release"
 
-NODEP_CPP_MPDGIPSP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSPCMA.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE x86) Debug"
 
-NODEP_CPP_MPDGIPSP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSPCMA.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
@@ -15832,110 +14986,75 @@ NODEP_CPP_MPDGIPSP=\
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\mp\MpdGIPSPCMU.cpp
 
 !IF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSII_FP) Release"
 
-NODEP_CPP_MPDGIPSPC=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSPCMU.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSII_FP) Debug"
 
-NODEP_CPP_MPDGIPSPC=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSPCMU.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSII) Release"
 
-NODEP_CPP_MPDGIPSPC=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSPCMU.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSII) Debug"
 
-NODEP_CPP_MPDGIPSPC=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSPCMU.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE SH4) Release"
 
-NODEP_CPP_MPDGIPSPC=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSPCMU.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE SH4) Debug"
 
-NODEP_CPP_MPDGIPSPC=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSPCMU.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE SH3) Release"
 
-NODEP_CPP_MPDGIPSPC=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSPCMU.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE SH3) Debug"
 
-NODEP_CPP_MPDGIPSPC=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSPCMU.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSIV) Release"
 
-NODEP_CPP_MPDGIPSPC=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSPCMU.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSIV) Debug"
 
-NODEP_CPP_MPDGIPSPC=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSPCMU.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE emulator) Release"
 
-NODEP_CPP_MPDGIPSPC=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSPCMU.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE emulator) Debug"
 
-DEP_CPP_MPDGIPSPC=\
 	"..\sipXportLib\include\os\linux\AdapterInfo.h"\
 	"..\sipXportLib\include\os\linux\OsBSemLinux.h"\
 	"..\sipXportLib\include\os\linux\OsCSemLinux.h"\
@@ -15980,15 +15099,12 @@ DEP_CPP_MPDGIPSPC=\
 	"..\sipXportLib\include\utl\UtlList.h"\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
-	".\include\mp\GIPS\GIPS_API.h"\
-	".\include\mp\GIPS\gips_typedefs.h"\
 	".\include\mp\JB\JB_API.h"\
 	".\include\mp\JB\jb_typedefs.h"\
 	".\include\mp\MpBuf.h"\
 	".\include\mp\MpCodecInfo.h"\
 	".\include\mp\MpConnection.h"\
 	".\include\mp\MpDecoderBase.h"\
-	".\include\mp\MpdGIPSPCMU.h"\
 	".\include\mp\MpFlowGraphMsg.h"\
 	".\include\mp\MpMisc.h"\
 	".\include\mp\MprDejitter.h"\
@@ -16008,7 +15124,6 @@ DEP_CPP_MPDGIPSPC=\
 	".\include\rtcp\ISetSenderStatistics.h"\
 	".\include\rtcp\RtcpConfig.h"\
 	
-NODEP_CPP_MPDGIPSPC=\
 	"..\..\..\..\usr\include\pthread.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsBSemVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsCSemVxw.h"\
@@ -16018,8 +15133,6 @@ NODEP_CPP_MPDGIPSPC=\
 	"..\sipXportLib\include\os\os\Vxw\OsTaskVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsVxwDefs.h"\
 	"..\sipXtackLib\include\net\SdpCodec.h"\
-	".\include\mp\GIPS\GIPS\Vendor_GIPS_API.h"\
-	".\include\mp\GIPS\GIPS\Vendor_gips_typedefs.h"\
 	".\include\mp\vxWorks.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
@@ -16067,16 +15180,12 @@ NODEP_CPP_MPDGIPSPC=\
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4I) Release"
 
-NODEP_CPP_MPDGIPSPC=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSPCMU.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4I) Debug"
 
-DEP_CPP_MPDGIPSPC=\
 	"..\sipXportLib\include\os\linux\OsBSemLinux.h"\
 	"..\sipXportLib\include\os\linux\OsDateTimeLinux.h"\
 	"..\sipXportLib\include\os\linux\OsLinuxDefs.h"\
@@ -16105,8 +15214,6 @@ DEP_CPP_MPDGIPSPC=\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
 	"..\sipXsdpLib\include\sdp\SdpCodec.h"\
-	".\include\mp\GIPS\GIPS_API.h"\
-	".\include\mp\GIPS\gips_typedefs.h"\
 	".\include\mp\JB\jb_typedefs.h"\
 	".\include\mp\MpArrayBuf.h"\
 	".\include\mp\MpAudioConnection.h"\
@@ -16116,7 +15223,6 @@ DEP_CPP_MPDGIPSPC=\
 	".\include\mp\MpConnection.h"\
 	".\include\mp\MpDataBuf.h"\
 	".\include\mp\MpDecoderBase.h"\
-	".\include\mp\MpdGIPSPCMU.h"\
 	".\include\mp\MprDejitter.h"\
 	".\include\mp\MpRtpBuf.h"\
 	".\include\mp\MpTypes.h"\
@@ -16164,104 +15270,71 @@ DEP_CPP_MPDGIPSPC=\
 	{$(INCLUDE)}"stl\_stlport_version.h"\
 	{$(INCLUDE)}"stl_user_config.h"\
 	
-NODEP_CPP_MPDGIPSPC=\
 	"..\..\..\..\usr\include\pthread.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsBSemVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsDateTimeVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsMutexVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsVxwDefs.h"\
-	".\include\mp\GIPS\GIPS\Vendor_GIPS_API.h"\
-	".\include\mp\GIPS\GIPS\Vendor_gips_typedefs.h"\
 	".\include\mp\vxWorks.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSIV_FP) Release"
 
-NODEP_CPP_MPDGIPSPC=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSPCMU.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSIV_FP) Debug"
 
-NODEP_CPP_MPDGIPSPC=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSPCMU.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4) Release"
 
-NODEP_CPP_MPDGIPSPC=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSPCMU.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4) Debug"
 
-NODEP_CPP_MPDGIPSPC=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSPCMU.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPS16) Release"
 
-NODEP_CPP_MPDGIPSPC=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSPCMU.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPS16) Debug"
 
-NODEP_CPP_MPDGIPSPC=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSPCMU.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4T) Release"
 
-NODEP_CPP_MPDGIPSPC=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSPCMU.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4T) Debug"
 
-NODEP_CPP_MPDGIPSPC=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSPCMU.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE x86) Release"
 
-NODEP_CPP_MPDGIPSPC=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSPCMU.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE x86) Debug"
 
-NODEP_CPP_MPDGIPSPC=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
-	".\src\mp\mp\MpdGIPSPCMU.h"\
 	".\src\mp\mp\MprDejitter.h"\
 	
 
@@ -16454,8 +15527,6 @@ DEP_CPP_MPDPT=\
 	"..\sipXportLib\include\utl\UtlList.h"\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
-	".\include\mp\GIPS\GIPS_API.h"\
-	".\include\mp\GIPS\gips_typedefs.h"\
 	".\include\mp\JB\JB_API.h"\
 	".\include\mp\JB\jb_typedefs.h"\
 	".\include\mp\MpBuf.h"\
@@ -16493,8 +15564,6 @@ NODEP_CPP_MPDPT=\
 	"..\sipXportLib\include\os\os\Vxw\OsTaskVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsVxwDefs.h"\
 	"..\sipXtackLib\include\net\SdpCodec.h"\
-	".\include\mp\GIPS\GIPS\Vendor_GIPS_API.h"\
-	".\include\mp\GIPS\GIPS\Vendor_gips_typedefs.h"\
 	".\include\mp\vxWorks.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
@@ -16604,8 +15673,6 @@ DEP_CPP_MPDPT=\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
 	"..\sipXsdpLib\include\sdp\SdpCodec.h"\
-	".\include\mp\GIPS\GIPS_API.h"\
-	".\include\mp\GIPS\gips_typedefs.h"\
 	".\include\mp\JB\JB_API.h"\
 	".\include\mp\JB\jb_typedefs.h"\
 	".\include\mp\MpArrayBuf.h"\
@@ -16680,8 +15747,6 @@ NODEP_CPP_MPDPT=\
 	"..\sipXportLib\include\os\os\Vxw\OsMutexVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsTaskVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsVxwDefs.h"\
-	".\include\mp\GIPS\GIPS\Vendor_GIPS_API.h"\
-	".\include\mp\GIPS\GIPS\Vendor_gips_typedefs.h"\
 	".\include\mp\vxWorks.h"\
 	
 
@@ -16980,8 +16045,6 @@ DEP_CPP_MPDSI=\
 	"..\sipXportLib\include\utl\UtlList.h"\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
-	".\include\mp\GIPS\GIPS_API.h"\
-	".\include\mp\GIPS\gips_typedefs.h"\
 	".\include\mp\JB\JB_API.h"\
 	".\include\mp\JB\jb_typedefs.h"\
 	".\include\mp\MpBuf.h"\
@@ -17019,8 +16082,6 @@ NODEP_CPP_MPDSI=\
 	"..\sipXportLib\include\os\os\Vxw\OsTaskVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsVxwDefs.h"\
 	"..\sipXtackLib\include\net\SdpCodec.h"\
-	".\include\mp\GIPS\GIPS\Vendor_GIPS_API.h"\
-	".\include\mp\GIPS\GIPS\Vendor_gips_typedefs.h"\
 	".\include\mp\vxWorks.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
@@ -17115,8 +16176,6 @@ DEP_CPP_MPDSI=\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
 	"..\sipXsdpLib\include\sdp\SdpCodec.h"\
-	".\include\mp\GIPS\GIPS_API.h"\
-	".\include\mp\GIPS\gips_typedefs.h"\
 	".\include\mp\JB\JB_API.h"\
 	".\include\mp\JB\jb_typedefs.h"\
 	".\include\mp\MpArrayBuf.h"\
@@ -17186,8 +16245,6 @@ NODEP_CPP_MPDSI=\
 	"..\sipXportLib\include\os\os\Vxw\OsMsgQVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsMutexVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsVxwDefs.h"\
-	".\include\mp\GIPS\GIPS\Vendor_GIPS_API.h"\
-	".\include\mp\GIPS\GIPS\Vendor_gips_typedefs.h"\
 	".\include\mp\vxWorks.h"\
 	
 
@@ -17476,8 +16533,6 @@ DEP_CPP_MPDSIP=\
 	"..\sipXportLib\include\utl\UtlList.h"\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
-	".\include\mp\GIPS\GIPS_API.h"\
-	".\include\mp\GIPS\gips_typedefs.h"\
 	".\include\mp\JB\JB_API.h"\
 	".\include\mp\JB\jb_typedefs.h"\
 	".\include\mp\MpBuf.h"\
@@ -17515,8 +16570,6 @@ NODEP_CPP_MPDSIP=\
 	"..\sipXportLib\include\os\os\Vxw\OsTaskVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsVxwDefs.h"\
 	"..\sipXtackLib\include\net\SdpCodec.h"\
-	".\include\mp\GIPS\GIPS\Vendor_GIPS_API.h"\
-	".\include\mp\GIPS\GIPS\Vendor_gips_typedefs.h"\
 	".\include\mp\vxWorks.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
@@ -17611,8 +16664,6 @@ DEP_CPP_MPDSIP=\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
 	"..\sipXsdpLib\include\sdp\SdpCodec.h"\
-	".\include\mp\GIPS\GIPS_API.h"\
-	".\include\mp\GIPS\gips_typedefs.h"\
 	".\include\mp\JB\JB_API.h"\
 	".\include\mp\JB\jb_typedefs.h"\
 	".\include\mp\MpArrayBuf.h"\
@@ -17682,8 +16733,6 @@ NODEP_CPP_MPDSIP=\
 	"..\sipXportLib\include\os\os\Vxw\OsMsgQVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsMutexVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsVxwDefs.h"\
-	".\include\mp\GIPS\GIPS\Vendor_GIPS_API.h"\
-	".\include\mp\GIPS\GIPS\Vendor_gips_typedefs.h"\
 	".\include\mp\vxWorks.h"\
 	
 
@@ -17802,7 +16851,6 @@ NODEP_CPP_MPDSIP=\
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\mp\MpeGIPSG729ab.cpp
 
 !IF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSII_FP) Release"
 
@@ -17810,7 +16858,6 @@ NODEP_CPP_MPEGI=\
 	".\src\mp\mp\iG729\_ippdefs.h"\
 	".\src\mp\mp\iG729\_p729.h"\
 	".\src\mp\mp\iG729\ippdefs.h"\
-	".\src\mp\mp\MpeGIPSG729ab.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSII_FP) Debug"
@@ -17819,7 +16866,6 @@ NODEP_CPP_MPEGI=\
 	".\src\mp\mp\iG729\_ippdefs.h"\
 	".\src\mp\mp\iG729\_p729.h"\
 	".\src\mp\mp\iG729\ippdefs.h"\
-	".\src\mp\mp\MpeGIPSG729ab.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSII) Release"
@@ -17828,7 +16874,6 @@ NODEP_CPP_MPEGI=\
 	".\src\mp\mp\iG729\_ippdefs.h"\
 	".\src\mp\mp\iG729\_p729.h"\
 	".\src\mp\mp\iG729\ippdefs.h"\
-	".\src\mp\mp\MpeGIPSG729ab.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSII) Debug"
@@ -17837,7 +16882,6 @@ NODEP_CPP_MPEGI=\
 	".\src\mp\mp\iG729\_ippdefs.h"\
 	".\src\mp\mp\iG729\_p729.h"\
 	".\src\mp\mp\iG729\ippdefs.h"\
-	".\src\mp\mp\MpeGIPSG729ab.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE SH4) Release"
@@ -17846,7 +16890,6 @@ NODEP_CPP_MPEGI=\
 	".\src\mp\mp\iG729\_ippdefs.h"\
 	".\src\mp\mp\iG729\_p729.h"\
 	".\src\mp\mp\iG729\ippdefs.h"\
-	".\src\mp\mp\MpeGIPSG729ab.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE SH4) Debug"
@@ -17855,7 +16898,6 @@ NODEP_CPP_MPEGI=\
 	".\src\mp\mp\iG729\_ippdefs.h"\
 	".\src\mp\mp\iG729\_p729.h"\
 	".\src\mp\mp\iG729\ippdefs.h"\
-	".\src\mp\mp\MpeGIPSG729ab.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE SH3) Release"
@@ -17864,7 +16906,6 @@ NODEP_CPP_MPEGI=\
 	".\src\mp\mp\iG729\_ippdefs.h"\
 	".\src\mp\mp\iG729\_p729.h"\
 	".\src\mp\mp\iG729\ippdefs.h"\
-	".\src\mp\mp\MpeGIPSG729ab.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE SH3) Debug"
@@ -17873,7 +16914,6 @@ NODEP_CPP_MPEGI=\
 	".\src\mp\mp\iG729\_ippdefs.h"\
 	".\src\mp\mp\iG729\_p729.h"\
 	".\src\mp\mp\iG729\ippdefs.h"\
-	".\src\mp\mp\MpeGIPSG729ab.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSIV) Release"
@@ -17882,7 +16922,6 @@ NODEP_CPP_MPEGI=\
 	".\src\mp\mp\iG729\_ippdefs.h"\
 	".\src\mp\mp\iG729\_p729.h"\
 	".\src\mp\mp\iG729\ippdefs.h"\
-	".\src\mp\mp\MpeGIPSG729ab.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSIV) Debug"
@@ -17891,7 +16930,6 @@ NODEP_CPP_MPEGI=\
 	".\src\mp\mp\iG729\_ippdefs.h"\
 	".\src\mp\mp\iG729\_p729.h"\
 	".\src\mp\mp\iG729\ippdefs.h"\
-	".\src\mp\mp\MpeGIPSG729ab.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE emulator) Release"
@@ -17900,7 +16938,6 @@ NODEP_CPP_MPEGI=\
 	".\src\mp\mp\iG729\_ippdefs.h"\
 	".\src\mp\mp\iG729\_p729.h"\
 	".\src\mp\mp\iG729\ippdefs.h"\
-	".\src\mp\mp\MpeGIPSG729ab.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE emulator) Debug"
@@ -17941,7 +16978,6 @@ DEP_CPP_MPEGI=\
 	"..\sipXportLib\include\utl\UtlString.h"\
 	".\include\mp\MpBuf.h"\
 	".\include\mp\MpCodecInfo.h"\
-	".\include\mp\MpeGIPSG729ab.h"\
 	".\include\mp\MpEncoderBase.h"\
 	".\include\mp\MpMisc.h"\
 	".\include\mp\MpTypes.h"\
@@ -18012,7 +17048,6 @@ NODEP_CPP_MPEGI=\
 	".\src\mp\mp\iG729\_ippdefs.h"\
 	".\src\mp\mp\iG729\_p729.h"\
 	".\src\mp\mp\iG729\ippdefs.h"\
-	".\src\mp\mp\MpeGIPSG729ab.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4I) Debug"
@@ -18052,7 +17087,6 @@ DEP_CPP_MPEGI=\
 	".\include\mp\MpBufPool.h"\
 	".\include\mp\MpCodecInfo.h"\
 	".\include\mp\MpDataBuf.h"\
-	".\include\mp\MpeGIPSG729ab.h"\
 	".\include\mp\MpEncoderBase.h"\
 	".\include\mp\MpTypes.h"\
 	{$(INCLUDE)}"config\_epilog.h"\
@@ -18119,7 +17153,6 @@ NODEP_CPP_MPEGI=\
 	".\src\mp\mp\iG729\_ippdefs.h"\
 	".\src\mp\mp\iG729\_p729.h"\
 	".\src\mp\mp\iG729\ippdefs.h"\
-	".\src\mp\mp\MpeGIPSG729ab.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSIV_FP) Debug"
@@ -18128,7 +17161,6 @@ NODEP_CPP_MPEGI=\
 	".\src\mp\mp\iG729\_ippdefs.h"\
 	".\src\mp\mp\iG729\_p729.h"\
 	".\src\mp\mp\iG729\ippdefs.h"\
-	".\src\mp\mp\MpeGIPSG729ab.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4) Release"
@@ -18137,7 +17169,6 @@ NODEP_CPP_MPEGI=\
 	".\src\mp\mp\iG729\_ippdefs.h"\
 	".\src\mp\mp\iG729\_p729.h"\
 	".\src\mp\mp\iG729\ippdefs.h"\
-	".\src\mp\mp\MpeGIPSG729ab.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4) Debug"
@@ -18146,7 +17177,6 @@ NODEP_CPP_MPEGI=\
 	".\src\mp\mp\iG729\_ippdefs.h"\
 	".\src\mp\mp\iG729\_p729.h"\
 	".\src\mp\mp\iG729\ippdefs.h"\
-	".\src\mp\mp\MpeGIPSG729ab.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPS16) Release"
@@ -18155,7 +17185,6 @@ NODEP_CPP_MPEGI=\
 	".\src\mp\mp\iG729\_ippdefs.h"\
 	".\src\mp\mp\iG729\_p729.h"\
 	".\src\mp\mp\iG729\ippdefs.h"\
-	".\src\mp\mp\MpeGIPSG729ab.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPS16) Debug"
@@ -18164,7 +17193,6 @@ NODEP_CPP_MPEGI=\
 	".\src\mp\mp\iG729\_ippdefs.h"\
 	".\src\mp\mp\iG729\_p729.h"\
 	".\src\mp\mp\iG729\ippdefs.h"\
-	".\src\mp\mp\MpeGIPSG729ab.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4T) Release"
@@ -18173,7 +17201,6 @@ NODEP_CPP_MPEGI=\
 	".\src\mp\mp\iG729\_ippdefs.h"\
 	".\src\mp\mp\iG729\_p729.h"\
 	".\src\mp\mp\iG729\ippdefs.h"\
-	".\src\mp\mp\MpeGIPSG729ab.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4T) Debug"
@@ -18182,7 +17209,6 @@ NODEP_CPP_MPEGI=\
 	".\src\mp\mp\iG729\_ippdefs.h"\
 	".\src\mp\mp\iG729\_p729.h"\
 	".\src\mp\mp\iG729\ippdefs.h"\
-	".\src\mp\mp\MpeGIPSG729ab.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE x86) Release"
@@ -18191,7 +17217,6 @@ NODEP_CPP_MPEGI=\
 	".\src\mp\mp\iG729\_ippdefs.h"\
 	".\src\mp\mp\iG729\_p729.h"\
 	".\src\mp\mp\iG729\ippdefs.h"\
-	".\src\mp\mp\MpeGIPSG729ab.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE x86) Debug"
@@ -18200,7 +17225,6 @@ NODEP_CPP_MPEGI=\
 	".\src\mp\mp\iG729\_ippdefs.h"\
 	".\src\mp\mp\iG729\_p729.h"\
 	".\src\mp\mp\iG729\ippdefs.h"\
-	".\src\mp\mp\MpeGIPSG729ab.h"\
 	
 
 !ENDIF 
@@ -18208,83 +17232,60 @@ NODEP_CPP_MPEGI=\
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\mp\MpeGIPSiLBC.cpp
 
 !IF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSII_FP) Release"
 
 NODEP_CPP_MPEGIP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSiLBC.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSII_FP) Debug"
 
 NODEP_CPP_MPEGIP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSiLBC.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSII) Release"
 
 NODEP_CPP_MPEGIP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSiLBC.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSII) Debug"
 
 NODEP_CPP_MPEGIP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSiLBC.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE SH4) Release"
 
 NODEP_CPP_MPEGIP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSiLBC.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE SH4) Debug"
 
 NODEP_CPP_MPEGIP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSiLBC.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE SH3) Release"
 
 NODEP_CPP_MPEGIP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSiLBC.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE SH3) Debug"
 
 NODEP_CPP_MPEGIP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSiLBC.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSIV) Release"
 
 NODEP_CPP_MPEGIP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSiLBC.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSIV) Debug"
 
 NODEP_CPP_MPEGIP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSiLBC.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE emulator) Release"
 
 NODEP_CPP_MPEGIP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSiLBC.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE emulator) Debug"
@@ -18323,11 +17324,8 @@ DEP_CPP_MPEGIP=\
 	"..\sipXportLib\include\utl\UtlList.h"\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
-	".\include\mp\GIPS\GIPS_API.h"\
-	".\include\mp\GIPS\gips_typedefs.h"\
 	".\include\mp\MpBuf.h"\
 	".\include\mp\MpCodecInfo.h"\
-	".\include\mp\MpeGIPSiLBC.h"\
 	".\include\mp\MpEncoderBase.h"\
 	".\include\mp\MpMisc.h"\
 	".\include\mp\MpTypes.h"\
@@ -18341,8 +17339,6 @@ NODEP_CPP_MPEGIP=\
 	"..\sipXportLib\include\os\os\Vxw\OsMutexVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsVxwDefs.h"\
 	"..\sipXtackLib\include\net\SdpCodec.h"\
-	".\include\mp\GIPS\GIPS\Vendor_GIPS_API.h"\
-	".\include\mp\GIPS\GIPS\Vendor_gips_typedefs.h"\
 	".\include\mp\vxWorks.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
@@ -18391,8 +17387,6 @@ NODEP_CPP_MPEGIP=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4I) Release"
 
 NODEP_CPP_MPEGIP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSiLBC.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4I) Debug"
@@ -18426,15 +17420,12 @@ DEP_CPP_MPEGIP=\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
 	"..\sipXsdpLib\include\sdp\SdpCodec.h"\
-	".\include\mp\GIPS\GIPS_API.h"\
-	".\include\mp\GIPS\gips_typedefs.h"\
 	".\include\mp\MpArrayBuf.h"\
 	".\include\mp\MpAudioBuf.h"\
 	".\include\mp\MpBuf.h"\
 	".\include\mp\MpBufPool.h"\
 	".\include\mp\MpCodecInfo.h"\
 	".\include\mp\MpDataBuf.h"\
-	".\include\mp\MpeGIPSiLBC.h"\
 	".\include\mp\MpEncoderBase.h"\
 	".\include\mp\MpTypes.h"\
 	{$(INCLUDE)}"config\_epilog.h"\
@@ -18486,79 +17477,57 @@ NODEP_CPP_MPEGIP=\
 	"..\sipXportLib\include\os\os\Vxw\OsDateTimeVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsMutexVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsVxwDefs.h"\
-	".\include\mp\GIPS\GIPS\Vendor_GIPS_API.h"\
-	".\include\mp\GIPS\GIPS\Vendor_gips_typedefs.h"\
 	".\include\mp\vxWorks.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSIV_FP) Release"
 
 NODEP_CPP_MPEGIP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSiLBC.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSIV_FP) Debug"
 
 NODEP_CPP_MPEGIP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSiLBC.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4) Release"
 
 NODEP_CPP_MPEGIP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSiLBC.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4) Debug"
 
 NODEP_CPP_MPEGIP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSiLBC.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPS16) Release"
 
 NODEP_CPP_MPEGIP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSiLBC.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPS16) Debug"
 
 NODEP_CPP_MPEGIP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSiLBC.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4T) Release"
 
 NODEP_CPP_MPEGIP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSiLBC.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4T) Debug"
 
 NODEP_CPP_MPEGIP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSiLBC.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE x86) Release"
 
 NODEP_CPP_MPEGIP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSiLBC.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE x86) Debug"
 
 NODEP_CPP_MPEGIP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSiLBC.h"\
 	
 
 !ENDIF 
@@ -18566,88 +17535,53 @@ NODEP_CPP_MPEGIP=\
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\mp\MpeGIPSiPCMA.cpp
 
 !IF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSII_FP) Release"
 
-NODEP_CPP_MPEGIPS=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSiPCMA.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSII_FP) Debug"
 
-NODEP_CPP_MPEGIPS=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSiPCMA.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSII) Release"
 
-NODEP_CPP_MPEGIPS=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSiPCMA.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSII) Debug"
 
-NODEP_CPP_MPEGIPS=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSiPCMA.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE SH4) Release"
 
-NODEP_CPP_MPEGIPS=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSiPCMA.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE SH4) Debug"
 
-NODEP_CPP_MPEGIPS=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSiPCMA.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE SH3) Release"
 
-NODEP_CPP_MPEGIPS=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSiPCMA.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE SH3) Debug"
 
-NODEP_CPP_MPEGIPS=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSiPCMA.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSIV) Release"
 
-NODEP_CPP_MPEGIPS=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSiPCMA.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSIV) Debug"
 
-NODEP_CPP_MPEGIPS=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSiPCMA.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE emulator) Release"
 
-NODEP_CPP_MPEGIPS=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSiPCMA.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE emulator) Debug"
 
-DEP_CPP_MPEGIPS=\
 	"..\sipXportLib\include\os\linux\OsBSemLinux.h"\
 	"..\sipXportLib\include\os\linux\OsCSemLinux.h"\
 	"..\sipXportLib\include\os\linux\OsDateTimeLinux.h"\
@@ -18681,16 +17615,12 @@ DEP_CPP_MPEGIPS=\
 	"..\sipXportLib\include\utl\UtlList.h"\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
-	".\include\mp\GIPS\GIPS_API.h"\
-	".\include\mp\GIPS\gips_typedefs.h"\
 	".\include\mp\MpBuf.h"\
 	".\include\mp\MpCodecInfo.h"\
-	".\include\mp\MpeGIPSiPCMA.h"\
 	".\include\mp\MpEncoderBase.h"\
 	".\include\mp\MpMisc.h"\
 	".\include\mp\MpTypes.h"\
 	
-NODEP_CPP_MPEGIPS=\
 	"..\..\..\..\usr\include\pthread.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsBSemVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsCSemVxw.h"\
@@ -18699,8 +17629,6 @@ NODEP_CPP_MPEGIPS=\
 	"..\sipXportLib\include\os\os\Vxw\OsMutexVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsVxwDefs.h"\
 	"..\sipXtackLib\include\net\SdpCodec.h"\
-	".\include\mp\GIPS\GIPS\Vendor_GIPS_API.h"\
-	".\include\mp\GIPS\GIPS\Vendor_gips_typedefs.h"\
 	".\include\mp\vxWorks.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
@@ -18748,14 +17676,10 @@ NODEP_CPP_MPEGIPS=\
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4I) Release"
 
-NODEP_CPP_MPEGIPS=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSiPCMA.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4I) Debug"
 
-DEP_CPP_MPEGIPS=\
 	"..\sipXportLib\include\os\linux\OsBSemLinux.h"\
 	"..\sipXportLib\include\os\linux\OsDateTimeLinux.h"\
 	"..\sipXportLib\include\os\linux\OsLinuxDefs.h"\
@@ -18784,15 +17708,12 @@ DEP_CPP_MPEGIPS=\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
 	"..\sipXsdpLib\include\sdp\SdpCodec.h"\
-	".\include\mp\GIPS\GIPS_API.h"\
-	".\include\mp\GIPS\gips_typedefs.h"\
 	".\include\mp\MpArrayBuf.h"\
 	".\include\mp\MpAudioBuf.h"\
 	".\include\mp\MpBuf.h"\
 	".\include\mp\MpBufPool.h"\
 	".\include\mp\MpCodecInfo.h"\
 	".\include\mp\MpDataBuf.h"\
-	".\include\mp\MpeGIPSiPCMA.h"\
 	".\include\mp\MpEncoderBase.h"\
 	".\include\mp\MpTypes.h"\
 	{$(INCLUDE)}"config\_epilog.h"\
@@ -18838,85 +17759,52 @@ DEP_CPP_MPEGIPS=\
 	{$(INCLUDE)}"stl\_stlport_version.h"\
 	{$(INCLUDE)}"stl_user_config.h"\
 	
-NODEP_CPP_MPEGIPS=\
 	"..\..\..\..\usr\include\pthread.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsBSemVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsDateTimeVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsMutexVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsVxwDefs.h"\
-	".\include\mp\GIPS\GIPS\Vendor_GIPS_API.h"\
-	".\include\mp\GIPS\GIPS\Vendor_gips_typedefs.h"\
 	".\include\mp\vxWorks.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSIV_FP) Release"
 
-NODEP_CPP_MPEGIPS=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSiPCMA.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSIV_FP) Debug"
 
-NODEP_CPP_MPEGIPS=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSiPCMA.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4) Release"
 
-NODEP_CPP_MPEGIPS=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSiPCMA.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4) Debug"
 
-NODEP_CPP_MPEGIPS=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSiPCMA.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPS16) Release"
 
-NODEP_CPP_MPEGIPS=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSiPCMA.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPS16) Debug"
 
-NODEP_CPP_MPEGIPS=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSiPCMA.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4T) Release"
 
-NODEP_CPP_MPEGIPS=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSiPCMA.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4T) Debug"
 
-NODEP_CPP_MPEGIPS=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSiPCMA.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE x86) Release"
 
-NODEP_CPP_MPEGIPS=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSiPCMA.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE x86) Debug"
 
-NODEP_CPP_MPEGIPS=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSiPCMA.h"\
 	
 
 !ENDIF 
@@ -18924,88 +17812,53 @@ NODEP_CPP_MPEGIPS=\
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\mp\MpeGIPSiPCMU.cpp
 
 !IF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSII_FP) Release"
 
-NODEP_CPP_MPEGIPSI=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSiPCMU.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSII_FP) Debug"
 
-NODEP_CPP_MPEGIPSI=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSiPCMU.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSII) Release"
 
-NODEP_CPP_MPEGIPSI=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSiPCMU.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSII) Debug"
 
-NODEP_CPP_MPEGIPSI=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSiPCMU.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE SH4) Release"
 
-NODEP_CPP_MPEGIPSI=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSiPCMU.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE SH4) Debug"
 
-NODEP_CPP_MPEGIPSI=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSiPCMU.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE SH3) Release"
 
-NODEP_CPP_MPEGIPSI=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSiPCMU.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE SH3) Debug"
 
-NODEP_CPP_MPEGIPSI=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSiPCMU.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSIV) Release"
 
-NODEP_CPP_MPEGIPSI=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSiPCMU.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSIV) Debug"
 
-NODEP_CPP_MPEGIPSI=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSiPCMU.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE emulator) Release"
 
-NODEP_CPP_MPEGIPSI=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSiPCMU.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE emulator) Debug"
 
-DEP_CPP_MPEGIPSI=\
 	"..\sipXportLib\include\os\linux\OsBSemLinux.h"\
 	"..\sipXportLib\include\os\linux\OsCSemLinux.h"\
 	"..\sipXportLib\include\os\linux\OsDateTimeLinux.h"\
@@ -19039,16 +17892,12 @@ DEP_CPP_MPEGIPSI=\
 	"..\sipXportLib\include\utl\UtlList.h"\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
-	".\include\mp\GIPS\GIPS_API.h"\
-	".\include\mp\GIPS\gips_typedefs.h"\
 	".\include\mp\MpBuf.h"\
 	".\include\mp\MpCodecInfo.h"\
-	".\include\mp\MpeGIPSiPCMU.h"\
 	".\include\mp\MpEncoderBase.h"\
 	".\include\mp\MpMisc.h"\
 	".\include\mp\MpTypes.h"\
 	
-NODEP_CPP_MPEGIPSI=\
 	"..\..\..\..\usr\include\pthread.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsBSemVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsCSemVxw.h"\
@@ -19057,8 +17906,6 @@ NODEP_CPP_MPEGIPSI=\
 	"..\sipXportLib\include\os\os\Vxw\OsMutexVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsVxwDefs.h"\
 	"..\sipXtackLib\include\net\SdpCodec.h"\
-	".\include\mp\GIPS\GIPS\Vendor_GIPS_API.h"\
-	".\include\mp\GIPS\GIPS\Vendor_gips_typedefs.h"\
 	".\include\mp\vxWorks.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
@@ -19106,14 +17953,10 @@ NODEP_CPP_MPEGIPSI=\
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4I) Release"
 
-NODEP_CPP_MPEGIPSI=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSiPCMU.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4I) Debug"
 
-DEP_CPP_MPEGIPSI=\
 	"..\sipXportLib\include\os\linux\OsBSemLinux.h"\
 	"..\sipXportLib\include\os\linux\OsDateTimeLinux.h"\
 	"..\sipXportLib\include\os\linux\OsLinuxDefs.h"\
@@ -19142,15 +17985,12 @@ DEP_CPP_MPEGIPSI=\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
 	"..\sipXsdpLib\include\sdp\SdpCodec.h"\
-	".\include\mp\GIPS\GIPS_API.h"\
-	".\include\mp\GIPS\gips_typedefs.h"\
 	".\include\mp\MpArrayBuf.h"\
 	".\include\mp\MpAudioBuf.h"\
 	".\include\mp\MpBuf.h"\
 	".\include\mp\MpBufPool.h"\
 	".\include\mp\MpCodecInfo.h"\
 	".\include\mp\MpDataBuf.h"\
-	".\include\mp\MpeGIPSiPCMU.h"\
 	".\include\mp\MpEncoderBase.h"\
 	".\include\mp\MpTypes.h"\
 	{$(INCLUDE)}"config\_epilog.h"\
@@ -19196,85 +18036,52 @@ DEP_CPP_MPEGIPSI=\
 	{$(INCLUDE)}"stl\_stlport_version.h"\
 	{$(INCLUDE)}"stl_user_config.h"\
 	
-NODEP_CPP_MPEGIPSI=\
 	"..\..\..\..\usr\include\pthread.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsBSemVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsDateTimeVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsMutexVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsVxwDefs.h"\
-	".\include\mp\GIPS\GIPS\Vendor_GIPS_API.h"\
-	".\include\mp\GIPS\GIPS\Vendor_gips_typedefs.h"\
 	".\include\mp\vxWorks.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSIV_FP) Release"
 
-NODEP_CPP_MPEGIPSI=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSiPCMU.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSIV_FP) Debug"
 
-NODEP_CPP_MPEGIPSI=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSiPCMU.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4) Release"
 
-NODEP_CPP_MPEGIPSI=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSiPCMU.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4) Debug"
 
-NODEP_CPP_MPEGIPSI=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSiPCMU.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPS16) Release"
 
-NODEP_CPP_MPEGIPSI=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSiPCMU.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPS16) Debug"
 
-NODEP_CPP_MPEGIPSI=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSiPCMU.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4T) Release"
 
-NODEP_CPP_MPEGIPSI=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSiPCMU.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4T) Debug"
 
-NODEP_CPP_MPEGIPSI=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSiPCMU.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE x86) Release"
 
-NODEP_CPP_MPEGIPSI=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSiPCMU.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE x86) Debug"
 
-NODEP_CPP_MPEGIPSI=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSiPCMU.h"\
 	
 
 !ENDIF 
@@ -19282,88 +18089,53 @@ NODEP_CPP_MPEGIPSI=\
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\mp\MpeGIPSiPCMWB.cpp
 
 !IF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSII_FP) Release"
 
-NODEP_CPP_MPEGIPSIP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSiPCMWB.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSII_FP) Debug"
 
-NODEP_CPP_MPEGIPSIP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSiPCMWB.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSII) Release"
 
-NODEP_CPP_MPEGIPSIP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSiPCMWB.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSII) Debug"
 
-NODEP_CPP_MPEGIPSIP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSiPCMWB.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE SH4) Release"
 
-NODEP_CPP_MPEGIPSIP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSiPCMWB.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE SH4) Debug"
 
-NODEP_CPP_MPEGIPSIP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSiPCMWB.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE SH3) Release"
 
-NODEP_CPP_MPEGIPSIP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSiPCMWB.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE SH3) Debug"
 
-NODEP_CPP_MPEGIPSIP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSiPCMWB.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSIV) Release"
 
-NODEP_CPP_MPEGIPSIP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSiPCMWB.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSIV) Debug"
 
-NODEP_CPP_MPEGIPSIP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSiPCMWB.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE emulator) Release"
 
-NODEP_CPP_MPEGIPSIP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSiPCMWB.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE emulator) Debug"
 
-DEP_CPP_MPEGIPSIP=\
 	"..\sipXportLib\include\os\linux\OsBSemLinux.h"\
 	"..\sipXportLib\include\os\linux\OsCSemLinux.h"\
 	"..\sipXportLib\include\os\linux\OsDateTimeLinux.h"\
@@ -19397,16 +18169,12 @@ DEP_CPP_MPEGIPSIP=\
 	"..\sipXportLib\include\utl\UtlList.h"\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
-	".\include\mp\GIPS\GIPS_API.h"\
-	".\include\mp\GIPS\gips_typedefs.h"\
 	".\include\mp\MpBuf.h"\
 	".\include\mp\MpCodecInfo.h"\
-	".\include\mp\MpeGIPSiPCMWB.h"\
 	".\include\mp\MpEncoderBase.h"\
 	".\include\mp\MpMisc.h"\
 	".\include\mp\MpTypes.h"\
 	
-NODEP_CPP_MPEGIPSIP=\
 	"..\..\..\..\usr\include\pthread.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsBSemVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsCSemVxw.h"\
@@ -19415,8 +18183,6 @@ NODEP_CPP_MPEGIPSIP=\
 	"..\sipXportLib\include\os\os\Vxw\OsMutexVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsVxwDefs.h"\
 	"..\sipXtackLib\include\net\SdpCodec.h"\
-	".\include\mp\GIPS\GIPS\Vendor_GIPS_API.h"\
-	".\include\mp\GIPS\GIPS\Vendor_gips_typedefs.h"\
 	".\include\mp\vxWorks.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
@@ -19464,14 +18230,10 @@ NODEP_CPP_MPEGIPSIP=\
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4I) Release"
 
-NODEP_CPP_MPEGIPSIP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSiPCMWB.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4I) Debug"
 
-DEP_CPP_MPEGIPSIP=\
 	"..\sipXportLib\include\os\linux\OsBSemLinux.h"\
 	"..\sipXportLib\include\os\linux\OsDateTimeLinux.h"\
 	"..\sipXportLib\include\os\linux\OsLinuxDefs.h"\
@@ -19500,15 +18262,12 @@ DEP_CPP_MPEGIPSIP=\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
 	"..\sipXsdpLib\include\sdp\SdpCodec.h"\
-	".\include\mp\GIPS\GIPS_API.h"\
-	".\include\mp\GIPS\gips_typedefs.h"\
 	".\include\mp\MpArrayBuf.h"\
 	".\include\mp\MpAudioBuf.h"\
 	".\include\mp\MpBuf.h"\
 	".\include\mp\MpBufPool.h"\
 	".\include\mp\MpCodecInfo.h"\
 	".\include\mp\MpDataBuf.h"\
-	".\include\mp\MpeGIPSiPCMWB.h"\
 	".\include\mp\MpEncoderBase.h"\
 	".\include\mp\MpTypes.h"\
 	{$(INCLUDE)}"config\_epilog.h"\
@@ -19554,85 +18313,52 @@ DEP_CPP_MPEGIPSIP=\
 	{$(INCLUDE)}"stl\_stlport_version.h"\
 	{$(INCLUDE)}"stl_user_config.h"\
 	
-NODEP_CPP_MPEGIPSIP=\
 	"..\..\..\..\usr\include\pthread.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsBSemVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsDateTimeVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsMutexVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsVxwDefs.h"\
-	".\include\mp\GIPS\GIPS\Vendor_GIPS_API.h"\
-	".\include\mp\GIPS\GIPS\Vendor_gips_typedefs.h"\
 	".\include\mp\vxWorks.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSIV_FP) Release"
 
-NODEP_CPP_MPEGIPSIP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSiPCMWB.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSIV_FP) Debug"
 
-NODEP_CPP_MPEGIPSIP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSiPCMWB.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4) Release"
 
-NODEP_CPP_MPEGIPSIP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSiPCMWB.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4) Debug"
 
-NODEP_CPP_MPEGIPSIP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSiPCMWB.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPS16) Release"
 
-NODEP_CPP_MPEGIPSIP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSiPCMWB.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPS16) Debug"
 
-NODEP_CPP_MPEGIPSIP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSiPCMWB.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4T) Release"
 
-NODEP_CPP_MPEGIPSIP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSiPCMWB.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4T) Debug"
 
-NODEP_CPP_MPEGIPSIP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSiPCMWB.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE x86) Release"
 
-NODEP_CPP_MPEGIPSIP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSiPCMWB.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE x86) Debug"
 
-NODEP_CPP_MPEGIPSIP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSiPCMWB.h"\
 	
 
 !ENDIF 
@@ -19640,88 +18366,53 @@ NODEP_CPP_MPEGIPSIP=\
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\mp\MpeGIPSPCMA.cpp
 
 !IF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSII_FP) Release"
 
-NODEP_CPP_MPEGIPSP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSPCMA.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSII_FP) Debug"
 
-NODEP_CPP_MPEGIPSP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSPCMA.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSII) Release"
 
-NODEP_CPP_MPEGIPSP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSPCMA.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSII) Debug"
 
-NODEP_CPP_MPEGIPSP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSPCMA.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE SH4) Release"
 
-NODEP_CPP_MPEGIPSP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSPCMA.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE SH4) Debug"
 
-NODEP_CPP_MPEGIPSP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSPCMA.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE SH3) Release"
 
-NODEP_CPP_MPEGIPSP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSPCMA.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE SH3) Debug"
 
-NODEP_CPP_MPEGIPSP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSPCMA.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSIV) Release"
 
-NODEP_CPP_MPEGIPSP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSPCMA.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSIV) Debug"
 
-NODEP_CPP_MPEGIPSP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSPCMA.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE emulator) Release"
 
-NODEP_CPP_MPEGIPSP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSPCMA.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE emulator) Debug"
 
-DEP_CPP_MPEGIPSP=\
 	"..\sipXportLib\include\os\linux\OsBSemLinux.h"\
 	"..\sipXportLib\include\os\linux\OsCSemLinux.h"\
 	"..\sipXportLib\include\os\linux\OsDateTimeLinux.h"\
@@ -19755,15 +18446,12 @@ DEP_CPP_MPEGIPSP=\
 	"..\sipXportLib\include\utl\UtlList.h"\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
-	".\include\mp\GIPS\GIPS_API.h"\
 	".\include\mp\MpBuf.h"\
 	".\include\mp\MpCodecInfo.h"\
-	".\include\mp\MpeGIPSPCMA.h"\
 	".\include\mp\MpEncoderBase.h"\
 	".\include\mp\MpMisc.h"\
 	".\include\mp\MpTypes.h"\
 	
-NODEP_CPP_MPEGIPSP=\
 	"..\..\..\..\usr\include\pthread.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsBSemVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsCSemVxw.h"\
@@ -19772,7 +18460,6 @@ NODEP_CPP_MPEGIPSP=\
 	"..\sipXportLib\include\os\os\Vxw\OsMutexVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsVxwDefs.h"\
 	"..\sipXtackLib\include\net\SdpCodec.h"\
-	".\include\mp\GIPS\GIPS\Vendor_GIPS_API.h"\
 	".\include\mp\vxWorks.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
@@ -19820,14 +18507,10 @@ NODEP_CPP_MPEGIPSP=\
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4I) Release"
 
-NODEP_CPP_MPEGIPSP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSPCMA.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4I) Debug"
 
-DEP_CPP_MPEGIPSP=\
 	"..\sipXportLib\include\os\linux\OsBSemLinux.h"\
 	"..\sipXportLib\include\os\linux\OsDateTimeLinux.h"\
 	"..\sipXportLib\include\os\linux\OsLinuxDefs.h"\
@@ -19856,14 +18539,12 @@ DEP_CPP_MPEGIPSP=\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
 	"..\sipXsdpLib\include\sdp\SdpCodec.h"\
-	".\include\mp\GIPS\GIPS_API.h"\
 	".\include\mp\MpArrayBuf.h"\
 	".\include\mp\MpAudioBuf.h"\
 	".\include\mp\MpBuf.h"\
 	".\include\mp\MpBufPool.h"\
 	".\include\mp\MpCodecInfo.h"\
 	".\include\mp\MpDataBuf.h"\
-	".\include\mp\MpeGIPSPCMA.h"\
 	".\include\mp\MpEncoderBase.h"\
 	".\include\mp\MpTypes.h"\
 	{$(INCLUDE)}"config\_epilog.h"\
@@ -19909,84 +18590,52 @@ DEP_CPP_MPEGIPSP=\
 	{$(INCLUDE)}"stl\_stlport_version.h"\
 	{$(INCLUDE)}"stl_user_config.h"\
 	
-NODEP_CPP_MPEGIPSP=\
 	"..\..\..\..\usr\include\pthread.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsBSemVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsDateTimeVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsMutexVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsVxwDefs.h"\
-	".\include\mp\GIPS\GIPS\Vendor_GIPS_API.h"\
 	".\include\mp\vxWorks.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSIV_FP) Release"
 
-NODEP_CPP_MPEGIPSP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSPCMA.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSIV_FP) Debug"
 
-NODEP_CPP_MPEGIPSP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSPCMA.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4) Release"
 
-NODEP_CPP_MPEGIPSP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSPCMA.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4) Debug"
 
-NODEP_CPP_MPEGIPSP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSPCMA.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPS16) Release"
 
-NODEP_CPP_MPEGIPSP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSPCMA.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPS16) Debug"
 
-NODEP_CPP_MPEGIPSP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSPCMA.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4T) Release"
 
-NODEP_CPP_MPEGIPSP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSPCMA.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4T) Debug"
 
-NODEP_CPP_MPEGIPSP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSPCMA.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE x86) Release"
 
-NODEP_CPP_MPEGIPSP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSPCMA.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE x86) Debug"
 
-NODEP_CPP_MPEGIPSP=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSPCMA.h"\
 	
 
 !ENDIF 
@@ -19994,88 +18643,53 @@ NODEP_CPP_MPEGIPSP=\
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\mp\MpeGIPSPCMU.cpp
 
 !IF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSII_FP) Release"
 
-NODEP_CPP_MPEGIPSPC=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSPCMU.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSII_FP) Debug"
 
-NODEP_CPP_MPEGIPSPC=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSPCMU.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSII) Release"
 
-NODEP_CPP_MPEGIPSPC=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSPCMU.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSII) Debug"
 
-NODEP_CPP_MPEGIPSPC=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSPCMU.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE SH4) Release"
 
-NODEP_CPP_MPEGIPSPC=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSPCMU.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE SH4) Debug"
 
-NODEP_CPP_MPEGIPSPC=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSPCMU.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE SH3) Release"
 
-NODEP_CPP_MPEGIPSPC=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSPCMU.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE SH3) Debug"
 
-NODEP_CPP_MPEGIPSPC=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSPCMU.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSIV) Release"
 
-NODEP_CPP_MPEGIPSPC=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSPCMU.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSIV) Debug"
 
-NODEP_CPP_MPEGIPSPC=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSPCMU.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE emulator) Release"
 
-NODEP_CPP_MPEGIPSPC=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSPCMU.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE emulator) Debug"
 
-DEP_CPP_MPEGIPSPC=\
 	"..\sipXportLib\include\os\linux\OsBSemLinux.h"\
 	"..\sipXportLib\include\os\linux\OsCSemLinux.h"\
 	"..\sipXportLib\include\os\linux\OsDateTimeLinux.h"\
@@ -20109,15 +18723,12 @@ DEP_CPP_MPEGIPSPC=\
 	"..\sipXportLib\include\utl\UtlList.h"\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
-	".\include\mp\GIPS\GIPS_API.h"\
 	".\include\mp\MpBuf.h"\
 	".\include\mp\MpCodecInfo.h"\
-	".\include\mp\MpeGIPSPCMU.h"\
 	".\include\mp\MpEncoderBase.h"\
 	".\include\mp\MpMisc.h"\
 	".\include\mp\MpTypes.h"\
 	
-NODEP_CPP_MPEGIPSPC=\
 	"..\..\..\..\usr\include\pthread.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsBSemVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsCSemVxw.h"\
@@ -20126,7 +18737,6 @@ NODEP_CPP_MPEGIPSPC=\
 	"..\sipXportLib\include\os\os\Vxw\OsMutexVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsVxwDefs.h"\
 	"..\sipXtackLib\include\net\SdpCodec.h"\
-	".\include\mp\GIPS\GIPS\Vendor_GIPS_API.h"\
 	".\include\mp\vxWorks.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
@@ -20174,14 +18784,10 @@ NODEP_CPP_MPEGIPSPC=\
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4I) Release"
 
-NODEP_CPP_MPEGIPSPC=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSPCMU.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4I) Debug"
 
-DEP_CPP_MPEGIPSPC=\
 	"..\sipXportLib\include\os\linux\OsBSemLinux.h"\
 	"..\sipXportLib\include\os\linux\OsDateTimeLinux.h"\
 	"..\sipXportLib\include\os\linux\OsLinuxDefs.h"\
@@ -20210,14 +18816,12 @@ DEP_CPP_MPEGIPSPC=\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
 	"..\sipXsdpLib\include\sdp\SdpCodec.h"\
-	".\include\mp\GIPS\GIPS_API.h"\
 	".\include\mp\MpArrayBuf.h"\
 	".\include\mp\MpAudioBuf.h"\
 	".\include\mp\MpBuf.h"\
 	".\include\mp\MpBufPool.h"\
 	".\include\mp\MpCodecInfo.h"\
 	".\include\mp\MpDataBuf.h"\
-	".\include\mp\MpeGIPSPCMU.h"\
 	".\include\mp\MpEncoderBase.h"\
 	".\include\mp\MpTypes.h"\
 	{$(INCLUDE)}"config\_epilog.h"\
@@ -20263,84 +18867,52 @@ DEP_CPP_MPEGIPSPC=\
 	{$(INCLUDE)}"stl\_stlport_version.h"\
 	{$(INCLUDE)}"stl_user_config.h"\
 	
-NODEP_CPP_MPEGIPSPC=\
 	"..\..\..\..\usr\include\pthread.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsBSemVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsDateTimeVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsMutexVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsVxwDefs.h"\
-	".\include\mp\GIPS\GIPS\Vendor_GIPS_API.h"\
 	".\include\mp\vxWorks.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSIV_FP) Release"
 
-NODEP_CPP_MPEGIPSPC=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSPCMU.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSIV_FP) Debug"
 
-NODEP_CPP_MPEGIPSPC=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSPCMU.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4) Release"
 
-NODEP_CPP_MPEGIPSPC=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSPCMU.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4) Debug"
 
-NODEP_CPP_MPEGIPSPC=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSPCMU.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPS16) Release"
 
-NODEP_CPP_MPEGIPSPC=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSPCMU.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPS16) Debug"
 
-NODEP_CPP_MPEGIPSPC=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSPCMU.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4T) Release"
 
-NODEP_CPP_MPEGIPSPC=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSPCMU.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4T) Debug"
 
-NODEP_CPP_MPEGIPSPC=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSPCMU.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE x86) Release"
 
-NODEP_CPP_MPEGIPSPC=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSPCMU.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE x86) Debug"
 
-NODEP_CPP_MPEGIPSPC=\
-	".\src\mp\mp\GIPS\GIPS_API.h"\
-	".\src\mp\mp\MpeGIPSPCMU.h"\
 	
 
 !ENDIF 
@@ -21117,8 +19689,6 @@ DEP_CPP_MPESI=\
 	"..\sipXportLib\include\utl\UtlList.h"\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
-	".\include\mp\GIPS\GIPS_API.h"\
-	".\include\mp\GIPS\gips_typedefs.h"\
 	".\include\mp\JB\JB_API.h"\
 	".\include\mp\JB\jb_typedefs.h"\
 	".\include\mp\MpBuf.h"\
@@ -21137,8 +19707,6 @@ NODEP_CPP_MPESI=\
 	"..\sipXportLib\include\os\os\Vxw\OsMutexVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsVxwDefs.h"\
 	"..\sipXtackLib\include\net\SdpCodec.h"\
-	".\include\mp\GIPS\GIPS\Vendor_GIPS_API.h"\
-	".\include\mp\GIPS\GIPS\Vendor_gips_typedefs.h"\
 	".\include\mp\vxWorks.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
@@ -21222,8 +19790,6 @@ DEP_CPP_MPESI=\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
 	"..\sipXsdpLib\include\sdp\SdpCodec.h"\
-	".\include\mp\GIPS\GIPS_API.h"\
-	".\include\mp\GIPS\gips_typedefs.h"\
 	".\include\mp\JB\JB_API.h"\
 	".\include\mp\JB\jb_typedefs.h"\
 	".\include\mp\MpArrayBuf.h"\
@@ -21285,8 +19851,6 @@ NODEP_CPP_MPESI=\
 	"..\sipXportLib\include\os\os\Vxw\OsDateTimeVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsMutexVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsVxwDefs.h"\
-	".\include\mp\GIPS\GIPS\Vendor_GIPS_API.h"\
-	".\include\mp\GIPS\GIPS\Vendor_gips_typedefs.h"\
 	".\include\mp\vxWorks.h"\
 	
 
@@ -21480,8 +20044,6 @@ DEP_CPP_MPESIP=\
 	"..\sipXportLib\include\utl\UtlList.h"\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
-	".\include\mp\GIPS\GIPS_API.h"\
-	".\include\mp\GIPS\gips_typedefs.h"\
 	".\include\mp\JB\JB_API.h"\
 	".\include\mp\JB\jb_typedefs.h"\
 	".\include\mp\MpBuf.h"\
@@ -21500,8 +20062,6 @@ NODEP_CPP_MPESIP=\
 	"..\sipXportLib\include\os\os\Vxw\OsMutexVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsVxwDefs.h"\
 	"..\sipXtackLib\include\net\SdpCodec.h"\
-	".\include\mp\GIPS\GIPS\Vendor_GIPS_API.h"\
-	".\include\mp\GIPS\GIPS\Vendor_gips_typedefs.h"\
 	".\include\mp\vxWorks.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
@@ -21585,8 +20145,6 @@ DEP_CPP_MPESIP=\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
 	"..\sipXsdpLib\include\sdp\SdpCodec.h"\
-	".\include\mp\GIPS\GIPS_API.h"\
-	".\include\mp\GIPS\gips_typedefs.h"\
 	".\include\mp\JB\JB_API.h"\
 	".\include\mp\JB\jb_typedefs.h"\
 	".\include\mp\MpArrayBuf.h"\
@@ -21648,8 +20206,6 @@ NODEP_CPP_MPESIP=\
 	"..\sipXportLib\include\os\os\Vxw\OsDateTimeVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsMutexVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsVxwDefs.h"\
-	".\include\mp\GIPS\GIPS\Vendor_GIPS_API.h"\
-	".\include\mp\GIPS\GIPS\Vendor_gips_typedefs.h"\
 	".\include\mp\vxWorks.h"\
 	
 
@@ -22784,8 +21340,6 @@ DEP_CPP_MPJIT=\
 	"..\sipXportLib\include\utl\UtlList.h"\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
-	".\include\mp\GIPS\GIPS_API.h"\
-	".\include\mp\GIPS\gips_typedefs.h"\
 	".\include\mp\JB\JB_API.h"\
 	".\include\mp\JB\jb_typedefs.h"\
 	".\include\mp\MpBuf.h"\
@@ -22808,8 +21362,6 @@ NODEP_CPP_MPJIT=\
 	"..\sipXportLib\include\os\os\Vxw\OsTaskVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsVxwDefs.h"\
 	"..\sipXtackLib\include\net\SdpCodec.h"\
-	".\include\mp\GIPS\GIPS\Vendor_GIPS_API.h"\
-	".\include\mp\GIPS\GIPS\Vendor_gips_typedefs.h"\
 	".\include\mp\vxWorks.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
@@ -22902,8 +21454,6 @@ DEP_CPP_MPJIT=\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
 	"..\sipXsdpLib\include\sdp\SdpCodec.h"\
-	".\include\mp\GIPS\GIPS_API.h"\
-	".\include\mp\GIPS\gips_typedefs.h"\
 	".\include\mp\JB\JB_API.h"\
 	".\include\mp\JB\jb_typedefs.h"\
 	".\include\mp\MpArrayBuf.h"\
@@ -22968,8 +21518,6 @@ NODEP_CPP_MPJIT=\
 	"..\sipXportLib\include\os\os\Vxw\OsMsgQVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsMutexVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsVxwDefs.h"\
-	".\include\mp\GIPS\GIPS\Vendor_GIPS_API.h"\
-	".\include\mp\GIPS\GIPS\Vendor_gips_typedefs.h"\
 	".\include\mp\vxWorks.h"\
 	
 
@@ -23282,8 +21830,6 @@ DEP_CPP_MPMED=\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
 	"..\sipXtackLib\include\net\Url.h"\
-	".\include\mp\GIPS\GIPS_API.h"\
-	".\include\mp\GIPS\gips_typedefs.h"\
 	".\include\mp\JB\JB_API.h"\
 	".\include\mp\JB\jb_typedefs.h"\
 	".\include\mp\MpBuf.h"\
@@ -23365,8 +21911,6 @@ NODEP_CPP_MPMED=\
 	"..\sipXportLib\include\os\os\Vxw\OsVxwDefs.h"\
 	"..\sipXtackLib\include\net\SdpCodec.h"\
 	".\cre.h"\
-	".\include\mp\GIPS\GIPS\Vendor_GIPS_API.h"\
-	".\include\mp\GIPS\GIPS\Vendor_gips_typedefs.h"\
 	".\include\mp\vxWorks.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
@@ -23485,7 +22029,6 @@ DEP_CPP_MPMED=\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
 	"..\sipXsdpLib\include\sdp\SdpCodec.h"\
-	".\include\mp\GIPS\gips_typedefs.h"\
 	".\include\mp\JB\jb_typedefs.h"\
 	".\include\mp\MpArrayBuf.h"\
 	".\include\mp\MpAudioBuf.h"\
@@ -23610,7 +22153,6 @@ NODEP_CPP_MPMED=\
 	"..\sipXportLib\include\os\os\Vxw\OsMutexVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsTaskVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsVxwDefs.h"\
-	".\include\mp\GIPS\GIPS\Vendor_gips_typedefs.h"\
 	".\include\mp\vxWorks.h"\
 	
 
@@ -25784,7 +24326,6 @@ DEP_CPP_MPRBR=\
 	"..\sipXportLib\include\utl\UtlList.h"\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
-	".\include\mp\GIPS\gips_typedefs.h"\
 	".\include\mp\JB\jb_typedefs.h"\
 	".\include\mp\MpBuf.h"\
 	".\include\mp\MpConnection.h"\
@@ -25816,7 +24357,6 @@ NODEP_CPP_MPRBR=\
 	"..\sipXportLib\include\os\os\Vxw\OsMutexVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsTaskVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsVxwDefs.h"\
-	".\include\mp\GIPS\GIPS\Vendor_gips_typedefs.h"\
 	".\include\mp\vxWorks.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
@@ -25907,7 +24447,6 @@ DEP_CPP_MPRBR=\
 	"..\sipXportLib\include\utl\UtlList.h"\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
-	".\include\mp\GIPS\gips_typedefs.h"\
 	".\include\mp\JB\jb_typedefs.h"\
 	".\include\mp\MpArrayBuf.h"\
 	".\include\mp\MpAudioBuf.h"\
@@ -25973,7 +24512,6 @@ NODEP_CPP_MPRBR=\
 	"..\sipXportLib\include\os\os\Vxw\OsMsgQVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsMutexVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsVxwDefs.h"\
-	".\include\mp\GIPS\GIPS\Vendor_gips_typedefs.h"\
 	".\include\mp\vxWorks.h"\
 	
 
@@ -26335,8 +24873,6 @@ DEP_CPP_MPRDE=\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
 	".\include\mp\dmaTask.h"\
-	".\include\mp\GIPS\GIPS_API.h"\
-	".\include\mp\GIPS\gips_typedefs.h"\
 	".\include\mp\JB\JB_API.h"\
 	".\include\mp\JB\jb_typedefs.h"\
 	".\include\mp\MpBuf.h"\
@@ -26378,8 +24914,6 @@ NODEP_CPP_MPRDE=\
 	"..\sipXportLib\include\os\os\Vxw\OsTaskVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsVxwDefs.h"\
 	"..\sipXtackLib\include\net\SdpCodec.h"\
-	".\include\mp\GIPS\GIPS\Vendor_GIPS_API.h"\
-	".\include\mp\GIPS\GIPS\Vendor_gips_typedefs.h"\
 	".\include\mp\vxWorks.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
@@ -26498,8 +25032,6 @@ DEP_CPP_MPRDE=\
 	"..\sipXportLib\include\utl\UtlString.h"\
 	"..\sipXsdpLib\include\sdp\SdpCodec.h"\
 	".\include\mp\dmaTask.h"\
-	".\include\mp\GIPS\GIPS_API.h"\
-	".\include\mp\GIPS\gips_typedefs.h"\
 	".\include\mp\JB\JB_API.h"\
 	".\include\mp\JB\jb_typedefs.h"\
 	".\include\mp\MpArrayBuf.h"\
@@ -26578,8 +25110,6 @@ NODEP_CPP_MPRDE=\
 	"..\sipXportLib\include\os\os\Vxw\OsMutexVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsTaskVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsVxwDefs.h"\
-	".\include\mp\GIPS\GIPS\Vendor_GIPS_API.h"\
-	".\include\mp\GIPS\GIPS\Vendor_gips_typedefs.h"\
 	".\include\mp\vxWorks.h"\
 	
 
@@ -26961,7 +25491,6 @@ DEP_CPP_MPRDEJ=\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
 	".\include\mp\dmaTask.h"\
-	".\include\mp\GIPS\gips_typedefs.h"\
 	".\include\mp\JB\jb_typedefs.h"\
 	".\include\mp\MpBuf.h"\
 	".\include\mp\MpConnection.h"\
@@ -26995,7 +25524,6 @@ NODEP_CPP_MPRDEJ=\
 	"..\sipXportLib\include\os\os\Vxw\OsMutexVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsTaskVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsVxwDefs.h"\
-	".\include\mp\GIPS\GIPS\Vendor_gips_typedefs.h"\
 	".\include\mp\vxWorks.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
@@ -28030,8 +26558,6 @@ DEP_CPP_MPREN=\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
 	".\include\mp\dmaTask.h"\
-	".\include\mp\GIPS\GIPS_API.h"\
-	".\include\mp\GIPS\gips_typedefs.h"\
 	".\include\mp\JB\JB_API.h"\
 	".\include\mp\JB\jb_typedefs.h"\
 	".\include\mp\MpBuf.h"\
@@ -28067,8 +26593,6 @@ NODEP_CPP_MPREN=\
 	"..\sipXportLib\include\os\os\Vxw\OsTaskVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsVxwDefs.h"\
 	"..\sipXtackLib\include\net\SdpCodec.h"\
-	".\include\mp\GIPS\GIPS\Vendor_GIPS_API.h"\
-	".\include\mp\GIPS\GIPS\Vendor_gips_typedefs.h"\
 	".\include\mp\vxWorks.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
@@ -29406,7 +27930,6 @@ DEP_CPP_MPRFR=\
 	"..\sipXportLib\include\utl\UtlString.h"\
 	"..\sipXtackLib\include\net\Url.h"\
 	".\include\mp\dtmflib.h"\
-	".\include\mp\GIPS\gips_typedefs.h"\
 	".\include\mp\JB\jb_typedefs.h"\
 	".\include\mp\mpau.h"\
 	".\include\mp\MpAudioAbstract.h"\
@@ -29485,7 +28008,6 @@ NODEP_CPP_MPRFR=\
 	"..\sipXportLib\include\os\os\Vxw\OsTaskVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsVxwDefs.h"\
 	".\cre.h"\
-	".\include\mp\GIPS\GIPS\Vendor_gips_typedefs.h"\
 	".\include\mp\vxWorks.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
@@ -29602,7 +28124,6 @@ DEP_CPP_MPRFR=\
 	"..\sipXportLib\include\utl\UtlList.h"\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
-	".\include\mp\GIPS\gips_typedefs.h"\
 	".\include\mp\JB\jb_typedefs.h"\
 	".\include\mp\MpArrayBuf.h"\
 	".\include\mp\mpau.h"\
@@ -29724,7 +28245,6 @@ NODEP_CPP_MPRFR=\
 	"..\sipXportLib\include\os\os\Vxw\OsMsgQVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsMutexVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsVxwDefs.h"\
-	".\include\mp\GIPS\GIPS\Vendor_gips_typedefs.h"\
 	".\include\mp\vxWorks.h"\
 	
 
@@ -30556,7 +29076,6 @@ DEP_CPP_MPRFROM=\
 	"..\sipXportLib\include\utl\UtlList.h"\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
-	".\include\mp\GIPS\gips_typedefs.h"\
 	".\include\mp\JB\jb_typedefs.h"\
 	".\include\mp\MpBuf.h"\
 	".\include\mp\MpBufferMsg.h"\
@@ -30590,7 +29109,6 @@ NODEP_CPP_MPRFROM=\
 	"..\sipXportLib\include\os\os\Vxw\OsMutexVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsTaskVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsVxwDefs.h"\
-	".\include\mp\GIPS\GIPS\Vendor_gips_typedefs.h"\
 	".\include\mp\vxWorks.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
@@ -31171,7 +29689,6 @@ DEP_CPP_MPRFROMS=\
 	"..\sipXportLib\include\utl\UtlVoidPtr.h"\
 	"..\sipXtackLib\include\net\Url.h"\
 	".\include\mp\dtmflib.h"\
-	".\include\mp\GIPS\gips_typedefs.h"\
 	".\include\mp\JB\jb_typedefs.h"\
 	".\include\mp\mpau.h"\
 	".\include\mp\MpAudioAbstract.h"\
@@ -31254,7 +29771,6 @@ NODEP_CPP_MPRFROMS=\
 	"..\sipXportLib\include\os\os\Vxw\OsTaskVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsVxwDefs.h"\
 	".\cre.h"\
-	".\include\mp\GIPS\GIPS\Vendor_gips_typedefs.h"\
 	".\include\mp\vxWorks.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
@@ -31379,7 +29895,6 @@ DEP_CPP_MPRFROMS=\
 	"..\sipXportLib\include\utl\UtlVoidPtr.h"\
 	"..\sipXtackLib\include\net\Url.h"\
 	".\include\mp\dtmflib.h"\
-	".\include\mp\GIPS\gips_typedefs.h"\
 	".\include\mp\JB\jb_typedefs.h"\
 	".\include\mp\MpArrayBuf.h"\
 	".\include\mp\mpau.h"\
@@ -31507,7 +30022,6 @@ NODEP_CPP_MPRFROMS=\
 	"..\sipXportLib\include\os\os\Vxw\OsMutexVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsTaskVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsVxwDefs.h"\
-	".\include\mp\GIPS\GIPS\Vendor_gips_typedefs.h"\
 	".\include\mp\vxWorks.h"\
 	
 
@@ -33167,7 +31681,6 @@ DEP_CPP_MPRTO=\
 	"..\sipXportLib\include\utl\UtlString.h"\
 	"..\sipXtackLib\include\net\Url.h"\
 	".\include\mp\dtmflib.h"\
-	".\include\mp\GIPS\gips_typedefs.h"\
 	".\include\mp\JB\jb_typedefs.h"\
 	".\include\mp\MpBuf.h"\
 	".\include\mp\MpCallFlowGraph.h"\
@@ -33240,7 +31753,6 @@ NODEP_CPP_MPRTO=\
 	"..\sipXportLib\include\os\os\Vxw\OsTaskVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsVxwDefs.h"\
 	".\cre.h"\
-	".\include\mp\GIPS\GIPS\Vendor_gips_typedefs.h"\
 	".\include\mp\vxWorks.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
@@ -33349,7 +31861,6 @@ DEP_CPP_MPRTO=\
 	"..\sipXportLib\include\utl\UtlSortedList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
 	".\include\mp\dtmflib.h"\
-	".\include\mp\GIPS\gips_typedefs.h"\
 	".\include\mp\JB\jb_typedefs.h"\
 	".\include\mp\MpArrayBuf.h"\
 	".\include\mp\MpAudioBuf.h"\
@@ -33465,7 +31976,6 @@ NODEP_CPP_MPRTO=\
 	"..\sipXportLib\include\os\os\Vxw\OsMsgQVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsMutexVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsVxwDefs.h"\
-	".\include\mp\GIPS\GIPS\Vendor_gips_typedefs.h"\
 	".\include\mp\vxWorks.h"\
 	
 
@@ -34959,8 +33469,6 @@ DEP_CPP_MPSIP=\
 	"..\sipXportLib\include\utl\UtlList.h"\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
-	".\include\mp\GIPS\GIPS_API.h"\
-	".\include\mp\GIPS\gips_typedefs.h"\
 	".\include\mp\JB\JB_API.h"\
 	".\include\mp\JB\jb_typedefs.h"\
 	".\include\mp\MpBuf.h"\
@@ -34980,8 +33488,6 @@ NODEP_CPP_MPSIP=\
 	"..\sipXportLib\include\os\os\Vxw\OsMutexVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsVxwDefs.h"\
 	"..\sipXtackLib\include\net\SdpCodec.h"\
-	".\include\mp\GIPS\GIPS\Vendor_GIPS_API.h"\
-	".\include\mp\GIPS\GIPS\Vendor_gips_typedefs.h"\
 	".\include\mp\vxWorks.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
@@ -35052,8 +33558,6 @@ DEP_CPP_MPSIP=\
 	"..\sipXportLib\include\os\wnt\OsDateTimeWnt.h"\
 	"..\sipXportLib\include\os\wnt\OsMutexWnt.h"\
 	"..\sipXportLib\include\utl\UtlDefs.h"\
-	".\include\mp\GIPS\GIPS_API.h"\
-	".\include\mp\GIPS\gips_typedefs.h"\
 	".\include\mp\JB\JB_API.h"\
 	".\include\mp\JB\jb_typedefs.h"\
 	".\include\mp\MpArrayBuf.h"\
@@ -35112,8 +33616,6 @@ NODEP_CPP_MPSIP=\
 	"..\sipXportLib\include\os\os\Vxw\OsDateTimeVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsMutexVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsVxwDefs.h"\
-	".\include\mp\GIPS\GIPS\Vendor_GIPS_API.h"\
-	".\include\mp\GIPS\GIPS\Vendor_gips_typedefs.h"\
 	".\include\mp\vxWorks.h"\
 	
 
@@ -37692,7 +36194,6 @@ DEP_CPP_MPTOP=\
 	"..\sipXportLib\include\utl\UtlList.h"\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
-	".\include\mp\GIPS\gips_typedefs.h"\
 	".\include\mp\JB\jb_typedefs.h"\
 	".\include\mp\MpArrayBuf.h"\
 	".\include\mp\MpAudioBuf.h"\
@@ -37722,7 +36223,6 @@ NODEP_CPP_MPTOP=\
 	"..\sipXportLib\include\os\os\Vxw\OsMsgQVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsMutexVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsVxwDefs.h"\
-	".\include\mp\GIPS\GIPS\Vendor_gips_typedefs.h"\
 	".\include\mp\vxWorks.h"\
 	
 
@@ -37770,7 +36270,6 @@ DEP_CPP_MPTOP=\
 	"..\sipXportLib\include\utl\UtlList.h"\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
-	".\include\mp\GIPS\gips_typedefs.h"\
 	".\include\mp\JB\jb_typedefs.h"\
 	".\include\mp\MpArrayBuf.h"\
 	".\include\mp\MpAudioBuf.h"\
@@ -37843,7 +36342,6 @@ NODEP_CPP_MPTOP=\
 	"..\sipXportLib\include\os\os\Vxw\OsMsgQVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsMutexVxw.h"\
 	"..\sipXportLib\include\os\os\Vxw\OsVxwDefs.h"\
-	".\include\mp\GIPS\GIPS\Vendor_gips_typedefs.h"\
 	".\include\mp\vxWorks.h"\
 	
 
@@ -47639,15 +46137,12 @@ SOURCE=.\include\mp\FilterBank.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\mp\GIPS\G729Interface.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\mp\GIPS\GIPS_API.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\mp\GIPS\gips_typedefs.h
 # End Source File
 # Begin Source File
 
@@ -47863,31 +46358,24 @@ SOURCE=.\include\mp\MpDefs.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\mp\MpdGIPSG729ab.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\mp\MpdGIPSiLBC.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\mp\MpdGIPSiPCMA.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\mp\MpdGIPSiPCMU.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\mp\MpdGIPSiPCMWB.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\mp\MpdGIPSPCMA.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\mp\MpdGIPSPCMU.h
 # End Source File
 # Begin Source File
 
@@ -47903,31 +46391,24 @@ SOURCE=.\include\mp\MpdSipxPcmu.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\mp\MpeGIPSG729ab.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\mp\MpeGIPSiLBC.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\mp\MpeGIPSiPCMA.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\mp\MpeGIPSiPCMU.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\mp\MpeGIPSiPCMWB.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\mp\MpeGIPSPCMA.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\mp\MpeGIPSPCMU.h
 # End Source File
 # Begin Source File
 

@@ -70,25 +70,11 @@ libsipXmedia_la_SOURCES =  \
     mp/MpDataBuf.cpp \
     mp/MpDecoderBase.cpp \
     mp/MpDspUtils.cpp \
-    mp/MpdGIPSG729ab.cpp \
-    mp/MpdGIPSiLBC.cpp \
-    mp/MpdGIPSiPCMA.cpp \
-    mp/MpdGIPSiPCMU.cpp \
-    mp/MpdGIPSiPCMWB.cpp \
-    mp/MpdGIPSPCMA.cpp \
-    mp/MpdGIPSPCMU.cpp \
     mp/MpdPtAVT.cpp \
     mp/MpdSipxGSM.cpp \
     mp/MpdSipxPcma.cpp \
     mp/MpdSipxPcmu.cpp \
     mp/MpdSipxSpeex.cpp \
-    mp/MpeGIPSG729ab.cpp \
-    mp/MpeGIPSiLBC.cpp \
-    mp/MpeGIPSiPCMA.cpp \
-    mp/MpeGIPSiPCMU.cpp \
-    mp/MpeGIPSiPCMWB.cpp \
-    mp/MpeGIPSPCMA.cpp \
-    mp/MpeGIPSPCMU.cpp \
     mp/MpeSipxGSM.cpp \
     mp/MpeSipxPcma.cpp \
     mp/MpeSipxPcmu.cpp \

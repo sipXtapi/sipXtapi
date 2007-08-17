@@ -87,7 +87,7 @@ public:
 private:
    static const MpCodecInfo smCodecInfo;  ///< static information about the codec
    ILBC_decinst* pDecoderState;
-   JB_inst* mpJBState;
+   MpJitterBuffer* mpJBState;
 };
 
 #endif  // _MpdGIPSiLBC_h_

@@ -211,34 +211,6 @@ SOURCE=.\src\mp\MpDecoderBase.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\mp\MpdGIPSG729ab.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\src\mp\MpdGIPSiLBC.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\src\mp\MpdGIPSiPCMA.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\src\mp\MpdGIPSiPCMU.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\src\mp\MpdGIPSiPCMWB.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\src\mp\MpdGIPSPCMA.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\src\mp\MpdGIPSPCMU.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\src\mp\MpdPtAVT.cpp
 # End Source File
 # Begin Source File
@@ -264,34 +236,6 @@ SOURCE=.\src\mp\MpdSipxSpeex.cpp
 # Begin Source File
 
 SOURCE=.\src\mp\MpDspUtils.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\src\mp\MpeGIPSG729ab.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\src\mp\MpeGIPSiLBC.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\src\mp\MpeGIPSiPCMA.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\src\mp\MpeGIPSiPCMU.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\src\mp\MpeGIPSiPCMWB.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\src\mp\MpeGIPSPCMA.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\src\mp\MpeGIPSPCMU.cpp
 # End Source File
 # Begin Source File
 
@@ -703,18 +647,6 @@ SOURCE=.\include\mp\FilterBank.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\mp\GIPS\G729Interface.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\include\mp\GIPS\GIPS_API.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\include\mp\GIPS\gips_typedefs.h
-# End Source File
-# Begin Source File
-
 SOURCE=.\include\mp\HandsetFilterBank.h
 # End Source File
 # Begin Source File
@@ -931,34 +863,6 @@ SOURCE=.\include\mp\MpDefs.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\mp\MpdGIPSG729ab.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\include\mp\MpdGIPSiLBC.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\include\mp\MpdGIPSiPCMA.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\include\mp\MpdGIPSiPCMU.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\include\mp\MpdGIPSiPCMWB.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\include\mp\MpdGIPSPCMA.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\include\mp\MpdGIPSPCMU.h
-# End Source File
-# Begin Source File
-
 SOURCE=.\include\mp\MpdPtAVT.h
 # End Source File
 # Begin Source File
@@ -996,34 +900,6 @@ SOURCE=.\include\mp\MpDspUtilsShift.h
 # Begin Source File
 
 SOURCE=.\include\mp\MpDspUtilsSum.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\include\mp\MpeGIPSG729ab.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\include\mp\MpeGIPSiLBC.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\include\mp\MpeGIPSiPCMA.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\include\mp\MpeGIPSiPCMU.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\include\mp\MpeGIPSiPCMWB.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\include\mp\MpeGIPSPCMA.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\include\mp\MpeGIPSPCMU.h
 # End Source File
 # Begin Source File
 

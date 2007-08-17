@@ -87,7 +87,7 @@ public:
 private:
    static const MpCodecInfo smCodecInfo;  ///< static information about the codec
    EG711U_inst* pDecoderState;
-   JB_inst* mpJBState;
+   MpJitterBuffer* mpJBState;
 };
 
 #endif  // _MpdGIPSiPCMU_h_

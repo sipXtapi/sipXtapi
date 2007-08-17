@@ -132,7 +132,7 @@
 				Name="VCCLCompilerTool"
 				ExecutionBucket="7"
 				Optimization="0"
-				AdditionalIncludeDirectories="include;..\sipXportLib\include;..\sipXsdpLib\include;..\sipXportLib\include\glib;..\sipXtackLib\include;..\gips\include"
+				AdditionalIncludeDirectories="include;..\sipXportLib\include;..\sipXsdpLib\include;..\sipXtackLib\include;"
 				PreprocessorDefinitions="_DEBUG;WIN32;_LIB;SIPX_CONFDIR=\&quot;.\&quot;;SIPX_LOGDIR=\&quot;.\&quot;;DISABLE_MEM_POOLS;WINCE;$(ARCHFAM);$(_ARCHFAM_);_WIN32_WCE=$(CEVER);UNDER_CE"
 				RuntimeLibrary="1"
 				RuntimeTypeInfo="true"
@@ -217,7 +217,7 @@
 				Name="VCCLCompilerTool"
 				ExecutionBucket="7"
 				Optimization="0"
-				AdditionalIncludeDirectories="include;..\sipXportLib\include;..\sipXsdpLib\include;..\sipXportLib\include\glib;..\sipXtackLib\include;..\gips\include"
+				AdditionalIncludeDirectories="include;..\sipXportLib\include;..\sipXsdpLib\include;..\sipXtackLib\include"
 				PreprocessorDefinitions="_DEBUG;WIN32;_LIB;SIPX_CONFDIR=\&quot;.\&quot;;SIPX_LOGDIR=\&quot;.\&quot;;DISABLE_MEM_POOLS;WINCE;$(ARCHFAM);$(_ARCHFAM_);_WIN32_WCE=$(CEVER);UNDER_CE"
 				MinimalRebuild="true"
 				RuntimeLibrary="1"
@@ -382,7 +382,7 @@
 				ExecutionBucket="7"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="include;..\sipXsdpLib\include;..\sipXtackLib\include;..\sipXportLib\include;..\sipXportLib\include\glib;..\gips\include"
+				AdditionalIncludeDirectories="include;..\sipXsdpLib\include;..\sipXtackLib\include;..\sipXportLib\include"
 				PreprocessorDefinitions="NDEBUG;WIN32;_LIB;WINCE;$(ARCHFAM);$(_ARCHFAM_);_WIN32_WCE=$(CEVER);UNDER_CE"
 				StringPooling="true"
 				RuntimeLibrary="0"
@@ -470,7 +470,7 @@
 				ExecutionBucket="7"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="include;..\sipXsdpLib\include;..\sipXtackLib\include;..\sipXportLib\include;..\sipXportLib\include\glib;..\gips\include"
+				AdditionalIncludeDirectories="include;..\sipXsdpLib\include;..\sipXtackLib\include;..\sipXportLib\include"
 				PreprocessorDefinitions="NDEBUG;WIN32;_LIB;WINCE;$(ARCHFAM);$(_ARCHFAM_);_WIN32_WCE=$(CEVER);UNDER_CE"
 				StringPooling="true"
 				MinimalRebuild="true"
@@ -634,7 +634,7 @@
 				Name="VCCLCompilerTool"
 				ExecutionBucket="7"
 				Optimization="0"
-				AdditionalIncludeDirectories="include;..\sipXportLib\include;..\sipXsdpLib\include;..\sipXportLib\include\glib;..\sipXtackLib\include;..\gips\include"
+				AdditionalIncludeDirectories="include;..\sipXportLib\include;..\sipXsdpLib\include;..\sipXtackLib\include"
 				PreprocessorDefinitions="_DEBUG;WIN32;_LIB;SIPX_CONFDIR=\&quot;.\&quot;;SIPX_LOGDIR=\&quot;.\&quot;;DISABLE_MEM_POOLS;WINCE;$(ARCHFAM);$(_ARCHFAM_);_WIN32_WCE=$(CEVER);UNDER_CE"
 				RuntimeLibrary="1"
 				RuntimeTypeInfo="true"
@@ -719,7 +719,7 @@
 				Name="VCCLCompilerTool"
 				ExecutionBucket="7"
 				Optimization="0"
-				AdditionalIncludeDirectories="include;..\sipXportLib\include;..\sipXsdpLib\include;..\sipXportLib\include\glib;..\sipXtackLib\include;..\gips\include"
+				AdditionalIncludeDirectories="include;..\sipXportLib\include;..\sipXsdpLib\include;..\sipXtackLib\include"
 				PreprocessorDefinitions="_DEBUG;WIN32;_LIB;SIPX_CONFDIR=\&quot;.\&quot;;SIPX_LOGDIR=\&quot;.\&quot;;DISABLE_MEM_POOLS;WINCE;$(ARCHFAM);$(_ARCHFAM_);_WIN32_WCE=$(CEVER);UNDER_CE"
 				MinimalRebuild="true"
 				RuntimeLibrary="1"
@@ -884,7 +884,7 @@
 				ExecutionBucket="7"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="include;..\sipXsdpLib\include;..\sipXtackLib\include;..\sipXportLib\include;..\sipXportLib\include\glib;..\gips\include"
+				AdditionalIncludeDirectories="include;..\sipXsdpLib\include;..\sipXtackLib\include;..\sipXportLib\include"
 				PreprocessorDefinitions="NDEBUG;WIN32;_LIB;WINCE;$(ARCHFAM);$(_ARCHFAM_);_WIN32_WCE=$(CEVER);UNDER_CE"
 				StringPooling="true"
 				RuntimeLibrary="0"
@@ -972,7 +972,7 @@
 				ExecutionBucket="7"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="include;..\sipXsdpLib\include;..\sipXtackLib\include;..\sipXportLib\include;..\sipXportLib\include\glib;..\gips\include"
+				AdditionalIncludeDirectories="include;..\sipXsdpLib\include;..\sipXtackLib\include;..\sipXportLib\include"
 				PreprocessorDefinitions="NDEBUG;WIN32;_LIB;WINCE;$(ARCHFAM);$(_ARCHFAM_);_WIN32_WCE=$(CEVER);UNDER_CE"
 				StringPooling="true"
 				MinimalRebuild="true"
@@ -1060,7 +1060,7 @@
 				Name="VCCLCompilerTool"
 				ExecutionBucket="7"
 				Optimization="0"
-				AdditionalIncludeDirectories="include;..\sipXportLib\include;..\sipXsdpLib\include;..\sipXportLib\include\glib;..\sipXtackLib\include;..\gips\include"
+				AdditionalIncludeDirectories="include;..\sipXportLib\include;..\sipXsdpLib\include;..\sipXtackLib\include"
 				PreprocessorDefinitions="_DEBUG;WIN32;_LIB;SIPX_CONFDIR=\&quot;.\&quot;;SIPX_LOGDIR=\&quot;.\&quot;;DISABLE_MEM_POOLS;WINCE;$(ARCHFAM);$(_ARCHFAM_);_WIN32_WCE=$(CEVER);UNDER_CE"
 				RuntimeLibrary="1"
 				RuntimeTypeInfo="true"
@@ -1146,7 +1146,7 @@
 				ExecutionBucket="7"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="include;..\sipXsdpLib\include;..\sipXtackLib\include;..\sipXportLib\include;..\sipXportLib\include\glib;..\gips\include"
+				AdditionalIncludeDirectories="include;..\sipXsdpLib\include;..\sipXtackLib\include;..\sipXportLib\include"
 				PreprocessorDefinitions="NDEBUG;WIN32;_LIB;WINCE;$(ARCHFAM);$(_ARCHFAM_);_WIN32_WCE=$(CEVER);UNDER_CE"
 				StringPooling="true"
 				MinimalRebuild="true"
@@ -1234,7 +1234,7 @@
 				Name="VCCLCompilerTool"
 				ExecutionBucket="7"
 				Optimization="0"
-				AdditionalIncludeDirectories="include,..\sipXportLib\include,..\sipXportLib\include\glib,..\sipXtackLib\include,..\gips\include"
+				AdditionalIncludeDirectories="include,..\sipXportLib\include,..\sipXtackLib\include"
 				PreprocessorDefinitions="_DEBUG;WIN32;_LIB;DISABLE_MEM_POOLS"
 				RuntimeLibrary="3"
 				RuntimeTypeInfo="true"
@@ -1318,7 +1318,7 @@
 				ExecutionBucket="7"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="include,..\sipXportLib\include,..\sipXportLib\include\glib,..\sipXtackLib\include,..\gips\include"
+				AdditionalIncludeDirectories="include,..\sipXportLib\include,..\sipXtackLib\include"
 				PreprocessorDefinitions="NDEBUG;WIN32;_LIB;DISABLE_MEM_POOLS;"
 				StringPooling="true"
 				RuntimeLibrary="2"
@@ -1502,34 +1502,6 @@
 					>
 				</File>
 				<File
-					RelativePath=".\src\mp\MpdGIPSG729ab.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\src\mp\MpdGIPSiLBC.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\src\mp\MpdGIPSiPCMA.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\src\mp\MpdGIPSiPCMU.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\src\mp\MpdGIPSiPCMWB.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\src\mp\MpdGIPSPCMA.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\src\mp\MpdGIPSPCMU.cpp"
-					>
-				</File>
-				<File
 					RelativePath=".\src\mp\MpdPtAVT.cpp"
 					>
 				</File>
@@ -1555,34 +1527,6 @@
 				</File>
 				<File
 					RelativePath=".\src\mp\MpDspUtils.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\src\mp\MpeGIPSG729ab.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\src\mp\MpeGIPSiLBC.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\src\mp\MpeGIPSiPCMA.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\src\mp\MpeGIPSiPCMU.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\src\mp\MpeGIPSiPCMWB.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\src\mp\MpeGIPSPCMA.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\src\mp\MpeGIPSPCMU.cpp"
 					>
 				</File>
 				<File
@@ -2111,34 +2055,6 @@
 					>
 				</File>
 				<File
-					RelativePath=".\include\mp\MpdGIPSG729ab.h"
-					>
-				</File>
-				<File
-					RelativePath=".\include\mp\MpdGIPSiLBC.h"
-					>
-				</File>
-				<File
-					RelativePath=".\include\mp\MpdGIPSiPCMA.h"
-					>
-				</File>
-				<File
-					RelativePath=".\include\mp\MpdGIPSiPCMU.h"
-					>
-				</File>
-				<File
-					RelativePath=".\include\mp\MpdGIPSiPCMWB.h"
-					>
-				</File>
-				<File
-					RelativePath=".\include\mp\MpdGIPSPCMA.h"
-					>
-				</File>
-				<File
-					RelativePath=".\include\mp\MpdGIPSPCMU.h"
-					>
-				</File>
-				<File
 					RelativePath=".\include\mp\MpdPtAVT.h"
 					>
 				</File>
@@ -2176,34 +2092,6 @@
 				</File>
 				<File
 					RelativePath=".\include\mp\MpDspUtilsSum.h"
-					>
-				</File>
-				<File
-					RelativePath=".\include\mp\MpeGIPSG729ab.h"
-					>
-				</File>
-				<File
-					RelativePath=".\include\mp\MpeGIPSiLBC.h"
-					>
-				</File>
-				<File
-					RelativePath=".\include\mp\MpeGIPSiPCMA.h"
-					>
-				</File>
-				<File
-					RelativePath=".\include\mp\MpeGIPSiPCMU.h"
-					>
-				</File>
-				<File
-					RelativePath=".\include\mp\MpeGIPSiPCMWB.h"
-					>
-				</File>
-				<File
-					RelativePath=".\include\mp\MpeGIPSPCMA.h"
-					>
-				</File>
-				<File
-					RelativePath=".\include\mp\MpeGIPSPCMU.h"
 					>
 				</File>
 				<File
@@ -2619,22 +2507,6 @@
 					</File>
 					<File
 						RelativePath=".\include\mp\JB\jb_typedefs.h"
-						>
-					</File>
-				</Filter>
-				<Filter
-					Name="GIPS"
-					>
-					<File
-						RelativePath=".\include\mp\GIPS\G729Interface.h"
-						>
-					</File>
-					<File
-						RelativePath=".\include\mp\GIPS\GIPS_API.h"
-						>
-					</File>
-					<File
-						RelativePath=".\include\mp\GIPS\gips_typedefs.h"
 						>
 					</File>
 				</Filter>

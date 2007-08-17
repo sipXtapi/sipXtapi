@@ -106,7 +106,7 @@ public:
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
    static const MpCodecInfo smCodecInfo;  ///< static information about the codec
-   JB_inst* mpJBState;
+   MpJitterBuffer* mpJBState;
 };
 
 #endif  // _MpdGIPSPCMU_h_
