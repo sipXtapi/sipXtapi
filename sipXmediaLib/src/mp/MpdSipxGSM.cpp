@@ -21,7 +21,6 @@
 
 // APPLICATION INCLUDES
 #include "mp/MpdSipxGSM.h"
-#include "mp/JB/JB_API.h"
 extern "C" {
 #include <gsm.h>
 }
@@ -46,7 +45,6 @@ const MpCodecInfo MpdSipxGSM::smCodecInfo(
 
 MpdSipxGSM::MpdSipxGSM(int payloadType)
 : MpDecoderBase(payloadType, &smCodecInfo)
-, mpJBState(NULL)
 , mpGsmState(NULL)
 {
 }

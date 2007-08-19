@@ -96,7 +96,6 @@ public:
 
 private:
    static const MpCodecInfo smCodecInfo;  ///< static information about the codec
-   JB_inst     *mpJBState;
    gsm_state   *mpGsmState;
 };
 

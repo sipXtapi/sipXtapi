@@ -15,7 +15,6 @@
 
 // APPLICATION INCLUDES
 #include "mp/MpeSipxILBC.h"
-#include "mp/JB/JB_API.h"
 #include "mp/NetInTask.h"
 #include <limits.h>  
 extern "C" {

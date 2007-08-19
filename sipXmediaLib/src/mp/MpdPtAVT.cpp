@@ -21,7 +21,6 @@
 #include "mp/MprDejitter.h"
 #include "mp/NetInTask.h"
 #include "mp/MprRecorder.h"
-#include "mp/JB/JB_API.h"
 #include "os/OsNotification.h"
 #ifdef _VXWORKS /* [ */
 #include <inetlib.h>

@@ -20,7 +20,6 @@
 
 // APPLICATION INCLUDES
 #include "mp/MpDecoderBase.h"
-#include "mp/JB/JB_API.h"
 #include <speex/speex.h>
 #include <speex/speex_header.h>
 #include <speex/speex_stereo.h>
@@ -102,7 +101,6 @@ public:
 
 private:
    static const MpCodecInfo smCodecInfo;  ///< static information about the codec
-   JB_inst     *mpJBState;
    void        *mpDecoderState;
    SpeexBits    mDecbits;
    unsigned     mNumSamplesPerFrame;

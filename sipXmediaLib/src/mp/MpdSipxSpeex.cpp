@@ -40,7 +40,6 @@ const MpCodecInfo MpdSipxSpeex::smCodecInfo(
 
 MpdSipxSpeex::MpdSipxSpeex(int payloadType)
 : MpDecoderBase(payloadType, &smCodecInfo)
-, mpJBState(NULL)
 , mpDecoderState(NULL)
 , mDecbits()
 , mNumSamplesPerFrame(0)

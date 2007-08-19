@@ -108,7 +108,6 @@ public:
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
    static const MpCodecInfo smCodecInfo;  ///< Static information about the codec
-   MpJitterBuffer* pJBState;
    RtpTimestamp mNextPullTimerCount; ///< Timestamp of frame we expect next.
    unsigned int mWaitTimeInFrames; ///< Size of jitter buffer. Frames will be
                                    ///< delayed for mWaitTimeInFrames*20ms.

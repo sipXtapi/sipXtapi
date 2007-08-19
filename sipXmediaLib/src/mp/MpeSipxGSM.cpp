@@ -13,7 +13,6 @@
 #include "assert.h"
 // APPLICATION INCLUDES
 #include "mp/MpeSipxGSM.h"
-#include "mp/JB/JB_API.h"
 #include "mp/NetInTask.h"  
 extern "C" {
 #include <gsm.h>

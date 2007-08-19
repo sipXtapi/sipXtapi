@@ -18,10 +18,9 @@
 // APPLICATION INCLUDES
 #include "mp/MpeSipxPcmu.h"
 #include "mp/MpSipxDecoders.h"
-#include "mp/JB/JB_API.h"
 
 const MpCodecInfo MpeSipxPcmu::smCodecInfo(
-         SdpCodec::SDP_CODEC_PCMU, JB_API_VERSION, true,
+         SdpCodec::SDP_CODEC_PCMU, "SIPfoundry 1.0", true,
          8000, 8, 1, 160, 64000, 1280, 1280, 1280, 160);
 
 MpeSipxPcmu::MpeSipxPcmu(int payloadType)
@@ -54,7 +53,7 @@ OsStatus MpeSipxPcmu::encode(const MpAudioSample* pAudioSamples,
                              UtlBoolean& sendNow,
                              MpAudioBuf::SpeechType& rAudioCategory)
 {
-   G711U_Encoder(numSamples, pAudioSamples, pCodeBuf);
+   G711U_Encoder(numSamples, pAudioSamples, (uint8_t*)pCodeBuf);
    rSizeInBytes = numSamples;
    rAudioCategory = MpAudioBuf::MP_SPEECH_UNKNOWN;
    sendNow = FALSE;

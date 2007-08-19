@@ -15,7 +15,6 @@
 
 // APPLICATION INCLUDES
 #include "mp/MpdSipxILBC.h"
-#include "mp/JB/JB_API.h"
 extern "C" {
 #include <iLBC_define.h>
 #include <iLBC_decode.h>
@@ -40,7 +39,6 @@ const MpCodecInfo MpdSipxILBC::smCodecInfo(
 
 MpdSipxILBC::MpdSipxILBC(int payloadType)
 : MpDecoderBase(payloadType, &smCodecInfo)
-, mpJBState(NULL)
 , mpState(NULL)
 {
 }
@@ -86,7 +84,7 @@ int MpdSipxILBC::decode(const MpRtpBufPtr &pPacket,
       if (NO_OF_BYTES_30MS != pPacket->getPayloadSize())
       {
          osPrintf("MpdSipxILBC::decode: Payload size: %d!\n", pPacket->getPayloadSize());
-	     return 0;
+         return 0;
       }
 
       // Packet data available. Decode it.

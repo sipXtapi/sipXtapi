@@ -19,7 +19,6 @@
 
 // APPLICATION INCLUDES
 #include "mp/MpDecoderBase.h"
-#include "mp/JB/JB_API.h"
 
 // FORWARD DECLARATIONS
 

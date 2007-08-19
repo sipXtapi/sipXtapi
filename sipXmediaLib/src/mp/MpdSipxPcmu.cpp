@@ -16,14 +16,13 @@
 
 // APPLICATION INCLUDES
 #include "mp/MpdSipxPcmu.h"
-#include "mp/JB/JB_API.h"
 #include "mp/MprDejitter.h"
 #include "mp/MpSipxDecoders.h"
 #include "mp/MpMisc.h"
 #include "mp/MpDspUtils.h"
 
 const MpCodecInfo MpdSipxPcmu::smCodecInfo(
-         SdpCodec::SDP_CODEC_PCMU, JB_API_VERSION, true,
+         SdpCodec::SDP_CODEC_PCMU, "SIPfoundry 1.0", true,
          8000, 8, 1, 160, 64000, 1280, 1280, 1280, 160, 3);
 
 MpdSipxPcmu::MpdSipxPcmu(int payloadType)
@@ -77,7 +76,7 @@ int MpdSipxPcmu::decode(const MpRtpBufPtr &pPacket,
 
    int samples = min(pPacket->getPayloadSize(), decodedBufferLength);
    G711U_Decoder(samples,
-                 (const JB_uchar*)pPacket->getDataPtr(),
+                 (const uint8_t*)pPacket->getDataPtr(),
                  samplesBuffer);
    return samples;
 }

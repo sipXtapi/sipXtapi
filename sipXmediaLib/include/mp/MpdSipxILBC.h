@@ -96,7 +96,6 @@ public:
 
 private:
    static const MpCodecInfo smCodecInfo;  ///< static information about the codec
-   JB_inst     *mpJBState;
    iLBC_Dec_Inst_t_ *mpState;             ///< Internal iLBC decoder state.
 
 };

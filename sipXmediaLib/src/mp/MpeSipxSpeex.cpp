@@ -24,7 +24,6 @@
 #include "assert.h"
 // APPLICATION INCLUDES
 #include "mp/MpeSipxSpeex.h"
-#include "mp/JB/JB_API.h"
 #include "mp/NetInTask.h"  // For CODEC_TYPE_SPEEX_* definitions
 
 #include "os/OsSysLog.h"
