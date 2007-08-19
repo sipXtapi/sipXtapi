@@ -13,14 +13,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
- 
-
-JB_EXTERN JB_ret JB_RecIn(MpJitterBuffer *MpJitterBuffer, 
-                          MpRtpBufPtr &rtpPacket);
-
-JB_EXTERN JB_ret JB_RecOut(MpJitterBuffer *MpJitterBuffer,
-                           MpAudioSample *voiceSamples,
-                           JB_size *length);
 
 #ifdef __cplusplus
 }

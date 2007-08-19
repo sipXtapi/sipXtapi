@@ -121,21 +121,4 @@ int MpJitterBuffer::setCodecList(MpDecoderBase** codecList, int codecCount)
    return 0;
 }
 
-/* ===================== Jitter Buffer API Functions ====================== */
-
-
-JB_ret JB_RecIn(MpJitterBuffer *pJB,
-                MpRtpBufPtr &rtpPacket)
-{
-   return pJB->pushPacket(rtpPacket);
-}
-
-JB_ret JB_RecOut(MpJitterBuffer *pJB,
-                 MpAudioSample *voiceSamples,
-                 JB_size *pLength)
-{
-   *pLength = pJB->getSamples(voiceSamples, *pLength);
-   return 0;
-}
-
 #endif /* NOT(HAVE_GIPS) ] */

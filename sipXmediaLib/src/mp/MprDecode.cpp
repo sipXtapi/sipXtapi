@@ -277,10 +277,10 @@ static int iFramesSinceLastReport=0;
             // This is more of a Decode Buffer.
             MpJitterBuffer* pJBState = mpConnection->getJBinst();
 
-            int res = JB_RecIn(pJBState, rtp);
+            int res = pJBState->pushPacket(rtp);
             if (res != 0) {
-               osPrintf("\n\n *** JB_RecIn(%p, %d) returned %d\n",
-                        pJBState, packetLen, res);
+               osPrintf("\n\n *** MpJitterBuffer::pushPacket(%d) returned %d\n",
+                        packetLen, res);
                osPrintf(" pt=%d, Ts=%d, Seq=%d\n\n",
                         rtp->getRtpPayloadType(),
                         rtp->getRtpTimestamp(), rtp->getRtpSequenceNumber());
@@ -325,7 +325,7 @@ static int iFramesSinceLastReport=0;
       // to be a plain old int:
       int bufLength=samplesPerFrame;
       int res;
-      res = JB_RecOut(pJBState, pSamples, &bufLength);
+      res = pJBState->getSamples(pSamples, bufLength);
       assert(bufLength == (int)out->getSamplesNumber());
       out->setSpeechType(MpAudioBuf::MP_SPEECH_UNKNOWN);
       decodedAPacket = TRUE;
