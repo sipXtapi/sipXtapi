@@ -275,7 +275,7 @@ static int iFramesSinceLastReport=0;
             // in order to process properly (?)
             // THIS JitterBuffer is NOT the same as MprDejitter!
             // This is more of a Decode Buffer.
-            JB_inst* pJBState = mpConnection->getJBinst();
+            MpJitterBuffer* pJBState = mpConnection->getJBinst();
 
             int res = JB_RecIn(pJBState, rtp);
             if (res != 0) {
@@ -317,7 +317,7 @@ static int iFramesSinceLastReport=0;
    out->setSpeechType(MpAudioBuf::MP_SPEECH_SILENT);
 
    // Decode one packet from Jitter Buffer
-   JB_inst* pJBState = mpConnection->getJBinst();
+   MpJitterBuffer* pJBState = mpConnection->getJBinst();
    int decodedAPacket = FALSE;
    if (pJBState) {
       // This should be a JB_something or other.  However the only
@@ -455,7 +455,7 @@ UtlBoolean MprDecode::handleSelectCodecs(SdpCodec* pCodecs[], int numCodecs)
    }
 
 #ifndef HAVE_GIPS
-   JB_inst* pJBState = mpConnection->getJBinst();   
+   MpJitterBuffer* pJBState = mpConnection->getJBinst();   
    pJBState->setCodecList(mpCurrentCodecs,numCodecs);
 #endif
 

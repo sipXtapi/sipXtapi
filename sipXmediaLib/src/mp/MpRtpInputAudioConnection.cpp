@@ -20,6 +20,7 @@
 #include <mp/MpFlowGraphBase.h>
 #include <mp/MprFromNet.h>
 #include <mp/MprDejitter.h>
+#include <mp/MpJitterBuffer.h>
 #include <mp/MprDecode.h>
 #include <mp/JB/JB_API.h>
 #include <mp/MpResourceMsg.h>
@@ -53,7 +54,7 @@ MpRtpInputAudioConnection::MpRtpInputAudioConnection(const UtlString& resourceNa
 #endif // INCLUDE_RTCP ]
                        )
 , mpDecode(NULL)
-, mpJB_inst(NULL)
+, mpJB(NULL)
 {
    char         name[50];
    int          i;
@@ -86,9 +87,9 @@ MpRtpInputAudioConnection::~MpRtpInputAudioConnection()
    if (mpDecode != NULL)
       delete mpDecode;
 
-   if (NULL != mpJB_inst) {
-      JB_free(mpJB_inst);
-      mpJB_inst = NULL;
+   if (NULL != mpJB) {
+      JB_free(mpJB);
+      mpJB = NULL;
    }
 }
 
@@ -283,7 +284,7 @@ void MpRtpInputAudioConnection::handleStopReceiveRtp()
 {
    prepareStopReceiveRtp();
 
-   JB_inst* pJB_inst; 
+   MpJitterBuffer* pJB; 
 
    // No need to synchronize as the decoder is not part of the
    // flowgraph.  It is part of this connection/resource
@@ -295,14 +296,14 @@ void MpRtpInputAudioConnection::handleStopReceiveRtp()
    // flowgraph.  It is part of this connection/resource
    //mpFlowGraph->synchronize();
 
-   pJB_inst = getJBinst(TRUE);  // get NULL if not allocated
-   mpJB_inst = NULL;
+   pJB = getJBinst(TRUE);  // get NULL if not allocated
+   mpJB = NULL;
    // No need to synchronize as the decoder is not part of the
    // flowgraph.  It is part of this connection/resource
    //mpFlowGraph->synchronize();
 
-   if (NULL != pJB_inst) {
-      JB_free(pJB_inst);
+   if (NULL != pJB) {
+      JB_free(pJB);
    }
    mpDecode->disable();
 }
@@ -370,9 +371,9 @@ void MpRtpInputAudioConnection::setPremiumSound(PremiumSoundOptions op)
    if (EnablePremiumSound == op) {
       NetEqOp = NETEQ_PLAYOUT_MODE_ON;
    }
-   if (NULL != mpJB_inst) {
+   if (NULL != mpJB) {
 #ifndef __pingtel_on_posix__
-      NETEQ_GIPS_10MS16B_SetPlayoutMode(mpJB_inst, NetEqOp);
+      NETEQ_GIPS_10MS16B_SetPlayoutMode(mpJB, NetEqOp);
 #endif
 /*
       osPrintf("MpRtpInputAudioConnection::setPremiumSound: %sabling Premium Sound on #%d\n",
@@ -388,32 +389,27 @@ void MpRtpInputAudioConnection::setPremiumSound(PremiumSoundOptions op)
 // If the instance has not been created, but the argument "optional" is
 // TRUE, then do not create it, just return NULL.
 
-JB_inst* MpRtpInputAudioConnection::getJBinst(UtlBoolean optional) {
+MpJitterBuffer* MpRtpInputAudioConnection::getJBinst(UtlBoolean optional) {
 
-   if ((NULL == mpJB_inst) && (!optional)) {
+   if ((NULL == mpJB) && (!optional)) {
       int res;
-      res = JB_create(&mpJB_inst);
-/*
-      osPrintf("MpRtpInputAudioConnection::getJBinst: JB_create=>0x%X\n",
-         (int) mpJB_inst);
-*/
-
-      assert(NULL != mpJB_inst);
+      mpJB = new MpJitterBuffer();
+      assert(NULL != mpJB);
 
       //Here it is hard coded to use 8000 Hz sampling frequency
       //This number is only relevant until any packet has arrived
       //When packet arrives the codec determines the output samp.freq.
 
-      res |= JB_init(mpJB_inst, 8000);
+      res |= JB_init(mpJB, 8000);
 
       if (0 != res) { //just in case
          osPrintf("MpRtpInputAudioConnection::getJBinst: Jitter Buffer init failure!\n");
-         if (NULL != mpJB_inst) {
-            JB_free(mpJB_inst);
-            mpJB_inst = NULL;
+         if (NULL != mpJB) {
+            JB_free(mpJB);
+            mpJB = NULL;
          }
       }
-      if (NULL != mpJB_inst) {
+      if (NULL != mpJB) {
 /*
          UtlBoolean on = mpFlowGraph->isPremiumSoundEnabled();
          osPrintf("MpRtpInputAudioConnection::getJBinst: %sabling Premium Sound on #%d\n",
@@ -422,7 +418,7 @@ JB_inst* MpRtpInputAudioConnection::getJBinst(UtlBoolean optional) {
 */
       }
    }
-   return(mpJB_inst);
+   return(mpJB);
 }
 
 MpDecoderBase* MpRtpInputAudioConnection::mapPayloadType(int payloadType)

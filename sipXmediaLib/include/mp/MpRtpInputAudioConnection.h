@@ -20,9 +20,10 @@ class MpFlowGraphBase;
 class MpDecoderBase;
 class MpResource;
 class MprDecode;
-class OsNotification;
+class MpJitterBuffer;
 class MprRecorder;
 class SdpCodec;
+class OsNotification;
 
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
@@ -86,7 +87,7 @@ public:
 //@{
 
      /// Returns a pointer to the JB instance, creating it if necessary
-   JB_inst* getJBinst(UtlBoolean optional = FALSE);
+   MpJitterBuffer* getJBinst(UtlBoolean optional = FALSE);
      /**<
      *  If the instance has not been created, but the argument "optional" is
      *  TRUE, then do not create it, just return NULL.
@@ -174,7 +175,7 @@ private:
 
 //   MpFlowGraphBase*   mpFlowGraph;     ///< Parent flowgraph
    MprDecode*         mpDecode;        ///< Inbound component: Decoder
-   JB_inst*           mpJB_inst;       ///< Pointer to JitterBuffer instance
+   MpJitterBuffer*    mpJB;            ///< Pointer to JitterBuffer instance
 
    MpDecoderBase*     mpPayloadMap[NUM_PAYLOAD_TYPES];
                                        ///< Map RTP payload types to our decoders

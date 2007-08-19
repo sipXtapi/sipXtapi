@@ -17,8 +17,8 @@
 #include "assert.h"
 #include "string.h"
 
-#include "mp/JB/JB_API.h"
 #include "mp/MpJitterBuffer.h"
+#include "mp/JB/JB_API.h"
 #include "mp/MpDecoderBase.h"
 #include "mp/MpMisc.h"
 
@@ -124,32 +124,26 @@ int MpJitterBuffer::setCodecList(MpDecoderBase** codecList, int codecCount)
 /* ===================== Jitter Buffer API Functions ====================== */
 
 
-JB_ret JB_RecIn(JB_inst *JB_inst,
+JB_ret JB_RecIn(MpJitterBuffer *pJB,
                 MpRtpBufPtr &rtpPacket)
 {
-   return JB_inst->pushPacket(rtpPacket);
+   return pJB->pushPacket(rtpPacket);
 }
 
-JB_ret JB_RecOut(JB_inst *JB_inst,
+JB_ret JB_RecOut(MpJitterBuffer *pJB,
                  MpAudioSample *voiceSamples,
                  JB_size *pLength)
 {
-   *pLength = JB_inst->getSamples(voiceSamples, *pLength);
+   *pLength = pJB->getSamples(voiceSamples, *pLength);
    return 0;
 }
 
-JB_ret JB_create(JB_inst **pJB)
-{
-   *pJB = new MpJitterBuffer();
-   return 0;
-}
-
-JB_ret JB_init(JB_inst *pJB, int fs)
+JB_ret JB_init(MpJitterBuffer *pJB, int fs)
 {
    return 0;
 }
 
-JB_ret JB_free(JB_inst *pJB)
+JB_ret JB_free(MpJitterBuffer *pJB)
 {
    delete pJB;
    return 0;

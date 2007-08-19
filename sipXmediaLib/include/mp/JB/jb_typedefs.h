@@ -7,9 +7,6 @@
 
 #else /* HAVE_GIPS ] [ */
 
-class MpJitterBuffer;
-typedef MpJitterBuffer JB_inst;
-
 typedef char JB_char;
 typedef int JB_code;
 typedef int JB_size;
