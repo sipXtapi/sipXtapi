@@ -119,11 +119,11 @@ int nwR() {return wantRecorders(1);}
 // Constructor
 MpCallFlowGraph::MpCallFlowGraph(const char* locale,
                                  int samplesPerFrame, int samplesPerSec)
-: MpFlowGraphBase(samplesPerFrame, samplesPerSec),
-  mConnTableLock(OsBSem::Q_FIFO, OsBSem::FULL),
-  mToneIsGlobal(FALSE),
+: MpFlowGraphBase(samplesPerFrame, samplesPerSec)
+, mConnTableLock(OsBSem::Q_FIFO, OsBSem::FULL)
+, mToneIsGlobal(FALSE)
 #ifdef INCLUDE_RTCP /* [ */
-  mulEventInterest(LOCAL_SSRC_COLLISION | REMOTE_SSRC_COLLISION),
+, mulEventInterest(LOCAL_SSRC_COLLISION | REMOTE_SSRC_COLLISION)
 #endif /* INCLUDE_RTCP ] */
 {
    UtlBoolean    boolRes;
