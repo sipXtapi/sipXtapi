@@ -12,8 +12,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 
-#ifndef HAVE_GIPS /* [ */
-
 // APPLICATION INCLUDES
 #include "mp/MpdSipxPcmu.h"
 #include "mp/MprDejitter.h"
@@ -189,6 +187,3 @@ int MpdSipxPcmu::decodeIn(const MpRtpBufPtr &pPacket)
       return 0;  // We don't want this packet
    }
 }
-
-#endif /* HAVE_GIPS ] */
-

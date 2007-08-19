@@ -12,8 +12,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 
-#ifndef HAVE_GIPS /* [ */
-
 #include "assert.h"
 
 #include "mp/MpSipxDecoders.h"
@@ -265,4 +263,3 @@ int G711U_Encoder(int numSamples,
    LinearToULaw(outBuf, inBuff, numSamples);
    return 0;
 }
-#endif /* NOT(HAVE_GIPS) ] */

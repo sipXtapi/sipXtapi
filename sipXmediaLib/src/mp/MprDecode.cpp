@@ -451,10 +451,8 @@ UtlBoolean MprDecode::handleSelectCodecs(SdpCodec* pCodecs[], int numCodecs)
       }
    }
 
-#ifndef HAVE_GIPS
    MpJitterBuffer* pJBState = mpConnection->getJBinst();   
    pJBState->setCodecList(mpCurrentCodecs,numCodecs);
-#endif
 
    // Delete the list pCodecs.
    for (i=0; i<numCodecs; i++) {

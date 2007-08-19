@@ -12,8 +12,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 
-#ifndef HAVE_GIPS /* [ */
-
 #include "assert.h"
 #include "string.h"
 
@@ -119,5 +117,3 @@ int MpJitterBuffer::setCodecList(MpDecoderBase** codecList, int codecCount)
 
    return 0;
 }
-
-#endif /* NOT(HAVE_GIPS) ] */
