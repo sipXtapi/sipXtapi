@@ -42,10 +42,7 @@
 #include "mp/dmaTask.h"
 #include "mp/MpMediaTask.h"
 #include "mp/MpCodecFactory.h"
-#include "mp/JB/JB_API.h"
-#ifndef HAVE_GIPS
 #include "mp/MpJitterBuffer.h"
-#endif
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES

@@ -18,7 +18,6 @@
 #include "string.h"
 
 #include "mp/MpJitterBuffer.h"
-#include "mp/JB/JB_API.h"
 #include "mp/MpDecoderBase.h"
 #include "mp/MpMisc.h"
 
@@ -88,7 +87,7 @@ int MpJitterBuffer::pushPacket(MpRtpBufPtr &rtpPacket)
    return 0;
 }
 
-int MpJitterBuffer::getSamples(MpAudioSample *samplesBuffer, JB_size samplesNumber)
+int MpJitterBuffer::getSamples(MpAudioSample *samplesBuffer, int samplesNumber)
 {
    // Check does we have available decoded data
    if (JbQCount != 0) {

@@ -2029,6 +2029,9 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\src\mp\MpResNotificationMsg.cpp">
+			</File>
+			<File
 				RelativePath="src\mp\MpResource.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -2110,9 +2113,6 @@
 			</File>
 			<File
 				RelativePath=".\src\mp\MpResourceTopology.cpp">
-			</File>
-			<File
-				RelativePath=".\src\mp\MpResNotificationMsg.cpp">
 			</File>
 			<File
 				RelativePath="src\mp\MprFromFile.cpp">
@@ -3857,12 +3857,6 @@
 				RelativePath="include\rtcp\ISetSrcDescription.h">
 			</File>
 			<File
-				RelativePath="include\mp\JB\JB_API.h">
-			</File>
-			<File
-				RelativePath="include\mp\JB\jb_typedefs.h">
-			</File>
-			<File
 				RelativePath="include\rtcp\Message.h">
 			</File>
 			<File
@@ -4070,6 +4064,9 @@
 				RelativePath="include\mp\MprEncode.h">
 			</File>
 			<File
+				RelativePath=".\include\mp\MpResNotificationMsg.h">
+			</File>
+			<File
 				RelativePath="include\mp\MpResource.h">
 			</File>
 			<File
@@ -4080,9 +4077,6 @@
 			</File>
 			<File
 				RelativePath=".\include\mp\MpResourceMsg.h">
-			</File>
-			<File
-				RelativePath=".\include\mp\MpResNotificationMsg.h">
 			</File>
 			<File
 				RelativePath="include\mp\MpResourceSortAlg.h">

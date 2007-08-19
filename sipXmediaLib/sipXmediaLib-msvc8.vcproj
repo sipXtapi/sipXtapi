@@ -2498,18 +2498,6 @@
 					RelativePath=".\include\mp\StreamWAVFormatDecoder.h"
 					>
 				</File>
-				<Filter
-					Name="JB"
-					>
-					<File
-						RelativePath=".\include\mp\JB\JB_API.h"
-						>
-					</File>
-					<File
-						RelativePath=".\include\mp\JB\jb_typedefs.h"
-						>
-					</File>
-				</Filter>
 			</Filter>
 			<Filter
 				Name="rtcp"

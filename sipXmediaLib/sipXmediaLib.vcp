@@ -5490,7 +5490,6 @@ SOURCE=.\src\mp\MpAudioConnection.cpp
 !IF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSII_FP) Release"
 
 NODEP_CPP_MPAUDIO=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpCallFlowGraph.h"\
 	".\src\mp\mp\MpFlowGraphBase.h"\
@@ -5508,7 +5507,6 @@ NODEP_CPP_MPAUDIO=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSII_FP) Debug"
 
 NODEP_CPP_MPAUDIO=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpCallFlowGraph.h"\
 	".\src\mp\mp\MpFlowGraphBase.h"\
@@ -5526,7 +5524,6 @@ NODEP_CPP_MPAUDIO=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSII) Release"
 
 NODEP_CPP_MPAUDIO=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpCallFlowGraph.h"\
 	".\src\mp\mp\MpFlowGraphBase.h"\
@@ -5544,7 +5541,6 @@ NODEP_CPP_MPAUDIO=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSII) Debug"
 
 NODEP_CPP_MPAUDIO=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpCallFlowGraph.h"\
 	".\src\mp\mp\MpFlowGraphBase.h"\
@@ -5562,7 +5558,6 @@ NODEP_CPP_MPAUDIO=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE SH4) Release"
 
 NODEP_CPP_MPAUDIO=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpCallFlowGraph.h"\
 	".\src\mp\mp\MpFlowGraphBase.h"\
@@ -5580,7 +5575,6 @@ NODEP_CPP_MPAUDIO=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE SH4) Debug"
 
 NODEP_CPP_MPAUDIO=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpCallFlowGraph.h"\
 	".\src\mp\mp\MpFlowGraphBase.h"\
@@ -5598,7 +5592,6 @@ NODEP_CPP_MPAUDIO=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE SH3) Release"
 
 NODEP_CPP_MPAUDIO=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpCallFlowGraph.h"\
 	".\src\mp\mp\MpFlowGraphBase.h"\
@@ -5616,7 +5609,6 @@ NODEP_CPP_MPAUDIO=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE SH3) Debug"
 
 NODEP_CPP_MPAUDIO=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpCallFlowGraph.h"\
 	".\src\mp\mp\MpFlowGraphBase.h"\
@@ -5634,7 +5626,6 @@ NODEP_CPP_MPAUDIO=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSIV) Release"
 
 NODEP_CPP_MPAUDIO=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpCallFlowGraph.h"\
 	".\src\mp\mp\MpFlowGraphBase.h"\
@@ -5652,7 +5643,6 @@ NODEP_CPP_MPAUDIO=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSIV) Debug"
 
 NODEP_CPP_MPAUDIO=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpCallFlowGraph.h"\
 	".\src\mp\mp\MpFlowGraphBase.h"\
@@ -5670,7 +5660,6 @@ NODEP_CPP_MPAUDIO=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE emulator) Release"
 
 NODEP_CPP_MPAUDIO=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpCallFlowGraph.h"\
 	".\src\mp\mp\MpFlowGraphBase.h"\
@@ -5745,8 +5734,6 @@ DEP_CPP_MPAUDIO=\
 	"..\sipXportLib\include\utl\UtlString.h"\
 	"..\sipXsdpLib\include\sdp\SdpCodec.h"\
 	"..\sipXtackLib\include\net\Url.h"\
-	".\include\mp\JB\JB_API.h"\
-	".\include\mp\JB\jb_typedefs.h"\
 	".\include\mp\MpArrayBuf.h"\
 	".\include\mp\MpAudioBuf.h"\
 	".\include\mp\MpAudioConnection.h"\
@@ -5834,7 +5821,6 @@ NODEP_CPP_MPAUDIO=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4I) Release"
 
 NODEP_CPP_MPAUDIO=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpCallFlowGraph.h"\
 	".\src\mp\mp\MpFlowGraphBase.h"\
@@ -5907,8 +5893,6 @@ DEP_CPP_MPAUDIO=\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
 	"..\sipXsdpLib\include\sdp\SdpCodec.h"\
-	".\include\mp\JB\JB_API.h"\
-	".\include\mp\JB\jb_typedefs.h"\
 	".\include\mp\MpArrayBuf.h"\
 	".\include\mp\MpAudioBuf.h"\
 	".\include\mp\MpAudioConnection.h"\
@@ -6039,7 +6023,6 @@ NODEP_CPP_MPAUDIO=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSIV_FP) Release"
 
 NODEP_CPP_MPAUDIO=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpCallFlowGraph.h"\
 	".\src\mp\mp\MpFlowGraphBase.h"\
@@ -6057,7 +6040,6 @@ NODEP_CPP_MPAUDIO=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSIV_FP) Debug"
 
 NODEP_CPP_MPAUDIO=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpCallFlowGraph.h"\
 	".\src\mp\mp\MpFlowGraphBase.h"\
@@ -6075,7 +6057,6 @@ NODEP_CPP_MPAUDIO=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4) Release"
 
 NODEP_CPP_MPAUDIO=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpCallFlowGraph.h"\
 	".\src\mp\mp\MpFlowGraphBase.h"\
@@ -6093,7 +6074,6 @@ NODEP_CPP_MPAUDIO=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4) Debug"
 
 NODEP_CPP_MPAUDIO=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpCallFlowGraph.h"\
 	".\src\mp\mp\MpFlowGraphBase.h"\
@@ -6111,7 +6091,6 @@ NODEP_CPP_MPAUDIO=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPS16) Release"
 
 NODEP_CPP_MPAUDIO=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpCallFlowGraph.h"\
 	".\src\mp\mp\MpFlowGraphBase.h"\
@@ -6129,7 +6108,6 @@ NODEP_CPP_MPAUDIO=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPS16) Debug"
 
 NODEP_CPP_MPAUDIO=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpCallFlowGraph.h"\
 	".\src\mp\mp\MpFlowGraphBase.h"\
@@ -6147,7 +6125,6 @@ NODEP_CPP_MPAUDIO=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4T) Release"
 
 NODEP_CPP_MPAUDIO=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpCallFlowGraph.h"\
 	".\src\mp\mp\MpFlowGraphBase.h"\
@@ -6165,7 +6142,6 @@ NODEP_CPP_MPAUDIO=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4T) Debug"
 
 NODEP_CPP_MPAUDIO=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpCallFlowGraph.h"\
 	".\src\mp\mp\MpFlowGraphBase.h"\
@@ -6183,7 +6159,6 @@ NODEP_CPP_MPAUDIO=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE x86) Release"
 
 NODEP_CPP_MPAUDIO=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpCallFlowGraph.h"\
 	".\src\mp\mp\MpFlowGraphBase.h"\
@@ -6201,7 +6176,6 @@ NODEP_CPP_MPAUDIO=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE x86) Debug"
 
 NODEP_CPP_MPAUDIO=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpCallFlowGraph.h"\
 	".\src\mp\mp\MpFlowGraphBase.h"\
@@ -9361,7 +9335,6 @@ DEP_CPP_MPCAL=\
 	"..\sipXportLib\include\utl\UtlVoidPtr.h"\
 	"..\sipXtackLib\include\net\Url.h"\
 	".\include\mp\dtmflib.h"\
-	".\include\mp\JB\jb_typedefs.h"\
 	".\include\mp\MpAudioUtils.h"\
 	".\include\mp\MpBuf.h"\
 	".\include\mp\MpCallFlowGraph.h"\
@@ -9629,7 +9602,6 @@ DEP_CPP_MPCAL=\
 	"..\sipXsdpLib\include\sdp\SdpCodec.h"\
 	"..\sipXtackLib\include\net\Url.h"\
 	".\include\mp\dtmflib.h"\
-	".\include\mp\JB\jb_typedefs.h"\
 	".\include\mp\MpArrayBuf.h"\
 	".\include\mp\MpAudioBuf.h"\
 	".\include\mp\MpAudioConnection.h"\
@@ -10777,8 +10749,6 @@ DEP_CPP_MPCODE=\
 	"..\sipXportLib\include\utl\UtlList.h"\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
-	".\include\mp\JB\JB_API.h"\
-	".\include\mp\JB\jb_typedefs.h"\
 	".\include\mp\MpBuf.h"\
 	".\include\mp\MpCodecFactory.h"\
 	".\include\mp\MpCodecInfo.h"\
@@ -10904,8 +10874,6 @@ DEP_CPP_MPCODE=\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
 	"..\sipXsdpLib\include\sdp\SdpCodec.h"\
-	".\include\mp\JB\JB_API.h"\
-	".\include\mp\JB\jb_typedefs.h"\
 	".\include\mp\MpArrayBuf.h"\
 	".\include\mp\MpAudioBuf.h"\
 	".\include\mp\MpBuf.h"\
@@ -11638,8 +11606,6 @@ DEP_CPP_MPCON=\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
 	"..\sipXtackLib\include\net\Url.h"\
-	".\include\mp\JB\JB_API.h"\
-	".\include\mp\JB\jb_typedefs.h"\
 	".\include\mp\MpBuf.h"\
 	".\include\mp\MpCallFlowGraph.h"\
 	".\include\mp\MpConnection.h"\
@@ -12455,8 +12421,6 @@ DEP_CPP_MPDEC=\
 	"..\sipXportLib\include\utl\UtlList.h"\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
-	".\include\mp\JB\JB_API.h"\
-	".\include\mp\JB\jb_typedefs.h"\
 	".\include\mp\MpBuf.h"\
 	".\include\mp\MpCodecInfo.h"\
 	".\include\mp\MpConnection.h"\
@@ -12865,8 +12829,6 @@ DEP_CPP_MPDGI=\
 	"..\sipXportLib\include\utl\UtlList.h"\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
-	".\include\mp\JB\JB_API.h"\
-	".\include\mp\JB\jb_typedefs.h"\
 	".\include\mp\MpBuf.h"\
 	".\include\mp\MpCodecInfo.h"\
 	".\include\mp\MpConnection.h"\
@@ -13010,7 +12972,6 @@ DEP_CPP_MPDGI=\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
 	"..\sipXsdpLib\include\sdp\SdpCodec.h"\
-	".\include\mp\JB\jb_typedefs.h"\
 	".\include\mp\MpArrayBuf.h"\
 	".\include\mp\MpAudioConnection.h"\
 	".\include\mp\MpBuf.h"\
@@ -13324,8 +13285,6 @@ DEP_CPP_MPDGIP=\
 	"..\sipXportLib\include\utl\UtlList.h"\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
-	".\include\mp\JB\JB_API.h"\
-	".\include\mp\JB\jb_typedefs.h"\
 	".\include\mp\MpBuf.h"\
 	".\include\mp\MpCodecInfo.h"\
 	".\include\mp\MpConnection.h"\
@@ -13442,7 +13401,6 @@ DEP_CPP_MPDGIP=\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
 	"..\sipXsdpLib\include\sdp\SdpCodec.h"\
-	".\include\mp\JB\jb_typedefs.h"\
 	".\include\mp\MpArrayBuf.h"\
 	".\include\mp\MpAudioConnection.h"\
 	".\include\mp\MpBuf.h"\
@@ -13695,8 +13653,6 @@ NODEP_CPP_MPDGIP=\
 	"..\sipXportLib\include\utl\UtlList.h"\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
-	".\include\mp\JB\JB_API.h"\
-	".\include\mp\JB\jb_typedefs.h"\
 	".\include\mp\MpBuf.h"\
 	".\include\mp\MpCodecInfo.h"\
 	".\include\mp\MpConnection.h"\
@@ -13810,7 +13766,6 @@ NODEP_CPP_MPDGIP=\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
 	"..\sipXsdpLib\include\sdp\SdpCodec.h"\
-	".\include\mp\JB\jb_typedefs.h"\
 	".\include\mp\MpArrayBuf.h"\
 	".\include\mp\MpAudioConnection.h"\
 	".\include\mp\MpBuf.h"\
@@ -14052,8 +14007,6 @@ NODEP_CPP_MPDGIP=\
 	"..\sipXportLib\include\utl\UtlList.h"\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
-	".\include\mp\JB\JB_API.h"\
-	".\include\mp\JB\jb_typedefs.h"\
 	".\include\mp\MpBuf.h"\
 	".\include\mp\MpCodecInfo.h"\
 	".\include\mp\MpConnection.h"\
@@ -14167,7 +14120,6 @@ NODEP_CPP_MPDGIP=\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
 	"..\sipXsdpLib\include\sdp\SdpCodec.h"\
-	".\include\mp\JB\jb_typedefs.h"\
 	".\include\mp\MpArrayBuf.h"\
 	".\include\mp\MpAudioConnection.h"\
 	".\include\mp\MpBuf.h"\
@@ -14398,8 +14350,6 @@ NODEP_CPP_MPDGIP=\
 	"..\sipXportLib\include\utl\UtlList.h"\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
-	".\include\mp\JB\JB_API.h"\
-	".\include\mp\JB\jb_typedefs.h"\
 	".\include\mp\MpBuf.h"\
 	".\include\mp\MpCodecInfo.h"\
 	".\include\mp\MpConnection.h"\
@@ -14511,7 +14461,6 @@ NODEP_CPP_MPDGIP=\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
 	"..\sipXsdpLib\include\sdp\SdpCodec.h"\
-	".\include\mp\JB\jb_typedefs.h"\
 	".\include\mp\MpArrayBuf.h"\
 	".\include\mp\MpAudioConnection.h"\
 	".\include\mp\MpBuf.h"\
@@ -14742,8 +14691,6 @@ NODEP_CPP_MPDGIP=\
 	"..\sipXportLib\include\utl\UtlList.h"\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
-	".\include\mp\JB\JB_API.h"\
-	".\include\mp\JB\jb_typedefs.h"\
 	".\include\mp\MpBuf.h"\
 	".\include\mp\MpCodecInfo.h"\
 	".\include\mp\MpConnection.h"\
@@ -14857,7 +14804,6 @@ NODEP_CPP_MPDGIP=\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
 	"..\sipXsdpLib\include\sdp\SdpCodec.h"\
-	".\include\mp\JB\jb_typedefs.h"\
 	".\include\mp\MpArrayBuf.h"\
 	".\include\mp\MpAudioConnection.h"\
 	".\include\mp\MpBuf.h"\
@@ -15099,8 +15045,6 @@ NODEP_CPP_MPDGIP=\
 	"..\sipXportLib\include\utl\UtlList.h"\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
-	".\include\mp\JB\JB_API.h"\
-	".\include\mp\JB\jb_typedefs.h"\
 	".\include\mp\MpBuf.h"\
 	".\include\mp\MpCodecInfo.h"\
 	".\include\mp\MpConnection.h"\
@@ -15214,7 +15158,6 @@ NODEP_CPP_MPDGIP=\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
 	"..\sipXsdpLib\include\sdp\SdpCodec.h"\
-	".\include\mp\JB\jb_typedefs.h"\
 	".\include\mp\MpArrayBuf.h"\
 	".\include\mp\MpAudioConnection.h"\
 	".\include\mp\MpBuf.h"\
@@ -15348,7 +15291,6 @@ SOURCE=.\src\mp\MpdPtAVT.cpp
 !IF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSII_FP) Release"
 
 NODEP_CPP_MPDPT=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpdPtAVT.h"\
 	".\src\mp\mp\MprDejitter.h"\
@@ -15360,7 +15302,6 @@ NODEP_CPP_MPDPT=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSII_FP) Debug"
 
 NODEP_CPP_MPDPT=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpdPtAVT.h"\
 	".\src\mp\mp\MprDejitter.h"\
@@ -15372,7 +15313,6 @@ NODEP_CPP_MPDPT=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSII) Release"
 
 NODEP_CPP_MPDPT=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpdPtAVT.h"\
 	".\src\mp\mp\MprDejitter.h"\
@@ -15384,7 +15324,6 @@ NODEP_CPP_MPDPT=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSII) Debug"
 
 NODEP_CPP_MPDPT=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpdPtAVT.h"\
 	".\src\mp\mp\MprDejitter.h"\
@@ -15396,7 +15335,6 @@ NODEP_CPP_MPDPT=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE SH4) Release"
 
 NODEP_CPP_MPDPT=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpdPtAVT.h"\
 	".\src\mp\mp\MprDejitter.h"\
@@ -15408,7 +15346,6 @@ NODEP_CPP_MPDPT=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE SH4) Debug"
 
 NODEP_CPP_MPDPT=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpdPtAVT.h"\
 	".\src\mp\mp\MprDejitter.h"\
@@ -15420,7 +15357,6 @@ NODEP_CPP_MPDPT=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE SH3) Release"
 
 NODEP_CPP_MPDPT=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpdPtAVT.h"\
 	".\src\mp\mp\MprDejitter.h"\
@@ -15432,7 +15368,6 @@ NODEP_CPP_MPDPT=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE SH3) Debug"
 
 NODEP_CPP_MPDPT=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpdPtAVT.h"\
 	".\src\mp\mp\MprDejitter.h"\
@@ -15444,7 +15379,6 @@ NODEP_CPP_MPDPT=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSIV) Release"
 
 NODEP_CPP_MPDPT=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpdPtAVT.h"\
 	".\src\mp\mp\MprDejitter.h"\
@@ -15456,7 +15390,6 @@ NODEP_CPP_MPDPT=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSIV) Debug"
 
 NODEP_CPP_MPDPT=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpdPtAVT.h"\
 	".\src\mp\mp\MprDejitter.h"\
@@ -15468,7 +15401,6 @@ NODEP_CPP_MPDPT=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE emulator) Release"
 
 NODEP_CPP_MPDPT=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpdPtAVT.h"\
 	".\src\mp\mp\MprDejitter.h"\
@@ -15527,8 +15459,6 @@ DEP_CPP_MPDPT=\
 	"..\sipXportLib\include\utl\UtlList.h"\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
-	".\include\mp\JB\JB_API.h"\
-	".\include\mp\JB\jb_typedefs.h"\
 	".\include\mp\MpBuf.h"\
 	".\include\mp\MpCodecInfo.h"\
 	".\include\mp\MpConnection.h"\
@@ -15612,7 +15542,6 @@ NODEP_CPP_MPDPT=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4I) Release"
 
 NODEP_CPP_MPDPT=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpdPtAVT.h"\
 	".\src\mp\mp\MprDejitter.h"\
@@ -15673,8 +15602,6 @@ DEP_CPP_MPDPT=\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
 	"..\sipXsdpLib\include\sdp\SdpCodec.h"\
-	".\include\mp\JB\JB_API.h"\
-	".\include\mp\JB\jb_typedefs.h"\
 	".\include\mp\MpArrayBuf.h"\
 	".\include\mp\MpAudioBuf.h"\
 	".\include\mp\MpAudioConnection.h"\
@@ -15753,7 +15680,6 @@ NODEP_CPP_MPDPT=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSIV_FP) Release"
 
 NODEP_CPP_MPDPT=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpdPtAVT.h"\
 	".\src\mp\mp\MprDejitter.h"\
@@ -15765,7 +15691,6 @@ NODEP_CPP_MPDPT=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSIV_FP) Debug"
 
 NODEP_CPP_MPDPT=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpdPtAVT.h"\
 	".\src\mp\mp\MprDejitter.h"\
@@ -15777,7 +15702,6 @@ NODEP_CPP_MPDPT=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4) Release"
 
 NODEP_CPP_MPDPT=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpdPtAVT.h"\
 	".\src\mp\mp\MprDejitter.h"\
@@ -15789,7 +15713,6 @@ NODEP_CPP_MPDPT=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4) Debug"
 
 NODEP_CPP_MPDPT=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpdPtAVT.h"\
 	".\src\mp\mp\MprDejitter.h"\
@@ -15801,7 +15724,6 @@ NODEP_CPP_MPDPT=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPS16) Release"
 
 NODEP_CPP_MPDPT=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpdPtAVT.h"\
 	".\src\mp\mp\MprDejitter.h"\
@@ -15813,7 +15735,6 @@ NODEP_CPP_MPDPT=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPS16) Debug"
 
 NODEP_CPP_MPDPT=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpdPtAVT.h"\
 	".\src\mp\mp\MprDejitter.h"\
@@ -15825,7 +15746,6 @@ NODEP_CPP_MPDPT=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4T) Release"
 
 NODEP_CPP_MPDPT=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpdPtAVT.h"\
 	".\src\mp\mp\MprDejitter.h"\
@@ -15837,7 +15757,6 @@ NODEP_CPP_MPDPT=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4T) Debug"
 
 NODEP_CPP_MPDPT=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpdPtAVT.h"\
 	".\src\mp\mp\MprDejitter.h"\
@@ -15849,7 +15768,6 @@ NODEP_CPP_MPDPT=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE x86) Release"
 
 NODEP_CPP_MPDPT=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpdPtAVT.h"\
 	".\src\mp\mp\MprDejitter.h"\
@@ -15861,7 +15779,6 @@ NODEP_CPP_MPDPT=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE x86) Debug"
 
 NODEP_CPP_MPDPT=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpdPtAVT.h"\
 	".\src\mp\mp\MprDejitter.h"\
@@ -15880,7 +15797,6 @@ SOURCE=.\src\mp\MpdSipxPcma.cpp
 !IF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSII_FP) Release"
 
 NODEP_CPP_MPDSI=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpdSipxPcma.h"\
 	".\src\mp\mp\MpMisc.h"\
@@ -15891,7 +15807,6 @@ NODEP_CPP_MPDSI=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSII_FP) Debug"
 
 NODEP_CPP_MPDSI=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpdSipxPcma.h"\
 	".\src\mp\mp\MpMisc.h"\
@@ -15902,7 +15817,6 @@ NODEP_CPP_MPDSI=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSII) Release"
 
 NODEP_CPP_MPDSI=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpdSipxPcma.h"\
 	".\src\mp\mp\MpMisc.h"\
@@ -15913,7 +15827,6 @@ NODEP_CPP_MPDSI=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSII) Debug"
 
 NODEP_CPP_MPDSI=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpdSipxPcma.h"\
 	".\src\mp\mp\MpMisc.h"\
@@ -15924,7 +15837,6 @@ NODEP_CPP_MPDSI=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE SH4) Release"
 
 NODEP_CPP_MPDSI=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpdSipxPcma.h"\
 	".\src\mp\mp\MpMisc.h"\
@@ -15935,7 +15847,6 @@ NODEP_CPP_MPDSI=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE SH4) Debug"
 
 NODEP_CPP_MPDSI=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpdSipxPcma.h"\
 	".\src\mp\mp\MpMisc.h"\
@@ -15946,7 +15857,6 @@ NODEP_CPP_MPDSI=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE SH3) Release"
 
 NODEP_CPP_MPDSI=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpdSipxPcma.h"\
 	".\src\mp\mp\MpMisc.h"\
@@ -15957,7 +15867,6 @@ NODEP_CPP_MPDSI=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE SH3) Debug"
 
 NODEP_CPP_MPDSI=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpdSipxPcma.h"\
 	".\src\mp\mp\MpMisc.h"\
@@ -15968,7 +15877,6 @@ NODEP_CPP_MPDSI=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSIV) Release"
 
 NODEP_CPP_MPDSI=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpdSipxPcma.h"\
 	".\src\mp\mp\MpMisc.h"\
@@ -15979,7 +15887,6 @@ NODEP_CPP_MPDSI=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSIV) Debug"
 
 NODEP_CPP_MPDSI=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpdSipxPcma.h"\
 	".\src\mp\mp\MpMisc.h"\
@@ -15990,7 +15897,6 @@ NODEP_CPP_MPDSI=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE emulator) Release"
 
 NODEP_CPP_MPDSI=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpdSipxPcma.h"\
 	".\src\mp\mp\MpMisc.h"\
@@ -16045,8 +15951,6 @@ DEP_CPP_MPDSI=\
 	"..\sipXportLib\include\utl\UtlList.h"\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
-	".\include\mp\JB\JB_API.h"\
-	".\include\mp\JB\jb_typedefs.h"\
 	".\include\mp\MpBuf.h"\
 	".\include\mp\MpCodecInfo.h"\
 	".\include\mp\MpConnection.h"\
@@ -16130,7 +16034,6 @@ NODEP_CPP_MPDSI=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4I) Release"
 
 NODEP_CPP_MPDSI=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpdSipxPcma.h"\
 	".\src\mp\mp\MpMisc.h"\
@@ -16176,8 +16079,6 @@ DEP_CPP_MPDSI=\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
 	"..\sipXsdpLib\include\sdp\SdpCodec.h"\
-	".\include\mp\JB\JB_API.h"\
-	".\include\mp\JB\jb_typedefs.h"\
 	".\include\mp\MpArrayBuf.h"\
 	".\include\mp\MpAudioBuf.h"\
 	".\include\mp\MpAudioConnection.h"\
@@ -16251,7 +16152,6 @@ NODEP_CPP_MPDSI=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSIV_FP) Release"
 
 NODEP_CPP_MPDSI=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpdSipxPcma.h"\
 	".\src\mp\mp\MpMisc.h"\
@@ -16262,7 +16162,6 @@ NODEP_CPP_MPDSI=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSIV_FP) Debug"
 
 NODEP_CPP_MPDSI=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpdSipxPcma.h"\
 	".\src\mp\mp\MpMisc.h"\
@@ -16273,7 +16172,6 @@ NODEP_CPP_MPDSI=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4) Release"
 
 NODEP_CPP_MPDSI=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpdSipxPcma.h"\
 	".\src\mp\mp\MpMisc.h"\
@@ -16284,7 +16182,6 @@ NODEP_CPP_MPDSI=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4) Debug"
 
 NODEP_CPP_MPDSI=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpdSipxPcma.h"\
 	".\src\mp\mp\MpMisc.h"\
@@ -16295,7 +16192,6 @@ NODEP_CPP_MPDSI=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPS16) Release"
 
 NODEP_CPP_MPDSI=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpdSipxPcma.h"\
 	".\src\mp\mp\MpMisc.h"\
@@ -16306,7 +16202,6 @@ NODEP_CPP_MPDSI=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPS16) Debug"
 
 NODEP_CPP_MPDSI=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpdSipxPcma.h"\
 	".\src\mp\mp\MpMisc.h"\
@@ -16317,7 +16212,6 @@ NODEP_CPP_MPDSI=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4T) Release"
 
 NODEP_CPP_MPDSI=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpdSipxPcma.h"\
 	".\src\mp\mp\MpMisc.h"\
@@ -16328,7 +16222,6 @@ NODEP_CPP_MPDSI=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4T) Debug"
 
 NODEP_CPP_MPDSI=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpdSipxPcma.h"\
 	".\src\mp\mp\MpMisc.h"\
@@ -16339,7 +16232,6 @@ NODEP_CPP_MPDSI=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE x86) Release"
 
 NODEP_CPP_MPDSI=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpdSipxPcma.h"\
 	".\src\mp\mp\MpMisc.h"\
@@ -16350,7 +16242,6 @@ NODEP_CPP_MPDSI=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE x86) Debug"
 
 NODEP_CPP_MPDSI=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpdSipxPcma.h"\
 	".\src\mp\mp\MpMisc.h"\
@@ -16368,7 +16259,6 @@ SOURCE=.\src\mp\MpdSipxPcmu.cpp
 !IF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSII_FP) Release"
 
 NODEP_CPP_MPDSIP=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpdSipxPcmu.h"\
 	".\src\mp\mp\MpMisc.h"\
@@ -16379,7 +16269,6 @@ NODEP_CPP_MPDSIP=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSII_FP) Debug"
 
 NODEP_CPP_MPDSIP=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpdSipxPcmu.h"\
 	".\src\mp\mp\MpMisc.h"\
@@ -16390,7 +16279,6 @@ NODEP_CPP_MPDSIP=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSII) Release"
 
 NODEP_CPP_MPDSIP=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpdSipxPcmu.h"\
 	".\src\mp\mp\MpMisc.h"\
@@ -16401,7 +16289,6 @@ NODEP_CPP_MPDSIP=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSII) Debug"
 
 NODEP_CPP_MPDSIP=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpdSipxPcmu.h"\
 	".\src\mp\mp\MpMisc.h"\
@@ -16412,7 +16299,6 @@ NODEP_CPP_MPDSIP=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE SH4) Release"
 
 NODEP_CPP_MPDSIP=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpdSipxPcmu.h"\
 	".\src\mp\mp\MpMisc.h"\
@@ -16423,7 +16309,6 @@ NODEP_CPP_MPDSIP=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE SH4) Debug"
 
 NODEP_CPP_MPDSIP=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpdSipxPcmu.h"\
 	".\src\mp\mp\MpMisc.h"\
@@ -16434,7 +16319,6 @@ NODEP_CPP_MPDSIP=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE SH3) Release"
 
 NODEP_CPP_MPDSIP=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpdSipxPcmu.h"\
 	".\src\mp\mp\MpMisc.h"\
@@ -16445,7 +16329,6 @@ NODEP_CPP_MPDSIP=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE SH3) Debug"
 
 NODEP_CPP_MPDSIP=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpdSipxPcmu.h"\
 	".\src\mp\mp\MpMisc.h"\
@@ -16456,7 +16339,6 @@ NODEP_CPP_MPDSIP=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSIV) Release"
 
 NODEP_CPP_MPDSIP=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpdSipxPcmu.h"\
 	".\src\mp\mp\MpMisc.h"\
@@ -16467,7 +16349,6 @@ NODEP_CPP_MPDSIP=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSIV) Debug"
 
 NODEP_CPP_MPDSIP=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpdSipxPcmu.h"\
 	".\src\mp\mp\MpMisc.h"\
@@ -16478,7 +16359,6 @@ NODEP_CPP_MPDSIP=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE emulator) Release"
 
 NODEP_CPP_MPDSIP=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpdSipxPcmu.h"\
 	".\src\mp\mp\MpMisc.h"\
@@ -16533,8 +16413,6 @@ DEP_CPP_MPDSIP=\
 	"..\sipXportLib\include\utl\UtlList.h"\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
-	".\include\mp\JB\JB_API.h"\
-	".\include\mp\JB\jb_typedefs.h"\
 	".\include\mp\MpBuf.h"\
 	".\include\mp\MpCodecInfo.h"\
 	".\include\mp\MpConnection.h"\
@@ -16618,7 +16496,6 @@ NODEP_CPP_MPDSIP=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4I) Release"
 
 NODEP_CPP_MPDSIP=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpdSipxPcmu.h"\
 	".\src\mp\mp\MpMisc.h"\
@@ -16664,8 +16541,6 @@ DEP_CPP_MPDSIP=\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
 	"..\sipXsdpLib\include\sdp\SdpCodec.h"\
-	".\include\mp\JB\JB_API.h"\
-	".\include\mp\JB\jb_typedefs.h"\
 	".\include\mp\MpArrayBuf.h"\
 	".\include\mp\MpAudioBuf.h"\
 	".\include\mp\MpAudioConnection.h"\
@@ -16739,7 +16614,6 @@ NODEP_CPP_MPDSIP=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSIV_FP) Release"
 
 NODEP_CPP_MPDSIP=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpdSipxPcmu.h"\
 	".\src\mp\mp\MpMisc.h"\
@@ -16750,7 +16624,6 @@ NODEP_CPP_MPDSIP=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSIV_FP) Debug"
 
 NODEP_CPP_MPDSIP=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpdSipxPcmu.h"\
 	".\src\mp\mp\MpMisc.h"\
@@ -16761,7 +16634,6 @@ NODEP_CPP_MPDSIP=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4) Release"
 
 NODEP_CPP_MPDSIP=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpdSipxPcmu.h"\
 	".\src\mp\mp\MpMisc.h"\
@@ -16772,7 +16644,6 @@ NODEP_CPP_MPDSIP=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4) Debug"
 
 NODEP_CPP_MPDSIP=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpdSipxPcmu.h"\
 	".\src\mp\mp\MpMisc.h"\
@@ -16783,7 +16654,6 @@ NODEP_CPP_MPDSIP=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPS16) Release"
 
 NODEP_CPP_MPDSIP=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpdSipxPcmu.h"\
 	".\src\mp\mp\MpMisc.h"\
@@ -16794,7 +16664,6 @@ NODEP_CPP_MPDSIP=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPS16) Debug"
 
 NODEP_CPP_MPDSIP=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpdSipxPcmu.h"\
 	".\src\mp\mp\MpMisc.h"\
@@ -16805,7 +16674,6 @@ NODEP_CPP_MPDSIP=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4T) Release"
 
 NODEP_CPP_MPDSIP=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpdSipxPcmu.h"\
 	".\src\mp\mp\MpMisc.h"\
@@ -16816,7 +16684,6 @@ NODEP_CPP_MPDSIP=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4T) Debug"
 
 NODEP_CPP_MPDSIP=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpdSipxPcmu.h"\
 	".\src\mp\mp\MpMisc.h"\
@@ -16827,7 +16694,6 @@ NODEP_CPP_MPDSIP=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE x86) Release"
 
 NODEP_CPP_MPDSIP=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpdSipxPcmu.h"\
 	".\src\mp\mp\MpMisc.h"\
@@ -16838,7 +16704,6 @@ NODEP_CPP_MPDSIP=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE x86) Debug"
 
 NODEP_CPP_MPDSIP=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpdSipxPcmu.h"\
 	".\src\mp\mp\MpMisc.h"\
@@ -19579,77 +19444,66 @@ SOURCE=.\src\mp\MpeSipxPcma.cpp
 !IF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSII_FP) Release"
 
 NODEP_CPP_MPESI=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpeSipxPcma.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSII_FP) Debug"
 
 NODEP_CPP_MPESI=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpeSipxPcma.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSII) Release"
 
 NODEP_CPP_MPESI=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpeSipxPcma.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSII) Debug"
 
 NODEP_CPP_MPESI=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpeSipxPcma.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE SH4) Release"
 
 NODEP_CPP_MPESI=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpeSipxPcma.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE SH4) Debug"
 
 NODEP_CPP_MPESI=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpeSipxPcma.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE SH3) Release"
 
 NODEP_CPP_MPESI=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpeSipxPcma.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE SH3) Debug"
 
 NODEP_CPP_MPESI=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpeSipxPcma.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSIV) Release"
 
 NODEP_CPP_MPESI=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpeSipxPcma.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSIV) Debug"
 
 NODEP_CPP_MPESI=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpeSipxPcma.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE emulator) Release"
 
 NODEP_CPP_MPESI=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpeSipxPcma.h"\
 	
 
@@ -19689,8 +19543,6 @@ DEP_CPP_MPESI=\
 	"..\sipXportLib\include\utl\UtlList.h"\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
-	".\include\mp\JB\JB_API.h"\
-	".\include\mp\JB\jb_typedefs.h"\
 	".\include\mp\MpBuf.h"\
 	".\include\mp\MpCodecInfo.h"\
 	".\include\mp\MpEncoderBase.h"\
@@ -19755,7 +19607,6 @@ NODEP_CPP_MPESI=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4I) Release"
 
 NODEP_CPP_MPESI=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpeSipxPcma.h"\
 	
 
@@ -19790,8 +19641,6 @@ DEP_CPP_MPESI=\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
 	"..\sipXsdpLib\include\sdp\SdpCodec.h"\
-	".\include\mp\JB\JB_API.h"\
-	".\include\mp\JB\jb_typedefs.h"\
 	".\include\mp\MpArrayBuf.h"\
 	".\include\mp\MpAudioBuf.h"\
 	".\include\mp\MpBuf.h"\
@@ -19857,70 +19706,60 @@ NODEP_CPP_MPESI=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSIV_FP) Release"
 
 NODEP_CPP_MPESI=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpeSipxPcma.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSIV_FP) Debug"
 
 NODEP_CPP_MPESI=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpeSipxPcma.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4) Release"
 
 NODEP_CPP_MPESI=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpeSipxPcma.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4) Debug"
 
 NODEP_CPP_MPESI=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpeSipxPcma.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPS16) Release"
 
 NODEP_CPP_MPESI=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpeSipxPcma.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPS16) Debug"
 
 NODEP_CPP_MPESI=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpeSipxPcma.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4T) Release"
 
 NODEP_CPP_MPESI=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpeSipxPcma.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4T) Debug"
 
 NODEP_CPP_MPESI=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpeSipxPcma.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE x86) Release"
 
 NODEP_CPP_MPESI=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpeSipxPcma.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE x86) Debug"
 
 NODEP_CPP_MPESI=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpeSipxPcma.h"\
 	
 
@@ -19934,77 +19773,66 @@ SOURCE=.\src\mp\MpeSipxPcmu.cpp
 !IF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSII_FP) Release"
 
 NODEP_CPP_MPESIP=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpeSipxPcmu.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSII_FP) Debug"
 
 NODEP_CPP_MPESIP=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpeSipxPcmu.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSII) Release"
 
 NODEP_CPP_MPESIP=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpeSipxPcmu.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSII) Debug"
 
 NODEP_CPP_MPESIP=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpeSipxPcmu.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE SH4) Release"
 
 NODEP_CPP_MPESIP=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpeSipxPcmu.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE SH4) Debug"
 
 NODEP_CPP_MPESIP=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpeSipxPcmu.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE SH3) Release"
 
 NODEP_CPP_MPESIP=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpeSipxPcmu.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE SH3) Debug"
 
 NODEP_CPP_MPESIP=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpeSipxPcmu.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSIV) Release"
 
 NODEP_CPP_MPESIP=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpeSipxPcmu.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSIV) Debug"
 
 NODEP_CPP_MPESIP=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpeSipxPcmu.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE emulator) Release"
 
 NODEP_CPP_MPESIP=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpeSipxPcmu.h"\
 	
 
@@ -20044,8 +19872,6 @@ DEP_CPP_MPESIP=\
 	"..\sipXportLib\include\utl\UtlList.h"\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
-	".\include\mp\JB\JB_API.h"\
-	".\include\mp\JB\jb_typedefs.h"\
 	".\include\mp\MpBuf.h"\
 	".\include\mp\MpCodecInfo.h"\
 	".\include\mp\MpEncoderBase.h"\
@@ -20110,7 +19936,6 @@ NODEP_CPP_MPESIP=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4I) Release"
 
 NODEP_CPP_MPESIP=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpeSipxPcmu.h"\
 	
 
@@ -20145,8 +19970,6 @@ DEP_CPP_MPESIP=\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
 	"..\sipXsdpLib\include\sdp\SdpCodec.h"\
-	".\include\mp\JB\JB_API.h"\
-	".\include\mp\JB\jb_typedefs.h"\
 	".\include\mp\MpArrayBuf.h"\
 	".\include\mp\MpAudioBuf.h"\
 	".\include\mp\MpBuf.h"\
@@ -20212,70 +20035,60 @@ NODEP_CPP_MPESIP=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSIV_FP) Release"
 
 NODEP_CPP_MPESIP=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpeSipxPcmu.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSIV_FP) Debug"
 
 NODEP_CPP_MPESIP=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpeSipxPcmu.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4) Release"
 
 NODEP_CPP_MPESIP=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpeSipxPcmu.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4) Debug"
 
 NODEP_CPP_MPESIP=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpeSipxPcmu.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPS16) Release"
 
 NODEP_CPP_MPESIP=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpeSipxPcmu.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPS16) Debug"
 
 NODEP_CPP_MPESIP=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpeSipxPcmu.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4T) Release"
 
 NODEP_CPP_MPESIP=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpeSipxPcmu.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4T) Debug"
 
 NODEP_CPP_MPESIP=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpeSipxPcmu.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE x86) Release"
 
 NODEP_CPP_MPESIP=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpeSipxPcmu.h"\
 	
 
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE x86) Debug"
 
 NODEP_CPP_MPESIP=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpeSipxPcmu.h"\
 	
 
@@ -21197,7 +21010,6 @@ SOURCE=.\src\mp\MpJitterBuffer.cpp
 !IF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSII_FP) Release"
 
 NODEP_CPP_MPJIT=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpDecoderBase.h"\
 	".\src\mp\mp\MpJitterBuffer.h"\
 	".\src\mp\mp\MpMisc.h"\
@@ -21206,7 +21018,6 @@ NODEP_CPP_MPJIT=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSII_FP) Debug"
 
 NODEP_CPP_MPJIT=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpDecoderBase.h"\
 	".\src\mp\mp\MpJitterBuffer.h"\
 	".\src\mp\mp\MpMisc.h"\
@@ -21215,7 +21026,6 @@ NODEP_CPP_MPJIT=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSII) Release"
 
 NODEP_CPP_MPJIT=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpDecoderBase.h"\
 	".\src\mp\mp\MpJitterBuffer.h"\
 	".\src\mp\mp\MpMisc.h"\
@@ -21224,7 +21034,6 @@ NODEP_CPP_MPJIT=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSII) Debug"
 
 NODEP_CPP_MPJIT=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpDecoderBase.h"\
 	".\src\mp\mp\MpJitterBuffer.h"\
 	".\src\mp\mp\MpMisc.h"\
@@ -21233,7 +21042,6 @@ NODEP_CPP_MPJIT=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE SH4) Release"
 
 NODEP_CPP_MPJIT=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpDecoderBase.h"\
 	".\src\mp\mp\MpJitterBuffer.h"\
 	".\src\mp\mp\MpMisc.h"\
@@ -21242,7 +21050,6 @@ NODEP_CPP_MPJIT=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE SH4) Debug"
 
 NODEP_CPP_MPJIT=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpDecoderBase.h"\
 	".\src\mp\mp\MpJitterBuffer.h"\
 	".\src\mp\mp\MpMisc.h"\
@@ -21251,7 +21058,6 @@ NODEP_CPP_MPJIT=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE SH3) Release"
 
 NODEP_CPP_MPJIT=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpDecoderBase.h"\
 	".\src\mp\mp\MpJitterBuffer.h"\
 	".\src\mp\mp\MpMisc.h"\
@@ -21260,7 +21066,6 @@ NODEP_CPP_MPJIT=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE SH3) Debug"
 
 NODEP_CPP_MPJIT=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpDecoderBase.h"\
 	".\src\mp\mp\MpJitterBuffer.h"\
 	".\src\mp\mp\MpMisc.h"\
@@ -21269,7 +21074,6 @@ NODEP_CPP_MPJIT=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSIV) Release"
 
 NODEP_CPP_MPJIT=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpDecoderBase.h"\
 	".\src\mp\mp\MpJitterBuffer.h"\
 	".\src\mp\mp\MpMisc.h"\
@@ -21278,7 +21082,6 @@ NODEP_CPP_MPJIT=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSIV) Debug"
 
 NODEP_CPP_MPJIT=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpDecoderBase.h"\
 	".\src\mp\mp\MpJitterBuffer.h"\
 	".\src\mp\mp\MpMisc.h"\
@@ -21287,7 +21090,6 @@ NODEP_CPP_MPJIT=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE emulator) Release"
 
 NODEP_CPP_MPJIT=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpDecoderBase.h"\
 	".\src\mp\mp\MpJitterBuffer.h"\
 	".\src\mp\mp\MpMisc.h"\
@@ -21340,8 +21142,6 @@ DEP_CPP_MPJIT=\
 	"..\sipXportLib\include\utl\UtlList.h"\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
-	".\include\mp\JB\JB_API.h"\
-	".\include\mp\JB\jb_typedefs.h"\
 	".\include\mp\MpBuf.h"\
 	".\include\mp\MpCodecInfo.h"\
 	".\include\mp\MpDecoderBase.h"\
@@ -21410,7 +21210,6 @@ NODEP_CPP_MPJIT=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4I) Release"
 
 NODEP_CPP_MPJIT=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpDecoderBase.h"\
 	".\src\mp\mp\MpJitterBuffer.h"\
 	".\src\mp\mp\MpMisc.h"\
@@ -21454,8 +21253,6 @@ DEP_CPP_MPJIT=\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
 	"..\sipXsdpLib\include\sdp\SdpCodec.h"\
-	".\include\mp\JB\JB_API.h"\
-	".\include\mp\JB\jb_typedefs.h"\
 	".\include\mp\MpArrayBuf.h"\
 	".\include\mp\MpAudioBuf.h"\
 	".\include\mp\MpBuf.h"\
@@ -21524,7 +21321,6 @@ NODEP_CPP_MPJIT=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSIV_FP) Release"
 
 NODEP_CPP_MPJIT=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpDecoderBase.h"\
 	".\src\mp\mp\MpJitterBuffer.h"\
 	".\src\mp\mp\MpMisc.h"\
@@ -21533,7 +21329,6 @@ NODEP_CPP_MPJIT=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSIV_FP) Debug"
 
 NODEP_CPP_MPJIT=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpDecoderBase.h"\
 	".\src\mp\mp\MpJitterBuffer.h"\
 	".\src\mp\mp\MpMisc.h"\
@@ -21542,7 +21337,6 @@ NODEP_CPP_MPJIT=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4) Release"
 
 NODEP_CPP_MPJIT=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpDecoderBase.h"\
 	".\src\mp\mp\MpJitterBuffer.h"\
 	".\src\mp\mp\MpMisc.h"\
@@ -21551,7 +21345,6 @@ NODEP_CPP_MPJIT=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4) Debug"
 
 NODEP_CPP_MPJIT=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpDecoderBase.h"\
 	".\src\mp\mp\MpJitterBuffer.h"\
 	".\src\mp\mp\MpMisc.h"\
@@ -21560,7 +21353,6 @@ NODEP_CPP_MPJIT=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPS16) Release"
 
 NODEP_CPP_MPJIT=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpDecoderBase.h"\
 	".\src\mp\mp\MpJitterBuffer.h"\
 	".\src\mp\mp\MpMisc.h"\
@@ -21569,7 +21361,6 @@ NODEP_CPP_MPJIT=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPS16) Debug"
 
 NODEP_CPP_MPJIT=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpDecoderBase.h"\
 	".\src\mp\mp\MpJitterBuffer.h"\
 	".\src\mp\mp\MpMisc.h"\
@@ -21578,7 +21369,6 @@ NODEP_CPP_MPJIT=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4T) Release"
 
 NODEP_CPP_MPJIT=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpDecoderBase.h"\
 	".\src\mp\mp\MpJitterBuffer.h"\
 	".\src\mp\mp\MpMisc.h"\
@@ -21587,7 +21377,6 @@ NODEP_CPP_MPJIT=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4T) Debug"
 
 NODEP_CPP_MPJIT=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpDecoderBase.h"\
 	".\src\mp\mp\MpJitterBuffer.h"\
 	".\src\mp\mp\MpMisc.h"\
@@ -21596,7 +21385,6 @@ NODEP_CPP_MPJIT=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE x86) Release"
 
 NODEP_CPP_MPJIT=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpDecoderBase.h"\
 	".\src\mp\mp\MpJitterBuffer.h"\
 	".\src\mp\mp\MpMisc.h"\
@@ -21605,7 +21393,6 @@ NODEP_CPP_MPJIT=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE x86) Debug"
 
 NODEP_CPP_MPJIT=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpDecoderBase.h"\
 	".\src\mp\mp\MpJitterBuffer.h"\
 	".\src\mp\mp\MpMisc.h"\
@@ -21830,8 +21617,6 @@ DEP_CPP_MPMED=\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
 	"..\sipXtackLib\include\net\Url.h"\
-	".\include\mp\JB\JB_API.h"\
-	".\include\mp\JB\jb_typedefs.h"\
 	".\include\mp\MpBuf.h"\
 	".\include\mp\MpBufferMsg.h"\
 	".\include\mp\MpCallFlowGraph.h"\
@@ -22029,7 +21814,6 @@ DEP_CPP_MPMED=\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
 	"..\sipXsdpLib\include\sdp\SdpCodec.h"\
-	".\include\mp\JB\jb_typedefs.h"\
 	".\include\mp\MpArrayBuf.h"\
 	".\include\mp\MpAudioBuf.h"\
 	".\include\mp\MpAudioConnection.h"\
@@ -24326,7 +24110,6 @@ DEP_CPP_MPRBR=\
 	"..\sipXportLib\include\utl\UtlList.h"\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
-	".\include\mp\JB\jb_typedefs.h"\
 	".\include\mp\MpBuf.h"\
 	".\include\mp\MpConnection.h"\
 	".\include\mp\MpFlowGraphMsg.h"\
@@ -24447,7 +24230,6 @@ DEP_CPP_MPRBR=\
 	"..\sipXportLib\include\utl\UtlList.h"\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
-	".\include\mp\JB\jb_typedefs.h"\
 	".\include\mp\MpArrayBuf.h"\
 	".\include\mp\MpAudioBuf.h"\
 	".\include\mp\MpAudioConnection.h"\
@@ -24606,7 +24388,6 @@ SOURCE=.\src\mp\MprDecode.cpp
 
 NODEP_CPP_MPRDE=\
 	".\src\mp\mp\dmaTask.h"\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpBuf.h"\
 	".\src\mp\mp\MpCodecFactory.h"\
@@ -24626,7 +24407,6 @@ NODEP_CPP_MPRDE=\
 
 NODEP_CPP_MPRDE=\
 	".\src\mp\mp\dmaTask.h"\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpBuf.h"\
 	".\src\mp\mp\MpCodecFactory.h"\
@@ -24646,7 +24426,6 @@ NODEP_CPP_MPRDE=\
 
 NODEP_CPP_MPRDE=\
 	".\src\mp\mp\dmaTask.h"\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpBuf.h"\
 	".\src\mp\mp\MpCodecFactory.h"\
@@ -24666,7 +24445,6 @@ NODEP_CPP_MPRDE=\
 
 NODEP_CPP_MPRDE=\
 	".\src\mp\mp\dmaTask.h"\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpBuf.h"\
 	".\src\mp\mp\MpCodecFactory.h"\
@@ -24686,7 +24464,6 @@ NODEP_CPP_MPRDE=\
 
 NODEP_CPP_MPRDE=\
 	".\src\mp\mp\dmaTask.h"\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpBuf.h"\
 	".\src\mp\mp\MpCodecFactory.h"\
@@ -24706,7 +24483,6 @@ NODEP_CPP_MPRDE=\
 
 NODEP_CPP_MPRDE=\
 	".\src\mp\mp\dmaTask.h"\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpBuf.h"\
 	".\src\mp\mp\MpCodecFactory.h"\
@@ -24726,7 +24502,6 @@ NODEP_CPP_MPRDE=\
 
 NODEP_CPP_MPRDE=\
 	".\src\mp\mp\dmaTask.h"\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpBuf.h"\
 	".\src\mp\mp\MpCodecFactory.h"\
@@ -24746,7 +24521,6 @@ NODEP_CPP_MPRDE=\
 
 NODEP_CPP_MPRDE=\
 	".\src\mp\mp\dmaTask.h"\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpBuf.h"\
 	".\src\mp\mp\MpCodecFactory.h"\
@@ -24766,7 +24540,6 @@ NODEP_CPP_MPRDE=\
 
 NODEP_CPP_MPRDE=\
 	".\src\mp\mp\dmaTask.h"\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpBuf.h"\
 	".\src\mp\mp\MpCodecFactory.h"\
@@ -24786,7 +24559,6 @@ NODEP_CPP_MPRDE=\
 
 NODEP_CPP_MPRDE=\
 	".\src\mp\mp\dmaTask.h"\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpBuf.h"\
 	".\src\mp\mp\MpCodecFactory.h"\
@@ -24806,7 +24578,6 @@ NODEP_CPP_MPRDE=\
 
 NODEP_CPP_MPRDE=\
 	".\src\mp\mp\dmaTask.h"\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpBuf.h"\
 	".\src\mp\mp\MpCodecFactory.h"\
@@ -24873,8 +24644,6 @@ DEP_CPP_MPRDE=\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
 	".\include\mp\dmaTask.h"\
-	".\include\mp\JB\JB_API.h"\
-	".\include\mp\JB\jb_typedefs.h"\
 	".\include\mp\MpBuf.h"\
 	".\include\mp\MpCodecFactory.h"\
 	".\include\mp\MpCodecInfo.h"\
@@ -24963,7 +24732,6 @@ NODEP_CPP_MPRDE=\
 
 NODEP_CPP_MPRDE=\
 	".\src\mp\mp\dmaTask.h"\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpBuf.h"\
 	".\src\mp\mp\MpCodecFactory.h"\
@@ -25032,8 +24800,6 @@ DEP_CPP_MPRDE=\
 	"..\sipXportLib\include\utl\UtlString.h"\
 	"..\sipXsdpLib\include\sdp\SdpCodec.h"\
 	".\include\mp\dmaTask.h"\
-	".\include\mp\JB\JB_API.h"\
-	".\include\mp\JB\jb_typedefs.h"\
 	".\include\mp\MpArrayBuf.h"\
 	".\include\mp\MpAudioBuf.h"\
 	".\include\mp\MpAudioConnection.h"\
@@ -25117,7 +24883,6 @@ NODEP_CPP_MPRDE=\
 
 NODEP_CPP_MPRDE=\
 	".\src\mp\mp\dmaTask.h"\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpBuf.h"\
 	".\src\mp\mp\MpCodecFactory.h"\
@@ -25137,7 +24902,6 @@ NODEP_CPP_MPRDE=\
 
 NODEP_CPP_MPRDE=\
 	".\src\mp\mp\dmaTask.h"\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpBuf.h"\
 	".\src\mp\mp\MpCodecFactory.h"\
@@ -25157,7 +24921,6 @@ NODEP_CPP_MPRDE=\
 
 NODEP_CPP_MPRDE=\
 	".\src\mp\mp\dmaTask.h"\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpBuf.h"\
 	".\src\mp\mp\MpCodecFactory.h"\
@@ -25177,7 +24940,6 @@ NODEP_CPP_MPRDE=\
 
 NODEP_CPP_MPRDE=\
 	".\src\mp\mp\dmaTask.h"\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpBuf.h"\
 	".\src\mp\mp\MpCodecFactory.h"\
@@ -25197,7 +24959,6 @@ NODEP_CPP_MPRDE=\
 
 NODEP_CPP_MPRDE=\
 	".\src\mp\mp\dmaTask.h"\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpBuf.h"\
 	".\src\mp\mp\MpCodecFactory.h"\
@@ -25217,7 +24978,6 @@ NODEP_CPP_MPRDE=\
 
 NODEP_CPP_MPRDE=\
 	".\src\mp\mp\dmaTask.h"\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpBuf.h"\
 	".\src\mp\mp\MpCodecFactory.h"\
@@ -25237,7 +24997,6 @@ NODEP_CPP_MPRDE=\
 
 NODEP_CPP_MPRDE=\
 	".\src\mp\mp\dmaTask.h"\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpBuf.h"\
 	".\src\mp\mp\MpCodecFactory.h"\
@@ -25257,7 +25016,6 @@ NODEP_CPP_MPRDE=\
 
 NODEP_CPP_MPRDE=\
 	".\src\mp\mp\dmaTask.h"\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpBuf.h"\
 	".\src\mp\mp\MpCodecFactory.h"\
@@ -25277,7 +25035,6 @@ NODEP_CPP_MPRDE=\
 
 NODEP_CPP_MPRDE=\
 	".\src\mp\mp\dmaTask.h"\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpBuf.h"\
 	".\src\mp\mp\MpCodecFactory.h"\
@@ -25297,7 +25054,6 @@ NODEP_CPP_MPRDE=\
 
 NODEP_CPP_MPRDE=\
 	".\src\mp\mp\dmaTask.h"\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpAudioConnection.h"\
 	".\src\mp\mp\MpBuf.h"\
 	".\src\mp\mp\MpCodecFactory.h"\
@@ -25491,7 +25247,6 @@ DEP_CPP_MPRDEJ=\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
 	".\include\mp\dmaTask.h"\
-	".\include\mp\JB\jb_typedefs.h"\
 	".\include\mp\MpBuf.h"\
 	".\include\mp\MpConnection.h"\
 	".\include\mp\MpFlowGraphMsg.h"\
@@ -26558,8 +26313,6 @@ DEP_CPP_MPREN=\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
 	".\include\mp\dmaTask.h"\
-	".\include\mp\JB\JB_API.h"\
-	".\include\mp\JB\jb_typedefs.h"\
 	".\include\mp\MpBuf.h"\
 	".\include\mp\MpCodecFactory.h"\
 	".\include\mp\MpCodecInfo.h"\
@@ -27930,7 +27683,6 @@ DEP_CPP_MPRFR=\
 	"..\sipXportLib\include\utl\UtlString.h"\
 	"..\sipXtackLib\include\net\Url.h"\
 	".\include\mp\dtmflib.h"\
-	".\include\mp\JB\jb_typedefs.h"\
 	".\include\mp\mpau.h"\
 	".\include\mp\MpAudioAbstract.h"\
 	".\include\mp\MpAudioFileDecompress.h"\
@@ -28124,7 +27876,6 @@ DEP_CPP_MPRFR=\
 	"..\sipXportLib\include\utl\UtlList.h"\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
-	".\include\mp\JB\jb_typedefs.h"\
 	".\include\mp\MpArrayBuf.h"\
 	".\include\mp\mpau.h"\
 	".\include\mp\MpAudioAbstract.h"\
@@ -29076,7 +28827,6 @@ DEP_CPP_MPRFROM=\
 	"..\sipXportLib\include\utl\UtlList.h"\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
-	".\include\mp\JB\jb_typedefs.h"\
 	".\include\mp\MpBuf.h"\
 	".\include\mp\MpBufferMsg.h"\
 	".\include\mp\MpConnection.h"\
@@ -29689,7 +29439,6 @@ DEP_CPP_MPRFROMS=\
 	"..\sipXportLib\include\utl\UtlVoidPtr.h"\
 	"..\sipXtackLib\include\net\Url.h"\
 	".\include\mp\dtmflib.h"\
-	".\include\mp\JB\jb_typedefs.h"\
 	".\include\mp\mpau.h"\
 	".\include\mp\MpAudioAbstract.h"\
 	".\include\mp\MpAudioFileDecompress.h"\
@@ -29895,7 +29644,6 @@ DEP_CPP_MPRFROMS=\
 	"..\sipXportLib\include\utl\UtlVoidPtr.h"\
 	"..\sipXtackLib\include\net\Url.h"\
 	".\include\mp\dtmflib.h"\
-	".\include\mp\JB\jb_typedefs.h"\
 	".\include\mp\MpArrayBuf.h"\
 	".\include\mp\mpau.h"\
 	".\include\mp\MpAudioAbstract.h"\
@@ -31681,7 +31429,6 @@ DEP_CPP_MPRTO=\
 	"..\sipXportLib\include\utl\UtlString.h"\
 	"..\sipXtackLib\include\net\Url.h"\
 	".\include\mp\dtmflib.h"\
-	".\include\mp\JB\jb_typedefs.h"\
 	".\include\mp\MpBuf.h"\
 	".\include\mp\MpCallFlowGraph.h"\
 	".\include\mp\MpConnection.h"\
@@ -31861,7 +31608,6 @@ DEP_CPP_MPRTO=\
 	"..\sipXportLib\include\utl\UtlSortedList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
 	".\include\mp\dtmflib.h"\
-	".\include\mp\JB\jb_typedefs.h"\
 	".\include\mp\MpArrayBuf.h"\
 	".\include\mp\MpAudioBuf.h"\
 	".\include\mp\MpAudioConnection.h"\
@@ -33348,7 +33094,6 @@ SOURCE=.\src\mp\MpSipxDecoders.cpp
 !IF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSII_FP) Release"
 
 NODEP_CPP_MPSIP=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpJitterBuffer.h"\
 	".\src\mp\mp\MpSipxDecoders.h"\
 	
@@ -33356,7 +33101,6 @@ NODEP_CPP_MPSIP=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSII_FP) Debug"
 
 NODEP_CPP_MPSIP=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpJitterBuffer.h"\
 	".\src\mp\mp\MpSipxDecoders.h"\
 	
@@ -33364,7 +33108,6 @@ NODEP_CPP_MPSIP=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSII) Release"
 
 NODEP_CPP_MPSIP=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpJitterBuffer.h"\
 	".\src\mp\mp\MpSipxDecoders.h"\
 	
@@ -33372,7 +33115,6 @@ NODEP_CPP_MPSIP=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSII) Debug"
 
 NODEP_CPP_MPSIP=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpJitterBuffer.h"\
 	".\src\mp\mp\MpSipxDecoders.h"\
 	
@@ -33380,7 +33122,6 @@ NODEP_CPP_MPSIP=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE SH4) Release"
 
 NODEP_CPP_MPSIP=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpJitterBuffer.h"\
 	".\src\mp\mp\MpSipxDecoders.h"\
 	
@@ -33388,7 +33129,6 @@ NODEP_CPP_MPSIP=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE SH4) Debug"
 
 NODEP_CPP_MPSIP=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpJitterBuffer.h"\
 	".\src\mp\mp\MpSipxDecoders.h"\
 	
@@ -33396,7 +33136,6 @@ NODEP_CPP_MPSIP=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE SH3) Release"
 
 NODEP_CPP_MPSIP=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpJitterBuffer.h"\
 	".\src\mp\mp\MpSipxDecoders.h"\
 	
@@ -33404,7 +33143,6 @@ NODEP_CPP_MPSIP=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE SH3) Debug"
 
 NODEP_CPP_MPSIP=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpJitterBuffer.h"\
 	".\src\mp\mp\MpSipxDecoders.h"\
 	
@@ -33412,7 +33150,6 @@ NODEP_CPP_MPSIP=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSIV) Release"
 
 NODEP_CPP_MPSIP=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpJitterBuffer.h"\
 	".\src\mp\mp\MpSipxDecoders.h"\
 	
@@ -33420,7 +33157,6 @@ NODEP_CPP_MPSIP=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSIV) Debug"
 
 NODEP_CPP_MPSIP=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpJitterBuffer.h"\
 	".\src\mp\mp\MpSipxDecoders.h"\
 	
@@ -33428,7 +33164,6 @@ NODEP_CPP_MPSIP=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE emulator) Release"
 
 NODEP_CPP_MPSIP=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpJitterBuffer.h"\
 	".\src\mp\mp\MpSipxDecoders.h"\
 	
@@ -33469,8 +33204,6 @@ DEP_CPP_MPSIP=\
 	"..\sipXportLib\include\utl\UtlList.h"\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
-	".\include\mp\JB\JB_API.h"\
-	".\include\mp\JB\jb_typedefs.h"\
 	".\include\mp\MpBuf.h"\
 	".\include\mp\MpCodecInfo.h"\
 	".\include\mp\MpDecoderBase.h"\
@@ -33536,7 +33269,6 @@ NODEP_CPP_MPSIP=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4I) Release"
 
 NODEP_CPP_MPSIP=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpJitterBuffer.h"\
 	".\src\mp\mp\MpSipxDecoders.h"\
 	
@@ -33558,8 +33290,6 @@ DEP_CPP_MPSIP=\
 	"..\sipXportLib\include\os\wnt\OsDateTimeWnt.h"\
 	"..\sipXportLib\include\os\wnt\OsMutexWnt.h"\
 	"..\sipXportLib\include\utl\UtlDefs.h"\
-	".\include\mp\JB\JB_API.h"\
-	".\include\mp\JB\jb_typedefs.h"\
 	".\include\mp\MpArrayBuf.h"\
 	".\include\mp\MpBuf.h"\
 	".\include\mp\MpBufPool.h"\
@@ -33622,7 +33352,6 @@ NODEP_CPP_MPSIP=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSIV_FP) Release"
 
 NODEP_CPP_MPSIP=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpJitterBuffer.h"\
 	".\src\mp\mp\MpSipxDecoders.h"\
 	
@@ -33630,7 +33359,6 @@ NODEP_CPP_MPSIP=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPSIV_FP) Debug"
 
 NODEP_CPP_MPSIP=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpJitterBuffer.h"\
 	".\src\mp\mp\MpSipxDecoders.h"\
 	
@@ -33638,7 +33366,6 @@ NODEP_CPP_MPSIP=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4) Release"
 
 NODEP_CPP_MPSIP=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpJitterBuffer.h"\
 	".\src\mp\mp\MpSipxDecoders.h"\
 	
@@ -33646,7 +33373,6 @@ NODEP_CPP_MPSIP=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4) Debug"
 
 NODEP_CPP_MPSIP=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpJitterBuffer.h"\
 	".\src\mp\mp\MpSipxDecoders.h"\
 	
@@ -33654,7 +33380,6 @@ NODEP_CPP_MPSIP=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPS16) Release"
 
 NODEP_CPP_MPSIP=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpJitterBuffer.h"\
 	".\src\mp\mp\MpSipxDecoders.h"\
 	
@@ -33662,7 +33387,6 @@ NODEP_CPP_MPSIP=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE MIPS16) Debug"
 
 NODEP_CPP_MPSIP=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpJitterBuffer.h"\
 	".\src\mp\mp\MpSipxDecoders.h"\
 	
@@ -33670,7 +33394,6 @@ NODEP_CPP_MPSIP=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4T) Release"
 
 NODEP_CPP_MPSIP=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpJitterBuffer.h"\
 	".\src\mp\mp\MpSipxDecoders.h"\
 	
@@ -33678,7 +33401,6 @@ NODEP_CPP_MPSIP=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE ARMV4T) Debug"
 
 NODEP_CPP_MPSIP=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpJitterBuffer.h"\
 	".\src\mp\mp\MpSipxDecoders.h"\
 	
@@ -33686,7 +33408,6 @@ NODEP_CPP_MPSIP=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE x86) Release"
 
 NODEP_CPP_MPSIP=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpJitterBuffer.h"\
 	".\src\mp\mp\MpSipxDecoders.h"\
 	
@@ -33694,7 +33415,6 @@ NODEP_CPP_MPSIP=\
 !ELSEIF  "$(CFG)" == "sipXmediaLib - Win32 (WCE x86) Debug"
 
 NODEP_CPP_MPSIP=\
-	".\src\mp\mp\JB\JB_API.h"\
 	".\src\mp\mp\MpJitterBuffer.h"\
 	".\src\mp\mp\MpSipxDecoders.h"\
 	
@@ -36194,7 +35914,6 @@ DEP_CPP_MPTOP=\
 	"..\sipXportLib\include\utl\UtlList.h"\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
-	".\include\mp\JB\jb_typedefs.h"\
 	".\include\mp\MpArrayBuf.h"\
 	".\include\mp\MpAudioBuf.h"\
 	".\include\mp\MpAudioConnection.h"\
@@ -36270,7 +35989,6 @@ DEP_CPP_MPTOP=\
 	"..\sipXportLib\include\utl\UtlList.h"\
 	"..\sipXportLib\include\utl\UtlSList.h"\
 	"..\sipXportLib\include\utl\UtlString.h"\
-	".\include\mp\JB\jb_typedefs.h"\
 	".\include\mp\MpArrayBuf.h"\
 	".\include\mp\MpAudioBuf.h"\
 	".\include\mp\MpAudioConnection.h"\
@@ -46255,14 +45973,6 @@ SOURCE=.\include\rtcp\ISetSenderStatistics.h
 # Begin Source File
 
 SOURCE=.\include\rtcp\ISetSrcDescription.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\include\mp\JB\JB_API.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\include\mp\JB\jb_typedefs.h
 # End Source File
 # Begin Source File
 

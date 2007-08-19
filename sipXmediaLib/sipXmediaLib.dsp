@@ -759,14 +759,6 @@ SOURCE=.\include\rtcp\ISetSrcDescription.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\mp\JB\JB_API.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\include\mp\JB\jb_typedefs.h
-# End Source File
-# Begin Source File
-
 SOURCE=.\include\rtcp\Message.h
 # End Source File
 # Begin Source File

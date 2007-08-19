@@ -3,10 +3,6 @@
 # projects
 nobase_includeHEADERS_INSTALL = $(INSTALL) -D -p -c -m 644
 
-# Should the subdirectory names (mp/iG729 mp/JB) be in this
-# list, or is that just an unintended side effect of how this list
-# was generated automatically? (HZM, 20040616)
-
 nobase_include_HEADERS =  \
     mp/dmaTask.h \
     mp/dsplib.h \
@@ -15,9 +11,6 @@ nobase_include_HEADERS =  \
     mp/FilterBank.h \
     mp/HandsetFilterBank.h \
     mp/HandsetFilterbankWindows.h \
-    mp/JB \
-    mp/JB/JB_API.h \
-    mp/JB/jb_typedefs.h \
     mp/mpau.h \
     mp/MpArrayBuf.h \
     mp/MpAudioAbstract.h \
