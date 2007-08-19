@@ -17,7 +17,6 @@
 
 // APPLICATION INCLUDES
 #include "mp/MpDecoderBase.h"
-#include "mp/jb/jb_typedefs.h"
 
 // DEFINES
 // MACROS

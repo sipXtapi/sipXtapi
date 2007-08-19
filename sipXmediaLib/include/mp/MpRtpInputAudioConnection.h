@@ -28,7 +28,6 @@ class OsNotification;
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
 #include "mp/MpRtpInputConnection.h"
-#include "mp/JB/jb_typedefs.h"
 
 // DEFINES
 // MACROS
