@@ -293,7 +293,6 @@ public:
 
 /* ============================ ACCESSORS ================================= */
 
-   virtual void setPremiumSound(UtlBoolean enabled);
    virtual int getCodecCPUCost();
       //:Calculate the current cost for our sending/receiving codecs
 

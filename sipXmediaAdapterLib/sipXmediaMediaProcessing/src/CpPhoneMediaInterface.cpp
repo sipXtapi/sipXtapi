@@ -1691,21 +1691,6 @@ OsStatus CpPhoneMediaInterface::generateVoiceQualityReport(int         connectio
 
 /* ============================ ACCESSORS ================================= */
 
-void CpPhoneMediaInterface::setPremiumSound(UtlBoolean enabled)
-{
-    if(mpFlowGraph)
-    {
-        if(enabled)
-        {
-            mpFlowGraph->enablePremiumSound();
-        }
-        else
-        {
-            mpFlowGraph->disablePremiumSound();
-        }
-    }
-}
-
 
 OsStatus CpPhoneMediaInterface::setVideoQuality(int quality)
 {

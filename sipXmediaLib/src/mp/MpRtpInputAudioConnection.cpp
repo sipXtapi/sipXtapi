@@ -353,29 +353,6 @@ void MpRtpInputAudioConnection::deletePayloadType(int payloadType)
    }
 }
 
-void MpRtpInputAudioConnection::setPremiumSound(PremiumSoundOptions op)
-{
-#ifdef HAVE_GIPS /* [ */
-   int NetEqOp = NETEQ_PLAYOUT_MODE_OFF;
-
-   // this must only be called in the context of the Media Task
-   assert(OsTask::getCurrentTask() == MpMediaTask::getMediaTask(0));
-
-   if (EnablePremiumSound == op) {
-      NetEqOp = NETEQ_PLAYOUT_MODE_ON;
-   }
-   if (NULL != mpJB) {
-#ifndef __pingtel_on_posix__
-      NETEQ_GIPS_10MS16B_SetPlayoutMode(mpJB, NetEqOp);
-#endif
-/*
-      osPrintf("MpRtpInputAudioConnection::setPremiumSound: %sabling Premium Sound on #%d\n",
-         (EnablePremiumSound == op) ? "En" : "Dis", mMyID);
-*/
-   }
-#endif /* HAVE_GIPS ] */
-}
-
 /* ============================ ACCESSORS ================================= */
 
 //:Returns a pointer to the Jitter Buffer instance, creating it if necessary
@@ -387,13 +364,6 @@ MpJitterBuffer* MpRtpInputAudioConnection::getJBinst(UtlBoolean optional) {
    if ((NULL == mpJB) && (!optional)) {
       mpJB = new MpJitterBuffer();
       assert(NULL != mpJB);
-
-/*
-      UtlBoolean on = mpFlowGraph->isPremiumSoundEnabled();
-      osPrintf("MpRtpInputAudioConnection::getJBinst: %sabling Premium Sound on #%d\n",
-         on ? "En" : "Dis", mMyID);
-      setPremiumSound(on ? EnablePremiumSound : DisablePremiumSound);
-*/
    }
    return mpJB;
 }

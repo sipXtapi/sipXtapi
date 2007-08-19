@@ -496,14 +496,6 @@ UtlBoolean CpCall::handleMessage(OsMsg& eventMessage)
             }
             break;
 
-        case CallManager::CP_SET_PREMIUM_SOUND_CALL:
-            addHistoryEvent(msgSubType, multiStringMessage);
-            {
-                UtlBoolean enabled = ((CpMultiStringMessage&)eventMessage).getInt1Data();
-                mpMediaInterface->setPremiumSound(enabled);
-            }
-            break;
-
         case CallManager::CP_DROP:
             addHistoryEvent(msgSubType, multiStringMessage);
             {

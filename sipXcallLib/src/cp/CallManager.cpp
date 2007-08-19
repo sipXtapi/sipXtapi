@@ -914,7 +914,6 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
         case CP_DESTROY_PLAYLIST_PLAYER:
         case CP_DESTROY_QUEUE_PLAYER:
         case CP_CREATE_QUEUE_PLAYER:
-        case CP_SET_PREMIUM_SOUND_CALL:
         case CP_GET_NUM_CONNECTIONS:
         case CP_GET_CONNECTIONS:
         case CP_GET_CALLED_ADDRESSES:
@@ -1799,14 +1798,6 @@ void CallManager::bufferPlay(const char* callId, int audioBuf, int bufSize, int 
             eventMgr->release(pEvent);
         }
     }
-}
-
-void CallManager::stopPremiumSound(const char* callId)
-{
-    CpMultiStringMessage premiumSoundMessage(CP_SET_PREMIUM_SOUND_CALL,
-        callId, NULL, NULL, NULL, NULL, // strings
-        FALSE); // Disabled
-    postMessage(premiumSoundMessage);
 }
 
 

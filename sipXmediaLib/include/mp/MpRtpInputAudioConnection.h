@@ -46,12 +46,6 @@ class MpRtpInputAudioConnection : public MpRtpInputConnection
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
-   typedef enum
-   {
-      DisablePremiumSound = FALSE,
-      EnablePremiumSound = TRUE
-   } PremiumSoundOptions;
-
 /* ============================ CREATORS ================================== */
 ///@name Creators
 //@{
@@ -95,9 +89,6 @@ public:
 
      /// Get decoder for this payload type
    MpDecoderBase* mapPayloadType(int payloadType);
-
-     /// Disables or enables the premium sound.
-   void setPremiumSound(PremiumSoundOptions op);
 
    // TODO:  this should become a resource message handled by the resource:
      /// Handle the FLOWGRAPH_SET_DTMF_NOTIFY message.

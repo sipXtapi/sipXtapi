@@ -158,7 +158,6 @@ public:
         CP_UNHOLD_ALL_TERM_CONNECTIONS,
         CP_CANCEL_TIMER,
         CP_GET_NEXT_CSEQ,
-        CP_SET_PREMIUM_SOUND_CALL,
         CP_ADD_TONE_LISTENER,
         CP_REMOVE_TONE_LISTENER,
         CP_ENABLE_DTMF_EVENT,
@@ -438,10 +437,6 @@ public:
                             UtlBoolean repeat,
                             UtlBoolean local,
                             UtlBoolean remote) = 0;
-
-
-    //! For internal use
-    virtual void stopPremiumSound(const char* callId) = 0;
 
     //! Create a MpStreamPlaylistPlayer media player associated with
     /*! the specified call. The media player can subsequently be used

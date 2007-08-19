@@ -1730,10 +1730,6 @@ int CpTopologyGraphInterface::getNextConnectionId()
     return(++mLastConnectionId);
 }
 
-void CpTopologyGraphInterface::setPremiumSound(UtlBoolean enabled)
-{
-}
-
 // Calculate the current cost for our sending/receiving codecs
 int CpTopologyGraphInterface::getCodecCPUCost()
 {   

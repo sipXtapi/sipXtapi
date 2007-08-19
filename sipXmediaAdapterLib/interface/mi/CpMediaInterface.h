@@ -661,9 +661,6 @@ public:
     /// Provide an invalid connectionId
    static int getInvalidConnectionId();
 
-   //! For internal use only
-   virtual void setPremiumSound(UtlBoolean enabled) = 0;
-
    virtual OsStatus setVideoWindowDisplay(const void* hWnd) = 0;
 
    virtual OsStatus setSecurityAttributes(const void* security) = 0;

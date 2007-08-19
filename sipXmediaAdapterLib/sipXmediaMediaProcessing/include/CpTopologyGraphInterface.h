@@ -300,8 +300,6 @@ public:
                                       int& videoBandwidth,
                                       int& videoFramerate);
 
-   virtual void setPremiumSound(UtlBoolean enabled);
-
    //! Calculate the current cost for the current set of 
    //! sending/receiving codecs.
    virtual int getCodecCPUCost();

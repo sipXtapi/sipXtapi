@@ -67,8 +67,6 @@ public:
       
       FLOWGRAPH_SYNCHRONIZE,
 
-      FLOWGRAPH_SET_PREMIUM_SOUND,
-
       FLOWGRAPH_SET_DTMF_NOTIFY,
 
       // Resource notification messages using old flowgraph msg approach
