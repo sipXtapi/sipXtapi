@@ -138,11 +138,6 @@ JB_ret JB_RecOut(MpJitterBuffer *pJB,
    return 0;
 }
 
-JB_ret JB_init(MpJitterBuffer *pJB, int fs)
-{
-   return 0;
-}
-
 JB_ret JB_free(MpJitterBuffer *pJB)
 {
    delete pJB;

@@ -396,12 +396,6 @@ MpJitterBuffer* MpRtpInputAudioConnection::getJBinst(UtlBoolean optional) {
       mpJB = new MpJitterBuffer();
       assert(NULL != mpJB);
 
-      //Here it is hard coded to use 8000 Hz sampling frequency
-      //This number is only relevant until any packet has arrived
-      //When packet arrives the codec determines the output samp.freq.
-
-      res |= JB_init(mpJB, 8000);
-
       if (0 != res) { //just in case
          osPrintf("MpRtpInputAudioConnection::getJBinst: Jitter Buffer init failure!\n");
          if (NULL != mpJB) {

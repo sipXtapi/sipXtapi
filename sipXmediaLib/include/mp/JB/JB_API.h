@@ -4,13 +4,6 @@
 #ifndef _JB_API_H_
 #define _JB_API_H_
 
-#ifdef HAVE_GIPS /* [ */
-
-#include "mp/GIPS/GIPS_API.h"
-
-#else /* HAVE_GIPS ] [ */
-
-#define JB_API_VERSION "SIPfoundry 1.0"
 #define JB_EXTERN extern
 
 #include "mp/JB/jb_typedefs.h"
@@ -29,7 +22,6 @@ JB_EXTERN JB_ret JB_RecOut(MpJitterBuffer *MpJitterBuffer,
                            MpAudioSample *voiceSamples,
                            JB_size *length);
 
-JB_EXTERN JB_ret JB_init(MpJitterBuffer *MpJitterBuffer, JB_size fs);
 JB_EXTERN JB_ret JB_free(MpJitterBuffer *MpJitterBuffer);
 
 
@@ -37,5 +29,4 @@ JB_EXTERN JB_ret JB_free(MpJitterBuffer *MpJitterBuffer);
 }
 #endif
 
-#endif /* HAVE_GIPS ] */
 #endif /* _JB_API_H_ */
