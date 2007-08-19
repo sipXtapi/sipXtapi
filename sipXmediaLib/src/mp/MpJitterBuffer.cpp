@@ -138,9 +138,4 @@ JB_ret JB_RecOut(MpJitterBuffer *pJB,
    return 0;
 }
 
-JB_ret JB_free(MpJitterBuffer *pJB)
-{
-   delete pJB;
-   return 0;
-}
 #endif /* NOT(HAVE_GIPS) ] */

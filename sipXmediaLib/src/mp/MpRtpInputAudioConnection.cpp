@@ -84,13 +84,8 @@ MpRtpInputAudioConnection::MpRtpInputAudioConnection(const UtlString& resourceNa
 // Destructor
 MpRtpInputAudioConnection::~MpRtpInputAudioConnection()
 {
-   if (mpDecode != NULL)
-      delete mpDecode;
-
-   if (NULL != mpJB) {
-      JB_free(mpJB);
-      mpJB = NULL;
-   }
+   delete mpDecode;
+   delete mpJB;
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -302,9 +297,8 @@ void MpRtpInputAudioConnection::handleStopReceiveRtp()
    // flowgraph.  It is part of this connection/resource
    //mpFlowGraph->synchronize();
 
-   if (NULL != pJB) {
-      JB_free(pJB);
-   }
+   delete pJB;
+
    mpDecode->disable();
 }
 
@@ -392,27 +386,17 @@ void MpRtpInputAudioConnection::setPremiumSound(PremiumSoundOptions op)
 MpJitterBuffer* MpRtpInputAudioConnection::getJBinst(UtlBoolean optional) {
 
    if ((NULL == mpJB) && (!optional)) {
-      int res;
       mpJB = new MpJitterBuffer();
       assert(NULL != mpJB);
 
-      if (0 != res) { //just in case
-         osPrintf("MpRtpInputAudioConnection::getJBinst: Jitter Buffer init failure!\n");
-         if (NULL != mpJB) {
-            JB_free(mpJB);
-            mpJB = NULL;
-         }
-      }
-      if (NULL != mpJB) {
 /*
-         UtlBoolean on = mpFlowGraph->isPremiumSoundEnabled();
-         osPrintf("MpRtpInputAudioConnection::getJBinst: %sabling Premium Sound on #%d\n",
-            on ? "En" : "Dis", mMyID);
-         setPremiumSound(on ? EnablePremiumSound : DisablePremiumSound);
+      UtlBoolean on = mpFlowGraph->isPremiumSoundEnabled();
+      osPrintf("MpRtpInputAudioConnection::getJBinst: %sabling Premium Sound on #%d\n",
+         on ? "En" : "Dis", mMyID);
+      setPremiumSound(on ? EnablePremiumSound : DisablePremiumSound);
 */
-      }
    }
-   return(mpJB);
+   return mpJB;
 }
 
 MpDecoderBase* MpRtpInputAudioConnection::mapPayloadType(int payloadType)

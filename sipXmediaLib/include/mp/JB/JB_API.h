@@ -22,9 +22,6 @@ JB_EXTERN JB_ret JB_RecOut(MpJitterBuffer *MpJitterBuffer,
                            MpAudioSample *voiceSamples,
                            JB_size *length);
 
-JB_EXTERN JB_ret JB_free(MpJitterBuffer *MpJitterBuffer);
-
-
 #ifdef __cplusplus
 }
 #endif
