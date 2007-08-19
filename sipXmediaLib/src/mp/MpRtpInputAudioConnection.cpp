@@ -53,7 +53,6 @@ MpRtpInputAudioConnection::MpRtpInputAudioConnection(const UtlString& resourceNa
 #endif // INCLUDE_RTCP ]
                        )
 , mpDecode(NULL)
-, mpJB(NULL)
 {
    char         name[50];
    int          i;
@@ -84,7 +83,6 @@ MpRtpInputAudioConnection::MpRtpInputAudioConnection(const UtlString& resourceNa
 MpRtpInputAudioConnection::~MpRtpInputAudioConnection()
 {
    delete mpDecode;
-   delete mpJB;
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -278,8 +276,6 @@ void MpRtpInputAudioConnection::handleStopReceiveRtp()
 {
    prepareStopReceiveRtp();
 
-   MpJitterBuffer* pJB; 
-
    // No need to synchronize as the decoder is not part of the
    // flowgraph.  It is part of this connection/resource
    //mpFlowGraph->synchronize();
@@ -289,14 +285,6 @@ void MpRtpInputAudioConnection::handleStopReceiveRtp()
    // No need to synchronize as the decoder is not part of the
    // flowgraph.  It is part of this connection/resource
    //mpFlowGraph->synchronize();
-
-   pJB = getJBinst(TRUE);  // get NULL if not allocated
-   mpJB = NULL;
-   // No need to synchronize as the decoder is not part of the
-   // flowgraph.  It is part of this connection/resource
-   //mpFlowGraph->synchronize();
-
-   delete pJB;
 
    mpDecode->disable();
 }
@@ -354,19 +342,6 @@ void MpRtpInputAudioConnection::deletePayloadType(int payloadType)
 }
 
 /* ============================ ACCESSORS ================================= */
-
-//:Returns a pointer to the Jitter Buffer instance, creating it if necessary
-// If the instance has not been created, but the argument "optional" is
-// TRUE, then do not create it, just return NULL.
-
-MpJitterBuffer* MpRtpInputAudioConnection::getJBinst(UtlBoolean optional) {
-
-   if ((NULL == mpJB) && (!optional)) {
-      mpJB = new MpJitterBuffer();
-      assert(NULL != mpJB);
-   }
-   return mpJB;
-}
 
 MpDecoderBase* MpRtpInputAudioConnection::mapPayloadType(int payloadType)
 {

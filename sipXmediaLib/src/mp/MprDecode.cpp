@@ -59,6 +59,7 @@
 MprDecode::MprDecode(const UtlString& rName, MpRtpInputAudioConnection* pConn,
                      int samplesPerFrame, int samplesPerSec)
 :  MpAudioResource(rName, 0, 0, 1, 1, samplesPerFrame, samplesPerSec),
+   mpJB(NULL),
    mpMyDJ(NULL),
    mpCurrentCodecs(NULL),
    mNumCurrentCodecs(0),
@@ -74,7 +75,8 @@ MprDecode::~MprDecode()
    // Clean up decoder object
    int i;
 
-   // Release our codecs (if any), and the array of pointers to them
+   // Release our codecs (if any), and the array of pointers to them.
+   // Jitter buffer instance (mpJB) is also deleted here.
    handleDeselectCodecs();
 
    // Delete the list of codecs used in the past.
@@ -137,6 +139,15 @@ void MprDecode::setMyDejitter(MprDejitter* pDJ)
 }
 
 /* ============================ ACCESSORS ================================= */
+
+MpJitterBuffer* MprDecode::getJBinst(UtlBoolean optional)
+{
+   if ((NULL == mpJB) && (!optional)) {
+      mpJB = new MpJitterBuffer();
+      assert(NULL != mpJB);
+   }
+   return mpJB;
+}
 
 /* ============================ INQUIRY =================================== */
 
@@ -272,7 +283,7 @@ static int iFramesSinceLastReport=0;
             // in order to process properly (?)
             // THIS JitterBuffer is NOT the same as MprDejitter!
             // This is more of a Decode Buffer.
-            MpJitterBuffer* pJBState = mpConnection->getJBinst();
+            MpJitterBuffer* pJBState = getJBinst();
 
             int res = pJBState->pushPacket(rtp);
             if (res != 0) {
@@ -314,7 +325,7 @@ static int iFramesSinceLastReport=0;
    out->setSpeechType(MpAudioBuf::MP_SPEECH_SILENT);
 
    // Decode one packet from Jitter Buffer
-   MpJitterBuffer* pJBState = mpConnection->getJBinst();
+   MpJitterBuffer* pJBState = getJBinst();
    int decodedAPacket = FALSE;
    if (pJBState) {
       // This should be a JB_something or other.  However the only
@@ -451,7 +462,7 @@ UtlBoolean MprDecode::handleSelectCodecs(SdpCodec* pCodecs[], int numCodecs)
       }
    }
 
-   MpJitterBuffer* pJBState = mpConnection->getJBinst();   
+   MpJitterBuffer* pJBState = getJBinst();   
    pJBState->setCodecList(mpCurrentCodecs,numCodecs);
 
    // Delete the list pCodecs.
@@ -513,6 +524,10 @@ UtlBoolean MprDecode::handleDeselectCodecs(UtlBoolean shouldLock)
       mpPrevCodecs = pPrevCodecs;
       mNumPrevCodecs = newN;
    }
+
+   delete mpJB;
+   mpJB = NULL;
+
    if(shouldLock)
    {
        mLock.release();

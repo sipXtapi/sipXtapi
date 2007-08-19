@@ -37,6 +37,7 @@
 class MpRtpInputAudioConnection;
 class MpDecoderBase;
 class MprRecorder;
+class MpJitterBuffer;
 
 /// The "Decode" media processing resource
 class MprDecode : public MpAudioResource
@@ -78,6 +79,13 @@ public:
 ///@name Accessors
 //@{
 
+     /// Returns a pointer to the JB instance, creating it if necessary
+   MpJitterBuffer* getJBinst(UtlBoolean optional = FALSE);
+     /**<
+     *  If the instance has not been created, but the argument "optional" is
+     *  TRUE, then do not create it, just return NULL.
+     */
+
 //@}
 
 /* ============================ INQUIRY =================================== */
@@ -117,6 +125,7 @@ private:
    int          mMissedFrames;
    int            saveDebug;
 //   MpRtpBufPtr  mSavedRtp[MAX_PAYLOAD_TYPES];
+   MpJitterBuffer* mpJB;            ///< Pointer to JitterBuffer instance
 
    MprDejitter* mpMyDJ;
 
