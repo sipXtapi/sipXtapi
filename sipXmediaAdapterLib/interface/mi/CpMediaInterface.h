@@ -208,24 +208,26 @@ public:
      */ 
 
 
-     /// @brief Add or replace the media notification dispatcher held by the MI.
+     /// @brief Add, replace, or clear the media notification dispatcher held by the MI.
    virtual OsMsgDispatcher* 
-   setMediaNotificationDispatcher(OsMsgDispatcher* pNoteDisper) = 0;
+   setNotificationDispatcher(OsMsgDispatcher* pNotificationDispatcher) = 0;
      /**<
      *  Gives the Media Interface an object to help in the dispatching of 
      *  notification messages to users of the media interface.  Users
      *  are free to subclass OsMsgDispatcher to filter messages as
      *  they see fit, and should hold on to it to receive their messages.
      *  
-     *  @param[in] pNoteDisper - A notification dispatcher to give to the MI.
-     *  @retval Pointer to the previous media notification dispatcher set in this MI -
-     *          If there was no previous media notification dispatcher, NULL is returned.
+     *  @param[in] pNotificationDispatcher - A notification dispatcher to give 
+     *             to the MI.
+     *  @retval Pointer to the previous media notification dispatcher set in
+     *          this MI.  If there was no previous media notification dispatcher, 
+     *          \p NULL is returned.
      */
 
      /// @brief Enable or disable media notifications for one/all resource(s).
    virtual OsStatus
-   setMediaNotificationsEnabled(bool enabled, 
-                                const UtlString& resourceName = NULL) = 0;
+   setNotificationsEnabled(bool enabled, 
+                           const UtlString& resourceName = NULL) = 0;
      /**<
      *  Enable or disable media notifications for a given resource or all resources.
      *
@@ -238,7 +240,7 @@ public:
      *  @retval OS_SUCCESS if the initial sending of a message to enable/disable
      *          notifications succeeded.
      *  @retval OS_NOT_FOUND if there is no resource named /p resourceName.
-     *  @retval OS_FAILED if some other failure in queueing the message occured.
+     *  @retval OS_FAILED if some other failure in queuing the message occurred.
      */
 
      /// @brief Set the secure RTP parameters.
@@ -732,8 +734,8 @@ public:
    //!Returns the flowgraph's message queue
    virtual OsMsgQ* getMsgQ() = 0 ;
 
-      /// Returns the flowgraph's Media Notification dispatcher.
-   virtual OsMsgDispatcher* getMediaNotificationDispatcher() = 0;
+      /// @brief Returns the Media Notification dispatcher this controls.
+   virtual OsMsgDispatcher* getNotificationDispatcher() = 0;
 
    // Returns the primary codec for the connection
    virtual OsStatus getPrimaryCodec(int connectionId, 

@@ -632,16 +632,16 @@ OsStatus CpPhoneMediaInterface::getCapabilitiesEx(int connectionId,
 }
 
 OsMsgDispatcher*  
-CpPhoneMediaInterface::setMediaNotificationDispatcher(OsMsgDispatcher* pNoteDisper)
+CpPhoneMediaInterface::setNotificationDispatcher(OsMsgDispatcher* pNotificationDispatcher)
 {
    // If there is no flowgraph, return NULL, otherwise return result of setting
-   // notification disptacher on flowgraph.
-   return mpFlowGraph ? mpFlowGraph->setNotificationDispatcher(pNoteDisper) : NULL;
+   // notification dispatcher on flowgraph.
+   return mpFlowGraph ? mpFlowGraph->setNotificationDispatcher(pNotificationDispatcher) : NULL;
 }
 
 OsStatus
-CpPhoneMediaInterface::setMediaNotificationsEnabled(bool enabled, 
-                                                    const UtlString& resourceName)
+CpPhoneMediaInterface::setNotificationsEnabled(bool enabled, 
+                                               const UtlString& resourceName)
 {
    return mpFlowGraph ? 
       mpFlowGraph->setNotificationsEnabled(enabled, resourceName) :
@@ -1798,7 +1798,7 @@ OsMsgQ* CpPhoneMediaInterface::getMsgQ()
    return mpFlowGraph->getMsgQ() ;
 }
 
-OsMsgDispatcher* CpPhoneMediaInterface::getMediaNotificationDispatcher()
+OsMsgDispatcher* CpPhoneMediaInterface::getNotificationDispatcher()
 {
    return mpFlowGraph ? mpFlowGraph->getNotificationDispatcher() : NULL;
 }

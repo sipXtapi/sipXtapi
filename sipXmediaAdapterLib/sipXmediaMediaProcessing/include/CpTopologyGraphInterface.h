@@ -83,13 +83,13 @@ public:
                                      const RtpTransportOptions rtpTransportOptions=RTP_TRANSPORT_UDP);
 
 
-      /// @copydoc CpMediaInterface::setMediaNotificationDispatcher()
+      /// @copydoc CpMediaInterface::setNotificationDispatcher()
    virtual OsMsgDispatcher*
-   setMediaNotificationDispatcher(OsMsgDispatcher* pNoteDisper);
+   setNotificationDispatcher(OsMsgDispatcher* pNotificationDispatcher);
 
-     /// @copydoc CpMediaInterface::setMediaNotificationsEnabled()
-   virtual OsStatus setMediaNotificationsEnabled(bool enabled, 
-                                                 const UtlString& resourceName = NULL);
+     /// @copydoc CpMediaInterface::setNotificationsEnabled()
+   virtual OsStatus setNotificationsEnabled(bool enabled, 
+                                            const UtlString& resourceName = NULL);
 
 
    /// Look up the port on the bridge to which the indicated connection is connected
@@ -311,8 +311,8 @@ public:
    //!Returns the flowgraph's message queue
    virtual OsMsgQ* getMsgQ();
 
-   /// @copydoc CpMediaInterface::getMediaNotificationDispatcher()
-   virtual OsMsgDispatcher* getMediaNotificationDispatcher();
+   /// @copydoc CpMediaInterface::getNotificationDispatcher()
+   virtual OsMsgDispatcher* getNotificationDispatcher();
 
 
    virtual OsStatus getVideoQuality(int& quality);
