@@ -505,6 +505,23 @@ public:
      *  @see CpMediaInterface::playAudio
      */
 
+     /// @brief Pause all playing URLs or buffers
+   virtual OsStatus pauseAudio() = 0;
+     /**<
+     *  @TODO This method should also take an optional uniqueId representing
+     *        a particular playing instance to pause, instead of all of them.
+     *  @retval OS_SUCCESS if the asynchronous request to pause audio succeeded.
+     *  @retval OS_NOT_FOUND if required underlying media resources are not found.
+     */
+
+     /// @brief Resume all paused URLs or buffers
+   virtual OsStatus resumeAudio() = 0;
+     /**<
+     *  @TODO This method should also take an optional uniqueId representing
+     *        a particular paused instance to resume, instead of all of them.
+     *  @retval OS_SUCCESS if the asynchronous request to pause audio succeeded.
+     *  @retval OS_NOT_FOUND if required underlying media resources are not found.
+     */
 
      /// @brief Stop playing any URLs or buffers
    virtual OsStatus stopAudio()  = 0 ;

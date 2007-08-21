@@ -176,6 +176,13 @@ public:
                               UtlBoolean mixWithMic = false,
                               int downScaling = 100);
 
+      /// @copydoc CpMediaInterface::pauseAudio()
+    virtual OsStatus pauseAudio();
+
+      /// @copydoc CpMediaInterface::resumeAudio()
+    virtual OsStatus resumeAudio();
+
+      /// @copydoc CpMediaInterface::stopAudio()
     virtual OsStatus stopAudio();
 
     virtual OsStatus playChannelAudio(int connectionId,

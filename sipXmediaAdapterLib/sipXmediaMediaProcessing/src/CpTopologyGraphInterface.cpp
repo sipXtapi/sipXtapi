@@ -1431,6 +1431,27 @@ OsStatus CpTopologyGraphInterface::playBuffer(char* buf,
     return(stat);
 }
 
+OsStatus CpTopologyGraphInterface::pauseAudio()
+{
+   OsStatus stat = OS_NOT_FOUND;
+   if(mpTopologyGraph != NULL)
+   {
+      stat = MprFromFile::pauseFile(DEFAULT_FROM_FILE_RESOURCE_NAME,
+                                    *mpTopologyGraph->getMsgQ());
+   }
+   return stat;
+}
+
+OsStatus CpTopologyGraphInterface::resumeAudio()
+{
+   OsStatus stat = OS_NOT_FOUND;
+   if(mpTopologyGraph != NULL)
+   {
+      stat = MprFromFile::resumeFile(DEFAULT_FROM_FILE_RESOURCE_NAME,
+                                     *mpTopologyGraph->getMsgQ());
+   }
+   return stat;
+}
 
 OsStatus CpTopologyGraphInterface::stopAudio()
 {

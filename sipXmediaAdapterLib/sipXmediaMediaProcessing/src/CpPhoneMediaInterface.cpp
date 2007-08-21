@@ -1291,6 +1291,26 @@ OsStatus CpPhoneMediaInterface::playBuffer(char* buf,
 }
 
 
+OsStatus CpPhoneMediaInterface::pauseAudio()
+{
+   OsStatus stat = OS_NOT_FOUND;
+   if(mpFlowGraph)
+   {
+      stat = mpFlowGraph->pauseFile();
+   }
+   return(stat);
+}
+
+OsStatus CpPhoneMediaInterface::resumeAudio()
+{
+   OsStatus stat = OS_NOT_FOUND;
+   if(mpFlowGraph)
+   {
+      stat = mpFlowGraph->resumeFile();
+   }
+   return(stat);
+}
+
 OsStatus CpPhoneMediaInterface::stopAudio()
 {
     OsStatus returnCode = OS_NOT_FOUND;

@@ -346,10 +346,27 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
                                   100,
                                   &playAudNote);
 #endif
+        // Keep around a status object to query various statuses
+        OsStatus stat = OS_SUCCESS;
+
+        // play for a second, pause, wait for a second, resume.
+        OsTask::delay(1000);
+        mediaInterface->pauseAudio();
+        OsTask::delay(1000);
+        mediaInterface->resumeAudio();
+        stat = waitForNotf(notfDispatcher, 
+                           MpResNotificationMsg::MPRNM_FROMFILE_PAUSED, 100);
+        CPPUNIT_ASSERT_MESSAGE("No FromFile paused notification was sent after pausing record prompt!",
+                               stat == OS_SUCCESS);
+        stat = waitForNotf(notfDispatcher, 
+                           MpResNotificationMsg::MPRNM_FROMFILE_RESUMED, 100);
+        CPPUNIT_ASSERT_MESSAGE("No FromFile resumed notification was sent after resuming record prompt!",
+                               stat == OS_SUCCESS);
+
         // Wait for a maximum of 5000 msecs to receive a stop playing message
-        OsStatus stat = waitForNotf(notfDispatcher,
-                                    MpResNotificationMsg::MPRNM_FROMFILE_STOP, 
-                                    5000);
+        stat = waitForNotf(notfDispatcher,
+                           MpResNotificationMsg::MPRNM_FROMFILE_STOPPED, 
+                           5000);
         CPPUNIT_ASSERT_MESSAGE("No FromFile Stop notification was sent while playing record prompt!",
                                stat == OS_SUCCESS);
 
@@ -386,7 +403,7 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
         // Wait for a maximum of the size of the buffer (10secs), plus an additional
         // 10 seconds to receive a recording stopped message
         stat = waitForNotf(notfDispatcher,
-                           MpResNotificationMsg::MPRNM_BUFRECORDER_STOP, 
+                           MpResNotificationMsg::MPRNM_BUFRECORDER_STOPPED, 
                            nSecsToRecord*1000 + 10000);
         CPPUNIT_ASSERT_MESSAGE("No BufferRecorder Stop notification was sent while recording!",
                                stat == OS_SUCCESS);
@@ -412,7 +429,7 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
         mediaInterface->playAudio("playback_prompt.wav", false, true, false) ;
 #endif
         stat = waitForNotf(notfDispatcher,
-                           MpResNotificationMsg::MPRNM_FROMFILE_STOP,
+                           MpResNotificationMsg::MPRNM_FROMFILE_STOPPED,
                            3500);
         CPPUNIT_ASSERT_MESSAGE("No FromFile Stop notification was sent while playing playback prompt!",
                                stat == OS_SUCCESS);
@@ -430,7 +447,7 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
                                    false); // remote
 
         stat = waitForNotf(notfDispatcher,
-                           MpResNotificationMsg::MPRNM_FROMFILE_STOP,
+                           MpResNotificationMsg::MPRNM_FROMFILE_STOPPED,
                            15000);
         CPPUNIT_ASSERT_MESSAGE("No FromFile Stop notification was sent while playing record buffer!",
                                stat == OS_SUCCESS);
