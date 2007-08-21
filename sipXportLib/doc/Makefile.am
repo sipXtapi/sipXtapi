@@ -43,6 +43,6 @@ clean-doc:
 .PHONY: external-docs
 external-docs: @PACKAGE@ $(foreach img,$(images),@PACKAGE@/$(img))
 
-$(foreach img,$(images),@PACKAGE@/$(img)): @PACKAGE@/% : %
+$(foreach img,$(images),@PACKAGE@/$(img)): @PACKAGE@/% : % @PACKAGE@
 	cp $< $@
 
