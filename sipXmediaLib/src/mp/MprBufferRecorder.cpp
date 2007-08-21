@@ -109,7 +109,7 @@ UtlBoolean MprBufferRecorder::disable(Completion code)
    if(code == RECORD_FINISHED || code == RECORD_STOPPED)
    {
       // Send resource notification message to indicate recording complete.
-      sendNotification(MpResNotificationMsg::MPRNM_BUFRECORDER_STOP);
+      sendNotification(MpResNotificationMsg::MPRNM_BUFRECORDER_STOPPED);
    }
    else if(code == NO_INPUT_DATA)
    {
@@ -277,15 +277,6 @@ UtlBoolean MprBufferRecorder::handleMessage(MpResourceMsg& rMsg)
       break;
    }
    return MpAudioResource::handleMessage(rMsg);
-}
-
-OsStatus MprBufferRecorder::sendNotification(MpResNotificationMsg::RNMsgType type)
-{
-   MpFlowGraphBase* pFg = getFlowGraph();
-   assert(pFg != NULL);
-
-   MpResNotificationMsg msg(type, getName());
-   return pFg->postNotification(msg);
 }
 
 /* ============================ FUNCTIONS ================================= */

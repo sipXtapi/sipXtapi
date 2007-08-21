@@ -146,9 +146,6 @@ private:
 
      /// Handle the message for stopping recording
    UtlBoolean handleStopRecording(void);
-
-     /// Send a record done notification message to the flowgraph.
-   OsStatus sendNotification(MpResNotificationMsg::RNMsgType type);
 };
 
 /* ============================ INLINE METHODS ============================ */
