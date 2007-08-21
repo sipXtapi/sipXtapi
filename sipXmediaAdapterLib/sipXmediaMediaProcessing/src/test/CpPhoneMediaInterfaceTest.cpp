@@ -80,6 +80,7 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
     CPPUNIT_TEST(testTones);
     CPPUNIT_TEST(testTwoTones);
 #endif
+    CPPUNIT_TEST(testPlayPauseResumeStop);
     CPPUNIT_TEST(testRecordPlayback);
     CPPUNIT_TEST_SUITE_END();
 
@@ -350,23 +351,9 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
         // Keep around a status object to query various statuses
         OsStatus stat = OS_SUCCESS;
 
-        // play for a second, pause, wait for a second, resume.
-        OsTask::delay(1000);
-        mediaInterface->pauseAudio();
-        OsTask::delay(1000);
-        mediaInterface->resumeAudio();
-        stat = waitForNotf(notfDispatcher, 
-                           MpResNotificationMsg::MPRNM_FROMFILE_PAUSED, 100);
-        CPPUNIT_ASSERT_MESSAGE("No FromFile paused notification was sent after pausing record prompt!",
-                               stat == OS_SUCCESS);
-        stat = waitForNotf(notfDispatcher, 
-                           MpResNotificationMsg::MPRNM_FROMFILE_RESUMED, 100);
-        CPPUNIT_ASSERT_MESSAGE("No FromFile resumed notification was sent after resuming record prompt!",
-                               stat == OS_SUCCESS);
-
-        // Wait for a maximum of 5000 msecs to receive a stop playing message
+        // Wait for a maximum of 5000 msecs to receive a finished playing message
         stat = waitForNotf(notfDispatcher,
-                           MpResNotificationMsg::MPRNM_FROMFILE_STOPPED, 
+                           MpResNotificationMsg::MPRNM_FROMFILE_FINISHED, 
                            5000);
         CPPUNIT_ASSERT_MESSAGE("No FromFile Stop notification was sent while playing record prompt!",
                                stat == OS_SUCCESS);
@@ -430,7 +417,7 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
         mediaInterface->playAudio("playback_prompt.wav", false, true, false) ;
 #endif
         stat = waitForNotf(notfDispatcher,
-                           MpResNotificationMsg::MPRNM_FROMFILE_STOPPED,
+                           MpResNotificationMsg::MPRNM_FROMFILE_FINISHED,
                            3500);
         CPPUNIT_ASSERT_MESSAGE("No FromFile Stop notification was sent while playing playback prompt!",
                                stat == OS_SUCCESS);
@@ -448,7 +435,7 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
                                    false); // remote
 
         stat = waitForNotf(notfDispatcher,
-                           MpResNotificationMsg::MPRNM_FROMFILE_STOPPED,
+                           MpResNotificationMsg::MPRNM_FROMFILE_FINISHED,
                            15000);
         CPPUNIT_ASSERT_MESSAGE("No FromFile Stop notification was sent while playing record buffer!",
                                stat == OS_SUCCESS);
@@ -462,6 +449,130 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
         OsTask::delay(500) ;
 
         RTL_WRITE("testRecordPlayback.rtl");
+        RTL_STOP;
+
+        // Stop recording the "call" -- all connections.
+        mediaInterface->stopRecordChannelAudio(-1);
+
+        mediaInterface->deleteConnection(connectionId) ;
+
+        // delete codecs set
+        for ( numCodecs--; numCodecs>=0; numCodecs--)
+        {
+           delete codecArray[numCodecs];
+        }
+        delete[] codecArray;
+
+        delete codecFactory ;
+        // delete interface
+        mediaInterface->release(); 
+    }
+
+    void testPlayPauseResumeStop()
+    {
+        RTL_START(4500000);
+
+        CPPUNIT_ASSERT(mpMediaFactory);
+
+        SdpCodecFactory* codecFactory = new SdpCodecFactory();
+        CPPUNIT_ASSERT(codecFactory);
+        int numCodecs;
+        SdpCodec** codecArray = NULL;
+        codecFactory->getCodecs(numCodecs, codecArray);
+
+        UtlString localRtpInterfaceAddress("127.0.0.1");
+        UtlString locale;
+        int tosOptions = 0;
+        UtlString stunServerAddress;
+        int stunOptions = 0;
+        int stunKeepAlivePeriodSecs = 25;
+        UtlString turnServerAddress;
+        int turnPort = 0 ;
+        UtlString turnUser;
+        UtlString turnPassword;
+        int turnKeepAlivePeriodSecs = 25;
+        bool enableIce = false ;
+
+        //enableConsoleOutput(1);
+
+        CpMediaInterface* mediaInterface = 
+            mpMediaFactory->createMediaInterface(NULL, // public mapped RTP IP address
+                                                 localRtpInterfaceAddress, 
+                                                 numCodecs, 
+                                                 codecArray, 
+                                                 locale,
+                                                 tosOptions,
+                                                 stunServerAddress, 
+                                                 stunOptions, 
+                                                 stunKeepAlivePeriodSecs,
+                                                 turnServerAddress,
+                                                 turnPort,
+                                                 turnUser,
+                                                 turnPassword,
+                                                 turnKeepAlivePeriodSecs,
+                                                 enableIce);
+
+        // Properties specific to a connection
+        int connectionId = -1;
+        CPPUNIT_ASSERT(mediaInterface->createConnection(connectionId, NULL) == OS_SUCCESS);
+        CPPUNIT_ASSERT(connectionId > 0);
+
+        // Create a Media notification dispatcher and give it to the media interface.
+        OsMsgDispatcher notfDispatcher;
+        mediaInterface->setNotificationDispatcher(&notfDispatcher);
+        mediaInterface->setNotificationsEnabled(true);
+
+        mediaInterface->giveFocus() ;
+
+        int taskId;
+        OsTask::getCurrentTaskId(taskId);
+
+        // Record the entire "call" - all connections.
+        mediaInterface->recordChannelAudio(-1, "testPlayPauseResumeStop_call_recording.wav");
+        
+#ifdef EMBED_PROMPTS
+        printf("Playing record_prompt from RAM bytes: %d samples: %d frames: %d\n",
+                sizeof(record_prompt),
+                sizeof(record_prompt) / 2,
+                sizeof(record_prompt) / 2 / 80);
+        mediaInterface->playBuffer((char*)record_prompt, sizeof(record_prompt), 
+                                   0, // type (does not need conversion to raw)
+                                   false, //repeat
+                                   true, // local
+                                   false) ; //remote
+#else   
+        printf("Play record_prompt.wav taskId: %d\n",taskId);
+        mediaInterface->playAudio("record_prompt.wav", 
+                                  false, //repeat
+                                  true, // local
+                                  false, //remote
+                                  false,
+                                  100);
+#endif
+        // Keep around a status object to query various statuses
+        OsStatus stat = OS_SUCCESS;
+
+        // play for a second, pause, wait for a second, resume.
+        OsTask::delay(1000);
+        mediaInterface->pauseAudio();
+        OsTask::delay(1000);
+        mediaInterface->resumeAudio();
+        OsTask::delay(500);
+        mediaInterface->stopAudio();
+        stat = waitForNotf(notfDispatcher, 
+                           MpResNotificationMsg::MPRNM_FROMFILE_PAUSED, 100);
+        CPPUNIT_ASSERT_MESSAGE("No FromFile paused notification was sent after pausing record prompt!",
+                               stat == OS_SUCCESS);
+        stat = waitForNotf(notfDispatcher, 
+                           MpResNotificationMsg::MPRNM_FROMFILE_RESUMED, 100);
+        CPPUNIT_ASSERT_MESSAGE("No FromFile resumed notification was sent after resuming record prompt!",
+                               stat == OS_SUCCESS);
+        stat = waitForNotf(notfDispatcher,
+                           MpResNotificationMsg::MPRNM_FROMFILE_STOPPED, 100);
+        CPPUNIT_ASSERT_MESSAGE("No FromFile stopped notification was sent after stopping record prompt!",
+                               stat == OS_SUCCESS);
+
+        RTL_WRITE("testPlayPauseResumeStop.rtl");
         RTL_STOP;
 
         // Stop recording the "call" -- all connections.

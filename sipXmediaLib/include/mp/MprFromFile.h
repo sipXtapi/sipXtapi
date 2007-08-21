@@ -19,6 +19,7 @@
 #include "mp/MpFlowGraphMsg.h"
 #include "mp/MpAudioResource.h"
 #include "os/OsProtectEvent.h"
+#include "mp/MpResourceMsg.h"
 #include "mp/MpResNotificationMsg.h"
 
 // DEFINES
@@ -102,7 +103,7 @@ public:
 
      /// Old Play from file w/file name and repeat option
    OsStatus playFile(const char* fileName, UtlBoolean repeat,
-                     OsNotification* event = NULL);
+                     OsNotification* notify = NULL);
      /**<
      *  Note: if this resource is deleted before <I>stopFile</I> is called, it
      *  will close the file.
@@ -113,8 +114,8 @@ public:
      *  @param[in]  repeat - TRUE/FALSE after the fromFile reaches the end of
      *              the file, go back to the beginning and continue to play.  
      *              Note: This assumes that the file was opened for read.
-     *  @param[in] evt - an event to signal when state changes.  If NULL,
-     *             nothing will be signaled.
+     *  @param[in]  notify - an event to signal when state changes.  If NULL,
+     *              nothing will be signaled.
      *  @retval the result of attempting to queue the message to this resource 
      *          and/or opening the named file.
      */
@@ -124,7 +125,7 @@ public:
                             OsMsgQ& fgQ,
                             const UtlString& filename,
                             const UtlBoolean& repeat,
-                            OsNotification* evt = NULL);
+                            OsNotification* notify = NULL);
      /**<
      *  Sends an MPRM_FROMFILE_START message to the named MprFromFile resource
      *  within the flowgraph who's queue is supplied. When the message 
@@ -136,6 +137,8 @@ public:
      *              the message is to be received by.
      *  @param[in]  filename - the filename of the file to start playing.
      *  @param[in]  repeat - boolean indicating whether to loop-play the file.
+     *  @param[in]  notify - an event to signal when state changes.  If NULL,
+     *              nothing will be signaled.
      *  @retval The result of attempting to queue the message to this resource.
      */
 
@@ -220,7 +223,12 @@ private:
    {
       PLAY_FILE = MpFlowGraphMsg::RESOURCE_SPECIFIC_START,
       STOP_FILE
-   } AddlMsgTypes;
+   } AddlFGMsgTypes;
+
+   typedef enum
+   {
+      MPRM_FROMFILE_FINISH = MpResourceMsg::MPRM_EXTERNAL_MESSAGE_START
+   } AddlResMsgTypes;
 
    typedef enum
    {
@@ -280,6 +288,16 @@ private:
      *  @returns OS_SUCCESS if the file was read successfully.
      */
 
+     /// @brief Sends a local MPRM_FROMFILE_FINISH message back to this resource.
+   OsStatus finishFile();
+     /**<
+     *  Sends an MPRM_FROMFILE_FINISH message back to this resource. 
+     *  When the message is received, this will then notify that it's finished, 
+     *  and stop playing the file it has been playing.
+     *
+     *  @returns the result of attempting to queue the message to this resource.
+     */
+
    virtual UtlBoolean doProcessFrame(MpBufPtr inBufs[],
                                     MpBufPtr outBufs[],
                                     int inBufsSize,
@@ -289,7 +307,7 @@ private:
                                     int samplesPerSecond=8000);
 
      /// Perform resetting of state, etc. upon receiving request to stop playing.
-   virtual UtlBoolean handleStop(void);
+   virtual UtlBoolean handleStop(UtlBoolean finished = FALSE);
 
      /// Pause playback upon receiving request to pause.
    virtual UtlBoolean handlePause(void);

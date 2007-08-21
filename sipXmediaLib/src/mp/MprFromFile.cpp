@@ -154,13 +154,13 @@ OsStatus MprFromFile::playFile(const UtlString& namedResource,
                                OsMsgQ& fgQ, 
                                const UtlString& filename, 
                                const UtlBoolean& repeat,
-                               OsNotification* evt)
+                               OsNotification* notify)
 {
    UtlString* audioBuffer = NULL;
-   OsStatus stat = readAudioFile(audioBuffer, filename, evt);
+   OsStatus stat = readAudioFile(audioBuffer, filename, notify);
    if(stat == OS_SUCCESS)
    {
-      MpFromFileStartResourceMsg msg(namedResource, audioBuffer, repeat, evt);
+      MpFromFileStartResourceMsg msg(namedResource, audioBuffer, repeat, notify);
       stat = fgQ.send(msg, sOperationQueueTimeout);
    }
    return stat;
@@ -196,6 +196,17 @@ OsStatus MprFromFile::resumeFile(const UtlString& namedResource,
    MpResourceMsg msg(MpResourceMsg::MPRM_FROMFILE_RESUME, namedResource);
    return fgQ.send(msg, sOperationQueueTimeout);
 }
+
+// This one is private -- only used internally.
+OsStatus MprFromFile::finishFile()
+{
+   OsMsgQ* fgQ = getFlowGraph()->getMsgQ();
+   assert(fgQ != NULL);
+
+   MpResourceMsg msg((MpResourceMsg::MpResourceMsgType)MPRM_FROMFILE_FINISH, getName());
+   return fgQ->send(msg, sOperationQueueTimeout);
+}
+
 
 UtlBoolean MprFromFile::enable(void) //$$$
 {
@@ -629,9 +640,7 @@ UtlBoolean MprFromFile::doProcessFrame(MpBufPtr inBufs[],
 
                // Send a message to tell this resource to stop playing the file
                // this resets some state, and sends a notification.
-               OsMsgQ* fgQ = getFlowGraph()->getMsgQ();
-               assert(fgQ != NULL);
-               MprFromFile::stopFile(getName(), *fgQ);
+               finishFile();
             }
          }
       }
@@ -652,12 +661,17 @@ UtlBoolean MprFromFile::doProcessFrame(MpBufPtr inBufs[],
 
 // this is used in both old and new messaging schemes to do reset state
 // and send notification when stop is requested.
-UtlBoolean MprFromFile::handleStop()
+UtlBoolean MprFromFile::handleStop(UtlBoolean finished)
 {
+   MpResNotificationMsg::RNMsgType msgType = (finished == TRUE) ?
+      MpResNotificationMsg::MPRNM_FROMFILE_FINISHED :
+      MpResNotificationMsg::MPRNM_FROMFILE_STOPPED;
+
    // Send a notification -- we don't really care at this level if
    // it succeeded or not.
-   sendNotification(MpResNotificationMsg::MPRNM_FROMFILE_STOPPED);
+   sendNotification(msgType);
 
+   // Cleanup.
    delete mpFileBuffer;
    mpFileBuffer = NULL;
    mFileBufferIndex = 0;
@@ -769,6 +783,12 @@ UtlBoolean MprFromFile::handleMessage(MpResourceMsg& rMsg)
 
    case MpResourceMsg::MPRM_FROMFILE_RESUME:
       handleResume();
+      msgHandled = TRUE;
+      break;
+
+   case MPRM_FROMFILE_FINISH:
+      // Stop, but indicate finished.
+      handleStop(TRUE);
       msgHandled = TRUE;
       break;
 
