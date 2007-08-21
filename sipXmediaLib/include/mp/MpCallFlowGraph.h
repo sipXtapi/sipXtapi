@@ -227,6 +227,12 @@ public:
      *                                        failed.
      */
 
+     /// Tell fromFile resource to pause the currently playing file, if one is being played.
+   OsStatus pauseFile();
+
+     /// Tell fromFile resource to resume playing, if previously paused.
+   OsStatus resumeFile();
+
      /// Stop playing audio from a file
    void stopFile(UtlBoolean closeFile);
      /**<

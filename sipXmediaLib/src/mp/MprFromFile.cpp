@@ -61,10 +61,11 @@ extern int      samplesPerFrame;
 // Constructor
 MprFromFile::MprFromFile(const UtlString& rName,
                            int samplesPerFrame, int samplesPerSec)
-:  MpAudioResource(rName, 0, 1, 1, 1, samplesPerFrame, samplesPerSec),
-   mpFileBuffer(NULL),
-   mFileRepeat(FALSE),
-   mpNotify(NULL)
+: MpAudioResource(rName, 0, 1, 1, 1, samplesPerFrame, samplesPerSec)
+, mpFileBuffer(NULL)
+, mFileRepeat(FALSE)
+, mpNotify(NULL)
+, mPaused(FALSE)
 {
 }
 
@@ -189,7 +190,12 @@ OsStatus MprFromFile::pauseFile(const UtlString& namedResource,
    return fgQ.send(msg, sOperationQueueTimeout);
 }
 
-
+OsStatus MprFromFile::resumeFile(const UtlString& namedResource,
+                                 OsMsgQ& fgQ)
+{
+   MpResourceMsg msg(MpResourceMsg::MPRM_FROMFILE_RESUME, namedResource);
+   return fgQ.send(msg, sOperationQueueTimeout);
+}
 
 UtlBoolean MprFromFile::enable(void) //$$$
 {
@@ -568,7 +574,9 @@ UtlBoolean MprFromFile::doProcessFrame(MpBufPtr inBufs[],
        return FALSE;
    }
 
-   if (isEnabled) 
+   // If we're enabled and not paused, then do playback,
+   // otherwise passthrough.
+   if (isEnabled && !mPaused) 
    {
       if (mpFileBuffer)
       {
@@ -648,13 +656,40 @@ UtlBoolean MprFromFile::handleStop()
 {
    // Send a notification -- we don't really care at this level if
    // it succeeded or not.
-   sendFileDoneNotification();
+   sendNotification(MpResNotificationMsg::MPRNM_FROMFILE_STOPPED);
 
    delete mpFileBuffer;
    mpFileBuffer = NULL;
    mFileBufferIndex = 0;
+   mPaused = FALSE;
    disable();
    return TRUE;
+}
+
+UtlBoolean MprFromFile::handlePause()
+{
+   UtlBoolean retVal = FALSE;
+   if(isEnabled() && mpFileBuffer != NULL)
+   {
+      mPaused = TRUE;
+      sendNotification(MpResNotificationMsg::MPRNM_FROMFILE_PAUSED);
+      retVal = TRUE;
+   }
+   return retVal;
+}
+
+UtlBoolean MprFromFile::handleResume()
+{
+   UtlBoolean retVal = FALSE;
+   if(isEnabled()
+      && mpFileBuffer != NULL
+      && mPaused == TRUE)
+   {
+      mPaused = FALSE;
+      sendNotification(MpResNotificationMsg::MPRNM_FROMFILE_RESUMED);
+      retVal = TRUE;
+   }
+   return retVal;
 }
 
 // Old flowgraph message approach to sending messages
@@ -727,21 +762,22 @@ UtlBoolean MprFromFile::handleMessage(MpResourceMsg& rMsg)
       msgHandled = TRUE;
       break;
 
+   case MpResourceMsg::MPRM_FROMFILE_PAUSE:
+      handlePause();
+      msgHandled = TRUE;
+      break;
+
+   case MpResourceMsg::MPRM_FROMFILE_RESUME:
+      handleResume();
+      msgHandled = TRUE;
+      break;
+
    default:
       // If we don't handle the message here, let our parent try.
       msgHandled = MpResource::handleMessage(rMsg); 
       break;
    }
    return msgHandled;
-}
-
-OsStatus MprFromFile::sendFileDoneNotification()
-{
-   MpFlowGraphBase* pFg = getFlowGraph();
-   assert(pFg != NULL);
-
-   MpResNotificationMsg msg(MpResNotificationMsg::MPRNM_FROMFILE_STOP, getName());
-   return pFg->postNotification(msg);
 }
 
 /* ============================ FUNCTIONS ================================= */

@@ -44,6 +44,7 @@ public:
       MPRM_STOP_TONE,           ///< MprToneGen: Stop a tone.
       MPRM_FROMFILE_START,      ///< MprFromFile: Start playing a file.
       MPRM_FROMFILE_PAUSE,      ///< MprFromFile: Pause a playing file.
+      MPRM_FROMFILE_RESUME,     ///< MprFromFile: Resume playing a file that was paused.
       MPRM_FROMFILE_STOP,       ///< MprFromFile: Stop a playing file.
 
       MPRM_BUF_RECORDER_START,  ///< MprBufferRecorder: Start recording to a buffer.

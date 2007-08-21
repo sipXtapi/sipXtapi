@@ -725,7 +725,7 @@ OsStatus MpCallFlowGraph::postNotification(const MpResNotificationMsg& msg)
    // being sent up.
    OsStatus stat = OS_SUCCESS;
 
-   if(msg.getMsg() == MpResNotificationMsg::MPRNM_FROMFILE_STOP)
+   if(msg.getMsg() == MpResNotificationMsg::MPRNM_FROMFILE_STOPPED)
    {
       // If a file just finished playing, there is some cleanup that needs to be 
       // done at the flowgraph level that we can queue up to do now.
@@ -1283,6 +1283,29 @@ OsStatus MpCallFlowGraph::playBuffer(char* audioBuf,
    }
    return(res);
 }
+
+// pause the current audio file, if one exists.
+OsStatus MpCallFlowGraph::pauseFile()
+{
+   OsStatus stat = OS_NOT_FOUND;
+   if(mpFromFile)
+   {
+      stat = MprFromFile::pauseFile(mpFromFile->getName(), *getMsgQ());
+   }
+   return stat;
+}
+
+// resume the current audio file, if one exists.
+OsStatus MpCallFlowGraph::resumeFile()
+{
+   OsStatus stat = OS_NOT_FOUND;
+   if(mpFromFile)
+   {
+      stat = MprFromFile::resumeFile(mpFromFile->getName(), *getMsgQ());
+   }
+   return stat;
+}
+
 
 // Stop playing the audio file.
 void MpCallFlowGraph::stopFile(UtlBoolean closeFile)

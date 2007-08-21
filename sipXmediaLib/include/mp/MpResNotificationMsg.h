@@ -39,7 +39,10 @@ public:
       MPRNM_MESSAGE_INVALID, ///< Message type is invalid (similar to NULL)
       MPRNM_MESSAGE_ALL = MPRNM_MESSAGE_INVALID, ///< Select all message types (used in enabling/disabling)
 
-      MPRNM_FROMFILE_STOP,
+      MPRNM_FROMFILE_STARTED,
+      MPRNM_FROMFILE_PAUSED,
+      MPRNM_FROMFILE_RESUMED,
+      MPRNM_FROMFILE_STOPPED,
       MPRNM_BUFRECORDER_STOPPED,
       MPRNM_BUFRECORDER_NOINPUTDATA,
       // MPRNM_MIXER_NEWFOCUS,
