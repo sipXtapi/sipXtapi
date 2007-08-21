@@ -45,7 +45,7 @@
  * (On newer Windows environments, str(n)casecmp are built-in, along with the older
  * str(n)icmp, but on older ones, they are not.) */
 #ifdef WIN32
-    #ifdef WINCE
+    #if defined(WINCE) || (defined(_MSC_VER) && (_MSC_VER > 1300)) // if wince, or win and > msvc7(vs2003)
         #ifndef strcasecmp
            #define strcasecmp _stricmp
         #endif
