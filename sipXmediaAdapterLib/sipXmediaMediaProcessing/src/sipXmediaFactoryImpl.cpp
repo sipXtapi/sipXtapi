@@ -257,8 +257,7 @@ CpMediaInterface* sipXmediaFactoryImpl::createMediaInterface( const char* public
     {
         // Setup capture device.
         // HACK:: Hardcoded video parameters!!! 
-        pCaptureDevice->setFrameWidth(320);
-        pCaptureDevice->setFrameHeight(240);
+        pCaptureDevice->setFrameSize(320, 240);
         pCaptureDevice->setFPS(10);
 
         // Open capture device
