@@ -15,7 +15,11 @@
 #  ifdef WIN32 // [
 #     define EMULATE_INTTYPES
 #  endif // WIN32 ]
+
+extern "C" {
 #  include <avcodec.h>
+}
+
 #endif // SIPX_VIDEO ]
 
 // EXTERNAL FUNCTIONS

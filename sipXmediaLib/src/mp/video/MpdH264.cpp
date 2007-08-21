@@ -16,7 +16,10 @@
 #ifdef WIN32 // [
 #  define EMULATE_INTTYPES
 #endif // WIN32 ]
-#include "avcodec.h"
+
+extern "C" {
+#  include <avcodec.h>
+}
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
