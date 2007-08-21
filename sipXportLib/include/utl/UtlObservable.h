@@ -19,7 +19,7 @@ class UtlObserver
 public:
     /**
      * Notification method which the observer must implement.  The 
-     * observable's (also, subject) resposibility is to notify 
+     * observable's (also, subject) responsibility is to notify 
      * the observers of state changes.  The observable will notify
      * the observers by invoking this onNotify method.
      *
