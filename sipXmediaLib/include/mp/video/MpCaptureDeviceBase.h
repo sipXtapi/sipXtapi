@@ -66,8 +66,7 @@ public:
      /// Stop producing video frames.
    virtual OsStatus stopCapture() =0;
 
-   virtual OsStatus setFrameWidth(int width) =0;
-   virtual OsStatus setFrameHeight(int height) =0;
+   virtual OsStatus setFrameSize(int width, int height) =0;
    virtual OsStatus setFPS(float fps) =0;
 
 //@}
@@ -76,8 +75,7 @@ public:
 ///@name Accessors
 //@{
 
-   virtual int getFrameWidth() const =0;
-   virtual int getFrameHeight() const =0;
+   virtual void getFrameSize(int& width, int& height) const =0;
    virtual float getFPS() const =0;
 
      /// Get device name as it is passed to constructor.
