@@ -316,6 +316,7 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
         // Create a Media notification dispatcher and give it to the media interface.
         OsMsgDispatcher notfDispatcher;
         mediaInterface->setNotificationDispatcher(&notfDispatcher);
+        mediaInterface->setNotificationsEnabled(true);
 
         mediaInterface->giveFocus() ;
 
