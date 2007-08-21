@@ -1,8 +1,8 @@
 //  
-// Copyright (C) 2006 SIPfoundry Inc. 
+// Copyright (C) 2006-2007 SIPfoundry Inc. 
 // Licensed by SIPfoundry under the LGPL license. 
 //  
-// Copyright (C) 2006 SIPez LLC. 
+// Copyright (C) 2006-2007 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //  
 // $$ 
@@ -11,6 +11,8 @@
 #ifdef SIPX_VIDEO // [
 
 // SYSTEM INCLUDES
+#include <VideoSupport/VideoCapture.h>
+
 // APPLICATION INCLUDES
 #include "mp/video/MpDShowCaptureDeviceManager.h"
 #include "mp/video/MpDShowCaptureDevice.h"
@@ -56,12 +58,20 @@ MpCaptureDeviceBase *MpDShowCaptureDeviceManager::getDeviceByName(const UtlStrin
 
 MpCaptureDeviceBase *MpDShowCaptureDeviceManager::getDeviceByNum(int deviceNum)
 {
-   return NULL;
+   VideoCapture::DeviceNames names;
+   VideoCapture::EnumDevices(names);
+   if (deviceNum < 0 || deviceNum >= int(names.size()))
+      return NULL;
+
+   UtlString name = names[deviceNum].c_str();
+   return getDeviceByName(name);
 }
 
 int MpDShowCaptureDeviceManager::getDeviceCount() const
 {
-   return 0;
+   VideoCapture::DeviceNames names;
+   VideoCapture::EnumDevices(names);
+   return names.size();
 }
 
 /* ============================ INQUIRY =================================== */
