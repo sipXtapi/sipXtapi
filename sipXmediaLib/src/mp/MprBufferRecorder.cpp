@@ -145,7 +145,17 @@ UtlBoolean MprBufferRecorder::doProcessFrame(MpBufPtr inBufs[],
       OsSysLog::add(FAC_MP, PRI_DEBUG, 
                     "MprBufferRecorder::doProcessFrame to disable "
                     "recording because mBuffer is NULL");
-      disable(RECORD_STOPPED); // just in case...
+      // If we're in the idle state here then we should be disabled, but
+      // there isn't any reason to send notification, so disable keeping idle state.
+      if(mStatus == RECORD_IDLE)
+      {
+         disable(RECORD_IDLE);
+      }
+      else
+      {
+         // Otherwise, if it's some other state we're in, then we should stop.
+         disable(RECORD_STOPPED); // just in case...
+      }
       return TRUE;
    }
 
