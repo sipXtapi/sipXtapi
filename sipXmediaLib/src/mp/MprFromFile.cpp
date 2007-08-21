@@ -173,9 +173,6 @@ OsStatus MprFromFile::stopFile(void)
    return postMessage(msg);
 }
 
-// $$$ These enable and disable routines need more thought, as part of
-// $$$ the entire notification scheme.
-
 OsStatus MprFromFile::stopFile(const UtlString& namedResource, 
                                OsMsgQ& fgQ)
 {
@@ -196,17 +193,6 @@ OsStatus MprFromFile::resumeFile(const UtlString& namedResource,
    MpResourceMsg msg(MpResourceMsg::MPRM_FROMFILE_RESUME, namedResource);
    return fgQ.send(msg, sOperationQueueTimeout);
 }
-
-// This one is private -- only used internally.
-OsStatus MprFromFile::finishFile()
-{
-   OsMsgQ* fgQ = getFlowGraph()->getMsgQ();
-   assert(fgQ != NULL);
-
-   MpResourceMsg msg((MpResourceMsg::MpResourceMsgType)MPRM_FROMFILE_FINISH, getName());
-   return fgQ->send(msg, sOperationQueueTimeout);
-}
-
 
 UtlBoolean MprFromFile::enable(void) //$$$
 {
@@ -563,6 +549,16 @@ OsStatus MprFromFile::readAudioFile(UtlString*& audioBuffer,
    }
 
    return OS_SUCCESS;
+}
+
+// This one is private -- only used internally.
+OsStatus MprFromFile::finishFile()
+{
+   OsMsgQ* fgQ = getFlowGraph()->getMsgQ();
+   assert(fgQ != NULL);
+
+   MpResourceMsg msg((MpResourceMsg::MpResourceMsgType)MPRM_FROMFILE_FINISH, getName());
+   return fgQ->send(msg, sOperationQueueTimeout);
 }
 
 UtlBoolean MprFromFile::doProcessFrame(MpBufPtr inBufs[],
