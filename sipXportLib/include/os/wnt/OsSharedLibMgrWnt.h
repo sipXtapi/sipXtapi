@@ -57,7 +57,9 @@ public:
    //!param: (out) symbolAddress - the address of the function or variable
 
    virtual OsStatus unloadSharedLib(const char* libName);
-   //: Not yet implemented
+   //: Unloads the given shared library
+   // Before unloading library make sure that no one else use it!
+   //!param: libName - name of library, may include absolute or relative path
 
 /* ============================ ACCESSORS ================================= */
 
