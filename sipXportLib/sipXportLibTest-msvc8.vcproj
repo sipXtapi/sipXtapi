@@ -693,6 +693,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\src\test\os\OsSharedLibMgrTest.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\src\test\os\OsSocketTest.cpp"
 				>
 			</File>
