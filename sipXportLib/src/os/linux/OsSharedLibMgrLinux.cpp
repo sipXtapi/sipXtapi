@@ -14,7 +14,7 @@
 
 // APPLICATION INCLUDES
 #include "os/OsSysLog.h"
-#include <os/linux/OsSharedLibMgrLinux.h>
+#include "os/linux/OsSharedLibMgrLinux.h"
 #include "utl/UtlString.h"
 
 // EXTERNAL FUNCTIONS
@@ -204,6 +204,7 @@ OsStatus OsSharedLibMgrLinux::unloadSharedLib(const char* libName)
        status = OS_SUCCESS;
     }
 
+    sLock.release();
     return(status);
 }
 
