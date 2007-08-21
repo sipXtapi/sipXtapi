@@ -61,16 +61,6 @@ OsSharedLibMgrBase::~OsSharedLibMgrBase()
 
 /* ============================ MANIPULATORS ============================== */
 
-// Assignment operator
-OsSharedLibMgrBase&
-OsSharedLibMgrBase::operator=(const OsSharedLibMgrBase& rhs)
-{
-   if (this == &rhs)            // handle the assignment to self case
-      return *this;
-
-   return *this;
-}
-
 /* ============================ ACCESSORS ================================= */
 
 /* ============================ INQUIRY =================================== */
