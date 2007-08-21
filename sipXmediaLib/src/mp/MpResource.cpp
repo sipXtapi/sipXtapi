@@ -176,6 +176,27 @@ void MpResource::setVisitState(int newState)
    mVisitState = newState;
 }
 
+
+OsStatus MpResource::sendNotification(MpResNotificationMsg::RNMsgType msgType)
+{
+   MpResNotificationMsg msg(msgType, getName());
+   return sendNotification(msg);
+}
+
+OsStatus MpResource::sendNotification(MpResNotificationMsg& msg)
+{
+   OsStatus stat = OS_SUCCESS;
+   // Only send a notification if notifications are enabled.
+   if(areNotificationsEnabled() == TRUE)
+   {
+      MpFlowGraphBase* pFg = getFlowGraph();
+      assert(pFg != NULL);
+
+      stat = pFg->postNotification(msg);
+   }
+   return stat;
+}
+
 /* ============================ ACCESSORS ================================= */
 
 // (static) Displays information on the console about the specified flow

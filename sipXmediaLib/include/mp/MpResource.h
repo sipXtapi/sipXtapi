@@ -24,6 +24,7 @@
 #include "utl/UtlContainable.h"
 #include "utl/UtlString.h"
 #include "mp/MpBuf.h"
+#include "mp/MpResNotificationMsg.h"
 
 // DEFINES
 // MACROS
@@ -218,7 +219,8 @@ static const UtlContainableType TYPE;
      *  or disabled state of resource. Resource should handle enabled flag
      *  on its own.
      *
-     *  @returns TRUE if successful, FALSE otherwise.
+     *  @retval TRUE if successful
+     *  @retval FALSE otherwise.
      */
 
      /// Sets the visit state for this resource.
@@ -226,6 +228,23 @@ static const UtlContainableType TYPE;
      /**<
      *  Used in performing a topological sort on the resources contained within
      *  a flow graph.
+     */
+
+     /// Send a notification with the given message type if notifications are enabled.
+   OsStatus sendNotification(MpResNotificationMsg::RNMsgType msgType);
+     /**<
+     *  
+     *  @param msgType - the type of message to send.
+     *  @retval OS_SUCCESS if message send succeeded.
+     */
+
+     /// Send the given notification message if notifications are enabled.
+   OsStatus sendNotification(MpResNotificationMsg& msg);
+     /**<
+     *  @NOTE Use this variant if you need to provide a message that is a 
+     *        child of MpResNotificationMsg.
+     *  @param msg - the Notification Message to send.
+     *  @retval OS_SUCCESS if message send succeeded.
      */
 
 //@}
