@@ -76,17 +76,6 @@ public:
 ///@name Manipulators
 //@{
 
-     /// Receive a packet of RTP data
-   virtual int decodeIn(const MpRtpBufPtr &pPacket ///< (in) Pointer to a media buffer
-                       );
-     /**<
-     *  @note This method can be called more than one time per frame interval.
-     *
-     *  @returns >0 - length of packet to hand to jitter buffer.
-     *  @returns 0  - decoder don't want more packets.
-     *  @returns -1 - discard packet (e.g. out of order packet).
-     */
-
      /// Decode incoming RTP packet
    virtual int decode(const MpRtpBufPtr &pPacket, ///< (in) Pointer to a media buffer
                       unsigned decodedBufferLength, ///< (in) Length of the samplesBuffer (in samples)
@@ -95,13 +84,6 @@ public:
      /**<
      *  @return Number of decoded samples.
      */
-
-     /// @brief This method allows a codec to take action based on the length of
-     /// the jitter buffer since last asked.
-   virtual int reportBufferLength(int iAvePackets);
-
-     /// DOCME
-   virtual void frameIncrement();
 
      /// Always assert(FALSE) for now.
    virtual UtlBoolean setDtmfTerm(MprRecorder *pRecorder);

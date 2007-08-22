@@ -65,17 +65,6 @@ public:
 ///@name Manipulators
 //@{
 
-     /// Receive a packet of RTP data
-   virtual int decodeIn(const MpRtpBufPtr &pPacket ///< (in) Pointer to a media buffer
-                       );
-     /**<
-     *  @note This method can be called more than one time per frame interval.
-     *
-     *  @returns >0 - length of packet to hand to jitter buffer.
-     *  @returns 0  - decoder don't want more packets.
-     *  @returns -1 - discard packet (e.g. out of order packet).
-     */
-
      /// Decode incoming RTP packet
    virtual int decode(const MpRtpBufPtr &pPacket, ///< (in) Pointer to a media buffer
                       unsigned decodedBufferLength, ///< (in) Length of the samplesBuffer (in samples)
@@ -84,13 +73,6 @@ public:
      /**<
      *  @return Number of decoded samples.
      */
-
-     /// @brief This method allows a codec to take action based on the length of
-     /// the jitter buffer since last asked.
-   virtual int reportBufferLength(int iAvePackets);
-
-     /// DOCME
-   virtual void frameIncrement();
 
 //@}
 
@@ -107,16 +89,6 @@ public:
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
    static const MpCodecInfo smCodecInfo;  ///< Static information about the codec
-   RtpTimestamp mNextPullTimerCount; ///< Timestamp of frame we expect next.
-   unsigned int mWaitTimeInFrames; ///< Size of jitter buffer. Frames will be
-                                   ///< delayed for mWaitTimeInFrames*20ms.
-   int mUnderflowCount;
-   RtpSeq mLastSeqNo;        ///< Keep track of the last sequence number so that
-                             ///< we don't take out-of-order packets.
-   bool mIsFirstFrame;       ///< True, if no frames decoded.
-   bool mClockDrift;         ///< True, if clock drift detected.
-   int mLastReportSize;
-   RtpSRC mLastSSRC;       ///< RTP SSRC of currently processed stream
 };
 
 #endif  // _MpdSipxPcma_h_

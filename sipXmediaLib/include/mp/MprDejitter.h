@@ -41,8 +41,6 @@ public:
         // 15 Dec 2004: This isn't the actual amount of buffer used, just the size of the container
 
       MAX_CODECS = 10, ///< Maximum number of codecs in incoming RTP streams.
-
-      GET_ALL = 1    ///< get all packets, ignoring timestamps.  For NetEQ
    };
 
 /* ============================ CREATORS ================================== */
@@ -73,7 +71,7 @@ public:
      */
 
      /// Get next RTP packet, or NULL if none is available.
-   MpRtpBufPtr pullPacket(int payloadType);
+   MpRtpBufPtr pullPacket(int payloadType, bool isSignaling=false);
      /**<
      *  @note Significant change is that the downstream puller may NOT pull all
      *        the available packets at once. Instead it is paced according to
@@ -93,15 +91,30 @@ public:
      *  anyway it is up to the codec to discard the packets it cannot use. This
      *  allows this JB to be a no-op buffer for when the commercial library is
      *  used.
+     *
+     *  If pulled packet belong to signaling codec (e.g. RFC2833 DTMF), then
+     *  set isSignaling to true. Else packet will be hold for undefined
+     *  amount of time, possible forever.
      */
 
      /// Get next RTP packet with given timestamp, or NULL if none is available.
-   MpRtpBufPtr pullPacket(int payloadType, RtpTimestamp timestamp, bool lockTimestamp=true);
+   MpRtpBufPtr pullPacket(int payloadType, RtpTimestamp timestamp,
+                          bool lockTimestamp=true, bool isSignaling=false);
      /**<
      *  This version of pullPacket() works exactly the same as above version
      *  of pullPacket() with one exception: if (lockTimestamp == true) it checks 
      *  every found packet's timestamp. And return NULL if there are no packets
      *  with timestamp less or equal then passed timestamp.
+     *
+     *  If pulled packet belong to signaling codec (e.g. RFC2833 DTMF), then
+     *  set isSignaling to true. Else packet will be hold for undefined
+     *  amount of time, possible forever.
+     */
+
+     /// Call this function on every frame processing tick.
+   void frameIncrement();
+     /**<
+     *  This tells dejitter that we have to pull next packet from it.
      */
 
 //@}
@@ -110,7 +123,7 @@ public:
 ///@name Accessors
 //@{
 
-     // Return number of packets in buffer for given payload type.
+     /// Return number of packets in buffer for given payload type.
    int getBufferLength(int payload);
 
 //@}
@@ -126,10 +139,6 @@ protected:
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-
-                  /// Mutual exclusion lock for internal data
-   OsBSem        mRtpLock;
-
 
    /// Storage for all stream related data.
    /**
@@ -169,8 +178,64 @@ private:
                      *  where the buffer is wrapping.
                      */
 
+      unsigned int mWaitTimeInFrames; ///< Size of jitter buffer. Frames will be
+                                      ///< delayed for mWaitTimeInFrames*20ms.
+      int mUnderflowCount;
+      RtpTimestamp mTimestampOffset;  ///< Difference between our local clocks
+                                      ///< and remote clocks.
+      RtpSeq mLastSeqNo;      ///< Keep track of the last sequence number so that
+                              ///< we don't take out-of-order packets.
+      bool mIsFirstFrame;     ///< True, if no frames decoded.
+      bool mClockDrift;       ///< True, if clock drift detected.
+      int mLastReportSize;
+      RtpSRC mLastSSRC;       ///< RTP SSRC of currently processed stream
+
+        /// Reset all data to meaningful initial state.
+      void resetStream();
+        /**<
+        *  Call this function when stream source have changed to start
+        *  collecting new statistic.
+        */
+
+        /// Check do we want this RTP packet or not.
+      int checkPacket(const MpRtpBufPtr &pPacket,
+                      RtpTimestamp nextPullTimestamp,
+                      UtlBoolean isSignaling);
+        /**<
+        *  @param[in] pPacket - RTP packet to check.
+        *  @param[in] nextPullTimestamp - timestamp of packet will be pulled next.
+        *  @param[in] isSignaling - Is this codec signaling (e.g. RFC2833 DTMF)?
+        *             Packets from signaling codecs are always accepted.
+        *
+        *  @note This method can be called more than one time per frame interval.
+        *
+        *  @retval >0 - pass this buffer to decoder
+        *  @retval 0  - wait for next tick
+        *  @retval -1 - discard packet (e.g. out of order packet)
+        */
+
+        /// Update collected statistic.
+      void updateStatistic(int averageLength);
+        /**<
+        *  Every second this function is called with the average number of
+        *  packets in the dejitter. We want to keep it near target buffer size.
+        */
    };
 
+                  /// Mutual exclusion lock for internal data
+   OsBSem        mRtpLock;
+
+                  /// Timestamp of frame we expect next
+   RtpTimestamp  mNextPullTimerCount;
+                  /**<
+                  *  This is kept global, because we should keep all streams
+                  *  in sync.
+                  */
+
+                  /// Number of frames, passed since last statistic update
+   int mFramesSinceLastUpdate;
+
+                  /// Storage for all stream related data
    StreamData    mpStreamData[MAX_CODECS];
 
                   /// Mapping of payload type to internal codec index

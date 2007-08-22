@@ -220,8 +220,6 @@ UtlBoolean MprDecode::doProcessFrame(MpBufPtr inBufs[],
                                      int samplesPerFrame,
                                      int samplesPerSecond)
 {
-static int iFramesSinceLastReport=0;
-
    MpAudioBufPtr out;
    MpAudioSample* pSamples;
 
@@ -233,17 +231,17 @@ static int iFramesSinceLastReport=0;
    }
 
    MprDejitter* pDej = getMyDejitter();
-   int packetLen;
-   int i;
 
    // Not sure this is a good idea to do in doProcessFrame, 
    // but the use of this lock is meaningless
    // unless we lock all access of the mpCurrentCodecs
    OsLock lock(mLock);
 
-   int pulledPacketCount = 0;
+   // Inform the dejitter that the next frame has happened. 
+   pDej->frameIncrement();
+
    // Cycle through all decoders and process frames for them.
-   for (i = 0; i < mNumCurrentCodecs; i++) 
+   for (int i = 0; i < mNumCurrentCodecs; i++) 
    {
       int pt = mpCurrentCodecs[i]->getPayloadType();
       MpDecoderBase* pCurDec=mpConnection->mapPayloadType(pt);
@@ -254,64 +252,23 @@ static int iFramesSinceLastReport=0;
       if (pCurDec==NULL)
          continue;
 
-      // Inform the decoder that the next frame has happened. 
-      pCurDec->frameIncrement();
+      bool signalingCodec = pCurDec->getInfo()->isSignalingCodec();
 
-      while ((rtp = pDej->pullPacket(pt)).isValid()) 
+      while ((rtp = pDej->pullPacket(pt, signalingCodec)).isValid()) 
       {
-         pulledPacketCount++;
+         // THIS JitterBuffer is NOT the same as MprDejitter!
+         // This is more of a Decode Buffer.
+         MpJitterBuffer* pJBState = getJBinst();
 
-         if (iFramesSinceLastReport >= samplesPerSecond/samplesPerFrame) {
-            // One second has passed since time we reported the average number of packets
-            // in the jitter buffer
-
-            int iAveLen = pDej->getBufferLength(pt);
-            int doAgain =  pCurDec->reportBufferLength(iAveLen);
-            if (doAgain <= 0) {
-               iFramesSinceLastReport = 0;
-            }
-         }
-
-         // This call lets the codec decide if it wants this packet or not. If
-         // the codec rejects out-of-order packets, it will return a negative value.
-         // It may also (someday) dynamically adjust the size of the jitter buffer.
-         packetLen = pCurDec->decodeIn(rtp);
-         if (packetLen > 0) 
-         {
-            // For internal codecs there really isn't any jitter buffering,
-            // although some codecs may need to hold on to a packet or two
-            // in order to process properly (?)
-            // THIS JitterBuffer is NOT the same as MprDejitter!
-            // This is more of a Decode Buffer.
-            MpJitterBuffer* pJBState = getJBinst();
-
-            int res = pJBState->pushPacket(rtp);
-            if (res != 0) {
-               osPrintf("\n\n *** MpJitterBuffer::pushPacket(%d) returned %d\n",
-                        packetLen, res);
-               osPrintf(" pt=%d, Ts=%d, Seq=%d\n\n",
-                        rtp->getRtpPayloadType(),
-                        rtp->getRtpTimestamp(), rtp->getRtpSequenceNumber());
-            }
-
-         } else if (packetLen == 0) {
-            // The packet was not eaten by the codec, don't get any more now
-            OsStatus pushResult = pDej->pushPacket(rtp);
-            if (pushResult != OS_SUCCESS) {
-               osPrintf("\n\n *** pDej->pushPacket returned %d\n",
-                        pushResult);
-               osPrintf(" pt=%d, Ts=%d, Seq=%d\n\n",
-                        rtp->getRtpPayloadType(),
-                        rtp->getRtpTimestamp(), rtp->getRtpSequenceNumber());
-            }
-            break;
-         } else if (packetLen == -1) {
-            // packetLen < 0, this means that the codec wants us to discard
-            // the packet. Out of order packet.
+         int res = pJBState->pushPacket(rtp);
+         if (res != 0) {
+            osPrintf("\n\n *** MpJitterBuffer::pushPacket() returned %d\n", res);
+            osPrintf(" pt=%d, Ts=%d, Seq=%d\n\n",
+                     rtp->getRtpPayloadType(),
+                     rtp->getRtpTimestamp(), rtp->getRtpSequenceNumber());
          }
       }
    }
-   iFramesSinceLastReport++;
 
    // Get new audio buffer for decoded sound
    out = MpMisc.RawAudioPool->getBuffer();
