@@ -16,7 +16,6 @@
 
 // APPLICATION INCLUDES
 #include "mp/MpdSipxSpeex.h"
-#include "mp/MprDejitter.h"
 #include "os/OsSysLog.h"
 #include "os/OsSysLogFacilities.h"
 
