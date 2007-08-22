@@ -27,7 +27,10 @@
 // STRUCTS
 // TYPEDEFS
 
+class OsMsgPool;
+
 class VideoCapture;
+struct VideoFormat;
 
 /// Base class for video capture device classes.
 class MpDShowCaptureDevice: public MpCaptureDeviceBase
@@ -69,6 +72,8 @@ public:
    virtual OsStatus setFrameSize(int width, int height);
    virtual OsStatus setFPS(float fps);
 
+   OsStatus setOutputColorSpace(int colorSpace);
+
 //@}
 
 /* ============================ ACCESSORS ================================= */
@@ -105,15 +110,18 @@ private:
    UtlString mDeviceName;
    VideoCapture* mpCapture;
    OsMsgQ* mpFrameQueue;
-
-   mutable int mFrameWidth;
-   mutable int mFrameHeight;
-   mutable float mFPS;
+   OsMsgPool* mpMsgPool;
 
    OsStatus applyFormat();
 
    struct FrameProxy;
    FrameProxy* mpFrameProxy;
+   mutable VideoFormat* mpOutputFormat;
+
+   friend struct FrameProxy;
+
+   int mColorSpace;
+   int mPixelFormat;
 };
 
 /* ============================ INLINE METHODS ============================ */

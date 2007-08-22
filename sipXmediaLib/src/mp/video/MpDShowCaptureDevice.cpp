@@ -18,6 +18,10 @@
 // APPLICATION INCLUDES
 #include "mp/video/MpDShowCaptureDevice.h"
 #include "os/OsMsgQ.h"
+#include "mp/MpMisc.h"
+#include "mp/MpVideoBuf.h"
+#include "mp/MpBufferMsg.h"
+#include "os/OsMsgPool.h"
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
@@ -25,10 +29,10 @@
 
 struct MpDShowCaptureDevice::FrameProxy: public VideoCaptureSink
 {
-   OsMsgQ& mFrameSink;
+   MpDShowCaptureDevice& mDevice;
 
-   FrameProxy(OsMsgQ& frameSink): 
-   mFrameSink(frameSink)
+   FrameProxy(MpDShowCaptureDevice& device): 
+      mDevice(device)
    {
    }
 
@@ -36,10 +40,58 @@ struct MpDShowCaptureDevice::FrameProxy: public VideoCaptureSink
    {
    }
 
+   bool RenderBuffer(MpVideoBufPtr& buf, const void* frameData, size_t frameSize)
+   {
+      buf->setFrameWidth(mDevice.mpOutputFormat->GetWidth());
+      buf->setFrameHeight(mDevice.mpOutputFormat->GetHeight());
+      buf->setColorspace(MpVideoBuf::ColorSpace(mDevice.mColorSpace));
+
+      memcpy(buf->getWriteDataPtr(), frameData, frameSize);
+      // TODO: what to do with timecode? is it used anywhere? what is its format?
+      return true;
+   }
+
+   void PostBufferMessage(MpVideoBufPtr& ptr)
+   {
+      MpBufferMsg* msg = (MpBufferMsg*)mDevice.mpMsgPool->findFreeMsg();
+      if (NULL == msg)
+         msg = new MpBufferMsg(MpBufferMsg::VIDEO_FRAME);
+      else
+         msg->setMsgSubType(MpBufferMsg::VIDEO_FRAME);
+
+      msg->ownBuffer(ptr);
+
+      if (mDevice.mpFrameQueue->numMsgs() >= mDevice.mpFrameQueue->maxMsgs())
+      {
+         OsMsg* flushMsg = NULL;
+         OsStatus res = mDevice.mpFrameQueue->receive(flushMsg, OsTime::NO_WAIT_TIME);
+         if (OS_SUCCESS == res) 
+            flushMsg->releaseMsg();
+      }
+      mDevice.mpFrameQueue->send(*msg, OsTime::NO_WAIT_TIME);
+      if (!msg->isMsgReusable())
+          delete msg;
+   }
+
    void OfferFrame(const void* frameData, size_t frameSize)
    {
-      // TODO: render frameData into MpVideoBuf and post it down the mFrameSink
+      try
+      {
+         assert(NULL != MpMisc.VideoFramesPool);
+         MpVideoBufPtr buf = MpMisc.VideoFramesPool->getBuffer();
+         if (!buf.isValid())
+            return;
+
+         if(!RenderBuffer(buf, frameData, frameSize))
+            return;
+
+         PostBufferMessage(buf);
+      }
+      catch (std::bad_alloc&)
+      {
+      }
    }
+
 };
 
 MpDShowCaptureDevice::MpDShowCaptureDevice(const UtlString& deviceName):
@@ -47,13 +99,19 @@ MpDShowCaptureDevice::MpDShowCaptureDevice(const UtlString& deviceName):
    mpCapture(new VideoCapture()),
    mpFrameQueue(new OsMsgQ),
    mpFrameProxy(NULL),
-   mFrameWidth(0),
-   mFrameHeight(0),
-   mFPS(0.f)
+   mpOutputFormat(new VideoFormat),
+   mColorSpace(0),
+   mPixelFormat(-1),
+   mpMsgPool(NULL)
 {
+   setOutputColorSpace(MpVideoBuf::MP_COLORSPACE_YUV420p);
+
+   MpBufferMsg msg(MpBufferMsg::VIDEO_FRAME);
+   mpMsgPool = new OsMsgPool("MpDShowCaptureDevice", msg, 40, 60, 100, 5, OsMsgPool::SINGLE_CLIENT);
+
    // create mpFrameProxy using mpFrameQueue as its sink. FrameProxy will 
    // forward frames received from VideoCapture into OsMsgQ
-   mpFrameProxy = new FrameProxy(*mpFrameQueue);
+   mpFrameProxy = new FrameProxy(*this);
    mpCapture->SetSink(mpFrameProxy);
 }
 
@@ -67,12 +125,29 @@ MpDShowCaptureDevice::~MpDShowCaptureDevice()
 
    delete mpFrameQueue;
    mpFrameQueue = NULL;
+
+   delete mpOutputFormat;
+   mpOutputFormat = NULL;
+
+   delete mpMsgPool;
+   mpMsgPool = NULL;
 }
 
 OsStatus MpDShowCaptureDevice::initialize()
 {
+   assert(NULL != mpCapture);
+   assert(NULL != mpFrameProxy);
+   assert(NULL != mpFrameQueue);
+   assert(NULL != mpOutputFormat);
+   assert(NULL != mpMsgPool);
+
    try
    {
+      assert(-1 != mPixelFormat);
+      VideoSurface videoSurface = PixelFormatToVideoSurface(PixelFormat(mPixelFormat));
+      if (!IsVideoSurfaceValid(videoSurface))
+         return OS_FAILED;
+
       std::string name = mDeviceName.data();
       if (!mpCapture->Initialize(name, NULL))
          return OS_FAILED;
@@ -85,34 +160,22 @@ OsStatus MpDShowCaptureDevice::initialize()
       }
 
       bool applyFormat = false;
-      if (0 != mFrameWidth)
+      if (0 != mpOutputFormat->GetWidth())
       {
-         format.SetWidth(mFrameWidth);
+         format.SetWidth(mpOutputFormat->GetWidth());
          applyFormat = true;
-      }
-      else
-      {
-         mFrameWidth = format.width;
       }
 
-      if (0 != mFrameHeight)
+      if (0 != mpOutputFormat->GetHeight())
       {
-         format.SetHeight(mFrameHeight);
+         format.SetHeight(mpOutputFormat->GetHeight());
          applyFormat = true;
-      }
-      else
-      {
-         mFrameHeight = format.height;
       }
 
-      if (0.f != mFPS)
+      if (0.f != mpOutputFormat->GetFrameRate())
       {
-         format.SetFrameRate(mFPS);
+         format.SetFrameRate(mpOutputFormat->GetFrameRate());
          applyFormat = true;
-      }
-      else
-      {
-         mFPS = format.fps;
       }
 
       if (applyFormat && !mpCapture->SetCaptureFormat(format))
@@ -121,13 +184,18 @@ OsStatus MpDShowCaptureDevice::initialize()
          return OS_FAILED;
       }
 
-      format.surface = videoSurfaceYV12;
-      if (!mpCapture->SetCaptureFormat(format) &&
-          !mpCapture->SetOutputVideoSurface(format.GetSurface()))
+      mpCapture->GetOutputFormat(*mpOutputFormat);
+      mpOutputFormat->SetSurface(videoSurface);
+
+      if (!mpCapture->SetCaptureFormat(*mpOutputFormat) &&
+          !mpCapture->SetOutputVideoSurface(mpOutputFormat->GetSurface()))
       {
          mpCapture->Close();
          return OS_FAILED;
       }
+
+      mpCapture->GetOutputFormat(*mpOutputFormat);
+      assert(mpOutputFormat->GetSurface() == videoSurface);
    }
    catch (std::bad_alloc&)
    {
@@ -159,14 +227,13 @@ OsStatus MpDShowCaptureDevice::stopCapture()
 
 OsStatus MpDShowCaptureDevice::setFPS(float fps)
 {
-   mFPS = fps;
+   mpOutputFormat->SetFrameRate(fps);
    return applyFormat();
 }
 
 OsStatus MpDShowCaptureDevice::setFrameSize(int width, int height)
 {
-   mFrameWidth = width;
-   mFrameHeight = height;
+   mpOutputFormat->SetSize(width, height);
    return applyFormat();
 }
 
@@ -179,35 +246,48 @@ OsStatus MpDShowCaptureDevice::applyFormat()
    if (!mpCapture->GetCaptureFormat(format))
       return OS_FAILED;
 
-   format.SetSize(mFrameWidth, mFrameHeight);
-   format.SetFrameRate(mFPS);
+   format.SetSize(mpOutputFormat->GetWidth(), mpOutputFormat->GetHeight());
+   format.SetFrameRate(mpOutputFormat->GetFrameRate());
    if (!mpCapture->SetCaptureFormat(format))
       return OS_FAILED;
 
+   mpCapture->GetOutputFormat(*mpOutputFormat);
    return OS_SUCCESS;
 }
 
 void MpDShowCaptureDevice::getFrameSize(int& width, int& height) const
 {
-   VideoFormat format;
-   if (mpCapture->GetCaptureFormat(format))
-   {
-      mFrameWidth = format.width;
-      mFrameHeight = format.height;
-   }
-
-   width = mFrameWidth;
-   height = mFrameHeight;
+   width = mpOutputFormat->GetWidth();
+   height = mpOutputFormat->GetHeight();
 }
 
 float MpDShowCaptureDevice::getFPS() const
 {
-   VideoFormat format;
-   if (mpCapture->GetCaptureFormat(format))
-   {
-      mFPS = format.fps;
-   }
-
-   return mFPS;
+   return mpOutputFormat->GetFrameRate();
 }
 
+OsStatus MpDShowCaptureDevice::setOutputColorSpace(int colorSpace)
+{
+   int pf = MpVideoBuf::getFFMpegColorspace(MpVideoBuf::ColorSpace(colorSpace));
+   if (-1 == pf)
+      return OS_FAILED;
+
+   VideoSurface vs = PixelFormatToVideoSurface(PixelFormat(pf));
+   if (!IsVideoSurfaceValid(vs))
+      return OS_FAILED;
+
+   mColorSpace = colorSpace;
+   mPixelFormat = pf;
+   mpOutputFormat->SetSurface(vs);
+
+   if (mpCapture->IsInitialized())
+   {
+      if (!mpCapture->SetCaptureFormat(*mpOutputFormat) && !mpCapture->SetOutputVideoSurface(vs))
+         return OS_FAILED;
+
+      mpCapture->GetOutputFormat(*mpOutputFormat);
+      assert(mpOutputFormat->GetSurface() == vs);
+   }
+
+   return OS_SUCCESS;
+}

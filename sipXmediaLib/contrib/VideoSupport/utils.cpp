@@ -106,39 +106,3 @@ const GUID& VideoSurfaceToMediaSubtype(const VideoSurface surface)
 
 	return GUID_NULL;
 }
-
-#ifndef VIDEO_SUPPORT_DISABLE_AVCODEC
-
-VideoSurface PixelFormatToVideoSurface(const PixelFormat pixelFormat)
-{
-	switch (pixelFormat) {
-	// TODO: determine I420 or YV12. For now we assume I420, as this is what FFmpeg 
-	// returns. However, this is suspicious - it treats YV12 identically.
-	case PIX_FMT_YUV420P: return videoSurfaceI420;
-	case PIX_FMT_YUYV422: return videoSurfaceYUY2;
-	case PIX_FMT_UYVY422: return videoSurfaceUYVY;
-	case PIX_FMT_RGB24: return videoSurfaceRGB24;
-	case PIX_FMT_ARGB: return videoSurfaceARGB32;
-	case PIX_FMT_NV12: return videoSurfaceNV12;
-	}
-	return videoSurfaceUnknown;
-}
-
-PixelFormat VideoSurfaceToPixelFormat(const VideoSurface surface)
-{
-	switch (surface) {
-	case videoSurfaceI420: return PIX_FMT_YUV420P;
-
-	// hack: AVCodecVideoSurfaceConverter will check surface and adjust U&V plane pointers appropriately
-	case videoSurfaceYV12: return PIX_FMT_YUV420P;
-
-	case videoSurfaceYUY2: return PIX_FMT_YUYV422;
-	case videoSurfaceUYVY: return PIX_FMT_UYVY422;
-	case videoSurfaceRGB24: return PIX_FMT_RGB24;
-	case videoSurfaceARGB32: return PIX_FMT_ARGB;
-	case videoSurfaceNV12: return PIX_FMT_NV12;
-	}
-	return PIX_FMT_NONE;
-}
-
-#endif // VIDEO_SUPPORT_DISABLE_AVCODEC

@@ -163,3 +163,11 @@ struct VideoFormat
 
 	bool IsSurfaceValid() const {return IsVideoSurfaceValid(surface);}
 };
+
+//! FFmpeg pixel format
+enum PixelFormat;
+
+VideoSurface PixelFormatToVideoSurface(PixelFormat pixelFormat);
+
+PixelFormat VideoSurfaceToPixelFormat(VideoSurface surface);
+

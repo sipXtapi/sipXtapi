@@ -1132,7 +1132,6 @@ bool VideoCapture::IsCaptureFormatSupported(const VideoFormat &format) const
 	return impl_->MatchFormat(format, false);
 }
 
-
 bool VideoCapture::Impl::GetOutputFormat(VideoFormat& format) const
 {
 	CAutoLock lock(lock_.get());
@@ -1148,6 +1147,11 @@ bool VideoCapture::Impl::GetOutputFormat(VideoFormat& format) const
 
 	format.surface = outputSurface_;
 	return true;
+}
+
+bool VideoCapture::GetOutputFormat(VideoFormat& format) const
+{
+	return impl_->GetOutputFormat(format);
 }
 
 bool VideoCapture::Impl::CommitOutputSurfaceNoLock()
