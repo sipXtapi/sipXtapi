@@ -40,7 +40,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="./sdk-samples,./include,$(FFMPEG_ROOT)/libavcodec"
+				AdditionalIncludeDirectories="./sdk-samples,./include,$(FFMPEG_ROOT)/libavcodec,$(FFMPEG_ROOT)/libavutil,./msinttypes"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;WINVER=0x0501;_WIN32_WINNT=0x0501;_WIN32_WINDOWS=0x0410;_WIN32_IE=0x0600"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -61,6 +61,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
+				AdditionalLibraryDirectories="$(FFMPEG_ROOT)/libavcodec,$(FFMPEG_ROOT)/libavutil"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -107,7 +108,7 @@
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
 				OmitFramePointers="true"
-				AdditionalIncludeDirectories="./sdk-samples,./include,$(FFMPEG_ROOT)/libavcodec"
+				AdditionalIncludeDirectories="./sdk-samples,./include,$(FFMPEG_ROOT)/libavcodec,$(FFMPEG_ROOT)/libavutil,./msinttypes"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;WINVER=0x0501;_WIN32_WINNT=0x0501;_WIN32_WINDOWS=0x0410;_WIN32_IE=0x0600"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="2"
@@ -126,6 +127,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
+				AdditionalLibraryDirectories="$(FFMPEG_ROOT)/libavcodec,$(FFMPEG_ROOT)/libavutil"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -152,6 +154,14 @@
 			Filter="cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx;h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
+			<File
+				RelativePath=".\AVCodecVideoSurfaceConverter.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\AVCodecVideoSurfaceConverter.h"
+				>
+			</File>
 			<File
 				RelativePath=".\include\VideoSupport\DepsAutoLink.h"
 				>

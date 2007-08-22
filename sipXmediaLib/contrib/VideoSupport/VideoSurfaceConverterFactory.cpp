@@ -24,6 +24,7 @@
 #include <VideoSupport/VideoSurfaceConverterFactory.h>
 #include <map>
 #include "VideoSurfaceConverterImpl.h"
+#include "AVCodecVideoSurfaceConverter.h"
 
 namespace 
 {
@@ -62,6 +63,11 @@ struct VideoSurfaceConverterFactory::Impl
 
 	VideoSurfaceConverterAutoPtr CreateTandemConverter(size_t width, size_t height, VideoSurface sourceSurface, VideoSurface targetSurface);
 
+#ifndef VIDEO_SUPPORT_DISABLE_AVCODEC
+	//! Returned converter will be already initialized.
+	VideoSurfaceConverterAutoPtr CreateAVCodecConverter(size_t width, size_t height, VideoSurface sourceSurface, VideoSurface targetSurface);
+#endif // VIDEO_SUPPORT_DISABLE_AVCODEC
+
 };
 
 VideoSurfaceConverterFactory::VideoSurfaceConverterFactory():
@@ -89,6 +95,12 @@ VideoSurfaceConverterAutoPtr VideoSurfaceConverterFactory::Impl::CreateConverter
 
 	if (!IsVideoSurfaceValid(sourceSurface) || !IsVideoSurfaceValid(targetSurface))
 		return res;
+
+#ifndef VIDEO_SUPPORT_DISABLE_AVCODEC
+	res = CreateAVCodecConverter(width, height, sourceSurface, targetSurface);
+	if (NULL != res.get())
+		return res;
+#endif // VIDEO_SUPPORT_DISABLE_AVCODEC
 
 	ConstructorMap::iterator it = constructors_.find(std::make_pair(sourceSurface, targetSurface));
 	if (constructors_.end() != it)
@@ -127,6 +139,19 @@ VideoSurfaceConverterAutoPtr VideoSurfaceConverterFactory::Impl::CreateTandemCon
 	return res;
 }
 
+#ifndef VIDEO_SUPPORT_DISABLE_AVCODEC
+
+VideoSurfaceConverterAutoPtr VideoSurfaceConverterFactory::Impl::CreateAVCodecConverter(size_t width, size_t height, VideoSurface sourceSurface, VideoSurface targetSurface)
+{
+	VideoSurfaceConverterAutoPtr res;
+	res.reset(new AVCodecVideoSurfaceConverter());
+	if (!res->Initialize(width, height, sourceSurface, targetSurface))
+		res.reset();
+
+	return res;
+}
+
+#endif // VIDEO_SUPPORT_DISABLE_AVCODEC
 
 bool VideoSurfaceConverterFactory::RegisterConstructor(VideoSurface sourceSurface, VideoSurface targetSurface, VideoSurfaceConverterConstructor constructor)
 {

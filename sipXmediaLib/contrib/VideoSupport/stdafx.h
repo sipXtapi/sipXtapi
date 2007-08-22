@@ -42,6 +42,13 @@
 #include <wxdebug.h> // Platfrom SDK primitives for locking'n'stuff :D
 #include <wxutil.h> 
 
+#ifndef VIDEO_SUPPORT_DISABLE_AVCODEC
+
+extern "C" {
+#  include <avcodec.h>
+}
+
+#endif // VIDEO_SUPPORT_DISABLE_AVCODEC
 
 
 

@@ -19,30 +19,37 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-//! @file DepsAutoLink.h
-//! Performs auto-linking of external library dependencies.
-//! Define @c VIDEO_SUPPORT_DISABLE_DEPENDENCY_AUTOLINK to disable it.
+//! @file AVCodecVideoSurfaceConverter.h
+//! VideoSurfaceConverter using libavcodec routines.
 //! @author Andrzej Ciarkowski <mailto:andrzejc@wp-sa.pl>
 #pragma once
 
-#ifndef VIDEO_SUPPORT_DISABLE_DEPENDENCY_AUTOLINK
-
-#ifndef NDEBUG
-# pragma comment(lib, "comsuppwd.lib")
-#else
-# pragma comment(lib, "comsuppw.lib")
-#endif
-
-#pragma comment(lib, "comsupp.lib")
-#pragma comment(lib, "quartz.lib")
-#pragma comment(lib, "ksguid.lib")
-#pragma comment(lib, "strmiids.lib")
-#pragma comment(lib, "uuid.lib")
-#pragma comment(lib, "winmm.lib")
+#include "VideoSurfaceConverterImpl.h"
+#include "utils.h"
 
 #ifndef VIDEO_SUPPORT_DISABLE_AVCODEC
-# pragma comment(lib, "avcodec-51.lib")
-# pragma comment(lib, "avutil-49.lib")
-#endif // VIDEO_SUPPORT_DISABLE_AVCODEC
 
-#endif // VIDEO_SUPPORT_DISABLE_DEPENDENCY_AUTOLINK
+struct AVPicture;
+
+class AVCodecVideoSurfaceConverter: public VideoSurfaceConverter, private VideoSurfaceConverterMixIn
+{
+public:
+
+	AVCodecVideoSurfaceConverter();
+	~AVCodecVideoSurfaceConverter();
+
+	bool Initialize(size_t width, size_t height, VideoSurface sourceSurface, VideoSurface targetSurface);
+
+	bool Convert(const void* sourceFrameBytes, size_t sourceFrameByteSize, void* targetFrameBytes, size_t targetFrameByteSize) throw();
+
+private:
+	AVCodecVideoSurfaceConverter(const AVCodecVideoSurfaceConverter&);
+	AVCodecVideoSurfaceConverter& operator = (const AVCodecVideoSurfaceConverter&);
+
+	PixelFormat sourcePixelFormat_;
+	PixelFormat targetPixelFormat_;
+	std::auto_ptr<AVPicture> sourcePicture_;
+	std::auto_ptr<AVPicture> targetPicture_;
+};
+
+#endif // VIDEO_SUPPORT_DISABLE_AVCODEC

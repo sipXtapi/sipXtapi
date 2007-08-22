@@ -19,7 +19,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\include;&quot;..\sdk-samples&quot;"
+				AdditionalIncludeDirectories="..\include;&quot;..\sdk-samples&quot;;..\..\..\..\FFMpeg\include\ffmpeg"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;_WIN32_WINNT=0x0400"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
@@ -61,7 +61,7 @@
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="..\include;&quot;..\sdk-samples&quot;"
+				AdditionalIncludeDirectories="..\include;&quot;..\sdk-samples&quot;;..\..\..\..\FFMpeg\include\ffmpeg"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB"
 				RuntimeLibrary="2"
 				RuntimeTypeInfo="TRUE"
@@ -102,6 +102,9 @@
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx"
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}">
 			<File
+				RelativePath="..\AVCodecVideoSurfaceConverter.cpp">
+			</File>
+			<File
 				RelativePath="..\RawVideoRenderer.cpp">
 			</File>
 			<File
@@ -127,6 +130,9 @@
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}">
+			<File
+				RelativePath="..\AVCodecVideoSurfaceConverter.h">
+			</File>
 			<File
 				RelativePath="..\MediaSampleSink.h">
 			</File>

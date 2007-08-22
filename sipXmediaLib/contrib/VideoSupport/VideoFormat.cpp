@@ -109,6 +109,7 @@ size_t GetVideoFrameByteSize(VideoSurface surface, size_t width, size_t height)
 	case videoSurfaceIMC2:
 	case videoSurfaceIMC4:
 	case videoSurfaceYV12:
+	case videoSurfaceIYUV:
 	case videoSurfaceNV12:
 		// only even frame dimensions are allowed due to 2:1 downsampling of chroma
 		if (0 != (width % 2) || 0 != (height % 2))

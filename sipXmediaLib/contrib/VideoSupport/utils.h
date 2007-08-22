@@ -48,9 +48,13 @@ VideoSurface MediaSubtypeToVideoSurface(const GUID& mediaSubtype);
 
 const GUID& VideoSurfaceToMediaSubtype(VideoSurface surface);
 
+#ifndef VIDEO_SUPPORT_DISABLE_AVCODEC
+
 //! FFmpeg pixel format
 enum PixelFormat;
 
 VideoSurface PixelFormatToVideoSurface(PixelFormat pixelFormat);
 
 PixelFormat VideoSurfaceToPixelFormat(VideoSurface surface);
+
+#endif // VIDEO_SUPPORT_DISABLE_AVCODEC

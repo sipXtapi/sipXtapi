@@ -28,6 +28,9 @@
 
 //! Video surface (pixel format) constants.
 //! @see http://msdn2.microsoft.com/en-us/library/Aa904813(VS.80).aspx
+//! @note When adding new videoSurface enumerators, be sure to update
+//! also GetVideoFrameByteSize() definition in VideoFormat.cpp and
+//! MediaSubtypeToVideoSurface()/VideoSurfaceToMediaSubtype() in utils.cpp.
 enum VideoSurface
 {
 	//! Unsupported video surface.
@@ -60,6 +63,9 @@ enum VideoSurface
 	videoSurfaceIMC4,
 	// 4:2:0, 12bpp 
 	videoSurfaceYV12,
+	// 4:2:0, 12bpp, same as YV12 with U & V planes swapped
+	videoSurfaceIYUV,
+	videoSurfaceI420 = videoSurfaceIYUV,
 	// 4:2:0, 12bpp 
 	videoSurfaceNV12,
 
@@ -135,6 +141,9 @@ struct VideoFormat
 	void SetWidth(size_t width) {this->width = width;}
 	void SetHeight(size_t height) {this->height = height;}
 
+	size_t GetWidth() const {return width;}
+	size_t GetHeight() const {return height;}
+
 	void SetSize(size_t width, size_t height) {SetWidth(width); SetHeight(height);}
 
 	void SetSize(SizePreset size);
@@ -144,6 +153,7 @@ struct VideoFormat
 	void SetFrameRate(float fps) {this->fps = fps;}
 
 	SizePreset GetSize() const;
+	void GetSize(size_t& width, size_t& height) const {width = this->width; height = this->height;}
 
 	size_t GetFrameByteSize() const {return GetVideoFrameByteSize(surface, width, height);}
 
@@ -152,5 +162,4 @@ struct VideoFormat
 	void SetSurface(VideoSurface surface) {this->surface = surface;}
 
 	bool IsSurfaceValid() const {return IsVideoSurfaceValid(surface);}
-
 };

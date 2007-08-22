@@ -23,7 +23,6 @@
 //! Implementation of @c VideoCapture class.
 //! @author Andrzej Ciarkowski <mailto:andrzejc@wp-sa.pl>
 #include "stdafx.h"
-#include <process.h>
 
 // #define VIDEO_CAPTURE_NOTIFY_WINDOW
 #define VIDEO_CAPTURE_NOTIFY_THREAD
