@@ -27,7 +27,6 @@
 #include "os/OsMutex.h"
 #include "mp/MpFlowGraphMsg.h"
 #include "mp/MpAudioResource.h"
-#include "mp/MpResNotificationMsg.h"
 
 // DEFINES
 // MACROS

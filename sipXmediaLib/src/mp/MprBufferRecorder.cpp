@@ -26,6 +26,7 @@
 #include "mp/MprBufferRecorder.h"
 #include "mp/MpBufRecStartResourceMsg.h"
 #include "mp/MpFlowGraphBase.h"
+#include "mp/MpResNotificationMsg.h"
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -106,16 +107,30 @@ UtlBoolean MprBufferRecorder::disable(Completion code)
    res = (MpResource::disable());
 
    // If the recording was stopped or finished,
-   if(code == RECORD_FINISHED || code == RECORD_STOPPED)
+   MpResNotificationMsg::RNMsgType noteMsgType = 
+      MpResNotificationMsg::MPRNM_MESSAGE_INVALID;
+   switch(code)
    {
-      // Send resource notification message to indicate recording complete.
-      sendNotification(MpResNotificationMsg::MPRNM_BUFRECORDER_STOPPED);
+      case RECORD_FINISHED:
+         // Send resource notification message to indicate recording complete.
+         noteMsgType = MpResNotificationMsg::MPRNM_BUFRECORDER_FINISHED;
+         break;
+      case RECORD_STOPPED:
+         // Send resource notification message to indicate recording stopped prematurely.
+         noteMsgType = MpResNotificationMsg::MPRNM_BUFRECORDER_STOPPED;
+         break;
+      case NO_INPUT_DATA:
+         // Send resource notification message to indicate error - 
+         // no input data buffer provided.
+         noteMsgType = MpResNotificationMsg::MPRNM_BUFRECORDER_NOINPUTDATA;
+         break;
+      default:
+         break;
    }
-   else if(code == NO_INPUT_DATA)
+
+   if(noteMsgType != MpResNotificationMsg::MPRNM_MESSAGE_INVALID)
    {
-      // Send resource notification message to indicate error - 
-      // no input data buffer provided.
-      sendNotification(MpResNotificationMsg::MPRNM_BUFRECORDER_NOINPUTDATA);
+      sendNotification(noteMsgType);
    }
 
    return res;
@@ -260,6 +275,13 @@ UtlBoolean MprBufferRecorder::handleStopRecording()
    }
    else
    {
+      // Zero out any remaining buffer, since this was prematurely stopped.
+      MpAudioSample* destSamples = 
+         ((MpAudioSample*)mpBuffer->data()) + mnBufferSamplesUsed;
+      unsigned numEmptySamplesToWrite = mpBuffer->length() - mnBufferSamplesUsed;
+      memset(destSamples, 0, numEmptySamplesToWrite);
+      mnBufferSamplesUsed += numEmptySamplesToWrite;
+
       disable(RECORD_STOPPED);
    }
    return TRUE;
