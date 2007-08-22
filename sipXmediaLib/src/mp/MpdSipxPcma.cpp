@@ -14,9 +14,7 @@
 
 // APPLICATION INCLUDES
 #include "mp/MpdSipxPcma.h"
-#include "mp/MprDejitter.h"
 #include "mp/MpSipxDecoders.h"
-#include "mp/MpMisc.h"
 #include "mp/MpDspUtils.h"
 
 const MpCodecInfo MpdSipxPcma::smCodecInfo(

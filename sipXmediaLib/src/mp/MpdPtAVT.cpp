@@ -18,10 +18,9 @@
 #include <netinet/in.h>
 #endif /* __pingtel_on_posix__ ] */
 #include "mp/MpdPtAVT.h"
-#include "mp/MprDejitter.h"
-#include "mp/NetInTask.h"
 #include "mp/MprRecorder.h"
 #include "os/OsNotification.h"
+#include "os/OsSysLog.h"
 #ifdef _VXWORKS /* [ */
 #include <inetlib.h>
 #endif /* _VXWORKS ] */
