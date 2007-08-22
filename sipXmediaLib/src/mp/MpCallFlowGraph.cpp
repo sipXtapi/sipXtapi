@@ -323,9 +323,10 @@ MpCallFlowGraph::MpCallFlowGraph(const char* locale,
    boolRes = mpFromFile->disable();     assert(boolRes);
 
    // disable mpCallrecMixer and splitters, they are enabled when we want to start recording
-   boolRes = mpCallrecMixer->disable();     assert(boolRes);
-   boolRes = mpMicCallrecSplitter->disable();         assert(boolRes);
-   boolRes = mpSpeakerCallrecSplitter->disable();     assert(boolRes);
+   boolRes = mpCallrecMixer->disable();           assert(boolRes);
+   boolRes = mpMicCallrecSplitter->disable();     assert(boolRes);
+   boolRes = mpSpeakerCallrecSplitter->disable(); assert(boolRes);
+
 
 #ifndef DISABLE_LOCAL_AUDIO // [
    // disable the FromMic, EchoCancel, PreProcess and ToSpkr -- we cannot have focus yet...
