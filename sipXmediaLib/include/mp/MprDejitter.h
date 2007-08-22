@@ -130,32 +130,51 @@ private:
                   /// Mutual exclusion lock for internal data
    OsBSem        mRtpLock;
 
-                  /// Buffer for incoming RTP packets
-   MpRtpBufPtr   mpPackets[MAX_CODECS][MAX_RTP_PACKETS];
+
+   /// Storage for all stream related data.
+   /**
+   *  We're able to handle several RTP streams with one instance of dejitter.
+   *  This structure encapsulate all data, specific to stream as opposite to
+   *  global dejitter data.
+   */
+   struct StreamData
+   {
+       /// Constructor, initialize data to meaningful initial state.
+      StreamData()
+      : mNumPackets(0)
+      , mNumDiscarded(0)
+      , mLastPushed(0)
+      {
+      }
+
+                     /// Buffer for incoming RTP packets
+      MpRtpBufPtr   mpPackets[MAX_RTP_PACKETS];
+
+                     /// Number of packets in buffer
+      int           mNumPackets;
+
+                     /// Number of packets overwritten with newly came packets.
+      int           mNumDiscarded;
+                     /**<
+                     *  If this value is not zero, then jitter buffer length
+                     *  is not enough, or there are clock skew.
+                     *   
+                     *  Right now used for debug purposes only.
+                     */
+
+                     /// Index of the last inserted packet.
+      int           mLastPushed;
+                     /**<
+                     *  As packets are added, we change this value to indicate
+                     *  where the buffer is wrapping.
+                     */
+
+   };
+
+   StreamData    mpStreamData[MAX_CODECS];
 
                   /// Mapping of payload type to internal codec index
    int           mBufferLookup[256];
-
-                  /// Number of packets in buffer
-   int           mNumPackets[MAX_CODECS];
-
-                  /// Number of packets overwritten with newly came packets.
-   int           mNumDiscarded[MAX_CODECS];
-                  /**<
-                  *  If this value is not zero, then jitter buffer length
-                  *  is not enough, or there are clock skew.
-                  *   
-                  *  Used for only debug purposes for now.
-                  */
-
-                  /// Index of the last inserted packet.
-   int           mLastPushed[MAX_CODECS];
-                  /**<
-                  *  As packets are added, we change this value to indicate
-                  *  where the buffer is wrapping.
-                  */
-
-   /* end of Dejitter handling variables */
 
      /// Copy constructor (not implemented for this class)
    MprDejitter(const MprDejitter& rMprDejitter);
