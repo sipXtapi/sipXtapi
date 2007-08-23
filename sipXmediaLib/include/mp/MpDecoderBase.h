@@ -39,8 +39,6 @@ class MpDecoderBase
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
-   friend class MprDecode;
-
 /* ============================ CREATORS ================================== */
 ///@name Creators
 //@{
@@ -85,8 +83,11 @@ public:
      *  @return Number of decoded samples.
      */
 
-     /// Always assert(FALSE) for now.
+     /// Set recorder to be notified when DTMF tone received.
    virtual UtlBoolean setDtmfTerm(MprRecorder *pRecorder);
+
+     /// Set notification to be fired when DTMF tone received.
+   virtual UtlBoolean setDtmfNotify(OsNotification* pNotify);
 
 //@}
 
@@ -114,9 +115,6 @@ public:
 
 protected:
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
-
-     /// Handle the FLOWGRAPH_SET_DTMF_NOTIFY message.
-   virtual UtlBoolean handleSetDtmfNotify(OsNotification* pNotify);
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:

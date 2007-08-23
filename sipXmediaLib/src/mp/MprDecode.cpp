@@ -163,7 +163,7 @@ UtlBoolean MprDecode::handleSetDtmfNotify(OsNotification* pNotify)
    pMDB = mpCurrentCodecs;
    for (i=0; i<mNumCurrentCodecs; i++) {
       if (((*pMDB)->getInfo())->isSignalingCodec()) {
-         (*pMDB)->handleSetDtmfNotify(pNotify);
+         (*pMDB)->setDtmfNotify(pNotify);
       }
       pMDB++;
    }

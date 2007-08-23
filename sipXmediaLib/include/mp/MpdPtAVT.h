@@ -72,13 +72,6 @@ public:
 ///@name Manipulators
 //@{
 
-     /// Receive a packet of RTP data
-   virtual int decodeIn(const MpRtpBufPtr &pPacket ///< (in) Pointer to a media buffer
-                       );
-     /**<
-     *  @returns length of packet to hand to jitter buffer, 0 means don't.
-     */
-
      /// Decode incoming RTP packet.
    virtual int decode(const MpRtpBufPtr &pPacket, ///< (in) Pointer to a media buffer
                       unsigned decodedBufferLength, ///< (in) Length of the samplesBuffer (in samples)
@@ -86,6 +79,15 @@ public:
                      );
      /**<
      *  @note This function do nothing. All real work is done in decodeIn().
+     */
+
+     /// Set recorder to be notified when DTMF tone received.
+   virtual UtlBoolean setDtmfTerm(MprRecorder* pRecorder);
+
+     /// Set notification to be fired when DTMF tone received.
+   virtual UtlBoolean setDtmfNotify(OsNotification* n);
+     /**<
+     *  @returns <b>TRUE</b>
      */
 
 //@}
@@ -104,14 +106,6 @@ public:
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
-
-     //:Handle the FLOWGRAPH_SET_DTMF_NOTIFY message.
-   virtual UtlBoolean handleSetDtmfNotify(OsNotification* n);
-     /**<
-     *  @returns <b>TRUE</b>
-     */
-
-   virtual UtlBoolean setDtmfTerm(MprRecorder* pRecorder);
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:

@@ -31,6 +31,18 @@ MpDecoderBase::~MpDecoderBase()
 
 /* ============================ MANIPULATORS ============================== */
 
+UtlBoolean MpDecoderBase::setDtmfNotify(OsNotification* pNotify)
+{
+   assert(FALSE);
+   return TRUE;
+}
+
+UtlBoolean MpDecoderBase::setDtmfTerm(MprRecorder *pRecorder)
+{
+   assert(FALSE);
+   return TRUE;
+}
+
 /* ============================ ACCESSORS ================================= */
 
 // Get static information about the decoder
@@ -51,15 +63,3 @@ int MpDecoderBase::getPayloadType(void)
 /* ============================ INQUIRY =================================== */
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
-
-UtlBoolean MpDecoderBase::handleSetDtmfNotify(OsNotification* pNotify)
-{
-   assert(FALSE);
-   return TRUE;
-}
-
-UtlBoolean MpDecoderBase::setDtmfTerm(MprRecorder *pRecorder)
-{
-   assert(FALSE);
-   return TRUE;
-}
