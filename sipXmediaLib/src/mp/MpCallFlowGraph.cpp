@@ -1481,19 +1481,6 @@ void MpCallFlowGraph::stopSendRtp(MpConnectionID connID)
 }
 
 // Start receiving RTP and RTCP packets.
-#ifdef OLD_WAY /* [ */
-void MpCallFlowGraph::startReceiveRtp(SdpCodec& rCodec,
-                                       OsSocket& rRtpSocket,
-                                       OsSocket& rRtcpSocket,
-                                       MpConnectionID connID)
-{
-   SdpCodec* pCodecs[1];
-
-   pCodecs[0] = &rCodec;
-   startReceiveRtp(pCodecs, 1, rRtpSocket, rRtcpSocket, connID);
-}
-#endif /* OLD_WAY ] */
-
 void MpCallFlowGraph::startReceiveRtp(SdpCodec* pCodecs[],
                                        int numCodecs,
                                        OsSocket& rRtpSocket,
