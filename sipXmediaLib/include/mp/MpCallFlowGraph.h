@@ -244,11 +244,6 @@ public:
                      MpConnectionID connID=1, SdpCodec* pPrimaryCodec = NULL,
                      SdpCodec* pDtmfCodec = NULL);
 
-     /// Starts sending RTP and RTCP packets.
-   void startSendRtp(SdpCodec& rPrimaryCodec,
-                     OsSocket& rRtpSocket, OsSocket& rRtcpSocket,
-                     MpConnectionID connID=1);
-
      /// Stops sending RTP and RTCP packets.
    void stopSendRtp(MpConnectionID connID=1);
 

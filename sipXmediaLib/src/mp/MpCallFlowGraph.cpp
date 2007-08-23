@@ -1457,15 +1457,6 @@ void MpCallFlowGraph::startSendRtp(OsSocket& rRtpSocket,
    }
 }
 
-// (old style call...)
-void MpCallFlowGraph::startSendRtp(SdpCodec& rPrimaryCodec,
-                                    OsSocket& rRtpSocket,
-                                    OsSocket& rRtcpSocket,
-                                    MpConnectionID connID)
-{
-   startSendRtp(rRtpSocket, rRtcpSocket, connID, &rPrimaryCodec, NULL);
-}
-
 // Stop sending RTP and RTCP packets.
 void MpCallFlowGraph::stopSendRtp(MpConnectionID connID)
 {
