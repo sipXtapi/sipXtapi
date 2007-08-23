@@ -115,6 +115,9 @@ namespace
 		if (FAILED(hr = CreateDeviceEnum(devEnum)))
 			return hr;
 
+		if (S_FALSE == hr)
+			return E_FAIL;
+
 		assert(NULL != devEnum.GetInterfacePtr());
 		IMonikerPtr moniker;
 		while (S_OK == devEnum->Next(1, &moniker, NULL))
@@ -145,6 +148,9 @@ namespace
 				return S_OK;
 			}
 		}
+
+		if (NULL != findName)
+			return E_FAIL;
 
 		return S_OK;
 	}
