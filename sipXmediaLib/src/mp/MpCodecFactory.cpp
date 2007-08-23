@@ -118,18 +118,9 @@ OsStatus MpCodecFactory::createDecoder(SdpCodec::SdpCodecTypes internalCodecId,
 #ifdef HAVE_SPEEX // [
 
    case (SdpCodec::SDP_CODEC_SPEEX):
-      rpDecoder = new MpdSipxSpeex(payloadType);
-      break;
-
    case (SdpCodec::SDP_CODEC_SPEEX_5):
-      rpDecoder = new MpdSipxSpeex(payloadType);
-      break;
-
-    case (SdpCodec::SDP_CODEC_SPEEX_15):
-      rpDecoder = new MpdSipxSpeex(payloadType);
-      break;
-
-    case (SdpCodec::SDP_CODEC_SPEEX_24):
+   case (SdpCodec::SDP_CODEC_SPEEX_15):
+   case (SdpCodec::SDP_CODEC_SPEEX_24):
       rpDecoder = new MpdSipxSpeex(payloadType);
       break;
 
