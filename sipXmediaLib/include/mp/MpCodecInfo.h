@@ -45,7 +45,6 @@ public:
    MpCodecInfo(
       SdpCodec::SdpCodecTypes codecType, ///< codec type
       const char* codecVersion,   ///< string identifying the codec version
-      UtlBoolean  usesNetEq,      ///< indicats whether the codec uses GIPS NetEq
       unsigned    samplingRate,   ///< sampling rate for the PCM data expected
                                   ///< by the codec
       unsigned    numBitsPerSample, 
@@ -139,9 +138,6 @@ public:
 ///@name Inquiry
 //@{
 
-     /// Returns TRUE if codec uses GIPS NetEq; otherwise returns FALSE
-   UtlBoolean usesNetEq(void) const;
-
      /// Returns TRUE if codec is used for signaling; otherwise returns FALSE
    UtlBoolean isSignalingCodec(void) const;
 
@@ -157,7 +153,6 @@ protected:
 private:
    SdpCodec::SdpCodecTypes mCodecType;
    UtlString    mCodecVersion;
-   UtlBoolean   mUsesNetEq;
    unsigned    mSamplingRate;
    unsigned    mNumBitsPerSample;
    unsigned    mNumSamplesPerFrame;

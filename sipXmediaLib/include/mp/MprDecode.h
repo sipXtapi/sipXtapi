@@ -103,8 +103,6 @@ protected:
      *  @returns <b>TRUE</b>
      */
 
-   UtlBoolean setDtmfTerm(MprRecorder *pRecorder);
-
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
    typedef enum

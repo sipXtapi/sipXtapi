@@ -571,12 +571,11 @@ UtlBoolean CpCall::handleMessage(OsMsg& eventMessage)
                 OsProtectedEvent* ev = (OsProtectedEvent*) ((CpMultiStringMessage&)eventMessage).getInt1Data();
                 int ms = ((CpMultiStringMessage&)eventMessage).getInt2Data();
                 int silenceLength = ((CpMultiStringMessage&)eventMessage).getInt3Data();
-                int dtmfterm = ((CpMultiStringMessage&)eventMessage).getInt4Data();
 
                 double duration;
                 if (mpMediaInterface)
                 {
-                    mpMediaInterface->ezRecord(ms, silenceLength, fileName.data(), duration, dtmfterm, ev);
+                    mpMediaInterface->ezRecord(ms, silenceLength, fileName.data(), duration, ev);
                 }
 
             }
@@ -829,9 +828,9 @@ OsStatus CpCall::stopRecord()
     return mpMediaInterface->stopRecording();
 }
 
-OsStatus CpCall::ezRecord(int ms, int silenceLength, const char* fileName, double& duration, int& dtmfterm)
+OsStatus CpCall::ezRecord(int ms, int silenceLength, const char* fileName, double& duration)
 {
-    return mpMediaInterface->ezRecord(ms, silenceLength, fileName, duration, dtmfterm);
+    return mpMediaInterface->ezRecord(ms, silenceLength, fileName, duration);
 }
 
 void CpCall::addToneListenerToFlowGraph(int pListener, Connection* connection)

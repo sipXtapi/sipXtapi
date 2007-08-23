@@ -175,7 +175,7 @@ public:
     void addToneListenerToFlowGraph(int pListener, Connection* connection);
     void removeToneListenerFromFlowGraph(int pListener, Connection* connection);
 
-    OsStatus ezRecord(int ms, int silenceLength, const char* fileName, double& duration, int& dtmfterm);
+    OsStatus ezRecord(int ms, int silenceLength, const char* fileName, double& duration);
     virtual OsStatus stopRecord();
     /* ============================ ACCESSORS ================================= */
     static int getCallTrackingListCount();

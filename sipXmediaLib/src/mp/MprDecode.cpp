@@ -170,23 +170,6 @@ UtlBoolean MprDecode::handleSetDtmfNotify(OsNotification* pNotify)
    return ret;
 }
 
-UtlBoolean MprDecode::setDtmfTerm(MprRecorder *pRecorder)
-{
-   MpDecoderBase** pMDB;
-   UtlBoolean ret = TRUE;
-   int i;
-   OsLock lock(mLock);
-
-   pMDB = mpCurrentCodecs;
-   for (i=0; i<mNumCurrentCodecs; i++) {
-      if (((*pMDB)->getInfo())->isSignalingCodec()) {
-         (*pMDB)->setDtmfTerm(pRecorder);
-      }
-      pMDB++;
-   }
-   return ret;
-}
-
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 MprDejitter* MprDecode::getMyDejitter(void)

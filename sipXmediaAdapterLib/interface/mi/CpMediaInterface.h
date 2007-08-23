@@ -628,7 +628,6 @@ public:
                              int silenceLength, 
                              const char* fileName, 
                              double& duration, 
-                             int& dtmfterm,
                              OsProtectedEvent* ev = NULL) = 0;
 
      /// @brief Record the microphone data to a file

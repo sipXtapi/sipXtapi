@@ -43,7 +43,6 @@ struct MprRecorderStats
    double mTotalSamplesWritten;
    double mDuration;
    int mFinalStatus;
-   int mDtmfTerm;
 };
 
 // TYPEDEFS
@@ -107,8 +106,6 @@ public:
    virtual UtlBoolean disable(Completion code);
 
    virtual UtlBoolean enable(void);
-
-   virtual UtlBoolean termDtmf(int currentToneKey);
   
    UtlBoolean closeRecorder();
 
@@ -143,7 +140,6 @@ private:
       SETUP
    } AddlMsgTypes;
 
-   int mTermKey;
    int mFileDescriptor;
    RecordFileFormat mRecFormat;
    double mTotalBytesWritten;

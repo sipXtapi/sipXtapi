@@ -369,11 +369,6 @@ UtlBoolean MpRtpInputAudioConnection::handleSetDtmfNotify(OsNotification* pNotif
    return mpDecode->handleSetDtmfNotify(pNotify);
 }
 
-UtlBoolean MpRtpInputAudioConnection::setDtmfTerm(MprRecorder *pRecorders)
-{
-   return mpDecode->setDtmfTerm(pRecorders);
-}
-
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 /* ============================ FUNCTIONS ================================= */

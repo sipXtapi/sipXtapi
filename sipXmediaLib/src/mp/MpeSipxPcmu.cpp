@@ -18,7 +18,7 @@
 #include "mp/MpSipxDecoders.h"
 
 const MpCodecInfo MpeSipxPcmu::smCodecInfo(
-         SdpCodec::SDP_CODEC_PCMU, "SIPfoundry 1.0", true,
+         SdpCodec::SDP_CODEC_PCMU, "SIPfoundry 1.0",
          8000, 8, 1, 160, 64000, 1280, 1280, 1280, 160);
 
 MpeSipxPcmu::MpeSipxPcmu(int payloadType)

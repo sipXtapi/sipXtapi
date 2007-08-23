@@ -1610,27 +1610,38 @@ OsStatus CpPhoneMediaInterface::ezRecord(int ms,
                                          int silenceLength, 
                                          const char* fileName, 
                                          double& duration,
-                                         int& dtmfterm,
                                          OsProtectedEvent* ev)
 {
    OsStatus ret = OS_UNSPECIFIED;
    if (mpFlowGraph && fileName)
    {
      if (!ev) // default behavior
-        ret = mpFlowGraph->ezRecord(ms, 
-                                 silenceLength, 
-                                 fileName, 
-                                 duration, 
-                                 dtmfterm, 
-                                 MprRecorder::WAV_PCM_16);
+     {
+        ret = mpFlowGraph->ezRecord(ms,
+                                    silenceLength,
+                                    fileName,
+                                    duration,
+                                    MprRecorder::WAV_PCM_16);
+     }
      else
-        ret = mpFlowGraph->mediaRecord(ms, 
-                                 silenceLength, 
-                                 fileName, 
-                                 duration, 
-                                 dtmfterm, 
-                                 MprRecorder::WAV_PCM_16,
-                                 ev);
+     {
+        ret = mpFlowGraph->record(ms,            // timeMS
+                                  silenceLength, // silenceLength
+                                  NULL,          // micName
+                                  NULL,          // echoOutName
+                                  fileName,      // spkrName
+                                  NULL,          // mic32name
+                                  NULL,          // spkr32Name
+                                  NULL,          // echoIn8Name
+                                  NULL,          // echoIn32Name
+                                  NULL,          // playName
+                                  NULL,          // callName
+                                  0,             // toneOptions
+                                  0,             // repeat
+                                  ev,            // completition
+                                  MprRecorder::WAV_PCM_16 // format
+                                  );
+     }
    }
    
    return ret;

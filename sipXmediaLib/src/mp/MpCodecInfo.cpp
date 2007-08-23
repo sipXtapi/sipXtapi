@@ -15,7 +15,6 @@
 
 MpCodecInfo::MpCodecInfo(SdpCodec::SdpCodecTypes codecType,
                            const char*    codecVersion,
-                           UtlBoolean     usesNetEq,
                            unsigned       samplingRate,
                            unsigned       numBitsPerSample,
                            unsigned       numChannels,
@@ -30,7 +29,6 @@ MpCodecInfo::MpCodecInfo(SdpCodec::SdpCodecTypes codecType,
                            UtlBoolean     doesVadCng)
  : mCodecType(codecType),
    mCodecVersion(codecVersion),
-   mUsesNetEq(usesNetEq),
    mSamplingRate(samplingRate),
    mNumBitsPerSample(numBitsPerSample),
    mNumSamplesPerFrame( numSamplesPerFrame ),
@@ -51,7 +49,6 @@ MpCodecInfo::MpCodecInfo(const MpCodecInfo& rMpCodecInfo)
 {
    mCodecType=rMpCodecInfo.mCodecType;
    mCodecVersion=rMpCodecInfo.mCodecVersion;
-   mUsesNetEq=rMpCodecInfo.mUsesNetEq;
    mSamplingRate=rMpCodecInfo.mSamplingRate;
    mNumBitsPerSample=rMpCodecInfo.mNumBitsPerSample;
    mNumSamplesPerFrame=rMpCodecInfo.mNumSamplesPerFrame;
@@ -153,12 +150,6 @@ unsigned MpCodecInfo::getPreCodecJitterBufferSize(void) const
 }
 
 /* ============================ INQUIRY =================================== */
-
-UtlBoolean MpCodecInfo::usesNetEq(void) const
-{
-//Returns TRUE if codec uses GIPS NetEq; otherwise returns FALSE
-   return(mUsesNetEq);
-}
 
 
 UtlBoolean MpCodecInfo::isSignalingCodec (void) const

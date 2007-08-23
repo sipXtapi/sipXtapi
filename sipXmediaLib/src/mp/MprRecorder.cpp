@@ -52,7 +52,6 @@
 MprRecorder::MprRecorder(const UtlString& rName,
                          int samplesPerFrame, int samplesPerSec)
 :  MpAudioResource(rName, 1, 1, 0, 1, samplesPerFrame, samplesPerSec),
-   mTermKey(-1),
    mFileDescriptor(-1),
    mRecFormat(UNINITIALIZED_FORMAT),
    mTotalBytesWritten(0),
@@ -245,32 +244,6 @@ UtlBoolean MprRecorder::closeRecorder()
    return ret;
 }
 
-UtlBoolean MprRecorder::termDtmf(int currentToneKey)
-{
-	UtlBoolean res = FALSE;
-	if (   (currentToneKey == 11) || (currentToneKey == 1)
-       || (currentToneKey == 0)  || (currentToneKey == -1)) 
-	{
-	 // Only if it's the # or 1 or 0 key, we terminate the recording.
-	 // This is a temp solution for Weck.
-	 //  -  We may want to make this configurable in the near future.
-	 //  -  Or we may want to modify the VXI engine to handle grammar
-	 //     inside a record field.
-		OsSysLog::add(FAC_MP, PRI_INFO, 
-                    "MprRecorder::termDtmf entering "
-                    "- key=%d, mFileDescriptor=%d, mStatus=%d",
-                    currentToneKey, mFileDescriptor, mStatus);
-
-		mTermKey = currentToneKey;
-		if (mTermKey != -1)
-      {
-			res = closeRecorder();
-      }
-	}
-
-	return res;
-}
-
 /* ============================ ACCESSORS ================================= */
 
 void MprRecorder::getRecorderStats(double& nBytes,
@@ -447,7 +420,6 @@ void MprRecorder::progressReport(Completion code)
             rs->mFinalStatus = code;
             int sps = getSamplesPerSec();
             rs->mDuration = (1000 * mTotalSamplesWritten) / sps;
-            rs->mDtmfTerm = mTermKey;
             OsSysLog::add(FAC_MP, PRI_DEBUG, 
                           "MprRecorder::progressReport "
                           "mTotalSamplesWritten(%d), "

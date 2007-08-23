@@ -2866,12 +2866,11 @@ OsStatus CallManager::ezRecord(const char* callId,
                                int silenceLength,
                                int& duration,
                                const char* fileName,
-                               int& dtmfterm,
                                OsProtectedEvent* recordEvent)
 {
     CpMultiStringMessage recordMessage(CP_EZRECORD,
         callId, fileName, NULL, NULL, NULL,
-        (int)recordEvent, ms, silenceLength, dtmfterm);
+        (int)recordEvent, ms, silenceLength);
     postMessage(recordMessage);
 
     return OS_SUCCESS;

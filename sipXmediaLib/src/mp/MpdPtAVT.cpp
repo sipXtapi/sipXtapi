@@ -18,7 +18,6 @@
 #include <netinet/in.h>
 #endif /* __pingtel_on_posix__ ] */
 #include "mp/MpdPtAVT.h"
-#include "mp/MprRecorder.h"
 #include "os/OsNotification.h"
 #include "os/OsSysLog.h"
 #ifdef _VXWORKS /* [ */
@@ -34,17 +33,16 @@ struct AvtPacket {
 static int debugCtr = 0;
 
 const MpCodecInfo MpdPtAVT::smCodecInfo(
-         SdpCodec::SDP_CODEC_TONES, "Pingtel_1.0", false,
+         SdpCodec::SDP_CODEC_TONES, "Pingtel_1.0",
          8000, 0, 1, 0, 6400, 128, 128, 128, 0, 0, TRUE, FALSE);
 
 MpdPtAVT::MpdPtAVT(int payloadType)
-   : MpDecoderBase(payloadType, &smCodecInfo),
-     mCurrentToneKey(-1),
-     mPrevToneSignature(0),
-     mCurrentToneSignature(0),
-     mToneDuration(0),
-     mpNotify(NULL),
-     mpRecorder(NULL)
+: MpDecoderBase(payloadType, &smCodecInfo)
+, mCurrentToneKey(-1)
+, mPrevToneSignature(0)
+, mCurrentToneSignature(0)
+, mToneDuration(0)
+, mpNotify(NULL)
 {
    OsSysLog::add(FAC_MP, PRI_INFO, "MpdPtAVT(0x%X)::MpdPtAVT(%d)\n",
       (int) this, payloadType);
@@ -178,12 +176,6 @@ UtlBoolean MpdPtAVT::setDtmfNotify(OsNotification* pNotify)
    return TRUE;
 }
 
-UtlBoolean MpdPtAVT::setDtmfTerm(MprRecorder* pRecorder)
-{
-   mpRecorder = pRecorder;
-   return TRUE;
-}
-
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
@@ -207,8 +199,6 @@ void MpdPtAVT::signalKeyDown(const MpRtpBufPtr &pPacket)
    }
    OsSysLog::add(FAC_MP, PRI_INFO, "MpdPtAvt(0x%X) Start Rcv Tone key=%d"
       " dB=%d TS=0x%08x\n", (int) this, pAvt->key, pAvt->dB, ts);
-   if (mpRecorder) 
-         mpRecorder->termDtmf(pAvt->key);
    
    if (NULL != mpNotify) {
       ret = mpNotify->signal((pAvt->key) << 16 | (mToneDuration & 0xffff));
@@ -274,9 +264,6 @@ void MpdPtAVT::signalKeyUp(const MpRtpBufPtr &pPacket)
       } else {
          OsSysLog::add(FAC_MP, PRI_DEBUG,
                        "MpdPtAvt(%p) No application registered to receive Signal KeyUp", this);
-      }
-      if (mpRecorder) {
-        mpRecorder->termDtmf(-1);
       }
    }
    mCurrentToneKey = -1;

@@ -23,7 +23,6 @@
 const MpCodecInfo MpdSipxSpeex::smCodecInfo(
          SdpCodec::SDP_CODEC_SPEEX,    // codecType
          "Speex codec",                // codecVersion
-         false,                        // usesNetEq
          8000,                         // samplingRate
          8,                            // numBitsPerSample (not used)
          1,                            // numChannels

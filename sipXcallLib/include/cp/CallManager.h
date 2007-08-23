@@ -282,7 +282,6 @@ public:
                         int silenceLength,
                         int& duration,
                         const char* fileName,
-                        int& dtmfterm,
                         OsProtectedEvent* recordEvent = NULL);
 
     virtual OsStatus setCodecCPULimitCall(const char* callId, int limit, UtlBoolean bRenegotiate) ;

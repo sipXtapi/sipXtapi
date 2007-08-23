@@ -168,18 +168,7 @@ public:
                    int silenceLength,
                    const char* fileName,
                    double& duration,
-                   int& dtmfTerm,
                    MprRecorder::RecordFileFormat format = MprRecorder::RAW_PCM_16);
-
-
-   OsStatus mediaRecord(int ms,
-                   int silenceLength,
-                   const char* fileName,
-                   double& duration,
-                   int& dtmfTerm,
-                   MprRecorder::RecordFileFormat format = MprRecorder::RAW_PCM_16,
-                   OsProtectedEvent* recordEvent = NULL);
-
 
    OsStatus record(int timeMS,
                    int silenceLength,

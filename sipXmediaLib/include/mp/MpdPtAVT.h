@@ -23,7 +23,6 @@
 // FORWARD DECLARATIONS
 
 class OsNotification;
-class MprRecorder;
 
 // DEFINES
 // MACROS
@@ -81,9 +80,6 @@ public:
      *  @note This function do nothing. All real work is done in decodeIn().
      */
 
-     /// Set recorder to be notified when DTMF tone received.
-   virtual UtlBoolean setDtmfTerm(MprRecorder* pRecorder);
-
      /// Set notification to be fired when DTMF tone received.
    virtual UtlBoolean setDtmfNotify(OsNotification* n);
      /**<
@@ -116,7 +112,6 @@ private:
    unsigned int mCurrentToneSignature; ///< The starting timestamp
    unsigned int mToneDuration;         ///< last reported duration
    OsNotification* mpNotify;     ///< Object to signal on key-down/key-up events
-   MprRecorder* mpRecorder;
 
    void signalKeyDown(const MpRtpBufPtr &pPacket);
    void signalKeyUp(const MpRtpBufPtr &pPacket);

@@ -37,12 +37,6 @@ UtlBoolean MpDecoderBase::setDtmfNotify(OsNotification* pNotify)
    return TRUE;
 }
 
-UtlBoolean MpDecoderBase::setDtmfTerm(MprRecorder *pRecorder)
-{
-   assert(FALSE);
-   return TRUE;
-}
-
 /* ============================ ACCESSORS ================================= */
 
 // Get static information about the decoder

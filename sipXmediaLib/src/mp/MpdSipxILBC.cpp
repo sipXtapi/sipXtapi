@@ -23,7 +23,6 @@ extern "C" {
 const MpCodecInfo MpdSipxILBC::smCodecInfo(
     SdpCodec::SDP_CODEC_ILBC,   // codecType
     "iLBC",                     // codecVersion
-    false,                      // usesNetEq
     8000,                       // samplingRate
     8,                          // numBitsPerSample (not used)
     1,                          // numChannels

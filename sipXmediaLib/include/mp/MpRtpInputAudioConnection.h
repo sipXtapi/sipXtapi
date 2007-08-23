@@ -20,7 +20,6 @@ class MpFlowGraphBase;
 class MpDecoderBase;
 class MpResource;
 class MprDecode;
-class MprRecorder;
 class SdpCodec;
 class OsNotification;
 
@@ -87,10 +86,6 @@ public:
      /**<
      *  @Returns <b>TRUE</b>
      */
-
-   // TODO: this is butt ugly.  The connection should not know anything
-   // about a recorder.  This should be and event or something like that.
-   UtlBoolean setDtmfTerm(MprRecorder *pRecorder);
 
    /// Queue a message to start receiving RTP and RTCP packets.
    static OsStatus startReceiveRtp(OsMsgQ& messageQueue,

@@ -1672,7 +1672,6 @@ OsStatus CpTopologyGraphInterface::ezRecord(int ms,
                                          int silenceLength, 
                                          const char* fileName, 
                                          double& duration,
-                                         int& dtmfterm,
                                          OsProtectedEvent* ev)
 {
    return OS_NOT_SUPPORTED;

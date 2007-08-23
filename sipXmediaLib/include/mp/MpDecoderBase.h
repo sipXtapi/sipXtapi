@@ -83,9 +83,6 @@ public:
      *  @return Number of decoded samples.
      */
 
-     /// Set recorder to be notified when DTMF tone received.
-   virtual UtlBoolean setDtmfTerm(MprRecorder *pRecorder);
-
      /// Set notification to be fired when DTMF tone received.
    virtual UtlBoolean setDtmfNotify(OsNotification* pNotify);
 

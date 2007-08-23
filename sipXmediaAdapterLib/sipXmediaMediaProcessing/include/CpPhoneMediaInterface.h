@@ -235,7 +235,6 @@ public:
            int silenceLength, 
            const char* fileName, 
            double& duration, 
-           int& dtmfterm,
            OsProtectedEvent* ev = NULL);
 
      /// @copydoc CpMediaInterface::recordMic(UtlString*)
@@ -260,7 +259,7 @@ public:
                                         int videoBandwidth, 
                                         UtlString& videoCodec);
 
-    //! Set conneection bitrate on the fly
+    //! Set connection bitrate on the fly
     virtual OsStatus setConnectionBitrate(int connectionId, int bitrate) ;
 
     //! Set connection framerate on the fly
