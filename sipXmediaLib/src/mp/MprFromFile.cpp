@@ -37,7 +37,11 @@
 #include "mp/MpFlowGraphBase.h"
 #include "os/OsSysLog.h"
 #include "os/OsProtectEventMgr.h"
+#include "os/OsDateTime.h"
+#include "os/OsTime.h"
 #include "mp/MpResNotificationMsg.h"
+#include "mp/MprnProgressMsg.h"
+#include "mp/MpProgressResourceMsg.h"
 
 
 // EXTERNAL FUNCTIONS
@@ -66,6 +70,7 @@ MprFromFile::MprFromFile(const UtlString& rName,
 , mFileRepeat(FALSE)
 , mpNotify(NULL)
 , mPaused(FALSE)
+, mProgressIntervalMS(0)
 {
 }
 
@@ -191,6 +196,15 @@ OsStatus MprFromFile::resumeFile(const UtlString& namedResource,
                                  OsMsgQ& fgQ)
 {
    MpResourceMsg msg(MpResourceMsg::MPRM_FROMFILE_RESUME, namedResource);
+   return fgQ.send(msg, sOperationQueueTimeout);
+}
+
+OsStatus MprFromFile::sendProgressPeriod(const UtlString& namedResource, 
+                                         OsMsgQ& fgQ, 
+                                         int32_t updatePeriodMS)
+{
+   MpProgressResourceMsg msg(MpResourceMsg::MPRM_FROMFILE_SEND_PROGRESS,
+                             namedResource, updatePeriodMS);
    return fgQ.send(msg, sOperationQueueTimeout);
 }
 
@@ -639,6 +653,32 @@ UtlBoolean MprFromFile::doProcessFrame(MpBufPtr inBufs[],
                finishFile();
             }
          }
+
+         // Check to see if we need to make a progress update.
+         OsTime curTime;
+         OsDateTime::getCurTime(curTime);
+         // Info about clock rollover here -- subtraction of OsTimes -- this will
+         // not have issue with rollover -- issues with rollover would happen in 2038 
+         // (2^31 seconds)
+         // Comparison rollover -- cvtToMsecs() is a long - 2^31 msecs - 24.85 days
+         // So, given that specification of interval is with int32_t, that means
+         // interval will never be > than this rollover, so no need to worry,
+         // and we can assume doProcessFrame will be executed in a timely fashion.
+         if(mProgressIntervalMS > 0 &&
+            (mLastProgressUpdate - curTime).cvtToMsecs() >= mProgressIntervalMS)
+         {
+            // We get here if there *is* a progress interval, and if the # ms
+            // passed since the last progress update is >= the progress interval.
+            // In this case, we need to send out a progress notification message.
+            unsigned amountPlayedMS = 
+               mFileBufferIndex / sizeof(MpAudioSample) / samplesPerSecond;
+            unsigned totalBufferMS = 
+               mpFileBuffer->length() / sizeof(MpAudioSample) / samplesPerSecond;
+
+            MprnProgressMsg progressMsg(MpResNotificationMsg::MPRNM_FROMFILE_PROGRESS,
+                                        getName(), amountPlayedMS, totalBufferMS);
+            sendNotification(progressMsg);
+         }
       }
    }
    else
@@ -700,6 +740,15 @@ UtlBoolean MprFromFile::handleResume()
       retVal = TRUE;
    }
    return retVal;
+}
+
+UtlBoolean MprFromFile::handleSetUpdatePeriod(int32_t periodMS)
+{
+   // Set the 'last progress update' to now, since there wasn't one before.
+   OsDateTime::getCurTime(mLastProgressUpdate);
+   // and set the period to the new one provided.
+   mProgressIntervalMS = periodMS;
+   return TRUE;
 }
 
 // Old flowgraph message approach to sending messages
@@ -782,11 +831,19 @@ UtlBoolean MprFromFile::handleMessage(MpResourceMsg& rMsg)
       msgHandled = TRUE;
       break;
 
+   case MpResourceMsg::MPRM_FROMFILE_SEND_PROGRESS:
+      MpProgressResourceMsg* pProgressRMsg;
+      pProgressRMsg = (MpProgressResourceMsg*)&rMsg;
+      handleSetUpdatePeriod(pProgressRMsg->getUpdatePeriodMS());
+      msgHandled = TRUE;
+      break;      
+
    case MPRM_FROMFILE_FINISH:
       // Stop, but indicate finished.
       handleStop(TRUE);
       msgHandled = TRUE;
       break;
+
 
    default:
       // If we don't handle the message here, let our parent try.

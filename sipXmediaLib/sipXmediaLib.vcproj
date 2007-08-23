@@ -2303,6 +2303,9 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\src\mp\MprnProgressMsg.cpp">
+			</File>
+			<File
 				RelativePath=".\src\mp\MprNull.cpp">
 			</File>
 			<File
@@ -2741,6 +2744,9 @@
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\src\mp\MpProgressResourceMsg.cpp">
 			</File>
 			<File
 				RelativePath=".\src\mp\MpTopologyGraph.cpp">
@@ -4109,6 +4115,9 @@
 				RelativePath="include\mp\MprMixer.h">
 			</File>
 			<File
+				RelativePath=".\include\mp\MprnProgressMsg.h">
+			</File>
+			<File
 				RelativePath=".\include\mp\MprNull.h">
 			</File>
 			<File
@@ -4203,6 +4212,9 @@
 			</File>
 			<File
 				RelativePath=".\include\mp\MpToneResourceMsg.h">
+			</File>
+			<File
+				RelativePath=".\include\mp\MpProgressResourceMsg.h">
 			</File>
 			<File
 				RelativePath=".\include\mp\MpTopologyGraph.h">

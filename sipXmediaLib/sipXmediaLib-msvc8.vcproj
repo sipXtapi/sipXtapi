@@ -1686,6 +1686,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\src\mp\MprnProgressMsg.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\src\mp\MprFromFile.cpp"
 					>
 				</File>
@@ -1795,6 +1799,10 @@
 				</File>
 				<File
 					RelativePath=".\src\mp\MpStreamQueuePlayer.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\src\mp\MpProgressResourceMsg.cpp"
 					>
 				</File>
 				<File
@@ -2263,6 +2271,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\include\mp\MprnProgressMsg.h"
+					>
+				</File>
+				<File
 					RelativePath=".\include\mp\MpResourceSortAlg.h"
 					>
 				</File>
@@ -2428,6 +2440,10 @@
 				</File>
 				<File
 					RelativePath=".\include\mp\MpToneResourceMsg.h"
+					>
+				</File>
+				<File
+					RelativePath=".\include\mp\MpProgressResourceMsg.h"
 					>
 				</File>
 				<File

@@ -120,6 +120,7 @@ libsipXmedia_la_SOURCES =  \
     mp/MprFromNet.cpp \
     mp/MprFromStream.cpp \
     mp/MprMixer.cpp \
+    mp/MprnProgressMsg.cpp \
     mp/MprNull.cpp \
     mp/MprNullAec.cpp \
     mp/MprRecorder.cpp \
@@ -141,6 +142,7 @@ libsipXmedia_la_SOURCES =  \
     mp/MpStreamPlayer.cpp \
     mp/MpStreamPlaylistPlayer.cpp \
     mp/MpStreamQueuePlayer.cpp \
+    mp/MpProgressResourceMsg.cpp \
     mp/MpTopologyGraph.cpp \
     mp/NetInTask.cpp \
     mp/resamplingby2.cpp \

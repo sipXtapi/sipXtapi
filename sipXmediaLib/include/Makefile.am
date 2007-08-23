@@ -97,6 +97,7 @@ nobase_include_HEADERS =  \
     mp/MprFromNet.h \
     mp/MprFromStream.h \
     mp/MprMixer.h \
+    mp/MprnProgressMsg.h \
     mp/MprNull.h \
     mp/MprNullConstructor.h \
     mp/MprRecorder.h \
@@ -123,6 +124,7 @@ nobase_include_HEADERS =  \
     mp/MpStreamPlayer.h \
     mp/MpStreamPlaylistPlayer.h \
     mp/MpStreamQueuePlayer.h \
+    mp/MpProgressResourceMsg.h \
     mp/MpToneResourceMsg.h \
     mp/MpTopologyGraph.h \
     mp/MpTypes.h \

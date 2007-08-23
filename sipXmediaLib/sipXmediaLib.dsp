@@ -411,6 +411,10 @@ SOURCE=.\src\mp\MprMixer.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\mp\MprnProgressMsg.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\mp\MprNull.cpp
 # End Source File
 # Begin Source File
@@ -496,6 +500,10 @@ SOURCE=.\src\mp\MpStreamPlaylistPlayer.cpp
 # Begin Source File
 
 SOURCE=.\src\mp\MpStreamQueuePlayer.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\mp\MpProgressResourceMsg.cpp
 # End Source File
 # Begin Source File
 
@@ -1103,6 +1111,10 @@ SOURCE=.\include\mp\MprMixer.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\include\mp\MprnProgressMsg.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\include\mp\MprNull.h
 # End Source File
 # Begin Source File
@@ -1228,6 +1240,10 @@ SOURCE=.\include\mp\MpStreamQueuePlayer.h
 # Begin Source File
 
 SOURCE=.\include\mp\MpToneResourceMsg.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MpProgressResourceMsg.h
 # End Source File
 # Begin Source File
 

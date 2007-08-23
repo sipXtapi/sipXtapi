@@ -161,8 +161,8 @@ public:
      *  is received, the above resource will then stop playing the file
      *  it has been playing.
      *
-     *  @param namedResource - the name of the resource to send a message to.
-     *  @param fgQ - the queue of the flowgraph containing the resource which
+     *  @param[in] namedResource - the name of the resource to send a message to.
+     *  @param[in] fgQ - the queue of the flowgraph containing the resource which
      *  the message is to be received by.
      *  @returns the result of attempting to queue the message to this resource.
      */
@@ -176,8 +176,8 @@ public:
      *  is received, the above resource will then pause the file that 
      *  has been playing.
      *
-     *  @param namedResource - the name of the resource to send a message to.
-     *  @param fgQ - the queue of the flowgraph containing the resource which
+     *  @param[in] namedResource - the name of the resource to send a message to.
+     *  @param[in] fgQ - the queue of the flowgraph containing the resource which
      *  the message is to be received by.
      *  @returns the result of attempting to queue the message to this resource.
      */
@@ -191,9 +191,29 @@ public:
      *  is received, the above resource, if in a paused state, will then resume 
      *  playing it's buffer.
      *
-     *  @param namedResource - the name of the resource to send a message to.
-     *  @param fgQ - the queue of the flowgraph containing the resource which
+     *  @param[in] namedResource - the name of the resource to send a message to.
+     *  @param[in] fgQ - the queue of the flowgraph containing the resource which
      *  the message is to be received by.
+     *  @returns the result of attempting to queue the message to this resource.
+     */
+
+     /// @brief Sends an MPRM_FROMFILE_SEND_PROGRESS message to the named MprFromFile resource.
+   static OsStatus sendProgressPeriod(const UtlString& namedResource,
+                                      OsMsgQ& fgQ,
+                                      int32_t updatePeriodMS);
+     /**<
+     *  Sends an MPRM_FROMFILE_SEND_PROGRESS message to the named MprFromFile resource
+     *  within the flowgraph who's queue is supplied. When the message 
+     *  is received, the above resource will then begin to send progress updates
+     *  at the interval specified by \p updatePeriodMS.
+     *  
+     *  To stop progress updates, you must call this function again with an 
+     *  update period of 0.
+     *
+     *  @param[in] namedResource - the name of the resource to send a message to.
+     *  @param[in] fgQ - the queue of the flowgraph containing the resource which
+     *  the message is to be received by.
+     *  @param[in] updatePeriodMS - the period to wait between sending progress updates.
      *  @returns the result of attempting to queue the message to this resource.
      */
 
@@ -244,6 +264,14 @@ private:
    OsNotification* mpNotify;
    UtlBoolean mPaused;
 
+   OsTime mLastProgressUpdate;
+
+   /// The progress interval for sending update notifications.  
+   int32_t mProgressIntervalMS; 
+   /**<
+   *  A progress interval of 0 means send no progress updates.
+   */
+
      /// @brief Convert generic audio data into flowgraph audio data.
    static OsStatus genericAudioBufToFGAudioBuf(
                                              UtlString*& fgAudioBuf,
@@ -255,7 +283,7 @@ private:
      *  acceptable formats, to a format that can be passed through the 
      *  flowgraph.
      *
-     *  @param type - can be one of following:  (need a OsSoundType)<br>
+     *  @param[in] type - can be one of following:  (need a OsSoundType)<br>
      *  0 = RAW<br>
      *  1 = muLaw
      *
@@ -276,16 +304,16 @@ private:
      *   with a new buffer holding the audio data.  Ownership will then
      *   transfer to the caller.
      *
-     *  @param audioFileName - the name of a file to read flowgraph
+     *  @param[in] audioFileName - the name of a file to read flowgraph
      *   audio data from.  (exact format that the FG will accept -
      *   sample size, rate, & number of channels)
      *
-     *  @param event - an event to signal when state changes.  If NULL,
+     *  @param[in] event - an event to signal when state changes.  If NULL,
      *  nothing will be signaled.
      *
-     *  @returns OS_INVALID_ARGUMENT if the filename was null,
+     *  @retval OS_INVALID_ARGUMENT if the filename was null,
      *  the file was unopenable, or the file contained less than one sample.
-     *  @returns OS_SUCCESS if the file was read successfully.
+     *  @retval OS_SUCCESS if the file was read successfully.
      */
 
      /// @brief Sends a local MPRM_FROMFILE_FINISH message back to this resource.
@@ -314,6 +342,9 @@ private:
 
      /// Resume playback upon receiving request to resume.
    virtual UtlBoolean handleResume(void);
+
+     /// Set an update period for sending progress updates.
+   virtual UtlBoolean handleSetUpdatePeriod(int32_t periodMS);
 
      /// Handle flowgraph messages for this resource (old messaging model).
    virtual UtlBoolean handleMessage(MpFlowGraphMsg& rMsg);
