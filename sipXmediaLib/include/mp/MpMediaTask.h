@@ -37,7 +37,6 @@
 
 // FORWARD DECLARATIONS
 class MpFlowGraphBase;
-class MpCodecFactory;
 
 /**
 *  @brief Object responsible for coordinating the execution of media processing
@@ -281,9 +280,6 @@ public:
      /// Returns pointer to pool of reusable buffer messages
    OsMsgPool* getBufferMsgPool(void) const;
 
-     /// Returns pointer to singleton codec factory
-   MpCodecFactory* getCodecFactory(void) const;
-
 //@}
 
      /// Displays information on the console about the media processing task.
@@ -339,8 +335,6 @@ private:
                              ///< during the last frame processing interval
    OsMsgPool* mpBufferMsgPool; ///< Pool of reusable buffer messages
    OsMsgPool* mpSignalMsgPool; ///< Pool of reusable frame signal messages
-
-   MpCodecFactory* mpCodecFactory; ///< our codec factory
 
    //  Static data members used to enforce Singleton behavior
    static MpMediaTask* spInstance;  ///< @brief pointer to the single instance

@@ -27,8 +27,6 @@
 #include "mp/MpMediaTask.h"
 #include "mp/MpMediaTaskMsg.h"
 #include "mp/MpBufferMsg.h"
-#include "mp/MpCodecFactory.h"
-#include "mp/MpCodec.h"
 
 #ifdef RTL_ENABLED
 #   include <rtl_macro.h>
@@ -565,7 +563,6 @@ MpMediaTask::MpMediaTask(int maxFlowGraph)
                           OsMsgPool::MULTIPLE_CLIENTS);
    }
 
-   mpCodecFactory = MpCodecFactory::getMpCodecFactory();
 #ifdef _PROFILE /* [ */
    mStartTicks = 0;
    mStopTicks = 0;
