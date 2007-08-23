@@ -1550,7 +1550,7 @@ UtlBoolean MpCallFlowGraph::setInbandDTMF(UtlBoolean bEnable)
 // Set Echo Cancelation Mode.
 UtlBoolean MpCallFlowGraph::setAECMode(FLOWGRAPH_AEC_MODE mode)
 {
-   // Selecting an unsupporetd mode will return false, but no error.
+   // Selecting an unsupported mode will return false, but no error.
    // Not sure if this is the correct behavior.
    UtlBoolean bReturn = false;
    switch (mode) {
