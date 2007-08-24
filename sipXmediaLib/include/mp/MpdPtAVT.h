@@ -32,7 +32,21 @@ class OsNotification;
 // STRUCTS
 // TYPEDEFS
 
-/// Derived class for Pingtel AVT/Tone decoder.
+/**
+*  @brief RFC2833 DTMF Decoder class (Formerly Pingtel's AVT/Tone decoder)
+*
+*  MpdPtAVT is a decoder class that is used for decoding RFC2833 DTMF tones
+*  embedded in RTP signaling.
+*  
+*  @NOTE The Pingtel AVT decoder was created initially prior to the acceptance 
+*        of rfc2833, hence the name of this class.
+*  
+*  TODO: This should be updated to support RFC4733 (which may not require any work)
+*  
+*  
+*  http://tools.ietf.org/html/rfc2833
+*  http://tools.ietf.org/html/rfc4733
+*/
 class MpdPtAVT: public MpDecoderBase
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
@@ -45,25 +59,17 @@ public:
      /// Constructor
    MpdPtAVT(int payloadType);
      /**<
-     *  @param payloadType - (in) RTP payload type associated with this decoder
+     *  @param[in] payloadType - RTP payload type associated with this decoder
      */
 
      /// Destructor
    virtual ~MpdPtAVT(void);
 
-     /// Initializes a codec data structure for use as a decoder
+     /// @copydoc MpDecoderBase::initDecode()
    virtual OsStatus initDecode();
-     /**<
-     *  @returns <b>OS_SUCCESS</b> - Success
-     *  @returns <b>OS_NO_MEMORY</b> - Memory allocation failure
-     */
 
-     /// Frees all memory allocated to the decoder by <i>initDecode</i>
+     /// @copydoc MpDecoderBase::freeDecode()
    virtual OsStatus freeDecode(void);
-     /**<
-     *  @returns <b>OS_SUCCESS</b> - Success
-     *  @returns <b>OS_DELETED</b> - Object has already been deleted
-     */
 
 //@}
 
@@ -71,20 +77,20 @@ public:
 ///@name Manipulators
 //@{
 
-     /// Decode incoming RTP packet.
-   virtual int decode(const MpRtpBufPtr &pPacket, ///< (in) Pointer to a media buffer
-                      unsigned decodedBufferLength, ///< (in) Length of the samplesBuffer (in samples)
-                      MpAudioSample *samplesBuffer ///< (out) Buffer for decoded samples
-                     );
+     /// Inspect incoming RTP packet and signal DTMF events.
+   virtual int decode(const MpRtpBufPtr &pPacket,
+                      unsigned decodedBufferLength,
+                      MpAudioSample *samplesBuffer);
      /**<
-     *  @note This function do nothing. All real work is done in decodeIn().
+     *  @param[in] pPacket - Pointer to a media buffer
+     *  @param[in] decodedBufferLength - Length of the samplesBuffer (in samples)
+     *  @param[out] samplesBuffer - Buffer for decoded samples
+     *  @retval 0 - always returns zero, as DTMF does not decode samples, it just
+     *              signals DTMF events.
      */
 
-     /// Set notification to be fired when DTMF tone received.
+     /// @copydoc MpDecoderBase::setDtmfNotify()
    virtual UtlBoolean setDtmfNotify(OsNotification* n);
-     /**<
-     *  @returns <b>TRUE</b>
-     */
 
 //@}
 
