@@ -193,61 +193,10 @@ CpPhoneMediaInterface::CpPhoneMediaInterface(CpMediaInterfaceFactoryImpl* pFacto
 
    if(sdpCodecArray && numCodecs > 0)
    {
-#ifdef CODEC_VALIDATION
-       /* 
-        * 2006-10-12/Bob: These checks are now disabled -- I don't believe
-        *     the CpPhoneMediaInterface should need to know about ALL the 
-        *     possible codecs types.  Our goal is have dynamic pluggable 
-        *     codec support.  The getCapabilities function should validate
-        *     the codec list -- not this class.
-        */
-       UtlString codecList("");
-       // Test plausibility of passed in codecs, don't add any that media system
-       // does not support - the media system knows best.
-       for (int i=0; i<numCodecs && sdpCodecArray[i]; i++)
-       {
-          SdpCodec::SdpCodecTypes cType = sdpCodecArray[i]->getCodecType();
-          
-          switch (cType)
-          {
-          case SdpCodec::SDP_CODEC_TONES:
-             codecList.append("telephone-event ");
-             break;
-          case SdpCodec::SDP_CODEC_GIPS_PCMU:
-             codecList.append("pcmu ");
-             break;
-          case SdpCodec::SDP_CODEC_GIPS_PCMA:
-             codecList.append("pcma ");
-             break;
-#ifdef HAVE_GIPS
-          case SdpCodec::SDP_CODEC_GIPS_IPCMU:
-             codecList.append("eg711u ");
-             break;
-          case SdpCodec::SDP_CODEC_GIPS_IPCMA:
-             codecList.append("eg711a ");
-             break;
-#endif /* HAVE_GIPS */
-          default:
-              OsSysLog::add(FAC_CP, PRI_WARNING, 
-                            "CpPhoneMediaInterface::CpPhoneMediaInterface dropping codec type %d as not supported",
-                            cType);
-              break;
-          }  
-       }
-       mSupportedCodecs.buildSdpCodecFactory(codecList);
-       
-       OsSysLog::add(FAC_CP, PRI_DEBUG,
-                     "CpPhoneMediaInterface::CpPhoneMediaInterface creating codec factory with %s",
-                     codecList.data());
-
-       // Assign any unset payload types
-       mSupportedCodecs.bindPayloadTypes();
-#else
        mSupportedCodecs.addCodecs(numCodecs, sdpCodecArray);
 
        // Assign any unset payload types
        mSupportedCodecs.bindPayloadTypes();
-#endif
    }
    else
    {
