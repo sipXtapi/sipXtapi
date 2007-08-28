@@ -1,6 +1,6 @@
-//  
-// Copyright (C) 2006 SIPez LLC. 
-// Licensed to SIPfoundry under a Contributor Agreement. 
+//
+// Copyright (C) 2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -71,39 +71,26 @@
 
 /// Container for SDP/RTP codec specification
 /**
-*  This class holds the SDP definition of a codec
-*  Included in this information is: sample rate,
-*  number of channels, the mapping from an internal
-*  pingtel codec id to the public SDP format and RTP
-*  payload type id.
+*  This class holds the SDP definition of a codec. Included information is:
+*  sample rate,  number of channels, the mapping from an internal codec id
+*  to the public SDP format and RTP payload type id.
 *
-*  This is the base class.  Specific codec types
-*  should implement sub classes which define the
-*  codec specific parameters.  All specific codec
-*  types MUST be registered with the SdpCodecFactory
-*  to be useable.  Generally codecs are constructed
-*  ONLY by the SdpCodecFactory.
+*  This is the base class. Specific codec types may implement sub classes
+*  which define the codec specific parameters.  All specific codec types
+*  MUST be registered with the SdpCodecFactory to be usable.  Generally
+*  codecs are constructed ONLY by the SdpCodecFactory.
 *
-*  The method that we have been using on
-*  SdpCodec::getCodecType() retrieved
-*  the static codec type/id.  I have defined
-*  an enum in SdpCodec which contains the
-*  current values as well as some additional
-*  ones.  The idea is that these are private,
-*  internally assigned ids to the codecs we
-*  support.
+*  The method that is used on SdpCodec::getCodecType() retrieves the static
+*  codec type/id. Now there is defined an enum in SdpCodec which contains
+*  the current values as well as some additional ones. The idea is that these
+*  are private, internally assigned ids to the codecs we support.
 *
-*  I have added a new method
-*  SdpCodec::getCodecPayloadFormat()
-*  which returns the RTP payload id to be
-*  used in RTP and the SDP.  For static
-*  codec id the returned value for both of these
-*  methods would typically be the same.
-*  However for the dynamic codecs they
-*  will mostly be different.
+*  A new method SdpCodec::getCodecPayloadFormat() has been added which returns
+*  the RTP payload id to be used in RTP and the SDP. For static codec ID, the
+*  returned value for both of these methods would typically be the same,
+*  however for the dynamic codecs they will mostly be different.
 *
-*  The intent is that eventually we will
-*  support a factory which will allow
+*  The intent is that eventually we will support a factory which will allow
 *  registration of new codec types.
 */
 class SdpCodec : public UtlInt
@@ -113,9 +100,8 @@ public:
 
     /// Unique identifier used for each supported codec
     /**
-    *  Note it is possible that the format id/type used
-    *  in the SDP "m" field and RTP header is different
-    *  than these internally used ids.
+    *  Note it is possible that the format id/type used in the SDP "m" field
+    *  and RTP header is different than these internally used ids.
     */
     enum SdpCodecTypes
     {
@@ -235,16 +221,14 @@ public:
    /// Get the internal/Pingtel codec type id
    enum SdpCodecTypes getCodecType() const;
    /**<
-   *  Note it is possible that the format id/type used
-   *  in the SDP "m" field and RTP header is different
-   *  than these internally used ids.
+   *  @note It is possible that the format id/type used in the SDP "m" field
+   *        and RTP header is different than these internally used ids.
    */
 
    /// Get the SDP/RTP payload id to be used for this codec
    int getCodecPayloadFormat() const;
    /**<
-   *  This is the id used in the SDP "m" format sub-field
-   *  and RTP header.
+   *  This is the id used in the SDP "m" format sub-field and RTP header.
    */
 
    /// Set the SDP/RTP payload id to be used for this codec
@@ -253,8 +237,8 @@ public:
    /// Get the format specific parameters for the SDP
    virtual void getSdpFmtpField(UtlString& formatSpecificData) const;
    /**<
-   *  This is what goes in the SDP "a" field in the
-   *  format: "a=fmtp <payloadFormat> <formatSpecificData>
+   *  This is what goes in the SDP "a" field in the format:
+   *  "a=fmtp <payloadFormat> <formatSpecificData>"
    */
 
    /// Get the media type for the codec
@@ -283,9 +267,8 @@ public:
    /// Get the preferred packet size in micro seconds
    int getPacketLength() const;
    /**<
-   *  Get the preferred (not mandated) packet
-   *  size.  This measure is in microseconds and
-   *  is independent of whether this is frame or
+   *  Get the preferred (not mandated) packet size. This measure is
+   *  in microseconds and is independent of whether this is frame or
    *  sample based codec
    */
 
