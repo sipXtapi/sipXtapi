@@ -44,7 +44,6 @@ class CpCallManager;
 class CpCall;
 class CpMediaInterface;
 class OsDatagramSocket;
-class SdpCodec;
 class SipSession;
 class OsMsg;
 class TaoObjectMap;
