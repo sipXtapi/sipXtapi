@@ -332,49 +332,16 @@ OsStatus sipXmediaFactoryImpl::buildCodecFactory(SdpCodecFactory *pFactory,
 
     *iRejected = 0;
 
-
     if (pFactory)
     {
-       UtlString codecName;
-       UtlString codecList;
-
-       SdpCodec::SdpCodecTypes codecs[TOTAL_AUDIO_CODECS_NUM+TOTAL_VIDEO_CODECS_NUM];
-
-       int numAudioCodecs = TOTAL_AUDIO_CODECS_NUM;
-       SdpCodec::SdpCodecTypes *audioCodecs = codecs;
-       int numVideoCodecs = TOTAL_VIDEO_CODECS_NUM;
-       SdpCodec::SdpCodecTypes *videoCodecs = codecs+TOTAL_AUDIO_CODECS_NUM;
-
-       codecs[0] = SdpCodec::SDP_CODEC_GIPS_PCMU;
-       codecs[1] = SdpCodec::SDP_CODEC_GIPS_PCMA;
-       codecs[2] = SdpCodec::SDP_CODEC_TONES;
-
-#ifdef HAVE_GIPS /* [ */
-       codecs[GIPS_CODECS_BEGIN+0] = SdpCodec::SDP_CODEC_GIPS_IPCMU;
-       codecs[GIPS_CODECS_BEGIN+1] = SdpCodec::SDP_CODEC_GIPS_IPCMA;
-       codecs[GIPS_CODECS_BEGIN+2] = SdpCodec::SDP_CODEC_GIPS_IPCMWB;
-#endif /* HAVE_GIPS ] */
-
-#ifdef HAVE_SPEEX /* [ */
-       codecs[SPEEX_AUDIO_CODECS_BEGIN+0] = SdpCodec::SDP_CODEC_SPEEX;
-       codecs[SPEEX_AUDIO_CODECS_BEGIN+1] = SdpCodec::SDP_CODEC_SPEEX_5;
-       codecs[SPEEX_AUDIO_CODECS_BEGIN+2] = SdpCodec::SDP_CODEC_SPEEX_15;
-       codecs[SPEEX_AUDIO_CODECS_BEGIN+3] = SdpCodec::SDP_CODEC_SPEEX_24;
-#endif /* HAVE_SPEEX ] */
-
-#ifdef HAVE_GSM /* [ */
-       codecs[GSM_AUDIO_CODECS_BEGIN+0] = SdpCodec::SDP_CODEC_GSM;
-#endif /* HAVE_GSM ] */
-
-#ifdef HAVE_ILBC /* [ */
-       codecs[ILBC_AUDIO_CODECS_BEGIN+0] = SdpCodec::SDP_CODEC_ILBC;
-#endif /* HAVE_ILBC ] */
-
         pFactory->clearCodecs();
 
-        // add preferred audio codecs first
+        // If preferred codecs supplied - add them, else add all supported
+        // codecs.
         if (sAudioPreferences.length() > 0)
         {
+            UtlString codecName;
+
             UtlString references = sAudioPreferences;
             *iRejected = pFactory->buildSdpCodecFactory(references);
             OsSysLog::add(FAC_MP, PRI_DEBUG, 
@@ -382,6 +349,7 @@ OsStatus sipXmediaFactoryImpl::buildCodecFactory(SdpCodecFactory *pFactory,
                            references.data(), *iRejected);
                            
             // Now pick preferences out of all available codecs
+            int numAudioCodecs;
             SdpCodec** codecsArray = NULL;
             pFactory->getCodecs(numAudioCodecs, codecsArray);
             
@@ -415,14 +383,47 @@ OsStatus sipXmediaFactoryImpl::buildCodecFactory(SdpCodecFactory *pFactory,
         else
         {
             // Build up the supported codecs
+            const int numAudioCodecs = TOTAL_AUDIO_CODECS_NUM;
+            SdpCodec::SdpCodecTypes audioCodecs[TOTAL_AUDIO_CODECS_NUM];
+
+            audioCodecs[0] = SdpCodec::SDP_CODEC_GIPS_PCMU;
+            audioCodecs[1] = SdpCodec::SDP_CODEC_GIPS_PCMA;
+            audioCodecs[2] = SdpCodec::SDP_CODEC_TONES;
+
+#ifdef HAVE_GIPS /* [ */
+            audioCodecs[GIPS_CODECS_BEGIN+0] = SdpCodec::SDP_CODEC_GIPS_IPCMU;
+            audioCodecs[GIPS_CODECS_BEGIN+1] = SdpCodec::SDP_CODEC_GIPS_IPCMA;
+            audioCodecs[GIPS_CODECS_BEGIN+2] = SdpCodec::SDP_CODEC_GIPS_IPCMWB;
+#endif /* HAVE_GIPS ] */
+
+#ifdef HAVE_SPEEX /* [ */
+            audioCodecs[SPEEX_AUDIO_CODECS_BEGIN+0] = SdpCodec::SDP_CODEC_SPEEX;
+            audioCodecs[SPEEX_AUDIO_CODECS_BEGIN+1] = SdpCodec::SDP_CODEC_SPEEX_5;
+            audioCodecs[SPEEX_AUDIO_CODECS_BEGIN+2] = SdpCodec::SDP_CODEC_SPEEX_15;
+            audioCodecs[SPEEX_AUDIO_CODECS_BEGIN+3] = SdpCodec::SDP_CODEC_SPEEX_24;
+#endif /* HAVE_SPEEX ] */
+
+#ifdef HAVE_GSM /* [ */
+            audioCodecs[GSM_AUDIO_CODECS_BEGIN+0] = SdpCodec::SDP_CODEC_GSM;
+#endif /* HAVE_GSM ] */
+
+#ifdef HAVE_ILBC /* [ */
+            audioCodecs[ILBC_AUDIO_CODECS_BEGIN+0] = SdpCodec::SDP_CODEC_ILBC;
+#endif /* HAVE_ILBC ] */
+
+            // Register all codecs
             *iRejected = pFactory->buildSdpCodecFactory(numAudioCodecs, audioCodecs);
             rc = OS_SUCCESS;
         }
 
 
-        // add preferred video codecs first
+#ifdef VIDEO // [
+        // If preferred codecs supplied - add them, else add all supported
+        // codecs.
         if (sVideoPreferences.length() > 0)
         {
+            UtlString codecName;
+
             UtlString references = sVideoPreferences;
             *iRejected = pFactory->buildSdpCodecFactory(references);
             OsSysLog::add(FAC_MP, PRI_DEBUG, 
@@ -430,6 +431,7 @@ OsStatus sipXmediaFactoryImpl::buildCodecFactory(SdpCodecFactory *pFactory,
                            references.data(), *iRejected);
                            
             // Now pick preferences out of all available codecs
+            int numVideoCodecs;
             SdpCodec** codecsArray = NULL;
             pFactory->getCodecs(numVideoCodecs, codecsArray);
             
@@ -463,9 +465,13 @@ OsStatus sipXmediaFactoryImpl::buildCodecFactory(SdpCodecFactory *pFactory,
         else
         {
             // Build up the supported codecs
+            const int numVideoCodecs = TOTAL_VIDEO_CODECS_NUM;
+            SdpCodec::SdpCodecTypes videoCodecs[TOTAL_VIDEO_CODECS_NUM];
+
             *iRejected = pFactory->buildSdpCodecFactory(numVideoCodecs, videoCodecs);
             rc = OS_SUCCESS;
         }
+#endif // VIDEO ]
 
     }            
 
