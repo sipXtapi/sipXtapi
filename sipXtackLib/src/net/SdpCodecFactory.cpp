@@ -141,7 +141,7 @@ void SdpCodecFactory::bindPayloadTypes()
     UtlString actualSubmimeType;
 
     // Find a codec which does not have its payload type set
-    // Cheat a little and make the codec writeable
+    // Cheat a little and make the codec writable
     while((codecWithoutPayloadId = (SdpCodec*) getCodecByType(-1)))
     {
         // Find an unused dynamic payload type id
