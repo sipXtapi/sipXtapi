@@ -107,7 +107,7 @@ public:
         if(mpCodecFactory)
         {
             OsSysLog::add(FAC_CP, PRI_DEBUG, 
-                "~CpPhoneMediaConnection deleting SdpCodecFactory %p",
+                "~CpPhoneMediaConnection deleting mpCodecFactory %p",
                 mpCodecFactory);
             delete mpCodecFactory;
             mpCodecFactory = NULL;
@@ -134,7 +134,7 @@ public:
     UtlBoolean mRtpAudioSending;
     UtlBoolean mRtpAudioReceiving;
     SdpCodec* mpAudioCodec;
-    SdpCodecFactory* mpCodecFactory;
+    SdpCodecList* mpCodecFactory;
     SIPX_CONTACT_TYPE mContactType ;
     UtlString mLocalAddress ;
     UtlBoolean mbAlternateDestinations ;
@@ -346,10 +346,10 @@ OsStatus CpPhoneMediaInterface::createConnection(int& connectionId,
             mediaConnection->mpRtcpAudioSocket, mediaConnection->mpRtcpAudioSocket->getSocketDescriptor());
 
    // Set codec factory
-   mediaConnection->mpCodecFactory = new SdpCodecFactory(mSupportedCodecs);
+   mediaConnection->mpCodecFactory = new SdpCodecList(mSupportedCodecs);
    mediaConnection->mpCodecFactory->bindPayloadTypes();
    OsSysLog::add(FAC_CP, PRI_DEBUG, 
-            "CpPhoneMediaInterface::createConnection creating a new SdpCodecFactory %p",
+            "CpPhoneMediaInterface::createConnection creating a new mpCodecFactory %p",
             mediaConnection->mpCodecFactory);
 
     return retValue;
@@ -362,7 +362,7 @@ OsStatus CpPhoneMediaInterface::getCapabilities(int connectionId,
                                                 int& rtcpAudioPort,
                                                 int& rtpVideoPort,
                                                 int& rtcpVideoPort,
-                                                SdpCodecFactory& supportedCodecs,
+                                                SdpCodecList& supportedCodecs,
                                                 SdpSrtpParameters& srtpParams,
                                                 int bandWidth,
                                                 int& videoBandwidth,
@@ -494,7 +494,7 @@ OsStatus CpPhoneMediaInterface::getCapabilitiesEx(int connectionId,
                                                   int rtcpVideoPorts[],
                                                   RTP_TRANSPORT transportTypes[],
                                                   int& nActualAddresses,
-                                                  SdpCodecFactory& supportedCodecs,
+                                                  SdpCodecList& supportedCodecs,
                                                   SdpSrtpParameters& srtpParameters,
                                                   int bandWidth,
                                                   int& videoBandwidth,

@@ -168,7 +168,7 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
     {
         CPPUNIT_ASSERT(mpMediaFactory);
 
-        SdpCodecFactory* codecFactory = new SdpCodecFactory();
+        SdpCodecList* codecFactory = new SdpCodecList();
         CPPUNIT_ASSERT(codecFactory);
         int numCodecs;
         SdpCodec** codecArray = NULL;
@@ -271,7 +271,7 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
 
         CPPUNIT_ASSERT(mpMediaFactory);
 
-        SdpCodecFactory* codecFactory = new SdpCodecFactory();
+        SdpCodecList* codecFactory = new SdpCodecList();
         CPPUNIT_ASSERT(codecFactory);
         int numCodecs;
         SdpCodec** codecArray = NULL;
@@ -474,7 +474,7 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
 
         CPPUNIT_ASSERT(mpMediaFactory);
 
-        SdpCodecFactory* codecFactory = new SdpCodecFactory();
+        SdpCodecList* codecFactory = new SdpCodecList();
         CPPUNIT_ASSERT(codecFactory);
         int numCodecs;
         SdpCodec** codecArray = NULL;
@@ -598,7 +598,7 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
 
         CPPUNIT_ASSERT(mpMediaFactory);
 
-        SdpCodecFactory* codecFactory = new SdpCodecFactory();
+        SdpCodecList* codecFactory = new SdpCodecList();
         CPPUNIT_ASSERT(codecFactory);
         int numCodecs;
         SdpCodec** codecArray = NULL;
@@ -709,7 +709,7 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
         // interactions or dependencies.
         CPPUNIT_ASSERT(mpMediaFactory);
 
-        SdpCodecFactory* codecFactory = new SdpCodecFactory();
+        SdpCodecList* codecFactory = new SdpCodecList();
         CPPUNIT_ASSERT(codecFactory);
         int numCodecs;
         SdpCodec** codecArray = NULL;
@@ -765,7 +765,7 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
         int rtcpVideoPorts1[maxAddresses];
         RTP_TRANSPORT transportTypes1[maxAddresses];
         int numActualAddresses1;
-        SdpCodecFactory supportedCodecs1;
+        SdpCodecList supportedCodecs1;
         SdpSrtpParameters srtpParameters1;
         int bandWidth1 = 0;
         int videoBandwidth1;
@@ -796,7 +796,7 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
         int rtcpVideoPorts2[maxAddresses];
         RTP_TRANSPORT transportTypes2[maxAddresses];
         int numActualAddresses2;
-        SdpCodecFactory supportedCodecs2;
+        SdpCodecList supportedCodecs2;
         SdpSrtpParameters srtpParameters2;
         int bandWidth2 = 0;
         int videoBandwidth2;

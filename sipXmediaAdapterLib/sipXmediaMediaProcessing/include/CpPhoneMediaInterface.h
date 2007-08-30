@@ -104,7 +104,7 @@ public:
                                     int& rtcpAudioPort,
                                     int& rtpVideoPort,
                                     int& rtcpVideoPort,
-                                    SdpCodecFactory& supportedCodecs,
+                                    SdpCodecList& supportedCodecs,
                                     SdpSrtpParameters& srtpParams,
                                     int bandWidth,
                                     int& videoBandwidth,
@@ -119,7 +119,7 @@ public:
                                       int rtcpVideoPorts[],
                                       RTP_TRANSPORT transportTypes[],
                                       int& nActualAddresses,
-                                      SdpCodecFactory& supportedCodecs,
+                                      SdpCodecList& supportedCodecs,
                                       SdpSrtpParameters& srtpParameters,
                                       int bandWidth,
                                       int& videoBandwidth,
@@ -448,7 +448,7 @@ private:
    UtlString mLocalAddress;          ///< Address on which ports are bound
    MpCallFlowGraph* mpFlowGraph;     ///< Flowgraph for audio part of call
    UtlBoolean mRingToneFromFile;
-   SdpCodecFactory mSupportedCodecs;
+   SdpCodecList mSupportedCodecs;
    UtlDList mMediaConnections;
    int mExpeditedIpTos;
    UtlString mStunServer ;

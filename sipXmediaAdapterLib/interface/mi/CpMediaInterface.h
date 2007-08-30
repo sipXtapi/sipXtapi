@@ -126,7 +126,7 @@ public:
 
 // FORWARD DECLARATIONS
 class SdpCodec;
-class SdpCodecFactory;
+class SdpCodecList;
 class MpStreamPlaylistPlayer;
 class MpStreamPlayer;
 class MpStreamQueuePlayer;
@@ -714,7 +714,7 @@ public:
                                     int& rtcpAudioPort,
                                     int& rtpVideoPort,
                                     int& rtcpVideoPort, 
-                                    SdpCodecFactory& supportedCodecs,
+                                    SdpCodecList& supportedCodecs,
                                     SdpSrtpParameters& srtpParams,
                                     int bandWidth,
                                     int& videoBandwidth,
@@ -732,7 +732,7 @@ public:
                                       int rtcpVideoPorts[],
                                       RTP_TRANSPORT transportTypes[],
                                       int& nActualAddresses,
-                                      SdpCodecFactory& supportedCodecs,
+                                      SdpCodecList& supportedCodecs,
                                       SdpSrtpParameters& srtpParameters,
                                       int bandWidth,
                                       int& videoBandwidth,

@@ -137,7 +137,7 @@ public:
 
     static UtlBoolean shouldCreateCall(SipUserAgent& sipUa,
         OsMsg& message,
-        SdpCodecFactory& codecFactory);
+        SdpCodecList& codecFactory);
 
     virtual UtlBoolean hasCallId(const char* callId);
 

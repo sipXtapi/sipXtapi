@@ -98,7 +98,7 @@ class sipXmediaFactoryImpl : public CpMediaInterfaceFactoryImpl
     virtual OsStatus setAudioNoiseReductionMode(const MEDIA_NOISE_REDUCTION_MODE mode) ;
 
     /// Populate the codec factory, return number of rejected codecs.
-    virtual OsStatus buildCodecFactory(SdpCodecFactory *pFactory, 
+    virtual OsStatus buildCodecFactory(SdpCodecList*     pFactory, 
                                        const UtlString& sPreferences,
                                        const UtlString& sVideoPreferences,
                                        int videoFormat,

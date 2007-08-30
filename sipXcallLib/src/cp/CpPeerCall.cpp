@@ -3832,7 +3832,7 @@ void CpPeerCall::getLocalTerminalId(char* terminal, int maxLen)
 /* ============================ INQUIRY =================================== */
 
 UtlBoolean CpPeerCall::shouldCreateCall(SipUserAgent& sipUa, OsMsg& eventMessage,
-                                        SdpCodecFactory& codecFactory)
+                                        SdpCodecList& codecFactory)
 {
     UtlBoolean createCall = FALSE;
     int msgType = eventMessage.getMsgType();

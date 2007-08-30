@@ -322,7 +322,7 @@ OsStatus sipXmediaFactoryImpl::setAudioNoiseReductionMode(const MEDIA_NOISE_REDU
   return OS_NOT_SUPPORTED;
 }
 
-OsStatus sipXmediaFactoryImpl::buildCodecFactory(SdpCodecFactory *pFactory, 
+OsStatus sipXmediaFactoryImpl::buildCodecFactory(SdpCodecList*    pFactory, 
                                                  const UtlString& sAudioPreferences,
                                                  const UtlString& sVideoPreferences,
                                                  int videoFormat,

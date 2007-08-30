@@ -63,7 +63,7 @@ typedef struct SdpSrtpParameters
 
 
 // FORWARD DECLARATIONS
-class SdpCodecFactory;
+class SdpCodecList;
 
 /// Container for MIME type application/sdp.
 /**
@@ -430,7 +430,7 @@ class SdpBody : public HttpBody
 
 
    /// Find the send and receive codecs from the rtpCodecs array which are compatible with this SdpBody.
-   void getBestAudioCodecs(SdpCodecFactory& localRtpCodecs,
+   void getBestAudioCodecs(SdpCodecList& localRtpCodecs,
                            int& numCodecsInCommon,
                            SdpCodec**& commonCodecsForEncoder,
                            SdpCodec**& commonCodecsForDecoder,
@@ -453,7 +453,7 @@ class SdpBody : public HttpBody
                           int audioPayloadTypes[],
                           int videoPayloadTypes[],
                           int videoRtpPort,
-                          SdpCodecFactory& localRtpCodecs,
+                          SdpCodecList& localRtpCodecs,
                           int& numCodecsInCommon,
                           SdpCodec* commonCodecsForEncoder[],
                           SdpCodec* commonCodecsForDecoder[]) const;

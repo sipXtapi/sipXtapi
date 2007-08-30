@@ -416,7 +416,7 @@ SIPXTAPI_API SIPX_RESULT sipxInitialize(SIPX_INST*  phInst,
     pInst->pSubscribeClient->start();
 
     // Enable PCMU, PCMA, Tones/RFC2833 codecs
-    pInst->pCodecFactory = new SdpCodecFactory() ;
+    pInst->pCodecFactory = new SdpCodecList() ;
 
     // Instantiate the call processing subsystem
     UtlString localAddress;

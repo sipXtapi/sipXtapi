@@ -1058,7 +1058,7 @@ void SdpBody::getBestAudioCodecs(int numRtpCodecs, SdpCodec rtpCodecs[],
 }
 
 
-void SdpBody::getBestAudioCodecs(SdpCodecFactory& localRtpCodecs,
+void SdpBody::getBestAudioCodecs(SdpCodecList& localRtpCodecs,
                                  int& numCodecsInCommon,
                                  SdpCodec**& commonCodecsForEncoder,
                                  SdpCodec**& commonCodecsForDecoder,
@@ -1203,7 +1203,7 @@ void SdpBody::getCodecsInCommon(int audioPayloadIdCount,
                                 int audioPayloadTypes[],
                                 int videoPayloadTypes[],
                                 int videoRtpPort,
-                                SdpCodecFactory& localRtpCodecs,
+                                SdpCodecList& localRtpCodecs,
                                 int& numCodecsInCommon,
                                 SdpCodec* commonCodecsForEncoder[],
                                 SdpCodec* commonCodecsForDecoder[]) const
@@ -1968,7 +1968,7 @@ void SdpBody::addCodecsAnswer(int iNumAddresses,
       mediaIndex++;
    }
 
-   SdpCodecFactory codecFactory(numRtpCodecs,
+   SdpCodecList codecFactory(numRtpCodecs,
                                     rtpCodecs);
 
    supportedPayloadCount = 0;

@@ -124,7 +124,7 @@ typedef struct TONE_STATES
 typedef struct SIPX_INSTANCE_DATA
 {
     SipUserAgent*    pSipUserAgent ;
-    SdpCodecFactory* pCodecFactory ;
+    SdpCodecList*     pCodecFactory ;
     CallManager*     pCallManager ;
     SipLineMgr*      pLineManager ;
     SipRefreshMgr*   pRefreshManager ;

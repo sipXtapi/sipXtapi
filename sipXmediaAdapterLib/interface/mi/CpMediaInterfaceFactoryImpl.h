@@ -196,7 +196,7 @@ public:
     /**
      * Populate the codec factory, return number of rejected codecs
      */
-    virtual OsStatus buildCodecFactory(SdpCodecFactory *pFactory, 
+    virtual OsStatus buildCodecFactory(SdpCodecList *pFactory, 
                                        const UtlString& sAudioPreferences,
                                        const UtlString& sVideoPreferences,
                                        int videoFormat,

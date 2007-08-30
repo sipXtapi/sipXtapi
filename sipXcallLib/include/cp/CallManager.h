@@ -55,7 +55,7 @@ class OsConfigDb;
 class PtMGCP;
 class TaoObjectMap;
 class TaoReference;
-class SdpCodecFactory;
+class SdpCodecList;
 class CpMultiStringMessage;
 class SipSession;
 class SipDialog;
@@ -74,7 +74,7 @@ public:
    CallManager(UtlBoolean isRequiredUserIdMatch,
                SipLineMgr* lineMgrTask,
                UtlBoolean isEarlyMediaFor180Enabled,
-               SdpCodecFactory* pCodecFactory,
+               SdpCodecList* pCodecFactory,
                int rtpPortStart,
                int rtpPortEnd,
                const char* localAddress,
@@ -479,7 +479,7 @@ private:
     PtMGCP* mpMgcpStackTask;
     int mNumDialPlanDigits;
     int mHoldType;
-    SdpCodecFactory* mpCodecFactory;
+    SdpCodecList* mpCodecFactory;
     int mTransferType;
     UtlString mLocale;
     int mMessageEventCount;

@@ -34,30 +34,25 @@
 //: Factory and container for all supported codec types
 
 // Class detailed description which may extend to multiple lines
-class SdpCodecFactory
+class SdpCodecList
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
 /* ============================ CREATORS ================================== */
 
-   static SdpCodecFactory* getSdpCodecFactory();
-   //: Get singleton instance
-   // Note: This class can be used in non-singleton mode
-   // by avoiding the use of this one method.
-
-   SdpCodecFactory(int numCodecs = 0,
-                   SdpCodec* codecArray[] = NULL);
+   SdpCodecList(int numCodecs = 0,
+               SdpCodec* codecArray[] = NULL);
      //:Default constructor
 
-   SdpCodecFactory(const SdpCodecFactory& rSdpCodecFactory);
+   SdpCodecList(const SdpCodecList& rSdpCodecFactory);
      //:Copy constructor
 
-   SdpCodecFactory& operator=(const SdpCodecFactory& rhs);
+   SdpCodecList& operator=(const SdpCodecList& rhs);
      //:Assignment operator
 
    virtual
-   ~SdpCodecFactory();
+   ~SdpCodecList();
      //:Destructor
 
 /* ============================ MANIPULATORS ============================== */
@@ -127,9 +122,6 @@ public:
 
    void toString(UtlString& serializedFactory);
    //: String representation of factory and codecs
-   
-   static SdpCodec::SdpCodecTypes getCodecType(const char* pCodecName);
-   //: Converts the readable text codec name into an enum defined in Sdpcodec.h
 
    int getCodecCPULimit();
      //:Gets the codec CPU limit level
@@ -141,20 +133,40 @@ protected:
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-   void addCodecNoLock(SdpCodec& newCodec);
+   void addCodecNoLock(const SdpCodec& newCodec);
    //: Add a new codec type to the list of known codecs
 
    UtlDList mCodecs;
    OsRWMutex mReadWriteMutex;
-   int mCodecCPULimit ;
+   int mCodecCPULimit;
 
-   // Note: the follwing are only needed for the
-   // singleton instance method getSdpCodecFactory.
-   // This class can be used in non-singleton mode
-   // by avoiding the use of this one method.
-   static SdpCodecFactory* spInstance;
-   static OsBSem       sLock;       // semaphore used to ensure that there
-                                    //  is only one instance of this class
+};
+
+class SdpDefaultCodecFactory
+{
+/* //////////////////////////// PUBLIC //////////////////////////////////// */
+public:
+
+/* ============================ CREATORS ================================== */
+
+/* ============================ MANIPULATORS ============================== */
+
+/* ============================ ACCESSORS ================================= */
+
+   static
+   SdpCodec getCodec(SdpCodec::SdpCodecTypes internalCodecId);
+   //: Get a codec given an internal codec id
+
+   static SdpCodec::SdpCodecTypes getCodecType(const char* pCodecName);
+   //: Converts the readable text codec name into an enum defined in Sdpcodec.h
+
+/* ============================ INQUIRY =================================== */
+
+/* //////////////////////////// PROTECTED ///////////////////////////////// */
+protected:
+
+/* //////////////////////////// PRIVATE /////////////////////////////////// */
+private:
 
 };
 

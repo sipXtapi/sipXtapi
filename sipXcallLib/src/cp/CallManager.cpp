@@ -87,7 +87,7 @@ Flash                 16
 CallManager::CallManager(UtlBoolean isRequredUserIdMatch,
                          SipLineMgr* pLineMgrTask,
                          UtlBoolean isEarlyMediaFor180Enabled,
-                         SdpCodecFactory* pCodecFactory,
+                         SdpCodecList* pCodecFactory,
                          int rtpPortStart,
                          int rtpPortEnd,
                          const char* localAddress,
