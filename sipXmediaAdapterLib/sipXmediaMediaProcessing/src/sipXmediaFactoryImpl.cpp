@@ -330,45 +330,46 @@ OsStatus sipXmediaFactoryImpl::buildCodecFactory(SdpCodecFactory *pFactory,
 {
     OsStatus rc = OS_FAILED;
 
-    UtlString codecName;
-    UtlString codecList;
-
-    SdpCodec::SdpCodecTypes codecs[TOTAL_AUDIO_CODECS_NUM+TOTAL_VIDEO_CODECS_NUM];
-
     *iRejected = 0;
 
-    int numAudioCodecs = TOTAL_AUDIO_CODECS_NUM;
-    SdpCodec::SdpCodecTypes *audioCodecs = codecs;
-    int numVideoCodecs = TOTAL_VIDEO_CODECS_NUM;
-    SdpCodec::SdpCodecTypes *videoCodecs = codecs+TOTAL_AUDIO_CODECS_NUM;
-
-    codecs[0] = SdpCodec::SDP_CODEC_GIPS_PCMU;
-    codecs[1] = SdpCodec::SDP_CODEC_GIPS_PCMA;
-    codecs[2] = SdpCodec::SDP_CODEC_TONES;
-
-#ifdef HAVE_GIPS /* [ */
-    codecs[GIPS_CODECS_BEGIN+0] = SdpCodec::SDP_CODEC_GIPS_IPCMU;
-    codecs[GIPS_CODECS_BEGIN+1] = SdpCodec::SDP_CODEC_GIPS_IPCMA;
-    codecs[GIPS_CODECS_BEGIN+2] = SdpCodec::SDP_CODEC_GIPS_IPCMWB;
-#endif /* HAVE_GIPS ] */
-
-#ifdef HAVE_SPEEX /* [ */
-    codecs[SPEEX_AUDIO_CODECS_BEGIN+0] = SdpCodec::SDP_CODEC_SPEEX;
-    codecs[SPEEX_AUDIO_CODECS_BEGIN+1] = SdpCodec::SDP_CODEC_SPEEX_5;
-    codecs[SPEEX_AUDIO_CODECS_BEGIN+2] = SdpCodec::SDP_CODEC_SPEEX_15;
-    codecs[SPEEX_AUDIO_CODECS_BEGIN+3] = SdpCodec::SDP_CODEC_SPEEX_24;
-#endif /* HAVE_SPEEX ] */
-
-#ifdef HAVE_GSM /* [ */
-    codecs[GSM_AUDIO_CODECS_BEGIN+0] = SdpCodec::SDP_CODEC_GSM;
-#endif /* HAVE_GSM ] */
-
-#ifdef HAVE_ILBC /* [ */
-    codecs[ILBC_AUDIO_CODECS_BEGIN+0] = SdpCodec::SDP_CODEC_ILBC;
-#endif /* HAVE_ILBC ] */
 
     if (pFactory)
     {
+       UtlString codecName;
+       UtlString codecList;
+
+       SdpCodec::SdpCodecTypes codecs[TOTAL_AUDIO_CODECS_NUM+TOTAL_VIDEO_CODECS_NUM];
+
+       int numAudioCodecs = TOTAL_AUDIO_CODECS_NUM;
+       SdpCodec::SdpCodecTypes *audioCodecs = codecs;
+       int numVideoCodecs = TOTAL_VIDEO_CODECS_NUM;
+       SdpCodec::SdpCodecTypes *videoCodecs = codecs+TOTAL_AUDIO_CODECS_NUM;
+
+       codecs[0] = SdpCodec::SDP_CODEC_GIPS_PCMU;
+       codecs[1] = SdpCodec::SDP_CODEC_GIPS_PCMA;
+       codecs[2] = SdpCodec::SDP_CODEC_TONES;
+
+#ifdef HAVE_GIPS /* [ */
+       codecs[GIPS_CODECS_BEGIN+0] = SdpCodec::SDP_CODEC_GIPS_IPCMU;
+       codecs[GIPS_CODECS_BEGIN+1] = SdpCodec::SDP_CODEC_GIPS_IPCMA;
+       codecs[GIPS_CODECS_BEGIN+2] = SdpCodec::SDP_CODEC_GIPS_IPCMWB;
+#endif /* HAVE_GIPS ] */
+
+#ifdef HAVE_SPEEX /* [ */
+       codecs[SPEEX_AUDIO_CODECS_BEGIN+0] = SdpCodec::SDP_CODEC_SPEEX;
+       codecs[SPEEX_AUDIO_CODECS_BEGIN+1] = SdpCodec::SDP_CODEC_SPEEX_5;
+       codecs[SPEEX_AUDIO_CODECS_BEGIN+2] = SdpCodec::SDP_CODEC_SPEEX_15;
+       codecs[SPEEX_AUDIO_CODECS_BEGIN+3] = SdpCodec::SDP_CODEC_SPEEX_24;
+#endif /* HAVE_SPEEX ] */
+
+#ifdef HAVE_GSM /* [ */
+       codecs[GSM_AUDIO_CODECS_BEGIN+0] = SdpCodec::SDP_CODEC_GSM;
+#endif /* HAVE_GSM ] */
+
+#ifdef HAVE_ILBC /* [ */
+       codecs[ILBC_AUDIO_CODECS_BEGIN+0] = SdpCodec::SDP_CODEC_ILBC;
+#endif /* HAVE_ILBC ] */
+
         pFactory->clearCodecs();
 
         // add preferred audio codecs first
