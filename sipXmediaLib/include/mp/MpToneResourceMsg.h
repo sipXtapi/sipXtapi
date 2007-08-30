@@ -38,25 +38,16 @@ public:
    //@{
 
    /// Constructor
-   MpToneResourceMsg(const UtlString& msgDestName, uint8_t toneCode)
-      : MpResourceMsg(MPRM_START_TONE, msgDestName)
-      , mToneCode(toneCode) 
-   {};
+   inline MpToneResourceMsg(const UtlString& msgDestName, uint8_t toneCode);
 
    /// Copy constructor
-   MpToneResourceMsg(const MpToneResourceMsg& rMpResourceMsg)
-      : MpResourceMsg(rMpResourceMsg)
-      , mToneCode(rMpResourceMsg.mToneCode)
-   {};
+   inline MpToneResourceMsg(const MpToneResourceMsg& rMpResourceMsg);
 
    /// Create a copy of this msg object (which may be of a derived type)
-   OsMsg* createCopy(void) const 
-   {
-      return new MpToneResourceMsg(*this); 
-   }
+   inline OsMsg* createCopy(void) const;
 
    /// Destructor
-   ~MpToneResourceMsg() { /* No work required */ };
+   inline ~MpToneResourceMsg();
 
    //@}
 
@@ -65,18 +56,10 @@ public:
    //@{
 
    /// Assignment operator
-   MpToneResourceMsg& operator=(const MpToneResourceMsg& rhs)
-   {
-      if (this == &rhs) 
-         return *this;  // handle the assignment to self case
-
-      MpResourceMsg::operator=(rhs);  // assign fields for parent class
-      mToneCode = rhs.mToneCode;
-      return *this;
-   }
+   inline MpToneResourceMsg& operator=(const MpToneResourceMsg& rhs);
 
      /// @brief Set the tone that is associated with this resource.
-   inline void setToneCode(uint8_t toneCode) { mToneCode = toneCode; }
+   inline void setToneCode(uint8_t toneCode);
      /**<
      *  Set the tone that is associated with this resource.
      *  @param toneId the new tone that is to be set in this resource.
@@ -87,7 +70,7 @@ public:
    //@{
 
      /// Get the tone that is associated with this resource.
-   inline uint8_t getToneCode(void) const { return mToneCode; };
+   inline uint8_t getToneCode(void) const;
      /**<
      *  Returns the tone that is associated with this resource.
      */
@@ -109,5 +92,48 @@ private:
 };
 
 /* ============================ INLINE METHODS ============================ */
+
+MpToneResourceMsg::MpToneResourceMsg(const UtlString& msgDestName, 
+                                     uint8_t toneCode)
+: MpResourceMsg(MPRM_START_TONE, msgDestName)
+, mToneCode(toneCode)
+{
+}
+
+MpToneResourceMsg::MpToneResourceMsg(const MpToneResourceMsg& rMpResourceMsg)
+: MpResourceMsg(rMpResourceMsg)
+, mToneCode(rMpResourceMsg.mToneCode)
+{};
+
+OsMsg* MpToneResourceMsg::createCopy(void) const 
+{
+   return new MpToneResourceMsg(*this); 
+}
+
+MpToneResourceMsg::~MpToneResourceMsg() 
+{ 
+   /* No work required */ 
+}
+
+MpToneResourceMsg& 
+MpToneResourceMsg::operator=(const MpToneResourceMsg& rhs)
+{
+   if (this == &rhs) 
+      return *this;  // handle the assignment to self case
+
+   MpResourceMsg::operator=(rhs);  // assign fields for parent class
+   mToneCode = rhs.mToneCode;
+   return *this;
+}
+
+void MpToneResourceMsg::setToneCode(uint8_t toneCode) 
+{ 
+   mToneCode = toneCode; 
+}
+
+uint8_t MpToneResourceMsg::getToneCode(void) const 
+{ 
+   return mToneCode; 
+}
 
 #endif  // _MpToneResourceMsg_h_

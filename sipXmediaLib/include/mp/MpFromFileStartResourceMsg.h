@@ -38,33 +38,19 @@ public:
    //@{
 
    /// Constructor
-   MpFromFileStartResourceMsg(const UtlString& msgDestName, 
-                              UtlString* pAudioBuf,
-                              const UtlBoolean& repeat,
-                              OsNotification* evt = NULL)
-      : MpResourceMsg(MPRM_FROMFILE_START, msgDestName)
-      , mpAudioBuf(pAudioBuf)
-      , mRepeat(repeat)
-      , mpEvt(evt)
-   {};
+   inline MpFromFileStartResourceMsg(const UtlString& msgDestName, 
+                                     UtlString* pAudioBuf,
+                                     const UtlBoolean& repeat,
+                                     OsNotification* evt = NULL);
 
    /// Copy constructor
-   MpFromFileStartResourceMsg(const MpFromFileStartResourceMsg& rMpResourceMsg)
-      : MpResourceMsg(rMpResourceMsg)
-      , mpAudioBuf(rMpResourceMsg.mpAudioBuf)
-      , mRepeat(rMpResourceMsg.mRepeat)
-      , mpEvt(rMpResourceMsg.mpEvt)
-   {};
+   inline MpFromFileStartResourceMsg(const MpFromFileStartResourceMsg& rMpResourceMsg);
 
    /// Create a copy of this msg object (which may be of a derived type)
-   OsMsg* createCopy(void) const 
-   {
-      return new MpFromFileStartResourceMsg(*this); 
-   }
+   inline OsMsg* createCopy(void) const;
 
    /// Destructor
-   ~MpFromFileStartResourceMsg() 
-   { /* No work required -- audio buf pointer ownership passes on to msg recipient */ };
+   inline ~MpFromFileStartResourceMsg();
 
    //@}
 
@@ -73,20 +59,10 @@ public:
    //@{
 
    /// Assignment operator
-   MpFromFileStartResourceMsg& operator=(const MpFromFileStartResourceMsg& rhs)
-   {
-      if (this == &rhs) 
-         return *this;  // handle the assignment to self case
-
-      MpResourceMsg::operator=(rhs);  // assign fields for parent class
-      mpAudioBuf = rhs.mpAudioBuf;
-      mRepeat = rhs.mRepeat;
-      mpEvt = rhs.mpEvt;
-      return *this;
-   }
+   inline MpFromFileStartResourceMsg& operator=(const MpFromFileStartResourceMsg& rhs);
 
      /// @brief Set the audio buffer that is associated with this resource.
-   inline void setAudioBuffer(UtlString* pAudioBuf) { mpAudioBuf = pAudioBuf; }
+   inline void setAudioBuffer(UtlString* pAudioBuf);
      /**<
      *  Set the audio buffer that is associated with this resource.
      *  Ownership transfers to the recipient of this message.
@@ -94,14 +70,14 @@ public:
      */
 
      /// @brief Set whether or not this audio buffer loops when it plays.
-   inline void setRepeat(const UtlBoolean& repeat) { mRepeat = repeat; }
+   inline void setRepeat(const UtlBoolean& repeat);
      /**<
      *  Set whether or not this audio buffer loops when it plays.
      *  @param repeat the new repeat status that is to be set in this resource.
      */
 
      /// @brief Set the OsNotification pointer that is associated with this resource.
-   inline void setOsNotification(OsNotification* evt) { mpEvt = evt; }
+   inline void setOsNotification(OsNotification* evt);
      /**<
      *  Set the OsNotification pointer that is associated with this resource.
      *  @param evt - the new OsNotification pointer used to signal 
@@ -113,13 +89,13 @@ public:
    //@{
 
      /// Get the audio buffer that is associated with this resource.
-   inline UtlString* getAudioBuffer(void) const { return mpAudioBuf; };
+   inline UtlString* getAudioBuffer(void) const;
      /**<
      *  Returns the audio buffer that is associated with this resource.
      */
 
    /// Get the OsNotification pointer that is associated with this resource.
-   inline OsNotification* getOsNotification(void) const { return mpEvt; };
+   inline OsNotification* getOsNotification(void) const;
    /**<
    *  Returns the OsNotification that is associated with this resource.
    */
@@ -131,7 +107,7 @@ public:
    //@{
 
      /// Return whether this bit of audio is to repeat or not.
-   inline UtlBoolean isRepeating(void) const { return mRepeat; };
+   inline UtlBoolean isRepeating(void) const;
      /**<
      *  Return whether this bit of audio is to repeat or not.
      */
@@ -149,5 +125,77 @@ private:
 };
 
 /* ============================ INLINE METHODS ============================ */
+
+MpFromFileStartResourceMsg::MpFromFileStartResourceMsg(const UtlString& msgDestName, 
+                                                       UtlString* pAudioBuf,
+                                                       const UtlBoolean& repeat,
+                                                       OsNotification* evt)
+: MpResourceMsg(MPRM_FROMFILE_START, msgDestName)
+, mpAudioBuf(pAudioBuf)
+, mRepeat(repeat)
+, mpEvt(evt)
+{
+}
+
+MpFromFileStartResourceMsg::MpFromFileStartResourceMsg(const MpFromFileStartResourceMsg& rMpResourceMsg)
+: MpResourceMsg(rMpResourceMsg)
+, mpAudioBuf(rMpResourceMsg.mpAudioBuf)
+, mRepeat(rMpResourceMsg.mRepeat)
+, mpEvt(rMpResourceMsg.mpEvt)
+{
+}
+
+OsMsg* MpFromFileStartResourceMsg::createCopy(void) const 
+{
+   return new MpFromFileStartResourceMsg(*this); 
+}
+
+MpFromFileStartResourceMsg::~MpFromFileStartResourceMsg() 
+{ 
+   /* No work required -- audio buf pointer ownership passes on to msg recipient */ 
+}
+
+MpFromFileStartResourceMsg& 
+MpFromFileStartResourceMsg::operator=(const MpFromFileStartResourceMsg& rhs)
+{
+   if (this == &rhs)
+      return *this;  // handle the assignment to self case
+
+   MpResourceMsg::operator=(rhs);  // assign fields for parent class
+   mpAudioBuf = rhs.mpAudioBuf;
+   mRepeat = rhs.mRepeat;
+   mpEvt = rhs.mpEvt;
+   return *this;
+}
+
+void MpFromFileStartResourceMsg::setAudioBuffer(UtlString* pAudioBuf) 
+{ 
+   mpAudioBuf = pAudioBuf;
+}
+
+void MpFromFileStartResourceMsg::setRepeat(const UtlBoolean& repeat) 
+{ 
+   mRepeat = repeat;
+}
+
+void MpFromFileStartResourceMsg::setOsNotification(OsNotification* evt) 
+{ 
+   mpEvt = evt;
+}
+
+UtlString* MpFromFileStartResourceMsg::getAudioBuffer(void) const 
+{
+   return mpAudioBuf;
+}
+
+OsNotification* MpFromFileStartResourceMsg::getOsNotification(void) const 
+{
+   return mpEvt;
+}
+
+UtlBoolean MpFromFileStartResourceMsg::isRepeating(void) const 
+{ 
+   return mRepeat;
+}
 
 #endif  // _MpFromFileStartResourceMsg_h_

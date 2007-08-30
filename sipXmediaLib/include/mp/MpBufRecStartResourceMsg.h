@@ -45,29 +45,17 @@ public:
    //@{
 
      /// Constructor
-   MpBufRecStartResourceMsg(const UtlString& msgDestName, 
-                              UtlString* pAudioBuf)
-      : MpResourceMsg(MPRM_BUF_RECORDER_START, msgDestName)
-      , mpAudioBuf(pAudioBuf)
-   {};
+   inline MpBufRecStartResourceMsg(const UtlString& msgDestName, 
+                                   UtlString* pAudioBuf);
 
      /// Copy constructor
-   MpBufRecStartResourceMsg(const MpBufRecStartResourceMsg& rMpResourceMsg)
-      : MpResourceMsg(rMpResourceMsg)
-      , mpAudioBuf(rMpResourceMsg.mpAudioBuf)
-   {};
+   inline MpBufRecStartResourceMsg(const MpBufRecStartResourceMsg& rMpResourceMsg);
 
      /// Create a copy of this msg object (which may be of a derived type)
-   OsMsg* createCopy(void) const 
-   {
-      return new MpBufRecStartResourceMsg(*this); 
-   }
+   inline OsMsg* createCopy(void) const;
 
      /// Destructor
-   ~MpBufRecStartResourceMsg() 
-   {
-      mpAudioBuf = NULL;
-   }
+   inline ~MpBufRecStartResourceMsg();
 
    //@}
 
@@ -76,21 +64,10 @@ public:
      //@{
 
      /// Assignment operator
-   MpBufRecStartResourceMsg& operator=(const MpBufRecStartResourceMsg& rhs)
-   {
-      if (this == &rhs) 
-         return *this;  // handle the assignment to self case
-
-      MpResourceMsg::operator=(rhs);  // assign fields for parent class
-      mpAudioBuf = rhs.mpAudioBuf;
-      return *this;
-   }
+   inline MpBufRecStartResourceMsg& operator=(const MpBufRecStartResourceMsg& rhs);
 
      /// @brief Set the audio buffer that is associated with this message.
-   inline void setAudioBuffer(UtlString* pAudioBuf) 
-   { 
-      mpAudioBuf = pAudioBuf;
-   }
+   inline void setAudioBuffer(UtlString* pAudioBuf);
      /**<
      *  Set the record buffer that is associated with this message.
      *  Ownership remains with the caller of this function  We are just a user.
@@ -102,10 +79,7 @@ public:
    //@{
 
      /// @brief Get the record buffer that is associated with this resource.
-   inline UtlString* getAudioBuffer(void) const 
-   {
-      return mpAudioBuf;
-   };
+   inline UtlString* getAudioBuffer(void) const;
 
    //@}
 
@@ -124,5 +98,49 @@ private:
 };
 
 /* ============================ INLINE METHODS ============================ */
+
+MpBufRecStartResourceMsg::MpBufRecStartResourceMsg(const UtlString& msgDestName, 
+                                                   UtlString* pAudioBuf)
+: MpResourceMsg(MPRM_BUF_RECORDER_START, msgDestName)
+, mpAudioBuf(pAudioBuf)
+{
+}
+
+MpBufRecStartResourceMsg::MpBufRecStartResourceMsg(const MpBufRecStartResourceMsg& rMpResourceMsg)
+: MpResourceMsg(rMpResourceMsg)
+, mpAudioBuf(rMpResourceMsg.mpAudioBuf)
+{
+}
+
+inline OsMsg* MpBufRecStartResourceMsg::createCopy(void) const 
+{
+   return new MpBufRecStartResourceMsg(*this); 
+}
+
+inline MpBufRecStartResourceMsg::~MpBufRecStartResourceMsg() 
+{
+   mpAudioBuf = NULL;
+}
+
+MpBufRecStartResourceMsg& 
+MpBufRecStartResourceMsg::operator=(const MpBufRecStartResourceMsg& rhs)
+{
+   if (this == &rhs) 
+      return *this;  // handle the assignment to self case
+
+   MpResourceMsg::operator=(rhs);  // assign fields for parent class
+   mpAudioBuf = rhs.mpAudioBuf;
+   return *this;
+}
+
+void MpBufRecStartResourceMsg::setAudioBuffer(UtlString* pAudioBuf) 
+{ 
+   mpAudioBuf = pAudioBuf;
+}
+
+UtlString* MpBufRecStartResourceMsg::getAudioBuffer(void) const
+{
+   return mpAudioBuf;
+}
 
 #endif  // _MpBufRecStartResourceMsg_h_
