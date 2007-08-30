@@ -134,8 +134,7 @@ void SdpCodecFactory::addCodec(SdpCodec& newCodec)
 
 void SdpCodecFactory::bindPayloadTypes()
 {
-    int unusedDynamicPayloadId = 
-        SdpCodec::SDP_CODEC_MAXIMUM_STATIC_CODEC + 1;
+    int unusedDynamicPayloadId = SdpCodec::SDP_CODEC_MAXIMUM_STATIC_CODEC + 1;
     SdpCodec* codecWithoutPayloadId = NULL;
     UtlString prevSubmimeType = "none";
     UtlString actualSubmimeType;
