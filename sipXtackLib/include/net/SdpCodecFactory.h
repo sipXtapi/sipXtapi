@@ -148,7 +148,7 @@ private:
    OsRWMutex mReadWriteMutex;
    int mCodecCPULimit ;
 
-   // Note: the following are only needed for the
+   // Note: the follwing are only needed for the
    // singleton instance method getSdpCodecFactory.
    // This class can be used in non-singleton mode
    // by avoiding the use of this one method.
