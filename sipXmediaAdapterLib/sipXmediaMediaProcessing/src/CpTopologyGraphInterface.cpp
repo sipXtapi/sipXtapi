@@ -214,23 +214,31 @@ CpTopologyGraphInterface::CpTopologyGraphInterface(CpTopologyGraphFactoryImpl* p
    }
    else
    {
-       // Temp hard code codecs
-       //SdpCodec mapCodecs1(SdpCodec::SDP_CODEC_PCMU, SdpCodec::SDP_CODEC_PCMU);
-       //mSupportedCodecs.addCodec(mapCodecs1);
-       //SdpCodec mapCodecs2(SdpCodec::SDP_CODEC_PCMA, SdpCodec::SDP_CODEC_PCMA);
-       //mSupportedCodecs.addCodec(mapCodecs2);
-       //mapCodecs[2] = new SdpCodec(SdpCodec::SDP_CODEC_L16_MONO);
-       UtlString codecs = 
+       SdpCodec::SdpCodecTypes codecs[] = {
 #ifdef HAVE_SPEEX // [
-                          "SPEEX SPEEX_5 SPEEX_15 SPEEX_24 "
+                          SdpCodec::SDP_CODEC_SPEEX,
+                          SdpCodec::SDP_CODEC_SPEEX_5,
+                          SdpCodec::SDP_CODEC_SPEEX_15,
+                          SdpCodec::SDP_CODEC_SPEEX_24,
 #endif // HAVE_SPEEX ]
 #ifdef HAVE_GSM // [
-                          "GSM "
+                          SdpCodec::SDP_CODEC_GSM,
 #endif // HAVE_GSM ]
-                          "PCMU PCMA TELEPHONE-EVENT";
-       OsSysLog::add(FAC_CP, PRI_WARNING, "CpTopologyGraphInterface::CpTopologyGraphInterface hard-coded codec factory %s ...",
-                     codecs.data());
-       mSupportedCodecs.buildSdpCodecFactory(codecs);
+#ifdef HAVE_ILBC // [
+                          SdpCodec::SDP_CODEC_ILBC,
+#endif // HAVE_ILBC ]
+                          SdpCodec::SDP_CODEC_PCMU,
+                          SdpCodec::SDP_CODEC_PCMA,
+                          SdpCodec::SDP_CODEC_TONES};
+       mSupportedCodecs.buildSdpCodecFactory(sizeof(codecs)/sizeof(SdpCodec::SdpCodecTypes),
+                                             codecs);
+       if (OsSysLog::willLog(FAC_CP, PRI_INFO))
+       {
+          UtlString codecsList;
+          mSupportedCodecs.toString(codecsList);
+          OsSysLog::add(FAC_CP, PRI_INFO, "CpTopologyGraphInterface::CpTopologyGraphInterface hard-coded codec factory %s ...",
+                        codecsList.data());
+       }
    }
 
    mExpeditedIpTos = expeditedIpTos;
