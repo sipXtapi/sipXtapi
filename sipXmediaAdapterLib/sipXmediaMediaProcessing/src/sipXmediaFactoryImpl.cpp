@@ -340,43 +340,10 @@ OsStatus sipXmediaFactoryImpl::buildCodecFactory(SdpCodecFactory *pFactory,
         // codecs.
         if (sAudioPreferences.length() > 0)
         {
-            UtlString codecName;
-
-            UtlString references = sAudioPreferences;
-            *iRejected = pFactory->buildSdpCodecFactory(references);
-            OsSysLog::add(FAC_MP, PRI_DEBUG, 
-                          "sipXmediaFactoryImpl::buildCodecFactory: sReferences = %s with NumReject %d",
-                           references.data(), *iRejected);
-                           
-            // Now pick preferences out of all available codecs
-            int numAudioCodecs;
-            SdpCodec** codecsArray = NULL;
-            pFactory->getCodecs(numAudioCodecs, codecsArray);
-            
-            UtlString preferences;
-            int i;
-            for (i = 0; i < numAudioCodecs; i++)
-            {
-                if (getCodecNameByType(codecsArray[i]->getCodecType(), codecName) == OS_SUCCESS)
-                {
-                    preferences = preferences + " " + codecName;
-                }
-            }
-            
-            pFactory->clearCodecs();
-            *iRejected = pFactory->buildSdpCodecFactory(preferences);
+            *iRejected = pFactory->buildSdpCodecFactory(sAudioPreferences);
             OsSysLog::add(FAC_MP, PRI_DEBUG, 
                           "sipXmediaFactoryImpl::buildCodecFactory: supported codecs = %s with NumReject %d",
-                          preferences.data(), *iRejected);
-                          
-            // Free up the codecs and the array
-            for (i = 0; i < numAudioCodecs; i++)
-            {
-                delete codecsArray[i];
-                codecsArray[i] = NULL;
-            }
-            delete[] codecsArray;
-            codecsArray = NULL;
+                          sAudioPreferences.data(), *iRejected);
                           
             rc = OS_SUCCESS;
         }
@@ -422,44 +389,11 @@ OsStatus sipXmediaFactoryImpl::buildCodecFactory(SdpCodecFactory *pFactory,
         // codecs.
         if (sVideoPreferences.length() > 0)
         {
-            UtlString codecName;
-
-            UtlString references = sVideoPreferences;
-            *iRejected = pFactory->buildSdpCodecFactory(references);
-            OsSysLog::add(FAC_MP, PRI_DEBUG, 
-                          "sipXmediaFactoryImpl::buildCodecFactory: sReferences = %s with NumReject %d",
-                           references.data(), *iRejected);
-                           
-            // Now pick preferences out of all available codecs
-            int numVideoCodecs;
-            SdpCodec** codecsArray = NULL;
-            pFactory->getCodecs(numVideoCodecs, codecsArray);
-            
-            UtlString preferences;
-            int i;
-            for (i = 0; i < numVideoCodecs; i++)
-            {
-                if (getCodecNameByType(codecsArray[i]->getCodecType(), codecName) == OS_SUCCESS)
-                {
-                    preferences = preferences + " " + codecName;
-                }
-            }
-            
-            pFactory->clearCodecs();
-            *iRejected = pFactory->buildSdpCodecFactory(preferences);
+            *iRejected = pFactory->buildSdpCodecFactory(sVideoPreferences);
             OsSysLog::add(FAC_MP, PRI_DEBUG, 
                           "sipXmediaFactoryImpl::buildCodecFactory: supported codecs = %s with NumReject %d",
-                          preferences.data(), *iRejected);
-                          
-            // Free up the codecs and the array
-            for (i = 0; i < numVideoCodecs; i++)
-            {
-                delete codecsArray[i];
-                codecsArray[i] = NULL;
-            }
-            delete[] codecsArray;
-            codecsArray = NULL;
-                          
+                          sVideoPreferences.data(), *iRejected);
+
             rc = OS_SUCCESS;
         }
         else
