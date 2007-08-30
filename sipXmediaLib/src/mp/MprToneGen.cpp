@@ -101,7 +101,7 @@ OsStatus MprToneGen::startTone(const UtlString& namedResource,
                                OsMsgQ& fgQ,
                                int toneId)
 {
-   MpToneResourceMsg msg(namedResource, toneId);
+   MpToneResourceMsg msg(namedResource, (uint8_t)toneId);
    return fgQ.send(msg, sOperationQueueTimeout);
 }
 
@@ -238,7 +238,7 @@ UtlBoolean MprToneGen::handleMessage(MpResourceMsg& rMsg)
    switch (msgType)
    {
    case MpResourceMsg::MPRM_START_TONE:
-      MpToneGen_startTone(mpToneGenState, toneMsg->getToneId());
+      MpToneGen_startTone(mpToneGenState, toneMsg->getToneCode());
       enable();
       msgHandled = TRUE;
       break;

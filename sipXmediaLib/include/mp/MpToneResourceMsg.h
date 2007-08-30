@@ -38,15 +38,15 @@ public:
    //@{
 
    /// Constructor
-   MpToneResourceMsg(const UtlString& msgDestName, int toneId)
+   MpToneResourceMsg(const UtlString& msgDestName, uint8_t toneCode)
       : MpResourceMsg(MPRM_START_TONE, msgDestName)
-      , mToneId(toneId) 
+      , mToneCode(toneCode) 
    {};
 
    /// Copy constructor
    MpToneResourceMsg(const MpToneResourceMsg& rMpResourceMsg)
       : MpResourceMsg(rMpResourceMsg)
-      , mToneId(rMpResourceMsg.mToneId)
+      , mToneCode(rMpResourceMsg.mToneCode)
    {};
 
    /// Create a copy of this msg object (which may be of a derived type)
@@ -71,12 +71,12 @@ public:
          return *this;  // handle the assignment to self case
 
       MpResourceMsg::operator=(rhs);  // assign fields for parent class
-      mToneId = rhs.mToneId;
+      mToneCode = rhs.mToneCode;
       return *this;
    }
 
      /// @brief Set the tone that is associated with this resource.
-   inline void setToneId(int toneId) { mToneId = toneId; }
+   inline void setToneCode(uint8_t toneCode) { mToneCode = toneCode; }
      /**<
      *  Set the tone that is associated with this resource.
      *  @param toneId the new tone that is to be set in this resource.
@@ -87,7 +87,7 @@ public:
    //@{
 
      /// Get the tone that is associated with this resource.
-   inline int getToneId(void) const { return mToneId; };
+   inline uint8_t getToneCode(void) const { return mToneCode; };
      /**<
      *  Returns the tone that is associated with this resource.
      */
@@ -105,7 +105,7 @@ protected:
 
    /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-   int mToneId; ///< The tone to play/stop/etc.
+   uint8_t mToneCode; ///< The tone to play/stop/etc.
 };
 
 /* ============================ INLINE METHODS ============================ */
