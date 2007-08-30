@@ -80,7 +80,7 @@ public:
    void clearCodecs(void);
    //: Discard all codecs
 
-   int buildSdpCodecFactory(UtlString &codecList);
+   int buildSdpCodecFactory(const UtlString &codecList);
    //: Function just called other buildSdpCodecFactory. Here for compatibility
 
    int buildSdpCodecFactory(int codecCount, SdpCodec::SdpCodecTypes codecTypes[]);

@@ -392,7 +392,7 @@ SdpCodec::SdpCodecTypes SdpCodecFactory::getCodecType(const char* pCodecName)
 // the mediaserver, and then this bogus method must be deleted.
 //////////////////////////////////////////////////////////////////////////////
 
-int SdpCodecFactory::buildSdpCodecFactory(UtlString &codecList)
+int SdpCodecFactory::buildSdpCodecFactory(const UtlString &codecList)
 {
    UtlString oneCodec;
    int numRejected = 0;
