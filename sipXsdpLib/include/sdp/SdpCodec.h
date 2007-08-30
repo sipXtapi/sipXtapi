@@ -181,7 +181,7 @@ public:
             int preferredPacketLength = 20000, ///< micro seconds
             int numChannels = 1,
             const char* formatSpecificData = "",
-            const int CPUCost = SDP_CODEC_CPU_LOW,
+            const SdpCodecCPUCost CPUCost = SDP_CODEC_CPU_LOW,
             const int BWCost = SDP_CODEC_BANDWIDTH_NORMAL,
             const int videoFormat = SDP_VIDEO_FORMAT_QCIF,
             const int videoFmtp = 0);
@@ -212,6 +212,21 @@ public:
 
    UtlCopyableContainable* clone() const { return new SdpCodec(*this); }
 
+   /// Set the SDP/RTP payload id to be used for this codec
+   void setCodecPayloadFormat(int formatId);
+
+   /// Set the video format bitmap
+   void setVideoFmtp(const int videoFmtp);
+
+   /// Set the video format string
+   void setVideoFmtpString(int videoFmtp);
+
+   /// Clears the format string
+   void clearVideoFmtpString();
+
+   ///Set the packet size
+   void setPacketSize(const int packetSize);
+
 //@}
 
 /* ============================ ACCESSORS ================================= */
@@ -230,9 +245,6 @@ public:
    /**<
    *  This is the id used in the SDP "m" format sub-field and RTP header.
    */
-
-   /// Set the SDP/RTP payload id to be used for this codec
-   void setCodecPayloadFormat(int formatId);
 
    /// Get the format specific parameters for the SDP
    virtual void getSdpFmtpField(UtlString& formatSpecificData) const;
@@ -276,7 +288,7 @@ public:
    void toString(UtlString& sdpCodecContents) const;
 
    ///Get the CPU cost for this codec.
-   int getCPUCost() const;
+   SdpCodecCPUCost getCPUCost() const;
    /**<
    *  @returns SDP_CODEC_CPU_HIGH or SDP_CODEC_CPU_LOW
    */
@@ -291,20 +303,8 @@ public:
    ///Get the video format bitmap
    int getVideoFmtp() const;
 
-   ///Set the video format bitmap
-   void setVideoFmtp(const int videoFmtp);
-
    /// Get the video format string
    void getVideoFmtpString(UtlString& fmtpString) const;
-
-   /// Set the video format string
-   void setVideoFmtpString(int videoFmtp);
-
-   /// Clears the format string
-   void clearVideoFmtpString();
-
-   ///Set the packet size
-   void setPacketSize(const int packetSize);
 
 //@}
 
@@ -334,7 +334,7 @@ private:
     int mPacketLength;             ///< micro seconds
     int mNumChannels;
     UtlString mFormatSpecificData; ///< a=fmtp parameter
-    int mCPUCost;                  ///< relative cost of a SDP codec
+    SdpCodecCPUCost mCPUCost;      ///< relative cost of a SDP codec
     int mBWCost;
     int mVideoFormat;
     int mVideoFmtp;

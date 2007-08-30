@@ -1701,7 +1701,7 @@ int CpTopologyGraphInterface::getNextConnectionId()
 // Calculate the current cost for our sending/receiving codecs
 int CpTopologyGraphInterface::getCodecCPUCost()
 {   
-   int iCost = SdpCodec::SDP_CODEC_CPU_LOW ;   
+   SdpCodec::SdpCodecCPUCost iCost = SdpCodec::SDP_CODEC_CPU_LOW ;   
 
    if (mMediaConnections.entries() > 0)
    {      
@@ -1715,7 +1715,8 @@ int CpTopologyGraphInterface::getCodecCPUCost()
          // If the codec is null, assume LOW.
          if (mediaConnection->mpAudioCodec != NULL)
          {
-            int iCodecCost = mediaConnection->mpAudioCodec->getCPUCost();
+            SdpCodec::SdpCodecCPUCost iCodecCost =
+               mediaConnection->mpAudioCodec->getCPUCost();
             if (iCodecCost > iCost)
                iCost = iCodecCost;
          }

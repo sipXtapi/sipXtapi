@@ -31,7 +31,7 @@ SdpCodec::SdpCodec(enum SdpCodecTypes sdpCodecType,
                    int preferredPacketLength,
                    int numChannels,
                    const char* formatSpecificData,
-                   const int CPUCost,
+                   const SdpCodecCPUCost CPUCost,
                    const int BWCost,
                    const int videoFormat,
                    const int videoFmtp) :
@@ -421,6 +421,49 @@ SdpCodec::operator=(const SdpCodec& rhs)
    return *this;
 }
 
+void SdpCodec::setCodecPayloadFormat(int formatId)
+{
+   mCodecPayloadFormat = formatId;
+}
+
+void SdpCodec::setVideoFmtp(const int videoFmtp)
+{
+   mVideoFmtp = videoFmtp;
+}
+
+void SdpCodec::setVideoFmtpString(int videoFmtp)
+{
+   UtlString tempFmtp(NULL);
+
+   switch (videoFmtp)
+   {
+   case SDP_VIDEO_FORMAT_SQCIF:
+      mVideoFmtpString.append("SQCIF/");
+      break;
+   case SDP_VIDEO_FORMAT_QCIF:
+      mVideoFmtpString.append("QCIF/");
+      break;
+   case SDP_VIDEO_FORMAT_CIF:
+      mVideoFmtpString.append("CIF/");
+      break;
+   case SDP_VIDEO_FORMAT_QVGA:
+      mVideoFmtpString.append("QVGA/");
+      break;
+   default:
+      break;
+   }
+}
+
+void SdpCodec::clearVideoFmtpString()
+{
+   mVideoFmtpString = "";
+}
+
+void SdpCodec::setPacketSize(const int packetSize)
+{
+   mPacketLength = packetSize;
+}
+
 /* ============================ ACCESSORS ================================= */
 
 SdpCodec::SdpCodecTypes SdpCodec::getCodecType() const
@@ -431,11 +474,6 @@ SdpCodec::SdpCodecTypes SdpCodec::getCodecType() const
 int SdpCodec::getCodecPayloadFormat() const
 {
     return(mCodecPayloadFormat);
-}
-
-void SdpCodec::setCodecPayloadFormat(int formatId)
-{
-    mCodecPayloadFormat = formatId;
 }
 
 void SdpCodec::getSdpFmtpField(UtlString& formatSpecificData) const
@@ -453,17 +491,17 @@ void SdpCodec::getEncodingName(UtlString& mimeSubtype) const
     mimeSubtype = mMimeSubtype;
 }
 
-int SdpCodec::getSampleRate() const // samples per second
+int SdpCodec::getSampleRate() const
 {
     return(mSampleRate);
 }
 
-int SdpCodec::getVideoFormat() const // samples per second
+int SdpCodec::getVideoFormat() const
 {
     return(mVideoFormat);
 }
 
-int SdpCodec::getPacketLength() const //micro seconds
+int SdpCodec::getPacketLength() const
 {
     return(mPacketLength);
 }
@@ -473,52 +511,14 @@ int SdpCodec::getNumChannels() const
     return(mNumChannels);
 }
 
-void SdpCodec::setVideoFmtp(const int videoFmtp)
-{
-    mVideoFmtp = videoFmtp;
-}
-
 int SdpCodec::getVideoFmtp() const
 {
     return mVideoFmtp;
 }
 
-void SdpCodec::setPacketSize(const int packetSize)
-{
-    mPacketLength = packetSize;
-}
-
 void SdpCodec::getVideoFmtpString(UtlString& fmtpString) const
 {
     fmtpString = mVideoFmtpString;
-}
-
-void SdpCodec::setVideoFmtpString(int videoFmtp)
-{
-    UtlString tempFmtp(NULL);
-
-    switch (videoFmtp)
-    {
-    case SDP_VIDEO_FORMAT_SQCIF:
-        mVideoFmtpString.append("SQCIF/");
-        break;
-    case SDP_VIDEO_FORMAT_QCIF:
-        mVideoFmtpString.append("QCIF/");
-        break;
-    case SDP_VIDEO_FORMAT_CIF:
-        mVideoFmtpString.append("CIF/");
-        break;
-    case SDP_VIDEO_FORMAT_QVGA:
-        mVideoFmtpString.append("QVGA/");
-        break;
-    default:
-        break;
-    }
-}
-
-void SdpCodec::clearVideoFmtpString()
-{
-    mVideoFmtpString = "";
 }
 
 void SdpCodec::toString(UtlString& sdpCodecContents) const
@@ -533,7 +533,7 @@ void SdpCodec::toString(UtlString& sdpCodecContents) const
 }
 
 // Get the CPU cost for this codec.
-int SdpCodec::getCPUCost() const
+SdpCodec::SdpCodecCPUCost SdpCodec::getCPUCost() const
 {
    return mCPUCost;
 }
