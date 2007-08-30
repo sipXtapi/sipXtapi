@@ -48,6 +48,7 @@ public:
       MPRNM_BUFRECORDER_STOPPED,
       MPRNM_BUFRECORDER_FINISHED,
       MPRNM_BUFRECORDER_NOINPUTDATA,
+      MPRNM_DTMF_RECEIVED,
       // MPRNM_MIXER_NEWFOCUS,
 
       // Add new built in resource notification messages above

@@ -2303,6 +2303,9 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\src\mp\MprnDTMFMsg.cpp">
+			</File>
+			<File
 				RelativePath=".\src\mp\MprnProgressMsg.cpp">
 			</File>
 			<File
@@ -4113,6 +4116,9 @@
 			</File>
 			<File
 				RelativePath="include\mp\MprMixer.h">
+			</File>
+			<File
+				RelativePath=".\include\mp\MprnDTMFMsg.h">
 			</File>
 			<File
 				RelativePath=".\include\mp\MprnProgressMsg.h">

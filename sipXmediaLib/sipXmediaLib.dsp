@@ -411,6 +411,10 @@ SOURCE=.\src\mp\MprMixer.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\mp\MprnDTMFMsg.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\mp\MprnProgressMsg.cpp
 # End Source File
 # Begin Source File
@@ -1108,6 +1112,10 @@ SOURCE=.\include\mp\MprFromStream.h
 # Begin Source File
 
 SOURCE=.\include\mp\MprMixer.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MprnDTMFMsg.h
 # End Source File
 # Begin Source File
 

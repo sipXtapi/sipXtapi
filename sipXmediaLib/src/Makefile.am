@@ -120,6 +120,7 @@ libsipXmedia_la_SOURCES =  \
     mp/MprFromNet.cpp \
     mp/MprFromStream.cpp \
     mp/MprMixer.cpp \
+    mp/MprnDTMFMsg.cpp \
     mp/MprnProgressMsg.cpp \
     mp/MprNull.cpp \
     mp/MprNullAec.cpp \

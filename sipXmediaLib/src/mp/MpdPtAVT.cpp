@@ -18,8 +18,11 @@
 #include <netinet/in.h>
 #endif /* __pingtel_on_posix__ ] */
 #include "mp/MpdPtAVT.h"
+#include "mp/MpFlowGraphBase.h"
+#include "mp/MprnDTMFMsg.h"
 #include "os/OsNotification.h"
 #include "os/OsSysLog.h"
+
 #ifdef _VXWORKS /* [ */
 #include <inetlib.h>
 #endif /* _VXWORKS ] */
@@ -37,8 +40,9 @@ const MpCodecInfo MpdPtAVT::smCodecInfo(
          SdpCodec::SDP_CODEC_TONES, "Pingtel_1.0",
          8000, 0, 1, 0, 6400, 128, 128, 128, 0, 0, TRUE, FALSE);
 
-MpdPtAVT::MpdPtAVT(int payloadType)
+MpdPtAVT::MpdPtAVT(int payloadType, MpFlowGraphBase* pFlowGraph)
 : MpDecoderBase(payloadType, &smCodecInfo)
+, mpFlowGraph(pFlowGraph)
 , mCurrentToneKey(-1)
 , mPrevToneSignature(0)
 , mCurrentToneSignature(0)
@@ -218,28 +222,33 @@ void MpdPtAVT::signalKeyDown(const MpRtpBufPtr &pPacket)
    }
    OsSysLog::add(FAC_MP, PRI_INFO, "MpdPtAvt(0x%X) Start Rcv Tone key=%d"
                  " dB=%d TS=0x%08x\n", (int) this, pAvt->key, pAvt->dB, ts);
-   
+
+   // Ok, create a new DTMF notification message to indicate key down.
+   MprnDTMFMsg dtmfMsg("", (MprnDTMFMsg::KeyCode)pAvt->key, 
+                       MprnDTMFMsg::KEY_DOWN, mToneDuration);
+   mpFlowGraph->postNotification(dtmfMsg);
+
    if (NULL != mpNotify) 
    {
-      ret = mpNotify->signal((pAvt->key) << 16 | (mToneDuration & 0xffff));
-         if (OS_SUCCESS != ret) 
+      ret = mpNotify->signal((uint32_t)(pAvt->key) << 16 | mToneDuration);
+      if (OS_SUCCESS != ret) 
+      {
+         if (OS_ALREADY_SIGNALED == ret) 
          {
-            if (OS_ALREADY_SIGNALED == ret) 
-            {
-               OsSysLog::add(FAC_MP, PRI_ERR, "MpdPtAvt(%p) Signal Start "
-                             "returned OS_ALREADY_SIGNALED", this);
-            } 
-            else 
-            {
-               OsSysLog::add(FAC_MP, PRI_ERR,
-                             "MpdPtAvt(%p) Signal Start returned %d", this, ret);
-            }
+            OsSysLog::add(FAC_MP, PRI_ERR, "MpdPtAvt(%p) Signal Start "
+                          "returned OS_ALREADY_SIGNALED", this);
          } 
          else 
          {
-            OsSysLog::add(FAC_MP, PRI_DEBUG,
-               "MpdPtAvt(%p) Signal Start sent successfully", this);
+            OsSysLog::add(FAC_MP, PRI_ERR,
+                          "MpdPtAvt(%p) Signal Start returned %d", this, ret);
          }
+       } 
+       else 
+       {
+          OsSysLog::add(FAC_MP, PRI_DEBUG,
+                        "MpdPtAvt(%p) Signal Start sent successfully", this);
+       }
    }
    else
    {
@@ -271,11 +280,17 @@ void MpdPtAVT::signalKeyUp(const MpRtpBufPtr &pPacket)
                     (int) this, pAvt->key, pAvt->dB, mCurrentToneSignature, 
                     mToneDuration, mCurrentToneKey);
       mPrevToneSignature = mCurrentToneSignature;
+
+      // Ok, create a new DTMF notification message to indicate key up.
+      MprnDTMFMsg dtmfMsg("", (MprnDTMFMsg::KeyCode)pAvt->key, 
+                          MprnDTMFMsg::KEY_UP, mToneDuration);
+      mpFlowGraph->postNotification(dtmfMsg);
+
       if (NULL != mpNotify) 
       {
          ret = mpNotify->signal(0x80000000
-                                | (0x3fff0000 & (mCurrentToneKey << 16))
-                                | (mToneDuration & 0xffff));
+                                | (0x3fff0000 & ((uint32_t)mCurrentToneKey << 16))
+                                | mToneDuration);
          if (OS_SUCCESS != ret) 
          {
             if (OS_ALREADY_SIGNALED == ret) 

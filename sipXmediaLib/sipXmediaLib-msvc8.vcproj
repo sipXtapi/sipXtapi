@@ -1690,6 +1690,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\src\mp\MprnDTMFMsg.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\src\mp\MprFromFile.cpp"
 					>
 				</File>
@@ -2272,6 +2276,10 @@
 				</File>
 				<File
 					RelativePath=".\include\mp\MprnProgressMsg.h"
+					>
+				</File>
+				<File
+					RelativePath=".\include\mp\MprnDTMFMsg.h"
 					>
 				</File>
 				<File

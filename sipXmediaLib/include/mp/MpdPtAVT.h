@@ -23,6 +23,7 @@
 // FORWARD DECLARATIONS
 
 class OsNotification;
+class MpFlowGraphBase;
 
 // DEFINES
 // MACROS
@@ -57,9 +58,10 @@ public:
 //@{
 
      /// Constructor
-   MpdPtAVT(int payloadType);
+   MpdPtAVT(int payloadType, MpFlowGraphBase* pFlowGraph);
      /**<
      *  @param[in] payloadType - RTP payload type associated with this decoder
+     *  @param[in] pFlowGraph  - Pointer to the flowgraph that the decoder is part of. (used for notifications)
      */
 
      /// Destructor
@@ -113,10 +115,11 @@ protected:
 private:
    static const MpCodecInfo smCodecInfo; ///< static information about the codec
 
+   MpFlowGraphBase* mpFlowGraph;       ///< Pointer to the flowgraph this is part of - used for tone notification.
    int mCurrentToneKey;                ///< The key ID
    unsigned int mPrevToneSignature;    ///< The timestamp for last KEYUP event
    unsigned int mCurrentToneSignature; ///< The starting timestamp
-   unsigned int mToneDuration;         ///< last reported duration
+   uint16_t mToneDuration;             ///< last reported duration
    OsNotification* mpNotify;     ///< Object to signal on key-down/key-up events
 
    void signalKeyDown(const MpRtpBufPtr &pPacket);

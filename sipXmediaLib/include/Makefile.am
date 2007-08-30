@@ -97,6 +97,7 @@ nobase_include_HEADERS =  \
     mp/MprFromNet.h \
     mp/MprFromStream.h \
     mp/MprMixer.h \
+    mp/MprnDTMFMsg.h \
     mp/MprnProgressMsg.h \
     mp/MprNull.h \
     mp/MprNullConstructor.h \

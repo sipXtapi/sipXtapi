@@ -32,6 +32,8 @@
 // STRUCTS
 // TYPEDEFS
 // FORWARD DECLARATIONS
+class MpFlowGraphBase;
+
 
 //:Singleton class used to generate encoder and decoder objects of a
 //:an indicated type.
@@ -58,11 +60,13 @@ public:
 //@{
    OsStatus createDecoder(SdpCodec::SdpCodecTypes internalCodecId,
                           int payloadType,
-                          MpDecoderBase*& rpDecoder);
+                          MpDecoderBase*& rpDecoder,
+                          MpFlowGraphBase* pFlowGraph = NULL);
      //:Returns a new instance of a decoder of the indicated type
      //!param: internalCodecId - (in) codec type identifier
      //!param: payloadType - (in) RTP payload type associated with this decoder
      //!param: rpDecoder - (out) Reference to a pointer to the new decoder object
+     //!param: pFlowGraph - (in) Pointer to the flowgraph that the decoder is part of. (used for notifications)
 
    OsStatus createEncoder(SdpCodec::SdpCodecTypes internalCodecId,
                           int payloadType,
