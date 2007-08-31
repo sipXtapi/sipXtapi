@@ -41,7 +41,7 @@ const MpCodecInfo MpdPtAVT::smCodecInfo(
          8000, 0, 1, 0, 6400, 128, 128, 128, 0, 0, TRUE, FALSE);
 
 MpdPtAVT::MpdPtAVT(int payloadType, MpFlowGraphBase* pFlowGraph)
-: MpDecoderBase(payloadType, &smCodecInfo)
+: MpDecoderBase(payloadType)
 , mpFlowGraph(pFlowGraph)
 , mCurrentToneKey(-1)
 , mPrevToneSignature(0)
@@ -193,6 +193,11 @@ UtlBoolean MpdPtAVT::setDtmfNotify(OsNotification* pNotify)
 {
    mpNotify = pNotify;
    return TRUE;
+}
+
+const MpCodecInfo* MpdPtAVT::getInfo() const
+{
+   return &smCodecInfo;
 }
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */

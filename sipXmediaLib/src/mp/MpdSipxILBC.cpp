@@ -35,7 +35,7 @@ const MpCodecInfo MpdSipxILBC::smCodecInfo(
 
 
 MpdSipxILBC::MpdSipxILBC(int payloadType)
-: MpDecoderBase(payloadType, &smCodecInfo)
+: MpDecoderBase(payloadType)
 , mpState(NULL)
 {
 }
@@ -105,6 +105,12 @@ int MpdSipxILBC::decode(const MpRtpBufPtr &pPacket,
    }
 
    return 240;
+}
+
+
+const MpCodecInfo* MpdSipxILBC::getInfo() const
+{
+   return &smCodecInfo;
 }
 
 #endif // HAVE_ILBC ]

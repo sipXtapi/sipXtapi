@@ -37,7 +37,7 @@ const MpCodecInfo MpdSipxSpeex::smCodecInfo(
               
 
 MpdSipxSpeex::MpdSipxSpeex(int payloadType)
-: MpDecoderBase(payloadType, &smCodecInfo)
+: MpDecoderBase(payloadType)
 , mpDecoderState(NULL)
 , mDecbits()
 , mNumSamplesPerFrame(0)
@@ -98,6 +98,11 @@ int MpdSipxSpeex::decode(const MpRtpBufPtr &pPacket, unsigned decodedBufferLengt
    speex_decode_int(mpDecoderState,&mDecbits,(spx_int16_t*)samplesBuffer);   
 
    return mNumSamplesPerFrame;
+}
+
+const MpCodecInfo* MpdSipxSpeex::getInfo() const
+{
+   return &smCodecInfo;
 }
 
 #endif /* HAVE_SPEEX ] */

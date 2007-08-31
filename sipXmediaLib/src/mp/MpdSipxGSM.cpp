@@ -43,7 +43,7 @@ const MpCodecInfo MpdSipxGSM::smCodecInfo(
               
 
 MpdSipxGSM::MpdSipxGSM(int payloadType)
-: MpDecoderBase(payloadType, &smCodecInfo)
+: MpDecoderBase(payloadType)
 , mpGsmState(NULL)
 {
 }
@@ -86,6 +86,12 @@ int MpdSipxGSM::decode(const MpRtpBufPtr &pPacket, unsigned decodedBufferLength,
 
    gsm_decode(mpGsmState, (gsm_byte*)pPacket->getDataPtr(), (gsm_signal*)samplesBuffer);
    return 160;
+}
+
+
+const MpCodecInfo* MpdSipxGSM::getInfo() const
+{
+   return &smCodecInfo;
 }
 
 #endif /* HAVE_GSM ] */

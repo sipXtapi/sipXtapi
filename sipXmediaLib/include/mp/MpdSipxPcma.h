@@ -80,6 +80,9 @@ public:
 ///@name Accessors
 //@{
 
+     /// @copydoc MpDecoderBase::getInfo()
+   virtual const MpCodecInfo* getInfo() const;
+
 //@}
 
 /* ============================ INQUIRY =================================== */

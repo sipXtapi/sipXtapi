@@ -17,11 +17,21 @@
 #include "mp/MpSipxDecoders.h"
 
 const MpCodecInfo MpdSipxPcmu::smCodecInfo(
-         SdpCodec::SDP_CODEC_PCMU, "SIPfoundry 1.0",
-         8000, 8, 1, 160, 64000, 1280, 1280, 1280, 160, 3);
+    SdpCodec::SDP_CODEC_PCMU,   // codecType
+    "SIPfoundry 1.0",           // codecVersion
+    8000,                       // samplingRate
+    8,                          // numBitsPerSample
+    1,                          // numChannels
+    160,                        // interleaveBlockSize
+    64000,                      // bitRate
+    160 * 8,                    // minPacketBits
+    160 * 8,                    // avgPacketBits
+    160 * 8,                    // maxPacketBits
+    160,                        // numSamplesPerFrame
+    3);                         // preCodecJitterBufferSize
 
 MpdSipxPcmu::MpdSipxPcmu(int payloadType)
-: MpDecoderBase(payloadType, &smCodecInfo)
+: MpDecoderBase(payloadType)
 {
 }
 
@@ -58,4 +68,9 @@ int MpdSipxPcmu::decode(const MpRtpBufPtr &pPacket,
                  (const uint8_t*)pPacket->getDataPtr(),
                  samplesBuffer);
    return samples;
+}
+
+const MpCodecInfo* MpdSipxPcmu::getInfo() const
+{
+   return &smCodecInfo;
 }

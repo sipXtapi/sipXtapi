@@ -43,11 +43,9 @@ public:
 //@{
 
      /// Constructor
-   MpDecoderBase(int payloadType,
-                 const MpCodecInfo* pInfo);
+   MpDecoderBase(int payloadType);
      /**<
      *  @param[in] payloadType - RTP payload type associated with this decoder
-     *  @param[in] pInfo - Pointer to derived class' static const MpCodecInfo
      */
 
      /// Destructor
@@ -93,11 +91,14 @@ public:
 ///@name Accessors
 //@{
 
-     /// Get static information about the decoder
-   virtual const MpCodecInfo* getInfo(void) const;
+     /// Get information about the decoder.
+   virtual const MpCodecInfo* getInfo() const =0;
      /**<
-     *  @returns a pointer to an MpCodecInfo object that provides
-     *  static information about the decoder.
+     *  @returns A pointer to a MpCodecInfo object that provides
+     *           information about the decoder. For codecs with only one mode
+     *           supported (like G.711 and GSM) it may return pointer to
+     *           static class member. More complex codecs (like Speex) may
+     *           return pointer to usual class member.
      */
 
      /// Returns the RTP payload type associated with this decoder.
@@ -123,8 +124,7 @@ private:
      /// Assignment operator
    MpDecoderBase& operator=(const MpDecoderBase& rhs);
 
-   const MpCodecInfo* mpCodecInfo;
-   int mPayloadType;
+   int mPayloadType;  ///< RTP payload type associated with this decoder.
 };
 
 /* ============================ INLINE METHODS ============================ */

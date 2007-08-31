@@ -17,9 +17,8 @@
 // Constructor
 // Returns a new decoder object.
 // param: payloadType - (in) RTP payload type associated with this decoder
-MpDecoderBase::MpDecoderBase(int payloadType, const MpCodecInfo* pInfo) :
-   mpCodecInfo(pInfo),
-   mPayloadType(payloadType)
+MpDecoderBase::MpDecoderBase(int payloadType)
+: mPayloadType(payloadType)
 {
  // initializers do it all!
 }
@@ -38,15 +37,6 @@ UtlBoolean MpDecoderBase::setDtmfNotify(OsNotification* pNotify)
 }
 
 /* ============================ ACCESSORS ================================= */
-
-// Get static information about the decoder
-// Returns a pointer to an <i>MpCodecInfo</i> object that provides
-// static information about the decoder.
-const MpCodecInfo* MpDecoderBase::getInfo(void) const
-{
-   return(mpCodecInfo);
-}
-
 
 // Returns the RTP payload type associated with this decoder.
 int MpDecoderBase::getPayloadType(void)
