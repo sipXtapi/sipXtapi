@@ -30,15 +30,16 @@ namespace
 {
 	struct Size_
 	{
+		const char* label;
 		int w;
 		int h;
 	};
 
-#define DEFSIZE(code) {(VideoFormat::width_ ## code), (VideoFormat::height_ ## code)}
+#define DEFSIZE(code) {#code, (VideoFormat::width_ ## code), (VideoFormat::height_ ## code)}
 
 	static const Size_ frameSizes[] =
 	{
-		{0, 0}, // sizeOther
+		{"", 0, 0}, // sizeOther
 		DEFSIZE(SQCIF),
 		DEFSIZE(QCIF),
 		DEFSIZE(QVGA),
@@ -69,6 +70,25 @@ VideoFormat::SizePreset VideoFormat::GetSize() const
 	}
 
 	return sizeOther;
+}
+
+VideoFormat::SizePreset VideoFormat::GetSizeByLabel(const char* label)
+{
+	for (int i = 1; i < sizeof(frameSizes) / sizeof(*frameSizes); ++i)
+	{
+		if (0 == stricmp(label, frameSizes[i].label))
+			return SizePreset(i);
+	}
+
+	return sizeOther;
+}
+
+const char* VideoFormat::GetSizeLabel(SizePreset preset) 
+{
+	if (preset < size_SQCIF || preset > size_16CIF)
+		return "";
+
+	return frameSizes[preset].label;
 }
 
 size_t GetVideoFrameByteSize(VideoSurface surface, size_t width, size_t height)
@@ -135,11 +155,15 @@ VideoSurface PixelFormatToVideoSurface(const PixelFormat pixelFormat)
 	switch (pixelFormat) {
 	// TODO: determine I420 or YV12. For now we assume I420, as this is what FFmpeg 
 	// returns. However, this is suspicious - it treats YV12 identically.
+	//case PIX_FMT_YUV420P: return videoSurfaceYV12;
 	case PIX_FMT_YUV420P: return videoSurfaceI420;
 	case PIX_FMT_YUYV422: return videoSurfaceYUY2;
 	case PIX_FMT_UYVY422: return videoSurfaceUYVY;
 	case PIX_FMT_RGB24: return videoSurfaceRGB24;
+
+	case PIX_FMT_RGB32:
 	case PIX_FMT_ARGB: return videoSurfaceARGB32;
+
 	case PIX_FMT_NV12: return videoSurfaceNV12;
 	}
 #endif // VIDEO_SUPPORT_DISABLE_AVCODEC
@@ -151,14 +175,12 @@ PixelFormat VideoSurfaceToPixelFormat(const VideoSurface surface)
 #ifndef VIDEO_SUPPORT_DISABLE_AVCODEC
 	switch (surface) {
 	case videoSurfaceI420: return PIX_FMT_YUV420P;
-
 	// hack: AVCodecVideoSurfaceConverter will check surface and adjust U&V plane pointers appropriately
 	case videoSurfaceYV12: return PIX_FMT_YUV420P;
-
 	case videoSurfaceYUY2: return PIX_FMT_YUYV422;
 	case videoSurfaceUYVY: return PIX_FMT_UYVY422;
 	case videoSurfaceRGB24: return PIX_FMT_RGB24;
-	case videoSurfaceARGB32: return PIX_FMT_ARGB;
+	case videoSurfaceARGB32: return PIX_FMT_RGB32;
 	case videoSurfaceNV12: return PIX_FMT_NV12;
 	}
 #endif // VIDEO_SUPPORT_DISABLE_AVCODEC

@@ -174,8 +174,21 @@ RawVideoRendererFilter::RawVideoRendererFilter(RawVideoRenderer& renderer, LPUNK
 	{
 	}
 
-	HRESULT RawVideoRendererInputPin::CheckMediaType(const CMediaType* )
+	HRESULT RawVideoRendererInputPin::CheckMediaType(const CMediaType* type)
 	{
+//		bool bottomUp = false;
+//		if (!IsEqualGUID(type->formattype, FORMAT_VideoInfo) && !IsEqualGUID(type->formattype, FORMAT_VideoInfo2))
+//			goto Finish;
+//	
+//		if (sizeof(VIDEOINFOHEADER) > type->FormatLength()|| NULL == type->Format())
+//			goto Finish;
+//	
+//		VIDEOINFOHEADER* vi = (VIDEOINFOHEADER*)type->Format();
+//		BITMAPINFOHEADER& bi = vi->bmiHeader;
+//		if (bi.biHeight < 0)
+//			bottomUp = true;
+//
+//Finish:
 		return S_OK;
 	}
 

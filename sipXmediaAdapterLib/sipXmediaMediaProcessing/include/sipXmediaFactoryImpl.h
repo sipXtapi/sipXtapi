@@ -118,7 +118,7 @@ class sipXmediaFactoryImpl : public CpMediaInterfaceFactoryImpl
 
     virtual OsStatus setVideoQuality(int quality);
     virtual OsStatus setVideoParameters(int bitRate, int frameRate);
-    
+    virtual OsStatus setVideoFramerate(int framerate);
 
 /* ============================ ACCESSORS ================================= */
 
@@ -138,6 +138,12 @@ class sipXmediaFactoryImpl : public CpMediaInterfaceFactoryImpl
     virtual OsStatus getVideoBitRate(int& bitRate) const;
     virtual OsStatus getVideoFrameRate(int& frameRate) const;
 
+#ifdef SIPX_VIDEO
+    virtual OsStatus getVideoCaptureDevices(UtlSList& videoDevices) const;
+    virtual OsStatus getVideoCaptureDevice(UtlString& videoDevice);
+    virtual OsStatus setVideoCaptureDevice(const UtlString& videoDevice);
+    virtual OsStatus getVideoCpuValue(int& cpuValue) const;
+#endif // SIPX_VIDEO
 /* ============================ INQUIRY =================================== */
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
@@ -152,11 +158,16 @@ class sipXmediaFactoryImpl : public CpMediaInterfaceFactoryImpl
     UtlString mpDefaultCaptureDevice;
                                 ///< Default video capture device name.
 
-
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
   private:
     static int miInstanceCount;
 
+    int mVideoFrameRate;
+    int mVideoBitRate;
+    int mVideoQuality;
+    int mVideoFormat;
+
+    void getVideoFrameSize(int& width, int& height) const;
 };
 
 /* ============================ INLINE METHODS ============================ */

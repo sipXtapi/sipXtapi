@@ -19,25 +19,24 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-//! @file Types.h
-//! Forward declarations of common published types and their dependencies.
-//! @author Andrzej Ciarkowski <mailto:andrzejc@wp-sa.pl>
 #pragma once
+#include <VideoSupport/VideoFrameProcessor.h>
 
-enum VideoSurface;
+class GenericVerticalFlipper: public VideoFrameProcessor
+{
+public:
+	GenericVerticalFlipper();
 
-struct VideoFormat;
+	bool Initialize(VideoSurface surface, size_t width, size_t height);
 
-class VideoCaptureSink;
+	bool Process(void* frameBytes, size_t frameByteSize);
 
-class VideoCapture;
+	static VideoFrameProcessor* Create(); 
 
-class VideoSurfaceConverter;
+private:
+	size_t frameByteSize_;
+	size_t stride_;
+	size_t height_;
+};
 
-class VideoSurfaceConverterFactory;
-
-class VideoFrameProcessor;
-
-enum VideoProcessorCategory;
-
-void VideoSupportStaticDispose();
+void VideoFrameFlipperImplEnsureReg();

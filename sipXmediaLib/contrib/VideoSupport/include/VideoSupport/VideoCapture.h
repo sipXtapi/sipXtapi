@@ -98,6 +98,9 @@ public:
 	//! Will fail if capture is running.
 	bool SetSink(VideoCaptureSink* sink);
 
+	typedef std::vector<VideoSurface> VideoSurfaces;
+	bool EnumCaptureSurfaces(VideoSurfaces& surfaces) const;
+
 private:
 	VideoCapture(const VideoCapture&);
 	VideoCapture& operator=(const VideoCapture&);

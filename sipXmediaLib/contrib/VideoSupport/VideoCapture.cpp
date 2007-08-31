@@ -23,6 +23,7 @@
 //! Implementation of @c VideoCapture class.
 //! @author Andrzej Ciarkowski <mailto:andrzejc@wp-sa.pl>
 #include "stdafx.h"
+#include <set>
 
 // #define VIDEO_CAPTURE_NOTIFY_WINDOW
 #define VIDEO_CAPTURE_NOTIFY_THREAD
@@ -37,6 +38,9 @@
 #include <VideoSupport/VideoSurfaceConverter.h>
 #include <VideoSupport/VideoSurfaceConverterFactory.h>
 #include <VideoSupport/VideoCaptureSink.h>
+#include <VideoSupport/VideoFrameProcessor.h>
+#include <VideoSupport/VideoProcessorFactory.h>
+#include "VideoFrameFlipperImpl.h"
 
 #include <map>
 
@@ -225,7 +229,10 @@ struct VideoCapture::Impl: public MediaSamplePushSink
 	std::auto_ptr<CCritSec> lock_;
 	State state_;
 	volatile bool running_;
+	bool bottomUp_;
 	VideoCaptureSink* sink_;
+
+	std::auto_ptr<VideoFrameProcessor> flipper_;
 
 	explicit Impl(VideoCapture& owner): 
 	owner_(owner),
@@ -240,6 +247,7 @@ struct VideoCapture::Impl: public MediaSamplePushSink
 
 	state_(stateUninitialized),
 	running_(false),
+	bottomUp_(false),
 	converterBufferSize_(0),
 	converterBuffer_(NULL),
 	outputSurface_(videoSurfaceUnknown),
@@ -286,6 +294,8 @@ struct VideoCapture::Impl: public MediaSamplePushSink
 	bool SetSink(VideoCaptureSink* sink);
 
 	void AdjustVideoWindowSize();
+
+	bool EnumCaptureSurfaces(VideoSurfaces& surfaces) const;
 
 #ifdef VIDEO_CAPTURE_NOTIFY_THREAD
 
@@ -528,6 +538,7 @@ void VideoCapture::Impl::Close()
 VideoCapture::VideoCapture():
 impl_(NULL)
 {
+	VideoFrameFlipperImplEnsureReg();
 	impl_ = new Impl(*this);
 }
 
@@ -946,7 +957,7 @@ void VideoCapture::Impl::ProcessMediaEvent(long event, LONG_PTR param1, LONG_PTR
 	// do some shit
 	switch (event) {
 	case EC_COMPLETE:  // Fall through.
-    case EC_USERABORT: // Fall through.
+	case EC_USERABORT: // Fall through.
 	case EC_ERRORABORT: 
 	{
 		CAutoLock lock(lock_.get());
@@ -1048,8 +1059,7 @@ bool VideoCapture::Impl::MatchFormat(const VideoFormat& format, bool set)
 		assert(NULL != type);
 
 		VideoSurface surface = MediaSubtypeToVideoSurface(type->subtype);
-
-		bool done = MatchFormat(format, subtype, *type, caps, set);
+		bool done = IsVideoSurfaceValid(surface) && MatchFormat(format, subtype, *type, caps, set);
 		DeleteMediaType(type);
 
 		if (done)
@@ -1103,17 +1113,41 @@ bool VideoCapture::Impl::MatchFormat(const VideoFormat& format, const GUID& form
 	vi->AvgTimePerFrame = frameDuration;
 	vi->bmiHeader.biWidth = LONG(format.width);
 	
-	// watch out for both bottom-up and top-down DIBs
-	if (vi->bmiHeader.biHeight < 0)
-		vi->bmiHeader.biHeight = -LONG(format.height);
+	bool bottomUp = false;
+	if (BI_RGB == vi->bmiHeader.biCompression || BI_BITFIELDS == vi->bmiHeader.biCompression)
+	{
+		// watch out for both bottom-up and top-down DIBs
+		if (vi->bmiHeader.biHeight < 0)
+		{
+			bottomUp = false;
+			vi->bmiHeader.biHeight = -LONG(format.height);
+		}
+		else
+		{
+			bottomUp = true;
+			vi->bmiHeader.biHeight = LONG(format.height);
+		}
+	}
 	else
+	{
+		bottomUp = false;
 		vi->bmiHeader.biHeight = LONG(format.height);
+	}
 
 	vi->bmiHeader.biSizeImage = DIBSIZE(vi->bmiHeader);
 
 	HRESULT hr;
 	if (FAILED(hr = streamConfig_->SetFormat(&type)))
 		return false;
+
+	flipper_.reset();
+	bottomUp_ = bottomUp;
+	if (bottomUp_)
+	{
+		VideoProcessorFactory* factory = VideoProcessorFactory::GetInstance();
+		if (NULL != factory)
+			flipper_ = factory->CreateProcessor(videoVerticalFlipper, format.GetSurface(), format.GetWidth(), format.GetHeight());
+	}
 
 	captureFormatCache_.reset();
 
@@ -1253,6 +1287,9 @@ void VideoCapture::Impl::PushSample(IMediaSample* sample)
 	if (0 == length)
 		return;
 
+	if (bottomUp_ && NULL != flipper_.get())
+		flipper_->Process(data, length);
+
 	if (NULL != converter_.get())
 	{
 		assert(NULL != converterBuffer_);
@@ -1292,3 +1329,58 @@ bool VideoCapture::SetSink(VideoCaptureSink* sink)
 {
 	return impl_->SetSink(sink);
 }
+
+bool VideoCapture::EnumCaptureSurfaces(VideoSurfaces& surfaces) const
+{
+	return impl_->EnumCaptureSurfaces(surfaces);
+}
+
+bool VideoCapture::Impl::EnumCaptureSurfaces(VideoSurfaces& surfaces) const
+{
+	CAutoLock lock(lock_.get());
+	if (stateInitialized != state_)
+		return false;
+
+	HRESULT hr;
+	assert(NULL != streamConfig_.GetInterfacePtr());
+	int count = 0, size = 0;
+	if (FAILED(hr = streamConfig_->GetNumberOfCapabilities(&count, &size)))
+		return false;
+
+	if (sizeof(VIDEO_STREAM_CONFIG_CAPS) != size)
+		return false;
+
+	std::set<VideoSurface> s;
+	for (int i = 0; i < count; ++i)
+	{
+		VIDEO_STREAM_CONFIG_CAPS caps = {0};
+		AM_MEDIA_TYPE* type = NULL;
+		if (FAILED(hr = streamConfig_->GetStreamCaps(i, &type, (BYTE*)&caps)))
+			continue;
+
+		assert(NULL != type);
+		VideoSurface surface = MediaSubtypeToVideoSurface(type->subtype);
+		try
+		{
+			if (IsVideoSurfaceValid(surface))
+				s.insert(surface);
+
+			DeleteMediaType(type);
+		}
+		catch (std::bad_alloc&)
+		{
+			DeleteMediaType(type);
+			return false;
+		}
+	}
+	surfaces.clear();
+	try 
+	{
+		surfaces.resize(s.size());
+	}
+	catch (std::bad_alloc&) {return false;}
+
+	std::copy(s.begin(), s.end(), surfaces.begin());
+	return true;
+}
+

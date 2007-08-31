@@ -120,6 +120,12 @@
 				RelativePath="..\VideoFormat.cpp">
 			</File>
 			<File
+				RelativePath="..\VideoFrameFlipperImpl.cpp">
+			</File>
+			<File
+				RelativePath="..\VideoProcessorFactory.cpp">
+			</File>
+			<File
 				RelativePath="..\VideoSurfaceConverterFactory.cpp">
 			</File>
 			<File
@@ -149,6 +155,9 @@
 				RelativePath="..\utils.h">
 			</File>
 			<File
+				RelativePath="..\VideoFrameFlipperImpl.h">
+			</File>
+			<File
 				RelativePath="..\VideoSurfaceConverterImpl.h">
 			</File>
 		</Filter>
@@ -174,6 +183,12 @@
 			</File>
 			<File
 				RelativePath="..\include\VideoSupport\VideoFormat.h">
+			</File>
+			<File
+				RelativePath="..\include\VideoSupport\VideoFrameProcessor.h">
+			</File>
+			<File
+				RelativePath="..\include\VideoSupport\VideoProcessorFactory.h">
 			</File>
 			<File
 				RelativePath="..\include\VideoSupport\VideoSurfaceConverter.h">

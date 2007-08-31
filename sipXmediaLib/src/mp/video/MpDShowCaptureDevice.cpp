@@ -42,11 +42,15 @@ struct MpDShowCaptureDevice::FrameProxy: public VideoCaptureSink
 
    bool RenderBuffer(MpVideoBufPtr& buf, const void* frameData, size_t frameSize)
    {
+      void* dst = buf->getWriteDataPtr();
+      if (NULL == dst)
+          return false;
+
       buf->setFrameWidth(mDevice.mpOutputFormat->GetWidth());
       buf->setFrameHeight(mDevice.mpOutputFormat->GetHeight());
       buf->setColorspace(MpVideoBuf::ColorSpace(mDevice.mColorSpace));
 
-      memcpy(buf->getWriteDataPtr(), frameData, frameSize);
+      memcpy(dst, frameData, frameSize);
       // TODO: what to do with timecode? is it used anywhere? what is its format?
       return true;
    }

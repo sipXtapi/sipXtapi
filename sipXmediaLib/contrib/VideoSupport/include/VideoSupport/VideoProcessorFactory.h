@@ -19,25 +19,39 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-//! @file Types.h
-//! Forward declarations of common published types and their dependencies.
-//! @author Andrzej Ciarkowski <mailto:andrzejc@wp-sa.pl>
 #pragma once
 
-enum VideoSurface;
+#include <VideoSupport/Types.h>
+#include <memory>
 
-struct VideoFormat;
+enum VideoProcessorCategory
+{
+	videoVerticalFlipper,
+};
 
-class VideoCaptureSink;
+typedef std::auto_ptr<VideoFrameProcessor> VideoFrameProcessorAutoPtr;
+typedef VideoFrameProcessor* (* VideoFrameProcessorConstructor)();
 
-class VideoCapture;
+class VideoProcessorFactory
+{
+public:
 
-class VideoSurfaceConverter;
+	static VideoProcessorFactory* GetInstance();
 
-class VideoSurfaceConverterFactory;
+	static void StaticDispose();
 
-class VideoFrameProcessor;
+	VideoFrameProcessorAutoPtr CreateProcessor(VideoProcessorCategory category, VideoSurface surface, size_t width, size_t height);
 
-enum VideoProcessorCategory;
+	static bool RegisterConstructor(VideoProcessorCategory category, VideoSurface surface, VideoFrameProcessorConstructor constructor);
 
-void VideoSupportStaticDispose();
+private:
+
+	VideoProcessorFactory();
+	~VideoProcessorFactory();
+	
+	VideoProcessorFactory(const VideoProcessorFactory&);
+	VideoProcessorFactory& operator=(const VideoProcessorFactory&);
+
+	struct Impl;
+	Impl* impl_;
+};

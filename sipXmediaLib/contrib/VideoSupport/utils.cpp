@@ -25,6 +25,9 @@
 #include "stdafx.h"
 #include "utils.h"
 #include <VideoSupport/VideoFormat.h>
+#include <VideoSupport/VideoCapture.h>
+#include <VideoSupport/VideoProcessorFactory.h>
+#include <VideoSupport/VideoSurfaceConverterFactory.h>
 
 CoInitializer::CoInitializer():
 init_(false)
@@ -106,3 +109,11 @@ const GUID& VideoSurfaceToMediaSubtype(const VideoSurface surface)
 
 	return GUID_NULL;
 }
+
+void VideoSupportStaticDispose()
+{
+	VideoCapture::StaticDispose();
+	VideoSurfaceConverterFactory::StaticDispose();
+	VideoProcessorFactory::StaticDispose();
+}
+

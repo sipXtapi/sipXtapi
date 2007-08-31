@@ -108,6 +108,7 @@
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
 				OmitFramePointers="true"
+				WholeProgramOptimization="false"
 				AdditionalIncludeDirectories="./sdk-samples,./include,$(FFMPEG_ROOT)/libavcodec,$(FFMPEG_ROOT)/libavutil,./msinttypes"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;WINVER=0x0501;_WIN32_WINNT=0x0501;_WIN32_WINDOWS=0x0410;_WIN32_IE=0x0600"
 				RuntimeLibrary="2"
@@ -239,6 +240,50 @@
 				>
 			</File>
 			<File
+				RelativePath=".\VideoFrameFlipperImpl.cpp"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="3"
+						InlineFunctionExpansion="2"
+						EnableIntrinsicFunctions="true"
+						FavorSizeOrSpeed="1"
+						OmitFramePointers="true"
+						BasicRuntimeChecks="0"
+						UsePrecompiledHeader="0"
+						DebugInformationFormat="3"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						InlineFunctionExpansion="2"
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\VideoFrameFlipperImpl.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\VideoSupport\VideoFrameProcessor.h"
+				>
+			</File>
+			<File
+				RelativePath=".\VideoProcessorFactory.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\include\VideoSupport\VideoProcessorFactory.h"
+				>
+			</File>
+			<File
 				RelativePath=".\include\VideoSupport\VideoSurfaceConverter.h"
 				>
 			</File>
@@ -263,10 +308,18 @@
 						EnableIntrinsicFunctions="true"
 						FavorSizeOrSpeed="1"
 						OmitFramePointers="true"
-						WholeProgramOptimization="true"
 						BasicRuntimeChecks="0"
 						UsePrecompiledHeader="0"
 						DebugInformationFormat="3"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						InlineFunctionExpansion="2"
+						UsePrecompiledHeader="0"
 					/>
 				</FileConfiguration>
 			</File>

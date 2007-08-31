@@ -14,6 +14,12 @@
 // APPLICATION INCLUDES
 #include "mp/video/MpvoGdi.h"
 
+#define WIDTHBYTES(bits) ((DWORD)(((bits)+31) & (~31)) / 8)
+#define DIBWIDTHBYTES(bi) (DWORD)WIDTHBYTES((DWORD)(bi).biWidth * (DWORD)(bi).biBitCount)
+#define _DIBSIZE(bi) (DIBWIDTHBYTES(bi) * (DWORD)(bi).biHeight)
+#define DIBSIZE(bi) ((bi).biHeight < 0 ? (-1)*(_DIBSIZE(bi)) : _DIBSIZE(bi))
+
+
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
@@ -25,12 +31,21 @@
 
 MpvoGdi::MpvoGdi(HWND hWnd)
 : mHwnd(hWnd)
+, mBitmap(NULL)
+, mpBitmapBuffer(NULL)
+, mBmpWidth(0)
+, mBmpHeight(0)
 {
    initOffscreenBuffer();
 }
 
 MpvoGdi::~MpvoGdi()
 {
+   if (NULL != mBitmap)
+   {
+      ::DeleteObject(mBitmap);
+      mBitmap = NULL;
+   }
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -43,49 +58,47 @@ OsStatus MpvoGdi::render(MpVideoBufPtr pFrame)
    if (mHwnd == NULL)
       return OS_FAILED;
 
+   const int w = pFrame->getFrameWidth();
+   const int h = pFrame->getFrameHeight();
+   void* buffer = getCachedBitmapBuffer(w, h);
+   if (NULL == buffer)
+      return OS_FAILED;
+
    BITMAPINFOHEADER *p_header = &mBitmapInfo.bmiHeader;
    HDC hdc;
    HDC off_dc;
-   HBITMAP  off_bitmap;
-   void *pDibBuffer;
 
    // Get DC for video output window
-   hdc = GetDC( mHwnd );
+   hdc = ::GetDC(mHwnd);
    assert(hdc != NULL);
 
    // Create DC for drawing picture
-   off_dc = CreateCompatibleDC( hdc );
+   off_dc = ::CreateCompatibleDC(hdc);
    assert(off_dc != NULL);
+   ::GdiFlush();
 
-   // Fill in bitmap information that could change from frame to frame.
-   p_header->biWidth = pFrame->getFrameWidth();
-   p_header->biHeight = pFrame->getFrameHeight();
-
-   off_bitmap = CreateDIBSection( hdc, (BITMAPINFO *)p_header, DIB_RGB_COLORS,
-                                  (void**)&pDibBuffer, NULL, 0 );
- 
    // Convert frame to screen color format and copy it to windows bitmap
    switch (p_header->biBitCount)
    {
    case 32:
       pFrame->convertToColorSpace(MpVideoBuf::MP_COLORSPACE_BGR32,
-                                  (char*)pDibBuffer,
-                                  p_header->biWidth*p_header->biHeight*32/8);
+                                  (char*)buffer,
+                                  w * h * 32 / 8);
       break;
    case 24:
       pFrame->convertToColorSpace(MpVideoBuf::MP_COLORSPACE_BGR24,
-                                  (char*)pDibBuffer,
-                                  p_header->biWidth*p_header->biHeight*24/8);
+                                  (char*)buffer,
+                                  w * h * 24 / 8);
       break;
    case 16:
       pFrame->convertToColorSpace(MpVideoBuf::MP_COLORSPACE_BGR565,
-                                  (char*)pDibBuffer,
-                                  p_header->biWidth*p_header->biHeight*16/8);
+                                  (char*)buffer,
+                                  w * h * 16 / 8);
       break;
    case 15:
       pFrame->convertToColorSpace(MpVideoBuf::MP_COLORSPACE_BGR555,
-                                  (char*)pDibBuffer,
-                                  p_header->biWidth*p_header->biHeight*16/8);
+                                  (char*)buffer,
+                                  w * h * 16 / 8);
       break;
    default:
       osPrintf( "screen depth %i not supported", p_header->biBitCount );
@@ -93,18 +106,17 @@ OsStatus MpvoGdi::render(MpVideoBufPtr pFrame)
       break;
    }
 
-   SelectObject( off_dc, off_bitmap );
+   HGDIOBJ oldBitmap = ::SelectObject(off_dc, mBitmap);
 
-   StretchBlt( hdc, 0, 0,
-               p_header->biWidth, p_header->biHeight,
-               off_dc, 0, p_header->biHeight,
-               p_header->biWidth, -p_header->biHeight, SRCCOPY );
+   if (p_header->biHeight > 0)
+      ::StretchBlt(hdc, 0, 0, w, h, off_dc, 0, h, w, -h, SRCCOPY);
+   else
+      ::BitBlt(hdc, 0, 0, w, h, off_dc, 0, 0, SRCCOPY);
 
-   ReleaseDC( mHwnd, hdc );
+   ::SelectObject(off_dc, oldBitmap);
 
-   DeleteDC( off_dc );
-   DeleteObject( off_bitmap );
-
+   ::DeleteDC(off_dc);
+   ::ReleaseDC(mHwnd, hdc);
    return OS_SUCCESS;
 }
 
@@ -131,7 +143,7 @@ OsStatus MpvoGdi::initOffscreenBuffer()
    // Get screen properties
    i_depth = GetDeviceCaps( window_dc, PLANES ) *
              GetDeviceCaps( window_dc, BITSPIXEL );
-   osPrintf( "GDI depth is %i", i_depth );
+   osPrintf( "GDI depth is %i\n", i_depth );
 
    // Initialize offscreen bitmap
    memset( p_info, 0, sizeof( BITMAPINFO ) + 3 * sizeof( RGBQUAD ) );
@@ -190,5 +202,50 @@ OsStatus MpvoGdi::initOffscreenBuffer()
 
 
 /* ============================ FUNCTIONS ================================= */
+
+
+void* MpvoGdi::getCachedBitmapBuffer(const int width, const int height)
+{
+   if (NULL != mpBitmapBuffer && width == mBmpWidth && height == mBmpHeight)
+      return mpBitmapBuffer;
+
+   if (NULL != mpBitmapBuffer)
+   {
+      assert(NULL != mBitmap);
+      ::DeleteObject(mBitmap);
+      mBitmap = NULL;
+      mpBitmapBuffer = NULL;
+   }
+
+   if (NULL == mHwnd)
+      return NULL;
+
+   BITMAPINFOHEADER *p_header = &mBitmapInfo.bmiHeader;
+   HDC dc = NULL, offDc = NULL;
+   
+   if (NULL == (dc = ::GetDC(mHwnd)))
+      goto Finish;
+
+   p_header->biWidth = width;
+   // we certainly prefer to have a top-down DIB to bottom-up one. this saves us 
+   // flipping the image during StretchBlt
+   p_header->biHeight = -height;
+   p_header->biSizeImage = DIBSIZE(*p_header);
+
+   mBitmap = ::CreateDIBSection(dc, (BITMAPINFO*)p_header, DIB_RGB_COLORS,
+                                  &mpBitmapBuffer, NULL, 0);
+   if (NULL == mBitmap)
+      goto Finish;
+
+   assert(mpBitmapBuffer != NULL);
+   mBmpWidth = width;
+   mBmpHeight = height;
+
+Finish:
+   if (NULL != dc)
+      ::ReleaseDC(mHwnd, dc);
+
+   return mpBitmapBuffer;
+}
 
 #endif // SIPX_VIDEO ]

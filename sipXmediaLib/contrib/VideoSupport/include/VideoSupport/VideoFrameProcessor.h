@@ -19,25 +19,18 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-//! @file Types.h
-//! Forward declarations of common published types and their dependencies.
-//! @author Andrzej Ciarkowski <mailto:andrzejc@wp-sa.pl>
 #pragma once
 
-enum VideoSurface;
+#include <VideoSupport/Types.h>
 
-struct VideoFormat;
+class VideoFrameProcessor
+{
+public:
 
-class VideoCaptureSink;
+	virtual ~VideoFrameProcessor() {}
 
-class VideoCapture;
+	virtual bool Initialize(VideoSurface surface, size_t width, size_t height) = 0;
 
-class VideoSurfaceConverter;
+	virtual bool Process(void* frameBytes, size_t frameByteSize) throw() = 0;
+};
 
-class VideoSurfaceConverterFactory;
-
-class VideoFrameProcessor;
-
-enum VideoProcessorCategory;
-
-void VideoSupportStaticDispose();

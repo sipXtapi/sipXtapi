@@ -127,11 +127,11 @@ bool AVCodecVideoSurfaceConverter::Convert(const void* sourceFrameBytes, const s
 
 	avpicture_fill(sourcePicture_.get(), (uint8_t*)sourceFrameBytes, sourcePixelFormat_, w, h);
 	// hack: PIX_FMT_YUV420P is used both for YV12 and I420, we adjust plane pointers as these formats differ by U & V plane positions
-	if (videoSurfaceYV12 == GetSourceSurface())
+	if (videoSurfaceI420 == GetSourceSurface())
 		std::swap(sourcePicture_->data[1], sourcePicture_->data[2]);
 
 	avpicture_fill(targetPicture_.get(), (uint8_t*)targetFrameBytes, targetPixelFormat_, w, h);
-	if (videoSurfaceYV12 == GetTargetSurface())
+	if (videoSurfaceI420 == GetTargetSurface())
 		std::swap(targetPicture_->data[1], targetPicture_->data[2]);
 
 	int res = img_convert(targetPicture_.get(), targetPixelFormat_, sourcePicture_.get(), sourcePixelFormat_, w, h);

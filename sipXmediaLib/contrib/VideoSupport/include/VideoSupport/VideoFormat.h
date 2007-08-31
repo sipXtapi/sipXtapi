@@ -162,6 +162,12 @@ struct VideoFormat
 	void SetSurface(VideoSurface surface) {this->surface = surface;}
 
 	bool IsSurfaceValid() const {return IsVideoSurfaceValid(surface);}
+
+	static const char* GetSizeLabel(SizePreset preset);
+
+	const char* GetSizeLabel() const {return GetSizeLabel(GetSize());}
+
+	static SizePreset GetSizeByLabel(const char* label);
 };
 
 //! FFmpeg pixel format

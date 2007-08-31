@@ -74,11 +74,11 @@
 #define ABSOLUTE_MAX_LOG_MSG_LEN 2048
 #endif /* _VXWORKS ] */
 
-#define MAX_VIDEO_BUF_SIZE (352*288*3)
-   ///< We allocate memory for 24bit/pixel and maximum supported resolution (CIF)
+#define MAX_VIDEO_BUF_SIZE (352*288*4)
+   ///< We allocate memory for 32bit/pixel and maximum supported resolution (CIF)
    ///< to be sure that all types of frames
    ///< will fit. However for now we support YUV 4:2:0 only, so we may use
-   ///< 12bit/pixel. Change '3' in this formula to '/2*3' if you want
+   ///< 12bit/pixel. Change '4' in this formula to '/2*3' if you want
    ///< reduce memory usage.
 
 #define VIDEO_BUFS 50

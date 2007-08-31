@@ -27,6 +27,7 @@
 #include "mp/dmaTask.h"
 #include "net/SdpCodecFactory.h"
 #include "mi/CpMediaInterfaceFactoryFactory.h"
+#include "sdp/SdpCodec.h"
 
 #ifdef SIPX_VIDEO // [
 #include "mp/video/MpDShowCaptureDeviceManager.h"
@@ -141,6 +142,10 @@ extern "C" void sipxDestroyMediaFactoryFactory()
 sipXmediaFactoryImpl::sipXmediaFactoryImpl(OsConfigDb* pConfigDb)
 : mpCaptureDeviceManager(NULL)
 , mpDefaultCaptureDevice()
+, mVideoBitRate(0)
+, mVideoFormat(SDP_VIDEO_FORMAT_CIF)
+, mVideoFrameRate(10)
+, mVideoQuality(0)
 {    
     int maxFlowGraph = -1 ; 
     UtlString strInBandDTMF ;
@@ -247,7 +252,11 @@ CpMediaInterface* sipXmediaFactoryImpl::createMediaInterface( const char* public
 
 #ifdef SIPX_VIDEO // [
     // Get capture device object.
-    pCaptureDevice = mpCaptureDeviceManager->getDeviceByName(mpDefaultCaptureDevice);
+    if (mpDefaultCaptureDevice.isNull())
+        pCaptureDevice = mpCaptureDeviceManager->getDeviceByNum(0);
+    else
+        pCaptureDevice = mpCaptureDeviceManager->getDeviceByName(mpDefaultCaptureDevice);
+
     if (pCaptureDevice == NULL)
     {
        OsSysLog::add(FAC_CP, PRI_WARNING, "sipXmediaFactoryImpl::createMediaInterface no such capture device: %s",
@@ -256,9 +265,10 @@ CpMediaInterface* sipXmediaFactoryImpl::createMediaInterface( const char* public
     else
     {
         // Setup capture device.
-        // HACK:: Hardcoded video parameters!!! 
-        pCaptureDevice->setFrameSize(320, 240);
-        pCaptureDevice->setFPS(10);
+        int w, h;
+        getVideoFrameSize(w, h);
+        pCaptureDevice->setFrameSize(w, h);
+        pCaptureDevice->setFPS(float(mVideoFrameRate));
 
         // Open capture device
         if (pCaptureDevice->initialize() != OS_SUCCESS)
@@ -459,7 +469,7 @@ OsStatus sipXmediaFactoryImpl::buildCodecFactory(SdpCodecFactory *pFactory,
             rc = OS_SUCCESS;
         }
 
-
+        mVideoFormat = videoFormat;
         // add preferred video codecs first
         if (sVideoPreferences.length() > 0)
         {
@@ -562,7 +572,7 @@ OsStatus sipXmediaFactoryImpl::getMicrophoneDevice(UtlString& device) const
 
 OsStatus sipXmediaFactoryImpl::getNumOfCodecs(int& iCodecs) const
 {
-    iCodecs = TOTAL_AUDIO_CODECS_NUM;
+    iCodecs = TOTAL_AUDIO_CODECS_NUM + TOTAL_VIDEO_CODECS_NUM;
     return OS_SUCCESS;
 }
 
@@ -646,8 +656,15 @@ OsStatus sipXmediaFactoryImpl::setVideoQuality(int quality)
 
 OsStatus sipXmediaFactoryImpl::setVideoParameters(int bitRate, int frameRate)
 {
-    // TODO:: sipXmediaFactoryImpl::setVideoParameters
-    return OS_NOT_YET_IMPLEMENTED;
+    mVideoBitRate = bitRate;
+    mVideoFrameRate = frameRate;
+    return OS_SUCCESS;
+}
+
+OsStatus sipXmediaFactoryImpl::setVideoFramerate(int framerate)
+{
+    mVideoFrameRate = framerate;
+    return OS_SUCCESS;
 }
 
 OsStatus sipXmediaFactoryImpl::getVideoQuality(int& quality) const
@@ -658,14 +675,14 @@ OsStatus sipXmediaFactoryImpl::getVideoQuality(int& quality) const
 
 OsStatus sipXmediaFactoryImpl::getVideoBitRate(int& bitRate) const
 {
-    // TODO:: sipXmediaFactoryImpl::getVideoBitRate
-    return OS_NOT_YET_IMPLEMENTED;
+    bitRate = mVideoBitRate;
+    return OS_SUCCESS;
 }
 
 OsStatus sipXmediaFactoryImpl::getVideoFrameRate(int& frameRate) const
 {
-    // TODO:: sipXmediaFactoryImpl::getVideoFrameRate
-    return OS_NOT_YET_IMPLEMENTED;
+    frameRate = mVideoFrameRate;
+    return OS_SUCCESS;
 }
 
 OsStatus sipXmediaFactoryImpl::getCodecNameByType(SdpCodec::SdpCodecTypes type, UtlString& codecName) const
@@ -752,6 +769,78 @@ OsStatus sipXmediaFactoryImpl::getLocalAudioConnectionId(int& connectionId) cons
     return OS_NOT_SUPPORTED ;
 
 }
+
+#ifdef SIPX_VIDEO // [
+
+OsStatus sipXmediaFactoryImpl::getVideoCaptureDevices(UtlSList& videoDevices) const
+{
+    if (NULL == mpCaptureDeviceManager)
+        return OS_FAILED;
+
+    int num = mpCaptureDeviceManager->getDeviceCount();
+    for (int i = 0; i < num; ++i)
+    {
+        MpCaptureDeviceBase* dev = mpCaptureDeviceManager->getDeviceByNum(i);
+        if (NULL == dev)
+            continue;
+
+        UtlString* name = new UtlString(dev->getDeviceName());
+        videoDevices.append(name);
+        delete dev;
+    }
+    return OS_SUCCESS;
+}
+
+OsStatus sipXmediaFactoryImpl::getVideoCaptureDevice(UtlString& videoDevice)
+{
+    videoDevice = mpDefaultCaptureDevice;
+    return OS_SUCCESS;
+}
+
+OsStatus sipXmediaFactoryImpl::setVideoCaptureDevice(const UtlString& videoDevice)
+{
+    mpDefaultCaptureDevice = videoDevice;
+    return OS_SUCCESS;
+}
+
+OsStatus sipXmediaFactoryImpl::getVideoCpuValue(int &cpuValue) const
+{
+    return OS_NOT_YET_IMPLEMENTED;
+}
+
+#endif // SIPX_VIDEO ]
+
+void sipXmediaFactoryImpl::getVideoFrameSize(int& width, int& height) const
+{
+    switch (mVideoFormat)
+    {
+    case SDP_VIDEO_FORMAT_CIF:
+        width = 352; 
+        height = 288; 
+        break;
+
+    case SDP_VIDEO_FORMAT_QCIF: 
+        width = 176; 
+        height = 144; 
+        break;
+
+    case SDP_VIDEO_FORMAT_SQCIF:
+        width = 128;
+        height = 96;
+        break;
+
+    case SDP_VIDEO_FORMAT_QVGA:
+        width = 320;
+        height = 240;
+        break;
+
+    default: 
+       assert(!"Unsuppported video format");
+       width = 0;
+       height = 0;
+    }
+}
+
 
 /* ============================ INQUIRY =================================== */
 

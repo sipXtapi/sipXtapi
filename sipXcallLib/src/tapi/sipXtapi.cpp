@@ -61,6 +61,7 @@
 #include "os/HostAdapterAddress.h"
 #include "utl/UtlSList.h"
 #include "utl/UtlHashMapIterator.h"
+#include "sdp/SdpCodec.h"
 
 #ifdef VOICE_ENGINE
 #include "include/VoiceEngineFactoryImpl.h"
@@ -7047,6 +7048,18 @@ SIPXTAPI_API SIPX_RESULT sipxConfigResetVideoCodecs(const SIPX_INST hInst)
 #endif
 }
 
+static inline int mapSdpVideoFormat(SIPX_VIDEO_FORMAT format)
+{
+    switch (format) {
+    case VIDEO_FORMAT_CIF: return SDP_VIDEO_FORMAT_CIF;
+    case VIDEO_FORMAT_QCIF: return SDP_VIDEO_FORMAT_QCIF;
+    case VIDEO_FORMAT_QVGA: return SDP_VIDEO_FORMAT_QVGA;
+    case VIDEO_FORMAT_SQCIF: return SDP_VIDEO_FORMAT_SQCIF;
+    default: 
+       assert(!"Unsupported video format");
+       return -1;
+    }
+}
 
 SIPXTAPI_API SIPX_RESULT sipxConfigSetVideoFormat(const SIPX_INST hInst,
                                                   SIPX_VIDEO_FORMAT videoFormat)
@@ -7084,11 +7097,12 @@ SIPXTAPI_API SIPX_RESULT sipxConfigSetVideoFormat(const SIPX_INST hInst,
                 delete[] pInst->videoCodecSetting.sdpCodecArray;
                 pInst->videoCodecSetting.sdpCodecArray = NULL;
             }
+            int sdpVideoFormat = mapSdpVideoFormat(videoFormat);
             // Rebuild with limited video format
             pInterface->buildCodecFactory(pInst->pCodecFactory, 
                                           *pInst->audioCodecSetting.pPreferences,
                                           "",
-                                          videoFormat,
+                                          sdpVideoFormat,
                                           &iRejected);
 
             // We've rebuilt the factory, so get the new count of codecs

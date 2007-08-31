@@ -75,13 +75,17 @@ public:
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 
+
    HWND       mHwnd;        ///< Our video output window.
+
+#pragma pack(push, 1)
    BITMAPINFO mBitmapInfo;  ///< Header for video frame.
    RGBQUAD    r;            ///< Don't touch them if are very sure you know
                             ///< what you're doing! (We write to them somewhere
                             ///< in the code)
    RGBQUAD    g;
    RGBQUAD    b;
+#pragma pack(pop)
 
    OsStatus initOffscreenBuffer();
 
@@ -96,6 +100,11 @@ protected:
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
 
+   HBITMAP mBitmap;
+   void* mpBitmapBuffer;
+   int mBmpWidth, mBmpHeight;
+
+   void* getCachedBitmapBuffer(int width, int height);
 
 };
 
