@@ -78,7 +78,7 @@ int MpdSipxILBC::decode(const MpRtpBufPtr &pPacket,
    float buffer[240];
    if (pPacket.isValid())
    {
-      if (pPacket->getPayloadSize() != pPacket->getPayloadSize())
+      if (pPacket->getPayloadSize() != mpState->no_of_bytes)
       {
          osPrintf("MpdSipxILBC::decode: Payload size: %d!\n", pPacket->getPayloadSize());
          return 0;
