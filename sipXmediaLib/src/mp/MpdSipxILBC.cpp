@@ -11,8 +11,6 @@
 #ifdef HAVE_ILBC // [
 
 // SYSTEM INCLUDES
-#include <limits.h>
-
 // APPLICATION INCLUDES
 #include "mp/MpdSipxILBC.h"
 extern "C" {
@@ -80,7 +78,7 @@ int MpdSipxILBC::decode(const MpRtpBufPtr &pPacket,
    float buffer[240];
    if (pPacket.isValid())
    {
-      if (NO_OF_BYTES_30MS != pPacket->getPayloadSize())
+      if (pPacket->getPayloadSize() != pPacket->getPayloadSize())
       {
          osPrintf("MpdSipxILBC::decode: Payload size: %d!\n", pPacket->getPayloadSize());
          return 0;
@@ -98,10 +96,10 @@ int MpdSipxILBC::decode(const MpRtpBufPtr &pPacket,
    for (int i = 0; i < 240; ++i)
    {
       float tmp = buffer[i];
-      if (tmp > SHRT_MAX)
-         tmp = SHRT_MAX;
-      if (tmp < SHRT_MIN)
-         tmp = SHRT_MIN;
+      if (tmp > MAX_SAMPLE)
+         tmp = MAX_SAMPLE;
+      if (tmp < MIN_SAMPLE)
+         tmp = MIN_SAMPLE;
 
       samplesBuffer[i] = MpAudioSample(tmp + 0.5f);
    }
