@@ -421,31 +421,31 @@ UtlBoolean SdpBody::getPayloadRtpMap(int payloadType,
 
       // Verify this is an rtpmap "a" record
       NameValueTokenizer::getSubField(value, 0,
-                                      " \t:/", // seperators
+                                      " \t:/", // separators
                                       &aFieldType);
       if(aFieldType.compareTo("rtpmap") == 0)
       {
          // If this is the rtpmap for the requested payload type
          NameValueTokenizer::getSubField(value, 1,
-                                         " \t:/", // seperators
+                                         " \t:/", // separators
                                          &payloadString);
          if(atoi(payloadString.data()) == payloadType)
          {
             // The mime subtype is the 3nd subfield
             NameValueTokenizer::getSubField(value, 2,
-                                            " \t:/", // seperators
+                                            " \t:/", // separators
                                             &mimeSubtype);
 
             // The sample rate is the 4rd subfield
             NameValueTokenizer::getSubField(value, 3,
-                                            " \t:/", // seperators
+                                            " \t:/", // separators
                                             &sampleRateString);
             sampleRate = atoi(sampleRateString.data());
             if(sampleRate <= 0) sampleRate = -1;
 
             // The number of channels is the 5th subfield
             NameValueTokenizer::getSubField(value, 4,
-                                            " \t:/", // seperators
+                                            " \t:/", // separators
                                             &numChannelString);
             numChannels = atoi(numChannelString.data());
             if(numChannels <= 0) numChannels = -1;
@@ -494,12 +494,12 @@ UtlBoolean SdpBody::getPayloadFormat(int payloadType,
 
       // Verify this is an fmtp "a" record
       NameValueTokenizer::getSubField(value, 0,
-                                      " \t:/", // seperators
+                                      " \t:/", // separators
                                       &aFieldType);
       if(aFieldType.compareTo("fmtp") == 0)
       {
          NameValueTokenizer::getSubField(value, 1,
-                                         " \t:/", // seperators
+                                         " \t:/", // separators
                                          &payloadString);
          if(atoi(payloadString.data()) == payloadType)
          {
@@ -507,7 +507,7 @@ UtlBoolean SdpBody::getPayloadFormat(int payloadType,
             int subFieldLen;
             // If this is the fmtp for the requested payload type
             foundField = NameValueTokenizer::getSubField(value, -1, 2, 
-                                                         " \t:",  // seperators
+                                                         " \t:",  // separators
                                                          fmtpSubField,
                                                          subFieldLen,
                                                          0);
@@ -519,11 +519,11 @@ UtlBoolean SdpBody::getPayloadFormat(int payloadType,
             foundPayloadFmtp = TRUE;
             // Get modifier
             NameValueTokenizer::getSubField(value, 2,
-                                                    " \t:=", // seperators
+                                                    " \t:=", // separators
                                                     &modifierString);
             // Get value
             foundField = NameValueTokenizer::getSubField(value, 3,
-                                                    " \t:=", // seperators
+                                                    " \t:=", // separators
                                                     &temp);
 
 
@@ -555,7 +555,7 @@ UtlBoolean SdpBody::getPayloadFormat(int payloadType,
                 while (foundField && index < 8 && videoIndex < MAXIMUM_VIDEO_SIZES)
                 {
                     foundField = NameValueTokenizer::getSubField(value, index++,
-                                                                " \t/:", // seperators
+                                                                " \t/:", // separators
                                                                 &temp);
                     if (temp.compareTo("CIF") == 0)
                     {
@@ -613,12 +613,12 @@ UtlBoolean SdpBody::getSrtpCryptoField(int mediaIndex,
 
         // Verify this is an crypto "a" record
         NameValueTokenizer::getSubField(value, 0,
-                                        " \t:/", // seperators
+                                        " \t:/", // separators
                                         &aFieldType);
         if(aFieldType.compareTo("crypto") == 0)
         {
             NameValueTokenizer::getSubField(value, 1,
-                                            " \t:/", // seperators
+                                            " \t:/", // separators
                                             &indexString);
             if(atoi(indexString.data()) == index)
             {
@@ -628,7 +628,7 @@ UtlBoolean SdpBody::getSrtpCryptoField(int mediaIndex,
                 params.securityLevel = SRTP_ENCRYPTION | SRTP_AUTHENTICATION;
 
                 NameValueTokenizer::getSubField(value, 2,
-                                                " \t:/", // seperators
+                                                " \t:/", // separators
                                                 &cryptoSuite);
                 // Check the crypto suite 
                 if (cryptoSuite.compareTo("AES_CM_128_HMAC_SHA1_80") == 0)
@@ -651,7 +651,7 @@ UtlBoolean SdpBody::getSrtpCryptoField(int mediaIndex,
 
                 // Get key
                 foundField = NameValueTokenizer::getSubField(value, 4,
-                                                             " \t/:|", // seperators
+                                                             " \t/:|", // separators
                                                              &temp);
                 NetBase64Codec::decode(temp.length(), temp.data(), size, srtpKey);
                 if (size <= SRTP_KEY_LENGTH)
@@ -668,7 +668,7 @@ UtlBoolean SdpBody::getSrtpCryptoField(int mediaIndex,
                 for (int index=5; foundField; ++index)
                 {
                     foundField = NameValueTokenizer::getSubField(value, index,
-                                                                 " \t/:|", // seperators
+                                                                 " \t/:|", // separators
                                                                  &temp);
                     if (foundField)
                     {
@@ -710,12 +710,12 @@ UtlBoolean SdpBody::getFramerateField(int mediaIndex,
 
         // Verify this is an crypto "a" record
         NameValueTokenizer::getSubField(value, 0,
-                                        " \t:/", // seperators
+                                        " \t:/", // separators
                                         &aFieldType);
         if(aFieldType.compareTo("framerate") == 0)
         {
             NameValueTokenizer::getSubField(value, 1,
-                                            " \t:/", // seperators
+                                            " \t:/", // separators
                                             &rateString);
             videoFramerate = atoi(rateString.data());
             foundFramerate = TRUE;
@@ -745,12 +745,12 @@ UtlBoolean SdpBody::getBandwidthField(int& bandwidth) const
 
       // Verify this is an crypto "a" record
       NameValueTokenizer::getSubField(value, 0,
-                                      " \t:/", // seperators
+                                      " \t:/", // separators
                                         &aFieldModifier);
       if(aFieldModifier.compareTo("CT") == 0)
       {
             NameValueTokenizer::getSubField(value, 1,
-                                            " \t:/", // seperators
+                                            " \t:/", // separators
                                             &temp);
 
             bandwidth = atoi(temp.data());
@@ -967,14 +967,14 @@ UtlBoolean SdpBody::getPtime(int mediaIndex, int& pTime) const
             {
                 // Get the a line parameter name
                 NameValueTokenizer::getSubField(value, 0,
-                                      " \t:/", // seperators
+                                      " \t:/", // separators
                                       &aParameterName);
                 // See if this is a ptime parameter
                 if(aParameterName.compareTo("ptime") == 0)
                 {
                      // get the ptime value
                     NameValueTokenizer::getSubField(value, 1,
-                                                    " \t:/", // seperators, 
+                                                    " \t:/", // separators, 
                                                     &pTimeValueString);
                     if(!pTimeValueString.isNull())
                     {
