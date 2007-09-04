@@ -90,9 +90,18 @@ public:
 
 	bool IsCaptureFormatSupported(const VideoFormat& format) const;
 
+	//! Find capture format which allows cheapest conversion to 
+	//! specified output format.
+	bool GetBestCaptureFormat(const VideoFormat& outputFormat, VideoFormat& captureFormat) const;
+
 	bool GetOutputFormat(VideoFormat& format) const;
 
-	bool SetOutputVideoSurface(VideoSurface surface);
+	//! @warning frame rate conversion is not supported
+	//! @param format if NULL, output format is reset to current capture
+	//! format (all transformations are reset).
+	//! @param adjustCaptureFormat if set, capture format is changed to
+	//! the result of @c GetBestCaptureFormat()
+	bool SetOutputFormat(const VideoFormat* format, bool adjustCaptureFormat = false);
 
 	//! Must be synchronized externally w/ regard to Run() and Stop().
 	//! Will fail if capture is running.

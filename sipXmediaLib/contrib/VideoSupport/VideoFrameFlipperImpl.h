@@ -22,7 +22,7 @@
 #pragma once
 #include <VideoSupport/VideoFrameProcessor.h>
 
-class GenericVerticalFlipper: public VideoFrameProcessor
+class GenericVerticalFlipper: public VideoFrameInPlaceProcessor
 {
 public:
 	GenericVerticalFlipper();

@@ -24,7 +24,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="include;contrib\libgsm\inc;contrib\libspeex\include;contrib\VideoSupport\include;..\sipXportLib\include;..\sipXsdpLib\include;..\sipXtackLib\include;..\FFmpeg\include\ffmpeg"
+				AdditionalIncludeDirectories="include;contrib\libgsm\inc;contrib\libspeex\include;contrib\VideoSupport\include;contrib\VideoSupport\msinttypes;..\sipXportLib\include;..\sipXsdpLib\include;..\sipXtackLib\include;..\FFmpeg\include\ffmpeg"
 				PreprocessorDefinitions="HAVE_SPEEX;HAVE_GSM;SIPX_VIDEO;_DEBUG;WIN32;_LIB"
 				StringPooling="TRUE"
 				BasicRuntimeChecks="3"
@@ -75,7 +75,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="include;contrib\libgsm\inc;contrib\libspeex\include;contrib\VideoSupport\include;..\sipXportLib\include;..\sipXsdpLib\include;..\sipXtackLib\include;..\FFmpeg\include\ffmpeg"
+				AdditionalIncludeDirectories="include;contrib\libgsm\inc;contrib\libspeex\include;contrib\VideoSupport\include;contrib\VideoSupport\msinttypes;..\sipXportLib\include;..\sipXsdpLib\include;..\sipXtackLib\include;..\FFmpeg\include\ffmpeg"
 				PreprocessorDefinitions="HAVE_SPEEX;HAVE_GSM;SIPX_VIDEO;NDEBUG;WIN32;_LIB"
 				StringPooling="TRUE"
 				RuntimeLibrary="2"

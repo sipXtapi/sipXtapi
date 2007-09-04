@@ -23,11 +23,17 @@
 
 #include <VideoSupport/Types.h>
 
+//! Tagging interface
 class VideoFrameProcessor
 {
 public:
 
 	virtual ~VideoFrameProcessor() {}
+};
+
+class VideoFrameInPlaceProcessor: public VideoFrameProcessor
+{
+public:
 
 	virtual bool Initialize(VideoSurface surface, size_t width, size_t height) = 0;
 

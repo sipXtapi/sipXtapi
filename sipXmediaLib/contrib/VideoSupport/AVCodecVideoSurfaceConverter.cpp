@@ -29,9 +29,7 @@
 
 AVCodecVideoSurfaceConverter::AVCodecVideoSurfaceConverter():
 	sourcePixelFormat_(PIX_FMT_NONE),
-	targetPixelFormat_(PIX_FMT_NONE),
-	sourcePicture_(NULL),
-	targetPicture_(NULL)
+	targetPixelFormat_(PIX_FMT_NONE)
 {
 }
 

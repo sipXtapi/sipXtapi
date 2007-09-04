@@ -156,6 +156,14 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath=".\AVCodecVideoScaler.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\AVCodecVideoScaler.h"
+				>
+			</File>
+			<File
 				RelativePath=".\AVCodecVideoSurfaceConverter.cpp"
 				>
 			</File>
@@ -281,6 +289,10 @@
 			</File>
 			<File
 				RelativePath=".\include\VideoSupport\VideoProcessorFactory.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\VideoSupport\VideoScaler.h"
 				>
 			</File>
 			<File

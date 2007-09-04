@@ -40,6 +40,7 @@
 #include <VideoSupport/VideoCaptureSink.h>
 #include <VideoSupport/VideoFrameProcessor.h>
 #include <VideoSupport/VideoProcessorFactory.h>
+#include <VideoSupport/VideoScaler.h>
 #include "VideoFrameFlipperImpl.h"
 
 #include <map>
@@ -212,16 +213,19 @@ struct VideoCapture::Impl: public MediaSamplePushSink
 	IVideoWindowPtr videoWindow_;
 	HWND previewWindow_;
 	mutable std::auto_ptr<VideoFormat> captureFormatCache_;
+	std::auto_ptr<VideoFormat> outputFormat_;
 
 	VideoSurfaceConverterAutoPtr converter_;
 	size_t converterBufferSize_;
 	void* converterBuffer_;
-	VideoSurface outputSurface_;
+	std::auto_ptr<VideoScaler> scaler_;
+	void* scalerBuffer_;
+	size_t scalerBufferSize_;
 
 #ifdef VIDEO_CAPTURE_NOTIFY_THREAD
-	 HANDLE eventThread_;
-	 HANDLE mediaEventHandle_;
-	 std::auto_ptr<CAMEvent> threadStopEvent_;
+	HANDLE eventThread_;
+	HANDLE mediaEventHandle_;
+	std::auto_ptr<CAMEvent> threadStopEvent_;
 #elif defined(VIDEO_CAPTURE_NOTIFY_WINDOW)
 	WNDPROC previewWindowProc_;
 #endif // VIDEO_CAPTURE_NOTIFY_THREAD
@@ -232,7 +236,7 @@ struct VideoCapture::Impl: public MediaSamplePushSink
 	bool bottomUp_;
 	VideoCaptureSink* sink_;
 
-	std::auto_ptr<VideoFrameProcessor> flipper_;
+	std::auto_ptr<VideoFrameInPlaceProcessor> flipper_;
 
 	explicit Impl(VideoCapture& owner): 
 	owner_(owner),
@@ -250,7 +254,8 @@ struct VideoCapture::Impl: public MediaSamplePushSink
 	bottomUp_(false),
 	converterBufferSize_(0),
 	converterBuffer_(NULL),
-	outputSurface_(videoSurfaceUnknown),
+	scalerBufferSize_(0),
+	scalerBuffer_(NULL),
 	sink_(NULL)
 	{
 		lock_.reset(new CCritSec());
@@ -281,8 +286,9 @@ struct VideoCapture::Impl: public MediaSamplePushSink
 	bool GetCaptureFormat(VideoFormat& format) const;
 	bool GetOutputFormat(VideoFormat& format) const;
 
-	bool CommitOutputSurfaceNoLock();
-	bool SetOutputSurface(VideoSurface surface);
+	bool CommitOutputFormatNoLock();
+	bool GetBestCaptureFormat(const VideoFormat& outputFormat, VideoFormat& captureFormat) const;
+	bool SetOutputFormat(const VideoFormat* format, bool adjustCaptureFormat);
 
 	bool MatchFormat(const VideoFormat& format, bool set);
 	bool MatchFormat(const VideoFormat& format, const GUID& formatGuid, AM_MEDIA_TYPE& mediaType, VIDEO_STREAM_CONFIG_CAPS& caps, bool set);
@@ -318,6 +324,11 @@ struct VideoCapture::Impl: public MediaSamplePushSink
 	void PostFilterMessage(UINT msg, WPARAM wParam, LPARAM lParam);
 
 #endif // VIDEO_CAPTURE_NOTIFY_WINDOW
+
+	void ConverterDispose();
+	void ScalerDispose();
+
+	void BestFormatMatch(const AM_MEDIA_TYPE& type, const VIDEO_STREAM_CONFIG_CAPS& caps, const VideoFormat& format, size_t& prevW, size_t& prevH, size_t& nextW, size_t& nextH, VideoSurface& prevSurface, VideoSurface& nextSurface) const;
 };
 
 
@@ -334,7 +345,6 @@ bool VideoCapture::Impl::Initialize(const std::string& deviceName, HWND previewW
 	if (stateUninitialized != state_)
 		return false;
 
-	VideoFormat format;
 	HRESULT hr;
 	// create both graph and its helper builder
 	if (FAILED(hr = CreateGraphBuilder(graph_, build_)))
@@ -434,7 +444,7 @@ bool VideoCapture::Impl::Initialize(const std::string& deviceName, HWND previewW
 		goto Fail;
 
 	// this is rather unnecessary, but it doesn't hurt
-	if (!CommitOutputSurfaceNoLock())
+	if (!CommitOutputFormatNoLock())
 		goto Fail;
 
 	return true;
@@ -528,8 +538,8 @@ void VideoCapture::Impl::Close()
 	if (NULL != render_.GetInterfacePtr())
 		render_.Release();
 
-	outputSurface_ = videoSurfaceUnknown;
-	CommitOutputSurfaceNoLock();
+	outputFormat_.reset();
+	CommitOutputFormatNoLock();
 
 	state_ = stateUninitialized;
 }
@@ -1146,16 +1156,26 @@ bool VideoCapture::Impl::MatchFormat(const VideoFormat& format, const GUID& form
 	{
 		VideoProcessorFactory* factory = VideoProcessorFactory::GetInstance();
 		if (NULL != factory)
-			flipper_ = factory->CreateProcessor(videoVerticalFlipper, format.GetSurface(), format.GetWidth(), format.GetHeight());
+		{
+			VideoFrameProcessorAutoPtr ptr = factory->CreateProcessor(videoVerticalFlipper, format.GetSurface());
+			if (VideoFrameInPlaceProcessor* proc = dynamic_cast<VideoFrameInPlaceProcessor*>(ptr.get()))
+			{
+				flipper_.reset(proc);
+				ptr.release();
+
+				if (!flipper_->Initialize(format.GetSurface(), format.GetWidth(), format.GetHeight()))
+					flipper_.reset();
+			}
+		}
 	}
 
 	captureFormatCache_.reset();
 
 	// if unable to allocate proper output format converter, revert output format to capture format
-	if (!CommitOutputSurfaceNoLock())
+	if (!CommitOutputFormatNoLock())
 	{
-		outputSurface_ = videoSurfaceUnknown;
-		CommitOutputSurfaceNoLock();
+		outputFormat_.reset();
+		CommitOutputFormatNoLock();
 		return false;
 	}
 
@@ -1177,16 +1197,14 @@ bool VideoCapture::Impl::GetOutputFormat(VideoFormat& format) const
 	CAutoLock lock(lock_.get());
 	if (stateInitialized != state_)
 		return false;
-	
-	if (!GetCaptureFormat(format))
-		return false;
 
-	if (!IsVideoSurfaceValid(outputSurface_))
-		// we don't use format conversion
+	if (NULL != outputFormat_.get())
+	{
+		format = *outputFormat_;
 		return true;
+	}
 
-	format.surface = outputSurface_;
-	return true;
+	return GetCaptureFormat(format);
 }
 
 bool VideoCapture::GetOutputFormat(VideoFormat& format) const
@@ -1194,22 +1212,31 @@ bool VideoCapture::GetOutputFormat(VideoFormat& format) const
 	return impl_->GetOutputFormat(format);
 }
 
-bool VideoCapture::Impl::CommitOutputSurfaceNoLock()
+void VideoCapture::Impl::ConverterDispose()
 {
-	if (!IsVideoSurfaceValid(outputSurface_))
+	free(converterBuffer_);
+	converterBuffer_ = NULL;
+	converterBufferSize_ = 0;
+	converter_.reset();
+}
+
+void VideoCapture::Impl::ScalerDispose()
+{
+	free(scalerBuffer_);
+	scalerBuffer_ = NULL;
+	scalerBufferSize_ = 0;
+	scaler_.reset();
+}
+
+bool VideoCapture::Impl::CommitOutputFormatNoLock()
+{
+	if (NULL == outputFormat_.get())
 	{
-NoConversion:
-		free(converterBuffer_);
-		converterBuffer_ = NULL;
-		converterBufferSize_ = 0;
-		converter_.reset();
+		ConverterDispose();
+		ScalerDispose();
 	}
 	else
 	{
-		VideoSurfaceConverterFactory* factory = VideoSurfaceConverterFactory::GetInstance();
-		if (NULL == factory)
-			return false;
-
 		VideoFormat format;
 		if (!GetCaptureFormat(format))
 			return false;
@@ -1217,54 +1244,127 @@ NoConversion:
 		if (!format.IsSurfaceValid())
 			return false;
 
-		if (format.GetSurface() == outputSurface_)
-			goto NoConversion;
-
-		VideoSurfaceConverterAutoPtr converter;
-		try
+		if (format.GetSurface() == outputFormat_->GetSurface())
+			ConverterDispose();
+		else
 		{
-			converter = factory->CreateConverter(format.width, format.height, format.GetSurface(), outputSurface_);
-			if (NULL == converter.get())
+			VideoSurfaceConverterFactory* factory = VideoSurfaceConverterFactory::GetInstance();
+			if (NULL == factory)
 				return false;
+
+			VideoSurfaceConverterAutoPtr converter;
+			try
+			{
+				converter = factory->CreateConverter(format.width, format.height, format.GetSurface(), outputFormat_->GetSurface());
+				if (NULL == converter.get())
+					return false;
+			}
+			catch (std::bad_alloc&)
+			{
+				return false;
+			}
+
+			format.surface = outputFormat_->GetSurface();
+			const size_t bufferSize = format.GetFrameByteSize();
+			if (0 == bufferSize)
+				return false;
+
+			converterBuffer_ = realloc(converterBuffer_, bufferSize);
+			if (NULL == converterBuffer_)
+				return false;
+
+			converterBufferSize_ = bufferSize;
+			converter_ = converter;
 		}
-		catch (std::bad_alloc&)
+
+		if (format.GetWidth() == outputFormat_->GetWidth() && format.GetHeight() == outputFormat_->GetHeight())
+			ScalerDispose();
+		else
 		{
-			return false;
+			VideoProcessorFactory* factory = VideoProcessorFactory::GetInstance();
+			if (NULL == factory)
+				return false;
+
+			VideoFrameProcessorAutoPtr processor;
+			try
+			{
+				processor = factory->CreateProcessor(videoScaler, outputFormat_->GetSurface());
+				if (NULL == processor.get())
+					return false;
+			}
+			catch (std::bad_alloc&)
+			{
+				return false;
+			}
+
+			if (VideoScaler* scaler = dynamic_cast<VideoScaler*>(processor.get()))
+			{
+				scaler_.reset(scaler);
+				processor.release();
+			}
+			else
+				return false;
+
+			if (!scaler_->Initialize(outputFormat_->GetSurface(), format.GetWidth(), format.GetHeight(), outputFormat_->GetWidth(), outputFormat_->GetHeight()))
+				return false;
+
+			const size_t bufferSize = outputFormat_->GetFrameByteSize();
+			if (0 == bufferSize)
+				return false;
+
+			scalerBuffer_ = realloc(scalerBuffer_, bufferSize);
+			if (NULL == scalerBuffer_)
+				return false;
+
+			scalerBufferSize_ = bufferSize;
 		}
-
-		format.surface = outputSurface_;
-		const size_t bufferSize = format.GetFrameByteSize();
-		if (0 == bufferSize)
-			return false;
-
-		converterBuffer_ = realloc(converterBuffer_, bufferSize);
-		if (NULL == converterBuffer_)
-			return false;
-
-		converterBufferSize_ = bufferSize;
-		converter_ = converter;
 	}
 	return true;
 }
 
-bool VideoCapture::Impl::SetOutputSurface(VideoSurface surface)
+bool VideoCapture::Impl::SetOutputFormat(const VideoFormat* format, bool adjustCaptureFormat)
 {
 	CAutoLock lock(lock_.get());
 	if (stateInitialized != state_)
 		return false;
 
-	outputSurface_ = surface;
-	if (CommitOutputSurfaceNoLock())
+	if (NULL == format)
+	{
+		outputFormat_.reset();
+		CommitOutputFormatNoLock();
+		return true;
+	}
+
+	if (NULL != outputFormat_.get())
+		*outputFormat_ = *format;
+	else
+		outputFormat_.reset(new VideoFormat(*format));
+
+	if (adjustCaptureFormat)
+	{
+		VideoFormat f;
+		if (!GetBestCaptureFormat(*format, f))
+			goto Fail;
+
+		// SetCaptureFormat() will call CommitOutputFormatNoLock on success - no need to call it again
+		if (!MatchFormat(f, true))
+			goto Fail;
+
+		return true;
+	}
+	
+	if (CommitOutputFormatNoLock())
 		return true;
 
-	outputSurface_ = videoSurfaceUnknown;
-	CommitOutputSurfaceNoLock();
+Fail:
+	outputFormat_.reset();
+	CommitOutputFormatNoLock();
 	return false;
 }
 
-bool VideoCapture::SetOutputVideoSurface(VideoSurface surface)
+bool VideoCapture::SetOutputFormat(const VideoFormat* format, bool adjustCaptureFormat)
 {
-	return impl_->SetOutputSurface(surface);
+	return impl_->SetOutputFormat(format, adjustCaptureFormat);
 }
 
 void VideoCapture::Impl::PushSample(IMediaSample* sample)
@@ -1304,6 +1404,16 @@ void VideoCapture::Impl::PushSample(IMediaSample* sample)
 		//TCHAR buffer[256];
 		//_stprintf(buffer, TEXT("PushSample(): processing time %d\n"), timeEnd - timeStart);
 		//OutputDebugString(buffer);
+	}
+
+	if (NULL != scaler_.get())
+	{
+		assert(NULL != scalerBuffer_);
+		if (!scaler_->Process(data, length, scalerBuffer_, scalerBufferSize_))
+			return;
+
+		data = static_cast<BYTE*>(scalerBuffer_);
+		length = long(scalerBufferSize_);
 	}
 
 	sink_->OfferFrame(data, length);
@@ -1384,3 +1494,100 @@ bool VideoCapture::Impl::EnumCaptureSurfaces(VideoSurfaces& surfaces) const
 	return true;
 }
 
+bool VideoCapture::Impl::GetBestCaptureFormat(const VideoFormat& outputFormat, VideoFormat& captureFormat) const
+{
+	if (!IsVideoSurfaceValid(outputFormat.GetSurface()))
+		return false;
+
+	const GUID& subtype = VideoSurfaceToMediaSubtype(outputFormat.GetSurface());
+	if (IsEqualGUID(subtype, GUID_NULL))
+		return false;
+
+	CAutoLock lock(lock_.get());
+	if (stateInitialized != state_)
+		return false;
+
+	HRESULT hr;
+	assert(NULL != streamConfig_.GetInterfacePtr());
+	int count = 0, size = 0;
+	if (FAILED(hr = streamConfig_->GetNumberOfCapabilities(&count, &size)))
+		return false;
+
+	if (sizeof(VIDEO_STREAM_CONFIG_CAPS) != size)
+		return false;
+
+	size_t nextW = UINT_MAX;
+	size_t nextH = UINT_MAX;
+	size_t prevW = 0;
+	size_t prevH = 0;
+	VideoSurface prevSurface = videoSurfaceUnknown;
+	VideoSurface nextSurface = videoSurfaceUnknown;
+
+	for (int i = 0; i < count; ++i)
+	{
+		VIDEO_STREAM_CONFIG_CAPS caps = {0};
+		AM_MEDIA_TYPE* type = NULL;
+		if (FAILED(hr = streamConfig_->GetStreamCaps(i, &type, (BYTE*)&caps)))
+			continue;
+
+		assert(NULL != type);
+		BestFormatMatch(*type, caps, outputFormat, prevW, prevH, nextW, nextH, prevSurface, nextSurface);
+		DeleteMediaType(type);
+	}
+
+	if (videoSurfaceUnknown != nextSurface)
+	{
+		captureFormat.SetFrameRate(outputFormat.GetFrameRate());
+		captureFormat.SetSize(nextW, nextH);
+		captureFormat.SetSurface(nextSurface);
+	}
+	else if (videoSurfaceUnknown != prevSurface)
+	{
+		captureFormat.SetFrameRate(outputFormat.GetFrameRate());
+		captureFormat.SetSize(prevW, prevH);
+		captureFormat.SetSurface(prevSurface);
+	}
+	else
+		return false; 
+
+	return true;
+}
+
+void VideoCapture::Impl::BestFormatMatch(const AM_MEDIA_TYPE& type, const VIDEO_STREAM_CONFIG_CAPS& caps, const VideoFormat& format, size_t& prevW, size_t& prevH, size_t& nextW, size_t& nextH, VideoSurface& prevSurface, VideoSurface& nextSurface) const
+{
+	VideoSurface surface = MediaSubtypeToVideoSurface(type.subtype);
+	if (!IsVideoSurfaceValid(surface))
+		return;
+
+	if (!IsEqualGUID(type.formattype, FORMAT_VideoInfo) && !IsEqualGUID(type.formattype, FORMAT_VideoInfo2))
+		return;
+
+	if (sizeof(VIDEOINFOHEADER) > type.cbFormat || NULL == type.pbFormat)
+		return;
+
+	VIDEOINFOHEADER* vi = (VIDEOINFOHEADER*)type.pbFormat;
+
+	// check if requested fps is in allowed range
+	float maxFps = float(10000000. / double(caps.MinFrameInterval));
+	float minFps = 1.f; 
+	if (MAXLONGLONG != caps.MaxFrameInterval)
+		minFps = float(10000000. / double(caps.MaxFrameInterval));
+
+	assert(minFps <= maxFps);
+	if (format.fps < minFps || format.fps > maxFps)
+		return;
+
+	if (format.GetWidth() <= caps.MinOutputSize.cx && caps.MinOutputSize.cx < nextW)
+	{
+		nextW = caps.MinOutputSize.cx;
+		nextH = caps.MinOutputSize.cy;
+		nextSurface = surface;
+	}
+
+	if (format.GetWidth() >= caps.MaxOutputSize.cx && caps.MaxOutputSize.cx > prevW)
+	{
+		prevW = caps.MaxOutputSize.cx;
+		prevH = caps.MaxOutputSize.cy;
+		prevSurface = surface;
+	}
+}

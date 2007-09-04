@@ -108,6 +108,10 @@ MpDShowCaptureDevice::MpDShowCaptureDevice(const UtlString& deviceName):
    mPixelFormat(-1),
    mpMsgPool(NULL)
 {
+   mpOutputFormat->SetFrameRate(10.f);
+   mpOutputFormat->SetSize(VideoFormat::size_CIF);
+   mpOutputFormat->SetSurface(videoSurfaceYV12);
+
    setOutputColorSpace(MpVideoBuf::MP_COLORSPACE_YUV420p);
 
    MpBufferMsg msg(MpBufferMsg::VIDEO_FRAME);
@@ -156,43 +160,8 @@ OsStatus MpDShowCaptureDevice::initialize()
       if (!mpCapture->Initialize(name, NULL))
          return OS_FAILED;
 
-      VideoFormat format;
-      if (!mpCapture->GetCaptureFormat(format))
-      {
-         mpCapture->Close();
-         return OS_FAILED;
-      }
-
-      bool applyFormat = false;
-      if (0 != mpOutputFormat->GetWidth())
-      {
-         format.SetWidth(mpOutputFormat->GetWidth());
-         applyFormat = true;
-      }
-
-      if (0 != mpOutputFormat->GetHeight())
-      {
-         format.SetHeight(mpOutputFormat->GetHeight());
-         applyFormat = true;
-      }
-
-      if (0.f != mpOutputFormat->GetFrameRate())
-      {
-         format.SetFrameRate(mpOutputFormat->GetFrameRate());
-         applyFormat = true;
-      }
-
-      if (applyFormat && !mpCapture->SetCaptureFormat(format))
-      {
-         mpCapture->Close();
-         return OS_FAILED;
-      }
-
-      mpCapture->GetOutputFormat(*mpOutputFormat);
       mpOutputFormat->SetSurface(videoSurface);
-
-      if (!mpCapture->SetCaptureFormat(*mpOutputFormat) &&
-          !mpCapture->SetOutputVideoSurface(mpOutputFormat->GetSurface()))
+      if (!mpCapture->SetOutputFormat(mpOutputFormat, true))
       {
          mpCapture->Close();
          return OS_FAILED;
@@ -244,15 +213,9 @@ OsStatus MpDShowCaptureDevice::setFrameSize(int width, int height)
 OsStatus MpDShowCaptureDevice::applyFormat()
 {
    if (!mpCapture->IsInitialized())
-      return OS_FAILED;
+      return OS_INVALID_STATE;
 
-   VideoFormat format;
-   if (!mpCapture->GetCaptureFormat(format))
-      return OS_FAILED;
-
-   format.SetSize(mpOutputFormat->GetWidth(), mpOutputFormat->GetHeight());
-   format.SetFrameRate(mpOutputFormat->GetFrameRate());
-   if (!mpCapture->SetCaptureFormat(format))
+   if (!mpCapture->SetOutputFormat(mpOutputFormat, true))
       return OS_FAILED;
 
    mpCapture->GetOutputFormat(*mpOutputFormat);
@@ -284,14 +247,5 @@ OsStatus MpDShowCaptureDevice::setOutputColorSpace(int colorSpace)
    mPixelFormat = pf;
    mpOutputFormat->SetSurface(vs);
 
-   if (mpCapture->IsInitialized())
-   {
-      if (!mpCapture->SetCaptureFormat(*mpOutputFormat) && !mpCapture->SetOutputVideoSurface(vs))
-         return OS_FAILED;
-
-      mpCapture->GetOutputFormat(*mpOutputFormat);
-      assert(mpOutputFormat->GetSurface() == vs);
-   }
-
-   return OS_SUCCESS;
+   return applyFormat();
 }

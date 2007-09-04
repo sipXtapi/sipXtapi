@@ -20,13 +20,15 @@
  * THE SOFTWARE.
  */
 #pragma once
-
 #include <VideoSupport/Types.h>
 #include <memory>
 
 enum VideoProcessorCategory
 {
+	//! Returned processor implements @c VideoFrameInPlaceProcessor interface.
 	videoVerticalFlipper,
+	//! Returned processor implements @c VideoScaler interface.
+	videoScaler,
 };
 
 typedef std::auto_ptr<VideoFrameProcessor> VideoFrameProcessorAutoPtr;
@@ -40,7 +42,9 @@ public:
 
 	static void StaticDispose();
 
-	VideoFrameProcessorAutoPtr CreateProcessor(VideoProcessorCategory category, VideoSurface surface, size_t width, size_t height);
+	//! @note This is caller's responsibility to cast returned processor to appropriate
+	//! type and perform additional initialization.
+	VideoFrameProcessorAutoPtr CreateProcessor(VideoProcessorCategory category, VideoSurface surface);
 
 	static bool RegisterConstructor(VideoProcessorCategory category, VideoSurface surface, VideoFrameProcessorConstructor constructor);
 

@@ -25,6 +25,8 @@
 #include <VideoSupport/VideoFormat.h>
 #include <map>
 
+#include "AVCodecVideoScaler.h"
+
 namespace 
 {
 	bool factoryCreated = false;
@@ -58,8 +60,7 @@ struct VideoProcessorFactory::Impl
 
 	ConstructorMap constructors_;
 
-	VideoFrameProcessorAutoPtr CreateProcessor(VideoProcessorCategory category, VideoSurface surface, size_t width, size_t height);
-
+	VideoFrameProcessorAutoPtr CreateProcessor(VideoProcessorCategory category, VideoSurface surface);
 };
 
 VideoProcessorFactory::VideoProcessorFactory():
@@ -74,16 +75,29 @@ VideoProcessorFactory::~VideoProcessorFactory()
 	impl_ = NULL;
 }
 
-VideoFrameProcessorAutoPtr VideoProcessorFactory::CreateProcessor(VideoProcessorCategory category, VideoSurface surface, size_t width, size_t height)
+VideoFrameProcessorAutoPtr VideoProcessorFactory::CreateProcessor(VideoProcessorCategory category, VideoSurface surface)
 {
-	return impl_->CreateProcessor(category, surface, width, height);
+	return impl_->CreateProcessor(category, surface);
 }
 
-VideoFrameProcessorAutoPtr VideoProcessorFactory::Impl::CreateProcessor(VideoProcessorCategory category, VideoSurface surface, size_t width, size_t height)
+VideoFrameProcessorAutoPtr VideoProcessorFactory::Impl::CreateProcessor(VideoProcessorCategory category, VideoSurface surface)
 {
 	VideoFrameProcessorAutoPtr res;
 	if (!IsVideoSurfaceValid(surface))
 		return res;
+
+#ifndef VIDEO_SUPPORT_DISABLE_AVCODEC
+	if (videoScaler == category)
+	{
+		PixelFormat pf = VideoSurfaceToPixelFormat(surface);
+		if (PIX_FMT_NONE != pf)
+		{
+			res.reset(new (std::nothrow) AVCodecVideoScaler());
+			if (NULL != res.get())
+				return res;
+		}
+	}
+#endif // VIDEO_SUPPORT_DISABLE_AVCODEC
 
 	ConstructorMap::iterator it = constructors_.find(std::make_pair(category, surface));
 	if (constructors_.end() != it)
@@ -91,13 +105,6 @@ VideoFrameProcessorAutoPtr VideoProcessorFactory::Impl::CreateProcessor(VideoPro
 		VideoFrameProcessorConstructor construct = it->second;
 		res.reset((*construct)());
 	}
-
-	if (NULL == res.get())
-		return res;
-
-	if (!res->Initialize(surface, width, height))
-		res.reset();
-
 	return res;
 }
 
