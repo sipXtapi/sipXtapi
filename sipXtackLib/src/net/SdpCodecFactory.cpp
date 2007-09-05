@@ -742,7 +742,6 @@ SdpCodec SdpDefaultCodecFactory::getCodec(SdpCodec::SdpCodecTypes internalCodecI
                          SDP_CODEC_BANDWIDTH_VARIABLE);
       }
       break;
-#ifdef HAVE_GSM // [
    case SdpCodec::SDP_CODEC_GSM:
       {
          return SdpCodec(SdpCodec::SDP_CODEC_GSM,
@@ -757,7 +756,6 @@ SdpCodec SdpDefaultCodecFactory::getCodec(SdpCodec::SdpCodecTypes internalCodecI
                          SDP_CODEC_BANDWIDTH_LOW);
       }
       break;
-#endif // HAVE_GSM ]
    case SdpCodec::SDP_CODEC_G723:
       {
          return SdpCodec(SdpCodec::SDP_CODEC_G723,
@@ -787,8 +785,6 @@ SdpCodec SdpDefaultCodecFactory::getCodec(SdpCodec::SdpCodecTypes internalCodecI
                          SDP_CODEC_BANDWIDTH_HIGH);
       }
       break;
-
-#ifdef HAVE_SPEEX // [
 
    case SdpCodec::SDP_CODEC_SPEEX:
       {
@@ -846,8 +842,6 @@ SdpCodec SdpDefaultCodecFactory::getCodec(SdpCodec::SdpCodecTypes internalCodecI
                          SDP_CODEC_BANDWIDTH_NORMAL);
       }
       break;
-
-#endif // HAVE_SPEEX ]
 
    case SdpCodec::SDP_CODEC_VP71_CIF:
       {
@@ -1230,7 +1224,6 @@ SdpCodec::SdpCodecTypes SdpDefaultCodecFactory::getCodecType(const char* pCodecN
    else
     if (strcmp(compareString,"ISAC") == 0)
         retType = SdpCodec::SDP_CODEC_GIPS_ISAC;
-#ifdef HAVE_SPEEX // [
    else 
       if (strcmp(compareString,"SPEEX") == 0)
          retType = SdpCodec::SDP_CODEC_SPEEX;
@@ -1243,12 +1236,9 @@ SdpCodec::SdpCodecTypes SdpDefaultCodecFactory::getCodecType(const char* pCodecN
    else 
       if (strcmp(compareString,"SPEEX_24") == 0)
          retType = SdpCodec::SDP_CODEC_SPEEX_24;
-#endif // HAVE_SPEEX ]
-#ifdef HAVE_GSM // [
    else 
       if (strcmp(compareString,"GSM") == 0)
          retType = SdpCodec::SDP_CODEC_GSM;
-#endif // HAVE_GSM ]
    else
     if (strcmp(compareString,"VP71-CIF") == 0)
         retType = SdpCodec::SDP_CODEC_VP71_CIF;

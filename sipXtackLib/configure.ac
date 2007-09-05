@@ -52,10 +52,6 @@ AC_CHECK_FUNCS([clock_gettime getcwd gethostbyname gethostname gettimeofday inet
 # Look for CPPUnit libraries
 CHECK_CPPUNIT
 
-# Look for GSM and Speex codecs
-CHECK_GSM
-CHECK_SPEEX
-
 # Look for SSL libraries
 CHECK_SSL
 
