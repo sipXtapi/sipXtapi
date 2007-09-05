@@ -9,7 +9,10 @@ nobase_include_HEADERS =  \
     mi/CpMediaInterfaceFactoryImpl.h \
     mi/CpMediaInterfaceFactoryFactory.h \
     mi/CpMediaInterfaceFactory.h \
-    mi/IMediaSocket.h
+    mi/IMediaSocket.h \
+    mi/MiNotification.h \
+    mi/MiDtmfNotf.h \
+    mi/MiProgressNotf.h
     
 noinst_LTLIBRARIES = libmediainterface.la
 
@@ -20,6 +23,9 @@ libmediainterface_la_SOURCES =  \
     CpMediaInterface.cpp \
     CpMediaInterfaceFactoryImpl.cpp \
     CpMediaInterfaceFactory.cpp \
+    MiNotification.cpp \
+    MiDtmfNotf.cpp \
+    MiProgressNotf.cpp \
     mi/CpMediaInterface.h \
     mi/CpMediaInterfaceFactoryImpl.h \
     mi/CpMediaInterfaceFactoryFactory.h \

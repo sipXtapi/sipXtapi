@@ -99,6 +99,18 @@ SOURCE=.\interface\CpMediaInterfaceFactoryImpl.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\interface\MiNotification.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\interface\MiDtmfNotf.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\interface\MiProgressNotf.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\sipXmediaMediaProcessing\src\CpPhoneMediaInterface.cpp
 # End Source File
 # Begin Source File
@@ -112,6 +124,10 @@ SOURCE=.\sipXmediaMediaProcessing\src\CpTopologyGraphInterface.cpp
 # Begin Source File
 
 SOURCE=.\sipXmediaMediaProcessing\src\sipXmediaFactoryImpl.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\sipXmediaMediaProcessing\src\MaNotfTranslatorDispatcher.cpp
 # End Source File
 # End Group
 # Begin Group "Header Files"
@@ -135,6 +151,18 @@ SOURCE=.\interface\mi\CpMediaInterfaceFactoryImpl.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\interface\mi\MiNotification.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\interface\mi\MiDtmfNotf.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\interface\mi\MiProgressNotf.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\sipXmediaMediaProcessing\include\CpPhoneMediaInterface.h
 # End Source File
 # Begin Source File
@@ -148,6 +176,10 @@ SOURCE=.\sipXmediaMediaProcessing\include\CpTopologyGraphInterface.h
 # Begin Source File
 
 SOURCE=.\sipXmediaMediaProcessing\include\sipXmediaFactoryImpl.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\sipXmediaMediaProcessing\include\MaNotfTranslatorDispatcher.h
 # End Source File
 # End Group
 # End Target

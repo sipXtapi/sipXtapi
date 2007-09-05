@@ -21,6 +21,7 @@
 #include <net/SdpCodecFactory.h>
 #include <mi/CpMediaInterface.h>
 #include <net/QoS.h>
+#include "include/MaNotfTranslatorDispatcher.h"
 
 // DEFINES
 // MACROS
@@ -549,7 +550,9 @@ private:
     UtlString mRtpReceiveHostAddress;
     UtlString mLocalAddress;
     UtlHashMap mInterfaceProperties;
-
+    MaNotfTranslatorDispatcher mTranslatorDispatcher;  ///< Dispatcher for translating
+      ///< mediaLib notification messages into abstract MediaAdapter ones.
+      ///< Only used if a dispatcher is set on this interface.
 };
 
 /* ============================ INLINE METHODS ============================ */

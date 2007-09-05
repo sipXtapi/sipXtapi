@@ -1836,6 +1836,18 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="interface\MiNotification.cpp"
+				>
+			</File>
+			<File
+				RelativePath="interface\MiDtmfNotf.cpp"
+				>
+			</File>
+			<File
+				RelativePath="interface\MiProgressNotf.cpp"
+				>
+			</File>
+			<File
 				RelativePath="sipXmediaMediaProcessing\src\CpPhoneMediaInterface.cpp"
 				>
 				<FileConfiguration
@@ -2139,6 +2151,10 @@
 					/>
 				</FileConfiguration>
 			</File>
+			<File
+				RelativePath=".\sipXmediaMediaProcessing\src\MaNotfTranslatorDispatcher.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -2161,6 +2177,18 @@
 				>
 			</File>
 			<File
+				RelativePath="interface\mi\MiNotification.h"
+				>
+			</File>
+			<File
+				RelativePath="interface\mi\MiDtmfNotf.h"
+				>
+			</File>
+			<File
+				RelativePath="interface\mi\MiProgressNotf.h"
+				>
+			</File>
+			<File
 				RelativePath="sipXmediaMediaProcessing\include\CpPhoneMediaInterface.h"
 				>
 			</File>
@@ -2178,6 +2206,10 @@
 			</File>
 			<File
 				RelativePath="sipXmediaMediaProcessing\include\sipXmediaFactoryImpl.h"
+				>
+			</File>
+			<File
+				RelativePath=".\sipXmediaMediaProcessing\include\MaNotfTranslatorDispatcher.h"
 				>
 			</File>
 		</Filter>

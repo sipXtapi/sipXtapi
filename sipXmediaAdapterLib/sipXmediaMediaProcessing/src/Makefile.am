@@ -36,4 +36,5 @@ libsipXmediaProcessing_la_SOURCES =  \
     sipXmediaFactoryImpl.cpp \
     CpPhoneMediaInterface.cpp \
     CpTopologyGraphFactoryImpl.cpp \
-    CpTopologyGraphInterface.cpp
+    CpTopologyGraphInterface.cpp \
+    MaNotfTranslatorDispatcher.cpp

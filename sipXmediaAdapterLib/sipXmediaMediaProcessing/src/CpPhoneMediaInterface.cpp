@@ -588,9 +588,32 @@ OsStatus CpPhoneMediaInterface::getCapabilitiesEx(int connectionId,
 OsMsgDispatcher*  
 CpPhoneMediaInterface::setNotificationDispatcher(OsMsgDispatcher* pNotificationDispatcher)
 {
-   // If there is no flowgraph, return NULL, otherwise return result of setting
-   // notification dispatcher on flowgraph.
-   return mpFlowGraph ? mpFlowGraph->setNotificationDispatcher(pNotificationDispatcher) : NULL;
+   // If there is no flowgraph, return NULL.
+   if(mpFlowGraph == NULL)
+      return NULL;
+
+   // Give the pointer to the dispatcher that is given to us to the translator
+   // dispatcher, so that messages can be translated from mediaLib notifications
+   // to abstract mediaAdapter notifications when being sent to dispatcher.
+   OsMsgDispatcher* oldDispatcher = 
+      mTranslatorDispatcher.setDispatcher(pNotificationDispatcher);
+
+   // Now, if a non-NULL notification dispatcher was set, then
+   // set the translator dispatcher on the flowgraph.  
+   if(pNotificationDispatcher != NULL)
+   {
+      // This will be a redundant call if MI setNotificationDispatcher is 
+      // called more than once with a valid dispatcher, but isn't very expensive.
+      mpFlowGraph->setNotificationDispatcher(&mTranslatorDispatcher);
+   }
+   else
+   {
+      // Otherwise, remove any dispatchers from the flowgraph, so as not to waste
+      // posting notifications to the translator dispatcher when it won't
+      // be doing anything with them.
+      mpFlowGraph->setNotificationDispatcher(NULL);
+   }
+   return oldDispatcher;
 }
 
 OsStatus

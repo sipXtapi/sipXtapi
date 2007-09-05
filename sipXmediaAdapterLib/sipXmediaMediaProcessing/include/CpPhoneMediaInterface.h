@@ -25,6 +25,7 @@
 #include <net/QoS.h>
 #include <net/SdpCodecFactory.h>
 #include "mi/CpMediaInterface.h"
+#include "include/MaNotfTranslatorDispatcher.h"
 
 // DEFINES
 // MACROS
@@ -461,6 +462,9 @@ private:
    UtlString mTurnPassword ;
    UtlBoolean mEnableIce ;
    UtlHashMap mInterfaceProperties;
+   MaNotfTranslatorDispatcher mTranslatorDispatcher;  ///< Dispatcher for translating
+      ///< mediaLib notification messages into abstract MediaAdapter ones.
+      ///< Only used if a dispatcher is set on this interface.
 
    // Disabled copy constructor
    CpPhoneMediaInterface(const CpPhoneMediaInterface& rCpPhoneMediaInterface);

@@ -15,11 +15,11 @@
 #include <mi/CpMediaInterfaceFactory.h>
 #include <mi/CpMediaInterfaceFactoryFactory.h>
 #include <mi/CpMediaInterface.h>
+#include <mi/MiNotification.h>
 #include <os/OsTask.h>
 #include <utl/UtlSList.h>
 #include <utl/UtlInt.h>
 #include <os/OsMsgDispatcher.h>
-#include <mp/MpResNotificationMsg.h>
 
 //#define DISABLE_RECORDING
 #define EMBED_PROMPTS
@@ -128,7 +128,7 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
     }
 
     OsStatus waitForNotf(OsMsgDispatcher& notfDispatcher,
-                         MpResNotificationMsg::RNMsgType notfType, 
+                         MiNotification::NotfType notfType, 
                          unsigned maxTotalDelayTime)
     {
        // keep count of the milliseconds we're gone
@@ -152,14 +152,14 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
 
        // Grab the message with a short timeout, since we know it's there.
        OsMsg* pMsg = NULL;
-       MpResNotificationMsg* pNotfMsg = NULL;
+       MiNotification* pNotfMsg = NULL;
        notfDispatcher.receive(pMsg, OsTime(delayPeriod));
        CPPUNIT_ASSERT(pMsg != NULL);
-       CPPUNIT_ASSERT_EQUAL(OsMsg::MP_RES_NOTF_MSG, 
-          (OsMsg::MsgTypes)pMsg->getMsgType());
-       pNotfMsg = (MpResNotificationMsg*)pMsg;
+       CPPUNIT_ASSERT_EQUAL(OsMsg::MI_NOTF_MSG, 
+                            (OsMsg::MsgTypes)pMsg->getMsgType());
+       pNotfMsg = (MiNotification*)pMsg;
        CPPUNIT_ASSERT_EQUAL(notfType, 
-                            (MpResNotificationMsg::RNMsgType)pNotfMsg->getMsg());
+                            (MiNotification::NotfType)pNotfMsg->getType());
 
        return OS_SUCCESS;
     }
@@ -353,9 +353,9 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
 
         // Wait for a maximum of 5000 msecs to receive a finished playing message
         stat = waitForNotf(notfDispatcher,
-                           MpResNotificationMsg::MPRNM_FROMFILE_FINISHED, 
+                           MiNotification::MI_NOTF_PLAY_FINISHED,
                            5000);
-        CPPUNIT_ASSERT_MESSAGE("No FromFile Stop notification was sent while playing record prompt!",
+        CPPUNIT_ASSERT_MESSAGE("No play finished notification was sent while playing record prompt!",
                                stat == OS_SUCCESS);
 
         //enableConsoleOutput(0);
@@ -390,10 +390,10 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
 
         // Wait for a maximum of the size of the buffer (10secs), plus an additional
         // 10 seconds to receive a recording stopped message
-        stat = waitForNotf(notfDispatcher,
-                           MpResNotificationMsg::MPRNM_BUFRECORDER_FINISHED, 
+        stat = waitForNotf(notfDispatcher, 
+                           MiNotification::MI_NOTF_RECORD_FINISHED,
                            nSecsToRecord*1000 + 10000);
-        CPPUNIT_ASSERT_MESSAGE("No BufferRecorder Stop notification was sent while recording!",
+        CPPUNIT_ASSERT_MESSAGE("No record finished notification was sent while recording!",
                                stat == OS_SUCCESS);
 
 #endif
@@ -416,10 +416,10 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
         printf("Play playback_prompt.wav\n");
         mediaInterface->playAudio("playback_prompt.wav", false, true, false) ;
 #endif
-        stat = waitForNotf(notfDispatcher,
-                           MpResNotificationMsg::MPRNM_FROMFILE_FINISHED,
+        stat = waitForNotf(notfDispatcher, 
+                           MiNotification::MI_NOTF_PLAY_FINISHED,
                            3500);
-        CPPUNIT_ASSERT_MESSAGE("No FromFile Stop notification was sent while playing playback prompt!",
+        CPPUNIT_ASSERT_MESSAGE("No play finished notification was sent while playing playback prompt!",
                                stat == OS_SUCCESS);
 
 
@@ -435,9 +435,9 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
                                    false); // remote
 
         stat = waitForNotf(notfDispatcher,
-                           MpResNotificationMsg::MPRNM_FROMFILE_FINISHED,
+                           MiNotification::MI_NOTF_PLAY_FINISHED,
                            15000);
-        CPPUNIT_ASSERT_MESSAGE("No FromFile Stop notification was sent while playing record buffer!",
+        CPPUNIT_ASSERT_MESSAGE("No play finished notification was sent while playing record buffer!",
                                stat == OS_SUCCESS);
 #endif
 
@@ -560,16 +560,16 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
         OsTask::delay(500);
         mediaInterface->stopAudio();
         stat = waitForNotf(notfDispatcher, 
-                           MpResNotificationMsg::MPRNM_FROMFILE_PAUSED, 100);
-        CPPUNIT_ASSERT_MESSAGE("No FromFile paused notification was sent after pausing record prompt!",
+                           MiNotification::MI_NOTF_PLAY_PAUSED, 100);
+        CPPUNIT_ASSERT_MESSAGE("No play paused notification was sent after pausing record prompt!",
                                stat == OS_SUCCESS);
         stat = waitForNotf(notfDispatcher, 
-                           MpResNotificationMsg::MPRNM_FROMFILE_RESUMED, 100);
-        CPPUNIT_ASSERT_MESSAGE("No FromFile resumed notification was sent after resuming record prompt!",
+                           MiNotification::MI_NOTF_PLAY_RESUMED, 100);
+        CPPUNIT_ASSERT_MESSAGE("No play resumed notification was sent after resuming record prompt!",
                                stat == OS_SUCCESS);
         stat = waitForNotf(notfDispatcher,
-                           MpResNotificationMsg::MPRNM_FROMFILE_STOPPED, 100);
-        CPPUNIT_ASSERT_MESSAGE("No FromFile stopped notification was sent after stopping record prompt!",
+                           MiNotification::MI_NOTF_PLAY_STOPPED, 100);
+        CPPUNIT_ASSERT_MESSAGE("No play stopped notification was sent after stopping record prompt!",
                                stat == OS_SUCCESS);
 
         RTL_WRITE("testPlayPauseResumeStop.rtl");
