@@ -893,12 +893,39 @@ public:
     {
         SdpCodecList fac;
 
-        SdpCodec* pQvgaCodec = new SdpCodec(SdpCodec::SDP_CODEC_VP71_QVGA, 99, "video", "vp71",
-            9000, 20000, 1, "", 0, 2, SDP_VIDEO_FORMAT_QVGA) ;
-        SdpCodec* pSqcifCodec = new SdpCodec(SdpCodec::SDP_CODEC_VP71_SQCIF, 100, "video", "vp71",
-            9000, 20000, 1, "", 0, 2, SDP_VIDEO_FORMAT_SQCIF) ;
-        SdpCodec* pQcifCodec = new SdpCodec(SdpCodec::SDP_CODEC_VP71_QCIF, 101, "video", "vp71",
-            9000, 20000, 1, "", 0, 2, SDP_VIDEO_FORMAT_QCIF) ;
+        SdpCodec* pQvgaCodec = new SdpCodec(SdpCodec::SDP_CODEC_VP71_QVGA,
+                                            99,
+                                            MIME_TYPE_VIDEO,
+                                            "vp71",
+                                            9000,
+                                            20000,
+                                            1,
+                                            "",
+                                            SdpCodec::SDP_CODEC_CPU_LOW,
+                                            SDP_CODEC_BANDWIDTH_NORMAL,
+                                            SDP_VIDEO_FORMAT_QVGA);
+        SdpCodec* pSqcifCodec = new SdpCodec(SdpCodec::SDP_CODEC_VP71_SQCIF,
+                                             100,
+                                             MIME_TYPE_VIDEO,
+                                             "vp71",
+                                             9000,
+                                             20000,
+                                             1,
+                                             "",
+                                             SdpCodec::SDP_CODEC_CPU_LOW,
+                                             SDP_CODEC_BANDWIDTH_NORMAL,
+                                             SDP_VIDEO_FORMAT_SQCIF);
+        SdpCodec* pQcifCodec = new SdpCodec(SdpCodec::SDP_CODEC_VP71_QCIF,
+                                            101,
+                                            MIME_TYPE_VIDEO,
+                                            "vp71",
+                                            9000,
+                                            20000,
+                                            1,
+                                            "",
+                                            SdpCodec::SDP_CODEC_CPU_LOW,
+                                            SDP_CODEC_BANDWIDTH_NORMAL,
+                                            SDP_VIDEO_FORMAT_QCIF);
 
         fac.addCodec(*pQvgaCodec);
         fac.addCodec(*pSqcifCodec);
@@ -1077,8 +1104,8 @@ public:
                                             20000, 
                                             1, 
                                             "", 
-                                            0, 
-                                            2, 
+                                            SdpCodec::SDP_CODEC_CPU_LOW, 
+                                            SDP_CODEC_BANDWIDTH_NORMAL, 
                                             SDP_VIDEO_FORMAT_QCIF);
         sdpFactory.addCodec(*pQvgaCodec);
         CPPUNIT_ASSERT_EQUAL(5, sdpFactory.getCodecCount());
@@ -1206,8 +1233,8 @@ public:
            20000, 
            1, 
            "", 
-           0, 
-           2, 
+           SdpCodec::SDP_CODEC_CPU_LOW, 
+           SDP_CODEC_BANDWIDTH_NORMAL, 
            SDP_VIDEO_FORMAT_QCIF);
         sdpFactory.addCodec(*pQvgaCodec);
         CPPUNIT_ASSERT_EQUAL(5, sdpFactory.getCodecCount());
