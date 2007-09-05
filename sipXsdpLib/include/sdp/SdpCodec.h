@@ -108,53 +108,59 @@ public:
         SDP_CODEC_UNKNOWN = -1,
         SDP_CODEC_PCMU = 0,        ///< G.711 mu-law
         SDP_CODEC_GSM = 3,         ///< GSM codec
-        SDP_CODEC_G723 = 4,
+        SDP_CODEC_G723 = 4,        ///< G.723
         SDP_CODEC_PCMA = 8,        ///< G.711 a-law
         SDP_CODEC_L16_STEREO = 10, ///< PCM 16 bit/sample 44100 samples/sec.
         SDP_CODEC_L16_MONO = 11,   ///< PCM 16 bit/sample 44100 samples/sec.
         SDP_CODEC_G729 = 18,       ///< G.729, with or without Annexes A or B
         SDP_CODEC_H263 = 34,       ///< H.263 video codec
-        SDP_CODEC_MAXIMUM_STATIC_CODEC = 95,
-        SDP_CODEC_SPEEX = 110,     ///< Speex, mono 8bits 8000samples/sec
-        SDP_CODEC_SPEEX_5 = 111,   ///< Speex Profile 1
-        SDP_CODEC_SPEEX_15 = 112,  ///< Speex Profile 2
-        SDP_CODEC_SPEEX_24 = 113,  ///< Speex Profile 3
-        SDP_CODEC_TONES = 128,     ///< AVT/DTMF Tones, RFC 2833
-        SDP_CODEC_G729A = 129,
-        SDP_CODEC_G7221 = 130,     ///< Siren
-        SDP_CODEC_G7231 = 131,
-        SDP_CODEC_L16_8K = 132,    ///< Mono PCM 16 bit/sample 8000 samples/sec.
-        SDP_CODEC_G729AB = 133,
-        SDP_CODEC_G729ACISCO7960 = 134,
+        SDP_CODEC_MAXIMUM_STATIC_CODEC = 95, ///< Payload types for codecs below
+                                   ///< will be assigned dynamically.
 
-         // Range for 3rd party add in codec types
-        SDP_CODEC_3RD_PARTY_START = 256,
-        SDP_CODEC_GIPS_IPCMA = 259,
-        SDP_CODEC_GIPS_IPCMU = 260,
-        SDP_CODEC_GIPS_IPCMWB = 261,
-        SDP_CODEC_ILBC = 262,
-        SDP_CODEC_GIPS_ISAC = 263,
-        SDP_CODEC_VP71_CIF = 264,
-        SDP_CODEC_VP71_QCIF = 265,
-        SDP_CODEC_VP71_SQCIF = 266,
-        SDP_CODEC_VP71_QVGA = 267,
-        SDP_CODEC_IYUV_CIF = 268,
-        SDP_CODEC_IYUV_QCIF = 269,
-        SDP_CODEC_IYUV_SQCIF = 270,
-        SDP_CODEC_IYUV_QVGA = 271,
-        SDP_CODEC_I420_CIF = 272,
-        SDP_CODEC_I420_QCIF = 273,
-        SDP_CODEC_I420_SQCIF = 274,
-        SDP_CODEC_I420_QVGA = 275,
-        SDP_CODEC_RGB24_CIF = 276,
-        SDP_CODEC_RGB24_QCIF = 277,
-        SDP_CODEC_RGB24_SQCIF = 278,
-        SDP_CODEC_RGB24_QVGA = 279,
-        SDP_CODEC_H263_CIF = 280,
-        SDP_CODEC_H263_QCIF = 281,
-        SDP_CODEC_H263_SQCIF = 282,
-        SDP_CODEC_H263_QVGA = 283,
-        SDP_CODEC_3RD_PARTY_END = 511
+        SDP_CODEC_SPEEX,           ///< Speex NB,  8,000bps
+        SDP_CODEC_SPEEX_5,         ///< Speex NB,  5,950bps
+        SDP_CODEC_SPEEX_15,        ///< Speex NB, 15,000bps
+        SDP_CODEC_SPEEX_24,        ///< Speex NB, 24,600bps
+        SDP_CODEC_ILBC,            ///< Internet Low Bit Rate Codec  (RFC3951)
+        SDP_CODEC_TONES,           ///< AVT/DTMF Tones, RFC 2833
+        SDP_CODEC_G729A,           ///< G.729A
+        SDP_CODEC_G7221,           ///< Siren
+        SDP_CODEC_G7231,           ///< G.723.1
+        SDP_CODEC_L16_8K,          ///< Mono PCM 16 bit/sample 8000 samples/sec.
+        SDP_CODEC_G729AB,          ///< G.729A
+        SDP_CODEC_G729ACISCO7960,
+
+        /// GIPS specific codecs
+        //@{
+        SDP_CODEC_GIPS_IPCMA,
+        SDP_CODEC_GIPS_IPCMU,
+        SDP_CODEC_GIPS_IPCMWB,
+        SDP_CODEC_GIPS_ISAC,
+        //@}
+
+        /// Video codecs
+        //@{
+        SDP_CODEC_VP71_CIF,
+        SDP_CODEC_VP71_QCIF,
+        SDP_CODEC_VP71_SQCIF,
+        SDP_CODEC_VP71_QVGA,
+        SDP_CODEC_IYUV_CIF,
+        SDP_CODEC_IYUV_QCIF,
+        SDP_CODEC_IYUV_SQCIF,
+        SDP_CODEC_IYUV_QVGA,
+        SDP_CODEC_I420_CIF,
+        SDP_CODEC_I420_QCIF,
+        SDP_CODEC_I420_SQCIF,
+        SDP_CODEC_I420_QVGA,
+        SDP_CODEC_RGB24_CIF,
+        SDP_CODEC_RGB24_QCIF,
+        SDP_CODEC_RGB24_SQCIF,
+        SDP_CODEC_RGB24_QVGA,
+        SDP_CODEC_H263_CIF,
+        SDP_CODEC_H263_QCIF,
+        SDP_CODEC_H263_SQCIF,
+        SDP_CODEC_H263_QVGA
+        //@}
     };
 
 

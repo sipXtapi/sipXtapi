@@ -1187,27 +1187,22 @@ SdpCodec::SdpCodecTypes SdpDefaultCodecFactory::getCodecType(const char* pCodecN
 
     if (strcmp(compareString,"TELEPHONE-EVENT") == 0 ||
        strcmp(compareString,"AUDIO/TELEPHONE-EVENT") == 0 || 
-       strcmp(compareString,"128") == 0 ||
        strcmp(compareString,"AVT-TONES") == 0 ||
        strcmp(compareString,"AVT") == 0)
         retType = SdpCodec::SDP_CODEC_TONES;
     else
     if (strcmp(compareString,"PCMU") == 0 ||
-       strcmp(compareString,"G711U") == 0 || 
-       strcmp(compareString,"0") == 0)
+       strcmp(compareString,"G711U") == 0)
         retType = SdpCodec::SDP_CODEC_PCMU;
     else
     if (strcmp(compareString,"PCMA") == 0 ||
-       strcmp(compareString,"G711A") == 0 || 
-       strcmp(compareString,"8") == 0)
+       strcmp(compareString,"G711A"))
         retType = SdpCodec::SDP_CODEC_PCMA;
     else
-    if (strcmp(compareString,"EG711U") == 0 ||
-       strcmp(compareString,"260") == 0)
+    if (strcmp(compareString,"EG711U"))
         retType = SdpCodec::SDP_CODEC_GIPS_IPCMU;
     else
-    if (strcmp(compareString,"EG711A") == 0 ||
-       strcmp(compareString,"259") == 0)
+    if (strcmp(compareString,"EG711A"))
         retType = SdpCodec::SDP_CODEC_GIPS_IPCMA;
     else
     if (strcmp(compareString,"IPCMWB") == 0)
