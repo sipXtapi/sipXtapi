@@ -35,14 +35,22 @@ class MpdSipxILBC : public MpDecoderBase
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
+   /// iLBC decoder mode (frame length).
+   enum CodecMode
+   {
+      MODE_20MS=20, ///< 20ms frame length mode (13.333 kbps).
+      MODE_30MS=30  ///< 30ms frame length mode (15.200 kbps).
+   };
+
 /* ============================ CREATORS ================================== */
 ///@name Creators
 //@{
 
      /// Constructor
-   MpdSipxILBC(int payloadType);
+   MpdSipxILBC(int payloadType, CodecMode mode);
      /**<
-     *  @param payloadType - (in) RTP payload type associated with this decoder
+     *  @param[in] payloadType - RTP payload type associated with this decoder
+     *  @param[in] mode - iLBC decoder mode (frame length).
      */
 
      /// Destructor
@@ -97,9 +105,10 @@ public:
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 private:
-   static const MpCodecInfo smCodecInfo;  ///< static information about the codec
-   iLBC_Dec_Inst_t_ *mpState;             ///< Internal iLBC decoder state.
-
+   static const MpCodecInfo smCodecInfo20ms;  ///< Information about the codec in 20ms mode
+   static const MpCodecInfo smCodecInfo30ms;  ///< Information about the codec in 30ms mode
+   CodecMode         mMode;                   ///< iLBC decoder mode (frame length).
+   iLBC_Dec_Inst_t_ *mpState;                 ///< Internal iLBC decoder state.
 };
 
 #endif // HAVE_ILBC ]

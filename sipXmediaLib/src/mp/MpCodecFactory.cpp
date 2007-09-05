@@ -137,7 +137,7 @@ OsStatus MpCodecFactory::createDecoder(SdpCodec::SdpCodecTypes internalCodecId,
 
 #ifdef HAVE_ILBC // [
    case (SdpCodec::SDP_CODEC_ILBC):
-      rpDecoder = new MpdSipxILBC(payloadType);
+      rpDecoder = new MpdSipxILBC(payloadType, MpdSipxILBC::MODE_30MS);
       break;
 #endif // HAVE_ILBC ]
 

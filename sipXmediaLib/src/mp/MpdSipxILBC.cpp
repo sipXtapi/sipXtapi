@@ -18,7 +18,21 @@ extern "C" {
 #include <iLBC_decode.h>
 }
 
-const MpCodecInfo MpdSipxILBC::smCodecInfo(
+const MpCodecInfo MpdSipxILBC::smCodecInfo20ms(
+    SdpCodec::SDP_CODEC_ILBC,   // codecType
+    "iLBC",                     // codecVersion
+    8000,                       // samplingRate
+    8,                          // numBitsPerSample (not used)
+    1,                          // numChannels
+    160,                        // interleaveBlockSize
+    15200,                      // bitRate
+    NO_OF_BYTES_20MS * 8,       // minPacketBits
+    NO_OF_BYTES_20MS * 8,       // avgPacketBits
+    NO_OF_BYTES_20MS * 8,       // maxPacketBits
+    160,                        // numSamplesPerFrame
+    6);                         // preCodecJitterBufferSize (should be adjusted)
+
+const MpCodecInfo MpdSipxILBC::smCodecInfo30ms(
     SdpCodec::SDP_CODEC_ILBC,   // codecType
     "iLBC",                     // codecVersion
     8000,                       // samplingRate
@@ -34,8 +48,9 @@ const MpCodecInfo MpdSipxILBC::smCodecInfo(
 
 
 
-MpdSipxILBC::MpdSipxILBC(int payloadType)
+MpdSipxILBC::MpdSipxILBC(int payloadType, CodecMode mode)
 : MpDecoderBase(payloadType)
+, mMode(mode)
 , mpState(NULL)
 {
 }
@@ -49,9 +64,15 @@ OsStatus MpdSipxILBC::initDecode()
 {
    if (mpState == NULL) 
    {
+      // Allocate codec state structure
       mpState = new iLBC_Dec_Inst_t();
+
+      // Make valgrind happy.
       memset(mpState, 0, sizeof(*mpState));
-      ::initDecode(mpState, 30, 1);
+
+      // Initialize codec state.
+      // Note, that our CodecMode type maps directly to expected mode number.
+      ::initDecode(mpState, mMode, 1);
    }
    return OS_SUCCESS;
 }
@@ -68,14 +89,17 @@ int MpdSipxILBC::decode(const MpRtpBufPtr &pPacket,
                         MpAudioSample *samplesBuffer)
 {
    // Check if available buffer size is enough for the packet.
-   if (decodedBufferLength < 240)
+   if (decodedBufferLength < (unsigned)mpState->blockl)
    {
       osPrintf("MpdSipxILBC::decode: Jitter buffer overloaded. Glitch!\n");
-      return 0;
    }
 
-   // Decode incoming packet to temp buffer. If no packet - do PLC.
+   // Allocate temporary buffer for decoded audio.
+   // We allocate memory for 240 samples (30ms frame), because 20ms frame
+   // (160 samples) will also fit.
    float buffer[240];
+
+   // Decode incoming packet to temp buffer. If no packet - do PLC.
    if (pPacket.isValid())
    {
       if (pPacket->getPayloadSize() != mpState->no_of_bytes)
@@ -92,8 +116,12 @@ int MpdSipxILBC::decode(const MpRtpBufPtr &pPacket,
       // Packet data is not available. Do PLC.
       iLBC_decode(buffer, NULL, mpState, 0);
    }
-   
-   for (int i = 0; i < 240; ++i)
+
+   // We should not overflow decode buffer.
+   int decodedSamples = min(decodedBufferLength, (unsigned)mpState->blockl);
+
+   // Convert samples from float to 16-bit signed integer.
+   for (int i = 0; i < decodedSamples; ++i)
    {
       float tmp = buffer[i];
       if (tmp > MAX_SAMPLE)
@@ -104,13 +132,20 @@ int MpdSipxILBC::decode(const MpRtpBufPtr &pPacket,
       samplesBuffer[i] = MpAudioSample(tmp + 0.5f);
    }
 
-   return 240;
+   return decodedSamples;
 }
 
 
 const MpCodecInfo* MpdSipxILBC::getInfo() const
 {
-   return &smCodecInfo;
+   if (mMode == MODE_20MS)
+   {
+      return &smCodecInfo20ms;
+   } 
+   else
+   {
+      return &smCodecInfo30ms;
+   }
 }
 
 #endif // HAVE_ILBC ]
