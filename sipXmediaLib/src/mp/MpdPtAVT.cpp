@@ -40,9 +40,10 @@ const MpCodecInfo MpdPtAVT::smCodecInfo(
          SdpCodec::SDP_CODEC_TONES, "Pingtel_1.0",
          8000, 0, 1, 0, 6400, 128, 128, 128, 0, 0, TRUE, FALSE);
 
-MpdPtAVT::MpdPtAVT(int payloadType, MpFlowGraphBase* pFlowGraph)
+MpdPtAVT::MpdPtAVT(int payloadType, MpConnectionID connId, MpFlowGraphBase* pFlowGraph)
 : MpDecoderBase(payloadType)
 , mpFlowGraph(pFlowGraph)
+, mConnectionId(connId)
 , mCurrentToneKey(-1)
 , mPrevToneSignature(0)
 , mCurrentToneSignature(0)
@@ -229,7 +230,7 @@ void MpdPtAVT::signalKeyDown(const MpRtpBufPtr &pPacket)
                  " dB=%d TS=0x%08x\n", (int) this, pAvt->key, pAvt->dB, ts);
 
    // Ok, create a new DTMF notification message to indicate key down.
-   MprnDTMFMsg dtmfMsg("", (MprnDTMFMsg::KeyCode)pAvt->key, 
+   MprnDTMFMsg dtmfMsg("", mConnectionId, (MprnDTMFMsg::KeyCode)pAvt->key, 
                        MprnDTMFMsg::KEY_DOWN, mToneDuration);
    mpFlowGraph->postNotification(dtmfMsg);
 
@@ -287,7 +288,7 @@ void MpdPtAVT::signalKeyUp(const MpRtpBufPtr &pPacket)
       mPrevToneSignature = mCurrentToneSignature;
 
       // Ok, create a new DTMF notification message to indicate key up.
-      MprnDTMFMsg dtmfMsg("", (MprnDTMFMsg::KeyCode)pAvt->key, 
+      MprnDTMFMsg dtmfMsg("", mConnectionId, (MprnDTMFMsg::KeyCode)pAvt->key, 
                           MprnDTMFMsg::KEY_UP, mToneDuration);
       mpFlowGraph->postNotification(dtmfMsg);
 

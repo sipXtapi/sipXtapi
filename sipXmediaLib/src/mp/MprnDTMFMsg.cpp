@@ -29,9 +29,9 @@
 /* ============================ CREATORS ================================== */
 
 // Constructor
-MprnDTMFMsg::MprnDTMFMsg(const UtlString& namedResOriginator, KeyCode key, 
-                         KeyPressState pressState, uint16_t duration)
-: MpResNotificationMsg(MPRNM_DTMF_RECEIVED, namedResOriginator)
+MprnDTMFMsg::MprnDTMFMsg(const UtlString& namedResOriginator, MpConnectionID connId,
+                         KeyCode key, KeyPressState pressState, uint16_t duration)
+: MpResNotificationMsg(MPRNM_DTMF_RECEIVED, namedResOriginator, connId)
 , mKey(key)
 , mPressState(pressState)
 , mDuration(duration)
@@ -117,6 +117,11 @@ uint16_t MprnDTMFMsg::getDuration() const
 
 
 /* ============================ INQUIRY =================================== */
+
+UtlBoolean MprnDTMFMsg::isPressed() const
+{
+   return mPressState == KEY_DOWN;
+}
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 

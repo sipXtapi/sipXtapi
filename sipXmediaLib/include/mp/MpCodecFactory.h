@@ -66,11 +66,13 @@ public:
    OsStatus createDecoder(SdpCodec::SdpCodecTypes internalCodecId,
                           int payloadType,
                           MpDecoderBase*& rpDecoder,
+                          MpConnectionID connId,
                           MpFlowGraphBase* pFlowGraph = NULL);
    /**<
    *  @param[in]  internalCodecId - codec type identifier
    *  @param[in]  payloadType - RTP payload type associated with this decoder
    *  @param[out] rpDecoder - Reference to a pointer to the new decoder object
+   *  @param[in]  connId - The ID of the connection this decoder is associated with.
    *  @param[in]  pFlowGraph - Pointer to the flowgraph that the decoder is part of. (used for notifications)
    */
 

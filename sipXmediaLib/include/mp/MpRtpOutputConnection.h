@@ -86,6 +86,9 @@ public:
 ///@name Accessors
 //@{
 
+     /// return the connection ID of this connection.
+   inline MpConnectionID getConnectionId(void) const;
+
 #ifdef INCLUDE_RTCP /* [ */
      /// Retrieve the RTCP Connection interface associated with this MpRtpOutputConnection
    IRTCPConnection *getRTCPConnection(void);
@@ -140,5 +143,10 @@ private:
 };
 
 /* ============================ INLINE METHODS ============================ */
+
+MpConnectionID MpRtpOutputConnection::getConnectionId(void) const
+{
+   return mMyID;
+}
 
 #endif  // _MpRtpOutputConnection_h_

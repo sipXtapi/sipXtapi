@@ -23,13 +23,18 @@
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
+// Connection ID that indicates invalid connection or no connection.
+const MpConnectionID MpResNotificationMsg::INVALID_CONNECTION_ID = -1;
+
 /* ============================ CREATORS ================================== */
 
 // Constructor
 MpResNotificationMsg::MpResNotificationMsg(RNMsgType msgType, 
-                                           const UtlString& namedResOriginator)
+                                           const UtlString& namedResOriginator,
+                                           MpConnectionID connId)
    : OsMsg(OsMsg::MP_RES_NOTF_MSG, msgType)
    , mMsgOriginatorName(namedResOriginator)
+   , mConnectionId(connId)
 {
 }
 
@@ -37,6 +42,7 @@ MpResNotificationMsg::MpResNotificationMsg(RNMsgType msgType,
 MpResNotificationMsg::MpResNotificationMsg(const MpResNotificationMsg& rMpResNotifyMsg)
    : OsMsg(rMpResNotifyMsg)
    , mMsgOriginatorName(rMpResNotifyMsg.mMsgOriginatorName)
+   , mConnectionId(rMpResNotifyMsg.mConnectionId)
 {
 }
 
@@ -64,6 +70,7 @@ MpResNotificationMsg::operator=(const MpResNotificationMsg& rhs)
    OsMsg::operator=(rhs);       // assign fields for parent class
 
    mMsgOriginatorName = rhs.mMsgOriginatorName;
+   mConnectionId = rhs.mConnectionId;
 
    return *this;
 }
@@ -72,6 +79,12 @@ MpResNotificationMsg::operator=(const MpResNotificationMsg& rhs)
 void MpResNotificationMsg::setOriginatingResourceName(const UtlString& resOriginator)
 {
    mMsgOriginatorName = resOriginator;
+}
+
+// Set the connection ID that this message is associated with.
+void MpResNotificationMsg::setConnectionId(MpConnectionID connId)
+{
+   mConnectionId = connId;
 }
 
 /* ============================ ACCESSORS ================================= */
@@ -87,6 +100,12 @@ int MpResNotificationMsg::getMsg(void) const
 UtlString MpResNotificationMsg::getOriginatingResourceName(void) const
 {
    return mMsgOriginatorName;
+}
+
+// Get the connection ID that this message is associated with.
+MpConnectionID MpResNotificationMsg::getConnectionId() const
+{
+   return mConnectionId;
 }
 
 

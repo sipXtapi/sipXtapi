@@ -385,7 +385,9 @@ UtlBoolean MprDecode::handleSelectCodecs(SdpCodec* pCodecs[], int numCodecs)
          pCodec = pCodecs[i];
          ourCodec = pCodec->getCodecType();
          payload = pCodec->getCodecPayloadFormat();
-         ret = pFactory->createDecoder(ourCodec, payload, pNewDecoder, getFlowGraph());
+         ret = pFactory->createDecoder(ourCodec, payload, pNewDecoder, 
+                                       mpConnection->getConnectionId(),
+                                       getFlowGraph());
          assert(OS_SUCCESS == ret);
          assert(NULL != pNewDecoder);
          pNewDecoder->initDecode();

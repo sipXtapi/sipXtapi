@@ -18,6 +18,7 @@
 // APPLICATION INCLUDES
 #include "os/OsMsg.h"
 #include "utl/UtlString.h"
+#include "mp/MpTypes.h"
 #include "MpResNotificationMsg.h"
 
 // DEFINES
@@ -68,8 +69,8 @@ public:
    //@{
 
    /// Constructor
-   MprnDTMFMsg(const UtlString& namedResOriginator, KeyCode key, 
-               KeyPressState pressState, uint16_t duration);
+   MprnDTMFMsg(const UtlString& namedResOriginator, MpConnectionID connId, 
+               KeyCode key, KeyPressState pressState, uint16_t duration);
 
    /// Copy constructor
    MprnDTMFMsg(const MprnDTMFMsg& rMsg);
@@ -119,6 +120,7 @@ public:
    ///@name Inquiry
    //@{
 
+     /// Return TRUE if this notification indicates key is down/pressed.
    UtlBoolean isPressed() const;
 
    //@}

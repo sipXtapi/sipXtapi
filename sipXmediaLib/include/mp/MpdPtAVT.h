@@ -58,9 +58,10 @@ public:
 //@{
 
      /// Constructor
-   MpdPtAVT(int payloadType, MpFlowGraphBase* pFlowGraph);
+   MpdPtAVT(int payloadType, MpConnectionID connId, MpFlowGraphBase* pFlowGraph);
      /**<
      *  @param[in] payloadType - RTP payload type associated with this decoder
+     *  @param[in] connId - The ID of the connection this 'decoder' is associated with.
      *  @param[in] pFlowGraph  - Pointer to the flowgraph that the decoder is part of. (used for notifications)
      */
 
@@ -119,6 +120,7 @@ private:
    static const MpCodecInfo smCodecInfo; ///< static information about the codec
 
    MpFlowGraphBase* mpFlowGraph;       ///< Pointer to the flowgraph this is part of - used for tone notification.
+   MpConnectionID mConnectionId;       ///< The ID of the connection this 'decoder' is associated with.
    int mCurrentToneKey;                ///< The key ID
    unsigned int mPrevToneSignature;    ///< The timestamp for last KEYUP event
    unsigned int mCurrentToneSignature; ///< The starting timestamp

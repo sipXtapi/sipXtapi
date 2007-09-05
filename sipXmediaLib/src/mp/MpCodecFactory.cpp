@@ -96,17 +96,18 @@ MpCodecFactory::~MpCodecFactory()
 // param: internalCodecId - (in) codec type identifier
 // param: payloadType - (in) RTP payload type associated with this decoder
 // param: rpDecoder - (out) Reference to a pointer to the new decoder object
+// param: connId - (in) The ID of the connection this decoder is associated with.
 // param: pFlowGraph - (in) Pointer to the flowgraph that the decoder is part of. (used for notifications)
 OsStatus MpCodecFactory::createDecoder(SdpCodec::SdpCodecTypes internalCodecId,
                                        int payloadType, MpDecoderBase*& rpDecoder,
-                                       MpFlowGraphBase* pFlowGraph)
+                                       MpConnectionID connId, MpFlowGraphBase* pFlowGraph)
 {
    rpDecoder=NULL;
 
    switch (internalCodecId) 
    {
    case (SdpCodec::SDP_CODEC_TONES):
-      rpDecoder = new MpdPtAVT(payloadType, pFlowGraph);
+      rpDecoder = new MpdPtAVT(payloadType, connId, pFlowGraph);
       break;
 
    case (SdpCodec::SDP_CODEC_GIPS_PCMA):

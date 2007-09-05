@@ -16,6 +16,7 @@
 // APPLICATION INCLUDES
 #include "os/OsMsg.h"
 #include "utl/UtlString.h"
+#include "mp/MpTypes.h"
 
 // DEFINES
 // MACROS
@@ -58,13 +59,17 @@ public:
       // Do not add new message types after this
    } RNMsgType;
 
+     /// Connection ID that indicates invalid connection or no connection.
+   static const MpConnectionID INVALID_CONNECTION_ID;
+
    /* ============================ CREATORS ================================== */
    ///@name Creators
    //@{
 
    /// Constructor
    MpResNotificationMsg(RNMsgType msgType, 
-                        const UtlString& namedResOriginator);
+                        const UtlString& namedResOriginator,
+                        MpConnectionID connId = INVALID_CONNECTION_ID);
 
    /// Copy constructor
    MpResNotificationMsg(const MpResNotificationMsg& rMpResNotifyMsg);
@@ -90,6 +95,10 @@ public:
    /**<
    *  Sets the name of the intended recipient for this message.
    */
+
+   /// Set the connection ID that this message is associated with.
+   void setConnectionId(MpConnectionID connId);
+
    //@}
 
    /* ============================ ACCESSORS ================================= */
@@ -106,6 +115,9 @@ public:
    *  message.
    */
 
+   /// Get the connection ID that this message is associated with.
+   MpConnectionID getConnectionId() const;
+
    //@}
 
    /* ============================ INQUIRY =================================== */
@@ -119,8 +131,8 @@ protected:
 
    /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-   UtlString mMsgOriginatorName; ///< Name of the resource that 
-   ///< originated this message.
+   UtlString mMsgOriginatorName; ///< Name of the resource that originated this message.
+   MpConnectionID mConnectionId; ///< The ID of the connection this is associated with.
 };
 
 /* ============================ INLINE METHODS ============================ */
