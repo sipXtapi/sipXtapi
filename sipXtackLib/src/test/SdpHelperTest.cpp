@@ -119,7 +119,7 @@ public:
             assert(((SdpMediaLine*)convSdp->getMediaLines().at(0))->getTransportProtocolType() == SdpMediaLine::PROTOCOL_TYPE_RTP_AVP);
             assert(((SdpMediaLine*)convSdp->getMediaLines().at(0))->getCodecs().entries() == 2);
             assert(((SdpMediaLine*)convSdp->getMediaLines().at(1))->getCodecs().entries() == 1);
-            assert(((SdpCodec*)((SdpMediaLine*)convSdp->getMediaLines().at(0))->getCodecs().at(0))->getCodecType() == SdpCodec::SDP_CODEC_GIPS_PCMU);
+            assert(((SdpCodec*)((SdpMediaLine*)convSdp->getMediaLines().at(0))->getCodecs().at(0))->getCodecType() == SdpCodec::SDP_CODEC_PCMU);
             assert(((SdpCodec*)((SdpMediaLine*)convSdp->getMediaLines().at(0))->getCodecs().at(1))->getCodecType() == SdpCodec::SDP_CODEC_TONES);
             assert(((SdpCodec*)((SdpMediaLine*)convSdp->getMediaLines().at(1))->getCodecs().at(0))->getCodecType() == SdpCodec::SDP_CODEC_VP71_CIF);
             UtlString fmtp;

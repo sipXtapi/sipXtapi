@@ -653,9 +653,9 @@ SdpCodec SdpDefaultCodecFactory::getCodec(SdpCodec::SdpCodecTypes internalCodecI
       break;
 #endif /* PLATFORM_SUPPORTS_G729 ] */
 
-   case SdpCodec::SDP_CODEC_GIPS_PCMA:
+   case SdpCodec::SDP_CODEC_PCMA:
       {
-         return SdpCodec(SdpCodec::SDP_CODEC_GIPS_PCMA,
+         return SdpCodec(SdpCodec::SDP_CODEC_PCMA,
                          SdpCodec::SDP_CODEC_PCMA,
                          MIME_TYPE_AUDIO,
                          MIME_SUBTYPE_PCMA,
@@ -668,9 +668,9 @@ SdpCodec SdpDefaultCodecFactory::getCodec(SdpCodec::SdpCodecTypes internalCodecI
       }
       break;
 
-   case SdpCodec::SDP_CODEC_GIPS_PCMU:
+   case SdpCodec::SDP_CODEC_PCMU:
       {
-         return SdpCodec(SdpCodec::SDP_CODEC_GIPS_PCMU,
+         return SdpCodec(SdpCodec::SDP_CODEC_PCMU,
                          SdpCodec::SDP_CODEC_PCMU,
                          MIME_TYPE_AUDIO,
                          MIME_SUBTYPE_PCMU,
@@ -1194,15 +1194,13 @@ SdpCodec::SdpCodecTypes SdpDefaultCodecFactory::getCodecType(const char* pCodecN
     else
     if (strcmp(compareString,"PCMU") == 0 ||
        strcmp(compareString,"G711U") == 0 || 
-       strcmp(compareString,"0") == 0 ||
-       strcmp(compareString,"258") == 0)
-        retType = SdpCodec::SDP_CODEC_GIPS_PCMU;
+       strcmp(compareString,"0") == 0)
+        retType = SdpCodec::SDP_CODEC_PCMU;
     else
     if (strcmp(compareString,"PCMA") == 0 ||
        strcmp(compareString,"G711A") == 0 || 
-       strcmp(compareString,"8") == 0 ||
-       strcmp(compareString,"257") == 0)
-        retType = SdpCodec::SDP_CODEC_GIPS_PCMA;
+       strcmp(compareString,"8") == 0)
+        retType = SdpCodec::SDP_CODEC_PCMA;
     else
     if (strcmp(compareString,"EG711U") == 0 ||
        strcmp(compareString,"260") == 0)

@@ -353,8 +353,8 @@ OsStatus sipXmediaFactoryImpl::buildCodecFactory(SdpCodecList*    pFactory,
             const int numAudioCodecs = TOTAL_AUDIO_CODECS_NUM;
             SdpCodec::SdpCodecTypes audioCodecs[TOTAL_AUDIO_CODECS_NUM];
 
-            audioCodecs[0] = SdpCodec::SDP_CODEC_GIPS_PCMU;
-            audioCodecs[1] = SdpCodec::SDP_CODEC_GIPS_PCMA;
+            audioCodecs[0] = SdpCodec::SDP_CODEC_PCMU;
+            audioCodecs[1] = SdpCodec::SDP_CODEC_PCMA;
             audioCodecs[2] = SdpCodec::SDP_CODEC_TONES;
 
 #ifdef HAVE_GIPS /* [ */
@@ -473,9 +473,9 @@ OsStatus sipXmediaFactoryImpl::getCodec(int iCodec, UtlString& codec, int &bandW
 
     switch (iCodec)
     {
-    case 0: codec = (const char*) SdpCodec::SDP_CODEC_GIPS_PCMU;
+    case 0: codec = (const char*) SdpCodec::SDP_CODEC_PCMU;
         break;
-    case 1: codec = (const char*) SdpCodec::SDP_CODEC_GIPS_PCMA;
+    case 1: codec = (const char*) SdpCodec::SDP_CODEC_PCMA;
         break;
     case 2: codec = (const char*) SdpCodec::SDP_CODEC_TONES;
         break;
@@ -560,10 +560,10 @@ OsStatus sipXmediaFactoryImpl::getCodecNameByType(SdpCodec::SdpCodecTypes type, 
     case SdpCodec::SDP_CODEC_G729A:
         codecName = SIPX_CODEC_ID_G729;
         break;
-    case SdpCodec::SDP_CODEC_GIPS_PCMA:
+    case SdpCodec::SDP_CODEC_PCMA:
         codecName = SIPX_CODEC_ID_PCMA;
         break;
-    case SdpCodec::SDP_CODEC_GIPS_PCMU:
+    case SdpCodec::SDP_CODEC_PCMU:
         codecName = SIPX_CODEC_ID_PCMU;
         break;
     case SdpCodec::SDP_CODEC_GIPS_IPCMA:

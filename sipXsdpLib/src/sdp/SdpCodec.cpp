@@ -79,13 +79,11 @@ SdpCodec::SdpCodec(int payloadFormat,
    {
       if(mMimeSubtype.compareTo("pcmu") == 0)
       {
-         //setValue(SDP_CODEC_PCMU);
-         setValue(SDP_CODEC_GIPS_PCMU); // ?slg? Use GIPS?
+         setValue(SDP_CODEC_PCMU);
       }
       else if(mMimeSubtype.compareTo("pcma") == 0)
       {
-         //setValue(SDP_CODEC_PCMA);
-         setValue(SDP_CODEC_GIPS_PCMA); // ?slg? Use GIPS?
+         setValue(SDP_CODEC_PCMA);
       }
       else if(mMimeSubtype.compareTo("gsm") == 0)
       {
