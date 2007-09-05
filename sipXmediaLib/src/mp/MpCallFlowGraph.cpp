@@ -28,18 +28,13 @@
 #endif
 
 // APPLICATION INCLUDES
-#include "os/OsDefs.h"
 #include "os/OsWriteLock.h"
-#include "os/OsEvent.h"
-#include "sdp/SdpCodec.h"
 #include "os/OsProtectEventMgr.h"
 #include "os/OsProtectEvent.h"
-#include "os/OsFS.h"
 #include "mp/MpRtpInputAudioConnection.h"
 #include "mp/MpRtpOutputAudioConnection.h"
 #include "mp/MpCallFlowGraph.h"
 #include "mp/MpMediaTask.h"
-#include "mp/MpStreamMsg.h"
 #include "mp/MprBridge.h"
 #include "mp/MprFromStream.h"
 #include "mp/MprFromFile.h"
@@ -61,7 +56,6 @@
 #include "mp/NetInTask.h"
 #include "mp/MprRecorder.h"
 #include "mp/MpTypes.h"
-#include "mp/MpAudioUtils.h"
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -94,19 +88,8 @@ UtlBoolean MpCallFlowGraph::sbEnableAGC = false ;
 UtlBoolean MpCallFlowGraph::sbEnableNoiseReduction = false ;
 #endif // HAVE_SPEEX ]
 
-#define INSERT_RECORDERS // splices recorders into flowgraph
+#define INSERT_RECORDERS ///< splices recorders into flowgraph
 // #undef INSERT_RECORDERS 
-
-#ifdef INSERT_RECORDERS /* [ */
-static int WantRecorders = 1;
-int wantRecorders(int flag) {
-   int save = WantRecorders;
-   WantRecorders = !flag;
-   return save;
-}
-int wR() {return wantRecorders(0);}
-int nwR() {return wantRecorders(1);}
-#endif /* INSERT_RECORDERS ] */
 
 #ifndef O_BINARY
 #define O_BINARY 0      // O_BINARY is needed for WIN32 not for VxWorks or Linux
@@ -388,7 +371,6 @@ MpCallFlowGraph::MpCallFlowGraph(const char* locale,
 //
 ////////////////////////////////////////////////////////////////////////////
 #ifdef INSERT_RECORDERS /* [ */
- if (WantRecorders) {
 #ifndef DISABLE_LOCAL_AUDIO // [
    mpRecorders[RECORDER_MIC] = new MprRecorder("RecordMic",
                                  samplesPerFrame, samplesPerSec);
@@ -429,7 +411,6 @@ MpCallFlowGraph::MpCallFlowGraph(const char* locale,
    assert(res == OS_SUCCESS);
 #endif // HIGH_SAMPLERATE_AUDIO ]
 #endif // ndef DISABLE_LOCAL_AUDIO ]
- }
 #endif /* INSERT_RECORDERS ] */
 
 ///////////////////////////////////////////////////////////////////////////////////
