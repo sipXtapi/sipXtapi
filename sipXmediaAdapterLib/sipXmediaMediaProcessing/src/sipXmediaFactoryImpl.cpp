@@ -45,46 +45,6 @@
 #define CONFIG_PHONESET_SEND_INBAND_DTMF  "PHONESET_SEND_INBAND_DTMF"
 #define MAX_MANAGED_FLOW_GRAPHS           16
 
-// Audio codecs number calculation:
-
-#define GENERIC_AUDIO_CODECS_NUM 3
-
-#define GIPS_CODECS_BEGIN  GENERIC_AUDIO_CODECS_NUM
-#ifdef HAVE_GIPS /* [ */
-#define GIPS_AUDIO_CODECS_NUM 3
-#else /* HAVE_GIPS ] [ */
-#define GIPS_AUDIO_CODECS_NUM 0
-#endif /* HAVE_GIPS ] */
-
-#define SPEEX_AUDIO_CODECS_BEGIN  (GIPS_CODECS_BEGIN+GIPS_AUDIO_CODECS_NUM)
-#ifdef HAVE_SPEEX /* [ */
-#define SPEEX_AUDIO_CODECS_NUM 4
-#else /* HAVE_SPEEX ] [ */
-#define SPEEX_AUDIO_CODECS_NUM 0
-#endif /* HAVE_SPEEX ] */
-
-#define GSM_AUDIO_CODECS_BEGIN  (SPEEX_AUDIO_CODECS_BEGIN+SPEEX_AUDIO_CODECS_NUM)
-#ifdef HAVE_GSM /* [ */
-#define GSM_AUDIO_CODECS_NUM 1
-#else /* HAVE_GSM ] [ */
-#define GSM_AUDIO_CODECS_NUM 0
-#endif /* HAVE_GSM ] */
-
-#define ILBC_AUDIO_CODECS_BEGIN  (GSM_AUDIO_CODECS_BEGIN+GSM_AUDIO_CODECS_NUM)
-#ifdef HAVE_ILBC /* [ */
-#define ILBC_AUDIO_CODECS_NUM 1
-#else /* HAVE_ILBC ] [ */
-#define ILBC_AUDIO_CODECS_NUM 0
-#endif /* HAVE_ILBC ] */
- 
-
-#define TOTAL_AUDIO_CODECS_NUM (ILBC_AUDIO_CODECS_BEGIN + ILBC_AUDIO_CODECS_NUM)
-
-// Video codecs  number calculation:
-
-
-#define TOTAL_VIDEO_CODECS_NUM 0
-
 // STATIC VARIABLE INITIALIZATIONS
 int sipXmediaFactoryImpl::miInstanceCount=0;
 
@@ -350,33 +310,23 @@ OsStatus sipXmediaFactoryImpl::buildCodecFactory(SdpCodecList*    pFactory,
         else
         {
             // Build up the supported codecs
-            const int numAudioCodecs = TOTAL_AUDIO_CODECS_NUM;
-            SdpCodec::SdpCodecTypes audioCodecs[TOTAL_AUDIO_CODECS_NUM];
-
-            audioCodecs[0] = SdpCodec::SDP_CODEC_PCMU;
-            audioCodecs[1] = SdpCodec::SDP_CODEC_PCMA;
-            audioCodecs[2] = SdpCodec::SDP_CODEC_TONES;
-
-#ifdef HAVE_GIPS /* [ */
-            audioCodecs[GIPS_CODECS_BEGIN+0] = SdpCodec::SDP_CODEC_GIPS_IPCMU;
-            audioCodecs[GIPS_CODECS_BEGIN+1] = SdpCodec::SDP_CODEC_GIPS_IPCMA;
-            audioCodecs[GIPS_CODECS_BEGIN+2] = SdpCodec::SDP_CODEC_GIPS_IPCMWB;
-#endif /* HAVE_GIPS ] */
-
-#ifdef HAVE_SPEEX /* [ */
-            audioCodecs[SPEEX_AUDIO_CODECS_BEGIN+0] = SdpCodec::SDP_CODEC_SPEEX;
-            audioCodecs[SPEEX_AUDIO_CODECS_BEGIN+1] = SdpCodec::SDP_CODEC_SPEEX_5;
-            audioCodecs[SPEEX_AUDIO_CODECS_BEGIN+2] = SdpCodec::SDP_CODEC_SPEEX_15;
-            audioCodecs[SPEEX_AUDIO_CODECS_BEGIN+3] = SdpCodec::SDP_CODEC_SPEEX_24;
-#endif /* HAVE_SPEEX ] */
-
-#ifdef HAVE_GSM /* [ */
-            audioCodecs[GSM_AUDIO_CODECS_BEGIN+0] = SdpCodec::SDP_CODEC_GSM;
-#endif /* HAVE_GSM ] */
-
-#ifdef HAVE_ILBC /* [ */
-            audioCodecs[ILBC_AUDIO_CODECS_BEGIN+0] = SdpCodec::SDP_CODEC_ILBC;
-#endif /* HAVE_ILBC ] */
+            SdpCodec::SdpCodecTypes audioCodecs[] = {
+#ifdef HAVE_SPEEX // [
+                          SdpCodec::SDP_CODEC_SPEEX,
+                          SdpCodec::SDP_CODEC_SPEEX_5,
+                          SdpCodec::SDP_CODEC_SPEEX_15,
+                          SdpCodec::SDP_CODEC_SPEEX_24,
+#endif // HAVE_SPEEX ]
+#ifdef HAVE_GSM // [
+                          SdpCodec::SDP_CODEC_GSM,
+#endif // HAVE_GSM ]
+#ifdef HAVE_ILBC // [
+                          SdpCodec::SDP_CODEC_ILBC,
+#endif // HAVE_ILBC ]
+                          SdpCodec::SDP_CODEC_PCMU,
+                          SdpCodec::SDP_CODEC_PCMA,
+                          SdpCodec::SDP_CODEC_TONES};
+            const int numAudioCodecs = sizeof(audioCodecs)/sizeof(SdpCodec::SdpCodecTypes);
 
             // Register all codecs
             *iRejected = pFactory->buildSdpCodecFactory(numAudioCodecs, audioCodecs);
@@ -399,8 +349,8 @@ OsStatus sipXmediaFactoryImpl::buildCodecFactory(SdpCodecList*    pFactory,
         else
         {
             // Build up the supported codecs
-            const int numVideoCodecs = TOTAL_VIDEO_CODECS_NUM;
-            SdpCodec::SdpCodecTypes videoCodecs[TOTAL_VIDEO_CODECS_NUM];
+            SdpCodec::SdpCodecTypes videoCodecs[] = {};
+            const int numVideoCodecs = sizeof(audioCodecs)/sizeof(SdpCodec::SdpCodecTypes);
 
             *iRejected = pFactory->buildSdpCodecFactory(numVideoCodecs, videoCodecs);
             rc = OS_SUCCESS;
