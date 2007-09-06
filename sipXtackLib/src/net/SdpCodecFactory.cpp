@@ -11,19 +11,6 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
-
-//////////////////////////////////////////////////////////////////////////////
-//  G.729 enabling controls.  Currently only on VxWorks and Windows
-//////////////////////////////////////////////////////////////////////////////
-
-#undef PLATFORM_SUPPORTS_G729
-
-#if (defined(_VXWORKS) || defined(WIN32)) /* [ */
-#define PLATFORM_SUPPORTS_G729
-#endif /* if (defined(_VXWORKS) || defined(WIN32)) ] */
-
-//////////////////////////////////////////////////////////////////////////////
-
 // SYSTEM INCLUDES
 #include <assert.h>
 #include <string.h>
@@ -608,7 +595,6 @@ SdpCodec SdpDefaultCodecFactory::getCodec(SdpCodec::SdpCodecTypes internalCodecI
       }
       break;
 
-#ifdef PLATFORM_SUPPORTS_G729 /* [ */
    case SdpCodec::SDP_CODEC_G729A:
       {
          return SdpCodec(SdpCodec::SDP_CODEC_G729A,
@@ -651,7 +637,6 @@ SdpCodec SdpDefaultCodecFactory::getCodec(SdpCodec::SdpCodecTypes internalCodecI
                          SDP_CODEC_BANDWIDTH_LOW);
       }
       break;
-#endif /* PLATFORM_SUPPORTS_G729 ] */
 
    case SdpCodec::SDP_CODEC_PCMA:
       {
