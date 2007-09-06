@@ -26,7 +26,7 @@
 #include <net/SmimeBody.h>
 #include <net/MimeBodyPart.h>
 #include <net/SipDialogEvent.h>
-#include <net/NameValueTokenizer.h>
+#include <utl/UtlNameValueTokenizer.h>
 #include <net/HttpMessage.h>
 #include <os/OsSysLog.h>
 #include <utl/UtlDList.h>

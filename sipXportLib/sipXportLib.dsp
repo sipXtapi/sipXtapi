@@ -539,6 +539,10 @@ SOURCE=.\src\utl\UtlLongLongInt.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\utl\UtlNameValueTokenizer.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\utl\UtlRandom.cpp
 # End Source File
 # Begin Source File
@@ -1144,6 +1148,10 @@ SOURCE=.\include\utl\UtlListIterator.h
 # Begin Source File
 
 SOURCE=.\include\utl\UtlLongLongInt.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\utl\UtlNameValueTokenizer.h
 # End Source File
 # Begin Source File
 

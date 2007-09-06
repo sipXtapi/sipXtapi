@@ -23,7 +23,7 @@
 #include "utl/UtlDListIterator.h"
 #include "utl/UtlRegex.h"
 #include "net/Url.h"
-#include "net/NameValueTokenizer.h"
+#include "utl/UtlNameValueTokenizer.h"
 #include "net/NameValuePair.h"
 #include "net/NameValuePairInsensitive.h"
 #include "net/SipMessage.h"

@@ -28,7 +28,6 @@ nobase_include_HEADERS =  \
     net/MimeBodyPart.h \
     net/NameValuePair.h \
     net/NameValuePairInsensitive.h \
-    net/NameValueTokenizer.h \
     net/NetAttributeTokenizer.h \
     net/NetBase64Codec.h \
     net/NetMd5Codec.h \

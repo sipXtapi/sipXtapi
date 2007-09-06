@@ -44,7 +44,7 @@
 
 #include "ptapi/PtProvider.h"
 #include "net/Url.h"
-#include "net/NameValueTokenizer.h"
+#include "utl/UtlNameValueTokenizer.h"
 #include "os/OsConfigDb.h"
 #include "net/SipLineMgr.h"
 #include "net/SipRefreshMgr.h"

@@ -728,6 +728,27 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="src\os\OsMsgDispatcher.cpp">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="3"
+						BrowseInformation="1"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath="src\os\OsMsgPool.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -750,27 +771,6 @@
 			</File>
 			<File
 				RelativePath="src\os\OsMsgQ.cpp">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="src\os\OsMsgDispatcher.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -2027,6 +2027,9 @@
 				RelativePath=".\src\utl\UtlLongLongInt.cpp">
 			</File>
 			<File
+				RelativePath=".\src\utl\UtlNameValueTokenizer.cpp">
+			</File>
+			<File
 				RelativePath="src\utl\UtlRandom.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -2424,13 +2427,13 @@
 				RelativePath="include\os\OsMsg.h">
 			</File>
 			<File
+				RelativePath="include\os\OsMsgDispatcher.h">
+			</File>
+			<File
 				RelativePath="include\os\OsMsgPool.h">
 			</File>
 			<File
 				RelativePath="include\os\OsMsgQ.h">
-			</File>
-			<File
-				RelativePath="include\os\OsMsgDispatcher.h">
 			</File>
 			<File
 				RelativePath="include\os\OsMulticastSocket.h">
@@ -2692,6 +2695,9 @@
 			</File>
 			<File
 				RelativePath=".\include\utl\UtlLongLongInt.h">
+			</File>
+			<File
+				RelativePath=".\include\utl\UtlNameValueTokenizer.h">
 			</File>
 			<File
 				RelativePath=".\include\utl\UtlObservable.h">

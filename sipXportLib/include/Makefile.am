@@ -118,6 +118,7 @@ nobase_include_HEADERS = \
     xmlparser/tinyxml.h \
     xmlparser/TiXmlIterator.h \
     utl/UtlLongLongInt.h \
+    utl/UtlNameValueTokenizer.h \
     utl/UtlBool.h \
     utl/UtlCrc32.h \
     utl/UtlLink.h \

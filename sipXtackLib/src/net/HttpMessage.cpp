@@ -31,7 +31,7 @@
 // Needed for SIP_SHORT_CONTENT_LENGTH_FIELD.
 #include <net/SipMessage.h>
 
-#include <net/NameValueTokenizer.h>
+#include <utl/UtlNameValueTokenizer.h>
 #include <net/NetAttributeTokenizer.h>
 #include <os/OsDateTime.h>
 #include <os/OsUtil.h>
@@ -293,7 +293,7 @@ int HttpMessage::parseFirstLine(const char* messageBytesPtr, int byteCount)
    // Read the first header line
    int nextLineOffset;
    int headerLineLength =
-      NameValueTokenizer::findNextLineTerminator(messageBytesPtr,
+      UtlNameValueTokenizer::findNextLineTerminator(messageBytesPtr,
                                                  byteCount,
                                                  &nextLineOffset);
 
@@ -413,7 +413,7 @@ int HttpMessage::findHeaderEnd(const char* headerBytes, int messageLength)
    int bytesConsumed = 0;
    while(messageLength - bytesConsumed > 0 &&
          (lineLength =
-           NameValueTokenizer::findNextLineTerminator(&headerBytes[bytesConsumed],
+           UtlNameValueTokenizer::findNextLineTerminator(&headerBytes[bytesConsumed],
                messageLength - bytesConsumed, &nextLineIndex)))
    {
       if(nextLineIndex > 0)
@@ -464,7 +464,7 @@ int HttpMessage::parseHeaders(const char* headerBytes, int messageLength,
    char nameFirstChar;
    NameValuePair* headerField = NULL;
    NameValuePair* previousHeaderField = NULL;
-   NameValueTokenizer parser(headerBytes, messageLength);
+   UtlNameValueTokenizer parser(headerBytes, messageLength);
    int nameFound;
 
    // If this is a zero length line the rest is the body
@@ -3284,7 +3284,7 @@ UtlBoolean HttpMessage::getAuthorizationScheme(UtlString* scheme) const
     UtlString fieldValue;
     UtlBoolean fieldSet = getAuthorizationField(&fieldValue, SERVER);
 
-    NameValueTokenizer::getSubField(fieldValue.data(), 0, " \t",
+    UtlNameValueTokenizer::getSubField(fieldValue.data(), 0, " \t",
         scheme);
     scheme->toUpper();
     return(fieldSet);
@@ -3296,14 +3296,14 @@ UtlBoolean HttpMessage::getBasicAuthorizationData(UtlString* encodedCookie) cons
     UtlBoolean fieldSet = getAuthorizationField(&fieldValue, SERVER);
     UtlString scheme;
 
-    NameValueTokenizer::getSubField(fieldValue.data(), 0, " \t",
+    UtlNameValueTokenizer::getSubField(fieldValue.data(), 0, " \t",
         &scheme);
     scheme.toUpper();
 
     // If the scheme is not basic, then the second token is probably not a cookie
     if(scheme.compareTo(HTTP_BASIC_AUTHENTICATION, UtlString::ignoreCase) == 0)
     {
-        NameValueTokenizer::getSubField(fieldValue.data(), 1, " \t",
+        UtlNameValueTokenizer::getSubField(fieldValue.data(), 1, " \t",
             encodedCookie);
     }
     else

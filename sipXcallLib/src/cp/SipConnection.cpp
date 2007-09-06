@@ -27,7 +27,7 @@
 #include <net/NetMd5Codec.h>
 #include <net/SipMessageEvent.h>
 #include <net/SipUserAgent.h>
-#include <net/NameValueTokenizer.h>
+#include <utl/UtlNameValueTokenizer.h>
 #include <net/SdpCodecFactory.h>
 #include <net/Url.h>
 #include <net/SipSession.h>

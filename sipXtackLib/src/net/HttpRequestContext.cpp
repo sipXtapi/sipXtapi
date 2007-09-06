@@ -18,7 +18,7 @@
 #include <os/OsServerSocket.h>
 #include <net/HttpRequestContext.h>
 #include <net/HttpMessage.h>
-#include <net/NameValueTokenizer.h>
+#include <utl/UtlNameValueTokenizer.h>
 #include <net/NameValuePair.h>
 #include <net/NameValuePairInsensitive.h>
 
@@ -384,7 +384,7 @@ void HttpRequestContext::parseCgiVariables(const char* queryString,
       // Pull out a name value pair
       //osPrintf("HttpRequestContext::parseCgiVariables parseCgiVariables: \"%s\" lastCharIndex: %d",
       //    &(queryString[lastCharIndex]), lastCharIndex);
-      NameValueTokenizer::getSubField(&(queryString[lastCharIndex]),
+      UtlNameValueTokenizer::getSubField(&(queryString[lastCharIndex]),
                                       queryStringLength - lastCharIndex,
                                       0,
                                       pairSeparator,
@@ -396,7 +396,7 @@ void HttpRequestContext::parseCgiVariables(const char* queryString,
       if(nameAndValuePtr && nameAndValueLength > 0)
       {
          // Separate the name and value
-         NameValueTokenizer::getSubField(nameAndValuePtr,
+         UtlNameValueTokenizer::getSubField(nameAndValuePtr,
                                          nameAndValueLength,
                                          0,
                                          nameValueSeparator,

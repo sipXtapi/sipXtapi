@@ -33,7 +33,7 @@
 #include <net/SipUserAgent.h>
 #include <net/SipSession.h>
 #include <net/SipMessageEvent.h>
-#include <net/NameValueTokenizer.h>
+#include <utl/UtlNameValueTokenizer.h>
 #include <net/SipObserverCriteria.h>
 #include <os/HostAdapterAddress.h>
 #include <net/Url.h>
@@ -3414,7 +3414,7 @@ void SipUserAgent::getFromAddress(UtlString* address, int* port, UtlString* prot
             }
 
             // If there is an address configured use it
-            NameValueTokenizer::getSubField(defaultSipAddress.data(), 0,
+            UtlNameValueTokenizer::getSubField(defaultSipAddress.data(), 0,
                     ", \t", address);
 
             // else use the local host ip address
@@ -3430,7 +3430,7 @@ void SipUserAgent::getDirectoryServer(int index, UtlString* address,
                                                                           int* port, UtlString* protocol)
 {
         UtlString serverAddress;
-        NameValueTokenizer::getSubField(directoryServers.data(), 0,
+        UtlNameValueTokenizer::getSubField(directoryServers.data(), 0,
                 SIP_MULTIFIELD_SEPARATOR, &serverAddress);
 
         address->remove(0);
@@ -3445,7 +3445,7 @@ void SipUserAgent::getProxyServer(int index, UtlString* address,
                                                                           int* port, UtlString* protocol)
 {
         UtlString serverAddress;
-        NameValueTokenizer::getSubField(proxyServers.data(), 0,
+        UtlNameValueTokenizer::getSubField(proxyServers.data(), 0,
                 SIP_MULTIFIELD_SEPARATOR, &serverAddress);
 
         address->remove(0);
@@ -3546,7 +3546,7 @@ void SipUserAgent::setHostAliases(UtlString& aliases)
 {
     UtlString aliasString;
     int aliasIndex = 0;
-    while(NameValueTokenizer::getSubField(aliases.data(), aliasIndex,
+    while(UtlNameValueTokenizer::getSubField(aliases.data(), aliasIndex,
                     ", \t", &aliasString))
     {
         Url aliasUrl(aliasString);

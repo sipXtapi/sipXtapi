@@ -33,7 +33,7 @@
 #include "net/SipLineMgr.h"
 #include "net/SipRefreshMgr.h"
 #include "net/SipMessageEvent.h"
-#include "net/NameValueTokenizer.h"
+#include "utl/UtlNameValueTokenizer.h"
 #include "net/SipObserverCriteria.h"
 #include "net/Url.h"
 #include "net/SipUserAgent.h"
@@ -366,7 +366,7 @@ SipRefreshMgr::getFromAddress(
         }
 
         // If there is an address configured use it
-        NameValueTokenizer::getSubField(mDefaultSipAddress.data(), 0, ", \t", address);
+        UtlNameValueTokenizer::getSubField(mDefaultSipAddress.data(), 0, ", \t", address);
         // else use the local host ip address
         if ( address->isNull() )
         {
@@ -1133,11 +1133,11 @@ SipRefreshMgr::parseContactFields(
             int subfieldIndex = 0;
             UtlString subfieldName;
             UtlString subfieldValue;
-            NameValueTokenizer::getSubField(contactField.data(), subfieldIndex, ";", &subfieldText);
+            UtlNameValueTokenizer::getSubField(contactField.data(), subfieldIndex, ";", &subfieldText);
             while ( !subfieldText.isNull() )
             {
-                NameValueTokenizer::getSubField(subfieldText.data(), 0, "=", &subfieldName);
-                NameValueTokenizer::getSubField(subfieldText.data(), 1, "=", &subfieldValue);
+                UtlNameValueTokenizer::getSubField(subfieldText.data(), 0, "=", &subfieldName);
+                UtlNameValueTokenizer::getSubField(subfieldText.data(), 1, "=", &subfieldValue);
 #ifdef TEST_PRINT
                 osPrintf("SipUserAgent::processRegisterResponce found contact parameter[%d]: \"%s\" value: \"%s\"\n",
                          subfieldIndex, subfieldName.data(), subfieldValue.data());
@@ -1147,7 +1147,7 @@ SipRefreshMgr::parseContactFields(
                 {
 
                     //see if more than one token in the expire value
-                    NameValueTokenizer::getSubField(
+                    UtlNameValueTokenizer::getSubField(
                         subfieldValue, 1,
                         " \t:;,", &subfieldText);
 
@@ -1179,7 +1179,7 @@ SipRefreshMgr::parseContactFields(
                     break;
                 }
                 subfieldIndex++;
-                NameValueTokenizer::getSubField(contactField.data(), subfieldIndex, ";", &subfieldText);
+                UtlNameValueTokenizer::getSubField(contactField.data(), subfieldIndex, ";", &subfieldText);
             }
         }
         indexContactField ++;

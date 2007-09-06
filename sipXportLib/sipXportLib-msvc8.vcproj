@@ -2402,6 +2402,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\src\utl\UtlNameValueTokenizer.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\src\utl\UtlRandom.cpp"
 				>
 			</File>
@@ -3000,6 +3004,10 @@
 			</File>
 			<File
 				RelativePath=".\include\utl\UtlLongLongInt.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\utl\UtlNameValueTokenizer.h"
 				>
 			</File>
 			<File

@@ -28,7 +28,7 @@
 #include <net/SipMessage.h>
 #include <net/MimeBodyPart.h>
 #include <net/SmimeBody.h>
-#include <net/NameValueTokenizer.h>
+#include <utl/UtlNameValueTokenizer.h>
 #include <net/Url.h>
 #include <net/SipUserAgent.h>
 #include <os/OsDateTime.h>
@@ -1977,7 +1977,7 @@ void SipMessage::applyTargetUriHeaderParams()
             int route;
             UtlString thisRoute;
             for (route=0;
-                 NameValueTokenizer::getSubField(hdrValue.data(), route,
+                 UtlNameValueTokenizer::getSubField(hdrValue.data(), route,
                                                  SIP_MULTIFIELD_SEPARATOR, &thisRoute);
                  thisRoute.remove(0), route++
                  )
@@ -2687,7 +2687,7 @@ UtlBoolean SipMessage::parseParameterFromUri(const char* uri,
         uriString.strip(UtlString::leading);
         //osPrintf("SipMessage::parseParameterFromUri uriString: %s index: %d\n",
         //  uriString.data(), parameterStart);
-        NameValueTokenizer::getSubField(uriString.data(), 0,
+        UtlNameValueTokenizer::getSubField(uriString.data(), 0,
             " \t;>", parameterValue);
 
     }
@@ -3159,9 +3159,9 @@ void SipMessage::getLastVia(UtlString* address,
    // how to send the response.
    if (getFieldSubfield(SIP_VIA_FIELD, 0, &Via))
    {
-      NameValueTokenizer::getSubField(Via, 0, SIP_SUBFIELD_SEPARATORS,
+      UtlNameValueTokenizer::getSubField(Via, 0, SIP_SUBFIELD_SEPARATORS,
                                       &sipProtocol);
-      NameValueTokenizer::getSubField(Via, 1, SIP_SUBFIELD_SEPARATORS,
+      UtlNameValueTokenizer::getSubField(Via, 1, SIP_SUBFIELD_SEPARATORS,
                                       &url);
 
       index = sipProtocol.index('/');
@@ -3301,11 +3301,11 @@ UtlBoolean SipMessage::getCSeqField(int* sequenceNum, UtlString* sequenceMethod)
    {
         // Too slow:
        /*UtlString sequenceNumString;
-      NameValueTokenizer::getSubField(value, 0,
+      UtlNameValueTokenizer::getSubField(value, 0,
                SIP_SUBFIELD_SEPARATORS, &sequenceNumString);
       *sequenceNum = atoi(sequenceNumString.data());
 
-      NameValueTokenizer::getSubField(value, 1,
+      UtlNameValueTokenizer::getSubField(value, 1,
                SIP_SUBFIELD_SEPARATORS, sequenceMethod);*/
 
         // Ignore white space in the begining
@@ -3401,7 +3401,7 @@ UtlBoolean SipMessage::getContactEntry(int addressIndex, UtlString* uriAndParame
             #ifdef TEST_PRINT
                     osPrintf("SipMessage::getContactEntry addressIndex: %d\n", addressIndex);
             #endif
-           //NameValueTokenizer::getSubField(value, addressIndex, ",",
+           //UtlNameValueTokenizer::getSubField(value, addressIndex, ",",
          //    uriAndParameters);
            int addressStart = 0;
            int addressCount = 0;
@@ -3502,19 +3502,19 @@ UtlBoolean SipMessage::getEventField(UtlString* eventType,
 
    if (gotHeader)
    {
-      NameValueTokenizer::getSubField(eventField, 0, ";", eventType);
+      UtlNameValueTokenizer::getSubField(eventField, 0, ";", eventType);
       eventType->strip(UtlString::both);
 
       UtlString eventParam;
       for (int param_idx = 1;
-           NameValueTokenizer::getSubField(eventField.data(), param_idx, ";", &eventParam);
+           UtlNameValueTokenizer::getSubField(eventField.data(), param_idx, ";", &eventParam);
            param_idx++
            )
       {
          UtlString name;
          UtlString value;
 
-         NameValueTokenizer paramPair(eventParam);
+         UtlNameValueTokenizer paramPair(eventParam);
          if (paramPair.getNextPair('=',&name,&value))
          {
             if (0==name.compareTo("id",UtlString::ignoreCase) && NULL != eventId)
@@ -3563,7 +3563,7 @@ UtlBoolean SipMessage::getExpiresField(int* expiresInSeconds) const
    if(fieldValue)
    {
         UtlString subfieldText;
-        NameValueTokenizer::getSubField(fieldValue, 1,
+        UtlNameValueTokenizer::getSubField(fieldValue, 1,
                " \t:;,", &subfieldText);
 
         //
@@ -3634,7 +3634,7 @@ UtlBoolean SipMessage::getRecordRouteUri(int index, UtlString* recordRouteUri) c
 {
     //UtlString recordRouteField;
     //UtlBoolean fieldExists = getRecordRouteField(&recordRouteField);
-    //NameValueTokenizer::getSubField(recordRouteField.data(), index,
+    //UtlNameValueTokenizer::getSubField(recordRouteField.data(), index,
    //          ",", recordRouteUri);
     UtlBoolean fieldExists = getFieldSubfield(SIP_RECORD_ROUTE_FIELD, index, recordRouteUri);
     recordRouteUri->strip(UtlString::both);
@@ -4002,7 +4002,7 @@ UtlBoolean SipMessage::getFieldSubfield(const char* fieldName, int addressIndex,
    while(value && index <= addressIndex)
    {
       subFieldIndex = 0;
-      NameValueTokenizer::getSubField(value, subFieldIndex, SIP_MULTIFIELD_SEPARATOR, &url);
+      UtlNameValueTokenizer::getSubField(value, subFieldIndex, SIP_MULTIFIELD_SEPARATOR, &url);
 #ifdef TEST
       osPrintf("Got field: \"%s\" subfield[%d]: %s\n", fieldName, fieldIndex, url.data());
 #endif
@@ -4011,7 +4011,7 @@ UtlBoolean SipMessage::getFieldSubfield(const char* fieldName, int addressIndex,
       {
          subFieldIndex++;
          index++;
-         NameValueTokenizer::getSubField(value, subFieldIndex,
+         UtlNameValueTokenizer::getSubField(value, subFieldIndex,
             SIP_MULTIFIELD_SEPARATOR, &url);
 #ifdef TEST
          osPrintf("Got field: \"%s\" subfield[%d]: %s\n", fieldName, fieldIndex, url.data());
@@ -4050,7 +4050,7 @@ UtlBoolean SipMessage::getFieldSubfield(const char* fieldName, int addressIndex,
    while(value && index <= addressIndex)
    {
       subFieldIndex = 0;
-      NameValueTokenizer::getSubField(value, subFieldIndex,
+      UtlNameValueTokenizer::getSubField(value, subFieldIndex,
          SIP_MULTIFIELD_SEPARATOR, &url);
 #ifdef TEST
       osPrintf("Got field: \"%s\" subfield[%d]: %s\n", fieldName,
@@ -4061,7 +4061,7 @@ UtlBoolean SipMessage::getFieldSubfield(const char* fieldName, int addressIndex,
       {
          subFieldIndex++;
          index++;
-         NameValueTokenizer::getSubField(value, subFieldIndex,
+         UtlNameValueTokenizer::getSubField(value, subFieldIndex,
             SIP_MULTIFIELD_SEPARATOR, &url);
 #ifdef TEST
          osPrintf("Got field: \"%s\" subfield[%d]: %s\n", fieldName,
@@ -4114,7 +4114,7 @@ UtlBoolean SipMessage::getSessionExpires(int* sessionExpiresSeconds, UtlString* 
         if (iIndex != UTL_NOT_FOUND)
         {
             expiresParams.remove(0, iIndex+1) ;
-            NameValueTokenizer tokenizer(expiresParams.data()) ;
+            UtlNameValueTokenizer tokenizer(expiresParams.data()) ;
             UtlString name ;
             UtlString value ;
             while (tokenizer.getNextPair('=', &name, &value))
@@ -4191,7 +4191,7 @@ UtlBoolean SipMessage::isInSupportedField(const char* token) const
    while (value && !tokenFound)
    {
       subFieldIndex = 0;
-      NameValueTokenizer::getSubField(value, subFieldIndex,
+      UtlNameValueTokenizer::getSubField(value, subFieldIndex,
                                       SIP_MULTIFIELD_SEPARATOR, &url);
 #ifdef TEST
       OsSysLog::add(FAC_SIP, PRI_DEBUG, "Got field: \"%s\" subfield[%d]: %s\n", value,
@@ -4206,7 +4206,7 @@ UtlBoolean SipMessage::isInSupportedField(const char* token) const
       while (!url.isNull() && !tokenFound)
       {
          subFieldIndex++;
-         NameValueTokenizer::getSubField(value, subFieldIndex,
+         UtlNameValueTokenizer::getSubField(value, subFieldIndex,
                                          SIP_MULTIFIELD_SEPARATOR, &url);
          url.strip(UtlString::both);
 #ifdef TEST
@@ -4310,11 +4310,11 @@ UtlBoolean SipMessage::getReferredByUrls(UtlString* referrerUrl,
     if(value)
     {
         // The first element is the referrer URL
-        if(referrerUrl) NameValueTokenizer::getSubField(value, 0,
+        if(referrerUrl) UtlNameValueTokenizer::getSubField(value, 0,
             ";", referrerUrl);
 
         // The second element is the referred to URL
-        if(referredToUrl) NameValueTokenizer::getSubField(value, 1,
+        if(referredToUrl) UtlNameValueTokenizer::getSubField(value, 1,
             ";", referredToUrl);
     }
     return(value != NULL);
@@ -4334,7 +4334,7 @@ UtlBoolean SipMessage::getReplacesData(UtlString& callId,
    if (replacesField)
     {
         // Get the callId
-       NameValueTokenizer::getSubField(replacesField, 0,
+       UtlNameValueTokenizer::getSubField(replacesField, 0,
                    ";", &callId);
        callId.strip(UtlString::both);
 
@@ -4342,18 +4342,18 @@ UtlBoolean SipMessage::getReplacesData(UtlString& callId,
        do
        {
           // Get a name value pair
-          NameValueTokenizer::getSubField(replacesField, parameterIndex,
+          UtlNameValueTokenizer::getSubField(replacesField, parameterIndex,
                    ";", &parameter);
 
 
           // Parse out the parameter name
-          NameValueTokenizer::getSubField(parameter.data(), 0,
+          UtlNameValueTokenizer::getSubField(parameter.data(), 0,
                                   "=", &name);
           name.toLower();
           name.strip(UtlString::both);
 
           // Parse out the parameter value
-          NameValueTokenizer::getSubField(parameter.data(), 1,
+          UtlNameValueTokenizer::getSubField(parameter.data(), 1,
                                   "=", &value);
           value.strip(UtlString::both);
 
@@ -5072,11 +5072,11 @@ void SipMessage::ParseContactFields(const SipMessage *registerResponse,
          int subfieldIndex = 0;
          UtlString subfieldName;
          UtlString subfieldValue;
-         NameValueTokenizer::getSubField(contactField.data(), subfieldIndex, ";", &subfieldText);
+         UtlNameValueTokenizer::getSubField(contactField.data(), subfieldIndex, ";", &subfieldText);
          while(!subfieldText.isNull())
          {
-            NameValueTokenizer::getSubField(subfieldText.data(), 0, "=", &subfieldName);
-            NameValueTokenizer::getSubField(subfieldText.data(), 1, "=", &subfieldValue);
+            UtlNameValueTokenizer::getSubField(subfieldText.data(), 0, "=", &subfieldName);
+            UtlNameValueTokenizer::getSubField(subfieldText.data(), 1, "=", &subfieldValue);
 #               ifdef TEST_PRINT
             osPrintf("ipMessage::ParseContactFields found contact parameter[%d]: \"%s\" value: \"%s\"\n",
                subfieldIndex, subfieldName.data(), subfieldValue.data());
@@ -5087,7 +5087,7 @@ void SipMessage::ParseContactFields(const SipMessage *registerResponse,
             {
 
                //see if more than one token in the expire value
-               NameValueTokenizer::getSubField(subfieldValue, 1,
+               UtlNameValueTokenizer::getSubField(subfieldValue, 1,
                " \t:;,", &subfieldText);
 
                // if not ...time is in seconds
@@ -5123,7 +5123,7 @@ void SipMessage::ParseContactFields(const SipMessage *registerResponse,
             }
 
             subfieldIndex++;
-            NameValueTokenizer::getSubField(contactField.data(), subfieldIndex, ";", &subfieldText);
+            UtlNameValueTokenizer::getSubField(contactField.data(), subfieldIndex, ";", &subfieldText);
          }
       }
       indexContactField ++;
@@ -5180,7 +5180,7 @@ void SipMessage::parseViaParameters( const char* viaField
                  &(viaField[lastCharIndex]), lastCharIndex);
 #       endif
         // Pull out a name value pair
-        NameValueTokenizer::getSubField(&(viaField[lastCharIndex]),
+        UtlNameValueTokenizer::getSubField(&(viaField[lastCharIndex]),
                                         viaFieldLength - lastCharIndex,
                                         0,
                                         pairSeparator,
@@ -5192,7 +5192,7 @@ void SipMessage::parseViaParameters( const char* viaField
         if(nameAndValuePtr && nameAndValueLength > 0)
         {
             // Separate the name and value
-            NameValueTokenizer::getSubField(nameAndValuePtr,
+            UtlNameValueTokenizer::getSubField(nameAndValuePtr,
                                             nameAndValueLength,
                                             0,
                                             namValueSeparator,

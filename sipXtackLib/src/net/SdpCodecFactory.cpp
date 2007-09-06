@@ -34,7 +34,7 @@
 #include <os/OsReadLock.h>
 #include <net/SdpCodecFactory.h>
 #include <sdp/SdpCodec.h>
-#include <net/NameValueTokenizer.h>
+#include <utl/UtlNameValueTokenizer.h>
 
 #define VERBOSE_CODEC_FACTORY
 #undef VERBOSE_CODEC_FACTORY
@@ -233,7 +233,7 @@ int SdpCodecList::buildSdpCodecFactory(const UtlString &codecList)
    int codecStringIndex = 0;
    SdpCodec::SdpCodecTypes codecs[1];
    SdpCodec::SdpCodecTypes internalCodecId;
-   NameValueTokenizer::getSubField(codecList,codecStringIndex ,
+   UtlNameValueTokenizer::getSubField(codecList,codecStringIndex ,
                                         ", \n\r\t", &oneCodec);
  
    while(!oneCodec.isNull())
@@ -248,7 +248,7 @@ int SdpCodecList::buildSdpCodecFactory(const UtlString &codecList)
 
     
        codecStringIndex++;
-       NameValueTokenizer::getSubField(codecList, codecStringIndex,
+       UtlNameValueTokenizer::getSubField(codecList, codecStringIndex,
                                      ", \n\r\t", &oneCodec);
 
    }

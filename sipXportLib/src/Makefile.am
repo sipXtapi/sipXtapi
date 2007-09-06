@@ -43,6 +43,7 @@ libsipXport_la_SOURCES =  \
     ../config/sipxportlib-buildstamp.h \
     ../config/sipxportlib-buildstamp.cpp \
     utl/UtlLongLongInt.cpp \
+    utl/UtlNameValueTokenizer.cpp \
     utl/UtlBool.cpp \
     utl/UtlCrc32.cpp \
     utl/UtlDateTime.cpp \

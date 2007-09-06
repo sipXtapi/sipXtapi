@@ -14,7 +14,7 @@
 // APPLICATION INCLUDES
 #include <utl/UtlDListIterator.h>
 #include <net/SipRequestContext.h>
-#include <net/NameValueTokenizer.h>
+#include <utl/UtlNameValueTokenizer.h>
 #include <net/NameValuePair.h>
 
 // EXTERNAL FUNCTIONS

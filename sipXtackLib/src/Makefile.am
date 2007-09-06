@@ -60,7 +60,6 @@ libsipXtack_la_SOURCES =  \
     net/MimeBodyPart.cpp \
     net/NameValuePair.cpp \
     net/NameValuePairInsensitive.cpp \
-    net/NameValueTokenizer.cpp \
     net/NetAttributeTokenizer.cpp \
     net/NetBase64Codec.cpp \
     net/NetMd5Codec.cpp \

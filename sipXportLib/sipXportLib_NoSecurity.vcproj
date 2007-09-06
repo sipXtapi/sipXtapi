@@ -1947,6 +1947,9 @@
 				RelativePath=".\src\utl\UtlLongLongInt.cpp">
 			</File>
 			<File
+				RelativePath=".\src\utl\UtlNameValueTokenizer.cpp">
+			</File>
+			<File
 				RelativePath="src\utl\UtlRandom.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -2534,6 +2537,9 @@
 			</File>
 			<File
 				RelativePath=".\include\utl\UtlLongLongInt.h">
+			</File>
+			<File
+				RelativePath=".\include\utl\UtlNameValueTokenizer.h">
 			</File>
 			<File
 				RelativePath=".\include\utl\UtlObservable.h">

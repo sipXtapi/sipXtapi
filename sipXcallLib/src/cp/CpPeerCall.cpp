@@ -28,7 +28,7 @@
 #include <cp/CpGhostConnection.h>
 #include <mi/CpMediaInterface.h>
 #include <net/SipUserAgent.h>
-#include <net/NameValueTokenizer.h>
+#include <utl/UtlNameValueTokenizer.h>
 #include <net/Url.h>
 #include <net/SipSession.h>
 #include <ptapi/PtConnection.h>
@@ -137,7 +137,7 @@ CpCall(callManager, callMediaInterface, callIndex, callId,
     if(defaultCallExtension)
     {
         //extension.append(phoneExtension);
-        //NameValueTokenizer::frontBackTrim(&extension, " \t\n\r");
+        //UtlNameValueTokenizer::frontBackTrim(&extension, " \t\n\r");
         Url outboundLine(defaultCallExtension);
 
 

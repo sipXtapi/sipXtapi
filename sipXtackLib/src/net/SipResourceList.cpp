@@ -14,7 +14,7 @@
 #include <utl/UtlHashMapIterator.h>
 #include <utl/XmlContent.h>
 #include <net/SipResourceList.h>
-#include <net/NameValueTokenizer.h>
+#include <utl/UtlNameValueTokenizer.h>
 #include <xmlparser/tinyxml.h>
 
 // EXTERNAL FUNCTIONS

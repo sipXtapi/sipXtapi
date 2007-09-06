@@ -42,7 +42,7 @@
 #include <os/OsEvent.h>
 #include <os/OsReadLock.h>
 #include <os/OsWriteLock.h>
-#include <net/NameValueTokenizer.h>
+#include <utl/UtlNameValueTokenizer.h>
 #include <cp/CpPeerCall.h>
 #include "tao/TaoMessage.h"
 #include "tao/TaoProviderAdaptor.h"

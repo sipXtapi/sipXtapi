@@ -16,7 +16,7 @@
 #include <os/OsSysLog.h>
 #include <utl/XmlContent.h>
 #include <net/SipDialogEvent.h>
-#include <net/NameValueTokenizer.h>
+#include <utl/UtlNameValueTokenizer.h>
 #include <xmlparser/tinyxml.h>
 
 // EXTERNAL FUNCTIONS

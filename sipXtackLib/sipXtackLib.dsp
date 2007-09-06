@@ -147,10 +147,6 @@ SOURCE=.\src\net\NameValuePairInsensitive.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\net\NameValueTokenizer.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\src\net\NetAttributeTokenizer.cpp
 # End Source File
 # Begin Source File
@@ -512,10 +508,6 @@ SOURCE=.\include\net\NameValuePair.h
 # Begin Source File
 
 SOURCE=.\include\net\NameValuePairInsensitive.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\include\net\NameValueTokenizer.h
 # End Source File
 # Begin Source File
 
