@@ -65,6 +65,18 @@ public:
      /// Add copies of the array of codecs.
    void addCodecs(int numCodecs, SdpCodec* newCodecs[]);
 
+     /// Add specified codecs to the list.
+   int addCodecs(const UtlString &codecList);
+     /**<
+     *  @returns Number of unknown codecs in the list. Zero for full success.
+     */
+
+     /// Add specified codecs to the list.
+   int addCodecs(int codecCount, SdpCodec::SdpCodecTypes codecTypes[]);
+     /**<
+     *  @returns Number of unknown codecs in the list. Zero for full success.
+     */
+
      /// Assign any unset payload type ids.
    void bindPayloadTypes();
 
@@ -78,12 +90,6 @@ public:
 
      /// Clear the list.
    void clearCodecs(void);
-
-     /// Function just called other buildSdpCodecFactory. Here for compatibility.
-   int buildSdpCodecFactory(const UtlString &codecList);
-
-     /// Add the default set of codecs specified in list; returns 0 if OK.
-   int buildSdpCodecFactory(int codecCount, SdpCodec::SdpCodecTypes codecTypes[]);
 
      /// Limits the advertised codec by CPU limit level.
    void setCodecCPULimit(int iLimit);

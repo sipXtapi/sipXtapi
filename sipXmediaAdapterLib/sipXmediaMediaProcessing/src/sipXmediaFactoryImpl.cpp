@@ -299,7 +299,7 @@ OsStatus sipXmediaFactoryImpl::buildCodecFactory(SdpCodecList*    pFactory,
         // codecs.
         if (sAudioPreferences.length() > 0)
         {
-            *iRejected = pFactory->buildSdpCodecFactory(sAudioPreferences);
+            *iRejected = pFactory->addCodecs(sAudioPreferences);
             OsSysLog::add(FAC_MP, PRI_DEBUG, 
                           "sipXmediaFactoryImpl::buildCodecFactory: supported codecs = %s with NumReject %d",
                           sAudioPreferences.data(), *iRejected);
@@ -328,7 +328,7 @@ OsStatus sipXmediaFactoryImpl::buildCodecFactory(SdpCodecList*    pFactory,
             const int numAudioCodecs = sizeof(audioCodecs)/sizeof(SdpCodec::SdpCodecTypes);
 
             // Register all codecs
-            *iRejected = pFactory->buildSdpCodecFactory(numAudioCodecs, audioCodecs);
+            *iRejected = pFactory->addCodecs(numAudioCodecs, audioCodecs);
             rc = OS_SUCCESS;
         }
 
@@ -338,7 +338,7 @@ OsStatus sipXmediaFactoryImpl::buildCodecFactory(SdpCodecList*    pFactory,
         // codecs.
         if (sVideoPreferences.length() > 0)
         {
-            *iRejected = pFactory->buildSdpCodecFactory(sVideoPreferences);
+            *iRejected = pFactory->addCodecs(sVideoPreferences);
             OsSysLog::add(FAC_MP, PRI_DEBUG, 
                           "sipXmediaFactoryImpl::buildCodecFactory: supported codecs = %s with NumReject %d",
                           sVideoPreferences.data(), *iRejected);
@@ -351,7 +351,7 @@ OsStatus sipXmediaFactoryImpl::buildCodecFactory(SdpCodecList*    pFactory,
             SdpCodec::SdpCodecTypes videoCodecs[] = {};
             const int numVideoCodecs = sizeof(videoCodecs)/sizeof(SdpCodec::SdpCodecTypes);
 
-            *iRejected = pFactory->buildSdpCodecFactory(numVideoCodecs, videoCodecs);
+            *iRejected = pFactory->addCodecs(numVideoCodecs, videoCodecs);
             rc = OS_SUCCESS;
         }
 #endif // VIDEO ]

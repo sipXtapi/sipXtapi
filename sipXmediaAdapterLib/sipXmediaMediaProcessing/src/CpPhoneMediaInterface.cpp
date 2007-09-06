@@ -216,7 +216,7 @@ CpPhoneMediaInterface::CpPhoneMediaInterface(CpMediaInterfaceFactoryImpl* pFacto
                           SdpCodec::SDP_CODEC_PCMU,
                           SdpCodec::SDP_CODEC_PCMA,
                           SdpCodec::SDP_CODEC_TONES};
-       mSupportedCodecs.buildSdpCodecFactory(sizeof(codecs)/sizeof(SdpCodec::SdpCodecTypes),
+       mSupportedCodecs.addCodecs(sizeof(codecs)/sizeof(SdpCodec::SdpCodecTypes),
                                              codecs);
        if (OsSysLog::willLog(FAC_CP, PRI_INFO))
        {

@@ -80,6 +80,12 @@ SdpCodecList& SdpCodecList::operator=(const SdpCodecList& rhs)
    return *this;
 }
 
+void SdpCodecList::addCodec(SdpCodec& newCodec)
+{
+    OsWriteLock lock(mReadWriteMutex);
+    addCodecNoLock(newCodec);
+}
+
 void SdpCodecList::addCodecs(int numCodecs, SdpCodec* codecs[])
 {
    OsWriteLock lock(mReadWriteMutex);
@@ -89,10 +95,102 @@ void SdpCodecList::addCodecs(int numCodecs, SdpCodec* codecs[])
    }
 }
 
-void SdpCodecList::addCodec(SdpCodec& newCodec)
+#ifndef _VXWORKS /* [ */
+//left this in to maintain backward compatibility
+
+//////////////////////////////////////////////////////////////////////////////
+//  WHAT?? WHY??
+// While correcting compiler warnings I stumbled across something seriously
+// stupid in src/net/SdpCodecFactory.cpp.  It is proof positive that too
+// many cooks spoil the broth.
+//
+// This is NONSENSE.  It was left in due to laziness.  There is NOTHING
+// platform-dependent in this code.  The original implementation was
+// just plain broken, and at some point I fixed it.  Then, someone put
+// it back in, rather than fixing the code that called it.
+//
+// The only reason it is "platform-dependent" is that this is called from
+// the main program startup code, which is typically different for each
+// APPLICATION; in this case, the phone (VxWorks) and the media server
+// (Linus/posix) are the applications that each needed to be modified to
+// call the corrected version of this routine.
+//
+// In fact, this routine was fixed to allow this file to be completely
+// independent of the application (or "platform"), as the actual action
+// of this code was now controlled by the caller, which is where any
+// such variation should be isolated.
+//
+// Further complicating this whole thing is the fact that softphone needed
+// to do something different that did the others to support the free vs.
+// paid version, which differed by which codecs were supported (exactly
+// the purpose of this entire class).
+//
+// But, instead of fixing the call to this routine to use the correct
+// implementation, the decision was made to RESURRECT THE OLD BROKEN ONE.
+//
+// Anyway, this should be fixed in the main program of the softphone and
+// the mediaserver, and then this bogus method must be deleted.
+//////////////////////////////////////////////////////////////////////////////
+
+int SdpCodecList::addCodecs(const UtlString &codecList)
 {
-    OsWriteLock lock(mReadWriteMutex);
-    addCodecNoLock(newCodec);
+   UtlString oneCodec;
+   int numRejected = 0;
+   int codecStringIndex = 0;
+   SdpCodec::SdpCodecTypes codecs[1];
+   SdpCodec::SdpCodecTypes internalCodecId;
+   UtlNameValueTokenizer::getSubField(codecList,codecStringIndex ,
+                                      ", \n\r\t", &oneCodec);
+ 
+   while(!oneCodec.isNull())
+   {
+       internalCodecId = SdpDefaultCodecFactory::getCodecType(oneCodec.data());
+       if (internalCodecId != SdpCodec::SDP_CODEC_UNKNOWN)
+       {
+           codecs[0] = internalCodecId;
+           numRejected += addCodecs(1,codecs);
+       }
+
+       codecStringIndex++;
+       UtlNameValueTokenizer::getSubField(codecList, codecStringIndex,
+                                          ", \n\r\t", &oneCodec);
+   }
+
+   return numRejected;
+}
+#endif/* !_VXWORKS ] */
+
+int SdpCodecList::addCodecs(int codecCount, SdpCodec::SdpCodecTypes codecTypes[])
+{
+   int numRejected = 0;
+   OsWriteLock lock(mReadWriteMutex);
+
+   for (int loop = 0; loop < codecCount; loop++)
+   {
+      SdpCodec codecSdp = SdpDefaultCodecFactory::getCodec(codecTypes[loop]);
+      if (codecSdp.getCodecType() != SdpCodec::SDP_CODEC_UNKNOWN)
+      {
+         // Add codec to set, if it is known.
+         addCodecNoLock(codecSdp);
+
+#ifdef VERBOSE_CODEC_FACTORY // [
+         UtlString codecMediaType;
+         UtlString codecEncodingName;
+         codecSdp.getMediaType(codecMediaType);
+         codecSdp.getEncodingName(codecEncodingName);
+         osPrintf("Using %d codecs: %d %s/%s\n", mCodecs.entries(),
+                  codecTypes[loop],
+                  codecMediaType.data(), codecEncodingName.data());
+#endif // VERBOSE_CODEC_FACTORY ]
+      } 
+      else
+      {
+         numRejected++;
+      }
+
+   }
+
+   return numRejected;
 }
 
 void SdpCodecList::bindPayloadTypes()
@@ -173,120 +271,6 @@ void SdpCodecList::clearCodecs(void)
 {
     OsWriteLock lock(mReadWriteMutex);
     mCodecs.destroyAll();
-}
-
-#ifndef _VXWORKS /* [ */
-//left this in to maintain backward compatibility
-
-//////////////////////////////////////////////////////////////////////////////
-//  WHAT?? WHY??
-// While correcting compiler warnings I stumbled across something seriously
-// stupid in src/net/SdpCodecFactory.cpp.  It is proof positive that too
-// many cooks spoil the broth.
-//
-// This is NONSENSE.  It was left in due to laziness.  There is NOTHING
-// platform-dependent in this code.  The original implementation was
-// just plain broken, and at some point I fixed it.  Then, someone put
-// it back in, rather than fixing the code that called it.
-//
-// The only reason it is "platform-dependent" is that this is called from
-// the main program startup code, which is typically different for each
-// APPLICATION; in this case, the phone (VxWorks) and the media server
-// (Linus/posix) are the applications that each needed to be modified to
-// call the corrected version of this routine.
-//
-// In fact, this routine was fixed to allow this file to be completely
-// independent of the application (or "platform"), as the actual action
-// of this code was now controlled by the caller, which is where any
-// such variation should be isolated.
-//
-// Further complicating this whole thing is the fact that softphone needed
-// to do something different that did the others to support the free vs.
-// paid version, which differed by which codecs were supported (exactly
-// the purpose of this entire class).
-//
-// But, instead of fixing the call to this routine to use the correct
-// implementation, the decision was made to RESURRECT THE OLD BROKEN ONE.
-//
-// Anyway, this should be fixed in the main program of the softphone and
-// the mediaserver, and then this bogus method must be deleted.
-//////////////////////////////////////////////////////////////////////////////
-
-int SdpCodecList::buildSdpCodecFactory(const UtlString &codecList)
-{
-   UtlString oneCodec;
-   int numRejected = 0;
-   int codecStringIndex = 0;
-   SdpCodec::SdpCodecTypes codecs[1];
-   SdpCodec::SdpCodecTypes internalCodecId;
-   UtlNameValueTokenizer::getSubField(codecList,codecStringIndex ,
-                                        ", \n\r\t", &oneCodec);
- 
-   while(!oneCodec.isNull())
-   {
-       
-       internalCodecId = SdpDefaultCodecFactory::getCodecType(oneCodec.data());
-       if (internalCodecId != SdpCodec::SDP_CODEC_UNKNOWN)
-       {
-           codecs[0] = internalCodecId;
-           numRejected += buildSdpCodecFactory(1,codecs);
-       }
-
-    
-       codecStringIndex++;
-       UtlNameValueTokenizer::getSubField(codecList, codecStringIndex,
-                                     ", \n\r\t", &oneCodec);
-
-   }
-
-   return numRejected;
-}
-#endif/* !_VXWORKS ] */
-
-int SdpCodecList::buildSdpCodecFactory(int codecCount, SdpCodec::SdpCodecTypes codecTypes[])
-{
-   UtlString codecMediaType("Unknown");
-   UtlString codecEncodingName("Unknown");
-   UtlBoolean codecValid = TRUE;
-   int numRejected = 0;
-
-   int numCodecs = 0;
-
-   for (int loop = 0;loop < codecCount;loop++)
-   {
-      codecMediaType = "Unknown";
-      codecEncodingName = "Unknown";
-      codecValid = TRUE;
-
-      SdpCodec codecSdp = SdpDefaultCodecFactory::getCodec(codecTypes[loop]);
-      if (codecSdp.getCodecType() != SdpCodec::SDP_CODEC_UNKNOWN)
-      {
-         // Add codec to set, if it is known.
-         addCodec(codecSdp);
-         codecSdp.getMediaType(codecMediaType);
-         codecSdp.getEncodingName(codecEncodingName);
-      } 
-      else
-      {
-         codecValid = FALSE;
-         numRejected++;
-      }
-
-      if (codecValid)
-      {
-         numCodecs++;
-#ifdef VERBOSE_CODEC_FACTORY /* [ */
-         osPrintf("Using %d codecs: %d %s/%s\n", mCodecs.entries(),
-                         codecTypes[loop],
-                         codecMediaType.data(), codecEncodingName.data());
-#endif /* ] */
-      // } else {
-         // osPrintf("Invalid codec selection: %d\n", internalCodecId);
-      }
-
-   }
-
-   return numRejected;
 }
 
 // Limits the advertised codec by CPU limit level.
