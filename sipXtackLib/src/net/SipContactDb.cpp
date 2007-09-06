@@ -15,6 +15,7 @@
 #include "utl/UtlInt.h"
 #include "utl/UtlVoidPtr.h"
 #include "os/OsLock.h"
+#include "os/OsDefs.h"
 #include "utl/UtlHashMapIterator.h"
 
 // EXTERNAL FUNCTIONS
@@ -22,10 +23,6 @@
 // CONSTANTS
 // STATIC VARIABLE INITIALIZATIONS
 // MACROS
-#if defined(WIN32) && !defined(WINCE)
-#  define strcasecmp stricmp
-#  define strncasecmp strnicmp
-#endif
 
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
