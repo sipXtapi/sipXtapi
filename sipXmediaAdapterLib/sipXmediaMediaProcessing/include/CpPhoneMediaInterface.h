@@ -23,7 +23,7 @@
 #include <os/OsStatus.h>
 #include <os/OsDefs.h>
 #include <net/QoS.h>
-#include <net/SdpCodecFactory.h>
+#include <sdp/SdpCodecList.h>
 #include "mi/CpMediaInterface.h"
 #include "include/MaNotfTranslatorDispatcher.h"
 

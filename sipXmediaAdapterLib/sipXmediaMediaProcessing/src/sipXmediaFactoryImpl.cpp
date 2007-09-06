@@ -25,7 +25,7 @@
 #include "mp/MpCodec.h"
 #include "mp/MpCallFlowGraph.h"
 #include "mp/dmaTask.h"
-#include "net/SdpCodecFactory.h"
+#include "sdp/SdpCodecList.h"
 #include "mi/CpMediaInterfaceFactoryFactory.h"
 
 #ifdef INCLUDE_RTCP /* [ */

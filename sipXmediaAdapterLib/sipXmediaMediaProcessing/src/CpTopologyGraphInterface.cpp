@@ -39,7 +39,7 @@
 #include <include/CpTopologyGraphFactoryImpl.h>
 
 #include <sdp/SdpCodec.h>
-#include <net/SdpCodecFactory.h>
+#include <sdp/SdpCodecList.h>
 
 #if defined(_VXWORKS)
 #   include <socket.h>

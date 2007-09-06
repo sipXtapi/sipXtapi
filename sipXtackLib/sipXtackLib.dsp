@@ -219,10 +219,6 @@ SOURCE=.\src\net\SdpBody.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\net\SdpCodecFactory.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\src\net\SdpHelper.cpp
 # End Source File
 # Begin Source File
@@ -584,10 +580,6 @@ SOURCE=.\include\resparse\rr.h
 # Begin Source File
 
 SOURCE=.\include\net\SdpBody.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\include\net\SdpCodecFactory.h
 # End Source File
 # Begin Source File
 

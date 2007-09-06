@@ -18,7 +18,7 @@
 
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
-#include <net/SdpCodecFactory.h>
+#include <sdp/SdpCodecList.h>
 #include <mi/CpMediaInterface.h>
 #include <net/QoS.h>
 #include "include/MaNotfTranslatorDispatcher.h"

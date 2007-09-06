@@ -22,7 +22,7 @@
 #include "os/OsStatus.h"
 #include "utl/UtlDefs.h"
 #include "utl/UtlString.h"
-#include "net/SdpCodecFactory.h"
+#include "sdp/SdpCodecList.h"
 #include "utl/UtlSList.h"
 #include "os/OsMutex.h"
 

@@ -23,7 +23,7 @@
 #include <net/SipMessageEvent.h>
 #include <net/SipUserAgent.h>
 #include <sdp/SdpCodec.h>
-#include <net/SdpCodecFactory.h>
+#include <sdp/SdpCodecList.h>
 #include <net/Url.h>
 #include <net/SipSession.h>
 #include <net/SipDialog.h>

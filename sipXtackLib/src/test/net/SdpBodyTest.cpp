@@ -18,7 +18,7 @@
 #include <os/OsDefs.h>
 #include <net/HttpMessage.h>
 #include <net/SdpBody.h>
-#include <net/SdpCodecFactory.h>
+#include <sdp/SdpCodecList.h>
 #include <net/NetBase64Codec.h>
 
 

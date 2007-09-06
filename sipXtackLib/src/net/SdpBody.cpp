@@ -22,7 +22,7 @@
 #include <net/SdpBody.h>
 #include <net/NameValuePair.h>
 #include <utl/UtlNameValueTokenizer.h>
-#include <net/SdpCodecFactory.h>
+#include <sdp/SdpCodecList.h>
 #include <utl/UtlTokenizer.h>
 #include <net/NetBase64Codec.h>
 

@@ -20,7 +20,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="include;..\sipXsdpLib\include;..\sipXtackLib\include;..\sipXportLib\include;..\..\resip\"
+				AdditionalIncludeDirectories="include;..\sipXsdpLib\include;..\sipXportLib\include;..\..\resip\"
 				PreprocessorDefinitions="_DEBUG;WIN32;_LIB;DISABLE_MEM_POOLS"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -75,7 +75,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="include,include\glib"
+				AdditionalIncludeDirectories="include;..\sipXsdpLib\include;..\sipXportLib\include;..\..\resip\"
 				PreprocessorDefinitions="NDEBUG;WIN32;_LIB;DISABLE_MEM_POOLS"
 				StringPooling="TRUE"
 				RuntimeLibrary="2"
@@ -136,6 +136,12 @@
 				RelativePath="src\sdp\SdpCodec.cpp">
 			</File>
 			<File
+				RelativePath=".\src\sdp\SdpCodecList.cpp">
+			</File>
+			<File
+				RelativePath=".\src\sdp\SdpDefaultCodecFactory.cpp">
+			</File>
+			<File
 				RelativePath="src\sdp\SdpHelperResip.cpp">
 			</File>
 			<File
@@ -156,6 +162,12 @@
 			</File>
 			<File
 				RelativePath="include\sdp\SdpCodec.h">
+			</File>
+			<File
+				RelativePath=".\include\sdp\SdpCodecList.h">
+			</File>
+			<File
+				RelativePath=".\include\sdp\SdpDefaultCodecFactory.h">
 			</File>
 			<File
 				RelativePath="include\sdp\SdpHelperResip.h">

@@ -38,10 +38,12 @@ libsipXsdp_la_SOURCES =  \
     $(top_builddir)/config/sipxsdplib-buildstamp.h \
     $(top_builddir)/config/sipxsdplib-buildstamp.cpp \
     sdp/Sdp.cpp \
-    sdp/SdpMediaLine.cpp \
-    sdp/SdpCodec.cpp \
     sdp/SdpCandidate.cpp \
-    sdp/SdpCandidatePair.cpp
+    sdp/SdpCandidatePair.cpp \
+    sdp/SdpCodec.cpp \
+    sdp/SdpCodecList.cpp \
+    sdp/SdpDefaultCodecFactory.cpp \
+    sdp/SdpMediaLine.cpp
 
 EXTRA_DIST= \
     sdp/SdpHelperResip.cpp
