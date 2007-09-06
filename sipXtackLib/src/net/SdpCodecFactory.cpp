@@ -1190,13 +1190,13 @@ SdpCodec::SdpCodecTypes SdpDefaultCodecFactory::getCodecType(const char* pCodecN
         retType = SdpCodec::SDP_CODEC_PCMU;
     else
     if (strcmp(compareString,"PCMA") == 0 ||
-       strcmp(compareString,"G711A"))
+       strcmp(compareString,"G711A") == 0)
         retType = SdpCodec::SDP_CODEC_PCMA;
     else
-    if (strcmp(compareString,"EG711U"))
+    if (strcmp(compareString,"EG711U") == 0)
         retType = SdpCodec::SDP_CODEC_GIPS_IPCMU;
     else
-    if (strcmp(compareString,"EG711A"))
+    if (strcmp(compareString,"EG711A") == 0)
         retType = SdpCodec::SDP_CODEC_GIPS_IPCMA;
     else
     if (strcmp(compareString,"IPCMWB") == 0)
