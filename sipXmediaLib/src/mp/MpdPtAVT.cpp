@@ -229,10 +229,19 @@ void MpdPtAVT::signalKeyDown(const MpRtpBufPtr &pPacket)
    OsSysLog::add(FAC_MP, PRI_INFO, "MpdPtAvt(0x%X) Start Rcv Tone key=%d"
                  " dB=%d TS=0x%08x\n", (int) this, pAvt->key, pAvt->dB, ts);
 
-   // Ok, create a new DTMF notification message to indicate key down.
-   MprnDTMFMsg dtmfMsg("", mConnectionId, (MprnDTMFMsg::KeyCode)pAvt->key, 
-                       MprnDTMFMsg::KEY_DOWN, mToneDuration);
-   mpFlowGraph->postNotification(dtmfMsg);
+   assert(mpFlowGraph);  // We should have a valid flowgraph pointer here.
+   if(mpFlowGraph)
+   {
+      // Ok, create a new DTMF notification message to indicate key down.
+      MprnDTMFMsg dtmfMsg("", mConnectionId, (MprnDTMFMsg::KeyCode)pAvt->key, 
+                          MprnDTMFMsg::KEY_DOWN, mToneDuration);
+      mpFlowGraph->postNotification(dtmfMsg);
+   }
+   else
+   {
+      OsSysLog::add(FAC_MP, PRI_ERR, "ERROR: flowgraph pointer uninitialized"
+                    " in MpdPtAvt -- DTMF notification for key down not sent\n");
+   }
 
    if (NULL != mpNotify) 
    {
@@ -287,10 +296,19 @@ void MpdPtAVT::signalKeyUp(const MpRtpBufPtr &pPacket)
                     mToneDuration, mCurrentToneKey);
       mPrevToneSignature = mCurrentToneSignature;
 
-      // Ok, create a new DTMF notification message to indicate key up.
-      MprnDTMFMsg dtmfMsg("", mConnectionId, (MprnDTMFMsg::KeyCode)pAvt->key, 
-                          MprnDTMFMsg::KEY_UP, mToneDuration);
-      mpFlowGraph->postNotification(dtmfMsg);
+      assert(mpFlowGraph);  // We should have a valid flowgraph pointer here.
+      if(mpFlowGraph)
+      {
+         // Ok, create a new DTMF notification message to indicate key up.
+         MprnDTMFMsg dtmfMsg("", mConnectionId, (MprnDTMFMsg::KeyCode)pAvt->key, 
+                             MprnDTMFMsg::KEY_UP, mToneDuration);
+         mpFlowGraph->postNotification(dtmfMsg);
+      }
+      else
+      {
+         OsSysLog::add(FAC_MP, PRI_ERR, "ERROR: flowgraph pointer uninitialized"
+                       " in MpdPtAvt -- DTMF notification for key up not sent\n");
+      }
 
       if (NULL != mpNotify) 
       {
