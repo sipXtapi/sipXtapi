@@ -464,6 +464,10 @@ protected:
      *  port, FALSE otherwise.
      */
 
+     /// @brief Associates this resource with the indicated flow graph.
+   virtual OsStatus setFlowGraph(MpFlowGraphBase* pFlowGraph);
+     /**< @retval OS_SUCCESS - for now, this method always returns success */
+
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
 
@@ -506,10 +510,6 @@ private:
      *
      *  @returns TRUE if successful, FALSE otherwise.
      */
-
-     /// @brief Associates this resource with the indicated flow graph.
-   OsStatus setFlowGraph(MpFlowGraphBase* pFlowGraph);
-     /**< @returns OS_SUCCESS - for now, this method always returns success */
 
      /// Sets the name that is associated with this resource.
    void setName(const UtlString& rName);

@@ -369,6 +369,19 @@ UtlBoolean MpRtpInputAudioConnection::handleSetDtmfNotify(OsNotification* pNotif
    return mpDecode->handleSetDtmfNotify(pNotify);
 }
 
+OsStatus MpRtpInputAudioConnection::setFlowGraph(MpFlowGraphBase* pFlowGraph)
+{
+   OsStatus stat = MpResource::setFlowGraph(pFlowGraph);
+
+   // If the parent's call was successful, then call
+   // setFlowGraph on any child resources we have.
+   if(stat == OS_SUCCESS)
+   {
+      stat = mpDecode->setFlowGraph(pFlowGraph);
+   }
+   return stat;
+}
+
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 /* ============================ FUNCTIONS ================================= */
