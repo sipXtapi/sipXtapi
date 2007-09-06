@@ -61,10 +61,6 @@ public:
    //! returns: index into the text char array to the line terminator
    // Note: the line terminator may be 1 or 2 characters
 
-   static void frontTrim(UtlString* string, const char* whiteSpace);
-   static void backTrim(UtlString* string, const char* whiteSpace);
-   static void frontBackTrim(UtlString* string, const char* whiteSpace);
-
    static UtlBoolean getSubField(const char* textField,
                                  int subfieldIndex,
                                  const char* subfieldSeparator,

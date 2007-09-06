@@ -395,7 +395,7 @@ void Url::getDisplayName(UtlString& displayName) const
     displayName = mDisplayName;
     if (isDigitString(mDisplayName.data()))
     {
-       NameValueTokenizer::frontBackTrim(&displayName, "\"");
+       displayName.strip(UtlString::both, '\"');
     }
 }
 

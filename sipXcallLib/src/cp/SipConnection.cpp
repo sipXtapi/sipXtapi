@@ -5961,7 +5961,7 @@ void SipConnection::setCallerId()
         // user label
         // user id
         // host address
-        NameValueTokenizer::frontBackTrim(&userLabel, " \t\n\r");
+        userLabel.strip(UtlString::both);
 #ifdef TEST_PRINT
         osPrintf("SipConnection::setCallerid label: %s user %s address: %s\n",
             userLabel.data(), user.data(), addr.data());
@@ -5973,14 +5973,14 @@ void SipConnection::setCallerId()
         }
         else
         {
-            NameValueTokenizer::frontBackTrim(&user, " \t\n\r");
+            user.strip(UtlString::both);
             if(!user.isNull())
             {
                 newCallerId.append(user.data());
             }
             else
             {
-                NameValueTokenizer::frontBackTrim(&addr, " \t\n\r");
+                addr.strip(UtlString::both);
                 newCallerId.append(addr.data());
             }
         }

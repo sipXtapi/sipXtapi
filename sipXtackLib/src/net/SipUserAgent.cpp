@@ -279,7 +279,7 @@ SipUserAgent::SipUserAgent(int sipTcpPort,
     if(defaultUser)
     {
         defaultSipUser.append(defaultUser);
-        NameValueTokenizer::frontBackTrim(&defaultSipUser, " \t\n\r");
+        defaultSipUser.strip(UtlString::both);
     }
 
     if (!defaultAddress || strcmp(defaultAddress, "0.0.0.0") == 0)

@@ -2934,7 +2934,7 @@ void CallManager::dialString(const char* url)
         OsSysLog::add(FAC_CP, PRI_DEBUG, "CallManager::dialString posting dial string\n");
 #endif
         UtlString trimmedUrl(url);
-        NameValueTokenizer::frontBackTrim(&trimmedUrl, " \t\n\r");
+        trimmedUrl.strip(UtlString::both);
         CpMultiStringMessage dialEvent(CP_DIAL_STRING, trimmedUrl.data());
         postMessage(dialEvent);
     }

@@ -498,7 +498,7 @@ int HttpMessage::parseHeaders(const char* headerBytes, int messageLength,
             name.toUpper();
 
             // Remove trailing white space
-            NameValueTokenizer::backTrim(&name, " \t");
+            name.strip(UtlString::leading);
 
             headerField = new NameValuePair(name.data(), value.data());
             headerNameValues.append(headerField);

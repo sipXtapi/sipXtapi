@@ -444,7 +444,7 @@ void HttpRequestContext::parseCgiVariables(const char* queryString,
             {
                value.remove(0);
                value.append(valuePtr, valueLength);
-               NameValueTokenizer::frontBackTrim(&value, " \t\n\r");
+               value.strip(UtlString::both);
                unescape(value);
                newNvPair->setValue(value);
             }
@@ -455,7 +455,7 @@ void HttpRequestContext::parseCgiVariables(const char* queryString,
 
             // Unescape the name.
             unescape(*newNvPair);
-            NameValueTokenizer::frontBackTrim(newNvPair, " \t\n\r");
+            newNvPair->strip(UtlString::both);
 
 #           ifdef TEST_DEBUG
             OsSysLog::add(FAC_SIP, PRI_DEBUG,

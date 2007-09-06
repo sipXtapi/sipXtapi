@@ -78,52 +78,6 @@ int NameValueTokenizer::findNextLineTerminator(const char* text, int length, int
     return(terminatorIndex);
 }
 
-void NameValueTokenizer::frontTrim(UtlString* string, const char* whiteSpace)
-{
-    int len = 0;
-    int index = 0;
-    const char* stringData;
-    if(string != NULL)
-    {
-        len = string->length();
-        stringData = string->data();
-        while(index < len && strchr(whiteSpace, stringData[index]))
-        {
-            index++;
-        }
-        if(index > 0)
-        {
-            string->remove(0, index);
-        }
-    }
-}
-
-void NameValueTokenizer::backTrim(UtlString* string, const char* whiteSpace)
-{
-    int len = 0;
-    int index = 0;
-    const char* stringData;
-    if(string != NULL)
-    {
-        len = string->length();
-        stringData = string->data();
-        while(index < len && strchr(whiteSpace, stringData[len - index - 1]))
-        {
-            index++;
-        }
-        if(index > 0)
-        {
-            string->remove(len - index, index);
-        }
-    }
-}
-
-void NameValueTokenizer::frontBackTrim(UtlString* string, const char* whiteSpace)
-{
-    frontTrim(string, whiteSpace);
-    backTrim(string, whiteSpace);
-}
-
 UtlBoolean NameValueTokenizer::getSubField(const char* textField,
                                            int textFieldLength,
                                            int subFieldIndex,

@@ -63,7 +63,7 @@ HttpBody::HttpBody(const char* bytes, int length, const char* contentType) :
    if (contentType)
    {
       append(contentType);
-      NameValueTokenizer::frontBackTrim(this, " \t");
+      strip(UtlString::both);
       #ifdef TEST_PRINT
          osPrintf("Content type: \"%s\"\n", contentType);
       #endif
@@ -87,7 +87,7 @@ HttpBody::HttpBody(const char* bytes, int length, const char* contentType) :
          if(data()[boundaryIndex] == '=')
          {
             mMultipartBoundary.append(&data()[boundaryIndex + 1]);
-            NameValueTokenizer::frontTrim(&mMultipartBoundary, " \t");
+            mMultipartBoundary.strip(UtlString::leading);
             int whiteSpaceIndex = mMultipartBoundary.first(' ');
             if(whiteSpaceIndex > 0) mMultipartBoundary.remove(whiteSpaceIndex);
             whiteSpaceIndex = mMultipartBoundary.first('\t');

@@ -702,7 +702,7 @@ void SipDialogEvent::buildBody() const
          dialogEvent.append(BEGIN_IDENTITY);
          if (!displayName.isNull())
          {
-            NameValueTokenizer::frontBackTrim(&displayName, "\"");
+            displayName.strip(UtlString::both, '\"');
             dialogEvent.append(DISPLAY_EQUAL);
             singleLine = DOUBLE_QUOTE + displayName + DOUBLE_QUOTE;
             dialogEvent += singleLine;
@@ -731,7 +731,7 @@ void SipDialogEvent::buildBody() const
          dialogEvent.append(BEGIN_IDENTITY);
          if (!displayName.isNull())
          {
-            NameValueTokenizer::frontBackTrim(&displayName, "\"");
+            displayName.strip(UtlString::both, '\"');
             dialogEvent.append(DISPLAY_EQUAL);
             singleLine = DOUBLE_QUOTE + displayName + DOUBLE_QUOTE;
             dialogEvent += singleLine;

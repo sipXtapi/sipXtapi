@@ -2612,7 +2612,7 @@ UtlBoolean SipMessage::getPAssertedIdentityField(UtlString& identity,
 {
     UtlBoolean fieldExists = 
         getFieldSubfield(SIP_P_ASSERTED_IDENTITY_FIELD, index, &identity);
-    NameValueTokenizer::frontBackTrim(&identity, " \t");
+    identity.strip(UtlString::both);
     return(fieldExists && !identity.isNull());
 }
 
@@ -2684,7 +2684,7 @@ UtlBoolean SipMessage::parseParameterFromUri(const char* uri,
     {
         parameterStart += parameterString.length();
         uriString.remove(0, parameterStart);
-        NameValueTokenizer::frontTrim(&uriString, " \t");
+        uriString.strip(UtlString::leading);
         //osPrintf("SipMessage::parseParameterFromUri uriString: %s index: %d\n",
         //  uriString.data(), parameterStart);
         NameValueTokenizer::getSubField(uriString.data(), 0,
@@ -3319,7 +3319,7 @@ UtlBoolean SipMessage::getCSeqField(int* sequenceNum, UtlString* sequenceMethod)
         if(sequenceMethod)
         {
             *sequenceMethod = &value[numStringLen + valueStart];
-            NameValueTokenizer::frontBackTrim(sequenceMethod, SIP_SUBFIELD_SEPARATORS);           
+            sequenceMethod->strip(UtlString::both);
         }
 
 		if(numStringLen > MAXIMUM_INTEGER_STRING_LENGTH)
@@ -3501,7 +3501,7 @@ UtlBoolean SipMessage::getEventField(UtlString* eventType,
    if (gotHeader)
    {
       NameValueTokenizer::getSubField(eventField, 0, ";", eventType);
-      NameValueTokenizer::frontBackTrim(eventType, " \t");
+      eventType->strip(UtlString::both);
 
       UtlString eventParam;
       for (int param_idx = 1;
@@ -3635,7 +3635,7 @@ UtlBoolean SipMessage::getRecordRouteUri(int index, UtlString* recordRouteUri) c
     //NameValueTokenizer::getSubField(recordRouteField.data(), index,
    //          ",", recordRouteUri);
     UtlBoolean fieldExists = getFieldSubfield(SIP_RECORD_ROUTE_FIELD, index, recordRouteUri);
-    NameValueTokenizer::frontBackTrim(recordRouteUri, " \t");
+    recordRouteUri->strip(UtlString::both);
     return(fieldExists && !recordRouteUri->isNull());
 }
 
@@ -4334,7 +4334,7 @@ UtlBoolean SipMessage::getReplacesData(UtlString& callId,
         // Get the callId
        NameValueTokenizer::getSubField(replacesField, 0,
                    ";", &callId);
-       NameValueTokenizer::frontBackTrim(&callId, " \t");
+       callId.strip(UtlString::both);
 
        // Look through the rest of the parameters
        do
@@ -4348,12 +4348,12 @@ UtlBoolean SipMessage::getReplacesData(UtlString& callId,
           NameValueTokenizer::getSubField(parameter.data(), 0,
                                   "=", &name);
           name.toLower();
-          NameValueTokenizer::frontBackTrim(&name, " \t");
+          name.strip(UtlString::both);
 
           // Parse out the parameter value
           NameValueTokenizer::getSubField(parameter.data(), 1,
                                   "=", &value);
-          NameValueTokenizer::frontBackTrim(&value, " \t");
+          value.strip(UtlString::both);
 
           // Set the to and from tags when we find them
           if(name.compareTo("to-tag") == 0)
@@ -4411,7 +4411,7 @@ UtlBoolean SipMessage::getReasonField(UtlString& reasonField) const
     if(value && *value)
     {
         reasonField.append(value);
-	 NameValueTokenizer::frontBackTrim(&reasonField, " \t\n\r");
+	 reasonField.strip(UtlString::both);
     }
     return(value != NULL);
 }
@@ -4511,7 +4511,7 @@ UtlBoolean SipMessage::getDiversionField(int index, UtlString& addr, UtlString& 
 	  {
 		addr.append(divString);
 		addr.remove(parameterIndex);
-		NameValueTokenizer::frontBackTrim(&addr, " \t\n\r");
+		addr.strip(UtlString::both);
 		
 		// Parse reason
 	       int reasonIndex = divString.index("reason=", 0, UtlString::ignoreCase); // wdn ??? - RWString::ignoreCase
@@ -4526,7 +4526,7 @@ UtlBoolean SipMessage::getDiversionField(int index, UtlString& addr, UtlString& 
 		    {
 			endIndex = semicolonIndex;
  		       reasonParam.remove(endIndex);
-			NameValueTokenizer::frontBackTrim(&reasonParam, " \t\n\r");
+			reasonParam.strip(UtlString::both);
 		    }
 
 	       }
@@ -4534,7 +4534,7 @@ UtlBoolean SipMessage::getDiversionField(int index, UtlString& addr, UtlString& 
 	  else if(parameterIndex)
 	  {
 		addr.append(divString);
-		NameValueTokenizer::frontBackTrim(&addr, " \t\n\r");
+		addr.strip(UtlString::both);
 	  }
  	  else
  	  {
@@ -5230,7 +5230,7 @@ void SipMessage::parseViaParameters( const char* viaField
                 {
                     value.remove(0);
                     value.append(valuePtr, valueLength);
-                    NameValueTokenizer::frontBackTrim(&value, " \t\n\r");
+                    value.strip(UtlString::both);
                     newNvPair->setValue(value);
                 }
                 else
@@ -5238,7 +5238,7 @@ void SipMessage::parseViaParameters( const char* viaField
                     newNvPair->setValue("");
                 }
 
-                NameValueTokenizer::frontBackTrim(newNvPair, " \t\n\r");
+                newNvPair->strip(UtlString::both);
 
                 // Add a name, value pair to the list
                 viaParamList.insert(newNvPair);
