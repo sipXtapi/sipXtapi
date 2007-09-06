@@ -349,7 +349,7 @@ OsStatus sipXmediaFactoryImpl::buildCodecFactory(SdpCodecList*    pFactory,
         {
             // Build up the supported codecs
             SdpCodec::SdpCodecTypes videoCodecs[] = {};
-            const int numVideoCodecs = sizeof(audioCodecs)/sizeof(SdpCodec::SdpCodecTypes);
+            const int numVideoCodecs = sizeof(videoCodecs)/sizeof(SdpCodec::SdpCodecTypes);
 
             *iRejected = pFactory->buildSdpCodecFactory(numVideoCodecs, videoCodecs);
             rc = OS_SUCCESS;
