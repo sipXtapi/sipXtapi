@@ -1303,3 +1303,64 @@ SdpCodec::SdpCodecTypes SdpDefaultCodecFactory::getCodecType(const char* pCodecN
        retType = SdpCodec::SDP_CODEC_UNKNOWN;
     return retType;
 }
+
+OsStatus SdpDefaultCodecFactory::getCodecNameByType(SdpCodec::SdpCodecTypes type, UtlString& codecName)
+{
+   OsStatus rc = OS_SUCCESS;
+
+   switch (type)
+   {
+   case SdpCodec::SDP_CODEC_TONES:
+      codecName = SIPX_CODEC_ID_TELEPHONE;
+      break;
+   case SdpCodec::SDP_CODEC_G729A:
+      codecName = SIPX_CODEC_ID_G729;
+      break;
+   case SdpCodec::SDP_CODEC_PCMA:
+      codecName = SIPX_CODEC_ID_PCMA;
+      break;
+   case SdpCodec::SDP_CODEC_PCMU:
+      codecName = SIPX_CODEC_ID_PCMU;
+      break;
+   case SdpCodec::SDP_CODEC_GIPS_IPCMA:
+      codecName = SIPX_CODEC_ID_EG711A;
+      break;
+   case SdpCodec::SDP_CODEC_GIPS_IPCMU:
+      codecName = SIPX_CODEC_ID_EG711U;
+      break;
+   case SdpCodec::SDP_CODEC_GIPS_IPCMWB:
+      codecName = SIPX_CODEC_ID_IPCMWB;
+      break;
+   case SdpCodec::SDP_CODEC_ILBC:
+      codecName = SIPX_CODEC_ID_ILBC;
+      break;
+   case SdpCodec::SDP_CODEC_GIPS_ISAC:
+      codecName = SIPX_CODEC_ID_ISAC;
+      break;
+   case SdpCodec::SDP_CODEC_SPEEX:
+      codecName = SIPX_CODEC_ID_SPEEX;
+      break;
+   case SdpCodec::SDP_CODEC_SPEEX_5:
+      codecName = SIPX_CODEC_ID_SPEEX_5;
+      break;
+   case SdpCodec::SDP_CODEC_SPEEX_15:
+      codecName = SIPX_CODEC_ID_SPEEX_15;
+      break;
+   case SdpCodec::SDP_CODEC_SPEEX_24:
+      codecName = SIPX_CODEC_ID_SPEEX_24;
+      break;
+   case SdpCodec::SDP_CODEC_GSM:
+      codecName = SIPX_CODEC_ID_GSM;
+      break;
+   default:
+      assert(!"Unsupported codec type");
+      codecName = "";
+      rc = OS_FAILED;
+      osPrintf("sipXmediaFactoryImpl::getCodecNameByType(): "
+               "Unsupported codec type %d.",
+               type);
+
+   }
+
+   return rc;
+}

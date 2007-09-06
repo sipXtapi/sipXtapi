@@ -302,11 +302,6 @@ public:
     virtual OsStatus getMicrophoneDevice(UtlString& device) const = 0 ;
 
     /* 
-     * Get specific codec identified by iCodec
-     */
-    virtual OsStatus getCodecNameByType(SdpCodec::SdpCodecTypes codecType, UtlString& codecName) const = 0;
-
-    /* 
      * Get the connection id for the local audio connection
      */
     virtual OsStatus getLocalAudioConnectionId(int& connectionId) const = 0;

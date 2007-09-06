@@ -6349,7 +6349,9 @@ SIPXTAPI_API SIPX_RESULT sipxConfigSetAudioCodecPreferences(const SIPX_INST hIns
                 {
                     if (codecsArray[i]->getBWCost() <= bandWidth)
                     {
-                        if (pInterface->getCodecNameByType(codecsArray[i]->getCodecType(), codecName) == OS_SUCCESS)
+                        if (SdpDefaultCodecFactory::getCodecNameByType(codecsArray[i]->getCodecType(),
+                                                                       codecName
+                                                                      ) == OS_SUCCESS)
                         {
                             *pInst->audioCodecSetting.pPreferences = 
                                 *pInst->audioCodecSetting.pPreferences + " " + codecName;
@@ -6569,8 +6571,8 @@ SIPXTAPI_API SIPX_RESULT sipxConfigGetAudioCodec(const SIPX_INST hInst,
                 pInst->pCallManager->getMediaInterfaceFactory()->getFactoryImplementation();
 
             // If a name is found for the codec type, copy name and bandwidth cost
-            if (pInterface->getCodecNameByType(pInst->audioCodecSetting.sdpCodecArray[index]->getCodecType(),
-                                               codecName))
+            if (SdpDefaultCodecFactory::getCodecNameByType(pInst->audioCodecSetting.sdpCodecArray[index]->getCodecType(),
+                                                           codecName))
             {
                 strncpy(pCodec->cName, codecName, SIPXTAPI_CODEC_NAMELEN-1);
                 pCodec->iBandWidth = 
@@ -6853,8 +6855,8 @@ SIPXTAPI_API SIPX_RESULT sipxConfigGetVideoCodec(const SIPX_INST hInst,
                 pInst->pCallManager->getMediaInterfaceFactory()->getFactoryImplementation();
 
             // If a name is found for the codec type, copy name and bandwidth cost
-            if (pInterface->getCodecNameByType(pInst->videoCodecSetting.sdpCodecArray[index]->getCodecType(),
-                                               codecName))
+            if (SdpDefaultCodecFactory::getCodecNameByType(pInst->videoCodecSetting.sdpCodecArray[index]->getCodecType(),
+                                                           codecName))
             {
                 strncpy(pCodec->cName, codecName, SIPXTAPI_CODEC_NAMELEN-1);
                 pCodec->iBandWidth = 
