@@ -126,9 +126,6 @@ class sipXmediaFactoryImpl : public CpMediaInterfaceFactoryImpl
     virtual OsStatus getMicrophoneGain(int& iVolume) const ;
     virtual OsStatus getMicrophoneDevice(UtlString& device) const ;
 
-    virtual OsStatus getNumOfCodecs(int& iCodecs) const;
-    virtual OsStatus getCodec(int iCodec, UtlString& codec, int& bandWidth) const;
-
     virtual OsStatus getCodecNameByType(SdpCodec::SdpCodecTypes codecType, UtlString& codecName) const;
 
     virtual OsStatus getLocalAudioConnectionId(int& connectionId) const ;

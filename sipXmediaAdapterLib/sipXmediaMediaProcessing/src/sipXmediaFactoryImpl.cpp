@@ -460,62 +460,6 @@ OsStatus sipXmediaFactoryImpl::getMicrophoneDevice(UtlString& device) const
 }
 
 
-OsStatus sipXmediaFactoryImpl::getNumOfCodecs(int& iCodecs) const
-{
-    iCodecs = TOTAL_AUDIO_CODECS_NUM;
-    return OS_SUCCESS;
-}
-
-
-OsStatus sipXmediaFactoryImpl::getCodec(int iCodec, UtlString& codec, int &bandWidth) const
-{
-    OsStatus rc = OS_SUCCESS;
-
-    switch (iCodec)
-    {
-    case 0: codec = (const char*) SdpCodec::SDP_CODEC_PCMU;
-        break;
-    case 1: codec = (const char*) SdpCodec::SDP_CODEC_PCMA;
-        break;
-    case 2: codec = (const char*) SdpCodec::SDP_CODEC_TONES;
-        break;
-
-#ifdef HAVE_GIPS /* [ */
-    case GIPS_CODECS_BEGIN+0: codec = (const char*) SdpCodec::SDP_CODEC_GIPS_IPCMU;
-        break;
-    case GIPS_CODECS_BEGIN+1: codec = (const char*) SdpCodec::SDP_CODEC_GIPS_IPCMA;
-        break;
-    case GIPS_CODECS_BEGIN+2: codec = (const char*) SdpCodec::SDP_CODEC_GIPS_IPCMWB;
-        break;
-#endif /* HAVE_GIPS ] */
-
-#ifdef HAVE_SPEEX /* [ */
-    case SPEEX_AUDIO_CODECS_BEGIN+0: codec = (const char*) SdpCodec::SDP_CODEC_SPEEX;
-        break;
-    case SPEEX_AUDIO_CODECS_BEGIN+1: codec = (const char*) SdpCodec::SDP_CODEC_SPEEX_5;
-        break;
-    case SPEEX_AUDIO_CODECS_BEGIN+2: codec = (const char*) SdpCodec::SDP_CODEC_SPEEX_15;
-        break;
-    case SPEEX_AUDIO_CODECS_BEGIN+3: codec = (const char*) SdpCodec::SDP_CODEC_SPEEX_24;
-        break;
-#endif /* HAVE_SPEEX ] */
-
-#ifdef HAVE_GSM /* [ */
-    case GSM_AUDIO_CODECS_BEGIN+0: codec = (const char*) SdpCodec::SDP_CODEC_GSM;
-        break;
-#endif /* HAVE_GSM ] */
-
-#ifdef HAVE_ILBC /* [ */
-    case ILBC_AUDIO_CODECS_BEGIN+0: codec = (const char*) SdpCodec::SDP_CODEC_ILBC;
-        break;
-#endif /* HAVE_ILBC ] */
-
-    default: rc = OS_FAILED;
-    }
-
-    return rc;
-}
-
 OsStatus sipXmediaFactoryImpl::setVideoPreviewDisplay(void* pDisplay)
 {
     return OS_NOT_YET_IMPLEMENTED;
