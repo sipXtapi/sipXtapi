@@ -42,7 +42,6 @@
 // CONSTANTS
 // GLOBAL FUNCTION
 
-#define CONFIG_PHONESET_SEND_INBAND_DTMF  "PHONESET_SEND_INBAND_DTMF"
 #define MAX_MANAGED_FLOW_GRAPHS           16
 
 // STATIC VARIABLE INITIALIZATIONS
@@ -106,7 +105,7 @@ sipXmediaFactoryImpl::sipXmediaFactoryImpl(OsConfigDb* pConfigDb)
     if (pConfigDb)
     {
         pConfigDb->get("PHONESET_MAX_ACTIVE_CALLS_ALLOWED", maxFlowGraph) ;
-        pConfigDb->get(CONFIG_PHONESET_SEND_INBAND_DTMF, strInBandDTMF) ;
+        pConfigDb->get("PHONESET_SEND_INBAND_DTMF", strInBandDTMF) ;
         strInBandDTMF.toUpper() ;
 
         OsSysLog::add(FAC_MP, PRI_DEBUG, 
