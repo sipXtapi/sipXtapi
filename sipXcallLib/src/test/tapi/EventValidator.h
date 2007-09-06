@@ -17,13 +17,11 @@
 #include "os/OsBSem.h"
 #include "os/OsMutex.h"
 #include "os/OsLock.h"
+#include "os/OsDefs.h" // for min macro
 #include "utl/UtlSList.h"
 
 #define DEFAULT_TIMEOUT         -1
 #define MAX_EVENT_CATEGORIES    16  // room for growth
-#ifndef MIN
-#define MIN(a,b) (((a) < (b)) ? (a) : (b))
-#endif
 
 typedef enum 
 {

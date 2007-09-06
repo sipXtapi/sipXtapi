@@ -38,6 +38,7 @@
 #endif /* ] ] */
 #endif /* _VXWORKS ] */
 
+#include "os/OsDefs.h" // for min macro
 #include "os/OsMsgQ.h"
 #include "os/OsConfigDb.h"
 #include "mp/MpTypes.h"

@@ -19,6 +19,7 @@
 #endif
 
 // APPLICATION INCLUDES
+#include "os/OsDefs.h"
 #include "os/OsSysLog.h"
 #include "utl/UtlDListIterator.h"
 #include "utl/UtlRegex.h"
@@ -196,10 +197,6 @@ const RegEx AllDigits("^\\+?[0-9*]++$");
 const RegEx TheEnd("^" SWS "$");
 
 // STATIC VARIABLE INITIALIZATIONS
-
-#ifndef min
-#define min(x,y) (((x) < (y)) ? (x) : (y))
-#endif
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 

@@ -15,9 +15,9 @@
 #include "assert.h"
 #include "string.h"
 
+#include "os/OsDefs.h" // for min macro
 #include "mp/MpJitterBuffer.h"
 #include "mp/MpDecoderBase.h"
-#include "mp/MpMisc.h"
 
 static int debugCount = 0;
 

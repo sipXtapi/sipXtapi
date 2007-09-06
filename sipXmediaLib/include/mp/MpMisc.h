@@ -24,14 +24,6 @@ class OsConfigDb;
 
 #define FRAME_SAMPS  320
 
-#ifndef max
-#define max(x,y) (((x)>(y))?(x):(y))
-#endif
-
-#ifndef min
-#define min(x,y) (((x)<(y))?(x):(y))
-#endif
-
 /* miscellaneous debugging support: */
 
 #define Zprintf printf

@@ -19,10 +19,6 @@
 #include "utl/UtlRandom.h"
 
 // DEFINES
-#ifndef MIN
-#define MIN(a, b) (((a)<(b)) ? (a) : (b) )
-#endif
-
 #define STUN_MAX_STRING_LENGTH              128 
 #define STUN_MAX_UNKNOWN_ATTRIBUTES         16
 #define STUN_MAX_MESSAGE_INTEGRITY_LENGTH   20

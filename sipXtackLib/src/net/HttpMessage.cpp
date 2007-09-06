@@ -64,9 +64,6 @@
 int HttpMessage::smHttpMessageCount = 0;
 
 // LOCAL MACROS
-#ifndef MIN
-#define MIN(a,b) (((a) < (b)) ? (a) : (b))
-#endif
 #ifdef _VXWORKS
 #define iswspace(a) ((((a) >= 0x09) && ((a) <= 0x0D)) || ((a) == 0x20))
 #endif
@@ -1081,7 +1078,7 @@ int HttpMessage::readBody(OsSocket* inSocket, int iLength, GetDataCallbackProc p
       while (inSocket->isOk() && inSocket->isReadyToRead(HTTP_READ_TIMEOUT_MSECS) &&
             (iBytesRead < iLength))
       {
-         int iMaxRead = MIN(sizeof(buffer), (unsigned int) (iLength - iBytesRead)) ;
+         int iMaxRead = min(sizeof(buffer), (unsigned int) (iLength - iBytesRead)) ;
          iRead = inSocket->read(buffer, iMaxRead, &remoteHost, &remotePort);
          if (iRead > 0)
          {

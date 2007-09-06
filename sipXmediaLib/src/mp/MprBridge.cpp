@@ -17,6 +17,7 @@
 #include <limits.h>
 
 // APPLICATION INCLUDES
+#include <os/OsDefs.h> // for min macro
 #include <mp/MpBuf.h>
 #include <mp/MprBridge.h>
 #include <mp/MpMisc.h>

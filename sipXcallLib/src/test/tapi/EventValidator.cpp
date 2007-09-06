@@ -934,7 +934,7 @@ bool EventValidator::findEvent(const char* szEvent, int nMaxLookAhead, int &nAct
     if (nEntries > 0)
     {
         // Figure out the max and actual look ahead capabilities
-        nActualLookAhead = MIN(nEntries, nMaxLookAhead) ;
+        nActualLookAhead = min(nEntries, nMaxLookAhead) ;
 
         // Try to find message
         for (int i=0; i<nActualLookAhead; i++)

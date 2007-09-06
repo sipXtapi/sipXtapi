@@ -16,10 +16,10 @@
 // APPLICATION INCLUDES
 #include <mp/MpAudioOutputConnection.h>
 #include <mp/MpOutputDeviceDriver.h>
-#include <mp/MpMisc.h>    // for min macro
 #include <mp/MpMediaTask.h> // for MpMediaTask::signalFrameStart()
 #include <os/OsLock.h>
 #include <os/OsCallback.h>
+#include <os/OsDefs.h>    // for min macro
 
 #ifdef RTL_ENABLED
 #include <rtl_macro.h>

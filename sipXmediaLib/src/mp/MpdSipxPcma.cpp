@@ -13,6 +13,7 @@
 
 
 // APPLICATION INCLUDES
+#include "os/OsDefs.h" // for min macro
 #include "mp/MpdSipxPcma.h"
 #include "mp/MpSipxDecoders.h"
 

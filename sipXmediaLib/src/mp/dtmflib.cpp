@@ -20,6 +20,7 @@
 #include "mp/MpTypes.h"
 #include "mp/MpMisc.h"
 #include "os/OsMutex.h"
+#include "os/OsDefs.h"
 
 #define PI  3.1415926
 #define PIt2 (2.0 * PI)
@@ -29,13 +30,6 @@
 #define DTMF_KEY_COL_AMP (.5490F * .25F)
 
 #include "mp/dtmflib.h"
-
-#ifndef max
-#define max(x,y) (((x)>(y))?(x):(y))
-#endif
-#ifndef min
-#define min(x,y) (((x)<(y))?(x):(y))
-#endif
 
 typedef struct __tone_tag {
         int Hz;

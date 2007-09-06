@@ -12,6 +12,7 @@
 
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
+#include "os/OsDefs.h" // for min macro
 #include "mp/MpdSipxILBC.h"
 extern "C" {
 #include <iLBC_define.h>

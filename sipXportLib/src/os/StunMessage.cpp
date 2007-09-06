@@ -22,6 +22,7 @@
 #endif
 
 // APPLICATION INCLUDES
+#include "os/OsDefs.h"
 #include "os/OsSocket.h"
 #include "os/OsDatagramSocket.h"
 #include "os/StunMessage.h"
@@ -781,7 +782,7 @@ bool StunMessage::getUnknownAttributes(unsigned short* pList, size_t nMaxItems, 
     nActualItems = 0 ;        
     if (mbUnknownAttributesValid)
     {
-        nActualItems = MIN(nMaxItems, mUnknownAttributes.nTypes) ;
+        nActualItems = min(nMaxItems, mUnknownAttributes.nTypes) ;
         for (size_t i=0; i<nActualItems; i++)
         {
             pList[i] = mUnknownAttributes.type[i] ;
@@ -826,7 +827,7 @@ bool StunMessage::getUnknownParsedAttributes(unsigned short* pList, size_t nMaxI
     nActualItems = 0 ;
     if (mUnknownParsedAttributes.nTypes)
     {
-        nActualItems = MIN(nMaxItems, mUnknownParsedAttributes.nTypes) ;
+        nActualItems = min(nMaxItems, mUnknownParsedAttributes.nTypes) ;
         for (size_t i=0; i<nActualItems; i++)
         {
             pList[i] = mUnknownParsedAttributes.type[i] ;
@@ -1430,7 +1431,7 @@ bool StunMessage::parseStringAttribute(char* pBuf, size_t nLength, char* pString
     if (nLength > 0)
     {
         memset(pString, 0, STUN_MAX_STRING_LENGTH+1) ;
-        memcpy(pString, pBuf, MIN(nLength, STUN_MAX_STRING_LENGTH)) ;
+        memcpy(pString, pBuf, min(nLength, STUN_MAX_STRING_LENGTH)) ;
         if (mbLegacyMode && strlen(pString))
         {
             // Strip trailing spaces
@@ -1474,7 +1475,7 @@ bool StunMessage::parseErrorAttribute(char *pBuf, size_t nLength, STUN_ATTRIBUTE
         pError->errorNumber = *pBuf++ ;
         nLength -= 4 ;
         memset(pError->szReasonPhrase, 0, STUN_MAX_STRING_LENGTH+1) ;
-        memcpy(pError->szReasonPhrase, pBuf, MIN(nLength, STUN_MAX_STRING_LENGTH)) ;
+        memcpy(pError->szReasonPhrase, pBuf, min(nLength, STUN_MAX_STRING_LENGTH)) ;
         bValid = true ;
     }
     return bValid ;

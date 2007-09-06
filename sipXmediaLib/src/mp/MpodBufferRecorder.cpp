@@ -13,6 +13,7 @@
 
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
+#include "os/OsDefs.h" // for min macro
 #include "mp/MpodBufferRecorder.h"
 #include "mp/MpMisc.h"
 #include <os/OsTimer.h>

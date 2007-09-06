@@ -21,6 +21,7 @@
 #include <net/SmimeBody.h>
 #include <net/HttpMessage.h>
 #include <os/OsSysLog.h>
+#include <os/OsDefs.h>
 
 //#define ENABLE_OPENSSL_SMIME
 #ifdef ENABLE_OPENSSL_SMIME
