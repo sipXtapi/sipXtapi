@@ -4711,6 +4711,9 @@
 				<File
 					RelativePath=".\src\mp\video\MpVideoCallFlowGraph.cpp">
 				</File>
+				<File
+					RelativePath=".\src\mp\video\MpVideoStreamParams.cpp">
+				</File>
 			</Filter>
 			<Filter
 				Name="Headers"
@@ -4732,6 +4735,9 @@
 				</File>
 				<File
 					RelativePath=".\include\mp\video\MpVideoCallFlowGraph.h">
+				</File>
+				<File
+					RelativePath=".\include\mp\video\MpVideoStreamParams.h">
 				</File>
 			</Filter>
 			<Filter

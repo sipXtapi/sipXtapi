@@ -67,9 +67,25 @@ MpeH264::~MpeH264()
    freeEncode();
 }
 
-OsStatus MpeH264::initEncode()
+OsStatus MpeH264::initEncode(const MpVideoStreamParams* params)
 {
+   if (NULL != params)
+   {
+      if (0 != params->getFrameWidth())
+         mStreamParams.setFrameWidth(params->getFrameWidth());
 
+      if (0 != params->getFrameHeight())
+         mStreamParams.setFrameHeight(params->getFrameHeight());
+
+      if (0 != params->getFrameRate())
+         mStreamParams.setFrameRate(params->getFrameRate());
+
+      if (0 != params->getStreamBitrate())
+         mStreamParams.setStreamBitrate(params->getStreamBitrate());
+
+      if (0 != params->getQuality())
+         mStreamParams.setQuality(params->getQuality());
+   }
 
    if (mpCodec == NULL)
    {
@@ -264,25 +280,6 @@ OsStatus MpeH264::encode(const MpVideoBufPtr &pFrame)
    }
 
    return OS_SUCCESS;
-}
-
-void MpeH264::setup(const MpVideoStreamParams &params)
-{
-    if (0 != params.getFrameWidth())
-        mStreamParams.setFrameWidth(params.getFrameWidth());
-    
-    if (0 != params.getFrameHeight())
-        mStreamParams.setFrameHeight(params.getFrameHeight());
-    
-    if (0 != params.getFrameRate())
-        mStreamParams.setFrameRate(params.getFrameRate());
-    
-    if (0 != params.getStreamBitrate())
-        mStreamParams.setStreamBitrate(params.getStreamBitrate());
-
-    if (0 != params.getQuality())
-        mStreamParams.setQuality(params.getQuality());
-
 }
 
 /* ============================ ACCESSORS ================================= */

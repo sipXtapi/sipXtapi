@@ -67,6 +67,9 @@ DEFINE_GUID(MEDIASUBTYPE_IMC3,
 DEFINE_GUID(MEDIASUBTYPE_IMC4,
 0x34434D49, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71);
 
+DEFINE_GUID(MEDIASUBTYPE_I420,
+0x30323449, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71);
+
 #define MATCH4CC(code) if (IsEqualGUID(mediaSubtype, (MEDIASUBTYPE_ ## code))) return (videoSurface ## code)
 
 VideoSurface MediaSubtypeToVideoSurface(const GUID& mediaSubtype)
@@ -81,10 +84,12 @@ VideoSurface MediaSubtypeToVideoSurface(const GUID& mediaSubtype)
 	MATCH4CC(IMC4);
 	MATCH4CC(YV12);
 	MATCH4CC(IYUV);
+	MATCH4CC(I420);
 	MATCH4CC(NV12);
 	MATCH4CC(ARGB32);
 	MATCH4CC(RGB24);
-
+	MATCH4CC(RGB555);
+	MATCH4CC(RGB565);
 	return videoSurfaceUnknown;
 }
 
@@ -106,7 +111,8 @@ const GUID& VideoSurfaceToMediaSubtype(const VideoSurface surface)
 	MATCH4CC(NV12);
 	MATCH4CC(ARGB32);
 	MATCH4CC(RGB24);
-
+	MATCH4CC(RGB555);
+	MATCH4CC(RGB565);
 	return GUID_NULL;
 }
 

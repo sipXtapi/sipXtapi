@@ -143,6 +143,10 @@ size_t GetVideoFrameByteSize(VideoSurface surface, size_t width, size_t height)
 	case videoSurfaceRGB24:
 		return 3 * width * height;
 
+	case videoSurfaceRGB15:
+	case videoSurfaceRGB16:
+		return width * height * 2;
+
 	default:
 		assert(!"GetFrameByteSize() lacks case for supported video surface enumerator!");
 		return 0;
@@ -164,6 +168,9 @@ VideoSurface PixelFormatToVideoSurface(const PixelFormat pixelFormat)
 	case PIX_FMT_RGB32:
 	case PIX_FMT_ARGB: return videoSurfaceARGB32;
 
+	case PIX_FMT_RGB555: return videoSurfaceRGB15;
+	case PIX_FMT_RGB565: return videoSurfaceRGB16;
+
 	case PIX_FMT_NV12: return videoSurfaceNV12;
 	}
 #endif // VIDEO_SUPPORT_DISABLE_AVCODEC
@@ -175,13 +182,15 @@ PixelFormat VideoSurfaceToPixelFormat(const VideoSurface surface)
 #ifndef VIDEO_SUPPORT_DISABLE_AVCODEC
 	switch (surface) {
 	case videoSurfaceI420: return PIX_FMT_YUV420P;
-	// hack: AVCodecVideoSurfaceConverter will check surface and adjust U&V plane pointers appropriately
-	case videoSurfaceYV12: return PIX_FMT_YUV420P;
+	//// hack: AVCodecVideoSurfaceConverter will check surface and adjust U&V plane pointers appropriately
+	//case videoSurfaceYV12: return PIX_FMT_YUV420P;
 	case videoSurfaceYUY2: return PIX_FMT_YUYV422;
 	case videoSurfaceUYVY: return PIX_FMT_UYVY422;
 	case videoSurfaceRGB24: return PIX_FMT_RGB24;
 	case videoSurfaceARGB32: return PIX_FMT_RGB32;
 	case videoSurfaceNV12: return PIX_FMT_NV12;
+	case videoSurfaceRGB15: return PIX_FMT_RGB555;
+	case videoSurfaceRGB16: return PIX_FMT_RGB565;
 	}
 #endif // VIDEO_SUPPORT_DISABLE_AVCODEC
 	return PixelFormat(-1);

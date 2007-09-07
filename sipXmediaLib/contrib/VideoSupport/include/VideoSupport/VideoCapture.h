@@ -45,11 +45,17 @@ public:
 	//! @param names [out] Container filled with capture device names on return.
 	static void EnumDevices(DeviceNames& names);
 
+	enum Flags
+	{
+		flagNone = 0,
+		flagPreviewDisabled = 1,
+	};
+
 	//! Initialize video capture using device of specified name. 
 	//! @param deviceName [in] Name of capture device, as returned by @c EnumDevices().
 	//! @param previewWindoe [in] Optional window handle of the control the preview 
 	//! window will be linked with. If not set, preview window will be hidden.
-	bool Initialize(const std::string& deviceName, HWND previewWindow = NULL);
+	bool Initialize(const std::string& deviceName, HWND previewWindow = NULL, long flags = flagNone);
 
 	//! Object state constants.
 	enum State

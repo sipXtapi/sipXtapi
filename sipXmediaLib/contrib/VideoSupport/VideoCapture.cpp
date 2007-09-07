@@ -234,6 +234,7 @@ struct VideoCapture::Impl: public MediaSamplePushSink
 	State state_;
 	volatile bool running_;
 	bool bottomUp_;
+	bool preview_;
 	VideoCaptureSink* sink_;
 
 	std::auto_ptr<VideoFrameInPlaceProcessor> flipper_;
@@ -252,6 +253,7 @@ struct VideoCapture::Impl: public MediaSamplePushSink
 	state_(stateUninitialized),
 	running_(false),
 	bottomUp_(false),
+	preview_(false),
 	converterBufferSize_(0),
 	converterBuffer_(NULL),
 	scalerBufferSize_(0),
@@ -265,7 +267,7 @@ struct VideoCapture::Impl: public MediaSamplePushSink
 	{
 	}
 
-	bool Initialize(const std::string& deviceName, HWND previewWindow);
+	bool Initialize(const std::string& deviceName, HWND previewWindow, long flags);
 
 	State GetState() const
 	{
@@ -291,7 +293,7 @@ struct VideoCapture::Impl: public MediaSamplePushSink
 	bool SetOutputFormat(const VideoFormat* format, bool adjustCaptureFormat);
 
 	bool MatchFormat(const VideoFormat& format, bool set);
-	bool MatchFormat(const VideoFormat& format, const GUID& formatGuid, AM_MEDIA_TYPE& mediaType, VIDEO_STREAM_CONFIG_CAPS& caps, bool set);
+	bool MatchFormat(const VideoFormat& format, AM_MEDIA_TYPE& mediaType, VIDEO_STREAM_CONFIG_CAPS& caps, bool set);
 
 	void PushSample(IMediaSample* sample);
 
@@ -339,7 +341,7 @@ CCritSec* VideoCapture::Impl::windowHandlesLock_ = NULL;
 
 #endif // VIDEO_CAPTURE_NOTIFY_WINDOW
 
-bool VideoCapture::Impl::Initialize(const std::string& deviceName, HWND previewWindow)
+bool VideoCapture::Impl::Initialize(const std::string& deviceName, HWND previewWindow, long flags)
 {
 	CAutoLock lock(lock_.get());
 	if (stateUninitialized != state_)
@@ -370,19 +372,23 @@ bool VideoCapture::Impl::Initialize(const std::string& deviceName, HWND previewW
 	if (FAILED(hr = graph_->AddFilter(render_, L"Sink")))
 		goto Fail;
 
-	// create preview renderer & connect it to preview pin
-	if (FAILED(hr = build_->RenderStream(&PIN_CATEGORY_PREVIEW, &MEDIATYPE_Video, capture_, NULL, NULL)))
-		goto Fail;
-
 	// connect our magic raw sample renderer to capture pin
 	if (FAILED(hr = build_->RenderStream(&PIN_CATEGORY_CAPTURE, &MEDIATYPE_Video, capture_, NULL, render_)))
 		goto Fail;
 
-	// obtain IVideoWindow interface for previewing the video
-	if (FAILED(hr = graph_.QueryInterface(videoWindow_.GetIID(), &videoWindow_)))
-		goto Fail;
+	bool preview = (0 == (flags & flagPreviewDisabled));
+	if (preview)
+	{
+		// create preview renderer & connect it to preview pin
+		if (FAILED(hr = build_->RenderStream(&PIN_CATEGORY_PREVIEW, &MEDIATYPE_Video, capture_, NULL, NULL)))
+			goto Fail;
 
-	assert(NULL != videoWindow_.GetInterfacePtr());
+		// obtain IVideoWindow interface for previewing the video
+		if (FAILED(hr = graph_.QueryInterface(videoWindow_.GetIID(), &videoWindow_)))
+			goto Fail;
+
+		assert(NULL != videoWindow_.GetInterfacePtr());
+	}
 
 	// obtain IMediaControl interface for controlling the graph
 	if (FAILED(hr = graph_.QueryInterface(mediaControl_.GetIID(), &mediaControl_)))
@@ -438,6 +444,7 @@ bool VideoCapture::Impl::Initialize(const std::string& deviceName, HWND previewW
 #endif // VIDEO_CAPTURE_NOTIFY_THREAD
 
 	state_ = stateInitialized;
+	preview_ = preview;
 
 	// once we are initialized, setup preview window
 	if (!SetPreviewWindow(previewWindow))
@@ -570,9 +577,9 @@ void VideoCapture::Close()
 	impl_->Close();
 }
 
-bool VideoCapture::Initialize(const std::string& deviceName, HWND previewWindow)
+bool VideoCapture::Initialize(const std::string& deviceName, HWND previewWindow, long flags)
 {
-	return impl_->Initialize(deviceName, previewWindow);
+	return impl_->Initialize(deviceName, previewWindow, flags);
 }
 
 void VideoCapture::StaticDispose()
@@ -670,7 +677,7 @@ bool VideoCapture::Impl::Run()
 	if (FAILED(hr = build_->ControlStream(&PIN_CATEGORY_CAPTURE, &MEDIATYPE_Video, capture_, &start, &stop, 1, 2)))
 		return false;
 
-	if (FAILED(hr = build_->ControlStream(&PIN_CATEGORY_PREVIEW, &MEDIATYPE_Video, capture_, &start, &stop, 3, 4)))
+	if (preview_ && FAILED(hr = build_->ControlStream(&PIN_CATEGORY_PREVIEW, &MEDIATYPE_Video, capture_, &start, &stop, 3, 4)))
 		return false;
 
 	// won't be initialized without IMediaControl
@@ -691,6 +698,9 @@ bool VideoCapture::Run()
 
 void VideoCapture::Impl::AdjustVideoWindowSize()
 {
+	if (!preview_)
+		return;
+
 	if (stateUninitialized == state_)
 		return;
 
@@ -698,8 +708,6 @@ void VideoCapture::Impl::AdjustVideoWindowSize()
 		return;
 
 	assert(NULL != videoWindow_.GetInterfacePtr());
-	if (NULL == videoWindow_.GetInterfacePtr())
-		return;
 
 	RECT rect;
 	if (!::GetClientRect(previewWindow_, &rect))
@@ -767,6 +775,9 @@ bool VideoCapture::Impl::SetPreviewWindow(HWND previewWindow)
 	}
 
 #endif // VIDEO_CAPTURE_NOTIFY_WINDOW
+
+	if (!preview_)
+		return true;
 
 	assert(NULL != videoWindow_.GetInterfacePtr());
 
@@ -1067,9 +1078,7 @@ bool VideoCapture::Impl::MatchFormat(const VideoFormat& format, bool set)
 			continue;
 
 		assert(NULL != type);
-
-		VideoSurface surface = MediaSubtypeToVideoSurface(type->subtype);
-		bool done = IsVideoSurfaceValid(surface) && MatchFormat(format, subtype, *type, caps, set);
+		bool done = MatchFormat(format, *type, caps, set);
 		DeleteMediaType(type);
 
 		if (done)
@@ -1078,9 +1087,10 @@ bool VideoCapture::Impl::MatchFormat(const VideoFormat& format, bool set)
 	return false;
 }
 
-bool VideoCapture::Impl::MatchFormat(const VideoFormat& format, const GUID& formatGuid, AM_MEDIA_TYPE& type, VIDEO_STREAM_CONFIG_CAPS& caps, bool set)
+bool VideoCapture::Impl::MatchFormat(const VideoFormat& format, AM_MEDIA_TYPE& type, VIDEO_STREAM_CONFIG_CAPS& caps, bool set)
 {
-	if (!IsEqualGUID(formatGuid, type.subtype))
+	VideoSurface surface = MediaSubtypeToVideoSurface(type.subtype);
+	if (format.GetSurface() != surface)
 		return false;
 
 	if (!IsEqualGUID(type.formattype, FORMAT_VideoInfo) && !IsEqualGUID(type.formattype, FORMAT_VideoInfo2))
@@ -1148,7 +1158,12 @@ bool VideoCapture::Impl::MatchFormat(const VideoFormat& format, const GUID& form
 
 	HRESULT hr;
 	if (FAILED(hr = streamConfig_->SetFormat(&type)))
+	{
+		if (VFW_E_INVALIDMEDIATYPE == hr)
+			assert(!"Invalid media type reported even though supported media used");
+
 		return false;
+	}
 
 	flipper_.reset();
 	bottomUp_ = bottomUp;

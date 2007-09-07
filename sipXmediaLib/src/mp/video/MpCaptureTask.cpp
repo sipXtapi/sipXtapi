@@ -39,12 +39,7 @@ MpCaptureTask::MpCaptureTask(OsMsgQ *pMsgQ, MprToNet *pRtpWriter, MpRemoteVideoT
 , mpTimer(pTimer)
 {
    assert(mpMsgQueue != NULL);
-   if (NULL != pCaptureParams)
-   {
-       mpEncoder->setup(*pCaptureParams);
-   }
-
-   if (mpEncoder->initEncode() != OS_SUCCESS)
+   if (mpEncoder->initEncode(pCaptureParams) != OS_SUCCESS)
    {
       syslog(FAC_MP, PRI_ERR, "Could not initialize video codec");
       delete mpEncoder;

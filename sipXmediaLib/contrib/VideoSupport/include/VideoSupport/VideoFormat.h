@@ -72,6 +72,12 @@ enum VideoSurface
 	videoSurfaceARGB32,
 	videoSurfaceARGB8888 = videoSurfaceARGB32,
 
+	videoSurfaceRGB555,
+	videoSurfaceRGB15 = videoSurfaceRGB555,
+
+	videoSurfaceRGB565,
+	videoSurfaceRGB16 = videoSurfaceRGB565,
+
 	videoSurfaceRGB24,
 	videoSurfaceRGB888 = videoSurfaceRGB24,
 
