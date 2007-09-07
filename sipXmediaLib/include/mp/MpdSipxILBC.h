@@ -38,8 +38,8 @@ public:
    /// iLBC decoder mode (frame length).
    enum CodecMode
    {
-      MODE_20MS=20, ///< 20ms frame length mode (13.333 kbps).
-      MODE_30MS=30  ///< 30ms frame length mode (15.200 kbps).
+      MODE_20MS=20, ///< 20ms frame length mode (15.200 kbps).
+      MODE_30MS=30  ///< 30ms frame length mode (13.333 kbps).
    };
 
 /* ============================ CREATORS ================================== */
