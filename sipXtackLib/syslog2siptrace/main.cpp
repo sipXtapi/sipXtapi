@@ -1,6 +1,9 @@
 //
-// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2007 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
@@ -24,7 +27,7 @@
 
 #include <os/OsDefs.h>
 #include <os/OsSysLog.h>
-#include <net/NameValueTokenizer.h>
+#include <utl/UtlNameValueTokenizer.h>
 #include <net/SipMessage.h>
 
 void writeMessageNodesBegin(int outputFileDescriptor)
@@ -71,7 +74,7 @@ void writeBranchSetEnd(int outputFileDescriptor)
 void writeBranchId(int outputFileDescriptor,
                    UtlString& branchId)
 {
-    NameValueTokenizer::frontBackTrim(&branchId, " \t\n\r");
+    branchId.strip(UtlString::both);
     UtlString node("\t\t\t<branchId>");
     node.append(branchId);
     node.append("</branchId>\n");
@@ -92,17 +95,17 @@ void writeBranchNodeData(int outputFileDescriptor,
                       UtlString& responseText,
                       UtlString& message)
 {
-    NameValueTokenizer::frontBackTrim(&time, " \t\n\r");
-    NameValueTokenizer::frontBackTrim(&source, " \t\n\r");
-    NameValueTokenizer::frontBackTrim(&destination, " \t\n\r");
-    NameValueTokenizer::frontBackTrim(&sourceAddress, " \t\n\r");
-    NameValueTokenizer::frontBackTrim(&destinationAddress, " \t\n\r");
-    NameValueTokenizer::frontBackTrim(&transactionId, " \t\n\r");
-    NameValueTokenizer::frontBackTrim(&frameId, " \t\n\r");
-    NameValueTokenizer::frontBackTrim(&method, " \t\n\r");
-    NameValueTokenizer::frontBackTrim(&responseCode, " \t\n\r");
-    NameValueTokenizer::frontBackTrim(&responseText, " \t\n\r");
-    //NameValueTokenizer::frontBackTrim(&message, " \t\n\r");
+    time.strip(UtlString::both);
+    source.strip(UtlString::both);
+    destination.strip(UtlString::both);
+    sourceAddress.strip(UtlString::both);
+    destinationAddress.strip(UtlString::both);
+    transactionId.strip(UtlString::both);
+    frameId.strip(UtlString::both);
+    method.strip(UtlString::both);
+    responseCode.strip(UtlString::both);
+    responseText.strip(UtlString::both);
+    //message.strip(UtlString::both);
 
     UtlString node("\t\t<time>");
     node.append(time);
@@ -496,9 +499,9 @@ int main(int argc, char * argv[])
       do
       {
          lineLen =
-            NameValueTokenizer::findNextLineTerminator(bufferString.data(),
-                                                       bufferString.length(),
-                                                       &nextLineStart);
+            UtlNameValueTokenizer::findNextLineTerminator(bufferString.data(),
+                                                          bufferString.length(),
+                                                          &nextLineStart);
 
          // If a new line was found
          if(nextLineStart > 0)
