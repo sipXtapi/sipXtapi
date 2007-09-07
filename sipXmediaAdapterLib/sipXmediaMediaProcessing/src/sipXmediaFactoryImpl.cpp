@@ -27,7 +27,6 @@
 #include "mp/dmaTask.h"
 #include "net/SdpCodecFactory.h"
 #include "mi/CpMediaInterfaceFactoryFactory.h"
-#include "sdp/SdpCodec.h"
 
 #ifdef SIPX_VIDEO // [
 #include "mp/video/MpDShowCaptureDeviceManager.h"
@@ -142,11 +141,10 @@ extern "C" void sipxDestroyMediaFactoryFactory()
 sipXmediaFactoryImpl::sipXmediaFactoryImpl(OsConfigDb* pConfigDb)
 : mpCaptureDeviceManager(NULL)
 , mpDefaultCaptureDevice()
-, mVideoBitRate(0)
-, mVideoFormat(SDP_VIDEO_FORMAT_CIF)
-, mVideoFrameRate(10)
-, mVideoQuality(0)
 {    
+    mVideoParams.setFrameFormat(SDP_VIDEO_FORMAT_CIF);
+    mVideoParams.setFrameRate(10.);
+
     int maxFlowGraph = -1 ; 
     UtlString strInBandDTMF ;
     
@@ -264,11 +262,8 @@ CpMediaInterface* sipXmediaFactoryImpl::createMediaInterface( const char* public
     }
     else
     {
-        // Setup capture device.
-        int w, h;
-        getVideoFrameSize(w, h);
-        pCaptureDevice->setFrameSize(w, h);
-        pCaptureDevice->setFPS(float(mVideoFrameRate));
+        pCaptureDevice->setFrameSize(mVideoParams.getFrameWidth(), mVideoParams.getFrameHeight());
+        pCaptureDevice->setFPS(mVideoParams.getFrameRate());
 
         // Open capture device
         if (pCaptureDevice->initialize() != OS_SUCCESS)
@@ -289,7 +284,7 @@ CpMediaInterface* sipXmediaFactoryImpl::createMediaInterface( const char* public
             numCodecs, sdpCodecArray, locale, expeditedIpTos, szStunServer,
             iStunPort, iStunKeepAliveSecs, szTurnServer, iTurnPort, 
             szTurnUsername, szTurnPassword, iTurnKeepAlivePeriodSecs, 
-            bEnableICE, pCaptureDevice) ;
+            bEnableICE, pCaptureDevice, &mVideoParams) ;
 }
 
 
@@ -469,7 +464,9 @@ OsStatus sipXmediaFactoryImpl::buildCodecFactory(SdpCodecFactory *pFactory,
             rc = OS_SUCCESS;
         }
 
-        mVideoFormat = videoFormat;
+        if (-1 != videoFormat)
+            mVideoParams.setFrameFormat(videoFormat);
+
         // add preferred video codecs first
         if (sVideoPreferences.length() > 0)
         {
@@ -656,32 +653,32 @@ OsStatus sipXmediaFactoryImpl::setVideoQuality(int quality)
 
 OsStatus sipXmediaFactoryImpl::setVideoParameters(int bitRate, int frameRate)
 {
-    mVideoBitRate = bitRate;
-    mVideoFrameRate = frameRate;
+    mVideoParams.setStreamBitrate(bitRate);
+    mVideoParams.setFrameRate(float(frameRate));
     return OS_SUCCESS;
 }
 
 OsStatus sipXmediaFactoryImpl::setVideoFramerate(int framerate)
 {
-    mVideoFrameRate = framerate;
+    mVideoParams.setFrameRate(float(framerate));
     return OS_SUCCESS;
 }
 
 OsStatus sipXmediaFactoryImpl::getVideoQuality(int& quality) const
 {
-    // TODO:: sipXmediaFactoryImpl::getVideoQuality
-    return OS_NOT_YET_IMPLEMENTED;
+    quality = mVideoParams.getQuality();
+    return OS_SUCCESS;
 }
 
 OsStatus sipXmediaFactoryImpl::getVideoBitRate(int& bitRate) const
 {
-    bitRate = mVideoBitRate;
+    bitRate = mVideoParams.getStreamBitrate();
     return OS_SUCCESS;
 }
 
 OsStatus sipXmediaFactoryImpl::getVideoFrameRate(int& frameRate) const
 {
-    frameRate = mVideoFrameRate;
+    frameRate = int(mVideoParams.getFrameRate() + .5f);
     return OS_SUCCESS;
 }
 
@@ -809,38 +806,6 @@ OsStatus sipXmediaFactoryImpl::getVideoCpuValue(int &cpuValue) const
 }
 
 #endif // SIPX_VIDEO ]
-
-void sipXmediaFactoryImpl::getVideoFrameSize(int& width, int& height) const
-{
-    switch (mVideoFormat)
-    {
-    case SDP_VIDEO_FORMAT_CIF:
-        width = 352; 
-        height = 288; 
-        break;
-
-    case SDP_VIDEO_FORMAT_QCIF: 
-        width = 176; 
-        height = 144; 
-        break;
-
-    case SDP_VIDEO_FORMAT_SQCIF:
-        width = 128;
-        height = 96;
-        break;
-
-    case SDP_VIDEO_FORMAT_QVGA:
-        width = 320;
-        height = 240;
-        break;
-
-    default: 
-       assert(!"Unsuppported video format");
-       width = 0;
-       height = 0;
-    }
-}
-
 
 /* ============================ INQUIRY =================================== */
 

@@ -41,6 +41,7 @@ class OsDatagramSocket;
 class CpPhoneMediaConnection;
 class MpCaptureDeviceBase;
 class ISocketEvent;
+class MpVideoStreamParams;
 
 //:Class short description which may consist of multiple lines (note the ':')
 // Class detailed description which may extend to multiple lines
@@ -75,7 +76,8 @@ public:
                          const char* szTurnPassword = NULL,
                          int iTurnKeepAlivePeriodSecs = 28,
                          UtlBoolean bEnableICE = FALSE,
-                         MpCaptureDeviceBase *pCaptureDevice=NULL);
+                         MpCaptureDeviceBase *pCaptureDevice = NULL,
+                         const MpVideoStreamParams* pVideoCaptureParams = NULL);
      //:Default constructor
 
   protected:

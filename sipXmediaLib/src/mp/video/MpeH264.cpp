@@ -15,6 +15,8 @@
 #include "mp/video/MpeH264.h"
 #include "mp/MprToNet.h"
 #include "mp/NetInTask.h"
+#include "sdp/SdpCodec.h"
+
 #ifdef WIN32 // [
 #  define EMULATE_INTTYPES
 #endif // WIN32 ]
@@ -48,6 +50,10 @@ MpeH264::MpeH264(int payloadType, MprToNet* pRtpWriter)
 , mpEncodedBuffer(NULL)
 , mEncodedBufferSize(0)
 {
+    mStreamParams.setFrameFormat(SDP_VIDEO_FORMAT_QVGA);
+    mStreamParams.setFrameRate(10.f);
+    mStreamParams.setStreamBitrate(70);
+
     // must be called before using AVcodec lib
     avcodec_init();
 
@@ -87,15 +93,17 @@ OsStatus MpeH264::initEncode()
    }
 
    // put sample parameters
-   mpCodecContext->bit_rate = 70000;
+   mpCodecContext->bit_rate = mStreamParams.getStreamBitrate();
+   AVRational ar = av_d2q(mStreamParams.getFrameRate(), H264_TIMESTAMP_FREQ);
+
    // frames per second
-   mpCodecContext->time_base.num = 1;
-   mpCodecContext->time_base.den = 10;
+   mpCodecContext->time_base.num = ar.num;
+   mpCodecContext->time_base.den = ar.den;
    // emit one intra frame every second
    mpCodecContext->gop_size = mpCodecContext->time_base.den/mpCodecContext->time_base.num;
    mpCodecContext->max_b_frames=0;
-   mpCodecContext->width = 320;
-   mpCodecContext->height = 240;
+   mpCodecContext->width = mStreamParams.getFrameWidth();
+   mpCodecContext->height = mStreamParams.getFrameHeight();
    mpCodecContext->pix_fmt = PIX_FMT_YUV420P;
 
    // open codec
@@ -256,6 +264,25 @@ OsStatus MpeH264::encode(const MpVideoBufPtr &pFrame)
    }
 
    return OS_SUCCESS;
+}
+
+void MpeH264::setup(const MpVideoStreamParams &params)
+{
+    if (0 != params.getFrameWidth())
+        mStreamParams.setFrameWidth(params.getFrameWidth());
+    
+    if (0 != params.getFrameHeight())
+        mStreamParams.setFrameHeight(params.getFrameHeight());
+    
+    if (0 != params.getFrameRate())
+        mStreamParams.setFrameRate(params.getFrameRate());
+    
+    if (0 != params.getStreamBitrate())
+        mStreamParams.setStreamBitrate(params.getStreamBitrate());
+
+    if (0 != params.getQuality())
+        mStreamParams.setQuality(params.getQuality());
+
 }
 
 /* ============================ ACCESSORS ================================= */

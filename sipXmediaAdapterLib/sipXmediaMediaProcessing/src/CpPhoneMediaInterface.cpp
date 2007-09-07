@@ -214,7 +214,8 @@ CpPhoneMediaInterface::CpPhoneMediaInterface(CpMediaInterfaceFactoryImpl* pFacto
                                              const char* szTurnPassword,
                                              int iTurnKeepAlivePeriodSecs,
                                              UtlBoolean bEnableICE,
-                                             MpCaptureDeviceBase *pCaptureDevice)
+                                             MpCaptureDeviceBase* pCaptureDevice,
+                                             const MpVideoStreamParams* pVideoCaptureParams)
 : CpMediaInterface(pFactoryImpl)
 {
    OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPhoneMediaInterface::CpPhoneMediaInterface creating a new CpMediaInterface %p",
@@ -225,7 +226,7 @@ CpPhoneMediaInterface::CpPhoneMediaInterface(CpMediaInterfaceFactoryImpl* pFacto
                  mpFlowGraph);
 
 #ifdef SIPX_VIDEO // [
-   mpVideoFlowGraph = new MpVideoCallFlowGraph(pCaptureDevice);
+   mpVideoFlowGraph = new MpVideoCallFlowGraph(pCaptureDevice, pVideoCaptureParams);
    OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPhoneMediaInterface::CpPhoneMediaInterface creating a new MpVideoCallFlowGraph %p",
                  mpVideoFlowGraph);
 #endif // SIPX_VIDEO ]

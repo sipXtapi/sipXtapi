@@ -28,6 +28,7 @@
 class MprToNet;
 class MpeH264;
 class MpRemoteVideoTask;
+class MpVideoStreamParams;
 
 /// @brief This task get frames from message queue (coming from capture device),
 /// encode it and send to RtpWriter.
@@ -40,7 +41,7 @@ public:
 ///@name Creators
 //@{
 
-   MpCaptureTask(OsMsgQ *pMsgQ, MprToNet *pRtpWriter, MpRemoteVideoTask *pTimer);
+   MpCaptureTask(OsMsgQ *pMsgQ, MprToNet *pRtpWriter, MpRemoteVideoTask *pTimer, const MpVideoStreamParams* pCaptureParams);
 
    virtual
    ~MpCaptureTask();

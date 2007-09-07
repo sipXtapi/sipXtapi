@@ -16,6 +16,7 @@
 // APPLICATION INCLUDES
 #include "mp/MpVideoBuf.h"
 #include "mp/MpRtpBuf.h"
+#include "mp/video/MpVideoStreamParams.h"
 
 // DEFINES
 // MACROS
@@ -58,6 +59,8 @@ public:
      /// Destructor
    virtual
    ~MpeH264();
+
+   virtual void setup(const MpVideoStreamParams& params);
 
      /// Initializes a codec data structure for use as a decoder
    virtual OsStatus initEncode();
@@ -105,6 +108,7 @@ public:
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 
+   MpVideoStreamParams mStreamParams;
    int             mPayloadType;    ///< RTP payload type for this codec.
    MprToNet       *mpRtpWriter;     ///< We will pass encoded data to this RTP writer.
    AVCodec        *mpCodec;         ///< FFMpeg codec (x264).

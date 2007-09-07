@@ -18,6 +18,7 @@
 // APPLICATION INCLUDES
 #include "mi/CpMediaInterfaceFactoryImpl.h"
 #include <rtcp/RtcpConfig.h>
+#include <mp/video/MpVideoStreamParams.h>
 
 // DEFINES
 #define GIPS_CODEC_ID_IPCMWB    "IPCMWB"
@@ -162,12 +163,7 @@ class sipXmediaFactoryImpl : public CpMediaInterfaceFactoryImpl
   private:
     static int miInstanceCount;
 
-    int mVideoFrameRate;
-    int mVideoBitRate;
-    int mVideoQuality;
-    int mVideoFormat;
-
-    void getVideoFrameSize(int& width, int& height) const;
+    MpVideoStreamParams mVideoParams;
 };
 
 /* ============================ INLINE METHODS ============================ */

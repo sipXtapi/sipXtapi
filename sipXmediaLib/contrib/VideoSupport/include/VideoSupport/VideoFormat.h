@@ -99,6 +99,8 @@ inline bool IsVideoSurfaceValid(VideoSurface surface) {return surface >= videoSu
 inline bool IsVideoSurfaceYUV(VideoSurface surface) {return surface >= videoSurfaceYUV_First && surface <= videoSurfaceYUV_Last;}
 inline bool IsVideoSurfaceRGB(VideoSurface surface) {return surface >= videoSurfaceRGB_First && surface <= videoSurfaceRGB_Last;}
 
+size_t GetVideoSurfaceDistance(VideoSurface from, VideoSurface to);
+
 struct VideoFormat
 {
 	static const size_t width_CIF = 352;

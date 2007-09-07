@@ -32,7 +32,7 @@ void *MpVideoCallFlowGraph::smpPreviewWindow=NULL;
 
 /* ============================ CREATORS ================================== */
 
-MpVideoCallFlowGraph::MpVideoCallFlowGraph(MpCaptureDeviceBase *pCaptureDevice)
+MpVideoCallFlowGraph::MpVideoCallFlowGraph(MpCaptureDeviceBase *pCaptureDevice, const MpVideoStreamParams* pCaptureParams)
 : mpCaptureDevice(pCaptureDevice)
 , mpConnection(NULL)
 , mpCaptureTask(NULL)
@@ -76,7 +76,8 @@ MpVideoCallFlowGraph::MpVideoCallFlowGraph(MpCaptureDeviceBase *pCaptureDevice)
       // Create sink for captured frames and connect it to capture device.
       mpCaptureTask = new MpCaptureTask(mpCaptureDevice->getFramesQueue(),
                                         mpConnection->getRtpWriter(),
-                                        mpRemoteVideoTask);
+                                        mpRemoteVideoTask, 
+                                        pCaptureParams);
    }
 }
 

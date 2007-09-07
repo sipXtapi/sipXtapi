@@ -37,6 +37,7 @@ class MpCaptureDeviceBase;
 class MpConnection;
 class MpCaptureTask;
 class MpRemoteVideoTask;
+class MpVideoStreamParams;
 
 /// Video call flow graph encapsulate all video processing needed for video call.
 class MpVideoCallFlowGraph
@@ -53,7 +54,7 @@ public:
 //@{
 
      /// Default constructor
-   MpVideoCallFlowGraph(MpCaptureDeviceBase *pCaptureDevice=NULL);
+   MpVideoCallFlowGraph(MpCaptureDeviceBase *pCaptureDevice = NULL, const MpVideoStreamParams* pCaptureParams = NULL);
      /**<
      *  @param pCaptureDeviceManager - See mpDeviceManager. This object will be
      *                                 freed in destructor.

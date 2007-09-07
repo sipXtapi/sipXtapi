@@ -187,3 +187,33 @@ PixelFormat VideoSurfaceToPixelFormat(const VideoSurface surface)
 	return PixelFormat(-1);
 }
 
+static bool IsVideoSurfaceSubsampled(VideoSurface surface)
+{
+	assert(IsVideoSurfaceValid(surface));
+
+	if (IsVideoSurfaceRGB(surface))
+		return false;
+
+	return (videoSurfaceAYUV != surface);
+}
+
+size_t GetVideoSurfaceDistance(VideoSurface from, VideoSurface to)
+{
+	if (to == from)
+		return 0;
+
+	size_t prox = 0;
+	if ((IsVideoSurfaceRGB(from) && IsVideoSurfaceYUV(to)) ||
+		(IsVideoSurfaceYUV(from) && IsVideoSurfaceRGB(to)))
+	{
+		++prox;
+	}
+
+	if (IsVideoSurfaceSubsampled(from))
+		++prox;
+
+	if (IsVideoSurfaceSubsampled(to))
+		++prox;
+
+	return prox;
+}

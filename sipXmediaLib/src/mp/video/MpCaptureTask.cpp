@@ -31,7 +31,7 @@
 
 /* ============================ CREATORS ================================== */
 
-MpCaptureTask::MpCaptureTask(OsMsgQ *pMsgQ, MprToNet *pRtpWriter, MpRemoteVideoTask *pTimer)
+MpCaptureTask::MpCaptureTask(OsMsgQ *pMsgQ, MprToNet *pRtpWriter, MpRemoteVideoTask *pTimer, const MpVideoStreamParams* pCaptureParams)
 : OsTask("MpCaptureTask", NULL)
 , mpMsgQueue(pMsgQ)
 , mpRtpWriter(pRtpWriter)
@@ -39,6 +39,10 @@ MpCaptureTask::MpCaptureTask(OsMsgQ *pMsgQ, MprToNet *pRtpWriter, MpRemoteVideoT
 , mpTimer(pTimer)
 {
    assert(mpMsgQueue != NULL);
+   if (NULL != pCaptureParams)
+   {
+       mpEncoder->setup(*pCaptureParams);
+   }
 
    if (mpEncoder->initEncode() != OS_SUCCESS)
    {
