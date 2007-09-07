@@ -10,6 +10,7 @@ testsuite_LDADD = \
     @SIPXUNIT_LIBS@ \
     $(CPPUNIT_LIBS) \
     @SIPXTACK_LIBS@ \
+    @SIPXSDP_LIBS@ \
     @SIPXPORT_LIBS@ \
     @SIPXMEDIA_LIBS@ \
     ../libsipXmediaProcessing.la \
