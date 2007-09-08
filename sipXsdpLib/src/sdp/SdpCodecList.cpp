@@ -202,28 +202,22 @@ void SdpCodecList::bindPayloadTypes()
 
     // Find a codec which does not have its payload type set
     // Cheat a little and make the codec writable
-    while((codecWithoutPayloadId = (SdpCodec*) getCodecByType(-1)))
+    while ((codecWithoutPayloadId = (SdpCodec*) getCodecByType(-1)))
     {
-        // Find an unused dynamic payload type id
-        while(getCodecByType(unusedDynamicPayloadId))
+        codecWithoutPayloadId->getEncodingName(actualSubmimeType);
+
+        // only increment payload id for different submime types
+        if (prevSubmimeType.compareTo(actualSubmimeType, UtlString::ignoreCase) != 0)
         {
-            // Assuming all codecs with same submime type are stored
-            // sequentially, only increment payload id for different submime types
-            codecWithoutPayloadId->getEncodingName(actualSubmimeType);
-            if (prevSubmimeType.compareTo(actualSubmimeType, UtlString::ignoreCase) != 0)
+            // Find an unused dynamic payload type id
+            while (getCodecByType(unusedDynamicPayloadId))
             {
-                // Increment payload id for new submime type
                 unusedDynamicPayloadId++;
-                prevSubmimeType = actualSubmimeType;
-            }
-            else
-            {
-                // Just break if we have the same submime type
-                break;
             }
         }
 
         codecWithoutPayloadId->setCodecPayloadFormat(unusedDynamicPayloadId);
+        prevSubmimeType = actualSubmimeType;
     }
 
 #ifdef VERBOSE_CODEC_FACTORY /* [ */
