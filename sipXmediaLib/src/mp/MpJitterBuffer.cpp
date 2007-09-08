@@ -42,7 +42,7 @@ MpJitterBuffer::~MpJitterBuffer()
 
 /* ============================ MANIPULATORS ============================== */
 
-int MpJitterBuffer::pushPacket(MpRtpBufPtr &rtpPacket)
+OsStatus MpJitterBuffer::pushPacket(MpRtpBufPtr &rtpPacket)
 {
    int bufferSize;          // number of samples could be written to decoded buffer
    unsigned decodedSamples; // number of samples, returned from decoder
@@ -53,12 +53,12 @@ int MpJitterBuffer::pushPacket(MpRtpBufPtr &rtpPacket)
 
    // Ignore illegal payload types
    if (payloadType >= JbPayloadMapSize)
-      return 0;
+      return OS_FAILED;
 
    // Get decoder
    decoder = payloadMap[payloadType];
    if (decoder == NULL)
-      return 0; // If we can't decode it, we must ignore it?
+      return OS_FAILED; // If we can't decode it, we must ignore it?
 
    // Calculate space available for decoded samples
    if (JbQIn > JbQOut || JbQCount == 0)
@@ -82,7 +82,7 @@ int MpJitterBuffer::pushPacket(MpRtpBufPtr &rtpPacket)
    if (JbQIn >= JbQueueSize)
       JbQIn = 0;
 
-   return 0;
+   return OS_SUCCESS;
 }
 
 int MpJitterBuffer::getSamples(MpAudioSample *samplesBuffer, int samplesNumber)

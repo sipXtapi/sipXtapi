@@ -58,7 +58,7 @@ public:
 //@{
 
      /// Push packet into jitter buffer.
-   int pushPacket(MpRtpBufPtr &rtpPacket);
+   OsStatus pushPacket(MpRtpBufPtr &rtpPacket);
      /**<
      *  Packet will be decoded and decoded data will be copied to internal buffer.
      *  If no decoder is available for this packet's payload type packet will be
@@ -67,6 +67,9 @@ public:
      *  @note This implementation does not check packets sequence number in any
      *  manner. So it behave very bad if packets come reordered or if some
      *  packets are missed.
+     *
+     *  @retval OS_SUCCESS if RTP packet was successfully decoded.
+     *  @retval OS_FAILED in case of any problems.
      */
 
      /// Get samples from jitter buffer
