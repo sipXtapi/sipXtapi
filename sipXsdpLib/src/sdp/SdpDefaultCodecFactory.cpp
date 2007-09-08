@@ -34,7 +34,7 @@ SdpCodec SdpDefaultCodecFactory::getCodec(SdpCodec::SdpCodecTypes internalCodecI
    switch(internalCodecId)
    {
 
-   case SdpCodec::SDP_CODEC_L16_8K: // "132"
+   case SdpCodec::SDP_CODEC_L16_8K:
       {
          return SdpCodec(SdpCodec::SDP_CODEC_L16_8K,
                          SdpCodec::SDP_CODEC_UNKNOWN,
