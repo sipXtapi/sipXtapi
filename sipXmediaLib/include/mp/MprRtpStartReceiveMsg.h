@@ -14,8 +14,9 @@
 // SYSTEM INCLUDES
 
 // APPLICATION INCLUDES
-#include "os/OsMsg.h"
 #include "mp/MpResourceMsg.h"
+#include "sdp/SdpCodec.h"
+#include "os/OsMsg.h"
 
 // DEFINES
 // MACROS
