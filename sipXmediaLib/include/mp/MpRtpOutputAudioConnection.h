@@ -118,6 +118,14 @@ protected:
                                      int samplesPerFrame=80,
                                      int samplesPerSecond=8000);
 
+     /// Sets the flowgraph in any child resources of this resource.
+   virtual OsStatus setFlowGraph(MpFlowGraphBase* pFlowGraph);
+     /**<
+    *  @param[in] pFlowGraph - pointer to a flowgraph to store for future use.
+    *  
+    *  @see MpResource::setFlowGraph()
+    */
+
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
 

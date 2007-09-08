@@ -341,6 +341,19 @@ void MpRtpInputAudioConnection::deletePayloadType(int payloadType)
    }
 }
 
+OsStatus MpRtpInputAudioConnection::setFlowGraph(MpFlowGraphBase* pFlowGraph)
+{
+   OsStatus stat = MpResource::setFlowGraph(pFlowGraph);
+
+   // If the parent's call was successful, then call
+   // setFlowGraph on any child resources we have.
+   if(stat == OS_SUCCESS)
+   {
+      stat = mpDecode->setFlowGraph(pFlowGraph);
+   }
+   return stat;
+}
+
 /* ============================ ACCESSORS ================================= */
 
 MpDecoderBase* MpRtpInputAudioConnection::mapPayloadType(int payloadType)
@@ -367,19 +380,6 @@ MpDecoderBase* MpRtpInputAudioConnection::mapPayloadType(int payloadType)
 UtlBoolean MpRtpInputAudioConnection::handleSetDtmfNotify(OsNotification* pNotify)
 {
    return mpDecode->handleSetDtmfNotify(pNotify);
-}
-
-OsStatus MpRtpInputAudioConnection::setFlowGraph(MpFlowGraphBase* pFlowGraph)
-{
-   OsStatus stat = MpResource::setFlowGraph(pFlowGraph);
-
-   // If the parent's call was successful, then call
-   // setFlowGraph on any child resources we have.
-   if(stat == OS_SUCCESS)
-   {
-      stat = mpDecode->setFlowGraph(pFlowGraph);
-   }
-   return stat;
 }
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */

@@ -312,6 +312,19 @@ void MpRtpOutputAudioConnection::stopTone(void)
    mpEncode->stopTone();
 }
 
+OsStatus MpRtpOutputAudioConnection::setFlowGraph(MpFlowGraphBase* pFlowGraph)
+{
+   OsStatus stat = MpResource::setFlowGraph(pFlowGraph);
+
+   // If the parent's call was successful, then call
+   // setFlowGraph on any child resources we have.
+   if(stat == OS_SUCCESS)
+   {
+      stat = mpEncode->setFlowGraph(pFlowGraph);
+   }
+   return stat;
+}
+
 /* ============================ ACCESSORS ================================= */
 
 /* ============================ INQUIRY =================================== */
