@@ -71,12 +71,12 @@
 
 
 /* Define min and max if they're not already defined. */
-#ifndef max
-#  define max(x,y) (((x)>(y))?(x):(y))
+#ifndef sipx_max
+#  define sipx_max(x,y) (((x)>(y))?(x):(y))
 #endif
 
-#ifndef min
-#  define min(x,y) (((x)<(y))?(x):(y))
+#ifndef sipx_min
+#  define sipx_min(x,y) (((x)<(y))?(x):(y))
 #endif
 
 #ifdef __cplusplus

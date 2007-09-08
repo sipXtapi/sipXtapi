@@ -140,7 +140,7 @@ OsStatus MpodBufferRecorder::pushFrame(unsigned int numSamples,
       return OS_FAILED;
    }
 
-   unsigned samplesToCopy = min(numSamples, mBufferLength-mBufferEnd);
+   unsigned samplesToCopy = sipx_min(numSamples, mBufferLength-mBufferEnd);
    if (samples != NULL)
    {
       memcpy(mpBuffer+mBufferEnd, samples, sizeof(MpAudioSample)*samplesToCopy);

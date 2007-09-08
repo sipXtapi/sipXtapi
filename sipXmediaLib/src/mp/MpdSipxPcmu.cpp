@@ -64,7 +64,7 @@ int MpdSipxPcmu::decode(const MpRtpBufPtr &pPacket,
    if (decodedBufferLength == 0)
       return 0;
 
-   int samples = min(pPacket->getPayloadSize(), decodedBufferLength);
+   int samples = sipx_min(pPacket->getPayloadSize(), decodedBufferLength);
    G711U_Decoder(samples,
                  (const uint8_t*)pPacket->getDataPtr(),
                  samplesBuffer);

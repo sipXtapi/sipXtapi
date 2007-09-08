@@ -136,7 +136,7 @@ int Zprintf0(int force, char *buf)
         char junk;
 
         str = buf;
-        l = min(ABSOLUTE_MAX_LOG_MSG_LEN, strlen(buf));
+        l = sipx_min(ABSOLUTE_MAX_LOG_MSG_LEN, strlen(buf));
         ret = l;
         if (0 == MpMisc.LogQ) {
             ret = force ? fwrite(str, 1, ret, stderr) : 0;
@@ -147,7 +147,7 @@ int Zprintf0(int force, char *buf)
                 taskLock();
             }
             while (l > 0) {
-                n = min(l, MpMisc.logMsgSize);
+                n = sipx_min(l, MpMisc.logMsgSize);
                 msgret = msgQSend(MpMisc.LogQ, buf, n,
                                        VX_NO_WAIT, MSG_PRI_NORMAL);
                 if (ERROR == msgret) {
@@ -446,7 +446,7 @@ OsStatus mpStartUp(int sampleRate, int samplesPerFrame,
         int       silenceSuppressLevel;
 
         if (samplesPerFrame < 8) samplesPerFrame = 80;
-        samplesPerFrame = min(samplesPerFrame, FRAME_SAMPS);
+        samplesPerFrame = sipx_min(samplesPerFrame, FRAME_SAMPS);
 
         showMpMisc(TRUE);
 

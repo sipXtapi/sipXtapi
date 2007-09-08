@@ -218,7 +218,7 @@ UtlBoolean MprBufferRecorder::doProcessFrame(MpBufPtr inBufs[],
       // we have left, then set our perceived notion of the input 
       // size to the amount of room we have left.
       unsigned int nSamplesToWrite = 
-         min(numInSamples, (nRecordBufSamples-mnBufferSamplesUsed));
+         sipx_min(numInSamples, (nRecordBufSamples-mnBufferSamplesUsed));
 
       // Copy the audio data from the input to our buffer.
       memcpy(destSamples, 

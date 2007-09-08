@@ -22,7 +22,7 @@
 #include "mp/MprMixer.h"
 
 #ifndef ABS
-#define ABS(x) (max((x), -(x)))
+#define ABS(x) (sipx_max((x), -(x)))
 #endif
 
 // EXTERNAL FUNCTIONS
@@ -42,7 +42,7 @@ MprMixer::MprMixer(const UtlString& rName, int numWeights,
 {
    int i;
 
-   mNumWeights = max(0, min(numWeights, MAX_MIXER_INPUTS));
+   mNumWeights = sipx_max(0, sipx_min(numWeights, MAX_MIXER_INPUTS));
    for (i=0; i<numWeights; i++)
       mWeights[i] = 0;
 }
@@ -157,7 +157,7 @@ UtlBoolean MprMixer::doProcessFrame(MpBufPtr inBufs[],
          MpAudioBufPtr  in = inBufs[i];
          MpAudioSample* output = outstart;
          const MpAudioSample* input = in->getSamplesPtr();
-         int n = min(in->getSamplesNumber(), samplesPerFrame);
+         int n = sipx_min(in->getSamplesNumber(), samplesPerFrame);
          if (wgt == 1)
          {
             for (int j=0; j<n; j++)
@@ -221,7 +221,7 @@ UtlBoolean MprMixer::handleSetWeights(int *newWeights, int numWeights)
    int i;
    int wgt;
 
-   mNumWeights = max(0, min(numWeights, MAX_MIXER_INPUTS));
+   mNumWeights = sipx_max(0, sipx_min(numWeights, MAX_MIXER_INPUTS));
    mScale = 0;
    for (i=0; i < numWeights; i++)
    {

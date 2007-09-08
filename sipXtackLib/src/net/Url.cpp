@@ -611,7 +611,7 @@ UtlBoolean Url::getUrlParameters(int iMaxReturn, UtlString* pNames, UtlString *p
     }
     else
     {
-        iActualReturn = min(iMaxReturn, ((int)(mpUrlParameters->entries()))) ;
+        iActualReturn = sipx_min(iMaxReturn, ((int)(mpUrlParameters->entries()))) ;
 
         for (int i=0; i<iActualReturn; i++)
         {
@@ -693,7 +693,7 @@ UtlBoolean Url::getHeaderParameters(int iMaxReturn, UtlString* pNames, UtlString
     }
     else
     {
-        iActualReturn = min(iMaxReturn, ((int)(mpHeaderOrQueryParameters->entries()))) ;
+        iActualReturn = sipx_min(iMaxReturn, ((int)(mpHeaderOrQueryParameters->entries()))) ;
 
         for (int i=0; i<iActualReturn; i++)
         {
@@ -1005,7 +1005,7 @@ UtlBoolean Url::getFieldParameters(int iMaxReturn, UtlString* pNames, UtlString 
     }
     else
     {
-        iActualReturn = min(iMaxReturn, ((int)(mpFieldParameters->entries()))) ;
+        iActualReturn = sipx_min(iMaxReturn, ((int)(mpFieldParameters->entries()))) ;
 
         for (int i=0; i<iActualReturn; i++)
         {

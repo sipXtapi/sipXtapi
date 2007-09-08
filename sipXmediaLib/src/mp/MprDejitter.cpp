@@ -66,7 +66,7 @@ OsStatus MprDejitter::pushPacket(const MpRtpBufPtr &pRtp)
       // Search for maximum allocated codec index
       int maxCodecIndex = -1;
       for (int i=0; i<256; i++)
-         maxCodecIndex = max(maxCodecIndex,mBufferLookup[i]);
+         maxCodecIndex = sipx_max(maxCodecIndex,mBufferLookup[i]);
       maxCodecIndex++;
 
       // Codecs limit reached

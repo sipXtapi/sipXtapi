@@ -341,7 +341,7 @@ OsStatus MpAudioOutputConnection::mixFrame(unsigned frameOffset,
    }
 
    // Calculate size of first chunk to mix.
-   unsigned firstChunkSize = min(numSamples, mMixerBufferLength-frameBegin);
+   unsigned firstChunkSize = sipx_min(numSamples, mMixerBufferLength-frameBegin);
 
    // Counter variables for next two loops
    unsigned srcIndex, dstIndex;

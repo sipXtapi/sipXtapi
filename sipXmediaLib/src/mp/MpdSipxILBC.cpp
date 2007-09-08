@@ -119,7 +119,7 @@ int MpdSipxILBC::decode(const MpRtpBufPtr &pPacket,
    }
 
    // We should not overflow decode buffer.
-   int decodedSamples = min(decodedBufferLength, (unsigned)mpState->blockl);
+   int decodedSamples = sipx_min(decodedBufferLength, (unsigned)mpState->blockl);
 
    // Convert samples from float to 16-bit signed integer.
    for (int i = 0; i < decodedSamples; ++i)

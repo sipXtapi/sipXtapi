@@ -90,7 +90,7 @@ int MpJitterBuffer::getSamples(MpAudioSample *samplesBuffer, int samplesNumber)
    // Check does we have available decoded data
    if (JbQCount != 0) {
       // We could not return more then we have
-      samplesNumber = min(samplesNumber,JbQCount);
+      samplesNumber = sipx_min(samplesNumber,JbQCount);
 
       memcpy(samplesBuffer, JbQ+JbQOut, samplesNumber * sizeof(MpAudioSample));
 

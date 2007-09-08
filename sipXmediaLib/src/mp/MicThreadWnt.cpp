@@ -293,7 +293,7 @@ bool inPostUnprep(int n, int discard, DWORD bufLen, bool bFree)
          {
             memcpy( ob->getSamplesWritePtr()
                    , pWH->lpData
-                   , min( pWH->dwBytesRecorded
+                   , sipx_min( pWH->dwBytesRecorded
                         , ob->getSamplesNumber()*sizeof(MpAudioSample)));
          }
 #ifdef INSERT_SAWTOOTH /* [ */

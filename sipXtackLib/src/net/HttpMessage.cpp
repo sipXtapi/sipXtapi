@@ -1078,7 +1078,7 @@ int HttpMessage::readBody(OsSocket* inSocket, int iLength, GetDataCallbackProc p
       while (inSocket->isOk() && inSocket->isReadyToRead(HTTP_READ_TIMEOUT_MSECS) &&
             (iBytesRead < iLength))
       {
-         int iMaxRead = min(sizeof(buffer), (unsigned int) (iLength - iBytesRead)) ;
+         int iMaxRead = sipx_min(sizeof(buffer), (unsigned int) (iLength - iBytesRead)) ;
          iRead = inSocket->read(buffer, iMaxRead, &remoteHost, &remotePort);
          if (iRead > 0)
          {

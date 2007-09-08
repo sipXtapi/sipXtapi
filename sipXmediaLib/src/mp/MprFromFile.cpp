@@ -619,7 +619,7 @@ UtlBoolean MprFromFile::doProcessFrame(MpBufPtr inBufs[],
          if(mFileBufferIndex < bufferLength)
          {
             totalBytesRead = bufferLength - mFileBufferIndex;
-            totalBytesRead = min(totalBytesRead, bytesPerFrame);
+            totalBytesRead = sipx_min(totalBytesRead, bytesPerFrame);
             memcpy(outbuf, &(mpFileBuffer->data()[mFileBufferIndex]),
                    totalBytesRead);
             mFileBufferIndex += totalBytesRead;
@@ -631,7 +631,7 @@ UtlBoolean MprFromFile::doProcessFrame(MpBufPtr inBufs[],
             while((totalBytesRead < bytesPerFrame) && (bytesLeft > 0))
             {
                mFileBufferIndex = 0;
-               bytesLeft = min(bufferLength - mFileBufferIndex,
+               bytesLeft = sipx_min(bufferLength - mFileBufferIndex,
                                bytesPerFrame - totalBytesRead);
                memcpy(&outbuf[(totalBytesRead/sizeof(MpAudioSample))],
                       &(mpFileBuffer->data()[mFileBufferIndex]), bytesLeft);
