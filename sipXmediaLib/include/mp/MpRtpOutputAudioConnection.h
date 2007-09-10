@@ -1,6 +1,6 @@
-//  
-// Copyright (C) 2006-2007 SIPez LLC. 
-// Licensed to SIPfoundry under a Contributor Agreement. 
+//
+// Copyright (C) 2006-2007 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -46,8 +46,8 @@ public:
 
      /// Constructor
    MpRtpOutputAudioConnection(const UtlString& resourceName,
-                              MpConnectionID myID, 
-                              int samplesPerFrame, 
+                              MpConnectionID myID,
+                              int samplesPerFrame,
                               int samplesPerSec);
 
      /// Destructor
@@ -59,15 +59,16 @@ public:
 /* ============================ MANIPULATORS ============================== */
 ///@name Manipulators
 //@{
-   /// Process one frame of audio
+
+     /// Process one frame of audio
    UtlBoolean processFrame(void);
 
      /// Queues a message to start sending RTP and RTCP packets.
    static OsStatus startSendRtp(OsMsgQ& messageQueue,
                                 const UtlString& resourceName,
-                                OsSocket& rRtpSocket, 
+                                OsSocket& rRtpSocket,
                                 OsSocket& rRtcpSocket,
-                                SdpCodec* pPrimary, 
+                                SdpCodec* pPrimary,
                                 SdpCodec* pDtmf);
 
      /// Queues a message to stop sending RTP and RTCP packets.
@@ -99,47 +100,34 @@ public:
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 
-   /// @brief handle any resource operation message
+     /// Handle any resource operation message
    virtual UtlBoolean handleMessage(MpResourceMsg& rMsg);
 
-   /// @brief perform the enable operation specific to the MpRtpInputAudioConnection
+     /// Perform the enable operation specific to the MpRtpInputAudioConnection
    virtual UtlBoolean handleEnable();
 
-   /// @brief perform the disable operation specific to the MpRtpInputAudioConnection
+     /// Perform the disable operation specific to the MpRtpInputAudioConnection
    virtual UtlBoolean handleDisable();
 
-   /// @brief This method does the real work for the media processing resource and 
-   /// must be defined in each class derived from this one.
-   virtual UtlBoolean doProcessFrame(MpBufPtr inBufs[],
-                                     MpBufPtr outBufs[],
-                                     int inBufsSize,
-                                     int outBufsSize,
-                                     UtlBoolean isEnabled,
-                                     int samplesPerFrame=80,
-                                     int samplesPerSecond=8000);
-
-     /// Sets the flowgraph in any child resources of this resource.
-   virtual OsStatus setFlowGraph(MpFlowGraphBase* pFlowGraph);
-     /**<
-    *  @param[in] pFlowGraph - pointer to a flowgraph to store for future use.
-    *  
-    *  @see MpResource::setFlowGraph()
-    */
-
-/* //////////////////////////// PRIVATE /////////////////////////////////// */
-private:
-
      /// Queues a message to start sending RTP and RTCP packets.
-   OsStatus handleStartSendRtp(OsSocket& rRtpSocket, 
+   OsStatus handleStartSendRtp(OsSocket& rRtpSocket,
                                OsSocket& rRtcpSocket,
-                               SdpCodec* pPrimary, 
+                               SdpCodec* pPrimary,
                                SdpCodec* pDtmf);
 
      /// Queues a message to stop sending RTP and RTCP packets.
    OsStatus handleStopSendRtp();
 
-     /// Default constructor
-   MpRtpOutputAudioConnection();
+     /// Sets the flowgraph in any child resources of this resource.
+   virtual OsStatus setFlowGraph(MpFlowGraphBase* pFlowGraph);
+     /**<
+     *  @param[in] pFlowGraph - pointer to a flowgraph to store for future use.
+     *
+     *  @see MpResource::setFlowGraph()
+     */
+
+/* //////////////////////////// PRIVATE /////////////////////////////////// */
+private:
 
      /// Copy constructor (not implemented for this type)
    MpRtpOutputAudioConnection(const MpRtpOutputAudioConnection& rMpRtpOutputAudioConnection);

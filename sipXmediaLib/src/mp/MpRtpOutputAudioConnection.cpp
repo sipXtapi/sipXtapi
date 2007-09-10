@@ -1,6 +1,6 @@
-//  
-// Copyright (C) 2006-2007 SIPez LLC. 
-// Licensed to SIPfoundry under a Contributor Agreement. 
+//
+// Copyright (C) 2006-2007 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -39,11 +39,11 @@
 
 // Constructor
 MpRtpOutputAudioConnection::MpRtpOutputAudioConnection(const UtlString& resourceName,
-                                                       MpConnectionID myID, 
-                                                       int samplesPerFrame, 
+                                                       MpConnectionID myID,
+                                                       int samplesPerFrame,
                                                        int samplesPerSec)
 : MpRtpOutputConnection(resourceName,
-                        myID, 
+                        myID,
 #ifdef INCLUDE_RTCP // [
                         NULL // TODO: pParent->getRTCPSessionPtr()
 #else // INCLUDE_RTCP ][
@@ -92,13 +92,13 @@ UtlBoolean MpRtpOutputAudioConnection::processFrame(void)
     if(mpEncode)
     {
         // call doProcessFrame to do any "real" work
-        result = doProcessFrame(mpInBufs, 
-                                mpOutBufs,
-                                mMaxInputs, 
-                                mMaxOutputs, 
-                                mpEncode->mIsEnabled,
-                                mpEncode->getSamplesPerFrame(), 
-                                mpEncode->getSamplesPerSec());
+        result = mpEncode->doProcessFrame(mpInBufs,
+                                          mpOutBufs,
+                                          mMaxInputs,
+                                          mMaxOutputs,
+                                          mpEncode->mIsEnabled,
+                                          mpEncode->getSamplesPerFrame(),
+                                          mpEncode->getSamplesPerSec());
     }
 
    // release the input buffer, we are done with it
@@ -111,101 +111,12 @@ UtlBoolean MpRtpOutputAudioConnection::processFrame(void)
    return(result);
 }
 
-UtlBoolean MpRtpOutputAudioConnection::doProcessFrame(MpBufPtr inBufs[],
-                                                     MpBufPtr outBufs[],
-                                                     int inBufsSize,
-                                                     int outBufsSize,
-                                                     UtlBoolean isEnabled,
-                                                     int samplesPerFrame,
-                                                     int samplesPerSecond)
-{
-    UtlBoolean result = FALSE;
-    assert(mpEncode);
-    if(mpEncode)
-    {
-        result = mpEncode->doProcessFrame(inBufs,
-                                          outBufs,
-                                          inBufsSize,
-                                          outBufsSize,
-                                          isEnabled,
-                                          samplesPerFrame,
-                                          samplesPerSecond);
-    }
-
-    return(result);
-}
-
-UtlBoolean MpRtpOutputAudioConnection::handleMessage(MpResourceMsg& rMsg)
-{
-    UtlBoolean result = FALSE;
-    unsigned char messageSubtype = rMsg.getMsgSubType();
-    switch(messageSubtype)
-    {
-    case MpResourceMsg::MPRM_START_SEND_RTP:
-        {
-            MprRtpStartSendMsg* startMessage = (MprRtpStartSendMsg*) &rMsg;
-            SdpCodec* audioCodec = NULL;
-            SdpCodec* dtmfCodec = NULL;
-            startMessage->getCodecs(audioCodec, dtmfCodec);
-            OsSocket* rtpSocket = startMessage->getRtpSocket();
-            OsSocket* rtcpSocket = startMessage->getRtcpSocket();
-
-            assert(rtpSocket);
-            assert(rtcpSocket);
-            handleStartSendRtp(*rtpSocket,
-                               *rtcpSocket,
-                               audioCodec,
-                               dtmfCodec);
-            result = TRUE;
-        }
-        break;
-
-    case MpResourceMsg::MPRM_STOP_SEND_RTP:
-        handleStopSendRtp();
-        result = TRUE;
-        break;
-
-    default:
-        result = MpResource::handleMessage(rMsg);
-        break;
-    }
-    return(result);
-}
-
-// Disables the output path of the connection.
-// Resources on the path(s) will also be disabled by these calls.
-// If the flow graph is not "started", this call takes effect
-// immediately.  Otherwise, the call takes effect at the start of the
-// next frame processing interval.
-
-UtlBoolean MpRtpOutputAudioConnection::handleDisable()
-{
-   mpEncode->disable();
-   return MpResource::handleDisable();
-}
-
-// Enables the output path of the connection.
-// Resources on the path(s) will also be enabled by these calls.
-// Resources may allocate needed data (e.g. output path reframe buffer)
-//  during this operation.
-// If the flow graph is not "started", this call takes effect
-// immediately.  Otherwise, the call takes effect at the start of the
-// next frame processing interval.
-
-UtlBoolean MpRtpOutputAudioConnection::handleEnable()
-{
-   mpEncode->enable();
-   return(MpResource::handleEnable());
-}
-
-// Start sending RTP and RTCP packets.
-
-     /// Queues a message to start sending RTP and RTCP packets.
+// Queues a message to start sending RTP and RTCP packets.
 OsStatus MpRtpOutputAudioConnection::startSendRtp(OsMsgQ& messageQueue,
                                                   const UtlString& resourceName,
-                                                  OsSocket& rRtpSocket, 
+                                                  OsSocket& rRtpSocket,
                                                   OsSocket& rRtcpSocket,
-                                                  SdpCodec* audioCodec, 
+                                                  SdpCodec* audioCodec,
                                                   SdpCodec* dtmfCodec)
 {
     OsStatus result = OS_INVALID_ARGUMENT;
@@ -224,11 +135,11 @@ OsStatus MpRtpOutputAudioConnection::startSendRtp(OsMsgQ& messageQueue,
     return(result);
 }
 
-     /// Queues a message to stop sending RTP and RTCP packets.
+// Queues a message to stop sending RTP and RTCP packets.
 OsStatus MpRtpOutputAudioConnection::stopSendRtp(OsMsgQ& messageQueue,
                                                  const UtlString& resourceName)
 {
-    MpResourceMsg stopSendMsg(MpResourceMsg::MPRM_STOP_SEND_RTP, 
+    MpResourceMsg stopSendMsg(MpResourceMsg::MPRM_STOP_SEND_RTP,
                               resourceName);
 
     // Send the message in the queue.
@@ -236,49 +147,92 @@ OsStatus MpRtpOutputAudioConnection::stopSendRtp(OsMsgQ& messageQueue,
     return(result);
 }
 
+void MpRtpOutputAudioConnection::startTone(int toneId)
+{
+   mpEncode->startTone(toneId);
+}
+
+void MpRtpOutputAudioConnection::stopTone(void)
+{
+   mpEncode->stopTone();
+}
+
+/* ============================ ACCESSORS ================================= */
+
+/* ============================ INQUIRY =================================== */
+
+/* //////////////////////////// PROTECTED ///////////////////////////////// */
+
+UtlBoolean MpRtpOutputAudioConnection::handleMessage(MpResourceMsg& rMsg)
+{
+   UtlBoolean result = FALSE;
+   unsigned char messageSubtype = rMsg.getMsgSubType();
+   switch(messageSubtype)
+   {
+   case MpResourceMsg::MPRM_START_SEND_RTP:
+      {
+         MprRtpStartSendMsg* startMessage = (MprRtpStartSendMsg*) &rMsg;
+         SdpCodec* audioCodec = NULL;
+         SdpCodec* dtmfCodec = NULL;
+         startMessage->getCodecs(audioCodec, dtmfCodec);
+         OsSocket* rtpSocket = startMessage->getRtpSocket();
+         OsSocket* rtcpSocket = startMessage->getRtcpSocket();
+
+         assert(rtpSocket);
+         assert(rtcpSocket);
+         handleStartSendRtp(*rtpSocket,
+            *rtcpSocket,
+            audioCodec,
+            dtmfCodec);
+         result = TRUE;
+      }
+      break;
+
+   case MpResourceMsg::MPRM_STOP_SEND_RTP:
+      handleStopSendRtp();
+      result = TRUE;
+      break;
+
+   default:
+      result = MpResource::handleMessage(rMsg);
+      break;
+   }
+   return(result);
+}
+
+// Enables the output path of the connection.
+UtlBoolean MpRtpOutputAudioConnection::handleEnable()
+{
+   mpEncode->enable();
+   return(MpResource::handleEnable());
+}
+
+// Disables the output path of the connection.
+UtlBoolean MpRtpOutputAudioConnection::handleDisable()
+{
+   mpEncode->disable();
+   return MpResource::handleDisable();
+}
+
 OsStatus MpRtpOutputAudioConnection::handleStartSendRtp(OsSocket& rRtpSocket,
-                                                    OsSocket& rRtcpSocket,
-                                                    SdpCodec* pPrimaryCodec,
-                                                    SdpCodec* pDtmfCodec)
+                                                        OsSocket& rRtcpSocket,
+                                                        SdpCodec* pPrimaryCodec,
+                                                        SdpCodec* pDtmfCodec)
 {
    prepareStartSendRtp(rRtpSocket, rRtcpSocket);
 
    // This should be ok to set directly as long as we do not switch mid stream
    // Eventually this needs to be a message
-#if 0
-   osPrintf("MpConnection::startSendRtp setting send codecs:\n");
-
-   if (NULL != pPrimaryCodec) {
-      osPrintf("  Primary audio: codec=%d, payload type=%d\n",
-          pPrimaryCodec->getCodecType(),
-          pPrimaryCodec->getCodecPayloadFormat());
-   } else {
-      osPrintf("  Primary audio: NONE\n");
-   }
-   if (NULL != pDtmfCodec) {
-      osPrintf("  DTMF Tones: codec=%d, payload type=%d\n",
-          pDtmfCodec->getCodecType(), pDtmfCodec->getCodecPayloadFormat());
-   } else {
-      osPrintf("  DTMF Tones: NONE\n");
-   }
-   if (NULL != pSecondaryCodec) {
-      osPrintf("  Secondary audio: codec=%d, payload type=%d\n",
-          pSecondaryCodec->getCodecType(),
-          pSecondaryCodec->getCodecPayloadFormat());
-   } else {
-      osPrintf("  Secondary audio: NONE\n");
-   }
-#endif
 
    OsStatus result = OS_NOT_FOUND;
    if(mpEncode)
    {
-       result = OS_SUCCESS;
-       mpEncode->selectCodecs(pPrimaryCodec, pDtmfCodec);
-       // No need to synchronize as the encoder is not part of the
-       // flowgraph.
-       //mpFlowGraph->synchronize();
-       mpEncode->enable();
+      result = OS_SUCCESS;
+      mpEncode->selectCodecs(pPrimaryCodec, pDtmfCodec);
+      // No need to synchronize as the encoder is not part of the
+      // flowgraph.
+      //mpFlowGraph->synchronize();
+      mpEncode->enable();
    }
    return(result);
 }
@@ -291,25 +245,15 @@ OsStatus MpRtpOutputAudioConnection::handleStopSendRtp()
 
    if(mpEncode)
    {
-       result = OS_SUCCESS;
-//   osPrintf("MpRtpOutputAudioConnection::stopSendRtp resetting send codec\n");
-       mpEncode->deselectCodecs();
-   // No need to synchronize as the encoder is not part of the
-   // flowgraph.
-   //mpFlowGraph->synchronize();
-       mpEncode->disable();
+      result = OS_SUCCESS;
+      //   osPrintf("MpRtpOutputAudioConnection::stopSendRtp resetting send codec\n");
+      mpEncode->deselectCodecs();
+      // No need to synchronize as the encoder is not part of the
+      // flowgraph.
+      //mpFlowGraph->synchronize();
+      mpEncode->disable();
    }
    return(result);
-}
-
-void MpRtpOutputAudioConnection::startTone(int toneId)
-{
-   mpEncode->startTone(toneId);
-}
-
-void MpRtpOutputAudioConnection::stopTone(void)
-{
-   mpEncode->stopTone();
 }
 
 OsStatus MpRtpOutputAudioConnection::setFlowGraph(MpFlowGraphBase* pFlowGraph)
@@ -324,12 +268,6 @@ OsStatus MpRtpOutputAudioConnection::setFlowGraph(MpFlowGraphBase* pFlowGraph)
    }
    return stat;
 }
-
-/* ============================ ACCESSORS ================================= */
-
-/* ============================ INQUIRY =================================== */
-
-/* //////////////////////////// PROTECTED ///////////////////////////////// */
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 

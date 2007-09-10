@@ -123,98 +123,7 @@ UtlBoolean MpRtpInputAudioConnection::processFrame(void)
    return(result);
 }
 
-UtlBoolean MpRtpInputAudioConnection::doProcessFrame(MpBufPtr inBufs[],
-                                                     MpBufPtr outBufs[],
-                                                     int inBufsSize,
-                                                     int outBufsSize,
-                                                     UtlBoolean isEnabled,
-                                                     int samplesPerFrame,
-                                                     int samplesPerSecond)
-{
-    // Not currently used
-    assert(0);
-
-    UtlBoolean result = FALSE;
-    assert(mpDecode);
-    if(mpDecode)
-    {
-        result = mpDecode->doProcessFrame(inBufs,
-                                          outBufs,
-                                          inBufsSize,
-                                          outBufsSize,
-                                          isEnabled,
-                                          samplesPerFrame,
-                                          samplesPerSecond);
-    }
-
-    return(result);
-}
-
-UtlBoolean MpRtpInputAudioConnection::handleMessage(MpResourceMsg& rMsg)
-{
-    UtlBoolean result = FALSE;
-    unsigned char messageSubtype = rMsg.getMsgSubType();
-    switch(messageSubtype)
-    {
-    case MpResourceMsg::MPRM_START_RECEIVE_RTP:
-        {
-            MprRtpStartReceiveMsg* startMessage = (MprRtpStartReceiveMsg*) &rMsg;
-            SdpCodec** codecArray = NULL;
-            int numCodecs;
-            startMessage->getCodecArray(numCodecs, codecArray);
-            OsSocket* rtpSocket = startMessage->getRtpSocket();
-            OsSocket* rtcpSocket = startMessage->getRtcpSocket();
-
-            handleStartReceiveRtp(codecArray, numCodecs, *rtpSocket, *rtcpSocket);
-            result = TRUE;
-        }
-        break;
-
-    case MpResourceMsg::MPRM_STOP_RECEIVE_RTP:
-        handleStopReceiveRtp();
-        result = TRUE;
-        break;
-
-    default:
-        result = MpResource::handleMessage(rMsg);
-        break;
-    }
-    return(result);
-}
-
-
-// Disables the input path of the connection.
-// Resources on the path(s) will also be disabled by these calls.
-// If the flow graph is not "started", this call takes effect
-// immediately.  Otherwise, the call takes effect at the start of the
-// next frame processing interval.
-//!retcode: OS_SUCCESS - for now, these methods always return success
-
-UtlBoolean MpRtpInputAudioConnection::handleDisable()
-{
-   mpDecode->disable();
-   return(MpResource::handleDisable());
-}
-
-
-
-// Enables the input path of the connection.
-// Resources on the path(s) will also be enabled by these calls.
-// Resources may allocate needed data (e.g. output path reframe buffer)
-//  during this operation.
-// If the flow graph is not "started", this call takes effect
-// immediately.  Otherwise, the call takes effect at the start of the
-// next frame processing interval.
-//!retcode: OS_SUCCESS - for now, these methods always return success
-
-UtlBoolean MpRtpInputAudioConnection::handleEnable()
-{
-   mpDecode->enable();
-   return(MpResource::handleEnable());
-}
-
 // Start receiving RTP and RTCP packets.
-
 OsStatus MpRtpInputAudioConnection::startReceiveRtp(OsMsgQ& messageQueue,
                                                     const UtlString& resourceName,
                                                     SdpCodec* codecArray[], 
@@ -238,28 +147,6 @@ OsStatus MpRtpInputAudioConnection::startReceiveRtp(OsMsgQ& messageQueue,
     return(result);
 }
 
-void MpRtpInputAudioConnection::handleStartReceiveRtp(SdpCodec* pCodecs[], 
-                                                      int numCodecs,
-                                                      OsSocket& rRtpSocket,
-                                                      OsSocket& rRtcpSocket)
-{
-   if (numCodecs)
-   {
-       mpDecode->selectCodecs(pCodecs, numCodecs);       
-   }
-   // No need to synchronize as the decoder is not part of the
-   // flowgraph.  It is part of this connection/resource
-   //mpFlowGraph->synchronize();
-   prepareStartReceiveRtp(rRtpSocket, rRtcpSocket);
-   // No need to synchronize as the decoder is not part of the
-   // flowgraph.  It is part of this connection/resource
-   //mpFlowGraph->synchronize();
-   if (numCodecs)
-   {
-       mpDecode->enable();
-   }
-}
-
 OsStatus MpRtpInputAudioConnection::stopReceiveRtp(OsMsgQ& messageQueue,
                                                    const UtlString& resourceName)
 {
@@ -269,24 +156,6 @@ OsStatus MpRtpInputAudioConnection::stopReceiveRtp(OsMsgQ& messageQueue,
     // Send the message in the queue.
     OsStatus result = messageQueue.send(stopReceiveMsg);
     return(result);
-}
-
-// Stop receiving RTP and RTCP packets.
-void MpRtpInputAudioConnection::handleStopReceiveRtp()
-{
-   prepareStopReceiveRtp();
-
-   // No need to synchronize as the decoder is not part of the
-   // flowgraph.  It is part of this connection/resource
-   //mpFlowGraph->synchronize();
-
-
-   mpDecode->deselectCodec();
-   // No need to synchronize as the decoder is not part of the
-   // flowgraph.  It is part of this connection/resource
-   //mpFlowGraph->synchronize();
-
-   mpDecode->disable();
 }
 
 void MpRtpInputAudioConnection::addPayloadType(int payloadType, MpDecoderBase* decoder)
@@ -341,17 +210,9 @@ void MpRtpInputAudioConnection::deletePayloadType(int payloadType)
    }
 }
 
-OsStatus MpRtpInputAudioConnection::setFlowGraph(MpFlowGraphBase* pFlowGraph)
+UtlBoolean MpRtpInputAudioConnection::handleSetDtmfNotify(OsNotification* pNotify)
 {
-   OsStatus stat = MpResource::setFlowGraph(pFlowGraph);
-
-   // If the parent's call was successful, then call
-   // setFlowGraph on any child resources we have.
-   if(stat == OS_SUCCESS)
-   {
-      stat = mpDecode->setFlowGraph(pFlowGraph);
-   }
-   return stat;
+   return mpDecode->handleSetDtmfNotify(pNotify);
 }
 
 /* ============================ ACCESSORS ================================= */
@@ -377,9 +238,103 @@ MpDecoderBase* MpRtpInputAudioConnection::mapPayloadType(int payloadType)
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
-UtlBoolean MpRtpInputAudioConnection::handleSetDtmfNotify(OsNotification* pNotify)
+UtlBoolean MpRtpInputAudioConnection::handleMessage(MpResourceMsg& rMsg)
 {
-   return mpDecode->handleSetDtmfNotify(pNotify);
+   UtlBoolean result = FALSE;
+   unsigned char messageSubtype = rMsg.getMsgSubType();
+   switch(messageSubtype)
+   {
+   case MpResourceMsg::MPRM_START_RECEIVE_RTP:
+      {
+         MprRtpStartReceiveMsg* startMessage = (MprRtpStartReceiveMsg*) &rMsg;
+         SdpCodec** codecArray = NULL;
+         int numCodecs;
+         startMessage->getCodecArray(numCodecs, codecArray);
+         OsSocket* rtpSocket = startMessage->getRtpSocket();
+         OsSocket* rtcpSocket = startMessage->getRtcpSocket();
+
+         handleStartReceiveRtp(codecArray, numCodecs, *rtpSocket, *rtcpSocket);
+         result = TRUE;
+      }
+      break;
+
+   case MpResourceMsg::MPRM_STOP_RECEIVE_RTP:
+      handleStopReceiveRtp();
+      result = TRUE;
+      break;
+
+   default:
+      result = MpResource::handleMessage(rMsg);
+      break;
+   }
+   return(result);
+}
+
+// Enables the input path of the connection.
+UtlBoolean MpRtpInputAudioConnection::handleEnable()
+{
+   mpDecode->enable();
+   return(MpResource::handleEnable());
+}
+
+// Disables the input path of the connection.
+UtlBoolean MpRtpInputAudioConnection::handleDisable()
+{
+   mpDecode->disable();
+   return(MpResource::handleDisable());
+}
+
+void MpRtpInputAudioConnection::handleStartReceiveRtp(SdpCodec* pCodecs[], 
+                                                      int numCodecs,
+                                                      OsSocket& rRtpSocket,
+                                                      OsSocket& rRtcpSocket)
+{
+   if (numCodecs)
+   {
+      mpDecode->selectCodecs(pCodecs, numCodecs);       
+   }
+   // No need to synchronize as the decoder is not part of the
+   // flowgraph.  It is part of this connection/resource
+   //mpFlowGraph->synchronize();
+   prepareStartReceiveRtp(rRtpSocket, rRtcpSocket);
+   // No need to synchronize as the decoder is not part of the
+   // flowgraph.  It is part of this connection/resource
+   //mpFlowGraph->synchronize();
+   if (numCodecs)
+   {
+      mpDecode->enable();
+   }
+}
+
+// Stop receiving RTP and RTCP packets.
+void MpRtpInputAudioConnection::handleStopReceiveRtp()
+{
+   prepareStopReceiveRtp();
+
+   // No need to synchronize as the decoder is not part of the
+   // flowgraph.  It is part of this connection/resource
+   //mpFlowGraph->synchronize();
+
+
+   mpDecode->deselectCodec();
+   // No need to synchronize as the decoder is not part of the
+   // flowgraph.  It is part of this connection/resource
+   //mpFlowGraph->synchronize();
+
+   mpDecode->disable();
+}
+
+OsStatus MpRtpInputAudioConnection::setFlowGraph(MpFlowGraphBase* pFlowGraph)
+{
+   OsStatus stat = MpResource::setFlowGraph(pFlowGraph);
+
+   // If the parent's call was successful, then call
+   // setFlowGraph on any child resources we have.
+   if(stat == OS_SUCCESS)
+   {
+      stat = mpDecode->setFlowGraph(pFlowGraph);
+   }
+   return stat;
 }
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */

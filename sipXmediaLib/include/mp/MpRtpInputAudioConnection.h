@@ -62,7 +62,8 @@ public:
 /* ============================ MANIPULATORS ============================== */
 ///@name Manipulators
 //@{
-   /// Process one frame of audio
+
+     /// Process one frame of audio
    UtlBoolean processFrame(void);
 
      /// Add an RTP payload type to decoder instance mapping table
@@ -70,6 +71,14 @@ public:
 
      /// Remove an RTP payload type from decoder instance map
    void deletePayloadType(int payloadId);
+
+     /// Handle the FLOWGRAPH_SET_DTMF_NOTIFY message.
+   UtlBoolean handleSetDtmfNotify(OsNotification* n);
+     /**<
+     *  @todo This should become a resource message handled by the resource!
+     *
+     *  @Returns <b>TRUE</b>
+     */
 
 //@}
 
@@ -80,14 +89,7 @@ public:
      /// Get decoder for this payload type
    MpDecoderBase* mapPayloadType(int payloadType);
 
-   // TODO:  this should become a resource message handled by the resource:
-     /// Handle the FLOWGRAPH_SET_DTMF_NOTIFY message.
-   UtlBoolean handleSetDtmfNotify(OsNotification* n);
-     /**<
-     *  @Returns <b>TRUE</b>
-     */
-
-   /// Queue a message to start receiving RTP and RTCP packets.
+     /// Queue a message to start receiving RTP and RTCP packets.
    static OsStatus startReceiveRtp(OsMsgQ& messageQueue,
                                    const UtlString& resourceName,
                                    SdpCodec* pCodecs[], 
@@ -96,7 +98,7 @@ public:
                                    OsSocket& rRtcpSocket);
 
 
-   /// queue a message to stop receiving RTP and RTCP packets.
+     /// Queue a message to stop receiving RTP and RTCP packets.
    static OsStatus stopReceiveRtp(OsMsgQ& messageQueue,
                                   const UtlString& resourceName);
 
@@ -111,46 +113,35 @@ public:
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 
-   /// @brief Handles an incoming resource message for this media processing object.
+     /// Handles an incoming resource message for this media processing object.
    virtual UtlBoolean handleMessage(MpResourceMsg& rMsg);
-   /**< @returns TRUE if the message was handled, otherwise FALSE. */
+     /**<
+     *  @returns TRUE if the message was handled, otherwise FALSE.
+     */
 
-   /// @brief perform the enable operation specific to the MpRtpInputAudioConnection
+     /// Perform the enable operation specific to the MpRtpInputAudioConnection
    virtual UtlBoolean handleEnable();
 
-   /// @brief perform the disable operation specific to the MpRtpInputAudioConnection
+     /// Perform the disable operation specific to the MpRtpInputAudioConnection
    virtual UtlBoolean handleDisable();
 
-   /// @brief This method does the real work for the media processing resource and 
-   /// must be defined in each class derived from this one.
-   virtual UtlBoolean doProcessFrame(MpBufPtr inBufs[],
-                                     MpBufPtr outBufs[],
-                                     int inBufsSize,
-                                     int outBufsSize,
-                                     UtlBoolean isEnabled,
-                                     int samplesPerFrame=80,
-                                     int samplesPerSecond=8000);
-
-     /// Sets the flowgraph in any child resources of this resource.
-   virtual OsStatus setFlowGraph(MpFlowGraphBase* pFlowGraph);
-     /**<
-    *  @param[in] pFlowGraph - pointer to a flowgraph to store for future use.
-    *  
-    *  @see MpResource::setFlowGraph()
-    */
-
-/* //////////////////////////// PRIVATE /////////////////////////////////// */
-private:
+     /// Starts receiving RTP and RTCP packets.
+   void handleStartReceiveRtp(SdpCodec* pCodecs[], int numCodecs,
+                              OsSocket& rRtpSocket, OsSocket& rRtcpSocket);
 
      /// Stops receiving RTP and RTCP packets.
    void handleStopReceiveRtp(void);
 
-   /// Starts receiving RTP and RTCP packets.
-   void handleStartReceiveRtp(SdpCodec* pCodecs[], int numCodecs,
-                        OsSocket& rRtpSocket, OsSocket& rRtcpSocket);
+     /// Sets the flowgraph in any child resources of this resource.
+   virtual OsStatus setFlowGraph(MpFlowGraphBase* pFlowGraph);
+     /**<
+     *  @param[in] pFlowGraph - pointer to a flowgraph to store for future use.
+     *  
+     *  @see MpResource::setFlowGraph()
+     */
 
-     /// Default constructor
-   MpRtpInputAudioConnection();
+/* //////////////////////////// PRIVATE /////////////////////////////////// */
+private:
 
      /// Copy constructor (not implemented for this type)
    MpRtpInputAudioConnection(const MpRtpInputAudioConnection& rMpRtpInputAudioConnection);
