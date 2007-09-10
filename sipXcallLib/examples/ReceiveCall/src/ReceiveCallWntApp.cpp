@@ -168,7 +168,7 @@ BOOL InitInstance(HINSTANCE hinstance, int nCmdShow)
         CW_USEDEFAULT,       // default vertical position 
         sPreviewWidth + sRemoteVideoWidth + sMargin*3
            + windowBorderSizeX*2,                         // default width 
-        sipx_max(sPreviewHeight,sRemoteVideoHeight)+sMargin*2
+        max(sPreviewHeight,sRemoteVideoHeight)+sMargin*2
            + windowBorderSizeY*2 + windowCaptioinSize,    // default height 
         (HWND) NULL,         // no owner window 
         (HMENU) NULL,        // no class menu 
