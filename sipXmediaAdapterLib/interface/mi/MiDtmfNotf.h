@@ -35,6 +35,8 @@ class MiDtmfNotf : public MiNotification
    /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
+   static const int32_t DURATION_NOT_APPLICABLE;
+
    enum KeyPressState
    {
       KEY_UP,
@@ -67,7 +69,7 @@ public:
 
    /// Constructor
    MiDtmfNotf(const UtlString& sourceId, int connId, KeyCode key, 
-              KeyPressState pressState, uint16_t duration);
+              KeyPressState pressState, int32_t duration = DURATION_NOT_APPLICABLE);
 
    /// Copy constructor
    MiDtmfNotf(const MiDtmfNotf& rNotf);
@@ -94,7 +96,7 @@ public:
    void setKeyPressState(KeyPressState pressState);
 
      /// Set the duration of this DTMF notification.
-   void setDuration(uint16_t duration);
+   void setDuration(int32_t duration);
 
    //@}
 
@@ -109,7 +111,7 @@ public:
    KeyPressState getKeyPressState() const;
 
      /// Get the duration of this DTMF notification.
-   uint16_t getDuration() const;
+   int32_t getDuration() const;
 
    //@}
 
@@ -128,7 +130,7 @@ protected:
 private:
    KeyCode mKey;   ///< The DTMF key value.
    KeyPressState mPressState;  ///< Whether the key is up or down.
-   uint16_t mDuration;  ///< Duration of the DTMF event.
+   int32_t mDuration;  ///< Duration of the DTMF event.
 };
 
 /* ============================ INLINE METHODS ============================ */

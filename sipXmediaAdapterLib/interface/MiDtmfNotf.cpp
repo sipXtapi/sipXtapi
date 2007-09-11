@@ -24,16 +24,22 @@
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
+const int32_t MiDtmfNotf::DURATION_NOT_APPLICABLE = -1;
+
 /* ============================ CREATORS ================================== */
 
 // Constructor
 MiDtmfNotf::MiDtmfNotf(const UtlString& sourceId, int connId, KeyCode key, 
-                       KeyPressState pressState, uint16_t duration)
+                       KeyPressState pressState, int32_t duration)
 : MiNotification(MI_NOTF_DTMF_RECEIVED, sourceId, connId)
 , mKey(key)
 , mPressState(pressState)
 , mDuration(duration)
 {
+   if(key == KEY_DOWN)
+   {
+      assert(mDuration == DURATION_NOT_APPLICABLE);
+   }
 }
 
 // Copy constructor
@@ -88,7 +94,7 @@ void MiDtmfNotf::setKeyPressState(KeyPressState pressState)
 }
 
 // Set the duration of this DTMF notification.
-void MiDtmfNotf::setDuration(uint16_t duration)
+void MiDtmfNotf::setDuration(int32_t duration)
 {
    mDuration = duration;
 }
@@ -108,7 +114,7 @@ MiDtmfNotf::KeyPressState MiDtmfNotf::getKeyPressState() const
 }
 
 // Get the duration of this DTMF notification.
-uint16_t MiDtmfNotf::getDuration() const
+int32_t MiDtmfNotf::getDuration() const
 {
    return mDuration;
 }

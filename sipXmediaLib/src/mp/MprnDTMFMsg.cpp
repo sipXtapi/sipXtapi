@@ -23,19 +23,27 @@
 // Message notification object used to communicate DTMF signaling from 
 // resources outward towards the flowgraph, and up through to users above
 // mediaLib and beyond.
+// If one creates a KEY_DOWN notification, duration should not be 
+// supplied, as it isn't useful until a KEY_UP event happens.
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
+
+const int32_t MprnDTMFMsg::DURATION_NOT_APPLICABLE = -1;
 
 /* ============================ CREATORS ================================== */
 
 // Constructor
 MprnDTMFMsg::MprnDTMFMsg(const UtlString& namedResOriginator, MpConnectionID connId,
-                         KeyCode key, KeyPressState pressState, uint16_t duration)
+                         KeyCode key, KeyPressState pressState, int32_t duration)
 : MpResNotificationMsg(MPRNM_DTMF_RECEIVED, namedResOriginator, connId)
 , mKey(key)
 , mPressState(pressState)
 , mDuration(duration)
 {
+   if(key == KEY_DOWN)
+   {
+      assert(mDuration == DURATION_NOT_APPLICABLE);
+   }
 }
 
 // Copy constructor
@@ -90,7 +98,7 @@ void MprnDTMFMsg::setKeyPressState(KeyPressState pressState)
 }
 
 // Set the duration of this DTMF event.
-void MprnDTMFMsg::setDuration(uint16_t duration)
+void MprnDTMFMsg::setDuration(int32_t duration)
 {
    mDuration = duration;
 }
@@ -110,7 +118,7 @@ MprnDTMFMsg::KeyPressState MprnDTMFMsg::getKeyPressState() const
 }
 
 // Get the duration of this DTMF event.
-uint16_t MprnDTMFMsg::getDuration() const
+int32_t MprnDTMFMsg::getDuration() const
 {
    return mDuration;
 }

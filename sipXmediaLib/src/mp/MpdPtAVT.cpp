@@ -234,7 +234,7 @@ void MpdPtAVT::signalKeyDown(const MpRtpBufPtr &pPacket)
    {
       // Ok, create a new DTMF notification message to indicate key down.
       MprnDTMFMsg dtmfMsg("", mConnectionId, (MprnDTMFMsg::KeyCode)pAvt->key, 
-                          MprnDTMFMsg::KEY_DOWN, mToneDuration);
+                          MprnDTMFMsg::KEY_DOWN);
       mpFlowGraph->postNotification(dtmfMsg);
    }
    else
@@ -301,7 +301,7 @@ void MpdPtAVT::signalKeyUp(const MpRtpBufPtr &pPacket)
       {
          // Ok, create a new DTMF notification message to indicate key up.
          MprnDTMFMsg dtmfMsg("", mConnectionId, (MprnDTMFMsg::KeyCode)pAvt->key, 
-                             MprnDTMFMsg::KEY_UP, mToneDuration);
+                             MprnDTMFMsg::KEY_UP, (int32_t)mToneDuration);
          mpFlowGraph->postNotification(dtmfMsg);
       }
       else

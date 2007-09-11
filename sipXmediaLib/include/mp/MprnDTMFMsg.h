@@ -33,10 +33,15 @@
   /// Message notification object used to communicate DTMF signaling from 
   /// resources outward towards the flowgraph, and up through to users above
   /// mediaLib and beyond.
+  ///
+  /// If one creates a KEY_DOWN notification, duration should not be 
+  /// supplied, as it isn't useful until a KEY_UP event happens.
 class MprnDTMFMsg : public MpResNotificationMsg
 {
-   /* //////////////////////////// PUBLIC //////////////////////////////////// */
+   /* //////////////////////////// PUBLIC //////////////////////////// */
 public:
+
+   static const int32_t DURATION_NOT_APPLICABLE;
 
    enum KeyPressState
    {
@@ -70,7 +75,7 @@ public:
 
    /// Constructor
    MprnDTMFMsg(const UtlString& namedResOriginator, MpConnectionID connId, 
-               KeyCode key, KeyPressState pressState, uint16_t duration);
+               KeyCode key, KeyPressState pressState, int32_t duration = DURATION_NOT_APPLICABLE);
 
    /// Copy constructor
    MprnDTMFMsg(const MprnDTMFMsg& rMsg);
@@ -97,7 +102,7 @@ public:
    void setKeyPressState(KeyPressState pressState);
 
      /// Set the duration of this DTMF event.
-   void setDuration(uint16_t duration);
+   void setDuration(int32_t duration);
 
    //@}
 
@@ -112,7 +117,7 @@ public:
    KeyPressState getKeyPressState() const;
 
      /// Get the duration of this DTMF event.
-   uint16_t getDuration() const;
+   int32_t getDuration() const;
 
    //@}
 
@@ -132,7 +137,7 @@ protected:
 private:
    KeyCode mKey;   ///< The DTMF key value.
    KeyPressState mPressState;  ///< Whether the key is up or down.
-   uint16_t mDuration;  ///< Duration of the DTMF event.
+   int32_t mDuration;  ///< Duration of the DTMF event.
 };
 
 /* ============================ INLINE METHODS ============================ */
