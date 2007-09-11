@@ -19,6 +19,7 @@
 
 // APPLICATION INCLUDES
 #include "mp/MpRtpBuf.h"
+#include "mp/MpTypes.h"
 
 // DEFINES
 // MACROS
