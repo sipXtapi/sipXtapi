@@ -23,7 +23,6 @@
 #include "mp/MpAudioResource.h"
 #include "mp/MprDejitter.h"
 #include "mp/MpFlowGraphMsg.h"
-#include "sdp/SdpCodec.h"
 
 // DEFINES
 // MACROS
@@ -117,12 +116,6 @@ private:
       NUM_TRACKED_PACKETS = 128
    };
 
-   unsigned int mNextPullTimerCount;
-   int          mWaitTimeInFrames;
-   unsigned int   sTimerCountIncrement;
-   int          mMissedFrames;
-   int            saveDebug;
-//   MpRtpBufPtr  mSavedRtp[MAX_PAYLOAD_TYPES];
    MpJitterBuffer* mpJB;            ///< Pointer to JitterBuffer instance
 
    MprDejitter* mpMyDJ;
