@@ -30,6 +30,10 @@
 // FORWARD DECLARATIONS
 
   /// Message notification class used to communicate DTMF signaling.
+  ///
+  /// If one creates a KEY_DOWN notification, duration other than 
+  /// DURATION_NOT_APPLICABLE should not be supplied, as it isn't 
+  /// useful until a KEY_UP event happens.
 class MiDtmfNotf : public MiNotification
 {
    /* //////////////////////////// PUBLIC //////////////////////////////////// */

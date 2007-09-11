@@ -23,8 +23,6 @@
 // Message notification object used to communicate DTMF signaling from 
 // resources outward towards the flowgraph, and up through to users above
 // mediaLib and beyond.
-// If one creates a KEY_DOWN notification, duration should not be 
-// supplied, as it isn't useful until a KEY_UP event happens.
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
