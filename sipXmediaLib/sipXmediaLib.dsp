@@ -1323,6 +1323,10 @@ SOURCE=.\include\rtcp\RTPHeader.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\include\mp\RtpHeader.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\include\rtcp\SenderReport.h
 # End Source File
 # Begin Source File

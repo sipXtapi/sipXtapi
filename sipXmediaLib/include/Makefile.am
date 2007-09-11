@@ -131,6 +131,7 @@ nobase_include_HEADERS =  \
     mp/MpTypes.h \
     mp/NetInTask.h \
     mp/resamplingby2.h \
+    mp/RtpHeader.h \
     mp/StreamBufferDataSource.h \
     mp/StreamDataSource.h \
     mp/StreamDataSourceListener.h \
