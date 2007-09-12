@@ -36,7 +36,7 @@ MiDtmfNotf::MiDtmfNotf(const UtlString& sourceId, int connId, KeyCode key,
 , mPressState(pressState)
 , mDuration(duration)
 {
-   if(key == KEY_DOWN)
+   if(pressState == KEY_DOWN)
    {
       assert(mDuration == DURATION_NOT_APPLICABLE);
    }
