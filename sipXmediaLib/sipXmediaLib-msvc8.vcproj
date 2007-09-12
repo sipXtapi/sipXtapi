@@ -1806,6 +1806,18 @@
 					>
 				</File>
 				<File
+					RelativePath=".\src\mp\MpPlgDecoderWrap.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\src\mp\MpPlgEncoderWrap.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\src\mp\MpPlgStaffV1.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\src\mp\MpProgressResourceMsg.cpp"
 					>
 				</File>
@@ -2448,6 +2460,18 @@
 				</File>
 				<File
 					RelativePath=".\include\mp\MpToneResourceMsg.h"
+					>
+				</File>
+				<File
+					RelativePath=".\include\mp\MpPlgDecoderWrap.h"
+					>
+				</File>
+				<File
+					RelativePath=".\include\mp\MpPlgEncoderWrap.h"
+					>
+				</File>
+				<File
+					RelativePath=".\include\mp\MpPlgStaffV1.h"
 					>
 				</File>
 				<File

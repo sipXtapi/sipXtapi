@@ -143,6 +143,9 @@ libsipXmedia_la_SOURCES =  \
     mp/MpStreamPlayer.cpp \
     mp/MpStreamPlaylistPlayer.cpp \
     mp/MpStreamQueuePlayer.cpp \
+    mp/MpPlgDecoderWrap.cpp \
+    mp/MpPlgEncoderWrap.cpp \
+    mp/MpPlgStaffV1.cpp \
     mp/MpProgressResourceMsg.cpp \
     mp/MpTopologyGraph.cpp \
     mp/NetInTask.cpp \

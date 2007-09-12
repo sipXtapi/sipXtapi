@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2005-2006 SIPez LLC.
+// Copyright (C) 2005-2007 SIPez LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
-// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -54,6 +54,7 @@
 #include "mp/MprFromMic.h"
 #include "mp/MprToSpkr.h"
 #include "mp/MpMediaTask.h"
+#include "mp/MpCodecFactory.h"
 
 // EXTERNAL FUNCTIONS
 
@@ -432,6 +433,10 @@ int mpSetLowLatency()
 extern void doFrameLoop(int sampleRate, int frame_samples);
 extern STATUS netStartup();
 
+#ifndef CODEC_PLUGIN_PATH
+#define CODEC_PLUGIN_PATH "..\\..\\sipXmediaLib\\bin\\"
+#endif
+
 OsStatus mpStartUp(int sampleRate, int samplesPerFrame,
                    int numAudioBuffers, OsConfigDb* pConfigDb)
 {
@@ -449,6 +454,9 @@ OsStatus mpStartUp(int sampleRate, int samplesPerFrame,
         samplesPerFrame = sipx_min(samplesPerFrame, FRAME_SAMPS);
 
         showMpMisc(TRUE);
+
+        MpCodecFactory* pcf = MpCodecFactory::getMpCodecFactory();
+        pcf->loadAllDynCodecs(CODEC_PLUGIN_PATH, "plg.*\\.dll" );
 
 #ifdef _VXWORKS /* [ */
         /* Rashly assumes page size is a power of two */

@@ -34,6 +34,8 @@
 */
 class MpCodecInfo
 {
+   friend class MpPlgDecoderWrapper;
+   friend class MpPlgEncoderWrapper;
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
@@ -168,6 +170,9 @@ private:
 
      /// Assignment operator
    MpCodecInfo& operator=(const MpCodecInfo& rhs);
+
+     /// For using in MpPlgDecoderWrapper and MpPlgDecoderWrapper only
+   MpCodecInfo() {}
 };
 
 /* ============================ INLINE METHODS ============================ */

@@ -24,6 +24,13 @@
 #include "mp/MpEncoderBase.h"
 #include "mp/MpDecoderBase.h"
 
+#include "utl/UtlLink.h"
+#include "utl/UtlVoidPtr.h"
+#include "utl/UtlList.h"
+#include "os/OsSharedLibMgr.h"
+#include "mp/plugins/PlgDefsV1.h"
+#include "mp/MpPlgStaffV1.h"
+
 // DEFINES
 // MACROS
 // EXTERNAL FUNCTIONS
@@ -35,11 +42,50 @@
 class MpFlowGraphBase;
 
 
+class MpCodecSubInfo : protected UtlVoidPtr
+{
+   friend class MpCodecFactory;
+protected:
+   MpCodecCallInfoV1* mpCodecCall;
+   SdpCodec::SdpCodecTypes mAssignedSDPnum;
+   const char* mpMimeSubtype;
+
+protected:
+   MpCodecSubInfo(MpCodecCallInfoV1* pCodecCall,
+      SdpCodec::SdpCodecTypes assignedSDPnum,
+      const char* pMimeSubtype)
+      : mpCodecCall(pCodecCall)
+      , mAssignedSDPnum(assignedSDPnum)
+      , mpMimeSubtype(pMimeSubtype)
+   {
+
+   }
+
+public:
+   const char* getMIMEtype() const
+   { return mpMimeSubtype; }
+
+   SdpCodec::SdpCodecTypes getSDPtype() const
+   { return mAssignedSDPnum; }
+};
+
+/// SHOULD BE REMOVED IN RELEASE
+class MpWorkaroundSDPNumList
+{
+public:
+   SdpCodec::SdpCodecTypes mPredefinedSDPnum;
+   const char* mimeSubtype;
+   const char* extraMode;
+};
+
+
 /**<
 *  Singleton class used to generate encoder and decoder objects of an indicated type.
 */
 class MpCodecFactory
 {
+   friend class MpCodecCallInfoV1;
+
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
@@ -57,6 +103,8 @@ public:
    virtual
    ~MpCodecFactory();
  
+     
+   //void release(void);
 //@}
 
 /* ============================ MANIPULATORS ============================== */
@@ -95,6 +143,8 @@ public:
 //@{
 
 //@}
+   SdpCodec::SdpCodecTypes* getAllCodecTypes(unsigned& count);
+   const char** getAllCodecModes(SdpCodec::SdpCodecTypes codecId, unsigned& count);
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
@@ -107,13 +157,41 @@ protected:
      *  constructor and has no friends.
      */
 
+     /// Search codec by given MIME-subtype
+   MpCodecSubInfo* searchByMIME(UtlString& str);
+public:
+   static MpCodecCallInfoV1* addStaticCodec(MpCodecCallInfoV1* sStaticCode);   
+
+     /// Load specified codec and add it to codec list
+   OsStatus loadDynCodec(const char* name);
+     /// Load all codec with specified path and filter. Useful to load all libs in pugins directory
+   OsStatus loadAllDynCodecs(const char* path, const char* regexFilter);
+
+     /// Initialize all static codecs. Should be called only from mpStartup() 
+   void initializeStaticCodecs(); 
+     /// Deinitialize all dynamic codecs.  Should be called only from mpShutdown() 
+   void freeAllLoadedLibsAndCodec();
+
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
+   static int maxDynamicCodecTypeAssigned; //< Maximum number of dynamically assigned SdpCodecType
+   static UtlBoolean fCacheListMustUpdate; //< Flag points that cached array must be rebuilt in the next call 
+   static SdpCodec::SdpCodecTypes* pCodecs; //< Cached array of known codecs
+
    // Static data members used to enforce Singleton behavior
    static MpCodecFactory* spInstance; //< pointer to the single instance of
                                       //<  the MpCodecFactory class.
    static OsBSem sLock; //< semaphore used to ensure that there is only one 
                         //< instance of this class.
+
+   static UtlSList mCodecsInfo; //< list of all known and workable codecs
+
+   void updateCodecArray(void); //< not implimented yet
+   OsStatus addCodecWrapperV1(MpCodecCallInfoV1* wrapper); // Build 
+
+   static int assignAudioSDPnumber(const UtlString& mimeSubtypeInLowerCase); //< mimeSubtype SHOULD BE in lower case
+
+   static MpCodecCallInfoV1* sStaticCodecsV1; //< List of all static codecs. Filled by global magic ctors
 
      /// Copy constructor (not supported)
    MpCodecFactory(const MpCodecFactory& rMpCodecFactory);

@@ -13,6 +13,11 @@
 
 #ifdef HAVE_SPEEX // [
 
+// WIN32: Add libspeex to linker input.
+#ifdef WIN32 // [
+#   pragma comment(lib, "libspeex.lib")
+#endif // WIN32 ]
+
 // SYSTEM INCLUDES
 #include <speex/speex_preprocess.h>
 #include <speex/speex_types.h>
