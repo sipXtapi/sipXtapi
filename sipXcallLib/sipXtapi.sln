@@ -11,8 +11,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ReceiveCall", "examples\Rec
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXmediaLib", "..\sipXmediaLib\sipXmediaLib.vcproj", "{0EC8287A-481E-45DC-8F95-BAD940AE1038}"
 	ProjectSection(ProjectDependencies) = postProject
-		{993B6878-2EA7-49E0-AC6E-28C68592724B} = {993B6878-2EA7-49E0-AC6E-28C68592724B}
-		{214007F3-D6E8-4B07-AC00-9FB673FF539E} = {214007F3-D6E8-4B07-AC00-9FB673FF539E}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXcallLib", "sipXcallLib.vcproj", "{0EADF7C3-7D48-45BF-A00D-ECB94DC912EA}"
@@ -116,6 +114,24 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libgsm", "..\sipXmediaLib\c
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libilbc", "..\sipXmediaLib\contrib\libilbc\VS2003\libilbc.vcproj", "{214007F3-D6E8-4B07-AC00-9FB673FF539E}"
 	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "plgpcmapcmu", "..\sipXmediaLib\src\mp\codecs\plgpcmapcmu\plgpcmapcmu.vcproj", "{A9C94D26-C90D-4860-8195-56929E893757}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "plgspeex", "..\sipXmediaLib\src\mp\codecs\plgspeex\plgspeex.vcproj", "{4F7FDA11-42A4-4556-A631-15AA785CD1C1}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "plgilbc", "..\sipXmediaLib\src\mp\codecs\plgilbc\plgilbc.vcproj", "{6442C7DE-E500-4BA2-B821-98092F1EDCAF}"
+	ProjectSection(ProjectDependencies) = postProject
+		{214007F3-D6E8-4B07-AC00-9FB673FF539E} = {214007F3-D6E8-4B07-AC00-9FB673FF539E}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "plggsm", "..\sipXmediaLib\src\mp\codecs\plggsm\plggsm.vcproj", "{8AE1AB5C-9815-42D8-9A09-0B4F1E64B4BB}"
+	ProjectSection(ProjectDependencies) = postProject
+		{993B6878-2EA7-49E0-AC6E-28C68592724B} = {993B6878-2EA7-49E0-AC6E-28C68592724B}
 	EndProjectSection
 EndProject
 Global
@@ -342,6 +358,54 @@ Global
 		{214007F3-D6E8-4B07-AC00-9FB673FF539E}.SSL-Debug.Build.0 = Debug|Win32
 		{214007F3-D6E8-4B07-AC00-9FB673FF539E}.SSL-Release.ActiveCfg = Release|Win32
 		{214007F3-D6E8-4B07-AC00-9FB673FF539E}.SSL-Release.Build.0 = Release|Win32
+		{A9C94D26-C90D-4860-8195-56929E893757}.Debug.ActiveCfg = Debug|Win32
+		{A9C94D26-C90D-4860-8195-56929E893757}.Debug.Build.0 = Debug|Win32
+		{A9C94D26-C90D-4860-8195-56929E893757}.Debug_NoVideo.ActiveCfg = Debug|Win32
+		{A9C94D26-C90D-4860-8195-56929E893757}.Debug_NoVideo.Build.0 = Debug|Win32
+		{A9C94D26-C90D-4860-8195-56929E893757}.Release.ActiveCfg = Release|Win32
+		{A9C94D26-C90D-4860-8195-56929E893757}.Release.Build.0 = Release|Win32
+		{A9C94D26-C90D-4860-8195-56929E893757}.Release_NoVideo.ActiveCfg = Release|Win32
+		{A9C94D26-C90D-4860-8195-56929E893757}.Release_NoVideo.Build.0 = Release|Win32
+		{A9C94D26-C90D-4860-8195-56929E893757}.SSL-Debug.ActiveCfg = Debug|Win32
+		{A9C94D26-C90D-4860-8195-56929E893757}.SSL-Debug.Build.0 = Debug|Win32
+		{A9C94D26-C90D-4860-8195-56929E893757}.SSL-Release.ActiveCfg = Release|Win32
+		{A9C94D26-C90D-4860-8195-56929E893757}.SSL-Release.Build.0 = Release|Win32
+		{4F7FDA11-42A4-4556-A631-15AA785CD1C1}.Debug.ActiveCfg = Debug|Win32
+		{4F7FDA11-42A4-4556-A631-15AA785CD1C1}.Debug.Build.0 = Debug|Win32
+		{4F7FDA11-42A4-4556-A631-15AA785CD1C1}.Debug_NoVideo.ActiveCfg = Debug|Win32
+		{4F7FDA11-42A4-4556-A631-15AA785CD1C1}.Debug_NoVideo.Build.0 = Debug|Win32
+		{4F7FDA11-42A4-4556-A631-15AA785CD1C1}.Release.ActiveCfg = Release|Win32
+		{4F7FDA11-42A4-4556-A631-15AA785CD1C1}.Release.Build.0 = Release|Win32
+		{4F7FDA11-42A4-4556-A631-15AA785CD1C1}.Release_NoVideo.ActiveCfg = Release|Win32
+		{4F7FDA11-42A4-4556-A631-15AA785CD1C1}.Release_NoVideo.Build.0 = Release|Win32
+		{4F7FDA11-42A4-4556-A631-15AA785CD1C1}.SSL-Debug.ActiveCfg = Debug|Win32
+		{4F7FDA11-42A4-4556-A631-15AA785CD1C1}.SSL-Debug.Build.0 = Debug|Win32
+		{4F7FDA11-42A4-4556-A631-15AA785CD1C1}.SSL-Release.ActiveCfg = Release|Win32
+		{4F7FDA11-42A4-4556-A631-15AA785CD1C1}.SSL-Release.Build.0 = Release|Win32
+		{6442C7DE-E500-4BA2-B821-98092F1EDCAF}.Debug.ActiveCfg = Debug|Win32
+		{6442C7DE-E500-4BA2-B821-98092F1EDCAF}.Debug.Build.0 = Debug|Win32
+		{6442C7DE-E500-4BA2-B821-98092F1EDCAF}.Debug_NoVideo.ActiveCfg = Debug|Win32
+		{6442C7DE-E500-4BA2-B821-98092F1EDCAF}.Debug_NoVideo.Build.0 = Debug|Win32
+		{6442C7DE-E500-4BA2-B821-98092F1EDCAF}.Release.ActiveCfg = Release|Win32
+		{6442C7DE-E500-4BA2-B821-98092F1EDCAF}.Release.Build.0 = Release|Win32
+		{6442C7DE-E500-4BA2-B821-98092F1EDCAF}.Release_NoVideo.ActiveCfg = Release|Win32
+		{6442C7DE-E500-4BA2-B821-98092F1EDCAF}.Release_NoVideo.Build.0 = Release|Win32
+		{6442C7DE-E500-4BA2-B821-98092F1EDCAF}.SSL-Debug.ActiveCfg = Debug|Win32
+		{6442C7DE-E500-4BA2-B821-98092F1EDCAF}.SSL-Debug.Build.0 = Debug|Win32
+		{6442C7DE-E500-4BA2-B821-98092F1EDCAF}.SSL-Release.ActiveCfg = Release|Win32
+		{6442C7DE-E500-4BA2-B821-98092F1EDCAF}.SSL-Release.Build.0 = Release|Win32
+		{8AE1AB5C-9815-42D8-9A09-0B4F1E64B4BB}.Debug.ActiveCfg = Debug|Win32
+		{8AE1AB5C-9815-42D8-9A09-0B4F1E64B4BB}.Debug.Build.0 = Debug|Win32
+		{8AE1AB5C-9815-42D8-9A09-0B4F1E64B4BB}.Debug_NoVideo.ActiveCfg = Debug|Win32
+		{8AE1AB5C-9815-42D8-9A09-0B4F1E64B4BB}.Debug_NoVideo.Build.0 = Debug|Win32
+		{8AE1AB5C-9815-42D8-9A09-0B4F1E64B4BB}.Release.ActiveCfg = Release|Win32
+		{8AE1AB5C-9815-42D8-9A09-0B4F1E64B4BB}.Release.Build.0 = Release|Win32
+		{8AE1AB5C-9815-42D8-9A09-0B4F1E64B4BB}.Release_NoVideo.ActiveCfg = Release|Win32
+		{8AE1AB5C-9815-42D8-9A09-0B4F1E64B4BB}.Release_NoVideo.Build.0 = Release|Win32
+		{8AE1AB5C-9815-42D8-9A09-0B4F1E64B4BB}.SSL-Debug.ActiveCfg = Debug|Win32
+		{8AE1AB5C-9815-42D8-9A09-0B4F1E64B4BB}.SSL-Debug.Build.0 = Debug|Win32
+		{8AE1AB5C-9815-42D8-9A09-0B4F1E64B4BB}.SSL-Release.ActiveCfg = Release|Win32
+		{8AE1AB5C-9815-42D8-9A09-0B4F1E64B4BB}.SSL-Release.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionItems) = postSolution
 	EndGlobalSection

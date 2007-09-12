@@ -456,7 +456,7 @@ OsStatus mpStartUp(int sampleRate, int samplesPerFrame,
         showMpMisc(TRUE);
 
         MpCodecFactory* pcf = MpCodecFactory::getMpCodecFactory();
-        pcf->loadAllDynCodecs(CODEC_PLUGIN_PATH, "plg.*\\.dll" );
+        pcf->loadAllDynCodecs(CODEC_PLUGIN_PATH, "codec_.*\\.dll" );
 
 #ifdef _VXWORKS /* [ */
         /* Rashly assumes page size is a power of two */
