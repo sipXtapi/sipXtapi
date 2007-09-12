@@ -28,7 +28,7 @@
 #include "utl/UtlVoidPtr.h"
 #include "utl/UtlList.h"
 #include "os/OsSharedLibMgr.h"
-#include "mp/plugins/PlgDefsV1.h"
+#include "mp/codecs/PlgDefsV1.h"
 #include "mp/MpPlgStaffV1.h"
 
 // DEFINES

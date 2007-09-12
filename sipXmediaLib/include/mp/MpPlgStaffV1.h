@@ -16,7 +16,7 @@
 #include <utl/UtlInt.h>
 #include <utl/UtlVoidPtr.h>
 #include <utl/UtlString.h>
-#include <mp/plugins/PlgDefsV1.h>
+#include <mp/codecs/PlgDefsV1.h>
 
 class MpStaticCodecSimpleList {
 private:
