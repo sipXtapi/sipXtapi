@@ -38,7 +38,7 @@ MprnDTMFMsg::MprnDTMFMsg(const UtlString& namedResOriginator, MpConnectionID con
 , mPressState(pressState)
 , mDuration(duration)
 {
-   if(key == KEY_DOWN)
+   if (pressState == KEY_DOWN)
    {
       assert(mDuration == DURATION_NOT_APPLICABLE);
    }
