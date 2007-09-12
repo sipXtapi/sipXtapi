@@ -50,6 +50,7 @@ int sipXmediaFactoryImpl::miInstanceCount=0;
 CpMediaInterfaceFactory* spFactory = NULL;
 int siInstanceCount=0;
 
+#ifndef DISABLE_DEFAULT_PHONE_MEDIA_INTERFACE_FACTORY
 extern "C" CpMediaInterfaceFactory* cpDefaultMediaFactoryFactory(OsConfigDb* pConfigDb)
 {
     // TODO: Add locking
@@ -66,7 +67,6 @@ extern "C" CpMediaInterfaceFactory* cpDefaultMediaFactoryFactory(OsConfigDb* pCo
     return spFactory;
 }
 
-#ifndef DISABLE_DEFAULT_PHONE_MEDIA_INTERFACE_FACTORY
 extern "C" CpMediaInterfaceFactory* sipXmediaFactoryFactory(OsConfigDb* pConfigDb)
 {
     return(cpDefaultMediaFactoryFactory(pConfigDb));
