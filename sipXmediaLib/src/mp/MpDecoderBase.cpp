@@ -44,6 +44,14 @@ int MpDecoderBase::getPayloadType(void)
    return(mPayloadType);
 }
 
+OsStatus MpDecoderBase::getSignalingData(uint8_t &key,
+                                         UtlBoolean &isStarted,
+                                         UtlBoolean &isStopped,
+                                         uint16_t &duration)
+{
+   return OS_NOT_SUPPORTED;
+}
+
 /* ============================ INQUIRY =================================== */
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */

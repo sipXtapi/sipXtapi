@@ -77,9 +77,21 @@ public:
                       unsigned decodedBufferLength,
                       MpAudioSample *samplesBuffer) =0;
      /**<
-     *  @param[in] pPacket - Pointer to a media buffer
-     *  @param[in] decodedBufferLength - Length of the samplesBuffer (in samples)
-     *  @param[out] samplesBuffer - Buffer for decoded samples
+     *  This method is called by MprDecode for every incoming RTP packet. If
+     *  codec have internal PLC, then this method is also called for every lost
+     *  packet with \p pPacket=NULL to leverage codec's internal PLC.
+     *  For signaling codecs (namely RFC2833/4733) right after decode()
+     *  MprDecode calls getSignalingData() to retrieve decoded signaling data.
+     *  That is decoder should cache this data internally between decode()
+     *  and getSignalingData() calls.
+     *
+     *  @see getSignalingData()
+     *
+     *  @param[in]  pPacket - Pointer to a RTP packet. May be NULL if packet
+     *              was lost.
+     *  @param[in]  decodedBufferLength - Length of the samplesBuffer (in samples).
+     *  @param[out] samplesBuffer - Buffer for decoded samples.
+     *
      *  @returns Number of decoded samples.
      */
 
@@ -104,6 +116,29 @@ public:
 
      /// Returns the RTP payload type associated with this decoder.
    virtual int getPayloadType(void);
+
+     /// Get signaling data from last decoded packet.
+   virtual OsStatus getSignalingData(uint8_t &event,
+                                     UtlBoolean &isStarted,
+                                     UtlBoolean &isStopped,
+                                     uint16_t &duration);
+     /**<
+     *  If codec is signaling, that is it is able to carry signaling data,
+     *  this function is called right after decode() to get signaling data
+     *  from last decoded RTP packet.
+     *
+     *  @note Only DTMF digits are supported. Other signaling data is not yet
+     *        supported.
+     *  @note Default implementation just return OS_NOT_SUPPORTED.
+     *
+     *  @see decode()
+     *
+     *  @retval OS_SUCCESS - Last decoded packet had signaling data, \p key,
+     *          \p pressState and \p duration were filled with decoded values.
+     *  @retval OS_NO_MORE_DATA - Last packet had no meaningful signaling data.
+     *  @retval OS_NOT_SUPPORTED - This codec is pure audio codec and could not
+     *          carry any signaling data.
+     */
 
 //@}
 
