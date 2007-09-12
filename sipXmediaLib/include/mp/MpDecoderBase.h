@@ -17,9 +17,10 @@
 // SYSTEM INCLUDES
 
 // APPLICATION INCLUDES
-#include "os/OsStatus.h"
 #include "mp/MpCodecInfo.h"
 #include "mp/MpRtpBuf.h"
+#include "mp/MpTypes.h"
+#include "os/OsStatus.h"
 
 // DEFINES
 // MACROS
