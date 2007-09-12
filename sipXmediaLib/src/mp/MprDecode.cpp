@@ -29,9 +29,6 @@
 #include <string.h>
 
 // APPLICATION INCLUDES
-#include "os/OsDefs.h"
-#include "os/OsSysLog.h"
-#include "os/OsLock.h"
 #include "mp/MpMisc.h"
 #include "mp/MpBuf.h"
 #include "mp/MpRtpInputAudioConnection.h"
@@ -43,12 +40,16 @@
 #include "mp/MpMediaTask.h"
 #include "mp/MpCodecFactory.h"
 #include "mp/MpJitterBuffer.h"
+#include "mp/MpFlowGraphBase.h"
+#include "mp/MprnDTMFMsg.h"
+#include "os/OsDefs.h"
+#include "os/OsSysLog.h"
+#include "os/OsLock.h"
+#include "os/OsNotification.h"
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
-
 // CONSTANTS
-
 // STATIC VARIABLE INITIALIZATIONS
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
@@ -60,6 +61,7 @@ MprDecode::MprDecode(const UtlString& rName, MpRtpInputAudioConnection* pConn,
                      int samplesPerFrame, int samplesPerSec)
 :  MpAudioResource(rName, 0, 0, 1, 1, samplesPerFrame, samplesPerSec),
    mpJB(NULL),
+   mpDtmfNotication(NULL),
    mpMyDJ(NULL),
    mpCurrentCodecs(NULL),
    mNumCurrentCodecs(0),
@@ -155,19 +157,11 @@ MpJitterBuffer* MprDecode::getJBinst(UtlBoolean optional)
 
 UtlBoolean MprDecode::handleSetDtmfNotify(OsNotification* pNotify)
 {
-   MpDecoderBase** pMDB;
-   UtlBoolean ret = TRUE;
-   int i;
    OsLock lock(mLock);
 
-   pMDB = mpCurrentCodecs;
-   for (i=0; i<mNumCurrentCodecs; i++) {
-      if (((*pMDB)->getInfo())->isSignalingCodec()) {
-         (*pMDB)->setDtmfNotify(pNotify);
-      }
-      pMDB++;
-   }
-   return ret;
+   mpDtmfNotication = pNotify;
+
+   return TRUE;
 }
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
@@ -235,20 +229,69 @@ UtlBoolean MprDecode::doProcessFrame(MpBufPtr inBufs[],
       if (pCurDec==NULL)
          continue;
 
-      bool signalingCodec = pCurDec->getInfo()->isSignalingCodec();
+      UtlBoolean signalingCodec = pCurDec->getInfo()->isSignalingCodec();
 
-      while ((rtp = pDej->pullPacket(pt, signalingCodec)).isValid()) 
+      while ((rtp = pDej->pullPacket(pt, (bool)signalingCodec)).isValid()) 
       {
          // THIS JitterBuffer is NOT the same as MprDejitter!
          // This is more of a Decode Buffer.
          MpJitterBuffer* pJBState = getJBinst();
 
-         int res = pJBState->pushPacket(rtp);
-         if (res != 0) {
-            osPrintf("\n\n *** MpJitterBuffer::pushPacket() returned %d\n", res);
+         OsStatus res = pJBState->pushPacket(rtp);
+         if (res != OS_SUCCESS) {
+            osPrintf("\n\n *** MprDecode::doProcessFrame() returned %d\n", res);
             osPrintf(" pt=%d, Ts=%d, Seq=%d\n\n",
                      rtp->getRtpPayloadType(),
                      rtp->getRtpTimestamp(), rtp->getRtpSequenceNumber());
+         }
+         if (signalingCodec)
+         {
+            uint8_t event;
+            UtlBoolean isStarted;
+            UtlBoolean isStopped;
+            uint16_t duration;
+            OsStatus sigRes;
+
+            do {
+               sigRes = pCurDec->getSignalingData(event,
+                                                  isStarted,
+                                                  isStopped,
+                                                  duration);
+               assert(sigRes != OS_NOT_SUPPORTED);
+               if (sigRes == OS_SUCCESS && isStarted)
+               {
+                  // Post DTMF notification message to indicate key down.
+                  MprnDTMFMsg dtmfMsg(getName(), mpConnection->getConnectionId(),
+                                      (MprnDTMFMsg::KeyCode)event,
+                                      MprnDTMFMsg::KEY_DOWN);
+                  getFlowGraph()->postNotification(dtmfMsg);
+
+                  // Old way to indicate DTMF event. Will be removed soon, I hope.
+                  if (mpDtmfNotication)
+                  {
+                     mpDtmfNotication->signal( duration
+                                             | (uint32_t)(event) << 16
+                                             | 0<<31);
+                  }
+               }
+
+               if (sigRes == OS_SUCCESS && isStopped)
+               {
+                  // Post DTMF notification message to indicate key up.
+                  MprnDTMFMsg dtmfMsg(getName(), mpConnection->getConnectionId(),
+                                      (MprnDTMFMsg::KeyCode)event,
+                                      MprnDTMFMsg::KEY_UP, duration);
+                  getFlowGraph()->postNotification(dtmfMsg);
+
+                  // Old way to indicate DTMF event. Will be removed soon, I hope.
+                  if (mpDtmfNotication)
+                  {
+                     mpDtmfNotication->signal( duration
+                                             | (uint32_t)(event) << 16
+                                             | 1<<31);
+                  }
+               }
+            } while (sigRes == OS_SUCCESS);
          }
       }
    }
@@ -385,9 +428,7 @@ UtlBoolean MprDecode::handleSelectCodecs(SdpCodec* pCodecs[], int numCodecs)
          pCodec = pCodecs[i];
          ourCodec = pCodec->getCodecType();
          payload = pCodec->getCodecPayloadFormat();
-         ret = pFactory->createDecoder(ourCodec, payload, pNewDecoder, 
-                                       mpConnection->getConnectionId(),
-                                       getFlowGraph());
+         ret = pFactory->createDecoder(ourCodec, payload, pNewDecoder);
          assert(OS_SUCCESS == ret);
          assert(NULL != pNewDecoder);
          pNewDecoder->initDecode();

@@ -117,6 +117,7 @@ private:
    };
 
    MpJitterBuffer* mpJB;            ///< Pointer to JitterBuffer instance
+   OsNotification* mpDtmfNotication;
 
    MprDejitter* mpMyDJ;
 
