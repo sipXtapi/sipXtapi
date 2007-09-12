@@ -1,9 +1,9 @@
 // 
 // 
-// Copyright (C) 2005-2006 SIPez LLC.
+// Copyright (C) 2005-2007 SIPez LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.
 // 
-// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 // 
 // Copyright (C) 2004-2006 Pingtel Corp.
@@ -29,7 +29,7 @@ static int sInputMixerId = DEF_INPUTMIXER;
 /**
 *  @file MpCodec.cpp
 *
-*  @TODO The rest of this file is really two independent platform-specific
+*  @TODO The rest of this file is really independent platform-specific
 *  implementations of the MpCodec module.  These should be broken out into
 *  separate files.
 */
@@ -48,7 +48,6 @@ static int sInputMixerId = DEF_INPUTMIXER;
 #include "mp/dmaTask.h"
 #include "mp/MpCodec.h"
 
-extern "C" void setHandsetMuteState(UtlBoolean state);
 static int s_iGainLevel = 5 ;
 
 /**
