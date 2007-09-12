@@ -99,15 +99,14 @@ MpCodecFactory::~MpCodecFactory()
 // param: connId - (in) The ID of the connection this decoder is associated with.
 // param: pFlowGraph - (in) Pointer to the flowgraph that the decoder is part of. (used for notifications)
 OsStatus MpCodecFactory::createDecoder(SdpCodec::SdpCodecTypes internalCodecId,
-                                       int payloadType, MpDecoderBase*& rpDecoder,
-                                       MpConnectionID connId, MpFlowGraphBase* pFlowGraph)
+                                       int payloadType, MpDecoderBase*& rpDecoder)
 {
    rpDecoder=NULL;
 
    switch (internalCodecId) 
    {
    case (SdpCodec::SDP_CODEC_TONES):
-      rpDecoder = new MpdPtAVT(payloadType, connId, pFlowGraph);
+      rpDecoder = new MpdPtAVT(payloadType);
       break;
 
    case (SdpCodec::SDP_CODEC_PCMA):

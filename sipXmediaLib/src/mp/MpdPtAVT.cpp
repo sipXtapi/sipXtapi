@@ -1,6 +1,6 @@
-//  
-// Copyright (C) 2006-2007 SIPez LLC. 
-// Licensed to SIPfoundry under a Contributor Agreement. 
+//
+// Copyright (C) 2006-2007 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -12,46 +12,47 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 
-// APPLICATION INCLUDES
-#ifdef __pingtel_on_posix__ /* [ */
+// SYSTEM INCLUDES
+#ifdef __pingtel_on_posix__ // [
 #include <sys/types.h>
 #include <netinet/in.h>
-#endif /* __pingtel_on_posix__ ] */
-#include "mp/MpdPtAVT.h"
-#include "mp/MpFlowGraphBase.h"
-#include "mp/MprnDTMFMsg.h"
-#include "os/OsNotification.h"
-#include "os/OsSysLog.h"
-
-#ifdef _VXWORKS /* [ */
+#elif _VXWORKS // ][
 #include <inetlib.h>
-#endif /* _VXWORKS ] */
+#endif // _VXWORKS ]
 
-struct AvtPacket 
-{
-   uint8_t  key;
-   uint8_t  dB;
-   short    samplesSwapped;
-};
+// APPLICATION INCLUDES
+#include "mp/MpdPtAVT.h"
 
-static int debugCtr = 0;
+// DEFINES
+#define DEBUG_TONES
+#undef  DEBUG_TONES
 
+// EXTERNAL FUNCTIONS
+// EXTERNAL VARIABLES
+// CONSTANTS
+// FORWARD FUNCTION DECLARATION
+void dumpRawAvtPacket(const MpRtpBufPtr &pRtp, void *pThis);
+
+// STATIC VARIABLE INITIALIZATIONS
 const MpCodecInfo MpdPtAVT::smCodecInfo(
-         SdpCodec::SDP_CODEC_TONES, "Pingtel_1.0",
+         SdpCodec::SDP_CODEC_TONES, "telephone-events",
          8000, 0, 1, 0, 6400, 128, 128, 128, 0, 0, TRUE, FALSE);
 
-MpdPtAVT::MpdPtAVT(int payloadType, MpConnectionID connId, MpFlowGraphBase* pFlowGraph)
+
+/* //////////////////////////// PUBLIC //////////////////////////////////// */
+
+/* ============================ CREATORS ================================== */
+
+// Constructor
+MpdPtAVT::MpdPtAVT(int payloadType)
 : MpDecoderBase(payloadType)
-, mpFlowGraph(pFlowGraph)
-, mConnectionId(connId)
-, mCurrentToneKey(-1)
-, mPrevToneSignature(0)
-, mCurrentToneSignature(0)
-, mToneDuration(0)
-, mpNotify(NULL)
+, mHaveValidData(FALSE)
+, mIsEventActive(FALSE)
+, mActiveEvent(0)
+, mLastKeyUpTimetsamp(0)
+, mStartingTimestamp(0)
+, mLastEventDuration(0)
 {
-   OsSysLog::add(FAC_MP, PRI_INFO, "MpdPtAVT(0x%X)::MpdPtAVT(%d)\n",
-                 (int) this, payloadType);
 }
 
 MpdPtAVT::~MpdPtAVT()
@@ -61,10 +62,13 @@ MpdPtAVT::~MpdPtAVT()
 
 OsStatus MpdPtAVT::initDecode()
 {
-   int res = 0;
-   debugCtr = 0;
-
-   return (0 == res) ? OS_SUCCESS : OS_UNSPECIFIED;
+   mHaveValidData = FALSE;
+   mIsEventActive = FALSE;
+   mActiveEvent = 0;
+   mLastKeyUpTimetsamp = 0;
+   mStartingTimestamp = 0;
+   mLastEventDuration = 0;
+   return OS_SUCCESS;
 }
 
 OsStatus MpdPtAVT::freeDecode(void)
@@ -72,7 +76,147 @@ OsStatus MpdPtAVT::freeDecode(void)
    return OS_SUCCESS;
 }
 
-void dumpRawAvtPacket(const MpRtpBufPtr &pRtp, int pThis)
+/* ============================ MANIPULATORS ============================== */
+
+int MpdPtAVT::decode(const MpRtpBufPtr &pPacket,
+                     unsigned decodedBufferLength,
+                     MpAudioSample *samplesBuffer)
+{
+   // Just save passed packet header and data - they will be used
+   // in getSignalingData() called right after decode().
+   mLastPacketData = *(const AvtPacket*) pPacket->getDataPtr();
+   mLastRtpHeader = pPacket->getRtpHeader();
+   assert(mHaveValidData == FALSE);
+   mHaveValidData = TRUE;
+
+#ifdef DEBUG_TONES // [
+   dumpRawAvtPacket(pPacket, this);
+#endif // DEBUG_TONES ]
+
+   return 0;
+}
+
+/* ============================ ACCESSORS ================================= */
+
+OsStatus MpdPtAVT::getSignalingData(uint8_t &event,
+                                    UtlBoolean &isStarted,
+                                    UtlBoolean &isStopped,
+                                    uint16_t &duration)
+{
+   RtpTimestamp ts = ntohl(mLastRtpHeader.timestamp);
+
+   // == Stage 0 ==
+   // Just return, if we have nothing to decode
+   if (mHaveValidData == FALSE)
+   {
+      return OS_NO_MORE_DATA;
+   }
+
+   // == Stage 1 ==
+   // If this is a delayed packet from last event, we could drop it safely.
+   // RFC4733 recommend to send end-of-event packet three times, so it's
+   // normal to hit this check twice if no packets are lost.
+   // Note: actually this check should use MpDspUtils::compareSerials(),
+   //       but then we have to keep track of current stream timestamp.
+   //       Else timestamp may wrap around between events, as much may
+   //       pass between them. Later we could call decode() or getSignalingData()
+   //       even if no packet is received to make this real.
+   if (mLastKeyUpTimetsamp == ts)
+   {
+      mHaveValidData = FALSE;
+      return OS_NO_MORE_DATA;
+   }
+
+   // == Stage 2 ==
+   // Signal key up for previous tone if we lost its end packets.
+   if (  mIsEventActive            // (1) Previous tone still active
+      && mStartingTimestamp != ts  // (2) This is not an update packet for active event
+      )
+   {
+      // Fill in returned data.
+      event = mActiveEvent;
+      isStarted = FALSE;
+      isStopped = TRUE;
+      duration = mLastEventDuration;
+
+      // Reset decoder to no-active-event state. Saved RTP data and header are
+      // kept as is to be used in next call to getSignalingData().
+      resetEventState();
+
+      // Ok, we have something to signal.
+      return OS_SUCCESS;
+   }
+
+   // == Stage 3 ==
+   // Parse received RTP packet.
+
+   // Update last received event duration.
+   mLastEventDuration = ntohs(mLastPacketData.duration);
+
+   // Check for start of event conditions
+   if (  // start bit marked
+         ((mLastRtpHeader.mpt&RTP_M_MASK) && (ts != mStartingTimestamp))
+      || // key up interpreted as key down if no previous start event received 
+         (mIsEventActive == FALSE)
+      )
+   {
+      mIsEventActive = TRUE;
+      mActiveEvent = mLastPacketData.key;
+      mStartingTimestamp = ts;
+
+      isStarted = TRUE;
+   }
+   else
+   {
+      isStarted = FALSE;
+   }
+
+   // Check for end of event condition
+   if ((0x80 & mLastPacketData.dB) > 0)
+   {
+      // Reset decoder to no-active-event state.
+      resetEventState();
+
+      isStopped = TRUE;
+   }
+   else
+   {
+      isStopped = FALSE;
+   }
+
+   // Signal that packet was parsed.
+   mHaveValidData = FALSE;
+
+   // Fill in remaining data to be returned.
+   event = mLastPacketData.key;
+   duration = mLastPacketData.duration;
+
+   // Ok, we have something to signal.
+   return OS_SUCCESS;
+}
+
+const MpCodecInfo* MpdPtAVT::getInfo() const
+{
+   return &smCodecInfo;
+}
+
+/* ============================ INQUIRY =================================== */
+
+/* //////////////////////////// PROTECTED ///////////////////////////////// */
+
+/* //////////////////////////// PRIVATE /////////////////////////////////// */
+
+void MpdPtAVT::resetEventState()
+{
+   mIsEventActive = FALSE;
+   mLastKeyUpTimetsamp = mStartingTimestamp;
+   mStartingTimestamp = 0;
+   mLastEventDuration = 0;
+}
+
+/* ============================ FUNCTIONS ================================= */
+
+void dumpRawAvtPacket(const MpRtpBufPtr &pRtp, void *pThis)
 {
    uint8_t vpxcc;
    uint8_t mpt;
@@ -82,6 +226,7 @@ void dumpRawAvtPacket(const MpRtpBufPtr &pRtp, int pThis)
 
    uint8_t  key;
    uint8_t  dB;
+   UtlBoolean endBit;
    uint16_t duration;
 
    AvtPacket *pAvt;
@@ -94,253 +239,12 @@ void dumpRawAvtPacket(const MpRtpBufPtr &pRtp, int pThis)
 
    pAvt = (AvtPacket*)pRtp->getDataPtr();
    key = pAvt->key;
-   dB  = pAvt->dB;
-   duration = ntohs(pAvt->samplesSwapped);
+   dB  = pAvt->dB & 0x3F;
+   endBit = pAvt->dB >> 7;
+   duration = ntohs(pAvt->duration);
 
-   OsSysLog::add(FAC_MP, PRI_INFO,
-                 " MpdPtAvt(0x%x): Raw packet: "
-                 "%02x %02x %6d %08x %08x %2d %02x %5d\n",
-                 pThis, vpxcc, mpt, seq, timestamp, ssrc, key, dB, duration);
-}
-
-int MpdPtAVT::decode(const MpRtpBufPtr &pPacket,
-                     unsigned decodedBufferLength,
-                     MpAudioSample *samplesBuffer)
-{
-   const struct AvtPacket* pAvt;
-   unsigned int samples;
-   unsigned int ts;
-
-   pAvt = (const AvtPacket*) pPacket->getDataPtr();
-
-   // dumpRawAvtPacket(pPacket, (int)this);
-
-   ts = pPacket->getRtpTimestamp();
-
-   if (mCurrentToneKey != -1) 
-   { 
-      // if previous tone still active
-      if (mCurrentToneSignature != ts) 
-      { 
-         // and we have not seen this
-         if (0 != mToneDuration) 
-         { 
-            // and its duration > 0
-            OsSysLog::add(FAC_MP, PRI_INFO,
-                          "++++ MpdPtAvt(0x%X) SYNTHESIZING KEYUP for old key (%d)"
-                          " duration=%d ++++\n", (int) this, 
-                          mCurrentToneKey, mToneDuration);
-            signalKeyUp(pPacket);
-         }
-      }
-   }
-
-   // Key Down (start of tone)
-   if (pPacket->isRtpMarker() 
-       && (mCurrentToneSignature != ts) 
-       && (ts != mPrevToneSignature)) 
-   {
-     // start bit marked
-      OsSysLog::add(FAC_MP, PRI_INFO, "++++ MpdPtAvt(0x%X) RECEIVED KEYDOWN"
-                    " (marker bit set), duration=%d, TSs: old=0x%08x, new=0x%08x,"
-                    " delta=%d; mCurrentToneKey=%d ++++",
-                    (int) this, mToneDuration, mPrevToneSignature, ts,
-                    ts - mPrevToneSignature, mCurrentToneKey);
-      signalKeyDown(pPacket);
-      samples = pAvt->samplesSwapped;
-      mToneDuration = (ntohs(samples) & 0xffff);
-   } 
-   else if ((mPrevToneSignature != ts) && (-1 == mCurrentToneKey)) 
-   {
-      // key up interpreted as key down if no previous start tone received
-      OsSysLog::add(FAC_MP, PRI_INFO, "++++ MpdPtAvt(0x%X) RECEIVED KEYDOWN"
-                    " (lost packets?) duration=%d; TSs: old=0x%08x, new=0x%08x,"
-                    " delta=%d; ++++\n",
-                    (int) this, mToneDuration, mPrevToneSignature, ts,
-                    ts - mPrevToneSignature);
-      signalKeyDown(pPacket);
-      samples = pAvt->samplesSwapped;
-      mToneDuration = (ntohs(samples) & 0xffff);
-   }
-   else
-   {
-      samples = pAvt->samplesSwapped;
-      mToneDuration = (ntohs(samples) & 0xffff);
-      if (mToneDuration && (0x80 != (0x80 & (pAvt->dB))))
-      {
-         OsSysLog::add(FAC_MP, PRI_INFO, "++++ MpdPtAvt(0x%X) RECEIVED packet,"
-                       " not KEYDOWN, set duration to zero"
-                       " duration=%d; TSs: old=0x%08x, new=0x%08x,"
-                       " delta=%d; ++++\n",
-                       (int) this, mToneDuration, mPrevToneSignature, ts,
-                       ts - mPrevToneSignature);
-	      mToneDuration = 0;
-      }
-   }
-   
-   // Key Up (end of tone)
-   if (0x80 == (0x80 & (pAvt->dB))) 
-   {
-      OsSysLog::add(FAC_MP, PRI_INFO, "++++ MpdPtAvt(0x%X) RECEIVED KEYUP"
-                    " duration=%d, TS=0x%08x ++++\n", 
-                    (int) this, mToneDuration, ts);
-      signalKeyUp(pPacket);
-   }
-
-   return 0;
-}
-
-UtlBoolean MpdPtAVT::setDtmfNotify(OsNotification* pNotify)
-{
-   mpNotify = pNotify;
-   return TRUE;
-}
-
-const MpCodecInfo* MpdPtAVT::getInfo() const
-{
-   return &smCodecInfo;
-}
-
-/* //////////////////////////// PROTECTED ///////////////////////////////// */
-
-/* //////////////////////////// PRIVATE /////////////////////////////////// */
-
-void MpdPtAVT::signalKeyDown(const MpRtpBufPtr &pPacket)
-{
-   const struct AvtPacket* pAvt;
-   unsigned int ts;
-   OsStatus ret;
-
-   pAvt = (const struct AvtPacket*) pPacket->getDataPtr();
-
-   ts = pPacket->getRtpTimestamp();
-   if (mCurrentToneSignature != ts) 
-   {
-      // must have missed a KeyUp
-      if (mCurrentToneKey != -1) 
-      {
-         OsSysLog::add(FAC_MP, PRI_INFO, 
-                       "++++ MpdPtAvt(0x%X) SYNTHESIZING KEYUP for old key (%d)"
-                       " duration=%d ++++\n", 
-                       (int) this, mCurrentToneKey, mToneDuration);
-         signalKeyUp(pPacket);
-      }
-   }
-   OsSysLog::add(FAC_MP, PRI_INFO, "MpdPtAvt(0x%X) Start Rcv Tone key=%d"
-                 " dB=%d TS=0x%08x\n", (int) this, pAvt->key, pAvt->dB, ts);
-
-   assert(mpFlowGraph);  // We should have a valid flowgraph pointer here.
-   if(mpFlowGraph)
-   {
-      // Ok, create a new DTMF notification message to indicate key down.
-      MprnDTMFMsg dtmfMsg("", mConnectionId, (MprnDTMFMsg::KeyCode)pAvt->key, 
-                          MprnDTMFMsg::KEY_DOWN);
-      mpFlowGraph->postNotification(dtmfMsg);
-   }
-   else
-   {
-      OsSysLog::add(FAC_MP, PRI_ERR, "ERROR: flowgraph pointer uninitialized"
-                    " in MpdPtAvt -- DTMF notification for key down not sent\n");
-   }
-
-   if (NULL != mpNotify) 
-   {
-      ret = mpNotify->signal((uint32_t)(pAvt->key) << 16 | mToneDuration);
-      if (OS_SUCCESS != ret) 
-      {
-         if (OS_ALREADY_SIGNALED == ret) 
-         {
-            OsSysLog::add(FAC_MP, PRI_ERR, "MpdPtAvt(%p) Signal Start "
-                          "returned OS_ALREADY_SIGNALED", this);
-         } 
-         else 
-         {
-            OsSysLog::add(FAC_MP, PRI_ERR,
-                          "MpdPtAvt(%p) Signal Start returned %d", this, ret);
-         }
-       } 
-       else 
-       {
-          OsSysLog::add(FAC_MP, PRI_DEBUG,
-                        "MpdPtAvt(%p) Signal Start sent successfully", this);
-       }
-   }
-   else
-   {
-      OsSysLog::add(FAC_MP, PRI_DEBUG, "MpdPtAvt(%p) No application registered "
-                    "to receive Signal KeyDown", this);
-   }
-   mCurrentToneKey = pAvt->key;
-   mCurrentToneSignature = ts;
-   mToneDuration = 0;
-}
-
-
-void MpdPtAVT::signalKeyUp(const MpRtpBufPtr &pPacket)
-{
-   const struct AvtPacket* pAvt;
-   unsigned int samples;
-   unsigned int ts;
-   OsStatus ret;
-
-   pAvt = (const struct AvtPacket*) pPacket->getDataPtr();
-   ts = pPacket->getRtpTimestamp();
-   samples = pAvt->samplesSwapped;
-   samples = ntohs(samples);
-
-   if ((-1) != mCurrentToneKey) 
-   {
-      OsSysLog::add(FAC_MP, PRI_INFO, "MpdPtAvt(0x%X) Stop Rcv Tone key=%d"
-                    " dB=%d TS=0x%08x+%d last key=%d\n", 
-                    (int) this, pAvt->key, pAvt->dB, mCurrentToneSignature, 
-                    mToneDuration, mCurrentToneKey);
-      mPrevToneSignature = mCurrentToneSignature;
-
-      assert(mpFlowGraph);  // We should have a valid flowgraph pointer here.
-      if(mpFlowGraph)
-      {
-         // Ok, create a new DTMF notification message to indicate key up.
-         MprnDTMFMsg dtmfMsg("", mConnectionId, (MprnDTMFMsg::KeyCode)pAvt->key, 
-                             MprnDTMFMsg::KEY_UP, (int32_t)mToneDuration);
-         mpFlowGraph->postNotification(dtmfMsg);
-      }
-      else
-      {
-         OsSysLog::add(FAC_MP, PRI_ERR, "ERROR: flowgraph pointer uninitialized"
-                       " in MpdPtAvt -- DTMF notification for key up not sent\n");
-      }
-
-      if (NULL != mpNotify) 
-      {
-         ret = mpNotify->signal(0x80000000
-                                | (0x3fff0000 & ((uint32_t)mCurrentToneKey << 16))
-                                | mToneDuration);
-         if (OS_SUCCESS != ret) 
-         {
-            if (OS_ALREADY_SIGNALED == ret) 
-            {
-               OsSysLog::add(FAC_MP, PRI_ERR, "MpdPtAvt(%p) Signal Stop "
-                             "returned OS_ALREADY_SIGNALED", this);
-            } 
-            else 
-            {
-               OsSysLog::add(FAC_MP, PRI_ERR,
-                             "MpdPtAvt(%p) Signal Stop returned %d", this, ret);
-            }
-         } 
-         else 
-         {
-            OsSysLog::add(FAC_MP, PRI_DEBUG,
-                          "MpdPtAvt(%p) Signal Stop sent successfully", this);
-         }
-      }
-      else 
-      {
-         OsSysLog::add(FAC_MP, PRI_DEBUG, "MpdPtAvt(%p) No application "
-                       "registered to receive Signal KeyUp", this);
-      }
-   }
-   mCurrentToneKey = -1;
-   mCurrentToneSignature = 0;
-   mToneDuration = 0;
+   printf("MpdPtAvt(%p): Raw packet: "
+          "seq:%6u ts:%10u key:%2u end:%1d dB:%3d duration:%5d\n",
+          pThis,
+          seq, timestamp, key, endBit, dB, duration);
 }

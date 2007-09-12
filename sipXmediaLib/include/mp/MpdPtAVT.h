@@ -16,12 +16,11 @@
 #define _MpdPtAVT_h_
 
 // SYSTEM INCLUDES
-
 // APPLICATION INCLUDES
 #include "mp/MpDecoderBase.h"
+#include "mp/RtpHeader.h"
 
 // FORWARD DECLARATIONS
-
 class OsNotification;
 class MpFlowGraphBase;
 
@@ -31,6 +30,14 @@ class MpFlowGraphBase;
 // EXTERNAL VARIABLES
 // CONSTANTS
 // STRUCTS
+/// Payload data structure.
+struct AvtPacket
+{
+   uint8_t  key;
+   uint8_t  dB;  ///< Bit allocation: 0-5 - Volume; 6 - Reserved; 7 - End bit.
+   uint16_t duration;
+};
+
 // TYPEDEFS
 
 /**
@@ -58,7 +65,7 @@ public:
 //@{
 
      /// Constructor
-   MpdPtAVT(int payloadType, MpConnectionID connId, MpFlowGraphBase* pFlowGraph);
+   MpdPtAVT(int payloadType);
      /**<
      *  @param[in] payloadType - RTP payload type associated with this decoder
      *  @param[in] connId - The ID of the connection this 'decoder' is associated with.
@@ -92,9 +99,6 @@ public:
      *              signals DTMF events.
      */
 
-     /// @copydoc MpDecoderBase::setDtmfNotify()
-   virtual UtlBoolean setDtmfNotify(OsNotification* n);
-
 //@}
 
 /* ============================ ACCESSORS ================================= */
@@ -103,6 +107,12 @@ public:
 
      /// @copydoc MpDecoderBase::getInfo()
    virtual const MpCodecInfo* getInfo() const;
+
+     /// @copydoc MpDecoderBase::getSignalingData()
+   virtual OsStatus getSignalingData(uint8_t &event,
+                                     UtlBoolean &isStarted,
+                                     UtlBoolean &isStopped,
+                                     uint16_t &duration);
 
 //@}
 
@@ -119,16 +129,19 @@ protected:
 private:
    static const MpCodecInfo smCodecInfo; ///< static information about the codec
 
-   MpFlowGraphBase* mpFlowGraph;       ///< Pointer to the flowgraph this is part of - used for tone notification.
-   MpConnectionID mConnectionId;       ///< The ID of the connection this 'decoder' is associated with.
-   int mCurrentToneKey;                ///< The key ID
-   unsigned int mPrevToneSignature;    ///< The timestamp for last KEYUP event
-   unsigned int mCurrentToneSignature; ///< The starting timestamp
-   uint16_t mToneDuration;             ///< last reported duration
-   OsNotification* mpNotify;     ///< Object to signal on key-down/key-up events
+   UtlBoolean mHaveValidData;        ///< Does mLastRtpHeader and mLastPacketData
+                                     ///< contain valid data?
+   RtpHeader mLastRtpHeader;         ///< Copy of last received RTP packet header.
+   AvtPacket mLastPacketData;        ///< Copy of last received RTP packet payload data.
 
-   void signalKeyDown(const MpRtpBufPtr &pPacket);
-   void signalKeyUp(const MpRtpBufPtr &pPacket);
+   UtlBoolean mIsEventActive;        ///< TRUE, if some event is currently active.
+   uint8_t mActiveEvent;             ///< The key ID of active event.
+   RtpTimestamp mLastKeyUpTimetsamp; ///< The timestamp for last KEYUP event.
+   RtpTimestamp mStartingTimestamp;  ///< The timestamp of active event.
+   int32_t mLastEventDuration;       ///< Last reported event duration.
+
+     /// Reset decoder to no-active-event state.
+   void resetEventState();
 };
 
 #endif  // _MpdPtAVT_h_
