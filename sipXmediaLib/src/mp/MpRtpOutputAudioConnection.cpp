@@ -228,10 +228,9 @@ OsStatus MpRtpOutputAudioConnection::handleStartSendRtp(OsSocket& rRtpSocket,
    if(mpEncode)
    {
       result = OS_SUCCESS;
-      mpEncode->selectCodecs(pPrimaryCodec, pDtmfCodec);
-      // No need to synchronize as the encoder is not part of the
-      // flowgraph.
-      //mpFlowGraph->synchronize();
+      // Tell encoder which codecs to use (data codec and signaling codec).
+      SdpCodec* codecs[] = {pPrimaryCodec, pDtmfCodec};
+      mpEncode->handleSelectCodecs(sizeof(codecs)/sizeof(SdpCodec*), codecs);
       mpEncode->enable();
    }
    return(result);

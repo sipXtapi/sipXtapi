@@ -148,7 +148,7 @@ private:
    int   mCurrentTone;  ///< AVT event code for current tone
    int   mNumToneStops; ///< set to # of end packets to send when tone stops
    int   mTotalTime;    ///< # samples tone was active, set when tone stops
-   int   mNewTone;      ///< set when tone starts
+   UtlBoolean mNewTone;      ///< set when tone starts
 
    unsigned int   mCurrentTimestamp;
 
@@ -167,7 +167,7 @@ private:
                               unsigned char*& rpPacketPayload,
                               int& rPacketPayloadBytes);
 
-   void handleSelectCodecs(MpFlowGraphMsg& rMsg);
+   void handleSelectCodecs(int newCodecsCount, SdpCodec** newCodecs);
 
    void handleDeselectCodecs(void);
 

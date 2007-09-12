@@ -76,7 +76,7 @@ MprEncode::MprEncode(const UtlString& rName,
    mCurrentTone(-1),
    mNumToneStops(-1),
    mTotalTime(0),
-   mNewTone(0),
+   mNewTone(FALSE),
 
    mCurrentTimestamp(0),
 
@@ -150,13 +150,14 @@ OsStatus MprEncode::selectCodecs(SdpCodec* pPrimary, SdpCodec* pDtmf)
 {
    OsStatus res = OS_SUCCESS;
    MpFlowGraphMsg msg(SELECT_CODECS, this, NULL, NULL, 2, 0);
-   SdpCodec** newCodecs;
 
-   newCodecs = new SdpCodec*[2];
-   newCodecs[0] = newCodecs[1] = NULL;
-   if (NULL != pPrimary)   newCodecs[0] = new SdpCodec(*pPrimary);
-   if (NULL != pDtmf)      newCodecs[1] = new SdpCodec(*pDtmf);
+   int numNewCodecs = 2;
+   SdpCodec** newCodecs = new SdpCodec*[numNewCodecs];
+
+   newCodecs[0] = (NULL == pPrimary) ? NULL : new SdpCodec(*pPrimary);
+   newCodecs[1] = (NULL == pDtmf) ? NULL : new SdpCodec(*pDtmf);
    msg.setPtr1(newCodecs);
+   msg.setInt1(numNewCodecs);
    res = postMessage(msg);
 
    return res;
@@ -217,9 +218,8 @@ void MprEncode::handleDeselectCodecs(void)
    }
 }
 
-void MprEncode::handleSelectCodecs(MpFlowGraphMsg& rMsg)
+void MprEncode::handleSelectCodecs(int newCodecsCount, SdpCodec** newCodecs)
 {
-   SdpCodec** newCodecs;
    SdpCodec* pPrimary;
    SdpCodec* pDtmf;
    MpEncoderBase* pNewEncoder;
@@ -228,7 +228,9 @@ void MprEncode::handleSelectCodecs(MpFlowGraphMsg& rMsg)
    OsStatus ret;
    int payload;
 
-   newCodecs = (SdpCodec**) rMsg.getPtr1();
+   // We should be only given 2 codecs here right now --
+   // a data codec, and a signaling codec (for tones).
+   assert(newCodecsCount == 2);
    pPrimary = newCodecs[0];
    pDtmf = newCodecs[1];
 
@@ -236,19 +238,23 @@ void MprEncode::handleSelectCodecs(MpFlowGraphMsg& rMsg)
 
    if (OsSysLog::willLog(FAC_MP, PRI_DEBUG))
    {
-      if (NULL != pPrimary) {
+      if (NULL != pPrimary) 
+      {
          OsSysLog::add(FAC_MP, PRI_DEBUG,
                        "MprEncode::handleSelectCodecs "
                        "pPrimary->getCodecType() = %d, "
                        "pPrimary->getCodecPayloadFormat() = %d",
                        pPrimary->getCodecType(),
                        pPrimary->getCodecPayloadFormat());
-      } else {
+      } 
+      else 
+      {
          OsSysLog::add(FAC_MP, PRI_DEBUG,
                        "MprEncode::handleSelectCodecs "
                        "pPrimary == NULL");
       }
-      if (NULL != pDtmf) {
+      if (NULL != pDtmf) 
+      {
          OsSysLog::add(FAC_MP, PRI_DEBUG,
                        "MprEncode::handleSelectCodecs "
                        "pDtmf->getCodecType() = %d, "
@@ -258,7 +264,8 @@ void MprEncode::handleSelectCodecs(MpFlowGraphMsg& rMsg)
       }
    }
 
-   if (NULL != pPrimary) {
+   if (NULL != pPrimary) 
+   {
       ourCodec = pPrimary->getCodecType();
       payload = pPrimary->getCodecPayloadFormat();
       ret = pFactory->createEncoder(ourCodec, payload, pNewEncoder);
@@ -271,7 +278,8 @@ void MprEncode::handleSelectCodecs(MpFlowGraphMsg& rMsg)
       mPayloadBytesUsed = 0;
    }
 
-   if (NULL != pDtmf) {
+   if (NULL != pDtmf) 
+   {
       ourCodec = pDtmf->getCodecType();
       payload = pDtmf->getCodecPayloadFormat();
       ret = pFactory->createEncoder(ourCodec, payload, pNewEncoder);
@@ -281,13 +289,6 @@ void MprEncode::handleSelectCodecs(MpFlowGraphMsg& rMsg)
       mpDtmfCodec = pNewEncoder;
       allocPacketBuffer(*mpDtmfCodec, mpPacket2Payload, mPacket2PayloadBytes);
    }
-
-   // delete any SdpCodec objects that we did not keep pointers to.
-   if (NULL != pPrimary)   delete pPrimary;
-   if (NULL != pDtmf)      delete pDtmf;
-
-   // free the array we were sent
-   delete[] newCodecs;
 }
 
 void MprEncode::handleStartTone(int toneId)
@@ -296,7 +297,7 @@ void MprEncode::handleStartTone(int toneId)
    if ((mCurrentTone == -1) && (mNumToneStops < 1)) {
       mCurrentTone = lookupTone(toneId);
       if (mCurrentTone != -1) {
-         mNewTone = 1;
+         mNewTone = TRUE;
       }
    }
 }
@@ -318,9 +319,25 @@ UtlBoolean MprEncode::handleMessage(MpFlowGraphMsg& rMsg)
 {
    if (rMsg.getMsg() == SELECT_CODECS)
    {
-      handleSelectCodecs(rMsg);
+      int pNewCodecArrSz = rMsg.getInt1();
+      SdpCodec** pNewCodecArr = (SdpCodec**)rMsg.getPtr1();
+      // Note: handleSelectCodecs now does not free the data given to it.
+      handleSelectCodecs(pNewCodecArrSz, pNewCodecArr);
+
+      // Free the contents of the array we were sent, if not null.
+      int i;
+      for (i = 0; i < pNewCodecArrSz; i++)
+      {
+         if(NULL != pNewCodecArr[i])
+         {
+            delete pNewCodecArr[i];
+         }
+      }
+      // free the array we were sent
+      delete[] pNewCodecArr;
       return TRUE;
-   } else if (rMsg.getMsg() == DESELECT_CODECS) {
+   } 
+   else if (rMsg.getMsg() == DESELECT_CODECS) {
       handleDeselectCodecs();
       return TRUE;
    } else if (rMsg.getMsg() == START_TONE) {
@@ -485,7 +502,7 @@ void MprEncode::doDtmfCodec(unsigned int startTs, int samplesPerFrame,
    if (mpDtmfCodec == NULL)
       return;
 
-   if (mNewTone) {
+   if (mNewTone == TRUE) {
       mStartTimestamp2 = startTs;
       mDtmfSampleInterval = samplesPerFrame * 2;
       mNumToneStops = -1;
@@ -496,7 +513,7 @@ void MprEncode::doDtmfCodec(unsigned int startTs, int samplesPerFrame,
    }
 
    if (mNumToneStops-- < 0) {
-      if (mNewTone ||
+      if (mNewTone == TRUE ||
           ((mLastDtmfSendTimestamp + mDtmfSampleInterval) <= startTs)) {
 
          numSampleTimes = (startTs + samplesPerFrame) - mStartTimestamp2;
@@ -507,13 +524,13 @@ void MprEncode::doDtmfCodec(unsigned int startTs, int samplesPerFrame,
          mpPacket2Payload[2] = (numSampleTimes >> 8) & 0xff; // Big Endian
          mpPacket2Payload[3] = numSampleTimes & 0xff; // Big Endian
          mpToNet->writeRtp(mpDtmfCodec->getPayloadType(),
-                           (0 != mNewTone),  // set marker on first packet
+                           (FALSE != mNewTone),  // set marker on first packet
                            mpPacket2Payload,
                            4,
                            mStartTimestamp2,
                            NULL);
          mLastDtmfSendTimestamp = startTs;
-         mNewTone = 0;
+         mNewTone = FALSE;
 #ifdef DEBUG_DTMF_SEND /* [ */
          skipped = 0;
       } else {
