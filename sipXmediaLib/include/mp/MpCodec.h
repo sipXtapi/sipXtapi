@@ -15,6 +15,7 @@
 #define _INCLUDED_MPCODEC_H
 
 #include <os/OsStatus.h>
+#include <utl/UtlBool.h>
 /*************************************************************************/
 
 /* MCP/Codec interface: */
