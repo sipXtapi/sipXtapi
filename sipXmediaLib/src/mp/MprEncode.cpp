@@ -37,6 +37,10 @@
 #include "mp/MpMediaTask.h"
 #include "mp/MpCodecFactory.h"
 
+// DEFINES
+#define DEBUG_DTMF_SEND
+#undef  DEBUG_DTMF_SEND
+
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
@@ -515,11 +519,12 @@ void MprEncode::doDtmfCodec(unsigned int startTs, int samplesPerFrame,
       } else {
          skipped = 1;
       }
-      if (mNumToneStops > -20) {
-         osPrintf("doDtmfCodec: %d + %d = %d, %d -- %s\n",
-            mLastDtmfSendTimestamp, mDtmfSampleInterval,
-            (mLastDtmfSendTimestamp + mDtmfSampleInterval),
-            startTs, (skipped ? "skipped" : "sent"));
+      {
+         osPrintf("doDtmfCodec(%p): %d + %d = %d, %d -- %s\n",
+                  this,
+                  mLastDtmfSendTimestamp, mDtmfSampleInterval,
+                  (mLastDtmfSendTimestamp + mDtmfSampleInterval),
+                  startTs, (skipped ? "skipped" : "sent"));
 #endif /* DEBUG_DTMF_SEND ] */
       }
    } else {
@@ -542,6 +547,13 @@ void MprEncode::doDtmfCodec(unsigned int startTs, int samplesPerFrame,
          mNumToneStops = -1;
          mTotalTime = 0;
       }
+#ifdef DEBUG_DTMF_SEND /* [ */
+      osPrintf("doDtmfCodec(%p): %d + %d = %d, %d -- stop sent\n",
+               this,
+               mLastDtmfSendTimestamp, mDtmfSampleInterval,
+               (mLastDtmfSendTimestamp + mDtmfSampleInterval),
+               startTs);
+#endif /* DEBUG_DTMF_SEND ] */
    }
 }
 
@@ -574,8 +586,6 @@ UtlBoolean MprEncode::doProcessFrame(MpBufPtr inBufs[],
    if (NULL != mpDtmfCodec) {
       doDtmfCodec(mCurrentTimestamp, samplesPerFrame, samplesPerSecond);
    }
-
-   // mLastTimestamp = startTs;  // Unused?
 
    return TRUE;
 }
