@@ -48,14 +48,6 @@ class CpPhoneMediaInterface : public CpMediaInterface
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
-   enum OutputAudioDevice
-   {
-      UNKNOWN = 0x0,
-      HANDSET = 0x1,
-      SPEAKER = 0x2,
-      HEADSET = 0x4
-   };
-
 /* ============================ CREATORS ================================== */
 
    CpPhoneMediaInterface(CpMediaInterfaceFactoryImpl* pFactoryImpl,
