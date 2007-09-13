@@ -569,9 +569,10 @@ OsStatus MpOSSDeviceWrapper::initDevice(const char* devname)
                        "OSS: could not set full duplex");
       }
    }
-   // magic number, reduces latency (0x0004 dma buffers of 2 ^ 0x0008 = 256 bytes each)
-   int fragment = 0x00040007;
-   //int fragment = 0x00080007;
+   // magic number, reduces latency (0x0006 dma buffers of 2 ^ 0x0008 = 256 bytes each)
+   // For samplig rates 8000 to 16000 0x00040007 give better latency, but it does not
+   // work with sampling rates such as 32000 or 48000.
+   int fragment = 0x00060008;
    res = ioctl(mfdDevice, SNDCTL_DSP_SETFRAGMENT, &fragment);
    if(res == -1)
    {
