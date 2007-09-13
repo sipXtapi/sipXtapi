@@ -23,21 +23,20 @@
 #include <speex/speex_stereo.h>
 #include <speex/speex_preprocess.h>
 
-const char codecSpeexMIMEsubtype[] = "speex";
+static const char codecMIMEsubtype[] = "speex";
 
 struct plgCodecInfoV1 codecSPEEX = 
 {
    sizeof(struct plgCodecInfoV1),   //cbSize
-   /*SdpCodec::SDP_CODEC_SPEEX,        //codecSDPType*/
-   codecSpeexMIMEsubtype,
-   "speex",                        //codecName
-   "Speex codec",                      //codecVersion
+   codecMIMEsubtype,                //mimeSubtype
+   "speex",                         //codecName
+   "Speex codec",                   //codecVersion
    8000,                            //samplingRate
    8,                               //fmtAndBitsPerSample
    1,                               //numChannels
-   38,                             //interleaveBlockSize
+   38,                              //interleaveBlockSize
    15000,                           //bitRate
-   1*8,                            //minPacketBits
+   1*8,                             //minPacketBits
    38*8,                            //avgPacketBits
    63*8,                            //maxPacketBits
    160,                             //numSamplesPerFrame
@@ -94,7 +93,7 @@ const char* modesSPEEX[] = {
 CODEC_API int PLG_ENUM_V1(speex)(const char** mimeSubtype, unsigned int* pModesCount, const char*** modes)
 {
    if (mimeSubtype) {
-      *mimeSubtype = codecSpeexMIMEsubtype;
+      *mimeSubtype = codecMIMEsubtype;
    }
    if (pModesCount) {
       *pModesCount = (sizeof(modesSPEEX)/sizeof(modesSPEEX[0]));

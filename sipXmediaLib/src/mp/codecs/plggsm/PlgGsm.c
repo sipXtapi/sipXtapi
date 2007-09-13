@@ -30,13 +30,12 @@
 // APPLICATION INCLUDES
 #include <gsm.h>
 
-const char codecGSMMIMEsubtype[] = "gsm";
+static const char codecMIMEsubtype[] = "gsm";
 
 struct plgCodecInfoV1 codecGSM = 
 {
    sizeof(struct plgCodecInfoV1),   //cbSize
-//    SdpCodec::SDP_CODEC_GSM,        //codecSDPType
-   codecGSMMIMEsubtype,
+   codecMIMEsubtype,                // mimeSubtype
    "libgsm",                        //codecName
    "GSM 6.10",                      //codecVersion
    8000,                            //samplingRate
@@ -63,7 +62,7 @@ struct libgsm_codec_data {
 CODEC_API int PLG_ENUM_V1(libgsm)(const char** mimeSubtype, unsigned int* pModesCount, const char*** modes)
 {
    if (mimeSubtype) {
-      *mimeSubtype = codecGSMMIMEsubtype;
+      *mimeSubtype = codecMIMEsubtype;
    }
    if (pModesCount) {
       *pModesCount = 0;

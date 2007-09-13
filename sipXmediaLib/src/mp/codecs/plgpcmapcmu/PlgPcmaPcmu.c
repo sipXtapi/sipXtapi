@@ -264,13 +264,12 @@ static int G711U_Encoder(int numSamples,
 #define DECODER_HANDLE     ((void*)1)
 #define ENCODER_HANDLE     ((void*)2)
 
-const char codecPcmaMIMEsubtype[] = "pcma";
+static const char codecPcmaMIMEsubtype[] = "pcma";
 
 struct plgCodecInfoV1 sipxCodecInfoPCMA = 
 {
    sizeof(struct plgCodecInfoV1),   //cbSize
- //  SdpCodec::SDP_CODEC_PCMA,        //codecSDPType
-   codecPcmaMIMEsubtype,
+   codecPcmaMIMEsubtype,            //mimeSubtype
    "sipxPcma",                      //codecName
    "SIPfoundry 1.0",                //codecVersion
    8000,                            //samplingRate
@@ -369,7 +368,7 @@ CODEC_API int PLG_ENCODE_V1(sipxPcma)(void* handle, const void* pAudioBuffer, un
 }
 
 
-const char codecPcmuMIMEsubtype[] = "pcmu";
+static const char codecPcmuMIMEsubtype[] = "pcmu";
 
 struct plgCodecInfoV1 sipxCodecInfoPCMU = 
 {

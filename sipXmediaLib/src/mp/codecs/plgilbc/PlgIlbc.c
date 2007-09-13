@@ -22,13 +22,12 @@
 #include <iLBC_decode.h>
 #include <iLBC_encode.h>
 
-const char codeciLBCMIMEsubtype[] = "ilbc";
+static const char codecMIMEsubtype[] = "ilbc";
 
 struct plgCodecInfoV1 codeciLBC = 
 {
    sizeof(struct plgCodecInfoV1),   //cbSize
-/*   SdpCodec::SDP_CODEC_ILBC,        //codecSDPType */
-   codeciLBCMIMEsubtype,
+   codecMIMEsubtype,                //mimeSubtype
    "ilbc",                          //codecName
    "iLBC",                          //codecVersion
    8000,                            //samplingRate
@@ -41,7 +40,7 @@ struct plgCodecInfoV1 codeciLBC =
    NO_OF_BYTES_30MS * 8,            //maxPacketBits
    240,                             //numSamplesPerFrame
    6,                               //preCodecJitterBufferSize
-   1                                //Supporting PLC
+   1                                //codecSupportPLC
 };
 
 struct iLBC_coedec_data {
@@ -64,7 +63,7 @@ const char* modesiLBC[] = {
 CODEC_API int PLG_ENUM_V1(ilbc)(const char** mimeSubtype, unsigned int* pModesCount, const char*** modes)
 {
    if (mimeSubtype) {
-      *mimeSubtype = codeciLBCMIMEsubtype;
+      *mimeSubtype = codecMIMEsubtype;
    }
    if (pModesCount) {
       *pModesCount = (sizeof(modesiLBC)/sizeof(modesiLBC[0]));

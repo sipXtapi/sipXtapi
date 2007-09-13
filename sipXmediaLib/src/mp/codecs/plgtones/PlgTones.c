@@ -28,12 +28,12 @@
 #pragma comment(lib, "ws2_32.lib")
 #endif // WIN32 ]
 
-const char codecTonesMIMEsubtype[] = "telephone-events";
+static const char codecMIMEsubtype[] = "telephone-events";
 
 struct plgCodecInfoV1 codecTones = 
 {
    sizeof(struct plgCodecInfoV1),  //cbSize
-   codecTonesMIMEsubtype,          //codecSDPType
+   codecMIMEsubtype,               //codecSDPType
    "tones",                        //codecName
    "telephone-events",             //codecVersion
    8000,                           //samplingRate
@@ -119,7 +119,7 @@ static void dumpRawAvtPacket(struct tones_codec_data *mpTones)
 CODEC_API int PLG_ENUM_V1(tones)(const char** mimeSubtype, unsigned int* pModesCount, const char*** modes)
 {
    if (mimeSubtype) {
-      *mimeSubtype = codecTonesMIMEsubtype;
+      *mimeSubtype = codecMIMEsubtype;
    }
    if (pModesCount) {
       *pModesCount = 0;
