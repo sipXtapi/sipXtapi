@@ -239,7 +239,7 @@ MpSineWaveGeneratorDeviceDriver::calculateSample(MpFrameTime frameStartTime,
                                                  unsigned int samplesPerFrame, 
                                                  unsigned int samplesPerSecond)
 {
-    double time = ((frameStartTime + frameSampleIndex * 1000.0 / samplesPerSecond)
+    double time = ((frameStartTime + frameSampleIndex * 1000.0 / (double) samplesPerSecond)
         / ((double) periodInMicroseconds) * 1000.0 ) * 2.0 * M_PI;
     MpAudioSample sample = (MpAudioSample)(sin(time) * (double)magnitude);
 
