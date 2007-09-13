@@ -25,7 +25,7 @@
 #define TEST_SAMPLES_PER_SECOND       8000
 #define TEST_SAMPLE_DATA_SIZE         (TEST_SAMPLES_PER_SECOND*1)
 #define TEST_SAMPLE_DATA_MAGNITUDE    32000
-#define TEST_SAMPLE_DATA_PERIOD       11  // in milliseconds
+#define TEST_SAMPLE_DATA_PERIOD       (1000000/60) //in microseconds 60 Hz
 
 #define CREATE_TEST_RUNS_NUMBER              3
 #define ENABLE_DISABLE_TEST_RUNS_NUMBER      5
@@ -33,7 +33,7 @@
 #define DIRECT_WRITE_TEST_RUNS_NUMBER        3
 #define TICKER_TEST_WRITE_RUNS_NUMBER        3
 
-#define USE_TEST_DRIVER
+#undef USE_TEST_DRIVER
 
 #ifdef USE_TEST_DRIVER // USE_TEST_DRIVER [
 #include <mp/MpodBufferRecorder.h>
@@ -54,26 +54,21 @@
 #error Unknown platform!
 #endif
 
-static MpAudioSample sampleData[TEST_SAMPLE_DATA_SIZE];
-static UtlBoolean sampleDataInitialized=FALSE;
+//static MpAudioSample sampleData[TEST_SAMPLE_DATA_SIZE];
+//static UtlBoolean sampleDataInitialized=FALSE;
 
-static void calculateSampleData()
+static void calculateSampleData(int frequency, MpAudioSample sampleData[])
 {
-   if (sampleDataInitialized)
-      return;
-
    for (int i=0; i<TEST_SAMPLE_DATA_SIZE; i++)
    {
       sampleData[i] = 
          MpSineWaveGeneratorDeviceDriver::calculateSample(0,
                                                           TEST_SAMPLE_DATA_MAGNITUDE,
-                                                          TEST_SAMPLE_DATA_PERIOD,
+                                                          1000000 / frequency,
                                                           i,
                                                           TEST_SAMPLES_PER_FRAME_SIZE,
                                                           TEST_SAMPLES_PER_SECOND);
    }
-
-   sampleDataInitialized = TRUE;
 }
 
 /**
@@ -164,7 +159,8 @@ public:
 
    void testDirectWrite()
    {
-      calculateSampleData();
+      MpAudioSample sampleData[TEST_SAMPLE_DATA_SIZE];
+      calculateSampleData(440, sampleData);
 
       OUTPUT_DRIVER driver(OUTPUT_DRIVER_CONSTRUCTOR_PARAMS);
       CPPUNIT_ASSERT(!driver.isEnabled());
@@ -196,32 +192,40 @@ public:
    void testTickerNotification()
    {
       OsEvent notificationEvent;
+      int sampleRates[]={8000, 16000, 32000, 48000};
+      int numRates = 4;
+      MpAudioSample sampleData[TEST_SAMPLE_DATA_SIZE];
+      int frequencies[] = {1000, 2000, 4000, 8000, 16000, 20000};
+      int numFreqs = 6;
 
-      calculateSampleData();
+      int rateIndex = 0;
 
       OUTPUT_DRIVER driver(OUTPUT_DRIVER_CONSTRUCTOR_PARAMS);
       CPPUNIT_ASSERT(!driver.isEnabled());
 
-      for (int i=0; i<TICKER_TEST_WRITE_RUNS_NUMBER; i++)
+      for (int i=0; i<numFreqs; i++)
       {
+         printf("Frequency: %d (Hz) Sample rate: %d/sec.\n", 
+            frequencies[i], sampleRates[rateIndex]);
+         calculateSampleData(frequencies[i], sampleData);
          MpFrameTime frameTime=0;
 
-         driver.enableDevice(TEST_SAMPLES_PER_FRAME_SIZE, TEST_SAMPLES_PER_SECOND, 0);
+         driver.enableDevice(sampleRates[rateIndex]/100, sampleRates[rateIndex], 0);
          CPPUNIT_ASSERT(driver.isEnabled());
 
          CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, driver.setTickerNotification(&notificationEvent));
 
          // Write some data to device.
-         for (int frame=0; frame<TEST_SAMPLE_DATA_SIZE/TEST_SAMPLES_PER_FRAME_SIZE; frame++)
+         for (int frame=0; frame<100; frame++)
          {
             CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, notificationEvent.wait(OsTime(1000)));
             notificationEvent.reset();
             CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
-                                 driver.pushFrame(TEST_SAMPLES_PER_FRAME_SIZE,
-                                                  sampleData + TEST_SAMPLES_PER_FRAME_SIZE*frame,
+                                 driver.pushFrame(sampleRates[rateIndex]/100,
+                                                  sampleData + sampleRates[rateIndex]/100*frame,
                                                   frameTime));
 
-            frameTime += TEST_SAMPLES_PER_FRAME_SIZE*1000/TEST_SAMPLES_PER_SECOND;
+            frameTime += sampleRates[rateIndex]/100*1000/sampleRates[rateIndex];
          }
 
          CPPUNIT_ASSERT(driver.setTickerNotification(NULL) == OS_SUCCESS);
