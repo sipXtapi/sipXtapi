@@ -43,7 +43,7 @@ struct plgCodecInfoV1 codeciLBC =
    1                                //codecSupportPLC
 };
 
-struct iLBC_coedec_data {
+struct iLBC_codec_data {
    int mPreparedDec;
    int mPreparedEnc;
 
@@ -138,7 +138,7 @@ static int analizeDefRange(const char* str, const char* param, int defValue, int
 CODEC_API void *PLG_INIT_V1(ilbc)(const char* fmt, int bDecoder, struct plgCodecInfoV1* pCodecInfo)
 {
    int mode;
-   struct iLBC_coedec_data *mpiLBC;
+   struct iLBC_codec_data *mpiLBC;
    if (pCodecInfo == NULL) {
       return NULL;
    }
@@ -149,7 +149,7 @@ CODEC_API void *PLG_INIT_V1(ilbc)(const char* fmt, int bDecoder, struct plgCodec
 
 
    memcpy(pCodecInfo, &codeciLBC, sizeof(struct plgCodecInfoV1));
-   mpiLBC = (struct iLBC_coedec_data *)malloc(sizeof(struct iLBC_coedec_data));
+   mpiLBC = (struct iLBC_codec_data *)malloc(sizeof(struct iLBC_codec_data));
    if (!mpiLBC) {
       return NULL;
    }
@@ -195,7 +195,7 @@ CODEC_API void *PLG_INIT_V1(ilbc)(const char* fmt, int bDecoder, struct plgCodec
 CODEC_API int PLG_FREE_V1(ilbc)(void* handle)
 {
    int bDecoder;
-   struct iLBC_coedec_data *mpiLBC = (struct iLBC_coedec_data *)handle;
+   struct iLBC_codec_data *mpiLBC = (struct iLBC_codec_data *)handle;
 
    if (NULL != handle)
    {
@@ -221,7 +221,7 @@ CODEC_API int PLG_DECODE_V1(ilbc)(void* handle, const void* pCodedData, unsigned
    int i;
    float buffer[240];
    audio_sample_t* samplesBuffer = (audio_sample_t*)pAudioBuffer;
-   struct iLBC_coedec_data *mpiLBC = (struct iLBC_coedec_data *)handle;
+   struct iLBC_codec_data *mpiLBC = (struct iLBC_codec_data *)handle;
    assert(handle != NULL);
    if (!mpiLBC->mPreparedDec)
    {
@@ -275,7 +275,7 @@ CODEC_API int PLG_DECODE_V1(ilbc)(void* handle, const void* pCodedData, unsigned
 CODEC_API int PLG_ENCODE_V1(ilbc)(void* handle, const void* pAudioBuffer, unsigned cbAudioSamples, int* rSamplesConsumed, void* pCodedData,
                          unsigned cbMaxCodedData, int* pcbCodedSize, unsigned* pbSendNow)
 {
-   struct iLBC_coedec_data *mpiLBC = (struct iLBC_coedec_data *)handle;
+   struct iLBC_codec_data *mpiLBC = (struct iLBC_codec_data *)handle;
    assert(handle != NULL);
    if (!mpiLBC->mPreparedEnc)
    {

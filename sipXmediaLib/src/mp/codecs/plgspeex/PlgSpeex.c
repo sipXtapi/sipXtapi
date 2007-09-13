@@ -44,9 +44,9 @@ struct plgCodecInfoV1 codecSPEEX =
 };
 
 
-struct speex_coedec_data {
+struct speex_codec_data
+{
    void *mpDecoderState;
-   SpeexBits mDecbits;
    unsigned mNumSamplesPerFrame;
    int mPreparedDec;
 
@@ -80,7 +80,8 @@ struct speex_coedec_data {
    int mDoAgc;                 ///< Automatic Gain Control
 };
 
-static const char* defaultFmtps[] = {
+static const char* defaultFmtps[] =
+{
    "mode=2",
    "mode=3",
    "mode=4",
@@ -167,7 +168,7 @@ static int analizeDefRange(const char* str, const char* param, int defValue, int
 CODEC_API  void *PLG_INIT_V1(speex)(const char* fmt, int bDecoder, struct plgCodecInfoV1* pCodecInfo)
 {
    int mode;
-   struct speex_coedec_data *mpSPEEX;
+   struct speex_codec_data *mpSPEEX;
    if (pCodecInfo == NULL) {
       return NULL;
    }
@@ -175,7 +176,7 @@ CODEC_API  void *PLG_INIT_V1(speex)(const char* fmt, int bDecoder, struct plgCod
    mode = analizeDefRange(fmt, "mode", 3, 2, 8);
 
    memcpy(pCodecInfo, &codecSPEEX, sizeof(struct plgCodecInfoV1));
-   mpSPEEX = (struct speex_coedec_data *)malloc(sizeof(struct speex_coedec_data));
+   mpSPEEX = (struct speex_codec_data *)malloc(sizeof(struct speex_codec_data));
    if (!mpSPEEX) {
       return NULL;
    }
@@ -220,8 +221,6 @@ CODEC_API  void *PLG_INIT_V1(speex)(const char* fmt, int bDecoder, struct plgCod
       // Get number of samples in one frame
       speex_decoder_ctl(mpSPEEX->mpDecoderState,SPEEX_GET_FRAME_SIZE,&mpSPEEX->mNumSamplesPerFrame);
 
-      speex_bits_init(&mpSPEEX->mDecbits);
-
       mpSPEEX->mPreparedDec = TRUE;
    } else {
       /* Preparing encoder */
@@ -234,8 +233,6 @@ CODEC_API  void *PLG_INIT_V1(speex)(const char* fmt, int bDecoder, struct plgCod
       speex_encoder_ctl(mpSPEEX->mpEncoderState, SPEEX_SET_DTX, &mpSPEEX->mDoDtx);
       speex_encoder_ctl(mpSPEEX->mpEncoderState, SPEEX_SET_VBR, &mpSPEEX->mDoVbr);
 
-      speex_bits_init(&mpSPEEX->mBits);
-
       if(mpSPEEX->mDoPreprocess)
       {
          mpSPEEX->mpPreprocessState = speex_preprocess_state_init(160, mpSPEEX->mSampleRate);
@@ -247,6 +244,8 @@ CODEC_API  void *PLG_INIT_V1(speex)(const char* fmt, int bDecoder, struct plgCod
       mpSPEEX->mPreparedEnc = TRUE;
    }
 
+   speex_bits_init(&mpSPEEX->mBits);
+
    return mpSPEEX;
 }
 
@@ -254,7 +253,7 @@ CODEC_API  void *PLG_INIT_V1(speex)(const char* fmt, int bDecoder, struct plgCod
 CODEC_API int PLG_FREE_V1(speex)(void* handle)
 {
    int bDecoder;
-   struct speex_coedec_data *mpSPEEX = (struct speex_coedec_data *)handle;
+   struct speex_codec_data *mpSPEEX = (struct speex_codec_data *)handle;
 
    if (NULL != handle)
    {
@@ -265,17 +264,13 @@ CODEC_API int PLG_FREE_V1(speex)(void* handle)
          /* UnPreparing decoder */
          speex_decoder_destroy(mpSPEEX->mpDecoderState);
          mpSPEEX->mpDecoderState = NULL;
-
-         speex_bits_destroy(&mpSPEEX->mDecbits);
          mpSPEEX->mPreparedDec = FALSE;
       } else {
          speex_encoder_destroy(mpSPEEX->mpEncoderState);
          mpSPEEX->mpEncoderState = NULL;
-
-         speex_bits_destroy(&mpSPEEX->mBits);
-
          mpSPEEX->mPreparedEnc = FALSE;
       }
+      speex_bits_destroy(&mpSPEEX->mBits);
       free(handle);
    }
    return 0;
@@ -284,7 +279,7 @@ CODEC_API int PLG_FREE_V1(speex)(void* handle)
 
 CODEC_API  int PLG_DECODE_V1(speex)(void* handle, const void* pCodedData, unsigned cbCodedPacketSize, void* pAudioBuffer, unsigned cbBufferSize, unsigned *pcbDecodedSize, const struct RtpHeader* pRtpHeader)
 {
-   struct speex_coedec_data *mpSPEEX = (struct speex_coedec_data *)handle;
+   struct speex_codec_data *mpSPEEX = (struct speex_codec_data *)handle;
    assert(handle != NULL);
    if (!mpSPEEX->mPreparedDec)
    {
@@ -298,10 +293,10 @@ CODEC_API  int PLG_DECODE_V1(speex)(void* handle, const void* pCodedData, unsign
    }
 
    /* Prepare data for Speex decoder */
-   speex_bits_read_from(&mpSPEEX->mDecbits,(char*)pCodedData,cbCodedPacketSize);
+   speex_bits_read_from(&mpSPEEX->mBits,(char*)pCodedData,cbCodedPacketSize);
 
    /* Decode frame */
-   speex_decode_int(mpSPEEX->mpDecoderState,&mpSPEEX->mDecbits,(spx_int16_t*)pAudioBuffer);   
+   speex_decode_int(mpSPEEX->mpDecoderState,&mpSPEEX->mBits,(spx_int16_t*)pAudioBuffer);   
 
    *pcbDecodedSize = mpSPEEX->mNumSamplesPerFrame;
    return RPLG_SUCCESS;
@@ -311,7 +306,7 @@ CODEC_API int PLG_ENCODE_V1(speex)(void* handle, const void* pAudioBuffer, unsig
                           unsigned cbMaxCodedData, int* pcbCodedSize, unsigned* pbSendNow)
 {
    int size = 0;   
-   struct speex_coedec_data *mpSPEEX = (struct speex_coedec_data *)handle;
+   struct speex_codec_data *mpSPEEX = (struct speex_codec_data *)handle;
    assert(handle != NULL);
    if (!mpSPEEX->mPreparedEnc)
    {
