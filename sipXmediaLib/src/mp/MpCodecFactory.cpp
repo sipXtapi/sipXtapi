@@ -15,14 +15,9 @@
 #include <utl/UtlInit.h>
 #include <mp/MpCodecFactory.h>
 #include <os/OsSysLog.h>
-
-#include <mp/MpePtAVT.h>
-#include <mp/MpdPtAVT.h>
-
 #include <os/OsSharedLibMgr.h>
 #include <utl/UtlSListIterator.h>
 #include <os/OsFS.h>
-
 #include <mp/MpPlgEncoderWrap.h>
 #include <mp/MpPlgDecoderWrap.h>
 
@@ -43,7 +38,8 @@ public:
 
    ~MpCodecSubInfo()
    {
-      delete mpCodecCall;
+      if (!mpCodecCall->isStatic())
+         delete mpCodecCall;
    }
 
    const char* getMIMEtype() const
@@ -61,16 +57,8 @@ protected:
    const char* mpMimeSubtype;
 };
 
-
 MpCodecFactory* MpCodecFactory::spInstance = NULL;
 OsBSem MpCodecFactory::sLock(OsBSem::Q_PRIORITY, OsBSem::FULL);
-
-
-int MpCodecFactory::maxDynamicCodecTypeAssigned = 0;
-UtlBoolean MpCodecFactory::fCacheListMustUpdate = FALSE;
-SdpCodec::SdpCodecTypes* MpCodecFactory::pCodecs = NULL;
-
-UtlSList MpCodecFactory::mCodecsInfo;
 
 MpWorkaroundSDPNumList gWorkaroudForOldAPI[] =
 {
@@ -82,7 +70,8 @@ MpWorkaroundSDPNumList gWorkaroudForOldAPI[] =
    { SdpCodec::SDP_CODEC_SPEEX_5, "speex",  "mode=2"  },
    { SdpCodec::SDP_CODEC_SPEEX_15,"speex",  "mode=5"  },
    { SdpCodec::SDP_CODEC_SPEEX_24,"speex",  "mode=7"  },
-   { SdpCodec::SDP_CODEC_ILBC,    "ilbc",   NULL  }
+   { SdpCodec::SDP_CODEC_ILBC,    "ilbc",   NULL  },
+   { SdpCodec::SDP_CODEC_TONES,   "telephone-events",   NULL  }
 };
 
 #define SIZEOF_WORKAROUND_LIST     \
@@ -116,19 +105,34 @@ MpCodecFactory* MpCodecFactory::getMpCodecFactory(void)
       if (spInstance == NULL)
          spInstance = new MpCodecFactory();
       sLock.release();
-
-      spInstance->initializeStaticCodecs();
    }
    return spInstance;
 }
 
 MpCodecFactory::MpCodecFactory(void)
+: maxDynamicCodecTypeAssigned(0)
+, fCacheListMustUpdate(FALSE)
+, pCodecs(NULL)
 {
+   initializeStaticCodecs();
 }
 
 //:Destructor
 MpCodecFactory::~MpCodecFactory()
 {
+   freeAllLoadedLibsAndCodec();
+
+   MpCodecSubInfo* pinfo;
+
+   UtlSListIterator iter(mCodecsInfo);
+   while ((pinfo = (MpCodecSubInfo*)iter()))
+   { 
+      if (!pinfo->getCodecCall()->mbStatic) {
+         assert(!"Dynamics codec must be unloaded already");
+      }
+      delete pinfo;     
+   }
+   mCodecsInfo.removeAll();
 }
 
 // Returns a new instance of a decoder of the indicated type
@@ -139,11 +143,6 @@ OsStatus MpCodecFactory::createDecoder(SdpCodec::SdpCodecTypes internalCodecId,
                                        int payloadType, MpDecoderBase*& rpDecoder)
 {
    rpDecoder=NULL;
-
-   if (internalCodecId == SdpCodec::SDP_CODEC_TONES) {
-      rpDecoder = new MpdPtAVT(payloadType);
-      return OS_SUCCESS;
-   }
 
    MpCodecSubInfo* codec = NULL;
    MpWorkaroundSDPNumList* slot = searchWorkAroundSlot(internalCodecId);
@@ -177,10 +176,6 @@ OsStatus MpCodecFactory::createEncoder(SdpCodec::SdpCodecTypes internalCodecId,
                                        int payloadType, MpEncoderBase*& rpEncoder)
 {
    rpEncoder=NULL;
-   if (internalCodecId == SdpCodec::SDP_CODEC_TONES) {
-      rpEncoder = new MpePtAVT(payloadType);
-      return OS_SUCCESS;
-   }
 
    MpCodecSubInfo* codec = NULL;
    MpWorkaroundSDPNumList* slot = searchWorkAroundSlot(internalCodecId);
@@ -230,12 +225,36 @@ MpCodecCallInfoV1* MpCodecFactory::addStaticCodec(MpCodecCallInfoV1* sStaticCode
     return sStaticCodecsV1;
 }
 
+void MpCodecFactory::freeSingletonHandle()
+{
+   sLock.acquire();
+   if (spInstance != NULL)
+   {
+      delete spInstance;
+      spInstance = NULL;
+   }
+   sLock.release();
+}
+
+void MpCodecFactory::globalCleanUp()
+{
+   sLock.acquire();
+   MpCodecCallInfoV1* tmp = sStaticCodecsV1;
+   MpCodecCallInfoV1* next;
+   if (tmp) {
+      for ( ;tmp; tmp = next)
+      {
+         next = tmp->next();
+         delete tmp;
+      }
+      sStaticCodecsV1 = NULL;
+   }
+   sLock.release();
+}
+
 void MpCodecFactory::freeAllLoadedLibsAndCodec()
 {
    OsSharedLibMgrBase* pShrMgr = OsSharedLibMgr::getOsSharedLibMgr();
-   //UtlSListIterator iter(mDynCodecs);
-
-   sLock.acquire();
 
    UtlSListIterator iter(mCodecsInfo);
    MpCodecSubInfo* pinfo;
@@ -249,20 +268,24 @@ void MpCodecFactory::freeAllLoadedLibsAndCodec()
          (!libLoaded.find(&pinfo->getCodecCall()->mModuleName))) {
          libLoaded.insert(&pinfo->getCodecCall()->mModuleName);         
       }    
-
-      if (!pinfo->getCodecCall()->mbStatic) {
-         mCodecsInfo.remove(pinfo);
-         delete pinfo;         
-      }
    }
-
-   sLock.release();
 
    UtlSListIterator iter2(libLoaded);
    while ((libName = (UtlString*)iter2()))
    {
       pShrMgr->unloadSharedLib(libName->data());
    }
+
+   iter.reset();
+   while ((pinfo = (MpCodecSubInfo*)iter()))
+   {  
+      if (!pinfo->getCodecCall()->mbStatic) {
+         mCodecsInfo.remove(pinfo);
+         delete pinfo;         
+      }
+   }
+
+   fCacheListMustUpdate = TRUE;
 }
 
 
@@ -356,7 +379,7 @@ OsStatus MpCodecFactory::loadDynCodec(const char* name)
          && (pShrMgr->getSharedLibSymbol(name, dlNameEnum, address) == OS_SUCCESS)
          && ((plgEnum = (dlPlgEnumSDPAndModesV1)address) != NULL);
 
-      stSignaling = TRUE 
+      stSignaling = st 
          && (pShrMgr->getSharedLibSymbol(name, dlNameSignaling, address) == OS_SUCCESS)  
          && ((plgSignaling = (dlPlgGetSignalingDataV1)address) != NULL);
 

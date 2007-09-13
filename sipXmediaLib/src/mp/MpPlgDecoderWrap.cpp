@@ -21,6 +21,7 @@ MpPlgDecoderWrapper::MpPlgDecoderWrapper(int payloadType, const MpCodecCallInfoV
 , mSDPNumAssigned(FALSE)
 , mDefParamString(permanentDefaultMode)
 , codecSupportPLC(FALSE)
+, codecSupportNotification(FALSE)
 {
 
 }
@@ -52,8 +53,11 @@ UtlBoolean MpPlgDecoderWrapper::initializeWrapper(const char* fmt)
    if ((plgHandle != NULL) && (plgInfo.cbSize == sizeof(struct plgCodecInfoV1))) {
       mInitialized = TRUE;
 
+      codecSupportPLC = plgInfo.codecSupportPLC;
+      codecSupportNotification = plgInfo.codecSupportNotification && 
+         (mplgci.mPlgSignaling != NULL);
+
       //Filling codec information
-      //mpTmpInfo.mCodecType = mpTmpInfo.mCodecType = SdpCodec::SDP_CODEC_UNKNOWN; //(SdpCodec::SdpCodecTypes)plgInfo.codecSDPType;
       mpTmpInfo.mCodecVersion = plgInfo.codecVersion;
       mpTmpInfo.mSamplingRate = plgInfo.samplingRate;
       mpTmpInfo.mNumBitsPerSample = plgInfo.numSamplesPerFrame;
@@ -65,10 +69,9 @@ UtlBoolean MpPlgDecoderWrapper::initializeWrapper(const char* fmt)
       mpTmpInfo.mAvgPacketBits = plgInfo.avgPacketBits;
       mpTmpInfo.mMaxPacketBits = plgInfo.maxPacketBits;
       mpTmpInfo.mPreCodecJitterBufferSize = plgInfo.preCodecJitterBufferSize;
-      mpTmpInfo.mIsSignalingCodec = FALSE;
+      mpTmpInfo.mIsSignalingCodec = codecSupportNotification;
       mpTmpInfo.mDoesVadCng = FALSE;
 
-      codecSupportPLC = plgInfo.codecSupportPLC;
    } else {
       mInitialized = FALSE;
    }
@@ -144,3 +147,27 @@ int MpPlgDecoderWrapper::decode(const MpRtpBufPtr &pPacket,
 }
 
 
+OsStatus MpPlgDecoderWrapper::getSignalingData(uint8_t &event,
+                                  UtlBoolean &isStarted,
+                                  UtlBoolean &isStopped,
+                                  uint16_t &duration)
+{
+   if (!codecSupportNotification) 
+      return OS_NOT_SUPPORTED;
+
+   uint32_t wEvent, wStartStatus, wStopStatus, wDuration;
+   int res;
+
+   res = mplgci.mPlgSignaling(plgHandle, SIGNALING_DEFAULT_TYPE,
+      &wEvent, &wStartStatus, &wStopStatus, &wDuration);
+
+   switch (res)
+   {
+   case RPLG_SUCCESS:
+      return OS_SUCCESS;
+   case RPLG_NO_MORE_DATA:
+      return OS_NO_MORE_DATA;
+   default:
+      return OS_FAILED;
+   }
+}

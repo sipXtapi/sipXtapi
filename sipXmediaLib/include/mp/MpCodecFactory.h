@@ -30,6 +30,7 @@
 #include "os/OsSharedLibMgr.h"
 #include "mp/codecs/PlgDefsV1.h"
 #include "mp/MpPlgStaffV1.h"
+#include "mp/MpMisc.h"
 
 // DEFINES
 // MACROS
@@ -57,6 +58,7 @@ public:
 */
 class MpCodecFactory
 {
+   friend OsStatus mpShutdown();
    friend class MpCodecCallInfoV1;
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
@@ -65,6 +67,7 @@ public:
 /* ============================ CREATORS ================================== */
 ///@name Creators
 //@{
+ 
      /// Get/create singleton factory.
    static MpCodecFactory* getMpCodecFactory(void);
      /**<
@@ -75,23 +78,22 @@ public:
      /// Destructor
    virtual
    ~MpCodecFactory();
- 
-     
-   //void release(void);
+
 //@}
 
 /* ============================ MANIPULATORS ============================== */
 ///@name Manipulators
 //@{
+
      /// Returns a new instance of a decoder of the indicated type
    OsStatus createDecoder(SdpCodec::SdpCodecTypes internalCodecId,
                           int payloadType,
                           MpDecoderBase*& rpDecoder);
-   /**<
-   *  @param[in]  internalCodecId - codec type identifier
-   *  @param[in]  payloadType - RTP payload type associated with this decoder
-   *  @param[out] rpDecoder - Reference to a pointer to the new decoder object
-   */
+     /**<
+     *  @param[in]  internalCodecId - codec type identifier
+     *  @param[in]  payloadType - RTP payload type associated with this decoder
+     *  @param[out] rpDecoder - Reference to a pointer to the new decoder object
+     */
 
      /// Returns a new instance of an encoder of the indicated type
    OsStatus createEncoder(SdpCodec::SdpCodecTypes internalCodecId,
@@ -122,9 +124,6 @@ public:
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 
-     /// Should be called from global .dtor to prevent memory leaks due static codecs allocation
-   void globalCleanUp();
-
      /// Constructor (called only indirectly via getMpCodecFactory())
    MpCodecFactory();
      /**<
@@ -145,30 +144,35 @@ public:
    OsStatus loadAllDynCodecs(const char* path, const char* regexFilter);
 
      /// Initialize all static codecs. Should be called only from mpStartup() 
-   void initializeStaticCodecs(); 
+   void initializeStaticCodecs();
+
+protected:
      /// Deinitialize all dynamic codecs.  Should be called only from mpShutdown() 
    void freeAllLoadedLibsAndCodec();
+     /// Deinitialize all static codecs and freeing handle. Should be called only mpShutdown()
+   static void freeSingletonHandle();
+     /// Freeing internal data of static codecs.  Should be called only from global .dtor
+   static void globalCleanUp();
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-   static int maxDynamicCodecTypeAssigned; //< Maximum number of dynamically assigned SdpCodecType
-   static UtlBoolean fCacheListMustUpdate; //< Flag points that cached array must be rebuilt in the next call 
-   static SdpCodec::SdpCodecTypes* pCodecs; //< Cached array of known codecs
+   int maxDynamicCodecTypeAssigned; ///< Maximum number of dynamically assigned SdpCodecType
+   UtlBoolean fCacheListMustUpdate; ///< Flag points that cached array must be rebuilt in the next call 
+   SdpCodec::SdpCodecTypes* pCodecs; ///< Cached array of known codecs
+   
+   UtlSList mCodecsInfo; ///< list of all known and workable codecs
 
    // Static data members used to enforce Singleton behavior
-   static MpCodecFactory* spInstance; //< pointer to the single instance of
-                                      //<  the MpCodecFactory class.
-   static OsBSem sLock; //< semaphore used to ensure that there is only one 
-                        //< instance of this class.
+   static MpCodecFactory* spInstance; ///< pointer to the single instance of
+                                      ///<  the MpCodecFactory class.
+   static OsBSem sLock; ///< semaphore used to ensure that there is only one 
+                        ///< instance of this class.
+   static MpCodecCallInfoV1* sStaticCodecsV1; ///< List of all static codecs. Filled by global magic .ctor
 
-   static UtlSList mCodecsInfo; //< list of all known and workable codecs
+   void updateCodecArray(void); ///< not implemented yet
+   OsStatus addCodecWrapperV1(MpCodecCallInfoV1* wrapper); ///< Build 
 
-   void updateCodecArray(void); //< not implemented yet
-   OsStatus addCodecWrapperV1(MpCodecCallInfoV1* wrapper); // Build 
-
-   static int assignAudioSDPnumber(const UtlString& mimeSubtypeInLowerCase); //< mimeSubtype SHOULD BE in lower case
-
-   static MpCodecCallInfoV1* sStaticCodecsV1; //< List of all static codecs. Filled by global magic .ctor
+   int assignAudioSDPnumber(const UtlString& mimeSubtypeInLowerCase); ///< mimeSubtype SHOULD BE in lower case   
 
      /// Copy constructor (not supported)
    MpCodecFactory(const MpCodecFactory& rMpCodecFactory);

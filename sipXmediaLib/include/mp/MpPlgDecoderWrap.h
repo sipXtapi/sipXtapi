@@ -29,19 +29,31 @@ protected:
    const char* mDefParamString;
 
    UtlBoolean codecSupportPLC;
+   UtlBoolean codecSupportNotification;
 
 public:
    MpPlgDecoderWrapper(int payloadType, const MpCodecCallInfoV1& plgci, const char* permanentDefaultMode);
    virtual ~MpPlgDecoderWrapper();
 
+     /// Create decoder with parsing custom fmtp string
    virtual OsStatus initDecode(const char* codecFmtString);
+     /// @copydoc MpDecoderBase::initDecode()
    virtual OsStatus initDecode();
+     /// @copydoc MpDecoderBase::freeDecode()
    virtual OsStatus freeDecode();
 
+     /// @copydoc MpDecoderBase::decode()
    virtual int decode(const MpRtpBufPtr &pPacket,
       unsigned decodedBufferLength,
       MpAudioSample *samplesBuffer);
 
+     /// @copydoc MpDecoderBase::getSignalingData()
+   virtual OsStatus getSignalingData(uint8_t &event,
+                                     UtlBoolean &isStarted,
+                                     UtlBoolean &isStopped,
+                                     uint16_t &duration);
+
+     /// @copydoc MpDecoderBase::getInfo()
    virtual const MpCodecInfo* getInfo(void) const;
 protected:
    OsStatus setAssignedSDPNum(SdpCodec::SdpCodecTypes sdpNum); //< SHOULD BE Removed after new API has been merged with sipX

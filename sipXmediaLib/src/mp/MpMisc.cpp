@@ -767,6 +767,7 @@ OsStatus mpShutdown(void)
             MpMisc.RawAudioPool = NULL;
         }
 
+        MpCodecFactory::freeSingletonHandle();
         return OS_SUCCESS;
 }
 
