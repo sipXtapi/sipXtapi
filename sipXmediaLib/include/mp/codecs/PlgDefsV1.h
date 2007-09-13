@@ -56,8 +56,8 @@ struct plgCodecInfoV1
 										///< jitter buffer, which implies that the
 										///< codec itself is doing the JB function.
 
-   unsigned    codecSupportPLC; 
-   unsigned    codecSupportNotification;
+   unsigned    codecSupportPLC;        ///< set to 1 if codec have internal PLC
+   unsigned    signalingCodec;         ///< set to 1 if codec could carry DTMF tones
 };
 
 #define DECLARE_FUNCS_V1(x) \

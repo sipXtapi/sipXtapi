@@ -29,7 +29,7 @@ protected:
    const char* mDefParamString;
 
    UtlBoolean codecSupportPLC;
-   UtlBoolean codecSupportNotification;
+   UtlBoolean signalingCodec;
 
 public:
    MpPlgDecoderWrapper(int payloadType, const MpCodecCallInfoV1& plgci, const char* permanentDefaultMode);

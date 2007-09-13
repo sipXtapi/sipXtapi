@@ -21,7 +21,7 @@ MpPlgDecoderWrapper::MpPlgDecoderWrapper(int payloadType, const MpCodecCallInfoV
 , mSDPNumAssigned(FALSE)
 , mDefParamString(permanentDefaultMode)
 , codecSupportPLC(FALSE)
-, codecSupportNotification(FALSE)
+, signalingCodec(FALSE)
 {
 
 }
@@ -54,7 +54,7 @@ UtlBoolean MpPlgDecoderWrapper::initializeWrapper(const char* fmt)
       mInitialized = TRUE;
 
       codecSupportPLC = plgInfo.codecSupportPLC;
-      codecSupportNotification = plgInfo.codecSupportNotification && 
+      signalingCodec = plgInfo.signalingCodec && 
          (mplgci.mPlgSignaling != NULL);
 
       //Filling codec information
@@ -69,7 +69,7 @@ UtlBoolean MpPlgDecoderWrapper::initializeWrapper(const char* fmt)
       mpTmpInfo.mAvgPacketBits = plgInfo.avgPacketBits;
       mpTmpInfo.mMaxPacketBits = plgInfo.maxPacketBits;
       mpTmpInfo.mPreCodecJitterBufferSize = plgInfo.preCodecJitterBufferSize;
-      mpTmpInfo.mIsSignalingCodec = codecSupportNotification;
+      mpTmpInfo.mIsSignalingCodec = signalingCodec;
       mpTmpInfo.mDoesVadCng = FALSE;
 
    } else {
@@ -152,7 +152,7 @@ OsStatus MpPlgDecoderWrapper::getSignalingData(uint8_t &event,
                                   UtlBoolean &isStopped,
                                   uint16_t &duration)
 {
-   if (!codecSupportNotification) 
+   if (!signalingCodec) 
       return OS_NOT_SUPPORTED;
 
    uint32_t wEvent, wStartStatus, wStopStatus, wDuration;

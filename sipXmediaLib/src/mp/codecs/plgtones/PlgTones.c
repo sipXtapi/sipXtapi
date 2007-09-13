@@ -47,7 +47,7 @@ struct plgCodecInfoV1 codecTones =
    0,                              //numSamplesPerFrame
    0,                              //preCodecJitterBufferSize
    0,                              //codecSupportPLC
-   TRUE                            //codecSupportNotification
+   TRUE                            //signalingCodec
 };
 
 struct AvtPacket
