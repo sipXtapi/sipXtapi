@@ -197,11 +197,11 @@ public:
       OsEvent notificationEvent;
       int sampleRates[]={8000, 16000, 32000, 48000};
       int numRates = 4;
-      MpAudioSample sampleData[TEST_SAMPLE_DATA_SIZE];
       int frequencies[] = {1000, 2000, 4000, 8000, 16000, 20000};
       int numFreqs = 6;
 
       int rateIndex = 0;
+      MpAudioSample* sampleData = new MpAudioSample[sampleRates[rateIndex]];
 
       OUTPUT_DRIVER driver(OUTPUT_DRIVER_CONSTRUCTOR_PARAMS);
       CPPUNIT_ASSERT(!driver.isEnabled());
@@ -236,6 +236,7 @@ public:
          driver.disableDevice();
          CPPUNIT_ASSERT(!driver.isEnabled());
       }
+      delete[] sampleData;
    }
 
 protected:
