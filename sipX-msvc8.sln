@@ -118,6 +118,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "plgspeex-msvc8", "sipXmedia
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libilbc-msvc8", "sipXmediaLib\contrib\libilbc\VS2005\libilbc-msvc8.vcproj", "{214007F3-D6E8-4B07-AC00-9FB673FF539E}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "plgtones-msvc8", "sipXmediaLib\src\mp\codecs\plgtones\plgtones-msvc8.vcproj", "{F3BCA14E-F24D-4570-833E-8C20C4C393F7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Pocket PC 2003 (ARMV4) = Debug|Pocket PC 2003 (ARMV4)
