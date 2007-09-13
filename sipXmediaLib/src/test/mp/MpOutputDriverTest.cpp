@@ -57,7 +57,10 @@
 //static MpAudioSample sampleData[TEST_SAMPLE_DATA_SIZE];
 //static UtlBoolean sampleDataInitialized=FALSE;
 
-static void calculateSampleData(int frequency, MpAudioSample sampleData[])
+static void calculateSampleData(int frequency, 
+                                MpAudioSample sampleData[], 
+                                int samplesPerFrame,
+                                int samplesPerSecond)
 {
    for (int i=0; i<TEST_SAMPLE_DATA_SIZE; i++)
    {
@@ -66,8 +69,8 @@ static void calculateSampleData(int frequency, MpAudioSample sampleData[])
                                                           TEST_SAMPLE_DATA_MAGNITUDE,
                                                           1000000 / frequency,
                                                           i,
-                                                          TEST_SAMPLES_PER_FRAME_SIZE,
-                                                          TEST_SAMPLES_PER_SECOND);
+                                                          samplesPerFrame,
+                                                          samplesPerSecond);
    }
 }
 
@@ -160,7 +163,7 @@ public:
    void testDirectWrite()
    {
       MpAudioSample sampleData[TEST_SAMPLE_DATA_SIZE];
-      calculateSampleData(440, sampleData);
+      calculateSampleData(440, sampleData, 80, 8000);
 
       OUTPUT_DRIVER driver(OUTPUT_DRIVER_CONSTRUCTOR_PARAMS);
       CPPUNIT_ASSERT(!driver.isEnabled());
@@ -207,7 +210,7 @@ public:
       {
          printf("Frequency: %d (Hz) Sample rate: %d/sec.\n", 
             frequencies[i], sampleRates[rateIndex]);
-         calculateSampleData(frequencies[i], sampleData);
+         calculateSampleData(frequencies[i], sampleData, sampleRates[rateIndex]/100, sampleRates[rateIndex]);
          MpFrameTime frameTime=0;
 
          driver.enableDevice(sampleRates[rateIndex]/100, sampleRates[rateIndex], 0);
