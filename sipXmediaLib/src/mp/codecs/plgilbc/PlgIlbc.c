@@ -55,7 +55,7 @@ struct iLBC_coedec_data {
    struct iLBC_Enc_Inst_t_* mpStateEnc;   ///< Internal iLBC decoder state.
 };
 
-const char* modesiLBC[] = {
+static const char* defaultFmtps[] = {
    "mode=30",
    "mode=20"
 };
@@ -66,10 +66,10 @@ CODEC_API int PLG_ENUM_V1(ilbc)(const char** mimeSubtype, unsigned int* pModesCo
       *mimeSubtype = codecMIMEsubtype;
    }
    if (pModesCount) {
-      *pModesCount = (sizeof(modesiLBC)/sizeof(modesiLBC[0]));
+      *pModesCount = (sizeof(defaultFmtps)/sizeof(defaultFmtps[0]));
    }
    if (modes) {
-      *modes = modesiLBC;
+      *modes = defaultFmtps;
    }
    return RPLG_SUCCESS;
 }

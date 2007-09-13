@@ -80,7 +80,7 @@ struct speex_coedec_data {
    int mDoAgc;                 ///< Automatic Gain Control
 };
 
-const char* modesSPEEX[] = {
+static const char* defaultFmtps[] = {
    "mode=2",
    "mode=3",
    "mode=4",
@@ -96,10 +96,10 @@ CODEC_API int PLG_ENUM_V1(speex)(const char** mimeSubtype, unsigned int* pModesC
       *mimeSubtype = codecMIMEsubtype;
    }
    if (pModesCount) {
-      *pModesCount = (sizeof(modesSPEEX)/sizeof(modesSPEEX[0]));
+      *pModesCount = (sizeof(defaultFmtps)/sizeof(defaultFmtps[0]));
    }
    if (modes) {
-      *modes = modesSPEEX;
+      *modes = defaultFmtps;
    }
    return RPLG_SUCCESS;
 }
