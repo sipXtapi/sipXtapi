@@ -33,28 +33,27 @@ extern "C" {
 
 struct plgCodecInfoV1
 {
-   unsigned    cbSize;					///< Size of srtuct for computability with future version
-   const char* mimeSubtype;         ///< codec type 
-   const char* codecName;				///< string identifying the codec name
-   const char* codecVersion;			///< string identifying the codec version
-   unsigned    samplingRate;			///< sampling rate for the PCM data expected by the codec
-//	unsigned    numBitsPerSample,
+   unsigned    cbSize;                 ///< Size of srtuct for computability with future version
+   const char* mimeSubtype;            ///< codec type 
+   const char* codecName;              ///< string identifying the codec name
+   const char* codecVersion;           ///< string identifying the codec version
+   unsigned    samplingRate;           ///< sampling rate for the PCM data expected by the codec
    unsigned    fmtAndBitsPerSample;    ///< Format of data and bits per sample count
                                        ///< e.g. AFMT_U16LE, AFMT_S16LE, AFMT_S16BE, AFMT_U16BE
-   unsigned    numChannels;			   ///< number of channels supported by the codec
-   unsigned    interleaveBlockSize; 	///< size of the interleave block (in samples)
-   unsigned    bitRate;				      ///< bit rate for this codec (in bits per second)
-   unsigned    minPacketBits;			   ///< minimum number of bits in an encoded frame
-   unsigned    avgPacketBits;			   ///< average number of bits in an encoded frame
-   unsigned    maxPacketBits;			   ///< maximum number of bits in an encoded frame
-   unsigned    numSamplesPerFrame;		///< number of PCM samples per input frame
-										         ///< for this codec
+   unsigned    numChannels;            ///< number of channels supported by the codec
+   unsigned    interleaveBlockSize;    ///< size of the interleave block (in samples)
+   unsigned    bitRate;                ///< bit rate for this codec (in bits per second)
+   unsigned    minPacketBits;          ///< minimum number of bits in an encoded frame
+   unsigned    avgPacketBits;          ///< average number of bits in an encoded frame
+   unsigned    maxPacketBits;          ///< maximum number of bits in an encoded frame
+   unsigned    numSamplesPerFrame;     ///< number of PCM samples per input frame
+                                       ///< for this codec
    unsigned    preCodecJitterBufferSize; ///< requested length of jitter
-										///< buffer that the flowgraph should apply to
-										///< the stream prior to getting packets for
-										///< the codec. If set to 0, then there is NO
-										///< jitter buffer, which implies that the
-										///< codec itself is doing the JB function.
+                                       ///< buffer that the flowgraph should apply to
+                                       ///< the stream prior to getting packets for
+                                       ///< the codec. If set to 0, then there is NO
+                                       ///< jitter buffer, which implies that the
+                                       ///< codec itself is doing the JB function.
 
    unsigned    codecSupportPLC;        ///< set to 1 if codec have internal PLC
    unsigned    signalingCodec;         ///< set to 1 if codec could carry DTMF tones
@@ -71,21 +70,21 @@ struct plgCodecInfoV1
 extern "C"  DECLARE_FUNCS_V1(x)
 
 #define PLG_GET_CODEC_NAME             get_codecs_v1
-#define PLG_INIT_V1(x)		            x##_init_v1
-#define PLG_DECODE_V1(x)	            x##_decode_v1
-#define PLG_ENCODE_V1(x)	            x##_encode_v1
-#define PLG_FREE_V1(x)		            x##_free_v1
+#define PLG_INIT_V1(x)                 x##_init_v1
+#define PLG_DECODE_V1(x)               x##_decode_v1
+#define PLG_ENCODE_V1(x)               x##_encode_v1
+#define PLG_FREE_V1(x)                 x##_free_v1
 #define PLG_ENUM_V1(x)                 x##_enumsdp_modes_v1
 #define PLG_SIGNALING_V1(x)            x##_signaling_v1
 
-#define MSK_INIT_V1		   	         "_init_v1"
-#define MSK_DECODE_V1	   	         "_decode_v1"
-#define MSK_ENCODE_V1	   	         "_encode_v1"
-#define MSK_FREE_V1		   	         "_free_v1"
+#define MSK_INIT_V1                    "_init_v1"
+#define MSK_DECODE_V1                  "_decode_v1"
+#define MSK_ENCODE_V1                  "_encode_v1"
+#define MSK_FREE_V1                    "_free_v1"
 #define MSK_ENUM_V1                    "_enumsdp_modes_v1"
 #define MSK_SIGNALING_V1               "_signaling_v1"
 
-#define MSK_GET_CODEC_NAME_V1    	   "get_codecs_v1"
+#define MSK_GET_CODEC_NAME_V1          "get_codecs_v1"
 
 #define RPLG_SUCCESS                    0
 #define RPLG_INVALID_ARGUMENT           (-1)
