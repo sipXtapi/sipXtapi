@@ -59,10 +59,11 @@
 
 static void calculateSampleData(int frequency, 
                                 MpAudioSample sampleData[], 
+                                int sampleDataSz,
                                 int samplesPerFrame,
                                 int samplesPerSecond)
 {
-   for (int i=0; i<TEST_SAMPLE_DATA_SIZE; i++)
+   for (int i=0; i<sampleDataSz; i++)
    {
       sampleData[i] = 
          MpSineWaveGeneratorDeviceDriver::calculateSample(0,
@@ -163,7 +164,7 @@ public:
    void testDirectWrite()
    {
       MpAudioSample sampleData[TEST_SAMPLE_DATA_SIZE];
-      calculateSampleData(440, sampleData, 80, 8000);
+      calculateSampleData(440, sampleData, TEST_SAMPLE_DATA_SIZE, 80, 8000);
 
       OUTPUT_DRIVER driver(OUTPUT_DRIVER_CONSTRUCTOR_PARAMS);
       CPPUNIT_ASSERT(!driver.isEnabled());
@@ -196,12 +197,13 @@ public:
    {
       OsEvent notificationEvent;
       int sampleRates[]={8000, 16000, 32000, 48000};
-      int numRates = 4;
-      int frequencies[] = {1000, 2000, 4000, 8000, 16000, 20000};
-      int numFreqs = 6;
+      int numRates = sizeof(sampleRates)/sizeof(int);
+      int frequencies[] = {1000, 2000, 4000, 8000, 16000, 20000, 24000, 28000};
+      int numFreqs = sizeof(frequencies)/sizeof(int);
 
       int rateIndex = 0;
-      MpAudioSample* sampleData = new MpAudioSample[sampleRates[rateIndex]];
+      int sampleDataSz = sampleRates[rateIndex];
+      MpAudioSample* sampleData = new MpAudioSample[sampleDataSz];
 
       OUTPUT_DRIVER driver(OUTPUT_DRIVER_CONSTRUCTOR_PARAMS);
       CPPUNIT_ASSERT(!driver.isEnabled());
@@ -210,7 +212,8 @@ public:
       {
          printf("Frequency: %d (Hz) Sample rate: %d/sec.\n", 
             frequencies[i], sampleRates[rateIndex]);
-         calculateSampleData(frequencies[i], sampleData, sampleRates[rateIndex]/100, sampleRates[rateIndex]);
+         calculateSampleData(frequencies[i], sampleData, sampleDataSz, 
+                             sampleRates[rateIndex]/100, sampleRates[rateIndex]);
          MpFrameTime frameTime=0;
 
          driver.enableDevice(sampleRates[rateIndex]/100, sampleRates[rateIndex], 0);
