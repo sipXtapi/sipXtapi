@@ -434,8 +434,11 @@ extern void doFrameLoop(int sampleRate, int frame_samples);
 extern STATUS netStartup();
 
 #ifndef CODEC_PLUGIN_PATH
-#define CODEC_PLUGIN_PATH "..\\..\\sipXmediaLib\\bin\\"
+#define CODEC_PLUGIN_PATH  "..\\..\\sipXmediaLib\\bin\\"
+#define CODEC_PLUGIN_PATH2 "..\\sipXmediaLib\\bin\\"
+#define CODEC_PLUGIN_PATH3 ".\\"
 #endif
+
 
 OsStatus mpStartUp(int sampleRate, int samplesPerFrame,
                    int numAudioBuffers, OsConfigDb* pConfigDb)
@@ -457,6 +460,12 @@ OsStatus mpStartUp(int sampleRate, int samplesPerFrame,
 
         MpCodecFactory* pcf = MpCodecFactory::getMpCodecFactory();
         pcf->loadAllDynCodecs(CODEC_PLUGIN_PATH, "codec_.*\\.dll" );
+#ifdef CODEC_PLUGIN_PATH2
+        pcf->loadAllDynCodecs(CODEC_PLUGIN_PATH2, "codec_.*\\.dll" );
+#endif
+#ifdef CODEC_PLUGIN_PATH3
+        pcf->loadAllDynCodecs(CODEC_PLUGIN_PATH3, "codec_.*\\.dll" );
+#endif
 
 #ifdef _VXWORKS /* [ */
         /* Rashly assumes page size is a power of two */
