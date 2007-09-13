@@ -11,19 +11,6 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
-
-//////////////////////////////////////////////////////////////////////////////
-//  G.729 enabling controls.  Currently only on VxWorks and Windows
-//////////////////////////////////////////////////////////////////////////////
-
-#undef PLATFORM_SUPPORTS_G729
-
-#ifdef HAVE_G729
-#define PLATFORM_SUPPORTS_G729
-#endif
-
-//////////////////////////////////////////////////////////////////////////////
-
 #include <assert.h>
 #include <utl/UtlInit.h>
 #include <mp/MpCodecFactory.h>
@@ -40,6 +27,40 @@
 #include <mp/MpPlgDecoderWrap.h>
 
 #include <sdp/SdpCodec.h>
+
+class MpCodecSubInfo : public UtlVoidPtr
+{
+public:
+
+   MpCodecSubInfo(MpCodecCallInfoV1* pCodecCall,
+                  SdpCodec::SdpCodecTypes assignedSDPnum,
+                  const char* pMimeSubtype)
+      : mpCodecCall(pCodecCall)
+      , mAssignedSDPnum(assignedSDPnum)
+      , mpMimeSubtype(pMimeSubtype)
+   {
+   }
+
+   ~MpCodecSubInfo()
+   {
+      delete mpCodecCall;
+   }
+
+   const char* getMIMEtype() const
+   { return mpMimeSubtype; }
+
+   SdpCodec::SdpCodecTypes getSDPtype() const
+   { return mAssignedSDPnum; }
+
+   MpCodecCallInfoV1* getCodecCall() const
+   { return mpCodecCall; }
+
+protected:
+   MpCodecCallInfoV1* mpCodecCall;
+   SdpCodec::SdpCodecTypes mAssignedSDPnum;
+   const char* mpMimeSubtype;
+};
+
 
 MpCodecFactory* MpCodecFactory::spInstance = NULL;
 OsBSem MpCodecFactory::sLock(OsBSem::Q_PRIORITY, OsBSem::FULL);
@@ -64,7 +85,8 @@ MpWorkaroundSDPNumList gWorkaroudForOldAPI[] =
    { SdpCodec::SDP_CODEC_ILBC,    "ilbc",   NULL  }
 };
 
-#define SIZEOF_WORKAROUND_LIST     (sizeof(gWorkaroudForOldAPI) / sizeof(gWorkaroudForOldAPI[0]))
+#define SIZEOF_WORKAROUND_LIST     \
+   (sizeof(gWorkaroudForOldAPI) / sizeof(gWorkaroudForOldAPI[0]))
 
 static MpWorkaroundSDPNumList* searchWorkAroundSlot(SdpCodec::SdpCodecTypes num)
 {
@@ -131,7 +153,7 @@ OsStatus MpCodecFactory::createDecoder(SdpCodec::SdpCodecTypes internalCodecId,
    }
  
    if (codec) {      
-      rpDecoder = new MpPlgDecoderWrapper(payloadType, *codec->mpCodecCall, slot->extraMode);
+      rpDecoder = new MpPlgDecoderWrapper(payloadType, *codec->getCodecCall(), slot->extraMode);
       ((MpPlgDecoderWrapper*)rpDecoder)->setAssignedSDPNum(internalCodecId);
 
    } else {
@@ -168,7 +190,7 @@ OsStatus MpCodecFactory::createEncoder(SdpCodec::SdpCodecTypes internalCodecId,
    }
 
    if (codec) {      
-      rpEncoder = new MpPlgEncoderWrapper(payloadType, *codec->mpCodecCall, slot->extraMode);
+      rpEncoder = new MpPlgEncoderWrapper(payloadType, *codec->getCodecCall(), slot->extraMode);
       ((MpPlgEncoderWrapper*)rpEncoder)->setAssignedSDPNum(internalCodecId);
 
    } else {
@@ -196,7 +218,7 @@ MpCodecSubInfo* MpCodecFactory::searchByMIME(UtlString& str)
 
    while ((pinfo = (MpCodecSubInfo*)iter()))
    { 
-      if (str.compareTo(pinfo->mpMimeSubtype) == 0)
+      if (str.compareTo(pinfo->getMIMEtype()) == 0)
          return pinfo;
    }
    return NULL;
@@ -223,13 +245,12 @@ void MpCodecFactory::freeAllLoadedLibsAndCodec()
 
    while ((pinfo = (MpCodecSubInfo*)iter()))
    {  
-      if ((!pinfo->mpCodecCall->mbStatic) && (!libLoaded.find(&pinfo->mpCodecCall->mModuleName))) {
-         libLoaded.insert(&pinfo->mpCodecCall->mModuleName);
+      if ((!pinfo->getCodecCall()->mbStatic) && 
+         (!libLoaded.find(&pinfo->getCodecCall()->mModuleName))) {
+         libLoaded.insert(&pinfo->getCodecCall()->mModuleName);         
       }    
 
-      if (!pinfo->mpCodecCall->mbStatic) {
-         delete pinfo->mpCodecCall;
-         //pinfo->mpCodecCall = NULL;
+      if (!pinfo->getCodecCall()->mbStatic) {
          mCodecsInfo.remove(pinfo);
          delete pinfo;         
       }
@@ -303,8 +324,10 @@ OsStatus MpCodecFactory::loadDynCodec(const char* name)
          }
          return OS_SUCCESS;
       }
+
       // Obtaining codecs functions
-      OsStatus st1, st2, st3, st4, st5, st6; //, st7;
+      UtlBoolean st;
+      UtlBoolean stSignaling;
 
       UtlString strCodecName = codecName;
       UtlString dlNameInit = strCodecName + MSK_INIT_V1;
@@ -321,29 +344,38 @@ OsStatus MpCodecFactory::loadDynCodec(const char* name)
       dlPlgEnumSDPAndModesV1 plgEnum;
       dlPlgGetSignalingDataV1 plgSignaling;
 
-      st1 = pShrMgr->getSharedLibSymbol(name, dlNameInit, address);  plgInitAddr = (dlPlgInitV1)address;
-      st2 = pShrMgr->getSharedLibSymbol(name, dlNameDecode, address);  plgDecodeAddr = (dlPlgDecodeV1)address;
-      st3 = pShrMgr->getSharedLibSymbol(name, dlNameEncdoe, address);  plgEncodeAddr = (dlPlgEncodeV1)address;
-      st4 = pShrMgr->getSharedLibSymbol(name, dlNameFree, address);  plgFreeAddr = (dlPlgFreeV1)address;
-      st5 = pShrMgr->getSharedLibSymbol(name, dlNameEnum, address);  plgEnum = (dlPlgEnumSDPAndModesV1)address;
-      st6 = pShrMgr->getSharedLibSymbol(name, dlNameSignaling, address);  plgSignaling = (dlPlgGetSignalingDataV1)address;
+      st = TRUE 
+         && (pShrMgr->getSharedLibSymbol(name, dlNameInit, address) == OS_SUCCESS)
+         && ((plgInitAddr = (dlPlgInitV1)address) != NULL)
+         && (pShrMgr->getSharedLibSymbol(name, dlNameDecode, address) == OS_SUCCESS)
+         && ((plgDecodeAddr = (dlPlgDecodeV1)address) != NULL)
+         && (pShrMgr->getSharedLibSymbol(name, dlNameEncdoe, address) == OS_SUCCESS)
+         && ((plgEncodeAddr = (dlPlgEncodeV1)address) != NULL)
+         && (pShrMgr->getSharedLibSymbol(name, dlNameFree, address) == OS_SUCCESS)
+         && ((plgFreeAddr = (dlPlgFreeV1)address) != NULL)
+         && (pShrMgr->getSharedLibSymbol(name, dlNameEnum, address) == OS_SUCCESS)
+         && ((plgEnum = (dlPlgEnumSDPAndModesV1)address) != NULL);
 
-      if (st6 != OS_SUCCESS)
+      stSignaling = TRUE 
+         && (pShrMgr->getSharedLibSymbol(name, dlNameSignaling, address) == OS_SUCCESS)  
+         && ((plgSignaling = (dlPlgGetSignalingDataV1)address) != NULL);
+
+      if (!stSignaling)
             plgSignaling = NULL;
 
       // Test if the codec could enumerate SDP
       unsigned enumCount;
       const char *mime;
       const char **tmp;
-      int bPlgCouldEnum = (plgEnum(&mime, &enumCount, &tmp) == RPLG_SUCCESS);
+      UtlBoolean bPlgCouldEnum = (plgEnum(&mime, &enumCount, &tmp) == RPLG_SUCCESS);
 
-      if ((st1 == OS_SUCCESS) && (st2 == OS_SUCCESS) && (st3 == OS_SUCCESS) && (st4 == OS_SUCCESS) && (st5 == OS_SUCCESS) && /*(st6 == OS_SUCCESS) && (st7 == OS_SUCCESS) && */
-          (plgInitAddr != NULL) && (plgDecodeAddr != NULL) && (plgEncodeAddr != NULL) && (plgFreeAddr != NULL) && (plgEnum != NULL) && /* (plgPrepare != NULL) && (plgUnprepare != NULL) && */
-          bPlgCouldEnum)
+      if (st &&  bPlgCouldEnum)
       {
-
          //Add codec to list
-         MpCodecCallInfoV1* pci = new MpCodecCallInfoV1(name, codecName, plgInitAddr, plgDecodeAddr, plgEncodeAddr, plgFreeAddr, plgEnum, plgSignaling, FALSE);
+         MpCodecCallInfoV1* pci = new MpCodecCallInfoV1(name, codecName, 
+            plgInitAddr, plgDecodeAddr, plgEncodeAddr, 
+            plgFreeAddr, plgEnum, plgSignaling, FALSE);
+
          if (!pci)
             continue;         
 

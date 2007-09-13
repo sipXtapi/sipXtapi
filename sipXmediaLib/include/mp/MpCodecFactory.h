@@ -40,34 +40,7 @@
 // TYPEDEFS
 // FORWARD DECLARATIONS
 class MpFlowGraphBase;
-
-
-class MpCodecSubInfo : protected UtlVoidPtr
-{
-   friend class MpCodecFactory;
-protected:
-   MpCodecCallInfoV1* mpCodecCall;
-   SdpCodec::SdpCodecTypes mAssignedSDPnum;
-   const char* mpMimeSubtype;
-
-protected:
-   MpCodecSubInfo(MpCodecCallInfoV1* pCodecCall,
-      SdpCodec::SdpCodecTypes assignedSDPnum,
-      const char* pMimeSubtype)
-      : mpCodecCall(pCodecCall)
-      , mAssignedSDPnum(assignedSDPnum)
-      , mpMimeSubtype(pMimeSubtype)
-   {
-
-   }
-
-public:
-   const char* getMIMEtype() const
-   { return mpMimeSubtype; }
-
-   SdpCodec::SdpCodecTypes getSDPtype() const
-   { return mAssignedSDPnum; }
-};
+class MpCodecSubInfo;
 
 /// SHOULD BE REMOVED IN RELEASE
 class MpWorkaroundSDPNumList
@@ -149,6 +122,9 @@ public:
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 
+     /// Should be called from global .dtor to prevent memory leaks due static codecs allocation
+   void globalCleanUp();
+
      /// Constructor (called only indirectly via getMpCodecFactory())
    MpCodecFactory();
      /**<
@@ -159,6 +135,7 @@ protected:
 
      /// Search codec by given MIME-subtype
    MpCodecSubInfo* searchByMIME(UtlString& str);
+
 public:
    static MpCodecCallInfoV1* addStaticCodec(MpCodecCallInfoV1* sStaticCode);   
 
@@ -186,12 +163,12 @@ private:
 
    static UtlSList mCodecsInfo; //< list of all known and workable codecs
 
-   void updateCodecArray(void); //< not implimented yet
+   void updateCodecArray(void); //< not implemented yet
    OsStatus addCodecWrapperV1(MpCodecCallInfoV1* wrapper); // Build 
 
    static int assignAudioSDPnumber(const UtlString& mimeSubtypeInLowerCase); //< mimeSubtype SHOULD BE in lower case
 
-   static MpCodecCallInfoV1* sStaticCodecsV1; //< List of all static codecs. Filled by global magic ctors
+   static MpCodecCallInfoV1* sStaticCodecsV1; //< List of all static codecs. Filled by global magic .ctor
 
      /// Copy constructor (not supported)
    MpCodecFactory(const MpCodecFactory& rMpCodecFactory);
