@@ -52,7 +52,7 @@ protected:
    int sdpNum;
 public:
    const char** getSDPModes(unsigned& modesCount);
-
+   const UtlBoolean isStatic() const { return mbStatic; }
 protected:
    MpCodecCallInfoV1() : fSDPassigned(FALSE), sdpNum(-1) {}
 
