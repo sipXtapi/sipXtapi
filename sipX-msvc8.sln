@@ -20,6 +20,12 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXtackLibTest-msvc8", "si
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXmediaLib-msvc8", "sipXmediaLib\sipXmediaLib-msvc8.vcproj", "{0EC8287A-481E-45DC-8F95-BAD940AE1038}"
+	ProjectSection(ProjectDependencies) = postProject
+		{4F7FDA11-42A4-4556-A631-15AA785CD1C1} = {4F7FDA11-42A4-4556-A631-15AA785CD1C1}
+		{A9C94D26-C90D-4860-8195-56929E893757} = {A9C94D26-C90D-4860-8195-56929E893757}
+		{8AE1AB5C-9815-42D8-9A09-0B4F1E64B4BB} = {8AE1AB5C-9815-42D8-9A09-0B4F1E64B4BB}
+		{6442C7DE-E500-4BA2-B821-98092F1EDCAF} = {6442C7DE-E500-4BA2-B821-98092F1EDCAF}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXmediaLibTest-msvc8", "sipXmediaLib\sipXmediaLibTest-msvc8.vcproj", "{41C4FC22-37B1-4792-AB3A-FA2B81BE4B0A}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -34,12 +40,13 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXmediaAdapterLib-msvc8",
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXmediaAdapterLibTest-msvc8", "sipXmediaAdapterLib\sipXmediaAdapterLibTest-msvc8.vcproj", "{4D2F60E7-A4A4-4429-A640-2894F33824CA}"
 	ProjectSection(ProjectDependencies) = postProject
-		{E1D81EA9-4AC3-4CF5-B600-090FD822B1F6} = {E1D81EA9-4AC3-4CF5-B600-090FD822B1F6}
 		{14631055-9D3F-47E5-B6A7-16BFC0CC8091} = {14631055-9D3F-47E5-B6A7-16BFC0CC8091}
 		{0D0CE4BC-3884-4ABE-9795-8CCA6C3BC646} = {0D0CE4BC-3884-4ABE-9795-8CCA6C3BC646}
+		{E1D81EA9-4AC3-4CF5-B600-090FD822B1F6} = {E1D81EA9-4AC3-4CF5-B600-090FD822B1F6}
 		{0EC8287A-481E-45DC-8F95-BAD940AE1038} = {0EC8287A-481E-45DC-8F95-BAD940AE1038}
 		{DB95F825-45EE-4D62-825D-F337E2210B01} = {DB95F825-45EE-4D62-825D-F337E2210B01}
 		{9501C518-8693-42F3-86A4-39B14983EC6C} = {9501C518-8693-42F3-86A4-39B14983EC6C}
+		{993B6878-2EA7-49E0-AC6E-28C68592724B} = {993B6878-2EA7-49E0-AC6E-28C68592724B}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXsdpLib-msvc8", "sipXsdpLib\sipXsdpLib-msvc8.vcproj", "{E1D81EA9-4AC3-4CF5-B600-090FD822B1F6}"
@@ -94,6 +101,22 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CheckVMail-msvc8", "sipXcallLib\examples\CheckVMail\CheckVMail-msvc8.vcproj", "{8D059DA8-5A65-478F-BFFC-14BCC71764C9}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libgsm-msvc8", "sipXmediaLib\contrib\libgsm\libgsm-msvc8.vcproj", "{993B6878-2EA7-49E0-AC6E-28C68592724B}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "plggsm-msvc8", "sipXmediaLib\src\mp\codecs\plggsm\plggsm-msvc8.vcproj", "{8AE1AB5C-9815-42D8-9A09-0B4F1E64B4BB}"
+	ProjectSection(ProjectDependencies) = postProject
+		{993B6878-2EA7-49E0-AC6E-28C68592724B} = {993B6878-2EA7-49E0-AC6E-28C68592724B}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "plgilbc-msvc8", "sipXmediaLib\src\mp\codecs\plgilbc\plgilbc-msvc8.vcproj", "{6442C7DE-E500-4BA2-B821-98092F1EDCAF}"
+	ProjectSection(ProjectDependencies) = postProject
+		{214007F3-D6E8-4B07-AC00-9FB673FF539E} = {214007F3-D6E8-4B07-AC00-9FB673FF539E}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "plgpcmapcmu-msvc8", "sipXmediaLib\src\mp\codecs\plgpcmapcmu\plgpcmapcmu-msvc8.vcproj", "{A9C94D26-C90D-4860-8195-56929E893757}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "plgspeex-msvc8", "sipXmediaLib\src\mp\codecs\plgspeex\plgspeex-msvc8.vcproj", "{4F7FDA11-42A4-4556-A631-15AA785CD1C1}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libilbc-msvc8", "sipXmediaLib\contrib\libilbc\VS2005\libilbc-msvc8.vcproj", "{214007F3-D6E8-4B07-AC00-9FB673FF539E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -244,6 +267,7 @@ Global
 		{4D2F60E7-A4A4-4429-A640-2894F33824CA}.Debug|SDK1_emu (ARMV4I).ActiveCfg = Debug|Windows Mobile 5.0 Pocket PC SDK (ARMV4I)
 		{4D2F60E7-A4A4-4429-A640-2894F33824CA}.Debug|sipx_CE60_emulator (ARMV4I).ActiveCfg = Debug|Pocket PC 2003 (ARMV4)
 		{4D2F60E7-A4A4-4429-A640-2894F33824CA}.Debug|Win32.ActiveCfg = Debug|Win32
+		{4D2F60E7-A4A4-4429-A640-2894F33824CA}.Debug|Win32.Build.0 = Debug|Win32
 		{4D2F60E7-A4A4-4429-A640-2894F33824CA}.Debug|Windows Mobile 5.0 Pocket PC SDK (ARMV4I).ActiveCfg = Debug|Windows Mobile 5.0 Pocket PC SDK (ARMV4I)
 		{4D2F60E7-A4A4-4429-A640-2894F33824CA}.Debug|Windows Mobile 5.0 Pocket PC SDK (ARMV4I).Build.0 = Debug|Windows Mobile 5.0 Pocket PC SDK (ARMV4I)
 		{4D2F60E7-A4A4-4429-A640-2894F33824CA}.Debug|Windows Mobile 5.0 Pocket PC SDK (ARMV4I).Deploy.0 = Debug|Windows Mobile 5.0 Pocket PC SDK (ARMV4I)
@@ -294,7 +318,6 @@ Global
 		{0EADF7C3-7D48-45BF-A00D-ECB94DC912EA}.Debug|SDK1_emu (ARMV4I).ActiveCfg = Debug|Windows Mobile 5.0 Pocket PC SDK (ARMV4I)
 		{0EADF7C3-7D48-45BF-A00D-ECB94DC912EA}.Debug|sipx_CE60_emulator (ARMV4I).ActiveCfg = Debug|Win32
 		{0EADF7C3-7D48-45BF-A00D-ECB94DC912EA}.Debug|Win32.ActiveCfg = Debug|Win32
-		{0EADF7C3-7D48-45BF-A00D-ECB94DC912EA}.Debug|Win32.Build.0 = Debug|Win32
 		{0EADF7C3-7D48-45BF-A00D-ECB94DC912EA}.Debug|Windows Mobile 5.0 Pocket PC SDK (ARMV4I).ActiveCfg = Debug|Windows Mobile 5.0 Pocket PC SDK (ARMV4I)
 		{0EADF7C3-7D48-45BF-A00D-ECB94DC912EA}.Debug|Windows Mobile 5.0 Pocket PC SDK (ARMV4I).Build.0 = Debug|Windows Mobile 5.0 Pocket PC SDK (ARMV4I)
 		{0EADF7C3-7D48-45BF-A00D-ECB94DC912EA}.Debug|Windows Mobile 5.0 Pocket PC SDK (ARMV4I).Deploy.0 = Debug|Windows Mobile 5.0 Pocket PC SDK (ARMV4I)
@@ -324,7 +347,6 @@ Global
 		{85CAC56D-4E3A-4712-91A5-AE724B11AE25}.Debug|SDK1_emu (ARMV4I).ActiveCfg = Debug|Win32
 		{85CAC56D-4E3A-4712-91A5-AE724B11AE25}.Debug|sipx_CE60_emulator (ARMV4I).ActiveCfg = Debug|Win32
 		{85CAC56D-4E3A-4712-91A5-AE724B11AE25}.Debug|Win32.ActiveCfg = Debug|Win32
-		{85CAC56D-4E3A-4712-91A5-AE724B11AE25}.Debug|Win32.Build.0 = Debug|Win32
 		{85CAC56D-4E3A-4712-91A5-AE724B11AE25}.Debug|Windows Mobile 5.0 Pocket PC SDK (ARMV4I).ActiveCfg = Debug|Win32
 		{85CAC56D-4E3A-4712-91A5-AE724B11AE25}.Release|Pocket PC 2003 (ARMV4).ActiveCfg = Release|Win32
 		{85CAC56D-4E3A-4712-91A5-AE724B11AE25}.Release|SDK1_emu (ARMV4I).ActiveCfg = Release|Win32
@@ -406,6 +428,66 @@ Global
 		{993B6878-2EA7-49E0-AC6E-28C68592724B}.Release|Win32.ActiveCfg = Release_Static|Win32
 		{993B6878-2EA7-49E0-AC6E-28C68592724B}.Release|Win32.Build.0 = Release_Static|Win32
 		{993B6878-2EA7-49E0-AC6E-28C68592724B}.Release|Windows Mobile 5.0 Pocket PC SDK (ARMV4I).ActiveCfg = Release_Static|Win32
+		{8AE1AB5C-9815-42D8-9A09-0B4F1E64B4BB}.Debug|Pocket PC 2003 (ARMV4).ActiveCfg = Debug|Win32
+		{8AE1AB5C-9815-42D8-9A09-0B4F1E64B4BB}.Debug|SDK1_emu (ARMV4I).ActiveCfg = Debug|Win32
+		{8AE1AB5C-9815-42D8-9A09-0B4F1E64B4BB}.Debug|sipx_CE60_emulator (ARMV4I).ActiveCfg = Debug|Win32
+		{8AE1AB5C-9815-42D8-9A09-0B4F1E64B4BB}.Debug|Win32.ActiveCfg = Debug|Win32
+		{8AE1AB5C-9815-42D8-9A09-0B4F1E64B4BB}.Debug|Win32.Build.0 = Debug|Win32
+		{8AE1AB5C-9815-42D8-9A09-0B4F1E64B4BB}.Debug|Windows Mobile 5.0 Pocket PC SDK (ARMV4I).ActiveCfg = Debug|Win32
+		{8AE1AB5C-9815-42D8-9A09-0B4F1E64B4BB}.Release|Pocket PC 2003 (ARMV4).ActiveCfg = Release|Win32
+		{8AE1AB5C-9815-42D8-9A09-0B4F1E64B4BB}.Release|SDK1_emu (ARMV4I).ActiveCfg = Release|Win32
+		{8AE1AB5C-9815-42D8-9A09-0B4F1E64B4BB}.Release|sipx_CE60_emulator (ARMV4I).ActiveCfg = Release|Win32
+		{8AE1AB5C-9815-42D8-9A09-0B4F1E64B4BB}.Release|Win32.ActiveCfg = Release|Win32
+		{8AE1AB5C-9815-42D8-9A09-0B4F1E64B4BB}.Release|Win32.Build.0 = Release|Win32
+		{8AE1AB5C-9815-42D8-9A09-0B4F1E64B4BB}.Release|Windows Mobile 5.0 Pocket PC SDK (ARMV4I).ActiveCfg = Release|Win32
+		{6442C7DE-E500-4BA2-B821-98092F1EDCAF}.Debug|Pocket PC 2003 (ARMV4).ActiveCfg = Debug|Win32
+		{6442C7DE-E500-4BA2-B821-98092F1EDCAF}.Debug|SDK1_emu (ARMV4I).ActiveCfg = Debug|Win32
+		{6442C7DE-E500-4BA2-B821-98092F1EDCAF}.Debug|sipx_CE60_emulator (ARMV4I).ActiveCfg = Debug|Win32
+		{6442C7DE-E500-4BA2-B821-98092F1EDCAF}.Debug|Win32.ActiveCfg = Debug|Win32
+		{6442C7DE-E500-4BA2-B821-98092F1EDCAF}.Debug|Win32.Build.0 = Debug|Win32
+		{6442C7DE-E500-4BA2-B821-98092F1EDCAF}.Debug|Windows Mobile 5.0 Pocket PC SDK (ARMV4I).ActiveCfg = Debug|Win32
+		{6442C7DE-E500-4BA2-B821-98092F1EDCAF}.Release|Pocket PC 2003 (ARMV4).ActiveCfg = Release|Win32
+		{6442C7DE-E500-4BA2-B821-98092F1EDCAF}.Release|SDK1_emu (ARMV4I).ActiveCfg = Release|Win32
+		{6442C7DE-E500-4BA2-B821-98092F1EDCAF}.Release|sipx_CE60_emulator (ARMV4I).ActiveCfg = Release|Win32
+		{6442C7DE-E500-4BA2-B821-98092F1EDCAF}.Release|Win32.ActiveCfg = Release|Win32
+		{6442C7DE-E500-4BA2-B821-98092F1EDCAF}.Release|Win32.Build.0 = Release|Win32
+		{6442C7DE-E500-4BA2-B821-98092F1EDCAF}.Release|Windows Mobile 5.0 Pocket PC SDK (ARMV4I).ActiveCfg = Release|Win32
+		{A9C94D26-C90D-4860-8195-56929E893757}.Debug|Pocket PC 2003 (ARMV4).ActiveCfg = Debug|Win32
+		{A9C94D26-C90D-4860-8195-56929E893757}.Debug|SDK1_emu (ARMV4I).ActiveCfg = Debug|Win32
+		{A9C94D26-C90D-4860-8195-56929E893757}.Debug|sipx_CE60_emulator (ARMV4I).ActiveCfg = Debug|Win32
+		{A9C94D26-C90D-4860-8195-56929E893757}.Debug|Win32.ActiveCfg = Debug|Win32
+		{A9C94D26-C90D-4860-8195-56929E893757}.Debug|Win32.Build.0 = Debug|Win32
+		{A9C94D26-C90D-4860-8195-56929E893757}.Debug|Windows Mobile 5.0 Pocket PC SDK (ARMV4I).ActiveCfg = Debug|Win32
+		{A9C94D26-C90D-4860-8195-56929E893757}.Release|Pocket PC 2003 (ARMV4).ActiveCfg = Release|Win32
+		{A9C94D26-C90D-4860-8195-56929E893757}.Release|SDK1_emu (ARMV4I).ActiveCfg = Release|Win32
+		{A9C94D26-C90D-4860-8195-56929E893757}.Release|sipx_CE60_emulator (ARMV4I).ActiveCfg = Release|Win32
+		{A9C94D26-C90D-4860-8195-56929E893757}.Release|Win32.ActiveCfg = Release|Win32
+		{A9C94D26-C90D-4860-8195-56929E893757}.Release|Win32.Build.0 = Release|Win32
+		{A9C94D26-C90D-4860-8195-56929E893757}.Release|Windows Mobile 5.0 Pocket PC SDK (ARMV4I).ActiveCfg = Release|Win32
+		{4F7FDA11-42A4-4556-A631-15AA785CD1C1}.Debug|Pocket PC 2003 (ARMV4).ActiveCfg = Debug|Win32
+		{4F7FDA11-42A4-4556-A631-15AA785CD1C1}.Debug|SDK1_emu (ARMV4I).ActiveCfg = Debug|Win32
+		{4F7FDA11-42A4-4556-A631-15AA785CD1C1}.Debug|sipx_CE60_emulator (ARMV4I).ActiveCfg = Debug|Win32
+		{4F7FDA11-42A4-4556-A631-15AA785CD1C1}.Debug|Win32.ActiveCfg = Debug|Win32
+		{4F7FDA11-42A4-4556-A631-15AA785CD1C1}.Debug|Win32.Build.0 = Debug|Win32
+		{4F7FDA11-42A4-4556-A631-15AA785CD1C1}.Debug|Windows Mobile 5.0 Pocket PC SDK (ARMV4I).ActiveCfg = Debug|Win32
+		{4F7FDA11-42A4-4556-A631-15AA785CD1C1}.Release|Pocket PC 2003 (ARMV4).ActiveCfg = Release|Win32
+		{4F7FDA11-42A4-4556-A631-15AA785CD1C1}.Release|SDK1_emu (ARMV4I).ActiveCfg = Release|Win32
+		{4F7FDA11-42A4-4556-A631-15AA785CD1C1}.Release|sipx_CE60_emulator (ARMV4I).ActiveCfg = Release|Win32
+		{4F7FDA11-42A4-4556-A631-15AA785CD1C1}.Release|Win32.ActiveCfg = Release|Win32
+		{4F7FDA11-42A4-4556-A631-15AA785CD1C1}.Release|Win32.Build.0 = Release|Win32
+		{4F7FDA11-42A4-4556-A631-15AA785CD1C1}.Release|Windows Mobile 5.0 Pocket PC SDK (ARMV4I).ActiveCfg = Release|Win32
+		{214007F3-D6E8-4B07-AC00-9FB673FF539E}.Debug|Pocket PC 2003 (ARMV4).ActiveCfg = Debug|Win32
+		{214007F3-D6E8-4B07-AC00-9FB673FF539E}.Debug|SDK1_emu (ARMV4I).ActiveCfg = Debug|Win32
+		{214007F3-D6E8-4B07-AC00-9FB673FF539E}.Debug|sipx_CE60_emulator (ARMV4I).ActiveCfg = Debug|Win32
+		{214007F3-D6E8-4B07-AC00-9FB673FF539E}.Debug|Win32.ActiveCfg = Debug|Win32
+		{214007F3-D6E8-4B07-AC00-9FB673FF539E}.Debug|Win32.Build.0 = Debug|Win32
+		{214007F3-D6E8-4B07-AC00-9FB673FF539E}.Debug|Windows Mobile 5.0 Pocket PC SDK (ARMV4I).ActiveCfg = Debug|Win32
+		{214007F3-D6E8-4B07-AC00-9FB673FF539E}.Release|Pocket PC 2003 (ARMV4).ActiveCfg = Release|Win32
+		{214007F3-D6E8-4B07-AC00-9FB673FF539E}.Release|SDK1_emu (ARMV4I).ActiveCfg = Release|Win32
+		{214007F3-D6E8-4B07-AC00-9FB673FF539E}.Release|sipx_CE60_emulator (ARMV4I).ActiveCfg = Release|Win32
+		{214007F3-D6E8-4B07-AC00-9FB673FF539E}.Release|Win32.ActiveCfg = Release|Win32
+		{214007F3-D6E8-4B07-AC00-9FB673FF539E}.Release|Win32.Build.0 = Release|Win32
+		{214007F3-D6E8-4B07-AC00-9FB673FF539E}.Release|Windows Mobile 5.0 Pocket PC SDK (ARMV4I).ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
