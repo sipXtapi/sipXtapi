@@ -134,6 +134,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "plggsm", "..\sipXmediaLib\s
 		{993B6878-2EA7-49E0-AC6E-28C68592724B} = {993B6878-2EA7-49E0-AC6E-28C68592724B}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "plgtones", "..\sipXmediaLib\src\mp\codecs\plgtones\plgtones.vcproj", "{50E09C77-6077-4149-8B80-996217363A2F}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfiguration) = preSolution
 		Debug = Debug
@@ -406,6 +410,18 @@ Global
 		{8AE1AB5C-9815-42D8-9A09-0B4F1E64B4BB}.SSL-Debug.Build.0 = Debug|Win32
 		{8AE1AB5C-9815-42D8-9A09-0B4F1E64B4BB}.SSL-Release.ActiveCfg = Release|Win32
 		{8AE1AB5C-9815-42D8-9A09-0B4F1E64B4BB}.SSL-Release.Build.0 = Release|Win32
+		{50E09C77-6077-4149-8B80-996217363A2F}.Debug.ActiveCfg = Debug|Win32
+		{50E09C77-6077-4149-8B80-996217363A2F}.Debug.Build.0 = Debug|Win32
+		{50E09C77-6077-4149-8B80-996217363A2F}.Debug_NoVideo.ActiveCfg = Debug|Win32
+		{50E09C77-6077-4149-8B80-996217363A2F}.Debug_NoVideo.Build.0 = Debug|Win32
+		{50E09C77-6077-4149-8B80-996217363A2F}.Release.ActiveCfg = Release|Win32
+		{50E09C77-6077-4149-8B80-996217363A2F}.Release.Build.0 = Release|Win32
+		{50E09C77-6077-4149-8B80-996217363A2F}.Release_NoVideo.ActiveCfg = Release|Win32
+		{50E09C77-6077-4149-8B80-996217363A2F}.Release_NoVideo.Build.0 = Release|Win32
+		{50E09C77-6077-4149-8B80-996217363A2F}.SSL-Debug.ActiveCfg = Debug|Win32
+		{50E09C77-6077-4149-8B80-996217363A2F}.SSL-Debug.Build.0 = Debug|Win32
+		{50E09C77-6077-4149-8B80-996217363A2F}.SSL-Release.ActiveCfg = Release|Win32
+		{50E09C77-6077-4149-8B80-996217363A2F}.SSL-Release.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionItems) = postSolution
 	EndGlobalSection
