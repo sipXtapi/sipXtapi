@@ -94,11 +94,7 @@ extern "C"  DECLARE_FUNCS_V1(x)
 #define RPLG_NOT_SUPPORTED              (-3)
 #define RPLG_INVALID_SEQUENCE_CALL      (-4)
 #define RPLG_BAD_HANDLE                 (-5)
-
-struct sdpModeInfo {
-/*   unsigned int sdpType; */
-   const char* modeString;
-};
+#define RPLG_NO_MORE_DATA               (-6)
 
 #define PREPARE_DECODER    1
 #define PREPARE_ENCODER    0
@@ -107,13 +103,18 @@ struct sdpModeInfo {
 
 typedef int   (*dlGetCodecsV1)(int iNum, const char** pCodecModuleName);
 
-typedef int   (*dlPlgEnumSDPAndModesV1)(const char** mimeSubtype, unsigned int* pModesCount, const char*** modes);
+typedef int   (*dlPlgEnumSDPAndModesV1)(const char** mimeSubtype, 
+                                        unsigned int* pModesCount, const char*** modes);
 typedef void* (*dlPlgInitV1)(const char* fmt, int bDecoder, struct plgCodecInfoV1* pCodecInfo);
-typedef int   (*dlPlgGetSignalingDataV1)(void* handle, int dataId, uint32_t* outEvent, uint32_t* outDuration, uint32_t* startStatus, uint32_t *stopStatus);
-typedef int   (*dlPlgDecodeV1)(void* handle, const void* pCodedData, unsigned cbCodedPacketSize, void* pAudioBuffer, unsigned cbBufferSize, unsigned *pcbDecodedSize,
+typedef int   (*dlPlgGetSignalingDataV1)(void* handle, int dataId, uint32_t* outEvent, 
+                                         uint32_t* outDuration, uint32_t* startStatus, 
+                                         uint32_t *stopStatus);
+typedef int   (*dlPlgDecodeV1)(void* handle, const void* pCodedData, unsigned cbCodedPacketSize, 
+                               void* pAudioBuffer, unsigned cbBufferSize, unsigned *pcbDecodedSize,
                                const struct RtpHeader* pRtpHeader);
-typedef int   (*dlPlgEncodeV1)(void* handle, const void* pAudioBuffer, unsigned cbAudioSamples, int* rSamplesConsumed, void* pCodedData,
-								unsigned cbMaxCodedData, int* pcbCodedSize, unsigned* pbSendNow);
+typedef int   (*dlPlgEncodeV1)(void* handle, const void* pAudioBuffer, unsigned cbAudioSamples,
+                               int* rSamplesConsumed, void* pCodedData, unsigned cbMaxCodedData, 
+                               int* pcbCodedSize, unsigned* pbSendNow);
 typedef int   (*dlPlgFreeV1)(void* handle);
 
 
@@ -132,9 +133,9 @@ typedef int   (*dlPlgFreeV1)(void* handle);
 #define IPLG_ENUM_CODEC(x)         #x ,
 #define IPLG_ENUM_CODEC_END        NULL};
 #define IPLG_ENUM_CODEC_FUNC      \
-   CODEC_API int PLG_GET_CODEC_NAME (int iNum, const char** pCodecModuleName)  {     \
+   CODEC_API int PLG_GET_CODEC_NAME (int iNum, const char** pCodecModuleName)  {       \
    int i = (sizeof ( IPLG_ENUM_CODEC_NAME ) / sizeof ( IPLG_ENUM_CODEC_NAME[0] )) - 1; \
-   if ((iNum < 0) || (iNum > i)) return RPLG_FAILED;                                 \
+   if ((iNum < 0) || (iNum > i)) return RPLG_FAILED;                                   \
    *pCodecModuleName = IPLG_ENUM_CODEC_NAME [iNum]; return RPLG_SUCCESS; }
 
 
