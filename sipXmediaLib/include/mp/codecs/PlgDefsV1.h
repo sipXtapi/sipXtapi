@@ -34,7 +34,6 @@ extern "C" {
 struct plgCodecInfoV1
 {
    unsigned    cbSize;					///< Size of srtuct for computability with future version
-//   unsigned	   codecSDPType;		   ///< codec type 
    const char* mimeSubtype;         ///< codec type 
    const char* codecName;				///< string identifying the codec name
    const char* codecVersion;			///< string identifying the codec version
