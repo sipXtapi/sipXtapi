@@ -23,7 +23,7 @@
 #include <os/OsSysLog.h>
 #include <os/OsSharedLibMgr.h>
 #include <os/OsFS.h>
-#include <utl/UtlSListIterator.h>
+#include <utl/UtlHashBagIterator.h>
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -32,15 +32,22 @@
 // DEFINES
 // MACROS
 // LOCAL TYPES DECLARATIONS
-class MpCodecSubInfo : public UtlVoidPtr
+class MpCodecSubInfo : public UtlString
 {
 public:
 
    MpCodecSubInfo(MpCodecCallInfoV1* pCodecCall,
-                  const char* pMimeSubtype)
-      : mpCodecCall(pCodecCall)
-      , mpMimeSubtype(pMimeSubtype)
+                  const char* pMimeSubtype,
+                  const char** pDefaultFmtpArray,
+                  unsigned int defaultFmtpArrayLength)
+      : UtlString(pMimeSubtype)
+      , mpCodecCall(pCodecCall)
+      , mpDefaultFmtpArray(pDefaultFmtpArray)
+      , mDefaultFmtpArrayLength(defaultFmtpArrayLength)
    {
+      // Store all MIME-subtypes in lower case to allow case insensitive
+      // compare.
+      toLower();
    }
 
    ~MpCodecSubInfo()
@@ -50,14 +57,21 @@ public:
    }
 
    const char* getMIMEtype() const
-   { return mpMimeSubtype; }
+   { return data(); }
 
    MpCodecCallInfoV1* getCodecCall() const
    { return mpCodecCall; }
 
+   const char** getDefaultFmtpArray() const
+   { return mpDefaultFmtpArray; }
+
+   unsigned int getDefaultFmtpArrayLength() const
+   { return mDefaultFmtpArrayLength; }
+
 protected:
    MpCodecCallInfoV1* mpCodecCall;
-   const char* mpMimeSubtype;
+   const char**       mpDefaultFmtpArray;
+   unsigned int       mDefaultFmtpArrayLength;
 };
 
 // STATIC VARIABLE INITIALIZATIONS
@@ -85,7 +99,9 @@ MpCodecFactory* MpCodecFactory::getMpCodecFactory(void)
 }
 
 MpCodecFactory::MpCodecFactory(void)
-: fCacheListMustUpdate(FALSE)
+: mIsMimeTypesCacheValid(FALSE)
+, mCachedMimeTypesNum(0)
+, mpMimeTypesCache(NULL)
 {
    initializeStaticCodecs();
 }
@@ -96,7 +112,7 @@ MpCodecFactory::~MpCodecFactory()
 
    MpCodecSubInfo* pinfo;
 
-   UtlSListIterator iter(mCodecsInfo);
+   UtlHashBagIterator iter(mCodecsInfo);
    while ((pinfo = (MpCodecSubInfo*)iter()))
    { 
       if (!pinfo->getCodecCall()->mbStatic) {
@@ -105,6 +121,8 @@ MpCodecFactory::~MpCodecFactory()
       delete pinfo;     
    }
    mCodecsInfo.removeAll();
+
+   delete[] mpMimeTypesCache;
 }
 
 /* ============================= MANIPULATORS ============================= */
@@ -208,10 +226,10 @@ void MpCodecFactory::freeAllLoadedLibsAndCodec()
 {
    OsSharedLibMgrBase* pShrMgr = OsSharedLibMgr::getOsSharedLibMgr();
 
-   UtlSListIterator iter(mCodecsInfo);
+   UtlHashBagIterator iter(mCodecsInfo);
    MpCodecSubInfo* pinfo;
 
-   UtlSList libLoaded;
+   UtlHashBag libLoaded;
    UtlString* libName;
 
    while ((pinfo = (MpCodecSubInfo*)iter()))
@@ -222,7 +240,7 @@ void MpCodecFactory::freeAllLoadedLibsAndCodec()
       }    
    }
 
-   UtlSListIterator iter2(libLoaded);
+   UtlHashBagIterator iter2(libLoaded);
    while ((libName = (UtlString*)iter2()))
    {
       pShrMgr->unloadSharedLib(libName->data());
@@ -237,7 +255,7 @@ void MpCodecFactory::freeAllLoadedLibsAndCodec()
       }
    }
 
-   fCacheListMustUpdate = TRUE;
+   mIsMimeTypesCacheValid = FALSE;
 }
 
 OsStatus MpCodecFactory::loadAllDynCodecs(const char* path, const char* regexFilter)
@@ -359,7 +377,7 @@ OsStatus MpCodecFactory::loadDynCodec(const char* name)
          }
 
          //Plugin has been added successfully, need to rebuild cache list
-         fCacheListMustUpdate = TRUE;
+         mIsMimeTypesCacheValid = FALSE;
          count ++;
       }
    }
@@ -374,15 +392,17 @@ OsStatus MpCodecFactory::addCodecWrapperV1(MpCodecCallInfoV1* wrapper)
 {
    MpCodecSubInfo* mpsi;
    const char* mimeSubtype;
+   const char** defaultFtmps;
+   unsigned int defaultFtmpsNum;
 
    // Get codec's MIME-subtype and recommended modes.
-   int res = wrapper->mPlgEnum(&mimeSubtype, NULL, NULL);
+   int res = wrapper->mPlgEnum(&mimeSubtype, &defaultFtmpsNum, &defaultFtmps);
    if (res != RPLG_SUCCESS)
    {
       return OS_FAILED;
    }
 
-   mpsi = new MpCodecSubInfo(wrapper, mimeSubtype);
+   mpsi = new MpCodecSubInfo(wrapper, mimeSubtype, defaultFtmps, defaultFtmpsNum);
    if (mpsi == NULL) {
       return OS_NO_MEMORY;
    }
@@ -405,16 +425,32 @@ void MpCodecFactory::initializeStaticCodecs() //Should be called from mpStartup(
 
 /* ============================== ACCESSORS =============================== */
 
-SdpCodec::SdpCodecTypes* MpCodecFactory::getAllCodecTypes(unsigned& count)
+void MpCodecFactory::getMimeTypes(unsigned& count, const UtlString*& mimeTypes) const
 {
-   // NOT implemented yet
-   return NULL;
+   if (!mIsMimeTypesCacheValid)
+   {
+      updateMimeTypesCache();
+   }
+
+   count = mCachedMimeTypesNum;
+   mimeTypes = mpMimeTypesCache;
 }
 
-const char** MpCodecFactory::getAllCodecModes(SdpCodec::SdpCodecTypes codecId, unsigned& count)
+OsStatus MpCodecFactory::getCodecFmtps(const UtlString &mime,
+                                       unsigned& fmtpCount,
+                                       const char**& fmtps) const
 {
-   // NOT implemented yet
-   return NULL;
+   MpCodecSubInfo* pInfo = searchByMIME(mime);
+
+   if (!pInfo)
+   {
+      return OS_NOT_FOUND;
+   }
+
+   fmtpCount = pInfo->getDefaultFmtpArrayLength();
+   fmtps = pInfo->getDefaultFmtpArray();
+
+   return OS_SUCCESS;
 }
 
 /* =============================== INQUIRY ================================ */
@@ -425,18 +461,44 @@ const char** MpCodecFactory::getAllCodecModes(SdpCodec::SdpCodecTypes codecId, u
 
 MpCodecSubInfo* MpCodecFactory::searchByMIME(const UtlString& mime) const
 {
-   UtlSListIterator iter(mCodecsInfo);
-   MpCodecSubInfo* pinfo;
+/*   UtlHashBagIterator iter(mCodecsInfo);
+   MpCodecSubInfo* pInfo;
 
-   while ((pinfo = (MpCodecSubInfo*)iter()))
+   while ((pInfo = (MpCodecSubInfo*)iter()))
    { 
-      if (mime.compareTo(pinfo->getMIMEtype(), UtlString::ignoreCase) == 0)
+      if (mime.compareTo(pInfo->getMIMEtype(), UtlString::ignoreCase) == 0)
       {
-         return pinfo;
+         return pInfo;
       }
    }
+*/
+   // Create a lower case copy of MIME-subtype string.
+   UtlString mime_copy(mime);
+   mime_copy.toLower();
 
-   return NULL;
+   // Perform search
+   return (MpCodecSubInfo*)mCodecsInfo.find(&mime_copy);
+}
+
+void MpCodecFactory::updateMimeTypesCache() const
+{
+   // First delete old data.
+   delete[] mpMimeTypesCache;
+
+   // Allocate memory for new array.
+   mCachedMimeTypesNum = mCodecsInfo.entries();
+   mpMimeTypesCache = new UtlString[mCachedMimeTypesNum];
+
+   // Fill array with data.
+   UtlHashBagIterator iter(mCodecsInfo);
+   for (unsigned i=0; i<mCachedMimeTypesNum; i++)
+   {
+      MpCodecSubInfo* pInfo = (MpCodecSubInfo*)iter();
+      mpMimeTypesCache[i] = pInfo->getMIMEtype();
+   }
+
+   // Cache successfully updated.
+   mIsMimeTypesCacheValid = TRUE;
 }
 
 /* /////////////////////////////// PRIVATE //////////////////////////////// */

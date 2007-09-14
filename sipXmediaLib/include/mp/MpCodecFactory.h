@@ -20,13 +20,11 @@
 // APPLICATION INCLUDES
 #include "os/OsStatus.h"
 #include "os/OsBSem.h"
-#include "sdp/SdpCodec.h"
 #include "mp/MpEncoderBase.h"
 #include "mp/MpDecoderBase.h"
 
-#include "utl/UtlLink.h"
-#include "utl/UtlVoidPtr.h"
-#include "utl/UtlList.h"
+#include "utl/UtlHashBag.h"
+#include "utl/UtlHashBagIterator.h"
 #include "os/OsSharedLibMgr.h"
 #include "mp/codecs/PlgDefsV1.h"
 #include "mp/MpPlgStaffV1.h"
@@ -115,8 +113,22 @@ public:
 ///@name Accessors
 //@{
 
-   SdpCodec::SdpCodecTypes* getAllCodecTypes(unsigned& count);
-   const char** getAllCodecModes(SdpCodec::SdpCodecTypes codecId, unsigned& count);
+     /// Get list of all supported MIME-subtypes.
+   void getMimeTypes(unsigned& count, const UtlString*& mimeTypes) const;
+
+     /// Get list of default (recommended) fmtp strings for given MIME-subtype.
+   OsStatus getCodecFmtps(const UtlString &mime,
+                          unsigned& fmtpCount, const char**& fmtps) const;
+     /**<
+     *  @param[in]  mime - MIME-subtype of codec for which fmtps are requested.
+     *  @param[out] fmtpCount - number of elements in returned fmtps array.
+     *  @param[out] fmtps - array of fmtp strings.
+     *
+     *  @note If returned \p fmtpCount is 0, then returned \p fmtps is NULL!
+     *
+     *  @retval OS_SUCCESS on success.
+     *  @retval OS_NOT_FOUND if given MIME-subtype is not found.
+     */
 
 //@}
 
@@ -157,8 +169,11 @@ protected:
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
 
-   UtlBoolean fCacheListMustUpdate; ///< Flag points that cached array must be rebuilt in the next call 
-   UtlSList mCodecsInfo; ///< list of all known and workable codecs
+   UtlHashBag mCodecsInfo;                    ///< List of all known and workable codecs.
+   mutable UtlBoolean mIsMimeTypesCacheValid; ///< Should we rebuild MIME-subtypes cache?
+   mutable unsigned mCachedMimeTypesNum;      ///< Number of elements in mpMimeTypesCache.
+   mutable UtlString* mpMimeTypesCache;       ///< Cached array of MIME-subtypes of loaded codecs.
+                                              ///< This is used as return value of getMimeTypes().
 
    // Static data members used to enforce Singleton behavior
    static MpCodecFactory* spInstance; ///< Pointer to the singleton instance.
@@ -169,6 +184,9 @@ private:
 
      /// Add new codec wrapper to codec list.
    OsStatus addCodecWrapperV1(MpCodecCallInfoV1* wrapper);
+
+     /// Update cached array of MIME-types of loaded codecs.
+   void updateMimeTypesCache() const;
 
      /// Copy constructor (not supported)
    MpCodecFactory(const MpCodecFactory& rMpCodecFactory);
