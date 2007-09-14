@@ -204,8 +204,11 @@ CODEC_API int PLG_ENCODE_V1(tones)(void* handle, const void* pAudioBuffer,
    return RPLG_FAILED;
 }
 
-CODEC_API int PLG_SIGNALING_V1(tones)(void* handle, int dataId, uint32_t* outEvent, 
-                                      uint32_t* outDuration, uint32_t* startStatus, uint32_t *stopStatus)
+CODEC_API int PLG_SIGNALING_V1(tones)(void* handle, int dataId,
+                                      uint32_t* outEvent, 
+                                      uint32_t* outDuration,
+                                      uint32_t* startStatus,
+                                      uint32_t* stopStatus)
 {
    RtpTimestamp ts;
 
