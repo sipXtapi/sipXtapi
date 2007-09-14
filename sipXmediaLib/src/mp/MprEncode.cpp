@@ -224,7 +224,8 @@ void MprEncode::handleSelectCodecs(int newCodecsCount, SdpCodec** newCodecs)
    SdpCodec* pDtmf;
    MpEncoderBase* pNewEncoder;
    MpCodecFactory* pFactory = MpCodecFactory::getMpCodecFactory();
-   SdpCodec::SdpCodecTypes ourCodec;
+   UtlString mime;
+   UtlString fmtp;
    OsStatus ret;
    int payload;
 
@@ -236,39 +237,12 @@ void MprEncode::handleSelectCodecs(int newCodecsCount, SdpCodec** newCodecs)
 
    handleDeselectCodecs();  // cleanup the old ones, if any
 
-   if (OsSysLog::willLog(FAC_MP, PRI_DEBUG))
-   {
-      if (NULL != pPrimary) 
-      {
-         OsSysLog::add(FAC_MP, PRI_DEBUG,
-                       "MprEncode::handleSelectCodecs "
-                       "pPrimary->getCodecType() = %d, "
-                       "pPrimary->getCodecPayloadFormat() = %d",
-                       pPrimary->getCodecType(),
-                       pPrimary->getCodecPayloadFormat());
-      } 
-      else 
-      {
-         OsSysLog::add(FAC_MP, PRI_DEBUG,
-                       "MprEncode::handleSelectCodecs "
-                       "pPrimary == NULL");
-      }
-      if (NULL != pDtmf) 
-      {
-         OsSysLog::add(FAC_MP, PRI_DEBUG,
-                       "MprEncode::handleSelectCodecs "
-                       "pDtmf->getCodecType() = %d, "
-                       "pDtmf->getCodecPayloadFormat() = %d",
-                       pDtmf->getCodecType(),
-                       pDtmf->getCodecPayloadFormat());
-      }
-   }
-
    if (NULL != pPrimary) 
    {
-      ourCodec = pPrimary->getCodecType();
+      pPrimary->getEncodingName(mime);
+      pPrimary->getSdpFmtpField(fmtp);
       payload = pPrimary->getCodecPayloadFormat();
-      ret = pFactory->createEncoder(ourCodec, payload, pNewEncoder);
+      ret = pFactory->createEncoder(mime, fmtp, payload, pNewEncoder);
       assert(OS_SUCCESS == ret);
       assert(NULL != pNewEncoder);
       pNewEncoder->initEncode();
@@ -276,18 +250,41 @@ void MprEncode::handleSelectCodecs(int newCodecsCount, SdpCodec** newCodecs)
       mDoesVad1 = (pNewEncoder->getInfo())->doesVadCng();
       allocPacketBuffer(*mpPrimaryCodec, mpPacket1Payload, mPacket1PayloadBytes);
       mPayloadBytesUsed = 0;
+
+      OsSysLog::add(FAC_MP, PRI_DEBUG,
+                    "MprEncode::handleSelectCodecs "
+                    "pPrimary->getEncodingName() = %s, "
+                    "pPrimary->getSdpFmtpField() = %s, "
+                    "pPrimary->getCodecPayloadFormat() = %d",
+                    mime.data(), fmtp.data(),
+                    pPrimary->getCodecPayloadFormat());
+   }
+   else 
+   {
+      OsSysLog::add(FAC_MP, PRI_DEBUG,
+                    "MprEncode::handleSelectCodecs "
+                    "pPrimary == NULL");
    }
 
    if (NULL != pDtmf) 
    {
-      ourCodec = pDtmf->getCodecType();
+      pPrimary->getEncodingName(mime);
+      pPrimary->getSdpFmtpField(fmtp);
       payload = pDtmf->getCodecPayloadFormat();
-      ret = pFactory->createEncoder(ourCodec, payload, pNewEncoder);
+      ret = pFactory->createEncoder(mime, fmtp, payload, pNewEncoder);
       assert(OS_SUCCESS == ret);
       assert(NULL != pNewEncoder);
       pNewEncoder->initEncode();
       mpDtmfCodec = pNewEncoder;
       allocPacketBuffer(*mpDtmfCodec, mpPacket2Payload, mPacket2PayloadBytes);
+
+      OsSysLog::add(FAC_MP, PRI_DEBUG,
+                    "MprEncode::handleSelectCodecs "
+                    "pDtmf->getEncodingName() = %s, "
+                    "pDtmf->getSdpFmtpField() = %s, "
+                    "pDtmf->getCodecPayloadFormat() = %d",
+                    mime.data(), fmtp.data(),
+                    pDtmf->getCodecPayloadFormat());
    }
 }
 

@@ -89,12 +89,14 @@ public:
      */
 
      /// Returns a new instance of an encoder of the indicated type
-   OsStatus createEncoder(SdpCodec::SdpCodecTypes internalCodecId,
+   OsStatus createEncoder(const UtlString &mime,
+                          const UtlString &fmtp,
                           int payloadType,
                           MpEncoderBase*& rpEncoder);
      /**<
-     *  @param[in]  internalCodecId - codec type identifier
-     *  @param[in]  payloadType - RTP payload type associated with this encoder
+     *  @param[in]  mime - codec MIME-subtype
+     *  @param[in]  fmtp - codec-specific string in format of SDP "fmtp" parameter
+     *  @param[in]  payloadType - RTP payload type to be associated with this encoder
      *  @param[out] rpEncoder - Reference to a pointer to the new encoder object
      */
 

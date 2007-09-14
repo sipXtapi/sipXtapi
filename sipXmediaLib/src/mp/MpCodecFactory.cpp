@@ -149,22 +149,12 @@ OsStatus MpCodecFactory::createDecoder(const UtlString &mime,
    return OS_INVALID_ARGUMENT;
 }
 
-OsStatus MpCodecFactory::createEncoder(SdpCodec::SdpCodecTypes internalCodecId,
-                                       int payloadType, MpEncoderBase*& rpEncoder)
+OsStatus MpCodecFactory::createEncoder(const UtlString &mime,
+                                       const UtlString &fmtp,
+                                       int payloadType,
+                                       MpEncoderBase*& rpEncoder)
 {
-   rpEncoder=NULL;
-
-   OsStatus res;
-   MpCodecSubInfo* codec = NULL;
-   UtlString mimeSubtype;
-   UtlString fmtp;
-
-   res = SdpDefaultCodecFactory::getMimeInfoByType(internalCodecId,
-                                                   mimeSubtype, fmtp);
-   if (res == OS_SUCCESS)
-   {
-      codec = searchByMIME(mimeSubtype);
-   }
+   MpCodecSubInfo* codec = searchByMIME(mime);
 
    if (codec)
    {      
@@ -175,9 +165,11 @@ OsStatus MpCodecFactory::createEncoder(SdpCodec::SdpCodecTypes internalCodecId,
       OsSysLog::add(FAC_MP, PRI_WARNING, 
                     "MpCodecFactory::createEncoder unknown codec type "
                     "internalCodecId = (SdpCodec::SdpCodecTypes) %d, "
+                    "%s, fmtp=%s"
                     "payloadType = %d",
-                    internalCodecId, payloadType);
+                    mime.data(), fmtp.data(), payloadType);
       assert(!"Could not find codec of given type!");
+      rpEncoder=NULL;
    }
 
    if (NULL != rpEncoder) 
