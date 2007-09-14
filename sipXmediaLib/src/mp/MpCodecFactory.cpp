@@ -272,7 +272,7 @@ OsStatus MpCodecFactory::loadAllDynCodecs(const char* path, const char* regexFil
 
    do {
       UtlString str = path;
-      str += "\\";
+      str += OsPathBase::separator;
       str += module.data();
       loadDynCodec(str.data());
    } while (fi.findNext(module) == OS_SUCCESS);
