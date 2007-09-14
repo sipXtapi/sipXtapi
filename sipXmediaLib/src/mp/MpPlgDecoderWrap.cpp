@@ -33,6 +33,7 @@ const MpCodecInfo* MpPlgDecoderWrapper::getInfo(void) const
       assert(mSDPNumAssigned == TRUE);
       return &mpTmpInfo;
    }
+
    return NULL;
 }
 
@@ -50,14 +51,15 @@ UtlBoolean MpPlgDecoderWrapper::initializeWrapper(const char* fmt)
    struct plgCodecInfoV1 plgInfo;
    plgHandle = mplgci.mPlgInit(fmt, CODEC_DECODER, &plgInfo);
 
-   if ((plgHandle != NULL) && (plgInfo.cbSize == sizeof(struct plgCodecInfoV1))) {
+   if ((plgHandle != NULL) && (plgInfo.cbSize == sizeof(struct plgCodecInfoV1)))
+   {
       mInitialized = TRUE;
 
       codecSupportPLC = plgInfo.codecSupportPLC;
       signalingCodec = plgInfo.signalingCodec && 
          (mplgci.mPlgSignaling != NULL);
 
-      //Filling codec information
+      // Fill in codec information
       mpTmpInfo.mCodecVersion = plgInfo.codecVersion;
       mpTmpInfo.mSamplingRate = plgInfo.samplingRate;
       mpTmpInfo.mNumBitsPerSample = plgInfo.numSamplesPerFrame;
@@ -72,7 +74,9 @@ UtlBoolean MpPlgDecoderWrapper::initializeWrapper(const char* fmt)
       mpTmpInfo.mIsSignalingCodec = signalingCodec;
       mpTmpInfo.mDoesVadCng = FALSE;
 
-   } else {
+   }
+   else
+   {
       mInitialized = FALSE;
    }
    return mInitialized;
@@ -81,7 +85,8 @@ UtlBoolean MpPlgDecoderWrapper::initializeWrapper(const char* fmt)
 
 MpPlgDecoderWrapper::~MpPlgDecoderWrapper()
 {
-   if (mInitialized) {
+   if (mInitialized)
+   {
       freeDecode();
    }
 }
@@ -120,19 +125,20 @@ int MpPlgDecoderWrapper::decode(const MpRtpBufPtr &pPacket,
    unsigned decodedSize = 0;
    int res;
 
-   if (!mInitialized) {
+   if (!mInitialized)
+   {
       return 0;
    }
 
    if (pPacket.isValid() || codecSupportPLC) 
    {   
       res = mplgci.mPlgDecode(plgHandle, 
-         (pPacket.isValid()) ? pPacket->getDataPtr() : NULL, 
-         pPacket->getPayloadSize(), 
-         samplesBuffer, 
-         decodedBufferLength, 
-         &decodedSize,
-         &pPacket->getRtpHeader());
+                              (pPacket.isValid()) ? pPacket->getDataPtr() : NULL, 
+                              pPacket->getPayloadSize(), 
+                              samplesBuffer, 
+                              decodedBufferLength, 
+                              &decodedSize,
+                              &pPacket->getRtpHeader());
    }
    else
    {
