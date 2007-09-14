@@ -8,7 +8,7 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
-// Author: 
+// Author: Sergey Kostanbaev <Sergey DOT Kostanbaev AT sipez DOT com>
 
 #include <assert.h>
 #include <utl/UtlInit.h> 
@@ -44,11 +44,10 @@ OsStatus MpPlgDecoderWrapper::setAssignedSDPNum(SdpCodec::SdpCodecTypes sdpNum)
    return OS_SUCCESS;
 }
 
-
 UtlBoolean MpPlgDecoderWrapper::initializeWrapper(const char* fmt)
 {
-   //Currently signed 16bit LE format, one channel
-   struct plgCodecInfoV1 plgInfo;
+   plgCodecInfoV1 plgInfo;
+
    plgHandle = mplgci.mPlgInit(fmt, CODEC_DECODER, &plgInfo);
 
    if ((plgHandle != NULL) && (plgInfo.cbSize == sizeof(struct plgCodecInfoV1)))
@@ -56,8 +55,7 @@ UtlBoolean MpPlgDecoderWrapper::initializeWrapper(const char* fmt)
       mInitialized = TRUE;
 
       codecSupportPLC = plgInfo.codecSupportPLC;
-      signalingCodec = plgInfo.signalingCodec && 
-         (mplgci.mPlgSignaling != NULL);
+      signalingCodec = plgInfo.signalingCodec && (mplgci.mPlgSignaling != NULL);
 
       // Fill in codec information
       mpTmpInfo.mCodecVersion = plgInfo.codecVersion;
@@ -73,12 +71,12 @@ UtlBoolean MpPlgDecoderWrapper::initializeWrapper(const char* fmt)
       mpTmpInfo.mPreCodecJitterBufferSize = plgInfo.preCodecJitterBufferSize;
       mpTmpInfo.mIsSignalingCodec = signalingCodec;
       mpTmpInfo.mDoesVadCng = FALSE;
-
    }
    else
    {
       mInitialized = FALSE;
    }
+
    return mInitialized;
 }
 
