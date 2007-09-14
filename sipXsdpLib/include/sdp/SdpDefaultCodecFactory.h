@@ -45,6 +45,8 @@
 /**
 *  @brief Factory class for generating SDPs for known codec types and
 *         converting readable codec names to codec types and vice versa.
+*
+*  @nosubgrouping
 */
 class SdpDefaultCodecFactory
 {
