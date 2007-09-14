@@ -148,9 +148,9 @@ int MpPlgDecoderWrapper::decode(const MpRtpBufPtr &pPacket,
 
 
 OsStatus MpPlgDecoderWrapper::getSignalingData(uint8_t &event,
-                                  UtlBoolean &isStarted,
-                                  UtlBoolean &isStopped,
-                                  uint16_t &duration)
+                                               UtlBoolean &isStarted,
+                                               UtlBoolean &isStopped,
+                                               uint16_t &duration)
 {
    if (!signalingCodec) 
       return OS_NOT_SUPPORTED;
@@ -159,11 +159,15 @@ OsStatus MpPlgDecoderWrapper::getSignalingData(uint8_t &event,
    int res;
 
    res = mplgci.mPlgSignaling(plgHandle, SIGNALING_DEFAULT_TYPE,
-      &wEvent, &wStartStatus, &wStopStatus, &wDuration);
+                              &wEvent, &wDuration, &wStartStatus, &wStopStatus);
 
    switch (res)
    {
    case RPLG_SUCCESS:
+      event = (uint8_t)wEvent;
+      isStarted = (UtlBoolean)wStartStatus;
+      isStopped = (UtlBoolean)wStopStatus;
+      duration = (uint16_t)wDuration;
       return OS_SUCCESS;
    case RPLG_NO_MORE_DATA:
       return OS_NO_MORE_DATA;
