@@ -8,29 +8,21 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
-// Author: 
+// Author: Sergey Kostanbaev <Sergey DOT Kostanbaev AT sipez DOT com>
 
 #ifndef _PlgDecoderWrapper_h_
 #define _PlgDecoderWrapper_h_
 
-#include "mp/MpDecoderBase.h"
 #include "mp/MpCodecFactory.h"
 
-class MpPlgDecoderWrapper : public MpDecoderBase//, protected MpCodecInfo
+class MpPlgDecoderWrapper : public MpDecoderBase
 {
-   friend class MpCodecFactory;
-
-protected:
-   MpCodecInfo mCodecInfo;
-   const MpCodecCallInfoV1& mplgci;
-   UtlBoolean mInitialized;
-   void* plgHandle;
-   const char* mDefParamString;
-
-   UtlBoolean codecSupportPLC;
-
 public:
-   MpPlgDecoderWrapper(int payloadType, const MpCodecCallInfoV1& plgci, const char* permanentDefaultMode);
+
+   MpPlgDecoderWrapper(int payloadType,
+                       const MpCodecCallInfoV1& plgci,
+                       const char* permanentDefaultMode);
+
    virtual ~MpPlgDecoderWrapper();
 
      /// Create decoder with parsing custom fmtp string
@@ -42,8 +34,8 @@ public:
 
      /// @copydoc MpDecoderBase::decode()
    virtual int decode(const MpRtpBufPtr &pPacket,
-      unsigned decodedBufferLength,
-      MpAudioSample *samplesBuffer);
+                      unsigned decodedBufferLength,
+                      MpAudioSample *samplesBuffer);
 
      /// @copydoc MpDecoderBase::getSignalingData()
    virtual OsStatus getSignalingData(uint8_t &event,
@@ -53,6 +45,15 @@ public:
 
      /// @copydoc MpDecoderBase::getInfo()
    virtual const MpCodecInfo* getInfo(void) const;
+
+protected:
+   MpCodecInfo mCodecInfo;
+   const MpCodecCallInfoV1& mplgci;
+   UtlBoolean mInitialized;
+   void* plgHandle;
+   const char* mDefParamString;
+
+   UtlBoolean codecSupportPLC;
 
 private:
    UtlBoolean initializeWrapper(const char *fmt);
