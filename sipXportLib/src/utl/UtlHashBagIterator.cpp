@@ -48,7 +48,7 @@
 /* ============================ CREATORS ================================== */
 
 // Constructor
-UtlHashBagIterator::UtlHashBagIterator(UtlHashBag& hashBag, UtlContainable* key) :
+UtlHashBagIterator::UtlHashBagIterator(const UtlHashBag& hashBag, UtlContainable* key) :
    UtlIterator(hashBag),
    mpSubsetMatch(key)
 {
@@ -242,7 +242,7 @@ void UtlHashBagIterator::removing(const UtlLink* link)
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
-void UtlHashBagIterator::init(UtlHashBag& hashBag)
+void UtlHashBagIterator::init(const UtlHashBag& hashBag)
 {
    // caller is holding the mContainerLock
 
