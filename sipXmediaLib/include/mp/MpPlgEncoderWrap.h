@@ -16,12 +16,12 @@
 #include "mp/MpEncoderBase.h"
 #include "mp/MpCodecFactory.h"
 
-class MpPlgEncoderWrapper : public MpEncoderBase//, protected MpCodecInfo
+class MpPlgEncoderWrapper : public MpEncoderBase
 {
    friend class MpCodecFactory;
 
 protected:
-   MpCodecInfo mpTmpInfo;
+   MpCodecInfo mCodecInfo;
    const MpCodecCallInfoV1& mplgci;
    UtlBoolean mInitialized;
    void* plgHandle;

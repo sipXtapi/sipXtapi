@@ -42,9 +42,19 @@ MpCodecInfo::MpCodecInfo(  const char*    codecVersion,
 {
 }
 
-//:Copy constructor
-MpCodecInfo::MpCodecInfo(const MpCodecInfo& rMpCodecInfo)
+MpCodecInfo::~MpCodecInfo()
 {
+}
+
+/* ============================ MANIPULATORS ============================== */
+
+MpCodecInfo& MpCodecInfo::operator=(const MpCodecInfo& rMpCodecInfo)
+{
+   if (&rMpCodecInfo == this)
+   {
+      return *this;
+   }
+
    mCodecVersion=rMpCodecInfo.mCodecVersion;
    mSamplingRate=rMpCodecInfo.mSamplingRate;
    mNumBitsPerSample=rMpCodecInfo.mNumBitsPerSample;
@@ -58,15 +68,6 @@ MpCodecInfo::MpCodecInfo(const MpCodecInfo& rMpCodecInfo)
    mPreCodecJitterBufferSize=rMpCodecInfo.mPreCodecJitterBufferSize;
    mDoesVadCng=rMpCodecInfo.mDoesVadCng;
 }
-
-MpCodecInfo::~MpCodecInfo(){}
-//:Destructor
-
-/* ============================ MANIPULATORS ============================== */
-
-// $$$ MS VC++ does not like this.  I don't need it.
-//MpCodecInfo& MpCodecInfo::operator=(const MpCodecInfo& rhs){}
-//:Assignment operator
 
 /* ============================ ACCESSORS ================================= */
 

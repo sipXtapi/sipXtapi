@@ -16,7 +16,8 @@
 #include <sdp/SdpCodec.h>
 
 MpPlgEncoderWrapper::MpPlgEncoderWrapper(int payloadType, const MpCodecCallInfoV1& plgci, const char* permanentDefaultMode)
-: MpEncoderBase(payloadType, &mpTmpInfo)
+: MpEncoderBase(payloadType, &mCodecInfo)
+, mCodecInfo("", 0, 0, 0, 0, 0, 0, 0, 0, 0)
 , mplgci(plgci)
 , mInitialized(FALSE)
 , mDefParamString(permanentDefaultMode)
@@ -28,7 +29,7 @@ const MpCodecInfo* MpPlgEncoderWrapper::getInfo(void) const
 {
    if (mInitialized)
    {
-         return &mpTmpInfo;
+      return &mCodecInfo;
    }
    return NULL;
 }
@@ -44,21 +45,19 @@ UtlBoolean MpPlgEncoderWrapper::initializeWrapper(const char* fmt)
       mInitialized = TRUE;
 
       //Filling codec information
-      //mpTmpInfo.mCodecType = (SdpCodec::SdpCodecTypes)plgInfo.codecSDPType;
-      //mpTmpInfo.mCodecType = SdpCodec::SDP_CODEC_UNKNOWN;
-      mpTmpInfo.mCodecVersion = plgInfo.codecVersion;
-      mpTmpInfo.mSamplingRate = plgInfo.samplingRate;
-      mpTmpInfo.mNumBitsPerSample = plgInfo.numSamplesPerFrame;
-      mpTmpInfo.mNumSamplesPerFrame = plgInfo.numSamplesPerFrame;
-      mpTmpInfo.mNumChannels = plgInfo.numChannels;
-      mpTmpInfo.mInterleaveBlockSize = plgInfo.interleaveBlockSize;
-      mpTmpInfo.mBitRate = plgInfo.bitRate;
-      mpTmpInfo.mMinPacketBits = plgInfo.minPacketBits;
-      mpTmpInfo.mAvgPacketBits = plgInfo.avgPacketBits;
-      mpTmpInfo.mMaxPacketBits = plgInfo.maxPacketBits;
-      mpTmpInfo.mPreCodecJitterBufferSize = plgInfo.preCodecJitterBufferSize;
-      mpTmpInfo.mIsSignalingCodec = FALSE;
-      mpTmpInfo.mDoesVadCng = FALSE;
+      mCodecInfo = MpCodecInfo(plgInfo.codecVersion,
+                               plgInfo.samplingRate,
+                               plgInfo.numSamplesPerFrame,
+                               plgInfo.numChannels,
+                               plgInfo.interleaveBlockSize,
+                               plgInfo.bitRate,
+                               plgInfo.minPacketBits,
+                               plgInfo.avgPacketBits,
+                               plgInfo.maxPacketBits,
+                               plgInfo.numSamplesPerFrame,
+                               plgInfo.preCodecJitterBufferSize,
+                               FALSE,
+                               FALSE);
    } else {
       mInitialized = FALSE;
    }

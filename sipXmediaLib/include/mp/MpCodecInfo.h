@@ -34,7 +34,6 @@
 */
 class MpCodecInfo
 {
-   friend class MpPlgEncoderWrapper;
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
@@ -65,9 +64,6 @@ public:
       UtlBoolean  signalingCodec = FALSE,
       UtlBoolean  doesVadCng = FALSE);
 
-     /// Copy constructor
-   MpCodecInfo(const MpCodecInfo& rMpCodecInfo);
-
      /// Destructor
    virtual
    ~MpCodecInfo();
@@ -78,7 +74,7 @@ public:
 ///@name Manipulators
 //@{
 
-   /// Assignment operator
+     /// Assignment operator
    MpCodecInfo& operator=(const MpCodecInfo& rhs);
 
 //@}
