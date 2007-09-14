@@ -20,7 +20,6 @@ MpPlgDecoderWrapper::MpPlgDecoderWrapper(int payloadType, const MpCodecCallInfoV
 , mInitialized(FALSE)
 , mDefParamString(permanentDefaultMode)
 , codecSupportPLC(FALSE)
-, signalingCodec(FALSE)
 {
 
 }
@@ -29,7 +28,7 @@ const MpCodecInfo* MpPlgDecoderWrapper::getInfo(void) const
 {
    if (mInitialized)
    {
-      return &mpTmpInfo;
+      return &mCodecInfo;
    }
 
    return NULL;
@@ -46,22 +45,21 @@ UtlBoolean MpPlgDecoderWrapper::initializeWrapper(const char* fmt)
       mInitialized = TRUE;
 
       codecSupportPLC = plgInfo.codecSupportPLC;
-      signalingCodec = plgInfo.signalingCodec && (mplgci.mPlgSignaling != NULL);
 
       // Fill in codec information
-      mpTmpInfo.mCodecVersion = plgInfo.codecVersion;
-      mpTmpInfo.mSamplingRate = plgInfo.samplingRate;
-      mpTmpInfo.mNumBitsPerSample = plgInfo.numSamplesPerFrame;
-      mpTmpInfo.mNumSamplesPerFrame = plgInfo.numSamplesPerFrame;
-      mpTmpInfo.mNumChannels = plgInfo.numChannels;
-      mpTmpInfo.mInterleaveBlockSize = plgInfo.interleaveBlockSize;
-      mpTmpInfo.mBitRate = plgInfo.bitRate;
-      mpTmpInfo.mMinPacketBits = plgInfo.minPacketBits;
-      mpTmpInfo.mAvgPacketBits = plgInfo.avgPacketBits;
-      mpTmpInfo.mMaxPacketBits = plgInfo.maxPacketBits;
-      mpTmpInfo.mPreCodecJitterBufferSize = plgInfo.preCodecJitterBufferSize;
-      mpTmpInfo.mIsSignalingCodec = signalingCodec;
-      mpTmpInfo.mDoesVadCng = FALSE;
+      mCodecInfo.mCodecVersion = plgInfo.codecVersion;
+      mCodecInfo.mSamplingRate = plgInfo.samplingRate;
+      mCodecInfo.mNumBitsPerSample = plgInfo.numSamplesPerFrame;
+      mCodecInfo.mNumSamplesPerFrame = plgInfo.numSamplesPerFrame;
+      mCodecInfo.mNumChannels = plgInfo.numChannels;
+      mCodecInfo.mInterleaveBlockSize = plgInfo.interleaveBlockSize;
+      mCodecInfo.mBitRate = plgInfo.bitRate;
+      mCodecInfo.mMinPacketBits = plgInfo.minPacketBits;
+      mCodecInfo.mAvgPacketBits = plgInfo.avgPacketBits;
+      mCodecInfo.mMaxPacketBits = plgInfo.maxPacketBits;
+      mCodecInfo.mPreCodecJitterBufferSize = plgInfo.preCodecJitterBufferSize;
+      mCodecInfo.mIsSignalingCodec = plgInfo.signalingCodec && (mplgci.mPlgSignaling != NULL);
+      mCodecInfo.mDoesVadCng = FALSE;
    }
    else
    {
@@ -131,7 +129,7 @@ int MpPlgDecoderWrapper::decode(const MpRtpBufPtr &pPacket,
    }
    else
    {
-      //TODO: Add PLC for codec that dosen't support itself
+      //TODO: Add PLC for codec that doesn't support itself
    }
 
    if (res != RPLG_SUCCESS) {
@@ -147,7 +145,10 @@ OsStatus MpPlgDecoderWrapper::getSignalingData(uint8_t &event,
                                                UtlBoolean &isStopped,
                                                uint16_t &duration)
 {
-   if (!signalingCodec) 
+   if (!mInitialized)
+      return OS_INVALID_STATE;
+
+   if (!mCodecInfo.isSignalingCodec()) 
       return OS_NOT_SUPPORTED;
 
    uint32_t wEvent, wStartStatus, wStopStatus, wDuration;

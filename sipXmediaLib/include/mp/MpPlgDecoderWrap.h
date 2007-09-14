@@ -21,14 +21,13 @@ class MpPlgDecoderWrapper : public MpDecoderBase//, protected MpCodecInfo
    friend class MpCodecFactory;
 
 protected:
-   MpCodecInfo mpTmpInfo;
+   MpCodecInfo mCodecInfo;
    const MpCodecCallInfoV1& mplgci;
    UtlBoolean mInitialized;
    void* plgHandle;
    const char* mDefParamString;
 
    UtlBoolean codecSupportPLC;
-   UtlBoolean signalingCodec;
 
 public:
    MpPlgDecoderWrapper(int payloadType, const MpCodecCallInfoV1& plgci, const char* permanentDefaultMode);
