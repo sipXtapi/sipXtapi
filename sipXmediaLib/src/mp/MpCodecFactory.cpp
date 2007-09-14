@@ -85,9 +85,7 @@ MpCodecFactory* MpCodecFactory::getMpCodecFactory(void)
 }
 
 MpCodecFactory::MpCodecFactory(void)
-: maxDynamicCodecTypeAssigned(0)
-, fCacheListMustUpdate(FALSE)
-, pCodecs(NULL)
+: fCacheListMustUpdate(FALSE)
 {
    initializeStaticCodecs();
 }
@@ -102,7 +100,7 @@ MpCodecFactory::~MpCodecFactory()
    while ((pinfo = (MpCodecSubInfo*)iter()))
    { 
       if (!pinfo->getCodecCall()->mbStatic) {
-         assert(!"Dynamics codec must be unloaded already");
+         assert(!"Dynamically loaded codecs must be unloaded already");
       }
       delete pinfo;     
    }

@@ -100,11 +100,23 @@ public:
      *  @param[out] rpEncoder - Reference to a pointer to the new encoder object
      */
 
+     /// Load specified codec plugin.
+   OsStatus loadDynCodec(const char* name);
+
+     /// Load all codec plugins within specified path and filter.
+   OsStatus loadAllDynCodecs(const char* path, const char* regexFilter);
+     /**<
+     *  Useful to load all libs in plugins directory.
+     */
+
 //@}
 
 /* ============================ ACCESSORS ================================= */
 ///@name Accessors
 //@{
+
+   SdpCodec::SdpCodecTypes* getAllCodecTypes(unsigned& count);
+   const char** getAllCodecModes(SdpCodec::SdpCodecTypes codecId, unsigned& count);
 
 //@}
 
@@ -113,8 +125,6 @@ public:
 //@{
 
 //@}
-   SdpCodec::SdpCodecTypes* getAllCodecTypes(unsigned& count);
-   const char** getAllCodecModes(SdpCodec::SdpCodecTypes codecId, unsigned& count);
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
@@ -133,11 +143,6 @@ protected:
 public:
    static MpCodecCallInfoV1* addStaticCodec(MpCodecCallInfoV1* sStaticCode);   
 
-     /// Load specified codec and add it to codec list
-   OsStatus loadDynCodec(const char* name);
-     /// Load all codec with specified path and filter. Useful to load all libs in pugins directory
-   OsStatus loadAllDynCodecs(const char* path, const char* regexFilter);
-
      /// Initialize all static codecs. Should be called only from mpStartup() 
    void initializeStaticCodecs();
 
@@ -151,21 +156,19 @@ protected:
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-   int maxDynamicCodecTypeAssigned; ///< Maximum number of dynamically assigned SdpCodecType
+
    UtlBoolean fCacheListMustUpdate; ///< Flag points that cached array must be rebuilt in the next call 
-   SdpCodec::SdpCodecTypes* pCodecs; ///< Cached array of known codecs
-   
    UtlSList mCodecsInfo; ///< list of all known and workable codecs
 
    // Static data members used to enforce Singleton behavior
-   static MpCodecFactory* spInstance; ///< pointer to the single instance of
-                                      ///<  the MpCodecFactory class.
-   static OsBSem sLock; ///< semaphore used to ensure that there is only one 
-                        ///< instance of this class.
-   static MpCodecCallInfoV1* sStaticCodecsV1; ///< List of all static codecs. Filled by global magic .ctor
+   static MpCodecFactory* spInstance; ///< Pointer to the singleton instance.
+   static OsBSem sLock;               ///< Semaphore used to synchronize singleton construction
+                                      ///< and destruction.
+   static MpCodecCallInfoV1* sStaticCodecsV1; ///< List of all static codecs.
+                                      ///< Filled by global magic .ctor.
 
-   void updateCodecArray(void); ///< not implemented yet
-   OsStatus addCodecWrapperV1(MpCodecCallInfoV1* wrapper); ///< Build 
+     /// Add new codec wrapper to codec list.
+   OsStatus addCodecWrapperV1(MpCodecCallInfoV1* wrapper);
 
      /// Copy constructor (not supported)
    MpCodecFactory(const MpCodecFactory& rMpCodecFactory);
