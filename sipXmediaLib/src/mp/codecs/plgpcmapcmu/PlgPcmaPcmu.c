@@ -10,6 +10,9 @@
 
 // Author: Sergey Kostanbaev <Sergey DOT Kostanbaev AT sipez DOT com>
 
+// SYSTEM INCLUDES
+#include <stdlib.h>
+
 // APPLICATION INCLUDES
 #include <mp/codecs/PlgDefsV1.h>
 
