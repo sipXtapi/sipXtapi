@@ -45,7 +45,6 @@ public:
 
      /// Constructor
    MpCodecInfo(
-      SdpCodec::SdpCodecTypes codecType, ///< codec type
       const char* codecVersion,   ///< string identifying the codec version
       unsigned    samplingRate,   ///< sampling rate for the PCM data expected
                                   ///< by the codec
@@ -84,9 +83,6 @@ public:
 /* ============================ ACCESSORS ================================= */
 ///@name Accessors
 //@{
-
-     /// Returns the codec type
-   SdpCodec::SdpCodecTypes getCodecType(void) const;
 
      /// Returns a string identifying the codec version
    UtlString getCodecVersion(void) const;
@@ -153,8 +149,7 @@ protected:
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-   SdpCodec::SdpCodecTypes mCodecType;
-   UtlString    mCodecVersion;
+   UtlString   mCodecVersion;
    unsigned    mSamplingRate;
    unsigned    mNumBitsPerSample;
    unsigned    mNumSamplesPerFrame;
@@ -165,8 +160,8 @@ private:
    unsigned    mAvgPacketBits;
    unsigned    mMaxPacketBits;
    unsigned    mPreCodecJitterBufferSize;
-   UtlBoolean   mIsSignalingCodec;
-   UtlBoolean   mDoesVadCng;
+   UtlBoolean  mIsSignalingCodec;
+   UtlBoolean  mDoesVadCng;
 
      /// Assignment operator
    MpCodecInfo& operator=(const MpCodecInfo& rhs);

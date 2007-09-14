@@ -77,12 +77,14 @@ public:
 //@{
 
      /// Returns a new instance of a decoder of the indicated type
-   OsStatus createDecoder(SdpCodec::SdpCodecTypes internalCodecId,
+   OsStatus createDecoder(const UtlString &mime,
+                          const UtlString &fmtp,
                           int payloadType,
                           MpDecoderBase*& rpDecoder);
      /**<
-     *  @param[in]  internalCodecId - codec type identifier
-     *  @param[in]  payloadType - RTP payload type associated with this decoder
+     *  @param[in]  mime - codec MIME-subtype
+     *  @param[in]  fmtp - codec-specific string in format of SDP "fmtp" parameter
+     *  @param[in]  payloadType - RTP payload type to be associated with this decoder
      *  @param[out] rpDecoder - Reference to a pointer to the new decoder object
      */
 
@@ -124,7 +126,7 @@ protected:
      */
 
      /// Search codec by given MIME-subtype
-   MpCodecSubInfo* searchByMIME(UtlString& mime) const;
+   MpCodecSubInfo* searchByMIME(const UtlString& mime) const;
 
 public:
    static MpCodecCallInfoV1* addStaticCodec(MpCodecCallInfoV1* sStaticCode);   

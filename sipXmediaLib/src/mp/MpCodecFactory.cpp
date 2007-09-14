@@ -118,37 +118,27 @@ MpCodecFactory::~MpCodecFactory()
 
 /* ============================= MANIPULATORS ============================= */
 
-OsStatus MpCodecFactory::createDecoder(SdpCodec::SdpCodecTypes internalCodecId,
-                                       int payloadType, MpDecoderBase*& rpDecoder)
+OsStatus MpCodecFactory::createDecoder(const UtlString &mime,
+                                       const UtlString &fmtp,
+                                       int payloadType,
+                                       MpDecoderBase*& rpDecoder)
 {
-   rpDecoder=NULL;
-
-   OsStatus res;
-   MpCodecSubInfo* codec = NULL;
-   UtlString mimeSubtype;
-   UtlString fmtp;
-
-   res = SdpDefaultCodecFactory::getMimeInfoByType(internalCodecId,
-                                                   mimeSubtype, fmtp);
-   if (res == OS_SUCCESS)
-   {
-      codec = searchByMIME(mimeSubtype);
-   }
+   MpCodecSubInfo* codec = searchByMIME(mime);
  
    if (codec)
    {      
       rpDecoder = new MpPlgDecoderWrapper(payloadType, *codec->getCodecCall(), fmtp);
-      ((MpPlgDecoderWrapper*)rpDecoder)->setAssignedSDPNum(internalCodecId);
    }
    else
    {
       OsSysLog::add(FAC_MP, PRI_WARNING, 
                     "MpCodecFactory::createDecoder unknown codec type "
-                    "internalCodecId = (SdpCodec::SdpCodecTypes) %d, "
+                    "%s, fmtp=%s"
                     "payloadType = %d",
-                    internalCodecId, payloadType);
+                    mime.data(), fmtp.data(), payloadType);
 
       assert(!"Could not find codec of given type!");
+      rpDecoder=NULL;
    }
 
    if (NULL != rpDecoder) 
@@ -179,8 +169,6 @@ OsStatus MpCodecFactory::createEncoder(SdpCodec::SdpCodecTypes internalCodecId,
    if (codec)
    {      
       rpEncoder = new MpPlgEncoderWrapper(payloadType, *codec->getCodecCall(), fmtp);
-      ((MpPlgEncoderWrapper*)rpEncoder)->setAssignedSDPNum(internalCodecId);
-
    }
    else
    {
@@ -492,7 +480,7 @@ void MpCodecFactory::updateCodecArray(void)
 /* ////////////////////////////// PROTECTED /////////////////////////////// */
 
 
-MpCodecSubInfo* MpCodecFactory::searchByMIME(UtlString& mime) const
+MpCodecSubInfo* MpCodecFactory::searchByMIME(const UtlString& mime) const
 {
    UtlSListIterator iter(mCodecsInfo);
    MpCodecSubInfo* pinfo;

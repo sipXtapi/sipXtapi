@@ -24,7 +24,6 @@ protected:
    MpCodecInfo mpTmpInfo;
    const MpCodecCallInfoV1& mplgci;
    UtlBoolean mInitialized;
-   UtlBoolean mSDPNumAssigned;
    void* plgHandle;
    const char* mDefParamString;
 
@@ -55,8 +54,7 @@ public:
 
      /// @copydoc MpDecoderBase::getInfo()
    virtual const MpCodecInfo* getInfo(void) const;
-protected:
-   OsStatus setAssignedSDPNum(SdpCodec::SdpCodecTypes sdpNum); //< SHOULD BE Removed after new API has been merged with sipX
+
 private:
    UtlBoolean initializeWrapper(const char *fmt);
 

@@ -13,8 +13,7 @@
 
 #include "mp/MpCodecInfo.h"
 
-MpCodecInfo::MpCodecInfo(SdpCodec::SdpCodecTypes codecType,
-                           const char*    codecVersion,
+MpCodecInfo::MpCodecInfo(  const char*    codecVersion,
                            unsigned       samplingRate,
                            unsigned       numBitsPerSample,
                            unsigned       numChannels,
@@ -27,8 +26,7 @@ MpCodecInfo::MpCodecInfo(SdpCodec::SdpCodecTypes codecType,
                            unsigned       preCodecJitterBufferSize,
                            UtlBoolean     signalingCodec,
                            UtlBoolean     doesVadCng)
- : mCodecType(codecType),
-   mCodecVersion(codecVersion),
+ : mCodecVersion(codecVersion),
    mSamplingRate(samplingRate),
    mNumBitsPerSample(numBitsPerSample),
    mNumSamplesPerFrame( numSamplesPerFrame ),
@@ -47,7 +45,6 @@ MpCodecInfo::MpCodecInfo(SdpCodec::SdpCodecTypes codecType,
 //:Copy constructor
 MpCodecInfo::MpCodecInfo(const MpCodecInfo& rMpCodecInfo)
 {
-   mCodecType=rMpCodecInfo.mCodecType;
    mCodecVersion=rMpCodecInfo.mCodecVersion;
    mSamplingRate=rMpCodecInfo.mSamplingRate;
    mNumBitsPerSample=rMpCodecInfo.mNumBitsPerSample;
@@ -72,12 +69,6 @@ MpCodecInfo::~MpCodecInfo(){}
 //:Assignment operator
 
 /* ============================ ACCESSORS ================================= */
-
-SdpCodec::SdpCodecTypes MpCodecInfo::getCodecType(void) const
-{
-//Returns the codec type
-   return (mCodecType);
-}
 
 UtlString MpCodecInfo::getCodecVersion(void) const
 {

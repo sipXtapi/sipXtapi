@@ -354,13 +354,13 @@ UtlBoolean MprDecode::handleSelectCodecs(SdpCodec* pCodecs[], int numCodecs)
    int i;
    SdpCodec* pCodec;
    int payload;
-   SdpCodec::SdpCodecTypes ourCodec;
-   SdpCodec::SdpCodecTypes oldSdpType = SdpCodec::SDP_CODEC_UNKNOWN;
+   UtlString mime;
+   UtlString fmtp;
    OsStatus ret;
    MpDecoderBase* pNewDecoder;
    MpDecoderBase* pOldDecoder;
    MpCodecFactory* pFactory = MpCodecFactory::getMpCodecFactory();
-   int allReusable = 1;
+   int allReusable = 0;
    int canReuse;
 #if 0
    osPrintf("MprDecode::handleSelectCodecs(%d codec%s):\n",
@@ -379,11 +379,13 @@ UtlBoolean MprDecode::handleSelectCodecs(SdpCodec* pCodecs[], int numCodecs)
             }
    }
 
+#if 0 // [
    // Check to see if all codecs in pCodecs can be handled by codecs
    // in mpCurrentCodecs.
    for (i=0; i<numCodecs; i++) {
       pCodec = pCodecs[i];
-      ourCodec = pCodec->getCodecType();
+      pCodec->getEncodingName(mime);
+      pCodec->getSdpFmtpField(fmtp);
       payload = pCodec->getCodecPayloadFormat();
 #if 0
       osPrintf("  #%d: New=0x%X/i:%d/x:%d, ",
@@ -391,15 +393,13 @@ UtlBoolean MprDecode::handleSelectCodecs(SdpCodec* pCodecs[], int numCodecs)
 #endif
       pOldDecoder = mpConnection->mapPayloadType(payload);
       if (NULL != pOldDecoder) {
-         oldSdpType = pOldDecoder->getInfo()->getCodecType();
+         UtlString oldMime;
+         UtlString oldFmtp;
+         pOldDecoder->getInfo()->getCodecType();
 #if 0
          osPrintf("  Old=0x%X/i:%d", (int)pOldDecoder, oldSdpType);
 #endif
-         canReuse = (ourCodec == oldSdpType)
-            || ((SdpCodec::SDP_CODEC_G729AB == ourCodec)
-                            && (SdpCodec::SDP_CODEC_G729A == oldSdpType))
-            || ((SdpCodec::SDP_CODEC_G729A == ourCodec)
-                            && (SdpCodec::SDP_CODEC_G729AB == oldSdpType));
+         canReuse = (ourCodec == oldSdpType);
       } else {
          // osPrintf("  no Old");
          canReuse = 0;
@@ -411,6 +411,7 @@ UtlBoolean MprDecode::handleSelectCodecs(SdpCodec* pCodecs[], int numCodecs)
          (canReuse && (ourCodec != oldSdpType) ? "[*]" : ""));
 #endif
    }
+#endif // 0 ]
 
    // If the new list is not a subset of the old list, we have to copy
    // pCodecs into mpCurrentCodecs.
@@ -426,9 +427,10 @@ UtlBoolean MprDecode::handleSelectCodecs(SdpCodec* pCodecs[], int numCodecs)
 
       for (i=0; i<numCodecs; i++) {
          pCodec = pCodecs[i];
-         ourCodec = pCodec->getCodecType();
+         pCodec->getEncodingName(mime);
+         pCodec->getSdpFmtpField(fmtp);
          payload = pCodec->getCodecPayloadFormat();
-         ret = pFactory->createDecoder(ourCodec, payload, pNewDecoder);
+         ret = pFactory->createDecoder(mime, fmtp, payload, pNewDecoder);
          assert(OS_SUCCESS == ret);
          assert(NULL != pNewDecoder);
          pNewDecoder->initDecode();

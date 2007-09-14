@@ -19,7 +19,6 @@ MpPlgEncoderWrapper::MpPlgEncoderWrapper(int payloadType, const MpCodecCallInfoV
 : MpEncoderBase(payloadType, &mpTmpInfo)
 , mplgci(plgci)
 , mInitialized(FALSE)
-, mSDPNumAssigned(FALSE)
 , mDefParamString(permanentDefaultMode)
 {
 
@@ -29,17 +28,9 @@ const MpCodecInfo* MpPlgEncoderWrapper::getInfo(void) const
 {
    if (mInitialized)
    {
-         assert(mSDPNumAssigned == TRUE);
          return &mpTmpInfo;
    }
    return NULL;
-}
-
-OsStatus MpPlgEncoderWrapper::setAssignedSDPNum(SdpCodec::SdpCodecTypes sdpNum)
-{
-   mSDPNumAssigned = TRUE;
-   mpTmpInfo.mCodecType = sdpNum;
-   return OS_SUCCESS;
 }
 
 UtlBoolean MpPlgEncoderWrapper::initializeWrapper(const char* fmt)
