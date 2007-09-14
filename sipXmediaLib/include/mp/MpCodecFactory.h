@@ -43,17 +43,8 @@
 class MpFlowGraphBase;
 class MpCodecSubInfo;
 
-/// SHOULD BE REMOVED IN RELEASE
-class MpWorkaroundSDPNumList
-{
-public:
-   SdpCodec::SdpCodecTypes mPredefinedSDPnum;
-   const char* mimeSubtype;
-   const char* extraMode;
-};
 
-
-/**<
+/**
 *  Singleton class used to generate encoder and decoder objects of an indicated type.
 */
 class MpCodecFactory
@@ -133,7 +124,7 @@ protected:
      */
 
      /// Search codec by given MIME-subtype
-   MpCodecSubInfo* searchByMIME(UtlString& str);
+   MpCodecSubInfo* searchByMIME(UtlString& mime) const;
 
 public:
    static MpCodecCallInfoV1* addStaticCodec(MpCodecCallInfoV1* sStaticCode);   
@@ -172,7 +163,7 @@ private:
    void updateCodecArray(void); ///< not implemented yet
    OsStatus addCodecWrapperV1(MpCodecCallInfoV1* wrapper); ///< Build 
 
-   int assignAudioSDPnumber(const UtlString& mimeSubtypeInLowerCase); ///< mimeSubtype SHOULD BE in lower case   
+   SdpCodec::SdpCodecTypes assignAudioSDPnumber(const UtlString& mimeSubtypeInLowerCase); ///< mimeSubtype SHOULD BE in lower case   
 
      /// Copy constructor (not supported)
    MpCodecFactory(const MpCodecFactory& rMpCodecFactory);

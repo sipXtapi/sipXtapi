@@ -11,18 +11,28 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
+// SYSTEM INCLUDES
 #include <assert.h>
-#include <utl/UtlInit.h>
+
+// APPLICATION INCLUDES
 #include <mp/MpCodecFactory.h>
-#include <os/OsSysLog.h>
-#include <os/OsSharedLibMgr.h>
-#include <utl/UtlSListIterator.h>
-#include <os/OsFS.h>
 #include <mp/MpPlgEncoderWrap.h>
 #include <mp/MpPlgDecoderWrap.h>
-
 #include <sdp/SdpCodec.h>
+#include <sdp/SdpDefaultCodecFactory.h>
+#include <os/OsSysLog.h>
+#include <os/OsSharedLibMgr.h>
+#include <os/OsFS.h>
+#include <utl/UtlInit.h>
+#include <utl/UtlSListIterator.h>
 
+// EXTERNAL FUNCTIONS
+// EXTERNAL VARIABLES
+// CONSTANTS
+// TYPEDEFS
+// DEFINES
+// MACROS
+// LOCAL TYPES DECLARATIONS
 class MpCodecSubInfo : public UtlVoidPtr
 {
 public:
@@ -57,42 +67,14 @@ protected:
    const char* mpMimeSubtype;
 };
 
+// STATIC VARIABLE INITIALIZATIONS
 MpCodecFactory* MpCodecFactory::spInstance = NULL;
 OsBSem MpCodecFactory::sLock(OsBSem::Q_PRIORITY, OsBSem::FULL);
-
-MpWorkaroundSDPNumList gWorkaroudForOldAPI[] =
-{
-   { SdpCodec::SDP_CODEC_PCMU,    "pcmu",   NULL  },
-   { SdpCodec::SDP_CODEC_GSM,     "gsm",    NULL  },
-   { SdpCodec::SDP_CODEC_G723,    "g723",   NULL  },
-   { SdpCodec::SDP_CODEC_PCMA,    "pcma",   NULL  },
-   { SdpCodec::SDP_CODEC_SPEEX,   "speex",  NULL  },
-   { SdpCodec::SDP_CODEC_SPEEX_5, "speex",  "mode=2"  },
-   { SdpCodec::SDP_CODEC_SPEEX_15,"speex",  "mode=5"  },
-   { SdpCodec::SDP_CODEC_SPEEX_24,"speex",  "mode=7"  },
-   { SdpCodec::SDP_CODEC_ILBC,    "ilbc",   NULL  },
-   { SdpCodec::SDP_CODEC_TONES,   "telephone-events",   NULL  }
-};
-
-#define SIZEOF_WORKAROUND_LIST     \
-   (sizeof(gWorkaroudForOldAPI) / sizeof(gWorkaroudForOldAPI[0]))
-
-static MpWorkaroundSDPNumList* searchWorkAroundSlot(SdpCodec::SdpCodecTypes num)
-{
-   int i;
-
-   for (i = 0; i < SIZEOF_WORKAROUND_LIST; i++) {
-      if (gWorkaroudForOldAPI[i].mPredefinedSDPnum == num)
-         return &gWorkaroudForOldAPI[i];
-   }
-   return NULL;
-}
 
 /* ============================ CREATORS ================================== */
 
 // Return a pointer to the MpCodecFactory singleton object, creating 
 // it if necessary
-
 MpCodecFactory* MpCodecFactory::getMpCodecFactory(void)
 {
    // If the object already exists, then use it
@@ -117,7 +99,6 @@ MpCodecFactory::MpCodecFactory(void)
    initializeStaticCodecs();
 }
 
-//:Destructor
 MpCodecFactory::~MpCodecFactory()
 {
    freeAllLoadedLibsAndCodec();
@@ -135,40 +116,46 @@ MpCodecFactory::~MpCodecFactory()
    mCodecsInfo.removeAll();
 }
 
-// Returns a new instance of a decoder of the indicated type
-// param: internalCodecId - (in) codec type identifier
-// param: payloadType - (in) RTP payload type associated with this decoder
-// param: rpDecoder - (out) Reference to a pointer to the new decoder object
+/* ============================= MANIPULATORS ============================= */
+
 OsStatus MpCodecFactory::createDecoder(SdpCodec::SdpCodecTypes internalCodecId,
                                        int payloadType, MpDecoderBase*& rpDecoder)
 {
    rpDecoder=NULL;
 
+   OsStatus res;
    MpCodecSubInfo* codec = NULL;
-   MpWorkaroundSDPNumList* slot = searchWorkAroundSlot(internalCodecId);
-   if (slot) {
-      UtlString str = slot->mimeSubtype;
-      codec = searchByMIME(str);
+   UtlString mimeSubtype;
+   UtlString fmtp;
+
+   res = SdpDefaultCodecFactory::getMimeInfoByType(internalCodecId,
+                                                   mimeSubtype, fmtp);
+   if (res == OS_SUCCESS)
+   {
+      codec = searchByMIME(mimeSubtype);
    }
  
-   if (codec) {      
-      rpDecoder = new MpPlgDecoderWrapper(payloadType, *codec->getCodecCall(), slot->extraMode);
+   if (codec)
+   {      
+      rpDecoder = new MpPlgDecoderWrapper(payloadType, *codec->getCodecCall(), fmtp);
       ((MpPlgDecoderWrapper*)rpDecoder)->setAssignedSDPNum(internalCodecId);
-
-   } else {
+   }
+   else
+   {
       OsSysLog::add(FAC_MP, PRI_WARNING, 
-         "MpCodecFactory::createDecoder unknown codec type "
-         "internalCodecId = (SdpCodec::SdpCodecTypes) %d, "
-         "payloadType = %d",
-         internalCodecId, payloadType);
+                    "MpCodecFactory::createDecoder unknown codec type "
+                    "internalCodecId = (SdpCodec::SdpCodecTypes) %d, "
+                    "payloadType = %d",
+                    internalCodecId, payloadType);
 
-      assert(FALSE);
+      assert(!"Could not find codec of given type!");
    }
 
    if (NULL != rpDecoder) 
    {
       return OS_SUCCESS;
    }
+
    return OS_INVALID_ARGUMENT;
 }
 
@@ -177,46 +164,40 @@ OsStatus MpCodecFactory::createEncoder(SdpCodec::SdpCodecTypes internalCodecId,
 {
    rpEncoder=NULL;
 
+   OsStatus res;
    MpCodecSubInfo* codec = NULL;
-   MpWorkaroundSDPNumList* slot = searchWorkAroundSlot(internalCodecId);
-   if (slot) {
-      UtlString str = slot->mimeSubtype;
-      codec = searchByMIME(str);
+   UtlString mimeSubtype;
+   UtlString fmtp;
+
+   res = SdpDefaultCodecFactory::getMimeInfoByType(internalCodecId,
+                                                   mimeSubtype, fmtp);
+   if (res == OS_SUCCESS)
+   {
+      codec = searchByMIME(mimeSubtype);
    }
 
-   if (codec) {      
-      rpEncoder = new MpPlgEncoderWrapper(payloadType, *codec->getCodecCall(), slot->extraMode);
+   if (codec)
+   {      
+      rpEncoder = new MpPlgEncoderWrapper(payloadType, *codec->getCodecCall(), fmtp);
       ((MpPlgEncoderWrapper*)rpEncoder)->setAssignedSDPNum(internalCodecId);
 
-   } else {
+   }
+   else
+   {
       OsSysLog::add(FAC_MP, PRI_WARNING, 
-         "MpCodecFactory::createEncoder unknown codec type "
-         "internalCodecId = (SdpCodec::SdpCodecTypes) %d, "
-         "payloadType = %d",
-         internalCodecId, payloadType);
-         
-      assert(FALSE);
+                    "MpCodecFactory::createEncoder unknown codec type "
+                    "internalCodecId = (SdpCodec::SdpCodecTypes) %d, "
+                    "payloadType = %d",
+                    internalCodecId, payloadType);
+      assert(!"Could not find codec of given type!");
    }
 
    if (NULL != rpEncoder) 
    {
       return OS_SUCCESS;
    }
+
    return OS_INVALID_ARGUMENT;
-}
-
-   
-MpCodecSubInfo* MpCodecFactory::searchByMIME(UtlString& str)
-{
-   UtlSListIterator iter(mCodecsInfo);
-   MpCodecSubInfo* pinfo;
-
-   while ((pinfo = (MpCodecSubInfo*)iter()))
-   { 
-      if (str.compareTo(pinfo->getMIMEtype()) == 0)
-         return pinfo;
-   }
-   return NULL;
 }
 
 MpCodecCallInfoV1* MpCodecFactory::addStaticCodec(MpCodecCallInfoV1* sStaticCode)
@@ -287,8 +268,6 @@ void MpCodecFactory::freeAllLoadedLibsAndCodec()
 
    fCacheListMustUpdate = TRUE;
 }
-
-
 
 OsStatus MpCodecFactory::loadAllDynCodecs(const char* path, const char* regexFilter)
 {
@@ -423,18 +402,18 @@ OsStatus MpCodecFactory::loadDynCodec(const char* name)
 OsStatus MpCodecFactory::addCodecWrapperV1(MpCodecCallInfoV1* wrapper)
 {
    MpCodecSubInfo* mpsi;
-   UtlString str;
-   const char* tmpstr;
-   int sdpNum;
-   int res = wrapper->mPlgEnum(&tmpstr, NULL, NULL);
-   if (res != RPLG_SUCCESS) {
+   const char* mimeSubtype;
+   SdpCodec::SdpCodecTypes sdpCodecType;
+
+   // Get codec's MIME-subtype and recommended modes.
+   int res = wrapper->mPlgEnum(&mimeSubtype, NULL, NULL);
+   if (res != RPLG_SUCCESS)
+   {
       return OS_FAILED;
    }
-   str = tmpstr;
-   str.toLower();
-   sdpNum = assignAudioSDPnumber(str);
+   sdpCodecType = assignAudioSDPnumber(mimeSubtype);
 
-   mpsi = new MpCodecSubInfo(wrapper, (SdpCodec::SdpCodecTypes)sdpNum, tmpstr);
+   mpsi = new MpCodecSubInfo(wrapper, sdpCodecType, mimeSubtype);
    if (mpsi == NULL) {
       return OS_NO_MEMORY;
    }
@@ -455,6 +434,8 @@ void MpCodecFactory::initializeStaticCodecs() //Should be called from mpStartup(
    }
 }
 
+/* ============================== ACCESSORS =============================== */
+
 SdpCodec::SdpCodecTypes* MpCodecFactory::getAllCodecTypes(unsigned& count)
 {
    // NOT implemented yet
@@ -467,10 +448,10 @@ const char** MpCodecFactory::getAllCodecModes(SdpCodec::SdpCodecTypes codecId, u
    return NULL;
 }
 
-int MpCodecFactory::assignAudioSDPnumber(const UtlString& mimeSubtypeInLowerCase)
+SdpCodec::SdpCodecTypes MpCodecFactory::assignAudioSDPnumber(const UtlString& mimeSubtypeInLowerCase)
 {
    struct knownSDPnums {
-      int sdpNum;
+      SdpCodec::SdpCodecTypes sdpNum;
       const char* mimeSubtype;
    };
 
@@ -486,7 +467,7 @@ int MpCodecFactory::assignAudioSDPnumber(const UtlString& mimeSubtypeInLowerCase
 
    for (i = 0; i < (sizeof(statics) / sizeof(statics[0])); i++ )
    {
-      if (mimeSubtypeInLowerCase.compareTo(statics[i].mimeSubtype) == 0) 
+      if (mimeSubtypeInLowerCase.compareTo(statics[i].mimeSubtype, UtlString::ignoreCase) == 0) 
       {
          return statics[i].sdpNum;
       }
@@ -496,7 +477,7 @@ int MpCodecFactory::assignAudioSDPnumber(const UtlString& mimeSubtypeInLowerCase
    maxDynamicCodecTypeAssigned++;
    assert (maxDynamicCodecTypeAssigned > 0);
    
-   return SdpCodec::SDP_CODEC_MAXIMUM_STATIC_CODEC + maxDynamicCodecTypeAssigned;
+   return SdpCodec::SdpCodecTypes(SdpCodec::SDP_CODEC_MAXIMUM_STATIC_CODEC + maxDynamicCodecTypeAssigned);
 }
 
 
@@ -504,3 +485,30 @@ void MpCodecFactory::updateCodecArray(void)
 {
    // NOT implemented yet
 }
+
+/* =============================== INQUIRY ================================ */
+
+
+/* ////////////////////////////// PROTECTED /////////////////////////////// */
+
+
+MpCodecSubInfo* MpCodecFactory::searchByMIME(UtlString& mime) const
+{
+   UtlSListIterator iter(mCodecsInfo);
+   MpCodecSubInfo* pinfo;
+
+   while ((pinfo = (MpCodecSubInfo*)iter()))
+   { 
+      if (mime.compareTo(pinfo->getMIMEtype(), UtlString::ignoreCase) == 0)
+      {
+         return pinfo;
+      }
+   }
+
+   return NULL;
+}
+
+/* /////////////////////////////// PRIVATE //////////////////////////////// */
+
+
+/* ============================== FUNCTIONS =============================== */
