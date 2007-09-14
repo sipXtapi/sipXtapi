@@ -1502,59 +1502,11 @@
 					>
 				</File>
 				<File
-					RelativePath=".\src\mp\MpdPtAVT.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\src\mp\MpdSipxGSM.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\src\mp\MpdSipxILBC.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\src\mp\MpdSipxPcma.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\src\mp\MpdSipxPcmu.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\src\mp\MpdSipxSpeex.cpp"
-					>
-				</File>
-				<File
 					RelativePath=".\src\mp\MpDspUtils.cpp"
 					>
 				</File>
 				<File
 					RelativePath=".\src\mp\MpEncoderBase.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\src\mp\MpePtAVT.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\src\mp\MpeSipxGSM.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\src\mp\MpeSipxILBC.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\src\mp\MpeSipxPcma.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\src\mp\MpeSipxPcmu.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\src\mp\MpeSipxSpeex.cpp"
 					>
 				</File>
 				<File
@@ -1779,10 +1731,6 @@
 				</File>
 				<File
 					RelativePath=".\src\mp\MpSineWaveGeneratorDeviceDriver.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\src\mp\MpSipxDecoders.cpp"
 					>
 				</File>
 				<File
@@ -2079,30 +2027,6 @@
 					>
 				</File>
 				<File
-					RelativePath=".\include\mp\MpdPtAVT.h"
-					>
-				</File>
-				<File
-					RelativePath=".\include\mp\MpdSipxGSM.h"
-					>
-				</File>
-				<File
-					RelativePath=".\include\mp\MpdSipxILBC.h"
-					>
-				</File>
-				<File
-					RelativePath=".\include\mp\MpdSipxPcma.h"
-					>
-				</File>
-				<File
-					RelativePath=".\include\mp\MpdSipxPcmu.h"
-					>
-				</File>
-				<File
-					RelativePath=".\include\mp\MpdSipxSpeex.h"
-					>
-				</File>
-				<File
 					RelativePath=".\include\mp\MpDspUtils.h"
 					>
 				</File>
@@ -2120,30 +2044,6 @@
 				</File>
 				<File
 					RelativePath=".\include\mp\MpEncoderBase.h"
-					>
-				</File>
-				<File
-					RelativePath=".\include\mp\MpePtAVT.h"
-					>
-				</File>
-				<File
-					RelativePath=".\include\mp\MpeSipxGSM.h"
-					>
-				</File>
-				<File
-					RelativePath=".\include\mp\MpeSipxILBC.h"
-					>
-				</File>
-				<File
-					RelativePath=".\include\mp\MpeSipxPcma.h"
-					>
-				</File>
-				<File
-					RelativePath=".\include\mp\MpeSipxPcmu.h"
-					>
-				</File>
-				<File
-					RelativePath=".\include\mp\MpeSipxSpeex.h"
 					>
 				</File>
 				<File
@@ -2432,10 +2332,6 @@
 				</File>
 				<File
 					RelativePath=".\include\mp\MpSineWaveGeneratorDeviceDriver.h"
-					>
-				</File>
-				<File
-					RelativePath=".\include\mp\MpSipxDecoders.h"
 					>
 				</File>
 				<File

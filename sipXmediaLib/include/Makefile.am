@@ -36,17 +36,7 @@ nobase_include_HEADERS =  \
     mp/MpDspUtilsSerials.h \
     mp/MpDspUtilsShift.h \
     mp/MpDspUtilsSum.h \
-    mp/MpdPtAVT.h \
-    mp/MpdSipxGSM.h \
-    mp/MpdSipxPcma.h \
-    mp/MpdSipxPcmu.h \
-    mp/MpdSipxSpeex.h \
-    mp/MpeSipxGSM.h \
-    mp/MpeSipxPcma.h \
-    mp/MpeSipxPcmu.h \
-    mp/MpeSipxSpeex.h \
     mp/MpEncoderBase.h \
-    mp/MpePtAVT.h \
     mp/MpFlowGraphBase.h \
     mp/MpFlowGraphMsg.h \
     mp/MpFromFileStartResourceMsg.h \
@@ -119,7 +109,6 @@ nobase_include_HEADERS =  \
     mp/MprRtpOutputAudioConnectionConstructor.h \
     mp/MpRtpOutputConnection.h \
     mp/MpSineWaveGeneratorDeviceDriver.h \
-    mp/MpSipxDecoders.h \
     mp/MpStreamFeeder.h \
     mp/MpStreamMsg.h \
     mp/MpStreamPlayer.h \

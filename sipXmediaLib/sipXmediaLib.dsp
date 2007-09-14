@@ -211,55 +211,11 @@ SOURCE=.\src\mp\MpDecoderBase.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\mp\MpdPtAVT.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\src\mp\MpdSipxGSM.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\src\mp\MpdSipxILBC.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\src\mp\MpdSipxPcma.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\src\mp\MpdSipxPcmu.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\src\mp\MpdSipxSpeex.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\src\mp\MpDspUtils.cpp
 # End Source File
 # Begin Source File
 
 SOURCE=.\src\mp\MpEncoderBase.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\src\mp\MpePtAVT.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\src\mp\MpeSipxGSM.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\src\mp\MpeSipxPcma.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\src\mp\MpeSipxPcmu.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\src\mp\MpeSipxSpeex.cpp
 # End Source File
 # Begin Source File
 
@@ -480,10 +436,6 @@ SOURCE=.\src\mp\MpRtpOutputConnection.cpp
 # Begin Source File
 
 SOURCE=.\src\mp\MpSineWaveGeneratorDeviceDriver.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\src\mp\MpSipxDecoders.cpp
 # End Source File
 # Begin Source File
 
@@ -1232,10 +1184,6 @@ SOURCE=.\include\mp\MpRtpOutputConnection.h
 # Begin Source File
 
 SOURCE=.\include\mp\MpSineWaveGeneratorDeviceDriver.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\include\mp\MpSipxDecoders.h
 # End Source File
 # Begin Source File
 

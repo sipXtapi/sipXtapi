@@ -70,17 +70,7 @@ libsipXmedia_la_SOURCES =  \
     mp/MpDataBuf.cpp \
     mp/MpDecoderBase.cpp \
     mp/MpDspUtils.cpp \
-    mp/MpdPtAVT.cpp \
-    mp/MpdSipxGSM.cpp \
-    mp/MpdSipxPcma.cpp \
-    mp/MpdSipxPcmu.cpp \
-    mp/MpdSipxSpeex.cpp \
-    mp/MpeSipxGSM.cpp \
-    mp/MpeSipxPcma.cpp \
-    mp/MpeSipxPcmu.cpp \
-    mp/MpeSipxSpeex.cpp \
     mp/MpEncoderBase.cpp \
-    mp/MpePtAVT.cpp \
     mp/MpFlowGraphBase.cpp \
     mp/MpFlowGraphMsg.cpp \
     mp/mpG711.cpp \
@@ -150,7 +140,6 @@ libsipXmedia_la_SOURCES =  \
     mp/MpTopologyGraph.cpp \
     mp/NetInTask.cpp \
     mp/resamplingby2.cpp \
-    mp/MpSipxDecoders.cpp \
     mp/StreamBufferDataSource.cpp \
     mp/StreamDataSource.cpp \
     mp/StreamDataSourceListener.cpp \

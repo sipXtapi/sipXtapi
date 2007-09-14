@@ -1164,126 +1164,6 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\mp\MpdPtAVT.cpp">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug_NoVideo|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release_NoVideo|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath=".\src\mp\MpdSipxGSM.cpp">
-			</File>
-			<File
-				RelativePath=".\src\mp\MpdSipxILBC.cpp">
-			</File>
-			<File
-				RelativePath="src\mp\MpdSipxPcma.cpp">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug_NoVideo|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release_NoVideo|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="src\mp\MpdSipxPcmu.cpp">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug_NoVideo|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release_NoVideo|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath=".\src\mp\MpdSipxSpeex.cpp">
-			</File>
-			<File
 				RelativePath=".\src\mp\MpDspUtils.cpp">
 			</File>
 			<File
@@ -1322,126 +1202,6 @@
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""/>
 				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="src\mp\MpePtAVT.cpp">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug_NoVideo|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release_NoVideo|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath=".\src\mp\MpeSipxGSM.cpp">
-			</File>
-			<File
-				RelativePath=".\src\mp\MpeSipxILBC.cpp">
-			</File>
-			<File
-				RelativePath="src\mp\MpeSipxPcma.cpp">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug_NoVideo|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release_NoVideo|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="src\mp\MpeSipxPcmu.cpp">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug_NoVideo|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release_NoVideo|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath=".\src\mp\MpeSipxSpeex.cpp">
 			</File>
 			<File
 				RelativePath="src\mp\MpFlowGraphBase.cpp">
@@ -2537,43 +2297,6 @@
 			</File>
 			<File
 				RelativePath=".\src\mp\MpSineWaveGeneratorDeviceDriver.cpp">
-			</File>
-			<File
-				RelativePath="src\mp\MpSipxDecoders.cpp">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug_NoVideo|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release_NoVideo|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="src\mp\MpStreamFeeder.cpp">
@@ -3944,24 +3667,6 @@
 				RelativePath="include\mp\MpDecoderBase.h">
 			</File>
 			<File
-				RelativePath="include\mp\MpdPtAVT.h">
-			</File>
-			<File
-				RelativePath=".\include\mp\MpdSipxGSM.h">
-			</File>
-			<File
-				RelativePath=".\include\mp\MpdSipxILBC.h">
-			</File>
-			<File
-				RelativePath="include\mp\MpdSipxPcma.h">
-			</File>
-			<File
-				RelativePath="include\mp\MpdSipxPcmu.h">
-			</File>
-			<File
-				RelativePath=".\include\mp\MpdSipxSpeex.h">
-			</File>
-			<File
 				RelativePath=".\include\mp\MpDspUtils.h">
 			</File>
 			<File
@@ -3975,24 +3680,6 @@
 			</File>
 			<File
 				RelativePath="include\mp\MpEncoderBase.h">
-			</File>
-			<File
-				RelativePath="include\mp\MpePtAVT.h">
-			</File>
-			<File
-				RelativePath=".\include\mp\MpeSipxGSM.h">
-			</File>
-			<File
-				RelativePath=".\include\mp\MpeSipxILBC.h">
-			</File>
-			<File
-				RelativePath="include\mp\MpeSipxPcma.h">
-			</File>
-			<File
-				RelativePath="include\mp\MpeSipxPcmu.h">
-			</File>
-			<File
-				RelativePath=".\include\mp\MpeSipxSpeex.h">
 			</File>
 			<File
 				RelativePath="include\mp\MpFlowGraphBase.h">
@@ -4220,9 +3907,6 @@
 				RelativePath=".\include\mp\MpSineWaveGeneratorDeviceDriver.h">
 			</File>
 			<File
-				RelativePath="include\mp\MpSipxDecoders.h">
-			</File>
-			<File
 				RelativePath="include\mp\MpStreamFeeder.h">
 			</File>
 			<File
@@ -4289,10 +3973,10 @@
 				RelativePath="include\rtcp\RTCPTimer.h">
 			</File>
 			<File
-				RelativePath="include\rtcp\RTPHeader.h">
+				RelativePath=".\include\mp\RtpHeader.h">
 			</File>
 			<File
-				RelativePath=".\include\mp\RtpHeader.h">
+				RelativePath="include\rtcp\RTPHeader.h">
 			</File>
 			<File
 				RelativePath="include\rtcp\SenderReport.h">
