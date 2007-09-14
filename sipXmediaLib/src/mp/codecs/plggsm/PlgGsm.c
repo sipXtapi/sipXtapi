@@ -32,10 +32,10 @@
 
 static const char codecMIMEsubtype[] = "gsm";
 
-struct plgCodecInfoV1 codecGSM = 
+static const struct plgCodecInfoV1 codecGSM = 
 {
    sizeof(struct plgCodecInfoV1),   //cbSize
-   codecMIMEsubtype,                // mimeSubtype
+   codecMIMEsubtype,                //mimeSubtype
    "libgsm",                        //codecName
    "GSM 6.10",                      //codecVersion
    8000,                            //samplingRate
@@ -54,9 +54,6 @@ struct libgsm_codec_data {
    audio_sample_t mpBuffer[160];    ///< Buffer used to store input samples
    int mBufferLoad;                 ///< How much data there is in the buffer
    gsm mpGsmState;
-
-   int mPreparedDec;
-   int mPreparedEnc;
 };
 
 CODEC_API int PLG_ENUM_V1(libgsm)(const char** mimeSubtype, unsigned int* pModesCount, const char*** modes)
@@ -73,50 +70,6 @@ CODEC_API int PLG_ENUM_V1(libgsm)(const char** mimeSubtype, unsigned int* pModes
    return RPLG_SUCCESS;
 }
 
-/*
-int PLG_PREPARE_V1(libgsm)(void* handle, int bDecoder)
-{
-   struct libgsm_codec_data *mpGsm = (struct libgsm_codec_data *)handle;
-   if (((bDecoder)&&(mpGsm->mPreparedDec)) ||
-       ((!bDecoder)&&(mpGsm->mPreparedEnc)))
-   {
-      return RPLG_INVALID_SEQUENCE_CALL;
-   }
-   if (bDecoder) {
-      mpGsm->mpGsmStateDec = gsm_create();
-      if (mpGsm->mpGsmStateDec == NULL) {
-         return RPLG_FAILED;
-      }
-      mpGsm->mPreparedDec = TRUE;
-   } else {
-      mpGsm->mpGsmStateEnc = gsm_create();
-      if (mpGsm->mpGsmStateEnc == NULL) {
-         return RPLG_FAILED;
-      }
-      mpGsm->mPreparedEnc = TRUE;
-   }
-   return RPLG_SUCCESS;
-}
-
-int PLG_UNPREPARE_V1(libgsm)(void* handle, int bDecoder)
-{
-   struct libgsm_codec_data *mpGsm = (struct libgsm_codec_data *)handle;
-   if (((bDecoder)&&(!mpGsm->mPreparedDec)) ||
-      ((!bDecoder)&&(!mpGsm->mPreparedEnc)))
-   {
-      return RPLG_INVALID_SEQUENCE_CALL;
-   }
-   if (bDecoder) {
-      gsm_destroy(mpGsm->mpGsmStateDec);
-      mpGsm->mPreparedDec = FALSE;
-   } else {
-      gsm_destroy(mpGsm->mpGsmStateEnc);
-      mpGsm->mPreparedEnc = FALSE;
-   }
-   return RPLG_SUCCESS;
-}
-*/
-
 CODEC_API void *PLG_INIT_V1(libgsm)(const char* fmt, int bDecoder, struct plgCodecInfoV1* pCodecInfo)
 {
    struct libgsm_codec_data *mpGsm;
@@ -131,28 +84,18 @@ CODEC_API void *PLG_INIT_V1(libgsm)(const char* fmt, int bDecoder, struct plgCod
    }
 
    mpGsm->mBufferLoad = 0;
-   mpGsm->mPreparedDec = FALSE;
-   mpGsm->mPreparedEnc = FALSE;
-
    mpGsm->mpGsmState = gsm_create();
-
-   if (bDecoder) {      
-      mpGsm->mPreparedDec = TRUE;
-   } else {
-      mpGsm->mPreparedEnc = TRUE;
-   }
 
    return mpGsm;
 }
 
 
-CODEC_API int PLG_FREE_V1(libgsm)(void* handle)
+CODEC_API int PLG_FREE_V1(libgsm)(void* handle, int isDecoder)
 {
    struct libgsm_codec_data *mpGsm = (struct libgsm_codec_data *)handle;
 
    if (NULL != handle)
    {
-      //assert((mpGsm->mPreparedDec != FALSE) && (mpGsm->mPreparedEnc != FALSE));
       gsm_destroy(mpGsm->mpGsmState);
       free(handle);
    }
@@ -163,11 +106,6 @@ CODEC_API int PLG_DECODE_V1(libgsm)(void* handle, const void* pCodedData, unsign
 {
    struct libgsm_codec_data *mpGsm = (struct libgsm_codec_data *)handle;
    assert(handle != NULL);
-   if (!mpGsm->mPreparedDec)
-   {
-      return RPLG_INVALID_SEQUENCE_CALL;
-   }
-
    /* Assert that available buffer size is enough for the packet. */
    if (cbCodedPacketSize != 33)
    {
@@ -191,10 +129,6 @@ CODEC_API int PLG_ENCODE_V1(libgsm)(void* handle, const void* pAudioBuffer, unsi
    int size = 0;   
    struct libgsm_codec_data *mpGsm = (struct libgsm_codec_data *)handle;
    assert(handle != NULL);
-   if (!mpGsm->mPreparedEnc)
-   {
-      return RPLG_INVALID_SEQUENCE_CALL;
-   }
    if (cbMaxCodedData < 33)
    {
       return RPLG_INVALID_ARGUMENT;
@@ -222,14 +156,3 @@ CODEC_API int PLG_ENCODE_V1(libgsm)(void* handle, const void* pAudioBuffer, unsi
 }
 
 PLG_SINGLE_CODEC(libgsm);
-
-#ifdef STATIC_CODEC
-const char* stub_function_to_do2() { return __FILE__; }
-DECLARE_MP_STATIC_PLUGIN_CODEC_V1(libgsm);
-//#pragma comment(linker, "/include:_libgsm_init_v1")
-//#pragma comment(linker, "/include:_dummy_var_libgsm")
-//#pragma comment(linker, "/include:__dummy_var_libgsm")
-#pragma comment(linker, "/include:_dummy_func_libgsm")
-#endif
-
-

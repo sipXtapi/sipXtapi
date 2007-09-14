@@ -47,7 +47,7 @@ UtlBoolean MpPlgEncoderWrapper::initializeWrapper(const char* fmt)
    //Currently assuming 8000 hz, and signed 16bit LE format, one channel
 
    struct plgCodecInfoV1 plgInfo;
-   plgHandle = mplgci.mPlgInit(fmt, PREPARE_ENCODER, &plgInfo);
+   plgHandle = mplgci.mPlgInit(fmt, CODEC_ENCODER, &plgInfo);
 
    if ((plgHandle != NULL) && (plgInfo.cbSize == sizeof(struct plgCodecInfoV1))) {
       mInitialized = TRUE;
@@ -103,7 +103,7 @@ OsStatus MpPlgEncoderWrapper::freeEncode()
    if (!mInitialized)
       return OS_INVALID_STATE;
       
-   mplgci.mPlgFree(plgHandle);
+   mplgci.mPlgFree(plgHandle, CODEC_ENCODER);
    mInitialized = FALSE;
    return OS_SUCCESS;
 }

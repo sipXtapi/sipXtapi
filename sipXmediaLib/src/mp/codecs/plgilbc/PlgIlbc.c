@@ -24,7 +24,7 @@
 
 static const char codecMIMEsubtype[] = "ilbc";
 
-struct plgCodecInfoV1 codeciLBC = 
+static const struct plgCodecInfoV1 codeciLBC = 
 {
    sizeof(struct plgCodecInfoV1),   //cbSize
    codecMIMEsubtype,                //mimeSubtype
@@ -44,11 +44,7 @@ struct plgCodecInfoV1 codeciLBC =
 };
 
 struct iLBC_codec_data {
-   int mPreparedDec;
-   int mPreparedEnc;
-
-   int mMode;
-
+   int mMode;                      ///< 20ms frames or 30ms frames
    struct iLBC_Dec_Inst_t_ *mpStateDec;   ///< Internal iLBC decoder state.
    audio_sample_t mpBuffer[240];   ///< Buffer used to store input samples
    int mBufferLoad;                ///< How much data there is in the buffer
@@ -77,7 +73,6 @@ CODEC_API int PLG_ENUM_V1(ilbc)(const char** mimeSubtype, unsigned int* pModesCo
 
 static int analizeParamEqValue(const char *parsingString, const char* paramName, int* value)
 {
-   //  int mode = defMode; /* Initialized to default value */;
    int tmp;
    char c;
    int eqFound = FALSE;
@@ -158,10 +153,6 @@ CODEC_API void *PLG_INIT_V1(ilbc)(const char* fmt, int bDecoder, struct plgCodec
    mpiLBC->mpStateEnc = NULL;
 
    mpiLBC->mBufferLoad = 0;
-
-   mpiLBC->mPreparedDec = FALSE;
-   mpiLBC->mPreparedEnc = FALSE;
-
    mpiLBC->mMode = mode;
 
    if (bDecoder) {
@@ -172,9 +163,7 @@ CODEC_API void *PLG_INIT_V1(ilbc)(const char* fmt, int bDecoder, struct plgCodec
          return NULL;
       }
       memset(mpiLBC->mpStateDec, 0, sizeof(*mpiLBC->mpStateDec));
-      initDecode(mpiLBC->mpStateDec, mpiLBC->mMode /*30*/, 1);
-
-      mpiLBC->mPreparedDec = TRUE;
+      initDecode(mpiLBC->mpStateDec, mpiLBC->mMode, 1);
    } else {
       /* Preparing encoder */
       mpiLBC->mpStateEnc = (struct  iLBC_Enc_Inst_t_*)malloc(sizeof(struct iLBC_Enc_Inst_t_));
@@ -183,34 +172,26 @@ CODEC_API void *PLG_INIT_V1(ilbc)(const char* fmt, int bDecoder, struct plgCodec
          return NULL;
       }
       memset(mpiLBC->mpStateEnc, 0, sizeof(*mpiLBC->mpStateEnc));
-      initEncode(mpiLBC->mpStateEnc, mpiLBC->mMode /*30*/);
-
-      mpiLBC->mPreparedEnc = TRUE;
+      initEncode(mpiLBC->mpStateEnc, mpiLBC->mMode);
    }
 
    return mpiLBC;
 }
 
 
-CODEC_API int PLG_FREE_V1(ilbc)(void* handle)
+CODEC_API int PLG_FREE_V1(ilbc)(void* handle, int isDecoder)
 {
    int bDecoder;
    struct iLBC_codec_data *mpiLBC = (struct iLBC_codec_data *)handle;
 
    if (NULL != handle)
    {
-      bDecoder = mpiLBC->mPreparedDec;
-      //assert((mpiLBC->mPreparedDec == FALSE) && (mpiLBC->mPreparedEnc == FALSE));
-
-      if (bDecoder) {
+      if (isDecoder) {
          /* UnPreparing decoder */
          free(mpiLBC->mpStateDec);
-         mpiLBC->mPreparedDec = FALSE;
       } else {
          free(mpiLBC->mpStateEnc);
-         mpiLBC->mPreparedEnc = FALSE;
       }
-
       free(handle);
    }
    return 0;
@@ -223,10 +204,6 @@ CODEC_API int PLG_DECODE_V1(ilbc)(void* handle, const void* pCodedData, unsigned
    audio_sample_t* samplesBuffer = (audio_sample_t*)pAudioBuffer;
    struct iLBC_codec_data *mpiLBC = (struct iLBC_codec_data *)handle;
    assert(handle != NULL);
-   if (!mpiLBC->mPreparedDec)
-   {
-      return RPLG_INVALID_SEQUENCE_CALL;
-   }
 
    // Check if available buffer size is enough for the packet.
    if (cbBufferSize < (unsigned)mpiLBC->mMode * 8)
@@ -235,19 +212,13 @@ CODEC_API int PLG_DECODE_V1(ilbc)(void* handle, const void* pCodedData, unsigned
       return RPLG_FAILED;
    }
 
-   // Decode incoming packet to temp buffer. If no packet - do PLC.
-   //if (pPacket.isValid())
-   //{
-   
+   // Decode incoming packet to temp buffer. If no packet - do PLC.  
    if (pCodedData) {
       if (((NO_OF_BYTES_30MS != cbCodedPacketSize) && (mpiLBC->mMode == 30)) ||
          ((NO_OF_BYTES_20MS != cbCodedPacketSize) && (mpiLBC->mMode == 20)))
       {
-         //osPrintf("MpdSipxILBC::decode: Payload size: %d!\n", pPacket->getPayloadSize());
          return RPLG_FAILED;
       }
-
-
       // Packet data available. Decode it.
       iLBC_decode(buffer, (unsigned char*)pCodedData, mpiLBC->mpStateDec, 1);
    }
@@ -257,7 +228,7 @@ CODEC_API int PLG_DECODE_V1(ilbc)(void* handle, const void* pCodedData, unsigned
       iLBC_decode(buffer, NULL, mpiLBC->mpStateDec, 0);
    }
 
-   for (i = 0; i < /*240*/ mpiLBC->mMode * 8; ++i)
+   for (i = 0; i <  mpiLBC->mMode * 8; ++i)
    {
       float tmp = buffer[i];
       if (tmp > SHRT_MAX)
@@ -277,10 +248,6 @@ CODEC_API int PLG_ENCODE_V1(ilbc)(void* handle, const void* pAudioBuffer, unsign
 {
    struct iLBC_codec_data *mpiLBC = (struct iLBC_codec_data *)handle;
    assert(handle != NULL);
-   if (!mpiLBC->mPreparedEnc)
-   {
-      return RPLG_INVALID_SEQUENCE_CALL;
-   }
 
    memcpy(&mpiLBC->mpBuffer[mpiLBC->mBufferLoad], pAudioBuffer, SIZE_OF_SAMPLE*cbAudioSamples);
    mpiLBC->mBufferLoad += cbAudioSamples;
@@ -310,11 +277,3 @@ CODEC_API int PLG_ENCODE_V1(ilbc)(void* handle, const void* pAudioBuffer, unsign
 }
 
 PLG_SINGLE_CODEC(ilbc);
-
-#ifdef STATIC_CODEC
-#include <mp/MpPlgStaffV1.h>
-DECLARE_MP_STATIC_PLUGIN_CODEC_V1(ilbc);
-const char* stub_function_to_do4() { return __FILE__; }
-#endif
-
-

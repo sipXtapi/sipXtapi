@@ -23,6 +23,16 @@ extern "C" {
 #define CODEC_DYNAMIC
 #endif
 
+#ifdef CODEC_DYNAMIC
+# ifdef WIN32
+#  define CODEC_API    __declspec(dllexport)
+# else
+#  define CODEC_API
+# endif
+#else
+# define CODEC_API
+#endif
+
 #ifndef FALSE
 #define FALSE  (0!=0)
 #endif
@@ -59,12 +69,20 @@ struct plgCodecInfoV1
    unsigned    signalingCodec;         ///< set to 1 if codec could carry DTMF tones
 };
 
-#define DECLARE_FUNCS_V1(x) \
-   void* PLG_INIT_V1(x)(const char* fmt, int bDecoder, struct plgCodecInfoV1* pCodecInfo); \
-   int   PLG_ENUM_V1(x)(const char** mimeSubtype, unsigned int* pModesCount, const char*** modes); \
-   int   PLG_FREE_V1(x)(void* handle); \
-   int   PLG_DECODE_V1(x)(void* handle, const void* pCodedData, unsigned cbCodedPacketSize, void* pAudioBuffer, unsigned cbBufferSize, unsigned *pcbDecodedSize, const struct RtpHeader* pRtpHeader); \
-   int   PLG_ENCODE_V1(x)(void* handle, const void* pAudioBuffer, unsigned cbAudioSamples, int* rSamplesConsumed, void* pCodedData, unsigned cbMaCodedData, int* pcbCodedSize, unsigned* pbSendNow);  \
+#define DECLARE_FUNCS_V1(x)                                                          \
+ CODEC_API  void* PLG_INIT_V1(x)(const char* fmtp, int isDecoder,                    \
+                                 struct plgCodecInfoV1* pCodecInfo);                 \
+ CODEC_API  int   PLG_ENUM_V1(x)(const char** mimeSubtype, unsigned int* pModesCount,\
+                                 const char*** modes);                               \
+ CODEC_API  int   PLG_FREE_V1(x)(void* handle, int isDecoder);                       \
+ CODEC_API  int   PLG_DECODE_V1(x)(void* handle, const void* pCodedData,             \
+                                   unsigned cbCodedPacketSize, void* pAudioBuffer,   \
+                                   unsigned cbBufferSize, unsigned *pcbDecodedSize,  \
+                                   const struct RtpHeader* pRtpHeader);              \
+ CODEC_API  int   PLG_ENCODE_V1(x)(void* handle, const void* pAudioBuffer,           \
+                                   unsigned cbAudioSamples, int* rSamplesConsumed,   \
+                                   void* pCodedData, unsigned cbMaCodedData,         \
+                                   int* pcbCodedSize, unsigned* pbSendNow);  
 
 #define CPP_DECLARE_FUNCS_V1(x)  \
 extern "C"  DECLARE_FUNCS_V1(x)
@@ -94,8 +112,8 @@ extern "C"  DECLARE_FUNCS_V1(x)
 #define RPLG_BAD_HANDLE                 (-5)
 #define RPLG_NO_MORE_DATA               (-6)
 
-#define PREPARE_DECODER    1
-#define PREPARE_ENCODER    0
+#define CODEC_DECODER            1
+#define CODEC_ENCODER            0
 
 #define SIGNALING_DEFAULT_TYPE   0
 
@@ -103,7 +121,7 @@ typedef int   (*dlGetCodecsV1)(int iNum, const char** pCodecModuleName);
 
 typedef int   (*dlPlgEnumSDPAndModesV1)(const char** mimeSubtype, 
                                         unsigned int* pModesCount, const char*** modes);
-typedef void* (*dlPlgInitV1)(const char* fmt, int bDecoder, struct plgCodecInfoV1* pCodecInfo);
+typedef void* (*dlPlgInitV1)(const char* fmtp, int isDecoder, struct plgCodecInfoV1* pCodecInfo);
 typedef int   (*dlPlgGetSignalingDataV1)(void* handle, int dataId, uint32_t* outEvent, 
                                          uint32_t* outDuration, uint32_t* startStatus, 
                                          uint32_t *stopStatus);
@@ -113,18 +131,8 @@ typedef int   (*dlPlgDecodeV1)(void* handle, const void* pCodedData, unsigned cb
 typedef int   (*dlPlgEncodeV1)(void* handle, const void* pAudioBuffer, unsigned cbAudioSamples,
                                int* rSamplesConsumed, void* pCodedData, unsigned cbMaxCodedData, 
                                int* pcbCodedSize, unsigned* pbSendNow);
-typedef int   (*dlPlgFreeV1)(void* handle);
+typedef int   (*dlPlgFreeV1)(void* handle, int isDecoder);
 
-
-#ifdef CODEC_DYNAMIC
-# ifdef WIN32
-#  define CODEC_API    __declspec(dllexport)
-# else
-#  define CODEC_API
-# endif
-#else
-# define CODEC_API
-#endif
 
 #define IPLG_ENUM_CODEC_NAME       plugin_emum_codec
 #define IPLG_ENUM_CODEC_START      static const char* IPLG_ENUM_CODEC_NAME [] = {

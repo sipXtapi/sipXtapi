@@ -48,7 +48,7 @@ UtlBoolean MpPlgDecoderWrapper::initializeWrapper(const char* fmt)
 {
    //Currently signed 16bit LE format, one channel
    struct plgCodecInfoV1 plgInfo;
-   plgHandle = mplgci.mPlgInit(fmt, PREPARE_DECODER, &plgInfo);
+   plgHandle = mplgci.mPlgInit(fmt, CODEC_DECODER, &plgInfo);
 
    if ((plgHandle != NULL) && (plgInfo.cbSize == sizeof(struct plgCodecInfoV1))) {
       mInitialized = TRUE;
@@ -107,7 +107,7 @@ OsStatus MpPlgDecoderWrapper::freeDecode()
    if (!mInitialized)
       return OS_INVALID_STATE;
 
-   mplgci.mPlgFree(plgHandle);
+   mplgci.mPlgFree(plgHandle, CODEC_DECODER);
    mInitialized = FALSE;
 
    return OS_SUCCESS;

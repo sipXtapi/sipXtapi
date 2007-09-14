@@ -30,7 +30,7 @@
 
 static const char codecMIMEsubtype[] = "telephone-events";
 
-struct plgCodecInfoV1 codecTones = 
+static const struct plgCodecInfoV1 codecTones = 
 {
    sizeof(struct plgCodecInfoV1),  //cbSize
    codecMIMEsubtype,               //codecSDPType
@@ -150,20 +150,11 @@ CODEC_API void *PLG_INIT_V1(tones)(const char* fmt, int bDecoder, struct plgCode
    mpTones->mStartingTimestamp = 0;
    mpTones->mLastEventDuration = 0;
 
-   mpTones->mPreparedDec = FALSE;
-   mpTones->mPreparedEnc = FALSE;
-
-   if (bDecoder) {      
-      mpTones->mPreparedDec = TRUE;
-   } else {
-      mpTones->mPreparedEnc = TRUE;
-   }
-
    return mpTones;
 }
 
 
-CODEC_API int PLG_FREE_V1(tones)(void* handle)
+CODEC_API int PLG_FREE_V1(tones)(void* handle, int isDecoder)
 {
    struct tones_codec_data *mpTones = (struct tones_codec_data *)handle;
 
@@ -181,10 +172,6 @@ CODEC_API int PLG_DECODE_V1(tones)(void* handle, const void* pCodedData,
 {
    struct tones_codec_data *mpTones = (struct tones_codec_data *)handle;
    assert(handle != NULL);
-   if (!mpTones->mPreparedDec)
-   {
-      return RPLG_INVALID_SEQUENCE_CALL;
-   }
 
    // Just save passed packet header and data - they will be used
    // in getSignalingData() called right after decode().
@@ -208,11 +195,6 @@ CODEC_API int PLG_ENCODE_V1(tones)(void* handle, const void* pAudioBuffer,
    int size = 0;   
    struct tones_codec_data *mpTones = (struct tones_codec_data *)handle;
    assert(handle != NULL);
-   if (!mpTones->mPreparedEnc)
-   {
-      return RPLG_INVALID_SEQUENCE_CALL;
-   }
-
    assert(!"Not yet implimented!!!");
 
    *rSamplesConsumed = 0;
@@ -229,10 +211,6 @@ CODEC_API int PLG_SIGNALING_V1(tones)(void* handle, int dataId, uint32_t* outEve
 
    struct tones_codec_data *mpTones = (struct tones_codec_data *)handle;
    assert(handle != NULL);
-   if (!mpTones->mPreparedDec)
-   {
-      return RPLG_INVALID_SEQUENCE_CALL;
-   }
 
    ts = ntohl(mpTones->mLastRtpHeader.timestamp);
 

@@ -25,7 +25,7 @@
 
 static const char codecMIMEsubtype[] = "speex";
 
-struct plgCodecInfoV1 codecSPEEX = 
+static const struct plgCodecInfoV1 codecSPEEX = 
 {
    sizeof(struct plgCodecInfoV1),   //cbSize
    codecMIMEsubtype,                //mimeSubtype
@@ -44,13 +44,15 @@ struct plgCodecInfoV1 codecSPEEX =
 };
 
 
-struct speex_codec_data
+struct speex_codec_data_decoder
 {
-   void *mpDecoderState;
+   void *mpDecoderState;    ///< State of the decoder
    unsigned mNumSamplesPerFrame;
-   int mPreparedDec;
+   SpeexBits mBits;         ///< Bits used by speex to store information
+};
 
-   int mPreparedEnc;
+struct speex_codec_data_encoder
+{
    SpeexBits mBits;         ///< Bits used by speex to store information
    void *mpEncoderState;    ///< State of the encoder   
    int mSampleRate;         ///< Sample rate
@@ -69,15 +71,15 @@ struct speex_codec_data
    *  7    24,600   14.5   Completely transparent for voice, good quality music
    *  8    3,950    10.5   Very noticeable artifacts/noise, good intelligibility
    */
-   int mDoVad;              ///< Set to 1 to enable voice activity detection
-   int mDoDtx;              ///< Set to 1 to enable discontinuous transmission
-   int mDoVbr;              ///< Set to 1 to enable variable bitrate mode
+   int mDoVad;                ///< Set to 1 to enable voice activity detection
+   int mDoDtx;                ///< Set to 1 to enable discontinuous transmission
+   int mDoVbr;                ///< Set to 1 to enable variable bitrate mode
    spx_int16_t mpBuffer[160]; ///< Buffer used to store input samples
-   int mBufferLoad;          ///< How much data there is in the buffer
+   int mBufferLoad;           ///< How much data there is in the buffer
    int mDoPreprocess;         ///< Should we do preprocess or not
    SpeexPreprocessState *mpPreprocessState; ///< Preprocessor state
-   int mDoDenoise;             ///< Denoises the input
-   int mDoAgc;                 ///< Automatic Gain Control
+   int mDoDenoise;            ///< Denoises the input
+   int mDoAgc;                ///< Automatic Gain Control
 };
 
 static const char* defaultFmtps[] =
@@ -107,7 +109,6 @@ CODEC_API int PLG_ENUM_V1(speex)(const char** mimeSubtype, unsigned int* pModesC
 /* Parsing {param}={value} */
 static int analizeParamEqValue(const char *parsingString, const char* paramName, int* value)
 {
- //  int mode = defMode; /* Initialized to default value */;
    int tmp;
    char c;
    int eqFound = FALSE;
@@ -165,140 +166,136 @@ static int analizeDefRange(const char* str, const char* param, int defValue, int
    return defValue;
 }
 
-CODEC_API  void *PLG_INIT_V1(speex)(const char* fmt, int bDecoder, struct plgCodecInfoV1* pCodecInfo)
+CODEC_API  void *PLG_INIT_V1(speex)(const char* fmt, int isDecoder, struct plgCodecInfoV1* pCodecInfo)
 {
-   int mode;
-   struct speex_codec_data *mpSPEEX;
+   struct speex_codec_data_encoder *mpSpeexEnc;
+   struct speex_codec_data_decoder *mpSpeexDec;
    if (pCodecInfo == NULL) {
       return NULL;
    }
 
-   mode = analizeDefRange(fmt, "mode", 3, 2, 8);
-
    memcpy(pCodecInfo, &codecSPEEX, sizeof(struct plgCodecInfoV1));
-   mpSPEEX = (struct speex_codec_data *)malloc(sizeof(struct speex_codec_data));
-   if (!mpSPEEX) {
-      return NULL;
-   }
-
-   mpSPEEX->mpEncoderState = NULL;
-   mpSPEEX->mSampleRate = 8000;        // Sample rate of 8000Hz. We'll stick with NB for now.
-
-   mpSPEEX->mDoVad = 0;
-   mpSPEEX->mDoDtx = 0;
-   mpSPEEX->mDoVbr = 0;
-   mpSPEEX->mBufferLoad = 0;
-   mpSPEEX->mDoPreprocess = FALSE;
-   mpSPEEX->mpPreprocessState = NULL;
-   mpSPEEX->mDoDenoise = 0;
-   mpSPEEX->mDoAgc = 0;
-
-   mpSPEEX->mBufferLoad = 0;
-
-   mpSPEEX->mpDecoderState = NULL;
-   mpSPEEX->mNumSamplesPerFrame = 0;
-
-   mpSPEEX->mPreparedDec = FALSE;
-   mpSPEEX->mPreparedEnc = FALSE;
-
-   mpSPEEX->mMode = mode;
-   if (mpSPEEX->mMode == 2) {
-      mpSPEEX->mDoPreprocess = TRUE; 
-   }
-
-   if (bDecoder) {
+   if (isDecoder) 
+   {
       /* Preparing decoder */
       int tmp;
+      mpSpeexDec = (struct speex_codec_data_decoder *)malloc(sizeof(struct speex_codec_data_decoder));
+      if (!mpSpeexDec) {
+         return NULL;
+      }
+      mpSpeexDec->mpDecoderState = NULL;
+      mpSpeexDec->mNumSamplesPerFrame = 0;
 
-      // Init decoder
-      mpSPEEX->mpDecoderState = speex_decoder_init(speex_lib_get_mode(SPEEX_MODEID_NB));   
+      /* Init decoder */
+      mpSpeexDec->mpDecoderState = speex_decoder_init(speex_lib_get_mode(SPEEX_MODEID_NB));   
 
-      // It makes the decoded speech deviate further from the original,
-      // but it sounds subjectively better.
+      /* It makes the decoded speech deviate further from the original,
+       * but it sounds subjectively better.
+       */
       tmp = 1;
-      speex_decoder_ctl(mpSPEEX->mpDecoderState,SPEEX_SET_ENH,&tmp);
+      speex_decoder_ctl(mpSpeexDec->mpDecoderState,SPEEX_SET_ENH,&tmp);
 
-      // Get number of samples in one frame
-      speex_decoder_ctl(mpSPEEX->mpDecoderState,SPEEX_GET_FRAME_SIZE,&mpSPEEX->mNumSamplesPerFrame);
+      /* Get number of samples in one frame */
+      speex_decoder_ctl(mpSpeexDec->mpDecoderState,SPEEX_GET_FRAME_SIZE,&mpSpeexDec->mNumSamplesPerFrame);
+      speex_bits_init(&mpSpeexDec->mBits);
 
-      mpSPEEX->mPreparedDec = TRUE;
-   } else {
-      /* Preparing encoder */
-      mpSPEEX->mpEncoderState = speex_encoder_init(speex_lib_get_mode(SPEEX_MODEID_NB));
-      speex_encoder_ctl(mpSPEEX->mpEncoderState, SPEEX_SET_MODE,&mpSPEEX->mMode);
-      speex_encoder_ctl(mpSPEEX->mpEncoderState, SPEEX_SET_SAMPLING_RATE, &mpSPEEX->mSampleRate);
+      return mpSpeexDec;
+   }
+   else
+   {
+      int mode = analizeDefRange(fmt, "mode", 3, 2, 8);
 
-      // Enable wanted extensions.
-      speex_encoder_ctl(mpSPEEX->mpEncoderState, SPEEX_SET_VAD, &mpSPEEX->mDoVad);
-      speex_encoder_ctl(mpSPEEX->mpEncoderState, SPEEX_SET_DTX, &mpSPEEX->mDoDtx);
-      speex_encoder_ctl(mpSPEEX->mpEncoderState, SPEEX_SET_VBR, &mpSPEEX->mDoVbr);
-
-      if(mpSPEEX->mDoPreprocess)
-      {
-         mpSPEEX->mpPreprocessState = speex_preprocess_state_init(160, mpSPEEX->mSampleRate);
-         speex_preprocess_ctl(mpSPEEX->mpPreprocessState, SPEEX_PREPROCESS_SET_DENOISE,
-            &mpSPEEX->mDoDenoise);
-         speex_preprocess_ctl(mpSPEEX->mpPreprocessState, SPEEX_PREPROCESS_SET_AGC, &mpSPEEX->mDoAgc);
+      mpSpeexEnc = (struct speex_codec_data_encoder *)malloc(sizeof(struct speex_codec_data_encoder));
+      if (!mpSpeexEnc) {
+         return NULL;
       }
 
-      mpSPEEX->mPreparedEnc = TRUE;
+      mpSpeexEnc->mpEncoderState = NULL;
+      mpSpeexEnc->mSampleRate = 8000;        // Sample rate of 8000Hz. We'll stick with NB for now.
+
+      mpSpeexEnc->mDoVad = 0;
+      mpSpeexEnc->mDoDtx = 0;
+      mpSpeexEnc->mDoVbr = 0;
+      mpSpeexEnc->mBufferLoad = 0;
+      mpSpeexEnc->mDoPreprocess = FALSE;
+      mpSpeexEnc->mpPreprocessState = NULL;
+      mpSpeexEnc->mDoDenoise = 0;
+      mpSpeexEnc->mDoAgc = 0;
+
+      mpSpeexEnc->mBufferLoad = 0;
+
+      mpSpeexEnc->mMode = mode;
+      if (mpSpeexEnc->mMode == 2) {
+         mpSpeexEnc->mDoPreprocess = TRUE; 
+      }
+
+      /* Preparing encoder */
+      mpSpeexEnc->mpEncoderState = speex_encoder_init(speex_lib_get_mode(SPEEX_MODEID_NB));
+      speex_encoder_ctl(mpSpeexEnc->mpEncoderState, SPEEX_SET_MODE,&mpSpeexEnc->mMode);
+      speex_encoder_ctl(mpSpeexEnc->mpEncoderState, SPEEX_SET_SAMPLING_RATE, &mpSpeexEnc->mSampleRate);
+
+      // Enable wanted extensions.
+      speex_encoder_ctl(mpSpeexEnc->mpEncoderState, SPEEX_SET_VAD, &mpSpeexEnc->mDoVad);
+      speex_encoder_ctl(mpSpeexEnc->mpEncoderState, SPEEX_SET_DTX, &mpSpeexEnc->mDoDtx);
+      speex_encoder_ctl(mpSpeexEnc->mpEncoderState, SPEEX_SET_VBR, &mpSpeexEnc->mDoVbr);
+
+      if(mpSpeexEnc->mDoPreprocess)
+      {
+         mpSpeexEnc->mpPreprocessState = speex_preprocess_state_init(160, mpSpeexEnc->mSampleRate);
+         speex_preprocess_ctl(mpSpeexEnc->mpPreprocessState, SPEEX_PREPROCESS_SET_DENOISE,
+            &mpSpeexEnc->mDoDenoise);
+         speex_preprocess_ctl(mpSpeexEnc->mpPreprocessState, SPEEX_PREPROCESS_SET_AGC, &mpSpeexEnc->mDoAgc);
+      }
+
+      speex_bits_init(&mpSpeexEnc->mBits);
+      return mpSpeexEnc;
    }
-
-   speex_bits_init(&mpSPEEX->mBits);
-
-   return mpSPEEX;
 }
 
 
-CODEC_API int PLG_FREE_V1(speex)(void* handle)
+CODEC_API int PLG_FREE_V1(speex)(void* handle, int isDecoder)
 {
-   int bDecoder;
-   struct speex_codec_data *mpSPEEX = (struct speex_codec_data *)handle;
-
    if (NULL != handle)
    {
-      //assert((mpSPEEX->mPreparedDec != FALSE) && (mpSPEEX->mPreparedEnc != FALSE));
-
-      bDecoder = mpSPEEX->mPreparedDec;
-      if (bDecoder) {
-         /* UnPreparing decoder */
-         speex_decoder_destroy(mpSPEEX->mpDecoderState);
-         mpSPEEX->mpDecoderState = NULL;
-         mpSPEEX->mPreparedDec = FALSE;
+      if (isDecoder) {
+         /* UnPreparing decoder */         
+         struct speex_codec_data_decoder *mpSpeexDec = 
+            (struct speex_codec_data_decoder *)handle;
+         speex_decoder_destroy(mpSpeexDec->mpDecoderState);
+         speex_bits_destroy(&mpSpeexDec->mBits);
       } else {
-         speex_encoder_destroy(mpSPEEX->mpEncoderState);
-         mpSPEEX->mpEncoderState = NULL;
-         mpSPEEX->mPreparedEnc = FALSE;
-      }
-      speex_bits_destroy(&mpSPEEX->mBits);
+         struct speex_codec_data_encoder *mpSpeexEnc =
+             (struct speex_codec_data_encoder *)handle;
+         speex_encoder_destroy(mpSpeexEnc->mpEncoderState);
+         speex_bits_destroy(&mpSpeexEnc->mBits);
+      }      
       free(handle);
    }
    return 0;
 }
 
 
-CODEC_API  int PLG_DECODE_V1(speex)(void* handle, const void* pCodedData, unsigned cbCodedPacketSize, void* pAudioBuffer, unsigned cbBufferSize, unsigned *pcbDecodedSize, const struct RtpHeader* pRtpHeader)
+CODEC_API  int PLG_DECODE_V1(speex)(void* handle, const void* pCodedData, 
+                                    unsigned cbCodedPacketSize, void* pAudioBuffer, 
+                                    unsigned cbBufferSize, unsigned *pcbDecodedSize, 
+                                    const struct RtpHeader* pRtpHeader)
 {
-   struct speex_codec_data *mpSPEEX = (struct speex_codec_data *)handle;
+   struct speex_codec_data_decoder *mpSpeexDec = 
+      (struct speex_codec_data_decoder *)handle;
    assert(handle != NULL);
-   if (!mpSPEEX->mPreparedDec)
-   {
-      return RPLG_INVALID_SEQUENCE_CALL;
-   }
 
-   if (mpSPEEX->mNumSamplesPerFrame > cbBufferSize)
+   if (mpSpeexDec->mNumSamplesPerFrame > cbBufferSize)
    {
-      //osPrintf("MpdSipxSpeex::decode: Jitter buffer overloaded. Glitch!\n");
       return RPLG_INVALID_ARGUMENT;
    }
 
    /* Prepare data for Speex decoder */
-   speex_bits_read_from(&mpSPEEX->mBits,(char*)pCodedData,cbCodedPacketSize);
+   speex_bits_read_from(&mpSpeexDec->mBits,(char*)pCodedData,cbCodedPacketSize);
 
    /* Decode frame */
-   speex_decode_int(mpSPEEX->mpDecoderState,&mpSPEEX->mBits,(spx_int16_t*)pAudioBuffer);   
+   speex_decode_int(mpSpeexDec->mpDecoderState,&mpSpeexDec->mBits,(spx_int16_t*)pAudioBuffer);   
 
-   *pcbDecodedSize = mpSPEEX->mNumSamplesPerFrame;
+   *pcbDecodedSize = mpSpeexDec->mNumSamplesPerFrame;
    return RPLG_SUCCESS;
 }
 
@@ -306,34 +303,30 @@ CODEC_API int PLG_ENCODE_V1(speex)(void* handle, const void* pAudioBuffer, unsig
                           unsigned cbMaxCodedData, int* pcbCodedSize, unsigned* pbSendNow)
 {
    int size = 0;   
-   struct speex_codec_data *mpSPEEX = (struct speex_codec_data *)handle;
+   struct speex_codec_data_encoder *mpSpeexEnc = 
+      (struct speex_codec_data_encoder *)handle;
    assert(handle != NULL);
-   if (!mpSPEEX->mPreparedEnc)
-   {
-      return RPLG_INVALID_SEQUENCE_CALL;
-   }
 
-   memcpy(&mpSPEEX->mpBuffer[mpSPEEX->mBufferLoad], pAudioBuffer, SIZE_OF_SAMPLE * cbAudioSamples);
-   mpSPEEX->mBufferLoad = mpSPEEX->mBufferLoad+cbAudioSamples;
-   assert(mpSPEEX->mBufferLoad <= 160);
+   memcpy(&mpSpeexEnc->mpBuffer[mpSpeexEnc->mBufferLoad], pAudioBuffer, SIZE_OF_SAMPLE * cbAudioSamples);
+   mpSpeexEnc->mBufferLoad = mpSpeexEnc->mBufferLoad+cbAudioSamples;
+   assert(mpSpeexEnc->mBufferLoad <= 160);
 
    // Check for necessary number of samples
-   if(mpSPEEX->mBufferLoad == 160)
+   if(mpSpeexEnc->mBufferLoad == 160)
    {
-      speex_bits_reset(&mpSPEEX->mBits);
+      speex_bits_reset(&mpSpeexEnc->mBits);
 
       // We don't have echo data, but it should be possible to use the
       // Speex echo canceler in sipxtapi.
-      if(mpSPEEX->mDoPreprocess)
-         speex_preprocess(mpSPEEX->mpPreprocessState, mpSPEEX->mpBuffer, NULL);
-      speex_encode_int(mpSPEEX->mpEncoderState, mpSPEEX->mpBuffer, &mpSPEEX->mBits);
+      if(mpSpeexEnc->mDoPreprocess)
+         speex_preprocess(mpSpeexEnc->mpPreprocessState, mpSpeexEnc->mpBuffer, NULL);
+      speex_encode_int(mpSpeexEnc->mpEncoderState, mpSpeexEnc->mpBuffer, &mpSpeexEnc->mBits);
 
-      // Copy to the byte buffer
-      //size = speex_bits_write(&mpSPEEX->mBits,(char*)pCodedData,200);      
-      size = speex_bits_write(&mpSPEEX->mBits,(char*)pCodedData,cbMaxCodedData);      
+      // Copy to the byte buffer   
+      size = speex_bits_write(&mpSpeexEnc->mBits,(char*)pCodedData,cbMaxCodedData);      
 
       // Reset the buffer count.
-      mpSPEEX->mBufferLoad = 0;
+      mpSpeexEnc->mBufferLoad = 0;
 
       //if (size>0) {
          *pbSendNow = TRUE;
@@ -351,9 +344,3 @@ CODEC_API int PLG_ENCODE_V1(speex)(void* handle, const void* pAudioBuffer, unsig
 }
 
 PLG_SINGLE_CODEC(speex);
-
-#ifdef STATIC_CODEC
-#include <mp/MpPlgStaffV1.h>
-DECLARE_MP_STATIC_PLUGIN_CODEC_V1(speex);
-const char* stub_function_to_do3() { return (const char*)&codecSPEEX; }
-#endif
