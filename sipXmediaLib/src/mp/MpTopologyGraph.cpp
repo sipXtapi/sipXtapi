@@ -56,17 +56,6 @@ MpTopologyGraph::MpTopologyGraph(int samplesPerFrame,
     // Add the links for the resources in the topology
     linkTopologyResources(initialResourceTopology, newResourcesAdded);
 
-#if 0
-    // DO NOT CHECK IN for test purposes until resource operation messages
-    // are completed
-    MprToneGen* toneGen = NULL;
-    result = lookupResource("ToneGen1",
-                            (MpResource*&)toneGen);
-    assert(result == OS_SUCCESS);
-    assert(toneGen);
-    toneGen->startTone('2');
-#endif
-
     // ask the media processing task to manage the new flowgraph
     MpMediaTask* mediaTask = MpMediaTask::getMediaTask(0);
     result = mediaTask->manageFlowGraph(*this);
