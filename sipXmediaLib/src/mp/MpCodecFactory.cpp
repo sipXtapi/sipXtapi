@@ -417,11 +417,6 @@ const char** MpCodecFactory::getAllCodecModes(SdpCodec::SdpCodecTypes codecId, u
    return NULL;
 }
 
-void MpCodecFactory::updateCodecArray(void)
-{
-   // NOT implemented yet
-}
-
 /* =============================== INQUIRY ================================ */
 
 
