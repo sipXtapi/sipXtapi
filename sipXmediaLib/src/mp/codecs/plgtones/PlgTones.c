@@ -28,14 +28,14 @@
 #pragma comment(lib, "ws2_32.lib")
 #endif // WIN32 ]
 
-static const char codecMIMEsubtype[] = "telephone-events";
+static const char codecMIMEsubtype[] = "telephone-event";
 
 static const struct plgCodecInfoV1 codecTones = 
 {
    sizeof(struct plgCodecInfoV1),  //cbSize
    codecMIMEsubtype,               //codecSDPType
    "tones",                        //codecName
-   "telephone-events",             //codecVersion
+   "RFC4733",                      //codecVersion
    8000,                           //samplingRate
    0,                              //fmtAndBitsPerSample
    1,                              //numChannels

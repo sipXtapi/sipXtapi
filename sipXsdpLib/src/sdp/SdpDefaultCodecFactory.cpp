@@ -40,7 +40,7 @@ static MpMimeInfoMapElement sgMimeInfoMap[] =
    { SdpCodec::SDP_CODEC_SPEEX_24,"speex",  "mode=7"  },
    { SdpCodec::SDP_CODEC_ILBC,    "ilbc",   "mode=30" },
    { SdpCodec::SDP_CODEC_ILBC,    "ilbc",   NULL  },
-   { SdpCodec::SDP_CODEC_TONES,   "telephone-events",   NULL  }
+   { SdpCodec::SDP_CODEC_TONES,   "telephone-event",   NULL  }
 };
 #define SIZEOF_MIME_INFO_MAP     \
    (sizeof(sgMimeInfoMap) / sizeof(sgMimeInfoMap[0]))
