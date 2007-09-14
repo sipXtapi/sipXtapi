@@ -25,6 +25,7 @@
 #include "mp/MpCodec.h"
 #include "mp/MpCallFlowGraph.h"
 #include "mp/dmaTask.h"
+#include "mp/MpCodecFactory.h"
 #include "sdp/SdpCodecList.h"
 #include "mi/CpMediaInterfaceFactoryFactory.h"
 
@@ -309,26 +310,10 @@ OsStatus sipXmediaFactoryImpl::buildCodecFactory(SdpCodecList*    pFactory,
         else
         {
             // Build up the supported codecs
-            SdpCodec::SdpCodecTypes audioCodecs[] = {
-#ifdef HAVE_SPEEX // [
-                          SdpCodec::SDP_CODEC_SPEEX,
-                          SdpCodec::SDP_CODEC_SPEEX_5,
-                          SdpCodec::SDP_CODEC_SPEEX_15,
-                          SdpCodec::SDP_CODEC_SPEEX_24,
-#endif // HAVE_SPEEX ]
-#ifdef HAVE_GSM // [
-                          SdpCodec::SDP_CODEC_GSM,
-#endif // HAVE_GSM ]
-#ifdef HAVE_ILBC // [
-                          SdpCodec::SDP_CODEC_ILBC,
-#endif // HAVE_ILBC ]
-                          SdpCodec::SDP_CODEC_PCMU,
-                          SdpCodec::SDP_CODEC_PCMA,
-                          SdpCodec::SDP_CODEC_TONES};
-            const int numAudioCodecs = sizeof(audioCodecs)/sizeof(SdpCodec::SdpCodecTypes);
+            MpCodecFactory *pCodecFactory = MpCodecFactory::getMpCodecFactory();
+            pCodecFactory->addCodecsToList(*pFactory);
 
-            // Register all codecs
-            *iRejected = pFactory->addCodecs(numAudioCodecs, audioCodecs);
+            *iRejected = 0;
             rc = OS_SUCCESS;
         }
 

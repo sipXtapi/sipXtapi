@@ -35,11 +35,9 @@
 #include <mp/MpRtpOutputAudioConnection.h>
 #include <mp/dtmflib.h>
 #include <mp/MpMediaTask.h>
+#include <mp/MpCodecFactory.h>
 #include <include/CpTopologyGraphInterface.h>
 #include <include/CpTopologyGraphFactoryImpl.h>
-
-#include <sdp/SdpCodec.h>
-#include <sdp/SdpCodecList.h>
 
 #if defined(_VXWORKS)
 #   include <socket.h>
@@ -214,24 +212,9 @@ CpTopologyGraphInterface::CpTopologyGraphInterface(CpTopologyGraphFactoryImpl* p
    }
    else
    {
-       SdpCodec::SdpCodecTypes codecs[] = {
-#ifdef HAVE_SPEEX // [
-                          SdpCodec::SDP_CODEC_SPEEX,
-                          SdpCodec::SDP_CODEC_SPEEX_5,
-                          SdpCodec::SDP_CODEC_SPEEX_15,
-                          SdpCodec::SDP_CODEC_SPEEX_24,
-#endif // HAVE_SPEEX ]
-#ifdef HAVE_GSM // [
-                          SdpCodec::SDP_CODEC_GSM,
-#endif // HAVE_GSM ]
-#ifdef HAVE_ILBC // [
-                          SdpCodec::SDP_CODEC_ILBC,
-#endif // HAVE_ILBC ]
-                          SdpCodec::SDP_CODEC_PCMU,
-                          SdpCodec::SDP_CODEC_PCMA,
-                          SdpCodec::SDP_CODEC_TONES};
-       mSupportedCodecs.addCodecs(sizeof(codecs)/sizeof(SdpCodec::SdpCodecTypes),
-                                             codecs);
+       MpCodecFactory *pCodecFactory = MpCodecFactory::getMpCodecFactory();
+       pCodecFactory->addCodecsToList(mSupportedCodecs);
+
        if (OsSysLog::willLog(FAC_CP, PRI_INFO))
        {
           UtlString codecsList;

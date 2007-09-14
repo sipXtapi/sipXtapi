@@ -23,16 +23,15 @@
 #include <os/OsNatDatagramSocket.h>
 #include <os/OsMulticastSocket.h>
 #include <os/OsProtectEventMgr.h>
-#include "include/CpPhoneMediaInterface.h"
-#include "mi/CpMediaInterfaceFactoryImpl.h"
+#include <include/CpPhoneMediaInterface.h>
+#include <mi/CpMediaInterfaceFactoryImpl.h>
 #include <mp/MpMediaTask.h>
 #include <mp/MpCallFlowGraph.h>
 #include <mp/MpStreamPlayer.h>
 #include <mp/MpStreamPlaylistPlayer.h>
 #include <mp/MpStreamQueuePlayer.h>
 #include <mp/dtmflib.h>
-
-#include <sdp/SdpCodec.h>
+#include <mp/MpCodecFactory.h>
 
 #if defined(_VXWORKS)
 #   include <socket.h>
@@ -200,24 +199,9 @@ CpPhoneMediaInterface::CpPhoneMediaInterface(CpMediaInterfaceFactoryImpl* pFacto
    }
    else
    {
-       SdpCodec::SdpCodecTypes codecs[] = {
-#ifdef HAVE_SPEEX // [
-                          SdpCodec::SDP_CODEC_SPEEX,
-                          SdpCodec::SDP_CODEC_SPEEX_5,
-                          SdpCodec::SDP_CODEC_SPEEX_15,
-                          SdpCodec::SDP_CODEC_SPEEX_24,
-#endif // HAVE_SPEEX ]
-#ifdef HAVE_GSM // [
-                          SdpCodec::SDP_CODEC_GSM,
-#endif // HAVE_GSM ]
-#ifdef HAVE_ILBC // [
-                          SdpCodec::SDP_CODEC_ILBC,
-#endif // HAVE_ILBC ]
-                          SdpCodec::SDP_CODEC_PCMU,
-                          SdpCodec::SDP_CODEC_PCMA,
-                          SdpCodec::SDP_CODEC_TONES};
-       mSupportedCodecs.addCodecs(sizeof(codecs)/sizeof(SdpCodec::SdpCodecTypes),
-                                             codecs);
+       MpCodecFactory *pCodecFactory = MpCodecFactory::getMpCodecFactory();
+       pCodecFactory->addCodecsToList(mSupportedCodecs);
+
        if (OsSysLog::willLog(FAC_CP, PRI_INFO))
        {
           UtlString codecsList;
