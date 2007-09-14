@@ -67,6 +67,8 @@ MpCodecInfo& MpCodecInfo::operator=(const MpCodecInfo& rMpCodecInfo)
    mMaxPacketBits=rMpCodecInfo.mMaxPacketBits;
    mPreCodecJitterBufferSize=rMpCodecInfo.mPreCodecJitterBufferSize;
    mDoesVadCng=rMpCodecInfo.mDoesVadCng;
+
+   return *this;
 }
 
 /* ============================ ACCESSORS ================================= */
