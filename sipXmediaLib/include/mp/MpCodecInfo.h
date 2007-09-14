@@ -34,7 +34,6 @@
 */
 class MpCodecInfo
 {
-   friend class MpPlgDecoderWrapper;
    friend class MpPlgEncoderWrapper;
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
@@ -78,6 +77,10 @@ public:
 /* ============================ MANIPULATORS ============================== */
 ///@name Manipulators
 //@{
+
+   /// Assignment operator
+   MpCodecInfo& operator=(const MpCodecInfo& rhs);
+
 //@}
 
 /* ============================ ACCESSORS ================================= */
@@ -162,12 +165,6 @@ private:
    unsigned    mPreCodecJitterBufferSize;
    UtlBoolean  mIsSignalingCodec;
    UtlBoolean  mDoesVadCng;
-
-     /// Assignment operator
-   MpCodecInfo& operator=(const MpCodecInfo& rhs);
-
-     /// For using in MpPlgDecoderWrapper and MpPlgDecoderWrapper only
-   MpCodecInfo() {}
 };
 
 /* ============================ INLINE METHODS ============================ */

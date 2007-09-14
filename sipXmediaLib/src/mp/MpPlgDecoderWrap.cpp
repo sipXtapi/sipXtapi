@@ -16,6 +16,7 @@
 
 MpPlgDecoderWrapper::MpPlgDecoderWrapper(int payloadType, const MpCodecCallInfoV1& plgci, const char* permanentDefaultMode)
 : MpDecoderBase(payloadType)
+, mCodecInfo("", 0, 0, 0, 0, 0, 0, 0, 0, 0)
 , mplgci(plgci)
 , mInitialized(FALSE)
 , mDefParamString(permanentDefaultMode)
@@ -47,19 +48,19 @@ UtlBoolean MpPlgDecoderWrapper::initializeWrapper(const char* fmt)
       codecSupportPLC = plgInfo.codecSupportPLC;
 
       // Fill in codec information
-      mCodecInfo.mCodecVersion = plgInfo.codecVersion;
-      mCodecInfo.mSamplingRate = plgInfo.samplingRate;
-      mCodecInfo.mNumBitsPerSample = plgInfo.numSamplesPerFrame;
-      mCodecInfo.mNumSamplesPerFrame = plgInfo.numSamplesPerFrame;
-      mCodecInfo.mNumChannels = plgInfo.numChannels;
-      mCodecInfo.mInterleaveBlockSize = plgInfo.interleaveBlockSize;
-      mCodecInfo.mBitRate = plgInfo.bitRate;
-      mCodecInfo.mMinPacketBits = plgInfo.minPacketBits;
-      mCodecInfo.mAvgPacketBits = plgInfo.avgPacketBits;
-      mCodecInfo.mMaxPacketBits = plgInfo.maxPacketBits;
-      mCodecInfo.mPreCodecJitterBufferSize = plgInfo.preCodecJitterBufferSize;
-      mCodecInfo.mIsSignalingCodec = plgInfo.signalingCodec && (mplgci.mPlgSignaling != NULL);
-      mCodecInfo.mDoesVadCng = FALSE;
+      mCodecInfo = MpCodecInfo(plgInfo.codecVersion,
+                               plgInfo.samplingRate,
+                               plgInfo.numSamplesPerFrame,
+                               plgInfo.numChannels,
+                               plgInfo.interleaveBlockSize,
+                               plgInfo.bitRate,
+                               plgInfo.minPacketBits,
+                               plgInfo.avgPacketBits,
+                               plgInfo.maxPacketBits,
+                               plgInfo.numSamplesPerFrame,
+                               plgInfo.preCodecJitterBufferSize,
+                               plgInfo.signalingCodec && (mplgci.mPlgSignaling != NULL),
+                               FALSE);
    }
    else
    {
