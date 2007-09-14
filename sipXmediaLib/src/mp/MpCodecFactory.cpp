@@ -475,9 +475,9 @@ void MpCodecFactory::addCodecsToList(SdpCodecList &codecList) const
             res = SdpDefaultCodecFactory::getCodecType(mimeTypes[codecIdx],
                                                        "",
                                                        codecType);
-            printf("Codec added to default list: [%3d]:%s fmtp=\"%s\"\n",
-                   res==OS_SUCCESS?codecType:-1,
-                   mimeTypes[codecIdx].data(), "");
+            osPrintf("Codec added to list: [%3d]:%s fmtp=\"%s\"\n",
+                     res==OS_SUCCESS?codecType:-1,
+                     mimeTypes[codecIdx].data(), "");
 
             if (res == OS_SUCCESS)
             {
@@ -491,9 +491,9 @@ void MpCodecFactory::addCodecsToList(SdpCodecList &codecList) const
                res = SdpDefaultCodecFactory::getCodecType(mimeTypes[codecIdx],
                                                           fmtps[fmtpIdx],
                                                           codecType);
-               printf("Codec added to default list: [%3d]:%s fmtp=\"%s\"\n",
-                      res==OS_SUCCESS?codecType:-1,
-                      mimeTypes[codecIdx].data(), fmtps[fmtpIdx]);
+               osPrintf("Codec added to list: [%3d]:%s fmtp=\"%s\"\n",
+                        res==OS_SUCCESS?codecType:-1,
+                        mimeTypes[codecIdx].data(), fmtps[fmtpIdx]);
 
                if (res == OS_SUCCESS)
                {
