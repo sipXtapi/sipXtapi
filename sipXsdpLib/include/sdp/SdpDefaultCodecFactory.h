@@ -96,6 +96,20 @@ public:
      *  @retval OS_NOT_FOUND if appropriate mapping not found.
      */
 
+     /// Get codec type by MIME-subtype/fmtp pair.
+   static
+   OsStatus getCodecType(const UtlString &mimeSubtype,
+                         const UtlString &fmtp,
+                         SdpCodec::SdpCodecTypes &codecType);
+     /**<
+     *  @param[in]  mimeSubtype - MIME-subtype string to look for.
+     *  @param[in]  fmtp - fmtp string to look for.
+     *  @param[out] codecType - codec type (if found).
+     *
+     *  @retval OS_SUCESS if appropriate mapping found and \p codecType set.
+     *  @retval OS_NOT_FOUND if appropriate mapping not found.
+     */
+
 //@}
 
 /* =============================== INQUIRY ================================ */

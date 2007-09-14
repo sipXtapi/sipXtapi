@@ -858,6 +858,23 @@ OsStatus SdpDefaultCodecFactory::getMimeInfoByType(SdpCodec::SdpCodecTypes codec
    return OS_NOT_FOUND;
 }
 
+OsStatus SdpDefaultCodecFactory::getCodecType(const UtlString &mimeSubtype,
+                                              const UtlString &fmtp,
+                                              SdpCodec::SdpCodecTypes &codecType)
+{
+   for (int i = 0; i < SIZEOF_MIME_INFO_MAP; i++)
+   {
+      if (  mimeSubtype.compareTo(sgMimeInfoMap[i].mimeSubtype, UtlString::ignoreCase) == 0
+         && fmtp.compareTo(sgMimeInfoMap[i].fmtp, UtlString::ignoreCase) == 0)
+      {
+         codecType = sgMimeInfoMap[i].mPredefinedSDPnum;
+         return OS_SUCCESS;
+      }
+   }
+
+   return OS_NOT_FOUND;
+}
+
 /* ============================ INQUIRY =================================== */
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
