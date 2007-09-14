@@ -18,17 +18,17 @@
 // SYSTEM INCLUDES
 
 // APPLICATION INCLUDES
-#include "os/OsStatus.h"
-#include "os/OsBSem.h"
 #include "mp/MpEncoderBase.h"
 #include "mp/MpDecoderBase.h"
-
-#include "utl/UtlHashBag.h"
-#include "utl/UtlHashBagIterator.h"
-#include "os/OsSharedLibMgr.h"
 #include "mp/codecs/PlgDefsV1.h"
 #include "mp/MpPlgStaffV1.h"
 #include "mp/MpMisc.h"
+#include "sdp/SdpCodecList.h"
+#include "utl/UtlHashBag.h"
+#include "utl/UtlHashBagIterator.h"
+#include "os/OsSharedLibMgr.h"
+#include "os/OsStatus.h"
+#include "os/OsBSem.h"
 
 // DEFINES
 // MACROS
@@ -128,6 +128,13 @@ public:
      *
      *  @retval OS_SUCCESS on success.
      *  @retval OS_NOT_FOUND if given MIME-subtype is not found.
+     */
+
+     /// Add all supported codecs to SDP descriptions list.
+   void addCodecsToList(SdpCodecList &codecList) const;
+     /**<
+     *  @note Not really all codecs are added to list. Only codecs, known
+     *        by sipXsdpLib are added.
      */
 
 //@}

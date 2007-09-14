@@ -20,6 +20,7 @@
 #include <mp/MpCodecFactory.h>
 #include <mp/MpPlgEncoderWrap.h>
 #include <mp/MpPlgDecoderWrap.h>
+#include <sdp/SdpDefaultCodecFactory.h>
 #include <os/OsSysLog.h>
 #include <os/OsSharedLibMgr.h>
 #include <os/OsFS.h>
@@ -451,6 +452,57 @@ OsStatus MpCodecFactory::getCodecFmtps(const UtlString &mime,
    fmtps = pInfo->getDefaultFmtpArray();
 
    return OS_SUCCESS;
+}
+
+void MpCodecFactory::addCodecsToList(SdpCodecList &codecList) const
+{
+   const UtlString *mimeTypes;
+   unsigned mimeTypesCount;
+   getMimeTypes(mimeTypesCount, mimeTypes);
+
+   for (unsigned codecIdx=0; codecIdx<mimeTypesCount; codecIdx++)
+   {
+      unsigned fmtpCount;
+      const char **fmtps;
+      OsStatus res = getCodecFmtps(mimeTypes[codecIdx],
+                                   fmtpCount, fmtps);
+      if (res == OS_SUCCESS)
+      {
+         SdpCodec::SdpCodecTypes codecType;
+
+         if (fmtpCount == 0)
+         {
+            res = SdpDefaultCodecFactory::getCodecType(mimeTypes[codecIdx],
+                                                       "",
+                                                       codecType);
+            printf("Codec added to default list: [%3d]:%s fmtp=\"%s\"\n",
+                   res==OS_SUCCESS?codecType:-1,
+                   mimeTypes[codecIdx].data(), "");
+
+            if (res == OS_SUCCESS)
+            {
+               codecList.addCodec(SdpDefaultCodecFactory::getCodec(codecType));
+            }
+         }
+         else
+         {
+            for (unsigned fmtpIdx=0; fmtpIdx<fmtpCount; fmtpIdx++)
+            {
+               res = SdpDefaultCodecFactory::getCodecType(mimeTypes[codecIdx],
+                                                          fmtps[fmtpIdx],
+                                                          codecType);
+               printf("Codec added to default list: [%3d]:%s fmtp=\"%s\"\n",
+                      res==OS_SUCCESS?codecType:-1,
+                      mimeTypes[codecIdx].data(), fmtps[fmtpIdx]);
+
+               if (res == OS_SUCCESS)
+               {
+                  codecList.addCodec(SdpDefaultCodecFactory::getCodec(codecType));
+               }
+            }
+         }
+      }
+   }
 }
 
 /* =============================== INQUIRY ================================ */
