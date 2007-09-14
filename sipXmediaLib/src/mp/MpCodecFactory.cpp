@@ -15,15 +15,14 @@
 #include <assert.h>
 
 // APPLICATION INCLUDES
+#include <utl/UtlInit.h> // KEEP THIS ONE THE FIRST INCLUDE
+
 #include <mp/MpCodecFactory.h>
 #include <mp/MpPlgEncoderWrap.h>
 #include <mp/MpPlgDecoderWrap.h>
-#include <sdp/SdpCodec.h>
-#include <sdp/SdpDefaultCodecFactory.h>
 #include <os/OsSysLog.h>
 #include <os/OsSharedLibMgr.h>
 #include <os/OsFS.h>
-#include <utl/UtlInit.h>
 #include <utl/UtlSListIterator.h>
 
 // EXTERNAL FUNCTIONS
@@ -38,10 +37,8 @@ class MpCodecSubInfo : public UtlVoidPtr
 public:
 
    MpCodecSubInfo(MpCodecCallInfoV1* pCodecCall,
-                  SdpCodec::SdpCodecTypes assignedSDPnum,
                   const char* pMimeSubtype)
       : mpCodecCall(pCodecCall)
-      , mAssignedSDPnum(assignedSDPnum)
       , mpMimeSubtype(pMimeSubtype)
    {
    }
@@ -55,15 +52,11 @@ public:
    const char* getMIMEtype() const
    { return mpMimeSubtype; }
 
-   SdpCodec::SdpCodecTypes getSDPtype() const
-   { return mAssignedSDPnum; }
-
    MpCodecCallInfoV1* getCodecCall() const
    { return mpCodecCall; }
 
 protected:
    MpCodecCallInfoV1* mpCodecCall;
-   SdpCodec::SdpCodecTypes mAssignedSDPnum;
    const char* mpMimeSubtype;
 };
 
@@ -383,7 +376,6 @@ OsStatus MpCodecFactory::addCodecWrapperV1(MpCodecCallInfoV1* wrapper)
 {
    MpCodecSubInfo* mpsi;
    const char* mimeSubtype;
-   SdpCodec::SdpCodecTypes sdpCodecType;
 
    // Get codec's MIME-subtype and recommended modes.
    int res = wrapper->mPlgEnum(&mimeSubtype, NULL, NULL);
@@ -391,9 +383,8 @@ OsStatus MpCodecFactory::addCodecWrapperV1(MpCodecCallInfoV1* wrapper)
    {
       return OS_FAILED;
    }
-   sdpCodecType = assignAudioSDPnumber(mimeSubtype);
 
-   mpsi = new MpCodecSubInfo(wrapper, sdpCodecType, mimeSubtype);
+   mpsi = new MpCodecSubInfo(wrapper, mimeSubtype);
    if (mpsi == NULL) {
       return OS_NO_MEMORY;
    }
@@ -427,39 +418,6 @@ const char** MpCodecFactory::getAllCodecModes(SdpCodec::SdpCodecTypes codecId, u
    // NOT implemented yet
    return NULL;
 }
-
-SdpCodec::SdpCodecTypes MpCodecFactory::assignAudioSDPnumber(const UtlString& mimeSubtypeInLowerCase)
-{
-   struct knownSDPnums {
-      SdpCodec::SdpCodecTypes sdpNum;
-      const char* mimeSubtype;
-   };
-
-   const knownSDPnums statics[] = {
-      { SdpCodec::SDP_CODEC_PCMU, "pcmu" },
-      { SdpCodec::SDP_CODEC_GSM,  "gsm" },
-      { SdpCodec::SDP_CODEC_G723, "g723" },
-      { SdpCodec::SDP_CODEC_PCMA, "pcma" },
-      { SdpCodec::SDP_CODEC_G729, "g729" }
-   };
-
-   int i;
-
-   for (i = 0; i < (sizeof(statics) / sizeof(statics[0])); i++ )
-   {
-      if (mimeSubtypeInLowerCase.compareTo(statics[i].mimeSubtype, UtlString::ignoreCase) == 0) 
-      {
-         return statics[i].sdpNum;
-      }
-   }
-
-   //Not found in statics, add number for this mimeSubtype
-   maxDynamicCodecTypeAssigned++;
-   assert (maxDynamicCodecTypeAssigned > 0);
-   
-   return SdpCodec::SdpCodecTypes(SdpCodec::SDP_CODEC_MAXIMUM_STATIC_CODEC + maxDynamicCodecTypeAssigned);
-}
-
 
 void MpCodecFactory::updateCodecArray(void)
 {

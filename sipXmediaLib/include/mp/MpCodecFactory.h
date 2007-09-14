@@ -167,8 +167,6 @@ private:
    void updateCodecArray(void); ///< not implemented yet
    OsStatus addCodecWrapperV1(MpCodecCallInfoV1* wrapper); ///< Build 
 
-   SdpCodec::SdpCodecTypes assignAudioSDPnumber(const UtlString& mimeSubtypeInLowerCase); ///< mimeSubtype SHOULD BE in lower case   
-
      /// Copy constructor (not supported)
    MpCodecFactory(const MpCodecFactory& rMpCodecFactory);
 
