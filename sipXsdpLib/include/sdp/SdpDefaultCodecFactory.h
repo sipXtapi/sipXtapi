@@ -81,6 +81,21 @@ public:
    static
    OsStatus getCodecNameByType(SdpCodec::SdpCodecTypes codecType, UtlString& codecName);
 
+     /// Get MIME-subtype and fmtp strings for given codec type.
+   static
+   OsStatus getMimeInfoByType(SdpCodec::SdpCodecTypes codecType,
+                              UtlString& mimeSubtype,
+                              UtlString& fmtp);
+     /**<
+     *  @param[in]  codecType - codec type to look for.
+     *  @param[out] mimeSubtype - MIME-subtype string (if found).
+     *  @param[out] fmtp - fmtp string (if found).
+     *
+     *  @retval OS_SUCESS if appropriate mapping found and \p mimeSubtype and
+     *          \p fmtp parameters filled with data.
+     *  @retval OS_NOT_FOUND if appropriate mapping not found.
+     */
+
 //@}
 
 /* =============================== INQUIRY ================================ */

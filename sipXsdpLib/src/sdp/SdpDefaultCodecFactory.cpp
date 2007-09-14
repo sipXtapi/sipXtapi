@@ -20,7 +20,30 @@
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
+// LOCAL TYPES DECLARATIONS
+struct MpMimeInfoMapElement
+{
+   SdpCodec::SdpCodecTypes mPredefinedSDPnum;
+   const char* mimeSubtype;
+   const char* fmtp;
+};
+
 // STATIC VARIABLE INITIALIZATIONS
+static MpMimeInfoMapElement sgMimeInfoMap[] =
+{
+   { SdpCodec::SDP_CODEC_PCMU,    "pcmu",   NULL  },
+   { SdpCodec::SDP_CODEC_GSM,     "gsm",    NULL  },
+   { SdpCodec::SDP_CODEC_PCMA,    "pcma",   NULL  },
+   { SdpCodec::SDP_CODEC_SPEEX,   "speex",  NULL  },
+   { SdpCodec::SDP_CODEC_SPEEX_5, "speex",  "mode=2"  },
+   { SdpCodec::SDP_CODEC_SPEEX_15,"speex",  "mode=5"  },
+   { SdpCodec::SDP_CODEC_SPEEX_24,"speex",  "mode=7"  },
+   { SdpCodec::SDP_CODEC_ILBC,    "ilbc",   "mode=30" },
+   { SdpCodec::SDP_CODEC_ILBC,    "ilbc",   NULL  },
+   { SdpCodec::SDP_CODEC_TONES,   "telephone-events",   NULL  }
+};
+#define SIZEOF_MIME_INFO_MAP     \
+   (sizeof(sgMimeInfoMap) / sizeof(sgMimeInfoMap[0]))
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
@@ -816,6 +839,23 @@ OsStatus SdpDefaultCodecFactory::getCodecNameByType(SdpCodec::SdpCodecTypes type
    }
 
    return rc;
+}
+
+OsStatus SdpDefaultCodecFactory::getMimeInfoByType(SdpCodec::SdpCodecTypes codecType,
+                                                   UtlString& mimeSubtype,
+                                                   UtlString& fmtp)
+{
+   for (int i = 0; i < SIZEOF_MIME_INFO_MAP; i++)
+   {
+      if (sgMimeInfoMap[i].mPredefinedSDPnum == codecType)
+      {
+         mimeSubtype = sgMimeInfoMap[i].mimeSubtype;
+         fmtp = sgMimeInfoMap[i].fmtp;
+         return OS_SUCCESS;
+      }
+   }
+
+   return OS_NOT_FOUND;
 }
 
 /* ============================ INQUIRY =================================== */
