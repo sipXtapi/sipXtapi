@@ -35,7 +35,8 @@ class OsConfigDb;
 /* mpStartUp initializes the MpMisc struct and other MP data, for */
 /*    example, the buffer pools and tables */
 extern OsStatus mpStartUp(int sampleRate, int samplesPerFrame,
-		  int numAudioBuffers, OsConfigDb* pConfigDb);
+                          int numAudioBuffers, OsConfigDb* pConfigDb,
+                          const size_t numCodecPaths, const UtlString codecPaths[]);
 
 /* tears down whatever was created in mpStartUp */
 extern OsStatus mpShutdown(void);

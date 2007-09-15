@@ -92,6 +92,17 @@ CpMediaInterface* CpMediaInterfaceFactory::createMediaInterface(const char* publ
     return pInterface ;
 }
 
+// Static method to add codec paths
+OsStatus CpMediaInterfaceFactory::addCodecPaths(const size_t nCodecPaths, const UtlString codecPaths[])
+{
+   return CpMediaInterfaceFactoryImpl::addCodecPaths(nCodecPaths, codecPaths);
+}
+
+void CpMediaInterfaceFactory::clearCodecPaths()
+{
+   CpMediaInterfaceFactoryImpl::clearCodecPaths();
+}
+
 /* ============================ ACCESSORS ================================= */
 
 CpMediaInterfaceFactoryImpl* 
@@ -107,5 +118,6 @@ CpMediaInterfaceFactory::getFactoryImplementation()
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 /* ============================ FUNCTIONS ================================= */
+
 
 

@@ -43,7 +43,8 @@ public:
       OsStatus          res;
 
       // Setup media task
-      res = mpStartUp(TEST_SAMPLES_PER_SEC, TEST_SAMPLES_PER_FRAME, 6*10, 0);
+      res = mpStartUp(TEST_SAMPLES_PER_SEC, TEST_SAMPLES_PER_FRAME, 6*10, 0
+                      0, NULL);
       CPPUNIT_ASSERT(res == OS_SUCCESS);
 
       mpFlowGraph = new MpFlowGraphBase( TEST_SAMPLES_PER_FRAME

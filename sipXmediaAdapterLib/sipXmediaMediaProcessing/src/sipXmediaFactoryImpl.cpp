@@ -123,7 +123,8 @@ sipXmediaFactoryImpl::sipXmediaFactoryImpl(OsConfigDb* pConfigDb)
     // Start audio subsystem if still not started.
     if (miInstanceCount == 0)
     {
-        mpStartUp(8000, 80, 16*maxFlowGraph, pConfigDb);
+        mpStartUp(8000, 80, 16*maxFlowGraph, pConfigDb, 
+                  mnCodecPaths, mpCodecPaths);
     }
 
     // Should we send inband DTMF by default?    
@@ -439,5 +440,6 @@ OsStatus sipXmediaFactoryImpl::getLocalAudioConnectionId(int& connectionId) cons
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 /* ============================ FUNCTIONS ================================= */
+
 
 

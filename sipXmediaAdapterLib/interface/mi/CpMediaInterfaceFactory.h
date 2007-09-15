@@ -17,7 +17,9 @@
 
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
+#include <os/OsStatus.h>
 #include <utl/UtlDefs.h>
+#include <utl/UtlString.h>
 
 // DEFINES
 // MACROS
@@ -38,6 +40,8 @@ class SdpCodec ;
  *
  * The destructor of this factory will automatically destroy the 
  * CpMediaIntefaceFactoryInterface.
+ *
+ * @nosubgrouping
  */
 class CpMediaInterfaceFactory
 {
@@ -89,6 +93,23 @@ class CpMediaInterfaceFactory
                                            const char* szTurnPassword,
                                            int iTurnKeepAlivePeriodSecs,
                                            UtlBoolean bEnableICE) ;
+
+     /// Add directory paths to the codec search path.
+   static OsStatus addCodecPaths(const size_t nCodecPaths, const UtlString codecPaths[]);
+     /**<
+     *  Specify directories that will be added to the list of paths
+     *  used when searching for codecs to load.
+     *
+     *  @note The paths passed in should only contain syntactically valid 
+     *        directory paths.  
+     *        TODO: Syntactically invalid paths will be rejected returning OS_FAILED.
+     *
+     *  @param[in] codecPaths - array of paths to load. 
+     *  @retval OS_SUCCESS - if all of the paths passed in are properly stored.
+     */
+
+     /// Clear the static codec path list.
+   static void clearCodecPaths();
 
 
 /* ============================ ACCESSORS ================================= */

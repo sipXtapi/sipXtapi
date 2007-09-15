@@ -278,6 +278,13 @@ public:
         return OS_NOT_SUPPORTED ;
     }
 
+      /// @copydoc CpMediaInterfaceFactory::addCodecPaths()
+    static OsStatus addCodecPaths(const size_t nCodecPaths, 
+                                  const UtlString codecPaths[]);
+
+      /// @copydoc CpMediaInterfaceFactory::clearCodecPaths()
+    static void clearCodecPaths();
+
 
 /* ============================ ACCESSORS ================================= */
 
@@ -432,6 +439,10 @@ public:
     UtlSList mlistBusyPorts ;  /**< List of busy ports */
     OsMutex  mlockList ;       /**< Lock for port allocation */
 
+    static size_t mnAllocCodecPaths; ///< Number of slots allocated in codec path array.
+    static size_t mnCodecPaths;      ///< Number of codec paths stored.
+    static UtlString* mpCodecPaths;  ///< dynamic array of paths to use when loading codecs.
+
 
     /**
      * Bind the the specified port and see if any data is ready to read for
@@ -441,6 +452,21 @@ public:
      * @param checkTimeMS Number of ms to wait for data.
      */
     virtual UtlBoolean isPortBusy(int iPort, int checkTimeMS) ;
+
+      /// Ensure that there is enough capacity in our codec paths array
+    static OsStatus ensureCapacityCodecPaths(size_t newSize);
+      /**<
+      *  Ensure that there is enough capacity in our codec paths array for 
+      *  \p newSize elements.
+      *  If there is not enough capacity, then the maximum capacity is increased
+      *  above newSize, unless there are so many elements that \p newSize exceeds
+      *  1/2 the maximum value of a size_t, in which case, it is just allocated
+      *  to fit newSize, and no greater.
+      *
+      *  @param[in] newSize - the size to check the codec path array allocation size against.
+      *  @retval OS_SUCCESS - If everything went ok, and there is enough capacity.
+      *  @retval OS_NO_MEMORY - If there was an allocation error.
+      */
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
   private:

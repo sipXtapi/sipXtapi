@@ -434,14 +434,13 @@ extern void doFrameLoop(int sampleRate, int frame_samples);
 extern STATUS netStartup();
 
 #ifndef CODEC_PLUGIN_PATH
-#define CODEC_PLUGIN_PATH  "..\\..\\sipXmediaLib\\bin\\"
-#define CODEC_PLUGIN_PATH2 "..\\sipXmediaLib\\bin\\"
-#define CODEC_PLUGIN_PATH3 ".\\"
+#define CODEC_PLUGIN_PATH "."
 #endif
 
 
 OsStatus mpStartUp(int sampleRate, int samplesPerFrame,
-                   int numAudioBuffers, OsConfigDb* pConfigDb)
+                   int numAudioBuffers, OsConfigDb* pConfigDb,
+                   const size_t numCodecPaths, const UtlString codecPaths[])
 {
 #ifdef _VXWORKS
         int defSilenceSuppressLevel = 10000;
@@ -459,13 +458,18 @@ OsStatus mpStartUp(int sampleRate, int samplesPerFrame,
         showMpMisc(TRUE);
 
         MpCodecFactory* pcf = MpCodecFactory::getMpCodecFactory();
-        pcf->loadAllDynCodecs(CODEC_PLUGIN_PATH, "codec_.*\\.dll" );
-#ifdef CODEC_PLUGIN_PATH2
-        pcf->loadAllDynCodecs(CODEC_PLUGIN_PATH2, "codec_.*\\.dll" );
-#endif
-#ifdef CODEC_PLUGIN_PATH3
-        pcf->loadAllDynCodecs(CODEC_PLUGIN_PATH3, "codec_.*\\.dll" );
-#endif
+        if(numCodecPaths != 0)
+        {
+           size_t i;
+           for(i = 0; i < numCodecPaths; i++)
+           {
+              pcf->loadAllDynCodecs(codecPaths[i].data(), "codec_.*\\.dll");
+           }
+        }
+        else
+        {
+           pcf->loadAllDynCodecs(CODEC_PLUGIN_PATH, "codec_.*\\.dll" );
+        }
 
 #ifdef _VXWORKS /* [ */
         /* Rashly assumes page size is a power of two */

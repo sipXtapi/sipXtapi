@@ -75,6 +75,7 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
 {
     CPPUNIT_TEST_SUITE(CpPhoneMediaInterfaceTest);
     CPPUNIT_TEST(printMediaInterfaceType); // Just prints the media interface type.
+    CPPUNIT_TEST(testSetCodecPath);
 #ifndef SANDBOX
     CPPUNIT_TEST(testProperties);
     CPPUNIT_TEST(testTones);
@@ -96,12 +97,22 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
     {
         enableConsoleOutput(0);
 
+        // Add some codec paths.
+        UtlString codecPaths[] = { "..\\..\\sipXmediaLib\\bin",
+                                   "..\\sipXmediaLib\\bin",
+                                   "."
+                                 };
+        int codecPathsNum = sizeof(codecPaths)/sizeof(codecPaths[0]);
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, 
+                             CpMediaInterfaceFactory::addCodecPaths(codecPathsNum, codecPaths));
+
         mpMediaFactory = sipXmediaFactoryFactory(NULL);
     } 
 
     virtual void tearDown()
     {
         sipxDestroyMediaFactoryFactory();
+        CpMediaInterfaceFactory::clearCodecPaths();
         mpMediaFactory = NULL;
     }
 
@@ -125,6 +136,13 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
         {
             CPPUNIT_FAIL("ERROR: Unknown type of media interface!");
         }
+    }
+
+    void testSetCodecPath()
+    {
+       // Test storing codec paths for loading.
+       UtlString testBadCodecPath1 = "|****|****|";
+       CPPUNIT_ASSERT_EQUAL(OS_FAILED, CpMediaInterfaceFactory::addCodecPaths(1, &testBadCodecPath1));
     }
 
     OsStatus waitForNotf(OsMsgDispatcher& notfDispatcher,
@@ -709,11 +727,14 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
         // interactions or dependencies.
         CPPUNIT_ASSERT(mpMediaFactory);
 
-        SdpCodecList* codecFactory = new SdpCodecList();
-        CPPUNIT_ASSERT(codecFactory);
-        int numCodecs;
-        SdpCodec** codecArray = NULL;
-        codecFactory->getCodecs(numCodecs, codecArray);
+        // If we wanted to supply a different set of codecs than the
+        // defaults, then we would do the below, and supply 
+        // numCodecs and codecArray when creating a mediaInterface.
+        // SdpCodecList* codecFactory = new SdpCodecList();
+        // CPPUNIT_ASSERT(codecFactory);
+        // int numCodecs;
+        // SdpCodec** codecArray = NULL;
+        // codecFactory->getCodecs(numCodecs, codecArray);
 
         UtlString localRtpInterfaceAddress("127.0.0.1");
         OsSocket::getHostIp(&localRtpInterfaceAddress);
@@ -733,8 +754,7 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
         CpMediaInterface* mixedInterface = 
             mpMediaFactory->createMediaInterface(NULL, // public mapped RTP IP address
                                                  localRtpInterfaceAddress, 
-                                                 numCodecs, 
-                                                 codecArray, 
+                                                 0, NULL, // use default codecs
                                                  locale,
                                                  tosOptions,
                                                  stunServerAddress, 
@@ -845,8 +865,7 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
         CpMediaInterface* source1Interface = 
             mpMediaFactory->createMediaInterface(NULL, // public mapped RTP IP address
                                                  localRtpInterfaceAddress, 
-                                                 numCodecs, 
-                                                 codecArray, 
+                                                 0, NULL, // use default codecs
                                                  locale,
                                                  tosOptions,
                                                  stunServerAddress, 
@@ -894,8 +913,7 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
         CpMediaInterface* source2Interface = 
             mpMediaFactory->createMediaInterface(NULL, // public mapped RTP IP address
                                                  localRtpInterfaceAddress, 
-                                                 numCodecs, 
-                                                 codecArray, 
+                                                 0, NULL, // use default codecs
                                                  locale,
                                                  tosOptions,
                                                  stunServerAddress, 
@@ -982,11 +1000,6 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
         RTL_STOP;
 
         // delete codecs set
-        for ( numCodecs--; numCodecs>=0; numCodecs--)
-        {
-           delete codecArray[numCodecs];
-        }
-        delete[] codecArray;
         for ( numCodecsFactory1--; numCodecsFactory1>=0; numCodecsFactory1--)
         {
            delete codecArray1[numCodecsFactory1];
@@ -997,9 +1010,8 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
            delete codecArray2[numCodecsFactory2];
         }
         delete[] codecArray2;
-
-        delete codecFactory ;
     };
+
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(CpPhoneMediaInterfaceTest);
