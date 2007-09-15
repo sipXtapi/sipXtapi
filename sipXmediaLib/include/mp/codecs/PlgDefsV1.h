@@ -81,7 +81,7 @@ struct plgCodecInfoV1
                                    const struct RtpHeader* pRtpHeader);              \
  CODEC_API  int   PLG_ENCODE_V1(x)(void* handle, const void* pAudioBuffer,           \
                                    unsigned cbAudioSamples, int* rSamplesConsumed,   \
-                                   void* pCodedData, unsigned cbMaCodedData,         \
+                                   void* pCodedData, unsigned cbMaxCodedData,        \
                                    int* pcbCodedSize, unsigned* pbSendNow);  
 
 #define CPP_DECLARE_FUNCS_V1(x)  \
