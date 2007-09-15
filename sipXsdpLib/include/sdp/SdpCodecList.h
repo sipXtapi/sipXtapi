@@ -60,7 +60,7 @@ public:
 //@{
 
      /// Add a new codec type to the list of known codecs.
-   void addCodec(SdpCodec& newCodec);
+   void addCodec(const SdpCodec& newCodec);
 
      /// Add copies of the array of codecs.
    void addCodecs(int numCodecs, SdpCodec* newCodecs[]);

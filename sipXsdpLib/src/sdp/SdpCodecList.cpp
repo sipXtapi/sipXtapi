@@ -80,7 +80,7 @@ SdpCodecList& SdpCodecList::operator=(const SdpCodecList& rhs)
    return *this;
 }
 
-void SdpCodecList::addCodec(SdpCodec& newCodec)
+void SdpCodecList::addCodec(const SdpCodec& newCodec)
 {
     OsWriteLock lock(mReadWriteMutex);
     addCodecNoLock(newCodec);
