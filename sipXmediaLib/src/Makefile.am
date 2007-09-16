@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 
-SUBDIRS = test
+SUBDIRS = test mp/codecs
 
 INCLUDES = -I$(top_srcdir)/include 
 

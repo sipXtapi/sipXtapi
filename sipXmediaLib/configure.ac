@@ -54,9 +54,14 @@ AC_CHECK_FUNCS([clock_gettime getcwd gethostbyname gethostname gettimeofday inet
 # Look for CPPUnit libraries
 CHECK_CPPUNIT
 
-# Look for GSM and Speex codecs
+# Look for lodable codecs libraries
 CHECK_GSM
 CHECK_SPEEX
+CHECK_ILBC
+CHECK_PCMA_PCMU
+CHECK_TONES
+# declaring other codecs staff
+DECLARE_CODECS_STAFF
 
 # sipX dependencies
 SFAC_LIB_STACK
@@ -83,6 +88,13 @@ AC_CONFIG_FILES([
   config/sipXcommon.mak
   include/Makefile 
   src/Makefile 
+  contrib/libilbc/gnu/Makefile
+  src/mp/codecs/Makefile
+  src/mp/codecs/plggsm/Makefile
+  src/mp/codecs/plgpcmapcmu/Makefile
+  src/mp/codecs/plgtones/Makefile
+  src/mp/codecs/plgspeex/Makefile
+  src/mp/codecs/plgilbc/Makefile
   src/test/Makefile
   bin/Makefile
   doc/Makefile
