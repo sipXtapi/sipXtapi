@@ -98,10 +98,17 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
         enableConsoleOutput(0);
 
         // Add some codec paths.
-        UtlString codecPaths[] = { "..\\..\\sipXmediaLib\\bin",
+
+        UtlString codecPaths[] = { 
+#ifdef WIN32
                                    "..\\sipXmediaLib\\bin",
+#else
+                                   "../../../../../sipXmediaLib/bin",
+                                   "../../../../sipXmediaLib/bin",
+#endif
                                    "."
                                  };
+
         int codecPathsNum = sizeof(codecPaths)/sizeof(codecPaths[0]);
         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, 
                              CpMediaInterfaceFactory::addCodecPaths(codecPathsNum, codecPaths));
