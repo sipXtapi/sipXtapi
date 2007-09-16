@@ -8,16 +8,19 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
-// Author: 
+// Author: Sergey Kostanbaev <Sergey DOT Kostanbaev AT sipez DOT com>
 
-// APPLICATION INCLUDES
-#include <mp/codecs/PlgDefsV1.h>
-
+// SYSTEM INCLUDES
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
 #include <ctype.h>
+#include <limits.h>
 
+// APPLICATION INCLUDES
+#include <mp/codecs/PlgDefsV1.h>
+
+// CODEC LIBRARY INCLUDES
 #include <iLBC_define.h>
 #include <iLBC_decode.h>
 #include <iLBC_encode.h>
