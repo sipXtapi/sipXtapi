@@ -88,7 +88,7 @@ AC_CONFIG_FILES([
   config/sipXcommon.mak
   include/Makefile 
   src/Makefile 
-  contrib/libilbc/gnu/Makefile
+  contrib/libilbc/Makefile
   src/mp/codecs/Makefile
   src/mp/codecs/plggsm/Makefile
   src/mp/codecs/plgpcmapcmu/Makefile
