@@ -6441,7 +6441,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigSetAudioCodecByName(const SIPX_INST hInst,
                 pInst->pCallManager->getMediaInterfaceFactory()->getFactoryImplementation();
 
         *pInst->audioCodecSetting.pPreferences = szCodecName;
-        *pInst->audioCodecSetting.pPreferences += " audio/telephone-event";
+        *pInst->audioCodecSetting.pPreferences += " telephone-event";
 
         if (pInterface)
         {

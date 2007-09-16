@@ -19,21 +19,6 @@
 #include <sdp/SdpCodec.h>
 
 // DEFINES
-#define SIPX_CODEC_ID_IPCMWB    "IPCMWB"
-#define SIPX_CODEC_ID_ISAC      "ISAC"
-#define SIPX_CODEC_ID_EG711U    "EG711U"
-#define SIPX_CODEC_ID_EG711A    "EG711A"
-#define SIPX_CODEC_ID_PCMA      "PCMA"
-#define SIPX_CODEC_ID_PCMU      "PCMU"
-#define SIPX_CODEC_ID_ILBC      "iLBC"
-#define SIPX_CODEC_ID_G729      "G729"
-#define SIPX_CODEC_ID_TELEPHONE "audio/telephone-event"
-#define SIPX_CODEC_ID_SPEEX     "SPEEX"
-#define SIPX_CODEC_ID_SPEEX_5   "SPEEX_5"
-#define SIPX_CODEC_ID_SPEEX_15  "SPEEX_15"
-#define SIPX_CODEC_ID_SPEEX_24  "SPEEX_24"
-#define SIPX_CODEC_ID_GSM       "GSM"
-
 // MACROS
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES

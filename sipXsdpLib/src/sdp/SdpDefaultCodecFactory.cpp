@@ -23,9 +23,15 @@
 // LOCAL TYPES DECLARATIONS
 struct MpMimeInfoMapElement
 {
-   SdpCodec::SdpCodecTypes mPredefinedSDPnum;
+   SdpCodec::SdpCodecTypes codecType;
    const char* mimeSubtype;
    const char* fmtp;
+};
+
+struct MpCodecNamesMapElement
+{
+   SdpCodec::SdpCodecTypes codecType;
+   const char* codecName;
 };
 
 // STATIC VARIABLE INITIALIZATIONS
@@ -44,6 +50,56 @@ static MpMimeInfoMapElement sgMimeInfoMap[] =
 };
 #define SIZEOF_MIME_INFO_MAP     \
    (sizeof(sgMimeInfoMap) / sizeof(sgMimeInfoMap[0]))
+
+static MpCodecNamesMapElement sgCodecNamesMap[] =
+{
+   { SdpCodec::SDP_CODEC_TONES,           "TELEPHONE-EVENT" },
+   { SdpCodec::SDP_CODEC_TONES,           "AUDIO/TELEPHONE-EVENT" },
+   { SdpCodec::SDP_CODEC_TONES,           "AVT-TONES" },
+   { SdpCodec::SDP_CODEC_TONES,           "AVT" },
+   { SdpCodec::SDP_CODEC_PCMU,            "PCMU" },
+   { SdpCodec::SDP_CODEC_PCMU,            "G711U" },
+   { SdpCodec::SDP_CODEC_PCMA,            "PCMA" },
+   { SdpCodec::SDP_CODEC_PCMA,            "G711A" },
+   { SdpCodec::SDP_CODEC_G729A,           "G729" },
+   { SdpCodec::SDP_CODEC_G729A,           "G729A" },
+   { SdpCodec::SDP_CODEC_G729AB,          "G729B" },
+   { SdpCodec::SDP_CODEC_G729AB,          "G729AB" },
+   { SdpCodec::SDP_CODEC_G723,            "G723" },
+   { SdpCodec::SDP_CODEC_G729ACISCO7960,  "G729A-FOR-CISCO-7960" },
+   { SdpCodec::SDP_CODEC_ILBC,            "ILBC" },
+   { SdpCodec::SDP_CODEC_GSM,             "GSM" },
+   { SdpCodec::SDP_CODEC_SPEEX,           "SPEEX" },
+   { SdpCodec::SDP_CODEC_SPEEX_5,         "SPEEX_5" },
+   { SdpCodec::SDP_CODEC_SPEEX_15,        "SPEEX_15" },
+   { SdpCodec::SDP_CODEC_SPEEX_24,        "SPEEX_24" },
+   { SdpCodec::SDP_CODEC_GIPS_IPCMU,      "EG711U" },
+   { SdpCodec::SDP_CODEC_GIPS_IPCMA,      "EG711A" },
+   { SdpCodec::SDP_CODEC_GIPS_IPCMWB,     "IPCMWB" },
+   { SdpCodec::SDP_CODEC_GIPS_ISAC,       "ISAC" },
+   { SdpCodec::SDP_CODEC_VP71_CIF,        "VP71-CIF" },
+   { SdpCodec::SDP_CODEC_VP71_QCIF,       "VP71-QCIF" },
+   { SdpCodec::SDP_CODEC_VP71_SQCIF,      "VP71-SQCIF" },
+   { SdpCodec::SDP_CODEC_VP71_QVGA,       "VP71-QVGA" },
+   { SdpCodec::SDP_CODEC_IYUV_CIF,        "IYUV-CIF" },
+   { SdpCodec::SDP_CODEC_IYUV_QCIF,       "IYUV-QCIF" },
+   { SdpCodec::SDP_CODEC_IYUV_SQCIF,      "IYUV-SQCIF" },
+   { SdpCodec::SDP_CODEC_IYUV_QVGA,       "IYUV-QVGA" },
+   { SdpCodec::SDP_CODEC_I420_CIF,        "I420-CIF" },
+   { SdpCodec::SDP_CODEC_I420_QCIF,       "I420-QCIF" },
+   { SdpCodec::SDP_CODEC_I420_SQCIF,      "I420-SQCIF" },
+   { SdpCodec::SDP_CODEC_I420_QVGA,       "I420-QVGA" },
+   { SdpCodec::SDP_CODEC_H263_CIF,        "H263-CIF" },
+   { SdpCodec::SDP_CODEC_H263_QCIF,       "H263-QCIF" },
+   { SdpCodec::SDP_CODEC_H263_SQCIF,      "H263-SQCIF" },
+   { SdpCodec::SDP_CODEC_H263_QVGA,       "H263-QVGA" },
+   { SdpCodec::SDP_CODEC_RGB24_CIF,       "RGB24-CIF" },
+   { SdpCodec::SDP_CODEC_RGB24_QCIF,      "RGB24-QCIF" },
+   { SdpCodec::SDP_CODEC_RGB24_SQCIF,     "RGB24-SQCIF" },
+   { SdpCodec::SDP_CODEC_RGB24_QVGA,      "RGB24-QVGA" }
+};
+#define SIZEOF_CODEC_NAMES_MAP     \
+   (sizeof(sgCodecNamesMap) / sizeof(sgCodecNamesMap[0]))
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
@@ -650,195 +706,33 @@ SdpCodec SdpDefaultCodecFactory::getCodec(SdpCodec::SdpCodecTypes internalCodecI
 
 SdpCodec::SdpCodecTypes SdpDefaultCodecFactory::getCodecType(const char* pCodecName)
 {
-    SdpCodec::SdpCodecTypes retType = SdpCodec::SDP_CODEC_UNKNOWN;
-    UtlString compareString(pCodecName);
+   UtlString compareString(pCodecName);
 
-    compareString.toUpper();
+   for (int i = 0; i < SIZEOF_CODEC_NAMES_MAP; i++)
+   {
+      if (compareString.compareTo(sgCodecNamesMap[i].codecName, UtlString::ignoreCase) == 0)
+      {
+         return sgCodecNamesMap[i].codecType;
+      }
+   }
 
-    if (strcmp(compareString,"TELEPHONE-EVENT") == 0 ||
-       strcmp(compareString,"AUDIO/TELEPHONE-EVENT") == 0 || 
-       strcmp(compareString,"AVT-TONES") == 0 ||
-       strcmp(compareString,"AVT") == 0)
-        retType = SdpCodec::SDP_CODEC_TONES;
-    else
-    if (strcmp(compareString,"PCMU") == 0 ||
-       strcmp(compareString,"G711U") == 0)
-        retType = SdpCodec::SDP_CODEC_PCMU;
-    else
-    if (strcmp(compareString,"PCMA") == 0 ||
-       strcmp(compareString,"G711A") == 0)
-        retType = SdpCodec::SDP_CODEC_PCMA;
-    else
-    if (strcmp(compareString,"EG711U") == 0)
-        retType = SdpCodec::SDP_CODEC_GIPS_IPCMU;
-    else
-    if (strcmp(compareString,"EG711A") == 0)
-        retType = SdpCodec::SDP_CODEC_GIPS_IPCMA;
-    else
-    if (strcmp(compareString,"IPCMWB") == 0)
-        retType = SdpCodec::SDP_CODEC_GIPS_IPCMWB;
-    else
-    if (strcmp(compareString,"G729") == 0 ||
-       strcmp(compareString,"G729A") == 0)
-        retType = SdpCodec::SDP_CODEC_G729A;
-    else
-    if (strcmp(compareString,"G729AB") == 0 ||
-       strcmp(compareString,"G729B") == 0)
-        retType = SdpCodec::SDP_CODEC_G729AB;
-    else
-    if (strcmp(compareString,"G723") == 0)
-        retType = SdpCodec::SDP_CODEC_G723;
-    else
-    if (strcmp(compareString,"G729A-FOR-CISCO-7960") == 0)
-        retType = SdpCodec::SDP_CODEC_G729ACISCO7960;
-    else
-    if (strcmp(compareString,"ILBC") == 0)
-        retType = SdpCodec::SDP_CODEC_ILBC;
-    else
-    if (strcmp(compareString,"GSM") == 0)
-        retType = SdpCodec::SDP_CODEC_GSM;
-   else
-    if (strcmp(compareString,"ISAC") == 0)
-        retType = SdpCodec::SDP_CODEC_GIPS_ISAC;
-   else 
-      if (strcmp(compareString,"SPEEX") == 0)
-         retType = SdpCodec::SDP_CODEC_SPEEX;
-   else 
-      if (strcmp(compareString,"SPEEX_5") == 0)
-         retType = SdpCodec::SDP_CODEC_SPEEX_5;
-   else 
-      if (strcmp(compareString,"SPEEX_15") == 0)
-         retType = SdpCodec::SDP_CODEC_SPEEX_15;
-   else 
-      if (strcmp(compareString,"SPEEX_24") == 0)
-         retType = SdpCodec::SDP_CODEC_SPEEX_24;
-   else 
-      if (strcmp(compareString,"GSM") == 0)
-         retType = SdpCodec::SDP_CODEC_GSM;
-   else
-    if (strcmp(compareString,"VP71-CIF") == 0)
-        retType = SdpCodec::SDP_CODEC_VP71_CIF;
-   else
-    if (strcmp(compareString,"VP71-QCIF") == 0)
-        retType = SdpCodec::SDP_CODEC_VP71_QCIF;
-   else
-    if (strcmp(compareString,"VP71-SQCIF") == 0)
-        retType = SdpCodec::SDP_CODEC_VP71_SQCIF;
-   else
-    if (strcmp(compareString,"VP71-QVGA") == 0)
-        retType = SdpCodec::SDP_CODEC_VP71_QVGA;
-   else
-    if (strcmp(compareString,"IYUV-CIF") == 0)
-        retType = SdpCodec::SDP_CODEC_IYUV_CIF;
-   else
-    if (strcmp(compareString,"IYUV-QCIF") == 0)
-        retType = SdpCodec::SDP_CODEC_IYUV_QCIF;
-   else
-    if (strcmp(compareString,"IYUV-SQCIF") == 0)
-        retType = SdpCodec::SDP_CODEC_IYUV_SQCIF;
-   else
-    if (strcmp(compareString,"IYUV-QVGA") == 0)
-        retType = SdpCodec::SDP_CODEC_IYUV_QVGA;
-   else
-    if (strcmp(compareString,"I420-CIF") == 0)
-        retType = SdpCodec::SDP_CODEC_I420_CIF;
-   else
-    if (strcmp(compareString,"I420-QCIF") == 0)
-        retType = SdpCodec::SDP_CODEC_I420_QCIF;
-   else
-    if (strcmp(compareString,"I420-SQCIF") == 0)
-        retType = SdpCodec::SDP_CODEC_I420_SQCIF;
-   else
-    if (strcmp(compareString,"I420-QVGA") == 0)
-        retType = SdpCodec::SDP_CODEC_I420_QVGA;
-   else
-    if (strcmp(compareString,"H263-CIF") == 0)
-        retType = SdpCodec::SDP_CODEC_H263_CIF;
-   else
-    if (strcmp(compareString,"H263-QCIF") == 0)
-        retType = SdpCodec::SDP_CODEC_H263_QCIF;
-   else
-    if (strcmp(compareString,"H263-SQCIF") == 0)
-        retType = SdpCodec::SDP_CODEC_H263_SQCIF;
-   else
-    if (strcmp(compareString,"H263-QVGA") == 0)
-        retType = SdpCodec::SDP_CODEC_H263_QVGA;
-   else
-    if (strcmp(compareString,"RGB24-CIF") == 0)
-        retType = SdpCodec::SDP_CODEC_RGB24_CIF;
-   else
-    if (strcmp(compareString,"RGB24-QCIF") == 0)
-        retType = SdpCodec::SDP_CODEC_RGB24_QCIF;
-   else
-    if (strcmp(compareString,"RGB24-SQCIF") == 0)
-        retType = SdpCodec::SDP_CODEC_RGB24_SQCIF;
-   else
-    if (strcmp(compareString,"RGB24-QVGA") == 0)
-        retType = SdpCodec::SDP_CODEC_RGB24_QVGA;
-    else
-       retType = SdpCodec::SDP_CODEC_UNKNOWN;
-    return retType;
+   return SdpCodec::SDP_CODEC_UNKNOWN;
 }
 
 OsStatus SdpDefaultCodecFactory::getCodecNameByType(SdpCodec::SdpCodecTypes type, UtlString& codecName)
 {
-   OsStatus rc = OS_SUCCESS;
-
-   switch (type)
+   for (int i = 0; i < SIZEOF_CODEC_NAMES_MAP; i++)
    {
-   case SdpCodec::SDP_CODEC_TONES:
-      codecName = SIPX_CODEC_ID_TELEPHONE;
-      break;
-   case SdpCodec::SDP_CODEC_G729A:
-      codecName = SIPX_CODEC_ID_G729;
-      break;
-   case SdpCodec::SDP_CODEC_PCMA:
-      codecName = SIPX_CODEC_ID_PCMA;
-      break;
-   case SdpCodec::SDP_CODEC_PCMU:
-      codecName = SIPX_CODEC_ID_PCMU;
-      break;
-   case SdpCodec::SDP_CODEC_GIPS_IPCMA:
-      codecName = SIPX_CODEC_ID_EG711A;
-      break;
-   case SdpCodec::SDP_CODEC_GIPS_IPCMU:
-      codecName = SIPX_CODEC_ID_EG711U;
-      break;
-   case SdpCodec::SDP_CODEC_GIPS_IPCMWB:
-      codecName = SIPX_CODEC_ID_IPCMWB;
-      break;
-   case SdpCodec::SDP_CODEC_ILBC:
-      codecName = SIPX_CODEC_ID_ILBC;
-      break;
-   case SdpCodec::SDP_CODEC_GIPS_ISAC:
-      codecName = SIPX_CODEC_ID_ISAC;
-      break;
-   case SdpCodec::SDP_CODEC_SPEEX:
-      codecName = SIPX_CODEC_ID_SPEEX;
-      break;
-   case SdpCodec::SDP_CODEC_SPEEX_5:
-      codecName = SIPX_CODEC_ID_SPEEX_5;
-      break;
-   case SdpCodec::SDP_CODEC_SPEEX_15:
-      codecName = SIPX_CODEC_ID_SPEEX_15;
-      break;
-   case SdpCodec::SDP_CODEC_SPEEX_24:
-      codecName = SIPX_CODEC_ID_SPEEX_24;
-      break;
-   case SdpCodec::SDP_CODEC_GSM:
-      codecName = SIPX_CODEC_ID_GSM;
-      break;
-   default:
-      assert(!"Unsupported codec type");
-      codecName = "";
-      rc = OS_FAILED;
-      osPrintf("sipXmediaFactoryImpl::getCodecNameByType(): "
-               "Unsupported codec type %d.",
-               type);
-
+      if (sgCodecNamesMap[i].codecType == type)
+      {
+         codecName = sgCodecNamesMap[i].codecName;
+         return OS_SUCCESS;
+      }
    }
 
-   return rc;
+   assert(!"Unsupported codec type");
+   codecName = "";
+   return OS_NOT_FOUND;
 }
 
 OsStatus SdpDefaultCodecFactory::getMimeInfoByType(SdpCodec::SdpCodecTypes codecType,
@@ -847,7 +741,7 @@ OsStatus SdpDefaultCodecFactory::getMimeInfoByType(SdpCodec::SdpCodecTypes codec
 {
    for (int i = 0; i < SIZEOF_MIME_INFO_MAP; i++)
    {
-      if (sgMimeInfoMap[i].mPredefinedSDPnum == codecType)
+      if (sgMimeInfoMap[i].codecType == codecType)
       {
          mimeSubtype = sgMimeInfoMap[i].mimeSubtype;
          fmtp = sgMimeInfoMap[i].fmtp;
@@ -867,7 +761,7 @@ OsStatus SdpDefaultCodecFactory::getCodecType(const UtlString &mimeSubtype,
       if (  mimeSubtype.compareTo(sgMimeInfoMap[i].mimeSubtype, UtlString::ignoreCase) == 0
          && fmtp.compareTo(sgMimeInfoMap[i].fmtp, UtlString::ignoreCase) == 0)
       {
-         codecType = sgMimeInfoMap[i].mPredefinedSDPnum;
+         codecType = sgMimeInfoMap[i].codecType;
          return OS_SUCCESS;
       }
    }
