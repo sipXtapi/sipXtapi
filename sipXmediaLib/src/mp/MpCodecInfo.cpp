@@ -48,29 +48,6 @@ MpCodecInfo::~MpCodecInfo()
 
 /* ============================ MANIPULATORS ============================== */
 
-MpCodecInfo& MpCodecInfo::operator=(const MpCodecInfo& rMpCodecInfo)
-{
-   if (&rMpCodecInfo == this)
-   {
-      return *this;
-   }
-
-   mCodecVersion=rMpCodecInfo.mCodecVersion;
-   mSamplingRate=rMpCodecInfo.mSamplingRate;
-   mNumBitsPerSample=rMpCodecInfo.mNumBitsPerSample;
-   mNumSamplesPerFrame=rMpCodecInfo.mNumSamplesPerFrame;
-   mNumChannels=rMpCodecInfo.mNumChannels;
-   mInterleaveBlockSize=rMpCodecInfo.mInterleaveBlockSize;
-   mBitRate=rMpCodecInfo.mBitRate;
-   mMinPacketBits=rMpCodecInfo.mMinPacketBits;
-   mAvgPacketBits=rMpCodecInfo.mAvgPacketBits;
-   mMaxPacketBits=rMpCodecInfo.mMaxPacketBits;
-   mPreCodecJitterBufferSize=rMpCodecInfo.mPreCodecJitterBufferSize;
-   mDoesVadCng=rMpCodecInfo.mDoesVadCng;
-
-   return *this;
-}
-
 /* ============================ ACCESSORS ================================= */
 
 UtlString MpCodecInfo::getCodecVersion(void) const

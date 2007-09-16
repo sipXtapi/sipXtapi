@@ -74,9 +74,6 @@ public:
 ///@name Manipulators
 //@{
 
-     /// Assignment operator
-   MpCodecInfo& operator=(const MpCodecInfo& rhs);
-
 //@}
 
 /* ============================ ACCESSORS ================================= */
