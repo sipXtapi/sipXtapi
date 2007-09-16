@@ -21,7 +21,6 @@
 #include "os/OsServerSocket.h"
 #include "os/OsFS.h"
 #include "os/OsSysLog.h"
-#include "utl/UtlInit.h"
 #include "utl/UtlString.h"
 
 // EXTERNAL FUNCTIONS
