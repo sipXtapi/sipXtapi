@@ -15,6 +15,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXmediaLib", "..\sipXmedi
 		{A9C94D26-C90D-4860-8195-56929E893757} = {A9C94D26-C90D-4860-8195-56929E893757}
 		{8AE1AB5C-9815-42D8-9A09-0B4F1E64B4BB} = {8AE1AB5C-9815-42D8-9A09-0B4F1E64B4BB}
 		{50E09C77-6077-4149-8B80-996217363A2F} = {50E09C77-6077-4149-8B80-996217363A2F}
+		{8BAB1FBB-9EAD-4EF2-8B72-4B4D0397ADEA} = {8BAB1FBB-9EAD-4EF2-8B72-4B4D0397ADEA}
 		{6442C7DE-E500-4BA2-B821-98092F1EDCAF} = {6442C7DE-E500-4BA2-B821-98092F1EDCAF}
 	EndProjectSection
 EndProject
@@ -140,6 +141,15 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "plggsm", "..\sipXmediaLib\s
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "plgtones", "..\sipXmediaLib\src\mp\codecs\plgtones\plgtones.vcproj", "{50E09C77-6077-4149-8B80-996217363A2F}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "plgamr", "..\sipXmediaLib\src\mp\codecs\plgamr\plgamr.vcproj", "{8BAB1FBB-9EAD-4EF2-8B72-4B4D0397ADEA}"
+	ProjectSection(ProjectDependencies) = postProject
+		{A68385EC-6D5E-4F09-9F69-F3338DED55F3} = {A68385EC-6D5E-4F09-9F69-F3338DED55F3}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libamrnb", "..\sipXmediaLib\contrib\libamrnb\libamrnb.vcproj", "{A68385EC-6D5E-4F09-9F69-F3338DED55F3}"
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
@@ -427,6 +437,30 @@ Global
 		{50E09C77-6077-4149-8B80-996217363A2F}.SSL-Debug.Build.0 = Debug|Win32
 		{50E09C77-6077-4149-8B80-996217363A2F}.SSL-Release.ActiveCfg = Release|Win32
 		{50E09C77-6077-4149-8B80-996217363A2F}.SSL-Release.Build.0 = Release|Win32
+		{8BAB1FBB-9EAD-4EF2-8B72-4B4D0397ADEA}.Debug.ActiveCfg = Debug|Win32
+		{8BAB1FBB-9EAD-4EF2-8B72-4B4D0397ADEA}.Debug.Build.0 = Debug|Win32
+		{8BAB1FBB-9EAD-4EF2-8B72-4B4D0397ADEA}.Debug_NoVideo.ActiveCfg = Debug|Win32
+		{8BAB1FBB-9EAD-4EF2-8B72-4B4D0397ADEA}.Debug_NoVideo.Build.0 = Debug|Win32
+		{8BAB1FBB-9EAD-4EF2-8B72-4B4D0397ADEA}.Release.ActiveCfg = Release|Win32
+		{8BAB1FBB-9EAD-4EF2-8B72-4B4D0397ADEA}.Release.Build.0 = Release|Win32
+		{8BAB1FBB-9EAD-4EF2-8B72-4B4D0397ADEA}.Release_NoVideo.ActiveCfg = Release|Win32
+		{8BAB1FBB-9EAD-4EF2-8B72-4B4D0397ADEA}.Release_NoVideo.Build.0 = Release|Win32
+		{8BAB1FBB-9EAD-4EF2-8B72-4B4D0397ADEA}.SSL-Debug.ActiveCfg = Debug|Win32
+		{8BAB1FBB-9EAD-4EF2-8B72-4B4D0397ADEA}.SSL-Debug.Build.0 = Debug|Win32
+		{8BAB1FBB-9EAD-4EF2-8B72-4B4D0397ADEA}.SSL-Release.ActiveCfg = Release|Win32
+		{8BAB1FBB-9EAD-4EF2-8B72-4B4D0397ADEA}.SSL-Release.Build.0 = Release|Win32
+		{A68385EC-6D5E-4F09-9F69-F3338DED55F3}.Debug.ActiveCfg = Debug|Win32
+		{A68385EC-6D5E-4F09-9F69-F3338DED55F3}.Debug.Build.0 = Debug|Win32
+		{A68385EC-6D5E-4F09-9F69-F3338DED55F3}.Debug_NoVideo.ActiveCfg = Debug|Win32
+		{A68385EC-6D5E-4F09-9F69-F3338DED55F3}.Debug_NoVideo.Build.0 = Debug|Win32
+		{A68385EC-6D5E-4F09-9F69-F3338DED55F3}.Release.ActiveCfg = Release|Win32
+		{A68385EC-6D5E-4F09-9F69-F3338DED55F3}.Release.Build.0 = Release|Win32
+		{A68385EC-6D5E-4F09-9F69-F3338DED55F3}.Release_NoVideo.ActiveCfg = Release|Win32
+		{A68385EC-6D5E-4F09-9F69-F3338DED55F3}.Release_NoVideo.Build.0 = Release|Win32
+		{A68385EC-6D5E-4F09-9F69-F3338DED55F3}.SSL-Debug.ActiveCfg = Debug|Win32
+		{A68385EC-6D5E-4F09-9F69-F3338DED55F3}.SSL-Debug.Build.0 = Debug|Win32
+		{A68385EC-6D5E-4F09-9F69-F3338DED55F3}.SSL-Release.ActiveCfg = Release|Win32
+		{A68385EC-6D5E-4F09-9F69-F3338DED55F3}.SSL-Release.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionItems) = postSolution
 	EndGlobalSection
