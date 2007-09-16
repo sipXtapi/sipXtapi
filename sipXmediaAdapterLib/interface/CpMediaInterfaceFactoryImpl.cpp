@@ -270,6 +270,8 @@ OsStatus CpMediaInterfaceFactoryImpl::ensureCapacityCodecPaths(size_t newSize)
       // then it's safe to keep doubling our current allocation size until it 
       // is bigger than the requested new size, so this doesn't keep getting 
       // re-allocated.
+      // (it's safe at least from the perspective of the maximum size that 
+      //  size_t can hold)
       while (newArraySz <= newSize)
       {
          newArraySz *= 2;
@@ -284,6 +286,8 @@ OsStatus CpMediaInterfaceFactoryImpl::ensureCapacityCodecPaths(size_t newSize)
    }
 
    // Allocate the new codec path array.
+   // If we run out of memory on windows, the app actually crashes unfortunately,
+   // and the NULL return actually never happens.
    UtlString* newArray = new UtlString[newArraySz];
 
    // If allocation failed, return OS_NO_MEMORY
