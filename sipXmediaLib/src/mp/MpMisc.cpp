@@ -437,6 +437,14 @@ extern STATUS netStartup();
 #define CODEC_PLUGIN_PATH "."
 #endif
 
+#ifdef __pingtel_on_posix__ // [
+#  define PLUGIN_FILTER "libcodec_.*\\.so"
+#elif defined(WIN32) // __pingtel_on_posix__ ] [
+#  define PLUGIN_FILTER "codec_.*\\.dll"
+#elif // WIN32 ] [
+#  error Unknown plugin filter! Please set to your platform
+#endif // ]
+
 
 OsStatus mpStartUp(int sampleRate, int samplesPerFrame,
                    int numAudioBuffers, OsConfigDb* pConfigDb,
@@ -463,12 +471,12 @@ OsStatus mpStartUp(int sampleRate, int samplesPerFrame,
            size_t i;
            for(i = 0; i < numCodecPaths; i++)
            {
-              pcf->loadAllDynCodecs(codecPaths[i].data(), "codec_.*\\.dll");
+              pcf->loadAllDynCodecs(codecPaths[i].data(), PLUGIN_FILTER);
            }
         }
         else
         {
-           pcf->loadAllDynCodecs(CODEC_PLUGIN_PATH, "codec_.*\\.dll" );
+           pcf->loadAllDynCodecs(CODEC_PLUGIN_PATH, PLUGIN_FILTER);
         }
 
 #ifdef _VXWORKS /* [ */
