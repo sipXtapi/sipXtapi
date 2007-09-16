@@ -849,7 +849,10 @@ AC_DEFUN([AM_PATH_GSM],
     withval=
     # Process the --with-gsm argument which gives the libgsm base directory.
     AC_ARG_WITH(gsm,
-                [  --with-gsm=PATH         path to libgsm install directory],
+                [AS_HELP_STRING([--with-gsm=PATH],
+                                [path to libgsm install directory])],
+                [],
+                [with_gsm=]
                 )
     homeval=$withval
     # Have to unset withval so we can tell if --with-gsm-includedir was
@@ -860,7 +863,8 @@ AC_DEFUN([AM_PATH_GSM],
     # Process the --with-gsm-includedir argument which gives the libgsm include
     # directory.
     AC_ARG_WITH(gsm-includedir,
-                [  --with-gsm-includedir=PATH path to libgsm include directory (containing gsm.h)],
+                [AS_HELP_STRING([--with-gsm-includedir=PATH],
+                                [path to libgsm include directory (containing gsm.h)])],
                 )
     # If withval is set, use that.  If not and homeval is set, use
     # $homeval/include.  If neither, use null.
@@ -870,7 +874,8 @@ AC_DEFUN([AM_PATH_GSM],
     # Process the --with-gsm-libdir argument which gives the libgsm library
     # directory.
     AC_ARG_WITH(gsm-libdir,
-                [  --with-gsm-libdir=PATH  path to libgsm lib directory (containing libgsm.{so,a})],
+                [AS_HELP_STRING([--with-gsm-libdir=PATH],
+                                [path to libgsm lib directory (containing libgsm.{so,a})])],
                 )
     libval=${withval:-${homeval:+$homeval/lib}}
 
@@ -924,26 +929,33 @@ AC_DEFUN([AM_PATH_GSM],
             GSM_CXXFLAGS="-I$includeval"
             GSM_LIBS="-lgsm"
             GSM_LDFLAGS="-L$libval"
+
+            GSM_TARGET="plggsm"
+
+            PLUGINS+="GSM "
         fi
     fi
-
+    AC_SUBST(GSM_TARGET)
     AC_SUBST(GSM_CFLAGS)
     AC_SUBST(GSM_CXXFLAGS)
     AC_SUBST(GSM_LIBS)
     AC_SUBST(GSM_LDFLAGS)
 ])dnl
 
-AC_DEFUN(CHECK_GSM,
+AC_DEFUN([CHECK_GSM],
 [
     AC_MSG_CHECKING([for libgsm >= 1.0.10])
 
     AC_ARG_ENABLE(codec-gsm,
-    [  --enable-codec-gsm      Enable support for GSM codec],
+    [AS_HELP_STRING([--enable-codec-gsm],
+                    [Enable support for GSM codec @<:@default=auto@:>@])],
     [ case "${enableval}" in
-      yes) AM_PATH_GSM ;;
-      no) AC_MSG_RESULT(disabled) ;;
-      *) AC_MSG_ERROR(bad value ${enableval} for --enable-codec-gsm) ;;
-    esac],[AM_PATH_GSM])
+         auto) AM_PATH_GSM ;;
+         yes) AM_PATH_GSM ;;
+         no) AC_MSG_RESULT(disabled) ;;
+         *) AC_MSG_ERROR(bad value ${enableval} for --enable-codec-gsm) ;;
+      esac],
+    [AM_PATH_GSM])
 ])dnl
 
 
@@ -956,23 +968,121 @@ AC_DEFUN([AM_PATH_SPEEX],
 		      AC_MSG_RESULT(failed))
     # SPEEX_CFLAGS and SPEEX_LIBS variables should are set in previous
     # PKG_CHECK_MODULES() call.
+    PLUGINS+="SPEEX "
+    SPEEX_TARGET="plgspeex"
+    AC_SUBST(SPEEX_TARGET)    
     AC_SUBST(SPEEX_CFLAGS)
     AC_SUBST(SPEEX_LIBS)
 ])dnl
 
-AC_DEFUN(CHECK_SPEEX,
+AC_DEFUN([CHECK_SPEEX],
 [
-    AC_MSG_CHECKING([for libspeex >= 1.2.0])
+    AC_MSG_CHECKING([for libspeex >= 1.1.0])
 
-    AC_ARG_ENABLE(codec-speex,
-    [  --enable-codec-speex    Enable support for SPEEX codec],
-    [ case "${enableval}" in
-      yes) AM_PATH_SPEEX ;;
-      no) AC_MSG_RESULT(disabled) ;;
-      *) AC_MSG_ERROR(bad value ${enableval} for --enable-codec-speex) ;;
-    esac],[AM_PATH_SPEEX])
+    AC_ARG_ENABLE([codec-speex],
+       [AS_HELP_STRING([--enable-codec-speex],
+          [Enable support for SPEEX codec @<:@default=auto@:>@])],
+       [ case "${enableval}" in
+            auto) AM_PATH_SPEEX ;;
+            yes) AM_PATH_SPEEX ;;
+            no) AC_MSG_RESULT(disabled) ;;
+            *) AC_MSG_ERROR(bad value ${enableval} for --enable-codec-speex) ;;
+         esac],
+       [AM_PATH_SPEEX])
 ])dnl
 
+# ========== P C M A  P C M U =================
+AC_DEFUN([AM_SET_PCMA_PCMU],
+[
+    PLUGINS+="PCMA_PCMU "
+    PCMAPCMU_TARGET="plgpcmapcmu"
+    AC_SUBST(PCMAPCMU_TARGET)
+])dnl
+AC_DEFUN([CHECK_PCMA_PCMU],
+[
+    AC_ARG_ENABLE([codec-pcmapcmu],
+                  [AS_HELP_STRING([--enable-codec-pcmapcmu],
+                                  [Enable support for PCMA and PCMU codecs @<:@default=yes@:>@])],
+                  [ case "${enableval}" in
+                       auto) AM_SET_PCMA_PCMU ;;
+                       yes) AM_SET_PCMA_PCMU ;;
+                       no) AC_MSG_RESULT(Codecs PCMA & PCMU was disabled) ;;
+                       *) AC_MSG_ERROR(bad value ${enableval} for --enable-codec-pcmapcmu) ;;
+                    esac],
+                  [AM_SET_PCMA_PCMU])
+])dnl
+
+# ==============  T O N E S  ==================
+AC_DEFUN([AM_SET_TONES],
+[
+    PLUGINS+="TONES "
+    TONES_TARGET="plgtones"
+    AC_SUBST(TONES_TARGET)
+])dnl
+AC_DEFUN([CHECK_TONES],
+[
+    AC_ARG_ENABLE([codec-tones],
+                  [AS_HELP_STRING([--enable-codec-tones],
+                                  [Enable support for Tones codec @<:@default=yes@:>@])],
+                  [ case "${enableval}" in
+                       auto) AM_SET_TONES ;;
+                       yes) AM_SET_TONES ;;
+                       no) AC_MSG_RESULT(Codec Tones was disabled) ;;
+                       *) AC_MSG_ERROR(bad value ${enableval} for --enable-codec-tones) ;;
+                    esac],
+                  [AM_SET_TONES])
+])dnl
+
+# =============== I L B C =====================
+
+AC_DEFUN([AM_SET_ILBC],
+[
+# Currently only iLBC in contrib supported
+    PLUGINS+="iLBC "
+
+    ILBC_INCLUDE="-I${PWD}/contrib/libilbc/include"
+    ILBC_LIB_ROOT="${PWD}/contrib/libilbc/"
+    ILBC_LIB_TARGET="lib/libilbc.a"
+    ILBC_TARGET="plgilbc"
+    AC_SUBST(ILBC_INCLUDE)
+    AC_SUBST(ILBC_LIB_ROOT)    
+    AC_SUBST(ILBC_LIB_TARGET)    
+    AC_SUBST(ILBC_TARGET)    
+    
+])dnl
+AC_DEFUN([CHECK_ILBC],
+[
+    AC_ARG_ENABLE([codec-ilbc],
+                  [AS_HELP_STRING([--enable-codec-ilbc],
+                                  [Enable support for ilbc codec @<:@default=yes@:>@])],
+                  [ case "${enableval}" in
+                       auto) AM_SET_ILBC ;;
+                       yes) AM_SET_ILBC ;;
+                       no) AC_MSG_RESULT(Codec iLBC was disabled) ;;
+                       *) AC_MSG_ERROR(bad value ${enableval} for --enable-codec-ilbc) ;;
+                    esac],
+                  [AM_SET_ILBC])
+])dnl
+
+
+# == D E C L A R E _ C O D E C S _ S T A F F ==
+AC_DEFUN([DECLARE_CODECS_STAFF],
+[
+    AC_MSG_CHECKING([Configured codecs: ])
+
+    DEFAULT_CODECS_PATH="${PWD}/bin"
+    AC_ARG_WITH([codecs-bin-path],
+                [AS_HELP_STRING([--with-codecs-bin-path=PATH],
+                                [Set installation binary codec path. Default is ${PWD}/bin])],
+                [DEFAULT_CODECS_PATH=${withval}],
+                [])
+
+    AC_MSG_RESULT( ${PLUGINS} )    
+    AC_SUBST(DEFAULT_CODECS_PATH)
+    
+    CFLAGS+=" -DDEFAULT_CODECS_PATH=\"\\\"${DEFAULT_CODECS_PATH}\\\"\" "
+    CXXFLAGS+=" -DDEFAULT_CODECS_PATH=\"\\\"${DEFAULT_CODECS_PATH}\\\"\" "    
+])dnl
 
 # ============ D O X Y G E N ==================
 # Originaly from CppUnit BB_ENABLE_DOXYGEN
