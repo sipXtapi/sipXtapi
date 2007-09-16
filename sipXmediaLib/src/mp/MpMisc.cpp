@@ -434,7 +434,11 @@ extern void doFrameLoop(int sampleRate, int frame_samples);
 extern STATUS netStartup();
 
 #ifndef CODEC_PLUGIN_PATH
-#define CODEC_PLUGIN_PATH "."
+#  ifndef DEFAULT_CODECS_PATH
+#     define CODEC_PLUGIN_PATH  "."
+#  else
+#     define CODEC_PLUGIN_PATH  DEFAULT_CODECS_PATH
+#  endif
 #endif
 
 #ifdef __pingtel_on_posix__ // [
