@@ -268,8 +268,8 @@ void MprEncode::handleSelectCodecs(int newCodecsCount, SdpCodec** newCodecs)
 
    if (NULL != pDtmf) 
    {
-      pPrimary->getEncodingName(mime);
-      pPrimary->getSdpFmtpField(fmtp);
+      pDtmf->getEncodingName(mime);
+      pDtmf->getSdpFmtpField(fmtp);
       payload = pDtmf->getCodecPayloadFormat();
       ret = pFactory->createEncoder(mime, fmtp, payload, pNewEncoder);
       assert(OS_SUCCESS == ret);
