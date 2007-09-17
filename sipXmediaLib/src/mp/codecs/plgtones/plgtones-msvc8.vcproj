@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8,00"
-	Name="plgtones"
+	Name="plgtones-msvc8"
 	ProjectGUID="{F3BCA14E-F24D-4570-833E-8C20C4C393F7}"
 	RootNamespace="plgtones"
 	Keyword="Win32Proj"

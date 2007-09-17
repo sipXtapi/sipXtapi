@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8,00"
-	Name="plgamr"
+	Name="plgamr-msvc8"
 	ProjectGUID="{8BAB1FBB-9EAD-4EF2-8B72-4B4D0397ADEA}"
 	RootNamespace="plgamr"
 	Keyword="Win32Proj"
