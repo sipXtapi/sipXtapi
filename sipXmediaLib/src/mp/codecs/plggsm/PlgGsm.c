@@ -8,15 +8,17 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
-// Author: 
+// Author: Sergey Kostanbaev <Sergey DOT Kostanbaev AT sipez DOT com>
 
-// APPLICATION INCLUDES
-#include <mp/codecs/PlgDefsV1.h>
-
+// SYSTEM INCLUDES
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
 #include <ctype.h>
+
+// APPLICATION INCLUDES
+// CODEC LIBRARY INCLUDES
+#include <mp/codecs/PlgDefsV1.h>
 
 // WIN32: Add libgsm to linker input.
 #ifdef WIN32 // [
@@ -30,8 +32,16 @@
 // APPLICATION INCLUDES
 #include <gsm.h>
 
-static const char codecMIMEsubtype[] = "gsm";
+// LOCAL DATA TYPES
+struct libgsm_codec_data
+{
+   audio_sample_t mpBuffer[160];    ///< Buffer used to store input samples
+   int mBufferLoad;                 ///< How much data there is in the buffer
+   gsm mpGsmState;
+};
 
+// STATIC VARIABLES INITIALIZATON
+static const char codecMIMEsubtype[] = "gsm";
 static const struct plgCodecInfoV1 codecGSM = 
 {
    sizeof(struct plgCodecInfoV1),   //cbSize
@@ -48,12 +58,6 @@ static const struct plgCodecInfoV1 codecGSM =
    33*8,                            //maxPacketBits
    160,                             //numSamplesPerFrame
    6                                //preCodecJitterBufferSize
-};
-
-struct libgsm_codec_data {
-   audio_sample_t mpBuffer[160];    ///< Buffer used to store input samples
-   int mBufferLoad;                 ///< How much data there is in the buffer
-   gsm mpGsmState;
 };
 
 CODEC_API int PLG_ENUM_V1(libgsm)(const char** mimeSubtype, unsigned int* pModesCount, const char*** modes)
