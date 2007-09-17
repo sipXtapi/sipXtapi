@@ -103,7 +103,7 @@ CODEC_API int PLG_FREE_V1(libgsm)(void* handle, int isDecoder)
       gsm_destroy(mpGsm->mpGsmState);
       free(handle);
    }
-   return 0;
+   return RPLG_SUCCESS;
 }
 
 CODEC_API int PLG_DECODE_V1(libgsm)(void* handle, const void* pCodedData, unsigned cbCodedPacketSize, void* pAudioBuffer, unsigned cbBufferSize, unsigned *pcbDecodedSize, const struct RtpHeader* pRtpHeader)
