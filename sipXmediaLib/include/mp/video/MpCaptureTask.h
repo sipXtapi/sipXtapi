@@ -26,7 +26,7 @@
 // TYPEDEFS
 // FORWARD DECLARATIONS
 class MprToNet;
-class MpeH264;
+class MpVideoEncoder;
 class MpRemoteVideoTask;
 class MpVideoStreamParams;
 
@@ -72,9 +72,9 @@ public:
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 
-   OsMsgQ   *mpMsgQueue;  ///< Queue of messages carrying captured data.
-   MprToNet *mpRtpWriter; ///< Sink for generated RTP frames.
-   MpeH264  *mpEncoder;   ///< Encoder for captured frames.
+   OsMsgQ            *mpMsgQueue;  ///< Queue of messages carrying captured data.
+   MprToNet          *mpRtpWriter; ///< Sink for generated RTP frames.
+   MpVideoEncoder    *mpEncoder;   ///< Encoder for captured frames.
 
    MpRemoteVideoTask *mpTimer; ///< Hack to generate timer ticks for remote video renderer.
 

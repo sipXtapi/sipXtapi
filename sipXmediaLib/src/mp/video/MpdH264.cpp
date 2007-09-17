@@ -37,7 +37,7 @@ extern "C" {
 /* ============================ CREATORS ================================== */
 
 MpdH264::MpdH264(int payloadType, MpBufPool *pVideoBufPool)
-: mpVideoBufPool(pVideoBufPool)
+: MpVideoDecoder(payloadType, pVideoBufPool)
 , mpCodec(NULL)
 , mpCodecContext(NULL)
 , mpPicture(NULL)
@@ -176,7 +176,7 @@ MpVideoBufPtr MpdH264::decode(const MpRtpBufPtr &pPacket, bool &packetConsumed, 
    assert(mpPicture != NULL);
 
    // Initialize internal variables
-   packetStatus=PACKET_COLLECT;
+   packetStatus = PACKET_COLLECT;
    startBit = 0;
    endBit = 0;
    packetFBit = 0;
@@ -318,8 +318,11 @@ MpVideoBufPtr MpdH264::decode(const MpRtpBufPtr &pPacket, bool &packetConsumed, 
 
    if (gotPicture)
    {
+      MpBufPool* pool = getVideoBufferPool();
+      assert(NULL != pool);
+
       // Get buffer for captured data
-      pFrame = mpVideoBufPool->getBuffer();
+      pFrame = pool->getBuffer();
       assert(pFrame.isValid());
 
       // Set frame params

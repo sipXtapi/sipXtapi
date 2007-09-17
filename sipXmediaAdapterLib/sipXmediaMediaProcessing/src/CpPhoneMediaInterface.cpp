@@ -326,6 +326,7 @@ CpPhoneMediaInterface::CpPhoneMediaInterface(CpMediaInterfaceFactoryImpl* pFacto
 #endif // HAVE_GSM ]
 #ifdef SIPX_VIDEO // [
                           "H264-CIF H264-QCIF H264-SQCIF H264-QVGA "
+                          "H263-CIF H263-QCIF H263-SQCIF"
 #endif // SIPX_VIDEO ]
                           "PCMU PCMA TELEPHONE-EVENT";
        OsSysLog::add(FAC_CP, PRI_WARNING, "CpPhoneMediaInterface::CpPhoneMediaInterface hard-coded codec factory %s ...",

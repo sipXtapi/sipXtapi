@@ -41,8 +41,12 @@
 #pragma comment(lib, "winmm.lib")
 
 #ifndef VIDEO_SUPPORT_DISABLE_AVCODEC
-# pragma comment(lib, "avcodec-51.lib")
-# pragma comment(lib, "avutil-49.lib")
+# ifdef VIDEO_SUPPORT_ANCIENT_AVCODEC
+#  pragma comment(lib, "libavcodec.lib")
+# else
+#  pragma comment(lib, "avcodec-51.lib")
+#  pragma comment(lib, "avutil-49.lib")
+#endif
 #endif // VIDEO_SUPPORT_DISABLE_AVCODEC
 
 #endif // VIDEO_SUPPORT_DISABLE_DEPENDENCY_AUTOLINK

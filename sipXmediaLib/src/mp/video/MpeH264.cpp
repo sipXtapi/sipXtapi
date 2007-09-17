@@ -42,8 +42,7 @@ extern "C" {
 /* ============================ CREATORS ================================== */
 
 MpeH264::MpeH264(int payloadType, MprToNet* pRtpWriter)
-: mPayloadType(payloadType)
-, mpRtpWriter(pRtpWriter)
+: MpVideoEncoder(payloadType, pRtpWriter)
 , mpCodec(NULL)
 , mpCodecContext(NULL)
 , mpPicture(NULL)
@@ -110,7 +109,7 @@ OsStatus MpeH264::initEncode(const MpVideoStreamParams* params)
 
    // put sample parameters
    mpCodecContext->bit_rate = mStreamParams.getStreamBitrate();
-   AVRational ar = av_d2q(mStreamParams.getFrameRate(), H264_TIMESTAMP_FREQ);
+   AVRational ar = av_d2q(1. / mStreamParams.getFrameRate(), H264_TIMESTAMP_FREQ);
 
    // frames per second
    mpCodecContext->time_base.num = ar.num;
@@ -235,6 +234,9 @@ OsStatus MpeH264::encode(const MpVideoBufPtr &pFrame)
       * mpCodecContext->time_base.num 
       * (H264_TIMESTAMP_FREQ / mpCodecContext->time_base.den);
 
+   MprToNet* sink = getRtpSink();
+   assert(NULL != sink);
+
    if (encodedDataSize <= RTP_MTU)
    {
       // Single NAL unit mode
@@ -246,7 +248,7 @@ OsStatus MpeH264::encode(const MpVideoBufPtr &pFrame)
 //      memcpy(packetData, pEncodedData, payloadSize);
 
       // Copy encoded data to buffer payload. Other fields will be filled later.
-      mpRtpWriter->writeRtp(mPayloadType, TRUE, pEncodedData, payloadSize, timestamp, NULL);
+      sink->writeRtp(getPayloadType(), TRUE, pEncodedData, payloadSize, timestamp, NULL);
    }
    else
    {
@@ -274,7 +276,7 @@ OsStatus MpeH264::encode(const MpVideoBufPtr &pFrame)
          encodedDataSize -= payloadSize;
 
          // Copy encoded data to buffer payload. Other fields will be filled later.
-         mpRtpWriter->writeRtp(mPayloadType, endBit, packetData, payloadSize+H264_FU_A_HEADER_SIZE, timestamp, NULL);
+         sink->writeRtp(getPayloadType(), endBit, packetData, payloadSize+H264_FU_A_HEADER_SIZE, timestamp, NULL);
       }
 
    }

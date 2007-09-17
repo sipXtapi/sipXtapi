@@ -18,12 +18,14 @@
 #include "mp/MpVideoBuf.h"
 #include "mp/video/MpvoGdi.h"
 #include "mp/video/MpeH264.h"
+#include "mp/video/MpeH263.h"
 #include "mp/video/MpVideoCallFlowGraph.h"  ///< For MpVideoCallFlowGraph::smpPreviewWindow
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
 #define CODEC_TYPE_H264 114
+#define CODEC_TYPE_H263 34
 
 // STATIC VARIABLE INITIALIZATIONS
 
@@ -35,7 +37,8 @@ MpCaptureTask::MpCaptureTask(OsMsgQ *pMsgQ, MprToNet *pRtpWriter, MpRemoteVideoT
 : OsTask("MpCaptureTask", NULL)
 , mpMsgQueue(pMsgQ)
 , mpRtpWriter(pRtpWriter)
-, mpEncoder(new MpeH264(CODEC_TYPE_H264, pRtpWriter))
+, mpEncoder(new MpeH263(CODEC_TYPE_H263, pRtpWriter))
+//, mpEncoder(new MpeH264(CODEC_TYPE_H264, pRtpWriter))
 , mpTimer(pTimer)
 {
    assert(mpMsgQueue != NULL);

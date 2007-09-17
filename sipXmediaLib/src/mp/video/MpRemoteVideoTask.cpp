@@ -15,6 +15,7 @@
 #include "mp/video/MpRemoteVideoTask.h"
 #include "mp/MprDejitter.h"
 #include "mp/video/MpdH264.h"
+#include "mp/video/MpdH263.h"
 #include "mp/MpMisc.h"
 #include "mp/video/MpvoGdi.h"
 
@@ -29,6 +30,7 @@ extern void *ghVideo;
 
 // CONSTANTS
 #define CODEC_TYPE_H264 114
+#define CODEC_TYPE_H263 34
 
 // STATIC VARIABLE INITIALIZATIONS
 
@@ -38,7 +40,8 @@ extern void *ghVideo;
 
 MpRemoteVideoTask::MpRemoteVideoTask(MprDejitter* pDejitter, void *hwnd)
 : mpDejitter(pDejitter)
-, mpDecoder(new MpdH264(CODEC_TYPE_H264, MpMisc.VideoFramesPool))
+//, mpDecoder(new MpdH264(CODEC_TYPE_H264, MpMisc.VideoFramesPool))
+, mpDecoder(new MpdH263(CODEC_TYPE_H263, MpMisc.VideoFramesPool))
 , mpVideoOut(NULL)
 , mTimestamp(0)
 , mStreamInitialized(false)
@@ -46,7 +49,11 @@ MpRemoteVideoTask::MpRemoteVideoTask(MprDejitter* pDejitter, void *hwnd)
 {
    if (mpDecoder != NULL)
    {
-      mpDecoder->initDecode();
+      if (OS_SUCCESS != mpDecoder->initDecode())
+      {
+         delete mpDecoder;
+         mpDecoder = NULL;
+      }
    }
 
    mpVideoOut = new MpvoGdi(NULL);
@@ -78,6 +85,9 @@ void MpRemoteVideoTask::setRemoteVideoWindow(const void *hwnd)
 
 OsStatus MpRemoteVideoTask::startProcessing()
 {
+   if (NULL == mpDecoder)
+      return OS_FAILED;
+
    // Create frame tick timer
    mpTimer = new OsTimer(getMessageQueue(), 0);
    if (mpTimer == NULL)
@@ -87,7 +97,7 @@ OsStatus MpRemoteVideoTask::startProcessing()
    if (!start())
       return OS_SUCCESS;
 
-   if (mpTimer->periodicEvery(OsTime(0), OsTime(100)) != OS_SUCCESS)
+   if (mpTimer->periodicEvery(OsTime(0), OsTime(20)) != OS_SUCCESS)
    {
       printf("MpRemoteVideoTask::startProcessing(): timer start failed!\n");
       fflush(stdout);
@@ -184,7 +194,8 @@ OsStatus MpRemoteVideoTask::handleFrameTick()
       // If there was no cached packet, pull one from Dejitter.
       if (!mpRtpPacket.isValid())
       {
-         mpRtpPacket = mpDejitter->pullPacket(CODEC_TYPE_H264);
+         //mpRtpPacket = mpDejitter->pullPacket(CODEC_TYPE_H264);
+         mpRtpPacket = mpDejitter->pullPacket(CODEC_TYPE_H263);
       }
 
       // We may get no packets from Dejitter. Handle this.
@@ -223,7 +234,8 @@ OsStatus MpRemoteVideoTask::handleFrameTick()
             // was consumed () by decoder.
             if (packetConsumed)
             {
-               mpRtpPacket = mpDejitter->pullPacket(CODEC_TYPE_H264, mTimestamp);
+               //mpRtpPacket = mpDejitter->pullPacket(CODEC_TYPE_H264, mTimestamp);
+               mpRtpPacket = mpDejitter->pullPacket(CODEC_TYPE_H263, mTimestamp);
             }
 
             // End pulling packets from Dejitter if we got frame from Decoder.

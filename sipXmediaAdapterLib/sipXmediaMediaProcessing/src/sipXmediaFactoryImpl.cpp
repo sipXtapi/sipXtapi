@@ -83,7 +83,16 @@
 #define H264_VIDEO_CODECS_NUM 0
 #endif /* SIPX_VIDEO ] */
 
-#define TOTAL_VIDEO_CODECS_NUM (H264_VIDEO_CODECS_BEGIN + H264_VIDEO_CODECS_NUM - TOTAL_AUDIO_CODECS_NUM)
+#define H263_VIDEO_CODECS_BEGIN (TOTAL_AUDIO_CODECS_NUM + H264_VIDEO_CODECS_NUM)
+
+#ifdef SIPX_VIDEO /* [ */
+#define H263_VIDEO_CODECS_NUM 3
+#else /* SIPX_VIDEO ] [ */
+#define H263_VIDEO_CODECS_NUM 0
+#endif /* SIPX_VIDEO ] */
+
+
+#define TOTAL_VIDEO_CODECS_NUM (H264_VIDEO_CODECS_BEGIN + H264_VIDEO_CODECS_NUM + H263_VIDEO_CODECS_NUM - TOTAL_AUDIO_CODECS_NUM)
 
 // STATIC VARIABLE INITIALIZATIONS
 int sipXmediaFactoryImpl::miInstanceCount=0;
@@ -411,6 +420,10 @@ OsStatus sipXmediaFactoryImpl::buildCodecFactory(SdpCodecFactory *pFactory,
     codecs[H264_VIDEO_CODECS_BEGIN+1] = SdpCodec::SDP_CODEC_H264_QCIF;
     codecs[H264_VIDEO_CODECS_BEGIN+2] = SdpCodec::SDP_CODEC_H264_CIF;
     codecs[H264_VIDEO_CODECS_BEGIN+3] = SdpCodec::SDP_CODEC_H264_QVGA;
+
+    codecs[H263_VIDEO_CODECS_BEGIN+0] = SdpCodec::SDP_CODEC_H263_SQCIF;
+    codecs[H263_VIDEO_CODECS_BEGIN+1] = SdpCodec::SDP_CODEC_H263_QCIF;
+    codecs[H263_VIDEO_CODECS_BEGIN+2] = SdpCodec::SDP_CODEC_H263_CIF;
 #endif // SIPX_VIDEO ]
 
     if (pFactory)
@@ -621,6 +634,13 @@ OsStatus sipXmediaFactoryImpl::getCodec(int iCodec, UtlString& codec, int &bandW
         break;
     case H264_VIDEO_CODECS_BEGIN+3: codec = (const char*) SdpCodec::SDP_CODEC_H264_QVGA;
         break;
+
+    case H263_VIDEO_CODECS_BEGIN+0: codec = (const char*) SdpCodec::SDP_CODEC_H263_SQCIF;
+        break;
+    case H263_VIDEO_CODECS_BEGIN+1: codec = (const char*) SdpCodec::SDP_CODEC_H263_QCIF;
+        break;
+    case H263_VIDEO_CODECS_BEGIN+2: codec = (const char*) SdpCodec::SDP_CODEC_H263_CIF;
+        break;
 #endif /* SIPX_VIDEO ] */
 
     default: rc = OS_FAILED;
@@ -653,7 +673,7 @@ OsStatus sipXmediaFactoryImpl::setVideoQuality(int quality)
 
 OsStatus sipXmediaFactoryImpl::setVideoParameters(int bitRate, int frameRate)
 {
-    mVideoParams.setStreamBitrate(bitRate);
+    mVideoParams.setStreamBitrate(bitRate * 1000);
     mVideoParams.setFrameRate(float(frameRate));
     return OS_SUCCESS;
 }
@@ -672,7 +692,7 @@ OsStatus sipXmediaFactoryImpl::getVideoQuality(int& quality) const
 
 OsStatus sipXmediaFactoryImpl::getVideoBitRate(int& bitRate) const
 {
-    bitRate = mVideoParams.getStreamBitrate();
+    bitRate = mVideoParams.getStreamBitrate() / 1000;
     return OS_SUCCESS;
 }
 
@@ -743,6 +763,16 @@ OsStatus sipXmediaFactoryImpl::getCodecNameByType(SdpCodec::SdpCodecTypes type, 
         break;
     case SdpCodec::SDP_CODEC_H264_QVGA:
         codecName = SIPX_CODEC_ID_H264_QVGA;
+        break;
+    case SdpCodec::SDP_CODEC_H263_CIF:
+        codecName = SIPX_CODEC_ID_H263_CIF;
+        break;
+    case SdpCodec::SDP_CODEC_H263:
+    case SdpCodec::SDP_CODEC_H263_QCIF:
+        codecName = SIPX_CODEC_ID_H263_QCIF;
+        break;
+    case SdpCodec::SDP_CODEC_H263_SQCIF:
+        codecName = SIPX_CODEC_ID_H263_SQCIF;
         break;
     default:
         OsSysLog::add(FAC_MP, PRI_WARNING,

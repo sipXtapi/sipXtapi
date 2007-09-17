@@ -48,7 +48,12 @@ extern "C" {
 #  include <avcodec.h>
 }
 
+#ifdef VIDEO_SUPPORT_ANCIENT_AVCODEC
+#define PIX_FMT_NONE PixelFormat(-1)
+#endif
+
 #endif // VIDEO_SUPPORT_DISABLE_AVCODEC
+
 
 
 

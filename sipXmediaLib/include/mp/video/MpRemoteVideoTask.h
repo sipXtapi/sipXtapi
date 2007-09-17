@@ -27,7 +27,7 @@
 // TYPEDEFS
 // FORWARD DECLARATIONS
 class MprDejitter;
-class MpdH264;
+class MpVideoDecoder;
 class MpvoGdi;
 class OsTimer;
 
@@ -97,17 +97,17 @@ protected:
       SET_REMOTE_VIDEO_WINDOW  ///< Message type for setRemoteVideoWindow().
    } MsgType;
 
-   MprDejitter *mpDejitter; ///< We will get RTP packet from this resource.
-   MpdH264     *mpDecoder;  ///< Encoder for captured frames.
-   MpvoGdi     *mpVideoOut; ///< Video output system.
-   MpRtpBufPtr  mpRtpPacket;///< Storage for not consumed RTP packet between
+   MprDejitter    *mpDejitter; ///< We will get RTP packet from this resource.
+   MpVideoDecoder *mpDecoder;  ///< Encoder for captured frames.
+   MpvoGdi        *mpVideoOut; ///< Video output system.
+   MpRtpBufPtr    mpRtpPacket;///< Storage for not consumed RTP packet between
                             ///< calls to step().
-   UINT         mTimestamp; ///< Timestamp of previous packet.
-   bool         mStreamInitialized; ///< true, if we already initialized
+   UINT           mTimestamp; ///< Timestamp of previous packet.
+   bool           mStreamInitialized; ///< true, if we already initialized
                             ///< mTimestamp. I.e. we have received at least one
                             ///< RTP packet.
 
-   OsTimer     *mpTimer;    ///< Timer for frame ticks.
+   OsTimer        *mpTimer;    ///< Timer for frame ticks.
 
      /// Handles an incoming message
    virtual

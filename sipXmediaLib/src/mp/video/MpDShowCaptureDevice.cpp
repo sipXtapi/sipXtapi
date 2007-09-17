@@ -110,7 +110,7 @@ MpDShowCaptureDevice::MpDShowCaptureDevice(const UtlString& deviceName):
 {
    mpOutputFormat->SetFrameRate(10.f);
    mpOutputFormat->SetSize(VideoFormat::size_CIF);
-   mpOutputFormat->SetSurface(videoSurfaceYV12);
+   mpOutputFormat->SetSurface(videoSurfaceI420);
 
    setOutputColorSpace(MpVideoBuf::MP_COLORSPACE_YUV420p);
 
@@ -157,7 +157,7 @@ OsStatus MpDShowCaptureDevice::initialize()
          return OS_FAILED;
 
       std::string name = mDeviceName.data();
-      if (!mpCapture->Initialize(name, NULL))
+      if (!mpCapture->Initialize(name, NULL, mpCapture->flagPreviewDisabled))
          return OS_FAILED;
 
       mpOutputFormat->SetSurface(videoSurface);

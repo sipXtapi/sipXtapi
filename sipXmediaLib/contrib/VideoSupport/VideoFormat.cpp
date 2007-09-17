@@ -161,17 +161,22 @@ VideoSurface PixelFormatToVideoSurface(const PixelFormat pixelFormat)
 	// returns. However, this is suspicious - it treats YV12 identically.
 	//case PIX_FMT_YUV420P: return videoSurfaceYV12;
 	case PIX_FMT_YUV420P: return videoSurfaceI420;
+
+#ifndef VIDEO_SUPPORT_ANCIENT_AVCODEC
 	case PIX_FMT_YUYV422: return videoSurfaceYUY2;
 	case PIX_FMT_UYVY422: return videoSurfaceUYVY;
-	case PIX_FMT_RGB24: return videoSurfaceRGB24;
-
+	case PIX_FMT_NV12: return videoSurfaceNV12;
 	case PIX_FMT_RGB32:
 	case PIX_FMT_ARGB: return videoSurfaceARGB32;
+	case PIX_FMT_RGB24: return videoSurfaceRGB24;
+#else
+	case PIX_FMT_BGR24: return videoSurfaceRGB24;
+	case PIX_FMT_RGBA32: return videoSurfaceARGB32;
+#endif // VIDEO_SUPPORT_ANCIENT_AVCODEC
 
 	case PIX_FMT_RGB555: return videoSurfaceRGB15;
 	case PIX_FMT_RGB565: return videoSurfaceRGB16;
 
-	case PIX_FMT_NV12: return videoSurfaceNV12;
 	}
 #endif // VIDEO_SUPPORT_DISABLE_AVCODEC
 	return videoSurfaceUnknown;
@@ -184,11 +189,17 @@ PixelFormat VideoSurfaceToPixelFormat(const VideoSurface surface)
 	case videoSurfaceI420: return PIX_FMT_YUV420P;
 	//// hack: AVCodecVideoSurfaceConverter will check surface and adjust U&V plane pointers appropriately
 	//case videoSurfaceYV12: return PIX_FMT_YUV420P;
+
+#ifndef VIDEO_SUPPORT_ANCIENT_AVCODEC
 	case videoSurfaceYUY2: return PIX_FMT_YUYV422;
 	case videoSurfaceUYVY: return PIX_FMT_UYVY422;
 	case videoSurfaceRGB24: return PIX_FMT_RGB24;
 	case videoSurfaceARGB32: return PIX_FMT_RGB32;
 	case videoSurfaceNV12: return PIX_FMT_NV12;
+#else
+	case videoSurfaceARGB32: return PIX_FMT_RGBA32;
+	case videoSurfaceRGB24: return PIX_FMT_BGR24;
+#endif // VIDEO_SUPPORT_ANCIENT_AVCODEC
 	case videoSurfaceRGB15: return PIX_FMT_RGB555;
 	case videoSurfaceRGB16: return PIX_FMT_RGB565;
 	}

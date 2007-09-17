@@ -14,6 +14,7 @@
 
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
+#include "mp/video/MpVideoEncoder.h"
 #include "mp/MpVideoBuf.h"
 #include "mp/MpRtpBuf.h"
 #include "mp/video/MpVideoStreamParams.h"
@@ -26,8 +27,6 @@
 // STRUCTS
 // TYPEDEFS
 // FORWARD DECLARATIONS
-class MprToNet;
-class MpCodecInfo;
 struct AVCodecContext;
 struct AVCodec;
 struct AVFrame;
@@ -41,7 +40,7 @@ struct AVFrame;
 *  support Single NAL Unit Mode and Non-Interleaved Mode. Interleaved Mode
 *  is not supported - seems like it does not make big sense for video telephony.
 */
-class MpeH264
+class MpeH264: public MpVideoEncoder
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
@@ -57,11 +56,10 @@ public:
           );
 
      /// Destructor
-   virtual
    ~MpeH264();
 
      /// Initializes a codec data structure for use as a decoder
-   virtual OsStatus initEncode(const MpVideoStreamParams* params);
+   OsStatus initEncode(const MpVideoStreamParams* params);
      /**<
      *  @param params Settings for encoded video stream.
      *  @returns <b>OS_SUCCESS</b> - Success
@@ -69,7 +67,7 @@ public:
      */
 
      /// Frees all memory allocated to the decoder by <i>initDecode</i>
-   virtual OsStatus freeEncode();
+   OsStatus freeEncode();
      /**<
      *  @returns <b>OS_SUCCESS</b> - Success
      *  @returns <b>OS_DELETED</b> - Object has already been deleted
@@ -82,7 +80,7 @@ public:
 //@{
 
      /// Decode incoming RTP packet
-   virtual OsStatus encode(const MpVideoBufPtr &pFrame ///< (in) Pointer to a media buffer
+   OsStatus encode(const MpVideoBufPtr &pFrame ///< (in) Pointer to a media buffer
                              );
      /**<
      *  @return Number of decoded samples.
@@ -108,8 +106,6 @@ public:
 protected:
 
    MpVideoStreamParams mStreamParams;
-   int             mPayloadType;    ///< RTP payload type for this codec.
-   MprToNet       *mpRtpWriter;     ///< We will pass encoded data to this RTP writer.
    AVCodec        *mpCodec;         ///< FFMpeg codec (x264).
    AVCodecContext *mpCodecContext;  ///< FFMpeg codec instance.
    AVFrame        *mpPicture;       ///< FFMpeg structure for raw video frame.
@@ -122,8 +118,8 @@ protected:
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-
-
+   MpeH264(const MpeH264&);
+   MpeH264& operator=(const MpeH264&);
 };
 
 /* ============================ INLINE METHODS ============================ */

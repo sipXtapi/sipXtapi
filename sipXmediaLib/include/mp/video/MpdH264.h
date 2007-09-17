@@ -14,7 +14,7 @@
 
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
-#include "mp/MpVideoBuf.h"
+#include "mp/video/MpVideoDecoder.h"
 #include "mp/MpRtpBuf.h"
 
 // DEFINES
@@ -25,8 +25,6 @@
 // STRUCTS
 // TYPEDEFS
 // FORWARD DECLARATIONS
-class MpBufPool;
-class MpCodecInfo;
 struct AVCodecContext;
 struct AVCodec;
 struct AVFrame;
@@ -40,7 +38,7 @@ struct AVFrame;
 *  support Single NAL Unit Mode and Non-Interleaved Mode. Interleaved Mode
 *  is not supported - seems like it does not make big sense for video telephony.
 */
-class MpdH264
+class MpdH264: public MpVideoDecoder
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
@@ -56,18 +54,17 @@ public:
           );
 
      /// Destructor
-   virtual
    ~MpdH264();
 
      /// Initializes a codec data structure for use as a decoder
-   virtual OsStatus initDecode();
+   OsStatus initDecode();
      /**<
      *  @returns <b>OS_SUCCESS</b> - Success
      *  @returns <b>OS_NO_MEMORY</b> - Memory allocation failure
      */
 
      /// Frees all memory allocated to the decoder by <i>initDecode</i>
-   virtual OsStatus freeDecode();
+   OsStatus freeDecode();
      /**<
      *  @returns <b>OS_SUCCESS</b> - Success
      *  @returns <b>OS_DELETED</b> - Object has already been deleted
@@ -80,7 +77,7 @@ public:
 //@{
 
      /// Initialize stream
-   OsStatus MpdH264::initStream(const MpRtpBufPtr &pPacket);
+   OsStatus initStream(const MpRtpBufPtr &pPacket);
     /**<
     *  When arrive first RTP packet in the stream it will be passed to this
     *  callback function. Then this packet will be then passed to decode()
@@ -93,7 +90,7 @@ public:
     */
 
      /// Decode incoming RTP packet
-   virtual MpVideoBufPtr decode(const MpRtpBufPtr &pPacket ///< (in) Pointer to a media buffer
+   MpVideoBufPtr decode(const MpRtpBufPtr &pPacket ///< (in) Pointer to a media buffer
                                , bool &packetConsumed ///< (out) Is packet consumed by decoder
                                                       ///< or should be passed to next call to decoder.
                                , bool forceFlag=false ///< (in) Force frame decoding even
@@ -122,7 +119,6 @@ public:
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 
-   MpBufPool      *mpVideoBufPool;  ///< Buffer pool for decoded frames.
    AVCodec        *mpCodec;
    AVCodecContext *mpCodecContext;
    AVFrame        *mpPicture;
