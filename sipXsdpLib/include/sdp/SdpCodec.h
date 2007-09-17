@@ -35,6 +35,10 @@
 #define MIME_SUBTYPE_G729AB "G729"
 #define MIME_SUBTYPE_G729ACISCO7960 "G729a"
 #define MIME_SUBTYPE_G723 "G723"
+#define MIME_SUBTYPE_G726_16 "G726-16"
+#define MIME_SUBTYPE_G726_24 "G726-24"
+#define MIME_SUBTYPE_G726_32 "G726-32"
+#define MIME_SUBTYPE_G726_40 "G726-40"
 #define MIME_SUBTYPE_DTMF_TONES "telephone-event"
 #define MIME_SUBTYPE_IPCMU "EG711U"
 #define MIME_SUBTYPE_IPCMA "EG711A"
@@ -135,6 +139,10 @@ public:
         SDP_CODEC_L16_8K,          ///< Mono PCM 16 bit/sample 8000 samples/sec.
         SDP_CODEC_G729AB,          ///< G.729A
         SDP_CODEC_G729ACISCO7960,
+        SDP_CODEC_G726_16,
+        SDP_CODEC_G726_24,
+        SDP_CODEC_G726_32,
+        SDP_CODEC_G726_40,
 
         /// GIPS specific codecs
         //@{
