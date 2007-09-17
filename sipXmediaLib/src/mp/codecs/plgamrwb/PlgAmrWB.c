@@ -71,7 +71,7 @@ struct amrwb_encoder_data
    void *encoder_state;             ///< Pointer to encoder/decoder state structure
    int octet_align;                 ///< 1 - Octet Aligned mode, 0 - Bandwidth Efficient mode
    int doDtx;                       ///< 1- use DTX, 0 - no DTX
-   enum Mode mode;                  ///< Encoder mode (bitrate).
+   int mode;                        ///< Encoder mode (bitrate).
 };
 
 /// Storage for decoder data
