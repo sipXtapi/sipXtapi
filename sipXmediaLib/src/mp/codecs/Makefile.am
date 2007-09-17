@@ -5,7 +5,8 @@ SUBDIRS = \
 	@GSM_TARGET@ \
 	@SPEEX_TARGET@ \
 	@ILBC_TARGET@ \
-	@TONES_TARGET@
+	@TONES_TARGET@ \
+	@G726_TARGET@
 
 all: install-codec
 
