@@ -171,6 +171,22 @@ SdpCodec::SdpCodec(int payloadFormat,
          mCPUCost = SDP_CODEC_CPU_HIGH;
          mBWCost = SDP_CODEC_BANDWIDTH_VARIABLE;
       }
+      else if(mMimeSubtype.compareTo("g726-16") == 0)
+      {
+         setValue(SDP_CODEC_G726_16);
+      }
+      else if(mMimeSubtype.compareTo("g726-24") == 0)
+      {
+         setValue(SDP_CODEC_G726_24);
+      }
+      else if(mMimeSubtype.compareTo("g726-32") == 0)
+      {
+         setValue(SDP_CODEC_G726_32);
+      }
+      else if(mMimeSubtype.compareTo("g726-40") == 0)
+      {
+         setValue(SDP_CODEC_G726_40);
+      }
       else if(mMimeSubtype.compareTo("speex") == 0)
       {
          if(mFormatSpecificData.compareTo("mode=2", UtlString::ignoreCase) == 0)
@@ -192,6 +208,54 @@ SdpCodec::SdpCodec(int payloadFormat,
          {
             // mode = 3
             setValue(SDP_CODEC_SPEEX);
+            mBWCost = SDP_CODEC_BANDWIDTH_LOW;
+         }
+      }
+      else if(mMimeSubtype.compareTo("speex-wb") == 0)
+      {
+         if(mFormatSpecificData.compareTo("mode=2", UtlString::ignoreCase) == 0)
+         {
+            setValue(SDP_CODEC_SPEEX_WB_5);  // Speex Profile 1
+            mBWCost = SDP_CODEC_BANDWIDTH_LOW;
+         }
+         else if(mFormatSpecificData.compareTo("mode=5", UtlString::ignoreCase) == 0)
+         {
+            setValue(SDP_CODEC_SPEEX_WB_15);  // Speex Profile 2
+            mBWCost = SDP_CODEC_BANDWIDTH_NORMAL;
+         }
+         else if(mFormatSpecificData.compareTo("mode=7", UtlString::ignoreCase) == 0)
+         {
+            setValue(SDP_CODEC_SPEEX_WB_24);  // Speex Profile 3
+            mBWCost = SDP_CODEC_BANDWIDTH_NORMAL;
+         }
+         else
+         {
+            // mode = 3
+            setValue(SDP_CODEC_SPEEX_WB);
+            mBWCost = SDP_CODEC_BANDWIDTH_LOW;
+         }
+      }
+      else if(mMimeSubtype.compareTo("speex-uwb") == 0)
+      {
+         if(mFormatSpecificData.compareTo("mode=2", UtlString::ignoreCase) == 0)
+         {
+            setValue(SDP_CODEC_SPEEX_UWB_5);  // Speex Profile 1
+            mBWCost = SDP_CODEC_BANDWIDTH_LOW;
+         }
+         else if(mFormatSpecificData.compareTo("mode=5", UtlString::ignoreCase) == 0)
+         {
+            setValue(SDP_CODEC_SPEEX_UWB_15);  // Speex Profile 2
+            mBWCost = SDP_CODEC_BANDWIDTH_NORMAL;
+         }
+         else if(mFormatSpecificData.compareTo("mode=7", UtlString::ignoreCase) == 0)
+         {
+            setValue(SDP_CODEC_SPEEX_UWB_24);  // Speex Profile 3
+            mBWCost = SDP_CODEC_BANDWIDTH_NORMAL;
+         }
+         else
+         {
+            // mode = 3
+            setValue(SDP_CODEC_SPEEX_UWB);
             mBWCost = SDP_CODEC_BANDWIDTH_LOW;
          }
       }

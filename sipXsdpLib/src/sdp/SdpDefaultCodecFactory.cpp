@@ -44,6 +44,14 @@ static MpMimeInfoMapElement sgMimeInfoMap[] =
    { SdpCodec::SDP_CODEC_SPEEX_5, "speex",  "mode=2"  },
    { SdpCodec::SDP_CODEC_SPEEX_15,"speex",  "mode=5"  },
    { SdpCodec::SDP_CODEC_SPEEX_24,"speex",  "mode=7"  },
+   { SdpCodec::SDP_CODEC_SPEEX_WB,    "speex-wb",  NULL },
+   { SdpCodec::SDP_CODEC_SPEEX_WB_5, "speex-wb",  "mode=2"  },
+   { SdpCodec::SDP_CODEC_SPEEX_WB_15,"speex-wb",  "mode=5"  },
+   { SdpCodec::SDP_CODEC_SPEEX_WB_24,"speex-wb",  "mode=7"  },
+   { SdpCodec::SDP_CODEC_SPEEX_UWB,    "speex-wb",  NULL },
+   { SdpCodec::SDP_CODEC_SPEEX_UWB_5, "speex-uwb",  "mode=2"  },
+   { SdpCodec::SDP_CODEC_SPEEX_UWB_15,"speex-uwb",  "mode=5"  },
+   { SdpCodec::SDP_CODEC_SPEEX_UWB_24,"speex-uwb",  "mode=7"  },
    { SdpCodec::SDP_CODEC_ILBC,    "ilbc",   "mode=30" },
    { SdpCodec::SDP_CODEC_ILBC,    "ilbc",   NULL  },
    { SdpCodec::SDP_CODEC_AMR_ALIGNED, "amr", "octet-align=1" },
@@ -87,6 +95,14 @@ static MpCodecNamesMapElement sgCodecNamesMap[] =
    { SdpCodec::SDP_CODEC_SPEEX_5,         "SPEEX_5" },
    { SdpCodec::SDP_CODEC_SPEEX_15,        "SPEEX_15" },
    { SdpCodec::SDP_CODEC_SPEEX_24,        "SPEEX_24" },
+   { SdpCodec::SDP_CODEC_SPEEX_WB,        "SPEEX_WB" },
+   { SdpCodec::SDP_CODEC_SPEEX_WB_5,      "SPEEX_WB_5" },
+   { SdpCodec::SDP_CODEC_SPEEX_WB_15,     "SPEEX_WB_15" },
+   { SdpCodec::SDP_CODEC_SPEEX_WB_24,     "SPEEX_WB_24" },
+   { SdpCodec::SDP_CODEC_SPEEX_UWB,       "SPEEX_UWB" },
+   { SdpCodec::SDP_CODEC_SPEEX_UWB_5,     "SPEEX_UWB_5" },
+   { SdpCodec::SDP_CODEC_SPEEX_UWB_15,    "SPEEX_UWB_15" },
+   { SdpCodec::SDP_CODEC_SPEEX_UWB_24,    "SPEEX_UWB_24" },
    { SdpCodec::SDP_CODEC_AMR,             "AMR" },
    { SdpCodec::SDP_CODEC_AMR_ALIGNED,     "AMR_ALIGNED" },
    { SdpCodec::SDP_CODEC_AMRWB,           "AMRWB" },
@@ -450,6 +466,120 @@ SdpCodec SdpDefaultCodecFactory::getCodec(SdpCodec::SdpCodecTypes internalCodecI
                          "mode=7",
                          SdpCodec::SDP_CODEC_CPU_LOW,
                          SDP_CODEC_BANDWIDTH_NORMAL);
+      }
+      break;
+
+   case SdpCodec::SDP_CODEC_SPEEX_WB:
+      {
+         return SdpCodec(SdpCodec::SDP_CODEC_SPEEX_WB,
+            SdpCodec::SDP_CODEC_SPEEX_WB,
+            MIME_TYPE_AUDIO,
+            MIME_SUBTYPE_SPEEX,
+            16000,
+            20000,
+            1,
+            "mode=3",
+            SdpCodec::SDP_CODEC_CPU_LOW,
+            SDP_CODEC_BANDWIDTH_LOW);
+      }
+      break;
+   case SdpCodec::SDP_CODEC_SPEEX_WB_5:
+      {
+         return SdpCodec(SdpCodec::SDP_CODEC_SPEEX_WB_5,
+            SdpCodec::SDP_CODEC_SPEEX_WB_5,
+            MIME_TYPE_AUDIO,
+            MIME_SUBTYPE_SPEEX,
+            16000,
+            20000,
+            1,
+            "mode=2",
+            SdpCodec::SDP_CODEC_CPU_LOW,
+            SDP_CODEC_BANDWIDTH_LOW);
+      }
+      break;
+   case SdpCodec::SDP_CODEC_SPEEX_WB_15:
+      {
+         return SdpCodec(SdpCodec::SDP_CODEC_SPEEX_WB_15,
+            SdpCodec::SDP_CODEC_SPEEX_WB_15,
+            MIME_TYPE_AUDIO,
+            MIME_SUBTYPE_SPEEX,
+            16000,
+            20000,
+            1,
+            "mode=5",
+            SdpCodec::SDP_CODEC_CPU_LOW,
+            SDP_CODEC_BANDWIDTH_NORMAL);
+      }
+      break;
+   case SdpCodec::SDP_CODEC_SPEEX_WB_24:
+      {
+         return SdpCodec(SdpCodec::SDP_CODEC_SPEEX_WB_24,
+            SdpCodec::SDP_CODEC_SPEEX_WB_24,
+            MIME_TYPE_AUDIO,
+            MIME_SUBTYPE_SPEEX,
+            16000,
+            20000,
+            1,
+            "mode=7",
+            SdpCodec::SDP_CODEC_CPU_LOW,
+            SDP_CODEC_BANDWIDTH_NORMAL);
+      }
+      break;
+
+   case SdpCodec::SDP_CODEC_SPEEX_UWB:
+      {
+         return SdpCodec(SdpCodec::SDP_CODEC_SPEEX_UWB,
+            SdpCodec::SDP_CODEC_SPEEX_UWB,
+            MIME_TYPE_AUDIO,
+            MIME_SUBTYPE_SPEEX,
+            32000,
+            20000,
+            1,
+            "mode=3",
+            SdpCodec::SDP_CODEC_CPU_LOW,
+            SDP_CODEC_BANDWIDTH_LOW);
+      }
+      break;
+   case SdpCodec::SDP_CODEC_SPEEX_UWB_5:
+      {
+         return SdpCodec(SdpCodec::SDP_CODEC_SPEEX_UWB_5,
+            SdpCodec::SDP_CODEC_SPEEX_UWB_5,
+            MIME_TYPE_AUDIO,
+            MIME_SUBTYPE_SPEEX,
+            32000,
+            20000,
+            1,
+            "mode=2",
+            SdpCodec::SDP_CODEC_CPU_LOW,
+            SDP_CODEC_BANDWIDTH_LOW);
+      }
+      break;
+   case SdpCodec::SDP_CODEC_SPEEX_UWB_15:
+      {
+         return SdpCodec(SdpCodec::SDP_CODEC_SPEEX_UWB_15,
+            SdpCodec::SDP_CODEC_SPEEX_UWB_15,
+            MIME_TYPE_AUDIO,
+            MIME_SUBTYPE_SPEEX,
+            32000,
+            20000,
+            1,
+            "mode=5",
+            SdpCodec::SDP_CODEC_CPU_LOW,
+            SDP_CODEC_BANDWIDTH_NORMAL);
+      }
+      break;
+   case SdpCodec::SDP_CODEC_SPEEX_UWB_24:
+      {
+         return SdpCodec(SdpCodec::SDP_CODEC_SPEEX_UWB_24,
+            SdpCodec::SDP_CODEC_SPEEX_UWB_24,
+            MIME_TYPE_AUDIO,
+            MIME_SUBTYPE_SPEEX,
+            32000,
+            20000,
+            1,
+            "mode=7",
+            SdpCodec::SDP_CODEC_CPU_LOW,
+            SDP_CODEC_BANDWIDTH_NORMAL);
       }
       break;
 
