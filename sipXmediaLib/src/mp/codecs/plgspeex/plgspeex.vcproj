@@ -124,6 +124,15 @@
 			<File
 				RelativePath="PlgSpeex.c">
 			</File>
+			<File
+				RelativePath=".\speex_nb.c">
+			</File>
+			<File
+				RelativePath=".\speex_uwb.c">
+			</File>
+			<File
+				RelativePath=".\speex_wb.c">
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
