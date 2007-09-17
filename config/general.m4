@@ -1084,6 +1084,101 @@ AC_DEFUN([DECLARE_CODECS_STAFF],
     CXXFLAGS+=" -DDEFAULT_CODECS_PATH=\"\\\"${DEFAULT_CODECS_PATH}\\\"\" "    
 ])dnl
 
+
+AC_DEFUN([CHECK_SPANDSP],
+[
+    AC_MSG_CHECKING([for libspandsp >= 0.0.2pre26])
+
+    # Unset withval, as AC_ARG_WITH does not unset it
+    withval=
+    AC_ARG_WITH(spandsp-includedir,
+                [AS_HELP_STRING([--with-spandsp-includedir=PATH],
+                                [path to libspandsp include directory (containing spandsp.h)])],
+                )
+    # If withval is set, use that.  If not and homeval is set, use
+    # $homeval/include.  If neither, use null.
+    includeval=${withval}
+    withval=
+
+    # Process the --with-spansdp-libdir argument which gives the libgsm library
+    # directory.
+    AC_ARG_WITH(spandsp-libdir,
+                [AS_HELP_STRING([--with-spandsp-libdir=PATH],
+                                [path to libspandsp lib directory (containing libspandsp.{so,la})])],
+                )
+    libval=${withval}
+
+    # Check for spansdp.h in the specified include directory if any, and a number
+    # of other likely places.
+    for dir in $includeval /usr/local/include /usr/include /sw/include; do
+        if test -f "$dir/spandsp.h"; then
+            found_spandsp_include="yes";
+            includeval=$dir
+            break;
+        fi
+    done
+
+    # Check for libspansdp.{so,a} in the specified lib directory if any, and a
+    # number of other likely places.
+    for dir in $libval /usr/local/lib /usr/lib /sw/lib; do
+        if test -f "$dir/libspandsp.so" -o -f "$dir/libspandsp.la"; then
+            found_spandsp_lib="yes";
+            libval=$dir
+            break;
+        fi
+    done
+
+    # Test that we've been able to find both directories, and set the various
+    # makefile variables.
+    if test x_$found_spandsp_include != x_yes -o x_$found_spandsp_lib != x_yes; then
+        AC_MSG_RESULT(not found)
+    else
+    # testing for proper version
+    if test -f "$includeval/spandsp/g722.h" -o -f "$includeval/spandsp/g726.h"; then
+            AC_MSG_RESULT(libspandsp is ok)
+            SPANDSP_CFLAGS="-I$includeval"
+            SPANDSP_CXXFLAGS="-I$includeval"
+            SPANDSP_LIBS="-lspandsp"
+            SPANDSP_LDFLAGS="-L$libval"
+    else
+            AC_MSG_RESULT(too old (dosen't have g722.h and g726.h))
+        fi
+    fi
+    AC_SUBST(SPANDSP_CFLAGS)
+    AC_SUBST(SPANDSP_CXXFLAGS)
+    AC_SUBST(SPANDSP_LIBS)
+    AC_SUBST(SPANDSP_LDFLAGS)
+
+])dnl
+
+
+# =============== G726  =====================
+
+AC_DEFUN([AM_SET_G726],
+[
+# Currently only iLBC in contrib supported
+    if test x_$SPANDSP_CFLAGS != x_; then
+        PLUGINS+="G.726 "
+
+        G726_TARGET="plgg726"
+    fi
+    AC_SUBST(G726_TARGET)    
+    
+])dnl
+AC_DEFUN([CHECK_G726],
+[
+    AC_ARG_ENABLE([codec-g726],
+                  [AS_HELP_STRING([--enable-codec-g726],
+                                  [Enable support for ilbc codec @<:@default=yes@:>@])],
+                  [ case "${enableval}" in
+                       auto) AM_SET_G726 ;;
+                       yes) AM_SET_G726 ;;
+                       no) AC_MSG_RESULT(Codec G.726 was disabled) ;;
+                       *) AC_MSG_ERROR(bad value ${enableval} for --enable-codec-ilbc) ;;
+                    esac],
+                  [AM_SET_G726])
+])dnl
+
 # ============ D O X Y G E N ==================
 # Originaly from CppUnit BB_ENABLE_DOXYGEN
 
