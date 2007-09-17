@@ -44,6 +44,7 @@
 #define MIME_SUBTYPE_GSM "GSM"
 #define MIME_SUBTYPE_SPEEX "speex"
 #define MIME_SUBTYPE_AMR "amr"
+#define MIME_SUBTYPE_AMRWB "amr-wb"
 #define MIME_SUBTYPE_VP71 "VP71"
 #define MIME_SUBTYPE_IYUV "IYUV"
 #define MIME_SUBTYPE_I420 "I420"
@@ -129,6 +130,8 @@ public:
         SDP_CODEC_G7231,           ///< G.723.1
         SDP_CODEC_AMR,             ///< AMR Bandwidth Efficient mode
         SDP_CODEC_AMR_ALIGNED,     ///< AMR Octet Aligned mode
+        SDP_CODEC_AMRWB,           ///< AMR-WB Bandwidth Efficient mode
+        SDP_CODEC_AMRWB_ALIGNED,   ///< AMR-WB Octet Aligned mode
         SDP_CODEC_L16_8K,          ///< Mono PCM 16 bit/sample 8000 samples/sec.
         SDP_CODEC_G729AB,          ///< G.729A
         SDP_CODEC_G729ACISCO7960,

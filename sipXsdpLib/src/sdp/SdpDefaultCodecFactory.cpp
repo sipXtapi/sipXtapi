@@ -49,6 +49,9 @@ static MpMimeInfoMapElement sgMimeInfoMap[] =
    { SdpCodec::SDP_CODEC_AMR_ALIGNED, "amr", "octet-align=1" },
    { SdpCodec::SDP_CODEC_AMR,     "amr", "octet-align=0" },
    { SdpCodec::SDP_CODEC_AMR,     "amr", "" },
+   { SdpCodec::SDP_CODEC_AMRWB_ALIGNED, "amr-wb", "octet-align=1" },
+   { SdpCodec::SDP_CODEC_AMRWB,         "amr-wb", "octet-align=0" },
+   { SdpCodec::SDP_CODEC_AMRWB,         "amr-wb", "" },
    { SdpCodec::SDP_CODEC_TONES,   "telephone-event",   NULL  }
 };
 #define SIZEOF_MIME_INFO_MAP     \
@@ -78,6 +81,8 @@ static MpCodecNamesMapElement sgCodecNamesMap[] =
    { SdpCodec::SDP_CODEC_SPEEX_24,        "SPEEX_24" },
    { SdpCodec::SDP_CODEC_AMR,             "AMR" },
    { SdpCodec::SDP_CODEC_AMR_ALIGNED,     "AMR_ALIGNED" },
+   { SdpCodec::SDP_CODEC_AMRWB,           "AMRWB" },
+   { SdpCodec::SDP_CODEC_AMRWB_ALIGNED,   "AMRWB_ALIGNED" },
    { SdpCodec::SDP_CODEC_GIPS_IPCMU,      "EG711U" },
    { SdpCodec::SDP_CODEC_GIPS_IPCMA,      "EG711A" },
    { SdpCodec::SDP_CODEC_GIPS_IPCMWB,     "IPCMWB" },
@@ -401,6 +406,35 @@ SdpCodec SdpDefaultCodecFactory::getCodec(SdpCodec::SdpCodecTypes internalCodecI
                          MIME_TYPE_AUDIO,
                          MIME_SUBTYPE_AMR,
                          8000,
+                         20000,
+                         1,
+                         "octet-align=1",
+                         SdpCodec::SDP_CODEC_CPU_HIGH,
+                         SDP_CODEC_BANDWIDTH_LOW);
+      }
+      break;
+
+   case SdpCodec::SDP_CODEC_AMRWB:
+      {
+         return SdpCodec(SdpCodec::SDP_CODEC_AMRWB,
+                         SdpCodec::SDP_CODEC_AMRWB,
+                         MIME_TYPE_AUDIO,
+                         MIME_SUBTYPE_AMRWB,
+                         16000,
+                         20000,
+                         1,
+                         "", // octet-align=0 assumed
+                         SdpCodec::SDP_CODEC_CPU_HIGH,
+                         SDP_CODEC_BANDWIDTH_LOW);
+      }
+      break;
+   case SdpCodec::SDP_CODEC_AMRWB_ALIGNED:
+      {
+         return SdpCodec(SdpCodec::SDP_CODEC_AMRWB_ALIGNED,
+                         SdpCodec::SDP_CODEC_AMRWB_ALIGNED,
+                         MIME_TYPE_AUDIO,
+                         MIME_SUBTYPE_AMRWB,
+                         16000,
                          20000,
                          1,
                          "octet-align=1",

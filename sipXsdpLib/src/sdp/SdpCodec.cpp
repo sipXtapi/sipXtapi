@@ -208,6 +208,19 @@ SdpCodec::SdpCodec(int payloadFormat,
          mCPUCost = SDP_CODEC_CPU_HIGH;
          mBWCost = SDP_CODEC_BANDWIDTH_NORMAL;
       }
+      else if(mMimeSubtype.compareTo("amr-wb") == 0)
+      {
+         if (mFormatSpecificData.compareTo("octet-align=1", UtlString::ignoreCase) == 0)
+         {
+            setValue(SDP_CODEC_AMRWB_ALIGNED);  // Octet Aligned mode
+         }
+         else
+         {
+            setValue(SDP_CODEC_AMRWB);          // Bandwidth Efficient mode
+         }
+         mCPUCost = SDP_CODEC_CPU_HIGH;
+         mBWCost = SDP_CODEC_BANDWIDTH_NORMAL;
+      }
       else
       {
          setValue(SDP_CODEC_UNKNOWN);
