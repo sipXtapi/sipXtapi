@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="windows-1251"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8,00"
+	Version="8.00"
 	Name="plgspeex-msvc8"
 	ProjectGUID="{4F7FDA11-42A4-4556-A631-15AA785CD1C1}"
+	RootNamespace="plgspeex-msvc8"
 	Keyword="Win32Proj"
 	>
 	<Platforms>
@@ -94,6 +95,8 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
+				Description="Copy speex dll to mediaLib bin directory"
+				CommandLine="copy ..\..\..\..\contrib\libspeex\win32\VS2003\libspeex\Release_Dynamic\libspeex.dll* ..\..\..\..\bin"
 			/>
 		</Configuration>
 		<Configuration
@@ -188,12 +191,28 @@
 				RelativePath="PlgSpeex.c"
 				>
 			</File>
+			<File
+				RelativePath="speex_nb.c"
+				>
+			</File>
+			<File
+				RelativePath="speex_wb.c"
+				>
+			</File>
+			<File
+				RelativePath="speex_uwb.c"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
+			<File
+				RelativePath="plgspeex.h"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Resource Files"
