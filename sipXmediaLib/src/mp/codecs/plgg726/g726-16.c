@@ -10,6 +10,10 @@
 
 // Author: Sergey Kostanbaev <Sergey DOT Kostanbaev AT sipez DOT com>
 
+// SYSTEM INCLUDES
+#include <memory.h>
+
+// APPLICATION INCLUDES
 #include "plgg726.h"
 
 // STATIC VARIABLE INITIALIZATIONS
