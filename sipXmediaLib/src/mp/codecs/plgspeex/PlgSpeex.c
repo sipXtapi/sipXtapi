@@ -23,27 +23,6 @@
 #include <speex/speex_stereo.h>
 #include <speex/speex_preprocess.h>
 
-static const char codecMIMEsubtype[] = "speex";
-
-static const struct plgCodecInfoV1 codecSPEEX = 
-{
-   sizeof(struct plgCodecInfoV1),   //cbSize
-   codecMIMEsubtype,                //mimeSubtype
-   "speex",                         //codecName
-   "Speex codec",                   //codecVersion
-   8000,                            //samplingRate
-   8,                               //fmtAndBitsPerSample
-   1,                               //numChannels
-   38,                              //interleaveBlockSize
-   15000,                           //bitRate
-   1*8,                             //minPacketBits
-   38*8,                            //avgPacketBits
-   63*8,                            //maxPacketBits
-   160,                             //numSamplesPerFrame
-   5                                //preCodecJitterBufferSize
-};
-
-
 struct speex_codec_data_decoder
 {
    void *mpDecoderState;    ///< State of the decoder
@@ -60,16 +39,18 @@ struct speex_codec_data_encoder
    /**< Mode used.
    * From the Speex documentation:
    *
-   * Mode  Bitrate  MFlops Quality
-   *  0    250      N/A    No transmission (DTX)
-   *  1    2,150    6      Vocoder (mostly for comfort noise)
-   *  2    5,950    9      Very noticeable artifacts/noise, good intelligibility
-   *  3    8,000    10     Artifacts/noise sometimes noticeable
-   *  4    11,000   14     Artifacts usually noticeable only with headphones
-   *  5    15,000   11     Need good headphones to tell the difference
-   *  6    18,200   17.5   Hard to tell the difference even with good headphones
-   *  7    24,600   14.5   Completely transparent for voice, good quality music
-   *  8    3,950    10.5   Very noticeable artifacts/noise, good intelligibility
+   * Mode  Bitrate  BitrateWB BitrateUWB   MFlops Quality
+   *  0    250      3.95      5.75         N/A    No transmission (DTX)
+   *  1    2,150    5.75      7.55         6      Vocoder (mostly for comfort noise)
+   *  2    5,950    7.75      9.55         9      Very noticeable artifacts/noise, good intelligibility
+   *  3    8,000    9.80      11.6         10     Artifacts/noise sometimes noticeable
+   *  4    11,000   12.8      14.6         14     Artifacts usually noticeable only with headphones
+   *  5    15,000   16.8      18.6         11     Need good headphones to tell the difference
+   *  6    18,200   20.6      22.4         17.5   Hard to tell the difference even with good headphones
+   *  7    24,600   23.8      25.6         14.5   Completely transparent for voice, good quality music
+   *  8    3,950    27.8      29.6         10.5   Very noticeable artifacts/noise, good intelligibility
+   *                34.2      36.0
+   *                42.2      44.0
    */
    int mDoVad;                ///< Set to 1 to enable voice activity detection
    int mDoDtx;                ///< Set to 1 to enable discontinuous transmission
@@ -82,30 +63,7 @@ struct speex_codec_data_encoder
    int mDoAgc;                ///< Automatic Gain Control
 };
 
-static const char* defaultFmtps[] =
-{
-   "mode=2",
-   "mode=3",
-   "mode=4",
-   "mode=5",
-   "mode=6",
-   "mode=7",
-   "mode=8"
-};
 
-CODEC_API int PLG_ENUM_V1(speex)(const char** mimeSubtype, unsigned int* pModesCount, const char*** modes)
-{
-   if (mimeSubtype) {
-      *mimeSubtype = codecMIMEsubtype;
-   }
-   if (pModesCount) {
-      *pModesCount = (sizeof(defaultFmtps)/sizeof(defaultFmtps[0]));
-   }
-   if (modes) {
-      *modes = defaultFmtps;
-   }
-   return RPLG_SUCCESS;
-}
 /* Parsing {param}={value} */
 static int analizeParamEqValue(const char *parsingString, const char* paramName, int* value)
 {
@@ -166,7 +124,9 @@ static int analizeDefRange(const char* str, const char* param, int defValue, int
    return defValue;
 }
 
-CODEC_API  void *PLG_INIT_V1(speex)(const char* fmt, int isDecoder, struct plgCodecInfoV1* pCodecInfo)
+void* universe_speex_init(const char* fmt, int isDecoder, 
+                          struct plgCodecInfoV1* pCodecInfo, 
+                          int samplerate, const struct plgCodecInfoV1* cdi)
 {
    struct speex_codec_data_encoder *mpSpeexEnc;
    struct speex_codec_data_decoder *mpSpeexDec;
@@ -174,7 +134,7 @@ CODEC_API  void *PLG_INIT_V1(speex)(const char* fmt, int isDecoder, struct plgCo
       return NULL;
    }
 
-   memcpy(pCodecInfo, &codecSPEEX, sizeof(struct plgCodecInfoV1));
+   memcpy(pCodecInfo, cdi, sizeof(struct plgCodecInfoV1));
    if (isDecoder) 
    {
       /* Preparing decoder */
@@ -190,8 +150,8 @@ CODEC_API  void *PLG_INIT_V1(speex)(const char* fmt, int isDecoder, struct plgCo
       mpSpeexDec->mpDecoderState = speex_decoder_init(speex_lib_get_mode(SPEEX_MODEID_NB));   
 
       /* It makes the decoded speech deviate further from the original,
-       * but it sounds subjectively better.
-       */
+      * but it sounds subjectively better.
+      */
       tmp = 1;
       speex_decoder_ctl(mpSpeexDec->mpDecoderState,SPEEX_SET_ENH,&tmp);
 
@@ -211,7 +171,7 @@ CODEC_API  void *PLG_INIT_V1(speex)(const char* fmt, int isDecoder, struct plgCo
       }
 
       mpSpeexEnc->mpEncoderState = NULL;
-      mpSpeexEnc->mSampleRate = 8000;        // Sample rate of 8000Hz. We'll stick with NB for now.
+      mpSpeexEnc->mSampleRate = samplerate;        // Sample rate of 8000Hz. We'll stick with NB for now.
 
       mpSpeexEnc->mDoVad = 0;
       mpSpeexEnc->mDoDtx = 0;
@@ -252,8 +212,7 @@ CODEC_API  void *PLG_INIT_V1(speex)(const char* fmt, int isDecoder, struct plgCo
    }
 }
 
-
-CODEC_API int PLG_FREE_V1(speex)(void* handle, int isDecoder)
+int universe_speex_free(void* handle, int isDecoder)
 {
    if (NULL != handle)
    {
@@ -265,7 +224,7 @@ CODEC_API int PLG_FREE_V1(speex)(void* handle, int isDecoder)
          speex_bits_destroy(&mpSpeexDec->mBits);
       } else {
          struct speex_codec_data_encoder *mpSpeexEnc =
-             (struct speex_codec_data_encoder *)handle;
+            (struct speex_codec_data_encoder *)handle;
          speex_encoder_destroy(mpSpeexEnc->mpEncoderState);
          speex_bits_destroy(&mpSpeexEnc->mBits);
       }      
@@ -274,11 +233,10 @@ CODEC_API int PLG_FREE_V1(speex)(void* handle, int isDecoder)
    return 0;
 }
 
-
-CODEC_API  int PLG_DECODE_V1(speex)(void* handle, const void* pCodedData, 
-                                    unsigned cbCodedPacketSize, void* pAudioBuffer, 
-                                    unsigned cbBufferSize, unsigned *pcbDecodedSize, 
-                                    const struct RtpHeader* pRtpHeader)
+int universe_speex_decode(void* handle, const void* pCodedData, 
+                          unsigned cbCodedPacketSize, void* pAudioBuffer, 
+                          unsigned cbBufferSize, unsigned *pcbDecodedSize, 
+                          const struct RtpHeader* pRtpHeader)
 {
    struct speex_codec_data_decoder *mpSpeexDec = 
       (struct speex_codec_data_decoder *)handle;
@@ -299,8 +257,10 @@ CODEC_API  int PLG_DECODE_V1(speex)(void* handle, const void* pCodedData,
    return RPLG_SUCCESS;
 }
 
-CODEC_API int PLG_ENCODE_V1(speex)(void* handle, const void* pAudioBuffer, unsigned cbAudioSamples, int* rSamplesConsumed, void* pCodedData,
-                          unsigned cbMaxCodedData, int* pcbCodedSize, unsigned* pbSendNow)
+int universe_speex_encode(void* handle, const void* pAudioBuffer, 
+                          unsigned cbAudioSamples, int* rSamplesConsumed, 
+                          void* pCodedData, unsigned cbMaxCodedData, 
+                          int* pcbCodedSize, unsigned* pbSendNow)
 {
    int size = 0;   
    struct speex_codec_data_encoder *mpSpeexEnc = 
@@ -329,7 +289,7 @@ CODEC_API int PLG_ENCODE_V1(speex)(void* handle, const void* pAudioBuffer, unsig
       mpSpeexEnc->mBufferLoad = 0;
 
       //if (size>0) {
-         *pbSendNow = TRUE;
+      *pbSendNow = TRUE;
       //}
    }
    else
@@ -343,4 +303,12 @@ CODEC_API int PLG_ENCODE_V1(speex)(void* handle, const void* pAudioBuffer, unsig
    return RPLG_SUCCESS;
 }
 
-PLG_SINGLE_CODEC(speex);
+DECLARE_FUNCS_V1(speex)
+DECLARE_FUNCS_V1(speex_wb)
+DECLARE_FUNCS_V1(speex_uwb)
+
+PLG_ENUM_CODEC_START
+   PLG_ENUM_CODEC(speex)
+   PLG_ENUM_CODEC(speex_wb)
+   PLG_ENUM_CODEC(speex_uwb)
+PLG_ENUM_CODEC_END 
