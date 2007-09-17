@@ -28,7 +28,7 @@
 *          which mode to receive.
 */
 
-// WIN32: Add libamrnb to linker input.
+// WIN32: Add libamrwb to linker input.
 #ifdef WIN32 // [
 #   pragma comment(lib, "libamrwb.lib")
 #endif // WIN32 ]
