@@ -259,6 +259,55 @@ SdpCodec::SdpCodec(int payloadFormat,
             mBWCost = SDP_CODEC_BANDWIDTH_LOW;
          }
       }
+      else if(mMimeSubtype.compareTo("speex-wb") == 0)
+      {
+         if(mFormatSpecificData.compareTo("mode=2", UtlString::ignoreCase) == 0)
+         {
+            setValue(SDP_CODEC_SPEEX_WB_5);  // Speex Profile 1
+            mBWCost = SDP_CODEC_BANDWIDTH_LOW;
+         }
+         else if(mFormatSpecificData.compareTo("mode=5", UtlString::ignoreCase) == 0)
+         {
+            setValue(SDP_CODEC_SPEEX_WB_15);  // Speex Profile 2
+            mBWCost = SDP_CODEC_BANDWIDTH_NORMAL;
+         }
+         else if(mFormatSpecificData.compareTo("mode=7", UtlString::ignoreCase) == 0)
+         {
+            setValue(SDP_CODEC_SPEEX_WB_24);  // Speex Profile 3
+            mBWCost = SDP_CODEC_BANDWIDTH_NORMAL;
+         }
+         else
+         {
+            // mode = 3
+            setValue(SDP_CODEC_SPEEX_WB);
+            mBWCost = SDP_CODEC_BANDWIDTH_LOW;
+         }
+      }
+      else if(mMimeSubtype.compareTo("speex-uwb") == 0)
+      {
+         if(mFormatSpecificData.compareTo("mode=2", UtlString::ignoreCase) == 0)
+         {
+            setValue(SDP_CODEC_SPEEX_UWB_5);  // Speex Profile 1
+            mBWCost = SDP_CODEC_BANDWIDTH_LOW;
+         }
+         else if(mFormatSpecificData.compareTo("mode=5", UtlString::ignoreCase) == 0)
+         {
+            setValue(SDP_CODEC_SPEEX_UWB_15);  // Speex Profile 2
+            mBWCost = SDP_CODEC_BANDWIDTH_NORMAL;
+         }
+         else if(mFormatSpecificData.compareTo("mode=7", UtlString::ignoreCase) == 0)
+         {
+            setValue(SDP_CODEC_SPEEX_UWB_24);  // Speex Profile 3
+            mBWCost = SDP_CODEC_BANDWIDTH_NORMAL;
+         }
+         else
+         {
+            // mode = 3
+            setValue(SDP_CODEC_SPEEX_UWB);
+            mBWCost = SDP_CODEC_BANDWIDTH_LOW;
+         }
+      }
+
       else if(mMimeSubtype.compareTo("amr") == 0)
       {
          if (mFormatSpecificData.compareTo("octet-align=1", UtlString::ignoreCase) == 0)

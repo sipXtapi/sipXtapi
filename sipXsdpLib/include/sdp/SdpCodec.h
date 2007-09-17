@@ -47,6 +47,8 @@
 #define MIME_SUBTYPE_ISAC "ISAC"
 #define MIME_SUBTYPE_GSM "GSM"
 #define MIME_SUBTYPE_SPEEX "speex"
+#define MIME_SUBTYPE_SPEEX_WB "speex-wb"
+#define MIME_SUBTYPE_SPEEX_UWB "speex-uwb"
 #define MIME_SUBTYPE_AMR "amr"
 #define MIME_SUBTYPE_AMRWB "amr-wb"
 #define MIME_SUBTYPE_VP71 "VP71"
@@ -127,6 +129,15 @@ public:
         SDP_CODEC_SPEEX_5,         ///< Speex NB,  5,950bps
         SDP_CODEC_SPEEX_15,        ///< Speex NB, 15,000bps
         SDP_CODEC_SPEEX_24,        ///< Speex NB, 24,600bps
+        SDP_CODEC_SPEEX_WB,        ///< Speex WB   9,800bps
+        SDP_CODEC_SPEEX_WB_5,      ///< Speex WB   7,750bps
+        SDP_CODEC_SPEEX_WB_15,     ///< Speex WB  16,800bps
+        SDP_CODEC_SPEEX_WB_24,     ///< Speex WB  23,800bps
+        SDP_CODEC_SPEEX_UWB,       ///< Speex UWB 11,600bps
+        SDP_CODEC_SPEEX_UWB_5,     ///< Speex UWB  9,550bps
+        SDP_CODEC_SPEEX_UWB_15,    ///< Speex UWB 18,600bps
+        SDP_CODEC_SPEEX_UWB_24,    ///< Speex UWB 25,600bps
+
         SDP_CODEC_ILBC,            ///< Internet Low Bit Rate Codec  (RFC3951)
         SDP_CODEC_TONES,           ///< AVT/DTMF Tones, RFC 2833
         SDP_CODEC_G729A,           ///< G.729A
