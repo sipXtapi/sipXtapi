@@ -92,8 +92,7 @@ struct plgCodecInfoV1 codecAMR =
 /// Frame sizes for different codec modes
 static const uint8_t sgFrameSizesMap[16] =
 { 13, 14, 16, 18, 20, 21, 27, 32, 6 , 0 , 0 , 0 , 0 , 0 , 0 , 1  };
-
-
+/// Default (recommended) fmtp parameters
 static const char* defaultFmtps[] =
 {
    "octet-align=1"
