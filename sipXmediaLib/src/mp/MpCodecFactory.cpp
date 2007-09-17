@@ -355,6 +355,14 @@ OsStatus MpCodecFactory::loadDynCodec(const char* name)
       if (!stSignaling)
             plgSignaling = NULL;
 
+      if(!st)
+      {
+         // If any of the basic (non-signaling) symbols are not present,
+         // then we shouldn't continue on, as some of those functions are
+         // called here (specifically initially plgEnum)
+         continue;
+      }
+
       // Test if the codec could enumerate SDP
       unsigned enumCount;
       const char *mime;
