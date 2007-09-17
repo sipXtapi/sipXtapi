@@ -136,8 +136,8 @@ CODEC_API void *PLG_INIT_V1(amrwb)(const char* fmtp,
 {
    if (pCodecInfo != NULL)
    {
-      int octet_align = 1;       /* Octet Aligned mode / Bandwidth Efficient mode */
-      enum Mode mode = MODE_24k; /* mode to be used by encoder (23.85kbps by default) */
+      int octet_align = 1;   /* Octet Aligned mode / Bandwidth Efficient mode */
+      int mode = MODE_24k;   /* mode to be used by encoder (23.85kbps by default) */
 
       /*
       *             Here fmtp should be parsed.
