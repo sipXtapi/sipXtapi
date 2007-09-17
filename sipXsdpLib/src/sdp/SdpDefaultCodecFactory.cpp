@@ -66,6 +66,7 @@ static MpMimeInfoMapElement sgMimeInfoMap[] =
    { SdpCodec::SDP_CODEC_G726_40, "g726-40", NULL },
    { SdpCodec::SDP_CODEC_G729A,   "g729a", "annexb=no" },
    { SdpCodec::SDP_CODEC_G729A,   "g729",  "annexb=no" },
+   { SdpCodec::SDP_CODEC_G722,    "g722",    NULL },
    { SdpCodec::SDP_CODEC_TONES,   "telephone-event",   NULL  }
 };
 #define SIZEOF_MIME_INFO_MAP     \
@@ -91,6 +92,7 @@ static MpCodecNamesMapElement sgCodecNamesMap[] =
    { SdpCodec::SDP_CODEC_G726_24,         "G726-24" },
    { SdpCodec::SDP_CODEC_G726_32,         "G726-32" },
    { SdpCodec::SDP_CODEC_G726_40,         "G726-40" },
+   { SdpCodec::SDP_CODEC_G722,            "G722" },
    { SdpCodec::SDP_CODEC_ILBC,            "ILBC" },
    { SdpCodec::SDP_CODEC_GSM,             "GSM" },
    { SdpCodec::SDP_CODEC_SPEEX,           "SPEEX" },
@@ -333,6 +335,21 @@ SdpCodec SdpDefaultCodecFactory::getCodec(SdpCodec::SdpCodecTypes internalCodecI
             MIME_TYPE_AUDIO,
             MIME_SUBTYPE_G726_40,
             8000,
+            20000,
+            1,
+            "",
+            SdpCodec::SDP_CODEC_CPU_LOW,
+            SDP_CODEC_BANDWIDTH_NORMAL);
+      }
+      break;
+
+   case SdpCodec::SDP_CODEC_G722:
+      {
+         return SdpCodec(SdpCodec::SDP_CODEC_G722,
+            SdpCodec::SDP_CODEC_G722,
+            MIME_TYPE_AUDIO,
+            MIME_SUBTYPE_G722,
+            16000,
             20000,
             1,
             "",

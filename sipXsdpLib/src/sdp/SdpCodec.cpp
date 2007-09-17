@@ -187,6 +187,10 @@ SdpCodec::SdpCodec(int payloadFormat,
       {
          setValue(SDP_CODEC_G726_40);
       }
+      else if(mMimeSubtype.compareTo("g722") == 0)
+      {
+         setValue(SDP_CODEC_G722);
+      }
       else if(mMimeSubtype.compareTo("speex") == 0)
       {
          if(mFormatSpecificData.compareTo("mode=2", UtlString::ignoreCase) == 0)

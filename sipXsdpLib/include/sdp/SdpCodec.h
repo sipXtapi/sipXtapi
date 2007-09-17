@@ -39,6 +39,7 @@
 #define MIME_SUBTYPE_G726_24 "G726-24"
 #define MIME_SUBTYPE_G726_32 "G726-32"
 #define MIME_SUBTYPE_G726_40 "G726-40"
+#define MIME_SUBTYPE_G722    "G722"
 #define MIME_SUBTYPE_DTMF_TONES "telephone-event"
 #define MIME_SUBTYPE_IPCMU "EG711U"
 #define MIME_SUBTYPE_IPCMA "EG711A"
@@ -154,7 +155,7 @@ public:
         SDP_CODEC_G726_24,
         SDP_CODEC_G726_32,
         SDP_CODEC_G726_40,
-
+        SDP_CODEC_G722,
         /// GIPS specific codecs
         //@{
         SDP_CODEC_GIPS_IPCMA,
