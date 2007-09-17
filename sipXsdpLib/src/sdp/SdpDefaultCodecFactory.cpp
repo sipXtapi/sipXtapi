@@ -64,6 +64,8 @@ static MpMimeInfoMapElement sgMimeInfoMap[] =
    { SdpCodec::SDP_CODEC_G726_24, "g726-24", NULL },
    { SdpCodec::SDP_CODEC_G726_32, "g726-32", NULL },
    { SdpCodec::SDP_CODEC_G726_40, "g726-40", NULL },
+   { SdpCodec::SDP_CODEC_G729A,   "g729a", "annexb=no" },
+   { SdpCodec::SDP_CODEC_G729A,   "g729",  "annexb=no" },
    { SdpCodec::SDP_CODEC_TONES,   "telephone-event",   NULL  }
 };
 #define SIZEOF_MIME_INFO_MAP     \
