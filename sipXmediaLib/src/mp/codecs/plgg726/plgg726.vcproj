@@ -29,7 +29,9 @@
 				Detect64BitPortabilityProblems="TRUE"
 				DebugInformationFormat="3"/>
 			<Tool
-				Name="VCCustomBuildTool"/>
+				Name="VCCustomBuildTool"
+				CommandLine="copy ..\..\..\..\contrib\libspandsp\$(ConfigurationName)\libspandsp.dll $(TargetDir)"
+				Outputs="$(TargetDir)libspandsp.dll"/>
 			<Tool
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="TRUE"
@@ -77,7 +79,9 @@
 				Detect64BitPortabilityProblems="TRUE"
 				DebugInformationFormat="3"/>
 			<Tool
-				Name="VCCustomBuildTool"/>
+				Name="VCCustomBuildTool"
+				CommandLine="copy ..\..\..\..\contrib\libamrwb\$(ConfigurationName)\libamrwb.dll $(TargetDir)"
+				Outputs="$(TargetDir)libamrwb.dll"/>
 			<Tool
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="TRUE"
