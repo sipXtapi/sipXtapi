@@ -1135,6 +1135,7 @@ AC_DEFUN([CHECK_SPANDSP],
     else
     # testing for proper version
     if test -f "$includeval/spandsp/g722.h" -o -f "$includeval/spandsp/g726.h"; then
+            AC_CHECK_HEADERS(spandsp/bitstream.h)
             AC_MSG_RESULT(libspandsp is ok)
             SPANDSP_CFLAGS="-I$includeval"
             SPANDSP_CXXFLAGS="-I$includeval"
@@ -1169,15 +1170,95 @@ AC_DEFUN([CHECK_G726],
 [
     AC_ARG_ENABLE([codec-g726],
                   [AS_HELP_STRING([--enable-codec-g726],
-                                  [Enable support for ilbc codec @<:@default=yes@:>@])],
+                                  [Enable support for g726 codec @<:@default=yes@:>@])],
                   [ case "${enableval}" in
                        auto) AM_SET_G726 ;;
                        yes) AM_SET_G726 ;;
                        no) AC_MSG_RESULT(Codec G.726 was disabled) ;;
-                       *) AC_MSG_ERROR(bad value ${enableval} for --enable-codec-ilbc) ;;
+                       *) AC_MSG_ERROR(bad value ${enableval} for --enable-codec-g726) ;;
                     esac],
                   [AM_SET_G726])
 ])dnl
+
+# =============== G722  =====================
+
+AC_DEFUN([AM_SET_G722],
+[
+# Currently only iLBC in contrib supported
+    if test x_$SPANDSP_CFLAGS != x_; then
+	PLUGINS+="G.722 "
+
+	G722_TARGET="plgg722"
+    fi
+    AC_SUBST(G722_TARGET)    
+    
+])dnl
+AC_DEFUN([CHECK_G722],
+[
+    AC_ARG_ENABLE([codec-g722],
+                  [AS_HELP_STRING([--enable-codec-g722],
+                                  [Enable support for g722 codec @<:@default=yes@:>@])],
+                  [ case "${enableval}" in
+                       auto) AM_SET_G722 ;;
+                       yes) AM_SET_G722 ;;
+                       no) AC_MSG_RESULT(Codec G.722 was disabled) ;;
+                       *) AC_MSG_ERROR(bad value ${enableval} for --enable-codec-g722) ;;
+                    esac],
+                  [AM_SET_G722])
+])dnl
+
+
+# === AMR AMR_WB
+AC_DEFUN([AM_SET_AMR],
+[
+# Currently only iLBC in contrib supported
+    PLUGINS+="AMR "
+    AMR_TARGET="plgamr"
+    AMRNB_INCLUDE="-I${PWD}/contrib/libamrnb/"
+    AMRNB_LIB_ROOT="${PWD}/contrib/libamrnb/"    
+    AC_SUBST(AMR_TARGET)    
+    AC_SUBST(AMRNB_INCLUDE)    
+    AC_SUBST(AMRNB_LIB_ROOT)    
+])dnl
+
+AC_DEFUN([AM_SET_AMRWB],
+[
+# Currently only iLBC in contrib supported
+    PLUGINS+="AMR-WB "
+    AMRWB_TARGET="plgamrwb"
+    AMRWB_INCLUDE="-I${PWD}/contrib/libamrwb/"
+    AMRWB_LIB_ROOT="${PWD}/contrib/libamrwb/"
+    AC_SUBST(AMRWB_TARGET)    
+    AC_SUBST(AMRWB_INCLUDE)    
+    AC_SUBST(AMRWB_LIB_ROOT)    
+])dnl
+
+AC_DEFUN([CHECK_AMR_AMRWB],
+[
+    AC_ARG_ENABLE([codec-amr],
+                  [AS_HELP_STRING([--enable-codec-amr],
+                                  [Enable support for amr codec @<:@default=yes@:>@])],
+                  [ case "${enableval}" in
+                       auto) AM_SET_AMR ;;
+                       yes) AM_SET_AMR ;;
+                       no) AC_MSG_RESULT(Codec AMR was disabled) ;;
+                       *) AC_MSG_ERROR(bad value ${enableval} for --enable-codec-amr) ;;
+                    esac],
+                  [AM_SET_AMR])
+
+    AC_ARG_ENABLE([codec-amrwb],
+                  [AS_HELP_STRING([--enable-codec-amrwb],
+                                  [Enable support for amrwb codec @<:@default=yes@:>@])],
+                  [ case "${enableval}" in
+                       auto) AM_SET_AMRWB ;;
+                       yes) AM_SET_AMRWB ;;
+                       no) AC_MSG_RESULT(Codec AMRWB was disabled) ;;
+                       *) AC_MSG_ERROR(bad value ${enableval} for --enable-codec-amrwb) ;;
+                    esac],
+                  [AM_SET_AMRWB])
+
+])dnl
+
 
 # ============ D O X Y G E N ==================
 # Originaly from CppUnit BB_ENABLE_DOXYGEN
