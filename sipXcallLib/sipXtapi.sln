@@ -172,6 +172,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libspandsp", "..\sipXmediaL
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "plgg729", "..\sipXmediaLib\src\mp\codecs\plgg729\plgg729.vcproj", "{596ABE36-FAE4-404A-A1DC-7AF02393F5BC}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfiguration) = preSolution
 		Debug = Debug
@@ -528,6 +532,17 @@ Global
 		{85D0F778-649D-4581-84BB-9B6E3C60B9E9}.SSL-Debug.Build.0 = Debug|Win32
 		{85D0F778-649D-4581-84BB-9B6E3C60B9E9}.SSL-Release.ActiveCfg = Release|Win32
 		{85D0F778-649D-4581-84BB-9B6E3C60B9E9}.SSL-Release.Build.0 = Release|Win32
+		{596ABE36-FAE4-404A-A1DC-7AF02393F5BC}.Debug.ActiveCfg = Debug|Win32
+		{596ABE36-FAE4-404A-A1DC-7AF02393F5BC}.Debug_NoVideo.ActiveCfg = Debug|Win32
+		{596ABE36-FAE4-404A-A1DC-7AF02393F5BC}.Debug_NoVideo.Build.0 = Debug|Win32
+		{596ABE36-FAE4-404A-A1DC-7AF02393F5BC}.Release.ActiveCfg = Release|Win32
+		{596ABE36-FAE4-404A-A1DC-7AF02393F5BC}.Release.Build.0 = Release|Win32
+		{596ABE36-FAE4-404A-A1DC-7AF02393F5BC}.Release_NoVideo.ActiveCfg = Release|Win32
+		{596ABE36-FAE4-404A-A1DC-7AF02393F5BC}.Release_NoVideo.Build.0 = Release|Win32
+		{596ABE36-FAE4-404A-A1DC-7AF02393F5BC}.SSL-Debug.ActiveCfg = Debug|Win32
+		{596ABE36-FAE4-404A-A1DC-7AF02393F5BC}.SSL-Debug.Build.0 = Debug|Win32
+		{596ABE36-FAE4-404A-A1DC-7AF02393F5BC}.SSL-Release.ActiveCfg = Release|Win32
+		{596ABE36-FAE4-404A-A1DC-7AF02393F5BC}.SSL-Release.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionItems) = postSolution
 	EndGlobalSection
