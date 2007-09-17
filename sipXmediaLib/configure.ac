@@ -54,12 +54,16 @@ AC_CHECK_FUNCS([clock_gettime getcwd gethostbyname gethostname gettimeofday inet
 # Look for CPPUnit libraries
 CHECK_CPPUNIT
 
+CHECK_SPANDSP
+
 # Look for lodable codecs libraries
 CHECK_GSM
 CHECK_SPEEX
 CHECK_ILBC
 CHECK_PCMA_PCMU
 CHECK_TONES
+CHECK_G726
+
 # declaring other codecs staff
 DECLARE_CODECS_STAFF
 
@@ -95,6 +99,9 @@ AC_CONFIG_FILES([
   src/mp/codecs/plgtones/Makefile
   src/mp/codecs/plgspeex/Makefile
   src/mp/codecs/plgilbc/Makefile
+  src/mp/codecs/plgg726/Makefile
+  src/mp/codecs/plgamr/Makefile
+  src/mp/codecs/plgamrwb/Makefile
   src/test/Makefile
   bin/Makefile
   doc/Makefile
