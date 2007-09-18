@@ -16,6 +16,7 @@
 #include <mi/CpMediaInterfaceFactoryFactory.h>
 #include <mi/CpMediaInterface.h>
 #include <mi/MiNotification.h>
+#include <mi/MiDtmfNotf.h>
 #include <os/OsTask.h>
 #include <utl/UtlSList.h>
 #include <utl/UtlInt.h>
@@ -83,6 +84,7 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
 #endif
     CPPUNIT_TEST(testPlayPauseResumeStop);
     CPPUNIT_TEST(testRecordPlayback);
+    CPPUNIT_TEST(testConnectionNotifications);
     CPPUNIT_TEST_SUITE_END();
 
     public:
@@ -154,7 +156,8 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
 
     OsStatus waitForNotf(OsMsgDispatcher& notfDispatcher,
                          MiNotification::NotfType notfType, 
-                         unsigned maxTotalDelayTime)
+                         unsigned maxTotalDelayTime,
+                         MiNotification** ppNotf = NULL)
     {
        // keep count of the milliseconds we're gone
        unsigned delayPeriod = 10; // Milliseconds in each delay
@@ -185,6 +188,17 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
        pNotfMsg = (MiNotification*)pMsg;
        CPPUNIT_ASSERT_EQUAL(notfType, 
                             (MiNotification::NotfType)pNotfMsg->getType());
+
+       if(ppNotf != NULL)
+       {
+          *ppNotf = pNotfMsg;
+       }
+       else
+       {
+          // We're not holding onto the message, so release it.
+          // If we don't do that, there will be a memory leak.
+          pNotfMsg->releaseMsg();
+       }
 
        return OS_SUCCESS;
     }
@@ -1017,6 +1031,225 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
            delete codecArray2[numCodecsFactory2];
         }
         delete[] codecArray2;
+    };
+
+    void testConnectionNotifications()
+    {
+        RTL_START(2400000);
+
+        // This test creates two flowgraphs.  It streams RTP with tones
+        // from the second flowgraph to be received in the first flowgraph
+        // So we test RTP-response generated notifications to tones and other
+        // related behaviors to ensure that they are properly generated.
+        CPPUNIT_ASSERT(mpMediaFactory);
+
+        UtlString localRtpInterfaceAddress("127.0.0.1");
+        OsSocket::getHostIp(&localRtpInterfaceAddress);
+        UtlString locale;
+        int tosOptions = 0;
+        UtlString stunServerAddress;
+        int stunOptions = 0;
+        int stunKeepAlivePeriodSecs = 25;
+        UtlString turnServerAddress;
+        int turnPort = 0 ;
+        UtlString turnUser;
+        UtlString turnPassword;
+        int turnKeepAlivePeriodSecs = 25;
+        bool enableIce = false ;
+
+        // Create a flowgraph (sink) to receive another flowgraph (source)
+        CpMediaInterface* sinkInterface = 
+            mpMediaFactory->createMediaInterface(NULL, // public mapped RTP IP address
+                                                 localRtpInterfaceAddress, 
+                                                 0, NULL, 
+                                                 locale,
+                                                 tosOptions,
+                                                 stunServerAddress, 
+                                                 stunOptions, 
+                                                 stunKeepAlivePeriodSecs,
+                                                 turnServerAddress,
+                                                 turnPort,
+                                                 turnUser,
+                                                 turnPassword,
+                                                 turnKeepAlivePeriodSecs,
+                                                 enableIce);
+
+        // Create a notification dispatcher and supply it to the queue.
+        OsMsgDispatcher sinkNotfDispatcher;
+        sinkInterface->setNotificationDispatcher(&sinkNotfDispatcher);
+        sinkInterface->setNotificationsEnabled(true);
+
+        // BUG: We shouldn't have to delay to make notifications enabled.
+        // This really should be a synchronous operation.
+        printf("\n**BUG**: Notifications sent shortly after setting notifications"
+               " enabled results in no notifications sent.\n");
+        printf("WORKAROUND: Delay to be able to test rest of DTMF notification framework.\n\n");
+        OsTask::delay(100);
+
+        // Create connections for sink flowgraph
+        int sinkConnectionId = -1;
+        CPPUNIT_ASSERT(sinkInterface->createConnection(sinkConnectionId, NULL) == OS_SUCCESS);
+        CPPUNIT_ASSERT(sinkConnectionId > 0);
+        
+        // Get the address of the connections so we can send RTP to them
+        // capabilities of a connection on the sink flowgraph
+        const int maxAddresses = 1;
+        UtlString rtpHostAddresses[maxAddresses];
+        int rtpAudioPorts[maxAddresses];
+        int rtcpAudioPorts[maxAddresses];
+        int rtpVideoPorts[maxAddresses];
+        int rtcpVideoPorts[maxAddresses];
+        RTP_TRANSPORT transportTypes[maxAddresses];
+        int numActualAddresses;
+        SdpCodecList supportedSinkCodecs;
+        SdpSrtpParameters srtpParameters;
+        int bandWidth = 0;
+        int videoBandwidth;
+        int videoFramerate;
+        CPPUNIT_ASSERT_EQUAL(
+            sinkInterface->getCapabilitiesEx(sinkConnectionId, 
+                                             maxAddresses,
+                                             rtpHostAddresses, 
+                                             rtpAudioPorts,
+                                             rtcpAudioPorts,
+                                             rtpVideoPorts,
+                                             rtcpVideoPorts,
+                                             transportTypes,
+                                             numActualAddresses,
+                                             supportedSinkCodecs,
+                                             srtpParameters,
+                                             bandWidth,
+                                             videoBandwidth,
+                                             videoFramerate), 
+
+             OS_SUCCESS);
+
+        // Prep the sink connections to receive RTP
+        int numSupportedSinkCodecs;
+        SdpCodec** supportedSinkCodecArray = NULL;
+        supportedSinkCodecs.getCodecs(numSupportedSinkCodecs, supportedSinkCodecArray);
+        CPPUNIT_ASSERT_EQUAL(
+            sinkInterface->startRtpReceive(sinkConnectionId,
+                                           numSupportedSinkCodecs,
+                                           supportedSinkCodecArray),
+            OS_SUCCESS);
+
+        // Want to hear what is on the mixed flowgraph
+        sinkInterface->giveFocus();
+
+        // Second flowgraph to be the source flowgraph
+        CpMediaInterface* sourceInterface = 
+            mpMediaFactory->createMediaInterface(NULL, // public mapped RTP IP address
+                                                 localRtpInterfaceAddress, 
+                                                 0, NULL, 
+                                                 locale,
+                                                 tosOptions,
+                                                 stunServerAddress, 
+                                                 stunOptions, 
+                                                 stunKeepAlivePeriodSecs,
+                                                 turnServerAddress,
+                                                 turnPort,
+                                                 turnUser,
+                                                 turnPassword,
+                                                 turnKeepAlivePeriodSecs,
+                                                 enableIce);
+
+        // Create connection for source flowgraph
+        int sourceConnectionId = -1;
+        CPPUNIT_ASSERT(sourceInterface->createConnection(sourceConnectionId, NULL) == OS_SUCCESS);
+        CPPUNIT_ASSERT(sourceConnectionId > 0);
+
+        // Set the destination for sending RTP from source to connection on
+        // the sink flowgraph
+        printf("rtpHostAddresses: \"%s\"\nrtpAudioPorts: %d\n"
+               "rtcpAudioPorts: %d\nrtpVideoPorts: %d\nrtcpVideoPorts: %d\n",
+               rtpHostAddresses->data(), 
+               *rtpAudioPorts,
+               *rtcpAudioPorts,
+               *rtpVideoPorts,
+               *rtcpVideoPorts);
+
+        CPPUNIT_ASSERT_EQUAL(
+            sourceInterface->setConnectionDestination(sourceConnectionId,
+                                                      rtpHostAddresses->data(), 
+                                                      *rtpAudioPorts,
+                                                      *rtcpAudioPorts,
+                                                      *rtpVideoPorts,
+                                                      *rtcpVideoPorts),
+            OS_SUCCESS);
+
+        // Start sending RTP from source to the sink flowgraph
+        CPPUNIT_ASSERT_EQUAL(
+            sourceInterface->startRtpSend(sourceConnectionId, 
+                                          numSupportedSinkCodecs,
+                                          supportedSinkCodecArray),
+            OS_SUCCESS);
+
+
+        RTL_EVENT("Tone count", 0);
+
+        // Record the entire "call" - all connections.
+        sinkInterface->recordChannelAudio(-1, "testConnectionNotifications_callrec.wav");
+
+        RTL_EVENT("Tone count", 1);
+        printf("generate tone in source\n");
+        sourceInterface->startTone(1, true, true);
+        MiNotification* pNotf;
+        OsStatus stat = waitForNotf(sinkNotfDispatcher, 
+                                    MiNotification::MI_NOTF_DTMF_RECEIVED, 
+                                    50, &pNotf);
+        CPPUNIT_ASSERT_MESSAGE("Didn't receive DTMF key down message after startTone", stat == OS_SUCCESS);
+        MiDtmfNotf* pDtmfNotf = (MiDtmfNotf*)pNotf;
+        CPPUNIT_ASSERT_EQUAL(MiDtmfNotf::DTMF_1, pDtmfNotf->getKeyCode());
+        CPPUNIT_ASSERT_EQUAL(MiDtmfNotf::KEY_DOWN, pDtmfNotf->getKeyPressState());
+        CPPUNIT_ASSERT_EQUAL(MiDtmfNotf::DURATION_NOT_APPLICABLE, pDtmfNotf->getDuration());
+        pDtmfNotf = NULL;
+        pNotf->releaseMsg();
+        pNotf = NULL;
+
+        OsTask::delay(1000);
+
+        RTL_EVENT("Tone count", 0);
+        printf("stop tone in source\n");
+        sourceInterface->stopTone();
+        stat = waitForNotf(sinkNotfDispatcher, 
+                           MiNotification::MI_NOTF_DTMF_RECEIVED, 
+                           50, &pNotf);
+        pDtmfNotf = (MiDtmfNotf*)pNotf;
+        CPPUNIT_ASSERT_MESSAGE("Didn't receive DTMF key up message after startTone", stat == OS_SUCCESS);
+        CPPUNIT_ASSERT_EQUAL(MiDtmfNotf::DTMF_1, pDtmfNotf->getKeyCode());
+        CPPUNIT_ASSERT_EQUAL(MiDtmfNotf::KEY_UP, pDtmfNotf->getKeyPressState());
+        CPPUNIT_ASSERT(pDtmfNotf->getDuration() > 0);
+        pDtmfNotf = NULL;
+        pNotf->releaseMsg();
+        pNotf = NULL;
+
+        OsTask::delay(200);
+        printf("tone testing done\n");
+
+        printf("%d media notifications are awaiting retrieval\n", sinkNotfDispatcher.numMsgs());
+
+        // Stop recording the "call" -- all connections.
+        sinkInterface->stopRecordChannelAudio(-1);
+
+        // Delete connections
+        sinkInterface->deleteConnection(sinkConnectionId);
+        sourceInterface->deleteConnection(sourceConnectionId);
+
+        // delete interfaces
+        sinkInterface->release();
+        sourceInterface->release();
+
+        OsTask::delay(500) ;
+
+        RTL_WRITE("testTwoTones.rtl");
+        RTL_STOP;
+
+        for ( numSupportedSinkCodecs--; numSupportedSinkCodecs >= 0; numSupportedSinkCodecs--)
+        {
+           delete supportedSinkCodecArray[numSupportedSinkCodecs];
+        }
+        delete[] supportedSinkCodecArray;
     };
 
 };
