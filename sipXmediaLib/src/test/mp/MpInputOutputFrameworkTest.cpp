@@ -45,50 +45,76 @@
 
 #define DEFAULT_BUFFER_ON_OUTPUT_MS   (BUFFERS_TO_BUFFER_ON_OUTPUT*TEST_SAMPLES_PER_FRAME*1000/TEST_SAMPLES_PER_SECOND)
                                             ///< Buffer size in output manager in milliseconds.
-#define DEFAULT_INPUT_DEVICE          "SineGenerator1"
-                                            ///< This device would be used if
-                                            ///< test does require single input
-                                            ///< device.
-#define DEFAULT_OUTPUT_DEVICE         "BufferRecorder1"
-                                            ///< This device would be used if
-                                            ///< test does require single output
-                                            ///< device. It would be also used
-                                            ///< to select ticker source if test
-                                            ///< engage all output devices.
 
-#define TEST_INPUT_DRIVERS            10    ///< Number of sine generators
-#define TEST_OUTPUT_DRIVERS           10    ///< Number of buffer recorders
-#define OSS_INPUT_DRIVERS             2     ///< Number of OSS input drivers
-#define OSS_OUTPUT_DRIVERS            2     ///< Number of OSS output drivers
+//#define USE_TEST_INPUT_DRIVER
+//#define USE_TEST_OUTPUT_DRIVER
 
-#define USE_TEST_INPUT_DRIVER
-#define USE_TEST_OUTPUT_DRIVER
+// OS-specific device input drivers
+#ifndef USE_TEST_INPUT_DRIVER
+#  ifdef __pingtel_on_posix__ // [
+#     define USE_OSS_INPUT_DRIVER
+// __pingtel_on_posix__ ]
+#  elif defined(WIN32) // [
+#     define USE_WNT_INPUT_DRIVER
+#  endif // WIN32 ]
+#endif // ifndef USE_TEST_INPUT_DRIVER ]
 
-// OS-specific device drivers
-#ifdef __pingtel_on_posix__ // [
-#  define USE_OSS_INPUT_DRIVER
-#  define USE_OSS_OUTPUT_DRIVER
-#endif // __pingtel_on_posix__ ]
-#ifdef WIN32 // [
-#  define USE_WNT_INPUT_DRIVER
-#endif // WIN32 ]
+// OS-specific device output drivers
+#ifndef USE_TEST_OUTPUT_DRIVER
+#  ifdef __pingtel_on_posix__ // [
+#     define USE_OSS_OUTPUT_DRIVER
+// __pingtel_on_posix__ ]
+#  elif defined(WIN32) // [
+#     define USE_WNT_OUTPUT_DRIVER
+#  endif // WIN32 ]
+#endif // ifndef USE_TEST_OUTPUT_DRIVER ]
+
+
 
 #ifdef USE_TEST_INPUT_DRIVER // [
 #  include <mp/MpSineWaveGeneratorDeviceDriver.h>
-#endif // USE_TEST_INPUT_DRIVER ]
-#ifdef USE_WNT_INPUT_DRIVER // [
-#  include <mp/MpInputDeviceDriverWnt.h>
-#endif // USE_WNT_INPUT_DRIVER ]
-#ifdef __pingtel_on_posix__ // [
+// USE_TEST_INPUT_DRIVER ]
+#elif defined(USE_WNT_INPUT_DRIVER) // [
+#  include <mp/MpidWinMM.h>
+// USE_WNT_INPUT_DRIVER ]
+#elif defined(__pingtel_on_posix__) // [
 #  include <mp/MpidOSS.h>
 #endif // __pingtel_on_posix__ ]
 
 #ifdef USE_TEST_OUTPUT_DRIVER // [
 #  include <mp/MpodBufferRecorder.h>
-#endif // USE_TEST_OUTPUT_DRIVER ]
-#ifdef __pingtel_on_posix__ // [
+// USE_TEST_OUTPUT_DRIVER ]
+#elif defined(USE_WNT_OUTPUT_DRIVER) // [
+#  include <mp/MpodWinMM.h>
+// USE_WNT_OUTPUT_DRIVER ]
+#elif defined(__pingtel_on_posix__) // [
 #  include <mp/MpodOSS.h>
 #endif // __pingtel_on_posix__ ]
+
+// Define number of drivers for each 
+static size_t nInputDrivers = 
+#ifdef USE_TEST_INPUT_DRIVER
+   10;  ///< Number of sine generators
+#elif defined(USE_OSS_INPUT_DRIVER)
+   2;   ///< Number of OSS input drivers
+#elif defined(USE_WNT_INPUT_DRIVER)
+   1;
+#else
+   0;
+#endif
+static UtlString* sInputDriverNames = NULL;
+
+static size_t nOutputDrivers = 
+#ifdef USE_TEST_OUTPUT_DRIVER
+   10;  ///< Number of buffer recorders
+#elif defined(USE_OSS_OUTPUT_DRIVER)
+   2;   ///< Number of OSS output drivers
+#elif defined(USE_WNT_OUTPUT_DRIVER)
+   1;
+#else
+   0;
+#endif
+static UtlString* outputDriverNames = NULL;
 
 
 ///  Unit test for MprSplitter
@@ -106,12 +132,24 @@ public:
    // This function will be called before every test to setup framework.
    void setUp()
    {
-      enableConsoleOutput(1);
+      //enableConsoleOutput(1);
+
+      UtlString codecPaths[] = { 
+#ifdef WIN32
+         "..\\sipXmediaLib\\bin",
+#else
+         "../../../../../sipXmediaLib/bin",
+         "../../../../sipXmediaLib/bin",
+#endif
+         "."
+      };
+      int codecPathsNum = sizeof(codecPaths)/sizeof(codecPaths[0]);
 
       // Setup media task
       CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
                            mpStartUp(TEST_SAMPLES_PER_SECOND,
-                                     TEST_SAMPLES_PER_FRAME, 6*10, 0));
+                                     TEST_SAMPLES_PER_FRAME, 6*10, 0,
+                                     codecPathsNum, codecPaths));
 
       // Create flowgraph
       mpFlowGraph = new MpFlowGraphBase(TEST_SAMPLES_PER_FRAME,
@@ -143,6 +181,7 @@ public:
       createWntInputDrivers();
       createOSSInputDrivers();
       createTestOutputDrivers();
+      createWntOutputDrivers();
       createOSSOutputDrivers();
    }
 
@@ -153,7 +192,7 @@ public:
       // to an assertion the flowgraph will need to be shutdown here
       if (mpFlowGraph && mpFlowGraph->isStarted())
       {
-         osPrintf("WARNING: flowgraph found still running, shutting down\n");
+         //osPrintf("WARNING: flowgraph found still running, shutting down\n");
 
          // ignore the result and keep going
          mpFlowGraph->stop();
@@ -189,6 +228,18 @@ public:
       delete mpFlowGraph;
       mpFlowGraph = NULL;
 
+      // Free the input and output driver names, if any.
+      if(sInputDriverNames)
+      {
+         delete[] sInputDriverNames;
+         sInputDriverNames = NULL;
+      }
+      if(outputDriverNames)
+      {
+         delete[] outputDriverNames;
+         outputDriverNames = NULL;
+      }
+
       // Clear all media processing data and delete MpMediaTask instance.
       CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, mpShutdown());
    }
@@ -197,14 +248,18 @@ public:
    {
       RTL_START(10000000);
 
+      // We should have at least one input driver and one output driver
+      CPPUNIT_ASSERT(nInputDrivers >= 1);
+      CPPUNIT_ASSERT(nOutputDrivers >= 1);
+
       MpInputDeviceHandle sourceDeviceId;
       CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
-                           mpInputDeviceManager->getDeviceId(DEFAULT_INPUT_DEVICE,
+                           mpInputDeviceManager->getDeviceId(sInputDriverNames[0],
                                                              sourceDeviceId));
 
       MpOutputDeviceHandle  sinkDeviceId;
       CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
-                           mpOutputDeviceManager->getDeviceId(DEFAULT_OUTPUT_DEVICE,
+                           mpOutputDeviceManager->getDeviceId(outputDriverNames[0],
                                                               sinkDeviceId));
 
       // Create source (input) and sink (output) resources.
@@ -312,9 +367,12 @@ public:
 
       RTL_START(10000000);
 
+      // We should have at least one output driver
+      CPPUNIT_ASSERT(nOutputDrivers >= 1);
+
       MpOutputDeviceHandle  tickerDeviceId;
       CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
-                           mpOutputDeviceManager->getDeviceId(DEFAULT_OUTPUT_DEVICE,
+                           mpOutputDeviceManager->getDeviceId(outputDriverNames[0],
                                                               tickerDeviceId));
 
       // Create generator resource.
@@ -459,9 +517,12 @@ public:
 
       RTL_START(10000000);
 
+      // We should have at least one output driver
+      CPPUNIT_ASSERT(nOutputDrivers >= 1);
+
       MpOutputDeviceHandle  tickerDeviceId;
       CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
-                           mpOutputDeviceManager->getDeviceId(DEFAULT_OUTPUT_DEVICE,
+                           mpOutputDeviceManager->getDeviceId(outputDriverNames[0],
                                                               tickerDeviceId));
 
       // Create sink resource.
@@ -597,9 +658,12 @@ public:
 
       RTL_START(10000000);
 
+      // We should have at least one output driver
+      CPPUNIT_ASSERT(nOutputDrivers >= 1);
+
       MpOutputDeviceHandle  sinkDeviceId;
       CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
-                           mpOutputDeviceManager->getDeviceId(DEFAULT_OUTPUT_DEVICE,
+                           mpOutputDeviceManager->getDeviceId(outputDriverNames[0],
                                                               sinkDeviceId));
 
       // Create resources for all available input devices and resources for
@@ -767,14 +831,19 @@ protected:
    void createTestInputDrivers()
    {
 #ifdef USE_TEST_INPUT_DRIVER // [
-      for (int i=0; i < TEST_INPUT_DRIVERS; i++)
+      assert(sInputDriverNames == NULL);
+      sInputDriverNames = new UtlString[nInputDrivers];
+
+      size_t i;
+      for (i=0; i < nInputDrivers; i++)
       {
          char devName[1024];
          snprintf(devName, 1024, "SineGenerator%d", i);
+         sInputDriverNames[i] = devName;
 
          // Create driver
          MpSineWaveGeneratorDeviceDriver *pDriver
-            = new MpSineWaveGeneratorDeviceDriver(devName,
+            = new MpSineWaveGeneratorDeviceDriver(sInputDriverNames[i],
                                                   *mpInputDeviceManager,
                                                   3000, 3000, 0);
          CPPUNIT_ASSERT(pDriver != NULL);
@@ -788,9 +857,14 @@ protected:
    void createWntInputDrivers()
    {
 #ifdef USE_WNT_INPUT_DRIVER // [
+      nInputDrivers = 1;  // Make sure we want only one driver.
+      assert(sInputDriverNames == NULL);
+      sInputDriverNames = new UtlString[nInputDrivers];
+      sInputDriverNames[0] = MpidWinMM::getDefaultDeviceName();
+
       // Create driver
-      MpInputDeviceDriverWnt *pDriver
-         = new MpInputDeviceDriverWnt("SoundMAX HD Audio", *mpInputDeviceManager);
+      MpidWinMM *pDriver
+         = new MpidWinMM(sInputDriverNames[0], *mpInputDeviceManager);
       CPPUNIT_ASSERT(pDriver != NULL);
 
       // Add driver to manager
@@ -801,7 +875,11 @@ protected:
    void createOSSInputDrivers()
    {
 #ifdef USE_OSS_INPUT_DRIVER // [
-      for (int i=0; i < OSS_INPUT_DRIVERS; i++)
+      assert(sInputDriverNames == NULL);
+      sInputDriverNames = new UtlString[nInputDrivers];
+
+      size_t i;
+      for (i=0; i < nInputDrivers; i++)
       {
          char devName[1024];
          if (i == 0)
@@ -812,9 +890,10 @@ protected:
          {
             snprintf(devName, 1024, "/dev/dsp%d", i);
          }
+         sInputDriverNames[i] = devName;
 
          // Create driver
-         MpidOSS *pDriver = new MpidOSS(devName, *mpInputDeviceManager);
+         MpidOSS *pDriver = new MpidOSS(sInputDriverNames[i], *mpInputDeviceManager);
          CPPUNIT_ASSERT(pDriver != NULL);
 
          // Add driver to manager
@@ -826,13 +905,18 @@ protected:
    void createTestOutputDrivers()
    {
 #ifdef USE_TEST_OUTPUT_DRIVER // [
-      for (int i=0; i < TEST_OUTPUT_DRIVERS; i++)
+      assert(outputDriverNames == NULL);
+      outputDriverNames = new UtlString[nOutputDrivers];
+
+      size_t i;
+      for (i=0; i < nOutputDrivers; i++)
       {
          char devName[1024];
          snprintf(devName, 1024, "BufferRecorder%d", i);
+         outputDriverNames[i] = devName;
 
          // Create driver
-         MpodBufferRecorder *pDriver = new MpodBufferRecorder(devName,
+         MpodBufferRecorder *pDriver = new MpodBufferRecorder(outputDriverNames[i],
                                                               TEST_TIME_MS);
          CPPUNIT_ASSERT(pDriver != NULL);
 
@@ -842,10 +926,31 @@ protected:
 #endif // USE_TEST_OUTPUT_DRIVER ]
    }
 
+   void createWntOutputDrivers()
+   {
+#ifdef USE_WNT_INPUT_DRIVER // [
+      nOutputDrivers = 1;  // Make sure we want only one driver.
+      assert(outputDriverNames == NULL);
+      outputDriverNames = new UtlString[nOutputDrivers];
+      outputDriverNames[0] = MpodWinMM::getDefaultDeviceName();
+
+      // Create driver
+      MpodWinMM *pDriver = new MpodWinMM(outputDriverNames[0]);
+      CPPUNIT_ASSERT(pDriver != NULL);
+
+      // Add driver to manager
+      manageOutputDevice(pDriver);
+#endif // USE_WNT_INPUT_DRIVER ]
+   }
+
    void createOSSOutputDrivers()
    {
 #ifdef USE_OSS_OUTPUT_DRIVER // [
-      for (int i=0; i < OSS_OUTPUT_DRIVERS; i++)
+      assert(outputDriverNames == NULL);
+      outputDriverNames = new UtlString[nOutputDrivers];
+
+      size_t i;
+      for (i=0; i < nOutputDrivers; i++)
       {
          char devName[1024];
          if (i == 0)
@@ -856,9 +961,10 @@ protected:
          {
             snprintf(devName, 1024, "/dev/dsp%d", i);
          }
+         outputDriverNames[i] = devName;
 
          // Create driver
-         MpodOSS *pDriver = new MpodOSS(devName);
+         MpodOSS *pDriver = new MpodOSS(outputDriverNames[i]);
          CPPUNIT_ASSERT(pDriver != NULL);
 
          // Add driver to manager
