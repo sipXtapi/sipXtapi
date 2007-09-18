@@ -147,6 +147,18 @@ OsStatus MpFlowGraphBase::addResource(MpResource& rResource,
    MpFlowGraphMsg msg(MpFlowGraphMsg::FLOWGRAPH_ADD_RESOURCE, NULL,
                       &rResource, NULL, makeNameUnique);
 
+   // Setting notification enabled/disabled status based on 
+   // what was already set on existing resources.
+   // Check to see if we have any resources already added to the flowgraph
+   if(numResources() > 0)
+   {
+      // and if so, get their notification enabled/disabled state,
+      UtlBoolean notfState = mUnsorted[0]->areNotificationsEnabled();
+
+      // and set it on this new resource.
+      rResource.setNotificationsEnabled(notfState);
+   }
+
    if (mCurState == STARTED)
       return postMessage(msg);
 
@@ -527,7 +539,7 @@ OsStatus MpFlowGraphBase::setNotificationsEnabled(bool enabled,
       // If the resource exists or all resources are selected, 
       // then call the static method to send a notification enable/disable 
       // message to the actual named resource (or all resources).
-      res = MpResource::setAllNotificationsEnabled(enabled, resourceName, *getMsgQ());
+      res = MpResource::setNotificationsEnabled(enabled, resourceName, *getMsgQ());
    }
 
    return res;

@@ -264,7 +264,7 @@ UtlBoolean MprDecode::doProcessFrame(MpBufPtr inBufs[],
                   MprnDTMFMsg dtmfMsg(getName(), mpConnection->getConnectionId(),
                                       (MprnDTMFMsg::KeyCode)event,
                                       MprnDTMFMsg::KEY_DOWN);
-                  getFlowGraph()->postNotification(dtmfMsg);
+                  sendNotification(dtmfMsg);
 
                   // Old way to indicate DTMF event. Will be removed soon, I hope.
                   if (mpDtmfNotication)
@@ -281,7 +281,7 @@ UtlBoolean MprDecode::doProcessFrame(MpBufPtr inBufs[],
                   MprnDTMFMsg dtmfMsg(getName(), mpConnection->getConnectionId(),
                                       (MprnDTMFMsg::KeyCode)event,
                                       MprnDTMFMsg::KEY_UP, duration);
-                  getFlowGraph()->postNotification(dtmfMsg);
+                  sendNotification(dtmfMsg);
 
                   // Old way to indicate DTMF event. Will be removed soon, I hope.
                   if (mpDtmfNotication)

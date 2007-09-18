@@ -170,9 +170,9 @@ static const UtlContainableType TYPE;
 
      /// @brief Post a message to enable or disable resource notifications on 
      /// the named resource.
-   static OsStatus setAllNotificationsEnabled(UtlBoolean enable,
-                                              const UtlString& namedResource,
-                                              OsMsgQ& fgQ);
+   static OsStatus setNotificationsEnabled(UtlBoolean enable,
+                                           const UtlString& namedResource,
+                                           OsMsgQ& fgQ);
      /**<
      *  Post a message to either enable or disable sending all notifications for 
      *  the named resource to the flowgraph queue supplied.
@@ -468,6 +468,14 @@ protected:
    virtual OsStatus setFlowGraph(MpFlowGraphBase* pFlowGraph);
      /**< @retval OS_SUCCESS - for now, this method always returns success */
 
+     /// @brief Sets whether or not this resource should send notifications
+   virtual OsStatus setNotificationsEnabled(UtlBoolean enable);
+     /**<
+     *  @param[in] enable - TRUE to enable notifications, FALSE to disable.
+     *  
+     *  @retval OS_SUCCESS if setting worked.
+     *  @retval OS_FAILURe if setting failed.
+     */
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
 

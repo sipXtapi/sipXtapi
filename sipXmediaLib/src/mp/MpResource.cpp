@@ -156,9 +156,9 @@ OsStatus MpResource::enable(const UtlString& namedResource,
    return fgQ.send(msg, sOperationQueueTimeout);
 }
 
-OsStatus MpResource::setAllNotificationsEnabled(UtlBoolean enable,
-                                                const UtlString& namedResource, 
-                                                OsMsgQ& fgQ)
+OsStatus MpResource::setNotificationsEnabled(UtlBoolean enable,
+                                             const UtlString& namedResource, 
+                                             OsMsgQ& fgQ)
 {
    MpResourceMsg msg(enable?MpResourceMsg::MPRM_ENABLE_ALL_NOTIFICATIONS
                            :MpResourceMsg::MPRM_DISABLE_ALL_NOTIFICATIONS,
@@ -492,11 +492,11 @@ UtlBoolean MpResource::handleMessage(MpResourceMsg& rMsg)
       break;
    case MpResourceMsg::MPRM_DISABLE_ALL_NOTIFICATIONS:
       // Disable all notifications sent out from this resource.
-      mNotificationsEnabled = FALSE;
+      setNotificationsEnabled(FALSE);
       break;
    case MpResourceMsg::MPRM_ENABLE_ALL_NOTIFICATIONS:
       // Enable all notifications sent out from this resource.
-      mNotificationsEnabled = TRUE;
+      setNotificationsEnabled(TRUE);
       break;
    default:
       msgHandled = FALSE; // we didn't handle the msg after all
@@ -718,6 +718,15 @@ UtlBoolean MpResource::disconnectOutput(int outPortIdx)
 OsStatus MpResource::setFlowGraph(MpFlowGraphBase* pFlowGraph)
 {
    mpFlowGraph = pFlowGraph;
+
+   return OS_SUCCESS;
+}
+
+// Sets whether or not this resource should send notifications.
+// For now, this method always returns success
+OsStatus MpResource::setNotificationsEnabled(UtlBoolean enable)
+{
+   mNotificationsEnabled = enable;
 
    return OS_SUCCESS;
 }

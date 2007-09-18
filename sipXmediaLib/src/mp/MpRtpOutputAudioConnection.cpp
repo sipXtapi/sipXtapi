@@ -268,6 +268,20 @@ OsStatus MpRtpOutputAudioConnection::setFlowGraph(MpFlowGraphBase* pFlowGraph)
    return stat;
 }
 
+OsStatus MpRtpOutputAudioConnection::setNotificationsEnabled(UtlBoolean enable)
+{
+   OsStatus stat = 
+      MpResource::setNotificationsEnabled(enable);
+
+   // If the parent's call was successful, then call
+   // setAllNotificationsEnabled on any child resources we have.
+   if(stat == OS_SUCCESS)
+   {
+      stat = mpEncode->setNotificationsEnabled(enable);
+   }
+   return stat;
+}
+
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 /* ============================ FUNCTIONS ================================= */

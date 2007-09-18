@@ -140,6 +140,12 @@ protected:
      *  @see MpResource::setFlowGraph()
      */
 
+     /// Sets the notification enabled status in any child resources of this resource.
+   virtual OsStatus setNotificationsEnabled(UtlBoolean enable);
+     /**<
+     *  @see MpResource::setNotificationsEnabled()
+     */
+
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
 
