@@ -46,11 +46,12 @@ MpInputDeviceDriver::~MpInputDeviceDriver()
 
 /* ============================ MANIPULATORS ============================== */
 
-/* ============================ ACCESSORS ================================= */
-
-MpInputDeviceHandle MpInputDeviceDriver::getDeviceId() const 
+// I have no clue why this is necessary.  disableDevice is
+// pure virutal and should not be implemented, but MSVS6 is bitching
+// about it being undefined.
+OsStatus MpInputDeviceDriver::disableDevice()
 {
-    return(mDeviceId); 
+    return(OS_SUCCESS);
 }
 
 OsStatus MpInputDeviceDriver::setDeviceId(MpInputDeviceHandle deviceId) 
@@ -77,12 +78,11 @@ OsStatus MpInputDeviceDriver::clearDeviceId()
     return status;
 }
 
-// I have no clue why this is necessary.  disableDevice is
-// pure virutal and should not be implemented, but MSVS6 is bitching
-// about it being undefined.
-OsStatus MpInputDeviceDriver::disableDevice()
+/* ============================ ACCESSORS ================================= */
+
+MpInputDeviceHandle MpInputDeviceDriver::getDeviceId() const
 {
-    return(OS_SUCCESS);
+    return(mDeviceId);
 }
 
 /* ============================ INQUIRY =================================== */

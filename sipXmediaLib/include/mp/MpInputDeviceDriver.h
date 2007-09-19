@@ -52,6 +52,8 @@ class MpInputDeviceManager;
 *  input device.  The name of the MpInputDeviceDriver is accessed via the
 *  data() method inherited from UtlString.  This allows MpInputDeviceDriver
 *  to be contained and accessed by name.
+*
+*  @nosubgrouping
 */
 class MpInputDeviceDriver : public UtlString
 {
@@ -107,6 +109,12 @@ public:
       *        enabling a device results in state and buffer queues being cleared.
       */
 
+      /// Set device ID associated with this device in parent input device manager.
+    virtual OsStatus setDeviceId(MpInputDeviceHandle deviceId);
+
+      /// Clear the device ID associated with this device.
+    virtual OsStatus clearDeviceId();
+
 //@}
 
 /* ============================ ACCESSORS ================================= */
@@ -116,26 +124,14 @@ public:
       /// Get device ID associated with this device in parent input device manager.
     virtual MpInputDeviceHandle getDeviceId() const;
 
-      /// Set device ID associated with this device in parent input device manager.
-    virtual OsStatus setDeviceId(MpInputDeviceHandle deviceId);
-
-      /// Clear the device ID associated with this device.
-    virtual OsStatus clearDeviceId();
-
       /// Calculate the number of milliseconds that a frame occupies in time.
-    inline MpFrameTime getFramePeriod()
-    {
-        return getFramePeriod(mSamplesPerFrame, mSamplesPerSec);
-    }
-
-//@}
+    inline MpFrameTime getFramePeriod();
 
       /// Calculate the number of milliseconds that a frame occupies in time. 
     static inline MpFrameTime getFramePeriod(unsigned samplesPerFrame,
-                                             unsigned samplesPerSec)
-    {
-        return (1000*samplesPerFrame)/samplesPerSec;
-    }
+                                             unsigned samplesPerSec);
+
+//@}
 
 /* ============================ INQUIRY =================================== */
 ///@name Inquiry
@@ -173,4 +169,14 @@ private:
 
 /* ============================ INLINE METHODS ============================ */
 
+MpFrameTime MpInputDeviceDriver::getFramePeriod()
+{
+   return getFramePeriod(mSamplesPerFrame, mSamplesPerSec);
+}
+
+MpFrameTime MpInputDeviceDriver::getFramePeriod(unsigned int samplesPerFrame,
+                                                unsigned int samplesPerSec)
+{
+   return (1000*samplesPerFrame)/samplesPerSec;
+}
 #endif  // _MpInputDeviceDriver_h_
