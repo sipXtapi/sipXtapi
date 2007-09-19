@@ -233,6 +233,8 @@ public:
      *
      *  @NOTE If /p NULL is passed for resource name, then all resources 
      *        will have all notifications enabled/disabled
+     *  @NOTE This is an asynchronous operation.  After calling this, it may
+     *        take a bit of time before the new state takes effect.
      *  
      *  @param[in] enabled - Whether notification type is to be enabled or disabled.
      *  @param[in] resourceName - the name of the resource to have notifications 
