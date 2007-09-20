@@ -140,6 +140,9 @@ public:
       /// Inquire if this driver is enabled
     virtual UtlBoolean isEnabled();
 
+      /// @brief Inquire if the device is valid
+    virtual UtlBoolean isDeviceValid() = 0;
+
 //@}
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */

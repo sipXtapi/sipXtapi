@@ -119,7 +119,7 @@ public:
 //@{
 
       /// @brief Inquire if the windows device is valid
-    virtual inline UtlBoolean isDeviceValid();
+    inline UtlBoolean isDeviceValid();
 
 //@}
 

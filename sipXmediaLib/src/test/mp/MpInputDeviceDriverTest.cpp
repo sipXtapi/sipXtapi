@@ -20,6 +20,8 @@
 #include <mp/MpidWinMM.h>
 #elif defined __linux__
 #include <mp/MpidOSS.h>
+#else
+#include <mp/MpSineWaveGeneratorDeviceDriver.h>
 #endif
 #include <os/OsTask.h>
 #include <utl/UtlString.h>
@@ -63,27 +65,6 @@ public:
       mFramePeriodMSecs = MIDDT_SAMPLES_PER_FRAME * 1000 / mSamplesPerSecond;
    }
 
-   UtlString getDefaultWaveInDevice()
-   {
-      UtlString devName("");
-#ifdef WIN32
-      UINT nInputDevs = waveInGetNumDevs();
-      CPPUNIT_ASSERT(nInputDevs > 0);
-      WAVEINCAPS devCaps;
-      MMRESULT res = waveInGetDevCaps(0, &devCaps, sizeof(devCaps));
-      CPPUNIT_ASSERT(res == MMSYSERR_NOERROR);
-      if (res == MMSYSERR_NOERROR)
-      {
-         devName = UtlString(devCaps.szPname, MAXPNAMELEN);
-      }
-#elif defined __linux__
-         //FIXME: Make more convectional determining
-         devName = "/dev/dsp";
-#endif
-      return devName;
-    }
-
-
 
 
    void testSetup()
@@ -98,23 +79,20 @@ public:
       int pRecordBufferPointer = 0;
 
 
-      MpInputDeviceDriver* pInDevDriver = NULL;
+      MpInputDeviceDriver* pInDevDriver = 
 #ifdef WIN32
-      MpidWinMM iDevDriverWnt(getDefaultWaveInDevice(), inDevMgr);
-      pInDevDriver = &iDevDriverWnt;
+         new MpidWinMM(MpidWinMM::getDefaultDeviceName(), inDevMgr);
 #elif defined __linux__
-      MpidOSS iDevDriverOSS(getDefaultWaveInDevice(), inDevMgr);
-      pInDevDriver = &iDevDriverOSS;
+         new MpidOSS("/dev/dsp", inDevMgr);
+#else
+         new MpSineWaveGeneratorDeviceDriver("SineWaveDriver", inDevMgr,
+                                             3000, 3000, 0);
 #endif
       if (pInDevDriver != NULL)
       {
-#ifdef WIN32
-         // Verify that we are pointing at an actual windows device.
-         CPPUNIT_ASSERT(iDevDriverWnt.isDeviceValid());
-#elif defined __linux__         
-         // Verify that we are pointing at an actual OSS device.
-         CPPUNIT_ASSERT(((MpidOSS*)pInDevDriver)->isDeviceValid());
-#endif
+         // Verify that our device is indeed valid and, if not using the test
+         // driver, is indeed pointing at an actual device in the OS.
+         CPPUNIT_ASSERT(pInDevDriver->isDeviceValid());
 
          // Since we've only just created this device, it shouldn't be enabled.
          CPPUNIT_ASSERT(!pInDevDriver->isEnabled());

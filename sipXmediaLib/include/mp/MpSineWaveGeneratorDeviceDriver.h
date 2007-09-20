@@ -141,6 +141,9 @@ public:
 ///@name Inquiry
 //@{
 
+      /// @copydoc MpInputDeviceDriver::isDeviceValid()
+    inline UtlBoolean isDeviceValid();
+
 
 //@}
 
@@ -164,5 +167,11 @@ private:
 };
 
 /* ============================ INLINE METHODS ============================ */
+
+UtlBoolean MpSineWaveGeneratorDeviceDriver::isDeviceValid()
+{
+   // This test driver is always valid.
+   return TRUE;
+}
 
 #endif  // _MpSineWaveGeneratorDeviceDriver_h_
