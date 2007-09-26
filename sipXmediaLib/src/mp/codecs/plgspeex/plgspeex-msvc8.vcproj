@@ -143,6 +143,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="libspeex.lib"
 				OutputFile="..\..\..\..\bin\codec_speex.dll"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="..\..\..\..\contrib\libspeex\lib"
