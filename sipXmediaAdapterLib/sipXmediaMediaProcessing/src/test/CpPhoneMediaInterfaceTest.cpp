@@ -101,12 +101,14 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
 
         // Add some codec paths.
 
-        UtlString codecPaths[] = { 
+        UtlString codecPaths[] = {
 #ifdef WIN32
                                    "..\\sipXmediaLib\\bin",
-#else
+#elif __pingtel_on_posix__
                                    "../../../../../sipXmediaLib/bin",
                                    "../../../../sipXmediaLib/bin",
+#else
+#                                  error "Unknown platform"
 #endif
                                    "."
                                  };
