@@ -434,10 +434,16 @@ extern void doFrameLoop(int sampleRate, int frame_samples);
 extern STATUS netStartup();
 
 #ifndef CODEC_PLUGIN_PATH
+// Windows compilers do not allow definition of preprocessor macros with 
+// quotes in them within project files, so we need to stringify it here.
+// All platforms do this now.
+// Two levels of indirection are necessary to properly stringify a value in a macro.
+#  define STRINGIFY(s) #s
+#  define SSTRINGIFY(s) STRINGIFY(s)
 #  ifndef DEFAULT_CODECS_PATH
 #     define CODEC_PLUGIN_PATH  "."
 #  else
-#     define CODEC_PLUGIN_PATH  DEFAULT_CODECS_PATH
+#     define CODEC_PLUGIN_PATH  SSTRINGIFY(DEFAULT_CODECS_PATH)
 #  endif
 #endif
 
