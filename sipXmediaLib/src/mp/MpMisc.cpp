@@ -407,32 +407,6 @@ int setMaxSpkr(int v)
     return save;
 }
 
-
-int mpSetLatency(int maxMic, int maxSpkr, int minRtp)
-{
-    setMaxMic(maxMic);
-    setMaxSpkr(maxSpkr);
-    return 0;
-}
-
-int mpSetHighLatency()
-{
-    return mpSetLatency(2, 2, 3);
-}
-
-int mpSetMedLatency()
-{
-    return mpSetLatency(1, 1, 2);
-}
-
-int mpSetLowLatency()
-{
-    return mpSetLatency(1, 1, 1);
-}
-
-extern void doFrameLoop(int sampleRate, int frame_samples);
-extern STATUS netStartup();
-
 #ifndef CODEC_PLUGIN_PATH
 // Windows compilers do not allow definition of preprocessor macros with 
 // quotes in them within project files, so we need to stringify it here.
