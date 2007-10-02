@@ -214,6 +214,9 @@ public:
    inline
    unsigned getSamplesPerFrame() const;
 
+   inline
+   MpFrameTime getCurrentFrameTime() const;
+
 //@}
 
 /* ============================ INQUIRY =================================== */
@@ -381,6 +384,11 @@ unsigned MpAudioOutputConnection::getUseCount() const
 unsigned MpAudioOutputConnection::getSamplesPerFrame() const
 {
    return getDeviceDriver()->getSamplesPerFrame();
+}
+
+MpFrameTime MpAudioOutputConnection::getCurrentFrameTime() const
+{
+   return mCurrentFrameTime;
 }
 
 UtlBoolean MpAudioOutputConnection::isMixerBufferAvailable() const
