@@ -461,16 +461,21 @@ bool EventCallBack(SIPX_EVENT_CATEGORY category,
         case CALLSTATE_DISCONNECTED:
             sipxCallDestroy(pCallInfo->hCall) ;
             break ;
-// ::TODO:: Fix me with new media event
-//        case CALLSTATE_AUDIO_EVENT:
-//            if (pCallInfo->cause == CALLSTATE_CAUSE_AUDIO_START)
-//            {
-//                printf("* Negotiated codec: %s, payload type %d\n", pCallInfo->codecs.audioCodec.cName, pCallInfo->codecs.audioCodec.iPayloadType);
-//            }
-//            break;
         case CALLSTATE_DESTROYED:
             break ;
         }
+    }
+    else if (category == EVENT_CATEGORY_MEDIA)
+    {
+       SIPX_MEDIA_INFO* pMediaInfo = static_cast<SIPX_MEDIA_INFO*>(pInfo);
+
+       switch(pMediaInfo->event)
+       {
+       case MEDIA_LOCAL_START:
+           printf("* Negotiated codec: %s, payload type %d\n",
+                  pMediaInfo->codec.audioCodec.cName, pMediaInfo->codec.audioCodec.iPayloadType);
+       	  break;
+       }
     }
     return true;
 }

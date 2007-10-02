@@ -434,14 +434,21 @@ bool EventCallBack(SIPX_EVENT_CATEGORY category,
     {
         SIPX_CALLSTATE_INFO* pCallInfo = static_cast<SIPX_CALLSTATE_INFO*>(pInfo);
         printf("    hCall=%d, hAssociatedCall=%d\n", pCallInfo->hCall, pCallInfo->hAssociatedCall) ;
-        
-        // ::TODO:: Fix w/ update media events
-        //if (pCallInfo->cause == CALLSTATE_CAUSE_AUDIO_START)
-        //{
-        //    printf("* Negotiated codec: %s, payload type %d\n", pCallInfo->codecs.audioCodec.cName, pCallInfo->codecs.audioCodec.iPayloadType);
-        //}
+
         g_eRecordEvents[g_iNextEvent] = pCallInfo->event;
         g_iNextEvent = (g_iNextEvent + 1) % MAX_RECORD_EVENTS ;
+    }
+    else if (category == EVENT_CATEGORY_MEDIA)
+    {
+       SIPX_MEDIA_INFO* pMediaInfo = static_cast<SIPX_MEDIA_INFO*>(pInfo);
+
+       switch(pMediaInfo->event)
+       {
+       case MEDIA_LOCAL_START:
+           printf("* Negotiated codec: %s, payload type %d\n",
+                  pMediaInfo->codec.audioCodec.cName, pMediaInfo->codec.audioCodec.iPayloadType);
+       	  break;
+       }
     }
     return true;
 }
@@ -854,7 +861,7 @@ int local_main(int argc, char* argv[])
                 printf("Error in retrieving number of video codecs\n");
             }
 #endif // VIDEO            
-            sipxUnInitialize(g_hInst);
+            sipxUnInitialize(g_hInst, true);
             exit(0);
         }
         if (szProxy)
@@ -972,7 +979,7 @@ int local_main(int argc, char* argv[])
         usage(argv[0]) ;
     }
 
-    sipxUnInitialize(g_hInst);
+    sipxUnInitialize(g_hInst, true);
 
 #if defined(_WIN32) && defined(VIDEO)
     PostMessage(hMain, WM_CLOSE, 0, 0L);
