@@ -153,6 +153,10 @@
 						BasicRuntimeChecks="3"/>
 				</FileConfiguration>
 			</File>
+			<File
+				RelativePath="sipXmediaMediaProcessing\src\test\PlayAudioOldNotificationTest.cpp">
+			</File>
+
 		</Filter>
 		<Filter
 			Name="Header Files"

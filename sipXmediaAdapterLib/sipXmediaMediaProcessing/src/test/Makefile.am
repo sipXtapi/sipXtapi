@@ -24,6 +24,7 @@ testsuite_CPPFLAGS = @CPPUNIT_CFLAGS@
 # NOTE: Several media releated units tests are located in
 ## sipXcallLib because they made references to CallManager
 testsuite_SOURCES = \
+    PlayAudioOldNotificationTest.cpp \
     CpPhoneMediaInterfaceTest.cpp
 
 # [DEBUG ASSISTANT] List a single unittest to isoloate a unittest for
