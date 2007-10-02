@@ -25,6 +25,10 @@
 #include <iLBC_decode.h>
 #include <iLBC_encode.h>
 
+// DEFINES
+#define DEBUG_PRINT
+#undef  DEBUG_PRINT
+
 static const char codecMIMEsubtype[] = "ilbc";
 
 static const struct plgCodecInfoV1 codeciLBC = 
@@ -208,10 +212,14 @@ CODEC_API int PLG_DECODE_V1(ilbc)(void* handle, const void* pCodedData, unsigned
    struct iLBC_codec_data *mpiLBC = (struct iLBC_codec_data *)handle;
    assert(handle != NULL);
 
+#ifdef DEBUG_PRINT /* [ */
+   printf("iLBC decoder(%p): ", handle);
+#endif /* DEBUG_PRINT ] */
+
    // Check if available buffer size is enough for the packet.
    if (cbBufferSize < (unsigned)mpiLBC->mMode * 8)
    {
-      //osPrintf("MpdSipxILBC::decode: Jitter buffer overloaded. Glitch!\n");
+      printf("MpdSipxILBC::decode: Jitter buffer overloaded. Glitch!\n");
       return RPLG_FAILED;
    }
 
@@ -220,6 +228,7 @@ CODEC_API int PLG_DECODE_V1(ilbc)(void* handle, const void* pCodedData, unsigned
       if (((NO_OF_BYTES_30MS != cbCodedPacketSize) && (mpiLBC->mMode == 30)) ||
          ((NO_OF_BYTES_20MS != cbCodedPacketSize) && (mpiLBC->mMode == 20)))
       {
+         printf("wrong decoder type!\n");
          return RPLG_FAILED;
       }
       // Packet data available. Decode it.
@@ -243,6 +252,11 @@ CODEC_API int PLG_DECODE_V1(ilbc)(void* handle, const void* pCodedData, unsigned
    }
 
    *pcbDecodedSize = mpiLBC->mMode * 8;
+
+#ifdef DEBUG_PRINT /* [ */
+   printf("ok, %d samples decoded\n", *pcbDecodedSize);
+#endif /* DEBUG_PRINT ] */
+
    return RPLG_SUCCESS;
 }
 
