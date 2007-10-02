@@ -26,6 +26,16 @@
 // EXTERNAL VARIABLES
 // CONSTANTS
 // STATIC VARIABLE INITIALIZATIONS
+// DEFINES
+#define DEBUG_PRINT
+//#undef  DEBUG_PRINT
+
+// MACROS
+#ifdef DEBUG_PRINT // [
+#  define debugPrintf    printf
+#else  // DEBUG_PRINT ][
+static void debugPrintf(...) {}
+#endif // DEBUG_PRINT ]
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
@@ -100,8 +110,8 @@ OsStatus MprDejitter::pushPacket(const MpRtpBufPtr &pRtp)
          pStreamData->mNumDiscarded++;
          if (pStreamData->mNumDiscarded < 40) 
          {
-            osPrintf("Dej: discard#%d Seq: %d -> %d Pt:%d\n",
-               pStreamData->mNumDiscarded, iBufSeqNo, iNewSeqNo, payloadType);
+            debugPrintf("Dej: discard#%d Seq: %d -> %d Pt:%d\n",
+                        pStreamData->mNumDiscarded, iBufSeqNo, iNewSeqNo, payloadType);
          }
          pStreamData->mpPackets[index] = pRtp;
          pStreamData->mLastPushed = index;  
@@ -115,6 +125,22 @@ OsStatus MprDejitter::pushPacket(const MpRtpBufPtr &pRtp)
       pStreamData->mpPackets[index] = pRtp;
       pStreamData->mNumPackets++;
    }
+
+#ifdef DEBUG_PRINT
+   debugPrintf("%5u (%2u) -> (", pRtp->getRtpSequenceNumber(), index);
+   for (int i=0; i< MAX_RTP_PACKETS; i++)
+   {
+      if (pStreamData->mpPackets[i].isValid())
+      {
+         debugPrintf("%5u ", pStreamData->mpPackets[i]->getRtpSequenceNumber());
+      } 
+      else
+      {
+//         debugPrintf("----- ");
+      }
+   }
+   debugPrintf(")\n");
+#endif // DEBUG_PRINT
 
    return OS_SUCCESS;
 }
@@ -164,8 +190,8 @@ MpRtpBufPtr MprDejitter::pullPacket(int payloadType, RtpTimestamp maxTimestamp,
          // It may also (someday) dynamically adjust the size of the jitter buffer.
          int checkRes = pStreamData->checkPacket(pStreamData->mpPackets[iNextPull],
                                                  mNextPullTimerCount, isSignaling);
-//         osPrintf("checkPacket() returned %d for payload %d\n",
-//                  checkRes, payloadType);
+         debugPrintf("checkPacket() returned %d for payload %d\n",
+                     checkRes, payloadType);
          if (checkRes > 0) 
          {
             found.swap(pStreamData->mpPackets[iNextPull]);
@@ -261,8 +287,8 @@ int MprDejitter::StreamData::checkPacket(const MpRtpBufPtr &pPacket,
    if (!mIsFirstFrame && pPacket->getRtpSSRC() != mLastSSRC)
    {
       // SSRC changed, reset statistics, consider this as the first frame
-      osPrintf("Reset stream data due to SSRC change: %X->%X",
-               mLastSSRC, pPacket->getRtpSSRC());
+      debugPrintf("Reset stream data due to SSRC change: %X->%X",
+                  mLastSSRC, pPacket->getRtpSSRC());
       resetStream();
    }
 
@@ -281,8 +307,8 @@ int MprDejitter::StreamData::checkPacket(const MpRtpBufPtr &pPacket,
       mLastSeqNo = pPacket->getRtpSequenceNumber();
       mLastSSRC = pPacket->getRtpSSRC();
 
-//      osPrintf("payload %d: rtpTimestamp=%10u mTimestampOffset=%10u nextPullTimestamp=%10u\n",
-//               pPacket->getRtpPayloadType(), pPacket->getRtpTimestamp(), mTimestampOffset, nextPullTimestamp);
+      debugPrintf("payload %d: rtpTimestamp=%10u mTimestampOffset=%10u nextPullTimestamp=%10u\n",
+                  pPacket->getRtpPayloadType(), pPacket->getRtpTimestamp(), mTimestampOffset, nextPullTimestamp);
 
       // Always accept the first packet
       return 1;
@@ -307,8 +333,8 @@ int MprDejitter::StreamData::checkPacket(const MpRtpBufPtr &pPacket,
          delta = nextPullTimestamp - rtpTimestamp;
       }
    }
-//   osPrintf("payload %d: delta=%10u rtpTimestamp=%10u mTimestampOffset=%10u nextPullTimestamp=%10u\n",
-//            pPacket->getRtpPayloadType(), delta, pPacket->getRtpTimestamp(), mTimestampOffset, nextPullTimestamp);
+   debugPrintf("payload %d: delta=%10u rtpTimestamp=%10u mTimestampOffset=%10u nextPullTimestamp=%10u\n",
+               pPacket->getRtpPayloadType(), delta, pPacket->getRtpTimestamp(), mTimestampOffset, nextPullTimestamp);
 
    if (delta > (160*(mWaitTimeInFrames*2)))
    {
@@ -324,8 +350,8 @@ int MprDejitter::StreamData::checkPacket(const MpRtpBufPtr &pPacket,
       }
 
       // Throw out this packet and stop frame processing for this frame.
-//      osPrintf("payload %d: clock skew?\n",
-//               pPacket->getRtpPayloadType());
+      debugPrintf("payload %d: counter silence%s mTimestampOffset=%u\n",
+                  pPacket->getRtpPayloadType(), mClockDrift?" (clock skew)":"", mTimestampOffset);
       return 0;
    }
 
@@ -345,7 +371,7 @@ int MprDejitter::StreamData::checkPacket(const MpRtpBufPtr &pPacket,
       // Count errors if we are not pulling packets for some reason
       mUnderflowCount++;
 
-//      osPrintf("payload %d: unwanted packet\n", pPacket->getRtpPayloadType());
+      debugPrintf("payload %d: unwanted packet\n", pPacket->getRtpPayloadType());
       return 0;  // We don't want this packet
    }
 }
