@@ -325,7 +325,7 @@ OsStatus MpAudioOutputConnection::mixFrame(unsigned frameOffset,
    assert(samples != NULL);
 
    // Check for late frame. Whole frame should fit into buffer to be accepted.
-   if (frameOffset+numSamples >= mMixerBufferLength)
+   if (frameOffset+numSamples > mMixerBufferLength)
    {
       osPrintf("MpAudioOutputConnection::mixFrame()"
                " OS_LIMIT_REACHED offset=%d, samples=%d, bufferLength=%d\n",
@@ -333,8 +333,9 @@ OsStatus MpAudioOutputConnection::mixFrame(unsigned frameOffset,
       return OS_LIMIT_REACHED;
    }
 
-   // Calculate frame start as if buffer is linear.
+   // Calculate frame start as if buffer is linear
    unsigned frameBegin = mMixerBufferBegin+frameOffset;
+   // and wrap it because it is circular actually.
    if (frameBegin >= mMixerBufferLength)
    {
       frameBegin -= mMixerBufferLength;
