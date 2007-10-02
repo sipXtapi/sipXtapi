@@ -273,10 +273,11 @@ int MprDejitter::StreamData::checkPacket(const MpRtpBufPtr &pPacket,
    }
 
    // If this is our first packet
+
    if (mIsFirstFrame)
    {
       mIsFirstFrame = false;
-      mTimestampOffset = rtpTimestamp-nextPullTimestamp+(160*(mWaitTimeInFrames*2));
+      mTimestampOffset = pPacket->getRtpTimestamp()-nextPullTimestamp+(160*mWaitTimeInFrames);
       mLastSeqNo = pPacket->getRtpSequenceNumber();
       mLastSSRC = pPacket->getRtpSSRC();
 
@@ -317,9 +318,9 @@ int MprDejitter::StreamData::checkPacket(const MpRtpBufPtr &pPacket,
       if (mClockDrift)
       {
          // Clock drift detected, too few packets in buffer!
-         mTimestampOffset = rtpTimestamp-nextPullTimestamp+(160*(mWaitTimeInFrames*2));
+         mTimestampOffset = pPacket->getRtpTimestamp()-nextPullTimestamp+(160*(mWaitTimeInFrames*2));
       } else {
-         mTimestampOffset = rtpTimestamp-nextPullTimestamp+(160*mWaitTimeInFrames);
+         mTimestampOffset = pPacket->getRtpTimestamp()-nextPullTimestamp+(160*mWaitTimeInFrames);
       }
 
       // Throw out this packet and stop frame processing for this frame.
