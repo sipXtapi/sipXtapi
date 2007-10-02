@@ -326,6 +326,6 @@ DECLARE_FUNCS_V1(speex_uwb)
 
 PLG_ENUM_CODEC_START
    PLG_ENUM_CODEC(speex)
-   PLG_ENUM_CODEC(speex_wb)
-   PLG_ENUM_CODEC(speex_uwb)
+//   PLG_ENUM_CODEC(speex_wb)
+//   PLG_ENUM_CODEC(speex_uwb)
 PLG_ENUM_CODEC_END 
