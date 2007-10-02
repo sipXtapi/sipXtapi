@@ -237,12 +237,13 @@ OsStatus MpAudioOutputConnection::pushFrame(unsigned int numSamples,
       {
          // Convert frameTime to offset in mixer buffer.
          // Note: frameTime >= mCurrentFrameTime.
-         // Note: this calculation may overflow (e.g. 10000msec*44100Hz > 4294967296smp).
-         unsigned mixerBufferOffset = 
-                  ( (frameTime-mCurrentFrameTime) * mpDeviceDriver->getSamplesPerSec()) / 1000;
+         unsigned mixerBufferOffsetFrames =
+                  (frameTime-mCurrentFrameTime) / mpDeviceDriver->getFramePeriod();
+         unsigned mixerBufferOffsetSamples = 
+                  mixerBufferOffsetFrames * mpDeviceDriver->getSamplesPerFrame();
 
          // Mix this data with other sources.
-         result = mixFrame(mixerBufferOffset, samples, numSamples);
+         result = mixFrame(mixerBufferOffsetSamples, samples, numSamples);
       }
    }
    else
