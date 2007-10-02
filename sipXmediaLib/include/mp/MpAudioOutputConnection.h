@@ -370,7 +370,7 @@ MpOutputDeviceDriver* MpAudioOutputConnection::getDeviceDriver() const
 
 MpFrameTime MpAudioOutputConnection::getMixerBufferLength() const
 {
-   return mMixerBufferLength;
+   return mMixerBufferLength*1000/getDeviceDriver()->getSamplesPerSec();
 }
 
 unsigned MpAudioOutputConnection::getUseCount() const
