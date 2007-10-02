@@ -28,7 +28,16 @@
 // EXTERNAL VARIABLES
 // CONSTANTS
 // STATIC VARIABLE INITIALIZATIONS
+// DEFINES
+#define DEBUG_PRINT
+#undef  DEBUG_PRINT
 
+// MACROS
+#ifdef DEBUG_PRINT // [
+#  define debugPrintf    printf
+#else  // DEBUG_PRINT ][
+static void debugPrintf(...) {}
+#endif // DEBUG_PRINT ]
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
@@ -108,9 +117,16 @@ UtlBoolean MprToOutputDevice::doProcessFrame(MpBufPtr inBufs[],
          return FALSE;
       }
 
-      mFrameTime = mpOutputDeviceManager->getCurrentFrameTime();
+      mFrameTime = mpOutputDeviceManager->getCurrentFrameTime(mDeviceId);
+
+      debugPrintf("MprToOutputDevice::doProcessFrame(): Initialization: "
+                  "CurrentFrameTime=%u, mixerBufferLength=%u",
+                  mFrameTime, mixerBufferLength);
+
       mFrameTime += mixerBufferLength / 2;
-      
+
+      debugPrintf(" mFrameTime=%u\n", mFrameTime);
+
       mFrameTimeInitialized = TRUE;
    }
    else
@@ -121,8 +137,9 @@ UtlBoolean MprToOutputDevice::doProcessFrame(MpBufPtr inBufs[],
    // Push buffer to output device even if buffer is NULL. WIth NULL buffer we
    // notify output device that we will not push more frames this time interval.
    status = mpOutputDeviceManager->pushFrame(mDeviceId, mFrameTime, inBufs[0]);
-   osPrintf("MprToOutputDevice::doProcessFrame(): frameToPush=%d, pushResult=%d %s\n",
-            mFrameTime, status, inBufs[0].isValid()?"":"[NULL BUFFER]");
+
+   debugPrintf("MprToOutputDevice::doProcessFrame(): frameToPush=%d, pushResult=%d %s\n",
+               mFrameTime, status, inBufs[0].isValid()?"":"[NULL BUFFER]");
 
    // Do processing only if data is really present.
    if (inBufs[0].isValid())
@@ -142,14 +159,16 @@ UtlBoolean MprToOutputDevice::doProcessFrame(MpBufPtr inBufs[],
             RTL_EVENT("MprToOutputDevice::overflow",1);
             mFrameTime -= frameTimeInterval;
             status = mpOutputDeviceManager->pushFrame(mDeviceId, mFrameTime, inBufs[0]);
-            osPrintf("MprToOutputDevice::doProcessFrame(): frameToPush=%d, pushResult=%d ---\n", mFrameTime, status);
+            debugPrintf("MprToOutputDevice::doProcessFrame(): frameToPush=%d, pushResult=%d ---\n",
+                        mFrameTime, status);
          }
          while (status == OS_INVALID_STATE)
          {
             RTL_EVENT("MprToOutputDevice::overflow",-1);
             mFrameTime += frameTimeInterval;
             status = mpOutputDeviceManager->pushFrame(mDeviceId, mFrameTime, inBufs[0]);
-            osPrintf("MprToOutputDevice::doProcessFrame(): frameToPush=%d, pushResult=%d +++\n", mFrameTime, status);
+            debugPrintf("MprToOutputDevice::doProcessFrame(): frameToPush=%d, pushResult=%d +++\n",
+                        mFrameTime, status);
          }
          RTL_EVENT("MprToOutputDevice::overflow",0);
       }

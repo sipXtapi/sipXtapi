@@ -295,10 +295,10 @@ public:
      */
 
      /// Get current frame timestamp
-   MpFrameTime getCurrentFrameTime() const;
+   MpFrameTime getCurrentFrameTime(MpOutputDeviceHandle deviceId) const;
      /**<
      *  The timestamp is in milliseconds from the initial reference point
-     *  in time for this device manager
+     *  in time for this device.
      *
      *  @NOTE This number will wrap roughly every 49.7 days.
      *

@@ -149,7 +149,7 @@ OsStatus MpOutputDeviceManager::enableDevice(MpOutputDeviceHandle deviceId,
    {
        status = connection->enableDevice(mDefaultSamplesPerFrame, 
                                          mDefaultSamplesPerSecond,
-                                         getCurrentFrameTime(),
+                                         0,
                                          mixerBufferLength
                                          );
    }
@@ -379,15 +379,23 @@ OsStatus MpOutputDeviceManager::getMixerBufferLength(MpOutputDeviceHandle device
    return status;
 }
 
-
-MpFrameTime MpOutputDeviceManager::getCurrentFrameTime() const
+MpFrameTime MpOutputDeviceManager::getCurrentFrameTime(MpOutputDeviceHandle deviceId) const
 {
-   OsTime now;
-   OsDateTime::getCurTime(now);
+   MpFrameTime curFrameTime = 0;
 
-   now -= mTimeZero;
+   OsReadLock lock(mRwMutex);
 
-   return(now.seconds() * 1000 + now.usecs() / 1000);
+   MpAudioOutputConnection* connectionFound = NULL;
+   UtlInt deviceKey(deviceId);
+   connectionFound =
+      (MpAudioOutputConnection*) mConnectionsByDeviceId.find(&deviceKey);
+
+   if (connectionFound)
+   {
+      curFrameTime = connectionFound->getCurrentFrameTime();
+   }
+
+   return curFrameTime;
 }
 
 /* ============================ INQUIRY =================================== */

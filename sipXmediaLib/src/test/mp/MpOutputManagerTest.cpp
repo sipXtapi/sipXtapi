@@ -270,7 +270,7 @@ public:
          CPPUNIT_ASSERT(deviceManager.isDeviceEnabled(deviceId));
 
          // Write some data to device.
-         MpFrameTime frameTime=deviceManager.getCurrentFrameTime();
+         MpFrameTime frameTime=deviceManager.getCurrentFrameTime(deviceId);
          for (int frame=0; frame<TEST_SAMPLE_FRAMES; frame++)
          {
             calculateSampleData(frameTime, pBuffer);
@@ -310,7 +310,7 @@ public:
 
          // Get current frame time and step to middle of mixer buffer to be in
          // time with output audio connection.
-         MpFrameTime frameTime=deviceManager.getCurrentFrameTime();
+         MpFrameTime frameTime=deviceManager.getCurrentFrameTime(deviceId);
          frameTime += TEST_MIXER_BUFFER_LENGTH/2;
 
          // Write some data to device.
