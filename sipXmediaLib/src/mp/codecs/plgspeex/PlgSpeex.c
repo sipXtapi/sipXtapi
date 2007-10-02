@@ -250,10 +250,27 @@ int universe_speex_decode(void* handle, const void* pCodedData,
    /* Prepare data for Speex decoder */
    speex_bits_read_from(&mpSpeexDec->mBits,(char*)pCodedData,cbCodedPacketSize);
 
-   /* Decode frame */
-   speex_decode_int(mpSpeexDec->mpDecoderState,&mpSpeexDec->mBits,(spx_int16_t*)pAudioBuffer);   
+   /* Reset number of decoded samples */
+   *pcbDecodedSize = 0;
 
-   *pcbDecodedSize = mpSpeexDec->mNumSamplesPerFrame;
+   /* Decode while there are something to decode and enough space
+    * for decoded data. */
+   while (cbBufferSize >= mpSpeexDec->mNumSamplesPerFrame &&
+          (speex_bits_remaining(&mpSpeexDec->mBits) > 0))
+   {
+      int res;
+
+      /* Decode frame */
+      res = speex_decode_int(mpSpeexDec->mpDecoderState, &mpSpeexDec->mBits,
+                             ((spx_int16_t*)pAudioBuffer)+(*pcbDecodedSize));
+      if (res == 0)
+      {
+         /* Update number of decoded and available samples on success */
+         *pcbDecodedSize += mpSpeexDec->mNumSamplesPerFrame;
+         cbBufferSize -= mpSpeexDec->mNumSamplesPerFrame;
+      }
+   }
+
    return RPLG_SUCCESS;
 }
 
