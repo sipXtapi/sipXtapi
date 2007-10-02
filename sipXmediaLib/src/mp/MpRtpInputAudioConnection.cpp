@@ -27,7 +27,10 @@
 #include <sdp/SdpCodec.h>
 #include <os/OsLock.h>
 #ifdef RTL_ENABLED
-#   include <rtl_macro.h>
+#  include <rtl_macro.h>
+#  ifdef RTL_AUDIO_ENABLED
+#     include <SeScopeAudioBuffer.h>
+#  endif
 #endif
 
 // EXTERNAL FUNCTIONS
@@ -112,6 +115,21 @@ UtlBoolean MpRtpInputAudioConnection::processFrame(void)
 
     // No input buffers to release
    assert(mMaxInputs == 0);
+
+#ifdef RTL_AUDIO_ENABLED
+   int frameIndex = mpFlowGraph ? mpFlowGraph->numFramesProcessed() : 0;
+   // If there is a consumer of the output
+   if(mpOutConns[0].pResource)
+   {
+      UtlString outputLabel(*this);
+      outputLabel.append("_output_0_");
+      outputLabel.append(*mpOutConns[0].pResource);
+      RTL_AUDIO_BUFFER(outputLabel, 
+                       8000, 
+                       ((MpAudioBufPtr) mpOutBufs[0]), 
+                       frameIndex);
+   }
+#endif
 
    // Push the output buffer to the next resource
    assert(mMaxOutputs == 1);
