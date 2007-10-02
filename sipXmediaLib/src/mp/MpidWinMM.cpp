@@ -405,7 +405,10 @@ void MpidWinMM::processAudioInput(HWAVEIN hwi,
            // Ok, we have received and pushed a frame to the manager,
            // Now we advance the frame time.
            mCurrentFrameTime += (mSamplesPerFrame*1000)/mSamplesPerSec;
+        }
 
+        if(mIsEnabled)
+        {
            // Put the wave header back in the pool..
            MMRESULT res = MMSYSERR_NOERROR;
 
