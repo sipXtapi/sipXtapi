@@ -34,7 +34,7 @@ DWORD WINAPI ConsoleStart(LPVOID lpParameter);
 #define MAX_RECORD_EVENTS       16
 #define portIsValid(p) ((p) >= 1 && (p) <= 65535)
 
-SIPX_INST g_hInst = NULL ;      // Handle to the sipXtapi instanance
+SIPX_INST g_hInst = NULL ;      // Handle to the sipXtapi instance
 SIPX_LINE g_hLine = 0 ;         // Line Instance (id, auth, etc)
 SIPX_CALL g_hCall = 0 ;         // Handle to a call
 bool bUseCustomTransportReliable = false;
