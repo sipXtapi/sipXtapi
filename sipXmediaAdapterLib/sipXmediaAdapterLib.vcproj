@@ -190,15 +190,6 @@
 				RelativePath="interface\CpMediaInterfaceFactoryImpl.cpp">
 			</File>
 			<File
-				RelativePath="interface\MiNotification.cpp">
-			</File>
-			<File
-				RelativePath="interface\MiDtmfNotf.cpp">
-			</File>
-			<File
-				RelativePath="interface\MiProgressNotf.cpp">
-			</File>
-			<File
 				RelativePath="sipXmediaMediaProcessing\src\CpPhoneMediaInterface.cpp">
 			</File>
 			<File
@@ -208,10 +199,19 @@
 				RelativePath=".\sipXmediaMediaProcessing\src\CpTopologyGraphInterface.cpp">
 			</File>
 			<File
-				RelativePath="sipXmediaMediaProcessing\src\sipXmediaFactoryImpl.cpp">
+				RelativePath="sipXmediaMediaProcessing\src\MaNotfTranslatorDispatcher.cpp">
 			</File>
 			<File
-				RelativePath="sipXmediaMediaProcessing\src\MaNotfTranslatorDispatcher.cpp">
+				RelativePath="interface\MiDtmfNotf.cpp">
+			</File>
+			<File
+				RelativePath="interface\MiNotification.cpp">
+			</File>
+			<File
+				RelativePath="interface\MiProgressNotf.cpp">
+			</File>
+			<File
+				RelativePath="sipXmediaMediaProcessing\src\sipXmediaFactoryImpl.cpp">
 			</File>
 		</Filter>
 		<Filter
@@ -231,15 +231,6 @@
 				RelativePath="interface\mi\CpMediaInterfaceFactoryImpl.h">
 			</File>
 			<File
-				RelativePath="interface\mi\MiNotification.h">
-			</File>
-			<File
-				RelativePath="interface\mi\MiDtmfNotf.h">
-			</File>
-			<File
-				RelativePath="interface\mi\MiProgressNotf.h">
-			</File>
-			<File
 				RelativePath="sipXmediaMediaProcessing\include\CpPhoneMediaInterface.h">
 			</File>
 			<File
@@ -249,10 +240,19 @@
 				RelativePath=".\sipXmediaMediaProcessing\include\CpTopologyGraphInterface.h">
 			</File>
 			<File
-				RelativePath="sipXmediaMediaProcessing\include\sipXmediaFactoryImpl.h">
+				RelativePath="sipXmediaMediaProcessing\include\MaNotfTranslatorDispatcher.h">
 			</File>
 			<File
-				RelativePath="sipXmediaMediaProcessing\include\MaNotfTranslatorDispatcher.h">
+				RelativePath="interface\mi\MiDtmfNotf.h">
+			</File>
+			<File
+				RelativePath="interface\mi\MiNotification.h">
+			</File>
+			<File
+				RelativePath="interface\mi\MiProgressNotf.h">
+			</File>
+			<File
+				RelativePath="sipXmediaMediaProcessing\include\sipXmediaFactoryImpl.h">
 			</File>
 		</Filter>
 		<Filter
