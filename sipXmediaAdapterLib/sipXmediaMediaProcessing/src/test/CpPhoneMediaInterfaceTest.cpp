@@ -104,6 +104,7 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
         UtlString codecPaths[] = {
 #ifdef WIN32
                                    "..\\sipXmediaLib\\bin",
+                                   "..\\..\\sipXmediaLib\\bin",
 #elif __pingtel_on_posix__
                                    "../../../../../sipXmediaLib/bin",
                                    "../../../../sipXmediaLib/bin",
