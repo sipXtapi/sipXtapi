@@ -39,7 +39,8 @@ struct speex_codec_data_encoder
    /**< Mode used.
    * From the Speex documentation:
    *
-   * Mode  Bitrate  BitrateWB BitrateUWB   MFlops Quality
+   * <pre>
+   * Mode  Bitrate  BitrateWB BitrateUWB   MFlops Quality (for narrow-band)
    *  0    250      3.95      5.75         N/A    No transmission (DTX)
    *  1    2,150    5.75      7.55         6      Vocoder (mostly for comfort noise)
    *  2    5,950    7.75      9.55         9      Very noticeable artifacts/noise, good intelligibility
@@ -51,6 +52,7 @@ struct speex_codec_data_encoder
    *  8    3,950    27.8      29.6         10.5   Very noticeable artifacts/noise, good intelligibility
    *                34.2      36.0
    *                42.2      44.0
+   * </pre>
    */
    int mDoVad;                ///< Set to 1 to enable voice activity detection
    int mDoDtx;                ///< Set to 1 to enable discontinuous transmission
