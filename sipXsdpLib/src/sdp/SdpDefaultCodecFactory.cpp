@@ -286,75 +286,75 @@ SdpCodec SdpDefaultCodecFactory::getCodec(SdpCodec::SdpCodecTypes internalCodecI
    case SdpCodec::SDP_CODEC_G726_16:
       {
          return SdpCodec(SdpCodec::SDP_CODEC_G726_16,
-            SdpCodec::SDP_CODEC_G726_16,
-            MIME_TYPE_AUDIO,
-            MIME_SUBTYPE_G726_16,
-            8000,
-            20000,
-            1,
-            "",
-            SdpCodec::SDP_CODEC_CPU_LOW,
-            SDP_CODEC_BANDWIDTH_NORMAL);
+                         SdpCodec::SDP_CODEC_G726_16,
+                         MIME_TYPE_AUDIO,
+                         MIME_SUBTYPE_G726_16,
+                         8000,
+                         20000,
+                         1,
+                         "",
+                         SdpCodec::SDP_CODEC_CPU_LOW,
+                         SDP_CODEC_BANDWIDTH_NORMAL);
       }
       break;
 
    case SdpCodec::SDP_CODEC_G726_24:
       {
          return SdpCodec(SdpCodec::SDP_CODEC_G726_24,
-            SdpCodec::SDP_CODEC_G726_24,
-            MIME_TYPE_AUDIO,
-            MIME_SUBTYPE_G726_24,
-            8000,
-            20000,
-            1,
-            "",
-            SdpCodec::SDP_CODEC_CPU_LOW,
-            SDP_CODEC_BANDWIDTH_NORMAL);
+                         SdpCodec::SDP_CODEC_G726_24,
+                         MIME_TYPE_AUDIO,
+                         MIME_SUBTYPE_G726_24,
+                         8000,
+                         20000,
+                         1,
+                         "",
+                         SdpCodec::SDP_CODEC_CPU_LOW,
+                         SDP_CODEC_BANDWIDTH_NORMAL);
       }
       break;
 
    case SdpCodec::SDP_CODEC_G726_32:
       {
          return SdpCodec(SdpCodec::SDP_CODEC_G726_32,
-            SdpCodec::SDP_CODEC_G726_32,
-            MIME_TYPE_AUDIO,
-            MIME_SUBTYPE_G726_32,
-            8000,
-            20000,
-            1,
-            "",
-            SdpCodec::SDP_CODEC_CPU_LOW,
-            SDP_CODEC_BANDWIDTH_NORMAL);
+                         SdpCodec::SDP_CODEC_G726_32,
+                         MIME_TYPE_AUDIO,
+                         MIME_SUBTYPE_G726_32,
+                         8000,
+                         20000,
+                         1,
+                         "",
+                         SdpCodec::SDP_CODEC_CPU_LOW,
+                         SDP_CODEC_BANDWIDTH_NORMAL);
       }
       break;
 
    case SdpCodec::SDP_CODEC_G726_40:
       {
          return SdpCodec(SdpCodec::SDP_CODEC_G726_40,
-            SdpCodec::SDP_CODEC_G726_40,
-            MIME_TYPE_AUDIO,
-            MIME_SUBTYPE_G726_40,
-            8000,
-            20000,
-            1,
-            "",
-            SdpCodec::SDP_CODEC_CPU_LOW,
-            SDP_CODEC_BANDWIDTH_NORMAL);
+                         SdpCodec::SDP_CODEC_G726_40,
+                         MIME_TYPE_AUDIO,
+                         MIME_SUBTYPE_G726_40,
+                         8000,
+                         20000,
+                         1,
+                         "",
+                         SdpCodec::SDP_CODEC_CPU_LOW,
+                         SDP_CODEC_BANDWIDTH_NORMAL);
       }
       break;
 
    case SdpCodec::SDP_CODEC_G722:
       {
          return SdpCodec(SdpCodec::SDP_CODEC_G722,
-            SdpCodec::SDP_CODEC_G722,
-            MIME_TYPE_AUDIO,
-            MIME_SUBTYPE_G722,
-            16000,
-            20000,
-            1,
-            "",
-            SdpCodec::SDP_CODEC_CPU_LOW,
-            SDP_CODEC_BANDWIDTH_NORMAL);
+                         SdpCodec::SDP_CODEC_G722,
+                         MIME_TYPE_AUDIO,
+                         MIME_SUBTYPE_G722,
+                         16000,
+                         20000,
+                         1,
+                         "",
+                         SdpCodec::SDP_CODEC_CPU_LOW,
+                         SDP_CODEC_BANDWIDTH_NORMAL);
       }
       break;
 
@@ -491,114 +491,114 @@ SdpCodec SdpDefaultCodecFactory::getCodec(SdpCodec::SdpCodecTypes internalCodecI
    case SdpCodec::SDP_CODEC_SPEEX_WB:
       {
          return SdpCodec(SdpCodec::SDP_CODEC_SPEEX_WB,
-            SdpCodec::SDP_CODEC_SPEEX_WB,
-            MIME_TYPE_AUDIO,
-            MIME_SUBTYPE_SPEEX,
-            16000,
-            20000,
-            1,
-            "mode=3",
-            SdpCodec::SDP_CODEC_CPU_LOW,
-            SDP_CODEC_BANDWIDTH_LOW);
+                         SdpCodec::SDP_CODEC_SPEEX_WB,
+                         MIME_TYPE_AUDIO,
+                         MIME_SUBTYPE_SPEEX,
+                         16000,
+                         20000,
+                         1,
+                         "mode=3",
+                         SdpCodec::SDP_CODEC_CPU_LOW,
+                         SDP_CODEC_BANDWIDTH_LOW);
       }
       break;
    case SdpCodec::SDP_CODEC_SPEEX_WB_5:
       {
          return SdpCodec(SdpCodec::SDP_CODEC_SPEEX_WB_5,
-            SdpCodec::SDP_CODEC_SPEEX_WB_5,
-            MIME_TYPE_AUDIO,
-            MIME_SUBTYPE_SPEEX,
-            16000,
-            20000,
-            1,
-            "mode=2",
-            SdpCodec::SDP_CODEC_CPU_LOW,
-            SDP_CODEC_BANDWIDTH_LOW);
+                         SdpCodec::SDP_CODEC_SPEEX_WB_5,
+                         MIME_TYPE_AUDIO,
+                         MIME_SUBTYPE_SPEEX,
+                         16000,
+                         20000,
+                         1,
+                         "mode=2",
+                         SdpCodec::SDP_CODEC_CPU_LOW,
+                         SDP_CODEC_BANDWIDTH_LOW);
       }
       break;
    case SdpCodec::SDP_CODEC_SPEEX_WB_15:
       {
          return SdpCodec(SdpCodec::SDP_CODEC_SPEEX_WB_15,
-            SdpCodec::SDP_CODEC_SPEEX_WB_15,
-            MIME_TYPE_AUDIO,
-            MIME_SUBTYPE_SPEEX,
-            16000,
-            20000,
-            1,
-            "mode=5",
-            SdpCodec::SDP_CODEC_CPU_LOW,
-            SDP_CODEC_BANDWIDTH_NORMAL);
+                         SdpCodec::SDP_CODEC_SPEEX_WB_15,
+                         MIME_TYPE_AUDIO,
+                         MIME_SUBTYPE_SPEEX,
+                         16000,
+                         20000,
+                         1,
+                         "mode=5",
+                         SdpCodec::SDP_CODEC_CPU_LOW,
+                         SDP_CODEC_BANDWIDTH_NORMAL);
       }
       break;
    case SdpCodec::SDP_CODEC_SPEEX_WB_24:
       {
          return SdpCodec(SdpCodec::SDP_CODEC_SPEEX_WB_24,
-            SdpCodec::SDP_CODEC_SPEEX_WB_24,
-            MIME_TYPE_AUDIO,
-            MIME_SUBTYPE_SPEEX,
-            16000,
-            20000,
-            1,
-            "mode=7",
-            SdpCodec::SDP_CODEC_CPU_LOW,
-            SDP_CODEC_BANDWIDTH_NORMAL);
+                         SdpCodec::SDP_CODEC_SPEEX_WB_24,
+                         MIME_TYPE_AUDIO,
+                         MIME_SUBTYPE_SPEEX,
+                         16000,
+                         20000,
+                         1,
+                         "mode=7",
+                         SdpCodec::SDP_CODEC_CPU_LOW,
+                         SDP_CODEC_BANDWIDTH_NORMAL);
       }
       break;
 
    case SdpCodec::SDP_CODEC_SPEEX_UWB:
       {
          return SdpCodec(SdpCodec::SDP_CODEC_SPEEX_UWB,
-            SdpCodec::SDP_CODEC_SPEEX_UWB,
-            MIME_TYPE_AUDIO,
-            MIME_SUBTYPE_SPEEX,
-            32000,
-            20000,
-            1,
-            "mode=3",
-            SdpCodec::SDP_CODEC_CPU_LOW,
-            SDP_CODEC_BANDWIDTH_LOW);
+                         SdpCodec::SDP_CODEC_SPEEX_UWB,
+                         MIME_TYPE_AUDIO,
+                         MIME_SUBTYPE_SPEEX,
+                         32000,
+                         20000,
+                         1,
+                         "mode=3",
+                         SdpCodec::SDP_CODEC_CPU_LOW,
+                         SDP_CODEC_BANDWIDTH_LOW);
       }
       break;
    case SdpCodec::SDP_CODEC_SPEEX_UWB_5:
       {
          return SdpCodec(SdpCodec::SDP_CODEC_SPEEX_UWB_5,
-            SdpCodec::SDP_CODEC_SPEEX_UWB_5,
-            MIME_TYPE_AUDIO,
-            MIME_SUBTYPE_SPEEX,
-            32000,
-            20000,
-            1,
-            "mode=2",
-            SdpCodec::SDP_CODEC_CPU_LOW,
-            SDP_CODEC_BANDWIDTH_LOW);
+                         SdpCodec::SDP_CODEC_SPEEX_UWB_5,
+                         MIME_TYPE_AUDIO,
+                         MIME_SUBTYPE_SPEEX,
+                         32000,
+                         20000,
+                         1,
+                         "mode=2",
+                         SdpCodec::SDP_CODEC_CPU_LOW,
+                         SDP_CODEC_BANDWIDTH_LOW);
       }
       break;
    case SdpCodec::SDP_CODEC_SPEEX_UWB_15:
       {
          return SdpCodec(SdpCodec::SDP_CODEC_SPEEX_UWB_15,
-            SdpCodec::SDP_CODEC_SPEEX_UWB_15,
-            MIME_TYPE_AUDIO,
-            MIME_SUBTYPE_SPEEX,
-            32000,
-            20000,
-            1,
-            "mode=5",
-            SdpCodec::SDP_CODEC_CPU_LOW,
-            SDP_CODEC_BANDWIDTH_NORMAL);
+                         SdpCodec::SDP_CODEC_SPEEX_UWB_15,
+                         MIME_TYPE_AUDIO,
+                         MIME_SUBTYPE_SPEEX,
+                         32000,
+                         20000,
+                         1,
+                         "mode=5",
+                         SdpCodec::SDP_CODEC_CPU_LOW,
+                         SDP_CODEC_BANDWIDTH_NORMAL);
       }
       break;
    case SdpCodec::SDP_CODEC_SPEEX_UWB_24:
       {
          return SdpCodec(SdpCodec::SDP_CODEC_SPEEX_UWB_24,
-            SdpCodec::SDP_CODEC_SPEEX_UWB_24,
-            MIME_TYPE_AUDIO,
-            MIME_SUBTYPE_SPEEX,
-            32000,
-            20000,
-            1,
-            "mode=7",
-            SdpCodec::SDP_CODEC_CPU_LOW,
-            SDP_CODEC_BANDWIDTH_NORMAL);
+                         SdpCodec::SDP_CODEC_SPEEX_UWB_24,
+                         MIME_TYPE_AUDIO,
+                         MIME_SUBTYPE_SPEEX,
+                         32000,
+                         20000,
+                         1,
+                         "mode=7",
+                         SdpCodec::SDP_CODEC_CPU_LOW,
+                         SDP_CODEC_BANDWIDTH_NORMAL);
       }
       break;
 
