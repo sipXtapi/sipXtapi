@@ -347,7 +347,8 @@ UtlBoolean MprBridge::doMix(MpBufPtr inBufs[], int inBufsSize,
             printf("V");
 #endif // TEST_PRINT_CONTRIBUTORS ]
             MpAudioBufPtr pAudio = inBufs[origInput];
-            if (mMixSilence || pAudio->isActiveAudio())
+            if ((mMixSilence || pAudio->isActiveAudio()) &&
+                pAudio->getSpeechType() != MpAudioBuf::MP_SPEECH_MUTED)
             {
 #ifdef TEST_PRINT_CONTRIBUTORS // [
                printf("A");
