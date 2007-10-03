@@ -142,7 +142,8 @@ private:
 MprBridge::MprBridge(const UtlString& rName,
                      int maxInOutputs,
                      int samplesPerFrame, 
-                     int samplesPerSec)
+                     int samplesPerSec,
+                     UtlBoolean mixSilence)
 :  MpAudioResource(rName, 
                    1, maxInOutputs, 
                    1, maxInOutputs, 
@@ -169,6 +170,7 @@ MprBridge::MprBridge(const UtlString& rName,
 , mMixDataInfoProcessedStackTop(0)
 , mpMixDataInfoProcessedStack(NULL)
 , mpMixAccumulator(NULL)
+, mMixSilence(mixSilence)
 {
    handleDisable();
 
@@ -343,7 +345,7 @@ UtlBoolean MprBridge::doMix(MpBufPtr inBufs[], int inBufsSize,
             printf("V");
 #endif // TEST_PRINT_CONTRIBUTORS ]
             MpAudioBufPtr pAudio = inBufs[origInput];
-            if (pAudio->isActiveAudio())
+            if (mMixSilence || pAudio->isActiveAudio())
             {
 #ifdef TEST_PRINT_CONTRIBUTORS // [
                printf("A");

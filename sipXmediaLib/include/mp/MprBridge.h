@@ -95,7 +95,8 @@ public:
    MprBridge(const UtlString& rName,
              int maxInOutputs, 
              int samplesPerFrame, 
-             int samplesPerSec);
+             int samplesPerSec,
+             UtlBoolean mixSilence=TRUE);
 
      /// Destructor
    virtual
@@ -734,6 +735,8 @@ protected:
 
    MpBridgeAccum* mpMixAccumulator;    ///< Accumulator to store sum of all inputs.
                     ///< have size of mSamplesPerFrame. Used in doMix() only.
+
+   UtlBoolean mMixSilence; ///< Should Bridge ignore or mix frames marked as silence?
 
      /// @brief Mix together inputs onto outputs according to mpGainMatrix matrix.
    UtlBoolean doMix(MpBufPtr inBufs[], int inBufsSize,
