@@ -1741,7 +1741,6 @@ void SdpBody::addCodecParameters(int numRtpCodecs,
    char valueBuf[64];
    UtlString formatParameters;
    UtlString mimeType;
-   UtlString prevMimeSubType = "none";
    UtlString formatTemp;
    UtlString formatString;
    int pTime = 0;
@@ -1756,73 +1755,66 @@ void SdpBody::addCodecParameters(int numRtpCodecs,
       if(codec && mimeType.compareTo(szMimeType) == 0)
       {
          codec->getEncodingName(mimeSubtype);
-         // Only add to map if we have a new mime sub type
-         if (mimeSubtype.compareTo(prevMimeSubType) != 0)
+         sampleRate = codec->getSampleRate();
+         numChannels = codec->getNumChannels();
+         codec->getSdpFmtpField(formatParameters);
+         payloadType = codec->getCodecPayloadFormat();
+
+         // Not sure what the right heuristic is for determining the
+         // correct ptime.  ptime is a media (m line) parameters.  As such
+         // it is a global property to all codecs for a single media
+         // (m line) section.  For now lets try using the largest one as
+         // SDP does not support different ptime for each codec.
+         codecPtime = (codec->getPacketLength()) / 1000; // converted to milliseconds
+         if(codecPtime > pTime)
          {
-            prevMimeSubType = mimeSubtype;
-            sampleRate = codec->getSampleRate();
-            numChannels = codec->getNumChannels();
-            codec->getSdpFmtpField(formatParameters);
-            payloadType = codec->getCodecPayloadFormat();
+               pTime = codecPtime;
+         }
 
-            // Not sure what the right heuristic is for determining the
-            // correct ptime.  ptime is a media (m line) parameters.  As such
-            // it is a global property to all codecs for a single media
-            // (m line) section.  For now lets try using the largest one as
-            // SDP does not support different ptime for each codec.
-            codecPtime = (codec->getPacketLength()) / 1000; // converted to milliseconds
-            if(codecPtime > pTime)
-            {
-                pTime = codecPtime;
-            }
+         // Build an rtpmap
+         addRtpmap(payloadType, mimeSubtype.data(), sampleRate, numChannels);
 
-            // Build an rtpmap
-            addRtpmap(payloadType, mimeSubtype.data(),
-                       sampleRate, numChannels);
+         if ((videoFmtp=codec->getVideoFmtp()) != 0)
+         {
+            if (codec->getCodecPayloadFormat() != SdpCodec::SDP_CODEC_H263)
+            {
+               codec->getVideoFmtpString(formatString);
+               formatTemp = "size:" + formatString;
 
-            if ((videoFmtp=codec->getVideoFmtp()) != 0)
-            {
-                if (codec->getCodecPayloadFormat() != SdpCodec::SDP_CODEC_H263)
-                {
-                    codec->getVideoFmtpString(formatString);
-                    formatTemp = "size:" + formatString;
-
-                    formatParameters = formatTemp(0, formatTemp.length()-1);
-                }
-                else
-                {
-                    switch (codec->getCodecType())
-                    {
-                    case SdpCodec::SDP_CODEC_H263_CIF:
-                        formatParameters = "imagesize 1";
-                        break;
-                    case SdpCodec::SDP_CODEC_H263_QCIF:
-                        formatParameters = "imagesize 0";
-                        break;
-                    default:
-                        break;
-                    }
-                }
+               formatParameters = formatTemp(0, formatTemp.length()-1);
             }
-            if (codec->getCodecType() == SdpCodec::SDP_CODEC_ILBC)
+            else
             {
-                sprintf(valueBuf, "mode=%d", codec->getPacketLength()/1000);
-                formatParameters = valueBuf;
+               switch (codec->getCodecType())
+               {
+               case SdpCodec::SDP_CODEC_H263_CIF:
+                  formatParameters = "imagesize 1";
+                  break;
+               case SdpCodec::SDP_CODEC_H263_QCIF:
+                  formatParameters = "imagesize 0";
+                  break;
+               default:
+                  break;
+               }
             }
-            // Add the format specific parameters if present
-            if(!formatParameters.isNull())
-            {
-                addFormatParameters(payloadType,
-                                    formatParameters.data());
-                /* Not quite sure if we want to send a global framerate limit
-                if (codec->getCodecPayloadFormat() == SdpCodec::SDP_CODEC_H263 &&
-                    videoFramerate != 0)
-                {
-                     sprintf(valueBuf, "framerate:%d", videoFramerate);
-                     addValue("a", valueBuf);    
-                }
-                */
-            }
+         }
+         if (codec->getCodecType() == SdpCodec::SDP_CODEC_ILBC)
+         {
+               sprintf(valueBuf, "mode=%d", codec->getPacketLength()/1000);
+               formatParameters = valueBuf;
+         }
+         // Add the format specific parameters if present
+         if(!formatParameters.isNull())
+         {
+               addFormatParameters(payloadType, formatParameters.data());
+               /* Not quite sure if we want to send a global framerate limit
+               if (codec->getCodecPayloadFormat() == SdpCodec::SDP_CODEC_H263 &&
+                  videoFramerate != 0)
+               {
+                  sprintf(valueBuf, "framerate:%d", videoFramerate);
+                  addValue("a", valueBuf);    
+               }
+               */
          }
       }
    }
