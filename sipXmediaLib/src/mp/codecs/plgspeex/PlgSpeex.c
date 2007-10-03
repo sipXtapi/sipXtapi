@@ -50,8 +50,8 @@ struct speex_codec_data_encoder
    *  6    18,200   20.6      22.4         17.5   Hard to tell the difference even with good headphones
    *  7    24,600   23.8      25.6         14.5   Completely transparent for voice, good quality music
    *  8    3,950    27.8      29.6         10.5   Very noticeable artifacts/noise, good intelligibility
-   *                34.2      36.0
-   *                42.2      44.0
+   *  9             34.2      36.0
+   *  10            42.2      44.0
    * </pre>
    */
    int mDoVad;                ///< Set to 1 to enable voice activity detection
@@ -173,7 +173,7 @@ void* universe_speex_init(const char* fmt, int isDecoder,
       }
 
       mpSpeexEnc->mpEncoderState = NULL;
-      mpSpeexEnc->mSampleRate = samplerate;        // Sample rate of 8000Hz. We'll stick with NB for now.
+      mpSpeexEnc->mSampleRate = samplerate;
 
       mpSpeexEnc->mDoVad = 0;
       mpSpeexEnc->mDoDtx = 0;
@@ -205,8 +205,9 @@ void* universe_speex_init(const char* fmt, int isDecoder,
       {
          mpSpeexEnc->mpPreprocessState = speex_preprocess_state_init(160, mpSpeexEnc->mSampleRate);
          speex_preprocess_ctl(mpSpeexEnc->mpPreprocessState, SPEEX_PREPROCESS_SET_DENOISE,
-            &mpSpeexEnc->mDoDenoise);
-         speex_preprocess_ctl(mpSpeexEnc->mpPreprocessState, SPEEX_PREPROCESS_SET_AGC, &mpSpeexEnc->mDoAgc);
+                              &mpSpeexEnc->mDoDenoise);
+         speex_preprocess_ctl(mpSpeexEnc->mpPreprocessState, SPEEX_PREPROCESS_SET_AGC,
+                              &mpSpeexEnc->mDoAgc);
       }
 
       speex_bits_init(&mpSpeexEnc->mBits);
