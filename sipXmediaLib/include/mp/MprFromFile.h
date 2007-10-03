@@ -334,6 +334,10 @@ private:
                                     int samplesPerFrame=80,
                                     int samplesPerSecond=8000);
 
+     /// Initialize things to start playing the given buffer, upon receiving request to start.
+   virtual UtlBoolean handlePlay(OsNotification* pNotifier, UtlString* pBuffer,
+                                 UtlBoolean repeat);
+
      /// Perform resetting of state, etc. upon receiving request to stop playing.
    virtual UtlBoolean handleStop(UtlBoolean finished = FALSE);
 

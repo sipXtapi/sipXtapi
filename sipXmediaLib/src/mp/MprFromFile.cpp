@@ -695,6 +695,29 @@ UtlBoolean MprFromFile::doProcessFrame(MpBufPtr inBufs[],
 
 // Handle messages for this resource.
 
+// This is used in both old and new messaging schemes to initialize everything
+// and start playing a buffer, when a play is requested.
+UtlBoolean MprFromFile::handlePlay(OsNotification* pNotifier, 
+                                   UtlString* pBuffer, UtlBoolean repeat)
+{
+   // Enable this resource - as it's disabled automatically when the last file ends.
+   enable();
+
+   if(mpFileBuffer) delete mpFileBuffer;
+   if (mpNotify) 
+   {
+      mpNotify->signal(PLAY_FINISHED);
+   }
+   mpNotify = pNotifier;
+   mpFileBuffer = pBuffer;
+   if(mpFileBuffer) 
+   {
+      mFileBufferIndex = 0;
+      mFileRepeat = repeat;
+   }
+   return TRUE;
+}
+
 // this is used in both old and new messaging schemes to do reset state
 // and send notification when stop is requested.
 UtlBoolean MprFromFile::handleStop(UtlBoolean finished)
@@ -759,20 +782,9 @@ UtlBoolean MprFromFile::handleMessage(MpFlowGraphMsg& rMsg)
    switch (rMsg.getMsg()) 
    {
    case PLAY_FILE:
-      if(mpFileBuffer) delete mpFileBuffer;
-      if (mpNotify) 
-      {
-         mpNotify->signal(PLAY_FINISHED);
-      }
-      mpNotify = (OsNotification*) rMsg.getPtr1();
-      mpFileBuffer = (UtlString*) rMsg.getPtr2();      
-      if(mpFileBuffer) 
-      {
-         mFileBufferIndex = 0;
-         mFileRepeat = (rMsg.getInt1() == PLAY_ONCE) ? FALSE : TRUE;
-      }
-      
-      return TRUE;
+      return handlePlay((OsNotification*)rMsg.getPtr1(),
+                        (UtlString*)rMsg.getPtr2(),
+                        (rMsg.getInt1() == PLAY_ONCE) ? FALSE : TRUE);
       break;
 
    case STOP_FILE:
@@ -798,52 +810,31 @@ UtlBoolean MprFromFile::handleMessage(MpResourceMsg& rMsg)
    {
    case MpResourceMsg::MPRM_FROMFILE_START:
       ffsRMsg = (MpFromFileStartResourceMsg*)&rMsg;
-
-      // Enable this resource - as it's disabled automatically when the last file ends.
-      enable();
-      if(mpFileBuffer) delete mpFileBuffer;
-      if (mpNotify) 
-      {
-         mpNotify->signal(PLAY_FINISHED);
-      }
-      mpNotify = (OsNotification*) ffsRMsg->getOsNotification();
-      mpFileBuffer = (UtlString*) ffsRMsg->getAudioBuffer();
-      if(mpFileBuffer) 
-      {
-         mFileBufferIndex = 0;
-         mFileRepeat = ffsRMsg->isRepeating();
-      }
-      msgHandled = TRUE;
+      msgHandled = handlePlay(ffsRMsg->getOsNotification(), 
+                              ffsRMsg->getAudioBuffer(),
+                              ffsRMsg->isRepeating());
       break;
 
    case MpResourceMsg::MPRM_FROMFILE_STOP:
-      handleStop();
-      msgHandled = TRUE;
+      msgHandled = handleStop();
       break;
 
    case MpResourceMsg::MPRM_FROMFILE_PAUSE:
-      handlePause();
-      msgHandled = TRUE;
+      msgHandled = handlePause();
       break;
 
    case MpResourceMsg::MPRM_FROMFILE_RESUME:
-      handleResume();
-      msgHandled = TRUE;
+      msgHandled = handleResume();
       break;
 
    case MpResourceMsg::MPRM_FROMFILE_SEND_PROGRESS:
-      MpProgressResourceMsg* pProgressRMsg;
-      pProgressRMsg = (MpProgressResourceMsg*)&rMsg;
-      handleSetUpdatePeriod(pProgressRMsg->getUpdatePeriodMS());
-      msgHandled = TRUE;
+      msgHandled = handleSetUpdatePeriod(((MpProgressResourceMsg*)&rMsg)->getUpdatePeriodMS());
       break;      
 
    case MPRM_FROMFILE_FINISH:
       // Stop, but indicate finished.
-      handleStop(TRUE);
-      msgHandled = TRUE;
+      msgHandled = handleStop(TRUE);
       break;
-
 
    default:
       // If we don't handle the message here, let our parent try.
