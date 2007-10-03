@@ -37,7 +37,7 @@ class MpOutputDeviceManager;
 *  each device for a small window of time.  It is the MprToOutputDevice
 *  responsibility to decide how current to keep (e.g. delay to prevent
 *  starvation) with the frames in the MpOutputDeviceManager for the specific
-*  device from which to recieve input.
+*  device to which is sent output.
 */
 class MprToOutputDevice : public MpAudioResource
 {
