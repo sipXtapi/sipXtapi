@@ -19,7 +19,12 @@
 #include "mp/MpJitterBuffer.h"
 #include "mp/MpDecoderBase.h"
 
-static int debugCount = 0;
+#ifdef RTL_ENABLED
+#  include <rtl_macro.h>
+#  ifdef RTL_AUDIO_ENABLED
+#     include <SeScopeAudioBuffer.h>
+#  endif
+#endif
 
 /* ============================ CREATORS ================================== */
 
@@ -31,8 +36,6 @@ MpJitterBuffer::MpJitterBuffer()
    JbQCount = 0;
    JbQIn = 0;
    JbQOut = 0;
-
-   debugCount = 0;
 }
 
 // Destructor
@@ -75,6 +78,15 @@ OsStatus MpJitterBuffer::pushPacket(MpRtpBufPtr &rtpPacket)
    //        by codec, OR push packet into decoder and then pull decoded data in
    //        chunks.
 
+#ifdef RTL_AUDIO_ENABLED
+   UtlString outputLabel("MpJitterBuffer_pushPacket");
+   RTL_RAW_AUDIO(outputLabel,
+                 8000,
+                 decodedSamples,
+                 JbQ+JbQIn,
+                 0);
+#endif
+
    // Update buffer state
    JbQCount += decodedSamples;
    JbQIn += decodedSamples;
@@ -91,6 +103,15 @@ int MpJitterBuffer::getSamples(MpAudioSample *samplesBuffer, int samplesNumber)
    if (JbQCount != 0) {
       // We could not return more then we have
       samplesNumber = sipx_min(samplesNumber,JbQCount);
+
+#ifdef RTL_AUDIO_ENABLED
+      UtlString outputLabel("MpJitterBuffer_getSamples");
+      RTL_RAW_AUDIO(outputLabel,
+                    8000,
+                    samplesNumber,
+                    JbQ+JbQOut,
+                    0);
+#endif
 
       memcpy(samplesBuffer, JbQ+JbQOut, samplesNumber * sizeof(MpAudioSample));
 
