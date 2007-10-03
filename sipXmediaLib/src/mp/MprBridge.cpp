@@ -218,6 +218,7 @@ MprBridge::MprBridge(const UtlString& rName,
    mMixDataStackStep = getSamplesPerFrame();
    mMixDataStackLength = maxInputs()*maxOutputs()*mMixDataStackStep;
    mpMixDataStack = new MpBridgeAccum[mMixDataStackLength];
+   mpMixDataSpeechType = new MpAudioBuf::SpeechType[maxInputs()*maxOutputs()];
    // Allocate array for mix temporary data info.
    mMixDataInfoStackStep = maxInputs()*maxOutputs();
    mMixDataInfoStackLength = maxInputs()*maxOutputs()*mMixDataInfoStackStep;
@@ -237,6 +238,7 @@ MprBridge::~MprBridge()
    delete[] mpActiveInputsList;
    delete[] mpMixActionsStack;
    delete[] mpMixDataStack;
+   delete[] mpMixDataSpeechType;
    delete[] mpMixDataInfoStack;
    delete[] mpMixDataInfoProcessedStack;
    delete[] mpMixAccumulator;
@@ -727,6 +729,9 @@ UtlBoolean MprBridge::doMix(MpBufPtr inBufs[], int inBufsSize,
                             &mpMixDataStack[mMixDataStackStep * mpMixActionsStack[action].mSrc2],
                             &mpMixDataStack[mMixDataStackStep * mpMixActionsStack[action].mDst],
                             mMixDataStackStep);
+            mpMixDataSpeechType[mpMixActionsStack[action].mDst] =
+               mixSpeechTypes(mpMixDataSpeechType[mpMixActionsStack[action].mSrc1],
+                              mpMixDataSpeechType[mpMixActionsStack[action].mSrc2]);
          }
 #ifdef TEST_PRINT_MIXING // [
          printf("DO_MIX:     %2d + %2d -> %2d [0x%08X + 0x%08X -> 0x%08X]\n",
@@ -763,7 +768,7 @@ UtlBoolean MprBridge::doMix(MpBufPtr inBufs[], int inBufsSize,
                MpAudioBufPtr pOutBuf = MpMisc.RawAudioPool->getBuffer();
                assert(pOutBuf.isValid());
                pOutBuf->setSamplesNumber(samplesPerFrame);
-               pOutBuf->setSpeechType(MpAudioBuf::MP_SPEECH_UNKNOWN);
+               pOutBuf->setSpeechType(mpMixDataSpeechType[src]);
 
                MpDspUtils::convert_Att(&mpMixDataStack[mMixDataStackStep * src],
                                        pOutBuf->getSamplesWritePtr(),
@@ -786,6 +791,7 @@ UtlBoolean MprBridge::doMix(MpBufPtr inBufs[], int inBufsSize,
             const int extInput = mpMixActionsStack[action].mSrc1;
             const int origInput = mExtendedInputs.getOrigin(extInput);
             const MpAudioBufPtr pInBuf(inBufs[origInput]);
+            mpMixDataSpeechType[mpMixActionsStack[action].mDst] = pInBuf->getSpeechType();
             if (mExtendedInputs.getGain(extInput) == MP_BRIDGE_GAIN_PASSTHROUGH)
             {
                MpDspUtils::convert_Gain(pInBuf->getSamplesPtr(),
