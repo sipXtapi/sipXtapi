@@ -97,7 +97,7 @@ class PlayAudioOldNotificationTest : public CppUnit::TestCase
 
         CPPUNIT_ASSERT(mpMediaFactory);
 
-        SdpCodecFactory* codecFactory = new SdpCodecFactory();
+        SdpCodecList* codecFactory = new SdpCodecList();
         CPPUNIT_ASSERT(codecFactory);
         int numCodecs;
         SdpCodec** codecArray = NULL;
