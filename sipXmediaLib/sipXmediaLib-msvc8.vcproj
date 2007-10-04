@@ -1402,10 +1402,6 @@
 					>
 				</File>
 				<File
-					RelativePath=".\src\mp\DspResampling.cpp"
-					>
-				</File>
-				<File
 					RelativePath=".\src\mp\dtmflib.cpp"
 					>
 				</File>
@@ -1782,10 +1778,6 @@
 					>
 				</File>
 				<File
-					RelativePath=".\src\mp\resamplingby2.cpp"
-					>
-				</File>
-				<File
 					RelativePath=".\src\mp\SpeakerThreadWnt.cpp"
 					>
 				</File>
@@ -1916,10 +1908,6 @@
 				</File>
 				<File
 					RelativePath=".\include\mp\dsplib.h"
-					>
-				</File>
-				<File
-					RelativePath=".\include\mp\DspResampling.h"
 					>
 				</File>
 				<File
@@ -2388,10 +2376,6 @@
 				</File>
 				<File
 					RelativePath=".\include\mp\NetInTask.h"
-					>
-				</File>
-				<File
-					RelativePath=".\include\mp\resamplingby2.h"
 					>
 				</File>
 				<File

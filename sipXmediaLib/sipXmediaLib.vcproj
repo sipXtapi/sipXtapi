@@ -406,43 +406,6 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\mp\DspResampling.cpp">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug_NoVideo|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release_NoVideo|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
-				</FileConfiguration>
-			</File>
-			<File
 				RelativePath="src\mp\dtmflib.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -2638,43 +2601,6 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\mp\resamplingby2.cpp">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug_NoVideo|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release_NoVideo|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
-				</FileConfiguration>
-			</File>
-			<File
 				RelativePath="src\rtcp\RTCManager.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -3505,9 +3431,6 @@
 				RelativePath="include\mp\dsplib.h">
 			</File>
 			<File
-				RelativePath="include\mp\DspResampling.h">
-			</File>
-			<File
 				RelativePath="include\mp\dtmflib.h">
 			</File>
 			<File
@@ -3944,9 +3867,6 @@
 			</File>
 			<File
 				RelativePath="include\rtcp\ReceiverReport.h">
-			</File>
-			<File
-				RelativePath="include\mp\resamplingby2.h">
 			</File>
 			<File
 				RelativePath="include\rtcp\RTCManager.h">

@@ -45,7 +45,6 @@ libsipXmedia_la_SOURCES =  \
     mp/dft.cpp \
     mp/dmaTaskPosix.cpp \
     mp/DSPlib.cpp \
-    mp/DspResampling.cpp \
     mp/dtmflib.cpp \
     mp/FilterBank.cpp \
     mp/HandsetFilterBank.cpp \
@@ -139,7 +138,6 @@ libsipXmedia_la_SOURCES =  \
     mp/MpProgressResourceMsg.cpp \
     mp/MpTopologyGraph.cpp \
     mp/NetInTask.cpp \
-    mp/resamplingby2.cpp \
     mp/StreamBufferDataSource.cpp \
     mp/StreamDataSource.cpp \
     mp/StreamDataSourceListener.cpp \

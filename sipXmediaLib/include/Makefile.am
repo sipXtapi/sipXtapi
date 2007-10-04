@@ -6,7 +6,6 @@ nobase_includeHEADERS_INSTALL = $(INSTALL) -D -p -c -m 644
 nobase_include_HEADERS =  \
     mp/dmaTask.h \
     mp/dsplib.h \
-    mp/DspResampling.h \
     mp/dtmflib.h \
     mp/FilterBank.h \
     mp/HandsetFilterBank.h \
@@ -122,7 +121,6 @@ nobase_include_HEADERS =  \
     mp/MpTopologyGraph.h \
     mp/MpTypes.h \
     mp/NetInTask.h \
-    mp/resamplingby2.h \
     mp/RtpHeader.h \
     mp/StreamBufferDataSource.h \
     mp/StreamDataSource.h \

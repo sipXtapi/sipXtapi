@@ -30,7 +30,6 @@
 #include "mp/MprToSpkr.h"
 #include "mp/MpMisc.h"
 #include "mp/MpBufferMsg.h"
-#include "mp/DspResampling.h"
 #include "mp/FilterBank.h"
 #include "mp/HandsetFilterBank.h"
 

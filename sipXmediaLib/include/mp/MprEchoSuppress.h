@@ -29,7 +29,6 @@
 // TYPEDEFS
 // FORWARD DECLARATIONS
 
-class DspResampling;
 class MprToSpkr;
 class FilterBank;
 class HandsetFilterBank;

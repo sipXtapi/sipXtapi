@@ -107,10 +107,6 @@ SOURCE=.\src\mp\DSPlib.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\mp\DspResampling.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\src\mp\dtmflib.cpp
 # End Source File
 # Begin Source File
@@ -499,10 +495,6 @@ SOURCE=.\src\rtcp\ReceiverReport.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\mp\resamplingby2.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\src\rtcp\RTCManager.cpp
 # End Source File
 # Begin Source File
@@ -608,10 +600,6 @@ SOURCE=.\include\mp\dmaTask.h
 # Begin Source File
 
 SOURCE=.\include\mp\dsplib.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\include\mp\DspResampling.h
 # End Source File
 # Begin Source File
 
@@ -1252,10 +1240,6 @@ SOURCE=.\include\rtcp\NetworkChannel.h
 # Begin Source File
 
 SOURCE=.\include\rtcp\ReceiverReport.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\include\mp\resamplingby2.h
 # End Source File
 # Begin Source File
 
