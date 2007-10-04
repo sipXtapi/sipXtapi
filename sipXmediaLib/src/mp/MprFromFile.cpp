@@ -715,6 +715,10 @@ UtlBoolean MprFromFile::handlePlay(OsNotification* pNotifier,
       mFileBufferIndex = 0;
       mFileRepeat = repeat;
    }
+
+   // Notify, indicating we're started, if notfs enabled.
+   sendNotification(MpResNotificationMsg::MPRNM_FROMFILE_STARTED);
+
    return TRUE;
 }
 
