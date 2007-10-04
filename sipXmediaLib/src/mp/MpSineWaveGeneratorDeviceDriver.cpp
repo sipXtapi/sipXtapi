@@ -135,6 +135,18 @@ public:
         return(TRUE);
     }
 
+    // This is inteded to be called from other threads when this task is not
+    // started -- either not yet started, suspended, or stopped,
+    // as there is no concurrency locks.
+    void setNewTone(unsigned int magnitude, 
+                        unsigned int periodInMicroseconds, 
+                        int underOverRunTime)
+    {
+       mMagnatude = magnitude;
+       mSinePeriodMicroseconds = periodInMicroseconds;
+       mUnderOverRunTime = underOverRunTime;
+    }
+
 private:
     MpFrameTime mNextFrameTime;
     unsigned int mSamplesPerFrame;
@@ -228,6 +240,32 @@ OsStatus MpSineWaveGeneratorDeviceDriver::disableDevice()
     }
     OsSysLog::add(FAC_MP, PRI_DEBUG,"MpSineWaveGeneratorDeviceDriver::disableDevice end");
     return(result);
+}
+
+OsStatus MpSineWaveGeneratorDeviceDriver::setNewTone(unsigned int magnitude, 
+                                                     unsigned int periodInMicroseconds, 
+                                                     int underOverRunTime)
+{
+   if(!mpReaderTask)
+   {
+      return OS_TASK_NOT_STARTED;
+   }
+   
+   // Pause the thread so we can set a new tone.
+   OsStatus stat = mpReaderTask->suspend();
+   if(stat != OS_SUCCESS)
+      return stat;
+
+   // Set the new tone values.
+   mMagnitude = magnitude;
+   mPeriodInMicroseconds = periodInMicroseconds;
+   mUnderOverRunTime;
+   ((MpSineWaveGeneratorServer*)mpReaderTask)->setNewTone(mMagnitude, 
+                                                          mPeriodInMicroseconds, 
+                                                          mUnderOverRunTime);
+
+   // Resume the thread.
+   return mpReaderTask->resume();
 }
 
 /* ============================ ACCESSORS ================================= */

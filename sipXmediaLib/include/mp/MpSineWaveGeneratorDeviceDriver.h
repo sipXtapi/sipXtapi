@@ -108,6 +108,10 @@ public:
       *        enabling a device results in state and buffer queues being cleared.
       */
 
+    virtual OsStatus setNewTone(unsigned int magnitude,
+                                unsigned int periodInMicroseconds,
+                                int underOverRunTime);
+
 //@}
 
 /* ============================ ACCESSORS ================================= */
