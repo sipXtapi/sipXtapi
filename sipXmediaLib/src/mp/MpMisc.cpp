@@ -444,8 +444,7 @@ OsStatus mpStartUp(int sampleRate, int samplesPerFrame,
         UtlString  silenceSuppressEnable;
         int       silenceSuppressLevel;
 
-        if (samplesPerFrame < 8) samplesPerFrame = 80;
-        samplesPerFrame = sipx_min(samplesPerFrame, FRAME_SAMPS);
+        assert(samplesPerFrame >= 8);
 
         showMpMisc(TRUE);
 
