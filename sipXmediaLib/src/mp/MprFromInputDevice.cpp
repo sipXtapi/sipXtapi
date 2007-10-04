@@ -28,6 +28,16 @@
 // EXTERNAL VARIABLES
 // CONSTANTS
 // STATIC VARIABLE INITIALIZATIONS
+// DEFINES
+#define DEBUG_PRINT
+#undef  DEBUG_PRINT
+
+// MACROS
+#ifdef DEBUG_PRINT // [
+#  define debugPrintf    printf
+#else  // DEBUG_PRINT ][
+static void debugPrintf(...) {}
+#endif // DEBUG_PRINT ]
 
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
@@ -113,17 +123,17 @@ UtlBoolean MprFromInputDevice::doProcessFrame(MpBufPtr inBufs[],
                                                        numFramedBufferedBehind);
 
 
-   osPrintf("MprFromInputDevice::doProcessFrame()"
-            " frameToFetch=%d, getResult=%d, numFramesNotPlayed=%d, numFramedBufferedBehind=%d\n",
-            frameToFetch, getResult, numFramesNotPlayed, numFramedBufferedBehind);
+   debugPrintf("MprFromInputDevice::doProcessFrame()"
+               " frameToFetch=%d, getResult=%d, numFramesNotPlayed=%d, numFramedBufferedBehind=%d\n",
+               frameToFetch, getResult, numFramesNotPlayed, numFramedBufferedBehind);
 
    if(getResult != OS_SUCCESS)
    {
       int numAdvances = 0;
       while (getResult == OS_NOT_FOUND && numFramedBufferedBehind == 0 && numFramesNotPlayed > 0)
       {
-         osPrintf("+ %d numFramesNotPlayed=%d, numFramedBufferedBehind=%d\n",
-                  mPreviousFrameTime, numFramesNotPlayed, numFramedBufferedBehind);
+         debugPrintf("+ %d numFramesNotPlayed=%d, numFramedBufferedBehind=%d\n",
+                     mPreviousFrameTime, numFramesNotPlayed, numFramedBufferedBehind);
          mPreviousFrameTime += frameTimeInterval;
          frameToFetch = mPreviousFrameTime;
          getResult = 
@@ -139,8 +149,8 @@ UtlBoolean MprFromInputDevice::doProcessFrame(MpBufPtr inBufs[],
       RTL_EVENT("MprFromInputDevice::advance", numAdvances);
       while (getResult == OS_NOT_FOUND && numFramedBufferedBehind > 0 && numFramesNotPlayed == 0)
       {
-         osPrintf("- %d numFramesNotPlayed=%d, numFramedBufferedBehind=%d\n",
-                  mPreviousFrameTime, numFramesNotPlayed, numFramedBufferedBehind);
+         debugPrintf("- %d numFramesNotPlayed=%d, numFramedBufferedBehind=%d\n",
+                     mPreviousFrameTime, numFramesNotPlayed, numFramedBufferedBehind);
          mPreviousFrameTime -= frameTimeInterval;
          frameToFetch = mPreviousFrameTime;
          getResult = 

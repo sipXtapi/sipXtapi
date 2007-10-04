@@ -33,6 +33,16 @@
 // CONSTANTS
 // STATIC VARIABLE INITIALIZATIONS
 // PRIVATE CLASSES
+// DEFINES
+#define DEBUG_PRINT
+#undef  DEBUG_PRINT
+
+// MACROS
+#ifdef DEBUG_PRINT // [
+#  define debugPrintf    printf
+#else  // DEBUG_PRINT ][
+static void debugPrintf(...) {}
+#endif // DEBUG_PRINT ]
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
@@ -215,9 +225,9 @@ OsStatus MpAudioOutputConnection::pushFrame(unsigned int numSamples,
    // TODO:: This check should be fixed to support frame time wrap around.
    if (frameTime < mCurrentFrameTime)
    {
-      osPrintf("MpAudioOutputConnection::pushFrame()"
-               " OS_INVALID_STATE frameTime=%d, currentTime=%d\n",
-               frameTime, mCurrentFrameTime);
+      debugPrintf("MpAudioOutputConnection::pushFrame()"
+                  " OS_INVALID_STATE frameTime=%d, currentTime=%d\n",
+                  frameTime, mCurrentFrameTime);
       result = OS_INVALID_STATE;
       return result;
    }
@@ -328,9 +338,9 @@ OsStatus MpAudioOutputConnection::mixFrame(unsigned frameOffset,
    // Check for late frame. Whole frame should fit into buffer to be accepted.
    if (frameOffset+numSamples > mMixerBufferLength)
    {
-      osPrintf("MpAudioOutputConnection::mixFrame()"
-               " OS_LIMIT_REACHED offset=%d, samples=%d, bufferLength=%d\n",
-               frameOffset, numSamples, mMixerBufferLength);
+      debugPrintf("MpAudioOutputConnection::mixFrame()"
+                  " OS_LIMIT_REACHED offset=%d, samples=%d, bufferLength=%d\n",
+                  frameOffset, numSamples, mMixerBufferLength);
       return OS_LIMIT_REACHED;
    }
 
@@ -447,9 +457,9 @@ void MpAudioOutputConnection::tickerCallback(const int userData, const int event
                         pConnection->mpDeviceDriver->getSamplesPerFrame(),
                         pConnection->mpMixerBuffer+pConnection->mMixerBufferBegin,
                         pConnection->mCurrentFrameTime);
-         osPrintf("MpAudioOutputConnection::tickerCallback()"
-                  " frame=%d, pushFrame result=%d\n",
-                  pConnection->mCurrentFrameTime, result);
+         debugPrintf("MpAudioOutputConnection::tickerCallback()"
+                     " frame=%d, pushFrame result=%d\n",
+                     pConnection->mCurrentFrameTime, result);
 //       assert(result == OS_SUCCESS);
 
          // Advance mixer buffer and frame time.
