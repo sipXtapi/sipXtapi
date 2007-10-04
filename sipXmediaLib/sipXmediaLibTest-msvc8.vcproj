@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8,00"
+	Version="8.00"
 	Name="sipXmediaLibTest-msvc8"
 	ProjectGUID="{41C4FC22-37B1-4792-AB3A-FA2B81BE4B0A}"
 	RootNamespace="sipXmediaLibTest-msvc8"
@@ -56,7 +56,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\sipXportLib\src\test,..\sipXportLib\include,include,..\sipXtackLib\include,src\test"
+				AdditionalIncludeDirectories="..\sipXportLib\src\test,..\sipXportLib\include,include,..\sipXtackLib\include,src\test,..\CPPUnit\include"
 				PreprocessorDefinitions="_DEBUG;WIN32;_CONSOLE;_CRT_SECURE_NO_DEPRECATE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -785,6 +785,10 @@
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\src\test\mp\MpWBInputOutputDeviceTest.cpp"
+				>
 			</File>
 		</Filter>
 		<Filter

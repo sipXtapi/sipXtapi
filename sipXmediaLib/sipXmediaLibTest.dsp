@@ -157,6 +157,10 @@ SOURCE=.\src\test\mp\MpTestResource.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\test\mp\MpWBInputOutputDeviceTest.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\sipXportLib\src\test\sipxunit\TestMonitor.cpp
 # End Source File
 # Begin Source File

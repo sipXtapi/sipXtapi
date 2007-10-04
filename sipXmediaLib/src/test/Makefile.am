@@ -35,7 +35,8 @@ testsuite_SOURCES = \
     mp/MpBufTest.cpp \
     mp/MpOutputDriverTest.cpp \
     mp/MpOutputManagerTest.cpp \
-    mp/MpMMTimerTest.cpp
+    mp/MpMMTimerTest.cpp \
+    mp/MpWBInputOutputDeviceTest.cpp
 
 
 # [DEBUG ASSISTANT] List a single unittest to isoloate a unittest for
