@@ -22,6 +22,21 @@
 #include <mp/MpMediaTask.h>
 #include <os/OsTask.h>
 
+// Setup codec paths..
+static UtlString sCodecPaths[] = {
+#ifdef WIN32
+                                  "bin",
+                                  "..\\bin",
+#elif __pingtel_on_posix__
+                                  "../../../../bin",
+                                  "../../../bin",
+#else
+#                                 error "Unknown platform"
+#endif
+                                  "."
+                                 };
+static int sNumCodecPaths = sizeof(sCodecPaths)/sizeof(sCodecPaths[0]);
+
 /**
  * Unittest for MpFlowGraph
  */
@@ -608,26 +623,6 @@ public:
 
        delete pFlowGraph;
     }
-
-
-    // Setup codec paths..
-    static UtlString sCodecPaths[];
-    static int sNumCodecPaths;
-
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(MpFlowGraphTest);
-
-// Setup codec paths..
-UtlString MpFlowGraphTest::sCodecPaths[] = {
-#ifdef WIN32
-                                            "..\\sipXmediaLib\\bin",
-#elif __pingtel_on_posix__
-                                            "../../../../../sipXmediaLib/bin",
-                                            "../../../../sipXmediaLib/bin",
-#else
-#                                           error "Unknown platform"
-#endif
-                                            "."
-                                           };
-int MpFlowGraphTest::sNumCodecPaths = sizeof(sCodecPaths)/sizeof(sCodecPaths[0]);

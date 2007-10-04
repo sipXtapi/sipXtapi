@@ -20,6 +20,22 @@
 
 #include <mp/MpMisc.h>
 
+
+// Setup codec paths..
+static UtlString sCodecPaths[] = {
+#ifdef WIN32
+                                  "bin",
+                                  "..\\bin",
+#elif __pingtel_on_posix__
+                                  "../../../../bin",
+                                  "../../../bin",
+#else
+#                                 error "Unknown platform"
+#endif
+                                  "."
+};
+static int sNumCodecPaths = sizeof(sCodecPaths)/sizeof(sCodecPaths[0]);
+
 /**
  * Unittest for MpMediaTask
  */
@@ -469,24 +485,6 @@ public:
 
 protected:
    MpMediaTask *mpMediaTask;
-
-   // Setup codec paths..
-   static UtlString sCodecPaths[];
-   static int sNumCodecPaths;
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(MpMediaTaskTest);
-
-// Setup codec paths..
-UtlString MpMediaTaskTest::sCodecPaths[] = {
-#ifdef WIN32
-                                            "..\\sipXmediaLib\\bin",
-#elif __pingtel_on_posix__
-                                            "../../../../../sipXmediaLib/bin",
-                                            "../../../../sipXmediaLib/bin",
-#else
-#                                           error "Unknown platform"
-#endif
-                                            "."
-};
-int MpMediaTaskTest::sNumCodecPaths = sizeof(sCodecPaths)/sizeof(sCodecPaths[0]);

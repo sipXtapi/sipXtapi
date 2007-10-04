@@ -45,10 +45,11 @@ public:
       // Setup codec paths..
       UtlString codecPaths[] = {
 #ifdef WIN32
-                                "..\\sipXmediaLib\\bin",
+                                "bin",
+                                "..\\bin",
 #elif __pingtel_on_posix__
-                                "../../../../../sipXmediaLib/bin",
-                                "../../../../sipXmediaLib/bin",
+                                "../../../../bin",
+                                "../../../bin",
 #else
 #                               error "Unknown platform"
 #endif
