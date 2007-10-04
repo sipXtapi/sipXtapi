@@ -26,9 +26,10 @@
 // STRUCTS
 // TYPEDEFS
 // FORWARD DECLARATIONS
-struct SpeexPreprocessState;
+struct SpeexPreprocessState_;
+typedef SpeexPreprocessState_ SpeexPreprocessState;
 
-/// The "Speex Audio Prepocess" media processing resource
+/// The "Speex Audio Prepocessor" media processing resource
 /**
 *  This resource is a wrapper over Speex's audio preprocessor. It is used
 *  to do Automatic Gain Control, denoising and echo residue removal.
