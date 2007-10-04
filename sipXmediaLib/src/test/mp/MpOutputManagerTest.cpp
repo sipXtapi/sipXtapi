@@ -49,7 +49,9 @@
 #define OUTPUT_DRIVER_CONSTRUCTOR_PARAMS "default", TEST_SAMPLE_FRAMES*TEST_SAMPLES_PER_FRAME_SIZE*1000/TEST_SAMPLES_PER_SECOND
 
 #elif defined(WIN32) // USE_TEST_DRIVER ][ WIN32
-#error No output driver for Windows exist!
+#include <mp/MpodWinMM.h>
+#define OUTPUT_DRIVER MpodWinMM
+#define OUTPUT_DRIVER_CONSTRUCTOR_PARAMS MpodWinMM::getDefaultDeviceName()
 
 #elif defined(__pingtel_on_posix__) // WIN32 ][ __pingtel_on_posix__
 #include <mp/MpodOSS.h>
