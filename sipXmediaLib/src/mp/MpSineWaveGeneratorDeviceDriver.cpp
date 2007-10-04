@@ -58,7 +58,7 @@ public:
     mpFrameData(NULL),
     mTimer(getMessageQueue(), 0)
     {
-        mpFrameData = new MpAudioSample[samplesPerFrame];
+        mpFrameData = new MpAudioSample[mSamplesPerFrame];
     };
 
     virtual ~MpSineWaveGeneratorServer()
@@ -135,7 +135,7 @@ public:
         return(TRUE);
     }
 
-    // This is inteded to be called from other threads when this task is not
+    // This is intended to be called from other threads when this task is not
     // started -- either not yet started, suspended, or stopped,
     // as there is no concurrency locks.
     void setNewTone(unsigned int magnitude, 
