@@ -235,7 +235,7 @@ public:
         MpTestResource*  pResource3 = NULL;
         OsStatus         res;
 
-        mpStartUp(8000, 80, 6*10, 0);
+        mpStartUp(8000, 80, 6*10, NULL, sNumCodecPaths, sCodecPaths);
 
         pFlowGraph = new MpFlowGraphBase(80, 8000);
         pResource1 = new MpTestResource("resource1", 4, 4, 4, 4);
@@ -460,7 +460,7 @@ public:
        MpTestResource*  pResource1 = NULL;
        OsStatus         res;
 
-       mpStartUp(8000, 80, 6*10, 0);
+       mpStartUp(8000, 80, 6*10, NULL, sNumCodecPaths, sCodecPaths);
 
        pFlowGraph = new MpFlowGraphBase(80, 8000);
        pResource1 = new MpTestResource("resource1", 4, 4, 4, 4);
@@ -528,7 +528,7 @@ public:
        OsStatus         res;
 
        // Setup media task
-       res = mpStartUp(8000, 80, 6*10, 0);
+       res = mpStartUp(8000, 80, 6*10, NULL, sNumCodecPaths, sCodecPaths);
        CPPUNIT_ASSERT(res == OS_SUCCESS);
 
        pFlowGraph = new MpFlowGraphBase(80, 8000);
@@ -608,6 +608,26 @@ public:
 
        delete pFlowGraph;
     }
+
+
+    // Setup codec paths..
+    static UtlString sCodecPaths[];
+    static int sNumCodecPaths;
+
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(MpFlowGraphTest);
+
+// Setup codec paths..
+UtlString MpFlowGraphTest::sCodecPaths[] = {
+#ifdef WIN32
+                                            "..\\sipXmediaLib\\bin",
+#elif __pingtel_on_posix__
+                                            "../../../../../sipXmediaLib/bin",
+                                            "../../../../sipXmediaLib/bin",
+#else
+#                                           error "Unknown platform"
+#endif
+                                            "."
+                                           };
+int MpFlowGraphTest::sNumCodecPaths = sizeof(sCodecPaths)/sizeof(sCodecPaths[0]);

@@ -48,7 +48,8 @@ public:
       OsStatus          res;
 
       // Setup media task
-      res = mpStartUp(TEST_SAMPLES_PER_SEC, TEST_SAMPLES_PER_FRAME, 6*10, 0);
+      res = mpStartUp(TEST_SAMPLES_PER_SEC, TEST_SAMPLES_PER_FRAME, 
+                      6*10, NULL, sNumCodecPaths, sCodecPaths);
       CPPUNIT_ASSERT(res == OS_SUCCESS);
 
       // Call getMediaTask() which causes the task to get instantiated
@@ -467,8 +468,25 @@ public:
     }
 
 protected:
-
    MpMediaTask *mpMediaTask;
+
+   // Setup codec paths..
+   static UtlString sCodecPaths[];
+   static int sNumCodecPaths;
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(MpMediaTaskTest);
+
+// Setup codec paths..
+UtlString MpMediaTaskTest::sCodecPaths[] = {
+#ifdef WIN32
+                                            "..\\sipXmediaLib\\bin",
+#elif __pingtel_on_posix__
+                                            "../../../../../sipXmediaLib/bin",
+                                            "../../../../sipXmediaLib/bin",
+#else
+#                                           error "Unknown platform"
+#endif
+                                            "."
+};
+int MpMediaTaskTest::sNumCodecPaths = sizeof(sCodecPaths)/sizeof(sCodecPaths[0]);

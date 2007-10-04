@@ -42,9 +42,23 @@ public:
       MpMediaTask*      pMediaTask = NULL;
       OsStatus          res;
 
+      // Setup codec paths..
+      UtlString codecPaths[] = {
+#ifdef WIN32
+                                "..\\sipXmediaLib\\bin",
+#elif __pingtel_on_posix__
+                                "../../../../../sipXmediaLib/bin",
+                                "../../../../sipXmediaLib/bin",
+#else
+#                               error "Unknown platform"
+#endif
+                                "."
+      };
+      int numCodecPaths = sizeof(codecPaths)/sizeof(codecPaths[0]);
+
       // Setup media task
-      res = mpStartUp(TEST_SAMPLES_PER_SEC, TEST_SAMPLES_PER_FRAME, 6*10, 0
-                      0, NULL);
+      res = mpStartUp(TEST_SAMPLES_PER_SEC, TEST_SAMPLES_PER_FRAME, 6*10, 
+                      NULL, numCodecPaths, codecPaths);
       CPPUNIT_ASSERT(res == OS_SUCCESS);
 
       mpFlowGraph = new MpFlowGraphBase( TEST_SAMPLES_PER_FRAME
