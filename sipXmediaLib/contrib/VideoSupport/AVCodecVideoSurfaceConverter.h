@@ -27,7 +27,7 @@
 #include "VideoSurfaceConverterImpl.h"
 #include "utils.h"
 
-#ifndef VIDEO_SUPPORT_DISABLE_AVCODEC
+#if !defined(VIDEO_SUPPORT_DISABLE_AVCODEC) && !defined(VIDEO_SUPPORT_USE_SWSCALER)
 
 struct AVPicture;
 
@@ -52,4 +52,4 @@ private:
 	std::auto_ptr<AVPicture> targetPicture_;
 };
 
-#endif // VIDEO_SUPPORT_DISABLE_AVCODEC
+#endif // VIDEO_SUPPORT_DISABLE_AVCODEC && VIDEO_SUPPORT_USE_SWSCALER

@@ -13,12 +13,16 @@
 
 // Author: Andrzej Ciarkowski <andrzejc AT wp-sa DOT pl>
 
+#ifdef SIPX_VIDEO
+
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
 #include "mp/video/MpdH263.h"
 #include "mp/video/rfc2190.h"
 
 #include "mp/NetInTask.h"  // for RTP_MTU
+
+#include <VideoSupport/VideoFormat.h>
 
 #ifdef WIN32 // [
 #  define EMULATE_INTTYPES
@@ -108,6 +112,9 @@ OsStatus MpdH263::initDecode()
       mpCodecContext->flags |= CODEC_FLAG_TRUNCATED;
    }
 
+   mpCodecContext->error_resilience = FF_ER_COMPLIANT;
+   mpCodecContext->error_concealment = FF_EC_DEBLOCK;
+
    // Open codec
    if (avcodec_open(mpCodecContext, mpCodec) < 0)
    {
@@ -117,7 +124,7 @@ OsStatus MpdH263::initDecode()
    }
 
    // ensure space for padding used by ffmpeg bitstream reader
-   const size_t bufferSize = 16 * RTP_MTU;
+   const size_t bufferSize = VideoFormat::width_CIF * VideoFormat::height_CIF * 4;
    mpDecodeBuffer = (UCHAR*)realloc(mpDecodeBuffer, bufferSize);
    if (NULL == mpDecodeBuffer)
    {
@@ -143,7 +150,9 @@ OsStatus MpdH263::initDecode()
 
 OsStatus MpdH263::freeDecode()
 {
-   mpDecodeBuffer = (UCHAR*)realloc(mpDecodeBuffer, 0);
+   if (NULL != mpDecodeBuffer)
+      mpDecodeBuffer = (UCHAR*)realloc(mpDecodeBuffer, 0);
+
    mDecodeBufferSize = 0;
 
    delete mpHeaderA;
@@ -154,7 +163,9 @@ OsStatus MpdH263::freeDecode()
 
    if (mpCodecContext != NULL)
    {
-      avcodec_close(mpCodecContext);
+      if (NULL != mpCodecContext->codec)
+         avcodec_close(mpCodecContext);
+
       av_free(mpCodecContext);
       mpCodecContext = NULL;
    }
@@ -258,9 +269,12 @@ MpVideoBufPtr MpdH263::decode(const MpRtpBufPtr &pPacket, bool &packetConsumed, 
    mPreviousSeqNum = seqNum;
    mPreviousTimeStamp = pPacket->getRtpTimestamp();
 
-   if ((mpDecodePos - mpDecodeBuffer) + payloadSize > mDecodeBufferSize)
+   if ((mpDecodePos - mpDecodeBuffer) + mDecodeLeft + payloadSize > mDecodeBufferSize)
+   {
+      osPrintf("MpdH263::decode: payload would overwrite decode buffer, flushing its contents\n");
       // avoid overwriting decode buffer
       flushDecoder();
+   }
 
    accumulatePayload(payload, payloadSize, sbit, ebit);
 
@@ -271,6 +285,7 @@ MpVideoBufPtr MpdH263::decode(const MpRtpBufPtr &pPacket, bool &packetConsumed, 
       if (len < 0)
       {
          osPrintf("MpdH263::decode: Error while decoding frame %d\n", mpCodecContext->frame_number);
+         flushDecoder();
          break;
       }
 
@@ -319,6 +334,11 @@ UtlBoolean MpdH263::parseHeader(const MpRtpBufPtr &pPacket, const void*& payload
       mpHeaderB->unpack(data);
       sbit = mpHeaderB->sbit;
       ebit = mpHeaderB->ebit;
+      if (mAccuPayloadBits == 0)
+      {
+         // can't correctly decode frame starting with Mode B header
+         return FALSE;
+      }
    }
 
    payloadSize = dataSize - headerSize;
@@ -334,12 +354,12 @@ UtlBoolean MpdH263::parseHeader(const MpRtpBufPtr &pPacket, const void*& payload
 UtlBoolean MpdH263::accumulatePayload(const void* payload, size_t payloadSize, size_t sbit, size_t ebit)
 {
    ldiv_t d = ldiv(mAccuPayloadBits, 8);
-   if (0 == d.rem && 0 == sbit && 0 == ebit)
+   if (0 == d.rem && 0 == sbit)
    {
       // trivial optimization: don't even try bit-shifting if buffers are byte-aligned
       void* dst = mpDecodeBuffer + d.quot;
       memcpy(dst, payload, payloadSize);
-      mAccuPayloadBits += payloadSize * 8;
+      mAccuPayloadBits += payloadSize * 8 - ebit;
       mpDecodeBuffer[mAccuPayloadBits / 8] = 0;
    }
    else
@@ -347,8 +367,14 @@ UtlBoolean MpdH263::accumulatePayload(const void* payload, size_t payloadSize, s
       // use ffmpeg's bitstream utilities for wicked bit-shifting wizardry
       PutBitContext pb;
       init_put_bits(&pb, mpDecodeBuffer, mDecodeBufferSize * 8);
-      // skip already-accumulated bits
-      skip_put_bits(&pb, mAccuPayloadBits);
+
+      if (0 != mAccuPayloadBits)
+      {
+         // skip already-accumulated bits
+         skip_put_bits(&pb, mAccuPayloadBits);
+         //const int pbInit = put_bits_count(&pb);
+         //assert(pbInit == mAccuPayloadBits);
+      }
 
       GetBitContext gb;
       init_get_bits(&gb, (const uint8_t*)payload, payloadSize * 8);
@@ -365,12 +391,18 @@ UtlBoolean MpdH263::accumulatePayload(const void* payload, size_t payloadSize, s
          w = get_bits_long(&gb, 32);
          put_bits(&pb, 32, w);
       }
-      // transfer the trailing remainder
-      w = get_bits_long(&gb, d.rem);
-      put_bits(&pb, d.rem, w);
+
+      if (0 != d.rem)
+      {
+         // transfer the trailing remainder
+         w = get_bits_long(&gb, d.rem);
+         put_bits(&pb, d.rem, w);
+      }
+
       // bump accumulated bits count
       mAccuPayloadBits += payloadBits;
-      assert(put_bits_count(&pb) == mAccuPayloadBits);
+      //const int pbBits = put_bits_count(&pb);
+      //assert(pbBits == mAccuPayloadBits);
       // insert null-termination expected by avcodec_decode_video()
       put_bits(&pb, 32, 0);
    }
@@ -438,3 +470,4 @@ MpVideoBufPtr MpdH263::renderVideoBuffer()
 
 /* ============================== FUNCTIONS =============================== */
 
+#endif // SIPX_VIDEO

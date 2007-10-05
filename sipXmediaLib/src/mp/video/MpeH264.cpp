@@ -140,7 +140,9 @@ OsStatus MpeH264::freeEncode()
 {
    if (mpCodecContext != NULL)
    {
-      avcodec_close(mpCodecContext);
+      if (NULL != mpCodecContext->codec)
+         avcodec_close(mpCodecContext);
+
       av_free(mpCodecContext);
       mpCodecContext = NULL;
    }

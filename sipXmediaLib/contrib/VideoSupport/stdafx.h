@@ -46,6 +46,10 @@
 
 extern "C" {
 #  include <avcodec.h>
+
+#ifdef VIDEO_SUPPORT_USE_SWSCALER
+#  include <swscale.h>
+#endif // VIDEO_SUPPORT_USE_SWSCALER
 }
 
 #ifdef VIDEO_SUPPORT_ANCIENT_AVCODEC

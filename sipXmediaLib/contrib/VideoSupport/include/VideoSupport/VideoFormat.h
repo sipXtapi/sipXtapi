@@ -104,6 +104,7 @@ size_t GetVideoFrameByteSize(VideoSurface surface, size_t width, size_t height);
 inline bool IsVideoSurfaceValid(VideoSurface surface) {return surface >= videoSurfaceFirst && surface <= videoSurfaceLast;}
 inline bool IsVideoSurfaceYUV(VideoSurface surface) {return surface >= videoSurfaceYUV_First && surface <= videoSurfaceYUV_Last;}
 inline bool IsVideoSurfaceRGB(VideoSurface surface) {return surface >= videoSurfaceRGB_First && surface <= videoSurfaceRGB_Last;}
+bool IsVideoSurfacePlanar(VideoSurface surface);
 
 size_t GetVideoSurfaceDistance(VideoSurface from, VideoSurface to);
 

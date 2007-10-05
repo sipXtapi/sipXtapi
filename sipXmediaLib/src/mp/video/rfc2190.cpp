@@ -13,6 +13,8 @@
 
 // Author: Andrzej Ciarkowski <andrzejc AT wp-sa DOT pl>
 
+#ifdef SIPX_VIDEO 
+
 #include "mp/video/rfc2190.h"
 
 extern "C" {
@@ -75,7 +77,7 @@ bool h263_is_psc_payload(const void* payload, size_t size)
 void h263_header_a::pack(void *bitstream) const
 {
    PutBitContext pb;
-   init_put_bits(&pb, (uint8_t*)bitstream, 32);
+   init_put_bits(&pb, (uint8_t*)bitstream, 64);
 
    put_bits(&pb, 1, f);
    put_bits(&pb, 1, p);
@@ -122,7 +124,7 @@ void h263_header_a::unpack(const void *bitstream)
 void h263_header_b::unpack(const void *bitstream)
 {
    GetBitContext gb;
-   init_get_bits(&gb, (const uint8_t*)bitstream, 8);
+   init_get_bits(&gb, (const uint8_t*)bitstream, 64);
 
    H263_UNPACK_COMMON(gb);
 
@@ -140,3 +142,5 @@ void h263_header_b::unpack(const void *bitstream)
    hmv2 = get_bits(&gb, 7);
    vmv2 = get_bits(&gb, 7);
 }
+
+#endif // SIPX_VIDEO

@@ -1594,9 +1594,9 @@ void VideoCapture::Impl::BestFormatMatch(const AM_MEDIA_TYPE& type, const VIDEO_
 
 
 
-	if (format.GetWidth() <= caps.MinOutputSize.cx && 
-		(caps.MinOutputSize.cx < nextW || 
-			(caps.MinOutputSize.cx == nextW && 
+	if (format.GetWidth() <= size_t(caps.MinOutputSize.cx) && 
+		(size_t(caps.MinOutputSize.cx) < nextW || 
+			(size_t(caps.MinOutputSize.cx) == nextW && 
 			GetVideoSurfaceDistance(format.GetSurface(), surface) < GetVideoSurfaceDistance(format.GetSurface(), nextSurface))))
 	{
 		nextW = caps.MinOutputSize.cx;
@@ -1604,9 +1604,9 @@ void VideoCapture::Impl::BestFormatMatch(const AM_MEDIA_TYPE& type, const VIDEO_
 		nextSurface = surface;
 	}
 
-	if (format.GetWidth() >= caps.MaxOutputSize.cx && 
-		(caps.MaxOutputSize.cx > prevW || 
-			(caps.MaxOutputSize.cx == prevW && 
+	if (format.GetWidth() >= size_t(caps.MaxOutputSize.cx) && 
+		(size_t(caps.MaxOutputSize.cx) > prevW || 
+			(size_t(caps.MaxOutputSize.cx) == prevW && 
 			GetVideoSurfaceDistance(format.GetSurface(), surface) < GetVideoSurfaceDistance(format.GetSurface(), prevSurface))))
 	{
 		prevW = caps.MaxOutputSize.cx;

@@ -13,6 +13,8 @@
 
 // Author: Andrzej Ciarkowski <andrzejc AT wp-sa DOT pl>
 
+#ifdef SIPX_VIDEO
+
 // SYSTEM INCLUDES
 #include <stddef.h>
 #include <VideoSupport/VideoFormat.h>
@@ -146,6 +148,8 @@ OsStatus MpeH263::initEncode(const MpVideoStreamParams* params)
 
    // put sample parameters
    mpCodecContext->bit_rate = mStreamParams.getStreamBitrate();
+   //mpCodecContext->rc_max_rate= mpCodecContext->bit_rate * 1.25;
+   //mpCodecContext->rc_min_rate = mpCodecContext->bit_rate * 0.67;
 
    AVRational ar = av_d2q(1. / mStreamParams.getFrameRate(), h263_timestamp_freq);
    // frames per second
@@ -167,7 +171,7 @@ OsStatus MpeH263::initEncode(const MpVideoStreamParams* params)
    mpCodecContext->rtp_mode = 1;
    // make RTP payload size smaller than h263MaxPayloadSize, as FFmpeg is bugged and
    // will split packets AFTER macroblock exceeding the payload size, not before
-   mpCodecContext->rtp_payload_size = int(h263MaxPayloadSize * 0.5);
+   mpCodecContext->rtp_payload_size = int(h263MaxPayloadSize * 0.7);
    mpCodecContext->rtp_callback = rtpCallback;
    // according to ffmpeg docs it will split the bitstream only at GOB boundaries,
    // so the only header we need should be Mode A header.
@@ -204,7 +208,7 @@ OsStatus MpeH263::initEncode(const MpVideoStreamParams* params)
       freeEncode();
       return OS_FAILED;
    }
-   memset(mpPacket, 0, RTP_MTU);
+   memset(mpPacket, 0, 4 * RTP_MTU);
 
    mEncodedBufferSize = bufferSize;
    return OS_SUCCESS;
@@ -214,7 +218,9 @@ OsStatus MpeH263::freeEncode()
 {
    if (mpCodecContext != NULL)
    {
-      avcodec_close(mpCodecContext);
+      if (NULL != mpCodecContext->codec)
+         avcodec_close(mpCodecContext);
+
       av_free(mpCodecContext);
       mpCodecContext = NULL;
    }
@@ -225,8 +231,12 @@ OsStatus MpeH263::freeEncode()
       mpPicture = NULL;
    }
 
-   mpEncodedBuffer = (UCHAR*)realloc(mpEncodedBuffer, 0);
-   mpPacket = (UCHAR*)realloc(mpPacket, 0);
+   if (NULL != mpEncodedBuffer)
+      mpEncodedBuffer = (UCHAR*)realloc(mpEncodedBuffer, 0);
+
+   if (NULL != mpPacket)
+      mpPacket = (UCHAR*)realloc(mpPacket, 0);
+
    delete mpHeader;
    mpHeader = NULL;
    mEncodedBufferSize = 0;
@@ -271,6 +281,7 @@ OsStatus MpeH263::encode(const MpVideoBufPtr &pFrame)
 
    if (-1 == res)
    {
+      flushReadyPacket(TRUE);
       osPrintf("MpeH263::encode: too small encode buffer for this big frame.\n");
       return OS_FAILED;
    }
@@ -345,6 +356,10 @@ void MpeH263::rtpCallback(void *data, int data_size, int mb_nb)
    mpHeader->pack(mpPacket);
    const size_t headerSize = h263_header_length(h263_mode_a);
 
+   if (data_size > RTP_MTU - headerSize)
+      // truncate data if size exceeds RTP packet capacity
+      data_size = RTP_MTU - headerSize;
+
    memcpy(mpPacket + headerSize, data, data_size);
    mPacketSize = headerSize + data_size;
 
@@ -364,6 +379,8 @@ void MpeH263::flushReadyPacket(UtlBoolean lastFramePacket)
    if (!mPacketReady)
       return;
 
+   mPacketReady = FALSE;
+
    if (mPacketSize >= RTP_MTU)
    {
       // sorry - no way around this. decoder will have to skip the frame
@@ -372,8 +389,9 @@ void MpeH263::flushReadyPacket(UtlBoolean lastFramePacket)
    }
 
 
-   mPacketReady = false;
    MprToNet* sink = getRtpSink();
    assert(NULL != sink);
    sink->writeRtp(getPayloadType(), lastFramePacket, (unsigned char*)mpPacket, mPacketSize, mTimestamp, NULL);
 }
+
+#endif // SIPX_VIDEO

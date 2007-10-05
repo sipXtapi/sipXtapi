@@ -237,3 +237,14 @@ size_t GetVideoSurfaceDistance(VideoSurface from, VideoSurface to)
 
 	return prox;
 }
+
+bool IsVideoSurfacePlanar(VideoSurface surface)
+{
+	switch (surface) {
+	case videoSurfaceYV12:
+	case videoSurfaceI420:
+		return true;
+	default:
+		return false;
+	}
+}

@@ -86,7 +86,7 @@
 #define H263_VIDEO_CODECS_BEGIN (TOTAL_AUDIO_CODECS_NUM + H264_VIDEO_CODECS_NUM)
 
 #ifdef SIPX_VIDEO /* [ */
-#define H263_VIDEO_CODECS_NUM 3
+#define H263_VIDEO_CODECS_NUM 5
 #else /* SIPX_VIDEO ] [ */
 #define H263_VIDEO_CODECS_NUM 0
 #endif /* SIPX_VIDEO ] */
@@ -424,6 +424,8 @@ OsStatus sipXmediaFactoryImpl::buildCodecFactory(SdpCodecFactory *pFactory,
     codecs[H263_VIDEO_CODECS_BEGIN+0] = SdpCodec::SDP_CODEC_H263_SQCIF;
     codecs[H263_VIDEO_CODECS_BEGIN+1] = SdpCodec::SDP_CODEC_H263_QCIF;
     codecs[H263_VIDEO_CODECS_BEGIN+2] = SdpCodec::SDP_CODEC_H263_CIF;
+    codecs[H263_VIDEO_CODECS_BEGIN+3] = SdpCodec::SDP_CODEC_H263_1998;
+    codecs[H263_VIDEO_CODECS_BEGIN+4] = SdpCodec::SDP_CODEC_H263_2000;
 #endif // SIPX_VIDEO ]
 
     if (pFactory)
@@ -641,6 +643,10 @@ OsStatus sipXmediaFactoryImpl::getCodec(int iCodec, UtlString& codec, int &bandW
         break;
     case H263_VIDEO_CODECS_BEGIN+2: codec = (const char*) SdpCodec::SDP_CODEC_H263_CIF;
         break;
+    case H263_VIDEO_CODECS_BEGIN+3: codec = (const char*) SdpCodec::SDP_CODEC_H263_1998;
+        break;
+    case H263_VIDEO_CODECS_BEGIN+4: codec = (const char*) SdpCodec::SDP_CODEC_H263_2000;
+        break;
 #endif /* SIPX_VIDEO ] */
 
     default: rc = OS_FAILED;
@@ -773,6 +779,12 @@ OsStatus sipXmediaFactoryImpl::getCodecNameByType(SdpCodec::SdpCodecTypes type, 
         break;
     case SdpCodec::SDP_CODEC_H263_SQCIF:
         codecName = SIPX_CODEC_ID_H263_SQCIF;
+        break;
+    case SdpCodec::SDP_CODEC_H263_1998:
+        codecName = SIPX_CODEC_ID_H263_1998;
+        break;
+    case SdpCodec::SDP_CODEC_H263_2000:
+        codecName = SIPX_CODEC_ID_H263_2000;
         break;
     default:
         OsSysLog::add(FAC_MP, PRI_WARNING,

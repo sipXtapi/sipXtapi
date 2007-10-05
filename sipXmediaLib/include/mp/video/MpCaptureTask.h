@@ -29,6 +29,7 @@ class MprToNet;
 class MpVideoEncoder;
 class MpRemoteVideoTask;
 class MpVideoStreamParams;
+class SdpCodec;
 
 /// @brief This task get frames from message queue (coming from capture device),
 /// encode it and send to RtpWriter.
@@ -52,6 +53,8 @@ public:
 ///@name Manipulators
 //@{
 
+   OsStatus applyCodec(const SdpCodec& codec);
+
    OsStatus stop();
 
 //@}
@@ -72,11 +75,11 @@ public:
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 
-   OsMsgQ            *mpMsgQueue;  ///< Queue of messages carrying captured data.
-   MprToNet          *mpRtpWriter; ///< Sink for generated RTP frames.
-   MpVideoEncoder    *mpEncoder;   ///< Encoder for captured frames.
-
-   MpRemoteVideoTask *mpTimer; ///< Hack to generate timer ticks for remote video renderer.
+   OsMsgQ               *mpMsgQueue;  ///< Queue of messages carrying captured data.
+   MprToNet             *mpRtpWriter; ///< Sink for generated RTP frames.
+   MpVideoEncoder       *mpEncoder;   ///< Encoder for captured frames.
+   MpVideoStreamParams  *mpVideoParams;
+   MpRemoteVideoTask    *mpTimer; ///< Hack to generate timer ticks for remote video renderer.
 
      /// Main loop of the task.
    virtual int run(void* pArg);

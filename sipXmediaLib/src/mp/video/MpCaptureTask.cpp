@@ -16,17 +16,16 @@
 #include "os/OsMsgQ.h"
 #include "mp/MpBufferMsg.h"
 #include "mp/MpVideoBuf.h"
+#include "sdp/SdpCodec.h"
 #include "mp/video/MpvoGdi.h"
 #include "mp/video/MpeH264.h"
 #include "mp/video/MpeH263.h"
+#include "mp/video/MpeH263p.h"
 #include "mp/video/MpVideoCallFlowGraph.h"  ///< For MpVideoCallFlowGraph::smpPreviewWindow
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
-#define CODEC_TYPE_H264 114
-#define CODEC_TYPE_H263 34
-
 // STATIC VARIABLE INITIALIZATIONS
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
@@ -37,16 +36,15 @@ MpCaptureTask::MpCaptureTask(OsMsgQ *pMsgQ, MprToNet *pRtpWriter, MpRemoteVideoT
 : OsTask("MpCaptureTask", NULL)
 , mpMsgQueue(pMsgQ)
 , mpRtpWriter(pRtpWriter)
-, mpEncoder(new MpeH263(CODEC_TYPE_H263, pRtpWriter))
-//, mpEncoder(new MpeH264(CODEC_TYPE_H264, pRtpWriter))
+, mpEncoder(NULL)
+, mpVideoParams(NULL)
 , mpTimer(pTimer)
 {
    assert(mpMsgQueue != NULL);
-   if (mpEncoder->initEncode(pCaptureParams) != OS_SUCCESS)
+
+   if (NULL != pCaptureParams)
    {
-      syslog(FAC_MP, PRI_ERR, "Could not initialize video codec");
-      delete mpEncoder;
-      mpEncoder = NULL;
+      mpVideoParams = new MpVideoStreamParams(*pCaptureParams);
    }
 }
 
@@ -55,11 +53,11 @@ MpCaptureTask::~MpCaptureTask()
    // Try correctly exit thread, if still running.
    stop();
 
-   if (mpEncoder != NULL)
-   {
-      delete mpEncoder;
-      mpEncoder = NULL;
-   }
+   delete mpEncoder;
+   mpEncoder = NULL;
+
+   delete mpVideoParams;
+   mpVideoParams = NULL;
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -71,6 +69,77 @@ OsStatus MpCaptureTask::stop()
       return OS_SUCCESS;
    else
       return OS_FAILED;
+}
+
+OsStatus MpCaptureTask::applyCodec(const SdpCodec& codec)
+{
+   if (NULL == mpVideoParams)
+      return OS_FAILED;
+
+   if (NULL == mpRtpWriter)
+      return OS_FAILED;
+
+   UtlString mimeSubtype;
+   codec.getEncodingName(mimeSubtype);
+
+   // first: check if we have currently active codec
+   if (NULL != mpEncoder)
+   {
+      // if so, it is currently unsupported to change the codec type on the fly.
+      // such change would require us to stop the graph, reinitialize the codec
+      // and restart the graph, what I believe is not really useful - I can't 
+      // imagine the situation that primary codec is changed after session is 
+      // established.
+      // verify, that passed-in SdpCodec describes exactly the same codec as the 
+      // one currently selected. if so - we're done, ohterwise - fail.
+
+      bool valid = false;
+      // TODO: using dynamic_cast to check codec validity is a hack. Need to 
+      // find some better way to identify MpVideoEncoder.
+      if (MIME_SUBTYPE_H263 == mimeSubtype)
+         valid = (NULL != dynamic_cast<MpeH263*>(mpEncoder));
+      else if (MIME_SUBTYPE_H264 == mimeSubtype)
+         valid = (NULL != dynamic_cast<MpeH264*>(mpEncoder));
+      else if (MIME_SUBTYPE_H263_1998 == mimeSubtype || MIME_SUBTYPE_H263_2000 == mimeSubtype)
+         valid = (NULL != dynamic_cast<MpeH263p*>(mpEncoder));
+      else
+      {
+         assert(!"Unsupported video encoder.");
+         valid = false;
+      }
+      return (valid ? OS_SUCCESS : OS_FAILED);
+   }
+
+   // we get here only on when mpEncoder is NULL
+   assert(NULL == mpEncoder);
+
+   MpVideoEncoder* encoder = NULL;
+   if (MIME_SUBTYPE_H263 == mimeSubtype)
+   {
+      encoder = new MpeH263(codec.getCodecPayloadFormat(), mpRtpWriter);
+   }
+   else if (MIME_SUBTYPE_H264 == mimeSubtype)
+   {
+      encoder = new MpeH264(codec.getCodecPayloadFormat(), mpRtpWriter);
+   }
+   else if (MIME_SUBTYPE_H263_1998 == mimeSubtype || MIME_SUBTYPE_H263_2000 == mimeSubtype)
+   {
+      encoder = new MpeH263p(codec.getCodecPayloadFormat(), mpRtpWriter);
+   }
+   else
+      return OS_FAILED;
+
+   assert(NULL != encoder);
+   if (OS_SUCCESS != encoder->initEncode(mpVideoParams))
+   {
+      delete encoder;
+      return OS_FAILED;
+   }
+   else
+   {
+      mpEncoder = encoder;
+      return OS_SUCCESS;
+   }
 }
 
 /* ============================ ACCESSORS ================================= */

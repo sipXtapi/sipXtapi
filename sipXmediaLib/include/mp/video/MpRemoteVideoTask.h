@@ -30,6 +30,7 @@ class MprDejitter;
 class MpVideoDecoder;
 class MpvoGdi;
 class OsTimer;
+class SdpCodec;
 
 /// This thread display video stream, coming from remote party.
 class MpRemoteVideoTask : public OsServerTask
@@ -53,6 +54,8 @@ public:
 /* ============================ MANIPULATORS ============================== */
 ///@name Manipulators
 //@{
+
+   OsStatus applyCodecs(const SdpCodec* const pCodecs[], int numCodecs);
 
      /// Set window handle for remote video (Asynchronous).
    void setRemoteVideoWindow(const void *hwnd);
@@ -98,7 +101,7 @@ protected:
    } MsgType;
 
    MprDejitter    *mpDejitter; ///< We will get RTP packet from this resource.
-   MpVideoDecoder *mpDecoder;  ///< Encoder for captured frames.
+   //MpVideoDecoder *mpDecoder;  ///< Encoder for captured frames.
    MpvoGdi        *mpVideoOut; ///< Video output system.
    MpRtpBufPtr    mpRtpPacket;///< Storage for not consumed RTP packet between
                             ///< calls to step().
@@ -106,7 +109,6 @@ protected:
    bool           mStreamInitialized; ///< true, if we already initialized
                             ///< mTimestamp. I.e. we have received at least one
                             ///< RTP packet.
-
    OsTimer        *mpTimer;    ///< Timer for frame ticks.
 
      /// Handles an incoming message
@@ -131,7 +133,14 @@ protected:
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
+   enum {MAX_VIDEO_DECODERS = 5};
+   MpVideoDecoder *mDecoders[MAX_VIDEO_DECODERS];
+   int            mPayloadTypes[MAX_VIDEO_DECODERS];
+   size_t         mDecoderCount;
+   int            mLastPayload;
+   size_t         mDecoderIndex;
 
+   MpRtpBufPtr pullPacket(UINT* timestamp, bool lockTimestamp = true);
 };
 
 /* ============================ INLINE METHODS ============================ */

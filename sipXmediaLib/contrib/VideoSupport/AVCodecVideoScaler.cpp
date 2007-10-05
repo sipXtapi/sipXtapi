@@ -26,7 +26,7 @@
 #include "AVCodecVideoScaler.h"
 #include <VideoSupport/VideoFormat.h>
 
-#ifndef VIDEO_SUPPORT_DISABLE_AVCODEC
+#if !defined(VIDEO_SUPPORT_DISABLE_AVCODEC) && !defined(VIDEO_SUPPORT_USE_SWSCALER)
 
 AVCodecVideoScaler::AVCodecVideoScaler():
 	pixelFormat_(PIX_FMT_NONE),
@@ -123,4 +123,4 @@ bool AVCodecVideoScaler::Process(const void* sourceFrameBytes, const size_t sour
 	return true;
 }
 
-#endif // VIDEO_SUPPORT_DISABLE_AVCODEC
+#endif // VIDEO_SUPPORT_DISABLE_AVCODEC && VIDEO_SUPPORT_USE_SWSCALER

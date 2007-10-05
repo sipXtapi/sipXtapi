@@ -13,6 +13,11 @@
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
 #include "mp/video/MpvoGdi.h"
+#include <VideoSupport/VideoProcessorFactory.h>
+#include <VideoSupport/VideoFormat.h>
+#include <VideoSupport/VideoScaler.h>
+#include <VideoSupport/VideoSurfaceConverter.h>
+#include <VideoSupport/VideoSurfaceConverterFactory.h>
 
 #define WIDTHBYTES(bits) ((DWORD)(((bits)+31) & (~31)) / 8)
 #define DIBWIDTHBYTES(bi) (DWORD)WIDTHBYTES((DWORD)(bi).biWidth * (DWORD)(bi).biBitCount)
@@ -31,10 +36,30 @@
 
 MpvoGdi::MpvoGdi(HWND hWnd)
 : mHwnd(hWnd)
+// bitmap 
 , mBitmap(NULL)
 , mpBitmapBuffer(NULL)
 , mBmpWidth(0)
 , mBmpHeight(0)
+// scaler
+, mSclInHeight(0)
+, mSclInWidth(0)
+, mSclInSize(0)
+, mSclOutHeight(0)
+, mSclOutWidth(0)
+, mSclOutSize(0)
+, mSclFormat(0)
+, mpSclBuffer(NULL)
+, mpScaler(NULL)
+// surface converter
+, mScvHeight(0)
+, mScvWidth(0)
+, mScvInSize(0)
+, mScvOutFormat(0)
+, mScvInFormat(0)
+, mScvOutSize(0)
+, mpSurfaceConverter(NULL)
+, mHighQualityScaling(false)
 {
    initOffscreenBuffer();
 }
@@ -45,7 +70,19 @@ MpvoGdi::~MpvoGdi()
    {
       ::DeleteObject(mBitmap);
       mBitmap = NULL;
+      mpBitmapBuffer = NULL;
    }
+
+   if (NULL != mpSclBuffer)
+   {
+      mpSclBuffer = realloc(mpSclBuffer, 0);
+   }
+
+   delete mpScaler;
+   mpScaler = NULL;
+
+   delete mpSurfaceConverter;
+   mpSurfaceConverter = NULL;
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -58,11 +95,72 @@ OsStatus MpvoGdi::render(MpVideoBufPtr pFrame)
    if (mHwnd == NULL)
       return OS_FAILED;
 
-   const int w = pFrame->getFrameWidth();
-   const int h = pFrame->getFrameHeight();
-   void* buffer = getCachedBitmapBuffer(w, h);
-   if (NULL == buffer)
+   RECT dstRc;
+   if (!::GetClientRect(mHwnd, &dstRc))
       return OS_FAILED;
+
+   const int dspW = dstRc.right;
+   const int dspH = dstRc.bottom;
+
+   const int srcW = pFrame->getFrameWidth();
+   const int srcH = pFrame->getFrameHeight();
+
+   // performance hack: if display window is BIG (like fullscreen),
+   // use high-quality resampling to make the video integral sub-multiply 
+   // of the window size, then resize with low-quality Windows scaling.
+   // in high resolutions software scaling is a CPU hog.
+   int dstW = dstRc.right;
+   int dstH = dstRc.bottom;
+
+   if (!mHighQualityScaling)
+   {
+      // don't lower the scaling quality if size below the thresholds 
+      static const int xThreshold = VideoFormat::width_4CIF;
+      static const int yThreshold = VideoFormat::height_4CIF;
+
+      int xRatio = dstW / srcW;
+      if (dstW > xThreshold && xRatio >= 2)
+      {
+         // scale at most x4 with low-quality scaling - prevent
+         // very large pixel blocks to appear (esp. with SQCIF)
+         if (xRatio > 4)
+            xRatio = 4;
+
+         dstW /= xRatio;
+         if (0 != (dstW % 2))
+            --dstW;
+      }
+
+      int yRatio = dstH / srcH;
+      if (dstH > yThreshold && yRatio >= 2)
+      {
+         if (yRatio > 4)
+            yRatio = 4;
+
+         dstH /= yRatio;
+         if (0 != (dstH % 2))
+            --dstH;
+      }
+   }
+
+   const MpVideoBuf::ColorSpace inColorSpace = pFrame->getColorspace();
+
+   const void* scvInBuffer = NULL;
+   if (dstW != srcW || dstH != srcH)
+   {
+      void* sclBuffer = getScalerBuffer(inColorSpace, srcW, srcH, dstW, dstH);
+      if (NULL == sclBuffer)
+         return OS_FAILED;
+
+      assert(NULL != mpScaler);
+      mpScaler->Process(pFrame->getDataPtr(), mSclInSize, sclBuffer, mSclOutSize);
+      scvInBuffer = sclBuffer;
+
+   }
+   else
+   {
+      scvInBuffer = pFrame->getDataPtr();
+   }
 
    BITMAPINFOHEADER *p_header = &mBitmapInfo.bmiHeader;
    HDC hdc;
@@ -77,28 +175,21 @@ OsStatus MpvoGdi::render(MpVideoBufPtr pFrame)
    assert(off_dc != NULL);
    ::GdiFlush();
 
+   MpVideoBuf::ColorSpace outColorSpace;
    // Convert frame to screen color format and copy it to windows bitmap
    switch (p_header->biBitCount)
    {
    case 32:
-      pFrame->convertToColorSpace(MpVideoBuf::MP_COLORSPACE_BGR32,
-                                  (char*)buffer,
-                                  w * h * 32 / 8);
+      outColorSpace = MpVideoBuf::MP_COLORSPACE_BGR32;
       break;
    case 24:
-      pFrame->convertToColorSpace(MpVideoBuf::MP_COLORSPACE_BGR24,
-                                  (char*)buffer,
-                                  w * h * 24 / 8);
+      outColorSpace = MpVideoBuf::MP_COLORSPACE_BGR24;
       break;
    case 16:
-      pFrame->convertToColorSpace(MpVideoBuf::MP_COLORSPACE_BGR565,
-                                  (char*)buffer,
-                                  w * h * 16 / 8);
+      outColorSpace = MpVideoBuf::MP_COLORSPACE_BGR565;
       break;
    case 15:
-      pFrame->convertToColorSpace(MpVideoBuf::MP_COLORSPACE_BGR555,
-                                  (char*)buffer,
-                                  w * h * 16 / 8);
+      outColorSpace = MpVideoBuf::MP_COLORSPACE_BGR555;
       break;
    default:
       osPrintf( "screen depth %i not supported", p_header->biBitCount );
@@ -106,12 +197,26 @@ OsStatus MpvoGdi::render(MpVideoBufPtr pFrame)
       break;
    }
 
-   HGDIOBJ oldBitmap = ::SelectObject(off_dc, mBitmap);
+   void* scvOutBuffer = getBitmapBuffer(dstW, dstH);
+   if (NULL == scvOutBuffer)
+      return OS_FAILED;
 
+   VideoSurfaceConverter* scv = getSurfaceConverter(inColorSpace, outColorSpace, dstW, dstH);
+   if (NULL == scv)
+      return OS_FAILED;
+
+   scv->Convert(scvInBuffer, mScvInSize, scvOutBuffer, mScvOutSize);
+
+   HGDIOBJ oldBitmap = ::SelectObject(off_dc, mBitmap);
    if (p_header->biHeight > 0)
-      ::StretchBlt(hdc, 0, 0, w, h, off_dc, 0, h, w, -h, SRCCOPY);
+      ::StretchBlt(hdc, 0, 0, dspW, dspH, off_dc, 0, dstH, dstW, -dstH, SRCCOPY);
    else
-      ::BitBlt(hdc, 0, 0, w, h, off_dc, 0, 0, SRCCOPY);
+   {
+      if (dstW == dspW && dstH == dspH)
+         ::BitBlt(hdc, 0, 0, dstW, dstH, off_dc, 0, 0, SRCCOPY);
+      else
+         ::StretchBlt(hdc, 0, 0, dspW, dspH, off_dc, 0, 0, dstW, dstH, SRCCOPY);
+   }
 
    ::SelectObject(off_dc, oldBitmap);
 
@@ -204,7 +309,7 @@ OsStatus MpvoGdi::initOffscreenBuffer()
 /* ============================ FUNCTIONS ================================= */
 
 
-void* MpvoGdi::getCachedBitmapBuffer(const int width, const int height)
+void* MpvoGdi::getBitmapBuffer(const int width, const int height)
 {
    if (NULL != mpBitmapBuffer && width == mBmpWidth && height == mBmpHeight)
       return mpBitmapBuffer;
@@ -246,6 +351,115 @@ Finish:
       ::ReleaseDC(mHwnd, dc);
 
    return mpBitmapBuffer;
+}
+
+void* MpvoGdi::getScalerBuffer(int format, int srcW, int srcH, int dstW, int dstH)
+{
+   if (mSclFormat == format && 
+       srcW == mSclInWidth && 
+       srcH == mSclInHeight &&
+       dstW == mSclOutWidth &&
+       dstH == mSclOutHeight
+      )
+   {
+      assert(NULL != mpScaler);
+      assert(NULL != mpSclBuffer);
+      return mpSclBuffer;
+   }
+
+   mSclInWidth = 0;
+   mSclInHeight = 0;
+   mSclOutWidth = 0;
+   mSclOutHeight = 0;
+   delete mpScaler;
+   mpScaler = NULL;
+
+   PixelFormat fmt = (PixelFormat)MpVideoBuf::getFFMpegColorspace((MpVideoBuf::ColorSpace)format);
+   VideoSurface surface = PixelFormatToVideoSurface(fmt);
+   assert(videoSurfaceUnknown != surface);
+   if (videoSurfaceUnknown == surface)
+      return NULL;
+
+   VideoProcessorFactory* factory = VideoProcessorFactory::GetInstance();
+   if (NULL == factory)
+      return NULL;
+
+   VideoFrameProcessorAutoPtr ptr = factory->CreateProcessor(videoScaler, surface);
+   if (NULL == ptr.get())
+      return NULL;
+
+   mpScaler = dynamic_cast<VideoScaler*>(ptr.get());
+   assert(NULL != mpScaler);
+
+   if (mpScaler->Initialize(surface, srcW, srcH, dstW, dstH))
+      ptr.release();
+   else
+   {
+      mpScaler = NULL;
+      return NULL;
+   }
+
+   mSclInSize = GetVideoFrameByteSize(surface, srcW, srcH);
+   mSclOutSize = GetVideoFrameByteSize(surface, dstW, dstH);
+
+   assert(0 != mSclOutSize);
+   mpSclBuffer = realloc(mpSclBuffer, mSclOutSize);
+   if (NULL == mpSclBuffer)
+      return NULL;
+
+   mSclInWidth = srcW;
+   mSclInHeight = srcH;
+   mSclOutWidth = dstW;
+   mSclOutHeight = dstH;
+   mSclFormat = format;
+   return mpSclBuffer;
+}
+
+VideoSurfaceConverter* MpvoGdi::getSurfaceConverter(int inFormat, int outFormat, int w, int h)
+{
+   if (mScvInFormat == inFormat &&
+       mScvOutFormat == outFormat &&
+       mScvWidth == w &&
+       mScvHeight == h
+      )
+   {
+      assert(NULL != mpSurfaceConverter);
+      return mpSurfaceConverter;
+   }
+
+   mScvInFormat = 0;
+   mScvOutFormat = 0;
+   mScvWidth = 0;
+   mScvHeight = 0;
+   delete mpSurfaceConverter;
+   mpSurfaceConverter = NULL;
+
+   PixelFormat inFmt = (PixelFormat)MpVideoBuf::getFFMpegColorspace((MpVideoBuf::ColorSpace)inFormat);
+   VideoSurface inSf = PixelFormatToVideoSurface(inFmt);
+   if (!IsVideoSurfaceValid(inSf))
+      return NULL;
+
+   PixelFormat outFmt = (PixelFormat)MpVideoBuf::getFFMpegColorspace((MpVideoBuf::ColorSpace)outFormat);
+   VideoSurface outSf = PixelFormatToVideoSurface(outFmt);
+   if (!IsVideoSurfaceValid(outSf))
+      return NULL;
+
+   VideoSurfaceConverterFactory* factory = VideoSurfaceConverterFactory::GetInstance();
+   if (NULL == factory)
+      return NULL;
+
+   VideoSurfaceConverterAutoPtr ptr = factory->CreateConverter(w, h, inSf, outSf);
+   if (NULL == ptr.get())
+      return NULL;
+
+   mpSurfaceConverter = ptr.release();
+   mScvInFormat = inFormat;
+   mScvOutFormat = outFormat;
+   mScvWidth = w;
+   mScvHeight = h;
+   mScvInSize = GetVideoFrameByteSize(inSf, w, h);
+   mScvOutSize = GetVideoFrameByteSize(outSf, w, h);
+   return mpSurfaceConverter;
 }
 
 #endif // SIPX_VIDEO ]

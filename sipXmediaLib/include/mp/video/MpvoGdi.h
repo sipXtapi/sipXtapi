@@ -28,6 +28,8 @@
 // STRUCTS
 // TYPEDEFS
 // FORWARD DECLARATIONS
+class VideoScaler;
+class VideoSurfaceConverter;
 
 /// Video output to Windows GDI
 class MpvoGdi
@@ -54,6 +56,8 @@ public:
      /// Set window for video display.
    OsStatus setWindow(HWND hwnd);
 
+   void setHighQualityScaling(UtlBoolean enabled) {mHighQualityScaling = enabled;}
+
 //@}
 
 /* ============================ ACCESSORS ================================= */
@@ -69,7 +73,7 @@ public:
 ///@name Inquiry
 //@{
 
-
+   UtlBoolean isHighQualityScaling() const {return mHighQualityScaling;}
 //@}
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
@@ -104,8 +108,23 @@ private:
    void* mpBitmapBuffer;
    int mBmpWidth, mBmpHeight;
 
-   void* getCachedBitmapBuffer(int width, int height);
+   int mSclInWidth, mSclInHeight, mSclOutWidth, mSclOutHeight, mSclFormat;
+   void* mpSclBuffer;
+   size_t mSclInSize;
+   size_t mSclOutSize;
+   VideoScaler* mpScaler;
 
+   int mScvWidth, mScvHeight, mScvInFormat, mScvOutFormat;
+   size_t mScvInSize;
+   size_t mScvOutSize;
+   VideoSurfaceConverter* mpSurfaceConverter;
+
+
+   void* getScalerBuffer(int format, int srcW, int srcH, int dstW, int dstH);
+   VideoSurfaceConverter* getSurfaceConverter(int inFormat, int outFormat, int w, int h);
+   void* getBitmapBuffer(int width, int height);
+
+   UtlBoolean mHighQualityScaling;
 };
 
 /* ============================ INLINE METHODS ============================ */

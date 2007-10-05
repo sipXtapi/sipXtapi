@@ -16,8 +16,10 @@
 #include "mp/MprDejitter.h"
 #include "mp/video/MpdH264.h"
 #include "mp/video/MpdH263.h"
+#include "mp/video/MpdH263p.h"
 #include "mp/MpMisc.h"
 #include "mp/video/MpvoGdi.h"
+#include "sdp/SdpCodec.h"
 
 #include "os/OsTimer.h"
 #include "os/OsEvent.h"
@@ -26,12 +28,7 @@
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
-extern void *ghVideo;
-
 // CONSTANTS
-#define CODEC_TYPE_H264 114
-#define CODEC_TYPE_H263 34
-
 // STATIC VARIABLE INITIALIZATIONS
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
@@ -40,20 +37,18 @@ extern void *ghVideo;
 
 MpRemoteVideoTask::MpRemoteVideoTask(MprDejitter* pDejitter, void *hwnd)
 : mpDejitter(pDejitter)
-//, mpDecoder(new MpdH264(CODEC_TYPE_H264, MpMisc.VideoFramesPool))
-, mpDecoder(new MpdH263(CODEC_TYPE_H263, MpMisc.VideoFramesPool))
 , mpVideoOut(NULL)
 , mTimestamp(0)
 , mStreamInitialized(false)
 , mpTimer(NULL)
+, mDecoderCount(0)
+, mLastPayload(-1)
+, mDecoderIndex(size_t(-1))
 {
-   if (mpDecoder != NULL)
+   for (size_t i = 0; i < MAX_VIDEO_DECODERS; ++i)
    {
-      if (OS_SUCCESS != mpDecoder->initDecode())
-      {
-         delete mpDecoder;
-         mpDecoder = NULL;
-      }
+      mDecoders[i] = NULL;
+      mPayloadTypes[i] = -1;
    }
 
    mpVideoOut = new MpvoGdi(NULL);
@@ -62,10 +57,13 @@ MpRemoteVideoTask::MpRemoteVideoTask(MprDejitter* pDejitter, void *hwnd)
 
 MpRemoteVideoTask::~MpRemoteVideoTask()
 {
-   if (mpDecoder != NULL)
+   const size_t decoderCount = mDecoderCount;
+   mDecoderCount = 0;
+   for (size_t i = 0; i < decoderCount; ++i)
    {
-      delete mpDecoder;
-      mpDecoder = NULL;
+      delete mDecoders[i];
+      mDecoders[i] = NULL;
+      mPayloadTypes[i] = -1;
    }
 
    if (mpVideoOut != NULL)
@@ -85,9 +83,6 @@ void MpRemoteVideoTask::setRemoteVideoWindow(const void *hwnd)
 
 OsStatus MpRemoteVideoTask::startProcessing()
 {
-   if (NULL == mpDecoder)
-      return OS_FAILED;
-
    // Create frame tick timer
    mpTimer = new OsTimer(getMessageQueue(), 0);
    if (mpTimer == NULL)
@@ -186,7 +181,7 @@ OsStatus MpRemoteVideoTask::handleSetRemoteVideoWindow(const void *hwnd)
 
 OsStatus MpRemoteVideoTask::handleFrameTick()
 {
-   if (mpDejitter != NULL && mpDecoder != NULL)
+   if (mpDejitter != NULL && 0 != mDecoderCount)
    {
       MpVideoBufPtr pFrame;
       bool packetConsumed;
@@ -195,12 +190,15 @@ OsStatus MpRemoteVideoTask::handleFrameTick()
       if (!mpRtpPacket.isValid())
       {
          //mpRtpPacket = mpDejitter->pullPacket(CODEC_TYPE_H264);
-         mpRtpPacket = mpDejitter->pullPacket(CODEC_TYPE_H263);
+         mpRtpPacket = pullPacket(NULL);
       }
 
       // We may get no packets from Dejitter. Handle this.
       if (mpRtpPacket.isValid())
       {
+         assert(-1 != mLastPayload);
+         assert(mDecoderIndex < mDecoderCount);
+         assert(NULL != mDecoders[mDecoderIndex]);
 
          // Initialize timestamp and decoder, if this this the first packet
          // in RTP session.
@@ -211,8 +209,11 @@ OsStatus MpRemoteVideoTask::handleFrameTick()
 
             // Pass first packet to decoder to initialize its internal stream
             // state
-            mpDecoder->initStream(mpRtpPacket);
-
+            // TODO: in some distant future we might support switching codec on the fly, 
+            // we should store initialized flag for each decoder separately then.
+            // for now we just assume no sender is sophisticated enough to switch 
+            // encoders after session is established.
+            mDecoders[mDecoderIndex]->initStream(mpRtpPacket);
             mStreamInitialized = true;
          }
 
@@ -228,14 +229,16 @@ OsStatus MpRemoteVideoTask::handleFrameTick()
 
          while (mpRtpPacket.isValid())
          {
-            pFrame = mpDecoder->decode(mpRtpPacket, packetConsumed, false);
+            assert(mDecoderIndex < mDecoderCount);
+            assert(NULL != mDecoders[mDecoderIndex]);
+            pFrame = mDecoders[mDecoderIndex]->decode(mpRtpPacket, packetConsumed, false);
 
             // Pull next packet of this frame from Dejitter if previous packet
             // was consumed () by decoder.
             if (packetConsumed)
             {
                //mpRtpPacket = mpDejitter->pullPacket(CODEC_TYPE_H264, mTimestamp);
-               mpRtpPacket = mpDejitter->pullPacket(CODEC_TYPE_H263, mTimestamp);
+               mpRtpPacket = pullPacket(&mTimestamp);
             }
 
             // End pulling packets from Dejitter if we got frame from Decoder.
@@ -249,7 +252,13 @@ OsStatus MpRemoteVideoTask::handleFrameTick()
          // force decoding - we want draw something on the screen.
          if (!pFrame.isValid())
          {
-            pFrame = mpDecoder->decode(mpRtpPacket, packetConsumed, true);
+            if (-1 != mLastPayload)
+            {
+               assert(mDecoderIndex < mDecoderCount);
+               assert(NULL != mDecoders[mDecoderIndex]);
+
+               pFrame = mDecoders[mDecoderIndex]->decode(mpRtpPacket, packetConsumed, true);
+            }
 
             // Free packet if it was consumed (processed) by decoder.
             if (packetConsumed)
@@ -266,6 +275,102 @@ OsStatus MpRemoteVideoTask::handleFrameTick()
    }
 
    return OS_SUCCESS;
+}
+
+MpRtpBufPtr MpRemoteVideoTask::pullPacket(UINT* timestamp, bool lockTimestamp)
+{
+   assert(NULL != mpDejitter);
+
+   MpRtpBufPtr buf;
+   if (-1 != mLastPayload)
+   {
+      if (NULL != timestamp)
+         buf = mpDejitter->pullPacket(mLastPayload, *timestamp, lockTimestamp);
+      else
+         buf = mpDejitter->pullPacket(mLastPayload);
+
+      if (buf.isValid())
+         return buf;
+   }
+
+   for (size_t i = 0; i < mDecoderCount; ++i)
+   {
+      const int payloadType = mPayloadTypes[i];
+      assert(-1 != payloadType);
+      if (payloadType == mLastPayload)
+         continue;
+
+      if (NULL != timestamp)
+         buf = mpDejitter->pullPacket(payloadType, *timestamp, lockTimestamp);
+      else
+         buf = mpDejitter->pullPacket(payloadType);
+
+      if (buf.isValid())
+      {
+         mLastPayload = payloadType;
+         mDecoderIndex = i;
+         return buf;
+      }
+   }
+
+   return buf;
+}
+
+OsStatus MpRemoteVideoTask::applyCodecs(const SdpCodec * const pCodecs[], const int numCodecs)
+{
+   if (0 == mDecoderCount)
+   {
+      size_t decoderCount = 0;
+      for (int i = 0; i < numCodecs; ++i)
+      {
+         const SdpCodec* codec = pCodecs[i];
+         UtlString mimeType;
+         codec->getMediaType(mimeType);
+         if (MIME_TYPE_VIDEO != mimeType)
+            continue;
+
+         const int payloadType = codec->getCodecPayloadFormat();
+         UtlString mimeSubtype;
+         codec->getEncodingName(mimeSubtype);
+         if (MIME_SUBTYPE_H263 == mimeSubtype)
+         {
+            mDecoders[decoderCount] = new MpdH263(payloadType, MpMisc.VideoFramesPool);
+         }
+         else if (MIME_SUBTYPE_H264 == mimeSubtype)
+         {
+            mDecoders[decoderCount] = new MpdH264(payloadType, MpMisc.VideoFramesPool);
+         }
+         else if (MIME_SUBTYPE_H263_1998 == mimeSubtype || MIME_SUBTYPE_H263_2000 == mimeSubtype)
+         {
+            mDecoders[decoderCount] = new MpdH263p(payloadType, MpMisc.VideoFramesPool);
+         }
+         else
+         {
+            assert(!"Unsupported video decoder.");
+            continue;
+         }
+
+         assert(NULL != mDecoders[decoderCount]);
+         if (OS_SUCCESS != mDecoders[decoderCount]->initDecode())
+         {
+            delete mDecoders[decoderCount];
+            mDecoders[decoderCount] = NULL;
+            continue;
+         }
+
+         mPayloadTypes[decoderCount] = payloadType;
+         ++decoderCount;
+      }
+
+      mDecoderCount = decoderCount;
+      return OS_SUCCESS;
+   }
+   else
+   {
+      // TODO: we don't check codecs array now. this should be done, to verify, 
+      // that new codec settings are identical with previous ones. 
+      return OS_SUCCESS;
+   }
 }
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */

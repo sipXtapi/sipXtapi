@@ -8,6 +8,8 @@
 // $$ 
 ////////////////////////////////////////////////////////////////////////////// 
 
+#ifdef SIPX_VIDEO
+
 // SYSTEM INCLUDES
 #include <windows.h>
 #include <VideoSupport/VideoCapture.h>
@@ -249,3 +251,5 @@ OsStatus MpDShowCaptureDevice::setOutputColorSpace(int colorSpace)
 
    return applyFormat();
 }
+
+#endif // SIPX_VIDEO

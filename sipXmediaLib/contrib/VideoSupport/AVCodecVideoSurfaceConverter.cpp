@@ -25,7 +25,7 @@
 #include "stdafx.h"
 #include "AVCodecVideoSurfaceConverter.h"
 
-#ifndef VIDEO_SUPPORT_DISABLE_AVCODEC
+#if !defined(VIDEO_SUPPORT_DISABLE_AVCODEC) && !defined(VIDEO_SUPPORT_USE_SWSCALER)
 
 AVCodecVideoSurfaceConverter::AVCodecVideoSurfaceConverter():
 	sourcePixelFormat_(PIX_FMT_NONE),
@@ -136,4 +136,4 @@ bool AVCodecVideoSurfaceConverter::Convert(const void* sourceFrameBytes, const s
 	return res >= 0;
 }
 
-#endif // VIDEO_SUPPORT_DISABLE_AVCODEC
+#endif // VIDEO_SUPPORT_DISABLE_AVCODEC && VIDEO_SUPPORT_USE_SWSCALER

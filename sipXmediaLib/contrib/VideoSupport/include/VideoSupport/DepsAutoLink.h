@@ -46,7 +46,12 @@
 # else
 #  pragma comment(lib, "avcodec-51.lib")
 #  pragma comment(lib, "avutil-49.lib")
-#endif
+
+#  ifdef VIDEO_SUPPORT_USE_SWSCALER
+#   pragma comment(lib, "swscale-0.lib")
+#  endif // VIDEO_SUPPORT_USE_SWSCALER
+# endif
+
 #endif // VIDEO_SUPPORT_DISABLE_AVCODEC
 
 #endif // VIDEO_SUPPORT_DISABLE_DEPENDENCY_AUTOLINK

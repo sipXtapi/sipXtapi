@@ -87,16 +87,26 @@ VideoFrameProcessorAutoPtr VideoProcessorFactory::Impl::CreateProcessor(VideoPro
 		return res;
 
 #ifndef VIDEO_SUPPORT_DISABLE_AVCODEC
+# ifndef VIDEO_SUPPORT_USE_SWSCALER
 	if (videoScaler == category)
 	{
-		PixelFormat pf = VideoSurfaceToPixelFormat(surface);
-		if (PIX_FMT_NONE != pf)
+		// AVCodec img_resample() works only with planar YUV formats :/ - knowledge gained
+		// the hard way.
+		assert(IsVideoSurfacePlanar(surface) && IsVideoSurfaceYUV(surface));
+		if (IsVideoSurfacePlanar(surface) && IsVideoSurfaceYUV(surface))
 		{
-			res.reset(new (std::nothrow) AVCodecVideoScaler());
-			if (NULL != res.get())
-				return res;
+			PixelFormat pf = VideoSurfaceToPixelFormat(surface);
+			if (PIX_FMT_NONE != pf)
+			{
+				res.reset(new (std::nothrow) AVCodecVideoScaler());
+				if (NULL != res.get())
+					return res;
+			}
 		}
 	}
+# else // VIDEO_SUPPORT_USE_SWSCALER
+
+# endif // VIDEO_SUPPORT_USE_SWSCALER
 #endif // VIDEO_SUPPORT_DISABLE_AVCODEC
 
 	ConstructorMap::iterator it = constructors_.find(std::make_pair(category, surface));

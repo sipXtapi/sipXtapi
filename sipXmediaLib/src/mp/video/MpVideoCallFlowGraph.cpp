@@ -152,6 +152,10 @@ OsStatus MpVideoCallFlowGraph::startSendRtp(SdpCodec& rPrimaryCodec,
       return OS_FAILED;
    }
 
+   status = mpCaptureTask->applyCodec(rPrimaryCodec);
+   if (OS_SUCCESS != status)
+      return status;
+
    // Start producing video frames
    status = mpCaptureDevice->startCapture();
    if (status != OS_SUCCESS)
@@ -193,6 +197,10 @@ OsStatus MpVideoCallFlowGraph::startReceiveRtp(SdpCodec* pCodecs[], int numCodec
    if (mpConnection != NULL)
    {
       mpConnection->prepareStartReceiveRtp(rRtpSocket, rRtcpSocket);
+      if (NULL != mpRemoteVideoTask && OS_SUCCESS != mpRemoteVideoTask->applyCodecs(pCodecs, numCodecs))
+      {
+         return OS_FAILED;
+      }
 
       if (  (mpRemoteVideoTask != NULL)
          && (mpRemoteVideoTask->isStarted() || mpRemoteVideoTask->startProcessing()) )

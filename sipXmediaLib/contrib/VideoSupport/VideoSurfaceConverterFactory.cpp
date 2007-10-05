@@ -144,7 +144,11 @@ VideoSurfaceConverterAutoPtr VideoSurfaceConverterFactory::Impl::CreateTandemCon
 VideoSurfaceConverterAutoPtr VideoSurfaceConverterFactory::Impl::CreateAVCodecConverter(size_t width, size_t height, VideoSurface sourceSurface, VideoSurface targetSurface)
 {
 	VideoSurfaceConverterAutoPtr res;
+#ifndef VIDEO_SUPPORT_USE_SWSCALER
 	res.reset(new AVCodecVideoSurfaceConverter());
+#else // VIDEO_SUPPORT_USE_SWSCALER
+
+#endif // VIDEO_SUPPORT_USE_SWSCALER
 	if (!res->Initialize(width, height, sourceSurface, targetSurface))
 		res.reset();
 
