@@ -970,9 +970,31 @@ AC_DEFUN([AM_PATH_SPEEX],
     # PKG_CHECK_MODULES() call.
     PLUGINS+="SPEEX "
     SPEEX_TARGET="plgspeex"
+    SPEEX_EXTRA_TARGET=
+    AC_SUBST(SPEEX_EXTRA_TARGET)    
     AC_SUBST(SPEEX_TARGET)    
     AC_SUBST(SPEEX_CFLAGS)
     AC_SUBST(SPEEX_LIBS)
+])dnl
+
+AC_DEFUN([AM_PATH_SPEEX_BUILTIN],
+[
+    AC_MSG_RESULT([using svn version])
+    CFLAGS+=" -DHAVE_SPEEX" ; CXXFLAGS+=" -DHAVE_SPEEX"
+
+    SPEEX_ROOT='${top_srcdir}/../sipXmediaLib/contrib/libspeex'
+    SPEEX_CFLAGS="-I${SPEEX_ROOT}/include"
+    SPEEX_LIBS="-I${SPEEX_ROOT}/libspeex/.libs/libspeex.la"
+
+    PLUGINS+="SPEEX "
+    SPEEX_TARGET="plgspeex"
+    
+    SPEEX_EXTRA_TARGET="${SPEEX_ROOT}"
+    AC_SUBST(SPEEX_EXTRA_TARGET)
+    AC_SUBST(SPEEX_ROOT)
+    AC_SUBST(SPEEX_TARGET)    
+    AC_SUBST(SPEEX_CFLAGS)
+    AC_SUBST(SPEEX_LIBS) 
 ])dnl
 
 AC_DEFUN([CHECK_SPEEX],
@@ -981,14 +1003,16 @@ AC_DEFUN([CHECK_SPEEX],
 
     AC_ARG_ENABLE([codec-speex],
        [AS_HELP_STRING([--enable-codec-speex],
-          [Enable support for SPEEX codec @<:@default=auto@:>@])],
+          [Enable support for SPEEX codec @<:@default=auto@:>@ ("contrib" -- use speex from contribs) ])],
        [ case "${enableval}" in
+            contrib) AM_PATH_SPEEX_BUILTIN ;;
             auto) AM_PATH_SPEEX ;;
             yes) AM_PATH_SPEEX ;;
             no) AC_MSG_RESULT(disabled) ;;
             *) AC_MSG_ERROR(bad value ${enableval} for --enable-codec-speex) ;;
          esac],
        [AM_PATH_SPEEX])
+    AM_CONDITIONAL(SPEEX_CONTRIB, [test x"$SPEEX_ROOT" != x])    
 ])dnl
 
 # ========== P C M A  P C M U =================
