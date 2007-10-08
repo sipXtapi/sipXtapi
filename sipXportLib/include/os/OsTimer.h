@@ -260,9 +260,9 @@ public:
 protected:
 
    /// type for absolute time
-   typedef Int64 Time;
+   typedef int64_t Time;
    /// type for time interval
-   typedef Int64 Interval;
+   typedef int64_t Interval;
 
    OsBSem          mBSem;      //< semaphore to lock access to members
 
