@@ -51,9 +51,9 @@ public:
     mNextFrameTime(startFrameTime),
     mSamplesPerFrame(samplesPerFrame),
     mSamplesPerSecond(samplesPerSecond),
-    mMagnatude(magnitude),
+    mMagnitude(magnitude),
     mSinePeriodMicroseconds(periodMicroseconds),
-    relativeSpeed(relativeSpeed),
+    mRelativeSpeed(relativeSpeed),
     mDeviceId(deviceId),
     mpInputDeviceManager(&inputDeviceManager),
     mpFrameData(NULL),
@@ -87,7 +87,7 @@ public:
         OsTime noDelay(0, 0);
         int microSecondsPerFrame =
             (mSamplesPerFrame * 1000000 / mSamplesPerSecond) -
-            relativeSpeed;
+            mRelativeSpeed;
         assert(microSecondsPerFrame > 0);
         OsTime framePeriod(0, microSecondsPerFrame);
         // Start re-occurring timer which causes handleMessage to be called
@@ -124,7 +124,7 @@ public:
         {
             mpFrameData[frameIndex] =
                 MpSineWaveGeneratorDeviceDriver::calculateSample(mNextFrameTime, 
-                                                                 mMagnatude,
+                                                                 mMagnitude,
                                                                  mSinePeriodMicroseconds,
                                                                  frameIndex,
                                                                  mSamplesPerFrame,
@@ -140,25 +140,31 @@ public:
         return(TRUE);
     }
 
-    // This is intended to be called from other threads when this task is not
-    // started -- either not yet started, suspended, or stopped,
-    // as there is no concurrency locks.
-    void setNewTone(unsigned int magnitude, 
-                        unsigned int periodInMicroseconds, 
-                        int underOverRunTime)
+    void setTone(unsigned int periodInMicroseconds)
     {
-       mMagnatude = magnitude;
+       // Since this only does an atomic store, no lock is needed.
        mSinePeriodMicroseconds = periodInMicroseconds;
-       relativeSpeed = underOverRunTime;
+    }
+
+    void setMagnitude(unsigned int magnitude)
+    {
+       // Since this only does an atomic store, no lock is needed.
+       mMagnitude = magnitude;
+    }
+
+    void setRelativeSpeed(int relativeSpeed)
+    {
+       // Since this only does an atomic store, no lock is needed.
+       mRelativeSpeed = relativeSpeed;
     }
 
 private:
     MpFrameTime mNextFrameTime;
     unsigned int mSamplesPerFrame;
     unsigned int mSamplesPerSecond;
-    unsigned int mMagnatude;
+    unsigned int mMagnitude;
     unsigned int mSinePeriodMicroseconds;
-    int relativeSpeed;
+    int mRelativeSpeed;
     MpInputDeviceHandle mDeviceId;
     MpInputDeviceManager* mpInputDeviceManager;
     MpAudioSample* mpFrameData;
@@ -179,7 +185,7 @@ MpSineWaveGeneratorDeviceDriver::MpSineWaveGeneratorDeviceDriver(const UtlString
 : MpInputDeviceDriver(name, deviceManager),
 mMagnitude(magnitude),
 mPeriodInMicroseconds(periodInMicroseconds),
-relativeSpeed(relativeSpeed),
+mRelativeSpeed(relativeSpeed),
 mpReaderTask(NULL)
 {
 }
@@ -214,7 +220,7 @@ OsStatus MpSineWaveGeneratorDeviceDriver::enableDevice(unsigned samplesPerFrame,
                                           samplesPerSec,
                                           mMagnitude,
                                           mPeriodInMicroseconds,
-                                          relativeSpeed,
+                                          mRelativeSpeed,
                                           getDeviceId(),
                                           *mpInputDeviceManager);
 
@@ -247,30 +253,12 @@ OsStatus MpSineWaveGeneratorDeviceDriver::disableDevice()
     return(result);
 }
 
-OsStatus MpSineWaveGeneratorDeviceDriver::setNewTone(unsigned int magnitude, 
-                                                     unsigned int periodInMicroseconds, 
-                                                     int underOverRunTime)
+OsStatus MpSineWaveGeneratorDeviceDriver::setTone(unsigned int periodInMicroseconds)
 {
-   if(!mpReaderTask)
-   {
-      return OS_TASK_NOT_STARTED;
-   }
-   
-   // Pause the thread so we can set a new tone.
-   OsStatus stat = mpReaderTask->suspend();
-   if(stat != OS_SUCCESS)
-      return stat;
-
-   // Set the new tone values.
-   mMagnitude = magnitude;
+   // Set the new tone value.
    mPeriodInMicroseconds = periodInMicroseconds;
-   relativeSpeed;
-   ((MpSineWaveGeneratorServer*)mpReaderTask)->setNewTone(mMagnitude, 
-                                                          mPeriodInMicroseconds, 
-                                                          relativeSpeed);
-
-   // Resume the thread.
-   return mpReaderTask->resume();
+   ((MpSineWaveGeneratorServer*)mpReaderTask)->setTone(mPeriodInMicroseconds);
+   return OS_SUCCESS;
 }
 
 /* ============================ ACCESSORS ================================= */

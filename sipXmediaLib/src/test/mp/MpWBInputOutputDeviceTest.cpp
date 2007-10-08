@@ -424,7 +424,7 @@ public:
       {
          OsTask::delay(toneDurationMS);
          printf("%d, ", frequencies[i]);
-         pPlaySineInDrv->setNewTone(sineMagnitude, FREQ_TO_PERIODUS(frequencies[i]), 0);
+         pPlaySineInDrv->setTone(FREQ_TO_PERIODUS(frequencies[i]));
       }
       // Let the last tone play for it's duration.
       OsTask::delay(toneDurationMS);

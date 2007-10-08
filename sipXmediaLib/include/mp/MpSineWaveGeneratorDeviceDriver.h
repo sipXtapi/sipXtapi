@@ -56,7 +56,7 @@ public:
                                     MpInputDeviceManager& deviceManager,
                                     unsigned int magnitude,
                                     unsigned int periodInMicroseconds,
-                                    int underOverRunTime);
+                                    int relativeSpeed);
       /**<
       *  @param name - unique for this device driver 
       *  @param deviceManager - MpInputDeviceManager this device is to
@@ -65,12 +65,12 @@ public:
       *  @param periodInMicroseconds - the length of a complete 360 degree
       *         sine wave cycle in micro-seconds.  T=zero as determined
       *         by the device manager.
-      *  @param underOverRunClockRate - produce frames faster or slower
-      *         than CPU clock by the given number of microseconds.  This
-      *         is the amount of time sooner (negative) or later (positive)
-      *         that a frame of samples is produced.  The mUnderOverRunTime
-      *         is effectively zero if its magnitude is not greater than the
-      *         OsTimer granularity or accuracy.
+      *  @param relativeSpeed - produce frames faster or slower than CPU clock
+      *         by the given number of microseconds.  This is the amount of 
+      *         time sooner (negative) or later (positive) that a frame of 
+      *         samples is produced.  The mRelativeSpeed is effectively zero if 
+      *         its magnitude is not greater than the OsTimer granularity or 
+      *         accuracy.
       */
 
       /// Destructor
@@ -108,9 +108,8 @@ public:
       *        enabling a device results in state and buffer queues being cleared.
       */
 
-    virtual OsStatus setNewTone(unsigned int magnitude,
-                                unsigned int periodInMicroseconds,
-                                int underOverRunTime);
+      /// Set a new tone to be played.
+    virtual OsStatus setTone(unsigned int periodInMicroseconds);
 
 //@}
 
@@ -166,7 +165,7 @@ private:
 
     unsigned int mMagnitude;
     unsigned int mPeriodInMicroseconds;
-    int mUnderOverRunTime;
+    int mRelativeSpeed;
     OsServerTask* mpReaderTask;
 };
 
