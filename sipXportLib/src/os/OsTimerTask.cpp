@@ -202,8 +202,9 @@ int OsTimerTask::run(void* pArg)
          if (t >= 1000000 /* 1 second */)
          {
             OsSysLog::add(FAC_KERNEL, PRI_WARNING,
-                          "OsTimerTask::run firing took %lld usecs, queue length = %d",
-                          t, getMessageQueue()->numMsgs());
+                          "OsTimerTask::run firing took %"PRId64" usecs,"
+                          " queue length = %d, before fire = %"PRId64", after fire = %"PRId64,
+                          t, getMessageQueue()->numMsgs(), now, after);
          }
       }
    }
@@ -438,8 +439,10 @@ void OsTimerTask::insertTimer(OsTimer* timer)
       if (OsTimer::compareTimes(timer->mQueuedExpiresAt, now) < 0)
       {
          OsSysLog::add(FAC_KERNEL, PRI_WARNING,
-                       "OsTimerTask::insertTimer timer to fire %lld in the past",
-                       OsTimer::subtractTimes(now, timer->mQueuedExpiresAt));
+                       "OsTimerTask::insertTimer timer to fire %"PRId64" in the past"
+                       " (now=%"PRId64", fire=%"PRId64")",
+                       OsTimer::subtractTimes(now, timer->mQueuedExpiresAt),
+                       now, timer->mQueuedExpiresAt);
       }
    }
 
