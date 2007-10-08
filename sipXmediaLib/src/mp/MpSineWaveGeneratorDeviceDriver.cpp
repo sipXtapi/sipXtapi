@@ -44,7 +44,7 @@ public:
                               unsigned int samplesPerSecond,
                               unsigned int magnitude,
                               unsigned int periodMicroseconds,
-                              int underOverRunTime,
+                              int relativeSpeed,
                               MpInputDeviceHandle deviceId,
                               MpInputDeviceManager& inputDeviceManager)
     : OsServerTask("MpSineWaveGeneratorServer-%d", NULL, DEF_MAX_MSGS, SINE_WAVE_DEVICE_PRIORITY),
@@ -53,7 +53,7 @@ public:
     mSamplesPerSecond(samplesPerSecond),
     mMagnatude(magnitude),
     mSinePeriodMicroseconds(periodMicroseconds),
-    mUnderOverRunTime(underOverRunTime),
+    relativeSpeed(relativeSpeed),
     mDeviceId(deviceId),
     mpInputDeviceManager(&inputDeviceManager),
     mpFrameData(NULL),
@@ -87,7 +87,7 @@ public:
         OsTime noDelay(0, 0);
         int microSecondsPerFrame =
             (mSamplesPerFrame * 1000000 / mSamplesPerSecond) -
-            mUnderOverRunTime;
+            relativeSpeed;
         assert(microSecondsPerFrame > 0);
         OsTime framePeriod(0, microSecondsPerFrame);
         // Start re-occurring timer which causes handleMessage to be called
@@ -149,7 +149,7 @@ public:
     {
        mMagnatude = magnitude;
        mSinePeriodMicroseconds = periodInMicroseconds;
-       mUnderOverRunTime = underOverRunTime;
+       relativeSpeed = underOverRunTime;
     }
 
 private:
@@ -158,7 +158,7 @@ private:
     unsigned int mSamplesPerSecond;
     unsigned int mMagnatude;
     unsigned int mSinePeriodMicroseconds;
-    int mUnderOverRunTime;
+    int relativeSpeed;
     MpInputDeviceHandle mDeviceId;
     MpInputDeviceManager* mpInputDeviceManager;
     MpAudioSample* mpFrameData;
@@ -175,11 +175,11 @@ MpSineWaveGeneratorDeviceDriver::MpSineWaveGeneratorDeviceDriver(const UtlString
                                                                  MpInputDeviceManager& deviceManager,
                                                                  unsigned int magnitude,
                                                                  unsigned int periodInMicroseconds,
-                                                                 int underOverRunTime)
+                                                                 int relativeSpeed)
 : MpInputDeviceDriver(name, deviceManager),
 mMagnitude(magnitude),
 mPeriodInMicroseconds(periodInMicroseconds),
-mUnderOverRunTime(underOverRunTime),
+relativeSpeed(relativeSpeed),
 mpReaderTask(NULL)
 {
 }
@@ -214,7 +214,7 @@ OsStatus MpSineWaveGeneratorDeviceDriver::enableDevice(unsigned samplesPerFrame,
                                           samplesPerSec,
                                           mMagnitude,
                                           mPeriodInMicroseconds,
-                                          mUnderOverRunTime,
+                                          relativeSpeed,
                                           getDeviceId(),
                                           *mpInputDeviceManager);
 
@@ -264,10 +264,10 @@ OsStatus MpSineWaveGeneratorDeviceDriver::setNewTone(unsigned int magnitude,
    // Set the new tone values.
    mMagnitude = magnitude;
    mPeriodInMicroseconds = periodInMicroseconds;
-   mUnderOverRunTime;
+   relativeSpeed;
    ((MpSineWaveGeneratorServer*)mpReaderTask)->setNewTone(mMagnitude, 
                                                           mPeriodInMicroseconds, 
-                                                          mUnderOverRunTime);
+                                                          relativeSpeed);
 
    // Resume the thread.
    return mpReaderTask->resume();
