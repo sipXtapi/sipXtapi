@@ -19,6 +19,7 @@
 #include <mp/MpSineWaveGeneratorDeviceDriver.h>
 #include <os/OsServerTask.h>
 #include <os/OsTimer.h>
+#include <os/OsEventMsg.h>
 #ifdef RTL_ENABLED
 #   include <rtl_macro.h>
 #endif
@@ -114,6 +115,10 @@ public:
 #endif
         // Build a frame of signal and push it to the device manager
         assert(mpFrameData);
+
+        // Check that we've got expected message type.
+        assert(rMsg.getMsgType() == OsMsg::OS_EVENT);
+        assert(rMsg.getMsgSubType() == OsEventMsg::NOTIFY);
 
         for(unsigned int frameIndex = 0; frameIndex < mSamplesPerFrame; frameIndex++)
         {
