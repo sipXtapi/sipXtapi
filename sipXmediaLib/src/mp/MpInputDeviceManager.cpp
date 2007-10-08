@@ -691,7 +691,7 @@ OsStatus MpInputDeviceManager::getDeviceName(MpInputDeviceHandle deviceId,
 
 
 OsStatus MpInputDeviceManager::getDeviceId(const UtlString& deviceName,
-                                           MpOutputDeviceHandle& deviceId) const
+                                           MpInputDeviceHandle& deviceId) const
 {
    OsStatus status = OS_NOT_FOUND;
    UtlString deviceString(deviceName);

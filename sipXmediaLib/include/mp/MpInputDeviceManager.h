@@ -253,7 +253,7 @@ public:
 
      /// @brief Get the device id for the given device driver name
    OsStatus getDeviceId(const UtlString& deviceName,
-                        MpOutputDeviceHandle& deviceId) const;
+                        MpInputDeviceHandle& deviceId) const;
      /**<
      *  The MpInputDeviceManager maintains a device ID to device name
      *  mapping.  All device IDs and device names are unique within the
