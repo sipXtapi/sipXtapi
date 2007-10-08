@@ -33,7 +33,7 @@ public:
     MpInputDeviceManagerTestReader(int numBufferedFrames,
                                    int framePeriodMilliseconds,
                                    MpAudioBufPtr* storedSignal,
-                                   int deviceId,
+                                   MpInputDeviceHandle deviceId,
                                    MpInputDeviceManager& inputDeviceManager,
                                    OsEvent &finishedEvent)
       : OsTask("MpInputDeviceManagerTestReader-%d", NULL, 1 /* HIGHEST PRIORITY is 0*/),
@@ -159,7 +159,7 @@ private:
     int mNumBufferedFrames;
     int mFramePeriodMilliseconds;
     MpAudioBufPtr* mpStoredSignal;
-    int mDeviceId;
+    MpInputDeviceHandle mDeviceId;
     MpInputDeviceManager* mpInputDeviceManager;
     OsEvent *mpFinishedEvent;
 
@@ -234,8 +234,8 @@ public:
         CPPUNIT_ASSERT(!sineWaveDevice->isEnabled());
 
         // Add the device
-        int sineWaveDeviceId = 
-            inputDeviceManager.addDevice(*sineWaveDevice);
+        MpInputDeviceHandle sineWaveDeviceId = 
+                            inputDeviceManager.addDevice(*sineWaveDevice);
         CPPUNIT_ASSERT(sineWaveDeviceId > 0);
 
         // Create a task to read frames from manager
