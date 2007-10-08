@@ -124,7 +124,7 @@ public:
    {
       assert(nSecs < 10);  // this only works for values < 10.
       printf("  seconds.");
-      int i;
+      size_t i;
       for(i = nSecs; i > 0; i--)
       {
          printf("\b\b\b\b\b\b\b\b\b\b%d seconds.", i);
@@ -277,7 +277,7 @@ public:
    {
       MpFrameTime outMgrDefaultMixerBufLen = 30;
       unsigned sineMagnitude = 8000; // FIXME! Put a proper value here.
-      int frequencies[] = {1000, 2000, 3800, 7600, 15000, 20000, 24000, 28000};
+      int frequencies[] = {1000, 2000, 4000, 8000, 16000, 32000, 24000, 48000};
       int numFreqs = sizeof(frequencies)/sizeof(int);
       int toneDurationMS = 1000; // duration of playing a tone.
       MpFrameTime bufRecDevBufferLen = toneDurationMS*numFreqs;
