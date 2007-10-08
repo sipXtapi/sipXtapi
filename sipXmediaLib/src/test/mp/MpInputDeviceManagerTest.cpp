@@ -59,7 +59,7 @@ public:
 
     int run(void* pArg)
     {
-        MpFrameTime frameTime = mpInputDeviceManager->getCurrentFrameTime();
+        MpFrameTime frameTime = mpInputDeviceManager->getCurrentFrameTime(mDeviceId);
         OsSysLog::add(FAC_AUDIO, PRI_DEBUG, "Start frame time: %u\n", frameTime);
         int frameIndex;
         unsigned numFramesBefore;

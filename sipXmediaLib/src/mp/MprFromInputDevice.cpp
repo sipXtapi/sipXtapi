@@ -101,7 +101,7 @@ UtlBoolean MprFromInputDevice::doProcessFrame(MpBufPtr inBufs[],
    {
       // Start with a frame behind.  Possible need smarter
       // decision for starting.
-      mPreviousFrameTime = mpInputDeviceManager->getCurrentFrameTime();
+      mPreviousFrameTime = mpInputDeviceManager->getCurrentFrameTime(mDeviceId);
 //      mPreviousFrameTime -= (5 * frameTimeInterval);
    }
 

@@ -86,7 +86,8 @@ public:
       /// Initialize device driver and state
     virtual OsStatus enableDevice(unsigned samplesPerFrame, 
                                   unsigned samplesPerSec,
-                                  MpFrameTime currentFrameTime) = 0;
+                                  MpFrameTime currentFrameTime=0
+                                  ) = 0;
       /**<
       *  This method enables the device driver.
       *
@@ -131,6 +132,9 @@ public:
     static inline MpFrameTime getFramePeriod(unsigned samplesPerFrame,
                                              unsigned samplesPerSec);
 
+      /// Get timestamp for the next frame to be pushed to input device manager.
+    inline MpFrameTime getCurrentFrameTime() const;
+
 //@}
 
 /* ============================ INQUIRY =================================== */
@@ -157,7 +161,8 @@ protected:
                     ///< number of samples.
     unsigned mSamplesPerSec;       ///< Device produce audio with this number
                     ///< of samples per second.
-    MpFrameTime mCurrentFrameTime; ///< TODO: Fill in mCurrentFrameTime description
+    MpFrameTime mCurrentFrameTime; ///< Timestamp for the next frame to be
+                    ///< pushed to input device manager.
     
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
@@ -182,4 +187,10 @@ MpFrameTime MpInputDeviceDriver::getFramePeriod(unsigned int samplesPerFrame,
 {
    return (1000*samplesPerFrame)/samplesPerSec;
 }
+
+MpFrameTime MpInputDeviceDriver::getCurrentFrameTime() const
+{
+   return mCurrentFrameTime;
+}
+
 #endif  // _MpInputDeviceDriver_h_

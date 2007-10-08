@@ -255,7 +255,6 @@ public:
                // crossing task boundaries here.
                buffer = frameData->mFrameBuffer.clone();
 
-               frameTime = frameData->mFrameTime;
                result = OS_SUCCESS;
                break;
             }
@@ -269,6 +268,9 @@ public:
 
       return(result);
    };
+
+   inline void setInUse() { mInUse = TRUE; }
+   inline void clearInUse() { mInUse = FALSE; }
 
 //@}
 
@@ -322,8 +324,10 @@ public:
       return nActualDerivs;
    }
 
-   inline void setInUse() { mInUse = TRUE; }
-   inline void clearInUse() { mInUse = FALSE; }
+   inline MpFrameTime getCurrentFrameTime() const
+   {
+      return getDeviceDriver()->getCurrentFrameTime();
+   }
 
 //@}
 
@@ -520,8 +524,7 @@ OsStatus MpInputDeviceManager::enableDevice(MpInputDeviceHandle deviceId)
       {
          status = 
             deviceDriver->enableDevice(mDefaultSamplesPerFrame, 
-                                       mDefaultSamplesPerSecond,
-                                       getCurrentFrameTime());
+                                       mDefaultSamplesPerSecond);
       }
    }
    return(status);
@@ -714,15 +717,23 @@ OsStatus MpInputDeviceManager::getDeviceId(const UtlString& deviceName,
 }
 
 
-MpFrameTime MpInputDeviceManager::getCurrentFrameTime() const
+MpFrameTime MpInputDeviceManager::getCurrentFrameTime(MpInputDeviceHandle deviceId) const
 {
-   OsTime now;
-   OsDateTime::getCurTime(now);
+   MpFrameTime curFrameTime = 0;
 
-   now -= mTimeZero;
+   OsReadLock lock(mRwMutex);
 
+   MpAudioInputConnection* connectionFound = NULL;
+   UtlInt deviceKey(deviceId);
+   connectionFound =
+      (MpAudioInputConnection*) mConnectionsByDeviceId.find(&deviceKey);
 
-   return(now.seconds() * 1000 + now.usecs() / 1000);
+   if (connectionFound)
+   {
+      curFrameTime = connectionFound->getCurrentFrameTime();
+   }
+
+   return curFrameTime;
 }
 
 OsStatus MpInputDeviceManager::getTimeDerivatives(MpInputDeviceHandle deviceId,
