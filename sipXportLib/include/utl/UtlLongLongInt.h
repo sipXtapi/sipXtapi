@@ -24,29 +24,6 @@
 
 // DEFINES
 // MACROS
-
-#if defined( WIN32 ) && !defined( WINCE )
-#define strtoll _strtoui64
-#endif
-// Borrow this from the gcc include file "limits.h".
-// LLONG_MIN and LLONG_MAX are defined by the ISO C99 standard but not by C++
-// LONG_LONG_MIN and LONG_LONG_MAX are defined by gcc.
-#ifndef LLONG_MAX
-#  ifdef LONG_LONG_MAX
-#    define LLONG_MAX LONG_LONG_MAX
-#  else
-#    define LLONG_MAX (9223372036854775807L)
-#  endif
-#endif
-
-#ifndef LLONG_MIN
-#  ifdef LONG_LONG_MAX
-#    define LLONG_MIN LONG_LONG_MIN
-#  else
-#    define LLONG_MIN (-LLONG_MAX - 1L)
-#  endif
-#endif
-
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
@@ -55,9 +32,7 @@
 // FORWARD DECLARATIONS
 
 /**
- * UtlLongLongInt is a UtlContainable wrapper for a "long long int".
- * This data type is officially part of C99, see http://www.open-std.org/jtc1/sc22/wg14/ .
- * C++ has de facto support as well.  The size of a "long long int" is guaranteed to be at least 64 bits.
+ * UtlLongLongInt is a UtlContainable wrapper for a 64-bit long int.
  */
 class UtlLongLongInt : public UtlContainable
 {
@@ -70,7 +45,7 @@ public:
     /**
      * Constructor accepting an optional default value.
      */
-    UtlLongLongInt(Int64 initialValue = 0) ;
+    UtlLongLongInt(int64_t initialValue = 0) ;
       
     /**
      * Destructor
@@ -88,7 +63,7 @@ public:
     UtlLongLongInt operator--(int);     // Postfix decrement operator
 
     // Conversion to long long int
-    operator Int64() { return mValue; }
+    operator int64_t() { return mValue; }
 
 /* ============================ MANIPULATORS ============================== */
 
@@ -97,17 +72,17 @@ public:
      *
      * @returns the old value
      */
-    Int64 setValue(Int64 iValue);
+    int64_t setValue(int64_t iValue);
 
     //! Convert a ascii string rep. to long long int
-    static Int64 stringToLongLong(const char* longLongString);
+    static int64_t stringToLongLong(const char* longLongString);
 
 /* ============================ ACCESSORS ================================= */
 
     /**
      * Get the long long int wrapped by this object.
      */
-    Int64 getValue() const ;    
+    int64_t getValue() const ;    
 
     /**
      * Calculate a unique hash code for this object.  If the equals
@@ -142,7 +117,7 @@ protected:
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-    Int64 mValue ;    /** < The long long int wrapped by this object */ 
+    int64_t mValue ;    /** < The long long int wrapped by this object */ 
 
 } ;
 

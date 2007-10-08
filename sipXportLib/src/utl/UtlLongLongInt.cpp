@@ -21,6 +21,12 @@
 // APPLICATION INCLUDES
 #include "utl/UtlLongLongInt.h"
 
+// DEFINES
+#if defined( WIN32 ) && !defined( WINCE )
+#define strtoll _strtoi64
+#endif
+
+// MACROS
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
@@ -32,7 +38,7 @@ UtlContainableType UtlLongLongInt::TYPE = "UtlLongLongInt" ;
 /* ============================ CREATORS ================================== */
 
 // Constructor accepting an optional default value.
-UtlLongLongInt::UtlLongLongInt(Int64 value)
+UtlLongLongInt::UtlLongLongInt(int64_t value)
 {
     mValue = value ;
 } 
@@ -77,22 +83,20 @@ UtlLongLongInt UtlLongLongInt::operator--(int) {
 
 /* ============================ MANIPULATORS ============================== */
 
-Int64 UtlLongLongInt::setValue(Int64 iValue)
+int64_t UtlLongLongInt::setValue(int64_t iValue)
 {
-    Int64 iOldValue = mValue ;
+    int64_t iOldValue = mValue ;
     mValue = iValue ;
 
     return iOldValue ;
 }
 
-Int64 UtlLongLongInt::stringToLongLong(const char* longLongString)
+int64_t UtlLongLongInt::stringToLongLong(const char* longLongString)
 {
-#if defined(_WIN32)
-    return(_atoi64(longLongString));
-#elif defined(_VXWORKS)
+#if defined(_VXWORKS)
 
     int numDigits = strlen(longLongString);
-    Int64 sum = -1;
+    int64_t sum = -1;
 
     if(numDigits <= 9)
     {
@@ -101,8 +105,8 @@ Int64 UtlLongLongInt::stringToLongLong(const char* longLongString)
 
     else if(numDigits > 9)
     {
-        Int64 billions = 0;
-        Int64 first9digits = strtol(&longLongString[numDigits - 9], 0, 0);
+        int64_t billions = 0;
+        int64_t first9digits = strtol(&longLongString[numDigits - 9], 0, 0);
         char digitBuffer[10];
 
         if(numDigits <= 18)
@@ -123,7 +127,7 @@ Int64 UtlLongLongInt::stringToLongLong(const char* longLongString)
 
         else //(numDigits > 18)
         {
-            Int64 gazillions = 0;
+            int64_t gazillions = 0;
             // Billions digits
             memcpy(digitBuffer, &longLongString[numDigits - 18], 9);
             digitBuffer[9] = '\0';
@@ -149,13 +153,13 @@ Int64 UtlLongLongInt::stringToLongLong(const char* longLongString)
 #else
     // We could use "atoll" here but it is obsolete, "strtoll" is the recommended function
     // See http://www.delorie.com/gnu/docs/glibc/libc_423.html .
-    return(strtoll(longLongString, 0, 0));
+    return strtoll(longLongString, 0, 0);
 #endif
 }
 
 /* ============================ ACCESSORS ================================= */
 
-Int64 UtlLongLongInt::getValue() const 
+int64_t UtlLongLongInt::getValue() const 
 {
     return mValue ; 
 }
@@ -181,7 +185,7 @@ int UtlLongLongInt::compareTo(UtlContainable const * inVal) const
    if (inVal->isInstanceOf(UtlLongLongInt::TYPE))
     {
         UtlLongLongInt* temp = (UtlLongLongInt*)inVal ; 
-        Int64 inIntll = temp -> getValue() ;
+        int64_t inIntll = temp -> getValue() ;
         if (mValue > inIntll) {
         	result = 1 ;
         }
