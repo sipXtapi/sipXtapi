@@ -1,14 +1,14 @@
-// 
-// 
+//
+//
 // Copyright (C) 2005-2006 SIPez LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
-// 
+//
 // Copyright (C) 2004-2006 Pingtel Corp.
 // Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -41,7 +41,7 @@ UtlContainableType UtlLongLongInt::TYPE = "UtlLongLongInt" ;
 UtlLongLongInt::UtlLongLongInt(int64_t value)
 {
     mValue = value ;
-} 
+}
 
 
 // Copy constructor
@@ -56,26 +56,30 @@ UtlLongLongInt::~UtlLongLongInt()
 /* ============================ OPERATORS ============================== */
 
 // Prefix increment operator
-UtlLongLongInt& UtlLongLongInt::operator++() {
+UtlLongLongInt& UtlLongLongInt::operator++()
+{
     mValue++;
     return *this;
 }
 
 // Postfix increment operator
-UtlLongLongInt UtlLongLongInt::operator++(int) {
+UtlLongLongInt UtlLongLongInt::operator++(int)
+{
     UtlLongLongInt temp = *this;
     ++*this;
     return temp;
 }
 
 // Prefix decrement operator
-UtlLongLongInt& UtlLongLongInt::operator--() {
+UtlLongLongInt& UtlLongLongInt::operator--()
+{
     mValue--;
     return *this;
 }
 
 // Postfix decrement operator
-UtlLongLongInt UtlLongLongInt::operator--(int) {
+UtlLongLongInt UtlLongLongInt::operator--(int)
+{
     UtlLongLongInt temp = *this;
     --*this;
     return temp;
@@ -102,7 +106,6 @@ int64_t UtlLongLongInt::stringToLongLong(const char* longLongString)
     {
         sum = strtol(longLongString, 0, 0);
     }
-
     else if(numDigits > 9)
     {
         int64_t billions = 0;
@@ -124,7 +127,6 @@ int64_t UtlLongLongInt::stringToLongLong(const char* longLongString)
                 sum = billions * 1000000 + first9digits * -1;
             }
         }
-
         else //(numDigits > 18)
         {
             int64_t gazillions = 0;
@@ -149,7 +151,7 @@ int64_t UtlLongLongInt::stringToLongLong(const char* longLongString)
             }
         }
     }
-    return(sum);
+    return sum;
 #else
     // We could use "atoll" here but it is obsolete, "strtoll" is the recommended function
     // See http://www.delorie.com/gnu/docs/glibc/libc_423.html .
@@ -159,15 +161,15 @@ int64_t UtlLongLongInt::stringToLongLong(const char* longLongString)
 
 /* ============================ ACCESSORS ================================= */
 
-int64_t UtlLongLongInt::getValue() const 
+int64_t UtlLongLongInt::getValue() const
 {
-    return mValue ; 
+    return mValue ;
 }
 
 
 unsigned UtlLongLongInt::hash() const
 {
-   return (unsigned)mValue ; 
+   return (unsigned)mValue ;
 }
 
 
@@ -180,28 +182,31 @@ UtlContainableType UtlLongLongInt::getContainableType() const
 
 int UtlLongLongInt::compareTo(UtlContainable const * inVal) const
 {
-   int result ; 
-   
-   if (inVal->isInstanceOf(UtlLongLongInt::TYPE))
+    int result ;
+
+    if (inVal->isInstanceOf(UtlLongLongInt::TYPE))
     {
-        UtlLongLongInt* temp = (UtlLongLongInt*)inVal ; 
+        UtlLongLongInt* temp = (UtlLongLongInt*)inVal ;
         int64_t inIntll = temp -> getValue() ;
-        if (mValue > inIntll) {
-        	result = 1 ;
+        if (mValue > inIntll)
+        {
+            result = 1 ;
         }
-        else if (mValue == inIntll) {
-        	result = 0 ;
+        else if (mValue == inIntll)
+        {
+            result = 0 ;
         }
-        else {
-        	// mValue < inIntll
-        	result = -1 ;
+        else
+        {
+            // mValue < inIntll
+            result = -1 ;
         }
     }
     else
     {
-    	// The result for a non-like object is undefined except that we must
-    	// declare that the two objects are not equal
-    	result = INT_MAX ; 
+        // The result for a non-like object is undefined except that we must
+        // declare that the two objects are not equal
+        result = INT_MAX ;
     }
 
     return result ;
@@ -210,7 +215,7 @@ int UtlLongLongInt::compareTo(UtlContainable const * inVal) const
 
 UtlBoolean UtlLongLongInt::isEqual(UtlContainable const * inVal) const
 {
-    return (compareTo(inVal) == 0) ; 
+    return (compareTo(inVal) == 0);
 }
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
