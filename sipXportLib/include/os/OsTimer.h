@@ -1,7 +1,7 @@
-// 
+//
 // Copyright (C) 2005-2006 SIPez LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -30,9 +30,9 @@
 
 // DEFINES
 
-// Macro to check that 'x' is an OsTimer* by testing its
-// getContainableType value.  This is to catch misuses of the OsTimer
-// methods.
+/// Macro to check that 'x' is an OsTimer* by testing its
+/// getContainableType value.  This is to catch misuses of the OsTimer
+/// methods.
 #define CHECK_VALIDITY(x) \
             assert((x)->getContainableType() == OsTimer::TYPE)
 
@@ -46,12 +46,12 @@
 
 /**
  * This class implements one-shot and periodic timers.
- * 
+ *
  * Once a timer is created, it must be started.  After the specified time,
  * the timer expires or "fires", at which point (depending on how the
  * timer was created) an OsNotification object is used to signal an
  * event, or a message is posted to a specified queue.
- * 
+ *
  * A timer may be stopped at any time (except when the timer is being
  * destroyed).  The destructor calls stop() before freeing the timer.
  *
@@ -61,42 +61,42 @@
  * execution that has been previously committed may execute after stop()
  * returns.  (For one-shot timers, this can be detected by examining the
  * return value of stop().)
- * 
+ *
  * Once a timer is stopped with stop() or by firing (if it is a one-shot
  * timer), it can be started again.  The time interval of a timer can be
  * changed every time it is started, but its notification information is
  * fixed when it is created.
- * 
+ *
  * All methods can be used concurrently, except that no other method may be
  * called concurrently with the destructor (which cannot be made to work,
  * as the destructor deletes the timer's memory).  Note that a timer may
  * fire while it is being deleted; the destructor handles this situation
  * correctly, the timer is guaranteed to exist until after the event
  * routine returns.
- * 
+ *
  * An event routine should be non-blocking, because it is called on
  * the timer task thread.  Within an event routine, all non-blocking
  * methods may be executed on the timer.  When the event routine of a
  * one-shot timer is entered, the timer is in the stopped state.  When
  * the event routine of a periodic timer is entered, the timer is
  * still in the running state.
- * 
+ *
  * (If mbManagedNotifier is set, the timer may not be destroyed (using
  * deleteAsync, which is non-blocking), as that destroys the
  * OsNotifier object whose method is the event notifier that is
  * currently running.  But there is no current interface for creating
  * that situation.)
- * 
+ *
  * Most methods are non-blocking, except to seize the timer's mutex
  * and to post messages to the timer task's message queue.  The
  * exceptions are the destructor and synchronous stops, which must
  * block until they get a response from the timer task.
- * 
+ *
  * If VALGRIND_TIMER_ERROR is defined, additional code is created to
  * detect and backtrace errors in timer usage.  This code causes run-time
  * errors that Valgrind can detect to produce backtraces of where the
  * invalid method invocations were made.
- * 
+ *
  * If NDEBUG is defined, some checking code that is used only to trigger
  * asserts is omitted.
  *
@@ -113,10 +113,9 @@ public:
    /// The states a timer can be in.
    enum OsTimerState
    {
-         STOPPED,                /**< timer has not been started, or has fired
-                                  *   or been stopped.
-                                  */
-         STARTED                 ///< timer is running and will fire.
+         STOPPED,                ///< Timer has not been started, or has fired
+                                 ///< or been stopped.
+         STARTED                 ///< Timer is running and will fire.
    };
 
    static const UtlContainableType TYPE;  /**< Class type used for runtime checking */
@@ -247,11 +246,11 @@ public:
 
    /// Compare the this object to another like-objects.
    virtual int compareTo(UtlContainable const *) const;
-    /**
+   /**<
     * Results for comparing with a non-like object are undefined.
-     *
+    *
     * @returns 0 if equal, < 0 if less-than and > 0 if greater-than.
-     */
+    */
 
    /// Return the state value for this OsTimer object
    virtual OsTimerState getState(void);
@@ -259,45 +258,41 @@ public:
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 
-   /// type for absolute time
+   /// Type for absolute time.
    typedef int64_t Time;
-   /// type for time interval
+   /// Type for time interval.
    typedef int64_t Interval;
 
-   OsBSem          mBSem;      //< semaphore to lock access to members
+   OsBSem          mBSem;      ///< Semaphore to lock access to members.
 
    unsigned int    mApplicationState;
-   UtlBoolean      mWasFired; ///< TRUE if timer is stopped because it was fired
-   //< state as seen by application methods
-   unsigned int    mTaskState; //< state as seen by the timer task
-   UtlBoolean      mDeleting;  //< TRUE if timer is being deleted
+   UtlBoolean      mWasFired;  ///< TRUE if timer is stopped because it was fired
+                               ///< state as seen by application methods.
+   unsigned int    mTaskState; ///< State as seen by the timer task.
+   UtlBoolean      mDeleting;  ///< TRUE if timer is being deleted.
 
-   OsNotification* mpNotifier; //< used to signal timer expiration event
-   UtlBoolean      mbManagedNotifier;
-   /**< TRUE if OsTimer destructor
-    *   should delete *mpNotifier
-    */
+   OsNotification* mpNotifier; ///< Used to signal timer expiration event.
+   UtlBoolean      mbManagedNotifier; ///< TRUE if OsTimer destructor should
+                               ///< delete *mpNotifier.
 
-   Time            mExpiresAt; //< expire time of timer
-   UtlBoolean      mPeriodic;  //< TRUE if timer fires repetitively
-   Interval        mPeriod;    //< repetition time
-   
-   /// Copies of time values for use by timer task.
-   Time            mQueuedExpiresAt; //< expire time of timer
-   UtlBoolean      mQueuedPeriodic;  //< TRUE if timer fires repetitively
-   Interval        mQueuedPeriod;    //< repetition time
+   Time            mExpiresAt; ///< Expire time of timer.
+   UtlBoolean      mPeriodic;  ///< TRUE if timer fires repetitively.
+   Interval        mPeriod;    ///< Repetition time.
 
-   int             mOutstandingMessages;
-   /**< number of messages for this timer in
-    *   the timer task's queue
-    */
+   // Copies of time values for use by timer task.
+   Time            mQueuedExpiresAt; ///< Expire time of timer (copy).
+   UtlBoolean      mQueuedPeriodic; ///< TRUE if timer fires repetitively (copy).
+   Interval        mQueuedPeriod; ///< Repetition time (copy).
 
-   OsTimer*        mTimerQueueLink;
-   ///< to chain together timers
+   int             mOutstandingMessages; ///< Number of messages for this timer
+                               ///< in the timer task's queue.
 
-   /// The null value for the type Interval.
-   static const Interval nullInterval;
-   ///< nullInterval may not be used in arithmetic operations.
+   OsTimer*        mTimerQueueLink; ///< To chain together timers.
+
+   static const Interval nullInterval; ///< The null value for the type Interval.
+                               ///< nullInterval may not be used in arithmetic
+                               ///< operations.
+
 
    /// Get the current time as a Time.
    static Time now();
@@ -364,7 +359,11 @@ protected:
       return a - b;
    }
 
-   /// Compare two Time's.
+   /**
+   *  Compare two Time's.
+   *
+   *  @returns > 0, 0, or < 0 according to whether a > b, a == b, or a < b.
+   */
    inline static int compareTimes(Time a, Time b)
    {
       // We can't use the usual trick of returning (a - b), because
@@ -377,7 +376,6 @@ protected:
          difference == 0 ? 0 :
          1;
    }
-   ///< Returns > 0, 0, or < 0 according to whether a > b, a == b, or a < b.
 
 };
 
