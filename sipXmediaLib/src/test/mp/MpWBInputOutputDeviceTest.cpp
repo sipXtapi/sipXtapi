@@ -328,7 +328,7 @@ public:
       pMicInDrv = new INPUT_DRIVER(INPUT_DRIVER_CONSTRUCTOR_PARAMS(*pInMgr));
       micDevHnd = pInMgr->addDevice(*pMicInDrv);
       CPPUNIT_ASSERT(micDevHnd > 0);
-      pRecBufOutDrv = new MpodBufferRecorder("MpodBufferRecorder-%d", bufRecDevBufferLen);
+      pRecBufOutDrv = new MpodBufferRecorder("MpodRecorder", bufRecDevBufferLen);
       recBufDevHnd = pOutMgr->addDevice(pRecBufOutDrv);
       CPPUNIT_ASSERT(recBufDevHnd > 0);
 
@@ -357,8 +357,8 @@ public:
       pPlayRFromInDev = 
          new MprFromInputDevice("FromInput-PlaySine", 
                                 samplesPerFrame, sampleRate, pInMgr, playSineDevHnd);
-      pPlayRFromFile = new MprFromFile("FromFile-1", samplesPerFrame, sampleRate);
-      pPlayRMixer = new MprMixer("Play-Mixer-%d", 2, samplesPerFrame, sampleRate);
+      pPlayRFromFile = new MprFromFile("FromFile", samplesPerFrame, sampleRate);
+      pPlayRMixer = new MprMixer("Play-Mixer", 2, samplesPerFrame, sampleRate);
       pPlayRToOutputDev =
          new MprToOutputDevice("ToOutput-PlaySpkr", 
                                samplesPerFrame, sampleRate, pOutMgr, spkrDevHnd);
@@ -457,7 +457,7 @@ public:
       pFlowgraph->setNotificationDispatcher(&notfDisp);
 
       CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
-                           MprFromFile::playBuffer("FromFile-1", *pFlowgraph->getMsgQ(), 
+                           MprFromFile::playBuffer("FromFile", *pFlowgraph->getMsgQ(), 
                                                    pRecBuf, pRecBufLen, 
                                                    0, FALSE, NULL));
 
