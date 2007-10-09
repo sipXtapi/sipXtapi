@@ -103,7 +103,7 @@ bool XmlRpcBody::addValue(UtlContainable* value)
       UtlLongLongInt* pValue = (UtlLongLongInt *)value;
       // always encode these in hex - more readable for values this big
       char temp[19];
-      sprintf(temp, "%0#16llx", static_cast<UInt64>(pValue->getValue()));
+      sprintf(temp, "%0#16"PRIx64, pValue->getValue());
       paramValue.append(BEGIN_I8);
       paramValue.append(temp);
       paramValue.append(END_I8);
