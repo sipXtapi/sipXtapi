@@ -874,7 +874,7 @@ Sdp* SdpHelperResip::createSdpFromResipSdp(const resip::SdpContents& resipSdp)
             unsigned int componentId;
             Data token;
             SdpCandidate::SdpCandidateTransportType transport;
-            UInt64 priority;
+            uint64_t priority;
             Data address;
             unsigned int port;
             SdpCandidate::SdpCandidateType candidateType = SdpCandidate::CANDIDATE_TYPE_NONE;

@@ -1,3 +1,6 @@
+// 
+// Copyright (C) 2007 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // Copyright (C) 2007 Plantronics
 // Licensed to SIPfoundry under a Contributor Agreement.
@@ -13,14 +16,10 @@
 #define _SdpCandidate_h_
 
 // SYSTEM INCLUDES
-//#include <...>
-
 // APPLICATION INCLUDES
 #include "utl/UtlInt.h"
 #include "utl/UtlString.h"
 #include "utl/UtlCopyableSList.h"
-
-
 
 // DEFINES
 // MACROS
@@ -96,7 +95,7 @@ public:
    SdpCandidate(const char * foundation = 0,
                 unsigned int id = 0,
                 SdpCandidateTransportType transport = CANDIDATE_TRANSPORT_TYPE_NONE,
-                UInt64 priority = 0,
+                uint64_t priority = 0,
                 const char * connectionAddress = 0,
                 unsigned int port = 0,
                 SdpCandidateType candidateType = CANDIDATE_TYPE_NONE,
@@ -119,7 +118,7 @@ public:
    void setFoundation(const char * foundation) { mFoundation = foundation; }
    void setId(unsigned int id) { mId = id; }
    void setTransport(SdpCandidateTransportType transport) { mTransport = transport; }
-   void setPriority(UInt64 priority) { mPriority = priority; }
+   void setPriority(uint64_t priority) { mPriority = priority; }
    void setConnectionAddress(const char * connectionAddress) { mConnectionAddress = connectionAddress; }
    void setPort(unsigned int port) { mPort = port; }
    void setCandidateType(SdpCandidateType candidateType) { mCandidateType = candidateType; }
@@ -149,7 +148,7 @@ public:
    unsigned int getId() const { return mId; }
    SdpCandidateTransportType getTransport() const { return mTransport; }
    static SdpCandidateTransportType getCandidateTransportTypeFromString(const char * type);
-   UInt64 getPriority() const { return mPriority; }
+   uint64_t getPriority() const { return mPriority; }
    const UtlString& getConnectionAddress() const { return mConnectionAddress; }
    unsigned int getPort() const { return mPort; }
    SdpCandidateType getCandidateType() const { return mCandidateType; }
@@ -164,12 +163,12 @@ protected:
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-   const int compareNumber(const UInt64 first, const UInt64 second, bool reverse = false) const;
+   int compareNumber(uint64_t first, uint64_t second, bool reverse = false) const;
 
    UtlString                  mFoundation;
    unsigned int               mId;
    SdpCandidateTransportType  mTransport;
-   UInt64                     mPriority;
+   uint64_t                   mPriority;
    UtlString                  mConnectionAddress;
    unsigned int               mPort;
    SdpCandidateType           mCandidateType;

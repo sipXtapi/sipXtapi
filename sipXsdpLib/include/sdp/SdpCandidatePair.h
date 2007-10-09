@@ -100,7 +100,7 @@ public:
    const SdpCandidate& getLocalCandidate() const { return mLocalCandidate; }
    const SdpCandidate& getRemoteCandidate() const { return mRemoteCandidate; }
    SdpCandidatePairOffererType getOfferer() const { return mOfferer; }
-   UInt64 getPriority() const { return mPriority; }
+   uint64_t getPriority() const { return mPriority; }
    SdpCandidatePairCheckState getCheckState() const { return mCheckState; }
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
@@ -108,13 +108,13 @@ protected:
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-   const int compareNumber(const UInt64 first, const UInt64 second, bool reverse = false) const;
+   int compareNumber(uint64_t first, uint64_t second, bool reverse = false) const;
    void resetPriority();
 
    SdpCandidate mLocalCandidate;
    SdpCandidate mRemoteCandidate;
    SdpCandidatePairOffererType mOfferer;
-   UInt64       mPriority;
+   uint64_t     mPriority;
    SdpCandidatePairCheckState mCheckState;
 };
 

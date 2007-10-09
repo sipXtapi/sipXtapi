@@ -1,3 +1,6 @@
+// 
+// Copyright (C) 2007 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // Copyright (C) 2007 Plantronics
 // Licensed to SIPfoundry under a Contributor Agreement.
@@ -10,8 +13,6 @@
 // Author: Scott Godin (sgodin AT SipSpectrum DOT com)
 
 // SYSTEM INCLUDES
-#include <limits.h>
-
 // APPLICATION INCLUDES
 #include <utl/UtlSListIterator.h>
 #include <sdp/SdpCandidate.h>
@@ -51,7 +52,7 @@ const char* SdpCandidate::SdpCandidateTypeString[] =
 SdpCandidate::SdpCandidate(const char * foundation,
                            unsigned int id,
                            SdpCandidateTransportType transport,
-                           UInt64 priority,
+                           uint64_t priority,
                            const char * connectionAddress,
                            unsigned int port,
                            SdpCandidateType candidateType,
@@ -270,7 +271,7 @@ SdpCandidate::getCandidateTypeFromString(const char * type)
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
-const int SdpCandidate::compareNumber(const UInt64 first, const UInt64 second, bool reverse) const
+int SdpCandidate::compareNumber(uint64_t first, uint64_t second, bool reverse) const
 {
     int ret;
     if (first == second)

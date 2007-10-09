@@ -1,3 +1,6 @@
+// 
+// Copyright (C) 2007 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // Copyright (C) 2007 Plantronics
 // Licensed to SIPfoundry under a Contributor Agreement.
@@ -516,7 +519,7 @@ public:
 
    // Note:  Candidates should be added after m/c line and rtcp information is set, so that the in-use candidate 
    //        can be properly tagged and CandidatePresents flag can be properly set
-   void addCandidate(const char * foundation, unsigned int id, SdpCandidate::SdpCandidateTransportType transport, UInt64 priority, const char * connectionAddress, 
+   void addCandidate(const char * foundation, unsigned int id, SdpCandidate::SdpCandidateTransportType transport, uint64_t priority, const char * connectionAddress, 
                      unsigned int port, SdpCandidate::SdpCandidateType candidateType, const char * relatedAddress = 0, unsigned int relatedPort = 0)
         { addCandidate(new SdpCandidate(foundation, id, transport, priority, connectionAddress, port, candidateType, relatedAddress, relatedPort)); }
    void addCandidate(SdpCandidate* candidate);

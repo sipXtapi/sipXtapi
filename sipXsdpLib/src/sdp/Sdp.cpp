@@ -1,3 +1,6 @@
+// 
+// Copyright (C) 2007 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // Copyright (C) 2007 Plantronics
 // Licensed to SIPfoundry under a Contributor Agreement.
@@ -270,8 +273,8 @@ int Sdp::SdpFoundation::compareTo(UtlContainable const *rhs) const
 /* ============================ MANIPULATORS ============================== */
 
 void Sdp::setOriginatorInfo(const char* userName, 
-                            UInt64 sessionId, 
-                            UInt64 sessionVersion, 
+                            uint64_t sessionId, 
+                            uint64_t sessionVersion, 
                             SdpNetType netType, 
                             SdpAddressType addressType, 
                             const char* unicastAddress)

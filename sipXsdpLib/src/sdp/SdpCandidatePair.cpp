@@ -209,14 +209,14 @@ void SdpCandidatePair::toString(UtlString& sdpCandidatePairString) const
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 void SdpCandidatePair::resetPriority()
 {
-   UInt64 offererPriority = mOfferer == OFFERER_LOCAL ? mLocalCandidate.getPriority() : mRemoteCandidate.getPriority();
-   UInt64 answererPriority = mOfferer == OFFERER_LOCAL ? mRemoteCandidate.getPriority() : mLocalCandidate.getPriority();
+   uint64_t offererPriority = mOfferer == OFFERER_LOCAL ? mLocalCandidate.getPriority() : mRemoteCandidate.getPriority();
+   uint64_t answererPriority = mOfferer == OFFERER_LOCAL ? mRemoteCandidate.getPriority() : mLocalCandidate.getPriority();
    mPriority = (sipx_min(offererPriority, answererPriority) << 32) |
                (sipx_max(offererPriority, answererPriority) << 1) |
                (offererPriority > answererPriority ? 1 : 0);
 }
 
-const int SdpCandidatePair::compareNumber(const UInt64 first, const UInt64 second, bool reverse) const
+int SdpCandidatePair::compareNumber(uint64_t first, uint64_t second, bool reverse) const
 {
     int ret;
     if (first == second)
