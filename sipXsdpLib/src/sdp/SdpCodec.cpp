@@ -337,6 +337,16 @@ SdpCodec::SdpCodec(int payloadFormat,
          }
          mBWCost = SDP_CODEC_BANDWIDTH_NORMAL;
       }
+      else if(mMimeSubtype.compareTo("h263-1998", UtlString::ignoreCase) == 0)
+      {
+         setValue(SDP_CODEC_H263_1998);
+         mBWCost = SDP_CODEC_BANDWIDTH_NORMAL;
+      }
+      else if(mMimeSubtype.compareTo("h263-2000", UtlString::ignoreCase) == 0)
+      {
+         setValue(SDP_CODEC_H263_2000);
+         mBWCost = SDP_CODEC_BANDWIDTH_NORMAL;
+      }
       else
       {
          setValue(SDP_CODEC_UNKNOWN);

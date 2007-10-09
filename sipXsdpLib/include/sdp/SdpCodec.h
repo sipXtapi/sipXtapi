@@ -49,6 +49,8 @@
 #define MIME_SUBTYPE_RGB24 "RGB24"
 #define MIME_SUBTYPE_H263 "H263"
 #define MIME_SUBTYPE_H264 "H264"
+#define MIME_SUBTYPE_H263_1998 "H263-1998"
+#define MIME_SUBTYPE_H263_2000 "H263-2000"
 
 // Bandwidth requirements for SDP Codecs
 #define SDP_CODEC_BANDWIDTH_VARIABLE 0
@@ -135,6 +137,8 @@ public:
         SDP_CODEC_SPEEX_15 = 112,  ///< Speex Profile 2
         SDP_CODEC_SPEEX_24 = 113,  ///< Speex Profile 3
         SDP_CODEC_H264 = 114,      ///< H.264 video codec.
+        SDP_CODEC_H263_1998 = 115, ///< H.263+
+        SDP_CODEC_H263_2000 = 116, ///< H.263++
         SDP_CODEC_TONES = 128,     ///< AVT/DTMF Tones, RFC 2833
         SDP_CODEC_G729A = 129,
         SDP_CODEC_G7221 = 130,     ///< Siren
