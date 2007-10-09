@@ -135,8 +135,9 @@ UtlContainableType SdpCandidatePair::getContainableType() const
 }
 
 unsigned SdpCandidatePair::hash() const 
-{ 
-   return unsigned(mPriority) ^ unsigned(mPriority << 32);  // Priority is to be unique per candidate - draft-ieft-mmusic-ice-12
+{
+   // Priority is to be unique per candidate - draft-ieft-mmusic-ice-12
+   return unsigned(mPriority) ^ unsigned(mPriority >> 32);
 }
 
 int SdpCandidatePair::compareTo(UtlContainable const *rhs) const 
@@ -200,14 +201,12 @@ void SdpCandidatePair::toString(UtlString& sdpCandidatePairString) const
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
-#define sdpMin(a,b) (a < b ? a : a > b ? b : a)
-#define sdpMax(a,b) (a > b ? a : a < b ? b : a)
 void SdpCandidatePair::resetPriority()
 {
    UInt64 offererPriority = mOfferer == OFFERER_LOCAL ? mLocalCandidate.getPriority() : mRemoteCandidate.getPriority();
    UInt64 answererPriority = mOfferer == OFFERER_LOCAL ? mRemoteCandidate.getPriority() : mLocalCandidate.getPriority();
-   mPriority = 4294967296*sdpMin(offererPriority, answererPriority) + 
-               2*sdpMax(offererPriority, answererPriority) + 
+   mPriority = (sipx_min(offererPriority, answererPriority) << 32) |
+               (sipx_max(offererPriority, answererPriority) << 1) |
                (offererPriority > answererPriority ? 1 : 0);
 }
 
