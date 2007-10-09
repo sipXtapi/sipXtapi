@@ -1,3 +1,6 @@
+// 
+// Copyright (C) 2007 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // Copyright (C) 2007 Plantronics
 // Licensed to SIPfoundry under a Contributor Agreement.
@@ -59,7 +62,9 @@ public:
 
 /* ============================ CREATORS ================================== */
 
-   SdpCandidatePair(const SdpCandidate& localCandidate, const SdpCandidate& remoteCandidate, SdpCandidatePairOffererType offerer);
+   SdpCandidatePair(const SdpCandidate& localCandidate,
+                    const SdpCandidate& remoteCandidate,
+                    SdpCandidatePairOffererType offerer);
      //:Default constructor
 
    SdpCandidatePair(const SdpCandidatePair& rSdpCandidatePair);

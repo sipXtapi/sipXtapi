@@ -1,3 +1,6 @@
+// 
+// Copyright (C) 2007 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // Copyright (C) 2007 Plantronics
 // Licensed to SIPfoundry under a Contributor Agreement.
@@ -10,8 +13,6 @@
 // Author: Scott Godin (sgodin AT SipSpectrum DOT com)
 
 // SYSTEM INCLUDES
-#include <limits.h>
-
 // APPLICATION INCLUDES
 #include <sdp/SdpCandidatePair.h>
 
@@ -41,8 +42,12 @@ const char* SdpCandidatePair::SdpCandidatePairOffererTypeString[] =
 /* ============================ CREATORS ================================== */
 
 // Constructor
-SdpCandidatePair::SdpCandidatePair(const SdpCandidate& localCandidate, const SdpCandidate& remoteCandidate, SdpCandidatePairOffererType offerer) :
-   mLocalCandidate(localCandidate), mRemoteCandidate(remoteCandidate), mOfferer(offerer)
+SdpCandidatePair::SdpCandidatePair(const SdpCandidate& localCandidate,
+                                   const SdpCandidate& remoteCandidate,
+                                   SdpCandidatePairOffererType offerer)
+: mLocalCandidate(localCandidate)
+, mRemoteCandidate(remoteCandidate)
+, mOfferer(offerer)
 {
    resetPriority();
    mCheckState = CHECK_STATE_FROZEN;
@@ -147,7 +152,8 @@ int SdpCandidatePair::compareTo(UtlContainable const *rhs) const
    const SdpCandidatePair* pCandidatePair = dynamic_cast<const SdpCandidatePair*>(rhs);
    if (rhs->isInstanceOf(SdpCandidatePair::TYPE) && pCandidatePair)
    {
-      result = compareNumber(mPriority, pCandidatePair->mPriority, true /* reverse */);  // We want to order a list of these from highest priority to lowest
+      // We want to order a list of these from highest priority to lowest
+      result = compareNumber(mPriority, pCandidatePair->mPriority, true /* reverse */);
       if(0 == result) 
       {
          result = compareNumber(mCheckState, pCandidatePair->mCheckState);
