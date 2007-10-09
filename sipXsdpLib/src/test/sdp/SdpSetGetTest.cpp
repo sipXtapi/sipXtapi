@@ -358,8 +358,8 @@ public:
         CPPUNIT_ASSERT(mediaLine->getCandidates().entries() == 2);
         mediaLine->addCandidatePair(*sdpLocalCandidate, *sdpRemoteCandidate, SdpCandidatePair::OFFERER_LOCAL);
         CPPUNIT_ASSERT(mediaLine->getCandidatePairs().entries() == 2);
-        CPPUNIT_ASSERT(((SdpCandidatePair*)mediaLine->getCandidatePairs().at(0))->getPriority() == 1993);
-        CPPUNIT_ASSERT(((SdpCandidatePair*)mediaLine->getCandidatePairs().at(1))->getPriority() == 1962);
+        CPPUNIT_ASSERT_EQUAL(UInt64(0x00000038000000cb), ((SdpCandidatePair*)mediaLine->getCandidatePairs().at(0))->getPriority());
+        CPPUNIT_ASSERT_EQUAL(UInt64(0x00000037000000c8), ((SdpCandidatePair*)mediaLine->getCandidatePairs().at(1))->getPriority());
         CPPUNIT_ASSERT(((SdpCandidatePair*)mediaLine->getCandidatePairs().at(0))->getLocalCandidate().getPort() == 6001);
         CPPUNIT_ASSERT(((SdpCandidatePair*)mediaLine->getCandidatePairs().at(0))->getRemoteCandidate().getPort() == 2346);
         CPPUNIT_ASSERT(((SdpCandidatePair*)mediaLine->getCandidatePairs().at(0))->getOfferer() == SdpCandidatePair::OFFERER_LOCAL);
