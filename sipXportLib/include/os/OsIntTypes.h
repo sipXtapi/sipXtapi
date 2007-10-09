@@ -23,9 +23,11 @@
 *  types implemented. 
 */
 
-// Define these macros to include support for minimum/maximum constants.
+// Define these macros to include support for minimum/maximum constants
+// and constant macros.
 #define __STDC_LIMIT_MACROS
 #define __STDC_CONSTANT_MACROS
+#define __STDC_FORMAT_MACROS
 
 #ifdef _MSC_VER
 // Microsoft Visual Studio C/C++ compiler
