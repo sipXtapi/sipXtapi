@@ -98,8 +98,7 @@ int fnSplit(char *spec,             /* Original file spec         */
       int ret_code = 0;
       char *d = spec, *p, *e;
 
-
-      if (':' == spec[1])
+      if (spec[0] != '\0' && spec[1] == ':')
       {
             if (drive)
                   strncpy(drive, spec, 2);
