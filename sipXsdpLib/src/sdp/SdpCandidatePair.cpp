@@ -13,6 +13,10 @@
 // Author: Scott Godin (sgodin AT SipSpectrum DOT com)
 
 // SYSTEM INCLUDES
+#ifdef __pingtel_on_posix__ // [
+#  include <limits.h>
+#endif // __pingtel_on_posix__ ]
+
 // APPLICATION INCLUDES
 #include <sdp/SdpCandidatePair.h>
 
