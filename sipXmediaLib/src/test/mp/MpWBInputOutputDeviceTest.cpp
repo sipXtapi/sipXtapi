@@ -163,18 +163,26 @@ public:
       UtlSListIterator outHndIter(outDevHandles);
       while((pCurHnd = (UtlInt*)outHndIter()) != NULL)
       {
-         // Disable the output devices.
-         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, outMgr.disableDevice(pCurHnd->getValue()));
+         if (outMgr.isDeviceEnabled(pCurHnd->getValue()))
+         {
+            // Disable the output devices.
+            CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, outMgr.disableDevice(pCurHnd->getValue()));
+         }
       }
       UtlSListIterator inHndIter(inDevHandles);
       while((pCurHnd = (UtlInt*)inHndIter()) != NULL)
       {
-         // Disable the input devices.
-         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, inMgr.disableDevice(pCurHnd->getValue()));
+         if (inMgr.isDeviceEnabled(pCurHnd->getValue()))
+         {
+            // Disable the input devices.
+            CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, inMgr.disableDevice(pCurHnd->getValue()));
+         }
       }
 
       CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pMediaTask->unmanageFlowGraph(*pFlowgraph));
-      MpMediaTask::signalFrameStart(); // ? what does this do?
+      // Let media task to process unmanage message (we have stopped ticker, so
+      // have to manually feed media task with ticks).
+      MpMediaTask::signalFrameStart();
       OsTask::delay(20);
 
       // Stop the flow graph, process next frame so the stop actually happens.
@@ -419,7 +427,6 @@ public:
       CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, 
                            MpResource::disable("FromInput-PlaySine", *pFlowgraph->getMsgQ()));
       CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pInMgr->disableDevice(playSineDevHnd));
-      CPPUNIT_ASSERT_EQUAL((MpInputDeviceDriver*)pPlaySineInDrv, pInMgr->removeDevice(playSineDevHnd));
 
 
 
@@ -462,7 +469,7 @@ public:
       // the device managers, so they can properly be cleaned up from their managers.
       UtlSList inDevHandles;
       inDevHandles.append(new UtlInt(micDevHnd));
-      // No need to disable and remove pPlaySineInDrv, as we did it earlier
+      inDevHandles.append(new UtlInt(playSineDevHnd));
       UtlSList outDevHandles;
       outDevHandles.append(new UtlInt(recBufDevHnd));
       outDevHandles.append(new UtlInt(spkrDevHnd));
