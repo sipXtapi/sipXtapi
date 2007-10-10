@@ -63,10 +63,8 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="libspeex.lib"
 				OutputFile="..\..\..\..\bin\codec_speex.dll"
-				LinkIncremental="2"
-				AdditionalLibraryDirectories="..\..\..\..\contrib\libspeex\lib"
+				AdditionalLibraryDirectories=""
 				IgnoreDefaultLibraryNames=""
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(OutDir)/plgspeex.pdb"
@@ -152,10 +150,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="libspeex.lib"
 				OutputFile="..\..\..\..\bin\codec_speex.dll"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="..\..\..\..\contrib\libspeex\lib"
+				AdditionalLibraryDirectories=""
 				IgnoreDefaultLibraryNames=""
 				GenerateDebugInformation="false"
 				SubSystem="0"
@@ -189,7 +186,7 @@
 			<Tool
 				Name="VCPostBuildEventTool"
 				Description="Copy speex dll to mediaLib bin directory"
-				CommandLine="copy ..\..\..\..\contrib\libspeex\win32\VS2003\libspeex\Release_Dynamic\libspeex.dll* ..\..\..\..\bin"
+				CommandLine="copy ..\..\..\..\contrib\libspeex\win32\VS2003\libspeex\Release_Dynamic_SSE\libspeex.dll* ..\..\..\..\bin"
 			/>
 		</Configuration>
 	</Configurations>
