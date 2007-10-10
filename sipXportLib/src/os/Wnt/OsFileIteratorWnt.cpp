@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2006 SIPez LLC.
+// Copyright (C) 2006-2007 SIPez LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
-// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -89,14 +89,16 @@ OsStatus OsFileIteratorWnt::getFirstEntryName(UtlString &name, OsFileType &type)
     {
         name = FileInfo.name;
         stat = OS_SUCCESS;
+
+        if (FileInfo.attrib & _A_SUBDIR)
+           type = DIRECTORIES;
+        else
+           type = FILES;
     }
     else
+    {
         stat = OS_FILE_NOT_FOUND;
-    
-    if (FileInfo.attrib & _A_SUBDIR)
-        type = DIRECTORIES;
-    else
-        type = FILES;
+    }
 
     return stat;
 }
@@ -115,12 +117,12 @@ OsStatus OsFileIteratorWnt::getNextEntryName(UtlString &name, OsFileType &type)
     {
         stat = OS_SUCCESS;
         name = FileInfo.name;
-    }
 
-    if (FileInfo.attrib & _A_SUBDIR)
-        type = DIRECTORIES;
-    else
-        type = FILES;
+        if (FileInfo.attrib & _A_SUBDIR)
+           type = DIRECTORIES;
+        else
+           type = FILES;
+    }
 
 
     return stat;
