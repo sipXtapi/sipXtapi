@@ -35,8 +35,8 @@
 #include <mp/MpResNotificationMsg.h>
 
 #define NUM_BUFFERS                   500
-#define TEST_SAMPLE_DATA_MAGNITUDE    32000
-#define TEST_SAMPLE_DATA_PERIOD       (1000000/60) //in microseconds 60 Hz
+#define TEST_SAMPLE_DATA_MAGNITUDE    3000
+#define TEST_DRIVER_SINE_PERIOD       (1000000/60) //in microseconds 60 Hz
 #define TEST_MAX_SAMPLE_RATE          48000
 #define TEST_MAX_SAMPLES_PER_FRAME    TEST_MAX_SAMPLE_RATE/100
 #define NUM_INPUT_DEV_BUFFERED_FRAMES 5  
@@ -50,7 +50,7 @@
 #ifdef USE_TEST_INPUT_DRIVER // USE_TEST_INPUT_DRIVER [
 #  include <mp/MpSineWaveGeneratorDeviceDriver.h>
 #  define INPUT_DRIVER MpSineWaveGeneratorDeviceDriver
-#  define INPUT_DRIVER_CONSTRUCTOR_PARAMS(mgr) "default", mgr, TEST_SAMPLE_DATA_MAGNITUDE, TEST_SAMPLE_DATA_PERIOD, 0
+#  define INPUT_DRIVER_CONSTRUCTOR_PARAMS(mgr) "default", mgr, TEST_SAMPLE_DATA_MAGNITUDE, TEST_DRIVER_SINE_PERIOD, 0
 #elif defined(WIN32) // USE_TEST_INPUT_DRIVER ][ WIN32
 #  include <mp/MpidWinMM.h>
 #  define INPUT_DRIVER MpidWinMM
@@ -93,30 +93,10 @@ public:
 
    void setUp()
    {
-      // Create pool for data buffers
-      mpPool = new MpBufPool(TEST_MAX_SAMPLES_PER_FRAME * sizeof(MpAudioSample)
-                             + MpArrayBuf::getHeaderSize(), NUM_BUFFERS);
-      CPPUNIT_ASSERT(mpPool != NULL);
-
-      // Create pool for buffer headers
-      mpHeadersPool = new MpBufPool(sizeof(MpAudioBuf), NUM_BUFFERS);
-      CPPUNIT_ASSERT(mpHeadersPool != NULL);
-
-      // Set mpHeadersPool as default pool for audio and data pools.
-      MpAudioBuf::smpDefaultPool = mpHeadersPool;
-      MpDataBuf::smpDefaultPool = mpHeadersPool;
    }
 
    void tearDown()
    {
-      if (mpPool != NULL)
-      {
-         delete mpPool;
-      }
-      if (mpHeadersPool != NULL)
-      {
-         delete mpHeadersPool;
-      }
    }
 
 
@@ -276,7 +256,7 @@ public:
    void testIOFreqRange(unsigned sampleRate, unsigned samplesPerFrame)
    {
       MpFrameTime outMgrDefaultMixerBufLen = 30;
-      unsigned sineMagnitude = 8000; // FIXME! Put a proper value here.
+      unsigned sineMagnitude = TEST_SAMPLE_DATA_MAGNITUDE;
       int frequencies[] = {1000, 2000, 4000, 8000, 16000, 32000, 24000, 48000};
       int numFreqs = sizeof(frequencies)/sizeof(int);
       int toneDurationMS = 1000; // duration of playing a tone.
@@ -318,7 +298,7 @@ public:
       // Create the input and output managers -- those are common to both the 
       // 'record' and 'play' legs of the flowgraph.
       pInMgr = new MpInputDeviceManager(samplesPerFrame, sampleRate, 
-                                        NUM_INPUT_DEV_BUFFERED_FRAMES, *mpPool);
+                                        NUM_INPUT_DEV_BUFFERED_FRAMES, *MpMisc.RawAudioPool);
       pOutMgr = new MpOutputDeviceManager(samplesPerFrame, sampleRate, 
                                           outMgrDefaultMixerBufLen);
 
@@ -506,8 +486,6 @@ public:
    }
 
 protected:
-   MpBufPool *mpPool;         ///< Pool for data buffers
-   MpBufPool *mpHeadersPool;  ///< Pool for buffers headers
 
    static int sSampleRates[];
    static int sNumRates;
