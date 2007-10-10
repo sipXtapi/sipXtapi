@@ -456,10 +456,10 @@ public:
       
       OsMsg* pMsg;
       CPPUNIT_ASSERT_EQUAL(2, notfDisp.numMsgs());
-      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, notfDisp.receive((OsMsg*)pMsg, OsTime(10)));
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, notfDisp.receive((OsMsg*&)pMsg, OsTime(10)));
       CPPUNIT_ASSERT_EQUAL(MpResNotificationMsg::MPRNM_FROMFILE_STARTED, 
                            (MpResNotificationMsg::RNMsgType)((MpResNotificationMsg*)pMsg)->getMsg());
-      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, notfDisp.receive((OsMsg*)pMsg, OsTime(10)));
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, notfDisp.receive((OsMsg*&)pMsg, OsTime(10)));
       CPPUNIT_ASSERT_EQUAL(MpResNotificationMsg::MPRNM_FROMFILE_FINISHED, 
                            (MpResNotificationMsg::RNMsgType)((MpResNotificationMsg*)pMsg)->getMsg());
 
