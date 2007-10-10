@@ -116,8 +116,12 @@ public:
 
    // Caller owns pFlowgraph.
    void setupWBMediaTask(unsigned sampleRate, unsigned samplesPerFrame,
+                         MpInputDeviceManager*& pInMgr,
+                         MpOutputDeviceManager*& pOutMgr,
                          MpFlowGraphBase*& pFlowgraph, MpMediaTask*& pMediaTask)
    {
+      MpFrameTime outMgrDefaultMixerBufLen = 30;
+
       // Both pointers passed in should be NULL, as we allocate it here.
       assert(pFlowgraph == NULL);
       assert(pMediaTask == NULL);
@@ -148,6 +152,17 @@ public:
 
       // Call getMediaTask() which causes the task to get instantiated
       pMediaTask = MpMediaTask::getMediaTask(10);
+      
+      // Turn on notifications
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pFlowgraph->setNotificationsEnabled(true));
+
+      // Create the input and output managers -- those are common to both the 
+      // 'record' and 'play' legs of the flowgraph.
+      pInMgr = new MpInputDeviceManager(samplesPerFrame, sampleRate, 
+                                        NUM_INPUT_DEV_BUFFERED_FRAMES, *MpMisc.RawAudioPool);
+      pOutMgr = new MpOutputDeviceManager(samplesPerFrame, sampleRate, 
+                                          outMgrDefaultMixerBufLen);
+
    }
 
    void tearDownWBMediaTask(MpInputDeviceManager& inMgr, UtlSList& inDevHandles, 
@@ -263,7 +278,6 @@ public:
    */
    void testIOFreqRange(unsigned sampleRate, unsigned samplesPerFrame)
    {
-      MpFrameTime outMgrDefaultMixerBufLen = 30;
       unsigned sineMagnitude = TEST_SAMPLE_DATA_MAGNITUDE;
       int frequencies[] = {1000, 2000, 4000, 8000, 16000, 32000, 24000, 48000};
       int numFreqs = sizeof(frequencies)/sizeof(int);
@@ -295,30 +309,28 @@ public:
       OUTPUT_DRIVER* pSpkrOutDrv = NULL;
       MpOutputDeviceHandle spkrDevHnd = 0;
 
+      // Two lists of the device handles that are added to the device managers,
+      // so they can properly be cleaned up from their managers.
+      UtlSList inDevHandles;
+      UtlSList outDevHandles;
+
       // Setup the initial bits of the flowgraph, allocating the flowgraph and 
       // media task (thereby filling in the passed in pointers, which should
       // always be null when passed in).
-      setupWBMediaTask(sampleRate, samplesPerFrame, pFlowgraph, pMediaTask);
-
-      // Turn on notifications
-      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pFlowgraph->setNotificationsEnabled(true));
-
-      // Create the input and output managers -- those are common to both the 
-      // 'record' and 'play' legs of the flowgraph.
-      pInMgr = new MpInputDeviceManager(samplesPerFrame, sampleRate, 
-                                        NUM_INPUT_DEV_BUFFERED_FRAMES, *MpMisc.RawAudioPool);
-      pOutMgr = new MpOutputDeviceManager(samplesPerFrame, sampleRate, 
-                                          outMgrDefaultMixerBufLen);
-
+      setupWBMediaTask(sampleRate, samplesPerFrame,
+                       pInMgr, pOutMgr,
+                       pFlowgraph, pMediaTask);
 
       // Create the 'record' leg of the flowgraph.
       // Create the input and output devices, and add the devices for the 'record' leg.
       pMicInDrv = new INPUT_DRIVER(INPUT_DRIVER_CONSTRUCTOR_PARAMS(*pInMgr));
       micDevHnd = pInMgr->addDevice(*pMicInDrv);
       CPPUNIT_ASSERT(micDevHnd > 0);
+      inDevHandles.append(new UtlInt(micDevHnd));
       pRecBufOutDrv = new MpodBufferRecorder("MpodRecorder", bufRecDevBufferLen);
       recBufDevHnd = pOutMgr->addDevice(pRecBufOutDrv);
       CPPUNIT_ASSERT(recBufDevHnd > 0);
+      outDevHandles.append(new UtlInt(recBufDevHnd));
 
       // Create the resources for the 'record' leg.
       pRecRFromInDev = 
@@ -337,9 +349,11 @@ public:
                                              FREQ_TO_PERIODUS(frequencies[0]), 0);
       playSineDevHnd = pInMgr->addDevice(*pPlaySineInDrv);
       CPPUNIT_ASSERT(playSineDevHnd > 0);
+      inDevHandles.append(new UtlInt(playSineDevHnd));
       pSpkrOutDrv = new OUTPUT_DRIVER(OUTPUT_DRIVER_CONSTRUCTOR_PARAMS);
       spkrDevHnd = pOutMgr->addDevice(pSpkrOutDrv);
       CPPUNIT_ASSERT(spkrDevHnd > 0);
+      outDevHandles.append(new UtlInt(spkrDevHnd));
 
       // Create the resources for the 'play' leg.
       pPlayRFromInDev = 
@@ -464,15 +478,6 @@ public:
                            (MpResNotificationMsg::RNMsgType)((MpResNotificationMsg*)pMsg)->getMsg());
 
       // Shutdown the test.
-
-      // Cobble together two lists of the device handles that are added to 
-      // the device managers, so they can properly be cleaned up from their managers.
-      UtlSList inDevHandles;
-      inDevHandles.append(new UtlInt(micDevHnd));
-      inDevHandles.append(new UtlInt(playSineDevHnd));
-      UtlSList outDevHandles;
-      outDevHandles.append(new UtlInt(recBufDevHnd));
-      outDevHandles.append(new UtlInt(spkrDevHnd));
 
       tearDownWBMediaTask(*pInMgr, inDevHandles, *pOutMgr, outDevHandles,
                           pFlowgraph, pMediaTask);
