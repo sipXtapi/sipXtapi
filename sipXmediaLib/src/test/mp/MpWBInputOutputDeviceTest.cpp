@@ -108,9 +108,11 @@ public:
       for(i = nSecs; i > 0; i--)
       {
          printf("\b\b\b\b\b\b\b\b\b\b%d seconds.", i);
+         fflush(stdout);
          OsTask::delay(1000);
       }
       printf("\b\b\b\b\b\b\b\b\b\b\b\b\bNOW.         \n");
+      fflush(stdout);
 
    }
 
@@ -421,11 +423,13 @@ public:
 
       // Let the tone play for a few seconds..
       printf("Playing frequency: %d, ", frequencies[0]);
+      fflush(stdout);
       int i;
       for (i = 1; i < numFreqs; i++)
       {
          OsTask::delay(toneDurationMS);
          printf("%d, ", frequencies[i]);
+         fflush(stdout);
          pPlaySineInDrv->setTone(FREQ_TO_PERIODUS(frequencies[i]));
       }
       // Let the last tone play for it's duration.
