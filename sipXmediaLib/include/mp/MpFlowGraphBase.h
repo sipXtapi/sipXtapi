@@ -312,6 +312,10 @@ public:
      *  If the flow graph is not "started", this call takes effect
      *  immediately.  Otherwise, the call takes effect at the start of the
      *  next frame processing interval.
+     *  
+     *  @Note The flowgraph does not control input and output device managers
+     *        so be sure to also set the new samplesPerFrame on each of those
+     *        managers that are sending/receiving data to/from this flowgraph.
      *
      *  @retval OS_SUCCESS - success.
      *  @retval OS_INVALID_ARGUMENT - specified duration is not supported.
@@ -323,6 +327,10 @@ public:
      *  If the flow graph is not "started", this call takes effect
      *  immediately.  Otherwise, the call takes effect at the start of the
      *  next frame processing interval.
+     *
+     *  @Note The flowgraph does not control input and output device managers
+     *        so be sure to also set the new sample rate on each of those
+     *        managers that are sending/receiving data to/from this flowgraph.
      *
      *  @retval OS_SUCCESS - success.
      *  @retval OS_INVALID_ARGUMENT - specified duration is not supported.
