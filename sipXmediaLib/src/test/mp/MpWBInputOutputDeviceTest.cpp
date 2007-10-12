@@ -175,6 +175,13 @@ public:
       CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, 
          outMgr.setFlowgraphTickerSource(MP_INVALID_OUTPUT_DEVICE_HANDLE));
 
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pMediaTask->stopFlowGraph(*pFlowgraph));
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pMediaTask->unmanageFlowGraph(*pFlowgraph));
+      // Let media task to process unmanage message (we have stopped ticker, so
+      // have to manually feed media task with ticks).
+      MpMediaTask::signalFrameStart();
+      OsTask::delay(20);
+
       // Disable all of the devices..
       UtlInt* pCurHnd;
       UtlSListIterator outHndIter(outDevHandles);
@@ -195,12 +202,6 @@ public:
             CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, inMgr.disableDevice(pCurHnd->getValue()));
          }
       }
-
-      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pMediaTask->unmanageFlowGraph(*pFlowgraph));
-      // Let media task to process unmanage message (we have stopped ticker, so
-      // have to manually feed media task with ticks).
-      MpMediaTask::signalFrameStart();
-      OsTask::delay(20);
 
       // Stop the flow graph, process next frame so the stop actually happens.
       CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pFlowgraph->stop());
@@ -477,9 +478,13 @@ public:
       CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, notfDisp.receive((OsMsg*&)pMsg, OsTime(10)));
       CPPUNIT_ASSERT_EQUAL(MpResNotificationMsg::MPRNM_FROMFILE_STARTED, 
                            (MpResNotificationMsg::RNMsgType)((MpResNotificationMsg*)pMsg)->getMsg());
+      pMsg->releaseMsg();
+      pMsg = NULL;
       CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, notfDisp.receive((OsMsg*&)pMsg, OsTime(10)));
       CPPUNIT_ASSERT_EQUAL(MpResNotificationMsg::MPRNM_FROMFILE_FINISHED, 
                            (MpResNotificationMsg::RNMsgType)((MpResNotificationMsg*)pMsg)->getMsg());
+      pMsg->releaseMsg();
+      pMsg = NULL;
 
       // Shutdown the test.
 
