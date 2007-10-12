@@ -40,7 +40,7 @@ public:
        // verify that destroying the flow graph also gets rid of the resources
        // and links.
        pMixer = new MprMixer("MprMixer", 2,
-                             TEST_SAMPLES_PER_FRAME, TEST_SAMPLES_PER_SEC);
+                             getSamplesPerFrame(), getSamplesPerSec());
 
        res = mpFlowGraph->addResource(*pMixer);
        CPPUNIT_ASSERT(res == OS_SUCCESS);
@@ -52,7 +52,7 @@ public:
        OsStatus          res;
 
        pMixer = new MprMixer("MprMixer", 2,
-                             TEST_SAMPLES_PER_FRAME, TEST_SAMPLES_PER_SEC);
+                             getSamplesPerFrame(), getSamplesPerSec());
        CPPUNIT_ASSERT(pMixer != NULL);
 
        setupFramework(pMixer);
@@ -93,7 +93,7 @@ public:
        OsStatus          res;
 
        pMixer = new MprMixer("MprMixer", 2,
-                             TEST_SAMPLES_PER_FRAME, TEST_SAMPLES_PER_SEC);
+                             getSamplesPerFrame(), getSamplesPerSec());
        CPPUNIT_ASSERT(pMixer != NULL);
 
        setupFramework(pMixer);
@@ -125,7 +125,7 @@ public:
        OsStatus          res;
 
        pMixer = new MprMixer("MprMixer", 2,
-                             TEST_SAMPLES_PER_FRAME, TEST_SAMPLES_PER_SEC);
+                             getSamplesPerFrame(), getSamplesPerSec());
        CPPUNIT_ASSERT(pMixer != NULL);
 
        setupFramework(pMixer);
@@ -157,7 +157,7 @@ public:
        OsStatus          res;
 
        pMixer = new MprMixer("MprMixer", 2,
-                             TEST_SAMPLES_PER_FRAME, TEST_SAMPLES_PER_SEC);
+                             getSamplesPerFrame(), getSamplesPerSec());
        CPPUNIT_ASSERT(pMixer != NULL);
 
        setupFramework(pMixer);
@@ -199,7 +199,7 @@ public:
        OsStatus          res;
 
        pMixer = new MprMixer("MprMixer", 2,
-                             TEST_SAMPLES_PER_FRAME, TEST_SAMPLES_PER_SEC);
+                             getSamplesPerFrame(), getSamplesPerSec());
        CPPUNIT_ASSERT(pMixer != NULL);
 
        setupFramework(pMixer);

@@ -20,21 +20,27 @@
 #include <cppunit/TestCase.h>
 #include <sipxunit/TestUtilities.h>
 
+/// Number of frames in one frame
+#define TEST_DEFAULT_SAMPLES_PER_FRAME 80
+/// Number of frames in one second
+#define TEST_DEFAULT_SAMPLES_PER_SEC 8000
+
 ///  Generic framework for unit test of media resources.
 /**
 *  For each testing resource create subclass of this class.
 */
 class MpGenericResourceTest : public CppUnit::TestCase
 {
-    CPPUNIT_TEST_SUITE(MpGenericResourceTest);
-    CPPUNIT_TEST_SUITE_END();
-
-/// Number of frames in one frame
-#define TEST_SAMPLES_PER_FRAME 80
-/// Number of frames in one second
-#define TEST_SAMPLES_PER_SEC 8000
+   CPPUNIT_TEST_SUITE(MpGenericResourceTest);
+   CPPUNIT_TEST_SUITE_END();
 
 public:
+
+   MpGenericResourceTest()
+      : CppUnit::TestCase()
+      , mSamplesPerFrame(TEST_DEFAULT_SAMPLES_PER_FRAME)
+      , mSamplesPerSec(TEST_DEFAULT_SAMPLES_PER_SEC)
+   {}
 
    // Initialize test framework
    void setUp()
@@ -58,12 +64,11 @@ public:
       int numCodecPaths = sizeof(codecPaths)/sizeof(codecPaths[0]);
 
       // Setup media task
-      res = mpStartUp(TEST_SAMPLES_PER_SEC, TEST_SAMPLES_PER_FRAME, 6*10, 
+      res = mpStartUp(mSamplesPerSec, mSamplesPerFrame, 6*10, 
                       NULL, numCodecPaths, codecPaths);
       CPPUNIT_ASSERT(res == OS_SUCCESS);
 
-      mpFlowGraph = new MpFlowGraphBase( TEST_SAMPLES_PER_FRAME
-                                       , TEST_SAMPLES_PER_SEC);
+      mpFlowGraph = new MpFlowGraphBase(mSamplesPerFrame, mSamplesPerSec);
       CPPUNIT_ASSERT(mpFlowGraph != NULL);
 
       // Call getMediaTask() which causes the task to get instantiated
@@ -99,6 +104,56 @@ public:
       // Clear all Media Tasks data
       res = mpShutdown();
       CPPUNIT_ASSERT(res == OS_SUCCESS);
+   }
+
+   /**
+   *  Get the samples per frame.
+   *  
+   *  Use this in derived classes as opposed to directly accessing the member, 
+   *  as test setup and shutdown may wish to wait until a new test is started 
+   *  before a new value set using setSamplesPerFrame is used.
+   */
+   unsigned getSamplesPerFrame() const
+   {
+      return mSamplesPerFrame;
+   }
+
+   /**
+   *  Get the sample rate.
+   *  
+   *  Use this in derived classes as opposed to directly accessing the member, 
+   *  as test setup and shutdown may wish to wait until a new test is started 
+   *  before a new value set using setSamplesPerSec is used.
+   */
+   unsigned getSamplesPerSec() const
+   {
+      return mSamplesPerSec;
+   }
+
+   /**
+   *  Set the samples per frame.
+   *  
+   *  @Note Make sure to put this call after you're finished testing all 
+   *  resources in your test at the frame rate previously provided -- i.e. all 
+   *  buffers at the old frame rate are flushed through the flowgraph.  The 
+   *  flowgraph should do this for you, so this may be a non-issue.
+   */
+   void setSamplesPerFrame(const unsigned samplesPerFrame)
+   {
+      mSamplesPerFrame = samplesPerFrame;
+   }
+
+   /**
+   *  Set the samples per sec.
+   *  
+   *  @Note Make sure to put this call after you're finished testing all 
+   *  resources in your test at the frame rate previously provided -- i.e. all 
+   *  buffers at the old frame rate are flushed through the flowgraph.  The 
+   *  flowgraph should do this for you, so this may be a non-issue.
+   */
+   void setSamplesPerSec(const unsigned samplesPerSec)
+   {
+      mSamplesPerSec = samplesPerSec;
    }
 
 protected:
@@ -205,6 +260,11 @@ protected:
        res = mpFlowGraph->processNextFrame();
        CPPUNIT_ASSERT(res == OS_SUCCESS);
    }
+
+   private:
+      // Private data
+      unsigned mSamplesPerSec;
+      unsigned mSamplesPerFrame;
 };
 
 //CPPUNIT_TEST_SUITE_REGISTRATION(MpGenericResourceTest);

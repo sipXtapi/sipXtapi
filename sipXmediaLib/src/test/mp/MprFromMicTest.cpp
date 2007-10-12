@@ -42,7 +42,7 @@ public:
        // verify that destroying the flow graph also gets rid of the resources
        // and links.
        pFromMic = new MprFromMic("MprFromMic",
-                                 TEST_SAMPLES_PER_FRAME, TEST_SAMPLES_PER_SEC,
+                                 getSamplesPerFrame(), getSamplesPerSec(),
                                  NULL);
 
        res = mpFlowGraph->addResource(*pFromMic);
@@ -55,7 +55,7 @@ public:
        OsStatus          res;
 
        pFromMic = new MprFromMic("MprFromMic",
-                                 TEST_SAMPLES_PER_FRAME, TEST_SAMPLES_PER_SEC,
+                                 getSamplesPerFrame(), getSamplesPerSec(),
                                  NULL);
        CPPUNIT_ASSERT(pFromMic != NULL);
 
@@ -96,7 +96,7 @@ public:
        OsStatus          res;
 
        pFromMic = new MprFromMic("MprFromMic",
-                                 TEST_SAMPLES_PER_FRAME, TEST_SAMPLES_PER_SEC,
+                                 getSamplesPerFrame(), getSamplesPerSec(),
                                  NULL);
        CPPUNIT_ASSERT(pFromMic != NULL);
 
@@ -140,7 +140,7 @@ public:
        CPPUNIT_ASSERT(pMsgQ != NULL);
 
        pFromMic = new MprFromMic("MprFromMic",
-                                 TEST_SAMPLES_PER_FRAME, TEST_SAMPLES_PER_SEC,
+                                 getSamplesPerFrame(), getSamplesPerSec(),
                                  pMsgQ);
        CPPUNIT_ASSERT(pFromMic != NULL);
 
@@ -192,7 +192,7 @@ public:
        CPPUNIT_ASSERT(pMsgQ != NULL);
 
        pFromMic = new MprFromMic("MprFromMic",
-                                 TEST_SAMPLES_PER_FRAME, TEST_SAMPLES_PER_SEC,
+                                 getSamplesPerFrame(), getSamplesPerSec(),
                                  pMsgQ);
        CPPUNIT_ASSERT(pFromMic != NULL);
 
