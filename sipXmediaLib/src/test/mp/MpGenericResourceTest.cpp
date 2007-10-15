@@ -11,6 +11,11 @@
 #include "mp/MpGenericResourceTest.h"
 
 
+// Static data initialization
+// Sample rates that can be used for wideband testing.
+unsigned MpGenericResourceTest::sSampleRates[] = {8000, 16000, 32000, 48000};
+unsigned MpGenericResourceTest::sNumRates = sizeof(MpGenericResourceTest::sSampleRates)/sizeof(unsigned);
+
 MpGenericResourceTest::MpGenericResourceTest()
    : CppUnit::TestCase()
    , mSamplesPerFrame(TEST_DEFAULT_SAMPLES_PER_FRAME)

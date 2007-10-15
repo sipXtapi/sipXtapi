@@ -93,6 +93,9 @@ protected:
                                        ///<  connected to outputs of tested
                                        ///<  resource.
 
+   static unsigned sSampleRates[]; ///< Sample rates that can be used to test differing rates.
+   static unsigned sNumRates;      ///< The number of static sample rates that are held in sSampleRates.
+
    /**
    *  @brief Setup generic resource testing framework.
    *
