@@ -1,8 +1,8 @@
 //  
-// Copyright (C) 2006 SIPfoundry Inc. 
+// Copyright (C) 2006-2007 SIPfoundry Inc. 
 // Licensed by SIPfoundry under the LGPL license. 
 //  
-// Copyright (C) 2006 SIPez LLC. 
+// Copyright (C) 2006-2007 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //  
 // $$ 
@@ -25,8 +25,9 @@
 /// Number of frames in one second
 #define TEST_DEFAULT_SAMPLES_PER_SEC 8000
 
-///  Generic framework for unit test of media resources.
 /**
+*  Generic framework for unit test of media resources.
+* 
 *  For each testing resource create subclass of this class.
 */
 class MpGenericResourceTest : public CppUnit::TestCase
@@ -36,75 +37,13 @@ class MpGenericResourceTest : public CppUnit::TestCase
 
 public:
 
-   MpGenericResourceTest()
-      : CppUnit::TestCase()
-      , mSamplesPerFrame(TEST_DEFAULT_SAMPLES_PER_FRAME)
-      , mSamplesPerSec(TEST_DEFAULT_SAMPLES_PER_SEC)
-   {}
+   MpGenericResourceTest();
 
    // Initialize test framework
-   void setUp()
-   {
-      MpMediaTask*      pMediaTask = NULL;
-      OsStatus          res;
-
-      // Setup codec paths..
-      UtlString codecPaths[] = {
-#ifdef WIN32
-                                "bin",
-                                "..\\bin",
-#elif __pingtel_on_posix__
-                                "../../../../bin",
-                                "../../../bin",
-#else
-#                               error "Unknown platform"
-#endif
-                                "."
-      };
-      int numCodecPaths = sizeof(codecPaths)/sizeof(codecPaths[0]);
-
-      // Setup media task
-      res = mpStartUp(mSamplesPerSec, mSamplesPerFrame, 6*10, 
-                      NULL, numCodecPaths, codecPaths);
-      CPPUNIT_ASSERT(res == OS_SUCCESS);
-
-      mpFlowGraph = new MpFlowGraphBase(mSamplesPerFrame, mSamplesPerSec);
-      CPPUNIT_ASSERT(mpFlowGraph != NULL);
-
-      // Call getMediaTask() which causes the task to get instantiated
-      pMediaTask = MpMediaTask::getMediaTask(10);
-      CPPUNIT_ASSERT(pMediaTask != NULL);
-   }
+   void setUp();
 
    // Clean up after test is done.
-   void tearDown()
-   {
-      OsStatus          res;
-
-      // This should normally be done by haltFramework, but if we aborted due
-      // to an assertion the flowgraph will need to be shutdown here
-      if(mpFlowGraph && mpFlowGraph->isStarted())
-      {
-          printf("WARNING: flowgraph found still running, shutting down\n");
-
-          // ignore the result and keep going
-          mpFlowGraph->stop();
-
-          // Request processing of another frame so that the STOP_FLOWGRAPH
-          // message gets handled
-          mpFlowGraph->processNextFrame();
-      }
-
-      // Free flowgraph resources
-      delete mpFlowGraph;
-      mpFlowGraph = NULL;
-      mpSinkResource = NULL;
-      mpSourceResource = NULL;
-
-      // Clear all Media Tasks data
-      res = mpShutdown();
-      CPPUNIT_ASSERT(res == OS_SUCCESS);
-   }
+   void tearDown();
 
    /**
    *  Get the samples per frame.
@@ -113,10 +52,7 @@ public:
    *  as test setup and shutdown may wish to wait until a new test is started 
    *  before a new value set using setSamplesPerFrame is used.
    */
-   unsigned getSamplesPerFrame() const
-   {
-      return mSamplesPerFrame;
-   }
+   unsigned getSamplesPerFrame() const;
 
    /**
    *  Get the sample rate.
@@ -125,10 +61,7 @@ public:
    *  as test setup and shutdown may wish to wait until a new test is started 
    *  before a new value set using setSamplesPerSec is used.
    */
-   unsigned getSamplesPerSec() const
-   {
-      return mSamplesPerSec;
-   }
+   unsigned getSamplesPerSec() const;
 
    /**
    *  Set the samples per frame.
@@ -138,10 +71,7 @@ public:
    *  buffers at the old frame rate are flushed through the flowgraph.  The 
    *  flowgraph should do this for you, so this may be a non-issue.
    */
-   void setSamplesPerFrame(const unsigned samplesPerFrame)
-   {
-      mSamplesPerFrame = samplesPerFrame;
-   }
+   void setSamplesPerFrame(const unsigned samplesPerFrame);
 
    /**
    *  Set the samples per sec.
@@ -151,10 +81,7 @@ public:
    *  buffers at the old frame rate are flushed through the flowgraph.  The 
    *  flowgraph should do this for you, so this may be a non-issue.
    */
-   void setSamplesPerSec(const unsigned samplesPerSec)
-   {
-      mSamplesPerSec = samplesPerSec;
-   }
+   void setSamplesPerSec(const unsigned samplesPerSec);
 
 protected:
 
@@ -166,8 +93,9 @@ protected:
                                        ///<  connected to outputs of tested
                                        ///<  resource.
 
-   /// Setup generic resource testing framework.
    /**
+   *  @brief Setup generic resource testing framework.
+   *
    *  <ol>
    *  <li> Create source and sink supply resources.
    *  <li> Add all resources to the flowgraph
@@ -177,89 +105,17 @@ protected:
    *  <li> Enable sink resource.
    *  </ol>
    */
-   void setupFramework(MpResource *pTestResource)
-   {
-      OsStatus          res;
-      int i;
-      int inputsCount;  // Number of inputs of test resource
-      int outputsCount; // Number of outputs of test resource
+   void setupFramework(MpResource *pTestResource);
 
-      // Check prerequisites
-      CPPUNIT_ASSERT(mpFlowGraph != NULL);
-      CPPUNIT_ASSERT(pTestResource != NULL);
-
-      // For convenience store number of inputs and outputs for test resource.
-      inputsCount = pTestResource->maxInputs();
-      outputsCount = pTestResource->maxOutputs();
-
-      // 1. Create source and sink supply resources.
-      mpSourceResource = new MpTestResource( "SourceResource"
-                                           , 0, 0, inputsCount, inputsCount);
-      CPPUNIT_ASSERT(mpSourceResource != NULL);
-      mpSinkResource = new MpTestResource( "SinkResource"
-                                         , outputsCount, outputsCount, 0, 0);
-      CPPUNIT_ASSERT(mpSinkResource != NULL);
-
-      // 2. Add all resources to the flowgraph.
-      res = mpFlowGraph->addResource(*mpSourceResource);
-      CPPUNIT_ASSERT(res == OS_SUCCESS);
-      res = mpFlowGraph->addResource(*pTestResource);
-      CPPUNIT_ASSERT(res == OS_SUCCESS);
-      res = mpFlowGraph->addResource(*mpSinkResource);
-      CPPUNIT_ASSERT(res == OS_SUCCESS);
-
-      // 3. For source resource, create new buffers on all output ports and
-      // ignore all input buffers
-      mpSourceResource->setProcessInBufMask(0x0);
-      mpSourceResource->setGenOutBufMask((1<<inputsCount)-1);
-
-      // For sink resource, process input buffers that arrive input ports.
-      mpSinkResource->setProcessInBufMask((1<<outputsCount)-1);
-      mpSinkResource->setGenOutBufMask(0x0);
-
-      // 4. Link sourceResource -> testResource -> sinkResource
-      for (i=0; i<inputsCount; i++) {
-         res = mpFlowGraph->addLink(*mpSourceResource, i, *pTestResource, i);
-         CPPUNIT_ASSERT(res == OS_SUCCESS);
-      }
-      for (i=0; i<outputsCount; i++) {
-         res = mpFlowGraph->addLink(*pTestResource, i, *mpSinkResource, i);
-         CPPUNIT_ASSERT(res == OS_SUCCESS);
-      }
-
-      // 5. Start the flow graph
-      res = mpFlowGraph->start();
-      CPPUNIT_ASSERT(res == OS_SUCCESS);
-
-      // All resources should be disabled
-      CPPUNIT_ASSERT(  !mpSourceResource->isEnabled()
-                    && !pTestResource->isEnabled()
-                    && !mpSinkResource->isEnabled());
-
-      // 6. Enable sink resource
-      CPPUNIT_ASSERT(mpSinkResource->enable());
-   }
-
-
-   /// Halt generic resource testing framework.
    /**
+   *  @brief Halt generic resource testing framework.
+   *
    *  <ol>
    *  <li> Stop flowgraph.
+   *  <li> delete all resources contained in flowgraph.
    *  </ol>
    */
-   void haltFramework()
-   {
-      OsStatus          res;
-
-       // Stop the flow graph
-       res = mpFlowGraph->stop();
-       CPPUNIT_ASSERT(res == OS_SUCCESS);
-
-       // Request processing of another frame so that the STOP_FLOWGRAPH
-       // message gets handled
-       res = mpFlowGraph->processNextFrame();
-       CPPUNIT_ASSERT(res == OS_SUCCESS);
-   }
+   void haltFramework();
 
    private:
       // Private data

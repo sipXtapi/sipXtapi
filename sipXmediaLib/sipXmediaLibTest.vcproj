@@ -130,6 +130,9 @@
 				RelativePath=".\src\test\mp\MpFlowGraphTest.cpp">
 			</File>
 			<File
+				RelativePath=".\src\test\mp\MpGenericResourceTest.cpp">
+			</File>
+			<File
 				RelativePath=".\src\test\mp\MpInputDeviceDriverTest.cpp">
 			</File>
 			<File

@@ -27,6 +27,7 @@ testsuite_SOURCES = \
     mp/MpTestResource.h \
     mp/MpTestResource.cpp \
     mp/MpGenericResourceTest.h \
+    mp/MpGenericResourceTest.cpp \
     mp/MprBridgeTest.cpp \
     mp/MprFromMicTest.cpp \
     mp/MprMixerTest.cpp \

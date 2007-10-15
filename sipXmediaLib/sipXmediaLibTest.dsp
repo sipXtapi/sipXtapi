@@ -105,6 +105,10 @@ SOURCE=.\src\test\mp\MpFlowGraphTest.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\test\mp\MpGenericResourceTest.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\test\mp\MpInputDeviceManagerTest.cpp
 # End Source File
 # Begin Source File
