@@ -11,9 +11,7 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
-#include <cppunit/extensions/HelperMacros.h>
-#include <cppunit/TestCase.h>
-
+#include <os/OsIntTypes.h>
 #include <iostream>
 #include <utl/UtlSListIterator.h>
 
@@ -21,6 +19,9 @@
 #include <sdp/Sdp.h>
 #include <sdp/SdpMediaLine.h>
 #include <sdp/SdpHelperResip.h>
+
+#include <cppunit/extensions/HelperMacros.h>
+#include <cppunit/TestCase.h>
 
 /**
 * Unittest for Sdp object setters and getters.
