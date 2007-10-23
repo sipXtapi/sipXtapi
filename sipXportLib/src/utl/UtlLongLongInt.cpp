@@ -22,8 +22,20 @@
 #include "utl/UtlLongLongInt.h"
 
 // DEFINES
-#if defined( WIN32 ) && !defined( WINCE )
-#define strtoll _strtoi64
+#if defined(_MSC_VER) && (_MSC_VER < 1300) 
+	// If < MSVC7(VS2003), _strtoi64 is not defined.
+	// Come up with a suitable replacement.
+#	include <assert.h>
+	static inline int64_t strtoll(const char* cStr, char** strEndPos, int base)
+	{
+		assert(strEndPos == 0);
+		assert(base == 10);
+		return _atoi64(cStr);
+	}
+#else if defined( WIN32 ) && !defined( WINCE )
+	// For all other windows variants except CE,
+	// use more appropriate _strtoi64
+#	define strtoll _strtoi64
 #endif
 
 // MACROS
