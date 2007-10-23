@@ -14,6 +14,7 @@
 #include <cppunit/TestCase.h>
 #include <mi/CpMediaInterfaceFactory.h>
 #include <mi/CpMediaInterfaceFactoryFactory.h>
+#include <CpTopologyGraphInterface.h>
 #include <mi/CpMediaInterface.h>
 #include <mi/MiNotification.h>
 #include <mi/MiDtmfNotf.h>
@@ -269,6 +270,14 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
         int connectionId = -1;
         CPPUNIT_ASSERT(mediaInterface->createConnection(connectionId, NULL) == OS_SUCCESS);
         CPPUNIT_ASSERT(connectionId > 0);
+
+        // Test that we can get the bridge mixer port on which this new connection
+        // is connected to
+        int portOnBridge;
+        ((CpTopologyGraphInterface*)mediaInterface)->getConnectionPortOnBridge(connectionId, 
+                                                  portOnBridge);
+        CPPUNIT_ASSERT_EQUAL(3, portOnBridge);
+
 
         propertyName = "connectionLabel";
         setPropertyValue = "connection1";
@@ -645,7 +654,7 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
 
     void testTones()
     {
-        RTL_START(1600000);
+        RTL_START(3000000);
 
         CPPUNIT_ASSERT(mpMediaFactory);
 

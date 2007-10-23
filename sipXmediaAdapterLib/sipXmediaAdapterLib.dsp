@@ -65,7 +65,7 @@ LIB32=link.exe -lib
 # PROP Intermediate_Dir "Debug"
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /YX /FD /GZ /c
-# ADD CPP /nologo /MDd /W3 /Gm /GR /GX /ZI /Od /I "include" /I "..\sipXportLib\include" /I "..\sipXtackLib\include" /I "..\sipXsdpLib\include" /I "sipXmediaMediaProcessing" /I "interface" /I "..\sipXmediaLib\include" /D "_DEBUG" /D "HAVE_SPEEX" /D "HAVE_GSM" /D "_LIB" /D "WIN32" /D "_MBCS" /D "SIPXTAPI_STATIC" /D "DDDDISABLE_DEFAULT_PHONE_MEDIA_INTERFACE_FACTORY" /D "DDDENABLE_TOPOLOGY_FLOWGRAPH_INTERFACE_FACTORY" /FD /GZ /c
+# ADD CPP /nologo /MDd /W3 /Gm /GR /GX /ZI /Od /I "include" /I "..\sipXportLib\include" /I "..\sipXtackLib\include" /I "..\sipXsdpLib\include" /I "sipXmediaMediaProcessing" /I "interface" /I "..\sipXmediaLib\include" /D "_DEBUG" /D "HAVE_SPEEX" /D "HAVE_GSM" /D "_LIB" /D "WIN32" /D "_MBCS" /D "SIPXTAPI_STATIC" /D "DISABLE_DEFAULT_PHONE_MEDIA_INTERFACE_FACTORY" /D "ENABLE_TOPOLOGY_FLOWGRAPH_INTERFACE_FACTORY" /FD /GZ /c
 # SUBTRACT CPP /YX
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
 # ADD RSC /l 0x409 /d "_DEBUG"

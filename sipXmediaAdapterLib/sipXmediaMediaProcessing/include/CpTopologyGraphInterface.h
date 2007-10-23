@@ -21,7 +21,7 @@
 #include <sdp/SdpCodecList.h>
 #include <mi/CpMediaInterface.h>
 #include <net/QoS.h>
-#include "include/MaNotfTranslatorDispatcher.h"
+#include <MaNotfTranslatorDispatcher.h>
 
 // DEFINES
 // MACROS
