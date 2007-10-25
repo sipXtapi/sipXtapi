@@ -33,8 +33,7 @@ volatile OsTimerTask* OsTimerTask::spInstance = 0;
 // Create a semaphore at run time rather than declaring a static semaphore,
 // so that the shut-down code does not try to destroy the semaphore,
 // which can lead to problems with the ordering of destructors.
-OsBSem*      OsTimerTask::sLock =
-                 new OsBSem(OsBSem::Q_PRIORITY, OsBSem::FULL);
+OsBSem*      OsTimerTask::sLock = new OsBSem(OsBSem::Q_PRIORITY, OsBSem::FULL);
 const int    OsTimerTask::TIMER_MAX_REQUEST_MSGS = 10000;
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
@@ -48,21 +47,21 @@ OsTimerTask* OsTimerTask::getTimerTask(void)
    // has been started, then use it
    if (spInstance == NULL)
    {
-   // If the task does not yet exist or hasn't been started, then acquire
-   // the lock to ensure that only one instance of the task is started
+      // If the task does not yet exist or hasn't been started, then acquire
+      // the lock to ensure that only one instance of the task is started
       sLock->acquire();
-   
+
       // Test again, as the previous test was not interlocked against other
       // threads.
       if (spInstance == NULL)
-   {
+      {
          spInstance = new OsTimerTask();
-		 assert( spInstance );
+         assert( spInstance );
          // Have to cast spInstance to remove volatile, according to C++
          // rules.
          UtlBoolean isStarted = ((OsTimerTask*) spInstance)->start();
-      assert(isStarted);
-   }
+         assert(isStarted);
+      }
       sLock->release();
       OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
                     "OsTimerTask::getTimerTask OsTimerTask started");
@@ -74,15 +73,15 @@ OsTimerTask* OsTimerTask::getTimerTask(void)
 // Destroy the singleton instance of the timer task.
 void OsTimerTask::destroyTimerTask(void)
 {
-    OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
-                  "OsTimerTask::destroyTimerTask entered");
-    sLock->acquire();
-    if (spInstance)
-    {
-        delete spInstance ;
-        spInstance = NULL ;
-    }
-    sLock->release();
+   OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
+                 "OsTimerTask::destroyTimerTask entered");
+   sLock->acquire();
+   if (spInstance)
+   {
+      delete spInstance ;
+      spInstance = NULL ;
+   }
+   sLock->release();
 }
 
 // Destructor
@@ -114,10 +113,10 @@ OsTimerTask::~OsTimerTask()
 
 // Default constructor (called only indirectly via getTimerTask())
 OsTimerTask::OsTimerTask(void)
-:  OsServerTask("OsTimer-%d", NULL, TIMER_MAX_REQUEST_MSGS
-                , 5 // high priority so that we get reasonable clock heartbeats for media
-               ),
-   mTimerQueue(0)
+: OsServerTask("OsTimer-%d", NULL, TIMER_MAX_REQUEST_MSGS
+              , 5 // high priority so that we get reasonable clock heartbeats for media
+              )
+, mTimerQueue(0)
 {
 }
 
@@ -149,11 +148,11 @@ int OsTimerTask::run(void* pArg)
             OsTimer::cvtToOsTime(timeout,
                                  OsTimer::subtractTimes(mTimerQueue->mQueuedExpiresAt,
                                                         now));
-      }
-      else
-      {
+         }
+         else
+         {
             timeout = OsTime::OS_INFINITY;
-      }
+         }
 
          res = receiveMessage((OsMsg*&) pMsg, timeout); // wait for a message
          if (res == OS_SUCCESS)
@@ -300,7 +299,7 @@ UtlBoolean OsTimerTask::handleMessage(OsMsg& rMsg)
       expiresAt = timer->mExpiresAt;
       periodic = timer->mPeriodic;
       period = timer->mPeriod;
-   }	    
+   }
 
    // Determine whether the timer needs to be stopped.
    // (The comparison between applicationState and mTaskState is really
@@ -324,7 +323,7 @@ UtlBoolean OsTimerTask::handleMessage(OsMsg& rMsg)
       timer->mQueuedPeriod = period;
       insertTimer(timer);
    }
-	    
+
    // Update the task state.
    timer->mTaskState = applicationState;
 
