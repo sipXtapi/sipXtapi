@@ -32,7 +32,7 @@
 		assert(base == 10);
 		return _atoi64(cStr);
 	}
-#else if defined( WIN32 ) && !defined( WINCE )
+#elif defined( WIN32 ) && !defined( WINCE )
 	// For all other windows variants except CE,
 	// use more appropriate _strtoi64
 #	define strtoll _strtoi64
