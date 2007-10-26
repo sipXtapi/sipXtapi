@@ -4,6 +4,7 @@
 nobase_includeHEADERS_INSTALL = $(INSTALL) -D -p -c -m 644
 
 nobase_include_HEADERS =  \
+    mp/codecs/PlgDefsV1.h \
     mp/dmaTask.h \
     mp/dsplib.h \
     mp/dtmflib.h \
