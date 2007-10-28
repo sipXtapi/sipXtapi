@@ -53,8 +53,8 @@ OsTimer::OsTimer(OsMsgQ* pQueue, const int userData) :
    mpNotifier(new OsQueuedEvent(*pQueue, userData)) ,
    mbManagedNotifier(TRUE),
    mOutstandingMessages(0),
-   mTimerQueueLink(0),
-   mWasFired(FALSE)
+   mWasFired(FALSE),
+   mTimerQueueLink(0)
 {
 #ifdef VALGRIND_TIMER_ERROR
    // Initialize the variables for tracking timer access.
@@ -74,8 +74,8 @@ OsTimer::OsTimer(OsNotification& rNotifier) :
    mpNotifier(&rNotifier) ,
    mbManagedNotifier(FALSE),
    mOutstandingMessages(0),
-   mTimerQueueLink(0),
-   mWasFired(FALSE)
+   mWasFired(FALSE),
+   mTimerQueueLink(0)
 {
 #ifdef VALGRIND_TIMER_ERROR
    // Initialize the variables for tracking timer access.
