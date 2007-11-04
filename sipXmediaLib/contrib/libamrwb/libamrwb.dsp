@@ -41,7 +41,8 @@ RSC=rc.exe
 # PROP Intermediate_Dir "Release"
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /YX /FD /c
-# ADD CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /YX /FD /c
+# ADD CPP /nologo /W3 /GX /O2 /I "." /I "..\..\..\sipXportLib\include\os\msinttypes" /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /FD /c
+# SUBTRACT CPP /YX
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
 # ADD RSC /l 0x409 /d "NDEBUG"
 BSC32=bscmake.exe
@@ -64,7 +65,8 @@ LIB32=link.exe -lib
 # PROP Intermediate_Dir "Debug"
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /YX /FD /GZ  /c
-# ADD CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /YX /FD /GZ  /c
+# ADD CPP /nologo /W3 /Gm /GX /ZI /Od /I "." /I "..\..\..\sipXportLib\include\os\msinttypes" /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /FD /GZ  /c
+# SUBTRACT CPP /YX
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
 # ADD RSC /l 0x409 /d "_DEBUG"
 BSC32=bscmake.exe
@@ -83,10 +85,150 @@ LIB32=link.exe -lib
 # Begin Group "Source Files"
 
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
+# Begin Source File
+
+SOURCE=.\dec_acelp.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\dec_dtx.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\dec_gain.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\dec_if.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\dec_lpc.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\dec_main.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\dec_rom.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\dec_util.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\enc_acelp.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\enc_dtx.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\enc_gain.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\enc_if.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\enc_lpc.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\enc_main.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\enc_rom.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\enc_util.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\if_rom.c
+# End Source File
 # End Group
 # Begin Group "Header Files"
 
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
+# Begin Source File
+
+SOURCE=.\dec.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\dec_acelp.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\dec_dtx.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\dec_gain.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\dec_if.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\dec_lpc.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\dec_main.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\dec_util.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\enc.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\enc_acelp.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\enc_dtx.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\enc_gain.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\enc_if.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\enc_lpc.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\enc_main.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\enc_util.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\if_rom.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\typedef.h
+# End Source File
 # End Group
 # End Target
 # End Project
