@@ -37,6 +37,23 @@ Doxygen - Source Code Documentation System
   tested with 1.3.5
   On RedHat Enterprise 3 "up2date doxygen"
 
+Optional Codec Sources
+======================
+AMR Narrowband library - libamrnb v7.0.0.0
+  Under windows:
+    Download http://www.3gpp.org/ftp/Specs/archive/26_series/26.104/26104-700.zip
+    Expand amrnb sources to sipXmediaLib/contrib/libamrnb
+    Build using sipX supplied project files in sipXmediaLib/contrib/libamrnb directory.
+  Under OSes using GNU autoconf, this will be automatically done via configure/makefile process.
+  Included autoconf files checked in come from: http://www.penguin.cz/~utx/amr
+
+AMR Wideband library - libamrwb v7.0.0.2
+  Under windows:
+    Download http://www.3gpp.org/ftp/Specs/archive/26_series/26.204/26204-700.zip
+    Expand amrwb sources to sipXmediaLib/contrib/libamrwb
+    Build using sipX supplied project files in sipXmediaLib/contrib/libamrwb directory.
+  Under OSes using GNU autoconf, this will be automatically done via configure/makefile process.
+  Included autoconf files checked in come from: http://www.penguin.cz/~utx/amr
 
 Prerequisite installation on Fedora Core 4
 ------------------------------------------
