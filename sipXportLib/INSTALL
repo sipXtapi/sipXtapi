@@ -43,7 +43,7 @@ AMR Narrowband library - libamrnb v7.0.0.0
   Under windows:
     Download http://www.3gpp.org/ftp/Specs/archive/26_series/26.104/26104-700.zip
     Expand amrnb sources to sipXmediaLib/contrib/libamrnb
-    Build using sipX supplied project files in sipXmediaLib/contrib/libamrnb directory.
+    Build using sipX supplied project file sipXmediaLib/contrib/libamrnb/libamrnb.dsp
   Under OSes using GNU autoconf, this will be automatically done via configure/makefile process.
   Included autoconf files checked in come from: http://www.penguin.cz/~utx/amr
 
@@ -51,9 +51,14 @@ AMR Wideband library - libamrwb v7.0.0.2
   Under windows:
     Download http://www.3gpp.org/ftp/Specs/archive/26_series/26.204/26204-700.zip
     Expand amrwb sources to sipXmediaLib/contrib/libamrwb
-    Build using sipX supplied project files in sipXmediaLib/contrib/libamrwb directory.
+    Build using sipX supplied project file sipXmediaLib/contrib/libamrwb/libamrwb.dsp
   Under OSes using GNU autoconf, this will be automatically done via configure/makefile process.
   Included autoconf files checked in come from: http://www.penguin.cz/~utx/amr
+
+SpanDSP library - spandsp 0.0.3
+  Download http://www.soft-switch.org/downloads/spandsp/
+  Expand to sipXmediaLib/contrib/libspandsp
+  Build using sipX supplied project file sipXmediaLib/contrib/libspandsp/libspandsp.dsp
 
 Prerequisite installation on Fedora Core 4
 ------------------------------------------
