@@ -41,7 +41,8 @@ RSC=rc.exe
 # PROP Intermediate_Dir "Release"
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /YX /FD /c
-# ADD CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /YX /FD /c
+# ADD CPP /nologo /W3 /GX /O2 /I "." /I "..\..\..\sipXportLib\include\os\msinttypes" /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /FD /c
+# SUBTRACT CPP /YX
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
 # ADD RSC /l 0x409 /d "NDEBUG"
 BSC32=bscmake.exe
@@ -60,11 +61,12 @@ LIB32=link.exe -lib
 # PROP BASE Target_Dir ""
 # PROP Use_MFC 0
 # PROP Use_Debug_Libraries 1
-# PROP Output_Dir "libamrnb___Win32_Debug"
-# PROP Intermediate_Dir "libamrnb___Win32_Debug"
+# PROP Output_Dir "Debug"
+# PROP Intermediate_Dir "Debug"
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /YX /FD /GZ  /c
-# ADD CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /YX /FD /GZ  /c
+# ADD CPP /nologo /W3 /Gm /GX /ZI /Od /I "." /I "..\..\..\sipXportLib\include\os\msinttypes" /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /FD /GZ  /c
+# SUBTRACT CPP /YX
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
 # ADD RSC /l 0x409 /d "_DEBUG"
 BSC32=bscmake.exe
@@ -83,10 +85,58 @@ LIB32=link.exe -lib
 # Begin Group "Source Files"
 
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
+# Begin Source File
+
+SOURCE=.\interf_dec.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\interf_enc.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\sp_dec.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\sp_enc.c
+# End Source File
 # End Group
 # Begin Group "Header Files"
 
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
+# Begin Source File
+
+SOURCE=.\interf_dec.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\interf_enc.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\interf_rom.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\rom_dec.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\rom_enc.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\sp_dec.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\sp_enc.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\typedef.h
+# End Source File
 # End Group
 # End Target
 # End Project
