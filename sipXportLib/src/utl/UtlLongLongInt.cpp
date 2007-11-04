@@ -29,7 +29,7 @@
 	static inline int64_t strtoll(const char* cStr, char** strEndPos, int base)
 	{
 		assert(strEndPos == 0);
-		assert(base == 10);
+		assert(base == 10 || base == 0);
 		return _atoi64(cStr);
 	}
 #elif defined( WIN32 ) && !defined( WINCE )
