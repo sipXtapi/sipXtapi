@@ -91,6 +91,7 @@ void usage(const char* szExecutable)
     printf("   -f play file (default = none)\n") ;
     printf("   -p SIP port (default = 5060)\n") ;
     printf("   -r RTP port start (default = 9000)\n") ;
+    printf("   -B ip address to bind to\n");
     printf("   -l loopback audio (2 second delay)\n") ;
     printf("   -i line identity (e.g. sip:122@pingtel.com)\n") ;
     printf("   -u username (for authentication)\n") ;
@@ -115,6 +116,7 @@ bool parseArgs(int argc,
                int* pDuration,
                int* pSipPort,
                int* pRtpPort,
+               char** pszBindAddress,
                char** pszPlayTones,
                char** pszFile,
                bool* bLoopback,
@@ -132,6 +134,7 @@ bool parseArgs(int argc,
     *pDuration = 30 ;
     *pSipPort = 5060 ;
     *pRtpPort = 9000 ;
+    *pszBindAddress = NULL;
     *pszPlayTones = NULL ;
     *pszFile = NULL ;
     *bLoopback = false ;
@@ -196,6 +199,18 @@ bool parseArgs(int argc,
             if ((i+1) < argc)
             {
                 *pRtpPort = atoi(argv[++i]) ;
+            }
+            else
+            {
+                bRC = false ;
+                break ; // Error
+            }
+        }
+        else if (strcmp(argv[i], "-B") == 0)
+        {
+            if ((i+1) < argc)
+            {
+                *pszBindAddress = strdup(argv[++i]) ;
             }
             else
             {
@@ -547,6 +562,7 @@ int local_main(int argc, char* argv[])
 {
     bool bError = true ;
     int iDuration, iSipPort, iRtpPort ;
+    char* szBindAddr;
     bool bLoopback ;
     char* szIdentity ;
     char* szUsername ;
@@ -559,7 +575,7 @@ int local_main(int argc, char* argv[])
 
 
     // Parse Arguments
-    if (parseArgs(argc, argv, &iDuration, &iSipPort, &iRtpPort, &g_szPlayTones,
+    if (parseArgs(argc, argv, &iDuration, &iSipPort, &iRtpPort, &szBindAddr, &g_szPlayTones,
         &g_szFile, &bLoopback, &szIdentity, &szUsername, &szPassword, &szRealm, &szStunServer, &szProxy) &&
         (iDuration > 0) && (portIsValid(iSipPort)) && (portIsValid(iRtpPort)))
     {
@@ -571,7 +587,7 @@ int local_main(int argc, char* argv[])
         // Initialize sipX TAPI-like API
         sipxConfigSetLogLevel(LOG_LEVEL_DEBUG) ;
         sipxConfigSetLogFile("ReceiveCall.log");
-        if (sipxInitialize(&hInst, iSipPort, iSipPort, 5061, iRtpPort, 16, szIdentity) == SIPX_RESULT_SUCCESS)
+        if (sipxInitialize(&hInst, iSipPort, iSipPort, 5061, iRtpPort, 16, szIdentity, szBindAddr) == SIPX_RESULT_SUCCESS)
         {            
             g_hInst = hInst;
             if (szProxy)
