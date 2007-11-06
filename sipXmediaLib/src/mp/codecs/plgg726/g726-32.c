@@ -30,9 +30,9 @@ static const struct plgCodecInfoV1 sipxCodecInfog726_32 =
    1,                               //numChannels
    160,                             //interleaveBlockSize
    32000,                           //bitRate
-   640,                             //minPacketBits
-   640,                             //avgPacketBits
-   640,                             //maxPacketBits
+   320,                             //minPacketBits
+   320,                             //avgPacketBits
+   320,                             //maxPacketBits
    160,                             //numSamplesPerFrame
    3                                //preCodecJitterBufferSize
 };
@@ -58,7 +58,7 @@ CODEC_API void *PLG_INIT_V1(g726_32)(const char* fmtps, int isDecoder, struct pl
    }
    memcpy(pCodecInfo, &sipxCodecInfog726_32, sizeof(struct plgCodecInfoV1));
    
-   return g726_init(NULL, 32000, G726_ENCODING_LINEAR, G726_PACKING_NONE);
+   return g726_init(NULL, 32000, G726_ENCODING_LINEAR, G726_PACKING_LEFT);
 }
 
 CODEC_API int PLG_FREE_V1(g726_32)(void* handle, int isDecoder)
