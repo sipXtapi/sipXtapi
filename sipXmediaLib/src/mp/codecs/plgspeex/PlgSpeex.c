@@ -34,7 +34,6 @@ struct speex_codec_data_encoder
 {
    SpeexBits mBits;         ///< Bits used by speex to store information
    void *mpEncoderState;    ///< State of the encoder   
-   int mSampleRate;         ///< Sample rate
    int mMode;
    /**< Mode used.
    * From the Speex documentation:
@@ -132,8 +131,25 @@ void* universe_speex_init(const char* fmt, int isDecoder,
 {
    struct speex_codec_data_encoder *mpSpeexEnc;
    struct speex_codec_data_decoder *mpSpeexDec;
+   const SpeexMode *pSpeexMode;
+
    if (pCodecInfo == NULL) {
       return NULL;
+   }
+
+   switch (samplerate)
+   {
+   case 8000:
+      pSpeexMode = speex_lib_get_mode(SPEEX_MODEID_NB);
+      break;
+   case 16000:
+      pSpeexMode = speex_lib_get_mode(SPEEX_MODEID_WB);
+      break;
+   case 32000:
+      pSpeexMode = speex_lib_get_mode(SPEEX_MODEID_UWB);
+      break;
+   default:
+      assert(!"Wrong Speex sampling rate setting!");
    }
 
    memcpy(pCodecInfo, cdi, sizeof(struct plgCodecInfoV1));
@@ -149,7 +165,7 @@ void* universe_speex_init(const char* fmt, int isDecoder,
       mpSpeexDec->mNumSamplesPerFrame = 0;
 
       /* Init decoder */
-      mpSpeexDec->mpDecoderState = speex_decoder_init(speex_lib_get_mode(SPEEX_MODEID_NB));   
+      mpSpeexDec->mpDecoderState = speex_decoder_init(pSpeexMode);   
 
       /* It makes the decoded speech deviate further from the original,
       * but it sounds subjectively better.
@@ -173,7 +189,6 @@ void* universe_speex_init(const char* fmt, int isDecoder,
       }
 
       mpSpeexEnc->mpEncoderState = NULL;
-      mpSpeexEnc->mSampleRate = samplerate;
 
       mpSpeexEnc->mDoVad = 0;
       mpSpeexEnc->mDoDtx = 0;
@@ -192,9 +207,8 @@ void* universe_speex_init(const char* fmt, int isDecoder,
       }
 
       /* Preparing encoder */
-      mpSpeexEnc->mpEncoderState = speex_encoder_init(speex_lib_get_mode(SPEEX_MODEID_NB));
+      mpSpeexEnc->mpEncoderState = speex_encoder_init(pSpeexMode);
       speex_encoder_ctl(mpSpeexEnc->mpEncoderState, SPEEX_SET_MODE,&mpSpeexEnc->mMode);
-      speex_encoder_ctl(mpSpeexEnc->mpEncoderState, SPEEX_SET_SAMPLING_RATE, &mpSpeexEnc->mSampleRate);
 
       // Enable wanted extensions.
       speex_encoder_ctl(mpSpeexEnc->mpEncoderState, SPEEX_SET_VAD, &mpSpeexEnc->mDoVad);
@@ -203,7 +217,7 @@ void* universe_speex_init(const char* fmt, int isDecoder,
 
       if(mpSpeexEnc->mDoPreprocess)
       {
-         mpSpeexEnc->mpPreprocessState = speex_preprocess_state_init(160, mpSpeexEnc->mSampleRate);
+         mpSpeexEnc->mpPreprocessState = speex_preprocess_state_init(160, samplerate);
          speex_preprocess_ctl(mpSpeexEnc->mpPreprocessState, SPEEX_PREPROCESS_SET_DENOISE,
                               &mpSpeexEnc->mDoDenoise);
          speex_preprocess_ctl(mpSpeexEnc->mpPreprocessState, SPEEX_PREPROCESS_SET_AGC,
