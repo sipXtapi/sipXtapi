@@ -147,7 +147,7 @@ SipUserAgent::SipUserAgent(int sipTcpPort,
         , mbAllowHeader(true)
         , mbDateHeader(true)
         , mbShortNames(false)
-        , mAcceptLanguage("")
+        , mAcceptLanguage()
         , mpLastSipMessage(NULL)
 {    
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
@@ -422,7 +422,7 @@ SipUserAgent::SipUserAgent(const SipUserAgent& rSipUserAgent) :
         , mbAllowHeader(false)
         , mbDateHeader(false)
         , mbShortNames(false)
-        , mAcceptLanguage("")
+        , mAcceptLanguage()
         , mRegisterTimeoutSeconds(4)
 {
 }
@@ -891,7 +891,7 @@ UtlBoolean SipUserAgent::send(SipMessage& message,
          // Make sure the accept language is set
          UtlString language;
          message.getAcceptLanguageField(&language);
-         if(language.isNull())
+         if(language.isNull() && !mAcceptLanguage.isNull())
          {
             // Beware that this value does not describe the desired media
             // sessions, but rather the preferred languages for reason
