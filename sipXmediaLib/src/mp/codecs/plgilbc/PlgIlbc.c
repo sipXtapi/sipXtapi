@@ -16,6 +16,7 @@
 #include <assert.h>
 #include <ctype.h>
 #include <limits.h>
+#include <stdio.h>
 
 // APPLICATION INCLUDES
 #include <mp/codecs/PlgDefsV1.h>
@@ -219,7 +220,7 @@ CODEC_API int PLG_DECODE_V1(ilbc)(void* handle, const void* pCodedData, unsigned
    // Check if available buffer size is enough for the packet.
    if (cbBufferSize < (unsigned)mpiLBC->mMode * 8)
    {
-      printf("MpdSipxILBC::decode: Jitter buffer overloaded. Glitch!\n");
+      printf("iLBC decoder: Jitter buffer overloaded. Glitch!\n");
       return RPLG_FAILED;
    }
 
@@ -228,7 +229,7 @@ CODEC_API int PLG_DECODE_V1(ilbc)(void* handle, const void* pCodedData, unsigned
       if (((NO_OF_BYTES_30MS != cbCodedPacketSize) && (mpiLBC->mMode == 30)) ||
          ((NO_OF_BYTES_20MS != cbCodedPacketSize) && (mpiLBC->mMode == 20)))
       {
-         printf("wrong decoder type!\n");
+         printf("iLBC decoder: wrong decoder type or packet size!\n");
          return RPLG_FAILED;
       }
       // Packet data available. Decode it.
