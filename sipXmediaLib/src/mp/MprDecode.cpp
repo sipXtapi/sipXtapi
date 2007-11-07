@@ -422,7 +422,7 @@ UtlBoolean MprDecode::handleSelectCodecs(SdpCodec* pCodecs[], int numCodecs)
       // Delete the current codecs.
       handleDeselectCodecs(FALSE);
 
-      mNumCurrentCodecs = numCodecs;
+      mNumCurrentCodecs = 0;
       mpCurrentCodecs = new MpDecoderBase*[numCodecs];
 
       for (i=0; i<numCodecs; i++) {
@@ -433,14 +433,21 @@ UtlBoolean MprDecode::handleSelectCodecs(SdpCodec* pCodecs[], int numCodecs)
          ret = pFactory->createDecoder(mime, fmtp, payload, pNewDecoder);
          assert(OS_SUCCESS == ret);
          assert(NULL != pNewDecoder);
-         pNewDecoder->initDecode();
-         // Add this codec to mpConnection's payload type decoding table.
-         mpConnection->addPayloadType(payload, pNewDecoder);
-         mpCurrentCodecs[i] = pNewDecoder;
+         if (pNewDecoder->initDecode() == OS_SUCCESS)
+         {
+            // Add this codec to mpConnection's payload type decoding table.
+            mpConnection->addPayloadType(payload, pNewDecoder);
+            mpCurrentCodecs[mNumCurrentCodecs] = pNewDecoder;
+            mNumCurrentCodecs++;
+         }
+         else
+         {
+            delete pNewDecoder;
+         }
       }
 
       // Go back and add any signaling codecs to Jitter Buffer.
-      for (i=0; i<numCodecs; i++) {
+      for (i=0; i<mNumCurrentCodecs; i++) {
          if (mpCurrentCodecs[i]->getInfo()->isSignalingCodec()) {
             mpCurrentCodecs[i]->initDecode();
          }
@@ -448,7 +455,7 @@ UtlBoolean MprDecode::handleSelectCodecs(SdpCodec* pCodecs[], int numCodecs)
    }
 
    MpJitterBuffer* pJBState = getJBinst();   
-   pJBState->setCodecList(mpCurrentCodecs,numCodecs);
+   pJBState->setCodecList(mpCurrentCodecs,mNumCurrentCodecs);
 
    // Delete the list pCodecs.
    for (i=0; i<numCodecs; i++) {
