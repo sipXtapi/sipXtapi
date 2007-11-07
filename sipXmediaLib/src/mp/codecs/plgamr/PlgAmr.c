@@ -121,16 +121,17 @@ CODEC_API void *PLG_INIT_V1(amr)(const char* fmtp,
 {
    if (pCodecInfo != NULL)
    {
-      int octet_align = 1;    /* Octet Aligned mode / Bandwidth Efficient mode */
+      int octet_align = 0;    /* Octet Aligned mode / Bandwidth Efficient mode */
       int doDtx = 0;          /* DTX / no DTX */
       enum Mode mode = MR122; /* mode to be used by encoder (12.2kbps by default) */
 
-      /*
-      *             Here fmtp should be parsed.
-      *
-      * Now we silently assume that Octet Aligned mode is used and DTX is not
-      * enabled.
-      */
+      // Parse fmtp
+      parseFmtpParams(fmtp, &octet_align, &doDtx);
+      // Check for supported parameter values
+      if (octet_align != 1 || doDtx != 0)
+      {
+         return NULL;
+      }
 
       // Fill in codec info structure
       memcpy(pCodecInfo, &codecAMR, sizeof(struct plgCodecInfoV1));
@@ -336,6 +337,42 @@ CODEC_API int PLG_ENCODE_V1(amr)(void* handle, const void* pAudioBuffer,
    }
 
    return RPLG_SUCCESS;
+}
+
+static const char sgOctetAlignParam[]="octet-align";
+static const char sgDtx[]="dtx";
+
+int parseFmtpParams(const char *fmtp,
+                         int *octet_align,
+                         int *dtx)
+{
+   const char *sep = fmtp;
+
+   while (sep != NULL && *sep != '\0')
+   {
+      if (strncmp(sep, sgOctetAlignParam, sizeof(sgOctetAlignParam)-1) == 0)
+      {
+         if (sep[sizeof(sgOctetAlignParam)-1] != '=')
+         {
+            return 1;
+         }
+         *octet_align = atoi(&sep[sizeof(sgOctetAlignParam)]);
+         sep += sizeof(sgOctetAlignParam);
+      }
+      else if (strncmp(sep, sgDtx, sizeof(sgDtx)-1) == 0)
+      {
+         if (sep[sizeof(sgDtx)-1] != '=')
+         {
+            return 1;
+         }
+         *dtx = atoi(&sep[sizeof(sgDtx)]);
+         sep += sizeof(sgDtx);
+      }
+
+      sep = strchr(sep, ',');
+   }
+
+   return 0;
 }
 
 PLG_SINGLE_CODEC(amr);
