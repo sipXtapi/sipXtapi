@@ -286,6 +286,11 @@ int universe_speex_decode(void* handle, const void* pCodedData,
          *pcbDecodedSize += mpSpeexDec->mNumSamplesPerFrame;
          cbBufferSize -= mpSpeexDec->mNumSamplesPerFrame;
       }
+      else
+      {
+         /* If it's the end of the stream or corrupted stream just return */
+         break;
+      }
    }
 
    return RPLG_SUCCESS;
