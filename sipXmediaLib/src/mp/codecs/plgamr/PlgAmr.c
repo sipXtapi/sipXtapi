@@ -99,6 +99,10 @@ static const char* defaultFmtps[] =
       //   "" // octet-align=0 assumed
 };
 
+// LOCAL FUNCTIONS DECLARATIONS
+static int parseFmtpParams(const char *fmtp, int *octet_align, int *dtx);
+
+
 CODEC_API int PLG_ENUM_V1(amr)(const char** mimeSubtype,
                                unsigned int* pModesCount,
                                const char*** modes)
@@ -342,9 +346,7 @@ CODEC_API int PLG_ENCODE_V1(amr)(void* handle, const void* pAudioBuffer,
 static const char sgOctetAlignParam[]="octet-align";
 static const char sgDtx[]="dtx";
 
-int parseFmtpParams(const char *fmtp,
-                         int *octet_align,
-                         int *dtx)
+int parseFmtpParams(const char *fmtp, int *octet_align, int *dtx)
 {
    const char *sep = fmtp;
 
