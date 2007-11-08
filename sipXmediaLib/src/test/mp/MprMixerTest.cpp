@@ -1,8 +1,8 @@
 //  
-// Copyright (C) 2006 SIPfoundry Inc. 
+// Copyright (C) 2006-2007 SIPfoundry Inc. 
 // Licensed by SIPfoundry under the LGPL license. 
 //  
-// Copyright (C) 2006 SIPez LLC. 
+// Copyright (C) 2006-2007 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //  
 // $$ 
@@ -27,6 +27,7 @@ class MprMixerTest : public MpGenericResourceTest
     CPPUNIT_TEST(testEnabledNoData);
     CPPUNIT_TEST(testEnabledWithOneWeight);
     CPPUNIT_TEST(testEnabledWithManyWeights);
+    CPPUNIT_TEST(testWideband);
     CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -229,6 +230,83 @@ public:
 
       // Stop flowgraph
       haltFramework();
+   }
+
+   void testWideband()
+   {
+      MprMixer* pMixer = NULL;
+      MpBufPtr pBuf;
+      OsStatus res;
+
+      size_t i;
+      for(i = 0; i < sNumRates; i++)
+      //for(i = 0; i < 1; i++)
+      {
+         printf("Test %d Hz\n", sSampleRates[i]);
+         // For this test, we want to modify the sample rate and samples per frame
+         // so we need to de-inititialize what has already been initialized for us
+         // by cppunit, or by a previous loop.
+         tearDown();
+
+         // Set the sample rates 
+         setSamplesPerSec(sSampleRates[i]);
+         setSamplesPerFrame(sSampleRates[i]/100);
+         setUp();
+
+
+         pMixer = 
+            new MprMixer("MprMixer", 2, getSamplesPerFrame(), getSamplesPerSec());
+         CPPUNIT_ASSERT(pMixer != NULL);
+
+         setupFramework(pMixer);
+
+         // pMixer enabled, there are buffers on the input 0
+         CPPUNIT_ASSERT(mpSourceResource->enable());
+         CPPUNIT_ASSERT(pMixer->enable());
+
+         // Set all weights to 1
+         CPPUNIT_ASSERT(pMixer->setWeight(1,0));
+         CPPUNIT_ASSERT(pMixer->setWeight(1,1));
+
+         res = mpFlowGraph->processNextFrame();
+         CPPUNIT_ASSERT(res == OS_SUCCESS);
+
+         // Store output buffer for convenience
+         pBuf = mpSinkResource->mLastDoProcessArgs.inBufs[0];
+
+         CPPUNIT_ASSERT(pBuf.isValid());
+         // New buffer should be generated.
+         CPPUNIT_ASSERT(   (mpSourceResource->mLastDoProcessArgs.outBufs[0] != pBuf)
+                        && (mpSourceResource->mLastDoProcessArgs.outBufs[1] != pBuf)
+                       );
+
+         // And it should contain the same number of samples going out as coming
+         // in, and should match the expected number of samples per frame.
+         MpAudioBufPtr pMixedOutAudioBuf = pBuf;
+         MpAudioBufPtr pMixerInAudioBuf0 = mpSourceResource->mLastDoProcessArgs.outBufs[0];
+         MpAudioBufPtr pMixerInAudioBuf1 = mpSourceResource->mLastDoProcessArgs.outBufs[1];
+
+         // Check to see that the number of samples in the mixer output frame
+         // is equal to the samples per frame that we set during this run.
+         CPPUNIT_ASSERT_EQUAL(getSamplesPerFrame(), 
+                              pMixedOutAudioBuf->getSamplesNumber());
+         // Then check to see that the number of samples in the output buffer
+         // matches the number of samples in each of the inputs to the mixer
+         CPPUNIT_ASSERT_EQUAL(pMixerInAudioBuf0->getSamplesNumber(), 
+                              pMixedOutAudioBuf->getSamplesNumber());
+         CPPUNIT_ASSERT_EQUAL(pMixerInAudioBuf1->getSamplesNumber(), 
+                              pMixedOutAudioBuf->getSamplesNumber());
+         
+
+         // Free stored buffer
+         pBuf.release();
+
+         // Stop flowgraph
+         haltFramework();
+
+         // No need to delete mixer, as haltFramework deletes all resources
+         // in the flowgraph.
+      }
    }
 
 };
