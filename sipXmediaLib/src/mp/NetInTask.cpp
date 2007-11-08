@@ -51,6 +51,13 @@
 #include "os/OsServerSocket.h"
 #include "os/OsConnectionSocket.h"
 #include "os/OsEvent.h"
+
+// #define SYMMETRIC_RTP_HACK
+
+#ifdef SYMMETRIC_RTP_HACK
+#include "os/OsSocket.h"
+#include "os/OsNatDatagramSocket.h"
+#endif
 #include "mp/NetInTask.h"
 #include "mp/MprFromNet.h"
 #include "mp/MpBufferMsg.h"
@@ -275,6 +282,26 @@ static  int flushedLimit = 125;
                 MpBuf_setNumSamples(ib, ret);
                 MpBuf_setContentLen(ib, ret);
                 fwdTo->pushPacket(ib, rtpOrRtcp, &fromIP, fromPort);
+
+#ifdef SYMMETRIC_RTP_HACK
+                // If we have a NAT datagram socket and we are receiving on 
+                // a different port then expected, reset the sending 
+                // destination.
+                OsNatDatagramSocket* pNatSocket = dynamic_cast<OsNatDatagramSocket*>(pRxpSkt) ;
+                if (pNatSocket)
+                {
+                    UtlString currAddr ;
+                    int       currPort ;
+                    if (pNatSocket->getDestinationAddress(currAddr, currPort))
+                    {
+                        UtlString fromAddr ;
+                        OsSocket::inet_ntoa_pt(fromIP, fromAddr);
+                        if (    (currAddr.compareTo(fromAddr) == 0) && 
+                                (currPort != fromPort))
+                            pNatSocket->applyDestinationAddress(fromAddr, fromPort) ;
+                    }
+               }
+#endif
             } 
             else 
             {

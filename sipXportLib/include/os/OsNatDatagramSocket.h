@@ -320,6 +320,12 @@ public:
    virtual UtlBoolean getBestDestinationAddress(UtlString& address, int& iPort) ;
 
    /**
+    * Get the current destination address.  This is the results of 
+    * applyDestinationAddress.
+    */
+   virtual UtlBoolean getDestinationAddress(UtlString& address, int& port) ;
+
+   /**
     * TODO: DOCS
     */
    virtual UtlBoolean applyDestinationAddress(const char* szAddress, int iPort) ;

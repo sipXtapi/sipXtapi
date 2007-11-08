@@ -645,6 +645,18 @@ UtlBoolean OsNatDatagramSocket::getBestDestinationAddress(UtlString& address,
     return bRC ;
 }
 
+UtlBoolean OsNatDatagramSocket::getDestinationAddress(UtlString& address, int& port) 
+{
+    UtlBoolean bRC = false ;
+    if (mDestAddress.length())
+    {
+        address = mDestAddress ;
+        port = miDestPort ;
+
+        bRC = portIsValid(port) ;
+    }
+    return bRC ;
+}
 
 UtlBoolean OsNatDatagramSocket::applyDestinationAddress(const char* szAddress, int iPort) 
 {
