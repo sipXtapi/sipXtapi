@@ -66,7 +66,7 @@ void FlibbleTask::initSocket(const char* szBoundIp)
                               NULL,
                               42424, // flibble listen port = 42424;
                               mBoundIp.data(),
-                              FALSE);                                          
+                              NULL);                                          
 }
 
 bool tribbleProc(SIPX_TRANSPORT hTransport,
