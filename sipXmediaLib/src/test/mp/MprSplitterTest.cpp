@@ -118,36 +118,55 @@ public:
 
    void testEnabledWithData()
    {
-       MprSplitter*      pSplitter  = NULL;
-       MpBufPtr          pBuf;
-       OsStatus          res;
+      MprSplitter* pSplitter = NULL;
+      MpBufPtr pBuf;
+      OsStatus res;
 
-       pSplitter = new MprSplitter("MprSplitter", 2,
-                                   getSamplesPerFrame(), getSamplesPerSec());
-       CPPUNIT_ASSERT(pSplitter != NULL);
+      size_t i;
+      for(i = 0; i < sNumRates; i++)
+      {
+         printf("Test %d Hz\n", sSampleRates[i]);
 
-       setupFramework(pSplitter);
+         // For this test, we want to modify the sample rate and samples per frame
+         // so we need to de-inititialize what has already been initialized for us
+         // by cppunit, or by a previous loop.
+         tearDown();
 
-       // pSplitter enabled, there are buffers on the input 0
-       CPPUNIT_ASSERT(mpSourceResource->enable());
-       CPPUNIT_ASSERT(pSplitter->enable());
+         // Set the sample rates 
+         setSamplesPerSec(sSampleRates[i]);
+         setSamplesPerFrame(sSampleRates[i]/100);
+         setUp();
 
-       res = mpFlowGraph->processNextFrame();
-       CPPUNIT_ASSERT(res == OS_SUCCESS);
+         // Set up the splitter and framework
+         pSplitter = new MprSplitter("MprMixer", 2, getSamplesPerFrame(), getSamplesPerSec());
+         CPPUNIT_ASSERT(pSplitter != NULL);
+         setupFramework(pSplitter);
 
-       // Store input buffer for convenience
-       pBuf = mpSourceResource->mLastDoProcessArgs.outBufs[0];
+         // pSplitter enabled
+         CPPUNIT_ASSERT(mpSourceResource->enable());
+         CPPUNIT_ASSERT(pSplitter->enable());
 
-       // Buffer is sent to all outputs
-       CPPUNIT_ASSERT(  (mpSinkResource->mLastDoProcessArgs.inBufs[0] == pBuf)
-                     && (mpSinkResource->mLastDoProcessArgs.inBufs[1] == pBuf)
-                     );
+         res = mpFlowGraph->processNextFrame();
+         CPPUNIT_ASSERT(res == OS_SUCCESS);
 
-       // Free stored buffer
-       pBuf.release();
+         // Store input buffer for convenience
+         pBuf = mpSourceResource->mLastDoProcessArgs.outBufs[0];
+         CPPUNIT_ASSERT(pBuf.isValid());
 
-       // Stop flowgraph
-       haltFramework();
+          // Buffer is sent to all outputs
+          CPPUNIT_ASSERT(   (mpSinkResource->mLastDoProcessArgs.inBufs[0] == pBuf)
+                         && (mpSinkResource->mLastDoProcessArgs.inBufs[1] == pBuf)
+                        );
+
+         // Free stored buffer
+         pBuf.release();
+
+         // Stop flowgraph
+         haltFramework();
+
+         // No need to delete splitter, as haltFramework deletes all resources
+         // in the flowgraph.
+      }
    }
 };
 
