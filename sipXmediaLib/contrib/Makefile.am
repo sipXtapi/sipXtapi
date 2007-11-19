@@ -3,6 +3,8 @@ ALL_TARGETS=
 CLEAN_TARGETS=
 DISTCLEAN_TARGETS=
 
+SUBDIRS = libamrnb libamrwb
+
 if SPEEX_CONTRIB
 
 .PHONY: speex_clean speex_distclean

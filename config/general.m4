@@ -962,19 +962,26 @@ AC_DEFUN([CHECK_GSM],
 # ============ S P E E X ==================
 AC_DEFUN([AM_PATH_SPEEX],
 [
+    has_speex=no
     PKG_CHECK_MODULES([SPEEX],
-                      [speex >= 1.1.0], 
-		      CFLAGS+=" -DHAVE_SPEEX" ; CXXFLAGS+=" -DHAVE_SPEEX",
+                      [speex >= 1.2.0], 
+		      has_speex=yes; 
+              CFLAGS+=" -DHAVE_SPEEX" ; CXXFLAGS+=" -DHAVE_SPEEX",
 		      AC_MSG_RESULT(failed))
-    # SPEEX_CFLAGS and SPEEX_LIBS variables should are set in previous
-    # PKG_CHECK_MODULES() call.
-    PLUGINS+="SPEEX "
-    SPEEX_TARGET="plgspeex"
-    SPEEX_EXTRA_TARGET=
-    AC_SUBST(SPEEX_EXTRA_TARGET)    
-    AC_SUBST(SPEEX_TARGET)    
-    AC_SUBST(SPEEX_CFLAGS)
-    AC_SUBST(SPEEX_LIBS)
+
+    if test x$has_speex = "xyes"; then
+        # SPEEX_CFLAGS and SPEEX_LIBS variables should are
+        # set in previous PKG_CHECK_MODULES() call.
+        PLUGINS+="SPEEX "
+        SPEEX_TARGET="plgspeex"
+        SPEEX_EXTRA_TARGET=
+        AC_SUBST(SPEEX_EXTRA_TARGET)    
+        AC_SUBST(SPEEX_TARGET)    
+        AC_SUBST(SPEEX_CFLAGS)
+        AC_SUBST(SPEEX_LIBS)
+    else
+        AM_PATH_SPEEX_BUILTIN
+    fi
 ])dnl
 
 AC_DEFUN([AM_PATH_SPEEX_BUILTIN],
@@ -984,7 +991,7 @@ AC_DEFUN([AM_PATH_SPEEX_BUILTIN],
 
     SPEEX_ROOT='${top_srcdir}/../sipXmediaLib/contrib/libspeex'
     SPEEX_CFLAGS="-I${SPEEX_ROOT}/include"
-    SPEEX_LIBS="-I${SPEEX_ROOT}/libspeex/.libs/libspeex.la"
+    SPEEX_LIBS="${SPEEX_ROOT}/libspeex/.libs/libspeex.la"
 
     PLUGINS+="SPEEX "
     SPEEX_TARGET="plgspeex"
@@ -999,7 +1006,7 @@ AC_DEFUN([AM_PATH_SPEEX_BUILTIN],
 
 AC_DEFUN([CHECK_SPEEX],
 [
-    AC_MSG_CHECKING([for libspeex >= 1.1.0])
+    AC_MSG_CHECKING([for libspeex >= 1.2.0])
 
     AC_ARG_ENABLE([codec-speex],
        [AS_HELP_STRING([--enable-codec-speex],
@@ -1242,7 +1249,11 @@ AC_DEFUN([AM_SET_AMR],
     AMRNB_LIB_ROOT="${PWD}/contrib/libamrnb/"    
     AC_SUBST(AMR_TARGET)    
     AC_SUBST(AMRNB_INCLUDE)    
-    AC_SUBST(AMRNB_LIB_ROOT)    
+    AC_SUBST(AMRNB_LIB_ROOT)
+
+    # amr narrowband codec has it's own configure, 
+    # so be sure to call it.
+    AC_CONFIG_SUBDIRS([contrib/libamrnb/])
 ])dnl
 
 AC_DEFUN([AM_SET_AMRWB],
@@ -1254,32 +1265,52 @@ AC_DEFUN([AM_SET_AMRWB],
     AMRWB_LIB_ROOT="${PWD}/contrib/libamrwb/"
     AC_SUBST(AMRWB_TARGET)    
     AC_SUBST(AMRWB_INCLUDE)    
-    AC_SUBST(AMRWB_LIB_ROOT)    
+    AC_SUBST(AMRWB_LIB_ROOT)
+
+    # amr wideband codec has it's own configure, 
+    # so be sure to call it.
+    AC_CONFIG_SUBDIRS([contrib/libamrwb/])
 ])dnl
 
 AC_DEFUN([CHECK_AMR_AMRWB],
 [
+    amr_enable=false;
     AC_ARG_ENABLE([codec-amr],
                   [AS_HELP_STRING([--enable-codec-amr],
                                   [Enable support for amr codec @<:@default=yes@:>@])],
-                  [ case "${enableval}" in
-                       auto) AM_SET_AMR ;;
-                       yes) AM_SET_AMR ;;
-                       no) AC_MSG_RESULT(Codec AMR was disabled) ;;
-                       *) AC_MSG_ERROR(bad value ${enableval} for --enable-codec-amr) ;;
-                    esac],
-                  [AM_SET_AMR])
+                  [ if test ${enableval} = auto || test ${enableval} = yes; 
+                    then
+                           amr_enable=true;
+                    else
+                       if test ${enableval} = no; then
+                           AC_MSG_RESULT(Codec AMR was disabled)
+                       else
+                           AC_MSG_ERROR(bad value ${enableval} for --enable-codec-amr)
+                       fi
+                    fi],
+                  amr_enable=true)
+    if (test "x$amr_enable" = "xtrue"); then 
+        AM_SET_AMR
+    fi
 
+    amrwb_enable=false;
     AC_ARG_ENABLE([codec-amrwb],
                   [AS_HELP_STRING([--enable-codec-amrwb],
                                   [Enable support for amrwb codec @<:@default=yes@:>@])],
-                  [ case "${enableval}" in
-                       auto) AM_SET_AMRWB ;;
-                       yes) AM_SET_AMRWB ;;
-                       no) AC_MSG_RESULT(Codec AMRWB was disabled) ;;
-                       *) AC_MSG_ERROR(bad value ${enableval} for --enable-codec-amrwb) ;;
-                    esac],
-                  [AM_SET_AMRWB])
+                  [ if test ${enableval} = auto || test ${enableval} = yes; 
+                    then
+                           amrwb_enable=true;
+                    else
+                       if test ${enableval} = no; then
+                           AC_MSG_RESULT(Codec AMRWB was disabled)
+                       else
+                           AC_MSG_ERROR(bad value ${enableval} for --enable-codec-amrwb)
+                       fi
+                    fi],
+                  amrwb_enable=true)
+    if (test "x$amr_enable" = "xtrue"); then 
+        AM_SET_AMRWB
+    fi
 
 ])dnl
 
