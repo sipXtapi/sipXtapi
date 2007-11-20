@@ -3,7 +3,15 @@ ALL_TARGETS=
 CLEAN_TARGETS=
 DISTCLEAN_TARGETS=
 
-SUBDIRS = libamrnb libamrwb
+if AMRNB
+AMRNB_DIR = libamrnb
+endif
+
+if AMRWB
+AMRWB_DIR = libamrwb
+endif
+
+SUBDIRS = $(AMRNB_DIR) $(AMRWB_DIR)
 
 if SPEEX_CONTRIB
 

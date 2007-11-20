@@ -1277,8 +1277,8 @@ AC_DEFUN([CHECK_AMR_AMRWB],
     amr_enable=false;
     AC_ARG_ENABLE([codec-amr],
                   [AS_HELP_STRING([--enable-codec-amr],
-                                  [Enable support for amr codec @<:@default=yes@:>@])],
-                  [ if test ${enableval} = auto || test ${enableval} = yes; 
+                                  [Enable support for amr codec @<:@default=no@:>@])],
+                  [ if test ${enableval} = yes; 
                     then
                            amr_enable=true;
                     else
@@ -1288,16 +1288,17 @@ AC_DEFUN([CHECK_AMR_AMRWB],
                            AC_MSG_ERROR(bad value ${enableval} for --enable-codec-amr)
                        fi
                     fi],
-                  amr_enable=true)
+                  amr_enable=false)
     if (test "x$amr_enable" = "xtrue"); then 
         AM_SET_AMR
     fi
+    AM_CONDITIONAL(AMRNB, [test "x$amr_enable" == "xtrue"])    
 
     amrwb_enable=false;
     AC_ARG_ENABLE([codec-amrwb],
                   [AS_HELP_STRING([--enable-codec-amrwb],
-                                  [Enable support for amrwb codec @<:@default=yes@:>@])],
-                  [ if test ${enableval} = auto || test ${enableval} = yes; 
+                                  [Enable support for amrwb codec @<:@default=no@:>@])],
+                  [ if test ${enableval} = yes; 
                     then
                            amrwb_enable=true;
                     else
@@ -1307,10 +1308,11 @@ AC_DEFUN([CHECK_AMR_AMRWB],
                            AC_MSG_ERROR(bad value ${enableval} for --enable-codec-amrwb)
                        fi
                     fi],
-                  amrwb_enable=true)
-    if (test "x$amr_enable" = "xtrue"); then 
+                  amrwb_enable=false)
+    if (test "x$amrwb_enable" = "xtrue"); then 
         AM_SET_AMRWB
     fi
+    AM_CONDITIONAL(AMRWB, [test "x$amrwb_enable" == "xtrue"])    
 
 ])dnl
 
