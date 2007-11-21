@@ -168,6 +168,11 @@ MpRtpBufPtr MprDejitter::pullPacket(int payloadType, RtpTimestamp maxTimestamp,
    // Store pointer to stream data structure for our convenience.
    StreamData *pStreamData = &mpStreamData[codecIndex];
 
+   if (mFramesSinceLastUpdate==0)
+   {
+//      printf("JB length for codec %d: %d\n", payloadType, pStreamData->mNumPackets);
+   }
+
    // Return none if there are no packets
    if (pStreamData->mNumPackets==0)
       return MpRtpBufPtr();
@@ -176,6 +181,7 @@ MpRtpBufPtr MprDejitter::pullPacket(int payloadType, RtpTimestamp maxTimestamp,
    // push was done, and loop MAX_RTP_PACKETS times or until we find a valid frame
    int iNextPull = (pStreamData->mLastPushed + 1) % MAX_RTP_PACKETS;
 
+#ifdef LONG_DEJITTER // [
    for (int i = 0; i < MAX_RTP_PACKETS; i++)
    {
       // Check if this packet valid.
@@ -211,6 +217,13 @@ MpRtpBufPtr MprDejitter::pullPacket(int payloadType, RtpTimestamp maxTimestamp,
       // Wrap iNextPull counter if we reach end of buffer
       iNextPull = (iNextPull + 1) % MAX_RTP_PACKETS;
    }
+#else // LONG_DEJITTER ][
+   // Return none if there are no packets
+   if (!pStreamData->mpPackets[iNextPull].isValid())
+      return MpRtpBufPtr();
+   found.swap(pStreamData->mpPackets[iNextPull]);
+   pStreamData->mNumPackets--;
+#endif // LONG_DEJITTER ]
 
    // Make sure we does not have copy of this buffer left in other threads.
    found.requestWrite();

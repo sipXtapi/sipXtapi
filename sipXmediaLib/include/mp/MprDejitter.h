@@ -21,6 +21,8 @@
 #include "mp/MpRtpBuf.h"
 
 // DEFINES
+#define LONG_DEJITTER
+
 // MACROS
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -36,9 +38,13 @@ class MprDejitter
 public:
 
    enum {
+#ifdef LONG_DEJITTER // [
       MAX_RTP_PACKETS = 64,  ///< MUST BE A POWER OF 2, AND SHOULD BE >3
         // 20 Apr 2001 (HZM): Increased from 16 to 64 for debugging purposes.
         // 15 Dec 2004: This isn't the actual amount of buffer used, just the size of the container
+#else // LONG_DEJITTER ][
+      MAX_RTP_PACKETS = 3,  ///< Could be any value.
+#endif // LONG_DEJITTER ]
 
       MAX_CODECS = 10, ///< Maximum number of codecs in incoming RTP streams.
    };
