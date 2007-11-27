@@ -12,9 +12,9 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 #include <cppunit/TestCase.h>
-#include <mi/CpMediaInterfaceFactory.h>
-#include <mi/CpMediaInterfaceFactoryFactory.h>
-#include <mi/CpMediaInterface.h>
+#include "mi/CpMediaInterfaceFactory.h"
+#include "mi/CpMediaInterfaceFactoryFactory.h"
+#include "mi/CpMediaInterface.h"
 #include <os/OsTask.h>
 #include <utl/UtlSList.h>
 #include <utl/UtlInt.h>

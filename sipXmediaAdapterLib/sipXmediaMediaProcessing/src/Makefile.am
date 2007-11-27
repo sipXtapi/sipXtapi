@@ -4,7 +4,7 @@ SUBDIRS = . test
 
 INCLUDES = \
 	-I$(top_srcdir)/interface \
-	-I$(top_srcdir)/sipXmediaMediaProcessing \
+	-I$(top_srcdir)/sipXmediaMediaProcessing/include \
 	-I$(top_srcdir)/../sipXcallLib/include
 
 lib_LTLIBRARIES = libsipXmediaProcessing.la

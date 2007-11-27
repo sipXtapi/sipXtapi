@@ -23,8 +23,8 @@
 #include <os/OsNatDatagramSocket.h>
 #include <os/OsMulticastSocket.h>
 #include <os/OsProtectEventMgr.h>
-#include <include/CpPhoneMediaInterface.h>
-#include <mi/CpMediaInterfaceFactoryImpl.h>
+#include "CpPhoneMediaInterface.h"
+#include "mi/CpMediaInterfaceFactoryImpl.h"
 #include <mp/MpMediaTask.h>
 #include <mp/MpCallFlowGraph.h>
 #include <mp/MpStreamPlayer.h>

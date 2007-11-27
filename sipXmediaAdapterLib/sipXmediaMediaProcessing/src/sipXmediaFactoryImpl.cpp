@@ -16,25 +16,25 @@
 #include <stdlib.h>
 
 // APPLICATION INCLUDES
-#include "os/OsConfigDb.h"
-#include "include/sipXmediaFactoryImpl.h"
-#include "include/CpPhoneMediaInterface.h"
-#include "sdp/SdpCodec.h"
-#include "mp/MpMediaTask.h"
-#include "mp/MpMisc.h"
-#include "mp/MpCodec.h"
-#include "mp/MpCallFlowGraph.h"
-#include "mp/dmaTask.h"
-#include "mp/MpCodecFactory.h"
-#include "sdp/SdpCodecList.h"
+#include <os/OsConfigDb.h>
+#include "sipXmediaFactoryImpl.h"
+#include "CpPhoneMediaInterface.h"
+#include <sdp/SdpCodec.h>
+#include <mp/MpMediaTask.h>
+#include <mp/MpMisc.h>
+#include <mp/MpCodec.h>
+#include <mp/MpCallFlowGraph.h>
+#include <mp/dmaTask.h>
+#include <mp/MpCodecFactory.h>
+#include <sdp/SdpCodecList.h>
 #include "mi/CpMediaInterfaceFactoryFactory.h"
 
 #ifdef INCLUDE_RTCP /* [ */
-#include "rtcp/RTCManager.h"
+#include <rtcp/RTCManager.h>
 #endif /* INCLUDE_RTCP ] */
 
 #ifdef ENABLE_TOPOLOGY_FLOWGRAPH_INTERFACE_FACTORY
-#include "mp/NetInTask.h"
+#include <mp/NetInTask.h>
 #endif
 
 

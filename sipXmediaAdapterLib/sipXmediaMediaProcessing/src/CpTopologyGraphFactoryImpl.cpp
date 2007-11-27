@@ -29,9 +29,9 @@
 #include <mp/MprBufferRecorderConstructor.h>
 #include <mp/MprSplitterConstructor.h>
 #include <mp/MprNullAecConstructor.h>
-#include <include/CpTopologyGraphFactoryImpl.h>
-#include <mi/CpMediaInterfaceFactory.h>
-#include <include/CpTopologyGraphInterface.h>
+#include "CpTopologyGraphFactoryImpl.h"
+#include "mi/CpMediaInterfaceFactory.h"
+#include "CpTopologyGraphInterface.h"
 #include <os/OsSysLog.h>
 
 // REMOVE THIS when device enumerator/monitor would be implemented

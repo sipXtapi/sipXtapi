@@ -12,12 +12,12 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 #include <cppunit/TestCase.h>
-#include <mi/CpMediaInterfaceFactory.h>
-#include <mi/CpMediaInterfaceFactoryFactory.h>
-#include <CpTopologyGraphInterface.h>
-#include <mi/CpMediaInterface.h>
-#include <mi/MiNotification.h>
-#include <mi/MiDtmfNotf.h>
+#include "mi/CpMediaInterfaceFactory.h"
+#include "mi/CpMediaInterfaceFactoryFactory.h"
+#include "CpTopologyGraphInterface.h"
+#include "mi/CpMediaInterface.h"
+#include "mi/MiNotification.h"
+#include "mi/MiDtmfNotf.h"
 #include <os/OsTask.h>
 #include <utl/UtlSList.h>
 #include <utl/UtlInt.h>

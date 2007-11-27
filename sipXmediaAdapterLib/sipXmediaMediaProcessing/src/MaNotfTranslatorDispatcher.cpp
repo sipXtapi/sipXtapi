@@ -16,7 +16,7 @@
 #include <mp/MprnProgressMsg.h>
 
 // APPLICATION INCLUDES
-#include "include/MaNotfTranslatorDispatcher.h"
+#include "MaNotfTranslatorDispatcher.h"
 #include "mi/MiNotification.h"
 #include "mi/MiDtmfNotf.h"
 #include "mi/MiProgressNotf.h"

@@ -36,8 +36,8 @@
 #include <mp/dtmflib.h>
 #include <mp/MpMediaTask.h>
 #include <mp/MpCodecFactory.h>
-#include <include/CpTopologyGraphInterface.h>
-#include <include/CpTopologyGraphFactoryImpl.h>
+#include "CpTopologyGraphInterface.h"
+#include "CpTopologyGraphFactoryImpl.h"
 
 #if defined(_VXWORKS)
 #   include <socket.h>

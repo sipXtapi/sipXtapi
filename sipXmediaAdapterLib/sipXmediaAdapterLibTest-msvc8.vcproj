@@ -56,7 +56,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\sipXportLib\src\test;..\sipXportLib\include;..\sipXcallLib\include;..\sipXportLib\include\glib;interface;include;..\sipXtackLib\include;..\sipXsdpLib\include;..\sipXmediaLib\include;..\CPPUnit\include"
+				AdditionalIncludeDirectories="..\sipXportLib\src\test;..\sipXportLib\include;..\sipXcallLib\include;..\sipXportLib\include\glib;interface;sipXmediaMediaProcessing\include;..\sipXtackLib\include;..\sipXsdpLib\include;..\sipXmediaLib\include;..\CPPUnit\include"
 				PreprocessorDefinitions="_DEBUG;WIN32;_CONSOLE;_CRT_SECURE_NO_DEPRECATE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -145,7 +145,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				ExecutionBucket="7"
-				AdditionalIncludeDirectories="..\cppunit-1.12.0\include;..\pcre\pcre-7.0;include;..\sipXportLib\include;..\sipXsdpLib\include;..\sipXtackLib\include;sipXmediaMediaProcessing;interface;..\sipXmediaLib\include;..\sipXportLib\src\test;src\test"
+				AdditionalIncludeDirectories="..\cppunit-1.12.0\include;..\pcre\pcre-7.0;sipXmediaMediaProcessing\include;..\sipXportLib\include;..\sipXsdpLib\include;..\sipXtackLib\include;interface;..\sipXmediaLib\include;..\sipXportLib\src\test;src\test"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;WINCE;$(ARCHFAM);$(_ARCHFAM_);_WIN32_WCE=$(CEVER);UNDER_CE"
 				RuntimeLibrary="1"
 				ForcedIncludeFiles="os/WinCE/wincefixups.h"
@@ -214,7 +214,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				ExecutionBucket="7"
-				AdditionalIncludeDirectories="&quot;..\cppunit-1.12.0\include&quot;;&quot;..\pcre\pcre-7.0&quot;;include;..\sipXportLib\include;..\sipXsdpLib\include;..\sipXtackLib\include;sipXmediaMediaProcessing;interface;..\sipXmediaLib\include;..\sipXportLib\src\test;src\test;..\sipXmediaAdapterLib\interface"
+				AdditionalIncludeDirectories="&quot;..\cppunit-1.12.0\include&quot;;&quot;..\pcre\pcre-7.0&quot;;sipXmediaMediaProcessing\include;..\sipXportLib\include;..\sipXsdpLib\include;..\sipXtackLib\include;interface;..\sipXmediaLib\include;..\sipXportLib\src\test;src\test;..\sipXmediaAdapterLib\interface"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;WINCE;$(ARCHFAM);$(_ARCHFAM_);_WIN32_WCE=$(CEVER);UNDER_CE"
 				MinimalRebuild="true"
 				RuntimeLibrary="1"
@@ -288,7 +288,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				ExecutionBucket="7"
-				AdditionalIncludeDirectories="include;..\sipXportLib\include;..\sipXsdpLib\include;..\sipXtackLib\include;sipXmediaMediaProcessing;interface;..\sipXmediaLib\include;..\sipXportLib\src\test;src\test;..\sipXmediaAdapterLib\interface"
+				AdditionalIncludeDirectories="sipXmediaMediaProcessing\include;..\sipXportLib\include;..\sipXsdpLib\include;..\sipXtackLib\include;interface;..\sipXmediaLib\include;..\sipXportLib\src\test;src\test;..\sipXmediaAdapterLib\interface"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;SIP_STACK_VERSION=\&quot;1.13.0\&quot;;WINCE;$(ARCHFAM);$(_ARCHFAM_);_WIN32_WCE=$(CEVER);UNDER_CE"
 				ForcedIncludeFiles="os/WinCE/wincefixups.h"
 			/>
@@ -358,7 +358,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				ExecutionBucket="7"
-				AdditionalIncludeDirectories="&quot;..\cppunit-1.12.0\include&quot;;&quot;..\pcre\pcre-7.0&quot;;include;..\sipXportLib\include;..\sipXsdpLib\include;..\sipXtackLib\include;sipXmediaMediaProcessing;interface;..\sipXmediaLib\include;..\sipXportLib\src\test;src\test;..\sipXmediaAdapterLib\interface"
+				AdditionalIncludeDirectories="&quot;..\cppunit-1.12.0\include&quot;;&quot;..\pcre\pcre-7.0&quot;;sipXmediaMediaProcessing\include;..\sipXportLib\include;..\sipXsdpLib\include;..\sipXtackLib\include;interface;..\sipXmediaLib\include;..\sipXportLib\src\test;src\test;..\sipXmediaAdapterLib\interface"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;WINCE;$(ARCHFAM);$(_ARCHFAM_);_WIN32_WCE=$(CEVER);UNDER_CE"
 				RuntimeLibrary="1"
 				ForcedIncludeFiles="os/WinCE/wincefixups.h"
@@ -438,7 +438,7 @@
 				ExecutionBucket="7"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="..\sipXportLib\src\test,..\sipXportLib\include,..\sipXportLib\include\glib,include,..\sipXcallLib\include"
+				AdditionalIncludeDirectories="..\sipXportLib\src\test,..\sipXportLib\include,..\sipXportLib\include\glib,sipXmediaMediaProcessing\include,..\sipXcallLib\include"
 				PreprocessorDefinitions="NDEBUG;DONT_USE_LONG_LONG;WIN32;_CONSOLE;DISABLE_MEM_POOLS"
 				StringPooling="true"
 				RuntimeLibrary="2"
@@ -530,7 +530,7 @@
 				Name="VCCLCompilerTool"
 				ExecutionBucket="7"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\sipXportLib\src\test,..\sipXportLib\include,..\sipXportLib\include\glib,interface,include,..\sipXtackLib\include"
+				AdditionalIncludeDirectories="..\sipXportLib\src\test,..\sipXportLib\include,..\sipXportLib\include\glib,interface,sipXmediaMediaProcessing\include,..\sipXtackLib\include"
 				PreprocessorDefinitions="_DEBUG;DONT_USE_LONG_LONG;WIN32;_CONSOLE;DISABLE_MEM_POOLS"
 				RuntimeLibrary="3"
 				UsePrecompiledHeader="0"

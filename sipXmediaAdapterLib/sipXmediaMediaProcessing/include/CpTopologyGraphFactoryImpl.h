@@ -15,7 +15,7 @@
 
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
-#include <include/sipXmediaFactoryImpl.h>
+#include <sipXmediaFactoryImpl.h>
 
 // DEFINES
 // MACROS
