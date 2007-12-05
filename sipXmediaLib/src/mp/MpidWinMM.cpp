@@ -356,13 +356,12 @@ WAVEHDR* MpidWinMM::initWaveHeader(int n)
     assert(mpWaveHeaders != NULL);
     assert((mpWaveBuffers != NULL) && (mpWaveBuffers[n] != NULL));
     WAVEHDR* pWave_hdr = &(mpWaveHeaders[n]);
-    LPSTR    wave_data(mpWaveBuffers[n]);
 
     // zero out the wave buffer.
-    memset(wave_data, 0, mWaveBufSize);
+    memset(mpWaveBuffers[n], 0, mWaveBufSize);
 
     // Set wave header data to initial values.
-    pWave_hdr->lpData = wave_data;
+    pWave_hdr->lpData = mpWaveBuffers[n];
     pWave_hdr->dwBufferLength = mWaveBufSize;
     pWave_hdr->dwBytesRecorded = 0;  // Filled in by wave functions
     pWave_hdr->dwUser = n;
@@ -382,13 +381,13 @@ void MpidWinMM::processAudioInput(HWAVEIN hwi,
         assert(uMsg == WIM_OPEN);
         if (uMsg == WIM_OPEN)
         {
-            //printf("received WIM_OPEN\n");
+//            printf("received WIM_OPEN\n"); fflush(stdout);
             mIsOpen = TRUE;
         }
     }
     if (uMsg == WIM_DATA)
     {
-        //printf("received WIM_DATA\n");
+//        printf("received WIM_DATA\n"); fflush(stdout);
         assert(mIsOpen);
         WAVEHDR* pWaveHdr = (WAVEHDR*)dwParam1;
         assert(pWaveHdr->dwBufferLength 
@@ -428,7 +427,7 @@ void MpidWinMM::processAudioInput(HWAVEIN hwi,
     }
     else if (uMsg == WIM_CLOSE)
     {
-        printf("received WIM_CLOSE\n");
+//        printf("received WIM_CLOSE\n"); fflush(stdout);
         mIsOpen = FALSE;
     }
 }
