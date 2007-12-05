@@ -287,7 +287,7 @@ protected:
    OsMutex   mDataGuard;  // Mutex guard to protect the OsTask internal data
    UtlString  mName;       // global name associated with the task
 
-   TaskState mState;      // Task object state
+   volatile TaskState mState;      // Task object state
 
    OsTaskBase(const UtlString& name,
               void* pArg,
