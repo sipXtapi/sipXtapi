@@ -397,7 +397,8 @@ OsStatus OsSysLog::vadd(const char*            taskName,
              char* szPtr = strdup(logEntry.data()) ;
              OsSysLogMsg msg(OsSysLogMsg::LOG, szPtr) ;
              OsTime timeout(1000) ;
-             if (spOsSysLogTask->postMessage(msg, timeout) != OS_SUCCESS)
+             if ( spOsSysLogTask != NULL &&
+                  spOsSysLogTask->postMessage(msg, timeout) != OS_SUCCESS)
              {
                  printf("OsSysLog jamed: %s\n", szPtr) ;
                  free(szPtr) ;
