@@ -258,11 +258,6 @@ public:
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 
-   /// Type for absolute time.
-   typedef int64_t Time;
-   /// Type for time interval.
-   typedef int64_t Interval;
-
    OsBSem          mBSem;      ///< Semaphore to lock access to members.
 
    unsigned int    mApplicationState;
@@ -275,32 +270,24 @@ protected:
    UtlBoolean      mbManagedNotifier; ///< TRUE if OsTimer destructor should
                                ///< delete *mpNotifier.
 
-   Time            mExpiresAt; ///< Expire time of timer.
+   OsTime          mExpiresAt; ///< Expire time of timer.
    UtlBoolean      mPeriodic;  ///< TRUE if timer fires repetitively.
-   Interval        mPeriod;    ///< Repetition time.
+   OsTime          mPeriod;    ///< Repetition time.
 
    // Copies of time values for use by timer task.
-   Time            mQueuedExpiresAt; ///< Expire time of timer (copy).
+   OsTime          mQueuedExpiresAt; ///< Expire time of timer (copy).
    UtlBoolean      mQueuedPeriodic; ///< TRUE if timer fires repetitively (copy).
-   Interval        mQueuedPeriod; ///< Repetition time (copy).
+   OsTime          mQueuedPeriod; ///< Repetition time (copy).
 
    int             mOutstandingMessages; ///< Number of messages for this timer
                                ///< in the timer task's queue.
 
    OsTimer*        mTimerQueueLink; ///< To chain together timers.
 
-   static const Interval nullInterval; ///< The null value for the type Interval.
-                               ///< nullInterval may not be used in arithmetic
-                               ///< operations.
-
-
-   /// Get the current time as a Time.
-   static Time now();
-
    /// Start a timer.
-   OsStatus startTimer(Time start,
+   OsStatus startTimer(OsTime start,
                        UtlBoolean periodic,
-                       Interval period);
+                       OsTime period);
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
   private:
@@ -324,57 +311,6 @@ protected:
    inline static UtlBoolean isStopped(int status)
    {
       return (status & 1) == 0;
-   }
-
-   /// Convert an OsDateTime into a Time.
-   inline static Time cvtToTime(const OsDateTime& t)
-   {
-      OsTime t_os;
-      t.cvtToTimeSinceEpoch(t_os);
-      return (Time)(t_os.seconds()) * 1000000 + t_os.usecs();
-   }
-
-   /// Convert an OsTime into an Interval.
-   inline static Interval cvtToInterval(const OsTime& t)
-   {
-      return (Interval)(t.seconds()) * 1000000 + t.usecs();
-   }
-
-   /// Convert a Timer into an OsTime.
-   inline static void cvtToOsTime(OsTime& out, Time in)
-   {
-      OsTime temp((long)in / 1000000, (long)in % 1000000);
-      out = temp;
-   }
-
-   /// Add an Interval to a Time.
-   inline static Time addInterval(Time a, Interval b)
-   {
-      return a + b;
-   }
-
-   /// Take the difference of two Time's.
-   inline static Time subtractTimes(Time a, Time b)
-   {
-      return a - b;
-   }
-
-   /**
-   *  Compare two Time's.
-   *
-   *  @returns > 0, 0, or < 0 according to whether a > b, a == b, or a < b.
-   */
-   inline static int compareTimes(Time a, Time b)
-   {
-      // We can't use the usual trick of returning (a - b), because
-      // that difference is a long long int, but the return type
-      // of compareTimes is int, and truncating may change the sign
-      // of the value.
-      Time difference = a - b;
-      return
-         difference < 0 ? -1 :
-         difference == 0 ? 0 :
-         1;
    }
 
 };

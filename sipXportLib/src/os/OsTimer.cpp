@@ -29,7 +29,6 @@
 
 // STATIC VARIABLE INITIALIZATIONS
 const UtlContainableType OsTimer::TYPE = "OsTimer" ;
-const OsTimer::Interval OsTimer::nullInterval = 0;
 
 #ifdef VALGRIND_TIMER_ERROR
 // Dummy static variable to receive values from tracking variables.
@@ -172,26 +171,33 @@ void OsTimer::deleteAsync(OsTimer* timer)
 // Arm the timer to fire once at the indicated date and time
 OsStatus OsTimer::oneshotAt(const OsDateTime& when)
 {
-   return startTimer(cvtToTime(when), FALSE, nullInterval);
+   OsTime whenTime;
+   when.cvtToTimeSinceEpoch(whenTime);
+   return startTimer(whenTime, FALSE, OsTime::NO_WAIT_TIME);
 }
      
 // Arm the timer to fire once at the current time + offset
 OsStatus OsTimer::oneshotAfter(const OsTime& offset)
 {
-   return startTimer(now() + cvtToInterval(offset), FALSE, nullInterval);
+   OsTime curTime;
+   OsDateTime::getCurTime(curTime);
+   return startTimer(curTime + offset, FALSE, OsTime::NO_WAIT_TIME);
 }
 
 // Arm the timer to fire periodically starting at the indicated date/time
 OsStatus OsTimer::periodicAt(const OsDateTime& when, OsTime period)
 {
-   return startTimer(cvtToTime(when), TRUE, cvtToInterval(period));
+   OsTime whenTime;
+   when.cvtToTimeSinceEpoch(whenTime);
+   return startTimer(whenTime, TRUE, period);
 }
 
 // Arm the timer to fire periodically starting at current time + offset
 OsStatus OsTimer::periodicEvery(OsTime offset, OsTime period)
 {
-   return startTimer(now() + cvtToInterval(offset), TRUE,
-                     cvtToInterval(period));
+   OsTime curTime;
+   OsDateTime::getCurTime(curTime);
+   return startTimer(curTime + offset, TRUE, period);
 }
 
 // Disarm the timer
@@ -320,17 +326,17 @@ int OsTimer::compareTo(UtlContainable const * inVal) const
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
 // Get the current time as a Time.
-OsTimer::Time OsTimer::now()
+/*OsTimer::Time OsTimer::now()
 {
    OsTime t;
    OsDateTime::getCurTime(t);
    return (Time)(t.seconds()) * 1000000 + t.usecs();
 }
-
+*/
 // Start the OsTimer object.
-OsStatus OsTimer::startTimer(Time start,
+OsStatus OsTimer::startTimer(OsTime start,
                              UtlBoolean periodic,
-                             Interval period)
+                             OsTime period)
 {
 #ifndef NDEBUG
    CHECK_VALIDITY(this);
