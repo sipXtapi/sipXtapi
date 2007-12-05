@@ -20,11 +20,17 @@
 #include "mi/MiNotification.h"
 #include "mi/MiDtmfNotf.h"
 #include "mi/MiProgressNotf.h"
+#include <mp/MpResNotificationMsg.h>
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
 // STATIC VARIABLE INITIALIZATIONS
+// FORWARD DECLARATIONS
+/// Look up the media interface notification type associated with the mediaLib
+/// notification type.
+static
+MiNotification::NotfType lookupNotfType(MpResNotificationMsg::RNMsgType rnMsgType);
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
@@ -132,8 +138,11 @@ UtlBoolean MaNotfTranslatorDispatcher::hasDispatcher() const
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
-MiNotification::NotfType 
-MaNotfTranslatorDispatcher::lookupNotfType( MpResNotificationMsg::RNMsgType rnMsgType )
+/* //////////////////////////// PRIVATE /////////////////////////////////// */
+
+/* ============================ FUNCTIONS ================================= */
+
+MiNotification::NotfType lookupNotfType( MpResNotificationMsg::RNMsgType rnMsgType )
 {
    MiNotification::NotfType miNotfType;
    switch(rnMsgType)
@@ -173,9 +182,3 @@ MaNotfTranslatorDispatcher::lookupNotfType( MpResNotificationMsg::RNMsgType rnMs
    }
    return miNotfType;
 }
-
-/* //////////////////////////// PRIVATE /////////////////////////////////// */
-
-/* ============================ FUNCTIONS ================================= */
-
-

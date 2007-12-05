@@ -15,7 +15,6 @@
 
 // SYSTEM INCLUDES
 #include <os/OsMsgDispatcher.h>
-#include <mp/MpResNotificationMsg.h>
 
 // APPLICATION INCLUDES
 #include "mi/MiNotification.h"
@@ -91,11 +90,6 @@ public:
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
    OsMsgDispatcher* mpAbstractedMsgDispatcher;
-
-
-   /// Look up the media interface notification type associated with the mediaLib
-   /// notification type.
-   MiNotification::NotfType lookupNotfType(MpResNotificationMsg::RNMsgType rnMsgType);
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
