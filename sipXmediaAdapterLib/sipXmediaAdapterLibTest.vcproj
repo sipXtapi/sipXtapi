@@ -156,7 +156,6 @@
 			<File
 				RelativePath="sipXmediaMediaProcessing\src\test\PlayAudioOldNotificationTest.cpp">
 			</File>
-
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -166,6 +165,12 @@
 			</File>
 			<File
 				RelativePath=".\sipXmediaMediaProcessing\src\test\record_prompt.h">
+			</File>
+			<File
+				RelativePath=".\sipXmediaMediaProcessing\src\test\sine_330hz_16b_8k_signed.h">
+			</File>
+			<File
+				RelativePath=".\sipXmediaMediaProcessing\src\test\sine_530hz_16b_8k_signed.h">
 			</File>
 		</Filter>
 		<Filter
