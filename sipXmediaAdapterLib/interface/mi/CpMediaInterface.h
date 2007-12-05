@@ -24,7 +24,6 @@
 #include <os/OsProtectEvent.h>
 #include <os/OsMsgQ.h>
 #include <os/OsDatagramSocket.h>
-#include <net/SipContactDb.h>
 #include <net/SdpBody.h>
 #include <os/IStunSocket.h>
 
