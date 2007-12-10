@@ -26,29 +26,6 @@
 // CONSTANTS
 // STATIC VARIABLE INITIALIZATIONS
 
-// Message Queue implementation for OS's which do not have native message queues
-//
-// Two kinds of concurrent tasks, called "senders" and "receivers",
-// communicate using a message queue. When the queue is empty, receivers are
-// blocked until there are messages to receive. When the queue is full,
-// senders are blocked until some of the queued messages are received --
-// freeing up space in the queue for more messages.
-//
-// This implementation is based on the description from the book "Operating
-// Systems Principles" by Per Brinch Hansen, 1973.  This solution uses:
-//   - a counting semaphore (mEmpty) to control the delay of the sender in
-//     the following way:
-//       initially:      the "empty" semaphore count is set to maxMsgs
-//       before send:    acquire(empty)
-//       after receive:  release(empty)
-//   - a counting semaphore (mFull) to control the delay of the receiver in
-//     the following way:
-//       initially:      the "full" semaphore count is set to 0
-//       before receive: acquire(full)
-//       after send:     release(full)
-//   - a binary semaphore (mGuard) to ensure against concurrent access to
-//     internal object data
-
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
 /* ============================ CREATORS ================================== */
@@ -56,16 +33,17 @@
 // Constructor
 // If the name is specified but is already in use, throw an exception
 OsMsgQShared::OsMsgQShared(const int maxMsgs, const int maxMsgLen,
-                     const int options, const UtlString& name)
-   :
-   OsMsgQBase(name),
-   mGuard(OsMutex::Q_PRIORITY + OsMutex::INVERSION_SAFE +
-          OsMutex::DELETE_SAFE),
-   mEmpty(OsCSem::Q_PRIORITY, maxMsgs, maxMsgs),
-   mFull(OsCSem::Q_PRIORITY, maxMsgs, 0),
-   mDlist(),
-   mOptions(options),
-   mHighCnt(0)
+                           const int options, const UtlString& name)
+: OsMsgQBase(name)
+, mGuard(OsMutex::Q_PRIORITY + OsMutex::INVERSION_SAFE +
+         OsMutex::DELETE_SAFE)
+, mEmpty(OsCSem::Q_PRIORITY, maxMsgs, maxMsgs)
+, mFull(OsCSem::Q_PRIORITY, maxMsgs, 0)
+, mDlist()
+#ifdef MSGQ_IS_VALID_CHECK
+, mOptions(options)
+, mHighCnt(0)
+#endif
 {
    mMaxMsgs = maxMsgs;
 

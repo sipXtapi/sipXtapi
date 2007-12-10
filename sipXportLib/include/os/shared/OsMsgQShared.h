@@ -37,7 +37,32 @@ class UtlString;
 // #define OS_MSGQ_DEBUG
 // #define OS_MSGQ_REPORTING
 
-//:Message queue implementation for OS's with no native message queue support
+/**
+*  Message queue implementation for OS's with no native message queue support
+*
+*  Two kinds of concurrent tasks, called "senders" and "receivers",
+*  communicate using a message queue. When the queue is empty, receivers are
+*  blocked until there are messages to receive. When the queue is full,
+*  senders are blocked until some of the queued messages are received --
+*  freeing up space in the queue for more messages.
+*
+*  This implementation is based on the description from the book "Operating
+*  Systems Principles" by Per Brinch Hansen, 1973.  This solution uses:
+*  <pre>
+*    - a counting semaphore (mEmpty) to control the delay of the sender in
+*      the following way:
+*        initially:      the "empty" semaphore count is set to maxMsgs
+*        before send:    acquire(empty)
+*        after receive:  release(empty)
+*    - a counting semaphore (mFull) to control the delay of the receiver in
+*      the following way:
+*        initially:      the "full" semaphore count is set to 0
+*        before receive: acquire(full)
+*        after send:     release(full)
+*    - a binary semaphore (mGuard) to ensure against concurrent access to
+*      internal object data
+*  </pre>
+*/
 class OsMsgQShared : public OsMsgQBase
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
@@ -45,46 +70,56 @@ public:
 
 /* ============================ CREATORS ================================== */
 
+     /// Constructor
    OsMsgQShared(
-      const int       maxMsgs=DEF_MAX_MSGS,      //:max number of messages
-      const int       maxMsgLen=DEF_MAX_MSG_LEN, //:max msg length (bytes)
-      const int       options=Q_PRIORITY, //:how to queue blocked tasks
-      const UtlString& name=""             //:global name for this queue
+      const int       maxMsgs=DEF_MAX_MSGS,      ///< Max number of messages.
+      const int       maxMsgLen=DEF_MAX_MSG_LEN, ///< Max msg length (bytes).
+      const int       options=Q_PRIORITY,        ///< How to queue blocked tasks.
+      const UtlString& name=""                   ///< Global name for this queue.
       );
-     //:Constructor
-     // If name is specified but is already in use, throw an exception
+     /**<
+     *  If name is specified but is already in use, throw an exception.
+     */
 
+     /// Destructor
    virtual
    ~OsMsgQShared();
-     //:Destructor
 
 /* ============================ MANIPULATORS ============================== */
 
+     /// Insert a message at the tail of the queue
    virtual OsStatus send(const OsMsg& rMsg,
                          const OsTime& rTimeout=OsTime::OS_INFINITY);
-     //:Insert a message at the tail of the queue
-     // Wait until there is either room on the queue or the timeout expires.
+     /**<
+     *  Wait until there is either room on the queue or the timeout expires.
+     */
 
+     /// Insert a message at the head of the queue
    virtual OsStatus sendUrgent(const OsMsg& rMsg,
                                const OsTime& rTimeout=OsTime::OS_INFINITY);
-     //:Insert a message at the head of the queue
-     // Wait until there is either room on the queue or the timeout expires.
+     /**<
+     *  Wait until there is either room on the queue or the timeout expires.
+     */
 
+     /// Insert a message at the tail of the queue.
    virtual OsStatus sendFromISR(const OsMsg& rMsg);
-     //:Insert a message at the tail of the queue.
-     // Sending from an ISR has a couple of implications.  Since we can't
-     // allocate memory within an ISR, we don't create a copy of the message
-     // before sending it and the sender and receiver need to agree on a
-     // protocol (outside this class) for when the message can be freed.
-     // The sentFromISR flag in the OsMsg object will be TRUE for messages
-     // sent using this method.
+     /**<
+     *  Sending from an ISR has a couple of implications.  Since we can't
+     *  allocate memory within an ISR, we don't create a copy of the message
+     *  before sending it and the sender and receiver need to agree on a
+     *  protocol (outside this class) for when the message can be freed.
+     *  The sentFromISR flag in the OsMsg object will be TRUE for messages
+     *  sent using this method.
+     */
 
+     /// Remove a message from the head of the queue
    virtual OsStatus receive(OsMsg*& rpMsg,
                             const OsTime& rTimeout=OsTime::OS_INFINITY);
-     //:Remove a message from the head of the queue
-     // Wait until either a message arrives or the timeout expires.
-     // Other than for messages sent from an ISR, the receiver is responsible
-     // for freeing the received message.
+     /**<
+     *  Wait until either a message arrives or the timeout expires.
+     *  Other than for messages sent from an ISR, the receiver is responsible
+     *  for freeing the received message.
+     */
 
 /* ============================ ACCESSORS ================================= */
 
@@ -94,13 +129,12 @@ public:
    UtlDList& getList() { return mDlist;} 
 #endif
 
+     /// Return the number of messages in the queue
    virtual int numMsgs(void);
-     //:Return the number of messages in the queue
 
 #ifdef MSGQ_IS_VALID_CHECK 
+     /// Print information on the message queue to the console
    virtual void show(void);
-     //:Print information on the message queue to the console
-     // Output enabled via a compile-time #ifdef
 #endif
 
 /* ============================ INQUIRY =================================== */
@@ -115,39 +149,42 @@ protected:
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-   OsMutex  mGuard;  // mutex used to synchronize access to the msg queue
-   OsCSem   mEmpty;  // counting semaphore used to coordinate sending msgs to
-                     //  the queue and blocking senders to keep the number
-                     //  of messages less than or equal to maxMsgs.
-   OsCSem   mFull;   // counting semaphore used to coordinate receiving msgs
-                     //  from the queue and blocking receivers when there are
-                     //  no messages to receive.
-   UtlDList  mDlist;  // doubly-linked list used to store messages
-   int      mOptions;// message queue options
-   int      mHighCnt;// high water mark for the number of msgs in the queue
+   OsMutex  mGuard;  ///< Mutex used to synchronize access to the msg queue.
+   OsCSem   mEmpty;  ///< Counting semaphore used to coordinate sending msgs to
+                     ///<  the queue and blocking senders to keep the number
+                     ///<  of messages less than or equal to maxMsgs.
+   OsCSem   mFull;   ///< Counting semaphore used to coordinate receiving msgs
+                     ///<  from the queue and blocking receivers when there are
+                     ///<  no messages to receive.
+   UtlDList mDlist;  ///< Doubly-linked list used to store messages.
 
-#ifdef OS_MSGQ_REPORTING
-   int      mIncreaseLevel;   // emit a message to the log when the number
-                              //  of messages reaches the mIncreaseLevel
-   int      mDecreaseLevel;   // emit a message to the log when the number
-                              //  of messages goes below the mDecreaseLevel
-   int      mIncrementLevel;  // When the mIncreaseLevel or mDecreaseLevels
-                              //  are reached, increment/decrement the level
-                              //  by mIncrementLevel
+#ifdef MSGQ_IS_VALID_CHECK
+   int      mOptions; ///< Message queue options.
+   int      mHighCnt; ///< High water mark for the number of msgs in the queue.
 #endif
 
+#ifdef OS_MSGQ_REPORTING
+   int      mIncreaseLevel;   ///< Emit a message to the log when the number
+                              ///<  of messages reaches the mIncreaseLevel.
+   int      mDecreaseLevel;   ///< Emit a message to the log when the number
+                              ///<  of messages goes below the mDecreaseLevel.
+   int      mIncrementLevel;  ///< When the mIncreaseLevel or mDecreaseLevels
+                              ///<  are reached, increment/decrement the level
+                              ///<  by mIncrementLevel.
+#endif
+
+     /// Helper function for sending messages
    OsStatus doSend(const OsMsg& rMsg, const OsTime& rTimeout,
                    const UtlBoolean isUrgent, const UtlBoolean sendFromISR);
-     //:Helper function for sending messages
 
+     /// Helper function for removing a message from the head of the queue
    OsStatus doReceive(OsMsg*& rpMsg, const OsTime& rTimeout);
-     //:Helper function for removing a message from the head of the queue
 
+     /// Copy constructor (not implemented for this class)
    OsMsgQShared(const OsMsgQShared& rOsMsgQShared);
-     //:Copy constructor (not implemented for this class)
 
+     /// Assignment operator (not implemented for this class)
    OsMsgQShared& operator=(const OsMsgQShared& rhs);
-     //:Assignment operator (not implemented for this class)
 
 };
 
