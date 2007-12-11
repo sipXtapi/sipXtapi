@@ -89,7 +89,7 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
     CPPUNIT_TEST(testPlayPauseResumeStop);
     CPPUNIT_TEST(testRecordPlayback);
     CPPUNIT_TEST(testConnectionNotifications);
-    //CPPUNIT_TEST(testThreeGraphs);
+    CPPUNIT_TEST(testThreeGraphs);
     CPPUNIT_TEST_SUITE_END();
 
     public:
