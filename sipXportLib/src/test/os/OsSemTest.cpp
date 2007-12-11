@@ -52,7 +52,11 @@ public:
         CPPUNIT_ASSERT_EQUAL(OS_WAIT_TIMEOUT, pCSem->acquire(100));  
         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pCSem->release());  // release once
         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pCSem->release());  // release twice
-        CPPUNIT_ASSERT_EQUAL(OS_BUSY, pCSem->release());     // release thrice
+
+        // This check work fine under Windows and with sipX implementation
+        // of semaphores on Linux. But native pthread's semaphores behave
+        // differently. So we could not rely on this property.
+//        CPPUNIT_ASSERT_EQUAL(OS_BUSY, pCSem->release());     // release thrice
 
         delete pCSem;
     }
