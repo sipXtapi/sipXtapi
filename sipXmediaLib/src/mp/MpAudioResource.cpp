@@ -69,7 +69,10 @@ UtlBoolean MpAudioResource::processFrame(void)
    UtlBoolean res;
 
 #ifdef RTL_ENABLED
-        RTL_BLOCK((UtlString)*this);
+   UtlString str_fg(getFlowGraph()->getFlowgraphName());
+   str_fg.append("_");
+   str_fg.append(*this);
+   RTL_BLOCK(str_fg);
 #endif
 
 #ifdef WATCH_FRAME_PROCESSING /* [ */
