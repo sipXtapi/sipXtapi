@@ -121,7 +121,6 @@ libsipXport_la_SOURCES =  \
     os/OsPtrMsg.cpp \
     os/OsQueuedEvent.cpp \
     os/OsRpcMsg.cpp \
-    os/OsRWMutex.cpp \
     os/OsServerSocket.cpp \
     os/OsServerTask.cpp \
     os/OsSharedLibMgr.cpp \
@@ -163,6 +162,7 @@ libsipXport_la_SOURCES =  \
     os/linux/OsPathLinux.cpp \
     os/linux/OsProcessIteratorLinux.cpp \
     os/linux/OsProcessLinux.cpp \
+    os/linux/OsRWMutexLinux.cpp \
     os/linux/OsSharedLibMgrLinux.cpp \
     os/linux/OsTaskLinux.cpp \
     os/linux/OsUtilLinux.cpp \

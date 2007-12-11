@@ -9,15 +9,15 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 
-#ifndef _OsRWMutex_h_
-#define _OsRWMutex_h_
+#ifndef _OsRWMutexLinux_h_
+#define _OsRWMutexLinux_h_
 
 // SYSTEM INCLUDES
+#include <pthread.h>
+#include <assert.h>
 
 // APPLICATION INCLUDES
-#include "os/OsDefs.h"
-#include "os/OsStatus.h"
-#include "utl/UtlDefs.h"
+#include "os/OsRWMutex.h"
 
 // DEFINES
 // MACROS
@@ -33,7 +33,7 @@
 // single resource. The readers can use the resource simultaneously, but each
 // writer must have exclusive access to it. When a writer is ready to use the
 // resource, it should be enabled to do so as soon as possible.
-class OsRWMutexBase
+class OsRWMutexLinux
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
@@ -48,32 +48,38 @@ public:
 
 /* ============================ CREATORS ================================== */
 
+     /// Default constructor
+   OsRWMutexLinux(const int queueOptions);
+
+     /// Destructor
+   virtual
+   ~OsRWMutexLinux();
 
 /* ============================ MANIPULATORS ============================== */
 
-   virtual OsStatus acquireRead(void)=0;
+   virtual OsStatus acquireRead();
      //:Block (if necessary) until the task acquires the resource for reading
      // Multiple simultaneous readers are allowed.
 
-   virtual OsStatus acquireWrite(void)=0;
+   virtual OsStatus acquireWrite();
      //:Block (if necessary) until the task acquires the resource for writing
      // Only one writer at a time is allowed (and no readers).
 
-   virtual OsStatus tryAcquireRead(void)=0;
+   virtual OsStatus tryAcquireRead();
      //:Conditionally acquire the resource for reading (i.e., don't block)
      // Multiple simultaneous readers are allowed.
      // Return OS_BUSY if the resource is held for writing by some other task
 
-   virtual OsStatus tryAcquireWrite(void)=0;
+   virtual OsStatus tryAcquireWrite();
      //:Conditionally acquire the resource for writing (i.e., don't block).
      // Only one writer at a time is allowed (and no readers).
      // Return OS_BUSY if the resource is held for writing by some other task
      // or if there are running readers.
 
-   virtual OsStatus releaseRead(void)=0;
+   virtual OsStatus releaseRead();
      //:Release the resource for reading
 
-   virtual OsStatus releaseWrite(void)=0;
+   virtual OsStatus releaseWrite();
      //:Release the resource for writing
 
 /* ============================ ACCESSORS ================================= */
@@ -82,41 +88,20 @@ public:
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
-     /// Default constructor
-   OsRWMutexBase() { };
-
-     /// Destructor
-   virtual
-   ~OsRWMutexBase() { };
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
 
+   pthread_rwlock_t mLockImp;
+
      /// Copy constructor (not implemented for this class)
-   OsRWMutexBase(const OsRWMutexBase& rhs);
+   OsRWMutexLinux(const OsRWMutexLinux& rhs);
 
      /// Assignment operator (not implemented for this class)
-   OsRWMutexBase& operator=(const OsRWMutexBase& rhs);
+   OsRWMutexLinux& operator=(const OsRWMutexLinux& rhs);
 
 };
 
 /* ============================ INLINE METHODS ============================ */
 
-/// Depending on the native OS that we are running on, we include the class
-/// declaration for the appropriate lower level implementation and use a
-/// "typedef" statement to associate the OS-independent class name (OsRWMutex)
-/// with the OS-dependent realization of that type (e.g., OsRWMutexWnt).
-#if defined(_WIN32)
-#  include "os/shared/OsRWMutexShared.h"
-   typedef class OsRWMutexShared OsRWMutex;
-#elif defined(_VXWORKS)
-#  include "os/shared/OsRWMutexShared.h"
-   typedef class OsRWMutexShared OsRWMutex;
-#elif defined(__pingtel_on_posix__)
-#  include "os/linux/OsRWMutexLinux.h"
-   typedef class OsRWMutexLinux OsRWMutex;
-#else
-#  error Unsupported target platform.
-#endif
-
-#endif  // _OsRWMutex_h_
+#endif  // _OsRWMutexLinux_h_

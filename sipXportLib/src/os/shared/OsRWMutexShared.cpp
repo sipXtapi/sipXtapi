@@ -11,12 +11,9 @@
 
 // SYSTEM INCLUDES
 #include <assert.h>
-#ifdef __pingtel_on_posix__
-#  include <pthread.h>
-#endif
 
 // APPLICATION INCLUDES
-#include "os/OsRWMutex.h"
+#include "os/shared/OsRWMutexShared.h"
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -48,7 +45,7 @@ static int SEMAPHORE_CNT_MAX = 100;  // upper bound on the number of
 /* ============================ CREATORS ================================== */
 
 // Constructor
-OsRWMutex::OsRWMutex(const int queueOptions) :
+OsRWMutexShared::OsRWMutexShared(const int queueOptions) :
    mGuard(queueOptions, OsBSem::FULL),
    mReadSem(queueOptions, SEMAPHORE_CNT_MAX, 0),
    mWriteSem(queueOptions, SEMAPHORE_CNT_MAX, 0),
@@ -62,7 +59,7 @@ OsRWMutex::OsRWMutex(const int queueOptions) :
 }
 
 // Destructor
-OsRWMutex::~OsRWMutex()
+OsRWMutexShared::~OsRWMutexShared()
 {
    // no work required
 }
@@ -71,14 +68,14 @@ OsRWMutex::~OsRWMutex()
 
 // Block (if necessary) until the task acquires the resource for reading.
 // Multiple simultaneous readers are allowed.
-OsStatus OsRWMutex::acquireRead(void)
+OsStatus OsRWMutexShared::acquireRead(void)
 {
    return doAcquireRead(FALSE);
 }
 
 // Block until the task acquires the resource for writing.
 // Only one writer at a time is allowed (and no readers).
-OsStatus OsRWMutex::acquireWrite(void)
+OsStatus OsRWMutexShared::acquireWrite(void)
 {
    return doAcquireWrite(FALSE);
 }
@@ -86,7 +83,7 @@ OsStatus OsRWMutex::acquireWrite(void)
 // Conditionally acquire the resource for reading (i.e., don't block)
 // Multiple simultaneous readers are allowed.
 // Return OS_BUSY if the resource is held for writing by some other task
-OsStatus OsRWMutex::tryAcquireRead(void)
+OsStatus OsRWMutexShared::tryAcquireRead(void)
 {
    return doAcquireRead(TRUE);
 }
@@ -94,13 +91,13 @@ OsStatus OsRWMutex::tryAcquireRead(void)
 // Conditionally acquire the resource for writing (i.e., don't block)
 // Return OS_BUSY if the resource is held for writing by some other task
 // or if there are running readers.
-OsStatus OsRWMutex::tryAcquireWrite(void)
+OsStatus OsRWMutexShared::tryAcquireWrite(void)
 {
    return doAcquireWrite(TRUE);
 }
 
 // Release the resource for reading
-OsStatus OsRWMutex::releaseRead(void)
+OsStatus OsRWMutexShared::releaseRead(void)
 {
    OsStatus res;
 
@@ -119,7 +116,7 @@ OsStatus OsRWMutex::releaseRead(void)
 }
 
 // Release the resource for writing
-OsStatus OsRWMutex::releaseWrite(void)
+OsStatus OsRWMutexShared::releaseWrite(void)
 {
    OsStatus res;
 
@@ -143,7 +140,7 @@ OsStatus OsRWMutex::releaseWrite(void)
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 // Helper function used to acquire the resource for reading
-OsStatus OsRWMutex::doAcquireRead(UtlBoolean dontBlock)
+OsStatus OsRWMutexShared::doAcquireRead(UtlBoolean dontBlock)
 {
    // This works as follows:
    // 1) Determine whether we can acquire a read ticket without blocking.
@@ -155,7 +152,7 @@ OsStatus OsRWMutex::doAcquireRead(UtlBoolean dontBlock)
    // 4) If the resource is not held for writing, generate enough read tickets
    //    to satisfy all active but not yet running readers
    //
-   // The state information in the OsRWMutex object itself (this) is
+   // The state information in the OsRWMutexShared object itself (this) is
    // protected using the mGuard critical section.
 
    OsStatus res;
@@ -186,7 +183,7 @@ OsStatus OsRWMutex::doAcquireRead(UtlBoolean dontBlock)
 }
 
 // Helper function used to acquire the resource for writing
-OsStatus OsRWMutex::doAcquireWrite(UtlBoolean dontBlock)
+OsStatus OsRWMutexShared::doAcquireWrite(UtlBoolean dontBlock)
 {
    // This works as follows:
    // 1) Determine whether we can acquire a write ticket without blocking.
@@ -196,7 +193,7 @@ OsStatus OsRWMutex::doAcquireWrite(UtlBoolean dontBlock)
    // 3) If the resource is held for writing, block on the mWriteSem semaphore
    //    until writing is allowed and a write ticket is available
    //
-   // The state information in the OsRWMutex object itself (this) is
+   // The state information in the OsRWMutexShared object itself (this) is
    // protected using the mGuard critical section.
 
    OsStatus res;
@@ -273,7 +270,7 @@ OsStatus OsRWMutex::doAcquireWrite(UtlBoolean dontBlock)
 // Helper function used to acquire a semaphore for exclusive writing. A
 // binary semaphore is used to ensure that there is only a single writer
 // operating on the resource at any one time.
-OsStatus OsRWMutex::doAcquireExclWrite(UtlBoolean dontBlock)
+OsStatus OsRWMutexShared::doAcquireExclWrite(UtlBoolean dontBlock)
 {
    OsStatus res;
 
@@ -295,7 +292,7 @@ OsStatus OsRWMutex::doAcquireExclWrite(UtlBoolean dontBlock)
 //
 // The mGuard object must be acquired (and ultimately be released) by callers
 // of this method.
-OsStatus OsRWMutex::doReleaseRead(void)
+OsStatus OsRWMutexShared::doReleaseRead(void)
 {
    mRunningReadersCnt--;           // give up the resource for reading
    mActiveReadersCnt--;
@@ -312,7 +309,7 @@ OsStatus OsRWMutex::doReleaseRead(void)
 //
 // The mGuard object must be acquired (and ultimately be released) by callers
 // of this method.
-OsStatus OsRWMutex::doReleaseNonExclWrite(UtlBoolean guardIsHeld)
+OsStatus OsRWMutexShared::doReleaseNonExclWrite(UtlBoolean guardIsHeld)
 {
    OsStatus res;
 
@@ -340,7 +337,7 @@ OsStatus OsRWMutex::doReleaseNonExclWrite(UtlBoolean guardIsHeld)
 
 // Helper function to release the semaphore used to ensure exclusive access
 // when there are multiple writers.
-OsStatus OsRWMutex::doReleaseExclWrite(void)
+OsStatus OsRWMutexShared::doReleaseExclWrite(void)
 {
    OsStatus res;
 
@@ -356,7 +353,7 @@ OsStatus OsRWMutex::doReleaseExclWrite(void)
 //
 // The mGuard object must be acquired (and ultimately be released) by callers
 // of this method.
-void OsRWMutex::grantReadTickets(void)
+void OsRWMutexShared::grantReadTickets(void)
 {
    if (mActiveWritersCnt == 0)
    {
@@ -374,7 +371,7 @@ void OsRWMutex::grantReadTickets(void)
 //
 // The mGuard object must be acquired (and ultimately be released) by callers
 // of this method.
-void OsRWMutex::grantWriteTickets(void)
+void OsRWMutexShared::grantWriteTickets(void)
 {
    if (mRunningReadersCnt == 0)
    {
