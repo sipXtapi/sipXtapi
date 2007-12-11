@@ -9588,7 +9588,7 @@ NODEP_CPP_PTEVE=\
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\test\ptapi\PtMediaCapabilities.cpp
+SOURCE=.\src\test\ptapi\PtMediaCapabilitiesTest.cpp
 
 !IF  "$(CFG)" == "sipXcallLibTest - Win32 (WCE emulator) Release"
 
