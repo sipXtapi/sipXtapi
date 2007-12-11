@@ -174,7 +174,6 @@ OsStatus MpCodecFactory::createEncoder(const UtlString &mime,
    {
       OsSysLog::add(FAC_MP, PRI_WARNING, 
                     "MpCodecFactory::createEncoder unknown codec type "
-                    "internalCodecId = (SdpCodec::SdpCodecTypes) %d, "
                     "%s, fmtp=%s"
                     "payloadType = %d",
                     mime.data(), fmtp.data(), payloadType);

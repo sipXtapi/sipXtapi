@@ -68,7 +68,8 @@ public:
       dlPlgEnumSDPAndModesV1 plgEnum,
       dlPlgGetSignalingDataV1 plgSignaling,
       UtlBoolean bStatic = TRUE) 
-      : mModuleName(moduleName)
+      : mbStatic(bStatic)
+      , mModuleName(moduleName)
       , mCodecModuleName(codecModuleName)
       , mPlgInit(plgInit)
       , mPlgDecode(plgDecode)
@@ -76,7 +77,6 @@ public:
       , mPlgFree(plgFree)
       , mPlgEnum(plgEnum)
       , mPlgSignaling(plgSignaling)
-      , mbStatic(bStatic)
       , fSDPassigned(FALSE)
       , sdpNum(-1)
    {}

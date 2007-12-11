@@ -111,7 +111,7 @@ int MpPlgDecoderWrapper::decode(const MpRtpBufPtr &pPacket,
                    MpAudioSample *samplesBuffer)
 {
    unsigned decodedSize = 0;
-   int res;
+   int res = RPLG_FAILED;
 
    if (!mInitialized)
    {
