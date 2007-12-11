@@ -21,6 +21,7 @@
 // APPLICATION INCLUDES
 #include <utl/UtlHashMap.h>
 
+#include "utl/UtlString.h"
 #include "os/OsDefs.h"
 #include "os/OsMsgQ.h"
 #include "os/OsStatus.h"
@@ -404,6 +405,12 @@ public:
      /// Returns the message queue used by the flow graph. 
    OsMsgQ* getMsgQ(void) ;
 
+     /// Get flowgraph's sequence number (use for debug purposes only!)
+   inline int getFlowgraphNum() const;
+
+     /// Get flowgraph's name based on its sequence number (use for debug purposes only!)
+   inline UtlString getFlowgraphName() const;
+
 //@}
 
 /* ============================ INQUIRY =================================== */
@@ -463,6 +470,11 @@ private:
 
    enum { MAX_FLOWGRAPH_MESSAGES  = 150};
    enum { MAX_FLOWGRAPH_RESOURCES = 50};
+
+   static int       gFgMaxNumber; ///< Flowgraph counter, used to generate
+                               ///< mFgNumber (for debug purposes only!)
+   int              mFgNumber; ///< Sequence number of this flowgraph (for debug
+                               ///< purposes only!)
 
    UtlHashMap mResourceDict;   ///< resource dictionary
    MpResource* mExecOrder[MAX_FLOWGRAPH_RESOURCES]; ///< resource execution order
@@ -602,5 +614,17 @@ private:
 };
 
 /* ============================ INLINE METHODS ============================ */
+
+int MpFlowGraphBase::getFlowgraphNum() const
+{
+   return mFgNumber;
+}
+
+UtlString MpFlowGraphBase::getFlowgraphName() const
+{
+   char tmpStr[10];
+   snprintf(tmpStr, sizeof(tmpStr), "FG%d", getFlowgraphNum());
+   return tmpStr;
+}
 
 #endif  // _MpFlowGraphBase_h_

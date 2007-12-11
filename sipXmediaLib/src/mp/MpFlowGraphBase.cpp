@@ -37,6 +37,7 @@
 // EXTERNAL VARIABLES
 // CONSTANTS
 // STATIC VARIABLE INITIALIZATIONS
+int MpFlowGraphBase::gFgMaxNumber = 0;
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
@@ -45,6 +46,7 @@
 // Constructor
 MpFlowGraphBase::MpFlowGraphBase(int samplesPerFrame, int samplesPerSec)
 : mRWMutex(OsRWMutex::Q_PRIORITY)
+, mFgNumber(gFgMaxNumber++)
 , mResourceDict()
 , mCurState(STOPPED)
 , mMessages(MAX_FLOWGRAPH_MESSAGES)
