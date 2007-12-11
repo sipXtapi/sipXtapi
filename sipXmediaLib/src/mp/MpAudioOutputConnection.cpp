@@ -469,13 +469,13 @@ void MpAudioOutputConnection::tickerCallback(const int userData, const int event
                               / pConnection->mpDeviceDriver->getSamplesPerSec();
       }
 
-      // Signal frame processing interval start if we were asked about.
-      if (pConnection->mDoFlowgraphTicker)
-      {
-         MpMediaTask::signalFrameStart();
-      }
-
       pConnection->mMutex.release();
+   }
+
+   // Signal frame processing interval start if we were asked about.
+   if (pConnection->mDoFlowgraphTicker)
+   {
+      MpMediaTask::signalFrameStart();
    }
 }
 
