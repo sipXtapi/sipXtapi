@@ -315,7 +315,7 @@ SOURCE=.\src\os\OsRpcMsg.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\os\OsRWMutex.cpp
+SOURCE=.\src\os\shared\OsRWMutexShared.cpp
 # End Source File
 # Begin Source File
 
@@ -868,6 +868,10 @@ SOURCE=.\include\os\OsRpcMsg.h
 # Begin Source File
 
 SOURCE=.\include\os\OsRWMutex.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\os\shared\OsRWMutexShared.h
 # End Source File
 # Begin Source File
 

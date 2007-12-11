@@ -1160,25 +1160,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="src\os\OsRWMutex.cpp">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
-				</FileConfiguration>
+				RelativePath=".\src\os\shared\OsRWMutexShared.cpp">
 			</File>
 			<File
 				RelativePath="src\os\OsServerSocket.cpp">
@@ -2509,6 +2491,9 @@
 			</File>
 			<File
 				RelativePath="include\os\OsRWMutex.h">
+			</File>
+			<File
+				RelativePath=".\include\os\shared\OsRWMutexShared.h">
 			</File>
 			<File
 				RelativePath="include\os\OsServerSocket.h">

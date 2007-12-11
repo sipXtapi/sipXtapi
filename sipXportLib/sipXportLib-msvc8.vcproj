@@ -2040,7 +2040,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\src\os\OsRWMutex.cpp"
+				RelativePath=".\src\os\shared\OsRWMutexShared.cpp"
 				>
 			</File>
 			<File
@@ -2732,6 +2732,10 @@
 			</File>
 			<File
 				RelativePath="include\os\OsRWMutex.h"
+				>
+			</File>
+			<File
+				RelativePath="include\os\shared\OsRWMutexShared.h"
 				>
 			</File>
 			<File
