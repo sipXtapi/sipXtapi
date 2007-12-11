@@ -18,7 +18,6 @@ testsuite_LDADD = \
     ../libsipXcall.la
 
 testsuite_SOURCES = \
-    $(PTAPI_SOURCES) \
     jnibutton.cpp \
     cp/CpTestSupport.cpp \
     cp/CpTestSupport.h \
