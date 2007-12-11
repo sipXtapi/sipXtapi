@@ -34,6 +34,13 @@ void MpDspUtils::add_I(int16_t &a, int16_t b)
 
 int32_t MpDspUtils::add(int32_t a, int32_t b)
 {
+#ifdef ARMv5E_ASM
+   int32_t tmp;
+   __asm__ __volatile__ ("qadd  %0,%1,%2;\n"
+            : "=&r"(tmp)
+            : "r"(a),"r"(b));
+   return tmp;
+#else
    int32_t c;
    c = a + b;
 
@@ -53,6 +60,7 @@ int32_t MpDspUtils::add(int32_t a, int32_t b)
       c = INT32_MIN+1;
    }
    return c;
+#endif
 }
 
 void MpDspUtils::add_I(int32_t &a, int32_t b)
