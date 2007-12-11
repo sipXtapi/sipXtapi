@@ -33,7 +33,7 @@
 // single resource. The readers can use the resource simultaneously, but each
 // writer must have exclusive access to it. When a writer is ready to use the
 // resource, it should be enabled to do so as soon as possible.
-class OsRWMutexShared : public OsRWMutexBase
+class OsRWMutexShared
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
@@ -43,43 +43,40 @@ public:
       Q_FIFO     = 0x0, // queue blocked tasks on a first-in, first-out basis
       Q_PRIORITY = 0x1  // queue blocked tasks based on their priority
    };
-     //!enumcode: Q_FIFO - queues blocked tasks on a first-in, first-out basis
-     //!enumcode: Q_PRIORITY - queues blocked tasks based on their priority
 
 /* ============================ CREATORS ================================== */
 
    OsRWMutexShared(const int queueOptions);
      //:Constructor
 
-   virtual
    ~OsRWMutexShared();
      //:Destructor
 
 /* ============================ MANIPULATORS ============================== */
 
-   virtual OsStatus acquireRead(void);
+   OsStatus acquireRead(void);
      //:Block (if necessary) until the task acquires the resource for reading
      // Multiple simultaneous readers are allowed.
 
-   virtual OsStatus acquireWrite(void);
+   OsStatus acquireWrite(void);
      //:Block (if necessary) until the task acquires the resource for writing
      // Only one writer at a time is allowed (and no readers).
 
-   virtual OsStatus tryAcquireRead(void);
+   OsStatus tryAcquireRead(void);
      //:Conditionally acquire the resource for reading (i.e., don't block)
      // Multiple simultaneous readers are allowed.
      // Return OS_BUSY if the resource is held for writing by some other task
 
-   virtual OsStatus tryAcquireWrite(void);
+   OsStatus tryAcquireWrite(void);
      //:Conditionally acquire the resource for writing (i.e., don't block).
      // Only one writer at a time is allowed (and no readers).
      // Return OS_BUSY if the resource is held for writing by some other task
      // or if there are running readers.
 
-   virtual OsStatus releaseRead(void);
+   OsStatus releaseRead(void);
      //:Release the resource for reading
 
-   virtual OsStatus releaseWrite(void);
+   OsStatus releaseWrite(void);
      //:Release the resource for writing
 
 /* ============================ ACCESSORS ================================= */
