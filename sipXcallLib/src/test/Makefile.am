@@ -18,21 +18,11 @@ testsuite_LDADD = \
     ../libsipXcall.la
 
 testsuite_SOURCES = \
+    $(PTAPI_SOURCES) \
     jnibutton.cpp \
     cp/CpTestSupport.cpp \
     cp/CpTestSupport.h \
-    cp/CallManagerTest.cpp \
-    ptapi/PtAddressForwardingTest.cpp \
-    ptapi/PtAddressTest.cpp \
-    ptapi/PtAudioCodecTest.cpp \
-    ptapi/PtCallEventTest.cpp \
-    ptapi/PtCallTest.cpp \
-    ptapi/PtConnectionEventTest.cpp \
-    ptapi/PtConnectionTest.cpp \
-    ptapi/PtEventTest.cpp \
-    ptapi/PtMediaCapabilities.cpp \
-    ptapi/PtPhoneTerminalTest.cpp \
-    ptapi/PtTerminalTest.cpp
+    cp/CallManagerTest.cpp 
 
 ## Full regression test and not meant for 'make check'
 noinst_PROGRAMS = regression
