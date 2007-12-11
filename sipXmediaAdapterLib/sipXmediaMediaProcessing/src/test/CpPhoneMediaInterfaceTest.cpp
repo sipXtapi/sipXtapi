@@ -131,6 +131,7 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
         sipxDestroyMediaFactoryFactory();
         CpMediaInterfaceFactory::clearCodecPaths();
         mpMediaFactory = NULL;
+        RTL_STOP
     }
 
     void printMediaInterfaceType()
@@ -513,7 +514,6 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
         OsTask::delay(500) ;
 
         RTL_WRITE("testRecordPlayback.rtl");
-        RTL_STOP;
 
         // Stop recording the "call" -- all connections.
         mediaInterface->stopRecordChannelAudio(-1);
@@ -746,7 +746,6 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
         mediaInterface->stopRecordChannelAudio(-1);
 
         RTL_WRITE("testTones.rtl");
-        RTL_STOP;
 
         // delete codecs set
         for ( numCodecs--; numCodecs>=0; numCodecs--)
@@ -1043,7 +1042,6 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
         OsTask::delay(500) ;
 
         RTL_WRITE("testTwoTones.rtl");
-        RTL_STOP;
 
         // delete codecs set
         for ( numCodecsFactory1--; numCodecsFactory1>=0; numCodecsFactory1--)
