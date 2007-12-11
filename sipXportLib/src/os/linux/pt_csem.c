@@ -26,6 +26,8 @@
 
 #include "os/linux/pt_csem.h"
 
+#ifndef SIPX_USE_NATIVE_PTHREADS // [
+
 int pt_sem_init(pt_sem_t *sem, unsigned int max, unsigned int count)
 {
         if(!max)
@@ -131,3 +133,5 @@ int pt_sem_destroy(pt_sem_t *sem)
 {
         return pthread_mutex_destroy(&sem->mutex) | pthread_cond_destroy(&sem->cond);
 }
+
+#endif // SIPX_USE_NATIVE_PTHREADS ]

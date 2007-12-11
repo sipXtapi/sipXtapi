@@ -22,6 +22,8 @@
 #include <assert.h>
 #include "os/linux/pt_mutex.h"
 
+#ifndef SIPX_USE_NATIVE_PTHREADS // [
+
 int pt_mutex_init(pt_mutex_t *mutex)
 {
         mutex->count=0;
@@ -153,3 +155,5 @@ int pt_mutex_destroy(pt_mutex_t *mutex)
         assert(0 == (pthread_mutex_destroy(&mutex->mutex) | pthread_cond_destroy(&mutex->cond)));
         return 0;
 }
+
+#endif // SIPX_USE_NATIVE_PTHREADS ]
