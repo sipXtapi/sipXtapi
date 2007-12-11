@@ -17,6 +17,15 @@
 #define MP_FIXED_POINT
 //#undef  MP_FIXED_POINT
 
+/// Switch between inlining and non-inlining of vector operations
+#define MP_DSP_INLINE_VECTOR_FUNCTIONS
+//#undef MP_DSP_INLINE_VECTOR_FUNCTIONS
+#ifdef MP_DSP_INLINE_VECTOR_FUNCTIONS // [
+#  define MP_DSP_VECTOR_API inline
+#else // MP_DSP_INLINE_VECTOR_FUNCTIONS ][
+#  define MP_DSP_VECTOR_API
+#endif // MP_DSP_INLINE_VECTOR_FUNCTIONS ]
+
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
 #include <os/OsStatus.h>
@@ -225,25 +234,31 @@ public:
 #ifdef MP_FIXED_POINT // [
 
      /// Add source vector to accumulator.
-   static OsStatus add_I(const int16_t *pSrc1, int32_t *pSrc2Dst, int dataLength);
+   static MP_DSP_VECTOR_API
+   OsStatus add_I(const int16_t *pSrc1, int32_t *pSrc2Dst, int dataLength);
 
      /// Gain source vector by 2^src1ScaleFactor factor and add it to accumulator.
-   static OsStatus add_IGain(const int16_t *pSrc1, int32_t *pSrc2Dst, int dataLength, unsigned src1ScaleFactor);
+   static MP_DSP_VECTOR_API
+   OsStatus add_IGain(const int16_t *pSrc1, int32_t *pSrc2Dst, int dataLength, unsigned src1ScaleFactor);
 
      /// Attenuate source vector by 2^src1ScaleFactor factor and add it to accumulator.
-   static OsStatus add_IAtt(const int16_t *pSrc1, int32_t *pSrc2Dst, int dataLength, unsigned src1ScaleFactor);
+   static MP_DSP_VECTOR_API
+   OsStatus add_IAtt(const int16_t *pSrc1, int32_t *pSrc2Dst, int dataLength, unsigned src1ScaleFactor);
 
      /// Add two vectors.
-   static OsStatus add(const int32_t *pSrc1, const int32_t *pSrc2, int32_t *pDst, int dataLength);
+   static MP_DSP_VECTOR_API
+   OsStatus add(const int32_t *pSrc1, const int32_t *pSrc2, int32_t *pDst, int dataLength);
      /**<
      *  @TODO Write unittest!!!
      */
 
      /// Multiply source vector by given \p val and add it to accumulator.
-   static OsStatus addMul_I(const int16_t *pSrc1, int16_t val, int32_t *pSrc2Dst, int dataLength);
+   static MP_DSP_VECTOR_API
+   OsStatus addMul_I(const int16_t *pSrc1, int16_t val, int32_t *pSrc2Dst, int dataLength);
 
      /// Multiply vector by constant.
-   static OsStatus mul(const int16_t *pSrc, const int16_t val, int32_t *pDst, int dataLength);
+   static MP_DSP_VECTOR_API
+   OsStatus mul(const int16_t *pSrc, const int16_t val, int32_t *pDst, int dataLength);
      /**<
      *  @TODO Write unittest!!!
      */
@@ -251,31 +266,37 @@ public:
 #else  // MP_FIXED_POINT ][
 
      /// Add source vector to accumulator.
-   static OsStatus add_I(const int16_t *pSrc1, float *pSrc2Dst, int dataLength);
+   static MP_DSP_VECTOR_API
+   OsStatus add_I(const int16_t *pSrc1, float *pSrc2Dst, int dataLength);
 
      /// Stub for fixed-point mode compatibility. It DOES NOT gain values.
-   static inline OsStatus add_IGain(const int16_t *pSrc1, float *pSrc2Dst, int dataLength, unsigned src1ScaleFactor)
+   static inline
+   OsStatus add_IGain(const int16_t *pSrc1, float *pSrc2Dst, int dataLength, unsigned src1ScaleFactor)
    {
       return add_I(pSrc1, pSrc2Dst, dataLength);
    }
 
      /// Stub for fixed-point mode compatibility. It DOES NOT attenuate values.
-   static inline OsStatus add_IAtt(const int16_t *pSrc1, float *pSrc2Dst, int dataLength, unsigned src1ScaleFactor)
+   static inline
+   OsStatus add_IAtt(const int16_t *pSrc1, float *pSrc2Dst, int dataLength, unsigned src1ScaleFactor)
    {
       return add_I(pSrc1, pSrc2Dst, dataLength);
    }
 
      /// Add two vectors.
-   static OsStatus add(const float *pSrc1, const float *pSrc2, float *pDst, int dataLength);
+   static MP_DSP_VECTOR_API
+   OsStatus add(const float *pSrc1, const float *pSrc2, float *pDst, int dataLength);
      /**<
      *  @TODO Write unittest!!!
      */
 
      /// Multiply source vector by given \p val and add it to accumulator.
-   static OsStatus addMul_I(const int16_t *pSrc1, float val, float *pSrc2Dst, int dataLength);
+   static MP_DSP_VECTOR_API
+   OsStatus addMul_I(const int16_t *pSrc1, float val, float *pSrc2Dst, int dataLength);
 
      /// Multiply vector by constant.
-   static OsStatus mul(const int16_t *pSrc, const float val, float *pDst, int dataLength);
+   static MP_DSP_VECTOR_API
+   OsStatus mul(const int16_t *pSrc, const float val, float *pDst, int dataLength);
      /**<
      *  @TODO Write unittest!!!
      */
@@ -291,28 +312,34 @@ public:
 #ifdef MP_FIXED_POINT // [
 
      /// Convert vector of 32-bit integers to 16-bit integers.
-   static OsStatus convert(const int32_t *pSrc, int16_t *pDst, int dataLength);
+   static MP_DSP_VECTOR_API
+   OsStatus convert(const int32_t *pSrc, int16_t *pDst, int dataLength);
 
      /// Gain vector of 32-bit integers and convert them to 16-bit integers.
-   static OsStatus convert_Gain(const int32_t *pSrc, int16_t *pDst, int dataLength, unsigned srcScaleFactor);
+   static MP_DSP_VECTOR_API
+   OsStatus convert_Gain(const int32_t *pSrc, int16_t *pDst, int dataLength, unsigned srcScaleFactor);
 
      /// Attenuate vector of 32-bit integers and convert them to 16-bit integers.
-   static OsStatus convert_Att(const int32_t *pSrc, int16_t *pDst, int dataLength, unsigned srcScaleFactor);
+   static MP_DSP_VECTOR_API
+   OsStatus convert_Att(const int32_t *pSrc, int16_t *pDst, int dataLength, unsigned srcScaleFactor);
 
      /// Convert vector of 16-bit integers to 32-bit integers.
-   static OsStatus convert(const int16_t *pSrc, int32_t *pDst, int dataLength);
+   static MP_DSP_VECTOR_API
+   OsStatus convert(const int16_t *pSrc, int32_t *pDst, int dataLength);
      /**<
      *  @TODO Write unittest!!!
      */
 
      /// Gain vector of 16-bit integers and convert them to 32-bit integers.
-   static OsStatus convert_Gain(const int16_t *pSrc, int32_t *pDst, int dataLength, unsigned srcScaleFactor);
+   static MP_DSP_VECTOR_API
+   OsStatus convert_Gain(const int16_t *pSrc, int32_t *pDst, int dataLength, unsigned srcScaleFactor);
      /**<
      *  @TODO Write unittest!!!
      */
 
      /// Attenuate vector of 16-bit integers and convert them to 32-bit integers.
-   static OsStatus convert_Att(const int16_t *pSrc, int32_t *pDst, int dataLength, unsigned srcScaleFactor);
+   static MP_DSP_VECTOR_API
+   OsStatus convert_Att(const int16_t *pSrc, int32_t *pDst, int dataLength, unsigned srcScaleFactor);
      /**<
      *  @TODO Write unittest!!!
      */
@@ -320,34 +347,40 @@ public:
 #else  // MP_FIXED_POINT ][
 
      /// Convert type of source vector.
-   static OsStatus convert(const float *pSrc, int16_t *pDst, int dataLength);
+   static MP_DSP_VECTOR_API
+   OsStatus convert(const float *pSrc, int16_t *pDst, int dataLength);
 
      /// Stub for fixed-point mode compatibility. It DOES NOT gains values.
-   static inline OsStatus convert_Gain(const float *pSrc, int16_t *pDst, int dataLength, unsigned srcScaleFactor)
+   static inline
+   OsStatus convert_Gain(const float *pSrc, int16_t *pDst, int dataLength, unsigned srcScaleFactor)
    {
       return convert(pSrc, pDst, dataLength);
    }
 
      /// Stub for fixed-point mode compatibility. It DOES NOT attenuate values.
-   static inline OsStatus convert_Att(const float *pSrc, int16_t *pDst, int dataLength, unsigned srcScaleFactor)
+   static inline
+   OsStatus convert_Att(const float *pSrc, int16_t *pDst, int dataLength, unsigned srcScaleFactor)
    {
       return convert(pSrc, pDst, dataLength);
    }
 
      /// Convert type of source vector.
-   static OsStatus convert(const int16_t *pSrc, float *pDst, int dataLength);
+   static MP_DSP_VECTOR_API
+   OsStatus convert(const int16_t *pSrc, float *pDst, int dataLength);
      /**<
      *  @TODO Write unittest!!!
      */
 
      /// Stub for fixed-point mode compatibility. It DOES NOT gains values.
-   static inline OsStatus convert_Gain(const int16_t *pSrc, float *pDst, int dataLength, unsigned srcScaleFactor)
+   static inline
+   OsStatus convert_Gain(const int16_t *pSrc, float *pDst, int dataLength, unsigned srcScaleFactor)
    {
       return convert(pSrc, pDst, dataLength);
    }
 
      /// Stub for fixed-point mode compatibility. It DOES NOT attenuate values.
-   static inline OsStatus convert_Att(const int16_t *pSrc, float *pDst, int dataLength, unsigned srcScaleFactor)
+   static inline
+   OsStatus convert_Att(const int16_t *pSrc, float *pDst, int dataLength, unsigned srcScaleFactor)
    {
       return convert(pSrc, pDst, dataLength);
    }
@@ -361,6 +394,8 @@ public:
 /* ============================ INLINE METHODS ============================ */
 
 #include <mp/MpDspUtilsSum.h>
+#include <mp/MpDspUtilsSumVect.h>
+#include <mp/MpDspUtilsConvertVect.h>
 #include <mp/MpDspUtilsShift.h>
 #include <mp/MpDspUtilsSerials.h>
 

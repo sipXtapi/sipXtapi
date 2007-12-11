@@ -33,9 +33,11 @@ nobase_include_HEADERS =  \
     mp/MpDataBuf.h \
     mp/MpDecoderBase.h \
     mp/MpDspUtils.h \
+    mp/MpDspUtilsConvertVect.h \
     mp/MpDspUtilsSerials.h \
     mp/MpDspUtilsShift.h \
     mp/MpDspUtilsSum.h \
+    mp/MpDspUtilsSumVect.h \
     mp/MpEncoderBase.h \
     mp/MpFlowGraphBase.h \
     mp/MpFlowGraphMsg.h \
