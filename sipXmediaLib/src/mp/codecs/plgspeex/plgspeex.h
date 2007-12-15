@@ -15,19 +15,19 @@
 
 #include <mp/codecs/PlgDefsV1.h>
 
-void* universe_speex_init(const char* fmt, int isDecoder, 
+void* universal_speex_init(const char* fmt, int isDecoder, 
                           struct plgCodecInfoV1* pCodecInfo, 
                           int samplerate, 
                           const struct plgCodecInfoV1* cdi);
 
-int universe_speex_free(void* handle, int isDecoder);
+int universal_speex_free(void* handle, int isDecoder);
 
-int universe_speex_decode(void* handle, const void* pCodedData, 
+int universal_speex_decode(void* handle, const void* pCodedData, 
                           unsigned cbCodedPacketSize, void* pAudioBuffer, 
                           unsigned cbBufferSize, unsigned *pcbDecodedSize, 
                           const struct RtpHeader* pRtpHeader);
 
-int universe_speex_encode(void* handle, const void* pAudioBuffer, 
+int universal_speex_encode(void* handle, const void* pAudioBuffer, 
                           unsigned cbAudioSamples, int* rSamplesConsumed, 
                           void* pCodedData, unsigned cbMaxCodedData, 
                           int* pcbCodedSize, unsigned* pbSendNow);

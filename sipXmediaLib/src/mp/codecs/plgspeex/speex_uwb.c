@@ -59,13 +59,13 @@ CODEC_API int PLG_ENUM_V1(speex_uwb)(const char** mimeSubtype, unsigned int* pMo
 
 CODEC_API  void *PLG_INIT_V1(speex_uwb)(const char* fmt, int isDecoder, struct plgCodecInfoV1* pCodecInfo)
 {
-   return universe_speex_init(fmt, isDecoder, pCodecInfo, 32000, &codecSPEEX_UWB);
+   return universal_speex_init(fmt, isDecoder, pCodecInfo, 32000, &codecSPEEX_UWB);
 }
 
 
 CODEC_API int PLG_FREE_V1(speex_uwb)(void* handle, int isDecoder)
 {
-   return universe_speex_free(handle, isDecoder);
+   return universal_speex_free(handle, isDecoder);
 }
 
 
@@ -74,7 +74,7 @@ CODEC_API  int PLG_DECODE_V1(speex_uwb)(void* handle, const void* pCodedData,
                                     unsigned cbBufferSize, unsigned *pcbDecodedSize, 
                                     const struct RtpHeader* pRtpHeader)
 {
-   return universe_speex_decode(handle, pCodedData, cbCodedPacketSize,
+   return universal_speex_decode(handle, pCodedData, cbCodedPacketSize,
       pAudioBuffer, cbBufferSize, pcbDecodedSize, pRtpHeader);
 }
 
@@ -83,6 +83,6 @@ CODEC_API int PLG_ENCODE_V1(speex_uwb)(void* handle, const void* pAudioBuffer,
                                    void* pCodedData, unsigned cbMaxCodedData, 
                                    int* pcbCodedSize, unsigned* pbSendNow)
 {
-   return universe_speex_encode(handle, pAudioBuffer, cbAudioSamples, 
+   return universal_speex_encode(handle, pAudioBuffer, cbAudioSamples, 
       rSamplesConsumed, pCodedData, cbMaxCodedData, pcbCodedSize, pbSendNow);
 }
