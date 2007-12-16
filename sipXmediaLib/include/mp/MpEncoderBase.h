@@ -43,7 +43,7 @@ public:
      /// Constructor
    MpEncoderBase(int payloadType, const MpCodecInfo* pInfo);
      /**<
-     *  @param payloadType - (in) RTP payload type associated with this encoder
+     *  @param[in] payloadType - RTP payload type associated with this encoder.
      */
 
      /// Destructor
@@ -53,15 +53,15 @@ public:
      /// Initializes a codec data structure for use as an encoder
    virtual OsStatus initEncode(void)=0;
      /**<
-     *  @returns <b>OS_SUCCESS</b> - Success
-     *  @returns <b>OS_NO_MEMORY</b> - Memory allocation failure
+     *  @retval OS_SUCCESS - Success.
+     *  @retval OS_NO_MEMORY - Memory allocation failure.
      */
 
      /// Frees all memory allocated to the encoder by <i>initEncode</i>
    virtual OsStatus freeEncode(void)=0;
      /**<
-     *  @returns <b>OS_SUCCESS</b> - Success
-     *  @returns <b>OS_DELETED</b> - Object has already been deleted
+     *  @retval OS_SUCCESS - Success.
+     *  @retval OS_DELETED - Object has already been deleted.
      */
 
 //@}
@@ -82,19 +82,19 @@ public:
      /**<
      *  Processes the array of audio samples.  If sufficient samples to encode
      *  a frame are now available, the encoded data will be written to the
-     *  <i>pCodeBuf</i> array.  The number of bytes written to the
-     *  <i>pCodeBuf</i> array is returned in <i>rSizeInBytes</i>.
+     *  \p pCodeBuf array.  The number of bytes written to the
+     *  \p pCodeBuf array is returned in \p rSizeInBytes.
      *
-     *  @param pAudioSamples - (in) Pointer to array of PCM samples
-     *  @param numSamples - (in) number of samples at pAudioSamples
-     *  @param rSamplesConsumed - (out) Number of samples encoded
-     *  @param pCodeBuf - (out) Pointer to array for encoded data
-     *  @param bytesLeft - (in) number of bytes available at pCodeBuf
-     *  @param rSizeInBytes - (out) Number of bytes written to the <i>pCodeBuf</i> array
-     *  @param sendNow - (out) if true, the packet is complete, send it.
-     *  @param rAudioCategory - (out) Audio type (e.g., unknown, silence, comfort noise)
+     *  @param[in]  pAudioSamples - Pointer to array of PCM samples
+     *  @param[in]  numSamples - Number of samples at pAudioSamples
+     *  @param[out] rSamplesConsumed - Number of samples encoded
+     *  @param[out] pCodeBuf - Pointer to array for encoded data
+     *  @param[in]  bytesLeft - Number of bytes available at pCodeBuf
+     *  @param[out] rSizeInBytes - Number of bytes written to the <i>pCodeBuf</i> array
+     *  @param[out] sendNow - If true, the packet is complete, send it.
+     *  @param[out] rAudioCategory - Audio type (e.g., unknown, silence, comfort noise)
      *
-     *  @returns <b>OS_SUCCESS</b> - Success
+     *  @retval OS_SUCCESS - Success.
      */
 
 
@@ -107,8 +107,8 @@ public:
      /// Get static information about the encoder
    virtual const MpCodecInfo* getInfo(void) const;
      /**<
-     *  Returns a pointer to an <i>MpCodecInfo</i> object that provides
-     *  static information about the encoder.
+     *  @returns A pointer to an MpCodecInfo object that provides static
+     *           information about the encoder.
      */
 
      /// Returns the RTP payload type associated with this encoder.
