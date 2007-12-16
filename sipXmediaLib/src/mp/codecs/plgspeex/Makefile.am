@@ -12,5 +12,5 @@ libcodec_speex_la_LDFLAGS = \
 libcodec_speex_la_LIBADD = \
 	@SPEEX_LIBS@
 
-libcodec_speex_la_SOURCES = PlgSpeex.c
+libcodec_speex_la_SOURCES = PlgSpeex.c speex_nb.c speex_uwb.c speex_wb.c
 
