@@ -104,8 +104,8 @@ protected:
                                      int inBufsSize,
                                      int outBufsSize,
                                      UtlBoolean isEnabled,
-                                     int samplesPerFrame=80,
-                                     int samplesPerSecond=8000);
+                                     int samplesPerFrame,
+                                     int samplesPerSecond);
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:

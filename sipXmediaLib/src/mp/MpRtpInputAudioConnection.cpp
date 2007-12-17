@@ -128,7 +128,7 @@ UtlBoolean MpRtpInputAudioConnection::processFrame(void)
       outputLabel.append("_output_0_");
       outputLabel.append(*mpOutConns[0].pResource);
       RTL_AUDIO_BUFFER(outputLabel, 
-                       8000, 
+                       mpDecode->getSamplesPerSec(), 
                        ((MpAudioBufPtr) mpOutBufs[0]), 
                        frameIndex);
    }

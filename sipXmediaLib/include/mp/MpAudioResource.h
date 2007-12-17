@@ -101,8 +101,8 @@ protected:
                                      int inBufsSize,
                                      int outBufsSize,
                                      UtlBoolean isEnabled,
-                                     int samplesPerFrame=80,
-                                     int samplesPerSecond=8000
+                                     int samplesPerFrame,
+                                     int samplesPerSecond
                                     ) = 0;
      /**<
      *  @param inBufs (in) array of pointers to input buffers for the resource

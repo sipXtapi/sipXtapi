@@ -47,7 +47,7 @@ public:
                                int maxInputs = 1,
                                int minOutputs = 1,
                                int maxOutputs = 1,
-                               int samplesPerFrame = 80, 
+                               int samplesPerFrame = 160, 
                                int samplesPerSecond = 8000) :
       MpResourceConstructor(resourceType,
                             minInputs,

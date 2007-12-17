@@ -801,8 +801,8 @@ protected:
                                      int inBufsSize,
                                      int outBufsSize,
                                      UtlBoolean isEnabled,
-                                     int samplesPerFrame=80,
-                                     int samplesPerSecond=8000);
+                                     int samplesPerFrame,
+                                     int samplesPerSecond);
 
      /// Handle flowgraph messages for this resource.
    virtual UtlBoolean handleMessage(MpFlowGraphMsg& rMsg);
