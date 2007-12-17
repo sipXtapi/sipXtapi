@@ -114,7 +114,11 @@ public:
      /// Load all codec plugins within specified path and filter.
    OsStatus loadAllDynCodecs(const char* path, const char* regexFilter);
      /**<
-     *  Useful to load all libs in plugins directory.
+     *  Load all libs in given plugins directory.
+     *
+     *  @retval OS_SUCCESS - if at least one codec plugin was found. Note, that
+     *          OS_SUCCESS is returned even if loading of found plugins failed.
+     *  @retval OS_FAILED - if no codec plugins were found.
      */
 
 //@}
