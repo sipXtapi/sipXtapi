@@ -440,7 +440,7 @@ SdpCodec SdpDefaultCodecFactory::getCodec(SdpCodec::SdpCodecTypes internalCodecI
                          8000,
                          20000,
                          1,
-                         "mode=3",
+                         "",
                          SdpCodec::SDP_CODEC_CPU_LOW,
                          SDP_CODEC_BANDWIDTH_LOW);
       }

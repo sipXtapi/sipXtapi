@@ -34,6 +34,7 @@ static const struct plgCodecInfoV1 codecSPEEX_WB =
 
 static const char* defaultFmtps[] =
 {
+   "",
    "mode=2",
    "mode=3",
    "mode=4",

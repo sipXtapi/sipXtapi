@@ -181,7 +181,7 @@ void* universal_speex_init(const char* fmt, int isDecoder,
    else
    {
       struct speex_codec_data_encoder *pSpeexEnc;
-      int mode = analizeDefRange(fmt, "mode", 3, 2, 8);
+      int mode = analizeDefRange(fmt, "mode", -1, 2, 8);
 
       pSpeexEnc = (struct speex_codec_data_encoder *)malloc(sizeof(struct speex_codec_data_encoder));
       if (!pSpeexEnc) {
@@ -208,7 +208,11 @@ void* universal_speex_init(const char* fmt, int isDecoder,
 
       /* Preparing encoder */
       pSpeexEnc->mpEncoderState = speex_encoder_init(pSpeexMode);
-      speex_encoder_ctl(pSpeexEnc->mpEncoderState, SPEEX_SET_MODE,&pSpeexEnc->mMode);
+      /* Setting wanted mode */
+      if (pSpeexEnc->mMode > -1)
+      {
+         speex_encoder_ctl(pSpeexEnc->mpEncoderState, SPEEX_SET_MODE,&pSpeexEnc->mMode);
+      }
 
       // Enable wanted extensions.
       speex_encoder_ctl(pSpeexEnc->mpEncoderState, SPEEX_SET_VAD, &pSpeexEnc->mDoVad);
