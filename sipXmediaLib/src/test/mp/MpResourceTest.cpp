@@ -29,7 +29,6 @@ class MpResourceTest : public CppUnit::TestCase
     CPPUNIT_TEST(testCreators);
     CPPUNIT_TEST(testEnableAndDisable);
     CPPUNIT_TEST(testDoProcessFrame);
-    CPPUNIT_TEST(testSamplesPerFrameAndSec);
     CPPUNIT_TEST(testSetVisitState);
     CPPUNIT_TEST(testMessageHandling);
     CPPUNIT_TEST(testGetFlowGraph);
@@ -42,8 +41,8 @@ class MpResourceTest : public CppUnit::TestCase
 public:
     void testCreators()
     {
-        MpTestResource* pResource1 = 0;
-        MpTestResource* pResource2 = 0;
+        MpTestResource* pResource1 = NULL;
+        MpTestResource* pResource2 = NULL;
         int             portIdx    = 0;
 
         // test the constructor
@@ -77,7 +76,7 @@ public:
 
     void testEnableAndDisable()
     {
-        MpTestResource* pResource = 0;
+        MpTestResource* pResource = NULL;
 
         pResource = new MpTestResource("Test", 0, 5, 1, 4);
 
@@ -110,7 +109,7 @@ public:
 
     void testDoProcessFrame()
     {
-        MpTestResource* pResource = 0;
+        MpTestResource* pResource = NULL;
 
         pResource = new MpTestResource("Test", 0, 5, 1, 4);
 
@@ -137,35 +136,9 @@ public:
         delete pResource;
     }
 
-
-    void testSamplesPerFrameAndSec()
-    {
-        MpTestResource* pResource = 0;
-
-        pResource = new MpTestResource("Test", 0, 5, 1, 4);
-
-        // check initial value of samples per frame
-        pResource->processFrame();
-        CPPUNIT_ASSERT_EQUAL(1, pResource->numFramesProcessed());
-        CPPUNIT_ASSERT_EQUAL(80, pResource->mLastDoProcessArgs.samplesPerFrame);
-        CPPUNIT_ASSERT_EQUAL(8000, pResource->mLastDoProcessArgs.samplesPerSecond);
-
-        // change the samples per frame and samples per second
-        pResource->setSamplesPerFrame(160);
-        pResource->setSamplesPerSec(32000);
-
-        // make sure that the changes have taken effect
-        pResource->processFrame();
-        CPPUNIT_ASSERT_EQUAL(2, pResource->numFramesProcessed());
-        CPPUNIT_ASSERT_EQUAL(160, pResource->mLastDoProcessArgs.samplesPerFrame);
-        CPPUNIT_ASSERT_EQUAL(32000, pResource->mLastDoProcessArgs.samplesPerSecond);
-        
-        delete pResource;
-    }
-
     void testSetVisitState()
     {
-        MpTestResource* pResource = 0;
+        MpTestResource* pResource = NULL;
 
         pResource = new MpTestResource("Test", 0, 5, 1, 4);
         
@@ -183,7 +156,7 @@ public:
 
     void testMessageHandling()
     {
-        MpTestResource* pResource = 0;
+        MpTestResource* pResource = NULL;
 
         pResource = new MpTestResource("Test", 0, 5, 1, 4);
         pResource->sendTestMessage((void*) 1, (void*) 2, 3, 4);
@@ -200,8 +173,8 @@ public:
 
     void testGetFlowGraph()
     {
-        MpFlowGraphBase* pFlowGraph  = 0;
-        MpTestResource*  pResource1  = 0;
+        MpFlowGraphBase* pFlowGraph  = NULL;
+        MpTestResource*  pResource1  = NULL;
         OsStatus         res;
 
         pFlowGraph = new MpFlowGraphBase(30, 30);
@@ -226,11 +199,11 @@ public:
 
     void testInputOutputInfoAndCounts()
     {
-        MpFlowGraphBase* pFlowGraph  = 0;
-        MpTestResource*  pResource1  = 0;
-        MpTestResource*  pResource2  = 0;
-        MpTestResource*  pDownstream = 0;
-        MpTestResource*  pUpstream   = 0;
+        MpFlowGraphBase* pFlowGraph  = NULL;
+        MpTestResource*  pResource1  = NULL;
+        MpTestResource*  pResource2  = NULL;
+        MpTestResource*  pDownstream = NULL;
+        MpTestResource*  pUpstream   = NULL;
         int              downstreamPortIdx;
         int              upstreamPortIdx;
         OsStatus         res;
@@ -330,7 +303,7 @@ public:
 
     void testIsEnabled()
     {
-        MpTestResource*  pResource1  = 0;
+        MpTestResource*  pResource1  = NULL;
 
         pResource1 = new MpTestResource("Test", 0, 5, 1, 4);
         CPPUNIT_ASSERT(!pResource1->isEnabled());  // should be disabled initially
@@ -353,9 +326,9 @@ public:
 
     void testIsInputOutputConnectedDisconnected()
     {
-        MpFlowGraphBase* pFlowGraph  = 0;
-        MpTestResource*  pResource1  = 0;
-        MpTestResource*  pResource2  = 0;
+        MpFlowGraphBase* pFlowGraph  = NULL;
+        MpTestResource*  pResource1  = NULL;
+        MpTestResource*  pResource2  = NULL;
         OsStatus         res;
 
         pFlowGraph = new MpFlowGraphBase(30, 30);
@@ -414,7 +387,7 @@ public:
 
     void testNewEnableAndDisable()
     {
-       MpTestResource* pResource = 0;
+       MpTestResource* pResource = NULL;
        pResource = new MpTestResource("test1", 0, 5, 1, 4);
 
        // verify that the resource starts out disabled
