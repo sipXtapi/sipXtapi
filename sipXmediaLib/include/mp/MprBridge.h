@@ -49,7 +49,7 @@
 
 // MACROS
 
-// Use Q5.10 (signed) values when fixde point is enabled.
+// Use Q5.10 (signed) values when fixed point is enabled.
 #define MP_BRIDGE_INT_LENGTH          INT16_C(5)
 #define MP_BRIDGE_FRAC_LENGTH         INT16_C(10)
 #define MPF_BRIDGE_FLOAT(num)         ((MpBridgeGain)MPF_FLOAT((num), MP_BRIDGE_INT_LENGTH, MP_BRIDGE_FRAC_LENGTH))
