@@ -160,7 +160,8 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
     {
        // Test storing codec paths for loading.
        UtlString testBadCodecPath1 = "|****|****|";
-       CPPUNIT_ASSERT_EQUAL(OS_FAILED, CpMediaInterfaceFactory::addCodecPaths(1, &testBadCodecPath1));
+       CPPUNIT_ASSERT_EQUAL(OS_FAILED,
+                            CpMediaInterfaceFactory::addCodecPaths(1, &testBadCodecPath1));
     }
 
     OsStatus waitForNotf(OsMsgDispatcher& notfDispatcher,
@@ -273,14 +274,15 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
 
         // Properties specific to a connection
         int connectionId = -1;
-        CPPUNIT_ASSERT(mediaInterface->createConnection(connectionId, NULL) == OS_SUCCESS);
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                             mediaInterface->createConnection(connectionId, NULL));
         CPPUNIT_ASSERT(connectionId > 0);
 
         // Test that we can get the bridge mixer port on which this new connection
         // is connected to
         int portOnBridge;
         ((CpTopologyGraphInterface*)mediaInterface)->getConnectionPortOnBridge(connectionId, 
-                                                  portOnBridge);
+                                                                               portOnBridge);
         CPPUNIT_ASSERT_EQUAL(3, portOnBridge);
 
 
@@ -367,7 +369,8 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
 
         // Properties specific to a connection
         int connectionId = -1;
-        CPPUNIT_ASSERT(mediaInterface->createConnection(connectionId, NULL) == OS_SUCCESS);
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                             mediaInterface->createConnection(connectionId, NULL));
         CPPUNIT_ASSERT(connectionId > 0);
 
         // Create a Media notification dispatcher and give it to the media interface.
@@ -578,7 +581,8 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
 
         // Properties specific to a connection
         int connectionId = -1;
-        CPPUNIT_ASSERT(mediaInterface->createConnection(connectionId, NULL) == OS_SUCCESS);
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                             mediaInterface->createConnection(connectionId, NULL));
         CPPUNIT_ASSERT(connectionId > 0);
 
         // Create a Media notification dispatcher and give it to the media interface.
@@ -814,10 +818,12 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
 
         // Create connections for mixed(sink) flowgraph
         int mixedConnection1Id = -1;
-        CPPUNIT_ASSERT(mixedInterface->createConnection(mixedConnection1Id, NULL) == OS_SUCCESS);
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                             mixedInterface->createConnection(mixedConnection1Id, NULL));
         CPPUNIT_ASSERT(mixedConnection1Id > 0);
         int mixedConnection2Id = -1;
-        CPPUNIT_ASSERT(mixedInterface->createConnection(mixedConnection2Id, NULL) == OS_SUCCESS);
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                             mixedInterface->createConnection(mixedConnection2Id, NULL));
         CPPUNIT_ASSERT(mixedConnection2Id > 0);
         
         // Get the address of the connections so we can send RTP to them
@@ -835,23 +841,21 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
         int bandWidth1 = 0;
         int videoBandwidth1;
         int videoFramerate1;
-        CPPUNIT_ASSERT_EQUAL(
-            mixedInterface->getCapabilitiesEx(mixedConnection1Id, 
-                                             maxAddresses,
-                                             rtpHostAddresses1, 
-                                             rtpAudioPorts1,
-                                             rtcpAudioPorts1,
-                                             rtpVideoPorts1,
-                                             rtcpVideoPorts1,
-                                             transportTypes1,
-                                             numActualAddresses1,
-                                             supportedCodecs1,
-                                             srtpParameters1,
-                                             bandWidth1,
-                                             videoBandwidth1,
-                                             videoFramerate1), 
-
-             OS_SUCCESS);
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                             mixedInterface->getCapabilitiesEx(mixedConnection1Id, 
+                                                               maxAddresses,
+                                                               rtpHostAddresses1, 
+                                                               rtpAudioPorts1,
+                                                               rtcpAudioPorts1,
+                                                               rtpVideoPorts1,
+                                                               rtcpVideoPorts1,
+                                                               transportTypes1,
+                                                               numActualAddresses1,
+                                                               supportedCodecs1,
+                                                               srtpParameters1,
+                                                               bandWidth1,
+                                                               videoBandwidth1,
+                                                               videoFramerate1));
 
         // capabilities of second connection on mixed(sink) flowgraph
         UtlString rtpHostAddresses2[maxAddresses];
@@ -866,33 +870,30 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
         int bandWidth2 = 0;
         int videoBandwidth2;
         int videoFramerate2;
-        CPPUNIT_ASSERT_EQUAL(
-            mixedInterface->getCapabilitiesEx(mixedConnection2Id, 
-                                             maxAddresses,
-                                             rtpHostAddresses2, 
-                                             rtpAudioPorts2,
-                                             rtcpAudioPorts2,
-                                             rtpVideoPorts2,
-                                             rtcpVideoPorts2,
-                                             transportTypes2,
-                                             numActualAddresses2,
-                                             supportedCodecs2,
-                                             srtpParameters2,
-                                             bandWidth2,
-                                             videoBandwidth2,
-                                             videoFramerate2), 
-
-             OS_SUCCESS);
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                             mixedInterface->getCapabilitiesEx(mixedConnection2Id, 
+                                                               maxAddresses,
+                                                               rtpHostAddresses2, 
+                                                               rtpAudioPorts2,
+                                                               rtcpAudioPorts2,
+                                                               rtpVideoPorts2,
+                                                               rtcpVideoPorts2,
+                                                               transportTypes2,
+                                                               numActualAddresses2,
+                                                               supportedCodecs2,
+                                                               srtpParameters2,
+                                                               bandWidth2,
+                                                               videoBandwidth2,
+                                                               videoFramerate2));
 
         // Prep the sink connections to receive RTP
         int numCodecsFactory1;
         SdpCodec** codecArray1 = NULL;
         supportedCodecs1.getCodecs(numCodecsFactory1, codecArray1);
-        CPPUNIT_ASSERT_EQUAL(
-            mixedInterface->startRtpReceive(mixedConnection1Id,
-                                            numCodecsFactory1,
-                                            codecArray1),
-            OS_SUCCESS);
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                             mixedInterface->startRtpReceive(mixedConnection1Id,
+                                                             numCodecsFactory1,
+                                                             codecArray1));
 
         // Want to hear what is on the mixed flowgraph
         mixedInterface->giveFocus();
@@ -900,11 +901,10 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
         int numCodecsFactory2;
         SdpCodec** codecArray2 = NULL;
         supportedCodecs2.getCodecs(numCodecsFactory2, codecArray2);
-        CPPUNIT_ASSERT_EQUAL(
-            mixedInterface->startRtpReceive(mixedConnection2Id,
-                                            numCodecsFactory2,
-                                            codecArray2),
-            OS_SUCCESS);
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                             mixedInterface->startRtpReceive(mixedConnection2Id,
+                                                             numCodecsFactory2,
+                                                             codecArray2));
 
         // Second flowgraph to be one of two sources
         CpMediaInterface* source1Interface = 
@@ -925,33 +925,32 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
 
         // Create connection for source 1 flowgraph
         int source1ConnectionId = -1;
-        CPPUNIT_ASSERT(source1Interface->createConnection(source1ConnectionId, NULL) == OS_SUCCESS);
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                             source1Interface->createConnection(source1ConnectionId, NULL));
         CPPUNIT_ASSERT(source1ConnectionId > 0);
 
         // Set the destination for sending RTP from source 1 to connection 1 on
         // the mix flowgraph
         printf("rtpHostAddresses1: \"%s\"\nrtpAudioPorts1: %d\nrtcpAudioPorts1: %d\nrtpVideoPorts1: %d\nrtcpVideoPorts1: %d\n",
-            rtpHostAddresses1->data(), 
-            *rtpAudioPorts1,
-            *rtcpAudioPorts1,
-            *rtpVideoPorts1,
-            *rtcpVideoPorts1);
+               rtpHostAddresses1->data(), 
+               *rtpAudioPorts1,
+               *rtcpAudioPorts1,
+               *rtpVideoPorts1,
+               *rtcpVideoPorts1);
 
-        CPPUNIT_ASSERT_EQUAL(
-            source1Interface->setConnectionDestination(source1ConnectionId,
-                                                       rtpHostAddresses1->data(), 
-                                                       *rtpAudioPorts1,
-                                                       *rtcpAudioPorts1,
-                                                       *rtpVideoPorts1,
-                                                       *rtcpVideoPorts1),
-            OS_SUCCESS);
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                             source1Interface->setConnectionDestination(source1ConnectionId,
+                                                                        rtpHostAddresses1->data(), 
+                                                                        *rtpAudioPorts1,
+                                                                        *rtcpAudioPorts1,
+                                                                        *rtpVideoPorts1,
+                                                                        *rtcpVideoPorts1));
 
         // Start sending RTP from source 1 to the mix flowgraph
-        CPPUNIT_ASSERT_EQUAL(
-            source1Interface->startRtpSend(source1ConnectionId, 
-                                           numCodecsFactory1,
-                                           codecArray1),
-            OS_SUCCESS);
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                             source1Interface->startRtpSend(source1ConnectionId, 
+                                                            numCodecsFactory1,
+                                                            codecArray1));
 
 
         // Second flowgraph to be one of two sources
@@ -973,19 +972,19 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
 
         // Create connection for source 2 flowgraph
         int source2ConnectionId = -1;
-        CPPUNIT_ASSERT(source2Interface->createConnection(source2ConnectionId, NULL) == OS_SUCCESS);
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                             source2Interface->createConnection(source2ConnectionId, NULL));
         CPPUNIT_ASSERT(source2ConnectionId > 0);
 
         // Set the destination for sending RTP from source 2 to connection 2 on
         // the mix flowgraph
-        CPPUNIT_ASSERT_EQUAL(
-            source2Interface->setConnectionDestination(source2ConnectionId,
-                                                       *rtpHostAddresses2, 
-                                                       *rtpAudioPorts2,
-                                                       *rtcpAudioPorts2,
-                                                       *rtpVideoPorts2,
-                                                       *rtcpVideoPorts2),
-            OS_SUCCESS);
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                             source2Interface->setConnectionDestination(source2ConnectionId,
+                                                                        *rtpHostAddresses2, 
+                                                                        *rtpAudioPorts2,
+                                                                        *rtcpAudioPorts2,
+                                                                        *rtpVideoPorts2,
+                                                                        *rtcpVideoPorts2));
 
         RTL_EVENT("Tone count", 0);
 
@@ -993,11 +992,10 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
         mixedInterface->recordChannelAudio(-1, "testTwoTones_call_recording.wav");
 
         // Start sending RTP from source 2 to the mix flowgraph
-        CPPUNIT_ASSERT_EQUAL(
-            source2Interface->startRtpSend(source2ConnectionId, 
-                                           numCodecsFactory2,
-                                           codecArray2),
-            OS_SUCCESS);
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                             source2Interface->startRtpSend(source2ConnectionId, 
+                                                            numCodecsFactory2,
+                                                            codecArray2));
 
         RTL_EVENT("Tone count", 1);
         printf("generate tones in source 1\n");
@@ -1111,7 +1109,8 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
 
         // Create connections for sink flowgraph
         int sinkConnectionId = -1;
-        CPPUNIT_ASSERT(sinkInterface->createConnection(sinkConnectionId, NULL) == OS_SUCCESS);
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                             sinkInterface->createConnection(sinkConnectionId, NULL));
         CPPUNIT_ASSERT(sinkConnectionId > 0);
         
         // Get the address of the connections so we can send RTP to them
@@ -1129,33 +1128,30 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
         int bandWidth = 0;
         int videoBandwidth;
         int videoFramerate;
-        CPPUNIT_ASSERT_EQUAL(
-            sinkInterface->getCapabilitiesEx(sinkConnectionId, 
-                                             maxAddresses,
-                                             rtpHostAddresses, 
-                                             rtpAudioPorts,
-                                             rtcpAudioPorts,
-                                             rtpVideoPorts,
-                                             rtcpVideoPorts,
-                                             transportTypes,
-                                             numActualAddresses,
-                                             supportedSinkCodecs,
-                                             srtpParameters,
-                                             bandWidth,
-                                             videoBandwidth,
-                                             videoFramerate), 
-
-             OS_SUCCESS);
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                             sinkInterface->getCapabilitiesEx(sinkConnectionId, 
+                                                              maxAddresses,
+                                                              rtpHostAddresses, 
+                                                              rtpAudioPorts,
+                                                              rtcpAudioPorts,
+                                                              rtpVideoPorts,
+                                                              rtcpVideoPorts,
+                                                              transportTypes,
+                                                              numActualAddresses,
+                                                              supportedSinkCodecs,
+                                                              srtpParameters,
+                                                              bandWidth,
+                                                              videoBandwidth,
+                                                              videoFramerate));
 
         // Prep the sink connections to receive RTP
         int numSupportedSinkCodecs;
         SdpCodec** supportedSinkCodecArray = NULL;
         supportedSinkCodecs.getCodecs(numSupportedSinkCodecs, supportedSinkCodecArray);
-        CPPUNIT_ASSERT_EQUAL(
-            sinkInterface->startRtpReceive(sinkConnectionId,
-                                           numSupportedSinkCodecs,
-                                           supportedSinkCodecArray),
-            OS_SUCCESS);
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                             sinkInterface->startRtpReceive(sinkConnectionId,
+                                                            numSupportedSinkCodecs,
+                                                            supportedSinkCodecArray));
 
         // Want to hear what is on the mixed flowgraph
         sinkInterface->giveFocus();
@@ -1179,7 +1175,8 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
 
         // Create connection for source flowgraph
         int sourceConnectionId = -1;
-        CPPUNIT_ASSERT(sourceInterface->createConnection(sourceConnectionId, NULL) == OS_SUCCESS);
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                             sourceInterface->createConnection(sourceConnectionId, NULL));
         CPPUNIT_ASSERT(sourceConnectionId > 0);
 
         // Set the destination for sending RTP from source to connection on
@@ -1192,21 +1189,19 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
                *rtpVideoPorts,
                *rtcpVideoPorts);
 
-        CPPUNIT_ASSERT_EQUAL(
-            sourceInterface->setConnectionDestination(sourceConnectionId,
-                                                      rtpHostAddresses->data(), 
-                                                      *rtpAudioPorts,
-                                                      *rtcpAudioPorts,
-                                                      *rtpVideoPorts,
-                                                      *rtcpVideoPorts),
-            OS_SUCCESS);
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                             sourceInterface->setConnectionDestination(sourceConnectionId,
+                                                                       rtpHostAddresses->data(), 
+                                                                       *rtpAudioPorts,
+                                                                       *rtcpAudioPorts,
+                                                                       *rtpVideoPorts,
+                                                                       *rtcpVideoPorts));
 
         // Start sending RTP from source to the sink flowgraph
-        CPPUNIT_ASSERT_EQUAL(
-            sourceInterface->startRtpSend(sourceConnectionId, 
-                                          numSupportedSinkCodecs,
-                                          supportedSinkCodecArray),
-            OS_SUCCESS);
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                             sourceInterface->startRtpSend(sourceConnectionId, 
+                                                           numSupportedSinkCodecs,
+                                                           supportedSinkCodecArray));
 
 
         RTL_EVENT("Tone count", 0);
@@ -1218,9 +1213,8 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
         printf("generate tone in source\n");
         sourceInterface->startTone(1, true, true);
         MiNotification* pNotf;
-        OsStatus stat = 
-           waitForNotf(sinkNotfDispatcher, 
-                       MiNotification::MI_NOTF_DTMF_RECEIVED, 50, &pNotf);
+        OsStatus stat = waitForNotf(sinkNotfDispatcher, 
+                                    MiNotification::MI_NOTF_DTMF_RECEIVED, 50, &pNotf);
         CPPUNIT_ASSERT_MESSAGE("Didn't receive DTMF key down message after startTone", stat == OS_SUCCESS);
         MiDtmfNotf* pDtmfNotf = (MiDtmfNotf*)pNotf;
         CPPUNIT_ASSERT_EQUAL(MiDtmfNotf::DTMF_1, pDtmfNotf->getKeyCode());
@@ -1327,10 +1321,12 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
 
         // Create connections for mixed(sink) flowgraph
         int mixedConnection1Id = -1;
-        CPPUNIT_ASSERT(mixedInterface->createConnection(mixedConnection1Id, NULL) == OS_SUCCESS);
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                             mixedInterface->createConnection(mixedConnection1Id, NULL));
         CPPUNIT_ASSERT(mixedConnection1Id > 0);
         int mixedConnection2Id = -1;
-        CPPUNIT_ASSERT(mixedInterface->createConnection(mixedConnection2Id, NULL) == OS_SUCCESS);
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                             mixedInterface->createConnection(mixedConnection2Id, NULL));
         CPPUNIT_ASSERT(mixedConnection2Id > 0);
         
         // Get the address of the connections so we can send RTP to them
@@ -1348,23 +1344,21 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
         int bandWidth1 = 0;
         int videoBandwidth1;
         int videoFramerate1;
-        CPPUNIT_ASSERT_EQUAL(
-            mixedInterface->getCapabilitiesEx(mixedConnection1Id, 
-                                             maxAddresses,
-                                             rtpHostAddresses1, 
-                                             rtpAudioPorts1,
-                                             rtcpAudioPorts1,
-                                             rtpVideoPorts1,
-                                             rtcpVideoPorts1,
-                                             transportTypes1,
-                                             numActualAddresses1,
-                                             supportedCodecs1,
-                                             srtpParameters1,
-                                             bandWidth1,
-                                             videoBandwidth1,
-                                             videoFramerate1), 
-
-             OS_SUCCESS);
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                             mixedInterface->getCapabilitiesEx(mixedConnection1Id, 
+                                                               maxAddresses,
+                                                               rtpHostAddresses1, 
+                                                               rtpAudioPorts1,
+                                                               rtcpAudioPorts1,
+                                                               rtpVideoPorts1,
+                                                               rtcpVideoPorts1,
+                                                               transportTypes1,
+                                                               numActualAddresses1,
+                                                               supportedCodecs1,
+                                                               srtpParameters1,
+                                                               bandWidth1,
+                                                               videoBandwidth1,
+                                                               videoFramerate1));
 
         // capabilities of second connection on mixed(sink) flowgraph
         UtlString rtpHostAddresses2[maxAddresses];
@@ -1379,33 +1373,30 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
         int bandWidth2 = 0;
         int videoBandwidth2;
         int videoFramerate2;
-        CPPUNIT_ASSERT_EQUAL(
-            mixedInterface->getCapabilitiesEx(mixedConnection2Id, 
-                                             maxAddresses,
-                                             rtpHostAddresses2, 
-                                             rtpAudioPorts2,
-                                             rtcpAudioPorts2,
-                                             rtpVideoPorts2,
-                                             rtcpVideoPorts2,
-                                             transportTypes2,
-                                             numActualAddresses2,
-                                             supportedCodecs2,
-                                             srtpParameters2,
-                                             bandWidth2,
-                                             videoBandwidth2,
-                                             videoFramerate2), 
-
-             OS_SUCCESS);
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                             mixedInterface->getCapabilitiesEx(mixedConnection2Id, 
+                                                               maxAddresses,
+                                                               rtpHostAddresses2, 
+                                                               rtpAudioPorts2,
+                                                               rtcpAudioPorts2,
+                                                               rtpVideoPorts2,
+                                                               rtcpVideoPorts2,
+                                                               transportTypes2,
+                                                               numActualAddresses2,
+                                                               supportedCodecs2,
+                                                               srtpParameters2,
+                                                               bandWidth2,
+                                                               videoBandwidth2,
+                                                               videoFramerate2));
 
         // Prep the sink connections to receive RTP
         int numCodecsFactory1;
         SdpCodec** codecArray1 = NULL;
         supportedCodecs1.getCodecs(numCodecsFactory1, codecArray1);
-        CPPUNIT_ASSERT_EQUAL(
-            mixedInterface->startRtpReceive(mixedConnection1Id,
-                                            numCodecsFactory1,
-                                            codecArray1),
-            OS_SUCCESS);
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                             mixedInterface->startRtpReceive(mixedConnection1Id,
+                                                             numCodecsFactory1,
+                                                             codecArray1));
 
         // Want to hear what is on the mixed flowgraph
         mixedInterface->giveFocus();
@@ -1413,11 +1404,10 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
         int numCodecsFactory2;
         SdpCodec** codecArray2 = NULL;
         supportedCodecs2.getCodecs(numCodecsFactory2, codecArray2);
-        CPPUNIT_ASSERT_EQUAL(
-            mixedInterface->startRtpReceive(mixedConnection2Id,
-                                            numCodecsFactory2,
-                                            codecArray2),
-            OS_SUCCESS);
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                             mixedInterface->startRtpReceive(mixedConnection2Id,
+                                                             numCodecsFactory2,
+                                                             codecArray2));
 
         // Second flowgraph to be one of two sources
         CpMediaInterface* source1Interface = 
@@ -1438,7 +1428,8 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
 
         // Create connection for source 1 flowgraph
         int source1ConnectionId = -1;
-        CPPUNIT_ASSERT(source1Interface->createConnection(source1ConnectionId, NULL) == OS_SUCCESS);
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                             source1Interface->createConnection(source1ConnectionId, NULL));
         CPPUNIT_ASSERT(source1ConnectionId > 0);
 
         // Set the destination for sending RTP from source 1 to connection 1 on
@@ -1450,21 +1441,19 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
             *rtpVideoPorts1,
             *rtcpVideoPorts1);
 
-        CPPUNIT_ASSERT_EQUAL(
-            source1Interface->setConnectionDestination(source1ConnectionId,
-                                                       rtpHostAddresses1->data(), 
-                                                       *rtpAudioPorts1,
-                                                       *rtcpAudioPorts1,
-                                                       *rtpVideoPorts1,
-                                                       *rtcpVideoPorts1),
-            OS_SUCCESS);
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                             source1Interface->setConnectionDestination(source1ConnectionId,
+                                                                        rtpHostAddresses1->data(), 
+                                                                        *rtpAudioPorts1,
+                                                                        *rtcpAudioPorts1,
+                                                                        *rtpVideoPorts1,
+                                                                        *rtcpVideoPorts1));
 
         // Start sending RTP from source 1 to the mix flowgraph
-        CPPUNIT_ASSERT_EQUAL(
-            source1Interface->startRtpSend(source1ConnectionId, 
-                                           numCodecsFactory1,
-                                           codecArray1),
-            OS_SUCCESS);
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                             source1Interface->startRtpSend(source1ConnectionId, 
+                                                            numCodecsFactory1,
+                                                            codecArray1));
 
 
         // Second flowgraph to be one of two sources
@@ -1486,19 +1475,19 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
 
         // Create connection for source 2 flowgraph
         int source2ConnectionId = -1;
-        CPPUNIT_ASSERT(source2Interface->createConnection(source2ConnectionId, NULL) == OS_SUCCESS);
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                             source2Interface->createConnection(source2ConnectionId, NULL));
         CPPUNIT_ASSERT(source2ConnectionId > 0);
 
         // Set the destination for sending RTP from source 2 to connection 2 on
         // the mix flowgraph
-        CPPUNIT_ASSERT_EQUAL(
-            source2Interface->setConnectionDestination(source2ConnectionId,
-                                                       *rtpHostAddresses2, 
-                                                       *rtpAudioPorts2,
-                                                       *rtcpAudioPorts2,
-                                                       *rtpVideoPorts2,
-                                                       *rtcpVideoPorts2),
-            OS_SUCCESS);
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                             source2Interface->setConnectionDestination(source2ConnectionId,
+                                                                        *rtpHostAddresses2, 
+                                                                        *rtpAudioPorts2,
+                                                                        *rtcpAudioPorts2,
+                                                                        *rtpVideoPorts2,
+                                                                        *rtcpVideoPorts2));
 
         RTL_EVENT("Prompt", 0);
 
@@ -1506,16 +1495,15 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
         mixedInterface->recordChannelAudio(-1, "testThreeGraphs_call_recording.wav");
 
         // Start sending RTP from source 2 to the mix flowgraph
-        CPPUNIT_ASSERT_EQUAL(
-            source2Interface->startRtpSend(source2ConnectionId, 
-                                           numCodecsFactory2,
-                                           codecArray2),
-            OS_SUCCESS);
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                             source2Interface->startRtpSend(source2ConnectionId, 
+                                                            numCodecsFactory2,
+                                                            codecArray2));
 
         RTL_EVENT("Prompt", 1);
         printf("playing prompt in source 1\n");
         int waveHeaderSize = 116;
-        CPPUNIT_ASSERT_EQUAL(sizeof(sine_330hz_16b_8k_signed), (unsigned)160116);
+        CPPUNIT_ASSERT_EQUAL((unsigned)160116, sizeof(sine_330hz_16b_8k_signed));
         source1Interface->playBuffer((char*)&sine_330hz_16b_8k_signed[waveHeaderSize], 
                                      sizeof(sine_330hz_16b_8k_signed) - waveHeaderSize, 
                                      0, //type, 
