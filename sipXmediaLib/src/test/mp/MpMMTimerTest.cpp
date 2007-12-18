@@ -304,7 +304,7 @@ public:
       long* pDeltas = new long[mPerfTimesSz-1];
       long* pAbsDeltas = new long[mPerfTimesSz-1];
       unsigned i;
-      for(i = 0; i < mPerfTimesSz-1; i = i++)
+      for(i = 0; i < mPerfTimesSz-1; i++)
       {
          curUsec_i = mpPerfTimes[i].seconds()*1000*1000 + mpPerfTimes[i].usecs();
          curUsec_iPlus1 = mpPerfTimes[i+1].seconds()*1000*1000 + mpPerfTimes[i+1].usecs();
