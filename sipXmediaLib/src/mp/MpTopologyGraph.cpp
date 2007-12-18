@@ -113,7 +113,7 @@ OsStatus MpTopologyGraph::addResources(MpResourceTopology& incrementalTopology,
                           TRUE, 
                           resourceInstanceId);
 
-    return(OS_NOT_YET_IMPLEMENTED);
+    return OS_SUCCESS;
 }
 
 OsStatus MpTopologyGraph::postMessage(const MpFlowGraphMsg& message,
@@ -230,7 +230,7 @@ int MpTopologyGraph::addTopologyResources(MpResourceTopology& resourceTopology,
         int numConstructorResources;
         OsStatus status;
         status = resourceFactory.newResource(resourceType, resourceName, MAX_CONSTRUCTED_RESOURCES,
-           numConstructorResources, resourceArray);        
+                                             numConstructorResources, resourceArray);        
         if(status == OS_SUCCESS)
         {
            assert(numConstructorResources > 0);
@@ -245,8 +245,8 @@ int MpTopologyGraph::addTopologyResources(MpResourceTopology& resourceTopology,
               {
 #ifdef TEST_PRINT
                   printf("constructed and adding resource name: %s type: %s\n",
-                      resourcePtr->getName().data(),
-                      resourceType.data());
+                         resourcePtr->getName().data(),
+                         resourceType.data());
 #endif
                   newResources.insert(resourcePtr);
                   result = addResource(*resourcePtr, FALSE);
