@@ -118,7 +118,7 @@ public:
      */
 
      /// Call this function on every frame processing tick.
-   void frameIncrement();
+   void frameIncrement(int samplesNum);
      /**<
      *  This tells dejitter that we have to pull next packet from it.
      */

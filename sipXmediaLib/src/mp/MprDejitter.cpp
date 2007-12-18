@@ -231,10 +231,10 @@ MpRtpBufPtr MprDejitter::pullPacket(int payloadType, RtpTimestamp maxTimestamp,
    return found;
 }
 
-void MprDejitter::frameIncrement() 
+void MprDejitter::frameIncrement(int samplesNum) 
 {
    // increment the pull timer count one frame's worth
-   mNextPullTimerCount+=80;
+   mNextPullTimerCount += samplesNum;
 //   osPrintf("Dej %p, frame time: %d\n", this, mNextPullTimerCount);
 
    // increment number of frames since last statistic update and update

@@ -215,7 +215,7 @@ UtlBoolean MprDecode::doProcessFrame(MpBufPtr inBufs[],
    OsLock lock(mLock);
 
    // Inform the dejitter that the next frame has happened. 
-   pDej->frameIncrement();
+   pDej->frameIncrement(mpFlowGraph->getSamplesPerFrame());
 
    // Cycle through all decoders and process frames for them.
    for (int i = 0; i < mNumCurrentCodecs; i++) 
