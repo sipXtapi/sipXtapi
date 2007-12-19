@@ -36,15 +36,14 @@
 #include "mp/MpodWinMM.h"
 #include "mp/MpOutputDeviceManager.h"
 
-// EXTERNAL FUNCTIONS
-extern void showWaveError(char *syscall, int e, int N, int line) ;  // dmaTaskWnt.cpp
-
-// EXTERNAL VARIABLES
-// CONSTANTS
-// STATIC VARIABLE INITIALIZATIONS
 // DEFINES
 #define LOW_WAVEBUF_LVL 5
 //#define TEST_PRINT
+/// This define enable use of MpCodec_set/getVolume() and MpCodec_set/getGain().
+/// Note, this is a temporary hack, enabling volume regulation with new audio IO
+/// system. We will rewrite volume regulation in better manner later, so do not
+/// rely on this.
+#define USE_OLD_VOLUME_REGULATION_CODE
 
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // if < msvc7 (2003)
 #  define CBTYPE DWORD
@@ -52,6 +51,18 @@ extern void showWaveError(char *syscall, int e, int N, int line) ;  // dmaTaskWn
 #  define CBTYPE DWORD_PTR
 #endif
 
+// EXTERNAL FUNCTIONS
+extern void showWaveError(char *syscall, int e, int N, int line) ;  // dmaTaskWnt.cpp
+
+// EXTERNAL VARIABLES
+#ifdef USE_OLD_VOLUME_REGULATION_CODE // [
+// This variables are used in MpCodec.cpp to get/set audio volume. THIS IS A HACK!
+extern HWAVEOUT audioOutH;
+extern HWAVEOUT audioOutCallH;
+#endif // USE_OLD_VOLUME_REGULATION_CODE ]
+
+// CONSTANTS
+// STATIC VARIABLE INITIALIZATIONS
 
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
@@ -208,6 +219,12 @@ OsStatus MpodWinMM::enableDevice(unsigned samplesPerFrame,
       return OS_FAILED;
    }
 
+#ifdef USE_OLD_VOLUME_REGULATION_CODE // [
+   // This variables are used in MpCodec.cpp to get/set audio volume. THIS IS A HACK!
+   audioOutH = mDevHandle;
+   audioOutCallH = mDevHandle;
+#endif // USE_OLD_VOLUME_REGULATION_CODE ]
+
    // We'll be accessing the vptr and empty header lists, so acquire the mutex
    mEmptyHdrVPtrListsMutex.acquire();
 
@@ -350,6 +367,12 @@ OsStatus MpodWinMM::disableDevice()
          showWaveError("waveOutUnprepareHeader", res, i, __LINE__);
       }
    }
+
+#ifdef USE_OLD_VOLUME_REGULATION_CODE // [
+   // This variables are used in MpCodec.cpp to get/set audio volume. THIS IS A HACK!
+   audioOutH = NULL;
+   audioOutCallH = NULL;
+#endif // USE_OLD_VOLUME_REGULATION_CODE ]
 
    res = waveOutClose(mDevHandle);
    if ( res != MMSYSERR_NOERROR )
