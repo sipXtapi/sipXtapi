@@ -81,11 +81,10 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
     CPPUNIT_TEST_SUITE(CpPhoneMediaInterfaceTest);
     CPPUNIT_TEST(printMediaInterfaceType); // Just prints the media interface type.
     CPPUNIT_TEST(testSetCodecPath);
-#ifndef SANDBOX
     CPPUNIT_TEST(testProperties);
     CPPUNIT_TEST(testTones);
+    CPPUNIT_TEST(testOuroboros);
     CPPUNIT_TEST(testTwoTones);
-#endif
     CPPUNIT_TEST(testPlayPauseResumeStop);
     CPPUNIT_TEST(testRecordPlayback);
     CPPUNIT_TEST(testConnectionNotifications);
@@ -1577,6 +1576,173 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
            delete codecArray2[numCodecsFactory2];
         }
         delete[] codecArray2;
+    };
+
+    /// This test creates one flowgraph and stream its output to its own
+    /// input. It try to simulate usual call with only two parties.
+    void testOuroboros()
+    {
+        RTL_START(2400000);
+
+        CPPUNIT_ASSERT(mpMediaFactory);
+
+        // If we wanted to supply a different set of codecs than the
+        // defaults, then we would do the below, and supply 
+        // numCodecs and codecArray when creating a mediaInterface.
+        // SdpCodecList* codecFactory = new SdpCodecList();
+        // CPPUNIT_ASSERT(codecFactory);
+        // int numCodecs;
+        // SdpCodec** codecArray = NULL;
+        // codecFactory->getCodecs(numCodecs, codecArray);
+
+        UtlString localRtpInterfaceAddress("127.0.0.1");
+        OsSocket::getHostIp(&localRtpInterfaceAddress);
+        UtlString locale;
+        int tosOptions = 0;
+        UtlString stunServerAddress;
+        int stunOptions = 0;
+        int stunKeepAlivePeriodSecs = 25;
+        UtlString turnServerAddress;
+        int turnPort = 0 ;
+        UtlString turnUser;
+        UtlString turnPassword;
+        int turnKeepAlivePeriodSecs = 25;
+        bool enableIce = false ;
+
+        // Create a flowgraph to receive and mix 2 sources
+        CpMediaInterface* mixedInterface = 
+            mpMediaFactory->createMediaInterface(NULL, // public mapped RTP IP address
+                                                 localRtpInterfaceAddress, 
+                                                 0, NULL, // use default codecs
+                                                 locale,
+                                                 tosOptions,
+                                                 stunServerAddress, 
+                                                 stunOptions, 
+                                                 stunKeepAlivePeriodSecs,
+                                                 turnServerAddress,
+                                                 turnPort,
+                                                 turnUser,
+                                                 turnPassword,
+                                                 turnKeepAlivePeriodSecs,
+                                                 enableIce);
+
+        // Create connection
+        int connectionId = -1;
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                             mixedInterface->createConnection(connectionId, NULL));
+        CPPUNIT_ASSERT(connectionId > 0);
+        
+        // Get the address of the connections so we can send RTP to them
+        // capabilities of first connection on mixed(sink) flowgraph
+        const int maxAddresses = 1;
+        UtlString rtpHostAddresses1[maxAddresses];
+        int rtpAudioPorts1[maxAddresses];
+        int rtcpAudioPorts1[maxAddresses];
+        int rtpVideoPorts1[maxAddresses];
+        int rtcpVideoPorts1[maxAddresses];
+        RTP_TRANSPORT transportTypes1[maxAddresses];
+        int numActualAddresses1;
+        SdpCodecList supportedCodecs1;
+        SdpSrtpParameters srtpParameters1;
+        int bandWidth1 = 0;
+        int videoBandwidth1;
+        int videoFramerate1;
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                             mixedInterface->getCapabilitiesEx(connectionId, 
+                                                               maxAddresses,
+                                                               rtpHostAddresses1, 
+                                                               rtpAudioPorts1,
+                                                               rtcpAudioPorts1,
+                                                               rtpVideoPorts1,
+                                                               rtcpVideoPorts1,
+                                                               transportTypes1,
+                                                               numActualAddresses1,
+                                                               supportedCodecs1,
+                                                               srtpParameters1,
+                                                               bandWidth1,
+                                                               videoBandwidth1,
+                                                               videoFramerate1));
+
+        // Prep the connection's sink to receive RTP
+        int numCodecsFactory;
+        SdpCodec** codecArray = NULL;
+        supportedCodecs1.getCodecs(numCodecsFactory, codecArray);
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                             mixedInterface->startRtpReceive(connectionId,
+                                                             numCodecsFactory,
+                                                             codecArray));
+
+        // Want to hear what is on the mixed flowgraph
+        mixedInterface->giveFocus();
+
+        // Set the destination for sending RTP from source 1 to connection 1 on
+        // the mix flowgraph
+        printf("rtpHostAddresses1: \"%s\"\nrtpAudioPorts1: %d\nrtcpAudioPorts1: %d\nrtpVideoPorts1: %d\nrtcpVideoPorts1: %d\n",
+               rtpHostAddresses1->data(), 
+               *rtpAudioPorts1,
+               *rtcpAudioPorts1,
+               *rtpVideoPorts1,
+               *rtcpVideoPorts1);
+
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                             mixedInterface->setConnectionDestination(connectionId,
+                                                                      rtpHostAddresses1->data(), 
+                                                                      *rtpAudioPorts1,
+                                                                      *rtcpAudioPorts1,
+                                                                      *rtpVideoPorts1,
+                                                                      *rtcpVideoPorts1));
+
+        RTL_EVENT("Prompt", 0);
+
+        // Record the entire "call" - all connections.
+        mixedInterface->recordChannelAudio(-1, "testOuroboros_call_recording.wav");
+
+        // Start sending RTP from source 2 to the mix flowgraph
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                             mixedInterface->startRtpSend(connectionId, 
+                                                          numCodecsFactory,
+                                                          codecArray));
+
+        RTL_EVENT("Prompt", 1);
+        int waveHeaderSize = 116;
+        CPPUNIT_ASSERT_EQUAL((unsigned)160116, sizeof(sine_330hz_16b_8k_signed));
+        mixedInterface->playBuffer((char*)&sine_330hz_16b_8k_signed[waveHeaderSize], 
+                                   sizeof(sine_330hz_16b_8k_signed) - waveHeaderSize, 
+                                   0, //type, 
+                                   FALSE, // repeat,
+                                   FALSE, // local, 
+                                   TRUE //remote,
+                                   //OsProtectedEvent* event = NULL,
+                                   //UtlBoolean mixWithMic = false,
+                                   //int downScaling = 100
+                                   );
+
+        OsTask::delay(3000);
+
+        mixedInterface->stopAudio();
+
+        OsTask::delay(500);
+
+        // Stop recording the "call" -- all connections.
+        mixedInterface->stopRecordChannelAudio(-1);
+
+        // Delete connections
+        mixedInterface->deleteConnection(connectionId);
+
+        // delete interfaces
+        mixedInterface->release();
+
+        OsTask::delay(500) ;
+
+        RTL_WRITE("testOuroboros.rtl");
+        RTL_STOP;
+
+        // delete codecs set
+        for ( numCodecsFactory--; numCodecsFactory>=0; numCodecsFactory--)
+        {
+           delete codecArray[numCodecsFactory];
+        }
+        delete[] codecArray;
     };
 
 };
