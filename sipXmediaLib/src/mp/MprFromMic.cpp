@@ -45,10 +45,8 @@ MICDATAHOOK MprFromMic::s_fnMicDataHook = 0 ;
 
 // Constructor
 MprFromMic::MprFromMic(const UtlString& rName,
-                       int samplesPerFrame,
-                       int samplesPerSec,
                        OsMsgQ *pMicQ)
-: MpAudioResource(rName, 0, 1, 1, 1, samplesPerFrame, samplesPerSec)
+: MpAudioResource(rName, 0, 1, 1, 1)
 , mpMicQ(pMicQ)
 , mNumFrames(0)
 #ifndef REAL_SILENCE_DETECTION

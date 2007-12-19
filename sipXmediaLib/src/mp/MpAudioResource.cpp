@@ -42,11 +42,8 @@
 // Constructor
 MpAudioResource::MpAudioResource(const UtlString& rName,
                                  int minInputs, int maxInputs,
-                                 int minOutputs, int maxOutputs,
-                                 int samplesPerFrame, int samplesPerSec)
-:  MpResource(rName, minInputs, maxInputs, minOutputs, maxOutputs),
-   mSamplesPerFrame(samplesPerFrame),
-   mSamplesPerSec(samplesPerSec)
+                                 int minOutputs, int maxOutputs)
+:  MpResource(rName, minInputs, maxInputs, minOutputs, maxOutputs)
 {
 }
 
@@ -96,7 +93,8 @@ UtlBoolean MpAudioResource::processFrame(void)
    // call doProcessFrame to do any "real" work
    res = doProcessFrame(mpInBufs, mpOutBufs,
                         mMaxInputs, mMaxOutputs, mIsEnabled,
-                        mSamplesPerFrame, mSamplesPerSec);
+                        mpFlowGraph->getSamplesPerFrame(),
+                        mpFlowGraph->getSamplesPerSec());
 
 #ifdef WATCH_FRAME_PROCESSING /* [ */
    for (i=0; i < mMaxInputs; i++)
@@ -143,13 +141,15 @@ UtlBoolean MpAudioResource::processFrame(void)
       // If there is a consumer of the output
       if(mpOutConns[i].pResource)
       {
-         UtlString outputLabel(*this);
+         UtlString outputLabel(mpFlowGraph->getFlowgraphName());
+         outputLabel.append("_");
+         outputLabel.append(*this);
          outputLabel.append("_output_");
          outputLabel.append((char) i < 10 ? ('0' + i) : ('A' + i - 10));
          outputLabel.append('_');
          outputLabel.append(*mpOutConns[i].pResource);
          RTL_AUDIO_BUFFER(outputLabel, 
-                          mSamplesPerSec, 
+                          mpFlowGraph->getSamplesPerSec(), 
                           ((MpAudioBufPtr) mpOutBufs[i]), 
                           frameIndex);
       }
@@ -161,30 +161,6 @@ UtlBoolean MpAudioResource::processFrame(void)
    return res;
 }
 
-// Sets the number of samples expected per frame.
-// Returns FALSE if the specified rate is not supported, TRUE otherwise.
-UtlBoolean MpAudioResource::setSamplesPerFrame(int samplesPerFrame)
-{
-   MpFlowGraphMsg msg(MpFlowGraphMsg::RESOURCE_SET_SAMPLES_PER_FRAME, this,
-                      NULL, NULL, samplesPerFrame);
-   OsStatus       res;
-
-   res = postMessage(msg);
-   return (res == OS_SUCCESS);
-}
-
-// Sets the number of samples expected per second.
-// Returns FALSE if the specified rate is not supported, TRUE otherwise.
-UtlBoolean MpAudioResource::setSamplesPerSec(int samplesPerSec)
-{
-   MpFlowGraphMsg msg(MpFlowGraphMsg::RESOURCE_SET_SAMPLES_PER_SEC, this,
-                      NULL, NULL, samplesPerSec);
-   OsStatus       res;
-
-   res = postMessage(msg);
-   return (res == OS_SUCCESS);
-}
-
 /* ============================ ACCESSORS ================================= */
 
 /* ============================ INQUIRY =================================== */
@@ -192,48 +168,6 @@ UtlBoolean MpAudioResource::setSamplesPerSec(int samplesPerSec)
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
-// Handles an incoming flowgraph message for this media processing object.
-// Returns TRUE if the message was handled, otherwise FALSE.
-UtlBoolean MpAudioResource::handleMessage(MpFlowGraphMsg& fgMsg)
-{
-   UtlBoolean msgHandled;
-
-   msgHandled = TRUE;                       // assume we'll handle the msg
-   switch (fgMsg.getMsg())
-   {
-   case MpFlowGraphMsg::RESOURCE_SET_SAMPLES_PER_FRAME:
-      mSamplesPerFrame = fgMsg.getInt1();    // set the samples per frame
-      break;
-   case MpFlowGraphMsg::RESOURCE_SET_SAMPLES_PER_SEC:
-      mSamplesPerSec = fgMsg.getInt1();      // set the samples per second
-      break;
-   default:
-      msgHandled = MpResource::handleMessage(fgMsg);  // we didn't handle the msg
-      break;                                         // pass it to the parent
-   }
-
-   return msgHandled;
-}
-
-
-// Handles an incoming resource message for this media processing object.
-// Returns TRUE if the message was handled, otherwise FALSE.
-UtlBoolean MpAudioResource::handleMessage(MpResourceMsg& rMsg)
-{
-   UtlBoolean msgHandled = TRUE; // assume we'll handle the msg
-   msgHandled = MpResource::handleMessage(rMsg);  // we didn't handle the msg
-   return msgHandled;
-}
-
-int MpAudioResource::getSamplesPerFrame()
-{
-   return mSamplesPerFrame;
-}
-
-int MpAudioResource::getSamplesPerSec()
-{
-   return mSamplesPerSec;
-}
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 

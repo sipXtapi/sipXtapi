@@ -21,6 +21,7 @@
 #include <mp/MpBuf.h>
 #include <mp/MprBridge.h>
 #include <mp/MpMisc.h>
+#include <mp/MpFlowGraphBase.h>
 #include <mp/MprBridgeSetGainsMsg.h>
 
 // EXTERNAL FUNCTIONS
@@ -141,14 +142,10 @@ private:
 // Constructor
 MprBridge::MprBridge(const UtlString& rName,
                      int maxInOutputs,
-                     int samplesPerFrame, 
-                     int samplesPerSec,
                      UtlBoolean mixSilence)
 :  MpAudioResource(rName, 
                    1, maxInOutputs, 
-                   1, maxInOutputs, 
-                   samplesPerFrame, 
-                   samplesPerSec)
+                   1, maxInOutputs)
 #ifdef TEST_PRINT_CONTRIBUTORS  // [
 , mpMixContributors(NULL)
 , mpLastOutputContributors(NULL)
@@ -202,46 +199,12 @@ MprBridge::MprBridge(const UtlString& rName,
       *pGain = MP_BRIDGE_GAIN_MUTED;
       pGain++;
    }
-   
-   // Initialize all data structures, used for optimization:
-
-   // Initialize extended inputs, taking into account that we have "standard"
-   // (inverse unity) matrix.
-   mExtendedInputs.init_simple(maxInputs(), maxOutputs());
-   // Allocate array for list of active inputs.
-   mActiveInputsListSize = maxInputs()*maxOutputs();
-   mpActiveInputsList = new int[mActiveInputsListSize];
-   // Allocate array for mix action stack.
-   mMixActionsStackLength = maxInputs()*maxOutputs();
-   mpMixActionsStack = new MixAction[mMixActionsStackLength];
-   // Allocate array for mix temporary data.
-   mMixDataStackStep = getSamplesPerFrame();
-   mMixDataStackLength = maxInputs()*maxOutputs()*mMixDataStackStep;
-   mpMixDataStack = new MpBridgeAccum[mMixDataStackLength];
-   mpMixDataSpeechType = new MpAudioBuf::SpeechType[maxInputs()*maxOutputs()];
-   // Allocate array for mix temporary data info.
-   mMixDataInfoStackStep = maxInputs()*maxOutputs();
-   mMixDataInfoStackLength = maxInputs()*maxOutputs()*mMixDataInfoStackStep;
-   mpMixDataInfoStack = new int[mMixDataInfoStackLength];
-   mpMixDataInfoStackTop = mpMixDataInfoStack;
-   mMixDataInfoProcessedStackLength = maxInputs()*maxOutputs();
-   mpMixDataInfoProcessedStack = new int[mMixDataInfoProcessedStackLength];
-   // Allocate temporary storage for mixing data.
-   mpMixAccumulator = new MpBridgeAccum[getSamplesPerFrame()];
-   assert(mpMixAccumulator != NULL);
 }
 
 // Destructor
 MprBridge::~MprBridge()
 {
    delete[] mpGainMatrix;
-   delete[] mpActiveInputsList;
-   delete[] mpMixActionsStack;
-   delete[] mpMixDataStack;
-   delete[] mpMixDataSpeechType;
-   delete[] mpMixDataInfoStack;
-   delete[] mpMixDataInfoProcessedStack;
-   delete[] mpMixAccumulator;
 
 #ifdef TEST_PRINT_CONTRIBUTORS
    delete mpMixContributors;
@@ -314,6 +277,57 @@ OsStatus MprBridge::setMixWeightsForInput(const UtlString& namedResource,
 /* ============================ INQUIRY =================================== */
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
+
+OsStatus MprBridge::setFlowGraph(MpFlowGraphBase* pFlowGraph)
+{
+   OsStatus res =  MpAudioResource::setFlowGraph(pFlowGraph);
+
+   if (res == OS_SUCCESS)
+   {
+      // Check are we added to flowgraph or removed.
+      if (pFlowGraph != NULL)
+      {
+         // Initialize all data structures, used for optimization:
+
+         // Initialize extended inputs, taking into account that we have "standard"
+         // (inverse unity) matrix.
+         mExtendedInputs.init_simple(maxInputs(), maxOutputs());
+         // Allocate array for list of active inputs.
+         mActiveInputsListSize = maxInputs()*maxOutputs();
+         mpActiveInputsList = new int[mActiveInputsListSize];
+         // Allocate array for mix action stack.
+         mMixActionsStackLength = maxInputs()*maxOutputs();
+         mpMixActionsStack = new MixAction[mMixActionsStackLength];
+         // Allocate array for mix temporary data.
+         mMixDataStackStep = mpFlowGraph->getSamplesPerFrame();
+         mMixDataStackLength = maxInputs()*maxOutputs()*mMixDataStackStep;
+         mpMixDataStack = new MpBridgeAccum[mMixDataStackLength];
+         mpMixDataSpeechType = new MpAudioBuf::SpeechType[maxInputs()*maxOutputs()];
+         // Allocate array for mix temporary data info.
+         mMixDataInfoStackStep = maxInputs()*maxOutputs();
+         mMixDataInfoStackLength = maxInputs()*maxOutputs()*mMixDataInfoStackStep;
+         mpMixDataInfoStack = new int[mMixDataInfoStackLength];
+         mpMixDataInfoStackTop = mpMixDataInfoStack;
+         mMixDataInfoProcessedStackLength = maxInputs()*maxOutputs();
+         mpMixDataInfoProcessedStack = new int[mMixDataInfoProcessedStackLength];
+         // Allocate temporary storage for mixing data.
+         mpMixAccumulator = new MpBridgeAccum[mpFlowGraph->getSamplesPerFrame()];
+         assert(mpMixAccumulator != NULL);
+      } 
+      else
+      {
+         delete[] mpActiveInputsList;
+         delete[] mpMixActionsStack;
+         delete[] mpMixDataStack;
+         delete[] mpMixDataSpeechType;
+         delete[] mpMixDataInfoStack;
+         delete[] mpMixDataInfoProcessedStack;
+         delete[] mpMixAccumulator;
+      }
+   }
+
+   return res;
+}
 
 UtlBoolean MprBridge::doMix(MpBufPtr inBufs[], int inBufsSize,
                             MpBufPtr outBufs[], int outBufsSize,

@@ -43,8 +43,7 @@ public:
 //@{
 
      /// Constructor
-   MprMixer(const UtlString& rName, int numWeights,
-            int samplesPerFrame, int samplesPerSec);
+   MprMixer(const UtlString& rName, int numWeights);
 
      /// Destructor
    virtual

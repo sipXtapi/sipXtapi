@@ -30,6 +30,7 @@
 #include "mp/MprToSpkr.h"
 #include "mp/MpMisc.h"
 #include "mp/MpBufferMsg.h"
+#include "mp/MpFlowGraphBase.h"
 #include "mp/FilterBank.h"
 #include "mp/HandsetFilterBank.h"
 
@@ -111,9 +112,8 @@ int bypassSub(int iFlag) {
 /* ============================ CREATORS ================================== */
 
 // Constructor
-MprEchoSuppress::MprEchoSuppress(const UtlString& rName,
-                           int samplesPerFrame, int samplesPerSec)
-:  MpAudioResource(rName, 1, 1, 1, 2, samplesPerFrame, samplesPerSec),
+MprEchoSuppress::MprEchoSuppress(const UtlString& rName)
+:  MpAudioResource(rName, 1, 1, 1, 2),
 
    mpFilterBank(0),
    mpHandsetFilterBank(0)
@@ -135,7 +135,8 @@ MprEchoSuppress::MprEchoSuppress(const UtlString& rName,
    mLastSpkrAtten = 0;
    mpPrev = NULL;
    mSpeechFake = 0;
-   mTicksPerFrame = (3686400 * samplesPerFrame) / samplesPerSec;
+   mTicksPerFrame = (3686400 * mpFlowGraph->getSamplesPerFrame())
+                     / mpFlowGraph->getSamplesPerSec();
 
    mshDelay = 0;
 

@@ -41,15 +41,10 @@ public:
 
     /** Constructor
      */
-    MprRtpOutputAudioConnectionConstructor(int samplesPerFrame = 80, 
-                           int samplesPerSecond = 8000) :
-      MpAudioResourceConstructor(DEFAULT_RTP_OUTPUT_RESOURCE_TYPE,
-                                 0, //minInputs,
-                                 1, //maxInputs,
-                                 0, //minOutputs,
-                                 0, //maxOutputs,
-                                 samplesPerFrame,
-                                 samplesPerSecond)
+    MprRtpOutputAudioConnectionConstructor()
+    : MpAudioResourceConstructor(DEFAULT_RTP_OUTPUT_RESOURCE_TYPE,
+                                 0, 1, //minInputs, maxInputs,
+                                 0, 0) //minOutputs, maxOutputs
     {
     };
 
@@ -65,15 +60,10 @@ public:
                                  int& numResourcesCreated,
                                  MpResource* resourceArray[])
     {
-        assert(mSamplesPerFrame > 0);
-        assert(mSamplesPerSecond > 0);
         assert(maxResourcesToCreate >= 1);
         numResourcesCreated = 1;
-        resourceArray[0] = new MpRtpOutputAudioConnection(resourceName,
-                                                          999, 
-                                                          mSamplesPerFrame, 
-                                                          mSamplesPerSecond);
-        (resourceArray[0])->enable();
+        resourceArray[0] = new MpRtpOutputAudioConnection(resourceName, 999);
+        resourceArray[0]->enable();
         return(OS_SUCCESS);
     }
 

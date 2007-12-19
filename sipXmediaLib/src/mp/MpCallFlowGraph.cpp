@@ -119,51 +119,32 @@ MpCallFlowGraph::MpCallFlowGraph(const char* locale,
    for (i=0; i<MAX_RECORDERS; i++) mpRecorders[i] = NULL;
 
    // create the resources and add them to the flow graph
-   mpBridge           = new MprBridge("Bridge", MAX_CONNECTIONS + 1,
-                                 samplesPerFrame, samplesPerSec);
-   mpFromFile         = new MprFromFile("FromFile",
-                                 samplesPerFrame, samplesPerSec);
-   mpFromStream       = new MprFromStream("FromStream",
-                                 samplesPerFrame, samplesPerSec);
+   mpBridge           = new MprBridge("Bridge", MAX_CONNECTIONS + 1);
+   mpFromFile         = new MprFromFile("FromFile");
+   mpFromStream       = new MprFromStream("FromStream");
 #ifndef DISABLE_LOCAL_AUDIO // [
-   mpFromMic          = new MprFromMic("FromMic",
-                                 samplesPerFrame, samplesPerSec, MpMisc.pMicQ);
-   mpMicSplitter      = new MprSplitter("MicSplitter", 2, 
-                                 samplesPerFrame, samplesPerSec);
-   mpBufferRecorder   = new MprBufferRecorder("BufferRecorder",
-                                 samplesPerFrame, samplesPerSec);
+   mpFromMic          = new MprFromMic("FromMic", MpMisc.pMicQ);
+   mpMicSplitter      = new MprSplitter("MicSplitter", 2);
+   mpBufferRecorder   = new MprBufferRecorder("BufferRecorder");
 #if defined (SPEEX_ECHO_CANCELATION)
-   mpEchoCancel       = new MprSpeexEchoCancel("SpeexEchoCancel",
-                                 samplesPerFrame, samplesPerSec);
+   mpEchoCancel       = new MprSpeexEchoCancel("SpeexEchoCancel");
 #elif defined (SIPX_ECHO_CANCELATION)
-   mpEchoCancel       = new MprEchoSuppress("SipxEchoCancel",
-                                 samplesPerFrame, samplesPerSec);
+   mpEchoCancel       = new MprEchoSuppress("SipxEchoCancel");
 #endif
 #ifdef HAVE_SPEEX // [
-   mpSpeexPreProcess  = new MprSpeexPreprocess("SpeexPreProcess",
-                                 samplesPerFrame, samplesPerSec);
+   mpSpeexPreProcess  = new MprSpeexPreprocess("SpeexPreProcess");
 #endif // HAVE_SPEEX ]
 #endif // DISABLE_LOCAL_AUDIO ]
-   mpTFsMicMixer      = new MprMixer("TFsMicMixer", 2,
-                                 samplesPerFrame, samplesPerSec);
-   mpTFsBridgeMixer   = new MprMixer("TFsBridgeMixer", 2,
-                                 samplesPerFrame, samplesPerSec);
-   mpCallrecMixer     = new MprMixer("CallrecMixer", 2,
-                                 samplesPerFrame, samplesPerSec);
-   mpToneFileSplitter = new MprSplitter("ToneFileSplitter", 2,
-                                 samplesPerFrame, samplesPerSec);
-   mpMicCallrecSplitter = new MprSplitter("MicCallrecSplitter", 2,
-                                 samplesPerFrame, samplesPerSec);
-   mpSpeakerCallrecSplitter = new MprSplitter("SpeakerCallrecSplitter", 2,
-                                 samplesPerFrame, samplesPerSec);
+   mpTFsMicMixer      = new MprMixer("TFsMicMixer", 2);
+   mpTFsBridgeMixer   = new MprMixer("TFsBridgeMixer", 2);
+   mpCallrecMixer     = new MprMixer("CallrecMixer", 2);
+   mpToneFileSplitter = new MprSplitter("ToneFileSplitter", 2);
+   mpMicCallrecSplitter = new MprSplitter("MicCallrecSplitter", 2);
+   mpSpeakerCallrecSplitter = new MprSplitter("SpeakerCallrecSplitter", 2);
 #ifndef DISABLE_LOCAL_AUDIO // [
-   mpToSpkr           = new MprToSpkr("ToSpkr",
-                                 samplesPerFrame, samplesPerSec,
-                                 MpMisc.pSpkQ, MpMisc.pEchoQ);
+   mpToSpkr           = new MprToSpkr("ToSpkr", MpMisc.pSpkQ, MpMisc.pEchoQ);
 #endif // DISABLE_LOCAL_AUDIO ]
-   mpToneGen          = new MprToneGen("ToneGen",
-                                 samplesPerFrame, samplesPerSec, 
-                                 locale);
+   mpToneGen          = new MprToneGen("ToneGen", locale);
 #ifndef DISABLE_LOCAL_AUDIO
 #ifdef SIPX_ECHO_CANCELATION /* [ */
    mpEchoCancel->setSpkrPal(mpToSpkr);
@@ -372,32 +353,27 @@ MpCallFlowGraph::MpCallFlowGraph(const char* locale,
 ////////////////////////////////////////////////////////////////////////////
 #ifdef INSERT_RECORDERS /* [ */
 #ifndef DISABLE_LOCAL_AUDIO // [
-   mpRecorders[RECORDER_MIC] = new MprRecorder("RecordMic",
-                                 samplesPerFrame, samplesPerSec);
+   mpRecorders[RECORDER_MIC] = new MprRecorder("RecordMic");
    res = insertResourceAfter(*(mpRecorders[RECORDER_MIC]), *mpFromMic, 0);
    assert(res == OS_SUCCESS);
 #ifdef HIGH_SAMPLERATE_AUDIO // [
-   mpRecorders[RECORDER_MIC32K] = new MprRecorder("RecordMicH",
-                                 samplesPerFrame, samplesPerSec);
+   mpRecorders[RECORDER_MIC32K] = new MprRecorder("RecordMicH");
    res = insertResourceAfter(*(mpRecorders[RECORDER_MIC32K]), *mpFromMic, 1);
    assert(res == OS_SUCCESS);
 #endif // HIGH_SAMPLERATE_AUDIO ]
 #ifdef DOING_ECHO_CANCELATION /* [ */
-   mpRecorders[RECORDER_ECHO_OUT] =
-      new MprRecorder("RecordEchoOut", samplesPerFrame, samplesPerSec);
+   mpRecorders[RECORDER_ECHO_OUT] = new MprRecorder("RecordEchoOut");
    res = insertResourceAfter(*(mpRecorders[RECORDER_ECHO_OUT]),
                                                     *mpEchoCancel, 0);
    assert(res == OS_SUCCESS);
 
-   mpRecorders[RECORDER_ECHO_IN8] =
-      new MprRecorder("RecordEchoIn8", samplesPerFrame, samplesPerSec);
+   mpRecorders[RECORDER_ECHO_IN8] = new MprRecorder("RecordEchoIn8");
    res = insertResourceAfter(*(mpRecorders[RECORDER_ECHO_IN8]),
                                                     *mpEchoCancel, 1);
    assert(res == OS_SUCCESS);
 
 #ifdef HIGH_SAMPLERATE_AUDIO // [
-   mpRecorders[RECORDER_ECHO_IN32] =
-      new MprRecorder("RecordEchoIn32", samplesPerFrame, samplesPerSec);
+   mpRecorders[RECORDER_ECHO_IN32] = new MprRecorder("RecordEchoIn32");
    res = insertResourceAfter(*(mpRecorders[RECORDER_ECHO_IN32]),
                                                     *mpEchoCancel, 2);
    assert(res == OS_SUCCESS);
@@ -405,8 +381,7 @@ MpCallFlowGraph::MpCallFlowGraph(const char* locale,
 #endif /* DOING_ECHO_CANCELATION ] */
 
 #ifdef HIGH_SAMPLERATE_AUDIO // [
-   mpRecorders[RECORDER_SPKR32K] = new MprRecorder("RecordSpkrH",
-                                 samplesPerFrame, samplesPerSec);
+   mpRecorders[RECORDER_SPKR32K] = new MprRecorder("RecordSpkrH");
    res = insertResourceAfter(*(mpRecorders[RECORDER_SPKR32K]), *mpToSpkr, 1);
    assert(res == OS_SUCCESS);
 #endif // HIGH_SAMPLERATE_AUDIO ]
@@ -417,16 +392,14 @@ MpCallFlowGraph::MpCallFlowGraph(const char* locale,
 //  Moved the following recorder out of the ifdef, to make it permanently available,
 //  for media server use.
 //
-   mpRecorders[RECORDER_SPKR] = new MprRecorder("RecordSpkr",
-                                 samplesPerFrame, samplesPerSec);
+   mpRecorders[RECORDER_SPKR] = new MprRecorder("RecordSpkr");
    res = insertResourceBefore(*(mpRecorders[RECORDER_SPKR]), *mpTFsBridgeMixer, 1);
    assert(res == OS_SUCCESS);
 ///////////////////////////////////////////////////////////////////////////////////
 
    // Call Recording..  Always record calls.
    // create Call recorder and connect it to mpCallrecMixer
-   mpRecorders[RECORDER_CALL] =
-      new MprRecorder("RecordCall", samplesPerFrame, samplesPerSec);
+   mpRecorders[RECORDER_CALL] = new MprRecorder("RecordCall");
    res = addResource(*(mpRecorders[RECORDER_CALL]));
    assert(res == OS_SUCCESS);
    res = addLink(*mpCallrecMixer, 0, *(mpRecorders[RECORDER_CALL]), 0);
@@ -1291,15 +1264,9 @@ MpConnectionID MpCallFlowGraph::createConnection()
    inConnectionName.append(numBuf);
    outConnectionName.append(numBuf);
    mpInputConnections[found] = 
-       new MpRtpInputAudioConnection(inConnectionName,
-                                     found, 
-                                     getSamplesPerFrame(), 
-                                     getSamplesPerSec());
+       new MpRtpInputAudioConnection(inConnectionName, found);
    mpOutputConnections[found] = 
-       new MpRtpOutputAudioConnection(outConnectionName,
-                                      found, 
-                                      getSamplesPerFrame(), 
-                                      getSamplesPerSec());
+       new MpRtpOutputAudioConnection(outConnectionName, found);
 
    pInputConnection = mpInputConnections[found];
    pOutputConnection = mpOutputConnections[found];

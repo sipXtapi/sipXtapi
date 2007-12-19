@@ -28,11 +28,8 @@
 
 // Constructor
 MprNull::MprNull(const UtlString& rName, 
-                 int maxInOutputs,
-                 int samplesPerFrame, 
-                 int samplesPerSec)
-:  MpAudioResource(rName, 1, maxInOutputs, 1, maxInOutputs,
-                   samplesPerFrame, samplesPerSec)
+                 int maxInOutputs)
+:  MpAudioResource(rName, 1, maxInOutputs, 1, maxInOutputs)
 {
 }
 

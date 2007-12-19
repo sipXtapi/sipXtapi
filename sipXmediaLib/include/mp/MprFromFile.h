@@ -44,7 +44,7 @@ public:
 //@{
 
      //:Constructor
-   MprFromFile(const UtlString& rName, int samplesPerFrame, int samplesPerSec);
+   MprFromFile(const UtlString& rName);
 
      //:Destructor
    virtual

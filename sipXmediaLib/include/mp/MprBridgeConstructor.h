@@ -44,16 +44,10 @@ public:
     /** Constructor
      */
     MprBridgeConstructor(int minInOutputs = 1,
-                         int maxInOutputs = DEFAULT_BRIDGE_MAX_IN_OUTPUTS,
-                         int samplesPerFrame = 80, 
-                         int samplesPerSecond = 8000) :
-      MpAudioResourceConstructor(DEFAULT_BRIDGE_RESOURCE_TYPE,
-                                 minInOutputs,
-                                 maxInOutputs,
-                                 minInOutputs,
-                                 maxInOutputs,
-                                 samplesPerFrame,
-                                 samplesPerSecond)
+                         int maxInOutputs = DEFAULT_BRIDGE_MAX_IN_OUTPUTS)
+    : MpAudioResourceConstructor(DEFAULT_BRIDGE_RESOURCE_TYPE,
+                                 minInOutputs, maxInOutputs, //minInputs, maxInputs,
+                                 minInOutputs, maxInOutputs) //minOutputs, maxOutputs
     {
     };
 
@@ -69,15 +63,10 @@ public:
                                  int& numResourcesCreated,
                                  MpResource* resourceArray[])
     {
-        assert(mSamplesPerFrame > 0);
-        assert(mSamplesPerSecond > 0);
         assert(maxResourcesToCreate >= 1);
         numResourcesCreated = 1;
-        resourceArray[0] = new MprBridge(resourceName,
-                                             mMaxInputs,
-                                             mSamplesPerFrame,
-                                             mSamplesPerSecond);
-        (resourceArray[0])->enable();
+        resourceArray[0] = new MprBridge(resourceName, mMaxInputs);
+        resourceArray[0]->enable();
         return(OS_SUCCESS);
     }
 

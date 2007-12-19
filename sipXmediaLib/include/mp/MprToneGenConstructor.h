@@ -40,17 +40,11 @@ public:
 
     /** Constructor
      */
-    MprToneGenConstructor(int samplesPerFrame = 80, 
-                          int samplesPerSecond = 8000,
-                          const UtlString& locale = "") :
-      MpAudioResourceConstructor(DEFAULT_TONE_GEN_RESOURCE_TYPE,
-                                 0, //minInputs,
-                                 1, //maxInputs,
-                                 1, //minOutputs,
-                                 1, //maxOutputs,
-                                 samplesPerFrame,
-                                 samplesPerSecond),
-      mLocale(locale)
+    MprToneGenConstructor(const UtlString& locale = "")
+    : MpAudioResourceConstructor(DEFAULT_TONE_GEN_RESOURCE_TYPE,
+                                 0, 1, //minInputs, maxInputs,
+                                 1, 1) //minOutputs, maxOutputs
+    , mLocale(locale)
     {
     };
 
@@ -66,15 +60,11 @@ public:
                                  int& numResourcesCreated,
                                  MpResource* resourceArray[])
     {
-        assert(mSamplesPerFrame > 0);
-        assert(mSamplesPerSecond > 0);
         assert(maxResourcesToCreate >= 1);
         numResourcesCreated = 1;
         resourceArray[0] = new MprToneGen(resourceName,
-                                          mSamplesPerFrame,
-                                          mSamplesPerSecond,
                                           mLocale);
-        (resourceArray[0])->disable();
+        resourceArray[0]->disable();
         return(OS_SUCCESS);
     }
 

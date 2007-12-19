@@ -43,7 +43,6 @@ public:
        // verify that destroying the flow graph also gets rid of the resources
        // and links.
        pToSpkr = new MprToSpkr("MprToSpkr",
-                               getSamplesPerFrame(), getSamplesPerSec(),
                                NULL, NULL);
 
        res = mpFlowGraph->addResource(*pToSpkr);
@@ -56,7 +55,6 @@ public:
        OsStatus          res;
 
        pToSpkr = new MprToSpkr("MprToSpkr",
-                               getSamplesPerFrame(), getSamplesPerSec(),
                                NULL, NULL);
        CPPUNIT_ASSERT(pToSpkr != NULL);
 
@@ -98,7 +96,6 @@ public:
        OsStatus         res;
 
        pToSpkr = new MprToSpkr("MprToSpkr",
-                               getSamplesPerFrame(), getSamplesPerSec(),
                                NULL, NULL);
        CPPUNIT_ASSERT(pToSpkr != NULL);
 
@@ -147,7 +144,6 @@ public:
        CPPUNIT_ASSERT(pEchoQ != NULL);
 
        pToSpkr = new MprToSpkr("MprToSpkr",
-                               getSamplesPerFrame(), getSamplesPerSec(),
                                pSpkQ, pEchoQ);
        CPPUNIT_ASSERT(pToSpkr != NULL);
 
@@ -193,7 +189,6 @@ public:
        CPPUNIT_ASSERT(pEchoQ != NULL);
 
        pToSpkr = new MprToSpkr("MprToSpkr",
-                               getSamplesPerFrame(), getSamplesPerSec(),
                                pSpkQ, pEchoQ);
        CPPUNIT_ASSERT(pToSpkr != NULL);
 
@@ -252,7 +247,6 @@ public:
        CPPUNIT_ASSERT(pEchoQ != NULL);
 
        pToSpkr = new MprToSpkr("MprToSpkr",
-                               getSamplesPerFrame(), getSamplesPerSec(),
                                pSpkQ, pEchoQ);
        CPPUNIT_ASSERT(pToSpkr != NULL);
 

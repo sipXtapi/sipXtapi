@@ -44,16 +44,10 @@ public:
     /** Constructor
      */
     MprSplitterConstructor(int minInOutputs = 1,
-                         int maxOutputs = DEFAULT_SPLITTER_MAX_OUTPUTS,
-                         int samplesPerFrame = 80, 
-                         int samplesPerSecond = 8000) :
-      MpAudioResourceConstructor(DEFAULT_SPLITTER_RESOURCE_TYPE,
-                                 0,
-                                 1,
-                                 0,
-                                 maxOutputs,
-                                 samplesPerFrame,
-                                 samplesPerSecond)
+                           int maxOutputs = DEFAULT_SPLITTER_MAX_OUTPUTS)
+    : MpAudioResourceConstructor(DEFAULT_SPLITTER_RESOURCE_TYPE,
+                                 0, 1,           //minInputs, maxInputs,
+                                 0, maxOutputs)  //minOutputs, maxOutputs
     {
     };
 
@@ -69,15 +63,11 @@ public:
                                  int& numResourcesCreated,
                                  MpResource* resourceArray[])
     {
-        assert(mSamplesPerFrame > 0);
-        assert(mSamplesPerSecond > 0);
         assert(maxResourcesToCreate >= 1);
         numResourcesCreated = 1;
         resourceArray[0] = new MprSplitter(resourceName,
-                                           mMaxOutputs,
-                                           mSamplesPerFrame,
-                                           mSamplesPerSecond);
-        (resourceArray[0])->enable();
+                                           mMaxOutputs);
+        resourceArray[0]->enable();
         return(OS_SUCCESS);
     }
 

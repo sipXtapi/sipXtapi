@@ -35,10 +35,9 @@
 /* ============================ CREATORS ================================== */
 
 // Constructor
-MprMixer::MprMixer(const UtlString& rName, int numWeights,
-                   int samplesPerFrame, int samplesPerSec)
-:  MpAudioResource(rName, 1, numWeights, 1, 1, samplesPerFrame, samplesPerSec),
-   mScale(0)
+MprMixer::MprMixer(const UtlString& rName, int numWeights)
+:  MpAudioResource(rName, 1, numWeights, 1, 1)
+,  mScale(0)
 {
    int i;
 

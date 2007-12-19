@@ -40,16 +40,10 @@ public:
 
     /** Constructor
      */
-    MprNullConstructor(int maxInOutputs = 5,
-                       int samplesPerFrame = 80, 
-                       int samplesPerSecond = 8000) :
-      MpAudioResourceConstructor(DEFAULT_NULL_RESOURCE_TYPE,
-                                 0,
-                                 maxInOutputs,
-                                 0,
-                                 maxInOutputs,
-                                 samplesPerFrame,
-                                 samplesPerSecond)
+    MprNullConstructor(int maxInOutputs = 5)
+    : MpAudioResourceConstructor(DEFAULT_NULL_RESOURCE_TYPE,
+                                 0, maxInOutputs, //minInputs, maxInputs,
+                                 0, maxInOutputs) //minOutputs, maxOutputs
     {
     };
 
@@ -65,15 +59,11 @@ public:
                                  int& numResourcesCreated,
                                  MpResource* resourceArray[])
     {
-        assert(mSamplesPerFrame > 0);
-        assert(mSamplesPerSecond > 0);
         assert(maxResourcesToCreate >= 1);
         numResourcesCreated = 1;
         resourceArray[0] = new MprNull(resourceName,
-                                           mMaxInputs,
-                                           mSamplesPerFrame,
-                                           mSamplesPerSecond);
-        (resourceArray[0])->disable();
+                                       mMaxInputs);
+        resourceArray[0]->disable();
         return(OS_SUCCESS);
     }
 

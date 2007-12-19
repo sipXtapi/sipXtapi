@@ -45,14 +45,11 @@ static void debugPrintf(...) {}
 
 // Constructor
 MprToOutputDevice::MprToOutputDevice(const UtlString& rName, 
-                                     int samplesPerFrame, 
-                                     int samplesPerSec,
                                      MpOutputDeviceManager* deviceManager,
                                      MpOutputDeviceHandle deviceId)
 : MpAudioResource(rName,
                   1, 1, /* inputs */
-                  0, 0, /* outputs */
-                  samplesPerFrame, samplesPerSec)
+                  0, 0  /* outputs */)
 , mpOutputDeviceManager(deviceManager)
 , mFrameTimeInitialized(FALSE)
 , mFrameTime(0)

@@ -547,54 +547,6 @@ OsStatus MpFlowGraphBase::setNotificationsEnabled(bool enabled,
    return res;
 }
 
-// Sets the number of samples expected per frame.
-// If the flow graph is not "started", this call takes effect
-// immediately.  Otherwise, the call takes effect at the start of the
-// next frame processing interval.
-// Returns OS_SUCCESS to indicate success or OS_INVALID_ARGUMENT if the
-// indicated "samples per frame" rate is not supported.
-OsStatus MpFlowGraphBase::setSamplesPerFrame(int samplesPerFrame)
-{
-   OsWriteLock    lock(mRWMutex);
-
-   UtlBoolean      handled;
-   MpFlowGraphMsg msg(MpFlowGraphMsg::FLOWGRAPH_SET_SAMPLES_PER_FRAME, NULL,
-                      NULL, NULL, samplesPerFrame);
-
-   if (mCurState == STARTED)
-      return postMessage(msg);
-
-   handled = handleMessage(msg);
-   if (handled)
-      return OS_SUCCESS;
-   else
-      return OS_UNSPECIFIED;
-}
-
-// Sets the number of samples expected per second.
-// If the flow graph is not "started", this call takes effect
-// immediately.  Otherwise, the call takes effect at the start of the
-// next frame processing interval.
-// Returns OS_SUCCESS to indicate success or OS_INVALID_ARGUMENT if the
-// indicated "samples per second" rate is not supported.
-OsStatus MpFlowGraphBase::setSamplesPerSec(int samplesPerSec)
-{
-   OsWriteLock    lock(mRWMutex);
-
-   UtlBoolean      handled;
-   MpFlowGraphMsg msg(MpFlowGraphMsg::FLOWGRAPH_SET_SAMPLES_PER_SEC, NULL,
-                      NULL, NULL, samplesPerSec);
-
-   if (mCurState == STARTED)
-      return postMessage(msg);
-
-   handled = handleMessage(msg);
-   if (handled)
-      return OS_SUCCESS;
-   else
-      return OS_UNSPECIFIED;
-}
-
 // Start this flow graph.
 // A flow graph must be "started" before it will process media streams.
 // This call takes effect immediately.  For now, this method always
@@ -905,12 +857,6 @@ UtlBoolean MpFlowGraphBase::handleMessage(OsMsg& rMsg)
       break;
    case MpFlowGraphMsg::FLOWGRAPH_REMOVE_RESOURCE:
       retCode = handleRemoveResource(ptr1);
-      break;
-   case MpFlowGraphMsg::FLOWGRAPH_SET_SAMPLES_PER_FRAME:
-      retCode = handleSetSamplesPerFrame(int1);
-      break;
-   case MpFlowGraphMsg::FLOWGRAPH_SET_SAMPLES_PER_SEC:
-      retCode = handleSetSamplesPerSec(int1);
       break;
    case MpFlowGraphMsg::FLOWGRAPH_SYNCHRONIZE:
       retCode = handleSynchronize(*pMsg);
@@ -1274,60 +1220,6 @@ UtlBoolean MpFlowGraphBase::handleRemoveResource(MpResource* pResource)
    mUnsorted[mResourceCnt] = NULL;
    mRecomputeOrder = TRUE;
 
-   return TRUE;
-}
-
-// Handle the FLOWGRAPH_SET_SAMPLES_PER_FRAME message.
-// Returns TRUE if the message was handled, otherwise FALSE.
-UtlBoolean MpFlowGraphBase::handleSetSamplesPerFrame(int samplesPerFrame)
-{
-   int            i;
-   MpFlowGraphMsg msg(MpFlowGraphMsg::RESOURCE_SET_SAMPLES_PER_FRAME,
-                      NULL, NULL, NULL, samplesPerFrame);
-   MpResource*    pResource;
-
-   // iterate over all resources
-   for (i=0; i < mResourceCnt; i++)
-   {
-      pResource = mUnsorted[i];
-
-      // make each resource handle a SET_SAMPLES_PER_FRAME message
-      msg.setMsgDest(pResource);
-      if (!pResource->handleMessage(msg))
-      {
-         assert(FALSE);
-         return FALSE;
-      }
-   }
-
-   mSamplesPerFrame = samplesPerFrame;
-   return TRUE;
-}
-
-// Handle the FLOWGRAPH_SET_SAMPLES_PER_SEC message.
-// Returns TRUE if the message was handled, otherwise FALSE.
-UtlBoolean MpFlowGraphBase::handleSetSamplesPerSec(int samplesPerSec)
-{
-   int            i;
-   MpFlowGraphMsg msg(MpFlowGraphMsg::RESOURCE_SET_SAMPLES_PER_SEC,
-                      NULL, NULL, NULL, samplesPerSec);
-   MpResource*    pResource;
-
-   // iterate over all resources
-   for (i=0; i < mResourceCnt; i++)
-   {
-      pResource = mUnsorted[i];
-
-      // make each resource handle a SET_SAMPLES_PER_SEC message
-      msg.setMsgDest(pResource);
-      if (!pResource->handleMessage(msg))
-      {
-         assert(FALSE);
-         return FALSE;
-      }
-   }
-
-   mSamplesPerSec = samplesPerSec;
    return TRUE;
 }
 

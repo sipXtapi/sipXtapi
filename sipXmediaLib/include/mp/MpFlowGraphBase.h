@@ -307,36 +307,6 @@ public:
    OsStatus setNotificationsEnabled(bool enabled, 
                                     const UtlString& resourceName = NULL);
 
-     /// Sets the number of samples expected per frame.
-   OsStatus setSamplesPerFrame(int samplesPerFrame);
-     /**<
-     *  If the flow graph is not "started", this call takes effect
-     *  immediately.  Otherwise, the call takes effect at the start of the
-     *  next frame processing interval.
-     *  
-     *  @Note The flowgraph does not control input and output device managers
-     *        so be sure to also set the new samplesPerFrame on each of those
-     *        managers that are sending/receiving data to/from this flowgraph.
-     *
-     *  @retval OS_SUCCESS - success.
-     *  @retval OS_INVALID_ARGUMENT - specified duration is not supported.
-     */
-
-     /// Sets the number of samples expected per second.
-   OsStatus setSamplesPerSec(int samplesPerSec);
-     /**<
-     *  If the flow graph is not "started", this call takes effect
-     *  immediately.  Otherwise, the call takes effect at the start of the
-     *  next frame processing interval.
-     *
-     *  @Note The flowgraph does not control input and output device managers
-     *        so be sure to also set the new sample rate on each of those
-     *        managers that are sending/receiving data to/from this flowgraph.
-     *
-     *  @retval OS_SUCCESS - success.
-     *  @retval OS_INVALID_ARGUMENT - specified duration is not supported.
-     */
-
      /// Start this flow graph.
    OsStatus start(void);
      /**<
@@ -547,20 +517,6 @@ private:
 
      /// Handle the @link MpFlowGraphMsg::FLOWGRAPH_ENABLE FLOWGRAPH_ENABLE @endlink message.
    UtlBoolean handleEnable(void);
-     /**<
-     * @retval TRUE - if the message was handled.
-     * @retval FALSE - otherwise.
-     */
-
-     /// Handle the @link MpFlowGraphMsg::FLOWGRAPH_SET_SAMPLES_PER_FRAME FLOWGRAPH_SET_SAMPLES_PER_FRAME @endlink message.
-   UtlBoolean handleSetSamplesPerFrame(int samplesPerFrame);
-     /**<
-     * @retval TRUE - if the message was handled.
-     * @retval FALSE - otherwise.
-     */
-
-     /// Handle the @link MpFlowGraphMsg::FLOWGRAPH_SET_SAMPLES_PER_SEC FLOWGRAPH_SET_SAMPLES_PER_SEC @endlink message.
-   UtlBoolean handleSetSamplesPerSec(int samplesPerSec);
      /**<
      * @retval TRUE - if the message was handled.
      * @retval FALSE - otherwise.

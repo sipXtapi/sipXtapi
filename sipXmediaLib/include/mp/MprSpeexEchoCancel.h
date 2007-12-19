@@ -60,7 +60,6 @@ public:
 
      /// Constructor
    MprSpeexEchoCancel(const UtlString& rName,
-                      int samplesPerFrame, int samplesPerSec,
                       int filterLength=SPEEX_DEFAULT_AEC_FILTER_LENGTH,
                       int echoResiduePoolSize=SPEEX_DEFAULT_ECHO_RESIDUE_POOL_SIZE);
      /**<
@@ -105,6 +104,7 @@ private:
    bool            mStartedCanceling;
    bool            mEchoResidueCurrent;
    MpBufPool       mEchoResiduePool;
+   int             mFilterLength;
 
    virtual UtlBoolean doProcessFrame(MpBufPtr inBufs[],
                                      MpBufPtr outBufs[],
@@ -113,6 +113,15 @@ private:
                                      UtlBoolean isEnabled,
                                      int samplesPerFrame,
                                      int samplesPerSecond);
+
+     /// @brief Associates this resource with the indicated flow graph.
+   OsStatus setFlowGraph(MpFlowGraphBase* pFlowGraph);
+     /**<
+     *  We use this overloaded method for initialization of some of our member
+     *  variables, which depend on flowgraph's properties (like frame size).
+     *
+     *  @retval OS_SUCCESS - for now, this method always returns success
+     */
 
      /// Copy constructor (not implemented for this class)
    MprSpeexEchoCancel(const MprSpeexEchoCancel& rMprSpeexEchoCancel);

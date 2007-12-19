@@ -24,6 +24,7 @@
 #include "os/OsTask.h"
 #include "mp/MpMisc.h"
 #include "mp/MpBuf.h"
+#include "mp/MpFlowGraphBase.h"
 #include "mp/MprRecorder.h"
 #include "os/OsProtectEventMgr.h"
 
@@ -49,9 +50,8 @@
 /* ============================ CREATORS ================================== */
 
 // Constructor
-MprRecorder::MprRecorder(const UtlString& rName,
-                         int samplesPerFrame, int samplesPerSec)
-:  MpAudioResource(rName, 1, 1, 0, 1, samplesPerFrame, samplesPerSec),
+MprRecorder::MprRecorder(const UtlString& rName)
+:  MpAudioResource(rName, 1, 1, 0, 1),
    mFileDescriptor(-1),
    mRecFormat(UNINITIALIZED_FORMAT),
    mTotalBytesWritten(0),
@@ -418,7 +418,7 @@ void MprRecorder::progressReport(Completion code)
             rs->mTotalBytesWritten   = mTotalBytesWritten;
             rs->mTotalSamplesWritten = mTotalSamplesWritten;
             rs->mFinalStatus = code;
-            int sps = getSamplesPerSec();
+            int sps = mpFlowGraph->getSamplesPerSec();
             rs->mDuration = (1000 * mTotalSamplesWritten) / sps;
             OsSysLog::add(FAC_MP, PRI_DEBUG, 
                           "MprRecorder::progressReport "
@@ -480,7 +480,7 @@ UtlBoolean MprRecorder::handleSetup(int file, int timeMS,
                                     OsProtectedEvent* event)
 {
    int iMsPerFrame = 
-      (1000 * getSamplesPerFrame()) / getSamplesPerSec();
+      (1000 * mpFlowGraph->getSamplesPerFrame()) / mpFlowGraph->getSamplesPerSec();
 
    if (isEnabled()) 
    {

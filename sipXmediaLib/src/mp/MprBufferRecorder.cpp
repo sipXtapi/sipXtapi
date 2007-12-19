@@ -38,10 +38,8 @@
 /* ============================ CREATORS ================================== */
 
 // Constructor
-MprBufferRecorder::MprBufferRecorder(const UtlString& rName,
-                                     int samplesPerFrame, 
-                                     int samplesPerSec)
-:  MpAudioResource(rName, 1, 1, 0, 1, samplesPerFrame, samplesPerSec),
+MprBufferRecorder::MprBufferRecorder(const UtlString& rName)
+:  MpAudioResource(rName, 1, 1, 0, 1),
    mpBuffer(NULL),
    mnBufferSamplesUsed(0),
    mStatus(RECORD_IDLE)

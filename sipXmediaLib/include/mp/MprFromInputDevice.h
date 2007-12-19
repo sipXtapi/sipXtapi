@@ -50,8 +50,6 @@ public:
 
      /// Default constructor
    MprFromInputDevice(const UtlString& rName, 
-                      int samplesPerFrame, 
-                      int samplesPerSec,
                       MpInputDeviceManager* deviceManager,
                       MpInputDeviceHandle deviceId);
 

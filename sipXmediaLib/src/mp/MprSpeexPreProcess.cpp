@@ -25,6 +25,7 @@
 // APPLICATION INCLUDES
 #include "os/OsDefs.h"
 #include "mp/MpBuf.h"
+#include "mp/MpFlowGraphBase.h"
 #include "mp/MprSpeexPreProcess.h"
 
 // EXTERNAL FUNCTIONS
@@ -37,21 +38,14 @@
 /* ============================ CREATORS ================================== */
 
 // Constructor
-MprSpeexPreprocess::MprSpeexPreprocess(const UtlString& rName,
-                          int samplesPerFrame, int samplesPerSec)
-:  MpAudioResource(rName, 1, 2, 1, 1, samplesPerFrame, samplesPerSec)
+MprSpeexPreprocess::MprSpeexPreprocess(const UtlString& rName)
+:  MpAudioResource(rName, 1, 2, 1, 1)
 {
-   // Initialize Speex preprocessor state
-   mpPreprocessState = speex_preprocess_state_init(samplesPerFrame, samplesPerSec);
 }
 
 // Destructor
 MprSpeexPreprocess::~MprSpeexPreprocess()
 {
-   if (mpPreprocessState != NULL) {
-      speex_preprocess_state_destroy(mpPreprocessState);
-      mpPreprocessState = NULL;
-   }
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -148,6 +142,32 @@ UtlBoolean MprSpeexPreprocess::handleSetNoiseReduction(UtlBoolean enable)
 {
    speex_preprocess_ctl(mpPreprocessState, SPEEX_PREPROCESS_SET_DENOISE, &enable);
    return true;
+}
+
+OsStatus MprSpeexPreprocess::setFlowGraph(MpFlowGraphBase* pFlowGraph)
+{
+   OsStatus res =  MpAudioResource::setFlowGraph(pFlowGraph);
+
+   if (res == OS_SUCCESS)
+   {
+      // Check are we added to flowgraph or removed.
+      if (pFlowGraph != NULL)
+      {
+         // Initialize Speex preprocessor state
+         mpPreprocessState = speex_preprocess_state_init(mpFlowGraph->getSamplesPerFrame(),
+                                                         mpFlowGraph->getSamplesPerSec());
+      } 
+      else
+      {
+         if (mpPreprocessState != NULL)
+         {
+            speex_preprocess_state_destroy(mpPreprocessState);
+            mpPreprocessState = NULL;
+         }
+      }
+   }
+
+   return res;
 }
 
 /* ============================ FUNCTIONS ================================= */

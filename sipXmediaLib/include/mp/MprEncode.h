@@ -50,7 +50,7 @@ public:
 //@{
 
      // Constructor
-   MprEncode(const UtlString& rName, int samplesPerFrame, int samplesPerSec);
+   MprEncode(const UtlString& rName);
 
      // Destructor
    virtual

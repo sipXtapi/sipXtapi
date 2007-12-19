@@ -37,8 +37,7 @@ public:
        // when we have a flow graph that contains resources and links,
        // verify that destroying the flow graph also gets rid of the resources
        // and links.
-       pSplitter = new MprSplitter("MprSplitter", 2,
-                                   getSamplesPerFrame(), getSamplesPerSec());
+       pSplitter = new MprSplitter("MprSplitter", 2);
 
        res = mpFlowGraph->addResource(*pSplitter);
        CPPUNIT_ASSERT(res == OS_SUCCESS);
@@ -49,8 +48,7 @@ public:
        MprSplitter*      pSplitter  = NULL;
        OsStatus          res;
 
-       pSplitter = new MprSplitter("MprSplitter", 2,
-                                   getSamplesPerFrame(), getSamplesPerSec());
+       pSplitter = new MprSplitter("MprSplitter", 2);
        CPPUNIT_ASSERT(pSplitter != NULL);
 
        setupFramework(pSplitter);
@@ -93,8 +91,7 @@ public:
        MprSplitter*      pSplitter  = NULL;
        OsStatus          res;
 
-       pSplitter = new MprSplitter("MprSplitter", 2,
-                                   getSamplesPerFrame(), getSamplesPerSec());
+       pSplitter = new MprSplitter("MprSplitter", 2);
        CPPUNIT_ASSERT(pSplitter != NULL);
 
        setupFramework(pSplitter);
@@ -138,7 +135,7 @@ public:
          setUp();
 
          // Set up the splitter and framework
-         pSplitter = new MprSplitter("MprMixer", 2, getSamplesPerFrame(), getSamplesPerSec());
+         pSplitter = new MprSplitter("MprMixer", 2);
          CPPUNIT_ASSERT(pSplitter != NULL);
          setupFramework(pSplitter);
 

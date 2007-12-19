@@ -44,9 +44,7 @@
 
 // Constructor
 MpRtpInputAudioConnection::MpRtpInputAudioConnection(const UtlString& resourceName,
-                                                     MpConnectionID myID, 
-                                                     int samplesPerFrame, 
-                                                     int samplesPerSec)
+                                                     MpConnectionID myID)
 : MpRtpInputConnection(resourceName,
                        myID, 
 #ifdef INCLUDE_RTCP // [
@@ -61,7 +59,7 @@ MpRtpInputAudioConnection::MpRtpInputAudioConnection(const UtlString& resourceNa
    int          i;
 
    sprintf(name, "Decode-%d", myID);
-   mpDecode    = new MprDecode(name, this, samplesPerFrame, samplesPerSec);
+   mpDecode    = new MprDecode(name, this);
 
  //memset((char*)mpPayloadMap, 0, (NUM_PAYLOAD_TYPES*sizeof(MpDecoderBase*)));
    for (i=0; i<NUM_PAYLOAD_TYPES; i++) {
@@ -110,8 +108,8 @@ UtlBoolean MpRtpInputAudioConnection::processFrame(void)
                                           mMaxInputs, 
                                           mMaxOutputs, 
                                           mpDecode->mIsEnabled,
-                                          mpDecode->getSamplesPerFrame(), 
-                                          mpDecode->getSamplesPerSec());
+                                          mpFlowGraph->getSamplesPerFrame(),
+                                          mpFlowGraph->getSamplesPerSec());
     }
 
 
@@ -124,11 +122,13 @@ UtlBoolean MpRtpInputAudioConnection::processFrame(void)
    // If there is a consumer of the output
    if(mpOutConns[0].pResource)
    {
-      UtlString outputLabel(*this);
+      UtlString outputLabel(mpFlowGraph->getFlowgraphName());
+      outputLabel.append("_");
+      outputLabel.append(*this);
       outputLabel.append("_output_0_");
       outputLabel.append(*mpOutConns[0].pResource);
       RTL_AUDIO_BUFFER(outputLabel, 
-                       mpDecode->getSamplesPerSec(), 
+                       mpFlowGraph->getSamplesPerSec(), 
                        ((MpAudioBufPtr) mpOutBufs[0]), 
                        frameIndex);
    }

@@ -42,9 +42,7 @@ public:
 //@{
      /// Constructor
    MprNull(const UtlString& rName, 
-           int maxInOutputs,
-           int samplesPerFrame, 
-           int samplesPerSec);
+           int maxInOutputs);
 
      /// Destructor
    virtual

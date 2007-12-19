@@ -41,7 +41,7 @@ public:
       // verify that destroying the flow graph also gets rid of the resources
       // and links.
       pMixer = 
-         new MprMixer("MprMixer", 2, getSamplesPerFrame(), getSamplesPerSec());
+         new MprMixer("MprMixer", 2);
 
       res = mpFlowGraph->addResource(*pMixer);
       CPPUNIT_ASSERT(res == OS_SUCCESS);
@@ -53,7 +53,7 @@ public:
       OsStatus res;
 
       pMixer = 
-         new MprMixer("MprMixer", 2, getSamplesPerFrame(), getSamplesPerSec());
+         new MprMixer("MprMixer", 2);
       CPPUNIT_ASSERT(pMixer != NULL);
 
       setupFramework(pMixer);
@@ -94,7 +94,7 @@ public:
       OsStatus res;
 
       pMixer = 
-         new MprMixer("MprMixer", 2, getSamplesPerFrame(), getSamplesPerSec());
+         new MprMixer("MprMixer", 2);
       CPPUNIT_ASSERT(pMixer != NULL);
 
       setupFramework(pMixer);
@@ -126,7 +126,7 @@ public:
       OsStatus res;
 
       pMixer = 
-         new MprMixer("MprMixer", 2, getSamplesPerFrame(), getSamplesPerSec());
+         new MprMixer("MprMixer", 2);
       CPPUNIT_ASSERT(pMixer != NULL);
 
       setupFramework(pMixer);
@@ -158,7 +158,7 @@ public:
       OsStatus res;
 
       pMixer = 
-         new MprMixer("MprMixer", 2, getSamplesPerFrame(), getSamplesPerSec());
+         new MprMixer("MprMixer", 2);
       CPPUNIT_ASSERT(pMixer != NULL);
 
       setupFramework(pMixer);
@@ -200,7 +200,7 @@ public:
       OsStatus res;
 
       pMixer = 
-         new MprMixer("MprMixer", 2, getSamplesPerFrame(), getSamplesPerSec());
+         new MprMixer("MprMixer", 2);
       CPPUNIT_ASSERT(pMixer != NULL);
 
       setupFramework(pMixer);
@@ -255,7 +255,7 @@ public:
 
 
          pMixer = 
-            new MprMixer("MprMixer", 2, getSamplesPerFrame(), getSamplesPerSec());
+            new MprMixer("MprMixer", 2);
          CPPUNIT_ASSERT(pMixer != NULL);
 
          setupFramework(pMixer);

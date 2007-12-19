@@ -46,7 +46,7 @@ public:
 //@{
 
      /// Constructor
-   MprEchoSuppress(const UtlString& rName, int samplesPerFrame, int samplesPerSec);
+   MprEchoSuppress(const UtlString& rName);
 
      /// Destructor
    virtual

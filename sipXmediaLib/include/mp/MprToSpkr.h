@@ -57,8 +57,7 @@ public:
 //@{
 
      /// Constructor
-   MprToSpkr(const UtlString& rName, int samplesPerFrame, int samplesPerSec,
-             OsMsgQ *pSpkQ, OsMsgQ *pEchoQ);
+   MprToSpkr(const UtlString& rName, OsMsgQ *pSpkQ, OsMsgQ *pEchoQ);
 
      /// Destructor
    virtual

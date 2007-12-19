@@ -38,11 +38,8 @@ static const int RESOURCE_MSG_TYPE = MpFlowGraphMsg::RESOURCE_SPECIFIC_START;
 // Constructor
 MpTestResource::MpTestResource(const UtlString& rName
                               , int minInputs, int maxInputs
-                              , int minOutputs, int maxOutputs
-                              , int samplesPerFrame, int samplesPerSec
-                              )
-:  MpAudioResource(rName, minInputs, maxInputs, minOutputs, maxOutputs,
-                   samplesPerFrame, samplesPerSec),
+                              , int minOutputs, int maxOutputs)
+:  MpAudioResource(rName, minInputs, maxInputs, minOutputs, maxOutputs),
    mGenOutBufMask(0),
    mProcessInBufMask(0),
    mLastMsg(0),

@@ -39,9 +39,7 @@
 
 // Constructor
 MpRtpOutputAudioConnection::MpRtpOutputAudioConnection(const UtlString& resourceName,
-                                                       MpConnectionID myID,
-                                                       int samplesPerFrame,
-                                                       int samplesPerSec)
+                                                       MpConnectionID myID)
 : MpRtpOutputConnection(resourceName,
                         myID,
 #ifdef INCLUDE_RTCP // [
@@ -55,7 +53,7 @@ MpRtpOutputAudioConnection::MpRtpOutputAudioConnection(const UtlString& resource
    char         name[50];
 
    sprintf(name, "Encode-%d", myID);
-   mpEncode    = new MprEncode(name, samplesPerFrame, samplesPerSec);
+   mpEncode    = new MprEncode(name);
 
    // encoder does not get added to the flowgraph, this connection
    // gets added to do the encoding frame processing.
@@ -100,8 +98,8 @@ UtlBoolean MpRtpOutputAudioConnection::processFrame(void)
                                           mMaxInputs,
                                           mMaxOutputs,
                                           mpEncode->mIsEnabled,
-                                          mpEncode->getSamplesPerFrame(),
-                                          mpEncode->getSamplesPerSec());
+                                          mpFlowGraph->getSamplesPerFrame(),
+                                          mpFlowGraph->getSamplesPerSec());
     }
 
    // release the input buffer, we are done with it

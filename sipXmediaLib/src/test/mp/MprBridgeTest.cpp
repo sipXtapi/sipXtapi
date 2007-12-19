@@ -51,8 +51,7 @@ public:
        // when we have a flow graph that contains resources and links,
        // verify that destroying the flow graph also gets rid of the resources
        // and links.
-       pBridge = new MprBridge("MprBridge", 10,
-                               getSamplesPerFrame(), getSamplesPerSec());
+       pBridge = new MprBridge("MprBridge", 10);
 
        res = mpFlowGraph->addResource(*pBridge);
        CPPUNIT_ASSERT(res == OS_SUCCESS);
@@ -64,8 +63,7 @@ public:
        OsStatus          res;
        int               i;
 
-       pBridge = new MprBridge("MprBridge", 10,
-                               getSamplesPerFrame(), getSamplesPerSec());
+       pBridge = new MprBridge("MprBridge", 10);
        CPPUNIT_ASSERT(pBridge != NULL);
 
        setupFramework(pBridge);
@@ -90,8 +88,7 @@ public:
        MprBridge*        pBridge    = NULL;
        OsStatus          res;
 
-       pBridge = new MprBridge("MprBridge", 10,
-                               getSamplesPerFrame(), getSamplesPerSec());
+       pBridge = new MprBridge("MprBridge", 10);
        CPPUNIT_ASSERT(pBridge != NULL);
 
        setupFramework(pBridge);
@@ -121,8 +118,7 @@ public:
        MpBufPtr          pBuf;
        OsStatus          res;
 
-       pBridge = new MprBridge("MprBridge", 10,
-                               getSamplesPerFrame(), getSamplesPerSec());
+       pBridge = new MprBridge("MprBridge", 10);
        CPPUNIT_ASSERT(pBridge != NULL);
 
        setupFramework(pBridge);
@@ -166,8 +162,7 @@ public:
        MpBufPtr          pBuf;
        OsStatus          res;
 
-       pBridge = new MprBridge("MprBridge", 10,
-                               getSamplesPerFrame(), getSamplesPerSec());
+       pBridge = new MprBridge("MprBridge", 10);
        CPPUNIT_ASSERT(pBridge != NULL);
 
        setupFramework(pBridge);
@@ -204,8 +199,7 @@ public:
        const int         numParticipants = 4;
        MprBridge*        pBridge    = NULL;
 
-       pBridge = new MprBridge("MprBridge", numParticipants,
-                               getSamplesPerFrame(), getSamplesPerSec());
+       pBridge = new MprBridge("MprBridge", numParticipants);
        CPPUNIT_ASSERT(pBridge != NULL);
 
        setupFramework(pBridge);
@@ -340,8 +334,7 @@ public:
        MprBridge*        pBridge    = NULL;
 
        CPPUNIT_ASSERT(numParticipants < 16);
-       pBridge = new MprBridge("MprBridge", numParticipants,
-                               getSamplesPerFrame(), getSamplesPerSec());
+       pBridge = new MprBridge("MprBridge", numParticipants);
        CPPUNIT_ASSERT(pBridge != NULL);
 
        setupFramework(pBridge);
@@ -470,8 +463,7 @@ public:
        MprBridge*        pBridge    = NULL;
 
        CPPUNIT_ASSERT(numParticipants < 16);
-       pBridge = new MprBridge("MprBridge", numParticipants,
-                               getSamplesPerFrame(), getSamplesPerSec());
+       pBridge = new MprBridge("MprBridge", numParticipants);
        CPPUNIT_ASSERT(pBridge != NULL);
 
        setupFramework(pBridge);

@@ -47,10 +47,8 @@
 /* ============================ CREATORS ================================== */
 
 // Constructor
-MprFromStream::MprFromStream(const UtlString& rName,
-                             int samplesPerFrame, 
-                             int samplesPerSec)
-: MpAudioResource(rName, 0, 1, 1, 1, samplesPerFrame, samplesPerSec)   
+MprFromStream::MprFromStream(const UtlString& rName)
+: MpAudioResource(rName, 0, 1, 1, 1)
 , mpStreamRenderer(NULL)
 , mEventState(FeederStreamStoppedEvent)
 , miStreamCount(1)

@@ -28,15 +28,11 @@
 
 // Constructor
 MprAudioFrameBuffer::MprAudioFrameBuffer(const UtlString& rName, 
-                 int samplesPerFrame, 
-                 int samplesPerSec,
-                 int numFramesOfHistory)
-:  MpAudioResource(rName, 0, 1, 0, 1,
-                   samplesPerFrame, samplesPerSec),
-                   mFrameCount(0),
-                   mNumBufferFrames(numFramesOfHistory),
-                   mpBufferedFrameArray(NULL)
-
+                                         int numFramesOfHistory)
+:  MpAudioResource(rName, 0, 1, 0, 1)
+, mFrameCount(0)
+, mNumBufferFrames(numFramesOfHistory)
+, mpBufferedFrameArray(NULL)
 {
    mpBufferedFrameArray = new MpBufPtr[mNumBufferFrames];
 }

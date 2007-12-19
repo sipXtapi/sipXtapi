@@ -57,9 +57,8 @@
 /* ============================ CREATORS ================================== */
 
 // Constructor
-MprDecode::MprDecode(const UtlString& rName, MpRtpInputAudioConnection* pConn,
-                     int samplesPerFrame, int samplesPerSec)
-:  MpAudioResource(rName, 0, 0, 1, 1, samplesPerFrame, samplesPerSec),
+MprDecode::MprDecode(const UtlString& rName, MpRtpInputAudioConnection* pConn)
+:  MpAudioResource(rName, 0, 0, 1, 1),
    mpJB(NULL),
    mpDtmfNotication(NULL),
    mpMyDJ(NULL),

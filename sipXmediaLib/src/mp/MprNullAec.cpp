@@ -29,12 +29,9 @@
 
 // Constructor
 MprNullAec::MprNullAec(const UtlString& rName, 
-                 int samplesPerFrame, 
-                 int samplesPerSec,
-                 MprAudioFrameBuffer& bufferResource)
-:  MpAudioResource(rName, 0, 1, 0, 1,
-                   samplesPerFrame, samplesPerSec),
-                   mpOutputBufferResource(&bufferResource)
+                       MprAudioFrameBuffer& bufferResource)
+:  MpAudioResource(rName, 0, 1, 0, 1)
+, mpOutputBufferResource(&bufferResource)
 {
 }
 

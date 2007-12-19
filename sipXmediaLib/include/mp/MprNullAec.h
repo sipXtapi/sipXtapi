@@ -56,8 +56,6 @@ public:
 //@{
      /// Constructor
    MprNullAec(const UtlString& rName, 
-              int samplesPerFrame, 
-              int samplesPerSec,
               MprAudioFrameBuffer& MprAudioFrameBuffer);
 
      /// Destructor

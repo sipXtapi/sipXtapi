@@ -50,8 +50,7 @@ public:
 //@{
 
      /// Constructor
-   MprFromMic(const UtlString& rName, int samplesPerFrame, int samplesPerSec,
-              OsMsgQ *pMicQ);
+   MprFromMic(const UtlString& rName, OsMsgQ *pMicQ);
 
      /// Destructor
    virtual

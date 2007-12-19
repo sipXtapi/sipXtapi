@@ -74,8 +74,7 @@ public:
      /// Constructor
    MpTestResource(const UtlString& rName
                  , int minInputs, int maxInputs
-                 , int minOutputs, int maxOutputs
-                 , int samplesPerFrame=80, int samplesPerSec=8000);
+                 , int minOutputs, int maxOutputs);
 
      /// Destructor
    virtual

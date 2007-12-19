@@ -78,7 +78,7 @@ public:
 ///@name Creators
 //@{
 
-   MprFromStream(const UtlString& rName, int samplesPerFrame, int samplesPerSec);
+   MprFromStream(const UtlString& rName);
      //:Constructor
 
    virtual

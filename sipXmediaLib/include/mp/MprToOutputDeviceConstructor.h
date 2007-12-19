@@ -43,16 +43,10 @@ public:
 
       /// Constructor
     MprToOutputDeviceConstructor(MpOutputDeviceManager *defaultManager,
-                                 MpOutputDeviceHandle   defaultDriver = 1,
-                                 int samplesPerFrame = 80, 
-                                 int samplesPerSecond = 8000)
+                                 MpOutputDeviceHandle   defaultDriver = 1)
     : MpAudioResourceConstructor(DEFAULT_TO_OUTPUT_DEVICE_RESOURCE_TYPE,
-                                 0, //minInputs,
-                                 1, //maxInputs,
-                                 1, //minOutputs,
-                                 1, //maxOutputs,
-                                 samplesPerFrame,
-                                 samplesPerSecond)
+                                 0, 1, //minInputs, maxInputs,
+                                 1, 1) //minOutputs, maxOutputs
     , mpDefaultManager(defaultManager)
     , mDefaultDriver(defaultDriver)
     {
@@ -69,16 +63,12 @@ public:
                                  int& numResourcesCreated,
                                  MpResource* resourceArray[])
     {
-        assert(mSamplesPerFrame > 0);
-        assert(mSamplesPerSecond > 0);
         assert(maxResourcesToCreate >= 1);
         numResourcesCreated = 1;
         resourceArray[0] = new MprToOutputDevice(resourceName,
-                                                     mSamplesPerFrame,
-                                                     mSamplesPerSecond,
-                                                     mpDefaultManager,
-                                                     mDefaultDriver);
-        (resourceArray[0])->disable();
+                                                 mpDefaultManager,
+                                                 mDefaultDriver);
+        resourceArray[0]->disable();
         return(OS_SUCCESS);
     }
 

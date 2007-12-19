@@ -46,12 +46,12 @@ public:
                           int minInputs = 1,
                           int maxInputs = 1,
                           int minOutputs = 1,
-                          int maxOutputs = 1) :
-      UtlString(resourceType),
-      mMinInputs(minInputs),
-      mMaxInputs(maxInputs),
-      mMinOutputs(minOutputs),
-      mMaxOutputs(maxOutputs)
+                          int maxOutputs = 1)
+    : UtlString(resourceType)
+    , mMinInputs(minInputs)
+    , mMaxInputs(maxInputs)
+    , mMinOutputs(minOutputs)
+    , mMaxOutputs(maxOutputs)
     {
     };
 

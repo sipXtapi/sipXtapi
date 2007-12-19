@@ -42,44 +42,19 @@ const int MprToneGen::MAX_SAMPLE_RATE = 48000;
 
 // Constructor
 MprToneGen::MprToneGen(const UtlString& rName,
-                       int samplesPerFrame,
-                       int samplesPerSec,
                        const char* locale)
-:  MpAudioResource(rName, 0, 1, 1, 1, samplesPerFrame, samplesPerSec),
-   mpToneGenState(NULL)
+: MpAudioResource(rName, 0, 1, 1, 1)
+, mpToneGenState(NULL)
+, mpLocale(locale)
 {
-   mpToneGenState = MpToneGen_MpToneGen(samplesPerSec, locale);
 }
 
 // Destructor
 MprToneGen::~MprToneGen()
 {
-   MpToneGen_delete(mpToneGenState);
 }
 
 /* ============================ MANIPULATORS ============================== */
-
-#ifdef LATER
-/* Later (soon) this will be incorporated, but this is not quite the right
-implementation.  At least these changes are needed:
-(1) this should be an overriding virtual function, named
-    handleSetSamplesPerSec.
-(2) MpResource (the base class) needs to be enhanced so that the base
-    virtual function exists to be overridden.
-*/
-// Sets the number of samples expected per second.
-// Returns FALSE if the specified rate is not supported, TRUE otherwise.
-UtlBoolean MprToneGen::setSamplesPerSec(int samplesPerSec)
-{
-   if (MprToneGen::MIN_SAMPLE_RATE > samplesPerSec)
-      return FALSE;
-   if (samplesPerSec > MprToneGen::MAX_SAMPLE_RATE)
-      return FALSE;
-   MpToneGen_delete(mpToneGenState);
-   mpToneGenState = MpToneGen_MpToneGen(samplesPerSec);
-   return TRUE;
-}
-#endif
 
 // Sends a START_TONE message to this resource to begin generating 
 // an audio tone.
@@ -253,6 +228,26 @@ UtlBoolean MprToneGen::handleMessage(MpResourceMsg& rMsg)
       break;
    }
    return msgHandled;
+}
+
+OsStatus MprToneGen::setFlowGraph(MpFlowGraphBase* pFlowGraph)
+{
+   OsStatus res =  MpAudioResource::setFlowGraph(pFlowGraph);
+
+   if (res == OS_SUCCESS)
+   {
+      // Check are we added to flowgraph or removed.
+      if (pFlowGraph != NULL)
+      {
+         mpToneGenState = MpToneGen_MpToneGen(mpFlowGraph->getSamplesPerSec(),
+                                              mpLocale);
+      }
+      else
+      {
+         MpToneGen_delete(mpToneGenState);
+      }
+   }
+   return res;
 }
 
 /* ============================ FUNCTIONS ================================= */

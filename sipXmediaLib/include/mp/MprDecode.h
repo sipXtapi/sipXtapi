@@ -51,8 +51,7 @@ public:
 //@{
 
      /// Constructor
-   MprDecode(const UtlString& rName, MpRtpInputAudioConnection* pConn,
-             int samplesPerFrame, int samplesPerSec);
+   MprDecode(const UtlString& rName, MpRtpInputAudioConnection* pConn);
 
      /// Destructor
    virtual

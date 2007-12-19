@@ -54,9 +54,8 @@
 /* ============================ CREATORS ================================== */
 
 // Constructor
-MprEncode::MprEncode(const UtlString& rName,
-                     int samplesPerFrame, int samplesPerSec)
-:  MpAudioResource(rName, 1, 1, 0, 0, samplesPerFrame, samplesPerSec),
+MprEncode::MprEncode(const UtlString& rName)
+:  MpAudioResource(rName, 1, 1, 0, 0),
    mpPrimaryCodec(NULL),
    mpPacket1Payload(NULL),
    mPacket1PayloadBytes(0),

@@ -47,8 +47,7 @@ public:
      /// Constructor
    MpAudioResource(const UtlString& rName,
                    int minInputs, int maxInputs,
-                   int minOutputs, int maxOutputs,
-                   int samplesPerFrame, int samplesPerSec);
+                   int minOutputs, int maxOutputs);
 
      /// Destructor
    virtual ~MpAudioResource();
@@ -68,14 +67,6 @@ public:
      *  appropriate downstream resources after <i>doProcessFrame()</i>
      *  returns.
      */
-
-     /// Sets the number of samples expected per frame.
-   virtual UtlBoolean setSamplesPerFrame(int samplesPerFrame);
-     /**< @returns FALSE if the specified rate is not supported, TRUE otherwise. */
-
-     /// Sets the number of samples expected per second.
-   virtual UtlBoolean setSamplesPerSec(int samplesPerSec);
-     /**< Returns FALSE if the specified rate is not supported, TRUE otherwise. */
 
 //@}
 
@@ -116,25 +107,8 @@ protected:
      *  @returns TRUE if successful, FALSE otherwise.
      */
 
-     /// @brief Handles an incoming flowgraph message for this media processing object.
-   virtual UtlBoolean handleMessage(MpFlowGraphMsg& fgMsg);
-     /**< @returns TRUE if the message was handled, otherwise FALSE. */
-
-     /// @brief Handles an incoming resource message for this media processing object.
-   virtual UtlBoolean handleMessage(MpResourceMsg& rMsg);
-     /**< @returns TRUE if the message was handled, otherwise FALSE. */
-
-     /// Return number of samples per frame
-   int getSamplesPerFrame();
-
-     /// return number of samples per second
-   int getSamplesPerSec();
-
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-
-   int          mSamplesPerFrame;   ///< number of samples per frame
-   int          mSamplesPerSec;     ///< number of samples per second
 
      /// Copy constructor (not implemented for this class)
    MpAudioResource(const MpAudioResource& rMpResource);

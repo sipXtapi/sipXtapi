@@ -337,11 +337,9 @@ public:
 
       // Create the resources for the 'record' leg.
       pRecRFromInDev = 
-         new MprFromInputDevice("FromInput-RecordMic", 
-                                samplesPerFrame, sampleRate, pInMgr, micDevHnd);
+         new MprFromInputDevice("FromInput-RecordMic", pInMgr, micDevHnd);
       pRecRToOutputDev =
-         new MprToOutputDevice("ToOutput-RecordBuffer", 
-                               samplesPerFrame, sampleRate, pOutMgr, recBufDevHnd);
+         new MprToOutputDevice("ToOutput-RecordBuffer", pOutMgr, recBufDevHnd);
 
 
       // Create the 'play' leg of the flowgraph.
@@ -360,13 +358,11 @@ public:
 
       // Create the resources for the 'play' leg.
       pPlayRFromInDev = 
-         new MprFromInputDevice("FromInput-PlaySine", 
-                                samplesPerFrame, sampleRate, pInMgr, playSineDevHnd);
-      pPlayRFromFile = new MprFromFile("FromFile", samplesPerFrame, sampleRate);
-      pPlayRMixer = new MprMixer("Play-Mixer", 2, samplesPerFrame, sampleRate);
+         new MprFromInputDevice("FromInput-PlaySine", pInMgr, playSineDevHnd);
+      pPlayRFromFile = new MprFromFile("FromFile");
+      pPlayRMixer = new MprMixer("Play-Mixer", 2);
       pPlayRToOutputDev =
-         new MprToOutputDevice("ToOutput-PlaySpkr", 
-                               samplesPerFrame, sampleRate, pOutMgr, spkrDevHnd);
+         new MprToOutputDevice("ToOutput-PlaySpkr", pOutMgr, spkrDevHnd);
 
 
 

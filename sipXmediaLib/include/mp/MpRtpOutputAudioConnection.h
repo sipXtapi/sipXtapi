@@ -46,9 +46,7 @@ public:
 
      /// Constructor
    MpRtpOutputAudioConnection(const UtlString& resourceName,
-                              MpConnectionID myID,
-                              int samplesPerFrame,
-                              int samplesPerSec);
+                              MpConnectionID myID);
 
      /// Destructor
    virtual

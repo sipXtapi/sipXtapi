@@ -63,9 +63,8 @@ extern int      samplesPerFrame;
 /* ============================ CREATORS ================================== */
 
 // Constructor
-MprFromFile::MprFromFile(const UtlString& rName,
-                           int samplesPerFrame, int samplesPerSec)
-: MpAudioResource(rName, 0, 1, 1, 1, samplesPerFrame, samplesPerSec)
+MprFromFile::MprFromFile(const UtlString& rName)
+: MpAudioResource(rName, 0, 1, 1, 1)
 , mpFileBuffer(NULL)
 , mFileRepeat(FALSE)
 , mpNotify(NULL)

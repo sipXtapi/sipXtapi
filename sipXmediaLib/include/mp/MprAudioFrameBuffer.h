@@ -45,8 +45,6 @@ public:
 //@{
      /// Constructor
    MprAudioFrameBuffer(const UtlString& rName, 
-                       int samplesPerFrame, 
-                       int samplesPerSec,
                        int numFramesHistory);
 
      /// Destructor

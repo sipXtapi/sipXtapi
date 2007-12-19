@@ -46,16 +46,12 @@ public:
                                int minInputs = 1,
                                int maxInputs = 1,
                                int minOutputs = 1,
-                               int maxOutputs = 1,
-                               int samplesPerFrame = 160, 
-                               int samplesPerSecond = 8000) :
-      MpResourceConstructor(resourceType,
+                               int maxOutputs = 1)
+    : MpResourceConstructor(resourceType,
                             minInputs,
                             maxInputs,
                             minOutputs,
-                            maxOutputs),
-      mSamplesPerFrame(samplesPerFrame),
-      mSamplesPerSecond(samplesPerSecond)
+                            maxOutputs)
     {
     };
 
@@ -91,9 +87,6 @@ public:
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
-
-    int mSamplesPerFrame;
-    int mSamplesPerSecond;
 
     /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:

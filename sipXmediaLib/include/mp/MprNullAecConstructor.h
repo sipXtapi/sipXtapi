@@ -41,15 +41,10 @@ public:
 
     /** Constructor
      */
-    MprNullAecConstructor(int samplesPerFrame = 80, 
-                          int samplesPerSecond = 8000) :
-      MpAudioResourceConstructor(DEFAULT_NULL_AEC_RESOURCE_TYPE,
-                                 0,
-                                 1,
-                                 0,
-                                 1,
-                                 samplesPerFrame,
-                                 samplesPerSecond)
+    MprNullAecConstructor()
+    : MpAudioResourceConstructor(DEFAULT_NULL_AEC_RESOURCE_TYPE,
+                                 0, 1, //minInputs, maxInputs,
+                                 0, 1) //minOutputs, maxOutputs
     {
     };
 
@@ -65,28 +60,19 @@ public:
                                  int& numResourcesCreated,
                                  MpResource* resourceArray[])
     {
-        assert(mSamplesPerFrame > 0);
-        assert(mSamplesPerSecond > 0);
         assert(maxResourcesToCreate >= 1);
         numResourcesCreated = 2;
 
         UtlString bufferResourceName(resourceName);
         bufferResourceName.append(AEC_OUTPUT_BUFFER_RESOURCE_NAME_SUFFIX);
-        MprAudioFrameBuffer* outBufferResource = new MprAudioFrameBuffer(bufferResourceName,
-                                                   mSamplesPerFrame,
-                                                   mSamplesPerSecond,
-                                                   3);
+
+        MprAudioFrameBuffer* outBufferResource =
+                           new MprAudioFrameBuffer(bufferResourceName, 3);
         resourceArray[1] = outBufferResource;
+        resourceArray[1]->enable();
 
-        resourceArray[0] = new MprNullAec(resourceName,
-                                          mSamplesPerFrame,
-                                          mSamplesPerSecond,
-                                          *outBufferResource);
-        (resourceArray[0])->disable();
-
-
-        (resourceArray[1])->enable();
-
+        resourceArray[0] = new MprNullAec(resourceName, *outBufferResource);
+        resourceArray[0]->disable();
 
         return(OS_SUCCESS);
     }

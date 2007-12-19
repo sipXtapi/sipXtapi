@@ -61,9 +61,7 @@ public:
 //@{
 
      /// Constructor
-   MprBufferRecorder(const UtlString& rName, 
-                     int samplesPerFrame, 
-                     int samplesPerSec);
+   MprBufferRecorder(const UtlString& rName);
 
      /// Destructor
    virtual

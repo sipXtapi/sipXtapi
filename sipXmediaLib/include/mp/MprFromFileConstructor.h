@@ -40,15 +40,10 @@ public:
 
     /** Constructor
      */
-    MprFromFileConstructor(int samplesPerFrame = 80, 
-                           int samplesPerSecond = 8000) :
-      MpAudioResourceConstructor(DEFAULT_FROM_FILE_RESOURCE_TYPE,
-                                 0, //minInputs,
-                                 1, //maxInputs,
-                                 1, //minOutputs,
-                                 1, //maxOutputs,
-                                 samplesPerFrame,
-                                 samplesPerSecond)
+    MprFromFileConstructor()
+    : MpAudioResourceConstructor(DEFAULT_FROM_FILE_RESOURCE_TYPE,
+                                 0, 1, //minInputs, maxInputs,
+                                 1, 1) //minOutputs, maxOutputs
     {
     };
 
@@ -64,14 +59,10 @@ public:
                                  int& numResourcesCreated,
                                  MpResource* resourceArray[])
     {
-        assert(mSamplesPerFrame > 0);
-        assert(mSamplesPerSecond > 0);
         assert(maxResourcesToCreate >= 1);
         numResourcesCreated = 1;
-        resourceArray[0] = new MprFromFile(resourceName,
-                                           mSamplesPerFrame,
-                                           mSamplesPerSecond);
-        (resourceArray[0])->disable();
+        resourceArray[0] = new MprFromFile(resourceName);
+        resourceArray[0]->disable();
         return(OS_SUCCESS);
     }
 

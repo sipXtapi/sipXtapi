@@ -417,7 +417,8 @@ OsStatus MpodWinMM::pushFrame(unsigned int numSamples,
 
    if(samples != NULL)
    {
-      RTL_RAW_AUDIO("MpodWinMM_pushFrame", mSamplesPerSec, numSamples, samples, frameTime/10);
+      RTL_RAW_AUDIO("MpodWinMM_pushFrame", mSamplesPerSec, numSamples, samples,
+                    frameTime*(mSamplesPerSec/1000)/mSamplesPerFrame);
    }
 
    // Push the frame of real data we got here out to the windows output device,

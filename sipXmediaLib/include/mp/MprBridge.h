@@ -93,9 +93,7 @@ public:
 
      /// Default constructor
    MprBridge(const UtlString& rName,
-             int maxInOutputs, 
-             int samplesPerFrame, 
-             int samplesPerSec,
+             int maxInOutputs,
              UtlBoolean mixSilence=TRUE);
 
      /// Destructor
@@ -790,6 +788,15 @@ protected:
                     ///< have size of mSamplesPerFrame. Used in doMix() only.
 
    UtlBoolean mMixSilence; ///< Should Bridge ignore or mix frames marked as silence?
+
+     /// @brief Associates this resource with the indicated flow graph.
+   OsStatus setFlowGraph(MpFlowGraphBase* pFlowGraph);
+     /**<
+     *  We use this overloaded method for initialization of some of our member
+     *  variables, which depend on flowgraph's properties (like frame size).
+     *
+     *  @retval OS_SUCCESS - for now, this method always returns success
+     */
 
      /// @brief Mix together inputs onto outputs according to mpGainMatrix matrix.
    UtlBoolean doMix(MpBufPtr inBufs[], int inBufsSize,

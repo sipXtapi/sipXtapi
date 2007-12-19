@@ -23,6 +23,7 @@
 #include "mp/MpBuf.h"
 #include "mp/MpBufPool.h"
 #include "mp/MpBufferMsg.h"
+#include "mp/MpFlowGraphBase.h"
 #include "mp/MprSpeexEchoCancel.h"
 
 // EXTERNAL FUNCTIONS
@@ -36,28 +37,18 @@
 
 // Constructor
 MprSpeexEchoCancel::MprSpeexEchoCancel(const UtlString& rName,
-                                       int samplesPerFrame, int samplesPerSec,
                                        int filterLength,
                                        int echoResiduePoolSize)
-: MpAudioResource(rName, 1, 1, 1, 2, samplesPerFrame, samplesPerSec)
-, mEchoResiduePool( MpArrayBuf::getHeaderSize() + sizeof(spx_int32_t)*(samplesPerFrame + 1),
+: MpAudioResource(rName, 1, 1, 1, 2)
+, mEchoResiduePool( MpArrayBuf::getHeaderSize() + sizeof(spx_int32_t)*(mpFlowGraph->getSamplesPerFrame() + 1),
                    echoResiduePoolSize)
+, mFilterLength(filterLength)
 {
-   //Initilize Speex Echo state with framesize and number of frames for length of buffer
-   mpEchoState = speex_echo_state_init(samplesPerFrame, 
-                                       samplesPerSec*filterLength/1000);
-
-   //mpEchoResidue = (spx_int32_t*)malloc(sizeof(spx_int32_t) * (samplesPerFrame + 1));
-   mStartedCanceling = false; // Debug Use only
 }
 
 // Destructor
 MprSpeexEchoCancel::~MprSpeexEchoCancel()
 {
-   if (mpEchoState != NULL) {
-      speex_echo_state_destroy(mpEchoState);
-      mpEchoState = NULL;
-   }
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -163,6 +154,35 @@ UtlBoolean MprSpeexEchoCancel::doProcessFrame(MpBufPtr inBufs[],
    outBufs[0].swap(outBuffer);
    outBufs[1].swap(echoResidueBuffer);
    return TRUE;
+}
+
+OsStatus MprSpeexEchoCancel::setFlowGraph(MpFlowGraphBase* pFlowGraph)
+{
+   OsStatus res =  MpAudioResource::setFlowGraph(pFlowGraph);
+
+   if (res == OS_SUCCESS)
+   {
+      // Check are we added to flowgraph or removed.
+      if (pFlowGraph != NULL)
+      {
+         //Initialize Speex Echo state with frame size and number of frames for length of buffer
+         mpEchoState = speex_echo_state_init(mpFlowGraph->getSamplesPerFrame(), 
+                                             mpFlowGraph->getSamplesPerSec()*mFilterLength/1000);
+
+         //mpEchoResidue = (spx_int32_t*)malloc(sizeof(spx_int32_t) * (samplesPerFrame + 1));
+         mStartedCanceling = false; // Debug Use only
+      }
+      else
+      {
+         if (mpEchoState != NULL)
+         {
+            speex_echo_state_destroy(mpEchoState);
+            mpEchoState = NULL;
+         }
+      }
+   }
+
+   return res;
 }
 
 /* ============================ FUNCTIONS ================================= */

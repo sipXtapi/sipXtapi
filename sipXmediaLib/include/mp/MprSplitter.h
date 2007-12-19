@@ -47,8 +47,7 @@ public:
 ///@name Creators
 //@{
      /// Constructor
-   MprSplitter(const UtlString& rName, int numOutputs,
-               int samplesPerFrame, int samplesPerSec);
+   MprSplitter(const UtlString& rName, int numOutputs);
 
      /// Destructor
    virtual

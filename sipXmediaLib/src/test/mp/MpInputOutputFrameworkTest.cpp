@@ -264,13 +264,9 @@ public:
 
       // Create source (input) and sink (output) resources.
       MprFromInputDevice sourceResource("MprFromInputDevice",
-                                        TEST_SAMPLES_PER_FRAME,
-                                        TEST_SAMPLES_PER_SECOND,
                                         mpInputDeviceManager,
                                         sourceDeviceId);
       MprToOutputDevice sinkResource("MprToOutputDevice",
-                                     TEST_SAMPLES_PER_FRAME,
-                                     TEST_SAMPLES_PER_SECOND,
                                      mpOutputDeviceManager,
                                      sinkDeviceId);
 
@@ -377,14 +373,10 @@ public:
 
       // Create generator resource.
       MprToneGen toneGen("ToneGenerator",
-                         TEST_SAMPLES_PER_FRAME,
-                         TEST_SAMPLES_PER_SECOND,
                          NULL);
 
       MprSplitter splitter("Splitter",
-                           mOutputDeviceNumber,
-                           TEST_SAMPLES_PER_FRAME,
-                           TEST_SAMPLES_PER_SECOND);
+                           mOutputDeviceNumber);
 
       // Create resources for all available output devices.
       MprToOutputDevice **pSinkResources = new MprToOutputDevice*[mOutputDeviceNumber];
@@ -394,8 +386,6 @@ public:
          snprintf(devName, 1024, "MprToOutputDevice%d", sinkDevice);
 
          pSinkResources[sinkDevice] = new MprToOutputDevice(devName,
-                                                            TEST_SAMPLES_PER_FRAME,
-                                                            TEST_SAMPLES_PER_SECOND,
                                                             mpOutputDeviceManager,
                                                             sinkDevice+1);
       }
@@ -527,9 +517,7 @@ public:
 
       // Create sink resource.
       MprNull blackHole("MprNull",
-                        mInputDeviceNumber,
-                        TEST_SAMPLES_PER_FRAME,
-                        TEST_SAMPLES_PER_SECOND);
+                        mInputDeviceNumber);
 
       // Create resources for all available input devices.
       MprFromInputDevice **pSourceResources = new MprFromInputDevice*[mInputDeviceNumber];
@@ -539,8 +527,6 @@ public:
          snprintf(devName, 1024, "MprFromInputDevice%d", sourceDevice);
 
          pSourceResources[sourceDevice] = new MprFromInputDevice(devName,
-                                                                 TEST_SAMPLES_PER_FRAME,
-                                                                 TEST_SAMPLES_PER_SECOND,
                                                                  mpInputDeviceManager,
                                                                  sourceDevice+1);
       }
@@ -676,15 +662,11 @@ public:
 
          snprintf(devName, 1024, "MprFromInputDevice%d", sourceDevice);
          pSourceResources[sourceDevice] = new MprFromInputDevice(devName,
-                                                                 TEST_SAMPLES_PER_FRAME,
-                                                                 TEST_SAMPLES_PER_SECOND,
                                                                  mpInputDeviceManager,
                                                                  sourceDevice+1);
 
          snprintf(devName, 1024, "MprToOutputDevice%d", sourceDevice);
          pSinkResources[sourceDevice] = new MprToOutputDevice(devName,
-                                                              TEST_SAMPLES_PER_FRAME,
-                                                              TEST_SAMPLES_PER_SECOND,
                                                               mpOutputDeviceManager,
                                                               sinkDeviceId);
       }

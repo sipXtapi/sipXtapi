@@ -44,8 +44,7 @@ public:
 //@{
 
      /// Constructor
-   MprToneGen(const UtlString& rName, int samplesPerFrame, int samplesPerSec,
-              const char* locale);
+   MprToneGen(const UtlString& rName, const char* locale);
 
      /// Destructor
    virtual
@@ -146,6 +145,7 @@ private:
    static const int MAX_SAMPLE_RATE;
 
    MpToneGenPtr mpToneGenState;
+   const char*  mpLocale;
 
    virtual UtlBoolean doProcessFrame(MpBufPtr inBufs[],
                                      MpBufPtr outBufs[],
@@ -160,6 +160,15 @@ private:
 
      /// Handle resource messages for this resource.
    virtual UtlBoolean handleMessage(MpResourceMsg& rMsg);
+
+     /// @brief Associates this resource with the indicated flow graph.
+   OsStatus setFlowGraph(MpFlowGraphBase* pFlowGraph);
+     /**<
+     *  We use this overloaded method for initialization of some of our member
+     *  variables, which depend on flowgraph's properties (like frame size).
+     *
+     *  @retval OS_SUCCESS - for now, this method always returns success
+     */
 
      /// Copy constructor (not implemented for this class)
    MprToneGen(const MprToneGen& rMprToneGen);

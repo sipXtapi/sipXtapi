@@ -347,32 +347,16 @@ public:
         MpTestResource* pResource1 = 0;
         OsStatus        res;
 
-        pFlowGraph = new MpFlowGraphBase(80, 8000);
+        pFlowGraph = new MpFlowGraphBase(160, 32000);
         pResource1 = new MpTestResource("test1", 2, 2, 2, 2);
-
-        CPPUNIT_ASSERT_EQUAL(80, pFlowGraph->getSamplesPerFrame());
-        CPPUNIT_ASSERT_EQUAL(8000, pFlowGraph->getSamplesPerSec());
-
-
-        res = pFlowGraph->addResource(*pResource1);
-        CPPUNIT_ASSERT(res == OS_SUCCESS);
-
-        // Call processFrame() on the resource and look at the initial settings
-        pResource1->processFrame();
-        CPPUNIT_ASSERT_EQUAL(80, pResource1->mLastDoProcessArgs.samplesPerFrame);
-
-        CPPUNIT_ASSERT_EQUAL(8000, pResource1->mLastDoProcessArgs.samplesPerSecond);
-
-        res = pFlowGraph->setSamplesPerFrame(160);
-        CPPUNIT_ASSERT(res == OS_SUCCESS);
-
-        res = pFlowGraph->setSamplesPerSec(32000);
-        CPPUNIT_ASSERT(res == OS_SUCCESS);
 
         CPPUNIT_ASSERT_EQUAL(160, pFlowGraph->getSamplesPerFrame());
         CPPUNIT_ASSERT_EQUAL(32000, pFlowGraph->getSamplesPerSec());
 
-        // Call processFrame() on the resource and look at the revised settings
+        res = pFlowGraph->addResource(*pResource1);
+        CPPUNIT_ASSERT(res == OS_SUCCESS);
+
+        // Call processFrame() on the resource and look at our settings
         pResource1->processFrame();
         CPPUNIT_ASSERT_EQUAL(160, pResource1->mLastDoProcessArgs.samplesPerFrame);
         CPPUNIT_ASSERT_EQUAL(32000, pResource1->mLastDoProcessArgs.samplesPerSecond);
@@ -547,7 +531,7 @@ public:
        CPPUNIT_ASSERT(res == OS_SUCCESS);
 
        pFlowGraph = new MpFlowGraphBase(80, 8000);
-       pToneGen1  = new MprToneGen("toneGen1", 80, 8000, "");
+       pToneGen1  = new MprToneGen("toneGen1", "");
 
        // TODO: START HERE
 

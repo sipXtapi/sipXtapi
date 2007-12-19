@@ -47,8 +47,7 @@ public:
 /* ============================ CREATORS ================================== */
 
      /// Constructor
-   MprSpeexPreprocess(const UtlString& rName,
-                      int samplesPerFrame, int samplesPerSec);
+   MprSpeexPreprocess(const UtlString& rName);
 
      /// Destructor
    virtual
@@ -97,6 +96,15 @@ private:
 
      /// Handle the @link MprSpeexPreprocess::SET_NOISE_REDUCTION SET_NOISE_REDUCTION @endlink message.
    UtlBoolean handleSetNoiseReduction(UtlBoolean enable);
+
+     /// @brief Associates this resource with the indicated flow graph.
+   OsStatus setFlowGraph(MpFlowGraphBase* pFlowGraph);
+     /**<
+     *  We use this overloaded method for initialization of some of our member
+     *  variables, which depend on flowgraph's properties (like frame size).
+     *
+     *  @retval OS_SUCCESS - for now, this method always returns success
+     */
 
      /// Copy constructor (not implemented for this class)
    MprSpeexPreprocess(const MprSpeexPreprocess& rMprSpeexPreprocess);
