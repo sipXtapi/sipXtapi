@@ -56,15 +56,31 @@ CHECK_CPPUNIT
 
 CHECK_SPANDSP
 
-# Look for lodable codecs libraries
+# Enable use of code that uses speex dsp library
+ENABLE_SPEEX_DSP
+
+# Look for lodable codecs libraries (CHECK_SPEEX changed to ENABLE_CODEC_SPEEX)
 CHECK_GSM
-CHECK_SPEEX
+ENABLE_CODEC_SPEEX
 CHECK_ILBC
 CHECK_PCMA_PCMU
 CHECK_TONES
 CHECK_G726
 CHECK_G722
 CHECK_AMR_AMRWB
+
+# SPEEX detection and configuration code inside general.m4 cannot do
+# sub-configure with AC_CONFIG_SUBDIRS, since it would be called more
+# than once, so do it here, where we know it only happens once.
+if test "x$contrib_speex_enabled" == "xyes"; then
+        # speex codec has it's own configure, so be sure to call it.
+        AC_CONFIG_SUBDIRS([contrib/libspeex/])
+fi
+# Specify a SPEEX_CONTRIB make variable conditional upon using contrib speex.
+dnl Do not stick AM_CONDITIONAL inside a shell conditional.
+dnl If you do, automake will be confused, thus, it is in configure.ac.
+AM_CONDITIONAL(SPEEX_CONTRIB, [test "x$contrib_speex_enabled" == "xyes"])
+
 
 # declaring other codecs staff
 DECLARE_CODECS_STAFF

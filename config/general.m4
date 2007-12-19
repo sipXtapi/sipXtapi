@@ -960,66 +960,123 @@ AC_DEFUN([CHECK_GSM],
 
 
 # ============ S P E E X ==================
-AC_DEFUN([AM_PATH_SPEEX],
+dnl
+dnl Enables use of speex dsp specific code within the project.
+dnl Callers of this macro need to check the contrib_speex_enabled shell variable
+dnl and supply the AC_CONFIG_SUBDIRS line that configures the
+dnl sipXmediaLib/contrib/libspeex package.  
+dnl See CHECK_SPEEX for more information.
+AC_DEFUN([ENABLE_SPEEX_DSP],
 [
-    has_speex=no
-    PKG_CHECK_MODULES([SPEEX],
-                      [speex >= 1.2.0], 
-		      has_speex=yes; 
-              CFLAGS+=" -DHAVE_SPEEX" ; CXXFLAGS+=" -DHAVE_SPEEX",
-		      AC_MSG_RESULT(failed))
+    AC_MSG_CHECKING([if speex dsp usage is enabled])
+    speex_dsp_enabled=no;
+    AC_ARG_ENABLE([speex-dsp],
+       [AS_HELP_STRING([--enable-speex-dsp],
+          [Enable SPEEX dsp library usage @<:@default=no@:>@])],
+       [ case "${enableval}" in
+            yes)  AC_MSG_RESULT(yes);
+                  speex_dsp_enabled=yes ;;
+            no) AC_MSG_RESULT(no) ;;
+            *) AC_MSG_ERROR(bad value ${enableval} for --enable-speex-dsp) ;;
+         esac],
+       [AC_MSG_RESULT(no)])
 
-    if test x$has_speex = "xyes"; then
-        # SPEEX_CFLAGS and SPEEX_LIBS variables should are
-        # set in previous PKG_CHECK_MODULES() call.
-        PLUGINS+="SPEEX "
-        SPEEX_TARGET="plgspeex"
-        SPEEX_EXTRA_TARGET=
-        AC_SUBST(SPEEX_EXTRA_TARGET)    
-        AC_SUBST(SPEEX_TARGET)    
-        AC_SUBST(SPEEX_CFLAGS)
-        AC_SUBST(SPEEX_LIBS)
-    else
-        AM_PATH_SPEEX_BUILTIN
+    # Check to see if speex dsp was selected, and speex usage has not been
+    # checked and configured
+    if test "x$speex_dsp_enabled" == "xyes" -a "x$speex_detected" == "x"; then
+        CHECK_SPEEX
+    fi
+
+    dnl now the important part of this macro...
+    if test "x$speex_dsp_enabled" == "xyes"; then
+        # Specify to enable speex dsp code
+        CFLAGS+=" -DHAVE_SPEEX" ; CXXFLAGS+=" -DHAVE_SPEEX",
     fi
 ])dnl
 
-AC_DEFUN([AM_PATH_SPEEX_BUILTIN],
+dnl
+dnl Enables the speex codec plugin to be built and linked to in sipXmediaLib.
+dnl Callers of this macro need to check the contrib_speex_enabled shell variable
+dnl and supply the AC_CONFIG_SUBDIRS line that configures the
+dnl sipXmediaLib/contrib/libspeex package.  
+dnl See CHECK_SPEEX for more information.
+AC_DEFUN([ENABLE_CODEC_SPEEX],
 [
-    AC_MSG_RESULT([using svn version])
-    CFLAGS+=" -DHAVE_SPEEX" ; CXXFLAGS+=" -DHAVE_SPEEX"
+    codec_speex_enabled=no;
+    AC_ARG_ENABLE([codec-speex],
+       [AS_HELP_STRING([--enable-codec-speex],
+          [Enable support for SPEEX codec @<:@default=no@:>@])],
+       [ case "${enableval}" in
+            yes) codec_speex_enabled=yes ;;
+            no) ;;
+            *) AC_MSG_ERROR(bad value ${enableval} for --enable-codec-speex) ;;
+         esac])
 
-    SPEEX_ROOT='${top_srcdir}/../sipXmediaLib/contrib/libspeex'
-    SPEEX_CFLAGS="-I${SPEEX_ROOT}/include"
-    SPEEX_LIBS="${SPEEX_ROOT}/libspeex/.libs/libspeex.la"
+    # Check to see if speex dsp was selected, and speex usage has not been
+    # checked and configured
+    if test "x$codec_speex_enabled" == "xyes" -a "x$speex_detected" == "x"; then
+        CHECK_SPEEX
+    fi
 
-    PLUGINS+="SPEEX "
-    SPEEX_TARGET="plgspeex"
-    
-    SPEEX_EXTRA_TARGET="${SPEEX_ROOT}"
-    AC_SUBST(SPEEX_EXTRA_TARGET)
-    AC_SUBST(SPEEX_ROOT)
+    dnl now the important part of this macro...
+    SPEEX_TARGET=
+    if test "x$codec_speex_enabled" == "xyes"; then
+        # Specify to build speex plugin
+        PLUGINS+="SPEEX "
+        SPEEX_TARGET="plgspeex"
+    fi
     AC_SUBST(SPEEX_TARGET)    
-    AC_SUBST(SPEEX_CFLAGS)
-    AC_SUBST(SPEEX_LIBS) 
 ])dnl
 
+dnl
+dnl Enables speex support, checks to make sure that it is present,
+dnl or needs to be built.  If it needs to be built, then the user that
+dnl calls this needs to check the contrib_speex_enabled shell variable
+dnl and supply the AC_CONFIG_SUBDIRS line that configures the
+dnl sipXmediaLib/contrib/libspeex package.  This cannot be done within
+dnl CHECK_SPEEX because it can only be specified once, and CHECK_SPEEX has the
+dnl possibility of being specified more than once (and does in sipXmediaLib).
 AC_DEFUN([CHECK_SPEEX],
 [
     AC_MSG_CHECKING([for libspeex >= 1.2.0])
 
-    AC_ARG_ENABLE([codec-speex],
-       [AS_HELP_STRING([--enable-codec-speex],
-          [Enable support for SPEEX codec @<:@default=auto@:>@ ("contrib" -- use speex from contribs) ])],
-       [ case "${enableval}" in
-            contrib) AM_PATH_SPEEX_BUILTIN ;;
-            auto) AM_PATH_SPEEX ;;
-            yes) AM_PATH_SPEEX ;;
-            no) AC_MSG_RESULT(disabled) ;;
-            *) AC_MSG_ERROR(bad value ${enableval} for --enable-codec-speex) ;;
-         esac],
-       [AM_PATH_SPEEX])
-    AM_CONDITIONAL(SPEEX_CONTRIB, [test x"$SPEEX_ROOT" != x])    
+    # Check if the user wished to force usage of contrib version of speex
+    contrib_speex_enabled=no;
+    AC_ARG_ENABLE([contrib-speex],
+        [AS_HELP_STRING([--enable-contrib-speex],
+            [Ignore any installed SPEEX libraries. Instead, build and use the ones in the contrib directory. @<:@default=no@:>@])],
+        [ case "${enableval}" in
+            yes) contrib_speex_enabled=yes ;;
+            no) contrib_speex_enabled=no ;;
+            *) AC_MSG_ERROR(bad value ${enableval} for --enable-contrib-speex) ;;
+          esac],
+        [contrib_speex_enabled=no])
+    
+    # Detect if speex is installed.
+    speex_detected=no;
+    if test "x$contrib_speex_enabled" == "xno"; then
+        PKG_CHECK_MODULES([SPEEX],
+                          [speex >= 1.2.0], 
+                          speex_detected=yes, 
+                          speex_detected=no; contrib_speex_enabled=yes)
+    fi
+
+    # if contrib speex is selected, use it.
+    if test "x$contrib_speex_enabled" == "xyes" ; then
+        AC_MSG_RESULT([using svn version])
+        SPEEX_ROOT='${top_srcdir}/../sipXmediaLib/contrib/libspeex'
+        SPEEX_CFLAGS="-I${SPEEX_ROOT}/include"
+        SPEEX_LIBS="-L${SPEEX_ROOT}/libspeex/.libs -lspeex"
+        AC_SUBST(SPEEX_ROOT)
+        AC_SUBST(SPEEX_CFLAGS)
+        AC_SUBST(SPEEX_LIBS) 
+    elif test "x$speex_detected" == "xyes"; then
+        AC_MSG_RESULT([ok])
+        AC_SUBST(SPEEX_CFLAGS)
+        AC_SUBST(SPEEX_LIBS)
+    else
+        AC_MSG_ERROR([No speex found!])
+    fi
 ])dnl
 
 # ========== P C M A  P C M U =================
