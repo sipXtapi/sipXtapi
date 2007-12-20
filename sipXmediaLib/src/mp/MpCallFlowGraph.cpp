@@ -209,12 +209,6 @@ MpCallFlowGraph::MpCallFlowGraph(const char* locale,
 #ifdef HAVE_SPEEX // [
    res = addLink(*pLastResource, 0, *mpSpeexPreProcess, 0);
    assert(res == OS_SUCCESS);
-
-#ifdef DOING_ECHO_CANCELATION /* [ */
-   res = addLink(*pLastResource, 1, *mpSpeexPreProcess, 1);
-   assert(res == OS_SUCCESS);
-#endif /* DOING_ECHO_CANCELATION ] */
-
    pLastResource = mpSpeexPreProcess;
 #endif // HAVE_SPEEX ]
 
@@ -367,10 +361,12 @@ MpCallFlowGraph::MpCallFlowGraph(const char* locale,
                                                     *mpEchoCancel, 0);
    assert(res == OS_SUCCESS);
 
+#ifdef SIPX_ECHO_CANCELATION // [
    mpRecorders[RECORDER_ECHO_IN8] = new MprRecorder("RecordEchoIn8");
    res = insertResourceAfter(*(mpRecorders[RECORDER_ECHO_IN8]),
                                                     *mpEchoCancel, 1);
    assert(res == OS_SUCCESS);
+#endif // SIPX_ECHO_CANCELATION ]
 
 #ifdef HIGH_SAMPLERATE_AUDIO // [
    mpRecorders[RECORDER_ECHO_IN32] = new MprRecorder("RecordEchoIn32");

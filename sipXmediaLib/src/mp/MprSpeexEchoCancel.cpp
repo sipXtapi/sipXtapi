@@ -39,9 +39,7 @@
 MprSpeexEchoCancel::MprSpeexEchoCancel(const UtlString& rName,
                                        int filterLength,
                                        int echoResiduePoolSize)
-: MpAudioResource(rName, 1, 1, 1, 2)
-, mEchoResiduePool( MpArrayBuf::getHeaderSize() + sizeof(spx_int32_t)*(mpFlowGraph->getSamplesPerFrame() + 1),
-                   echoResiduePoolSize)
+: MpAudioResource(rName, 1, 1, 1, 1)
 , mFilterLength(filterLength)
 {
 }
@@ -72,9 +70,7 @@ UtlBoolean MprSpeexEchoCancel::doProcessFrame(MpBufPtr inBufs[],
    MpAudioBufPtr   outBuffer;
    MpAudioBufPtr   inputBuffer;
    MpAudioBufPtr   echoRefBuffer;
-   MpArrayBufPtr   echoResidueBuffer;
    MpBufferMsg*    bufferMsg;
-   spx_int32_t*    pEchoResidue;
    bool            res = false;
 
    // We don't need to do anything if we don't have an output.
@@ -123,21 +119,11 @@ UtlBoolean MprSpeexEchoCancel::doProcessFrame(MpBufPtr inBufs[],
             outBuffer->setSamplesNumber(samplesPerFrame);
             outBuffer->setSpeechType(inputBuffer->getSpeechType());
 
-            if (isOutputConnected(1)) {
-               echoResidueBuffer = mEchoResiduePool.getBuffer();
-               assert(outBuffer.isValid());
-            }
-
-            if (outBuffer.isValid()) {
-               pEchoResidue = (spx_int32_t*)echoResidueBuffer->getDataWritePtr();
-            }
-
             // Do echo cancelation
-            speex_echo_cancel(mpEchoState,
-                              (spx_int16_t*)inputBuffer->getSamplesPtr(),
-                              (spx_int16_t*)echoRefBuffer->getSamplesPtr(),
-                              (spx_int16_t*)outBuffer->getSamplesPtr(),
-                              pEchoResidue);
+            speex_echo_cancellation(mpEchoState,
+                                    (spx_int16_t*)inputBuffer->getSamplesPtr(),
+                                    (spx_int16_t*)echoRefBuffer->getSamplesPtr(),
+                                    (spx_int16_t*)outBuffer->getSamplesPtr());
          } else {
             //The sample count didn't match so we can't echo cancel.  Pass the frame.
             outBuffer = inputBuffer;
@@ -152,7 +138,6 @@ UtlBoolean MprSpeexEchoCancel::doProcessFrame(MpBufPtr inBufs[],
    }
 
    outBufs[0].swap(outBuffer);
-   outBufs[1].swap(echoResidueBuffer);
    return TRUE;
 }
 

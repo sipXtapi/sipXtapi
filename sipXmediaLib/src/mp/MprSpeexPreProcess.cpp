@@ -39,7 +39,7 @@
 
 // Constructor
 MprSpeexPreprocess::MprSpeexPreprocess(const UtlString& rName)
-:  MpAudioResource(rName, 1, 2, 1, 1)
+:  MpAudioResource(rName, 1, 1, 1, 1)
 {
 }
 
@@ -79,7 +79,6 @@ UtlBoolean MprSpeexPreprocess::doProcessFrame(MpBufPtr inBufs[],
                                               int samplesPerSecond)
 {
    MpAudioBufPtr   inputBuffer;
-   spx_int32_t*    echoResidue=NULL;
    bool res = false;
 
    // We don't need to do anything if we don't have an output.
@@ -99,10 +98,7 @@ UtlBoolean MprSpeexPreprocess::doProcessFrame(MpBufPtr inBufs[],
       assert(res);
 
       // Get Echo residue if we have any
-      if (inBufs[1].isValid()) {
-         echoResidue = (spx_int32_t*)((MpArrayBufPtr)inBufs[1])->getDataPtr();
-      }
-      speex_preprocess(mpPreprocessState, (spx_int16_t*)inputBuffer->getSamplesPtr(), echoResidue);
+      speex_preprocess_run(mpPreprocessState, (spx_int16_t*)inputBuffer->getSamplesPtr());
    }
 
    outBufs[0].swap(inputBuffer);

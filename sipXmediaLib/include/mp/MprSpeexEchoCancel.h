@@ -102,8 +102,6 @@ protected:
 private:
    SpeexEchoState *mpEchoState;
    bool            mStartedCanceling;
-   bool            mEchoResidueCurrent;
-   MpBufPool       mEchoResiduePool;
    int             mFilterLength;
 
    virtual UtlBoolean doProcessFrame(MpBufPtr inBufs[],
