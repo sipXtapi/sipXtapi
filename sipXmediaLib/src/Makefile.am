@@ -73,7 +73,7 @@ libsipXmedia_la_SOURCES =  \
     mp/MpFlowGraphBase.cpp \
     mp/MpFlowGraphMsg.cpp \
     mp/mpG711.cpp \
-    mp/MpidOSS.cpp \
+    mp/MpidOss.cpp \
     mp/MpInputDeviceDriver.cpp \
     mp/MpInputDeviceManager.cpp \
     mp/MpJitterBuffer.cpp \
@@ -82,9 +82,9 @@ libsipXmedia_la_SOURCES =  \
     mp/MpMisc.cpp \
     mp/MpMMTimer.cpp \
     mp/MpodBufferRecorder.cpp \
-    mp/MpodOSS.cpp \
-    mp/MpOSSDeviceWrapper.cpp \
-    mp/MpOSSDeviceWrapperContainer.cpp \
+    mp/MpodOss.cpp \
+    mp/MpOss.cpp \
+    mp/MpOssContainer.cpp \
     mp/MpOutputDeviceDriver.cpp \
     mp/MpOutputDeviceManager.cpp \
     mp/MpPlayer.cpp \

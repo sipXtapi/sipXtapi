@@ -19,7 +19,7 @@
 #ifdef WIN32
 #include <mp/MpidWinMM.h>
 #elif defined __linux__
-#include <mp/MpidOSS.h>
+#include <mp/MpidOss.h>
 #else
 #include <mp/MpSineWaveGeneratorDeviceDriver.h>
 #endif
@@ -83,7 +83,7 @@ public:
 #ifdef WIN32
          new MpidWinMM(MpidWinMM::getDefaultDeviceName(), inDevMgr);
 #elif defined __linux__
-         new MpidOSS("/dev/dsp", inDevMgr);
+         new MpidOss("/dev/dsp", inDevMgr);
 #else
          new MpSineWaveGeneratorDeviceDriver("SineWaveDriver", inDevMgr,
                                              3000, 3000, 0);

@@ -13,8 +13,9 @@
 
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
-#include "mp/MpOSSDeviceWrapperContainer.h"
-#include "mp/MpOSSDeviceWrapper.h"
+#include "utl/UtlInit.h"
+#include "mp/MpOssContainer.h"
+#include "mp/MpOss.h"
 #include "utl/UtlHashMapIterator.h"
 #include "utl/UtlHashMap.h"
 #include "utl/UtlVoidPtr.h"
@@ -24,8 +25,8 @@
 // EXTERNAL VARIABLES
 // CONSTANTS
 // STATIC VARIABLE INITIALIZATIONS
-MpOSSDeviceWrapperContainer* MpOSSDeviceWrapperContainer::mpCont = NULL;
-int MpOSSDeviceWrapperContainer::refCount = 0;
+MpOssContainer* MpOssContainer::mpCont = NULL;
+int MpOssContainer::refCount = 0;
 
 // GLOBAL VARIABLE INITIALIZATIONS
 //MpOSSDeviceWrapperContainer mOSSContainer;
@@ -36,13 +37,13 @@ int MpOSSDeviceWrapperContainer::refCount = 0;
 /* ============================ CREATORS ================================== */
 
 // Constructor
-MpOSSDeviceWrapperContainer::MpOSSDeviceWrapperContainer()
+MpOssContainer::MpOssContainer()
 : mMutex(OsMutex::Q_FIFO)
 {
 }
 
 // Destructor
-MpOSSDeviceWrapperContainer::~MpOSSDeviceWrapperContainer()
+MpOssContainer::~MpOssContainer()
 {
    for (;;)
    {
@@ -51,8 +52,7 @@ MpOSSDeviceWrapperContainer::~MpOSSDeviceWrapperContainer()
 
       if ((pDevName = static_cast<UtlString*>(itor())))
       {
-         MpOSSDeviceWrapper *pDev =
-                          static_cast<MpOSSDeviceWrapper*>(findValue(pDevName));
+         MpOss *pDev = static_cast<MpOss*>(findValue(pDevName));
          if (pDev)
          {
             excludeFromContainer(pDev);
@@ -66,7 +66,7 @@ MpOSSDeviceWrapperContainer::~MpOSSDeviceWrapperContainer()
 }
 
 
-void MpOSSDeviceWrapperContainer::excludeFromContainer(MpOSSDeviceWrapper* pDevWrap)
+void MpOssContainer::excludeFromContainer(MpOss* pDevWrap)
 {
    OsLock lock(mMutex);
 
@@ -75,7 +75,7 @@ void MpOSSDeviceWrapperContainer::excludeFromContainer(MpOSSDeviceWrapper* pDevW
 
    while ((pDevName = static_cast<UtlString*>(itor())))
    {
-      if (static_cast<MpOSSDeviceWrapper*>(itor.value()) == pDevWrap)
+      if (static_cast<MpOss*>(itor.value()) == pDevWrap)
       {
          break;
       }
@@ -89,30 +89,30 @@ void MpOSSDeviceWrapperContainer::excludeFromContainer(MpOSSDeviceWrapper* pDevW
    pRetName = static_cast<UtlString*>(removeKeyAndValue(pDevName, pDevTmp));
    delete pRetName;
 
-   MpOSSDeviceWrapper *pDev = static_cast<MpOSSDeviceWrapper*>(pDevTmp);
+   MpOss *pDev = static_cast<MpOss*>(pDevTmp);
    delete pDev;
 }
 
-MpOSSDeviceWrapper* MpOSSDeviceWrapperContainer::getOSSDeviceWrapper(const UtlString& ossdev)
+MpOss* MpOssContainer::getOSSDeviceWrapper(const UtlString& ossdev)
 {
    OsLock lock(mMutex);
 
-   MpOSSDeviceWrapper *pDev;
+   MpOss *pDev;
    UtlString* pName;
 
-   pDev = static_cast<MpOSSDeviceWrapper*>(findValue(&ossdev));
+   pDev = static_cast<MpOss*>(findValue(&ossdev));
 
    if (pDev == NULL)
    {
       pName = new UtlString(ossdev);
-      pDev = new MpOSSDeviceWrapper;
+      pDev = new MpOss;
       insertKeyAndValue(pName, pDev);
    }
 
    return pDev;
 }
 
-UtlBoolean MpOSSDeviceWrapperContainer::excludeWrapperFromContainer(MpOSSDeviceWrapper* pDev)
+UtlBoolean MpOssContainer::excludeWrapperFromContainer(MpOss* pDev)
 {
    if (refCount == 0)
    {
@@ -127,19 +127,19 @@ UtlBoolean MpOSSDeviceWrapperContainer::excludeWrapperFromContainer(MpOSSDeviceW
 
 /* ============================ ACCESSORS ================================= */
 
-MpOSSDeviceWrapperContainer* MpOSSDeviceWrapperContainer::getContainer()
+MpOssContainer* MpOssContainer::getContainer()
 {
    if (refCount == 0)
    {
       assert(mpCont == NULL);
-      mpCont = new MpOSSDeviceWrapperContainer;
+      mpCont = new MpOssContainer;
    }
    refCount++;
 
    return mpCont;
 }
 
-void MpOSSDeviceWrapperContainer::releaseContainer(MpOSSDeviceWrapperContainer* pCont)
+void MpOssContainer::releaseContainer(MpOssContainer* pCont)
 {
    assert(refCount > 0);
    assert(mpCont == pCont);

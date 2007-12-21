@@ -42,7 +42,7 @@ nobase_include_HEADERS =  \
     mp/MpFlowGraphBase.h \
     mp/MpFlowGraphMsg.h \
     mp/MpFromFileStartResourceMsg.h \
-    mp/MpidOSS.h \
+    mp/MpidOss.h \
     mp/MpInputDeviceDriver.h \
     mp/MpInputDeviceManager.h \
     mp/MpJitterBuffer.h \
@@ -51,9 +51,9 @@ nobase_include_HEADERS =  \
     mp/MpMisc.h \
     mp/MpMMTimer.h \
     mp/MpodBufferRecorder.h \
-    mp/MpodOSS.h \
-    mp/MpOSSDeviceWrapper.h \
-    mp/MpOSSDeviceWrapperContainer.h \
+    mp/MpodOss.h \
+    mp/MpOss.h \
+    mp/MpOssContainer.h \
     mp/MpOutputDeviceDriver.h \
     mp/MpOutputDeviceManager.h \
     mp/MpPlayer.h \

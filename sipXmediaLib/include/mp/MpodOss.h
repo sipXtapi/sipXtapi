@@ -10,8 +10,8 @@
 
 // Author: Sergey Kostanbaev <Sergey DOT Kostanbaev AT sipez DOT com>
 
-#ifndef _MpodOSS_h_
-#define _MpodOSS_h_
+#ifndef _MpodOss_h_
+#define _MpodOss_h_
 
 // SYSTEM INCLUDES
 #include <pthread.h>
@@ -25,10 +25,8 @@
 
 // APPLICATION INCLUDES
 #include "mp/MpOutputDeviceDriver.h"
-#include "mp/MpOSSDeviceWrapper.h"
+#include "mp/MpOss.h"
 
-// DEFINES
-#define DEFAULT_N_OUTPUT_BUFS 64
 
 // MACROS
 // EXTERNAL FUNCTIONS
@@ -43,9 +41,9 @@ class MpOutputDeviceManager;
 /**
 *  @brief Container for device specific input OSS driver.
 */
-class MpodOSS : public MpOutputDeviceDriver
+class MpodOss : public MpOutputDeviceDriver
 {
-    friend class MpOSSDeviceWrapper;
+    friend class MpOss;
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
@@ -54,8 +52,7 @@ public:
 //@{
 
      /// @brief Default constructor.
-   MpodOSS(const UtlString& name,
-           unsigned nInputBuffers = DEFAULT_N_OUTPUT_BUFS);
+   MpodOss(const UtlString& name);
      /**<
      *  @param name - (in) unique device driver name (e.g. "/dev/dsp",
      *         "YAMAHA AC-XG WDM Audio", etc.).
@@ -63,7 +60,7 @@ public:
      */
 
      /// @brief Destructor
-   ~MpodOSS();
+   ~MpodOss();
 
 //@}
 
@@ -156,38 +153,12 @@ public:
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
-   int mNumInBuffers;        ///< The number of buffers to supply to OSS
-                             ///< for audio processing.
-   char* mpWaveBuffers;      ///< Array of nNumInBuffers wave buffers.
-
-   int mCurBuff;             ///< Number of buffer in which will be store
-                             ///< pushed data
-   int mLastReceived;        ///< Number of buffer will be send to OSS device
-
+   MpAudioSample* mAudioFrame;  ///< Wave buffer.
    OsNotification *pNotificator; ///< Notificator used for signaling next frame
-
-   sem_t mPushPopSem;        ///< Controlling semaphore push/pull operation
-
    MpFrameTime mCurrentFrameTime; ///< The current frame time for this device.
-
-   int mQueueLen;            ///< Depth of queue of stored frames
    UtlBoolean mNotificationThreadEn;
 
-   MpOSSDeviceWrapperContainer* mpCont; ///< Pointer to Wrapper container
-
-     /// @brief Allocating internal OSS buffers
-   OsStatus initBuffers();
-
-     /// @brief Freeing internal OSS buffers
-   void freeBuffers();
-
-     /// @brief Get data from buffer.
-   MpAudioSample* popFrame(unsigned& size);
-     /**<
-     *  If succeed return value is pointer to data and in
-     *  <tt>size</tt> strored size of sample in bytes
-     *  otherwise return value is NULL
-     */
+   MpOssContainer* mpCont; ///< Pointer to Wrapper container
 
      /// @brief Signaling for next frame if notificator used do nothing otherwise
    OsStatus signalForNextFrame();
@@ -197,27 +168,28 @@ protected:
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-   MpOSSDeviceWrapper *pDevWrapper;
+   MpOss *pDevWrapper;
 
      /// @brief Copy constructor (not implemented for this class)
-   MpodOSS(const MpodOSS& rMpOutputDeviceDriver);
+   MpodOss(const MpodOss& rMpOutputDeviceDriver);
 
      /// @brief Assignment operator (not implemented for this class)
-   MpodOSS& operator=(const MpodOSS& rhs);
+   MpodOss& operator=(const MpodOss& rhs);
 
 
 };
 
 /* ============================ INLINE METHODS ============================ */
 
-UtlBoolean MpodOSS::isDeviceValid()
+UtlBoolean MpodOss::isDeviceValid()
 {
+   //printf("MpRsOdOss::isDeviceValid()\n"); fflush(stdout);
    return ((pDevWrapper != NULL) && pDevWrapper->isDeviceValid());
 }
 
-UtlBoolean MpodOSS::isNotificationNeeded()
+UtlBoolean MpodOss::isNotificationNeeded()
 {
    return (isDeviceValid() && (pNotificator != NULL));
 }
 
-#endif  // _MpodOSS_h_
+#endif  // _MpodOss_h_

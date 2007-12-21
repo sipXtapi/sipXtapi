@@ -78,7 +78,7 @@
 #  include <mp/MpidWinMM.h>
 // USE_WNT_INPUT_DRIVER ]
 #elif defined(__pingtel_on_posix__) // [
-#  include <mp/MpidOSS.h>
+#  include <mp/MpidOss.h>
 #endif // __pingtel_on_posix__ ]
 
 #ifdef USE_TEST_OUTPUT_DRIVER // [
@@ -88,7 +88,7 @@
 #  include <mp/MpodWinMM.h>
 // USE_WNT_OUTPUT_DRIVER ]
 #elif defined(__pingtel_on_posix__) // [
-#  include <mp/MpodOSS.h>
+#  include <mp/MpodOss.h>
 #endif // __pingtel_on_posix__ ]
 
 // Define number of drivers for each 
@@ -875,7 +875,7 @@ protected:
          sInputDriverNames[i] = devName;
 
          // Create driver
-         MpidOSS *pDriver = new MpidOSS(sInputDriverNames[i], *mpInputDeviceManager);
+         MpidOss *pDriver = new MpidOss(sInputDriverNames[i], *mpInputDeviceManager);
          CPPUNIT_ASSERT(pDriver != NULL);
 
          // Add driver to manager
@@ -946,7 +946,7 @@ protected:
          outputDriverNames[i] = devName;
 
          // Create driver
-         MpodOSS *pDriver = new MpodOSS(outputDriverNames[i]);
+         MpodOss *pDriver = new MpodOss(outputDriverNames[i]);
          CPPUNIT_ASSERT(pDriver != NULL);
 
          // Add driver to manager

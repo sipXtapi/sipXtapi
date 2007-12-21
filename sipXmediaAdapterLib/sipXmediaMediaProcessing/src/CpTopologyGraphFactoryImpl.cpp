@@ -53,8 +53,8 @@
 #  define INPUT_DRIVER_CONSTRUCTOR_PARAMS(manager) MpidWinMM::getDefaultDeviceName(), (manager)
 
 #elif defined(__pingtel_on_posix__) // WIN32 ][ __pingtel_on_posix__
-#  include <mp/MpidOSS.h>
-#  define INPUT_DRIVER MpidOSS
+#  include <mp/MpidOss.h>
+#  define INPUT_DRIVER MpidOss
 #  define INPUT_DRIVER_CONSTRUCTOR_PARAMS(manager) "/dev/dsp", (manager)
 
 #else // __pingtel_on_possix__ ]
@@ -74,8 +74,8 @@
 #define OUTPUT_DRIVER_CONSTRUCTOR_PARAMS MpodWinMM::getDefaultDeviceName()
 
 #elif defined(__pingtel_on_posix__) // WIN32 ][ __pingtel_on_posix__
-#  include <mp/MpodOSS.h>
-#  define OUTPUT_DRIVER MpodOSS
+#  include <mp/MpodOss.h>
+#  define OUTPUT_DRIVER MpodOss
 #  define OUTPUT_DRIVER_CONSTRUCTOR_PARAMS "/dev/dsp"
 
 #else // __pingtel_on_posix__ ]

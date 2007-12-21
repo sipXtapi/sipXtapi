@@ -10,26 +10,19 @@
 
 // Author: Sergey Kostanbaev <Sergey DOT Kostanbaev AT sipez DOT com>
 
-#ifndef _MpidOSS_h_
-#define _MpidOSS_h_
+#ifndef _MpidOss_h_
+#define _MpidOss_h_
 
 // SYSTEM INCLUDES
 #include <pthread.h>
 #include <semaphore.h>
 
-#ifdef __linux__
-#include <sys/types.h>
-#include <sys/soundcard.h>
-#endif // __linux__
-
 
 // APPLICATION INCLUDES
 #include "mp/MpInputDeviceDriver.h"
-#include "mp/MpOSSDeviceWrapper.h"
+#include "mp/MpOss.h"
 
 // DEFINES
-#define DEFAULT_N_INPUT_BUFS    8
-
 // MACROS
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -42,9 +35,9 @@ class MpInputDeviceManager;
 /**
 *  @brief Container for device specific input OSS driver.
 */
-class MpidOSS : public MpInputDeviceDriver
+class MpidOss : public MpInputDeviceDriver
 {
-   friend class MpOSSDeviceWrapper;
+   friend class MpOss;
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
@@ -53,19 +46,17 @@ public:
 //@{
 
      /// @brief Default constructor.
-   MpidOSS(const UtlString& name,
-           MpInputDeviceManager& deviceManager,
-           unsigned nInputBuffers = DEFAULT_N_INPUT_BUFS);
+   MpidOss(const UtlString& name,
+           MpInputDeviceManager& deviceManager);
      /**<
      *  @param name - (in) unique device driver name (e.g. "/dev/dsp",
      *         "YAMAHA AC-XG WDM Audio", etc.).
      *  @param deviceManager - (in) MpInputDeviceManager this device is to
      *         push frames to via pushFrame method.
-     *  @param nInputBuffers - (in) Maximum number of frames in internal buffer.
      */
 
      /// @brief Destructor
-   ~MpidOSS();
+   ~MpidOss();
 
 //@}
 
@@ -120,12 +111,8 @@ public:
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
-   int mNumInBuffers;    ///< The number of buffers to supply to OSS
-                         ///< for audio processing.
-   char* mpWaveBuffers;  ///< Array of nNumInBuffers wave buffers.
-   int mCurBuff;         ///< Number of buffer in which will be store pushed data
-
-   MpOSSDeviceWrapperContainer* mpCont; ///< Pointer to Wrapper container
+   MpAudioSample* mAudioFrame;  ///< Wave buffer.
+   MpOssContainer* mpCont; ///< Pointer to Wrapper container
 
      /// @brief Allocate internal OSS buffers.
    OsStatus initBuffers();
@@ -137,28 +124,29 @@ protected:
    MpAudioSample* getBuffer();
 
      /// @brief Push audio frame to InputDeviceManager.
-   void pushFrame(MpAudioSample* frm);
+   void pushFrame();
 
      /// @brief Add frame time to <tt>mCurrentFrameTime</tt>.
    void skipFrame();
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-   MpOSSDeviceWrapper *pDevWrapper;
+   MpOss *pDevWrapper;
 
      /// @brief Copy constructor (not implemented for this class).
-   MpidOSS(const MpidOSS& rMpInputDeviceDriver);
+   MpidOss(const MpidOss& rMpInputDeviceDriver);
 
      /// @brief Assignment operator (not implemented for this class).
-   MpidOSS& operator=(const MpidOSS& rhs);
+   MpidOss& operator=(const MpidOss& rhs);
 
 };
 
 /* ============================ INLINE METHODS ============================ */
 
-UtlBoolean MpidOSS::isDeviceValid()
+UtlBoolean MpidOss::isDeviceValid()
 {
+   //printf("MpRsIdOss::isDeviceValid()\n"); fflush(stdout);
    return ((pDevWrapper != NULL) && pDevWrapper->isDeviceValid());
 }
 
-#endif  // _MpidOSS_h_
+#endif  // _MpidOss_h_

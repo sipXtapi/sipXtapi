@@ -28,9 +28,9 @@
 // STRUCTS
 // TYPEDEFS
 // FORWARD DECLARATIONS
-class MpOSSDeviceWrapper;
+class MpOss;
 
-class MpOSSDeviceWrapperContainer : protected UtlHashMap
+class MpOssContainer : protected UtlHashMap
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
@@ -38,19 +38,19 @@ public:
 ///@name Creators
 //@{
 
-   MpOSSDeviceWrapperContainer();
+   MpOssContainer();
 
-   ~MpOSSDeviceWrapperContainer();
+   ~MpOssContainer();
 //@}
 
 /* ============================ MANIPULATORS ============================== */
 ///@name Manipulators
 //@{
      /// @brief Create new wrapper for name haven't founded in container. 
-   MpOSSDeviceWrapper* getOSSDeviceWrapper(const UtlString& ossdev);
+   MpOss* getOSSDeviceWrapper(const UtlString& ossdev);
 
      /// @brief Excluding wrapper from container.
-   void excludeFromContainer(MpOSSDeviceWrapper* pDev);
+   void excludeFromContainer(MpOss* pDev);
 
 //@}
 
@@ -62,15 +62,15 @@ public:
 
      /// @brief Creating wrapper and return if it wasn't create yet.
    static
-   MpOSSDeviceWrapperContainer* getContainer();
+   MpOssContainer* getContainer();
 
      /// @brief Releasing wrapper if it no longer needed (no references).
    static
-   void releaseContainer(MpOSSDeviceWrapperContainer* pCont);
+   void releaseContainer(MpOssContainer* pCont);
 
      /// @brief Excluding wrapper from container (static version).
    static
-   UtlBoolean excludeWrapperFromContainer(MpOSSDeviceWrapper* pDev);
+   UtlBoolean excludeWrapperFromContainer(MpOss* pDev);
 
 /* ============================ INQUIRY =================================== */
 ///@name Inquiry
@@ -80,7 +80,7 @@ public:
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
-   static MpOSSDeviceWrapperContainer* mpCont; ///< Pointer to allocated class
+   static MpOssContainer* mpCont; ///< Pointer to allocated class
    static int refCount; ///< Number of all MpOSSDeviceWrapperContainer members
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
