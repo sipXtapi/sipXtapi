@@ -93,7 +93,7 @@ CODEC_API int PLG_DECODE_V1(g722)(void* handle, const void* pCodedData,
    int samples;
 
    samples = g722_decode((g722_decode_state_t*)handle, (int16_t*)pAudioBuffer, 
-      pCodedData, cbCodedPacketSize);
+                         pCodedData, cbCodedPacketSize);
    *pcbCodedSize = samples;
 
    return RPLG_SUCCESS;
@@ -107,7 +107,7 @@ CODEC_API int PLG_ENCODE_V1(g722)(void* handle, const void* pAudioBuffer,
    int bytes;
 
    bytes = g722_encode((g722_encode_state_t*)handle, pCodedData, pAudioBuffer, cbAudioSamples);
-   *pcbCodedSize = cbMaxCodedData;
+   *pcbCodedSize = bytes;
 
    *pbSendNow = FALSE;
    *rSamplesConsumed = cbAudioSamples;
