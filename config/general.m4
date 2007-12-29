@@ -922,8 +922,8 @@ AC_DEFUN([AM_PATH_GSM],
 
 	    # Enable this when we begin using config.h
             #AC_DEFINE(HAVE_GSM, [1], [Defined if libgsm is present])
-	    CFLAGS+=" -DHAVE_GSM"
-	    CXXFLAGS+=" -DHAVE_GSM"
+	    CFLAGS="${CFLAGS} -DHAVE_GSM"
+	    CXXFLAGS="${CXXFLAGS} -DHAVE_GSM"
 
             GSM_CFLAGS="-I$includeval"
             GSM_CXXFLAGS="-I$includeval"
@@ -932,7 +932,7 @@ AC_DEFUN([AM_PATH_GSM],
 
             GSM_TARGET="plggsm"
 
-            PLUGINS+="GSM "
+            PLUGINS="${PLUGINS}GSM "
         fi
     fi
     AC_SUBST(GSM_TARGET)
@@ -990,7 +990,7 @@ AC_DEFUN([ENABLE_SPEEX_DSP],
     dnl now the important part of this macro...
     if test "x$speex_dsp_enabled" == "xyes"; then
         # Specify to enable speex dsp code
-        CFLAGS+=" -DHAVE_SPEEX" ; CXXFLAGS+=" -DHAVE_SPEEX",
+        CFLAGS="${CFLAGS} -DHAVE_SPEEX" ; CXXFLAGS="${CXXFLAGS} -DHAVE_SPEEX",
     fi
 ])dnl
 
@@ -1022,7 +1022,7 @@ AC_DEFUN([ENABLE_CODEC_SPEEX],
     SPEEX_TARGET=
     if test "x$codec_speex_enabled" == "xyes"; then
         # Specify to build speex plugin
-        PLUGINS+="SPEEX "
+        PLUGINS="${PLUGINS}SPEEX "
         SPEEX_TARGET="plgspeex"
     fi
     AC_SUBST(SPEEX_TARGET)    
@@ -1082,7 +1082,7 @@ AC_DEFUN([CHECK_SPEEX],
 # ========== P C M A  P C M U =================
 AC_DEFUN([AM_SET_PCMA_PCMU],
 [
-    PLUGINS+="PCMA_PCMU "
+    PLUGINS="${PLUGINS}PCMA_PCMU "
     PCMAPCMU_TARGET="plgpcmapcmu"
     AC_SUBST(PCMAPCMU_TARGET)
 ])dnl
@@ -1103,7 +1103,7 @@ AC_DEFUN([CHECK_PCMA_PCMU],
 # ==============  T O N E S  ==================
 AC_DEFUN([AM_SET_TONES],
 [
-    PLUGINS+="TONES "
+    PLUGINS="${PLUGINS}TONES "
     TONES_TARGET="plgtones"
     AC_SUBST(TONES_TARGET)
 ])dnl
@@ -1126,7 +1126,7 @@ AC_DEFUN([CHECK_TONES],
 AC_DEFUN([AM_SET_ILBC],
 [
 # Currently only iLBC in contrib supported
-    PLUGINS+="iLBC "
+    PLUGINS="${PLUGINS}iLBC "
 
     ILBC_INCLUDE="-I${PWD}/contrib/libilbc/include"
     ILBC_LIB_ROOT="${PWD}/contrib/libilbc/"
@@ -1168,8 +1168,8 @@ AC_DEFUN([DECLARE_CODECS_STAFF],
     AC_MSG_RESULT( ${PLUGINS} )    
     AC_SUBST(DEFAULT_CODECS_PATH)
     
-    CFLAGS+=" -DDEFAULT_CODECS_PATH=\"${DEFAULT_CODECS_PATH}\" "
-    CXXFLAGS+=" -DDEFAULT_CODECS_PATH=\"${DEFAULT_CODECS_PATH}\" "    
+    CFLAGS="${CFLAGS} -DDEFAULT_CODECS_PATH=\"${DEFAULT_CODECS_PATH}\" "
+    CXXFLAGS="${CXXFLAGS} -DDEFAULT_CODECS_PATH=\"${DEFAULT_CODECS_PATH}\" "    
 ])dnl
 
 
@@ -1247,7 +1247,7 @@ AC_DEFUN([AM_SET_G726],
 [
 # Currently only iLBC in contrib supported
     if test x_$SPANDSP_CFLAGS != x_; then
-        PLUGINS+="G.726 "
+        PLUGINS="${PLUGINS}G.726 "
 
         G726_TARGET="plgg726"
     fi
@@ -1274,9 +1274,8 @@ AC_DEFUN([AM_SET_G722],
 [
 # Currently only iLBC in contrib supported
     if test x_$SPANDSP_CFLAGS != x_; then
-	PLUGINS+="G.722 "
-
-	G722_TARGET="plgg722"
+        PLUGINS="${PLUGINS}G.722 "
+        G722_TARGET="plgg722"
     fi
     AC_SUBST(G722_TARGET)    
     
@@ -1300,7 +1299,7 @@ AC_DEFUN([CHECK_G722],
 AC_DEFUN([AM_SET_AMR],
 [
 # Currently only iLBC in contrib supported
-    PLUGINS+="AMR "
+    PLUGINS="${PLUGINS}AMR "
     AMR_TARGET="plgamr"
     AMRNB_INCLUDE="-I${PWD}/contrib/libamrnb/"
     AMRNB_LIB_ROOT="${PWD}/contrib/libamrnb/"    
@@ -1316,7 +1315,7 @@ AC_DEFUN([AM_SET_AMR],
 AC_DEFUN([AM_SET_AMRWB],
 [
 # Currently only iLBC in contrib supported
-    PLUGINS+="AMR-WB "
+    PLUGINS="${PLUGINS}AMR-WB "
     AMRWB_TARGET="plgamrwb"
     AMRWB_INCLUDE="-I${PWD}/contrib/libamrwb/"
     AMRWB_LIB_ROOT="${PWD}/contrib/libamrwb/"
