@@ -932,7 +932,7 @@ AC_DEFUN([AM_PATH_GSM],
 
             GSM_TARGET="plggsm"
 
-            PLUGINS="${PLUGINS}GSM "
+            PLUGINS="${PLUGINS} GSM"
         fi
     fi
     AC_SUBST(GSM_TARGET)
@@ -1022,7 +1022,7 @@ AC_DEFUN([ENABLE_CODEC_SPEEX],
     SPEEX_TARGET=
     if test "x$codec_speex_enabled" == "xyes"; then
         # Specify to build speex plugin
-        PLUGINS="${PLUGINS}SPEEX "
+        PLUGINS="${PLUGINS} SPEEX"
         SPEEX_TARGET="plgspeex"
     fi
     AC_SUBST(SPEEX_TARGET)    
@@ -1082,7 +1082,7 @@ AC_DEFUN([CHECK_SPEEX],
 # ========== P C M A  P C M U =================
 AC_DEFUN([AM_SET_PCMA_PCMU],
 [
-    PLUGINS="${PLUGINS}PCMA_PCMU "
+    PLUGINS="${PLUGINS} PCMA_PCMU"
     PCMAPCMU_TARGET="plgpcmapcmu"
     AC_SUBST(PCMAPCMU_TARGET)
 ])dnl
@@ -1103,7 +1103,7 @@ AC_DEFUN([CHECK_PCMA_PCMU],
 # ==============  T O N E S  ==================
 AC_DEFUN([AM_SET_TONES],
 [
-    PLUGINS="${PLUGINS}TONES "
+    PLUGINS="${PLUGINS} TONES"
     TONES_TARGET="plgtones"
     AC_SUBST(TONES_TARGET)
 ])dnl
@@ -1126,7 +1126,7 @@ AC_DEFUN([CHECK_TONES],
 AC_DEFUN([AM_SET_ILBC],
 [
 # Currently only iLBC in contrib supported
-    PLUGINS="${PLUGINS}iLBC "
+    PLUGINS="${PLUGINS} iLBC"
 
     ILBC_INCLUDE="-I${PWD}/contrib/libilbc/include"
     ILBC_LIB_ROOT="${PWD}/contrib/libilbc/"
@@ -1247,7 +1247,7 @@ AC_DEFUN([AM_SET_G726],
 [
 # Currently only iLBC in contrib supported
     if test x_$SPANDSP_CFLAGS != x_; then
-        PLUGINS="${PLUGINS}G.726 "
+        PLUGINS="${PLUGINS} G.726"
 
         G726_TARGET="plgg726"
     fi
@@ -1274,7 +1274,7 @@ AC_DEFUN([AM_SET_G722],
 [
 # Currently only iLBC in contrib supported
     if test x_$SPANDSP_CFLAGS != x_; then
-        PLUGINS="${PLUGINS}G.722 "
+        PLUGINS="${PLUGINS} G.722"
         G722_TARGET="plgg722"
     fi
     AC_SUBST(G722_TARGET)    
@@ -1299,7 +1299,7 @@ AC_DEFUN([CHECK_G722],
 AC_DEFUN([AM_SET_AMR],
 [
 # Currently only iLBC in contrib supported
-    PLUGINS="${PLUGINS}AMR "
+    PLUGINS="${PLUGINS} AMR"
     AMR_TARGET="plgamr"
     AMRNB_INCLUDE="-I${PWD}/contrib/libamrnb/"
     AMRNB_LIB_ROOT="${PWD}/contrib/libamrnb/"    
@@ -1315,7 +1315,7 @@ AC_DEFUN([AM_SET_AMR],
 AC_DEFUN([AM_SET_AMRWB],
 [
 # Currently only iLBC in contrib supported
-    PLUGINS="${PLUGINS}AMR-WB "
+    PLUGINS="${PLUGINS} AMR-WB"
     AMRWB_TARGET="plgamrwb"
     AMRWB_INCLUDE="-I${PWD}/contrib/libamrwb/"
     AMRWB_LIB_ROOT="${PWD}/contrib/libamrwb/"
