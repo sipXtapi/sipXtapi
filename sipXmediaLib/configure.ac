@@ -14,6 +14,10 @@ PKG_PROG_PKG_CONFIG
 
 AC_CONFIG_SRCDIR([src/mp/MpCallFlowGraph.cpp])
 AM_CONFIG_HEADER([config.h])
+
+# Codec plugin loading uses dlopen, so we need to check for it here.
+AC_LIBTOOL_DLOPEN
+
 AC_PROG_LIBTOOL
 
 # Checks for programs.
