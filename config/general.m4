@@ -1059,21 +1059,31 @@ AC_DEFUN([CHECK_SPEEX],
                           [speex >= 1.2.0], 
                           speex_detected=yes, 
                           speex_detected=no; contrib_speex_enabled=yes)
+        pkg_failed=no
+        _PKG_CONFIG([SPEEX_LIBDIR], [variable=libdir], [speex >= 1.2.0])
+        if test "x$pkg_failed" = "xuntried"; then
+            AC_MSG_ERROR(Failed to get the speex library directory from pkg-config!)
+        else
+            SPEEX_STATIC_LIB=${SPEEX_LIBDIR}/libspeex.a
+        fi
     fi
 
     # if contrib speex is selected, use it.
     if test "x$contrib_speex_enabled" == "xyes" ; then
         AC_MSG_RESULT([using svn version])
         SPEEX_ROOT='${top_srcdir}/../sipXmediaLib/contrib/libspeex'
-        SPEEX_CFLAGS="-I${SPEEX_ROOT}/include"
+        SPEEX_CFLAGS="-fPIC -DPIC -I${SPEEX_ROOT}/include"
         SPEEX_LIBS="-L${SPEEX_ROOT}/libspeex/.libs -lspeex"
+        SPEEX_STATIC_LIB="${SPEEX_ROOT}/libspeex/.libs/libspeex.a"
         AC_SUBST(SPEEX_ROOT)
         AC_SUBST(SPEEX_CFLAGS)
         AC_SUBST(SPEEX_LIBS) 
+        AC_SUBST(SPEEX_STATIC_LIB)
     elif test "x$speex_detected" == "xyes"; then
         AC_MSG_RESULT([ok])
         AC_SUBST(SPEEX_CFLAGS)
         AC_SUBST(SPEEX_LIBS)
+        AC_SUBST(SPEEX_STATIC_LIB)
     else
         AC_MSG_ERROR([No speex found!])
     fi
