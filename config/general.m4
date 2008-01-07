@@ -1072,7 +1072,7 @@ AC_DEFUN([CHECK_SPEEX],
     if test "x$contrib_speex_enabled" == "xyes" ; then
         AC_MSG_RESULT([using svn version])
         SPEEX_ROOT='${top_srcdir}/../sipXmediaLib/contrib/libspeex'
-        SPEEX_CFLAGS="-fPIC -DPIC -I${SPEEX_ROOT}/include"
+        SPEEX_CFLAGS="-I${SPEEX_ROOT}/include"
         SPEEX_LIBS="-L${SPEEX_ROOT}/libspeex/.libs -lspeex"
         SPEEX_STATIC_LIB="${SPEEX_ROOT}/libspeex/.libs/libspeex.a"
         AC_SUBST(SPEEX_ROOT)
