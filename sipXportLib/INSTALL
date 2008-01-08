@@ -15,17 +15,16 @@ Cppunit 1.10.2 - Unitesting framework for C++
 OpenSSL 0.9.7.c - Security Library
   http://www.openssl.org
 
-*Autoconf 2.57 & Automake 1.6 - GNU build tool chain
+*Autoconf 2.59c & Automake 1.6 (not positive on automake prereq -- latest tested with 1.9.6) - GNU build tool chain
   http://www.gnu.org/directory/GNU/
   *ONLY if building from subversion
-  Note: autoconf 2.58 has a bug which does causes it not to work with
-  sipX.  Verion 2.59 works as well.
+  2.59c is required, as this is when C99 integer type checking was added.
 
 *pkgconfig 0.20 - for use with Autoconf
   http://pkgconfig.freedesktop.org/
   *ONLY if building from subversion
 
-libtool 1.4.3
+libtool 1.5.24
   http://www.gnu.org/software/libtool/
   On RedHat Enterprise 3 "up2date libtool libtool-libs"
 
