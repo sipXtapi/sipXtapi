@@ -277,12 +277,14 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
                              mediaInterface->createConnection(connectionId, NULL));
         CPPUNIT_ASSERT(connectionId > 0);
 
+#ifdef ENABLE_TOPOLOGY_FLOWGRAPH_INTERFACE_FACTORY
         // Test that we can get the bridge mixer port on which this new connection
         // is connected to
         int portOnBridge;
         ((CpTopologyGraphInterface*)mediaInterface)->getConnectionPortOnBridge(connectionId, 
                                                                                portOnBridge);
         CPPUNIT_ASSERT_EQUAL(3, portOnBridge);
+#endif
 
 
         propertyName = "connectionLabel";
