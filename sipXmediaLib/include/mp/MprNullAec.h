@@ -29,7 +29,8 @@
 class MprAudioFrameBuffer;
 
 /**
-*  @brief The MprNullAec resource a no-op AEC implementation intended to be a base calls for real AEC implementations..
+*  @brief The MprNullAec resource a no-op AEC implementation intended to be
+*         a base calls for real AEC implementations..
 *
 *  This resource passes buffers from input 0 straight through to output 0.
 *

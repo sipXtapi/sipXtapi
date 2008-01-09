@@ -28,7 +28,8 @@
 // FORWARD DECLARATIONS
 
 /**
-*  @brief The MprAudioFrameBuffer resource buffers frames of audio that pass through to be retrieved later.
+*  @brief The MprAudioFrameBuffer resource buffers frames of audio that
+*         pass through to be retrieved later.
 *
 *  This resource always passes input 0 through to output 0, but it keeps a
 *  reference of the buffer passed through for a configured length of time 
