@@ -2,14 +2,16 @@
 
 INCLUDES = -I$(top_srcdir)/include -I$(top_srcdir)/../sipXportLib/include @GSM_CFLAGS@
 
-lib_LTLIBRARIES = libcodec_gsm.la
+pkgdata_LTLIBRARIES = codec_gsm.la
 
-libcodec_gsm_la_LDFLAGS = \
-	-avoid-version \
-	@GSM_LDFLAGS@
+codec_gsm_la_SOURCES = PlgGsm.c
+codec_gsm_la_LIBADD = @GSM_LIBS@
+codec_gsm_la_LDFLAGS = -module -avoid-version @GSM_LDFLAGS@
 
-libcodec_gsm_la_LIBADD = \
-	@GSM_LIBS@
+all-local: codec_gsm.la
+	echo "Installing plugin codec_gsm.so ..."
+	cp -f .libs/codec_gsm.so @DEFAULT_CODECS_PATH@
 
-libcodec_gsm_la_SOURCES = PlgGsm.c
+clean-local:
+	rm -f @DEFAULT_CODECS_PATH@/codec_gsm.so
 

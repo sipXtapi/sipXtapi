@@ -11,15 +11,3 @@ SUBDIRS = \
 	@AMR_TARGET@ \
 	@AMRWB_TARGET@
 
-all: install-codec
-
-install-codec: all-recursive
-	for I in $(SUBDIRS); do echo Installing plugin $$I ...; \
-	    cp -f $(PWD)/$$I/.libs/libcodec*.so @DEFAULT_CODECS_PATH@ ; \
-	done
-
-
-clean: clean-codec
-
-clean-codec:
-	rm -f @DEFAULT_CODECS_PATH@/libcodec*.so
