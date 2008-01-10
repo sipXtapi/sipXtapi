@@ -34,6 +34,7 @@ testsuite_SOURCES = \
     mp/MprMixerTest.cpp \
     mp/MprSplitterTest.cpp \
     mp/MprToSpkrTest.cpp \
+    mp/MprToneGenTest.cpp \
     mp/MpBufTest.cpp \
     mp/MpOutputDriverTest.cpp \
     mp/MpOutputManagerTest.cpp \

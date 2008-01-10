@@ -157,6 +157,10 @@ SOURCE=.\src\test\mp\MprToSpkrTest.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\test\mp\MprToneGenTest.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\test\mp\MpTestResource.cpp
 # End Source File
 # Begin Source File

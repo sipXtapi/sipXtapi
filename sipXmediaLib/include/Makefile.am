@@ -38,6 +38,7 @@ nobase_include_HEADERS =  \
     mp/MpDspUtilsShift.h \
     mp/MpDspUtilsSum.h \
     mp/MpDspUtilsSumVect.h \
+    mp/MpDTMFDetector.h \
     mp/MpEncoderBase.h \
     mp/MpFlowGraphBase.h \
     mp/MpFlowGraphMsg.h \

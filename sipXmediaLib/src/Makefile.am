@@ -69,6 +69,7 @@ libsipXmedia_la_SOURCES =  \
     mp/MpDataBuf.cpp \
     mp/MpDecoderBase.cpp \
     mp/MpDspUtils.cpp \
+    mp/MpDTMFDetector.cpp \
     mp/MpEncoderBase.cpp \
     mp/MpFlowGraphBase.cpp \
     mp/MpFlowGraphMsg.cpp \

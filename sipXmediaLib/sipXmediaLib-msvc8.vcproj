@@ -1502,6 +1502,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\src\mp\MpDTMFDetector.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\src\mp\MpEncoderBase.cpp"
 					>
 				</File>
@@ -2028,6 +2032,10 @@
 				</File>
 				<File
 					RelativePath=".\include\mp\MpDspUtilsSum.h"
+					>
+				</File>
+				<File
+					RelativePath=".\include\mp\MpDTMFDetector.h"
 					>
 				</File>
 				<File

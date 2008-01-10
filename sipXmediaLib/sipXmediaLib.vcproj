@@ -1130,6 +1130,9 @@
 				RelativePath=".\src\mp\MpDspUtils.cpp">
 			</File>
 			<File
+				RelativePath=".\src\mp\MpDTMFDetector.cpp">
+			</File>
+			<File
 				RelativePath="src\mp\MpEncoderBase.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -3600,6 +3603,9 @@
 			</File>
 			<File
 				RelativePath=".\include\mp\MpDspUtilsSum.h">
+			</File>
+			<File
+				RelativePath=".\include\mp\MpDTMFDetector.h">
 			</File>
 			<File
 				RelativePath="include\mp\MpEncoderBase.h">

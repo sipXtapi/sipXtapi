@@ -211,6 +211,10 @@ SOURCE=.\src\mp\MpDspUtils.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\mp\MpDTMFDetector.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\mp\MpEncoderBase.cpp
 # End Source File
 # Begin Source File
@@ -856,6 +860,10 @@ SOURCE=.\include\mp\MpDspUtilsShift.h
 # Begin Source File
 
 SOURCE=.\include\mp\MpDspUtilsSum.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MpDTMFDetector.h
 # End Source File
 # Begin Source File
 
