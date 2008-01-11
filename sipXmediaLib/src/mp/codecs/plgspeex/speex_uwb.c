@@ -12,7 +12,7 @@
 
 #include "plgspeex.h"
 
-static const char codecMIMEsubtype[] = "speex-uwb";
+static const char codecMIMEsubtype[] = "speex";
 
 static const struct plgCodecInfoV1 codecSPEEX_UWB = 
 {
