@@ -30,7 +30,7 @@
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
-const int64_t WINDOWSTIME2UNIXTIME = INT64_C(11644473600);
+const uint64_t WINDOWSTIME2UNIXTIME = UINT64_C(11644473600);
 const int MILLISECS_PER_SEC      = 1000;
 const int MICROSECS_PER_MILLISEC = 1000;
 const int FILETIME_UNITS_PER_SEC   = 10000000;  // 100 nanosecs per sec
@@ -194,19 +194,19 @@ OsStatus OsDateTimeWnt::cvtToTimeSinceBoot(OsTime& rTime) const
 // Return the current time as an OsTime value
 void OsDateTimeWnt::getCurTime(OsTime& rTime)
 {
-#if WINCE
     typedef union 
     {
         FILETIME  ft;
         uint64_t  int64;
     } g_FILETIME;
-
-    uint64_t ticks ;
-    uint64_t freq ;
-    static bool       sbInitialized = false ;
     static g_FILETIME sOsFileTime ;
+
+#if WINCE
+    static bool       sbInitialized = false ;
     static uint64_t sLastTicks = 0 ;
     static uint64_t sResetTime = 0 ;
+    uint64_t ticks ;
+    uint64_t freq ;
 
     QueryPerformanceCounter((LARGE_INTEGER*) &ticks) ;
     QueryPerformanceFrequency((LARGE_INTEGER*) &freq) ;
@@ -231,18 +231,8 @@ void OsDateTimeWnt::getCurTime(OsTime& rTime)
         FileTimeToSystemTime(&sOsFileTime.ft, &si) ;
     }
 
-   OsTime curTime((long)  ((sOsFileTime.int64 - ((uint64_t) 116444736000000000)) / ((uint64_t) 10000000)), 
-                  (long) ((sOsFileTime.int64 / ((uint64_t) 10)) % ((uint64_t) 1000000)));
-   rTime = curTime;
 #else
-    typedef union 
-    {
-        FILETIME   ft;
-        uint64_t   int64;
-    } g_FILETIME;
-
     static bool       sbInitialized = false ;
-    static g_FILETIME sOsFileTime ;
     static DWORD sLastSystemMSecs = 0 ;
 
     DWORD systemMSecs = timeGetTime();
@@ -267,20 +257,17 @@ void OsDateTimeWnt::getCurTime(OsTime& rTime)
         DWORD delta = systemMSecs - sLastSystemMSecs ;
 
         sLastSystemMSecs = systemMSecs;
-        sOsFileTime.int64 = sOsFileTime.int64 + 
-                            10000 * delta;  // convert delta msec to 100ns units
+        // convert delta msec to 100ns units and advance system time
+        sOsFileTime.int64 = sOsFileTime.int64 + 10000 * delta;
         
         SYSTEMTIME si ;
         FileTimeToSystemTime(&sOsFileTime.ft, &si) ;
     }
-
-   OsTime curTime((long) ((sOsFileTime.int64 - 
-                           ((uint64_t) WINDOWSTIME2UNIXTIME * 10000000)) 
-                          / ((uint64_t) 10000000)), 
-                  (long) ((sOsFileTime.int64 / ((uint64_t) 10)) % 
-                          ((uint64_t) 1000000)));
-   rTime = curTime;
 #endif
+
+   rTime = OsTime((long) ((sOsFileTime.int64 - WINDOWSTIME2UNIXTIME*10000000)
+                          / UINT64_C(10000000)),
+                  (long) ((sOsFileTime.int64 / UINT64_C(10)) % UINT64_C(1000000)));
 }
 
 
