@@ -1231,17 +1231,129 @@ AC_DEFUN([CHECK_SPANDSP],
     if test x_$found_spandsp_include != x_yes -o x_$found_spandsp_lib != x_yes; then
         AC_MSG_RESULT(not found)
     else
-    # testing for proper version
-    if test -f "$includeval/spandsp/g722.h" -o -f "$includeval/spandsp/g726.h"; then
-            AC_CHECK_HEADERS(spandsp/bitstream.h)
-            AC_MSG_RESULT(libspandsp is ok)
+        # testing for proper version
+        ac_spandsp_ok=false
+        ac_spandsp_new=false
+        ac_spandsp_g726valid=false
+        
+        if test -f "$includeval/spandsp/g722.h" -o -f "$includeval/spandsp/g726.h"; then
+            AC_TRY_COMPILE([
+                    #if HAVE_STDINT_H
+                    #include <stdint.h>
+                    #endif
+                    #include <spandsp/bitstream.h>
+                    #include <spandsp/g722.h>
+                    #include <spandsp/g726.h>
+                ],[
+                    void* p = g726_init(0, 16000, G726_ENCODING_LINEAR, G726_PACKING_LEFT);
+                    void* q = g722_encode_init(0, 64000, 0);
+                    return p!=q;
+                ],
+                ac_libspandsp_newstyle=true,
+                ac_libspandsp_newstyle=false)
+            
+            if test "$ac_libspandsp_newstyle" = false; then
+                    AC_TRY_COMPILE([
+                        #if HAVE_STDINT_H
+                        #include <stdint.h>
+                        #endif
+                        #include <spandsp/g722.h>
+                        #include <spandsp/g726.h>
+                    ],[
+                        void* p = g726_init(0, 16000, G726_ENCODING_LINEAR, 1);
+                        void* q = g722_encode_init(0, 64000, 0);
+                        return p!=q;
+                    ],
+                    ac_libspandsp_oldstyle=true,
+                    ac_libspandsp_oldstyle=false)
+                
+                if test "$ac_libspandsp_oldstyle" = true; then
+                    AC_DEFINE(HAVE_OLD_LIBSPANDSP, [1], [Have old version of libspandsp])
+                    ac_spandsp_ok=true
+                fi
+            else
+                ac_spandsp_ok=true
+            fi
+        fi
+    
+        if test "$ac_spandsp_ok" = true -a "$ac_libspandsp_newstyle" = true; then
+            ac_spandsp_new=true
+            ac_spandsp_g726valid=true
+        fi
+    
+        if test "$ac_spandsp_ok" = true; then
+            if test "$ac_spandsp_new" = true; then
+                AC_MSG_RESULT(ok)
+            else
+                AC_MSG_RESULT(old version of libspandsp)
+            fi
             SPANDSP_CFLAGS="-I$includeval"
             SPANDSP_CXXFLAGS="-I$includeval"
             SPANDSP_LIBS="-lspandsp"
             SPANDSP_LDFLAGS="-L$libval"
-    else
-            AC_MSG_RESULT(too old (dosen't have g722.h and g726.h))
+        else
+            AC_MSG_RESULT(hmm... invalid version of spandsplib)
         fi
+
+
+        if test "$ac_spandsp_ok" = true -a "$ac_spandsp_new" = false; then
+                withval=
+                AC_ARG_WITH(spandsp-validg726,
+                [AS_HELP_STRING([--with-spandsp-validg726=VAL],
+                                [Set VAL to 'yes' or 'ok' to use G726 with old libspandsp (where packing mode parameter compiled in library)])],
+                )
+            
+            if test "$withval" = "yes" -o  "$withval" = "ok" ; then
+                ac_spandsp_g726valid=true
+            else
+                # Need to check G726 packing
+                AC_MSG_CHECKING([for libspandsp G726 packing])
+                
+                OLD_CFLAGS=$CFLAGS
+                OLD_LDFLAGS=$LDFLAGS
+                CFLAGS+=" $SPANDSP_CFLAGS"
+                LDFLAGS+=" $SPANDSP_LDFLAGS $SPANDSP_LIBS"
+                
+                AC_TRY_RUN([
+                        #if HAVE_STDINT_H
+                        #include <stdint.h>
+                        #endif
+                        #include <spandsp/g722.h>
+                        #include <spandsp/g726.h>
+                        
+                        int main() {
+                        void* p = g726_init(0, 16000, G726_ENCODING_LINEAR, 1);
+                        uint16_t data[16];
+                        const uint16_t vdata[4] = {0xc, 0xc, 0xc, 0x3c};
+                        uint8_t packed[4] = {1, 54};
+                        int len, i;
+                        
+                        len = g726_decode(p, data, packed, 2);
+                        
+                        for (i = 0; i < 4; i++) {
+                           if ( data[i] != vdata[i] )
+                              return -1;
+                        }
+                        return 0;
+                        }
+                    ],
+                    ac_spandsp_g726valid=true,
+                    ac_spandsp_g726valid=false,
+                    ac_spandsp_g726valid=false)
+
+
+                CFLAGS=$OLD_CFLAGS
+                LDFLAGS=$OLD_LDFLAGS
+
+                if test "$ac_spandsp_g726valid" = true; then
+                    AC_MSG_RESULT(ok)
+                else
+                    AC_MSG_RESULT(incorrect)
+                fi
+            fi
+            
+        fi
+        
     fi
     AC_SUBST(SPANDSP_CFLAGS)
     AC_SUBST(SPANDSP_CXXFLAGS)
@@ -1256,7 +1368,7 @@ AC_DEFUN([CHECK_SPANDSP],
 AC_DEFUN([AM_SET_G726],
 [
 # Currently only iLBC in contrib supported
-    if test x_$SPANDSP_CFLAGS != x_; then
+    if test x_$SPANDSP_CFLAGS != x_ -a "$ac_spandsp_g726valid" = true; then
         PLUGINS="${PLUGINS} G.726"
 
         G726_TARGET="plgg726"
