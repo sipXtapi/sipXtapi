@@ -8,14 +8,11 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
-// Author: 
+// Author: Sergey Kostanbaev <Sergey DOT Kostanbaev AT sipez DOT com>
 
 #include <utl/UtlInit.h>
 #include <mp/MpPlgStaffV1.h>
-//#include "plg/PlgStaffV1.h"
 #include <mp/MpCodecFactory.h>
-
-//void* pPtrMagic::magic = NULL;
 
 MpCodecCallInfoV1* MpCodecFactory::sStaticCodecsV1 = NULL;
 
@@ -26,29 +23,26 @@ void MpCodecCallInfoV1::registerStaticCodec(const char* moduleName,
                                             dlPlgEncodeV1 plgEncode,
                                             dlPlgFreeV1 plgFree,
                                             dlPlgEnumSDPAndModesV1 plgEnum,
-                                            dlPlgGetSignalingDataV1 plgSignaling
-                                            )
+                                            dlPlgGetSignalingDataV1 plgSignaling)
 {
-   MpCodecCallInfoV1* pCodecInfo = new MpCodecCallInfoV1;
+   MpCodecCallInfoV1* pCodecInfo = new MpCodecCallInfoV1(moduleName,
+                                                         codecModuleName,
+                                                         plgInit,
+                                                         plgDecode,
+                                                         plgEncode,
+                                                         plgFree,
+                                                         plgEnum,
+                                                         plgSignaling,
+                                                         TRUE);
    assert(pCodecInfo);
-
-   pCodecInfo->mbStatic = TRUE;
-   pCodecInfo->mModuleName = moduleName;
-   pCodecInfo->mCodecModuleName = codecModuleName;
-   pCodecInfo->mPlgInit = plgInit;
-   pCodecInfo->mPlgDecode = plgDecode;
-   pCodecInfo->mPlgEncode = plgEncode;
-   pCodecInfo->mPlgFree = plgFree;
-   pCodecInfo->mPlgEnum = plgEnum;
-   pCodecInfo->mPlgSignaling = plgSignaling;
 
    MpCodecFactory::addStaticCodec(pCodecInfo);
 }
 
-const char** MpCodecCallInfoV1::getSDPModes(unsigned& modesCount)
+const char** MpCodecCallInfoV1::getSDPModes(unsigned& modeCount) const
 {
    const char** sdpStrModes;
-   int res = mPlgEnum(NULL, &modesCount, &sdpStrModes);
+   int res = mPlgEnum(NULL, &modeCount, &sdpStrModes);
    assert (res == RPLG_SUCCESS);
    return sdpStrModes;
 }

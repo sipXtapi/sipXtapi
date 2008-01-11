@@ -8,88 +8,175 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
-// Author: 
+// Author: Sergey Kostanbaev <Sergey DOT Kostanbaev AT sipez DOT com>
 
 #ifndef _PlgStaff_h_
 #define _PlgStaff_h_
 
+// SYSTEM INCLUDES
+// APPLICATION INCLUDES
 #include <utl/UtlInt.h>
 #include <utl/UtlVoidPtr.h>
 #include <utl/UtlString.h>
 #include <mp/codecs/PlgDefsV1.h>
 
-class MpStaticCodecSimpleList {
-private:
-   MpStaticCodecSimpleList* mNext; //for make static list in .ctor section without using sipXportLib classes to prevent any problems of initialization static variables
-public:
-   MpStaticCodecSimpleList() : mNext(NULL) {}
-   // Only bounding in chain is needed for compiled-in codecs
-   MpStaticCodecSimpleList* bound(MpStaticCodecSimpleList* newItem) { this->mNext = newItem; return this; }
-   UtlBoolean iseof() const { return mNext == NULL; }
+// DEFINES
+// MACROS
+// EXTERNAL FUNCTIONS
+// EXTERNAL VARIABLES
+// CONSTANTS
+// STRUCTS
+// TYPEDEFS
+// FORWARD DECLARATIONS
 
-   MpStaticCodecSimpleList* next() const { return mNext; }
+/**
+*  @brief Very simple single-linked list implementation, used by codecs' loading
+*         infrastructure.
+*
+*  We do not use Utl* lists to avoid excessive locking and complexity they
+*  introduce.
+*/
+class MpStaticCodecSimpleList
+{
+public:
+/* =============================== CREATORS =============================== */
+///@name Creators
+//@{
+
+     /// Default Constructor
+   inline
+   MpStaticCodecSimpleList();
+
+//@}
+
+/* ============================= MANIPULATORS ============================= */
+///@name Manipulators
+//@{
+
+     /// Add this element head of the list and return pointer to it.
+   inline
+   MpStaticCodecSimpleList* bound(MpStaticCodecSimpleList* newItem);
+
+//@}
+
+/* ============================== ACCESSORS =============================== */
+///@name Accessors
+//@{
+
+     /// Return pointer to next element.
+   inline
+   MpStaticCodecSimpleList* getNext() const;
+
+//@}
+
+/* =============================== INQUIRY ================================ */
+///@name Inquiry
+//@{
+
+
+//@}
+
+/* ////////////////////////////// PROTECTED /////////////////////////////// */
+protected:
+
+
+/* /////////////////////////////// PRIVATE //////////////////////////////// */
+private:
+   MpStaticCodecSimpleList* mNext; ///< Pointer to next element in list.
 };
 
-class MpCodecCallInfoV1 : protected UtlVoidPtr , public MpStaticCodecSimpleList
+/**
+*  @brief Object-oriented wrapper for codec.
+*
+*  This class is used to provide object-oriented access to codecs, which are
+*  represented as a set of plain functions originally.
+*/
+class MpCodecCallInfoV1 : protected UtlVoidPtr, public MpStaticCodecSimpleList
 {
-   friend class MpCodecFactory;
-   friend class MpPlgDecoderWrapper;
-   friend class MpPlgEncoderWrapper;
-
-protected:
-   UtlBoolean mbStatic;   // compiled-in or loaded codec
-   UtlString mModuleName; // loaded module name or nothing in compiled-in codecs
-
-   UtlString mCodecModuleName; // prefix in module names
-   dlPlgInitV1 mPlgInit;
-   dlPlgDecodeV1 mPlgDecode;
-   dlPlgEncodeV1 mPlgEncode;
-   dlPlgFreeV1 mPlgFree;
-   dlPlgEnumSDPAndModesV1 mPlgEnum;
-   dlPlgGetSignalingDataV1 mPlgSignaling;
-   
-   UtlBoolean fSDPassigned;
-   int sdpNum;
 public:
-   const char** getSDPModes(unsigned& modesCount);
-   const UtlBoolean isStatic() const { return mbStatic; }
-protected:
-   MpCodecCallInfoV1() : fSDPassigned(FALSE), sdpNum(-1) {}
+/* =============================== CREATORS =============================== */
+///@name Creators
+//@{
 
-public:
-   MpCodecCallInfoV1* next() const { return (MpCodecCallInfoV1*)MpStaticCodecSimpleList::next(); }
-
+     /// Constructor.
+   inline
    MpCodecCallInfoV1(const char* moduleName,
-      const char* codecModuleName,
-      dlPlgInitV1 plgInit,
-      dlPlgDecodeV1 plgDecode,
-      dlPlgEncodeV1 plgEncode,
-      dlPlgFreeV1 plgFree,
-      dlPlgEnumSDPAndModesV1 plgEnum,
-      dlPlgGetSignalingDataV1 plgSignaling,
-      UtlBoolean bStatic = TRUE) 
-      : mbStatic(bStatic)
-      , mModuleName(moduleName)
-      , mCodecModuleName(codecModuleName)
-      , mPlgInit(plgInit)
-      , mPlgDecode(plgDecode)
-      , mPlgEncode(plgEncode)
-      , mPlgFree(plgFree)
-      , mPlgEnum(plgEnum)
-      , mPlgSignaling(plgSignaling)
-      , fSDPassigned(FALSE)
-      , sdpNum(-1)
-   {}
+                     const char* codecModuleName,
+                     dlPlgInitV1 plgInit,
+                     dlPlgDecodeV1 plgDecode,
+                     dlPlgEncodeV1 plgEncode,
+                     dlPlgFreeV1 plgFree,
+                     dlPlgEnumSDPAndModesV1 plgEnum,
+                     dlPlgGetSignalingDataV1 plgSignaling,
+                     UtlBoolean bStatic = TRUE);
 
-   static void registerStaticCodec(const char* moduleName
-      , const char* codecModuleName
-      , dlPlgInitV1 plgInit
-      , dlPlgDecodeV1 plgDecode
-      , dlPlgEncodeV1 plgEncode
-      , dlPlgFreeV1 plgFree
-      , dlPlgEnumSDPAndModesV1 plgEnum
-      , dlPlgGetSignalingDataV1 plgSignaling
-      );
+     /// Construct MpCodecCallInfoV1 object and add it to static codecs list.
+   static void registerStaticCodec(const char* moduleName,
+                                   const char* codecModuleName,
+                                   dlPlgInitV1 plgInit,
+                                   dlPlgDecodeV1 plgDecode,
+                                   dlPlgEncodeV1 plgEncode,
+                                   dlPlgFreeV1 plgFree,
+                                   dlPlgEnumSDPAndModesV1 plgEnum,
+                                   dlPlgGetSignalingDataV1 plgSignaling);
+
+//@}
+
+/* ============================= MANIPULATORS ============================= */
+///@name Manipulators
+//@{
+
+//@}
+
+/* ============================== ACCESSORS =============================== */
+///@name Accessors
+//@{
+
+     /// Enumerate and return recommended (supported) modes.
+   const char** getSDPModes(unsigned &modeCount) const;
+
+     /// Return pointer to next codec in the list.
+   inline
+   MpCodecCallInfoV1* getNext() const;
+
+     /// Return module name.
+   inline
+   const UtlString& getModuleName() const;
+
+//@}
+
+/* =============================== INQUIRY ================================ */
+///@name Inquiry
+//@{
+
+     /// Is codec registered as static or dynamic?
+   inline
+   const UtlBoolean isStatic() const;
+
+//@}
+
+/* =============================== WRAPPERS =============================== */
+///@name Wrappers
+/// Pointers to actual functions, defined for this codec.
+//@{
+
+   const dlPlgInitV1 mPlgInit;
+   const dlPlgDecodeV1 mPlgDecode;
+   const dlPlgEncodeV1 mPlgEncode;
+   const dlPlgFreeV1 mPlgFree;
+   const dlPlgEnumSDPAndModesV1 mPlgEnum;
+   const dlPlgGetSignalingDataV1 mPlgSignaling;
+
+//@}
+
+/* ////////////////////////////// PROTECTED /////////////////////////////// */
+protected:
+   UtlBoolean mbStatic;   ///< Is codec compiled-in or dynamically loaded?
+   UtlString mModuleName; ///< Dynamic module name. Empty string for compiled-in codecs.
+
+/* /////////////////////////////// PRIVATE //////////////////////////////// */
+private:
+
 };
 
 
@@ -136,6 +223,59 @@ public:   int x;                                            \
    DECLARE_MP_STATIC_PLUGIN_CODEC_V1I(x, MAKE_MP_UNIQUE_NAME(x))
 
 
+/* ============================ INLINE METHODS ============================ */
 
+/* ======================== MpStaticCodecSimpleList ======================= */
+
+MpStaticCodecSimpleList::MpStaticCodecSimpleList()
+: mNext(NULL)
+{}
+
+MpStaticCodecSimpleList* MpStaticCodecSimpleList::bound(MpStaticCodecSimpleList* newItem)
+{
+   mNext = newItem;
+   return this;
+}
+
+MpStaticCodecSimpleList* MpStaticCodecSimpleList::getNext() const
+{
+   return mNext;
+}
+
+/* =========================== MpCodecCallInfoV1 ========================== */
+
+MpCodecCallInfoV1::MpCodecCallInfoV1(const char* moduleName,
+                                     const char* codecModuleName,
+                                     dlPlgInitV1 plgInit,
+                                     dlPlgDecodeV1 plgDecode,
+                                     dlPlgEncodeV1 plgEncode,
+                                     dlPlgFreeV1 plgFree,
+                                     dlPlgEnumSDPAndModesV1 plgEnum,
+                                     dlPlgGetSignalingDataV1 plgSignaling,
+                                     UtlBoolean bStatic)
+: mbStatic(bStatic)
+, mModuleName(moduleName)
+, mPlgInit(plgInit)
+, mPlgDecode(plgDecode)
+, mPlgEncode(plgEncode)
+, mPlgFree(plgFree)
+, mPlgEnum(plgEnum)
+, mPlgSignaling(plgSignaling)
+{}
+
+const UtlBoolean MpCodecCallInfoV1::isStatic() const
+{
+   return mbStatic;
+}
+
+MpCodecCallInfoV1* MpCodecCallInfoV1::getNext() const
+{
+   return (MpCodecCallInfoV1*)MpStaticCodecSimpleList::getNext();
+}
+
+const UtlString& MpCodecCallInfoV1::getModuleName() const
+{
+   return mModuleName;
+}
 
 #endif //_PlgStaff_h_

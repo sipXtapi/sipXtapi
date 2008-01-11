@@ -116,7 +116,7 @@ MpCodecFactory::~MpCodecFactory()
    UtlHashBagIterator iter(mCodecsInfo);
    while ((pinfo = (MpCodecSubInfo*)iter()))
    { 
-      if (!pinfo->getCodecCall()->mbStatic) {
+      if (!pinfo->getCodecCall()->isStatic()) {
          assert(!"Dynamically loaded codecs must be unloaded already");
       }
       delete pinfo;     
@@ -214,7 +214,7 @@ void MpCodecFactory::globalCleanUp()
    if (tmp) {
       for ( ;tmp; tmp = next)
       {
-         next = tmp->next();
+         next = tmp->getNext();
          delete tmp;
       }
       sStaticCodecsV1 = NULL;
@@ -234,9 +234,9 @@ void MpCodecFactory::freeAllLoadedLibsAndCodec()
 
    while ((pinfo = (MpCodecSubInfo*)iter()))
    {  
-      if ((!pinfo->getCodecCall()->mbStatic) && 
-         (!libLoaded.find(&pinfo->getCodecCall()->mModuleName))) {
-         libLoaded.insert(&pinfo->getCodecCall()->mModuleName);         
+      if ((!pinfo->getCodecCall()->isStatic()) && 
+         (!libLoaded.find(&pinfo->getCodecCall()->getModuleName()))) {
+         libLoaded.insert(const_cast<UtlString*>(&pinfo->getCodecCall()->getModuleName()));
       }    
    }
 
@@ -249,7 +249,7 @@ void MpCodecFactory::freeAllLoadedLibsAndCodec()
    iter.reset();
    while ((pinfo = (MpCodecSubInfo*)iter()))
    {  
-      if (!pinfo->getCodecCall()->mbStatic) {
+      if (!pinfo->getCodecCall()->isStatic()) {
          mCodecsInfo.remove(pinfo);
          delete pinfo;         
       }
@@ -424,8 +424,8 @@ OsStatus MpCodecFactory::addCodecWrapperV1(MpCodecCallInfoV1* wrapper)
 
 void MpCodecFactory::initializeStaticCodecs() //Should be called from mpStartup()
 {
-   MpCodecCallInfoV1* tmp = sStaticCodecsV1;
-   for ( ;tmp; tmp = tmp->next())
+   MpCodecCallInfoV1* tmp;
+   for (tmp = sStaticCodecsV1; tmp; tmp = tmp->getNext())
    {
       addCodecWrapperV1(tmp);
    }
