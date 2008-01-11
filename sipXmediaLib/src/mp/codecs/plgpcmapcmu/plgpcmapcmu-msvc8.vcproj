@@ -61,6 +61,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				IgnoreImportLibrary="TRUE"
 				OutputFile="..\..\..\..\bin\codec_pcmapcmu.dll"
 				LinkIncremental="2"
 				GenerateDebugInformation="true"
@@ -138,6 +139,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				IgnoreImportLibrary="TRUE"
 				OutputFile="..\..\..\..\bin\codec_pcmapcmu.dll"
 				LinkIncremental="1"
 				GenerateDebugInformation="true"
@@ -203,6 +205,9 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
+			<File
+				RelativePath="..\..\..\..\include\mp\codecs\PlgDefsV1.h">
+			</File>
 		</Filter>
 		<Filter
 			Name="Resource Files"

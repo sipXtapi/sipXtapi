@@ -97,7 +97,7 @@
 			<Tool
 				Name="VCPostBuildEventTool"
 				Description="Copy speex dll to mediaLib bin directory"
-				CommandLine="copy ..\..\..\..\contrib\libspeex\win32\VS2003\libspeex\Release_Dynamic\libspeex.dll* ..\..\..\..\bin"
+				CommandLine="copy ..\..\..\..\contrib\libspeex\win32\VS2003\libspeex\Release_Dynamic_SSE\libspeex.dll* ..\..\..\..\bin"
 			/>
 		</Configuration>
 		<Configuration
@@ -186,7 +186,7 @@
 			<Tool
 				Name="VCPostBuildEventTool"
 				Description="Copy speex dll to mediaLib bin directory"
-				CommandLine="copy ..\..\..\..\contrib\libspeex\win32\VS2003\libspeex\Release_Dynamic_SSE\libspeex.dll* ..\..\..\..\bin"
+				CommandLine="copy ..\..\..\..\contrib\libspeex\win32\VS2003\libspeex\Release_Dynamic_SSE\libspeex.dll* ..\..\..\..\bin&#x0D;&#x0A;copy ..\..\..\..\contrib\libspeex\bin\libspeex.dll* ..\..\..\..\bin"
 			/>
 		</Configuration>
 	</Configurations>
@@ -220,6 +220,9 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
+			<File
+				RelativePath="..\..\..\..\include\mp\codecs\PlgDefsV1.h">
+			</File>
 			<File
 				RelativePath="plgspeex.h"
 				>

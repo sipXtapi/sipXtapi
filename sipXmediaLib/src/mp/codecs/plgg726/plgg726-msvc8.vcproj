@@ -27,6 +27,8 @@
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
+				CommandLine="copy ..\..\..\..\contrib\libamrwb\$(ConfigurationName)\libamrwb.dll $(TargetDir)"
+				Outputs="$(TargetDir)libamrwb.dll"
 			/>
 			<Tool
 				Name="VCXMLDataGeneratorTool"
@@ -107,6 +109,8 @@
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
+				CommandLine="copy ..\..\..\..\contrib\libspandsp\$(ConfigurationName)\libspandsp.dll $(TargetDir)"
+				Outputs="$(TargetDir)libspandsp.dll"
 			/>
 			<Tool
 				Name="VCXMLDataGeneratorTool"
@@ -204,6 +208,9 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
+			<File
+				RelativePath="..\..\..\..\include\mp\codecs\PlgDefsV1.h">
+			</File>
 			<File
 				RelativePath=".\plgg726.h"
 				>

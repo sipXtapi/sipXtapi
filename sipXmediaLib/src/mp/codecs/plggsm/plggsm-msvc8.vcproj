@@ -61,6 +61,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				IgnoreImportLibrary="TRUE"
 				OutputFile="..\..\..\..\bin\codec_gsm.dll"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="..\..\..\..\contrib\libgsm\lib"
@@ -139,6 +140,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				IgnoreImportLibrary="TRUE"
 				OutputFile="..\..\..\..\bin\codec_gsm.dll"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="..\..\..\..\contrib\libgsm\lib"
@@ -193,6 +195,9 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
+			<File
+				RelativePath="..\..\..\..\include\mp\codecs\PlgDefsV1.h">
+			</File>
 		</Filter>
 		<Filter
 			Name="Resource Files"
