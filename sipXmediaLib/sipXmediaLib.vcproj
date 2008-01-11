@@ -3872,6 +3872,9 @@
 				RelativePath="include\rtcp\NetworkChannel.h">
 			</File>
 			<File
+				RelativePath=".\include\mp\codecs\PlgDefsV1.h">
+			</File>
+			<File
 				RelativePath="include\rtcp\ReceiverReport.h">
 			</File>
 			<File
