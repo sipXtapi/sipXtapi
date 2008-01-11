@@ -132,9 +132,6 @@ public:
 ///@name Accessors
 //@{
 
-     /// Enumerate and return recommended (supported) modes.
-   const char** getSDPModes(unsigned &modeCount) const;
-
      /// Return pointer to next codec in the list.
    inline
    MpCodecCallInfoV1* getNext() const;

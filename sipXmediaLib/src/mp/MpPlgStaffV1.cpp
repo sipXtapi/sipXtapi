@@ -39,14 +39,6 @@ void MpCodecCallInfoV1::registerStaticCodec(const char* moduleName,
    MpCodecFactory::addStaticCodec(pCodecInfo);
 }
 
-const char** MpCodecCallInfoV1::getSDPModes(unsigned& modeCount) const
-{
-   const char** sdpStrModes;
-   int res = mPlgEnum(NULL, &modeCount, &sdpStrModes);
-   assert (res == RPLG_SUCCESS);
-   return sdpStrModes;
-}
-
 int AutoRegistratorBase::nAutoRegistered = 0;
 
 AutoRegistratorBase::AutoRegistratorBase()
