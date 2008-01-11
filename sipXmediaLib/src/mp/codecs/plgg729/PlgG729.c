@@ -32,7 +32,7 @@ static const struct plgCodecInfoV1 codecG729 =
 {
    sizeof(struct plgCodecInfoV1),   //cbSize
    codecMIMEsubtype,                //mimeSubtype
-   "G.729",                         //codecName
+   "VA_Open_G729",                  //codecName
    "VoiceAge Open G.729",           //codecVersion
    8000,                            //samplingRate
    8,                               //fmtAndBitsPerSample

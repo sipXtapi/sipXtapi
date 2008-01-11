@@ -18,7 +18,7 @@ static const struct plgCodecInfoV1 codecSPEEX_UWB =
 {
    sizeof(struct plgCodecInfoV1),   //cbSize
    codecMIMEsubtype,                //mimeSubtype
-   "speex-uwb",                     //codecName
+   "SPEEX-UWB",                     //codecName
    "SpeexUWB codec",                //codecVersion
    32000,                           //samplingRate
    8,                               //fmtAndBitsPerSample

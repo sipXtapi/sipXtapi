@@ -30,7 +30,7 @@ static const struct plgCodecInfoV1 sipxCodecInfog722 =
 {
    sizeof(struct plgCodecInfoV1),   //cbSize
    codecMIMEsubtype,                //mimeSubtype
-   "g722",                          //codecName
+   "G722",                          //codecName
    "g722_spansdp",                  //codecVersion
    16000,                           //samplingRate
    8,                               //fmtAndBitsPerSample

@@ -36,7 +36,7 @@ static const struct plgCodecInfoV1 codeciLBC =
 {
    sizeof(struct plgCodecInfoV1),   //cbSize
    codecMIMEsubtype,                //mimeSubtype
-   "ilbc",                          //codecName
+   "iLBC",                          //codecName
    "iLBC",                          //codecVersion
    8000,                            //samplingRate
    8,                               //fmtAndBitsPerSample

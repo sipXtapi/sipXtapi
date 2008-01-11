@@ -34,7 +34,7 @@ static const struct plgCodecInfoV1 codecTones =
 {
    sizeof(struct plgCodecInfoV1),  //cbSize
    codecMIMEsubtype,               //codecSDPType
-   "tones",                        //codecName
+   "telephone-event",              //codecName
    "RFC4733",                      //codecVersion
    8000,                           //samplingRate
    0,                              //fmtAndBitsPerSample

@@ -46,7 +46,7 @@ static const struct plgCodecInfoV1 codecGSM =
 {
    sizeof(struct plgCodecInfoV1),   //cbSize
    codecMIMEsubtype,                //mimeSubtype
-   "libgsm",                        //codecName
+   "GSM-FR",                        //codecName
    "GSM 6.10",                      //codecVersion
    8000,                            //samplingRate
    8,                               //fmtAndBitsPerSample

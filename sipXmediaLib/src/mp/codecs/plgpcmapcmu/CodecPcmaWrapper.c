@@ -36,7 +36,7 @@ static const struct plgCodecInfoV1 sipxCodecInfoPCMA =
 {
    sizeof(struct plgCodecInfoV1),   //cbSize
    codecMIMEsubtype,                //mimeSubtype
-   "sipxPcma",                      //codecName
+   "PCMA",                          //codecName
    "SIPfoundry 1.0",                //codecVersion
    8000,                            //samplingRate
    8,                               //fmtAndBitsPerSample

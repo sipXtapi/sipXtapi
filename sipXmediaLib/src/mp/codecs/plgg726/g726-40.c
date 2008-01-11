@@ -23,8 +23,8 @@ static const struct plgCodecInfoV1 sipxCodecInfog726_40 =
 {
    sizeof(struct plgCodecInfoV1),   //cbSize
    codecMIMEsubtype,                //mimeSubtype
-   "g726-40",                       //codecName
-   "g726-40_spansdp",               //codecVersion
+   "G726-40",                       //codecName
+   "G726-40-spandsp",               //codecVersion
    8000,                            //samplingRate
    8,                               //fmtAndBitsPerSample
    1,                               //numChannels
