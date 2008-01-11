@@ -44,7 +44,7 @@ extern "C" {
 struct plgCodecInfoV1
 {
    unsigned    cbSize;                 ///< Size of struct for computability with future version
-   const char* mimeSubtype;            ///< codec type 
+   const char* mimeSubtype;            ///< Codec's MIME subtype. MUST be lowercase!
    const char* codecName;              ///< string identifying the codec name
    const char* codecVersion;           ///< string identifying the codec version
    unsigned    samplingRate;           ///< sampling rate for the PCM data expected by the codec
