@@ -434,12 +434,12 @@ public:
     /** Un-escape a string that has %-escapes, such as URI user, URI password, or
      *  URI-parameter values.
      */
-    static void Url::percent_unescape(UtlString& escapedText);
+    static void percent_unescape(UtlString& escapedText);
 
     /// Escape a string with %-escapes.
-    static void Url::percent_escape(UtlString& unEscapedText,
-                                    UtlString& escapedTest,
-                                    const char* unescaped_chars);
+    static void percent_escape(UtlString& unEscapedText,
+                               UtlString& escapedTest,
+                               const char* unescaped_chars);
 
 /* ============================ INQUIRY =================================== */
 
