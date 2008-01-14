@@ -26,6 +26,7 @@ class MprFromMicTest : public MpGenericResourceTest
     CPPUNIT_TEST(testEnabledNoQueue);
     CPPUNIT_TEST(testEnabledEmptyQueue);
     CPPUNIT_TEST(testEnabledWithData);
+    CPPUNIT_TEST(testWideband);
     CPPUNIT_TEST_SUITE_END();
 
 /// Length of message queue used to communicate with MprToSpkr
@@ -268,6 +269,86 @@ public:
 
        // Free message queue
        delete pMsgQ;
+   }
+   void testWideband()
+   {
+      MprFromMic* pFromMic = NULL;
+      MpBufPtr pBuf;
+      OsStatus res;
+
+      // Create message queue to send data to MprFromMic
+      OsMsgQ* pMsgQ = new OsMsgQ(MSG_Q_LEN);
+      CPPUNIT_ASSERT(pMsgQ != NULL);
+
+      size_t i;
+      for(i = 0; i < sNumRates; i++)
+         //for(i = 0; i < 1; i++)
+      {
+         printf("Test %d Hz\n", sSampleRates[i]);
+         // For this test, we want to modify the sample rate and samples per frame
+         // so we need to de-inititialize what has already been initialized for us
+         // by cppunit, or by a previous loop.
+         tearDown();
+
+         // Set the sample rates 
+         setSamplesPerSec(sSampleRates[i]);
+         setSamplesPerFrame(sSampleRates[i]/100);
+         setUp();
+
+
+         pFromMic = new MprFromMic("MprFromMic", 
+                                   pMsgQ);
+         CPPUNIT_ASSERT(pFromMic != NULL);
+
+         setupFramework(pFromMic);
+
+         // pFromMic enabled, there are buffers on the input 0
+         CPPUNIT_ASSERT(mpSourceResource->enable());
+         CPPUNIT_ASSERT(pFromMic->enable());
+
+         res = mpFlowGraph->processNextFrame();
+         CPPUNIT_ASSERT(res == OS_SUCCESS);
+
+         // Store output buffer for convenience
+         pBuf = mpSinkResource->mLastDoProcessArgs.inBufs[0];
+
+         CPPUNIT_ASSERT(pBuf.isValid());
+         // New buffer should be generated.
+         CPPUNIT_ASSERT(   (mpSourceResource->mLastDoProcessArgs.outBufs[0] != pBuf)
+                        && (mpSourceResource->mLastDoProcessArgs.outBufs[1] != pBuf)
+                       );
+
+         // And it should contain the same number of samples going out as coming
+         // in, and should match the expected number of samples per frame.
+         MpAudioBufPtr pMixedOutAudioBuf = pBuf;
+         MpAudioBufPtr pFromMicInAudioBuf0 = mpSourceResource->mLastDoProcessArgs.outBufs[0];
+         MpAudioBufPtr pFromMicInAudioBuf1 = mpSourceResource->mLastDoProcessArgs.outBufs[1];
+
+         // Check to see that the number of samples in the mixer output frame
+         // is equal to the samples per frame that we set during this run.
+         CPPUNIT_ASSERT_EQUAL(getSamplesPerFrame(), 
+            pMixedOutAudioBuf->getSamplesNumber());
+         // Then check to see that the number of samples in the output buffer
+         // matches the number of samples in each of the inputs to the mixer
+         CPPUNIT_ASSERT_EQUAL(pFromMicInAudioBuf0->getSamplesNumber(), 
+            pMixedOutAudioBuf->getSamplesNumber());
+         CPPUNIT_ASSERT_EQUAL(pFromMicInAudioBuf1->getSamplesNumber(), 
+            pMixedOutAudioBuf->getSamplesNumber());
+
+
+         // Free stored buffer
+         pBuf.release();
+
+         // Stop flowgraph
+         haltFramework();
+
+         // No need to delete mixer, as haltFramework deletes all resources
+         // in the flowgraph.
+      }
+      
+      // Clean up the mic message queue.
+      delete(pMsgQ);
+      pMsgQ = NULL;
    }
 };
 
