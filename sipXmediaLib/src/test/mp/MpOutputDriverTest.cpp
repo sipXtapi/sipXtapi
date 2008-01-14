@@ -201,45 +201,48 @@ public:
       int frequencies[] = {1000, 2000, 4000, 8000, 16000, 20000, 24000, 28000};
       int numFreqs = sizeof(frequencies)/sizeof(int);
 
-      int rateIndex = 0;
-      int sampleDataSz = sampleRates[rateIndex];
-      MpAudioSample* sampleData = new MpAudioSample[sampleDataSz];
-
       OUTPUT_DRIVER driver(OUTPUT_DRIVER_CONSTRUCTOR_PARAMS);
       CPPUNIT_ASSERT(!driver.isEnabled());
 
-      for (int i=0; i<numFreqs; i++)
+      int rateIndex;
+      for(rateIndex = 0; rateIndex < numRates; rateIndex++)
       {
-         printf("Frequency: %d (Hz) Sample rate: %d/sec.\n", 
-            frequencies[i], sampleRates[rateIndex]);
-         calculateSampleData(frequencies[i], sampleData, sampleDataSz, 
-                             sampleRates[rateIndex]/100, sampleRates[rateIndex]);
-         MpFrameTime frameTime=0;
+         int sampleDataSz = sampleRates[rateIndex];
+         MpAudioSample* sampleData = new MpAudioSample[sampleDataSz];
 
-         driver.enableDevice(sampleRates[rateIndex]/100, sampleRates[rateIndex], 0);
-         CPPUNIT_ASSERT(driver.isEnabled());
-
-         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, driver.setTickerNotification(&notificationEvent));
-
-         // Write some data to device.
-         for (int frame=0; frame<100; frame++)
+         for (int i=0; i<numFreqs; i++)
          {
-            CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, notificationEvent.wait(OsTime(1000)));
-            notificationEvent.reset();
-            CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
-                                 driver.pushFrame(sampleRates[rateIndex]/100,
-                                                  sampleData + sampleRates[rateIndex]/100*frame,
-                                                  frameTime));
+            printf("Frequency: %d (Hz) Sample rate: %d/sec.\n", 
+               frequencies[i], sampleRates[rateIndex]);
+            calculateSampleData(frequencies[i], sampleData, sampleDataSz, 
+                                sampleRates[rateIndex]/100, sampleRates[rateIndex]);
+            MpFrameTime frameTime=0;
 
-            frameTime += sampleRates[rateIndex]/100*1000/sampleRates[rateIndex];
+            driver.enableDevice(sampleRates[rateIndex]/100, sampleRates[rateIndex], 0);
+            CPPUNIT_ASSERT(driver.isEnabled());
+
+            CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, driver.setTickerNotification(&notificationEvent));
+
+            // Write some data to device.
+            for (int frame=0; frame<100; frame++)
+            {
+               CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, notificationEvent.wait(OsTime(1000)));
+               notificationEvent.reset();
+               CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                                    driver.pushFrame(sampleRates[rateIndex]/100,
+                                                     sampleData + sampleRates[rateIndex]/100*frame,
+                                                     frameTime));
+
+               frameTime += sampleRates[rateIndex]/100*1000/sampleRates[rateIndex];
+            }
+
+            CPPUNIT_ASSERT(driver.setTickerNotification(NULL) == OS_SUCCESS);
+
+            driver.disableDevice();
+            CPPUNIT_ASSERT(!driver.isEnabled());
          }
-
-         CPPUNIT_ASSERT(driver.setTickerNotification(NULL) == OS_SUCCESS);
-
-         driver.disableDevice();
-         CPPUNIT_ASSERT(!driver.isEnabled());
+         delete[] sampleData;
       }
-      delete[] sampleData;
    }
 
 protected:
