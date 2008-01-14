@@ -34,8 +34,18 @@
 #include <os/OsMsgDispatcher.h>
 #include <mp/MpResNotificationMsg.h>
 
+#ifdef HAVE_SPEEX
+#include "speex/speex_resampler.h"
+#endif
+
+// Include static wave data headers.
+// These were generated from 16bit 48kHz mono raw sound files, using the following command:
+// $ incbin.exe file.raw WBMixerTestTones.h -n=WBMixerTestTones -c=13 -d -h
+#include "WBMixerTestTones.h"
+#include "WBMixerTestReversedTones.h"
+
 #define NUM_BUFFERS                   500
-#define TEST_SAMPLE_DATA_MAGNITUDE    3000
+#define TEST_SAMPLE_DATA_MAGNITUDE    INT16_MAX
 #define TEST_DRIVER_SINE_PERIOD       (1000000/60) //in microseconds 60 Hz
 #define TEST_MAX_SAMPLE_RATE          48000
 #define TEST_MAX_SAMPLES_PER_FRAME    TEST_MAX_SAMPLE_RATE/100
@@ -85,21 +95,12 @@
 class WBInputOutputDeviceTest : public CppUnit::TestCase
 {
    CPPUNIT_TEST_SUITE(WBInputOutputDeviceTest);
-   CPPUNIT_TEST(testWideband);
+   //CPPUNIT_TEST(testMixerWB);
+   CPPUNIT_TEST(testInputOutputWB);
    CPPUNIT_TEST_SUITE_END();
 
 
 public:
-
-   void setUp()
-   {
-   }
-
-   void tearDown()
-   {
-   }
-
-
    void printCountdownDelay(size_t nSecs)
    {
       assert(nSecs < 10);  // this only works for values < 10.
@@ -230,7 +231,7 @@ public:
 
    // This is a CPPUNIT compliant method that actually does the calling of the wideband
    // test, giving various values for sample rates.
-   void testWideband()
+   void testInputOutputWB()
    {
       printf("For this test, please plug in a male minijack-to-male minijack "
              "cable from your default sound card's speaker output to it's mic "
@@ -250,6 +251,23 @@ public:
                    "mic and speaker jacks now.\n"
                    "We will proceed with testing the next sample rate in ");
             printCountdownDelay(3);
+         }
+      }
+   }
+
+   void testMixerWB()
+   {
+      int i;
+      for(i = 0; i < sNumRates; i++)
+      {
+         printf("Testing rate %d\n", sSampleRates[i]);
+
+         testMixerWBHelper(sSampleRates[i], sSampleRates[i]/100);
+
+         // If there's going to be another run, pause a bit.
+         if(i < sNumRates-1)
+         {
+            OsTask::delay(500);
          }
       }
    }
@@ -385,7 +403,7 @@ public:
       CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, 
                            pFlowgraph->addResource(*pPlayRMixer));
       CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, 
-                           pFlowgraph->addResource(*pPlayRToOutputDev));
+         pFlowgraph->addResource(*pPlayRToOutputDev));
       CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
                            pFlowgraph->addLink(*pPlayRFromInDev, 0, 
                                                *pPlayRMixer, 0));
@@ -473,12 +491,12 @@ public:
       CPPUNIT_ASSERT_EQUAL(2, notfDisp.numMsgs());
       CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, notfDisp.receive((OsMsg*&)pMsg, OsTime(10)));
       CPPUNIT_ASSERT_EQUAL(MpResNotificationMsg::MPRNM_FROMFILE_STARTED, 
-                           (MpResNotificationMsg::RNMsgType)((MpResNotificationMsg*)pMsg)->getMsg());
+         (MpResNotificationMsg::RNMsgType)((MpResNotificationMsg*)pMsg)->getMsg());
       pMsg->releaseMsg();
       pMsg = NULL;
       CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, notfDisp.receive((OsMsg*&)pMsg, OsTime(10)));
       CPPUNIT_ASSERT_EQUAL(MpResNotificationMsg::MPRNM_FROMFILE_FINISHED, 
-                           (MpResNotificationMsg::RNMsgType)((MpResNotificationMsg*)pMsg)->getMsg());
+         (MpResNotificationMsg::RNMsgType)((MpResNotificationMsg*)pMsg)->getMsg());
       pMsg->releaseMsg();
       pMsg = NULL;
 
@@ -500,6 +518,209 @@ public:
       delete pMicInDrv;
       delete pSpkrOutDrv;
       delete pPlaySineInDrv;
+   }
+
+   void testMixerWBHelper(unsigned sampleRate, unsigned samplesPerFrame)
+   {
+      size_t mixer_buffers_lenms = 8000; // 8000 millisecond buffer play length hardcoded.
+      MpFrameTime outMgrDefaultMixerBufLen = 30;
+
+      MpMediaTask* pMediaTask = NULL;
+      MpFlowGraphBase* pFlowgraph = NULL;
+
+      // Things we need for the general flowgraph
+      MpInputDeviceManager* pInMgr = NULL;
+      MpOutputDeviceManager* pOutMgr = NULL;
+
+      // create empty lists for input and output device handles since we had none.
+      UtlSList inDevHandles, outDevHandles;
+
+      // Declare resources, drivers, and driver handles.
+      MprFromFile* pPlayRFromFile = NULL;
+      MprFromFile* pPlayRFromFile2 = NULL;
+      MprMixer* pPlayRMixer = NULL;
+      MprToOutputDevice* pPlayRToOutputDev = NULL;
+      OUTPUT_DRIVER* pSpkrOutDrv = NULL;
+      MpOutputDeviceHandle spkrDevHnd = 0;
+
+      // Initialize the pointers we'll use to play the audio to the
+      // non-resampled buffers first.  If speex is available, then these 
+      // pointers will be re-written after resampling.
+      size_t playBuffer1Len = WBMixerTestTones_in_bytes;
+      size_t playBuffer2Len = WBMixerTestReversedTones_in_bytes;
+      MpAudioSample* pPlayBuffer1 = (MpAudioSample*)WBMixerTestTones;
+      MpAudioSample* pPlayBuffer2 = (MpAudioSample*)WBMixerTestReversedTones;
+
+      // Create new buffers to store the resampled data.
+      size_t resampledBuffer1Len = 
+         (size_t)((double)WBMixerTestTones_in_bytes/((double)TEST_MAX_SAMPLE_RATE/sampleRate));
+      size_t resampledBuffer2Len = 
+         (size_t)((double)WBMixerTestReversedTones_in_bytes/((double)TEST_MAX_SAMPLE_RATE/sampleRate));
+      MpAudioSample* pResampledBuffer1 = new MpAudioSample[resampledBuffer1Len];
+      MpAudioSample* pResampledBuffer2 = new MpAudioSample[resampledBuffer2Len];
+
+      // if we're at a rate other than 48000, we need to resample the 
+      // static buffer we have.
+      if(sampleRate != TEST_MAX_SAMPLE_RATE)
+      {
+#ifdef HAVE_SPEEX
+         int speex_err = 0;
+         SpeexResamplerState* pResampler;
+         pResampler = speex_resampler_init(1, TEST_MAX_SAMPLE_RATE, 
+                                           sampleRate, 9, &speex_err);
+         CPPUNIT_ASSERT_EQUAL((int)RESAMPLER_ERR_SUCCESS, speex_err);
+         // Resample the first buffer.
+         spx_uint32_t inLen = WBMixerTestTones_in_bytes/sizeof(MpAudioSample);
+         spx_uint32_t outLen = resampledBuffer1Len/sizeof(MpAudioSample);
+         CPPUNIT_ASSERT_EQUAL((int)RESAMPLER_ERR_SUCCESS,
+                              speex_resampler_process_int(pResampler, 0, 
+                                                          (const spx_int16_t*)WBMixerTestTones, 
+                                                          &inLen,
+                                                          pResampledBuffer1, 
+                                                          &outLen));
+         CPPUNIT_ASSERT_EQUAL((spx_uint32_t)WBMixerTestTones_in_bytes/sizeof(MpAudioSample), inLen);
+         CPPUNIT_ASSERT_EQUAL((spx_uint32_t)resampledBuffer1Len/sizeof(MpAudioSample), outLen);
+
+         inLen = WBMixerTestReversedTones_in_bytes/sizeof(MpAudioSample);
+         outLen = resampledBuffer2Len/sizeof(MpAudioSample);
+         // Resample the second buffer.
+         CPPUNIT_ASSERT_EQUAL((int)RESAMPLER_ERR_SUCCESS,
+                              speex_resampler_process_int(pResampler, 0, 
+                                                          (const spx_int16_t*)WBMixerTestReversedTones, 
+                                                          &inLen,
+                                                          pResampledBuffer2, 
+                                                          &outLen));
+         CPPUNIT_ASSERT_EQUAL((spx_uint32_t)WBMixerTestReversedTones_in_bytes/sizeof(MpAudioSample), inLen);
+         CPPUNIT_ASSERT_EQUAL((spx_uint32_t)resampledBuffer2Len/sizeof(MpAudioSample), outLen);
+
+         // Now replace the pointers we use for playing the buffers with these
+         // resampled versions.
+         playBuffer1Len = resampledBuffer1Len;
+         playBuffer2Len = resampledBuffer2Len;
+         pPlayBuffer1 = pResampledBuffer1;
+         pPlayBuffer2 = pResampledBuffer2;
+#else
+         printf("No SPEEX support -- This test requires speex for it's resampler\n");
+         delete pResampledBuffer1;
+         delete pResampledBuffer2;
+         return;
+#endif
+      }
+
+
+      // Setup the initial bits of the flowgraph, allocating the flowgraph and 
+      // media task (thereby filling in the passed in pointers, which should
+      // always be null when passed in).
+      setupWBMediaTask(sampleRate, samplesPerFrame, 
+                       pInMgr, pOutMgr, pFlowgraph, pMediaTask);
+
+
+
+      pSpkrOutDrv = new OUTPUT_DRIVER(OUTPUT_DRIVER_CONSTRUCTOR_PARAMS);
+      spkrDevHnd = pOutMgr->addDevice(pSpkrOutDrv);
+      CPPUNIT_ASSERT(spkrDevHnd > 0);
+      outDevHandles.append(new UtlInt(spkrDevHnd));
+
+      pPlayRFromFile = new MprFromFile("FromFile-1");
+      pPlayRFromFile2 = new MprFromFile("FromFile-2");
+      pPlayRMixer = new MprMixer("Play-Mixer", 2);
+      pPlayRToOutputDev =
+         new MprToOutputDevice("ToOutput-PlaySpkr", 
+                               pOutMgr, spkrDevHnd);
+
+
+
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, 
+                           pFlowgraph->addResource(*pPlayRFromFile));
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, 
+                           pFlowgraph->addResource(*pPlayRFromFile2));
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, 
+                           pFlowgraph->addResource(*pPlayRMixer));
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, 
+                           pFlowgraph->addResource(*pPlayRToOutputDev));
+
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                           pFlowgraph->addLink(*pPlayRFromFile, 0, 
+                                               *pPlayRMixer, 0));
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                           pFlowgraph->addLink(*pPlayRFromFile2, 0, 
+                                               *pPlayRMixer, 1));
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                           pFlowgraph->addLink(*pPlayRMixer, 0, 
+                                               *pPlayRToOutputDev, 0));
+
+      // Make sure that the mixer weights are set, and set equally.
+      pPlayRMixer->setWeight(1, 0);
+      pPlayRMixer->setWeight(1, 1);
+
+      // Enable the speaker device.
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pOutMgr->enableDevice(spkrDevHnd));
+
+      // Set the flowgraph ticker source..
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, 
+                           pOutMgr->setFlowgraphTickerSource(spkrDevHnd));
+
+      // Now we enable the flowgraph..  Which should enable resources.
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pFlowgraph->enable());
+
+      // Manage the flow graph so it flows, and finally start it flowing, 
+      // and bring it into focus
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pMediaTask->manageFlowGraph(*pFlowgraph));
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pMediaTask->startFlowGraph(*pFlowgraph));
+
+      // Provide a notification dispatcher so we can get notifications.
+      OsMsgDispatcher notfDisp;
+      pFlowgraph->setNotificationDispatcher(&notfDisp);
+
+      // Now we load up the buffers.
+      MprFromFile::playBuffer("FromFile-1", *pFlowgraph->getMsgQ(),
+                              (const char*)pPlayBuffer1, playBuffer1Len,
+                              0, FALSE, NULL);
+
+      MprFromFile::playBuffer("FromFile-2", *pFlowgraph->getMsgQ(),
+                              (const char*)pPlayBuffer2, playBuffer2Len,
+                              0, FALSE, NULL);
+
+      // Delay until tones are finished playing, adding in an extra second if the 
+      // notifications are late.
+      int notfsToExpect = 4;
+      size_t maxPlayLoops = mixer_buffers_lenms/100 + 10;
+      size_t i;
+      for(i = 0; i < maxPlayLoops && notfDisp.numMsgs() < notfsToExpect; i++)
+      {
+         OsTask::delay(100);
+      }
+
+      // Now grab the actual messages out of the queue.
+      OsMsg* pMsg;
+      CPPUNIT_ASSERT_EQUAL(notfsToExpect, notfDisp.numMsgs());
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, notfDisp.receive((OsMsg*&)pMsg, OsTime(10)));
+      CPPUNIT_ASSERT_EQUAL(MpResNotificationMsg::MPRNM_FROMFILE_STARTED, 
+                           (MpResNotificationMsg::RNMsgType)((MpResNotificationMsg*)pMsg)->getMsg());
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, notfDisp.receive((OsMsg*&)pMsg, OsTime(10)));
+      CPPUNIT_ASSERT_EQUAL(MpResNotificationMsg::MPRNM_FROMFILE_STARTED, 
+                           (MpResNotificationMsg::RNMsgType)((MpResNotificationMsg*)pMsg)->getMsg());
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, notfDisp.receive((OsMsg*&)pMsg, OsTime(10)));
+      CPPUNIT_ASSERT_EQUAL(MpResNotificationMsg::MPRNM_FROMFILE_FINISHED, 
+                           (MpResNotificationMsg::RNMsgType)((MpResNotificationMsg*)pMsg)->getMsg());
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, notfDisp.receive((OsMsg*&)pMsg, OsTime(10)));
+      CPPUNIT_ASSERT_EQUAL(MpResNotificationMsg::MPRNM_FROMFILE_FINISHED, 
+                           (MpResNotificationMsg::RNMsgType)((MpResNotificationMsg*)pMsg)->getMsg());
+
+      // Shutdown the test.
+
+      tearDownWBMediaTask(*pInMgr, inDevHandles, *pOutMgr, outDevHandles,
+                          pFlowgraph, pMediaTask);
+
+      // Delete all our data.
+      // No need to delete resources in the flowgraph explicitly, as the 
+      // flowgraph deletes any it has.
+      delete pFlowgraph;
+      delete pInMgr;
+      delete pOutMgr;
+      delete pSpkrOutDrv;
+      delete pResampledBuffer1;
+      delete pResampledBuffer2;
    }
 
 protected:
