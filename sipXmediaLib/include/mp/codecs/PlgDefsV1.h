@@ -13,7 +13,7 @@
 #ifndef _PlgDefs_h_
 #define _PlgDefs_h_
 
-#ifdef cplusplus
+#ifdef __cplusplus
 extern "C" {
 #endif
 
@@ -218,7 +218,7 @@ typedef int16_t audio_sample_t;
 #define min(a, b) (((a) < (b)) ? (a) : (b))
 #endif
 
-#ifdef cplusplus
+#ifdef __cplusplus
 };
 #endif
 
