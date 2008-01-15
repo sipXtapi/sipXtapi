@@ -110,16 +110,6 @@ public:
                      dlPlgGetSignalingDataV1 plgSignaling,
                      UtlBoolean bStatic = TRUE);
 
-     /// Construct MpCodecCallInfoV1 object and add it to static codecs list.
-   static void registerStaticCodec(const char* moduleName,
-                                   const char* codecModuleName,
-                                   dlPlgInitV1 plgInit,
-                                   dlPlgDecodeV1 plgDecode,
-                                   dlPlgEncodeV1 plgEncode,
-                                   dlPlgFreeV1 plgFree,
-                                   dlPlgEnumSDPAndModesV1 plgEnum,
-                                   dlPlgGetSignalingDataV1 plgSignaling);
-
 //@}
 
 /* ============================= MANIPULATORS ============================= */
