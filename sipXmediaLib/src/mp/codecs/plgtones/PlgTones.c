@@ -308,4 +308,4 @@ CODEC_API int PLG_SIGNALING_V1(tones)(void* handle, int dataId,
 
 }
 
-PLG_SINGLE_CODEC(tones);
+PLG_SINGLE_CODEC_SIG(tones);

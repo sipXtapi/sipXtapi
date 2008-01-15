@@ -144,29 +144,63 @@ typedef int   (*dlPlgFreeV1)(void* handle, int isDecoder);
    if ((iNum < 0) || (iNum > i)) return RPLG_FAILED;                                   \
    *pCodecModuleName = IPLG_ENUM_CODEC_NAME [iNum]; return RPLG_SUCCESS; }
 
+#define DEFINE_STATIC_REGISTRATOR                                             \
+   void callbackRegisterStaticCodec(const char* moduleName,                   \
+                                    const char* codecModuleName,              \
+                                    dlPlgInitV1 plgInit,                      \
+                                    dlPlgDecodeV1 plgDecode,                  \
+                                    dlPlgEncodeV1 plgEncode,                  \
+                                    dlPlgFreeV1 plgFree,                      \
+                                    dlPlgEnumSDPAndModesV1 plgEnum,           \
+                                    dlPlgGetSignalingDataV1 plgSignaling);
+
+#define REG_STATIC_NAME(y)          registerStatic_##y
+
+#define REGISTER_STATIC_PLG(x)      void REG_STATIC_NAME(x)(void); \
+                                    REG_STATIC_NAME(x)();
+
+#define SPLG_ENUM_CODEC_START(y)    \
+   void REG_STATIC_NAME(y) (void) {
+#define SPLG_ENUM_CODEC(x)                                \
+   callbackRegisterStaticCodec(__FILE__, #x,              \
+      PLG_INIT_V1(x), PLG_DECODE_V1(x), PLG_ENCODE_V1(x), \
+      PLG_FREE_V1(x), PLG_ENUM_V1(x), NULL);
+#define SPLG_ENUM_CODEC_SIG(x)                            \
+   callbackRegisterStaticCodec(__FILE__, #x,              \
+      PLG_INIT_V1(x), PLG_DECODE_V1(x), PLG_ENCODE_V1(x), \
+      PLG_FREE_V1(x), PLG_ENUM_V1(x), PLG_SIGNALING_V1(x));
+#define SPLG_ENUM_CODEC_END  }
 
 #ifdef CODEC_DYNAMIC
-#define PLG_ENUM_CODEC_START        IPLG_ENUM_CODEC_START
-#define PLG_ENUM_CODEC(x)           IPLG_ENUM_CODEC(x) 
+#define PLG_ENUM_CODEC_START(y)     IPLG_ENUM_CODEC_START
+#define PLG_ENUM_CODEC(x)           IPLG_ENUM_CODEC(x)
+#define PLG_ENUM_CODEC_SIG(x)       IPLG_ENUM_CODEC(x)
 #define PLG_ENUM_CODEC_END          IPLG_ENUM_CODEC_END  \
                                     IPLG_ENUM_CODEC_FUNC
 #else
-#define PLG_ENUM_CODEC_START        
-#define PLG_ENUM_CODEC(x)           
-#define PLG_ENUM_CODEC_END          
+#define PLG_ENUM_CODEC_START(y)     DEFINE_STATIC_REGISTRATOR \
+                                    SPLG_ENUM_CODEC_START(y)
+#define PLG_ENUM_CODEC(x)           SPLG_ENUM_CODEC(x)
+#define PLG_ENUM_CODEC_SIG(x)       SPLG_ENUM_CODEC_SIG(x)
+#define PLG_ENUM_CODEC_END          SPLG_ENUM_CODEC_END
 #endif
 
 
+#define PLG_SINGLE_CODEC_SIG(x)     \
+   PLG_ENUM_CODEC_START(x)          \
+   PLG_ENUM_CODEC_SIG(x)            \
+   PLG_ENUM_CODEC_END
+
 #define PLG_SINGLE_CODEC(x)         \
-   PLG_ENUM_CODEC_START             \
+   PLG_ENUM_CODEC_START(x)          \
    PLG_ENUM_CODEC(x)                \
-   PLG_ENUM_CODEC_END   
+   PLG_ENUM_CODEC_END
 
 #define PLG_DOUBLE_CODECS(x,y)      \
-   PLG_ENUM_CODEC_START             \
+   PLG_ENUM_CODEC_START(x##y)       \
    PLG_ENUM_CODEC(x)                \
    PLG_ENUM_CODEC(y)                \
-   PLG_ENUM_CODEC_END   
+   PLG_ENUM_CODEC_END
 
 /* ABI format declarations */
 /* Currently only signed, 16 bit, little-endian format supported */

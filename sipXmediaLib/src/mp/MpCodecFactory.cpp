@@ -104,7 +104,7 @@ MpCodecFactory::MpCodecFactory(void)
 , mCachedMimeTypesNum(0)
 , mpMimeTypesCache(NULL)
 {
-   initializeStaticCodecs();
+
 }
 
 MpCodecFactory::~MpCodecFactory()
@@ -427,7 +427,7 @@ void MpCodecFactory::initializeStaticCodecs() //Should be called from mpStartup(
    MpCodecCallInfoV1* tmp;
    for (tmp = sStaticCodecsV1; tmp; tmp = tmp->getNext())
    {
-      addCodecWrapperV1(tmp);
+      int i = (int)addCodecWrapperV1(tmp);
    }
 }
 

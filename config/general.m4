@@ -1090,11 +1090,20 @@ AC_DEFUN([CHECK_SPEEX],
 ])dnl
 
 # ========== P C M A  P C M U =================
+AC_DEFUN([AM_SET_STATIC_PCMA_PCMU],
+[
+    CODEC_PCMAPCMU_STATIC=true
+    AM_SET_PCMA_PCMU
+    AC_DEFINE(CODEC_PCMA_PCMU_STATIC, [1], [Select PCMA and PCMU codecs for static link])
+    STATIC_CODEC_LIBS="${STATIC_CODEC_LIBS} mp/codecs/plgpcmapcmu/codec_pcmapcmu.la"
+    AC_SUBST(STATIC_CODEC_LIBS)
+])dnl
 AC_DEFUN([AM_SET_PCMA_PCMU],
 [
     PLUGINS="${PLUGINS} PCMA_PCMU"
     PCMAPCMU_TARGET="plgpcmapcmu"
     AC_SUBST(PCMAPCMU_TARGET)
+    AM_CONDITIONAL(PCMAPCMU_STATIC, test "$CODEC_PCMAPCMU_STATIC" = true)
 ])dnl
 AC_DEFUN([CHECK_PCMA_PCMU],
 [
@@ -1102,6 +1111,7 @@ AC_DEFUN([CHECK_PCMA_PCMU],
                   [AS_HELP_STRING([--enable-codec-pcmapcmu],
                                   [Enable support for PCMA and PCMU codecs @<:@default=yes@:>@])],
                   [ case "${enableval}" in
+                       static) AM_SET_STATIC_PCMA_PCMU ;;
                        auto) AM_SET_PCMA_PCMU ;;
                        yes) AM_SET_PCMA_PCMU ;;
                        no) AC_MSG_RESULT(Codecs PCMA & PCMU was disabled) ;;
@@ -1111,11 +1121,20 @@ AC_DEFUN([CHECK_PCMA_PCMU],
 ])dnl
 
 # ==============  T O N E S  ==================
+AC_DEFUN([AM_SET_STATIC_TONES],
+[
+    CODEC_TONES_STATIC=true
+    AM_SET_TONES
+    AC_DEFINE(CODEC_TONES_STATIC, [1], [Select tones for static link])
+    STATIC_CODEC_LIBS="${STATIC_CODEC_LIBS} mp/codecs/plgtones/codec_tones.la"
+    AC_SUBST(STATIC_CODEC_LIBS)
+])dnl
 AC_DEFUN([AM_SET_TONES],
 [
     PLUGINS="${PLUGINS} TONES"
     TONES_TARGET="plgtones"
     AC_SUBST(TONES_TARGET)
+    AM_CONDITIONAL(TONES_STATIC, test "$CODEC_TONES_STATIC" = true)
 ])dnl
 AC_DEFUN([CHECK_TONES],
 [
@@ -1123,6 +1142,7 @@ AC_DEFUN([CHECK_TONES],
                   [AS_HELP_STRING([--enable-codec-tones],
                                   [Enable support for Tones codec @<:@default=yes@:>@])],
                   [ case "${enableval}" in
+                       static) AM_SET_STATIC_TONES ;;
                        auto) AM_SET_TONES ;;
                        yes) AM_SET_TONES ;;
                        no) AC_MSG_RESULT(Codec Tones was disabled) ;;
@@ -1364,17 +1384,26 @@ AC_DEFUN([CHECK_SPANDSP],
 
 
 # =============== G726  =====================
+AC_DEFUN([AM_SET_STATIC_G726],
+[
+    CODEC_G726_STATIC=true
+    AM_SET_G726
+    if test "$G726_TARGET" != ""; then
+    AC_DEFINE(CODEC_G726_STATIC, [1], [Select G726 for static link])
 
+    STATIC_CODEC_LIBS="${STATIC_CODEC_LIBS} mp/codecs/plgg726/codec_g726.la"
+    AC_SUBST(STATIC_CODEC_LIBS)
+    fi
+    
+])dnl
 AC_DEFUN([AM_SET_G726],
 [
-# Currently only iLBC in contrib supported
     if test x_$SPANDSP_CFLAGS != x_ -a "$ac_spandsp_g726valid" = true; then
         PLUGINS="${PLUGINS} G.726"
-
         G726_TARGET="plgg726"
     fi
     AC_SUBST(G726_TARGET)    
-    
+    AM_CONDITIONAL(G726_STATIC, test "$CODEC_G726_STATIC" = true)
 ])dnl
 AC_DEFUN([CHECK_G726],
 [
@@ -1382,6 +1411,7 @@ AC_DEFUN([CHECK_G726],
                   [AS_HELP_STRING([--enable-codec-g726],
                                   [Enable support for g726 codec @<:@default=yes@:>@])],
                   [ case "${enableval}" in
+                       static) AM_SET_STATIC_G726 ;;
                        auto) AM_SET_G726 ;;
                        yes) AM_SET_G726 ;;
                        no) AC_MSG_RESULT(Codec G.726 was disabled) ;;
@@ -1391,7 +1421,17 @@ AC_DEFUN([CHECK_G726],
 ])dnl
 
 # =============== G722  =====================
+AC_DEFUN([AM_SET_STATIC_G722],
+[
+    CODEC_G722_STATIC=true
+    AM_SET_G722
+    if test "$G722_TARGET" != ""; then
+    AC_DEFINE(CODEC_G722_STATIC, [1], [Select G722 for static link])
 
+    STATIC_CODEC_LIBS="${STATIC_CODEC_LIBS} mp/codecs/plgg722/codec_g722.la"
+    AC_SUBST(STATIC_CODEC_LIBS)
+    fi
+])dnl
 AC_DEFUN([AM_SET_G722],
 [
 # Currently only iLBC in contrib supported
@@ -1400,7 +1440,7 @@ AC_DEFUN([AM_SET_G722],
         G722_TARGET="plgg722"
     fi
     AC_SUBST(G722_TARGET)    
-    
+    AM_CONDITIONAL(G722_STATIC, test "$CODEC_G722_STATIC" = true)
 ])dnl
 AC_DEFUN([CHECK_G722],
 [
@@ -1408,6 +1448,7 @@ AC_DEFUN([CHECK_G722],
                   [AS_HELP_STRING([--enable-codec-g722],
                                   [Enable support for g722 codec @<:@default=yes@:>@])],
                   [ case "${enableval}" in
+                       static) AM_SET_STATIC_G722 ;;
                        auto) AM_SET_G722 ;;
                        yes) AM_SET_G722 ;;
                        no) AC_MSG_RESULT(Codec G.722 was disabled) ;;

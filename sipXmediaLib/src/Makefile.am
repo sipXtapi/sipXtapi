@@ -37,6 +37,8 @@ libsipXmedia_la_LIBADD = \
 	@CA_LIBS@ \
 	@GSM_LIBS@ \
 	@SPEEX_LIBS@ \
+	@STATIC_CODEC_LIBS@ \
+	-Lmp/codecs/ \
 	-lstdc++
 
 libsipXmedia_la_SOURCES =  \
@@ -116,6 +118,7 @@ libsipXmedia_la_SOURCES =  \
     mp/MprNullAec.cpp \
     mp/MprRecorder.cpp \
     mp/MpSineWaveGeneratorDeviceDriver.cpp \
+    mp/MpStaticCodecInit.cpp \
     mp/MprSpeexEchoCancel.cpp \
     mp/MprSpeexPreProcess.cpp \
     mp/MprSplitter.cpp \

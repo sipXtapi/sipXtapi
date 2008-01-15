@@ -112,6 +112,7 @@ nobase_include_HEADERS =  \
     mp/MprRtpOutputAudioConnectionConstructor.h \
     mp/MpRtpOutputConnection.h \
     mp/MpSineWaveGeneratorDeviceDriver.h \
+    mp/MpStaticCodecInit.h \
     mp/MpStreamFeeder.h \
     mp/MpStreamMsg.h \
     mp/MpStreamPlayer.h \

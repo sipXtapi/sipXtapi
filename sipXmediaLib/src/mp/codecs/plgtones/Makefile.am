@@ -5,7 +5,13 @@ INCLUDES = -I$(top_srcdir)/include -I$(top_srcdir)/../sipXportLib/include
 pkgdata_LTLIBRARIES = codec_tones.la
 
 codec_tones_la_SOURCES = PlgTones.c
+
+if TONES_STATIC
+codec_tones_la_CFLAGS  = -DCODEC_STATIC
+codec_tones_la_LDFLAGS = -module -avoid-version -static
+else
 codec_tones_la_LDFLAGS = -module -avoid-version
+
 
 all-local: codec_tones.la
 	echo "Installing plugin codec_tones.so ..."
@@ -14,3 +20,4 @@ all-local: codec_tones.la
 clean-local:
 	rm -f @DEFAULT_CODECS_PATH@/codec_tones.so
 
+endif

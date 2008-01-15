@@ -6,6 +6,11 @@ pkgdata_LTLIBRARIES = codec_g722.la
 
 codec_g722_la_SOURCES = plgg722.c
 codec_g722_la_LIBADD = @SPANDSP_LIBS@
+
+if G722_STATIC
+codec_g722_la_CFLAGS  = -DCODEC_STATIC
+codec_g722_la_LDFLAGS = -module -avoid-version -static @SPANDSP_LDFLAGS@
+else
 codec_g722_la_LDFLAGS = -module -avoid-version @SPANDSP_LDFLAGS@ 
 
 all-local: codec_g722.la
@@ -15,3 +20,4 @@ all-local: codec_g722.la
 clean-local:
 	rm -f @DEFAULT_CODECS_PATH@/codec_g722.so
 
+endif

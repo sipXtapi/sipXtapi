@@ -16,7 +16,26 @@
 
 MpCodecCallInfoV1* MpCodecFactory::sStaticCodecsV1 = NULL;
 
-void MpCodecCallInfoV1::registerStaticCodec(const char* moduleName, 
+extern "C" void callbackRegisterStaticCodec(const char* moduleName,
+                                            const char* codecModuleName,
+                                            dlPlgInitV1 plgInit,
+                                            dlPlgDecodeV1 plgDecode,
+                                            dlPlgEncodeV1 plgEncode,
+                                            dlPlgFreeV1 plgFree,
+                                            dlPlgEnumSDPAndModesV1 plgEnum,
+                                            dlPlgGetSignalingDataV1 plgSignaling)
+{
+   MpCodecCallInfoV1::registerStaticCodec(moduleName,
+                                          codecModuleName,
+                                          plgInit,
+                                          plgDecode,
+                                          plgEncode,
+                                          plgFree,
+                                          plgEnum,
+                                          plgSignaling);
+}
+
+void MpCodecCallInfoV1::registerStaticCodec(const char* moduleName,
                                             const char* codecModuleName,
                                             dlPlgInitV1 plgInit,
                                             dlPlgDecodeV1 plgDecode,
@@ -37,11 +56,4 @@ void MpCodecCallInfoV1::registerStaticCodec(const char* moduleName,
    assert(pCodecInfo);
 
    MpCodecFactory::addStaticCodec(pCodecInfo);
-}
-
-int AutoRegistratorBase::nAutoRegistered = 0;
-
-AutoRegistratorBase::AutoRegistratorBase()
-{
-   nAutoRegistered++;
 }

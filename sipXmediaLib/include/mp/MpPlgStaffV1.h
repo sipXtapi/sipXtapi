@@ -177,49 +177,6 @@ private:
 };
 
 
-
-
-class AutoRegistratorBase
-{
-public:
-   AutoRegistratorBase();
-protected:
-   static int nAutoRegistered;
-};
-
-
-#define MAKE_MP_UNIQUE_NAME(prefix) JOIN( prefix, __LINE__ )
-#define JOIN( symbol1, symbol2 ) __DO_JOIN( symbol1, symbol2 )
-#define __DO_JOIN( symbol1, symbol2 ) __DO_JOIN2( symbol1, symbol2 )
-#define __DO_JOIN2( symbol1, symbol2 ) symbol1##symbol2
-
-#define DECLARE_MP_STATIC_PLUGIN_CODEC_V1_(x,y)       \
-class _plg_reg_class_##y :                            \
-               public AutoRegistratorBase {           \
-public:   int x;                                            \
-   _plg_reg_class_##y ()  {                           \
-   MpCodecCallInfoV1::registerStaticCodec(            \
-   __FILE__,                                          \
-   #x,                                                \
-   PLG_INIT_V1(x),                                    \
-   PLG_DECODE_V1(x),                                  \
-   PLG_ENCODE_V1(x),                                  \
-   PLG_FREE_V1(x),                                    \
-   PLG_ENUM_V1(x)                                     \
-   );	  x = (int)this;                                              \
-}                                                     \
-};                                                    \
-   static _plg_reg_class_##y  _dummy_var_##x;   \
-   extern "C" int dummy_func_##x() {return _dummy_var_##x.x; }
-
-
-#define DECLARE_MP_STATIC_PLUGIN_CODEC_V1I(x,y) \
-   DECLARE_MP_STATIC_PLUGIN_CODEC_V1_(x,y)
-
-#define DECLARE_MP_STATIC_PLUGIN_CODEC_V1(x) \
-   DECLARE_MP_STATIC_PLUGIN_CODEC_V1I(x, MAKE_MP_UNIQUE_NAME(x))
-
-
 /* ============================ INLINE METHODS ============================ */
 
 /* ======================== MpStaticCodecSimpleList ======================= */

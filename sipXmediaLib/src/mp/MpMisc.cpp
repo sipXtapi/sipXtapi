@@ -55,6 +55,7 @@
 #include "mp/MprToSpkr.h"
 #include "mp/MpMediaTask.h"
 #include "mp/MpCodecFactory.h"
+#include "mp/MpStaticCodecInit.h"
 
 // EXTERNAL FUNCTIONS
 
@@ -440,7 +441,12 @@ OsStatus mpStartUp(int sampleRate, int samplesPerFrame,
 
         showMpMisc(TRUE);
 
+        // First initialize static codecs
+        mpStaticCodecInitializer();
+
         MpCodecFactory* pcf = MpCodecFactory::getMpCodecFactory();
+        pcf->initializeStaticCodecs();
+
         if(numCodecPaths != 0)
         {
            size_t i;

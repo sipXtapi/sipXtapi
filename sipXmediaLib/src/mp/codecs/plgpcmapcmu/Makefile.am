@@ -10,6 +10,10 @@ codec_pcmapcmu_la_SOURCES = \
 	G711.c \
 	PlgPcmaPcmu.c
 
+if PCMAPCMU_STATIC
+codec_pcmapcmu_la_CFLAGS  = -DCODEC_STATIC
+codec_pcmapcmu_la_LDFLAGS = -module -avoid-version -static
+else
 codec_pcmapcmu_la_LDFLAGS = -module -avoid-version
 
 all-local: codec_pcmapcmu.la
@@ -18,4 +22,4 @@ all-local: codec_pcmapcmu.la
 
 clean-local:
 	rm -f @DEFAULT_CODECS_PATH@/codec_pcmapcmu.so
-
+endif
