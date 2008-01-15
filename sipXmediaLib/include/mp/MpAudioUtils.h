@@ -14,8 +14,9 @@
 // SYSTEM INCLUDES
 
 // APPLICATION INCLUDES
-#include "os/OsDefs.h"
-#include "os/OsStatus.h"
+#include <os/OsDefs.h>
+#include <os/OsStatus.h>
+#include <utl/UtlString.h>
 #include "mp/MpTypes.h"
 
 void ConvertUnsigned8ToSigned16(unsigned char *in_buffer, MpAudioSample *out_buffer, int numBytesToConvert);
