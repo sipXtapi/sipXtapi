@@ -16,6 +16,7 @@
 #include <assert.h>
 #include <os/fstream>
 #include <stdio.h>
+#include <math.h>
 
 #ifdef __pingtel_on_posix__
 #include <stdlib.h>
@@ -42,6 +43,7 @@
 #include "mp/MpResNotificationMsg.h"
 #include "mp/MprnProgressMsg.h"
 #include "mp/MpProgressResourceMsg.h"
+#include "mp/MpResampler.h"
 
 
 // EXTERNAL FUNCTIONS
@@ -139,7 +141,9 @@ OsStatus MprFromFile::playFile(const char* audioFileName,
 {
    OsStatus stat;
    UtlString* audioBuffer = NULL;
-   stat = readAudioFile(audioBuffer, audioFileName, notify);
+   assert(getFlowGraph() != NULL);
+   stat = readAudioFile(getFlowGraph()->getSamplesPerSec(), 
+                        audioBuffer, audioFileName, notify);
 
    //create a msg from the buffer
    if (audioBuffer && audioBuffer->length())
@@ -156,12 +160,13 @@ OsStatus MprFromFile::playFile(const char* audioFileName,
 
 OsStatus MprFromFile::playFile(const UtlString& namedResource, 
                                OsMsgQ& fgQ, 
+                               uint32_t fgSampleRate,
                                const UtlString& filename, 
                                const UtlBoolean& repeat,
                                OsNotification* notify)
 {
    UtlString* audioBuffer = NULL;
-   OsStatus stat = readAudioFile(audioBuffer, filename, notify);
+   OsStatus stat = readAudioFile(fgSampleRate, audioBuffer, filename, notify);
    if(stat == OS_SUCCESS)
    {
       MpFromFileStartResourceMsg msg(namedResource, audioBuffer, repeat, notify);
@@ -268,15 +273,16 @@ OsStatus MprFromFile::genericAudioBufToFGAudioBuf(UtlString*& fgAudioBuf,
    return stat;
 }
 
-OsStatus MprFromFile::readAudioFile(UtlString*& audioBuffer,
+OsStatus MprFromFile::readAudioFile(uint32_t fgSampleRate,
+                                    UtlString*& audioBuffer,
                                     const char* audioFileName,
                                     OsNotification* notify)
 {
    char* charBuffer = NULL;
    FILE* audioFilePtr = NULL;
    int iTotalChannels = 1;
-   unsigned long filesize;
-   unsigned long trueFilesize;
+   uint32_t filesize;
+   uint32_t trueFilesize;
    int samplesReaded;
    int compressionType = 0;
    int channelsMin = 1, channelsMax = 2, channelsPreferred = 0;
@@ -390,9 +396,15 @@ OsStatus MprFromFile::readAudioFile(UtlString*& audioBuffer,
                if (channelsPreferred > 1)
                   filesize = mergeChannels(charBuffer, filesize, iTotalChannels);
 
-               // Resample if needed
-               if (ratePreferred > 8000)
-                  filesize = reSample(charBuffer, filesize, ratePreferred, 8000);
+               // charBuffer will point to a new buffer holding the resampled
+               // data and filesize will be updated with the new buffer size
+               // after this call.
+               if(allocateAndResample(charBuffer, filesize, ratePreferred, 
+                                      fgSampleRate) == FALSE)
+               {
+                  if(notify) notify->signal(INVALID_SETUP);
+                  break;
+               }
             }
             else
             {
@@ -412,9 +424,15 @@ OsStatus MprFromFile::readAudioFile(UtlString*& audioBuffer,
                if (iTotalChannels > 1)
                   filesize = mergeChannels(charBuffer, filesize, iTotalChannels);
 
-               // Resample if needed
-               if (ratePreferred > 8000)
-                  filesize = reSample(charBuffer, filesize, ratePreferred, 8000);
+               // charBuffer will point to a new buffer holding the resampled
+               // data and filesize will be updated with the new buffer size
+               // after this call.
+               if(allocateAndResample(charBuffer, filesize, ratePreferred,
+                                      fgSampleRate) == FALSE)
+               {
+                  if(notify) notify->signal(INVALID_SETUP);
+                  break;
+               }
             }
             else
             {
@@ -449,9 +467,15 @@ OsStatus MprFromFile::readAudioFile(UtlString*& audioBuffer,
                   if (channelsPreferred > 1)
                      filesize = mergeChannels(charBuffer, filesize, iTotalChannels);
 
-                  // Resample if needed
-                  if (ratePreferred > 8000)
-                     filesize = reSample(charBuffer, filesize, ratePreferred, 8000);
+                  // charBuffer will point to a new buffer holding the resampled
+                  // data and filesize will be updated with the new buffer size
+                  // after this call.
+                  if(allocateAndResample(charBuffer, filesize, ratePreferred,
+                                         fgSampleRate) == FALSE)
+                  {
+                     if(notify) notify->signal(INVALID_SETUP);
+                     break;
+                  }
                }
                else
                {
@@ -471,9 +495,15 @@ OsStatus MprFromFile::readAudioFile(UtlString*& audioBuffer,
                   if (channelsPreferred > 1)
                      filesize = mergeChannels(charBuffer, filesize, iTotalChannels);
 
-                  // Resample if needed
-                  if (ratePreferred > 8000)
-                     filesize = reSample(charBuffer, filesize, ratePreferred, 8000);
+                  // charBuffer will point to a new buffer holding the resampled
+                  // data and filesize will be updated with the new buffer size
+                  // after this call.
+                  if(allocateAndResample(charBuffer, filesize, ratePreferred,
+                                         fgSampleRate) == FALSE)
+                  {
+                     if(notify) notify->signal(INVALID_SETUP);
+                     break;
+                  }
                }
                else
                {
@@ -562,6 +592,52 @@ OsStatus MprFromFile::readAudioFile(UtlString*& audioBuffer,
    }
 
    return OS_SUCCESS;
+}
+
+UtlBoolean MprFromFile::allocateAndResample(char*& audBuf,
+                                            uint32_t& audBufSz,
+                                            uint32_t inRate,
+                                            uint32_t outRate)
+{
+   // Check if the rates match -- if so, no need to resample - it's already done!
+   if(inRate == outRate)
+   {
+      return TRUE;
+   }
+
+   // Malloc up a new chunk of memory for resampling to.
+   uint32_t outBufSize = audBufSz * (uint32_t)ceil(outRate/(float)inRate);
+   MpAudioSample* pOutSamples = (MpAudioSample*)malloc(outBufSize);
+   if(pOutSamples == NULL)
+   {
+      OsSysLog::add(FAC_MP, PRI_ERR, 
+                    "ERROR: Failed to allocate a buffer to resample to.");
+      return FALSE;
+   }
+
+   uint32_t inSamplesProcessed = 0;
+   uint32_t outSamplesWritten = 0;
+   OsStatus resampleStat = OS_SUCCESS;
+   MpResampler resampler(1, inRate, outRate);
+   resampleStat = resampler.resample(0, (MpAudioSample*)audBuf, audBufSz/sizeof(MpAudioSample), 
+                                     inSamplesProcessed, 
+                                     pOutSamples, outBufSize/sizeof(MpAudioSample), 
+                                     outSamplesWritten);
+   if(resampleStat != OS_SUCCESS)
+   {
+      OsSysLog::add(FAC_MP, PRI_ERR,
+                    "ERROR: Resampler failed with status: %d", 
+                    resampleStat);
+      return FALSE;
+   }
+
+   // Ok, now free charBuffer and point the new resampled buffer
+   // to it.
+   free(audBuf);
+   audBuf = (char*)pOutSamples;
+   audBufSz = outBufSize;
+
+   return TRUE;
 }
 
 // This one is private -- only used internally.

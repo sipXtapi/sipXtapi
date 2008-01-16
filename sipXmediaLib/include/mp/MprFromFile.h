@@ -123,6 +123,7 @@ public:
      /// @brief Sends an MPRM_FROMFILE_START message to the named MprFromFile resource.
    static OsStatus playFile(const UtlString& namedResource,
                             OsMsgQ& fgQ,
+                            uint32_t fgSampleRate,
                             const UtlString& filename,
                             const UtlBoolean& repeat,
                             OsNotification* notify = NULL);
@@ -135,6 +136,9 @@ public:
      *  @param[in]  namedResource - the name of the resource to send a message to.
      *  @param[in]  fgQ - the queue of the flowgraph containing the resource which
      *              the message is to be received by.
+     *  @param[in]  fgSampleRate - flowgraph sample rate -- needed to check if 
+     *              read file is compatible with the flowgraph rate, and for 
+     *              resampling.
      *  @param[in]  filename - the filename of the file to start playing.
      *  @param[in]  repeat - boolean indicating whether to loop-play the file.
      *  @param[in]  notify - an event to signal when state changes.  If NULL,
@@ -296,13 +300,18 @@ private:
      */
 
      /// Read in an audio file into a new UtlString audio buffer.
-   static OsStatus readAudioFile(UtlString*& audioBuffer,
+   static OsStatus readAudioFile(uint32_t fgSampleRate,
+                                 UtlString*& audioBuffer,
                                  const char* audioFileName,
                                  OsNotification* notify);
      /**<
      *  @param audioBuffer - a reference to a pointer that will be filled
      *   with a new buffer holding the audio data.  Ownership will then
      *   transfer to the caller.
+     *
+     *  @param[in]  fgSampleRate - flowgraph sample rate -- needed to check if 
+     *              read file is compatible with the flowgraph rate, and for 
+     *              resampling.
      *
      *  @param[in] audioFileName - the name of a file to read flowgraph
      *   audio data from.  (exact format that the FG will accept -
@@ -315,6 +324,9 @@ private:
      *  the file was unopenable, or the file contained less than one sample.
      *  @retval OS_SUCCESS if the file was read successfully.
      */
+
+   static UtlBoolean allocateAndResample(char*& audBuf, uint32_t& audBufSz, 
+                                         uint32_t inRate, uint32_t outRate);
 
      /// @brief Sends a local MPRM_FROMFILE_FINISH message back to this resource.
    OsStatus finishFile();

@@ -1328,7 +1328,8 @@ OsStatus CpTopologyGraphInterface::playAudio(const char* url,
     {
        // Currently, this ignores "local", "mixWithMic" and "downScaling".
        stat = MprFromFile::playFile(DEFAULT_FROM_FILE_RESOURCE_NAME, 
-          *mpTopologyGraph->getMsgQ(), filename, repeat, event);
+          *mpTopologyGraph->getMsgQ(), mpTopologyGraph->getSamplesPerSec(),
+          filename, repeat, event);
     }
 
     if(stat != OS_SUCCESS)
