@@ -2265,6 +2265,9 @@
 				RelativePath=".\src\mp\MpSineWaveGeneratorDeviceDriver.cpp">
 			</File>
 			<File
+				RelativePath=".\src\mp\MpStaticCodecInit.cpp">
+			</File>
+			<File
 				RelativePath="src\mp\MpStreamFeeder.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -3834,6 +3837,9 @@
 			</File>
 			<File
 				RelativePath=".\include\mp\MpSineWaveGeneratorDeviceDriver.h">
+			</File>
+			<File
+				RelativePath=".\include\mp\MpStaticCodecInit.h">
 			</File>
 			<File
 				RelativePath="include\mp\MpStreamFeeder.h">

@@ -1750,6 +1750,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\src\mp\MpStaticCodecInit.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\src\mp\MpStreamFeeder.cpp"
 					>
 				</File>
@@ -2344,6 +2348,10 @@
 				</File>
 				<File
 					RelativePath=".\include\mp\MpSineWaveGeneratorDeviceDriver.h"
+					>
+				</File>
+				<File
+					RelativePath=".\include\mp\MpStaticCodecInit.h"
 					>
 				</File>
 				<File

@@ -439,6 +439,10 @@ SOURCE=.\src\mp\MpSineWaveGeneratorDeviceDriver.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\mp\MpStaticCodecInit.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\mp\MpStreamFeeder.cpp
 # End Source File
 # Begin Source File
@@ -1180,6 +1184,10 @@ SOURCE=.\include\mp\MpRtpOutputConnection.h
 # Begin Source File
 
 SOURCE=.\include\mp\MpSineWaveGeneratorDeviceDriver.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MpStaticCodecInit.h
 # End Source File
 # Begin Source File
 
