@@ -130,7 +130,6 @@ CODEC_API int PLG_DECODE_V1(libgsm)(void* handle, const void* pCodedData, unsign
 CODEC_API int PLG_ENCODE_V1(libgsm)(void* handle, const void* pAudioBuffer, unsigned cbAudioSamples, int* rSamplesConsumed, void* pCodedData,
                             unsigned cbMaxCodedData, int* pcbCodedSize, unsigned* pbSendNow)
 {
-   int size = 0;   
    struct libgsm_codec_data *mpGsm = (struct libgsm_codec_data *)handle;
    assert(handle != NULL);
    if (cbMaxCodedData < 33)
@@ -145,16 +144,16 @@ CODEC_API int PLG_ENCODE_V1(libgsm)(void* handle, const void* pAudioBuffer, unsi
    /* Check for necessary number of samples */
    if (mpGsm->mBufferLoad == 160)
    {
-      size = 33;
       gsm_encode(mpGsm->mpGsmState, (gsm_signal*)mpGsm->mpBuffer, (gsm_byte*)pCodedData);
       mpGsm->mBufferLoad = 0;
+      *pcbCodedSize = 33;
       *pbSendNow = TRUE;
    } else {
+      *pcbCodedSize = 0;
       *pbSendNow = FALSE;
    }
 
    *rSamplesConsumed = cbAudioSamples;
-   *pcbCodedSize = size;
 
    return RPLG_SUCCESS;
 }
