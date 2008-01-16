@@ -253,12 +253,19 @@ CODEC_API int PLG_DECODE_V1(amr)(void* handle, const uint8_t* pCodedData,
       // Jump to the next speech frame
       dataIndex += sgFrameSizesMap[frameMode];
 
-      // Something is broken if we have gone over the packet data end
-      if (dataIndex > cbCodedPacketSize)
+      // Something is broken if we have gone over the packet data end or got
+      // non-existent mode (frame size in sgFrameSizesMap for this mode
+      // should not be zero).
+      if (dataIndex > cbCodedPacketSize || sgFrameSizesMap[frameMode] == 0)
       {
          return RPLG_INVALID_ARGUMENT;
       }
    } while(haveMoreData == 1);
+   // Something is broken if packet size does not match its data
+   if (dataIndex != cbCodedPacketSize)
+   {
+      return RPLG_INVALID_ARGUMENT;
+   }
 
    // Start over from first frame ToC
    dataIndex = 1;
