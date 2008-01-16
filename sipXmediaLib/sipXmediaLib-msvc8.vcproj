@@ -1630,6 +1630,14 @@
 					>
 				</File>
 				<File
+					RelativePath=".\src\mp\MpResampler.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\src\mp\MpResamplerSpeex.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\src\mp\MpResNotificationMsg.cpp"
 					>
 				</File>
@@ -2180,6 +2188,14 @@
 				</File>
 				<File
 					RelativePath=".\include\mp\MprEncode.h"
+					>
+				</File>
+				<File
+					RelativePath=".\include\mp\MpResampler.h"
+					>
+				</File>
+				<File
+					RelativePath=".\include\mp\MpResamplerSpeex.h"
 					>
 				</File>
 				<File

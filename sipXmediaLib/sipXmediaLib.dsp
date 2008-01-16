@@ -319,6 +319,14 @@ SOURCE=.\src\mp\MprEncode.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\mp\MpResampler.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\mp\MpResamplerSpeex.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\mp\MpResource.cpp
 # End Source File
 # Begin Source File
@@ -1016,6 +1024,14 @@ SOURCE=.\include\mp\MprEchoSuppress.h
 # Begin Source File
 
 SOURCE=.\include\mp\MprEncode.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MpResampler.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MpResamplerSpeex.h
 # End Source File
 # Begin Source File
 

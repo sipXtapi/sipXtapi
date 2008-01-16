@@ -75,6 +75,8 @@ nobase_include_HEADERS =  \
     mp/MprDejitter.h \
     mp/MprEchoSuppress.h \
     mp/MprEncode.h \
+    mp/MpResampler.h \
+    mp/MpResamplerSpeex.h \
     mp/MpResource.h \
     mp/MpResourceConstructor.h \
     mp/MpResourceFactory.h \

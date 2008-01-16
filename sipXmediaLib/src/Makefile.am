@@ -97,6 +97,8 @@ libsipXmedia_la_SOURCES =  \
     mp/MprDejitter.cpp \
     mp/MprEchoSuppress.cpp \
     mp/MprEncode.cpp \
+    mp/MpResampler.cpp \
+    mp/MpResamplerSpeex.cpp \
     mp/MpResource.cpp \
     mp/MpResourceFactory.cpp \
     mp/MpResourceMsg.cpp \
