@@ -79,8 +79,6 @@ public:
    MpAudioInputConnection(MpInputDeviceHandle deviceId,
                           MpInputDeviceDriver& deviceDriver,
                           unsigned int frameBufferLength,
-                          unsigned int samplesPerFrame,
-                          unsigned int samplesPerSecond,
                           MpBufPool& bufferPool)
    : UtlInt(deviceId)
    , mLastPushedFrame(frameBufferLength - 1)
@@ -88,15 +86,10 @@ public:
    , mFrameBuffersUsed(0)
    , mppFrameBufferArray(NULL)
    , mpInputDeviceDriver(&deviceDriver)
-   , mSamplesPerFrame(samplesPerFrame)
-   , mSamplesPerSecond(samplesPerSecond)
    , mpBufferPool(&bufferPool)
    , mInUse(FALSE)
    {
       assert(mFrameBufferLength > 0);
-      assert(mSamplesPerFrame > 0);
-      assert(mSamplesPerSecond > 0);
-
       mppFrameBufferArray = new MpInputDeviceFrameData[mFrameBufferLength];
    };
 
@@ -105,7 +98,8 @@ public:
    virtual
    ~MpAudioInputConnection()
    {
-      OsSysLog::add(FAC_MP, PRI_DEBUG,"~MpInputDeviceManager start dev: %p id: %d\n",
+      OsSysLog::add(FAC_MP, PRI_DEBUG,
+         "~MpInputDeviceManager start dev: %p id: %d\n",
          mpInputDeviceDriver, getValue());
 
       if (mppFrameBufferArray)
@@ -128,12 +122,19 @@ public:
    {
       OsStatus result = OS_FAILED;
       assert(samples);
+      assert(mpInputDeviceDriver && mpInputDeviceDriver->isEnabled());
+
+      // figure out the number of samples per second and per frame.
+      uint32_t samplesPerFrame = mpInputDeviceDriver->getSamplesPerFrame();
+      assert(samplesPerFrame > 0);
+      uint32_t samplesPerSec = mpInputDeviceDriver->getSamplesPerSec();
+      assert(samplesPerSec > 0);
 
 #ifdef RTL_AUDIO_ENABLED
       RTL_RAW_AUDIO(UtlString("MpAudioInputConnection[")\
                       .append(*mpInputDeviceDriver) \
                       .append("].pushFrameAudio"), \
-                    mSamplesPerSecond/mSamplesPerFrame, \
+                    samplesPerSec/samplesPerFrame, \
                     numSamples, samples, mLastPushedFrame);
 #endif
 
@@ -141,7 +142,7 @@ public:
 
       // TODO: could support re-framing here.  For now
       // the driver must do the correct framing.
-      assert(numSamples == mSamplesPerFrame);
+      assert(numSamples == samplesPerFrame);
 
       // Circular buffer of frames
       int thisFrameIndex;
@@ -166,8 +167,7 @@ public:
       // Make sure we have someplace we can stuff the data
       if (!thisFrameData->mFrameBuffer.isValid())
       {
-         thisFrameData->mFrameBuffer = 
-            mpBufferPool->getBuffer();
+         thisFrameData->mFrameBuffer = mpBufferPool->getBuffer();
          mFrameBuffersUsed++;
          if (mFrameBuffersUsed > mFrameBufferLength)
          {
@@ -180,7 +180,8 @@ public:
       // Stuff the data in a buffer
       if (thisFrameData->mFrameBuffer.isValid())
       {
-         memcpy(thisFrameData->mFrameBuffer->getSamplesWritePtr(), samples, numSamples * sizeof(MpAudioSample));
+         memcpy(thisFrameData->mFrameBuffer->getSamplesWritePtr(), 
+            samples, numSamples * sizeof(MpAudioSample));
          thisFrameData->mFrameBuffer->setSamplesNumber(numSamples);
          thisFrameData->mFrameBuffer->setSpeechType(MpAudioBuf::MP_SPEECH_UNKNOWN);
          result = OS_SUCCESS;
@@ -193,24 +194,40 @@ public:
       return result;
    };
 
+   inline void setInUse() { mInUse = TRUE; }
+   inline void clearInUse() { mInUse = FALSE; }
+
+//@}
+
+/* ============================ ACCESSORS ================================= */
+///@name Accessors
+//@{
 
    OsStatus getFrame(MpFrameTime &frameTime,
                      MpBufPtr& buffer,
                      unsigned& numFramesBefore,
-                     unsigned& numFramesAfter)
+                     unsigned& numFramesAfter) const
    {
       OsStatus result = OS_INVALID_STATE;
-
-      // Need to look for the frame even if the device is disabled
-      // as it may already be queued up
+      assert(mpInputDeviceDriver && mpInputDeviceDriver->isEnabled());
       if (mpInputDeviceDriver && mpInputDeviceDriver->isEnabled())
       {
          result = OS_NOT_FOUND;
       }
       else
       {
-         printf("getFrame invalid device: %d\n", getValue());
+         // If there is no device driver, or if the device is not enabled,
+         // then we cannot get a frame of audio.
+         OsSysLog::add(FAC_MP, PRI_ERR, "getFrame - invalid device (%d)\n",
+                       getValue());
+         return result;
       }
+
+      // figure out the number of samples per second and per frame.
+      uint32_t samplesPerFrame = mpInputDeviceDriver->getSamplesPerFrame();
+      assert(samplesPerFrame > 0);
+      uint32_t samplesPerSec = mpInputDeviceDriver->getSamplesPerSec();
+      assert(samplesPerSec > 0);
 
       // Initialize numFramesBefore and numFramesAfter. They will be advanced
       // inside the loop.
@@ -218,7 +235,7 @@ public:
       numFramesAfter = mFrameBuffersUsed;
 
       unsigned int lastFrame = mLastPushedFrame;
-      int framePeriod = 1000 * mSamplesPerFrame / mSamplesPerSecond;
+      int framePeriod = 1000 * samplesPerFrame / samplesPerSec;
 
       // When requesting a frame we provide the frame that overlaps the
       // given frame time.  The frame time is for the beginning of a frame.
@@ -263,30 +280,42 @@ public:
             numFramesBefore++;
          }
       }
-
 //      printf("[%u] %u+%u=%u\n", frameIndex, numFramesBefore, numFramesAfter, mFrameBuffersUsed);
-
       return(result);
    };
 
-   inline void setInUse() { mInUse = TRUE; }
-   inline void clearInUse() { mInUse = FALSE; }
-
-//@}
-
-/* ============================ ACCESSORS ================================= */
-///@name Accessors
-//@{
-
-   MpInputDeviceDriver* getDeviceDriver() const{return(mpInputDeviceDriver);};
+   MpInputDeviceDriver* getDeviceDriver() const
+   {
+      return(mpInputDeviceDriver);
+   };
 
 
    unsigned getTimeDerivatives(unsigned nDerivatives, 
-                               double*& derivativeBuf)
+                               double*& derivativeBuf) const
    {
+      assert(mpInputDeviceDriver && mpInputDeviceDriver->isEnabled());
+      if (mpInputDeviceDriver && mpInputDeviceDriver->isEnabled())
+      {
+         // Nothing to do here -- just maing if statement more readable.
+      }
+      else
+      {
+         // If there is no device driver, or if the device is not enabled,
+         // then we cannot get a frame of audio.
+         OsSysLog::add(FAC_MP, PRI_ERR, "getTimeDerivatives - "
+                       "invalid device (%d)\n", getValue());
+         return 0;
+      }
+
+      // figure out the number of samples per second and per frame.
+      uint32_t samplesPerFrame = mpInputDeviceDriver->getSamplesPerFrame();
+      assert(samplesPerFrame > 0);
+      uint32_t samplesPerSec = mpInputDeviceDriver->getSamplesPerSec();
+      assert(samplesPerSec > 0);
+
       unsigned nActualDerivs = 0;
 
-      int referenceFramePeriod = 1000 * mSamplesPerFrame / mSamplesPerSecond;
+      int referenceFramePeriod = 1000 * samplesPerFrame / samplesPerSec;
       unsigned int lastFrame = mLastPushedFrame;
 
       unsigned int t2FrameIdx;
@@ -320,7 +349,6 @@ public:
          derivativeBuf[t2FrameIdx] = curDeriv;
          nActualDerivs++;
       }
-
       return nActualDerivs;
    }
 
@@ -346,8 +374,6 @@ private:
    unsigned int mFrameBuffersUsed;   ///< Actual number of buffers with data.
    MpInputDeviceFrameData* mppFrameBufferArray;
    MpInputDeviceDriver* mpInputDeviceDriver;
-   unsigned int mSamplesPerFrame;    ///< Number of audio samples in one frame.
-   unsigned int mSamplesPerSecond;   ///< Number of audio samples in one second.
    MpBufPool* mpBufferPool;          
    UtlBoolean mInUse;                ///< Use indicator to synchronize disable and remove.
 
@@ -409,8 +435,6 @@ int MpInputDeviceManager::addDevice(MpInputDeviceDriver& newDevice)
       new MpAudioInputConnection(newDeviceId,
                                  newDevice, 
                                  mDefaultNumBufferedFrames,
-                                 mDefaultSamplesPerFrame,
-                                 mDefaultSamplesPerSecond,
                                  *mpBufferPool);
 
    // Map by device name string
@@ -505,10 +529,16 @@ MpInputDeviceDriver* MpInputDeviceManager::removeDevice(MpInputDeviceHandle devi
 }
 
 
-OsStatus MpInputDeviceManager::enableDevice(MpInputDeviceHandle deviceId)
+OsStatus MpInputDeviceManager::enableDevice(MpInputDeviceHandle deviceId,
+                                            uint32_t samplesPerFrame,
+                                            uint32_t samplesPerSec)
 {
    OsStatus status = OS_NOT_FOUND;
    OsWriteLock lock(mRwMutex);
+
+   // If sample rate or samples per frame were not provided, use defaults.
+   samplesPerFrame = (samplesPerFrame == 0) ? mDefaultSamplesPerFrame : samplesPerFrame;
+   samplesPerSec = (samplesPerSec == 0) ? mDefaultSamplesPerSecond : samplesPerSec;
 
    MpAudioInputConnection* connectionFound = NULL;
    UtlInt deviceKey(deviceId);
@@ -523,8 +553,8 @@ OsStatus MpInputDeviceManager::enableDevice(MpInputDeviceHandle deviceId)
       if (deviceDriver)
       {
          status = 
-            deviceDriver->enableDevice(mDefaultSamplesPerFrame, 
-                                       mDefaultSamplesPerSecond);
+            deviceDriver->enableDevice(samplesPerFrame, 
+                                       samplesPerSec);
       }
    }
    return(status);

@@ -125,6 +125,12 @@ public:
       /// Get device ID associated with this device in parent input device manager.
     virtual MpInputDeviceHandle getDeviceId() const;
 
+      /// Get the sample rate of this device driver, if enabled.
+    inline uint32_t getSamplesPerSec() const;
+
+      /// Get the samples per frame of this device driver, if enabled.
+    inline uint32_t getSamplesPerFrame() const;
+
       /// Calculate the number of milliseconds that a frame occupies in time.
     inline MpFrameTime getFramePeriod();
 
@@ -176,6 +182,16 @@ private:
 };
 
 /* ============================ INLINE METHODS ============================ */
+
+uint32_t MpInputDeviceDriver::getSamplesPerSec() const
+{
+   return mSamplesPerSec;
+}
+
+uint32_t MpInputDeviceDriver::getSamplesPerFrame() const
+{
+   return mSamplesPerFrame;
+}
 
 MpFrameTime MpInputDeviceDriver::getFramePeriod()
 {

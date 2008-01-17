@@ -143,11 +143,19 @@ public:
 
 
      /// @brief Helper to enable device driver
-   OsStatus enableDevice(MpInputDeviceHandle deviceId);
+   OsStatus enableDevice(MpInputDeviceHandle deviceId,
+                         uint32_t samplesPerFrame = 0,
+                         uint32_t samplesPerSec = 0);
      /**<
      *  This method enables the device driver indicated by the device id.
      *
      *  @param deviceId - (in) The device to enable.
+     *  @param samplesPerFrame (optional) - The samples per frame that this 
+     *         device should operate with.  If not specified, the manager's 
+     *         default will be used.
+     *  @param samplesPerSec (optional) - The sample rate that this device 
+     *         should operate at.  If not specified, the manager's default will 
+     *         be used.
      *  @returns OS_NOT_FOUND if the device could not be found.
      *  
      *  @NOTE This SHOULD NOT be used to mute/unmute a device. Disabling and
