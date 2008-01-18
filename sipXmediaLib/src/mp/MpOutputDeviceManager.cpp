@@ -135,7 +135,9 @@ MpOutputDeviceDriver* MpOutputDeviceManager::removeDevice(MpOutputDeviceHandle d
 
 
 OsStatus MpOutputDeviceManager::enableDevice(MpOutputDeviceHandle deviceId,
-                                             MpFrameTime mixerBufferLength)
+                                             MpFrameTime mixerBufferLength,
+                                             uint32_t samplesPerFrame,
+                                             uint32_t samplesPerSec)
 {
    OsStatus status = OS_NOT_FOUND;
    MpAudioOutputConnection* connection = NULL;
@@ -143,12 +145,16 @@ OsStatus MpOutputDeviceManager::enableDevice(MpOutputDeviceHandle deviceId,
 
    OsWriteLock lock(mRwMutex);
 
+   // If sample rate or samples per frame were not provided, use defaults.
+   samplesPerFrame = (samplesPerFrame == 0) ? mDefaultSamplesPerFrame : samplesPerFrame;
+   samplesPerSec = (samplesPerSec == 0) ? mDefaultSamplesPerSecond : samplesPerSec;
+
    connection = (MpAudioOutputConnection*) mConnectionsByDeviceId.find(&deviceKey);
 
    if (connection != NULL)
    {
-       status = connection->enableDevice(mDefaultSamplesPerFrame, 
-                                         mDefaultSamplesPerSecond,
+       status = connection->enableDevice(samplesPerFrame, 
+                                         samplesPerSec,
                                          0,
                                          mixerBufferLength
                                          );
@@ -157,9 +163,11 @@ OsStatus MpOutputDeviceManager::enableDevice(MpOutputDeviceHandle deviceId,
 }
 
 
-OsStatus MpOutputDeviceManager::enableDevice(MpOutputDeviceHandle deviceId)
+OsStatus MpOutputDeviceManager::enableDevice(MpOutputDeviceHandle deviceId,
+                                             uint32_t samplesPerFrame,
+                                             uint32_t samplesPerSec)
 {
-   return enableDevice(deviceId, mDefaultBufferLength);
+   return enableDevice(deviceId, mDefaultBufferLength, samplesPerFrame, samplesPerSec);
 }
 
 

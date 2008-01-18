@@ -137,7 +137,9 @@ public:
 
      /// Helper to enable device driver.
    OsStatus enableDevice(MpOutputDeviceHandle deviceId,
-                         MpFrameTime mixerBufferLength);
+                         MpFrameTime mixerBufferLength,
+                         uint32_t samplesPerFrame = 0,
+                         uint32_t samplesPerSec = 0);
      /**<
      *  This method enables the device driver indicated by the device id.
      *
@@ -148,6 +150,12 @@ public:
      *         should produce data with difference in time less, then mixer
      *         buffer length, delayed stream data would be rejected.
      *         Set <tt>mixerBufferLength</tt> to 0 to enable direct write mode.
+     *  @param samplesPerFrame (optional) - The samples per frame that this 
+     *         device should operate with.  If not specified, the manager's 
+     *         default will be used.
+     *  @param samplesPerSec (optional) - The sample rate that this device 
+     *         should operate at.  If not specified, the manager's default will 
+     *         be used.
      *
      *  @returns OS_NOT_FOUND if the device could not be found.
      *  @returns OS_INVALID_STATE if device already enabled.
@@ -160,12 +168,20 @@ public:
 
 
      /// Helper to enable device driver with default mixer buffer length.
-   OsStatus enableDevice(MpOutputDeviceHandle deviceId);
+   OsStatus enableDevice(MpOutputDeviceHandle deviceId,
+                         uint32_t samplesPerFrame = 0,
+                         uint32_t samplesPerSec = 0);
      /**<
      *  This method is equal to enableDevice() with mixerBufferLength parameter
      *  equal to default mixer buffer length.
      *
      *  @param deviceId - (in) The device to enable.
+     *  @param samplesPerFrame (optional) - The samples per frame that this 
+     *         device should operate with.  If not specified, the manager's 
+     *         default will be used.
+     *  @param samplesPerSec (optional) - The sample rate that this device 
+     *         should operate at.  If not specified, the manager's default will 
+     *         be used.
      *
      *  @returns OS_NOT_FOUND if the device could not be found.
      *  @returns OS_INVALID_STATE if device already enabled.
