@@ -212,12 +212,15 @@ OsStatus MpSineWaveGeneratorDeviceDriver::enableDevice(unsigned samplesPerFrame,
     OsStatus result = OS_INVALID;
     assert(mpReaderTask == NULL);
 
+    mSamplesPerFrame = samplesPerFrame;
+    mSamplesPerSec = samplesPerSec;
+
     if(mpReaderTask == NULL)
     {
         mpReaderTask = 
             new MpSineWaveGeneratorServer(currentFrameTime,
-                                          samplesPerFrame,
-                                          samplesPerSec,
+                                          mSamplesPerFrame,
+                                          mSamplesPerSec,
                                           mMagnitude,
                                           mPeriodInMicroseconds,
                                           mRelativeSpeed,
