@@ -134,25 +134,30 @@ static HMODULE loadIPHelperAPI()
         else
         {
             //now find IPHelper functions
-            *(FARPROC*)&GetNetworkParams = GetProcAddress(hIpHelperModule,"GetNetworkParams");
-            if (GetNetworkParams == NULL)
+            int windowsVersion = getWindowsVersion();
+            if (windowsVersion >= WINDOWS_VERSION_2000)
             {
-                OsSysLog::add(FAC_KERNEL, PRI_ERR, "Could not get the proc address to GetNetworkParams!\n");
-                FreeLibrary(hIpHelperModule);
-                hIpHelperModule = NULL;
-            }   
-
-            *(FARPROC*)&GetPerAdapterInfo = GetProcAddress(hIpHelperModule,"GetPerAdapterInfo");
-            if (GetPerAdapterInfo == NULL)
+                *(FARPROC*)&GetPerAdapterInfo = GetProcAddress(hIpHelperModule,"GetPerAdapterInfo");
+                if (GetPerAdapterInfo == NULL)
+                {
+                    OsSysLog::add(FAC_KERNEL, PRI_ERR, "Could not get the proc address to GetPerAdapterInfo!\n");
+                    FreeLibrary(hIpHelperModule);
+                    hIpHelperModule = NULL;
+                }   
+            } 
+            else
             {
-                OsSysLog::add(FAC_KERNEL, PRI_ERR, "Could not get the proc address to GetPerAdapterInfo!\n");
-                FreeLibrary(hIpHelperModule);
-                hIpHelperModule = NULL;
-            }   
-
+                *(FARPROC*)&GetNetworkParams = GetProcAddress(hIpHelperModule,"GetNetworkParams");
+                if (GetNetworkParams == NULL)
+                {
+                    OsSysLog::add(FAC_KERNEL, PRI_ERR, "Could not get the proc address to GetNetworkParams!\n");
+                    FreeLibrary(hIpHelperModule);
+                    hIpHelperModule = NULL;
+                }   
+            }
 
             *(FARPROC*)&GetInterfaceInfo = GetProcAddress(hIpHelperModule,"GetInterfaceInfo");
-            if (GetPerAdapterInfo == NULL)
+            if (GetInterfaceInfo == NULL)
             {
                 OsSysLog::add(FAC_KERNEL, PRI_ERR, "Could not get the proc address to GetInterfaceInfo!\n");
                 FreeLibrary(hIpHelperModule);
