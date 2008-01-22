@@ -273,6 +273,15 @@ OsStatus MprFromFile::genericAudioBufToFGAudioBuf(UtlString*& fgAudioBuf,
    return stat;
 }
 
+// WARNING: This allocates a buffer for the whole file -- thus,
+//          files read in should not be huge.  This does occur
+//          outside of the media task, so the time it takes to 
+//          resample should not incur any latency, but memory 
+//          utilization with large files may become an issue.
+// TODO: Replace this whole file reading code with some that 
+//       happens in a separate file-reading thread that can 
+//       happen while mediaTask is going on, so files of 
+//       extremely large length can be used.
 OsStatus MprFromFile::readAudioFile(uint32_t fgSampleRate,
                                     UtlString*& audioBuffer,
                                     const char* audioFileName,

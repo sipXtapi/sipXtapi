@@ -309,6 +309,16 @@ private:
      *   with a new buffer holding the audio data.  Ownership will then
      *   transfer to the caller.
      *
+     *  @NOTE WARNING: This allocates a buffer for the whole file -- thus,
+     *                 files read in should not be huge.  This does occur
+     *                 outside of the media task, so the time it takes to 
+     *                 resample should not incur any latency, but memory 
+     *                 utilization with large files may become an issue.
+     *  @NOTE TODO: Replace this whole file reading code with some that 
+     *              happens in a separate file-reading thread that can 
+     *              happen while mediaTask is going on, so files of 
+     *              extremely large length can be used.
+     *  
      *  @param[in]  fgSampleRate - flowgraph sample rate -- needed to check if 
      *              read file is compatible with the flowgraph rate, and for 
      *              resampling.
@@ -325,8 +335,14 @@ private:
      *  @retval OS_SUCCESS if the file was read successfully.
      */
 
+     /// @brief allocate enough space for the resampled data, and resample data passed in.
    static UtlBoolean allocateAndResample(char*& audBuf, uint32_t& audBufSz, 
                                          uint32_t inRate, uint32_t outRate);
+     /**<
+     *  Allocate enough space to store a resampled version of the audio passed in
+     *  as /p audBuf.  Indicate the sample rate of /p audBuf with /p inRate,
+     *  and resample it to a rate of /p outRate.
+     */
 
      /// @brief Sends a local MPRM_FROMFILE_FINISH message back to this resource.
    OsStatus finishFile();
