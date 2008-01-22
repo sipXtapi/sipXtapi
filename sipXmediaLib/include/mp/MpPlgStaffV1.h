@@ -1,8 +1,8 @@
 //  
-// Copyright (C) 2007 SIPez LLC. 
+// Copyright (C) 2007-2008 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2007 SIPfoundry Inc.
+// Copyright (C) 2007-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // $$
@@ -102,11 +102,11 @@ public:
    inline
    MpCodecCallInfoV1(const char* moduleName,
                      const char* codecModuleName,
-                     dlPlgInitV1 plgInit,
+                     dlPlgInitV1_1 plgInit,
+                     dlPlgGetInfoV1_1 plgGetInfo,
                      dlPlgDecodeV1 plgDecode,
                      dlPlgEncodeV1 plgEncode,
                      dlPlgFreeV1 plgFree,
-                     dlPlgEnumSDPAndModesV1 plgEnum,
                      dlPlgGetSignalingDataV1 plgSignaling,
                      UtlBoolean bStatic = TRUE);
 
@@ -147,11 +147,11 @@ public:
 /// Pointers to actual functions, defined for this codec.
 //@{
 
-   const dlPlgInitV1 mPlgInit;
+   const dlPlgInitV1_1 mPlgInit;
+   const dlPlgGetInfoV1_1 mPlgGetInfo;
    const dlPlgDecodeV1 mPlgDecode;
    const dlPlgEncodeV1 mPlgEncode;
    const dlPlgFreeV1 mPlgFree;
-   const dlPlgEnumSDPAndModesV1 mPlgEnum;
    const dlPlgGetSignalingDataV1 mPlgSignaling;
 
 //@}
@@ -165,7 +165,6 @@ protected:
 private:
 
 };
-
 
 /* ============================ INLINE METHODS ============================ */
 
@@ -190,20 +189,20 @@ MpStaticCodecSimpleList* MpStaticCodecSimpleList::getNext() const
 
 MpCodecCallInfoV1::MpCodecCallInfoV1(const char* moduleName,
                                      const char* codecModuleName,
-                                     dlPlgInitV1 plgInit,
+                                     dlPlgInitV1_1 plgInit,
+                                     dlPlgGetInfoV1_1 plgGetInfo,
                                      dlPlgDecodeV1 plgDecode,
                                      dlPlgEncodeV1 plgEncode,
                                      dlPlgFreeV1 plgFree,
-                                     dlPlgEnumSDPAndModesV1 plgEnum,
                                      dlPlgGetSignalingDataV1 plgSignaling,
                                      UtlBoolean bStatic)
 : mbStatic(bStatic)
 , mModuleName(moduleName)
 , mPlgInit(plgInit)
+, mPlgGetInfo(plgGetInfo)
 , mPlgDecode(plgDecode)
 , mPlgEncode(plgEncode)
 , mPlgFree(plgFree)
-, mPlgEnum(plgEnum)
 , mPlgSignaling(plgSignaling)
 {}
 

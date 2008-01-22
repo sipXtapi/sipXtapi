@@ -1,8 +1,8 @@
 //  
-// Copyright (C) 2007 SIPez LLC. 
+// Copyright (C) 2007-2008 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2007 SIPfoundry Inc.
+// Copyright (C) 2007-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // $$
@@ -26,58 +26,47 @@
 #include <iLBC_decode.h>
 #include <iLBC_encode.h>
 
+// EXTERNAL VARIABLES
+// CONSTANTS
+// TYPEDEFS
+// LOCAL DATA TYPES
+struct iLBC_codec_data {
+   int mMode;                           ///< 20ms frames or 30ms frames
+   struct iLBC_Dec_Inst_t_ *mpStateDec; ///< Internal iLBC decoder state.
+   audio_sample_t mpBuffer[240];        ///< Buffer used to store input samples
+   int mBufferLoad;                     ///< How much data there is in the buffer
+   struct iLBC_Enc_Inst_t_* mpStateEnc; ///< Internal iLBC decoder state.
+};
+
+// EXTERNAL FUNCTIONS
 // DEFINES
 #define DEBUG_PRINT
 #undef  DEBUG_PRINT
 
-static const char codecMIMEsubtype[] = "ilbc";
-
-static const struct plgCodecInfoV1 codeciLBC = 
-{
-   sizeof(struct plgCodecInfoV1),   //cbSize
-   codecMIMEsubtype,                //mimeSubtype
-   "iLBC",                          //codecName
-   "iLBC",                          //codecVersion
-   8000,                            //samplingRate
-   8,                               //fmtAndBitsPerSample
-   1,                               //numChannels
-   240,                             //interleaveBlockSize
-   13334,                           //bitRate
-   NO_OF_BYTES_30MS * 8,            //minPacketBits
-   NO_OF_BYTES_30MS * 8,            //avgPacketBits
-   NO_OF_BYTES_30MS * 8,            //maxPacketBits
-   240,                             //numSamplesPerFrame
-   6,                               //preCodecJitterBufferSize
-   1                                //codecSupportPLC
-};
-
-struct iLBC_codec_data {
-   int mMode;                      ///< 20ms frames or 30ms frames
-   struct iLBC_Dec_Inst_t_ *mpStateDec;   ///< Internal iLBC decoder state.
-   audio_sample_t mpBuffer[240];   ///< Buffer used to store input samples
-   int mBufferLoad;                ///< How much data there is in the buffer
-   struct iLBC_Enc_Inst_t_* mpStateEnc;   ///< Internal iLBC decoder state.
-};
-
+// STATIC VARIABLES INITIALIZATON
 static const char* defaultFmtps[] = {
    "mode=30",
    "mode=20"
 };
-
-CODEC_API int PLG_ENUM_V1(ilbc)(const char** mimeSubtype, unsigned int* pModesCount, const char*** modes)
+/// Exported codec information.
+static const struct MppCodecInfoV1_1 sgCodecInfo = 
 {
-   if (mimeSubtype) {
-      *mimeSubtype = codecMIMEsubtype;
-   }
-   if (pModesCount) {
-      *pModesCount = (sizeof(defaultFmtps)/sizeof(defaultFmtps[0]));
-   }
-   if (modes) {
-      *modes = defaultFmtps;
-   }
-   return RPLG_SUCCESS;
-}
+///////////// Implementation and codec info /////////////
+   "The Internet Society",      // codecManufacturer
+   "iLBC",                      // codecName
+   "RFC3951",                   // codecVersion
+   CODEC_TYPE_FRAME_BASED,      // codecType
 
+/////////////////////// SDP info ///////////////////////
+   "iLBC",                      // mimeSubtype
+   sizeof(defaultFmtps)/sizeof(defaultFmtps[0]), // fmtpsNum
+   defaultFmtps,                // fmtps
+   8000,                        // sampleRate
+   1,                           // numChannels
+   CODEC_FRAME_PACKING_NONE     // framePacking
+};
+
+/* ============================== FUNCTIONS =============================== */
 
 static int analizeParamEqValue(const char *parsingString, const char* paramName, int* value)
 {
@@ -138,20 +127,52 @@ static int analizeDefRange(const char* str, const char* param, int defValue, int
    return defValue;
 }
 
-CODEC_API void *PLG_INIT_V1(ilbc)(const char* fmt, int bDecoder, struct plgCodecInfoV1* pCodecInfo)
+CODEC_API int PLG_GET_INFO_V1_1(ilbc)(const struct MppCodecInfoV1_1 **codecInfo)
+{
+   if (codecInfo)
+   {
+      *codecInfo = &sgCodecInfo;
+   }
+   return RPLG_SUCCESS;
+}
+
+CODEC_API void *PLG_INIT_V1_1(ilbc)(const char* fmtp, int isDecoder,
+                                    struct MppCodecFmtpInfoV1_1* pCodecInfo)
 {
    int mode;
    struct iLBC_codec_data *mpiLBC;
-   if (pCodecInfo == NULL) {
+
+   if (pCodecInfo == NULL)
+   {
       return NULL;
    }
 
-   mode = analizeDefRange(fmt, "mode", 30, 20, 30);
-   if (mode != 20)
-      mode = 30;
+   mode = analizeDefRange(fmtp, "mode", 30, 20, 30);
+   if (mode != 20 && mode != 30)
+   {
+      return NULL;
+   }
 
+   pCodecInfo->signalingCodec = FALSE;
+   if (mode == 20)
+   {
+      pCodecInfo->minFrameBytes = NO_OF_BYTES_20MS;
+      pCodecInfo->maxFrameBytes = NO_OF_BYTES_20MS;
+      pCodecInfo->minBitrate = NO_OF_BYTES_20MS*8*1000/20;
+      pCodecInfo->maxBitrate = NO_OF_BYTES_20MS*8*1000/20;
+      pCodecInfo->numSamplesPerFrame = 160;
+   } 
+   else
+   {
+      pCodecInfo->minFrameBytes = NO_OF_BYTES_30MS;
+      pCodecInfo->maxFrameBytes = NO_OF_BYTES_30MS;
+      pCodecInfo->minBitrate = NO_OF_BYTES_30MS*8*1000/33;
+      pCodecInfo->maxBitrate = NO_OF_BYTES_30MS*8*1000/33;
+      pCodecInfo->numSamplesPerFrame = 240;
+   }
+   pCodecInfo->packetLossConcealment = CODEC_PLC_INTERNAL;
+   pCodecInfo->vadCng = CODEC_CNG_NONE;
 
-   memcpy(pCodecInfo, &codeciLBC, sizeof(struct plgCodecInfoV1));
    mpiLBC = (struct iLBC_codec_data *)malloc(sizeof(struct iLBC_codec_data));
    if (!mpiLBC) {
       return NULL;
@@ -163,7 +184,7 @@ CODEC_API void *PLG_INIT_V1(ilbc)(const char* fmt, int bDecoder, struct plgCodec
    mpiLBC->mBufferLoad = 0;
    mpiLBC->mMode = mode;
 
-   if (bDecoder) {
+   if (isDecoder) {
       /* Preparing decoder */
       mpiLBC->mpStateDec = (struct iLBC_Dec_Inst_t_*)malloc(sizeof(struct iLBC_Dec_Inst_t_));
       if (mpiLBC->mpStateDec == NULL) {
@@ -189,7 +210,6 @@ CODEC_API void *PLG_INIT_V1(ilbc)(const char* fmt, int bDecoder, struct plgCodec
 
 CODEC_API int PLG_FREE_V1(ilbc)(void* handle, int isDecoder)
 {
-   int bDecoder;
    struct iLBC_codec_data *mpiLBC = (struct iLBC_codec_data *)handle;
 
    if (NULL != handle)

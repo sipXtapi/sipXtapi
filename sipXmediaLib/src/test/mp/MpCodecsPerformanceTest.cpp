@@ -106,7 +106,9 @@ protected:
 
    void testOneCodecPreformance(MpCodecFactory *pCodecFactory,
                                 const UtlString &codecMime,
-                                const UtlString &codecFmtp)
+                                const UtlString &codecFmtp,
+                                int sampleRate,
+                                int numChannels)
    {
       MpDecoderBase *pDecoder;
       MpEncoderBase *pEncoder;
@@ -116,7 +118,9 @@ protected:
 
       // Create and initialize decoder and encoder
       CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
-                           pCodecFactory->createDecoder(codecMime, codecFmtp, 0, pDecoder));
+                           pCodecFactory->createDecoder(codecMime, codecFmtp,
+                                                        sampleRate, numChannels,
+                                                        0, pDecoder));
       CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
                            pDecoder->initDecode());
       // Could not test speed of signaling codec

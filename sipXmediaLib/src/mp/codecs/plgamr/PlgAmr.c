@@ -1,8 +1,8 @@
 //  
-// Copyright (C) 2007 SIPez LLC. 
+// Copyright (C) 2007-2008 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2007 SIPfoundry Inc.
+// Copyright (C) 2007-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // $$
@@ -68,60 +68,48 @@ struct amr_decoder_data
 };
 
 // STATIC VARIABLES INITIALIZATON
-/// Codec MIME-subtype
-static const char codecMIMEsubtype[] = "amr";
-/// Codec information
-struct plgCodecInfoV1 codecAMR = 
-{
-   sizeof(struct plgCodecInfoV1),   //cbSize
-   codecMIMEsubtype,                //mimeSubtype
-   "AMR",                           //codecName
-   "AMR 7.0.0.0",                   //codecVersion
-   8000,                            //samplingRate
-   8,                               //fmtAndBitsPerSample
-   1,                               //numChannels
-   160,                             //interleaveBlockSize
-   13200,                           //bitRate
-   33*8,                            //minPacketBits
-   33*8,                            //avgPacketBits
-   33*8,                            //maxPacketBits
-   160,                             //numSamplesPerFrame
-   6,                               //preCodecJitterBufferSize
-   0                                //codecSupportPLC
-};
-/// Frame sizes for different codec modes
-static const uint8_t sgFrameSizesMap[16] =
-{ 13, 14, 16, 18, 20, 21, 27, 32, 6 , 0 , 0 , 0 , 0 , 0 , 0 , 1  };
 /// Default (recommended) fmtp parameters
 static const char* defaultFmtps[] =
 {
    "octet-align=1"
-      //   "" // octet-align=0 assumed
+//   "" // octet-align=0 assumed
 };
+/// Exported codec information.
+static const struct MppCodecInfoV1_1 sgCodecInfo = 
+{
+///////////// Implementation and codec info /////////////
+   "3GPP",                      // codecManufacturer
+   "AMR",                       // codecName
+   "7.0.0.0",                   // codecVersion
+   CODEC_TYPE_FRAME_BASED,      // codecType
+
+/////////////////////// SDP info ///////////////////////
+   "AMR",                       // mimeSubtype
+   sizeof(defaultFmtps)/sizeof(defaultFmtps[0]), // fmtpsNum
+   defaultFmtps,                // fmtps
+   8000,                        // sampleRate
+   1,                           // numChannels
+   CODEC_FRAME_PACKING_SPECIAL  // framePacking
+};
+/// Frame sizes for different codec modes
+static const uint8_t sgFrameSizesMap[16] =
+{ 13, 14, 16, 18, 20, 21, 27, 32, 6 , 0 , 0 , 0 , 0 , 0 , 0 , 1  };
 
 // LOCAL FUNCTIONS DECLARATIONS
 static int parseFmtpParams(const char *fmtp, int *octet_align, int *dtx);
 
 
-CODEC_API int PLG_ENUM_V1(amr)(const char** mimeSubtype,
-                               unsigned int* pModesCount,
-                               const char*** modes)
+CODEC_API int PLG_GET_INFO_V1_1(amr)(const struct MppCodecInfoV1_1 **codecInfo)
 {
-   if (mimeSubtype) {
-      *mimeSubtype = codecMIMEsubtype;
-   }
-   if (pModesCount) {
-      *pModesCount = (sizeof(defaultFmtps)/sizeof(defaultFmtps[0]));
-   }
-   if (modes) {
-      *modes = defaultFmtps;
+   if (codecInfo)
+   {
+      *codecInfo = &sgCodecInfo;
    }
    return RPLG_SUCCESS;
 }
 
-CODEC_API void *PLG_INIT_V1(amr)(const char* fmtp,
-                                 int isDecoder,
-                                 struct plgCodecInfoV1* pCodecInfo)
+CODEC_API void *PLG_INIT_V1_1(amr)(const char* fmtp, int isDecoder,
+                                   struct MppCodecFmtpInfoV1_1* pCodecInfo)
 {
    if (pCodecInfo != NULL)
    {
@@ -137,13 +125,25 @@ CODEC_API void *PLG_INIT_V1(amr)(const char* fmtp,
          return NULL;
       }
 
-      // Fill in codec info structure
-      memcpy(pCodecInfo, &codecAMR, sizeof(struct plgCodecInfoV1));
+      // Fill in codec info structure with general values.
+      pCodecInfo->signalingCodec = FALSE;
+      pCodecInfo->numSamplesPerFrame = 160;
+      //   we have PLC, but code should be fixed to really support it.
+      pCodecInfo->packetLossConcealment = CODEC_PLC_NONE;
+      pCodecInfo->vadCng = CODEC_CNG_INTERNAL;
 
       // Allocate and fill in codec state structure
       if (isDecoder)
       {
          struct amr_decoder_data *pCodecData;
+
+         // Decoder should be able to decode all modes, so set to full range
+         // of bitrates.
+         // Note, we support only Octet-Aligned mode and no DTX at the moment.
+         pCodecInfo->minFrameBytes = 1 /*CMR*/ + sgFrameSizesMap[MR475] /* frame + ToC */;
+         pCodecInfo->maxFrameBytes = 1 /*CMR*/ + sgFrameSizesMap[MR122] /* frame + ToC */;
+         pCodecInfo->minBitrate = pCodecInfo->minFrameBytes * 8/*bits/byte*/ * 50/*frames/sec*/;
+         pCodecInfo->maxBitrate = pCodecInfo->maxFrameBytes * 8/*bits/byte*/ * 50/*frames/sec*/;
 
          pCodecData = (struct amr_decoder_data *)malloc(sizeof(struct amr_decoder_data));
          if (!pCodecData)
@@ -158,6 +158,14 @@ CODEC_API void *PLG_INIT_V1(amr)(const char* fmtp,
       else
       {
          struct amr_encoder_data *pCodecData;
+
+         // We will send only packets of requested mode, while we do not support
+         // changing mode on the fly and CMR.
+         // Note, we support only Octet-Aligned mode and no DTX at the moment.
+         pCodecInfo->minFrameBytes = 1 /*CMR*/ + sgFrameSizesMap[mode] /* frame + ToC */;
+         pCodecInfo->maxFrameBytes = 1 /*CMR*/ + sgFrameSizesMap[mode] /* frame + ToC */;
+         pCodecInfo->minBitrate = pCodecInfo->minFrameBytes * 8/*bits/byte*/ * 50/*frames/sec*/;
+         pCodecInfo->maxBitrate = pCodecInfo->maxFrameBytes * 8/*bits/byte*/ * 50/*frames/sec*/;
 
          pCodecData = (struct amr_encoder_data *)malloc(sizeof(struct amr_encoder_data));
          if (!pCodecData)

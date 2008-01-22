@@ -1,8 +1,8 @@
 //  
-// Copyright (C) 2007 SIPez LLC. 
+// Copyright (C) 2007-2008 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2007 SIPfoundry Inc.
+// Copyright (C) 2007-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // $$
@@ -41,14 +41,14 @@ struct speex_codec_data_encoder
    * <pre>
    * Mode  Bitrate  BitrateWB BitrateUWB   MFlops Quality (for narrow-band)
    *  0    250      3.95      5.75         N/A    No transmission (DTX)
-   *  1    2,150    5.75      7.55         6      Vocoder (mostly for comfort noise)
-   *  2    5,950    7.75      9.55         9      Very noticeable artifacts/noise, good intelligibility
-   *  3    8,000    9.80      11.6         10     Artifacts/noise sometimes noticeable
-   *  4    11,000   12.8      14.6         14     Artifacts usually noticeable only with headphones
-   *  5    15,000   16.8      18.6         11     Need good headphones to tell the difference
-   *  6    18,200   20.6      22.4         17.5   Hard to tell the difference even with good headphones
-   *  7    24,600   23.8      25.6         14.5   Completely transparent for voice, good quality music
-   *  8    3,950    27.8      29.6         10.5   Very noticeable artifacts/noise, good intelligibility
+   *  1    2.15     5.75      7.55         6      Vocoder (mostly for comfort noise)
+   *  2    5.95     7.75      9.55         9      Very noticeable artifacts/noise, good intelligibility
+   *  3    8        9.80      11.6         10     Artifacts/noise sometimes noticeable
+   *  4    11       12.8      14.6         14     Artifacts usually noticeable only with headphones
+   *  5    15       16.8      18.6         11     Need good headphones to tell the difference
+   *  6    18.2     20.6      22.4         17.5   Hard to tell the difference even with good headphones
+   *  7    24.6     23.8      25.6         14.5   Completely transparent for voice, good quality music
+   *  8    3.95     27.8      29.6         10.5   Very noticeable artifacts/noise, good intelligibility
    *  9             34.2      36.0
    *  10            42.2      44.0
    * </pre>
@@ -125,16 +125,24 @@ static int analizeDefRange(const char* str, const char* param, int defValue, int
    return defValue;
 }
 
-void* universal_speex_init(const char* fmt, int isDecoder, 
-                          struct plgCodecInfoV1* pCodecInfo, 
-                          int samplerate, const struct plgCodecInfoV1* cdi)
+void* universal_speex_init(const char* fmt, int isDecoder, int samplerate,
+                           struct MppCodecFmtpInfoV1_1* pCodecInfo)
 {
    const SpeexMode *pSpeexMode;
 
-   if (pCodecInfo == NULL) {
+   if (pCodecInfo == NULL)
+   {
       return NULL;
    }
 
+   /* Fill general codec information */
+   pCodecInfo->signalingCodec = FALSE;
+   /* It could do PLC, but wrapper should be fixed to support it. */
+   pCodecInfo->packetLossConcealment = CODEC_PLC_NONE;
+   /* It could do DTX+CNG, but wrapper should be fixed to support it. */
+   pCodecInfo->vadCng = CODEC_CNG_NONE;
+
+   /* Get Speex mode for given sample rate */
    switch (samplerate)
    {
    case 8000:
@@ -150,14 +158,15 @@ void* universal_speex_init(const char* fmt, int isDecoder,
       assert(!"Wrong Speex sampling rate setting!");
    }
 
-   memcpy(pCodecInfo, cdi, sizeof(struct plgCodecInfoV1));
    if (isDecoder) 
    {
-      /* Preparing decoder */
-      struct speex_codec_data_decoder *pSpeexDec;
       int tmp;
+      struct speex_codec_data_decoder *pSpeexDec;
+
+      /* Preparing decoder */
       pSpeexDec = (struct speex_codec_data_decoder *)malloc(sizeof(struct speex_codec_data_decoder));
-      if (!pSpeexDec) {
+      if (!pSpeexDec)
+      {
          return NULL;
       }
       pSpeexDec->mpDecoderState = NULL;
@@ -167,14 +176,39 @@ void* universal_speex_init(const char* fmt, int isDecoder,
       pSpeexDec->mpDecoderState = speex_decoder_init(pSpeexMode);   
 
       /* It makes the decoded speech deviate further from the original,
-      * but it sounds subjectively better.
-      */
+      *  but it sounds subjectively better.*/
       tmp = 1;
       speex_decoder_ctl(pSpeexDec->mpDecoderState,SPEEX_SET_ENH,&tmp);
 
       /* Get number of samples in one frame */
       speex_decoder_ctl(pSpeexDec->mpDecoderState,SPEEX_GET_FRAME_SIZE,&pSpeexDec->mNumSamplesPerFrame);
       speex_bits_init(&pSpeexDec->mBits);
+
+      /* Fill codec information, specific to concrete Speex settings */
+      switch (samplerate)
+      {
+      case 8000:
+         pCodecInfo->minBitrate = 3950;
+         pCodecInfo->maxBitrate = 24600;
+         pCodecInfo->numSamplesPerFrame = pSpeexDec->mNumSamplesPerFrame;
+         pCodecInfo->minFrameBytes = (79/*bits/frame*/+7)/8;
+         pCodecInfo->maxFrameBytes = (492/*bits/frame*/+7)/8;
+         break;
+      case 16000:
+         pCodecInfo->minBitrate = 3950;
+         pCodecInfo->maxBitrate = 42200;
+         pCodecInfo->numSamplesPerFrame = pSpeexDec->mNumSamplesPerFrame;
+         pCodecInfo->minFrameBytes = (79/*bits/frame*/+7)/8;
+         pCodecInfo->maxFrameBytes = (844/*bits/frame*/+7)/8;
+         break;
+      case 32000:
+         pCodecInfo->minBitrate = 5750;
+         pCodecInfo->maxBitrate = 44000;
+         pCodecInfo->numSamplesPerFrame = pSpeexDec->mNumSamplesPerFrame;
+         pCodecInfo->minFrameBytes = (115/*bits/frame*/+7)/8;
+         pCodecInfo->maxFrameBytes = (880/*bits/frame*/+7)/8;
+         break;
+      }
 
       return pSpeexDec;
    }
@@ -184,7 +218,8 @@ void* universal_speex_init(const char* fmt, int isDecoder,
       int mode = analizeDefRange(fmt, "mode", -1, 2, 8);
 
       pSpeexEnc = (struct speex_codec_data_encoder *)malloc(sizeof(struct speex_codec_data_encoder));
-      if (!pSpeexEnc) {
+      if (!pSpeexEnc)
+      {
          return NULL;
       }
 
@@ -202,7 +237,8 @@ void* universal_speex_init(const char* fmt, int isDecoder,
       pSpeexEnc->mBufferLoad = 0;
 
       pSpeexEnc->mMode = mode;
-      if (pSpeexEnc->mMode == 2) {
+      if (samplerate == 8000 && pSpeexEnc->mMode == 2)
+      {
          pSpeexEnc->mDoPreprocess = TRUE; 
       }
 
@@ -229,6 +265,40 @@ void* universal_speex_init(const char* fmt, int isDecoder,
       }
 
       speex_bits_init(&pSpeexEnc->mBits);
+
+      /* Fill codec information, specific to concrete Speex settings */
+      speex_encoder_ctl(pSpeexEnc->mpEncoderState, SPEEX_GET_FRAME_SIZE, &pCodecInfo->numSamplesPerFrame);
+      if (mode > -1)
+      {
+         pCodecInfo->minFrameBytes = mode;
+         pCodecInfo->maxFrameBytes = mode;
+      } 
+      else
+      {
+         switch (samplerate)
+         {
+         case 8000:
+            pCodecInfo->minFrameBytes = 8;
+            pCodecInfo->maxFrameBytes = 7;
+//            pCodecInfo->minFrameBytes = (79/*bits/frame*/+7)/8;
+//            pCodecInfo->maxFrameBytes = (492/*bits/frame*/+7)/8;
+            break;
+         case 16000:
+         case 32000:
+            pCodecInfo->minFrameBytes = 0;
+            pCodecInfo->maxFrameBytes = 10;
+//            pCodecInfo->minFrameBytes = (79/*bits/frame*/+7)/8;
+//            pCodecInfo->maxFrameBytes = (844/*bits/frame*/+7)/8;
+            break;
+         }
+      }
+      speex_mode_query(pSpeexMode, SPEEX_SUBMODE_BITS_PER_FRAME, &pCodecInfo->minFrameBytes);
+      speex_mode_query(pSpeexMode, SPEEX_SUBMODE_BITS_PER_FRAME, &pCodecInfo->maxFrameBytes);
+      pCodecInfo->minFrameBytes = (pCodecInfo->minFrameBytes/*bits/frame*/+7)/8;
+      pCodecInfo->maxFrameBytes = (pCodecInfo->maxFrameBytes/*bits/frame*/+7)/8;
+      pCodecInfo->minBitrate = pCodecInfo->minFrameBytes*8/*bits/byte*/*50/*frames/sec*/;
+      pCodecInfo->maxBitrate = pCodecInfo->maxFrameBytes*8/*bits/byte*/*50/*frames/sec*/;
+
       return pSpeexEnc;
    }
 }
@@ -352,6 +422,6 @@ DECLARE_FUNCS_V1(speex_uwb)
 
 PLG_ENUM_CODEC_START(speex)
    PLG_ENUM_CODEC(speex)
-//   PLG_ENUM_CODEC(speex_wb)
-//   PLG_ENUM_CODEC(speex_uwb)
+   PLG_ENUM_CODEC(speex_wb)
+   PLG_ENUM_CODEC(speex_uwb)
 PLG_ENUM_CODEC_END 

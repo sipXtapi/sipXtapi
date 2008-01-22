@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2006 SIPez LLC.
+// Copyright (C) 2006-2008 SIPez LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
-// Copyright (C) 2004-2007 SIPfoundry Inc.
+// Copyright (C) 2004-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2007 Pingtel Corp.  All rights reserved.
@@ -48,8 +48,6 @@
 #define MIME_SUBTYPE_ISAC "ISAC"
 #define MIME_SUBTYPE_GSM "GSM"
 #define MIME_SUBTYPE_SPEEX "speex"
-#define MIME_SUBTYPE_SPEEX_WB "speex-wb"
-#define MIME_SUBTYPE_SPEEX_UWB "speex-uwb"
 #define MIME_SUBTYPE_AMR "amr"
 #define MIME_SUBTYPE_AMRWB "amr-wb"
 #define MIME_SUBTYPE_VP71 "VP71"
@@ -131,13 +129,13 @@ public:
         SDP_CODEC_SPEEX_15,        ///< Speex NB, 15,000bps
         SDP_CODEC_SPEEX_24,        ///< Speex NB, 24,600bps
         SDP_CODEC_SPEEX_WB,        ///< Speex WB   9,800bps
-        SDP_CODEC_SPEEX_WB_5,      ///< Speex WB   7,750bps
-        SDP_CODEC_SPEEX_WB_15,     ///< Speex WB  16,800bps
-        SDP_CODEC_SPEEX_WB_24,     ///< Speex WB  23,800bps
+        SDP_CODEC_SPEEX_WB_5,      ///< Speex WB   5,750bps
+        SDP_CODEC_SPEEX_WB_21,     ///< Speex WB  20,600bps
+        SDP_CODEC_SPEEX_WB_42,     ///< Speex WB  42,200bps
         SDP_CODEC_SPEEX_UWB,       ///< Speex UWB 11,600bps
-        SDP_CODEC_SPEEX_UWB_5,     ///< Speex UWB  9,550bps
-        SDP_CODEC_SPEEX_UWB_15,    ///< Speex UWB 18,600bps
-        SDP_CODEC_SPEEX_UWB_24,    ///< Speex UWB 25,600bps
+        SDP_CODEC_SPEEX_UWB_8,     ///< Speex UWB  7,550bps
+        SDP_CODEC_SPEEX_UWB_22,    ///< Speex UWB 22,400bps
+        SDP_CODEC_SPEEX_UWB_44,    ///< Speex UWB 44,000bps
 
         SDP_CODEC_ILBC,            ///< Internet Low Bit Rate Codec  (RFC3951)
         SDP_CODEC_TONES,           ///< AVT/DTMF Tones, RFC 2833

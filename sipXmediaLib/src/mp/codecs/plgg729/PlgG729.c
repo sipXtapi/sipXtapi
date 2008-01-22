@@ -1,8 +1,8 @@
 //  
-// Copyright (C) 2007 SIPez LLC. 
+// Copyright (C) 2007-2008 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2007 SIPfoundry Inc.
+// Copyright (C) 2007-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // $$
@@ -23,58 +23,62 @@
 // APPLICATION INCLUDES
 #include <va_g729.h>
 
-// LOCAL DATA TYPES
+// EXTERNAL VARIABLES
+// CONSTANTS
+// TYPEDEFS
+// EXTERNAL FUNCTIONS
+// DEFINES
 // STATIC VARIABLES INITIALIZATON
-/// Codec MIME-subtype
-static const char codecMIMEsubtype[] = "g729";
-/// Codec information
-static const struct plgCodecInfoV1 codecG729 = 
-{
-   sizeof(struct plgCodecInfoV1),   //cbSize
-   codecMIMEsubtype,                //mimeSubtype
-   "VA_Open_G729",                  //codecName
-   "VoiceAge Open G.729",           //codecVersion
-   8000,                            //samplingRate
-   8,                               //fmtAndBitsPerSample
-   1,                               //numChannels
-   160,                             //interleaveBlockSize
-   8000,                            //bitRate
-   10*8,                            //minPacketBits
-   20*8,                            //avgPacketBits
-   20*8,                            //maxPacketBits
-   160,                             //numSamplesPerFrame
-   6,                               //preCodecJitterBufferSize
-   1,                               //codecSupportPLC
-   0                                //signalingCodec
-};
 /// Default (recommended) fmtp parameters
 static const char* defaultFmtps[] =
 {
    "annexb=no"
 };
-
-CODEC_API int PLG_ENUM_V1(va_g729)(const char** mimeSubtype, unsigned int* pModesCount, const char*** modes)
+/// Exported codec information.
+static const struct MppCodecInfoV1_1 sgCodecInfo = 
 {
-   if (mimeSubtype) {
-      *mimeSubtype = codecMIMEsubtype;
-   }
-   if (pModesCount) {
-      *pModesCount = (sizeof(defaultFmtps)/sizeof(defaultFmtps[0]));
-   }
-   if (modes) {
-      *modes = defaultFmtps;
+///////////// Implementation and codec info /////////////
+   "VoiceAge Open G.729 Initiative", // codecManufacturer
+   "G.729",                     // codecName
+   "1.0",                       // codecVersion
+   CODEC_TYPE_FRAME_BASED,      // codecType
+
+/////////////////////// SDP info ///////////////////////
+   "G729",                      // mimeSubtype
+   sizeof(defaultFmtps)/sizeof(defaultFmtps[0]), // fmtpsNum
+   defaultFmtps,                // fmtps
+   8000,                        // sampleRate
+   1,                           // numChannels
+   CODEC_FRAME_PACKING_NONE     // framePacking
+};
+
+/* ============================== FUNCTIONS =============================== */
+
+CODEC_API int PLG_GET_INFO_V1_1(va_g729)(const struct MppCodecInfoV1_1 **codecInfo)
+{
+   if (codecInfo)
+   {
+      *codecInfo = &sgCodecInfo;
    }
    return RPLG_SUCCESS;
 }
 
-CODEC_API void *PLG_INIT_V1(va_g729)(const char* fmt, int isDecoder, struct plgCodecInfoV1* pCodecInfo)
+CODEC_API void *PLG_INIT_V1_1(va_g729)(const char* fmtp, int isDecoder,
+                                       struct MppCodecFmtpInfoV1_1* pCodecInfo)
 {
    if (pCodecInfo == NULL)
    {
       return NULL;
    }
-
-   memcpy(pCodecInfo, &codecG729, sizeof(struct plgCodecInfoV1));
+   pCodecInfo->signalingCodec = FALSE;
+   pCodecInfo->minBitrate = 8000;
+   pCodecInfo->maxBitrate = 8000;
+   pCodecInfo->numSamplesPerFrame = 80;
+   pCodecInfo->minFrameBytes = 10;
+   pCodecInfo->maxFrameBytes = 10;
+   // G.729 have PLC actually, but our wrapper should be fixed to support it.
+   pCodecInfo->packetLossConcealment = CODEC_PLC_NONE;
+   pCodecInfo->vadCng = CODEC_CNG_NONE;
 
    if (isDecoder)
    {
@@ -85,7 +89,7 @@ CODEC_API void *PLG_INIT_V1(va_g729)(const char* fmt, int isDecoder, struct plgC
       va_g729a_init_encoder();
    }
 
-   return 1;
+   return (void*)1;
 }
 
 

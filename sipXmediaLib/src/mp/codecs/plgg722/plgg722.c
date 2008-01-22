@@ -1,8 +1,8 @@
 //  
-// Copyright (C) 2007 SIPez LLC. 
+// Copyright (C) 2007-2008 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2007 SIPfoundry Inc.
+// Copyright (C) 2007-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // $$
@@ -20,59 +20,75 @@
 // CODEC LIBRARY INCLUDES
 #include <spandsp/g722.h>
 
-// By default set 64,000 
-#define BITRATE      64000
-
-// STATIC VARIABLE INITIALIZATIONS
-static const char codecMIMEsubtype[] = "g722";
-
-static const struct plgCodecInfoV1 sipxCodecInfog722 = 
-{
-   sizeof(struct plgCodecInfoV1),   //cbSize
-   codecMIMEsubtype,                //mimeSubtype
-   "G722",                          //codecName
-   "g722_spansdp",                  //codecVersion
-   16000,                           //samplingRate
-   8,                               //fmtAndBitsPerSample
-   1,                               //numChannels
-   160,                             //interleaveBlockSize
-   BITRATE,                         //bitRate
-   640,                             //minPacketBits
-   640,                             //avgPacketBits
-   640,                             //maxPacketBits
-   160,                             //numSamplesPerFrame
-   3                                //preCodecJitterBufferSize
-};
-
-
-// Set USE_8K_SAMPLES to G722_SAMPLE_RATE_8000 if sipX uses 8k samplerate
+// EXTERNAL VARIABLES
+// CONSTANTS
+// TYPEDEFS
+// EXTERNAL FUNCTIONS
+// DEFINES
+/// G.722 bitrate - we support only 64,000bps mode (as in RFC3551).
+#define G722_MODE      64000
+/// Set USE_8K_SAMPLES to G722_SAMPLE_RATE_8000 to accept 8kHz PCM data
+/// as input/output instead of 16kHz data.
 #define USE_8K_SAMPLES   0
 
-CODEC_API int PLG_ENUM_V1(g722)(const char** mimeSubtype, unsigned int* pModesCount, const char*** modes)
+// STATIC VARIABLES INITIALIZATON
+/// Exported codec information.
+static const struct MppCodecInfoV1_1 sgCodecInfo = 
 {
-   if (mimeSubtype) {
-      *mimeSubtype = codecMIMEsubtype;
-   }
-   if (pModesCount) {
-      *pModesCount = 0;
-   }
-   if (modes) {
-      *modes = NULL;
+///////////// Implementation and codec info /////////////
+   "SpanDSP library",           // codecManufacturer
+   "G.722",                     // codecName
+   "1.15",                      // codecVersion
+   CODEC_TYPE_SAMPLE_BASED,     // codecType
+
+/////////////////////// SDP info ///////////////////////
+   "G722",                      // mimeSubtype
+   0,                           // fmtpsNum
+   NULL,                        // fmtps
+   16000,                       // sampleRate
+   1,                           // numChannels
+   CODEC_FRAME_PACKING_NONE     // framePacking
+};
+
+/* ============================== FUNCTIONS =============================== */
+
+CODEC_API int PLG_GET_INFO_V1_1(g722)(const struct MppCodecInfoV1_1 **codecInfo)
+{
+   if (codecInfo)
+   {
+      *codecInfo = &sgCodecInfo;
    }
    return RPLG_SUCCESS;
 }
 
-CODEC_API void *PLG_INIT_V1(g722)(const char* fmtps, int isDecoder, struct plgCodecInfoV1* pCodecInfo)
+CODEC_API void *PLG_INIT_V1_1(g722)(const char* fmtp, int isDecoder,
+                                    struct MppCodecFmtpInfoV1_1* pCodecInfo)
 {
-   if (pCodecInfo == NULL) {
+   if (pCodecInfo == NULL)
+   {
       return NULL;
    }
-   memcpy(pCodecInfo, &sipxCodecInfog722, sizeof(struct plgCodecInfoV1));
+   pCodecInfo->signalingCodec = FALSE;
+   if (G722_MODE == 64000)
+   {
+      pCodecInfo->minBitrate = 64000;
+      pCodecInfo->maxBitrate = 64000;
+      pCodecInfo->numSamplesPerFrame = 2;
+      pCodecInfo->minFrameBytes = 1;
+      pCodecInfo->maxFrameBytes = 1;
+   } 
+   else
+   {
+      // Bitrates other then 64kbps are not supported.
+      return NULL;
+   }
+   pCodecInfo->packetLossConcealment = CODEC_PLC_NONE;
+   pCodecInfo->vadCng = CODEC_CNG_NONE;
 
    if (isDecoder)
-      return g722_decode_init(NULL, BITRATE, USE_8K_SAMPLES);
+      return g722_decode_init(NULL, G722_MODE, USE_8K_SAMPLES);
    else
-      return g722_encode_init(NULL, BITRATE, USE_8K_SAMPLES);
+      return g722_encode_init(NULL, G722_MODE, USE_8K_SAMPLES);
 }
 
 

@@ -1,8 +1,8 @@
 //  
-// Copyright (C) 2008 SIPez LLC. 
+// Copyright (C) 2007-2008 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2008 SIPfoundry Inc.
+// Copyright (C) 2007-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // $$
@@ -18,20 +18,20 @@ MpCodecCallInfoV1* MpCodecFactory::sStaticCodecsV1 = NULL;
 
 extern "C" void callbackRegisterStaticCodec(const char* moduleName,
                                             const char* codecModuleName,
-                                            dlPlgInitV1 plgInit,
+                                            dlPlgInitV1_1 plgInit,
+                                            dlPlgGetInfoV1_1 plgGetInfo,
                                             dlPlgDecodeV1 plgDecode,
                                             dlPlgEncodeV1 plgEncode,
                                             dlPlgFreeV1 plgFree,
-                                            dlPlgEnumSDPAndModesV1 plgEnum,
                                             dlPlgGetSignalingDataV1 plgSignaling)
 {
    MpCodecCallInfoV1* pCodecInfo = new MpCodecCallInfoV1(moduleName,
                                                          codecModuleName,
                                                          plgInit,
+                                                         plgGetInfo,
                                                          plgDecode,
                                                          plgEncode,
                                                          plgFree,
-                                                         plgEnum,
                                                          plgSignaling,
                                                          TRUE);
    assert(pCodecInfo);

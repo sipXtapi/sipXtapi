@@ -1,5 +1,8 @@
 //
-// Copyright (C) 2004-2007 SIPfoundry Inc.
+// Copyright (C) 2007-2008 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// Copyright (C) 2004-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2007 Pingtel Corp.  All rights reserved.
@@ -193,125 +196,84 @@ SdpCodec::SdpCodec(int payloadFormat,
       }
       else if(mMimeSubtype.compareTo("speex") == 0)
       {
-         if(mFormatSpecificData.compareTo("mode=2", UtlString::ignoreCase) == 0)
+         if (mSampleRate == 8000)
          {
-            setValue(SDP_CODEC_SPEEX_5);  // Speex Profile 1
-            mBWCost = SDP_CODEC_BANDWIDTH_LOW;
+            if(mFormatSpecificData.compareTo("mode=2", UtlString::ignoreCase) == 0)
+            {
+               setValue(SDP_CODEC_SPEEX_5);
+               mBWCost = SDP_CODEC_BANDWIDTH_LOW;
+            }
+            else if(mFormatSpecificData.compareTo("mode=5", UtlString::ignoreCase) == 0)
+            {
+               setValue(SDP_CODEC_SPEEX_15);
+               mBWCost = SDP_CODEC_BANDWIDTH_NORMAL;
+            }
+            else if(mFormatSpecificData.compareTo("mode=7", UtlString::ignoreCase) == 0)
+            {
+               setValue(SDP_CODEC_SPEEX_24);
+               mBWCost = SDP_CODEC_BANDWIDTH_NORMAL;
+            }
+            else
+            {
+               // mode = 3 (default)
+               setValue(SDP_CODEC_SPEEX);
+               mBWCost = SDP_CODEC_BANDWIDTH_LOW;
+            }
          }
-         else if(mFormatSpecificData.compareTo("mode=5", UtlString::ignoreCase) == 0)
+         else if (mSampleRate == 16000)
          {
-            setValue(SDP_CODEC_SPEEX_15);  // Speex Profile 2
-            mBWCost = SDP_CODEC_BANDWIDTH_NORMAL;
+            if(mFormatSpecificData.compareTo("mode=1", UtlString::ignoreCase) == 0)
+            {
+               setValue(SDP_CODEC_SPEEX_WB_5);
+               mBWCost = SDP_CODEC_BANDWIDTH_LOW;
+            }
+            else if(mFormatSpecificData.compareTo("mode=6", UtlString::ignoreCase) == 0)
+            {
+               setValue(SDP_CODEC_SPEEX_WB_21);
+               mBWCost = SDP_CODEC_BANDWIDTH_NORMAL;
+            }
+            else if(mFormatSpecificData.compareTo("mode=10", UtlString::ignoreCase) == 0)
+            {
+               setValue(SDP_CODEC_SPEEX_WB_42);
+               mBWCost = SDP_CODEC_BANDWIDTH_NORMAL;
+            }
+            else
+            {
+               // mode = 3 (default)
+               setValue(SDP_CODEC_SPEEX_WB);
+               mBWCost = SDP_CODEC_BANDWIDTH_LOW;
+            }
          }
-         else if(mFormatSpecificData.compareTo("mode=7", UtlString::ignoreCase) == 0)
+         else if (mSampleRate == 32000)
          {
-            setValue(SDP_CODEC_SPEEX_24);  // Speex Profile 3
-            mBWCost = SDP_CODEC_BANDWIDTH_NORMAL;
-         }
-         else
-         {
-            // mode = 3
-            setValue(SDP_CODEC_SPEEX);
-            mBWCost = SDP_CODEC_BANDWIDTH_LOW;
-         }
-      }
-      else if(mMimeSubtype.compareTo("speex-wb") == 0)
-      {
-         if(mFormatSpecificData.compareTo("mode=2", UtlString::ignoreCase) == 0)
-         {
-            setValue(SDP_CODEC_SPEEX_WB_5);  // Speex Profile 1
-            mBWCost = SDP_CODEC_BANDWIDTH_LOW;
-         }
-         else if(mFormatSpecificData.compareTo("mode=5", UtlString::ignoreCase) == 0)
-         {
-            setValue(SDP_CODEC_SPEEX_WB_15);  // Speex Profile 2
-            mBWCost = SDP_CODEC_BANDWIDTH_NORMAL;
-         }
-         else if(mFormatSpecificData.compareTo("mode=7", UtlString::ignoreCase) == 0)
-         {
-            setValue(SDP_CODEC_SPEEX_WB_24);  // Speex Profile 3
-            mBWCost = SDP_CODEC_BANDWIDTH_NORMAL;
-         }
-         else
-         {
-            // mode = 3
-            setValue(SDP_CODEC_SPEEX_WB);
-            mBWCost = SDP_CODEC_BANDWIDTH_LOW;
-         }
-      }
-      else if(mMimeSubtype.compareTo("speex-uwb") == 0)
-      {
-         if(mFormatSpecificData.compareTo("mode=2", UtlString::ignoreCase) == 0)
-         {
-            setValue(SDP_CODEC_SPEEX_UWB_5);  // Speex Profile 1
-            mBWCost = SDP_CODEC_BANDWIDTH_LOW;
-         }
-         else if(mFormatSpecificData.compareTo("mode=5", UtlString::ignoreCase) == 0)
-         {
-            setValue(SDP_CODEC_SPEEX_UWB_15);  // Speex Profile 2
-            mBWCost = SDP_CODEC_BANDWIDTH_NORMAL;
-         }
-         else if(mFormatSpecificData.compareTo("mode=7", UtlString::ignoreCase) == 0)
-         {
-            setValue(SDP_CODEC_SPEEX_UWB_24);  // Speex Profile 3
-            mBWCost = SDP_CODEC_BANDWIDTH_NORMAL;
-         }
-         else
-         {
-            // mode = 3
-            setValue(SDP_CODEC_SPEEX_UWB);
-            mBWCost = SDP_CODEC_BANDWIDTH_LOW;
-         }
-      }
-      else if(mMimeSubtype.compareTo("speex-wb") == 0)
-      {
-         if(mFormatSpecificData.compareTo("mode=2", UtlString::ignoreCase) == 0)
-         {
-            setValue(SDP_CODEC_SPEEX_WB_5);  // Speex Profile 1
-            mBWCost = SDP_CODEC_BANDWIDTH_LOW;
-         }
-         else if(mFormatSpecificData.compareTo("mode=5", UtlString::ignoreCase) == 0)
-         {
-            setValue(SDP_CODEC_SPEEX_WB_15);  // Speex Profile 2
-            mBWCost = SDP_CODEC_BANDWIDTH_NORMAL;
-         }
-         else if(mFormatSpecificData.compareTo("mode=7", UtlString::ignoreCase) == 0)
-         {
-            setValue(SDP_CODEC_SPEEX_WB_24);  // Speex Profile 3
-            mBWCost = SDP_CODEC_BANDWIDTH_NORMAL;
+            if(mFormatSpecificData.compareTo("mode=1", UtlString::ignoreCase) == 0)
+            {
+               setValue(SDP_CODEC_SPEEX_UWB_8);
+               mBWCost = SDP_CODEC_BANDWIDTH_LOW;
+            }
+            else if(mFormatSpecificData.compareTo("mode=6", UtlString::ignoreCase) == 0)
+            {
+               setValue(SDP_CODEC_SPEEX_UWB_22);
+               mBWCost = SDP_CODEC_BANDWIDTH_NORMAL;
+            }
+            else if(mFormatSpecificData.compareTo("mode=10", UtlString::ignoreCase) == 0)
+            {
+               setValue(SDP_CODEC_SPEEX_UWB_44);
+               mBWCost = SDP_CODEC_BANDWIDTH_NORMAL;
+            }
+            else
+            {
+               // mode = 3 (default)
+               setValue(SDP_CODEC_SPEEX_UWB);
+               mBWCost = SDP_CODEC_BANDWIDTH_LOW;
+            }
          }
          else
          {
-            // mode = 3
-            setValue(SDP_CODEC_SPEEX_WB);
-            mBWCost = SDP_CODEC_BANDWIDTH_LOW;
+            // Unknown flavour of Speex
+            setValue(SDP_CODEC_UNKNOWN);
          }
       }
-      else if(mMimeSubtype.compareTo("speex-uwb") == 0)
-      {
-         if(mFormatSpecificData.compareTo("mode=2", UtlString::ignoreCase) == 0)
-         {
-            setValue(SDP_CODEC_SPEEX_UWB_5);  // Speex Profile 1
-            mBWCost = SDP_CODEC_BANDWIDTH_LOW;
-         }
-         else if(mFormatSpecificData.compareTo("mode=5", UtlString::ignoreCase) == 0)
-         {
-            setValue(SDP_CODEC_SPEEX_UWB_15);  // Speex Profile 2
-            mBWCost = SDP_CODEC_BANDWIDTH_NORMAL;
-         }
-         else if(mFormatSpecificData.compareTo("mode=7", UtlString::ignoreCase) == 0)
-         {
-            setValue(SDP_CODEC_SPEEX_UWB_24);  // Speex Profile 3
-            mBWCost = SDP_CODEC_BANDWIDTH_NORMAL;
-         }
-         else
-         {
-            // mode = 3
-            setValue(SDP_CODEC_SPEEX_UWB);
-            mBWCost = SDP_CODEC_BANDWIDTH_LOW;
-         }
-      }
-
       else if(mMimeSubtype.compareTo("amr") == 0)
       {
          if (mFormatSpecificData.compareTo("octet-align=1", UtlString::ignoreCase) == 0)

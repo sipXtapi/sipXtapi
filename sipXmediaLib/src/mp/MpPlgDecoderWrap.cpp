@@ -1,8 +1,8 @@
 //  
-// Copyright (C) 2007 SIPez LLC. 
+// Copyright (C) 2007-2008 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2007 SIPfoundry Inc.
+// Copyright (C) 2007-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // $$
@@ -14,12 +14,15 @@
 #include <utl/UtlInit.h> 
 #include <mp/MpPlgDecoderWrap.h>
 
-MpPlgDecoderWrapper::MpPlgDecoderWrapper(int payloadType, const MpCodecCallInfoV1& plgci, const char* permanentDefaultMode)
+MpPlgDecoderWrapper::MpPlgDecoderWrapper(int payloadType,
+                                         const MpCodecCallInfoV1& callInfo,
+                                         const MppCodecInfoV1_1& codecInfo,
+                                         const char* defaultFmtp)
 : MpDecoderBase(payloadType)
-, mCodecInfo("", 0, 0, 0, 0, 0, 0, 0, 0, 0)
-, mplgci(plgci)
+, mCodecInfo(codecInfo) // This fills only first part of codec information.
+, mCallInfo(callInfo)
 , mInitialized(FALSE)
-, mDefParamString(permanentDefaultMode)
+, mDefaultFmtp(defaultFmtp)
 , codecSupportPLC(FALSE)
 {
 
@@ -37,30 +40,16 @@ const MpCodecInfo* MpPlgDecoderWrapper::getInfo(void) const
 
 UtlBoolean MpPlgDecoderWrapper::initializeWrapper(const char* fmt)
 {
-   plgCodecInfoV1 plgInfo;
+   MppCodecFmtpInfoV1_1 fmtpInfo;
 
-   plgHandle = mplgci.mPlgInit(fmt, CODEC_DECODER, &plgInfo);
+   plgHandle = mCallInfo.mPlgInit(fmt, CODEC_DECODER, &fmtpInfo);
 
-   if ((plgHandle != NULL) && (plgInfo.cbSize == sizeof(struct plgCodecInfoV1)))
+   if (plgHandle != NULL)
    {
       mInitialized = TRUE;
 
-      codecSupportPLC = plgInfo.codecSupportPLC;
-
-      // Fill in codec information
-      mCodecInfo = MpCodecInfo(plgInfo.codecVersion,
-                               plgInfo.samplingRate,
-                               plgInfo.numSamplesPerFrame,
-                               plgInfo.numChannels,
-                               plgInfo.interleaveBlockSize,
-                               plgInfo.bitRate,
-                               plgInfo.minPacketBits,
-                               plgInfo.avgPacketBits,
-                               plgInfo.maxPacketBits,
-                               plgInfo.numSamplesPerFrame,
-                               plgInfo.preCodecJitterBufferSize,
-                               plgInfo.signalingCodec && (mplgci.mPlgSignaling != NULL),
-                               FALSE);
+      // Fill in fmtp part of codec information
+      mCodecInfo = MpCodecInfo((MppCodecInfoV1_1)mCodecInfo, fmtpInfo);
    }
    else
    {
@@ -80,9 +69,9 @@ MpPlgDecoderWrapper::~MpPlgDecoderWrapper()
 }
 
 
-OsStatus MpPlgDecoderWrapper::initDecode(const char *fmt)
+OsStatus MpPlgDecoderWrapper::initDecode(const char *fmtp)
 {
-   initializeWrapper(fmt);
+   initializeWrapper(fmtp);
 
    if (!mInitialized) 
       return OS_INVALID_STATE;
@@ -92,7 +81,7 @@ OsStatus MpPlgDecoderWrapper::initDecode(const char *fmt)
 
 OsStatus MpPlgDecoderWrapper::initDecode()
 {
-   return initDecode(mDefParamString);
+   return initDecode(mDefaultFmtp);
 }
 
 OsStatus MpPlgDecoderWrapper::freeDecode()
@@ -100,7 +89,7 @@ OsStatus MpPlgDecoderWrapper::freeDecode()
    if (!mInitialized)
       return OS_INVALID_STATE;
 
-   mplgci.mPlgFree(plgHandle, CODEC_DECODER);
+   mCallInfo.mPlgFree(plgHandle, CODEC_DECODER);
    mInitialized = FALSE;
 
    return OS_SUCCESS;
@@ -120,7 +109,7 @@ int MpPlgDecoderWrapper::decode(const MpRtpBufPtr &pPacket,
 
    if (pPacket.isValid() || codecSupportPLC) 
    {   
-      res = mplgci.mPlgDecode(plgHandle, 
+      res = mCallInfo.mPlgDecode(plgHandle, 
                               (pPacket.isValid()) ? pPacket->getDataPtr() : NULL, 
                               pPacket->getPayloadSize(), 
                               samplesBuffer, 
@@ -155,8 +144,8 @@ OsStatus MpPlgDecoderWrapper::getSignalingData(uint8_t &event,
    uint32_t wEvent, wStartStatus, wStopStatus, wDuration;
    int res;
 
-   res = mplgci.mPlgSignaling(plgHandle, SIGNALING_DEFAULT_TYPE,
-                              &wEvent, &wDuration, &wStartStatus, &wStopStatus);
+   res = mCallInfo.mPlgSignaling(plgHandle,&wEvent, &wDuration,
+                              &wStartStatus, &wStopStatus);
 
    switch (res)
    {

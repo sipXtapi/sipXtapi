@@ -1,8 +1,8 @@
 //  
-// Copyright (C) 2007 SIPez LLC. 
+// Copyright (C) 2007-2008 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2007 SIPfoundry Inc.
+// Copyright (C) 2007-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // $$
@@ -20,8 +20,9 @@ class MpPlgDecoderWrapper : public MpDecoderBase
 public:
 
    MpPlgDecoderWrapper(int payloadType,
-                       const MpCodecCallInfoV1& plgci,
-                       const char* permanentDefaultMode);
+                       const MpCodecCallInfoV1& callInfo,
+                       const MppCodecInfoV1_1& codecInfo,
+                       const char* defaultFmtp);
 
    virtual ~MpPlgDecoderWrapper();
 
@@ -48,15 +49,15 @@ public:
 
 protected:
    MpCodecInfo mCodecInfo;
-   const MpCodecCallInfoV1& mplgci;
+   const MpCodecCallInfoV1& mCallInfo;
    UtlBoolean mInitialized;
    void* plgHandle;
-   const char* mDefParamString;
+   const char* mDefaultFmtp;
 
    UtlBoolean codecSupportPLC;
 
 private:
-   UtlBoolean initializeWrapper(const char *fmt);
+   UtlBoolean initializeWrapper(const char *fmtp);
 
 };
 

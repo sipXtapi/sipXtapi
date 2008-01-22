@@ -1,8 +1,8 @@
 //  
-// Copyright (C) 2007 SIPez LLC. 
+// Copyright (C) 2007-2008 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2007 SIPfoundry Inc.
+// Copyright (C) 2007-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // $$
@@ -15,10 +15,8 @@
 
 #include <mp/codecs/PlgDefsV1.h>
 
-void* universal_speex_init(const char* fmt, int isDecoder, 
-                          struct plgCodecInfoV1* pCodecInfo, 
-                          int samplerate, 
-                          const struct plgCodecInfoV1* cdi);
+void* universal_speex_init(const char* fmt, int isDecoder, int samplerate,
+                           struct MppCodecFmtpInfoV1_1* pCodecInfo);
 
 int universal_speex_free(void* handle, int isDecoder);
 

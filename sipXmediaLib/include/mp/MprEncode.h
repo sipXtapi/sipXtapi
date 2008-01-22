@@ -1,8 +1,8 @@
 //  
-// Copyright (C) 2006 SIPez LLC. 
+// Copyright (C) 2006-2008 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Copyright (C) 2004-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -82,6 +82,9 @@ public:
      *  @note Codec still may use its DTX features.
      */
 
+     /// Set maximum duration of one packet in milliseconds.
+   OsStatus setMaxPacketTime(unsigned int maxPacketTime);
+
 //@}
 
 /* ============================ ACCESSORS ================================= */
@@ -115,7 +118,8 @@ private:
       DESELECT_CODECS,
       START_TONE,
       STOP_TONE,
-      ENABLE_DTX
+      ENABLE_DTX,
+      SET_MAX_PACKET_TIME
    } AddlMsgTypes;
 
    enum {
@@ -125,12 +129,16 @@ private:
 
    static const int RTP_KEEP_ALIVE_FRAME_INTERVAL;
 
+///@name Audio codec state variables
+//@{
    MpEncoderBase* mpPrimaryCodec;
    unsigned char* mpPacket1Payload; ///< Packet buffer for primary RTP stream
    int   mPacket1PayloadBytes;      ///< Size of mpPacket1Payload buffer
    int   mPayloadBytesUsed;         ///< Number of bytes in mpPacket1Payload,
                                     ///<  already filled with encoded data
-   unsigned int mStartTimestamp1;
+   unsigned int mSamplesPacked;     ///< Number of samples already encoded
+                                    ///<  to current packet.
+   unsigned int mStartTimestamp1;   ///< Timestamp of packets being encoded.
    UtlBoolean mActiveAudio1;        ///< Does current RTP packet contain active voice?
    UtlBoolean mMarkNext1;           ///< Set Mark bit on next RTP packet
    int   mConsecutiveInactive1;     ///< Number of RTP packets with active voice data
@@ -138,7 +146,10 @@ private:
    int   mConsecutiveUnsentFrames1;
    UtlBoolean mDoesVad1;    ///< Does codec its own VAD?
    UtlBoolean mDisableDTX;  ///< Disable internal DTX.
+//@}
 
+///@name DTMF codec state variables
+//@{
    MpEncoderBase* mpDtmfCodec;
    unsigned char* mpPacket2Payload; ///< packet buffer for DTMF event RTP stream
    int   mPacket2PayloadBytes;      ///< 4
@@ -149,21 +160,23 @@ private:
    int   mNumToneStops; ///< set to # of end packets to send when tone stops
    int   mTotalTime;    ///< # samples tone was active, set when tone stops
    UtlBoolean mNewTone;      ///< set when tone starts
+//@}
 
+
+///@name General encoding state
+//@{
    unsigned int   mCurrentTimestamp;
+   unsigned int   mMaxPacketTime;  ///< Maximum duration of one packet in milliseconds.
 
    MprToNet* mpToNet;  ///< Pointer to ToNet resource, which will send generated
                        ///< RTP packets.
+//@}
 
      /// Handle messages for this resource.
    virtual UtlBoolean handleMessage(MpFlowGraphMsg& rMsg);
 
-     /// @brief Get maximum payload size, estimated from
-     /// MpEncoderBase::getMaxPacketBits().
-   int payloadByteLength(MpEncoderBase& rEncoder);
-
      /// Allocate memory for RTP packet.
-   OsStatus allocPacketBuffer(MpEncoderBase& rEncoder,
+   OsStatus allocPacketBuffer(const MpEncoderBase& rEncoder,
                               unsigned char*& rpPacketPayload,
                               int& rPacketPayloadBytes);
 
@@ -179,6 +192,9 @@ private:
 
      /// Handle message to enable or disable internal DTX.
    void handleEnableDTX(UtlBoolean dtx);
+
+     /// Handle message to set maximum duration of one packet.
+   void handleSetMaxPacketTime(unsigned maxPacketTime);
 
      /// Handle message to send "stop tone" DTMF RTP packet.
    void handleStopTone(void);

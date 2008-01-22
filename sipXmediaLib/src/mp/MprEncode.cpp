@@ -1,8 +1,8 @@
 //  
-// Copyright (C) 2006 SIPez LLC. 
+// Copyright (C) 2006-2008 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Copyright (C) 2004-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -36,6 +36,7 @@
 #include "mp/dmaTask.h"
 #include "mp/MpMediaTask.h"
 #include "mp/MpCodecFactory.h"
+#include "mp/MpFlowGraphBase.h"
 
 // DEFINES
 #define DEBUG_DTMF_SEND
@@ -60,6 +61,7 @@ MprEncode::MprEncode(const UtlString& rName)
    mpPacket1Payload(NULL),
    mPacket1PayloadBytes(0),
    mPayloadBytesUsed(0),
+   mSamplesPacked(0),
    mActiveAudio1(FALSE),
    mMarkNext1(FALSE),
    mConsecutiveInactive1(0),
@@ -78,6 +80,7 @@ MprEncode::MprEncode(const UtlString& rName)
    mNewTone(FALSE),
 
    mCurrentTimestamp(0),
+   mMaxPacketTime(20),
 
    mpToNet(NULL)
 {
@@ -130,6 +133,12 @@ OsStatus MprEncode::enableDTX(UtlBoolean dtx)
    return postMessage(msg);
 }
 
+OsStatus MprEncode::setMaxPacketTime(unsigned int maxPacketTime)
+{
+   MpFlowGraphMsg msg(SET_MAX_PACKET_TIME, this, NULL, NULL, maxPacketTime, 0);
+   return postMessage(msg);
+}
+
 /* ============================ ACCESSORS ================================= */
 
 /* ============================ INQUIRY =================================== */
@@ -164,23 +173,22 @@ OsStatus MprEncode::selectCodecs(SdpCodec* pPrimary, SdpCodec* pDtmf)
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
-
-// Get maximum payload size, estimated from MpEncoderBase::getMaxPacketBits().
-int MprEncode::payloadByteLength(MpEncoderBase& rEncoder)
-{
-   int maxBitsPerPacket = rEncoder.getInfo()->getMaxPacketBits();
-
-   return (maxBitsPerPacket + 7) / 8;
-}
-
-OsStatus MprEncode::allocPacketBuffer(MpEncoderBase& rEncoder,
+OsStatus MprEncode::allocPacketBuffer(const MpEncoderBase& rEncoder,
                                       unsigned char*& rpPacketPayload,
                                       int& rPacketPayloadBytes)
 {
    OsStatus ret = OS_SUCCESS;
 
-   // Estimate packet size
-   rPacketPayloadBytes = payloadByteLength(rEncoder);
+   // Set packet size to maximum possible size. Probably we could guess better,
+   // but to do so we need:
+   // 1) to know how much audio data we want to pack (10ms, 20ms, or more);
+   // 2) somehow negotiate packet size for codecs that require special
+   //    processing to pack several frames into one packet (like AMR, Speex, etc).
+   // One of possible solution would be to implement function to ask for
+   // packet size (not frame size!) for codecs. That is pass to it number of
+   // audio samples we want to pack and get packet size back from it, like this:
+   //    int get_packet_size(int numSamples, int* packetSize) const;
+   rPacketPayloadBytes = RTP_MTU;
 
    // Allocate buffer for RTP packet data
    rpPacketPayload = new unsigned char[rPacketPayloadBytes];
@@ -188,7 +196,6 @@ OsStatus MprEncode::allocPacketBuffer(MpEncoderBase& rEncoder,
    {
       // No free memory. Return error.
       ret = OS_NO_MEMORY;
-      rpPacketPayload = NULL;
    }
 
    return ret;
@@ -204,6 +211,7 @@ void MprEncode::handleDeselectCodecs(void)
          mpPacket1Payload = NULL;
          mPacket1PayloadBytes = 0;
          mPayloadBytesUsed = 0;
+         mSamplesPacked = 0;
       }
    }
    if (NULL != mpDtmfCodec) {
@@ -240,15 +248,19 @@ void MprEncode::handleSelectCodecs(int newCodecsCount, SdpCodec** newCodecs)
    {
       pPrimary->getEncodingName(mime);
       pPrimary->getSdpFmtpField(fmtp);
+      int sampleRate = pPrimary->getSampleRate();
+      int numChannels = pPrimary->getNumChannels();
       payload = pPrimary->getCodecPayloadFormat();
-      ret = pFactory->createEncoder(mime, fmtp, payload, pNewEncoder);
+      ret = pFactory->createEncoder(mime, fmtp, sampleRate, numChannels,
+                                    payload, pNewEncoder);
       assert(OS_SUCCESS == ret);
       assert(NULL != pNewEncoder);
       pNewEncoder->initEncode();
       mpPrimaryCodec = pNewEncoder;
-      mDoesVad1 = (pNewEncoder->getInfo())->doesVadCng();
+      mDoesVad1 = pNewEncoder->getInfo()->doesVadCng();
       allocPacketBuffer(*mpPrimaryCodec, mpPacket1Payload, mPacket1PayloadBytes);
       mPayloadBytesUsed = 0;
+      mSamplesPacked = 0;
 
       OsSysLog::add(FAC_MP, PRI_DEBUG,
                     "MprEncode::handleSelectCodecs "
@@ -269,8 +281,11 @@ void MprEncode::handleSelectCodecs(int newCodecsCount, SdpCodec** newCodecs)
    {
       pDtmf->getEncodingName(mime);
       pDtmf->getSdpFmtpField(fmtp);
+      int sampleRate = pDtmf->getSampleRate();
+      int numChannels = pDtmf->getNumChannels();
       payload = pDtmf->getCodecPayloadFormat();
-      ret = pFactory->createEncoder(mime, fmtp, payload, pNewEncoder);
+      ret = pFactory->createEncoder(mime, fmtp, sampleRate, numChannels,
+                                    payload, pNewEncoder);
       assert(OS_SUCCESS == ret);
       assert(NULL != pNewEncoder);
       pNewEncoder->initEncode();
@@ -310,6 +325,11 @@ void MprEncode::handleEnableDTX(UtlBoolean dtx)
    mDisableDTX = !dtx;
 }
 
+void MprEncode::handleSetMaxPacketTime(unsigned maxPacketTime)
+{
+   mMaxPacketTime = maxPacketTime;
+}
+
 // Handle messages for this resource.
 UtlBoolean MprEncode::handleMessage(MpFlowGraphMsg& rMsg)
 {
@@ -344,6 +364,9 @@ UtlBoolean MprEncode::handleMessage(MpFlowGraphMsg& rMsg)
       return TRUE;
    } else if (rMsg.getMsg() == ENABLE_DTX) {
       handleEnableDTX(rMsg.getInt1());
+      return TRUE;
+   } else if (rMsg.getMsg() == SET_MAX_PACKET_TIME) {
+      handleSetMaxPacketTime(rMsg.getInt1());
       return TRUE;
    }
    else
@@ -403,10 +426,12 @@ void MprEncode::doPrimaryCodec(MpAudioBufPtr in, unsigned int startTs)
    const MpAudioSample* pSamplesIn;
    int payloadBytesLeft;
    unsigned char* pDest;
-   int bytesAdded; //$$$
+   int bytesAdded;
    MpAudioBuf::SpeechType content;
    OsStatus ret;
    UtlBoolean sendNow;
+   unsigned int maxPacketSamples;
+   unsigned int codecFrameSamples;
 
    if (mpPrimaryCodec == NULL)
       return;
@@ -418,6 +443,7 @@ void MprEncode::doPrimaryCodec(MpAudioBufPtr in, unsigned int startTs)
    numSamplesIn = in->getSamplesNumber();
    pSamplesIn = in->getSamplesPtr();
    content = MpAudioBuf::MP_SPEECH_UNKNOWN;
+   maxPacketSamples = mMaxPacketTime*mpFlowGraph->getSamplesPerSec()/1000;
 
    while (numSamplesIn > 0)
    {
@@ -433,9 +459,7 @@ void MprEncode::doPrimaryCodec(MpAudioBufPtr in, unsigned int startTs)
       }
 
       payloadBytesLeft = mPacket1PayloadBytes - mPayloadBytesUsed;
-      // maxSamplesOut = payloadBytesLeft / bytesPerSample;
 
-      // n = (numSamplesIn > maxSamplesOut) ? maxSamplesOut : numSamplesIn;
       pDest = mpPacket1Payload + mPayloadBytesUsed;
 
       bytesAdded = 0;
@@ -448,6 +472,7 @@ void MprEncode::doPrimaryCodec(MpAudioBufPtr in, unsigned int startTs)
       // In case the encoder does silence suppression (e.g. G.729 Annex B)
       mMarkNext1 = mMarkNext1 | (0 == bytesAdded);
 
+      mSamplesPacked += numSamplesOut;
       pSamplesIn += numSamplesOut;
       numSamplesIn -= numSamplesOut;
       startTs += numSamplesOut;
@@ -457,7 +482,21 @@ void MprEncode::doPrimaryCodec(MpAudioBufPtr in, unsigned int startTs)
          mActiveAudio1 = TRUE;
       }
 
-      if (sendNow || (mPacket1PayloadBytes == mPayloadBytesUsed))
+      if (mpPrimaryCodec->getInfo()->getCodecType() == CODEC_TYPE_FRAME_BASED)
+      {
+         codecFrameSamples = mpPrimaryCodec->getInfo()->getNumSamplesPerFrame();
+      }
+      else if (mpPrimaryCodec->getInfo()->getCodecType() == CODEC_TYPE_SAMPLE_BASED)
+      {
+         codecFrameSamples = mpFlowGraph->getSamplesPerFrame();
+      }
+      else
+      {
+         assert(!"Unknown codec type!");
+      }
+
+      if (  (mPayloadBytesUsed > 0)
+         && (sendNow || mSamplesPacked+codecFrameSamples >= maxPacketSamples))
       {
          if (mActiveAudio1)
          {
@@ -480,6 +519,7 @@ void MprEncode::doPrimaryCodec(MpAudioBufPtr in, unsigned int startTs)
             mMarkNext1 = TRUE;
          }
          mPayloadBytesUsed = 0;
+         mSamplesPacked = 0;
       }
    }
 }

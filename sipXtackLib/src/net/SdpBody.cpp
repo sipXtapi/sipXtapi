@@ -1,5 +1,8 @@
+//  
+// Copyright (C) 2007-2008 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Copyright (C) 2004-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -1263,12 +1266,11 @@ void SdpBody::getCodecsInCommon(int audioPayloadIdCount,
       {
          
          // Find a match for the mime type
-         matchingCodec = localRtpCodecs.getCodec(MIME_TYPE_AUDIO, mimeSubtype.data());
-         if((matchingCodec != NULL) &&
-            (matchingCodec->getSampleRate() == sampleRate ||
-             sampleRate == -1) &&
-            (matchingCodec->getNumChannels() == numChannels ||
-             numChannels == -1))
+         matchingCodec = localRtpCodecs.getCodec(MIME_TYPE_AUDIO,
+                                                 mimeSubtype.data(),
+                                                 sampleRate,
+                                                 numChannels);
+         if (matchingCodec != NULL)
          {
             commonCodec = TRUE;
             int frameSize = 0;

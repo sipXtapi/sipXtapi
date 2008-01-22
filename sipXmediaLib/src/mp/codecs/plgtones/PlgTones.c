@@ -1,14 +1,12 @@
 //  
-// Copyright (C) 2007 SIPez LLC. 
+// Copyright (C) 2007-2008 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2007 SIPfoundry Inc.
+// Copyright (C) 2007-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // $$
 ///////////////////////////////////////////////////////////////////////////////
-
-// Author: 
 
 // APPLICATION INCLUDES
 #include <mp/codecs/PlgDefsV1.h>
@@ -19,35 +17,32 @@
 #include <ctype.h>
 
 #ifdef __pingtel_on_posix__ // [
-#include <sys/types.h>
-#include <netinet/in.h>
-#elif _VXWORKS // ][
-#include <inetlib.h>
+#  include <sys/types.h>
+#  include <netinet/in.h>
+#elif defined _VXWORKS // __pingtel_on_posix__ ][
+#  include <inetlib.h>
 #elif defined WIN32 // _VXWORKS ][
-#include <winsock2.h>
-#pragma comment(lib, "ws2_32.lib")
+#  include <winsock2.h>
+#  pragma comment(lib, "ws2_32.lib")
 #endif // WIN32 ]
 
-static const char codecMIMEsubtype[] = "telephone-event";
-
-static const struct plgCodecInfoV1 codecTones = 
+// STATIC VARIABLE INITIALIZATIONS
+/// Exported codec information.
+static const struct MppCodecInfoV1_1 sgCodecInfo = 
 {
-   sizeof(struct plgCodecInfoV1),  //cbSize
-   codecMIMEsubtype,               //codecSDPType
-   "telephone-event",              //codecName
-   "RFC4733",                      //codecVersion
-   8000,                           //samplingRate
-   0,                              //fmtAndBitsPerSample
-   1,                              //numChannels
-   0,                              //interleaveBlockSize
-   6400,                           //bitRate
-   128,                            //minPacketBits
-   128,                            //avgPacketBits
-   128,                            //maxPacketBits
-   0,                              //numSamplesPerFrame
-   0,                              //preCodecJitterBufferSize
-   0,                              //codecSupportPLC
-   TRUE                            //signalingCodec
+///////////// Implementation and codec info /////////////
+   "SIPFoundry",                // codecManufacturer
+   "RFC4733 DTMF tones",        // codecName
+   "1.0",                       // codecVersion
+   CODEC_TYPE_SAMPLE_BASED,     // codecType
+
+/////////////////////// SDP info ///////////////////////
+   "telephone-event",           // mimeSubtype
+   0,                           // fmtpsNum
+   NULL,                        // fmtps
+   8000,                        // sampleRate
+   1,                           // numChannels
+   CODEC_FRAME_PACKING_NONE     // framePacking
 };
 
 struct AvtPacket
@@ -58,12 +53,12 @@ struct AvtPacket
 };
 
 struct tones_codec_data {
-   int mHaveValidData;        ///< Does mLastRtpHeader and mLastPacketData
-   ///< contain valid data?
-   struct RtpHeader mLastRtpHeader;         ///< Copy of last received RTP packet header.
-   struct AvtPacket mLastPacketData;        ///< Copy of last received RTP packet payload data.
+   int mHaveValidData;               ///< Does mLastRtpHeader and mLastPacketData
+                                     ///< contain valid data?
+   struct RtpHeader mLastRtpHeader;  ///< Copy of last received RTP packet header.
+   struct AvtPacket mLastPacketData; ///< Copy of last received RTP packet payload data.
 
-   int mIsEventActive;        ///< TRUE, if some event is currently active.
+   int mIsEventActive;               ///< TRUE, if some event is currently active.
    uint8_t mActiveEvent;             ///< The key ID of active event.
    RtpTimestamp mLastKeyUpTimetsamp; ///< The timestamp for last KEYUP event.
    RtpTimestamp mStartingTimestamp;  ///< The timestamp of active event.
@@ -116,33 +111,37 @@ static void dumpRawAvtPacket(struct tones_codec_data *mpTones)
 }
 #endif // DEBUG_TONES ]
 
-CODEC_API int PLG_ENUM_V1(tones)(const char** mimeSubtype, unsigned int* pModesCount, const char*** modes)
+CODEC_API int PLG_GET_INFO_V1_1(tones)(const struct MppCodecInfoV1_1 **codecInfo)
 {
-   if (mimeSubtype) {
-      *mimeSubtype = codecMIMEsubtype;
-   }
-   if (pModesCount) {
-      *pModesCount = 0;
-   }
-   if (modes) {
-      *modes = NULL;
+   if (codecInfo)
+   {
+      *codecInfo = &sgCodecInfo;
    }
    return RPLG_SUCCESS;
 }
 
-CODEC_API void *PLG_INIT_V1(tones)(const char* fmt, int bDecoder, struct plgCodecInfoV1* pCodecInfo)
+CODEC_API void *PLG_INIT_V1_1(tones)(const char* fmtp, int isDecoder,
+                                     struct MppCodecFmtpInfoV1_1* pCodecInfo)
 {
    struct tones_codec_data *mpTones;
    if (pCodecInfo == NULL) {
       return NULL;
    }
 
-   memcpy(pCodecInfo, &codecTones, sizeof(struct plgCodecInfoV1));
+   pCodecInfo->signalingCodec = TRUE;
+   pCodecInfo->minBitrate = 0; // 0, because bitrate is only for audio data
+   pCodecInfo->maxBitrate = 0; // 0, because bitrate is only for audio data
+   pCodecInfo->numSamplesPerFrame = 1;
+   pCodecInfo->minFrameBytes = 1;
+   pCodecInfo->maxFrameBytes = 1;
+   pCodecInfo->packetLossConcealment = CODEC_PLC_NONE;
+   pCodecInfo->vadCng = CODEC_CNG_NONE;
+
    mpTones = (struct tones_codec_data *)malloc(sizeof(struct tones_codec_data));
-   if (!mpTones) {
+   if (!mpTones)
+   {
       return NULL;
    }
-
    mpTones->mHaveValidData = FALSE;
    mpTones->mIsEventActive = FALSE;
    mpTones->mActiveEvent = 0;
@@ -195,7 +194,7 @@ CODEC_API int PLG_ENCODE_V1(tones)(void* handle, const void* pAudioBuffer,
    int size = 0;   
    struct tones_codec_data *mpTones = (struct tones_codec_data *)handle;
    assert(handle != NULL);
-   assert(!"Not yet implimented!!!");
+   assert(!"Not yet implemented!");
 
    *rSamplesConsumed = 0;
    *pcbCodedSize = 0;
@@ -204,7 +203,7 @@ CODEC_API int PLG_ENCODE_V1(tones)(void* handle, const void* pAudioBuffer,
    return RPLG_FAILED;
 }
 
-CODEC_API int PLG_SIGNALING_V1(tones)(void* handle, int dataId,
+CODEC_API int PLG_SIGNALING_V1(tones)(void* handle,
                                       uint32_t* outEvent, 
                                       uint32_t* outDuration,
                                       uint32_t* startStatus,

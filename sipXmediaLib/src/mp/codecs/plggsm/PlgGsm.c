@@ -1,8 +1,8 @@
 //  
-// Copyright (C) 2007 SIPez LLC. 
+// Copyright (C) 2007-2008 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2007 SIPfoundry Inc.
+// Copyright (C) 2007-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // $$
@@ -16,10 +16,6 @@
 #include <assert.h>
 #include <ctype.h>
 
-// APPLICATION INCLUDES
-// CODEC LIBRARY INCLUDES
-#include <mp/codecs/PlgDefsV1.h>
-
 // WIN32: Add libgsm to linker input.
 #ifdef WIN32 // [
 #   ifdef _DEBUG // [
@@ -30,8 +26,14 @@
 #endif // WIN32 ]
 
 // APPLICATION INCLUDES
+#include <mp/codecs/PlgDefsV1.h>
+
+// CODEC LIBRARY INCLUDES
 #include <gsm.h>
 
+// EXTERNAL VARIABLES
+// CONSTANTS
+// TYPEDEFS
 // LOCAL DATA TYPES
 struct libgsm_codec_data
 {
@@ -40,50 +42,58 @@ struct libgsm_codec_data
    gsm mpGsmState;
 };
 
+// EXTERNAL FUNCTIONS
+// DEFINES
 // STATIC VARIABLES INITIALIZATON
-static const char codecMIMEsubtype[] = "gsm";
-static const struct plgCodecInfoV1 codecGSM = 
+/// Exported codec information.
+static const struct MppCodecInfoV1_1 sgCodecInfo = 
 {
-   sizeof(struct plgCodecInfoV1),   //cbSize
-   codecMIMEsubtype,                //mimeSubtype
-   "GSM-FR",                        //codecName
-   "GSM 6.10",                      //codecVersion
-   8000,                            //samplingRate
-   8,                               //fmtAndBitsPerSample
-   1,                               //numChannels
-   160,                             //interleaveBlockSize
-   13200,                           //bitRate
-   33*8,                            //minPacketBits
-   33*8,                            //avgPacketBits
-   33*8,                            //maxPacketBits
-   160,                             //numSamplesPerFrame
-   6                                //preCodecJitterBufferSize
+///////////// Implementation and codec info /////////////
+   "libgsm",                    // codecManufacturer
+   "GSM-FR (06.10)",            // codecName
+   "12",                        // codecVersion
+   CODEC_TYPE_FRAME_BASED,      // codecType
+
+/////////////////////// SDP info ///////////////////////
+   "GSM",                       // mimeSubtype
+   0,                           // fmtpsNum
+   NULL,                        // fmtps
+   8000,                        // sampleRate
+   1,                           // numChannels
+   CODEC_FRAME_PACKING_NONE     // framePacking
 };
 
-CODEC_API int PLG_ENUM_V1(libgsm)(const char** mimeSubtype, unsigned int* pModesCount, const char*** modes)
+/* ============================== FUNCTIONS =============================== */
+
+CODEC_API int PLG_GET_INFO_V1_1(libgsm)(const struct MppCodecInfoV1_1 **codecInfo)
 {
-   if (mimeSubtype) {
-      *mimeSubtype = codecMIMEsubtype;
-   }
-   if (pModesCount) {
-      *pModesCount = 0;
-   }
-   if (modes) {
-      *modes = NULL;
+   if (codecInfo)
+   {
+      *codecInfo = &sgCodecInfo;
    }
    return RPLG_SUCCESS;
 }
 
-CODEC_API void *PLG_INIT_V1(libgsm)(const char* fmt, int bDecoder, struct plgCodecInfoV1* pCodecInfo)
+CODEC_API void *PLG_INIT_V1_1(libgsm)(const char* fmtp, int isDecoder,
+                                      struct MppCodecFmtpInfoV1_1* pCodecInfo)
 {
    struct libgsm_codec_data *mpGsm;
-   if (pCodecInfo == NULL) {
+   if (pCodecInfo == NULL)
+   {
       return NULL;
    }
+   pCodecInfo->signalingCodec = FALSE;
+   pCodecInfo->minBitrate = 13200;
+   pCodecInfo->maxBitrate = 13200;
+   pCodecInfo->numSamplesPerFrame = 160;
+   pCodecInfo->minFrameBytes = 33;
+   pCodecInfo->maxFrameBytes = 33;
+   pCodecInfo->packetLossConcealment = CODEC_PLC_NONE;
+   pCodecInfo->vadCng = CODEC_CNG_NONE;
 
-   memcpy(pCodecInfo, &codecGSM, sizeof(struct plgCodecInfoV1));
    mpGsm = (struct libgsm_codec_data *)malloc(sizeof(struct libgsm_codec_data));
-   if (!mpGsm) {
+   if (!mpGsm)
+   {
       return NULL;
    }
 

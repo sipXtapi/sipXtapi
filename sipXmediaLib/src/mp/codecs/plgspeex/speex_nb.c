@@ -1,8 +1,8 @@
 //  
-// Copyright (C) 2007 SIPez LLC. 
+// Copyright (C) 2007-2008 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2007 SIPfoundry Inc.
+// Copyright (C) 2007-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // $$
@@ -10,28 +10,18 @@
 
 // Author: Sergey Kostanbaev <Sergey DOT Kostanbaev AT sipez DOT com>
 
+// SYSTEM INCLUDES
+// APPLICATION INCLUDES
+// CODEC LIBRARY INCLUDES
 #include "plgspeex.h"
 
-static const char codecMIMEsubtype[] = "speex";
-
-static const struct plgCodecInfoV1 codecSPEEX = 
-{
-   sizeof(struct plgCodecInfoV1),   //cbSize
-   codecMIMEsubtype,                //mimeSubtype
-   "SPEEX",                         //codecName
-   "Speex codec",                   //codecVersion
-   8000,                            //samplingRate
-   8,                               //fmtAndBitsPerSample
-   1,                               //numChannels
-   38,                              //interleaveBlockSize
-   15000,                           //bitRate
-   1*8,                             //minPacketBits
-   38*8,                            //avgPacketBits
-   63*8,                            //maxPacketBits
-   160,                             //numSamplesPerFrame
-   5                                //preCodecJitterBufferSize
-};
-
+// EXTERNAL VARIABLES
+// CONSTANTS
+// TYPEDEFS
+// LOCAL DATA TYPES
+// EXTERNAL FUNCTIONS
+// DEFINES
+// STATIC VARIABLES INITIALIZATON
 static const char* defaultFmtps[] =
 {
    "",
@@ -44,23 +34,39 @@ static const char* defaultFmtps[] =
    "mode=8"
 };
 
-CODEC_API int PLG_ENUM_V1(speex)(const char** mimeSubtype, unsigned int* pModesCount, const char*** modes)
+/// Exported codec information.
+static const struct MppCodecInfoV1_1 sgCodecInfo = 
 {
-   if (mimeSubtype) {
-      *mimeSubtype = codecMIMEsubtype;
-   }
-   if (pModesCount) {
-      *pModesCount = (sizeof(defaultFmtps)/sizeof(defaultFmtps[0]));
-   }
-   if (modes) {
-      *modes = defaultFmtps;
+///////////// Implementation and codec info /////////////
+   "Jean-Marc Valin/Xiph.Org Foundation", // codecManufacturer
+   "Speex",                     // codecName
+   "1.2beta2",                  // codecVersion
+   CODEC_TYPE_FRAME_BASED,      // codecType
+
+/////////////////////// SDP info ///////////////////////
+   "speex",                     // mimeSubtype
+   sizeof(defaultFmtps)/sizeof(defaultFmtps[0]), // fmtpsNum
+   defaultFmtps,                // fmtps
+   8000,                        // sampleRate
+   1,                           // numChannels
+   CODEC_FRAME_PACKING_SPECIAL  // framePacking
+};
+
+/* ============================== FUNCTIONS =============================== */
+
+CODEC_API int PLG_GET_INFO_V1_1(speex)(const struct MppCodecInfoV1_1 **codecInfo)
+{
+   if (codecInfo)
+   {
+      *codecInfo = &sgCodecInfo;
    }
    return RPLG_SUCCESS;
 }
 
-CODEC_API  void *PLG_INIT_V1(speex)(const char* fmt, int isDecoder, struct plgCodecInfoV1* pCodecInfo)
+CODEC_API void *PLG_INIT_V1_1(speex)(const char* fmtp, int isDecoder,
+                                     struct MppCodecFmtpInfoV1_1* pCodecInfo)
 {
-   return universal_speex_init(fmt, isDecoder, pCodecInfo, 8000, &codecSPEEX);
+   return universal_speex_init(fmtp, isDecoder, 8000, pCodecInfo);
 }
 
 

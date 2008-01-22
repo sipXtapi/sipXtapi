@@ -1,8 +1,8 @@
 //  
-// Copyright (C) 2007 SIPez LLC. 
+// Copyright (C) 2007-2008 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2007 SIPfoundry Inc.
+// Copyright (C) 2007-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // $$
@@ -16,47 +16,56 @@
 // APPLICATION INCLUDES
 #include "plgg726.h"
 
-// STATIC VARIABLE INITIALIZATIONS
-static const char codecMIMEsubtype[] = "g726-32";
-
-static const struct plgCodecInfoV1 sipxCodecInfog726_32 = 
+// EXTERNAL VARIABLES
+// CONSTANTS
+// TYPEDEFS
+// EXTERNAL FUNCTIONS
+// DEFINES
+// STATIC VARIABLES INITIALIZATON
+/// Exported codec information.
+static const struct MppCodecInfoV1_1 sgCodecInfo = 
 {
-   sizeof(struct plgCodecInfoV1),   //cbSize
-   codecMIMEsubtype,                //mimeSubtype
-   "G726-32",                       //codecName
-   "G726-32-spandsp",               //codecVersion
-   8000,                            //samplingRate
-   8,                               //fmtAndBitsPerSample
-   1,                               //numChannels
-   160,                             //interleaveBlockSize
-   32000,                           //bitRate
-   320,                             //minPacketBits
-   320,                             //avgPacketBits
-   320,                             //maxPacketBits
-   160,                             //numSamplesPerFrame
-   3                                //preCodecJitterBufferSize
+///////////// Implementation and codec info /////////////
+   "SpanDSP",                   // codecManufacturer
+   "G.726-32",                  // codecName
+   "1.15",                      // codecVersion
+   CODEC_TYPE_SAMPLE_BASED,     // codecType
+
+/////////////////////// SDP info ///////////////////////
+   "G726-32",                   // mimeSubtype
+   0,                           // fmtpsNum
+   NULL,                        // fmtps
+   8000,                        // sampleRate
+   1,                           // numChannels
+   CODEC_FRAME_PACKING_NONE     // framePacking
 };
 
-CODEC_API int PLG_ENUM_V1(g726_32)(const char** mimeSubtype, unsigned int* pModesCount, const char*** modes)
+/* ============================== FUNCTIONS =============================== */
+
+CODEC_API int PLG_GET_INFO_V1_1(g726_32)(const struct MppCodecInfoV1_1 **codecInfo)
 {
-   if (mimeSubtype) {
-      *mimeSubtype = codecMIMEsubtype;
-   }
-   if (pModesCount) {
-      *pModesCount = 0;
-   }
-   if (modes) {
-      *modes = NULL;
+   if (codecInfo)
+   {
+      *codecInfo = &sgCodecInfo;
    }
    return RPLG_SUCCESS;
 }
 
-CODEC_API void *PLG_INIT_V1(g726_32)(const char* fmtps, int isDecoder, struct plgCodecInfoV1* pCodecInfo)
+CODEC_API void *PLG_INIT_V1_1(g726_32)(const char* fmtp, int isDecoder,
+                                       struct MppCodecFmtpInfoV1_1* pCodecInfo)
 {
-   if (pCodecInfo == NULL) {
+   if (pCodecInfo == NULL)
+   {
       return NULL;
    }
-   memcpy(pCodecInfo, &sipxCodecInfog726_32, sizeof(struct plgCodecInfoV1));
+   pCodecInfo->signalingCodec = FALSE;
+   pCodecInfo->minBitrate = 32000;
+   pCodecInfo->maxBitrate = 32000;
+   pCodecInfo->numSamplesPerFrame = 2;
+   pCodecInfo->minFrameBytes = 1;
+   pCodecInfo->maxFrameBytes = 1;
+   pCodecInfo->packetLossConcealment = CODEC_PLC_NONE;
+   pCodecInfo->vadCng = CODEC_CNG_NONE;
    
    return g726_init(NULL, 32000, G726_ENCODING_LINEAR, G726_PACKING_LEFT);
 }

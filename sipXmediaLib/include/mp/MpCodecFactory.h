@@ -1,8 +1,8 @@
 //  
-// Copyright (C) 2006 SIPez LLC. 
+// Copyright (C) 2006-2008 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Copyright (C) 2004-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -87,11 +87,15 @@ public:
      /// Returns a new instance of a decoder of the indicated type
    OsStatus createDecoder(const UtlString &mime,
                           const UtlString &fmtp,
+                          int sampleRate,
+                          int numChannels,
                           int payloadType,
                           MpDecoderBase*& rpDecoder);
      /**<
      *  @param[in]  mime - codec MIME-subtype
      *  @param[in]  fmtp - codec-specific string in format of SDP "fmtp" parameter
+     *  @param[in]  sampleRate - requested codec's sample rate
+     *  @param[in]  numChannels - requested codec's number of channels
      *  @param[in]  payloadType - RTP payload type to be associated with this decoder
      *  @param[out] rpDecoder - Reference to a pointer to the new decoder object
      */
@@ -99,11 +103,15 @@ public:
      /// Returns a new instance of an encoder of the indicated type
    OsStatus createEncoder(const UtlString &mime,
                           const UtlString &fmtp,
+                          int sampleRate,
+                          int numChannels,
                           int payloadType,
                           MpEncoderBase*& rpEncoder);
      /**<
      *  @param[in]  mime - codec MIME-subtype
      *  @param[in]  fmtp - codec-specific string in format of SDP "fmtp" parameter
+     *  @param[in]  sampleRate - requested codec's sample rate
+     *  @param[in]  numChannels - requested codec's number of channels
      *  @param[in]  payloadType - RTP payload type to be associated with this encoder
      *  @param[out] rpEncoder - Reference to a pointer to the new encoder object
      */
@@ -128,21 +136,7 @@ public:
 //@{
 
      /// Get list of all supported MIME-subtypes.
-   void getMimeTypes(unsigned& count, const UtlString*& mimeTypes) const;
-
-     /// Get list of default (recommended) fmtp strings for given MIME-subtype.
-   OsStatus getCodecFmtps(const UtlString &mime,
-                          unsigned& fmtpCount, const char**& fmtps) const;
-     /**<
-     *  @param[in]  mime - MIME-subtype of codec for which fmtps are requested.
-     *  @param[out] fmtpCount - number of elements in returned fmtps array.
-     *  @param[out] fmtps - array of fmtp strings.
-     *
-     *  @note If returned \p fmtpCount is 0, then returned \p fmtps is NULL!
-     *
-     *  @retval OS_SUCCESS on success.
-     *  @retval OS_NOT_FOUND if given MIME-subtype is not found.
-     */
+//   void getMimeTypes(unsigned& count, const UtlString*& mimeTypes) const;
 
      /// Add all supported codecs to SDP descriptions list.
    void addCodecsToList(SdpCodecList &codecList) const;
@@ -170,8 +164,10 @@ protected:
      *  constructor and has no friends.
      */
 
-     /// Search codec by given MIME-subtype
-   MpCodecSubInfo* searchByMIME(const UtlString& mime) const;
+     /// Search codec by given MIME-subtype, sample rate and channels number.
+   MpCodecSubInfo* searchByMIME(const UtlString& mime,
+                                int sampleRate,
+                                int numChannels) const;
 
 public:
    static MpCodecCallInfoV1* addStaticCodec(MpCodecCallInfoV1* sStaticCode);   

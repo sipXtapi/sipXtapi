@@ -1,8 +1,8 @@
 //  
-// Copyright (C) 2006 SIPez LLC. 
+// Copyright (C) 2006-2008 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Copyright (C) 2004-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -41,7 +41,7 @@ public:
 //@{
 
      /// Constructor
-   MpEncoderBase(int payloadType, const MpCodecInfo* pInfo);
+   MpEncoderBase(int payloadType);
      /**<
      *  @param[in] payloadType - RTP payload type associated with this encoder.
      */
@@ -105,7 +105,7 @@ public:
 //@{
 
      /// Get static information about the encoder
-   virtual const MpCodecInfo* getInfo(void) const;
+   virtual const MpCodecInfo* getInfo(void) const =0;
      /**<
      *  @returns A pointer to an MpCodecInfo object that provides static
      *           information about the encoder.
@@ -126,7 +126,6 @@ public:
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-   const MpCodecInfo* mpCodecInfo;  ///< information about this the codec
    int mPayloadType;
 
      /// Copy constructor

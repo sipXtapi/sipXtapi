@@ -1,8 +1,8 @@
 //  
-// Copyright (C) 2007 SIPez LLC. 
+// Copyright (C) 2007-2008 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2007 SIPfoundry Inc.
+// Copyright (C) 2007-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // $$
@@ -15,12 +15,15 @@
 #include <mp/MpPlgEncoderWrap.h>
 #include <sdp/SdpCodec.h>
 
-MpPlgEncoderWrapper::MpPlgEncoderWrapper(int payloadType, const MpCodecCallInfoV1& plgci, const char* permanentDefaultMode)
-: MpEncoderBase(payloadType, &mCodecInfo)
-, mCodecInfo("", 0, 0, 0, 0, 0, 0, 0, 0, 0)
-, mplgci(plgci)
+MpPlgEncoderWrapper::MpPlgEncoderWrapper(int payloadType,
+                                         const MpCodecCallInfoV1& callInfo,
+                                         const MppCodecInfoV1_1& codecInfo,
+                                         const char* defaultFmtp)
+: MpEncoderBase(payloadType)
+, mCodecInfo(codecInfo) // This fills only first part of codec information.
+, mCallInfo(callInfo)
 , mInitialized(FALSE)
-, mDefParamString(permanentDefaultMode)
+, mDefaultFmtp(defaultFmtp)
 {
 
 }
@@ -36,28 +39,15 @@ const MpCodecInfo* MpPlgEncoderWrapper::getInfo(void) const
 
 UtlBoolean MpPlgEncoderWrapper::initializeWrapper(const char* fmt)
 {
-   //Currently assuming 8000 hz, and signed 16bit LE format, one channel
+   MppCodecFmtpInfoV1_1 fmtpInfo;
 
-   struct plgCodecInfoV1 plgInfo;
-   plgHandle = mplgci.mPlgInit(fmt, CODEC_ENCODER, &plgInfo);
+   plgHandle = mCallInfo.mPlgInit(fmt, CODEC_ENCODER, &fmtpInfo);
 
-   if ((plgHandle != NULL) && (plgInfo.cbSize == sizeof(struct plgCodecInfoV1))) {
+   if (plgHandle != NULL) {
       mInitialized = TRUE;
 
-      //Filling codec information
-      mCodecInfo = MpCodecInfo(plgInfo.codecVersion,
-                               plgInfo.samplingRate,
-                               plgInfo.numSamplesPerFrame,
-                               plgInfo.numChannels,
-                               plgInfo.interleaveBlockSize,
-                               plgInfo.bitRate,
-                               plgInfo.minPacketBits,
-                               plgInfo.avgPacketBits,
-                               plgInfo.maxPacketBits,
-                               plgInfo.numSamplesPerFrame,
-                               plgInfo.preCodecJitterBufferSize,
-                               FALSE,
-                               FALSE);
+      // Fill in fmtp part of codec information
+      mCodecInfo = MpCodecInfo((MppCodecInfoV1_1)mCodecInfo, fmtpInfo);
    } else {
       mInitialized = FALSE;
    }
@@ -85,7 +75,7 @@ OsStatus MpPlgEncoderWrapper::initEncode(const char *fmt)
 
 OsStatus MpPlgEncoderWrapper::initEncode()
 {
-   return initEncode(mDefParamString);
+   return initEncode(mDefaultFmtp);
 }
 
 OsStatus MpPlgEncoderWrapper::freeEncode()
@@ -93,7 +83,7 @@ OsStatus MpPlgEncoderWrapper::freeEncode()
    if (!mInitialized)
       return OS_INVALID_STATE;
       
-   mplgci.mPlgFree(plgHandle, CODEC_ENCODER);
+   mCallInfo.mPlgFree(plgHandle, CODEC_ENCODER);
    mInitialized = FALSE;
    return OS_SUCCESS;
 }
@@ -114,7 +104,7 @@ OsStatus MpPlgEncoderWrapper::encode(const MpAudioSample* pAudioSamples,
       return OS_INVALID_STATE;
    }
 
-   res = mplgci.mPlgEncode(plgHandle, pAudioSamples, numSamples, &rSamplesConsumed, pCodeBuf, bytesLeft, &rSizeInBytes, &usendNow);   
+   res = mCallInfo.mPlgEncode(plgHandle, pAudioSamples, numSamples, &rSamplesConsumed, pCodeBuf, bytesLeft, &rSizeInBytes, &usendNow);   
    if (res) {
       //Error during encoding
       return OS_FAILED;

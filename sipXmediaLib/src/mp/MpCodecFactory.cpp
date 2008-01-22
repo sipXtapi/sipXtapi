@@ -1,8 +1,8 @@
 //  
-// Copyright (C) 2006-2007 SIPez LLC. 
+// Copyright (C) 2006-2008 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2004-2007 SIPfoundry Inc.
+// Copyright (C) 2004-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -37,14 +37,11 @@ class MpCodecSubInfo : public UtlString
 {
 public:
 
-   MpCodecSubInfo(MpCodecCallInfoV1* pCodecCall,
-                  const char* pMimeSubtype,
-                  const char** pDefaultFmtpArray,
-                  unsigned int defaultFmtpArrayLength)
-      : UtlString(pMimeSubtype)
-      , mpCodecCall(pCodecCall)
-      , mpDefaultFmtpArray(pDefaultFmtpArray)
-      , mDefaultFmtpArrayLength(defaultFmtpArrayLength)
+   MpCodecSubInfo(const MpCodecCallInfoV1* pCodecCall,
+                  const MppCodecInfoV1_1 *pCodecInfo)
+   : UtlString(pCodecInfo->mimeSubtype)
+   , mpCodecCall(pCodecCall)
+   , mpCodecInfo(pCodecInfo)
    {
       // Store all MIME-subtypes in lower case to allow case insensitive
       // compare.
@@ -55,24 +52,18 @@ public:
    {
       if (!mpCodecCall->isStatic())
          delete mpCodecCall;
+      // Do not delete mpCodecInfo - we're just keeping pointer to it.
    }
 
-   const char* getMIMEtype() const
-   { return data(); }
-
-   MpCodecCallInfoV1* getCodecCall() const
+   const MpCodecCallInfoV1* getCodecCall() const
    { return mpCodecCall; }
 
-   const char** getDefaultFmtpArray() const
-   { return mpDefaultFmtpArray; }
-
-   unsigned int getDefaultFmtpArrayLength() const
-   { return mDefaultFmtpArrayLength; }
+   const MppCodecInfoV1_1 *getCodecInfo() const
+   { return mpCodecInfo; }
 
 protected:
-   MpCodecCallInfoV1* mpCodecCall;
-   const char**       mpDefaultFmtpArray;
-   unsigned int       mDefaultFmtpArrayLength;
+   const MpCodecCallInfoV1 *mpCodecCall;
+   const MppCodecInfoV1_1    *mpCodecInfo;
 };
 
 // STATIC VARIABLE INITIALIZATIONS
@@ -130,14 +121,19 @@ MpCodecFactory::~MpCodecFactory()
 
 OsStatus MpCodecFactory::createDecoder(const UtlString &mime,
                                        const UtlString &fmtp,
+                                       int sampleRate,
+                                       int numChannels,
                                        int payloadType,
                                        MpDecoderBase*& rpDecoder)
 {
-   MpCodecSubInfo* codec = searchByMIME(mime);
+   MpCodecSubInfo* codec = searchByMIME(mime, sampleRate, numChannels);
  
    if (codec)
    {      
-      rpDecoder = new MpPlgDecoderWrapper(payloadType, *codec->getCodecCall(), fmtp);
+      rpDecoder = new MpPlgDecoderWrapper(payloadType,
+                                          *codec->getCodecCall(),
+                                          *codec->getCodecInfo(),
+                                          fmtp);
    }
    else
    {
@@ -161,14 +157,19 @@ OsStatus MpCodecFactory::createDecoder(const UtlString &mime,
 
 OsStatus MpCodecFactory::createEncoder(const UtlString &mime,
                                        const UtlString &fmtp,
+                                       int sampleRate,
+                                       int numChannels,
                                        int payloadType,
                                        MpEncoderBase*& rpEncoder)
 {
-   MpCodecSubInfo* codec = searchByMIME(mime);
+   MpCodecSubInfo* codec = searchByMIME(mime, sampleRate, numChannels);
 
    if (codec)
    {      
-      rpEncoder = new MpPlgEncoderWrapper(payloadType, *codec->getCodecCall(), fmtp);
+      rpEncoder = new MpPlgEncoderWrapper(payloadType,
+                                          *codec->getCodecCall(),
+                                          *codec->getCodecInfo(),
+                                          fmtp);
    }
    else
    {
@@ -309,7 +310,8 @@ OsStatus MpCodecFactory::loadDynCodec(const char* name)
       r = getCodecsV1(i, &codecName);
       if ((r != RPLG_SUCCESS) || (codecName == NULL)) 
       {
-         if (count == 0) {
+         if (count == 0)
+         {
             pShrMgr->unloadSharedLib(name);
             return OS_FAILED;
          }
@@ -321,31 +323,31 @@ OsStatus MpCodecFactory::loadDynCodec(const char* name)
       UtlBoolean stSignaling;
 
       UtlString strCodecName = codecName;
-      UtlString dlNameInit = strCodecName + MSK_INIT_V1;
+      UtlString dlNameInit = strCodecName + MSK_INIT_V1_1;
+      UtlString dlNameGetInfo = strCodecName + MSK_GET_INFO_V1_1;
       UtlString dlNameDecode = strCodecName + MSK_DECODE_V1;
       UtlString dlNameEncdoe = strCodecName + MSK_ENCODE_V1;
       UtlString dlNameFree = strCodecName + MSK_FREE_V1;
-      UtlString dlNameEnum = strCodecName + MSK_ENUM_V1;
       UtlString dlNameSignaling = strCodecName + MSK_SIGNALING_V1;
       
-      dlPlgInitV1 plgInitAddr;
+      dlPlgInitV1_1 plgInitAddr;
+      dlPlgGetInfoV1_1 plgGetInfoAddr;
       dlPlgDecodeV1 plgDecodeAddr;
       dlPlgEncodeV1 plgEncodeAddr;
       dlPlgFreeV1 plgFreeAddr;
-      dlPlgEnumSDPAndModesV1 plgEnum;
       dlPlgGetSignalingDataV1 plgSignaling;
 
       st = TRUE 
          && (pShrMgr->getSharedLibSymbol(name, dlNameInit, address) == OS_SUCCESS)
-         && ((plgInitAddr = (dlPlgInitV1)address) != NULL)
+         && ((plgInitAddr = (dlPlgInitV1_1)address) != NULL)
+         && (pShrMgr->getSharedLibSymbol(name, dlNameGetInfo, address) == OS_SUCCESS)
+         && ((plgGetInfoAddr = (dlPlgGetInfoV1_1)address) != NULL)
          && (pShrMgr->getSharedLibSymbol(name, dlNameDecode, address) == OS_SUCCESS)
          && ((plgDecodeAddr = (dlPlgDecodeV1)address) != NULL)
          && (pShrMgr->getSharedLibSymbol(name, dlNameEncdoe, address) == OS_SUCCESS)
          && ((plgEncodeAddr = (dlPlgEncodeV1)address) != NULL)
          && (pShrMgr->getSharedLibSymbol(name, dlNameFree, address) == OS_SUCCESS)
-         && ((plgFreeAddr = (dlPlgFreeV1)address) != NULL)
-         && (pShrMgr->getSharedLibSymbol(name, dlNameEnum, address) == OS_SUCCESS)
-         && ((plgEnum = (dlPlgEnumSDPAndModesV1)address) != NULL);
+         && ((plgFreeAddr = (dlPlgFreeV1)address) != NULL);
 
       stSignaling = st 
          && (pShrMgr->getSharedLibSymbol(name, dlNameSignaling, address) == OS_SUCCESS)  
@@ -354,33 +356,25 @@ OsStatus MpCodecFactory::loadDynCodec(const char* name)
       if (!stSignaling)
             plgSignaling = NULL;
 
-      if(!st)
+      if (st)
       {
-         // If any of the basic (non-signaling) symbols are not present,
-         // then we shouldn't continue on, as some of those functions are
-         // called here (specifically initially plgEnum)
-         continue;
-      }
+         // Add codec to list if all basic (non-signaling) symbols are present.
 
-      // Test if the codec could enumerate SDP
-      unsigned enumCount;
-      const char *mime;
-      const char **tmp;
-      UtlBoolean bPlgCouldEnum = (plgEnum(&mime, &enumCount, &tmp) == RPLG_SUCCESS);
+         MpCodecCallInfoV1* pCallInfo = new MpCodecCallInfoV1(name, codecName, 
+                                                              plgInitAddr,
+                                                              plgGetInfoAddr,
+                                                              plgDecodeAddr,
+                                                              plgEncodeAddr,
+                                                              plgFreeAddr,
+                                                              plgSignaling,
+                                                              FALSE);
 
-      if (st &&  bPlgCouldEnum)
-      {
-         //Add codec to list
-         MpCodecCallInfoV1* pci = new MpCodecCallInfoV1(name, codecName, 
-            plgInitAddr, plgDecodeAddr, plgEncodeAddr, 
-            plgFreeAddr, plgEnum, plgSignaling, FALSE);
-
-         if (!pci)
+         if (!pCallInfo)
             continue;         
 
-         if (addCodecWrapperV1(pci) != OS_SUCCESS)
+         if (addCodecWrapperV1(pCallInfo) != OS_SUCCESS)
          {
-            delete pci;
+            delete pCallInfo;
             continue;
          }
 
@@ -399,19 +393,16 @@ OsStatus MpCodecFactory::loadDynCodec(const char* name)
 OsStatus MpCodecFactory::addCodecWrapperV1(MpCodecCallInfoV1* wrapper)
 {
    MpCodecSubInfo* mpsi;
-   const char* mimeSubtype;
-   const char** defaultFtmps;
-   unsigned int defaultFtmpsNum;
 
-   // Get codec's MIME-subtype and recommended modes.
-   int res = wrapper->mPlgEnum(&mimeSubtype, &defaultFtmpsNum, &defaultFtmps);
-   if (res != RPLG_SUCCESS)
+   const MppCodecInfoV1_1 *pCodecInfo;
+   if (wrapper->mPlgGetInfo(&pCodecInfo) != RPLG_SUCCESS)
    {
       return OS_FAILED;
    }
 
-   mpsi = new MpCodecSubInfo(wrapper, mimeSubtype, defaultFtmps, defaultFtmpsNum);
-   if (mpsi == NULL) {
+   mpsi = new MpCodecSubInfo(wrapper, pCodecInfo);
+   if (mpsi == NULL)
+   {
       return OS_NO_MEMORY;
    }
 
@@ -422,17 +413,17 @@ OsStatus MpCodecFactory::addCodecWrapperV1(MpCodecCallInfoV1* wrapper)
    return OS_SUCCESS;
 }
 
-void MpCodecFactory::initializeStaticCodecs() //Should be called from mpStartup()
+void MpCodecFactory::initializeStaticCodecs()
 {
-   MpCodecCallInfoV1* tmp;
-   for (tmp = sStaticCodecsV1; tmp; tmp = tmp->getNext())
+   MpCodecCallInfoV1* codecCallInfo;
+   for (codecCallInfo = sStaticCodecsV1; codecCallInfo; codecCallInfo = codecCallInfo->getNext())
    {
-      int i = (int)addCodecWrapperV1(tmp);
+      int i = (int)addCodecWrapperV1(codecCallInfo);
    }
 }
 
 /* ============================== ACCESSORS =============================== */
-
+/*
 void MpCodecFactory::getMimeTypes(unsigned& count, const UtlString*& mimeTypes) const
 {
    if (!mIsMimeTypesCacheValid)
@@ -443,69 +434,51 @@ void MpCodecFactory::getMimeTypes(unsigned& count, const UtlString*& mimeTypes) 
    count = mCachedMimeTypesNum;
    mimeTypes = mpMimeTypesCache;
 }
-
-OsStatus MpCodecFactory::getCodecFmtps(const UtlString &mime,
-                                       unsigned& fmtpCount,
-                                       const char**& fmtps) const
-{
-   MpCodecSubInfo* pInfo = searchByMIME(mime);
-
-   if (!pInfo)
-   {
-      return OS_NOT_FOUND;
-   }
-
-   fmtpCount = pInfo->getDefaultFmtpArrayLength();
-   fmtps = pInfo->getDefaultFmtpArray();
-
-   return OS_SUCCESS;
-}
-
+*/
 void MpCodecFactory::addCodecsToList(SdpCodecList &codecList) const
 {
-   const UtlString *mimeTypes;
-   unsigned mimeTypesCount;
-   getMimeTypes(mimeTypesCount, mimeTypes);
+   UtlHashBagIterator iter(mCodecsInfo);
 
-   for (unsigned codecIdx=0; codecIdx<mimeTypesCount; codecIdx++)
+   MpCodecSubInfo* pCodec;
+   while (pCodec = (MpCodecSubInfo*)iter())
    {
-      unsigned fmtpCount;
-      const char **fmtps;
-      OsStatus res = getCodecFmtps(mimeTypes[codecIdx],
-                                   fmtpCount, fmtps);
-      if (res == OS_SUCCESS)
+      const MppCodecInfoV1_1 *pCodecInfo = pCodec->getCodecInfo();
+      if (pCodecInfo->fmtpsNum == 0)
       {
          SdpCodec::SdpCodecTypes codecType;
+         OsStatus res = SdpDefaultCodecFactory::getCodecType(pCodecInfo->mimeSubtype,
+                                                             pCodecInfo->sampleRate,
+                                                             pCodecInfo->numChannels,
+                                                             "",
+                                                             codecType);
+         printf("Codec added to list: [%3d]:%s/%d/%d fmtp=\"%s\"\n",
+                  res==OS_SUCCESS?codecType:-1,
+                  pCodecInfo->mimeSubtype, pCodecInfo->sampleRate, pCodecInfo->numChannels,
+                  "");
 
-         if (fmtpCount == 0)
+         if (res == OS_SUCCESS)
          {
-            res = SdpDefaultCodecFactory::getCodecType(mimeTypes[codecIdx],
-                                                       "",
-                                                       codecType);
-            osPrintf("Codec added to list: [%3d]:%s fmtp=\"%s\"\n",
+            codecList.addCodec(SdpDefaultCodecFactory::getCodec(codecType));
+         }
+      }
+      else
+      {
+         for (unsigned fmtpIdx=0; fmtpIdx<pCodecInfo->fmtpsNum; fmtpIdx++)
+         {
+            SdpCodec::SdpCodecTypes codecType;
+            OsStatus res = SdpDefaultCodecFactory::getCodecType(pCodecInfo->mimeSubtype,
+                                                                pCodecInfo->sampleRate,
+                                                                pCodecInfo->numChannels,
+                                                                pCodecInfo->fmtps[fmtpIdx],
+                                                                codecType);
+            printf("Codec added to list: [%3d]:%s/%d/%d fmtp=\"%s\"\n",
                      res==OS_SUCCESS?codecType:-1,
-                     mimeTypes[codecIdx].data(), "");
+                     pCodecInfo->mimeSubtype, pCodecInfo->sampleRate, pCodecInfo->numChannels,
+                     pCodecInfo->fmtps[fmtpIdx]);
 
             if (res == OS_SUCCESS)
             {
                codecList.addCodec(SdpDefaultCodecFactory::getCodec(codecType));
-            }
-         }
-         else
-         {
-            for (unsigned fmtpIdx=0; fmtpIdx<fmtpCount; fmtpIdx++)
-            {
-               res = SdpDefaultCodecFactory::getCodecType(mimeTypes[codecIdx],
-                                                          fmtps[fmtpIdx],
-                                                          codecType);
-               osPrintf("Codec added to list: [%3d]:%s fmtp=\"%s\"\n",
-                        res==OS_SUCCESS?codecType:-1,
-                        mimeTypes[codecIdx].data(), fmtps[fmtpIdx]);
-
-               if (res == OS_SUCCESS)
-               {
-                  codecList.addCodec(SdpDefaultCodecFactory::getCodec(codecType));
-               }
             }
          }
       }
@@ -518,25 +491,36 @@ void MpCodecFactory::addCodecsToList(SdpCodecList &codecList) const
 /* ////////////////////////////// PROTECTED /////////////////////////////// */
 
 
-MpCodecSubInfo* MpCodecFactory::searchByMIME(const UtlString& mime) const
+MpCodecSubInfo* MpCodecFactory::searchByMIME(const UtlString& mime,
+                                             int sampleRate,
+                                             int numChannels) const
 {
-/*   UtlHashBagIterator iter(mCodecsInfo);
-   MpCodecSubInfo* pInfo;
+   // Create a lower case copy of MIME-subtype string.
+   UtlString mime_copy(mime);
+   mime_copy.toLower();
 
-   while ((pInfo = (MpCodecSubInfo*)iter()))
+   // Create iterator to list all codecs with given MIME subtype.
+   UtlHashBagIterator iter(mCodecsInfo, &mime_copy);
+
+   MpCodecSubInfo* pInfo;
+   while (pInfo = (MpCodecSubInfo*)iter())
    { 
-      if (mime.compareTo(pInfo->getMIMEtype(), UtlString::ignoreCase) == 0)
+      if (pInfo->getCodecInfo()->sampleRate == sampleRate &&
+          pInfo->getCodecInfo()->numChannels == numChannels)
       {
          return pInfo;
       }
    }
-*/
+
+   return NULL;
+/*
    // Create a lower case copy of MIME-subtype string.
    UtlString mime_copy(mime);
    mime_copy.toLower();
 
    // Perform search
    return (MpCodecSubInfo*)mCodecsInfo.find(&mime_copy);
+*/
 }
 
 void MpCodecFactory::updateMimeTypesCache() const
@@ -553,7 +537,7 @@ void MpCodecFactory::updateMimeTypesCache() const
    for (unsigned i=0; i<mCachedMimeTypesNum; i++)
    {
       MpCodecSubInfo* pInfo = (MpCodecSubInfo*)iter();
-      mpMimeTypesCache[i] = pInfo->getMIMEtype();
+      mpMimeTypesCache[i] = pInfo->getCodecInfo()->mimeSubtype;
    }
 
    // Cache successfully updated.
