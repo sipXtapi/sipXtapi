@@ -62,7 +62,7 @@ public:
      */
 
      /// Destructor
-   ~MpResamplerBase();
+   virtual ~MpResamplerBase();
 
 //@}
 
@@ -71,28 +71,28 @@ public:
 //@{
 
      /// Reset resampler state to prepare for processing new (unrelated) stream.
-   OsStatus resetStream();
+   virtual OsStatus resetStream();
 
      /// Resample audio data coming from the specified channel.
-   OsStatus resample(uint32_t channelIndex,
-                     const MpAudioSample* pInBuf,
-                     uint32_t inBufLength,
-                     uint32_t& inSamplesProcessed,
-                     MpAudioSample* pOutBuf,
-                     uint32_t outBufLength,
-                     uint32_t& outSamplesWritten);
+   virtual OsStatus resample(uint32_t channelIndex,
+                             const MpAudioSample* pInBuf,
+                             uint32_t inBufLength,
+                             uint32_t& inSamplesProcessed,
+                             MpAudioSample* pOutBuf,
+                             uint32_t outBufLength,
+                             uint32_t& outSamplesWritten);
      /**<
      *  @param[in] channelIndex - The index of the channel to process - base 0.
      *  @copydoc MpResamplerBase::resampleInterleavedStereo()
      */
 
      /// Resample interleaved stereo audio data.
-   OsStatus resampleInterleavedStereo(const MpAudioSample* pInBuf,
-                                      uint32_t inBufLength,
-                                      uint32_t& inSamplesProcessed,
-                                      MpAudioSample* pOutBuf,
-                                      uint32_t outBufLength,
-                                      uint32_t& outSamplesWritten);
+   virtual OsStatus resampleInterleavedStereo(const MpAudioSample* pInBuf,
+                                              uint32_t inBufLength,
+                                              uint32_t& inSamplesProcessed,
+                                              MpAudioSample* pOutBuf,
+                                              uint32_t outBufLength,
+                                              uint32_t& outSamplesWritten);
      /**<
      *  @param[in] pInBuf - Pointer to the audio to resample.
      *  @param[in] inBufLength - The length in samples of the audio to resample.
@@ -107,20 +107,20 @@ public:
      *  @retval OS_SUCCESS if the audio was resampled successfully.
      */
 
-     // Set the input sample rate, in Hz
-   OsStatus setInputRate(const uint32_t inputRate);
+     /// Set the input sample rate, in Hz
+   virtual OsStatus setInputRate(const uint32_t inputRate);
      /**<
      *  @param[in] inputRate - The sample rate of the input audio.
      */
 
-     // Set the output sample rate, in Hz
-   OsStatus setOutputRate(const uint32_t outputRate);
+     /// Set the output sample rate, in Hz
+   virtual OsStatus setOutputRate(const uint32_t outputRate);
      /**<
      *  @param[in] outputRate - The sample rate of the output audio.
      */
 
-     // Set the quality of resampling conversion
-   OsStatus setQuality(const int32_t quality);
+     /// Set the quality of resampling conversion
+   virtual OsStatus setQuality(const int32_t quality);
      /**<
      *  @param[in] quality - The quality parameter is used by some resamplers to
      *             control the tradeoff of quality for latency and complexity.

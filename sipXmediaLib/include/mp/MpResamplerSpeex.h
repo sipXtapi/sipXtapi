@@ -100,6 +100,24 @@ public:
      *  @retval OS_INVALID if the speex resampler encounters pointer overlap.
      */
 
+   OsStatus setInputRate(const uint32_t inputRate);
+     /**<
+     *  @copydoc MpResamplerBase::setInputRate()
+     *  @param[in] inputRate - The sample rate of the input audio.
+     */
+
+     // Set the output sample rate, in Hz
+   OsStatus setOutputRate(const uint32_t outputRate);
+     /**<
+     *  @copydoc MpResamplerBase::setOutputRate()
+     */
+
+     // Set the quality of resampling conversion
+   OsStatus setQuality(const int32_t quality);
+     /**<
+     *  @copydoc MpResamplerBase::setQuality()
+     */
+
 //@}
 
 /* ============================== ACCESSORS =============================== */

@@ -117,6 +117,36 @@ OsStatus MpResamplerSpeex::resampleInterleavedStereo(const MpAudioSample* pInBuf
    return speexErrToOsStatus(speexErr);
 }
 
+OsStatus MpResamplerSpeex::setInputRate(const uint32_t inputRate)
+{
+   OsStatus stat = MpResamplerBase::setInputRate(inputRate);
+   if(stat == OS_SUCCESS)
+   {
+      stat = speexErrToOsStatus(speex_resampler_set_rate(mpState, mInputRate, mOutputRate));
+   }
+   return stat;
+}
+
+OsStatus MpResamplerSpeex::setOutputRate(const uint32_t outputRate)
+{
+   OsStatus stat = MpResamplerBase::setOutputRate(outputRate);
+   if(stat == OS_SUCCESS)
+   {
+      stat = speexErrToOsStatus(speex_resampler_set_rate(mpState, mInputRate, mOutputRate));
+   }
+   return stat;
+}
+
+OsStatus MpResamplerSpeex::setQuality(const int32_t quality)
+{
+   OsStatus stat = MpResamplerBase::setQuality(quality);
+   if(stat == OS_SUCCESS)
+   {
+      stat = speexErrToOsStatus(speex_resampler_set_quality(mpState, mQuality));
+   }
+   return stat;
+}
+
 /* ============================== ACCESSORS =============================== */
 
 /* =============================== INQUIRY ================================ */
