@@ -17,6 +17,7 @@
 // APPLICATION INCLUDES
 #include <mp/MpTypes.h>
 #include <os/OsStatus.h>
+#include <mp/MpMisc.h>
 
 // DEFINES
 // MACROS
@@ -105,6 +106,26 @@ public:
      *
      *  @retval OS_INVALID_ARGUMENT if the channelIndex is out of bounds.
      *  @retval OS_SUCCESS if the audio was resampled successfully.
+     */
+
+     /// @brief resample the buffer given, and return a new resampled one.
+   OsStatus resampleBufPtr(const MpAudioBufPtr& inBuf, MpAudioBufPtr& outBuf,
+                           uint32_t inRate, uint32_t outRate,
+                           UtlString optionalIdStr = "");
+     /**<
+     *  Resample the buffer given.  If errors happen, they are logged, outBuf
+     *  is left unchanged, and return status is set to a value that is not 
+     *  OS_SUCCESS.
+     *  
+     *  @param[in] inBuf - the ptr to buffer to resample.
+     *  @param[out] outBuf - the ptr to the destination that will hold 
+     *              the resampled buffer.
+     *  @param[in] inRate - The  sample rate that inBuf samples are recorded in.
+     *  @param[in] outRate - The sample rate that is requested to be converted to.
+     *  @param[in] optionalIdStr - an optional identifier string used when reporting errors.
+     *  @retval OS_SUCCESS if the resampling happened without error, outBuf now
+     *          will point to resampled buffer.
+     *  @retval All other values - failure.
      */
 
      /// Set the input sample rate, in Hz
