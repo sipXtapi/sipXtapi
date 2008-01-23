@@ -111,19 +111,19 @@ private:
                                                    // or 12 packets, 20 mS each
                                                    // or 4 packets 60 mS each.
 
+   int JbQCount;                    ///< Number of decoded samples in JbQ.
+   int JbQIn;                       ///< Write pointer position in JbQ.
+   int JbQOut;                      ///< Read pointer position in JbQ.
+   MpAudioSample JbQ[JbQueueSize];  ///< Buffer for decoded audio.
 
-     /// Copy constructor
+   MpDecoderBase* payloadMap[JbPayloadMapSize]; ///< Map of RTP payload types
+                                    ///< to decoders.
+
+   /// Copy constructor
    MpJitterBuffer(const MpJitterBuffer& rMpJitterBuffer);
 
-     /// Assignment operator
+   /// Assignment operator
    MpJitterBuffer& operator=(const MpJitterBuffer& rhs);
-
-   int JbQCount;
-   int JbQIn;
-   int JbQOut;
-   MpAudioSample JbQ[JbQueueSize];
-
-   MpDecoderBase* payloadMap[JbPayloadMapSize];
 };
 
 /* ============================ INLINE METHODS ============================ */
