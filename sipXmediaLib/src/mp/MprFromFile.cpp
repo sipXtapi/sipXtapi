@@ -16,7 +16,6 @@
 #include <assert.h>
 #include <os/fstream>
 #include <stdio.h>
-#include <math.h>
 
 #ifdef __pingtel_on_posix__
 #include <stdlib.h>
@@ -615,7 +614,7 @@ UtlBoolean MprFromFile::allocateAndResample(char*& audBuf,
    }
 
    // Malloc up a new chunk of memory for resampling to.
-   uint32_t outBufSize = audBufSz * (uint32_t)ceil(outRate/(float)inRate);
+   uint32_t outBufSize = audBufSz * outRate/inRate;
    MpAudioSample* pOutSamples = (MpAudioSample*)malloc(outBufSize);
    if(pOutSamples == NULL)
    {
