@@ -20,7 +20,6 @@
 #include <mp/MpFlowGraphBase.h>
 #include <mp/MprFromNet.h>
 #include <mp/MprDejitter.h>
-#include <mp/MpJitterBuffer.h>
 #include <mp/MprDecode.h>
 #include <mp/MpResourceMsg.h>
 #include <mp/MprRtpStartReceiveMsg.h>
