@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 SIPfoundry Inc.
+// Copyright (C) 2007-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
-// Copyright (C) 2007 SIPez LLC. 
+// Copyright (C) 2007-2008 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // $$
@@ -51,8 +51,9 @@ public:
 //@{
 
       /// Constructor.
-    CpTopologyGraphFactoryImpl(OsConfigDb* pConfigDb);
-     
+    CpTopologyGraphFactoryImpl(OsConfigDb* pConfigDb,
+                               uint32_t maxSamplesPerFrame, 
+                               uint32_t maxSamplesPerSec);
 
       /// Destructor.
     virtual

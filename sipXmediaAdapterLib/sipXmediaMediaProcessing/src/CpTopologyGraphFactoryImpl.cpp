@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 SIPfoundry Inc.
+// Copyright (C) 2007-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
-// Copyright (C) 2007 SIPez LLC. 
+// Copyright (C) 2007-2008 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // $$
@@ -96,21 +96,27 @@ extern void showWaveError(char *syscall, int e, int N, int line) ;  // dmaTaskWn
 extern CpMediaInterfaceFactory* spFactory;
 extern int siInstanceCount;
 
-extern "C" CpMediaInterfaceFactory* cpTopologyGraphFactoryFactory(OsConfigDb* pConfigDb)
+extern "C" CpMediaInterfaceFactory* cpTopologyGraphFactoryFactory(OsConfigDb* pConfigDb, 
+                                                                  uint32_t maxSamplesPerFrame, 
+                                                                  uint32_t maxSamplesPerSec)
 {
     if(spFactory == NULL)
     {
         spFactory = new CpMediaInterfaceFactory();
-        spFactory->setFactoryImplementation(new CpTopologyGraphFactoryImpl(pConfigDb));
+        spFactory->setFactoryImplementation(new CpTopologyGraphFactoryImpl(pConfigDb,
+                                                                           maxSamplesPerFrame, 
+                                                                           maxSamplesPerSec));
     }    
     siInstanceCount++;
     return spFactory;
 }
 
 #ifdef ENABLE_TOPOLOGY_FLOWGRAPH_INTERFACE_FACTORY
-extern "C" CpMediaInterfaceFactory* sipXmediaFactoryFactory(OsConfigDb* pConfigDb)
+extern "C" CpMediaInterfaceFactory* sipXmediaFactoryFactory(OsConfigDb* pConfigDb,
+                                                            uint32_t maxSamplesPerFrame, 
+                                                            uint32_t maxSamplesPerSec)
 {
-    return(cpTopologyGraphFactoryFactory(pConfigDb));
+    return(cpTopologyGraphFactoryFactory(pConfigDb, maxSamplesPerFrame, maxSamplesPerSec));
 }
 #endif
 
@@ -120,26 +126,27 @@ extern "C" CpMediaInterfaceFactory* sipXmediaFactoryFactory(OsConfigDb* pConfigD
 /* ============================ CREATORS ================================== */
 
 // Constructor
-CpTopologyGraphFactoryImpl::CpTopologyGraphFactoryImpl(OsConfigDb* pConfigDb)
-: sipXmediaFactoryImpl(pConfigDb)
+CpTopologyGraphFactoryImpl::CpTopologyGraphFactoryImpl(OsConfigDb* pConfigDb,
+                                                       uint32_t maxSamplesPerFrame, 
+                                                       uint32_t maxSamplesPerSec)
+: sipXmediaFactoryImpl(pConfigDb, maxSamplesPerFrame, maxSamplesPerSec)
 , mpInitialResourceTopology(NULL)
 , mpResourceFactory(NULL)
 , mpConnectionResourceTopology(NULL)
 , mpInputDeviceManager(NULL)
 , mpOutputDeviceManager(NULL)
-{    
+{
     assert(MpMisc.RawAudioPool);
     mpInputDeviceManager = 
-       new MpInputDeviceManager(80,   // samples per frame
-                                8000, // samples per second
+       new MpInputDeviceManager(mMaxSamplesPerFrame,   // samples per frame
+                                mMaxSamplesPerSec, // samples per second
                                 4,    // number of buffered frames
                                 *MpMisc.RawAudioPool);
 
     mpOutputDeviceManager =
-       new MpOutputDeviceManager(80,   // samples per frame
-                                 8000, // samples per second
+       new MpOutputDeviceManager(mMaxSamplesPerFrame,   // samples per frame
+                                 mMaxSamplesPerSec, // samples per second
                                  20);  // mixer buffer length (ms)
-
 
 
 

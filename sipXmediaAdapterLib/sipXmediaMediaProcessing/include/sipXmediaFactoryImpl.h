@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2005-2007 SIPez LLC.
+// Copyright (C) 2005-2008 SIPez LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.
 // 
-// Copyright (C) 2004-2007 SIPfoundry Inc.
+// Copyright (C) 2004-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -44,10 +44,29 @@ class sipXmediaFactoryImpl : public CpMediaInterfaceFactoryImpl
 
 /* ============================ CREATORS ================================== */
 
-   /**
-    * Default constructor
-    */
-   sipXmediaFactoryImpl(OsConfigDb* pConfigDb);
+     /// @brief Default constructor
+   sipXmediaFactoryImpl(OsConfigDb* pConfigDb, 
+                        uint32_t maxSamplesPerFrame, uint32_t maxSamplesPerSec);
+     /**<
+     *  @param pConfigDb - a configuration database to pass user-settable config
+     *         parameters to sipXmediaLib.  TODO: Someone that knows more, document this better!
+     *  @param maxSamplesPerFrame - This is used for initializing audio buffers.
+     *         Lower sample rates can indeed be used for individual media 
+     *         interfaces (set later), since a lesser amount of these buffers 
+     *         can be used (i.e. not fully utilized).  Higher sample rates can 
+     *         be used by passing params here, but this will result in more 
+     *         memory being used.  For low-memory environments that do not 
+     *         require wideband support, one may wish to pass 8000kHz here, as 
+     *         the default is 16000kHz.
+     *  @param maxSamplesPerSec - This parameter is used for determining the 
+     *         MAXIMUM number of samples per frame that the media subsystem.
+     *         It is used for initializing the size of audio buffers, and for 
+     *         configuring a default value for samples per frame in device 
+     *         managers (so that when devices are enabled without specifying 
+     *         samples per frame, the value configured here will be used).
+     *         The information contained in maxSamplesPerFrame documentation
+     *         also apply to this parameter.
+     */
      
 
    /**
@@ -121,7 +140,9 @@ class sipXmediaFactoryImpl : public CpMediaInterfaceFactoryImpl
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
   protected:
-    MpMediaTask*    mpMediaTask ;     /**< Media task instance */
+    MpMediaTask*    mpMediaTask ; /**< Media task instance */
+    uint32_t mMaxSamplesPerFrame; //< Maximum number of samples per frame that any flowgraph may have set (used for initializing buffers)
+    uint32_t mMaxSamplesPerSec;   //< Maximum sample rate that any flowgraph may have set (used for initializing buffers)
 #ifdef INCLUDE_RTCP /* [ */
     IRTCPControl*   mpiRTCPControl;   /**< Realtime Control Interface */
 #endif /* INCLUDE_RTCP ] */

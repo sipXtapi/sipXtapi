@@ -1,8 +1,8 @@
 //  
-// Copyright (C) 2007 SIPez LLC. 
+// Copyright (C) 2007-2008 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2007 SIPfoundry Inc.
+// Copyright (C) 2007-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // $$
@@ -14,8 +14,12 @@
 #include <assert.h>
 
 // APPLICATION INCLUDES
+#include <os/OsSysLog.h>
 #include <mp/MpOutputDeviceManager.h>
 #include <mp/MprToOutputDevice.h>
+#include <mp/MpFlowGraphBase.h>
+#include <mp/MpMisc.h>
+#include <mp/MpResampler.h>
 
 #ifdef RTL_ENABLED
 #include <rtl_macro.h>
@@ -54,6 +58,8 @@ MprToOutputDevice::MprToOutputDevice(const UtlString& rName,
 , mFrameTimeInitialized(FALSE)
 , mFrameTime(0)
 , mDeviceId(deviceId)
+, mResampler(1, 8000, 8000) // 8000 is just *some* initial value, it is expected
+                            // that the real value will be something different
 {
 }
 
@@ -82,6 +88,8 @@ UtlBoolean MprToOutputDevice::doProcessFrame(MpBufPtr inBufs[],
 {
    int frameTimeInterval;
    OsStatus status = OS_SUCCESS;
+   // Create a bufPtr that points to the data we want to push to the device.
+   MpAudioBufPtr inAudioBuffer = inBufs[0];
 
    if (!isEnabled)
    {
@@ -131,15 +139,59 @@ UtlBoolean MprToOutputDevice::doProcessFrame(MpBufPtr inBufs[],
       mFrameTime += frameTimeInterval;
    }
 
-   // Push buffer to output device even if buffer is NULL. WIth NULL buffer we
+   // Get the name of the device we're writing to.
+   UtlString devName = "Unknown device";
+   mpOutputDeviceManager->getDeviceName(mDeviceId, devName);
+
+   uint32_t devSampleRate = 0;
+   OsStatus stat = mpOutputDeviceManager->getDeviceSamplesPerSec(mDeviceId, devSampleRate);
+   assert(stat == OS_SUCCESS);
+   if(stat != OS_SUCCESS)
+   {
+      OsSysLog::add(FAC_MP, PRI_ERR, "MprToOutputDevice::doProcessFrame "
+         "- Couldn't get device sample rate from output device manager!  "
+         "Device - \"%s\"", devName);
+      return FALSE;
+   }
+
+   // Check to see if the resampler needs it's rate adjusted.
+   if(mResampler.getInputRate() != samplesPerSecond)
+      mResampler.setInputRate(samplesPerSecond);
+   if(mResampler.getOutputRate() != devSampleRate)
+      mResampler.setOutputRate(devSampleRate);
+
+   {
+      MpAudioBufPtr resampledBuffer;
+      // Try to resample and replace.
+      // If the function determines resampling is unnecessary, then it will just
+      // leave the buffer pointer unchanged, and return OS_SUCCESS, which is what
+      // we want.
+      if(mResampler.resampleBufPtr(inAudioBuffer, resampledBuffer, 
+            samplesPerSecond, devSampleRate, devName) != OS_SUCCESS)
+      {
+         // Error messages have already been logged. No need to do so here.
+         return FALSE;
+      }
+
+      // If the resampled buffer is valid, then use it.
+      if(resampledBuffer.isValid())
+      {
+         // To optimize for speed a bit, we use MpBufPtr's swap() method 
+         // instead of assignment -- make sure we don't use resampledBuffer
+         // after this!
+         inAudioBuffer.swap(resampledBuffer);
+      }
+   }
+
+   // Push buffer to output device even if buffer is NULL. With NULL buffer we
    // notify output device that we will not push more frames this time interval.
-   status = mpOutputDeviceManager->pushFrame(mDeviceId, mFrameTime, inBufs[0]);
+   status = mpOutputDeviceManager->pushFrame(mDeviceId, mFrameTime, inAudioBuffer);
 
    debugPrintf("MprToOutputDevice::doProcessFrame(): frameToPush=%d, pushResult=%d %s\n",
-               mFrameTime, status, inBufs[0].isValid()?"":"[NULL BUFFER]");
+               mFrameTime, status, inAudioBuffer.isValid()?"":"[NULL BUFFER]");
 
    // Do processing only if data is really present.
-   if (inBufs[0].isValid())
+   if (inAudioBuffer.isValid())
    {
       // If push frame fail and we're in mixer mode, advance our current frame
       // time to fit into mixer buffer.
@@ -155,7 +207,7 @@ UtlBoolean MprToOutputDevice::doProcessFrame(MpBufPtr inBufs[],
          {
             RTL_EVENT("MprToOutputDevice::overflow",1);
             mFrameTime -= frameTimeInterval;
-            status = mpOutputDeviceManager->pushFrame(mDeviceId, mFrameTime, inBufs[0]);
+            status = mpOutputDeviceManager->pushFrame(mDeviceId, mFrameTime, inAudioBuffer);
             debugPrintf("MprToOutputDevice::doProcessFrame(): frameToPush=%d, pushResult=%d ---\n",
                         mFrameTime, status);
          }
@@ -163,7 +215,7 @@ UtlBoolean MprToOutputDevice::doProcessFrame(MpBufPtr inBufs[],
          {
             RTL_EVENT("MprToOutputDevice::overflow",-1);
             mFrameTime += frameTimeInterval;
-            status = mpOutputDeviceManager->pushFrame(mDeviceId, mFrameTime, inBufs[0]);
+            status = mpOutputDeviceManager->pushFrame(mDeviceId, mFrameTime, inAudioBuffer);
             debugPrintf("MprToOutputDevice::doProcessFrame(): frameToPush=%d, pushResult=%d +++\n",
                         mFrameTime, status);
          }

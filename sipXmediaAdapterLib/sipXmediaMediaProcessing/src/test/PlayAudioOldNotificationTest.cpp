@@ -1,14 +1,14 @@
 // 
-// Copyright (C) 2005-2007 SIPez LLC
+// Copyright (C) 2005-2008 SIPez LLC
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
-// Copyright (C) 2005-2007 SIPfoundry Inc.
+// Copyright (C) 2005-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 // 
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
-// Author: Dan Petrie (dpetrie AT SIPez DOT com)
+// Author: Keith Kyzivat (kkyzivat AT SIPez DOT com)
 
 #include <cppunit/extensions/HelperMacros.h>
 #include <cppunit/TestCase.h>
@@ -82,7 +82,8 @@ class PlayAudioOldNotificationTest : public CppUnit::TestCase
     {
         enableConsoleOutput(0);
 
-        mpMediaFactory = sipXmediaFactoryFactory(NULL);
+        // Initialize the factory factory with a maximum rate of 48kHz/480 samples per frame
+        mpMediaFactory = sipXmediaFactoryFactory(NULL, 480, 48000);
     } 
 
     virtual void tearDown()

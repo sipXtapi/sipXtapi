@@ -1,8 +1,8 @@
 // 
-// Copyright (C) 2005-2007 SIPez LLC
+// Copyright (C) 2005-2008 SIPez LLC
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
-// Copyright (C) 2005-2007 SIPfoundry Inc.
+// Copyright (C) 2005-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 // 
 // $$
@@ -122,7 +122,8 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, 
                              CpMediaInterfaceFactory::addCodecPaths(codecPathsNum, codecPaths));
 
-        mpMediaFactory = sipXmediaFactoryFactory(NULL);
+        // Initialize the factory factory with a maximum rate of 48kHz/480 samples per frame
+        mpMediaFactory = sipXmediaFactoryFactory(NULL, 480, 48000);
     } 
 
     virtual void tearDown()

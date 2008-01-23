@@ -1,8 +1,8 @@
 //  
-// Copyright (C) 2007 SIPez LLC. 
+// Copyright (C) 2007-2008 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2007 SIPfoundry Inc.
+// Copyright (C) 2007-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // $$
@@ -289,6 +289,32 @@ public:
      *  @NOTE This number will wrap roughly every 49.7 days.
      *
      *  Multi-thread safe.
+     */
+
+
+     /// @brief Get the sample rate that a particular device is running at.
+   OsStatus getDeviceSamplesPerSec(MpInputDeviceHandle deviceId, 
+                                   uint32_t& samplesPerSec) const;
+     /**<
+     *  @param[in]  deviceId - The ID of the device to query.
+     *  @param[out] samplesPerSec - Filled with the indicated device's 
+     *              sample rate if OS_SUCCESS is returned.
+     *  @retval OS_NOT_FOUND if device was not able to be found.
+     *  @retval OS_SUCCESS if device was able to be found and sample rate was 
+     *          looked up.
+     */
+
+
+     /// @brief Get the number of samples per frame that a particular device is running at.
+   OsStatus getDeviceSamplesPerFrame(MpInputDeviceHandle deviceId,
+                                     uint32_t& samplesPerFrame) const;
+     /**<
+     *  @param[in]  deviceId - The ID of the device to query.
+     *  @param[out] samplesPerFrame - Filled with the indicated device's 
+     *              number of samples per frame if OS_SUCCESS is returned.
+     *  @retval OS_NOT_FOUND if device was not able to be found.
+     *  @retval OS_SUCCESS if device was able to be found and number of 
+     *          samples per frame was looked up.
      */
 
 

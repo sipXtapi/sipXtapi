@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2005-2007 SIPez LLC.
+// Copyright (C) 2005-2008 SIPez LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.
 // 
-// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Copyright (C) 2004-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -52,14 +52,18 @@ CpMediaInterfaceFactory* spFactory = NULL;
 int siInstanceCount=0;
 
 #ifndef DISABLE_DEFAULT_PHONE_MEDIA_INTERFACE_FACTORY
-extern "C" CpMediaInterfaceFactory* cpDefaultMediaFactoryFactory(OsConfigDb* pConfigDb)
+extern "C" CpMediaInterfaceFactory* cpDefaultMediaFactoryFactory(OsConfigDb* pConfigDb,
+                                                                 uint32_t maxSamplesPerFrame, 
+                                                                 uint32_t maxSamplesPerSec)
 {
    // TODO: Add locking
 
    if (spFactory == NULL)
    {
       spFactory = new CpMediaInterfaceFactory();
-      spFactory->setFactoryImplementation(new sipXmediaFactoryImpl(pConfigDb));
+      spFactory->setFactoryImplementation(new sipXmediaFactoryImpl(pConfigDb,
+                                                                   maxSamplesPerFrame, 
+                                                                   maxSamplesPerSec));
    }    
    siInstanceCount++;
 
@@ -68,9 +72,11 @@ extern "C" CpMediaInterfaceFactory* cpDefaultMediaFactoryFactory(OsConfigDb* pCo
    return spFactory;
 }
 
-extern "C" CpMediaInterfaceFactory* sipXmediaFactoryFactory(OsConfigDb* pConfigDb)
+extern "C" CpMediaInterfaceFactory* sipXmediaFactoryFactory(OsConfigDb* pConfigDb,
+                                                            uint32_t maxSamplesPerFrame, 
+                                                            uint32_t maxSamplesPerSec)
 {
-   return(cpDefaultMediaFactoryFactory(pConfigDb));
+   return(cpDefaultMediaFactoryFactory(pConfigDb, maxSamplesPerFrame, maxSamplesPerSec));
 }
 #endif
 
@@ -98,11 +104,17 @@ extern "C" void sipxDestroyMediaFactoryFactory()
 /* ============================ CREATORS ================================== */
 
 // Constructor
-sipXmediaFactoryImpl::sipXmediaFactoryImpl(OsConfigDb* pConfigDb)
-{    
+sipXmediaFactoryImpl::sipXmediaFactoryImpl(OsConfigDb* pConfigDb, 
+                                           uint32_t maxSamplesPerFrame, 
+                                           uint32_t maxSamplesPerSec)
+{
+   // See doxyegen comments for this constructor for information on the impact 
+   // of the values of maxSamplesPerFrame and maxSamplesPerSec.
+   mMaxSamplesPerFrame = (maxSamplesPerFrame == 0) ? 16000 : maxSamplesPerFrame;
+   mMaxSamplesPerSec = (maxSamplesPerSec == 0) ? 160 : maxSamplesPerSec;
+
    int maxFlowGraph = -1; 
    UtlString strInBandDTMF;
-
    if (pConfigDb)
    {
       pConfigDb->get("PHONESET_MAX_ACTIVE_CALLS_ALLOWED", maxFlowGraph);
@@ -124,7 +136,7 @@ sipXmediaFactoryImpl::sipXmediaFactoryImpl(OsConfigDb* pConfigDb)
    // Start audio subsystem if still not started.
    if (miInstanceCount == 0)
    {
-      mpStartUp(8000, 80, 16*maxFlowGraph, pConfigDb, 
+      mpStartUp(mMaxSamplesPerSec, mMaxSamplesPerFrame, 16*maxFlowGraph, pConfigDb, 
                 mnCodecPaths, mpCodecPaths);
    }
 

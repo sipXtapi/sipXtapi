@@ -1,8 +1,8 @@
 //  
-// Copyright (C) 2007 SIPez LLC. 
+// Copyright (C) 2007-2008 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2007 SIPfoundry Inc.
+// Copyright (C) 2007-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // $$
@@ -17,6 +17,7 @@
 
 // APPLICATION INCLUDES
 #include <mp/MpAudioResource.h>
+#include <mp/MpResampler.h>
 
 // DEFINES
 // MACROS
@@ -96,6 +97,7 @@ private:
    UtlBoolean mFrameTimeInitialized;
    MpFrameTime mFrameTime;
    MpOutputDeviceHandle mDeviceId;
+   MpResampler mResampler;
 
      /// Copy constructor (not implemented for this class)
    MprToOutputDevice(const MprToOutputDevice& rMprToOutputDevice);

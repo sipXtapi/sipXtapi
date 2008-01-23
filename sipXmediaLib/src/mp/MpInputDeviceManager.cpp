@@ -1,8 +1,8 @@
 //  
-// Copyright (C) 2007 SIPez LLC. 
+// Copyright (C) 2007-2008 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2007 SIPfoundry Inc.
+// Copyright (C) 2007-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // $$
@@ -764,6 +764,43 @@ MpFrameTime MpInputDeviceManager::getCurrentFrameTime(MpInputDeviceHandle device
    }
 
    return curFrameTime;
+}
+
+OsStatus MpInputDeviceManager::getDeviceSamplesPerSec(MpInputDeviceHandle deviceId,
+                                                      uint32_t& samplesPerSec) const
+{
+   OsStatus ret = OS_NOT_FOUND;
+   UtlInt deviceKey(deviceId);
+   MpAudioInputConnection* connectionFound = 
+      (MpAudioInputConnection*) mConnectionsByDeviceId.find(&deviceKey);
+   MpInputDeviceDriver* pDevDriver = 
+      (connectionFound) ? connectionFound->getDeviceDriver() : NULL;
+
+   if(pDevDriver)
+   {
+      samplesPerSec = pDevDriver->getSamplesPerSec();
+      ret = OS_SUCCESS;
+   }
+   return ret;
+}
+
+
+OsStatus MpInputDeviceManager::getDeviceSamplesPerFrame(MpInputDeviceHandle deviceId,
+                                                        uint32_t& samplesPerFrame) const
+{
+   OsStatus ret = OS_NOT_FOUND;
+   UtlInt deviceKey(deviceId);
+   MpAudioInputConnection* connectionFound = 
+      (MpAudioInputConnection*) mConnectionsByDeviceId.find(&deviceKey);
+   MpInputDeviceDriver* pDevDriver = 
+      (connectionFound) ? connectionFound->getDeviceDriver() : NULL;
+
+   if(pDevDriver)
+   {
+      samplesPerFrame = pDevDriver->getSamplesPerFrame();
+      ret = OS_SUCCESS;
+   }
+   return ret;
 }
 
 OsStatus MpInputDeviceManager::getTimeDerivatives(MpInputDeviceHandle deviceId,
