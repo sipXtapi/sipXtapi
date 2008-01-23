@@ -614,7 +614,8 @@ UtlBoolean MprFromFile::allocateAndResample(char*& audBuf,
    }
 
    // Malloc up a new chunk of memory for resampling to.
-   uint32_t outBufSize = audBufSz * outRate/inRate;
+   uint32_t outBufSize = 
+      (uint32_t)(((uint64_t)audBufSz * (uint64_t)outRate) / (uint64_t)inRate);
    MpAudioSample* pOutSamples = (MpAudioSample*)malloc(outBufSize);
    if(pOutSamples == NULL)
    {
