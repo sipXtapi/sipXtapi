@@ -49,7 +49,7 @@ UtlBoolean MpPlgDecoderWrapper::initializeWrapper(const char* fmt)
       mInitialized = TRUE;
 
       // Fill in fmtp part of codec information
-      mCodecInfo = MpCodecInfo((MppCodecInfoV1_1)mCodecInfo, fmtpInfo);
+      mCodecInfo = MpCodecInfo((MppCodecInfoV1_1&)mCodecInfo, fmtpInfo);
    }
    else
    {
