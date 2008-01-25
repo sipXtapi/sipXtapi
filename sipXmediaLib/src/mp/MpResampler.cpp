@@ -90,7 +90,7 @@ OsStatus MpResamplerBase::resample(uint32_t channelIndex,
       // Input samples just need to be copied to output samples - 
       // no resampling needed, but this really isn't necessary -- user shouldn't
       // have even called this.
-      ret = OS_NOT_YET_IMPLEMENTED;
+      ret = OS_INVALID_ARGUMENT;
    }
    else
    {
