@@ -57,7 +57,7 @@ struct speex_codec_data_encoder
    int mDoVad;                ///< Set to 1 to enable voice activity detection
    int mDoDtx;                ///< Set to 1 to enable discontinuous transmission
    int mDoVbr;                ///< Set to 1 to enable variable bitrate mode
-   spx_int16_t mpBuffer[320]; ///< Buffer used to store input samples
+   spx_int16_t mpBuffer[640]; ///< Buffer used to store input samples
    int mBufferLoad;           ///< How much data there is in the buffer
    int mDoPreprocess;         ///< Should we do preprocess or not
    SpeexPreprocessState *mpPreprocessState; ///< Preprocessor state
