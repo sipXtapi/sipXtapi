@@ -1153,6 +1153,7 @@ OsStatus MpCallFlowGraph::playFile(const char* audioFileName, UtlBoolean repeat,
 // Start playing the indicated audio buffer.
 OsStatus MpCallFlowGraph::playBuffer(char* audioBuf, 
                                      unsigned long bufSize,
+                                     uint32_t inRate, 
                                      int type, 
                                      UtlBoolean repeat,
                                      int toneOptions, 
@@ -1166,7 +1167,7 @@ OsStatus MpCallFlowGraph::playBuffer(char* audioBuf,
    // call stuff in the CallFlowGraph -- a big nono in terms of separation)
    MpResource::setNotificationsEnabled(TRUE, mpFromFile->getName(), *getMsgQ());
 
-   res = mpFromFile->playBuffer(audioBuf, bufSize, type, repeat, event);
+   res = mpFromFile->playBuffer(audioBuf, bufSize, inRate, type, repeat, event);
 
    if (res == OS_SUCCESS)
    {

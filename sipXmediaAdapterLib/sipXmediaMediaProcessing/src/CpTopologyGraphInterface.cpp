@@ -1345,6 +1345,7 @@ OsStatus CpTopologyGraphInterface::playAudio(const char* url,
 
 OsStatus CpTopologyGraphInterface::playBuffer(char* buf,
                                            unsigned long bufSize,
+                                           uint32_t bufRate,
                                            int type, 
                                            UtlBoolean repeat,
                                            UtlBoolean local,
@@ -1356,11 +1357,12 @@ OsStatus CpTopologyGraphInterface::playBuffer(char* buf,
     OsStatus stat = OS_NOT_FOUND;
     if(mpTopologyGraph && buf)
     {
+       uint32_t fgRate = mpTopologyGraph->getSamplesPerSec();
        // Currently, this ignores "local/remote", "mixWithMic" and "downScaling".
        // I also don't know what to do with this blasted protected event.. sending NULL now.
        // If it was an OsNotification -- no problem..
        stat = MprFromFile::playBuffer(DEFAULT_FROM_FILE_RESOURCE_NAME, 
-          *mpTopologyGraph->getMsgQ(), buf, bufSize, type, repeat, NULL);
+          *mpTopologyGraph->getMsgQ(), buf, bufSize, bufRate, fgRate, type, repeat, NULL);
 
        /*
          old stuff:

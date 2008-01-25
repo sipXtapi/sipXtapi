@@ -31,6 +31,7 @@
 #ifdef EMBED_PROMPTS
 #  include "playback_prompt.h"
 #  include "record_prompt.h"
+#  define PROMPTBUF_SAMPLERATE 8000
 #endif
 
 #ifdef RTL_ENABLED
@@ -395,6 +396,7 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
                 sizeof(record_prompt) / 2,
                 sizeof(record_prompt) / 2 / 80);
         mediaInterface->playBuffer((char*)record_prompt, sizeof(record_prompt), 
+                                   PROMPTBUF_SAMPLERATE,
                                    0, // type (does not need conversion to raw)
                                    false, //repeat
                                    true, // local
@@ -444,7 +446,7 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
         printf("Record to 10sec buffer\n");
 
         // Create a buffer to record to.
-        // HACK: assume 8000 samples per second and 16 bit audio
+        // HACK! This assumes recording is done at 8kHz 16bit!
         int bytesPerSec = 8000*2;
         int nSecsToRecord = 10;
         UtlString audioBuffer;
@@ -472,6 +474,7 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
                 sizeof(playback_prompt) / 2,
                 sizeof(playback_prompt) / 2 / 80);
         mediaInterface->playBuffer((char*)playback_prompt, sizeof(playback_prompt), 
+                                   PROMPTBUF_SAMPLERATE,
                                    0, // type (does not need conversion to raw)
                                    false, //repeat
                                    true, // local
@@ -496,6 +499,7 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
         printf("Play record buffer\n");
         mediaInterface->playBuffer((char*)audioBuffer.data(), 
                                    audioBuffer.length(), 
+                                   mediaInterface->getSamplesPerSec(), 
                                    0, // type (does not need conversion to raw)
                                    false,  // repeat
                                    true,   // local
@@ -606,6 +610,7 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
                 sizeof(record_prompt) / 2,
                 sizeof(record_prompt) / 2 / 80);
         mediaInterface->playBuffer((char*)record_prompt, sizeof(record_prompt), 
+                                   PROMPTBUF_SAMPLERATE,
                                    0, // type (does not need conversion to raw)
                                    false, //repeat
                                    true, // local
@@ -1508,6 +1513,7 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
         CPPUNIT_ASSERT_EQUAL((unsigned)160116, sizeof(sine_330hz_16b_8k_signed));
         source1Interface->playBuffer((char*)&sine_330hz_16b_8k_signed[waveHeaderSize], 
                                      sizeof(sine_330hz_16b_8k_signed) - waveHeaderSize, 
+                                     PROMPTBUF_SAMPLERATE,
                                      0, //type, 
                                      FALSE, // repeat,
                                      FALSE, // local, 
@@ -1524,6 +1530,7 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
         //source2Interface->startTone(2, true, true);
         source2Interface->playBuffer((char*)&sine_530hz_16b_8k_signed[waveHeaderSize], 
                                      sizeof(sine_530hz_16b_8k_signed) - waveHeaderSize, 
+                                     PROMPTBUF_SAMPLERATE,
                                      0, //type, 
                                      FALSE, // repeat,
                                      FALSE, // local, 
@@ -1711,6 +1718,7 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
         CPPUNIT_ASSERT_EQUAL((unsigned)160116, sizeof(sine_330hz_16b_8k_signed));
         mixedInterface->playBuffer((char*)&sine_330hz_16b_8k_signed[waveHeaderSize], 
                                    sizeof(sine_330hz_16b_8k_signed) - waveHeaderSize, 
+                                   PROMPTBUF_SAMPLERATE,
                                    0, //type, 
                                    FALSE, // repeat,
                                    FALSE, // local, 

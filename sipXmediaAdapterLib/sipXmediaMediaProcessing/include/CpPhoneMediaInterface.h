@@ -163,14 +163,15 @@ public:
 
 
     virtual OsStatus playBuffer(char* buf, 
-                               unsigned long bufSize,
-                               int type, 
-                              UtlBoolean repeat,
-                              UtlBoolean local, 
-                              UtlBoolean remote,
-                              OsProtectedEvent* event = NULL,
-                              UtlBoolean mixWithMic = false,
-                              int downScaling = 100);
+                                unsigned long bufSize,
+                                uint32_t bufRate, 
+                                int type, 
+                                UtlBoolean repeat,
+                                UtlBoolean local, 
+                                UtlBoolean remote,
+                                OsProtectedEvent* event = NULL,
+                                UtlBoolean mixWithMic = false,
+                                int downScaling = 100);
 
       /// @copydoc CpMediaInterface::pauseAudio()
     virtual OsStatus pauseAudio();

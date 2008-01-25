@@ -1209,6 +1209,7 @@ OsStatus CpPhoneMediaInterface::playAudio(const char* url,
 
 OsStatus CpPhoneMediaInterface::playBuffer(char* buf,
                                            unsigned long bufSize,
+                                           uint32_t bufRate,
                                            int type, 
                                            UtlBoolean repeat,
                                            UtlBoolean local,
@@ -1233,7 +1234,7 @@ OsStatus CpPhoneMediaInterface::playBuffer(char* buf,
          }
 
         // Start playing the audio file
-        returnCode = mpFlowGraph->playBuffer(buf, bufSize, type, repeat, toneOptions, NULL);
+        returnCode = mpFlowGraph->playBuffer(buf, bufSize, bufRate, type, repeat, toneOptions, NULL);
     }
 
     if(returnCode != OS_SUCCESS)

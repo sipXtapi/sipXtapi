@@ -67,7 +67,7 @@ public:
 //@{
 
       /// Play sound from buffer w/repeat option
-    OsStatus playBuffer(const char* audioBuffer, unsigned long bufSize, 
+    OsStatus playBuffer(const char* audioBuffer, unsigned long bufSize, uint32_t inRate,
                         int type, UtlBoolean repeat, OsProtectedEvent* notify);
       /**<
       *  @param type - can be one of following:  (need a OsSoundType)<br>
@@ -87,18 +87,22 @@ public:
                                OsMsgQ& fgQ, 
                                const char* audioBuffer, 
                                unsigned long bufSize, 
+                               uint32_t inRate, uint32_t fgRate, 
                                int type, UtlBoolean repeat, 
                                OsNotification* notify = NULL);
       /**<
-      *  @param type - can be one of following:  (need a OsSoundType)<br>
+      *  @param[in] fgRate - the sample rate that the flowgraph is running at
+      *             (this cannot determine that because it is a static method)
+      *  
+      *  @param[in] type - can be one of following:  (need a OsSoundType)<br>
       *  0 = RAW<br>
       *  1 = muLaw
       *
-      *  @param repeat - TRUE/FALSE after the fromFile reaches the end of
-      *   the buffer, go back to the beginning and continue to play.
+      *  @param[in] repeat - TRUE/FALSE after the fromFile reaches the end of
+      *             the buffer, go back to the beginning and continue to play.
       *
       *  @returns the result of attempting to queue the message to this
-      *  resource and/or converting the audio buffer data.
+      *           resource and/or converting the audio buffer data.
       */
 
      /// Old Play from file w/file name and repeat option
@@ -281,22 +285,24 @@ private:
                                              UtlString*& fgAudioBuf,
                                              const char* audioBuffer, 
                                              unsigned long bufSize, 
+                                             uint32_t inRate,
+                                             uint32_t fgRate,
                                              int type);
      /**<
      *  Method to convert a generic char* audio buffer, in one of several
      *  acceptable formats, to a format that can be passed through the 
      *  flowgraph.
-     *
+     *  
+     *  @param[out] fgAudioBuf - a pointer to a string to store a newly allocated
+     *              string with the processed audio suitable for the flowgraph.
+     *  @param[in] audioBuffer - the audio data to re-work for the flowgraph.
+     *  @param[in] bufSize - the size of /p audioBuffer, in bytes.
+     *  @param[in] inRate - the sample rate that /p audioBuffer was recorded at.
+     *  @param[in] fgRate - the sample rate that the flowgraph is running at
+     *             (this cannot determine that because it is a static method)
      *  @param[in] type - can be one of following:  (need a OsSoundType)<br>
      *  0 = RAW<br>
      *  1 = muLaw
-     *
-     *  @param repeat - TRUE/FALSE after the fromFile reaches the end of
-     *   the file, go back to the beginning and continue to play.  Note this
-     *   assumes that the file was opened for read.
-     *
-     *  @returns the result of attempting to queue the message to this
-     *  resource and/or opening the named file.
      */
 
      /// Read in an audio file into a new UtlString audio buffer.
@@ -336,12 +342,25 @@ private:
      */
 
      /// @brief allocate enough space for the resampled data, and resample data passed in.
-   static UtlBoolean allocateAndResample(char*& audBuf, uint32_t& audBufSz, 
-                                         uint32_t inRate, uint32_t outRate);
+   static UtlBoolean allocateAndResample(const char* inAudBuf, 
+                                         const uint32_t inAudBufSz, 
+                                         const uint32_t inRate, 
+                                         char*& outAudBuf, 
+                                         uint32_t& outAudBufSz, 
+                                         const uint32_t outRate);
      /**<
      *  Allocate enough space to store a resampled version of the audio passed in
      *  as /p audBuf.  Indicate the sample rate of /p audBuf with /p inRate,
      *  and resample it to a rate of /p outRate.
+     *  
+     *  @param[in] inAudBuf - the audio buffer to resample - assumes 16bit signed.
+     *  @param[in] inAudBufSz - the size of the audio buffer, in bytes.
+     *  @param[in] inRate - the sample rate that audBuf was recorded at.
+     *  @param[out] outAudBuf - the audio buffer to allocate and store resampled
+     *              audio into. (16bit signed)
+     *  @param[out] outAudBufSz - the place to store the size of the resampled 
+     *              audio buffer, in bytes.
+     *  @param[in] outRate - the sample rate that audBuf will be resampled to.
      */
 
      /// @brief Sends a local MPRM_FROMFILE_FINISH message back to this resource.

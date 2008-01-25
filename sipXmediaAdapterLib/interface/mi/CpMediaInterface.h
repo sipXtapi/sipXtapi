@@ -488,6 +488,7 @@ public:
      /// @brief Play the specified audio buffer to the call. 
    virtual OsStatus playBuffer(char* buf, 
                                unsigned long bufSize,
+                               uint32_t bufRate, 
                                int type, 
                                UtlBoolean repeat,
                                UtlBoolean local, 

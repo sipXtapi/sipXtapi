@@ -194,12 +194,26 @@ public:
                   int timeMS, int silenceLength, OsNotification* event = NULL,
                   MprRecorder::RecordFileFormat format = MprRecorder::RAW_PCM_16);
 
+     /// @brief Start playing audio from a buffer passed in.
    OsStatus playBuffer(char* audioBuf,
                   unsigned long bufSize,
+                  uint32_t inRate,
                   int type,
                   UtlBoolean repeat,
                   int toneOptions,
                   OsProtectedEvent* event = NULL);
+     /**<
+     *  The passed in audio /p audioBuf is converted (if necessary) to the 
+     *  flowgraph's sample rate, then played through the flowgraph as it is set up.
+     *  
+     *  @param[in] audioBuf - the audio buffer to play.
+     *  @param[in] bufSize - the size of the audio buffer /p audioBuf
+     *  @param[in] inRate - the sample rate of audioBuf
+     *  @param[in] type - Currently unused! Please pass '0'.
+     *  @param[in] repeat - Whether this audio should be looped until explicitly stopped.
+     *  @param[in] toneOptions - TODO: Fill in docs here
+     *  @param[in,out] event - an old event object for signaling status changes.
+     */
 
      /// Start playing audio from a file
    OsStatus playFile( const char* audioFileName ///< name of the audio file

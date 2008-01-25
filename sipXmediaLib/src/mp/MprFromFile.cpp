@@ -84,11 +84,13 @@ MprFromFile::~MprFromFile()
 /* ============================ MANIPULATORS ============================== */
 
 OsStatus MprFromFile::playBuffer(const char* audioBuffer, unsigned long bufSize, 
-                                 int type, UtlBoolean repeat, OsProtectedEvent* notify)
+                                 uint32_t inRate, int type, UtlBoolean repeat, 
+                                 OsProtectedEvent* notify)
 {
    UtlString* fgAudBuffer = NULL;
-   OsStatus res = genericAudioBufToFGAudioBuf(fgAudBuffer, audioBuffer, 
-                                              bufSize, type);
+   OsStatus res = 
+      genericAudioBufToFGAudioBuf(fgAudBuffer, audioBuffer, bufSize, 
+         inRate, getFlowGraph()->getSamplesPerSec(), type);
 
    if(res == OS_SUCCESS)
    {
@@ -112,16 +114,14 @@ OsStatus MprFromFile::playBuffer(const char* audioBuffer, unsigned long bufSize,
 }
 
 
-OsStatus MprFromFile::playBuffer(const UtlString& namedResource, 
-                                 OsMsgQ& fgQ, 
-                                 const char* audioBuffer, 
-                                 unsigned long bufSize, int type, 
-                                 UtlBoolean repeat, 
-                                 OsNotification* evt)
+OsStatus MprFromFile::playBuffer(const UtlString& namedResource, OsMsgQ& fgQ, 
+                                 const char* audioBuffer, unsigned long bufSize, 
+                                 uint32_t inRate, uint32_t fgRate, int type, 
+                                 UtlBoolean repeat, OsNotification* evt)
 {
    UtlString* fgAudBuffer = NULL;
-   OsStatus stat = genericAudioBufToFGAudioBuf(fgAudBuffer, audioBuffer,
-                                               bufSize, type);
+   OsStatus stat = 
+      genericAudioBufToFGAudioBuf(fgAudBuffer, audioBuffer, bufSize, inRate, fgRate, type);
 
    if(stat == OS_SUCCESS)
    {
@@ -240,11 +240,15 @@ UtlBoolean MprFromFile::disable(void) //$$$
 OsStatus MprFromFile::genericAudioBufToFGAudioBuf(UtlString*& fgAudioBuf, 
                                                   const char* audioBuffer, 
                                                   unsigned long bufSize, 
+                                                  uint32_t inRate,
+                                                  uint32_t fgRate,
                                                   int type)
 {
    OsStatus stat = OS_SUCCESS;
    char* convertedBuffer = NULL;
 
+   assert(inRate > 0); // Assert that sample rates are not zero.
+   assert(fgRate > 0);
    assert(fgAudioBuf == NULL); // assume UtlString buffer pointer is null.
    fgAudioBuf = new UtlString();
 
@@ -252,8 +256,20 @@ OsStatus MprFromFile::genericAudioBufToFGAudioBuf(UtlString*& fgAudioBuf,
    {
       switch(type)
       {
-      case 0 : fgAudioBuf->append(audioBuffer,bufSize);
-         break;
+      case 0 : 
+         {
+            char* resampledBuf = NULL;
+            uint32_t resampledBufSize = 0;
+            if(allocateAndResample(audioBuffer, bufSize, inRate, 
+                  resampledBuf, resampledBufSize, fgRate)
+               == FALSE)
+            {
+               delete fgAudioBuf;
+               return OS_FAILED;
+            }
+            fgAudioBuf->append(resampledBuf,resampledBufSize);
+            break;
+         }
 
       case 1 : convertedBuffer = new char[bufSize*2];
          //NOTE by Keith Kyzivat - this code was pulled directly from
@@ -301,6 +317,10 @@ OsStatus MprFromFile::readAudioFile(uint32_t fgSampleRate,
    // Assume audioBuffer passed in is NULL..
    assert(audioBuffer == NULL);
    audioBuffer = NULL;
+
+   // Create a temporary pointer for resampled data, and var for size.
+   char* resampledBuf = NULL;
+   uint32_t resampledBufSz = 0;
 
 
    if (!audioFileName)
@@ -404,14 +424,22 @@ OsStatus MprFromFile::readAudioFile(uint32_t fgSampleRate,
                if (channelsPreferred > 1)
                   filesize = mergeChannels(charBuffer, filesize, iTotalChannels);
 
-               // charBuffer will point to a new buffer holding the resampled
-               // data and filesize will be updated with the new buffer size
+               // resampledBuf will point to a buffer holding the resampled
+               // data and resampledBufSz will hold the new buffer size
                // after this call.
                if(allocateAndResample(charBuffer, filesize, ratePreferred, 
-                                      fgSampleRate) == FALSE)
+                     resampledBuf, resampledBufSz, fgSampleRate) == FALSE)
                {
                   if(notify) notify->signal(INVALID_SETUP);
                   break;
+               }
+               else
+               {
+                  // We want resampledBuf to replace charBuffer, so we'll free
+                  // charBuffer, and store resampledBuf to it. (updating size too)
+                  free(charBuffer);
+                  charBuffer = resampledBuf;
+                  filesize = resampledBufSz;
                }
             }
             else
@@ -432,14 +460,22 @@ OsStatus MprFromFile::readAudioFile(uint32_t fgSampleRate,
                if (iTotalChannels > 1)
                   filesize = mergeChannels(charBuffer, filesize, iTotalChannels);
 
-               // charBuffer will point to a new buffer holding the resampled
-               // data and filesize will be updated with the new buffer size
+               // resampledBuf will point to a buffer holding the resampled
+               // data and resampledBufSz will hold the new buffer size
                // after this call.
-               if(allocateAndResample(charBuffer, filesize, ratePreferred,
-                                      fgSampleRate) == FALSE)
+               if(allocateAndResample(charBuffer, filesize, ratePreferred, 
+                     resampledBuf, resampledBufSz, fgSampleRate) == FALSE)
                {
                   if(notify) notify->signal(INVALID_SETUP);
                   break;
+               }
+               else
+               {
+                  // We want resampledBuf to replace charBuffer, so we'll free
+                  // charBuffer, and store resampledBuf to it. (updating size too)
+                  free(charBuffer);
+                  charBuffer = resampledBuf;
+                  filesize = resampledBufSz;
                }
             }
             else
@@ -475,14 +511,22 @@ OsStatus MprFromFile::readAudioFile(uint32_t fgSampleRate,
                   if (channelsPreferred > 1)
                      filesize = mergeChannels(charBuffer, filesize, iTotalChannels);
 
-                  // charBuffer will point to a new buffer holding the resampled
-                  // data and filesize will be updated with the new buffer size
+                  // resampledBuf will point to a buffer holding the resampled
+                  // data and resampledBufSz will hold the new buffer size
                   // after this call.
-                  if(allocateAndResample(charBuffer, filesize, ratePreferred,
-                                         fgSampleRate) == FALSE)
+                  if(allocateAndResample(charBuffer, filesize, ratePreferred, 
+                        resampledBuf, resampledBufSz, fgSampleRate) == FALSE)
                   {
                      if(notify) notify->signal(INVALID_SETUP);
                      break;
+                  }
+                  else
+                  {
+                     // We want resampledBuf to replace charBuffer, so we'll free
+                     // charBuffer, and store resampledBuf to it. (updating size too)
+                     free(charBuffer);
+                     charBuffer = resampledBuf;
+                     filesize = resampledBufSz;
                   }
                }
                else
@@ -503,14 +547,22 @@ OsStatus MprFromFile::readAudioFile(uint32_t fgSampleRate,
                   if (channelsPreferred > 1)
                      filesize = mergeChannels(charBuffer, filesize, iTotalChannels);
 
-                  // charBuffer will point to a new buffer holding the resampled
-                  // data and filesize will be updated with the new buffer size
+                  // resampledBuf will point to a buffer holding the resampled
+                  // data and resampledBufSz will hold the new buffer size
                   // after this call.
-                  if(allocateAndResample(charBuffer, filesize, ratePreferred,
-                                         fgSampleRate) == FALSE)
+                  if(allocateAndResample(charBuffer, filesize, ratePreferred, 
+                        resampledBuf, resampledBufSz, fgSampleRate) == FALSE)
                   {
                      if(notify) notify->signal(INVALID_SETUP);
                      break;
+                  }
+                  else
+                  {
+                     // We want resampledBuf to replace charBuffer, so we'll free
+                     // charBuffer, and store resampledBuf to it. (updating size too)
+                     free(charBuffer);
+                     charBuffer = resampledBuf;
+                     filesize = resampledBufSz;
                   }
                }
                else
@@ -602,35 +654,39 @@ OsStatus MprFromFile::readAudioFile(uint32_t fgSampleRate,
    return OS_SUCCESS;
 }
 
-UtlBoolean MprFromFile::allocateAndResample(char*& audBuf,
-                                            uint32_t& audBufSz,
-                                            uint32_t inRate,
-                                            uint32_t outRate)
+UtlBoolean MprFromFile::allocateAndResample(const char* audBuf,
+                                            const uint32_t audBufSz,
+                                            const uint32_t inRate,
+                                            char*& outAudBuf, 
+                                            uint32_t& outAudBufSz, 
+                                            const uint32_t outRate)
 {
-   // Check if the rates match -- if so, no need to resample - it's already done!
-   if(inRate == outRate)
-   {
-      return TRUE;
-   }
-
    // Malloc up a new chunk of memory for resampling to.
-   uint32_t outBufSize = 
-      (uint32_t)(((uint64_t)audBufSz * (uint64_t)outRate) / (uint64_t)inRate);
-   MpAudioSample* pOutSamples = (MpAudioSample*)malloc(outBufSize);
-   if(pOutSamples == NULL)
+   outAudBufSz = (uint32_t)(((uint64_t)audBufSz * (uint64_t)outRate) / (uint64_t)inRate);
+   outAudBuf = (char*)malloc(outAudBufSz);
+   if(outAudBuf == NULL)
    {
       OsSysLog::add(FAC_MP, PRI_ERR, 
                     "ERROR: Failed to allocate a buffer to resample to.");
       return FALSE;
    }
 
+   // Check if the rates match -- if so, no need to resample - it's already done!
+   if(inRate == outRate)
+   {
+      // Still have to copy over the audBuf to the newly allocated outAudBuf..
+      assert(audBufSz == outAudBufSz);
+      memcpy(outAudBuf, audBuf, audBufSz);
+      return TRUE;
+   }
+
    uint32_t inSamplesProcessed = 0;
    uint32_t outSamplesWritten = 0;
    OsStatus resampleStat = OS_SUCCESS;
    MpResampler resampler(1, inRate, outRate);
-   resampleStat = resampler.resample(0, (MpAudioSample*)audBuf, audBufSz/sizeof(MpAudioSample), 
+   resampleStat = resampler.resample(0, (const MpAudioSample*)audBuf, audBufSz/sizeof(MpAudioSample), 
                                      inSamplesProcessed, 
-                                     pOutSamples, outBufSize/sizeof(MpAudioSample), 
+                                     (MpAudioSample*)outAudBuf, outAudBufSz/sizeof(MpAudioSample), 
                                      outSamplesWritten);
    if(resampleStat != OS_SUCCESS)
    {
@@ -639,12 +695,6 @@ UtlBoolean MprFromFile::allocateAndResample(char*& audBuf,
                     resampleStat);
       return FALSE;
    }
-
-   // Ok, now free charBuffer and point the new resampled buffer
-   // to it.
-   free(audBuf);
-   audBuf = (char*)pOutSamples;
-   audBufSz = outBufSize;
 
    return TRUE;
 }
