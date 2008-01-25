@@ -82,7 +82,9 @@ public:
                                            const char* turnUserName,
                                            const char* turnPassword,
                                            int turnKeepAlivePeriodSecs,
-                                           UtlBoolean enableIce);
+                                           UtlBoolean enableIce, 
+                                           uint32_t samplesPerFrame, 
+                                           uint32_t samplesPerSec);
 
     // For now inherit all of the modification methods from parent
     // Eventually they will all need to be replaced with specific 

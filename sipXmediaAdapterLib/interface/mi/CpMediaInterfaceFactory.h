@@ -92,7 +92,10 @@ class CpMediaInterfaceFactory
                                            const char* szTurnUsername,
                                            const char* szTurnPassword,
                                            int iTurnKeepAlivePeriodSecs,
-                                           UtlBoolean bEnableICE) ;
+                                           UtlBoolean bEnableICE,
+                                           uint32_t samplesPerFrame = 0, ///< Zero takes default
+                                           uint32_t samplesPerSec = 0 ///< Zero takes default
+                                          );
 
      /// Add directory paths to the codec search path.
    static OsStatus addCodecPaths(const size_t nCodecPaths, const UtlString codecPaths[]);

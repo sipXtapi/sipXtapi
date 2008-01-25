@@ -64,7 +64,10 @@ public:
                              const char* turnUsername = NULL,
                              const char* turnPassword = NULL,
                              int turnKeepAlivePeriodSecs = 28,
-                             UtlBoolean enableIce = FALSE);
+                             UtlBoolean enableIce = FALSE, 
+                             uint32_t samplesPerFrame = 0, ///< Zero takes default
+                             uint32_t samplesPerSec = 0 ///< Zero takes default
+                            );
      
 
     //! Destructor

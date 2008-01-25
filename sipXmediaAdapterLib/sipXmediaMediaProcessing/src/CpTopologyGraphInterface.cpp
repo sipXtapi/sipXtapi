@@ -154,21 +154,24 @@ public:
 
 // Constructor
 CpTopologyGraphInterface::CpTopologyGraphInterface(CpTopologyGraphFactoryImpl* pFactoryImpl,
-                                             const char* publicAddress,
-                                             const char* localAddress,
-                                             int numCodecs,
-                                             SdpCodec* sdpCodecArray[],
-                                             const char* locale,
-                                             int expeditedIpTos,
-                                             const char* stunServer,
-                                             int stunPort,
-                                             int stunKeepAlivePeriodSecs,
-                                             const char* turnServer,
-                                             int turnPort,
-                                             const char* turnUsername,
-                                             const char* turnPassword,
-                                             int turnKeepAlivePeriodSecs,
-                                             UtlBoolean enableIce)
+                                                   const char* publicAddress,
+                                                   const char* localAddress,
+                                                   int numCodecs,
+                                                   SdpCodec* sdpCodecArray[],
+                                                   const char* locale,
+                                                   int expeditedIpTos,
+                                                   const char* stunServer,
+                                                   int stunPort,
+                                                   int stunKeepAlivePeriodSecs,
+                                                   const char* turnServer,
+                                                   int turnPort,
+                                                   const char* turnUsername,
+                                                   const char* turnPassword,
+                                                   int turnKeepAlivePeriodSecs,
+                                                   UtlBoolean enableIce, 
+                                                   uint32_t samplesPerFrame,
+                                                   uint32_t samplesPerSec
+                                                  )
     : CpMediaInterface(pFactoryImpl)
 {
     mLastConnectionId = 0;
@@ -176,8 +179,8 @@ CpTopologyGraphInterface::CpTopologyGraphInterface(CpTopologyGraphFactoryImpl* p
    OsSysLog::add(FAC_CP, PRI_DEBUG, "CpTopologyGraphInterface::CpTopologyGraphInterface creating a new CpMediaInterface %p",
                  this);
 
-   mpTopologyGraph = new MpTopologyGraph(80,
-                                         8000,
+   mpTopologyGraph = new MpTopologyGraph(samplesPerFrame,
+                                         samplesPerSec,
                                          *(pFactoryImpl->getInitialResourceTopology()),
                                          *(pFactoryImpl->getResourceFactory()));
    OsSysLog::add(FAC_CP, PRI_DEBUG, "CpTopologyGraphInterface::CpTopologyGraphInterface creating a new MpTopologyGraph %p",

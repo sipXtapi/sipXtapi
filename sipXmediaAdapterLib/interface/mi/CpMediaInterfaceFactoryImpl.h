@@ -89,21 +89,23 @@ public:
     /**
      * Create a media interface given the designated parameters.
      */
-    virtual CpMediaInterface* createMediaInterface( const char* publicAddress,
-                                                    const char* localAddress,
-                                                    int numCodecs,
-                                                    SdpCodec* sdpCodecArray[],
-                                                    const char* locale,
-                                                    int expeditedIpTos,
-                                                    const char* szStunServer,
-                                                    int iStunPort,
-                                                    int iStunKeepAliveSecs,
-                                                    const char* szTurnServer,
-                                                    int iTurnPort,
-                                                    const char* szTurnUsername,
-                                                    const char* szTurnPassword,
-                                                    int iTurnKeepAliveSecs,
-                                                    UtlBoolean bEnableICE
+    virtual CpMediaInterface* createMediaInterface(const char* publicAddress,
+                                                   const char* localAddress,
+                                                   int numCodecs,
+                                                   SdpCodec* sdpCodecArray[],
+                                                   const char* locale,
+                                                   int expeditedIpTos,
+                                                   const char* szStunServer,
+                                                   int iStunPort,
+                                                   int iStunKeepAliveSecs,
+                                                   const char* szTurnServer,
+                                                   int iTurnPort,
+                                                   const char* szTurnUsername,
+                                                   const char* szTurnPassword,
+                                                   int iTurnKeepAliveSecs,
+                                                   UtlBoolean bEnableICE, 
+                                                   uint32_t samplesPerFrame, 
+                                                   uint32_t samplesPerSec
                                                   ) = 0 ;
 
 

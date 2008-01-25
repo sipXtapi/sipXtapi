@@ -131,8 +131,8 @@ public:
 
      /// Default constructor
    MpCallFlowGraph(const char* pLocale = "",
-                   int samplesPerFrame=DEF_SAMPLES_PER_FRAME,
-                   int samplesPerSec=DEF_SAMPLES_PER_SEC);
+                   int samplesPerFrame=0,
+                   int samplesPerSec=0);
 
      /// Destructor
    virtual
@@ -439,9 +439,6 @@ private:
       START_PLAY_FILE,
       START_PLAY_SPKR
    } PlayStart;
-
-   static const int DEF_SAMPLES_PER_FRAME;
-   static const int DEF_SAMPLES_PER_SEC;
 
    static UtlBoolean sbSendInBandDTMF ;
    static UtlBoolean sbEnableAEC ;

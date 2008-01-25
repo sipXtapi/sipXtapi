@@ -89,7 +89,9 @@ class sipXmediaFactoryImpl : public CpMediaInterfaceFactoryImpl
                                                     const char* szTurnUsername,
                                                     const char* szTurnPassword,
                                                     int iTurnKeepAlivePeriodSecs,
-                                                    UtlBoolean bEnableICE) ;
+                                                    UtlBoolean bEnableICE, 
+                                                    uint32_t samplesPerFrame, 
+                                                    uint32_t samplesPerSec);
 
     virtual OsStatus setSpeakerVolume(int iVolume) ;
     virtual OsStatus setSpeakerDevice(const UtlString& device) ;

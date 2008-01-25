@@ -76,7 +76,9 @@ CpMediaInterface* CpMediaInterfaceFactory::createMediaInterface(const char* publ
                                                                 const char* szTurnUsername,
                                                                 const char* szTurnPassword,
                                                                 int iTurnKeepAlivePeriodSecs,
-                                                                UtlBoolean bEnableICE) 
+                                                                UtlBoolean bEnableICE,
+                                                                uint32_t samplesPerFrame,
+                                                                uint32_t samplesPerSec) 
 {
     CpMediaInterface* pInterface = NULL ;
 
@@ -86,7 +88,8 @@ CpMediaInterface* CpMediaInterfaceFactory::createMediaInterface(const char* publ
                 localAddress, numCodecs, sdpCodecArray, locale, 
                 expeditedIpTos, szStunServer, iStunPort, iStunKeepAlivePeriodSecs,
                 szTurnSever, iTurnPort, szTurnUsername, szTurnPassword,
-                iTurnKeepAlivePeriodSecs, bEnableICE) ;
+                iTurnKeepAlivePeriodSecs, bEnableICE, 
+                samplesPerFrame, samplesPerSec);
     }
 
     return pInterface ;

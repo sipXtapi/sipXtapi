@@ -241,24 +241,20 @@ CpTopologyGraphFactoryImpl::createMediaInterface(const char* publicAddress,
                                                  const char* turnUserName,
                                                  const char* turnPassword,
                                                  int turnKeepAliveSecs,
-                                                 UtlBoolean enableIce)
+                                                 UtlBoolean enableIce, 
+                                                 uint32_t samplesPerFrame, 
+                                                 uint32_t samplesPerSec)
 {
     return(new CpTopologyGraphInterface(this, 
-                                       publicAddress, 
-                                       localAddress, 
-                                       numCodecs, 
-                                       sdpCodecArray, 
+                                       publicAddress, localAddress, 
+                                       numCodecs, sdpCodecArray, 
                                        locale, 
                                        expeditedIpTos, 
-                                       stunServer,
-                                       stunPort, 
-                                       stunKeepAliveSecs, 
-                                       turnServer, 
-                                       turnPort, 
-                                       turnUserName, 
-                                       turnPassword, 
-                                       turnKeepAliveSecs, 
-                                       enableIce));
+                                       stunServer, stunPort, stunKeepAliveSecs, 
+                                       turnServer, turnPort, turnUserName, 
+                                       turnPassword, turnKeepAliveSecs, 
+                                       enableIce,
+                                       samplesPerFrame, samplesPerSec));
 }
 
 MpResourceFactory* CpTopologyGraphFactoryImpl::buildDefaultResourceFactory()

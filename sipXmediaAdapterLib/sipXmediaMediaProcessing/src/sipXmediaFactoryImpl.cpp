@@ -209,13 +209,15 @@ CpMediaInterface* sipXmediaFactoryImpl::createMediaInterface(const char* publicA
                                                              const char* szTurnUsername,
                                                              const char* szTurnPassword,
                                                              int iTurnKeepAlivePeriodSecs,
-                                                             UtlBoolean bEnableICE) 
+                                                             UtlBoolean bEnableICE,
+                                                             uint32_t samplesPerFrame,
+                                                             uint32_t samplesPerSec) 
 {
    return new CpPhoneMediaInterface(this, publicAddress, localAddress, 
       numCodecs, sdpCodecArray, locale, expeditedIpTos, szStunServer,
       iStunPort, iStunKeepAliveSecs, szTurnServer, iTurnPort, 
       szTurnUsername, szTurnPassword, iTurnKeepAlivePeriodSecs, 
-      bEnableICE);
+      bEnableICE, samplesPerFrame, samplesPerSec);
 }
 
 

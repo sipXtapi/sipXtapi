@@ -160,13 +160,15 @@ CpPhoneMediaInterface::CpPhoneMediaInterface(CpMediaInterfaceFactoryImpl* pFacto
                                              const char* szTurnUsername,
                                              const char* szTurnPassword,
                                              int iTurnKeepAlivePeriodSecs,
-                                             UtlBoolean bEnableICE)
+                                             UtlBoolean bEnableICE, 
+                                             uint32_t samplesPerFrame, 
+                                             uint32_t samplesPerSec)
     : CpMediaInterface(pFactoryImpl)
 {
    OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPhoneMediaInterface::CpPhoneMediaInterface creating a new CpMediaInterface %p",
                  this);
 
-   mpFlowGraph = new MpCallFlowGraph(locale);
+   mpFlowGraph = new MpCallFlowGraph(locale, samplesPerFrame, samplesPerSec);
    OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPhoneMediaInterface::CpPhoneMediaInterface creating a new MpCallFlowGraph %p",
                  mpFlowGraph);
    

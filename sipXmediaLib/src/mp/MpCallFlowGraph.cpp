@@ -60,17 +60,6 @@
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
-#define KHz8000
-#undef  KHz32000
-#ifdef KHz8000 /* [ */
-const int MpCallFlowGraph::DEF_SAMPLES_PER_FRAME = 80;
-const int MpCallFlowGraph::DEF_SAMPLES_PER_SEC   = 8000;
-#endif /* KHz8000 ] */
-#ifdef KHz32000 /* [ */
-const int MpCallFlowGraph::DEF_SAMPLES_PER_FRAME = 320;
-const int MpCallFlowGraph::DEF_SAMPLES_PER_SEC   = 32000;
-#endif /* KHz32000 ] */
-
 // STATIC VARIABLE INITIALIZATIONS
 UtlBoolean MpCallFlowGraph::sbSendInBandDTMF = true ;
 

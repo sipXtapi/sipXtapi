@@ -102,7 +102,9 @@ public:
 //@{
 
      /// Constructor
-   MpFlowGraphBase(int samplesPerFrame, int samplesPerSec);
+   MpFlowGraphBase(int samplesPerFrame = 0, ///< Zero takes default
+                   int samplesPerSec = 0 ///< Zero takes default
+                  );
 
      /// Destructor
    virtual
@@ -440,6 +442,9 @@ private:
 
    enum { MAX_FLOWGRAPH_MESSAGES  = 150};
    enum { MAX_FLOWGRAPH_RESOURCES = 50};
+
+   static const uint32_t DEF_SAMPLES_PER_FRAME; ///< Default samples per frame of flowgraphs, if none is specified on creation.
+   static const uint32_t DEF_SAMPLES_PER_SEC; ///< Default sample rate of flowgraphs, if none is specified on creation.
 
    static int       gFgMaxNumber; ///< Flowgraph counter, used to generate
                                ///< mFgNumber (for debug purposes only!)

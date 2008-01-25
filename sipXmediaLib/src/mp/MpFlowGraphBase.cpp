@@ -36,6 +36,9 @@
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
+const uint32_t MpFlowGraphBase::DEF_SAMPLES_PER_FRAME = 80;
+const uint32_t MpFlowGraphBase::DEF_SAMPLES_PER_SEC   = 8000;
+
 // STATIC VARIABLE INITIALIZATIONS
 int MpFlowGraphBase::gFgMaxNumber = 0;
 
@@ -55,12 +58,13 @@ MpFlowGraphBase::MpFlowGraphBase(int samplesPerFrame, int samplesPerSec)
 , mLinkCnt(0)
 , mResourceCnt(0)
 , mRecomputeOrder(FALSE)
-, mSamplesPerFrame(samplesPerFrame)
-, mSamplesPerSec(samplesPerSec)
 , mpResourceInProcess(NULL)
 {
-   int i;
+   // If values passed in are zero, use the default ones.
+   mSamplesPerFrame = (samplesPerFrame) ? samplesPerFrame : (int)DEF_SAMPLES_PER_FRAME;
+   mSamplesPerSec = (samplesPerSec) ? samplesPerSec : (int)DEF_SAMPLES_PER_SEC;
 
+   int i;
    for (i=0; i < MAX_FLOWGRAPH_RESOURCES; i++)
    {
       mUnsorted[i] = NULL;
