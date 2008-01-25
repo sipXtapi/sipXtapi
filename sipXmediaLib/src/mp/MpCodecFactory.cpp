@@ -451,7 +451,7 @@ void MpCodecFactory::addCodecsToList(SdpCodecList &codecList) const
                                                              pCodecInfo->numChannels,
                                                              "",
                                                              codecType);
-         printf("Codec added to list: [%3d]:%s/%d/%d fmtp=\"%s\"\n",
+         osPrintf("Codec added to list: [%3d]:%s/%d/%d fmtp=\"%s\"\n",
                   res==OS_SUCCESS?codecType:-1,
                   pCodecInfo->mimeSubtype, pCodecInfo->sampleRate, pCodecInfo->numChannels,
                   "");
@@ -471,7 +471,7 @@ void MpCodecFactory::addCodecsToList(SdpCodecList &codecList) const
                                                                 pCodecInfo->numChannels,
                                                                 pCodecInfo->fmtps[fmtpIdx],
                                                                 codecType);
-            printf("Codec added to list: [%3d]:%s/%d/%d fmtp=\"%s\"\n",
+            osPrintf("Codec added to list: [%3d]:%s/%d/%d fmtp=\"%s\"\n",
                      res==OS_SUCCESS?codecType:-1,
                      pCodecInfo->mimeSubtype, pCodecInfo->sampleRate, pCodecInfo->numChannels,
                      pCodecInfo->fmtps[fmtpIdx]);
