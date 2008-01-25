@@ -1807,6 +1807,16 @@ int CpTopologyGraphInterface::getCodecCPULimit()
    return iCost ;
 }
 
+uint32_t CpTopologyGraphInterface::getSamplesPerSec()
+{
+   return mpTopologyGraph ? mpTopologyGraph->getSamplesPerSec() : 0;
+}
+
+uint32_t CpTopologyGraphInterface::getSamplesPerFrame()
+{
+   return mpTopologyGraph ? mpTopologyGraph->getSamplesPerFrame() : 0;
+}
+
 // Returns the flowgraph's message queue
    OsMsgQ* CpTopologyGraphInterface::getMsgQ()
 {

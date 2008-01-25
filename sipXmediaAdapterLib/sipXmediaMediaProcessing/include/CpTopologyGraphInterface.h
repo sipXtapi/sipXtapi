@@ -317,7 +317,13 @@ public:
    //! sending/receiving codecs.
    virtual int getCodecCPULimit();
 
-   //!Returns the flowgraph's message queue
+     // @copydoc CpMediaInterface::getSamplesPerSec()
+   virtual uint32_t getSamplesPerSec();
+
+     /// @copydoc CpMediaInterface::getSamplesPerFrame()
+   virtual uint32_t getSamplesPerFrame();
+
+     /// @copydoc CpMediaInterface::getMsgQ()
    virtual OsMsgQ* getMsgQ();
 
    /// @copydoc CpMediaInterface::getNotificationDispatcher()

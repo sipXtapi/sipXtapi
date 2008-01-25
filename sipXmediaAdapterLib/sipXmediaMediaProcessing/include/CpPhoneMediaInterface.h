@@ -301,6 +301,12 @@ public:
    virtual int getCodecCPULimit();
       //:Calculate the worst cost for our sending/receiving codecs
 
+     // @copydoc CpMediaInterface::getSamplesPerSec()
+   virtual uint32_t getSamplesPerSec();
+
+     /// @copydoc CpMediaInterface::getSamplesPerFrame()
+   virtual uint32_t getSamplesPerFrame();
+
    virtual OsMsgQ* getMsgQ();
      //:Returns the flowgraph's message queue
 

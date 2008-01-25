@@ -1787,6 +1787,17 @@ int CpPhoneMediaInterface::getCodecCPULimit()
    return iCost ;
 }
 
+
+uint32_t CpPhoneMediaInterface::getSamplesPerSec()
+{
+   return mpFlowGraph ? mpFlowGraph->getSamplesPerSec() : 0;
+}
+
+uint32_t CpPhoneMediaInterface::getSamplesPerFrame()
+{
+   return mpFlowGraph ? mpFlowGraph->getSamplesPerFrame() : 0;
+}
+
 // Returns the flowgraph's message queue
 OsMsgQ* CpPhoneMediaInterface::getMsgQ()
 {

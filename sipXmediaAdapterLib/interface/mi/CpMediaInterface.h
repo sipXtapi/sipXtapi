@@ -740,21 +740,25 @@ public:
                                       int& videoFramerate) = 0 ;
 
 
-   //! Calculate the current cost for the current set of 
-   //! sending/receiving codecs.
+     /// @brief Calculate the current cost for the current set of sending/receiving codecs.
    virtual int getCodecCPUCost() = 0 ;
 
-   //! Calculate the worst case cost for the current set of 
-   //! sending/receiving codecs.
+     /// @brief Calculate the worst case cost for the current set of sending/receiving codecs.
    virtual int getCodecCPULimit() = 0 ;
 
-   //!Returns the flowgraph's message queue
+     /// @brief Returns the sample rate of the flowgraph.
+   virtual uint32_t getSamplesPerSec() = 0;
+
+     /// @brief Returns the samples per frame of the flowgraph.
+   virtual uint32_t getSamplesPerFrame() = 0;
+
+     /// @brief Returns the flowgraph's message queue
    virtual OsMsgQ* getMsgQ() = 0 ;
 
-      /// @brief Returns the Media Notification dispatcher this controls.
+     /// @brief Returns the Media Notification dispatcher this controls.
    virtual OsMsgDispatcher* getNotificationDispatcher() = 0;
 
-   // Returns the primary codec for the connection
+     /// @brief Returns the primary codec for the connection
    virtual OsStatus getPrimaryCodec(int connectionId, 
                                     UtlString& audioCodec,
                                     UtlString& videoCodec,
