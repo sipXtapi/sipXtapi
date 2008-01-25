@@ -26,7 +26,7 @@
 struct speex_codec_data_decoder
 {
    void *mpDecoderState;    ///< State of the decoder
-   unsigned mNumSamplesPerFrame;
+   unsigned mNumSamplesPerFrame; ///< Number of samples in one frame
    SpeexBits mBits;         ///< Bits used by speex to store information
 };
 
@@ -53,10 +53,11 @@ struct speex_codec_data_encoder
    *  10            42.2      44.0
    * </pre>
    */
+   unsigned mNumSamplesPerFrame; ///< Number of samples in one frame
    int mDoVad;                ///< Set to 1 to enable voice activity detection
    int mDoDtx;                ///< Set to 1 to enable discontinuous transmission
    int mDoVbr;                ///< Set to 1 to enable variable bitrate mode
-   spx_int16_t mpBuffer[160]; ///< Buffer used to store input samples
+   spx_int16_t mpBuffer[320]; ///< Buffer used to store input samples
    int mBufferLoad;           ///< How much data there is in the buffer
    int mDoPreprocess;         ///< Should we do preprocess or not
    SpeexPreprocessState *mpPreprocessState; ///< Preprocessor state
@@ -185,26 +186,24 @@ void* universal_speex_init(const char* fmt, int isDecoder, int samplerate,
       speex_bits_init(&pSpeexDec->mBits);
 
       /* Fill codec information, specific to concrete Speex settings */
+      pCodecInfo->numSamplesPerFrame = pSpeexDec->mNumSamplesPerFrame;
       switch (samplerate)
       {
       case 8000:
          pCodecInfo->minBitrate = 3950;
          pCodecInfo->maxBitrate = 24600;
-         pCodecInfo->numSamplesPerFrame = pSpeexDec->mNumSamplesPerFrame;
          pCodecInfo->minFrameBytes = (79/*bits/frame*/+7)/8;
          pCodecInfo->maxFrameBytes = (492/*bits/frame*/+7)/8;
          break;
       case 16000:
          pCodecInfo->minBitrate = 3950;
          pCodecInfo->maxBitrate = 42200;
-         pCodecInfo->numSamplesPerFrame = pSpeexDec->mNumSamplesPerFrame;
          pCodecInfo->minFrameBytes = (79/*bits/frame*/+7)/8;
          pCodecInfo->maxFrameBytes = (844/*bits/frame*/+7)/8;
          break;
       case 32000:
          pCodecInfo->minBitrate = 5750;
          pCodecInfo->maxBitrate = 44000;
-         pCodecInfo->numSamplesPerFrame = pSpeexDec->mNumSamplesPerFrame;
          pCodecInfo->minFrameBytes = (115/*bits/frame*/+7)/8;
          pCodecInfo->maxFrameBytes = (880/*bits/frame*/+7)/8;
          break;
@@ -234,8 +233,6 @@ void* universal_speex_init(const char* fmt, int isDecoder, int samplerate,
       pSpeexEnc->mDoDenoise = 0;
       pSpeexEnc->mDoAgc = 0;
 
-      pSpeexEnc->mBufferLoad = 0;
-
       pSpeexEnc->mMode = mode;
       if (samplerate == 8000 && pSpeexEnc->mMode == 2)
       {
@@ -264,10 +261,11 @@ void* universal_speex_init(const char* fmt, int isDecoder, int samplerate,
                               &pSpeexEnc->mDoAgc);
       }
 
+      speex_encoder_ctl(pSpeexEnc->mpEncoderState, SPEEX_GET_FRAME_SIZE, &pSpeexEnc->mNumSamplesPerFrame);
       speex_bits_init(&pSpeexEnc->mBits);
 
       /* Fill codec information, specific to concrete Speex settings */
-      speex_encoder_ctl(pSpeexEnc->mpEncoderState, SPEEX_GET_FRAME_SIZE, &pCodecInfo->numSamplesPerFrame);
+      pCodecInfo->numSamplesPerFrame = pSpeexEnc->mNumSamplesPerFrame;
       if (mode > -1)
       {
          pCodecInfo->minFrameBytes = mode;
@@ -280,24 +278,34 @@ void* universal_speex_init(const char* fmt, int isDecoder, int samplerate,
          case 8000:
             pCodecInfo->minFrameBytes = 8;
             pCodecInfo->maxFrameBytes = 7;
-//            pCodecInfo->minFrameBytes = (79/*bits/frame*/+7)/8;
-//            pCodecInfo->maxFrameBytes = (492/*bits/frame*/+7)/8;
+            speex_mode_query(pSpeexMode, SPEEX_SUBMODE_BITS_PER_FRAME, &pCodecInfo->minFrameBytes);
+            speex_mode_query(pSpeexMode, SPEEX_SUBMODE_BITS_PER_FRAME, &pCodecInfo->maxFrameBytes);
+            pCodecInfo->minFrameBytes = (pCodecInfo->minFrameBytes/*bits/frame*/+7)/8;
+            pCodecInfo->maxFrameBytes = (pCodecInfo->maxFrameBytes/*bits/frame*/+7)/8;
+            pCodecInfo->minBitrate = pCodecInfo->minFrameBytes*8/*bits/byte*/*50/*frames/sec*/;
+            pCodecInfo->maxBitrate = pCodecInfo->maxFrameBytes*8/*bits/byte*/*50/*frames/sec*/;
             break;
-         case 16000:
+/*         case 16000:
          case 32000:
             pCodecInfo->minFrameBytes = 0;
             pCodecInfo->maxFrameBytes = 10;
-//            pCodecInfo->minFrameBytes = (79/*bits/frame*/+7)/8;
-//            pCodecInfo->maxFrameBytes = (844/*bits/frame*/+7)/8;
+            break;*/
+         case 16000:
+            pCodecInfo->minBitrate = 3950;
+            pCodecInfo->maxBitrate = 42200;
+            pCodecInfo->numSamplesPerFrame = 16000;
+            pCodecInfo->minFrameBytes = (79/*bits/frame*/+7)/8;
+            pCodecInfo->maxFrameBytes = (844/*bits/frame*/+7)/8;
+            break;
+         case 32000:
+            pCodecInfo->minBitrate = 5750;
+            pCodecInfo->maxBitrate = 44000;
+            pCodecInfo->numSamplesPerFrame = 32000;
+            pCodecInfo->minFrameBytes = (115/*bits/frame*/+7)/8;
+            pCodecInfo->maxFrameBytes = (880/*bits/frame*/+7)/8;
             break;
          }
       }
-      speex_mode_query(pSpeexMode, SPEEX_SUBMODE_BITS_PER_FRAME, &pCodecInfo->minFrameBytes);
-      speex_mode_query(pSpeexMode, SPEEX_SUBMODE_BITS_PER_FRAME, &pCodecInfo->maxFrameBytes);
-      pCodecInfo->minFrameBytes = (pCodecInfo->minFrameBytes/*bits/frame*/+7)/8;
-      pCodecInfo->maxFrameBytes = (pCodecInfo->maxFrameBytes/*bits/frame*/+7)/8;
-      pCodecInfo->minBitrate = pCodecInfo->minFrameBytes*8/*bits/byte*/*50/*frames/sec*/;
-      pCodecInfo->maxBitrate = pCodecInfo->maxFrameBytes*8/*bits/byte*/*50/*frames/sec*/;
 
       return pSpeexEnc;
    }
@@ -382,10 +390,10 @@ int universal_speex_encode(void* handle, const void* pAudioBuffer,
 
    memcpy(&mpSpeexEnc->mpBuffer[mpSpeexEnc->mBufferLoad], pAudioBuffer, SIZE_OF_SAMPLE * cbAudioSamples);
    mpSpeexEnc->mBufferLoad = mpSpeexEnc->mBufferLoad+cbAudioSamples;
-   assert(mpSpeexEnc->mBufferLoad <= 160);
+   assert(mpSpeexEnc->mBufferLoad <= mpSpeexEnc->mNumSamplesPerFrame);
 
    // Check for necessary number of samples
-   if(mpSpeexEnc->mBufferLoad == 160)
+   if(mpSpeexEnc->mBufferLoad == mpSpeexEnc->mNumSamplesPerFrame)
    {
       speex_bits_reset(&mpSpeexEnc->mBits);
 
