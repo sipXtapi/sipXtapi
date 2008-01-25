@@ -1,8 +1,8 @@
 //  
-// Copyright (C) 2006 SIPez LLC. 
+// Copyright (C) 2006-2008 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Copyright (C) 2004-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -20,6 +20,7 @@
 // APPLICATION INCLUDES
 #include "mp/MpRtpBuf.h"
 #include "mp/MpTypes.h"
+#include "mp/MpResampler.h"
 
 // DEFINES
 // MACROS
@@ -42,7 +43,7 @@ public:
 //@{
 
      /// Constructor
-   MpJitterBuffer();
+   MpJitterBuffer(unsigned int sampleRate);
 
      /// Destructor
    virtual
@@ -110,6 +111,17 @@ private:
    static const int JbQueueSize = (12 * (2 * 80)); // 24 packets 10ms each
                                                    // or 12 packets, 20 mS each
                                                    // or 4 packets 60 mS each.
+   static const int JbResampleBufSize = (6 * 160); ///< Size of temporary resample buffer.
+
+   unsigned int mSampleRate;        ///< Output sample rate for decoded data.
+                                    ///< Samples from codecs with different
+                                    ///< sample rate will be resampled to this
+                                    ///< sample rate.
+   MpAudioSample JbResampleBuf[JbResampleBufSize]; ///< Buffer, used to temporarily
+                                    ///< store decoded data if it need to be
+                                    ///< resampled.
+   MpResampler mResampler;          ///< Resampler instance to convert codec
+                                    ///< sample rate to flowgraph sample rate.
 
    int JbQCount;                    ///< Number of decoded samples in JbQ.
    int JbQIn;                       ///< Write pointer position in JbQ.

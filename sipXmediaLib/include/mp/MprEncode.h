@@ -15,15 +15,14 @@
 #ifndef _MprEncode_h_
 #define _MprEncode_h_
 
-#include "mp/MpMisc.h"
-
 // SYSTEM INCLUDES
-
 // APPLICATION INCLUDES
 #include "mp/MpAudioResource.h"
 #include "sdp/SdpCodec.h"
 #include "mp/MpFlowGraphMsg.h"
 #include "mp/MprToNet.h"
+#include "mp/MpMisc.h"
+#include "mp/MpResampler.h"
 
 // DEFINES
 // MACROS
@@ -146,6 +145,16 @@ private:
    int   mConsecutiveUnsentFrames1;
    UtlBoolean mDoesVad1;    ///< Does codec its own VAD?
    UtlBoolean mDisableDTX;  ///< Disable internal DTX.
+//@}
+
+///@name Resampler-related variables.
+//@{
+   UtlBoolean  mNeedResample; ///< Is resampling needed?
+   MpResampler mResampler;  ///< Resampler to convert flowgraph sample rate to
+                            ///< codec's sample rate.
+   unsigned int mResampleBufLen; ///< Length of mpResampleBuf.
+   MpAudioSample *mpResampleBuf; ///< Temporary buffer used to store resampled
+                                 ///< audio samples before passing them to encoder.
 //@}
 
 ///@name DTMF codec state variables

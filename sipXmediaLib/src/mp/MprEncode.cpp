@@ -70,6 +70,11 @@ MprEncode::MprEncode(const UtlString& rName)
    mDoesVad1(FALSE),
    mDisableDTX(TRUE),
 
+   mNeedResample(FALSE),
+   mResampler(1, 8000, 8000),
+   mResampleBufLen(0),
+   mpResampleBuf(NULL),
+
    mpDtmfCodec(NULL),
    mpPacket2Payload(NULL),
    mPacket2PayloadBytes(0),
@@ -89,23 +94,11 @@ MprEncode::MprEncode(const UtlString& rName)
 // Destructor
 MprEncode::~MprEncode()
 {
-   if (NULL != mpPacket1Payload) {
-      delete[] mpPacket1Payload;
-      mpPacket1Payload = NULL;
-   }
-   if (NULL != mpPacket2Payload) {
-      delete[] mpPacket2Payload;
-      mpPacket2Payload = NULL;
-   }
-   if (NULL != mpPrimaryCodec) {
-      delete mpPrimaryCodec;
-      mpPrimaryCodec = NULL;
-   }
-   if (NULL != mpDtmfCodec) {
-      delete mpDtmfCodec;
-      mpDtmfCodec = NULL;
-   }
-   mpToNet = NULL;
+   delete[] mpPacket1Payload;
+   delete[] mpResampleBuf;
+   delete[] mpPacket2Payload;
+   delete mpPrimaryCodec;
+   delete mpDtmfCodec;
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -213,6 +206,14 @@ void MprEncode::handleDeselectCodecs(void)
          mPayloadBytesUsed = 0;
          mSamplesPacked = 0;
       }
+      if (mNeedResample)
+      {
+         mNeedResample = FALSE;
+         mResampler.resetStream();
+         mResampleBufLen = 0;
+         delete[] mpResampleBuf;
+         mpResampleBuf = NULL;
+      }
    }
    if (NULL != mpDtmfCodec) {
       delete mpDtmfCodec;
@@ -261,6 +262,19 @@ void MprEncode::handleSelectCodecs(int newCodecsCount, SdpCodec** newCodecs)
       allocPacketBuffer(*mpPrimaryCodec, mpPacket1Payload, mPacket1PayloadBytes);
       mPayloadBytesUsed = 0;
       mSamplesPacked = 0;
+
+      // Setup resampling
+      unsigned codecSamplesPerSec = mpPrimaryCodec->getInfo()->getSampleRate();
+      unsigned flowgraphSamplesPerSec = mpFlowGraph->getSamplesPerSec();
+      mNeedResample = UtlBoolean(flowgraphSamplesPerSec != codecSamplesPerSec);
+      if (mNeedResample)
+      {
+         mResampler.setInputRate(flowgraphSamplesPerSec);
+         mResampler.setOutputRate(codecSamplesPerSec);
+         mResampleBufLen = mpFlowGraph->getSamplesPerFrame()
+                           * codecSamplesPerSec/flowgraphSamplesPerSec;
+         mpResampleBuf = new MpAudioSample[mResampleBufLen];
+      }
 
       OsSysLog::add(FAC_MP, PRI_DEBUG,
                     "MprEncode::handleSelectCodecs "
@@ -421,7 +435,7 @@ int MprEncode::lookupTone(int toneId)
 
 void MprEncode::doPrimaryCodec(MpAudioBufPtr in, unsigned int startTs)
 {
-   int numSamplesIn;
+   uint32_t numSamplesIn;
    int numSamplesOut;
    const MpAudioSample* pSamplesIn;
    int payloadBytesLeft;
@@ -439,9 +453,23 @@ void MprEncode::doPrimaryCodec(MpAudioBufPtr in, unsigned int startTs)
    if (!in.isValid())
       return;
 
+   // Do resampling if needed.
+   if (mNeedResample)
+   {
+      uint32_t samplesConsumed;
+      mResampler.resample(0,
+                          in->getSamplesPtr(), in->getSamplesNumber(), samplesConsumed,
+                          mpResampleBuf, mResampleBufLen, numSamplesIn);
+      assert(samplesConsumed == in->getSamplesNumber());
+      pSamplesIn = mpResampleBuf;
+   }
+   else
+   {
+      numSamplesIn = in->getSamplesNumber();
+      pSamplesIn = in->getSamplesPtr();
+   }
+
    // Initialize variables
-   numSamplesIn = in->getSamplesNumber();
-   pSamplesIn = in->getSamplesPtr();
    content = MpAudioBuf::MP_SPEECH_UNKNOWN;
    maxPacketSamples = mMaxPacketTime*mpFlowGraph->getSamplesPerSec()/1000;
 

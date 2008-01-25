@@ -144,7 +144,7 @@ void MprDecode::setMyDejitter(MprDejitter* pDJ)
 MpJitterBuffer* MprDecode::getJBinst(UtlBoolean optional)
 {
    if ((NULL == mpJB) && (!optional)) {
-      mpJB = new MpJitterBuffer();
+      mpJB = new MpJitterBuffer(mpFlowGraph->getSamplesPerSec());
       assert(NULL != mpJB);
    }
    return mpJB;
