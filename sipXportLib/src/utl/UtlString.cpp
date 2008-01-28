@@ -596,9 +596,8 @@ void UtlString::toUpper()
 
 // Resize the string to the specified size.
 // use capacity(size_t).
-void UtlString::resize(size_t N)
+void UtlString::resize(size_t N, UtlBoolean clearTail)
 {
-    // CHECK: is this what it is supposed to do???
     if(N > mSize)
     {
         if (mCapacity <= N)
@@ -606,13 +605,20 @@ void UtlString::resize(size_t N)
             capacity(N + 1);
         }
 
-        if(mpData)
+        if (clearTail)
         {
-            for (; mSize < N; mSize++)
+            if (mpData)
             {
+                for (; mSize < N; mSize++)
+                {
+                    mpData[mSize] = '\0';
+                }
                 mpData[mSize] = '\0';
             }
-            mpData[mSize] = '\0';
+        } 
+        else
+        {
+            mSize = N;
         }
     }
     else

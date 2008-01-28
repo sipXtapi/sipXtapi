@@ -575,7 +575,7 @@ public:
 ///@{
 
     /// Set the minimum capacity a string can hold without reallocation.
-    size_t capacity(size_t );
+    size_t capacity(size_t N);
     /**<
      * Set the string's storage capacity to the designated value.
      * This does not modify the value of the string, but rather
@@ -590,11 +590,13 @@ public:
      */
 
     /// Set a new size for the string.
-    void resize(size_t );
+    void resize(size_t N, UtlBoolean clearTail=TRUE);
     /**<
      * Resize the string to the specified size.  If the requested size is less
      * then the the current size (string length), the string will be truncated.
-     * If larger, the string will be padded with nulls.
+     * If requested size is larger then current size and \a clearTail is TRUE
+     * (default), the string will be padded with nulls. If \a clearTail is
+     * FALSE, string will not be paddedwith nulls.
      */
 
 ///@}
