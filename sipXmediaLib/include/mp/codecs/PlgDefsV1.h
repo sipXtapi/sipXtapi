@@ -220,11 +220,11 @@ typedef int   (*dlPlgFreeV1)(void* handle, int isDecoder);
 #define DEFINE_STATIC_REGISTRATOR                                             \
    void callbackRegisterStaticCodec(const char* moduleName,                   \
                                     const char* codecModuleName,              \
-                                    dlPlgInitV2 plgInit,                      \
+                                    dlPlgInitV1_1 plgInit,                    \
                                     dlPlgDecodeV1 plgDecode,                  \
                                     dlPlgEncodeV1 plgEncode,                  \
                                     dlPlgFreeV1 plgFree,                      \
-                                    dlPlgGetGenericInfoV2 plgGetGenericInfo,  \
+                                    dlPlgGetInfoV1_1 plgGetInfo,              \
                                     dlPlgGetSignalingDataV1 plgSignaling);
  
 #define REG_STATIC_NAME(y)          registerStatic_##y
