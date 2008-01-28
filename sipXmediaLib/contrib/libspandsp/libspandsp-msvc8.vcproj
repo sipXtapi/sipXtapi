@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8,00"
-	Name="libspandsp"
+	Version="8.00"
+	Name="libspandsp-msvc8"
 	ProjectGUID="{CF70F278-3364-4395-A2E1-23501C9B8AD2}"
 	RootNamespace="libspandsp"
 	Keyword="Win32Proj"
@@ -61,6 +61,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				OutputFile="..\..\bin\libspandspd.dll"
 				LinkIncremental="2"
 				ModuleDefinitionFile="src\msvc\spandsp-mini.def"
 				GenerateDebugInformation="true"
@@ -136,8 +137,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				OutputFile="..\..\bin\libspandsp.dll"
 				LinkIncremental="1"
-				ModuleDefinitionFile="src\msvc\spandsp.def"
+				ModuleDefinitionFile="src\msvc\spandsp-mini.def"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				OptimizeReferences="2"
