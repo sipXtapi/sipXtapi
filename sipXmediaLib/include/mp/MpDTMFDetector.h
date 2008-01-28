@@ -31,7 +31,7 @@
 /**
 *  @brief A simple DTMF detector class that uses the Goertzel algorithm
 *
-*  The DTMFDetector is a simple class that implements the goertzel algorithm
+*  The MpDtmfDetector is a simple class that implements the goertzel algorithm
 *  for detecting multiple frequencies.  It also incorporates some other checks
 *  to make sure that the DTMF tones pass other tests that are needed for working
 *  with bell standards (i.e. twist is in-range, etc).
@@ -52,7 +52,7 @@
 *  was properly detected, NULL will be returned.
 *  
 */
-class DTMFDetector
+class MpDtmfDetector
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
@@ -61,10 +61,10 @@ public:
 //@{
 
      /// Default constructor
-   DTMFDetector(const unsigned samplesPerSec, const unsigned nProcessSamples);
+   MpDtmfDetector(const unsigned samplesPerSec, const unsigned nProcessSamples);
 
    /// Destructor
-   virtual ~DTMFDetector();
+   virtual ~MpDtmfDetector();
 
 //@}
 

@@ -33,7 +33,6 @@ public:
    void testToneAuthenticity()
    {
       MprToneGen* pToneGen = NULL;
-      MpBufPtr pBuf;
       OsStatus res;
 
       int framesToProcess = 3;
@@ -41,7 +40,7 @@ public:
       // Create the Goertzel DTMF detector -- sample rate and goertzel_n doesn't
       // really matter here, since we'll be resetting it in the loop.
       // But to illustrate, here is what should be used for 8khz
-      DTMFDetector dtmfDetector(8000, framesToProcess*80);
+      MpDtmfDetector dtmfDetector(8000, framesToProcess*80);
 
       size_t i;
       for(i = 0; i < sNumRates; i++)
@@ -113,8 +112,7 @@ public:
                   CPPUNIT_ASSERT_EQUAL(FALSE, dtmfDetected);
             }
 
-            // Free pBuf and paBuf
-            pBuf.release();
+            // Free up buffers..
             paBuf.release();
          }
 

@@ -18,12 +18,12 @@
 
 
 // Class data allocation
-double DTMFDetector::sFreqs_to_detect[] = 
+double MpDtmfDetector::sFreqs_to_detect[] = 
 { 
    697, 770, 852, 941, // DTMF key row
    1209, 1336, 1477, 1633 // DTMF key column
 };
-uint8_t DTMFDetector::snFreqsToDetect = sizeof(DTMFDetector::sFreqs_to_detect)/sizeof(double);
+uint8_t MpDtmfDetector::snFreqsToDetect = sizeof(MpDtmfDetector::sFreqs_to_detect)/sizeof(double);
 
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
@@ -31,7 +31,7 @@ uint8_t DTMFDetector::snFreqsToDetect = sizeof(DTMFDetector::sFreqs_to_detect)/s
 /* ============================ CREATORS ================================== */
 
 // Constructor
-DTMFDetector::DTMFDetector(const unsigned samplesPerSec, const unsigned numProcessSamples)
+MpDtmfDetector::MpDtmfDetector(const unsigned samplesPerSec, const unsigned numProcessSamples)
 : mSamplesPerSec(samplesPerSec)
 , mNumProcessSamples(numProcessSamples)
 {
@@ -43,7 +43,7 @@ DTMFDetector::DTMFDetector(const unsigned samplesPerSec, const unsigned numProce
 }
 
 // Destructor
-DTMFDetector::~DTMFDetector()
+MpDtmfDetector::~MpDtmfDetector()
 {
    delete[] mQ1;
    delete[] mQ2;
@@ -53,7 +53,7 @@ DTMFDetector::~DTMFDetector()
 
 /* ============================ MANIPULATORS ============================== */
 
-void DTMFDetector::reset()
+void MpDtmfDetector::reset()
 {
    mSampleCount = 0;
    mLastDetectedDTMF = 0;
@@ -70,18 +70,18 @@ void DTMFDetector::reset()
    calcCoeffs();
 }
 
-void DTMFDetector::setSamplesPerSec(const unsigned samplesPerSec)
+void MpDtmfDetector::setSamplesPerSec(const unsigned samplesPerSec)
 {
    mSamplesPerSec = samplesPerSec;
    reset();
 }
 
-void DTMFDetector::setNumProcessSamples(const unsigned numProcessSamples)
+void MpDtmfDetector::setNumProcessSamples(const unsigned numProcessSamples)
 {
    mNumProcessSamples = numProcessSamples; 
 }
 
-UtlBoolean DTMFDetector::processSample(const MpAudioSample sample)
+UtlBoolean MpDtmfDetector::processSample(const MpAudioSample sample)
 {
    UtlBoolean ret = FALSE;
    double q0;
@@ -112,17 +112,17 @@ UtlBoolean DTMFDetector::processSample(const MpAudioSample sample)
 
 /* ============================ ACCESSORS ================================= */
 
-unsigned DTMFDetector::getSamplesPerSec() const
+unsigned MpDtmfDetector::getSamplesPerSec() const
 {
    return mSamplesPerSec;
 }
 
-unsigned DTMFDetector::getNumProcessSamples() const
+unsigned MpDtmfDetector::getNumProcessSamples() const
 {
    return mNumProcessSamples;
 }
 
-char DTMFDetector::getLastDetectedDTMF() const
+char MpDtmfDetector::getLastDetectedDTMF() const
 {
    return mLastDetectedDTMF;
 }
@@ -133,7 +133,7 @@ char DTMFDetector::getLastDetectedDTMF() const
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
-void DTMFDetector::calcCoeffs()
+void MpDtmfDetector::calcCoeffs()
 {
    int n;
 
@@ -143,7 +143,7 @@ void DTMFDetector::calcCoeffs()
    }
 }
 
-void DTMFDetector::dtmfValidation()
+void MpDtmfDetector::dtmfValidation()
 {
    int row, col, passed_tests;
    int peak_count, max_index;
