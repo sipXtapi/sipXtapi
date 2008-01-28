@@ -34,10 +34,6 @@
 #include <os/OsMsgDispatcher.h>
 #include <mp/MpResNotificationMsg.h>
 
-#ifdef HAVE_SPEEX
-#include "speex/speex_resampler.h"
-#endif
-
 // Include static wave data headers.
 // These were generated from 16bit 48kHz mono raw sound files, using the following command:
 // $ incbin.exe file.raw WBMixerTestTones.h -n=WBMixerTestTones -c=13 -d -h
