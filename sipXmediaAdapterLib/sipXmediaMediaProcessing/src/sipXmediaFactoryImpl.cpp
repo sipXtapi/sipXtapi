@@ -108,10 +108,10 @@ sipXmediaFactoryImpl::sipXmediaFactoryImpl(OsConfigDb* pConfigDb,
                                            uint32_t maxSamplesPerFrame, 
                                            uint32_t maxSamplesPerSec)
 {
-   // See doxyegen comments for this constructor for information on the impact 
+   // See Doxygen comments for this constructor for information on the impact 
    // of the values of maxSamplesPerFrame and maxSamplesPerSec.
-   mMaxSamplesPerFrame = (maxSamplesPerFrame == 0) ? 16000 : maxSamplesPerFrame;
-   mMaxSamplesPerSec = (maxSamplesPerSec == 0) ? 160 : maxSamplesPerSec;
+   mMaxSamplesPerFrame = (maxSamplesPerFrame == 0) ? 80 : maxSamplesPerFrame;
+   mMaxSamplesPerSec = (maxSamplesPerSec == 0) ? 8000 : maxSamplesPerSec;
 
    int maxFlowGraph = -1; 
    UtlString strInBandDTMF;
