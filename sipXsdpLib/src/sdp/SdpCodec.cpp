@@ -50,8 +50,6 @@ SdpCodec::SdpCodec(enum SdpCodecTypes sdpCodecType,
    mVideoFormat(videoFormat),
    mVideoFmtp(videoFmtp)
 {
-   if()
-
    mMimeSubtype.toLower();
    mMimeType.toLower();
    setValue(sdpCodecType);
