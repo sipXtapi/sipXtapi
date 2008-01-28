@@ -95,7 +95,7 @@
 class WBInputOutputDeviceTest : public CppUnit::TestCase
 {
    CPPUNIT_TEST_SUITE(WBInputOutputDeviceTest);
-   //CPPUNIT_TEST(testMixerWB);
+   CPPUNIT_TEST(testMixerWB);
    CPPUNIT_TEST(testInputOutputWB);
    CPPUNIT_TEST_SUITE_END();
 
@@ -479,6 +479,8 @@ public:
       CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
                            MprFromFile::playBuffer("FromFile", *pFlowgraph->getMsgQ(), 
                                                    pRecBuf, pRecBufLen, 
+                                                   pFlowgraph->getSamplesPerSec(),
+                                                   pFlowgraph->getSamplesPerSec(),
                                                    0, FALSE, NULL));
 
       int maxPlayLoops = (toneDurationMS * numFreqs)/100 + 10;
@@ -551,69 +553,12 @@ public:
       MpAudioSample* pPlayBuffer1 = (MpAudioSample*)WBMixerTestTones;
       MpAudioSample* pPlayBuffer2 = (MpAudioSample*)WBMixerTestReversedTones;
 
-      // Create new buffers to store the resampled data.
-      size_t resampledBuffer1Len = 
-         (size_t)((double)WBMixerTestTones_in_bytes/((double)TEST_MAX_SAMPLE_RATE/sampleRate));
-      size_t resampledBuffer2Len = 
-         (size_t)((double)WBMixerTestReversedTones_in_bytes/((double)TEST_MAX_SAMPLE_RATE/sampleRate));
-      MpAudioSample* pResampledBuffer1 = new MpAudioSample[resampledBuffer1Len];
-      MpAudioSample* pResampledBuffer2 = new MpAudioSample[resampledBuffer2Len];
-
-      // if we're at a rate other than 48000, we need to resample the 
-      // static buffer we have.
-      if(sampleRate != TEST_MAX_SAMPLE_RATE)
-      {
-#ifdef HAVE_SPEEX
-         int speex_err = 0;
-         SpeexResamplerState* pResampler;
-         pResampler = speex_resampler_init(1, TEST_MAX_SAMPLE_RATE, 
-                                           sampleRate, 9, &speex_err);
-         CPPUNIT_ASSERT_EQUAL((int)RESAMPLER_ERR_SUCCESS, speex_err);
-         // Resample the first buffer.
-         spx_uint32_t inLen = WBMixerTestTones_in_bytes/sizeof(MpAudioSample);
-         spx_uint32_t outLen = resampledBuffer1Len/sizeof(MpAudioSample);
-         CPPUNIT_ASSERT_EQUAL((int)RESAMPLER_ERR_SUCCESS,
-                              speex_resampler_process_int(pResampler, 0, 
-                                                          (const spx_int16_t*)WBMixerTestTones, 
-                                                          &inLen,
-                                                          pResampledBuffer1, 
-                                                          &outLen));
-         CPPUNIT_ASSERT_EQUAL((spx_uint32_t)WBMixerTestTones_in_bytes/sizeof(MpAudioSample), inLen);
-         CPPUNIT_ASSERT_EQUAL((spx_uint32_t)resampledBuffer1Len/sizeof(MpAudioSample), outLen);
-
-         inLen = WBMixerTestReversedTones_in_bytes/sizeof(MpAudioSample);
-         outLen = resampledBuffer2Len/sizeof(MpAudioSample);
-         // Resample the second buffer.
-         CPPUNIT_ASSERT_EQUAL((int)RESAMPLER_ERR_SUCCESS,
-                              speex_resampler_process_int(pResampler, 0, 
-                                                          (const spx_int16_t*)WBMixerTestReversedTones, 
-                                                          &inLen,
-                                                          pResampledBuffer2, 
-                                                          &outLen));
-         CPPUNIT_ASSERT_EQUAL((spx_uint32_t)WBMixerTestReversedTones_in_bytes/sizeof(MpAudioSample), inLen);
-         CPPUNIT_ASSERT_EQUAL((spx_uint32_t)resampledBuffer2Len/sizeof(MpAudioSample), outLen);
-
-         // Now replace the pointers we use for playing the buffers with these
-         // resampled versions.
-         playBuffer1Len = resampledBuffer1Len;
-         playBuffer2Len = resampledBuffer2Len;
-         pPlayBuffer1 = pResampledBuffer1;
-         pPlayBuffer2 = pResampledBuffer2;
-#else
-         printf("No SPEEX support -- This test requires speex for it's resampler\n");
-         delete pResampledBuffer1;
-         delete pResampledBuffer2;
-         return;
-#endif
-      }
-
 
       // Setup the initial bits of the flowgraph, allocating the flowgraph and 
       // media task (thereby filling in the passed in pointers, which should
       // always be null when passed in).
       setupWBMediaTask(sampleRate, samplesPerFrame, 
                        pInMgr, pOutMgr, pFlowgraph, pMediaTask);
-
 
 
       pSpkrOutDrv = new OUTPUT_DRIVER(OUTPUT_DRIVER_CONSTRUCTOR_PARAMS);
@@ -627,7 +572,6 @@ public:
       pPlayRToOutputDev =
          new MprToOutputDevice("ToOutput-PlaySpkr", 
                                pOutMgr, spkrDevHnd);
-
 
 
       CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, 
@@ -675,10 +619,12 @@ public:
       // Now we load up the buffers.
       MprFromFile::playBuffer("FromFile-1", *pFlowgraph->getMsgQ(),
                               (const char*)pPlayBuffer1, playBuffer1Len,
+                              48000, pFlowgraph->getSamplesPerSec(),
                               0, FALSE, NULL);
 
       MprFromFile::playBuffer("FromFile-2", *pFlowgraph->getMsgQ(),
                               (const char*)pPlayBuffer2, playBuffer2Len,
+                              48000, pFlowgraph->getSamplesPerSec(),
                               0, FALSE, NULL);
 
       // Delay until tones are finished playing, adding in an extra second if the 
@@ -719,8 +665,6 @@ public:
       delete pInMgr;
       delete pOutMgr;
       delete pSpkrOutDrv;
-      delete pResampledBuffer1;
-      delete pResampledBuffer2;
    }
 
 protected:
