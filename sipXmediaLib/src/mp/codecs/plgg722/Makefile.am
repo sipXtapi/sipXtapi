@@ -5,12 +5,12 @@ INCLUDES = -I$(top_srcdir)/include -I$(top_srcdir)/../sipXportLib/include @SPAND
 pkgdata_LTLIBRARIES = codec_g722.la
 
 codec_g722_la_SOURCES = plgg722.c
-codec_g722_la_LIBADD = @SPANDSP_LIBS@
 
 if G722_STATIC
 codec_g722_la_CFLAGS  = -DCODEC_STATIC
-codec_g722_la_LDFLAGS = -module -avoid-version -static @SPANDSP_LDFLAGS@
+codec_g722_la_LDFLAGS = -module -avoid-version -static
 else
+codec_g722_la_LIBADD = @SPANDSP_LIBS@
 codec_g722_la_LDFLAGS = -module -avoid-version @SPANDSP_LDFLAGS@ 
 
 all-local: codec_g722.la

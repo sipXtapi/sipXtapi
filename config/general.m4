@@ -1391,6 +1391,7 @@ AC_DEFUN([AM_SET_STATIC_G726],
     if test "$G726_TARGET" != ""; then
     AC_DEFINE(CODEC_G726_STATIC, [1], [Select G726 for static link])
 
+    LDFLAGS="$LDFLAGS $SPANDSP_LDFLAGS $SPANDSP_LIBS"
     STATIC_CODEC_LIBS="${STATIC_CODEC_LIBS} mp/codecs/plgg726/codec_g726.la"
     AC_SUBST(STATIC_CODEC_LIBS)
     fi
@@ -1428,6 +1429,7 @@ AC_DEFUN([AM_SET_STATIC_G722],
     if test "$G722_TARGET" != ""; then
     AC_DEFINE(CODEC_G722_STATIC, [1], [Select G722 for static link])
 
+    LDFLAGS="$LDFLAGS $SPANDSP_LDFLAGS $SPANDSP_LIBS"
     STATIC_CODEC_LIBS="${STATIC_CODEC_LIBS} mp/codecs/plgg722/codec_g722.la"
     AC_SUBST(STATIC_CODEC_LIBS)
     fi
