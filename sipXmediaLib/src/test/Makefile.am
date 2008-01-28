@@ -30,6 +30,7 @@ testsuite_SOURCES = \
     mp/MpGenericResourceTest.h \
     mp/MpGenericResourceTest.cpp \
     mp/MprBridgeTest.cpp \
+	mp\MprFromFileTest.cpp \
     mp/MprFromMicTest.cpp \
     mp/MprMixerTest.cpp \
     mp/MprSplitterTest.cpp \
@@ -61,5 +62,7 @@ sandbox_LDFLAGS = $(testsuite_LDFLAGS)
 sandbox_LDADD = $(testsuite_LDADD)
 
 sandbox_SOURCES = \
-    mp/MpOutputFrameworkTest.cpp \
-    mp/MpInputOutputFrameworkTest.cpp
+	mp/dtmf5_48khz_16b_signed.h \
+    mp/MpTestResource.cpp \
+    mp/MpGenericResourceTest.cpp \
+    mp/MprToneGenTest.cpp 

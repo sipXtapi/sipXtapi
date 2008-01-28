@@ -166,6 +166,9 @@
 				RelativePath=".\src\test\mp\MpResourceTopologyTest.cpp">
 			</File>
 			<File
+				RelativePath=".\src\test\mp\MprFromFileTest.cpp">
+			</File>
+			<File
 				RelativePath=".\src\test\mp\MprFromMicTest.cpp">
 			</File>
 			<File
@@ -191,6 +194,9 @@
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}">
+			<File
+				RelativePath=".\src\test\mp\dtmf5_48khz_16b_signed.h">
+			</File>
 			<File
 				RelativePath=".\src\test\mp\MpGenericResourceTest.h">
 			</File>

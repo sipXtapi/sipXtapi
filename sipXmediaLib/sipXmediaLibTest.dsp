@@ -141,6 +141,10 @@ SOURCE=.\src\test\mp\MpResourceTopologyTest.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\test\mp\MprFromFileTest.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\test\mp\MprFromMicTest.cpp
 # End Source File
 # Begin Source File
@@ -195,6 +199,10 @@ SOURCE=..\sipXportLib\src\test\sipxunit\unitmain.cpp
 # Begin Group "Header Files"
 
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
+# Begin Source File
+
+SOURCE=.\src\test\mp\dtmf5_48khz_16b_signed.h
+# End Source File
 # Begin Source File
 
 SOURCE=.\src\test\mp\MpGenericResourceTest.h
