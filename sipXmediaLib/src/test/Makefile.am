@@ -30,7 +30,7 @@ testsuite_SOURCES = \
     mp/MpGenericResourceTest.h \
     mp/MpGenericResourceTest.cpp \
     mp/MprBridgeTest.cpp \
-	mp\MprFromFileTest.cpp \
+	mp/MprFromFileTest.cpp \
     mp/MprFromMicTest.cpp \
     mp/MprMixerTest.cpp \
     mp/MprSplitterTest.cpp \
