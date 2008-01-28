@@ -33,6 +33,12 @@ static void initStaticCodec(void)
 #ifdef CODEC_G726_STATIC
    REGISTER_STATIC_PLG(g726);
 #endif
+#ifdef CODEC_GSM_STATIC
+   REGISTER_STATIC_PLG(libgsm);
+#endif
+#ifdef CODEC_SPEEX_STATIC
+   REGISTER_STATIC_PLG(speex);
+#endif
 }
 }
 
