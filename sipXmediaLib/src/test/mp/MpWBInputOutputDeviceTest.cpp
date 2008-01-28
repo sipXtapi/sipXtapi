@@ -541,15 +541,6 @@ public:
       OUTPUT_DRIVER* pSpkrOutDrv = NULL;
       MpOutputDeviceHandle spkrDevHnd = 0;
 
-      // Initialize the pointers we'll use to play the audio to the
-      // non-resampled buffers first.  If speex is available, then these 
-      // pointers will be re-written after resampling.
-      size_t playBuffer1Len = WBMixerTestTones_in_bytes;
-      size_t playBuffer2Len = WBMixerTestReversedTones_in_bytes;
-      MpAudioSample* pPlayBuffer1 = (MpAudioSample*)WBMixerTestTones;
-      MpAudioSample* pPlayBuffer2 = (MpAudioSample*)WBMixerTestReversedTones;
-
-
       // Setup the initial bits of the flowgraph, allocating the flowgraph and 
       // media task (thereby filling in the passed in pointers, which should
       // always be null when passed in).
@@ -614,12 +605,14 @@ public:
 
       // Now we load up the buffers.
       MprFromFile::playBuffer("FromFile-1", *pFlowgraph->getMsgQ(),
-                              (const char*)pPlayBuffer1, playBuffer1Len,
+                              (const char*)WBMixerTestTones,
+                              WBMixerTestTones_in_bytes,
                               48000, pFlowgraph->getSamplesPerSec(),
                               0, FALSE, NULL);
 
       MprFromFile::playBuffer("FromFile-2", *pFlowgraph->getMsgQ(),
-                              (const char*)pPlayBuffer2, playBuffer2Len,
+                              (const char*)WBMixerTestReversedTones,
+                              WBMixerTestReversedTones_in_bytes,
                               48000, pFlowgraph->getSamplesPerSec(),
                               0, FALSE, NULL);
 
