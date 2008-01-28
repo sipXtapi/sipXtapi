@@ -21,7 +21,7 @@
 // Include static wave data headers.
 // These were generated from 16bit 48kHz mono raw sound files, using the following command:
 // $ incbin.exe file.raw dtmf5_48kHz_16b_signed.h -n=dtmf5_48kHz_16b_signed -c=13 -d -h
-#include "dtmf5_48kHz_16b_signed.h"
+#include "mp/dtmf5_48khz_16b_signed.h"
 #define DTMF5_FN "dtmf5_48kHz_16b_signed.wav"
 
 /**
