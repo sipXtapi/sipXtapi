@@ -158,17 +158,17 @@ public:
             const char* endName,      ///< if NULL, defaults to previous string
             int recorderMask);
 
-   OsStatus recordMic(UtlString* pAudioBuffer);
+   OsStatus recordMic(int ms, UtlString* pAudioBuffer);
 
    OsStatus recordMic(int ms,
-                   int silenceLength,
-                   const char* fileName) ;
+                      int silenceLength,
+                      const char* fileName) ;
 
    OsStatus ezRecord(int ms,
-                   int silenceLength,
-                   const char* fileName,
-                   double& duration,
-                   MprRecorder::RecordFileFormat format = MprRecorder::RAW_PCM_16);
+                     int silenceLength,
+                     const char* fileName,
+                     double& duration,
+                     MprRecorder::RecordFileFormat format = MprRecorder::RAW_PCM_16);
 
    OsStatus record(int timeMS,
                    int silenceLength,

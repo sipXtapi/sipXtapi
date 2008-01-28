@@ -37,31 +37,31 @@
 */
 class MpBufRecStartResourceMsg : public MpResourceMsg
 {
-   /* //////////////////////////// PUBLIC //////////////////////////////////// */
+/* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
-   /* ============================ CREATORS ================================== */
-   ///@name Creators
-   //@{
+/* ============================ CREATORS ================================== */
+///@name Creators
+//@{
 
      /// Constructor
-   inline MpBufRecStartResourceMsg(const UtlString& msgDestName, 
-                                   UtlString* pAudioBuf);
+   inline MpBufRecStartResourceMsg(const UtlString& msgDestName,
+                                   int ms, UtlString* pAudioBuf);
 
      /// Copy constructor
    inline MpBufRecStartResourceMsg(const MpBufRecStartResourceMsg& rMpResourceMsg);
 
      /// Create a copy of this msg object (which may be of a derived type)
-   inline OsMsg* createCopy(void) const;
+   inline OsMsg* createCopy() const;
 
      /// Destructor
    inline ~MpBufRecStartResourceMsg();
 
-   //@}
+//@}
 
-     /* ============================ MANIPULATORS ============================== */
-     ///@name Manipulators
-     //@{
+/* ============================ MANIPULATORS ============================== */
+///@name Manipulators
+//@{
 
      /// Assignment operator
    inline MpBufRecStartResourceMsg& operator=(const MpBufRecStartResourceMsg& rhs);
@@ -74,45 +74,56 @@ public:
      *  @param pAudioBuf the new audio buffer that is to be set in this resource.
      */
 
-   /* ============================ ACCESSORS ================================= */
-   ///@name Accessors
-   //@{
+     /// @brief Set recording length (in milliseconds).
+   inline void setRecordingLength(int ms);
+
+//@}
+
+/* ============================ ACCESSORS ================================= */
+///@name Accessors
+//@{
 
      /// @brief Get the record buffer that is associated with this resource.
-   inline UtlString* getAudioBuffer(void) const;
+   inline UtlString* getAudioBuffer() const;
 
-   //@}
+     /// @brief Get recording length (in milliseconds).
+   inline int getRecordingLength() const;
 
-   /* ============================ INQUIRY =================================== */
-   ///@name Inquiry
-   //@{
+//@}
 
-   //@}
+/* ============================ INQUIRY =================================== */
+///@name Inquiry
+//@{
 
-   /* //////////////////////////// PROTECTED ///////////////////////////////// */
+//@}
+
+/* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 
-   /* //////////////////////////// PRIVATE /////////////////////////////////// */
+/* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-   UtlString* mpAudioBuf; ///< The buffer to record audio to.
+   int        mRecordingLength; ///< Number of milliseconds to record.
+   UtlString* mpAudioBuf;       ///< The buffer to record audio to.
 };
 
 /* ============================ INLINE METHODS ============================ */
 
 MpBufRecStartResourceMsg::MpBufRecStartResourceMsg(const UtlString& msgDestName, 
-                                                   UtlString* pAudioBuf)
+                                                   int ms, UtlString* pAudioBuf)
 : MpResourceMsg(MPRM_BUF_RECORDER_START, msgDestName)
+, mRecordingLength(ms)
 , mpAudioBuf(pAudioBuf)
 {
 }
 
 MpBufRecStartResourceMsg::MpBufRecStartResourceMsg(const MpBufRecStartResourceMsg& rMpResourceMsg)
 : MpResourceMsg(rMpResourceMsg)
+, mRecordingLength(rMpResourceMsg.mRecordingLength)
 , mpAudioBuf(rMpResourceMsg.mpAudioBuf)
 {
 }
 
-inline OsMsg* MpBufRecStartResourceMsg::createCopy(void) const 
+inline OsMsg* MpBufRecStartResourceMsg::createCopy() const 
 {
    return new MpBufRecStartResourceMsg(*this); 
 }
@@ -129,18 +140,29 @@ MpBufRecStartResourceMsg::operator=(const MpBufRecStartResourceMsg& rhs)
       return *this;  // handle the assignment to self case
 
    MpResourceMsg::operator=(rhs);  // assign fields for parent class
+   mRecordingLength = rhs.mRecordingLength;
    mpAudioBuf = rhs.mpAudioBuf;
    return *this;
 }
 
-void MpBufRecStartResourceMsg::setAudioBuffer(UtlString* pAudioBuf) 
+void MpBufRecStartResourceMsg::setAudioBuffer(UtlString* pAudioBuf)
 { 
    mpAudioBuf = pAudioBuf;
 }
 
-UtlString* MpBufRecStartResourceMsg::getAudioBuffer(void) const
+void MpBufRecStartResourceMsg::setRecordingLength(int ms)
+{ 
+   mRecordingLength = ms;
+}
+
+UtlString* MpBufRecStartResourceMsg::getAudioBuffer() const
 {
    return mpAudioBuf;
+}
+
+int MpBufRecStartResourceMsg::getRecordingLength() const
+{
+   return mRecordingLength;
 }
 
 #endif  // _MpBufRecStartResourceMsg_h_

@@ -1547,12 +1547,12 @@ OsStatus CpPhoneMediaInterface::stopRecording()
    return ret;
 }
 
-OsStatus CpPhoneMediaInterface::recordMic(UtlString* pAudioBuffer)
+OsStatus CpPhoneMediaInterface::recordMic(int ms, UtlString* pAudioBuffer)
 {
    OsStatus stat = OS_UNSPECIFIED;
    if(mpFlowGraph != NULL)
    {
-      stat = mpFlowGraph->recordMic(pAudioBuffer);
+      stat = mpFlowGraph->recordMic(ms, pAudioBuffer);
    }
    return stat;
 }

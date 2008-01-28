@@ -60,7 +60,7 @@ OsStatus CpMediaInterface::enableRtpReadNotification(int connectionId,
    return OS_NOT_SUPPORTED;
 };
 
-OsStatus CpMediaInterface::recordMic(UtlString* pAudioBuf) 
+OsStatus CpMediaInterface::recordMic(int ms, UtlString* pAudioBuf) 
 { 
    return OS_NOT_SUPPORTED; 
 };

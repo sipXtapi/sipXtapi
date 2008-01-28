@@ -900,12 +900,11 @@ OsStatus MpCallFlowGraph::Record(int ms,
    return res;
 }
 
-OsStatus MpCallFlowGraph::recordMic(UtlString* pAudioBuffer)
+OsStatus MpCallFlowGraph::recordMic(int ms, UtlString* pAudioBuffer)
 {
    OsStatus stat = OS_FAILED;
-   stat = MprBufferRecorder::startRecording(
-             mpBufferRecorder->getName(),
-             *getMsgQ(), pAudioBuffer);
+   stat = MprBufferRecorder::startRecording(mpBufferRecorder->getName(),
+                                            *getMsgQ(), ms, pAudioBuffer);
    return stat;
 }
 

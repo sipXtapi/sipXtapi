@@ -217,8 +217,8 @@ public:
            double& duration, 
            OsProtectedEvent* ev = NULL);
 
-     /// @copydoc CpMediaInterface::recordMic(UtlString*)
-   virtual OsStatus recordMic(UtlString* pAudioBuffer);
+     /// @copydoc CpMediaInterface::recordMic(int,UtlString*)
+   virtual OsStatus recordMic(int ms, UtlString* pAudioBuffer);
 
      /// @copydoc CpMediaInterface::recordMic(int, int, const char*)
    virtual OsStatus recordMic(int ms,

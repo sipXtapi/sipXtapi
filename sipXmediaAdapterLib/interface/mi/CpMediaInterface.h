@@ -647,13 +647,16 @@ public:
      */
 
      /// Record the microphone data
-   virtual OsStatus recordMic(UtlString* pAudioBuf);
+   virtual OsStatus recordMic(int ms, UtlString* pAudioBuf);
      /**<
-     *  Record a fixed amount of audio from the microphone to a buffer 
-     *  passed in.
+     *  Record audio from the microphone to a buffer passed in. Capacity of
+     *  \a pAudioBuf is increased to hold full recording. Length of \a pAudioBuf
+     *  is set to 0 initially and then increased with every recorded frame.
+     *
      *  @note The flowgraph must be in focus for this to work properly.
      *
-     *  @param pAudioBuf a fixed audio buffer to record to.
+     *  @param[in] ms - The amount of time, in milliseconds, to record.
+     *  @param[in] pAudioBuf - Audio buffer to record to.
      */
 
    //! Stop recording for this call.
