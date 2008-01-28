@@ -330,7 +330,7 @@ OsStatus MprFromFile::readAudioFile(uint32_t fgSampleRate,
 
    if (!inputFile.good())
    {
-      return OS_INVALID_ARGUMENT;
+      return OS_FILE_NOT_FOUND;
    }
 
    //get file size
