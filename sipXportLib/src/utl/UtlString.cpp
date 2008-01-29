@@ -609,11 +609,10 @@ void UtlString::resize(size_t N, UtlBoolean clearTail)
         {
             if (mpData)
             {
-                for (; mSize < N; mSize++)
+                for (; mSize <= N; mSize++)
                 {
                     mpData[mSize] = '\0';
                 }
-                mpData[mSize] = '\0';
             }
         } 
         else
