@@ -133,6 +133,10 @@ SOURCE=.\src\test\mp\MprBridgeTest.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\test\mp\MprBridgeTestWB.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\test\mp\MpResourceTest.cpp
 # End Source File
 # Begin Source File

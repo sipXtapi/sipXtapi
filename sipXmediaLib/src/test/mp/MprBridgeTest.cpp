@@ -1,12 +1,12 @@
 //  
-// Copyright (C) 2006 SIPfoundry Inc. 
-// Licensed by SIPfoundry under the LGPL license. 
-//  
-// Copyright (C) 2006 SIPez LLC. 
+// Copyright (C) 2006-2008 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
-//  
-// $$ 
-////////////////////////////////////////////////////////////////////////////// 
+//
+// Copyright (C) 2006-2008 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// $$
+///////////////////////////////////////////////////////////////////////////////
 
 #include <mp/MpMediaTask.h>
 #include <mp/MpFlowGraphBase.h>
@@ -39,6 +39,7 @@ class MprBridgeTest : public MpGenericResourceTest
     CPPUNIT_TEST(testSideBar);
     CPPUNIT_TEST(testMixNormalWeights);
     CPPUNIT_TEST(testSimpleMixPerformance);
+    CPPUNIT_TEST(testWBCommonTests);
     CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -542,6 +543,27 @@ public:
 
    } // end testSimpleMixPerformance()
 
+   void testWBCommonTests()
+   {
+      size_t     i;	 
+      for(i = 0; i < sNumRates; i++)	 
+      {	 
+         printf("Test %d Hz\n", sSampleRates[i]);	 
+         // For this test, we want to modify the sample rate and samples per frame	 
+         // so we need to de-inititialize what has already been initialized for us	 
+         // by cppunit, or by a previous loop.	 
+         tearDown();	 
+
+         // Set the sample rates	 
+         setSamplesPerSec(sSampleRates[i]);	 
+         setSamplesPerFrame(sSampleRates[i]/100);	 
+         setUp();
+
+         testSimpleMixPerformance();
+         testMixNormalWeights();
+         testSideBar();
+      }
+   } // end testWBCommonTests()
 };
 
 

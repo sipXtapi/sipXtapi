@@ -1,8 +1,8 @@
 //  
-// Copyright (C) 2007 SIPez LLC. 
+// Copyright (C) 2007-2008 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2007 SIPfoundry Inc.
+// Copyright (C) 2007-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // $$
@@ -111,6 +111,8 @@ public:
       /// Set a new tone to be played.
     virtual OsStatus setTone(unsigned int periodInMicroseconds);
 
+     /// Set a new magnitude to be played.
+    virtual OsStatus setMagnitude(unsigned int magnitude);
 //@}
 
 /* ============================ ACCESSORS ================================= */

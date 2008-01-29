@@ -655,6 +655,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\src\test\mp\MprBridgeTestWB.cpp"
+				>
+			</File>
+			<File
 				RelativePath="src\test\mp\MpResourceTest.cpp"
 				>
 			</File>

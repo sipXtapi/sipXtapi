@@ -1,8 +1,8 @@
 //  
-// Copyright (C) 2007 SIPez LLC. 
+// Copyright (C) 2007-2008 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2007 SIPfoundry Inc.
+// Copyright (C) 2007-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // $$
@@ -261,6 +261,14 @@ OsStatus MpSineWaveGeneratorDeviceDriver::setTone(unsigned int periodInMicroseco
    // Set the new tone value.
    mPeriodInMicroseconds = periodInMicroseconds;
    ((MpSineWaveGeneratorServer*)mpReaderTask)->setTone(mPeriodInMicroseconds);
+   return OS_SUCCESS;
+}
+
+OsStatus MpSineWaveGeneratorDeviceDriver::setMagnitude(unsigned int magnitude)
+{
+   // Set the new magnitude value.
+   mMagnitude = magnitude;
+   ((MpSineWaveGeneratorServer*)mpReaderTask)->setMagnitude(mMagnitude);
    return OS_SUCCESS;
 }
 
