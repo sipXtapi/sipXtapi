@@ -1312,7 +1312,7 @@ AC_DEFUN([CHECK_SPANDSP],
             SPANDSP_LIBS="-lspandsp"
             SPANDSP_LDFLAGS="-L$libval"
         else
-            AC_MSG_ERROR(invalid version of spandsplib)
+            AC_MSG_RESULT(invalid version of spandsplib)
         fi
 
 
