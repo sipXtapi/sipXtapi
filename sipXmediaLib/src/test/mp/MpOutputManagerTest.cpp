@@ -86,12 +86,10 @@ class MpOutputDeviceManagerTest : public CppUnit::TestCase
    CPPUNIT_TEST_SUITE(MpOutputDeviceManagerTest);
    CPPUNIT_TEST(testCreate);
    CPPUNIT_TEST(testNonexistentDevice);
-   CPPUNIT_TEST(testAddRemoveToManagerDirectWrite);
-   CPPUNIT_TEST(testAddRemoveToManagerMixerMode);
+   CPPUNIT_TEST(testAddRemoveToManager);
    CPPUNIT_TEST(testEnableDisable);
    CPPUNIT_TEST(testEnableDisableFast);
-   CPPUNIT_TEST(testDirectWrite);
-   CPPUNIT_TEST(testMixerMode);
+   CPPUNIT_TEST(testMixing);
    CPPUNIT_TEST_SUITE_END();
 
 
@@ -158,26 +156,7 @@ public:
       }
    }
 
-   void testAddRemoveToManagerDirectWrite()
-   {
-      MpOutputDeviceHandle deviceId;
-
-      OUTPUT_DRIVER device(OUTPUT_DRIVER_CONSTRUCTOR_PARAMS);
-      CPPUNIT_ASSERT(!device.isEnabled());
-
-      for (int i=0; i<ADD_REMOVE_TEST_RUNS_NUMBER; i++)
-      {
-         MpOutputDeviceManager deviceManager(TEST_SAMPLES_PER_FRAME_SIZE,
-                                             TEST_SAMPLES_PER_SECOND,
-                                             0);
-
-         deviceId = deviceManager.addDevice(&device);
-         CPPUNIT_ASSERT(deviceId > 0);
-         CPPUNIT_ASSERT(deviceManager.removeDevice(deviceId) == &device);
-      }
-   }
-
-   void testAddRemoveToManagerMixerMode()
+   void testAddRemoveToManager()
    {
       MpOutputDeviceHandle deviceId;
 
@@ -251,46 +230,7 @@ public:
       }
    }
 
-   void testDirectWrite()
-   {
-      MpOutputDeviceHandle deviceId;
-
-      OUTPUT_DRIVER device(OUTPUT_DRIVER_CONSTRUCTOR_PARAMS);
-      CPPUNIT_ASSERT(!device.isEnabled());
-
-      for (int i=0; i<DIRECT_WRITE_TEST_RUNS_NUMBER; i++)
-      {
-         MpOutputDeviceManager deviceManager(TEST_SAMPLES_PER_FRAME_SIZE,
-                                             TEST_SAMPLES_PER_SECOND,
-                                             0);
-         MpAudioBufPtr pBuffer = mpPool->getBuffer();
-
-         deviceId = deviceManager.addDevice(&device);
-         CPPUNIT_ASSERT(deviceId > 0);
-
-         deviceManager.enableDevice(deviceId);
-         CPPUNIT_ASSERT(deviceManager.isDeviceEnabled(deviceId));
-
-         // Write some data to device.
-         MpFrameTime frameTime=deviceManager.getCurrentFrameTime(deviceId);
-         for (int frame=0; frame<TEST_SAMPLE_FRAMES; frame++)
-         {
-            calculateSampleData(frameTime, pBuffer);
-
-            OsTask::delay(TEST_FRAME_LENGTH_MS);
-            CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
-                                 deviceManager.pushFrame(deviceId, frameTime, pBuffer));
-            frameTime += TEST_FRAME_LENGTH_MS;
-         }
-
-         deviceManager.disableDevice(deviceId);
-         CPPUNIT_ASSERT(!deviceManager.isDeviceEnabled(deviceId));
-
-         CPPUNIT_ASSERT(deviceManager.removeDevice(deviceId) == &device);
-      }
-   }
-
-   void testMixerMode()
+   void testMixing()
    {
       MpOutputDeviceHandle deviceId;
 
