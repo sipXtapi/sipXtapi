@@ -50,15 +50,7 @@ class sipXmediaFactoryImpl : public CpMediaInterfaceFactoryImpl
      /**<
      *  @param pConfigDb - a configuration database to pass user-settable config
      *         parameters to sipXmediaLib.  TODO: Someone that knows more, document this better!
-     *  @param maxSamplesPerFrame - This is used for initializing audio buffers.
-     *         Lower sample rates can indeed be used for individual media 
-     *         interfaces (set later), since a lesser amount of these buffers 
-     *         can be used (i.e. not fully utilized).  Higher sample rates can 
-     *         be used by passing params here, but this will result in more 
-     *         memory being used.  For low-memory environments that do not 
-     *         require wideband support, one may wish to pass 8000kHz here, as 
-     *         the default is 16000kHz.
-     *  @param maxSamplesPerSec - This parameter is used for determining the 
+     *  @param maxSamplesPerFrame - This parameter is used for determining the 
      *         MAXIMUM number of samples per frame that the media subsystem.
      *         It is used for initializing the size of audio buffers, and for 
      *         configuring a default value for samples per frame in device 
@@ -66,6 +58,14 @@ class sipXmediaFactoryImpl : public CpMediaInterfaceFactoryImpl
      *         samples per frame, the value configured here will be used).
      *         The information contained in maxSamplesPerFrame documentation
      *         also apply to this parameter.
+     *  @param maxSamplesPerSec - This is used for initializing audio buffers.
+     *         Lower sample rates can indeed be used for individual media 
+     *         interfaces (set later), since a lesser amount of these buffers 
+     *         can be used (i.e. not fully utilized).  Higher sample rates can 
+     *         be used by passing params here, but this will result in more 
+     *         memory being used.  For low-memory environments that do not 
+     *         require wideband support, one may wish to pass 8000kHz here, as 
+     *         the default is 16000kHz.
      */
      
 
