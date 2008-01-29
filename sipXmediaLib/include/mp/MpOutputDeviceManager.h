@@ -77,11 +77,11 @@ public:
                          unsigned defaultSamplesPerSecond,
                          MpFrameTime defaultMixerBufferLength);
      /**<
-     *  @param defaultSamplesPerFrame - (in) the default number of samples in
+     *  @param[in] defaultSamplesPerFrame - the default number of samples in
      *         media frame. Will be used when enabling devices.
-     *  @param defaultSamplesPerSecond - (in) default sample rate for media frame
+     *  @param[in] defaultSamplesPerSecond - default sample rate for media frame
      *         in samples per second. Will be used when enabling devices.
-     *  @param defaultMixerBufferLength - (in) default length of mixer buffer in
+     *  @param[in] defaultMixerBufferLength - default length of mixer buffer in
      *         milliseconds. Will be used when enabling devices. Mixer buffer
      *         is used when direct write mode is disabled to mix multiple media
      *         streams. Stream sources (callers of pushFrame()) should produce
@@ -112,7 +112,7 @@ public:
      *  Returns device ID which is unique within this device manager.
      *  This method locks the device manager for exclusive use.
      *
-     *  @param newDevice - (in) A new input device to add to this manager.
+     *  @param newDevice[in] - A new input device to add to this manager.
      *                     The device should <b>only</b> be added to one manager.
      *
      *  @returns A handle to reference the device by in other manager calls.
@@ -126,7 +126,7 @@ public:
      /**<
      *  This method locks the device manager for exclusive use.
      *
-     *  @param deviceId - (in) The device to disable.
+     *  @param deviceId[in] - The device to disable.
      *
      *  @returns A pointer to the input device driver that was removed.
      *  @returns NULL if the device could not be found or device is busy.
@@ -172,7 +172,7 @@ public:
      /**<
      *  This method disables the device driver indicated by the device id.
      *
-     *  @param deviceId - (in) The device to disable.
+     *  @param deviceId[in] - The device to disable.
      *
      *  @returns OS_NOT_FOUND if the device could not be found.
      *  @returns OS_BUSY if the device is currently being removed or disabled.
@@ -195,11 +195,11 @@ public:
      *
      *  This method is typically invoked by MprToOutputDevice resources.
      *
-     *  @param deviceId - (in) Device id to identify device to which this frame
+     *  @param deviceId[in] - Device id to identify device to which this frame
      *         will be sent.
-     *  @param frameTime - (in) Time in milliseconds for beginning of frame
+     *  @param frameTime[in] - Time in milliseconds for beginning of frame
      *         relative to the MpOutputDeviceManager reference time.
-     *  @param frame - (in) Frame of media to be sent to output device.
+     *  @param frame[in] - Frame of media to be sent to output device.
      *
      *  @returns OS_NOT_FOUND if the device could not be found.
      *  @returns OS_LIMIT_REACHED if mixer buffer is full, i.e. frame come too
@@ -220,7 +220,7 @@ public:
      *  @note Note, that ticker work only when device is enabled. So do not
      *        forget to enable device after call to this function.
      *
-     *  @param deviceId - (in) Device id for device that will be used as ticker
+     *  @param deviceId[in] - Device id for device that will be used as ticker
      *         source. Pass MP_INVALID_OUTPUT_DEVICE_HANDLE to totally disable
      *         flowgraph ticker.
      *
@@ -245,8 +245,8 @@ public:
      /**<
      *  Get the name for the given deviceId.
      *
-     *  @param deviceId - (in) The device to fetch the name of.
-     *  @param deviceName - (out) a UtlString that will hold the device name.
+     *  @param deviceId[in] - The device to fetch the name of.
+     *  @param deviceName[out] - A string that will hold the device name.
      *
      *  @returns OS_SUCCESS if device found and <tt>deviceName</tt> filled with
      *                      the name of the device.
@@ -263,8 +263,8 @@ public:
      *  mapping.  All device IDs and device names are unique within the
      *  scope of this MpOutputDeviceManager.
      *
-     *  @param deviceName - (in) The name of a device to get the ID of.
-     *  @param deviceId - (out) A handle to reference the device by in other
+     *  @param deviceName[in] - The name of a device to get the ID of.
+     *  @param deviceId[out] - A handle to reference the device by in other
      *         manager calls.
      *
      *  @returns OS_SUCCESS if device found and <tt>deviceId</tt> filled in.
@@ -333,7 +333,7 @@ public:
      /**<
      *  Inquire if specified device is enabled (e.g. consuming media data).
      *
-     *  @param deviceId - (in) The device to determine enabled status of.
+     *  @param deviceId[in] - The device to determine enabled status of.
      */
 
 //@}
