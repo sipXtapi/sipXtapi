@@ -138,27 +138,14 @@ public:
       OUTPUT_DRIVER device(OUTPUT_DRIVER_CONSTRUCTOR_PARAMS);
       MpOutputDeviceHandle deviceId;
 
-      {
-         // Test with direct write mode
-         MpOutputDeviceManager deviceManager(TEST_SAMPLES_PER_FRAME_SIZE,
-            TEST_SAMPLES_PER_SECOND,
-            0);
+      // Test with mixer mode
+      MpOutputDeviceManager deviceManager(TEST_SAMPLES_PER_FRAME_SIZE,
+                                          TEST_SAMPLES_PER_SECOND,
+                                          TEST_MIXER_BUFFER_LENGTH);
 
-         deviceId = deviceManager.addDevice(&device);
-         CPPUNIT_ASSERT(deviceId > 0);
-         CPPUNIT_ASSERT(deviceManager.removeDevice(deviceId) == &device);
-      }
-
-      {
-         // Test with mixer mode
-         MpOutputDeviceManager deviceManager(TEST_SAMPLES_PER_FRAME_SIZE,
-                                             TEST_SAMPLES_PER_SECOND,
-                                             TEST_MIXER_BUFFER_LENGTH);
-
-         deviceId = deviceManager.addDevice(&device);
-         CPPUNIT_ASSERT(deviceId > 0);
-         CPPUNIT_ASSERT(deviceManager.removeDevice(deviceId) == &device);
-      }
+      deviceId = deviceManager.addDevice(&device);
+      CPPUNIT_ASSERT(deviceId > 0);
+      CPPUNIT_ASSERT(deviceManager.removeDevice(deviceId) == &device);
    }
 
    void testEnableDisable()
