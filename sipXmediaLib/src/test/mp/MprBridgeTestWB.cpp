@@ -281,7 +281,7 @@ public:
          setSamplesPerFrame(sSampleRates[i]/100);	 
          setUp();
 
-         brigingTwoFreqs();
+         bridgingTwoFreqs();
       }
    }
 
