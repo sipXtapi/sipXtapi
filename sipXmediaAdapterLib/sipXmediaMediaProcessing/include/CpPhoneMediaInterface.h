@@ -51,6 +51,8 @@ public:
 /* ============================ CREATORS ================================== */
 
    CpPhoneMediaInterface(CpMediaInterfaceFactoryImpl* pFactoryImpl,
+                         uint32_t samplesPerFrame = 0,
+                         uint32_t samplesPerSec = 0,
                          const char* publicAddress = NULL, 
                          const char* localAddress = NULL,
                          int numCodecs = 0, 
@@ -65,9 +67,7 @@ public:
                          const char* szTurnUsername = NULL,
                          const char* szTurnPassword = NULL,
                          int iTurnKeepAlivePeriodSecs = 28,
-                         UtlBoolean bEnableICE = FALSE, 
-                         uint32_t samplesPerFrame = 0, ///< Zero takes default
-                         uint32_t samplesPerSec = 0 ///< Zero takes default
+                         UtlBoolean bEnableICE = FALSE
                         );
      //:Default constructor
 

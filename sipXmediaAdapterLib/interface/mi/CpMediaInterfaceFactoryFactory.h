@@ -34,7 +34,7 @@ class OsConfigDb; // forward declaration
 extern "C" CpMediaInterfaceFactory* sipXmediaFactoryFactory(OsConfigDb* pConfigDb, 
                                                             uint32_t fameSizeMs = 0, 
                                                             uint32_t maxSamplesPerSec = 0,
-                                                            uint32_t defaultDeviceSamplesPerSec = 0);
+                                                            uint32_t defaultSamplesPerSec = 0);
   /**<
   *  @param pConfigDb - a configuration database to pass user-settable config
   *         parameters to sipXmediaLib.  TODO: Someone that knows more, document this better!
@@ -52,8 +52,8 @@ extern "C" CpMediaInterfaceFactory* sipXmediaFactoryFactory(OsConfigDb* pConfigD
   *         memory being used.  For low-memory environments that do not 
   *         require wideband support, one may wish to pass 8000kHz here, as 
   *         the default is 16000kHz.
-  *  @param defaultDeviceSamplesPerSec - The sample rate that device managers 
-  *         will use when callers enable devices without specifying sample rate.
+  *  @param defaultSamplesPerSec - The sample rate that device managers and 
+  *         flowgraphs will use when no sample rate is specified.
   */
 
 /**

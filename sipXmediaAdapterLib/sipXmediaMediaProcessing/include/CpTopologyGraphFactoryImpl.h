@@ -50,15 +50,11 @@ public:
 ///@name Creators
 //@{
 
-     /// @copydoc sipXmediaFactoryImpl::sipXmediaFactoryImpl()
+      /// @copydoc sipXmediaFactoryImpl::sipXmediaFactoryImpl()
     CpTopologyGraphFactoryImpl(OsConfigDb* pConfigDb,
                                uint32_t frameSizeMs, 
                                uint32_t maxSamplesPerSec,
                                uint32_t defaultDeviceSamplesPerSec);
-    /**<
-    *  @param defaultDeviceSamplesPerSec - The sample rate that device managers 
-    *         will use when callers enable devices without specifying sample rate.
-    */
 
       /// Destructor.
     virtual

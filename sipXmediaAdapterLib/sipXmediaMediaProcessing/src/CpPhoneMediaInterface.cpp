@@ -145,7 +145,9 @@ public:
 /* ============================ CREATORS ================================== */
 
 // Constructor
-CpPhoneMediaInterface::CpPhoneMediaInterface(CpMediaInterfaceFactoryImpl* pFactoryImpl,
+CpPhoneMediaInterface::CpPhoneMediaInterface(CpMediaInterfaceFactoryImpl* pFactoryImpl, 
+                                             uint32_t samplesPerFrame, 
+                                             uint32_t samplesPerSec,
                                              const char* publicAddress,
                                              const char* localAddress,
                                              int numCodecs,
@@ -160,9 +162,7 @@ CpPhoneMediaInterface::CpPhoneMediaInterface(CpMediaInterfaceFactoryImpl* pFacto
                                              const char* szTurnUsername,
                                              const char* szTurnPassword,
                                              int iTurnKeepAlivePeriodSecs,
-                                             UtlBoolean bEnableICE, 
-                                             uint32_t samplesPerFrame, 
-                                             uint32_t samplesPerSec)
+                                             UtlBoolean bEnableICE)
     : CpMediaInterface(pFactoryImpl)
 {
    OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPhoneMediaInterface::CpPhoneMediaInterface creating a new CpMediaInterface %p",

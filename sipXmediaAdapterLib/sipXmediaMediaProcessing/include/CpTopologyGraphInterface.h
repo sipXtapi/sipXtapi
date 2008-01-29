@@ -50,6 +50,8 @@ public:
 
     //! Default constructor
     CpTopologyGraphInterface(CpTopologyGraphFactoryImpl* factoryImpl,
+                             uint32_t samplesPerFrame,
+                             uint32_t samplesPerSec,
                              const char* publicAddress = NULL, 
                              const char* localAddress = NULL,
                              int numCodecs = 0, 
@@ -64,9 +66,7 @@ public:
                              const char* turnUsername = NULL,
                              const char* turnPassword = NULL,
                              int turnKeepAlivePeriodSecs = 28,
-                             UtlBoolean enableIce = FALSE, 
-                             uint32_t samplesPerFrame = 0, ///< Zero takes default
-                             uint32_t samplesPerSec = 0 ///< Zero takes default
+                             UtlBoolean enableIce = FALSE
                             );
      
 

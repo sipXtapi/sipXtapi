@@ -154,6 +154,8 @@ public:
 
 // Constructor
 CpTopologyGraphInterface::CpTopologyGraphInterface(CpTopologyGraphFactoryImpl* pFactoryImpl,
+                                                   uint32_t samplesPerFrame,
+                                                   uint32_t samplesPerSec, 
                                                    const char* publicAddress,
                                                    const char* localAddress,
                                                    int numCodecs,
@@ -168,9 +170,7 @@ CpTopologyGraphInterface::CpTopologyGraphInterface(CpTopologyGraphFactoryImpl* p
                                                    const char* turnUsername,
                                                    const char* turnPassword,
                                                    int turnKeepAlivePeriodSecs,
-                                                   UtlBoolean enableIce, 
-                                                   uint32_t samplesPerFrame,
-                                                   uint32_t samplesPerSec
+                                                   UtlBoolean enableIce
                                                   )
     : CpMediaInterface(pFactoryImpl)
 {

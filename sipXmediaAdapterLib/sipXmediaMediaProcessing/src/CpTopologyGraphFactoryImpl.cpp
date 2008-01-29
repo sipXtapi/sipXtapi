@@ -134,36 +134,25 @@ extern "C" CpMediaInterfaceFactory* sipXmediaFactoryFactory(OsConfigDb* pConfigD
 CpTopologyGraphFactoryImpl::CpTopologyGraphFactoryImpl(OsConfigDb* pConfigDb,
                                                        uint32_t frameSizeMs, 
                                                        uint32_t maxSamplesPerSec,
-                                                       uint32_t defaultDeviceSamplesPerSec)
-: sipXmediaFactoryImpl(pConfigDb, frameSizeMs, maxSamplesPerSec)
+                                                       uint32_t defaultSamplesPerSec)
+: sipXmediaFactoryImpl(pConfigDb, frameSizeMs, maxSamplesPerSec, defaultSamplesPerSec)
 , mpInitialResourceTopology(NULL)
 , mpResourceFactory(NULL)
 , mpConnectionResourceTopology(NULL)
 , mpInputDeviceManager(NULL)
 , mpOutputDeviceManager(NULL)
 {
-    // Default the default device manager sample rate to 8kHz, so we default to NB.
-    defaultDeviceSamplesPerSec = (defaultDeviceSamplesPerSec == 0) ? 8000 : defaultDeviceSamplesPerSec;
-    assert(defaultDeviceSamplesPerSec <= mMaxSamplesPerSec);
-    if(defaultDeviceSamplesPerSec > mMaxSamplesPerSec)
-    {
-        OsSysLog::add(FAC_MP, PRI_CRIT, 
-                      "CpTopologyGraphFactoryImpl constructor - %d > %d: "
-                      "default device sample rate is higher than max sample rate!", 
-                      defaultDeviceSamplesPerSec, mMaxSamplesPerSec);
-    }
-
     assert(MpMisc.RawAudioPool);
-    uint32_t mgrSamplesPerFrame = (mFrameSizeMs*defaultDeviceSamplesPerSec)/1000;
+    uint32_t mgrSamplesPerFrame = (mFrameSizeMs*mDefaultSamplesPerSec)/1000;
     mpInputDeviceManager = 
         new MpInputDeviceManager(mgrSamplesPerFrame, // samples per frame
-                                 defaultDeviceSamplesPerSec, // samples per second
+                                 mDefaultSamplesPerSec, // samples per second
                                  4,    // number of buffered frames
                                  *MpMisc.RawAudioPool);
 
     mpOutputDeviceManager =
         new MpOutputDeviceManager(mgrSamplesPerFrame,   // samples per frame
-                                  defaultDeviceSamplesPerSec, // samples per second
+                                  mDefaultSamplesPerSec, // samples per second
                                   mFrameSizeMs*2);  // mixer buffer length (ms)
 
 
@@ -262,7 +251,11 @@ CpTopologyGraphFactoryImpl::createMediaInterface(const char* publicAddress,
                                                  UtlBoolean enableIce, 
                                                  uint32_t samplesPerSec)
 {
-    return(new CpTopologyGraphInterface(this, 
+    // if the sample rate passed in is zero, use the default.
+    samplesPerSec = (samplesPerSec == 0) ? mDefaultSamplesPerSec : samplesPerSec;
+
+    return(new CpTopologyGraphInterface(this,
+                                       (mFrameSizeMs*samplesPerSec)/1000, samplesPerSec, 
                                        publicAddress, localAddress, 
                                        numCodecs, sdpCodecArray, 
                                        locale, 
@@ -270,8 +263,7 @@ CpTopologyGraphFactoryImpl::createMediaInterface(const char* publicAddress,
                                        stunServer, stunPort, stunKeepAliveSecs, 
                                        turnServer, turnPort, turnUserName, 
                                        turnPassword, turnKeepAliveSecs, 
-                                       enableIce,
-                                       (mFrameSizeMs*samplesPerSec)/1000, samplesPerSec));
+                                       enableIce));
 }
 
 MpResourceFactory* CpTopologyGraphFactoryImpl::buildDefaultResourceFactory()

@@ -55,7 +55,7 @@ int siInstanceCount=0;
 extern "C" CpMediaInterfaceFactory* cpDefaultMediaFactoryFactory(OsConfigDb* pConfigDb,
                                                                  uint32_t frameSizeMs, 
                                                                  uint32_t maxSamplesPerSec,
-                                                                 uint32_t defaultDeviceSamplesPerSec)
+                                                                 uint32_t defaultSamplesPerSec)
 {
    // TODO: Add locking
 
@@ -65,7 +65,7 @@ extern "C" CpMediaInterfaceFactory* cpDefaultMediaFactoryFactory(OsConfigDb* pCo
       spFactory->setFactoryImplementation(new sipXmediaFactoryImpl(pConfigDb,
                                                                    frameSizeMs, 
                                                                    maxSamplesPerSec,
-                                                                   defaultDeviceSamplesPerSec));
+                                                                   defaultSamplesPerSec));
    }
    siInstanceCount++;
 
@@ -77,9 +77,9 @@ extern "C" CpMediaInterfaceFactory* cpDefaultMediaFactoryFactory(OsConfigDb* pCo
 extern "C" CpMediaInterfaceFactory* sipXmediaFactoryFactory(OsConfigDb* pConfigDb,
                                                             uint32_t frameSizeMs, 
                                                             uint32_t maxSamplesPerSec,
-                                                            uint32_t defaultDeviceSamplesPerSec)
+                                                            uint32_t defaultSamplesPerSec)
 {
-   return(cpDefaultMediaFactoryFactory(pConfigDb, frameSizeMs, maxSamplesPerSec, defaultDeviceSamplesPerSec));
+   return(cpDefaultMediaFactoryFactory(pConfigDb, frameSizeMs, maxSamplesPerSec, defaultSamplesPerSec));
 }
 #endif
 
@@ -109,12 +109,24 @@ extern "C" void sipxDestroyMediaFactoryFactory()
 // Constructor
 sipXmediaFactoryImpl::sipXmediaFactoryImpl(OsConfigDb* pConfigDb, 
                                            uint32_t frameSizeMs, 
-                                           uint32_t maxSamplesPerSec)
+                                           uint32_t maxSamplesPerSec,
+                                           uint32_t defaultSamplesPerSec)
 {
    // See Doxygen comments for this constructor for information on the impact 
    // of the values of maxSamplesPerFrame and maxSamplesPerSec.
    mFrameSizeMs = (frameSizeMs == 0) ? 10 : frameSizeMs;
    mMaxSamplesPerSec = (maxSamplesPerSec == 0) ? 8000 : maxSamplesPerSec;
+
+   // Default the default sample rate to 8kHz, so NB users will be happy.
+   mDefaultSamplesPerSec = (defaultSamplesPerSec == 0) ? 8000 : defaultSamplesPerSec;
+   assert(mDefaultSamplesPerSec <= mMaxSamplesPerSec);
+   if(mDefaultSamplesPerSec > mMaxSamplesPerSec)
+   {
+      OsSysLog::add(FAC_MP, PRI_CRIT, 
+         "sipXmediaFactoryImpl constructor - %d > %d: "
+         "default sample rate is higher than max sample rate!", 
+         mDefaultSamplesPerSec, mMaxSamplesPerSec);
+   }
 
    int maxFlowGraph = -1; 
    UtlString strInBandDTMF;
@@ -215,11 +227,14 @@ CpMediaInterface* sipXmediaFactoryImpl::createMediaInterface(const char* publicA
                                                              UtlBoolean bEnableICE,
                                                              uint32_t samplesPerSec) 
 {
-   return new CpPhoneMediaInterface(this, publicAddress, localAddress, 
-      numCodecs, sdpCodecArray, locale, expeditedIpTos, szStunServer,
-      iStunPort, iStunKeepAliveSecs, szTurnServer, iTurnPort, 
-      szTurnUsername, szTurnPassword, iTurnKeepAlivePeriodSecs, 
-      bEnableICE, (mFrameSizeMs*samplesPerSec)/1000, samplesPerSec);
+   // if the sample rate passed in is zero, use the default.
+   samplesPerSec = (samplesPerSec == 0) ? mDefaultSamplesPerSec : samplesPerSec;
+
+   return new CpPhoneMediaInterface(this, (mFrameSizeMs*samplesPerSec)/1000, 
+      samplesPerSec, publicAddress, localAddress, numCodecs, sdpCodecArray, 
+      locale, expeditedIpTos, szStunServer, iStunPort, iStunKeepAliveSecs, 
+      szTurnServer, iTurnPort, szTurnUsername, szTurnPassword, 
+      iTurnKeepAlivePeriodSecs, bEnableICE);
 }
 
 

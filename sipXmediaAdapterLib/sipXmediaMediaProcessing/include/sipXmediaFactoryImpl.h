@@ -46,7 +46,8 @@ class sipXmediaFactoryImpl : public CpMediaInterfaceFactoryImpl
 
      /// @brief Default constructor
    sipXmediaFactoryImpl(OsConfigDb* pConfigDb, 
-                        uint32_t frameSizeMs, uint32_t maxSamplesPerSec);
+                        uint32_t frameSizeMs, uint32_t maxSamplesPerSec,
+                        uint32_t defaultSamplesPerSec);
      /**<
      *  @param pConfigDb - a configuration database to pass user-settable config
      *         parameters to sipXmediaLib.  TODO: Someone that knows more, document this better!
@@ -64,6 +65,8 @@ class sipXmediaFactoryImpl : public CpMediaInterfaceFactoryImpl
      *         memory being used.  For low-memory environments that do not 
      *         require wideband support, one may wish to pass 8000kHz here, as 
      *         the default is 16000kHz.
+     *  @param defaultSamplesPerSec - The sample rate that device managers and 
+     *         flowgraphs will use when no sample rate is specified.
      */
      
 
@@ -142,6 +145,7 @@ class sipXmediaFactoryImpl : public CpMediaInterfaceFactoryImpl
     MpMediaTask*    mpMediaTask ; /**< Media task instance */
     uint32_t mFrameSizeMs; //< The size of the smallest unit of audio that we process on, in milliseconds
     uint32_t mMaxSamplesPerSec;   //< Maximum sample rate that any flowgraph may have set (used for initializing buffers)
+    uint32_t mDefaultSamplesPerSec;   //< Default sample rate that flowgraphs and devices may have set
 #ifdef INCLUDE_RTCP /* [ */
     IRTCPControl*   mpiRTCPControl;   /**< Realtime Control Interface */
 #endif /* INCLUDE_RTCP ] */
