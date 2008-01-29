@@ -47,8 +47,9 @@ MpOutputDeviceManager::MpOutputDeviceManager(unsigned defaultSamplesPerFrame,
 , mDefaultBufferLength(defaultMixerBufferLength)
 , mCurrentTickerDevice(MP_INVALID_OUTPUT_DEVICE_HANDLE)
 {
-   assert(defaultSamplesPerFrame > 0);
-   assert(defaultSamplesPerSecond > 0);
+   assert(mDefaultSamplesPerFrame > 0);
+   assert(mDefaultSamplesPerSecond > 0);
+   assert(mDefaultBufferLength > 0);
 
    OsDateTime::getCurTime(mTimeZero);
 }
