@@ -100,9 +100,9 @@ public:
       MpOutputDeviceManager* pOutMgr = NULL;
     
       pInMgr = new MpInputDeviceManager(getSamplesPerFrame(), getSamplesPerSec(), 
-         5, *MpMisc.RawAudioPool);
+                                        5, *MpMisc.RawAudioPool);
       pOutMgr = new MpOutputDeviceManager(getSamplesPerFrame(), getSamplesPerSec(), 
-         30);
+                                          30);
 
       MpSineWaveGeneratorDeviceDriver* pPlaySineInDrv1 = NULL;
       MpInputDeviceHandle playSineDevHnd1 = 0;
