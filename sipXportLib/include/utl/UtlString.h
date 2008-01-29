@@ -596,7 +596,7 @@ public:
      * then the the current size (string length), the string will be truncated.
      * If requested size is larger then current size and \a clearTail is TRUE
      * (default), the string will be padded with nulls. If \a clearTail is
-     * FALSE, string will not be paddedwith nulls.
+     * FALSE, string will not be padded with nulls.
      */
 
 ///@}
