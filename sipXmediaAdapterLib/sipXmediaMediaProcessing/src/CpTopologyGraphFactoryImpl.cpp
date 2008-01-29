@@ -147,7 +147,7 @@ CpTopologyGraphFactoryImpl::CpTopologyGraphFactoryImpl(OsConfigDb* pConfigDb,
     mpOutputDeviceManager =
        new MpOutputDeviceManager(mgrSamplesPerFrame,   // samples per frame
                                  mMaxSamplesPerSec, // samples per second
-                                 frameSizeMs*2);  // mixer buffer length (ms)
+                                 mFrameSizeMs*2);  // mixer buffer length (ms)
 
 
 
