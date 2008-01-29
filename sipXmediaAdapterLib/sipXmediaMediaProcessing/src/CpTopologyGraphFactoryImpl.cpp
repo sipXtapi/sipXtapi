@@ -137,7 +137,7 @@ CpTopologyGraphFactoryImpl::CpTopologyGraphFactoryImpl(OsConfigDb* pConfigDb,
 , mpOutputDeviceManager(NULL)
 {
     assert(MpMisc.RawAudioPool);
-    uint32_t mgrSamplesPerFrame = (frameSizeMs*mMaxSamplesPerSec)/1000;
+    uint32_t mgrSamplesPerFrame = (mFrameSizeMs*mMaxSamplesPerSec)/1000;
     mpInputDeviceManager = 
        new MpInputDeviceManager(mgrSamplesPerFrame, // samples per frame
                                 mMaxSamplesPerSec, // samples per second
