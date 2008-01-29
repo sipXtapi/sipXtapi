@@ -1103,7 +1103,6 @@ AC_DEFUN([AM_SET_PCMA_PCMU],
     PLUGINS="${PLUGINS} PCMA_PCMU"
     PCMAPCMU_TARGET="plgpcmapcmu"
     AC_SUBST(PCMAPCMU_TARGET)
-    AM_CONDITIONAL(PCMAPCMU_STATIC, test "$CODEC_PCMAPCMU_STATIC" = true)
 ])dnl
 AC_DEFUN([CHECK_PCMA_PCMU],
 [
@@ -1118,6 +1117,7 @@ AC_DEFUN([CHECK_PCMA_PCMU],
                        *) AC_MSG_ERROR(bad value ${enableval} for --enable-codec-pcmapcmu) ;;
                     esac],
                   [AM_SET_PCMA_PCMU])
+    AM_CONDITIONAL(PCMAPCMU_STATIC, test "$CODEC_PCMAPCMU_STATIC" = true)
 ])dnl
 
 # ==============  T O N E S  ==================
@@ -1134,7 +1134,6 @@ AC_DEFUN([AM_SET_TONES],
     PLUGINS="${PLUGINS} TONES"
     TONES_TARGET="plgtones"
     AC_SUBST(TONES_TARGET)
-    AM_CONDITIONAL(TONES_STATIC, test "$CODEC_TONES_STATIC" = true)
 ])dnl
 AC_DEFUN([CHECK_TONES],
 [
@@ -1149,6 +1148,7 @@ AC_DEFUN([CHECK_TONES],
                        *) AC_MSG_ERROR(bad value ${enableval} for --enable-codec-tones) ;;
                     esac],
                   [AM_SET_TONES])
+    AM_CONDITIONAL(TONES_STATIC, test "$CODEC_TONES_STATIC" = true)
 ])dnl
 
 # =============== I L B C =====================
@@ -1404,7 +1404,6 @@ AC_DEFUN([AM_SET_G726],
         G726_TARGET="plgg726"
     fi
     AC_SUBST(G726_TARGET)    
-    AM_CONDITIONAL(G726_STATIC, test "$CODEC_G726_STATIC" = true)
 ])dnl
 AC_DEFUN([CHECK_G726],
 [
@@ -1419,6 +1418,7 @@ AC_DEFUN([CHECK_G726],
                        *) AC_MSG_ERROR(bad value ${enableval} for --enable-codec-g726) ;;
                     esac],
                   [AM_SET_G726])
+    AM_CONDITIONAL(G726_STATIC, test "$CODEC_G726_STATIC" = true)
 ])dnl
 
 # =============== G722  =====================
@@ -1442,7 +1442,6 @@ AC_DEFUN([AM_SET_G722],
         G722_TARGET="plgg722"
     fi
     AC_SUBST(G722_TARGET)    
-    AM_CONDITIONAL(G722_STATIC, test "$CODEC_G722_STATIC" = true)
 ])dnl
 AC_DEFUN([CHECK_G722],
 [
@@ -1457,6 +1456,7 @@ AC_DEFUN([CHECK_G722],
                        *) AC_MSG_ERROR(bad value ${enableval} for --enable-codec-g722) ;;
                     esac],
                   [AM_SET_G722])
+    AM_CONDITIONAL(G722_STATIC, test "$CODEC_G722_STATIC" = true)
 ])dnl
 
 
