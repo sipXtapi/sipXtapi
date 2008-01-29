@@ -25,6 +25,11 @@
 #include "sine_330hz_16b_8k_signed.h"
 #include "sine_530hz_16b_8k_signed.h"
 
+// Defaults for Media Interface Factory and Media Interface initialization
+// Zeros here indicate to use defaults.
+#define FRAME_SIZE_MS 0
+#define MAX_SAMPLE_RATE 0 
+#define DEFAULT_SAMPLE_RATE 0
 
 //#define DISABLE_RECORDING
 #define EMBED_PROMPTS
@@ -124,7 +129,9 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
                              CpMediaInterfaceFactory::addCodecPaths(codecPathsNum, codecPaths));
 
         // Initialize the factory factory with a maximum rate of 48kHz and framesize of 10ms
-        mpMediaFactory = sipXmediaFactoryFactory(NULL, 10, 48000);
+        mpMediaFactory = 
+           sipXmediaFactoryFactory(NULL, FRAME_SIZE_MS, 
+                                   MAX_SAMPLE_RATE, DEFAULT_SAMPLE_RATE);
     } 
 
     virtual void tearDown()

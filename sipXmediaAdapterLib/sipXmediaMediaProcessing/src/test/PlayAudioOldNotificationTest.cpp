@@ -20,6 +20,13 @@
 #include <utl/UtlInt.h>
 #include <mp/MprFromFile.h>
 
+// Defaults for Media Interface Factory and Media Interface initialization
+// Zeros here indicate to use defaults.
+#define FRAME_SIZE_MS 0
+#define MAX_SAMPLE_RATE 0 
+#define DEFAULT_SAMPLE_RATE 0
+
+
 #ifdef RTL_ENABLED
 #  include <rtl_macro.h>
    RTL_DECLARE
@@ -82,8 +89,10 @@ class PlayAudioOldNotificationTest : public CppUnit::TestCase
     {
         enableConsoleOutput(0);
 
-        // Initialize the factory factory with a maximum rate of 48kHz and frame size of 10ms
-        mpMediaFactory = sipXmediaFactoryFactory(NULL, 10, 48000);
+        // Initialize the factory factory
+        mpMediaFactory = 
+           sipXmediaFactoryFactory(NULL, FRAME_SIZE_MS, 
+                                   MAX_SAMPLE_RATE, DEFAULT_SAMPLE_RATE);
     } 
 
     virtual void tearDown()

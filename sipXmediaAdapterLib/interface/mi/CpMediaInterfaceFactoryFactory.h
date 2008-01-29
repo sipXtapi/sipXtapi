@@ -33,7 +33,28 @@ class OsConfigDb; // forward declaration
  */
 extern "C" CpMediaInterfaceFactory* sipXmediaFactoryFactory(OsConfigDb* pConfigDb, 
                                                             uint32_t fameSizeMs = 0, 
-                                                            uint32_t maxSamplesPerSec = 0);
+                                                            uint32_t maxSamplesPerSec = 0,
+                                                            uint32_t defaultDeviceSamplesPerSec = 0);
+  /**<
+  *  @param pConfigDb - a configuration database to pass user-settable config
+  *         parameters to sipXmediaLib.  TODO: Someone that knows more, document this better!
+  *  @param frameSizeMs - This parameter is used for determining the 
+  *         frame size (in milliseconds) that the media subsystem will use.
+  *         It is used for initializing the size of audio buffers, and for 
+  *         configuring a default value for samples per frame in device 
+  *         managers (so that when devices are enabled without specifying 
+  *         samples per frame, the value configured here will be used).
+  *  @param maxSamplesPerSec - This is used for initializing audio buffers.
+  *         Lower sample rates can indeed be used for individual media 
+  *         interfaces (set later), since a lesser amount of these buffers 
+  *         can be used (i.e. not fully utilized).  Higher sample rates can 
+  *         be used by passing params here, but this will result in more 
+  *         memory being used.  For low-memory environments that do not 
+  *         require wideband support, one may wish to pass 8000kHz here, as 
+  *         the default is 16000kHz.
+  *  @param defaultDeviceSamplesPerSec - The sample rate that device managers 
+  *         will use when callers enable devices without specifying sample rate.
+  */
 
 /**
  * Destroy the singleton media factory

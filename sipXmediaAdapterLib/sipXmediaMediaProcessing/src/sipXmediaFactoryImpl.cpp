@@ -54,7 +54,8 @@ int siInstanceCount=0;
 #ifndef DISABLE_DEFAULT_PHONE_MEDIA_INTERFACE_FACTORY
 extern "C" CpMediaInterfaceFactory* cpDefaultMediaFactoryFactory(OsConfigDb* pConfigDb,
                                                                  uint32_t frameSizeMs, 
-                                                                 uint32_t maxSamplesPerSec)
+                                                                 uint32_t maxSamplesPerSec,
+                                                                 uint32_t defaultDeviceSamplesPerSec)
 {
    // TODO: Add locking
 
@@ -63,7 +64,8 @@ extern "C" CpMediaInterfaceFactory* cpDefaultMediaFactoryFactory(OsConfigDb* pCo
       spFactory = new CpMediaInterfaceFactory();
       spFactory->setFactoryImplementation(new sipXmediaFactoryImpl(pConfigDb,
                                                                    frameSizeMs, 
-                                                                   maxSamplesPerSec));
+                                                                   maxSamplesPerSec,
+                                                                   defaultDeviceSamplesPerSec));
    }
    siInstanceCount++;
 
@@ -74,9 +76,10 @@ extern "C" CpMediaInterfaceFactory* cpDefaultMediaFactoryFactory(OsConfigDb* pCo
 
 extern "C" CpMediaInterfaceFactory* sipXmediaFactoryFactory(OsConfigDb* pConfigDb,
                                                             uint32_t frameSizeMs, 
-                                                            uint32_t maxSamplesPerSec)
+                                                            uint32_t maxSamplesPerSec,
+                                                            uint32_t defaultDeviceSamplesPerSec)
 {
-   return(cpDefaultMediaFactoryFactory(pConfigDb, frameSizeMs, maxSamplesPerSec));
+   return(cpDefaultMediaFactoryFactory(pConfigDb, frameSizeMs, maxSamplesPerSec, defaultDeviceSamplesPerSec));
 }
 #endif
 
