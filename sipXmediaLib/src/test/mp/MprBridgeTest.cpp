@@ -423,7 +423,7 @@ public:
                 magnitude += (1 << inputIndex);
              }
           }
-          printf("Expected output[%d] magnitude: %d (0x%X)\n", outputIndex, magnitude, magnitude);
+          osPrintf("Expected output[%d] magnitude: %d (0x%X)\n", outputIndex, magnitude, magnitude);
 
           if (magnitude == 0)
           {
