@@ -181,10 +181,10 @@
 				RelativePath=".\src\test\mp\MprSplitterTest.cpp">
 			</File>
 			<File
-				RelativePath=".\src\test\mp\MprToSpkrTest.cpp">
+				RelativePath=".\src\test\mp\MprToneGenTest.cpp">
 			</File>
 			<File
-				RelativePath=".\src\test\mp\MprToneGenTest.cpp">
+				RelativePath=".\src\test\mp\MprToSpkrTest.cpp">
 			</File>
 			<File
 				RelativePath=".\src\test\mp\MpTestResource.cpp">
