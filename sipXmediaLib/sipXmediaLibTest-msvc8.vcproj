@@ -635,6 +635,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\src\test\mp\MpInputOutputFrameworkTest.cpp"
+				>
+			</File>
+			<File
 				RelativePath="src\test\mp\MpMediaTaskTest.cpp"
 				>
 			</File>
