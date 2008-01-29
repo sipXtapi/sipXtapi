@@ -160,7 +160,7 @@
 				RelativePath=".\src\test\mp\MprBridgeTest.cpp">
 			</File>
 			<File
-				RelativePath=".\src\test\mp\MprBridgeTestWB.cpp"
+				RelativePath=".\src\test\mp\MprBridgeTestWB.cpp">
 			</File>
 			<File
 				RelativePath=".\src\test\mp\MpResourceTest.cpp">
