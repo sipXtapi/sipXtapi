@@ -14,7 +14,6 @@
 #include <cppunit/TestCase.h>
 #include <sipxunit/TestUtilities.h>
 
-#include <mp/MpOutputDeviceManager.h>
 #include <mp/MpAudioBuf.h>
 #include <mp/MpSineWaveGeneratorDeviceDriver.h>
 #include <os/OsTask.h>
