@@ -46,18 +46,16 @@ class sipXmediaFactoryImpl : public CpMediaInterfaceFactoryImpl
 
      /// @brief Default constructor
    sipXmediaFactoryImpl(OsConfigDb* pConfigDb, 
-                        uint32_t maxSamplesPerFrame, uint32_t maxSamplesPerSec);
+                        uint32_t frameSizeMs, uint32_t maxSamplesPerSec);
      /**<
      *  @param pConfigDb - a configuration database to pass user-settable config
      *         parameters to sipXmediaLib.  TODO: Someone that knows more, document this better!
-     *  @param maxSamplesPerFrame - This parameter is used for determining the 
-     *         MAXIMUM number of samples per frame that the media subsystem.
+     *  @param frameSizeMs - This parameter is used for determining the 
+     *         frame size (in milliseconds) that the media subsystem will use.
      *         It is used for initializing the size of audio buffers, and for 
      *         configuring a default value for samples per frame in device 
      *         managers (so that when devices are enabled without specifying 
      *         samples per frame, the value configured here will be used).
-     *         The information contained in maxSamplesPerFrame documentation
-     *         also apply to this parameter.
      *  @param maxSamplesPerSec - This is used for initializing audio buffers.
      *         Lower sample rates can indeed be used for individual media 
      *         interfaces (set later), since a lesser amount of these buffers 
@@ -90,7 +88,6 @@ class sipXmediaFactoryImpl : public CpMediaInterfaceFactoryImpl
                                                     const char* szTurnPassword,
                                                     int iTurnKeepAlivePeriodSecs,
                                                     UtlBoolean bEnableICE, 
-                                                    uint32_t samplesPerFrame, 
                                                     uint32_t samplesPerSec);
 
     virtual OsStatus setSpeakerVolume(int iVolume) ;
@@ -143,7 +140,7 @@ class sipXmediaFactoryImpl : public CpMediaInterfaceFactoryImpl
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
   protected:
     MpMediaTask*    mpMediaTask ; /**< Media task instance */
-    uint32_t mMaxSamplesPerFrame; //< Maximum number of samples per frame that any flowgraph may have set (used for initializing buffers)
+    uint32_t mFrameSizeMs; //< The size of the smallest unit of audio that we process on, in milliseconds
     uint32_t mMaxSamplesPerSec;   //< Maximum sample rate that any flowgraph may have set (used for initializing buffers)
 #ifdef INCLUDE_RTCP /* [ */
     IRTCPControl*   mpiRTCPControl;   /**< Realtime Control Interface */

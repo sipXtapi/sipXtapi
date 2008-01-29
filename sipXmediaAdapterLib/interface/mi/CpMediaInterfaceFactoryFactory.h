@@ -32,7 +32,7 @@ class OsConfigDb; // forward declaration
  * libraries. 
  */
 extern "C" CpMediaInterfaceFactory* sipXmediaFactoryFactory(OsConfigDb* pConfigDb, 
-                                                            uint32_t maxSamplesPerFrame = 0, 
+                                                            uint32_t fameSizeMs = 0, 
                                                             uint32_t maxSamplesPerSec = 0);
 
 /**

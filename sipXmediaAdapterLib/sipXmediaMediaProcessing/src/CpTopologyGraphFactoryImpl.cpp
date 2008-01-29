@@ -97,14 +97,14 @@ extern CpMediaInterfaceFactory* spFactory;
 extern int siInstanceCount;
 
 extern "C" CpMediaInterfaceFactory* cpTopologyGraphFactoryFactory(OsConfigDb* pConfigDb, 
-                                                                  uint32_t maxSamplesPerFrame, 
+                                                                  uint32_t frameSizeMs, 
                                                                   uint32_t maxSamplesPerSec)
 {
     if(spFactory == NULL)
     {
         spFactory = new CpMediaInterfaceFactory();
         spFactory->setFactoryImplementation(new CpTopologyGraphFactoryImpl(pConfigDb,
-                                                                           maxSamplesPerFrame, 
+                                                                           frameSizeMs, 
                                                                            maxSamplesPerSec));
     }    
     siInstanceCount++;
@@ -113,10 +113,10 @@ extern "C" CpMediaInterfaceFactory* cpTopologyGraphFactoryFactory(OsConfigDb* pC
 
 #ifdef ENABLE_TOPOLOGY_FLOWGRAPH_INTERFACE_FACTORY
 extern "C" CpMediaInterfaceFactory* sipXmediaFactoryFactory(OsConfigDb* pConfigDb,
-                                                            uint32_t maxSamplesPerFrame, 
+                                                            uint32_t frameSizeMs, 
                                                             uint32_t maxSamplesPerSec)
 {
-    return(cpTopologyGraphFactoryFactory(pConfigDb, maxSamplesPerFrame, maxSamplesPerSec));
+    return(cpTopologyGraphFactoryFactory(pConfigDb, frameSizeMs, maxSamplesPerSec));
 }
 #endif
 
@@ -127,9 +127,9 @@ extern "C" CpMediaInterfaceFactory* sipXmediaFactoryFactory(OsConfigDb* pConfigD
 
 // Constructor
 CpTopologyGraphFactoryImpl::CpTopologyGraphFactoryImpl(OsConfigDb* pConfigDb,
-                                                       uint32_t maxSamplesPerFrame, 
+                                                       uint32_t frameSizeMs, 
                                                        uint32_t maxSamplesPerSec)
-: sipXmediaFactoryImpl(pConfigDb, maxSamplesPerFrame, maxSamplesPerSec)
+: sipXmediaFactoryImpl(pConfigDb, frameSizeMs, maxSamplesPerSec)
 , mpInitialResourceTopology(NULL)
 , mpResourceFactory(NULL)
 , mpConnectionResourceTopology(NULL)
@@ -137,16 +137,17 @@ CpTopologyGraphFactoryImpl::CpTopologyGraphFactoryImpl(OsConfigDb* pConfigDb,
 , mpOutputDeviceManager(NULL)
 {
     assert(MpMisc.RawAudioPool);
+    uint32_t mgrSamplesPerFrame = (frameSizeMs*mMaxSamplesPerSec)/1000;
     mpInputDeviceManager = 
-       new MpInputDeviceManager(mMaxSamplesPerFrame,   // samples per frame
+       new MpInputDeviceManager(mgrSamplesPerFrame, // samples per frame
                                 mMaxSamplesPerSec, // samples per second
                                 4,    // number of buffered frames
                                 *MpMisc.RawAudioPool);
 
     mpOutputDeviceManager =
-       new MpOutputDeviceManager(mMaxSamplesPerFrame,   // samples per frame
+       new MpOutputDeviceManager(mgrSamplesPerFrame,   // samples per frame
                                  mMaxSamplesPerSec, // samples per second
-                                 20);  // mixer buffer length (ms)
+                                 frameSizeMs*2);  // mixer buffer length (ms)
 
 
 
@@ -242,7 +243,6 @@ CpTopologyGraphFactoryImpl::createMediaInterface(const char* publicAddress,
                                                  const char* turnPassword,
                                                  int turnKeepAliveSecs,
                                                  UtlBoolean enableIce, 
-                                                 uint32_t samplesPerFrame, 
                                                  uint32_t samplesPerSec)
 {
     return(new CpTopologyGraphInterface(this, 
@@ -254,7 +254,7 @@ CpTopologyGraphFactoryImpl::createMediaInterface(const char* publicAddress,
                                        turnServer, turnPort, turnUserName, 
                                        turnPassword, turnKeepAliveSecs, 
                                        enableIce,
-                                       samplesPerFrame, samplesPerSec));
+                                       (mFrameSizeMs*samplesPerSec)/1000, samplesPerSec));
 }
 
 MpResourceFactory* CpTopologyGraphFactoryImpl::buildDefaultResourceFactory()

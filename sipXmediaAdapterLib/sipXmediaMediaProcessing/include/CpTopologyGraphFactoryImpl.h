@@ -52,7 +52,7 @@ public:
 
       /// Constructor.
     CpTopologyGraphFactoryImpl(OsConfigDb* pConfigDb,
-                               uint32_t maxSamplesPerFrame, 
+                               uint32_t frameSizeMs, 
                                uint32_t maxSamplesPerSec);
 
       /// Destructor.
@@ -83,7 +83,6 @@ public:
                                            const char* turnPassword,
                                            int turnKeepAlivePeriodSecs,
                                            UtlBoolean enableIce, 
-                                           uint32_t samplesPerFrame, 
                                            uint32_t samplesPerSec);
 
     // For now inherit all of the modification methods from parent

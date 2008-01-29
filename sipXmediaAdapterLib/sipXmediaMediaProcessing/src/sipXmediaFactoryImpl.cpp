@@ -53,7 +53,7 @@ int siInstanceCount=0;
 
 #ifndef DISABLE_DEFAULT_PHONE_MEDIA_INTERFACE_FACTORY
 extern "C" CpMediaInterfaceFactory* cpDefaultMediaFactoryFactory(OsConfigDb* pConfigDb,
-                                                                 uint32_t maxSamplesPerFrame, 
+                                                                 uint32_t frameSizeMs, 
                                                                  uint32_t maxSamplesPerSec)
 {
    // TODO: Add locking
@@ -62,9 +62,9 @@ extern "C" CpMediaInterfaceFactory* cpDefaultMediaFactoryFactory(OsConfigDb* pCo
    {
       spFactory = new CpMediaInterfaceFactory();
       spFactory->setFactoryImplementation(new sipXmediaFactoryImpl(pConfigDb,
-                                                                   maxSamplesPerFrame, 
+                                                                   frameSizeMs, 
                                                                    maxSamplesPerSec));
-   }    
+   }
    siInstanceCount++;
 
    // Assert some sane value
@@ -73,10 +73,10 @@ extern "C" CpMediaInterfaceFactory* cpDefaultMediaFactoryFactory(OsConfigDb* pCo
 }
 
 extern "C" CpMediaInterfaceFactory* sipXmediaFactoryFactory(OsConfigDb* pConfigDb,
-                                                            uint32_t maxSamplesPerFrame, 
+                                                            uint32_t frameSizeMs, 
                                                             uint32_t maxSamplesPerSec)
 {
-   return(cpDefaultMediaFactoryFactory(pConfigDb, maxSamplesPerFrame, maxSamplesPerSec));
+   return(cpDefaultMediaFactoryFactory(pConfigDb, frameSizeMs, maxSamplesPerSec));
 }
 #endif
 
@@ -105,12 +105,12 @@ extern "C" void sipxDestroyMediaFactoryFactory()
 
 // Constructor
 sipXmediaFactoryImpl::sipXmediaFactoryImpl(OsConfigDb* pConfigDb, 
-                                           uint32_t maxSamplesPerFrame, 
+                                           uint32_t frameSizeMs, 
                                            uint32_t maxSamplesPerSec)
 {
    // See Doxygen comments for this constructor for information on the impact 
    // of the values of maxSamplesPerFrame and maxSamplesPerSec.
-   mMaxSamplesPerFrame = (maxSamplesPerFrame == 0) ? 80 : maxSamplesPerFrame;
+   mFrameSizeMs = (frameSizeMs == 0) ? 10 : frameSizeMs;
    mMaxSamplesPerSec = (maxSamplesPerSec == 0) ? 8000 : maxSamplesPerSec;
 
    int maxFlowGraph = -1; 
@@ -136,8 +136,8 @@ sipXmediaFactoryImpl::sipXmediaFactoryImpl(OsConfigDb* pConfigDb,
    // Start audio subsystem if still not started.
    if (miInstanceCount == 0)
    {
-      mpStartUp(mMaxSamplesPerSec, mMaxSamplesPerFrame, 16*maxFlowGraph, pConfigDb, 
-                mnCodecPaths, mpCodecPaths);
+      mpStartUp(mMaxSamplesPerSec, (mFrameSizeMs*mMaxSamplesPerSec)/1000, 
+                16*maxFlowGraph, pConfigDb, mnCodecPaths, mpCodecPaths);
    }
 
    // Should we send inband DTMF by default?    
@@ -210,14 +210,13 @@ CpMediaInterface* sipXmediaFactoryImpl::createMediaInterface(const char* publicA
                                                              const char* szTurnPassword,
                                                              int iTurnKeepAlivePeriodSecs,
                                                              UtlBoolean bEnableICE,
-                                                             uint32_t samplesPerFrame,
                                                              uint32_t samplesPerSec) 
 {
    return new CpPhoneMediaInterface(this, publicAddress, localAddress, 
       numCodecs, sdpCodecArray, locale, expeditedIpTos, szStunServer,
       iStunPort, iStunKeepAliveSecs, szTurnServer, iTurnPort, 
       szTurnUsername, szTurnPassword, iTurnKeepAlivePeriodSecs, 
-      bEnableICE, samplesPerFrame, samplesPerSec);
+      bEnableICE, (mFrameSizeMs*samplesPerSec)/1000, samplesPerSec);
 }
 
 

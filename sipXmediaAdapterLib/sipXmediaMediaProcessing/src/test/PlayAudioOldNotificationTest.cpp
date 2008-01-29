@@ -82,8 +82,8 @@ class PlayAudioOldNotificationTest : public CppUnit::TestCase
     {
         enableConsoleOutput(0);
 
-        // Initialize the factory factory with a maximum rate of 48kHz/480 samples per frame
-        mpMediaFactory = sipXmediaFactoryFactory(NULL, 480, 48000);
+        // Initialize the factory factory with a maximum rate of 48kHz and frame size of 10ms
+        mpMediaFactory = sipXmediaFactoryFactory(NULL, 10, 48000);
     } 
 
     virtual void tearDown()
