@@ -137,49 +137,23 @@ public:
 
      /// Helper to enable device driver.
    OsStatus enableDevice(MpOutputDeviceHandle deviceId,
-                         MpFrameTime mixerBufferLength,
+                         MpFrameTime mixerBufferLength = 0,
                          uint32_t samplesPerFrame = 0,
                          uint32_t samplesPerSec = 0);
      /**<
      *  This method enables the device driver indicated by the device id.
      *
-     *  @param deviceId - (in) The device to enable.
-     *  @param mixerBufferLength - (in) length of mixer buffer in milliseconds.
-     *         Mixer buffer is used when direct write mode is disabled to mix
-     *         multiple media streams. Stream sources (callers of pushFrame())
+     *  @param[in] deviceId - The device to enable.
+     *  @param[in] mixerBufferLength (optional) - length of mixer buffer
+     *         in milliseconds. Mixer buffer is used to mix multiple media
+     *         streams coming to this device. Stream sources (callers of pushFrame())
      *         should produce data with difference in time less, then mixer
-     *         buffer length, delayed stream data would be rejected.
-     *         Set <tt>mixerBufferLength</tt> to 0 to enable direct write mode.
-     *  @param samplesPerFrame (optional) - The samples per frame that this 
+     *         buffer length, because delayed stream data would be rejected.
+     *         Set \p mixerBufferLength to 0 to use manager's default.
+     *  @param[in] samplesPerFrame (optional) - The samples per frame that this 
      *         device should operate with.  If not specified, the manager's 
      *         default will be used.
-     *  @param samplesPerSec (optional) - The sample rate that this device 
-     *         should operate at.  If not specified, the manager's default will 
-     *         be used.
-     *
-     *  @returns OS_NOT_FOUND if the device could not be found.
-     *  @returns OS_INVALID_STATE if device already enabled.
-     *  
-     *  @NOTE This SHOULD NOT be used to mute/unmute a device. Disabling and
-     *        enabling a device results in state and buffer queues being cleared.
-     *
-     *  Multi-thread safe.
-     */
-
-
-     /// Helper to enable device driver with default mixer buffer length.
-   OsStatus enableDevice(MpOutputDeviceHandle deviceId,
-                         uint32_t samplesPerFrame = 0,
-                         uint32_t samplesPerSec = 0);
-     /**<
-     *  This method is equal to enableDevice() with mixerBufferLength parameter
-     *  equal to default mixer buffer length.
-     *
-     *  @param deviceId - (in) The device to enable.
-     *  @param samplesPerFrame (optional) - The samples per frame that this 
-     *         device should operate with.  If not specified, the manager's 
-     *         default will be used.
-     *  @param samplesPerSec (optional) - The sample rate that this device 
+     *  @param[in] samplesPerSec (optional) - The sample rate that this device 
      *         should operate at.  If not specified, the manager's default will 
      *         be used.
      *

@@ -145,7 +145,9 @@ OsStatus MpOutputDeviceManager::enableDevice(MpOutputDeviceHandle deviceId,
 
    OsWriteLock lock(mRwMutex);
 
-   // If sample rate or samples per frame were not provided, use defaults.
+   // If mixer buffer length or sample rate or samples per frame
+   // were not provided, use defaults.
+   mixerBufferLength = (mixerBufferLength == 0) ? mDefaultBufferLength : mixerBufferLength;
    samplesPerFrame = (samplesPerFrame == 0) ? mDefaultSamplesPerFrame : samplesPerFrame;
    samplesPerSec = (samplesPerSec == 0) ? mDefaultSamplesPerSecond : samplesPerSec;
 
@@ -156,18 +158,9 @@ OsStatus MpOutputDeviceManager::enableDevice(MpOutputDeviceHandle deviceId,
        status = connection->enableDevice(samplesPerFrame, 
                                          samplesPerSec,
                                          0,
-                                         mixerBufferLength
-                                         );
+                                         mixerBufferLength);
    }
    return status;
-}
-
-
-OsStatus MpOutputDeviceManager::enableDevice(MpOutputDeviceHandle deviceId,
-                                             uint32_t samplesPerFrame,
-                                             uint32_t samplesPerSec)
-{
-   return enableDevice(deviceId, mDefaultBufferLength, samplesPerFrame, samplesPerSec);
 }
 
 
