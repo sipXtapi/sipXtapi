@@ -86,9 +86,9 @@ public:
    static OsStatus startRecording(const UtlString& namedResource, OsMsgQ& fgQ,
                                   int ms, UtlString* buffer);
      /**<
-     *  Recording is done to a passed \a buffer for \a ms milliseconds.
-     *  Capacity of \a buffer is increased to hold full recording. Length of
-     *  \a buffer is set initially to 0 and then increased after every recorded
+     *  Recording is done to a passed \p buffer for \p ms milliseconds.
+     *  Capacity of \p buffer is increased to hold full recording. Length of
+     *  \p buffer is set initially to 0 and then increased after every recorded
      *  frame.
      *
      *  @param[in] ms - Number of milliseconds to record.
