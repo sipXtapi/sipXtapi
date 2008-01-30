@@ -658,12 +658,12 @@ public:
 
 protected:
 
-   static int sSampleRates[];
-   static int sNumRates;
+   const static int sSampleRates[];
+   const static int sNumRates;
 
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(WBInputOutputDeviceTest);
 
-int WBInputOutputDeviceTest::sSampleRates[] = {8000, 16000, 32000, 48000};
-int WBInputOutputDeviceTest::sNumRates = sizeof(WBInputOutputDeviceTest::sSampleRates)/sizeof(int);
+const int WBInputOutputDeviceTest::sSampleRates[] = {8000, 16000, 32000, 48000};
+const int WBInputOutputDeviceTest::sNumRates = sizeof(WBInputOutputDeviceTest::sSampleRates)/sizeof(int);
