@@ -1073,7 +1073,7 @@ AC_DEFUN([CHECK_SPEEX],
         AC_MSG_RESULT([using svn version])
         SPEEX_ROOT='${top_srcdir}/../sipXmediaLib/contrib/libspeex'
         SPEEX_CFLAGS="-I${SPEEX_ROOT}/include"
-        SPEEX_LIBS="-L${SPEEX_ROOT}/libspeex/.libs -lspeex"
+        SPEEX_LIBS='${top_srcdir}/../sipXmediaLib/bin/libspeex.la'
         SPEEX_STATIC_LIB="${SPEEX_ROOT}/libspeex/.libs/libspeex.a"
         AC_SUBST(SPEEX_ROOT)
         AC_SUBST(SPEEX_CFLAGS)
