@@ -110,9 +110,9 @@ UtlBoolean MprFromInputDevice::doProcessFrame(MpBufPtr inBufs[],
    mPreviousFrameTime += frameTimeInterval;
 
    MpAudioBufPtr inAudioBuffer;
-   unsigned int numFramesNotPlayed;
-   unsigned int numFramedBufferedBehind;
-   MpFrameTime  frameToFetch;
+   unsigned int numFramesNotPlayed = 0;
+   unsigned int numFramedBufferedBehind = 0;
+   MpFrameTime  frameToFetch = 0;
 
    // Use temp variable for frame time to prevent frame time drift in case
    // of device hiccup.
