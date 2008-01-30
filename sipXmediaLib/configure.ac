@@ -24,6 +24,9 @@ AC_PROG_LIBTOOL
 AC_PROG_CXX
 AC_PROG_CC
 
+# Check for cross compilation
+AM_CONDITIONAL(CROSS_COMPILING, test x$cross_compiling = xyes)
+
 # Checks for libraries.
 CHECK_COREAUDIO
 

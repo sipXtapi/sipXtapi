@@ -17,10 +17,13 @@ libspeex/libspeex/.libs/libspeex.so libspeex/libspeex/libspeex.la: libspeex/Make
 # Copy over the speex shared libtool .la file to the codec dir
 @DEFAULT_CODECS_PATH@/libspeex.la:  libspeex/libspeex/libspeex.la 
 	cp @SPEEX_ROOT@/libspeex/libspeex.la @DEFAULT_CODECS_PATH@/libspeex.la
+if CROSS_COMPILING
+	$(MAKE) -C libspeex install
+endif
 
 # Copy over the speex shared lib to the codec dir
 @DEFAULT_CODECS_PATH@/libspeex.so: libspeex/libspeex/.libs/libspeex.so
-	cp libspeex/libspeex/.libs/libspeex.so @DEFAULT_CODECS_PATH@/libspeex.so
+	cp -d libspeex/libspeex/.libs/libspeex.so* @DEFAULT_CODECS_PATH@/
 
 speex: @DEFAULT_CODECS_PATH@/libspeex.so @DEFAULT_CODECS_PATH@/libspeex.la
 
