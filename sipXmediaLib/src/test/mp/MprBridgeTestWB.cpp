@@ -270,7 +270,7 @@ public:
       size_t     i;	 
       for(i = 0; i < sNumRates; i++)	 
       {	 
-         printf("Test %d Hz\n", sSampleRates[i]);	 
+         printf("Test sample rate %d\n", sSampleRates[i]);	 
          // For this test, we want to modify the sample rate and samples per frame	 
          // so we need to de-inititialize what has already been initialized for us	 
          // by cppunit, or by a previous loop.	 
