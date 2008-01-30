@@ -990,7 +990,7 @@ AC_DEFUN([ENABLE_SPEEX_DSP],
     dnl now the important part of this macro...
     if test "x$speex_dsp_enabled" == "xyes"; then
         # Specify to enable speex dsp code
-        CFLAGS="${CFLAGS} -DHAVE_SPEEX" ; CXXFLAGS="${CXXFLAGS} -DHAVE_SPEEX",
+        CFLAGS="${CFLAGS} -DHAVE_SPEEX" ; CXXFLAGS="${CXXFLAGS} -DHAVE_SPEEX"
     fi
 ])dnl
 
