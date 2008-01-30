@@ -74,26 +74,11 @@ OsStatus MprBufferRecorder::stopRecording(const UtlString& namedResource,
    return fgQ.send(msg, sOperationQueueTimeout);
 }
 
-UtlBoolean MprBufferRecorder::enable()
-{
-   UtlBoolean retVal = FALSE;
-
-   if (mpBuffer != NULL)
-   {
-      mStatus = RECORDING;
-      OsSysLog::add(FAC_MP, PRI_DEBUG, "MprBufferRecorder::enable");
-      retVal = MpResource::enable();
-   } else 
-   {
-      OsSysLog::add(FAC_MP, PRI_DEBUG, 
-                    "MprBufferRecorder::enable (No buffer specified!)");
-   }
-
-   return retVal;
-}
-
 UtlBoolean MprBufferRecorder::disable(Completion code)
 {
+   // This implementation is broken by design. All this should be done
+   // in handleDisable() acually.
+
    UtlBoolean res = FALSE;
 
    // Set the status...
@@ -175,7 +160,7 @@ UtlBoolean MprBufferRecorder::doProcessFrame(MpBufPtr inBufs[],
       return TRUE;
    }
 
-   // We only use buffer 0 in this resource
+   // We only use input 0 in this resource
    MpAudioBufPtr inBuf = inBufs[0];
 
    if (inBufsSize == 0)
@@ -185,47 +170,45 @@ UtlBoolean MprBufferRecorder::doProcessFrame(MpBufPtr inBufs[],
       return TRUE;
    }
 
-   // maximum record time reached
-   if (mBufferSamplesUsed >= mSamplesToRecord) 
+   // Our destination to copy samples is after the samples we've
+   // already written (mnBufferSamplesUsed samples in from the beginning)
+   MpAudioSample* destSamples = 
+      ((MpAudioSample*)mpBuffer->data()) + mBufferSamplesUsed;
+   unsigned int samplesToWrite = mSamplesToRecord-mBufferSamplesUsed;
+
+   // Copy input data to buffer or write silence if no input.
+   if (inBuf.isValid())
    {
+      // Be sure to not overflow buffer.
+      samplesToWrite = sipx_min(samplesToWrite, inBuf->getSamplesNumber());
+
+      // Copy the audio data from the input to our buffer.
+      memcpy(destSamples, 
+             inBuf->getSamplesPtr(), 
+             samplesToWrite * sizeof(MpAudioSample));
+   }
+   else
+   {
+      // Be sure to not overflow buffer.
+      samplesToWrite = sipx_min(samplesToWrite,
+                                mpFlowGraph->getSamplesPerFrame());
+
+      // Copy the audio data from the input to our buffer.
+      memset(destSamples, 0,
+             samplesToWrite * sizeof(MpAudioSample));
+   }
+
+   mBufferSamplesUsed += samplesToWrite;
+   mpBuffer->resize(mBufferSamplesUsed*sizeof(MpAudioSample), FALSE);
+
+   if (mBufferSamplesUsed == mSamplesToRecord)
+   {
+      // We've finished recording.
       OsSysLog::add(FAC_MP, PRI_INFO,
                     "MprRecorder::doProcessFrame disabling recording -- finished:"
                     " mnBufferSamplesUsed=%d, numberSamples=%d, mStatus=%d", 
                     mBufferSamplesUsed, mSamplesToRecord, mStatus);
       disable(RECORD_FINISHED);
-   } 
-   else 
-   {
-      // Our destination to copy samples is after the samples we've
-      // already written (mnBufferSamplesUsed samples in from the beginning)
-      MpAudioSample* destSamples = 
-         ((MpAudioSample*)mpBuffer->data()) + mBufferSamplesUsed;
-      unsigned int samplesToWrite = mSamplesToRecord-mBufferSamplesUsed;
-
-      // Copy input data to buffer or write silence if no input.
-      if (inBuf.isValid())
-      {
-         // Be sure to not overflow buffer.
-         samplesToWrite = sipx_min(samplesToWrite, inBuf->getSamplesNumber());
-
-         // Copy the audio data from the input to our buffer.
-         memcpy(destSamples, 
-                inBuf->getSamplesPtr(), 
-                samplesToWrite * sizeof(MpAudioSample));
-      }
-      else
-      {
-         // Be sure to not overflow buffer.
-         samplesToWrite = sipx_min(samplesToWrite,
-                                   mpFlowGraph->getSamplesPerFrame());
-
-         // Copy the audio data from the input to our buffer.
-         memset(destSamples, 0,
-                samplesToWrite * sizeof(MpAudioSample));
-      }
-
-      mBufferSamplesUsed += samplesToWrite;
-      mpBuffer->resize(mBufferSamplesUsed*sizeof(MpAudioSample), FALSE);
    }
 
    return TRUE;
@@ -258,12 +241,14 @@ UtlBoolean MprBufferRecorder::handleStartRecording(int ms, UtlString* pBuffer)
    if (mpBuffer != NULL)
    {
       mSamplesToRecord = mpFlowGraph->getSamplesPerSec()/1000*ms;
-      mpBuffer->capacity(mSamplesToRecord*sizeof(MpAudioSample));
+      // We have to add 1 to capacity, because UtlString think we need
+      // place for a leading zero.
+      mpBuffer->capacity(mSamplesToRecord*sizeof(MpAudioSample)+1);
       mpBuffer->resize(0);
    }
 
    // Now we finally enable the resource to start the recording.
-   enable();
+   handleEnable();
 
    OsSysLog::add(FAC_MP, PRI_DEBUG, 
                  "MprRecorder::handleStartRecording"
@@ -287,6 +272,21 @@ UtlBoolean MprBufferRecorder::handleStopRecording()
    return TRUE;
 }
 
+UtlBoolean MprBufferRecorder::handleEnable()
+{
+   if (mpBuffer != NULL)
+   {
+      mStatus = RECORDING;
+      OsSysLog::add(FAC_MP, PRI_DEBUG, "MprBufferRecorder::enable");
+      MpResource::handleEnable();
+   } else 
+   {
+      OsSysLog::add(FAC_MP, PRI_WARNING,
+         "MprBufferRecorder::enable (No buffer specified!)");
+   }
+
+   return TRUE;
+}
 
 UtlBoolean MprBufferRecorder::handleMessage(MpResourceMsg& rMsg)
 {

@@ -100,13 +100,16 @@ public:
 
    virtual UtlBoolean disable(Completion code);
 
-   virtual UtlBoolean enable(void);
-
 //@}
 
 /* ============================ ACCESSORS ================================= */
 ///@name Accessors
 //@{
+
+     /// Get current recorder state.
+   inline
+   Completion getState() const;
+
 //@}
 
 /* ============================ INQUIRY =================================== */
@@ -136,6 +139,15 @@ private:
                                     int samplesPerFrame,
                                     int samplesPerSecond);
 
+     /// Handle the message for starting recording
+   UtlBoolean handleStartRecording(int ms, UtlString* buffer);
+
+     /// Handle the message for stopping recording
+   UtlBoolean handleStopRecording(void);
+
+     /// @copydoc MpResource::handleEnable()
+   virtual UtlBoolean handleEnable();
+
      /// Handle messages for this resource.
    virtual UtlBoolean handleMessage(MpResourceMsg& rMsg);
 
@@ -148,13 +160,13 @@ private:
      /// Assignment operator (not implemented for this class)
    MprBufferRecorder& operator=(const MprBufferRecorder& rhs);
 
-     /// Handle the message for starting recording
-   UtlBoolean handleStartRecording(int ms, UtlString* buffer);
-
-     /// Handle the message for stopping recording
-   UtlBoolean handleStopRecording(void);
 };
 
 /* ============================ INLINE METHODS ============================ */
+
+MprBufferRecorder::Completion MprBufferRecorder::getState() const
+{
+   return mStatus;
+}
 
 #endif  // _MprBufferRecorder_h_
