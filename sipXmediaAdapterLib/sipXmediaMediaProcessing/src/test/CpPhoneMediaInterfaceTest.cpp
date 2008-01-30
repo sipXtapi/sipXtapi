@@ -128,7 +128,7 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, 
                              CpMediaInterfaceFactory::addCodecPaths(codecPathsNum, codecPaths));
 
-        // Initialize the factory factory with a maximum rate of 48kHz and framesize of 10ms
+        // Initialize the factory factory
         mpMediaFactory = 
            sipXmediaFactoryFactory(NULL, FRAME_SIZE_MS, 
                                    MAX_SAMPLE_RATE, DEFAULT_SAMPLE_RATE);
