@@ -35,7 +35,7 @@
 
 #include <os/OsFS.h>
 
-#define TEST_TIME_MS                  10000 ///< Time to runs test (in milliseconds)
+#define TEST_TIME_MS                  3000  ///< Time to runs test (in milliseconds)
 #define AUDIO_BUFS_NUM                500   ///< Number of buffers in buffer pool we'll use.
 #define BUFFERS_TO_BUFFER_ON_INPUT    3     ///< Number of buffers to buffer in input manager.
 #define BUFFERS_TO_BUFFER_ON_OUTPUT   2     ///< Number of buffers to buffer in output manager.
