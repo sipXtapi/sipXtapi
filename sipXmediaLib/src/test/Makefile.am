@@ -32,6 +32,7 @@ testsuite_SOURCES = \
     mp/MpGenericResourceTest.cpp \
     mp/MprBridgeTest.cpp \
     mp/MprBridgeTestWB.cpp \
+    mp/MprBufferRecorderTest.cpp \
     mp/MprFromFileTest.cpp \
     mp/MprFromMicTest.cpp \
     mp/MprMixerTest.cpp \

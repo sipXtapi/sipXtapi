@@ -137,6 +137,10 @@ SOURCE=.\src\test\mp\MprBridgeTestWB.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\test\mp\MprBufferRecorderTest.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\test\mp\MpResourceTest.cpp
 # End Source File
 # Begin Source File
