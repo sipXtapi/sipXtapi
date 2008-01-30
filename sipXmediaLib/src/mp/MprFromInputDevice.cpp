@@ -188,7 +188,7 @@ UtlBoolean MprFromInputDevice::doProcessFrame(MpBufPtr inBufs[],
    {
       OsSysLog::add(FAC_MP, PRI_ERR, "MprFromInputDevice::doProcessFrame "
          "- Couldn't get device sample rate from input device manager!  "
-         "Device - \"%s\"", devName);
+         "Device - \"%s\"", devName.data());
       return FALSE;
    }
 
