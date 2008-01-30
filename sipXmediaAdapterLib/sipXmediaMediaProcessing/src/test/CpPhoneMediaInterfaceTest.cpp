@@ -27,8 +27,8 @@
 
 // Defaults for Media Interface Factory and Media Interface initialization
 // Zeros here indicate to use defaults.
-#define FRAME_SIZE_MS 0
-#define MAX_SAMPLE_RATE 0 
+#define FRAME_SIZE_MS       0
+#define MAX_SAMPLE_RATE     0 
 #define DEFAULT_SAMPLE_RATE 0
 
 //#define DISABLE_RECORDING
