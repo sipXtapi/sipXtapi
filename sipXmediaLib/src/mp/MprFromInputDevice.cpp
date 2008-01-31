@@ -58,14 +58,14 @@ MprFromInputDevice::MprFromInputDevice(const UtlString& rName,
 , mFrameTimeInitialized(FALSE)
 , mPreviousFrameTime(0)
 , mDeviceId(deviceId)
-, mResampler(1, 8000, 8000) // 8000 is just *some* initial value, it is expected
-                            // that the real value will be something different
+, mpResampler(MpResamplerBase::createResampler(1, 8000, 8000))
 {
 }
 
 // Destructor
 MprFromInputDevice::~MprFromInputDevice()
 {
+   delete mpResampler;
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -193,17 +193,17 @@ UtlBoolean MprFromInputDevice::doProcessFrame(MpBufPtr inBufs[],
    }
 
    // Check to see if the resampler needs it's rate adjusted.
-   if(mResampler.getInputRate() != devSampleRate)
-      mResampler.setInputRate(devSampleRate);
-   if(mResampler.getOutputRate() != samplesPerSecond)
-      mResampler.setOutputRate(samplesPerSecond);
+   if(mpResampler->getInputRate() != devSampleRate)
+      mpResampler->setInputRate(devSampleRate);
+   if(mpResampler->getOutputRate() != samplesPerSecond)
+      mpResampler->setOutputRate(samplesPerSecond);
 
    MpAudioBufPtr resampledBuffer;
    // Try to resample and replace.
    // If the function determines resampling is unnecessary, then it will just
    // leave the buffer pointer unchanged, and return OS_SUCCESS, which is what
    // we want.
-   if(mResampler.resampleBufPtr(inAudioBuffer, resampledBuffer,
+   if(mpResampler->resampleBufPtr(inAudioBuffer, resampledBuffer,
          devSampleRate, samplesPerSecond, devName) != OS_SUCCESS)
    {
       // Error messages have already been logged. No need to do so here.

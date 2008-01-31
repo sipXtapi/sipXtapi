@@ -97,7 +97,7 @@ private:
    UtlBoolean mFrameTimeInitialized;
    MpFrameTime mFrameTime;
    MpOutputDeviceHandle mDeviceId;
-   MpResampler mResampler;
+   MpResamplerBase *mpResampler;
 
      /// Copy constructor (not implemented for this class)
    MprToOutputDevice(const MprToOutputDevice& rMprToOutputDevice);

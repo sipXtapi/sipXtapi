@@ -15,6 +15,10 @@
 #include <os/OsSysLog.h>
 #include "mp/MpResampler.h"
 #include <mp/MpAudioUtils.h>
+#if defined(HAVE_SPEEX)
+#  include "mp/MpResamplerSpeex.h"
+#endif
+
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -28,23 +32,27 @@
 
 /* =============================== CREATORS =============================== */
 
+MpResamplerBase *MpResamplerBase::createResampler(uint32_t numChannels, 
+                                                  uint32_t inputRate, 
+                                                  uint32_t outputRate, 
+                                                  int32_t quality)
+{
+   return new 
+#if defined(HAVE_SPEEX)
+      MpResamplerSpeex
+#else
+      MpResamplerBase
+#endif
+                        (numChannels, inputRate, outputRate, quality);
+}
+
 MpResamplerBase::MpResamplerBase(uint32_t numChannels, 
                                  uint32_t inputRate, uint32_t outputRate, 
                                  int32_t quality)
    : mNumChannels(numChannels)
    , mInputRate(inputRate)
    , mOutputRate(outputRate)
-   , mQuality(quality)
-{
-   // No other initialization needed.
-}
-
-MpResamplerBase::MpResamplerBase(uint32_t numChannels, 
-                                 uint32_t inputRate, uint32_t outputRate)
-   : mNumChannels(numChannels)
-   , mInputRate(inputRate)
-   , mOutputRate(outputRate)
-   , mQuality(0)
+   , mQuality(quality >= 0 ? quality : 0)
 {
    // No other initialization needed.
 }

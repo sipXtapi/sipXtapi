@@ -34,19 +34,8 @@
 MpResamplerSpeex::MpResamplerSpeex(uint32_t numChannels, 
                                    uint32_t inputRate, uint32_t outputRate, 
                                    int32_t quality)
-   : MpResamplerBase(numChannels, inputRate, outputRate, quality)
-{
-   // Call speex init.
-   int speexErr = 0;
-   mpState = speex_resampler_init(mNumChannels, mInputRate, mOutputRate, 
-                                  mQuality, &speexErr);
-
-   assert(speexErr == RESAMPLER_ERR_SUCCESS);
-}
-
-MpResamplerSpeex::MpResamplerSpeex(uint32_t numChannels, 
-                                   uint32_t inputRate, uint32_t outputRate)
-   : MpResamplerBase(numChannels, inputRate, outputRate, SPEEX_RESAMPLER_QUALITY_VOIP)
+: MpResamplerBase(numChannels, inputRate, outputRate,
+                  quality >= 0 ? quality : SPEEX_RESAMPLER_QUALITY_VOIP)
 {
    // Call speex init.
    int speexErr = 0;

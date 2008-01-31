@@ -71,7 +71,7 @@ MprEncode::MprEncode(const UtlString& rName)
    mDisableDTX(TRUE),
 
    mNeedResample(FALSE),
-   mResampler(1, 8000, 8000),
+   mpResampler(MpResamplerBase::createResampler(1, 8000, 8000)),
    mResampleBufLen(0),
    mpResampleBuf(NULL),
 
@@ -99,6 +99,7 @@ MprEncode::~MprEncode()
    delete[] mpPacket2Payload;
    delete mpPrimaryCodec;
    delete mpDtmfCodec;
+   delete mpResampler;
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -209,7 +210,7 @@ void MprEncode::handleDeselectCodecs(void)
       if (mNeedResample)
       {
          mNeedResample = FALSE;
-         mResampler.resetStream();
+         mpResampler->resetStream();
          mResampleBufLen = 0;
          delete[] mpResampleBuf;
          mpResampleBuf = NULL;
@@ -269,8 +270,8 @@ void MprEncode::handleSelectCodecs(int newCodecsCount, SdpCodec** newCodecs)
       mNeedResample = UtlBoolean(flowgraphSamplesPerSec != codecSamplesPerSec);
       if (mNeedResample)
       {
-         mResampler.setInputRate(flowgraphSamplesPerSec);
-         mResampler.setOutputRate(codecSamplesPerSec);
+         mpResampler->setInputRate(flowgraphSamplesPerSec);
+         mpResampler->setOutputRate(codecSamplesPerSec);
          mResampleBufLen = mpFlowGraph->getSamplesPerFrame()
                            * codecSamplesPerSec/flowgraphSamplesPerSec;
          mpResampleBuf = new MpAudioSample[mResampleBufLen];
@@ -457,9 +458,9 @@ void MprEncode::doPrimaryCodec(MpAudioBufPtr in, unsigned int startTs)
    if (mNeedResample)
    {
       uint32_t samplesConsumed;
-      mResampler.resample(0,
-                          in->getSamplesPtr(), in->getSamplesNumber(), samplesConsumed,
-                          mpResampleBuf, mResampleBufLen, numSamplesIn);
+      mpResampler->resample(0,
+                            in->getSamplesPtr(), in->getSamplesNumber(), samplesConsumed,
+                            mpResampleBuf, mResampleBufLen, numSamplesIn);
       assert(samplesConsumed == in->getSamplesNumber());
       pSamplesIn = mpResampleBuf;
    }

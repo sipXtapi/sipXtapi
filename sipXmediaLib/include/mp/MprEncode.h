@@ -149,9 +149,9 @@ private:
 
 ///@name Resampler-related variables.
 //@{
-   UtlBoolean  mNeedResample; ///< Is resampling needed?
-   MpResampler mResampler;  ///< Resampler to convert flowgraph sample rate to
-                            ///< codec's sample rate.
+   UtlBoolean  mNeedResample;    ///< Is resampling needed?
+   MpResamplerBase *mpResampler; ///< Resampler to convert flowgraph sample rate
+                                 ///<  to codec's sample rate.
    unsigned int mResampleBufLen; ///< Length of mpResampleBuf.
    MpAudioSample *mpResampleBuf; ///< Temporary buffer used to store resampled
                                  ///< audio samples before passing them to encoder.

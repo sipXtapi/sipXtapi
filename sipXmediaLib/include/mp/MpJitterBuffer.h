@@ -120,7 +120,7 @@ private:
    MpAudioSample JbResampleBuf[JbResampleBufSize]; ///< Buffer, used to temporarily
                                     ///< store decoded data if it need to be
                                     ///< resampled.
-   MpResampler mResampler;          ///< Resampler instance to convert codec
+   MpResamplerBase *mpResampler;    ///< Resampler instance to convert codec
                                     ///< sample rate to flowgraph sample rate.
 
    int JbQCount;                    ///< Number of decoded samples in JbQ.

@@ -30,7 +30,7 @@
 
 MpJitterBuffer::MpJitterBuffer(unsigned int sampleRate)
 : mSampleRate(sampleRate)
-, mResampler(1, mSampleRate, mSampleRate)
+, mpResampler(MpResamplerBase::createResampler(1, mSampleRate, mSampleRate))
 {
    for (int i=0; i<JbPayloadMapSize; i++)
       payloadMap[i] = NULL;
@@ -43,6 +43,7 @@ MpJitterBuffer::MpJitterBuffer(unsigned int sampleRate)
 // Destructor
 MpJitterBuffer::~MpJitterBuffer()
 {
+   delete mpResampler;
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -106,9 +107,9 @@ OsStatus MpJitterBuffer::pushPacket(MpRtpBufPtr &rtpPacket)
    else
    {
       // Update sample rate if changed.
-      if (mResampler.getInputRate() != codecSampleRate)
+      if (mpResampler->getInputRate() != codecSampleRate)
       {
-         mResampler.setInputRate(codecSampleRate);
+         mpResampler->setInputRate(codecSampleRate);
       }
 
       // Decode packet to temporary resample buffer.
@@ -128,9 +129,9 @@ OsStatus MpJitterBuffer::pushPacket(MpRtpBufPtr &rtpPacket)
       const MpAudioSample *pResampleBufPtr = JbResampleBuf;
       while (decodedSamples > 0 && bufferSize > 0)
       {
-         mResampler.resample(0,
-                             JbResampleBuf, decodedSamples, inSamplesResampled,
-                             JbQ+JbQIn, bufferSize, outSamplesResampled);
+         mpResampler->resample(0,
+                               JbResampleBuf, decodedSamples, inSamplesResampled,
+                               JbQ+JbQIn, bufferSize, outSamplesResampled);
          decodedSamples -= inSamplesResampled;
          // Update buffer state
          JbQCount += outSamplesResampled;
@@ -195,7 +196,7 @@ int MpJitterBuffer::setCodecList(MpDecoderBase** codecList, int codecCount)
 
    // Reset resampler preparing it to resample new audio stream.
    // Actually we should have MpJitterBuffer::resetStream() function for this.
-   mResampler.resetStream();
+   mpResampler->resetStream();
 
    return 0;
 }

@@ -58,14 +58,14 @@ MprToOutputDevice::MprToOutputDevice(const UtlString& rName,
 , mFrameTimeInitialized(FALSE)
 , mFrameTime(0)
 , mDeviceId(deviceId)
-, mResampler(1, 8000, 8000) // 8000 is just *some* initial value, it is expected
-                            // that the real value will be something different
+, mpResampler(MpResamplerBase::createResampler(1, 8000, 8000))
 {
 }
 
 // Destructor
 MprToOutputDevice::~MprToOutputDevice()
 {
+   delete mpResampler;
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -155,10 +155,10 @@ UtlBoolean MprToOutputDevice::doProcessFrame(MpBufPtr inBufs[],
    }
 
    // Check to see if the resampler needs it's rate adjusted.
-   if(mResampler.getInputRate() != samplesPerSecond)
-      mResampler.setInputRate(samplesPerSecond);
-   if(mResampler.getOutputRate() != devSampleRate)
-      mResampler.setOutputRate(devSampleRate);
+   if(mpResampler->getInputRate() != samplesPerSecond)
+      mpResampler->setInputRate(samplesPerSecond);
+   if(mpResampler->getOutputRate() != devSampleRate)
+      mpResampler->setOutputRate(devSampleRate);
 
    {
       MpAudioBufPtr resampledBuffer;
@@ -166,7 +166,7 @@ UtlBoolean MprToOutputDevice::doProcessFrame(MpBufPtr inBufs[],
       // If the function determines resampling is unnecessary, then it will just
       // leave the buffer pointer unchanged, and return OS_SUCCESS, which is what
       // we want.
-      if(mResampler.resampleBufPtr(inAudioBuffer, resampledBuffer, 
+      if(mpResampler->resampleBufPtr(inAudioBuffer, resampledBuffer, 
             samplesPerSecond, devSampleRate, devName) != OS_SUCCESS)
       {
          // Error messages have already been logged. No need to do so here.

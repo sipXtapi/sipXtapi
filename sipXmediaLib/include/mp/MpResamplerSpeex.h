@@ -49,16 +49,9 @@ public:
    MpResamplerSpeex(uint32_t numChannels, 
                     uint32_t inputRate, 
                     uint32_t outputRate, 
-                    int32_t quality);
+                    int32_t quality = -1);
      /**<
      *  @copydoc MpResamplerBase::MpResamplerBase(uint32_t,uint32_t,uint32_t,int32_t)
-     */
-
-   MpResamplerSpeex(uint32_t numChannels, 
-                    uint32_t inputRate, 
-                    uint32_t outputRate);
-     /**<
-     *  @copydoc MpResamplerBase::MpResamplerBase(uint32_t,uint32_t,uint32_t)
      */
 
    ~MpResamplerSpeex();

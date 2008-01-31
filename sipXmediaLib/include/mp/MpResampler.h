@@ -40,26 +40,24 @@ public:
 ///@name Creators
 //@{
 
+   static
+   MpResamplerBase *createResampler(uint32_t numChannels, 
+                                    uint32_t inputRate, 
+                                    uint32_t outputRate, 
+                                    int32_t quality = -1);
+
      /// Constructor
    MpResamplerBase(uint32_t numChannels, 
                    uint32_t inputRate, 
                    uint32_t outputRate, 
                    int32_t quality);
      /**<
-     *  @copydoc MpResamplerBase::MpResamplerBase(uint32_t,uint32_t,uint32_t)
-     *  @param[in] quality - The quality parameter is used by some resamplers to
-     *             control the tradeoff of quality for latency and complexity.
-     */
-
-     /// Constructor
-   MpResamplerBase(uint32_t numChannels, 
-                   uint32_t inputRate, 
-                   uint32_t outputRate);
-     /**<
      *  @param[in] numChannels - The number of channels that the resampler will 
      *             process.
      *  @param[in] inputRate - The sample rate of the input audio.
      *  @param[in] outputRate - The sample rate of the output audio.
+     *  @param[in] quality - The quality parameter is used by some resamplers to
+     *             control the tradeoff of quality for latency and complexity.
      */
 
      /// Destructor
@@ -178,7 +176,6 @@ protected:
    uint32_t mOutputRate;
    int32_t mQuality;
 
-
 /* /////////////////////////////// PRIVATE //////////////////////////////// */
 private:
 
@@ -186,12 +183,5 @@ private:
 };
 
 /* ============================ INLINE METHODS ============================ */
-
-#if defined(HAVE_SPEEX)
-#  include "mp/MpResamplerSpeex.h"
-typedef class MpResamplerSpeex MpResampler;
-#else
-typedef class MpResamplerBase MpResampler;
-#endif
 
 #endif  // _MpResamplerBase_h_
