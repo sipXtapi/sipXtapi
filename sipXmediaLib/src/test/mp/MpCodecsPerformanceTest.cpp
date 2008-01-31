@@ -26,6 +26,26 @@
 #define ENCODED_FRAME_MAX_SIZE  (FRAME_SIZE*sizeof(MpAudioSample))
 /// Number of RTP packets to encode/decode.
 #define NUM_PACKETS_TO_TEST      3
+/// Maximum number of milliseconds in packet.
+#define MAX_PACKET_TIME          20
+/// Maximum number of samples in packet.
+#define MAX_PACKET_SAMPLES       (MAX_PACKET_TIME*SAMPLE_RATE)/1000
+
+// Setup codec paths..
+static UtlString sCodecPaths[] = {
+#ifdef WIN32
+                                  "bin",
+                                  "..\\bin",
+#elif __pingtel_on_posix__
+                                  "../../../../bin",
+                                  "../../../bin",
+#else
+#                                 error "Unknown platform"
+#endif
+                                  "."
+                                 };
+static size_t sNumCodecPaths = sizeof(sCodecPaths)/sizeof(sCodecPaths[0]);
+
 
 ///  Unit test for testing performance of supported codecs.
 class MpCodecsPerformanceTest : public CppUnit::TestCase
@@ -65,39 +85,54 @@ public:
    void testCodecsPreformance()
    {
       MpCodecFactory  *pCodecFactory;
-      const UtlString *pCodecMimeTypes;
-      unsigned         codecMimeTypesNum;
+      const MppCodecInfoV1_1 **pCodecInfo;
+      unsigned         codecInfoNum;
 
       // Get/create codec factory
       pCodecFactory = MpCodecFactory::getMpCodecFactory();
       CPPUNIT_ASSERT(pCodecFactory != NULL);
 
       // Load all available codecs
-      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
-                           pCodecFactory->loadAllDynCodecs(".", CODEC_PLUGINS_FILTER));
+      size_t i;
+      for(i = 0; i < sNumCodecPaths; i++)
+      {
+         pCodecFactory->loadAllDynCodecs(sCodecPaths[i],
+                                         CODEC_PLUGINS_FILTER);
+      }
 
-      pCodecFactory->getMimeTypes(codecMimeTypesNum, (const UtlString*&)pCodecMimeTypes);
-      CPPUNIT_ASSERT(codecMimeTypesNum>0);
+      // Get list of loaded codecs
+      pCodecFactory->getCodecInfoArray(codecInfoNum, pCodecInfo);
+      CPPUNIT_ASSERT(codecInfoNum>0);
 
-      for (unsigned i=0; i<codecMimeTypesNum; i++)
+      for (unsigned i=0; i<codecInfoNum; i++)
       {
          const char **pCodecFmtps;
          unsigned     codecFmtpsNum;
-         pCodecFactory->getCodecFmtps(pCodecMimeTypes[i], codecFmtpsNum, pCodecFmtps);
+         codecFmtpsNum = pCodecInfo[i]->fmtpsNum;
+         pCodecFmtps = pCodecInfo[i]->fmtps;
          if (codecFmtpsNum == 0)
          {
-            testOneCodecPreformance(pCodecFactory, pCodecMimeTypes[i], "");
+            testOneCodecPreformance(pCodecFactory,
+                                    pCodecInfo[i]->mimeSubtype,
+                                    "",
+                                    pCodecInfo[i]->sampleRate,
+                                    pCodecInfo[i]->numChannels);
          } 
          else
          {
-            for (int fmtpNum=0; fmtpNum<codecFmtpsNum; fmtpNum++)
+            for (unsigned fmtpNum=0; fmtpNum<codecFmtpsNum; fmtpNum++)
             {
                testOneCodecPreformance(pCodecFactory,
-                                       pCodecMimeTypes[i],
-                                       pCodecFmtps[fmtpNum]);
+                                       pCodecInfo[i]->mimeSubtype,
+                                       pCodecFmtps[fmtpNum],
+                                       pCodecInfo[i]->sampleRate,
+                                       pCodecInfo[i]->numChannels);
             }
          }
       }
+
+      // Free codec factory
+      MpCodecFactory::freeSingletonHandle();
    }
 
 protected:
@@ -115,6 +150,7 @@ protected:
       MpAudioSample  pOriginal[FRAME_SIZE];
       MpAudioSample  pDecoded[DECODED_FRAME_MAX_SIZE];
       int            encodeFrameNum = 0;
+      int            codecFrameSamples;
 
       // Create and initialize decoder and encoder
       CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
@@ -131,13 +167,29 @@ protected:
          return;
       }
       CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
-                           pCodecFactory->createEncoder(codecMime, codecFmtp, 0, pEncoder));
+                           pCodecFactory->createEncoder(codecMime, codecFmtp,
+                                                        sampleRate, numChannels,
+                                                        0, pEncoder));
       CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
                            pEncoder->initEncode());
 
+      // Get number of samples we'll pack to get one packet
+      if (pEncoder->getInfo()->getCodecType() == CODEC_TYPE_FRAME_BASED)
+      {
+         codecFrameSamples = pEncoder->getInfo()->getNumSamplesPerFrame();
+      }
+      else if (pEncoder->getInfo()->getCodecType() == CODEC_TYPE_SAMPLE_BASED)
+      {
+         codecFrameSamples = FRAME_SIZE;
+      }
+      else
+      {
+         assert(!"Unknown codec type!");
+      }
+
+
       for (int i=0; i<NUM_PACKETS_TO_TEST; i++)
       {
-         int            maxBytesPerPacket = (pEncoder->getInfo()->getMaxPacketBits() + 7) / 8;
          int            tmpSamplesConsumed;
          int            tmpEncodedSize;
          UtlBoolean     tmpSendNow;
@@ -178,7 +230,8 @@ protected:
             samplesInPacket += tmpSamplesConsumed;
             CPPUNIT_ASSERT(payloadSize <= ENCODED_FRAME_MAX_SIZE);
             encodeFrameNum++;
-         } while(! ((tmpSendNow == TRUE) || (maxBytesPerPacket == payloadSize)));
+         } while( (tmpSendNow != TRUE) &&
+                  (samplesInPacket+codecFrameSamples <= MAX_PACKET_SAMPLES));
          pRtpPacket->setPayloadSize(payloadSize);
 
          // Decode frame, measure time and verify, that we decoded same number of samples.
