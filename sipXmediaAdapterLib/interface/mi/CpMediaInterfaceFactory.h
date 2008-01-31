@@ -46,7 +46,7 @@ class SdpCodec ;
 class CpMediaInterfaceFactory
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
-  public:
+public:
 
 /* ============================ CREATORS ================================== */
 
@@ -71,30 +71,30 @@ class CpMediaInterfaceFactory
      * The factory will automatically be deleted when the destructor of 
      * CpMediaInterfaceFactory is invoked.
      */
-    void setFactoryImplementation(CpMediaInterfaceFactoryImpl* pFactoryInterface) ;
+   void setFactoryImplementation(CpMediaInterfaceFactoryImpl* pFactoryInterface) ;
 
 
     /**
      * Create a media interface using the designated 
      * CpMediaIntefaceFactoryInterface.
      */ 
-    CpMediaInterface* createMediaInterface(const char* publicAddress,
-                                           const char* localAddress,
-                                           int numCodecs,
-                                           SdpCodec* sdpCodecArray[],
-                                           const char* locale,
-                                           int expeditedIpTos,
-                                           const char* szStunServer,
-                                           int iStunPort,
-                                           int iStunKeepAlivePeriodSecs,
-                                           const char* szTurnServer,
-                                           int iTurnPort,
-                                           const char* szTurnUsername,
-                                           const char* szTurnPassword,
-                                           int iTurnKeepAlivePeriodSecs,
-                                           UtlBoolean bEnableICE,
-                                           uint32_t samplesPerSec = 0 ///< Zero takes default
-                                          );
+   CpMediaInterface* createMediaInterface(const char* publicAddress,
+                                          const char* localAddress,
+                                          int numCodecs,
+                                          SdpCodec* sdpCodecArray[],
+                                          const char* locale,
+                                          int expeditedIpTos,
+                                          const char* szStunServer,
+                                          int iStunPort,
+                                          int iStunKeepAlivePeriodSecs,
+                                          const char* szTurnServer,
+                                          int iTurnPort,
+                                          const char* szTurnUsername,
+                                          const char* szTurnPassword,
+                                          int iTurnKeepAlivePeriodSecs,
+                                          UtlBoolean bEnableICE,
+                                          uint32_t samplesPerSec = 0 ///< Zero takes default
+                                         );
 
      /// Add directory paths to the codec search path.
    static OsStatus addCodecPaths(const size_t nCodecPaths, const UtlString codecPaths[]);
@@ -116,16 +116,16 @@ class CpMediaInterfaceFactory
 
 /* ============================ ACCESSORS ================================= */
 
-    CpMediaInterfaceFactoryImpl* getFactoryImplementation() ;
+   CpMediaInterfaceFactoryImpl* getFactoryImplementation() ;
 
 /* ============================ INQUIRY =================================== */
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
-  protected:
-    CpMediaInterfaceFactoryImpl* mpFactoryImpl ; 
+protected:
+   CpMediaInterfaceFactoryImpl* mpFactoryImpl ; 
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
-  private:
+private:
 
    /**
     * Disabled equals operator

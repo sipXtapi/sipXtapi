@@ -38,14 +38,10 @@
 typedef enum SocketPurpose
 {
    UNKNOWN,
-     /// Socket is intended to transport RTP Audio data
-   RTP_AUDIO,
-     /// Socket is intended to transport RTCP Audio control data
-   RTCP_AUDIO,
-     /// Socket is intended to transport RTP Video data
-   RTP_VIDEO,
-     /// Socket is intended to transport RTCP Video control data
-   RTCP_VIDEO
+   RTP_AUDIO,  ///< Socket is intended to transport RTP Audio data
+   RTCP_AUDIO, ///< Socket is intended to transport RTCP Audio control data
+   RTP_VIDEO,  ///< Socket is intended to transport RTP Video data
+   RTCP_VIDEO  ///< Socket is intended to transport RTCP Video control data
 } SocketPurpose;
 
   /// SipX Media Interface Audio Bandwidth IDs
@@ -61,13 +57,17 @@ typedef enum SIPXMI_AUDIO_BANDWIDTH_ID
      /// ID for codecs with high bandwidth requirements
    AUDIO_MICODEC_BW_HIGH,
 
-     /// Possible return value for sipxConfigGetAudioCodecPreferences.
-     /// This ID indicates the available list of codecs was overridden by a 
-     /// sipxConfigSetAudioCodecByName call.
+     /**
+     *  Possible return value for sipxConfigGetAudioCodecPreferences.
+     *  This ID indicates the available list of codecs was overridden by a 
+     *  sipxConfigSetAudioCodecByName call.
+     */
    AUDIO_MICODEC_BW_CUSTOM,       
 
-     /// Value used to signify the default bandwidth level when calling 
-     /// sipxCallConnect, sipxCallAccept, or sipxConferenceAdd 
+     /**
+     *  Value used to signify the default bandwidth level when calling 
+     *  sipxCallConnect, sipxCallAccept, or sipxConferenceAdd 
+     */
    AUDIO_MICODEC_BW_DEFAULT       
 
 } SIPXMI_AUDIO_BANDWIDTH_ID;

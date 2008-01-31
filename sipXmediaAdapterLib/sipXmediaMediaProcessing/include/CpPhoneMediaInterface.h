@@ -41,8 +41,9 @@ class OsDatagramSocket;
 class CpPhoneMediaConnection;
 class ISocketEvent;
 
-//:Class short description which may consist of multiple lines (note the ':')
-// Class detailed description which may extend to multiple lines
+/**
+*  An older media interface
+*/
 class CpPhoneMediaInterface : public CpMediaInterface
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
@@ -50,6 +51,7 @@ public:
 
 /* ============================ CREATORS ================================== */
 
+     /// @brief Constructor
    CpPhoneMediaInterface(CpMediaInterfaceFactoryImpl* pFactoryImpl,
                          uint32_t samplesPerFrame = 0,
                          uint32_t samplesPerSec = 0,
@@ -69,17 +71,14 @@ public:
                          int iTurnKeepAlivePeriodSecs = 28,
                          UtlBoolean bEnableICE = FALSE
                         );
-     //:Default constructor
 
-  protected:
-   virtual
-   ~CpPhoneMediaInterface();
-     //:Destructor
-  public:
+protected:
+     /// @brief Destructor
+   virtual ~CpPhoneMediaInterface();
 
-   /**
-    * public interface for destroying this media interface
-    */ 
+public:
+
+     /// @brief Public interface for destroying this media interface
    void release();
 
 /* ============================ MANIPULATORS ============================== */
@@ -104,7 +103,7 @@ public:
                                     SdpSrtpParameters& srtpParams,
                                     int bandWidth,
                                     int& videoBandwidth,
-                                    int& videoFramerate) ;
+                                    int& videoFramerate);
 
    virtual OsStatus getCapabilitiesEx(int connectionId, 
                                       int nMaxAddresses,
@@ -150,8 +149,8 @@ public:
    virtual OsStatus startTone(int toneId, UtlBoolean local, UtlBoolean remote);
    virtual OsStatus stopTone();
 
-   virtual OsStatus startChannelTone(int connectionId, int toneId, UtlBoolean local, UtlBoolean remote) ;
-   virtual OsStatus stopChannelTone(int connectionId) ;
+   virtual OsStatus startChannelTone(int connectionId, int toneId, UtlBoolean local, UtlBoolean remote);
+   virtual OsStatus stopChannelTone(int connectionId);
 
    virtual OsStatus playAudio(const char* url, 
                               UtlBoolean repeat,
@@ -162,43 +161,43 @@ public:
                               OsNotification *event = NULL);
 
 
-    virtual OsStatus playBuffer(char* buf, 
-                                unsigned long bufSize,
-                                uint32_t bufRate, 
-                                int type, 
-                                UtlBoolean repeat,
-                                UtlBoolean local, 
-                                UtlBoolean remote,
-                                OsProtectedEvent* event = NULL,
-                                UtlBoolean mixWithMic = false,
-                                int downScaling = 100);
+   virtual OsStatus playBuffer(char* buf, 
+                               unsigned long bufSize,
+                               uint32_t bufRate, 
+                               int type, 
+                               UtlBoolean repeat,
+                               UtlBoolean local, 
+                               UtlBoolean remote,
+                               OsProtectedEvent* event = NULL,
+                               UtlBoolean mixWithMic = false,
+                               int downScaling = 100);
 
-      /// @copydoc CpMediaInterface::pauseAudio()
-    virtual OsStatus pauseAudio();
+     /// @copydoc CpMediaInterface::pauseAudio()
+   virtual OsStatus pauseAudio();
 
-      /// @copydoc CpMediaInterface::resumeAudio()
-    virtual OsStatus resumeAudio();
+     /// @copydoc CpMediaInterface::resumeAudio()
+   virtual OsStatus resumeAudio();
 
-      /// @copydoc CpMediaInterface::stopAudio()
-    virtual OsStatus stopAudio();
+     /// @copydoc CpMediaInterface::stopAudio()
+   virtual OsStatus stopAudio();
 
-    virtual OsStatus playChannelAudio(int connectionId,
-                                     const char* url,
-                                     UtlBoolean repeat,
-                                     UtlBoolean local,
-                                     UtlBoolean remote,
-                                     UtlBoolean mixWithMic = false,
-                                     int downScaling = 100,
-                                     OsNotification *event = NULL) ;
+   virtual OsStatus playChannelAudio(int connectionId,
+                                    const char* url,
+                                    UtlBoolean repeat,
+                                    UtlBoolean local,
+                                    UtlBoolean remote,
+                                    UtlBoolean mixWithMic = false,
+                                    int downScaling = 100,
+                                    OsNotification *event = NULL);
 
 
-   virtual OsStatus stopChannelAudio(int connectionId) ;
+   virtual OsStatus stopChannelAudio(int connectionId);
 
 
    virtual OsStatus recordChannelAudio(int connectionId,
-                                       const char* szFile) ;
+                                       const char* szFile);
 
-   virtual OsStatus stopRecordChannelAudio(int connectionId) ;
+   virtual OsStatus stopRecordChannelAudio(int connectionId);
 
    virtual OsStatus createPlayer(MpStreamPlayer** ppPlayer, 
                                  const char* szStream, 
@@ -219,20 +218,16 @@ public:
    virtual OsStatus giveFocus();
    virtual OsStatus defocus();
 
+     /// @brief Limits the available codecs to only those within the designated limit
    virtual void setCodecCPULimit(int iLimit);
-     //:Limits the available codecs to only those within the designated
-     //:limit.
 
    virtual void addToneListener(OsNotification *pListener, int connectionId);
 
    virtual void removeToneListener(int connectionId);
 
    virtual OsStatus stopRecording();
-   virtual OsStatus ezRecord(int ms, 
-           int silenceLength, 
-           const char* fileName, 
-           double& duration, 
-           OsProtectedEvent* ev = NULL);
+   virtual OsStatus ezRecord(int ms, int silenceLength, const char* fileName, 
+                             double& duration, OsProtectedEvent* ev = NULL);
 
      /// @copydoc CpMediaInterface::recordMic(int,UtlString*)
    virtual OsStatus recordMic(int ms, UtlString* pAudioBuffer);
@@ -240,76 +235,77 @@ public:
      /// @copydoc CpMediaInterface::recordMic(int, int, const char*)
    virtual OsStatus recordMic(int ms,
                               int silenceLength,
-                              const char* fileName) ; 
+                              const char* fileName); 
 
-    virtual void setContactType(int connectionId, SIPX_CONTACT_TYPE eType, SIPX_CONTACT_ID contactId) ;
-     //: Set the contact type for this Phone media interface.  
-     //  It is important to set the contact type BEFORE creating the 
-     //  connection -- setting after the connection has been created
-     //  is essentially a NOP.
+     /// @brief Set the contact type for this Phone media interface
+   virtual void setContactType(int connectionId, SIPX_CONTACT_TYPE eType, SIPX_CONTACT_ID contactId);
+     /**<
+     *  It is important to set the contact type BEFORE creating the connection
+     *  -- setting after the connection has been created is essentially a NOP.
+     */
 
-    //! Rebuild the codec factory on the fly
-    virtual OsStatus setAudioCodecBandwidth(int connectionId, int bandWidth) ;
+     /// @brief Rebuild the codec factory on the fly
+   virtual OsStatus setAudioCodecBandwidth(int connectionId, int bandWidth);
 
    virtual OsStatus rebuildCodecFactory(int connectionId, 
                                         int audioBandwidth, 
                                         int videoBandwidth, 
                                         UtlString& videoCodec);
 
-    //! Set connection bitrate on the fly
-    virtual OsStatus setConnectionBitrate(int connectionId, int bitrate) ;
+     /// @brief Set connection bitrate on the fly
+   virtual OsStatus setConnectionBitrate(int connectionId, int bitrate);
 
-    //! Set connection framerate on the fly
-    virtual OsStatus setConnectionFramerate(int connectionId, int framerate) ;
+     /// @brief Set connection framerate on the fly
+   virtual OsStatus setConnectionFramerate(int connectionId, int framerate);
 
-    virtual OsStatus setSecurityAttributes(const void* security) ;
+   virtual OsStatus setSecurityAttributes(const void* security);
 
-    virtual OsStatus addAudioRtpConnectionDestination(int         connectionId,
-                                                      int         iPriority,
+   virtual OsStatus addAudioRtpConnectionDestination(int connectionId,
+                                                     int iPriority,
+                                                     const char* candidateIp, 
+                                                     int candidatePort);
+
+   virtual OsStatus addAudioRtcpConnectionDestination(int connectionId,
+                                                      int iPriority,
                                                       const char* candidateIp, 
-                                                      int         candidatePort) ;
+                                                      int candidatePort);
 
-    virtual OsStatus addAudioRtcpConnectionDestination(int         connectionId,
-                                                       int         iPriority,
-                                                       const char* candidateIp, 
-                                                       int         candidatePort) ;
+   virtual OsStatus addVideoRtpConnectionDestination(int connectionId,
+                                                     int iPriority,
+                                                     const char* candidateIp, 
+                                                     int candidatePort);
 
-    virtual OsStatus addVideoRtpConnectionDestination(int         connectionId,
-                                                      int         iPriority,
+   virtual OsStatus addVideoRtcpConnectionDestination(int connectionId,
+                                                      int iPriority,
                                                       const char* candidateIp, 
-                                                      int         candidatePort) ;
-
-    virtual OsStatus addVideoRtcpConnectionDestination(int         connectionId,
-                                                       int         iPriority,
-                                                       const char* candidateIp, 
-                                                       int         candidatePort) ;
+                                                      int candidatePort);
     
-    virtual void setConnectionTcpRole(const int connectionId, const RtpTcpRoles role)
-    {
-        // NOT IMPLEMENTED
-    }
+   virtual void setConnectionTcpRole(const int connectionId, const RtpTcpRoles role)
+   {
+      // NOT IMPLEMENTED
+   }
 
-	virtual OsStatus generateVoiceQualityReport(int         connectiond,
-                                                const char* callId,
-                                                UtlString&  report) ;
+   virtual OsStatus generateVoiceQualityReport(int connectiond,
+                                               const char* callId,
+                                               UtlString& report);
 
 
 /* ============================ ACCESSORS ================================= */
 
+     /// @brief Calculate the current cost for our sending/receiving codecs
    virtual int getCodecCPUCost();
-      //:Calculate the current cost for our sending/receiving codecs
 
+     /// @brief Calculate the worst cost for our sending/receiving codecs
    virtual int getCodecCPULimit();
-      //:Calculate the worst cost for our sending/receiving codecs
 
-     // @copydoc CpMediaInterface::getSamplesPerSec()
+     /// @copydoc CpMediaInterface::getSamplesPerSec()
    virtual uint32_t getSamplesPerSec();
 
      /// @copydoc CpMediaInterface::getSamplesPerFrame()
    virtual uint32_t getSamplesPerFrame();
 
+     /// @brief Returns the flowgraph's message queue
    virtual OsMsgQ* getMsgQ();
-     //:Returns the flowgraph's message queue
 
      /// @copydoc CpMediaInterface::getNotificationDispatcher()
    virtual OsMsgDispatcher* getNotificationDispatcher();
@@ -318,24 +314,24 @@ public:
    virtual OsStatus getVideoBitRate(int& bitRate);
    virtual OsStatus getVideoFrameRate(int& frameRate);
 
-     //:Returns primary codec for the connection
+     /// @brief Returns primary codec for the connection
    virtual OsStatus setVideoWindowDisplay(const void* hWnd);
    virtual const void* getVideoWindowDisplay();
 
-   //! Set a media property on the media interface
+     /// @brief Set a media property on the media interface
    virtual OsStatus setMediaProperty(const UtlString& propertyName,
                                      const UtlString& propertyValue);
 
-   //! Get a media property on the media interface
+     /// @brief Get a media property on the media interface
    virtual OsStatus getMediaProperty(const UtlString& propertyName,
                                      UtlString& propertyValue);
 
-   //! Set a media property associated with a connection
+     /// @brief Set a media property associated with a connection
    virtual OsStatus setMediaProperty(int connectionId,
                                      const UtlString& propertyName,
                                      const UtlString& propertyValue);
 
-   //! Get a media property associated with a connection
+     /// @brief Get a media property associated with a connection
    virtual OsStatus getMediaProperty(int connectionId,
                                      const UtlString& propertyName,
                                      UtlString& propertyValue);
@@ -345,13 +341,13 @@ public:
    virtual OsStatus setVideoQuality(int quality);
    virtual OsStatus setVideoParameters(int bitRate, int frameRate);
 
-   // Returns the primary codec for the connection
+     /// @brief Returns the primary codec for the connection
    virtual OsStatus getPrimaryCodec(int connectionId, 
                                     UtlString& audioCodec,
                                     UtlString& videoCodec,
                                     int* audiopPayloadType,
                                     int* videoPayloadType,
-                                    bool& isEncrypted) ;
+                                    bool& isEncrypted);
 
    virtual UtlString getType() { return "CpPhoneMediaInterface"; };
 
@@ -362,90 +358,90 @@ public:
    virtual UtlBoolean isSendingRtpVideo(int connectionId);
    virtual UtlBoolean isReceivingRtpVideo(int connectionId);
    virtual UtlBoolean isDestinationSet(int connectionId);   
-   virtual UtlBoolean canAddParty() ;
-   virtual UtlBoolean isVideoInitialized(int connectionId) ;
-   virtual UtlBoolean isAudioInitialized(int connectionId) ;
-   virtual UtlBoolean isAudioAvailable() ;
-   virtual UtlBoolean isVideoConferencing() { return false; } ;
+   virtual UtlBoolean canAddParty();
+   virtual UtlBoolean isVideoInitialized(int connectionId);
+   virtual UtlBoolean isAudioInitialized(int connectionId);
+   virtual UtlBoolean isAudioAvailable();
+   virtual UtlBoolean isVideoConferencing() { return false; };
 
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 
-    UtlBoolean getLocalAddresses( int connectionId,
-                                  UtlString& hostIp,
-                                  int& rtpAudioPort,
-                                  int& rtcpAudioPort,
-                                  int& rtpVideoPort,
-                                  int& rtcpVideoPort) ;
+   UtlBoolean getLocalAddresses(int connectionId,
+                                UtlString& hostIp,
+                                int& rtpAudioPort,
+                                int& rtcpAudioPort,
+                                int& rtpVideoPort,
+                                int& rtcpVideoPort);
 
-    UtlBoolean getNatedAddresses( int connectionId,
-                                  UtlString& hostIp,
-                                  int& rtpAudioPort,
-                                  int& rtcpAudioPort,
-                                  int& rtpVideoPort,
-                                  int& rtcpVideoPort) ;
-
-
-    UtlBoolean getRelayAddresses( int connectionId,
-                                  UtlString& hostIp,
-                                  int& rtpAudioPort,
-                                  int& rtcpAudioPort,
-                                  int& rtpVideoPort,
-                                  int& rtcpVideoPort) ;
+   UtlBoolean getNatedAddresses(int connectionId,
+                                UtlString& hostIp,
+                                int& rtpAudioPort,
+                                int& rtcpAudioPort,
+                                int& rtpVideoPort,
+                                int& rtcpVideoPort);
 
 
-    OsStatus addLocalContacts(  int connectionId, 
-                                int nMaxAddresses,
-                                UtlString rtpHostAddresses[], 
-                                int rtpAudioPorts[],
-                                int rtcpAudioPorts[],
-                                int rtpVideoPorts[],
-                                int rtcpVideoPorts[],
-                                int& nActualAddresses) ;
+   UtlBoolean getRelayAddresses(int connectionId,
+                                UtlString& hostIp,
+                                int& rtpAudioPort,
+                                int& rtcpAudioPort,
+                                int& rtpVideoPort,
+                                int& rtcpVideoPort);
 
-    OsStatus addNatedContacts(  int connectionId, 
-                                int nMaxAddresses,
-                                UtlString rtpHostAddresses[], 
-                                int rtpAudioPorts[],
-                                int rtcpAudioPorts[],
-                                int rtpVideoPorts[],
-                                int rtcpVideoPorts[],
-                                int& nActualAddresses) ;
 
-    OsStatus addRelayContacts(  int connectionId, 
-                                int nMaxAddresses,
-                                UtlString rtpHostAddresses[], 
-                                int rtpAudioPorts[],
-                                int rtcpAudioPorts[],
-                                int rtpVideoPorts[],
-                                int rtcpVideoPorts[],
-                                int& nActualAddresses) ;
+   OsStatus addLocalContacts(int connectionId, 
+                             int nMaxAddresses,
+                             UtlString rtpHostAddresses[], 
+                             int rtpAudioPorts[],
+                             int rtcpAudioPorts[],
+                             int rtpVideoPorts[],
+                             int rtcpVideoPorts[],
+                             int& nActualAddresses);
 
-    void applyAlternateDestinations(int connectionId) ;
+   OsStatus addNatedContacts(int connectionId, 
+                             int nMaxAddresses,
+                             UtlString rtpHostAddresses[], 
+                             int rtpAudioPorts[],
+                             int rtcpAudioPorts[],
+                             int rtpVideoPorts[],
+                             int rtcpVideoPorts[],
+                             int& nActualAddresses);
 
-      /// Create socket pair for RTP/RTCP streams.
-    OsStatus createRtpSocketPair(UtlString localAddress,
-                                 int localPort,
-                                 SIPX_CONTACT_TYPE contactType,
-                                 OsDatagramSocket* &rtpSocket,
-                                 OsDatagramSocket* &rtcpSocket);
-      /**<
-      *  For RTP/RTCP port pair will be set next free port pair.
-      *  
-      *  @param[in] localAddress - Address to bind to (for multihomed hosts).
-      *  @param[in] localPort - Local port to bind to (0 for auto select).
-      *  @param[in] contactType - Contact type (see SIPX_CONTACT_TYPE).
-      *  @param[out] rtpSocket - Created socket for RTP stream.
-      *  @param[out] rtcpSocket - Created socket for RTCP stream.
-      */
+   OsStatus addRelayContacts(int connectionId, 
+                             int nMaxAddresses,
+                             UtlString rtpHostAddresses[], 
+                             int rtpAudioPorts[],
+                             int rtcpAudioPorts[],
+                             int rtpVideoPorts[],
+                             int rtcpVideoPorts[],
+                             int& nActualAddresses);
+
+   void applyAlternateDestinations(int connectionId);
+
+     /// @brief Create socket pair for RTP/RTCP streams.
+   OsStatus createRtpSocketPair(UtlString localAddress,
+                                int localPort,
+                                SIPX_CONTACT_TYPE contactType,
+                                OsDatagramSocket* &rtpSocket,
+                                OsDatagramSocket* &rtcpSocket);
+     /**<
+     *  For RTP/RTCP port pair will be set next free port pair.
+     *  
+     *  @param[in] localAddress - Address to bind to (for multihomed hosts).
+     *  @param[in] localPort - Local port to bind to (0 for auto select).
+     *  @param[in] contactType - Contact type (see SIPX_CONTACT_TYPE).
+     *  @param[out] rtpSocket - Created socket for RTP stream.
+     *  @param[out] rtcpSocket - Created socket for RTCP stream.
+     */
 
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-    CpPhoneMediaConnection* getMediaConnection(int connectionId);
-    CpPhoneMediaConnection* removeMediaConnection(int connectionId);
-    OsStatus doDeleteConnection(CpPhoneMediaConnection* mediaConnection);
+   CpPhoneMediaConnection* getMediaConnection(int connectionId);
+   CpPhoneMediaConnection* removeMediaConnection(int connectionId);
+   OsStatus doDeleteConnection(CpPhoneMediaConnection* mediaConnection);
 
    UtlString mRtpReceiveHostAddress; ///< Advertised as place to send RTP/RTCP
    UtlString mLocalAddress;          ///< Address on which ports are bound
@@ -468,12 +464,11 @@ private:
       ///< mediaLib notification messages into abstract MediaAdapter ones.
       ///< Only used if a dispatcher is set on this interface.
 
-   // Disabled copy constructor
+     /// @brief Disabled copy constructor
    CpPhoneMediaInterface(const CpPhoneMediaInterface& rCpPhoneMediaInterface);
 
-   // Disabled equals operator
+     /// @brief Disabled equals operator
    CpPhoneMediaInterface& operator=(const CpPhoneMediaInterface& rhs);
-     
 
 };
 
