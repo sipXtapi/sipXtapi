@@ -57,9 +57,6 @@ class MpCodecSubInfo;
 */
 class MpCodecFactory
 {
-   friend OsStatus mpShutdown();
-   friend class MpCodecCallInfoV1;
-
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
@@ -74,9 +71,9 @@ public:
      *  it if necessary
      */
 
-     /// Destructor
-   virtual
-   ~MpCodecFactory();
+     /// Deinitialize all static codecs and freeing handle. Should be called only mpShutdown()
+   static
+   void freeSingletonHandle();
 
 //@}
 
@@ -175,6 +172,10 @@ protected:
      *  constructor and has no friends.
      */
 
+     /// Destructor
+   virtual
+   ~MpCodecFactory();
+
      /// Search codec by given MIME-subtype, sample rate and channels number.
    MpCodecSubInfo* searchByMIME(const UtlString& mime,
                                 int sampleRate,
@@ -182,10 +183,6 @@ protected:
 
      /// Deinitialize all dynamic codecs.  Should be called only from mpShutdown() 
    void freeAllLoadedLibsAndCodec();
-
-     /// Deinitialize all static codecs and freeing handle. Should be called only mpShutdown()
-   static
-   void freeSingletonHandle();
 
      /// Freeing internal data of static codecs.  Should be called only from global .dtor
    static

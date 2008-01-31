@@ -90,6 +90,17 @@ MpCodecFactory* MpCodecFactory::getMpCodecFactory(void)
    return spInstance;
 }
 
+void MpCodecFactory::freeSingletonHandle()
+{
+   sLock.acquire();
+   if (spInstance != NULL)
+   {
+      delete spInstance;
+      spInstance = NULL;
+   }
+   sLock.release();
+}
+
 MpCodecFactory::MpCodecFactory(void)
 : mIsMimeTypesCacheValid(FALSE)
 , mCachedMimeTypesNum(0)
@@ -472,17 +483,6 @@ void MpCodecFactory::freeAllLoadedLibsAndCodec()
    }
 
    mIsMimeTypesCacheValid = FALSE;
-}
-
-void MpCodecFactory::freeSingletonHandle()
-{
-   sLock.acquire();
-   if (spInstance != NULL)
-   {
-      delete spInstance;
-      spInstance = NULL;
-   }
-   sLock.release();
 }
 
 void MpCodecFactory::globalCleanUp()
