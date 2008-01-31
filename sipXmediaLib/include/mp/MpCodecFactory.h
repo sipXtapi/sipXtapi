@@ -84,13 +84,43 @@ public:
 ///@name Manipulators
 //@{
 
+     /// Load specified codec plugin.
+   OsStatus loadDynCodec(const char* name);
+
+     /// Load all codec plugins within specified path and filter.
+   OsStatus loadAllDynCodecs(const char* path, const char* regexFilter);
+     /**<
+     *  Load all libs in given plugins directory.
+     *
+     *  @retval OS_SUCCESS - if at least one codec plugin was found. Note, that
+     *          OS_SUCCESS is returned even if loading of found plugins failed.
+     *  @retval OS_FAILED - if no codec plugins were found.
+     */
+
+     /// Add static codec to factory.
+   static
+   MpCodecCallInfoV1* addStaticCodec(MpCodecCallInfoV1* sStaticCode);   
+
+     /// Initialize all static codecs.
+   void initializeStaticCodecs();
+     /**<
+     *  @note This should called exactly once at startup. At current code it is
+     *        called from mpStartUp().
+     */
+
+//@}
+
+/* ============================ ACCESSORS ================================= */
+///@name Accessors
+//@{
+
      /// Returns a new instance of a decoder of the indicated type
    OsStatus createDecoder(const UtlString &mime,
                           const UtlString &fmtp,
                           int sampleRate,
                           int numChannels,
                           int payloadType,
-                          MpDecoderBase*& rpDecoder);
+                          MpDecoderBase*& rpDecoder) const;
      /**<
      *  @param[in]  mime - codec MIME-subtype
      *  @param[in]  fmtp - codec-specific string in format of SDP "fmtp" parameter
@@ -106,7 +136,7 @@ public:
                           int sampleRate,
                           int numChannels,
                           int payloadType,
-                          MpEncoderBase*& rpEncoder);
+                          MpEncoderBase*& rpEncoder) const;
      /**<
      *  @param[in]  mime - codec MIME-subtype
      *  @param[in]  fmtp - codec-specific string in format of SDP "fmtp" parameter
@@ -115,25 +145,6 @@ public:
      *  @param[in]  payloadType - RTP payload type to be associated with this encoder
      *  @param[out] rpEncoder - Reference to a pointer to the new encoder object
      */
-
-     /// Load specified codec plugin.
-   OsStatus loadDynCodec(const char* name);
-
-     /// Load all codec plugins within specified path and filter.
-   OsStatus loadAllDynCodecs(const char* path, const char* regexFilter);
-     /**<
-     *  Load all libs in given plugins directory.
-     *
-     *  @retval OS_SUCCESS - if at least one codec plugin was found. Note, that
-     *          OS_SUCCESS is returned even if loading of found plugins failed.
-     *  @retval OS_FAILED - if no codec plugins were found.
-     */
-
-//@}
-
-/* ============================ ACCESSORS ================================= */
-///@name Accessors
-//@{
 
      /// Get list of all supported MIME-subtypes.
 //   void getMimeTypes(unsigned& count, const UtlString*& mimeTypes) const;
@@ -169,19 +180,16 @@ protected:
                                 int sampleRate,
                                 int numChannels) const;
 
-public:
-   static MpCodecCallInfoV1* addStaticCodec(MpCodecCallInfoV1* sStaticCode);   
-
-     /// Initialize all static codecs. Should be called only from mpStartup() 
-   void initializeStaticCodecs();
-
-protected:
      /// Deinitialize all dynamic codecs.  Should be called only from mpShutdown() 
    void freeAllLoadedLibsAndCodec();
+
      /// Deinitialize all static codecs and freeing handle. Should be called only mpShutdown()
-   static void freeSingletonHandle();
+   static
+   void freeSingletonHandle();
+
      /// Freeing internal data of static codecs.  Should be called only from global .dtor
-   static void globalCleanUp();
+   static
+   void globalCleanUp();
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:

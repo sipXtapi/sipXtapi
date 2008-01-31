@@ -119,168 +119,6 @@ MpCodecFactory::~MpCodecFactory()
 
 /* ============================= MANIPULATORS ============================= */
 
-OsStatus MpCodecFactory::createDecoder(const UtlString &mime,
-                                       const UtlString &fmtp,
-                                       int sampleRate,
-                                       int numChannels,
-                                       int payloadType,
-                                       MpDecoderBase*& rpDecoder)
-{
-   MpCodecSubInfo* codec = searchByMIME(mime, sampleRate, numChannels);
- 
-   if (codec)
-   {      
-      rpDecoder = new MpPlgDecoderWrapper(payloadType,
-                                          *codec->getCodecCall(),
-                                          *codec->getCodecInfo(),
-                                          fmtp);
-   }
-   else
-   {
-      OsSysLog::add(FAC_MP, PRI_WARNING, 
-                    "MpCodecFactory::createDecoder unknown codec type "
-                    "%s, fmtp=%s"
-                    "payloadType = %d",
-                    mime.data(), fmtp.data(), payloadType);
-
-      assert(!"Could not find codec of given type!");
-      rpDecoder=NULL;
-   }
-
-   if (NULL != rpDecoder) 
-   {
-      return OS_SUCCESS;
-   }
-
-   return OS_INVALID_ARGUMENT;
-}
-
-OsStatus MpCodecFactory::createEncoder(const UtlString &mime,
-                                       const UtlString &fmtp,
-                                       int sampleRate,
-                                       int numChannels,
-                                       int payloadType,
-                                       MpEncoderBase*& rpEncoder)
-{
-   MpCodecSubInfo* codec = searchByMIME(mime, sampleRate, numChannels);
-
-   if (codec)
-   {      
-      rpEncoder = new MpPlgEncoderWrapper(payloadType,
-                                          *codec->getCodecCall(),
-                                          *codec->getCodecInfo(),
-                                          fmtp);
-   }
-   else
-   {
-      OsSysLog::add(FAC_MP, PRI_WARNING, 
-                    "MpCodecFactory::createEncoder unknown codec type "
-                    "%s, fmtp=%s"
-                    "payloadType = %d",
-                    mime.data(), fmtp.data(), payloadType);
-      assert(!"Could not find codec of given type!");
-      rpEncoder=NULL;
-   }
-
-   if (NULL != rpEncoder) 
-   {
-      return OS_SUCCESS;
-   }
-
-   return OS_INVALID_ARGUMENT;
-}
-
-MpCodecCallInfoV1* MpCodecFactory::addStaticCodec(MpCodecCallInfoV1* sStaticCode)
-{
-    sStaticCodecsV1 = (MpCodecCallInfoV1 *)sStaticCode->bound(MpCodecFactory::sStaticCodecsV1);
-    return sStaticCodecsV1;
-}
-
-void MpCodecFactory::freeSingletonHandle()
-{
-   sLock.acquire();
-   if (spInstance != NULL)
-   {
-      delete spInstance;
-      spInstance = NULL;
-   }
-   sLock.release();
-}
-
-void MpCodecFactory::globalCleanUp()
-{
-   sLock.acquire();
-   MpCodecCallInfoV1* tmp = sStaticCodecsV1;
-   MpCodecCallInfoV1* next;
-   if (tmp) {
-      for ( ;tmp; tmp = next)
-      {
-         next = tmp->getNext();
-         delete tmp;
-      }
-      sStaticCodecsV1 = NULL;
-   }
-   sLock.release();
-}
-
-void MpCodecFactory::freeAllLoadedLibsAndCodec()
-{
-   OsSharedLibMgrBase* pShrMgr = OsSharedLibMgr::getOsSharedLibMgr();
-
-   UtlHashBagIterator iter(mCodecsInfo);
-   MpCodecSubInfo* pinfo;
-
-   UtlHashBag libLoaded;
-   UtlString* libName;
-
-   while ((pinfo = (MpCodecSubInfo*)iter()))
-   {  
-      if ((!pinfo->getCodecCall()->isStatic()) && 
-         (!libLoaded.find(&pinfo->getCodecCall()->getModuleName()))) {
-         libLoaded.insert(const_cast<UtlString*>(&pinfo->getCodecCall()->getModuleName()));
-      }    
-   }
-
-   UtlHashBagIterator iter2(libLoaded);
-   while ((libName = (UtlString*)iter2()))
-   {
-      pShrMgr->unloadSharedLib(libName->data());
-   }
-
-   iter.reset();
-   while ((pinfo = (MpCodecSubInfo*)iter()))
-   {  
-      if (!pinfo->getCodecCall()->isStatic()) {
-         mCodecsInfo.remove(pinfo);
-         delete pinfo;         
-      }
-   }
-
-   mIsMimeTypesCacheValid = FALSE;
-}
-
-OsStatus MpCodecFactory::loadAllDynCodecs(const char* path, const char* regexFilter)
-{
-   OsPath ospath = path;
-   OsPath module;
-   OsFileIterator fi(ospath);
-
-   OsStatus res;
-   res = fi.findFirst(module, regexFilter);
-
-   if (res != OS_SUCCESS) 
-      return OS_FAILED;
-
-   do {
-      UtlString str = path;
-      str += OsPathBase::separator;
-      str += module.data();
-      loadDynCodec(str.data());
-   } while (fi.findNext(module) == OS_SUCCESS);
-
-   return OS_SUCCESS;
-}
-
 OsStatus MpCodecFactory::loadDynCodec(const char* name)
 {
    OsStatus res;
@@ -390,27 +228,32 @@ OsStatus MpCodecFactory::loadDynCodec(const char* name)
    return OS_SUCCESS;
 }
 
-OsStatus MpCodecFactory::addCodecWrapperV1(MpCodecCallInfoV1* wrapper)
+OsStatus MpCodecFactory::loadAllDynCodecs(const char* path, const char* regexFilter)
 {
-   MpCodecSubInfo* mpsi;
+   OsPath ospath = path;
+   OsPath module;
+   OsFileIterator fi(ospath);
 
-   const MppCodecInfoV1_1 *pCodecInfo;
-   if (wrapper->mPlgGetInfo(&pCodecInfo) != RPLG_SUCCESS)
-   {
+   OsStatus res;
+   res = fi.findFirst(module, regexFilter);
+
+   if (res != OS_SUCCESS) 
       return OS_FAILED;
-   }
 
-   mpsi = new MpCodecSubInfo(wrapper, pCodecInfo);
-   if (mpsi == NULL)
-   {
-      return OS_NO_MEMORY;
-   }
-
-   sLock.acquire();
-   mCodecsInfo.insert(mpsi);
-   sLock.release();
+   do {
+      UtlString str = path;
+      str += OsPathBase::separator;
+      str += module.data();
+      loadDynCodec(str.data());
+   } while (fi.findNext(module) == OS_SUCCESS);
 
    return OS_SUCCESS;
+}
+
+MpCodecCallInfoV1* MpCodecFactory::addStaticCodec(MpCodecCallInfoV1* sStaticCode)
+{
+    sStaticCodecsV1 = (MpCodecCallInfoV1 *)sStaticCode->bound(MpCodecFactory::sStaticCodecsV1);
+    return sStaticCodecsV1;
 }
 
 void MpCodecFactory::initializeStaticCodecs()
@@ -423,6 +266,78 @@ void MpCodecFactory::initializeStaticCodecs()
 }
 
 /* ============================== ACCESSORS =============================== */
+
+OsStatus MpCodecFactory::createDecoder(const UtlString &mime,
+                                       const UtlString &fmtp,
+                                       int sampleRate,
+                                       int numChannels,
+                                       int payloadType,
+                                       MpDecoderBase*& rpDecoder) const
+{
+   MpCodecSubInfo* codec = searchByMIME(mime, sampleRate, numChannels);
+ 
+   if (codec)
+   {      
+      rpDecoder = new MpPlgDecoderWrapper(payloadType,
+                                          *codec->getCodecCall(),
+                                          *codec->getCodecInfo(),
+                                          fmtp);
+   }
+   else
+   {
+      OsSysLog::add(FAC_MP, PRI_WARNING, 
+                    "MpCodecFactory::createDecoder unknown codec type "
+                    "%s, fmtp=%s"
+                    "payloadType = %d",
+                    mime.data(), fmtp.data(), payloadType);
+
+      assert(!"Could not find codec of given type!");
+      rpDecoder=NULL;
+   }
+
+   if (NULL != rpDecoder) 
+   {
+      return OS_SUCCESS;
+   }
+
+   return OS_INVALID_ARGUMENT;
+}
+
+OsStatus MpCodecFactory::createEncoder(const UtlString &mime,
+                                       const UtlString &fmtp,
+                                       int sampleRate,
+                                       int numChannels,
+                                       int payloadType,
+                                       MpEncoderBase*& rpEncoder) const
+{
+   MpCodecSubInfo* codec = searchByMIME(mime, sampleRate, numChannels);
+
+   if (codec)
+   {      
+      rpEncoder = new MpPlgEncoderWrapper(payloadType,
+                                          *codec->getCodecCall(),
+                                          *codec->getCodecInfo(),
+                                          fmtp);
+   }
+   else
+   {
+      OsSysLog::add(FAC_MP, PRI_WARNING, 
+                    "MpCodecFactory::createEncoder unknown codec type "
+                    "%s, fmtp=%s"
+                    "payloadType = %d",
+                    mime.data(), fmtp.data(), payloadType);
+      assert(!"Could not find codec of given type!");
+      rpEncoder=NULL;
+   }
+
+   if (NULL != rpEncoder) 
+   {
+      return OS_SUCCESS;
+   }
+
+   return OS_INVALID_ARGUMENT;
+}
+
 /*
 void MpCodecFactory::getMimeTypes(unsigned& count, const UtlString*& mimeTypes) const
 {
@@ -523,6 +438,71 @@ MpCodecSubInfo* MpCodecFactory::searchByMIME(const UtlString& mime,
 */
 }
 
+void MpCodecFactory::freeAllLoadedLibsAndCodec()
+{
+   OsSharedLibMgrBase* pShrMgr = OsSharedLibMgr::getOsSharedLibMgr();
+
+   UtlHashBagIterator iter(mCodecsInfo);
+   MpCodecSubInfo* pinfo;
+
+   UtlHashBag libLoaded;
+   UtlString* libName;
+
+   while ((pinfo = (MpCodecSubInfo*)iter()))
+   {  
+      if ((!pinfo->getCodecCall()->isStatic()) && 
+         (!libLoaded.find(&pinfo->getCodecCall()->getModuleName()))) {
+         libLoaded.insert(const_cast<UtlString*>(&pinfo->getCodecCall()->getModuleName()));
+      }    
+   }
+
+   UtlHashBagIterator iter2(libLoaded);
+   while ((libName = (UtlString*)iter2()))
+   {
+      pShrMgr->unloadSharedLib(libName->data());
+   }
+
+   iter.reset();
+   while ((pinfo = (MpCodecSubInfo*)iter()))
+   {  
+      if (!pinfo->getCodecCall()->isStatic()) {
+         mCodecsInfo.remove(pinfo);
+         delete pinfo;         
+      }
+   }
+
+   mIsMimeTypesCacheValid = FALSE;
+}
+
+void MpCodecFactory::freeSingletonHandle()
+{
+   sLock.acquire();
+   if (spInstance != NULL)
+   {
+      delete spInstance;
+      spInstance = NULL;
+   }
+   sLock.release();
+}
+
+void MpCodecFactory::globalCleanUp()
+{
+   sLock.acquire();
+   MpCodecCallInfoV1* tmp = sStaticCodecsV1;
+   MpCodecCallInfoV1* next;
+   if (tmp) {
+      for ( ;tmp; tmp = next)
+      {
+         next = tmp->getNext();
+         delete tmp;
+      }
+      sStaticCodecsV1 = NULL;
+   }
+   sLock.release();
+}
+
+/* /////////////////////////////// PRIVATE //////////////////////////////// */
+
 void MpCodecFactory::updateMimeTypesCache() const
 {
    // First delete old data.
@@ -544,7 +524,28 @@ void MpCodecFactory::updateMimeTypesCache() const
    mIsMimeTypesCacheValid = TRUE;
 }
 
-/* /////////////////////////////// PRIVATE //////////////////////////////// */
+OsStatus MpCodecFactory::addCodecWrapperV1(MpCodecCallInfoV1* wrapper)
+{
+   MpCodecSubInfo* mpsi;
+
+   const MppCodecInfoV1_1 *pCodecInfo;
+   if (wrapper->mPlgGetInfo(&pCodecInfo) != RPLG_SUCCESS)
+   {
+      return OS_FAILED;
+   }
+
+   mpsi = new MpCodecSubInfo(wrapper, pCodecInfo);
+   if (mpsi == NULL)
+   {
+      return OS_NO_MEMORY;
+   }
+
+   sLock.acquire();
+   mCodecsInfo.insert(mpsi);
+   sLock.release();
+
+   return OS_SUCCESS;
+}
 
 
 /* ============================== FUNCTIONS =============================== */
