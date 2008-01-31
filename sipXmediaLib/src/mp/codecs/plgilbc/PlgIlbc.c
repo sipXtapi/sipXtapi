@@ -39,6 +39,9 @@ struct iLBC_codec_data {
 };
 
 // EXTERNAL FUNCTIONS
+// MACROS
+#define sipx_min(x,y) (((x)<(y))?(x):(y))
+
 // DEFINES
 #define DEBUG_PRINT
 #undef  DEBUG_PRINT
@@ -287,8 +290,11 @@ CODEC_API int PLG_ENCODE_V1(ilbc)(void* handle, const void* pAudioBuffer, unsign
    struct iLBC_codec_data *mpiLBC = (struct iLBC_codec_data *)handle;
    assert(handle != NULL);
 
-   memcpy(&mpiLBC->mpBuffer[mpiLBC->mBufferLoad], pAudioBuffer, SIZE_OF_SAMPLE*cbAudioSamples);
-   mpiLBC->mBufferLoad += cbAudioSamples;
+   *rSamplesConsumed = sipx_min(cbAudioSamples, mpiLBC->mMode*8 - mpiLBC->mBufferLoad);
+
+   memcpy(&mpiLBC->mpBuffer[mpiLBC->mBufferLoad], pAudioBuffer,
+          *rSamplesConsumed*SIZE_OF_SAMPLE);
+   mpiLBC->mBufferLoad += *rSamplesConsumed;
    assert(mpiLBC->mBufferLoad <= mpiLBC->mMode * 8);
 
    if (mpiLBC->mBufferLoad == mpiLBC->mMode * 8)
@@ -310,7 +316,6 @@ CODEC_API int PLG_ENCODE_V1(ilbc)(void* handle, const void* pAudioBuffer, unsign
       *pbSendNow = FALSE;
    }
 
-   *rSamplesConsumed = cbAudioSamples;
    return RPLG_SUCCESS;
 }
 
