@@ -525,7 +525,7 @@ void MprEncode::doPrimaryCodec(MpAudioBufPtr in, unsigned int startTs)
       }
 
       if (  (mPayloadBytesUsed > 0)
-         && (sendNow || mSamplesPacked+codecFrameSamples >= maxPacketSamples))
+         && (sendNow || mSamplesPacked+codecFrameSamples > maxPacketSamples))
       {
          if (mActiveAudio1)
          {
