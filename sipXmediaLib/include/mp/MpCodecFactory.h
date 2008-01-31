@@ -138,8 +138,8 @@ public:
      */
 
      /// Get list of all codecs' info.
-   void MpCodecFactory::getCodecInfoArray(unsigned &count,
-                                          const MppCodecInfoV1_1 **&codecInfoArray) const;
+   void getCodecInfoArray(unsigned &count,
+                          const MppCodecInfoV1_1 **&codecInfoArray) const;
      /**<
      *  @param[out] count - number of elements returned in \p codecInfoArray array.
      *  @param[out] codecInfoArray - array of pointers to codecs' info.
