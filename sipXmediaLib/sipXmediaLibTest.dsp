@@ -97,6 +97,10 @@ SOURCE=.\src\test\mp\MpBufTest.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\test\mp\MpCodecsPerformanceTest.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\test\mp\MpDspUtilsTest.cpp
 # End Source File
 # Begin Source File

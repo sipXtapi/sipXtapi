@@ -22,6 +22,7 @@ testsuite_CPPFLAGS = @CPPUNIT_CFLAGS@
 testsuite_SOURCES = \
     mp/dtmf5_48khz_16b_signed.h \
     mp/MpAudioBufTest.cpp \
+    mp/MpCodecsPerformanceTest.cpp \
     mp/MpMediaTaskTest.cpp \
     mp/MpFlowGraphTest.cpp \
     mp/MpResourceTest.cpp \
