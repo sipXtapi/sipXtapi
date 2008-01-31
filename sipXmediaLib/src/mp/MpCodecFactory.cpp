@@ -104,9 +104,9 @@ void MpCodecFactory::freeSingletonHandle()
 }
 
 MpCodecFactory::MpCodecFactory(void)
-: mIsMimeTypesCacheValid(FALSE)
-, mCachedMimeTypesNum(0)
-, mpMimeTypesCache(NULL)
+: mCodecInfoCacheValid(FALSE)
+, mCachedCodecInfoNum(0)
+, mpCodecInfoCache(NULL)
 {
 
 }
@@ -127,7 +127,7 @@ MpCodecFactory::~MpCodecFactory()
    }
    mCodecsInfo.removeAll();
 
-   delete[] mpMimeTypesCache;
+   delete[] mpCodecInfoCache;
 }
 
 /* ============================= MANIPULATORS ============================= */
@@ -230,7 +230,7 @@ OsStatus MpCodecFactory::loadDynCodec(const char* name)
          }
 
          //Plugin has been added successfully, need to rebuild cache list
-         mIsMimeTypesCacheValid = FALSE;
+         mCodecInfoCacheValid = FALSE;
          count ++;
       }
    }
@@ -251,7 +251,7 @@ OsStatus MpCodecFactory::loadAllDynCodecs(const char* path, const char* regexFil
    res = fi.findFirst(module, regexFilter);
 
    if (res != OS_SUCCESS) 
-      return OS_FAILED;
+      return OS_NOT_FOUND;
 
    do {
       UtlString str = path;
@@ -342,18 +342,18 @@ OsStatus MpCodecFactory::createEncoder(const UtlString &mime,
    return OS_INVALID_ARGUMENT;
 }
 
-/*
-void MpCodecFactory::getMimeTypes(unsigned& count, const UtlString*& mimeTypes) const
+void MpCodecFactory::getCodecInfoArray(unsigned &count,
+                                       const MppCodecInfoV1_1 **&codecInfoArray) const
 {
-   if (!mIsMimeTypesCacheValid)
+   if (!mCodecInfoCacheValid)
    {
-      updateMimeTypesCache();
+      updateCodecInfoCache();
    }
 
-   count = mCachedMimeTypesNum;
-   mimeTypes = mpMimeTypesCache;
+   count = mCachedCodecInfoNum;
+   codecInfoArray = mpCodecInfoCache;
 }
-*/
+
 void MpCodecFactory::addCodecsToList(SdpCodecList &codecList) const
 {
    UtlHashBagIterator iter(mCodecsInfo);
@@ -475,7 +475,7 @@ void MpCodecFactory::freeAllLoadedLibsAndCodec()
       }
    }
 
-   mIsMimeTypesCacheValid = FALSE;
+   mCodecInfoCacheValid = FALSE;
 }
 
 void MpCodecFactory::initializeStaticCodecs()
@@ -503,25 +503,25 @@ void MpCodecFactory::freeStaticCodecs()
 
 /* /////////////////////////////// PRIVATE //////////////////////////////// */
 
-void MpCodecFactory::updateMimeTypesCache() const
+void MpCodecFactory::updateCodecInfoCache() const
 {
    // First delete old data.
-   delete[] mpMimeTypesCache;
+   delete[] mpCodecInfoCache;
 
    // Allocate memory for new array.
-   mCachedMimeTypesNum = mCodecsInfo.entries();
-   mpMimeTypesCache = new UtlString[mCachedMimeTypesNum];
+   mCachedCodecInfoNum = mCodecsInfo.entries();
+   mpCodecInfoCache = new const MppCodecInfoV1_1*[mCachedCodecInfoNum];
 
    // Fill array with data.
    UtlHashBagIterator iter(mCodecsInfo);
-   for (unsigned i=0; i<mCachedMimeTypesNum; i++)
+   for (unsigned i=0; i<mCachedCodecInfoNum; i++)
    {
       MpCodecSubInfo* pInfo = (MpCodecSubInfo*)iter();
-      mpMimeTypesCache[i] = pInfo->getCodecInfo()->mimeSubtype;
+      mpCodecInfoCache[i] = pInfo->getCodecInfo();
    }
 
    // Cache successfully updated.
-   mIsMimeTypesCacheValid = TRUE;
+   mCodecInfoCacheValid = TRUE;
 }
 
 OsStatus MpCodecFactory::addCodecWrapperV1(MpCodecCallInfoV1* wrapper)

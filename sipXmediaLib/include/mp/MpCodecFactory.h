@@ -137,8 +137,13 @@ public:
      *  @param[out] rpEncoder - Reference to a pointer to the new encoder object
      */
 
-     /// Get list of all supported MIME-subtypes.
-//   void getMimeTypes(unsigned& count, const UtlString*& mimeTypes) const;
+     /// Get list of all codecs' info.
+   void MpCodecFactory::getCodecInfoArray(unsigned &count,
+                                          const MppCodecInfoV1_1 **&codecInfoArray) const;
+     /**<
+     *  @param[out] count - number of elements returned in \p codecInfoArray array.
+     *  @param[out] codecInfoArray - array of pointers to codecs' info.
+     */
 
      /// Add all supported codecs to SDP descriptions list.
    void addCodecsToList(SdpCodecList &codecList) const;
@@ -191,11 +196,11 @@ protected:
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
 
-   UtlHashBag mCodecsInfo;                    ///< List of all known and workable codecs.
-   mutable UtlBoolean mIsMimeTypesCacheValid; ///< Should we rebuild MIME-subtypes cache?
-   mutable unsigned mCachedMimeTypesNum;      ///< Number of elements in mpMimeTypesCache.
-   mutable UtlString* mpMimeTypesCache;       ///< Cached array of MIME-subtypes of loaded codecs.
-                                              ///< This is used as return value of getMimeTypes().
+   UtlHashBag mCodecsInfo;                     ///< List of all known and workable codecs.
+   mutable UtlBoolean mCodecInfoCacheValid;    ///< Should we rebuild MIME-subtypes cache?
+   mutable unsigned   mCachedCodecInfoNum;     ///< Number of elements in mpMimeTypesCache.
+   mutable const MppCodecInfoV1_1** mpCodecInfoCache; ///< Cached array of MIME-subtypes of loaded codecs.
+                                               ///< This is used as return value of getMimeTypes().
 
    // Static data members used to enforce Singleton behavior
    static MpCodecFactory* spInstance; ///< Pointer to the singleton instance.
@@ -208,7 +213,7 @@ private:
    OsStatus addCodecWrapperV1(MpCodecCallInfoV1* wrapper);
 
      /// Update cached array of MIME-types of loaded codecs.
-   void updateMimeTypesCache() const;
+   void updateCodecInfoCache() const;
 
      /// Copy constructor (not supported)
    MpCodecFactory(const MpCodecFactory& rMpCodecFactory);
