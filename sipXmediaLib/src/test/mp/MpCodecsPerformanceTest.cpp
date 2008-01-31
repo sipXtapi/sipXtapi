@@ -16,20 +16,16 @@
 #include <cppunit/TestCase.h>
 #include <sipxunit/TestUtilities.h>
 
-/// Sample rate in samples per second.
-#define SAMPLE_RATE             8000
-/// Size of audio frame in samples.
-#define FRAME_SIZE              80
-/// Maximum length of audio data we expect from decoder in samples.
-#define DECODED_FRAME_MAX_SIZE  (FRAME_SIZE*6)
-/// Maximum size of encoded frame in bytes.
-#define ENCODED_FRAME_MAX_SIZE  (FRAME_SIZE*sizeof(MpAudioSample))
+/// Duration of one frame in milliseconds
+#define FRAME_MS                 20
+/// Maximum length of audio data we expect from decoder (in samples).
+#define DECODED_FRAME_MAX_SIZE   1600
+/// Maximum size of encoded frame (in bytes).
+#define ENCODED_FRAME_MAX_SIZE   1480
 /// Number of RTP packets to encode/decode.
 #define NUM_PACKETS_TO_TEST      3
 /// Maximum number of milliseconds in packet.
 #define MAX_PACKET_TIME          20
-/// Maximum number of samples in packet.
-#define MAX_PACKET_SAMPLES       (MAX_PACKET_TIME*SAMPLE_RATE)/1000
 
 // Setup codec paths..
 static UtlString sCodecPaths[] = {
@@ -147,10 +143,15 @@ protected:
    {
       MpDecoderBase *pDecoder;
       MpEncoderBase *pEncoder;
-      MpAudioSample  pOriginal[FRAME_SIZE];
+      MpAudioSample *pOriginal;
       MpAudioSample  pDecoded[DECODED_FRAME_MAX_SIZE];
       int            encodeFrameNum = 0;
+      int            maxPacketSamples = (MAX_PACKET_TIME*sampleRate)/1000;
+      int            frameSize = (sampleRate*FRAME_MS)/1000;
       int            codecFrameSamples;
+
+      // Allocate buffer for raw audio data
+      pOriginal = new MpAudioSample[frameSize];
 
       // Create and initialize decoder and encoder
       CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
@@ -180,7 +181,7 @@ protected:
       }
       else if (pEncoder->getInfo()->getCodecType() == CODEC_TYPE_SAMPLE_BASED)
       {
-         codecFrameSamples = FRAME_SIZE;
+         codecFrameSamples = frameSize;
       }
       else
       {
@@ -208,7 +209,7 @@ protected:
             // Encode one frame and measure time it took.
             OsStatus result;
             OsDateTime::getCurTime(start);
-            result = pEncoder->encode(pOriginal, FRAME_SIZE, tmpSamplesConsumed,
+            result = pEncoder->encode(pOriginal, frameSize, tmpSamplesConsumed,
                                       pRtpPayloadPtr,
                                       ENCODED_FRAME_MAX_SIZE-payloadSize,
                                       tmpEncodedSize, tmpSendNow,
@@ -218,8 +219,8 @@ protected:
             
             // Print timing in TSV format
             diff = stop - start;
-            printf("encode %s %s;%d;%ld.%06ld;%ld.%06ld\n",
-                   codecMime.data(), codecFmtp.data(),
+            printf("encode %s/%d/%d %s;%d;%ld.%06ld;%ld.%06ld\n",
+                   codecMime.data(), sampleRate, numChannels, codecFmtp.data(),
                    encodeFrameNum,
                    start.seconds(), start.usecs(),
                    diff.seconds(), diff.usecs());
@@ -230,21 +231,22 @@ protected:
             samplesInPacket += tmpSamplesConsumed;
             CPPUNIT_ASSERT(payloadSize <= ENCODED_FRAME_MAX_SIZE);
             encodeFrameNum++;
-         } while( (tmpSendNow != TRUE) &&
-                  (samplesInPacket+codecFrameSamples <= MAX_PACKET_SAMPLES));
+         } while( (payloadSize == 0)
+                ||( (tmpSendNow != TRUE) &&
+                    (samplesInPacket+codecFrameSamples <= maxPacketSamples)));
          pRtpPacket->setPayloadSize(payloadSize);
 
          // Decode frame, measure time and verify, that we decoded same number of samples.
          OsDateTime::getCurTime(start);
          tmpSamplesConsumed = pDecoder->decode(pRtpPacket, DECODED_FRAME_MAX_SIZE,
-                                             pDecoded);
+                                               pDecoded);
          OsDateTime::getCurTime(stop);
          CPPUNIT_ASSERT_EQUAL(samplesInPacket, tmpSamplesConsumed);
             
          // Print timing in TSV format
          diff = stop - start;
-         printf("decode %s %s;%d;%ld.%06ld;%ld.%06ld\n",
-                codecMime.data(), codecFmtp.data(),
+         printf("decode %s/%d/%d %s;%d;%ld.%06ld;%ld.%06ld\n",
+                codecMime.data(), sampleRate, numChannels, codecFmtp.data(),
                 i,
                 start.seconds(), start.usecs(),
                 diff.seconds(), diff.usecs());
@@ -257,6 +259,9 @@ protected:
       CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
                            pEncoder->freeEncode());
       delete pEncoder;
+
+      // Free buffer used for raw audio data
+      delete[] pOriginal;
    }
 
 };
