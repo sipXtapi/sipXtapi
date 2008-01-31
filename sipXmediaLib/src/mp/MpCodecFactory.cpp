@@ -86,6 +86,7 @@ MpCodecFactory* MpCodecFactory::getMpCodecFactory(void)
       if (spInstance == NULL)
          spInstance = new MpCodecFactory();
       sLock.release();
+      spInstance->initializeStaticCodecs();
    }
    return spInstance;
 }
@@ -93,6 +94,7 @@ MpCodecFactory* MpCodecFactory::getMpCodecFactory(void)
 void MpCodecFactory::freeSingletonHandle()
 {
    sLock.acquire();
+   freeStaticCodecs();
    if (spInstance != NULL)
    {
       delete spInstance;
@@ -265,15 +267,6 @@ MpCodecCallInfoV1* MpCodecFactory::addStaticCodec(MpCodecCallInfoV1* sStaticCode
 {
     sStaticCodecsV1 = (MpCodecCallInfoV1 *)sStaticCode->bound(MpCodecFactory::sStaticCodecsV1);
     return sStaticCodecsV1;
-}
-
-void MpCodecFactory::initializeStaticCodecs()
-{
-   MpCodecCallInfoV1* codecCallInfo;
-   for (codecCallInfo = sStaticCodecsV1; codecCallInfo; codecCallInfo = codecCallInfo->getNext())
-   {
-      int i = (int)addCodecWrapperV1(codecCallInfo);
-   }
 }
 
 /* ============================== ACCESSORS =============================== */
@@ -485,9 +478,17 @@ void MpCodecFactory::freeAllLoadedLibsAndCodec()
    mIsMimeTypesCacheValid = FALSE;
 }
 
-void MpCodecFactory::globalCleanUp()
+void MpCodecFactory::initializeStaticCodecs()
 {
-   sLock.acquire();
+   MpCodecCallInfoV1* codecCallInfo;
+   for (codecCallInfo = sStaticCodecsV1; codecCallInfo; codecCallInfo = codecCallInfo->getNext())
+   {
+      int i = (int)addCodecWrapperV1(codecCallInfo);
+   }
+}
+
+void MpCodecFactory::freeStaticCodecs()
+{
    MpCodecCallInfoV1* tmp = sStaticCodecsV1;
    MpCodecCallInfoV1* next;
    if (tmp) {
@@ -498,7 +499,6 @@ void MpCodecFactory::globalCleanUp()
       }
       sStaticCodecsV1 = NULL;
    }
-   sLock.release();
 }
 
 /* /////////////////////////////// PRIVATE //////////////////////////////// */

@@ -445,7 +445,6 @@ OsStatus mpStartUp(int sampleRate, int samplesPerFrame,
         mpStaticCodecInitializer();
 
         MpCodecFactory* pcf = MpCodecFactory::getMpCodecFactory();
-        pcf->initializeStaticCodecs();
 
         if(numCodecPaths != 0)
         {

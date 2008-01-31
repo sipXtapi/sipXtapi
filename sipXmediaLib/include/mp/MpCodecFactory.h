@@ -65,7 +65,8 @@ public:
 //@{
  
      /// Get/create singleton factory.
-   static MpCodecFactory* getMpCodecFactory(void);
+   static
+   MpCodecFactory* getMpCodecFactory(void);
      /**<
      *  Return a pointer to the MpCodecFactory singleton object, creating 
      *  it if necessary
@@ -97,13 +98,6 @@ public:
      /// Add static codec to factory.
    static
    MpCodecCallInfoV1* addStaticCodec(MpCodecCallInfoV1* sStaticCode);   
-
-     /// Initialize all static codecs.
-   void initializeStaticCodecs();
-     /**<
-     *  @note This should called exactly once at startup. At current code it is
-     *        called from mpStartUp().
-     */
 
 //@}
 
@@ -173,7 +167,6 @@ protected:
      */
 
      /// Destructor
-   virtual
    ~MpCodecFactory();
 
      /// Search codec by given MIME-subtype, sample rate and channels number.
@@ -184,9 +177,16 @@ protected:
      /// Deinitialize all dynamic codecs.  Should be called only from mpShutdown() 
    void freeAllLoadedLibsAndCodec();
 
+     /// Initialize all static codecs.
+   void initializeStaticCodecs();
+     /**<
+     *  @note This should called exactly once at startup. At current code it is
+     *        called from mpStartUp().
+     */
+
      /// Freeing internal data of static codecs.  Should be called only from global .dtor
    static
-   void globalCleanUp();
+   void freeStaticCodecs();
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
