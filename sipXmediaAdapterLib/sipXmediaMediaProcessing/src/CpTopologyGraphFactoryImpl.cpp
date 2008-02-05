@@ -268,8 +268,7 @@ CpTopologyGraphFactoryImpl::createMediaInterface(const char* publicAddress,
 
 MpResourceFactory* CpTopologyGraphFactoryImpl::buildDefaultResourceFactory()
 {
-    MpResourceFactory* resourceFactory = 
-        new MpResourceFactory();
+    MpResourceFactory* resourceFactory = new MpResourceFactory();
 
     // Input device
     resourceFactory->addConstructor(*(new MprFromInputDeviceConstructor(mpInputDeviceManager)));
