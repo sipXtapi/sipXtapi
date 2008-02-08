@@ -1,8 +1,8 @@
 //  
-// Copyright (C) 2005-2007 SIPez LLC. 
+// Copyright (C) 2005-2008 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2004-2007 SIPfoundry Inc.
+// Copyright (C) 2004-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -48,13 +48,6 @@ extern OsStatus MpCodecOpen(int sampleRate, int gain, int volume);
 extern UtlBoolean MpCodec_isBaseSpeakerOn(void); ///< the speakerphone speaker
 extern UtlBoolean MpCodec_isHeadsetSpeakerOn(void); ///< the headset speaker
 extern UtlBoolean MpCodec_isHandsetSpeakerOn(void); ///< the handset speaker
-
-#ifdef USE_DEV_AUDIO /* [ */
-extern int DevAudio_getGain(void);
-extern int DevAudio_getVolume(void);
-extern OsStatus DevAudio_setGain(int newgain);
-extern OsStatus DevAudio_setVolume(int newvolume);
-#endif /* USE_DEV_AUDIO ] */
 
 extern OsStatus MpCodec_getVolumeRange(
                       int& low,         ///< lowest value
