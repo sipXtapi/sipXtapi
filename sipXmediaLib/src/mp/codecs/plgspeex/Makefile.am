@@ -4,7 +4,7 @@ INCLUDES = -I$(top_srcdir)/include -I$(top_srcdir)/../sipXportLib/include @SPEEX
 
 pkgdata_LTLIBRARIES = codec_speex.la
 
-codec_speex_la_SOURCES = PlgSpeex.c speex_nb.c speex_uwb.c speex_wb.c
+codec_speex_la_SOURCES = PlgSpeex.c speex_nb.c speex_uwb.c speex_wb.c frame_num.c
 
 # Below LIBADD line will pull in a statically built libspeex library.
 # Since this library is a shared library, the static speex library needs

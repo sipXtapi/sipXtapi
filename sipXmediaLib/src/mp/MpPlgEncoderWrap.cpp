@@ -8,7 +8,7 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
-// Author: 
+// Author: Sergey Kostanbaev <Sergey DOT Kostanbaev AT sipez DOT com>
 
 #include <assert.h>
 #include <utl/UtlInit.h> 

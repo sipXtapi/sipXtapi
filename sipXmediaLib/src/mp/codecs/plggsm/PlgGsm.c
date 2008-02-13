@@ -168,4 +168,8 @@ CODEC_API int PLG_ENCODE_V1(libgsm)(void* handle, const void* pAudioBuffer, unsi
    return RPLG_SUCCESS;
 }
 
-PLG_SINGLE_CODEC(libgsm);
+PLG_ENUM_CODEC_START(libgsm)
+  PLG_ENUM_CODEC(libgsm)
+  PLG_ENUM_CODEC_NO_SPECIAL_PACKING(libgsm)
+  PLG_ENUM_CODEC_NO_SIGNALING(libgsm)
+PLG_ENUM_CODEC_END 

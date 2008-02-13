@@ -18,5 +18,13 @@
 
 DECLARE_FUNCS_V1(sipxPcmu);
 DECLARE_FUNCS_V1(sipxPcma);
-// Declaring plugin contains two codecs
-PLG_DOUBLE_CODECS(sipxPcmu, sipxPcma);
+
+PLG_ENUM_CODEC_START(sipXpcmapcmu)
+  PLG_ENUM_CODEC(sipxPcmu)
+  PLG_ENUM_CODEC_NO_SPECIAL_PACKING(sipxPcmu)
+  PLG_ENUM_CODEC_NO_SIGNALING(sipxPcmu)
+
+  PLG_ENUM_CODEC(sipxPcma)
+  PLG_ENUM_CODEC_NO_SPECIAL_PACKING(sipxPcma)
+  PLG_ENUM_CODEC_NO_SIGNALING(sipxPcma)
+PLG_ENUM_CODEC_END 

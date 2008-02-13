@@ -94,7 +94,7 @@ CODEC_API int PLG_DECODE_V1(sipxPcmu)(void* handle, const void* pCodedData,
    int samples;
 
    if (handle != DECODER_HANDLE)
-      return RPLG_INVALID_SEQUENCE_CALL;
+      return RPLG_INVALID_ARGUMENT;
 
    // Assert that available buffer size is enough for the packet.
    if (cbCodedPacketSize > cbBufferSize)
@@ -119,7 +119,7 @@ CODEC_API int PLG_ENCODE_V1(sipxPcmu)(void* handle, const void* pAudioBuffer,
                                       int* pcbCodedSize, unsigned* pbSendNow)
 {
    if (handle != ENCODER_HANDLE)
-      return RPLG_INVALID_SEQUENCE_CALL;
+      return RPLG_INVALID_ARGUMENT;
 
    G711U_Encoder(cbAudioSamples, (MpAudioSample *)pAudioBuffer, (uint8_t*)pCodedData);
    *pcbCodedSize = cbAudioSamples;

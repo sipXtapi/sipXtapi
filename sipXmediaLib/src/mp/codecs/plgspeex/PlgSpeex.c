@@ -8,7 +8,7 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
-// Author: 
+// Author: Sergey Kostanbaev <Sergey DOT Kostanbaev AT sipez DOT com>
 
 // APPLICATION INCLUDES
 #include <mp/codecs/PlgDefsV1.h>
@@ -58,13 +58,14 @@ struct speex_codec_data_encoder
    int mDoDtx;                ///< Set to 1 to enable discontinuous transmission
    int mDoVbr;                ///< Set to 1 to enable variable bitrate mode
    spx_int16_t mpBuffer[640]; ///< Buffer used to store input samples
-   int mBufferLoad;           ///< How much data there is in the buffer
+   unsigned mBufferLoad;      ///< How much data there is in the buffer
    int mDoPreprocess;         ///< Should we do preprocess or not
    SpeexPreprocessState *mpPreprocessState; ///< Preprocessor state
    int mDoDenoise;            ///< Denoises the input
    int mDoAgc;                ///< Automatic Gain Control
 };
 
+int speex_get_num_frames(SpeexBits *bits);
 
 /* Parsing {param}={value} */
 static int analizeParamEqValue(const char *parsingString, const char* paramName, int* value)
@@ -332,6 +333,33 @@ int universal_speex_free(void* handle, int isDecoder)
    return 0;
 }
 
+
+CODEC_API int PLG_GET_PACKET_SAMPLES_V1_2(speex)(void          *handle,
+                                                 const uint8_t *pPacketData,
+                                                 unsigned       packetSize,
+                                                 unsigned      *pNumSamples,
+                                                 const struct RtpHeader* pRtpHeader)
+{
+   int num_frames;
+   struct speex_codec_data_decoder *pSpeexDec = 
+      (struct speex_codec_data_decoder *)handle;
+   assert(handle != NULL);
+
+   /* Wrap data to speex_bits struct */
+   speex_bits_set_bit_buffer(&pSpeexDec->mBits, pPacketData, packetSize);
+
+   /* Get number of frames */
+   num_frames = speex_get_num_frames(&pSpeexDec->mBits);
+   if (num_frames < 0)
+   {
+      return RPLG_CORRUPTED_DATA;
+   }
+
+   /* Return number of samples */
+   *pNumSamples = num_frames * pSpeexDec->mNumSamplesPerFrame;
+   return RPLG_SUCCESS;
+}
+
 int universal_speex_decode(void* handle, const void* pCodedData, 
                           unsigned cbCodedPacketSize, void* pAudioBuffer, 
                           unsigned cbBufferSize, unsigned *pcbDecodedSize, 
@@ -347,7 +375,7 @@ int universal_speex_decode(void* handle, const void* pCodedData,
    }
 
    /* Prepare data for Speex decoder */
-   speex_bits_read_from(&mpSpeexDec->mBits,(char*)pCodedData,cbCodedPacketSize);
+   speex_bits_set_bit_buffer(&mpSpeexDec->mBits,(char*)pCodedData, cbCodedPacketSize);
 
    /* Reset number of decoded samples */
    *pcbDecodedSize = 0;
@@ -397,8 +425,7 @@ int universal_speex_encode(void* handle, const void* pAudioBuffer,
    {
       speex_bits_reset(&mpSpeexEnc->mBits);
 
-      // We don't have echo data, but it should be possible to use the
-      // Speex echo canceler in sipxtapi.
+      // We don't have echo data
       if(mpSpeexEnc->mDoPreprocess)
          speex_preprocess(mpSpeexEnc->mpPreprocessState, mpSpeexEnc->mpBuffer, NULL);
       speex_encode_int(mpSpeexEnc->mpEncoderState, mpSpeexEnc->mpBuffer, &mpSpeexEnc->mBits);
@@ -430,6 +457,14 @@ DECLARE_FUNCS_V1(speex_uwb)
 
 PLG_ENUM_CODEC_START(speex)
    PLG_ENUM_CODEC(speex)
+   PLG_ENUM_CODEC_SPECIAL_PACKING(speex)
+   PLG_ENUM_CODEC_NO_SIGNALING(speex)
+
    PLG_ENUM_CODEC(speex_wb)
+   PLG_ENUM_CODEC_SPECIAL_PACKING(speex_wb)
+   PLG_ENUM_CODEC_NO_SIGNALING(speex_wb)
+
    PLG_ENUM_CODEC(speex_uwb)
+   PLG_ENUM_CODEC_SPECIAL_PACKING(speex_uwb)
+   PLG_ENUM_CODEC_NO_SIGNALING(speex_uwb)
 PLG_ENUM_CODEC_END 

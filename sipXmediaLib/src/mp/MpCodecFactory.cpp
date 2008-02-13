@@ -171,11 +171,13 @@ OsStatus MpCodecFactory::loadDynCodec(const char* name)
 
       // Obtaining codecs functions
       UtlBoolean st;
+      UtlBoolean stGetPacketSamples;
       UtlBoolean stSignaling;
 
       UtlString strCodecName = codecName;
       UtlString dlNameInit = strCodecName + MSK_INIT_V1_1;
       UtlString dlNameGetInfo = strCodecName + MSK_GET_INFO_V1_1;
+      UtlString dlNameGetPacketSamples = strCodecName + MSK_GET_PACKET_SAMPLES_V1_2;
       UtlString dlNameDecode = strCodecName + MSK_DECODE_V1;
       UtlString dlNameEncdoe = strCodecName + MSK_ENCODE_V1;
       UtlString dlNameFree = strCodecName + MSK_FREE_V1;
@@ -183,37 +185,47 @@ OsStatus MpCodecFactory::loadDynCodec(const char* name)
       
       dlPlgInitV1_1 plgInitAddr;
       dlPlgGetInfoV1_1 plgGetInfoAddr;
+      dlPlgGetPacketSamplesV1_2 plgGetPacketSamples;
       dlPlgDecodeV1 plgDecodeAddr;
       dlPlgEncodeV1 plgEncodeAddr;
       dlPlgFreeV1 plgFreeAddr;
       dlPlgGetSignalingDataV1 plgSignaling;
 
       st = TRUE 
-         && (pShrMgr->getSharedLibSymbol(name, dlNameInit, address) == OS_SUCCESS)
-         && ((plgInitAddr = (dlPlgInitV1_1)address) != NULL)
-         && (pShrMgr->getSharedLibSymbol(name, dlNameGetInfo, address) == OS_SUCCESS)
-         && ((plgGetInfoAddr = (dlPlgGetInfoV1_1)address) != NULL)
-         && (pShrMgr->getSharedLibSymbol(name, dlNameDecode, address) == OS_SUCCESS)
-         && ((plgDecodeAddr = (dlPlgDecodeV1)address) != NULL)
-         && (pShrMgr->getSharedLibSymbol(name, dlNameEncdoe, address) == OS_SUCCESS)
-         && ((plgEncodeAddr = (dlPlgEncodeV1)address) != NULL)
-         && (pShrMgr->getSharedLibSymbol(name, dlNameFree, address) == OS_SUCCESS)
-         && ((plgFreeAddr = (dlPlgFreeV1)address) != NULL);
-
-      stSignaling = st 
-         && (pShrMgr->getSharedLibSymbol(name, dlNameSignaling, address) == OS_SUCCESS)  
-         && ((plgSignaling = (dlPlgGetSignalingDataV1)address) != NULL);
-
-      if (!stSignaling)
-            plgSignaling = NULL;
+         && (pShrMgr->getSharedLibSymbol(name, dlNameInit,
+                                         (void*&)plgInitAddr) == OS_SUCCESS)
+         && (plgInitAddr != NULL)
+         && (pShrMgr->getSharedLibSymbol(name, dlNameGetInfo,
+                                         (void*&)plgGetInfoAddr) == OS_SUCCESS)
+         && (plgGetInfoAddr != NULL)
+         && (pShrMgr->getSharedLibSymbol(name, dlNameDecode,
+                                         (void*&)plgDecodeAddr) == OS_SUCCESS)
+         && (plgDecodeAddr != NULL)
+         && (pShrMgr->getSharedLibSymbol(name, dlNameEncdoe,
+                                         (void*&)plgEncodeAddr) == OS_SUCCESS)
+         && (plgEncodeAddr != NULL)
+         && (pShrMgr->getSharedLibSymbol(name, dlNameFree,
+                                         (void*&)plgFreeAddr) == OS_SUCCESS)
+         && (plgFreeAddr != NULL);
 
       if (st)
       {
+         stGetPacketSamples = TRUE
+            && (pShrMgr->getSharedLibSymbol(name, dlNameGetPacketSamples,
+                                            (void*&)plgGetPacketSamples) == OS_SUCCESS)
+            && (plgGetPacketSamples != NULL);
+
+         stSignaling = TRUE
+            && (pShrMgr->getSharedLibSymbol(name, dlNameSignaling,
+                                            (void*&)plgSignaling) == OS_SUCCESS)
+            && (plgSignaling != NULL);
+
          // Add codec to list if all basic (non-signaling) symbols are present.
 
          MpCodecCallInfoV1* pCallInfo = new MpCodecCallInfoV1(name, codecName, 
                                                               plgInitAddr,
                                                               plgGetInfoAddr,
+                                                              plgGetPacketSamples,
                                                               plgDecodeAddr,
                                                               plgEncodeAddr,
                                                               plgFreeAddr,
@@ -530,6 +542,13 @@ OsStatus MpCodecFactory::addCodecWrapperV1(MpCodecCallInfoV1* wrapper)
 
    const MppCodecInfoV1_1 *pCodecInfo;
    if (wrapper->mPlgGetInfo(&pCodecInfo) != RPLG_SUCCESS)
+   {
+      return OS_FAILED;
+   }
+
+   // If codec need special packing, it should provide GetPacketSamples() method
+   if (  (pCodecInfo->framePacking == CODEC_FRAME_PACKING_SPECIAL)
+      != (wrapper->mPlgGetPacketSamples != NULL))
    {
       return OS_FAILED;
    }

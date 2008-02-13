@@ -61,11 +61,14 @@
 #define MODE_24k      8
 //@}
 
+/// Number of samples in one frame
+#define FRAME_SIZE    320
+
 // LOCAL DATA TYPES
 /// Storage for encoder data
 struct amrwb_encoder_data
 {
-   audio_sample_t mpBuffer[320];    ///< Buffer used to store input samples
+   audio_sample_t mpBuffer[FRAME_SIZE]; ///< Buffer used to store input samples
    unsigned mBufferLoad;            ///< Number of samples stored in the buffer
 
    void *encoder_state;             ///< Pointer to encoder/decoder state structure
@@ -136,7 +139,7 @@ CODEC_API void *PLG_INIT_V1_1(amrwb)(const char* fmtp, int isDecoder,
 
       // Fill in codec info structure with general values.
       pCodecInfo->signalingCodec = FALSE;
-      pCodecInfo->numSamplesPerFrame = 320;
+      pCodecInfo->numSamplesPerFrame = FRAME_SIZE;
       //   we have PLC, but code should be fixed to really support it.
       pCodecInfo->packetLossConcealment = CODEC_PLC_NONE;
       pCodecInfo->vadCng = CODEC_CNG_INTERNAL;
@@ -221,6 +224,73 @@ CODEC_API int PLG_FREE_V1(amrwb)(void* handle, int isDecoder)
    return 0;
 }
 
+CODEC_API int PLG_GET_PACKET_SAMPLES_V1_2(amrwb)(void          *handle,
+                                                 const uint8_t *pPacketData,
+                                                 unsigned       packetSize,
+                                                 unsigned      *pNumSamples,
+                                                 const struct RtpHeader* pRtpHeader)
+{
+   struct amrwb_decoder_data *pCodecData = (struct amrwb_decoder_data *)handle;
+   int haveMoreData;   // Payload ToC F bit
+   int frameMode;      // Payload ToC FT field
+   int frameQuality;   // Payload ToC Q bit
+   unsigned dataIndex; // Number of currently processing byte in a packet.
+
+   assert(handle != NULL);
+
+   // There should be at least 2 bytes in a packet - CMR and ToC fields.
+   if (packetSize < 2)
+   {
+      return RPLG_INVALID_ARGUMENT;
+   }
+
+   // We do not support Bandwidth Efficient mode now.
+   assert(pCodecData->octet_align == 1);
+
+   // Initialize number of decoded samples
+   *pNumSamples = 0;
+
+   // Start parsing from the first byte
+   dataIndex = 0;
+
+   // Ignore Codec Mode Request (CMR) field, because our decoder could not
+   // control our encoder at the moment.
+//   int cmr = pCodedData[dataIndex] >> 4;
+   dataIndex++;
+
+   // Check packet length, as recommended in RFC 4867 section 4.5.1.
+   // To do this we're going through all available speech frames and check
+   // that their total size is equal to packet length minus 1 byte
+   // for CMR field.
+   do 
+   {
+      // Parse Table of Contents field
+      haveMoreData =  (pPacketData[dataIndex]) >> 7;          // Payload ToC F bit
+      frameMode    = ((pPacketData[dataIndex]) >> 3) & 0x0F;  // Payload ToC FT field
+      frameQuality = ((pPacketData[dataIndex]) >> 2) & 0x01;  // Payload ToC Q bit
+
+      // Jump to the next speech frame and update samples number
+      dataIndex += sgFrameSizesMap[frameMode];
+      *pNumSamples += FRAME_SIZE;
+
+      // Something is broken if we have gone over the packet data end or got
+      // non-existent mode (frame size in sgFrameSizesMap for this mode
+      // should not be zero).
+      if (dataIndex > packetSize || sgFrameSizesMap[frameMode] == 0)
+      {
+         return RPLG_CORRUPTED_DATA;
+      }
+   } while(haveMoreData == 1);
+
+   // Something is broken if packet size does not match its data
+   if (dataIndex != packetSize)
+   {
+      return RPLG_CORRUPTED_DATA;
+   }
+
+   return RPLG_SUCCESS;
+}
+
 CODEC_API int PLG_DECODE_V1(amrwb)(void* handle, const uint8_t* pCodedData,
                                    unsigned cbCodedPacketSize, uint16_t* pAudioBuffer,
                                    unsigned cbBufferSize, unsigned *pcbDecodedSize,
@@ -235,7 +305,7 @@ CODEC_API int PLG_DECODE_V1(amrwb)(void* handle, const uint8_t* pCodedData,
    assert(handle != NULL);
 
    // Assert that available buffer size is enough for the packet.
-   if (cbBufferSize < 320)
+   if (cbBufferSize < FRAME_SIZE)
    {
       return RPLG_INVALID_ARGUMENT;
    }
@@ -257,37 +327,7 @@ CODEC_API int PLG_DECODE_V1(amrwb)(void* handle, const uint8_t* pCodedData,
 //   int cmr = pCodedData[dataIndex] >> 4;
    dataIndex++;
 
-   // Check packet length, as recommended in RFC 4867 section 4.5.1.
-   // To do this we're going through all available speech frames and check
-   // that their total size is equal to packet length minus 1 byte
-   // for CMR field.
-   do 
-   {
-      // Parse Table of Contents field
-      haveMoreData =  (pCodedData[dataIndex]) >> 7;          // Payload ToC F bit
-      frameMode    = ((pCodedData[dataIndex]) >> 3) & 0x0F;  // Payload ToC FT field
-      frameQuality = ((pCodedData[dataIndex]) >> 2) & 0x01;  // Payload ToC Q bit
-
-      // Jump to the next speech frame
-      dataIndex += sgFrameSizesMap[frameMode];
-
-      // Something is broken if we have gone over the packet data end or got
-      // non-existent mode (frame size in sgFrameSizesMap for this mode
-      // should not be zero).
-      if (dataIndex > cbCodedPacketSize || sgFrameSizesMap[frameMode] == 0)
-      {
-         return RPLG_INVALID_ARGUMENT;
-      }
-   } while(haveMoreData == 1);
-   // Something is broken if packet size does not match its data
-   if (dataIndex != cbCodedPacketSize)
-   {
-      return RPLG_INVALID_ARGUMENT;
-   }
-
-   // Start over from first frame ToC
-   dataIndex = 1;
-   // Reset number of decoded samples
+   // Initialize number of decoded samples
    *pcbDecodedSize = 0;
 
    // Decode all frames in packet.
@@ -302,7 +342,7 @@ CODEC_API int PLG_DECODE_V1(amrwb)(void* handle, const uint8_t* pCodedData,
                      &pCodedData[dataIndex],          // ToC and Speech frame
                      &pAudioBuffer[*pcbDecodedSize],  // Decoder data buffer
                      _good_frame);                    // This is a good frame
-      *pcbDecodedSize += 320;
+      *pcbDecodedSize += FRAME_SIZE;
 
       // Jump to the next speech frame
       dataIndex += sgFrameSizesMap[frameMode];
@@ -330,13 +370,13 @@ CODEC_API int PLG_ENCODE_V1(amrwb)(void* handle, const void* pAudioBuffer,
 
    // Calculate amount of audio data to be consumed and store it
    // to intermediate buffer.
-   *rSamplesConsumed = min(cbAudioSamples, 320-pCodecData->mBufferLoad);
+   *rSamplesConsumed = min(cbAudioSamples, FRAME_SIZE-pCodecData->mBufferLoad);
    memcpy(&pCodecData->mpBuffer[pCodecData->mBufferLoad], pAudioBuffer,
           SIZE_OF_SAMPLE*(*rSamplesConsumed));
    pCodecData->mBufferLoad = pCodecData->mBufferLoad + cbAudioSamples;
 
    /* Check for necessary number of samples */
-   if (pCodecData->mBufferLoad == 320)
+   if (pCodecData->mBufferLoad == FRAME_SIZE)
    {
       uint8_t *pPacketCurPtr = (uint8_t*)pCodedData;
 
@@ -368,4 +408,8 @@ CODEC_API int PLG_ENCODE_V1(amrwb)(void* handle, const void* pAudioBuffer,
    return RPLG_SUCCESS;
 }
 
-PLG_SINGLE_CODEC(amrwb);
+PLG_ENUM_CODEC_START(amrwb)
+  PLG_ENUM_CODEC(amrwb)
+  PLG_ENUM_CODEC_SPECIAL_PACKING(amrwb)
+  PLG_ENUM_CODEC_NO_SIGNALING(amrwb)
+PLG_ENUM_CODEC_END 

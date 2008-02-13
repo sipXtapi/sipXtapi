@@ -8,7 +8,7 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
-// Author: 
+// Author: Sergey Kostanbaev <Sergey DOT Kostanbaev AT sipez DOT com>
 
 #ifndef _PlgDefs_h_
 #define _PlgDefs_h_
@@ -80,7 +80,7 @@ extern "C" {
 #  define RPLG_INVALID_ARGUMENT           (-1)
 #  define RPLG_FAILED                     (-2)
 #  define RPLG_NOT_SUPPORTED              (-3)
-#  define RPLG_INVALID_SEQUENCE_CALL      (-4)
+#  define RPLG_CORRUPTED_DATA             (-4) ///< Encoded data is corrupted
 #  define RPLG_BAD_HANDLE                 (-5)
 #  define RPLG_NO_MORE_DATA               (-6)
 //@}
@@ -147,23 +147,18 @@ struct MppCodecFmtpInfoV1_1
                                         ///<  numSamplesPerFrame samples of PCM data.
    unsigned     packetLossConcealment;  ///< See CODEC_PLC_* for details.
    unsigned     vadCng;                 ///< See CODEC_CNG_* for details.
-
-///@name Decoder specific info
-//@{
-//   unsigned     preCodecJitterBufferSize; ///< Requested length of jitter
-                                        ///< buffer that the flowgraph should apply to
-                                        ///< the stream prior to getting packets for
-                                        ///< the codec. If set to 0, then there is NO
-                                        ///< jitter buffer, which implies that the
-                                        ///< codec itself is doing the JB function.
-//@}
 };
 
 #define DECLARE_FUNCS_V1(x)                                                         \
  CODEC_API int   PLG_GET_INFO_V1_1(x)(const struct MppCodecInfoV1_1 **codecInfo);   \
  CODEC_API void* PLG_INIT_V1_1(x)(const char* fmtp, int isDecoder,                  \
-                                  struct MppCodecFmtpInfoV1_1* codecFmtpInfo);      \
+                                  struct MppCodecFmtpInfoV1_1* pCodecFmtpInfo);     \
  CODEC_API int   PLG_FREE_V1(x)(void* handle, int isDecoder);                       \
+ CODEC_API int   PLG_GET_PACKET_SAMPLES_V1_2(x)(void* handle,                       \
+                                                const uint8_t* pPacketData,            \
+                                                unsigned packetSize,                \
+                                                unsigned *pNumSamples,              \
+                                                const struct RtpHeader* pRtpHeader);\
  CODEC_API int   PLG_DECODE_V1(x)(void* handle, const void* pCodedData,             \
                                   unsigned cbCodedPacketSize, void* pAudioBuffer,   \
                                   unsigned cbBufferSize, unsigned *pcbDecodedSize,  \
@@ -179,6 +174,7 @@ extern "C"  DECLARE_FUNCS_V1(x)
 #define PLG_GET_CODEC_NAME             get_codecs_v1
 #define PLG_GET_INFO_V1_1(x)           x##_get_info_v1_1
 #define PLG_INIT_V1_1(x)               x##_init_v1_1
+#define PLG_GET_PACKET_SAMPLES_V1_2(x) x##_get_packet_samples_v1_2
 #define PLG_DECODE_V1(x)               x##_decode_v1
 #define PLG_ENCODE_V1(x)               x##_encode_v1
 #define PLG_FREE_V1(x)                 x##_free_v1
@@ -187,6 +183,7 @@ extern "C"  DECLARE_FUNCS_V1(x)
 #define MSK_GET_CODEC_NAME_V1          "get_codecs_v1"
 #define MSK_GET_INFO_V1_1              "_get_info_v1_1"
 #define MSK_INIT_V1_1                  "_init_v1_1"
+#define MSK_GET_PACKET_SAMPLES_V1_2    "_get_packet_samples_v1_2"
 #define MSK_DECODE_V1                  "_decode_v1"
 #define MSK_ENCODE_V1                  "_encode_v1"
 #define MSK_FREE_V1                    "_free_v1"
@@ -198,6 +195,11 @@ typedef int   (*dlPlgGetInfoV1_1)(const struct MppCodecInfoV1_1 **codecInfo);
 typedef void* (*dlPlgInitV1_1)(const char* fmtp, int isDecoder, struct MppCodecFmtpInfoV1_1* pCodecFmtpInfo);
 typedef int   (*dlPlgGetSignalingDataV1)(void* handle, uint32_t* outEvent, uint32_t* outDuration,
                                          uint32_t* startStatus, uint32_t *stopStatus);
+typedef int   (*dlPlgGetPacketSamplesV1_2)(void* handle,
+                                           const uint8_t* pPacketData,
+                                           unsigned packetSize,
+                                           unsigned *pNumSamples,
+                                           const struct RtpHeader* pRtpHeader);
 typedef int   (*dlPlgDecodeV1)(void* handle, const void* pCodedData, unsigned cbCodedPacketSize, 
                                void* pAudioBuffer, unsigned cbBufferSize, unsigned *pcbDecodedSize,
                                const struct RtpHeader* pRtpHeader);
@@ -221,10 +223,11 @@ typedef int   (*dlPlgFreeV1)(void* handle, int isDecoder);
    void callbackRegisterStaticCodec(const char* moduleName,                   \
                                     const char* codecModuleName,              \
                                     dlPlgInitV1_1 plgInit,                    \
+                                    dlPlgGetInfoV1_1 plgGetInfo,              \
+                                    dlPlgGetPacketSamplesV1_2 plgGetPacketSamples, \
                                     dlPlgDecodeV1 plgDecode,                  \
                                     dlPlgEncodeV1 plgEncode,                  \
                                     dlPlgFreeV1 plgFree,                      \
-                                    dlPlgGetInfoV1_1 plgGetInfo,              \
                                     dlPlgGetSignalingDataV1 plgSignaling);
  
 #define REG_STATIC_NAME(y)          registerStatic_##y
@@ -234,28 +237,41 @@ typedef int   (*dlPlgFreeV1)(void* handle, int isDecoder);
 
 #define SPLG_ENUM_CODEC_START(y)    \
    void REG_STATIC_NAME(y) (void) {
-#define SPLG_ENUM_CODEC(x)                                  \
-   callbackRegisterStaticCodec(__FILE__, #x,                \
-      PLG_INIT_V1_1(x), PLG_DECODE_V1(x), PLG_ENCODE_V1(x), \
-      PLG_FREE_V1(x), PLG_GET_INFO_V1_1(x), NULL);
-#define SPLG_ENUM_CODEC_SIG(x)                              \
-   callbackRegisterStaticCodec(__FILE__, #x,                \
-      PLG_INIT_V1_1(x), PLG_DECODE_V1(x), PLG_ENCODE_V1(x), \
-      PLG_FREE_V1(x), PLG_GET_INFO_V1_1(x), PLG_SIGNALING_V1(x));
+#define SPLG_ENUM_CODEC(x)                                      \
+   callbackRegisterStaticCodec(__FILE__, #x,                    \
+                               PLG_INIT_V1_1(x),                \
+                               PLG_GET_INFO_V1_1(x),            \
+                               PLG_DECODE_V1(x),                \
+                               PLG_ENCODE_V1(x),                \
+                               PLG_FREE_V1(x),
+#define SPLG_ENUM_CODEC_SPECIAL_PACKING(x)                      \
+                               PLG_GET_PACKET_SAMPLES_V1_2(x),
+#define SPLG_ENUM_CODEC_NO_SPECIAL_PACKING(x)                   \
+                               NULL,
+#define SPLG_ENUM_CODEC_SIGNALING(x)                            \
+                               PLG_SIGNALING_V1(x));
+#define SPLG_ENUM_CODEC_NO_SIGNALING(x)                         \
+                               NULL);
 #define SPLG_ENUM_CODEC_END  }
 
 #ifdef CODEC_DYNAMIC
-#  define PLG_ENUM_CODEC_START(y)     IPLG_ENUM_CODEC_START
-#  define PLG_ENUM_CODEC(x)           IPLG_ENUM_CODEC(x) 
-#  define PLG_ENUM_CODEC_SIG(x)       IPLG_ENUM_CODEC(x)
-#  define PLG_ENUM_CODEC_END          IPLG_ENUM_CODEC_END  \
-                                      IPLG_ENUM_CODEC_FUNC
+#  define PLG_ENUM_CODEC_START(y)              IPLG_ENUM_CODEC_START
+#  define PLG_ENUM_CODEC(x)                    IPLG_ENUM_CODEC(x) 
+#  define PLG_ENUM_CODEC_SPECIAL_PACKING(x)
+#  define PLG_ENUM_CODEC_NO_SPECIAL_PACKING(x)
+#  define PLG_ENUM_CODEC_SIGNALING(x)
+#  define PLG_ENUM_CODEC_NO_SIGNALING(x)
+#  define PLG_ENUM_CODEC_END                   IPLG_ENUM_CODEC_END  \
+                                               IPLG_ENUM_CODEC_FUNC
 #else
-#  define PLG_ENUM_CODEC_START(y)     DEFINE_STATIC_REGISTRATOR \
-                                      SPLG_ENUM_CODEC_START(y)
-#  define PLG_ENUM_CODEC(x)           SPLG_ENUM_CODEC(x)
-#  define PLG_ENUM_CODEC_SIG(x)       SPLG_ENUM_CODEC_SIG(x)
-#  define PLG_ENUM_CODEC_END          SPLG_ENUM_CODEC_END
+#  define PLG_ENUM_CODEC_START(y)              DEFINE_STATIC_REGISTRATOR \
+                                               SPLG_ENUM_CODEC_START(y)
+#  define PLG_ENUM_CODEC(x)                    SPLG_ENUM_CODEC(x)
+#  define PLG_ENUM_CODEC_SPECIAL_PACKING(x)    SPLG_ENUM_CODEC_SPECIAL_PACKING(x)
+#  define PLG_ENUM_CODEC_NO_SPECIAL_PACKING(x) PLG_ENUM_CODEC_NO_SPECIAL_PACKING(x)
+#  define PLG_ENUM_CODEC_SIGNALING(x)          PLG_ENUM_CODEC_SIGNALING(x)
+#  define PLG_ENUM_CODEC_NO_SIGNALING(x)       PLG_ENUM_CODEC_NO_SIGNALING(x)
+#  define PLG_ENUM_CODEC_END                   SPLG_ENUM_CODEC_END
 #endif
 
 

@@ -102,12 +102,13 @@ public:
    inline
    MpCodecCallInfoV1(const char* moduleName,
                      const char* codecModuleName,
-                     dlPlgInitV1_1 plgInit,
-                     dlPlgGetInfoV1_1 plgGetInfo,
-                     dlPlgDecodeV1 plgDecode,
-                     dlPlgEncodeV1 plgEncode,
-                     dlPlgFreeV1 plgFree,
-                     dlPlgGetSignalingDataV1 plgSignaling,
+                     const dlPlgInitV1_1 plgInit,
+                     const dlPlgGetInfoV1_1 plgGetInfo,
+                     const dlPlgGetPacketSamplesV1_2 plgGetPacketSamples,
+                     const dlPlgDecodeV1 plgDecode,
+                     const dlPlgEncodeV1 plgEncode,
+                     const dlPlgFreeV1 plgFree,
+                     const dlPlgGetSignalingDataV1 plgSignaling,
                      UtlBoolean bStatic = TRUE);
 
 //@}
@@ -149,6 +150,7 @@ public:
 
    const dlPlgInitV1_1 mPlgInit;
    const dlPlgGetInfoV1_1 mPlgGetInfo;
+   const dlPlgGetPacketSamplesV1_2 mPlgGetPacketSamples;
    const dlPlgDecodeV1 mPlgDecode;
    const dlPlgEncodeV1 mPlgEncode;
    const dlPlgFreeV1 mPlgFree;
@@ -189,17 +191,19 @@ MpStaticCodecSimpleList* MpStaticCodecSimpleList::getNext() const
 
 MpCodecCallInfoV1::MpCodecCallInfoV1(const char* moduleName,
                                      const char* codecModuleName,
-                                     dlPlgInitV1_1 plgInit,
-                                     dlPlgGetInfoV1_1 plgGetInfo,
-                                     dlPlgDecodeV1 plgDecode,
-                                     dlPlgEncodeV1 plgEncode,
-                                     dlPlgFreeV1 plgFree,
-                                     dlPlgGetSignalingDataV1 plgSignaling,
+                                     const dlPlgInitV1_1 plgInit,
+                                     const dlPlgGetInfoV1_1 plgGetInfo,
+                                     const dlPlgGetPacketSamplesV1_2 plgGetPacketSamples,
+                                     const dlPlgDecodeV1 plgDecode,
+                                     const dlPlgEncodeV1 plgEncode,
+                                     const dlPlgFreeV1 plgFree,
+                                     const dlPlgGetSignalingDataV1 plgSignaling,
                                      UtlBoolean bStatic)
 : mbStatic(bStatic)
 , mModuleName(moduleName)
 , mPlgInit(plgInit)
 , mPlgGetInfo(plgGetInfo)
+, mPlgGetPacketSamples(plgGetPacketSamples)
 , mPlgDecode(plgDecode)
 , mPlgEncode(plgEncode)
 , mPlgFree(plgFree)

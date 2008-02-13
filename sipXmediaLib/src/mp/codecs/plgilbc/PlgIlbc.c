@@ -319,4 +319,8 @@ CODEC_API int PLG_ENCODE_V1(ilbc)(void* handle, const void* pAudioBuffer, unsign
    return RPLG_SUCCESS;
 }
 
-PLG_SINGLE_CODEC(ilbc);
+PLG_ENUM_CODEC_START(ilbc)
+  PLG_ENUM_CODEC(ilbc)
+  PLG_ENUM_CODEC_NO_SPECIAL_PACKING(ilbc)
+  PLG_ENUM_CODEC_NO_SIGNALING(ilbc)
+PLG_ENUM_CODEC_END 
