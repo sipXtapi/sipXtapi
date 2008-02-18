@@ -70,7 +70,11 @@ public:
       PROTOCOL_TYPE_RTP_SAVPF,   // "RTP/SAVPF" - RFC3711
       PROTOCOL_TYPE_TCP,         // "TCP" - RFC4145
       PROTOCOL_TYPE_TCP_RTP_AVP, // "TCP/RTP/AVP" - RFC4571
-      PROTOCOL_TYPE_TCP_TLS      // "TCP/TLS" - RFC4572
+      PROTOCOL_TYPE_TCP_TLS,     // "TCP/TLS" - RFC4572
+      PROTOCOL_TYPE_UDP_TLS,     // "UDP/TLS" - draft-fiscl-mmusic-sdp-dtls-04
+      PROTOCOL_TYPE_DCCP_TLS_RTP_SAVP, // "DCCP/TLS/RTP/SAVP" - draft-fiscl-mmusic-sdp-dtls-04
+      PROTOCOL_TYPE_UDP_TLS_RTP_SAVP,  // "UDP/TLS/RTP/SAVP" - draft-fiscl-mmusic-sdp-dtls-04
+      PROTOCOL_TYPE_TCP_TLS_RTP_SAVP   // "TCP/TLS/RTP/SAVP" - draft-fiscl-mmusic-sdp-dtls-04
    } SdpTransportProtocolType;     
    static const char* SdpTransportProtocolTypeString[];
 

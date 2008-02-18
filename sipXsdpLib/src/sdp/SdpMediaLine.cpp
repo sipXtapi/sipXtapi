@@ -664,6 +664,22 @@ SdpMediaLine::getTransportProtocolTypeFromString(const char * type)
    {
       return PROTOCOL_TYPE_TCP_TLS;
    }
+   else if(stringType.compareTo("UDP/TLS", UtlString::ignoreCase) == 0)
+   {
+      return PROTOCOL_TYPE_UDP_TLS;
+   }
+   else if(stringType.compareTo("DCCP/TLS/RTP/SAVP", UtlString::ignoreCase) == 0)
+   {
+      return PROTOCOL_TYPE_DCCP_TLS_RTP_SAVP;
+   }
+   else if(stringType.compareTo("UDP/TLS/RTP/SAVP", UtlString::ignoreCase) == 0)
+   {
+      return PROTOCOL_TYPE_UDP_TLS_RTP_SAVP;
+   }
+   else if(stringType.compareTo("TCP/TLS/RTP/SAVP", UtlString::ignoreCase) == 0)
+   {
+      return PROTOCOL_TYPE_TCP_TLS_RTP_SAVP;
+   }
    else
    {
       return PROTOCOL_TYPE_NONE;
