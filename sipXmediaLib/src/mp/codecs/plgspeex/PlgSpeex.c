@@ -27,12 +27,10 @@ struct speex_codec_data_decoder
 {
    void *mpDecoderState;    ///< State of the decoder
    unsigned mNumSamplesPerFrame; ///< Number of samples in one frame
-   SpeexBits mBits;         ///< Bits used by speex to store information
 };
 
 struct speex_codec_data_encoder
 {
-   SpeexBits mBits;         ///< Bits used by speex to store information
    void *mpEncoderState;    ///< State of the encoder   
    int mMode;
    /**< Mode used.
@@ -184,7 +182,6 @@ void* universal_speex_init(const char* fmt, int isDecoder, int samplerate,
 
       /* Get number of samples in one frame */
       speex_decoder_ctl(pSpeexDec->mpDecoderState,SPEEX_GET_FRAME_SIZE,&pSpeexDec->mNumSamplesPerFrame);
-      speex_bits_init(&pSpeexDec->mBits);
 
       /* Fill codec information, specific to concrete Speex settings */
       pCodecInfo->numSamplesPerFrame = pSpeexDec->mNumSamplesPerFrame;
@@ -263,7 +260,6 @@ void* universal_speex_init(const char* fmt, int isDecoder, int samplerate,
       }
 
       speex_encoder_ctl(pSpeexEnc->mpEncoderState, SPEEX_GET_FRAME_SIZE, &pSpeexEnc->mNumSamplesPerFrame);
-      speex_bits_init(&pSpeexEnc->mBits);
 
       /* Fill codec information, specific to concrete Speex settings */
       pCodecInfo->numSamplesPerFrame = pSpeexEnc->mNumSamplesPerFrame;
@@ -321,12 +317,10 @@ int universal_speex_free(void* handle, int isDecoder)
          struct speex_codec_data_decoder *mpSpeexDec = 
             (struct speex_codec_data_decoder *)handle;
          speex_decoder_destroy(mpSpeexDec->mpDecoderState);
-         speex_bits_destroy(&mpSpeexDec->mBits);
       } else {
          struct speex_codec_data_encoder *mpSpeexEnc =
             (struct speex_codec_data_encoder *)handle;
          speex_encoder_destroy(mpSpeexEnc->mpEncoderState);
-         speex_bits_destroy(&mpSpeexEnc->mBits);
       }      
       free(handle);
    }
@@ -340,16 +334,17 @@ CODEC_API int PLG_GET_PACKET_SAMPLES_V1_2(speex)(void          *handle,
                                                  unsigned      *pNumSamples,
                                                  const struct RtpHeader* pRtpHeader)
 {
+   SpeexBits bits;
    int num_frames;
    struct speex_codec_data_decoder *pSpeexDec = 
       (struct speex_codec_data_decoder *)handle;
    assert(handle != NULL);
 
    /* Wrap data to speex_bits struct */
-   speex_bits_set_bit_buffer(&pSpeexDec->mBits, pPacketData, packetSize);
+   speex_bits_set_bit_buffer(&bits, pPacketData, packetSize);
 
    /* Get number of frames */
-   num_frames = speex_get_num_frames(&pSpeexDec->mBits);
+   num_frames = speex_get_num_frames(&bits);
    if (num_frames < 0)
    {
       return RPLG_CORRUPTED_DATA;
@@ -365,6 +360,7 @@ int universal_speex_decode(void* handle, const void* pCodedData,
                           unsigned cbBufferSize, unsigned *pcbDecodedSize, 
                           const struct RtpHeader* pRtpHeader)
 {
+   SpeexBits bits;
    struct speex_codec_data_decoder *mpSpeexDec = 
       (struct speex_codec_data_decoder *)handle;
    assert(handle != NULL);
@@ -375,7 +371,7 @@ int universal_speex_decode(void* handle, const void* pCodedData,
    }
 
    /* Prepare data for Speex decoder */
-   speex_bits_set_bit_buffer(&mpSpeexDec->mBits,(char*)pCodedData, cbCodedPacketSize);
+   speex_bits_set_bit_buffer(&bits,(char*)pCodedData, cbCodedPacketSize);
 
    /* Reset number of decoded samples */
    *pcbDecodedSize = 0;
@@ -383,12 +379,12 @@ int universal_speex_decode(void* handle, const void* pCodedData,
    /* Decode while there are something to decode and enough space
     * for decoded data. */
    while (cbBufferSize >= mpSpeexDec->mNumSamplesPerFrame &&
-          (speex_bits_remaining(&mpSpeexDec->mBits) > 0))
+          (speex_bits_remaining(&bits) > 0))
    {
       int res;
 
       /* Decode frame */
-      res = speex_decode_int(mpSpeexDec->mpDecoderState, &mpSpeexDec->mBits,
+      res = speex_decode_int(mpSpeexDec->mpDecoderState, &bits,
                              ((spx_int16_t*)pAudioBuffer)+(*pcbDecodedSize));
       if (res == 0)
       {
@@ -411,7 +407,6 @@ int universal_speex_encode(void* handle, const void* pAudioBuffer,
                           void* pCodedData, unsigned cbMaxCodedData, 
                           int* pcbCodedSize, unsigned* pbSendNow)
 {
-   int size = 0;   
    struct speex_codec_data_encoder *mpSpeexEnc = 
       (struct speex_codec_data_encoder *)handle;
    assert(handle != NULL);
@@ -423,15 +418,20 @@ int universal_speex_encode(void* handle, const void* pAudioBuffer,
    // Check for necessary number of samples
    if(mpSpeexEnc->mBufferLoad == mpSpeexEnc->mNumSamplesPerFrame)
    {
-      speex_bits_reset(&mpSpeexEnc->mBits);
+      SpeexBits bits;
 
-      // We don't have echo data
+      // Wrap our buffer to speex bits structure
+      speex_bits_init_buffer(&bits, pCodedData, cbMaxCodedData);
+
+      // Preprocess data if requested
       if(mpSpeexEnc->mDoPreprocess)
          speex_preprocess(mpSpeexEnc->mpPreprocessState, mpSpeexEnc->mpBuffer, NULL);
-      speex_encode_int(mpSpeexEnc->mpEncoderState, mpSpeexEnc->mpBuffer, &mpSpeexEnc->mBits);
+      // Encode frame and append terminator
+      speex_encode_int(mpSpeexEnc->mpEncoderState, mpSpeexEnc->mpBuffer, &bits);
+      speex_bits_insert_terminator(&bits);
 
       // Copy to the byte buffer   
-      size = speex_bits_write(&mpSpeexEnc->mBits,(char*)pCodedData,cbMaxCodedData);      
+      *pcbCodedSize = speex_bits_nbytes(&bits);
 
       // Reset the buffer count.
       mpSpeexEnc->mBufferLoad = 0;
@@ -443,10 +443,10 @@ int universal_speex_encode(void* handle, const void* pAudioBuffer,
    else
    {
       *pbSendNow = FALSE;
+      *pcbCodedSize = 0;
    }
 
    *rSamplesConsumed = cbAudioSamples;
-   *pcbCodedSize = size;
 
    return RPLG_SUCCESS;
 }
