@@ -411,7 +411,8 @@ int universal_speex_encode(void* handle, const void* pAudioBuffer,
       (struct speex_codec_data_encoder *)handle;
    assert(handle != NULL);
 
-   memcpy(&mpSpeexEnc->mpBuffer[mpSpeexEnc->mBufferLoad], pAudioBuffer, SIZE_OF_SAMPLE * cbAudioSamples);
+   memcpy(&mpSpeexEnc->mpBuffer[mpSpeexEnc->mBufferLoad], pAudioBuffer,
+          SIZE_OF_SAMPLE * cbAudioSamples);
    mpSpeexEnc->mBufferLoad = mpSpeexEnc->mBufferLoad+cbAudioSamples;
    assert(mpSpeexEnc->mBufferLoad <= mpSpeexEnc->mNumSamplesPerFrame);
 
@@ -430,15 +431,12 @@ int universal_speex_encode(void* handle, const void* pAudioBuffer,
       speex_encode_int(mpSpeexEnc->mpEncoderState, mpSpeexEnc->mpBuffer, &bits);
       speex_bits_insert_terminator(&bits);
 
-      // Copy to the byte buffer   
+      // Tell that we've produced packet
+      *pbSendNow = TRUE;
       *pcbCodedSize = speex_bits_nbytes(&bits);
 
       // Reset the buffer count.
       mpSpeexEnc->mBufferLoad = 0;
-
-      //if (size>0) {
-      *pbSendNow = TRUE;
-      //}
    }
    else
    {
