@@ -11,9 +11,6 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
-#define DEBUG_DECODING
-#undef DEBUG_DECODING
-
 // SYSTEM INCLUDES
 #include <assert.h>
 
@@ -46,6 +43,7 @@
 #include "os/OsSysLog.h"
 #include "os/OsLock.h"
 #include "os/OsNotification.h"
+#include "mp/MprDejitter.h"
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -73,23 +71,20 @@ MprDecode::MprDecode(const UtlString& rName, MpRtpInputAudioConnection* pConn)
 // Destructor
 MprDecode::~MprDecode()
 {
-   // Clean up decoder object
-   int i;
-
    // Release our codecs (if any), and the array of pointers to them.
    // Jitter buffer instance (mpJB) is also deleted here.
    handleDeselectCodecs();
 
    // Delete the list of codecs used in the past.
+   OsLock lock(mLock);
+   if (mNumPrevCodecs > 0)
    {
-      OsLock lock(mLock);
-      if (mNumPrevCodecs > 0) {
-         for (i=0; i<mNumPrevCodecs; i++) {
-            mpPrevCodecs[i]->freeDecode();
-            delete mpPrevCodecs[i];
-         }
-         delete[] mpPrevCodecs;
+      for (int i=0; i<mNumPrevCodecs; i++)
+      {
+         mpPrevCodecs[i]->freeDecode();
+         delete mpPrevCodecs[i];
       }
+      delete[] mpPrevCodecs;
    }
 }
 
@@ -137,6 +132,16 @@ OsStatus MprDecode::deselectCodec()
 void MprDecode::setMyDejitter(MprDejitter* pDJ)
 {
    mpMyDJ = pDJ;
+}
+
+OsStatus MprDecode::pushPacket(const MpRtpBufPtr &pRtp)
+{
+   // Lock access to dejitter and m*Codecs data
+   OsLock lock(mLock);
+   int pt = pRtp->getRtpPayloadType();
+   const MpCodecInfo* pDecoderInfo = mpConnection->mapPayloadType(pt)->getInfo();
+
+   return getMyDejitter()->pushPacket(pRtp, pDecoderInfo->isSignalingCodec());
 }
 
 /* ============================ ACCESSORS ================================= */
@@ -198,6 +203,7 @@ UtlBoolean MprDecode::doProcessFrame(MpBufPtr inBufs[],
 {
    MpAudioBufPtr out;
    MpAudioSample* pSamples;
+   MpRtpBufPtr rtp;
 
    if (outBufsSize == 0)
       return FALSE;
@@ -208,90 +214,82 @@ UtlBoolean MprDecode::doProcessFrame(MpBufPtr inBufs[],
 
    MprDejitter* pDej = getMyDejitter();
 
-   // Not sure this is a good idea to do in doProcessFrame, 
-   // but the use of this lock is meaningless
-   // unless we lock all access of the mpCurrentCodecs
+   // Lock access to dejitter and m*Codecs data
    OsLock lock(mLock);
 
    // Inform the dejitter that the next frame has happened. 
    pDej->frameIncrement(mpFlowGraph->getSamplesPerFrame());
 
-   // Cycle through all decoders and process frames for them.
-   for (int i = 0; i < mNumCurrentCodecs; i++) 
+   while ((rtp = pDej->pullPacket()).isValid()) 
    {
-      int pt = mpCurrentCodecs[i]->getPayloadType();
+      int pt = rtp->getRtpPayloadType();
       MpDecoderBase* pCurDec=mpConnection->mapPayloadType(pt);
-      MpRtpBufPtr rtp;
 
       // The codec is null. Do not continue.
       // TODO:: NEED ERROR HANDLING HERE.
       if (pCurDec==NULL)
-         continue;
+         break;
 
-      UtlBoolean signalingCodec = pCurDec->getInfo()->isSignalingCodec();
+      // THIS JitterBuffer is NOT the same as MprDejitter!
+      // This is more of a Decode Buffer.
+      MpJitterBuffer* pJBState = getJBinst();
 
-      while ((rtp = pDej->pullPacket(pt, (bool)signalingCodec)).isValid()) 
+      OsStatus res = pJBState->pushPacket(rtp);
+      if (res != OS_SUCCESS)
       {
-         // THIS JitterBuffer is NOT the same as MprDejitter!
-         // This is more of a Decode Buffer.
-         MpJitterBuffer* pJBState = getJBinst();
+         osPrintf("\n\n *** MprDecode::doProcessFrame() returned %d\n", res);
+         osPrintf(" pt=%d, Ts=%d, Seq=%d\n\n",
+                  rtp->getRtpPayloadType(),
+                  rtp->getRtpTimestamp(), rtp->getRtpSequenceNumber());
+      }
+      if (pCurDec->getInfo()->isSignalingCodec())
+      {
+         uint8_t event;
+         UtlBoolean isStarted;
+         UtlBoolean isStopped;
+         uint16_t duration;
+         OsStatus sigRes;
 
-         OsStatus res = pJBState->pushPacket(rtp);
-         if (res != OS_SUCCESS) {
-            osPrintf("\n\n *** MprDecode::doProcessFrame() returned %d\n", res);
-            osPrintf(" pt=%d, Ts=%d, Seq=%d\n\n",
-                     rtp->getRtpPayloadType(),
-                     rtp->getRtpTimestamp(), rtp->getRtpSequenceNumber());
-         }
-         if (signalingCodec)
-         {
-            uint8_t event;
-            UtlBoolean isStarted;
-            UtlBoolean isStopped;
-            uint16_t duration;
-            OsStatus sigRes;
+         do {
+            sigRes = pCurDec->getSignalingData(event,
+                                               isStarted,
+                                               isStopped,
+                                               duration);
+            assert(sigRes != OS_NOT_SUPPORTED);
+            if (sigRes == OS_SUCCESS && isStarted)
+            {
+               // Post DTMF notification message to indicate key down.
+               MprnDTMFMsg dtmfMsg(getName(), mpConnection->getConnectionId(),
+                                   (MprnDTMFMsg::KeyCode)event,
+                                   MprnDTMFMsg::KEY_DOWN);
+               sendNotification(dtmfMsg);
 
-            do {
-               sigRes = pCurDec->getSignalingData(event,
-                                                  isStarted,
-                                                  isStopped,
-                                                  duration);
-               assert(sigRes != OS_NOT_SUPPORTED);
-               if (sigRes == OS_SUCCESS && isStarted)
+               // Old way to indicate DTMF event. Will be removed soon, I hope.
+               if (mpDtmfNotication)
                {
-                  // Post DTMF notification message to indicate key down.
-                  MprnDTMFMsg dtmfMsg(getName(), mpConnection->getConnectionId(),
-                                      (MprnDTMFMsg::KeyCode)event,
-                                      MprnDTMFMsg::KEY_DOWN);
-                  sendNotification(dtmfMsg);
-
-                  // Old way to indicate DTMF event. Will be removed soon, I hope.
-                  if (mpDtmfNotication)
-                  {
-                     mpDtmfNotication->signal( duration
-                                             | (uint32_t)(event) << 16
-                                             | 0<<31);
-                  }
+                  mpDtmfNotication->signal( duration
+                                          | (uint32_t)(event) << 16
+                                          | 0<<31);
                }
+            }
 
-               if (sigRes == OS_SUCCESS && isStopped)
+            if (sigRes == OS_SUCCESS && isStopped)
+            {
+               // Post DTMF notification message to indicate key up.
+               MprnDTMFMsg dtmfMsg(getName(), mpConnection->getConnectionId(),
+                                   (MprnDTMFMsg::KeyCode)event,
+                                   MprnDTMFMsg::KEY_UP, duration);
+               sendNotification(dtmfMsg);
+
+               // Old way to indicate DTMF event. Will be removed soon, I hope.
+               if (mpDtmfNotication)
                {
-                  // Post DTMF notification message to indicate key up.
-                  MprnDTMFMsg dtmfMsg(getName(), mpConnection->getConnectionId(),
-                                      (MprnDTMFMsg::KeyCode)event,
-                                      MprnDTMFMsg::KEY_UP, duration);
-                  sendNotification(dtmfMsg);
-
-                  // Old way to indicate DTMF event. Will be removed soon, I hope.
-                  if (mpDtmfNotication)
-                  {
-                     mpDtmfNotication->signal( duration
-                                             | (uint32_t)(event) << 16
-                                             | 1<<31);
-                  }
+                  mpDtmfNotication->signal( duration
+                                          | (uint32_t)(event) << 16
+                                          | 1<<31);
                }
-            } while (sigRes == OS_SUCCESS);
-         }
+            }
+         } while (sigRes == OS_SUCCESS);
       }
    }
 
@@ -412,12 +410,13 @@ UtlBoolean MprDecode::handleSelectCodecs(SdpCodec* pCodecs[], int numCodecs)
    }
 #endif // 0 ]
 
+   // Lock the m*Codecs members.
+   OsLock lock(mLock);
+
    // If the new list is not a subset of the old list, we have to copy
    // pCodecs into mpCurrentCodecs.
-   if (!allReusable) {
-      // Lock the m*Codecs members.
-      OsLock lock(mLock);
-
+   if (!allReusable)
+   {
       // Delete the current codecs.
       handleDeselectCodecs(FALSE);
 

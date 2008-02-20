@@ -1,8 +1,8 @@
 //  
-// Copyright (C) 2006-2007 SIPez LLC. 
+// Copyright (C) 2006-2008 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2004-2007 SIPfoundry Inc.
+// Copyright (C) 2004-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -14,15 +14,14 @@
 #ifndef _MprDecode_h_ /* [ */
 #define _MprDecode_h_
 
-#include "mp/MpMisc.h"
-#include "os/OsBSem.h"
-
 // SYSTEM INCLUDES
-
 // APPLICATION INCLUDES
+#include "mp/MpMisc.h"
+#include "mp/MpRtpBuf.h"
 #include "mp/MpAudioResource.h"
-#include "mp/MprDejitter.h"
 #include "mp/MpFlowGraphMsg.h"
+#include "sdp/SdpCodec.h"
+#include "os/OsBSem.h"
 
 // DEFINES
 // MACROS
@@ -37,6 +36,7 @@ class MpRtpInputAudioConnection;
 class MpDecoderBase;
 class MprRecorder;
 class MpJitterBuffer;
+class MprDejitter;
 
 /// The "Decode" media processing resource
 class MprDecode : public MpAudioResource
@@ -70,6 +70,13 @@ public:
    OsStatus deselectCodec(void);
 
    void setMyDejitter(MprDejitter* newDJ);
+
+     /// Add incoming RTP packet to the decoding queue
+   OsStatus pushPacket(const MpRtpBufPtr &pRtp);
+     /**<
+     *  @return OS_SUCCESS on success
+     *  @return OS_LIMIT_REACHED if too many codecs used in incoming RTP packets
+     */
 
 //@}
 

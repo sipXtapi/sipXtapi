@@ -1,8 +1,8 @@
 //  
-// Copyright (C) 2006 SIPez LLC. 
+// Copyright (C) 2006-2008 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Copyright (C) 2004-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -44,6 +44,7 @@ class MprDejitter;
 // STRUCTS
 // TYPEDEFS
 // FORWARD DECLARATIONS
+class MprDecode;
 
 /// The "From Network" media processing resource
 class MprFromNet
@@ -79,7 +80,7 @@ public:
    OsStatus pushPacket(const MpUdpBufPtr &buf, bool isRtcp);
 
      /// Inform this object of its sibling dejitter object.
-   void setMyDejitter(MprDejitter* newDJ);
+   void setMyDecoder(MprDecode* pDecoder);
 
      /// Inform this object of its sibling ToNet's destination
    void setDestIp(OsSocket& newDest);
@@ -115,7 +116,7 @@ protected:
 private:
    OsMutex          mMutex;
    UtlBoolean       mRegistered;
-   MprDejitter*     mpDejitter;
+   MprDecode*       mpDecoder;
 #ifdef INCLUDE_RTCP /* [ */
    INetDispatch*    mpiRTCPDispatch;
    IRTPDispatch*    mpiRTPDispatch;
@@ -154,7 +155,7 @@ private:
    OsStatus rtcpStats(struct RtpHeader *h);
 #endif /* INCLUDE_RTCP ] */
 
-   MprDejitter* getMyDejitter(void);
+   MprDecode* getMyDecoder();
 
      /// Parse UDP packet and return filled RTP packet buffer.
    static MpRtpBufPtr parseRtpPacket(const MpUdpBufPtr &buf);

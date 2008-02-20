@@ -68,6 +68,10 @@ MpRtpInputAudioConnection::MpRtpInputAudioConnection(const UtlString& resourceNa
    // gets added to do the decoding frameprocessing.
 
    //////////////////////////////////////////////////////////////////////////
+   // connect FromNet -> Decoder
+   mpFromNet->setMyDecoder(mpDecode);
+
+   //////////////////////////////////////////////////////////////////////////
    // connect Dejitter -> Decode (Non synchronous resources)
    mpDecode->setMyDejitter(mpDejitter);
 

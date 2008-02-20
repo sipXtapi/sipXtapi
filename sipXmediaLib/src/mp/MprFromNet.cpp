@@ -1,8 +1,8 @@
 //  
-// Copyright (C) 2006-2007 SIPez LLC. 
+// Copyright (C) 2006-2008 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2004-2007 SIPfoundry Inc.
+// Copyright (C) 2004-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -33,7 +33,7 @@
 #include "mp/MpMisc.h"
 #include "mp/MpBuf.h"
 #include "mp/MprFromNet.h"
-#include "mp/MprDejitter.h"
+#include "mp/MprDecode.h"
 #ifdef INCLUDE_RTCP /* [ */
 #include "rtcp/RTPHeader.h"
 #endif /* INCLUDE_RTCP ] */
@@ -56,7 +56,7 @@ const int MprFromNet::SSRC_SWITCH_MISMATCH_COUNT = 8;
 MprFromNet::MprFromNet()
 :  mMutex(OsMutex::Q_PRIORITY|OsMutex::INVERSION_SAFE),
    mRegistered(FALSE),
-   mpDejitter(NULL),
+   mpDecoder(NULL),
 #ifdef INCLUDE_RTCP /* [ */
    mpiRTCPDispatch(NULL),
    mpiRTPDispatch(NULL),
@@ -370,7 +370,7 @@ OsStatus MprFromNet::pushPacket(const MpUdpBufPtr &udpBuf, bool isRtcp)
         rtcpStats(&rtpBuf->getRtpHeader());
 #endif /* INCLUDE_RTCP ] */
 
-        ret = getMyDejitter()->pushPacket(rtpBuf);
+        ret = getMyDecoder()->pushPacket(rtpBuf);
 
 #ifdef INCLUDE_RTCP /* [ */
         // This is the logic that forwards RTP packets to the RTCP subsystem
@@ -429,9 +429,9 @@ OsStatus MprFromNet::pushPacket(const MpUdpBufPtr &udpBuf, bool isRtcp)
     return ret;
 }
 
-void MprFromNet::setMyDejitter(MprDejitter* pDJ)
+void MprFromNet::setMyDecoder(MprDecode* pDecoder)
 {
-   mpDejitter = pDJ;
+   mpDecoder = pDecoder;
 }
 
 void MprFromNet::setDestIp(OsSocket& newDest)
@@ -454,10 +454,10 @@ void MprFromNet::setDestIp(OsSocket& newDest)
 
 /* ============================ ACCESSORS ================================= */
 
-MprDejitter* MprFromNet::getMyDejitter(void)
+MprDecode* MprFromNet::getMyDecoder()
 {
-   assert(NULL != mpDejitter);
-   return mpDejitter;
+   assert(NULL != mpDecoder);
+   return mpDecoder;
 }
 
 /* ============================ INQUIRY =================================== */

@@ -1,8 +1,8 @@
 //  
-// Copyright (C) 2006 SIPez LLC. 
+// Copyright (C) 2006-2008 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Copyright (C) 2004-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -66,8 +66,8 @@ public:
 ///@name Manipulators
 //@{
 
-     /// Add a buffer containing an incoming RTP packet to the dejitter pool
-   OsStatus pushPacket(const MpRtpBufPtr &pRtp);
+     /// Add an incoming RTP packet to the dejitter pool
+   OsStatus pushPacket(const MpRtpBufPtr &pRtp, UtlBoolean isSignaling);
      /**<
      *  This method places the packet to the pool depending the modulo division
      *  value.
@@ -77,12 +77,8 @@ public:
      */
 
      /// Get next RTP packet, or NULL if none is available.
-   MpRtpBufPtr pullPacket(int payloadType, bool isSignaling=false);
+   MpRtpBufPtr pullPacket();
      /**<
-     *  @note Significant change is that the downstream puller may NOT pull all
-     *        the available packets at once. Instead it is paced according to
-     *        the needs of the RTP payload type.
-     *
      *  This buffer is the primary dejitter/reorder buffer for the internal
      *  codecs. Some codecs may do their own dejitter stuff too. But we can't
      *  eliminate this buffer because then out-of-order packets would just be
@@ -104,8 +100,8 @@ public:
      */
 
      /// Get next RTP packet with given timestamp, or NULL if none is available.
-   MpRtpBufPtr pullPacket(int payloadType, RtpTimestamp timestamp,
-                          bool lockTimestamp=true, bool isSignaling=false);
+   MpRtpBufPtr pullPacket(RtpTimestamp timestamp,
+                          bool lockTimestamp=true);
      /**<
      *  This version of pullPacket() works exactly the same as above version
      *  of pullPacket() with one exception: if (lockTimestamp == true) it checks 
@@ -164,6 +160,9 @@ private:
 
                      /// Buffer for incoming RTP packets
       MpRtpBufPtr   mpPackets[MAX_RTP_PACKETS];
+                     /// For each packet in mpPackets there is flag is it
+                     /// from signaling codec or not.
+      UtlBoolean    mpSignalingFlag[MAX_RTP_PACKETS];
 
                      /// Number of packets in buffer
       int           mNumPackets;
@@ -221,15 +220,12 @@ private:
         */
 
         /// Update collected statistic.
-      void updateStatistic(int averageLength);
+      void updateStatistic();
         /**<
         *  Every second this function is called with the average number of
         *  packets in the dejitter. We want to keep it near target buffer size.
         */
    };
-
-                  /// Mutual exclusion lock for internal data
-   OsBSem        mRtpLock;
 
                   /// Timestamp of frame we expect next
    RtpTimestamp  mNextPullTimerCount;
@@ -241,11 +237,8 @@ private:
                   /// Number of frames, passed since last statistic update
    int mFramesSinceLastUpdate;
 
-                  /// Storage for all stream related data
-   StreamData    mpStreamData[MAX_CODECS];
-
-                  /// Mapping of payload type to internal codec index
-   int           mBufferLookup[256];
+                  /// Storage for stream related data
+   StreamData    mStreamData;
 
      /// Copy constructor (not implemented for this class)
    MprDejitter(const MprDejitter& rMprDejitter);

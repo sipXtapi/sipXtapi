@@ -1,8 +1,8 @@
 //  
-// Copyright (C) 2006-2007 SIPez LLC. 
+// Copyright (C) 2006-2008 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2004-2007 SIPfoundry Inc.
+// Copyright (C) 2004-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -43,11 +43,10 @@ static void debugPrintf(...) {}
 
 // Constructor
 MprDejitter::MprDejitter()
-: mRtpLock(OsBSem::Q_FIFO, OsBSem::FULL)
-, mNextPullTimerCount(0)
+: mNextPullTimerCount(0)
 , mFramesSinceLastUpdate(0)
 {
-   memset(mBufferLookup, -1, 256 * sizeof(int));
+   mStreamData.resetStream();
 }
 
 // Destructor
@@ -59,80 +58,54 @@ MprDejitter::~MprDejitter()
 
 // Add a buffer containing an incoming RTP packet to the dejitter pool.
 // This method places the packet to the pool depending the modulo division value.
-OsStatus MprDejitter::pushPacket(const MpRtpBufPtr &pRtp)
+OsStatus MprDejitter::pushPacket(const MpRtpBufPtr &pRtp, UtlBoolean isSignaling)
 {
    int index;
-   int payloadType;
-   int codecIndex;
-
-   OsLock lock(mRtpLock);
-
-   // Get codec index for incoming packet and allocate new, if it does not have
-   // one already.
-   payloadType = pRtp->getRtpPayloadType();
-   codecIndex = mBufferLookup[payloadType];
-   if (codecIndex < 0)
-   {
-      // Search for maximum allocated codec index
-      int maxCodecIndex = -1;
-      for (int i=0; i<256; i++)
-         maxCodecIndex = sipx_max(maxCodecIndex,mBufferLookup[i]);
-      maxCodecIndex++;
-
-      // Codecs limit reached
-      if (maxCodecIndex > MAX_CODECS)
-         return OS_LIMIT_REACHED;
-
-      // Store new codec index
-      mBufferLookup[payloadType]=maxCodecIndex;
-      codecIndex = maxCodecIndex;
-      mpStreamData[codecIndex].resetStream();
-   }
 
    // Find place for incoming packet
    index = pRtp->getRtpSequenceNumber() % MAX_RTP_PACKETS;
 
-   // Store pointer to stream data structure for our convenience.
-   StreamData *pStreamData = &mpStreamData[codecIndex];
-
    // Place packet to the buffer
-   if (pStreamData->mpPackets[index].isValid())
+   if (mStreamData.mpPackets[index].isValid())
    {
       // Check for packets already in the buffer. Overwrite them if 
       // the just-arriving packet is newer than the existing packet
       // Don't overwrite if the just-arriving packet is older
-      RtpSeq iBufSeqNo = pStreamData->mpPackets[index]->getRtpSequenceNumber();
+      RtpSeq iBufSeqNo = mStreamData.mpPackets[index]->getRtpSequenceNumber();
       RtpSeq iNewSeqNo = pRtp->getRtpSequenceNumber();
 
       if (MpDspUtils::compareSerials(iNewSeqNo, iBufSeqNo) > 0) 
       {
          // Insert the new packet over the old packet
-         pStreamData->mNumDiscarded++;
-         if (pStreamData->mNumDiscarded < 40) 
+         mStreamData.mNumDiscarded++;
+         if (mStreamData.mNumDiscarded < 40) 
          {
             debugPrintf("Dej: discard#%d Seq: %d -> %d Pt:%d\n",
-                        pStreamData->mNumDiscarded, iBufSeqNo, iNewSeqNo, payloadType);
+                        mStreamData.mNumDiscarded, iBufSeqNo, iNewSeqNo,
+                        pRtp->getRtpPayloadType());
          }
-         pStreamData->mpPackets[index] = pRtp;
-         pStreamData->mLastPushed = index;  
+         mStreamData.mpPackets[index] = pRtp;
+         mStreamData.mpSignalingFlag[index] = isSignaling;
+         mStreamData.mLastPushed = index;  
          // mNumPackets remain unchanged, since we discarded a packet, and added one
       } else {
          // Don't insert the new packet - it is a old delayed packet
          return OS_FAILED;
       }
    } else {
-      pStreamData->mLastPushed = index;
-      pStreamData->mpPackets[index] = pRtp;
-      pStreamData->mNumPackets++;
+      mStreamData.mLastPushed = index;
+      mStreamData.mpPackets[index] = pRtp;
+      mStreamData.mpSignalingFlag[index] = isSignaling;
+      mStreamData.mNumPackets++;
    }
 
 #ifdef DEBUG_PRINT
    debugPrintf("%5u (%2u) -> (", pRtp->getRtpSequenceNumber(), index);
    for (int i=0; i< MAX_RTP_PACKETS; i++)
    {
-      if (pStreamData->mpPackets[i].isValid())
+      if (mStreamData.mpPackets[i].isValid())
       {
-         debugPrintf("%5u ", pStreamData->mpPackets[i]->getRtpSequenceNumber());
+         debugPrintf("%5u ", mStreamData.mpPackets[i]->getRtpSequenceNumber());
       } 
       else
       {
@@ -146,27 +119,16 @@ OsStatus MprDejitter::pushPacket(const MpRtpBufPtr &pRtp)
 }
 
 // Get a pointer to the next RTP packet, or NULL if none is available.
-MpRtpBufPtr MprDejitter::pullPacket(int payloadType, bool isSignaling)
+MpRtpBufPtr MprDejitter::pullPacket()
 {
-   return pullPacket(payloadType, 0, false, isSignaling);
+   return pullPacket(0, false);
 }
 
 // Get next RTP packet with given timestamp, or NULL if none is available.
-MpRtpBufPtr MprDejitter::pullPacket(int payloadType, RtpTimestamp maxTimestamp,
-                                    bool lockToTimestamp, bool isSignaling)
+MpRtpBufPtr MprDejitter::pullPacket(RtpTimestamp maxTimestamp,
+                                    bool lockToTimestamp)
 {
-   OsLock locker(mRtpLock);
-
    MpRtpBufPtr found; ///< RTP packet we will return
-
-   // Get codec index for incoming packet. Return none if we have not seen this
-   // payload type before
-   int codecIndex = mBufferLookup[payloadType];
-   if (codecIndex < 0)
-      return MpRtpBufPtr();
-
-   // Store pointer to stream data structure for our convenience.
-   StreamData *pStreamData = &mpStreamData[codecIndex];
 
    if (mFramesSinceLastUpdate==0)
    {
@@ -174,34 +136,35 @@ MpRtpBufPtr MprDejitter::pullPacket(int payloadType, RtpTimestamp maxTimestamp,
    }
 
    // Return none if there are no packets
-   if (pStreamData->mNumPackets==0)
+   if (mStreamData.mNumPackets==0)
       return MpRtpBufPtr();
 
    // We find a packet by starting to look in the JB just AFTER where the latest
    // push was done, and loop MAX_RTP_PACKETS times or until we find a valid frame
-   int iNextPull = (pStreamData->mLastPushed + 1) % MAX_RTP_PACKETS;
+   int iNextPull = (mStreamData.mLastPushed + 1) % MAX_RTP_PACKETS;
 
 #ifdef LONG_DEJITTER // [
    for (int i = 0; i < MAX_RTP_PACKETS; i++)
    {
       // Check if this packet valid.
-      if (  pStreamData->mpPackets[iNextPull].isValid()
+      if (  mStreamData.mpPackets[iNextPull].isValid()
          && (!lockToTimestamp
-            || MpDspUtils::compareSerials(pStreamData->mpPackets[iNextPull]->getRtpTimestamp(), maxTimestamp)<=0
+            || MpDspUtils::compareSerials(mStreamData.mpPackets[iNextPull]->getRtpTimestamp(),
+                                          maxTimestamp) <= 0
             )
          )
       {
          // This call lets the codec decide if it wants this packet or not. If
          // the codec rejects out-of-order packets, it will return a negative value.
          // It may also (someday) dynamically adjust the size of the jitter buffer.
-         int checkRes = pStreamData->checkPacket(pStreamData->mpPackets[iNextPull],
-                                                 mNextPullTimerCount, isSignaling);
-         debugPrintf("checkPacket() returned %d for payload %d\n",
-                     checkRes, payloadType);
+         int checkRes = mStreamData.checkPacket(mStreamData.mpPackets[iNextPull],
+                                                mNextPullTimerCount,
+                                                mStreamData.mpSignalingFlag[iNextPull]);
+         debugPrintf("checkPacket() returned %d\n", checkRes);
          if (checkRes > 0) 
          {
-            found.swap(pStreamData->mpPackets[iNextPull]);
-            pStreamData->mNumPackets--;
+            found.swap(mStreamData.mpPackets[iNextPull]);
+            mStreamData.mNumPackets--;
             break;
          } else if (checkRes == 0) {
             // Stop iterating and return NULL.
@@ -209,7 +172,7 @@ MpRtpBufPtr MprDejitter::pullPacket(int payloadType, RtpTimestamp maxTimestamp,
          } else if (checkRes == -1) {
             // checkRes < 0, this means that this is out of order packet.
             // Just discard it.
-            pStreamData->mpPackets[iNextPull].release();
+            mStreamData.mpPackets[iNextPull].release();
          }
 
       }
@@ -219,10 +182,10 @@ MpRtpBufPtr MprDejitter::pullPacket(int payloadType, RtpTimestamp maxTimestamp,
    }
 #else // LONG_DEJITTER ][
    // Return none if there are no packets
-   if (!pStreamData->mpPackets[iNextPull].isValid())
+   if (!mStreamData.mpPackets[iNextPull].isValid())
       return MpRtpBufPtr();
-   found.swap(pStreamData->mpPackets[iNextPull]);
-   pStreamData->mNumPackets--;
+   found.swap(mStreamData.mpPackets[iNextPull]);
+   mStreamData.mNumPackets--;
 #endif // LONG_DEJITTER ]
 
    // Make sure we does not have copy of this buffer left in other threads.
@@ -243,31 +206,12 @@ void MprDejitter::frameIncrement(int samplesNum)
    if (mFramesSinceLastUpdate >= 100)
    {
       mFramesSinceLastUpdate = 0;
-
-      // Loop through all streams and update statistic
-      for (int payloadType=0; payloadType<256; payloadType++)
-      {
-         int codecIndex = mBufferLookup[payloadType];
-         if (codecIndex >= 0)
-         {
-            int iAveLen = getBufferLength(payloadType);
-            mpStreamData[codecIndex].updateStatistic(iAveLen);
-         }
-      }
+      mStreamData.updateStatistic();
    }
 
 }
 
 /* ============================ ACCESSORS ================================= */
-
-int MprDejitter::getBufferLength(int payload)
-{
-   int codecIndex = mBufferLookup[payload];
-   if (codecIndex < 0)
-      return 0;
-
-   return mpStreamData[codecIndex].mNumPackets;
-}
 
 /* ============================ INQUIRY =================================== */
 
@@ -389,10 +333,10 @@ int MprDejitter::StreamData::checkPacket(const MpRtpBufPtr &pPacket,
    }
 }
 
-void MprDejitter::StreamData::updateStatistic(int averageLength)
+void MprDejitter::StreamData::updateStatistic()
 {
    // Zero or one is the starting condition
-   if(averageLength <= 1)
+   if(mNumPackets <= 1)
       return;
 
    int maxLength = mWaitTimeInFrames+2;
@@ -402,19 +346,19 @@ void MprDejitter::StreamData::updateStatistic(int averageLength)
       minLength = 1;
 
    if (mLastReportSize == -1)
-      mLastReportSize = averageLength;
+      mLastReportSize = mNumPackets;
 
-   if (averageLength < minLength)
+   if (mNumPackets < minLength)
    {
       // There are too few packets in the buffer.
-      if (mLastReportSize-averageLength <= 1)
+      if (mLastReportSize-mNumPackets <= 1)
       {
          // Only react when the buffer length changes mildly, not dramatically,
          // since the latter probably isn't clock drift
          mClockDrift = true;
       }
    }
-   mLastReportSize = averageLength;
+   mLastReportSize = mNumPackets;
 }
 
 /* ============================ FUNCTIONS ================================= */
