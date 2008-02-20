@@ -19,7 +19,7 @@
 
 #include <mp/MpCodecFactory.h>
 #include <mp/MpPlgEncoderWrap.h>
-#include <mp/MpPlgDecoderWrap.h>
+#include <mp/MpDecoderBase.h>
 #include <sdp/SdpDefaultCodecFactory.h>
 #include <os/OsSysLog.h>
 #include <os/OsSharedLibMgr.h>
@@ -294,10 +294,10 @@ OsStatus MpCodecFactory::createDecoder(const UtlString &mime,
  
    if (codec)
    {      
-      rpDecoder = new MpPlgDecoderWrapper(payloadType,
-                                          *codec->getCodecCall(),
-                                          *codec->getCodecInfo(),
-                                          fmtp);
+      rpDecoder = new MpDecoderBase(payloadType,
+                                    *codec->getCodecCall(),
+                                    *codec->getCodecInfo(),
+                                    fmtp);
    }
    else
    {

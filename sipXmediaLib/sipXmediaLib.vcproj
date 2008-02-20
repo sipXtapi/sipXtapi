@@ -1530,9 +1530,6 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\src\mp\MpPlgDecoderWrap.cpp">
-			</File>
-			<File
 				RelativePath=".\src\mp\MpPlgEncoderWrap.cpp">
 			</File>
 			<File
@@ -3675,9 +3672,6 @@
 			</File>
 			<File
 				RelativePath="include\mp\MpPlayerListener.h">
-			</File>
-			<File
-				RelativePath=".\include\mp\MpPlgDecoderWrap.h">
 			</File>
 			<File
 				RelativePath=".\include\mp\MpPlgEncoderWrap.h">

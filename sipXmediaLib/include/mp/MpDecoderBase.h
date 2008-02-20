@@ -1,8 +1,8 @@
 //  
-// Copyright (C) 2006-2007 SIPez LLC. 
+// Copyright (C) 2006-2008 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2004-2007 SIPfoundry Inc.
+// Copyright (C) 2004-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -21,6 +21,7 @@
 #include "mp/MpRtpBuf.h"
 #include "mp/MpTypes.h"
 #include "os/OsStatus.h"
+#include "mp/MpPlgStaffV1.h"
 
 // DEFINES
 // MACROS
@@ -44,23 +45,33 @@ public:
 //@{
 
      /// Constructor
-   MpDecoderBase(int payloadType);
+   MpDecoderBase(int payloadType,
+                 const MpCodecCallInfoV1& callInfo,
+                 const MppCodecInfoV1_1& codecInfo,
+                 const char* defaultFmtp);
      /**<
      *  @param[in] payloadType - RTP payload type associated with this decoder
      */
 
      /// Destructor
-   virtual ~MpDecoderBase();
+   ~MpDecoderBase();
 
-     /// Initializes a codec data structure for use as a decoder
-   virtual OsStatus initDecode() = 0;
+     /// Initializes a codec data structure for use as a decoder.
+   OsStatus initDecode(const char* codecFmtString);
+     /**<
+     *  @retval OS_SUCCESS - Success
+     *  @retval OS_NO_MEMORY - Memory allocation failure
+     */
+
+     /// Initializes a codec data structure for use as a decoder using default fmtp.
+   OsStatus initDecode();
      /**<
      *  @retval OS_SUCCESS - Success
      *  @retval OS_NO_MEMORY - Memory allocation failure
      */
 
      /// Frees all memory allocated to the decoder by <i>initDecode</i>
-   virtual OsStatus freeDecode(void) = 0;
+   OsStatus freeDecode();
      /**<
      *  @retval OS_SUCCESS - Success
      *  @retval OS_DELETED - Object has already been deleted
@@ -73,9 +84,9 @@ public:
 //@{
 
      /// Decode incoming RTP packet
-   virtual int decode(const MpRtpBufPtr &pPacket,
-                      unsigned decodedBufferLength,
-                      MpAudioSample *samplesBuffer) =0;
+   int decode(const MpRtpBufPtr &pPacket,
+              unsigned decodedBufferLength,
+              MpAudioSample *samplesBuffer);
      /**<
      *  This method is called by MprDecode for every incoming RTP packet. If
      *  codec have internal PLC, then this method is also called for every lost
@@ -95,9 +106,6 @@ public:
      *  @returns Number of decoded samples.
      */
 
-     /// Set notification to be fired when DTMF tone received.
-   virtual UtlBoolean setDtmfNotify(OsNotification* pNotify);
-
 //@}
 
 /* ============================ ACCESSORS ================================= */
@@ -105,7 +113,7 @@ public:
 //@{
 
      /// Get information about the decoder.
-   virtual const MpCodecInfo* getInfo() const =0;
+   const MpCodecInfo* getInfo() const;
      /**<
      *  @returns A pointer to a MpCodecInfo object that provides
      *           information about the decoder. For codecs with only one mode
@@ -115,13 +123,13 @@ public:
      */
 
      /// Returns the RTP payload type associated with this decoder.
-   virtual int getPayloadType(void);
+   int getPayloadType();
 
      /// Get signaling data from last decoded packet.
-   virtual OsStatus getSignalingData(uint8_t &event,
-                                     UtlBoolean &isStarted,
-                                     UtlBoolean &isStopped,
-                                     uint16_t &duration);
+   OsStatus getSignalingData(uint8_t &event,
+                             UtlBoolean &isStarted,
+                             UtlBoolean &isStopped,
+                             uint16_t &duration);
      /**<
      *  If codec is signaling, that is it is able to carry signaling data,
      *  this function is called right after decode() to get signaling data
@@ -153,14 +161,19 @@ protected:
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
+   int mPayloadType;         ///< RTP payload type associated with this decoder.
+   MpCodecInfo mCodecInfo;   ///< Info structure for this codec
+   const MpCodecCallInfoV1& mCallInfo; ///< Pointers to actual methods of
+                             ///< this codec.
+   UtlBoolean mInitialized;  ///< Is codec initialized?
+   void* plgHandle;          ///< Codec internal handle.
+   const char* mDefaultFmtp; ///< Fmtp to use if not passed to initDecode().
 
      /// Copy constructor
    MpDecoderBase(const MpDecoderBase& rMpDecoderBase);
 
      /// Assignment operator
    MpDecoderBase& operator=(const MpDecoderBase& rhs);
-
-   int mPayloadType;  ///< RTP payload type associated with this decoder.
 };
 
 /* ============================ INLINE METHODS ============================ */

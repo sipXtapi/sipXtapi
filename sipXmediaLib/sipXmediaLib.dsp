@@ -471,10 +471,6 @@ SOURCE=.\src\mp\MpStreamQueuePlayer.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\mp\MpPlgDecoderWrap.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\src\mp\MpPlgEncoderWrap.cpp
 # End Source File
 # Begin Source File
@@ -1228,10 +1224,6 @@ SOURCE=.\include\mp\MpStreamQueuePlayer.h
 # Begin Source File
 
 SOURCE=.\include\mp\MpToneResourceMsg.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\include\mp\MpPlgDecoderWrap.h
 # End Source File
 # Begin Source File
 
