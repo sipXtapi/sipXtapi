@@ -89,13 +89,13 @@ OsStatus MpPlgEncoderWrapper::freeEncode()
 }
 
 OsStatus MpPlgEncoderWrapper::encode(const MpAudioSample* pAudioSamples,
-                const int numSamples,
-                int& rSamplesConsumed,
-                unsigned char* pCodeBuf,
-                const int bytesLeft,
-                int& rSizeInBytes,
-                UtlBoolean& sendNow,
-                MpAudioBuf::SpeechType& rAudioCategory) 
+                                     const int numSamples,
+                                     int& rSamplesConsumed,
+                                     unsigned char* pCodeBuf,
+                                     const int bytesLeft,
+                                     int& rSizeInBytes,
+                                     UtlBoolean& isPacketReady,
+                                     UtlBoolean& isPacketSilent) 
 {
    int res;
    unsigned usendNow;
@@ -104,13 +104,19 @@ OsStatus MpPlgEncoderWrapper::encode(const MpAudioSample* pAudioSamples,
       return OS_INVALID_STATE;
    }
 
-   res = mCallInfo.mPlgEncode(plgHandle, pAudioSamples, numSamples, &rSamplesConsumed, pCodeBuf, bytesLeft, &rSizeInBytes, &usendNow);   
+   res = mCallInfo.mPlgEncode(plgHandle, pAudioSamples, numSamples,
+                              &rSamplesConsumed, pCodeBuf, bytesLeft,
+                              &rSizeInBytes, &usendNow);   
    if (res) {
       //Error during encoding
       return OS_FAILED;
    }
-   sendNow = (usendNow)  ? TRUE : FALSE;
-   rAudioCategory = MpAudioBuf::MP_SPEECH_UNKNOWN;
+   isPacketReady = (usendNow) ? TRUE : FALSE;
+   
+   // Always set it to FALSE for now, codecs API should be updated to support
+   // this.
+   isPacketSilent = FALSE;
+   
    return OS_SUCCESS;
 }
 

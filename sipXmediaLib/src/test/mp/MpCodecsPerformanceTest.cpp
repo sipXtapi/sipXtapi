@@ -193,8 +193,8 @@ protected:
       {
          int            tmpSamplesConsumed;
          int            tmpEncodedSize;
-         UtlBoolean     tmpSendNow;
-         MpAudioBuf::SpeechType tmpSpeechType;
+         UtlBoolean     tmpIsPacketReady;
+         UtlBoolean     tmpIsPacketSilent;
          MpRtpBufPtr    pRtpPacket = mpPool->getBuffer();
          unsigned char *pRtpPayloadPtr = (unsigned char *)pRtpPacket->getDataWritePtr();
          int            payloadSize = 0;
@@ -212,8 +212,8 @@ protected:
             result = pEncoder->encode(pOriginal, frameSize, tmpSamplesConsumed,
                                       pRtpPayloadPtr,
                                       ENCODED_FRAME_MAX_SIZE-payloadSize,
-                                      tmpEncodedSize, tmpSendNow,
-                                      tmpSpeechType);
+                                      tmpEncodedSize, tmpIsPacketReady,
+                                      tmpIsPacketSilent);
             OsDateTime::getCurTime(stop);
             CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, result);
             
@@ -232,7 +232,7 @@ protected:
             CPPUNIT_ASSERT(payloadSize <= ENCODED_FRAME_MAX_SIZE);
             encodeFrameNum++;
          } while( (payloadSize == 0)
-                ||( (tmpSendNow != TRUE) &&
+                ||( (tmpIsPacketReady != TRUE) &&
                     (samplesInPacket+codecFrameSamples <= maxPacketSamples)));
          pRtpPacket->setPayloadSize(payloadSize);
 

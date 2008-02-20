@@ -77,22 +77,29 @@ public:
                            unsigned char* pCodeBuf,
                            const int bytesLeft,
                            int& rSizeInBytes,
-                           UtlBoolean& sendNow,
-                           MpAudioBuf::SpeechType& rAudioCategory) = 0;
+                           UtlBoolean& isPacketReady,
+                           UtlBoolean& isPacketSilent) = 0;
      /**<
      *  Processes the array of audio samples.  If sufficient samples to encode
      *  a frame are now available, the encoded data will be written to the
      *  \p pCodeBuf array.  The number of bytes written to the
      *  \p pCodeBuf array is returned in \p rSizeInBytes.
      *
-     *  @param[in]  pAudioSamples - Pointer to array of PCM samples
-     *  @param[in]  numSamples - Number of samples at pAudioSamples
-     *  @param[out] rSamplesConsumed - Number of samples encoded
-     *  @param[out] pCodeBuf - Pointer to array for encoded data
-     *  @param[in]  bytesLeft - Number of bytes available at pCodeBuf
-     *  @param[out] rSizeInBytes - Number of bytes written to the <i>pCodeBuf</i> array
-     *  @param[out] sendNow - If true, the packet is complete, send it.
-     *  @param[out] rAudioCategory - Audio type (e.g., unknown, silence, comfort noise)
+     *  @param[in]  pAudioSamples - Pointer to array of PCM samples.
+     *  @param[in]  numSamples - Number of samples at pAudioSamples.
+     *  @param[out] rSamplesConsumed - Number of samples encoded.
+     *  @param[out] pCodeBuf - Pointer to array for encoded data.
+     *  @param[in]  bytesLeft - Number of bytes available at pCodeBuf.
+     *  @param[out] rSizeInBytes - Number of bytes written to the <i>pCodeBuf</i> array.
+     *  @param[out] isPacketReady - If TRUE, encoder finished encoding, so packet
+     *              may be sent. If DTX is enabled, \p sendNow should be set
+     *              to TRUE for all supressed packets too along with 
+     *              \p isPacketSilent set to TRUE.
+     *  @param[out] isPacketSilent - If TRUE, packet may be not transmitted
+     *              if DTX is enabled, if FALSE, packet contain active voice
+     *              data and should always be transmitted. Value of
+     *              \p isPacketSilent is ignored with \p isPacketReady is set
+     *              to FALSE.
      *
      *  @retval OS_SUCCESS - Success.
      */

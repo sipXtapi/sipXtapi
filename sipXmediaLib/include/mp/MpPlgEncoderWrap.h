@@ -37,8 +37,8 @@ public:
                            unsigned char* pCodeBuf,
                            const int bytesLeft,
                            int& rSizeInBytes,
-                           UtlBoolean& sendNow,
-                           MpAudioBuf::SpeechType& rAudioCategory); 
+                           UtlBoolean& isPacketReady,
+                           UtlBoolean& isPacketSilent); 
 
    virtual const MpCodecInfo* getInfo(void) const;
 

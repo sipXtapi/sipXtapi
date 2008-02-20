@@ -442,9 +442,9 @@ void MprEncode::doPrimaryCodec(MpAudioBufPtr in, unsigned int startTs)
    int payloadBytesLeft;
    unsigned char* pDest;
    int bytesAdded;
-   MpAudioBuf::SpeechType content;
    OsStatus ret;
-   UtlBoolean sendNow;
+   UtlBoolean isPacketReady;
+   UtlBoolean isPacketSilent;
    unsigned int maxPacketSamples;
    unsigned int codecFrameSamples;
 
@@ -471,7 +471,6 @@ void MprEncode::doPrimaryCodec(MpAudioBufPtr in, unsigned int startTs)
    }
 
    // Initialize variables
-   content = MpAudioBuf::MP_SPEECH_UNKNOWN;
    maxPacketSamples = mMaxPacketTime*mpFlowGraph->getSamplesPerSec()/1000;
 
    while (numSamplesIn > 0)
@@ -482,10 +481,7 @@ void MprEncode::doPrimaryCodec(MpAudioBufPtr in, unsigned int startTs)
          mActiveAudio1 = mDoesVad1 || mDisableDTX;
       }
 
-      if (!mActiveAudio1)
-      {
-         mActiveAudio1 = in->isActiveAudio();
-      }
+      mActiveAudio1 = mActiveAudio1 || in->isActiveAudio();
 
       payloadBytesLeft = mPacket1PayloadBytes - mPayloadBytesUsed;
 
@@ -494,22 +490,17 @@ void MprEncode::doPrimaryCodec(MpAudioBufPtr in, unsigned int startTs)
       bytesAdded = 0;
       ret = mpPrimaryCodec->encode(pSamplesIn, numSamplesIn, numSamplesOut,
                                    pDest, payloadBytesLeft, bytesAdded,
-                                   sendNow, content);
+                                   isPacketReady, isPacketSilent);
       mPayloadBytesUsed += bytesAdded;
       assert (mPacket1PayloadBytes >= mPayloadBytesUsed);
 
       // In case the encoder does silence suppression (e.g. G.729 Annex B)
-      mMarkNext1 = mMarkNext1 | (0 == bytesAdded);
+      mMarkNext1 = mMarkNext1 || isPacketSilent;
 
       mSamplesPacked += numSamplesOut;
       pSamplesIn += numSamplesOut;
       numSamplesIn -= numSamplesOut;
       startTs += numSamplesOut;
-
-      if (content == MpAudioBuf::MP_SPEECH_ACTIVE)
-      {
-         mActiveAudio1 = TRUE;
-      }
 
       if (mpPrimaryCodec->getInfo()->getCodecType() == CODEC_TYPE_FRAME_BASED)
       {
@@ -525,7 +516,7 @@ void MprEncode::doPrimaryCodec(MpAudioBufPtr in, unsigned int startTs)
       }
 
       if (  (mPayloadBytesUsed > 0)
-         && (sendNow || mSamplesPacked+codecFrameSamples > maxPacketSamples))
+         && (isPacketReady || mSamplesPacked+codecFrameSamples > maxPacketSamples))
       {
          if (mActiveAudio1)
          {
