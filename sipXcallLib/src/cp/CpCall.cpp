@@ -317,8 +317,14 @@ UtlBoolean CpCall::handleMessage(OsMsg& eventMessage)
 
                 if(mpMediaInterface)
                 {
+                    // Hard code the sample rate to play at 8000Hz for now,
+                    // When wideband support at the callLib level is implemented,
+                    // you'll want to change this to the passed in rate of the
+                    // buffer.  The media interface currently understands how to
+                    // process a buffer of pretty much any rate.  tested rates are:
+                    // 8kHz, 16kHz, 32kHz, 48kHz.
                     mpMediaInterface->playBuffer((char*)buffer,
-                    bufSize, type, repeat, local, remote, ev);
+                    bufSize, 8000, type, repeat, local, remote, ev);
                 }
             }
             break;
