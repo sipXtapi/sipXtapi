@@ -98,13 +98,13 @@
                                              sipXinitialize */
 
 #define SIPXTAPI_VERSION_STRING "sipXtapi SDK %s.%s %s (built %s)" /**< Version string format string */
-#define SIPXTAPI_VERSION        "2.9.1"      /**< sipXtapi API version -- automatically filled in 
+#define SIPXTAPI_VERSION        "2.10.1"      /**< sipXtapi API version -- automatically filled in 
                                                   during release process */   
 #define SIPXTAPI_BUILDNUMBER "0"             /**< Default build number -- automatically filled in 
                                                   during release process*/
-#define SIPXTAPI_BUILD_WORD 2,9,1,0          /**< Default build word -- automatically filled in 
+#define SIPXTAPI_BUILD_WORD 2,10,1,0          /**< Default build word -- automatically filled in 
                                                   during release process */
-#define SIPXTAPI_FULL_VERSION "2.9.1.0"      /**< Default full version number -- automatically filled in 
+#define SIPXTAPI_FULL_VERSION "2.10.1.0"      /**< Default full version number -- automatically filled in 
                                                   during release process*/
 #define SIPXTAPI_BUILDDATE "0000-00-00"      /**< Default build date -- automatically filled in 
                                                   during release process*/
@@ -494,7 +494,7 @@ typedef enum
     CONTACT_NAT_MAPPED, /**< NAT mapped address (e.g. STUN)           */
     CONTACT_RELAY,      /**< Relay address (e.g. TURN)                */
     CONTACT_CONFIG,     /**< Manually configured address              */
-
+    CONTACT_ARS,        /**< ARS Relay */
     CONTACT_AUTO = -1,  /**< Automatic contact selection; used for API 
                              parameters */
     CONTACT_ALL = -2,
@@ -763,6 +763,10 @@ typedef struct
                                  enabled if this parameter is set to false 
                                  (default) and TURN has been enabled globally
                                  using sipxConfigEnableTurn. */
+
+    bool disableSTUN ;      /**< Disables STUN for media */
+    bool disableLocal ;     /**< Disables local IPs for media */
+    bool disableARS ;       /**< Disables ARS relaying for media */
     /*
      * NOTE: When adding new data to this structure, please always add it to
      *       the end.  This will allow us to maintain some drop-in 
@@ -3862,6 +3866,38 @@ SIPXTAPI_API SIPX_RESULT sipxUtilUrlGetUrlParam(const char* szUrl,
                                                 size_t      nParamIndex,
                                                 char*       szParamValue,
                                                 size_t      nParamValue) ;
+
+/**
+* Enable P-Charging-Vector support (portion of RFC 3455) for sipXtapi.  
+* sipXtapi will always respond to p-charging-vector headers (copy from 
+* requests to responses, including header in mid-dialog requests such as 
+* BYEs).  This configuration API controls whether sipXtapi initiates 
+* p-charging-vectors (please see RFC 3455 on when/why you should do this,
+* odds are you shouldn't enable/need this) and whether it adds an term-ioi
+* for inbound calls.
+*
+* This setting defaults to disabled.
+*
+* @param hInst An instance handle obtained from sipxInitialize. 
+* @param bEnable true to enable or false to disable
+* @param ioi Data for either the term-ioi or orig-ioi (depending on call 
+*        origination).  If null is specified, the application will use the 
+*        userId of the line/From address or the hostname if the userId is 
+*        not set.
+*/
+SIPXTAPI_API SIPX_RESULT sipxConfigEnablePChargingVector(const SIPX_INST hInst,
+                                                         const bool      bEnable,
+                                                         const char*     ioi) ;
+
+SIPXTAPI_API SIPX_RESULT sipxConfigEnableArs(const SIPX_INST hInst,
+                                             const char*     szArsServer,
+                                             int             iArsPort,
+                                             const char*     szArsUsername,
+                                             const char*     szHttpProxy,
+                                             const int       iHttpProxyPort,
+                                             const char*     szHttpProxyUsername,
+                                             const char*     szHttpProxyPassword) ;
+
 //@}
 
 

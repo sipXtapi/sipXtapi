@@ -307,7 +307,8 @@ typedef enum SIPX_CALLSTATE_CAUSE
     CALLSTATE_CAUSE_TRANSACTION_DOES_NOT_EXIST, /**< No such transaction;  Accepting or Rejecting a call that
                                                      is part of a transfer. */
     CALLSTATE_CAUSE_CANCEL,        /**< The event was fired in response to a cancel
-                                        attempt from the remote party */
+                                   attempt from the remote party */
+    CALLSTATE_CAUSE_ICE_FAILURE    /**< Unable to establish a media path using ICE */
 } SIPX_CALLSTATE_CAUSE ;
 
 /**

@@ -8298,4 +8298,21 @@ SIPXTAPI_API SIPX_RESULT sipxUtilUrlGetUrlParam(const char* szUrl,
 
     return rc ;
 }
+SIPXTAPI_API SIPX_RESULT sipxConfigEnablePChargingVector(const SIPX_INST hInst,
+                                                         const bool      bEnable,
+                                                         const char*     ioi) 
+{
+    return SIPX_RESULT_SUCCESS;
+}
 
+SIPXTAPI_API SIPX_RESULT sipxConfigEnableArs(const SIPX_INST hInst,
+                                             const char*     szArsServer,
+                                             int             iArsPort,
+                                             const char*     szArsUsername,
+                                             const char*     szHttpProxy,
+                                             const int       iHttpProxyPort,
+                                             const char*     szHttpProxyUsername,
+                                             const char*     szHttpProxyPassword)
+{
+    return SIPX_RESULT_SUCCESS;
+}
