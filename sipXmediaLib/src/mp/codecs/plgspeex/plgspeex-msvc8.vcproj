@@ -337,6 +337,7 @@
 			<File
 				RelativePath="frame_num.c"
 				>
+			</File>
 			<File
 				RelativePath="PlgSpeex.c"
 				>
