@@ -105,13 +105,13 @@ pushd ${BUILD_ROOT} > /dev/null
 
 updateVersion ${SVN_VERSION}
 
-# build sipXportLib ${PREFIX} 
-# build sipXtackLib ${PREFIX} --disable-sipviewer
-# build sipXmediaLib ${PREFIX} --enable-local-audio
-# build sipXmediaAdapterLib ${PREFIX} 
-# build sipXcallLib ${PREFIX} 
+build sipXportLib ${PREFIX} 
+build sipXtackLib ${PREFIX} --disable-sipviewer
+build sipXmediaLib ${PREFIX} --enable-local-audio
+build sipXmediaAdapterLib ${PREFIX} 
+build sipXcallLib ${PREFIX} 
 
-# package_source
+package_source
 package_libs
 
 revertVersion
