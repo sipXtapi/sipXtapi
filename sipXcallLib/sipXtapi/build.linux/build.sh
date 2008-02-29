@@ -108,7 +108,7 @@ updateVersion ${SVN_VERSION}
 build sipXportLib ${PREFIX} 
 build sipXtackLib ${PREFIX} --disable-sipviewer
 build sipXmediaLib ${PREFIX} --enable-local-audio
-build sipXmediaAdapterLib ${PREFIX} 
+build sipXmediaAdapterLib ${PREFIX} --enable-local-audio
 build sipXcallLib ${PREFIX} 
 
 package_source
