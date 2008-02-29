@@ -529,13 +529,7 @@ void OsNatConnectionSocket::markStunSuccess(bool bAddressChanged)
     {   
         char szAdapterName[256];
         memset((void*)szAdapterName, 0, sizeof(szAdapterName));
-        
-#ifdef _WIN32
         getContactAdapterName(szAdapterName, mLocalIp.data(), false);
-#else
-        // TODO - call the appropriate Linux function to the adapter name
-        assert(false) ;
-#endif
 
         SIPX_CONTACT_ADDRESS* pContact = new SIPX_CONTACT_ADDRESS();
         

@@ -553,14 +553,8 @@ void OsNatDatagramSocket::markStunSuccess(bool bAddressChanged)
         char szAdapterName[256];
         memset((void*)szAdapterName, 0, sizeof(szAdapterName));
         
-#ifdef _WIN32
         getContactAdapterName(szAdapterName, mLocalIp.data(), false);
-#else
-        // TODO - call the appropriate Linux function to the adapter name
-#warning "unknown adapter name for linux -- codeme"
-        strcpy(szAdapterName, "unknown") ;
-#endif
-
+        
         SIPX_CONTACT_ADDRESS* pContact = new SIPX_CONTACT_ADDRESS();
         
         strcpy(pContact->cIpAddress, mStunState.mappedAddress);
