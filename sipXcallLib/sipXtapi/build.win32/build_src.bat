@@ -1,4 +1,11 @@
-REM @ECHO OFF
+@ECHO OFF
+
+REM Copyright (C) 2008 AOL LLC.
+REM Licensed to SIPfoundry under the LGPL license.
+REM
+REM Copyright (C) 2004-2006 SIPfoundry Inc.
+REM Licensed by SIPfoundry under the LGPL license.
+
 
 CALL setRepoEnvVar.bat
 

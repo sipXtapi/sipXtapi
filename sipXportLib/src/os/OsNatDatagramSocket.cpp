@@ -1,3 +1,5 @@
+// Copyright (C) 2008 AOL LLC.
+// Licensed to SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2006 SIPez LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.

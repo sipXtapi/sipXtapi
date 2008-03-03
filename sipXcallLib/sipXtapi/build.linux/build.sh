@@ -1,5 +1,11 @@
 #/bin/bash
 
+# Copyright (C) 2008 AOL LLC.
+# Licensed to SIPfoundry under the LGPL license.
+#
+# Copyright (C) 2004-2006 SIPfoundry Inc.
+# Licensed by SIPfoundry under the LGPL license.
+
 PREFIX=`pwd`/build
 PREFIX_ARCHIVE=`pwd`
 BUILD_ROOT=`pwd`/../../..
