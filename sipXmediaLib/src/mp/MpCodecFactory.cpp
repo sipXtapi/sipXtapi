@@ -18,7 +18,7 @@
 #include <utl/UtlInit.h> // KEEP THIS ONE THE FIRST INCLUDE
 
 #include <mp/MpCodecFactory.h>
-#include <mp/MpPlgEncoderWrap.h>
+#include <mp/MpEncoderBase.h>
 #include <mp/MpDecoderBase.h>
 #include <sdp/SdpDefaultCodecFactory.h>
 #include <os/OsSysLog.h>
@@ -330,10 +330,10 @@ OsStatus MpCodecFactory::createEncoder(const UtlString &mime,
 
    if (codec)
    {      
-      rpEncoder = new MpPlgEncoderWrapper(payloadType,
-                                          *codec->getCodecCall(),
-                                          *codec->getCodecInfo(),
-                                          fmtp);
+      rpEncoder = new MpEncoderBase(payloadType,
+                                    *codec->getCodecCall(),
+                                    *codec->getCodecInfo(),
+                                    fmtp);
    }
    else
    {

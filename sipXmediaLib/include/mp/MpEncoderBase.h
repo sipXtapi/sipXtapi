@@ -20,6 +20,7 @@
 #include "os/OsStatus.h"
 #include "mp/MpAudioBuf.h"
 #include "mp/MpCodecInfo.h"
+#include "mp/MpPlgStaffV1.h"
 
 // DEFINES
 // MACROS
@@ -41,27 +42,39 @@ public:
 //@{
 
      /// Constructor
-   MpEncoderBase(int payloadType);
+   MpEncoderBase(int payloadType,
+                 const MpCodecCallInfoV1& callInfo,
+                 const MppCodecInfoV1_1& codecInfo,
+                 const char* defaultFmtp);
      /**<
      *  @param[in] payloadType - RTP payload type associated with this encoder.
+     *  @param[in] callInfo - codec manipulator functions.
+     *  @param[in] codecInfo - codec information struct.
+     *  @param[in] defaultFmtp - default codec fmtp string.
      */
 
      /// Destructor
-   virtual
    ~MpEncoderBase();
 
-     /// Initializes a codec data structure for use as an encoder
-   virtual OsStatus initEncode(void)=0;
+     /// Initializes encoder with given fmtp parameters
+   OsStatus initEncode(const char* fmt);
      /**<
      *  @retval OS_SUCCESS - Success.
-     *  @retval OS_NO_MEMORY - Memory allocation failure.
+     *  @retval OS_FAILED - Failure.
      */
 
-     /// Frees all memory allocated to the encoder by <i>initEncode</i>
-   virtual OsStatus freeEncode(void)=0;
+     /// Initializes encoder with default fmtp parameters
+   OsStatus initEncode();
      /**<
      *  @retval OS_SUCCESS - Success.
-     *  @retval OS_DELETED - Object has already been deleted.
+     *  @retval OS_FAILED - Failure.
+     */
+
+     /// Frees all memory allocated to the encoder by initEncode()
+   OsStatus freeEncode();
+     /**<
+     *  @retval OS_SUCCESS - Success.
+     *  @retval OS_INVALID_STATE - Object has already been freed.
      */
 
 //@}
@@ -71,14 +84,14 @@ public:
 //@{
 
      /// Encode audio samples
-   virtual OsStatus encode(const MpAudioSample* pAudioSamples,
-                           const int numSamples,
-                           int& rSamplesConsumed,
-                           unsigned char* pCodeBuf,
-                           const int bytesLeft,
-                           int& rSizeInBytes,
-                           UtlBoolean& isPacketReady,
-                           UtlBoolean& isPacketSilent) = 0;
+   OsStatus encode(const MpAudioSample* pAudioSamples,
+                   const int numSamples,
+                   int& rSamplesConsumed,
+                   unsigned char* pCodeBuf,
+                   const int bytesLeft,
+                   int& rSizeInBytes,
+                   UtlBoolean& isPacketReady,
+                   UtlBoolean& isPacketSilent);
      /**<
      *  Processes the array of audio samples.  If sufficient samples to encode
      *  a frame are now available, the encoded data will be written to the
@@ -112,14 +125,14 @@ public:
 //@{
 
      /// Get static information about the encoder
-   virtual const MpCodecInfo* getInfo(void) const =0;
+   const MpCodecInfo* getInfo() const;
      /**<
      *  @returns A pointer to an MpCodecInfo object that provides static
      *           information about the encoder.
      */
 
      /// Returns the RTP payload type associated with this encoder.
-   virtual int getPayloadType(void);
+   int getPayloadType();
 
 //@}
 
@@ -133,7 +146,12 @@ public:
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-   int mPayloadType;
+   int mPayloadType;           ///< RTP payload type, associated with this codec.
+   MpCodecInfo mCodecInfo;     ///< Codec info structure
+   void* plgHandle;            ///< Internal codec handle.
+   const MpCodecCallInfoV1& mCallInfo; ///< Actual codec's manipulator functions.
+   UtlBoolean mInitialized;    ///< Is codec initialized?
+   const char* mDefaultFmtp;   ///< Default fmtp string.
 
      /// Copy constructor
    MpEncoderBase(const MpEncoderBase& rMpEncoderBase);

@@ -120,7 +120,6 @@ nobase_include_HEADERS =  \
     mp/MpStreamPlayer.h \
     mp/MpStreamPlaylistPlayer.h \
     mp/MpStreamQueuePlayer.h \
-    mp/MpPlgEncoderWrap.h \
     mp/MpPlgStaffV1.h \
     mp/MpProgressResourceMsg.h \
     mp/MpToneResourceMsg.h \

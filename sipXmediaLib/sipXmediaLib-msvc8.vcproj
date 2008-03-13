@@ -1582,10 +1582,6 @@
 					>
 				</File>
 				<File
-					RelativePath=".\src\mp\MpPlgEncoderWrap.cpp"
-					>
-				</File>
-				<File
 					RelativePath=".\src\mp\MpPlgStaffV1.cpp"
 					>
 				</File>
@@ -2124,10 +2120,6 @@
 				</File>
 				<File
 					RelativePath=".\include\mp\MpPlayerListener.h"
-					>
-				</File>
-				<File
-					RelativePath=".\include\mp\MpPlgEncoderWrap.h"
 					>
 				</File>
 				<File
