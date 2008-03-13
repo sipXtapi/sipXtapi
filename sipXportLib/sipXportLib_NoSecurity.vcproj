@@ -35,7 +35,6 @@
 				UsePrecompiledHeader="2"
 				BrowseInformation="1"
 				WarningLevel="3"
-				SuppressStartupBanner="TRUE"
 				DebugInformationFormat="3"
 				CompileAs="0"/>
 			<Tool
@@ -87,7 +86,6 @@
 				RuntimeTypeInfo="TRUE"
 				UsePrecompiledHeader="2"
 				WarningLevel="3"
-				SuppressStartupBanner="TRUE"
 				CompileAs="0"/>
 			<Tool
 				Name="VCCustomBuildTool"/>
@@ -651,6 +649,9 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\src\os\OsIntPtrMsg.cpp">
+			</File>
+			<File
 				RelativePath="src\os\OsLockingList.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -817,6 +818,9 @@
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\src\os\OsNameDbInit.cpp">
 			</File>
 			<File
 				RelativePath="src\os\OsPathBase.cpp">
@@ -1027,6 +1031,9 @@
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\src\os\OsProtectEventMgrInit.cpp">
 			</File>
 			<File
 				RelativePath="src\os\OsPtrMsg.cpp">
@@ -1641,6 +1648,9 @@
 				RelativePath=".\src\utl\UtlBool.cpp">
 			</File>
 			<File
+				RelativePath=".\src\utl\UtlChainPool.cpp">
+			</File>
+			<File
 				RelativePath="src\utl\UtlContainable.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -1819,6 +1829,9 @@
 			</File>
 			<File
 				RelativePath=".\src\utl\UtlHistogram.cpp">
+			</File>
+			<File
+				RelativePath=".\src\utl\UtlInit.cpp">
 			</File>
 			<File
 				RelativePath="src\utl\UtlInt.cpp">
@@ -2284,6 +2297,9 @@
 				RelativePath="include\os\OsFS.h">
 			</File>
 			<File
+				RelativePath=".\include\os\OsIntPtrMsg.h">
+			</File>
+			<File
 				RelativePath="include\os\OsLock.h">
 			</File>
 			<File
@@ -2309,6 +2325,9 @@
 			</File>
 			<File
 				RelativePath="include\os\OsNameDb.h">
+			</File>
+			<File
+				RelativePath=".\include\os\OsNameDbInit.h">
 			</File>
 			<File
 				RelativePath="include\os\OsNotification.h">
@@ -2339,6 +2358,9 @@
 			</File>
 			<File
 				RelativePath="include\os\OsProtectEventMgr.h">
+			</File>
+			<File
+				RelativePath=".\include\os\OsProtectEventMgrInit.h">
 			</File>
 			<File
 				RelativePath="include\os\OsPtrMsg.h">
@@ -2452,6 +2474,9 @@
 				RelativePath="include\utl\PtTest.h">
 			</File>
 			<File
+				RelativePath=".\include\SipXportLibInit.h">
+			</File>
+			<File
 				RelativePath="include\xmlparser\tinystr.h">
 			</File>
 			<File
@@ -2465,6 +2490,9 @@
 			</File>
 			<File
 				RelativePath=".\include\utl\UtlBool.h">
+			</File>
+			<File
+				RelativePath=".\include\utl\UtlChainPool.h">
 			</File>
 			<File
 				RelativePath="include\utl\UtlContainable.h">
@@ -2504,6 +2532,9 @@
 			</File>
 			<File
 				RelativePath=".\include\utl\UtlHistogram.h">
+			</File>
+			<File
+				RelativePath=".\include\utl\UtlInit.h">
 			</File>
 			<File
 				RelativePath="include\utl\UtlInt.h">
@@ -2641,6 +2672,16 @@
 			</File>
 			<File
 				RelativePath=".\src\hmac-sha1\sha1.h">
+			</File>
+		</Filter>
+		<Filter
+			Name="msinttypes"
+			Filter="">
+			<File
+				RelativePath=".\include\os\msinttypes\inttypes.h">
+			</File>
+			<File
+				RelativePath=".\include\os\msinttypes\stdint.h">
 			</File>
 		</Filter>
 	</Files>
