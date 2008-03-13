@@ -176,23 +176,6 @@ MprDejitter* MprDecode::getMyDejitter(void)
    return mpMyDJ;
 }
 
-#ifdef SIPX_DEBUG /* [ */
-static void showRtpPacket(MpRtpBufPtr rtp)
-{
-   struct RtpHeader &rh = rtp->getRtpHeader();
-   int len;
-
-   rh.vpxcc = rp->vpxcc;
-   rh.mpt = rp->mpt;
-   rh.seq = ntohs(rp->seq);
-   rh.timestamp = ntohl(rp->timestamp);
-   rh.ssrc = ntohl(rp->ssrc);
-   len = rtp->getPayloadSize();
-   Zprintf("RcvRTP: %02X, %02X, %d, %d, %08X, and %d bytes of data\n",
-      rh.vpxcc, rh.mpt, rh.seq, rh.timestamp, rh.ssrc, len);
-}
-#endif /* DEBUG ] */
-
 UtlBoolean MprDecode::doProcessFrame(MpBufPtr inBufs[],
                                      MpBufPtr outBufs[],
                                      int inBufsSize,
