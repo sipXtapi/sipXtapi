@@ -54,18 +54,12 @@ MpRtpInputAudioConnection::MpRtpInputAudioConnection(const UtlString& resourceNa
 , mpDecode(NULL)
 {
    char         name[50];
-   int          i;
 
    sprintf(name, "Decode-%d", myID);
    mpDecode    = new MprDecode(name, this);
 
- //memset((char*)mpPayloadMap, 0, (NUM_PAYLOAD_TYPES*sizeof(MpDecoderBase*)));
-   for (i=0; i<NUM_PAYLOAD_TYPES; i++) {
-      mpPayloadMap[i] = NULL;
-   }
-
    // decoder does not get added to the flowgraph, this connection
-   // gets added to do the decoding frameprocessing.
+   // gets added to do the decoding frame processing.
 
    //////////////////////////////////////////////////////////////////////////
    // connect FromNet -> Decoder
@@ -181,80 +175,12 @@ OsStatus MpRtpInputAudioConnection::stopReceiveRtp(OsMsgQ& messageQueue,
     return(result);
 }
 
-void MpRtpInputAudioConnection::addPayloadType(int payloadType, MpDecoderBase* decoder)
-{
-   OsLock lock(mLock);
-
-   // Check that payloadType is valid.
-   if ((payloadType < 0) || (payloadType >= NUM_PAYLOAD_TYPES))
-   {
-      OsSysLog::add(FAC_MP, PRI_ERR,
-                    "MpRtpInputAudioConnection::addPayloadType Attempting to add an invalid payload type %d", payloadType);
-   }
-   // Check to see if we already have a decoder for this payload type.
-   else if (!(NULL == mpPayloadMap[payloadType]))
-   {
-      // This condition probably indicates that the sender of SDP specified
-      // two decoders for the same payload type number.
-      OsSysLog::add(FAC_MP, PRI_ERR,
-                    "MpRtpInputAudioConnection::addPayloadType Attempting to add a second decoder for payload type %d",
-                    payloadType);
-   }
-   else
-   {
-      mpPayloadMap[payloadType] = decoder;
-   }
-}
-
-void MpRtpInputAudioConnection::deletePayloadType(int payloadType)
-{
-   OsLock lock(mLock);
-
-   // Check that payloadType is valid.
-   if ((payloadType < 0) || (payloadType >= NUM_PAYLOAD_TYPES))
-   {
-      OsSysLog::add(FAC_MP, PRI_ERR,
-                    "MpRtpInputAudioConnection::deletePayloadType Attempting to delete an invalid payload type %d", payloadType);
-   }
-   // Check to see if this entry has already been deleted.
-   else if (NULL == mpPayloadMap[payloadType])
-   {
-      // Either this payload type was doubly-added (and reported by
-      // addPayloadType) or we've hit the race condtion in XMR-29.
-      OsSysLog::add(FAC_MP, PRI_ERR,
-                    "MpRtpInputAudioConnection::deletePayloadType Attempting to delete again payload type %d",
-                    payloadType);
-      OsSysLog::add(FAC_MP, PRI_ERR,
-                    "MpRtpInputAudioConnection::deletePayloadType If there is no message from MpRtpInputAudioConnection::addPayloadType above, see XMR-29");
-   }
-   else
-   {
-      mpPayloadMap[payloadType] = NULL;
-   }
-}
-
 UtlBoolean MpRtpInputAudioConnection::handleSetDtmfNotify(OsNotification* pNotify)
 {
    return mpDecode->handleSetDtmfNotify(pNotify);
 }
 
 /* ============================ ACCESSORS ================================= */
-
-MpDecoderBase* MpRtpInputAudioConnection::mapPayloadType(int payloadType)
-{
-   OsLock lock(mLock);
-
-   if ((payloadType < 0) || (payloadType >= NUM_PAYLOAD_TYPES))
-   {
-      OsSysLog::add(FAC_MP, PRI_ERR,
-                    "MpRtpInputAudioConnection::mapPayloadType Attempting to map an invalid payload type %d", payloadType);
-      return NULL;
-   }
-   else
-   {
-      return mpPayloadMap[payloadType];
-   }
-}
 
 
 /* ============================ INQUIRY =================================== */

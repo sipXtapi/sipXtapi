@@ -1498,6 +1498,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\src\mp\MpDecoderPayloadMap.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\src\mp\MpDspUtils.cpp"
 					>
 				</File>
@@ -2020,6 +2024,10 @@
 				</File>
 				<File
 					RelativePath=".\include\mp\MpDecoderBase.h"
+					>
+				</File>
+				<File
+					RelativePath=".\include\mp\MpDecoderPayloadMap.h"
 					>
 				</File>
 				<File

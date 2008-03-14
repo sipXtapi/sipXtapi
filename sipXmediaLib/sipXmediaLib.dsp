@@ -207,6 +207,10 @@ SOURCE=.\src\mp\MpDecoderBase.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\mp\MpDecoderPayloadMap.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\mp\MpDspUtils.cpp
 # End Source File
 # Begin Source File
@@ -848,6 +852,10 @@ SOURCE=.\include\mp\MpdSipxPcmu.h
 # Begin Source File
 
 SOURCE=.\include\mp\MpdSipxSpeex.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MpDecoderPayloadMap.h
 # End Source File
 # Begin Source File
 

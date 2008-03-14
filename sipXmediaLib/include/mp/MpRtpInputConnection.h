@@ -49,11 +49,6 @@ class MpRtpInputConnection : public MpResource
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
-   enum {
-      NUM_PAYLOAD_TYPES = (2<<7),
-      MAX_ACTIVE_PAYLOAD_TYPES = 10
-   };
-
 /* ============================ CREATORS ================================== */
 ///@name Creators
 //@{

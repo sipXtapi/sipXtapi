@@ -64,12 +64,6 @@ public:
      /// Process one frame of audio
    UtlBoolean processFrame(void);
 
-     /// Add an RTP payload type to decoder instance mapping table
-   void addPayloadType(int payloadId, MpDecoderBase* pDecoder);
-
-     /// Remove an RTP payload type from decoder instance map
-   void deletePayloadType(int payloadId);
-
      /// Handle the FLOWGRAPH_SET_DTMF_NOTIFY message.
    UtlBoolean handleSetDtmfNotify(OsNotification* n);
      /**<
@@ -83,9 +77,6 @@ public:
 /* ============================ ACCESSORS ================================= */
 ///@name Accessors
 //@{
-
-     /// Get decoder for this payload type
-   MpDecoderBase* mapPayloadType(int payloadType);
 
      /// Queue a message to start receiving RTP and RTCP packets.
    static OsStatus startReceiveRtp(OsMsgQ& messageQueue,
@@ -147,16 +138,13 @@ protected:
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
 
+   MprDecode*         mpDecode;        ///< Inbound component: Decoder
+
      /// Copy constructor (not implemented for this type)
    MpRtpInputAudioConnection(const MpRtpInputAudioConnection& rMpRtpInputAudioConnection);
 
      /// Assignment operator (not implemented for this type)
    MpRtpInputAudioConnection& operator=(const MpRtpInputAudioConnection& rhs);
-
-   MprDecode*         mpDecode;        ///< Inbound component: Decoder
-
-   MpDecoderBase*     mpPayloadMap[NUM_PAYLOAD_TYPES];
-                                       ///< Map RTP payload types to our decoders
 };
 
 /* ============================ INLINE METHODS ============================ */

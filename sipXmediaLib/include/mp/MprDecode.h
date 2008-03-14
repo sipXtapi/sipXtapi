@@ -20,6 +20,7 @@
 #include "mp/MpRtpBuf.h"
 #include "mp/MpAudioResource.h"
 #include "mp/MpFlowGraphMsg.h"
+#include "mp/MpDecoderPayloadMap.h"
 #include "sdp/SdpCodec.h"
 #include "os/OsBSem.h"
 
@@ -138,6 +139,8 @@ private:
    /// Similar list of all codecs that have ever been listed on mpCurrentCodecs.
    MpDecoderBase** mpPrevCodecs;
    int             mNumPrevCodecs; ///< Length of mpPrevCodecs array.
+
+   MpDecoderPayloadMap mDecoderMap; ///< Mapping of payload types to decoder instances.
 
    MpRtpInputAudioConnection*   mpConnection;   ///< Link to the parent Connection.
 

@@ -139,7 +139,7 @@ OsStatus MprDecode::pushPacket(const MpRtpBufPtr &pRtp)
    // Lock access to dejitter and m*Codecs data
    OsLock lock(mLock);
    int pt = pRtp->getRtpPayloadType();
-   const MpCodecInfo* pDecoderInfo = mpConnection->mapPayloadType(pt)->getInfo();
+   const MpCodecInfo* pDecoderInfo = mDecoderMap.mapPayloadType(pt)->getInfo();
 
    return getMyDejitter()->pushPacket(pRtp, pDecoderInfo->isSignalingCodec());
 }
@@ -206,7 +206,7 @@ UtlBoolean MprDecode::doProcessFrame(MpBufPtr inBufs[],
    while ((rtp = pDej->pullPacket()).isValid()) 
    {
       int pt = rtp->getRtpPayloadType();
-      MpDecoderBase* pCurDec=mpConnection->mapPayloadType(pt);
+      MpDecoderBase* pCurDec = mDecoderMap.mapPayloadType(pt);
 
       // The codec is null. Do not continue.
       // TODO:: NEED ERROR HANDLING HERE.
@@ -371,7 +371,7 @@ UtlBoolean MprDecode::handleSelectCodecs(SdpCodec* pCodecs[], int numCodecs)
       osPrintf("  #%d: New=0x%X/i:%d/x:%d, ",
          i, (int)pCodec, ourCodec, payload);
 #endif
-      pOldDecoder = mpConnection->mapPayloadType(payload);
+      pOldDecoder = mDecoderMap.mapPayloadType(payload);
       if (NULL != pOldDecoder) {
          UtlString oldMime;
          UtlString oldFmtp;
@@ -420,7 +420,7 @@ UtlBoolean MprDecode::handleSelectCodecs(SdpCodec* pCodecs[], int numCodecs)
          if (pNewDecoder->initDecode() == OS_SUCCESS)
          {
             // Add this codec to mpConnection's payload type decoding table.
-            mpConnection->addPayloadType(payload, pNewDecoder);
+            mDecoderMap.addPayloadType(payload, pNewDecoder);
             mpCurrentCodecs[mNumCurrentCodecs] = pNewDecoder;
             mNumCurrentCodecs++;
          }
@@ -455,7 +455,7 @@ UtlBoolean MprDecode::handleDeselectCodec(MpDecoderBase* pDecoder)
 
    if (NULL != pDecoder) {
       payload = pDecoder->getPayloadType();
-      mpConnection->deletePayloadType(payload);
+      mDecoderMap.deletePayloadType(payload);
    }
    return TRUE;
 }
