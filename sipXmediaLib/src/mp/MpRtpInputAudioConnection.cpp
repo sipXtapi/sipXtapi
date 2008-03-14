@@ -56,7 +56,7 @@ MpRtpInputAudioConnection::MpRtpInputAudioConnection(const UtlString& resourceNa
    char         name[50];
 
    sprintf(name, "Decode-%d", myID);
-   mpDecode    = new MprDecode(name, this);
+   mpDecode    = new MprDecode(name, getConnectionId());
 
    // decoder does not get added to the flowgraph, this connection
    // gets added to do the decoding frame processing.

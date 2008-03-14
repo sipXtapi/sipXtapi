@@ -52,7 +52,7 @@ public:
 //@{
 
      /// Constructor
-   MprDecode(const UtlString& rName, MpRtpInputAudioConnection* pConn);
+   MprDecode(const UtlString& rName, MpConnectionID connectionId);
 
      /// Destructor
    virtual
@@ -142,7 +142,7 @@ private:
 
    MpDecoderPayloadMap mDecoderMap; ///< Mapping of payload types to decoder instances.
 
-   MpRtpInputAudioConnection*   mpConnection;   ///< Link to the parent Connection.
+   MpConnectionID  mConnectionId;   ///< ID of the parent Connection.
 
    virtual UtlBoolean doProcessFrame(MpBufPtr inBufs[],
                                      MpBufPtr outBufs[],

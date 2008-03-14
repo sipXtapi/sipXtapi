@@ -55,7 +55,7 @@
 /* ============================ CREATORS ================================== */
 
 // Constructor
-MprDecode::MprDecode(const UtlString& rName, MpRtpInputAudioConnection* pConn)
+MprDecode::MprDecode(const UtlString& rName, MpConnectionID connectionId)
 :  MpAudioResource(rName, 0, 0, 1, 1),
    mpJB(NULL),
    mpDtmfNotication(NULL),
@@ -64,7 +64,7 @@ MprDecode::MprDecode(const UtlString& rName, MpRtpInputAudioConnection* pConn)
    mNumCurrentCodecs(0),
    mpPrevCodecs(NULL),
    mNumPrevCodecs(0),
-   mpConnection(pConn)
+   mConnectionId(connectionId)
 {
 }
 
@@ -242,7 +242,7 @@ UtlBoolean MprDecode::doProcessFrame(MpBufPtr inBufs[],
             if (sigRes == OS_SUCCESS && isStarted)
             {
                // Post DTMF notification message to indicate key down.
-               MprnDTMFMsg dtmfMsg(getName(), mpConnection->getConnectionId(),
+               MprnDTMFMsg dtmfMsg(getName(), mConnectionId,
                                    (MprnDTMFMsg::KeyCode)event,
                                    MprnDTMFMsg::KEY_DOWN);
                sendNotification(dtmfMsg);
@@ -259,7 +259,7 @@ UtlBoolean MprDecode::doProcessFrame(MpBufPtr inBufs[],
             if (sigRes == OS_SUCCESS && isStopped)
             {
                // Post DTMF notification message to indicate key up.
-               MprnDTMFMsg dtmfMsg(getName(), mpConnection->getConnectionId(),
+               MprnDTMFMsg dtmfMsg(getName(), mConnectionId,
                                    (MprnDTMFMsg::KeyCode)event,
                                    MprnDTMFMsg::KEY_UP, duration);
                sendNotification(dtmfMsg);
