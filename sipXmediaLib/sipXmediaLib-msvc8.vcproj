@@ -1586,6 +1586,14 @@
 					>
 				</File>
 				<File
+					RelativePath=".\src\mp\MpPlcBase.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\src\mp\MpPlcSilence.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\src\mp\MpPlgStaffV1.cpp"
 					>
 				</File>
@@ -2128,6 +2136,14 @@
 				</File>
 				<File
 					RelativePath=".\include\mp\MpPlayerListener.h"
+					>
+				</File>
+				<File
+					RelativePath=".\include\mp\MpPlcBase.h"
+					>
+				</File>
+				<File
+					RelativePath=".\include\mp\MpPlcSilence.h"
 					>
 				</File>
 				<File

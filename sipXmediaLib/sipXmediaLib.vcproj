@@ -1533,6 +1533,12 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\src\mp\MpPlcBase.cpp">
+			</File>
+			<File
+				RelativePath=".\src\mp\MpPlcSilence.cpp">
+			</File>
+			<File
 				RelativePath=".\src\mp\MpPlgStaffV1.cpp">
 			</File>
 			<File
@@ -3677,6 +3683,12 @@
 				RelativePath="include\mp\MpPlayerListener.h">
 			</File>
 			<File
+				RelativePath=".\include\mp\MpPlcBase.h">
+			</File>
+			<File
+				RelativePath=".\include\mp\MpPlcSilence.h">
+			</File>
+			<File
 				RelativePath=".\include\mp\MpPlgStaffV1.h">
 			</File>
 			<File
@@ -3914,10 +3926,10 @@
 				RelativePath="include\rtcp\RTCPTimer.h">
 			</File>
 			<File
-				RelativePath="include\rtcp\RTPHeader.h">
+				RelativePath=".\include\mp\RtpHeader.h">
 			</File>
 			<File
-				RelativePath=".\include\mp\RtpHeader.h">
+				RelativePath="include\rtcp\RTPHeader.h">
 			</File>
 			<File
 				RelativePath="include\rtcp\SenderReport.h">

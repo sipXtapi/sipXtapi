@@ -475,6 +475,14 @@ SOURCE=.\src\mp\MpStreamQueuePlayer.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\mp\MpPlcBase.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\mp\MpPlcSilence.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\mp\MpPlgStaffV1.cpp
 # End Source File
 # Begin Source File
@@ -1228,6 +1236,14 @@ SOURCE=.\include\mp\MpStreamQueuePlayer.h
 # Begin Source File
 
 SOURCE=.\include\mp\MpToneResourceMsg.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MpPlcBase.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MpPlcSilence.h
 # End Source File
 # Begin Source File
 
