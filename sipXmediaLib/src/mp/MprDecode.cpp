@@ -149,7 +149,9 @@ OsStatus MprDecode::pushPacket(const MpRtpBufPtr &pRtp)
 MpJitterBuffer* MprDecode::getJBinst(UtlBoolean optional)
 {
    if ((NULL == mpJB) && (!optional)) {
-      mpJB = new MpJitterBuffer(mpFlowGraph->getSamplesPerSec());
+      mpJB = new MpJitterBuffer(mpFlowGraph->getSamplesPerSec(),
+                                mpFlowGraph->getSamplesPerFrame(),
+                                &mDecoderMap);
       assert(NULL != mpJB);
    }
    return mpJB;
@@ -185,7 +187,6 @@ UtlBoolean MprDecode::doProcessFrame(MpBufPtr inBufs[],
                                      int samplesPerSecond)
 {
    MpAudioBufPtr out;
-   MpAudioSample* pSamples;
    MpRtpBufPtr rtp;
 
    if (outBufsSize == 0)
@@ -276,34 +277,11 @@ UtlBoolean MprDecode::doProcessFrame(MpBufPtr inBufs[],
       }
    }
 
-   // Get new audio buffer for decoded sound
-   out = MpMisc.RawAudioPool->getBuffer();
-   if (!out.isValid())
-   {
-      return FALSE;
-   }
-   out->setSamplesNumber(samplesPerFrame);
-   pSamples = out->getSamplesWritePtr();
-   memset(pSamples, 0, out->getSamplesNumber() * sizeof(MpAudioSample));
-   out->setSpeechType(MpAudioBuf::MP_SPEECH_SILENT);
-
-   // Decode one packet from Jitter Buffer
+   // Get next decoded frame
    MpJitterBuffer* pJBState = getJBinst();
-   int decodedAPacket = FALSE;
    if (pJBState) {
-      // This should be a JB_something or other.  However the only
-      // current choices is a short or long equivalent and this needs
-      // to be a plain old int:
-      int bufLength=samplesPerFrame;
-      int res;
-      res = pJBState->getSamples(pSamples, bufLength);
-      assert(bufLength == (int)out->getSamplesNumber());
-      out->setSpeechType(MpAudioBuf::MP_SPEECH_UNKNOWN);
-      decodedAPacket = TRUE;
+      outBufs[0] = pJBState->getSamples();
    }
-   
-   // Push decoded audio packet downstream
-   outBufs[0] = out;
 
    return TRUE;
 }
@@ -439,7 +417,7 @@ UtlBoolean MprDecode::handleSelectCodecs(SdpCodec* pCodecs[], int numCodecs)
    }
 
    MpJitterBuffer* pJBState = getJBinst();   
-   pJBState->setCodecList(mpCurrentCodecs,mNumCurrentCodecs);
+   pJBState->setCodecList(&mDecoderMap);
 
    // Delete the list pCodecs.
    for (i=0; i<numCodecs; i++) {

@@ -12,11 +12,14 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 
-#include "assert.h"
-#include "string.h"
+// SYSTEM INCLUDES
+//#include "assert.h"
+//#include "string.h"
 
+// APPLICATION INCLUDES
 #include "os/OsDefs.h" // for min macro
 #include "mp/MpJitterBuffer.h"
+#include "mp/MpDecoderPayloadMap.h"
 #include "mp/MpDecoderBase.h"
 
 #ifdef RTL_ENABLED
@@ -26,21 +29,27 @@
 #  endif
 #endif
 
+// EXTERNAL FUNCTIONS
+// EXTERNAL VARIABLES
+// CONSTANTS
+// STATIC VARIABLE INITIALIZATIONS
+
+/* //////////////////////////// PUBLIC //////////////////////////////////// */
+
 /* ============================ CREATORS ================================== */
 
-MpJitterBuffer::MpJitterBuffer(unsigned int sampleRate)
-: mSampleRate(sampleRate)
+MpJitterBuffer::MpJitterBuffer(unsigned int samplesPerSec,
+                               unsigned int samplesPerFrame,
+                               MpDecoderPayloadMap *pPayloadMap)
+: mSampleRate(samplesPerSec)
+, mSamplesPerFrame(samplesPerFrame)
 , mpResampler(MpResamplerBase::createResampler(1, mSampleRate, mSampleRate))
+, mIsFirstPacket(TRUE)
+, mOldestFrameIndex(0)
+, mpPayloadMap(pPayloadMap)
 {
-   for (int i=0; i<JbPayloadMapSize; i++)
-      payloadMap[i] = NULL;
-
-   JbQCount = 0;
-   JbQIn = 0;
-   JbQOut = 0;
 }
 
-// Destructor
 MpJitterBuffer::~MpJitterBuffer()
 {
    delete mpResampler;
@@ -50,153 +59,173 @@ MpJitterBuffer::~MpJitterBuffer()
 
 OsStatus MpJitterBuffer::pushPacket(MpRtpBufPtr &rtpPacket)
 {
-   int bufferSize;          // number of samples could be written to decoded buffer
    unsigned decodedSamples; // number of samples, returned from decoder
-   uint8_t payloadType;     // RTP packet payload type
    MpDecoderBase* decoder;  // decoder for the packet
    unsigned codecSampleRate; // Codec sample rate
+   unsigned frameIndex; // Index of frame in mFrames[] array.
 
-   payloadType = rtpPacket->getRtpPayloadType();
-
-   // Ignore illegal payload types
-   if (payloadType >= JbPayloadMapSize)
+   if (mpPayloadMap == NULL)
+   {
+      assert(mpPayloadMap == NULL);
       return OS_FAILED;
+   }
 
    // Get decoder
-   decoder = payloadMap[payloadType];
+   decoder = mpPayloadMap->mapPayloadType(rtpPacket->getRtpPayloadType());
+   // If we can't decode it, we should ignore it.
    if (decoder == NULL)
-      return OS_FAILED; // If we can't decode it, we must ignore it?
-
-   // Calculate space available for decoded samples
-   if (JbQIn > JbQOut || JbQCount == 0)
    {
-      bufferSize = JbQueueSize-JbQIn;
-   } else {
-      bufferSize = JbQOut-JbQIn;
+      return OS_FAILED;
    }
 
+   // Do nothing if there is no incoming packet (i.e. it is lost) and
+   // decoder is not capable of doing PLC. We'll do PLC later, so there is
+   // nothing wrong wit it and we're returning OS_SUCCESS.
+   if (!rtpPacket.isValid() && !decoder->getInfo()->haveInternalPLC())
+   {
+      return OS_SUCCESS;
+   }
+
+   // If this packet is first we've received, initialize timestamp.
+   if (mIsFirstPacket == TRUE)
+   {
+      mIsFirstPacket = FALSE;
+      mOldestTimestamp = rtpPacket->getRtpTimestamp();
+   }
+
+   // Decode packet to temporary resample and slice buffer.
+   decodedSamples = decoder->decode(rtpPacket, DECODED_DATA_MAX_LENGTH,
+                                    mDecodedData);
+#ifdef RTL_AUDIO_ENABLED
+   UtlString outputLabel("MpJitterBuffer_pushPacket");
+   RTL_RAW_AUDIO(outputLabel,
+                 codecSampleRate,
+                 decodedSamples,
+                 mDecodedData,
+                 0);
+#endif
+
+   // Get source sample rate and update sample rate if changed.
    codecSampleRate = decoder->getInfo()->getSampleRate();
-
-   // Check if resampling needed
-   if (codecSampleRate == mSampleRate)
+   if (  (codecSampleRate != mSampleRate)
+      && (mpResampler->getInputRate() != codecSampleRate))
    {
-      // Decode packet
-      decodedSamples = decoder->decode(rtpPacket, bufferSize, JbQ+JbQIn);
-      // TODO:: If packet jitter buffer size is not integer multiple of decoded size,
-      //        then part of the packet will be lost here. We should consider one of
-      //        two ways: set JB size on creation depending on packet size, reported 
-      //        by codec, OR push packet into decoder and then pull decoded data in
-      //        chunks.
-
-#ifdef RTL_AUDIO_ENABLED
-      UtlString outputLabel("MpJitterBuffer_pushPacket");
-      RTL_RAW_AUDIO(outputLabel,
-                    codecSampleRate,
-                    decodedSamples,
-                    JbQ+JbQIn,
-                    0);
-#endif
-
-      // Update buffer state
-      JbQCount += decodedSamples;
-      JbQIn += decodedSamples;
-      // Reset write pointer if we reach end of buffer
-      if (JbQIn >= JbQueueSize)
-         JbQIn = 0;
+      mpResampler->setInputRate(codecSampleRate);
    }
-   else
+
+   // Get RTP packet timestamp and convert it to mFrames[] array index.
    {
-      // Update sample rate if changed.
-      if (mpResampler->getInputRate() != codecSampleRate)
+      RtpTimestamp audioTimestamp;
+
+      // Note, that this subtraction allows to handle timestamp wraparound
+      // correctly. Also note, that this subtraction is possibly only
+      // because mOldestTimestamp is not too far in past from current timestamp.
+      audioTimestamp = rtpPacket->getRtpTimestamp() - mOldestTimestamp;
+      
+      // Change timestamp according to resampling if needed.
+      if (codecSampleRate != mSampleRate)
       {
-         mpResampler->setInputRate(codecSampleRate);
+         // Here we assume that (audioTimestamp*mSampleRate < 2^32).
+         audioTimestamp = (audioTimestamp * mSampleRate) / codecSampleRate;
       }
 
-      // Decode packet to temporary resample buffer.
-      decodedSamples = decoder->decode(rtpPacket, JbResampleBufSize, JbResampleBuf);
-#ifdef RTL_AUDIO_ENABLED
-      UtlString outputLabel("MpJitterBuffer_pushPacket");
-      RTL_RAW_AUDIO(outputLabel,
-                    codecSampleRate,
-                    decodedSamples,
-                    JbResampleBuf,
-                    0);
-#endif
+      // Convert timestamp to mFrames[] index.
+      frameIndex = mOldestFrameIndex + audioTimestamp / mSamplesPerFrame;
+      frameIndex = frameIndex % FRAMES_TO_STORE;
+   }
 
-      // Resample samples to actual buffer.
-      uint32_t inSamplesResampled = 0;
-      uint32_t outSamplesResampled = 0;
-      const MpAudioSample *pResampleBufPtr = JbResampleBuf;
-      while (decodedSamples > 0 && bufferSize > 0)
+
+   // Slice data to buffers.
+   for (unsigned i = 0; i < decodedSamples; )
+   {
+      unsigned samplesNum; // Number of samples to copy.
+
+      // Get new buffer.
+      MpAudioBufPtr pBuf = MpMisc.RawAudioPool->getBuffer();
+      if (!pBuf.isValid())
+         return OS_FAILED;
+      pBuf->setSamplesNumber(mSamplesPerFrame);
+      pBuf->setSpeechType(MpAudioBuf::MP_SPEECH_UNKNOWN);
+
+      // Copy or resample audio data to buffer.
+      if (codecSampleRate == mSampleRate)
       {
+         samplesNum = sipx_min(mSamplesPerFrame, decodedSamples-i);
+         samplesNum = sipx_min(samplesNum, pBuf->getSamplesNumber());
+         memcpy(pBuf->getSamplesWritePtr(), mDecodedData+i,
+                samplesNum*sizeof(MpAudioSample));
+         i += samplesNum;
+      }
+      else
+      {
+         uint32_t inSamplesResampled;
+         uint32_t outSamplesResampled;
+
          mpResampler->resample(0,
-                               JbResampleBuf, decodedSamples, inSamplesResampled,
-                               JbQ+JbQIn, bufferSize, outSamplesResampled);
-         decodedSamples -= inSamplesResampled;
-         // Update buffer state
-         JbQCount += outSamplesResampled;
-         JbQIn += outSamplesResampled;
-         if (JbQIn >= JbQueueSize)
-         {
-            // If write pointer reached end of buffer, there may be more space
-            // at the beginning.
-            JbQIn = 0;
-            bufferSize = JbQOut;
-         }
-         else
-         {
-            // Write pointer have not reached and of buffer, so we either
-            // out of space or are done with resampling.
-            bufferSize -= outSamplesResampled;
-         }
+                               mDecodedData+i, decodedSamples-i, inSamplesResampled,
+                               pBuf->getSamplesWritePtr(), pBuf->getSamplesNumber(),
+                               outSamplesResampled);
+
+         i += inSamplesResampled;
+         samplesNum = outSamplesResampled;
       }
+      // Update number of samples in buffer to actual number of samples.
+      pBuf->setSamplesNumber(samplesNum);
+
+      // Place buffer to queue.
+      // Note: here we should check that we're not going to overwrite
+      // old data by checking frameIndex pointer vs mOldestFrameIndex.
+      // But we're doing simpler check instead and hope it will never
+      // happen.
+      assert(!mFrames[frameIndex].isValid());
+      mFrames[frameIndex] = pBuf;
+      printf("decoded frame #%d\n", frameIndex);
+      // Advance index for next buffer.
+      frameIndex = (frameIndex+1) % FRAMES_TO_STORE;
    }
 
    return OS_SUCCESS;
 }
 
-int MpJitterBuffer::getSamples(MpAudioSample *samplesBuffer, int samplesNumber)
+MpAudioBufPtr MpJitterBuffer::getSamples()
 {
-   // Check does we have available decoded data
-   if (JbQCount != 0) {
-      // We could not return more then we have
-      samplesNumber = sipx_min(samplesNumber,JbQCount);
+   // Get frame from queue.
+   MpAudioBufPtr pFrame;
+   pFrame.swap(mFrames[mOldestFrameIndex]);
+   printf("returned frame #%d\n", mOldestFrameIndex);
+   // Advance queue pointer.
+   mOldestFrameIndex = (mOldestFrameIndex+1) % FRAMES_TO_STORE;
+   mOldestTimestamp += mSamplesPerFrame;
 
 #ifdef RTL_AUDIO_ENABLED
-      UtlString outputLabel("MpJitterBuffer_getSamples");
-      RTL_RAW_AUDIO(outputLabel,
-                    8000,
-                    samplesNumber,
-                    JbQ+JbQOut,
-                    0);
+   UtlString outputLabel("MpJitterBuffer_getSamples");
+   RTL_RAW_AUDIO(outputLabel,
+                 mSampleRate,
+                 pFrame->getSamplesNumber(),
+                 pFrame->getSamplesPtr(),
+                 0);
 #endif
 
-      memcpy(samplesBuffer, JbQ+JbQOut, samplesNumber * sizeof(MpAudioSample));
-
-      JbQCount -= samplesNumber;
-      JbQOut += samplesNumber;
-      if (JbQOut >= JbQueueSize)
-         JbQOut -= JbQueueSize;
-   }
-
-   return samplesNumber;
+   return pFrame;
 }
 
 
-int MpJitterBuffer::setCodecList(MpDecoderBase** codecList, int codecCount)
+void MpJitterBuffer::setCodecList(MpDecoderPayloadMap *pPayloadMap)
 {
-	// For every payload type, load in a codec pointer, or a NULL if it isn't there
-	for(int i=0; i<codecCount; i++)
-   {
-		int payloadType = codecList[i]->getPayloadType();
-		if(payloadType < JbPayloadMapSize) {
-			payloadMap[payloadType] = codecList[i];
-		}
-	}
+   // Update list of decoders.
+   mpPayloadMap = pPayloadMap;
 
    // Reset resampler preparing it to resample new audio stream.
    // Actually we should have MpJitterBuffer::resetStream() function for this.
    mpResampler->resetStream();
-
-   return 0;
 }
+
+/* ============================ ACCESSORS ================================= */
+
+/* ============================ INQUIRY =================================== */
+
+/* //////////////////////////// PROTECTED ///////////////////////////////// */
+
+/* //////////////////////////// PRIVATE /////////////////////////////////// */
+
+/* ============================ FUNCTIONS ================================= */

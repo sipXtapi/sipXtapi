@@ -19,7 +19,7 @@
 
 // APPLICATION INCLUDES
 #include "mp/MpRtpBuf.h"
-#include "mp/MpTypes.h"
+#include "mp/MpAudioBuf.h"
 #include "mp/MpResampler.h"
 
 // DEFINES
@@ -30,9 +30,12 @@
 // STRUCTS
 // TYPEDEFS
 // FORWARD DECLARATIONS
-class MpDecoderBase;
+class MpDecoderPayloadMap;
 
-/// Class for managing dejitter/decode of incoming RTP.
+/**
+*  @brief Class for decoding of incoming RTP, resampling it to target
+*         sample rate and slicing to frames of target size.
+*/
 class MpJitterBuffer
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
@@ -43,7 +46,9 @@ public:
 //@{
 
      /// Constructor
-   MpJitterBuffer(unsigned int sampleRate);
+   MpJitterBuffer(unsigned int samplesPerSec,
+                  unsigned int samplesPerFrame,
+                  MpDecoderPayloadMap *pPayloadMap);
 
      /// Destructor
    virtual
@@ -55,7 +60,7 @@ public:
 ///@name Manipulators
 //@{
 
-     /// Push packet into jitter buffer.
+     /// Push packet into decoder buffer.
    OsStatus pushPacket(MpRtpBufPtr &rtpPacket);
      /**<
      *  Packet will be decoded and decoded data will be copied to internal buffer.
@@ -70,23 +75,11 @@ public:
      *  @retval OS_FAILED in case of any problems.
      */
 
-     /// Get samples from jitter buffer
-   int getSamples(MpAudioSample *samplesBuffer, int samplesNumber);
-     /**<
-     *  @param voiceSamples - (out) buffer for audio samples
-     *  @param samplesNumber - (in) number of samples to write
-     *  
-     *  @return Number of samples written to samplesBuffer
-     */
-   
-     /// Set available decoders.
-   int setCodecList(MpDecoderBase** codecList, int codecCount);
-     /**<
-     *  This function iterates through the provided list of decoders and fills
-     *  internal payload type to decoder mapping. See payloadMap.
-     *  
-     *  @returns Always return 0 for now.
-     */
+     /// Get next frame from decoder buffer.
+   MpAudioBufPtr getSamples();
+
+     /// Update list of available decoders.
+   void setCodecList(MpDecoderPayloadMap *pPayloadMap);
 
 //@}
 
@@ -103,33 +96,34 @@ public:
 //@}
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
+protected:
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
 
-   static const int JbPayloadMapSize = 128;
-   static const int JbQueueSize = (12 * (2 * 80)); // 24 packets 10ms each
-                                                   // or 12 packets, 20 mS each
-                                                   // or 4 packets 60 mS each.
-   static const int JbResampleBufSize = (6 * 160); ///< Size of temporary resample buffer.
+   enum {
+      FRAMES_TO_STORE = 16,         ///< Number of frames to store in buffer.
+      DECODED_DATA_MAX_LENGTH = 6 * 160 ///< Size of mDecodedData temporary buffer.
+   };
 
    unsigned int mSampleRate;        ///< Output sample rate for decoded data.
                                     ///< Samples from codecs with different
                                     ///< sample rate will be resampled to this
                                     ///< sample rate.
-   MpAudioSample JbResampleBuf[JbResampleBufSize]; ///< Buffer, used to temporarily
-                                    ///< store decoded data if it need to be
-                                    ///< resampled.
+   unsigned int mSamplesPerFrame;   ///< Number of samples to put to output buffers.
+   MpAudioSample mDecodedData[DECODED_DATA_MAX_LENGTH]; ///< Buffer, used to
+                                    ///< temporarily store decoded data.
    MpResamplerBase *mpResampler;    ///< Resampler instance to convert codec
                                     ///< sample rate to flowgraph sample rate.
 
-   int JbQCount;                    ///< Number of decoded samples in JbQ.
-   int JbQIn;                       ///< Write pointer position in JbQ.
-   int JbQOut;                      ///< Read pointer position in JbQ.
-   MpAudioSample JbQ[JbQueueSize];  ///< Buffer for decoded audio.
+   UtlBoolean mIsFirstPacket;       ///< Is next packet first received or not?
+   RtpTimestamp mOldestTimestamp;   ///< Oldest timestamp in buffer.
+   unsigned mOldestFrameIndex;      ///< Index of oldest frame in mFrames[].
+   MpAudioBufPtr mFrames[FRAMES_TO_STORE]; ///< Buffer for decoded, resampled and sliced audio.
 
-   MpDecoderBase* payloadMap[JbPayloadMapSize]; ///< Map of RTP payload types
-                                    ///< to decoders.
+   MpDecoderPayloadMap *mpPayloadMap; ///< Map of RTP payload types to decoders.
+                                    ///< Note, we do not own instance of this map,
+                                    ///< we only store pointer to it.
 
    /// Copy constructor
    MpJitterBuffer(const MpJitterBuffer& rMpJitterBuffer);
