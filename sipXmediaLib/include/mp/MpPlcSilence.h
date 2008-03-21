@@ -1,6 +1,6 @@
-//  
-// Copyright (C) 2008 SIPez LLC. 
-// Licensed to SIPfoundry under a Contributor Agreement. 
+//
+// Copyright (C) 2008 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // Copyright (C) 2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -43,10 +43,10 @@ public:
 
      /// @copydoc MpPlcBase::processFrame()
    OsStatus processFrame(int inFrameNum,
-                                 int outFrameNum,
-                                 const MpAudioSample* in,
-                                 MpAudioSample* out,
-                                 UtlBoolean* signalModified);
+                         int outFrameNum,
+                         const MpAudioSample* in,
+                         MpAudioSample* out,
+                         UtlBoolean* signalModified);
 
 //@}
 
