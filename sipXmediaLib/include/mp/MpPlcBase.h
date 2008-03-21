@@ -43,8 +43,8 @@ public:
      *  Should be called before any other class methods.
      */
 
-     /// Destructor.
-   virtual ~MpPlcBase();
+     /// Virtual base destructor.
+   virtual ~MpPlcBase() {};
 
 //@}
 
@@ -57,7 +57,7 @@ public:
                                  int outFrameNum,
                                  const MpAudioSample* in,
                                  MpAudioSample* out,
-                                 UtlBoolean* signalModified);
+                                 UtlBoolean* signalModified) = 0;
 
 //@}
 
@@ -66,13 +66,13 @@ public:
 //@{
 
      /// Return maximum offset for delayed frame with respect to current
-   virtual int getMaxDelayedFramesNum() const;
+   virtual int getMaxDelayedFramesNum() const = 0;
      /**<
      *  If zero is returned, late packets are not allowed.
      */
 
      /// Return maximum offset for future frame with respect to current
-   virtual int getMaxFutureFramesNum() const;   
+   virtual int getMaxFutureFramesNum() const = 0;
 
      /// Return algorithmic delay in samples, should be called after init
    virtual int getAlgorithmicDelay() const = 0;

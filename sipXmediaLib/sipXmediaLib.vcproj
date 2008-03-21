@@ -1533,9 +1533,6 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\src\mp\MpPlcBase.cpp">
-			</File>
-			<File
 				RelativePath=".\src\mp\MpPlcSilence.cpp">
 			</File>
 			<File

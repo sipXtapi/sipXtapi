@@ -59,12 +59,34 @@ OsStatus MpPlcSilence::processFrame(int inFrameNum,
    return OS_SUCCESS;
 }
 
+MpPlcSilence::~MpPlcSilence()
+{
+
+}
+
+/* ============================ MANIPULATORS ============================== */
+
+/* ============================ ACCESSORS ================================= */
+
+int MpPlcSilence::getMaxDelayedFramesNum() const
+{
+   return 0;
+}
+
+int MpPlcSilence::getMaxFutureFramesNum() const
+{
+   return 0;
+}
+
 int MpPlcSilence::getAlgorithmicDelay() const
 {
    return 0;
 }
 
-MpPlcSilence::~MpPlcSilence()
-{
+/* ============================ INQUIRY =================================== */
 
-}
+/* //////////////////////////// PROTECTED ///////////////////////////////// */
+
+/* //////////////////////////// PRIVATE /////////////////////////////////// */
+
+/* ============================ FUNCTIONS ================================= */

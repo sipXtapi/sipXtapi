@@ -475,10 +475,6 @@ SOURCE=.\src\mp\MpStreamQueuePlayer.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\mp\MpPlcBase.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\src\mp\MpPlcSilence.cpp
 # End Source File
 # Begin Source File

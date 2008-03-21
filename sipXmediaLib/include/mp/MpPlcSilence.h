@@ -54,6 +54,12 @@ public:
 ///@name Accessors
 //@{
 
+     /// @copydoc MpPlcBase::getMaxDelayedFramesNum()
+   virtual int getMaxDelayedFramesNum() const;
+
+     /// @copydoc MpPlcBase::getMaxFutureFramesNum()
+   virtual int getMaxFutureFramesNum() const;
+
      /// @copydoc MpPlcBase::getAlgorithmicDelay()
    virtual int getAlgorithmicDelay() const;
 
