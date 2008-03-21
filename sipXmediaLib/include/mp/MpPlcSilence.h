@@ -30,10 +30,10 @@ public:
 //@{
 
      /// @copydoc MpPlcBase::init()
-   virtual OsStatus init(int samplesPerSec, int samplesPerFrame);
+   OsStatus init(int samplesPerSec, int samplesPerFrame);
 
-     /// @copydoc MpPlcBase::~MpPlcSilence()
-   virtual ~MpPlcSilence();
+     /// Destructor
+   ~MpPlcSilence();
 
 //@}
 
@@ -42,7 +42,7 @@ public:
 //@{
 
      /// @copydoc MpPlcBase::processFrame()
-   virtual OsStatus processFrame(int inFrameNum,
+   OsStatus processFrame(int inFrameNum,
                                  int outFrameNum,
                                  const MpAudioSample* in,
                                  MpAudioSample* out,
@@ -55,13 +55,13 @@ public:
 //@{
 
      /// @copydoc MpPlcBase::getMaxDelayedFramesNum()
-   virtual int getMaxDelayedFramesNum() const;
+   int getMaxDelayedFramesNum() const;
 
      /// @copydoc MpPlcBase::getMaxFutureFramesNum()
-   virtual int getMaxFutureFramesNum() const;
+   int getMaxFutureFramesNum() const;
 
      /// @copydoc MpPlcBase::getAlgorithmicDelay()
-   virtual int getAlgorithmicDelay() const;
+   int getAlgorithmicDelay() const;
 
 //@}
 
