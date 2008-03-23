@@ -125,6 +125,7 @@ nobase_include_HEADERS =  \
     mp/MpPlcSilence.h \
     mp/MpPlgStaffV1.h \
     mp/MpProgressResourceMsg.h \
+    mp/MpStringResourceMsg.h \
     mp/MpToneResourceMsg.h \
     mp/MpTopologyGraph.h \
     mp/MpTypes.h \

@@ -20,6 +20,7 @@
 #include "mp/MpRtpBuf.h"
 #include "mp/MpAudioResource.h"
 #include "mp/MpFlowGraphMsg.h"
+#include "mp/MpResourceMsg.h"
 #include "mp/MpDecoderPayloadMap.h"
 #include "sdp/SdpCodec.h"
 #include "os/OsBSem.h"
@@ -52,7 +53,9 @@ public:
 //@{
 
      /// Constructor
-   MprDecode(const UtlString& rName, MpConnectionID connectionId);
+   MprDecode(const UtlString &rName,
+             MpConnectionID connectionId,
+             const UtlString &plcName);
 
      /// Destructor
    virtual
@@ -68,7 +71,24 @@ public:
 
    OsStatus selectCodec(SdpCodec& rCodec);
 
-   OsStatus deselectCodec(void);
+   OsStatus deselectCodec();
+
+     /// Change PLC algorithm to one with given name.
+   static OsStatus setPlc(const UtlString& namedResource,
+                          const UtlString& plcName,
+                          OsMsgQ& fgQ);
+     /**<
+     *  Sends an MPRM_SET_PLC message to the named MprDecode resource
+     *  within the flowgraph who's queue is supplied. When the message 
+     *  is received, the above resource will change PLC algorithm to
+     *  chosen one.
+     *
+     *  @param[in] namedResource - the name of the resource to send a message to.
+     *  @param[in] plcName - name of PLC algorithm to use.
+     *  @param[in] fgQ - the queue of the flowgraph containing the resource which
+     *  the message is to be received by.
+     *  @returns the result of attempting to queue the message to this resource.
+     */
 
    void setMyDejitter(MprDejitter* newDJ);
 
@@ -84,13 +104,6 @@ public:
 /* ============================ ACCESSORS ================================= */
 ///@name Accessors
 //@{
-
-     /// Returns a pointer to the JB instance, creating it if necessary
-   MpJitterBuffer* getJBinst(UtlBoolean optional = FALSE);
-     /**<
-     *  If the instance has not been created, but the argument "optional" is
-     *  TRUE, then do not create it, just return NULL.
-     */
 
 //@}
 
@@ -117,6 +130,11 @@ private:
       DESELECT_CODECS
    } AddlMsgTypes;
 
+   typedef enum
+   {
+      MPRM_SET_PLC = MpResourceMsg::MPRM_EXTERNAL_MESSAGE_START
+   } AddlResMsgTypes;
+
    enum {
       MAX_RTP_FRAMES = 25,
       MAX_PAYLOAD_TYPES = 128,
@@ -124,6 +142,7 @@ private:
    };
 
    MpJitterBuffer* mpJB;            ///< Pointer to JitterBuffer instance
+   UtlBoolean mIsJBInitialized;     ///< Is JB initialized or not?
    OsNotification* mpDtmfNotication;
 
    MprDejitter* mpMyDJ;
@@ -154,8 +173,11 @@ private:
 
    UtlBoolean isPayloadTypeSupported(int payloadType);
 
-     /// Handle messages for this resource.
+     /// Handle old style messages for this resource.
    virtual UtlBoolean handleMessage(MpFlowGraphMsg& rMsg);
+
+     /// Handle new style messages for this resource.
+   virtual UtlBoolean handleMessage(MpResourceMsg& rMsg);
 
      /// Replace mpCurrentCodecs with pCodecs.
    UtlBoolean handleSelectCodecs(SdpCodec* pCodecs[], int numCodecs);
@@ -172,6 +194,9 @@ private:
      /**<
      *  @note Caller must hold mLock.
      */
+
+     /// Change PLC algorithm to one provided.
+   UtlBoolean handleSetPlc(const UtlString &plcName);
 
      /// Copy constructor (not implemented for this class)
    MprDecode(const MprDecode& rMprDecode);

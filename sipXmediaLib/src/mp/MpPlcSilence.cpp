@@ -21,6 +21,7 @@
 // EXTERNAL VARIABLES
 // CONSTANTS
 // STATIC VARIABLE INITIALIZATIONS
+const char *MpPlcSilence::name = "Silence substitution";
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 

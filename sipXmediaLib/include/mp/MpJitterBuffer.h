@@ -31,6 +31,7 @@
 // TYPEDEFS
 // FORWARD DECLARATIONS
 class MpDecoderPayloadMap;
+class MpPlcBase;
 
 /**
 *  @brief Class for decoding of incoming RTP, resampling it to target
@@ -46,9 +47,13 @@ public:
 //@{
 
      /// Constructor
-   MpJitterBuffer(unsigned int samplesPerSec,
-                  unsigned int samplesPerFrame,
-                  MpDecoderPayloadMap *pPayloadMap);
+   MpJitterBuffer(const UtlString &plcName,
+                  MpDecoderPayloadMap *pPayloadMap = NULL);
+     /**<
+     *  @param[in] plcName - name of PLC algorithm to use.
+     */
+
+   void init(unsigned int samplesPerSec, unsigned int samplesPerFrame);
 
      /// Destructor
    virtual
@@ -81,6 +86,9 @@ public:
      /// Update list of available decoders.
    void setCodecList(MpDecoderPayloadMap *pPayloadMap);
 
+     /// Change PLC algorithm to the one with given name.
+   void setPlc(const UtlString &plcName);
+
 //@}
 
 /* ============================ ACCESSORS ================================= */
@@ -103,6 +111,7 @@ private:
 
    enum {
       FRAMES_TO_STORE = 16,         ///< Number of frames to store in buffer.
+                                    ///< Should be a power of 2.
       DECODED_DATA_MAX_LENGTH = 6 * 160 ///< Size of mDecodedData temporary buffer.
    };
 
@@ -118,12 +127,19 @@ private:
 
    UtlBoolean mIsFirstPacket;       ///< Is next packet first received or not?
    RtpTimestamp mOldestTimestamp;   ///< Oldest timestamp in buffer.
-   unsigned mOldestFrameIndex;      ///< Index of oldest frame in mFrames[].
+   unsigned mOldestFrameNum;        ///< Internal sequence number of oldest
+                                    ///< frame in mFrames[]. It is also used
+                                    ///< as a base for frames index calculation.
    MpAudioBufPtr mFrames[FRAMES_TO_STORE]; ///< Buffer for decoded, resampled and sliced audio.
 
    MpDecoderPayloadMap *mpPayloadMap; ///< Map of RTP payload types to decoders.
                                     ///< Note, we do not own instance of this map,
                                     ///< we only store pointer to it.
+   MpPlcBase *mpPlc;                ///< Instance of PLC algorithm.
+   MpAudioBufPtr mTempPlcFrame;     ///< This audio frame pointer is used to
+                                    ///< reduce number of frames allocations/
+                                    ///< deallocations by keeping unused
+                                    ///< frame between calls to getSamples().
 
    /// Copy constructor
    MpJitterBuffer(const MpJitterBuffer& rMpJitterBuffer);

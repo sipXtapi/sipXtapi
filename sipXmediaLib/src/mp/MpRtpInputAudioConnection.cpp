@@ -42,7 +42,8 @@
 
 // Constructor
 MpRtpInputAudioConnection::MpRtpInputAudioConnection(const UtlString& resourceName,
-                                                     MpConnectionID myID)
+                                                     MpConnectionID myID,
+                                                     const UtlString &plcName)
 : MpRtpInputConnection(resourceName,
                        myID, 
 #ifdef INCLUDE_RTCP // [
@@ -56,7 +57,7 @@ MpRtpInputAudioConnection::MpRtpInputAudioConnection(const UtlString& resourceNa
    char         name[50];
 
    sprintf(name, "Decode-%d", myID);
-   mpDecode    = new MprDecode(name, getConnectionId());
+   mpDecode    = new MprDecode(name, getConnectionId(), plcName);
 
    // decoder does not get added to the flowgraph, this connection
    // gets added to do the decoding frame processing.

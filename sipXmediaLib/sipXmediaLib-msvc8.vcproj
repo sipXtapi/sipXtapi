@@ -1586,6 +1586,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\src\mp\MpPlcBase.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\src\mp\MpPlcSilence.cpp"
 					>
 				</File>
@@ -2392,6 +2396,10 @@
 				</File>
 				<File
 					RelativePath=".\include\mp\MpStreamQueuePlayer.h"
+					>
+				</File>
+				<File
+					RelativePath=".\include\mp\MpStringResourceMsg.h"
 					>
 				</File>
 				<File

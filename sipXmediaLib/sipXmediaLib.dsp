@@ -475,6 +475,10 @@ SOURCE=.\src\mp\MpStreamQueuePlayer.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\mp\MpPlcBase.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\mp\MpPlcSilence.cpp
 # End Source File
 # Begin Source File
@@ -1228,6 +1232,10 @@ SOURCE=.\include\mp\MpStreamPlaylistPlayer.h
 # Begin Source File
 
 SOURCE=.\include\mp\MpStreamQueuePlayer.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MpStringResourceMsg.h
 # End Source File
 # Begin Source File
 

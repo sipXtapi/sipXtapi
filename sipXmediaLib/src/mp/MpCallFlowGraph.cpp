@@ -32,6 +32,7 @@
 #include "os/OsProtectEventMgr.h"
 #include "os/OsProtectEvent.h"
 #include "mp/MpRtpInputAudioConnection.h"
+#include "mp/MpPlcSilence.h"
 #include "mp/MpRtpOutputAudioConnection.h"
 #include "mp/MpCallFlowGraph.h"
 #include "mp/MpMediaTask.h"
@@ -1249,7 +1250,7 @@ MpConnectionID MpCallFlowGraph::createConnection()
    inConnectionName.append(numBuf);
    outConnectionName.append(numBuf);
    mpInputConnections[found] = 
-       new MpRtpInputAudioConnection(inConnectionName, found);
+      new MpRtpInputAudioConnection(inConnectionName, found, MpPlcSilence::name);
    mpOutputConnections[found] = 
        new MpRtpOutputAudioConnection(outConnectionName, found);
 

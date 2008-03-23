@@ -17,6 +17,7 @@
 // APPLICATION INCLUDES
 #include <utl/UtlDefs.h>
 #include <os/OsStatus.h>
+#include <utl/UtlString.h>
 #include "mp/MpTypes.h"
 
 // DEFINES
@@ -28,6 +29,14 @@
 // TYPEDEFS
 // FORWARD DECLARATIONS
 
+/**
+*  Base class for all PLC algorithms.
+*
+*  To create concrete class you could directly instantiate it or use
+*  MpPlcBase::createPlc() static method for greater flexibility.
+*
+*  @nosubgrouping
+*/
 class MpPlcBase
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
@@ -36,6 +45,8 @@ public:
 /* ============================ CREATORS ================================== */
 ///@name Creators
 //@{
+
+   static MpPlcBase *createPlc(const UtlString &plcName);
 
      /// Initialize PLC with given sample rate and frame size.
    virtual OsStatus init(int samplesPerSec, int samplesPerFrame) = 0;

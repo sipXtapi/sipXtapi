@@ -39,6 +39,7 @@
 #include "mp/MpJitterBuffer.h"
 #include "mp/MpFlowGraphBase.h"
 #include "mp/MprnDTMFMsg.h"
+#include "mp/MpStringResourceMsg.h"
 #include "os/OsDefs.h"
 #include "os/OsSysLog.h"
 #include "os/OsLock.h"
@@ -55,25 +56,31 @@
 /* ============================ CREATORS ================================== */
 
 // Constructor
-MprDecode::MprDecode(const UtlString& rName, MpConnectionID connectionId)
-:  MpAudioResource(rName, 0, 0, 1, 1),
-   mpJB(NULL),
-   mpDtmfNotication(NULL),
-   mpMyDJ(NULL),
-   mpCurrentCodecs(NULL),
-   mNumCurrentCodecs(0),
-   mpPrevCodecs(NULL),
-   mNumPrevCodecs(0),
-   mConnectionId(connectionId)
+MprDecode::MprDecode(const UtlString& rName, MpConnectionID connectionId,
+                     const UtlString &plcName)
+: MpAudioResource(rName, 0, 0, 1, 1)
+, mpJB(NULL)
+, mpDtmfNotication(NULL)
+, mpMyDJ(NULL)
+, mIsJBInitialized(FALSE)
+, mpCurrentCodecs(NULL)
+, mNumCurrentCodecs(0)
+, mpPrevCodecs(NULL)
+, mNumPrevCodecs(0)
+, mConnectionId(connectionId)
 {
+   mpJB = new MpJitterBuffer(plcName);
+   assert(mpJB != NULL);
 }
 
 // Destructor
 MprDecode::~MprDecode()
 {
    // Release our codecs (if any), and the array of pointers to them.
-   // Jitter buffer instance (mpJB) is also deleted here.
    handleDeselectCodecs();
+
+   // Free decoder buffer.
+   delete mpJB;
 
    // Delete the list of codecs used in the past.
    OsLock lock(mLock);
@@ -129,6 +136,14 @@ OsStatus MprDecode::deselectCodec()
    return ret;
 }
 
+OsStatus MprDecode::setPlc(const UtlString& namedResource, 
+                           const UtlString& plcName,
+                           OsMsgQ& fgQ)
+{
+   MpStringResourceMsg msg(plcName, namedResource);
+   return fgQ.send(msg, sOperationQueueTimeout);
+}
+
 void MprDecode::setMyDejitter(MprDejitter* pDJ)
 {
    mpMyDJ = pDJ;
@@ -145,17 +160,6 @@ OsStatus MprDecode::pushPacket(const MpRtpBufPtr &pRtp)
 }
 
 /* ============================ ACCESSORS ================================= */
-
-MpJitterBuffer* MprDecode::getJBinst(UtlBoolean optional)
-{
-   if ((NULL == mpJB) && (!optional)) {
-      mpJB = new MpJitterBuffer(mpFlowGraph->getSamplesPerSec(),
-                                mpFlowGraph->getSamplesPerFrame(),
-                                &mDecoderMap);
-      assert(NULL != mpJB);
-   }
-   return mpJB;
-}
 
 /* ============================ INQUIRY =================================== */
 
@@ -196,6 +200,14 @@ UtlBoolean MprDecode::doProcessFrame(MpBufPtr inBufs[],
       return TRUE;
    }
 
+   // If mIsJBInitialized is FALSE, we haven't got selectCodecs() called.
+   // This is fine, but a long we do not know anything about codecs,
+   // we could not continue.
+   if (!mIsJBInitialized)
+   {
+      return TRUE;
+   }
+
    MprDejitter* pDej = getMyDejitter();
 
    // Lock access to dejitter and m*Codecs data
@@ -216,9 +228,7 @@ UtlBoolean MprDecode::doProcessFrame(MpBufPtr inBufs[],
 
       // THIS JitterBuffer is NOT the same as MprDejitter!
       // This is more of a Decode Buffer.
-      MpJitterBuffer* pJBState = getJBinst();
-
-      OsStatus res = pJBState->pushPacket(rtp);
+      OsStatus res = mpJB->pushPacket(rtp);
       if (res != OS_SUCCESS)
       {
          osPrintf("\n\n *** MprDecode::doProcessFrame() returned %d\n", res);
@@ -278,15 +288,12 @@ UtlBoolean MprDecode::doProcessFrame(MpBufPtr inBufs[],
    }
 
    // Get next decoded frame
-   MpJitterBuffer* pJBState = getJBinst();
-   if (pJBState) {
-      outBufs[0] = pJBState->getSamples();
-   }
+   outBufs[0] = mpJB->getSamples();
 
    return TRUE;
 }
 
-// Handle messages for this resource.
+// Handle old style messages for this resource.
 UtlBoolean MprDecode::handleMessage(MpFlowGraphMsg& rMsg)
 {
    UtlBoolean ret = FALSE;
@@ -305,6 +312,25 @@ UtlBoolean MprDecode::handleMessage(MpFlowGraphMsg& rMsg)
       break;
    }
    return ret;
+}
+
+// Handle new style messages for this resource.
+UtlBoolean MprDecode::handleMessage(MpResourceMsg& rMsg)
+{
+   UtlBoolean msgHandled = FALSE;
+
+   switch (rMsg.getMsg()) 
+   {
+   case MPRM_SET_PLC:
+      msgHandled = handleSetPlc(((MpStringResourceMsg*)&rMsg)->getData());
+      break;
+
+   default:
+      // If we don't handle the message here, let our parent try.
+      msgHandled = MpResource::handleMessage(rMsg); 
+      break;
+   }
+   return msgHandled;
 }
 
 UtlBoolean MprDecode::handleSelectCodecs(SdpCodec* pCodecs[], int numCodecs)
@@ -416,8 +442,15 @@ UtlBoolean MprDecode::handleSelectCodecs(SdpCodec* pCodecs[], int numCodecs)
       }
    }
 
-   MpJitterBuffer* pJBState = getJBinst();   
-   pJBState->setCodecList(&mDecoderMap);
+   // If decoder buffer is not yet initialized - lets go initialize it.
+   if (!mIsJBInitialized)
+   {
+      mpJB->init(mpFlowGraph->getSamplesPerSec(),
+                 mpFlowGraph->getSamplesPerFrame());
+      mIsJBInitialized= TRUE;
+   }
+
+   mpJB->setCodecList(&mDecoderMap);
 
    // Delete the list pCodecs.
    for (i=0; i<numCodecs; i++) {
@@ -435,6 +468,13 @@ UtlBoolean MprDecode::handleDeselectCodec(MpDecoderBase* pDecoder)
       payload = pDecoder->getPayloadType();
       mDecoderMap.deletePayloadType(payload);
    }
+   return TRUE;
+}
+
+UtlBoolean MprDecode::handleSetPlc(const UtlString &plcName)
+{
+   mpJB->setPlc(plcName);
+
    return TRUE;
 }
 
@@ -479,8 +519,10 @@ UtlBoolean MprDecode::handleDeselectCodecs(UtlBoolean shouldLock)
       mNumPrevCodecs = newN;
    }
 
-   delete mpJB;
-   mpJB = NULL;
+   if (mIsJBInitialized)
+   {
+      mpJB->setCodecList(NULL);
+   }
 
    if(shouldLock)
    {

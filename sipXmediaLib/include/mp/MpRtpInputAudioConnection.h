@@ -34,6 +34,7 @@ class OsNotification;
 // CONSTANTS
 // STRUCTS
 // TYPEDEFS
+// FORWARD DECLARATIONS
 
 /**
 *  @brief Connection container for audio part of call.
@@ -49,7 +50,8 @@ public:
 
      /// Constructor
    MpRtpInputAudioConnection(const UtlString& resourceName,
-                             MpConnectionID myID);
+                             MpConnectionID myID,
+                             const UtlString &plcName);
 
      /// Destructor
    virtual

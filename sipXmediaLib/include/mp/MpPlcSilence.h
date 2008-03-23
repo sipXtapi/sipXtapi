@@ -25,6 +25,8 @@ class MpPlcSilence : public MpPlcBase
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
+   static const char *name;
+
 /* ============================ CREATORS ================================== */
 ///@name Creators
 //@{

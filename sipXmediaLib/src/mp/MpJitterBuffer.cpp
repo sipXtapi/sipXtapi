@@ -21,6 +21,7 @@
 #include "mp/MpJitterBuffer.h"
 #include "mp/MpDecoderPayloadMap.h"
 #include "mp/MpDecoderBase.h"
+#include "mp/MpPlcBase.h"
 
 #ifdef RTL_ENABLED
 #  include <rtl_macro.h>
@@ -38,21 +39,34 @@
 
 /* ============================ CREATORS ================================== */
 
-MpJitterBuffer::MpJitterBuffer(unsigned int samplesPerSec,
-                               unsigned int samplesPerFrame,
+MpJitterBuffer::MpJitterBuffer(const UtlString &plcName,
                                MpDecoderPayloadMap *pPayloadMap)
-: mSampleRate(samplesPerSec)
-, mSamplesPerFrame(samplesPerFrame)
-, mpResampler(MpResamplerBase::createResampler(1, mSampleRate, mSampleRate))
+: mSampleRate(0)
+, mSamplesPerFrame(0)
+, mpResampler(NULL)
 , mIsFirstPacket(TRUE)
-, mOldestFrameIndex(0)
+, mOldestFrameNum(0)
 , mpPayloadMap(pPayloadMap)
+, mpPlc(MpPlcBase::createPlc(plcName))
 {
+}
+
+void MpJitterBuffer::init(unsigned int samplesPerSec, unsigned int samplesPerFrame)
+{
+   mSampleRate = samplesPerSec;
+   mSamplesPerFrame = samplesPerFrame;
+
+   assert(mpPlc != NULL);
+   mpPlc->init(mSampleRate, mSamplesPerFrame);
+
+   assert(mpResampler == NULL);
+   mpResampler = MpResamplerBase::createResampler(1, mSampleRate, mSampleRate);
 }
 
 MpJitterBuffer::~MpJitterBuffer()
 {
    delete mpResampler;
+   delete mpPlc;
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -64,9 +78,10 @@ OsStatus MpJitterBuffer::pushPacket(MpRtpBufPtr &rtpPacket)
    unsigned codecSampleRate; // Codec sample rate
    unsigned frameIndex; // Index of frame in mFrames[] array.
 
-   if (mpPayloadMap == NULL)
+   // If initialization was not completed properly.
+   if (mpPayloadMap == NULL || mSampleRate == 0)
    {
-      assert(mpPayloadMap == NULL);
+      assert(FALSE);
       return OS_FAILED;
    }
 
@@ -130,7 +145,7 @@ OsStatus MpJitterBuffer::pushPacket(MpRtpBufPtr &rtpPacket)
       }
 
       // Convert timestamp to mFrames[] index.
-      frameIndex = mOldestFrameIndex + audioTimestamp / mSamplesPerFrame;
+      frameIndex = mOldestFrameNum + audioTimestamp / mSamplesPerFrame;
       frameIndex = frameIndex % FRAMES_TO_STORE;
    }
 
@@ -179,7 +194,7 @@ OsStatus MpJitterBuffer::pushPacket(MpRtpBufPtr &rtpPacket)
       // happen.
       assert(!mFrames[frameIndex].isValid());
       mFrames[frameIndex] = pBuf;
-      printf("decoded frame #%d\n", frameIndex);
+//      printf("decoded frame #%d\n", frameIndex);
       // Advance index for next buffer.
       frameIndex = (frameIndex+1) % FRAMES_TO_STORE;
    }
@@ -189,13 +204,41 @@ OsStatus MpJitterBuffer::pushPacket(MpRtpBufPtr &rtpPacket)
 
 MpAudioBufPtr MpJitterBuffer::getSamples()
 {
+   const MpAudioSample *plcSamplesIn = NULL;
+   MpAudioSample *plcSamplesOut = NULL;
+   UtlBoolean plcIsFrameModified;
+   OsStatus plcResult;
+
    // Get frame from queue.
    MpAudioBufPtr pFrame;
-   pFrame.swap(mFrames[mOldestFrameIndex]);
-   printf("returned frame #%d\n", mOldestFrameIndex);
-   // Advance queue pointer.
-   mOldestFrameIndex = (mOldestFrameIndex+1) % FRAMES_TO_STORE;
-   mOldestTimestamp += mSamplesPerFrame;
+   pFrame.swap(mFrames[mOldestFrameNum%FRAMES_TO_STORE]);
+//   printf("returned frame #%d (index: %d)\n",
+//          mOldestFrameNum, mOldestFrameNum%FRAMES_TO_STORE);
+
+   // Prepare pointers to input and output frames for PLC.
+   if (pFrame.isValid())
+   {
+      plcSamplesIn = pFrame->getSamplesPtr();
+   }
+   if (!mTempPlcFrame.isValid())
+   {
+      mTempPlcFrame = MpMisc.RawAudioPool->getBuffer();
+      assert(mTempPlcFrame.isValid());
+      mTempPlcFrame->setSamplesNumber(mSamplesPerFrame);
+      mTempPlcFrame->setSpeechType(MpAudioBuf::MP_SPEECH_UNKNOWN);
+   }
+   plcSamplesOut = mTempPlcFrame->getSamplesWritePtr();
+
+   // Pass frame through PLC.
+   plcResult = mpPlc->processFrame(mOldestFrameNum, mOldestFrameNum,
+                                   plcSamplesIn, plcSamplesOut,
+                                   &plcIsFrameModified);
+   assert(plcResult == OS_SUCCESS);
+   if (plcResult == OS_SUCCESS && plcIsFrameModified)
+   {
+      pFrame.release();
+      pFrame.swap(mTempPlcFrame);
+   }
 
 #ifdef RTL_AUDIO_ENABLED
    UtlString outputLabel("MpJitterBuffer_getSamples");
@@ -205,6 +248,10 @@ MpAudioBufPtr MpJitterBuffer::getSamples()
                  pFrame->getSamplesPtr(),
                  0);
 #endif
+
+   // Advance queue pointer.
+   mOldestFrameNum++;
+   mOldestTimestamp += mSamplesPerFrame;
 
    return pFrame;
 }
@@ -217,7 +264,20 @@ void MpJitterBuffer::setCodecList(MpDecoderPayloadMap *pPayloadMap)
 
    // Reset resampler preparing it to resample new audio stream.
    // Actually we should have MpJitterBuffer::resetStream() function for this.
-   mpResampler->resetStream();
+   if (mpPayloadMap != NULL)
+   {
+      mpResampler->resetStream();
+   }
+}
+
+void MpJitterBuffer::setPlc(const UtlString &plcName)
+{
+   // Free old PLC
+   delete mpPlc;
+
+   // Set PLC to new one and init it.
+   mpPlc = MpPlcBase::createPlc(plcName);
+   mpPlc->init(mSampleRate, mSamplesPerFrame);
 }
 
 /* ============================ ACCESSORS ================================= */
