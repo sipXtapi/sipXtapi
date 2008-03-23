@@ -18,7 +18,6 @@
 #include <mp/MpAudioResourceConstructor.h>
 #include <mp/MpRtpInputAudioConnection.h>
 #include <mp/MprToSpkr.h>
-#include <mp/MpPlcSilence.h>
 
 // DEFINES
 // MACROS
