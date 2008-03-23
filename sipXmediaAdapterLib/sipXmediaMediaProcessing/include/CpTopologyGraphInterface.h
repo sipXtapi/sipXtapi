@@ -77,6 +77,7 @@ public:
 
 /* ============================ MANIPULATORS ============================== */
 
+     /// @copydoc CpMediaInterface::createConnection()
    virtual OsStatus createConnection(int& connectionId,
                                      const char* szLocalAddress,
                                      int localPort = 0,
@@ -86,8 +87,7 @@ public:
                                      IMediaEventListener* pMediaEventListener = NULL,
                                      const RtpTransportOptions rtpTransportOptions=RTP_TRANSPORT_UDP);
 
-
-      /// @copydoc CpMediaInterface::setNotificationDispatcher()
+     /// @copydoc CpMediaInterface::setNotificationDispatcher()
    virtual OsMsgDispatcher*
    setNotificationDispatcher(OsMsgDispatcher* pNotificationDispatcher);
 
@@ -100,6 +100,7 @@ public:
    OsStatus getConnectionPortOnBridge(int connectionId, 
                                       int& portOnBridge);
 
+     /// @copydoc CpMediaInterface::setConnectionDestination()
    virtual OsStatus setConnectionDestination(int connectionId,
                                              const char* rtpHostAddress, 
                                              int rtpAudioPort,
@@ -107,25 +108,35 @@ public:
                                              int rtpVideoPort,
                                              int rtcpVideoPort);
 
+     /// @copydoc CpMediaInterface::startRtpSend()
    virtual OsStatus startRtpSend(int connectionId, 
                                  int numCodecs,
                                  SdpCodec* sendCodec[]);
 
+     /// @copydoc CpMediaInterface::setConnectionDestination()
    virtual OsStatus startRtpReceive(int connectionId,
                                     int numCodecs,
                                     SdpCodec* sendCodec[]);
 
+     /// @copydoc CpMediaInterface::stopRtpSend()
    virtual OsStatus stopRtpSend(int connectionId);
+     /// @copydoc CpMediaInterface::stopRtpReceive()
    virtual OsStatus stopRtpReceive(int connectionId);
 
+     /// @copydoc CpMediaInterface::deleteConnection()
    virtual OsStatus deleteConnection(int connectionId);
 
+     /// @copydoc CpMediaInterface::startTone()
    virtual OsStatus startTone(int toneId, UtlBoolean local, UtlBoolean remote);
+     /// @copydoc CpMediaInterface::stopTone()
    virtual OsStatus stopTone();
 
+     /// @copydoc CpMediaInterface::startChannelTone()
    virtual OsStatus startChannelTone(int connectionId, int toneId, UtlBoolean local, UtlBoolean remote) ;
+     /// @copydoc CpMediaInterface::stopChannelTone()
    virtual OsStatus stopChannelTone(int connectionId) ;
 
+     /// @copydoc CpMediaInterface::playAudio()
    virtual OsStatus playAudio(const char* url, 
                               UtlBoolean repeat,
                               UtlBoolean local, 
@@ -135,26 +146,27 @@ public:
                               OsNotification *event = NULL);
 
 
-    virtual OsStatus playBuffer(char* buf, 
-                                unsigned long bufSize,
-                                uint32_t bufRate, 
-                                int type, 
-                                UtlBoolean repeat,
-                                UtlBoolean local, 
-                                UtlBoolean remote,
-                                OsProtectedEvent* event = NULL,
-                                UtlBoolean mixWithMic = false,
-                                int downScaling = 100);
+     /// @copydoc CpMediaInterface::playBuffer()
+   virtual OsStatus playBuffer(char* buf, 
+                               unsigned long bufSize,
+                               uint32_t bufRate, 
+                               int type, 
+                               UtlBoolean repeat,
+                               UtlBoolean local, 
+                               UtlBoolean remote,
+                               OsProtectedEvent* event = NULL,
+                               UtlBoolean mixWithMic = false,
+                               int downScaling = 100);
 
-      /// @copydoc CpMediaInterface::pauseAudio()
-    virtual OsStatus pauseAudio();
+     /// @copydoc CpMediaInterface::pauseAudio()
+   virtual OsStatus pauseAudio();
 
-      /// @copydoc CpMediaInterface::resumeAudio()
-    virtual OsStatus resumeAudio();
+     /// @copydoc CpMediaInterface::resumeAudio()
+   virtual OsStatus resumeAudio();
 
-    virtual OsStatus stopAudio();
+   virtual OsStatus stopAudio();
 
-    virtual OsStatus playChannelAudio(int connectionId,
+   virtual OsStatus playChannelAudio(int connectionId,
                                      const char* url,
                                      UtlBoolean repeat,
                                      UtlBoolean local,
@@ -179,24 +191,24 @@ public:
                                  OsMsgQ *pMsgQ = NULL, 
                                  const char* szTarget = NULL) ;
 
-   // Deprecated
+   /// Deprecated
    virtual OsStatus destroyPlayer(MpStreamPlayer* pPlayer);
 
-   // Deprecated
+   /// Deprecated
    virtual OsStatus createPlaylistPlayer(MpStreamPlaylistPlayer** 
                                          ppPlayer, 
                                          OsMsgQ *pMsgQ = NULL, 
                                          const char* szTarget = NULL);
 
-   // Deprecated
+   /// Deprecated
    virtual OsStatus destroyPlaylistPlayer(MpStreamPlaylistPlayer* pPlayer);
 
-   // Deprecated
+   /// Deprecated
    virtual OsStatus createQueuePlayer(MpStreamQueuePlayer** ppPlayer, 
                                       OsMsgQ *pMsgQ = NULL, 
                                       const char* szTarget = NULL);
 
-   // Deprecated
+   /// Deprecated
    virtual OsStatus destroyQueuePlayer(MpStreamQueuePlayer* pPlayer);
 
    virtual OsStatus giveFocus();
