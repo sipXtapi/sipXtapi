@@ -268,9 +268,9 @@ typedef int   (*dlPlgFreeV1)(void* handle, int isDecoder);
                                                SPLG_ENUM_CODEC_START(y)
 #  define PLG_ENUM_CODEC(x)                    SPLG_ENUM_CODEC(x)
 #  define PLG_ENUM_CODEC_SPECIAL_PACKING(x)    SPLG_ENUM_CODEC_SPECIAL_PACKING(x)
-#  define PLG_ENUM_CODEC_NO_SPECIAL_PACKING(x) PLG_ENUM_CODEC_NO_SPECIAL_PACKING(x)
-#  define PLG_ENUM_CODEC_SIGNALING(x)          PLG_ENUM_CODEC_SIGNALING(x)
-#  define PLG_ENUM_CODEC_NO_SIGNALING(x)       PLG_ENUM_CODEC_NO_SIGNALING(x)
+#  define PLG_ENUM_CODEC_NO_SPECIAL_PACKING(x) SPLG_ENUM_CODEC_NO_SPECIAL_PACKING(x)
+#  define PLG_ENUM_CODEC_SIGNALING(x)          SPLG_ENUM_CODEC_SIGNALING(x)
+#  define PLG_ENUM_CODEC_NO_SIGNALING(x)       SPLG_ENUM_CODEC_NO_SIGNALING(x)
 #  define PLG_ENUM_CODEC_END                   SPLG_ENUM_CODEC_END
 #endif
 
