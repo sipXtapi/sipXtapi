@@ -23,9 +23,6 @@
 #include "mp/MpDecoderBase.h"
 #include "mp/MpPlcBase.h"
 
-#define RTL_ENABLED
-#define RTL_AUDIO_ENABLED
-
 #ifdef RTL_ENABLED
 #  include <rtl_macro.h>
 #  ifdef RTL_AUDIO_ENABLED
