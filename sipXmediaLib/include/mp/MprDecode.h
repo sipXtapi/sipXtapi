@@ -73,20 +73,24 @@ public:
 
    OsStatus deselectCodec();
 
-     /// Change PLC algorithm to one with given name.
+     /// Change PLC algorithm to one with given name. THIS METHOD DOES NOT WORK!
    static OsStatus setPlc(const UtlString& namedResource,
-                          const UtlString& plcName,
-                          OsMsgQ& fgQ);
+                          OsMsgQ& fgQ,
+                          const UtlString& plcName = "");
      /**<
      *  Sends an MPRM_SET_PLC message to the named MprDecode resource
      *  within the flowgraph who's queue is supplied. When the message 
      *  is received, the above resource will change PLC algorithm to
      *  chosen one.
      *
+     *  THIS METHOD DOES NOT WORK CURRENTLY, BECAUSE MprDecode IS NOT
+     *  IN FLOWGRAPH! USE MpRtpInputAudioConnection::setPlc() instead for now.
+     *
      *  @param[in] namedResource - the name of the resource to send a message to.
-     *  @param[in] plcName - name of PLC algorithm to use.
      *  @param[in] fgQ - the queue of the flowgraph containing the resource which
-     *  the message is to be received by.
+     *             the message is to be received by.
+     *  @param[in] plcName - name of PLC algorithm to use.
+     *             See MpJitterBuffer::setPlc() for more details.
      *  @returns the result of attempting to queue the message to this resource.
      */
 

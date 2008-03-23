@@ -28,6 +28,9 @@
 #  ifdef RTL_AUDIO_ENABLED
 #     include <SeScopeAudioBuffer.h>
 #  endif
+#else
+#  define RTL_BLOCK(x)
+#  define RTL_EVENT(x,y)
 #endif
 
 // EXTERNAL FUNCTIONS
@@ -92,6 +95,8 @@ OsStatus MpJitterBuffer::pushPacket(MpRtpBufPtr &rtpPacket)
    {
       return OS_FAILED;
    }
+
+   RTL_EVENT("MpJitterBuffer_pushPacket_loss_patern", !rtpPacket.isValid());
 
    // Do nothing if there is no incoming packet (i.e. it is lost) and
    // decoder is not capable of doing PLC. We'll do PLC later, so there is
@@ -214,6 +219,8 @@ MpAudioBufPtr MpJitterBuffer::getSamples()
    pFrame.swap(mFrames[mOldestFrameNum%FRAMES_TO_STORE]);
 //   printf("returned frame #%d (index: %d)\n",
 //          mOldestFrameNum, mOldestFrameNum%FRAMES_TO_STORE);
+
+   RTL_EVENT("MpJitterBuffer_getSamples_loss_patern", !pFrame.isValid());
 
    // Prepare pointers to input and output frames for PLC.
    if (pFrame.isValid())

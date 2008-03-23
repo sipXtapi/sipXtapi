@@ -20,7 +20,7 @@
 #include <mp/MpFlowGraphBase.h>
 #include <mp/MprFromNet.h>
 #include <mp/MprDecode.h>
-#include <mp/MpResourceMsg.h>
+#include <mp/MpStringResourceMsg.h>
 #include <mp/MprRtpStartReceiveMsg.h>
 #include <sdp/SdpCodec.h>
 #include <os/OsLock.h>
@@ -176,6 +176,14 @@ OsStatus MpRtpInputAudioConnection::stopReceiveRtp(OsMsgQ& messageQueue,
     return(result);
 }
 
+OsStatus MpRtpInputAudioConnection::setPlc(const UtlString& namedResource,
+                                           OsMsgQ& fgQ,
+                                           const UtlString& plcName)
+{
+   MpStringResourceMsg msg(plcName, namedResource);
+   return fgQ.send(msg, sOperationQueueTimeout);
+}
+
 UtlBoolean MpRtpInputAudioConnection::handleSetDtmfNotify(OsNotification* pNotify)
 {
    return mpDecode->handleSetDtmfNotify(pNotify);
@@ -212,6 +220,11 @@ UtlBoolean MpRtpInputAudioConnection::handleMessage(MpResourceMsg& rMsg)
       handleStopReceiveRtp();
       result = TRUE;
       break;
+
+   case MPRM_SET_PLC:
+      result = mpDecode->handleSetPlc(((MpStringResourceMsg*)&rMsg)->getData());
+      break;
+
 
    default:
       result = MpResource::handleMessage(rMsg);

@@ -136,9 +136,9 @@ OsStatus MprDecode::deselectCodec()
    return ret;
 }
 
-OsStatus MprDecode::setPlc(const UtlString& namedResource, 
-                           const UtlString& plcName,
-                           OsMsgQ& fgQ)
+OsStatus MprDecode::setPlc(const UtlString& namedResource,
+                           OsMsgQ& fgQ,
+                           const UtlString& plcName)
 {
    MpStringResourceMsg msg(plcName, namedResource);
    return fgQ.send(msg, sOperationQueueTimeout);

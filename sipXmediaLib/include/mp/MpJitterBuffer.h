@@ -90,6 +90,11 @@ public:
 
      /// Change PLC algorithm to the one with given name.
    void setPlc(const UtlString &plcName = "");
+     /**<
+     *  @param[in] plcName - name of PLC algorithm to use. If given name is
+     *             not known, default PLC algorithm will be used. Thus, to
+     *             select default algorithm, empty string could be used.
+     */
 
 //@}
 
