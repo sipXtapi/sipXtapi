@@ -206,6 +206,25 @@ public:
      *              failure codes to expect, etc. -- kkyzivat 20070801 >>
      */ 
 
+     /// @brief Set PLC method to use for codecs which does not have own PLC.
+   virtual OsStatus setPlcMethod(int connectionId,
+                                 const UtlString &methodName = "") = 0;
+     /**<
+     *  @param[in] connectionId - Connection Id for the call leg obtained from 
+     *             createConnection
+     *  @param[in] methodName - Name of PLC method. If method name is unknown,
+     *                          default method will be used. This also means
+     *                          you could pass "" to select default method.
+     *
+     *  @retval OS_SUCCESS - message to connection was sent, PLC method will
+     *          be changed on next message processing interval.
+     *  @retval OS_NOT_FOUND - connection with given \p connectionId was not found.
+     *  @retval OS_NOT_SUPPORTED - this implementation of CpMediaInterface
+     *          does not support PLC algorithm changing.
+     *  @retval OS_NOT_YET_IMPLEMENTED - this implementation of CpMediaInterface
+     *          might support PLC algorithm changing, but this feature is not
+     *          yet implemented.
+     */
 
      /// @brief Add, replace, or clear the media notification dispatcher held by the MI.
    virtual OsMsgDispatcher* 
@@ -218,7 +237,7 @@ public:
      *  
      *  @param[in] pNotificationDispatcher - A notification dispatcher to give 
      *             to the MI.
-     *  @retval Pointer to the previous media notification dispatcher set in
+     *  @return Pointer to the previous media notification dispatcher set in
      *          this MI.  If there was no previous media notification dispatcher, 
      *          \p NULL is returned.
      */

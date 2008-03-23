@@ -87,9 +87,13 @@ public:
                                      IMediaEventListener* pMediaEventListener = NULL,
                                      const RtpTransportOptions rtpTransportOptions=RTP_TRANSPORT_UDP);
 
+     /// @copydoc CpMediaInterface::setPlcMethod()
+   virtual OsStatus setPlcMethod(int connectionId,
+                                 const UtlString &methodName="");
+
      /// @copydoc CpMediaInterface::setNotificationDispatcher()
-   virtual OsMsgDispatcher*
-   setNotificationDispatcher(OsMsgDispatcher* pNotificationDispatcher);
+   virtual
+   OsMsgDispatcher* setNotificationDispatcher(OsMsgDispatcher* pNotificationDispatcher);
 
      /// @copydoc CpMediaInterface::setNotificationsEnabled()
    virtual OsStatus setNotificationsEnabled(bool enabled, 

@@ -346,6 +346,11 @@ OsStatus CpPhoneMediaInterface::createConnection(int& connectionId,
     return retValue;
 }
 
+OsStatus CpPhoneMediaInterface::setPlcMethod(int connectionId,
+                                             const UtlString &methodName)
+{
+   return OS_NOT_YET_IMPLEMENTED;
+}
 
 OsStatus CpPhoneMediaInterface::getCapabilities(int connectionId,
                                                 UtlString& rtpHostAddress,

@@ -92,6 +92,10 @@ public:
                                      ISocketEvent* pIdleEvent = NULL,
                                      IMediaEventListener* pMediaEventListener = NULL,
                                      const RtpTransportOptions rtpTransportOptions=RTP_TRANSPORT_UDP);
+
+     /// @copydoc CpMediaInterface::setPlcMethod()
+   virtual OsStatus setPlcMethod(int connectionId,
+                                 const UtlString &methodName="");
    
    virtual OsStatus getCapabilities(int connectionId, 
                                     UtlString& rtpHostAddress, 

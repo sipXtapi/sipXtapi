@@ -370,6 +370,29 @@ OsStatus CpTopologyGraphInterface::createConnection(int& connectionId,
     return retValue;
 }
 
+OsStatus CpTopologyGraphInterface::setPlcMethod(int connectionId,
+                                                const UtlString &methodName)
+{
+   OsStatus returnCode = OS_NOT_FOUND;
+
+   CpTopologyMediaConnection* mediaConnection = getMediaConnection(connectionId);
+
+   if (mediaConnection == NULL)
+      return OS_NOT_FOUND;
+
+   if (mpTopologyGraph)
+   {
+      UtlString inConnectionName(DEFAULT_RTP_INPUT_RESOURCE_NAME);
+      MpResourceTopology::replaceNumInName(inConnectionName, connectionId);
+
+      MpRtpInputAudioConnection::setPlc(inConnectionName,
+                                        *(mpTopologyGraph->getMsgQ()),
+                                        methodName);
+
+      returnCode = OS_SUCCESS;
+   }
+   return returnCode;
+}
 
 OsMsgDispatcher*  
 CpTopologyGraphInterface::setNotificationDispatcher(OsMsgDispatcher* pNotificationDispatcher)
