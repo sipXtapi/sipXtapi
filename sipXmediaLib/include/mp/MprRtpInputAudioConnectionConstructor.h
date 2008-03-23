@@ -63,8 +63,7 @@ public:
     {
         assert(maxResourcesToCreate >= 1);
         numResourcesCreated = 1;
-        resourceArray[0] = new MpRtpInputAudioConnection(resourceName, 999,
-                                                         MpPlcSilence::name);
+        resourceArray[0] = new MpRtpInputAudioConnection(resourceName, 999);
         resourceArray[0]->enable();
         return(OS_SUCCESS);
     }

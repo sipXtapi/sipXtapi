@@ -51,7 +51,7 @@ public:
      /// Constructor
    MpRtpInputAudioConnection(const UtlString& resourceName,
                              MpConnectionID myID,
-                             const UtlString &plcName);
+                             const UtlString &plcName = "");
 
      /// Destructor
    virtual

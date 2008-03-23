@@ -47,10 +47,12 @@ public:
 //@{
 
      /// Constructor
-   MpJitterBuffer(const UtlString &plcName,
+   MpJitterBuffer(const UtlString &plcName = "",
                   MpDecoderPayloadMap *pPayloadMap = NULL);
      /**<
      *  @param[in] plcName - name of PLC algorithm to use.
+     *  @param[in] pPayloadMap - set of decoders, mapped to their RTP payload
+     *             types.
      */
 
    void init(unsigned int samplesPerSec, unsigned int samplesPerFrame);
@@ -87,7 +89,7 @@ public:
    void setCodecList(MpDecoderPayloadMap *pPayloadMap);
 
      /// Change PLC algorithm to the one with given name.
-   void setPlc(const UtlString &plcName);
+   void setPlc(const UtlString &plcName = "");
 
 //@}
 

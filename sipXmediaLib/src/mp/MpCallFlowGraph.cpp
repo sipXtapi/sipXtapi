@@ -1250,7 +1250,7 @@ MpConnectionID MpCallFlowGraph::createConnection()
    inConnectionName.append(numBuf);
    outConnectionName.append(numBuf);
    mpInputConnections[found] = 
-      new MpRtpInputAudioConnection(inConnectionName, found, MpPlcSilence::name);
+      new MpRtpInputAudioConnection(inConnectionName, found);
    mpOutputConnections[found] = 
        new MpRtpOutputAudioConnection(outConnectionName, found);
 

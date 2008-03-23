@@ -55,7 +55,7 @@ public:
      /// Constructor
    MprDecode(const UtlString &rName,
              MpConnectionID connectionId,
-             const UtlString &plcName);
+             const UtlString &plcName = "");
 
      /// Destructor
    virtual

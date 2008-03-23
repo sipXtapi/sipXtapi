@@ -46,7 +46,15 @@ public:
 ///@name Creators
 //@{
 
-   static MpPlcBase *createPlc(const UtlString &plcName);
+     /// Factory method for PLC algorithms creation.
+   static MpPlcBase *createPlc(const UtlString &plcName = "");
+     /**<
+     *  @param[in] plcName - name of PLC algorithm to use. Use empty string
+     *             to get default algorithm.
+     *
+     *  @returns Method never returns NULL. If appropriate PLC algorithm is
+     *           not found, default one is returned.
+     */
 
      /// Initialize PLC with given sample rate and frame size.
    virtual OsStatus init(int samplesPerSec, int samplesPerFrame) = 0;
