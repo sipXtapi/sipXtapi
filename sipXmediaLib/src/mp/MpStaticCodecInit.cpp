@@ -22,7 +22,7 @@ extern "C" {
 static void initStaticCodec(void)
 {
 #ifdef CODEC_PCMA_PCMU_STATIC
-   REGISTER_STATIC_PLG(sipxPcmusipxPcma);
+   REGISTER_STATIC_PLG(sipXpcmapcmu);
 #endif
 #ifdef CODEC_TONES_STATIC
    REGISTER_STATIC_PLG(tones);
