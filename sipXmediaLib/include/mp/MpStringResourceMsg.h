@@ -36,9 +36,10 @@ public:
 //@{
 
      /// Constructor
-   MpStringResourceMsg(const UtlString& targetResourceName,
+   MpStringResourceMsg(MpResourceMsgType type,
+                       const UtlString& targetResourceName,
                        const UtlString& data)
-   : MpResourceMsg(MPRM_BRIDGE_SET_GAINS, targetResourceName)
+   : MpResourceMsg(type, targetResourceName)
    , mData(data)
    {
    };

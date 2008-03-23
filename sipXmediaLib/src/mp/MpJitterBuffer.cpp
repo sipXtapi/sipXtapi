@@ -23,6 +23,9 @@
 #include "mp/MpDecoderBase.h"
 #include "mp/MpPlcBase.h"
 
+#define RTL_ENABLED
+#define RTL_AUDIO_ENABLED
+
 #ifdef RTL_ENABLED
 #  include <rtl_macro.h>
 #  ifdef RTL_AUDIO_ENABLED
@@ -95,6 +98,7 @@ OsStatus MpJitterBuffer::pushPacket(MpRtpBufPtr &rtpPacket)
    {
       return OS_FAILED;
    }
+   codecSampleRate = decoder->getInfo()->getSampleRate();
 
    RTL_EVENT("MpJitterBuffer_pushPacket_loss_patern", !rtpPacket.isValid());
 
@@ -126,7 +130,6 @@ OsStatus MpJitterBuffer::pushPacket(MpRtpBufPtr &rtpPacket)
 #endif
 
    // Get source sample rate and update sample rate if changed.
-   codecSampleRate = decoder->getInfo()->getSampleRate();
    if (  (codecSampleRate != mSampleRate)
       && (mpResampler->getInputRate() != codecSampleRate))
    {

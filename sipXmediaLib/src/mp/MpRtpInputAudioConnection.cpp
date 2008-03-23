@@ -180,7 +180,8 @@ OsStatus MpRtpInputAudioConnection::setPlc(const UtlString& namedResource,
                                            OsMsgQ& fgQ,
                                            const UtlString& plcName)
 {
-   MpStringResourceMsg msg(plcName, namedResource);
+   MpStringResourceMsg msg((MpResourceMsg::MpResourceMsgType)MPRM_SET_PLC,
+                           namedResource, plcName);
    return fgQ.send(msg, sOperationQueueTimeout);
 }
 
