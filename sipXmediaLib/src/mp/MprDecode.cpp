@@ -290,7 +290,8 @@ UtlBoolean MprDecode::doProcessFrame(MpBufPtr inBufs[],
          // todo:: fix glitch!
          if (mpJB->getSamplesNum() > 0)
          {
-            printf("Flushing decode buffer. Glitch!");
+            printf("Flushing decode buffer with %d samples. Glitch!\n",
+                   mpJB->getSamplesNum());
             mpJB->flush();
          }
 
