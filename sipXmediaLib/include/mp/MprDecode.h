@@ -39,6 +39,7 @@ class MpDecoderBase;
 class MprRecorder;
 class MpJitterBuffer;
 class MprDejitter;
+class MpPlcBase;
 
 /// The "Decode" media processing resource
 class MprDecode : public MpAudioResource
@@ -149,7 +150,19 @@ private:
    UtlBoolean mIsJBInitialized;     ///< Is JB initialized or not?
    OsNotification* mpDtmfNotication;
 
-   MprDejitter* mpMyDJ;
+   MprDejitter* mpMyDJ;             ///< Dejitter instance, used by this decoder.
+   UtlBoolean mIsStreamInitialized; ///< Have we received at least one packet?
+   RtpSeq mLastPlayedSeq;           ///< Sequence number of last played RTP packet.
+   RtpTimestamp mCurTimestamp;      ///< Current playback timestamp.
+
+   MpPlcBase   *mpPlc;              ///< PLC instance.
+   MpAudioBufPtr mTempPlcFrame;     ///< This audio frame pointer is used to
+                                    ///< reduce number of frames allocations/
+                                    ///< deallocations by keeping unused
+                                    ///< frame between calls to doPlc().
+   UtlBoolean mIsPlcInitialized;    ///< Is JB initialized or not?
+   int mCurFrameNum;                ///< Number of current frame.
+                                    ///< Used to interact with PLC.
 
    /// List of the codecs to be used to decode media.
    /**
@@ -175,7 +188,14 @@ private:
                                      int samplesPerFrame,
                                      int samplesPerSecond);
 
-   UtlBoolean isPayloadTypeSupported(int payloadType);
+     /// Decode RTP packet if it belongs to signaling codec.
+   UtlBoolean tryDecodeAsSignalling(const MpRtpBufPtr &rtp);
+     /**<
+     *  @retval TRUE - packet was decoded as signaling
+     *  @retval FALSE - packet is not signaling
+     */
+
+   void doPlc(MpAudioBufPtr &pFrame);
 
      /// Handle old style messages for this resource.
    virtual UtlBoolean handleMessage(MpFlowGraphMsg& rMsg);
@@ -207,8 +227,6 @@ private:
 
      /// Assignment operator (not implemented for this class)
    MprDecode& operator=(const MprDecode& rhs);
-
-   MprDejitter* getMyDejitter(void);
 
 };
 

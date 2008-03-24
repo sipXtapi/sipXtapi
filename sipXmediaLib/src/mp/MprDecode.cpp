@@ -27,6 +27,7 @@
 
 // APPLICATION INCLUDES
 #include "mp/MpMisc.h"
+#include "mp/MpDspUtils.h"
 #include "mp/MpBuf.h"
 #include "mp/MpRtpInputAudioConnection.h"
 #include "mp/MprDecode.h"
@@ -37,6 +38,7 @@
 #include "mp/MpMediaTask.h"
 #include "mp/MpCodecFactory.h"
 #include "mp/MpJitterBuffer.h"
+#include "mp/MpPlcBase.h"
 #include "mp/MpFlowGraphBase.h"
 #include "mp/MprnDTMFMsg.h"
 #include "mp/MpStringResourceMsg.h"
@@ -45,6 +47,16 @@
 #include "os/OsLock.h"
 #include "os/OsNotification.h"
 #include "mp/MprDejitter.h"
+
+#ifdef RTL_ENABLED
+#  include <rtl_macro.h>
+#  ifdef RTL_AUDIO_ENABLED
+#     include <SeScopeAudioBuffer.h>
+#  endif
+#else
+#  define RTL_BLOCK(x)
+#  define RTL_EVENT(x,y)
+#endif
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -59,9 +71,12 @@
 MprDecode::MprDecode(const UtlString& rName, MpConnectionID connectionId,
                      const UtlString &plcName)
 : MpAudioResource(rName, 0, 0, 1, 1)
-, mpJB(NULL)
+, mpJB(new MpJitterBuffer())
 , mpDtmfNotication(NULL)
 , mpMyDJ(NULL)
+, mIsStreamInitialized(FALSE)
+, mpPlc(MpPlcBase::createPlc(plcName))
+, mIsPlcInitialized(FALSE)
 , mIsJBInitialized(FALSE)
 , mpCurrentCodecs(NULL)
 , mNumCurrentCodecs(0)
@@ -69,8 +84,8 @@ MprDecode::MprDecode(const UtlString& rName, MpConnectionID connectionId,
 , mNumPrevCodecs(0)
 , mConnectionId(connectionId)
 {
-   mpJB = new MpJitterBuffer(plcName);
    assert(mpJB != NULL);
+   assert(mpPlc != NULL);
 }
 
 // Destructor
@@ -81,6 +96,7 @@ MprDecode::~MprDecode()
 
    // Free decoder buffer.
    delete mpJB;
+   delete mpPlc;
 
    // Delete the list of codecs used in the past.
    OsLock lock(mLock);
@@ -157,7 +173,7 @@ OsStatus MprDecode::pushPacket(const MpRtpBufPtr &pRtp)
    int pt = pRtp->getRtpPayloadType();
    const MpCodecInfo* pDecoderInfo = mDecoderMap.mapPayloadType(pt)->getInfo();
 
-   return getMyDejitter()->pushPacket(pRtp, pDecoderInfo->isSignalingCodec());
+   return mpMyDJ->pushPacket(pRtp, pDecoderInfo->isSignalingCodec());
 }
 
 /* ============================ ACCESSORS ================================= */
@@ -176,12 +192,6 @@ UtlBoolean MprDecode::handleSetDtmfNotify(OsNotification* pNotify)
 }
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
-
-MprDejitter* MprDecode::getMyDejitter(void)
-{
-   assert(NULL != mpMyDJ);
-   return mpMyDJ;
-}
 
 UtlBoolean MprDecode::doProcessFrame(MpBufPtr inBufs[],
                                      MpBufPtr outBufs[],
@@ -209,89 +219,206 @@ UtlBoolean MprDecode::doProcessFrame(MpBufPtr inBufs[],
       return TRUE;
    }
 
-   MprDejitter* pDej = getMyDejitter();
+   // Initialize PLC if it is not initialized yet.
+   if (!mIsPlcInitialized)
+   {
+      mpPlc->init(mpFlowGraph->getSamplesPerSec(), mpFlowGraph->getSamplesPerFrame());
+      mCurFrameNum = 0;
+      mIsPlcInitialized = TRUE;
+   }
 
    // Lock access to dejitter and m*Codecs data
    OsLock lock(mLock);
+   assert(mpMyDJ != NULL);
 
-   // Inform the dejitter that the next frame has happened. 
-   pDej->frameIncrement(mpFlowGraph->getSamplesPerFrame());
-
-   while ((rtp = pDej->pullPacket()).isValid()) 
+   // Initialize stream, if not initialized yet
+   // and get latest RTP packet from dejitter queue.
+   if (mIsStreamInitialized == FALSE)
    {
-      int pt = rtp->getRtpPayloadType();
-      MpDecoderBase* pCurDec = mDecoderMap.mapPayloadType(pt);
-
-      // The codec is null. Do not continue.
-      // TODO:: NEED ERROR HANDLING HERE.
-      if (pCurDec==NULL)
-         break;
-
-      // THIS JitterBuffer is NOT the same as MprDejitter!
-      // This is more of a Decode Buffer.
-      OsStatus res = mpJB->pushPacket(rtp);
-      if (res != OS_SUCCESS)
+      // Get first packet from queue. Return if queue is still empty.
+      rtp = mpMyDJ->pullPacket();
+      if (!rtp.isValid())
       {
-         osPrintf("\n\n *** MprDecode::doProcessFrame() returned %d\n", res);
-         osPrintf(" pt=%d, Ts=%d, Seq=%d\n\n",
-                  rtp->getRtpPayloadType(),
-                  rtp->getRtpTimestamp(), rtp->getRtpSequenceNumber());
+         return TRUE;
       }
-      if (pCurDec->getInfo()->isSignalingCodec())
+
+      // Initialize stream with this packet.
+      mLastPlayedSeq = rtp->getRtpSequenceNumber();
+      mCurTimestamp = rtp->getRtpTimestamp();
+
+      mIsStreamInitialized = TRUE;
+   }
+   else
+   {
+      MpRtpBufPtr tmpRtp;
+      while ((tmpRtp = mpMyDJ->pullPacket()).isValid())
       {
-         uint8_t event;
-         UtlBoolean isStarted;
-         UtlBoolean isStopped;
-         uint16_t duration;
-         OsStatus sigRes;
+         // If delayed packet, drop it
+         if (MpDspUtils::compareSerials(mLastPlayedSeq, tmpRtp->getRtpSequenceNumber()) > 0)
+         {
+            // todo:: fix glitch!
+            printf("Dropping delayed packet with seq#%u, TS%u\n",
+                   tmpRtp->getRtpSequenceNumber(), tmpRtp->getRtpTimestamp());
+            continue;
+         }
+         // If signaling - decode it now.
+         if (tryDecodeAsSignalling(tmpRtp))
+         {
+            continue;
+         }
+         // Accept packet, if it is later then one we already have, else drop it.
+         if (  !rtp.isValid()
+            || (MpDspUtils::compareSerials(rtp->getRtpSequenceNumber(),
+                                           tmpRtp->getRtpSequenceNumber()) < 0))
+         {
+            rtp = tmpRtp;
+         }
+      }
+   }
 
-         do {
-            sigRes = pCurDec->getSignalingData(event,
-                                               isStarted,
-                                               isStopped,
-                                               duration);
-            assert(sigRes != OS_NOT_SUPPORTED);
-            if (sigRes == OS_SUCCESS && isStarted)
-            {
-               // Post DTMF notification message to indicate key down.
-               MprnDTMFMsg dtmfMsg(getName(), mConnectionId,
-                                   (MprnDTMFMsg::KeyCode)event,
-                                   MprnDTMFMsg::KEY_DOWN);
-               sendNotification(dtmfMsg);
+   // Decode RTP packet if we got one.
+   if (rtp.isValid())
+   {
+      MpDecoderBase* pCurDec = mDecoderMap.mapPayloadType(rtp->getRtpPayloadType());
 
-               // Old way to indicate DTMF event. Will be removed soon, I hope.
-               if (mpDtmfNotication)
-               {
-                  mpDtmfNotication->signal( duration
-                                          | (uint32_t)(event) << 16
-                                          | 0<<31);
-               }
-            }
+      if (pCurDec != NULL)
+      {
+//         printf("decoding RTP seq# %u   TS %u\n",
+//                rtp->getRtpSequenceNumber(), rtp->getRtpTimestamp());
 
-            if (sigRes == OS_SUCCESS && isStopped)
-            {
-               // Post DTMF notification message to indicate key up.
-               MprnDTMFMsg dtmfMsg(getName(), mConnectionId,
-                                   (MprnDTMFMsg::KeyCode)event,
-                                   MprnDTMFMsg::KEY_UP, duration);
-               sendNotification(dtmfMsg);
+         // Flush decoder buffer, if there were unplayed frames.
+         // todo:: fix glitch!
+         if (mpJB->getSamplesNum() > 0)
+         {
+            printf("Flushing decode buffer. Glitch!");
+            mpJB->flush();
+         }
 
-               // Old way to indicate DTMF event. Will be removed soon, I hope.
-               if (mpDtmfNotication)
-               {
-                  mpDtmfNotication->signal( duration
-                                          | (uint32_t)(event) << 16
-                                          | 1<<31);
-               }
-            }
-         } while (sigRes == OS_SUCCESS);
+         OsStatus res = mpJB->pushPacket(rtp);
+         if (res != OS_SUCCESS)
+         {
+            osPrintf("\n\n *** MprDecode::doProcessFrame() returned %d\n", res);
+            osPrintf(" pt=%d, Ts=%d, Seq=%d\n\n",
+                     rtp->getRtpPayloadType(),
+                     rtp->getRtpTimestamp(), rtp->getRtpSequenceNumber());
+         }
       }
    }
 
    // Get next decoded frame
-   outBufs[0] = mpJB->getSamples();
+   int numOriginalSamples;
+   mpJB->getFrame(out, numOriginalSamples);
+
+   // Run frame through PLC algorithm
+   doPlc(out);
+
+   outBufs[0] = out;
+   return TRUE;
+}
+
+UtlBoolean MprDecode::tryDecodeAsSignalling(const MpRtpBufPtr &rtp)
+{
+   MpDecoderBase* pCurDec = mDecoderMap.mapPayloadType(rtp->getRtpPayloadType());
+
+   // The codec is null or is not signaling. Do not continue.
+   if (pCurDec == NULL || !pCurDec->getInfo()->isSignalingCodec())
+      return FALSE;
+
+   uint8_t event;
+   UtlBoolean isStarted;
+   UtlBoolean isStopped;
+   uint16_t duration;
+   OsStatus sigRes;
+
+   do {
+      sigRes = pCurDec->getSignalingData(event,
+                                         isStarted,
+                                         isStopped,
+                                         duration);
+      assert(sigRes != OS_NOT_SUPPORTED);
+      if (sigRes == OS_SUCCESS && isStarted)
+      {
+         // Post DTMF notification message to indicate key down.
+         MprnDTMFMsg dtmfMsg(getName(), mConnectionId,
+                             (MprnDTMFMsg::KeyCode)event,
+                             MprnDTMFMsg::KEY_DOWN);
+         sendNotification(dtmfMsg);
+
+         // Old way to indicate DTMF event. Will be removed soon, I hope.
+         if (mpDtmfNotication)
+         {
+            mpDtmfNotication->signal( duration
+                                    | (uint32_t)(event) << 16
+                                    | 0<<31);
+         }
+      }
+
+      if (sigRes == OS_SUCCESS && isStopped)
+      {
+         // Post DTMF notification message to indicate key up.
+         MprnDTMFMsg dtmfMsg(getName(), mConnectionId,
+                             (MprnDTMFMsg::KeyCode)event,
+                             MprnDTMFMsg::KEY_UP, duration);
+         sendNotification(dtmfMsg);
+
+         // Old way to indicate DTMF event. Will be removed soon, I hope.
+         if (mpDtmfNotication)
+         {
+            mpDtmfNotication->signal( duration
+                                    | (uint32_t)(event) << 16
+                                    | 1<<31);
+         }
+      }
+   } while (sigRes == OS_SUCCESS);
 
    return TRUE;
+}
+
+void MprDecode::doPlc(MpAudioBufPtr &pFrame)
+{
+   const MpAudioSample *plcSamplesIn = NULL;
+   MpAudioSample *plcSamplesOut = NULL;
+   UtlBoolean plcIsFrameModified;
+   OsStatus plcResult;
+
+   RTL_EVENT("MprDecode_doPlc_loss_patern", !pFrame.isValid());
+
+   // Prepare pointers to input and output frames for PLC.
+   if (pFrame.isValid())
+   {
+      plcSamplesIn = pFrame->getSamplesPtr();
+   }
+   if (!mTempPlcFrame.isValid())
+   {
+      mTempPlcFrame = MpMisc.RawAudioPool->getBuffer();
+      assert(mTempPlcFrame.isValid());
+      mTempPlcFrame->setSamplesNumber(mpFlowGraph->getSamplesPerFrame());
+      mTempPlcFrame->setSpeechType(MpAudioBuf::MP_SPEECH_UNKNOWN);
+   }
+   plcSamplesOut = mTempPlcFrame->getSamplesWritePtr();
+
+   // Pass frame through PLC.
+   plcResult = mpPlc->processFrame(mCurFrameNum, mCurFrameNum,
+                                   plcSamplesIn, plcSamplesOut,
+                                   &plcIsFrameModified);
+   assert(plcResult == OS_SUCCESS);
+   if (plcResult == OS_SUCCESS && plcIsFrameModified)
+   {
+      pFrame.release();
+      pFrame.swap(mTempPlcFrame);
+   }
+
+#ifdef RTL_AUDIO_ENABLED
+   UtlString outputLabel("MpJitterBuffer_getSamples");
+   RTL_RAW_AUDIO(outputLabel,
+                 mpFlowGraph->getSamplesPerSec(),
+                 pFrame->getSamplesNumber(),
+                 pFrame->getSamplesPtr(),
+                 mCurFrameNum);
+#endif
+
+   // Advance frame number.
+   mCurFrameNum++;
 }
 
 // Handle old style messages for this resource.
@@ -474,7 +601,12 @@ UtlBoolean MprDecode::handleDeselectCodec(MpDecoderBase* pDecoder)
 
 UtlBoolean MprDecode::handleSetPlc(const UtlString &plcName)
 {
-   mpJB->setPlc(plcName);
+   // Free old PLC
+   delete mpPlc;
+
+   // Set PLC to a new one
+   mpPlc = MpPlcBase::createPlc(plcName);
+   mIsPlcInitialized = FALSE;
 
    return TRUE;
 }

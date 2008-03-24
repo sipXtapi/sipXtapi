@@ -21,8 +21,6 @@
 #include "mp/MpRtpBuf.h"
 
 // DEFINES
-#define LONG_DEJITTER
-
 // MACROS
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -38,14 +36,7 @@ class MprDejitter
 public:
 
    enum {
-#ifdef LONG_DEJITTER // [
-      MAX_RTP_PACKETS = 64,  ///< MUST BE A POWER OF 2, AND SHOULD BE >3
-        // 20 Apr 2001 (HZM): Increased from 16 to 64 for debugging purposes.
-        // 15 Dec 2004: This isn't the actual amount of buffer used, just the size of the container
-#else // LONG_DEJITTER ][
-      MAX_RTP_PACKETS = 3,  ///< Could be any value.
-#endif // LONG_DEJITTER ]
-
+      MAX_RTP_PACKETS = 4,  ///< Could be any value, power of 2 is desired.
       MAX_CODECS = 10, ///< Maximum number of codecs in incoming RTP streams.
    };
 
@@ -111,12 +102,6 @@ public:
      *  If pulled packet belong to signaling codec (e.g. RFC2833 DTMF), then
      *  set isSignaling to true. Else packet will be hold for undefined
      *  amount of time, possible forever.
-     */
-
-     /// Call this function on every frame processing tick.
-   void frameIncrement(int samplesNum);
-     /**<
-     *  This tells dejitter that we have to pull next packet from it.
      */
 
 //@}
@@ -200,30 +185,6 @@ private:
         /**<
         *  Call this function when stream source have changed to start
         *  collecting new statistic.
-        */
-
-        /// Check do we want this RTP packet or not.
-      int checkPacket(const MpRtpBufPtr &pPacket,
-                      RtpTimestamp nextPullTimestamp,
-                      UtlBoolean isSignaling);
-        /**<
-        *  @param[in] pPacket - RTP packet to check.
-        *  @param[in] nextPullTimestamp - timestamp of packet will be pulled next.
-        *  @param[in] isSignaling - Is this codec signaling (e.g. RFC2833 DTMF)?
-        *             Packets from signaling codecs are always accepted.
-        *
-        *  @note This method can be called more than one time per frame interval.
-        *
-        *  @retval >0 - pass this buffer to decoder
-        *  @retval 0  - wait for next tick
-        *  @retval -1 - discard packet (e.g. out of order packet)
-        */
-
-        /// Update collected statistic.
-      void updateStatistic();
-        /**<
-        *  Every second this function is called with the average number of
-        *  packets in the dejitter. We want to keep it near target buffer size.
         */
    };
 

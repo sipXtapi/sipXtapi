@@ -47,10 +47,8 @@ public:
 //@{
 
      /// Constructor
-   MpJitterBuffer(const UtlString &plcName = "",
-                  MpDecoderPayloadMap *pPayloadMap = NULL);
+   MpJitterBuffer(MpDecoderPayloadMap *pPayloadMap = NULL);
      /**<
-     *  @param[in] plcName - name of PLC algorithm to use.
      *  @param[in] pPayloadMap - set of decoders, mapped to their RTP payload
      *             types.
      */
@@ -58,7 +56,6 @@ public:
    void init(unsigned int samplesPerSec, unsigned int samplesPerFrame);
 
      /// Destructor
-   virtual
    ~MpJitterBuffer();
 
 //@}
@@ -83,24 +80,30 @@ public:
      */
 
      /// Get next frame from decoder buffer.
-   MpAudioBufPtr getSamples();
+   void getFrame(MpAudioBufPtr &pFrame, int &numOriginalSamples);
+     /**<
+     *  @note \p pFrame must be NULL before passing to this method!
+     *
+     *  @param[out] pFrame - pointer to returned frame.
+     *  @param[out] numOriginalSamples - number of samples in returned frame
+     *              would be without resampling.
+     */
 
      /// Update list of available decoders.
    void setCodecList(MpDecoderPayloadMap *pPayloadMap);
 
-     /// Change PLC algorithm to the one with given name.
-   void setPlc(const UtlString &plcName = "");
-     /**<
-     *  @param[in] plcName - name of PLC algorithm to use. If given name is
-     *             not known, default PLC algorithm will be used. Thus, to
-     *             select default algorithm, empty string could be used.
-     */
+     /// Flush all unread buffers and prepare for next decode.
+   void flush();
 
 //@}
 
 /* ============================ ACCESSORS ================================= */
 ///@name Accessors
 //@{
+
+      /// Get number of samples, remaining in buffer.
+   inline
+   int getSamplesNum() const;
 
 //@}
 
@@ -132,21 +135,18 @@ private:
    MpResamplerBase *mpResampler;    ///< Resampler instance to convert codec
                                     ///< sample rate to flowgraph sample rate.
 
-   UtlBoolean mIsFirstPacket;       ///< Is next packet first received or not?
-   RtpTimestamp mOldestTimestamp;   ///< Oldest timestamp in buffer.
-   unsigned mOldestFrameNum;        ///< Internal sequence number of oldest
+   unsigned mCurFrameNum;        ///< Internal sequence number of oldest
                                     ///< frame in mFrames[]. It is also used
                                     ///< as a base for frames index calculation.
+   unsigned mRemainingSamplesNum;   ///< Total number of samples still residing
+                                    ///< in mFrames[].
    MpAudioBufPtr mFrames[FRAMES_TO_STORE]; ///< Buffer for decoded, resampled and sliced audio.
+   int mOriginalSamples[FRAMES_TO_STORE]; ///< Numbers of samples in frames
+                                    ///< before resampling was done.
 
    MpDecoderPayloadMap *mpPayloadMap; ///< Map of RTP payload types to decoders.
                                     ///< Note, we do not own instance of this map,
                                     ///< we only store pointer to it.
-   MpPlcBase *mpPlc;                ///< Instance of PLC algorithm.
-   MpAudioBufPtr mTempPlcFrame;     ///< This audio frame pointer is used to
-                                    ///< reduce number of frames allocations/
-                                    ///< deallocations by keeping unused
-                                    ///< frame between calls to getSamples().
 
    /// Copy constructor
    MpJitterBuffer(const MpJitterBuffer& rMpJitterBuffer);
@@ -156,5 +156,10 @@ private:
 };
 
 /* ============================ INLINE METHODS ============================ */
+
+int MpJitterBuffer::getSamplesNum() const
+{
+   return mRemainingSamplesNum;
+}
 
 #endif  // _MpJitterBuffer_h_
