@@ -244,7 +244,6 @@ UtlBoolean MprDecode::doProcessFrame(MpBufPtr inBufs[],
 
       // Initialize stream with this packet.
       mLastPlayedSeq = rtp->getRtpSequenceNumber();
-      mCurTimestamp = rtp->getRtpTimestamp();
 
       mIsStreamInitialized = TRUE;
    }
@@ -280,6 +279,9 @@ UtlBoolean MprDecode::doProcessFrame(MpBufPtr inBufs[],
    if (rtp.isValid())
    {
       MpDecoderBase* pCurDec = mDecoderMap.mapPayloadType(rtp->getRtpPayloadType());
+
+      // Update last played sequence number.
+      mLastPlayedSeq = rtp->getRtpSequenceNumber();
 
       if (pCurDec != NULL)
       {

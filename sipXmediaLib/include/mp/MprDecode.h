@@ -153,7 +153,6 @@ private:
    MprDejitter* mpMyDJ;             ///< Dejitter instance, used by this decoder.
    UtlBoolean mIsStreamInitialized; ///< Have we received at least one packet?
    RtpSeq mLastPlayedSeq;           ///< Sequence number of last played RTP packet.
-   RtpTimestamp mCurTimestamp;      ///< Current playback timestamp.
 
    MpPlcBase   *mpPlc;              ///< PLC instance.
    MpAudioBufPtr mTempPlcFrame;     ///< This audio frame pointer is used to
