@@ -11,6 +11,10 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
+// OsIntTypes.h must be first include to define correct macros before system
+// inttypes.h will be included.
+#include <os/OsIntTypes.h>
+
 // SYSTEM INCLUDES
 #include <assert.h>
 
