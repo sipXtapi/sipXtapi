@@ -39,7 +39,12 @@ const char* SdpMediaLine::SdpTransportProtocolTypeString[] =
    "RTP/SAVPF",
    "TCP",
    "TCP/RTP/AVP",
-   "TCP/TLS"
+   "TCP/TLS",
+   "UDP/TLS",
+   "DCCP/TLS",
+   "DCCP/TLS/RTP/SAVP",
+   "UDP/TLS/RTP/SAVP",
+   "TCP/TLS/RTP/SAVP"
 };
 
 const char* SdpMediaLine::SdpEncryptionMethodString[] =

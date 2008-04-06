@@ -434,6 +434,96 @@ public:
       unsigned int   mPort;
    };
 
+   class SdpTransportProtocolCapabilities : public UtlCopyableContainable
+   {
+   public:
+      SdpTransportProtocolCapabilities(unsigned int id, SdpTransportProtocolType type) :
+         mId(id), mType(type) {}
+      SdpTransportProtocolCapabilities(const SdpTransportProtocolCapabilities& rhs) :
+         mId(rhs.mId), mType(rhs.mType) {}
+
+      // Containable requirements
+      UtlContainableType getContainableType() const { static char type[] = "SdpTransportProtocolCapabilities"; return type;}
+      unsigned hash() const { return directHash(); }
+      int compareTo(UtlContainable const *) const { return 0; } // not implemented
+      UtlCopyableContainable* clone() const { return new SdpTransportProtocolCapabilities(*this); }
+
+      // Accessors
+      void setId(unsigned int id) { mId = id; }
+      const unsigned int getId() const { return mId; }
+
+      void setType(SdpTransportProtocolType type) { mType = type; }
+      SdpTransportProtocolType getType() const { return mType; }
+
+   private:
+      unsigned int mId;
+      SdpTransportProtocolType mType;
+   };
+
+   class SdpPotentialConfiguration : public UtlCopyableContainable
+   {
+   public:
+      class ConfigIdItem : public UtlCopyableContainable
+      {
+      public:
+         ConfigIdItem(unsigned id, bool optional=false) : mId(id), mOptional(optional) {}
+         ConfigIdItem(const ConfigIdItem& rhs) : mId(rhs.mId), mOptional(rhs.mOptional) {}
+
+         // Containable requirements
+         UtlContainableType getContainableType() const { static char type[] = "ConfigIdItem"; return type;}
+         unsigned hash() const { return directHash(); }
+         int compareTo(UtlContainable const *) const { return 0; } // not implemented
+         UtlCopyableContainable* clone() const { return new ConfigIdItem(*this); }
+
+         // Accessors
+         void setId(unsigned int id) { mId = id; }
+         const unsigned int getId() const { return mId; }
+
+         bool setOptional(bool optional) { mOptional = optional; }
+         const bool getOptional() const { return mOptional; }
+
+      private:
+         unsigned int mId;
+         bool mOptional;
+      };
+
+      SdpPotentialConfiguration(unsigned int id, bool deleteMediaAttributes, bool deleteSessionAttributes, unsigned int transportId) : 
+         mId(id), mDeleteMediaAttributes(deleteMediaAttributes), mDeleteSessionAttributes(deleteSessionAttributes), mTransportId(transportId) {}
+      SdpPotentialConfiguration(const SdpPotentialConfiguration& rhs) :
+         mId(rhs.mId), mDeleteMediaAttributes(rhs.mDeleteMediaAttributes), mDeleteSessionAttributes(rhs.mDeleteSessionAttributes),
+         mTransportId(rhs.mTransportId), mAttributeIdList(rhs.mAttributeIdList)  {}
+
+      // Containable requirements
+      UtlContainableType getContainableType() const { static char type[] = "SdpPotentialConfiguration"; return type;}
+      unsigned hash() const { return directHash(); }
+      int compareTo(UtlContainable const *) const { return 0; } // not implemented
+      UtlCopyableContainable* clone() const { return new SdpPotentialConfiguration(*this); }
+
+      // Accessors
+      void setId(unsigned int id) { mId = id; }
+      const unsigned int getId() const { return mId; }
+
+      void setDeleteMediaAttributes(bool deleteMediaAttributes) { mDeleteMediaAttributes = deleteMediaAttributes; }
+      const bool getDeleteMediaAttributes() const { return mDeleteMediaAttributes; }
+
+      void setDeleteSessionAttributes(bool deleteSessionAttributes) { mDeleteSessionAttributes = deleteSessionAttributes; }
+      const bool getDeleteSessionAttributes() const { return mDeleteSessionAttributes; }
+
+      void setTransportId(unsigned int transportId) { mTransportId = transportId; }
+      const unsigned int getTransportId() const { return mTransportId; }
+
+      void addAttributeId(unsigned int id, bool optional) { addAttributeId(new ConfigIdItem(id, optional)); }
+      void addAttributeId(ConfigIdItem* configIdItem) { mAttributeIdList.insert(configIdItem); }
+      void clearAttributeIds() { mAttributeIdList.destroyAll(); }
+      const UtlCopyableSList& getAttributeIds() const { return mAttributeIdList; }
+
+   private:
+      unsigned int mId;
+      bool mDeleteMediaAttributes;
+      bool mDeleteSessionAttributes;
+      unsigned int mTransportId;
+      UtlCopyableSList   mAttributeIdList;
+   };
 
 /* ============================ CREATORS ================================== */
 
@@ -535,6 +625,11 @@ public:
    void addCandidatePair(SdpCandidatePair* sdpCandidatePair) { mCandidatePairs.insert(sdpCandidatePair); }
    void clearCandidatePairs() { mCandidatePairs.destroyAll(); }
 
+   void addPotentialMediaView(SdpMediaLine* potentialMediaView) { mPotentialMediaViews.insert(potentialMediaView); }
+   void clearPotentialMediaViews() { mPotentialMediaViews.destroyAll(); }
+
+   void setPotentialMediaViewString(const char *potentialMediaViewString) { mPotentialMediaViewString = potentialMediaViewString; }
+
 
 /* ============================ ACCESSORS ================================= */
 
@@ -602,6 +697,9 @@ public:
    const UtlCopyableSortedList& getCandidatePairs() const { return mCandidatePairs; }
    UtlCopyableSortedList& getCandidatePairs() { return mCandidatePairs; }  // non-const version for manipulation
 
+   const UtlCopyableSList& getPotentialMediaViews() const { return mPotentialMediaViews; }
+   const UtlString& getPotentialMediaViewString() const { return mPotentialMediaViewString; }
+
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 
@@ -665,6 +763,10 @@ private:
    bool           mRtpCandidatePresent;  
    bool           mRtcpCandidatePresent;
    UtlCopyableSortedList mCandidatePairs;       
+
+   // SDP Capabilities Negotiation
+   UtlCopyableSList mPotentialMediaViews; // List of Potential Media Configurations
+   UtlString mPotentialMediaViewString;   // string that would be used in a=acfg attribute of an answer using this potential view
 };
 
 /* ============================ INLINE METHODS ============================ */
