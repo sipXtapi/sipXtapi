@@ -13,7 +13,9 @@
 
 // APPLICATION INCLUDES
 
+#ifdef __linux__
 #include "sipxportlib-buildstamp.h"
+#endif
 #include "utl/UtlString.h"
 #include "utl/UtlSList.h"
 #include "utl/UtlSListIterator.h"
@@ -94,9 +96,11 @@ int main()
 
    timer.addEvent("Done");
 
+#ifdef __linux__
    osPrintf("UtlSlist Performance v=%s %s:\n",
             SipXportlibVersion, SipXportlibBuildStamp
             );
+#endif
    timer.dumpLog();
 
    return 0;
