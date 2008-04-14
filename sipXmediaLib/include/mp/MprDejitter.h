@@ -110,9 +110,6 @@ public:
 ///@name Accessors
 //@{
 
-     /// Return number of packets in buffer for given payload type.
-   int getBufferLength(int payload);
-
 //@}
 
 /* ============================ INQUIRY =================================== */
