@@ -255,7 +255,7 @@ void MpRtpInputAudioConnection::handleStartReceiveRtp(SdpCodec* pCodecs[],
 {
    if (numCodecs)
    {
-      mpDecode->selectCodecs(pCodecs, numCodecs);       
+      mpDecode->handleSelectCodecs(pCodecs, numCodecs);
    }
    // No need to synchronize as the decoder is not part of the
    // flowgraph.  It is part of this connection/resource
@@ -280,7 +280,7 @@ void MpRtpInputAudioConnection::handleStopReceiveRtp()
    //mpFlowGraph->synchronize();
 
 
-   mpDecode->deselectCodec();
+   mpDecode->handleDeselectCodecs();
    // No need to synchronize as the decoder is not part of the
    // flowgraph.  It is part of this connection/resource
    //mpFlowGraph->synchronize();
