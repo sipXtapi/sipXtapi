@@ -439,8 +439,17 @@ UtlBoolean MprDecode::handleMessage(MpFlowGraphMsg& rMsg)
       ret = TRUE;
       break;
    case SELECT_CODECS:
-      handleSelectCodecs((SdpCodec**) rMsg.getPtr1(), rMsg.getInt1());
-      ret = TRUE;
+      {
+         SdpCodec** pCodecs = (SdpCodec**)rMsg.getPtr1();
+         int numCodecs = rMsg.getInt1();
+         handleSelectCodecs(pCodecs, numCodecs);
+         // Delete the list pCodecs.
+         for (int i=0; i<numCodecs; i++) {
+            delete pCodecs[i];
+         }
+         delete[] pCodecs;
+         ret = TRUE;
+      }
       break;
    default:
       ret = MpAudioResource::handleMessage(rMsg);
@@ -587,11 +596,6 @@ UtlBoolean MprDecode::handleSelectCodecs(SdpCodec* pCodecs[], int numCodecs)
 
    mpJB->setCodecList(&mDecoderMap);
 
-   // Delete the list pCodecs.
-   for (i=0; i<numCodecs; i++) {
-      delete pCodecs[i];
-   }
-   delete[] pCodecs;
    return TRUE;
 }
 
