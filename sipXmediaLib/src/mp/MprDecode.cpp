@@ -177,6 +177,35 @@ OsStatus MprDecode::pushPacket(const MpRtpBufPtr &pRtp)
    int pt = pRtp->getRtpPayloadType();
    const MpCodecInfo* pDecoderInfo = mDecoderMap.mapPayloadType(pt)->getInfo();
 
+   // Initialize stream, if not initialized yet
+   // and get latest RTP packet from dejitter queue.
+   if (mIsStreamInitialized == FALSE)
+   {
+      // Initialize stream with this packet.
+      mLastPlayedSeq = pRtp->getRtpSequenceNumber();
+
+      mStreamState.streamPosition = pRtp->getRtpTimestamp() - JB_LENGTH_SAMPLES;
+      mStreamState.recommendedPosition = mStreamState.streamPosition;
+
+      mIsStreamInitialized = TRUE;
+   }
+   else
+   {
+      // Update jitter state data
+      uint32_t newPosition = pRtp->getRtpTimestamp() - JB_LENGTH_SAMPLES;
+      if (MpDspUtils::compareSerials(newPosition, mStreamState.recommendedPosition) > 0)
+      {
+         mStreamState.recommendedPosition = newPosition;
+      }
+   }
+
+#ifdef DEBUG_PRINT // [
+   printf(">>> pushing                          position=%u recommended=%u\n",
+           mStreamState.streamPosition, mStreamState.recommendedPosition);
+   printf("PUSH: Seq#=%u   TS=%u\n",
+          pRtp->getRtpSequenceNumber(), pRtp->getRtpTimestamp());
+#endif // DEBUG_PRINT ]
+
    return mpMyDJ->pushPacket(pRtp, pDecoderInfo->isSignalingCodec());
 }
 
@@ -239,23 +268,34 @@ UtlBoolean MprDecode::doProcessFrame(MpBufPtr inBufs[],
    // and get latest RTP packet from dejitter queue.
    if (mIsStreamInitialized == FALSE)
    {
-      // Get first packet from queue. Return if queue is still empty.
-      rtp = mpMyDJ->pullPacket();
-      if (!rtp.isValid())
+      return TRUE;
+   }
+
+   if (mpJB->getSamplesNum() == 0)
+   {
+      int32_t lag = (int32_t)(mStreamState.recommendedPosition-mStreamState.streamPosition);
+
+#ifdef DEBUG_PRINT // [
+      printf("                                <<< pulling    position=%u recommended=%u lag=%d\n",
+             mStreamState.streamPosition, mStreamState.recommendedPosition, lag);
+#endif // DEBUG_PRINT ]
+
+      if ( (lag > JB_LAG_SAMPLES) || (lag < -JB_ADVANCE_SAMPLES))
       {
-         return TRUE;
+         mStreamState.streamPosition = mStreamState.recommendedPosition;
+#ifdef DEBUG_PRINT // [
+         printf("                                ! position reset !\n");
+#endif // DEBUG_PRINT ]
       }
 
-      // Initialize stream with this packet.
-      mLastPlayedSeq = rtp->getRtpSequenceNumber();
-
-      mIsStreamInitialized = TRUE;
-   }
-   else
-   {
       MpRtpBufPtr tmpRtp;
-      while ((tmpRtp = mpMyDJ->pullPacket()).isValid())
+      while ((tmpRtp = mpMyDJ->pullPacket(mStreamState.streamPosition)).isValid())
       {
+#ifdef DEBUG_PRINT // [
+         printf("                                PULL: Seq#=%u   TS=%u\n",
+                tmpRtp->getRtpSequenceNumber(), tmpRtp->getRtpTimestamp());
+#endif // DEBUG_PRINT ]
+
          // If delayed packet, drop it
          if (MpDspUtils::compareSerials(mLastPlayedSeq, tmpRtp->getRtpSequenceNumber()) > 0)
          {
@@ -264,7 +304,8 @@ UtlBoolean MprDecode::doProcessFrame(MpBufPtr inBufs[],
                    tmpRtp->getRtpSequenceNumber(), tmpRtp->getRtpTimestamp());
             continue;
          }
-         // If signaling - decode it now.
+         // If it is signaling packet - decode it now.
+         //              !!!!  BUG::XMR-104  !!!!
          if (tryDecodeAsSignalling(tmpRtp))
          {
             continue;
@@ -293,7 +334,8 @@ UtlBoolean MprDecode::doProcessFrame(MpBufPtr inBufs[],
 //                rtp->getRtpSequenceNumber(), rtp->getRtpTimestamp());
 
          // Flush decoder buffer, if there were unplayed frames.
-         // todo:: fix glitch!
+
+         // todo:: fix glitch?
          if (mpJB->getSamplesNum() > 0)
          {
             printf("Flushing decode buffer with %d samples. Glitch!\n",
@@ -316,8 +358,21 @@ UtlBoolean MprDecode::doProcessFrame(MpBufPtr inBufs[],
    int numOriginalSamples;
    mpJB->getFrame(out, numOriginalSamples);
 
+   // Update stream pointer
+//   mStreamState.streamPosition += numOriginalSamples;
+
+#ifdef DEBUG_PRINT // [
+   if (!out.isValid())
+   {
+      printf("                                !!! PLC !!!!\n");
+   }
+#endif // DEBUG_PRINT ]
+
    // Run frame through PLC algorithm
    doPlc(out);
+
+   /// BUG:: THIS IS WRONG IN CASE OF RESAMPLING !!!!!
+   mStreamState.streamPosition += out->getSamplesNumber();
 
    outBufs[0] = out;
    return TRUE;

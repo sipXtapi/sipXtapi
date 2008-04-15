@@ -141,9 +141,15 @@ private:
    } AddlResMsgTypes;
 
    enum {
-      MAX_RTP_FRAMES = 25,
-      MAX_PAYLOAD_TYPES = 128,
-      NUM_TRACKED_PACKETS = 128
+      JB_LENGTH_SAMPLES = 1600,     ///< Wanted delay introduced by JB (in samples)
+      JB_ADVANCE_SAMPLES = 480,     ///< Allowed advance of current playback
+                                    ///< pointer over wanted delay of JB.
+                                    ///< If current playback advances too far
+                                    ///< it will be reseted.
+      JB_LAG_SAMPLES = 480          ///< Allowed lag of current playback
+                                    ///< pointer over wanted delay of JB.
+                                    ///< If current playback fallow behind
+                                    ///< too far it will be reseted.
    };
 
    MpJitterBuffer* mpJB;            ///< Pointer to JitterBuffer instance
@@ -153,6 +159,11 @@ private:
    MprDejitter* mpMyDJ;             ///< Dejitter instance, used by this decoder.
    UtlBoolean mIsStreamInitialized; ///< Have we received at least one packet?
    RtpSeq mLastPlayedSeq;           ///< Sequence number of last played RTP packet.
+   struct StreamState
+   {
+	   uint32_t streamPosition;      ///< Current playback position (in RTP timestamp units).
+	   uint32_t recommendedPosition; ///< Recommended playback position (in RTP timestamp units).
+   } mStreamState;
 
    MpPlcBase   *mpPlc;              ///< PLC instance.
    MpAudioBufPtr mTempPlcFrame;     ///< This audio frame pointer is used to

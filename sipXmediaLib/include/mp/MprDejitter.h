@@ -36,8 +36,7 @@ class MprDejitter
 public:
 
    enum {
-      MAX_RTP_PACKETS = 4,  ///< Could be any value, power of 2 is desired.
-      MAX_CODECS = 10, ///< Maximum number of codecs in incoming RTP streams.
+      MAX_RTP_PACKETS = 512   ///< Could be any value, power of 2 is desired.
    };
 
 /* ============================ CREATORS ================================== */
