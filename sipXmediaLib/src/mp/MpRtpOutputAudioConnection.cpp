@@ -230,7 +230,8 @@ OsStatus MpRtpOutputAudioConnection::handleStartSendRtp(OsSocket& rRtpSocket,
    {
       result = OS_SUCCESS;
       // Tell encoder which codecs to use (data codec and signaling codec).
-      mpEncode->selectCodecs(pPrimaryCodec, pDtmfCodec);
+      SdpCodec* codecs[] = {pPrimaryCodec, pDtmfCodec};
+      mpEncode->handleSelectCodecs(sizeof(codecs)/sizeof(SdpCodec*), codecs);
       mpEncode->enable();
    }
    return(result);
