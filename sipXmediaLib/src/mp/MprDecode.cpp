@@ -174,8 +174,16 @@ OsStatus MprDecode::pushPacket(const MpRtpBufPtr &pRtp)
 {
    // Lock access to dejitter and m*Codecs data
    OsLock lock(mLock);
+
+   // Get decoder info for this packet.
    int pt = pRtp->getRtpPayloadType();
-   const MpCodecInfo* pDecoderInfo = mDecoderMap.mapPayloadType(pt)->getInfo();
+   const MpDecoderBase *pDecoder = mDecoderMap.mapPayloadType(pt);
+   if (pDecoder == NULL)
+   {
+      // No decoder for this packet - just return error.
+      return OS_NOT_FOUND;
+   }
+   const MpCodecInfo* pDecoderInfo = pDecoder->getInfo();
 
    // Initialize stream, if not initialized yet
    // and get latest RTP packet from dejitter queue.
