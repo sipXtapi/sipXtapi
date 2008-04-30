@@ -6517,6 +6517,11 @@ UtlBoolean SipConnection::prepareInviteSdpForSend(SipMessage* pMsg,
     UtlBoolean bRet = TRUE;
 
     SdpBody* pBody = (SdpBody*)pMsg->getSdpBody();
+    if (pBody == NULL)
+    {
+       return FALSE;
+    }
+
     if (RTP_TCP_ROLE_ACTPASS != mRtpTcpRole)
     {
         pBody->setRtpTcpRole(mRtpTcpRole);
