@@ -159,10 +159,22 @@ static uint8_t Linear2ALaw(MpAudioSample pcm_val ///< 2's complement (16-bit ran
    {
       mask = 0xD5;            /* sign (7th) bit = 1 */
    }
-   else
+   else if (pcm_val < -8)
    {
       mask = 0x55;            /* sign bit = 0 */
       pcm_val = -pcm_val - 8;
+   }
+   else
+   {
+      // For all values in range [-7; -1] end result will be 0^0xD5,
+      // so we may just return it from here.
+      // NOTE: This is not just optimization! For values in that range
+      //       expression (-pcm_val - 8) will return negative result,
+      //       messing all following calculations. This is old bug,
+      //       coming from original code from Sun Microsystems, Inc.
+      // Btw, seems there is no code for 0, value after decoding will be
+      // either 8 (if we return 0xD5 here) or -8 (if we return 0x55 here).
+      return 0xD5;
    }
 
    /* Convert the scaled magnitude to segment number. */
