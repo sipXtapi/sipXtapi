@@ -3,9 +3,7 @@
 	ProjectType="Visual C++"
 	Version="7.10"
 	Name="sipXtackLib"
-	ProjectGUID="{0D0CE4BC-3884-4ABE-9795-8CCA6C3BC646}"
-	SccProjectName="Perforce Project"
-	SccLocalPath=".">
+	ProjectGUID="{0D0CE4BC-3884-4ABE-9795-8CCA6C3BC646}">
 	<Platforms>
 		<Platform
 			Name="Win32"/>
