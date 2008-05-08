@@ -383,9 +383,19 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
                              mediaInterface->createConnection(connectionId, NULL));
         CPPUNIT_ASSERT(connectionId > 0);
 
-        // Create a Media notification dispatcher and give it to the media interface.
+        // We need to know when files and buffers start playing and finish
+        // playing, so we need to set up and turn on notifications in the 
+        // media interface... So --
+        // Create a Media notification dispatcher and give it to the media 
+        // interface.
         OsMsgDispatcher notfDispatcher;
         mediaInterface->setNotificationDispatcher(&notfDispatcher);
+
+        // Turn on notifications for all resources...
+        // If you wanted to turn them on for just a few, then you would make
+        // multiple calls to this - one for each resource you wanted to turn
+        // on notifications for, specifying a resource name as the second
+        // parameter.
         mediaInterface->setNotificationsEnabled(true);
 
         mediaInterface->giveFocus() ;
