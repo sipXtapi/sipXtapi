@@ -1354,7 +1354,7 @@ OsStatus MpFlowGraphBase::processMessages(void)
                                    "Resource message subtype %d directed to all "
                                    "resources failed when sending to resource %s.",
                                    pResourceMsg->getMsgSubType(),
-                                   mUnsorted[i]->getName());
+                                   mUnsorted[i]->getName().data());
                   }
                }
             }
