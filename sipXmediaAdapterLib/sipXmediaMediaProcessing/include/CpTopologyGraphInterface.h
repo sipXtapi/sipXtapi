@@ -36,6 +36,7 @@ class CpTopologyMediaConnection;
 class MpTopologyGraph;
 class MpResourceTopology;
 class MpResourceFactory;
+class OsSocket;
 
 
 /** Subsystem manager and creator of CpTopologyGraphInterfaces specialization of CpMediaInterface
@@ -87,10 +88,14 @@ public:
                                      IMediaEventListener* pMediaEventListener = NULL,
                                      const RtpTransportOptions rtpTransportOptions=RTP_TRANSPORT_UDP);
 
+   virtual OsStatus createConnection(int& connectionId,
+                                     OsSocket* rtpSocket,
+                                     OsSocket* rtcpSocket);
+
      /// @copydoc CpMediaInterface::setPlcMethod()
    virtual OsStatus setPlcMethod(int connectionId,
                                  const UtlString &methodName="");
-
+                                 
      /// @copydoc CpMediaInterface::setNotificationDispatcher()
    virtual
    OsMsgDispatcher* setNotificationDispatcher(OsMsgDispatcher* pNotificationDispatcher);
@@ -151,16 +156,16 @@ public:
 
 
      /// @copydoc CpMediaInterface::playBuffer()
-   virtual OsStatus playBuffer(char* buf, 
+    virtual OsStatus playBuffer(char* buf, 
                                unsigned long bufSize,
-                               uint32_t bufRate, 
-                               int type, 
-                               UtlBoolean repeat,
-                               UtlBoolean local, 
-                               UtlBoolean remote,
-                               OsProtectedEvent* event = NULL,
-                               UtlBoolean mixWithMic = false,
-                               int downScaling = 100);
+                                uint32_t bufRate, 
+                                int type, 
+                                UtlBoolean repeat,
+                                UtlBoolean local, 
+                                UtlBoolean remote,
+                                OsProtectedEvent* event = NULL,
+                                UtlBoolean mixWithMic = false,
+                                int downScaling = 100);
 
      /// @copydoc CpMediaInterface::pauseAudio()
    virtual OsStatus pauseAudio();
@@ -523,8 +528,8 @@ protected:
     OsStatus createRtpSocketPair(UtlString localAddress,
                                  int localPort,
                                  SIPX_CONTACT_TYPE contactType,
-                                 OsDatagramSocket* &rtpSocket,
-                                 OsDatagramSocket* &rtcpSocket);
+                                 OsSocket* &rtpSocket,
+                                 OsSocket* &rtcpSocket);
       /**<
       *  For RTP/RTCP port pair will be set next free port pair.
       *  

@@ -69,6 +69,7 @@ public:
     , mRtpSendHostAddress()
     , mDestinationSet(FALSE)
     , mIsMulticast(FALSE)
+    , mIsCustomSockets(FALSE)
     , mpRtpAudioSocket(NULL)
     , mpRtcpAudioSocket(NULL)
     , mRtpAudioSendHostPort(0)
@@ -132,8 +133,9 @@ public:
     UtlString mRtpSendHostAddress;
     UtlBoolean mDestinationSet;
     UtlBoolean mIsMulticast;
-    OsDatagramSocket* mpRtpAudioSocket;
-    OsDatagramSocket* mpRtcpAudioSocket;
+    UtlBoolean mIsCustomSockets;
+    OsSocket* mpRtpAudioSocket;
+    OsSocket* mpRtcpAudioSocket;
     int mRtpAudioSendHostPort;
     int mRtcpAudioSendHostPort;
     int mRtpAudioReceivePort;
@@ -332,7 +334,8 @@ OsStatus CpTopologyGraphInterface::createConnection(int& connectionId,
    // Create the sockets for audio stream
    retValue = createRtpSocketPair(mediaConnection->mLocalAddress, localPort,
                                   mediaConnection->mContactType,
-                                  mediaConnection->mpRtpAudioSocket, mediaConnection->mpRtcpAudioSocket);
+                                  mediaConnection->mpRtpAudioSocket, 
+                                  mediaConnection->mpRtcpAudioSocket);
    if (retValue != OS_SUCCESS)
    {
        return retValue;
@@ -366,6 +369,79 @@ OsStatus CpTopologyGraphInterface::createConnection(int& connectionId,
    OsSysLog::add(FAC_CP, PRI_DEBUG, 
             "CpTopologyGraphInterface::createConnection creating a new mpCodecFactory %p",
             mediaConnection->mpCodecFactory);
+
+    // Ensure that the connection has completed being created before exiting this function. 
+    // This will allow API's such as getConnectionPortOnBridge to be used immediately upon
+    // return from this function.
+    mpTopologyGraph->synchronize();
+
+    return retValue;
+}
+
+/**
+ * This version of createConnection can be used if you want override
+   the OsSocket class in order to provide an external socket implementation.
+ */ 
+OsStatus CpTopologyGraphInterface::createConnection(int& connectionId,
+                                                      OsSocket* rtpSocket,
+                                                      OsSocket* rtcpSocket)
+{
+    OsStatus retValue = OS_SUCCESS;
+    CpTopologyMediaConnection* mediaConnection=NULL;
+    CpTopologyGraphFactoryImpl* pTopologyFactoryImpl = (CpTopologyGraphFactoryImpl*)mpFactoryImpl;
+
+    connectionId = getNextConnectionId();
+    if (connectionId == -1)
+    {
+       return OS_LIMIT_REACHED;
+    }
+    mpTopologyGraph->addResources(*pTopologyFactoryImpl->getConnectionResourceTopology(),
+                                 pTopologyFactoryImpl->getResourceFactory(),
+                                 connectionId);
+
+    mediaConnection = new CpTopologyMediaConnection(connectionId);
+    OsSysLog::add(FAC_CP, PRI_DEBUG,
+                  "CpTopologyGraphInterface::createConnection "
+                  "creating a new connection %p",
+                  mediaConnection);
+    mMediaConnections.append(mediaConnection);
+
+    // Create the sockets for audio stream
+    mediaConnection->mpRtpAudioSocket = rtpSocket;
+    mediaConnection->mpRtcpAudioSocket = rtcpSocket;
+    mediaConnection->mDestinationSet = TRUE;
+    mediaConnection->mRtpSendHostAddress = "127.0.0.1";  // dummy address so that startRtpSend will work
+    mediaConnection->mContactType = CONTACT_LOCAL;
+    mediaConnection->mIsCustomSockets = TRUE;
+
+    // Start the audio packet pump
+    UtlString inConnectionName(DEFAULT_RTP_INPUT_RESOURCE_NAME);
+    MpResourceTopology::replaceNumInName(inConnectionName, connectionId);
+    MpRtpInputAudioConnection::startReceiveRtp(*(mpTopologyGraph->getMsgQ()),
+                                               inConnectionName,
+                                               NULL,
+                                               0,
+                                               *(mediaConnection->mpRtpAudioSocket),
+                                               *(mediaConnection->mpRtcpAudioSocket));
+
+    OsSysLog::add(FAC_CP, PRI_DEBUG, 
+             "CpTopologyGraphInterface::createConnection creating a new RTP socket: %p descriptor: %d",
+             mediaConnection->mpRtpAudioSocket, mediaConnection->mpRtpAudioSocket->getSocketDescriptor());
+    OsSysLog::add(FAC_CP, PRI_DEBUG, 
+             "CpTopologyGraphInterface::createConnection creating a new RTCP socket: %p descriptor: %d",
+             mediaConnection->mpRtcpAudioSocket, mediaConnection->mpRtcpAudioSocket->getSocketDescriptor());
+
+    // Set codec factory
+    mediaConnection->mpCodecFactory = new SdpCodecList(mSupportedCodecs);
+    mediaConnection->mpCodecFactory->bindPayloadTypes();
+    OsSysLog::add(FAC_CP, PRI_DEBUG, 
+             "CpTopologyGraphInterface::createConnection creating a new mpCodecFactory %p",
+             mediaConnection->mpCodecFactory);
+
+    // Ensure that the connection has completed being created before exiting this function. 
+    // This will allow API's such as getConnectionPortOnBridge to be used immediately upon
+    // return from this function.
+    mpTopologyGraph->synchronize();
 
     return retValue;
 }
@@ -490,7 +566,7 @@ OsStatus CpTopologyGraphInterface::getCapabilities(int connectionId,
             // others are ignored.  They *SHOULD* be the same as the first.  
             // Possible exceptions: STUN worked for the first, but not the
             // others.  Not sure how to handle/recover from that case.
-            if (pMediaConn->mContactType == CONTACT_RELAY)
+           if (pMediaConn->mContactType == CONTACT_RELAY)
             {
                 assert(!pMediaConn->mIsMulticast);
                 if (!((OsNatDatagramSocket*)pMediaConn->mpRtpAudioSocket)->
@@ -504,7 +580,7 @@ OsStatus CpTopologyGraphInterface::getCapabilities(int connectionId,
             else if (pMediaConn->mContactType == CONTACT_AUTO || pMediaConn->mContactType == CONTACT_NAT_MAPPED)
             {
                 assert(!pMediaConn->mIsMulticast);
-                if (!pMediaConn->mpRtpAudioSocket->getMappedIp(&rtpHostAddress, &rtpAudioPort))
+                if (!((OsDatagramSocket*)pMediaConn->mpRtpAudioSocket)->getMappedIp(&rtpHostAddress, &rtpAudioPort))
                 {
                     rtpAudioPort = pMediaConn->mRtpAudioReceivePort ;
                     rtpHostAddress = pMediaConn->mLocalAddress ;
@@ -548,7 +624,7 @@ OsStatus CpTopologyGraphInterface::getCapabilities(int connectionId,
             {
                 UtlString tempHostAddress;
                 assert(!pMediaConn->mIsMulticast);
-                if (!pMediaConn->mpRtcpAudioSocket->getMappedIp(&tempHostAddress, &rtcpAudioPort))
+                if (!((OsDatagramSocket*)pMediaConn->mpRtcpAudioSocket)->getMappedIp(&tempHostAddress, &rtcpAudioPort))
                 {
                     rtcpAudioPort = pMediaConn->mRtcpAudioReceivePort ;
                 }
@@ -716,89 +792,92 @@ OsStatus CpTopologyGraphInterface::setConnectionDestination(int connectionId,
         pMediaConnection->mRtpAudioSendHostPort = remoteAudioRtpPort;
         pMediaConnection->mRtcpAudioSendHostPort = remoteAudioRtcpPort;
 
-        if(pMediaConnection->mpRtpAudioSocket)
+        if(!pMediaConnection->mIsCustomSockets)
         {
-            if (!pMediaConnection->mIsMulticast)
+            if(pMediaConnection->mpRtpAudioSocket)
             {
-                OsNatDatagramSocket *pSocket = (OsNatDatagramSocket*)pMediaConnection->mpRtpAudioSocket;
-                pSocket->readyDestination(remoteRtpHostAddress, remoteAudioRtpPort) ;
-                pSocket->applyDestinationAddress(remoteRtpHostAddress, remoteAudioRtpPort) ;
-            }
-            else
-            {
-                pMediaConnection->mpRtpAudioSocket->doConnect(remoteAudioRtpPort,
-                                                              remoteRtpHostAddress,
-                                                              TRUE);
-            }
-        }
-
-        if(pMediaConnection->mpRtcpAudioSocket && (remoteAudioRtcpPort > 0))
-        {
-            if (!pMediaConnection->mIsMulticast)
-            {
-                OsNatDatagramSocket *pSocket = (OsNatDatagramSocket*)pMediaConnection->mpRtcpAudioSocket;
-                pSocket->readyDestination(remoteRtpHostAddress, remoteAudioRtcpPort) ;
-                pSocket->applyDestinationAddress(remoteRtpHostAddress, remoteAudioRtcpPort) ;
-            }
-            else
-            {
-                pMediaConnection->mpRtcpAudioSocket->doConnect(remoteAudioRtpPort,
-                                                               remoteRtpHostAddress,
-                                                               TRUE);
-            }
-        }
-        else
-        {
-            pMediaConnection->mRtcpAudioSendHostPort = 0 ;
-        }
-
-        /*
-         * Video Setup
-         */
-#ifdef VIDEO
-        if (pMediaConnection->mpRtpVideoSocket)
-        {
-            pMediaConnection->mRtpVideoSendHostPort = remoteVideoRtpPort ;                   
-            if (!pMediaConnection->mIsMulticast)
-            {
-                OsNatDatagramSocket *pRtpSocket = (OsNatDatagramSocket*)pMediaConnection->mpRtpVideoSocket;
-                pRtpSocket->readyDestination(remoteRtpHostAddress, remoteVideoRtpPort) ;
-                pRtpSocket->applyDestinationAddress(remoteRtpHostAddress, remoteVideoRtpPort) ;
-            }
-            else
-            {
-                pMediaConnection->mpRtcpAudioSocket->doConnect(remoteAudioRtpPort,
-                                                               remoteRtpHostAddress,
-                                                               TRUE);
-            }
-
-            if(pMediaConnection->mpRtcpVideoSocket && (remoteVideoRtcpPort > 0))
-            {
-                pMediaConnection->mRtcpVideoSendHostPort = remoteVideoRtcpPort ;               
                 if (!pMediaConnection->mIsMulticast)
                 {
-                   OsNatDatagramSocket *pRctpSocket = (OsNatDatagramSocket*)pMediaConnection->mpRtcpVideoSocket;
-                   pRctpSocket->readyDestination(remoteRtpHostAddress, remoteVideoRtcpPort) ;
-                   pRctpSocket->applyDestinationAddress(remoteRtpHostAddress, remoteVideoRtcpPort) ;
+                    OsNatDatagramSocket *pSocket = (OsNatDatagramSocket*)pMediaConnection->mpRtpAudioSocket;
+                    pSocket->readyDestination(remoteRtpHostAddress, remoteAudioRtpPort) ;
+                    pSocket->applyDestinationAddress(remoteRtpHostAddress, remoteAudioRtpPort) ;
                 }
                 else
                 {
-                   pMediaConnection->mpRtcpAudioSocket->doConnect(remoteAudioRtpPort,
-                                                                  remoteRtpHostAddress,
-                                                                  TRUE);
+                    ((OsDatagramSocket*)pMediaConnection->mpRtpAudioSocket)->doConnect(remoteAudioRtpPort,
+                                                 remoteRtpHostAddress,
+                                                 TRUE);
+                }
+            } 
+
+            if(pMediaConnection->mpRtcpAudioSocket && (remoteAudioRtcpPort > 0))           
+            {
+                if (!pMediaConnection->mIsMulticast)
+                {
+                    OsNatDatagramSocket *pSocket = (OsNatDatagramSocket*)pMediaConnection->mpRtcpAudioSocket;
+                    pSocket->readyDestination(remoteRtpHostAddress, remoteAudioRtcpPort) ;
+                    pSocket->applyDestinationAddress(remoteRtpHostAddress, remoteAudioRtcpPort) ;
+                }
+                else
+                {
+                    ((OsDatagramSocket*)pMediaConnection->mpRtcpAudioSocket)->doConnect(remoteAudioRtpPort,
+                                                  remoteRtpHostAddress,
+                                                  TRUE);
                 }
             }
             else
             {
-                pMediaConnection->mRtcpVideoSendHostPort = 0 ;
+                pMediaConnection->mRtcpAudioSendHostPort = 0 ;
             }
-        }
-        else
-        {
-            pMediaConnection->mRtpVideoSendHostPort = 0 ;
-            pMediaConnection->mRtcpVideoSendHostPort = 0 ;
-        }        
+
+            /*
+             * Video Setup
+             */
+#ifdef VIDEO
+            if (pMediaConnection->mpRtpVideoSocket)
+            {
+                pMediaConnection->mRtpVideoSendHostPort = remoteVideoRtpPort ;                   
+                if (!pMediaConnection->mIsMulticast)
+                {
+                    OsNatDatagramSocket *pRtpSocket = (OsNatDatagramSocket*)pMediaConnection->mpRtpVideoSocket;
+                    pRtpSocket->readyDestination(remoteRtpHostAddress, remoteVideoRtpPort) ;
+                    pRtpSocket->applyDestinationAddress(remoteRtpHostAddress, remoteVideoRtpPort) ;
+                }
+                else
+                {
+                    ((OsDatagramSocket*)pMediaConnection->mpRtpVideoSocket)->doConnect(remoteVideoRtpPort,
+                                                      remoteRtpHostAddress,
+                                                      TRUE);
+                }
+
+                if(pMediaConnection->mpRtcpVideoSocket && (remoteVideoRtcpPort > 0))
+                {
+                    pMediaConnection->mRtcpVideoSendHostPort = remoteVideoRtcpPort ;               
+                    if (!pMediaConnection->mIsMulticast)
+                    {
+                       OsNatDatagramSocket *pRctpSocket = (OsNatDatagramSocket*)pMediaConnection->mpRtcpVideoSocket;
+                       pRctpSocket->readyDestination(remoteRtpHostAddress, remoteVideoRtcpPort) ;
+                       pRctpSocket->applyDestinationAddress(remoteRtpHostAddress, remoteVideoRtcpPort) ;
+                    }
+                    else
+                    {
+                       ((OsDatagramSocket*)pMediaConnection->mpRtcpVideoSocket)->doConnect(remoteVideoRtcpPort,
+                                                          remoteRtpHostAddress,
+                                                          TRUE);
+                    }
+                }
+                else
+                {
+                    pMediaConnection->mRtcpVideoSendHostPort = 0 ;
+                }
+            }
+            else
+            {
+                pMediaConnection->mRtpVideoSendHostPort = 0 ;
+                pMediaConnection->mRtcpVideoSendHostPort = 0 ;
+            }        
 #endif
+        }
     }
 
    return(returnCode);
@@ -2072,10 +2151,16 @@ UtlBoolean CpTopologyGraphInterface::getNatedAddresses(int connectionId,
 
     if (pMediaConn)
     {
+        assert(!pMediaConn->mIsCustomSockets);
+        if(pMediaConn->mIsCustomSockets)
+        {
+           return FALSE;
+        }
+
         // Audio rtp port (must exist)
         if (pMediaConn->mpRtpAudioSocket)
         {
-            if (pMediaConn->mpRtpAudioSocket->getMappedIp(&host, &port))
+            if (((OsDatagramSocket*)pMediaConn->mpRtpAudioSocket)->getMappedIp(&host, &port))
             {
                 if (port > 0)
                 {
@@ -2088,7 +2173,7 @@ UtlBoolean CpTopologyGraphInterface::getNatedAddresses(int connectionId,
                 // Audio rtcp port (optional) 
                 if (pMediaConn->mpRtcpAudioSocket && bRC)
                 {
-                    if (pMediaConn->mpRtcpAudioSocket->getMappedIp(&host, &port))
+                    if (((OsDatagramSocket*)pMediaConn->mpRtcpAudioSocket)->getMappedIp(&host, &port))
                     {
                         rtcpAudioPort = port ;
                         if (host.compareTo(hostIp) != 0)
@@ -2106,7 +2191,7 @@ UtlBoolean CpTopologyGraphInterface::getNatedAddresses(int connectionId,
         // Video rtp port (optional)
         if (pMediaConn->mpRtpVideoSocket && bRC)
         {
-            if (pMediaConn->mpRtpVideoSocket->getMappedIp(&host, &port))
+            if (((OsDatagramSocket*)pMediaConn->mpRtpVideoSocket)->getMappedIp(&host, &port))
             {
                 rtpVideoPort = port ;
                 if (host.compareTo(hostIp) != 0)
@@ -2119,7 +2204,7 @@ UtlBoolean CpTopologyGraphInterface::getNatedAddresses(int connectionId,
                 // Video rtcp port (optional)
                 if (pMediaConn->mpRtcpVideoSocket)
                 {
-                    if (pMediaConn->mpRtcpVideoSocket->getMappedIp(&host, &port))
+                    if (((OsDatagramSocket*)pMediaConn->mpRtcpVideoSocket)->getMappedIp(&host, &port))
                     {
                         rtcpVideoPort = port ;
                         if (host.compareTo(hostIp) != 0)
@@ -2158,8 +2243,8 @@ UtlBoolean CpTopologyGraphInterface::getRelayAddresses(int connectionId,
 
     if (pMediaConn)
     {
-        assert(!pMediaConn->mIsMulticast);
-        if (pMediaConn->mIsMulticast)
+        assert(!pMediaConn->mIsMulticast && !pMediaConn->mIsCustomSockets);
+        if (pMediaConn->mIsMulticast || pMediaConn->mIsCustomSockets)
         {
            return FALSE;
         }
@@ -2584,8 +2669,8 @@ OsStatus CpTopologyGraphInterface::getMediaProperty(int connectionId,
 OsStatus CpTopologyGraphInterface::createRtpSocketPair(UtlString localAddress,
                                                        int localPort,
                                                        SIPX_CONTACT_TYPE contactType,
-                                                       OsDatagramSocket* &rtpSocket,
-                                                       OsDatagramSocket* &rtcpSocket)
+                                                       OsSocket* &rtpSocket,
+                                                       OsSocket* &rtcpSocket)
 {
    int firstRtpPort;
    bool localPortGiven = (localPort != 0); // Does user specified the local port?
@@ -2748,5 +2833,6 @@ OsStatus CpTopologyGraphInterface::createRtpSocketPair(UtlString localAddress,
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 /* ============================ FUNCTIONS ================================= */
+
 
 
