@@ -76,7 +76,7 @@ OsStatus MprToneGen::startTone(const UtlString& namedResource,
                                OsMsgQ& fgQ,
                                int toneId)
 {
-   MpToneResourceMsg msg(namedResource, (uint8_t)toneId);
+   MpToneResourceMsg msg(namedResource, toneId);
    return fgQ.send(msg, sOperationQueueTimeout);
 }
 
@@ -151,11 +151,16 @@ UtlBoolean MprToneGen::doProcessFrame(MpBufPtr inBufs[],
       // See what we get...
       switch (ret) {
       case OS_WAIT_TIMEOUT: /* one-shot tone completed */
-          // TODO: remove reference to MpCallFlowGraph
-          // MprToneGen::stopTone(mName, getFloGraph()->getMsgQ());
-         ((MpCallFlowGraph*)getFlowGraph())->stopTone();
-         out->setSpeechType(MpAudioBuf::MP_SPEECH_TONE);
-         break;
+          if(getFlowGraph()->getType() == MpFlowGraphBase::CALL_FLOWGRAPH)
+          {
+            ((MpCallFlowGraph*)getFlowGraph())->stopTone();
+          }
+          else
+          {
+             MprToneGen::stopTone(*this, *getFlowGraph()->getMsgQ()); 
+          }
+          out->setSpeechType(MpAudioBuf::MP_SPEECH_TONE);
+          break;
 
       case OS_NO_MORE_DATA: /* silent */
          out.release();
@@ -251,4 +256,5 @@ OsStatus MprToneGen::setFlowGraph(MpFlowGraphBase* pFlowGraph)
 }
 
 /* ============================ FUNCTIONS ================================= */
+
 

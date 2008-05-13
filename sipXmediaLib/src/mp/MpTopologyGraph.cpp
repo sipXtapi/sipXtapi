@@ -201,6 +201,12 @@ OsStatus MpTopologyGraph::loseFocus(void)
 
 /* ============================ ACCESSORS ================================= */
 
+// Returns the type of this flow graph.
+MpFlowGraphBase::FlowGraphType MpTopologyGraph::getType()
+{
+   return MpFlowGraphBase::TOPOLOGY_FLOWGRAPH;
+}
+
 /* ============================ INQUIRY =================================== */
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */

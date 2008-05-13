@@ -1595,6 +1595,11 @@ void MpCallFlowGraph::RemoteSSRCCollision(IRTCPConnection  *piRTCPConnection,
 
 /* ============================ ACCESSORS ================================= */
 
+// Returns the type of this flow graph.
+MpFlowGraphBase::FlowGraphType MpCallFlowGraph::getType()
+{
+   return MpFlowGraphBase::CALL_FLOWGRAPH;
+}
 
 /* ============================ INQUIRY =================================== */
 

@@ -97,6 +97,13 @@ public:
       STOPPED    ///< flow graph is stopped (not processing media streams)
    } FlowGraphState;
 
+   typedef enum 
+   {
+      CALL_FLOWGRAPH       = 0,
+      TOPOLOGY_FLOWGRAPH   = 1
+   } FlowGraphType;
+   //: FlowGraph Types
+
 /* ============================ CREATORS ================================== */
 ///@name Creators
 //@{
@@ -339,6 +346,9 @@ public:
 
 ///@name Accessors
 //@{
+     /// Returns the type of this flow graph.
+   virtual FlowGraphType getType() = 0;
+
 
      /// Returns the number of samples expected per frame.
    int getSamplesPerFrame(void) const;
@@ -395,7 +405,7 @@ public:
      *  @retval TRUE if the flow graph has been started,
      *  @retval FALSE otherwise.
      */
-
+    
 //@}
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */

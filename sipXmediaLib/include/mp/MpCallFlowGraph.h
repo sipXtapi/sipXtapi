@@ -334,6 +334,9 @@ public:
 ///@name Accessors
 //@{
 
+     /// Returns the type of this flow graph.
+   virtual MpFlowGraphBase::FlowGraphType getType();
+
 #ifdef INCLUDE_RTCP /* [ */
      /// Returns the RTCP Session interface pointer associated with this call's flow graph.
    IRTCPSession* getRTCPSessionPtr(void);

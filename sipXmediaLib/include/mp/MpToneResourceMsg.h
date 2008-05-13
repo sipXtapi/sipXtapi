@@ -38,7 +38,7 @@ public:
    //@{
 
    /// Constructor
-   inline MpToneResourceMsg(const UtlString& msgDestName, uint8_t toneCode);
+   inline MpToneResourceMsg(const UtlString& msgDestName, int toneCode);
 
    /// Copy constructor
    inline MpToneResourceMsg(const MpToneResourceMsg& rMpResourceMsg);
@@ -59,7 +59,7 @@ public:
    inline MpToneResourceMsg& operator=(const MpToneResourceMsg& rhs);
 
      /// @brief Set the tone that is associated with this resource.
-   inline void setToneCode(uint8_t toneCode);
+   inline void setToneCode(int toneCode);
      /**<
      *  Set the tone that is associated with this resource.
      *  @param toneId the new tone that is to be set in this resource.
@@ -70,7 +70,7 @@ public:
    //@{
 
      /// Get the tone that is associated with this resource.
-   inline uint8_t getToneCode(void) const;
+   inline int getToneCode(void) const;
      /**<
      *  Returns the tone that is associated with this resource.
      */
@@ -88,13 +88,13 @@ protected:
 
    /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-   uint8_t mToneCode; ///< The tone to play/stop/etc.
+   int mToneCode; ///< The tone to play/stop/etc.
 };
 
 /* ============================ INLINE METHODS ============================ */
 
 MpToneResourceMsg::MpToneResourceMsg(const UtlString& msgDestName, 
-                                     uint8_t toneCode)
+                                     int toneCode)
 : MpResourceMsg(MPRM_START_TONE, msgDestName)
 , mToneCode(toneCode)
 {
@@ -126,12 +126,12 @@ MpToneResourceMsg::operator=(const MpToneResourceMsg& rhs)
    return *this;
 }
 
-void MpToneResourceMsg::setToneCode(uint8_t toneCode) 
+void MpToneResourceMsg::setToneCode(int toneCode) 
 { 
    mToneCode = toneCode; 
 }
 
-uint8_t MpToneResourceMsg::getToneCode(void) const 
+int MpToneResourceMsg::getToneCode(void) const 
 { 
    return mToneCode; 
 }
