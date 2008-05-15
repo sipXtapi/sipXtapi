@@ -99,8 +99,9 @@ public:
 
    typedef enum 
    {
-      CALL_FLOWGRAPH       = 0,
-      TOPOLOGY_FLOWGRAPH   = 1
+      BASE_FLOWGRAPH       = 0,
+      CALL_FLOWGRAPH       = 1,
+      TOPOLOGY_FLOWGRAPH   = 2
    } FlowGraphType;
    //: FlowGraph Types
 
@@ -347,7 +348,7 @@ public:
 ///@name Accessors
 //@{
      /// Returns the type of this flow graph.
-   virtual FlowGraphType getType() = 0;
+   virtual FlowGraphType getType();
 
 
      /// Returns the number of samples expected per frame.

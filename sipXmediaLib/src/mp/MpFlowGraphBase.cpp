@@ -598,6 +598,11 @@ void MpFlowGraphBase::synchronize(const char* tag, int val1)
 
 /* ============================ ACCESSORS ================================= */
 
+MpFlowGraphBase::FlowGraphType MpFlowGraphBase::getType()
+{
+    return MpFlowGraphBase::BASE_FLOWGRAPH;
+}
+
 // (static) Displays information on the console about the specified flow
 // graph.
 void MpFlowGraphBase::flowGraphInfo(MpFlowGraphBase* pFlowGraph)
