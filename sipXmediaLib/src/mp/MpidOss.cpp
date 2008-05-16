@@ -103,11 +103,13 @@ OsStatus MpidOss::enableDevice(unsigned samplesPerFrame,
    mSamplesPerSec = samplesPerSec;
    mCurrentFrameTime = currentFrameTime;
 
+   // Get buffer and fill it with silence
    mAudioFrame = new MpAudioSample[samplesPerFrame];
    if (mAudioFrame == NULL)
    {
       return OS_LIMIT_REACHED;
    }
+   memset(mAudioFrame, 0, samplesPerFrame * sizeof(MpAudioSample));
 
    ret = pDevWrapper->attachReader();
    if (ret != OS_SUCCESS)
