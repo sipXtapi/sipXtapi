@@ -2625,10 +2625,10 @@ OsStatus CpPhoneMediaInterface::createRtpSocketPair(UtlString localAddress,
             delete rtcpSocket;
             if (isMulticast)
             {
-               OsMulticastSocket* rtpSocket = new OsMulticastSocket(
+               rtpSocket = new OsMulticastSocket(
                         localPort, localAddress,
                         localPort, localAddress);
-               OsMulticastSocket* rtcpSocket = new OsMulticastSocket(
+               rtcpSocket = new OsMulticastSocket(
                         localPort == 0 ? 0 : localPort + 1, localAddress,
                         localPort == 0 ? 0 : localPort + 1, localAddress);
             }
