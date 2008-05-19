@@ -479,7 +479,7 @@ public:
          void setId(unsigned int id) { mId = id; }
          const unsigned int getId() const { return mId; }
 
-         bool setOptional(bool optional) { mOptional = optional; }
+         void setOptional(bool optional) { mOptional = optional; }
          const bool getOptional() const { return mOptional; }
 
       private:
