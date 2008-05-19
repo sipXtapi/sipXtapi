@@ -35,10 +35,10 @@ class MpPlayerListener
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
-   virtual ~MpPlayerListener() {};
 /* ============================ CREATORS ================================== */
 ///@name Creators
 //@{
+   virtual ~MpPlayerListener() {};
 //@}
 
 /* ============================ MANIPULATORS ============================== */
