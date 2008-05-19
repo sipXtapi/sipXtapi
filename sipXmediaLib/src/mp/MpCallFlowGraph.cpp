@@ -111,7 +111,9 @@ MpCallFlowGraph::MpCallFlowGraph(const char* locale,
    // create the resources and add them to the flow graph
    mpBridge           = new MprBridge("Bridge", MAX_CONNECTIONS + 1);
    mpFromFile         = new MprFromFile("FromFile");
+#ifndef DISABLE_STREAM_PLAYER
    mpFromStream       = new MprFromStream("FromStream");
+#endif
 #ifndef DISABLE_LOCAL_AUDIO // [
    mpFromMic          = new MprFromMic("FromMic", MpMisc.pMicQ);
    mpMicSplitter      = new MprSplitter("MicSplitter", 2);
@@ -142,7 +144,9 @@ MpCallFlowGraph::MpCallFlowGraph(const char* locale,
 #endif
 
    res = addResource(*mpBridge);            assert(res == OS_SUCCESS);
+#ifndef DISABLE_STREAM_PLAYER
    res = addResource(*mpFromStream);        assert(res == OS_SUCCESS);
+#endif
    res = addResource(*mpFromFile);          assert(res == OS_SUCCESS);
 #ifndef DISABLE_LOCAL_AUDIO // [
    res = addResource(*mpFromMic);           assert(res == OS_SUCCESS);
@@ -240,11 +244,16 @@ MpCallFlowGraph::MpCallFlowGraph(const char* locale,
    // connect ToneGen -> FromStream -> FromFile -> Splitter -> TFsBridgeMixer
    //                                                       -> Mixer
    
+#ifndef DISABLE_STREAM_PLAYER
    res = addLink(*mpToneGen, 0, *mpFromStream, 0);
    assert(res == OS_SUCCESS);
 
    res = addLink(*mpFromStream, 0, *mpFromFile, 0);
    assert(res == OS_SUCCESS);
+#else
+   res = addLink(*mpToneGen, 0, *mpFromFile, 0);
+   assert(res == OS_SUCCESS);
+#endif
 
    res = addLink(*mpFromFile, 0, *mpToneFileSplitter, 0);
    assert(res == OS_SUCCESS);
@@ -264,8 +273,10 @@ MpCallFlowGraph::MpCallFlowGraph(const char* locale,
    boolRes = mpToneGen->disable();      assert(boolRes);
    mToneGenDefocused = FALSE;
 
+#ifndef DISABLE_STREAM_PLAYER
    // disable the from stream
    boolRes = mpFromStream->disable();   assert(boolRes);
+#endif
 
    // disable the from file
    boolRes = mpFromFile->disable();     assert(boolRes);
@@ -475,7 +486,9 @@ MpCallFlowGraph::~MpCallFlowGraph()
    res = removeLink(*mpTFsBridgeMixer, 0);   assert(res == OS_SUCCESS);
 #endif
    res = removeLink(*mpToneGen, 0);          assert(res == OS_SUCCESS);
+#ifndef DISABLE_STREAM_PLAYER
    res = removeLink(*mpFromStream, 0);       assert(res == OS_SUCCESS);
+#endif
    res = removeLink(*mpFromFile, 0);         assert(res == OS_SUCCESS);
    res = removeLink(*mpToneFileSplitter, 0); assert(res == OS_SUCCESS);
    res = removeLink(*mpToneFileSplitter, 1); assert(res == OS_SUCCESS);
@@ -535,9 +548,11 @@ MpCallFlowGraph::~MpCallFlowGraph()
    assert(res == OS_SUCCESS);
    delete mpToneGen;
 
+#ifndef DISABLE_STREAM_PLAYER
    res = removeResource(*mpFromStream);
    assert(res == OS_SUCCESS);
    delete mpFromStream;
+#endif
 
    res = removeResource(*mpFromFile);
    assert(res == OS_SUCCESS);
@@ -1682,6 +1697,7 @@ UtlBoolean MpCallFlowGraph::handleMessage(OsMsg& rMsg)
 
    if (rMsg.getMsgType() == OsMsg::STREAMING_MSG)
    {
+#ifndef DISABLE_STREAM_PLAYER
       //
       // Handle Streaming Messages
       //
@@ -1715,6 +1731,9 @@ UtlBoolean MpCallFlowGraph::handleMessage(OsMsg& rMsg)
          default:         
             break;
       }
+#else
+      assert(false);
+#endif
    }
    else
    {
@@ -1928,6 +1947,7 @@ UtlBoolean MpCallFlowGraph::handleSetDtmfNotify(MpFlowGraphMsg& rMsg)
    return mpInputConnections[connId]->handleSetDtmfNotify(pNotify);
 }
 
+#ifndef DISABLE_STREAM_PLAYER
 
 UtlBoolean MpCallFlowGraph::handleStreamRealizeUrl(MpStreamMsg& rMsg)
 { 
@@ -2073,6 +2093,7 @@ UtlBoolean MpCallFlowGraph::handleStreamDestroy(MpStreamMsg& rMsg)
 
    return TRUE ;
 }
+#endif // DISABLE_STREAM_PLAYER
 
 UtlBoolean MpCallFlowGraph::handleOnMprRecorderEnabled(MpFlowGraphMsg& rMsg)
 {

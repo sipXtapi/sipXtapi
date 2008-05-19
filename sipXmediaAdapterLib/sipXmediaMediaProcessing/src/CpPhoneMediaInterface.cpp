@@ -1343,14 +1343,13 @@ OsStatus CpPhoneMediaInterface::stopRecordChannelAudio(int connectionId)
     return stopRecording() ;
 }
 
-
-
 OsStatus CpPhoneMediaInterface::createPlayer(MpStreamPlayer** ppPlayer, 
                                              const char* szStream, 
                                              int flags, 
                                              OsMsgQ *pMsgQ, 
                                              const char* szTarget)
 {
+#ifndef DISABLE_STREAM_PLAYER
    OsStatus returnCode = OS_NOT_FOUND;
 
    if ((pMsgQ == NULL) && (mpFlowGraph != NULL))
@@ -1367,17 +1366,24 @@ OsStatus CpPhoneMediaInterface::createPlayer(MpStreamPlayer** ppPlayer,
    }
 
    return(returnCode);
+#else
+   return OS_NOT_SUPPORTED;
+#endif // DISABLE_STREAM_PLAYER
 }
 
 
 OsStatus CpPhoneMediaInterface::destroyPlayer(MpStreamPlayer* pPlayer)
 {
+#ifndef DISABLE_STREAM_PLAYER
    if (pPlayer != NULL)
    {
       pPlayer->destroy() ;
    }
 
    return OS_SUCCESS;   
+#else
+   return OS_NOT_SUPPORTED;
+#endif // DISABLE_STREAM_PLAYER
 }
 
 
@@ -1385,6 +1391,7 @@ OsStatus CpPhoneMediaInterface::createPlaylistPlayer(MpStreamPlaylistPlayer** pp
                                                      OsMsgQ *pMsgQ, 
                                                      const char* szTarget)
 {
+#ifndef DISABLE_STREAM_PLAYER
    OsStatus returnCode = OS_NOT_FOUND;
 
    if ((pMsgQ == NULL) && (mpFlowGraph != NULL))
@@ -1397,17 +1404,24 @@ OsStatus CpPhoneMediaInterface::createPlaylistPlayer(MpStreamPlaylistPlayer** pp
    }
 
    return(returnCode);
+#else
+   return OS_NOT_SUPPORTED;
+#endif // DISABLE_STREAM_PLAYER
 }
 
 
 OsStatus CpPhoneMediaInterface::destroyPlaylistPlayer(MpStreamPlaylistPlayer* pPlayer)
 {
+#ifndef DISABLE_STREAM_PLAYER
    if (pPlayer != NULL)
    {
       pPlayer->destroy() ;
    }
 
    return OS_SUCCESS;   
+#else
+   return OS_NOT_SUPPORTED;
+#endif // DISABLE_STREAM_PLAYER
 }
 
 
@@ -1415,6 +1429,7 @@ OsStatus CpPhoneMediaInterface::createQueuePlayer(MpStreamQueuePlayer** ppPlayer
                                                   OsMsgQ *pMsgQ, 
                                                   const char* szTarget)
 {
+#ifndef DISABLE_STREAM_PLAYER
    OsStatus returnCode = OS_NOT_FOUND;
    
    if ((pMsgQ == NULL) && (mpFlowGraph != NULL))
@@ -1427,19 +1442,25 @@ OsStatus CpPhoneMediaInterface::createQueuePlayer(MpStreamQueuePlayer** ppPlayer
    }
 
    return(returnCode);
+#else
+   return OS_NOT_SUPPORTED;
+#endif // DISABLE_STREAM_PLAYER
 }
 
 
 OsStatus CpPhoneMediaInterface::destroyQueuePlayer(MpStreamQueuePlayer* pPlayer)
 {
+#ifndef DISABLE_STREAM_PLAYER
    if (pPlayer != NULL)
    {
       pPlayer->destroy() ;
    }
 
    return OS_SUCCESS;   
+#else
+   return OS_NOT_SUPPORTED;
+#endif // DISABLE_STREAM_PLAYER
 }
-
 
 OsStatus CpPhoneMediaInterface::startTone(int toneId,
                                           UtlBoolean local,

@@ -251,6 +251,8 @@ OsStatus updateWaveHeaderLengths(OsFile &file)
     return retCode;
 }
 
+#ifndef DISABLE_STREAM_PLAYER
+
 //works with 16bit samples only. (for now)
 OsStatus mergeWaveUrls(UtlString rSourceUrls[], UtlString &rDestFile)
 {
@@ -460,6 +462,8 @@ OsStatus mergeWaveFiles(UtlString rSourceFiles[], UtlString &rDestFile)
 
     return retVal;
 }
+
+#endif  // DISABLE_STREAM_PLAYER
 
 /* The number of bits required by each value */
 static unsigned char numBits[] = {

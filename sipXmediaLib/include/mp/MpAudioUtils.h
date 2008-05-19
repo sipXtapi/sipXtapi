@@ -36,11 +36,15 @@ int mergeChannels(char * charBuffer, int Size, int nTotalChannels);
 *  Takes size in bytes as input.  Returns new size in bytes
 */
 
+#ifndef DISABLE_STREAM_PLAYER
+
 /// Works with 16bit wavs only.  (for now)
 OsStatus mergeWaveUrls(UtlString rSourceUrls[], UtlString &rDestFile);
 
 /// Works with 16bit wavs only.  (for now)
 OsStatus mergeWaveFiles(UtlString rSourceFiles[], UtlString &rDestFile);
+
+#endif  // DISABLE_STREAM_PLAYER
 
 //routines for compressing & decompressing aLaw and uLaw
 void InitG711Tables();

@@ -466,7 +466,9 @@ private:
 
    MprBridge*    mpBridge;
    MprFromFile*  mpFromFile;
+#ifndef DISABLE_STREAM_PLAYER
    MprFromStream*  mpFromStream;
+#endif
 #ifndef DISABLE_LOCAL_AUDIO // [
    MprFromMic*   mpFromMic;
    MprSplitter*  mpMicSplitter;
@@ -588,6 +590,7 @@ private:
      *  @returns <b>TRUE</b>
      */
 
+#ifndef DISABLE_STREAM_PLAYER
      /// Handle the FLOWGRAPH_STREAM_REALIZE_URL message.
    UtlBoolean handleStreamRealizeUrl(MpStreamMsg& rMsg);
      /**<
@@ -643,6 +646,7 @@ private:
      *  @returns <b>TRUE</b> if the message was handled
      *  @returns <b>FALSE</b> otherwise.
      */
+#endif // DISABLE_STREAM_PLAYER
 
      /// Copy constructor (not implemented for this class)
    MpCallFlowGraph(const MpCallFlowGraph& rMpCallFlowGraph);
