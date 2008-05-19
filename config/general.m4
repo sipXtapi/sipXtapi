@@ -1382,6 +1382,63 @@ AC_DEFUN([CHECK_SPANDSP],
 
 ])dnl
 
+AC_DEFUN([EXTERNAL_EXTENITIONS],
+[
+# PLC
+    withval=
+    AC_ARG_WITH(external-plc,
+                [AS_HELP_STRING([--with-external-plc=library],
+                                [Use external library for PLC])],
+                )
+    ac_external_plc=${withval}
+
+    withval=
+    AC_ARG_WITH(external-plc-path,
+                [AS_HELP_STRING([--with-external-plc-path=PATH],
+                                [Add path for searching external library for PLC])],
+                )
+    ac_external_plc_path=${withval}
+
+    if test x${ac_external_plc} != x; then
+	AC_DEFINE(EXTERNAL_PLC, [1], [Use external library for PLC])
+	EPLC_LDFLAGS="-l${ac_external_plc} "
+	if test x${ac_external_plc_path} != x; then
+	    EPLC_LDFLAGS+=" -L${ac_external_plc_path} "
+	fi
+
+        LDFLAGS+=" $EPLC_LDFLAGS "
+        CXXFLAGS+=" -DEXTERNAL_PLC "	
+    fi
+    AC_SUBST(EPLC_LDFLAGS)
+
+# Jitter buffer estimation
+    withval=
+    AC_ARG_WITH(external-jbe,
+                [AS_HELP_STRING([--with-external-jbe=library],
+                                [Use external library for Jitter buffer estimation])],
+                )
+    ac_external_jbe=${withval}
+
+    withval=
+    AC_ARG_WITH(external-jbe-path,
+                [AS_HELP_STRING([--with-external-jbe-path=PATH],
+                                [Add path for searching external library for JBE])],
+                )
+    ac_external_jbe_path=${withval}
+
+    if test x${ac_external_jbe} != x; then
+	AC_DEFINE(EXTERNAL_JB_ESTIMATION, [1], [Use external library for jitter buffer estimation])
+	EJBE_LDFLAGS="-l${ac_external_jbe} "
+	if test x${ac_external_jbe_path} != x; then
+	    EJBE_LDFLAGS+=" -L${ac_external_jbe_path} "
+	fi
+
+        LDFLAGS+=" $EJBE_LDFLAGS "
+        CXXFLAGS+=" -DEXTERNAL_JB_ESTIMATION "
+    fi
+    AC_SUBST(EJBE_LDFLAGS)
+    
+])dnl
 
 # =============== G726  =====================
 AC_DEFUN([AM_SET_STATIC_G726],
