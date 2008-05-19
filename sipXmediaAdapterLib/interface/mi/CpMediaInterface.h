@@ -92,6 +92,7 @@ public:
 class IMediaEventEmitter
 {
 public:
+   virtual ~IMediaEventEmitter() { } ;
    virtual void onListenerRemoved() = 0;
 };
 
