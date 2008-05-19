@@ -1403,7 +1403,7 @@ AC_DEFUN([EXTERNAL_EXTENITIONS],
 	AC_DEFINE(EXTERNAL_PLC, [1], [Use external library for PLC])
 	EPLC_LDFLAGS="-l${ac_external_plc} "
 	if test x${ac_external_plc_path} != x; then
-	    EPLC_LDFLAGS+=" -L${ac_external_plc_path} "
+		EPLC_LDFLAGS+=" -L${ac_external_jbe_path} -Wl,--rpath -Wl,${ac_external_jbe_path} "
 	fi
 
         LDFLAGS+=" $EPLC_LDFLAGS "
@@ -1430,7 +1430,7 @@ AC_DEFUN([EXTERNAL_EXTENITIONS],
 	AC_DEFINE(EXTERNAL_JB_ESTIMATION, [1], [Use external library for jitter buffer estimation])
 	EJBE_LDFLAGS="-l${ac_external_jbe} "
 	if test x${ac_external_jbe_path} != x; then
-	    EJBE_LDFLAGS+=" -L${ac_external_jbe_path} "
+		EJBE_LDFLAGS+=" -L${ac_external_jbe_path} -Wl,--rpath -Wl,${ac_external_jbe_path} "
 	fi
 
         LDFLAGS+=" $EJBE_LDFLAGS "
