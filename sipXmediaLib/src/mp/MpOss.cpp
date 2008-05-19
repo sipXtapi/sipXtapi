@@ -45,10 +45,14 @@
 #define RTL_EVENT(x,y)
 #endif // RTL_ENABLED ]
 
+// Preferable output latency im msec
+#define OSS_LATENCY_LENGTH          30
 
-//#define PRODUCE_STEREO_TO_DEV
+// Set 1 to use stereo output or 0 for mono
+#define PRODUCE_STEREO_TO_DEV       1
 
-#define SOUND_MAXBUFFER       1024
+// Should enough for storing 192kHz 16bit STEREO 20ms frame
+#define SOUND_MAXBUFFER             16384
 
 
 // STATIC VARIABLE INITIALIZATIONS
@@ -73,6 +77,7 @@ MpOss::MpOss()
 , mModeChanged(TRUE)
 , mUsedSamplesPerSec(0)
 , mUsedSamplesPerFrame(0)
+, mResamplerBuffer(NULL)
 {
    int res;
 
@@ -207,6 +212,12 @@ OsStatus MpOss::freeOutputDevice()
 
 void MpOss::noMoreNeeded()
 {
+   if (mResamplerBuffer != NULL)
+   {
+      delete[] mResamplerBuffer;
+      mResamplerBuffer = NULL;
+   }
+
    //Free OSS device If it no longer using
    freeDevice();
    MpOssContainer::excludeWrapperFromContainer(this);
@@ -291,11 +302,6 @@ OsStatus MpOss::detachWriter()
 OsStatus MpOss::initDevice(const char* devname)
 {
    int res;
-#ifdef PRODUCE_STEREO_TO_DEV
-   int stereo = 1;
-#else
-   int stereo = 0;
-#endif
    int samplesize = 8 * sizeof(MpAudioSample);
 
    OsStatus ret = OS_FAILED;
@@ -343,22 +349,6 @@ OsStatus MpOss::initDevice(const char* devname)
       }
    }
 
-   // magic number, reduces latency (0x0006 dma buffers of 2 ^ 0x0008 = 256 bytes each)
-   // For samplig rates 8000 to 16000 0x00040007 give better latency, but it does not
-   // work with sampling rates such as 32000 or 48000.
-#ifdef PRODUCE_STEREO_TO_DEV
-   int fragment = 0x00060008;
-#else
-   int fragment = 0x00060007;
-#endif
-   res = ioctl(mfdDevice, SNDCTL_DSP_SETFRAGMENT, &fragment);
-   if(res == -1)
-   {
-      OsSysLog::add(FAC_MP, PRI_EMERG,
-         "OSS: could not set fragment size; *** NO SOUND! ***\n");
-      freeDevice();
-      return ret;
-   }
 
    res = ioctl(mfdDevice, SNDCTL_DSP_SAMPLESIZE, &samplesize);
    if ((res == -1) || (samplesize != (8 * sizeof(MpAudioSample))))
@@ -368,7 +358,7 @@ OsStatus MpOss::initDevice(const char* devname)
    }
 
    // Make sure the sound card has the capabilities we need
-   // FIXME: Correct this code for samplesize != 16 bits
+   // Correct this code for samplesize != 16 bits
    res = AFMT_QUERY;
    ioctl(mfdDevice, SNDCTL_DSP_SETFMT, &res);
    if (res != AFMT_S16_LE)
@@ -378,40 +368,6 @@ OsStatus MpOss::initDevice(const char* devname)
       freeDevice();
       return ret;
    }
-
-   res = ioctl(mfdDevice, SNDCTL_DSP_STEREO, &stereo);
-   if (res == -1)
-   {
-      OsSysLog::add(FAC_MP, PRI_WARNING,
-         "OSS: could not set single channel audio!\n");
-      freeDevice();
-      return ret;
-   }
-
-   res = ioctl(mfdDevice, SNDCTL_DSP_GETCAPS, &mDeviceCap);
-   if (res == -1)
-   {
-      OsSysLog::add(FAC_MP, PRI_EMERG,
-         "OSS: could not get capabilities; *** NO SOUND! ***!\n");
-      freeDevice();
-      return ret;
-   }
-
-   if (!isDevCapDuplex())
-   {
-      char buff[8] = {0};
-      OsStatus st = doOutput(buff, 8);
-
-      mbWriteCap = (st == OS_SUCCESS);
-      mbReadCap = !mbWriteCap;
-
-
-      OsSysLog::add(FAC_MP, PRI_DEBUG,
-         "OSS: device %s support only %s operations",
-         devname, (mbWriteCap) ? "output" : "input");
-
-   }
-
    return OS_SUCCESS;
 }
 
@@ -432,7 +388,7 @@ OsStatus MpOss::freeDevice()
    return ret;
 }
 
-OsStatus MpOss::setSampleRate(unsigned samplesPerSec, unsigned samplerPerFrame)
+OsStatus MpOss::setSampleRate(unsigned samplesPerSec, unsigned samplesPerFrame)
 {
    // FIXME: OSS device support only one sample rate for duplex operation
    //checking requested rate with whether configured
@@ -446,24 +402,140 @@ OsStatus MpOss::setSampleRate(unsigned samplesPerSec, unsigned samplerPerFrame)
          "OSS: could not set different sample speed for "
          "input and output; *** NO SOUND! ***");
       return OS_INVALID_ARGUMENT;
-   } else if ((mUsedSamplesPerSec == samplesPerSec) &&
-              (mUsedSamplesPerFrame == samplerPerFrame)) {
+   }
+   else if ((mUsedSamplesPerSec == samplesPerSec) &&
+           (mUsedSamplesPerFrame == samplesPerFrame))
+   {
       return OS_SUCCESS;
    }
 
+   return initDeviceFinal(samplesPerSec, samplesPerFrame);
+}
+
+OsStatus MpOss::initDeviceFinal(unsigned samplesPerSec, unsigned samplesPerFrame)
+{
+   int stereo = PRODUCE_STEREO_TO_DEV;
+   int res = ioctl(mfdDevice, SNDCTL_DSP_STEREO, &stereo);
+   if (res == -1)
+   {
+      if (stereo)
+      {
+         stereo = 0;
+         res = ioctl(mfdDevice, SNDCTL_DSP_STEREO, &stereo);
+      }
+
+      if (res == -1)
+      {
+         OsSysLog::add(FAC_MP, PRI_EMERG,
+            "OSS: could not set needed channel audio count!\n");
+         return OS_FAILED;
+      }
+      else
+      {
+         OsSysLog::add(FAC_MP, PRI_WARNING,
+            "OSS: could not set stereo, using mono!\n");
+      }
+   }
+
+   res = ioctl(mfdDevice, SNDCTL_DSP_GETCAPS, &mDeviceCap);
+   if (res == -1)
+   {
+      OsSysLog::add(FAC_MP, PRI_EMERG,
+         "OSS: could not get capabilities; *** NO SOUND! ***!\n");
+      return OS_FAILED;
+   }
+
+   int duplex = isDevCapDuplex();
+
+   // Try to find optimal internal OSS buffer size to satisfy latency constraint
+   for (int minSegmentBits = 7; minSegmentBits >= 5; minSegmentBits--)
+   {
+      int bytesInOneFrame = 2 * samplesPerFrame * ((stereo) ? 2 : 1);
+      int frmsize = samplesPerFrame * 1000 / samplesPerSec;
+      int buffering = OSS_LATENCY_LENGTH * bytesInOneFrame / frmsize  + bytesInOneFrame;
+      if (duplex)
+      {
+         // Increase buffer by 2.25 for duplex operations
+         // Use addition quater because input and output can't operate on the same buffer
+         buffering =  (buffering * 9) >> 2;
+      }
+
+      int reqfragsize = (1 << minSegmentBits);
+      int cnt = buffering / reqfragsize + ((buffering % reqfragsize) ? 1 : 0);
+
+      int minimumfrag = 2 + (buffering / (bytesInOneFrame/2));
+
+      // We must have sufficient amount of buffers to minimize latemcy
+      if  (cnt < minimumfrag)
+         continue;
+
+      int fragment = (cnt << 16) | minSegmentBits;
+      res = ioctl(mfdDevice, SNDCTL_DSP_SETFRAGMENT, &fragment);
+      if(res == -1)
+      {
+         OsSysLog::add(FAC_MP, PRI_EMERG,
+                       "OSS: could not set fragment size %x; *** NO SOUND! ***\n",
+                       fragment);
+
+         return OS_FAILED;
+      }
+
+      int fragsize = 0;
+      res = ioctl(mfdDevice, SNDCTL_DSP_GETBLKSIZE, &fragsize);
+      if (res == -1)
+      {
+         OsSysLog::add(FAC_MP, PRI_DEBUG,
+            "OSS: could not get fragment size.\n");
+         break;
+      }
+
+      if (fragsize != reqfragsize)
+      {
+         OsSysLog::add(FAC_MP, PRI_DEBUG,
+            "OSS: could not set fragment size %x, using %x. Sound quality may be poor\n",
+            fragment, reqfragsize);
+      }
+      break;
+   }
+
    int speed = samplesPerSec;
-   int res = ioctl(mfdDevice, SNDCTL_DSP_SPEED, &speed);
-   // allow .5% variance
-   if ((res == -1) || (abs(speed - samplesPerSec) > (int)samplesPerSec / 200))
+   int wspeed = speed;
+   res = ioctl(mfdDevice, SNDCTL_DSP_SPEED, &speed);
+   if ((res == -1) || (speed != wspeed))
    {
       OsSysLog::add(FAC_MP, PRI_EMERG,
          "OSS: could not set sample speed; *** NO SOUND! ***");
       return OS_FAILED;
    }
 
-   // Hmm.. If it's used sample rate may be set value returned by IOCTL..
    mUsedSamplesPerSec = samplesPerSec;
-   mUsedSamplesPerFrame = samplerPerFrame;
+   mUsedSamplesPerFrame = samplesPerFrame;
+   mStereoOps = stereo;
+
+   if (!duplex)
+   {
+      char buff[8] = {0};
+      OsStatus st = doOutput(buff, 8);
+
+      mbWriteCap = (st == OS_SUCCESS);
+      mbReadCap = !mbWriteCap;
+
+
+      OsSysLog::add(FAC_MP, PRI_DEBUG,
+         "OSS: device support only %s operations",
+         (mbWriteCap) ? "output" : "input");
+   }
+
+   //Initialize resampler
+   if (mStereoOps)
+   {
+      int buffSize = ((mStereoOps) ? 2 : 1) * samplesPerFrame;
+      assert(mResamplerBuffer == NULL);
+      mResamplerBuffer = new MpAudioSample[buffSize];
+
+      assert(buffSize * 2 <=  SOUND_MAXBUFFER);
+   }
+
    return OS_SUCCESS;
 }
 
@@ -506,6 +578,50 @@ OsStatus MpOss::doOutput(const char* buffer, int size)
    return OS_SUCCESS;
 }
 
+OsStatus MpOss::doInputRs(MpAudioSample* buffer, unsigned size)
+{
+   int sz = 2 * size * ((mStereoOps) ? 2 : 1);
+   if (mStereoOps)
+   {
+      OsStatus status;
+      unsigned j;
+      assert (size <= mUsedSamplesPerFrame);
+
+      status = doInput((char*)mResamplerBuffer, sz);
+      for (j = 0; j < size; j++)
+      {
+         buffer[j] = (mResamplerBuffer[2 * j]/2) +
+                     (mResamplerBuffer[2 * j + 1]/2);
+      }
+      return status;
+   }
+   else
+   {
+      return doInput((char*)buffer, sz);
+   }
+
+}
+
+OsStatus MpOss::doOutputRs(const MpAudioSample* buffer, unsigned size)
+{
+   int sz = 2 * size * ((mStereoOps) ? 2 : 1);
+   if (mStereoOps)
+   {
+      unsigned j;
+      assert (size <= mUsedSamplesPerFrame);
+
+      for (j = 0; j < size; j++)
+      {
+         mResamplerBuffer[2*j] = mResamplerBuffer[2*j + 1] = buffer[j];
+      }
+      return doOutput((const char*)mResamplerBuffer, sz);
+   }
+   else
+   {
+      return doOutput((const char*)buffer, sz);
+   }
+}
+
 void MpOss::soundIoThread()
 {
    UtlBoolean bStReader;
@@ -515,16 +631,9 @@ void MpOss::soundIoThread()
 
    MpAudioSample* isamples;
    const MpAudioSample* osamples;
-   int frameSize = 0;
    int i;
 
    UtlBoolean bWakeUp = TRUE;
-
-#ifdef PRODUCE_STEREO_TO_DEV
-   int j;
-   MpAudioSample imBuffer[SOUND_MAXBUFFER];
-#endif
-
    assert(mModeChanged == TRUE);
 
    for (;;i++)
@@ -540,9 +649,15 @@ void MpOss::soundIoThread()
          mModeChanged = FALSE;
          if (!bStWriter && !bStReader && !bShutdown)
          {
+            RTL_EVENT("MpOss::io_thread", 10);
+            ioctl(mfdDevice, SNDCTL_DSP_SYNC, NULL);
+
+            RTL_EVENT("MpOss::io_thread", 11);
             ossSetTrigger(false);
-            // Signal we have caught modification flag  
+
             sem_post(&mSignalSem);
+
+            RTL_EVENT("MpOss::io_thread", 12);
             // Wait for any IO
             sem_wait(&mSleepSem);
 
@@ -562,8 +677,9 @@ void MpOss::soundIoThread()
          {
             // Signal we have caught modification flag
             sem_post(&mSignalSem);
+            RTL_EVENT("MpOss::io_thread", 15);
 
-            frameSize = mUsedSamplesPerFrame * sizeof(MpAudioSample);
+            int frameSize = ((mStereoOps) ? 2 : 1) * mUsedSamplesPerFrame * 2;
 
             if (bStWriter || bStReader)
             {
@@ -572,55 +688,70 @@ void MpOss::soundIoThread()
 
             if (bWakeUp)
             {
+               unsigned precharge;
                i = 0;
                ossSetTrigger(true);
 
-               //doInput(gTrashBuffer, frameSize);
-               //doOutput(gSilenceBuffer, frameSize);
+               if (mbWriteCap)
+               {
+                  // Plays out silence to set requested buffer deep
+                  precharge = OSS_LATENCY_LENGTH * mUsedSamplesPerSec / 1000;
+
+                  for (unsigned k = 0; k < precharge; k += mUsedSamplesPerFrame)
+                  {
+                     unsigned sz = precharge - k;
+                     if (sz > mUsedSamplesPerFrame)
+                         sz = mUsedSamplesPerFrame;
+
+                     doOutputRs(gSilenceBuffer, sz);
+
+                     //Use small data request unless OSS may be confused
+                     if (mbReadCap)
+                     {
+                        doInputRs(gTrashBuffer, mUsedSamplesPerFrame >> 3);
+                     }
+                  }
+               }
+
+               if ((mbWriteCap) && (mbReadCap))
+               {
+                  //Compensates output shift due previous data requests
+                  doOutputRs(gSilenceBuffer, (mUsedSamplesPerFrame >> 2));
+               }
+
                bWakeUp = FALSE;
+               RTL_EVENT("MpOss::io_thread", 16);
             }
          }
       }
 
-      // Produce heat beat for MpMediaLib
+      // Produce heart beat for MpMediaLib
       if ((mWriter) && (!mWriter->mNotificationThreadEn))
       {
          RTL_EVENT("MpOss::io_thread", 4);
          mWriter->signalForNextFrame();
       }
 
-      if (mbWriteCap)
-      {
-         osamples = (bStWriter) ? mWriter->mAudioFrame : gSilenceBuffer;
-         RTL_EVENT("MpOss::io_thread", 1);
-#ifdef PRODUCE_STEREO_TO_DEV
-         for (j = 0; j < frameSize / 2; j++) {
-            imBuffer[2*j] = imBuffer[2*j + 1] = osamples[j];
-         }
-         doOutput((const char*)imBuffer, frameSize * 2);
-#else
-         doOutput((const char*)osamples, frameSize);
-#endif
-      }
-
       if (mbReadCap)
       {
          RTL_EVENT("MpOss::io_thread", 2);
          isamples = (bStReader) ? mReader->mAudioFrame : gTrashBuffer;
-#ifdef PRODUCE_STEREO_TO_DEV
-         status = doInput((char*)imBuffer, frameSize * 2);
-         for (j = 0; j < frameSize / 2; j++) {
-            isamples[j] = (imBuffer[2*j]/2)+(imBuffer[2*j+1]/2);
-         }
-#else
-         status = doInput((char*)isamples, frameSize);
-#endif
+         status = doInputRs(isamples, mUsedSamplesPerFrame);
+
          if ((status == OS_SUCCESS) && (bStReader))
          {
             RTL_EVENT("MpOss::io_thread", 3);
             mReader->pushFrame();
          }
       }
+
+      if (mbWriteCap)
+      {
+         osamples = (bStWriter) ? mWriter->mAudioFrame : gSilenceBuffer;
+         RTL_EVENT("MpOss::io_thread", 1);
+         status = doOutputRs(osamples, mUsedSamplesPerFrame);
+      }
+
    }
 }
 

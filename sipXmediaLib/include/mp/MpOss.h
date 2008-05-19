@@ -125,23 +125,33 @@ protected:
    unsigned mUsedSamplesPerSec;          ///< Used samples rate either for IO
    unsigned mUsedSamplesPerFrame;        ///< Used frame size for IO
 
+   MpAudioSample* mResamplerBuffer;      ///< Buffer for conversions
+   UtlBoolean mStereoOps;                ///< Use stereo output
+
    pthread_t mIoThread;                  ///< Internal IO thread
    sem_t mSleepSem;      ///< Control IO thread sleeping
    sem_t mSignalSem;     ///< Use for parameters synchronization
 
-   /// @brief Common initializations for OSS device
+   /// @brief Pre initializations for OSS device
    OsStatus initDevice(const char* devname);
+   /// @brief Final initializations for OSS device
+   OsStatus initDeviceFinal(unsigned samplesPerSec, unsigned samplerPerFrame);
    /// @brief Free OSS device
    OsStatus freeDevice();
 
    /// @brief Because OSS device works in duplex mode we must ensure that
-   /// input and output driver use one sample rate
+   /// input and output driver use one sample rate and perfrom final init
    OsStatus setSampleRate(unsigned samplesPerSec, unsigned samplerPerFrame);
 
    /// @brief Perform input operation of OSS device
    OsStatus doInput(char* buffer, int size);
    /// @brief Perform output operation of OSS device
    OsStatus doOutput(const char* buffer, int size);
+
+   /// @brief Perform input operation of OSS device with siutable resampler
+   OsStatus doInputRs(MpAudioSample* buffer, unsigned size);
+   /// @brief Perform output operation of OSS device  with siutable resampler
+   OsStatus doOutputRs(const MpAudioSample* buffer, unsigned size);
 
    /// @brief Deinitialization and freeing sequences
    void noMoreNeeded();
