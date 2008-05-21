@@ -286,23 +286,15 @@ void CpTopologyGraphInterface::release()
 
 /* ============================ MANIPULATORS ============================== */
 
-OsStatus CpTopologyGraphInterface::createConnection(int& connectionId,
-                                                    const char* szLocalAddress,
-                                                    int localPort,
-                                                    void* videoWindowHandle, 
-                                                    void* const pSecurityAttributes,
-                                                    ISocketEvent* pIdleEvent,
-                                                    IMediaEventListener* pMediaEventListener,
-                                                    const RtpTransportOptions rtpTransportOptions)
+CpTopologyMediaConnection* CpTopologyGraphInterface::createMediaConnection(int& connectionId)
 {
-   OsStatus retValue = OS_SUCCESS;
    CpTopologyMediaConnection* mediaConnection=NULL;
    CpTopologyGraphFactoryImpl* pTopologyFactoryImpl = (CpTopologyGraphFactoryImpl*)mpFactoryImpl;
 
    connectionId = getNextConnectionId();
    if (connectionId == -1)
    {
-      return OS_LIMIT_REACHED;
+      return NULL;
    }
    mpTopologyGraph->addResources(*pTopologyFactoryImpl->getConnectionResourceTopology(),
                                  pTopologyFactoryImpl->getResourceFactory(),
@@ -314,6 +306,38 @@ OsStatus CpTopologyGraphInterface::createConnection(int& connectionId,
                  "creating a new connection %p",
                  mediaConnection);
    mMediaConnections.append(mediaConnection);
+
+   // Set codec factory
+   mediaConnection->mpCodecFactory = new SdpCodecList(mSupportedCodecs);
+   mediaConnection->mpCodecFactory->bindPayloadTypes();
+   OsSysLog::add(FAC_CP, PRI_DEBUG, 
+            "CpTopologyGraphInterface::createMediaConnection creating a new mpCodecFactory %p",
+            mediaConnection->mpCodecFactory);
+
+   // Ensure that the connection has completed being created before exiting this function. 
+   // This will allow API's such as getConnectionPortOnBridge to be used immediately upon
+   // return from this function.
+   mpTopologyGraph->synchronize();
+
+   return mediaConnection;
+}
+
+OsStatus CpTopologyGraphInterface::createConnection(int& connectionId,
+                                                    const char* szLocalAddress,
+                                                    int localPort,
+                                                    void* videoWindowHandle, 
+                                                    void* const pSecurityAttributes,
+                                                    ISocketEvent* pIdleEvent,
+                                                    IMediaEventListener* pMediaEventListener,
+                                                    const RtpTransportOptions rtpTransportOptions)
+{
+   OsStatus retValue = OS_SUCCESS;
+   CpTopologyMediaConnection* mediaConnection = createMediaConnection(connectionId);
+
+   if (connectionId == -1)
+   {
+      return OS_LIMIT_REACHED;
+   }
 
    // Set Local address
    if (szLocalAddress && strlen(szLocalAddress))
@@ -341,17 +365,6 @@ OsStatus CpTopologyGraphInterface::createConnection(int& connectionId,
        return retValue;
    }
 
-   // Start the audio packet pump
-   UtlString inConnectionName(DEFAULT_RTP_INPUT_RESOURCE_NAME);
-   MpResourceTopology::replaceNumInName(inConnectionName, connectionId);
-   MpRtpInputAudioConnection::startReceiveRtp(*(mpTopologyGraph->getMsgQ()),
-                                              inConnectionName,
-                                              NULL,
-                                              0,
-                                              *(mediaConnection->mpRtpAudioSocket),
-                                              *(mediaConnection->mpRtcpAudioSocket));
-
-
    // Store audio stream settings
    mediaConnection->mRtpAudioReceivePort = mediaConnection->mpRtpAudioSocket->getLocalHostPort() ;
    mediaConnection->mRtcpAudioReceivePort = mediaConnection->mpRtcpAudioSocket->getLocalHostPort() ;
@@ -363,17 +376,15 @@ OsStatus CpTopologyGraphInterface::createConnection(int& connectionId,
             "CpTopologyGraphInterface::createConnection creating a new RTCP socket: %p descriptor: %d",
             mediaConnection->mpRtcpAudioSocket, mediaConnection->mpRtcpAudioSocket->getSocketDescriptor());
 
-   // Set codec factory
-   mediaConnection->mpCodecFactory = new SdpCodecList(mSupportedCodecs);
-   mediaConnection->mpCodecFactory->bindPayloadTypes();
-   OsSysLog::add(FAC_CP, PRI_DEBUG, 
-            "CpTopologyGraphInterface::createConnection creating a new mpCodecFactory %p",
-            mediaConnection->mpCodecFactory);
-
-    // Ensure that the connection has completed being created before exiting this function. 
-    // This will allow API's such as getConnectionPortOnBridge to be used immediately upon
-    // return from this function.
-    mpTopologyGraph->synchronize();
+   // Start the audio packet pump
+   UtlString inConnectionName(DEFAULT_RTP_INPUT_RESOURCE_NAME);
+   MpResourceTopology::replaceNumInName(inConnectionName, connectionId);
+   MpRtpInputAudioConnection::startReceiveRtp(*(mpTopologyGraph->getMsgQ()),
+                                              inConnectionName,
+                                              NULL,
+                                              0,
+                                              *(mediaConnection->mpRtpAudioSocket),
+                                              *(mediaConnection->mpRtcpAudioSocket));
 
     return retValue;
 }
@@ -386,64 +397,33 @@ OsStatus CpTopologyGraphInterface::createConnection(int& connectionId,
                                                       OsSocket* rtpSocket,
                                                       OsSocket* rtcpSocket)
 {
-    OsStatus retValue = OS_SUCCESS;
-    CpTopologyMediaConnection* mediaConnection=NULL;
-    CpTopologyGraphFactoryImpl* pTopologyFactoryImpl = (CpTopologyGraphFactoryImpl*)mpFactoryImpl;
+   OsStatus retValue = OS_SUCCESS;
+   CpTopologyMediaConnection* mediaConnection = createMediaConnection(connectionId);
 
-    connectionId = getNextConnectionId();
-    if (connectionId == -1)
-    {
-       return OS_LIMIT_REACHED;
-    }
-    mpTopologyGraph->addResources(*pTopologyFactoryImpl->getConnectionResourceTopology(),
-                                 pTopologyFactoryImpl->getResourceFactory(),
-                                 connectionId);
+   if (connectionId == -1)
+   {
+      return OS_LIMIT_REACHED;
+   }
 
-    mediaConnection = new CpTopologyMediaConnection(connectionId);
-    OsSysLog::add(FAC_CP, PRI_DEBUG,
-                  "CpTopologyGraphInterface::createConnection "
-                  "creating a new connection %p",
-                  mediaConnection);
-    mMediaConnections.append(mediaConnection);
+   // Assign the passed in sockets to the mediaConnection
+   mediaConnection->mpRtpAudioSocket = rtpSocket;
+   mediaConnection->mpRtcpAudioSocket = rtcpSocket;
+   mediaConnection->mDestinationSet = TRUE;
+   mediaConnection->mRtpSendHostAddress = "127.0.0.1";  // dummy address so that startRtpSend will work
+   mediaConnection->mContactType = CONTACT_LOCAL;
+   mediaConnection->mIsCustomSockets = TRUE;
 
-    // Create the sockets for audio stream
-    mediaConnection->mpRtpAudioSocket = rtpSocket;
-    mediaConnection->mpRtcpAudioSocket = rtcpSocket;
-    mediaConnection->mDestinationSet = TRUE;
-    mediaConnection->mRtpSendHostAddress = "127.0.0.1";  // dummy address so that startRtpSend will work
-    mediaConnection->mContactType = CONTACT_LOCAL;
-    mediaConnection->mIsCustomSockets = TRUE;
+   // Start the audio packet pump
+   UtlString inConnectionName(DEFAULT_RTP_INPUT_RESOURCE_NAME);
+   MpResourceTopology::replaceNumInName(inConnectionName, connectionId);
+   MpRtpInputAudioConnection::startReceiveRtp(*(mpTopologyGraph->getMsgQ()),
+                                              inConnectionName,
+                                              NULL,
+                                              0,
+                                              *(mediaConnection->mpRtpAudioSocket),
+                                              *(mediaConnection->mpRtcpAudioSocket));
 
-    // Start the audio packet pump
-    UtlString inConnectionName(DEFAULT_RTP_INPUT_RESOURCE_NAME);
-    MpResourceTopology::replaceNumInName(inConnectionName, connectionId);
-    MpRtpInputAudioConnection::startReceiveRtp(*(mpTopologyGraph->getMsgQ()),
-                                               inConnectionName,
-                                               NULL,
-                                               0,
-                                               *(mediaConnection->mpRtpAudioSocket),
-                                               *(mediaConnection->mpRtcpAudioSocket));
-
-    OsSysLog::add(FAC_CP, PRI_DEBUG, 
-             "CpTopologyGraphInterface::createConnection creating a new RTP socket: %p descriptor: %d",
-             mediaConnection->mpRtpAudioSocket, mediaConnection->mpRtpAudioSocket->getSocketDescriptor());
-    OsSysLog::add(FAC_CP, PRI_DEBUG, 
-             "CpTopologyGraphInterface::createConnection creating a new RTCP socket: %p descriptor: %d",
-             mediaConnection->mpRtcpAudioSocket, mediaConnection->mpRtcpAudioSocket->getSocketDescriptor());
-
-    // Set codec factory
-    mediaConnection->mpCodecFactory = new SdpCodecList(mSupportedCodecs);
-    mediaConnection->mpCodecFactory->bindPayloadTypes();
-    OsSysLog::add(FAC_CP, PRI_DEBUG, 
-             "CpTopologyGraphInterface::createConnection creating a new mpCodecFactory %p",
-             mediaConnection->mpCodecFactory);
-
-    // Ensure that the connection has completed being created before exiting this function. 
-    // This will allow API's such as getConnectionPortOnBridge to be used immediately upon
-    // return from this function.
-    mpTopologyGraph->synchronize();
-
-    return retValue;
+   return retValue;
 }
 
 OsStatus CpTopologyGraphInterface::setPlcMethod(int connectionId,

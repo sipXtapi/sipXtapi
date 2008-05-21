@@ -547,6 +547,7 @@ private:
      */
     int getNextConnectionId();
 
+    CpTopologyMediaConnection* createMediaConnection(int& connectionId);
     CpTopologyMediaConnection* getMediaConnection(int connectionId);
     CpTopologyMediaConnection* removeMediaConnection(int connectionId);
     OsStatus doDeleteConnection(CpTopologyMediaConnection* mediaConnection);
