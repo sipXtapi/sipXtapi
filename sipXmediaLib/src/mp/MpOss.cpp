@@ -448,7 +448,9 @@ OsStatus MpOss::initDeviceFinal(unsigned samplesPerSec, unsigned samplesPerFrame
    int duplex = isDevCapDuplex();
 
    // Try to find optimal internal OSS buffer size to satisfy latency constraint
-   for (int minSegmentBits = 7; minSegmentBits >= 5; minSegmentBits--)
+   const int minSegmentBits = 5;
+   
+   for (int segmentBits = 8; segmentBits >= minSegmentBits; segmentBits--)
    {
       int bytesInOneFrame = 2 * samplesPerFrame * ((stereo) ? 2 : 1);
       int frmsize = samplesPerFrame * 1000 / samplesPerSec;
@@ -460,16 +462,22 @@ OsStatus MpOss::initDeviceFinal(unsigned samplesPerSec, unsigned samplesPerFrame
          buffering =  (buffering * 9) >> 2;
       }
 
-      int reqfragsize = (1 << minSegmentBits);
+      int reqfragsize = (1 << segmentBits);
       int cnt = buffering / reqfragsize + ((buffering % reqfragsize) ? 1 : 0);
 
       int minimumfrag = 2 + (buffering / (bytesInOneFrame/2));
 
       // We must have sufficient amount of buffers to minimize latemcy
-      if  (cnt < minimumfrag)
+      if  ((segmentBits > minSegmentBits) && (cnt < minimumfrag))
          continue;
+      else if ((segmentBits == minSegmentBits) && (cnt < minimumfrag))
+      {
+         OsSysLog::add(FAC_MP, PRI_DEBUG,
+           "OSS: Minimum segment count has been limited to: %d giving a few amount of buffers: %d, while recommended count is %d. May be poor sound.",
+           minSegmentBits, cnt, minimumfrag);
+      }
 
-      int fragment = (cnt << 16) | minSegmentBits;
+      int fragment = (cnt << 16) | segmentBits;
       res = ioctl(mfdDevice, SNDCTL_DSP_SETFRAGMENT, &fragment);
       if(res == -1)
       {
@@ -495,6 +503,10 @@ OsStatus MpOss::initDeviceFinal(unsigned samplesPerSec, unsigned samplesPerFrame
             "OSS: could not set fragment size %x, using %x. Sound quality may be poor\n",
             fragment, reqfragsize);
       }
+      OsSysLog::add(FAC_MP, PRI_DEBUG,
+         "OSS: Use fragment size %x; Bytes in a frame:%d; Internal buffer size:%d; Minimum buffers count:%d;\n",
+         fragment, bytesInOneFrame, fragsize, minimumfrag);
+   
       break;
    }
 
@@ -654,6 +666,8 @@ void MpOss::soundIoThread()
 
             RTL_EVENT("MpOss::io_thread", 11);
             ossSetTrigger(false);
+            
+            ossReset();
 
             sem_post(&mSignalSem);
 
@@ -671,6 +685,8 @@ void MpOss::soundIoThread()
             RTL_EVENT("MpOss::io_thread", 0);
             // OSS driver killing
             ossSetTrigger(false);
+            
+            ossReset();
             return;
          }
          else
@@ -690,8 +706,9 @@ void MpOss::soundIoThread()
             {
                unsigned precharge;
                i = 0;
+               RTL_EVENT("MpOss::io_thread", -1);
                ossSetTrigger(true);
-
+               RTL_EVENT("MpOss::io_thread", 16);
                if (mbWriteCap)
                {
                   // Plays out silence to set requested buffer deep
@@ -703,16 +720,20 @@ void MpOss::soundIoThread()
                      if (sz > mUsedSamplesPerFrame)
                          sz = mUsedSamplesPerFrame;
 
-                     doOutputRs(gSilenceBuffer, sz);
-
                      //Use small data request unless OSS may be confused
                      if (mbReadCap)
                      {
                         doInputRs(gTrashBuffer, mUsedSamplesPerFrame >> 3);
-                     }
+                        RTL_EVENT("MpOss::io_thread", 18);
+                     }                     
+
+                     doOutputRs(gSilenceBuffer, sz);
+                     RTL_EVENT("MpOss::io_thread", 17);
+                     
                   }
                }
 
+               RTL_EVENT("MpOss::io_thread", 19);
                if ((mbWriteCap) && (mbReadCap))
                {
                   //Compensates output shift due previous data requests
