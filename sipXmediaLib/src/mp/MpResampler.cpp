@@ -171,7 +171,7 @@ OsStatus MpResamplerBase::resampleBufPtr(const MpAudioBufPtr& inBuf,
             "buffer from buffer pool for use in resampling.  "
             "Input sample rate %dHz, output sample rate %dHz"
             "%s.\n",
-            inRate, outRate, optionalIdStr);
+            inRate, outRate, optionalIdStr.data());
          return OS_NO_MEMORY;
       }
 
@@ -187,7 +187,7 @@ OsStatus MpResamplerBase::resampleBufPtr(const MpAudioBufPtr& inBuf,
             "Input sample rate %dHz, output sample rate %dHz"
             "%s.\n", 
             nExpectedOutSamples, resampledOut->getSamplesNumber(), 
-            inRate, outRate, optionalIdStr);
+            inRate, outRate, optionalIdStr.data());
          return OS_NO_MEMORY;
       }
       // Copy speech status from input buffer.
@@ -205,7 +205,7 @@ OsStatus MpResamplerBase::resampleBufPtr(const MpAudioBufPtr& inBuf,
             "MprToOutputDevice::resampleAndReplace - Failed while resampling.  "
             "Input sample rate %dHz, output sample rate %dHz"
             "%s.\n",
-            inRate, outRate, optionalIdStr);
+            inRate, outRate, optionalIdStr.data());
          return OS_FAILED;
       }
 
