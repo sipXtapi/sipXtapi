@@ -286,42 +286,6 @@ void CpTopologyGraphInterface::release()
 
 /* ============================ MANIPULATORS ============================== */
 
-CpTopologyMediaConnection* CpTopologyGraphInterface::createMediaConnection(int& connectionId)
-{
-   CpTopologyMediaConnection* mediaConnection=NULL;
-   CpTopologyGraphFactoryImpl* pTopologyFactoryImpl = (CpTopologyGraphFactoryImpl*)mpFactoryImpl;
-
-   connectionId = getNextConnectionId();
-   if (connectionId == -1)
-   {
-      return NULL;
-   }
-   mpTopologyGraph->addResources(*pTopologyFactoryImpl->getConnectionResourceTopology(),
-                                 pTopologyFactoryImpl->getResourceFactory(),
-                                 connectionId);
-
-   mediaConnection = new CpTopologyMediaConnection(connectionId);
-   OsSysLog::add(FAC_CP, PRI_DEBUG,
-                 "CpTopologyGraphInterface::createConnection "
-                 "creating a new connection %p",
-                 mediaConnection);
-   mMediaConnections.append(mediaConnection);
-
-   // Set codec factory
-   mediaConnection->mpCodecFactory = new SdpCodecList(mSupportedCodecs);
-   mediaConnection->mpCodecFactory->bindPayloadTypes();
-   OsSysLog::add(FAC_CP, PRI_DEBUG, 
-            "CpTopologyGraphInterface::createMediaConnection creating a new mpCodecFactory %p",
-            mediaConnection->mpCodecFactory);
-
-   // Ensure that the connection has completed being created before exiting this function. 
-   // This will allow API's such as getConnectionPortOnBridge to be used immediately upon
-   // return from this function.
-   mpTopologyGraph->synchronize();
-
-   return mediaConnection;
-}
-
 OsStatus CpTopologyGraphInterface::createConnection(int& connectionId,
                                                     const char* szLocalAddress,
                                                     int localPort,
@@ -739,12 +703,6 @@ OsStatus CpTopologyGraphInterface::getCapabilitiesEx(int connectionId,
     }
 
     return rc ;
-}
-
-CpTopologyMediaConnection* CpTopologyGraphInterface::getMediaConnection(int connectionId)
-{
-   UtlInt matchConnectionId(connectionId);
-   return((CpTopologyMediaConnection*) mMediaConnections.find(&matchConnectionId));
 }
 
 OsStatus CpTopologyGraphInterface::setConnectionDestination(int connectionId,
@@ -1795,11 +1753,6 @@ OsStatus CpTopologyGraphInterface::generateVoiceQualityReport(int         connec
 
 /* ============================ ACCESSORS ================================= */
 
-int CpTopologyGraphInterface::getNextConnectionId()
-{
-    return(++mLastConnectionId);
-}
-
 // Calculate the current cost for our sending/receiving codecs
 int CpTopologyGraphInterface::getCodecCPUCost()
 {   
@@ -2811,6 +2764,53 @@ OsStatus CpTopologyGraphInterface::createRtpSocketPair(UtlString localAddress,
 }
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
+
+int CpTopologyGraphInterface::getNextConnectionId()
+{
+    return(++mLastConnectionId);
+}
+
+CpTopologyMediaConnection* CpTopologyGraphInterface::createMediaConnection(int& connectionId)
+{
+   CpTopologyMediaConnection* mediaConnection=NULL;
+   CpTopologyGraphFactoryImpl* pTopologyFactoryImpl = (CpTopologyGraphFactoryImpl*)mpFactoryImpl;
+
+   connectionId = getNextConnectionId();
+   if (connectionId == -1)
+   {
+      return NULL;
+   }
+   mpTopologyGraph->addResources(*pTopologyFactoryImpl->getConnectionResourceTopology(),
+                                 pTopologyFactoryImpl->getResourceFactory(),
+                                 connectionId);
+
+   mediaConnection = new CpTopologyMediaConnection(connectionId);
+   OsSysLog::add(FAC_CP, PRI_DEBUG,
+                 "CpTopologyGraphInterface::createConnection "
+                 "creating a new connection %p",
+                 mediaConnection);
+   mMediaConnections.append(mediaConnection);
+
+   // Set codec factory
+   mediaConnection->mpCodecFactory = new SdpCodecList(mSupportedCodecs);
+   mediaConnection->mpCodecFactory->bindPayloadTypes();
+   OsSysLog::add(FAC_CP, PRI_DEBUG, 
+            "CpTopologyGraphInterface::createMediaConnection creating a new mpCodecFactory %p",
+            mediaConnection->mpCodecFactory);
+
+   // Ensure that the connection has completed being created before exiting this function. 
+   // This will allow API's such as getConnectionPortOnBridge to be used immediately upon
+   // return from this function.
+   mpTopologyGraph->synchronize();
+
+   return mediaConnection;
+}
+
+CpTopologyMediaConnection* CpTopologyGraphInterface::getMediaConnection(int connectionId)
+{
+   UtlInt matchConnectionId(connectionId);
+   return((CpTopologyMediaConnection*) mMediaConnections.find(&matchConnectionId));
+}
 
 /* ============================ FUNCTIONS ================================= */
 
