@@ -18,6 +18,9 @@
 #include <mp/MpSineWaveGeneratorDeviceDriver.h>
 #include <os/OsTask.h>
 #include <os/OsEvent.h>
+#include <os/OsDateTime.h>
+#include <utl/UtlString.h>
+#include <os/OsFS.h>
 
 #define TEST_SAMPLES_PER_FRAME_SIZE   80
 #define BUFFER_NUM                    500
@@ -31,6 +34,10 @@
 #define ENABLE_DISABLE_FAST_TEST_RUNS_NUMBER 10
 #define DIRECT_WRITE_TEST_RUNS_NUMBER        3
 #define TICKER_TEST_WRITE_RUNS_NUMBER        3
+#define MEASURE_JITTER_TEST_RUNS_NUMBER      1
+#define MEASURE_JITTER_TEST_LENGTH_SEC       5
+// Define this to enable writing of colected jitter data to files.
+//#define WRITE_JITTER_RESULTS_TO_FILE
 
 #undef USE_TEST_DRIVER
 
@@ -87,6 +94,7 @@ class MpOutputDeviceDriverTest : public CppUnit::TestCase
    // Thus enable it only to test brand new drivers, which don't support notifications yet.
 //   CPPUNIT_TEST(testDirectWrite);
    CPPUNIT_TEST(testTickerNotification);
+   CPPUNIT_TEST(measureJitter);
    CPPUNIT_TEST_SUITE_END();
 
 
@@ -242,6 +250,110 @@ public:
             driver.disableDevice();
             CPPUNIT_ASSERT(!driver.isEnabled());
          }
+         delete[] sampleData;
+      }
+   }
+
+   void measureJitter()
+   {
+      OsEvent notificationEvent;
+      int sampleRates[]={8000, 16000, 32000, 44100, 48000, 96000};
+      int numRates = sizeof(sampleRates)/sizeof(int);
+      // The tone we will test with is an 'A' 440Hz sine tone.
+      int testFrequency = 440;
+
+      OUTPUT_DRIVER driver(OUTPUT_DRIVER_CONSTRUCTOR_PARAMS);
+      CPPUNIT_ASSERT(!driver.isEnabled());
+
+      int rateIndex;
+      for(rateIndex = 0; rateIndex < numRates; rateIndex++)
+      {
+         int sampleDataSz = MEASURE_JITTER_TEST_LENGTH_SEC*sampleRates[rateIndex];
+         int samplesPerFrame = sampleRates[rateIndex]/100; // 10ms(=1/100sec) frames
+         int numFrames = sampleDataSz/samplesPerFrame;
+         MpAudioSample* sampleData = new MpAudioSample[sampleDataSz];
+         MpFrameTime frameTime=0;
+
+         // Calculate the data for playing one tone
+         calculateSampleData(testFrequency, sampleData, sampleDataSz, 
+            samplesPerFrame, sampleRates[rateIndex]);
+
+         // Create buffers for capturing jitter data
+         OsTime* jitterTimes[MEASURE_JITTER_TEST_RUNS_NUMBER];
+         for(int i = 0; i< MEASURE_JITTER_TEST_RUNS_NUMBER; i++)
+            jitterTimes[i] = new OsTime[numFrames];
+
+         // Collect a number of runs of test data defined at the top of the test file.
+         for (int curRunIdx=0; curRunIdx<MEASURE_JITTER_TEST_RUNS_NUMBER; curRunIdx++)
+         {
+            MpFrameTime frameTime=0;
+
+            // Enable the device for each run so that we get an accurate setup/teardown
+            // for enable/disable cycle captured in each test run.
+            driver.enableDevice(samplesPerFrame, sampleRates[rateIndex], 0);
+            CPPUNIT_ASSERT(driver.isEnabled());
+
+            // Register a callback to receive ticker notifications from the device driver.
+            CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, driver.setTickerNotification(&notificationEvent));
+
+            // Write all the data we calculated to the device.
+            for (int frame=0; frame<numFrames; frame++)
+            {
+               CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, notificationEvent.wait(OsTime(1000)));
+               OsDateTime::getCurTime(jitterTimes[curRunIdx][frame]);
+               notificationEvent.reset();
+
+               // Push the frame to the device!
+               CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                  driver.pushFrame(samplesPerFrame,
+                                   sampleData + samplesPerFrame*frame,
+                                   frameTime));
+
+               frameTime += samplesPerFrame*1000/sampleRates[rateIndex];
+            }
+
+            // Disable the ticker notifications
+            CPPUNIT_ASSERT(driver.setTickerNotification(NULL) == OS_SUCCESS);
+
+            // Reset any notifications that may have been triggered.
+            notificationEvent.reset();
+
+            // Disable the device to complete the run -- so that we get an accurate
+            // setup/teardown for enable/disable cycle captured.
+            driver.disableDevice();
+            CPPUNIT_ASSERT(!driver.isEnabled());
+
+            // Now we write out the jitter data we collected to a csv file
+            // First we create a UtlString that contains the formatting of data to write
+            // to file.
+            UtlString jitterDataStr = "";
+#define TMPBUFLEN 50
+            char tmpBuf[TMPBUFLEN];
+            int curTmpBufLen = 0;
+            for(int run = 0; run<MEASURE_JITTER_TEST_RUNS_NUMBER; run++)
+            {
+               for(int frame=0; frame<numFrames; frame++)
+               {
+                  curTmpBufLen = snprintf(tmpBuf, TMPBUFLEN, "%d",
+                     jitterTimes[curRunIdx][frame].cvtToMsecs()-jitterTimes[curRunIdx][0].cvtToMsecs());
+                  jitterDataStr += tmpBuf;
+                  jitterDataStr += ",";
+               }
+               jitterDataStr += "\n";
+            }
+            printf(jitterDataStr.data());
+#ifdef WRITE_JITTER_RESULTS_TO_FILE // [
+            curTmpBufLen = snprintf(tmpBuf, TMPBUFLEN,
+               "./audiodevice_out_jitter_%dHz.csv", sampleRates[rateIndex]);
+            CPPUNIT_ASSERT_EQUAL(jitterDataStr.length(),
+               (size_t)OsFile::openAndWrite(tmpBuf, jitterDataStr));
+#endif // WRITE_JITTER_RESULTS_TO_FILE ]
+         }
+
+         // Clean up - delete each of the second arrays of the jitterTimes multidimensional array.
+         for(int i = 0; i< MEASURE_JITTER_TEST_RUNS_NUMBER; i++)
+            delete[] jitterTimes[i];
+
          delete[] sampleData;
       }
    }
