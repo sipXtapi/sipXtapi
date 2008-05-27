@@ -83,7 +83,9 @@ class MpOutputDeviceDriverTest : public CppUnit::TestCase
    CPPUNIT_TEST(testCreate);
    CPPUNIT_TEST(testEnableDisable);
    CPPUNIT_TEST(testEnableDisableFast);
-   CPPUNIT_TEST(testDirectWrite);
+   // This test is disabled, because it audio quality during it may be very bad.
+   // Thus enable it only to test brand new drivers, which don't support notifications yet.
+//   CPPUNIT_TEST(testDirectWrite);
    CPPUNIT_TEST(testTickerNotification);
    CPPUNIT_TEST_SUITE_END();
 
