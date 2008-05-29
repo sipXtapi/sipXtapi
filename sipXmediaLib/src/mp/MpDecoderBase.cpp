@@ -100,7 +100,8 @@ int MpDecoderBase::decode(const MpRtpBufPtr &pPacket,
    }
    else
    {
-      //TODO: Add PLC for codec that doesn't support itself
+      assert(!"Codec does not have internal PLC. You MUST use external PLC!");
+      return 0;
    }
 
    if (res != RPLG_SUCCESS)
