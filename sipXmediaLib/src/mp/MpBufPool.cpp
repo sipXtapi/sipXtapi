@@ -108,7 +108,7 @@ MpBufPool::~MpBufPool()
     for (int i=mNumBlocks; i>0; i--) {
         MpBuf *pBuf = (MpBuf *)pBlock;
         if (pBuf->mRefCounter > 0 || pBuf->mpPool == this) {
-            osPrintf( "Buffer %d from pool %x did not correctly freed!!!\n"
+            osPrintf( "Buffer %d from pool %x was not correctly freed!!!\n"
                     , (pBlock-mpPoolData)/mBlockSize
                     , this);
         }
@@ -138,8 +138,8 @@ MpBuf *MpBufPool::getBuffer()
     pFreeBuffer->mpPool = this;
 
 #ifdef MPBUF_DEBUG
-    osPrintf("Buffer %d from pool %x obtained.\n", getBufferNumber(pFreeBuffer)
-                                                 , this);
+    osPrintf("Buffer %d from pool %x have been obtained.\n",
+             getBufferNumber(pFreeBuffer), this);
 #endif
     
     return pFreeBuffer;
@@ -149,8 +149,8 @@ void MpBufPool::releaseBuffer(MpBuf *pBuffer)
 {
     OsLock lock(mMutex);
 #ifdef MPBUF_DEBUG
-    osPrintf("Buffer %d from pool %x freed.\n", getBufferNumber(pBuffer)
-                                              , this);
+    osPrintf("Buffer %d from pool %x have been freed.\n",
+             getBufferNumber(pBuffer), this);
 #endif
     assert(pBuffer->mRefCounter == 0);
 
