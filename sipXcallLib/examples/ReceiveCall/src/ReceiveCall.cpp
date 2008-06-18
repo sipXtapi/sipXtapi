@@ -13,6 +13,7 @@
 
 #include <assert.h>
 #include <stdio.h>
+#include <signal.h>
 
 #if defined(_WIN32)
 #define WIN32_LEAN_AND_MEAN
@@ -46,6 +47,7 @@ extern HWND hMain;
 static SIPX_VIDEO_DISPLAY gDisplay;
 static SIPX_VIDEO_DISPLAY gPreviewDisplay;
 static bool  bVideo = false;
+static bool  gbShutdown = false;
 
 #endif
 bool bUseCustomTransportReliable = false;
@@ -73,6 +75,11 @@ FlibbleTask* gpFlibbleTask = NULL;
 SIPX_CONTACT_ID gContactId = CONTACT_AUTO;
 SIPX_CONTACT_ADDRESS*   gpExternalTransportContactRecord;
 
+static void ctrlCHandler(int signo)
+{
+   printf("\nShutting down...\n");
+   gbShutdown = true;
+}
 
 
 // Print usage message
@@ -573,6 +580,17 @@ int local_main(int argc, char* argv[])
     SIPX_INST hInst ;
     SIPX_LINE hLine ;
 
+    if ( signal( SIGINT, ctrlCHandler ) == SIG_ERR )
+    {
+       printf("Couldn't install signal handler for SIGINT\n");
+       exit(1);
+    }
+
+    if ( signal( SIGTERM, ctrlCHandler ) == SIG_ERR )
+    {
+       printf("Couldn't install signal handler for SIGTERM\n");
+       exit(1);
+    }
 
     // Parse Arguments
     if (parseArgs(argc, argv, &iDuration, &iSipPort, &iRtpPort, &szBindAddr, &g_szPlayTones,
@@ -650,9 +668,9 @@ int local_main(int argc, char* argv[])
 
             dumpLocalContacts(hInst) ;
 
-            while (true)
+            while (!gbShutdown)
             {
-                SLEEP(1000) ;
+                SLEEP(200) ;
             }
         }
         else
@@ -664,6 +682,9 @@ int local_main(int argc, char* argv[])
     {
         usage(argv[0]) ;
     }
+
+    sipxUnInitialize(hInst, true);
+
 #if defined(_WIN32) && defined(VIDEO)
     PostMessage(hMain, WM_CLOSE, 0, 0L);
 #endif
@@ -683,11 +704,14 @@ int main(int argc, char* argv[])
     HANDLE hThread = CreateThread(NULL, 0, ConsoleStart, &cmdParams, 0, &dwThreadId);
 
     MSG msg;
-	while (GetMessage(&msg, NULL, 0, 0)) 
-	{
-		TranslateMessage(&msg);
-		DispatchMessage(&msg);
-	}
+    while (GetMessage(&msg, NULL, 0, 0)) 
+    {
+        TranslateMessage(&msg);
+        DispatchMessage(&msg);
+    }
+    // Ask for sipXtapi shutdown and wait for its completion.
+    ctrlCHandler(0);
+    WaitForSingleObject(hThread, INFINITE);
     return 0;
 #else
     return local_main(argc, argv);
