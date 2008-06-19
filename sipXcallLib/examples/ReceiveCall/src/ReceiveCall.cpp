@@ -35,11 +35,13 @@ DWORD WINAPI ConsoleStart(LPVOID lpParameter);
 
 #define portIsValid(p) ((p) >= 1 && (p) <= 65535)
 
-SIPX_INST g_hInst = NULL ;      // Handle to the sipXtapi instanance
+static bool gbShutdown = false;         // Have shutdown been requested by user?
+SIPX_INST g_hInst = NULL ;              // Handle to the sipXtapi instance
 static short* g_loopback_samples[LOOPBACK_LENGTH] ; // loopback buffer
 static short g_loopback_head = 0 ;      // index into loopback
 static char* g_szPlayTones = NULL ;     // tones to play on answer
 static char* g_szFile = NULL ;          // file to play on answer
+
 #if defined(_WIN32) && defined(VIDEO)
 extern HWND ghPreview;
 extern HWND ghVideo;
@@ -47,9 +49,8 @@ extern HWND hMain;
 static SIPX_VIDEO_DISPLAY gDisplay;
 static SIPX_VIDEO_DISPLAY gPreviewDisplay;
 static bool  bVideo = false;
-static bool  gbShutdown = false;
-
 #endif
+
 bool bUseCustomTransportReliable = false;
 bool bUseCustomTransportUnreliable = false;
 SIPX_TRANSPORT ghTransport = SIPX_TRANSPORT_NULL;
