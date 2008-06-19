@@ -313,7 +313,7 @@ OsStatus OsFileSystem::createDirRecursive(const OsPath& rOsPath)
         UtlString sep = OsPath::separator;
         
         int lastSep = -1;
-        unsigned int nextSep = rOsPath.index(sep);
+        size_t nextSep = rOsPath.index(sep);
         
         while (nextSep != UtlString::UTLSTRING_NOT_FOUND)
         {
