@@ -54,8 +54,6 @@ MpRtpInputConnection::MpRtpInputConnection(const UtlString& resourceName,
 , mpiRTCPConnection(NULL)
 #endif /* INCLUDE_RTCP ] */
 {
-   char         name[50];
-
 #ifdef INCLUDE_RTCP /* [ */
 // Let's create an RTCP Connection to accompany the MP Connection just created.
    if(mpiRTCPSession)
@@ -80,9 +78,7 @@ MpRtpInputConnection::MpRtpInputConnection(const UtlString& resourceName,
 #endif /* INCLUDE_RTCP ] */
 
    // Create our resources
-   sprintf(name, "Dejitter-%d", myID);
    mpDejitter  = new MprDejitter();
-   sprintf(name, "FromNet-%d", myID);
    mpFromNet   = new MprFromNet();
 
 #ifdef INCLUDE_RTCP /* [ */
