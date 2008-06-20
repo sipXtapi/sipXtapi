@@ -313,7 +313,7 @@ UtlBoolean MprToSpkr::doProcessFrame(MpBufPtr inBufs[],
         }
         else
         {
-            if(out->getSpeechType() == MpAudioBuf::MP_SPEECH_COMFORT_NOISE) 
+            if(out->getSpeechType() == MP_SPEECH_COMFORT_NOISE) 
             {
                 out->setSamplesNumber(samplesPerFrame);
                 iLength = out->getSamplesNumber();
@@ -329,7 +329,7 @@ UtlBoolean MprToSpkr::doProcessFrame(MpBufPtr inBufs[],
             else 
             {
                 background_noise_level_estimation(mulNoiseLevel, shpSamples, 
-                        iLength);
+                                                  iLength);
             }
         }
 

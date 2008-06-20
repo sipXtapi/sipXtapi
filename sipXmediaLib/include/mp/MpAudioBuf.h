@@ -36,16 +36,6 @@ struct MpAudioBuf : public MpDataBuf
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
-    /// Sort of audio data.
-    typedef enum {
-        MP_SPEECH_UNKNOWN,        ///< is yet undetermined
-        MP_SPEECH_SILENT,         ///< found to contain no speech
-        MP_SPEECH_COMFORT_NOISE,  ///< to be replaced by comfort noise
-        MP_SPEECH_ACTIVE,         ///< found to contain speech
-        MP_SPEECH_MUTED,          ///< may contain speech, but must be muted
-        MP_SPEECH_TONE            ///< filled with active (not silent) tone data
-    } SpeechType;
-
     static MpBufPool *smpDefaultPool; ///< Default pool for this type of buffer
 
 /* ============================ CREATORS ================================== */
@@ -60,7 +50,7 @@ public:
 //@{
 
     /// Set audio data type.
-    void setSpeechType(SpeechType type) {mSpeechType = type;};
+    void setSpeechType(MpSpeechType type) {mSpeechType = type;};
 
     /// Set current number of samples in audio data.
     /**
@@ -96,7 +86,7 @@ public:
 //@{
 
     /// Get audio data type.
-    SpeechType getSpeechType() const {return mSpeechType;};
+    MpSpeechType getSpeechType() const {return mSpeechType;};
 
     /// Get pointer to audio data.
     const MpAudioSample *getSamplesPtr() const {return (const MpAudioSample*)getDataPtr();}
@@ -119,16 +109,13 @@ public:
 ///@name Inquiry
 //@{
 
-    /// Does buffer contain active voice or silence data
-    bool isActiveAudio() const;
-
 //@}
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 
     short      mAttenDb;     ///< attenuation applied at speakerphone speaker
-    SpeechType mSpeechType;  ///< if we know, whether buffer contains speech
+    MpSpeechType mSpeechType;  ///< if we know, whether buffer contains speech
     unsigned   mTimecode;    ///< time when this data is generated
 
     /// This is called in place of constructor.

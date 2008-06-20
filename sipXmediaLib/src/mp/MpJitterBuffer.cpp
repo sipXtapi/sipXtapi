@@ -134,7 +134,7 @@ OsStatus MpJitterBuffer::pushPacket(MpRtpBufPtr &rtpPacket)
       if (!pBuf.isValid())
          return OS_FAILED;
       pBuf->setSamplesNumber(mSamplesPerFrame);
-      pBuf->setSpeechType(MpAudioBuf::MP_SPEECH_UNKNOWN);
+      pBuf->setSpeechType(MP_SPEECH_UNKNOWN);
 
       // Copy or resample audio data to buffer.
       if (codecSampleRate == mSampleRate)

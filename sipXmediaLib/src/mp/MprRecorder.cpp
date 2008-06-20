@@ -366,7 +366,7 @@ UtlBoolean MprRecorder::doProcessFrame(MpBufPtr inBufs[],
          in = MpMisc.mpFgSilence;
       }
 
-      if (in->isActiveAudio()) 
+      if (isActiveAudio(in->getSpeechType())) 
       {
          mConsecutiveInactive = 0;
       } else 

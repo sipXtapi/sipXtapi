@@ -463,7 +463,7 @@ void MprDecode::doPlc(MpAudioBufPtr &pFrame)
       mTempPlcFrame = MpMisc.RawAudioPool->getBuffer();
       assert(mTempPlcFrame.isValid());
       mTempPlcFrame->setSamplesNumber(mpFlowGraph->getSamplesPerFrame());
-      mTempPlcFrame->setSpeechType(MpAudioBuf::MP_SPEECH_UNKNOWN);
+      mTempPlcFrame->setSpeechType(MP_SPEECH_UNKNOWN);
    }
    plcSamplesOut = mTempPlcFrame->getSamplesWritePtr();
 

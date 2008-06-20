@@ -449,7 +449,7 @@ protected:
    int            mMixDataStackLength;
    MpBridgeAccum* mpMixDataStackTop;
    MpBridgeAccum* mpMixDataStack;
-   MpAudioBuf::SpeechType* mpMixDataSpeechType; ///< Speech type of data frames in mpMixDataStack
+   MpSpeechType*  mpMixDataSpeechType; ///< Speech type of data frames in mpMixDataStack
    int            mMixDataInfoStackStep;
    int            mMixDataInfoStackLength;
    int*           mpMixDataInfoStackTop;
@@ -728,58 +728,6 @@ protected:
          // If this output was already processed - swap commands.
          moveTopMixActionMix(dataInfoStackPos);
       }
-   }
-
-   MpAudioBuf::SpeechType mixSpeechTypes(MpAudioBuf::SpeechType src1,
-                                         MpAudioBuf::SpeechType src2)
-   {
-      // If one of speech types is unknown, result is unknown.
-      if (src1 == MpAudioBuf::MP_SPEECH_UNKNOWN ||
-          src2 == MpAudioBuf::MP_SPEECH_UNKNOWN)
-      {
-         return MpAudioBuf::MP_SPEECH_UNKNOWN;
-      }
-
-      // If one of sources is tone, result is tone (though I'm not sure this
-      // is fully correct)
-      if (src1 == MpAudioBuf::MP_SPEECH_TONE ||
-          src2 == MpAudioBuf::MP_SPEECH_TONE)
-      {
-         return MpAudioBuf::MP_SPEECH_TONE;
-      }
-
-      // Here we ignore MP_SPEECH_MUTED type, because it should not be mixed.
-      if (src1 == MpAudioBuf::MP_SPEECH_MUTED ||
-          src2 == MpAudioBuf::MP_SPEECH_MUTED)
-      {
-         assert(!"Muted audio should not be mixed!");
-         return MpAudioBuf::MP_SPEECH_UNKNOWN;
-      }
-
-      // If active speech is mixed with active, silent or comfort noise
-      // frame, result is active speech.
-      if (src1 == MpAudioBuf::MP_SPEECH_ACTIVE ||
-          src2 == MpAudioBuf::MP_SPEECH_ACTIVE)
-      {
-         return MpAudioBuf::MP_SPEECH_ACTIVE;
-      }
-
-      // If silent is mixed with silent of comfort noise, result is silent.
-      if (src1 == MpAudioBuf::MP_SPEECH_SILENT ||
-          src2 == MpAudioBuf::MP_SPEECH_SILENT)
-      {
-         return MpAudioBuf::MP_SPEECH_SILENT;
-      }
-
-      // At this point only remaining case is that both frames are comfort noise.
-      if (src1 != MpAudioBuf::MP_SPEECH_COMFORT_NOISE ||
-          src2 != MpAudioBuf::MP_SPEECH_COMFORT_NOISE)
-      {
-         assert(!"Unknown frame speech type when mixing!");
-         return MpAudioBuf::MP_SPEECH_UNKNOWN;
-      }
-
-      return MpAudioBuf::MP_SPEECH_COMFORT_NOISE;
    }
 
 //@}

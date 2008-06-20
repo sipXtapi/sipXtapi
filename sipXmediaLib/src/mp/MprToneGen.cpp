@@ -159,7 +159,7 @@ UtlBoolean MprToneGen::doProcessFrame(MpBufPtr inBufs[],
           {
              MprToneGen::stopTone(*this, *getFlowGraph()->getMsgQ()); 
           }
-          out->setSpeechType(MpAudioBuf::MP_SPEECH_TONE);
+          out->setSpeechType(MP_SPEECH_TONE);
           break;
 
       case OS_NO_MORE_DATA: /* silent */
@@ -168,7 +168,7 @@ UtlBoolean MprToneGen::doProcessFrame(MpBufPtr inBufs[],
 
       case OS_SUCCESS:
       default:
-         out->setSpeechType(MpAudioBuf::MP_SPEECH_TONE);
+         out->setSpeechType(MP_SPEECH_TONE);
          break;
       }
    } else {

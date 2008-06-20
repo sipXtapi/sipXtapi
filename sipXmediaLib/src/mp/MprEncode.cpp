@@ -481,7 +481,7 @@ void MprEncode::doPrimaryCodec(MpAudioBufPtr in, unsigned int startTs)
          mActiveAudio1 = mDoesVad1 || mDisableDTX;
       }
 
-      mActiveAudio1 = mActiveAudio1 || in->isActiveAudio();
+      mActiveAudio1 = mActiveAudio1 || isActiveAudio(in->getSpeechType());
 
       payloadBytesLeft = mPacket1PayloadBytes - mPayloadBytesUsed;
 

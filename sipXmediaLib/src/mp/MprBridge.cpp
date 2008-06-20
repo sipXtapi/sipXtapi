@@ -302,7 +302,7 @@ OsStatus MprBridge::setFlowGraph(MpFlowGraphBase* pFlowGraph)
          mMixDataStackStep = mpFlowGraph->getSamplesPerFrame();
          mMixDataStackLength = maxInputs()*maxOutputs()*mMixDataStackStep;
          mpMixDataStack = new MpBridgeAccum[mMixDataStackLength];
-         mpMixDataSpeechType = new MpAudioBuf::SpeechType[maxInputs()*maxOutputs()];
+         mpMixDataSpeechType = new MpSpeechType[maxInputs()*maxOutputs()];
          // Allocate array for mix temporary data info.
          mMixDataInfoStackStep = maxInputs()*maxOutputs();
          mMixDataInfoStackLength = maxInputs()*maxOutputs()*mMixDataInfoStackStep;
@@ -361,8 +361,8 @@ UtlBoolean MprBridge::doMix(MpBufPtr inBufs[], int inBufsSize,
             printf("V");
 #endif // TEST_PRINT_CONTRIBUTORS ]
             MpAudioBufPtr pAudio = inBufs[origInput];
-            if ((mMixSilence || pAudio->isActiveAudio()) &&
-                pAudio->getSpeechType() != MpAudioBuf::MP_SPEECH_MUTED)
+            if ((mMixSilence || isActiveAudio(pAudio->getSpeechType())) &&
+                pAudio->getSpeechType() != MP_SPEECH_MUTED)
             {
 #ifdef TEST_PRINT_CONTRIBUTORS // [
                printf("A");
@@ -861,7 +861,7 @@ UtlBoolean MprBridge::doMix(MpBufPtr inBufs[], int inBufsSize,
       MpAudioBufPtr pOutBuf = MpMisc.RawAudioPool->getBuffer();
       assert(pOutBuf.isValid());
       pOutBuf->setSamplesNumber(samplesPerFrame);
-      pOutBuf->setSpeechType(MpAudioBuf::MP_SPEECH_UNKNOWN);
+      pOutBuf->setSpeechType(MP_SPEECH_UNKNOWN);
 
       // Mix input data to accumulator
       for (int inputNum=0; inputNum<inBufsSize; inputNum++)
@@ -948,7 +948,7 @@ UtlBoolean MprBridge::doMix(MpBufPtr inBufs[], int inBufsSize,
       if (  tempBuf.isValid()
          && mpInputGains[i] != MP_GAIN_MUTED
          && mpInputAttenuations[i] != MP_ATTENUATION_MUTED
-         && tempBuf->isActiveAudio())
+         && isActiveAudio(tempBuf->getSpeechType()))
       {
          // Mark input as active.
          mpIsInputActive[i] = true;
@@ -1005,7 +1005,7 @@ UtlBoolean MprBridge::doMix(MpBufPtr inBufs[], int inBufsSize,
           {
              inputsValid++;
              lastValid = inIdx;
-             if (inBufs[inIdx]->isActiveAudio())
+             if (isActiveAudio(inBufs[inIdx]->getSpeechType()))
              {
                 inputsActive++;
                 lastActive = inIdx;
@@ -1053,7 +1053,8 @@ UtlBoolean MprBridge::doMix(MpBufPtr inBufs[], int inBufsSize,
             {
                 MpAudioSample* output = outstart;
                 // Mix only non-silent audio
-                if (inBufs[inIdx].isValid() && inBufs[inIdx]->isActiveAudio())
+                if (  inBufs[inIdx].isValid()
+                   && isActiveAudio(inBufs[inIdx]->getSpeechType()))
                 { 
                     const MpAudioSample* input = inBufs[inIdx]->getSamplesPtr();
                     int n = min(inBufs[inIdx]->getSamplesNumber(), samplesPerFrame);

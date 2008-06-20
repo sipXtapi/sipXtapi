@@ -28,22 +28,6 @@ MpBufPool *MpAudioBuf::smpDefaultPool = NULL;
 
 /* ============================ INQUIRY =================================== */
 
-bool MpAudioBuf::isActiveAudio() const
-{
-    switch (getSpeechType()) {
-        case MP_SPEECH_SILENT:
-        case MP_SPEECH_COMFORT_NOISE:
-        case MP_SPEECH_MUTED:
-            return false;
-        case MP_SPEECH_UNKNOWN:
-        case MP_SPEECH_ACTIVE:
-        case MP_SPEECH_TONE:
-        default:
-            return true;
-
-    };
-}
-
 int MpAudioBuf::compareSamples(const MpAudioBuf& frame1, 
                                const MpAudioBuf& frame2, 
                                unsigned int tolerance)

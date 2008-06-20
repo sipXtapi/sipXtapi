@@ -1790,6 +1790,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\src\mp\MpTypes.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\src\mp\MpUdpBuf.cpp"
 					>
 				</File>

@@ -15,6 +15,9 @@
 #ifndef _INCLUDED_MPTYPES_H /* [ */
 #define _INCLUDED_MPTYPES_H
 
+#include <utl/UtlDefs.h>
+#include <os/OsIntTypes.h>
+
 /**************************************************************************/
 /* One of these should be defined, and the other should undefined!!!!!    */
 /* These are used to determine whether 16 bit samples need to be byte     */
@@ -38,8 +41,6 @@ typedef void * MSG_Q_ID;
 typedef void * SEM_ID;
 #endif /* _VXWORKS ] */
 
-#include <os/OsIntTypes.h>
-
 typedef int16_t MpAudioSample;    ///< Audio sample (16 bit, signed, little-endian)
 
 typedef int MpInputDeviceHandle;  ///< Logical device ID identifying device
@@ -52,4 +53,37 @@ typedef unsigned MpFrameTime;    ///< Time of frame begin relative to device
 
 typedef int MpConnectionID;
 
+/// Type of audio data.
+typedef enum {
+   MP_SPEECH_UNKNOWN,        ///< is yet undetermined
+   MP_SPEECH_SILENT,         ///< found to contain no speech
+   MP_SPEECH_COMFORT_NOISE,  ///< to be replaced by comfort noise
+   MP_SPEECH_ACTIVE,         ///< found to contain speech
+   MP_SPEECH_MUTED,          ///< may contain speech, but must be muted
+   MP_SPEECH_TONE            ///< filled with active (not silent) tone data
+} MpSpeechType;
+
+/// Does this speech type contain active audio or silence.
+static inline
+UtlBoolean isActiveAudio(MpSpeechType speechType);
+
+/// Determine type of speech after mixing two frames of given type.
+MpSpeechType mixSpeechTypes(MpSpeechType src1, MpSpeechType src2);
+
+/* ============================ INLINE METHODS ============================ */
+
+UtlBoolean isActiveAudio(MpSpeechType speechType)
+{
+   switch (speechType) {
+   case MP_SPEECH_SILENT:
+   case MP_SPEECH_COMFORT_NOISE:
+   case MP_SPEECH_MUTED:
+      return FALSE;
+   case MP_SPEECH_UNKNOWN:
+   case MP_SPEECH_ACTIVE:
+   case MP_SPEECH_TONE:
+   default:
+      return TRUE;
+   };
+}
 #endif /* _INCLUDED_MPTYPES_H ] */

@@ -495,6 +495,10 @@ SOURCE=.\src\mp\MpTopologyGraph.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\mp\MpTypes.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\mp\MpUdpBuf.cpp
 # End Source File
 # Begin Source File

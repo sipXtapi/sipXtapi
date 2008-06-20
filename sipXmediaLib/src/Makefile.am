@@ -144,6 +144,7 @@ libsipXmedia_la_SOURCES =  \
     mp/MpPlgStaffV1.cpp \
     mp/MpProgressResourceMsg.cpp \
     mp/MpTopologyGraph.cpp \
+    mp/MpTypes.cpp \
     mp/NetInTask.cpp \
     mp/StreamBufferDataSource.cpp \
     mp/StreamDataSource.cpp \

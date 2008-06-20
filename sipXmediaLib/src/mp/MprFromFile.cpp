@@ -742,7 +742,7 @@ UtlBoolean MprFromFile::doProcessFrame(MpBufPtr inBufs[],
          {
             return FALSE;
          }
-         out->setSpeechType(MpAudioBuf::MP_SPEECH_TONE);
+         out->setSpeechType(MP_SPEECH_TONE);
          out->setSamplesNumber(samplesPerFrame);
          count = out->getSamplesNumber();
          outbuf = out->getSamplesWritePtr();

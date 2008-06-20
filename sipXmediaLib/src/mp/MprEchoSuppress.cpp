@@ -355,7 +355,7 @@ UtlBoolean MprEchoSuppress::doProcessFrame(MpBufPtr inBufs[],
       outBufs[1] = out2;
    }
 
-   if (!in8->isActiveAudio())
+   if (!isActiveAudio(in8->getSpeechType()))
    {
       shpMicSig = in8->getSamplesPtr();
       MpAudioSample* shpSpkSig = out2->getSamplesWritePtr();

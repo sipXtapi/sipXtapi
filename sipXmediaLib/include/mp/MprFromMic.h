@@ -93,7 +93,7 @@ private:
 
    void  Init_highpass_filter800();
    void  highpass_filter800(int16_t *, int16_t *, short);
-   MpAudioBuf::SpeechType speech_detected(int16_t*, int);
+   MpSpeechType speech_detected(int16_t*, int);
 
 
    virtual UtlBoolean doProcessFrame(MpBufPtr inBufs[],

@@ -209,7 +209,7 @@ public:
        CPPUNIT_ASSERT(pBuf.isValid());
        memset(pBuf->getSamplesWritePtr(), 0,
               pBuf->getSamplesNumber()*sizeof(MpAudioSample));
-       pBuf->setSpeechType(MpAudioBuf::MP_SPEECH_UNKNOWN);
+       pBuf->setSpeechType(MP_SPEECH_UNKNOWN);
        pMsg->setBuffer(pBuf);
 
        // Send message to queue. MprFromMic should receive it.
@@ -244,7 +244,7 @@ public:
        CPPUNIT_ASSERT(pBuf.isValid());
        memset(pBuf->getSamplesWritePtr(), 0,
               pBuf->getSamplesNumber()*sizeof(MpAudioSample));
-       pBuf->setSpeechType(MpAudioBuf::MP_SPEECH_UNKNOWN);
+       pBuf->setSpeechType(MP_SPEECH_UNKNOWN);
        pMsg->setBuffer(pBuf);
 
        // Send message to queue. MprFromMic should receive it.
