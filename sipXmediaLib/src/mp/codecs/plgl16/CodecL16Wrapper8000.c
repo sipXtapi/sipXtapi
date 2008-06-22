@@ -90,7 +90,7 @@ CODEC_API int PLG_DECODE_V1(sipxL16_8000)(void* handle, const void* pCodedData,
       return RPLG_BAD_HANDLE;
 
    // Assert that available buffer size is enough for the packet.
-   if (cbCodedPacketSize > cbBufferSize)
+   if (cbCodedPacketSize/sizeof(audio_sample_t) > cbBufferSize)
    {
       return RPLG_INVALID_ARGUMENT;
    }

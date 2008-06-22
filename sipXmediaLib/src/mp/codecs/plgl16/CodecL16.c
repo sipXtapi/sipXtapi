@@ -36,7 +36,7 @@ int sipxL16decode(const void* pCodedData, unsigned cbCodedPacketSize,
    int i;
    int samples;
 
-   samples = min(cbCodedPacketSize*sizeof(audio_sample_t), cbBufferSize);
+   samples = min(cbCodedPacketSize/sizeof(audio_sample_t), cbBufferSize);
    for (i=0; i<samples; i++)
    {
       ((audio_sample_t*)pAudioBuffer)[i] = ntohs(((const audio_sample_t*)pCodedData)[i]);
