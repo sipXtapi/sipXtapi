@@ -197,27 +197,19 @@ void SdpCodecList::bindPayloadTypes()
 {
     int unusedDynamicPayloadId = SdpCodec::SDP_CODEC_MAXIMUM_STATIC_CODEC + 1;
     SdpCodec* codecWithoutPayloadId = NULL;
-    UtlString prevSubmimeType = "none";
-    UtlString actualSubmimeType;
 
     // Find a codec which does not have its payload type set
     // Cheat a little and make the codec writable
     while ((codecWithoutPayloadId = (SdpCodec*) getCodecByType(-1)))
     {
-        codecWithoutPayloadId->getEncodingName(actualSubmimeType);
-
-        // only increment payload id for different submime types
-        if (prevSubmimeType.compareTo(actualSubmimeType, UtlString::ignoreCase) != 0)
+        // Find an unused dynamic payload type id
+        while (getCodecByType(unusedDynamicPayloadId))
         {
-            // Find an unused dynamic payload type id
-            while (getCodecByType(unusedDynamicPayloadId))
-            {
-                unusedDynamicPayloadId++;
-            }
+            unusedDynamicPayloadId++;
         }
 
         codecWithoutPayloadId->setCodecPayloadFormat(unusedDynamicPayloadId);
-        prevSubmimeType = actualSubmimeType;
+        unusedDynamicPayloadId++;
     }
 
 #ifdef VERBOSE_CODEC_FACTORY /* [ */
