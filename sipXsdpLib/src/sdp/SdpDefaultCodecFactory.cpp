@@ -216,14 +216,14 @@ SdpCodec SdpDefaultCodecFactory::getCodec(SdpCodec::SdpCodecTypes internalCodecI
    case SdpCodec::SDP_CODEC_L16_16000_MONO:
       {
          return SdpCodec(SdpCodec::SDP_CODEC_L16_16000_MONO,
-            SdpCodec::SDP_CODEC_UNKNOWN,
-            MIME_TYPE_AUDIO,
-            "L16",
-            16000,
-            20000,
-            1,
-            "",
-            SdpCodec::SDP_CODEC_CPU_LOW);
+                         SdpCodec::SDP_CODEC_UNKNOWN,
+                         MIME_TYPE_AUDIO,
+                         "L16",
+                         16000,
+                         20000,
+                         1,
+                         "",
+                         SdpCodec::SDP_CODEC_CPU_LOW);
       }
       break;
 
