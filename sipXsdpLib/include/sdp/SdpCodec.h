@@ -117,8 +117,8 @@ public:
         SDP_CODEC_GSM = 3,         ///< GSM codec
         SDP_CODEC_G723 = 4,        ///< G.723
         SDP_CODEC_PCMA = 8,        ///< G.711 a-law
-        SDP_CODEC_L16_STEREO = 10, ///< PCM 16 bit/sample 44100 samples/sec.
-        SDP_CODEC_L16_MONO = 11,   ///< PCM 16 bit/sample 44100 samples/sec.
+        SDP_CODEC_L16_44100_STEREO = 10, ///< PCM 16 bit/sample 44100 samples/sec.
+        SDP_CODEC_L16_44100_MONO = 11,   ///< PCM 16 bit/sample 44100 samples/sec.
         SDP_CODEC_G729 = 18,       ///< G.729, with or without Annexes A or B
         SDP_CODEC_H263 = 34,       ///< H.263 video codec
         SDP_CODEC_MAXIMUM_STATIC_CODEC = 95, ///< Payload types for codecs below
@@ -146,7 +146,20 @@ public:
         SDP_CODEC_AMR_ALIGNED,     ///< AMR Octet Aligned mode
         SDP_CODEC_AMRWB,           ///< AMR-WB Bandwidth Efficient mode
         SDP_CODEC_AMRWB_ALIGNED,   ///< AMR-WB Octet Aligned mode
-        SDP_CODEC_L16_8K,          ///< Mono PCM 16 bit/sample 8000 samples/sec.
+        SDP_CODEC_L16_8000_STEREO, ///< PCM 16 bit/sample 8000 samples/sec stereo.
+        SDP_CODEC_L16_8000_MONO,   ///< PCM 16 bit/sample 8000 samples/sec mono.
+        SDP_CODEC_L16_11025_STEREO, ///< PCM 16 bit/sample 11025 samples/sec stereo.
+        SDP_CODEC_L16_11025_MONO,   ///< PCM 16 bit/sample 11025 samples/sec mono.
+        SDP_CODEC_L16_16000_STEREO, ///< PCM 16 bit/sample 16000 samples/sec stereo.
+        SDP_CODEC_L16_16000_MONO,   ///< PCM 16 bit/sample 16000 samples/sec mono.
+        SDP_CODEC_L16_22050_STEREO, ///< PCM 16 bit/sample 22050 samples/sec stereo.
+        SDP_CODEC_L16_22050_MONO,   ///< PCM 16 bit/sample 22050 samples/sec mono.
+        SDP_CODEC_L16_24000_STEREO, ///< PCM 16 bit/sample 24000 samples/sec stereo.
+        SDP_CODEC_L16_24000_MONO,   ///< PCM 16 bit/sample 24000 samples/sec mono.
+        SDP_CODEC_L16_32000_STEREO, ///< PCM 16 bit/sample 32000 samples/sec stereo.
+        SDP_CODEC_L16_32000_MONO,   ///< PCM 16 bit/sample 32000 samples/sec mono.
+        SDP_CODEC_L16_48000_STEREO, ///< PCM 16 bit/sample 48000 samples/sec stereo.
+        SDP_CODEC_L16_48000_MONO,   ///< PCM 16 bit/sample 48000 samples/sec mono.
         SDP_CODEC_G729AB,          ///< G.729A
         SDP_CODEC_G729ACISCO7960,
         SDP_CODEC_G726_16,

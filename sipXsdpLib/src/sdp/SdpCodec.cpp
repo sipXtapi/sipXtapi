@@ -104,16 +104,38 @@ SdpCodec::SdpCodec(int payloadFormat,
       {
          if(mNumChannels == 2)
          {
-            setValue(SDP_CODEC_L16_STEREO);
+            switch (mSampleRate)
+            {
+            case 8000: setValue(SDP_CODEC_L16_8000_STEREO); break;
+            case 11025: setValue(SDP_CODEC_L16_11025_STEREO); break;
+            case 16000: setValue(SDP_CODEC_L16_16000_STEREO); break;
+            case 22050: setValue(SDP_CODEC_L16_22050_STEREO); break;
+            case 24000: setValue(SDP_CODEC_L16_24000_STEREO); break;
+            case 32000: setValue(SDP_CODEC_L16_32000_STEREO); break;
+            case 44100: setValue(SDP_CODEC_L16_44100_STEREO); break;
+            case 48000: setValue(SDP_CODEC_L16_48000_STEREO); break;
+            default:
+               // Unknown samplerate.
+               setValue(SDP_CODEC_UNKNOWN);
+            }
          }
          else
          {
-            setValue(SDP_CODEC_L16_MONO);
+            switch (mSampleRate)
+            {
+            case 8000: setValue(SDP_CODEC_L16_8000_MONO); break;
+            case 11025: setValue(SDP_CODEC_L16_11025_MONO); break;
+            case 16000: setValue(SDP_CODEC_L16_16000_MONO); break;
+            case 22050: setValue(SDP_CODEC_L16_22050_MONO); break;
+            case 24000: setValue(SDP_CODEC_L16_24000_MONO); break;
+            case 32000: setValue(SDP_CODEC_L16_32000_MONO); break;
+            case 44100: setValue(SDP_CODEC_L16_44100_MONO); break;
+            case 48000: setValue(SDP_CODEC_L16_48000_MONO); break;
+            default:
+               // Unknown samplerate.
+               setValue(SDP_CODEC_UNKNOWN);
+            }
          }
-      }
-      else if(mMimeSubtype.compareTo("pcm") == 0)
-      {
-         setValue(SDP_CODEC_L16_8K);
       }
       else if(mMimeSubtype.compareTo("G729a") == 0)
       {

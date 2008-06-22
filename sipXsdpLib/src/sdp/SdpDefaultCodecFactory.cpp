@@ -69,7 +69,23 @@ static MpMimeInfoMapElement sgMimeInfoMap[] =
    { SdpCodec::SDP_CODEC_G729A,         "g729a",   8000, 1,  "annexb=no" },
    { SdpCodec::SDP_CODEC_G729A,         "g729",    8000, 1,  "annexb=no" },
    { SdpCodec::SDP_CODEC_G722,          "g722",   16000, 1,  NULL },
-   { SdpCodec::SDP_CODEC_TONES,         "telephone-event", 8000, 1,   NULL  }
+   { SdpCodec::SDP_CODEC_TONES,         "telephone-event", 8000, 1,   NULL  },
+   { SdpCodec::SDP_CODEC_L16_8000_MONO, "l16",     8000, 1,  NULL },
+   { SdpCodec::SDP_CODEC_L16_11025_MONO, "l16",   11025, 1,  NULL },
+   { SdpCodec::SDP_CODEC_L16_16000_MONO, "l16",   16000, 1,  NULL },
+   { SdpCodec::SDP_CODEC_L16_22050_MONO, "l16",   22050, 1,  NULL },
+   { SdpCodec::SDP_CODEC_L16_24000_MONO, "l16",   24000, 1,  NULL },
+   { SdpCodec::SDP_CODEC_L16_32000_MONO, "l16",   32000, 1,  NULL },
+   { SdpCodec::SDP_CODEC_L16_44100_MONO, "l16",   44100, 1,  NULL },
+   { SdpCodec::SDP_CODEC_L16_48000_MONO, "l16",   48000, 1,  NULL },
+   { SdpCodec::SDP_CODEC_L16_8000_STEREO, "l16",   8000, 2,  NULL },
+   { SdpCodec::SDP_CODEC_L16_11025_STEREO, "l16", 11025, 2,  NULL },
+   { SdpCodec::SDP_CODEC_L16_16000_STEREO, "l16", 16000, 2,  NULL },
+   { SdpCodec::SDP_CODEC_L16_22050_STEREO, "l16", 22050, 2,  NULL },
+   { SdpCodec::SDP_CODEC_L16_24000_STEREO, "l16", 24000, 2,  NULL },
+   { SdpCodec::SDP_CODEC_L16_32000_STEREO, "l16", 32000, 2,  NULL },
+   { SdpCodec::SDP_CODEC_L16_44100_STEREO, "l16", 44100, 2,  NULL },
+   { SdpCodec::SDP_CODEC_L16_48000_STEREO, "l16", 48000, 2,  NULL }
 };
 #define SIZEOF_MIME_INFO_MAP     \
    (sizeof(sgMimeInfoMap) / sizeof(sgMimeInfoMap[0]))
@@ -113,6 +129,22 @@ static MpCodecNamesMapElement sgCodecNamesMap[] =
    { SdpCodec::SDP_CODEC_AMR_ALIGNED,     "AMR_ALIGNED" },
    { SdpCodec::SDP_CODEC_AMRWB,           "AMRWB" },
    { SdpCodec::SDP_CODEC_AMRWB_ALIGNED,   "AMRWB_ALIGNED" },
+   { SdpCodec::SDP_CODEC_L16_8000_MONO,   "L16_8000_MONO" },
+   { SdpCodec::SDP_CODEC_L16_11025_MONO,  "L16_11025_MONO" },
+   { SdpCodec::SDP_CODEC_L16_16000_MONO,  "L16_16000_MONO" },
+   { SdpCodec::SDP_CODEC_L16_22050_MONO,  "L16_22050_MONO" },
+   { SdpCodec::SDP_CODEC_L16_24000_MONO,  "L16_24000_MONO" },
+   { SdpCodec::SDP_CODEC_L16_32000_MONO,  "L16_32000_MONO" },
+   { SdpCodec::SDP_CODEC_L16_44100_MONO,  "L16_44100_MONO" },
+   { SdpCodec::SDP_CODEC_L16_48000_MONO,  "L16_48000_MONO" },
+   { SdpCodec::SDP_CODEC_L16_8000_STEREO,  "L16_8000_STEREO" },
+   { SdpCodec::SDP_CODEC_L16_11025_STEREO, "L16_11025_STEREO" },
+   { SdpCodec::SDP_CODEC_L16_16000_STEREO, "L16_16000_STEREO" },
+   { SdpCodec::SDP_CODEC_L16_22050_STEREO, "L16_22050_STEREO" },
+   { SdpCodec::SDP_CODEC_L16_24000_STEREO, "L16_24000_STEREO" },
+   { SdpCodec::SDP_CODEC_L16_32000_STEREO, "L16_32000_STEREO" },
+   { SdpCodec::SDP_CODEC_L16_44100_STEREO, "L16_44100_STEREO" },
+   { SdpCodec::SDP_CODEC_L16_48000_STEREO, "L16_48000_STEREO" },
    { SdpCodec::SDP_CODEC_GIPS_IPCMU,      "EG711U" },
    { SdpCodec::SDP_CODEC_GIPS_IPCMA,      "EG711A" },
    { SdpCodec::SDP_CODEC_GIPS_IPCMWB,     "IPCMWB" },
@@ -153,13 +185,111 @@ SdpCodec SdpDefaultCodecFactory::getCodec(SdpCodec::SdpCodecTypes internalCodecI
    switch(internalCodecId)
    {
 
-   case SdpCodec::SDP_CODEC_L16_8K:
+   case SdpCodec::SDP_CODEC_L16_8000_MONO:
       {
-         return SdpCodec(SdpCodec::SDP_CODEC_L16_8K,
+         return SdpCodec(SdpCodec::SDP_CODEC_L16_8000_MONO,
                          SdpCodec::SDP_CODEC_UNKNOWN,
                          MIME_TYPE_AUDIO,
-                         "pcm",
+                         "L16",
                          8000,
+                         20000,
+                         1,
+                         "",
+                         SdpCodec::SDP_CODEC_CPU_LOW);
+      }
+      break;
+
+   case SdpCodec::SDP_CODEC_L16_11025_MONO:
+      {
+         return SdpCodec(SdpCodec::SDP_CODEC_L16_11025_MONO,
+                         SdpCodec::SDP_CODEC_UNKNOWN,
+                         MIME_TYPE_AUDIO,
+                         "L16",
+                         11025,
+                         20000,
+                         1,
+                         "",
+                         SdpCodec::SDP_CODEC_CPU_LOW);
+      }
+      break;
+
+   case SdpCodec::SDP_CODEC_L16_16000_MONO:
+      {
+         return SdpCodec(SdpCodec::SDP_CODEC_L16_16000_MONO,
+            SdpCodec::SDP_CODEC_UNKNOWN,
+            MIME_TYPE_AUDIO,
+            "L16",
+            16000,
+            20000,
+            1,
+            "",
+            SdpCodec::SDP_CODEC_CPU_LOW);
+      }
+      break;
+
+   case SdpCodec::SDP_CODEC_L16_22050_MONO:
+      {
+         return SdpCodec(SdpCodec::SDP_CODEC_L16_22050_MONO,
+                         SdpCodec::SDP_CODEC_UNKNOWN,
+                         MIME_TYPE_AUDIO,
+                         "L16",
+                         22050,
+                         20000,
+                         1,
+                         "",
+                         SdpCodec::SDP_CODEC_CPU_LOW);
+      }
+      break;
+
+   case SdpCodec::SDP_CODEC_L16_24000_MONO:
+      {
+         return SdpCodec(SdpCodec::SDP_CODEC_L16_24000_MONO,
+                         SdpCodec::SDP_CODEC_UNKNOWN,
+                         MIME_TYPE_AUDIO,
+                         "L16",
+                         24000,
+                         20000,
+                         1,
+                         "",
+                         SdpCodec::SDP_CODEC_CPU_LOW);
+      }
+      break;
+
+   case SdpCodec::SDP_CODEC_L16_32000_MONO:
+      {
+         return SdpCodec(SdpCodec::SDP_CODEC_L16_32000_MONO,
+                         SdpCodec::SDP_CODEC_UNKNOWN,
+                         MIME_TYPE_AUDIO,
+                         "L16",
+                         32000,
+                         20000,
+                         1,
+                         "",
+                         SdpCodec::SDP_CODEC_CPU_LOW);
+      }
+      break;
+
+   case SdpCodec::SDP_CODEC_L16_44100_MONO:
+      {
+         return SdpCodec(SdpCodec::SDP_CODEC_L16_44100_MONO,
+                         SdpCodec::SDP_CODEC_UNKNOWN,
+                         MIME_TYPE_AUDIO,
+                         "L16",
+                         44100,
+                         20000,
+                         1,
+                         "",
+                         SdpCodec::SDP_CODEC_CPU_LOW);
+      }
+      break;
+
+   case SdpCodec::SDP_CODEC_L16_48000_MONO:
+      {
+         return SdpCodec(SdpCodec::SDP_CODEC_L16_48000_MONO,
+                         SdpCodec::SDP_CODEC_UNKNOWN,
+                         MIME_TYPE_AUDIO,
+                         "L16",
+                         48000,
                          20000,
                          1,
                          "",
