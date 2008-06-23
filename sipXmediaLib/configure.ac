@@ -76,6 +76,9 @@ CHECK_G726
 CHECK_G722
 CHECK_AMR_AMRWB
 
+# Use external components, if requested.
+EXTERNAL_EXTENITIONS
+
 # SPEEX detection and configuration code inside general.m4 cannot do
 # sub-configure with AC_CONFIG_SUBDIRS, since it would be called more
 # than once, so do it here, where we know it only happens once.
