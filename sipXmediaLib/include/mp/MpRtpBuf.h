@@ -59,12 +59,12 @@ public:
 ///@name Manipulators
 //@{
 
-    /// Set current number of samples in payload data.
+    /// Set number of bytes in payload data.
     /**
     * @see MpArrayBuf::setDataSize() for more details
     */
-    bool setPayloadSize(unsigned samplesNum)
-    {return mpData->setDataSize(samplesNum);}
+    bool setPayloadSize(unsigned payloadSize)
+    {return mpData->setDataSize(payloadSize);}
 
     /// Set RTP version of this packet.
     /**
@@ -160,19 +160,19 @@ public:
 ///@name Accessors
 //@{
 
-    /// Get current number of samples in payload data.
+    /// Get current size of payload data.
     unsigned getPayloadSize() const {return mpData->getDataSize();}
 
     /// Get direct access to RtpHeader structure.
     RtpHeader &getRtpHeader() {return mRtpHeader;}
 
-    /// Get readonly direct access to RtpHeader structure.
+    /// Get read-only direct access to RtpHeader structure.
     const RtpHeader &getRtpHeader() const {return mRtpHeader;}
 
     /// Get direct access to RtpHeader structure.
     RtpSRC *getRtpCSRCs() {return mRtpCSRCs;}
 
-    /// Get readonly direct access to RtpHeader structure.
+    /// Get read-only direct access to RtpHeader structure.
     const RtpSRC *getRtpCSRCs() const {return mRtpCSRCs;}
 
     /// Get RTP version of this packet. Should be equal to 2.
@@ -361,7 +361,7 @@ public:
     /// Return pointer to MpRtpBuf.
     MPBUF_MEMBER_ACCESS_OPERATOR(MpRtpBuf)
 
-    /// Return readonly pointer to MpRtpBuf.
+    /// Return read-only pointer to MpRtpBuf.
     MPBUF_CONST_MEMBER_ACCESS_OPERATOR(MpRtpBuf)
 
 //@}
