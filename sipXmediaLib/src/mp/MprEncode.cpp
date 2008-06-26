@@ -506,7 +506,7 @@ void MprEncode::doPrimaryCodec(MpAudioBufPtr in)
       }
       else if (mpPrimaryCodec->getInfo()->getCodecType() == CODEC_TYPE_SAMPLE_BASED)
       {
-         codecFrameSamples = mpFlowGraph->getSamplesPerFrame();
+         codecFrameSamples = numSamplesOut;
       }
       else
       {
