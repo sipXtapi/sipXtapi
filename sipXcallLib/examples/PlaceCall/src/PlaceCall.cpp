@@ -637,14 +637,17 @@ bool placeCall(char* szSipUrl, char* szFromIdentity, char* szUsername, char* szP
 // Drop call, clean up resources
 bool shutdownCall()
 {
-    printf("<-> Shutting down Call\n") ;
+    if (g_hCall != 0)
+    {
+        printf("<-> Shutting down Call\n") ;
 
-    ClearSipXEvents() ;
-    sipxCallDestroy(g_hCall) ;
-    sipxLineRemove(g_hLine) ;
+        ClearSipXEvents() ;
+        sipxCallDestroy(g_hCall) ;
+        g_hCall = 0;
+        sipxLineRemove(g_hLine) ;
 
-    WaitForSipXEvent(CALLSTATE_DESTROYED, 5) ;
-
+        WaitForSipXEvent(CALLSTATE_DESTROYED, 5) ;
+    }
     return true ;
 }
 
