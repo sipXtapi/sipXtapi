@@ -132,6 +132,7 @@ private:
 //@{
    MpEncoderBase* mpPrimaryCodec;
    unsigned char* mpPacket1Payload; ///< Packet buffer for primary RTP stream
+   int   mMaxPacketSamples;         ///< Maximum number of samples in RTP packet.
    int   mPacket1PayloadBytes;      ///< Size of mpPacket1Payload buffer
    int   mPayloadBytesUsed;         ///< Number of bytes in mpPacket1Payload,
                                     ///<  already filled with encoded data
@@ -209,10 +210,10 @@ private:
    void handleStopTone(void);
 
      /// Encode audio buffer and send it.
-   void doPrimaryCodec(MpAudioBufPtr in, unsigned int startTs);
+   void doPrimaryCodec(MpAudioBufPtr in);
 
      /// Encode and send DTMF tone.
-   void doDtmfCodec(unsigned int startTs, int sPFrame, int sPSec);
+   void doDtmfCodec(int samplesPerFrame, int samplesPerSecond);
 
      /// Copy constructor (not implemented for this class)
    MprEncode(const MprEncode& rMprEncode);

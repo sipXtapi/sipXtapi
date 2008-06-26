@@ -277,6 +277,8 @@ void MprEncode::handleSelectCodecs(int newCodecsCount, SdpCodec** newCodecs)
          mpResampleBuf = new MpAudioSample[mResampleBufLen];
       }
 
+      mMaxPacketSamples = mMaxPacketTime*codecSamplesPerSec/1000;
+
       OsSysLog::add(FAC_MP, PRI_DEBUG,
                     "MprEncode::handleSelectCodecs "
                     "pPrimary->getEncodingName() = %s, "
@@ -434,7 +436,7 @@ int MprEncode::lookupTone(int toneId)
    return ret;
 }
 
-void MprEncode::doPrimaryCodec(MpAudioBufPtr in, unsigned int startTs)
+void MprEncode::doPrimaryCodec(MpAudioBufPtr in)
 {
    uint32_t numSamplesIn;
    int numSamplesOut;
@@ -445,7 +447,6 @@ void MprEncode::doPrimaryCodec(MpAudioBufPtr in, unsigned int startTs)
    OsStatus ret;
    UtlBoolean isPacketReady;
    UtlBoolean isPacketSilent;
-   unsigned int maxPacketSamples;
    unsigned int codecFrameSamples;
 
    if (mpPrimaryCodec == NULL)
@@ -470,14 +471,11 @@ void MprEncode::doPrimaryCodec(MpAudioBufPtr in, unsigned int startTs)
       pSamplesIn = in->getSamplesPtr();
    }
 
-   // Initialize variables
-   maxPacketSamples = mMaxPacketTime*mpFlowGraph->getSamplesPerSec()/1000;
-
    while (numSamplesIn > 0)
    {
       if (mPayloadBytesUsed == 0)
       {
-         mStartTimestamp1 = startTs;
+         mStartTimestamp1 = mCurrentTimestamp;
          mActiveAudio1 = mDoesVad1 || mDisableDTX;
       }
 
@@ -500,7 +498,7 @@ void MprEncode::doPrimaryCodec(MpAudioBufPtr in, unsigned int startTs)
       mSamplesPacked += numSamplesOut;
       pSamplesIn += numSamplesOut;
       numSamplesIn -= numSamplesOut;
-      startTs += numSamplesOut;
+      mCurrentTimestamp += numSamplesOut;
 
       if (mpPrimaryCodec->getInfo()->getCodecType() == CODEC_TYPE_FRAME_BASED)
       {
@@ -516,7 +514,7 @@ void MprEncode::doPrimaryCodec(MpAudioBufPtr in, unsigned int startTs)
       }
 
       if (  (mPayloadBytesUsed > 0)
-         && (isPacketReady || mSamplesPacked+codecFrameSamples > maxPacketSamples))
+         && (isPacketReady || mSamplesPacked+codecFrameSamples > mMaxPacketSamples))
       {
          if (mActiveAudio1)
          {
@@ -544,8 +542,7 @@ void MprEncode::doPrimaryCodec(MpAudioBufPtr in, unsigned int startTs)
    }
 }
 
-void MprEncode::doDtmfCodec(unsigned int startTs, int samplesPerFrame,
-                            int samplesPerSecond)
+void MprEncode::doDtmfCodec(int samplesPerFrame, int samplesPerSecond)
 {
    int numSampleTimes;
 #ifdef DEBUG_DTMF_SEND /* [ */
@@ -559,20 +556,20 @@ void MprEncode::doDtmfCodec(unsigned int startTs, int samplesPerFrame,
       return;
 
    if (mNewTone == TRUE) {
-      mStartTimestamp2 = startTs;
+      mStartTimestamp2 = mCurrentTimestamp;
       mDtmfSampleInterval = samplesPerFrame * 2;
       mNumToneStops = -1;
    }
 
    if (TONE_STOP_PACKETS == mNumToneStops) {
-      mTotalTime = startTs - mStartTimestamp2;
+      mTotalTime = mCurrentTimestamp - mStartTimestamp2;
    }
 
    if (mNumToneStops-- < 0) {
       if (mNewTone == TRUE ||
-          ((mLastDtmfSendTimestamp + mDtmfSampleInterval) <= startTs)) {
+          ((mLastDtmfSendTimestamp + mDtmfSampleInterval) <= mCurrentTimestamp)) {
 
-         numSampleTimes = (startTs + samplesPerFrame) - mStartTimestamp2;
+         numSampleTimes = (mCurrentTimestamp + samplesPerFrame) - mStartTimestamp2;
          if (numSampleTimes > ((1<<16) - 1)) numSampleTimes = ((1<<16) - 1);
 
          mpPacket2Payload[0] = mCurrentTone;
@@ -585,7 +582,7 @@ void MprEncode::doDtmfCodec(unsigned int startTs, int samplesPerFrame,
                            4,
                            mStartTimestamp2,
                            NULL);
-         mLastDtmfSendTimestamp = startTs;
+         mLastDtmfSendTimestamp = mCurrentTimestamp;
          mNewTone = FALSE;
 #ifdef DEBUG_DTMF_SEND /* [ */
          skipped = 0;
@@ -597,7 +594,7 @@ void MprEncode::doDtmfCodec(unsigned int startTs, int samplesPerFrame,
                   this,
                   mLastDtmfSendTimestamp, mDtmfSampleInterval,
                   (mLastDtmfSendTimestamp + mDtmfSampleInterval),
-                  startTs, (skipped ? "skipped" : "sent"));
+                  mCurrentTimestamp, (skipped ? "skipped" : "sent"));
 #endif /* DEBUG_DTMF_SEND ] */
       }
    } else {
@@ -614,7 +611,7 @@ void MprEncode::doDtmfCodec(unsigned int startTs, int samplesPerFrame,
                         4,
                         mStartTimestamp2,
                         NULL);
-      mLastDtmfSendTimestamp = startTs;
+      mLastDtmfSendTimestamp = mCurrentTimestamp;
       if (mNumToneStops < 1) { // all done, ready to start next tone.
          mCurrentTone = -1;
          mNumToneStops = -1;
@@ -625,7 +622,7 @@ void MprEncode::doDtmfCodec(unsigned int startTs, int samplesPerFrame,
                this,
                mLastDtmfSendTimestamp, mDtmfSampleInterval,
                (mLastDtmfSendTimestamp + mDtmfSampleInterval),
-               startTs);
+               mCurrentTimestamp);
 #endif /* DEBUG_DTMF_SEND ] */
    }
 }
@@ -650,14 +647,12 @@ UtlBoolean MprEncode::doProcessFrame(MpBufPtr inBufs[],
 
    in = inBufs[0];
 
-   mCurrentTimestamp += samplesPerFrame;
-
    if (NULL != mpPrimaryCodec) {
-      doPrimaryCodec(in, mCurrentTimestamp);
+      doPrimaryCodec(in);
    }
 
    if (NULL != mpDtmfCodec) {
-      doDtmfCodec(mCurrentTimestamp, samplesPerFrame, samplesPerSecond);
+      doDtmfCodec(samplesPerFrame, samplesPerSecond);
    }
 
    return TRUE;
