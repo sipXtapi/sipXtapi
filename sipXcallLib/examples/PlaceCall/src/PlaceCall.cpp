@@ -15,6 +15,7 @@
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <signal.h>
 
 #if defined(_WIN32)
 #define WIN32_LEAN_AND_MEAN
@@ -53,6 +54,7 @@ static bool bVideo = false;
 #endif
 
 
+bool shutdownCall();
 void startTribbleListener(const char* szIp);
 bool tribbleProc(SIPX_TRANSPORT hTransport,
                                       const char* szDestinationIp,
@@ -75,6 +77,13 @@ bool flibbleProc(SIPX_TRANSPORT hTransport,
 FlibbleTask* gpFlibbleTask = NULL;
 SIPX_CONTACT_ID gContactId = CONTACT_AUTO;
 SIPX_CONTACT_ADDRESS*   gpExternalTransportContactRecord;
+
+
+static void ctrlCHandler(int signo)
+{
+   printf("\nShutting down...\n");
+   shutdownCall();
+}
 
 // Print usage message
 void usage(const char* szExecutable)
@@ -782,6 +791,18 @@ int local_main(int argc, char* argv[])
     bool bAGC;
     bool bDenoise;
 
+    if ( signal( SIGINT, ctrlCHandler ) == SIG_ERR )
+    {
+       printf("Couldn't install signal handler for SIGINT\n");
+       exit(1);
+    }
+
+    if ( signal( SIGTERM, ctrlCHandler ) == SIG_ERR )
+    {
+       printf("Couldn't install signal handler for SIGTERM\n");
+       exit(1);
+    }
+
     // Parse Arguments
     if (parseArgs(argc, argv, &iDuration, &iSipPort, &iRtpPort, &szPlayTones,
             &szFile, &szFileBuffer, &szSipUrl, &bUseRport, &szUsername, 
@@ -1000,11 +1021,14 @@ int main(int argc, char* argv[])
     HANDLE hThread = CreateThread(NULL, 0, ConsoleStart, &cmdParams, 0, &dwThreadId);
 
     MSG msg;
-	while (GetMessage(&msg, NULL, 0, 0)) 
-	{
-		TranslateMessage(&msg);
-		DispatchMessage(&msg);
-	}
+    while (GetMessage(&msg, NULL, 0, 0)) 
+    {
+        TranslateMessage(&msg);
+        DispatchMessage(&msg);
+    }
+    // Ask for sipXtapi shutdown and wait for its completion.
+    ctrlCHandler(0);
+    WaitForSingleObject(hThread, INFINITE);
     return 0;
 #else
     return local_main(argc, argv);
@@ -1017,8 +1041,7 @@ int main(int argc, char* argv[])
 DWORD WINAPI ConsoleStart(LPVOID lpParameter)
 {
     CmdParams* pParams = (CmdParams*)lpParameter;
-	local_main(pParams->argc, pParams->argv);
-
+    local_main(pParams->argc, pParams->argv);
     return 0;
 }
 #endif
