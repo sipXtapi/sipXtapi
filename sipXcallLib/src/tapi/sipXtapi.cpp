@@ -72,9 +72,6 @@
 #endif
 
 // DEFINES
-#define MP_SAMPLE_RATE          8000    // Sample rate (don't change)
-#define MP_SAMPLES_PER_FRAME    80      // Frames per second (don't change)
-
 // GLOBAL VARIABLES
 
 // EXTERNAL VARIABLES
