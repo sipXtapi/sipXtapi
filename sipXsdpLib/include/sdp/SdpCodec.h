@@ -117,6 +117,7 @@ public:
         SDP_CODEC_GSM = 3,         ///< GSM codec
         SDP_CODEC_G723 = 4,        ///< G.723
         SDP_CODEC_PCMA = 8,        ///< G.711 a-law
+        SDP_CODEC_G722 = 9,        ///< G.722
         SDP_CODEC_L16_44100_STEREO = 10, ///< PCM 16 bit/sample 44100 samples/sec.
         SDP_CODEC_L16_44100_MONO = 11,   ///< PCM 16 bit/sample 44100 samples/sec.
         SDP_CODEC_G729 = 18,       ///< G.729, with or without Annexes A or B
@@ -166,7 +167,6 @@ public:
         SDP_CODEC_G726_24,
         SDP_CODEC_G726_32,
         SDP_CODEC_G726_40,
-        SDP_CODEC_G722,
         /// GIPS specific codecs
         //@{
         SDP_CODEC_GIPS_IPCMA,
