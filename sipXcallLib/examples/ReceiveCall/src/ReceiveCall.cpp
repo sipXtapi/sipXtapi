@@ -36,6 +36,7 @@ DWORD WINAPI ConsoleStart(LPVOID lpParameter);
 #define portIsValid(p) ((p) >= 1 && (p) <= 65535)
 
 static bool gbShutdown = false;         // Have shutdown been requested by user?
+static bool gbOneCallMode = false;      // Should we exit after first call?
 SIPX_INST g_hInst = NULL ;              // Handle to the sipXtapi instance
 static short* g_loopback_samples[LOOPBACK_LENGTH] ; // loopback buffer
 static short g_loopback_head = 0 ;      // index into loopback
@@ -101,6 +102,7 @@ void usage(const char* szExecutable)
     printf("   -r RTP port start (default = 9000)\n") ;
     printf("   -B ip address to bind to\n");
     printf("   -l loopback audio (2 second delay)\n") ;
+    printf("   -1 one call mode (exit after first call end)\n") ;
     printf("   -i line identity (e.g. sip:122@pingtel.com)\n") ;
     printf("   -u username (for authentication)\n") ;
     printf("   -a password  (for authentication)\n") ;
@@ -128,6 +130,7 @@ bool parseArgs(int argc,
                char** pszPlayTones,
                char** pszFile,
                bool* bLoopback,
+               bool* bOneCallMode,
                char** pszIdentity,
                char** pszUsername,
                char** pszPassword,
@@ -146,6 +149,7 @@ bool parseArgs(int argc,
     *pszPlayTones = NULL ;
     *pszFile = NULL ;
     *bLoopback = false ;
+    *bOneCallMode = false ;
     *pszIdentity = NULL ;
     *pszUsername = NULL ;
     *pszPassword = NULL ;
@@ -230,8 +234,10 @@ bool parseArgs(int argc,
         {
             *bLoopback = true ;
         }
-
-
+        else if (strcmp(argv[i], "-1") == 0)
+        {
+           *bOneCallMode = true ;
+        }
         else if (strcmp(argv[i], "-i") == 0)
         {
             if ((i+1) < argc)
@@ -485,6 +491,10 @@ bool EventCallBack(SIPX_EVENT_CATEGORY category,
             sipxCallDestroy(pCallInfo->hCall) ;
             break ;
         case CALLSTATE_DESTROYED:
+            if (gbOneCallMode)
+            {
+               gbShutdown = true;
+            }
             break ;
         }
     }
@@ -594,8 +604,10 @@ int local_main(int argc, char* argv[])
     }
 
     // Parse Arguments
-    if (parseArgs(argc, argv, &iDuration, &iSipPort, &iRtpPort, &szBindAddr, &g_szPlayTones,
-        &g_szFile, &bLoopback, &szIdentity, &szUsername, &szPassword, &szRealm, &szStunServer, &szProxy) &&
+    if (parseArgs(argc, argv, &iDuration, &iSipPort, &iRtpPort, &szBindAddr,
+                  &g_szPlayTones, &g_szFile, &bLoopback, &gbOneCallMode,
+                  &szIdentity, &szUsername, &szPassword, &szRealm, &szStunServer,
+                  &szProxy) &&
         (iDuration > 0) && (portIsValid(iSipPort)) && (portIsValid(iRtpPort)))
     {
         if (bLoopback)
