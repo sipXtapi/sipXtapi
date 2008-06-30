@@ -137,14 +137,15 @@ Sdp* SdpHelper::createSdpFromSdpBody(SdpBody& sdpBody)
                   break;
                case 9:
                   mimeSubType = "G722";
-                  sampleRate = 8000;
+                  sampleRate = 16000;
                   break;
                case 10:
-                  mimeSubType = "L16-2";
+                  mimeSubType = "L16";
                   sampleRate = 44100;
+                  numChannels = 2;
                   break;
                case 11:
-                  mimeSubType = "L16-1";
+                  mimeSubType = "L16";
                   sampleRate = 44100;
                   break;
                case 12:
@@ -212,6 +213,14 @@ Sdp* SdpHelper::createSdpFromSdpBody(SdpBody& sdpBody)
                   numChannels = 1;
                }
             }
+
+            // Workaround RFC bug with G.722 samplerate.
+            // Read RFC 3551 Section 4.5.2 "G722" for details.
+            if (mimeSubType.compareTo("g722", UtlString::ignoreCase) == 0)
+            {
+               sampleRate = 16000;
+            }
+
 
             int videoFmtp;
             int numVideoSizes = MAXIMUM_VIDEO_SIZES;

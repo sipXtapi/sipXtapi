@@ -1264,6 +1264,12 @@ void SdpBody::getCodecsInCommon(int audioPayloadIdCount,
       if(getPayloadRtpMap(audioPayloadTypes[typeIndex],
                           mimeSubtype, sampleRate, numChannels))
       {
+         // Workaround RFC bug with G.722 samplerate.
+         // Read RFC 3551 Section 4.5.2 "G722" for details.
+         if (mimeSubtype.compareTo("g722", UtlString::ignoreCase) == 0)
+         {
+            sampleRate = 16000;
+         }
          
          // Find a match for the mime type
          matchingCodec = localRtpCodecs.getCodec(MIME_TYPE_AUDIO,
@@ -1375,7 +1381,7 @@ void SdpBody::getCodecsInCommon(int audioPayloadIdCount,
                 }
 
                 // Get all codecs with the same mime subtype. Same codecs with different
-                // video resolutions are added seperately but have the same mime subtype.
+                // video resolutions are added separately but have the same mime subtype.
                 // The codec negotiation depends on the fact that codecs with the same
                 // mime subtype are added sequentially.
                 localRtpCodecs.getCodecs(numCodecs, sdpCodecArray, SDP_VIDEO_MEDIA_TYPE, mimeSubtype);
@@ -1761,6 +1767,13 @@ void SdpBody::addCodecParameters(int numRtpCodecs,
          numChannels = codec->getNumChannels();
          codec->getSdpFmtpField(formatParameters);
          payloadType = codec->getCodecPayloadFormat();
+
+         // Workaround RFC bug with G.722 samplerate.
+         // Read RFC 3551 Section 4.5.2 "G722" for details.
+         if (codec->getCodecType() == SdpCodec::SDP_CODEC_G722)
+         {
+            sampleRate = 8000;
+         }
 
          // Not sure what the right heuristic is for determining the
          // correct ptime.  ptime is a media (m line) parameters.  As such
