@@ -100,7 +100,7 @@ void NetBase64Codec::encode(int dataSize, const char data[], UtlString& encodedD
    encodedData.remove(0);
    encodedData.append(encodeBuffer, numEncodeBytes);
 
-   delete encodeBuffer;
+   delete[] encodeBuffer;
    encodeBuffer = NULL;
 }
 
