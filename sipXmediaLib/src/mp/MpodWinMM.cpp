@@ -19,9 +19,6 @@
 
 #ifdef RTL_ENABLED
 #  include <rtl_macro.h>
-#  ifdef RTL_AUDIO_ENABLED
-#     include <SeScopeAudioBuffer.h>
-#  endif
 #else
 #  define RTL_BLOCK(x)
 #  define RTL_EVENT(x,y)
