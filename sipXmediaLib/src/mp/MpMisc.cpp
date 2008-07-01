@@ -53,9 +53,28 @@
 #include "mp/NetInTask.h"
 #include "mp/MprFromMic.h"
 #include "mp/MprToSpkr.h"
+#include "mp/MprDejitter.h"
 #include "mp/MpMediaTask.h"
 #include "mp/MpCodecFactory.h"
 #include "mp/MpStaticCodecInit.h"
+#include "os/OsDateTime.h"
+
+//#define RTL_ENABLED
+
+#ifdef RTL_ENABLED
+#  include <rtl_macro.h>
+#  ifdef INIT_EXTERNAL_RTL_COLLECTOR
+      extern "C" void setExternalRtlCollector(SeScopeDataCollector *rtlCollector);
+#  else
+#     define setExternalRtlDataCollector(x)
+#  endif
+#else
+#  define RTL_START(x)
+#  define RTL_STOP
+#  define RTL_WRITE(x)
+#  define setExternalRtlDataCollector(x)
+#endif
+
 
 // EXTERNAL FUNCTIONS
 
@@ -441,6 +460,9 @@ OsStatus mpStartUp(int sampleRate, int samplesPerFrame,
 
         showMpMisc(TRUE);
 
+        RTL_START(100000000);
+        setExternalRtlCollector(sRealtimeLogCollector);
+
         // First initialize static codecs
         mpStaticCodecInitializer();
 
@@ -760,6 +782,17 @@ OsStatus mpShutdown(void)
         }
 
         MpCodecFactory::freeSingletonHandle();
+
+        OsDateTime curTime;
+        char rtl_filename[1024];
+        OsDateTime::getCurTime(curTime);
+        sprintf(rtl_filename, "%04u%02u%02u %02u-%02u-%02u.rtl",
+                curTime.getYear(), curTime.getMonth(), curTime.getDay(),
+                curTime.getHour(), curTime.getMinute(), curTime.getSecond());
+        setExternalRtlCollector(NULL);
+        RTL_WRITE(rtl_filename)
+        RTL_STOP
+
         return OS_SUCCESS;
 }
 
