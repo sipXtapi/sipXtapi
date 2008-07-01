@@ -147,13 +147,13 @@ CpTopologyGraphFactoryImpl::CpTopologyGraphFactoryImpl(OsConfigDb* pConfigDb,
     mpInputDeviceManager = 
         new MpInputDeviceManager(mgrSamplesPerFrame, // samples per frame
                                  mDefaultSamplesPerSec, // samples per second
-                                 4,    // number of buffered frames
+                                 16,    // number of buffered frames
                                  *MpMisc.RawAudioPool);
 
     mpOutputDeviceManager =
         new MpOutputDeviceManager(mgrSamplesPerFrame,   // samples per frame
                                   mDefaultSamplesPerSec, // samples per second
-                                  mFrameSizeMs*2);  // mixer buffer length (ms)
+                                  mFrameSizeMs*8);  // mixer buffer length (ms)
 
 
 
