@@ -86,4 +86,5 @@ UtlBoolean isActiveAudio(MpSpeechType speechType)
       return TRUE;
    };
 }
+
 #endif /* _INCLUDED_MPTYPES_H ] */
