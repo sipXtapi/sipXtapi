@@ -143,6 +143,7 @@ SipUserAgent::SipUserAgent(int sipTcpPort,
         , mbIncludePlatformInUserAgentName(TRUE)
         , mDoUaMessageChecks(doUaMessageChecks)
         , mbShuttingDown(FALSE)
+        , mbShutdownDone(FALSE)
         , mRegisterTimeoutSeconds(4)        
         , mbAllowHeader(true)
         , mbDateHeader(true)
