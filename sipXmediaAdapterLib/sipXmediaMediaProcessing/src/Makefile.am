@@ -22,6 +22,7 @@ version_Age=0
 libsipXmediaProcessing_la_LDFLAGS = -version-info ${version_Current}:${version_Revision}:${version_Age}
 
 libsipXmediaProcessing_la_CXXFLAGS = \
+	@INTERFACE_FLAGS@ \
 	@SSL_CXXFLAGS@ \
 	-DSIPX_LOGDIR=\"@SIPX_LOGDIR@\" \
 	-DSIPX_CONFDIR=\"@SIPX_CONFDIR@\"

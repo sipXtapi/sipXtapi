@@ -1516,6 +1516,22 @@ AC_DEFUN([CHECK_G722],
     AM_CONDITIONAL(G722_STATIC, test "$CODEC_G722_STATIC" = true)
 ])dnl
 
+AC_DEFUN([CHECK_GRAPH_INTERFACE],
+[
+    AC_ARG_ENABLE([topology-graph],
+		  [AC_HELP_STRING([--enable-topology-graph],
+				  [Enable toplogy graph as default processing @<:@default=no@:>@])],
+		  [ case "${enableval}" in 
+			yes) INTERFACE_FLAGS=" -DENABLE_TOPOLOGY_FLOWGRAPH_INTERFACE_FACTORY "
+			     INTERFACE_FLAGS+="-DDISABLE_DEFAULT_PHONE_MEDIA_INTERFACE_FACTORY " ;;
+			no)  INTERFACE_FLAGS=" " ;;
+			*) AC_MSG_ERROR(bad value ${enableval} for --enable-topology-graph) ;;
+		    esac],
+		  [INTERFACE_FLAGS=" -DENABLE_TOPOLOGY_FLOWGRAPH_INTERFACE_FACTORY "
+		   INTERFACE_FLAGS+="-DDISABLE_DEFAULT_PHONE_MEDIA_INTERFACE_FACTORY "])
+					       
+    AC_SUBST(INTERFACE_FLAGS)    
+])dnl
 
 # === AMR AMR_WB
 AC_DEFUN([AM_SET_AMR],
