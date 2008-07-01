@@ -555,7 +555,7 @@ public:
 
          void* myAppData = NULL;
 
-         SipPublishContentMgr::SipPublisherContentChangeCallback myCallbackFunc;
+         SipPublishContentMgr::SipPublisherContentChangeCallback myCallbackFunc = NULL;
 
          publisher.removeContentChangeObserver(eventType, ((void*&)myAppData), myCallbackFunc);
 
