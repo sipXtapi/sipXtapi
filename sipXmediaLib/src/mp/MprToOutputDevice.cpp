@@ -128,7 +128,7 @@ UtlBoolean MprToOutputDevice::doProcessFrame(MpBufPtr inBufs[],
                   "CurrentFrameTime=%u, mixerBufferLength=%u",
                   mFrameTime, mixerBufferLength);
 
-      mFrameTime += mixerBufferLength / 2;
+//      mFrameTime += mixerBufferLength / 2;
 
       debugPrintf(" mFrameTime=%u\n", mFrameTime);
 
@@ -200,26 +200,26 @@ UtlBoolean MprToOutputDevice::doProcessFrame(MpBufPtr inBufs[],
          && mpOutputDeviceManager->getMixerBufferLength(mDeviceId, mixerBufferLength) == OS_SUCCESS
          && (mixerBufferLength > 0) )
       {
-         // TODO:: This should be changed, to be done only once on startup,
-         // because it may cause several consecutive frames to be written
-         // with one timestamp and so, mixed together.
-         while (status == OS_LIMIT_REACHED)
+         // We should never go backward in time, as this causes (1) de-adaptation
+         // of our "jitter buffer" and (2) mixing with past frame (buzzzz noise).
+/*         while (status == OS_LIMIT_REACHED)
          {
-            RTL_EVENT("MprToOutputDevice::overflow",1);
+            RTL_EVENT("MprToOutputDevice::frameTime_adjustment",-1);
             mFrameTime -= frameTimeInterval;
             status = mpOutputDeviceManager->pushFrame(mDeviceId, mFrameTime, inAudioBuffer);
             debugPrintf("MprToOutputDevice::doProcessFrame(): frameToPush=%d, pushResult=%d ---\n",
                         mFrameTime, status);
          }
+*/
          while (status == OS_INVALID_STATE)
          {
-            RTL_EVENT("MprToOutputDevice::overflow",-1);
+            RTL_EVENT("MprToOutputDevice::frameTime_adjustment",1);
             mFrameTime += frameTimeInterval;
             status = mpOutputDeviceManager->pushFrame(mDeviceId, mFrameTime, inAudioBuffer);
             debugPrintf("MprToOutputDevice::doProcessFrame(): frameToPush=%d, pushResult=%d +++\n",
                         mFrameTime, status);
          }
-         RTL_EVENT("MprToOutputDevice::overflow",0);
+         RTL_EVENT("MprToOutputDevice::frameTime_adjustment",0);
       }
    }
 
