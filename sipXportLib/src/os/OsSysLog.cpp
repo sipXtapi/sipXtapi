@@ -907,14 +907,20 @@ void myvsprintf(UtlString& results, const char* format, OS_VA_ARG_CONST va_list 
 
     results.remove(0) ;
     p = (char*) malloc(size) ;
-     
+
     while (p != NULL)
     {
+        va_list args_copy;
+        /* Argument list must be copied, because we call vsnprintf in a loop
+         * and first call will invalidate list, so on second iteration it
+         * will contain junk. (this is not a problem for i386, but appers
+         * as such on e.g. x86_64) */
+        va_copy(args_copy, args);
         /* Try to print in the allocated space. */
 #ifdef _WIN32
-        n = _vsnprintf (p, size, format, args);
+        n = _vsnprintf (p, size, format, args_copy);
 #else
-        n = vsnprintf (p, size, format, args);
+        n = vsnprintf (p, size, format, args_copy);
 #endif
 
         /* If that worked, return the string. */
