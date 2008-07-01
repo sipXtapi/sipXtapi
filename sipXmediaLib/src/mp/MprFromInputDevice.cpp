@@ -101,13 +101,13 @@ UtlBoolean MprFromInputDevice::doProcessFrame(MpBufPtr inBufs[],
 
    if (!mFrameTimeInitialized)
    {
-      // Start with a frame behind.  Possible need smarter
-      // decision for starting.
       mPreviousFrameTime = mpInputDeviceManager->getCurrentFrameTime(mDeviceId);
 //      mPreviousFrameTime -= (5 * frameTimeInterval);
    }
-
-   mPreviousFrameTime += frameTimeInterval;
+   else
+   {
+      mPreviousFrameTime += frameTimeInterval;
+   }
 
    MpAudioBufPtr inAudioBuffer;
    unsigned int numFramesNotPlayed = 0;
