@@ -12,6 +12,7 @@
 #include <cppunit/TestCase.h>
 #include <sipxunit/TestUtilities.h>
 
+#include "MpTestResource.h"
 #include "mp/MpInputDeviceManager.h"
 #include "mp/MprFromInputDevice.h"
 #include "mp/MpOutputDeviceManager.h"
@@ -40,8 +41,8 @@
 #define BUFFERS_TO_BUFFER_ON_INPUT    3     ///< Number of buffers to buffer in input manager.
 #define BUFFERS_TO_BUFFER_ON_OUTPUT   2     ///< Number of buffers to buffer in output manager.
 
-#define TEST_SAMPLES_PER_FRAME        80    ///< in samples
-#define TEST_SAMPLES_PER_SECOND       8000  ///< in samples/sec (Hz)
+#define TEST_SAMPLES_PER_FRAME        480    ///< in samples
+#define TEST_SAMPLES_PER_SECOND       48000  ///< in samples/sec (Hz)
 
 #define DEFAULT_BUFFER_ON_OUTPUT_MS   (BUFFERS_TO_BUFFER_ON_OUTPUT*TEST_SAMPLES_PER_FRAME*1000/TEST_SAMPLES_PER_SECOND)
                                             ///< Buffer size in output manager in milliseconds.
@@ -122,6 +123,12 @@ class MpInputOutputFrameworkTest : public CppUnit::TestCase
 {
    CPPUNIT_TEST_SUITE(MpInputOutputFrameworkTest);
    CPPUNIT_TEST(testShortCircuit);
+   // testOutput is a special purpose test. It is aimed to measure audio
+   // output jitter and clock-skew. To go with this test you need to connect
+   // output of your sound card to line input and record. You may then
+   // be able to determine jitter, clock skew, etc by measuring distance
+   // between frame starts.
+//   CPPUNIT_TEST(testOutput);
    CPPUNIT_TEST(testManyOutputDevices);
    CPPUNIT_TEST(testManyInputDevices);
    CPPUNIT_TEST(testManyInputDevicesToOneOutputDevice);
@@ -354,6 +361,110 @@ public:
       }
 
       RTL_WRITE("testShortCircuit.rtl");
+      RTL_STOP
+   }
+
+   void testOutput()
+   {
+      RTL_START(10000000);
+
+      // We should have at least one input driver and one output driver
+      CPPUNIT_ASSERT(nOutputDrivers >= 1);
+
+      MpOutputDeviceHandle  sinkDeviceId;
+      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                           mpOutputDeviceManager->getDeviceId(outputDriverNames[0],
+                                                              sinkDeviceId));
+
+      // Create source (input) and sink (output) resources.
+      MpTestResource sourceResource("TestSource", 0, 0, 1, 1);
+      sourceResource.setGenOutBufMask(1);
+      sourceResource.setOutSignalType(MpTestResource::MP_SINE_SAW);
+      sourceResource.setSignalAmplitude(0, 16000);
+      MprToOutputDevice sinkResource("MprToOutputDevice",
+                                     mpOutputDeviceManager,
+                                     sinkDeviceId);
+
+      try {
+
+         // Add source and sink resources to flowgraph and link them together.
+         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, mpFlowGraph->addResource(sourceResource));
+         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, mpFlowGraph->addResource(sinkResource));
+         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, mpFlowGraph->addLink(sourceResource, 0, sinkResource, 0));
+
+         // Enable devices
+         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                              mpOutputDeviceManager->enableDevice(sinkDeviceId));
+
+         // Set flowgraph ticker
+         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                              mpOutputDeviceManager->setFlowgraphTickerSource(sinkDeviceId));
+
+         try {
+            // Enable resources
+            CPPUNIT_ASSERT(sourceResource.enable());
+            CPPUNIT_ASSERT(sinkResource.enable());
+
+            // Manage flowgraph with media task.
+            CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, mpMediaTask->manageFlowGraph(*mpFlowGraph));
+
+            // Start flowgraph
+            CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, mpMediaTask->startFlowGraph(*mpFlowGraph));
+
+            // Run test!
+            OsTask::delay(TEST_TIME_MS);
+
+            // Clear flowgraph ticker
+            CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                                 mpOutputDeviceManager->setFlowgraphTickerSource(MP_INVALID_OUTPUT_DEVICE_HANDLE));
+         }
+         catch (CppUnit::Exception& e)
+         {
+            // Clear flowgraph ticker if assert failed.
+            CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                                 mpOutputDeviceManager->setFlowgraphTickerSource(MP_INVALID_OUTPUT_DEVICE_HANDLE));
+
+            // Rethrow exception.
+            throw(e);
+         }
+
+         // Unmanage flowgraph with media task.
+         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, mpMediaTask->unmanageFlowGraph(*mpFlowGraph));
+         MpMediaTask::signalFrameStart();
+         // MediaTask need some time to receive unmanage message.
+         OsTask::delay(20);
+
+         // Disable devices
+         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                              mpOutputDeviceManager->disableDevice(sinkDeviceId));
+
+         // Remove resources from flowgraph. We should remove them explicitly
+         // here, because they are stored on the stack and will be destroyed.
+         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, mpFlowGraph->removeResource(sinkResource));
+         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, mpFlowGraph->removeResource(sourceResource));
+         mpFlowGraph->processNextFrame();
+      }
+      catch (CppUnit::Exception& e)
+      {
+         // Remove resources from flowgraph. We should remove them explicitly
+         // here, because they are stored on the stack and will be destroyed.
+         // If we will not catch this assert we'll have this resources destroyed
+         // while still referenced in flowgraph, causing crash.
+         if (sinkResource.getFlowGraph() != NULL)
+         {
+            CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, mpFlowGraph->removeResource(sinkResource));
+         }
+         if (sourceResource.getFlowGraph() != NULL)
+         {
+            CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, mpFlowGraph->removeResource(sourceResource));
+         }
+         mpFlowGraph->processNextFrame();
+
+         // Rethrow exception.
+         throw(e);
+      }
+
+      RTL_WRITE("testOutput.rtl");
       RTL_STOP
    }
 
