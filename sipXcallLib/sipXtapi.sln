@@ -13,6 +13,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXmediaLib", "..\sipXmedi
 	ProjectSection(ProjectDependencies) = postProject
 		{4F7FDA11-42A4-4556-A631-15AA785CD1C1} = {4F7FDA11-42A4-4556-A631-15AA785CD1C1}
 		{A9C94D26-C90D-4860-8195-56929E893757} = {A9C94D26-C90D-4860-8195-56929E893757}
+		{A9C94D26-C90D-4860-8195-56929E893757} = {A9C94D26-C90D-4860-8195-56929E893757}
 		{E972C52F-9E85-4D65-B19C-031E511E9DB4} = {E972C52F-9E85-4D65-B19C-031E511E9DB4}
 		{8AE1AB5C-9815-42D8-9A09-0B4F1E64B4BB} = {8AE1AB5C-9815-42D8-9A09-0B4F1E64B4BB}
 		{50E09C77-6077-4149-8B80-996217363A2F} = {50E09C77-6077-4149-8B80-996217363A2F}
@@ -189,6 +190,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libspeex", "..\sipXmediaLib
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "plgl16", "..\sipXmediaLib\src\mp\codecs\plgl16\plgl16.vcproj", "{A9C94D26-C90D-4860-8195-56929E893757}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfiguration) = preSolution
 		Debug = Debug
@@ -197,8 +202,6 @@ Global
 		Release_NoVideo = Release_NoVideo
 		SSL-Debug = SSL-Debug
 		SSL-Release = SSL-Release
-	EndGlobalSection
-	GlobalSection(ProjectDependencies) = postSolution
 	EndGlobalSection
 	GlobalSection(ProjectConfiguration) = postSolution
 		{14441867-4291-4174-812E-00C774370C61}.Debug.ActiveCfg = Debug|Win32
@@ -580,6 +583,18 @@ Global
 		{E972C52F-9E85-4D65-B19C-031E511E9DB4}.SSL-Debug.Build.0 = Debug|Win32
 		{E972C52F-9E85-4D65-B19C-031E511E9DB4}.SSL-Release.ActiveCfg = Release|Win32
 		{E972C52F-9E85-4D65-B19C-031E511E9DB4}.SSL-Release.Build.0 = Release|Win32
+		{A9C94D26-C90D-4860-8195-56929E893757}.Debug.ActiveCfg = Debug|Win32
+		{A9C94D26-C90D-4860-8195-56929E893757}.Debug.Build.0 = Debug|Win32
+		{A9C94D26-C90D-4860-8195-56929E893757}.Debug_NoVideo.ActiveCfg = Debug|Win32
+		{A9C94D26-C90D-4860-8195-56929E893757}.Debug_NoVideo.Build.0 = Debug|Win32
+		{A9C94D26-C90D-4860-8195-56929E893757}.Release.ActiveCfg = Release|Win32
+		{A9C94D26-C90D-4860-8195-56929E893757}.Release.Build.0 = Release|Win32
+		{A9C94D26-C90D-4860-8195-56929E893757}.Release_NoVideo.ActiveCfg = Release|Win32
+		{A9C94D26-C90D-4860-8195-56929E893757}.Release_NoVideo.Build.0 = Release|Win32
+		{A9C94D26-C90D-4860-8195-56929E893757}.SSL-Debug.ActiveCfg = Debug|Win32
+		{A9C94D26-C90D-4860-8195-56929E893757}.SSL-Debug.Build.0 = Debug|Win32
+		{A9C94D26-C90D-4860-8195-56929E893757}.SSL-Release.ActiveCfg = Release|Win32
+		{A9C94D26-C90D-4860-8195-56929E893757}.SSL-Release.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionItems) = postSolution
 	EndGlobalSection
