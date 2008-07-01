@@ -459,7 +459,7 @@ SIPXTAPI_API SIPX_RESULT sipxInitialize(SIPX_INST*  phInst,
                             CP_MAXIMUM_RINGING_EXPIRE_SECONDS,
                             QOS_LAYER3_LOW_DELAY_IP_TOS,
                             10,
-                            sipXmediaFactoryFactory(NULL));
+                            sipXmediaFactoryFactory(NULL, 10, 48000, 48000));
 
 
     // Start up the call processing system

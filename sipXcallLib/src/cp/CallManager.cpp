@@ -578,7 +578,8 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
                                     mLocale.data(), mExpeditedIpTos, mStunServer, 
                                     mStunPort, mStunKeepAlivePeriodSecs, mTurnServer,
                                     mTurnPort, mTurnUsername, mTurnPassword,
-                                    mTurnKeepAlivePeriodSecs, isIceEnabled());
+                                    mTurnKeepAlivePeriodSecs, isIceEnabled(),
+                                    8000);
 
 
                                 int inviteExpireSeconds;
@@ -4087,7 +4088,7 @@ void CallManager::doCreateCall(const char* callId,
                 numCodecs, codecArray, mLocale.data(), mExpeditedIpTos,
                 mStunServer, mStunPort, mStunKeepAlivePeriodSecs, 
                 mTurnServer, mTurnPort, mTurnUsername, mTurnPassword, 
-                mTurnKeepAlivePeriodSecs, isIceEnabled());
+                mTurnKeepAlivePeriodSecs, isIceEnabled(), 8000);
 
             OsSysLog::add(FAC_CP, PRI_DEBUG, "Creating new SIP Call, mediaInterface: 0x%08x\n", (int)mediaInterface);
             call = new CpPeerCall(mIsEarlyMediaFor180,
