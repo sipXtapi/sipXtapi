@@ -518,7 +518,7 @@ UtlBoolean MpResource::handleMessages(OsMsgQ& msgQ)
       {
          if (msg->getMsgType() == OsMsg::MP_FLOWGRAPH_MSG)
          {
-            MpFlowGraphMsg* fgMsg = dynamic_cast<MpFlowGraphMsg*>(msg);
+            MpFlowGraphMsg* fgMsg = static_cast<MpFlowGraphMsg*>(msg);
             if (fgMsg != NULL)
             {
                curMsgHandled = handleMessage(*fgMsg);
@@ -526,7 +526,7 @@ UtlBoolean MpResource::handleMessages(OsMsgQ& msgQ)
          }
          else if (msg->getMsgType() == OsMsg::MP_RESOURCE_MSG)
          {
-            MpResourceMsg* rMsg = dynamic_cast<MpResourceMsg*>(msg);
+            MpResourceMsg* rMsg = static_cast<MpResourceMsg*>(msg);
             if (rMsg != NULL)
             {
                curMsgHandled = handleMessage(*rMsg);
