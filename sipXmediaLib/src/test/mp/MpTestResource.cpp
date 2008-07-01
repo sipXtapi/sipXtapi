@@ -13,6 +13,9 @@
 
 // SYSTEM INCLUDES
 #include <assert.h>
+// Under Visual Studio we have to define _USE_MATH_DEFINES to get M_PI define.
+#define _USE_MATH_DEFINES
+#include <math.h>
 
 // APPLICATION INCLUDES
 #include "mp/MpBuf.h"
@@ -214,13 +217,13 @@ UtlBoolean MpTestResource::doProcessFrame(MpBufPtr inBufs[],
             // for the output port
             assert(MpMisc.RawAudioPool != NULL);
             MpAudioBufPtr pBuf = MpMisc.RawAudioPool->getBuffer();
-            if(mSignalType == MP_TEST_SIGNAL_NULL)
+            if (mSignalType == MP_TEST_SIGNAL_NULL)
             {
                memset(pBuf->getSamplesWritePtr(), 0,
                       pBuf->getSamplesNumber()*sizeof(MpAudioSample));
             }
 
-            else if(mSignalType == MP_TEST_SIGNAL_SQUARE)
+            else if (mSignalType == MP_TEST_SIGNAL_SQUARE)
             {
                unsigned sampleIndex;
                MpAudioSample* squareSamples = pBuf->getSamplesWritePtr();
@@ -229,6 +232,21 @@ UtlBoolean MpTestResource::doProcessFrame(MpBufPtr inBufs[],
                {
                   squareSamples[sampleIndex] =
                      getSquareSampleValue(i, sampleIndex);
+               }
+            }
+
+            else if (mSignalType == MP_SINE_SAW)
+            {
+               unsigned sampleIndex;
+               MpAudioSample* samples = pBuf->getSamplesWritePtr();
+               int samplesNum = pBuf->getSamplesNumber();
+               assert(samples);
+               for(sampleIndex = 0; sampleIndex < samplesNum; sampleIndex++)
+               {
+                  samples[sampleIndex] =   mpSignalAmplitude[i]
+                                         * (samplesPerFrame-sampleIndex)
+                                         * cos(10*2*M_PI*sampleIndex/samplesPerFrame)
+                                         / samplesPerFrame;
                }
             }
             outBufs[i] = pBuf;

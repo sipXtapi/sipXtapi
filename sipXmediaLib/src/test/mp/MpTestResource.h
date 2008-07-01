@@ -64,8 +64,9 @@ public:
 
    enum MpTestOutSignal
    {
-      MP_TEST_SIGNAL_NULL,
-      MP_TEST_SIGNAL_SQUARE
+      MP_TEST_SIGNAL_NULL,    ///< Silence
+      MP_TEST_SIGNAL_SQUARE,  ///< Square impulses
+      MP_SINE_SAW             ///< Sine wave, fading to the end of frame
    };
 
 /* ============================ CREATORS ================================== */
