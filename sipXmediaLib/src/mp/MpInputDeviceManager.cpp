@@ -191,6 +191,7 @@ public:
          assert(0);
       }
 
+      RTL_EVENT("MpAudioInputConnection::pushFrame", frameTime);
       return result;
    };
 
@@ -272,6 +273,7 @@ public:
                // crossing task boundaries here.
                buffer = frameData->mFrameBuffer.clone();
 
+               RTL_EVENT("MpAudioInputConnection::getFrame", frameTime);
                result = OS_SUCCESS;
                break;
             }
