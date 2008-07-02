@@ -57,7 +57,7 @@ public:
      */
 
      /// Initialize PLC with given sample rate and frame size.
-   virtual OsStatus init(int samplesPerSec, int samplesPerFrame) = 0;
+   virtual OsStatus init(int samplesPerSec) = 0;
      /**
      *  Should be called before any other class methods.
      */
@@ -71,12 +71,65 @@ public:
 ///@name Manipulators
 //@{
 
-     /// Process next frame - update PLC history and do PLC if needed.
-   virtual OsStatus processFrame(int inFrameNum,
-                                 int outFrameNum,
-                                 const MpAudioSample* in,
-                                 MpAudioSample* out,
-                                 UtlBoolean* signalModified) = 0;
+     /// Update PLC history with late/future frame.
+   virtual OsStatus insertToHistory(int frameNum,
+                                    MpSpeechType speechType,
+                                    MpAudioSample* pBuf,
+                                    unsigned inSamplesNum) = 0;
+     /**<
+     * @param[in] frameNum - position of passed data relative to current moment.
+     *            E.g. \p frameNum<0 means late frame, \p frameNum>0 means
+     *            future frame and \p frameNum==0 means current frame. Passing
+     *            late and future frames may improve PLC quality if algorithm
+     *            supports this. Passing late and future frames they should
+     *            be in bounds set by of getMaxFutureFramesNum() and
+     *            getMaxDelayedFramesNum().
+     * @param[in] speechType - speech presence/absence in passed data.
+     * @param[in,out] pBuf - buffer with input data.
+     * @param[in] inSamplesNum - number of samples of actual data, passed to
+     *            this function.
+     */
+
+     /// Process next frame - do PLC and/or adjustment if needed.
+   virtual OsStatus processFrame(MpSpeechType &speechType,
+                                 MpAudioSample* pBuf,
+                                 unsigned bufferSize,
+                                 unsigned inSamplesNum,
+                                 unsigned outSamplesNum,
+                                 int wantedAdjustment,
+                                 int &madeAdjustment) = 0;
+     /**<
+     * @param[in] speechType - speech presence/absence in passed data.
+     *            Used only if data is present, i.e. if \p numSamples>0.
+     * @param[in,out] pBuf - buffer with input data and place for output data.
+     *            Data is read from this buffer if \p numSamples>0. If any
+     *            processing is needed, i.e. PLC or adjustment is requested,
+     *            output data will also be written to this buffer.
+     * @param[in] bufferSize - size of \p pBuf buffer. This value is always
+     *            greater or equal to \p numSamples. When algorithm needs to
+     *            write data to buffer it must take this value into account.
+     * @param[in] inSamplesNum - number of samples of actual data, passed to
+     *            this function. If we've got no data and PLC is needed,
+     *            this parameter should be equal to 0. If \p inSamplesNum is
+     *             not 0, it is equal to \p outSamplesNum.
+     * @param[in] outSamplesNum - output frame size. Together with
+     *            \p wantedAdjustment this value sets bounds in which we want
+     *            to fit output data length. See \p wantedAdjustment for more
+     *            details. If \p inSamplesNum is not 0, \p outSamplesNum is
+     *            equal to it.
+     * @param[in] wantedAdjustment - number of samples by which we want to
+     *            adjust audio stream. Output number of samples must be in range
+     *            [\p outSamplesNum; \p outSamplesNum + \p wantedAdjustment].
+     *            Output lengths closer to \p outSamplesNum + \p wantedAdjustment
+     *            are desired, but not required. Note, that output lengths
+     *            not in this range are not allowed and may confuse upper levels.
+     *            Positive values request stream extension (samples should be
+     *            added), negative values request stream reduction (samples
+     *            should be took off).
+     * @param[out] madeAdjustment - length of made adjustment. Shows how many
+     *            samples were added to stream (if positive) or removed from
+     *            stream (if negative).
+     */
 
 //@}
 
@@ -92,6 +145,9 @@ public:
 
      /// Return maximum offset for future frame with respect to current
    virtual int getMaxFutureFramesNum() const = 0;
+     /**<
+     *  If zero is returned, future packets are not allowed.
+     */
 
      /// Return algorithmic delay in samples, should be called after init
    virtual int getAlgorithmicDelay() const = 0;

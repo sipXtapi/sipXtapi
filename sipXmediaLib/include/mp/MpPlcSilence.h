@@ -32,7 +32,7 @@ public:
 //@{
 
      /// @copydoc MpPlcBase::init()
-   OsStatus init(int samplesPerSec, int samplesPerFrame);
+   OsStatus init(int samplesPerSec);
 
      /// Destructor
    ~MpPlcSilence();
@@ -43,12 +43,20 @@ public:
 ///@name Manipulators
 //@{
 
+     /// @copydoc MpPlcBase::insertToHistory()
+   OsStatus insertToHistory(int frameNum,
+                            MpSpeechType speechType,
+                            MpAudioSample* pBuf,
+                            unsigned inSamplesNum);
+
      /// @copydoc MpPlcBase::processFrame()
-   OsStatus processFrame(int inFrameNum,
-                         int outFrameNum,
-                         const MpAudioSample* in,
-                         MpAudioSample* out,
-                         UtlBoolean* signalModified);
+   OsStatus processFrame(MpSpeechType &speechType,
+                         MpAudioSample* pBuf,
+                         unsigned bufferSize,
+                         unsigned inSamplesNum,
+                         unsigned outSamplesNum,
+                         int wantedAdjustment,
+                         int &madeAdjustment);
 
 //@}
 
@@ -78,8 +86,6 @@ protected:
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-
-   int mSamplesPerFrame;
 
 };
 

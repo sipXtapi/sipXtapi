@@ -47,7 +47,9 @@ nobase_include_HEADERS =  \
     mp/MpidOss.h \
     mp/MpInputDeviceDriver.h \
     mp/MpInputDeviceManager.h \
+    mp/MpJbeFixed.h \
     mp/MpJitterBuffer.h \
+    mp/MpJitterBufferEstimation.h \
     mp/MpMediaTask.h \
     mp/MpMediaTaskMsg.h \
     mp/MpMisc.h \
@@ -129,6 +131,8 @@ nobase_include_HEADERS =  \
     mp/MpToneResourceMsg.h \
     mp/MpTopologyGraph.h \
     mp/MpTypes.h \
+    mp/MpVadBase.h \
+    mp/MpVadSimple.h \
     mp/NetInTask.h \
     mp/RtpHeader.h \
     mp/StreamBufferDataSource.h \

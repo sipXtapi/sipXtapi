@@ -1293,6 +1293,9 @@
 				RelativePath=".\src\mp\MpInputDeviceManager.cpp">
 			</File>
 			<File
+				RelativePath=".\src\mp\MpJbeFixed.cpp">
+			</File>
+			<File
 				RelativePath="src\mp\MpJitterBuffer.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -1328,6 +1331,9 @@
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\src\mp\MpJitterBufferEstimation.cpp">
 			</File>
 			<File
 				RelativePath="src\mp\MpMediaTask.cpp">
@@ -2469,6 +2475,12 @@
 			</File>
 			<File
 				RelativePath=".\src\mp\MpUdpBuf.cpp">
+			</File>
+			<File
+				RelativePath=".\src\mp\MpVadBase.cpp">
+			</File>
+			<File
+				RelativePath=".\src\mp\MpVadSimple.cpp">
 			</File>
 			<File
 				RelativePath="src\rtcp\MsgQueue.cpp">
@@ -3647,7 +3659,13 @@
 				RelativePath=".\include\mp\MpInputDeviceManager.h">
 			</File>
 			<File
+				RelativePath=".\include\mp\MpJbeFixed.h">
+			</File>
+			<File
 				RelativePath="include\mp\MpJitterBuffer.h">
+			</File>
+			<File
+				RelativePath=".\include\mp\MpJitterBufferEstimation.h">
 			</File>
 			<File
 				RelativePath="include\mp\MpMediaTask.h">
@@ -3891,6 +3909,12 @@
 			</File>
 			<File
 				RelativePath=".\include\mp\MpUdpBuf.h">
+			</File>
+			<File
+				RelativePath=".\include\mp\MpVadBase.h">
+			</File>
+			<File
+				RelativePath=".\include\mp\MpVadSimple.h">
 			</File>
 			<File
 				RelativePath="include\rtcp\MsgQueue.h">

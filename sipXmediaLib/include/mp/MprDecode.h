@@ -22,6 +22,7 @@
 #include "mp/MpFlowGraphMsg.h"
 #include "mp/MpResourceMsg.h"
 #include "mp/MpDecoderPayloadMap.h"
+#include "mp/MpJitterBufferEstimation.h"
 #include "sdp/SdpCodec.h"
 #include "os/OsBSem.h"
 
@@ -40,6 +41,7 @@ class MprRecorder;
 class MpJitterBuffer;
 class MprDejitter;
 class MpPlcBase;
+class OsNotification;
 
 /// The "Decode" media processing resource
 class MprDecode : public MpAudioResource
@@ -140,39 +142,24 @@ private:
       MPRM_SET_PLC = MpResourceMsg::MPRM_EXTERNAL_MESSAGE_START
    } AddlResMsgTypes;
 
-   enum {
-      JB_LENGTH_SAMPLES = 1600,     ///< Wanted delay introduced by JB (in samples)
-      JB_ADVANCE_SAMPLES = 480,     ///< Allowed advance of current playback
-                                    ///< pointer over wanted delay of JB.
-                                    ///< If current playback advances too far
-                                    ///< it will be reseted.
-      JB_LAG_SAMPLES = 480          ///< Allowed lag of current playback
-                                    ///< pointer over wanted delay of JB.
-                                    ///< If current playback fallow behind
-                                    ///< too far it will be reseted.
-   };
-
    MpJitterBuffer* mpJB;            ///< Pointer to JitterBuffer instance
    UtlBoolean mIsJBInitialized;     ///< Is JB initialized or not?
    OsNotification* mpDtmfNotication;
 
    MprDejitter* mpMyDJ;             ///< Dejitter instance, used by this decoder.
    UtlBoolean mIsStreamInitialized; ///< Have we received at least one packet?
-   RtpSeq mLastPlayedSeq;           ///< Sequence number of last played RTP packet.
    struct StreamState
    {
-	   uint32_t streamPosition;      ///< Current playback position (in RTP timestamp units).
-	   uint32_t recommendedPosition; ///< Recommended playback position (in RTP timestamp units).
+      unsigned sampleRate;          ///< Sample rate of this stream.
+      UtlBoolean isFirstRtpPulled;  ///< Have we got first packet from JB queue?
+      RtpSeq rtpStreamSeq;          ///< Current sequence number of RTP stream.
+      RtpTimestamp rtpStreamPosition; ///< Current pulling JB position (in RTP timestamp units).
+      int32_t rtpStreamHint;        ///< Recommended playback position (in RTP timestamp units).
+      uint32_t playbackStreamPosition; ///< Current playback position (in samples).
+      unsigned playbackFrameSize;   ///< Stream frame size of this stream (in samples).
    } mStreamState;
 
-   MpPlcBase   *mpPlc;              ///< PLC instance.
-   MpAudioBufPtr mTempPlcFrame;     ///< This audio frame pointer is used to
-                                    ///< reduce number of frames allocations/
-                                    ///< deallocations by keeping unused
-                                    ///< frame between calls to doPlc().
-   UtlBoolean mIsPlcInitialized;    ///< Is JB initialized or not?
-   int mCurFrameNum;                ///< Number of current frame.
-                                    ///< Used to interact with PLC.
+   MpJitterBufferEstimation *mpJbEstimationState; ///< State of JB delay estimation.
 
    /// List of the codecs to be used to decode media.
    /**
@@ -204,8 +191,6 @@ private:
      *  @retval TRUE - packet was decoded as signaling
      *  @retval FALSE - packet is not signaling
      */
-
-   void doPlc(MpAudioBufPtr &pFrame);
 
      /// Handle old style messages for this resource.
    virtual UtlBoolean handleMessage(MpFlowGraphMsg& rMsg);

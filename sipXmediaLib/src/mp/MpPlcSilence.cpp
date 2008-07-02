@@ -17,6 +17,9 @@
 #include "mp/MpPlcBase.h"
 #include "mp/MpPlcSilence.h"
 
+// MACROS
+//#define PLC_ALLOW_UNBOUNDED_SILENCE_INJECTION
+
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
@@ -27,36 +30,8 @@ const char *MpPlcSilence::name = "Silence substitution";
 
 /* ============================ CREATORS ================================== */
 
-OsStatus MpPlcSilence::init(int samplesPerSec, int samplesPerFrame)
+OsStatus MpPlcSilence::init(int samplesPerSec)
 {
-   mSamplesPerFrame = samplesPerFrame;
-   return OS_SUCCESS;
-}
-
-OsStatus MpPlcSilence::processFrame(int inFrameNum,
-                                    int outFrameNum,
-                                    const MpAudioSample* in,
-                                    MpAudioSample* out,
-                                    UtlBoolean* signalModified)
-{
-   int delta = outFrameNum - inFrameNum;
-   UtlBoolean doPlc = ((in == NULL) || (delta != 0)) && (out != NULL);
-   UtlBoolean doUpdateHistory = ((delta == 0) && (out != NULL) && (in != NULL));
-
-   if (doPlc) 
-   {
-      memset(out, 0, mSamplesPerFrame*2);
-      *signalModified = TRUE;
-   }
-   else if (doUpdateHistory)
-   {
-      *signalModified = FALSE;
-   }
-   else
-   {
-      return OS_FAILED;
-   }
-
    return OS_SUCCESS;
 }
 
@@ -66,6 +41,42 @@ MpPlcSilence::~MpPlcSilence()
 }
 
 /* ============================ MANIPULATORS ============================== */
+
+OsStatus MpPlcSilence::insertToHistory(int frameNum,
+                                       MpSpeechType speechType,
+                                       MpAudioSample* pBuf,
+                                       unsigned inSamplesNum)
+{
+   return OS_NOT_SUPPORTED;
+}
+
+OsStatus MpPlcSilence::processFrame(MpSpeechType &speechType,
+                                    MpAudioSample* pBuf,
+                                    unsigned bufferSize,
+                                    unsigned inSamplesNum,
+                                    unsigned outSamplesNum,
+                                    int wantedAdjustment,
+                                    int &madeAdjustment)
+{
+#ifdef PLC_ALLOW_UNBOUNDED_SILENCE_INJECTION // [
+   unsigned wantedOutSamplesNum = sipx_max(80, (int)outSamplesNum+wantedAdjustment);
+#else // PLC_ALLOW_UNBOUNDED_SILENCE_INJECTION ][
+   unsigned wantedOutSamplesNum = outSamplesNum;
+#endif // PLC_ALLOW_UNBOUNDED_SILENCE_INJECTION ]
+   wantedOutSamplesNum = sipx_min(wantedOutSamplesNum, bufferSize);
+
+   if (inSamplesNum < wantedOutSamplesNum)
+   {
+      // Add silence if requested
+      memset(pBuf+inSamplesNum,
+             0,
+            (wantedOutSamplesNum-inSamplesNum)*sizeof(MpAudioSample));
+   }
+
+   madeAdjustment = wantedOutSamplesNum - outSamplesNum;
+
+   return OS_SUCCESS;
+}
 
 /* ============================ ACCESSORS ================================= */
 

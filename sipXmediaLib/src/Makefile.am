@@ -80,7 +80,9 @@ libsipXmedia_la_SOURCES =  \
     mp/MpidOss.cpp \
     mp/MpInputDeviceDriver.cpp \
     mp/MpInputDeviceManager.cpp \
+    mp/MpJbeFixed.cpp \
     mp/MpJitterBuffer.cpp \
+    mp/MpJitterBufferEstimation.cpp \
     mp/MpMediaTask.cpp \
     mp/MpMediaTaskMsg.cpp \
     mp/MpMisc.cpp \
@@ -145,6 +147,8 @@ libsipXmedia_la_SOURCES =  \
     mp/MpProgressResourceMsg.cpp \
     mp/MpTopologyGraph.cpp \
     mp/MpTypes.cpp \
+    mp/MpVadBase.cpp \
+    mp/MpVadSimple.cpp \
     mp/NetInTask.cpp \
     mp/StreamBufferDataSource.cpp \
     mp/StreamDataSource.cpp \

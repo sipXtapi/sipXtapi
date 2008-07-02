@@ -52,15 +52,22 @@
 #include "os/OsNotification.h"
 #include "mp/MprDejitter.h"
 
+// DEFINES
+//#define RTL_ENABLED
+
 #ifdef RTL_ENABLED
 #  include <rtl_macro.h>
-#  ifdef RTL_AUDIO_ENABLED
-#     include <SeScopeAudioBuffer.h>
-#  endif
 #else
 #  define RTL_BLOCK(x)
 #  define RTL_EVENT(x,y)
 #endif
+
+//#define DEBUG_PRINT
+#ifdef DEBUG_PRINT // [
+#  define dprintf printf
+#else // DEBUG_PRINT ][
+static void dprintf(const char *, ...) {};
+#endif // DEBUG_PRINT ]
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -79,8 +86,7 @@ MprDecode::MprDecode(const UtlString& rName, MpConnectionID connectionId,
 , mpDtmfNotication(NULL)
 , mpMyDJ(NULL)
 , mIsStreamInitialized(FALSE)
-, mpPlc(MpPlcBase::createPlc(plcName))
-, mIsPlcInitialized(FALSE)
+, mpJbEstimationState(MpJitterBufferEstimation::createJbe())
 , mIsJBInitialized(FALSE)
 , mpCurrentCodecs(NULL)
 , mNumCurrentCodecs(0)
@@ -89,7 +95,7 @@ MprDecode::MprDecode(const UtlString& rName, MpConnectionID connectionId,
 , mConnectionId(connectionId)
 {
    assert(mpJB != NULL);
-   assert(mpPlc != NULL);
+   mpJB->setPlc(plcName);
 }
 
 // Destructor
@@ -100,7 +106,9 @@ MprDecode::~MprDecode()
 
    // Free decoder buffer.
    delete mpJB;
-   delete mpPlc;
+
+   // Free JB estimation state.
+   delete mpJbEstimationState;
 
    // Delete the list of codecs used in the past.
    OsLock lock(mLock);
@@ -175,6 +183,14 @@ OsStatus MprDecode::pushPacket(const MpRtpBufPtr &pRtp)
    // Lock access to dejitter and m*Codecs data
    OsLock lock(mLock);
 
+#ifdef RTL_ENABLED // [
+   UtlString str_fg(getFlowGraph()->getFlowgraphName());
+#endif // RTL_ENABLED ]
+   RTL_EVENT(str_fg+"_MprDecode_pushPacket_seq", pRtp->getRtpSequenceNumber());
+   RTL_EVENT(str_fg+"_MprDecode_pushPacket_TS", pRtp->getRtpTimestamp());
+   dprintf("> %"PRIu16" %"PRIu32,
+           pRtp->getRtpSequenceNumber(), pRtp->getRtpTimestamp());
+
    // Get decoder info for this packet.
    int pt = pRtp->getRtpPayloadType();
    const MpDecoderBase *pDecoder = mDecoderMap.mapPayloadType(pt);
@@ -185,36 +201,53 @@ OsStatus MprDecode::pushPacket(const MpRtpBufPtr &pRtp)
    }
    const MpCodecInfo* pDecoderInfo = pDecoder->getInfo();
 
-   // Initialize stream, if not initialized yet
-   // and get latest RTP packet from dejitter queue.
+   // Initialize stream, if not initialized yet.
    if (mIsStreamInitialized == FALSE)
    {
       // Initialize stream with this packet.
-      mLastPlayedSeq = pRtp->getRtpSequenceNumber();
+      mStreamState.isFirstRtpPulled = FALSE;
+      mStreamState.rtpStreamPosition = pRtp->getRtpTimestamp();
+      mStreamState.rtpStreamHint = 0;
+      mStreamState.sampleRate = pDecoderInfo->getSampleRate();
+      mStreamState.playbackFrameSize = getFlowGraph()->getSamplesPerFrame()
+                                       * mStreamState.sampleRate
+                                       / getFlowGraph()->getSamplesPerSec();
+      mStreamState.playbackStreamPosition = pRtp->getRtpTimestamp();
 
-      mStreamState.streamPosition = pRtp->getRtpTimestamp() - JB_LENGTH_SAMPLES;
-      mStreamState.recommendedPosition = mStreamState.streamPosition;
+//      RTL_EVENT(str_fg+"_MprDecode_PF_stream_position", mStreamState.playbackStreamPosition);
+
+      // Initialize JB estimator.
+      mpJbEstimationState->init(mStreamState.sampleRate);
+
+      // Update jitter state data
+      mpJbEstimationState->update(&pRtp->getRtpHeader(),
+                                  mStreamState.rtpStreamPosition,
+                                  mStreamState.playbackStreamPosition,
+                                  &mStreamState.rtpStreamHint);
+
+      mStreamState.rtpStreamPosition += mStreamState.rtpStreamHint;
 
       mIsStreamInitialized = TRUE;
    }
    else
    {
+      // Sample rate mustn't change during the live stream.
+      assert(pDecoderInfo->getSampleRate() == mStreamState.sampleRate);
+
       // Update jitter state data
-      uint32_t newPosition = pRtp->getRtpTimestamp() - JB_LENGTH_SAMPLES;
-      if (MpDspUtils::compareSerials(newPosition, mStreamState.recommendedPosition) > 0)
-      {
-         mStreamState.recommendedPosition = newPosition;
-      }
+      mpJbEstimationState->update(&pRtp->getRtpHeader(),
+                                  mStreamState.rtpStreamPosition,
+                                  mStreamState.playbackStreamPosition,
+                                  &mStreamState.rtpStreamHint);
    }
 
-#ifdef DEBUG_PRINT // [
-   printf(">>> pushing                          position=%u recommended=%u\n",
-           mStreamState.streamPosition, mStreamState.recommendedPosition);
-   printf("PUSH: Seq#=%u   TS=%u\n",
-          pRtp->getRtpSequenceNumber(), pRtp->getRtpTimestamp());
-#endif // DEBUG_PRINT ]
+   RTL_EVENT(str_fg+"_MprDecode_pushPacket_rtp_stream_hint",
+             mStreamState.rtpStreamHint);
+   RTL_EVENT(str_fg+"_MprDecode_pushPacket_stream_position",
+             mStreamState.playbackStreamPosition);
+   dprintf("\n");
 
-   return mpMyDJ->pushPacket(pRtp, pDecoderInfo->isSignalingCodec());
+   return mpMyDJ->pushPacket(pRtp);
 }
 
 /* ============================ ACCESSORS ================================= */
@@ -243,7 +276,9 @@ UtlBoolean MprDecode::doProcessFrame(MpBufPtr inBufs[],
                                      int samplesPerSecond)
 {
    MpAudioBufPtr out;
-   MpRtpBufPtr rtp;
+#ifdef RTL_ENABLED // [
+   UtlString str_fg(getFlowGraph()->getFlowgraphName());
+#endif // RTL_ENABLED ]
 
    if (outBufsSize == 0)
       return FALSE;
@@ -253,19 +288,11 @@ UtlBoolean MprDecode::doProcessFrame(MpBufPtr inBufs[],
    }
 
    // If mIsJBInitialized is FALSE, we haven't got selectCodecs() called.
-   // This is fine, but a long we do not know anything about codecs,
+   // This is fine, but as long we do not know anything about codecs,
    // we could not continue.
    if (!mIsJBInitialized)
    {
       return TRUE;
-   }
-
-   // Initialize PLC if it is not initialized yet.
-   if (!mIsPlcInitialized)
-   {
-      mpPlc->init(mpFlowGraph->getSamplesPerSec(), mpFlowGraph->getSamplesPerFrame());
-      mCurFrameNum = 0;
-      mIsPlcInitialized = TRUE;
    }
 
    // Lock access to dejitter and m*Codecs data
@@ -279,110 +306,121 @@ UtlBoolean MprDecode::doProcessFrame(MpBufPtr inBufs[],
       return TRUE;
    }
 
-   if (mpJB->getSamplesNum() == 0)
+   // Codecs are deselected, so call is going to be ended. Stop processing.
+   if (mNumCurrentCodecs == 0)
    {
-      int32_t lag = (int32_t)(mStreamState.recommendedPosition-mStreamState.streamPosition);
-
-#ifdef DEBUG_PRINT // [
-      printf("                                <<< pulling    position=%u recommended=%u lag=%d\n",
-             mStreamState.streamPosition, mStreamState.recommendedPosition, lag);
-#endif // DEBUG_PRINT ]
-
-      if ( (lag > JB_LAG_SAMPLES) || (lag < -JB_ADVANCE_SAMPLES))
-      {
-         mStreamState.streamPosition = mStreamState.recommendedPosition;
-#ifdef DEBUG_PRINT // [
-         printf("                                ! position reset !\n");
-#endif // DEBUG_PRINT ]
-      }
-
-      MpRtpBufPtr tmpRtp;
-      while ((tmpRtp = mpMyDJ->pullPacket(mStreamState.streamPosition)).isValid())
-      {
-#ifdef DEBUG_PRINT // [
-         printf("                                PULL: Seq#=%u   TS=%u\n",
-                tmpRtp->getRtpSequenceNumber(), tmpRtp->getRtpTimestamp());
-#endif // DEBUG_PRINT ]
-
-         // If delayed packet, drop it
-         if (MpDspUtils::compareSerials(mLastPlayedSeq, tmpRtp->getRtpSequenceNumber()) > 0)
-         {
-            // todo:: fix glitch!
-            printf("Dropping delayed packet with seq#%u, TS%u\n",
-                   tmpRtp->getRtpSequenceNumber(), tmpRtp->getRtpTimestamp());
-            continue;
-         }
-         // If it is signaling packet - decode it now.
-         //              !!!!  BUG::XMR-104  !!!!
-         if (tryDecodeAsSignalling(tmpRtp))
-         {
-            continue;
-         }
-         // Accept packet, if it is later then one we already have, else drop it.
-         if (  !rtp.isValid()
-            || (MpDspUtils::compareSerials(rtp->getRtpSequenceNumber(),
-                                           tmpRtp->getRtpSequenceNumber()) < 0))
-         {
-            rtp = tmpRtp;
-         }
-      }
+      return TRUE;
    }
 
-   // Decode RTP packet if we got one.
-   if (rtp.isValid())
+   // Update playback stream pointer
+   mStreamState.playbackStreamPosition += mStreamState.playbackFrameSize;
+
+   // Pull packets from JB queue, till we won't get enough samples to playback
+   dprintf("# pos:%"PRIu32, mStreamState.playbackStreamPosition);
+   RTL_EVENT(str_fg+"_MprDecode_PF_stream_position", mStreamState.playbackStreamPosition);
+   dprintf(" buf=%-3d", mpJB->getSamplesNum());
+   RTL_EVENT(str_fg+"_MprDecode_PF_buffered_samples", mpJB->getSamplesNum());
+   while (mpJB->getSamplesNum() < mpFlowGraph->getSamplesPerFrame())
    {
-      MpDecoderBase* pCurDec = mDecoderMap.mapPayloadType(rtp->getRtpPayloadType());
+      MpRtpBufPtr rtp;
+      UtlBoolean nextPacketAvailable=FALSE;
 
-      // Update last played sequence number.
-      mLastPlayedSeq = rtp->getRtpSequenceNumber();
+      RTL_EVENT(str_fg+"_MprDecode_PF_stream_position_inloop",
+                mStreamState.playbackStreamPosition);
 
-      if (pCurDec != NULL)
+      // Step 1. Pull next packet from JB queue (MprDejitter)
+      RTL_EVENT(str_fg+"_MprDecode_PF_dej_pull_position",
+                mStreamState.rtpStreamPosition);
+      dprintf(" pull[?%"PRIu32, mStreamState.rtpStreamPosition);
+      dprintf(" JBlength=%d/%d",
+              mpMyDJ->getNumLatePackets(), mpMyDJ->getNumPackets());
+      RTL_EVENT(str_fg+"_MprDecode_PF_JB_length", mpMyDJ->getNumPackets());
+      RTL_EVENT(str_fg+"_MprDecode_PF_JB_late_packets", mpMyDJ->getNumLatePackets());
+      rtp = mpMyDJ->pullPacket(mStreamState.rtpStreamPosition,
+                               &nextPacketAvailable);
+      if (rtp.isValid())
       {
-//         printf("decoding RTP seq# %u   TS %u\n",
-//                rtp->getRtpSequenceNumber(), rtp->getRtpTimestamp());
-
-         // Flush decoder buffer, if there were unplayed frames.
-
-         // todo:: fix glitch?
-         if (mpJB->getSamplesNum() > 0)
+         dprintf(" <%"PRIu32" n=%d", rtp->getRtpTimestamp(), nextPacketAvailable);
+      }
+      else
+      {
+         dprintf(" <-");
+      }
+      // We must be sure to pass valid packet with first call to
+      // MpJitterBuffer::pushPacket().
+      if (!mStreamState.isFirstRtpPulled)
+      {
+         if (rtp.isValid())
          {
-            printf("Flushing decode buffer with %d samples. Glitch!\n",
-                   mpJB->getSamplesNum());
-            mpJB->flush();
+            // We've got first stream packet. Remember this.
+            mStreamState.isFirstRtpPulled = TRUE;
          }
-
-         OsStatus res = mpJB->pushPacket(rtp);
-         if (res != OS_SUCCESS)
+         else
          {
-            osPrintf("\n\n *** MprDecode::doProcessFrame() returned %d\n", res);
+            // No packets have come out from JB queue yet. We'll wait.
+            /// TODO:: Convert to stream samplerate.
+            mStreamState.rtpStreamPosition += mStreamState.playbackFrameSize;
+            dprintf("]\n");
+            return TRUE;
+         }
+      }
+      dprintf("]");
+
+      // Step 2. Push packet to decoder buffer (MpJitterBuffer)
+      int wantedBufferSamples = (int)( mStreamState.rtpStreamPosition
+                                     - mStreamState.playbackStreamPosition)
+                              + mStreamState.rtpStreamHint;
+      int adjustment;
+      int decodedSamples;
+      UtlBoolean isPlayed;
+      OsStatus res = mpJB->pushPacket(rtp,
+                                      nextPacketAvailable?0:mpFlowGraph->getSamplesPerFrame(),
+                                      wantedBufferSamples,
+                                      decodedSamples,
+                                      adjustment,
+                                      isPlayed);
+      dprintf(" adj[h=%"PRId32" ?%d %d p?%d",
+              mStreamState.rtpStreamHint, wantedBufferSamples, adjustment,
+              int(isPlayed));
+      RTL_EVENT(str_fg+"_MprDecode_PF_rtp_stream _hint", mStreamState.rtpStreamHint);
+      RTL_EVENT(str_fg+"_MprDecode_PF_wanted_buffer_samples", wantedBufferSamples);
+      RTL_EVENT(str_fg+"_MprDecode_PF_adjustment", adjustment);
+      RTL_EVENT(str_fg+"_MprDecode_PF_is_played", isPlayed);
+      if (isPlayed)
+      {
+         mStreamState.rtpStreamPosition = rtp->getRtpTimestamp() + decodedSamples;
+      } 
+      else
+      {
+         mStreamState.rtpStreamPosition += decodedSamples;
+      }
+      if (res != OS_SUCCESS)
+      {
+         osPrintf("\n\n *** MpJitterBuffer::pushPacket() returned %d\n", res);
+         if (rtp.isValid())
+         {
             osPrintf(" pt=%d, Ts=%d, Seq=%d\n\n",
                      rtp->getRtpPayloadType(),
                      rtp->getRtpTimestamp(), rtp->getRtpSequenceNumber());
          }
       }
-   }
+      dprintf("]");
 
-   // Get next decoded frame
+      // Step 3. Get signaling data from packet if any.
+      if (rtp.isValid())
+      {
+         tryDecodeAsSignalling(rtp);
+      }
+   }
+   dprintf("\n");
+
+   // Get next decoded frame from decoding buffer
    int numOriginalSamples;
    mpJB->getFrame(out, numOriginalSamples);
+//   mStreamState.rtpStreamPosition += numOriginalSamples;
 
-   // Update stream pointer
-//   mStreamState.streamPosition += numOriginalSamples;
-
-#ifdef DEBUG_PRINT // [
-   if (!out.isValid())
-   {
-      printf("                                !!! PLC !!!!\n");
-   }
-#endif // DEBUG_PRINT ]
-
-   // Run frame through PLC algorithm
-   doPlc(out);
-
-   /// BUG:: THIS IS WRONG IN CASE OF RESAMPLING !!!!!
-   mStreamState.streamPosition += out->getSamplesNumber();
-
-   outBufs[0] = out;
+   // Return decoded frame
+   outBufs[0].swap(out);
    return TRUE;
 }
 
@@ -442,53 +480,6 @@ UtlBoolean MprDecode::tryDecodeAsSignalling(const MpRtpBufPtr &rtp)
    } while (sigRes == OS_SUCCESS);
 
    return TRUE;
-}
-
-void MprDecode::doPlc(MpAudioBufPtr &pFrame)
-{
-   const MpAudioSample *plcSamplesIn = NULL;
-   MpAudioSample *plcSamplesOut = NULL;
-   UtlBoolean plcIsFrameModified;
-   OsStatus plcResult;
-
-   RTL_EVENT("MprDecode_doPlc_loss_patern", !pFrame.isValid());
-
-   // Prepare pointers to input and output frames for PLC.
-   if (pFrame.isValid())
-   {
-      plcSamplesIn = pFrame->getSamplesPtr();
-   }
-   if (!mTempPlcFrame.isValid())
-   {
-      mTempPlcFrame = MpMisc.RawAudioPool->getBuffer();
-      assert(mTempPlcFrame.isValid());
-      mTempPlcFrame->setSamplesNumber(mpFlowGraph->getSamplesPerFrame());
-      mTempPlcFrame->setSpeechType(MP_SPEECH_UNKNOWN);
-   }
-   plcSamplesOut = mTempPlcFrame->getSamplesWritePtr();
-
-   // Pass frame through PLC.
-   plcResult = mpPlc->processFrame(mCurFrameNum, mCurFrameNum,
-                                   plcSamplesIn, plcSamplesOut,
-                                   &plcIsFrameModified);
-   assert(plcResult == OS_SUCCESS);
-   if (plcResult == OS_SUCCESS && plcIsFrameModified)
-   {
-      pFrame.release();
-      pFrame.swap(mTempPlcFrame);
-   }
-
-#ifdef RTL_AUDIO_ENABLED
-   UtlString outputLabel("MpJitterBuffer_getSamples");
-   RTL_RAW_AUDIO(outputLabel,
-                 mpFlowGraph->getSamplesPerSec(),
-                 pFrame->getSamplesNumber(),
-                 pFrame->getSamplesPtr(),
-                 mCurFrameNum);
-#endif
-
-   // Advance frame number.
-   mCurFrameNum++;
 }
 
 // Handle old style messages for this resource.
@@ -675,13 +666,7 @@ UtlBoolean MprDecode::handleDeselectCodec(MpDecoderBase* pDecoder)
 
 UtlBoolean MprDecode::handleSetPlc(const UtlString &plcName)
 {
-   // Free old PLC
-   delete mpPlc;
-
-   // Set PLC to a new one
-   mpPlc = MpPlcBase::createPlc(plcName);
-   mIsPlcInitialized = FALSE;
-
+   mpJB->setPlc(plcName);
    return TRUE;
 }
 

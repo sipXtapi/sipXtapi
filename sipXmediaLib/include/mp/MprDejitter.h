@@ -57,7 +57,7 @@ public:
 //@{
 
      /// Add an incoming RTP packet to the dejitter pool
-   OsStatus pushPacket(const MpRtpBufPtr &pRtp, UtlBoolean isSignaling);
+   OsStatus pushPacket(const MpRtpBufPtr &pRtp);
      /**<
      *  This method places the packet to the pool depending the modulo division
      *  value.
@@ -91,6 +91,7 @@ public:
 
      /// Get next RTP packet with given timestamp, or NULL if none is available.
    MpRtpBufPtr pullPacket(RtpTimestamp timestamp,
+                          UtlBoolean *nextFrameAvailable = NULL,
                           bool lockTimestamp=true);
      /**<
      *  This version of pullPacket() works exactly the same as above version
@@ -108,6 +109,12 @@ public:
 /* ============================ ACCESSORS ================================= */
 ///@name Accessors
 //@{
+
+      /// Get number of packets in buffer, arrived in time.
+   inline int getNumPackets() const;
+
+      /// Get number of late packets in buffer.
+   inline int getNumLatePackets() const;
 
 //@}
 
@@ -134,54 +141,28 @@ private:
        /// Constructor, initialize data to meaningful initial state.
       StreamData()
       : mNumPackets(0)
+      , mNumLatePackets(0)
       , mNumDiscarded(0)
       , mLastPushed(0)
+      , mIsFirstPulledPacket(TRUE)
       {
       }
 
                      /// Buffer for incoming RTP packets
       MpRtpBufPtr   mpPackets[MAX_RTP_PACKETS];
-                     /// For each packet in mpPackets there is flag is it
-                     /// from signaling codec or not.
-      UtlBoolean    mpSignalingFlag[MAX_RTP_PACKETS];
-
-                     /// Number of packets in buffer
+                     /// Number of packets in buffer, arrived in time.
       int           mNumPackets;
-
+                     /// Number of packets in buffer, arrived late.
+      int           mNumLatePackets;
                      /// Number of packets overwritten with newly came packets.
       int           mNumDiscarded;
-                     /**<
-                     *  If this value is not zero, then jitter buffer length
-                     *  is not enough, or there are clock skew.
-                     *   
-                     *  Right now used for debug purposes only.
-                     */
-
                      /// Index of the last inserted packet.
       int           mLastPushed;
-                     /**<
-                     *  As packets are added, we change this value to indicate
-                     *  where the buffer is wrapping.
-                     */
-
-      unsigned int mWaitTimeInFrames; ///< Size of jitter buffer. Frames will be
-                                      ///< delayed for mWaitTimeInFrames*20ms.
-      int mUnderflowCount;
-      RtpTimestamp mTimestampOffset;  ///< Difference between our local clocks
-                                      ///< and remote clocks.
-      RtpSeq mLastSeqNo;      ///< Keep track of the last sequence number so that
-                              ///< we don't take out-of-order packets.
-      bool mIsFirstFrame;     ///< True, if no frames decoded.
-      bool mClockDrift;       ///< True, if clock drift detected.
-      int mLastReportSize;
-      RtpSRC mLastSSRC;       ///< RTP SSRC of currently processed stream
-
-        /// Reset all data to meaningful initial state.
-      void resetStream();
-        /**<
-        *  Call this function when stream source have changed to start
-        *  collecting new statistic.
-        */
+                     /// Have we returned first RTP packet or not?
+      UtlBoolean    mIsFirstPulledPacket;
+                     /// Keep track of the last sequence number returned, so that
+                     /// we can distinguish out-of-order packets.
+      RtpSeq        mMaxPulledSeqNo;
    };
 
                   /// Timestamp of frame we expect next
@@ -190,9 +171,6 @@ private:
                   *  This is kept global, because we should keep all streams
                   *  in sync.
                   */
-
-                  /// Number of frames, passed since last statistic update
-   int mFramesSinceLastUpdate;
 
                   /// Storage for stream related data
    StreamData    mStreamData;
@@ -206,5 +184,15 @@ private:
 };
 
 /* ============================ INLINE METHODS ============================ */
+
+int MprDejitter::getNumPackets() const
+{
+   return mStreamData.mNumPackets;
+}
+
+int MprDejitter::getNumLatePackets() const
+{
+   return mStreamData.mNumLatePackets;
+}
 
 #endif  // _MprDejitter_h_
