@@ -1672,7 +1672,7 @@ AC_DEFUN([CHECK_GRAPH_INTERFACE],
 			no)  INTERFACE_FLAGS=" " ;;
 			*) AC_MSG_ERROR(bad value ${enableval} for --enable-topology-graph) ;;
 		    esac],
-		  [ ])
+		  [ enableval= ])
 					       
     AC_SUBST(INTERFACE_FLAGS)    
 ])dnl
