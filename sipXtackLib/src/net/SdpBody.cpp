@@ -2536,7 +2536,7 @@ void SdpBody::setConnectionAddress(const char* networkType, const char* addressT
 void SdpBody::addValue(const char* name, const char* value, int fieldIndex)
 {
    NameValuePair* nv = new NameValuePair(name, value);
-   if(UTL_NOT_FOUND == (unsigned int)fieldIndex)
+   if(-1 == fieldIndex)
    {
       sdpFields->append(nv);
    }

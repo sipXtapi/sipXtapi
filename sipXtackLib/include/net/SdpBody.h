@@ -578,7 +578,7 @@ class SdpBody : public HttpBody
    /// Add the given name/value pair to the body at the specified position.
    void addValue(const char* name, 
                  const char* value = NULL, 
-                 int fieldIndex = UTL_NOT_FOUND /**< UTL_NOT_FOUND == at the end */
+                 int fieldIndex = -1       ///< -1 means append to the end.
                  );
    
    UtlSList* sdpFields;
