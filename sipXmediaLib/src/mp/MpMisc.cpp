@@ -66,13 +66,13 @@
 #  ifdef INIT_EXTERNAL_RTL_COLLECTOR
       extern "C" void setExternalRtlCollector(SeScopeDataCollector *rtlCollector);
 #  else
-#     define setExternalRtlDataCollector(x)
+#     define setExternalRtlCollector(x)
 #  endif
 #else
 #  define RTL_START(x)
 #  define RTL_STOP
 #  define RTL_WRITE(x)
-#  define setExternalRtlDataCollector(x)
+#  define setExternalRtlCollector(x)
 #endif
 
 

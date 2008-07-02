@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="8.00"
 	Name="plgl16-msvc8"
-	ProjectGUID="{A9C94D26-C90D-4860-8195-56929E893757}"
+	ProjectGUID="{82A7C86A-5F71-47C3-A74D-54C48C6CD5EE}"
 	RootNamespace="plgl16-msvc8"
 	Keyword="Win32Proj"
 	>
@@ -62,7 +62,8 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				IgnoreImportLibrary="TRUE"
+				IgnoreImportLibrary="true"
+				AdditionalDependencies="Ws2_32.lib"
 				OutputFile="..\..\..\..\bin\codec_pcmapcmu.dll"
 				LinkIncremental="2"
 				GenerateDebugInformation="true"
@@ -140,7 +141,8 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				IgnoreImportLibrary="TRUE"
+				IgnoreImportLibrary="true"
+				AdditionalDependencies="Ws2_32.lib"
 				OutputFile="..\..\..\..\bin\codec_pcmapcmu.dll"
 				LinkIncremental="1"
 				GenerateDebugInformation="true"

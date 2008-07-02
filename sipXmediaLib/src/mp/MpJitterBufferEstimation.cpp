@@ -14,6 +14,7 @@
 // APPLICATION INCLUDES
 #include "mp/MpJitterBufferEstimation.h"
 #include "mp/MpJbeFixed.h"
+#include "os/OsSysLog.h"
 
 // EXTERNAL FUNCTIONS
 #ifdef EXTERNAL_JB_ESTIMATION // [
