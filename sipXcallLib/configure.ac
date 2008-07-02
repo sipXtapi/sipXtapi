@@ -63,6 +63,8 @@ ENABLE_DOXYGEN
 AM_CONDITIONAL(DOC, test x$enable_doc = xyes)
 AM_CONDITIONAL(USE_BLDNO, test x$enable_buildnumber = xyes)
 
+EXTERNAL_EXTENITIONS
+
 # Conditionally use the GIPS audio libraries
 CHECK_GIPSNEQ
 CHECK_GIPSVE

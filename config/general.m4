@@ -1384,6 +1384,145 @@ AC_DEFUN([CHECK_SPANDSP],
 
 AC_DEFUN([EXTERNAL_EXTENITIONS],
 [
+
+# RTL Lib
+    RTL_LDFLAGS=""
+    RTL_CXXFLAGS=""
+    
+# RtlAudio    
+    withval=
+    AC_ARG_WITH(rtllibaudio,
+                [AS_HELP_STRING([--with-rtllibaudio=library],
+                                [Use specified library for RtlAudio])],
+                )
+    ac_external_rtlaudio=${withval}
+    if test x${ac_external_rtlaudio} != x; then
+    	RTL_LDFLAGS+=" -l${ac_external_rtlaudio} "
+    fi
+
+
+    withval=
+    AC_ARG_WITH(rtllibaudio-path,
+                [AS_HELP_STRING([--with-rtllibaudio-path=PATH],
+                                [Add path for RtlAudio])],
+                )
+    ac_external_rtlaudio_path=${withval}
+    if test x${ac_external_rtlaudio_path} != x; then
+    	RTL_LDFLAGS+=" -L${ac_external_rtlaudio_path} -Wl,--rpath -Wl,${ac_external_rtlaudio_path} "
+    fi
+
+    withval=
+    AC_ARG_WITH(rtllibaudio-inc-path,
+                [AS_HELP_STRING([--with-rtllibaudio-inc-path=PATH],
+                                [Add path for headers for RtlAudio])],
+                )
+    ac_external_rtlaudio_inc_path=${withval}
+    if test x${ac_external_rtlaudio_inc_path} != x; then
+    	RTL_CXXFLAGS+=" -I${ac_external_rtlaudio_inc_path} "
+    fi
+
+# Rtl
+    withval=
+    AC_ARG_WITH(rtllib,
+                [AS_HELP_STRING([--with-rtllib=library],
+                                [Use specified library for Rtl])],
+                )
+    ac_external_rtl=${withval}
+    if test x${ac_external_rtl} != x; then
+    	RTL_LDFLAGS+=" -l${ac_external_rtl} "
+    fi
+
+    
+    withval=
+    AC_ARG_WITH(rtllib-path,
+                [AS_HELP_STRING([--with-rtllib-path=PATH],
+                                [Add path for Rtl])],
+                )
+    ac_external_rtl_path=${withval}
+    if test x${ac_external_rtl_path} != x; then
+    	RTL_LDFLAGS+=" -L${ac_external_rtl_path} -Wl,--rpath -Wl,${ac_external_rtl_path} "
+    fi
+    
+    withval=
+    AC_ARG_WITH(rtllib-inc-path,
+                [AS_HELP_STRING([--with-rtllib-inc-path=PATH],
+                                [Add path for headers for Rtl])],
+                )
+    ac_external_rtl_inc_path=${withval}
+    if test x${ac_external_rtl_inc_path} != x; then
+    	RTL_CXXFLAGS+=" -I${ac_external_rtl_inc_path} "
+    fi
+
+# Rtl Defines
+    AC_ARG_ENABLE([external-rtl-init],
+                  [AS_HELP_STRING([--enable-external-rtl-init],
+                                  [Initialize external RTL collector with sipXmediaLib s internal one @<:@default=no@:>@])],
+                  [ case "${enableval}" in
+                       yes) ac_do_rtinit_define=true  ;;
+                       no)  ac_do_rtinit_define=false ;;
+                       *) AC_MSG_ERROR(bad value ${enableval} for --enable-external-rtl-init) ;;
+                    esac],
+                  [ac_do_rtinit_define=false ])
+    if test x${ac_do_rtinit_define} != xfalse; then
+	AC_DEFINE(INIT_EXTERNAL_RTL_COLLECTOR, [1], [Initialize external RTL collector with sipXmediaLib s internal one])
+	RTL_CXXFLAGS+=" -DINIT_EXTERNAL_RTL_COLLECTOR "
+    fi
+    
+    AC_ARG_ENABLE([rtl],
+                  [AS_HELP_STRING([--enable-rtl],
+                                  [Use external Rtl in whole library @<:@default=no@:>@])],
+                  [ case "${enableval}" in
+                       yes) ac_do_rtl_define=true  ;;
+                       no)  ac_do_rtl_define=false ;;
+                       *) AC_MSG_ERROR(bad value ${enableval} for --enable-rtl) ;;
+                    esac],
+                  [ac_do_rtl_define=false ])
+    if test x${ac_do_rtl_define} != xfalse; then
+	AC_DEFINE(RTL_ENABLED, [1], [Use external Rtl in whole library])
+	RTL_CXXFLAGS+=" -DRTL_ENABLED "
+    fi
+
+    AC_ARG_ENABLE([rtlaudio],
+                  [AS_HELP_STRING([--enable-rtlaudio],
+                                  [Use external RtlAudio in whole library @<:@default=no@:>@])],
+                  [ case "${enableval}" in
+                       yes) ac_do_rtlaudio_define=true  ;;
+                       no)  ac_do_rtlaudio_define=false ;;
+                       *) AC_MSG_ERROR(bad value ${enableval} for --enable-rtlaudio) ;;
+                    esac],
+                  [ac_do_rtlaudio_define=false ])
+    if test x${ac_do_rtlaudio_define} != xfalse; then
+	AC_DEFINE(RTL_AUDIO_ENABLED, [1], [Use external RtlAudio in whole library])    
+	RTL_CXXFLAGS+=" -DRTL_AUDIO_ENABLED "
+    fi
+
+# VAD
+    withval=
+    AC_ARG_WITH(external-vad,
+                [AS_HELP_STRING([--with-external-vad=library],
+                                [Use external library for VAD])],
+                )
+    ac_external_vad=${withval}
+
+    withval=
+    AC_ARG_WITH(external-vad-path,
+                [AS_HELP_STRING([--with-external-vad-path=PATH],
+                                [Add path for searching external library for VAD])],
+                )
+    ac_external_vad_path=${withval}
+
+    if test x${ac_external_vad} != x; then
+	AC_DEFINE(EXTERNAL_VAD, [1], [Use external library for VAD])
+	EVAD_LDFLAGS="-l${ac_external_vad} "
+	if test x${ac_external_vad_path} != x; then
+		EVAD_LDFLAGS+=" -L${ac_external_vad_path} -Wl,--rpath -Wl,${ac_external_vad_path} "
+	fi
+
+        LDFLAGS+=" $EVAD_LDFLAGS "
+        CXXFLAGS+=" -DEXTERNAL_VAD "	
+    fi
+    AC_SUBST(EVAD_LDFLAGS)
+
 # PLC
     withval=
     AC_ARG_WITH(external-plc,
@@ -1403,7 +1542,7 @@ AC_DEFUN([EXTERNAL_EXTENITIONS],
 	AC_DEFINE(EXTERNAL_PLC, [1], [Use external library for PLC])
 	EPLC_LDFLAGS="-l${ac_external_plc} "
 	if test x${ac_external_plc_path} != x; then
-		EPLC_LDFLAGS+=" -L${ac_external_jbe_path} -Wl,--rpath -Wl,${ac_external_jbe_path} "
+		EPLC_LDFLAGS+=" -L${ac_external_plc_path} -Wl,--rpath -Wl,${ac_external_plc_path} "
 	fi
 
         LDFLAGS+=" $EPLC_LDFLAGS "
@@ -1437,6 +1576,12 @@ AC_DEFUN([EXTERNAL_EXTENITIONS],
         CXXFLAGS+=" -DEXTERNAL_JB_ESTIMATION "
     fi
     AC_SUBST(EJBE_LDFLAGS)
+
+
+    CXXFLAGS+=" $RTL_CXXFLAGS "
+    LDFLAGS+=" ${RTL_LDFLAGS} "
+    AC_SUBST(RTL_CXXFLAGS)
+    AC_SUBST(RTL_LDFLAGS)
     
 ])dnl
 
@@ -1527,8 +1672,7 @@ AC_DEFUN([CHECK_GRAPH_INTERFACE],
 			no)  INTERFACE_FLAGS=" " ;;
 			*) AC_MSG_ERROR(bad value ${enableval} for --enable-topology-graph) ;;
 		    esac],
-		  [INTERFACE_FLAGS=" -DENABLE_TOPOLOGY_FLOWGRAPH_INTERFACE_FACTORY "
-		   INTERFACE_FLAGS+="-DDISABLE_DEFAULT_PHONE_MEDIA_INTERFACE_FACTORY "])
+		  [ ])
 					       
     AC_SUBST(INTERFACE_FLAGS)    
 ])dnl

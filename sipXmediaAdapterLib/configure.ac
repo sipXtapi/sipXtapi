@@ -56,6 +56,8 @@ AC_CHECK_FUNCS([clock_gettime getcwd gethostbyname gethostname gettimeofday inet
 # Check for toplogy flowgraph interface
 CHECK_GRAPH_INTERFACE
 
+EXTERNAL_EXTENITIONS
+
 # Look for CPPUnit libraries
 CHECK_CPPUNIT
 
