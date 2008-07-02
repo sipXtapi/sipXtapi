@@ -229,7 +229,7 @@ UtlBoolean OsDatagramSocket::reconnect()
 void OsDatagramSocket::doConnect(int remoteHostPortNum, const char* remoteHost,
                                  UtlBoolean simulateConnect)
 {
-    struct hostent* server;
+    struct hostent* server = NULL;
 
     mToSockaddrValid = FALSE;
     memset(mpToSockaddr, 0, sizeof(struct sockaddr_in));
