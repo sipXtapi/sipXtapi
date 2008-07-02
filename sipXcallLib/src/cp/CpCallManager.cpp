@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2005-2006 SIPez LLC.
+// Copyright (C) 2005-2008 SIPez LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.
 // 
-// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Copyright (C) 2004-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -38,7 +38,7 @@ const int    CpCallManager::CALLMANAGER_MAX_REQUEST_MSGS = 6000;
 const int    CpCallManager::CALLMANAGER_MAX_REQUEST_MSGS = 1000;
 #endif  
 
-Int64 CpCallManager::mCallNum = 0;
+int64_t CpCallManager::mCallNum = 0;
 OsMutex CpCallManager::mCallNumMutex(OsMutex::Q_FIFO);
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
@@ -474,8 +474,8 @@ void CpCallManager::getNewCallId(const char* callIdPrefix, UtlString* callId)
       // Get the start time.
       OsTime current_time;
       OsDateTime::getCurTime(current_time);
-      Int64 start_time =
-         ((Int64) current_time.seconds()) * 1000000 + current_time.usecs();
+      int64_t start_time =
+         ((int64_t) current_time.seconds()) * 1000000 + current_time.usecs();
 
       // Get the process ID.
       int process_id;

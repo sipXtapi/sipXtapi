@@ -111,7 +111,6 @@ nobase_include_HEADERS = \
     os/OsWriteLock.h \
     os/shared/OsMsgQShared.h \
     os/shared/OsTimerMessage.h \
-    os/qsTypes.h \
     os/StunMessage.h \
     os/StunUtils.h \
     os/TurnMessage.h \

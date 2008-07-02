@@ -1,8 +1,11 @@
 //
+// Copyright (C) 2008 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
 // Copyright (C) 2007 Plantronics
 // Licensed to SIPfoundry under a Contributor Agreement.
 // 
-// Copyright (C) 2007 SIPfoundry Inc.
+// Copyright (C) 2007-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // $$
@@ -335,7 +338,7 @@ Sdp* SdpHelper::createSdpFromSdpBody(SdpBody& sdpBody)
             mediaLine->addCandidate(transportIds[idx].data(), 
                                     candidateIds[idx], 
                                     SdpCandidate::getCandidateTransportTypeFromString(transportTypes[idx].data()), 
-                                    (UInt64)qvalues[idx], 
+                                    (uint64_t)qvalues[idx], 
                                     candidateIps[idx].data(), 
                                     candidatePorts[idx], 
                                     SdpCandidate::CANDIDATE_TYPE_NONE); 

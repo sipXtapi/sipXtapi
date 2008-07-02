@@ -144,10 +144,10 @@
 				RelativePath=".\src\test\os\OsLockTest.cpp">
 			</File>
 			<File
-				RelativePath=".\src\test\os\OsMsgQTest.cpp">
+				RelativePath=".\src\test\os\OsMsgDispatcherTest.cpp">
 			</File>
 			<File
-				RelativePath=".\src\test\os\OsMsgDispatcherTest.cpp">
+				RelativePath=".\src\test\os\OsMsgQTest.cpp">
 			</File>
 			<File
 				RelativePath=".\src\test\os\OsMutexTest.cpp">
@@ -226,6 +226,9 @@
 			</File>
 			<File
 				RelativePath=".\src\test\utl\UtlLinkTest.cpp">
+			</File>
+			<File
+				RelativePath=".\src\test\utl\UtlLongLongInt.cpp">
 			</File>
 			<File
 				RelativePath=".\src\test\utl\UtlRegex.cpp">

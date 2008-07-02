@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2005-2007 SIPez LLC.
+// Copyright (C) 2005-2008 SIPez LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
-// Copyright (C) 2004-2007 SIPfoundry Inc.
+// Copyright (C) 2004-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -6116,8 +6116,8 @@ void SipConnection::sendVoiceQualityReport(const char* szTargetSipUrl)
             // Generate a shorter call id
             OsTime current_time;
             OsDateTime::getCurTime(current_time);
-            Int64 start_time =
-                    ((Int64) current_time.seconds()) * 1000000 + current_time.usecs();
+            int64_t start_time =
+                    ((int64_t) current_time.seconds()) * 1000000 + current_time.usecs();
 
             // Get the process ID.
             int process_id;

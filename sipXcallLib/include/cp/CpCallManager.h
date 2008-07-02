@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2005-2007 SIPez LLC.
+// Copyright (C) 2005-2008 SIPez LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.
 // 
-// Copyright (C) 2004-2007 SIPfoundry Inc.
+// Copyright (C) 2004-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -889,7 +889,7 @@ private:
     UtlString mVoiceQualityReportTarget ;
 
     // Every CallManager shares the same call counter for generating Call-IDs.
-    static Int64 mCallNum;
+    static int64_t mCallNum;
  
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 

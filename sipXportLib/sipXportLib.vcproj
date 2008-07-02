@@ -2592,9 +2592,6 @@
 				RelativePath="include\utl\PtTest.h">
 			</File>
 			<File
-				RelativePath=".\include\os\qsTypes.h">
-			</File>
-			<File
 				RelativePath="include\SipXportLibInit.h">
 			</File>
 			<File

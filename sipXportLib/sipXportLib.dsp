@@ -1031,10 +1031,6 @@ SOURCE=.\include\utl\PtTest.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\os\qsTypes.h
-# End Source File
-# Begin Source File
-
 SOURCE=".\src\hmac-sha1\sha1.h"
 # End Source File
 # Begin Source File
