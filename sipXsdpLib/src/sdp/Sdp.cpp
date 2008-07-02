@@ -243,9 +243,9 @@ Sdp::SdpGroupSemantics Sdp::SdpGroup::getSemanticsFromString(const char * type)
 
 int Sdp::SdpFoundation::compareTo(UtlContainable const *rhs) const
 {
-   int result;
+   int result = 0;
 
-   const SdpFoundation* pFoundation = dynamic_cast<const SdpFoundation*>(rhs);
+   const SdpFoundation* pFoundation = (const SdpFoundation*)(rhs);
    if (pFoundation)
    {
       if(mCandidateType == pFoundation->mCandidateType)
