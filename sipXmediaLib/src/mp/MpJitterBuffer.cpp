@@ -186,22 +186,36 @@ OsStatus MpJitterBuffer::pushPacket(const MpRtpBufPtr &rtpPacket,
       // Decode packet to temporary resample and slice buffer.
       decodedSamples = decoder->decode(rtpPacket, DECODED_DATA_MAX_LENGTH,
                                        mDecodedData);
-      assert(decodedSamples > 0);
       if (decodedSamples > 0)
       {
+         // Usual audio packet have been decoded, life is fine
          mSamplesPerPacket = decodedSamples;
 #ifdef RTL_AUDIO_ENABLED
          UtlString outputLabel("MpJitterBuffer_pushPacket");
          RTL_RAW_AUDIO(outputLabel,
-                      mStreamSampleRate,
-                      decodedSamples,
-                      mDecodedData,
-                      rtpPacket->getRtpSequenceNumber());
+                       mStreamSampleRate,
+                       decodedSamples,
+                       mDecodedData,
+                       rtpPacket->getRtpSequenceNumber());
 #endif
 
          // STEP 2. Voice Activity Detection
          packetSpeechType = mpVad->processFrame(rtpPacket->getRtpTimestamp(),
                                                 mDecodedData, decodedSamples);
+      }
+      else if (decoder->getInfo()->isSignalingCodec())
+      {
+         // Signaling (e.g. RFC2833/4733) packet have been decoded,
+         // well, we have nothing else to do here. Actual signaling
+         // data processing will be done in MprDecode.
+         RTL_EVENT("MpJitterBuffer_packet_vad", -2);
+         return OS_SUCCESS;
+      }
+      else
+      {
+         // Something should be definitely wrong here.
+         // But, in release mode we could continue with PLC.
+         assert(!"Decoder returned 0 samples for non-signaling packet!");
       }
    }
    RTL_EVENT("MpJitterBuffer_packet_vad", packetSpeechType);
@@ -211,52 +225,52 @@ OsStatus MpJitterBuffer::pushPacket(const MpRtpBufPtr &rtpPacket,
 
 #define N_POS  2
 #define N_NEG  3
-      switch (packetSpeechType)
+   switch (packetSpeechType)
+   {
+   case MP_SPEECH_TONE:
+      break;
+   case MP_SPEECH_ACTIVE:
+      // In case if active speech allow only big adjustments.
+      // TODO:: Make this heuristic better!
+      if (  wantedAdjustment < N_POS*(int)mSamplesPerPacket
+         && wantedAdjustment > -N_NEG*(int)mSamplesPerPacket)
       {
-      case MP_SPEECH_TONE:
-         break;
-      case MP_SPEECH_ACTIVE:
-         // In case if active speech allow only big adjustments.
-         // TODO:: Make this heuristic better!
-         if (  wantedAdjustment < N_POS*(int)mSamplesPerPacket
-            && wantedAdjustment > -N_NEG*(int)mSamplesPerPacket)
-         {
-            wantedAdjustment = 0;
-         }
-         break;
-      case MP_SPEECH_UNKNOWN:
-         if (decodedSamples > 0)
-         {
-            // Do nothing if VAD didn't tell us about speech type.
-            break;
-         }
-         // But in case of lost packet, we need to round down wantedAdjustment.
-      case MP_SPEECH_SILENT:
-      case MP_SPEECH_COMFORT_NOISE:
-         // Round wanted adjustment to be integer multiple of frame size.
-/*         if (wantedAdjustment>0)
-         {
-            wantedAdjustment =
-               ((wantedAdjustment+getSamplesNum()+mSamplesPerFrame/2)/mSamplesPerFrame)
-                  * mSamplesPerFrame
-               - (getSamplesNum()+mSamplesPerFrame/2);
-         }
-         else
-         {
-            wantedAdjustment =
-               ((wantedAdjustment+getSamplesNum()-mSamplesPerFrame/2)/mSamplesPerFrame)
-                  * mSamplesPerFrame
-               - (getSamplesNum()-mSamplesPerFrame/2);
-         }
-         */
-         wantedAdjustment = mSamplesPerFrame
-                            * ((wantedAdjustment+getSamplesNum())/mSamplesPerFrame)
-                          - getSamplesNum();
-         break;
-      case MP_SPEECH_MUTED:
-         assert(!"Muted audio right after decode VAD? Something is wrong here..");
+         wantedAdjustment = 0;
+      }
+      break;
+   case MP_SPEECH_UNKNOWN:
+      if (decodedSamples > 0)
+      {
+         // Do nothing if VAD didn't tell us about speech type.
          break;
       }
+      // But in case of lost packet, we need to round down wantedAdjustment.
+   case MP_SPEECH_SILENT:
+   case MP_SPEECH_COMFORT_NOISE:
+      // Round wanted adjustment to be integer multiple of frame size.
+/*      if (wantedAdjustment>0)
+      {
+         wantedAdjustment =
+            ((wantedAdjustment+getSamplesNum()+mSamplesPerFrame/2)/mSamplesPerFrame)
+               * mSamplesPerFrame
+            - (getSamplesNum()+mSamplesPerFrame/2);
+      }
+      else
+      {
+         wantedAdjustment =
+            ((wantedAdjustment+getSamplesNum()-mSamplesPerFrame/2)/mSamplesPerFrame)
+               * mSamplesPerFrame
+            - (getSamplesNum()-mSamplesPerFrame/2);
+      }
+*/
+      wantedAdjustment = mSamplesPerFrame
+                           * ((wantedAdjustment+getSamplesNum())/mSamplesPerFrame)
+                        - getSamplesNum();
+      break;
+   case MP_SPEECH_MUTED:
+      assert(!"Muted audio right after decode VAD? Something is wrong here..");
+      break;
+   }
 
    // Bound wantedAdjustment to maintain minimum number of samples in buffer.
    if (minBufferSamples > 0 && wantedAdjustment < 0)
@@ -411,7 +425,7 @@ int getMinEPosition(MpAudioSample *pattern, MpAudioSample *pBuffer, int bufferLe
    for (int i=0; i<bufferLength-E_FRAME_WINDOW; i++)
    {
       int32_t E = calcE(pattern, pBuffer+i);
-      if (E < minE)
+      if (E <= minE)
       {
          minE = E;
          minPosition = i;
@@ -464,6 +478,9 @@ int MpJitterBuffer::adjustStream(MpAudioSample *pBuffer,
    // Find a good place to glue
    int pos = getMinEPosition(pBuffer, pBuffer+E_FRAME_WINDOW,
                              numSamples-E_FRAME_WINDOW);
+   RTL_EVENT("MpJitterBuffer_adjustStream_wantedAdjustment", wantedAdjustment);
+   RTL_EVENT("MpJitterBuffer_adjustStream_numSamples", numSamples);
+   RTL_EVENT("MpJitterBuffer_adjustStream_pos", pos);
    // Go further only if we've got a good place to glue.
    if (pos > 0)
    {
@@ -474,6 +491,7 @@ int MpJitterBuffer::adjustStream(MpAudioSample *pBuffer,
          memmove(pBuffer+2*E_FRAME_WINDOW+pos, pBuffer+E_FRAME_WINDOW,
                  (numSamples-E_FRAME_WINDOW)*sizeof(MpAudioSample));
          crossJoin8(pBuffer+E_FRAME_WINDOW+pos, pBuffer);
+         RTL_EVENT("MpJitterBuffer_adjustStream_adjustment", pos + E_FRAME_WINDOW);
          return pos + E_FRAME_WINDOW;
       }
       else //if (wantedAdjustment > 0) // wantedAdjustment can't be 0
@@ -482,10 +500,12 @@ int MpJitterBuffer::adjustStream(MpAudioSample *pBuffer,
          crossJoin8(pBuffer, pBuffer+E_FRAME_WINDOW+pos);
          memmove(pBuffer+E_FRAME_WINDOW, pBuffer+2*E_FRAME_WINDOW+pos,
                  (numSamples-pos-2*E_FRAME_WINDOW)*sizeof(MpAudioSample));
+         RTL_EVENT("MpJitterBuffer_adjustStream_adjustment", -(pos + E_FRAME_WINDOW));
          return -(pos + E_FRAME_WINDOW);
       }
    }
 
+   RTL_EVENT("MpJitterBuffer_adjustStream_adjustment", 0);
    return 0;
 }
 
