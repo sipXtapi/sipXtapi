@@ -85,6 +85,7 @@ protected:
 /* /////////////////////////////// PRIVATE //////////////////////////////// */
 private:
    int      mSamplerate;
+   int      mJbLength;
    int32_t  mDelay;
 
 };
