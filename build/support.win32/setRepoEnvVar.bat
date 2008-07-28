@@ -23,10 +23,12 @@ REM
 REM Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
 REM Licensed to SIPfoundry under a Contributor Agreement.
 
-call meta\repo-ver.bat > %TEMP%\repo-ver > nul
+del %TEMP%\repo-ver 2> nul
+call meta\repo-ver.bat > %TEMP%\repo-ver 
+del %TEMP%\setit.bat 2> nul
 copy meta\repo-ver.txt+%TEMP%\repo-ver  %TEMP%\setit.bat > nul
 call %TEMP%\setit.bat > nul
-del %TEMP%\setit.bat > nul
+REM del %TEMP%\setit.bat > nul
 
 ECHO.  
 ECHO ****************************************
