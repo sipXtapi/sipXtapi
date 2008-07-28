@@ -1,3 +1,19 @@
+// Copyright 2008 AOL LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -37,8 +53,11 @@ public:
 
 /* ============================ CREATORS ================================== */
 
-   static OsProtectEventMgr* getEventMgr();
+   static OsProtectEventMgr* getEventMgr(int userData = 0);
      //:Return a pointer to the OsProtectEventMgr, creating it if necessary
+
+   static void releaseEventMgr() ;
+     //:Clear up event manager space
 
    virtual
    ~OsProtectEventMgr();
@@ -87,6 +106,9 @@ private:
    // Static data members used to enforce Singleton behavior
    static OsProtectEventMgr*    spInstance;  // pointer to the single instance of
                                              //  the OsProtectEventMgr class
+   static OsBSem     sLock;         // semaphore used to ensure that there
+                                    //  is only one instance of this class
+
    OsBSem    mListSem;   // semaphore used to protect the list table
    int       mAllocs;    // number of allocations
    int       mFrees;    // number of freed events

@@ -1,3 +1,19 @@
+// Copyright 2008 AOL LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA. 
 //
 // Copyright (C) 2005-2007 SIPez LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.
@@ -25,7 +41,7 @@
 #include <tapi/sipXtapiEvents.h>
 #include <tapi/sipXtapiInternal.h>
 #include <net/SipContactDb.h>
-#include <mi/CpMediaInterface.h>
+#include <mediaInterface/IMediaInterface.h>
 
 
 // DEFINES
@@ -42,7 +58,6 @@
 // FORWARD DECLARATIONS
 class CpCallManager;
 class CpCall;
-class CpMediaInterface;
 class OsDatagramSocket;
 class SipSession;
 class OsMsg;
@@ -183,7 +198,7 @@ public:
 
    Connection(CpCallManager* callMgr = NULL,
               CpCall* call = NULL,
-              CpMediaInterface* mediaInterface = NULL, 
+              IMediaInterface* mediaInterface = NULL, 
               int offeringDelayMilliSeconds = IMMEDIATE,
               int availableBehavior = RING, 
               const char* forwardUnconditionalUrl = NULL,
@@ -200,7 +215,10 @@ public:
 /* ============================ MANIPULATORS ============================== */
 
    virtual void prepareForSplit() ;
-   virtual void prepareForJoin(CpCall* pNewCall, const char* szLocalAddress, CpMediaInterface* pNewMediaInterface) ;
+   virtual void prepareForJoin(CpCall* pNewCall,
+       const char* szLocalAddress,
+       IMediaInterface* pNewMediaInterface,
+       int callHandle=0) ;
 
    virtual void forceHangUp(int connectionState = CONNECTION_DISCONNECTED)
    {
@@ -222,7 +240,10 @@ public:
                            const int bandWidth = AUDIO_MICODEC_BW_DEFAULT,
                            UtlBoolean bOnHold = FALSE,
                            const char* originalCallId = NULL,
-                           const RTP_TRANSPORT rtpTransportOptions = RTP_TRANSPORT_UDP) = 0;
+						  const RTP_TRANSPORT rtpTransportOptions = RTP_TRANSPORT_UDP,
+                          unsigned long flags = CPMI_FLAGS_DEFAULT,
+                          int callHandle = 0) = 0;
+
    //! param: requestQueuedCall - indicates that the caller wishes to have the callee queue the call if busy
 
    virtual UtlBoolean originalCallTransfer(UtlString& transferTargetAddress,
@@ -248,7 +269,7 @@ public:
 
    virtual void outOfFocus() = 0;
 
-   virtual UtlBoolean answer(const void* hWnd = NULL) = 0;
+   virtual UtlBoolean answer() = 0;
 
    virtual UtlBoolean hangUp() = 0;
 
@@ -265,10 +286,13 @@ public:
     *  @param sendEarlyMedia - send early media (startRTPSend and send SDP in 183)
     */
    virtual UtlBoolean accept(int forwardOnNoAnswerTimeOut, 
+                             const void* pDisplay = NULL,
                              const void *pSecurity = NULL, 
                              const char* locationHeader = NULL,
                              const int bandWidth = AUDIO_MICODEC_BW_DEFAULT,
-                             UtlBoolean sendEarlyMedia = FALSE) = 0;
+                             UtlBoolean sendEarlyMedia = FALSE,
+                             unsigned long flags = CPMI_FLAGS_DEFAULT,
+                             int callHandle = 0) = 0;
 
    virtual UtlBoolean reject() = 0;
 
@@ -296,10 +320,10 @@ public:
     void markForDeletion() ;
       //: Is this connection marked for deletion?
 
-    void setMediaInterface(CpMediaInterface* pMediaInterface) ;
+    void setMediaInterface(IMediaInterface* pMediaInterface) ;
       //:Set the media interface for this connection
       
-    CpMediaInterface* getMediaInterfacePtr();
+    IMediaInterface* getMediaInterfacePtr();
       //:Gets the media interface pointer for this connection.
 
     UtlBoolean validStateTransition(SIPX_CALLSTATE_EVENT eFrom, SIPX_CALLSTATE_EVENT eTo) ;
@@ -433,7 +457,7 @@ protected:
 
     CpCallManager* mpCallManager;
     CpCall* mpCall;
-    CpMediaInterface* mpMediaInterface;
+    IMediaInterface* mpMediaInterface;
     int mConnectionId;
 
 	UtlBoolean mRemoteIsCallee;
@@ -444,8 +468,12 @@ protected:
 	UtlString remoteRtpAddress;
 	int remoteRtpPort;
     int remoteRtcpPort;
+
+    UtlString remoteVideoRtpAddress;
 	int remoteVideoRtpPort;
 	int remoteVideoRtcpPort; 
+	int sendCodec;
+	int receiveCodec;
 	
 	int mLocalConnectionState;
 	int mRemoteConnectionState;

@@ -1,3 +1,19 @@
+// Copyright 2008 AOL LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -25,16 +41,44 @@
 // EXTERNAL VARIABLES
 // CONSTANTS
 // STATIC VARIABLE INITIALIZATIONS
-OsProtectEventMgr* OsProtectEventMgr::spInstance;
+OsProtectEventMgr* OsProtectEventMgr::spInstance = 0;
+OsBSem  OsProtectEventMgr::sLock(OsBSem::Q_PRIORITY, OsBSem::FULL);
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
 /* ============================ CREATORS ================================== */
 
-OsProtectEventMgr* OsProtectEventMgr::getEventMgr()
+OsProtectEventMgr* OsProtectEventMgr::getEventMgr(int userData)
 {
+
+   if (spInstance != NULL)
+      return spInstance;
+
+   // If the task does not yet exist or hasn't been started, then acquire
+   // the lock to ensure that only one instance of the task is started
+   sLock.acquire();
+   if (spInstance == NULL)
+       spInstance = new OsProtectEventMgr(userData);
+
+   sLock.release();
+
    return spInstance;
 }
+
+
+// Clear up event manager space
+void OsProtectEventMgr::releaseEventMgr() 
+{
+   sLock.acquire();
+   if (spInstance != NULL)
+   {
+        OsProtectEventMgr* pInst = spInstance ;
+        spInstance = NULL ;
+        delete pInst ;
+   }
+   sLock.release();
+}
+     
 
 // Constructor
 OsProtectEventMgr::OsProtectEventMgr(int userData,

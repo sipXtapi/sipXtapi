@@ -1,8 +1,21 @@
-//
-// Copyright (C) 2006-2007 SIPez LLC.
+// Copyright 2008 AOL LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
-// Copyright (C) 2004-2007 SIPfoundry Inc.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA. 
+//
+// Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -15,8 +28,9 @@
 #include <assert.h>
 #include <stdio.h>
 #ifndef _WIN32
-#include <netinet/in.h>
+#include <sys/types.h>
 #include <sys/socket.h>
+#include <netinet/in.h>
 #include <arpa/inet.h>
 #endif
 
@@ -29,13 +43,15 @@
 #include "os/OsSysLog.h"
 #include "os/OsEvent.h"
 #include "os/OsNotification.h"
+#include "os/OsDateTime.h"
+#include "os/OsTime.h"
 #include "tapi/sipXtapi.h"
+#include "utl/UtlHashMapIterator.h"
+
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
-#define DEFAULT_MEDIA_STUN_KEEPALIVE        28
-
 // STATIC VARIABLE INITIALIZATIONS
 
 // FORWARD DECLARATIONS
@@ -50,33 +66,16 @@ OsNatDatagramSocket::OsNatDatagramSocket(int remoteHostPortNum,
                                          const char* remoteHost, 
                                          int localHostPortNum, 
                                          const char* localHost,
-                                         OsNotification *pNotification) 
+                                         OsNotification *pStunNotification) 
         : OsDatagramSocket(remoteHostPortNum, remoteHost, localHostPortNum, localHost)
-{    
-    miRecordTimes = ONDS_MARK_NONE ;
-    mpReadNotification = NULL ;
-
-    // Init Stun state
-    mStunState.bEnabled = false ;
-    mStunState.status = NAT_STATUS_UNKNOWN ;
-    mStunState.mappedAddress = NULL ;
-    mStunState.mappedPort = PORT_NONE ;
-           
-    // Init Turn state
-    mTurnState.bEnabled = false ;
-    mTurnState.status = NAT_STATUS_UNKNOWN ;
-    mTurnState.relayAddress = NULL ;
-    mTurnState.relayPort = PORT_NONE ;
-
-    // Init other attributes
-    mpNatAgent = OsNatAgentTask::getInstance() ;
-    mbTransparentReads = TRUE ;
+{
     mDestAddress = mRemoteIpAddress ;
     miDestPort = remoteHostPort ;
-    miDestPriority = -1 ;
+    setStunNotifier(pStunNotification) ;
 
-    mpNotification = pNotification ;      
-    mbNotified = false ;
+    mRateLimit = 0 ;
+    mCurrentRate = 0.0 ;
+    mIgnorePeriodSecs = 0 ;
 }
 
 
@@ -84,26 +83,15 @@ OsNatDatagramSocket::OsNatDatagramSocket(int remoteHostPortNum,
 OsNatDatagramSocket::~OsNatDatagramSocket()
 {
     destroy() ;
+    mRateLimitedMap.destroyAll() ;
 }
 
 void OsNatDatagramSocket::destroy()
 {
-    mpNatAgent->removeKeepAlives(this) ;
-    mpNatAgent->removeStunProbes(this) ;
-    disableStun() ;
-    disableTurn() ;
-
-    mpNatAgent->synchronize() ;
- }
+    OsNatSocketBaseImpl::destroy() ;
+}
 
 /* ============================ MANIPULATORS ============================== */
-
-OsSocket* OsNatDatagramSocket::getSocket()
-{
-    OsSocket* pSocket = dynamic_cast<OsSocket*>(this);
-    assert(pSocket);
-    return pSocket;
-}
 
 int OsNatDatagramSocket::read(char* buffer, int bufferLength)
 {
@@ -116,9 +104,11 @@ int OsNatDatagramSocket::read(char* buffer, int bufferLength)
     {
         bNatPacket = FALSE ;
         iRC = OsSocket::read(buffer, bufferLength, &receivedIp, &iReceivedPort) ;
-        if (handleSturnData(buffer, iRC, receivedIp, iReceivedPort))
+        if (shouldRateLimit(&receivedIp, &iReceivedPort))
+            iRC = 0 ;
+        else if (handleSturnData(buffer, iRC, receivedIp, iReceivedPort))
         {
-            if (!mbTransparentReads)
+            if (!getTransparentStunRead())
                 iRC = 0 ;
             else
                 bNatPacket = TRUE ;
@@ -127,7 +117,10 @@ int OsNatDatagramSocket::read(char* buffer, int bufferLength)
 
     // Make read time for non-NAT packets
     if (iRC > 0 && !bNatPacket)
+    {
         markReadTime() ;
+        checkDelayedShutdown() ;
+    }
 
     return iRC ;
 }
@@ -143,10 +136,12 @@ int OsNatDatagramSocket::read(char* buffer, int bufferLength,
     do
     {
         bNatPacket = FALSE ;
-        iRC = OsSocket::read(buffer, bufferLength, &receivedIp, &iReceivedPort) ;       
-        if (handleSturnData(buffer, iRC, receivedIp, iReceivedPort))
+        iRC = OsSocket::read(buffer, bufferLength, &receivedIp, &iReceivedPort) ;
+        if (shouldRateLimit(&receivedIp, &iReceivedPort))
+            iRC = 0 ;
+        else if (handleSturnData(buffer, iRC, receivedIp, iReceivedPort))
         {
-            if (!mbTransparentReads)
+            if (!getTransparentStunRead())
                 iRC = 0 ;
             else
                 bNatPacket = TRUE ;
@@ -167,6 +162,7 @@ int OsNatDatagramSocket::read(char* buffer, int bufferLength,
     if (iRC > 0 && !bNatPacket)
     {
         markReadTime() ;
+        checkDelayedShutdown() ;
     }
 
     return iRC ;
@@ -179,7 +175,7 @@ int OsNatDatagramSocket::read(char* buffer, int bufferLength,
     int iReceivedPort ;
     UtlString receivedIp ;
 
-    iRC = read(buffer, bufferLength, &receivedIp, &iReceivedPort) ;
+    iRC = read(buffer, bufferLength, &receivedIp, &iReceivedPort) ;       
     if (ipAddress)
         ipAddress->s_addr = inet_addr(receivedIp) ;
 
@@ -202,17 +198,19 @@ int OsNatDatagramSocket::read(char* buffer, int bufferLength, long waitMilliseco
         bNatPacket = FALSE ;
         if (isReadyToRead(waitMilliseconds))
         {
-            iRC = OsSocket::read(buffer, bufferLength, &receivedIp, &iReceivedPort) ;            
-            if (handleSturnData(buffer, iRC, receivedIp, iReceivedPort))
+            iRC = OsSocket::read(buffer, bufferLength, &receivedIp, &iReceivedPort) ;
+            if (shouldRateLimit(&receivedIp, &iReceivedPort))
+                iRC = 0 ;
+            else if (handleSturnData(buffer, iRC, receivedIp, iReceivedPort))
             {
-                if (!mbTransparentReads)
+                if (!getTransparentStunRead())
                     iRC = 0 ;
                 else
                     bNatPacket = TRUE ;
             }
         }
         else
-        {
+        {            
             break ;
         }
     } while ((iRC >= 0) && bNatPacket) ;
@@ -221,13 +219,14 @@ int OsNatDatagramSocket::read(char* buffer, int bufferLength, long waitMilliseco
     if (iRC > 0 && !bNatPacket)
     {
         markReadTime() ;
+        checkDelayedShutdown() ;
     }
 
     return iRC ;    
 }
 
 int OsNatDatagramSocket::socketWrite(const char* buffer, int bufferLength,
-                               const char* ipAddress, int port, PacketType packetType)
+                               const char* ipAddress, int port, OS_NAT_PACKET_TYPE packetType)
 {
     if (packetType == MEDIA_PACKET)
     {
@@ -285,101 +284,96 @@ int OsNatDatagramSocket::write(const char* buffer, int bufferLength,
     return OsSocket::write(buffer, bufferLength, waitMilliseconds) ;
 }
 
-void OsNatDatagramSocket::enableStun(const char* szStunServer, int stunPort, int iKeepAlive,  int iStunOptions, bool bReadFromSocket) 
-{    
-    if (!mStunState.bEnabled)
+
+void OsNatDatagramSocket::setReadRateLimiting(int readsPerSec, int ignorePeriodSecs) 
+{
+    assert(readsPerSec >= 0) ;
+    assert(ignorePeriodSecs >= 0) ;
+
+    mRateLimit = readsPerSec ;
+    mIgnorePeriodSecs = ignorePeriodSecs ;
+}
+
+/* ============================ ACCESSORS ================================= */
+
+/* ============================ INQUIRY =================================== */
+
+/* //////////////////////////// PROTECTED ///////////////////////////////// */
+
+double OsNatDatagramSocket::calculateRate(unsigned long delta, double oldRate) 
+{
+    double rate = oldRate ;
+
+    if (delta >= 1000)
+        rate = 1.0 ;        
+    else if (delta == 0)
+        rate += 1.0 ;
+    else
+        rate = (((1000.0-delta)/1000.0) * mCurrentRate) + 1.0 ;
+
+    return rate ;
+}
+
+
+bool OsNatDatagramSocket::checkTotalRateLimit() 
+{
+    static unsigned long lastCheck = 0 ;
+
+    OsTime now ;
+    OsDateTime::getCurTime(now) ;
+    unsigned long msNow = now.cvtToMsecs() ;
+    unsigned long delta = msNow - lastCheck ;    
+
+    // If first time, assume first packet in over a period
+    if (lastCheck == 0)
+        delta = 1000 ;
+    lastCheck = msNow ;
+
+    // Update the rate limit
+    mCurrentRate = calculateRate(delta, mCurrentRate) ;
+
+    return (mCurrentRate >= (double) mRateLimit) ;
+}
+
+
+bool OsNatDatagramSocket::checkHostRateLimit(UtlString* pIP)
+{
+    UtlContainable* pValue ;
+    bool bRateLimit = false ;
+    OsTime now ;    
+    OsDateTime::getCurTime(now) ;
+
+    // Release clients from Penalty box
+    UtlHashMapIterator itor(mRateLimitedMap) ;
+    UtlContainable* pKey ;
+    while ((pKey = itor()) != NULL)
     {
-        mStunState.bEnabled = true ;
-
-        UtlBoolean bRC = mpNatAgent->enableStun(this, szStunServer, stunPort, iStunOptions, iKeepAlive) ;
-        if (bRC)
+        pValue = mRateLimitedMap.findValue(pKey) ;
+        if (pValue)
         {
-            if (bReadFromSocket)
+            OsTime* pExpireAt = (OsTime*) pValue ;
+            if (now > *pExpireAt) 
             {
-                bool bTransparent = mbTransparentReads ;
-                mbTransparentReads = false ;
+                OsSysLog::add(FAC_NET, PRI_NOTICE, "Releasing %s from rate limit (%lf)",
+                        ((UtlString*)pKey)->data(), mCurrentRate) ;
 
-                char cBuf[2048] ;            
-
-                while (mStunState.status == NAT_STATUS_UNKNOWN)
-                {
-                    read(cBuf, sizeof(cBuf), 100) ;                
-                    if (mStunState.status == NAT_STATUS_UNKNOWN)
-                    {
-                        OsTask::yield() ;
-                    }
-                }
-
-                mbTransparentReads = bTransparent ;
+                mRateLimitedMap.destroy(pKey) ;
             }
         }
-        else
-        {
-            mStunState.status = NAT_STATUS_FAILURE ;
-        }
     }
-}
 
-
-void OsNatDatagramSocket::disableStun()
-{
-    if (mStunState.bEnabled)
+    // Determine if this client is still in penalty, if so increase length
+    pValue = mRateLimitedMap.findValue(pIP) ;
+    if (pValue != NULL)
     {
-        mStunState.bEnabled = false ;
-        mpNatAgent->disableStun(this) ;
+        OsTime isolationPeriod(mIgnorePeriodSecs, 0) ;
+        OsTime* pExpireAt = (OsTime*) pValue ;
+        *pExpireAt = now + isolationPeriod ;
+        bRateLimit = true ;
     }
+
+    return bRateLimit ;
 }
-
-
-void OsNatDatagramSocket::enableTurn(const char* szTurnSever,
-                                     int turnPort,
-                                     int iKeepAlive,
-                                     const char* username,
-                                     const char* password,
-                                     bool bReadFromSocket)
-{
-    if (!mTurnState.bEnabled)
-    {
-        mTurnState.bEnabled = true ;
-    
-        UtlBoolean bRC = mpNatAgent->enableTurn(this, szTurnSever, turnPort, iKeepAlive, username, password) ;
-        if (bRC)
-        { 
-            if (bReadFromSocket)
-            {
-                bool bTransparent = mbTransparentReads ;
-                mbTransparentReads = false ;
-
-                char cBuf[2048] ;
-
-                while (mTurnState.status == NAT_STATUS_UNKNOWN)
-                {
-                    read(cBuf, sizeof(cBuf), 100) ;
-                    if (mTurnState.status == NAT_STATUS_UNKNOWN)
-                    {
-                        OsTask::yield() ;
-                    }
-                }
-
-                mbTransparentReads = bTransparent ;
-            }
-        }
-        else
-        {
-            mTurnState.status = NAT_STATUS_FAILURE ;    
-        }
-    }
-}
-
-void OsNatDatagramSocket::disableTurn() 
-{
-    if (mTurnState.bEnabled)
-    {
-        mTurnState.bEnabled = false ;   
-        mpNatAgent->disableTurn(this) ;
-    }
-}
-
 
 bool OsNatDatagramSocket::waitForBinding(NAT_BINDING binding, bool bWaitUntilReady)
 {
@@ -423,288 +417,44 @@ bool OsNatDatagramSocket::waitForBinding(NAT_BINDING binding, bool bWaitUntilRea
    return result;
 }
 
+bool OsNatDatagramSocket::shouldRateLimit(UtlString* pIP, int* pPort)
+{   
+    bool bRateLimit = false ;
 
-void OsNatDatagramSocket::enableTransparentReads(bool bEnable)
-{
-    mbTransparentReads = bEnable ;
-}
+    assert(pIP != NULL) ;
+    assert(pPort != NULL) ;
 
-UtlBoolean OsNatDatagramSocket::addCrLfKeepAlive(const char* szRemoteIp,
-                                                 const int   remotePort, 
-                                                 const int   keepAliveSecs,
-                                                 OsNatKeepaliveListener* pListener) 
-{
-    return mpNatAgent->addCrLfKeepAlive(this, szRemoteIp, remotePort, 
-            keepAliveSecs, pListener) ;
-}
-
-
-UtlBoolean OsNatDatagramSocket::removeCrLfKeepAlive(const char* szRemoteIp, 
-                                                    const int   remotePort) 
-{
-    return mpNatAgent->removeCrLfKeepAlive(this, szRemoteIp, remotePort) ;
-}
-
-UtlBoolean OsNatDatagramSocket::addStunKeepAlive(const char* szRemoteIp, 
-                                                 const int   remotePort, 
-                                                 const int   keepAliveSecs,
-                                                 OsNatKeepaliveListener* pListener) 
-{
-    return mpNatAgent->addStunKeepAlive(this, szRemoteIp, remotePort, 
-            keepAliveSecs, pListener) ;
-}
-
-
-UtlBoolean OsNatDatagramSocket::removeStunKeepAlive(const char* szRemoteIp, 
-                                                    const int   remotePort) 
-{
-    return mpNatAgent->removeStunKeepAlive(this, szRemoteIp, remotePort) ;
-}
-
-
-/* ============================ ACCESSORS ================================= */
-
-// Return the external mapped IP address for this socket.
-UtlBoolean OsNatDatagramSocket::getMappedIp(UtlString* ip, int* port) 
-{
-    UtlBoolean bSuccess = false ;
-
-    // Wait for mapped IP to become available
-    while (mStunState.status == NAT_STATUS_UNKNOWN && mStunState.bEnabled)
+    if (mRateLimit > 0 && pIP && pPort)
     {
-        if (mStunState.status == NAT_STATUS_UNKNOWN && mStunState.bEnabled)
+        if (checkHostRateLimit(pIP))
         {
-            OsTask::yield() ;
+            bRateLimit = true ;
+        }
+        else if (checkTotalRateLimit())
+        {
+            OsTime now ;
+            OsDateTime::getCurTime(now) ;
+            OsTime isolationPeriod(mIgnorePeriodSecs, 0) ;
+            OsTime* pExpireAt = new OsTime() ;
+            *pExpireAt = now + isolationPeriod ;
+
+            OsSysLog::add(FAC_NET, PRI_NOTICE, "Selected %s:%d for rate limiting (%f >= %d), penalty=%d",
+                    pIP->data(), *pPort, mCurrentRate, mRateLimit, mIgnorePeriodSecs) ;
+            
+            mRateLimitedMap.insertKeyAndValue(new UtlString(pIP->data()), pExpireAt) ;
+
+            bRateLimit = true ;
+            if (mCurrentRate > 1)
+                mCurrentRate -= 1.0 ;
+        }
+        else
+        {
+            bRateLimit = false ;
         }
     }
 
-    if (mStunState.mappedAddress.length() && mStunState.bEnabled) 
-    {
-        if (ip)
-        {
-            *ip = mStunState.mappedAddress ;
-        }
-
-        if (port)
-        {
-            *port = mStunState.mappedPort ;
-        }
-
-        // Success if we were able to set either the ip or port
-        if (ip || port)
-        {
-            bSuccess = true ;
-        }
-    }
-
-    return bSuccess ;
+    return bRateLimit ;
 }
-
-// Return the external relay/return IP address for this socket.
-UtlBoolean OsNatDatagramSocket::getRelayIp(UtlString* ip, int* port) 
-{
-    UtlBoolean bSuccess = false ;
-
-    // Wait for relay IP to become available
-    while (mTurnState.status == NAT_STATUS_UNKNOWN && mTurnState.bEnabled)
-    {
-        if (mTurnState.status == NAT_STATUS_UNKNOWN && mTurnState.bEnabled)
-        {
-            OsTask::yield() ;
-        }
-    }
-
-    if (mTurnState.relayAddress.length() && mTurnState.bEnabled) 
-    {
-        if (ip)
-        {
-            *ip = mTurnState.relayAddress ;
-        }
-
-        if (port)
-        {
-            *port = mTurnState.relayPort ;
-        }
-
-        // Success if we were able to set either the ip or port
-        if (ip || port)
-        {
-            bSuccess = true ;
-        }
-    }
-
-    return bSuccess ;
-}
-
-
-
-void OsNatDatagramSocket::addAlternateDestination(const char* szAddress, int iPort, int priority) 
-{
-    mpNatAgent->sendStunProbe(this, szAddress, iPort, priority) ;
-}
-
-
-void OsNatDatagramSocket::setReadNotification(OsNotification* pNotification)
-{
-    OsLock lock(mReadNotificationLock) ;
-
-    mpReadNotification = pNotification ;
-}
-
-
-void OsNatDatagramSocket::readyDestination(const char* szAddress, int iPort) 
-{
-    if (mTurnState.bEnabled && (mTurnState.status == NAT_STATUS_SUCCESS))
-    {
-        mpNatAgent->primeTurnReception(this, szAddress, iPort) ;
-    }
-}
-
-
-void OsNatDatagramSocket::setNotifier(OsNotification* pNotification) 
-{
-    mpNotification = pNotification ;
-    mbNotified = false ;
-}
-
-/* ============================ INQUIRY =================================== */
-
-/* //////////////////////////// PROTECTED ///////////////////////////////// */
-
-void OsNatDatagramSocket::setStunAddress(const UtlString& address, 
-                                         const int iPort) 
-{
-    mStunState.mappedAddress = address ;
-    mStunState.mappedPort = iPort ;
-}
-
-void OsNatDatagramSocket::setTurnAddress(const UtlString& address, 
-                                         const int iPort) 
-{
-    mTurnState.relayAddress = address ;
-    mTurnState.relayPort = iPort ;
-}
-
-
-void OsNatDatagramSocket::markStunSuccess(bool bAddressChanged)
-{
-    mStunState.status = NAT_STATUS_SUCCESS ;
-
-    // Signal external identities interested in the STUN outcome.
-    if (mpNotification && (!mbNotified || bAddressChanged))
-    {   
-        UtlString adapterName;
-        
-        getContactAdapterName(adapterName, mLocalIp, false);
-
-        SIPX_CONTACT_ADDRESS* pContact = new SIPX_CONTACT_ADDRESS();
-        
-        strcpy(pContact->cIpAddress, mStunState.mappedAddress);
-        pContact->iPort = mStunState.mappedPort;
-        strcpy(pContact->cInterface, adapterName.data());
-        pContact->eContactType = CONTACT_NAT_MAPPED;
-        pContact->eTransportType = TRANSPORT_UDP ;
-                
-        mpNotification->signal((intptr_t) pContact) ;
-        mbNotified = true ;
-    }
-}
-
-
-void OsNatDatagramSocket::markStunFailure() 
-{
-    mStunState.status = NAT_STATUS_FAILURE ;
-
-    // Signal external identities interested in the STUN outcome.
-    if (mpNotification && !mbNotified)
-    {
-        mpNotification->signal(0) ;
-        mbNotified = true ;
-    }
-}
-
-
-void OsNatDatagramSocket::markTurnSuccess() 
-{
-    mTurnState.status = NAT_STATUS_SUCCESS ;
-}
-
-
-void OsNatDatagramSocket::markTurnFailure() 
-{
-    mTurnState.status = NAT_STATUS_FAILURE ;
-}
-
-
-void OsNatDatagramSocket::evaluateDestinationAddress(const UtlString& address, 
-                                                    int              iPort, 
-                                                    int              priority) 
-{
-    if ((address.compareTo(mDestAddress, UtlString::ignoreCase) != 0) && 
-            (iPort != priority))
-    {
-        if (priority > miDestPriority)
-        {
-            miDestPriority = priority ;
-            mDestAddress = address ;
-            miDestPort = iPort ;
-        }
-    } 
-    else if (priority > miDestPriority) 
-    {
-        // No change in host/port, just store updated priority.
-        miDestPriority = priority ;   
-    }
-}
-
-
-UtlBoolean OsNatDatagramSocket::getBestDestinationAddress(UtlString& address,
-                                                      int&       iPort)
-{
-    UtlBoolean bRC = false ;
-
-    // Wait for stun request to complete for anything of a higher priority
-    while (mpNatAgent->areProbesOutstanding(this, miDestPriority))
-    {
-        OsTask::delay(20) ;
-    }
-
-    // Return success value
-    if (mDestAddress.length())
-    {
-        address = mDestAddress ;
-        iPort = miDestPort ;
-
-        bRC = portIsValid(iPort) ;
-    }
-
-    return bRC ;
-}
-
-
-UtlBoolean OsNatDatagramSocket::applyDestinationAddress(const char* szAddress, int iPort) 
-{
-    UtlBoolean bRC = false ;
-
-    mDestAddress = szAddress ;
-    miDestPort = iPort ;
-
-    // ::TODO:: The keepalive period should be configurable (taken from 
-    // default stun keepalive setting)
-    if (!addStunKeepAlive(szAddress, iPort, DEFAULT_MEDIA_STUN_KEEPALIVE, NULL))
-    {
-        // Bob: [2006-06-13] The only way this fails right now is if the 
-        //      binding is already added.
-    }
-   
-    if (mpNatAgent->setTurnDestination(this, szAddress, iPort))
-    {
-        bRC = true ;
-    }
-
-    return bRC ;
-}
-
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 

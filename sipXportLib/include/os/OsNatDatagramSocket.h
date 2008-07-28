@@ -1,3 +1,19 @@
+// Copyright 2008 AOL LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -18,6 +34,7 @@
 #include "os/OsMsgQ.h"
 #include "os/OsTimer.h"
 #include "os/OsQueuedEvent.h"
+#include "utl/UtlHashMap.h"
 
 // DEFINES
 #define NAT_MSG_TYPE         (OsMsg::USER_START + 1) /**< Stun Msg type/Id */
@@ -28,28 +45,6 @@
 // CONSTANTS
 // STRUCTS
 // TYPEDEFS
-// FORWARD DECLARATIONS
-class NatMsg ;
-class OsEvent ;
-class OsNatAgentTask;
-class OsNatKeepaliveListener;
-class OsNotification;
-
-
-/**
- * NAT_STATUS is used internally to mark the end-state of a NAT attempt.  NAT
- * attempts range from a discovery lookup (what is my external IP address) to 
- * a TURN allocation (relaying).
- */
-typedef enum
-{
-    NAT_STATUS_UNKNOWN,     /** Unknown NAT status -- either idle or pending */
-    NAT_STATUS_SUCCESS,     /** NAT binding/allocation was successful */
-    NAT_STATUS_FAILURE      /** NAT binding/allocation was unsuccessful (no 
-                                response or negative response) */
-} NAT_STATUS ;
-
-
 typedef enum
 {
    NO_BINDING,
@@ -58,43 +53,23 @@ typedef enum
    STUN_TURN_BINDING
 } NAT_BINDING;
 
-/**
- * STUN_STATE holds state information for a STUN discovery binding/attempt 
- */
-typedef struct
-{
-    bool       bEnabled ;       /** Is STUN enabled? */
-    NAT_STATUS status ;         /** What is the stun status? */
-  
-    UtlString  mappedAddress ;  /** Mapped STUN address */
-    int        mappedPort ;     /** Mapped STUN port */
-    
-} STUN_STATE ;
-
-
-/**
- * TURN_STATE holds state information for a TURN allocation
- */
-typedef struct
-{
-    bool       bEnabled ;   /** Is TURN enabled? */
-    NAT_STATUS status ;     /** What is the turn status */
-
-    UtlString  relayAddress ;   /** TURN relay address */
-    int        relayPort ;      /** TURN relay port */
-
-} TURN_STATE ;
+// FORWARD DECLARATIONS
+class NatMsg ;
+class OsEvent ;
+class OsNatAgentTask;
+class OsNatKeepaliveListener;
+class OsNotification;
 
 /**
  * OsNatDatagramSocket extends an OsDatagramSocket by adding an integrated
  * STUN and TURN client.  If STUN or TURN is enabled, request will be send 
  * to the designated server every refresh period.  The external addresses 
  * obtained by these mechanisms are retrieved by invoking getMappedIp and
- * getRelayIp.
+ * getTurnIp.
  *
  * For this mechanism to work, someone must pump inbound socket data by 
  * calling one of the ::read() methods.  Otherwise, the packets will not be 
- * received/processed.  Internally, the implementation peeks at the read 
+ * received/processed.  Internally, the implemenation peeks at the read 
  * data and passes the message to the OsNatAgentTask for processing.
  */
 class OsNatDatagramSocket : public OsDatagramSocket, public OsNatSocketBaseImpl
@@ -124,16 +99,16 @@ public:
                         const char* remoteHostName, 
                         int localHostPort = PORT_DEFAULT,
                         const char* localHostName = NULL,
-                        OsNotification* pNotification = NULL) ;
+                        OsNotification* pStunNotification = NULL) ;
 
     /**
      * Standard Destructor
      */
     virtual ~OsNatDatagramSocket();
 
-/* ============================ MANIPULATORS ============================== */
+    virtual void destroy();
 
-    virtual OsSocket* getSocket();
+/* ============================ MANIPULATORS ============================== */
     
     /**
      * Standard read, see OsDatagramSocket for details.
@@ -168,8 +143,8 @@ public:
      * without timestamping.
      */
     virtual int socketWrite(const char* buffer, int bufferLength,
-                      const char* ipAddress, int port, PacketType packetType=UNKNOWN_PACKET);
-
+                      const char* ipAddress, int port, OS_NAT_PACKET_TYPE packetType=UNKNOWN_PACKET);
+                      
     /**
      * Standard write, see OsDatagramSocket for details.
      */
@@ -182,52 +157,18 @@ public:
     virtual int write(const char* buffer, int bufferLength, 
                       long waitMilliseconds);
 
-    /** 
-     * Enable STUN.  Enabling STUN will reset the the keep alive timer and 
-     * will force a binding refresh.
-     *
-     * @param szStunServer
-     * @param stunPort
-     * @param iKeepAlive
-     * @param stunOptions
-     * @param bReadFromSocket
-     */
-    virtual void enableStun(const char* szStunServer, 
-                            int stunPort,
-                            int iKeepAlive, 
-                            int stunOptions, 
-                            bool bReadFromSocket) ;
-
     /**
-     * Disable STUN.  Disabling STUN will stop all keep alives and cause 
-     * getMappedIp to fail.  
-     */
-    virtual void disableStun() ;
-
-
-    /** 
-     * Enable STUN.  Enabling STUN will reset the the keep alive timer and 
-     * will force a binding refresh.
+     * Sets read-based rate limiting at the socket layer to guard against
+     * DOS attacks.  The remote client which places the socket over the max
+     * rate limit is isolated for ignorePeriodMS.  If any packets are 
+     * received by client during its isolation period -- its timer is 
+     * restarted.
+     * 
      *
-     * @param szTurnSever
-     * @param turnPort
-     * @param iKeepAlive
-     * @param username
-     * @param password
-     * @param bReadFromSocket
+     * @param readsPerSec number of reads/second allowed (0 to disable)
+     * @param ignorePeriodSecs length of timeout/isolation period
      */
-    virtual void enableTurn(const char* szTurnSever,
-                            int turnPort,
-                            int iKeepAlive,
-                            const char* username,
-                            const char* password,  
-                            bool bReadFromSocket) ;
-
-    /**
-     * Disable TURN.  Disabling TURN will stop all keep alives and cause 
-     * getRelayIp to fail.  
-     */
-    virtual void disableTurn() ;
+    virtual void setReadRateLimiting(int readsPerSec, int ignorePeriodSecs) ;
 
     /**
      * Waits for result of STUN/TURN binding on this socket. Must be
@@ -243,195 +184,34 @@ public:
      */
     virtual bool waitForBinding(NAT_BINDING binding, bool bWaitUntilReady);
 
-    /**
-     * When a stun packet is received this socket can either call read again
-     * to obtain the next packet or return with zero bytes read.  By default
-     * the socket will transparently call Read again and will block until a
-     * non-stun packet is read. Calling this method will effect the next 
-     * read -- in other words it will not unblock an active read.
-     *
-     * @param bEnable True to enable transparent stun reads and block until
-     *        a non-stun packet is received (default) or False to return 
-     *        with zero bytes read if a stun packet is received.
-     */ 
-    virtual void enableTransparentReads(bool bEnable) ;
-
-
-    /**
-     * Add an alternate destination to this OsNatDatagramSocket.  Alternate 
-     * destinations are tested by sending stun packets.  If a stun response is
-     * received and the priority is greater than what has already been selected
-     * then that address is used.
-     * 
-     * @param szAddress IP address of the alternate destination
-     * @param iPort port number of the alternate destination
-     * @param priority priority of the alternate where a higher number 
-     *        indicates a higher priority.
-     */
-    virtual void addAlternateDestination(const char* szAddress, int iPort, int priority) ;
-
-
-    /**
-     * Set a notification object to be signaled when the first the data 
-     * packet is received from the socket.  Once this is signaled, the 
-     * notification object is discarded.
-     */
-    virtual void setReadNotification(OsNotification* pNotification) ;
-
-
-    /**
-     * Prepares a destination under TURN usage.
-     */
-    virtual void readyDestination(const char* szAddress, int iPort) ;
-
-    /**
-     * Sets as notification event that is signaled upon the next successful 
-     * stun response or on failure (did not receive a stun response within 
-     * (STUN_ABORT_THRESHOLD * STUN_TIMEOUT_RESPONSE_MS).  If a notification
-     * event was previous set either by calling this method or via the 
-     * constructor, it will be overridden.  If the initial STUN success/failure
-     * state has already been determined, this method is undefined.
-     *
-     * @param pNotification Notification event signaled on success or failure.
-     */ 
-    virtual void setNotifier(OsNotification* pNotification) ;
-
-    virtual UtlBoolean addCrLfKeepAlive(const char* szRemoteIp,
-                                        const int   remotePort, 
-                                        const int   keepAliveSecs,
-                                        OsNatKeepaliveListener* pListener) ;
-
-    virtual UtlBoolean removeCrLfKeepAlive(const char* szRemoteIp, 
-                                          const int   remotePort) ;
-
-    virtual UtlBoolean addStunKeepAlive(const char* szRemoteIp, 
-                                        const int   remotePort, 
-                                        const int   keepAliveSecs,
-                                        OsNatKeepaliveListener* pListener) ;
-
-    virtual UtlBoolean removeStunKeepAlive(const char* szRemoteIp, 
-                                          const int   remotePort) ;
-
 /* ============================ ACCESSORS ================================= */
-
-   /**
-    * Return the external mapped IP address for this socket.  This method will 
-    * return false if stun is disabled, it was unable to retrieve a stun 
-    * binding, or both the ip and port parameters are null.
-    *
-    * @param ip Buffer to place STUN-discovered IP address
-    * @param port Buffer to place STUN-discovered port number
-    */
-   virtual UtlBoolean getMappedIp(UtlString* ip, int* port) ;
-
-
-    /**
-     * Return the external relay IP address for this socket.  This method will
-     * return false if stun is disabled, it was unable to retrieve a turn 
-     * allocation, or both the ip and port parameters are null.
-     *
-     * @param ip Buffer to place TURN-discovered IP address
-     * @param port Buffer to place TURN-discovered port number
-     */
-   virtual UtlBoolean getRelayIp(UtlString* ip, int* port) ;
-
-   /**
-    * TODO: DOCS
-    */
-   virtual UtlBoolean getBestDestinationAddress(UtlString& address, int& iPort) ;
-
-   /**
-    * TODO: DOCS
-    */
-   virtual UtlBoolean applyDestinationAddress(const char* szAddress, int iPort) ;
-   
-   virtual void destroy();
-
-
 
 /* ============================ INQUIRY =================================== */
 
-
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
+    int  mRateLimit ;            // reads/seconds
+    int  mIgnorePeriodSecs ;     // ignore period
 
-    /**
-     * Set the STUN-derived address for this socket.
-     *
-     * @param address STUN-derived hostname/IP address
-     * @param iPort STUN-derived port address
-     */ 
-    void setStunAddress(const UtlString& address, const int iPort) ;
+    double mCurrentRate ;
+    UtlHashMap mRateLimitedMap ; 
 
+    double calculateRate(unsigned long delta, double oldRate) ;
 
-    /**
-     * Set the TURN-dervied relay address for this socket. 
-     *
-     * @param address TURN-derived hostname/IP address
-     * @param iPort TURN-derived port address
-     */
-    void setTurnAddress(const UtlString& address, const int iPort) ;
+    bool checkTotalRateLimit() ;
+    bool checkHostRateLimit(UtlString* pIP) ;
 
+    bool shouldRateLimit(UtlString* pIP, int* pPort) ;
 
-    /**
-     * Report that a stun attempt failed.
-     */
-    void markStunFailure() ;
-
-
-    /**
-     * Report that a stun attempt succeeded.
-     */
-    void markStunSuccess(bool bAddressChanged) ;
-
-
-    /**
-     * Report that a stun attempt failed.
-     */
-    void markTurnFailure() ;
-
-
-    /**
-     * Report that a stun attempt succeeded.
-     */
-    void markTurnSuccess() ;
-
-
-    /**
-     * Reset the destination address for this OsNatDatagramSocket.  This
-     * method is called by the OsStunAgentTask when a better address is 
-     * found via STUN/ICE.
-     *
-     * @param address The new destination address
-     * @param port The new destination port
-     * @param priority Priority of the destination address
-     */
-    void evaluateDestinationAddress(const UtlString& address, int iPort, int priority) ;       
-
-    /* ICE Settings */
-    int miDestPriority ;        /**< Priority of destination address / port. */
-    UtlString mDestAddress;     /**< Destination address */
-    int miDestPort ;            /**< Destination port */      
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-    STUN_STATE mStunState ; /**< STUN status/state */
-    TURN_STATE mTurnState ; /**< TURN status/state */
 
-
-    /* Global Attributes */
-    OsNatAgentTask* mpNatAgent;      /**< Pointer to Nat agent task (handles refreshes) */
-    bool mbTransparentReads ;        /**< Block until a non-stun/turn packet is read */
-    OsNotification* mpNotification ; /** Notify on initial stun success or failure */
-    bool            mbNotified ;     /** Have we notified the requestor? */
 };
 
 /* ============================ INLINE METHODS ============================ */
 
-
 /* ///////////////////////// HELPER CLASSES /////////////////////////////// */
-
-
 
 #endif  // _OsNatDatagramSocket_h_
 

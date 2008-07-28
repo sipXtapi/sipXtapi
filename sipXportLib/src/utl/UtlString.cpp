@@ -1,3 +1,19 @@
+// Copyright 2008 AOL LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -12,6 +28,7 @@
 // SYSTEM INCLUDES
 #include <assert.h>
 #include <string.h>
+#include <stdarg.h>
 #include <ctype.h>
 
 // APPLICATION INCLUDES
@@ -175,6 +192,60 @@ char UtlString::operator()(size_t N)
     }
 
     return foundChar;
+}
+
+
+int UtlString::format(const char* format, ...)
+{
+    va_list args;
+    va_start(args, format);
+
+    int n = -1 ;
+    int size = mCapacity;
+    
+    while (mpData != NULL)
+    {
+        /* Try to print in the allocated space. */
+#ifdef _WIN32
+        n = _vsnprintf (mpData, size, format, args);
+#else
+        n = vsnprintf (mpData, size, format, args);
+#endif
+
+        /* If that worked, return the string. */
+        if (n > -1 && n < size)
+        {
+
+            mSize = n;
+            break;
+        }
+        /* Else try again with more space. */
+        if (n > -1)    /* glibc 2.1 */
+            size = n+1; /* precisely what is needed */
+        else           /* glibc 2.0 */
+            size *= 2;  /* twice the old size */
+
+
+        // Free old
+        if(mpData && mpData != mBuiltIn)
+        {
+            delete[] mpData;
+        }
+        mpData = NULL;
+        mCapacity = 0;       
+
+        if ((mpData = (char*) new char[size]) == NULL)
+        {
+            break;
+        }
+        else
+        {
+            mCapacity = size ;
+        }
+    }
+
+    return n ;
+    
 }
 
 

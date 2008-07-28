@@ -31,6 +31,7 @@ libsipXsdp_la_LIBADD = \
 libsipXsdp_la_CXXFLAGS = \
 	@PCRE_CFLAGS@ \
 	@SSL_CXXFLAGS@ \
+        -DICE_USE_CALT \
 	-DSIPX_TMPDIR=\"@SIPX_TMPDIR@\" \
 	-DSIPX_CONFDIR=\"@SIPX_CONFDIR@\"
 

@@ -1,3 +1,19 @@
+// Copyright 2008 AOL LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA. 
 //  
 // Copyright (C) 2006 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
@@ -19,9 +35,6 @@
 // APPLICATION INCLUDES
 #include "tapi/sipXtapi.h"
 #include "tapi/SipXMessageObserver.h"
-#ifdef VOICE_ENGINE
-#    include "tapi/GipsDefs.h"
-#endif
 #include "net/SipSession.h"
 #include "net/SipUserAgent.h"
 #include "net/SipSubscribeClient.h"
@@ -55,6 +68,7 @@ class CallManager ;
 class SipUserAgent ;
 class SipRefreshMgr ;
 class KeepaliveEventDispatcher;
+class IMediaInterface;
 class SipXEventDispatcher;
 
 // STRUCTS
@@ -102,6 +116,7 @@ typedef struct AUDIO_CODEC_PREFERENCES
     SIPX_AUDIO_BANDWIDTH_ID codecPref; /**< Numeric Id of codec preference */
     SIPX_AUDIO_BANDWIDTH_ID fallBack;  /**< Fallback id if codec setting fails */
     UtlString*        pPreferences;    /**< List of preferred codecs */
+    UtlString         sOrder ;         /**< Preferred codec order */
     SdpCodec**        sdpCodecArray;   /**< Pointer to an array of codecs */
 } AUDIO_CODEC_PREFERENCES;
 
@@ -112,7 +127,9 @@ typedef struct VIDEO_CODEC_PREFERENCES
     SIPX_VIDEO_BANDWIDTH_ID codecPref; /**< Numeric Id of codec preference */
     SIPX_VIDEO_BANDWIDTH_ID fallBack;  /**< Fallback id if codec setting fails */
     UtlString*        pPreferences;    /**< List of preferred codecs */
+    UtlString         sOrder ;         /**< Preferred codec order */
     SdpCodec**        sdpCodecArray;   /**< Pointer to an array of codecs */
+    SIPX_VIDEO_FORMAT videoFormat ;
 } VIDEO_CODEC_PREFERENCES;
 
 typedef struct TONE_STATES
@@ -170,6 +187,8 @@ typedef struct SIPX_INSTANCE_DATA
     bool             bRtpOverTcp;   /**< allow RTP over TCP */
 
     KeepaliveEventDispatcher* pKeepaliveDispatcher ;
+
+    bool             bLiveSpeakerVolume ;   /** should we modify the live speaker volume? */
 } SIPX_INSTANCE_DATA ;
 
 typedef enum SIPX_INTERNAL_CALLSTATE
@@ -226,6 +245,9 @@ typedef struct SIPX_CALL_DATA
                                            Set to fales if sipxCallUnhold has been invoked. */                                          
     bool bTonePlaying;
     int nFilesPlaying;
+    float fRemoteVolumeScale;
+    IMediaInterface* pMediaInterface; /** Media Interface holder, set and used by the 
+                                           sipxCallInjectMediaPacket function */
 } SIPX_CALL_DATA ;
 
 typedef enum CONF_HOLD_STATE
@@ -301,6 +323,15 @@ public:
     }
     /** Copy constructor. */
     SIPX_TRANSPORT_DATA(const SIPX_TRANSPORT_DATA& ref)
+        :
+        pInst(NULL),
+        bIsReliable(false),
+        iLocalPort(-1),
+        pFnWriteProc(NULL),
+        pMutex(NULL),
+        hTransport(0),
+        pUserData(NULL),
+        bRouteByUser(TRUE)
     {
         copy(ref);
     }
@@ -499,10 +530,18 @@ bool sipxFireEvent(const void* pSrc,
                    SIPX_EVENT_CATEGORY category, 
                    void* pInfo);
                      
+
+SIPXTAPI_API SIPX_RESULT sipxLogEvent(EVENT_LISTENER_DATA* pListener,
+                                      SIPX_EVENT_CATEGORY category,
+                                      void* pInfo,
+                                      void* pUserData) ;
+
 SIPX_INSTANCE_DATA* findSessionByCallManager(const void* pCallManager) ;
 
 SIPX_CALL_DATA* sipxCallLookup(const SIPX_CALL hCall, SIPX_LOCK_TYPE type, const OsStackTraceLogger& oneBackInStack);
+SIPX_CALL_DATA* sipxCallLookup(const SIPX_CALL hCall, SIPX_LOCK_TYPE type);
 void sipxCallReleaseLock(SIPX_CALL_DATA*, SIPX_LOCK_TYPE type, const OsStackTraceLogger& oneBackInStack);
+void sipxCallReleaseLock(SIPX_CALL_DATA*, SIPX_LOCK_TYPE type);
 void sipxCallObjectFree(const SIPX_CALL hCall, const OsStackTraceLogger& oneBackInStack);
 SIPX_CALL sipxCallLookupHandle(const UtlString& callID, const void* pSrc);
 void destroyCallData(SIPX_CALL_DATA* pData);
@@ -644,6 +683,10 @@ void sipxTransportReleaseLock(SIPX_TRANSPORT_DATA* pData, SIPX_LOCK_TYPE type);
  */
 void sipxTransportDestroyAll(const SIPX_INST hInst) ;
 
+void sipxInitAudioVideoPrefs(const SIPX_INST hInst) ;
+
+void sipxRebuildCodecFactory(const SIPX_INST hInst) ;
+
 /**
  * Adds a log entry to the system log - made necessary to add logging
  * capability on the API level.
@@ -705,7 +748,8 @@ SIPXTAPI_API SIPX_RESULT sipxFlushHandles() ;
  * @param toneId sipx-internal tone id
  * @param xlateId implementation-specific tone id
  */
-SIPXTAPI_API SIPX_RESULT sipxTranslateToneId(const SIPX_TONE_ID toneId,
+SIPXTAPI_API SIPX_RESULT sipxTranslateToneId(const SIPX_INST hInst,
+                                             const SIPX_TONE_ID toneId,
                                              SIPX_TONE_ID& xlateId) ;
 
 
@@ -728,8 +772,9 @@ SIPXTAPI_API SIPX_RESULT sipxCallGetConnectionMediaInterface(const SIPX_CALL hCa
  */
 SIPXTAPI_API SIPX_RESULT sipxConfigGetLocalAudioConnectionId(const SIPX_INST hInst, int& connectionId);
                                                            
-                                                           
-#ifdef VOICE_ENGINE
+typedef void GIPSAECTuningWizard ;
+typedef void GipsVoiceEngineLib ;
+
     /**
      * For Gips VoiceEngine versions of sipXtapi, this method will
      * return the GipsVoiceEngineLib pointer associated with the
@@ -751,6 +796,9 @@ SIPXTAPI_API SIPX_RESULT sipxConfigGetLocalAudioConnectionId(const SIPX_INST hIn
      */
     SIPXTAPI_API GipsVoiceEngineLib* sipxConfigGetVoiceEnginePtr(const SIPX_INST hInst);
 
+typedef void GIPSAECTuningWizard ;
+typedef void GipsVideoEnginePlatform ;
+typedef void VoiceEngineMediaInterface;
 #ifdef _WIN32
     /**
      * For Gips VoiceEngine versions of sipXtapi, this method will
@@ -762,7 +810,6 @@ SIPXTAPI_API SIPX_RESULT sipxConfigGetLocalAudioConnectionId(const SIPX_INST hIn
     SIPXTAPI_API GIPSAECTuningWizard* sipxConfigGetVoiceEngineAudioWizard();
 #endif
 
-#ifdef VIDEO
     /**
      * For Gips VideoEngine versions of sipXtapi, this method will
      * return the GipsVideoEngine[Windows|Mac] pointer associated with
@@ -771,7 +818,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigGetLocalAudioConnectionId(const SIPX_INST hIn
      * @param hInst Instance pointer obtained by sipxInitialize
      */
     SIPXTAPI_API GipsVideoEnginePlatform* sipxConfigGetVideoEnginePtr(const SIPX_INST hInst);
-#endif VIDEO
+
     /**
      * For Gips VoiceEngine versions of sipXtapi, this method will
      * creates a Local Audio connection, which can be used to play
@@ -789,17 +836,6 @@ SIPXTAPI_API SIPX_RESULT sipxConfigGetLocalAudioConnectionId(const SIPX_INST hIn
      * @param hInst Instance pointer obtained by sipxInitialize
      */
     SIPXTAPI_API SIPX_RESULT sipxDestroyLocalAudioConnection(const SIPX_INST hInst);
-
-    /**
-     * For Gips VoiceEngine versions of sipXtapi, this method will
-     * enable or disable insertion of VoiceEngine trace output into the 
-     * sipXtapi log.
-     *
-     * @param hInst Instance pointer obtained by sipxInitialize
-     * @param bEnable Enable or disable VoceEngine trace output
-     */
-    SIPXTAPI_API SIPX_RESULT sipxEnableAudioLogging(const SIPX_INST hInst, bool bEnable);
-#endif
                                                            
 
 UtlBoolean sipxCallSetRemoveInsteadofDrop(SIPX_CALL hCall) ;
@@ -830,6 +866,39 @@ SIPXTAPI_API SIPX_RESULT sipxConfigLoadSecurityRuntime();
  * transport mechanism.
  */
 void sipxCreateExternalTransportContacts(const SIPX_TRANSPORT_DATA* pData);
+
+void sipxLogVideoDisplay(SIPX_VIDEO_DISPLAY* pDisplay) ;
+
+// These older versions are used for backwords compatibiliy
+typedef struct 
+{
+    int cbSize;
+    SIPX_AUDIO_BANDWIDTH_ID bandwidthId;
+    bool sendLocation;
+} SIPX_CALL_OPTIONS_V1;
+
+// These older versions are used for backwords compatibiliy
+typedef struct 
+{
+    int cbSize;
+    SIPX_AUDIO_BANDWIDTH_ID bandwidthId;
+    bool sendLocation;
+    SIPX_CONTACT_ID contactId;
+    SIPX_RTP_TRANSPORT rtpTransportFlags;
+} SIPX_CALL_OPTIONS_V2;
+
+
+typedef struct 
+{
+    int cbSize;
+    SIPX_AUDIO_BANDWIDTH_ID bandwidthId;
+    bool sendLocation;
+    SIPX_CONTACT_ID contactId;
+    SIPX_RTP_TRANSPORT rtpTransportFlags;
+    bool disableICE ;
+    bool disableTURN ;
+} SIPX_CALL_OPTIONS_V3;
+
 
 class SecurityHelper
 {

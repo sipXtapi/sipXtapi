@@ -1,3 +1,19 @@
+// Copyright 2008 AOL LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA. 
 //
 // Copyright (C) 2006-2007 SIPez LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.
@@ -115,8 +131,7 @@ UtlBoolean MpRtpOutputAudioConnection::processFrame(void)
 // Queues a message to start sending RTP and RTCP packets.
 OsStatus MpRtpOutputAudioConnection::startSendRtp(OsMsgQ& messageQueue,
                                                   const UtlString& resourceName,
-                                                  OsSocket& rRtpSocket,
-                                                  OsSocket& rRtcpSocket,
+                                                  IMediaTransportAdapter* pAdapter,
                                                   SdpCodec* audioCodec,
                                                   SdpCodec* dtmfCodec)
 {
@@ -127,8 +142,7 @@ OsStatus MpRtpOutputAudioConnection::startSendRtp(OsMsgQ& messageQueue,
         MprRtpStartSendMsg msg(resourceName,
                                audioCodec,
                                dtmfCodec,
-                               rRtpSocket,
-                               rRtcpSocket);
+                               pAdapter);
 
         // Send the message in the queue.
         result = messageQueue.send(msg);
@@ -176,13 +190,10 @@ UtlBoolean MpRtpOutputAudioConnection::handleMessage(MpResourceMsg& rMsg)
          SdpCodec* audioCodec = NULL;
          SdpCodec* dtmfCodec = NULL;
          startMessage->getCodecs(audioCodec, dtmfCodec);
-         OsSocket* rtpSocket = startMessage->getRtpSocket();
-         OsSocket* rtcpSocket = startMessage->getRtcpSocket();
+         IMediaTransportAdapter* pAdapter = startMessage->getSocketAdapter();
 
-         assert(rtpSocket);
-         assert(rtcpSocket);
-         handleStartSendRtp(*rtpSocket,
-            *rtcpSocket,
+         assert(pAdapter);
+         handleStartSendRtp(pAdapter,
             audioCodec,
             dtmfCodec);
          result = TRUE;
@@ -215,12 +226,11 @@ UtlBoolean MpRtpOutputAudioConnection::handleDisable()
    return MpResource::handleDisable();
 }
 
-OsStatus MpRtpOutputAudioConnection::handleStartSendRtp(OsSocket& rRtpSocket,
-                                                        OsSocket& rRtcpSocket,
+OsStatus MpRtpOutputAudioConnection::handleStartSendRtp(IMediaTransportAdapter* pAdapter,
                                                         SdpCodec* pPrimaryCodec,
                                                         SdpCodec* pDtmfCodec)
 {
-   prepareStartSendRtp(rRtpSocket, rRtcpSocket);
+   prepareStartSendRtp(pAdapter);
 
    // This should be ok to set directly as long as we do not switch mid stream
    // Eventually this needs to be a message

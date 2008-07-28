@@ -1,3 +1,19 @@
+// Copyright 2008 AOL LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA. 
 //  
 // Copyright (C) 2006-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -20,7 +36,9 @@
 #include <mp/MpMediaTask.h>
 #include <mp/MpResourceFactory.h>
 #include <mp/MpResourceTopology.h>
-
+#include <mp/MpRtpInputAudioConnection.h>
+#include <mp/MpUdpBuf.h>
+#include <mp/MprFromNet.h>
 
 //  REMOVE THESE WHEN MpResourceFactory and MpResourceTopology are implemented
 #include <mp/MprToneGen.h>
@@ -165,6 +183,29 @@ OsStatus MpTopologyGraph::gainFocus(void)
 #endif // DISABLE_LOCAL_AUDIO
 
    return OS_SUCCESS;
+}
+
+// Inject an RTP or RTCP packet into the flowgraph (as if from the net)
+void MpTopologyGraph::injectPacket(const int connectionId, const char* const buffer, const size_t len, const bool isRtcp)
+{
+    OsStatus      result;
+    MpRtpInputAudioConnection* pConnection = NULL;
+    MpResource* pResource = NULL;
+    result = lookupResource("MpRtpInputAudioConnection",
+                              pResource);
+    if (pResource)
+    {
+        pConnection = dynamic_cast<MpRtpInputAudioConnection*>(pResource);
+    }
+    if (pConnection && pConnection->getFromNet())
+    {
+        MpUdpBufPtr packetBuff = MpMisc.UdpPool->getBuffer();
+        if (packetBuff.isValid())
+        {
+            memcpy(packetBuff->getDataWritePtr(), buffer, len);
+            pConnection->getFromNet()->pushPacket(NULL, isRtcp);
+        }
+    }
 }
 
 // Notification that this flow graph has just lost the focus.

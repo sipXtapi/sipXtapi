@@ -1,3 +1,19 @@
+// Copyright 2008 AOL LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA. 
 //
 // Copyright (C) 2007-2008 SIPez LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.
@@ -100,6 +116,7 @@ public:
      *             cpu intensity.
      */
 
+   void removeCodecByType(const SdpCodec::SdpCodecTypes type);
 //@}
 
 /* ============================== ACCESSORS =============================== */
@@ -112,6 +129,8 @@ public:
      /// Get a codec given the payload type id.
    const SdpCodec* getCodecByType(int payloadTypeId);
 
+   const SdpCodec* getCodecByIndex(size_t index);
+
      /// Get a codec given the MIME type and subtype.
    const SdpCodec* getCodec(const char* MIMEType, 
                             const char* MIMESubType,
@@ -123,6 +142,15 @@ public:
 
      /// Get the number of codecs by MIME type.
    int getCodecCount(const char* MIMEType);
+
+   /// popluates a UtlString with the list of codecs matching a mime type
+   void getCodecList(const char* szMimeType, UtlString& list);
+
+   static void removeKeywordFromCodecList(const UtlString& keyword, UtlString& list);
+
+
+   static void applyCodecListOrdering(const UtlString& desiredPriority, 
+                                             UtlString& list);
 
      /// Get codecs from this list, taking into account maximum CPU cost.
    void getCodecs(int& numCodecs,

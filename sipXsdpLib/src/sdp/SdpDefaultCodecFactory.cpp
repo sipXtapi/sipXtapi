@@ -1,3 +1,19 @@
+// Copyright 2008 AOL LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA. 
 //  
 // Copyright (C) 2007-2008 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
@@ -117,6 +133,7 @@ static MpCodecNamesMapElement sgCodecNamesMap[] =
    { SdpCodec::SDP_CODEC_GIPS_IPCMA,      "EG711A" },
    { SdpCodec::SDP_CODEC_GIPS_IPCMWB,     "IPCMWB" },
    { SdpCodec::SDP_CODEC_GIPS_ISAC,       "ISAC" },
+   { SdpCodec::SDP_CODEC_GIPS_ISAC_LC,    "ISACLC" },
    { SdpCodec::SDP_CODEC_VP71_CIF,        "VP71-CIF" },
    { SdpCodec::SDP_CODEC_VP71_QCIF,       "VP71-QCIF" },
    { SdpCodec::SDP_CODEC_VP71_SQCIF,      "VP71-SQCIF" },
@@ -386,6 +403,20 @@ SdpCodec SdpDefaultCodecFactory::getCodec(SdpCodec::SdpCodecTypes internalCodecI
                          1,
                          "",
                          SdpCodec::SDP_CODEC_CPU_HIGH,
+                         SDP_CODEC_BANDWIDTH_VARIABLE);
+      }
+      break;
+   case SdpCodec::SDP_CODEC_GIPS_ISAC_LC:
+      {
+         return SdpCodec(SdpCodec::SDP_CODEC_GIPS_ISAC_LC,
+                         SdpCodec::SDP_CODEC_UNKNOWN,
+                         MIME_TYPE_AUDIO,
+                         MIME_SUBTYPE_ISAC_LC,
+                         16000,
+                         20000,
+                         1,
+                         "",
+                         SdpCodec::SDP_CODEC_CPU_LOW,
                          SDP_CODEC_BANDWIDTH_VARIABLE);
       }
       break;

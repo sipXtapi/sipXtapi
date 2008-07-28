@@ -1,3 +1,19 @@
+// Copyright 2008 AOL LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA. 
 //
 // Copyright (C) 2005 SIPez LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.
@@ -20,6 +36,7 @@
 #include <net/SdpBody.h>
 #include <sdp/SdpCodecList.h>
 #include <net/NetBase64Codec.h>
+#include <os/OsMediaContact.h>
 
 
 /**
@@ -769,14 +786,6 @@ public:
         SdpSrtpParameters testSrtp;
         UtlString strBody ;
         int nBody ;
-        UtlString hostAddresses[1];
-        int rtpAudioPorts[1];
-        int rtcpAudioPorts[1];
-        int rtpVideoPorts[1];
-        int rtcpVideoPorts[1];
-        RTP_TRANSPORT transportTypes[1];
-        
-
         testSrtp.securityLevel = 0;
 
         SdpCodec* pAudioCodec = new SdpCodec(SdpCodec::SDP_CODEC_PCMU, 99, "audio", "superaudio") ;
@@ -785,43 +794,102 @@ public:
 
         // This test case isn't exactly valid, but allows us to walk the m lines.
         testBody.setSessionNameField("foo") ;
-        hostAddresses[0] = "10.1.1.30";
-        rtpAudioPorts[0] = 8700;
-        rtcpAudioPorts[0] = 8701;
-        rtpVideoPorts[0] = 0;
-        rtcpVideoPorts[0] = 0;
-        transportTypes[0] = RTP_TRANSPORT_UDP;
-        testBody.addCodecsOffer(1, hostAddresses, rtpAudioPorts, rtcpAudioPorts, 
-                                rtpVideoPorts, rtcpVideoPorts, transportTypes,
-                                1, &pAudioCodec, testSrtp, 0, 0, RTP_TRANSPORT_UDP) ;
-                                
-                                
-        hostAddresses[0] = "10.1.1.30";
-        rtpAudioPorts[0] = 18700;
-        rtcpAudioPorts[0] = 18701;
-        rtpVideoPorts[0] = 0;
-        rtcpVideoPorts[0] = 0;
-        transportTypes[0] = RTP_TRANSPORT_TCP;
-        testBody.addCodecsOffer(1, hostAddresses, rtpAudioPorts, rtcpAudioPorts, 
-                                rtpVideoPorts, rtcpVideoPorts, transportTypes,
-                                1, &pAudioCodec, testSrtp, 0, 0, RTP_TRANSPORT_TCP) ;
-                                
-        hostAddresses[0] = "10.1.1.31";
-        rtpAudioPorts[0] = 0;
-        rtcpAudioPorts[0] = 0;
-        rtpVideoPorts[0] = 8801;
-        rtcpVideoPorts[0] = 8802;
-        testBody.addCodecsOffer(1, hostAddresses, rtpAudioPorts, rtcpAudioPorts, 
-                                rtpVideoPorts, rtcpVideoPorts, transportTypes,
-                                1, &pVideoCodec, testSrtp, 0, 0, RTP_TRANSPORT_TCP) ;
-        hostAddresses[0] = "10.1.1.32";
-        rtpAudioPorts[0] = 8900;
-        rtcpAudioPorts[0] = 8999;
-        rtpVideoPorts[0] = 0;
-        rtcpVideoPorts[0] = 0;
-        testBody.addCodecsOffer(1, hostAddresses, rtpAudioPorts, rtcpAudioPorts, 
-                                rtpVideoPorts, rtcpVideoPorts, transportTypes,
-                                1, &pAppCodec, testSrtp, 0, 0, RTP_TRANSPORT_TCP) ;
+
+
+        /*
+OsMediaContact::OsMediaContact(const char* szAddress,
+                                int rtpPort,
+                                int rtcpPort,
+                                OsSocket::IpProtocolSocketType protocol,
+                                RTP_TRANSPORT transportType,
+                                IpAddressType addressType)
+
+   void addCodecsOffer(UtlSList& audioContacts,
+                       UtlSList& videoContacts,                                                    
+                       int numRtpCodecs,
+                       SdpCodec* rtpCodecs[],
+                       SdpSrtpParameters& srtpParams,
+                       int videoBandwidth,
+                       int videoFramerate,
+                       RTP_TRANSPORT transportOffering
+                       );
+        */
+
+        // test audio UDP
+        UtlSList  nullContact;
+        UtlSList audioContacts1;
+        OsMediaContact audioContact1("10.1.1.30",
+                                    8700,
+                                    8701,
+                                    OsSocket::IpProtocolSocketType::UDP,
+                                    RTP_TRANSPORT_UDP);
+        audioContacts1.insert(&audioContact1);
+
+        testBody.addCodecsOffer(audioContacts1,
+                                nullContact,
+                                1,
+                                &pAudioCodec,
+                                testSrtp,
+                                0,
+                                0,
+                                RTP_TRANSPORT_UDP) ;
+                         
+        // test audio TCP
+        UtlSList audioContacts2;
+        OsMediaContact audioContact2;
+        audioContacts2.insert(&audioContact2);
+
+        audioContact2.setAddress("10.1.1.30");
+        audioContact2.setPort(18700);
+        audioContact2.setRtcpPort(18701);
+        audioContact2.setTransportType(RTP_TRANSPORT_TCP);
+
+        testBody.addCodecsOffer(audioContacts2,
+                                nullContact,
+                                1,
+                                &pAudioCodec,
+                                testSrtp,
+                                0,
+                                0,
+                                RTP_TRANSPORT_TCP) ;
+
+
+        // test video TCP
+        UtlSList videoContacts3;
+        OsMediaContact videoContact3;
+        videoContacts3.insert(&videoContact3);
+
+        videoContact3.setAddress("10.1.1.31");
+        videoContact3.setPort(8801);
+        videoContact3.setRtcpPort(8802);
+        videoContact3.setTransportType(RTP_TRANSPORT_TCP);
+        testBody.addCodecsOffer(nullContact,
+                                videoContacts3,
+                                1,
+                                &pVideoCodec,
+                                testSrtp,
+                                0,
+                                0,
+                                RTP_TRANSPORT_TCP) ;
+
+        // test audio, rtcp port, TCP
+        UtlSList audioContacts4;
+        OsMediaContact audioContact4;
+        audioContacts4.insert(&audioContact4);
+
+
+        audioContact4.setAddress("10.1.1.32");
+        audioContact4.setPort(8900);
+        audioContact4.setRtcpPort(8999);
+        audioContact4.setTransportType(RTP_TRANSPORT_TCP);
+        testBody.addCodecsOffer(audioContacts4,
+                                nullContact,
+                                1,
+                                &pAppCodec,
+                                testSrtp,
+                                0,
+                                0,
+                                RTP_TRANSPORT_TCP) ;
 
         // TODO: there is a bug in addCodecsOffer.  The last m line (the one
         // generated for pAppCodec) should be of app media type.  In the SDB
@@ -830,9 +898,9 @@ public:
             "v=0\r\n"
             "o=sipX 5 5 IN IP4 127.0.0.1\r\n"
             "s=foo\r\n"
-            "c=IN IP4 10.1.1.30\r\n"
             "t=0 0\r\n"
             "m=audio 8700 RTP/AVP 99\r\n"
+            "c=IN IP4 10.1.1.30\r\n"
             "a=rtpmap:99 superaudio/8000/1\r\n"
             "a=ptime:20\r\n"
             "m=audio 18700 TCP/RTP/AVP 99\r\n"

@@ -1,3 +1,19 @@
+// Copyright 2008 AOL LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -27,6 +43,7 @@
 const long OsTime::MSECS_PER_SEC   = 1000;
 const long OsTime::USECS_PER_MSEC  = 1000;
 const long OsTime::USECS_PER_SEC   = 1000000;
+UtlContainableType OsTime::TYPE = "OsTime" ;
 
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
@@ -271,6 +288,18 @@ long OsTime::cvtToMsecs(void) const
    return (mSeconds * MSECS_PER_SEC) + (mUsecs / USECS_PER_MSEC);
 }
 
+unsigned OsTime::hash() const
+{
+   return (unsigned) (mSeconds ^ mUsecs) ; 
+}
+
+
+UtlContainableType OsTime::getContainableType() const
+{
+    return OsTime::TYPE ;
+}
+
+
 /* ============================ INQUIRY =================================== */
 
 // Return TRUE if the time interval is infinite
@@ -289,6 +318,34 @@ UtlBoolean OsTime::isNoWait(void) const
       return TRUE;
    else
       return FALSE;
+}
+
+int OsTime::compareTo(UtlContainable const * inVal) const
+{
+    int result ; 
+   
+    if (inVal->isInstanceOf(OsTime::TYPE))
+    {
+        OsTime* temp = (OsTime*)inVal ; 
+        if (this > temp)
+            result = 1 ;
+        else if (this < temp)
+            result = -1 ;
+        else
+            result = 0 ;        
+    }
+    else
+    {
+        result = -2 ; 
+    }
+
+    return result ;
+}
+
+
+UtlBoolean OsTime::isEqual(UtlContainable const * inVal) const
+{
+    return (compareTo(inVal) == 0) ; 
 }
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */

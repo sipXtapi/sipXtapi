@@ -1,3 +1,19 @@
+// Copyright 2008 AOL LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -32,23 +48,43 @@
 static const int DEFAULT_NAMEDB_SIZE = 100;
 
 // STATIC VARIABLE INITIALIZATIONS
-OsNameDb* OsNameDb::spInstance;
+OsNameDb* OsNameDb::spInstance = NULL;
+OsBSem*   OsNameDb::spLock = new OsBSem(OsBSem::Q_PRIORITY, OsBSem::FULL);
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
 /* ============================ CREATORS ================================== */
 
-// Return a pointer to the singleton object
+// Return a pointer to the singleton object, creating it if necessary
 OsNameDb* OsNameDb::getNameDb(void)
 {
+   spLock->acquire();
+   if (spInstance == NULL) // not created while getting lock?
+   {
+      spInstance = new OsNameDb();
+   }
+   spLock->release();
+   
    return spInstance;
 }
+
+void OsNameDb::release(void)
+{
+   spLock->acquire();
+   if (spInstance != NULL) // not created while getting lock?
+   {
+      delete spInstance ;
+   }
+   spLock->release();
+}
+
 
 // Destructor
 // Since the name database is a singleton object, this destructor should
 // not get called unless we are shutting down the system.
 OsNameDb::~OsNameDb()
 {
+   mDict.destroyAll() ;
    spInstance = NULL;
 }
 

@@ -1,3 +1,19 @@
+// Copyright 2008 AOL LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA. 
 //  
 // Copyright (C) 2006-2008 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
@@ -55,6 +71,7 @@
 #include "mp/MprToneGen.h"
 
 #include "mp/NetInTask.h"
+#include "mp/MprFromNet.h"
 #include "mp/MprRecorder.h"
 #include "mp/MpTypes.h"
 
@@ -111,7 +128,9 @@ MpCallFlowGraph::MpCallFlowGraph(const char* locale,
    // create the resources and add them to the flow graph
    mpBridge           = new MprBridge("Bridge", MAX_CONNECTIONS + 1);
    mpFromFile         = new MprFromFile("FromFile");
+#ifdef MP_STREAMING
    mpFromStream       = new MprFromStream("FromStream");
+#endif
 #ifndef DISABLE_LOCAL_AUDIO // [
    mpFromMic          = new MprFromMic("FromMic", MpMisc.pMicQ);
    mpMicSplitter      = new MprSplitter("MicSplitter", 2);
@@ -142,7 +161,9 @@ MpCallFlowGraph::MpCallFlowGraph(const char* locale,
 #endif
 
    res = addResource(*mpBridge);            assert(res == OS_SUCCESS);
+#ifdef MP_STREAMING
    res = addResource(*mpFromStream);        assert(res == OS_SUCCESS);
+#endif
    res = addResource(*mpFromFile);          assert(res == OS_SUCCESS);
 #ifndef DISABLE_LOCAL_AUDIO // [
    res = addResource(*mpFromMic);           assert(res == OS_SUCCESS);
@@ -239,12 +260,17 @@ MpCallFlowGraph::MpCallFlowGraph(const char* locale,
    //////////////////////////////////////////////////////////////////////////
    // connect ToneGen -> FromStream -> FromFile -> Splitter -> TFsBridgeMixer
    //                                                       -> Mixer
-   
+
+#ifdef MP_STREAMING
    res = addLink(*mpToneGen, 0, *mpFromStream, 0);
    assert(res == OS_SUCCESS);
 
    res = addLink(*mpFromStream, 0, *mpFromFile, 0);
    assert(res == OS_SUCCESS);
+#else
+   res = addLink(*mpToneGen, 0, *mpFromFile, 0);
+   assert(res == OS_SUCCESS);
+#endif
 
    res = addLink(*mpFromFile, 0, *mpToneFileSplitter, 0);
    assert(res == OS_SUCCESS);
@@ -264,8 +290,10 @@ MpCallFlowGraph::MpCallFlowGraph(const char* locale,
    boolRes = mpToneGen->disable();      assert(boolRes);
    mToneGenDefocused = FALSE;
 
+#ifdef MP_STREAMING
    // disable the from stream
    boolRes = mpFromStream->disable();   assert(boolRes);
+#endif
 
    // disable the from file
    boolRes = mpFromFile->disable();     assert(boolRes);
@@ -475,7 +503,9 @@ MpCallFlowGraph::~MpCallFlowGraph()
    res = removeLink(*mpTFsBridgeMixer, 0);   assert(res == OS_SUCCESS);
 #endif
    res = removeLink(*mpToneGen, 0);          assert(res == OS_SUCCESS);
+#ifdef MP_STREAMING
    res = removeLink(*mpFromStream, 0);       assert(res == OS_SUCCESS);
+#endif
    res = removeLink(*mpFromFile, 0);         assert(res == OS_SUCCESS);
    res = removeLink(*mpToneFileSplitter, 0); assert(res == OS_SUCCESS);
    res = removeLink(*mpToneFileSplitter, 1); assert(res == OS_SUCCESS);
@@ -535,9 +565,11 @@ MpCallFlowGraph::~MpCallFlowGraph()
    assert(res == OS_SUCCESS);
    delete mpToneGen;
 
+#ifdef MP_STREAMING
    res = removeResource(*mpFromStream);
    assert(res == OS_SUCCESS);
    delete mpFromStream;
+#endif
 
    res = removeResource(*mpFromFile);
    assert(res == OS_SUCCESS);
@@ -961,6 +993,7 @@ OsStatus MpCallFlowGraph::ezRecord(int ms,
                                    int silenceLength, 
                                    const char* fileName, 
                                    double& duration,
+                                   int& dtmfterm,
                                    MprRecorder::RecordFileFormat format)
 {
    OsStatus ret = OS_WAIT_TIMEOUT;
@@ -1326,9 +1359,23 @@ OsStatus MpCallFlowGraph::deleteConnection(MpConnectionID connID)
       return OS_UNSPECIFIED;
 }
 
+// Inject an RTP or RTCP packet into the flowgraph (as if from the net)
+void MpCallFlowGraph::injectPacket(const int connectionId, const char* const buffer, const size_t len, const bool isRtcp)
+{
+    MpRtpInputAudioConnection* pConnection = mpInputConnections[connectionId];
+    if (pConnection && pConnection->getFromNet())
+    {
+        MpUdpBufPtr packetBuff = MpMisc.UdpPool->getBuffer();
+        if (packetBuff.isValid())
+        {
+            memcpy(packetBuff->getDataWritePtr(), buffer, len);
+            pConnection->getFromNet()->pushPacket(NULL, isRtcp);
+        }
+    }
+}
+
 // Start sending RTP and RTCP packets.
-void MpCallFlowGraph::startSendRtp(OsSocket& rRtpSocket,
-                                    OsSocket& rRtcpSocket,
+void MpCallFlowGraph::startSendRtp(IMediaTransportAdapter* pAdapter,
                                     MpConnectionID connID,
                                     SdpCodec* pPrimaryCodec,
                                     SdpCodec* pDtmfCodec)
@@ -1337,8 +1384,7 @@ void MpCallFlowGraph::startSendRtp(OsSocket& rRtpSocket,
    {
        MpRtpOutputAudioConnection::startSendRtp(*(getMsgQ()),
                                                 mpOutputConnections[connID]->getName(),
-                                                rRtpSocket, 
-                                                rRtcpSocket,
+                                                pAdapter,
                                                 pPrimaryCodec, 
                                                 pDtmfCodec);
    }
@@ -1677,6 +1723,7 @@ UtlBoolean MpCallFlowGraph::handleMessage(OsMsg& rMsg)
 
    if (rMsg.getMsgType() == OsMsg::STREAMING_MSG)
    {
+#ifdef MP_STREAMING
       //
       // Handle Streaming Messages
       //
@@ -1710,6 +1757,7 @@ UtlBoolean MpCallFlowGraph::handleMessage(OsMsg& rMsg)
          default:         
             break;
       }
+#endif
    }
    else
    {
@@ -1923,6 +1971,7 @@ UtlBoolean MpCallFlowGraph::handleSetDtmfNotify(MpFlowGraphMsg& rMsg)
    return mpInputConnections[connId]->handleSetDtmfNotify(pNotify);
 }
 
+#ifdef MP_STREAMING
 
 UtlBoolean MpCallFlowGraph::handleStreamRealizeUrl(MpStreamMsg& rMsg)
 { 
@@ -2068,6 +2117,8 @@ UtlBoolean MpCallFlowGraph::handleStreamDestroy(MpStreamMsg& rMsg)
 
    return TRUE ;
 }
+
+#endif
 
 UtlBoolean MpCallFlowGraph::handleOnMprRecorderEnabled(MpFlowGraphMsg& rMsg)
 {

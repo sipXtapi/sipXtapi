@@ -187,4 +187,15 @@ nobase_include_HEADERS =  \
     rtcp/SenderReport.h \
     rtcp/SourceDescription.h \
     rtcp/TLink.h \
-    rtcp/TLinkedList.h
+    rtcp/TLinkedList.h \
+    mi/CpMediaInterfaceFactoryFactory.h \
+    mi/CpMediaInterfaceFactory.h \
+    mi/CpMediaInterfaceFactoryImpl.h \
+    mi/CpTopologyGraphFactoryImpl.h \
+    mi/CpTopologyGraphInterface.h \
+    mi/CpTopologyPacketPusher.h \
+    mi/MaNotfTranslatorDispatcher.h \
+    mi/MiDtmfNotf.h \
+    mi/MiNotification.h \
+    mi/MiProgressNotf.h \
+    mi/sipXmediaFactoryImpl.h

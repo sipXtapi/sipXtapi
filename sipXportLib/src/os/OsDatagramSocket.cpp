@@ -1,3 +1,19 @@
+// Copyright 2008 AOL LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA. 
 //  
 // Copyright (C) 2007 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
@@ -373,8 +389,10 @@ int OsDatagramSocket::write(const char* buffer, int bufferLength,
         {
            OsSysLog::add(FAC_KERNEL, PRI_ERR,
                          "OsDatagramSocket::write(4) bytesSent = %d, "
-                         "bufferLength = %d, errno = %d",
-                         bytesSent, bufferLength, errno);
+                         "bufferLength = %d, errno = %d, dest=%s:%d",
+                         bytesSent, bufferLength, errno, 
+                         ((ipAddress == NULL) ? "NULL" : ipAddress), 
+                         port);
             time_t rightNow;
 
             (void) time(&rightNow);
@@ -556,14 +574,7 @@ void OsDatagramSocket::getRemoteHostIp(struct in_addr* remoteHostAddress,
     {
         *remotePort = ntohs(pAddr->sin_port);
     }
-}
-
-// Return the external IP address for this socket.
-UtlBoolean OsDatagramSocket::getMappedIp(UtlString* ip, int* port) 
-{
-    return FALSE ;
-}
-    
+}    
 
 /* ============================ INQUIRY =================================== */
 

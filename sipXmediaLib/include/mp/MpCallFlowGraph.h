@@ -1,3 +1,19 @@
+// Copyright 2008 AOL LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA. 
 //
 // Copyright (C) 2006-2008 SIPez LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.
@@ -29,6 +45,7 @@
 #ifdef INCLUDE_RTCP /* [ */
 #include "rtcp/RTCManager.h"
 #endif /* INCLUDE_RTCP ] */
+#include "mediaInterface/IMediaTransportAdapter.h"
 
 // DEFINES
 #define DEBUG_POSTPONE
@@ -168,6 +185,7 @@ public:
                      int silenceLength,
                      const char* fileName,
                      double& duration,
+                     int& dtmfterm,
                      MprRecorder::RecordFileFormat format = MprRecorder::RAW_PCM_16);
 
    OsStatus record(int timeMS,
@@ -243,12 +261,15 @@ public:
      */
 
      /// Starts sending RTP and RTCP packets.
-   void startSendRtp(OsSocket& rRtpSocket, OsSocket& rRtcpSocket,
+   void startSendRtp(IMediaTransportAdapter* pAdapter,
                      MpConnectionID connID=1, SdpCodec* pPrimaryCodec = NULL,
                      SdpCodec* pDtmfCodec = NULL);
 
      /// Stops sending RTP and RTCP packets.
    void stopSendRtp(MpConnectionID connID=1);
+ 
+    /// Inject an RTP or RTCP packet into the flowgraph (as if from the net)
+   void injectPacket(const int connectionId, const char* const buffer, const size_t len, const bool isRtcp);
 
      /// Starts receiving RTP and RTCP packets.
    void startReceiveRtp(SdpCodec* pCodecs[], int numCodecs,
@@ -585,6 +606,7 @@ private:
      *  @returns <b>TRUE</b>
      */
 
+#ifdef MP_STREAMING
      /// Handle the FLOWGRAPH_STREAM_REALIZE_URL message.
    UtlBoolean handleStreamRealizeUrl(MpStreamMsg& rMsg);
      /**<
@@ -640,6 +662,7 @@ private:
      *  @returns <b>TRUE</b> if the message was handled
      *  @returns <b>FALSE</b> otherwise.
      */
+#endif
 
      /// Copy constructor (not implemented for this class)
    MpCallFlowGraph(const MpCallFlowGraph& rMpCallFlowGraph);

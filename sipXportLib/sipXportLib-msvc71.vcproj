@@ -19,8 +19,8 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="include"
-				PreprocessorDefinitions="WIN32;_DEBUG;_LIB"
+				AdditionalIncludeDirectories="include;..\sipXtackLib\include"
+				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;_CRT_SECURE_NO_DEPRECATE"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
@@ -28,7 +28,7 @@
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="TRUE"
-				DebugInformationFormat="4"/>
+				DebugInformationFormat="3"/>
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
@@ -61,7 +61,7 @@
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="include"
+				AdditionalIncludeDirectories="include;..\sipXtackLib\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB"
 				RuntimeLibrary="0"
 				RuntimeTypeInfo="TRUE"
@@ -189,10 +189,16 @@
 					RelativePath=".\src\os\Wnt\OsFileWnt.cpp">
 				</File>
 				<File
+					RelativePath=".\src\os\OsHostPort.cpp">
+				</File>
+				<File
 					RelativePath=".\src\os\OsIntPtrMsg.cpp">
 				</File>
 				<File
 					RelativePath=".\src\os\OsLockingList.cpp">
+				</File>
+				<File
+					RelativePath=".\src\os\OsMediaContact.cpp">
 				</File>
 				<File
 					RelativePath=".\src\os\OsMsg.cpp">
@@ -222,6 +228,9 @@
 					RelativePath=".\src\os\OsNameDbInit.cpp">
 				</File>
 				<File
+					RelativePath=".\src\os\OsNatAgentContext.cpp">
+				</File>
+				<File
 					RelativePath=".\src\os\OsNatAgentTask.cpp">
 				</File>
 				<File
@@ -241,6 +250,9 @@
 				</File>
 				<File
 					RelativePath=".\src\os\Wnt\OsPathWnt.cpp">
+				</File>
+				<File
+					RelativePath=".\src\os\OsPerfLog.cpp">
 				</File>
 				<File
 					RelativePath=".\src\os\osPrintf.cpp">
@@ -539,6 +551,351 @@
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}">
+			<Filter
+				Name="os"
+				Filter="">
+				<File
+					RelativePath=".\include\os\wnt\getWindowsDNSServers.h">
+				</File>
+				<File
+					RelativePath=".\include\os\HostAdapterAddress.h">
+				</File>
+				<File
+					RelativePath=".\include\os\IOsNatSocket.h">
+				</File>
+				<File
+					RelativePath=".\include\os\NatMsg.h">
+				</File>
+				<File
+					RelativePath=".\include\os\OsAssert.h">
+				</File>
+				<File
+					RelativePath=".\include\os\OsBSem.h">
+				</File>
+				<File
+					RelativePath=".\include\os\wnt\OsBSemWnt.h">
+				</File>
+				<File
+					RelativePath=".\include\os\OsCallback.h">
+				</File>
+				<File
+					RelativePath=".\include\os\OsConfigDb.h">
+				</File>
+				<File
+					RelativePath=".\include\os\OsConfigEncryption.h">
+				</File>
+				<File
+					RelativePath=".\include\os\OsConnectionSocket.h">
+				</File>
+				<File
+					RelativePath=".\include\os\OsContact.h">
+				</File>
+				<File
+					RelativePath=".\include\os\OsContactList.h">
+				</File>
+				<File
+					RelativePath=".\include\os\OsCSem.h">
+				</File>
+				<File
+					RelativePath=".\include\os\wnt\OsCSemWnt.h">
+				</File>
+				<File
+					RelativePath=".\include\os\OsDatagramSocket.h">
+				</File>
+				<File
+					RelativePath=".\include\os\OsDateTime.h">
+				</File>
+				<File
+					RelativePath=".\include\os\wnt\OsDateTimeWnt.h">
+				</File>
+				<File
+					RelativePath=".\include\os\OsDefs.h">
+				</File>
+				<File
+					RelativePath=".\include\os\OsDirBase.h">
+				</File>
+				<File
+					RelativePath=".\include\os\wnt\OsDirWnt.h">
+				</File>
+				<File
+					RelativePath=".\include\os\OsEncryption.h">
+				</File>
+				<File
+					RelativePath=".\include\os\OsEvent.h">
+				</File>
+				<File
+					RelativePath=".\include\os\OsEventMsg.h">
+				</File>
+				<File
+					RelativePath=".\include\os\OsExcept.h">
+				</File>
+				<File
+					RelativePath=".\include\os\OsFileBase.h">
+				</File>
+				<File
+					RelativePath=".\include\os\OsFileInfoBase.h">
+				</File>
+				<File
+					RelativePath=".\include\os\wnt\OsFileInfoWnt.h">
+				</File>
+				<File
+					RelativePath=".\include\os\OsFileIteratorBase.h">
+				</File>
+				<File
+					RelativePath=".\include\os\wnt\OsFileIteratorWnt.h">
+				</File>
+				<File
+					RelativePath=".\include\os\OsFileSystem.h">
+				</File>
+				<File
+					RelativePath=".\include\os\wnt\OsFileSystemWnt.h">
+				</File>
+				<File
+					RelativePath=".\include\os\wnt\OsFileWnt.h">
+				</File>
+				<File
+					RelativePath=".\include\os\OsFS.h">
+				</File>
+				<File
+					RelativePath=".\include\os\OsHostPort.h">
+				</File>
+				<File
+					RelativePath=".\include\os\OsIntPtrMsg.h">
+				</File>
+				<File
+					RelativePath=".\include\os\OsIntTypes.h">
+				</File>
+				<File
+					RelativePath=".\include\os\OsLock.h">
+				</File>
+				<File
+					RelativePath=".\include\os\OsLockingList.h">
+				</File>
+				<File
+					RelativePath=".\include\os\OsMediaContact.h">
+				</File>
+				<File
+					RelativePath=".\include\os\OsMsg.h">
+				</File>
+				<File
+					RelativePath=".\include\os\OsMsgDispatcher.h">
+				</File>
+				<File
+					RelativePath=".\include\os\OsMsgPool.h">
+				</File>
+				<File
+					RelativePath=".\include\os\OsMsgQ.h">
+				</File>
+				<File
+					RelativePath=".\include\os\shared\OsMsgQShared.h">
+				</File>
+				<File
+					RelativePath=".\include\os\OsMulticastSocket.h">
+				</File>
+				<File
+					RelativePath=".\include\os\OsMutex.h">
+				</File>
+				<File
+					RelativePath=".\include\os\wnt\OsMutexWnt.h">
+				</File>
+				<File
+					RelativePath=".\include\os\OsNameDb.h">
+				</File>
+				<File
+					RelativePath=".\include\os\OsNameDbInit.h">
+				</File>
+				<File
+					RelativePath=".\include\os\OsNatAgentContext.h">
+				</File>
+				<File
+					RelativePath=".\include\os\OsNatAgentTask.h">
+				</File>
+				<File
+					RelativePath=".\include\os\OsNatConnectionSocket.h">
+				</File>
+				<File
+					RelativePath=".\include\os\OsNatDatagramSocket.h">
+				</File>
+				<File
+					RelativePath=".\include\os\OsNatKeepaliveListener.h">
+				</File>
+				<File
+					RelativePath=".\include\os\OsNatServerSocket.h">
+				</File>
+				<File
+					RelativePath=".\include\os\OsNatSocketBaseImpl.h">
+				</File>
+				<File
+					RelativePath=".\include\os\OsNotification.h">
+				</File>
+				<File
+					RelativePath=".\include\os\OsPathBase.h">
+				</File>
+				<File
+					RelativePath=".\include\os\wnt\OsPathWnt.h">
+				</File>
+				<File
+					RelativePath=".\include\os\OsProcess.h">
+				</File>
+				<File
+					RelativePath=".\include\os\OsProcessIterator.h">
+				</File>
+				<File
+					RelativePath=".\include\os\wnt\OsProcessIteratorWnt.h">
+				</File>
+				<File
+					RelativePath=".\include\os\OsProcessMgr.h">
+				</File>
+				<File
+					RelativePath=".\include\os\wnt\OsProcessWnt.h">
+				</File>
+				<File
+					RelativePath=".\include\os\OsProtectEvent.h">
+				</File>
+				<File
+					RelativePath=".\include\os\OsProtectEventMgr.h">
+				</File>
+				<File
+					RelativePath=".\include\os\OsProtectEventMgrInit.h">
+				</File>
+				<File
+					RelativePath=".\include\os\OsPtrMsg.h">
+				</File>
+				<File
+					RelativePath=".\include\os\OsQueuedEvent.h">
+				</File>
+				<File
+					RelativePath=".\include\os\OsReadLock.h">
+				</File>
+				<File
+					RelativePath=".\include\os\OsRpcMsg.h">
+				</File>
+				<File
+					RelativePath=".\include\os\OsRWMutex.h">
+				</File>
+				<File
+					RelativePath=".\include\os\shared\OsRWMutexShared.h">
+				</File>
+				<File
+					RelativePath=".\include\os\OsServerSocket.h">
+				</File>
+				<File
+					RelativePath=".\include\os\OsServerTask.h">
+				</File>
+				<File
+					RelativePath=".\include\os\OsSharedLibMgr.h">
+				</File>
+				<File
+					RelativePath=".\include\os\wnt\OsSharedLibMgrWnt.h">
+				</File>
+				<File
+					RelativePath=".\include\os\OsSocket.h">
+				</File>
+				<File
+					RelativePath=".\include\os\OsSSL.h">
+				</File>
+				<File
+					RelativePath=".\include\os\OsSSLConnectionSocket.h">
+				</File>
+				<File
+					RelativePath=".\include\os\OsSSLServerSocket.h">
+				</File>
+				<File
+					RelativePath=".\include\os\OsStatus.h">
+				</File>
+				<File
+					RelativePath=".\include\os\OsSyncBase.h">
+				</File>
+				<File
+					RelativePath=".\include\os\OsSysLog.h">
+				</File>
+				<File
+					RelativePath=".\include\os\OsSysLogFacilities.h">
+				</File>
+				<File
+					RelativePath=".\include\os\OsSysLogMsg.h">
+				</File>
+				<File
+					RelativePath=".\include\os\OsSysLogTask.h">
+				</File>
+				<File
+					RelativePath=".\include\os\OsTask.h">
+				</File>
+				<File
+					RelativePath=".\include\os\wnt\OsTaskWnt.h">
+				</File>
+				<File
+					RelativePath=".\include\os\OsTime.h">
+				</File>
+				<File
+					RelativePath=".\include\os\OsTimeLog.h">
+				</File>
+				<File
+					RelativePath=".\include\os\OsTimer.h">
+				</File>
+				<File
+					RelativePath=".\include\os\shared\OsTimerMessage.h">
+				</File>
+				<File
+					RelativePath=".\include\os\OsTimerMsg.h">
+				</File>
+				<File
+					RelativePath=".\include\os\OsTimerTask.h">
+				</File>
+				<File
+					RelativePath=".\include\os\OsTLS.h">
+				</File>
+				<File
+					RelativePath=".\include\os\OsTLSClientConnectionSocket.h">
+				</File>
+				<File
+					RelativePath=".\include\os\OsTLSConnectionSocket.h">
+				</File>
+				<File
+					RelativePath=".\include\os\OsTLSServerConnectionSocket.h">
+				</File>
+				<File
+					RelativePath=".\include\os\OsTLSServerSocket.h">
+				</File>
+				<File
+					RelativePath=".\include\os\OsTokenizer.h">
+				</File>
+				<File
+					RelativePath=".\include\os\OsTurnSelector.h">
+				</File>
+				<File
+					RelativePath=".\include\os\OsUtil.h">
+				</File>
+				<File
+					RelativePath=".\include\os\wnt\OsUtilWnt.h">
+				</File>
+				<File
+					RelativePath=".\include\os\OsWriteLock.h">
+				</File>
+				<File
+					RelativePath=".\include\os\qsTypes.h">
+				</File>
+				<File
+					RelativePath=".\include\os\StunMessage.h">
+				</File>
+				<File
+					RelativePath=".\include\os\StunUtils.h">
+				</File>
+				<File
+					RelativePath=".\include\os\TurnMessage.h">
+				</File>
+				<File
+					RelativePath=".\include\os\wnt\WIndowsAdapterInfo.h">
+				</File>
+			</Filter>
+			<Filter
+				Name="util"
+				Filter="">
+			</Filter>
+			<Filter
+				Name="xmlparser"
+				Filter="">
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Resource Files"

@@ -8,12 +8,10 @@ check_PROGRAMS = testsuite
 
 testsuite_LDADD = \
     @SIPXUNIT_LIBS@ \
-    @SIPXMEDIA_LIBS@ \
-    @SIPXMEDIA_MP_LIBS@ \
-    @SIPXSDP_LIBS@ \
-    @SIPXTACK_LIBS@ \
-    @SIPXPORT_LIBS@ \
+    @GIPS_VE_OBJS@ \
     ../../libsipXcall.la
+
+# @SIPXMEDIA_MP_LIBS@ 
 
 testsuite_SOURCES = \
   callbacks.cpp \

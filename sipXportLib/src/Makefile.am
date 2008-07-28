@@ -17,27 +17,44 @@ version_Revision=0
 #       increment if any interfaces have been added
 version_Age=0
 
+if BUILDTLS
+SECURITY_FILES=\
+    os/OsSSL.cpp \
+    os/OsEncryption.cpp \
+    os/OsSSLConnectionSocket.cpp \
+    os/OsSSLServerSocket.cpp
+SECURITY_LDFLAGS=@SSL_LDFLAGS@
+SECURITY_LIBADD=@SSL_LIBS@
+SECURITY_CXXFLAGS=@SSL_CXXFLAGS@
+else
+SECURITY_FILES=
+SECURITY_LDFLAGS=
+SECURITY_LIBADD=
+SECURITY_CXXFLAGS=
+endif
+
+
 libsipXport_la_LDFLAGS = \
 	-version-info ${version_Current}:${version_Revision}:${version_Age} \
 	@PCRE_LDFLAGS@ \
-	@SSL_LDFLAGS@
+	$(SECURITY_LDFLAGS)
 
 libsipXport_la_LIBADD = \
 	@PCRE_LIBS@ \
-	@SSL_LIBS@ \
 	@RT_LIBS@ \
 	-ldl \
 	-lpthread  \
-	-lstdc++
+	-lstdc++ \
+	$(SECURITY_LIBADD)
 
 # this is helpful if you're debugging something with lots of inlines (like the UtlLink code)
 # 		-fno-gcse -O0 -fno-implement-inlines -fno-default-inline
 
 libsipXport_la_CXXFLAGS = \
 	@PCRE_CFLAGS@ \
-	@SSL_CXXFLAGS@ \
 	-DSIPX_TMPDIR=\"@SIPX_TMPDIR@\" \
-	-DSIPX_CONFDIR=\"@SIPX_CONFDIR@\"
+	-DSIPX_CONFDIR=\"@SIPX_CONFDIR@\" \
+	$(SECURITY_CXXFLAGS)
 
 libsipXport_la_SOURCES =  \
     ../config/sipxportlib-buildstamp.h \
@@ -107,10 +124,14 @@ libsipXport_la_SOURCES =  \
     os/OsNameDb.cpp \
     os/OsNameDbInit.cpp \
     os/OsNatAgentTask.cpp \
+    os/OsNatAgentContext.cpp \
+    os/OsNatServerSocket.cpp \
     os/OsNatDatagramSocket.cpp \
     os/OsNatConnectionSocket.cpp \
     os/OsNatSocketBaseImpl.cpp \
+    os/OsMediaContact.cpp \
     os/OsPathBase.cpp \
+    os/OsPerfLog.cpp \
     os/osPrintf.cpp \
     os/OsProcessBase.cpp \
     os/OsProcessIteratorBase.cpp \
@@ -146,6 +167,7 @@ libsipXport_la_SOURCES =  \
     os/StunMessage.cpp \
     os/StunUtils.cpp \
     os/TurnMessage.cpp \
+    os/OsHostPort.cpp \
     os/shared/OsMsgQShared.cpp \
     os/shared/OsTimerMessage.cpp \
     os/linux/clock_gettime.c \

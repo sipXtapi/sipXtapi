@@ -1,3 +1,19 @@
+// Copyright 2008 AOL LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA. 
 //
 // Copyright (C) 2007 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
@@ -20,6 +36,7 @@
 #include "os/shared/OsMsgQShared.h"
 #include "os/OsDateTime.h"
 #include "os/OsSysLog.h"
+#include "utl/UtlDListIterator.h"
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -118,9 +135,61 @@ OsStatus OsMsgQShared::sendFromISR(const OsMsg& rMsg)
 // for freeing the received message.
 OsStatus OsMsgQShared::receive(OsMsg*& rpMsg, const OsTime& rTimeout)
 {
-   return doReceive(rpMsg, rTimeout);
+    OsStatus ret = OS_INTERRUPTED ;
+    if (rTimeout.isInfinite())
+    {
+        while (ret == OS_INTERRUPTED)
+            ret = doReceive(rpMsg, rTimeout) ;
+}
+    else
+    {
+        ret = doReceive(rpMsg, rTimeout);
+        if (ret == OS_INTERRUPTED)
+            ret = OS_WAIT_TIMEOUT ;
+        // ::TODO:: This should call doReceive again if we haven't hit the
+        // initial timeout.  The OS_INTERRUPTED return value is only 
+        // returned if we kicked out due to a message queue purge
+    }
+    return ret ;
 }
 
+
+int OsMsgQShared::purge(OsMsgQPurgePtr func, void* pUserData1, void* pUserData2)
+{
+    OsMsg* pMsg ;
+    OsStatus ret ;
+    int numPurged = 0 ;
+
+    ret = mGuard.acquire();         // start critical section
+    assert(ret == OS_SUCCESS);
+
+    if (ret == OS_SUCCESS)
+    {
+        UtlDListIterator itor(mDlist) ;
+        while ((pMsg = (OsMsg*) itor()) != NULL)
+        {
+            if (func(*pMsg, pUserData1, pUserData2) == true)
+            {
+                if (mDlist.remove(pMsg) != NULL)
+                {
+                    if (!pMsg->getSentFromISR())
+                        pMsg->releaseMsg();
+                    numPurged++ ;
+                    ret = mEmpty.release();
+#ifdef MSGQ_IS_VALID_CHECK /* [ */
+                    mNumRemoveExitOk++;
+                    testMessageQ();
+#endif /* MSGQ_IS_VALID_CHECK ] */
+                }
+            }
+        }
+    }
+
+    ret = mGuard.release();         // exit critical section
+    assert(ret == OS_SUCCESS);
+
+    return numPurged ;
+}
 
 /* ============================ ACCESSORS ================================= */
 
@@ -377,21 +446,29 @@ OsStatus OsMsgQShared::doReceive(OsMsg*& rpMsg, const OsTime& rTimeout)
       ret = mGuard.acquire();         // start critical section
       assert(ret == OS_SUCCESS);
 
-      assert(numMsgs() > 0);
-      rpMsg = (OsMsg*) mDlist.get();  // get the first message
-
-      if (rpMsg == NULL)              // was there a message?
+      // It is possible (race) to have the numMsgs be zero if the purge 
+      // function is called and the queue trained.
+      if (numMsgs() == 0)
       {
-         assert(FALSE);
-         ret = OS_UNSPECIFIED;
+          ret = OS_INTERRUPTED ;
       }
       else
       {
-         ret = mEmpty.release();         // the remove operation succeeded, signal
-         assert(ret == OS_SUCCESS);      //  senders that there is an available
-                                         //  message slot.
-      }
+         assert(numMsgs() > 0);
+         rpMsg = (OsMsg*) mDlist.get();  // get the first message
 
+         if (rpMsg == NULL)              // was there a message?
+         {
+            assert(FALSE);
+            ret = OS_UNSPECIFIED;
+         }
+         else
+         {
+            ret = mEmpty.release();         // the remove operation succeeded, signal
+            assert(ret == OS_SUCCESS);      //  senders that there is an available
+                                            //  message slot.
+         }
+      }
       (void)mGuard.release();         // exit critical section
    }
 

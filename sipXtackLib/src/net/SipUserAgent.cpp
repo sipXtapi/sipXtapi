@@ -1,3 +1,19 @@
+// Copyright 2008 AOL LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA. 
 //  
 // Copyright (C) 2007 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
@@ -16,6 +32,9 @@
 // SYSTEM INCLUDES
 
 //#define TEST_PRINT
+#ifndef SIP_STACK_VERSION
+#define SIP_STACK_VERSION "0.0.0"
+#endif
 
 #include <assert.h>
 
@@ -149,6 +168,7 @@ SipUserAgent::SipUserAgent(int sipTcpPort,
         , mbShortNames(false)
         , mAcceptLanguage()
         , mpLastSipMessage(NULL)
+        , mDefaultAddress(defaultAddress)
 {    
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
                  "SipUserAgent::_ sipTcpPort = %d, sipUdpPort = %d, sipTlsPort = %d",
@@ -485,6 +505,7 @@ SipUserAgent::~SipUserAgent()
     allowedSipMethods.destroyAll();
     mMessageObservers.destroyAll();
     allowedSipExtensions.destroyAll();
+    mExternalTransports.destroyAll() ;
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -509,7 +530,7 @@ void SipUserAgent::shutdown(UtlBoolean blockingShutdown)
     {
         OsEvent shutdownEvent;
         OsStatus res;
-        int rpcRetVal;
+        intptr_t rpcRetVal;
 
         mbBlockingShutdown = TRUE;
 
@@ -531,18 +552,14 @@ void SipUserAgent::shutdown(UtlBoolean blockingShutdown)
     }
 }
 
-void SipUserAgent::enableStun(const char* szStunServer, 
-                              int iStunPort,
-                              int refreshPeriodInSecs,                               
+void SipUserAgent::enableStun(const ProxyDescriptor& stunServer,                     
                               OsNotification* pNotification,
                               const char* szIp) 
 {
     if (mSipUdpServer)
     {
-        mSipUdpServer->enableStun(szStunServer, 
-                iStunPort,
+        mSipUdpServer->enableStun(stunServer, 
                 szIp, 
-                refreshPeriodInSecs, 
                 pNotification) ;
     }
 }
@@ -963,6 +980,8 @@ UtlBoolean SipUserAgent::send(SipMessage& message,
              }
              pTransport = (SIPX_TRANSPORT_DATA*)lookupExternalTransport(transport, localIp);
          }
+                
+         transaction->markBusy();
          sendSucceeded = transaction->handleOutgoing(message,
                                                      *this,
                                                      mSipTransactions,
@@ -970,6 +989,7 @@ UtlBoolean SipUserAgent::send(SipMessage& message,
                                                      pTransport);
       }
 
+      if (!mbShuttingDown)
       mSipTransactions.markAvailable(*transaction);
    }
    else
@@ -2423,6 +2443,8 @@ UtlBoolean SipUserAgent::handleMessage(OsMsg& eventMessage)
 #ifdef TEST_PRINT
          osPrintf("SipUserAgent::handleMessage shutdown complete message.\n");
 #endif
+         garbageCollection(true) ;
+
          mSipTransactions.deleteTransactionTimers();
 
          if(mbBlockingShutdown == TRUE)
@@ -2829,7 +2851,7 @@ UtlBoolean SipUserAgent::handleMessage(OsMsg& eventMessage)
    // that is queued up for us.
    if (getMessageQueue()->isEmpty())
    {
-      garbageCollection();
+      garbageCollection(false);
       OsSysLog::add(FAC_SIP, PRI_DEBUG,
                     "SipUserAgent::handleMessage after GC, queue size = %d",
                     getMessageQueue()->numMsgs());
@@ -2837,7 +2859,7 @@ UtlBoolean SipUserAgent::handleMessage(OsMsg& eventMessage)
    return(messageProcessed);
 }
 
-void SipUserAgent::garbageCollection()
+void SipUserAgent::garbageCollection(bool bForceAll)
 {
     OsTime time;
     OsDateTime::getCurTimeSinceBoot(time);
@@ -3657,8 +3679,10 @@ void SipUserAgent::allowExtension(const char* extension)
 #ifdef TEST_PRINT
     osPrintf("Allowing extension: \"%s\"\n", extension);
 #endif
-    UtlString* extensionName = new UtlString(extension);
-    allowedSipExtensions.append(extensionName);
+    if (extension) 
+    {
+        allowedSipExtensions.append(new UtlString(extension));
+    }
 }
 
 void SipUserAgent::getSupportedExtensions(UtlString& extensionsString)

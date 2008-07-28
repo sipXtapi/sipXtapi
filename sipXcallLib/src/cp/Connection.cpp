@@ -1,3 +1,19 @@
+// Copyright 2008 AOL LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA. 
 //
 // Copyright (C) 2005-2007 SIPez LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.
@@ -18,7 +34,7 @@
 // APPLICATION INCLUDES
 #include <cp/Connection.h>
 #include <cp/CpGhostConnection.h>
-#include <mi/CpMediaInterface.h>
+#include <mediaInterface/IMediaInterface.h>
 #include <cp/CpMultiStringMessage.h>
 #include <cp/CpCall.h>
 #include <sdp/SdpCodec.h>
@@ -33,8 +49,8 @@
 #include "os/OsUtil.h"
 #include <tao/TaoObjectMap.h>
 #include <tao/TaoReference.h>
-#include <tao/TaoListenerEventMessage.h>
-#include <ptapi/PtConnection.h>
+//#include <tao/TaoListenerEventMessage.h>
+//#include <ptapi/PtConnection.h>
 #include <net/TapiMgr.h>
 
 // EXTERNAL FUNCTIONS
@@ -53,14 +69,14 @@
 // Constructor
 Connection::Connection(CpCallManager* callMgr,
                        CpCall* call,
-                       CpMediaInterface* mediaInterface,
+                       IMediaInterface* mediaInterface,
                        //UiContext* callUiContext,
                        int offeringDelayMilliSeconds,
                        int availableBehavior,
                        const char* forwardUnconditionalUrl,
                        int busyBehavior, const char* forwardOnBusyUrl,
                        int forwardOnNoAnswerSeconds)
-   : mConnectionId(CpMediaInterface::getInvalidConnectionId())
+ : mConnectionId(mediaInterface->getInvalidConnectionId())
    , callIdMutex(OsMutex::Q_FIFO)
    , mDeleteAfter(OsTime::OS_INFINITY)
 {
@@ -184,23 +200,42 @@ void Connection::prepareForSplit()
         mpMediaInterface->removeToneListener(mConnectionId);
         mpMediaInterface->deleteConnection(mConnectionId) ;
     }
-
+    if (mpMediaInterface)
+    {
+        mConnectionId = mpMediaInterface->getInvalidConnectionId();
+    }
     mpCall = NULL ;
     mpMediaInterface = NULL ;
-    mConnectionId = CpMediaInterface::getInvalidConnectionId();
 }
 
 
-void Connection::prepareForJoin(CpCall* pNewCall, const char* szLocalAddress, CpMediaInterface* pNewMediaInterface)
+void Connection::prepareForJoin(CpCall* pNewCall,
+                                const char* szLocalAddress,
+                                IMediaInterface* pNewMediaInterface,
+                                int callHandle) 
 {
     mpCall = pNewCall ;
     mpMediaInterface = pNewMediaInterface ;
 
-    mpMediaInterface->createConnection(mConnectionId, szLocalAddress) ;
+    UtlString callId;
+    pNewCall->getCallId(callId);
+    mpMediaInterface->createConnection(mConnectionId,
+        false,
+        szLocalAddress,
+        0,
+        NULL,
+        false,
+        false,
+        NULL,
+        NULL,
+        callHandle) ;
 
     // VIDEO: Need to include window handle!
     // SECURITY:  What about the security attributes?
     // RTP-over-TCP:  What about rtp-over-tcp?
+    // ICE?
+    // TURN?
+    // ARS?
 }
 
 
@@ -469,7 +504,7 @@ void Connection::markForDeletion()
 }
 
 
-void Connection::setMediaInterface(CpMediaInterface* pMediaInterface)
+void Connection::setMediaInterface(IMediaInterface* pMediaInterface)
 {
     mpMediaInterface = pMediaInterface ;
 }
@@ -963,7 +998,7 @@ void Connection::setOfferingTimer(int milliSeconds)
     remoteAddr.remove(0);
 }
 
-CpMediaInterface* Connection::getMediaInterfacePtr()
+IMediaInterface* Connection::getMediaInterfacePtr()
 {
     return mpMediaInterface;
 }

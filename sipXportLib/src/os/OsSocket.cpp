@@ -1,3 +1,19 @@
+// Copyright 2008 AOL LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA. 
 //
 // Copyright (C) 2005-2006 SIPez LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.
@@ -66,6 +82,8 @@
 #include <os/OsSysLog.h>
 #include <utl/UtlRscTrace.h>
 #include <os/HostAdapterAddress.h>
+#include <os/OsNotification.h>
+#include <os/OsLock.h>
 
 // EXTERNAL FUNCTIONS
 #ifdef _VXWORKS
@@ -102,20 +120,21 @@ OsBSem OsSocket::mInitializeSem(OsBSem::Q_PRIORITY, OsBSem::FULL);
 //static method for accessing the bind address from C source
 unsigned long osSocketGetDefaultBindAddress()
 {
-        return OsSocket::getDefaultBindAddress();
+    return OsSocket::getDefaultBindAddress();
 }
 
 /* ============================ CREATORS ================================== */
 
 // Constructor
-OsSocket::OsSocket()
-        
+OsSocket::OsSocket()        
+    : mReadNotificationLock(OsMutex::Q_FIFO)
 {
-        socketDescriptor = OS_INVALID_SOCKET_DESCRIPTOR;
+    socketDescriptor = OS_INVALID_SOCKET_DESCRIPTOR;
 
-        localHostPort = OS_INVALID_SOCKET_DESCRIPTOR;
-        remoteHostPort = OS_INVALID_SOCKET_DESCRIPTOR;
+    localHostPort = OS_INVALID_SOCKET_DESCRIPTOR;
+    remoteHostPort = OS_INVALID_SOCKET_DESCRIPTOR;
     mIsConnected = FALSE;
+    mpReadNotification = NULL;
 }
 
 
@@ -724,6 +743,10 @@ const char* OsSocket::ipProtocolString(OsSocket::IpProtocolSocketType type)
    case OsSocket::CUSTOM:
 	   return socketType_custom;
    default:
+      if (type > OsSocket::CUSTOM)
+      {
+        return socketType_custom;
+      }
       return socketType_invalid;
    }
 }
@@ -850,6 +873,13 @@ unsigned long OsSocket::initDefaultAdapterID(UtlString &interface_id)
     return retip;
 }
 
+void OsSocket::setReadNotification(OsNotification* pNotification) 
+{
+    OsLock lock(mReadNotificationLock) ;
+    mpReadNotification = pNotification ;
+}
+
+
 /* ============================ ACCESSORS ================================= */
 
 // Returns the socket descriptor
@@ -863,7 +893,11 @@ int OsSocket::getSocketDescriptor() const
 void OsSocket::setDefaultBindAddress(const unsigned long bind_address)
 {
     mInitializeSem.acquire();
+#ifndef _DISABLE_MULTIPLE_INTERFACE_SUPPORT
     m_DefaultBindAddress = bind_address;
+#else
+    OsSysLog::add(FAC_NET, PRI_WARNING, "Multiple interface support disabled on this platform") ;
+#endif
     mInitializeSem.release();
 }
 
@@ -1296,7 +1330,96 @@ UtlContainableType OsSocket::getContainableType() const
    return OsSocket::TYPE;
 }
 
+bool OsSocket::getFirstReadTime(OsDateTime& time) 
+{
+    bool bRC = (miRecordTimes & ONDS_MARK_FIRST_READ) == 
+            ONDS_MARK_FIRST_READ ;
+
+    if (bRC)
+    {
+        time = mFirstRead ;
+    }
+
+    return bRC ;
+}
+
+
+bool OsSocket::getLastReadTime(OsDateTime& time)
+{
+    bool bRC = (miRecordTimes & ONDS_MARK_LAST_READ) == 
+            ONDS_MARK_LAST_READ ;
+
+    if (bRC)
+    {
+        time = mLastRead ;
+    }
+
+    return bRC ;
+}
+
+
+bool OsSocket::getFirstWriteTime(OsDateTime& time) 
+{
+    bool bRC = (miRecordTimes & ONDS_MARK_FIRST_WRITE) == 
+            ONDS_MARK_FIRST_WRITE ;
+
+    if (bRC)
+    {
+        time = mFirstWrite ;
+    }
+
+    return bRC ;
+}
+
+bool OsSocket::getLastWriteTime(OsDateTime& time) 
+{
+    bool bRC = (miRecordTimes & ONDS_MARK_LAST_WRITE) == 
+            ONDS_MARK_LAST_WRITE ;
+
+    if (bRC)
+    {
+        time = mLastWrite ;
+    }
+
+    return bRC ;
+}
+
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
+
+void OsSocket::markReadTime()
+{
+    // Always mark last read
+    miRecordTimes |= ONDS_MARK_LAST_READ ;
+    OsDateTime::getCurTime(mLastRead) ;
+
+    // Mark first read if not already set
+    if ((miRecordTimes & ONDS_MARK_FIRST_READ) == 0)
+    {
+        miRecordTimes |= ONDS_MARK_FIRST_READ ;
+        mFirstRead = mLastRead ;
+    }
+
+    OsLock lock(mReadNotificationLock) ;
+    if (mpReadNotification)
+    {
+        mpReadNotification->signal((const intptr_t) this) ;
+        mpReadNotification = NULL ;
+    }    
+}
+
+void OsSocket::markWriteTime()
+{
+    // Always mark last write
+    miRecordTimes |= ONDS_MARK_LAST_WRITE ;
+    OsDateTime::getCurTime(mLastWrite) ;
+
+    // Mark first write if not already set
+    if ((miRecordTimes & ONDS_MARK_FIRST_WRITE) == 0)
+    {
+        miRecordTimes |= ONDS_MARK_FIRST_WRITE ;
+        mFirstWrite = mLastWrite ;
+    }
+}
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 

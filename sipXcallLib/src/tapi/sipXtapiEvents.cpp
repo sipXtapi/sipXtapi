@@ -1,3 +1,19 @@
+// Copyright 2008 AOL LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -225,26 +241,29 @@ static const char* convertCallstateCauseToString(SIPX_CALLSTATE_CAUSE eMinor)
             str = "CAUSE_SHUTDOWN";
             break;
         case CALLSTATE_CAUSE_BAD_REFER:
-            str = "CALLSTATE_CAUSE_BAD_REFER";
+            str = "CAUSE_BAD_REFER";
             break;
         case CALLSTATE_CAUSE_NO_KNOWN_INVITE:
-            str = "CALLSTATE_CAUSE_NO_KNOWN_INVITE";
+            str = "CAUSE_NO_KNOWN_INVITE";
             break;
         case CALLSTATE_CAUSE_BYE_DURING_IDLE:
-            str = "CALLSTATE_CAUSE_BYE_DURING_IDLE";
+            str = "CAUSE_BYE_DURING_IDLE";
             break;
         case CALLSTATE_CAUSE_UNKNOWN_STATUS_CODE:
-            str = "CALLSTATE_CAUSE_UNKNOWN_STATUS_CODE";
+            str = "CAUSE_UNKNOWN_STATUS_CODE";
             break;
         case CALLSTATE_CAUSE_BAD_REDIRECT:
-            str = "CALLSTATE_CAUSE_BAD_REDIRECT";
+            str = "CAUSE_BAD_REDIRECT";
             break;
         case CALLSTATE_CAUSE_TRANSACTION_DOES_NOT_EXIST:
-            str = "CALLSTATE_CAUSE_TRANSACTION_DOES_NOT_EXIST";
+            str = "CAUSE_TRANSACTION_DOES_NOT_EXIST";
             break;
         case CALLSTATE_CAUSE_CANCEL:
             str = "CAUSE_CANCEL";
             break;
+        case CALLSTATE_CAUSE_ICE_FAILURE:
+            str = "CAUSE_ICE_FAILURE" ;
+            break ;
         default:
             assert(FALSE);
             break ;
@@ -288,10 +307,10 @@ static const char* convertMediaEventToString(SIPX_MEDIA_EVENT event)
             str = "REMOTE_DTMF" ;
             break ;
         case MEDIA_DEVICE_FAILURE:
-            str = "MEDIA_DEVICE_FAILURE";
+            str = "DEVICE_FAILURE";
             break ;
         case MEDIA_REMOTE_ACTIVE:
-            str = "MEDIA_REMOTE_ACTIVE" ;
+            str = "REMOTE_ACTIVE" ;
             break ;
         default:
             break ;
@@ -338,7 +357,7 @@ static const char* convertMediaCauseToString(SIPX_MEDIA_CAUSE cause)
             str = "CAUSE_DEVICE_UNAVAILABLE";
             break;
         case MEDIA_CAUSE_INCOMPATIBLE:
-            str = "CAUSE_DEVICE_UNAVAILABLE";
+            str = "CAUSE_INCOMPATIBLE";
             break ;
 	case MEDIA_CAUSE_DTMF_START:
             str = "CAUSE_DTMF_START";
@@ -346,6 +365,9 @@ static const char* convertMediaCauseToString(SIPX_MEDIA_CAUSE cause)
 	case MEDIA_CAUSE_DTMF_STOP:
             str = "CAUSE_DTMF_STOP";
             break ;
+        case MEDIA_CAUSE_ICE_FAILED:
+            str = "CAUSE_ICE_FAILED";
+            break;
         default:
             break ;
     }
@@ -474,6 +496,10 @@ static const char* convertConfigEventToString(SIPX_CONFIG_EVENT event)
         case CONFIG_STUN_FAILURE:
             str = "CONFIG_STUN_FAILURE" ;
             break ;
+        case CONFIG_NAT_CLASSIFICATION:
+            str = "CONFIG_NAT_CLASSIFICATION" ;
+            break ;
+
         default:
             break ;
     }
@@ -1082,32 +1108,6 @@ SIPXTAPI_API char* sipxEventToString(const SIPX_EVENT_CATEGORY category,
 }
 
 
-void ReportCallback(SIPX_CALL hCall,
-                    SIPX_LINE hLine,
-                    SIPX_CALLSTATE_EVENT event,
-                    SIPX_CALLSTATE_CAUSE cause,
-                    void* pUserData)
-{
-    SIPX_INSTANCE_DATA* pInst ;
-    UtlString callId ;
-    UtlString remoteAddress ;
-    UtlString lineId ;
-    static size_t nCnt = 0 ;
-
-    if (sipxCallGetCommonData(hCall, &pInst, &callId, &remoteAddress, &lineId))
-    {
-        printf("<event i=%p, h=%04X, c=%4d, M=%25s, m=%25s, a=%s, c=%s l=%s/>\n",
-                pInst,
-                hCall,
-                (int) ++nCnt,
-                convertCallstateEventToString(event),
-                convertCallstateCauseToString(cause),
-                remoteAddress.data(),
-                callId.data(),
-                lineId.data()) ;
-    }
-}
-
 
 void sipxFireCallEvent(const void* pSrc,
                        const char* szCallId,
@@ -1119,6 +1119,7 @@ void sipxFireCallEvent(const void* pSrc,
                        const char* szRemoteAssertedIdentity)
 {
     OsStackTraceLogger stackLogger(FAC_SIPXTAPI, PRI_DEBUG, "sipxFireCallEvent");
+
     OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
             "sipxFireCallEvent Src=%p CallId=%s RemoteAddress=%s Event=%s:%s",
             pSrc, szCallId, szRemoteAddress, convertCallstateEventToString(event), convertCallstateCauseToString(cause)) ;
@@ -1142,6 +1143,8 @@ void sipxFireCallEvent(const void* pSrc,
     {
         pCallData = new SIPX_CALL_DATA;
         memset((void*) pCallData, 0, sizeof(SIPX_CALL_DATA));
+        pCallData->fRemoteVolumeScale = 1.0 ;
+        pCallData->display.cbSize = sizeof(pCallData->display) ;
         pCallData->state = SIPX_INTERNAL_CALLSTATE_UNKNOWN;
 
         pCallData->callId = new UtlString(szCallId) ;
@@ -1229,6 +1232,8 @@ void sipxFireCallEvent(const void* pSrc,
         if (pCallData && pSession && !pCallData->contactAddress)
         {
             pSession->getContactRequestUri(contactAddress);
+            if (pCallData->contactAddress != NULL)
+                delete pCallData->contactAddress ;
             pCallData->contactAddress = new UtlString(contactAddress);
         }
         if (pCallData)
@@ -1301,14 +1306,12 @@ void sipxFireCallEvent(const void* pSrc,
                     callInfo.hAssociatedCall = hAssociatedCall ;
                     callInfo.nSize = sizeof(SIPX_CALLSTATE_INFO);
                     
+                    sipxLogEvent(pData, EVENT_CATEGORY_CALLSTATE, &callInfo, pData->pUserData) ;
                     pData->pCallbackProc(EVENT_CATEGORY_CALLSTATE, &callInfo, pData->pUserData);
                 }
             }
         }
         sipxCallSetState(hCall, event, cause) ;
-#ifdef DEBUG_SIPXTAPI_EVENTS
-        ReportCallback(hCall, hLine, event, cause, NULL) ;
-#endif
     }
 
     // If this is a DESTROY message, free up resources after all listeners
@@ -1494,6 +1497,8 @@ void sipxFireMediaEvent(const void* pSrc,
                     break ;
             }
         }
+
+        // Filter out SILENT events after STOP
         if (event == MEDIA_REMOTE_SILENT)
         {
             if (type == MEDIA_TYPE_AUDIO)
@@ -1552,6 +1557,7 @@ void sipxFireMediaEvent(const void* pSrc,
                             default:
                                 break ;
                         }                                                        
+                        sipxLogEvent(pData, EVENT_CATEGORY_MEDIA, &mediaInfo, pData->pUserData) ;
                         pData->pCallbackProc(EVENT_CATEGORY_MEDIA, &mediaInfo, pData->pUserData);
                     }
                 }
@@ -1612,17 +1618,39 @@ void sipxFireKeepaliveEvent(const void*          pSrc,
                 keepaliveInfo.szFeedbackAddress = SAFE_STRDUP(szFeedbackAddress) ;
                 keepaliveInfo.feedbackPort = feedbackPort ;
                                                 
+                sipxLogEvent(pData, EVENT_CATEGORY_KEEPALIVE, &keepaliveInfo, pData->pUserData) ;
                 pData->pCallbackProc(EVENT_CATEGORY_KEEPALIVE, &keepaliveInfo, pData->pUserData);
+                
             }
         }
     }                           
 }
 
 
+SIPXTAPI_API SIPX_RESULT sipxLogEvent(EVENT_LISTENER_DATA* pListener,
+                                      SIPX_EVENT_CATEGORY category,
+                                      void* pInfo,
+                                      void* pUserData)
+{
+    if (pInfo && pListener)
+    {
+        char cData[1024] ;
+        memset(cData, 0, sizeof(cData)) ;
+        sipxEventToString(category, pInfo, cData, sizeof(cData)-1) ;
+        OsSysLog::add(FAC_SIPXTAPI_EVENT, PRI_INFO, "%p %s", 
+                pListener->pCallbackProc,
+                cData) ;
+        // printf("%p %s\n", pListener->pCallbackProc, cData) ;
+    }
+
+    return SIPX_RESULT_SUCCESS ;
+}
+
 SIPXTAPI_API SIPX_RESULT sipxEventListenerAdd(const SIPX_INST hInst,
                                               SIPX_EVENT_CALLBACK_PROC pCallbackProc,
                                               void* pUserData)
 {
+    OsStackTraceLogger stackLogger(FAC_SIPXTAPI, PRI_DEBUG, "sipxEventListenerAdd");
     OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
             "sipxEventListenerAdd hInst=%p pCallbackProc=%p pUserData=%p",
             hInst, pCallbackProc, pUserData);
@@ -1700,6 +1728,7 @@ SIPX_RESULT __sipxEventListenerRemove(const SIPX_INST hInst,
                                       SIPX_EVENT_CALLBACK_PROC pCallbackProc, 
                                       void* pUserData) 
 {
+    OsStackTraceLogger stackLogger(FAC_SIPXTAPI, PRI_DEBUG, "sipxEventListenerRemove");
     OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
         "__sipxEventListenerRemove hInst=%p pCallbackProc=%p pUserData=%p",
         hInst, pCallbackProc, pUserData);
@@ -1958,6 +1987,9 @@ SIPXTAPI_API char* sipxMediaCauseToString(SIPX_MEDIA_CAUSE cause,
 	case MEDIA_CAUSE_DTMF_STOP:
             SNPRINTF(szBuffer, nBuffer, "MEDIA_CAUSE_DTMF_STOP");
 	    break ;
+        case MEDIA_CAUSE_ICE_FAILED:
+            SNPRINTF(szBuffer, nBuffer, "MEDIA_CAUSE_ICE_FAILED");
+            break ;
     }
     return szBuffer;
 }
@@ -2183,6 +2215,7 @@ void sipxFireLineEvent(const void* pSrc,
                     lineInfo.hLine = hLine;
                     lineInfo.nSize = sizeof(SIPX_LINESTATE_INFO);
                     
+                    sipxLogEvent(pData, EVENT_CATEGORY_LINESTATE, &lineInfo, pData->pUserData) ;
                     pData->pCallbackProc(EVENT_CATEGORY_LINESTATE, &lineInfo, pData->pUserData);
                 }
             }      
@@ -2196,8 +2229,8 @@ bool sipxFireEvent(const void* pSrc,
                    void* pInfo)
 {
     OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
-        "sipxFireEvent pSrc=%p category=%d pInfo=%p",
-        pSrc, category, pInfo);
+            "sipxFireEvent pSrc=%p %s pInfo=%p",
+            pSrc, convertEventCategoryToString(category), pInfo);
 	OsLock eventLock(*g_pEventListenerLock) ;
 
     bool bRet = true;
@@ -2223,6 +2256,7 @@ bool sipxFireEvent(const void* pSrc,
                     pSecInfo->hCall = sipxCallLookupHandle(pSecInfo->callId, pSrc);
                 }
 
+                sipxLogEvent(pData, category, pInfo, pData->pUserData) ;
                 if (!pData->pCallbackProc(category, pInfo, pData->pUserData))
                 {
                     bRet = false;

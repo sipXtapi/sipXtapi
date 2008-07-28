@@ -1,3 +1,19 @@
+// Copyright 2008 AOL LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA. 
 //  
 // Copyright (C) 2006 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
@@ -283,22 +299,25 @@ OsStatus dmaStartup(int samplesPerFrame)
  */
 void dmaShutdown()
 {
-   OsIntPtrMsg *pMsg = (OsIntPtrMsg*)gMicStatusPool->findFreeMsg();
-   pMsg->setData1(WIM_CLOSE);
-   if (gMicStatusQueue->sendFromISR(*pMsg) != OS_SUCCESS)
+   if (gMicStatusPool)
    {
-      osPrintf("Problem with sending message in dmaShutdown\n");
-   }
+      OsIntPtrMsg *pMsg = (OsIntPtrMsg*)gMicStatusPool->findFreeMsg();
+      pMsg->setData1(WIM_CLOSE);
+      if (gMicStatusQueue->sendFromISR(*pMsg) != OS_SUCCESS)
+      {
+          osPrintf("Problem with sending message in dmaShutdown\n");
+      }
 
-   pMsg = (OsIntPtrMsg*)gSpeakerStatusPool->findFreeMsg();
-   pMsg->setData1(WOM_CLOSE);
-   if (gSpeakerStatusQueue->sendFromISR(*pMsg) != OS_SUCCESS)
-   {
-      osPrintf("Problem with sending message in dmaShutdown\n");
-   }
+      pMsg = (OsIntPtrMsg*)gSpeakerStatusPool->findFreeMsg();
+      pMsg->setData1(WOM_CLOSE);
+      if (gSpeakerStatusQueue->sendFromISR(*pMsg) != OS_SUCCESS)
+      {
+          osPrintf("Problem with sending message in dmaShutdown\n");
+      }
 
-   WaitForSingleObject(hMicThread, INFINITE);
-   WaitForSingleObject(hSpkrThread, INFINITE);
+      WaitForSingleObject(hMicThread, INFINITE);
+      WaitForSingleObject(hSpkrThread, INFINITE);
+   } 
 
    delete gMicStatusQueue;
    gMicStatusQueue = NULL;
@@ -312,11 +331,14 @@ void dmaShutdown()
 
 void dmaSignalMicDeviceChange()
 {
-   // We do simple signal WIM_DATA without data
-   OsIntPtrMsg *pMsg = (OsIntPtrMsg*)gMicStatusPool->findFreeMsg();
-   pMsg->setData1(WIM_DATA);
-   if (gMicStatusQueue->sendFromISR(*pMsg) != OS_SUCCESS)
-   {
-      osPrintf("Problem with sending message in dmaSignalMicDeviceChange\n");
-   }
+    // We do simple signal WIM_DATA without data
+    if (gMicStatusPool)
+    {
+        OsIntPtrMsg *pMsg = (OsIntPtrMsg*)gMicStatusPool->findFreeMsg();
+        pMsg->setData1(WIM_DATA);
+        if (gMicStatusQueue->sendFromISR(*pMsg) != OS_SUCCESS)
+        {
+            osPrintf("Problem with sending message in dmaSignalMicDeviceChange\n");
+        }
+    }
 }

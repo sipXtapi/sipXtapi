@@ -1,6 +1,19 @@
-//  
-// Copyright (C) 2006 SIPez LLC. 
-// Licensed to SIPfoundry under a Contributor Agreement. 
+// Copyright 2008 AOL LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -11,23 +24,24 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
-
 // SYSTEM INCLUDES
 #include <assert.h>
 
 // APPLICATION INCLUDES
 #include "os/OsNatAgentTask.h"
-#include "os/IStunSocket.h"
+#include "os/OsNatAgentContext.h"
+#include "os/IOsNatSocket.h"
 #include "os/TurnMessage.h"
 #include "os/StunMessage.h"
 #include "os/StunUtils.h"
-#include "os/OsTimer.h"
+
 #include "os/OsMutex.h"
 #include "os/OsLock.h"
 #include "os/OsEvent.h"
 #include "os/OsWriteLock.h"
 #include "os/OsReadLock.h"
 #include "os/OsTime.h"
+#include "os/OsTimer.h"
 #include "os/OsQueuedEvent.h"
 #include "utl/UtlVoidPtr.h"
 #include "utl/UtlHashMapIterator.h"
@@ -40,10 +54,20 @@
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
+extern const char* scBindingTypes[] ;
 // CONSTANTS
 // STATIC VARIABLE INITIALIZATIONS
 OsMutex OsNatAgentTask::sLock(OsMutex::Q_FIFO) ;
 OsNatAgentTask* OsNatAgentTask::spInstance = NULL ;
+
+int OsNatAgentTask::sStunTimeoutMS = NAT_RESPONSE_TIMEOUT_MS_START ;
+int OsNatAgentTask::sTurnTimeoutMS = NAT_RESPONSE_TIMEOUT_MS_START ;
+
+#ifndef MAX
+#define MAX(a,b) (((a) > (b)) ? (a) : (b))
+#endif
+
+#define NAT_DEBUG 0
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
@@ -54,8 +78,9 @@ OsNatAgentTask::OsNatAgentTask()
     , mMapsLock(OsMutex::Q_FIFO)
     , mExternalBindingMutex(OsRWMutex::Q_FIFO)
 {
-
 }
+
+//////////////////////////////////////////////////////////////////////////////
 
 OsNatAgentTask::~OsNatAgentTask()
 {
@@ -69,38 +94,41 @@ OsNatAgentTask::~OsNatAgentTask()
     UtlHashMapIterator iterator(mContextMap);
     while (pKey = (UtlVoidPtr*)iterator())
     {
-        NAT_AGENT_CONTEXT* pContext = (NAT_AGENT_CONTEXT*) pKey->getValue();
+        OsNatAgentContext* pContext = (OsNatAgentContext*) pKey->getValue();
         mContextMap.destroy(pKey) ;
-        releaseTimer(pContext->pTimer) ;
+        if (pContext->pErrorTimer)
+            releaseTimer(pContext->pErrorTimer) ;
+        if (pContext->pRefreshTimer)
+            releaseTimer(pContext->pRefreshTimer) ;
+        
         delete pContext ;
     }
 
     // Clear Timers 
-    UtlSListIterator listIterator(mTimerPool);
-    while (pKey = (UtlVoidPtr*)listIterator())
+    UtlSListIterator timerIterator(mTimerPool);
+    while (pKey = (UtlVoidPtr*)timerIterator())
     {
         OsTimer* pTimer = (OsTimer*) pKey->getValue() ;
         mTimerPool.destroy(pKey) ;        
         delete pTimer ;
     }
 
-    // Clear external binding list
-    OsWriteLock bindingLock(mExternalBindingMutex);
-
-    UtlSListIterator itor(mExternalBindingsList);
-    while (pKey = (UtlVoidPtr*)itor())
+    // Clear external bindings
+    UtlSListIterator xbindIterator(mExternalBindingsList);
+    while (pKey = (UtlVoidPtr*)xbindIterator())
     {
-       NAT_AGENT_EXTERNAL_CONTEXT* pContext = (NAT_AGENT_EXTERNAL_CONTEXT*)pKey->getValue();
-       mExternalBindingsList.destroy(pKey);
-       delete pContext;
+        NAT_AGENT_EXTERNAL_CONTEXT* pContext = 
+                (NAT_AGENT_EXTERNAL_CONTEXT*) pKey->getValue() ;
+        mExternalBindingsList.destroy(pKey) ;        
+        delete pContext ;
     }
 }
 
+//////////////////////////////////////////////////////////////////////////////
 
 OsNatAgentTask* OsNatAgentTask::getInstance() 
 {
     OsLock lock(sLock) ;
-
     if (spInstance == NULL) 
     {
         spInstance = new OsNatAgentTask() ;
@@ -108,9 +136,9 @@ OsNatAgentTask* OsNatAgentTask::getInstance()
     }
 
     return spInstance ;
-
 }
 
+//////////////////////////////////////////////////////////////////////////////
 
 void OsNatAgentTask::releaseInstance() 
 {
@@ -134,70 +162,83 @@ UtlBoolean OsNatAgentTask::handleMessage(OsMsg& rMsg)
         case NAT_MSG_TYPE:
             if (((NatMsg&) rMsg).getType() == NatMsg::STUN_MESSAGE)
             {
-                bHandled = handleStunMessage((NatMsg&) rMsg) ;
+                handleStunMessage((NatMsg&) rMsg) ;
             }
             else if (((NatMsg&) rMsg).getType() == NatMsg::TURN_MESSAGE)
             {
-                bHandled = handleTurnMessage((NatMsg&) rMsg) ;
-            }
-            else if (((NatMsg&) rMsg).getType() == NatMsg::EXPIRATION_MESSAGE)
-            {
-                NAT_AGENT_CONTEXT* pContext = (NAT_AGENT_CONTEXT*) ((NatMsg&) rMsg).getContext() ;
-                if (pContext)
-                {
-                    bHandled = handleTimerEvent(pContext) ;
-                }
+                handleTurnMessage((NatMsg&) rMsg) ;
             }
             else
             {
                 // Unknown message type
                 assert(false) ;
             }
+            bHandled = true ;
             break ;
         case SYNC_MSG_TYPE:
-            bHandled = handleSynchronize((OsRpcMsg&) rMsg) ;
+            handleSynchronize((OsRpcMsg&) rMsg) ;
+            bHandled = true ;
             break ;
         case OsMsg::OS_EVENT:
             {
                 // Pull out context
-                NAT_AGENT_CONTEXT* pContext = NULL ;
+                OsTimer* pTimer = NULL ;
+                OsNatAgentContext* pContext = NULL ;
                 OsStatus rc = ((OsEventMsg&)rMsg).getUserData((int&) pContext) ;
-                assert(rc == OS_SUCCESS) ;    
-
+                assert(rc == OS_SUCCESS) ;
+                rc = ((OsEventMsg&)rMsg).getEventData((int&) pTimer) ;
+                assert(rc == OS_SUCCESS) ;
+                
                 if ((rc == OS_SUCCESS) && (pContext != NULL))
-                {   
-                    NatMsg msg(NatMsg::EXPIRATION_MESSAGE, pContext) ;
-                    postMessage(msg) ;
+                {
+                    handleTimerEvent(pContext, pTimer) ;
+                }
+                else
+                {
+                    assert(false) ;
                 }
             }
+            bHandled = true ;
             break ;
     }
-
     return bHandled ;
 }
 
+//////////////////////////////////////////////////////////////////////////////
 
 UtlBoolean OsNatAgentTask::handleStunMessage(NatMsg& rMsg) 
-{
+{   
     OsLock lock(mMapsLock) ;
 
-    StunMessage msg ;
-    size_t nBuffer = rMsg.getLength() ;
-    char* pBuffer = rMsg.getBuffer() ;
-    IStunSocket* pSocket = rMsg.getSocket() ;
-    UtlString sendToAddress ;
-    unsigned short sendToPort ;
-    unsigned short unknownAttributes[STUN_MAX_UNKNOWN_ATTRIBUTES] ;
-    size_t nUnknownAttributes ;
+    StunMessage    msg ;
 
-    if (OsSysLog::willLog(FAC_NET, PRI_DEBUG))
+    UtlString      sendToAddress ;
+    unsigned short sendToPort ;
+
+    size_t         nBuffer = rMsg.getLength() ;
+    char*          pBuffer = rMsg.getBuffer() ;
+    IOsNatSocket*  pSocket = rMsg.getSocket() ;
+
+    if (OsSysLog::willLog(FAC_NAT, PRI_DEBUG))
     {
         if (pBuffer != NULL && nBuffer > 0)
         {
-            UtlString output ;
-            StunUtils::debugDump(pBuffer, nBuffer, output) ;
-            OsSysLog::add(FAC_NET, PRI_DEBUG, "Inbound STUN message (Crude Parse):\n%s\n",
-                    output.data()) ;
+            UtlString tmp, output, localHostIp ;
+            pSocket->getSocket()->getLocalHostIp(&localHostIp) ;
+            StunUtils::debugDump(pBuffer, nBuffer, tmp) ;
+            output.format("STUN IN %s:%d <- %s:%d, relay=%s:%d\n%s",
+                    localHostIp.data(),
+                    pSocket->getSocket()->getLocalHostPort(),
+                    rMsg.getReceivedIp().data(),
+                    rMsg.getReceivedPort(),                    
+                    rMsg.getRelayIp().data(),
+                    rMsg.getRelayPort(),                                    
+                    tmp.data()) ;
+
+            OsSysLog::add(FAC_NAT, PRI_DEBUG, "%s", output.data()) ;
+#if NAT_DEBUG >= 2
+            printf("%s\n", output.data()) ;
+#endif
         }
     }
 
@@ -210,13 +251,14 @@ UtlBoolean OsNatAgentTask::handleStunMessage(NatMsg& rMsg)
                     StunMessage         respMsg ;
                     STUN_TRANSACTION_ID transactionId ;
                     STUN_MAGIC_ID       magicId ;
+                    unsigned short unknownAttributes[STUN_MAX_UNKNOWN_ATTRIBUTES] ;
+                    size_t         nUnknownAttributes ;
 
                     // Copy over IDs
                     msg.getTransactionId(&transactionId) ;
                     respMsg.setTransactionId(transactionId) ;
                     msg.getMagicId(&magicId) ;
                     respMsg.setMagicId(magicId) ;
-
 
                     // Check for unknown attributes
                     if (msg.getUnknownParsedAttributes(unknownAttributes, 
@@ -238,14 +280,10 @@ UtlBoolean OsNatAgentTask::handleStunMessage(NatMsg& rMsg)
 
                          // Obey XOR request
                         if (msg.getRequestXorOnly())
-                        {
                             respMsg.setSendXorOnly() ;
-                        }
 
-                        // Set Mapped Address
+                        // Set Mapped && Source Addresses
                         respMsg.setMappedAddress(rMsg.getReceivedIp(), rMsg.getReceivedPort()) ;
-
-                        // Set Source Address
                         respMsg.setSourceAddress(pSocket->getSocket()->getLocalIp(), pSocket->getSocket()->getLocalHostPort()) ;
 
                         // Check for response address
@@ -263,16 +301,81 @@ UtlBoolean OsNatAgentTask::handleStunMessage(NatMsg& rMsg)
                             sendToPort = rMsg.getReceivedPort() ;
                         }
 
-                        sendMessage(&respMsg, pSocket, sendToAddress, sendToPort, STUN_DISCOVERY_PACKET) ;
+                        // Check if this came over our relay
+                        if (rMsg.getRelayPort() != 0 && rMsg.getRelayIp().length() > 0)
+                        {
+                            // We are assuming that if something comes in as data indication that we 
+                            // should send the response back via our turn binding.  We *should* validate 
+                            // the relay address against the turn server address in the binding.
+                            char cEncoded[NAT_MAX_STURN_MSG_LENGTH] ;
+                            size_t length ;
+                            if (respMsg.encode(cEncoded, sizeof(cEncoded), length))
+                                sendTurnSendRequest(pSocket, sendToAddress, sendToPort, cEncoded, length) ;
+                            else
+                                assert(false) ;
+                        }
+                        else
+                            sendMessage(&respMsg, pSocket, sendToAddress, sendToPort, STUN_DISCOVERY_PACKET) ;
+
+                        // Look for new peer-reflective addresses
+                        bool bFoundMatch = false ;
+                        bool bFoundProbe = false ;
+                        OsNatAgentContext* pMatchingContext = NULL ;
+                        {
+                            UtlHashMapIterator iterator(mContextMap);
+                            UtlVoidPtr* pKey;
+
+                            while (pKey = (UtlVoidPtr*)iterator())
+                            {        
+                                OsNatAgentContext* pContext = (OsNatAgentContext*) pKey->getValue();
+                                if ((pContext->pSocket == pSocket) && (pContext->type == STUN_PROBE))
+                                {
+                                    bFoundProbe = true ;
+                                    if (    (pContext->serverAddress.compareTo(rMsg.getReceivedIp()) == 0) && 
+                                            (pContext->serverPort == rMsg.getReceivedPort()) &&
+                                            (pContext->relayAddress.compareTo(rMsg.getReceivedIp()) == 0))
+                                    {
+                                        bFoundMatch = true ;
+                                        break ;
+                                    }
+                                    else if (pContext->serverAddress.compareTo(rMsg.getReceivedIp()) == 0)
+                                    {
+                                        pMatchingContext = pContext ;
+                                    }
+                                }
+                            }
+
+                            unsigned long priority = 0 ;
+                            if (!bFoundMatch && msg.getPriority(priority))
+                            {                                    
+                                if (pMatchingContext && priority == 0)
+                                    priority = pMatchingContext->priority ;
+                                if (priority == 0)
+                                    priority = 10 ; 
+
+                                OsSysLog::add(FAC_NAT, PRI_INFO, "Possible peer-reflective address: %s:%d (relay: %s:%d) pri=%d\n",
+                                        rMsg.getReceivedIp().data(), rMsg.getReceivedPort(), 
+                                        rMsg.getRelayIp().data(), rMsg.getRelayPort(),
+                                        priority) ;
+#if NAT_DEBUG >= 1
+                                printf("Possible peer-reflective address: %s:%d (relay: %s:%d) pri=%d\n",
+                                        rMsg.getReceivedIp().data(), rMsg.getReceivedPort(), 
+                                        rMsg.getRelayIp().data(), rMsg.getRelayPort(),
+                                        priority) ;
+#endif
+                                sendStunProbe(pSocket, rMsg.getReceivedIp(), rMsg.getReceivedPort(), 
+                                        rMsg.getRelayIp(), rMsg.getRelayPort(), 
+                                        priority);
+                            }
+                        }
                     }
                 }
                 break ;
             case MSG_STUN_BIND_RESPONSE:
-                {                                        
+                {                           
                     STUN_TRANSACTION_ID transactionId ;
                     msg.getTransactionId(&transactionId) ;
-                    NAT_AGENT_CONTEXT* pContext = getBinding(&transactionId) ;
-
+                    OsNatAgentContext* pContext = getBinding(&transactionId) ;
                     if (pContext)
                     {
                         char mappedAddress[64] ;
@@ -280,11 +383,31 @@ UtlBoolean OsNatAgentTask::handleStunMessage(NatMsg& rMsg)
 
                         if (msg.getMappedAddress(mappedAddress, mappedPort))
                         {
-                            markStunSuccess(pContext, mappedAddress, mappedPort) ;
+                            UtlString receivedIp = rMsg.getReceivedIp() ;
+                            int receivedport = rMsg.getReceivedPort() ;
+#if NAT_DEBUG >= 1
+                            printf("Received STUN response for %s:%d / %s:%d\n", 
+                                    mappedAddress, mappedPort, receivedIp.data(), receivedport) ;
+#endif
+                            
+
+                            char changedAddress[64] ;
+                            unsigned short  changedPort ;
+
+                            if (!msg.getChangedAddress(changedAddress, changedPort))
+                            {
+                                memset(changedAddress, 0, sizeof(changedAddress)) ;
+                                changedPort = PORT_NONE ;
+                            }
+
+                            pContext->markSuccess(mappedAddress, mappedPort, 
+                                    receivedIp, receivedport,
+                                    changedAddress, changedPort) ;
                         }
                         else
                         {
-                            markStunFailure(pContext) ;
+                            assert(false) ;
+                            pContext->markFailure(NAT_FAILURE_PROTOCOL) ;
                         }                   
                     }
                 }
@@ -293,17 +416,26 @@ UtlBoolean OsNatAgentTask::handleStunMessage(NatMsg& rMsg)
                 {
                     STUN_TRANSACTION_ID transactionId ;
                     msg.getTransactionId(&transactionId) ;
-                    NAT_AGENT_CONTEXT* pContext = getBinding(&transactionId) ;
-
+                    OsNatAgentContext* pContext = getBinding(&transactionId) ;
                     if (pContext)
-                    {
-                        markStunFailure(pContext) ;
-                    }
+                        pContext->markFailure(NAT_FAILURE_UNKNOWN) ;
                 }
                 break ;
             case MSG_STUN_SHARED_SECRET_REQUEST:
-                    // TODO: Send error
-                    break ;
+                {
+                    StunMessage         respMsg ;
+                    STUN_TRANSACTION_ID transactionId ;
+                    STUN_MAGIC_ID       magicId ;
+
+                    // Not supported on client
+                    msg.getTransactionId(&transactionId) ;
+                    respMsg.setTransactionId(transactionId) ;
+                    msg.getMagicId(&magicId) ;
+                    respMsg.setMagicId(magicId) ;
+                    respMsg.setError(STUN_ERROR_GLOBAL_CODE, STUN_ERROR_GLOBAL_TEXT) ;
+                    sendMessage(&respMsg, pSocket, rMsg.getReceivedIp(), rMsg.getReceivedPort(), TURN_PACKET) ;
+                }
+                break ;
             case MSG_STUN_SHARED_SECRET_RESPONSE:
             case MSG_STUN_SHARED_SECRET_ERROR_RESPONSE:
                 break ;
@@ -311,34 +443,45 @@ UtlBoolean OsNatAgentTask::handleStunMessage(NatMsg& rMsg)
     }
 
     if (pBuffer)
-    {
         free(pBuffer) ;
-    }
 
     return true ;
 }
 
+//////////////////////////////////////////////////////////////////////////////
 
 UtlBoolean OsNatAgentTask::handleTurnMessage(NatMsg& rMsg) 
 {
     OsLock lock(mMapsLock) ;
 
-    TurnMessage msg;
-    TurnMessage respMsg ;
-    size_t nBuffer = rMsg.getLength() ;
-    char* pBuffer = rMsg.getBuffer() ;
-    IStunSocket* pSocket = rMsg.getSocket() ;
+    TurnMessage         msg ;
+    TurnMessage         respMsg ;
+    size_t              nBuffer = rMsg.getLength() ;
+    char*               pBuffer = rMsg.getBuffer() ;
+    IOsNatSocket*       pSocket = rMsg.getSocket() ;
     STUN_TRANSACTION_ID transactionId ;
     STUN_MAGIC_ID       magicId ;
 
-    if (OsSysLog::willLog(FAC_NET, PRI_DEBUG))
+    if (OsSysLog::willLog(FAC_NAT, PRI_DEBUG))
     {
         if (pBuffer != NULL && nBuffer > 0)
         {
-            UtlString output ;
-            StunUtils::debugDump(pBuffer, nBuffer, output) ;
-            OsSysLog::add(FAC_NET, PRI_DEBUG, "Inbound TURN message(Crude Parse):\n%s\n",
-                    output.data()) ;
+            UtlString tmp, output, localHostIp ;
+            pSocket->getSocket()->getLocalHostIp(&localHostIp) ;
+            StunUtils::debugDump(pBuffer, nBuffer, tmp) ;
+            output.format("TURN IN %s:%d <- %s:%d, relay=%s:%d\n%s",
+                    localHostIp.data(),
+                    pSocket->getSocket()->getLocalHostPort(),
+                    rMsg.getReceivedIp().data(),
+                    rMsg.getReceivedPort(),                    
+                    rMsg.getRelayIp().data(),
+                    rMsg.getRelayPort(),                                    
+                    tmp.data()) ;
+
+            OsSysLog::add(FAC_NAT, PRI_DEBUG, "%s", output.data()) ;
+#if NAT_DEBUG >= 2
+            printf("%s\n", output.data()) ;
+#endif
         }
     }
 
@@ -359,8 +502,7 @@ UtlBoolean OsNatAgentTask::handleTurnMessage(NatMsg& rMsg)
                 {
                     STUN_TRANSACTION_ID transactionId ;
                     msg.getTransactionId(&transactionId) ;
-                    NAT_AGENT_CONTEXT* pContext = getBinding(&transactionId) ;
-
+                    OsNatAgentTurnContext* pContext = getTurnBinding(&transactionId) ;
                     if ((pContext) && pContext->type == TURN_ALLOCATION)
                     {
                         char relayAddress[64] ;
@@ -368,11 +510,15 @@ UtlBoolean OsNatAgentTask::handleTurnMessage(NatMsg& rMsg)
 
                         if (msg.getMappedAddress(relayAddress, relayPort))
                         {
-                            markTurnSuccess(pContext, relayAddress, relayPort) ;
+                            pContext->markSuccess(
+                                relayAddress, relayPort,
+                                rMsg.getReceivedIp().data(),
+                                rMsg.getReceivedPort(),
+                                relayAddress, relayPort) ;
                         }
                         else
                         {
-                            markTurnFailure(pContext) ;
+                            pContext->markFailure(NAT_FAILURE_PROTOCOL) ;
                         }
                     }
                 }
@@ -381,11 +527,21 @@ UtlBoolean OsNatAgentTask::handleTurnMessage(NatMsg& rMsg)
                 {
                     STUN_TRANSACTION_ID transactionId ;
                     msg.getTransactionId(&transactionId) ;
-                    NAT_AGENT_CONTEXT* pContext = getBinding(&transactionId) ;
-
-                    if ((pContext) && pContext->type == TURN_ALLOCATION)
+                    OsNatAgentTurnContext* pContext = getTurnBinding(&transactionId) ;
+                    if (pContext)
                     {
-                        markTurnFailure(pContext) ;
+                        if (pContext->status == SUCCESS)
+                        {
+                            // Ignore failure responses for successful transactions 
+                            // (work-around for servers which incorrectly handle
+                            // resends).
+                            OsSysLog::add(FAC_NAT, PRI_INFO, 
+                                "Ignoring turn allocation error for valid transaction (%s:%d)",
+                                pContext->address.data(),
+                                pContext->port) ;
+                        }
+                        else if (pContext->type == TURN_ALLOCATION)
+                            pContext->markFailure(NAT_FAILURE_UNKNOWN) ;
                     }
                 }
                 break ;
@@ -399,20 +555,61 @@ UtlBoolean OsNatAgentTask::handleTurnMessage(NatMsg& rMsg)
                 sendMessage(&respMsg, pSocket, rMsg.getReceivedIp(), rMsg.getReceivedPort(), TURN_PACKET) ;
                 break ;
             case MSG_TURN_SEND_RESPONSE:
-                // Drop send response -- not much we can do right now.
+                {
+                    STUN_TRANSACTION_ID transactionId ;
+                    msg.getTransactionId(&transactionId) ;
+                    OsNatAgentContext* pContext = getBinding(&transactionId) ;
+                    if (pContext && pContext->type == TURN_SEND_REQUEST)
+                    {
+                        pContext->status = SUCCESS ;
+                        pContext->lEndTimestamp = OsDateTime::getCurTimeInMS() ;
+                    }
+                }
                 break ;
             case MSG_TURN_SEND_ERROR_RESPONSE:
+                {                    
+                    STUN_TRANSACTION_ID transactionId ;
+                    msg.getTransactionId(&transactionId) ;
+                    OsNatAgentContext* pContext = getBinding(&transactionId) ;
+
+                    assert(pContext->type == TURN_SEND_REQUEST) ;
+                    if (pContext->type == TURN_SEND_REQUEST)
+                    {
+                        pContext->status = FAILED ;
+                        pContext->lEndTimestamp = OsDateTime::getCurTimeInMS() ;
+                    }
+                }
+
                 // Drop error response -- not much we can do right now.
                 break ;
             case MSG_TURN_DATA_INDICATION:
-                // Dropping data indication -- only locking onto a single 
-                // address for now
+                // Data indications should be recursed upon in OsNatSocketBaseImpl
+                assert(false);
                 break ;
             case MSG_TURN_ACTIVE_DESTINATION_RESPONSE:
+                {
+                    STUN_TRANSACTION_ID transactionId ;
+                    msg.getTransactionId(&transactionId) ;
+                    OsNatAgentContext* pContext = getBinding(&transactionId) ;
+                    if (pContext && pContext->type == TURN_SET_ACTIVE_DEST)
+                    {
+                        pContext->status = SUCCESS ;
+                        pContext->lEndTimestamp = OsDateTime::getCurTimeInMS() ;
+                    }
+                }
                 break ;
             case MSG_TURN_ACTIVE_DESTINATION_ERROR_RESPONSE:
+                {
+                    STUN_TRANSACTION_ID transactionId ;
+                    msg.getTransactionId(&transactionId) ;
+                    OsNatAgentContext* pContext = getBinding(&transactionId) ;
+                    if (pContext && pContext->type == TURN_SET_ACTIVE_DEST)
+                    {
+                        pContext->status = SUCCESS ;
+                        pContext->lEndTimestamp = OsDateTime::getCurTimeInMS() ;
+                    }
+                }
                 break ;
-
             default:
                 // Unknown message type
                 assert(false) ;
@@ -421,13 +618,12 @@ UtlBoolean OsNatAgentTask::handleTurnMessage(NatMsg& rMsg)
     }
 
     if (pBuffer)
-    {
         free(pBuffer) ;
-    }
 
     return true ;
 }
 
+//////////////////////////////////////////////////////////////////////////////
 
 UtlBoolean OsNatAgentTask::handleSynchronize(OsRpcMsg& rMsg) 
 {
@@ -437,28 +633,57 @@ UtlBoolean OsNatAgentTask::handleSynchronize(OsRpcMsg& rMsg)
     return true ;
 }
 
+//////////////////////////////////////////////////////////////////////////////
 
-UtlBoolean OsNatAgentTask::handleTimerEvent(NAT_AGENT_CONTEXT* pContext) 
+UtlBoolean OsNatAgentTask::handleTimerEvent(OsNatAgentContext* pContext, OsTimer* pTimer) 
 {    
     OsLock lock(mMapsLock) ;
 
     // Refresh the socket
     if ((pContext) && (pContext = getBinding(pContext))) 
     {
+        bool bProcessTimeout = true ;
+
+        // Santity Checking the timeout expiration
         switch (pContext->type)
         {
             case STUN_PROBE:    
             case STUN_DISCOVERY:
-                handleStunTimeout(pContext) ;            
+            case TURN_ALLOCATION:
+            case TURN_SEND_REQUEST:
+            case NAT_CLASSIFICATION:
+                // Even though we stop the error timer, that event could be 
+                // queued for handling.  Never process an error timer if we
+                // are in the success case.
+                if ((pContext->status == SUCCESS) && (pTimer == pContext->pErrorTimer))
+                    bProcessTimeout = false ;
+                break ;
+            default:
+                break ;
+        }
+
+        // Process
+        switch (pContext->type)
+        {
+            case STUN_PROBE:    
+            case STUN_DISCOVERY:
+            case CRLF_KEEPALIVE:
+            case STUN_KEEPALIVE:
+            case NAT_CLASSIFICATION:
+                if (bProcessTimeout)
+                    pContext->markTimeout() ;
                 break ;
             case TURN_ALLOCATION:
-                handleTurnTimeout(pContext) ;
-                break ;
-            case CRLF_KEEPALIVE:
-                handleCrLfKeepAlive(pContext) ;
-                break ;
-            case STUN_KEEPALIVE:
-                handleStunKeepAlive(pContext) ;
+            case TURN_SEND_REQUEST:
+            case TURN_SET_ACTIVE_DEST:
+                if (bProcessTimeout)
+                {
+                    OsNatAgentTurnContext* pTurnContext = getTurnBinding(pContext) ;
+                    if (pTurnContext)
+                        pTurnContext->markTimeout() ;
+                    else
+                        assert(false) ;
+                }
                 break ;
             default:
                 assert(false) ;
@@ -469,203 +694,14 @@ UtlBoolean OsNatAgentTask::handleTimerEvent(NAT_AGENT_CONTEXT* pContext)
     return true ;
 }
 
+//////////////////////////////////////////////////////////////////////////////
 
-void OsNatAgentTask::handleStunTimeout(NAT_AGENT_CONTEXT* pContext) 
-{
-    assert(pContext) ;
-    if (pContext)
-    {
-        switch (pContext->status)
-        {
-            case SUCCESS:
-                // Send keep-alive, set state to resending
-                pContext->status = RESENDING ;
-                
-                if (!sendStunRequest(pContext))
-                {
-                    markStunFailure(pContext) ;
-                }
-                break ;
-            case SENDING:
-                // Migrate to sending_error and resend
-                pContext->status = SENDING_ERROR ;
-                if (!sendStunRequest(pContext))
-                {
-                    markStunFailure(pContext) ;
-                }                                
-                break ;
-            case SENDING_ERROR:
-                // If we have hit the max resends, fail otherwise resend
-                pContext->refreshErrors++ ;
-                if (pContext->refreshErrors < pContext->abortCount)
-                {
-                    if (!sendStunRequest(pContext))
-                    {
-                        markStunFailure(pContext) ;
-                    }
-                } 
-                else
-                {
-                    markStunFailure(pContext) ;
-                }
-                break ;
-            case RESENDING:
-                // Migrate to resend_error and resend
-                pContext->status = RESENDING_ERROR ;
-                pContext->refreshErrors++ ;
-
-                if (!sendStunRequest(pContext))
-                {
-                    markStunFailure(pContext) ;
-                }
-                
-                break ;
-            case RESENDING_ERROR:                
-                pContext->refreshErrors++ ;
-                if (pContext->refreshErrors < NAT_RESEND_ABORT_COUNT)
-                {                    
-                    if (!sendStunRequest(pContext))
-                    {
-                        markStunFailure(pContext) ;
-                    }                    
-                }
-                else
-                {
-                    markStunFailure(pContext) ;
-                }
-                break ;
-            case FAILED:
-                // Nothing to do
-                break ;
-        }
-    }
-}
-
-
-void OsNatAgentTask::handleTurnTimeout(NAT_AGENT_CONTEXT* pContext) 
-{
-    OsTime errorAt(0, NAT_RESPONSE_TIMEOUT_MS * OsTime::USECS_PER_MSEC) ;
-    assert(pContext) ;
-    if (pContext)
-    {
-        switch (pContext->status)
-        {
-            case SUCCESS:
-                // Send keep-alive, set state to resending
-                pContext->status = RESENDING ;
-
-                pContext->pTimer->stop() ;
-                pContext->pTimer->periodicEvery(errorAt, errorAt) ;
-
-                if (!sendTurnRequest(pContext))
-                {
-                    markTurnFailure(pContext) ;
-                }
-                break ;
-            case SENDING:
-                // Migrate to sending_error and resend
-                pContext->status = SENDING_ERROR ;
-                if (!sendTurnRequest(pContext))
-                {
-                    markTurnFailure(pContext) ;
-                }                                
-                break ;
-            case SENDING_ERROR:
-                // If we have hit the max resends, fail otherwise resend
-                pContext->refreshErrors++ ;
-                if (pContext->refreshErrors < pContext->abortCount)
-                {
-                    if (!sendTurnRequest(pContext))
-                    {
-                        markTurnFailure(pContext) ;
-                    }
-                } 
-                else
-                {
-                    markTurnFailure(pContext) ;
-                }
-                break ;
-            case RESENDING:
-                // Migrate to resend_error and resend
-                pContext->status = RESENDING_ERROR ;
-                pContext->refreshErrors++ ;
-
-                if (!sendTurnRequest(pContext))
-                {
-                    markTurnFailure(pContext) ;
-                }
-                
-                break ;
-            case RESENDING_ERROR:                
-                pContext->refreshErrors++ ;
-                if (pContext->refreshErrors < NAT_RESEND_ABORT_COUNT)
-                {                    
-                    if (!sendTurnRequest(pContext))
-                    {
-                        markTurnFailure(pContext) ;
-                    }                    
-                }
-                else
-                {
-                    markTurnFailure(pContext) ;
-                }
-                break ;
-            case FAILED:
-                // Nothing to do
-                break ;
-        }
-    }
-}
-
-#define STR_CRLF  "\r\n\0"
-UtlBoolean OsNatAgentTask::handleCrLfKeepAlive(NAT_AGENT_CONTEXT* pContext) 
-{
-    UtlBoolean bRC = false ;
-   
-    // just calling the socketWrite function, which does not do timestamping
-    if (pContext->pSocket->socketWrite(STR_CRLF, 3, pContext->serverAddress, 
-            pContext->serverPort, CRLF_KEEPALIVE_PACKET) == 3)
-    {
-        bRC = true ;
-    }
-    else
-    {
-        if (pContext->pKeepaliveListener)
-        {
-            pContext->pKeepaliveListener->OnKeepaliveFailure(
-                        populateKeepaliveEvent(pContext)); 
-        }
-    }
-
-    return bRC ;
-}
-
-
-UtlBoolean OsNatAgentTask::handleStunKeepAlive(NAT_AGENT_CONTEXT* pContext) 
-{
-    UtlBoolean bRC = false ;
-
-    if (sendStunRequest(pContext))
-    {
-        bRC = true ;
-    }
-    else
-    {
-        if (pContext->pKeepaliveListener)
-        {
-            pContext->pKeepaliveListener->OnKeepaliveFailure(
-                    populateKeepaliveEvent(pContext)); 
-        }
-    }
-
-    return bRC ;
-}
-
-
-UtlBoolean OsNatAgentTask::sendStunProbe(IStunSocket* pSocket,
-                                         const UtlString&     stunServer,
-                                         int                  stunPort,
-                                         int                  priority) 
+UtlBoolean OsNatAgentTask::sendStunProbe(IOsNatSocket* pSocket,
+                                         const char*   stunServer,
+                                         int           stunPort,
+                                         const char*   relayAddress,
+                                         int           relayPort,
+                                         int           priority) 
 {
     OsLock lock(mMapsLock) ;
 
@@ -673,74 +709,72 @@ UtlBoolean OsNatAgentTask::sendStunProbe(IStunSocket* pSocket,
     StunMessage msgSend ;
     UtlString serverAddress ;
 
-    UtlString localHostIp ;
-    pSocket->getSocket()->getLocalHostIp(&localHostIp) ;
-    OsSysLog::add(FAC_NET, PRI_INFO, "Stun probe for %s:%d with server %s:%d priority=%d",
-            localHostIp.data(),         
-            pSocket->getSocket()->getLocalHostPort(),
-            stunServer.data(),
-            stunPort,
-            priority) ;
-
-    assert(pSocket) ;
-    assert(portIsValid(stunPort)) ;
-    assert(stunServer.length() > 0) ;
-
-    if (    pSocket && portIsValid(stunPort) && (stunServer.length() > 0) &&
-            OsSocket::getHostIpByName(stunServer, &serverAddress) && 
-            OsSocket::isIp4Address(serverAddress))
+    if (!doesProbeBindingExist(pSocket, stunServer, stunPort, relayAddress, relayPort))
     {
-        NAT_AGENT_CONTEXT* pContext = new NAT_AGENT_CONTEXT ;
-        //memset(pContext, 0, sizeof(NAT_AGENT_CONTEXT));        
-        if (pContext)
+        UtlString localHostIp ;
+        pSocket->getSocket()->getLocalHostIp(&localHostIp) ;
+        OsSysLog::add(FAC_NAT, PRI_INFO, "Stun probe for %s:%d with server %s:%d priority=%d",
+                localHostIp.data(),         
+                pSocket->getSocket()->getLocalHostPort(),
+                stunServer,
+                stunPort,
+                priority) ;
+
+        assert(pSocket) ;
+        assert(portIsValid(stunPort)) ;
+        assert(stunServer != NULL) ;
+        assert(strlen(stunServer) > 0) ;
+
+        if (    pSocket && portIsValid(stunPort) && stunServer && (strlen(stunServer) > 0) &&
+                OsSocket::getHostIpByName(stunServer, &serverAddress) && 
+                OsSocket::isIp4Address(serverAddress))
         {
-            pContext->type = STUN_PROBE ;
-            pContext->status = SENDING ;
-            pContext->serverAddress = serverAddress ;
-            pContext->serverPort = stunPort ;
-            pContext->options = 0 ;
-            memset(&pContext->transactionId, 0, sizeof(STUN_TRANSACTION_ID)) ;
-            pContext->nOldTransactions = 0 ;
-            for (int i=0; i<MAX_OLD_TRANSACTIONS; i++)
+            OsNatAgentContext* pContext = new OsNatAgentContext(this) ;
+            if (pContext)
             {
-                memset(&pContext->oldTransactionsIds[i], 0, sizeof(STUN_TRANSACTION_ID)) ;            
-            }                
-            pContext->pSocket = pSocket ;
-            pContext->pTimer = getTimer() ;
-            pContext->keepAliveSecs = 27 ;
-            pContext->abortCount = NAT_PROBE_ABORT_COUNT ;
-            pContext->refreshErrors = 0 ;            
-            pContext->port = PORT_NONE ;
-            pContext->priority = priority ;
-            pContext->pKeepaliveListener = NULL ;
+                pContext->type = STUN_PROBE ;
+                pContext->status = SENDING ;
+                pContext->serverAddress = serverAddress ;
+                pContext->serverPort = stunPort ;
+                pContext->relayAddress = relayAddress ;
+                pContext->relayPort = relayPort ;
+                pContext->options = 0 ;
+                memset(&pContext->transactionId, 0, sizeof(STUN_TRANSACTION_ID)) ;
+                pContext->pSocket = pSocket ;
+                pContext->pErrorTimer = getTimer(pContext) ;
+                pContext->pRefreshTimer = getTimer(pContext) ;
+                pContext->keepAliveSecs = NAT_DEFAULT_KEEPALIVE_SEC ;
+                pContext->abortCount = NAT_PROBE_HARDABORT_COUNT ;
+                pContext->errorTimeoutMSec = MAX(sStunTimeoutMS, sTurnTimeoutMS) ;
+                pContext->refreshErrors = 0 ;            
+                pContext->port = PORT_NONE ;
+                pContext->priority = priority ;
+                pContext->pKeepaliveListener = NULL ;
+                pContext->lStartTimestamp = OsDateTime::getCurTimeInMS() ;
 
-            mContextMap.insertKeyAndValue(new UtlVoidPtr(pContext), new UtlVoidPtr(pSocket)) ;
-
-            if (sendStunRequest(pContext))
-            {
-                OsTime errorAt(0, NAT_RESPONSE_TIMEOUT_MS * OsTime::USECS_PER_MSEC) ;
-                OsQueuedEvent* pEvent = (OsQueuedEvent*) pContext->pTimer->getNotifier() ;
-                pEvent->setUserData((intptr_t) pContext) ;
-
-                pContext->pTimer->periodicEvery(errorAt, errorAt) ;
-                bSuccess = true ;
+                mContextMap.insertKeyAndValue(new UtlVoidPtr(pContext), new UtlVoidPtr(pSocket)) ;
+                if (sendStunRequest(pContext, true))
+                {
+                    bSuccess = true ;
+                }
+                else
+                {
+                    // Unable to Send; let timeouts handle the cleanup
+                }            
             }
             else
             {
-                // Unable to Send
-                destroyBinding(pContext) ;
-            }            
-        }
-        else
-        {
-            // Unable to allocate context
-            assert(false) ;
+                // Unable to allocate context
+                assert(false) ;
+            }
         }
     }
     return bSuccess ;
 }
 
-UtlBoolean OsNatAgentTask::enableStun(IStunSocket* pSocket,
+//////////////////////////////////////////////////////////////////////////////
+
+UtlBoolean OsNatAgentTask::enableStun(IOsNatSocket*        pSocket,
                                       const UtlString&     stunServer,
                                       int                  stunPort,                                      
                                       const int            stunOptions,
@@ -754,7 +788,7 @@ UtlBoolean OsNatAgentTask::enableStun(IStunSocket* pSocket,
 
     UtlString localHostIp ;
     pSocket->getSocket()->getLocalHostIp(&localHostIp) ;
-    OsSysLog::add(FAC_NET, PRI_INFO, "Stun enabled for %s:%d with server %s:%d options=%d, keepAlive=%d",
+    OsSysLog::add(FAC_NAT, PRI_INFO, "Stun enabled for %s:%d with server %s:%d options=%d, keepAlive=%d",
             localHostIp.data(),         
             pSocket->getSocket()->getLocalHostPort(),
             stunServer.data(),
@@ -770,8 +804,7 @@ UtlBoolean OsNatAgentTask::enableStun(IStunSocket* pSocket,
             OsSocket::getHostIpByName(stunServer, &serverAddress) && 
             OsSocket::isIp4Address(serverAddress))
     {
-        NAT_AGENT_CONTEXT* pContext = new NAT_AGENT_CONTEXT ;
-        //memset(pContext, 0, sizeof(NAT_AGENT_CONTEXT));
+        OsNatAgentContext* pContext = new OsNatAgentContext(this) ;
         if (pContext)
         {
             pContext->type = STUN_DISCOVERY ;
@@ -780,35 +813,30 @@ UtlBoolean OsNatAgentTask::enableStun(IStunSocket* pSocket,
             pContext->serverPort = stunPort ;
             pContext->options = stunOptions ;
             memset(&pContext->transactionId, 0, sizeof(STUN_TRANSACTION_ID)) ;            
-            pContext->nOldTransactions = 0 ;
-            for (int i=0; i<MAX_OLD_TRANSACTIONS; i++)
-            {
-                memset(&pContext->oldTransactionsIds[i], 0, sizeof(STUN_TRANSACTION_ID)) ;            
-            }                
             pContext->pSocket = pSocket ;
-            pContext->pTimer = getTimer() ;
+            pContext->pErrorTimer = getTimer(pContext) ;
+            pContext->pRefreshTimer = getTimer(pContext) ;
             pContext->keepAliveSecs = keepAliveSecs;
             pContext->abortCount = NAT_INITIAL_ABORT_COUNT ;
+            pContext->errorTimeoutMSec = sStunTimeoutMS ;
             pContext->refreshErrors = 0 ;
             pContext->port = PORT_NONE ;
             pContext->priority = 0 ;
             pContext->pKeepaliveListener = NULL ;
+            pContext->lStartTimestamp = OsDateTime::getCurTimeInMS() ;
 
             mContextMap.insertKeyAndValue(new UtlVoidPtr(pContext), new UtlVoidPtr(pSocket)) ;
 
-            if (sendStunRequest(pContext))
+            if (sendStunRequest(pContext, true))
             {
-                OsTime errorAt(0, NAT_RESPONSE_TIMEOUT_MS * OsTime::USECS_PER_MSEC) ;
-                OsQueuedEvent* pEvent = (OsQueuedEvent*) pContext->pTimer->getNotifier() ;
-                pEvent->setUserData((intptr_t) pContext) ;
-
-                pContext->pTimer->periodicEvery(errorAt, errorAt) ;
                 bSuccess = true ;
             }
             else
             {
                 // Unable to Send
                 destroyBinding(pContext) ;
+                if (pSocket)
+                    pSocket->markStunFailure() ;
             }            
         }
         else
@@ -817,30 +845,37 @@ UtlBoolean OsNatAgentTask::enableStun(IStunSocket* pSocket,
             assert(false) ;
         }
     }
+    else
+    {
+        if (pSocket)
+            pSocket->markStunFailure() ;
+    }
+
     return bSuccess ;
 }
 
-UtlBoolean OsNatAgentTask::disableStun(IStunSocket* pSocket) 
+//////////////////////////////////////////////////////////////////////////////
+
+UtlBoolean OsNatAgentTask::disableStun(IOsNatSocket* pSocket) 
 {
     OsLock lock(mMapsLock) ;
 
     UtlString localHostIp ;
     pSocket->getSocket()->getLocalHostIp(&localHostIp) ;
-    OsSysLog::add(FAC_NET, PRI_INFO, "Stun disabled for %s:%d",
+    OsSysLog::add(FAC_NAT, PRI_INFO, "Stun disabled for %s:%d",
             localHostIp.data(),         
             pSocket->getSocket()->getLocalHostPort()) ;
 
-    NAT_AGENT_CONTEXT* pBinding = getBinding(pSocket, STUN_DISCOVERY) ;
+    OsNatAgentContext* pBinding = getBinding(pSocket, STUN_DISCOVERY) ;
     if (pBinding)
-    {
         destroyBinding(pBinding) ;
-    }
 
     return true ;
 }
 
+//////////////////////////////////////////////////////////////////////////////
 
-UtlBoolean OsNatAgentTask::enableTurn(IStunSocket* pSocket,
+UtlBoolean OsNatAgentTask::enableTurn(IOsNatSocket*        pSocket,
                                       const UtlString&     turnServer,
                                       int                  turnPort,
                                       int                  keepAliveSecs,
@@ -852,15 +887,17 @@ UtlBoolean OsNatAgentTask::enableTurn(IStunSocket* pSocket,
     TurnMessage msgSend ;
     UtlString serverAddress ;
 
+    // Logging
     UtlString localHostIp ;
     pSocket->getSocket()->getLocalHostIp(&localHostIp) ;
-    OsSysLog::add(FAC_NET, PRI_INFO, "Turn enabled for %s:%d with server %s:%d, keepalive=%d",
+    OsSysLog::add(FAC_NAT, PRI_INFO, "Turn enabled for %s:%d with server %s:%d, keepalive=%d",
             localHostIp.data(),         
             pSocket->getSocket()->getLocalHostPort(),
             turnServer.data(),
             turnPort,
             keepAliveSecs) ;
 
+    // Sanitiy checking
     assert(pSocket) ;    
     assert(turnServer.length() > 0) ;
     assert(portIsValid(turnPort)) ;
@@ -868,49 +905,37 @@ UtlBoolean OsNatAgentTask::enableTurn(IStunSocket* pSocket,
     if (    pSocket && portIsValid(turnPort) && (turnServer.length() > 0) &&
             OsSocket::getHostIpByName(turnServer, &serverAddress) && 
             OsSocket::isIp4Address(serverAddress))
-
-    {       
-        NAT_AGENT_CONTEXT* pContext = new NAT_AGENT_CONTEXT ;
-        //memset(pContext, 0, sizeof(NAT_AGENT_CONTEXT));        
+    {
+        // Create/Init Context
+        OsNatAgentTurnContext* pContext = new OsNatAgentTurnContext(this) ;
         if (pContext)
         {
             pContext->type = TURN_ALLOCATION ;
             pContext->status = SENDING ;
             pContext->serverAddress = serverAddress ;
             pContext->serverPort = turnPort ;
-            pContext->options = 0 ;
-            memset(&pContext->transactionId, 0, sizeof(STUN_TRANSACTION_ID)) ;
-            pContext->nOldTransactions = 0 ;
-            for (int i=0; i<MAX_OLD_TRANSACTIONS; i++)
-            {
-                memset(&pContext->oldTransactionsIds[i], 0, sizeof(STUN_TRANSACTION_ID)) ;            
-            }                
             pContext->pSocket = pSocket ;
-            pContext->pTimer = getTimer() ;
+            pContext->pErrorTimer = getTimer(pContext) ;
+            pContext->pRefreshTimer = getTimer(pContext) ;
             pContext->keepAliveSecs = keepAliveSecs;   
             pContext->abortCount = NAT_INITIAL_ABORT_COUNT ;
-            pContext->refreshErrors = 0 ;
-            pContext->port = PORT_NONE ;
+            pContext->errorTimeoutMSec = sTurnTimeoutMS ;
             pContext->username = username ;
             pContext->password = password ;
-            pContext->priority = 0 ;
-            pContext->pKeepaliveListener = NULL ;
+            pContext->lStartTimestamp = OsDateTime::getCurTimeInMS() ;
 
             mContextMap.insertKeyAndValue(new UtlVoidPtr(pContext), new UtlVoidPtr(pSocket)) ;
 
-            if (sendTurnRequest(pContext))
+            if (sendTurnRequest(pContext, true))
             {
-                OsTime errorAt(0, NAT_RESPONSE_TIMEOUT_MS * OsTime::USECS_PER_MSEC) ;
-                OsQueuedEvent* pEvent = (OsQueuedEvent*) pContext->pTimer->getNotifier() ;
-                pEvent->setUserData((intptr_t) pContext) ;
-
-                pContext->pTimer->periodicEvery(errorAt, errorAt) ;
                 bSuccess = true ;
             }
             else
             {
                 // Unable to Send
                 destroyBinding(pContext) ;
+                if (pSocket)
+                    pSocket->markTurnFailure() ;
             }            
         }
         else
@@ -919,107 +944,231 @@ UtlBoolean OsNatAgentTask::enableTurn(IStunSocket* pSocket,
             assert(false) ;
         }
     }
+    else
+    {
+        if (pSocket)
+            pSocket->markTurnFailure() ;
+    }
+
     return bSuccess ;
 }
 
+//////////////////////////////////////////////////////////////////////////////
 
-UtlBoolean OsNatAgentTask::primeTurnReception(IStunSocket* pSocket,
-                                              const                char* szAddress,
-                                              int                  iPort)
+UtlBoolean OsNatAgentTask::primeTurnReception(IOsNatSocket* pSocket,
+                                              const         char* szAddress,
+                                              int           iPort)
 {
     UtlBoolean bRC = false ;
     OsLock lock(mMapsLock) ;
 
     UtlString localHostIp ;
     pSocket->getSocket()->getLocalHostIp(&localHostIp) ;
-    OsSysLog::add(FAC_NET, PRI_INFO, "Turn Priming %s:%d -> %s:%d",
+    OsSysLog::add(FAC_NAT, PRI_INFO, "Turn Priming %s:%d -> %s:%d",
             localHostIp.data(),         
             pSocket->getSocket()->getLocalHostPort(),
             szAddress,
             iPort) ;
 
-    NAT_AGENT_CONTEXT* pBinding = getBinding(pSocket, TURN_ALLOCATION) ;
+    OsNatAgentTurnContext* pBinding = (OsNatAgentTurnContext*) getBinding(pSocket, TURN_ALLOCATION) ;
     if (pBinding)
     {
-        // Release Binding ...
-        TurnMessage msgSend ;
-
-        msgSend.allocTransactionId() ;
-        msgSend.setType(MSG_TURN_SEND_REQUEST) ;
-        msgSend.setDestinationAddress(szAddress, iPort) ;
-    
-        if (!pBinding->username.isNull())
+        OsNatAgentTurnContext* pContext = new OsNatAgentTurnContext(this) ;
+        if (pContext)
         {
-            msgSend.setUsername(pBinding->username) ;
+            pContext->type = TURN_SEND_REQUEST ;
+            pContext->status = SENDING ;
+            pContext->serverAddress = szAddress ;
+            pContext->serverPort = iPort ;
+            pContext->pSocket = pSocket ;
+            pContext->pErrorTimer = getTimer(pContext) ;
+            pContext->abortCount = NAT_INITIAL_ABORT_COUNT ;
+            pContext->errorTimeoutMSec = sTurnTimeoutMS ;
+            pContext->pPayload = strdup("\r\n\r\n") ;
+            pContext->nPayload = 4 ;
+            pContext->lStartTimestamp = OsDateTime::getCurTimeInMS() ;
+
+            mContextMap.insertKeyAndValue(new UtlVoidPtr(pContext), new UtlVoidPtr(pSocket)) ;
+            if (doSendTurnSendRequest(pContext, true))
+            {
+                bRC = true ;
+            }
         }
-
-        if (!pBinding->password.isNull()) 
-        {
-            msgSend.setPassword(pBinding->password) ;
-        }
-
-        msgSend.setData("\r\n", 2) ;          
-
-        bRC = sendMessage(&msgSend, pSocket, pBinding->serverAddress, pBinding->serverPort, TURN_PACKET) ;
+    }
+    else
+    {
+        assert(false) ;
     }
 
     return bRC ;
 }
 
+//////////////////////////////////////////////////////////////////////////////
 
-UtlBoolean OsNatAgentTask::setTurnDestination(IStunSocket* pSocket,
-                                              const char* szAddress,
-                                              int iPort ) 
+UtlBoolean OsNatAgentTask::doSendTurnSendRequest(OsNatAgentTurnContext* pContext, bool bNewTransaction) 
+{
+    UtlBoolean bRC = false ;
+    // Build TURN send request
+    TurnMessage msgSend ;
+
+    if (bNewTransaction)   
+    {
+        msgSend.allocTransactionId() ;
+        msgSend.getTransactionId(&pContext->transactionId) ;
+    }
+    else
+    {
+        msgSend.allocTransactionId() ;
+        msgSend.setTransactionId(pContext->transactionId) ;
+    }
+
+    msgSend.setType(MSG_TURN_SEND_REQUEST) ;
+    msgSend.setDestinationAddress(pContext->serverAddress, pContext->serverPort) ;    
+    msgSend.setData(pContext->pPayload, pContext->nPayload) ;
+
+    OsNatAgentTurnContext* pTurnBinding = getTurnBinding(pContext->pSocket, TURN_ALLOCATION) ;
+    if (pTurnBinding)
+    {
+        if (!pTurnBinding->username.isNull())
+            msgSend.setUsername(pTurnBinding->username) ;
+        if (!pTurnBinding->password.isNull()) 
+            msgSend.setPassword(pTurnBinding->password) ;
+
+        bRC = sendMessage(&msgSend, pTurnBinding->pSocket, pTurnBinding->serverAddress, pTurnBinding->serverPort, TURN_PACKET) ;
+        armErrorTimer(pContext) ;
+    }
+    else
+    {
+        assert(FALSE) ;
+    }
+
+    return bRC ;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+UtlBoolean OsNatAgentTask::setTurnDestination(IOsNatSocket* pSocket,
+                                              const char*   szAddress,
+                                              int           iPort ) 
 {
     UtlBoolean bRC = false ;
     OsLock lock(mMapsLock) ;
 
-    NAT_AGENT_CONTEXT* pBinding = getBinding(pSocket, TURN_ALLOCATION) ;
+    UtlString localHostIp ;
+    pSocket->getSocket()->getLocalHostIp(&localHostIp) ;
+    OsSysLog::add(FAC_NAT, PRI_INFO, "Turn destination %s:%d -> %s:%d",
+            localHostIp.data(),         
+            pSocket->getSocket()->getLocalHostPort(),
+            szAddress,
+            iPort) ;
+
+    OsNatAgentTurnContext* pBinding = (OsNatAgentTurnContext*) getBinding(pSocket, TURN_ALLOCATION) ;
     if (pBinding)
     {
-        UtlString localHostIp ;
-        pSocket->getSocket()->getLocalHostIp(&localHostIp) ;
-        OsSysLog::add(FAC_NET, PRI_INFO, "Turn destination %s:%d -> %s:%d",
-                localHostIp.data(),         
-                pSocket->getSocket()->getLocalHostPort(),
-                szAddress,
-                iPort) ;
-
-        // Release Binding ...
-        TurnMessage msgSend ;
-
-        msgSend.allocTransactionId() ;
-        msgSend.setType(MSG_TURN_ACTIVE_DESTINATION_REQUEST) ;
-        msgSend.setDestinationAddress(szAddress, iPort) ;
-    
-        if (!pBinding->username.isNull())
+        OsNatAgentTurnContext* pContext = new OsNatAgentTurnContext(this) ;
+        if (pContext)
         {
-            msgSend.setUsername(pBinding->username) ;
-        }
+            pContext->type = TURN_SET_ACTIVE_DEST ;
+            pContext->status = SENDING ;
+            pContext->serverAddress = szAddress ;
+            pContext->serverPort = iPort ;
+            pContext->pSocket = pSocket ;
+            pContext->pErrorTimer = getTimer(pContext) ;
+            pContext->abortCount = NAT_INITIAL_ABORT_COUNT ;
+            pContext->errorTimeoutMSec = sTurnTimeoutMS ;
+            pContext->lStartTimestamp = OsDateTime::getCurTimeInMS() ;
 
-        if (!pBinding->password.isNull()) 
-        {
-            msgSend.setPassword(pBinding->password) ;
+            mContextMap.insertKeyAndValue(new UtlVoidPtr(pContext), new UtlVoidPtr(pSocket)) ;
+            if (doSendTurnSetDestRequest(pContext, true))
+            {
+                armErrorTimer(pContext) ;
+                bRC = true ;
+            }
+            else
+            {
+                // Unable to Send
+                destroyBinding(pContext) ;
+                assert(false) ;
+            }
         }
-
-        bRC = sendMessage(&msgSend, pSocket, pBinding->serverAddress, pBinding->serverPort, TURN_PACKET) ;
+    }
+    else
+    {
+        // we should be able fail gracefully when trying to set the destination,
+        // even when there is no binding.
+        //assert(false) ;
     }
 
     return bRC ;
 }
 
-void OsNatAgentTask::disableTurn(IStunSocket* pSocket) 
+//////////////////////////////////////////////////////////////////////////////
+
+UtlBoolean OsNatAgentTask::doSendTurnSetDestRequest(OsNatAgentTurnContext* pContext, bool bNewTransaction) 
 {
+    UtlBoolean bRC = false ;
+
+    // Build Turn request
+    TurnMessage msgSend ;
+    if (bNewTransaction)   
+    {
+        msgSend.allocTransactionId() ;
+        msgSend.getTransactionId(&pContext->transactionId) ;
+    }
+    else
+    {
+        msgSend.allocTransactionId() ;
+        msgSend.setTransactionId(pContext->transactionId) ;
+    }
+
+    msgSend.setType(MSG_TURN_ACTIVE_DESTINATION_REQUEST) ;
+    msgSend.setDestinationAddress(pContext->serverAddress, pContext->serverPort) ;    
+
+    OsNatAgentTurnContext* pTurnBinding = (OsNatAgentTurnContext*) 
+            getBinding(pContext->pSocket, TURN_ALLOCATION) ;
+    if (pTurnBinding)
+    {
+        if (!pTurnBinding->username.isNull())
+            msgSend.setUsername(pTurnBinding->username) ;
+        if (!pTurnBinding->password.isNull()) 
+            msgSend.setPassword(pTurnBinding->password) ;
+
+        bRC = sendMessage(&msgSend, pTurnBinding->pSocket, pTurnBinding->serverAddress, pTurnBinding->serverPort, TURN_PACKET) ;
+
+        // Setup resend-timer for no-response
+        if (bRC)
+            armErrorTimer(pContext) ;
+    }
+    else
+    {
+        assert(FALSE) ;
+    }
+
+    return bRC ;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+void OsNatAgentTask::disableTurn(IOsNatSocket* pSocket) 
+{
+    OsNatAgentTurnContext* pBinding ;
+
     OsLock lock(mMapsLock) ;
 
     UtlString localHostIp ;
     pSocket->getSocket()->getLocalHostIp(&localHostIp) ;
-    OsSysLog::add(FAC_NET, PRI_INFO, "Turn disabled for %s:%d",
+    OsSysLog::add(FAC_NAT, PRI_INFO, "Turn disabled for %s:%d",
             localHostIp.data(),         
             pSocket->getSocket()->getLocalHostPort()) ;
 
+    // Disable any pending TURN requests (SEND_REQUEST or SET_ACTIVE_DEST)
+    while (pBinding = (OsNatAgentTurnContext*) getBinding(pSocket, TURN_SEND_REQUEST))
+        destroyBinding(pBinding) ;
+    while (pBinding = (OsNatAgentTurnContext*)getBinding(pSocket, TURN_SET_ACTIVE_DEST))
+        destroyBinding(pBinding) ;
 
-    NAT_AGENT_CONTEXT* pBinding = getBinding(pSocket, TURN_ALLOCATION) ;
+    // Disable actual TURN_ALLOCATION
+    pBinding = (OsNatAgentTurnContext*) getBinding(pSocket, TURN_ALLOCATION) ;
     if (pBinding)
     {
         switch (pBinding->status)
@@ -1037,15 +1186,11 @@ void OsNatAgentTask::disableTurn(IStunSocket* pSocket)
                     msgSend.setType(MSG_TURN_ALLOCATE_REQUEST) ;
                     msgSend.setRequestXorOnly() ;
                     msgSend.setLifetime(0) ;
+
                     if (!pBinding->username.isNull()) 
-                    {
-                        msgSend.setUsername(pBinding->username) ;    
-                    }
-    
+                        msgSend.setUsername(pBinding->username) ;        
                     if (!pBinding->password.isNull()) 
-                    {
                         msgSend.setPassword(pBinding->password) ;
-                    }  
 
                     sendMessage(&msgSend, pSocket, pBinding->serverAddress, pBinding->serverPort, TURN_PACKET) ;
                 }
@@ -1061,11 +1206,11 @@ void OsNatAgentTask::disableTurn(IStunSocket* pSocket)
     }    
 }
 
+//////////////////////////////////////////////////////////////////////////////
 
-
-UtlBoolean OsNatAgentTask::addCrLfKeepAlive(IStunSocket*    pSocket, 
-                                            const UtlString&     remoteIp,
-                                            int                  remotePort,
+UtlBoolean OsNatAgentTask::addCrLfKeepAlive(IOsNatSocket*           pSocket, 
+                                            const UtlString&        remoteIp,
+                                            int                     remotePort,
                                             int                     keepAliveSecs,
                                             OsNatKeepaliveListener* pListener)
 {
@@ -1077,15 +1222,14 @@ UtlBoolean OsNatAgentTask::addCrLfKeepAlive(IStunSocket*    pSocket,
     {
         UtlString localHostIp ;
         pSocket->getSocket()->getLocalHostIp(&localHostIp) ;
-        OsSysLog::add(FAC_NET, PRI_INFO, "Enabled CrLf keep alive %s:%d --> %s:%d every %d secs" ,
+        OsSysLog::add(FAC_NAT, PRI_INFO, "Enabled CrLf keep alive %s:%d --> %s:%d every %d secs" ,
                 localHostIp.data(),         
                 pSocket->getSocket()->getLocalHostPort(),
                 remoteIp.data(),
                 remotePort,
                 keepAliveSecs) ;
 
-        NAT_AGENT_CONTEXT* pContext = new NAT_AGENT_CONTEXT ;
-        //memset(pContext, 0, sizeof(NAT_AGENT_CONTEXT));        
+        OsNatAgentContext* pContext = new OsNatAgentContext(this) ;
         if (pContext)
         {
             pContext->type = CRLF_KEEPALIVE ;
@@ -1094,19 +1238,17 @@ UtlBoolean OsNatAgentTask::addCrLfKeepAlive(IStunSocket*    pSocket,
             pContext->serverPort = remotePort ;
             pContext->options = 0 ;
             memset(&pContext->transactionId, 0, sizeof(STUN_TRANSACTION_ID)) ;
-            pContext->nOldTransactions = 0 ;
-            for (int i=0; i<MAX_OLD_TRANSACTIONS; i++)
-            {
-                memset(&pContext->oldTransactionsIds[i], 0, sizeof(STUN_TRANSACTION_ID)) ;            
-            }                
             pContext->pSocket = pSocket ;
-            pContext->pTimer = getTimer() ;
+            pContext->pErrorTimer = getTimer(pContext) ;
+            pContext->pRefreshTimer = getTimer(pContext) ;
             pContext->keepAliveSecs = keepAliveSecs;   
             pContext->abortCount = NAT_INITIAL_ABORT_COUNT ;
+            pContext->errorTimeoutMSec = 0 ;
             pContext->refreshErrors = 0 ;
             pContext->port = PORT_NONE ;
             pContext->priority = 0 ;
             pContext->pKeepaliveListener = pListener ;
+            pContext->lStartTimestamp = OsDateTime::getCurTimeInMS() ;
 
             mContextMap.insertKeyAndValue(new UtlVoidPtr(pContext), new UtlVoidPtr(pSocket)) ;
 
@@ -1115,16 +1257,14 @@ UtlBoolean OsNatAgentTask::addCrLfKeepAlive(IStunSocket*    pSocket,
                 pContext->pKeepaliveListener->OnKeepaliveStart(
                         populateKeepaliveEvent(pContext)); 
             }
+
+            pContext->markTimeout() ;
     
-            handleCrLfKeepAlive(pContext) ;
             bSuccess = true ;
             if (keepAliveSecs > 0)
             {
                 OsTime refreshAt(keepAliveSecs, 0) ;
-                OsQueuedEvent* pEvent = (OsQueuedEvent*) pContext->pTimer->getNotifier() ;
-                pEvent->setUserData((intptr_t) pContext) ;
-
-                pContext->pTimer->periodicEvery(refreshAt, refreshAt) ;
+                pContext->pRefreshTimer->periodicEvery(refreshAt, refreshAt) ;
             }
             else
             {
@@ -1136,12 +1276,13 @@ UtlBoolean OsNatAgentTask::addCrLfKeepAlive(IStunSocket*    pSocket,
     return bSuccess ;
 }
 
+//////////////////////////////////////////////////////////////////////////////
 
-UtlBoolean OsNatAgentTask::removeCrLfKeepAlive(IStunSocket* pSocket, 
-                                               const UtlString&     remoteIp,
-                                               int                  remotePort) 
+UtlBoolean OsNatAgentTask::removeCrLfKeepAlive(IOsNatSocket*    pSocket, 
+                                               const UtlString& remoteIp,
+                                               int              remotePort) 
 {
-    NAT_AGENT_CONTEXT* pRC = NULL ;
+    OsNatAgentContext* pRC = NULL ;
     UtlVoidPtr* pKey;
     UtlBoolean bSuccess = FALSE ;
 
@@ -1150,7 +1291,7 @@ UtlBoolean OsNatAgentTask::removeCrLfKeepAlive(IStunSocket* pSocket,
     UtlHashMapIterator iterator(mContextMap);
     while (pKey = (UtlVoidPtr*)iterator())
     {        
-        NAT_AGENT_CONTEXT* pContext = (NAT_AGENT_CONTEXT*) pKey->getValue();
+        OsNatAgentContext* pContext = (OsNatAgentContext*) pKey->getValue();
         if (    (pContext->pSocket == pSocket) &&
                 (pContext->type == CRLF_KEEPALIVE) &&
                 (pContext->serverPort == remotePort) &&
@@ -1165,7 +1306,7 @@ UtlBoolean OsNatAgentTask::removeCrLfKeepAlive(IStunSocket* pSocket,
     {
         UtlString localHostIp ;
         pSocket->getSocket()->getLocalHostIp(&localHostIp) ;      
-        OsSysLog::add(FAC_NET, PRI_INFO, "Disable CrLf keep alive %s:%d --> %s:%d" ,
+        OsSysLog::add(FAC_NAT, PRI_INFO, "Disable CrLf keep alive %s:%d --> %s:%d" ,
                 localHostIp.data(),         
                 pSocket->getSocket()->getLocalHostPort(),
                 remoteIp.data(),
@@ -1178,10 +1319,11 @@ UtlBoolean OsNatAgentTask::removeCrLfKeepAlive(IStunSocket* pSocket,
     return bSuccess ;
 }
 
+//////////////////////////////////////////////////////////////////////////////
 
-UtlBoolean OsNatAgentTask::addStunKeepAlive(IStunSocket*    pSocket, 
-                                            const UtlString&     remoteIp,
-                                            int                  remotePort,
+UtlBoolean OsNatAgentTask::addStunKeepAlive(IOsNatSocket*           pSocket, 
+                                            const UtlString&        remoteIp,
+                                            int                     remotePort,
                                             int                     keepAliveSecs,
                                             OsNatKeepaliveListener* pListener) 
 {
@@ -1195,15 +1337,14 @@ UtlBoolean OsNatAgentTask::addStunKeepAlive(IStunSocket*    pSocket,
         
         pActualSocket->getLocalHostIp(&localHostIp) ;
         int port = pActualSocket->getLocalHostPort();
-        OsSysLog::add(FAC_NET, PRI_INFO, "Enabled STUN keep alive %s:%d --> %s:%d every %d secs" ,
+        OsSysLog::add(FAC_NAT, PRI_INFO, "Enabled STUN keep alive %s:%d --> %s:%d every %d secs" ,
                 localHostIp.data(),         
                 pSocket->getSocket()->getLocalHostPort(),
                 remoteIp.data(),
                 remotePort,
                 keepAliveSecs) ;     
 
-        NAT_AGENT_CONTEXT* pContext = new NAT_AGENT_CONTEXT ;
-        //memset(pContext, 0, sizeof(NAT_AGENT_CONTEXT));        
+        OsNatAgentContext* pContext = new OsNatAgentContext(this) ;
         if (pContext)
         {
             pContext->type = STUN_KEEPALIVE ;
@@ -1212,19 +1353,17 @@ UtlBoolean OsNatAgentTask::addStunKeepAlive(IStunSocket*    pSocket,
             pContext->serverPort = remotePort ;
             pContext->options = 0 ;
             memset(&pContext->transactionId, 0, sizeof(STUN_TRANSACTION_ID)) ;
-            pContext->nOldTransactions = 0 ;
-            for (int i=0; i<MAX_OLD_TRANSACTIONS; i++)
-            {
-                memset(&pContext->oldTransactionsIds[i], 0, sizeof(STUN_TRANSACTION_ID)) ;            
-            }                
             pContext->pSocket = pSocket ;
-            pContext->pTimer = getTimer() ;
+            pContext->pErrorTimer = getTimer(pContext) ;
+            pContext->pRefreshTimer = getTimer(pContext) ;
             pContext->keepAliveSecs = keepAliveSecs;   
             pContext->abortCount = NAT_INITIAL_ABORT_COUNT ;
+            pContext->errorTimeoutMSec = 0 ;
             pContext->refreshErrors = 0 ;
             pContext->port = PORT_NONE ;
             pContext->priority = 0 ;
             pContext->pKeepaliveListener = pListener ;
+            pContext->lStartTimestamp = OsDateTime::getCurTimeInMS() ;
 
             mContextMap.insertKeyAndValue(new UtlVoidPtr(pContext), new UtlVoidPtr(pSocket)) ;
 
@@ -1234,16 +1373,13 @@ UtlBoolean OsNatAgentTask::addStunKeepAlive(IStunSocket*    pSocket,
                         populateKeepaliveEvent(pContext)); 
             }
 
-            handleStunKeepAlive(pContext) ;
+            pContext->markTimeout() ;
+
             bSuccess = true ;
             if (keepAliveSecs > 0)
             {
                 OsTime refreshAt(keepAliveSecs, 0) ;
-                OsQueuedEvent* pEvent = (OsQueuedEvent*) pContext->pTimer->getNotifier() ;
-                pEvent->setUserData((intptr_t) pContext) ;
-
-                pContext->pTimer->periodicEvery(refreshAt, refreshAt) ;
-
+                pContext->pRefreshTimer->periodicEvery(refreshAt, refreshAt) ;
             }
             else
             {
@@ -1255,12 +1391,13 @@ UtlBoolean OsNatAgentTask::addStunKeepAlive(IStunSocket*    pSocket,
     return bSuccess ;
 }
 
+//////////////////////////////////////////////////////////////////////////////
 
-UtlBoolean OsNatAgentTask::removeStunKeepAlive(IStunSocket* pSocket, 
-                                               const UtlString&     remoteIp,
-                                               int                  remotePort) 
+UtlBoolean OsNatAgentTask::removeStunKeepAlive(IOsNatSocket*    pSocket, 
+                                               const UtlString& remoteIp,
+                                               int              remotePort) 
 {
-    NAT_AGENT_CONTEXT* pRC = NULL ;
+    OsNatAgentContext* pRC = NULL ;
     UtlVoidPtr* pKey;
     UtlBoolean bSuccess = FALSE ;
 
@@ -1269,7 +1406,7 @@ UtlBoolean OsNatAgentTask::removeStunKeepAlive(IStunSocket* pSocket,
     UtlHashMapIterator iterator(mContextMap);
     while (pKey = (UtlVoidPtr*)iterator())
     {        
-        NAT_AGENT_CONTEXT* pContext = (NAT_AGENT_CONTEXT*) pKey->getValue();
+        OsNatAgentContext* pContext = (OsNatAgentContext*) pKey->getValue();
         if (    (pContext->pSocket == pSocket) &&
                 (pContext->type == STUN_KEEPALIVE) &&
                 (pContext->serverPort == remotePort) &&
@@ -1284,7 +1421,7 @@ UtlBoolean OsNatAgentTask::removeStunKeepAlive(IStunSocket* pSocket,
     {
         UtlString localHostIp ;
         pSocket->getSocket()->getLocalHostIp(&localHostIp) ;      
-        OsSysLog::add(FAC_NET, PRI_INFO, "Disable STUN keep alive %s:%d --> %s:%d" ,
+        OsSysLog::add(FAC_NAT, PRI_INFO, "Disable STUN keep alive %s:%d --> %s:%d" ,
                 localHostIp.data(),         
                 pSocket->getSocket()->getLocalHostPort(),
                 remoteIp.data(),
@@ -1297,10 +1434,11 @@ UtlBoolean OsNatAgentTask::removeStunKeepAlive(IStunSocket* pSocket,
     return bSuccess ;
 }
 
+//////////////////////////////////////////////////////////////////////////////
 
-UtlBoolean OsNatAgentTask::removeKeepAlives(IStunSocket* pSocket) 
+UtlBoolean OsNatAgentTask::removeKeepAlives(IOsNatSocket* pSocket) 
 {
-    NAT_AGENT_CONTEXT* pRC = NULL ;
+    OsNatAgentContext* pRC = NULL ;
     UtlVoidPtr* pKey;
     UtlBoolean bSuccess = FALSE ;
 
@@ -1309,13 +1447,13 @@ UtlBoolean OsNatAgentTask::removeKeepAlives(IStunSocket* pSocket)
     UtlHashMapIterator iterator(mContextMap);
     while (pKey = (UtlVoidPtr*)iterator())
     {        
-        NAT_AGENT_CONTEXT* pContext = (NAT_AGENT_CONTEXT*) pKey->getValue();
+        OsNatAgentContext* pContext = (OsNatAgentContext*) pKey->getValue();
         if (    (pContext->pSocket == pSocket) &&
                 ((pContext->type == STUN_KEEPALIVE) || (pContext->type == CRLF_KEEPALIVE)))
         {
             UtlString localHostIp ;
             pSocket->getSocket()->getLocalHostIp(&localHostIp) ;      
-            OsSysLog::add(FAC_NET, PRI_INFO, "Disable %s keep alive %s:%d --> %s:%d",
+            OsSysLog::add(FAC_NAT, PRI_INFO, "Disable %s keep alive %s:%d --> %s:%d",
                     pContext->type == STUN_KEEPALIVE ? "STUN" : "CrLf",
                     localHostIp.data(),         
                     pSocket->getSocket()->getLocalHostPort(),
@@ -1330,9 +1468,11 @@ UtlBoolean OsNatAgentTask::removeKeepAlives(IStunSocket* pSocket)
     return bSuccess ;
 }
 
-UtlBoolean OsNatAgentTask::removeStunProbes(IStunSocket* pSocket) 
+//////////////////////////////////////////////////////////////////////////////
+
+UtlBoolean OsNatAgentTask::removeStunProbes(IOsNatSocket* pSocket) 
 {
-    NAT_AGENT_CONTEXT* pRC = NULL ;
+    OsNatAgentContext* pRC = NULL ;
     UtlVoidPtr* pKey;
     UtlBoolean bSuccess = FALSE ;
 
@@ -1341,13 +1481,13 @@ UtlBoolean OsNatAgentTask::removeStunProbes(IStunSocket* pSocket)
     UtlHashMapIterator iterator(mContextMap);
     while (pKey = (UtlVoidPtr*)iterator())
     {        
-        NAT_AGENT_CONTEXT* pContext = (NAT_AGENT_CONTEXT*) pKey->getValue();
+        OsNatAgentContext* pContext = (OsNatAgentContext*) pKey->getValue();
         if (    (pContext->pSocket == pSocket) &&
                 (pContext->type == STUN_PROBE))
         {
             UtlString localHostIp ;
             pSocket->getSocket()->getLocalHostIp(&localHostIp) ;      
-            OsSysLog::add(FAC_NET, PRI_INFO, "Disable stun probe %s:%d --> %s:%d",
+            OsSysLog::add(FAC_NAT, PRI_INFO, "Disable stun probe %s:%d --> %s:%d",
                     localHostIp.data(),         
                     pSocket->getSocket()->getLocalHostPort(),
                     pContext->serverAddress.data(),
@@ -1361,6 +1501,7 @@ UtlBoolean OsNatAgentTask::removeStunProbes(IStunSocket* pSocket)
     return bSuccess ;
 }
 
+//////////////////////////////////////////////////////////////////////////////
 
 void OsNatAgentTask::synchronize() 
 {
@@ -1378,44 +1519,133 @@ void OsNatAgentTask::synchronize()
     }
 }
 
+//////////////////////////////////////////////////////////////////////////////
 
 // Determines if probes of a higher priority are still outstanding
-UtlBoolean OsNatAgentTask::areProbesOutstanding(IStunSocket* pSocket, int priority) 
+UtlBoolean OsNatAgentTask::areProbesOutstanding(IOsNatSocket* pSocket, int priority, bool bLongWait) 
 {
-    NAT_AGENT_CONTEXT* pRC = NULL ;
+    OsNatAgentContext* pRC = NULL ;
     UtlVoidPtr* pKey;
     UtlBoolean bOutstanding = false ;
+    UtlBoolean bAnySuccess = false ;
+
+    OsLock lock(mMapsLock) ;
+
+    UtlHashMapIterator iterator(mContextMap);
+    
+    // First, check to see if we have any success cases.  If so, we
+    // can exit earlier (if !bLongWait)
+/*
+    if (!bLongWait)
+    {
+        while (pKey = (UtlVoidPtr*)iterator())
+        {        
+            OsNatAgentContext* pContext = (OsNatAgentContext*) pKey->getValue();
+            if (    (pContext->pSocket == pSocket) &&
+                    (pContext->type == STUN_PROBE) &&
+                    (pContext->status == SUCCESS))
+            {
+                bAnySuccess = true ;
+                break ;
+            }
+        }
+    }
+    iterator.reset() ;
+*/
+
+    while (pKey = (UtlVoidPtr*)iterator())
+    {        
+        OsNatAgentContext* pContext = (OsNatAgentContext*) pKey->getValue();
+        if (    (pContext->pSocket == pSocket) &&
+                (pContext->type == STUN_PROBE))
+        {
+            if (    (pContext->priority > priority) &&
+                    (pContext->status != FAILED))
+            {
+                if (pContext->refreshErrors < NAT_PROBE_SOFTABORT_COUNT)
+                {                    
+                    bOutstanding = true ;
+                    break ;
+                }
+            }
+        }
+    }
+
+    return bOutstanding ;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+// Dumps the probe results to the log file
+void OsNatAgentTask::logProbeResults(IOsNatSocket* pSocket) 
+{
+    const char* cStatus[] =
+    {
+        "SUCCESS",
+        "SENDING",
+        "SENDING_ERROR",
+        "RESENDING",
+        "RESENDING_ERROR",
+        "FAILED",
+    } ;
+
+    OsNatAgentContext* pRC = NULL ;
+    UtlVoidPtr* pKey;
+    UtlString output; 
 
     OsLock lock(mMapsLock) ;
 
     UtlHashMapIterator iterator(mContextMap);
     while (pKey = (UtlVoidPtr*)iterator())
     {        
-        NAT_AGENT_CONTEXT* pContext = (NAT_AGENT_CONTEXT*) pKey->getValue();
+        OsNatAgentContext* pContext = (OsNatAgentContext*) pKey->getValue();
         if (    (pContext->pSocket == pSocket) &&
-                (pContext->type == STUN_PROBE) &&
-                (pContext->priority > priority))
+                (pContext->type == STUN_PROBE))
         {
-            //UtlString debug ;
-            //dumpContext(&debug, pContext) ;
-            //OutputDebugString(debug) ;
-            //OutputDebugString("\n") ;
+            UtlString lineItem ;
+            const char* cStatusText = "N/A" ;
 
-            bOutstanding = true ;
-            break ;
-        }        
+            if (pContext->status >= 0 && pContext->status < 6)
+            {
+                cStatusText = cStatus[pContext->status] ;
+            }
+            
+            UtlString localIp ;
+            pSocket->getSocket()->getLocalHostIp(&localIp) ;
+            lineItem.format("%s %d %s:%d->%s:%d m=%s:%d r=%s:%d ec=%d ac=%d RTT=%d\n",
+                cStatusText,
+                pContext->priority,
+                localIp.data(),
+                pSocket->getSocket()->getLocalHostPort(),
+                pContext->serverAddress.data(),
+                pContext->serverPort,
+                pContext->address.data(),
+                pContext->port,
+                pContext->relayAddress.data(),
+                pContext->relayPort,
+                pContext->refreshErrors,
+                pContext->abortCount,
+                (pContext->lEndTimestamp == 0) ? -1 : MAX(pContext->lEndTimestamp - pContext->lStartTimestamp, 16)) ;
+                              
+            output.append(lineItem.data()) ;
+        }            
     }
+    OsSysLog::add(FAC_NAT, PRI_INFO, "Probe Results:\n%s", output.data()) ;      
+#if NAT_DEBUG >= 1
+    printf("Probe Results:\n%s\n", output.data()) ;
+#endif
 
-    return bOutstanding ;
 }
 
+//////////////////////////////////////////////////////////////////////////////
+
 // Does a binding of the designated type/server exist 
-UtlBoolean OsNatAgentTask::doesBindingExist(IStunSocket*   pSocket,
+UtlBoolean OsNatAgentTask::doesBindingExist(IOsNatSocket*          pSocket,
                                             NAT_AGENT_BINDING_TYPE type, 
                                             const UtlString&       serverIp,
                                             int                    serverPort)
 {
-    NAT_AGENT_CONTEXT* pRC = NULL ;
+    OsNatAgentContext* pRC = NULL ;
     UtlVoidPtr* pKey;
     UtlBoolean bFound = false ;
 
@@ -1424,7 +1654,7 @@ UtlBoolean OsNatAgentTask::doesBindingExist(IStunSocket*   pSocket,
     UtlHashMapIterator iterator(mContextMap);
     while (pKey = (UtlVoidPtr*)iterator())
     {        
-        NAT_AGENT_CONTEXT* pContext = (NAT_AGENT_CONTEXT*) pKey->getValue();
+        OsNatAgentContext* pContext = (OsNatAgentContext*) pKey->getValue();
         if (    (pContext->pSocket == pSocket) &&
                 (pContext->type == type) &&
                 (pContext->serverAddress.compareTo(serverIp) == 0) &&
@@ -1446,7 +1676,7 @@ UtlBoolean OsNatAgentTask::findContactAddress(const UtlString& destHost,
                                               int*             pContactPort,
                                               int              iTimeoutMs) 
 {
-    NAT_AGENT_CONTEXT* pRC = NULL ;
+    OsNatAgentContext* pRC = NULL ;
     UtlVoidPtr* pKey;
     UtlBoolean  bFound = false ;
     int         iAttempts = 0 ;
@@ -1474,7 +1704,7 @@ UtlBoolean OsNatAgentTask::findContactAddress(const UtlString& destHost,
             UtlHashMapIterator iterator(mContextMap);
             while (pKey = (UtlVoidPtr*)iterator())
             {        
-                NAT_AGENT_CONTEXT* pContext = (NAT_AGENT_CONTEXT*) pKey->getValue();
+                OsNatAgentContext* pContext = (OsNatAgentContext*) pKey->getValue();
 
                 // Ignore uninteresting contexts
                 if (    (pContext->type == TURN_ALLOCATION) || 
@@ -1526,6 +1756,7 @@ UtlBoolean OsNatAgentTask::findContactAddress(const UtlString& destHost,
     return bFound ;
 }
 
+//////////////////////////////////////////////////////////////////////////////
 
 /**
  * Add an external binding (used for findContactAddress)
@@ -1545,7 +1776,6 @@ void OsNatAgentTask::addExternalBinding(OsSocket*  pSocket,
         return ;
     }
 
-    OsWriteLock lock(mExternalBindingMutex) ;
     UtlBoolean bUpdated = false ;    
    
     // Expire and external binding after 60 seconds
@@ -1560,6 +1790,8 @@ void OsNatAgentTask::addExternalBinding(OsSocket*  pSocket,
     {
         expiration += OsTime(NAT_BINDING_EXPIRATION_SECS, 0) ;
     }
+
+    OsWriteLock lock(mExternalBindingMutex) ;
 
     // Update contact if found and GC old ones 
     UtlSListIterator itor(mExternalBindingsList) ;
@@ -1600,6 +1832,8 @@ void OsNatAgentTask::addExternalBinding(OsSocket*  pSocket,
     }
 }
 
+//////////////////////////////////////////////////////////////////////////////
+
 void OsNatAgentTask::clearExternalBinding(OsSocket*  pSocket,
                                           UtlString  remoteAddress,
                                           int        remotePort,
@@ -1634,6 +1868,7 @@ void OsNatAgentTask::clearExternalBinding(OsSocket*  pSocket,
     }
 }
 
+//////////////////////////////////////////////////////////////////////////////
 
 UtlBoolean OsNatAgentTask::findExternalBinding(const UtlString& destHost, 
                                                int              destPort, 
@@ -1716,33 +1951,93 @@ UtlBoolean OsNatAgentTask::findExternalBinding(const UtlString& destHost,
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
 
-UtlBoolean OsNatAgentTask::sendMessage(StunMessage* pMsg, 
-                                       IStunSocket* pSocket, 
-                                       const UtlString& toAddress, 
-                                       unsigned short toPort,
-                                       PacketType packetType)
+UtlBoolean OsNatAgentTask::sendTurnSendRequest(IOsNatSocket* pSocket,
+                                               const char*   szFinalAddress,
+                                               int           iFinalPort,
+                                               const char*   pPayload,
+                                               int           nPayload) 
+{
+
+    UtlBoolean bRC = false ;
+    OsLock lock(mMapsLock) ;
+
+    OsNatAgentTurnContext* pBinding = (OsNatAgentTurnContext*) 
+            getBinding(pSocket, TURN_ALLOCATION) ;
+    if (pBinding)
+    {
+        UtlString localHostIp ;
+        pSocket->getSocket()->getLocalHostIp(&localHostIp) ;
+        OsSysLog::add(FAC_NAT, PRI_INFO, "Sending Turn Request %s:%d -> %s:%d -> %s:%d",
+                localHostIp.data(),         
+                pSocket->getSocket()->getLocalHostPort(),
+                pBinding->serverAddress.data(), 
+                pBinding->serverPort,
+                szFinalAddress,
+                iFinalPort) ;
+
+        TurnMessage msgSend ;
+
+        msgSend.allocTransactionId() ;
+        msgSend.setType(MSG_TURN_SEND_REQUEST) ;
+        msgSend.setDestinationAddress(szFinalAddress, iFinalPort) ;    
+        if (!pBinding->username.isNull())
+            msgSend.setUsername(pBinding->username) ;
+        if (!pBinding->password.isNull()) 
+            msgSend.setPassword(pBinding->password) ;
+
+        msgSend.setData(pPayload, nPayload) ;
+        bRC = sendMessage(&msgSend, pSocket, pBinding->serverAddress, pBinding->serverPort, TURN_PACKET) ;
+    }
+    else
+    {
+        UtlString localHostIp ;
+        pSocket->getSocket()->getLocalHostIp(&localHostIp) ;
+        OsSysLog::add(FAC_NAT, PRI_ERR, "Failed to send Turn Request %s:%d -> TURN SERVER -> %s:%d, no binding",
+                localHostIp.data(),         
+                pSocket->getSocket()->getLocalHostPort(),
+                szFinalAddress,
+                iFinalPort) ;
+    }
+
+    return bRC ;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+UtlBoolean OsNatAgentTask::sendMessage(StunMessage*       pMsg, 
+                                       IOsNatSocket*      pSocket, 
+                                       const UtlString&   toAddress, 
+                                       unsigned short     toPort,
+                                       OS_NAT_PACKET_TYPE packetType)
 {
     UtlBoolean bSuccess = false ;
 
-    char cEncoded[10240] ;
+    char cEncoded[NAT_MAX_STURN_MSG_LENGTH] ;
     size_t length ;
 
-//    pMsg->setServer("sipXtapi (www.sipfoundry.org)") ;
     if (pMsg->encode(cEncoded, sizeof(cEncoded), length))
     {
-
-        if (OsSysLog::willLog(FAC_NET, PRI_DEBUG))
+        if (OsSysLog::willLog(FAC_NAT, PRI_DEBUG))
         {
-            UtlString output ;
-            StunUtils::debugDump(cEncoded, length, output) ;
-            OsSysLog::add(FAC_NET, PRI_DEBUG, "Outbound STUN/TURN message(Crude Parse):\n%s\n",
-                    output.data()) ;
+            UtlString tmp, output, localHostIp ;
+            pSocket->getSocket()->getLocalHostIp(&localHostIp) ;
+            StunUtils::debugDump(cEncoded, length, tmp) ;
+            output.format("STUN/TURN OUT %s:%d -> %s:%d:\n%s",
+                    localHostIp.data(),
+                    pSocket->getSocket()->getLocalHostPort(),
+                    toAddress.data(),
+                    toPort,
+                    tmp.data()) ;
+            OsSysLog::add(FAC_NAT, PRI_DEBUG, "%s", output.data()) ;
+#if NAT_DEBUG >= 2
+            printf("%s\n", output.data()) ;
+#endif
         }
 
-        // The IStunSocket keeps track of 
+        // The IOsNatSocket keeps track of 
         // the last read/write times, but we need to write to the socket
         // without updating the timestamp.  Added a new function to the
-        // IStunSocket interface that should be implemented as
+        // IOsNatSocket interface that should be implemented as
         // just a write to the socket, without timestamping.
         if (pSocket->socketWrite(cEncoded, (int) length, toAddress, toPort, packetType) > 0)
         {
@@ -1751,23 +2046,39 @@ UtlBoolean OsNatAgentTask::sendMessage(StunMessage* pMsg,
     }
     else
     {
-        printf("OsNatAgentTask: Unable to encode message\n") ;
         assert(false) ;
+    }
+
+    // According to latest STUN drafts -- we are not supposed to send out 
+    // new STUN requests faster then every 20ms due to limitations in some
+    // NAT/Firewalls.  For now, we are throttling all initial requests by 
+    // delaying here.
+    if (pMsg->isRequest())
+    {
+        unsigned short type = pMsg->getType() ;
+        if (    type != MSG_TURN_SEND_REQUEST &&
+                type != MSG_TURN_ACTIVE_DESTINATION_REQUEST &&
+                type != MSG_TURN_CLOSE_BINDING_REQUEST &&
+                type != MSG_STUN_SHARED_SECRET_REQUEST  )
+        {
+            OsTask::delay(20) ;
+        }
     }
 
     return bSuccess ;
 }
 
+//////////////////////////////////////////////////////////////////////////////
 
-NAT_AGENT_CONTEXT* OsNatAgentTask::getBinding(IStunSocket* pSocket, NAT_AGENT_BINDING_TYPE type) 
+OsNatAgentContext* OsNatAgentTask::getBinding(IOsNatSocket* pSocket, NAT_AGENT_BINDING_TYPE type) 
 {
-    NAT_AGENT_CONTEXT* pRC = NULL ;
+    OsNatAgentContext* pRC = NULL ;
     UtlHashMapIterator iterator(mContextMap);
     UtlVoidPtr* pKey;
 
     while (pKey = (UtlVoidPtr*)iterator())
     {        
-        NAT_AGENT_CONTEXT* pContext = (NAT_AGENT_CONTEXT*) pKey->getValue();
+        OsNatAgentContext* pContext = (OsNatAgentContext*) pKey->getValue();
         if ((pContext->pSocket == pSocket) && (pContext->type == type))
         {
             pRC = pContext ;
@@ -1777,16 +2088,17 @@ NAT_AGENT_CONTEXT* OsNatAgentTask::getBinding(IStunSocket* pSocket, NAT_AGENT_BI
     return pRC ;
 }
 
+//////////////////////////////////////////////////////////////////////////////
 
-NAT_AGENT_CONTEXT* OsNatAgentTask::getBinding(NAT_AGENT_CONTEXT* pBinding) 
+OsNatAgentContext* OsNatAgentTask::getBinding(OsNatAgentContext* pBinding) 
 {
-    NAT_AGENT_CONTEXT* pRC = NULL ;
+    OsNatAgentContext* pRC = NULL ;
     UtlHashMapIterator iterator(mContextMap);
     UtlVoidPtr* pKey;
 
     while (pKey = (UtlVoidPtr*)iterator())
     {
-        NAT_AGENT_CONTEXT* pContext = (NAT_AGENT_CONTEXT*) pKey->getValue();
+        OsNatAgentContext* pContext = (OsNatAgentContext*) pKey->getValue();
         if (pBinding == pContext)
         {
             pRC = pContext ;
@@ -1797,64 +2109,133 @@ NAT_AGENT_CONTEXT* OsNatAgentTask::getBinding(NAT_AGENT_CONTEXT* pBinding)
     return pRC ;
 }
 
+//////////////////////////////////////////////////////////////////////////////
 
-NAT_AGENT_CONTEXT* OsNatAgentTask::getBinding(STUN_TRANSACTION_ID* pId) 
+OsNatAgentContext* OsNatAgentTask::getBinding(STUN_TRANSACTION_ID* pId) 
 {
-    NAT_AGENT_CONTEXT* pRC = NULL ;
+    OsNatAgentContext* pRC = NULL ;
     UtlHashMapIterator iterator(mContextMap);
     UtlVoidPtr* pKey;
 
     while (pKey = (UtlVoidPtr*)iterator())
     {
-        NAT_AGENT_CONTEXT* pContext = (NAT_AGENT_CONTEXT*) pKey->getValue();
+        OsNatAgentContext* pContext = (OsNatAgentContext*) pKey->getValue();
         if (memcmp(&pId->id[0], &pContext->transactionId.id[0], sizeof(STUN_TRANSACTION_ID)) == 0)
         {
             pRC = pContext ;
             break ;
-        }
-        else
-        {
-            for (int i=0; i<pContext->nOldTransactions; i++)
-            {
-                if (memcmp(&pId->id[0], &pContext->oldTransactionsIds[i].id[0], sizeof(STUN_TRANSACTION_ID)) == 0)
-                {
-                    pRC = pContext ;
-                    break ;
-                }
-            }
         }
     }
 
     return pRC ;
 }
 
+//////////////////////////////////////////////////////////////////////////////
 
-void OsNatAgentTask::destroyBinding(NAT_AGENT_CONTEXT* pBinding) 
+OsNatAgentTurnContext* OsNatAgentTask::getTurnBinding(STUN_TRANSACTION_ID* pId) 
+{
+    return dynamic_cast<OsNatAgentTurnContext*>(getBinding(pId)) ;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+OsNatAgentTurnContext* OsNatAgentTask::getTurnBinding(IOsNatSocket* pSocket, NAT_AGENT_BINDING_TYPE type)
+{
+    return dynamic_cast<OsNatAgentTurnContext*>(getBinding(pSocket, type)) ;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+OsNatAgentTurnContext* OsNatAgentTask::getTurnBinding(OsNatAgentContext* pContext) 
+{
+    return dynamic_cast<OsNatAgentTurnContext*>(getBinding(pContext)) ;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+OsNatAgentNCContext* OsNatAgentTask::getNCBinding(STUN_TRANSACTION_ID* pId) 
+{
+    return dynamic_cast<OsNatAgentNCContext*>(getBinding(pId)) ;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+OsNatAgentNCContext* OsNatAgentTask::getNCBinding(IOsNatSocket* pSocket, NAT_AGENT_BINDING_TYPE type) 
+{
+    return dynamic_cast<OsNatAgentNCContext*>(getBinding(pSocket, type)) ;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+OsNatAgentNCContext* OsNatAgentTask::getNCBinding(OsNatAgentContext* pContext) 
+{
+    return dynamic_cast<OsNatAgentNCContext*>(getBinding(pContext)) ;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+UtlBoolean OsNatAgentTask::doesProbeBindingExist(IOsNatSocket* pSocket, 
+                                                 const char*   szIp, 
+                                                 int           port, 
+                                                 const char*   szRelayIp, 
+                                                 int           relayPort) 
+{
+    UtlBoolean bFound = false ;
+    UtlHashMapIterator iterator(mContextMap);
+    UtlVoidPtr* pKey;
+
+    while (pKey = (UtlVoidPtr*)iterator())
+    {        
+        OsNatAgentContext* pContext = (OsNatAgentContext*) pKey->getValue();
+        if ((pContext->pSocket == pSocket) && (pContext->type == STUN_PROBE))
+        {
+            if (    (pContext->serverAddress.compareTo(szIp) == 0) && 
+                    (pContext->serverPort == port))
+            {
+                if ((szRelayIp == NULL) || (pContext->relayAddress.compareTo(szRelayIp) == 0))
+                {
+                    bFound = true ;
+                    break ;
+                }
+            }
+        }
+    }
+    return bFound ;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+void OsNatAgentTask::destroyBinding(OsNatAgentContext* pBinding) 
 {
     UtlHashMapIterator iterator(mContextMap);
     UtlVoidPtr* pKey;   
     
     while (pKey = (UtlVoidPtr*)iterator())
     {
-        NAT_AGENT_CONTEXT* pContext = (NAT_AGENT_CONTEXT*) pKey->getValue();
+        OsNatAgentContext* pContext = (OsNatAgentContext*) pKey->getValue();
         if (pContext == pBinding)
         {                
             mContextMap.destroy(pKey) ;
-            releaseTimer(pBinding->pTimer) ;
-
+            if (pBinding->pErrorTimer)
+                releaseTimer(pBinding->pErrorTimer) ;            
+            if (pBinding->pRefreshTimer) 
+                releaseTimer(pBinding->pRefreshTimer) ;
+            
             if (pBinding->pKeepaliveListener)
             {
                 pBinding->pKeepaliveListener->OnKeepaliveStop(
                         populateKeepaliveEvent(pBinding)) ; 
             }
+
             delete pBinding ;
             break ;
         }
     }
 }
 
+//////////////////////////////////////////////////////////////////////////////
 
-OsTimer* OsNatAgentTask::getTimer() 
+OsTimer* OsNatAgentTask::getTimer(OsNatAgentContext* pBinding) 
 {
     OsTimer* pTimer = NULL ;
 
@@ -1869,28 +2250,151 @@ OsTimer* OsNatAgentTask::getTimer()
         pTimer = new OsTimer(getMessageQueue(), 0) ;
     }
 
+    assert(pTimer != NULL) ;
+    if (pTimer)
+    {
+
+        OsQueuedEvent* pEvent = (OsQueuedEvent*) pTimer->getNotifier() ;
+        pEvent->setUserData((int) pBinding) ;
+    }
+
     return pTimer ;
 }
 
+//////////////////////////////////////////////////////////////////////////////
+
+void OsNatAgentTask::performNatClassification(IOsNatSocket*              pSocket, 
+                                              const UtlString&           stunServer,
+                                              int                        stunPort,     
+                                              int                        refreshPeriod,
+                                              OsNatAgentContextListener* pListener) 
+{
+    OsLock lock(mMapsLock) ;
+
+    UtlString serverAddress ;
+
+    UtlString localHostIp ;
+    pSocket->getSocket()->getLocalHostIp(&localHostIp) ;
+    OsSysLog::add(FAC_NAT, PRI_INFO, "NAT classification check for %s:%d with server %s:%d (refresh=%d)",
+            localHostIp.data(),         
+            pSocket->getSocket()->getLocalHostPort(),
+            stunServer.data(),
+            stunPort,
+            refreshPeriod) ;
+
+    assert(pSocket) ;
+
+    if (    pSocket && portIsValid(stunPort) && (stunServer.length() > 0) &&
+            OsSocket::getHostIpByName(stunServer, &serverAddress) && 
+            OsSocket::isIp4Address(serverAddress))
+    {
+        OsNatAgentNCContext* pContext = new OsNatAgentNCContext(this,
+                pSocket, pListener) ;
+        if (pContext)
+        {
+            pContext->serverAddress = serverAddress ;
+            pContext->serverPort = stunPort ;
+            pContext->lStartTimestamp = OsDateTime::getCurTimeInMS() ;
+            pContext->keepAliveSecs = refreshPeriod ;
+
+            mContextMap.insertKeyAndValue(new UtlVoidPtr(pContext), new UtlVoidPtr(pSocket)) ;
+
+            pContext->start() ;
+        }
+        else
+        {
+            // Unable to allocate context
+            assert(false) ;
+        }
+    }
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+void OsNatAgentTask::trace(OsSysLogPriority priority, const char* format, ...)
+{
+    va_list args;
+    va_start(args, format);
+
+    /* Guess we need no more than 128 bytes. */
+    int n, size = 128;
+    char *p;
+
+    p = (char*) malloc(size) ;
+    
+    while (p != NULL)
+    {
+        /* Try to print in the allocated space. */
+#ifdef _WIN32
+        n = _vsnprintf (p, size, format, args);
+#else
+        n = vsnprintf (p, size, format, args);
+#endif
+
+        /* If that worked, return the string. */
+        if (n > -1 && n < size)
+        {
+            break;
+        }
+        /* Else try again with more space. */
+        if (n > -1)    /* glibc 2.1 */
+            size = n+1; /* precisely what is needed */
+        else           /* glibc 2.0 */
+            size *= 2;  /* twice the old size */
+
+        if ((p = (char*) realloc (p, size)) == NULL)
+        {
+            break;
+        }
+    }
+
+    if (p != NULL)
+    {
+        OsSysLog::add(FAC_NAT, priority, "%s", p) ;
+#if NAT_DEBUG >= 1
+        printf("%s\n", p) ;
+#endif
+        free(p) ;
+    }
+
+    va_end(args) ;
+}
+
+//////////////////////////////////////////////////////////////////////////////
 
 void OsNatAgentTask::releaseTimer(OsTimer* pTimer) 
 {
     assert(pTimer) ;
     if (pTimer)
     {
-        pTimer->stop() ;
+        if (pTimer->getState() == OsTimer::STARTED)
+        {
+            pTimer->stop() ;
+            purgeTimers(pTimer, NULL) ;
+
+        }
         mTimerPool.insert(new UtlVoidPtr(pTimer)) ;
     }
 }
 
+//////////////////////////////////////////////////////////////////////////////
 
-UtlBoolean OsNatAgentTask::sendStunRequest(NAT_AGENT_CONTEXT* pBinding) 
+UtlBoolean OsNatAgentTask::sendStunRequest(OsNatAgentContext* pBinding, UtlBoolean bNewTransaction) 
 {
     UtlBoolean bSuccess = false ;
     StunMessage msgSend ;
-    bool bStunProbe = (pBinding->type == STUN_PROBE);
 
-    msgSend.allocTransactionId() ;
+    if (bNewTransaction)   
+    {
+        msgSend.allocTransactionId() ;
+        msgSend.getTransactionId(&pBinding->transactionId) ;
+    }
+    else
+    {
+        msgSend.allocTransactionId() ;
+        msgSend.setTransactionId(pBinding->transactionId) ;
+    }
+
     msgSend.setType(MSG_STUN_BIND_REQUEST) ;
     msgSend.setRequestXorOnly() ;
 
@@ -1904,281 +2408,126 @@ UtlBoolean OsNatAgentTask::sendStunRequest(NAT_AGENT_CONTEXT* pBinding)
         msgSend.setChangeIp(true) ;
     }
 
-    // Store old transaction
-    int index = 0 ;
-    if (pBinding->nOldTransactions < MAX_OLD_TRANSACTIONS)
-    {
-        index = pBinding->nOldTransactions ;
-        pBinding->nOldTransactions++ ;
-    }
-    else
-    {
-        index = MAX_OLD_TRANSACTIONS -1 ; 
-        for (int i=0; i<index; i++)
+    if (pBinding->priority)
+        msgSend.setPriority(pBinding->priority) ;
+
+    if ((pBinding->relayAddress.length() && pBinding->relayPort > 0))
+    {   
+        char cEncoded[NAT_MAX_STURN_MSG_LENGTH] ;
+        size_t length ;
+        if (msgSend.encode(cEncoded, sizeof(cEncoded), length))
         {
-            memcpy(&pBinding->oldTransactionsIds[i], 
-                    &pBinding->oldTransactionsIds[i+1], 
-                    sizeof(STUN_TRANSACTION_ID)) ;
-        }
-    }
-
-    memcpy(&pBinding->oldTransactionsIds[index], 
-            &pBinding->transactionId, sizeof(STUN_TRANSACTION_ID)) ;    
-
-    // Get new transaction Id
-    msgSend.getTransactionId(&pBinding->transactionId) ;
-
-    // Send message
-    if (sendMessage(&msgSend, pBinding->pSocket, pBinding->serverAddress, pBinding->serverPort, STUN_PROBE_PACKET))
-    {
-        bSuccess = true ;
-    }
-
-    return bSuccess ;
-}
-
-UtlBoolean OsNatAgentTask::sendTurnRequest(NAT_AGENT_CONTEXT* pBinding) 
-{
-    UtlBoolean bSuccess = false ;
-    TurnMessage msgSend ;
-
-    // Store old transaction
-    int index = 0 ;
-    if (pBinding->nOldTransactions < MAX_OLD_TRANSACTIONS)
-    {
-        index = pBinding->nOldTransactions ;
-        pBinding->nOldTransactions++ ;
-    }
-    else
-    {
-        index = MAX_OLD_TRANSACTIONS -1 ; 
-        for (int i=0; i<index; i++)
-        {
-            memcpy(&pBinding->oldTransactionsIds[i], 
-                    &pBinding->oldTransactionsIds[i+1], 
-                    sizeof(STUN_TRANSACTION_ID)) ;
-        }
-    }
-
-    memcpy(&pBinding->oldTransactionsIds[index], 
-            &pBinding->transactionId, sizeof(STUN_TRANSACTION_ID)) ;    
-
-    msgSend.allocTransactionId() ;
-    msgSend.getTransactionId(&pBinding->transactionId) ;
-    msgSend.setType(MSG_TURN_ALLOCATE_REQUEST) ;
-    msgSend.setRequestXorOnly() ;
-    msgSend.setLifetime(pBinding->keepAliveSecs * 2) ;
-
-    if (!pBinding->username.isNull()) 
-    {
-        msgSend.setUsername(pBinding->username) ;    
-    }
-
-    if (!pBinding->password.isNull()) 
-    {
-        msgSend.setPassword(pBinding->password) ;
-    }  
-    
-    if (sendMessage(&msgSend, pBinding->pSocket, pBinding->serverAddress, pBinding->serverPort, TURN_PACKET))
-    {
-        bSuccess = true ;
-    }
-
-    return bSuccess ;
-}
-
-
-void OsNatAgentTask::markStunSuccess(NAT_AGENT_CONTEXT* pBinding, const UtlString& mappedAddress, int mappedPort) 
-{    
-    bool bAddressChanged = false ;
-    OsTime refreshPeriod(pBinding->keepAliveSecs, 0) ;
-
-    assert(pBinding != NULL) ;
-    if (pBinding)
-    {
-        UtlString localHostIp ;
-        pBinding->pSocket->getSocket()->getLocalHostIp(&localHostIp) ;
-        OsSysLog::add(FAC_NET, PRI_INFO, "Stun success for %s:%d, mapped address: %s:%d",
-                localHostIp.data(),         
-                pBinding->pSocket->getSocket()->getLocalHostPort(),
-                mappedAddress.data(),
-                mappedPort) ;
-
-        assert(pBinding->pTimer != NULL) ;
-        assert(pBinding->pSocket != NULL) ;
-
-        // Check for a change in mapped IP/PORT
-        if (    (pBinding->status == RESENDING) || 
-                (pBinding->status == RESENDING_ERROR)   )
-        {
-            if (    (mappedAddress.compareTo(pBinding->address) != 0) ||
-                    (mappedPort != pBinding->port)  )
+            if (sendTurnSendRequest(pBinding->pSocket, pBinding->serverAddress, pBinding->serverPort, cEncoded, length))
             {
-                // This is really a critial problem -- we are likely not able
-                // to communicate if our NAT binding is bouncing around.
-                OsSysLog::add(FAC_NET, PRI_CRIT, 
-                        "Stun binding changed for %s:%d, %s:%d is now %s:%d",
-                        localHostIp.data(),
-                        pBinding->pSocket->getSocket()->getLocalHostPort(),
-                        pBinding->address.data(),
-                        pBinding->port,
-                        mappedAddress.data(),
-                        mappedPort) ;
-
-                bAddressChanged = true ;
+                bSuccess = true ;
             }
-        }
-
-        // Update State
-        pBinding->address = mappedAddress ;
-        pBinding->port = mappedPort ;       
-        pBinding->status = SUCCESS ;
-        pBinding->refreshErrors = 0 ;
-
-        // Reset Timer
-        pBinding->pTimer->stop() ;
-        if (pBinding->keepAliveSecs > 0)
-        {
-            pBinding->pTimer->periodicEvery(refreshPeriod, refreshPeriod) ;          
-        }
-
-        // Notify Socket
-        if (pBinding->type == STUN_DISCOVERY)
-        {
-            pBinding->pSocket->setStunAddress(mappedAddress, mappedPort) ;
-            pBinding->pSocket->markStunSuccess(bAddressChanged) ;
-        } 
-        else if (pBinding->type == STUN_PROBE)
-        {                                
-            pBinding->pSocket->evaluateDestinationAddress(pBinding->serverAddress,
-                    pBinding->serverPort, pBinding->priority) ;
-        }
-        else if (pBinding->type == STUN_KEEPALIVE)
-        {
-            if (pBinding->pKeepaliveListener)
-            {
-                pBinding->pKeepaliveListener->OnKeepaliveFeedback(
-                        populateKeepaliveEvent(pBinding)); 
-            }
-        }
-        else
-        {
-            // assert(false) ;
-        }
-    }
-}
-
-
-void OsNatAgentTask::markStunFailure(NAT_AGENT_CONTEXT* pBinding) 
-{  
-    assert(pBinding != NULL) ;
-    if (pBinding)
-    {
-        UtlString localHostIp ;
-        pBinding->pSocket->getSocket()->getLocalHostIp(&localHostIp) ;
-        OsSysLog::add(FAC_NET, PRI_INFO, "Stun failure for %s:%d -> %s:%d",
-                    localHostIp.data(),         
-                    pBinding->pSocket->getSocket()->getLocalHostPort(),
-                    pBinding->serverAddress.data(),
-                    pBinding->serverPort) ;
-
-        assert(pBinding->pTimer != NULL) ;
-        assert(pBinding->pSocket != NULL) ;
-        
-        pBinding->status = FAILED ;
-
-        // Clear timer
-        pBinding->pTimer->stop() ; 
-
-        // Notify Socket
-        if (pBinding->type == STUN_DISCOVERY)
-        {
-            UtlString empty ;
-            pBinding->pSocket->setStunAddress(empty, PORT_NONE) ;
-            pBinding->pSocket->markStunFailure() ;   
-        }
-        else if (pBinding->type == STUN_PROBE)
-        {
-            destroyBinding(pBinding) ;
-        }
-        else if (pBinding->type == STUN_KEEPALIVE)
-        {
-            // We are currently ignore keep alive responses
+            // Setup resend-timer for no-response
+            armErrorTimer(pBinding) ;
         }
         else
         {
             assert(false) ;
         }
     }
+    else
+    {
+        // Send message
+        if (sendMessage(&msgSend, pBinding->pSocket, pBinding->serverAddress, pBinding->serverPort, STUN_PROBE_PACKET))
+        {
+            bSuccess = true ;
+        }
+        // Setup resend-timer for no-response
+        armErrorTimer(pBinding) ;
+    }
+
+    return bSuccess ;
 }
 
+//////////////////////////////////////////////////////////////////////////////
 
-void OsNatAgentTask::markTurnSuccess(NAT_AGENT_CONTEXT* pBinding, const UtlString& relayAddress, int relayPort) 
+UtlBoolean OsNatAgentTask::sendTurnRequest(OsNatAgentTurnContext* pBinding, UtlBoolean bNewTransaction) 
 {
-    OsTime refreshPeriod(pBinding->keepAliveSecs, 0) ;
+    UtlBoolean bSuccess = false ;
+    TurnMessage msgSend ;
 
-    assert(pBinding != NULL) ;
-    if (pBinding)
+    if (bNewTransaction)
     {
-        UtlString localHostIp ;
-        pBinding->pSocket->getSocket()->getLocalHostIp(&localHostIp) ;
-        OsSysLog::add(FAC_NET, PRI_INFO, "Turn success for %s:%d, relay address: %s:%d",
-                localHostIp.data(),         
-                pBinding->pSocket->getSocket()->getLocalHostPort(),
-                relayAddress.data(),
-                relayPort) ;
+        msgSend.allocTransactionId() ;
+        msgSend.getTransactionId(&pBinding->transactionId) ;
+    }
+    else
+    {   
+        msgSend.allocTransactionId() ;
+        msgSend.setTransactionId(pBinding->transactionId) ;
+    }
 
-        assert(pBinding->pTimer != NULL) ;
-        assert(pBinding->pSocket != NULL) ;
+    msgSend.setType(MSG_TURN_ALLOCATE_REQUEST) ;
+    msgSend.setRequestXorOnly() ;
+    msgSend.setLifetime(pBinding->keepAliveSecs * 2) ;
 
-        pBinding->address = relayAddress ;
-        pBinding->port = relayPort ;
+    if (!pBinding->username.isNull()) 
+        msgSend.setUsername(pBinding->username) ;    
+    if (!pBinding->password.isNull()) 
+        msgSend.setPassword(pBinding->password) ;
+       
+    if (sendMessage(&msgSend, pBinding->pSocket, pBinding->serverAddress, pBinding->serverPort, TURN_PACKET))
+    {
+        bSuccess = true ;
+    }
 
-        pBinding->status = SUCCESS ;
-        pBinding->refreshErrors = 0 ;
+    // Setup resend-timer for no-response
+    armErrorTimer(pBinding) ;
 
-        // Reset Timer
-        pBinding->pTimer->stop() ;
-        if (pBinding->keepAliveSecs > 0)
+    return bSuccess ;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+UtlBoolean OsNatAgentTask::armErrorTimer(OsNatAgentContext* pBinding)
+{
+    UtlBoolean bSet = false ;
+
+    if (pBinding->errorTimeoutMSec > 0)
+    {
+        // Calc backoff timeout (set ceiling at 1/2 keepalive period)
+        int timeoutMsec = pBinding->errorTimeoutMSec ;
+        for (int i=0; i<pBinding->refreshErrors; i++)
         {
-            pBinding->pTimer->periodicEvery(refreshPeriod, refreshPeriod) ;          
+            timeoutMsec *=2 ;
+
+            // Never wait longer then 1/2 the keepAlivePeriod
+            if (pBinding->keepAliveSecs > 0)
+            {
+                if (timeoutMsec > (pBinding->keepAliveSecs * 500))
+                {
+                    timeoutMsec = pBinding->keepAliveSecs * 500 ;
+                    break ;
+                }
+            }
+            else if (timeoutMsec > (NAT_DEFAULT_KEEPALIVE_SEC*250))
+            {
+                timeoutMsec = NAT_DEFAULT_KEEPALIVE_SEC * 250 ;
+                break ;
+            }
         }
 
-        // Notify Socket
-        pBinding->pSocket->setTurnAddress(relayAddress, relayPort) ;
-        pBinding->pSocket->markTurnSuccess() ;
+        // Reset the timer
+        pBinding->pErrorTimer->stop();
+        purgeTimers(pBinding->pErrorTimer, pBinding) ;
+        OsTime errorAt(0, timeoutMsec * OsTime::USECS_PER_MSEC) ;
+        OsQueuedEvent* pEvent = (OsQueuedEvent*) pBinding->pErrorTimer->getNotifier() ;
+        pEvent->setUserData((int) pBinding) ;
+        pBinding->pErrorTimer->oneshotAfter(errorAt) ;
+
+        bSet = true ;
     }
+
+    return bSet ;
 }
 
-void OsNatAgentTask::markTurnFailure(NAT_AGENT_CONTEXT* pBinding) 
-{
-    assert(pBinding != NULL) ;
-    if (pBinding)
-    {
-        UtlString localHostIp ;
-        pBinding->pSocket->getSocket()->getLocalHostIp(&localHostIp) ;
-        OsSysLog::add(FAC_NET, PRI_INFO, "Turn failure for %s:%d -> %s:%d",
-                    localHostIp.data(),         
-                    pBinding->pSocket->getSocket()->getLocalHostPort(),
-                    pBinding->serverAddress.data(),
-                    pBinding->serverPort) ;
+//////////////////////////////////////////////////////////////////////////////
 
-        assert(pBinding->pTimer != NULL) ;
-        assert(pBinding->pSocket != NULL) ;
-        
-        pBinding->status = FAILED ;
-
-        // Clear timer
-        pBinding->pTimer->stop() ; 
-
-        // Notify Socket
-        UtlString empty ;
-        pBinding->pSocket->setTurnAddress(empty, PORT_NONE) ;
-        pBinding->pSocket->markTurnFailure() ;   
-    }
-}
-
-OsNatKeepaliveEvent OsNatAgentTask::populateKeepaliveEvent(NAT_AGENT_CONTEXT* pContext)
+OsNatKeepaliveEvent OsNatAgentTask::populateKeepaliveEvent(OsNatAgentContext* pContext)
 {
     OsNatKeepaliveEvent event ;
 
@@ -2201,18 +2550,10 @@ OsNatKeepaliveEvent OsNatAgentTask::populateKeepaliveEvent(NAT_AGENT_CONTEXT* pC
     return event ;
 }
 
+//////////////////////////////////////////////////////////////////////////////
 
-void OsNatAgentTask::dumpContext(UtlString* pResults, NAT_AGENT_CONTEXT* pBinding) 
+void OsNatAgentTask::dumpContext(UtlString* pResults, OsNatAgentContext* pBinding) 
 {
-    const char* cBindingTypes[] =
-    {
-        "STUN_DISCOVERY",
-        "STUN_PROBE",
-        "TURN_ALLOCATION",
-        "CRLF_KEEPALIVE",
-        "STUN_KEEPALIVE"
-    } ;
-
     const char* cStatus[] =
     {
         "SUCCESS",
@@ -2220,7 +2561,7 @@ void OsNatAgentTask::dumpContext(UtlString* pResults, NAT_AGENT_CONTEXT* pBindin
         "SENDING_ERROR",
         "RESENDING",
         "RESENDING_ERROR",
-        "FAILED"
+        "FAILED",
     } ;
 
     char cBuf[2048] ;
@@ -2237,22 +2578,23 @@ void OsNatAgentTask::dumpContext(UtlString* pResults, NAT_AGENT_CONTEXT* pBindin
         }
 
         sprintf(cBuf, 
-                " BindingType: %s\n"
+                " BindingType: %d\n"
                 " Status     : %s\n"
                 " Server Addr: %s\n"
                 " Server Port: %d\n"
                 " Servers Opt: %d\n"
                 " Transaction: %s\n"
                 " Socket     : %p (%s:%d)\n"
-                " Timer      : %p\n"
+                " Error Timer: %p\n"
+                " Refresh T  : %p\n"
                 " KeepAlive  : %d\n"
                 " Errors     : %d\n"
                 " Address    : %s\n"
                 " Port       : %d\n"
-                " Username   : %s\n"
-                " Password   : %s\n"
+//                " Username   : %s\n"
+//                " Password   : %s\n"
                 " Priority   : %d\n",
-                cBindingTypes[pBinding->type],
+                pBinding->type,
                 cStatus[pBinding->status],
                 pBinding->serverAddress.data(),
                 pBinding->serverPort,
@@ -2261,18 +2603,128 @@ void OsNatAgentTask::dumpContext(UtlString* pResults, NAT_AGENT_CONTEXT* pBindin
                 pBinding->pSocket,
                 socketHostIp.data(),
                 socketPort,
-                pBinding->pTimer,
+                pBinding->pErrorTimer,
+                pBinding->pRefreshTimer,
                 pBinding->keepAliveSecs,
                 pBinding->refreshErrors,
                 pBinding->address.data(),
                 pBinding->port,
-                pBinding->username.data(),
-                pBinding->password.data(),
+//                pBinding->username.data(),
+//                pBinding->password.data(),
                 pBinding->priority) ;
 
         pResults->append(cBuf) ;
     }
 }
+
+//////////////////////////////////////////////////////////////////////////////
+
+void OsNatAgentTask::purgeTimers(OsTimer* pTimer, OsNatAgentContext* pContext) 
+{
+    OsMsgQ* pMsgQ = getMessageQueue() ;
+    if (pMsgQ)
+        pMsgQ->purge(purgeMsgQCallback, pTimer, pContext) ;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+UtlBoolean OsNatAgentTask::purgeMsgQCallback(const OsMsg& rMsg, 
+                                             void* pUserData1,      // event data / timer
+                                             void* pUserData2)      // user data / context
+{
+    UtlBoolean bPurge = false ;
+
+    if (rMsg.getMsgType() == OsMsg::OS_EVENT)
+    {
+        void* pEventData = NULL ;
+        void* pUserData = NULL ;
+        if (    (((OsEventMsg&)rMsg).getUserData((int&) pUserData) == OS_SUCCESS) &&
+                (((OsEventMsg&)rMsg).getEventData((int&) pEventData) == OS_SUCCESS))
+        {
+            if (pUserData2 == NULL)
+            {
+                bPurge = (pUserData1 == pEventData) ;
+            }
+            else
+            {
+                bPurge = ((pUserData1 == pEventData) && (pUserData2 == pUserData)) ;
+            }
+            
+        }
+    }
+    return bPurge ;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+void OsNatAgentTask::onStunRTT(long ms)
+{
+    int origTimeout = sStunTimeoutMS ;
+
+    if (ms <= 0)
+        ms = NAT_RESPONSE_TIMEOUT_MS_MIN ;
+
+    if (ms < sStunTimeoutMS)
+    {
+        sStunTimeoutMS += (int) ((1.0/5.0) * (ms - sStunTimeoutMS)) ;
+    }
+    else if (ms > sStunTimeoutMS)
+    {
+        sStunTimeoutMS = ms ;
+    }
+
+    if (sStunTimeoutMS < NAT_RESPONSE_TIMEOUT_MS_MIN)
+        sStunTimeoutMS = NAT_RESPONSE_TIMEOUT_MS_MIN ;
+
+    if (sStunTimeoutMS > NAT_RESPONSE_TIMEOUT_MS_MAX)
+        sStunTimeoutMS = NAT_RESPONSE_TIMEOUT_MS_MAX ;
+
+    if (origTimeout != sStunTimeoutMS)
+    {
+        OsSysLog::add(FAC_NAT, PRI_INFO, "Stun RTT changed from %d to %d",
+            origTimeout, sStunTimeoutMS) ;
+#if NAT_DEBUG >= 1
+        printf("Stun RTT changed from %d to %d\n",
+            origTimeout, sStunTimeoutMS) ;
+#endif
+    }
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+void OsNatAgentTask::onTurnRTT(long ms)
+{
+    int origTimeout = sTurnTimeoutMS ;
+
+    if (ms <= 0)
+        ms = NAT_RESPONSE_TIMEOUT_MS_MIN ;
+
+    if (ms < sTurnTimeoutMS)
+    {
+        sTurnTimeoutMS += (int) ((1.0/5.0) * (ms - sTurnTimeoutMS)) ;
+    }
+    else if (ms > sTurnTimeoutMS)
+    {
+        sTurnTimeoutMS = ms ;
+    }
+
+    if (sTurnTimeoutMS < NAT_RESPONSE_TIMEOUT_MS_MIN)
+        sTurnTimeoutMS = NAT_RESPONSE_TIMEOUT_MS_MIN ;
+
+    if (sTurnTimeoutMS > NAT_RESPONSE_TIMEOUT_MS_MAX)
+        sTurnTimeoutMS = NAT_RESPONSE_TIMEOUT_MS_MAX ;
+
+    if (origTimeout != sTurnTimeoutMS)
+    {
+        OsSysLog::add(FAC_NAT, PRI_INFO, "Turn RTT changed from %d to %d",
+            origTimeout, sTurnTimeoutMS) ;
+#if NAT_DEBUG >= 1
+        printf("Turn RTT changed from %d to %d\n",
+            origTimeout, sTurnTimeoutMS) ;
+#endif
+    }
+}
+
 
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */

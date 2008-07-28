@@ -1,3 +1,19 @@
+// Copyright 2008 AOL LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA. 
 //  
 // Copyright (C) 2007 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
@@ -432,17 +448,23 @@ OsStatus MpodWinMM::pushFrame(unsigned int numSamples,
    {
       // Collect some metrics -- the sample number that windows is on 
       // since waveOutOpen was called.
+
+#ifdef RTL_ENABLED
       MMTIME mmt;
       mmt.wType = TIME_SAMPLES;
+      
+      // bandreasen 7/2008: waveOutGetPosition hangs under Vista SP1
       waveOutGetPosition(mDevHandle, &mmt, sizeof(mmt));
       assert(mmt.wType == TIME_SAMPLES);
 
       // Write out some statistics, if enabled.
       DWORD drvLatencyNSamp = mTotSampleCount - mmt.u.sample;
-      int numBuffersInPlay = mUnusedVPtrList.entries();
       RTL_EVENT("MpodWinMM::pushFrame::driverLatencyNSamples", drvLatencyNSamp);
       RTL_EVENT("MpodWinMM::pushFrame::emptyHeaders", mEmptyHeaderList.entries());
       RTL_EVENT("MpodWinMM::pushFrame::numBuffersInPlay", numBuffersInPlay);
+#endif
+
+      int numBuffersInPlay = mUnusedVPtrList.entries();
 
       // If the number of samples held within windows MME subsystem gets below
       // LOW_WAVEBUF_LVL frames worth, count this as underrun.

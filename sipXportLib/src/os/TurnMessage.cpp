@@ -1,6 +1,19 @@
-//
-// Copyright (C) 2006 SIPez LLC.
+// Copyright 2008 AOL LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA. 
 //
 // Copyright (C) 2006 Robert J. Andreasen, Jr.
 // Licensed to SIPfoundry under a Contributor Agreement.
@@ -48,29 +61,7 @@ TurnMessage::TurnMessage(TurnMessage* pRequest,
     : StunMessage(pRequest, bLegacyMode)
 {
     mszTurnData = NULL ;
-
-    mLifetime = 0 ;
-    mbLifetimeValid = false ;
-    mBandwidth = 0 ;
-    mbBandwidthValid = false ;
-    memset(&mDestinationAddress, 0, sizeof(STUN_ATTRIBUTE_ADDRESS)) ;
-    mbDestinationAddressValid = false ;
-    memset(&mTurnRemoteAddress, 0, sizeof(STUN_ATTRIBUTE_ADDRESS)) ;
-    mbTurnRemoteAddressValid = false ;
-    if (mszTurnData)
-    {
-        free(mszTurnData) ;
-    }
-    mszTurnData = NULL ;
-    mnTurnData = 0 ;
-    mbTurnDataValid = false ;
-    memset(&mRelayAddress, 0, sizeof(STUN_ATTRIBUTE_ADDRESS)) ;
-    mbRelayAddressValid = false ;
-    mTransport = 0 ;
-    mbTransportValid = false ;
-    memset(&mRequestedIp, 0, sizeof(STUN_ATTRIBUTE_ADDRESS)) ;
-    mbRequestedIpValid = false ;
-    setIncludeMessageIntegrity(true) ;
+    reset() ;
 }
 
 // Destructor
@@ -396,6 +387,8 @@ bool TurnMessage::isTurnMessage(const char*    pBuf,
             sizeof(STUN_ATTRIBUTE_HEADER) + sizeof(unsigned long)))
     {
         STUN_MESSAGE_HEADER header ;
+        STUN_ATTRIBUTE_HEADER attrHeader ;
+        unsigned long magicCookie ;
         char* pTraverse = (char*) pBuf ;
 
         // Copy header
@@ -424,10 +417,6 @@ bool TurnMessage::isTurnMessage(const char*    pBuf,
                 case MSG_TURN_CLOSE_BINDING_ERROR_RESPONSE:
 
                     // Validate Magic Cookie
-/*
-			        STUN_ATTRIBUTE_HEADER attrHeader ;
-			        unsigned long magicCookie ;
-
                     pTraverse += sizeof(STUN_MESSAGE_HEADER) ;
                     memcpy(&attrHeader, pTraverse, sizeof(STUN_ATTRIBUTE_HEADER)) ;
                     attrHeader.type = ntohs(attrHeader.type) ;
@@ -439,16 +428,13 @@ bool TurnMessage::isTurnMessage(const char*    pBuf,
                     if (    (attrHeader.type == ATTR_TURN_MAGIC_COOKIE) &&
                             (attrHeader.length == sizeof(unsigned long)) &&
                             (magicCookie == ATTR_MAGIC_COOKIE)  )
-                    {                    
-*/
+                    {                                        
                         bValid = true ;
 
                         if (pbDataIndication)
                             *pbDataIndication = (header.type == 
                                     MSG_TURN_DATA_INDICATION) ;
-/*
                     }
-*/                  
                     break ;
                 default:
                     break ;
@@ -481,6 +467,7 @@ bool TurnMessage::isRequestOrNonErrorResponse()
         case MSG_TURN_ACTIVE_DESTINATION_ERROR_RESPONSE:
         case MSG_TURN_CONNECTION_STATUS_INDICATION:
         case MSG_TURN_CLOSE_BINDING_ERROR_RESPONSE:
+            break ;
             bRequestOrNonErrorResponse = false ;
             break ;
         default:
@@ -532,7 +519,7 @@ bool TurnMessage::parseAttribute(STUN_ATTRIBUTE_HEADER* pHeader, char* pBuf)
                 if (mszTurnData)
                 {
                     bValid = parseRawAttribute(pBuf, pHeader->length, mszTurnData, pHeader->length) ;
-                    mbTurnDataValid = (pHeader->length > 0);
+                    mbTurnDataValid = pHeader->length ;
                     mnTurnData = pHeader->length ;
                     if (!bValid)
                     {
@@ -546,9 +533,6 @@ bool TurnMessage::parseAttribute(STUN_ATTRIBUTE_HEADER* pHeader, char* pBuf)
         case ATTR_TURN_RELAY_ADDRESS:
             bValid = parseAddressAttribute(pBuf, pHeader->length, &mRelayAddress) ;
             mbRelayAddressValid = bValid ;
-            break ;
-        case ATTR_TURN_REQUESTED_PORT:
-            bValid = true ;
             break ;
         case ATTR_TURN_REQUESTED_TRANSPORT:
             bValid = parseLongAttribute(pBuf, pHeader->length, &mTransport) ;

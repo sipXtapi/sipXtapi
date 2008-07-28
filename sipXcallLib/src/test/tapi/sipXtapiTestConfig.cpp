@@ -1,3 +1,19 @@
+// Copyright 2008 AOL LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -908,7 +924,7 @@ void sipXtapiTestSuite::testConfigCodecPreferences()
 
         g_recorder.addCompareEvent(hLine, CALLSTATE_DIALTONE, CALLSTATE_CAUSE_NORMAL) ;
         g_recorder.addCompareEvent(hLine, CALLSTATE_REMOTE_OFFERING, CALLSTATE_CAUSE_NORMAL) ;
-        g_recorder.addCompareEvent(hLine, CALLSTATE_REMOTE_ALERTING, CALLSTATE_CAUSE_NORMAL) ;
+        g_recorder.addCompareEvent(hLine, CALLSTATE_REMOTE_ALERTING, CALLSTATE_CAUSE_EARLY_MEDIA) ;
         g_recorder.addCompareEvent(hLine, CALLSTATE_CONNECTED, CALLSTATE_CAUSE_NORMAL) ;
 //        g_recorder.addCompareEvent(hLine, CALLSTATE_AUDIO_EVENT, CALLSTATE_CAUSE_AUDIO_START) ;
 //        g_recorder.addCompareMsgString(hLine, "Codec IPCMWB");
@@ -1016,6 +1032,45 @@ void sipXtapiTestSuite::testConfigEnableStunSuccess()
     checkForLeaks() ;
 }
 
+void sipXtapiTestSuite::testConfigGetUpnpResults() 
+{
+    SIPX_INST hInst = NULL ;
+    SIPX_RESULT rc ;
+
+    for (int iStressFactor = 0; iStressFactor<STRESS_FACTOR; iStressFactor++)
+    {
+        char szAddr[256];
+        int internalPort;
+        int externalPort;
+        printf("\ntestConfigGetUpnpResults (%2d of %2d)", iStressFactor+1, STRESS_FACTOR);        
+        UtlString hostIp;
+        OsSocket::getHostIp(&hostIp);
+
+        try
+        {
+            rc = sipxInitialize(&hInst, 11234, 11234, 8031, 8050, 10, "mike", hostIp.data()) ;
+            CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS);
+            rc = sipxConfigGetLastUpnpResults(szAddr,
+                                            sizeof(szAddr),
+                                            internalPort,
+                                            externalPort);
+
+            CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS);
+            CPPUNIT_ASSERT(internalPort > 0);
+            CPPUNIT_ASSERT(externalPort > 0);
+        }
+        catch (...)
+        {
+        }
+
+        rc = sipxUnInitialize(hInst);
+        CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS);
+    }
+
+    // Does not create a call -- no need to pause
+    // OsTask::delay(TEST_DELAY) ;    
+    checkForLeaks() ;
+}
 
 void sipXtapiTestSuite::testConfigEnableStunNoResponse() 
 {
@@ -1423,6 +1478,7 @@ void sipXtapiTestSuite::testConfigStunKeepAlive()
 
     EventValidator validator("validator") ;
     validator.ignoreEventCategory(EVENT_CATEGORY_MEDIA);
+    validator.ignoreEventCategory(EVENT_CATEGORY_KEEPALIVE);
 
     for (int iStressFactor = 0; iStressFactor<STRESS_FACTOR; iStressFactor++)
     {
@@ -1440,14 +1496,20 @@ void sipXtapiTestSuite::testConfigStunKeepAlive()
         rc = sipxConfigKeepAliveAdd(hInst, 1, SIPX_KEEPALIVE_STUN, "127.0.0.1", 3478, 1) ;
         CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS);
         
+//        bRC = validator.waitForKeepaliveEvent(KEEPALIVE_START, KEEPALIVE_CAUSE_NORMAL, SIPX_KEEPALIVE_STUN, false);
+//        CPPUNIT_ASSERT(bRC) ;
         bRC = validator.waitForMessage(0, "TestStunServerTask::handleStunMessage", true) ;
         CPPUNIT_ASSERT(bRC) ;
         bRC = validator.waitForMessage(0, "TestStunServerTask::Sending Response", true) ;
         CPPUNIT_ASSERT(bRC) ;
+//        bRC = validator.waitForKeepaliveEvent(KEEPALIVE_FEEDBACK, KEEPALIVE_CAUSE_NORMAL, SIPX_KEEPALIVE_STUN, false);
+//        CPPUNIT_ASSERT(bRC) ;
         bRC = validator.waitForMessage(0, "TestStunServerTask::handleStunMessage", true) ;
         CPPUNIT_ASSERT(bRC) ;
         bRC = validator.waitForMessage(0, "TestStunServerTask::Sending Response", true) ;
         CPPUNIT_ASSERT(bRC) ;
+//        bRC = validator.waitForKeepaliveEvent(KEEPALIVE_FEEDBACK, KEEPALIVE_CAUSE_NORMAL, SIPX_KEEPALIVE_STUN, false);
+//        CPPUNIT_ASSERT(bRC) ;
         bRC = validator.waitForMessage(0, "TestStunServerTask::handleStunMessage", true) ;
         CPPUNIT_ASSERT(bRC) ;
         bRC = validator.waitForMessage(0, "TestStunServerTask::Sending Response", true) ;
@@ -1458,10 +1520,16 @@ void sipXtapiTestSuite::testConfigStunKeepAlive()
         rc = sipxEventListenerRemove(hInst, UniversalEventValidatorCallback, &validator) ;
         CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS);
 
+        rc = sipxConfigKeepAliveRemove(hInst, 1, SIPX_KEEPALIVE_STUN, "127.0.0.1", 3478) ;
+        CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS);
+
+
+        teardownStunServer() ;
+        OsTask::delay(1000);
+
         rc = sipxUnInitialize(hInst);
         CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS);
 
-        teardownStunServer() ;
     }
 
     // Does not create a call -- no need to pause
@@ -1478,6 +1546,7 @@ void sipXtapiTestSuite::testConfigStunKeepAliveOnce()
 
     EventValidator validator("validator") ;
     validator.ignoreEventCategory(EVENT_CATEGORY_MEDIA);
+    validator.ignoreEventCategory(EVENT_CATEGORY_KEEPALIVE);
 
     for (int iStressFactor = 0; iStressFactor<STRESS_FACTOR; iStressFactor++)
     {
@@ -1595,7 +1664,7 @@ void sipXtapiTestSuite::testConfigEnableShortNames()
         CPPUNIT_ASSERT(bRC) ;
         bRC = validatorCalling.waitForCallEvent(hLine, hCall, CALLSTATE_REMOTE_OFFERING, CALLSTATE_CAUSE_NORMAL, true) ;
         CPPUNIT_ASSERT(bRC) ;
-        bRC = validatorCalling.waitForCallEvent(hLine, hCall, CALLSTATE_REMOTE_ALERTING, CALLSTATE_CAUSE_NORMAL, true) ;
+        bRC = validatorCalling.waitForCallEvent(hLine, hCall, CALLSTATE_REMOTE_ALERTING, CALLSTATE_CAUSE_EARLY_MEDIA, true) ;
         CPPUNIT_ASSERT(bRC) ;
         bRC = validatorCalling.waitForCallEvent(hLine, hCall, CALLSTATE_CONNECTED, CALLSTATE_CAUSE_NORMAL, true) ;
         CPPUNIT_ASSERT(bRC) ;
@@ -1623,6 +1692,8 @@ void sipXtapiTestSuite::testConfigEnableShortNames()
         destroyCall(hCall) ;
 
         // Validate Calling Side
+//        bRC = validatorCalling.waitForCallEvent(hLine, hDestroyedCall, CALLSTATE_BRIDGED, CALLSTATE_CAUSE_NORMAL, true) ;
+//        CPPUNIT_ASSERT(bRC) ;
 //        bRC = validatorCalling.waitForCallEvent(hLine, hDestroyedCall, CALLSTATE_AUDIO_EVENT, CALLSTATE_CAUSE_AUDIO_STOP, true) ;
 //        CPPUNIT_ASSERT(bRC) ;
         bRC = validatorCalling.waitForCallEvent(hLine, hDestroyedCall, CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_NORMAL, true) ;

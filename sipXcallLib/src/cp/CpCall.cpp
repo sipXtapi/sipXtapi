@@ -1,3 +1,19 @@
+// Copyright 2008 AOL LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -13,6 +29,7 @@
 // SYSTEM INCLUDES
 #include <assert.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 // APPLICATION INCLUDES
 #include <os/OsReadLock.h>
@@ -21,14 +38,12 @@
 #include <os/OsEventMsg.h>
 #include "os/OsSysLog.h"
 #include <cp/CpCall.h>
-#include <mi/CpMediaInterface.h>
+#include <mediaInterface/IMediaInterface.h>
 #include <cp/CpMultiStringMessage.h>
 #include <cp/CpIntMessage.h>
-#include "ptapi/PtConnection.h"
-#include "ptapi/PtCall.h"
-#include "ptapi/PtTerminalConnection.h"
-#include "tao/TaoProviderAdaptor.h"
-#include "tao/TaoListenerEventMessage.h"
+#include "ptapi/PtDefs.h"
+//#include "tao/TaoProviderAdaptor.h"
+//#include "tao/TaoListenerEventMessage.h"
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -51,7 +66,7 @@ OsLockingList *CpCall::spCallTrackingList = NULL;
 
 // Constructor
 CpCall::CpCall(CpCallManager* manager,
-               CpMediaInterface* callMediaInterface,
+               IMediaInterface* callMediaInterface,
                int callIndex,
                const char* callId,
                int holdType) :
@@ -577,11 +592,11 @@ UtlBoolean CpCall::handleMessage(OsMsg& eventMessage)
                 OsProtectedEvent* ev = (OsProtectedEvent*) ((CpMultiStringMessage&)eventMessage).getInt1Data();
                 int ms = ((CpMultiStringMessage&)eventMessage).getInt2Data();
                 int silenceLength = ((CpMultiStringMessage&)eventMessage).getInt3Data();
-
+                int dtmfterm = ((CpMultiStringMessage&)eventMessage).getInt4Data();
                 double duration;
                 if (mpMediaInterface)
                 {
-                    mpMediaInterface->ezRecord(ms, silenceLength, fileName.data(), duration, ev);
+                    mpMediaInterface->ezRecord(ms, silenceLength, fileName.data(), duration, dtmfterm, ev);
                 }
 
             }
@@ -834,9 +849,9 @@ OsStatus CpCall::stopRecord()
     return mpMediaInterface->stopRecording();
 }
 
-OsStatus CpCall::ezRecord(int ms, int silenceLength, const char* fileName, double& duration)
+OsStatus CpCall::ezRecord(int ms, int silenceLength, const char* fileName, double& duration, int& dtmfterm)
 {
-    return mpMediaInterface->ezRecord(ms, silenceLength, fileName, duration);
+    return mpMediaInterface->ezRecord(ms, silenceLength, fileName, duration, dtmfterm);
 }
 
 void CpCall::addToneListenerToFlowGraph(int pListener, Connection* connection)
@@ -879,6 +894,11 @@ int CpCall::getCallState()
     return(mCallState);
 }
 
+IMediaInterface* const CpCall::getMediaInterface()
+{
+    return mpMediaInterface;
+}
+
 void CpCall::printCall()
 {
     UtlString callId;
@@ -896,6 +916,29 @@ void CpCall::printCall()
         }
     }
     osPrintf("=====================\n");
+}
+
+void CpCall::toString(UtlString& status)
+{
+    char cTemp[1024] ;
+
+    UtlString callId;
+    getCallId(callId);
+
+#ifdef WIN32
+    _snprintf(
+#else
+    snprintf(
+#endif
+            cTemp,
+            sizeof(cTemp),
+            "call[%d] id: %s state: %d%s\n", 
+            mCallIndex,
+            callId.data(), 
+            getCallState(), 
+            mDropping ? ", Dropping" : "") ;
+
+    status.append(cTemp) ;
 }
 
 void CpCall::getCallId(UtlString& callId)

@@ -1,3 +1,19 @@
+// Copyright 2008 AOL LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA. 
 //  
 // Copyright (C) 2006 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
@@ -77,8 +93,7 @@ MprToNet::MprToNet()
 ,  mTimestampDelta(0)
 ,  mSeqNum(0)
 ,  mSSRC(0)
-,  mpRtpSocket(NULL)
-,  mpRtcpSocket(NULL)
+,  mpSocketAdapter(NULL)
 ,  mNumRtpWriteErrors(0)
 ,  mNumRtcpWriteErrors(0)
 #ifdef INCLUDE_RTCP /* [ */
@@ -114,19 +129,21 @@ MprToNet::~MprToNet()
 /* ============================ MANIPULATORS ============================== */
 
 // Set the outbound RTP and RTCP sockets.
-OsStatus MprToNet::setSockets(OsSocket& rRtpSocket, OsSocket& rRtcpSocket)
-{
-   mpRtpSocket  = &rRtpSocket;
-   mpRtcpSocket = &rRtcpSocket;
 
+OsStatus MprToNet::setSocketAdapter(IMediaTransportAdapter* pAdapter)
+{
+   mpSocketAdapter = pAdapter;
    return OS_SUCCESS;
 }
 
 // Clear the outbound RTP and RTCP sockets.
 OsStatus MprToNet::resetSockets(void)
 {
-   mpRtpSocket  = NULL;
-   mpRtcpSocket = NULL;
+    if (mpSocketAdapter)
+    {
+        mpSocketAdapter->setRtcpSocket(NULL);
+        mpSocketAdapter->setRtpSocket(NULL);
+    }
 
    return OS_SUCCESS;
 }
@@ -178,7 +195,7 @@ int MprToNet::writeRtp(int payloadType, UtlBoolean markerState,
    char paddingLength;
 
    // Nothing to do when no socket specified.
-   if (mpRtpSocket == NULL)
+   if (mpSocketAdapter->getRtpSocket() == NULL)
       return 0;
 
    // Allocate new RTP packet.
@@ -275,7 +292,7 @@ int MprToNet::writeRtp(int payloadType, UtlBoolean markerState,
       numBytesSent = mpRtpSocket->write(pUdpPacket->getDataPtr(), pUdpPacket->getPacketSize());
    }
 #else /* DROP_SOME_PACKETS ] [*/
-   numBytesSent = mpRtpSocket->write(pUdpPacket->getDataPtr(), pUdpPacket->getPacketSize());
+   numBytesSent = mpSocketAdapter->doSendPacket(0, pUdpPacket->getDataPtr(), pUdpPacket->getPacketSize());
 #endif /* DROP_SOME_PACKETS ] */
 
    if (numBytesSent != pUdpPacket->getPacketSize()) {

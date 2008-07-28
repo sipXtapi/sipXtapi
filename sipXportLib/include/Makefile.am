@@ -8,7 +8,6 @@ nobase_include_HEADERS = \
     os/HostAdapterAddress.h \
     os/iostream \
     os/istream \
-    os/IStunSocket.h \
     os/linux/host_address.h \
     os/linux/AdapterInfo.h \
     os/linux/OsBSemLinux.h \
@@ -30,6 +29,7 @@ nobase_include_HEADERS = \
     os/linux/pt_csem.h \
     os/linux/pt_mutex.h \
     os/NatMsg.h \
+    os/IOsNatSocket.h \
     os/OsAssert.h \
     os/OsBSem.h \
     os/OsCallback.h \
@@ -56,6 +56,7 @@ nobase_include_HEADERS = \
     os/OsIntTypes.h \
     os/OsLock.h \
     os/OsLockingList.h \
+    os/OsMediaContact.h \
     os/OsMsg.h \
     os/OsMsgPool.h \
     os/OsMsgQ.h \
@@ -65,12 +66,15 @@ nobase_include_HEADERS = \
     os/OsNameDb.h \
     os/OsNameDbInit.h \
     os/OsNatAgentTask.h \
+    os/OsNatAgentContext.h \
     os/OsNatConnectionSocket.h \
     os/OsNatDatagramSocket.h \
     os/OsNatKeepaliveListener.h \
+    os/OsNatServerSocket.h \
     os/OsNatSocketBaseImpl.h \
     os/OsNotification.h \
     os/OsPathBase.h \
+    os/OsPerfLog.h \
     os/OsProcess.h \
     os/OsProcessIterator.h \
     os/OsProcessMgr.h \
@@ -115,6 +119,7 @@ nobase_include_HEADERS = \
     os/StunMessage.h \
     os/StunUtils.h \
     os/TurnMessage.h \
+    os/OsHostPort.h \
     xmlparser/tinystr.h \
     xmlparser/tinyxml.h \
     xmlparser/TiXmlIterator.h \

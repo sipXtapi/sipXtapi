@@ -1,3 +1,19 @@
+// Copyright 2008 AOL LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -25,11 +41,21 @@
 #include "utl/UtlContainableAtomic.h"
 #include "utl/UtlString.h"
 #include "os/OsBSem.h"
+#include "os/OsMutex.h"
+#include "os/OsDateTime.h"
 
 
 // DEFINES
 #define MAX_IP_ADDRESSES 32
 #define MAX_ADAPTER_NAME_LENGTH 256
+
+// The follow defines are used to keep track of what has been recorded for
+// various time-based metrics.
+#define ONDS_MARK_NONE           0x00000000
+#define ONDS_MARK_FIRST_READ     0x00000001
+#define ONDS_MARK_LAST_READ      0x00000002
+#define ONDS_MARK_FIRST_WRITE    0x00000004
+#define ONDS_MARK_LAST_WRITE     0x00000008
 
 //: constant indentifier indicating the maximum number of IP addresses on this host.
 #define OS_INVALID_SOCKET_DESCRIPTOR (-1)
@@ -67,6 +93,7 @@ extern "C" unsigned long osSocketGetDefaultBindAddress();
 // TYPEDEFS
 // ENUMS
 // FORWARD DECLARATIONS
+class OsNotification ;
 
 //: Abstract Socket class
 // This class encapsulates the Berkley socket in an object oriented,
@@ -188,6 +215,17 @@ public:
    static void setDefaultBindAddress(const unsigned long bind_address);
    //set the default ipaddress the phone should bind to
 
+    /**
+     * Set a notification object to be signaled when the first the data 
+     * packet is received from the socket.  Once this is signaled, the 
+     * notification object is discarded.
+     */
+    virtual void setReadNotification(OsNotification* pNotification) ;
+
+
+   void markReadTime() ;
+   void markWriteTime() ;
+
 /* ============================ ACCESSORS ================================= */
 
    virtual OsSocket::IpProtocolSocketType getIpProtocol() const = 0;
@@ -265,6 +303,31 @@ public:
    // Returns the port to which the socket on the other end of this socket
    // is bound.
 
+
+    /**
+     * Get the timestamp of the first read data packet (excluding any 
+     * STUN/TURN/NAT packets).
+     */
+    virtual bool getFirstReadTime(OsDateTime& time) ;
+
+    /**
+     * Get the timestamp of the last read data packet (excluding any 
+     * STUN/TURN/NAT packets).
+     */
+    virtual bool getLastReadTime(OsDateTime& time) ;
+
+    /**
+     * Get the timestamp of the first written data packet (excluding any
+     * STUN/TURN/NAT packets).
+     */
+    virtual bool getFirstWriteTime(OsDateTime& time) ;
+
+    /**
+     * Get the timestamp of the last written data packet (excluding any
+     * STUN/TURN/NAT packets).
+     */
+    virtual bool getLastWriteTime(OsDateTime& time) ;
+
 /* ============================ INQUIRY =================================== */
 
    virtual UtlBoolean isOk() const;
@@ -324,6 +387,14 @@ protected:
    UtlString remoteHostName;
    UtlString mRemoteIpAddress;
    UtlBoolean mIsConnected;
+
+    unsigned int          miRecordTimes ;   // Bitmask populated w/ ONDS_MARK_*
+    OsDateTime            mFirstRead ;
+    OsDateTime            mLastRead ;
+    OsDateTime            mFirstWrite ;
+    OsDateTime            mLastWrite ;
+    OsMutex               mReadNotificationLock ;
+    OsNotification*       mpReadNotification ;    
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:

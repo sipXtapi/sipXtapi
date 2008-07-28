@@ -1,3 +1,19 @@
+// Copyright 2008 AOL LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -81,10 +97,6 @@ STUN_NAT_TYPE StunUtils::determineStunNatType(const char* szServer, const int po
                         // Check mapped IP
                         if ((strcmp(cMappedIp, cMappedIp2) == 0) && (usMappedPort2 == usMappedPort))
                         {
-                            rc = STUN_NAT_SYMMETRIC ;
-                        }
-                        else
-                        {
                             // Send Test III
                             if (sendStunNatTest(pSocket, cChangedIp, usChangedPort, true, false, 
                                     NULL, NULL, NULL, NULL))
@@ -95,6 +107,10 @@ STUN_NAT_TYPE StunUtils::determineStunNatType(const char* szServer, const int po
                             {
                                 rc = STUN_NAT_PORT_RESTRICTED_CONE ;
                             }
+                        }
+                        else
+                        {
+                            rc = STUN_NAT_SYMMETRIC ;
                         }
                     }
                     else
@@ -467,6 +483,9 @@ static const char* convertAttributeToString(unsigned short attribute)
             break ;
         case ATTR_TURN_REQUESTED_TRANSPORT:
             szAttribute = "ATTR_TURN_REQUESTED_TRANSPORT" ;
+            break ;
+        case ATTR_ICE_PRIORITY:
+            szAttribute = "ATTR_ICE_PRIORTY" ;
             break ;
     }
 

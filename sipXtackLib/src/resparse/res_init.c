@@ -252,7 +252,7 @@ int res_init_ip(const char* localIp)
         }
         else
         {
-            if (strcmp(szLocalIp, localIp) == 0)
+            if (localIp && localIp[0] != 0 && strcmp(szLocalIp, localIp) == 0)
             {
                 return 0; // no need to init again if the ip address is the same
                           // as the last call to this function.

@@ -55,7 +55,8 @@ AC_CHECK_FUNCS([clock_gettime getcwd gethostbyname gethostname gettimeofday inet
 CHECK_CPPUNIT
 
 # sipX dependencies
-SFAC_LIB_MEDIA_PROCESSING
+SFAC_LIB_STACK
+SFAC_LIB_MEDIA_PLUGIN_MGR
 
 SFAC_FEATURE_SIP_TLS
 
@@ -64,10 +65,10 @@ AM_CONDITIONAL(DOC, test x$enable_doc = xyes)
 AM_CONDITIONAL(USE_BLDNO, test x$enable_buildnumber = xyes)
 
 # Conditionally use the GIPS audio libraries
-CHECK_GIPSNEQ
-CHECK_GIPSVE
-CHECK_GIPSCE
-CHECK_VIDEO
+# CHECK_GIPSNEQ
+# CHECK_GIPSVE
+# CHECK_GIPSCE
+# CHECK_VIDEO
 
 SFAC_FEATURE_SIPX_EZPHONE
 

@@ -1,0 +1,48 @@
+Microsoft Visual Studio Solution File, Format Version 8.00
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXtackLib", "sipXtackLib-msvc71.vcproj", "{F68F8C4E-D669-45A0-8770-2A24C11DA79E}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXtackLibTest", "sipXtackLibTest-msvc71.vcproj", "{75BE2278-5F09-4FD6-B036-477DD2BF9D67}"
+	ProjectSection(ProjectDependencies) = postProject
+		{54B35539-700F-47A5-86D0-8C000D343486} = {54B35539-700F-47A5-86D0-8C000D343486}
+		{F68F8C4E-D669-45A0-8770-2A24C11DA79E} = {F68F8C4E-D669-45A0-8770-2A24C11DA79E}
+		{116B1CB9-9FBE-4622-9776-9EE35F3BB83B} = {116B1CB9-9FBE-4622-9776-9EE35F3BB83B}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXportLib", "..\sipXportLib\sipXportLib-msvc71.vcproj", "{116B1CB9-9FBE-4622-9776-9EE35F3BB83B}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXsdpLib", "..\sipXsdpLib\sipXsdpLib-msvc71.vcproj", "{54B35539-700F-47A5-86D0-8C000D343486}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfiguration) = preSolution
+		Debug = Debug
+		Release = Release
+	EndGlobalSection
+	GlobalSection(ProjectConfiguration) = postSolution
+		{F68F8C4E-D669-45A0-8770-2A24C11DA79E}.Debug.ActiveCfg = Debug|Win32
+		{F68F8C4E-D669-45A0-8770-2A24C11DA79E}.Debug.Build.0 = Debug|Win32
+		{F68F8C4E-D669-45A0-8770-2A24C11DA79E}.Release.ActiveCfg = Release|Win32
+		{F68F8C4E-D669-45A0-8770-2A24C11DA79E}.Release.Build.0 = Release|Win32
+		{75BE2278-5F09-4FD6-B036-477DD2BF9D67}.Debug.ActiveCfg = Debug|Win32
+		{75BE2278-5F09-4FD6-B036-477DD2BF9D67}.Debug.Build.0 = Debug|Win32
+		{75BE2278-5F09-4FD6-B036-477DD2BF9D67}.Release.ActiveCfg = Release|Win32
+		{75BE2278-5F09-4FD6-B036-477DD2BF9D67}.Release.Build.0 = Release|Win32
+		{116B1CB9-9FBE-4622-9776-9EE35F3BB83B}.Debug.ActiveCfg = Debug|Win32
+		{116B1CB9-9FBE-4622-9776-9EE35F3BB83B}.Debug.Build.0 = Debug|Win32
+		{116B1CB9-9FBE-4622-9776-9EE35F3BB83B}.Release.ActiveCfg = Release|Win32
+		{116B1CB9-9FBE-4622-9776-9EE35F3BB83B}.Release.Build.0 = Release|Win32
+		{54B35539-700F-47A5-86D0-8C000D343486}.Debug.ActiveCfg = Debug|Win32
+		{54B35539-700F-47A5-86D0-8C000D343486}.Debug.Build.0 = Debug|Win32
+		{54B35539-700F-47A5-86D0-8C000D343486}.Release.ActiveCfg = Release|Win32
+		{54B35539-700F-47A5-86D0-8C000D343486}.Release.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+	EndGlobalSection
+	GlobalSection(ExtensibilityAddIns) = postSolution
+	EndGlobalSection
+EndGlobal

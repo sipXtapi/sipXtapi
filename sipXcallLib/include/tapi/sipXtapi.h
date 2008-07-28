@@ -1,3 +1,19 @@
+// Copyright 2008 AOL LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA. 
 //
 // Copyright (C) 2007 Robert J. Andreasen, Jr.
 // Licensed to SIPfoundry under a Contributor Agreement. 
@@ -33,6 +49,7 @@
 #include <memory.h>
 #include <string.h>
 #include <stddef.h>       // size_t
+#include <stdio.h>
 
 // SYSTEM INCLUDES
 #ifdef DIRECT_SHOW_RENDER
@@ -41,6 +58,9 @@
 #    if !defined __strmif_h__
 #        include <strmif.h>
 #    endif 
+#endif
+#if !defined (_WIN32)
+    struct IBaseFilter;
 #endif
 
 // APPLICATION INCLUDES
@@ -100,15 +120,15 @@
                                              sipXinitialize */
 
 #define SIPXTAPI_VERSION_STRING "sipXtapi SDK %s.%s %s (built %s)" /**< Version string format string */
-#define SIPXTAPI_VERSION        "2.9.1"      /**< sipXtapi API version -- automatically filled in 
+#define SIPXTAPI_VERSION        "3.0.0"      /**< sipXtapi API version -- automatically filled in 
                                                   during release process */   
-#define SIPXTAPI_BUILDNUMBER "0"             /**< Default build number -- automatically filled in 
+#define SIPXTAPI_BUILDNUMBER "4152"             /**< Default build number -- automatically filled in 
                                                   during release process*/
-#define SIPXTAPI_BUILD_WORD 2,9,1,0          /**< Default build word -- automatically filled in 
+#define SIPXTAPI_BUILD_WORD 3,0,0,0	          /**< Default build word -- automatically filled in 
                                                   during release process */
-#define SIPXTAPI_FULL_VERSION "2.9.1.0"      /**< Default full version number -- automatically filled in 
+#define SIPXTAPI_FULL_VERSION "3.0.0.0"      /**< Default full version number -- automatically filled in 
                                                   during release process*/
-#define SIPXTAPI_BUILDDATE "0000-00-00"      /**< Default build date -- automatically filled in 
+#define SIPXTAPI_BUILDDATE "0000-00-10"      /**< Default build date -- automatically filled in 
                                                   during release process*/
 #define SIPX_MAX_ADAPTER_NAME_LENGTH 256	 /**< Max length of an adapter name */
 
@@ -144,6 +164,24 @@ typedef enum SPEAKER_TYPE
     SPEAKER,    /**< Speaker / in call device */
     RINGER      /**< Ringer / alerting device */
 } SPEAKER_TYPE ;
+
+/**
+ * Enumeration of possible media event types.  Today, MEDIA_TYPE_AUDIO and
+ * MEDIA_TYPE_VIDEO are supported.
+ */
+typedef enum
+{
+    MEDIA_TYPE_AUDIO,   /**< Audio media event type */
+    MEDIA_TYPE_VIDEO,   /**< Video media event type */
+
+} SIPX_MEDIA_TYPE ;
+
+typedef enum
+{
+    MEDIA_PROTOCOL_RTP,
+    MEDIA_PROTOCOL_RTCP,  
+
+} SIPX_MEDIA_PROTOCOL ;
 
 /**
  * Codec bandwidth ids are used to select a group of codecs with equal or lower
@@ -230,7 +268,13 @@ typedef enum SIPX_VIDEO_FORMAT
     VIDEO_FORMAT_CIF=0,          /**< 352x288   */ 
     VIDEO_FORMAT_QCIF,           /**< 176x144   */
     VIDEO_FORMAT_SQCIF,          /**< 128x96    */
-    VIDEO_FORMAT_QVGA            /**< 320x240   */
+    VIDEO_FORMAT_QVGA,           /**< 320x240   */
+    VIDEO_FORMAT_VGA,            /**< 640x480   */
+    VIDEO_FORMAT_4CIF,           /**< 704x576   */
+    VIDEO_FORMAT_16CIF,           /**< 1408x1152 */
+
+    VIDEO_FORMAT_DEFAULT = VIDEO_FORMAT_VGA      /**< Default video format */
+
 } SIPX_VIDEO_FORMAT;
 
 
@@ -492,6 +536,7 @@ typedef enum
     CONTACT_NAT_MAPPED, /**< NAT mapped address (e.g. STUN)           */
     CONTACT_RELAY,      /**< Relay address (e.g. TURN)                */
     CONTACT_CONFIG,     /**< Manually configured address              */
+    CONTACT_ARS,        /**< ARS Relay                                */
 
     CONTACT_AUTO = -1,  /**< Automatic contact selection; used for API 
                              parameters */
@@ -547,13 +592,20 @@ struct SIPX_VIDEO_DISPLAY
         if (type == DIRECT_SHOW_FILTER)
         {
 #ifdef DIRECT_SHOW_RENDER
-            if (handle) ((IUnknown*)handle)->Release();
+            if (filter) 
+            {   
+                filter->Release() ; 
+            }
 #endif              
         }
     }
 	/** Copy constructor */
     SIPX_VIDEO_DISPLAY(const SIPX_VIDEO_DISPLAY& ref)
     {
+        cbSize = sizeof(SIPX_VIDEO_DISPLAY);
+        type = SIPX_WINDOW_HANDLE_TYPE;
+        handle = NULL;
+
         copy(ref);
     }
     /** Assignment operator. */
@@ -571,23 +623,32 @@ struct SIPX_VIDEO_DISPLAY
 		SIPX_WINDOW_HANDLE handle;	/**< Window handle if type SIPX_WINDOW_HANDLE_TYPE */
 #ifdef DIRECT_SHOW_RENDER
 		IBaseFilter* filter;		/**< Direct Show filter if type is DIRECT_SHOW_FILTER */
+#else   
+        void* filter;
 #endif
     };
 private:
     void copy(const SIPX_VIDEO_DISPLAY& ref)
     {
+#ifdef DIRECT_SHOW_RENDER
+        IBaseFilter* oldFilter = NULL ;
+        if (type == DIRECT_SHOW_FILTER)
+            oldFilter = filter ;
+#endif
         cbSize = ref.cbSize;
         type = ref.type;
         handle = ref.handle;
         if (type == DIRECT_SHOW_FILTER)
         {
 #ifdef DIRECT_SHOW_RENDER
-            // we should addRef here.
-            if (handle) ((IBaseFilter*)handle)->AddRef();
-#endif            
+            if (filter) 
+                filter->AddRef() ;
+
+            if (oldFilter)
+                oldFilter->Release() ; 
+#endif           
         }
     }
-    
 };
 
 /** 
@@ -595,6 +656,22 @@ private:
  * @see sipxConfigGetLocalContacts
  */
 typedef int SIPX_CONTACT_ID; 
+
+
+/**
+ * SIPx NAT classifications
+ */
+typedef enum 
+{
+    SIPX_NC_SERVER_ERROR,
+    SIPX_NC_BLOCKED,
+    SIPX_NC_OPEN,
+    SIPX_NC_FIREWALL_SYMMETRIC,
+    SIPX_NC_NAT_FULL_CONE,
+    SIPX_NC_NAT_SYMMETRIC,
+    SIPX_NC_NAT_RESTRICTED,
+    SIPX_NC_NAT_PORT_RESTRICTED,
+} SIPX_NC_TYPE ;
 
 /**
  * The CONTACT_ADDRESS structure includes contact information (IP-address and
@@ -758,6 +835,21 @@ typedef struct
                                               sipxCallAccept at this moment) */
     SIPX_RTP_TRANSPORT rtpTransportFlags; /**< specifies protocols(s)/role for media. */
 
+    bool disableICE ;       /**< Disable ICE for this call.  ICE is only
+                                 enabled if this parameter is set to false 
+                                 (default) and ICE has been enabled globally 
+                                 using sipxConfigEnableIce. */
+
+    bool disableTURN ;      /**< Disable TURN for this call.  TURN is only
+                                 enabled if this parameter is set to false 
+                                 (default) and TURN has been enabled globally
+                                 using sipxConfigEnableTurn. */
+
+    bool disableSTUN ;      /**< Disables STUN for media */
+    bool disableLocal ;     /**< Disables local IPs for media */
+    bool disableARS ;       /**< Disables ARS relaying for media */
+
+
     /*
      * NOTE: When adding new data to this structure, please always add it to
      *       the end.  This will allow us to maintain some drop-in 
@@ -869,6 +961,35 @@ typedef bool (SIPX_CALLING_CONVENTION *SIPX_TRANSPORT_WRITE_PROC)(
         const size_t   nData,
         const void*    pUserData) ;
 
+
+/**
+ * SIPx MEDIA packet types
+ */
+typedef enum SIPX_MEDIA_PACKET_TYPE 
+{
+    SIPX_MEDIA_PACKET_AUDIO_RTP,
+    SIPX_MEDIA_PACKET_AUDIO_RTCP,
+    SIPX_MEDIA_PACKET_VIDEO_RTP,
+    SIPX_MEDIA_PACKET_VIDEO_RTCP
+};
+
+/** Media Packet (RTP/RTCP) callback definition.  SIPXUA will invoke this callback function
+ *  when it receives an RTP or RTCP packet.  See IETF RFC 1889.
+ *
+ * @param hCall Call handle of the call associated with this RTP/RTCP data
+ * @param rtpPacketType The type of RFC 1889 packet in pData.
+ * @param pData The bytes of the RFC 1889 packet.
+ * @param nData The size of the RFC 1889 packet, in bytes.
+ * @returns Returning a value of true indicates to SIPXUA to continue to
+ *          send packets to the callback.  Returning a value of false
+ *          indicates to SIPXUA to stop sending packets to the callback.
+ */
+typedef bool (SIPX_CALLING_CONVENTION *SIPX_MEDIA_PACKET_CALLBACK)(
+        const SIPX_CALL hCall, 
+        const SIPX_MEDIA_PACKET_TYPE type,
+        const char* const pData,
+        const size_t nData);
+        
 /** 
  * Typedef for audio source (microphone) hook procedure.  This typedef 
  * coupled with the sipxConfigSetMicAudioHook API allows developers to 
@@ -2013,6 +2134,20 @@ SIPXTAPI_API SIPX_RESULT sipxCallLimitCodecPreferences(const SIPX_CALL hCall,
                                                        const SIPX_AUDIO_BANDWIDTH_ID audioBandwidth,
                                                        const SIPX_VIDEO_BANDWIDTH_ID videoBandwidth,
                                                        const char* szVideoCodecName);
+/**
+ * Supplies SIPXUA with an outgoing RTP or RTCP data packet for
+ * the specified call.   See IETF RFC 1889.
+ * 
+ * @param hCall Call handle of the call associated with this RTP or RTCP data
+ * @param type Descibes the packet to be injected:  RTP or RTCP, Audio or Video
+ * @param pData The bytes of the RFC 1889 packet.
+ * @param nData The size of the RFC 1889 packet, in bytes.
+ */
+SIPXTAPI_API SIPX_RESULT sipxCallInjectMediaPacket(const SIPX_CALL hCall,
+                                                   const SIPX_MEDIA_PACKET_TYPE type,
+                                                   const char* const pData,
+                                                   const size_t nData);
+
 
 //@}
 
@@ -2611,6 +2746,29 @@ SIPXTAPI_API SIPX_RESULT sipxAudioSetCallOutputDevice(const SIPX_INST hInst,
                                                       const char* szDevice) ;
 
 
+/**
+ * Within sipXtapi, you can decided whether you would like to scale the
+ * output speaker volume or modify the actual sound-card volume.  sipXtapi
+ * has traditionally modified the sound-card volume settings; however, most
+ * applications don't do this and end-users may not pleased with your 
+ * application impacting the volume of other applications.
+ *
+ * The default is scaling the output volume; however, you can enable device
+ * volume setting by calling 
+ *   sipxAudioEnableDeviceVolumeAdjustment(hInst, true).
+ *
+ * NOTE: You should set this on startup and not during operation.  If you
+ *       change this during operation, results are undefined (change the 
+ *       volume may cease to work).
+ *
+ * @param hInst Instance pointer obtained by sipxInitialize.
+ * @param bEnable true to enable the modification of sound-card volume 
+ *        settings or false to perform internal volume scaling.
+ */
+SIPXTAPI_API SIPX_RESULT sipxAudioEnableDeviceVolumeAdjustment(const SIPX_INST hInst,
+                                                               const bool bEnable) ;
+                                                
+
 //@}
 /** @name Line / Identity Methods*/
 //@{
@@ -2839,7 +2997,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigEnableGIPSTracing(SIPX_INST hInst,
  * samples per second. The callback is handed 80 samples (10ms) of data at 
  * a time.
  */
-SIPXTAPI_API SIPX_RESULT sipxConfigSetMicAudioHook(fnMicAudioHook hookProc) ;
+SIPXTAPI_API SIPX_RESULT sipxConfigSetMicAudioHook(const SIPX_INST hInst, fnMicAudioHook hookProc) ;
 
 
 /**
@@ -2854,7 +3012,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigSetMicAudioHook(fnMicAudioHook hookProc) ;
  * samples per second. The callback is handed 80 samples (10ms) of data at 
  * a time.
  */
-SIPXTAPI_API SIPX_RESULT sipxConfigSetSpkrAudioHook(fnSpkrAudioHook hookProc) ;
+SIPXTAPI_API SIPX_RESULT sipxConfigSetSpkrAudioHook(const SIPX_INST hInst, fnSpkrAudioHook hookProc) ;
 
 /**
  * Sets the User-Agent name to be used with outgoing SIP messages.
@@ -2990,6 +3148,60 @@ SIPXTAPI_API SIPX_RESULT sipxConfigEnableStun(const SIPX_INST hInst,
                                               int iKeepAliveInSecs) ;
 
 /**
+ * Enable global UPNP discovery and binding.  Allows for
+ * NAT traversal across NAT hardware that supports UPNP.
+ * UPNP is enabled by default.
+ *
+ * @param timeoutSeconds The maximum time to wait for discovery / binding
+ *                       operations.
+ */
+SIPXTAPI_API SIPX_RESULT sipxConfigEnableUpnp(const int timeoutSeconds);
+
+/**
+ * Retrieve the results of the last UPNP binding attempt.
+ *
+ * @returns Returns SIPX_RESULT_SUCCESS if the last attempted binding
+            was successful, otherwise, SIPX_RESULT_FAILURE is returned.        
+ * @param szInternalAddress Result buffer for the internal address of the binding,
+                        or attempted binding.
+ * @param internalAddressSize Size of the szInternalAddress buffer.
+ * @param internalPort Will be set to the internal port of the binding or
+ *                     attempted binding.
+ * @param externalPort Will be set to the external port of the binding, or,
+                       in the case of a binding failure, will be set to -1.
+ */
+SIPXTAPI_API SIPX_RESULT sipxConfigGetLastUpnpResults(char* szInternalAddress,
+                                                      const size_t internalAddressSize,
+                                                      int& internalPort,
+                                                      int& externalPort);
+
+/**
+ * Disable global UPNP discovery and binding.
+ * UPNP is enabled by default.
+ * To disable _all_ UPNP discovery, sipxConfigDisableUpnp 
+ * should be invoked prior to sipxInitialize.
+ *
+ */
+SIPXTAPI_API SIPX_RESULT sipxConfigDisableUpnp();
+
+
+/**
+ * Identical to sipxConfigEnableStun, but allows the user to request
+ * NAT classification.
+ *
+ * @param iNatClassificationPeriodInSecs How often (in seconds) to 
+ *        perform NAT classification.  Specify -1 to disable, 0 to
+ *        perform once, or re-test period in seconds.  A value of 
+ *        of 900 (15 mins) seems reasonable.  Results are published
+ *        to the application through the CONFIG_NAT_CLASSIFICATION
+ *        event.
+ */
+SIPXTAPI_API SIPX_RESULT sipxConfigEnableStunEx(const SIPX_INST hInst,
+                                                const char* szServer, 
+                                                int iServerPort,
+                                                int iKeepAliveInSecs,
+                                                int iNatClassificationPeriodInSecs) ;
+/**
  * Disable the use of STUN.  See sipxConfigEnableStun for details on STUN.
  *
  * @param hInst Instance pointer obtained by sipxInitialize.
@@ -3026,6 +3238,20 @@ SIPXTAPI_API SIPX_RESULT sipxConfigEnableTurn(const SIPX_INST hInst,
  */
 SIPXTAPI_API SIPX_RESULT sipxConfigDisableTurn(const SIPX_INST hInst) ;
 
+
+/*
+ * AOL SPECIFIC -- enable AOL Relay Service
+ */
+SIPXTAPI_API SIPX_RESULT sipxConfigEnableArs(const SIPX_INST hInst,
+                                             const char*     szArsServer,
+                                             int             iArsPort,
+                                             const char*     szArsUsername,
+                                             const char*     szHttpProxy,
+                                             const int       iHttpProxyPort,
+                                             const char*     szHttpProxyUsername,
+                                             const char*     szHttpProxyPassword) ;
+
+SIPXTAPI_API SIPX_RESULT sipxConfigDisableArs(const SIPX_INST hInst) ;
 
 /**
  * Enables an ICE-like mechanism for determining connectivity of remote 
@@ -3288,6 +3514,19 @@ SIPXTAPI_API SIPX_RESULT sipxConfigGetAudioCodec(const SIPX_INST hInst,
                                                  SIPX_AUDIO_CODEC* pCodec) ;
 
 /**
+ * Defines the priorty of video codecs offered to remote parties.  This 
+ * settings modifies the order (priority) of the codecs offered, not the 
+ * actual codec list.  Specifing a codec here will not add that codec to the 
+ * offer list and failing to list a codec will not remove it.
+ *
+ * Any codecs included in this priority list will be offered first in the 
+ * list based on order.
+ */
+SIPXTAPI_API SIPX_RESULT sipxConfigSetAudioCodecPriority(const SIPX_INST hInst,
+                                                         const char* szCodecPriorityList) ;
+
+
+/**
  * Set the bandwidth parameters for video codecs.Depending on the bandwidth
  * parameter that is passed in the settings will be set to:
  *
@@ -3400,12 +3639,10 @@ SIPXTAPI_API SIPX_RESULT sipxConfigGetNumVideoCodecs(const SIPX_INST hInst,
 
 
 /**
- * Set the supported video format
- * This method will limit the supported video format to either
- * VIDEO_FORMAT_CIF (352x288), VIDEO_FORMAT_QCIF (176x144),
- * VIDEO_FORMAT_SQCIF (128x92), or VIDEO_FORMAT_QVGA (320x240).
- * The method will return SIPX_RESULT_SUCCESS if it is able to set the video
- * format, SIPX_RESULT_FAILURE is returned if the video format can not be set.
+ * Set the max supported video format.
+ *
+ * The method will return SIPX_RESULT_SUCCESS if it is able to set the video format,
+ * SIPX_RESULT_FAILURE is returned if the video format can not be set.
  */
 SIPXTAPI_API SIPX_RESULT sipxConfigSetVideoFormat(const SIPX_INST hInst,
                                                   SIPX_VIDEO_FORMAT videoFormat);
@@ -3428,6 +3665,19 @@ SIPXTAPI_API SIPX_RESULT sipxConfigSetVideoFormat(const SIPX_INST hInst,
 SIPXTAPI_API SIPX_RESULT sipxConfigGetVideoCodec(const SIPX_INST hInst, 
                                                  const int index, 
                                                  SIPX_VIDEO_CODEC* pCodec) ;
+
+
+/**
+ * Defines the priorty of video codecs offered to remote parties.  This 
+ * settings modifies the order (priority) of the codecs offered, not the 
+ * actual codec list.  Specifing a codec here will not add that codec to the 
+ * offer list and failing to list a codec will not remove it.
+ *
+ * Any codecs included in this priority list will be offered first in the 
+ * list based on order.
+ */
+SIPXTAPI_API SIPX_RESULT sipxConfigSetVideoCodecPriority(const SIPX_INST hInst,
+                                                         const char* szCodecPriorityList) ;
 
 /**
  * Get the local contact address available for outbound/inbound signaling and
@@ -3456,6 +3706,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigGetLocalContacts(const SIPX_INST hInst,
                                                     SIPX_CONTACT_ADDRESS addresses[],
                                                     size_t nMaxAddresses,
                                                     size_t& nActualAddresses) ;
+
 
 /**
  * Get our local ip/port combination for the designated remote ip/port.  This
@@ -3774,6 +4025,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigExternalTransportAdd(SIPX_INST const         
  */
 SIPXTAPI_API SIPX_RESULT sipxConfigExternalTransportRemove(const SIPX_TRANSPORT hTransport);
 
+
 /**
  * The external transport mechanism can be configured to route by user or by 
  * destination ip/port.  User is the default.
@@ -3812,6 +4064,20 @@ SIPXTAPI_API SIPX_RESULT sipxConfigExternalTransportHandleMessage(const SIPX_TRA
                                                                   const size_t nData);
 
 /**
+ * Sets the callback function to be invoked when
+ * SIPXua receives media packets (RTP or RTCP).
+ * Setting of this callback function circumvents SIPxua's normal processing of RTP and
+ * RTCP packets.  In other words, after receiving media packets on any transport, SIPXua
+ * will invoke the callback function and will not do any other processing of the media
+ * packet.
+ * 
+ * @param hInst An instance handle obtained from sipxInitialize. 
+ * @param pCallback The function pointer of the media packet callback.
+ */
+SIPXTAPI_API SIPX_RESULT sipxConfigSetMediaPacketCallback(const SIPX_INST hInst,
+                                                          SIPX_MEDIA_PACKET_CALLBACK pCallback);
+
+/**
  * Sets the SIP target URL for voice quality reports.  Voice Quality reports 
  * are sent at the completion of each call and give details on the voice 
  * quality (latency, noise, MOS scores, etc).  Presently, this is not 
@@ -3826,7 +4092,28 @@ SIPXTAPI_API SIPX_RESULT sipxConfigExternalTransportHandleMessage(const SIPX_TRA
  */
 SIPXTAPI_API SIPX_RESULT sipxConfigSetVoiceQualityServer(const SIPX_INST hInst,
                                                          const char*     szServer) ;
-
+/**
+ * Enable P-Charging-Vector support (portion of RFC 3455) for sipXtapi.  
+ * sipXtapi will always respond to p-charging-vector headers (copy from 
+ * requests to responses, including header in mid-dialog requests such as 
+ * BYEs).  This configuration API controls whether sipXtapi initiates 
+ * p-charging-vectors (please see RFC 3455 on when/why you should do this,
+ * odds are you shouldn't enable/need this) and whether it adds an term-ioi
+ * for inbound calls.
+ *
+ * This setting defaults to disabled.
+ *
+ * @param hInst An instance handle obtained from sipxInitialize. 
+ * @param bEnable true to enable or false to disable
+ * @param ioi Data for either the term-ioi or orig-ioi (depending on call 
+ *        origination).  If null is specified, the application will use the 
+ *        userId of the line/From address or the hostname if the userId is 
+ *        not set.
+ */
+SIPXTAPI_API SIPX_RESULT sipxConfigEnablePChargingVector(const SIPX_INST hInst,
+                                                         const bool      bEnable,
+                                                         const char*     ioi) ;
+                                                         
 //@}
 /** @name Utility Functions */
 //@{

@@ -1,3 +1,19 @@
+// Copyright 2008 AOL LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA. 
 //  
 // Copyright (C) 2006-2008 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
@@ -22,6 +38,7 @@
 #include <mp/MprDecode.h>
 #include <mp/MpStringResourceMsg.h>
 #include <mp/MprRtpStartReceiveMsg.h>
+#include <mp/MprRtpPrepareStartReceiveMsg.h>
 #include <sdp/SdpCodec.h>
 #include <os/OsLock.h>
 #ifdef RTL_ENABLED
@@ -147,7 +164,8 @@ OsStatus MpRtpInputAudioConnection::startReceiveRtp(OsMsgQ& messageQueue,
                                                     SdpCodec* codecArray[], 
                                                     int numCodecs,
                                                     OsSocket& rRtpSocket,
-                                                    OsSocket& rRtcpSocket)
+                                                    OsSocket& rRtcpSocket,
+                                                    OsNotification* pNotifier)
 {
     OsStatus result = OS_INVALID_ARGUMENT;
     if(numCodecs > 0 && codecArray)
@@ -157,11 +175,28 @@ OsStatus MpRtpInputAudioConnection::startReceiveRtp(OsMsgQ& messageQueue,
                                   codecArray,
                                   numCodecs,
                                   rRtpSocket,
-                                  rRtcpSocket);
+                                  rRtcpSocket,
+                                  pNotifier);
 
         // Send the message in the queue.
         result = messageQueue.send(msg);
     }
+    return(result);
+}
+
+OsStatus MpRtpInputAudioConnection::prepareStartReceiveRtp(OsMsgQ& messageQueue,
+                                                    const UtlString& resourceName,
+                                                    OsSocket& rRtpSocket,
+                                                    OsSocket& rRtcpSocket)
+{
+    OsStatus result = OS_INVALID_ARGUMENT;
+    // Create a message to contain the startRecieveRtp data
+    MprRtpPrepareStartReceiveMsg msg(resourceName,
+                                rRtpSocket,
+                                rRtcpSocket);
+
+    // Send the message in the queue.
+    result = messageQueue.send(msg);
     return(result);
 }
 
@@ -203,19 +238,32 @@ UtlBoolean MpRtpInputAudioConnection::handleMessage(MpResourceMsg& rMsg)
    unsigned char messageSubtype = rMsg.getMsgSubType();
    switch(messageSubtype)
    {
-   case MpResourceMsg::MPRM_START_RECEIVE_RTP:
-      {
-         MprRtpStartReceiveMsg* startMessage = (MprRtpStartReceiveMsg*) &rMsg;
-         SdpCodec** codecArray = NULL;
-         int numCodecs;
-         startMessage->getCodecArray(numCodecs, codecArray);
-         OsSocket* rtpSocket = startMessage->getRtpSocket();
-         OsSocket* rtcpSocket = startMessage->getRtcpSocket();
+       case MpResourceMsg::MPRM_START_RECEIVE_RTP:
+       {
+           MprRtpStartReceiveMsg* startMessage = (MprRtpStartReceiveMsg*) &rMsg;
+           SdpCodec** codecArray = NULL;
+           int numCodecs;
+           startMessage->getCodecArray(numCodecs, codecArray);
+           OsSocket* rtpSocket = startMessage->getRtpSocket();
+           OsSocket* rtcpSocket = startMessage->getRtcpSocket();
+           OsNotification* pNotify = startMessage->getNotifier();
+           handleStartReceiveRtp(codecArray, numCodecs, *rtpSocket, *rtcpSocket);
+           if (pNotify)
+              pNotify->signal(NULL);
+           result = TRUE;
+        }
+        break;
 
-         handleStartReceiveRtp(codecArray, numCodecs, *rtpSocket, *rtcpSocket);
-         result = TRUE;
-      }
-      break;
+        case MpResourceMsg::MPRM_PREPARE_START_RECEIVE_RTP:
+        {
+           MprRtpPrepareStartReceiveMsg* prepareMessage = (MprRtpPrepareStartReceiveMsg*) &rMsg;
+           OsSocket* rtpSocket = prepareMessage->getRtpSocket();
+           OsSocket* rtcpSocket = prepareMessage->getRtcpSocket();
+           doPrepareStartReceiveRtp(*rtpSocket, *rtcpSocket);
+           result = TRUE;
+        }
+        break;
+
 
    case MpResourceMsg::MPRM_STOP_RECEIVE_RTP:
       handleStopReceiveRtp();
@@ -260,7 +308,7 @@ void MpRtpInputAudioConnection::handleStartReceiveRtp(SdpCodec* pCodecs[],
    // No need to synchronize as the decoder is not part of the
    // flowgraph.  It is part of this connection/resource
    //mpFlowGraph->synchronize();
-   prepareStartReceiveRtp(rRtpSocket, rRtcpSocket);
+   doPrepareStartReceiveRtp(rRtpSocket, rRtcpSocket);
    // No need to synchronize as the decoder is not part of the
    // flowgraph.  It is part of this connection/resource
    //mpFlowGraph->synchronize();

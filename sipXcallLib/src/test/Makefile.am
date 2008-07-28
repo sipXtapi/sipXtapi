@@ -15,7 +15,10 @@ testsuite_LDADD = \
     @SIPXTACK_LIBS@ \
     @SIPXPORT_LIBS@ \
     @CA_LIBS@ \
+    @GIPS_VE_OBJS@ \
     ../libsipXcall.la
+
+#    @SIPXMEDIA_MP_LIBS@ 
 
 testsuite_SOURCES = \
     jnibutton.cpp \
@@ -24,26 +27,25 @@ testsuite_SOURCES = \
     cp/CallManagerTest.cpp 
 
 ## Full regression test and not meant for 'make check'
-noinst_PROGRAMS = regression
+# noinst_PROGRAMS = regression
 
-regression_LDADD = \
-    @SIPXUNIT_LIBS@ \
-    @SIPXMEDIA_LIBS@ \
-    @SIPXMEDIA_MP_LIBS@ \
-    @SIPXTACK_LIBS@ \
-    @SIPXPORT_LIBS@ \
-    @CA_LIBS@ \
-    ../libsipXcall.la
+# regression_LDADD = \
+#     @SIPXUNIT_LIBS@ \
+#     @GIPS_VE_OBJS@ \
+#     @CA_LIBS@ \
+#     ../libsipXcall.la
 
-regression_SOURCES = \
-    jnibutton.cpp \
-    mp/CallManagerPlayerTest.cpp \
-    mp/MpStreamPlayerTest.cpp \
-    mp/MpStreamPlaylistPlayerTest.cpp \
-    mp/MpStreamQueuePlayerTest.cpp \
-    mp/MpTestConfig.cpp \
-    mp/MyPlayerListenerHistoryKeeper.cpp \
-    mp/MyPlayerListenerPoller.cpp \
+#    @SIPXMEDIA_MP_LIBS@ 
+
+# regression_SOURCES = \
+#     jnibutton.cpp \
+#     mp/CallManagerPlayerTest.cpp \
+#     mp/MpStreamPlayerTest.cpp \
+#     mp/MpStreamPlaylistPlayerTest.cpp \
+#     mp/MpStreamQueuePlayerTest.cpp \
+#     mp/MpTestConfig.cpp \
+#     mp/MyPlayerListenerHistoryKeeper.cpp \
+#     mp/MyPlayerListenerPoller.cpp \
     mp/MyStreamQueueHistoryKeeper.cpp
 
 DISTCLEANFILES = Makefile.in

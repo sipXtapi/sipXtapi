@@ -1,3 +1,19 @@
+// Copyright 2008 AOL LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA. 
 //
 // Copyright (C) 2007 SIPez LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.
@@ -27,16 +43,22 @@
 #include <utl/UtlHashMap.h>
 #include <net/SipMessage.h>
 #include <net/MimeBodyPart.h>
+#ifdef SIP_TLS
 #include <net/SmimeBody.h>
+#endif
 #include <utl/UtlNameValueTokenizer.h>
 #include <net/Url.h>
 #include <net/SipUserAgent.h>
 #include <os/OsDateTime.h>
 #include <os/OsSysLog.h>
+#include <os/OsMediaContact.h>
 #include <net/TapiMgr.h>
 #include <tapi/sipXtapiEvents.h>
 #include <net/HttpBody.h>
 #include <os/OsDefs.h>
+#include <os/OsLock.h>
+#include <os/OsProcess.h>
+#include <net/NetMd5Codec.h>
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -45,6 +67,8 @@
 
 // STATIC VARIABLES
 SipMessage::SipMessageFieldProps SipMessage::sSipMessageFieldProps;
+OsMutex SipMessage::sCallIdNumMutex(OsMutex::Q_FIFO) ;
+intll SipMessage::sCallIdNum = 0;
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
@@ -191,6 +215,135 @@ UtlBoolean SipMessage::getLongName(const char* shortFieldName,
     }
    return(nameFound);
 }
+
+// This implements a new strategy for generating Call-IDs after the
+// problems described in http://track.sipfoundry.org/browse/XCL-51.
+//
+// The Call-ID is composed of several fields:
+// - a prefix supplied by the caller
+// - a counter
+// - the Process ID
+// - a start time, to microsecond resolution
+//   (when getNewCallId was first called)
+// - the host's name or IP address
+// The last three fields are hashed, and the first 16 characters
+// are used to represent them.
+//
+// The host name, process ID, start time, and counter together ensure
+// uniqueness.  The start time is used to microsecond resolution
+// because on Windows process IDs can be recycled quickly.  The
+// counter is a long-long-int because at a high ID generation rate
+// (1000 per second), an int counter can roll over in less than a
+// month.
+//
+// Replacing the final three fields with the first 16 characters of
+// their MD5 hash shortens the generated Call-IDs, as the last three
+// fields can easily exceed 30 characters.  Retaining 16 characters
+// (64 bits) should ensure no collisions until the number of
+// concurrent calls reaches 2^32.
+//
+// The sections of the Call-ID are separated with "/" because those
+// cannot otherwise appear in the final components, and so a generated
+// Call-ID can be unambiguously parsed into its components from back
+// to front, regardless of the user-supplied prefix, which ensures
+// that regardless of the prefix, this function can never generate
+// duplicate Call-IDs.
+//
+// The generated Call-IDs are "words" according to the syntax of RFC
+// 3261.  We do not append "@host" for simplicity.  The callIdPrefix
+// is assumed to contain only "word" characters, but we check to
+// ensure that "@" does not appear because the earlier version of this
+// routine checked for "@" and replaced it with "_".  The earlier
+// version checked whether the host name contained "@" and replaced it
+// with "_", but this version replaces it with "*".  The earlier
+// version also checked whether the host name contained ":" and
+// replaced it with "_", but I do not see why, as ":" is a "word"
+// character.  This version does not.
+//
+// The counter mCallNum is incremented by 19560001 rather than 1 so
+// that successive Call-IDs differ in more than 1 character, and so
+// hash better.  This does not reduce the cycle time of the counter,
+// since 19560001 is relatively prime to the limit of a long-long-int,
+// 2^64.  Because the increment ends in "0001", the final four digits
+// of this field of the Call-ID count in a human-readable way.
+//
+// Ideally, Call-IDs would have crypto-quality randomness (as
+// recommended in RFC 3261 section 8.1.1.4), but the previous version
+// did not either.
+void SipMessage::generateCallId(const char* callIdPrefix, UtlString* callId)
+{
+   // Lock to protect mCallNum.
+   OsLock lock(sCallIdNumMutex);
+
+   // Buffer in which we will compose the new Call-ID.
+   char buffer[256];
+
+   // Static information that is initialized once.
+   static UtlString suffix;
+
+   // Flag to record if the data has been initialized.
+   static UtlBoolean initialized = FALSE;
+
+   // Increment the call number.
+#ifdef USE_LONG_CALL_IDS
+   sCallIdNum += 19560001;
+#else
+   sCallIdNum += 1001;
+#endif
+    
+   // callID prefix shouldn't contain an @.
+   if (strchr(callIdPrefix, '@') != NULL)
+   {
+      OsSysLog::add(FAC_CP, PRI_ERR,
+                    "CpCallManager::getNewCallId callIdPrefix='%s' contains '@'",
+                    callIdPrefix);
+   }
+
+   // If we haven't initialized yet, do so.
+   if (!initialized)
+   {
+      // Get the start time.
+      OsTime current_time;
+      OsDateTime::getCurTime(current_time);
+      intll start_time =
+         ((intll) current_time.seconds()) * 1000000 + current_time.usecs();
+
+      // Get the process ID.
+      int process_id;
+      process_id = OsProcess::getCurrentPID();
+
+      // Get the host identity.
+      UtlString thisHost;
+      OsSocket::getHostIp(&thisHost);
+      // Ensure it does not contain @.
+      thisHost.replace('@','*');
+
+      // Compose the static fields.
+      sprintf(buffer, "%d_%" FORMAT_INTLL "d_%s",
+              process_id, start_time, thisHost.data());
+      // Hash them.
+      NetMd5Codec encoder;
+      encoder.encode(buffer, suffix);
+#ifdef USE_LONG_CALL_IDS
+      // Truncate the hash to 16 characters.
+      suffix.remove(16);
+#else
+      // Truncate the hash to 16 characters.
+      suffix.remove(12);
+#endif
+
+      // Note initialization is done.
+      initialized = TRUE;
+   }
+
+   // Compose the new Call-Id.
+   sprintf(buffer, "%s_%" FORMAT_INTLL "d_%s",
+           callIdPrefix, sCallIdNum, suffix.data());
+
+   // Copy it to the destination.
+   *callId = buffer;
+}
+
 
 void SipMessage::replaceShortFieldNames()
 {
@@ -415,13 +568,8 @@ void SipMessage::setInviteData(const char* fromField,
 #endif
 }
 
-void SipMessage::addSdpBody(int nRtpContacts,
-                            UtlString hostAddresses[],
-                            int rtpAudioPorts[],
-                            int rtcpAudioPorts[],
-                            int rtpVideoPorts[],
-                            int rtcpVideoPorts[],
-                            RTP_TRANSPORT transportTypes[],
+void SipMessage::addSdpBody(UtlSList& audioContacts,
+                            UtlSList& videoContacts, 
                             int numRtpCodecs,
                             SdpCodec* rtpCodecs[],
                             SdpSrtpParameters* srtpParams,
@@ -430,27 +578,28 @@ void SipMessage::addSdpBody(int nRtpContacts,
                             const SipMessage* pRequest,
                             RTP_TRANSPORT rtpTransportOptions)
 {
-   if(numRtpCodecs > 0)
+    if(numRtpCodecs > 0 && (audioContacts.entries() || videoContacts.entries()))
    {
       UtlString bodyString;
       int len;
 
       // Create and add the SDP body
       SdpBody* sdpBody = new SdpBody();
+        const char* szAddress = NULL ;
+        if (audioContacts.at(0)) 
+            szAddress = ((OsMediaContact*) audioContacts.at(0))->getAddress() ;
+        else if (videoContacts.at(0)) 
+            szAddress = ((OsMediaContact*) videoContacts.at(0))->getAddress() ;
+
       sdpBody->setStandardHeaderFields("call",
                                        NULL,
                                        NULL,
-                                       hostAddresses[0]); // Originator address
+                szAddress); // Originator address
 
       if (pRequest && pRequest->getSdpBody())
       {
-        sdpBody->addCodecsAnswer(nRtpContacts,
-                                hostAddresses,
-                                rtpAudioPorts,
-                                rtcpAudioPorts,
-                                rtpVideoPorts,
-                                rtcpVideoPorts,
-                                transportTypes,
+            sdpBody->addCodecsAnswer(audioContacts,
+                                    videoContacts,
                                 numRtpCodecs,
                                 rtpCodecs,
                                 *srtpParams,
@@ -460,13 +609,8 @@ void SipMessage::addSdpBody(int nRtpContacts,
       }
       else
       {
-        sdpBody->addCodecsOffer(nRtpContacts,
-                                hostAddresses,
-                                rtpAudioPorts,
-                                rtcpAudioPorts,
-                                rtpVideoPorts,
-                                rtcpVideoPorts,
-                                transportTypes,
+            sdpBody->addCodecsOffer(audioContacts,
+                                    videoContacts,
                                 numRtpCodecs,
                                 rtpCodecs,
                                 *srtpParams,
@@ -5640,4 +5784,109 @@ void SipMessage::normalizeProxyRoutes(const SipUserAgent* sipUA,
          }
       }
    } // while ! doneNormalizingRouteSet
+}
+UtlBoolean SipMessage::getPChargingVector(UtlString* icidValue,
+                                          UtlString* icidGenAddr,
+                                          UtlString* origIoi,
+                                          UtlString* termIoi) const
+{
+    UtlBoolean bRC = false ;
+
+    // Clear variables
+    if (icidValue) icidValue->remove(0) ;
+    if (icidGenAddr) icidGenAddr->remove(0) ;
+    if (origIoi) origIoi->remove(0) ;
+    if (termIoi) termIoi->remove(0) ;
+
+    const char* szValue = getHeaderValue(0, SIP_P_CHARGING_VECTOR) ;
+    if (szValue)
+    {
+        UtlString param ;
+        for (   int param_idx = 0;
+                UtlNameValueTokenizer::getSubField(szValue, param_idx, ";", &param) ;
+                param_idx++)
+        {
+            UtlString name ;
+            UtlString value ;
+       
+            UtlNameValueTokenizer paramPair(param) ;
+            if (paramPair.getNextPair('=', &name, &value))
+            {
+                if (name.compareTo("icid-value", UtlString::ignoreCase) == 0)
+                {
+                    if (icidValue && !value.isNull())
+                    {
+                        *icidValue = value ;
+                        bRC = true ;
+                    }
+                }
+                else if (name.compareTo("icid-generated-at", UtlString::ignoreCase) == 0)
+                {
+                    if (icidGenAddr && !value.isNull())
+                    {
+                        *icidGenAddr = value ;
+                        bRC = true ;
+                    }
+                }           
+                else if (name.compareTo("orig-ioi", UtlString::ignoreCase) == 0)
+                {
+                    if (origIoi && !value.isNull())
+                    {
+                        *origIoi = value ;
+                        bRC = true ;
+                    }
+
+                }           
+                else if (name.compareTo("term-ioi", UtlString::ignoreCase) == 0)
+                {
+                    if (termIoi && !value.isNull())
+                    {
+                        *termIoi = value ;
+                        bRC = true ;
+                    }
+
+                }           
+            }
+        }    
+    }
+
+    return bRC ;
+}
+
+UtlBoolean SipMessage::setPChargingVector(const char* szIcidValue,
+                                          const char* icidGenAddr,
+                                          const char* origIoi,
+                                          const char* termIoi)
+{
+    UtlBoolean bRC = false ;
+
+    if (szIcidValue && strlen(szIcidValue))
+    {
+        UtlString header ;
+        header.append("icid-value=") ;
+        header.append(szIcidValue) ;
+        bRC = true ;
+
+        if (icidGenAddr && strlen(icidGenAddr))
+        {
+            header.append(";icid-generated-at=") ;
+            header.append(icidGenAddr) ;
+        }
+
+        if (origIoi && strlen(origIoi))
+        {
+            header.append(";orig-ioi=") ;
+            header.append(origIoi) ;
+        }
+
+        if (termIoi && strlen(termIoi))
+        {
+            header.append(";term-ioi=") ;
+            header.append(termIoi) ;
+        }
+
+        setHeaderValue(SIP_P_CHARGING_VECTOR, header) ;
+    }
+
+    return bRC ;
 }

@@ -1,3 +1,19 @@
+// Copyright 2008 AOL LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -31,7 +47,7 @@ CpMultiStringMessage::CpMultiStringMessage(unsigned char messageSubtype,
                                  const char* str3, const char* str4,
                                  const char* str5,
                                  int int1, int int2, int int3, int int4,
-                                 int int5, int int6, int int7) :
+                                 int int5, int int6, int int7, int int8) :
 OsMsg(OsMsg::PHONE_APP, messageSubtype)
 {
    mInt1 = int1;
@@ -41,6 +57,7 @@ OsMsg(OsMsg::PHONE_APP, messageSubtype)
    mInt5 = int5;
    mInt6 = int6;
    mInt7 = int7;
+   mInt8 = int8;
 
    if (str1)
                 mString1Data.append(str1);
@@ -70,6 +87,7 @@ OsMsg(OsMsg::PHONE_APP, rCpMultiStringMessage.getMsgType())
     mInt5 = rCpMultiStringMessage.mInt5;
     mInt6 = rCpMultiStringMessage.mInt6;
     mInt7 = rCpMultiStringMessage.mInt7;
+    mInt8 = rCpMultiStringMessage.mInt8;
 }
 
 // Destructor
@@ -87,8 +105,8 @@ OsMsg* CpMultiStringMessage::createCopy(void) const
         return (new CpMultiStringMessage(getMsgSubType(),
         mString1Data.data(), mString2Data.data(),
         mString3Data.data(), mString4Data.data(),
-        mString5Data.data(),
-                mInt1, mInt2,mInt3, mInt4, mInt5, mInt6, mInt7));
+            mString5Data.data(), mInt1, mInt2,mInt3, 
+            mInt4, mInt5, mInt6, mInt7, mInt8));
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -101,6 +119,7 @@ CpMultiStringMessage::operator=(const CpMultiStringMessage& rhs)
       return *this;
 
    OsMsg::operator=(rhs);
+
         mString1Data = rhs.mString1Data;
         mString2Data = rhs.mString2Data;
         mString3Data = rhs.mString3Data;
@@ -113,6 +132,7 @@ CpMultiStringMessage::operator=(const CpMultiStringMessage& rhs)
     mInt5 = rhs.mInt5;
     mInt6 = rhs.mInt6;
     mInt7 = rhs.mInt7;
+    mInt8 = rhs.mInt8;
 
    return *this;
 }
@@ -177,6 +197,11 @@ int CpMultiStringMessage::getInt6Data() const
 int CpMultiStringMessage::getInt7Data() const
 {
         return(mInt7);
+}
+
+int CpMultiStringMessage::getInt8Data() const
+{
+        return(mInt8);
 }
 
 void CpMultiStringMessage::toString(UtlString& dumpString, const char* term) const
@@ -245,6 +270,18 @@ void CpMultiStringMessage::toString(UtlString& dumpString, const char* term) con
     if(mInt6)
     {
         sprintf(intDataString, "Int6: %d", mInt6);
+        dumpString += intDataString;
+        dumpString += terminator;
+    }
+    if(mInt7)
+    {
+        sprintf(intDataString, "Int7: %d", mInt7);
+        dumpString += intDataString;
+        dumpString += terminator;
+    }
+    if(mInt8)
+    {
+        sprintf(intDataString, "Int8: %d", mInt8);
         dumpString += intDataString;
         dumpString += terminator;
     }

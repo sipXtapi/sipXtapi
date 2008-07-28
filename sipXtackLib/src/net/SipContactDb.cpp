@@ -1,3 +1,19 @@
+// Copyright 2008 AOL LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -608,17 +624,17 @@ void SipContactDb::replicateForTransport(const SIPX_TRANSPORT_TYPE originalTrans
         pContact = (SIPX_CONTACT_ADDRESS*)pValue->getValue();
         if (pContact->eTransportType == originalTransportType)
         {
-            SIPX_CONTACT_ADDRESS* newContact = new SIPX_CONTACT_ADDRESS(*pContact);
-            newContact->id = 0;
-            newContact->eTransportType = newTransport;
-            memset(newContact->cCustomTransportName, 0, sizeof(newContact->cCustomTransportName)) ;
+            SIPX_CONTACT_ADDRESS newContact(*pContact);
+            newContact.id = 0;
+            newContact.eTransportType = newTransport;
+            memset(newContact.cCustomTransportName, 0, sizeof(newContact.cCustomTransportName)) ;
             if (szTransport)
-                strncpy(newContact->cCustomTransportName, szTransport, sizeof(newContact->cCustomTransportName));                
-            memset(newContact->cCustomRouteID, 0, sizeof(newContact->cCustomRouteID)) ;
+                strncpy(newContact.cCustomTransportName, szTransport, sizeof(newContact.cCustomTransportName));
+            memset(newContact.cCustomRouteID, 0, sizeof(newContact.cCustomRouteID)) ;
             if (szRoutingID)
-                strncpy(newContact->cCustomRouteID, szRoutingID, sizeof(newContact->cCustomRouteID));
+                strncpy(newContact.cCustomRouteID, szRoutingID, sizeof(newContact.cCustomRouteID));
 
-            addContact(*newContact);
+            addContact(newContact);
         }
         index++;
     }

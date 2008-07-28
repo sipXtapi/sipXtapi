@@ -1,3 +1,19 @@
+// Copyright 2008 AOL LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -320,6 +336,34 @@ bool EventValidator::waitForConfigEvent(SIPX_CONFIG_EVENT event,
     if (!isIgnoredCateogry(EVENT_CATEGORY_CONFIG))
     {
         UtlString* pString = allocConfigEvent(event) ;
+        bFound = waitForEvent(pString->data(), bStrictOrderMatch, iTimeoutInSecs) ;
+
+        delete pString ;
+    }
+
+    if (!bFound)
+    {
+        // Wait a second for any additional events to pour in -- useful for 
+        // debugging.
+        OsTask::delay(1000) ;
+
+        report() ;
+    }
+
+    return bFound ;
+}
+
+bool EventValidator::waitForKeepaliveEvent(SIPX_KEEPALIVE_EVENT event,
+                                           SIPX_KEEPALIVE_CAUSE cause,
+                                           SIPX_KEEPALIVE_TYPE type,
+                                           bool bStrictOrderMatch, 
+                                           int iTimeoutInSecs) 
+{
+    bool bFound = true ;
+
+    if (!isIgnoredCateogry(EVENT_CATEGORY_KEEPALIVE))
+    {
+        UtlString* pString = allocKeepaliveEvent(event, cause, type) ;
         bFound = waitForEvent(pString->data(), bStrictOrderMatch, iTimeoutInSecs) ;
 
         delete pString ;

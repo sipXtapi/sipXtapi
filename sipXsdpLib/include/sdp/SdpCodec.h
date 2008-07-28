@@ -1,3 +1,19 @@
+// Copyright 2008 AOL LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA. 
 //
 // Copyright (C) 2006-2008 SIPez LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.
@@ -46,6 +62,7 @@
 #define MIME_SUBTYPE_IPCMWB "IPCMWB"
 #define MIME_SUBTYPE_ILBC "iLBC"
 #define MIME_SUBTYPE_ISAC "ISAC"
+#define MIME_SUBTYPE_ISAC_LC  "ISACLC"
 #define MIME_SUBTYPE_GSM "GSM"
 #define MIME_SUBTYPE_SPEEX "speex"
 #define MIME_SUBTYPE_AMR "amr"
@@ -55,6 +72,7 @@
 #define MIME_SUBTYPE_I420 "I420"
 #define MIME_SUBTYPE_RGB24 "RGB24"
 #define MIME_SUBTYPE_H263 "H263"
+#define MIME_SUBTYPE_LSVX           "LSVX"
 
 // Bandwidth requirements for SDP Codecs
 #define SDP_CODEC_BANDWIDTH_VARIABLE 0
@@ -65,8 +83,12 @@
 // Video formats - must be bitmap values
 #define SDP_VIDEO_FORMAT_SQCIF       0x0001
 #define SDP_VIDEO_FORMAT_QCIF        0x0002
-#define SDP_VIDEO_FORMAT_CIF         0x0004
-#define SDP_VIDEO_FORMAT_QVGA        0x0008
+#define SDP_VIDEO_FORMAT_QVGA        0x0004
+#define SDP_VIDEO_FORMAT_CIF         0x0008
+#define SDP_VIDEO_FORMAT_VGA         0x0010
+#define SDP_VIDEO_FORMAT_4CIF        0x0020
+#define SDP_VIDEO_FORMAT_16CIF       0x0040
+
 
 // MACROS
 // EXTERNAL FUNCTIONS
@@ -156,10 +178,13 @@ public:
         SDP_CODEC_G722,
         /// GIPS specific codecs
         //@{
+        SDP_CODEC_3RD_PARTY_START = 256,
         SDP_CODEC_GIPS_IPCMA,
         SDP_CODEC_GIPS_IPCMU,
         SDP_CODEC_GIPS_IPCMWB,
+        SDP_CODEC_GIPS_ILBC,
         SDP_CODEC_GIPS_ISAC,
+        SDP_CODEC_GIPS_ISAC_LC,
         //@}
 
         /// Video codecs
@@ -183,7 +208,17 @@ public:
         SDP_CODEC_H263_CIF,
         SDP_CODEC_H263_QCIF,
         SDP_CODEC_H263_SQCIF,
-        SDP_CODEC_H263_QVGA
+        SDP_CODEC_H263_QVGA,
+        SDP_CODEC_VP71_VGA,
+        SDP_CODEC_VP71_4CIF,
+        SDP_CODEC_VP71_16CIF,
+        SDP_CODEC_H263_VGA,
+        SDP_CODEC_H263_4CIF,
+        SDP_CODEC_H263_16CIF,
+        SDP_CODEC_LSVX,
+
+        SDP_CODEC_3RD_PARTY_END = 511
+
         //@}
     };
 
@@ -328,6 +363,8 @@ public:
    *           SDP_CODEC_BANDWIDTH_LOW
    */
 
+   bool getVideoFormatString(UtlString& videoFormatString) const;
+
    ///Get the video format bitmap
    int getVideoFmtp() const;
 
@@ -335,6 +372,9 @@ public:
    void getVideoFmtpString(UtlString& fmtpString) const;
 
 //@}
+
+   bool getVideoResolution(int& width, int& height) const ;
+   //:Gets the video resolution (if applicable)
 
 /* ============================ INQUIRY =================================== */
 ///@name Inquiry

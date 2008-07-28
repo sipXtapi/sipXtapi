@@ -1,3 +1,19 @@
+// Copyright 2008 AOL LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA. 
 // 
 // Copyright (C) 2005-2007 SIPez LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.
@@ -16,6 +32,9 @@
 // SYSTEM INCLUDES
 #include <string.h>
 #include <ctype.h>
+#ifdef _VXWORKS
+#include <resparse/vxw/hd_string.h>
+#endif
 
 #ifdef __pingtel_on_posix__  //needed by linux
 #include <wctype.h>
@@ -37,7 +56,8 @@
 #include <os/OsUtil.h>
 #include <os/OsConnectionSocket.h>
 #include <utl/UtlVoidPtr.h>
-#ifdef HAVE_SSL
+#include <os/OsDatagramSocket.h>
+#if defined(SIP_TLS) && (HAVE_SSL)
 #include <os/OsSSLConnectionSocket.h>
 #endif /* HAVE_SSL */
 #include <os/OsSysLog.h>
@@ -64,10 +84,17 @@
 int HttpMessage::smHttpMessageCount = 0;
 
 // LOCAL MACROS
+#ifndef MIN
+#define MIN(a,b) (((a) < (b)) ? (a) : (b))
+#endif
 #ifdef _VXWORKS
 #define iswspace(a) ((((a) >= 0x09) && ((a) <= 0x0D)) || ((a) == 0x20))
 #endif
 
+#ifdef WIN32
+#  define strcasecmp stricmp
+#  define strncasecmp strnicmp
+#endif
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
 /* ============================ CREATORS ================================== */
@@ -515,6 +542,7 @@ int HttpMessage::parseHeaders(const char* headerBytes, int messageLength,
 
 int HttpMessage::get(Url& httpUrl,
                      int maxWaitMilliSeconds,
+                     bool bUdp,
                      bool bPersistent)
 {
    OsSysLog::add(FAC_HTTP, PRI_DEBUG, "HttpMessage::get(2) httpUrl = '%s'",
@@ -527,8 +555,8 @@ int HttpMessage::get(Url& httpUrl,
 
    request.setRequestFirstHeaderLine(HTTP_GET_METHOD,
                                      uriString,
-                                     HTTP_PROTOCOL_VERSION);
-   return(get(httpUrl, request, maxWaitMilliSeconds, bPersistent));
+                                     HTTP_PROTOCOL_VERSION_1_1);
+   return(get(httpUrl, request, maxWaitMilliSeconds, bUdp, bPersistent));
 }
 
 OsStatus HttpMessage::get(Url& httpUrl,
@@ -583,7 +611,7 @@ OsStatus HttpMessage::get(Url& httpUrl,
    {
       if (httpUrl.getScheme() == Url::HttpsUrlScheme)
       {
-#ifdef HAVE_SSL
+#if defined(SIP_TLS) && (HAVE_SSL)
          httpSocket = (OsConnectionSocket *)new OsSSLConnectionSocket(httpPort, httpHost, iMaxWaitMilliSeconds/1000);
 #else /* ! HAVE_SSL */
          // SSL is not configured in, so we cannot do https: gets.
@@ -666,6 +694,7 @@ OsStatus HttpMessage::get(Url& httpUrl,
 int HttpMessage::get(Url& httpUrl,
                      HttpMessage& request,
                      int maxWaitMilliSeconds,
+                     bool udp,
                      bool bPersistent)
 {
     OsSysLog::add(FAC_HTTP, PRI_DEBUG, "HttpMessage::get(3) httpUrl = '%s'",
@@ -718,7 +747,8 @@ int HttpMessage::get(Url& httpUrl,
         request.addHeaderField(HTTP_ACCEPT_FIELD, "*/*");
     }
 
-    OsConnectionSocket *httpSocket = NULL;
+    OsSocket *httpSocket = NULL;
+
     int connected = 0;    
     int httpStatus = -1;
 
@@ -746,9 +776,9 @@ int HttpMessage::get(Url& httpUrl,
     int exp = 1;
             while (tries++ < HttpMessageRetries)
     {
-       if (urlType == "https")
+       if (udp == false && urlType == "https")
        {
-#ifdef HAVE_SSL
+#if defined(SIP_TLS) && (HAVE_SSL)
           httpSocket = (OsConnectionSocket *)new OsSSLConnectionSocket(httpPort, httpHost, maxWaitMilliSeconds/1000);
 #else /* ! HAVE_SSL */
           // SSL is not configured in, so we cannot do https: gets.
@@ -758,6 +788,10 @@ int HttpMessage::get(Url& httpUrl,
           httpSocket = NULL;
 #endif /* HAVE_SSL */
        }
+       else if (udp)
+       {
+          httpSocket = new OsDatagramSocket(0, NULL, -2, NULL);
+       }
        else
        {
           httpSocket = new OsConnectionSocket(httpPort, httpHost);
@@ -765,7 +799,7 @@ int HttpMessage::get(Url& httpUrl,
        if (httpSocket)
        {
           connected = httpSocket->isConnected();
-          if (!connected)
+          if (!udp && !connected)
           {
              OsSysLog::add(FAC_SIP, PRI_ERR,
                            "HttpMessage::get socket connection to %s:%d failed, try again %d ...\n",
@@ -793,7 +827,7 @@ int HttpMessage::get(Url& httpUrl,
         {
             connected = httpSocket->isConnected();          
         }
-    if (!connected)
+    if (!udp && !connected)
     {
        OsSysLog::add(FAC_SIP, PRI_ERR,
                      "HttpMessage::get socket connection to %s:%d failed, give up...\n",
@@ -808,12 +842,27 @@ int HttpMessage::get(Url& httpUrl,
 
         // Send the request - most of the time returns 1 for some reason, 0 indicates problem
     if (httpSocket->isReadyToWrite(maxWaitMilliSeconds))
-        {
-        bytesSent = request.write(httpSocket);
-        }
-
-        if (bytesSent == 0)            
     {
+        if (!udp)
+        {
+            bytesSent = request.write(httpSocket);
+        }
+        else
+        {
+            UtlString bytes;
+            int length;
+            request.getBytes(&bytes, &length);
+            //bytesSent = length; // testing packet loss
+            bytesSent = httpSocket->write(bytes.data(), length, httpHost, httpPort);
+        }
+    }
+
+        if (bytesSent == 0 &&
+            httpSocket->isReadyToRead(maxWaitMilliSeconds))           
+    {
+            // KLUDGE COMMENT - no idea why the delay is needed.  Without it,
+            // read returns 0.
+            OsTask::delay(500);
             if (pConnectionMap)
             {
                 // No bytes were sent .. if this is a persistent connection and it failed on retry
@@ -835,6 +884,9 @@ int HttpMessage::get(Url& httpUrl,
         else if(   bytesSent > 0
                 && httpSocket->isReadyToRead(maxWaitMilliSeconds))
         {
+            // KLUDGE COMMENT - no idea why the delay is needed.  Without it,
+            // read returns 0.
+            OsTask::delay(500);
             bytesRead = read(httpSocket);
 
             // Close a non-persistent connection
@@ -914,9 +966,9 @@ int HttpMessage::get(Url& httpUrl,
                 int exp = 1;
                 while (tries++ < 6)
                 {
-                   if (urlType == "https")
+                   if (!udp && urlType == "https")
                    {
-#ifdef HAVE_SSL
+#if defined(SIP_TLS) && (HAVE_SSL)
                       httpAuthSocket = (OsConnectionSocket *)new OsSSLConnectionSocket(httpPort, httpHost, maxWaitMilliSeconds/1000);
 #else /* ! HAVE_SSL */
                       // SSL is not configured in, so we cannot do https: gets.
@@ -926,12 +978,18 @@ int HttpMessage::get(Url& httpUrl,
                       httpAuthSocket = NULL;
 #endif /* HAVE_SSL */
                    }
-                   else
+                   else if (udp)
+                   {
                       httpAuthSocket = new OsConnectionSocket(httpPort, httpHost);
+                   }
+                   else
+                   {
+                      httpAuthSocket = new OsConnectionSocket(httpPort, httpHost);
+                   }
                    if (httpAuthSocket)
                    {
                       connected = httpAuthSocket->isConnected();
-                      if (!connected)
+                      if (!udp && !connected)
                       {
                          OsSysLog::add(FAC_SIP, PRI_ERR,
                                        "HttpMessage::get socket connection to %s:%d failed, try again %d ...\n",
@@ -948,7 +1006,7 @@ int HttpMessage::get(Url& httpUrl,
                    }
                 }
 
-                if (!connected)
+                if (!udp && !connected)
                 {
                    OsSysLog::add(FAC_SIP, PRI_ERR,
                                  "HttpMessage::get socket connection to %s:%d failed, give up...\n",
@@ -958,7 +1016,19 @@ int HttpMessage::get(Url& httpUrl,
 
                 // Sent the request again
                 if (httpAuthSocket->isReadyToWrite(maxWaitMilliSeconds))
-                  bytesSent = request.write(httpAuthSocket);
+                {
+                    if (!udp)
+                    {
+                        bytesSent = request.write(httpAuthSocket);
+                    }
+                    else
+                    {
+                        UtlString bytes;
+                        int length;
+                        request.getBytes(&bytes, &length);
+                        bytesSent = httpSocket->write(bytes.data(), length, httpHost, httpPort);
+                    }
+                }
                 bytesRead = 0;
 
                 // Clear out the data in the previous response

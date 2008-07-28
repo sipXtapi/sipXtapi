@@ -1,3 +1,19 @@
+// Copyright 2008 AOL LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA. 
 //
 // Copyright (C) 2006 Robert J. Andreasen, Jr.
 // Licensed to SIPfoundry under a Contributor Agreement.
@@ -22,7 +38,6 @@
 #endif
 
 // APPLICATION INCLUDES
-#include "os/OsDefs.h"
 #include "os/OsSocket.h"
 #include "os/OsDatagramSocket.h"
 #include "os/StunMessage.h"
@@ -121,6 +136,8 @@ void StunMessage::reset()
     free(mpRawData) ;            
     mpRawData = NULL ;
     mnRawData = 0 ;
+    mPriority = 0 ;
+    mbPriorityValid = false ;
 
     memset(&mUnknownParsedAttributes, 0, sizeof(STUN_ATTRIBUTE_UNKNOWN)) ;        
 }
@@ -148,10 +165,6 @@ bool StunMessage::parse(const char* pBuf, size_t nBufLength)
         mMsgHeader.type = ntohs(mMsgHeader.type) ;
         mMsgHeader.length = ntohs(mMsgHeader.length) ;
         mMsgHeader.magicId.id = ntohl(mMsgHeader.magicId.id) ;
-        if (mMsgHeader.magicId.id == STUN_MAGIC_COOKIE)
-        {
-            mbLegacyMode = false ;
-        }
 
         // Validate Header / Sanity
         if (    (nBufLength == (sizeof(STUN_MESSAGE_HEADER) + mMsgHeader.length)) && 
@@ -413,6 +426,14 @@ bool StunMessage::encodeBody(char* pBuf, size_t nBufLength, size_t& nBytesUsed)
                 &mAltServer, pTraverse, nBytesLeft) ;
     }
 
+    // Add Priority
+    if ((!bError) && mbPriorityValid)
+    {
+        bError = !(encodeAttributeHeader(ATTR_ICE_PRIORITY, 
+            sizeof(unsigned long), pTraverse, nBytesLeft) &&
+            encodeLong(mPriority, pTraverse, nBytesLeft)) ;
+    }
+
     // Add server
     if ((!bError) && mbServerValid)
     {
@@ -438,6 +459,7 @@ void StunMessage::setTransactionId(STUN_TRANSACTION_ID& rTransactionId)
 
 void StunMessage::allocTransactionId()
 {
+    static int cnt = 0 ;
     if (mbLegacyMode)
         mMsgHeader.magicId.id = (STUN_MAGIC_COOKIE ^ 0xAAAAAAAA) ;
     else
@@ -445,7 +467,7 @@ void StunMessage::allocTransactionId()
 
     for (int i=0; i<12; i++) 
     {
-        mMsgHeader.transactionId.id[i] = (unsigned char) (mbRandomGenerator.rand() % 0x0100) ;
+        mMsgHeader.transactionId.id[i] = (unsigned char) ((mbRandomGenerator.rand() ^ (cnt++)) % 0x0100) ;
     }
 }
 
@@ -618,6 +640,12 @@ void StunMessage::setAltServer(const char* szIp, unsigned short port)
     mbAltServerValid = true ;
 }
 
+void StunMessage::setPriority(unsigned long priority)
+{
+    mPriority = priority ;
+    mbPriorityValid = true ; 
+}
+
 /* ============================ ACCESSORS ================================= */
 
 void StunMessage::getMagicId(STUN_MAGIC_ID* pMagic)
@@ -771,7 +799,8 @@ bool StunMessage::getError(unsigned short& rCode, char* szReason)
     if (mbErrorValid)
     {
         rCode = mError.errorClass * 100 + mError.errorNumber ;
-        strncpy(szReason, mError.szReasonPhrase, STUN_MAX_STRING_LENGTH) ;
+        if (szReason)
+            strncpy(szReason, mError.szReasonPhrase, STUN_MAX_STRING_LENGTH) ;
     }
 
     return mbErrorValid ;
@@ -782,7 +811,7 @@ bool StunMessage::getUnknownAttributes(unsigned short* pList, size_t nMaxItems, 
     nActualItems = 0 ;        
     if (mbUnknownAttributesValid)
     {
-        nActualItems = sipx_min(nMaxItems, mUnknownAttributes.nTypes) ;
+        nActualItems = MIN(nMaxItems, mUnknownAttributes.nTypes) ;
         for (size_t i=0; i<nActualItems; i++)
         {
             pList[i] = mUnknownAttributes.type[i] ;
@@ -827,7 +856,7 @@ bool StunMessage::getUnknownParsedAttributes(unsigned short* pList, size_t nMaxI
     nActualItems = 0 ;
     if (mUnknownParsedAttributes.nTypes)
     {
-        nActualItems = sipx_min(nMaxItems, mUnknownParsedAttributes.nTypes) ;
+        nActualItems = MIN(nMaxItems, mUnknownParsedAttributes.nTypes) ;
         for (size_t i=0; i<nActualItems; i++)
         {
             pList[i] = mUnknownParsedAttributes.type[i] ;
@@ -849,6 +878,16 @@ bool StunMessage::getAltServer(char* szIp, unsigned short& rPort)
     return mbAltServerValid ;        
 }
 
+
+bool StunMessage::getPriority(unsigned long& priority)
+{
+    if (mbPriorityValid)
+    {
+        priority = mPriority; 
+    }
+
+    return mbPriorityValid ;
+}
 
 /* ============================ INQUIRY =================================== */
 
@@ -994,6 +1033,11 @@ bool StunMessage::isRequestOrNonErrorResponse()
     }
 
     return bRequestOrNonErrorResponse ;
+}
+
+bool StunMessage::isRequest()
+{   
+    return ((getType() | 0x0100) != getType()) ;
 }
 
 
@@ -1348,6 +1392,10 @@ bool StunMessage::parseAttribute(STUN_ATTRIBUTE_HEADER* pHeader, char* pBuf)
             bValid = parseAddressAttribute(pBuf, pHeader->length, &mAltServer) ;
             mbAltServerValid = bValid ;
             break ;
+        case ATTR_ICE_PRIORITY:
+            bValid = parseLongAttribute(pBuf, pHeader->length, &mPriority) ;
+            mbPriorityValid = bValid ;
+            break ;
         default:
             if ((pHeader->type <= 0x7FFF) && (mUnknownParsedAttributes.nTypes < STUN_MAX_UNKNOWN_ATTRIBUTES))
             {
@@ -1431,7 +1479,7 @@ bool StunMessage::parseStringAttribute(char* pBuf, size_t nLength, char* pString
     if (nLength > 0)
     {
         memset(pString, 0, STUN_MAX_STRING_LENGTH+1) ;
-        memcpy(pString, pBuf, sipx_min(nLength, STUN_MAX_STRING_LENGTH)) ;
+        memcpy(pString, pBuf, MIN(nLength, STUN_MAX_STRING_LENGTH)) ;
         if (mbLegacyMode && strlen(pString))
         {
             // Strip trailing spaces
@@ -1475,7 +1523,7 @@ bool StunMessage::parseErrorAttribute(char *pBuf, size_t nLength, STUN_ATTRIBUTE
         pError->errorNumber = *pBuf++ ;
         nLength -= 4 ;
         memset(pError->szReasonPhrase, 0, STUN_MAX_STRING_LENGTH+1) ;
-        memcpy(pError->szReasonPhrase, pBuf, sipx_min(nLength, STUN_MAX_STRING_LENGTH)) ;
+        memcpy(pError->szReasonPhrase, pBuf, MIN(nLength, STUN_MAX_STRING_LENGTH)) ;
         bValid = true ;
     }
     return bValid ;

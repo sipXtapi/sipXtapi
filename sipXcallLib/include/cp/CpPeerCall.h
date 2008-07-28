@@ -1,3 +1,19 @@
+// Copyright 2008 AOL LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -55,7 +71,7 @@ public:
 
     CpPeerCall(UtlBoolean isEarlyMediaFor180Enabled = TRUE,
         CpCallManager* callManger = NULL,
-        CpMediaInterface* callMediaInterface = NULL,
+        IMediaInterface* callMediaInterface = NULL,
         int callIndex = -1,
         const char* callId = NULL,
         SipUserAgent* sipUA = NULL,
@@ -107,7 +123,9 @@ public:
         UtlBoolean bOnHold = false,
 		const char* originalCallId = NULL,
         SIPX_TRANSPORT_DATA* pTransport = NULL,
-        const RTP_TRANSPORT rtpTransportOptions = RTP_TRANSPORT_UDP);
+        const RTP_TRANSPORT rtpTransportOptions = RTP_TRANSPORT_UDP,
+        unsigned long flags = CPMI_FLAGS_DEFAULT,
+        int callHandle=0);
 
     Connection* stringDial(OsMsg& eventMessage, UtlString& dialString);
 
@@ -115,6 +133,8 @@ public:
     /* ============================ ACCESSORS ================================= */
 
     virtual void printCall();
+
+    virtual void toString(UtlString& status) ;
 
     virtual void getLocalAddress(char* address, int len);
 
@@ -331,7 +351,7 @@ protected:
         int& state);
 
     virtual void onHook();
-    virtual void offHook(const void* hWnd = NULL);
+    virtual void offHook();
 
     // Connection manipulators
     Connection* findHandlingConnection(OsMsg& eventMessage);

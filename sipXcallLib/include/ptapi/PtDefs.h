@@ -1,3 +1,20 @@
+// Copyright 2008 AOL LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
+// USA. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -66,6 +83,53 @@ enum PtStatus
    PT_PROVIDER_UNAVAILABLE,
    PT_RESOURCE_UNAVAILABLE,
    PT_BUSY
+};
+
+class PtTerminalConnection
+{
+public:
+   enum TerminalConnectionState
+   {
+                IDLE    = 0x60,
+                RINGING = 0x61,
+                TALKING = 0x62,
+                HELD    = 0x63,
+                BRIDGED = 0x64,
+                IN_USE  = 0x65,
+                DROPPED = 0x66,
+                UNKNOWN = 0x67
+   };
+} ;
+
+class PtCall
+{
+public:
+   enum CallState
+   {
+      IDLE,
+      ACTIVE,
+      INVALID
+   };
+};
+
+class PtConnection
+{
+public:
+   enum ConnectionState
+   {
+      IDLE                = 0x50,
+      OFFERED             = 0x51,
+      QUEUED              = 0x52,
+      ALERTING            = 0x53,
+      INITIATED           = 0x54,
+      DIALING             = 0x55,
+      NETWORK_REACHED     = 0x56,
+      NETWORK_ALERTING    = 0x57,
+      ESTABLISHED         = 0x58,
+      DISCONNECTED        = 0x59,
+      FAILED              = 0x5A,
+      UNKNOWN             = 0x5B
+   };
 };
 
 typedef int PtBoolean;

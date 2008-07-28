@@ -1,3 +1,19 @@
+// Copyright 2008 AOL LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA. 
 //
 // Copyright (C) 2006-2007 SIPez LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.
@@ -23,6 +39,7 @@ class MprEncode;
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
 #include "mp/MpRtpOutputConnection.h"
+#include "mediaInterface/IMediaTransportAdapter.h"
 
 // DEFINES
 // MACROS
@@ -64,8 +81,7 @@ public:
      /// Queues a message to start sending RTP and RTCP packets.
    static OsStatus startSendRtp(OsMsgQ& messageQueue,
                                 const UtlString& resourceName,
-                                OsSocket& rRtpSocket,
-                                OsSocket& rRtcpSocket,
+                                IMediaTransportAdapter* pAdapter,
                                 SdpCodec* pPrimary,
                                 SdpCodec* pDtmf);
 
@@ -108,8 +124,7 @@ protected:
    virtual UtlBoolean handleDisable();
 
      /// Queues a message to start sending RTP and RTCP packets.
-   OsStatus handleStartSendRtp(OsSocket& rRtpSocket,
-                               OsSocket& rRtcpSocket,
+   OsStatus handleStartSendRtp(IMediaTransportAdapter* pAdapter,
                                SdpCodec* pPrimary,
                                SdpCodec* pDtmf);
 

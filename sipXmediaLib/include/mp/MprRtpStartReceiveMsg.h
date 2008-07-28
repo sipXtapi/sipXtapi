@@ -1,3 +1,19 @@
+// Copyright 2008 AOL LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA. 
 //  
 // Copyright (C) 2007 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
@@ -17,6 +33,7 @@
 #include "mp/MpResourceMsg.h"
 #include "sdp/SdpCodec.h"
 #include "os/OsMsg.h"
+#include "os/OsNotification.h"
 
 // DEFINES
 // MACROS
@@ -42,12 +59,14 @@ public:
                          SdpCodec* codecs[],
                          int numCodecs,
                          OsSocket& rRtpSocket,
-                         OsSocket& rRtcpSocket)
+                         OsSocket& rRtcpSocket,
+                         OsNotification* pNotifier = NULL)
       : MpResourceMsg(MPRM_START_RECEIVE_RTP, targetResourceName)
       , mpCodecs(NULL)
       , mNumCodecs(0)
       , mpRtpSocket(&rRtpSocket)
       , mpRtcpSocket(&rRtcpSocket)
+      , mpNotifier(pNotifier)
    {
        assert(numCodecs > 0);
        if(numCodecs > 0)
@@ -79,6 +98,7 @@ public:
       , mpCodecs(NULL)
       , mpRtpSocket(resourceMsg.mpRtpSocket)
       , mpRtcpSocket(resourceMsg.mpRtcpSocket)
+      , mpNotifier(resourceMsg.mpNotifier)
    {
        assert(resourceMsg.mNumCodecs > 0);
        if(resourceMsg.mNumCodecs > 0)
@@ -200,6 +220,7 @@ public:
    OsSocket* getRtpSocket(){return(mpRtpSocket);};
 
    OsSocket* getRtcpSocket(){return(mpRtcpSocket);};
+   OsNotification* getNotifier(){return(mpNotifier);};
 
    //@}
 
@@ -218,6 +239,7 @@ private:
     int mNumCodecs;
     OsSocket* mpRtpSocket;
     OsSocket* mpRtcpSocket;
+    OsNotification* mpNotifier;
 };
 
 /* ============================ INLINE METHODS ============================ */

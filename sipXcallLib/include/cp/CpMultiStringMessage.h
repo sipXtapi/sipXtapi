@@ -1,3 +1,19 @@
+// Copyright 2008 AOL LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -40,7 +56,8 @@ public:
     CpMultiStringMessage(unsigned char messageSubtype = CallManager::CP_UNSPECIFIED,
        const char* str1 = NULL, const char* str2 = NULL,
        const char* str3 = NULL, const char* str4 = NULL, const char* str5 = NULL,
-       int int1 = 0, int int2 = 0, int int3 = 0, int int4 = 0, int int5 = 0, int int6 = 0, int int7 = 0);
+       int int1 = 0, int int2 = 0, int int3 = 0, int int4 = 0, int int5 = 0, 
+       int int6 = 0, int int7 = 0, int int8 = 0);
      //:Default constructor
 
 
@@ -66,6 +83,7 @@ public:
     int getInt5Data() const;
     int getInt6Data() const;
     int getInt7Data() const;
+    int  getInt8Data() const;
 
     void toString(UtlString& dumpString, const char* terminator = "\n") const;
 
@@ -84,6 +102,7 @@ private:
     int mInt5;
     int mInt6;
     int mInt7;
+    int mInt8;
         UtlString mString1Data;
         UtlString mString2Data;
         UtlString mString3Data;

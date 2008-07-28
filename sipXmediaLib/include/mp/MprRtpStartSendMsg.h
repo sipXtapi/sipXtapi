@@ -1,3 +1,19 @@
+// Copyright 2008 AOL LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA. 
 //  
 // Copyright (C) 2007 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
@@ -16,6 +32,7 @@
 // APPLICATION INCLUDES
 #include "os/OsMsg.h"
 #include "mp/MpResourceMsg.h"
+#include "mediaInterface/IMediaTransportAdapter.h"
 
 // DEFINES
 // MACROS
@@ -40,15 +57,13 @@ public:
    MprRtpStartSendMsg(const UtlString& targetResourceName,
                       SdpCodec* audioCodec,
                       SdpCodec* dtmfCodec,
-                      OsSocket& rRtpSocket,
-                      OsSocket& rRtcpSocket)
+                      IMediaTransportAdapter* pAdapter)
       : MpResourceMsg(MPRM_START_SEND_RTP, targetResourceName)
       , mAudioCodecSet(FALSE)
       , mDtmfCodecSet(FALSE)
       , mAudioCodec()
       , mDtmfCodec()
-      , mpRtpSocket(&rRtpSocket)
-      , mpRtcpSocket(&rRtcpSocket)
+      , mpSocketAdapter(pAdapter)
    {
 
        if(audioCodec)
@@ -70,8 +85,7 @@ public:
       , mDtmfCodecSet(resourceMsg.mDtmfCodecSet)
       , mAudioCodec(resourceMsg.mAudioCodec)
       , mDtmfCodec(resourceMsg.mDtmfCodec)
-      , mpRtpSocket(resourceMsg.mpRtpSocket)
-      , mpRtcpSocket(resourceMsg.mpRtcpSocket)
+      , mpSocketAdapter(resourceMsg.mpSocketAdapter)
    {
    };
 
@@ -104,8 +118,7 @@ public:
         mDtmfCodecSet = rhs.mDtmfCodecSet;
         mAudioCodec = rhs.mAudioCodec;
         mDtmfCodec = rhs.mDtmfCodec;
-        mpRtpSocket = rhs.mpRtpSocket;
-        mpRtcpSocket = rhs.mpRtcpSocket;
+        mpSocketAdapter = rhs.mpSocketAdapter;
 
         return *this;
    }
@@ -135,9 +148,8 @@ public:
        }
    }
 
-   OsSocket* getRtpSocket(){return(mpRtpSocket);};
+   IMediaTransportAdapter* getSocketAdapter() { return mpSocketAdapter; }
 
-   OsSocket* getRtcpSocket(){return(mpRtcpSocket);};
 
    //@}
 
@@ -156,8 +168,7 @@ private:
     UtlBoolean mDtmfCodecSet;
     SdpCodec mAudioCodec;
     SdpCodec mDtmfCodec;
-    OsSocket* mpRtpSocket;
-    OsSocket* mpRtcpSocket;
+    IMediaTransportAdapter* mpSocketAdapter;
 };
 
 /* ============================ INLINE METHODS ============================ */

@@ -1,10 +1,28 @@
+// Copyright 2008 AOL LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
-// Copyright (C) 2006 Pingtel Corp.
-// 
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA. 
+//
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 
 #ifndef _OsContact_h_
@@ -79,15 +97,23 @@ public:
      * @param protocol The prefered protocol for this contact. 
      * @param type The type of ip address.
      */
-    OsContact(UtlString address,
+    OsContact(const char* szAddress,
               int port,
               OsSocket::IpProtocolSocketType protocol,
               IpAddressType type);
+                       
+    OsContact() ;
                        
     /**
      * Copy constructor.
      */                       
     OsContact(const OsContact& ref);
+         
+    /**
+     * Assignment operator
+     */
+    OsContact& operator=(const OsContact& ref) ;
+
          
     /**
      * Destructor
@@ -97,12 +123,24 @@ public:
 
 /* ============================ MANIPULATORS ============================== */
 
+    void setAddress(const char* szAddress) ;
+    
+    void setPort(int port) ;
+
+    void setProtocol(OsSocket::IpProtocolSocketType protocolType) ;
+
+    void setAddressType(IpAddressType addressType) ;
 
 /* ============================ ACCESSORS ================================= */
     /**
      * Accessor for the address string.
      */
     const void getAddress(UtlString& address) const;
+    
+    /**
+     * Accessor for the address string.
+     */
+    const char* getAddress() const ;
     
     /**
      * Accessor for the port value.
@@ -151,13 +189,6 @@ public:
 protected:
     static UtlContainableType TYPE ;    /** < Class type used for runtime checking */ 
 
-/* //////////////////////////// PRIVATE /////////////////////////////////// */
-private:
-    /**
-     * Disallow assignment.
-     */
-    OsContact& operator=(const OsContact&) ;
-    
     /**
      * Helper function for comparison of two ints.
      *
@@ -172,6 +203,8 @@ private:
     int mPort ;                              /** < The port value for the contact. */ 
     OsSocket::IpProtocolSocketType mProtocol; /**< The prefered protocol for this contact. */
     IpAddressType mType;                     /**< The type of ip address. */
+
+/* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 } ;
 

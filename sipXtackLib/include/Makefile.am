@@ -31,10 +31,12 @@ nobase_include_HEADERS =  \
     net/NetAttributeTokenizer.h \
     net/NetBase64Codec.h \
     net/NetMd5Codec.h \
+    net/NetTurnSelector.h \
     net/ProvisioningAgent.h \
     net/ProvisioningAgentXmlRpcAdapter.h \
     net/ProvisioningAttrList.h \
     net/ProvisioningClass.h \
+    net/ProxyDescriptor.h \ 
     net/QoS.h \
     net/SdpBody.h \
     net/SdpHelper.h \
@@ -112,7 +114,13 @@ nobase_include_HEADERS =  \
     tapi/doxyfile \
     tapi/sipXtapi.h \
     tapi/sipXtapiEvents.h \
-    tapi/sipXtapiInternal.h
+    tapi/sipXtapiInternal.h \
+    upnp/UPnpAgent.h \
+    upnp/UPnpControl.h \
+    upnp/UPnpDevice.h \
+    upnp/UPnpDiscovery.h \
+    upnp/UPnpService.h
+
 
 net/version.h: .FORCE
 	@test -d net || mkdir net

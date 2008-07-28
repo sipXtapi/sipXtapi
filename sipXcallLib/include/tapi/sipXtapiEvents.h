@@ -1,3 +1,19 @@
+// Copyright 2008 AOL LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA. 
 //  
 // Copyright (C) 2007 Robert J. Andreasen, Jr.
 // Licensed to SIPfoundry under a Contributor Agreement. 
@@ -319,6 +335,8 @@ typedef enum SIPX_CALLSTATE_CAUSE
                                                     is part of a transfer. */
    CALLSTATE_CAUSE_CANCEL,        /**< The event was fired in response to a cancel
                                        attempt from the remote party */
+    CALLSTATE_CAUSE_ICE_FAILURE    /**< Unable to establish a media path using ICE.  This is 
+                                        now deprecated -- look for media SILENCE*/
 } SIPX_CALLSTATE_CAUSE ;
 
 /**
@@ -421,6 +439,10 @@ enum SIPX_CONFIG_EVENT
                                        the pData pointer of the info structure will point to a
                                        SIPX_CONTACT_ADDRESS structure. */
     CONFIG_STUN_FAILURE  = 41000, /**< Unable to obtain a STUN binding for signaling purposes. */
+
+    CONFIG_NAT_CLASSIFICATION = 42000, /**< Results of NAT classification.  The pData pointer
+                                            includes the NAT classification as defined by the 
+                                            SIPX_NC_TYPE enum */
 } ;
 
 
@@ -607,21 +629,9 @@ typedef enum
     MEDIA_CAUSE_INCOMPATIBLE,        /**< Incompatible destination -- We were unable
                                         to negotiate a codec */
     MEDIA_CAUSE_DTMF_START,			 /**< A DTMF tone has started */
-    MEDIA_CAUSE_DTMF_STOP			 /**< A DTMF tone has stopped */
-
+    MEDIA_CAUSE_DTMF_STOP,			 /**< A DTMF tone has stopped */
+    MEDIA_CAUSE_ICE_FAILED          /**< Media state changed due to ICE failure */
 } SIPX_MEDIA_CAUSE ;
-
-/**
- * Enumeration of possible media event types.  Today, MEDIA_TYPE_AUDIO and
- * MEDIA_TYPE_VIDEO are supported.
- */
-typedef enum
-{
-    MEDIA_TYPE_AUDIO,   /**< Audio media event type */
-    MEDIA_TYPE_VIDEO,   /**< Video media event type */
-
-} SIPX_MEDIA_TYPE ;
-
 
 /**
  * Media event information structure.  This information is passed as part of 

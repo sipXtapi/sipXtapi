@@ -1,3 +1,19 @@
+// Copyright 2008 AOL LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA. 
 //
 // Copyright (C) 2005 SIPez LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.
@@ -52,6 +68,11 @@
 // EXTERNAL VARIABLES
 // CONSTANTS
 #define SDP_CONTENT_TYPE "application/sdp"
+#ifdef ICE_USE_CALT
+#   define CANDIDATE_ATTRIBUTE "calt"
+#else
+#   define CANDIDATE_ATTRIBUTE "candidate"
+#endif
 // STRUCTS
 // TYPEDEFS
 typedef struct SdpSrtpParameters
@@ -183,14 +204,8 @@ class SdpBody : public HttpBody
  * @{
  */
 
-   /// Create a set of media codec and address entries
-   void addCodecsOffer(int iNumAddresses,
-                       UtlString mediaAddresses[],
-                       int rtpAudioPorts[],
-                       int rtcpAudioPorts[],
-                       int rtpVideoPorts[],
-                       int rtcpVideoPorts[],
-                       RTP_TRANSPORT transportTypes[],
+   void addCodecsOffer(UtlSList& audioContacts,
+                       UtlSList& videoContacts,                                                    
                        int numRtpCodecs,
                        SdpCodec* rtpCodecs[],
                        SdpSrtpParameters& srtpParams,
@@ -204,14 +219,8 @@ class SdpBody : public HttpBody
     * to a SdpBody send from the other side
     */
 
-   /// Create a response to a set of media codec and address entries.
-   void addCodecsAnswer(int iNumAddresses,
-                       UtlString mediaAddresses[],
-                       int rtpAudioPorts[],
-                       int rtcpAudioPorts[],
-                       int rtpVideoPorts[],
-                       int rtcpVideoPorts[],
-                       RTP_TRANSPORT transportTypes[],
+   void addCodecsAnswer(UtlSList& audioContacts,
+                        UtlSList& videoContacts, 
                        int numRtpCodecs, 
                        SdpCodec* rtpCodecs[],
                        SdpSrtpParameters& srtpParams,
@@ -437,6 +446,7 @@ class SdpBody : public HttpBody
                            UtlString& rtpAddress, 
                            int& rtpPort,
                            int& rtcpPort,
+                           UtlString& videoAddress, 
                            int& videoRtpPort,
                            int& videoRtcpPort,
                            SdpSrtpParameters& localSrtpParams,
@@ -472,6 +482,8 @@ class SdpBody : public HttpBody
    void getVideoFramerateInCommon(int localVideoFramerate,
                                   int remoteVideoFramerate,
                                   int& commonVideoFramerate) const;
+
+   UtlBoolean hasCandidateAttributes() const ;
 
     /**
      * Get the candidate attribute per draft-ietf-mmusic-ice-05

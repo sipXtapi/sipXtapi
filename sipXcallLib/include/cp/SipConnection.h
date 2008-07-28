@@ -1,3 +1,19 @@
+// Copyright 2008 AOL LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA. 
 //
 // Copyright (C) 2005-2007 SIPez LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.
@@ -24,8 +40,10 @@
 #include "cp/CSeqManager.h"
 #include "net/SipContactDb.h"
 #include "utl/UtlObservable.h"
+#include "os/IOsNatSocket.h"
 
 // DEFINES
+#define MAX_VQ_REPORT_SIZE 4096
 // MACROS
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -58,7 +76,7 @@ public:
         UtlBoolean isEarlyMediaFor180Enabled = TRUE,
         CpCallManager* callMgr = NULL,
         CpCall* call = NULL,
-        CpMediaInterface* mediaInterface = NULL,
+        IMediaInterface* mediaInterface = NULL,
         SipUserAgent* sipUA = NULL,
         int offeringDelayMilliSeconds = IMMEDIATE,
         int sessionReinviteTimer = 0,
@@ -93,7 +111,9 @@ public:
         const int bandWidth = AUDIO_MICODEC_BW_DEFAULT,
         UtlBoolean bOnHold = FALSE,
         const char* originalCallId = NULL,
-        const RTP_TRANSPORT rtpTransportOptions = RTP_TRANSPORT_UDP);
+		const RTP_TRANSPORT rtpTransportOptions = RTP_TRANSPORT_UDP,
+        unsigned long flags = CPMI_FLAGS_DEFAULT,
+        int callHandle = 0);
     //! param: requestQueuedCall - indicates that the caller wishes to have the callee queue the call if busy
 
     virtual UtlBoolean originalCallTransfer(UtlString& transferTargetAddress,
@@ -119,7 +139,7 @@ public:
 
     virtual void outOfFocus() ;
 
-    virtual UtlBoolean answer(const void* hWnd = NULL);
+    virtual UtlBoolean answer();
 
     virtual UtlBoolean hangUp();
 
@@ -132,10 +152,13 @@ public:
     virtual UtlBoolean silentRemoteHold();
 
     virtual UtlBoolean accept(int forwardOnNoAnswerTimeOut,
+                              const void* pDisplay = NULL,
                               const void *pSecurity = NULL,
                               const char* locationHeader = NULL,
                               const int bandWidth = AUDIO_MICODEC_BW_DEFAULT,
-                              UtlBoolean sendEarlyMedia = FALSE);
+                              UtlBoolean sendEarlyMedia = FALSE,
+                              unsigned long flags = CPMI_FLAGS_DEFAULT,
+                              int callHandle = 0) ;
 
     virtual UtlBoolean reject();
 
@@ -161,13 +184,13 @@ public:
 
     void setExternalTransport(SIPX_TRANSPORT_DATA* pTransport) { if (pTransport) { mTransport = *pTransport; }}
 
-    // ISocketEvent::onIdleNotify method
-    void onIdleNotify(IStunSocket* const pSocket,
+    // ISocketEvent Impl
+    void onIdleData(OsSocket* const pSocket,
                                  SocketPurpose purpose,
                                  const int millisecondsIdle);
 
     // ISocketEvent::onReadData method
-    virtual void onReadData(IStunSocket* const pSocket,
+    virtual void onReadData(OsSocket* const pSocket,
                             SocketPurpose purpose);
 
     // IMediaEventListener::methods
@@ -176,10 +199,16 @@ public:
     virtual void onBufferStart(IMediaEvent_DeviceTypes type);
     virtual void onBufferStop(IMediaEvent_DeviceTypes type);
     virtual void onDeviceError(IMediaEvent_DeviceTypes type, IMediaEvent_DeviceErrors errCode);
+    virtual void onIceFailed(IMediaEvent_DeviceTypes type);
     virtual void onListenerAddedToEmitter(IMediaEventEmitter* pEmitter);
 
     void setVoiceQualityReportTarget(const char* szTargetSipUrl) ;
     void sendVoiceQualityReport(const char* szTargetSipUrl) ;
+
+    void storeMatchingCodecs(int numEncoderCodecs,
+                             SdpCodec** matchingEncoderCodecs,
+                             int numDecoderCodecs,
+                             SdpCodec** matchingDecoderCodecs) ;
 
     /* ============================ ACCESSORS ================================= */
 
@@ -237,9 +266,10 @@ protected:
 
     UtlBoolean prepareInviteSdpForSend(SipMessage* pMsg, int connectionId, const void* pSecurityAttribute) ;
 
-    void setMediaDestination(const char*    hostAddress,
+    void setMediaDestination(const char*    audioAddress, 
                              int            audioRtpPort,
                              int            audioRtcpPort,
+                             const char*    videoAddress,
                              int            videoRtpPort,
                              int            videoRtcpPort,
                              const SdpBody* pRemoteBody) ;
@@ -319,10 +349,14 @@ protected:
 
 
     void processInviteRequestReinvite(const SipMessage* request, int tag) ;
+    void checkPChargingVector(const SipMessage* pMsg) ;
 
-    void fireIncompatibleCodecsEvent(SdpCodecList*     pSupportedCodecs,
+    bool fireIncompatibleCodecsEvent(SdpCodecList*     pSupportedCodecs,
                                      SdpCodec**       ppMatchedCodecs,
-                                     int              nMatchedCodces) ;
+                                     int              nMatchedCodces,
+                                     bool&            bAudioMismatch,
+                                     bool&            bVideoMismatch,
+                                     bool             bKillCall) ;
     void fireAudioStartEvents(SIPX_MEDIA_CAUSE cause = MEDIA_CAUSE_NORMAL) ;
     void fireAudioStopEvents(SIPX_MEDIA_CAUSE cause = MEDIA_CAUSE_NORMAL) ;
 
@@ -374,14 +408,26 @@ private:
     UtlSList mMediaEventEmitters;
     UtlString mVoiceQualityReportTarget;
 
+    UtlBoolean mbHaveChargingVector ;
+    UtlString  mIcidValue ;
+    UtlString  mIcidGenAddr ;
+    UtlString  mOrigIoi ;
+    UtlString  mTermIoi ;
+
+    int mNumMatchingEncoderCodecs ;
+    SdpCodec** mMatchingEncoderCodecs ;
+    int mNumMatchingDecoderCodecs ;
+    SdpCodec** mMatchingDecoderCodecs ;
+
     UtlBoolean getInitialSdpCodecs(const SipMessage* sdpMessage,
                                    SdpCodecList& supportedCodecsArray,
                                    int& numCodecsInCommon,
-                                   SdpCodec** &commonCodecsForEncoder,
-                                   SdpCodec** &commonCodecsForDecoder,
-                                   UtlString& remoteAddress,
+                                   SdpCodec** &commonEncoderCodecs,
+                                   SdpCodec** &commonDecoderCodecs,
+                                   UtlString& remoteAudioAddress,
                                    int& remotePort,
                                    int& remoteRtcpPort,
+                                   UtlString& remoteVideoAddress,
                                    int& remoteVideoRtpPort,
                                    int& remoteVideoRtcpPort,
                                    SdpSrtpParameters& localSrtpParams,
@@ -395,15 +441,11 @@ private:
                                   SipUserAgent* sipUserAgent,
                                   int tagNum,
                                   int availableBehavior,
-                                  int numAddresses = 0, 
-                                  UtlString hostAddresses[] = NULL, 
-                                  int receiveRtpPorts[] = NULL,
-                                  int receiveRtcpPorts[] = NULL, 
-                                  int receiveVideoRtpPorts[] = NULL, 
-                                  int receiveVideoRtcpPorts[] = NULL,
-                                  RTP_TRANSPORT transportTypes[] = NULL,
-                                  int numMatchingCodecs = 0, 
-                                  SdpCodec* matchingCodecs[] = NULL, 
+                                  UtlBoolean sendEarlyMedia = FALSE,
+                                  UtlSList* audioContacts = NULL,
+                                  UtlSList* videoContacts = NULL,
+                                  int numMatchingDecoderCodecs = 0, 
+                                  SdpCodec* matchingDecoderCodecs[] = NULL, 
                                   SdpSrtpParameters* matchingSrtpParams = NULL,
                                   int totalBandwidth = 0, 
                                   int matchingVideoFramerate = 0);
@@ -411,7 +453,6 @@ private:
     UtlBoolean isMethodAllowed(const char* method);
 
     void doBlindRefer();
-
 
     SipConnection& operator=(const SipConnection& rhs);
     //:Assignment operator (disabled)

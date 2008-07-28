@@ -6,8 +6,8 @@ INCLUDES = -Iinclude -I../PlaceCall/include
 
 ReceiveCall_LDADD = \
     $(top_builddir)/src/libsipXcall.la \
-    @CA_LIBS@ \
-    @SIPXMEDIA_MP_LIBS@ 
+    @CA_LIBS@ 
+#    @SIPXMEDIA_MP_LIBS@ 
 
 ReceiveCall_SOURCES = \
     src/ReceiveCall.cpp \

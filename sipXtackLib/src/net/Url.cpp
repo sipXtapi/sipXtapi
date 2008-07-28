@@ -1,3 +1,19 @@
+// Copyright 2008 AOL LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA. 
 //  
 // Copyright (C) 2006 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
@@ -150,7 +166,7 @@ const RegEx UsernameAndPassword(
 //   $0 matches host:port
 //   $1 matches host
 //   $2 matches port
-#define DOMAIN_LABEL "(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?)"
+#define DOMAIN_LABEL "(?:[a-zA-Z0-9](?:[a-zA-Z0-9-!]*[a-zA-Z0-9])?)"    // HACK: Allow '!' in domain name
 const RegEx HostAndPort( 
    "("
     "(?:" DOMAIN_LABEL "\\.)*" DOMAIN_LABEL "\\.?" // DNS name 
@@ -479,7 +495,7 @@ void Url::setPath(const char* path)
    }
 }
 
-UtlBoolean Url::getPath(UtlString& path, UtlBoolean getStyle)
+UtlBoolean Url::getPath(UtlString& path, UtlBoolean getStyle) const
 {
     path = mPath;
 
@@ -1474,6 +1490,16 @@ void Url::parseString(const char* urlString, UtlBoolean isAddrSpec)
          urlPath.MatchString(&mPath,1);
          workingOffset = urlPath.AfterMatch(1);
       }
+#     ifdef _WIN32
+      {
+         // Massage Data under Windows:  C|/foo.txt --> C:\foo.txt
+         if (!isAddrSpec)
+         {
+            mPath.replace('|', ':');
+            mPath.replace('/', '\\');
+         }
+      }
+#     endif
    }
    break;
 

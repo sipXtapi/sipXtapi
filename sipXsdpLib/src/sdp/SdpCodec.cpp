@@ -1,3 +1,19 @@
+// Copyright 2008 AOL LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA. 
 //
 // Copyright (C) 2007-2008 SIPez LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.
@@ -12,6 +28,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
+#include <assert.h>
 
 // APPLICATION INCLUDES
 #include <sdp/SdpCodec.h>
@@ -529,6 +546,8 @@ void SdpCodec::setCodecPayloadFormat(int formatId)
    mCodecPayloadFormat = formatId;
 }
 
+
+
 void SdpCodec::setVideoFmtp(const int videoFmtp)
 {
    mVideoFmtp = videoFmtp;
@@ -646,6 +665,96 @@ int SdpCodec::getBWCost() const
 {
    return mBWCost;
 }
+
+bool SdpCodec::getVideoFormatString(UtlString& videoFormatString) const
+{
+    bool bRC = true ;
+    if (mMimeType.compareTo(MIME_TYPE_VIDEO, UtlString::ignoreCase) == 0)
+    {
+        switch (mVideoFormat)
+        {
+            case SDP_VIDEO_FORMAT_SQCIF:
+                videoFormatString = "SQCIF";
+                break;
+            case SDP_VIDEO_FORMAT_QCIF:
+                videoFormatString = "QCIF";
+                break;
+            case SDP_VIDEO_FORMAT_CIF:
+                videoFormatString = "CIF";
+                break;
+            case SDP_VIDEO_FORMAT_QVGA:
+                videoFormatString = "QVGA";
+                break;
+            case SDP_VIDEO_FORMAT_VGA:
+                videoFormatString = "VGA";
+                break;
+            case SDP_VIDEO_FORMAT_4CIF:
+                videoFormatString = "4CIF";
+                break;
+            case SDP_VIDEO_FORMAT_16CIF:
+                videoFormatString = "16CIF";
+                break;
+            default:
+                videoFormatString.remove(0) ;
+                bRC = false ;
+                break;
+        }
+    }
+    else
+    {
+        videoFormatString.remove(0) ;
+        bRC = false ;
+    }
+
+    return bRC ;
+}
+
+bool SdpCodec::getVideoResolution(int& width, int& height) const
+{
+    bool bRC = false ;
+
+    if (mMimeType.compareTo(MIME_TYPE_VIDEO, UtlString::ignoreCase) == 0)
+    {
+        bRC = true ;
+        switch (mVideoFormat)
+        {
+            case SDP_VIDEO_FORMAT_CIF:
+                width = 352;
+                height = 288;
+                break;
+            case SDP_VIDEO_FORMAT_QVGA:
+                width = 320;
+                height = 240;
+                break;
+            case SDP_VIDEO_FORMAT_QCIF:
+                width = 176;
+                height = 144;
+                break;
+            case SDP_VIDEO_FORMAT_SQCIF:
+                width = 128;
+                height = 96;
+                break;
+            case SDP_VIDEO_FORMAT_VGA:
+                width = 640;
+                height = 480;
+                break;
+            case SDP_VIDEO_FORMAT_4CIF:
+                width = 704;
+                height = 576;
+                break;
+            case SDP_VIDEO_FORMAT_16CIF:
+                width = 1408;
+                height = 1152;
+                break;
+            default:
+                bRC = false ;
+                assert(false);
+                break;
+        }
+    }
+    return bRC ;
+}
+
 
 /* ============================ INQUIRY =================================== */
 

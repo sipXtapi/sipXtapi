@@ -27,19 +27,25 @@ endif
 
 libsipXmedia_la_CXXFLAGS = \
 	-D_REALTIME_LINUX_AUDIO_THREADS \
+        -DENABLE_TOPOLOGY_FLOWGRAPH_INTERFACE_FACTORY \
 	$(LOCAL_AUDIO_CXXFLAGS) \
 	@GSM_CXXFLAGS@ \
 	@SPEEX_CFLAGS@
 
 libsipXmedia_la_LIBADD = \
-	@SIPXTACK_LIBS@ \
-	@SIPXPORT_LIBS@ \
+        @SIPXMEDIA_PLUGIN_STATIC_LIBS@ \
+	@SIPXTACK_STATIC_LIBS@ \
+	@SIPXSDP_STATIC_LIBS@ \
+	@SIPXPORT_STATIC_LIBS@ \
 	@CA_LIBS@ \
 	@GSM_LIBS@ \
 	@SPEEX_LIBS@ \
 	@STATIC_CODEC_LIBS@ \
 	-Lmp/codecs/ \
-	-lstdc++
+	-lstdc++ \
+        -lresolv \
+        -lpcre \
+        -lpthread
 
 libsipXmedia_la_SOURCES =  \
     ../config/sipxmedialib-buildstamp.h \
@@ -171,4 +177,14 @@ libsipXmedia_la_SOURCES =  \
     rtcp/RTCPTimer.cpp \
     rtcp/RTPHeader.cpp \
     rtcp/SenderReport.cpp \
-    rtcp/SourceDescription.cpp
+    rtcp/SourceDescription.cpp \
+    mi/CpMediaInterfaceFactoryImpl.cpp \
+    mi/CpTopologyGraphFactoryImpl.cpp \
+    mi/CpTopologyGraphInterface.cpp \
+    mi/CpTopologyPacketPusher.cpp \
+    mi/sipXmediaFactoryImpl.cpp \
+    mi/MaNotfTranslatorDispatcher.cpp \
+    mi/MiDtmfNotf.cpp \
+    mi/MiNotification.cpp \
+    mi/MiProgressNotf.cpp
+

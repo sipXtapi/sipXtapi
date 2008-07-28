@@ -1,3 +1,19 @@
+// Copyright 2008 AOL LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA. 
 //
 // Copyright (C) 2006 Robert J. Andreasen, Jr.
 // Licensed to SIPfoundry under a Contributor Agreement.
@@ -19,6 +35,10 @@
 #include "utl/UtlRandom.h"
 
 // DEFINES
+#ifndef MIN
+#define MIN(a, b) (((a)<(b)) ? (a) : (b) )
+#endif
+
 #define STUN_MAX_STRING_LENGTH              128 
 #define STUN_MAX_UNKNOWN_ATTRIBUTES         16
 #define STUN_MAX_MESSAGE_INTEGRITY_LENGTH   20
@@ -55,6 +75,9 @@
 #define ATTR_STUN_XOR_MAPPED_ADDRESS            0x0020
 #define ATTR_STUN_XOR_ONLY                      0x0021  // deprecated
 #define ATTR_STUN_FINGERPRINT                   0x0023
+
+#define ATTR_ICE_PRIORITY                       0x0024  // ICE-ONLY
+
 #define ATTR_STUN_XOR_MAPPED_ADDRESS2           0x8020  // deprecated
 #define ATTR_STUN_SERVER                        0x8022  
 #define ATTR_STUN_SERVER2                       0x0022  // deprecated
@@ -281,6 +304,8 @@ class StunMessage
 
     void setAltServer(const char* szIp, unsigned short port) ;
 
+    void setPriority(unsigned long priority) ;
+
 /* ============================ ACCESSORS ================================= */
 
     void getMagicId(STUN_MAGIC_ID* pMagicId) ;
@@ -327,6 +352,8 @@ class StunMessage
 
     bool getFingerPrint(bool& bValid) ;
 
+    bool getPriority(unsigned long& priority) ;
+
 /* ============================ INQUIRY =================================== */
 
     virtual bool validateMessageType(unsigned short type) ;
@@ -336,6 +363,8 @@ class StunMessage
     static bool isFingerPrintValid(const char* pBuf, unsigned short nBufLength, bool bMissingOk) ;
 
     virtual bool isRequestOrNonErrorResponse() ;
+
+    virtual bool isRequest() ;
 
     virtual bool isMessageIntegrityValid(const char* cPassword, size_t nPassword) ;
 
@@ -437,6 +466,9 @@ class StunMessage
     char*                  mpRawData ;
     size_t                 mnRawData ;
     bool                   mbLegacyMode ;
+
+    unsigned long          mPriority ;
+    bool                   mbPriorityValid;
 
     STUN_ATTRIBUTE_UNKNOWN mUnknownParsedAttributes ;
 

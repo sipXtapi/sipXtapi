@@ -1,3 +1,19 @@
+// Copyright 2008 AOL LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA. 
 //  
 // Copyright (C) 2007-2008 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
@@ -272,7 +288,21 @@ void SdpCodecList::setCodecCPULimit(int iLimit)
 {
    mCodecCPULimit = iLimit ;
 }
-     
+
+void SdpCodecList::removeCodecByType(const SdpCodec::SdpCodecTypes type)
+{
+    SdpCodec* codecFound = NULL;
+    OsWriteLock lock(mReadWriteMutex);
+    UtlDListIterator iterator(mCodecs);
+
+    while((codecFound = (SdpCodec*) iterator()) != NULL)
+    {
+        if(codecFound->getCodecType() == type)
+        {
+            mCodecs.remove(codecFound);
+        }
+    }
+}
 
 
 /* ============================ ACCESSORS ================================= */
@@ -300,6 +330,19 @@ const SdpCodec* SdpCodecList::getCodec(SdpCodec::SdpCodecTypes internalCodecId)
     }
 
     return(codecFound);
+}
+
+const SdpCodec* SdpCodecList::getCodecByIndex(size_t index)
+{
+    const SdpCodec* pCodec = NULL ;
+    OsReadLock lock(mReadWriteMutex);
+
+    if (index < mCodecs.entries())
+    {
+        pCodec = (const SdpCodec*) mCodecs.at(index) ;
+    }
+
+    return pCodec ;
 }
 
 const SdpCodec* SdpCodecList::getCodecByType(int payloadTypeId)
@@ -411,6 +454,85 @@ int SdpCodecList::getCodecCount(const char* mimetype)
     return iCount;
 }
 
+void SdpCodecList::getCodecList(const char* szMimeType, UtlString& list)
+{
+    const SdpCodec* pCodec = NULL;
+
+    OsReadLock lock(mReadWriteMutex);
+    UtlDListIterator iterator(mCodecs);
+
+    while((pCodec = (SdpCodec*) iterator()))
+    {
+        UtlString mimeType ;
+        pCodec->getMediaType(mimeType);
+        if (mimeType.compareTo(szMimeType, UtlString::ignoreCase) == 0)
+        {
+            UtlString name ;
+            UtlString videoFormat ;
+            pCodec->getEncodingName(name) ;
+            if (pCodec->getVideoFormatString(videoFormat) && !videoFormat.isNull())
+            {
+                name.append("-") ;
+                name.append(videoFormat) ;
+            }
+            name.insert(0, " ") ;
+            name.append(" ") ;
+            if (list.index(name, 0, UtlString::ignoreCase) == UtlString::UTLSTRING_NOT_FOUND)
+            {
+                list.append(name) ;
+            }
+        }            
+    }
+    list.strip(UtlString::both, ' ') ;
+}
+
+void SdpCodecList::applyCodecListOrdering(const UtlString& desiredPriority, 
+                                             UtlString& list)
+{
+    UtlString newList ;
+    /*
+     * Walk through the priority list and populate based on that order.  If
+     * elements are found in the list which were not on the priority list, 
+     * include them at the end (in order)
+     */
+
+    int index = 0 ;
+    UtlString codec ;
+    while (UtlNameValueTokenizer::getSubField(desiredPriority, index++," \t\r\n", &codec))
+    {
+        int pos = list.index(codec, 0, UtlString::ignoreCase) ;
+        if (pos != UtlString::UTLSTRING_NOT_FOUND)
+        {
+            newList.append(codec) ;
+            newList.append(" ") ;
+            list.remove(pos, codec.length()) ;
+        }
+    }
+
+    newList.append(list) ;
+    list = newList ;   
+    list.strip(UtlString::both, ' ') ; 
+}
+
+void SdpCodecList::removeKeywordFromCodecList(const UtlString& keyword, UtlString& list) 
+{
+    UtlString newList ;
+
+    int index = 0 ;
+    UtlString codec ;
+    while (UtlNameValueTokenizer::getSubField(list, index++," \t\r\n", &codec))
+    {
+        int pos = codec.index(keyword, 0, UtlString::ignoreCase) ;
+        if (pos == UtlString::UTLSTRING_NOT_FOUND)
+        {
+            newList.append(codec) ;
+            newList.append(" ") ;
+        }
+    }
+
+    list = newList ;   
+    list.strip(UtlString::both, ' ') ; 
+}
 
 void SdpCodecList::getCodecs(int& numCodecs, 
                              SdpCodec**& codecArray)
@@ -492,7 +614,6 @@ void SdpCodecList::getCodecs(int& numCodecs,
 
     numCodecs = index;
 }
-
 
 void SdpCodecList::toString(UtlString& serializedFactory)
 {
