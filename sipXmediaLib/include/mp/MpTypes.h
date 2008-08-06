@@ -42,6 +42,8 @@ typedef void * SEM_ID;
 #endif /* _VXWORKS ] */
 
 typedef int16_t MpAudioSample;    ///< Audio sample (16 bit, signed, little-endian)
+/// Size of audio sample in bits.
+#define MP_AUDIO_SAMPLE_SIZE 16
 
 typedef int MpInputDeviceHandle;  ///< Logical device ID identifying device
                                   ///< driver inside device manager.
