@@ -49,14 +49,13 @@ void MpAudioBuf::scale(const MpAudioSample* src,
 
 /* ============================ INQUIRY =================================== */
 
-int MpAudioBuf::compareSamples(const MpAudioBuf& frame1, 
-                               const MpAudioBuf& frame2, 
-                               unsigned int tolerance)
+int MpAudioBuf::compareSamples(const MpAudioBufPtr& frame,
+                               unsigned int tolerance) const
 {
 
     int difference = 0;
-    int samplesInFrame1 = frame1.getSamplesNumber();
-    int samplesInFrame2 = frame2.getSamplesNumber();
+    int samplesInFrame1 = getSamplesNumber();
+    int samplesInFrame2 = frame->getSamplesNumber();
 
     if(samplesInFrame1 > samplesInFrame2)
     {
@@ -70,8 +69,8 @@ int MpAudioBuf::compareSamples(const MpAudioBuf& frame1,
 
     else
     {
-        const MpAudioSample* samples1 = frame1.getSamplesPtr();
-        const MpAudioSample* samples2 = frame2.getSamplesPtr();
+        const MpAudioSample* samples1 = getSamplesPtr();
+        const MpAudioSample* samples2 = frame->getSamplesPtr();
 
         int sampleDiff;
         for(int sampleIndex = 0; sampleIndex < samplesInFrame1; sampleIndex++)

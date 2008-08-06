@@ -135,9 +135,8 @@ public:
 //@{
 
     /// compare two frames of audio to see if they are the same or similar
-    static int compareSamples(const MpAudioBuf& frame1, 
-                              const MpAudioBuf& frame2, 
-                              unsigned int tolerance = 0);
+    int compareSamples(const MpAudioBufPtr& frame,
+                       unsigned int tolerance = 0) const;
     /**<
     *  @param tolerance - the allowed difference between the corresponding
     *         samples in the two frames which are considered to still be
@@ -202,38 +201,6 @@ public:
 ///@name Manipulators
 //@{
 
-    /// compare two frames of audio to see if they are the same or similar
-    /** 
-    *  @param tolerance - the allowed difference between the corresponding
-    *         samples in the two frames which are considered to still be
-    *         the same.
-    *  @returns 0, positive or negative value.  Zero means the samples
-    *           are similar within the tolerance.
-    */
-    int compareSamples(const MpAudioBufPtr& frame2, 
-                       unsigned int tolerance = 0) const
-    {
-        int compareValue = 0;
-        if(!isValid())
-        {
-            compareValue = -1;
-        }
-        else if(!frame2.isValid())
-        {
-            compareValue = 1;
-        }
-        else
-        {
-            // Need to downcast before dereferencing to avoid implicit
-            // construction of MpAudioBuf from MpBuf
-            compareValue =
-                MpAudioBuf::compareSamples(*((MpAudioBuf*)mpBuffer), 
-                                           *((MpAudioBuf*)frame2.mpBuffer), 
-                                           tolerance);
-        }
-        return(compareValue);
-    };
-
 //@}
 
 /* ============================ ACCESSORS ================================= */
@@ -243,7 +210,7 @@ public:
     /// Return pointer to MpAudioBuf.
     MPBUF_MEMBER_ACCESS_OPERATOR(MpAudioBuf)
 
-    /// Return readonly pointer to MpAudioBuf.
+    /// Return read-only pointer to MpAudioBuf.
     MPBUF_CONST_MEMBER_ACCESS_OPERATOR(MpAudioBuf)
 
 //@}

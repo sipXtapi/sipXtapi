@@ -91,25 +91,25 @@ public:
         // The frames are identical so tolerance should not make any difference
 
         // Zero tolerance
-        CPPUNIT_ASSERT_EQUAL(frame1.compareSamples(frame2, 0), 0); 
+        CPPUNIT_ASSERT_EQUAL(frame1->compareSamples(frame2, 0), 0); 
 
         // Tolerance = 2
-        CPPUNIT_ASSERT_EQUAL(frame1.compareSamples(frame2, 2), 0);
+        CPPUNIT_ASSERT_EQUAL(frame1->compareSamples(frame2, 2), 0);
 
-        // Tweek the samples so there is some difference
+        // Tweak the samples so there is some difference
         samples1[0] +=3;
         samples1[7] +=3;
         samples1[20] +=3;
         samples1[42] +=3;
 
         // Difference greater than tolerance (differ)
-        CPPUNIT_ASSERT_EQUAL(frame1.compareSamples(frame2, 2), 1);
+        CPPUNIT_ASSERT_EQUAL(frame1->compareSamples(frame2, 2), 1);
 
         // Difference equal than tolerance (the same)
-        CPPUNIT_ASSERT_EQUAL(frame1.compareSamples(frame2, 3), 0);
+        CPPUNIT_ASSERT_EQUAL(frame1->compareSamples(frame2, 3), 0);
 
         // Difference less than tolerance (the same)
-        CPPUNIT_ASSERT_EQUAL(frame1.compareSamples(frame2, 5), 0);
+        CPPUNIT_ASSERT_EQUAL(frame1->compareSamples(frame2, 5), 0);
     }
 
 
