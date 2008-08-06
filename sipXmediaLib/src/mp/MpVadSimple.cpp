@@ -41,7 +41,8 @@ MpVadSimple::~MpVadSimple()
 
 MpSpeechType MpVadSimple::processFrame(uint32_t packetTimeStamp,
                                        const MpAudioSample* pBuf,
-                                       unsigned inSamplesNum)
+                                       unsigned inSamplesNum,
+                                       const MpSpeechParams &speechParams)
 {
    return MP_SPEECH_UNKNOWN;
 }

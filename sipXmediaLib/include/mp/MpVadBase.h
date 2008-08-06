@@ -48,7 +48,7 @@ public:
 //@{
      /// Initialize VAD with given sample rate
    virtual OsStatus init(int samplesPerSec) = 0;
-     /**
+     /**<
      *  Should be called before any other class methods.
      */
 
@@ -73,12 +73,14 @@ public:
      /// Detect speech presence
    virtual MpSpeechType processFrame(uint32_t packetTimeStamp,
                                      const MpAudioSample* pBuf,
-                                     unsigned inSamplesNum) = 0;
+                                     unsigned inSamplesNum,
+                                     const MpSpeechParams &speechParams) = 0;
      /**<
      * @param[in] packetTimeStamp - RTP timestamp of packet.
      * @param[in] pBuf - buffer with input data.
      * @param[in] inSamplesNum - number of samples of actual data, passed to
      *            this function.
+     * @param[in] speechParams - various parameters of speech.
      * @returns Method returns MP_SPEECH_ACTIVE or MP_SPEECH_SILENT mainly,
      *          but if algorithm doesn't handle some situations return value
      *          may be MP_SPEECH_UNKNOWN

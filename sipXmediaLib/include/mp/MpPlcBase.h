@@ -58,7 +58,7 @@ public:
 
      /// Initialize PLC with given sample rate and frame size.
    virtual OsStatus init(int samplesPerSec) = 0;
-     /**
+     /**<
      *  Should be called before any other class methods.
      */
 
@@ -73,7 +73,7 @@ public:
 
      /// Update PLC history with late/future frame.
    virtual OsStatus insertToHistory(int frameNum,
-                                    MpSpeechType speechType,
+                                    const MpSpeechParams &speechParams,
                                     MpAudioSample* pBuf,
                                     unsigned inSamplesNum) = 0;
      /**<
@@ -84,14 +84,14 @@ public:
      *            supports this. Passing late and future frames they should
      *            be in bounds set by of getMaxFutureFramesNum() and
      *            getMaxDelayedFramesNum().
-     * @param[in] speechType - speech presence/absence in passed data.
+     * @param[in] speechParams - various parameters of speech.
      * @param[in,out] pBuf - buffer with input data.
      * @param[in] inSamplesNum - number of samples of actual data, passed to
      *            this function.
      */
 
      /// Process next frame - do PLC and/or adjustment if needed.
-   virtual OsStatus processFrame(MpSpeechType &speechType,
+   virtual OsStatus processFrame(MpSpeechParams &speechParams,
                                  MpAudioSample* pBuf,
                                  unsigned bufferSize,
                                  unsigned inSamplesNum,
@@ -99,8 +99,7 @@ public:
                                  int wantedAdjustment,
                                  int &madeAdjustment) = 0;
      /**<
-     * @param[in] speechType - speech presence/absence in passed data.
-     *            Used only if data is present, i.e. if \p numSamples>0.
+     * @param[in] speechParams - various parameters of speech.
      * @param[in,out] pBuf - buffer with input data and place for output data.
      *            Data is read from this buffer if \p numSamples>0. If any
      *            processing is needed, i.e. PLC or adjustment is requested,

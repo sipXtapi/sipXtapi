@@ -45,7 +45,8 @@ public:
      /// @copydoc MpVadBase::processFrame()
    MpSpeechType processFrame(uint32_t packetTimeStamp,
                              const MpAudioSample* pBuf,
-                             unsigned inSamplesNum);
+                             unsigned inSamplesNum,
+                             const MpSpeechParams &speechParams);
 
 //@}
 

@@ -43,14 +43,14 @@ MpPlcSilence::~MpPlcSilence()
 /* ============================ MANIPULATORS ============================== */
 
 OsStatus MpPlcSilence::insertToHistory(int frameNum,
-                                       MpSpeechType speechType,
+                                       const MpSpeechParams &speechParams,
                                        MpAudioSample* pBuf,
                                        unsigned inSamplesNum)
 {
    return OS_NOT_SUPPORTED;
 }
 
-OsStatus MpPlcSilence::processFrame(MpSpeechType &speechType,
+OsStatus MpPlcSilence::processFrame(MpSpeechParams &speechParams,
                                     MpAudioSample* pBuf,
                                     unsigned bufferSize,
                                     unsigned inSamplesNum,

@@ -33,6 +33,7 @@
 class MpDecoderPayloadMap;
 class MpPlcBase;
 class MpVadBase;
+class MpAgcBase;
 
 /**
 *  @brief Class for decoding of incoming RTP, resampling it to target
@@ -144,7 +145,7 @@ protected:
                     int wantedAdjustment);
 
    OsStatus sliceToFrames(int decodedSamples, int codecSampleRate,
-                          MpSpeechType speechType);
+                          const MpSpeechParams &speechParams);
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
@@ -193,8 +194,9 @@ private:
    unsigned mSamplesPerPacket;      ///< Number of samples in RTP packet.
 //@}
 
-   MpPlcBase *mpPlc;                ///< PLC instance.
-   MpVadBase *mpVad;                ///< Voice Activity Detection instance.
+   MpPlcBase *mpPlc;                ///< Packet Loss Concealer instance.
+   MpVadBase *mpVad;                ///< Voice Activity Detector instance.
+   MpAgcBase *mpAgc;                ///< Automatic Gain Calculator instance.
    UtlBoolean mIsInitialized;       ///< Is JB initialized or not?
 
    /// Copy constructor

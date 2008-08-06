@@ -45,12 +45,12 @@ public:
 
      /// @copydoc MpPlcBase::insertToHistory()
    OsStatus insertToHistory(int frameNum,
-                            MpSpeechType speechType,
+                            const MpSpeechParams &speechParams,
                             MpAudioSample* pBuf,
                             unsigned inSamplesNum);
 
      /// @copydoc MpPlcBase::processFrame()
-   OsStatus processFrame(MpSpeechType &speechType,
+   OsStatus processFrame(MpSpeechParams &speechParams,
                          MpAudioSample* pBuf,
                          unsigned bufferSize,
                          unsigned inSamplesNum,

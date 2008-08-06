@@ -23,6 +23,7 @@
 #include "mp/MpDecoderBase.h"
 #include "mp/MpPlcBase.h"
 #include "mp/MpVadBase.h"
+#include "mp/MpAgcBase.h"
 #include "mp/MpDspUtils.h"
 
 // MACROS
@@ -69,9 +70,11 @@ MpJitterBuffer::MpJitterBuffer(MpDecoderPayloadMap *pPayloadMap)
 , mSamplesPerPacket(0)
 , mpPlc(NULL)
 , mpVad(NULL)
+, mpAgc(NULL)
 , mIsInitialized(FALSE)
 {
    mpVad = MpVadBase::createVad();
+   mpAgc = MpAgcBase::createAgc();
 }
 
 void MpJitterBuffer::init(unsigned int samplesPerSec, unsigned int samplesPerFrame)
@@ -84,7 +87,14 @@ void MpJitterBuffer::init(unsigned int samplesPerSec, unsigned int samplesPerFra
 
    if (mpVad)
    {
-      mpVad->init(mOutputSampleRate);
+      OsStatus status = mpVad->init(mOutputSampleRate);
+      assert(status == OS_SUCCESS);
+   }
+
+   if (mpAgc)
+   {
+      OsStatus status = mpAgc->init(mOutputSampleRate);
+      assert(status == OS_SUCCESS);
    }
 
    // Initialization is done.
@@ -96,6 +106,7 @@ MpJitterBuffer::~MpJitterBuffer()
    delete mpResampler;
    delete mpPlc;
    delete mpVad;
+   delete mpAgc;
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -109,7 +120,7 @@ OsStatus MpJitterBuffer::pushPacket(const MpRtpBufPtr &rtpPacket,
 {
    unsigned outSamplesNum = 0;  // Number of samples in output buffer.
    MpDecoderBase* decoder;      // Decoder for the packet.
-   MpSpeechType packetSpeechType = MP_SPEECH_UNKNOWN;
+   MpSpeechParams packetSpeechParams;
    RtpSeq rtpSeq;
 
    // If decoders and/or MpJitterBuffer are not initialized.
@@ -199,9 +210,13 @@ OsStatus MpJitterBuffer::pushPacket(const MpRtpBufPtr &rtpPacket,
                        rtpPacket->getRtpSequenceNumber());
 #endif
 
-         // STEP 2. Voice Activity Detection
-         packetSpeechType = mpVad->processFrame(rtpPacket->getRtpTimestamp(),
-                                                mDecodedData, decodedSamples);
+         // STEP 2. Automatic Gain Calculation and Voice Activity Detection
+         mpAgc->processFrame(mDecodedData, decodedSamples);
+         mpAgc->getAmplitude(packetSpeechParams.mAmplitude,
+                             packetSpeechParams.mIsClipped);
+         packetSpeechParams.mSpeechType = mpVad->processFrame(rtpPacket->getRtpTimestamp(),
+                                                              mDecodedData, decodedSamples,
+                                                              packetSpeechParams);
       }
       else if (decoder->getInfo()->isSignalingCodec())
       {
@@ -218,14 +233,14 @@ OsStatus MpJitterBuffer::pushPacket(const MpRtpBufPtr &rtpPacket,
          assert(!"Decoder returned 0 samples for non-signaling packet!");
       }
    }
-   RTL_EVENT("MpJitterBuffer_packet_vad", packetSpeechType);
-   dprintf(" %d", packetSpeechType);
+   RTL_EVENT("MpJitterBuffer_packet_vad", packetSpeechParams.mSpeechType);
+   dprintf(" %d", packetSpeechParams.mSpeechType);
 
    int wantedAdjustment = wantedBufferSamples + mSamplesPerPacket - getSamplesNum();
 
 #define N_POS  2
 #define N_NEG  3
-   switch (packetSpeechType)
+   switch (packetSpeechParams.mSpeechType)
    {
    case MP_SPEECH_TONE:
       break;
@@ -285,7 +300,7 @@ OsStatus MpJitterBuffer::pushPacket(const MpRtpBufPtr &rtpPacket,
       if (decodedSamples > 0 && MpDspUtils::compareSerials(rtpSeq, mStreamSeq) < 0)
       {
          // Late packet. Push it to PLC history and return.
-         mpPlc->insertToHistory(rtpSeq-mStreamSeq, packetSpeechType,
+         mpPlc->insertToHistory(rtpSeq-mStreamSeq, packetSpeechParams,
                                 mDecodedData, decodedSamples);
 
          // Nothing else to do, just return.
@@ -294,7 +309,7 @@ OsStatus MpJitterBuffer::pushPacket(const MpRtpBufPtr &rtpPacket,
       else
       {
          // In time packet. Decode packet if present, or PLC it.
-         mpPlc->processFrame(packetSpeechType, mDecodedData,
+         mpPlc->processFrame(packetSpeechParams, mDecodedData,
                              DECODED_DATA_MAX_LENGTH, decodedSamples,
                              mSamplesPerPacket, wantedAdjustment, adjustment);
          // Calculate number of samples in output buffer.
@@ -329,7 +344,7 @@ OsStatus MpJitterBuffer::pushPacket(const MpRtpBufPtr &rtpPacket,
    }
 
    // Slice data to buffers.
-   if (sliceToFrames(outSamplesNum, mStreamSampleRate, packetSpeechType) != OS_SUCCESS)
+   if (sliceToFrames(outSamplesNum, mStreamSampleRate, packetSpeechParams) != OS_SUCCESS)
    {
       return OS_FAILED;
    }
@@ -511,7 +526,7 @@ int MpJitterBuffer::adjustStream(MpAudioSample *pBuffer,
 
 OsStatus MpJitterBuffer::sliceToFrames(int decodedSamples,
                                        int codecSampleRate,
-                                       MpSpeechType speechType)
+                                       const MpSpeechParams &speechParams)
 {
    // Get source sample rate and update sample rate if changed.
    if (  (codecSampleRate != mOutputSampleRate)
@@ -535,10 +550,10 @@ OsStatus MpJitterBuffer::sliceToFrames(int decodedSamples,
          numSamplesToWrite = mSamplesPerFrame - mFrames[frame]->getSamplesNumber();
 
          //TODO:: Upgrade this to support all possible speech types!
-         if (numSamplesToWrite > 0 && speechType == MP_SPEECH_ACTIVE)
+         if (numSamplesToWrite > 0 && speechParams.mSpeechType == MP_SPEECH_ACTIVE)
          {
             // If new data contain active speech, frame should be marked accordingly.
-            mFrames[frame]->setSpeechType((MpSpeechType)speechType);
+            mFrames[frame]->setSpeechParams(speechParams);
          }
       }
       else
@@ -547,7 +562,7 @@ OsStatus MpJitterBuffer::sliceToFrames(int decodedSamples,
          mFrames[frame] = MpMisc.RawAudioPool->getBuffer();
          if (!mFrames[frame].isValid())
             return OS_FAILED;
-         mFrames[frame]->setSpeechType((MpSpeechType)speechType);
+         mFrames[frame]->setSpeechParams(speechParams);
          mFrames[frame]->setSamplesNumber(0);
 
          pWritePtr = mFrames[frame]->getSamplesWritePtr();
