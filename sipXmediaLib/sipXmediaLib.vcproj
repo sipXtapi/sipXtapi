@@ -591,6 +591,9 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\src\mp\MpAgcBase.cpp">
+			</File>
+			<File
 				RelativePath=".\src\mp\MpAgcSimple.cpp">
 			</File>
 			<File

@@ -127,6 +127,10 @@ SOURCE=.\src\mp\MicThreadWnt.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\mp\MpAgcBase.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\mp\MpAgcSimple.cpp
 # End Source File
 # Begin Source File
