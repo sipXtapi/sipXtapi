@@ -82,4 +82,36 @@ void MpDspUtils::add_I(float &a, float b)
 
 #endif // MP_FIXED_POINT ]
 
+int16_t MpDspUtils::abs(int16_t a)
+{
+   return (a < 0) ? 
+      ((a == INT16_MIN) ? INT16_MAX : -a) : a;
+}
+
+int16_t MpDspUtils::minimum(int16_t a, int16_t b)
+{
+   return (a < b) ? a : b;
+}
+
+int16_t MpDspUtils::maximum(int16_t a, int16_t b)
+{
+   return (a > b) ? a : b;
+}
+
+int32_t MpDspUtils::abs(int32_t a)
+{
+   return (a < 0) ? 
+      ((a == INT32_MIN) ? INT32_MAX : -a) : a;
+}
+
+int32_t MpDspUtils::minimum(int32_t a, int32_t b)
+{
+   return (a < b) ? a : b;
+}
+
+int32_t MpDspUtils::maximum(int32_t a, int32_t b)
+{
+   return (a > b) ? a : b;
+}
+
 #endif  // _MpDspUtilsSum_h_

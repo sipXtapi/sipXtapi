@@ -126,4 +126,18 @@ OsStatus MpDspUtils::mul(const int16_t *pSrc, const float val, float *pDst, int 
 
 #endif // MP_FIXED_POINT ]
 
+int MpDspUtils::maxAbs(const int16_t *pSrc, int dataLength)
+{
+   int startValue = pSrc[0];
+   if (startValue < 0)
+      startValue = -startValue;
+
+   for (int i = 1; i < dataLength; i++)
+   {
+      startValue = maximum(startValue, 
+         ((int)pSrc[i] > 0) ? (int)pSrc[i] : -((int)pSrc[i]));
+   }
+   return startValue;
+}
+
 #endif  // _MpDspUtilsSumVect_h_

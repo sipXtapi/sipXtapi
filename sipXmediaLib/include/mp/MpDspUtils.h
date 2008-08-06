@@ -157,6 +157,38 @@ public:
 
 #endif // !MP_FIXED_POINT ]
 
+     /// Perform absolute value calculation with saturation
+   static inline
+   int16_t abs(int16_t a);
+     /**< This function saturate INT16_MIN value because of 
+     *  -INT16_MIN == 0 in IEEE format, so 
+     *  abs (INT16_MIN) is INT16_MAX
+     */
+
+     /// Perform minimum value calculation
+   static inline
+   int16_t minimum(int16_t a, int16_t b);
+
+   /// Perform maximum value calculation
+   static inline
+   int16_t maximum(int16_t a, int16_t b);
+
+   /// Perform absolute value calculation with saturation
+   static inline
+      int32_t abs(int32_t a);
+   /**< This function saturate INT32_MIN value because of 
+   *  -INT32_MIN == 0 in IEEE format, so 
+   *  abs (INT32_MIN) is INT32_MAX
+   */
+
+   /// Perform minimum value calculation
+   static inline
+      int32_t minimum(int32_t a, int32_t b);
+
+   /// Perform maximum value calculation
+   static inline
+      int32_t maximum(int32_t a, int32_t b);
+
 //@}
 
 /* ======================= Serial Number Arithmetic ======================= */
@@ -302,6 +334,10 @@ public:
      */
 
 #endif // MP_FIXED_POINT ]
+
+     /// Calculate absolute maximum value of array
+   static inline
+   int maxAbs(const int16_t *pSrc, int dataLength);
 
 //@}
 
