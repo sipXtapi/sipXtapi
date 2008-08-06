@@ -12,6 +12,8 @@
 #define _INCLUDED_MPAUDIOBUF_H
 
 // SYSTEM INCLUDES
+#include <assert.h>
+
 // APPLICATION INCLUDES
 #include "mp/MpDataBuf.h"
 #include "mp/MpTypes.h"
@@ -50,7 +52,7 @@ public:
 //@{
 
     /// Set audio data type.
-    void setSpeechType(MpSpeechType type) {mSpeechType = type;};
+    void setSpeechType(MpSpeechType type) {mParams.mSpeechType = type;};
 
     /// Set current number of samples in audio data.
     /**
@@ -61,11 +63,17 @@ public:
     bool setSamplesNumber(unsigned samplesNum)
     {return mpData->setDataSize(samplesNum*sizeof(MpAudioSample));}
 
-    /// Set attenuation applied at speakerphone speaker.
-    void setAttenDb(short attenDb) {mAttenDb = attenDb;}
-
     /// Set time code for this frame
-    void setTimecode(unsigned timecode) {mTimecode=timecode;}
+    void setTimecode(unsigned timecode) {assert(!"MpAudioBuf::setTimecode() is not implemented!");}
+
+    /// Set amplitude of the data in the buffer.
+    void setAmplitude(MpAudioSample amplitude) {mParams.mAmplitude = amplitude;}
+
+    /// Is data in the buffer clipped?
+    void setClipping(UtlBoolean clipping) {mParams.mIsClipped = clipping;}
+
+    /// Set all speech parameters at once
+    void setSpeechParams(const MpSpeechParams &params) {mParams = params;}
 
     /// compare two frames of audio to see if they are the same or similar
     /** 
@@ -86,7 +94,7 @@ public:
 //@{
 
     /// Get audio data type.
-    MpSpeechType getSpeechType() const {return mSpeechType;};
+    MpSpeechType getSpeechType() const {return mParams.mSpeechType;};
 
     /// Get pointer to audio data.
     const MpAudioSample *getSamplesPtr() const {return (const MpAudioSample*)getDataPtr();}
@@ -97,11 +105,17 @@ public:
     /// Get current number of samples in audio data.
     unsigned getSamplesNumber() const {return mpData->getDataSize()/sizeof(MpAudioSample);}
 
-    /// Get attenuation applied at speakerphone speaker.
-    short getAttenDb() const {return mAttenDb;}
-
     /// Get time code for this frame
-    unsigned getTimecode() const {return mTimecode;}
+    unsigned getTimecode() const {assert(!"MpAudioBuf::getTimecode() is not implemented!"); return 0;}
+
+    /// Get amplitude of the data in the buffer.
+    MpAudioSample getAmplitude() const {return mParams.mAmplitude;}
+
+    /// Is data in the buffer clipped?
+    UtlBoolean getClipping() const {return mParams.mIsClipped;}
+
+    /// Get speech parameters as a structure
+    const MpSpeechParams &getSpeechParams() const {return mParams;}
 
 //@}
 
@@ -114,9 +128,7 @@ public:
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 
-    short      mAttenDb;     ///< attenuation applied at speakerphone speaker
-    MpSpeechType mSpeechType;  ///< if we know, whether buffer contains speech
-    unsigned   mTimecode;    ///< time when this data is generated
+    MpSpeechParams mParams;  ///< Parameters of the frame data.
 
     /// This is called in place of constructor.
     void init();

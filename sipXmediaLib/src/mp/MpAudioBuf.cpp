@@ -78,8 +78,9 @@ int MpAudioBuf::compareSamples(const MpAudioBuf& frame1,
 
 void MpAudioBuf::init()
 {
-    mAttenDb = 0;
-    mSpeechType = MP_SPEECH_UNKNOWN;
+    mParams.mSpeechType = MP_SPEECH_UNKNOWN;
+    mParams.mAmplitude = MpSpeechParams::MAX_AMPLITUDE;
+    mParams.mIsClipped = FALSE;
 #ifdef MPBUF_DEBUG
     osPrintf(">>> MpAudioBuf::init()\n");
 #endif
