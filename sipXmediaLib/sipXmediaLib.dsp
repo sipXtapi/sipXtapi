@@ -875,6 +875,10 @@ SOURCE=.\include\mp\MpDspUtils.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\include\mp\MpDspUtilsConvertVect.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\include\mp\MpDspUtilsSerials.h
 # End Source File
 # Begin Source File
@@ -884,6 +888,10 @@ SOURCE=.\include\mp\MpDspUtilsShift.h
 # Begin Source File
 
 SOURCE=.\include\mp\MpDspUtilsSum.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MpDspUtilsSumVect.h
 # End Source File
 # Begin Source File
 

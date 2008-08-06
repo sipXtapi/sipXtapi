@@ -3626,6 +3626,9 @@
 				RelativePath=".\include\mp\MpDspUtils.h">
 			</File>
 			<File
+				RelativePath=".\include\mp\MpDspUtilsConvertVect.h">
+			</File>
+			<File
 				RelativePath=".\include\mp\MpDspUtilsSerials.h">
 			</File>
 			<File
@@ -3633,6 +3636,9 @@
 			</File>
 			<File
 				RelativePath=".\include\mp\MpDspUtilsSum.h">
+			</File>
+			<File
+				RelativePath=".\include\mp\MpDspUtilsSumVect.h">
 			</File>
 			<File
 				RelativePath=".\include\mp\MpDTMFDetector.h">
