@@ -89,14 +89,14 @@ public:
     void scale(MpAudioSample* dst,
                MpAudioSample resultingAmplitude,
                MpAudioSample sourceAmplitudeStart,
-               MpAudioSample sourceAmplitudeEnd);
+               MpAudioSample sourceAmplitudeEnd) const;
 
     /// Scale audio data from this buffer to another.
     inline
     void scale(MpAudioBufPtr dst,
                MpAudioSample resultingAmplitude,
                MpAudioSample sourceAmplitudeStart,
-               MpAudioSample sourceAmplitudeEnd);
+               MpAudioSample sourceAmplitudeEnd) const;
 
 //@}
 
@@ -268,7 +268,7 @@ private:
 void MpAudioBuf::scale(MpAudioSample* dst,
                        MpAudioSample resultingAmplitude,
                        MpAudioSample sourceAmplitudeStart,
-                       MpAudioSample sourceAmplitudeEnd)
+                       MpAudioSample sourceAmplitudeEnd) const
 {
    scale(getSamplesPtr(), dst, getSamplesNumber(),
          resultingAmplitude, sourceAmplitudeStart, sourceAmplitudeEnd);
@@ -277,7 +277,7 @@ void MpAudioBuf::scale(MpAudioSample* dst,
 void MpAudioBuf::scale(MpAudioBufPtr dst,
                        MpAudioSample resultingAmplitude,
                        MpAudioSample sourceAmplitudeStart,
-                       MpAudioSample sourceAmplitudeEnd)
+                       MpAudioSample sourceAmplitudeEnd) const
 {
    dst->setSamplesNumber(getSamplesNumber());
    scale(getSamplesPtr(), dst->getSamplesWritePtr(), getSamplesNumber(),
