@@ -11,6 +11,7 @@
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
 #include "mp/MpAudioBuf.h"
+#include "mp/MpDspUtils.h"
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -23,6 +24,26 @@ MpBufPool *MpAudioBuf::smpDefaultPool = NULL;
 /* ============================ CREATORS ================================== */
 
 /* ============================ MANIPULATORS ============================== */
+
+void MpAudioBuf::scale(const MpAudioSample* src,
+                       MpAudioSample* dst,
+                       int sampleCount,
+                       MpAudioSample resultingAmplitude,
+                       MpAudioSample sourceAmplitudeStart,
+                       MpAudioSample sourceAmplitudeEnd)
+{
+   int scaleStart = ((int32_t)resultingAmplitude << MP_AUDIO_SAMPLE_SIZE) / sourceAmplitudeStart;
+   int scaleEnd   = ((int32_t)resultingAmplitude << MP_AUDIO_SAMPLE_SIZE) / sourceAmplitudeEnd;
+
+   int step = (scaleEnd - scaleStart) / sampleCount;
+
+   for (int i = 0, scale = scaleStart; i < sampleCount; i++, scale += step)
+   {
+      int tmp = (int)(((int64_t)src[i] * scale) >> MP_AUDIO_SAMPLE_SIZE);
+      dst[i] = (MpAudioSample)MPF_SATURATE16(tmp);
+   }
+}
+
 
 /* ============================ ACCESSORS ================================= */
 

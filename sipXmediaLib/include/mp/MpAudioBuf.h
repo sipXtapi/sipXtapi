@@ -75,17 +75,28 @@ public:
     /// Set all speech parameters at once
     void setSpeechParams(const MpSpeechParams &params) {mParams = params;}
 
-    /// compare two frames of audio to see if they are the same or similar
-    /** 
-    *  @param tolerance - the allowed difference between the corresponding
-    *         samples in the two frames which are considered to still be
-    *         the same.
-    *  @returns 0, positive or negative value.  Zero means the samples
-    *           are similar within the tolerance.
-    */
-    static int compareSamples(const MpAudioBuf& frame1, 
-                              const MpAudioBuf& frame2, 
-                              unsigned int tolerance = 0);
+    /// Scale audio data. Free function version.
+    static
+    void scale(const MpAudioSample* src,
+               MpAudioSample* dst,
+               int sampleCount,
+               MpAudioSample resultingAmplitude,
+               MpAudioSample sourceAmplitudeStart,
+               MpAudioSample sourceAmplitudeEnd);
+
+    /// Scale audio data from this buffer to free buffer.
+    inline
+    void scale(MpAudioSample* dst,
+               MpAudioSample resultingAmplitude,
+               MpAudioSample sourceAmplitudeStart,
+               MpAudioSample sourceAmplitudeEnd);
+
+    /// Scale audio data from this buffer to another.
+    inline
+    void scale(MpAudioBufPtr dst,
+               MpAudioSample resultingAmplitude,
+               MpAudioSample sourceAmplitudeStart,
+               MpAudioSample sourceAmplitudeEnd);
 
 //@}
 
@@ -122,6 +133,18 @@ public:
 /* ============================ INQUIRY =================================== */
 ///@name Inquiry
 //@{
+
+    /// compare two frames of audio to see if they are the same or similar
+    static int compareSamples(const MpAudioBuf& frame1, 
+                              const MpAudioBuf& frame2, 
+                              unsigned int tolerance = 0);
+    /**<
+    *  @param tolerance - the allowed difference between the corresponding
+    *         samples in the two frames which are considered to still be
+    *         the same.
+    *  @returns 0, positive or negative value.  Zero means the samples
+    *           are similar within the tolerance.
+    */
 
 //@}
 
@@ -240,5 +263,25 @@ protected:
 private:
 
 };
+
+/* ============================ INLINE METHODS ============================ */
+void MpAudioBuf::scale(MpAudioSample* dst,
+                       MpAudioSample resultingAmplitude,
+                       MpAudioSample sourceAmplitudeStart,
+                       MpAudioSample sourceAmplitudeEnd)
+{
+   scale(getSamplesPtr(), dst, getSamplesNumber(),
+         resultingAmplitude, sourceAmplitudeStart, sourceAmplitudeEnd);
+}
+
+void MpAudioBuf::scale(MpAudioBufPtr dst,
+                       MpAudioSample resultingAmplitude,
+                       MpAudioSample sourceAmplitudeStart,
+                       MpAudioSample sourceAmplitudeEnd)
+{
+   dst->setSamplesNumber(getSamplesNumber());
+   scale(getSamplesPtr(), dst->getSamplesWritePtr(), getSamplesNumber(),
+         resultingAmplitude, sourceAmplitudeStart, sourceAmplitudeEnd);
+}
 
 #endif /* ] _INCLUDED_MPAUDIOBUF_H */
