@@ -344,9 +344,6 @@ UtlBoolean MprToSpkr::doProcessFrame(MpBufPtr inBufs[],
             s_fnToSpeakerHook(iLength, (short*)shpSamples) ;
         }
 
-        // TODO:: I don't know why we set attenuation to 0 here. BTW, it used only in the MprEchoSuppress().
-        out->setAttenDb(0);
-
         // Push data to the output, if connected.
         if (isOutputConnected(0))
         {
