@@ -51,6 +51,7 @@ libsipXmedia_la_SOURCES =  \
     mp/FilterBank.cpp \
     mp/HandsetFilterBank.cpp \
     mp/mpau.cpp \
+    mp/MpAgcBase.cpp \
     mp/MpArrayBuf.cpp \
     mp/MpAudioAbstract.cpp \
     mp/MpAudioBuf.cpp \

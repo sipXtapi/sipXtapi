@@ -12,6 +12,8 @@ nobase_include_HEADERS =  \
     mp/HandsetFilterBank.h \
     mp/HandsetFilterbankWindows.h \
     mp/mpau.h \
+    mp/MpAgcBase.h \
+    mp/MpAgcSimple.h \
     mp/MpArrayBuf.h \
     mp/MpAudioAbstract.h \
     mp/MpAudioBuf.h \

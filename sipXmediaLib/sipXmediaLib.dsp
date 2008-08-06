@@ -127,6 +127,10 @@ SOURCE=.\src\mp\MicThreadWnt.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\mp\MpAgcSimple.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\mp\MpArrayBuf.cpp
 # End Source File
 # Begin Source File
@@ -748,6 +752,14 @@ SOURCE=.\include\rtcp\ISetSrcDescription.h
 # Begin Source File
 
 SOURCE=.\include\rtcp\Message.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MpAgcBase.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MpAgcSimple.h
 # End Source File
 # Begin Source File
 

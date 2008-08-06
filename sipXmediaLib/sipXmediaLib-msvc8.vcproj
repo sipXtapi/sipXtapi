@@ -1418,6 +1418,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\src\mp\MpAgcSimple.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\src\mp\MpArrayBuf.cpp"
 					>
 				</File>
@@ -1964,6 +1968,14 @@
 				</File>
 				<File
 					RelativePath=".\include\mp\HandsetFilterbankWindows.h"
+					>
+				</File>
+				<File
+					RelativePath=".\include\mp\MpAgcBase.h"
+					>
+				</File>
+				<File
+					RelativePath=".\include\mp\MpAgcSimple.h"
 					>
 				</File>
 				<File
