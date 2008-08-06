@@ -132,7 +132,6 @@ MprEchoSuppress::MprEchoSuppress(const UtlString& rName)
 
    mState  = MprToSpkr::ATTEN_LOUDEST;
    // Other initialization of energy detector
-   mLastSpkrAtten = 0;
    mpPrev = NULL;
    mSpeechFake = 0;
    mTicksPerFrame = (3686400 * mpFlowGraph->getSamplesPerFrame())
@@ -222,13 +221,6 @@ void MprEchoSuppress::frame_match(const MpAudioBufPtr &in)
                 mpPrev.release();
             }
             if (mpPrev.isValid()) {
-                int t = mpPrev->getAttenDb();
-                if (mLastSpkrAtten != t) {
-                    /*osPrintf(
-                        "Echo: speaker attenuation stepped from %d to %d\n",
-                         mLastSpkrAtten, t);*/
-                    mLastSpkrAtten = t;
-                }
                 spkEndTC = mpPrev->getTimecode();
 #ifdef DEBUG_TC /* [ */
                 if (doShowMe())  {

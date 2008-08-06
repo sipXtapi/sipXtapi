@@ -86,7 +86,6 @@ private:
    MprToSpkr*           mpSpkrPal;
    MpAudioBufPtr        mpPrev;
    int                  mTicksPerFrame;
-   int                  mLastSpkrAtten;
    int                  mSpeechFake;
    short                mshDelay;
    FilterBank*          mpFilterBank;
