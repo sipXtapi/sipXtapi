@@ -63,6 +63,29 @@ typedef enum {
    MP_SPEECH_TONE            ///< filled with active (not silent) tone data
 } MpSpeechType;
 
+
+struct MpSpeechParams
+{
+   enum {
+      MAX_AMPLITUDE = INT16_MAX ///< Maximum possible amplitude.
+   };
+
+     /// Constructor
+   MpSpeechParams()
+   : mSpeechType(MP_SPEECH_UNKNOWN)
+   , mAmplitude(MAX_AMPLITUDE)
+   , mIsClipped(FALSE)
+   {
+   };
+
+
+   MpSpeechType mSpeechType;  ///< Whether buffer contains speech.
+   MpAudioSample mAmplitude;  ///< Amplitude of the audio data in this buffer.
+   UtlBoolean mIsClipped;     ///< Is data in this buffer clipped or not?
+};
+
+/* ============================== FUNCTIONS ============================== */
+
 /// Does this speech type contain active audio or silence.
 static inline
 UtlBoolean isActiveAudio(MpSpeechType speechType);
@@ -70,7 +93,7 @@ UtlBoolean isActiveAudio(MpSpeechType speechType);
 /// Determine type of speech after mixing two frames of given type.
 MpSpeechType mixSpeechTypes(MpSpeechType src1, MpSpeechType src2);
 
-/* ============================ INLINE METHODS ============================ */
+/* =========================== INLINE FUNCTIONS =========================== */
 
 UtlBoolean isActiveAudio(MpSpeechType speechType)
 {
