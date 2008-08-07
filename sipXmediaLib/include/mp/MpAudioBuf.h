@@ -25,6 +25,8 @@
 // CONSTANTS
 // STRUCTS
 // TYPEDEFS
+// FORWARD DECLARATIONS
+class MpAudioBufPtr;
 
 ///  Buffer for raw audio data.
 /**
