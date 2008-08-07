@@ -169,25 +169,25 @@ public:
    static inline
    int16_t minimum(int16_t a, int16_t b);
 
-   /// Perform maximum value calculation
+     /// Perform maximum value calculation
    static inline
    int16_t maximum(int16_t a, int16_t b);
 
-   /// Perform absolute value calculation with saturation
+     /// Perform absolute value calculation with saturation
    static inline
-      int32_t abs(int32_t a);
-   /**< This function saturate INT32_MIN value because of 
-   *  -INT32_MIN == 0 in IEEE format, so 
-   *  abs (INT32_MIN) is INT32_MAX
-   */
+   int32_t abs(int32_t a);
+     /**< This function saturate INT32_MIN value because of 
+     *  -INT32_MIN == 0 in IEEE format, so 
+     *  abs (INT32_MIN) is INT32_MAX
+     */
 
-   /// Perform minimum value calculation
+     /// Perform minimum value calculation
    static inline
-      int32_t minimum(int32_t a, int32_t b);
+   int32_t minimum(int32_t a, int32_t b);
 
-   /// Perform maximum value calculation
+     /// Perform maximum value calculation
    static inline
-      int32_t maximum(int32_t a, int32_t b);
+   int32_t maximum(int32_t a, int32_t b);
 
 //@}
 
@@ -338,6 +338,18 @@ public:
      /// Calculate absolute maximum value of array
    static inline
    int maxAbs(const int16_t *pSrc, int dataLength);
+     /**<
+     * @note Result value is int because of inverting (-max_val-1) problem
+     */
+
+     /// Calculate maximum value of array
+   static inline
+   int32_t maximum(const int32_t *pSrc, int dataLength);
+
+     /// Calculate maximum value of array
+   static inline
+   int32_t minimum(const int32_t *pSrc, int dataLength);
+
 
 //@}
 
