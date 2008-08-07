@@ -179,6 +179,14 @@ SOURCE=.\src\mp\MpAudioWaveFileRead.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\mp\MpBridgeAlgLinear.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\mp\MpBridgeAlgSimple.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\mp\MpBuf.cpp
 # End Source File
 # Begin Source File
@@ -812,6 +820,18 @@ SOURCE=.\include\mp\MpAudioUtils.h
 # Begin Source File
 
 SOURCE=.\include\mp\MpAudioWaveFileRead.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MpBridgeAlgBase.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MpBridgeAlgLinear.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MpBridgeAlgSimple.h
 # End Source File
 # Begin Source File
 

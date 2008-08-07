@@ -63,6 +63,8 @@ libsipXmedia_la_SOURCES =  \
     mp/MpAudioResource.cpp \
     mp/MpAudioUtils.cpp \
     mp/MpAudioWaveFileRead.cpp \
+    mp/MpBridgeAlgLinear.cpp \
+    mp/MpBridgeAlgSimple.cpp \
     mp/MpBuf.cpp \
     mp/MpBufPool.cpp \
     mp/MpBufferMsg.cpp \

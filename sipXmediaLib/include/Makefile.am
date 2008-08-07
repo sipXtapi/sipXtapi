@@ -25,6 +25,9 @@ nobase_include_HEADERS =  \
     mp/MpAudioResourceConstructor.h \
     mp/MpAudioUtils.h \
     mp/MpAudioWaveFileRead.h \
+    mp/MpBridgeAlgBase.h \
+    mp/MpBridgeAlgLinear.h \
+    mp/MpBridgeAlgSimple.h \
     mp/MpBuf.h \
     mp/MpBufPool.h \
     mp/MpBufferMsg.h \

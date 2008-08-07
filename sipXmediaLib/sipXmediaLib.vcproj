@@ -868,6 +868,12 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\src\mp\MpBridgeAlgLinear.cpp">
+			</File>
+			<File
+				RelativePath=".\src\mp\MpBridgeAlgSimple.cpp">
+			</File>
+			<File
 				RelativePath="src\mp\MpBuf.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -3600,6 +3606,15 @@
 			</File>
 			<File
 				RelativePath="include\mp\MpAudioWaveFileRead.h">
+			</File>
+			<File
+				RelativePath=".\include\mp\MpBridgeAlgBase.h">
+			</File>
+			<File
+				RelativePath=".\include\mp\MpBridgeAlgLinear.h">
+			</File>
+			<File
+				RelativePath=".\include\mp\MpBridgeAlgSimple.h">
 			</File>
 			<File
 				RelativePath="include\mp\MpBuf.h">
