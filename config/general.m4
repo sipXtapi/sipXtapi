@@ -1577,6 +1577,33 @@ AC_DEFUN([EXTERNAL_EXTENITIONS],
     fi
     AC_SUBST(EJBE_LDFLAGS)
 
+# AGC
+    withval=
+    AC_ARG_WITH(external-agc,
+                [AS_HELP_STRING([--with-external-agc=library],
+                                [Use external library for AGC])],
+                )
+    ac_external_agc=${withval}
+
+    withval=
+    AC_ARG_WITH(external-agc-path,
+                [AS_HELP_STRING([--with-external-agc-path=PATH],
+                                [Add path for searching external library for AGC])],
+                )
+    ac_external_agc_path=${withval}
+
+    if test x${ac_external_agc} != x; then
+       AC_DEFINE(EXTERNAL_AGC, [1], [Use external library for AGC])
+       EAGC_LDFLAGS="-l${ac_external_agc} "
+       if test x${ac_external_agc_path} != x; then
+               EAGC_LDFLAGS+=" -L${ac_external_agc_path} -Wl,--rpath -Wl,${ac_external_agc_path} "
+       fi
+
+        LDFLAGS+=" $EAGC_LDFLAGS "
+        CXXFLAGS+=" -DEXTERNAL_AGC "
+    fi
+    AC_SUBST(EAGC_LDFLAGS)
+
 
     CXXFLAGS+=" $RTL_CXXFLAGS "
     LDFLAGS+=" ${RTL_LDFLAGS} "
