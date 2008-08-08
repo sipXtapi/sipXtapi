@@ -12,6 +12,7 @@
 
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
+#include "os/OsIntTypes.h"
 #include <os/OsSysLog.h>
 #include "mp/MpResampler.h"
 #include <mp/MpAudioUtils.h>

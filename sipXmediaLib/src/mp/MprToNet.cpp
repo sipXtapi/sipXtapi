@@ -33,6 +33,7 @@
 #endif /* WIN32 ] */
 
 #ifdef __pingtel_on_posix__ /* [ */
+#include "os/OsIntTypes.h"
 #include <sys/types.h>
 #include <netinet/in.h>
 #endif /* __pingtel_on_posix__ ] */

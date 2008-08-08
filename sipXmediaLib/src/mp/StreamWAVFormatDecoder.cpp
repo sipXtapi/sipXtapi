@@ -16,6 +16,7 @@
 #include <assert.h>
 
 // APPLICATION INCLUDES
+#include "os/OsIntTypes.h"
 #include "os/OsSysLog.h"
 #include "mp/StreamWAVFormatDecoder.h"
 #include "mp/StreamDataSource.h"

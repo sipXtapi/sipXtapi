@@ -14,6 +14,7 @@
 
 // SYSTEM INCLUDES
 #include <assert.h>
+#include "os/OsIntTypes.h"
 #include <os/fstream>
 #include <stdio.h>
 

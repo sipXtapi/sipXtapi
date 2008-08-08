@@ -14,6 +14,7 @@
 
 // SYSTEM INCLUDES
 #include <assert.h>
+#include "os/OsIntTypes.h"
 #include <os/fstream>
 #include <stdio.h>
 
@@ -22,6 +23,7 @@
 #endif
 
 // APPLICATION INCLUDES
+
 #include "os/OsDefs.h"
 #include "os/OsEvent.h"
 #include "mp/MpTypes.h"

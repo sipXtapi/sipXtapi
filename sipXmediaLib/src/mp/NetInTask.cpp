@@ -37,13 +37,13 @@
 #endif /* WIN32 ] */
 
 #ifdef __pingtel_on_posix__ /* [ */
+#include "os/OsIntTypes.h"
 #include <netinet/in.h>
 #include <stdlib.h>
 #include <sys/time.h>
 #endif /* __pingtel_on_posix__ ] */
 
 // APPLICATION INCLUDES
-
 #include "os/OsDefs.h"
 #include "os/OsTask.h"
 #include "os/OsServerSocket.h"

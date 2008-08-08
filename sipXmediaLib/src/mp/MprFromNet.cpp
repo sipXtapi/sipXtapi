@@ -20,6 +20,7 @@
 #include <assert.h>
 
 #ifdef __pingtel_on_posix__
+#include "os/OsIntTypes.h"
 #include <sys/types.h>
 #include <netinet/in.h>
 #endif

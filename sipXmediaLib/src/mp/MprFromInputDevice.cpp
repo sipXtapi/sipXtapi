@@ -14,6 +14,7 @@
 #include <assert.h>
 
 // APPLICATION INCLUDES
+#include "os/OsIntTypes.h"
 #include <os/OsSysLog.h>
 #include <mp/MpInputDeviceManager.h>
 #include <mp/MprFromInputDevice.h>

@@ -16,6 +16,7 @@
 # include <windows.h>
 # include <MMSystem.h>
 #endif // WIN32 ]
+#include <os/OsIntTypes.h>
 #include <os/OsStatus.h>
 #include <os/OsSysLog.h>
 
