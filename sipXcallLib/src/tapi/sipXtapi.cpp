@@ -19,6 +19,7 @@
 #include <windows.h>
 #include <MMSystem.h>
 #else /* _WIN32 */
+#include <os/OsIntTypes.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>

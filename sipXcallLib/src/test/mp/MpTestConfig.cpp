@@ -8,7 +8,7 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
-
+#include <os/OsIntTypes.h>
 #include "test/mp/MpTestConfig.h"
 #include "mp/MpMediaTask.h"
 #include "ps/PsPhoneTask.h"
