@@ -2440,7 +2440,7 @@ SIPXTAPI_API SIPX_RESULT sipxCallUnsubscribe(const SIPX_SUB hSub)
          OsSysLog::add(FAC_SIPXTAPI, PRI_ERR,
             "sipxCallUnsubscribe endSubscription failed for subscription handle: %d dialog handle: \"%s\"",
             hSub,
-            dialogHandle);
+            dialogHandle.data());
          sipXresult = SIPX_RESULT_INVALID_ARGS;
       }
    }
