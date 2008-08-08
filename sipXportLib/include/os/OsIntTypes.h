@@ -35,6 +35,7 @@
 
 #elif __GNUC__
 // GNU C/C++ compiler
+#  include <limits.h>
 #  include <inttypes.h>
 
 #else
