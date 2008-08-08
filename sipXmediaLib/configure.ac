@@ -61,7 +61,11 @@ AC_CHECK_FUNCS([clock_gettime getcwd gethostbyname gethostname gettimeofday inet
 # Look for CPPUnit libraries
 CHECK_CPPUNIT
 
+# Check for SpanDSP library
 CHECK_SPANDSP
+
+# Select default processing graph
+CHECK_GRAPH_INTERFACE
 
 # Enable use of code that uses speex dsp library
 ENABLE_SPEEX_DSP
