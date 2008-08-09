@@ -20,6 +20,9 @@
 // CONSTANTS
 // TYPEDEFS
 // DEFINES
+#define DEBUG_AGC
+#undef DEBUG_AGC
+
 // MACROS
 // STATIC VARIABLE INITIALIZATIONS
 
@@ -81,7 +84,6 @@ UtlBoolean MpBridgeAlgSimple::doMix(MpBufPtr inBufs[], int inBufsSize,
       }
    }
 
-#define DEBUG_AGC
 #ifdef DEBUG_AGC
    static int debugCounter = 0;
    debugCounter++;
