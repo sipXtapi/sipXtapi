@@ -80,7 +80,7 @@ OsStatus MpDspUtils::addMulLinear_I(const int16_t *pSrc1, int16_t valStart, int1
    //        http://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm
    //        Or at least we need to distinguish the case when
    //        (valStart - valEnd) < dataLength.
-   int16_t step = (valStart - valEnd) / dataLength;
+   int16_t step = (valEnd - valStart) / dataLength;
    int16_t val = valStart;
 
    for (int i=0; i<dataLength; i++, val += step)
@@ -108,7 +108,7 @@ OsStatus MpDspUtils::mulLinear(const int16_t *pSrc, int16_t valStart, int16_t va
    //        http://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm
    //        Or at least we need to distinguish the case when
    //        (valStart - valEnd) < dataLength.
-   int16_t step = (valStart - valEnd) / dataLength;
+   int16_t step = (valEnd - valStart) / dataLength;
    int16_t val = valStart;
 
    for (int i=0; i<dataLength; i++, val += step)
@@ -153,7 +153,7 @@ OsStatus MpDspUtils::addMul_I(const int16_t *pSrc1, float val, float *pSrc2Dst, 
 OsStatus MpDspUtils::addMulLinear_I(const int16_t *pSrc1, float valStart, float valEnd,
                                     float *pSrc2Dst, int dataLength)
 {
-   float step = (valStart - valEnd) / dataLength;
+   float step = (valEnd - valStart) / dataLength;
    float val = valStart;
 
    for (int i=0; i<dataLength; i++, val += step)
@@ -181,7 +181,7 @@ OsStatus MpDspUtils::mulLinear(const int16_t *pSrc, float valStart, float valEnd
    //        http://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm
    //        Or at least we need to distinguish the case when
    //        (valStart - valEnd) < dataLength.
-   float step = (valStart - valEnd) / dataLength;
+   float step = (valEnd - valStart) / dataLength;
    float val = valStart;
 
    for (int i=0; i<dataLength; i++, val += step)
