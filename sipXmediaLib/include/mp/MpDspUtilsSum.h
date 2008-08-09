@@ -32,6 +32,11 @@ void MpDspUtils::add_I(int16_t &a, int16_t b)
    a = add(a, b);
 }
 
+void MpDspUtils::addMul_I(int32_t &a, int16_t b, int16_t c)
+{
+   a = add(a, b*c);
+}
+
 int32_t MpDspUtils::add(int32_t a, int32_t b)
 {
 #ifdef ARMv5E_ASM
@@ -78,6 +83,11 @@ float MpDspUtils::add(float a, float b)
 void MpDspUtils::add_I(float &a, float b)
 {
    a = add(a, b);
+}
+
+void MpDspUtils::addMul_I(float &a, float b, float c)
+{
+   a = add(a, b*c);
 }
 
 #endif // MP_FIXED_POINT ]

@@ -145,6 +145,10 @@ public:
    static inline
    void add_I(int32_t &a, int32_t b);
 
+     /// Perform (a+=b*c) saturated (32-bit accumulator, 16-bit operands).
+   static inline
+   void addMul_I(int32_t &a, int16_t b, int16_t c);
+
 #ifndef MP_FIXED_POINT // [
 
      /// Return (a+b) NOT saturated (float).
@@ -154,6 +158,10 @@ public:
      /// Perform (a+=b) NOT saturated (float).
    static inline
    void add_I(float &a, float b);
+
+     /// Perform (a+=b*c) saturated (float).
+   static inline
+   void addMul_I(float &a, float b, float c);
 
 #endif // !MP_FIXED_POINT ]
 
@@ -284,9 +292,21 @@ public:
      *  @TODO Write unittest!!!
      */
 
-     /// Multiply source vector by given \p val and add it to accumulator.
+     /// Multiply source vector by given \p val and add it to accumulator vector.
    static MP_DSP_VECTOR_API
    OsStatus addMul_I(const int16_t *pSrc1, int16_t val, int32_t *pSrc2Dst, int dataLength);
+
+     /// @brief Multiply source vector by values linearly changing from
+     /// \p valStart to \p valEnd and add it to accumulator vector.
+   static MP_DSP_VECTOR_API
+   OsStatus addMulLinear_I(const int16_t *pSrc1, int16_t valStart, int16_t valEnd,
+                           int32_t *pSrc2Dst, int dataLength);
+     /**<
+     *  @TODO Write unittest!!!
+     *  @note Current implementation works correctly only when
+     *        (dataLength << (valStart - valEnd)). See implementation for
+     *        further discussion.
+     */
 
      /// Multiply vector by constant.
    static MP_DSP_VECTOR_API
@@ -325,6 +345,15 @@ public:
      /// Multiply source vector by given \p val and add it to accumulator.
    static MP_DSP_VECTOR_API
    OsStatus addMul_I(const int16_t *pSrc1, float val, float *pSrc2Dst, int dataLength);
+
+     /// @brief Multiply source vector by values linearly changing from
+     /// \p valStart to \p valEnd and add it to accumulator vector.
+   static MP_DSP_VECTOR_API
+   OsStatus addMulLinear_I(const int16_t *pSrc1, float valStart, float valEnd,
+                           float *pSrc2Dst, int dataLength);
+     /**<
+     *  @TODO Write unittest!!!
+     */
 
      /// Multiply vector by constant.
    static MP_DSP_VECTOR_API
