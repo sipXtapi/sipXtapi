@@ -20,6 +20,9 @@
 // CONSTANTS
 // TYPEDEFS
 // DEFINES
+#define DEBUG_AGC
+#undef DEBUG_AGC
+
 // MACROS
 // STATIC VARIABLE INITIALIZATIONS
 
@@ -497,6 +500,14 @@ UtlBoolean MpBridgeAlgLinear::doMix(MpBufPtr inBufs[], int inBufsSize,
 #ifdef TEST_PRINT_MIXING // [
    printf("-----------------------------------\n");
 #endif // TEST_PRINT_MIXING ]
+#ifdef DEBUG_AGC
+   static int debugCounter = 0;
+   debugCounter++;
+   if (debugCounter % 50 == 0)
+   {
+      printf("\nInput:  ");
+   }
+#endif
 
    for (int action=mMixActionsStackTop-1; action>=0; action--)
    {
@@ -581,6 +592,13 @@ UtlBoolean MpBridgeAlgLinear::doMix(MpBufPtr inBufs[], int inBufsSize,
                MpDspUtils::convert_Gain(pInBuf->getSamplesPtr(),
                                         &mpMixDataStack[mMixDataStackStep * mpMixActionsStack[action].mDst],
                                         mMixDataStackStep, MP_BRIDGE_FRAC_LENGTH);
+#ifdef DEBUG_AGC
+               if (  debugCounter % 50 == 0
+                  && (origInput==0 || origInput==3) )
+               {
+                  printf("P ");
+               }
+#endif
 #ifdef TEST_PRINT_MIXING // [
                printf("COPY_FROM_INPUT: %2d <- %2d [0x%08X <- 0x%08X <<%d]\n",
                       mpMixActionsStack[action].mDst,
@@ -600,6 +618,13 @@ UtlBoolean MpBridgeAlgLinear::doMix(MpBufPtr inBufs[], int inBufsSize,
                                scaledGain,
                                &mpMixDataStack[mMixDataStackStep * mpMixActionsStack[action].mDst],
                                mMixDataStackStep);
+#ifdef DEBUG_AGC
+               if (  debugCounter % 50 == 0
+                  && (origInput==0 || origInput==3) )
+               {
+                  printf("F %d ", scaledGain);
+               }
+#endif
 #ifdef TEST_PRINT_MIXING // [
                printf("COPY_FROM_INPUT: %2d <- %2d [0x%08X <- 0x%08X *%d]\n",
                       mpMixActionsStack[action].mDst,
@@ -624,6 +649,13 @@ UtlBoolean MpBridgeAlgLinear::doMix(MpBufPtr inBufs[], int inBufsSize,
                                      scaledGainEnd,
                                      &mpMixDataStack[mMixDataStackStep * mpMixActionsStack[action].mDst],
                                      mMixDataStackStep);
+#ifdef DEBUG_AGC
+               if (  debugCounter % 50 == 0
+                  && (origInput==0 || origInput==3) )
+               {
+                  printf("V %d %d ", scaledGainStart, scaledGainEnd);
+               }
+#endif
 #ifdef TEST_PRINT_MIXING // [
                printf("COPY_FROM_INPUT: %2d <- %2d [0x%08X <- 0x%08X *%d/(%d->%d)]\n",
                       mpMixActionsStack[action].mDst,
@@ -641,6 +673,12 @@ UtlBoolean MpBridgeAlgLinear::doMix(MpBufPtr inBufs[], int inBufsSize,
          break;
       }
    }
+#ifdef DEBUG_AGC
+   if (debugCounter % 50 == 0)
+   {
+      printf("\n");
+   }
+#endif
 
    // Save input amplitudes for later use.
    saveAmplitudes(inBufs, inBufsSize);

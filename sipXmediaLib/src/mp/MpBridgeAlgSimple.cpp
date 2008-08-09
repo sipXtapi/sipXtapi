@@ -156,7 +156,7 @@ UtlBoolean MpBridgeAlgSimple::doMix(MpBufPtr inBufs[], int inBufsSize,
                if (  debugCounter % 50 == 0
                   && (outputNum==0 || outputNum==3) )
                {
-                  printf("|P|");
+                  printf("P");
                }
 #endif
             }
@@ -177,7 +177,7 @@ UtlBoolean MpBridgeAlgSimple::doMix(MpBufPtr inBufs[], int inBufsSize,
                if (  debugCounter % 50 == 0
                   && (outputNum==0 || outputNum==3) )
                {
-                  printf("|F:%d|", scaledGain);
+                  printf("F %d", scaledGain);
                }
 #endif
             }
@@ -203,7 +203,7 @@ UtlBoolean MpBridgeAlgSimple::doMix(MpBufPtr inBufs[], int inBufsSize,
                if (  debugCounter % 50 == 0
                   && (outputNum==0 || outputNum==3) )
                {
-                  printf("|V:%d:%d|", scaledGainStart, scaledGainEnd);
+                  printf("V %d %d", scaledGainStart, scaledGainEnd);
                }
 #endif
             }
@@ -221,7 +221,7 @@ UtlBoolean MpBridgeAlgSimple::doMix(MpBufPtr inBufs[], int inBufsSize,
       if (  debugCounter % 50 == 0
          && (outputNum==0 || outputNum==3) )
       {
-         printf("%d ", MPF_SATURATE16(amplitude));
+         printf(" * %d ", MPF_SATURATE16(amplitude));
       }
 #endif
 
