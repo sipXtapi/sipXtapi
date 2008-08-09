@@ -257,7 +257,7 @@ OsStatus MprBridge::setFlowGraph(MpFlowGraphBase* pFlowGraph)
 
    if (res == OS_SUCCESS)
    {
-      // Check are we added to flowgraph or removed.
+      // Check whether we've been added to flowgraph or removed.
       if (pFlowGraph != NULL)
       {
          switch (mAlgType)
@@ -271,6 +271,10 @@ OsStatus MprBridge::setFlowGraph(MpFlowGraphBase* pFlowGraph)
             mpBridgeAlg = new MpBridgeAlgLinear(maxInputs(), maxOutputs(),
                                                 mMixSilence,
                                                 mpFlowGraph->getSamplesPerFrame());
+            break;
+         default:
+            assert(!"Unknown bridge algorithm type!");
+            return OS_FAILED;
          }
       } 
       else
