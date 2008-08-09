@@ -36,6 +36,8 @@
 #define MP_BRIDGE_GAIN_MUTED          MP_BRIDGE_GAIN_MIN
 #define MP_BRIDGE_GAIN_PASSTHROUGH    MPF_BRIDGE_FLOAT(1.0f)
 
+#define MAX_AMPLITUDE_ROUND  (1<<(MP_AUDIO_SAMPLE_SIZE-1))
+
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // STRUCTS
@@ -55,10 +57,7 @@
 // FORWARD DECLARATIONS
 
 /**
-*  @brief Brief description.
-*
-*  Long description here.
-*  Even multiline.
+*  @brief Base class for the Bridge mixing algorithms.
 */
 class MpBridgeAlgBase
 {
@@ -77,7 +76,10 @@ public:
    , mpPrevAmplitudes(new MpAudioSample[mMaxInputs])
    {
       // Save magic value to the array to tell that it hasn't been initialized yet.
-      mpPrevAmplitudes[0]= -1;
+      for (int i=0; i<mMaxInputs; i++)
+      {
+         mpPrevAmplitudes[i]= -1;
+      }
    }
 
      /// Destructor.
@@ -164,8 +166,11 @@ void MpBridgeAlgBase::saveAmplitudes(MpBufPtr inBufs[], int inBufsSize)
    assert(inBufsSize <= mMaxInputs);
    for (int i=0; i<inBufsSize; i++)
    {
-      MpAudioBufPtr pAudioBuf = inBufs[i];
-      mpPrevAmplitudes[i] = pAudioBuf->getAmplitude();
+      if (inBufs[i].isValid())
+      {
+         MpAudioBufPtr pAudioBuf = inBufs[i];
+         mpPrevAmplitudes[i] = pAudioBuf->getAmplitude();
+      }
    }
 }
 

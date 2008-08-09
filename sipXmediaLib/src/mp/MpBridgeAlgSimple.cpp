@@ -20,8 +20,6 @@
 // CONSTANTS
 // TYPEDEFS
 // DEFINES
-#define MAX_AMPLITUDE_ROUND  (1<<(MP_AUDIO_SAMPLE_SIZE-1))
-
 // MACROS
 // STATIC VARIABLE INITIALIZATIONS
 
@@ -83,7 +81,7 @@ UtlBoolean MpBridgeAlgSimple::doMix(MpBufPtr inBufs[], int inBufsSize,
       }
    }
 
-//#define DEBUG_AGC
+#define DEBUG_AGC
 #ifdef DEBUG_AGC
    static int debugCounter = 0;
    debugCounter++;
