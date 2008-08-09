@@ -100,6 +100,24 @@ OsStatus MpDspUtils::mul(const int16_t *pSrc, const int16_t val, int32_t *pDst, 
    return OS_SUCCESS;
 }
 
+OsStatus MpDspUtils::mulLinear(const int16_t *pSrc, int16_t valStart, int16_t valEnd,
+                               int32_t *pDst, int dataLength)
+{
+   // TODO:: This works fine only when (dataLength << (valStart - valEnd)).
+   //        In other case we need smarter step value calculation, e.g.
+   //        http://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm
+   //        Or at least we need to distinguish the case when
+   //        (valStart - valEnd) < dataLength.
+   int16_t step = (valStart - valEnd) / dataLength;
+   int16_t val = valStart;
+
+   for (int i=0; i<dataLength; i++, val += step)
+   {
+      pDst[i] = pSrc[i] * val;
+   }
+   return OS_SUCCESS;
+}
+
 #else  // MP_FIXED_POINT ][
 
 OsStatus MpDspUtils::add_I(const int16_t *pSrc1, float *pSrc2Dst, int dataLength)
@@ -152,6 +170,24 @@ OsStatus MpDspUtils::mul(const int16_t *pSrc, const float val, float *pDst, int 
       pDst[i] = pSrc[i]*val;
    }
 
+   return OS_SUCCESS;
+}
+
+OsStatus MpDspUtils::mulLinear(const int16_t *pSrc, float valStart, float valEnd,
+                               float *pDst, int dataLength)
+{
+   // TODO:: This works fine only when (dataLength << (valStart - valEnd)).
+   //        In other case we need smarter step value calculation, e.g.
+   //        http://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm
+   //        Or at least we need to distinguish the case when
+   //        (valStart - valEnd) < dataLength.
+   float step = (valStart - valEnd) / dataLength;
+   float val = valStart;
+
+   for (int i=0; i<dataLength; i++, val += step)
+   {
+      pDst[i] = pSrc[i] * val;
+   }
    return OS_SUCCESS;
 }
 

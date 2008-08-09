@@ -315,6 +315,18 @@ public:
      *  @TODO Write unittest!!!
      */
 
+     /// @brief Multiply source vector by values linearly changing from
+     /// \p valStart to \p valEnd and add it to accumulator vector.
+   static MP_DSP_VECTOR_API
+   OsStatus mulLinear(const int16_t *pSrc, int16_t valStart, int16_t valEnd,
+                      int32_t *pDst, int dataLength);
+     /**<
+     *  @TODO Write unittest!!!
+     *  @note Current implementation works correctly only when
+     *        (dataLength << (valStart - valEnd)). See implementation for
+     *        further discussion.
+     */
+
 #else  // MP_FIXED_POINT ][
 
      /// Add source vector to accumulator.
@@ -360,6 +372,18 @@ public:
    OsStatus mul(const int16_t *pSrc, const float val, float *pDst, int dataLength);
      /**<
      *  @TODO Write unittest!!!
+     */
+
+     /// @brief Multiply source vector by values linearly changing from
+     /// \p valStart to \p valEnd and add it to accumulator vector.
+   static MP_DSP_VECTOR_API
+   OsStatus mulLinear(const int16_t *pSrc, float valStart, float valEnd,
+                      float *pDst, int dataLength);
+     /**<
+     *  @TODO Write unittest!!!
+     *  @note Current implementation works correctly only when
+     *        (dataLength << (valStart - valEnd)). See implementation for
+     *        further discussion.
      */
 
 #endif // MP_FIXED_POINT ]
