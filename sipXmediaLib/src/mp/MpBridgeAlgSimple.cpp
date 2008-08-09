@@ -20,6 +20,8 @@
 // CONSTANTS
 // TYPEDEFS
 // DEFINES
+#define MAX_AMPLITUDE_ROUND  (1<<MP_AUDIO_SAMPLE_SIZE)
+
 // MACROS
 // STATIC VARIABLE INITIALIZATIONS
 
@@ -71,10 +73,17 @@ UtlBoolean MpBridgeAlgSimple::doMix(MpBufPtr inBufs[], int inBufsSize,
                                     MpBufPtr outBufs[], int outBufsSize,
                                     int samplesPerFrame)
 {
+   // Initialize amplitudes if they haven't been initialized yet.
+   if (mpPrevAmplitudes[0] < 0)
+   {
+      saveAmplitudes(inBufs, inBufsSize);
+   }
+
    // Loop over all outputs and mix
    for (int outputNum=0; outputNum<outBufsSize; outputNum++)
    {
       MpBridgeGain *pInputGains = &mpGainMatrix[outputNum*maxInputs()];
+      int32_t amplitude = 0;
 
       // Initialize accumulator
       for (int i=0; i<samplesPerFrame; i++)
@@ -96,26 +105,66 @@ UtlBoolean MpBridgeAlgSimple::doMix(MpBufPtr inBufs[], int inBufsSize,
          {
             MpAudioBufPtr pFrame = inBufs[inputNum];
             assert(pFrame->getSamplesNumber() == samplesPerFrame);
-            if (pInputGains[inputNum] == MP_BRIDGE_GAIN_PASSTHROUGH)
+            MpBridgeGain prevAmplitude = mpPrevAmplitudes[inputNum];
+            MpBridgeGain curAmplitude = pFrame->getAmplitude();
+
+            if (  pInputGains[inputNum] == MP_BRIDGE_GAIN_PASSTHROUGH
+               && prevAmplitude == MpSpeechParams::MAX_AMPLITUDE
+               && curAmplitude == MpSpeechParams::MAX_AMPLITUDE)
             {
                MpDspUtils::add_IGain(pFrame->getSamplesPtr(), mpMixAccumulator,
                                      samplesPerFrame, MP_BRIDGE_FRAC_LENGTH);
+
+               // Update output amplitude value.
+               amplitude += MpSpeechParams::MAX_AMPLITUDE;
+            }
+            else if (curAmplitude == prevAmplitude)
+            {
+               // Calculate gain taking into account input amplitude.
+               MpBridgeGain scaledGain = (MpBridgeGain)
+                  (pInputGains[inputNum]*MAX_AMPLITUDE_ROUND)/curAmplitude;
+
+               MpDspUtils::addMul_I(pFrame->getSamplesPtr(),
+                                    scaledGain,
+                                    mpMixAccumulator,
+                                    samplesPerFrame);
+
+               // Update output amplitude value.
+               amplitude += (curAmplitude*scaledGain)>>MP_BRIDGE_FRAC_LENGTH;
             }
             else
             {
-               MpDspUtils::addMul_I(pFrame->getSamplesPtr(),
-                                    pInputGains[inputNum],
-                                    mpMixAccumulator,
-                                    samplesPerFrame);
+               // Calculate gain start and end taking into account previous
+               // and current input amplitudes.
+               MpBridgeGain scaledGainStart = (MpBridgeGain)
+                  (pInputGains[inputNum]*MAX_AMPLITUDE_ROUND)/prevAmplitude;
+               MpBridgeGain scaledGainEnd = (MpBridgeGain)
+                  (pInputGains[inputNum]*MAX_AMPLITUDE_ROUND)/curAmplitude;
+
+               MpDspUtils::addMulLinear_I(pFrame->getSamplesPtr(),
+                                          scaledGainStart,
+                                          scaledGainEnd,
+                                          mpMixAccumulator,
+                                          samplesPerFrame);
+
+               // Update output amplitude value.
+               MpBridgeGain scaledGainMax = MpDspUtils::maximum(scaledGainStart, scaledGainEnd);
+               amplitude += (curAmplitude*scaledGainMax) >> MP_BRIDGE_FRAC_LENGTH;
             }
          }
       }
+
+      // Set amplitude of the output frame.
+      pOutBuf->setAmplitude(MPF_SATURATE16(amplitude));
 
       // Move data from accumulator to output.
       MpDspUtils::convert_Att(mpMixAccumulator, pOutBuf->getSamplesWritePtr(),
                               samplesPerFrame, MP_BRIDGE_FRAC_LENGTH);
       outBufs[outputNum].swap(pOutBuf);
    }
+
+   // Save input amplitudes for later use.
+   saveAmplitudes(inBufs, inBufsSize);
 
    return TRUE;
 }
