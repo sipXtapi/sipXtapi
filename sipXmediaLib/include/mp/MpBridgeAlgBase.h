@@ -74,10 +74,17 @@ public:
    : mMaxInputs(maxInputs)
    , mMaxOutputs(maxOutputs)
    , mMixSilence(mixSilence)
-   {}
+   , mpPrevAmplitudes(new MpAudioSample[mMaxInputs])
+   {
+      // Save magic value to the array to tell that it hasn't been initialized yet.
+      mpPrevAmplitudes[0]= -1;
+   }
 
      /// Destructor.
-   virtual ~MpBridgeAlgBase() {};
+   virtual ~MpBridgeAlgBase()
+   {
+      delete mpPrevAmplitudes;
+   };
 
 //@}
 
@@ -98,6 +105,9 @@ public:
 
      /// Set selected gain column to the given value.
    virtual void setGainMatrixColumn(int column, int numValues, const MpBridgeGain val[]) =0;
+
+     /// Save buffers amplitudes to internal array.
+   inline void saveAmplitudes(MpBufPtr inBufs[], int inBufsSize);
 
 //@}
 
@@ -128,6 +138,8 @@ protected:
    int mMaxInputs;         ///< Number of possible bridge inputs.
    int mMaxOutputs;        ///< Number of possible bridge outputs.
    UtlBoolean mMixSilence; ///< Should Bridge ignore or mix frames marked as silence?
+   MpAudioSample *mpPrevAmplitudes; ///< Saved amplitude of the inputs from
+                           ///< the previous frame processing interval.
 
 /* /////////////////////////////// PRIVATE //////////////////////////////// */
 private:
@@ -145,6 +157,16 @@ int MpBridgeAlgBase::maxInputs() const
 int MpBridgeAlgBase::maxOutputs() const
 {
    return mMaxOutputs;
+}
+
+void MpBridgeAlgBase::saveAmplitudes(MpBufPtr inBufs[], int inBufsSize)
+{
+   assert(inBufsSize <= mMaxInputs);
+   for (int i=0; i<inBufsSize; i++)
+   {
+      MpAudioBufPtr pAudioBuf = inBufs[i];
+      mpPrevAmplitudes[i] = pAudioBuf->getAmplitude();
+   }
 }
 
 #endif  // _MpBridgeAlgBase_h_
