@@ -56,6 +56,13 @@ class MprBridge : public MpAudioResource
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
+   
+   /// Type of the bridge mix algorithm to use.
+   enum AlgType
+   {
+      ALG_SIMPLE, ///< Simple O(n^2) algorithm (MpBridgeAlgSimple)
+      ALG_LINEAR  ///< Linear O(n) algorithm (MpBridgeAlgLinear)
+   };
 
 /* ============================ CREATORS ================================== */
 ///@name Creators
@@ -64,7 +71,8 @@ public:
      /// Default constructor
    MprBridge(const UtlString& rName,
              int maxInOutputs,
-             UtlBoolean mixSilence=TRUE);
+             UtlBoolean mixSilence=TRUE,
+             AlgType algorithm=ALG_LINEAR);
 
      /// Destructor
    virtual
@@ -158,8 +166,9 @@ protected:
    MpContributorVector** mpLastOutputContributors;
 #endif // TEST_PRINT_CONTRIBUTORS ]
 
+   AlgType mAlgType;              ///< Type of the bridge algorithm to use.
    MpBridgeAlgBase *mpBridgeAlg;  ///< Instance of algorithm, used to mix data.
-   UtlBoolean mMixSilence; ///< Should Bridge ignore or mix frames marked as silence?
+   UtlBoolean mMixSilence;        ///< Should Bridge ignore or mix frames marked as silence?
 
      /// @brief Associates this resource with the indicated flow graph.
    OsStatus setFlowGraph(MpFlowGraphBase* pFlowGraph);

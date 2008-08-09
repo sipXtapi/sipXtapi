@@ -41,23 +41,23 @@ public:
 
 /* ============================ CREATORS ================================== */
 
-    /** Constructor
-     */
+      /// Constructor
     MprBridgeConstructor(int minInOutputs = 1,
-                         int maxInOutputs = DEFAULT_BRIDGE_MAX_IN_OUTPUTS)
+                         int maxInOutputs = DEFAULT_BRIDGE_MAX_IN_OUTPUTS,
+                         UtlBoolean mixSilence=TRUE,
+                         MprBridge::AlgType algorithm=MprBridge::ALG_LINEAR)
     : MpAudioResourceConstructor(DEFAULT_BRIDGE_RESOURCE_TYPE,
                                  minInOutputs, maxInOutputs, //minInputs, maxInputs,
                                  minInOutputs, maxInOutputs) //minOutputs, maxOutputs
     {
     };
 
-    /** Destructor
-     */
+      /// Destructor
     virtual ~MprBridgeConstructor(){};
 
 /* ============================ MANIPULATORS ============================== */
 
-    /// Create a new resource
+      /// Create a new resource
     virtual OsStatus newResource(const UtlString& resourceName,
                                  int maxResourcesToCreate,
                                  int& numResourcesCreated,
@@ -65,7 +65,8 @@ public:
     {
         assert(maxResourcesToCreate >= 1);
         numResourcesCreated = 1;
-        resourceArray[0] = new MprBridge(resourceName, mMaxInputs);
+        resourceArray[0] = new MprBridge(resourceName, mMaxInputs,
+                                         TRUE, MprBridge::ALG_SIMPLE);
         resourceArray[0]->enable();
         return(OS_SUCCESS);
     }
@@ -80,13 +81,11 @@ protected:
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
 
-    /** Disabled copy constructor
-     */
+      /// Disabled copy constructor
     MprBridgeConstructor(const MprBridgeConstructor& rMprBridgeConstructor);
 
 
-    /** Disable assignment operator
-     */
+      /// Disable assignment operator
     MprBridgeConstructor& operator=(const MprBridgeConstructor& rhs);
 
 };

@@ -32,7 +32,7 @@
 // DEFINES
 
 #define LINEAR_COMPLEXITY_BRIDGE
-//#undef  LINEAR_COMPLEXITY_BRIDGE
+#undef  LINEAR_COMPLEXITY_BRIDGE
 
 // STATIC VARIABLE INITIALIZATIONS
 
@@ -149,7 +149,8 @@ private:
 // Constructor
 MprBridge::MprBridge(const UtlString& rName,
                      int maxInOutputs,
-                     UtlBoolean mixSilence)
+                     UtlBoolean mixSilence,
+                     AlgType algorithm)
 :  MpAudioResource(rName, 
                    1, maxInOutputs, 
                    1, maxInOutputs)
@@ -157,6 +158,7 @@ MprBridge::MprBridge(const UtlString& rName,
 , mpMixContributors(NULL)
 , mpLastOutputContributors(NULL)
 #endif // TEST_PRINT_CONTRIBUTORS ]
+, mAlgType(algorithm)
 , mpBridgeAlg(NULL)
 , mMixSilence(mixSilence)
 {
@@ -258,15 +260,18 @@ OsStatus MprBridge::setFlowGraph(MpFlowGraphBase* pFlowGraph)
       // Check are we added to flowgraph or removed.
       if (pFlowGraph != NULL)
       {
-#ifdef LINEAR_COMPLEXITY_BRIDGE // [
-         mpBridgeAlg = new MpBridgeAlgLinear(maxInputs(), maxOutputs(),
-                                             mMixSilence,
-                                             mpFlowGraph->getSamplesPerFrame());
-#else // LINEAR_COMPLEXITY_BRIDGE ][
-         mpBridgeAlg = new MpBridgeAlgSimple(maxInputs(), maxOutputs(),
-                                             mMixSilence,
-                                             mpFlowGraph->getSamplesPerFrame());
-#endif // LINEAR_COMPLEXITY_BRIDGE ]
+         switch (mAlgType)
+         {
+         case ALG_SIMPLE:
+            mpBridgeAlg = new MpBridgeAlgSimple(maxInputs(), maxOutputs(),
+                                                mMixSilence,
+                                                mpFlowGraph->getSamplesPerFrame());
+         	break;
+         case ALG_LINEAR:
+            mpBridgeAlg = new MpBridgeAlgLinear(maxInputs(), maxOutputs(),
+                                                mMixSilence,
+                                                mpFlowGraph->getSamplesPerFrame());
+         }
       } 
       else
       {
