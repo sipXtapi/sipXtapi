@@ -484,6 +484,16 @@ UtlBoolean MpBridgeAlgLinear::doMix(MpBufPtr inBufs[], int inBufsSize,
    //
    initMixDataStack();
 
+   // Initialize amplitudes if they haven't been initialized yet.
+   for (int i=0; i<inBufsSize; i++)
+   {
+      if (mpPrevAmplitudes[i] < 0 && inBufs[i].isValid())
+      {
+         MpAudioBufPtr pAudioBuf = inBufs[i];
+         mpPrevAmplitudes[i] = pAudioBuf->getAmplitude();
+      }
+   }
+
 #ifdef TEST_PRINT_MIXING // [
    printf("-----------------------------------\n");
 #endif // TEST_PRINT_MIXING ]
@@ -560,8 +570,13 @@ UtlBoolean MpBridgeAlgLinear::doMix(MpBufPtr inBufs[], int inBufsSize,
             const int extInput = mpMixActionsStack[action].mSrc1;
             const int origInput = mExtendedInputs.getOrigin(extInput);
             const MpAudioBufPtr pInBuf(inBufs[origInput]);
+            MpAudioSample prevAmplitude = mpPrevAmplitudes[origInput];
+            MpAudioSample curAmplitude = pInBuf->getAmplitude();
+
             mpMixDataSpeechType[mpMixActionsStack[action].mDst] = pInBuf->getSpeechType();
-            if (mExtendedInputs.getGain(extInput) == MP_BRIDGE_GAIN_PASSTHROUGH)
+            if (  mExtendedInputs.getGain(extInput) == MP_BRIDGE_GAIN_PASSTHROUGH
+               && prevAmplitude == MpSpeechParams::MAX_AMPLITUDE
+               && curAmplitude == MpSpeechParams::MAX_AMPLITUDE)
             {
                MpDspUtils::convert_Gain(pInBuf->getSamplesPtr(),
                                         &mpMixDataStack[mMixDataStackStep * mpMixActionsStack[action].mDst],
@@ -575,10 +590,14 @@ UtlBoolean MpBridgeAlgLinear::doMix(MpBufPtr inBufs[], int inBufsSize,
                       MP_BRIDGE_FRAC_LENGTH);
 #endif // TEST_PRINT_MIXING ]
             }
-            else
+            else if (curAmplitude == prevAmplitude)
             {
+               // Calculate gain taking into account input amplitude.
+               MpBridgeGain scaledGain = (MpBridgeGain)
+                  ((mExtendedInputs.getGain(extInput)*MAX_AMPLITUDE_ROUND)/curAmplitude);
+
                MpDspUtils::mul(pInBuf->getSamplesPtr(),
-                               mExtendedInputs.getGain(extInput),
+                               scaledGain,
                                &mpMixDataStack[mMixDataStackStep * mpMixActionsStack[action].mDst],
                                mMixDataStackStep);
 #ifdef TEST_PRINT_MIXING // [
@@ -590,12 +609,41 @@ UtlBoolean MpBridgeAlgLinear::doMix(MpBufPtr inBufs[], int inBufsSize,
                       mExtendedInputs.getGain(extInput));
 #endif // TEST_PRINT_MIXING ]
             }
+            else
+            {
+               // Calculate gain start and end taking into account previous
+               // and current input amplitudes.
+               MpBridgeGain origGain = mExtendedInputs.getGain(extInput);
+               MpBridgeGain scaledGainStart = (MpBridgeGain)
+                  ((origGain*MAX_AMPLITUDE_ROUND)/prevAmplitude);
+               MpBridgeGain scaledGainEnd = (MpBridgeGain)
+                  ((origGain*MAX_AMPLITUDE_ROUND)/curAmplitude);
+
+               MpDspUtils::mulLinear(pInBuf->getSamplesPtr(),
+                                     scaledGainStart,
+                                     scaledGainEnd,
+                                     &mpMixDataStack[mMixDataStackStep * mpMixActionsStack[action].mDst],
+                                     mMixDataStackStep);
+#ifdef TEST_PRINT_MIXING // [
+               printf("COPY_FROM_INPUT: %2d <- %2d [0x%08X <- 0x%08X *%d/(%d->%d)]\n",
+                      mpMixActionsStack[action].mDst,
+                      mpMixActionsStack[action].mSrc1,
+                      mpMixDataStack[mMixDataStackStep * mpMixActionsStack[action].mDst],
+                      *pInBuf->getSamplesPtr(),
+                      origGain,
+                      prevAmplitude,
+                      curAmplitude);
+#endif // TEST_PRINT_MIXING ]
+            }
          }
          break;
       case MixAction::NO_OPERATION:
          break;
       }
    }
+
+   // Save input amplitudes for later use.
+   saveAmplitudes(inBufs, inBufsSize);
 
    return TRUE;
 }
