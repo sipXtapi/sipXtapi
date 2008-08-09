@@ -20,7 +20,7 @@
 // CONSTANTS
 // TYPEDEFS
 // DEFINES
-#define MAX_AMPLITUDE_ROUND  (1<<MP_AUDIO_SAMPLE_SIZE)
+#define MAX_AMPLITUDE_ROUND  (1<<(MP_AUDIO_SAMPLE_SIZE-1))
 
 // MACROS
 // STATIC VARIABLE INITIALIZATIONS
@@ -74,10 +74,38 @@ UtlBoolean MpBridgeAlgSimple::doMix(MpBufPtr inBufs[], int inBufsSize,
                                     int samplesPerFrame)
 {
    // Initialize amplitudes if they haven't been initialized yet.
-   if (mpPrevAmplitudes[0] < 0)
+   for (int i=0; i<inBufsSize; i++)
    {
-      saveAmplitudes(inBufs, inBufsSize);
+      if (mpPrevAmplitudes[i] < 0 && inBufs[i].isValid())
+      {
+         MpAudioBufPtr pAudioBuf = inBufs[i];
+         mpPrevAmplitudes[i] = pAudioBuf->getAmplitude();
+      }
    }
+
+//#define DEBUG_AGC
+#ifdef DEBUG_AGC
+   static int debugCounter = 0;
+   debugCounter++;
+   if (debugCounter % 50 == 0)
+   {
+      printf("\nInput:  ");
+      for (int inputNum=0; inputNum<inBufsSize; inputNum++)
+      {
+         if (inBufs[inputNum].isValid())
+         {
+            MpAudioBufPtr pFrame = inBufs[inputNum];
+            printf("%d ", pFrame->getAmplitude());
+         }
+         else
+         {
+            printf("- ");
+         }
+      }
+      printf("\n");
+      printf("Output: ");
+   }
+#endif
 
    // Loop over all outputs and mix
    for (int outputNum=0; outputNum<outBufsSize; outputNum++)
@@ -95,7 +123,7 @@ UtlBoolean MpBridgeAlgSimple::doMix(MpBufPtr inBufs[], int inBufsSize,
       MpAudioBufPtr pOutBuf = MpMisc.RawAudioPool->getBuffer();
       assert(pOutBuf.isValid());
       pOutBuf->setSamplesNumber(samplesPerFrame);
-      pOutBuf->setSpeechType(MP_SPEECH_UNKNOWN);
+      pOutBuf->setSpeechType(MP_SPEECH_SILENT);
 
       // Mix input data to accumulator
       for (int inputNum=0; inputNum<inBufsSize; inputNum++)
@@ -105,8 +133,15 @@ UtlBoolean MpBridgeAlgSimple::doMix(MpBufPtr inBufs[], int inBufsSize,
          {
             MpAudioBufPtr pFrame = inBufs[inputNum];
             assert(pFrame->getSamplesNumber() == samplesPerFrame);
-            MpBridgeGain prevAmplitude = mpPrevAmplitudes[inputNum];
-            MpBridgeGain curAmplitude = pFrame->getAmplitude();
+
+            // Do not mix muted audio.
+            if (pFrame->getSpeechType() == MP_SPEECH_MUTED)
+            {
+               continue;
+            }
+
+            MpAudioSample prevAmplitude = mpPrevAmplitudes[inputNum];
+            MpAudioSample curAmplitude = pFrame->getAmplitude();
 
             if (  pInputGains[inputNum] == MP_BRIDGE_GAIN_PASSTHROUGH
                && prevAmplitude == MpSpeechParams::MAX_AMPLITUDE
@@ -117,12 +152,19 @@ UtlBoolean MpBridgeAlgSimple::doMix(MpBufPtr inBufs[], int inBufsSize,
 
                // Update output amplitude value.
                amplitude += MpSpeechParams::MAX_AMPLITUDE;
+#ifdef DEBUG_AGC
+               if (  debugCounter % 50 == 0
+                  && (outputNum==0 || outputNum==3) )
+               {
+                  printf("|P|");
+               }
+#endif
             }
             else if (curAmplitude == prevAmplitude)
             {
                // Calculate gain taking into account input amplitude.
                MpBridgeGain scaledGain = (MpBridgeGain)
-                  (pInputGains[inputNum]*MAX_AMPLITUDE_ROUND)/curAmplitude;
+                  ((pInputGains[inputNum]*MAX_AMPLITUDE_ROUND)/curAmplitude);
 
                MpDspUtils::addMul_I(pFrame->getSamplesPtr(),
                                     scaledGain,
@@ -131,15 +173,22 @@ UtlBoolean MpBridgeAlgSimple::doMix(MpBufPtr inBufs[], int inBufsSize,
 
                // Update output amplitude value.
                amplitude += (curAmplitude*scaledGain)>>MP_BRIDGE_FRAC_LENGTH;
+#ifdef DEBUG_AGC
+               if (  debugCounter % 50 == 0
+                  && (outputNum==0 || outputNum==3) )
+               {
+                  printf("|F:%d|", scaledGain);
+               }
+#endif
             }
             else
             {
                // Calculate gain start and end taking into account previous
                // and current input amplitudes.
                MpBridgeGain scaledGainStart = (MpBridgeGain)
-                  (pInputGains[inputNum]*MAX_AMPLITUDE_ROUND)/prevAmplitude;
+                  ((pInputGains[inputNum]*MAX_AMPLITUDE_ROUND)/prevAmplitude);
                MpBridgeGain scaledGainEnd = (MpBridgeGain)
-                  (pInputGains[inputNum]*MAX_AMPLITUDE_ROUND)/curAmplitude;
+                  ((pInputGains[inputNum]*MAX_AMPLITUDE_ROUND)/curAmplitude);
 
                MpDspUtils::addMulLinear_I(pFrame->getSamplesPtr(),
                                           scaledGainStart,
@@ -150,18 +199,44 @@ UtlBoolean MpBridgeAlgSimple::doMix(MpBufPtr inBufs[], int inBufsSize,
                // Update output amplitude value.
                MpBridgeGain scaledGainMax = MpDspUtils::maximum(scaledGainStart, scaledGainEnd);
                amplitude += (curAmplitude*scaledGainMax) >> MP_BRIDGE_FRAC_LENGTH;
+#ifdef DEBUG_AGC
+               if (  debugCounter % 50 == 0
+                  && (outputNum==0 || outputNum==3) )
+               {
+                  printf("|V:%d:%d|", scaledGainStart, scaledGainEnd);
+               }
+#endif
             }
+
+            // Update output frame speech type.
+            pOutBuf->setSpeechType(mixSpeechTypes(pOutBuf->getSpeechType(),
+                                                  pFrame->getSpeechType()));
          }
       }
 
       // Set amplitude of the output frame.
       pOutBuf->setAmplitude(MPF_SATURATE16(amplitude));
 
+#ifdef DEBUG_AGC
+      if (  debugCounter % 50 == 0
+         && (outputNum==0 || outputNum==3) )
+      {
+         printf("%d ", MPF_SATURATE16(amplitude));
+      }
+#endif
+
       // Move data from accumulator to output.
       MpDspUtils::convert_Att(mpMixAccumulator, pOutBuf->getSamplesWritePtr(),
                               samplesPerFrame, MP_BRIDGE_FRAC_LENGTH);
       outBufs[outputNum].swap(pOutBuf);
    }
+
+#ifdef DEBUG_AGC
+   if (debugCounter % 50 == 0)
+   {
+      printf("\n");
+   }
+#endif
 
    // Save input amplitudes for later use.
    saveAmplitudes(inBufs, inBufsSize);
