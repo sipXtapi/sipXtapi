@@ -49,6 +49,8 @@ public:
     : MpAudioResourceConstructor(DEFAULT_BRIDGE_RESOURCE_TYPE,
                                  minInOutputs, maxInOutputs, //minInputs, maxInputs,
                                  minInOutputs, maxInOutputs) //minOutputs, maxOutputs
+    , mMixSilence(mixSilence)
+    , mAlgorithm(algorithm)
     {
     };
 
@@ -66,7 +68,7 @@ public:
         assert(maxResourcesToCreate >= 1);
         numResourcesCreated = 1;
         resourceArray[0] = new MprBridge(resourceName, mMaxInputs,
-                                         TRUE, MprBridge::ALG_SIMPLE);
+                                         mMixSilence, mAlgorithm);
         resourceArray[0]->enable();
         return(OS_SUCCESS);
     }
@@ -77,6 +79,9 @@ public:
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
+
+   UtlBoolean         mMixSilence;
+   MprBridge::AlgType mAlgorithm;
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
