@@ -502,8 +502,13 @@ UtlBoolean MpBridgeAlgLinear::doMix(MpBufPtr inBufs[], int inBufsSize,
 #endif // TEST_PRINT_MIXING ]
 #ifdef DEBUG_AGC
    static int debugCounter = 0;
+   bool debugFlag = false;
    debugCounter++;
    if (debugCounter % 50 == 0)
+   {
+      debugFlag = true;
+   }
+   if (debugFlag)
    {
       printf("\nInput:  ");
    }
@@ -593,8 +598,7 @@ UtlBoolean MpBridgeAlgLinear::doMix(MpBufPtr inBufs[], int inBufsSize,
                                         &mpMixDataStack[mMixDataStackStep * mpMixActionsStack[action].mDst],
                                         mMixDataStackStep, MP_BRIDGE_FRAC_LENGTH);
 #ifdef DEBUG_AGC
-               if (  debugCounter % 50 == 0
-                  && (origInput==0 || origInput==3) )
+               if ( debugFlag && (origInput==0 || origInput==3) )
                {
                   printf("P ");
                }
@@ -619,8 +623,7 @@ UtlBoolean MpBridgeAlgLinear::doMix(MpBufPtr inBufs[], int inBufsSize,
                                &mpMixDataStack[mMixDataStackStep * mpMixActionsStack[action].mDst],
                                mMixDataStackStep);
 #ifdef DEBUG_AGC
-               if (  debugCounter % 50 == 0
-                  && (origInput==0 || origInput==3) )
+               if ( debugFlag && (origInput==0 || origInput==3) )
                {
                   printf("F %d ", scaledGain);
                }
@@ -650,8 +653,7 @@ UtlBoolean MpBridgeAlgLinear::doMix(MpBufPtr inBufs[], int inBufsSize,
                                      &mpMixDataStack[mMixDataStackStep * mpMixActionsStack[action].mDst],
                                      mMixDataStackStep);
 #ifdef DEBUG_AGC
-               if (  debugCounter % 50 == 0
-                  && (origInput==0 || origInput==3) )
+               if ( debugFlag && (origInput==0 || origInput==3) )
                {
                   printf("V %d %d ", scaledGainStart, scaledGainEnd);
                }
@@ -674,7 +676,7 @@ UtlBoolean MpBridgeAlgLinear::doMix(MpBufPtr inBufs[], int inBufsSize,
       }
    }
 #ifdef DEBUG_AGC
-   if (debugCounter % 50 == 0)
+   if (debugFlag)
    {
       printf("\n");
    }

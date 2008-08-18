@@ -86,8 +86,13 @@ UtlBoolean MpBridgeAlgSimple::doMix(MpBufPtr inBufs[], int inBufsSize,
 
 #ifdef DEBUG_AGC
    static int debugCounter = 0;
+   bool debugFlag = false;
    debugCounter++;
    if (debugCounter % 50 == 0)
+   {
+      debugFlag = true;
+   }
+   if (debugFlag)
    {
       printf("\nInput:  ");
       for (int inputNum=0; inputNum<inBufsSize; inputNum++)
@@ -153,8 +158,7 @@ UtlBoolean MpBridgeAlgSimple::doMix(MpBufPtr inBufs[], int inBufsSize,
                // Update output amplitude value.
                amplitude += MpSpeechParams::MAX_AMPLITUDE;
 #ifdef DEBUG_AGC
-               if (  debugCounter % 50 == 0
-                  && (outputNum==0 || outputNum==3) )
+               if ( debugFlag && (outputNum==0 || outputNum==3) )
                {
                   printf("P");
                }
@@ -174,8 +178,7 @@ UtlBoolean MpBridgeAlgSimple::doMix(MpBufPtr inBufs[], int inBufsSize,
                // Update output amplitude value.
                amplitude += (curAmplitude*scaledGain)>>MP_BRIDGE_FRAC_LENGTH;
 #ifdef DEBUG_AGC
-               if (  debugCounter % 50 == 0
-                  && (outputNum==0 || outputNum==3) )
+               if ( debugFlag && (outputNum==0 || outputNum==3) )
                {
                   printf("F %d", scaledGain);
                }
@@ -200,8 +203,7 @@ UtlBoolean MpBridgeAlgSimple::doMix(MpBufPtr inBufs[], int inBufsSize,
                MpBridgeGain scaledGainMax = MpDspUtils::maximum(scaledGainStart, scaledGainEnd);
                amplitude += (curAmplitude*scaledGainMax) >> MP_BRIDGE_FRAC_LENGTH;
 #ifdef DEBUG_AGC
-               if (  debugCounter % 50 == 0
-                  && (outputNum==0 || outputNum==3) )
+               if ( debugFlag && (outputNum==0 || outputNum==3) )
                {
                   printf("V %d %d", scaledGainStart, scaledGainEnd);
                }
@@ -222,8 +224,7 @@ UtlBoolean MpBridgeAlgSimple::doMix(MpBufPtr inBufs[], int inBufsSize,
       }
 
 #ifdef DEBUG_AGC
-      if (  debugCounter % 50 == 0
-         && (outputNum==0 || outputNum==3) )
+      if ( debugFlag && (outputNum==0 || outputNum==3) )
       {
          printf(" * %d ", MPF_SATURATE16(amplitude));
       }
@@ -236,7 +237,7 @@ UtlBoolean MpBridgeAlgSimple::doMix(MpBufPtr inBufs[], int inBufsSize,
    }
 
 #ifdef DEBUG_AGC
-   if (debugCounter % 50 == 0)
+   if (debugFlag)
    {
       printf("\n");
    }
