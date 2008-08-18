@@ -186,12 +186,22 @@ public:
 
 /* ============================ ACCESSORS ================================= */
 
+    virtual bool getSendRecvStats(int&     rPacketsSent,
+                                  int64_t& rBytesSent,
+                                  int&     rPacketsRecv,
+                                  int64_t  rBytesRecv) ;
+
 /* ============================ INQUIRY =================================== */
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
     int  mRateLimit ;            // reads/seconds
     int  mIgnorePeriodSecs ;     // ignore period
+
+    int  mPacketsSent ;          // Send/Recv Stats
+    int64_t mBytesSent ;         // Send/Recv Stats
+    int  mPacketsRecv ;          // Send/Recv Stats
+    int64_t mBytesRecv ;         // Send/Recv Stats
 
     double mCurrentRate ;
     UtlHashMap mRateLimitedMap ; 

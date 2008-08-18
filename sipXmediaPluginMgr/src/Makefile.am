@@ -39,6 +39,8 @@ libsipXmediaPluginMgr_la_SOURCES =  \
     mediaBaseImpl/CpMediaServer.cpp \
     mediaBaseImpl/CpMediaSocketAdapter.cpp \
     mediaBaseImpl/CpMediaSocketMonitorTask.cpp \
+    mediaBaseImpl/MediaDeviceInfo.cpp \
+    mediaBaseImpl/MediaConnectivityInfo.cpp \
     ARS/SnacCodec.cpp \
     ARS/ArsConnectionSocket.cpp \
     ARS/ArsReceiveAdapter.cpp

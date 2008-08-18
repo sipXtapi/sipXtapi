@@ -76,6 +76,10 @@ OsNatDatagramSocket::OsNatDatagramSocket(int remoteHostPortNum,
     mRateLimit = 0 ;
     mCurrentRate = 0.0 ;
     mIgnorePeriodSecs = 0 ;
+    mPacketsSent = 0 ;
+    mBytesSent = 0 ;
+    mPacketsRecv = 0 ;
+    mBytesRecv = 0 ;
 }
 
 
@@ -118,6 +122,8 @@ int OsNatDatagramSocket::read(char* buffer, int bufferLength)
     // Make read time for non-NAT packets
     if (iRC > 0 && !bNatPacket)
     {
+        mPacketsRecv++ ;
+        mBytesRecv += iRC ;
         markReadTime() ;
         checkDelayedShutdown() ;
     }
@@ -161,6 +167,8 @@ int OsNatDatagramSocket::read(char* buffer, int bufferLength,
     // Make read time for non-NAT packets
     if (iRC > 0 && !bNatPacket)
     {
+        mPacketsRecv++ ;
+        mBytesRecv += iRC ;
         markReadTime() ;
         checkDelayedShutdown() ;
     }
@@ -218,6 +226,8 @@ int OsNatDatagramSocket::read(char* buffer, int bufferLength, long waitMilliseco
     // Make read time for non-NAT packets
     if (iRC > 0 && !bNatPacket)
     {
+        mPacketsRecv++ ;
+        mBytesRecv += iRC ;
         markReadTime() ;
         checkDelayedShutdown() ;
     }
@@ -230,6 +240,9 @@ int OsNatDatagramSocket::socketWrite(const char* buffer, int bufferLength,
 {
     if (packetType == MEDIA_PACKET)
     {
+        mPacketsSent++ ;
+        mBytesSent += bufferLength ;
+
         markWriteTime() ;
     }
 
@@ -239,6 +252,9 @@ int OsNatDatagramSocket::socketWrite(const char* buffer, int bufferLength,
 int OsNatDatagramSocket::write(const char* buffer, int bufferLength)
 {
     int rc ;
+
+    mPacketsSent++ ;
+    mBytesSent += bufferLength ;
 
     markWriteTime() ;
 
@@ -273,6 +289,9 @@ int OsNatDatagramSocket::write(const char* buffer,
                                const char* ipAddress, 
                                int port)
 {
+    mPacketsSent++ ;
+    mBytesSent += bufferLength ;
+
     markWriteTime() ;
     return OsDatagramSocket::write(buffer, bufferLength, ipAddress, port) ;
 }
@@ -280,6 +299,9 @@ int OsNatDatagramSocket::write(const char* buffer,
 int OsNatDatagramSocket::write(const char* buffer, int bufferLength, 
                                long waitMilliseconds)
 {
+    mPacketsSent++ ;
+    mBytesSent += bufferLength ;
+
     markWriteTime() ;
     return OsSocket::write(buffer, bufferLength, waitMilliseconds) ;
 }
@@ -415,6 +437,21 @@ bool OsNatDatagramSocket::waitForBinding(NAT_BINDING binding, bool bWaitUntilRea
    }
    
    return result;
+}
+
+bool OsNatDatagramSocket::getSendRecvStats(int&     rPacketsSent,
+                                           int64_t& rBytesSent,
+                                           int&     rPacketsRecv,
+                                           int64_t  rBytesRecv) 
+{
+
+    rPacketsSent = mPacketsSent ;
+    rBytesSent = mBytesSent ;
+    rPacketsRecv = mPacketsRecv ;
+    rBytesRecv = mBytesRecv ;
+
+
+    return true ;
 }
 
 bool OsNatDatagramSocket::shouldRateLimit(UtlString* pIP, int* pPort)

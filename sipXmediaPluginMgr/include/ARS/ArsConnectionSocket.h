@@ -119,6 +119,11 @@ protected:
     UtlString            mHttpsProxyPassword ;
 
     IArsPacketHandler*   mpPacketHandler ;
+
+    int  mPacketsSent ;          // Send/Recv Stats
+    int64_t mBytesSent ;         // Send/Recv Stats
+    int  mPacketsRecv ;          // Send/Recv Stats
+    int64_t mBytesRecv ;         // Send/Recv Stats
        
 public:
     ArsConnectionSocket(const char*  szArsServer, 
@@ -137,6 +142,7 @@ public:
     bool isArsConnected() ;
     bool isArsFailed() ;
     void setPacketHandler(IArsPacketHandler* pPacketHandler) ;
+    bool isUsingHttpsProxy() const ;
 
     // IMediaSocket impl
     virtual bool pushPacket() ;
@@ -145,6 +151,18 @@ public:
         { return this; } ;
 
     // OsConnectionSocket Impl
+    virtual int write(const char* buffer,
+                     int bufferLength,
+                     const char* ipAddress,
+                     int port) ;
+    virtual int write(const char* buffer, int bufferLength) ;
+
+    virtual int write(const char* buffer, int bufferLength, long waitMilliseconds) ;
+
+    virtual bool getSendRecvStats(int&     rPacketsSent,
+                                  int64_t& rBytesSent,
+                                  int&     rPacketsRecv,
+                                  int64_t  rBytesRecv) ;
 
 protected:
     bool doSetNoDelay() ;

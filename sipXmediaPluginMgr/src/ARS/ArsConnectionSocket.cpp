@@ -83,6 +83,11 @@ ArsConnectionSocket::ArsConnectionSocket(const char*  szArsServer,
     mbPartialLength = false ;
     mPartialLength = 0;
     mHttpsProxyPort = 0 ;
+
+    mPacketsSent = 0 ;
+    mBytesSent = 0 ;
+    mPacketsRecv = 0 ;
+    mBytesRecv = 0 ;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -259,6 +264,13 @@ void ArsConnectionSocket::setPacketHandler(IArsPacketHandler* pPacketHandler)
 
 //////////////////////////////////////////////////////////////////////////////
 
+bool ArsConnectionSocket::isUsingHttpsProxy() const
+{
+    return (mHttpsProxyAddress.length() > 0) ;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
 bool ArsConnectionSocket::pushPacket()
 {
     bool bSuccess = true ;
@@ -313,7 +325,12 @@ bool ArsConnectionSocket::pushPacket()
                         if (mpPacketHandler && mbEnabled)
                             mpPacketHandler->handleData(mLOBuffer, mLOLength, getChannel(), bMarkLastRead) ;
                         if (bMarkLastRead)
+                        {
                             markReadTime() ;
+                            mPacketsRecv++ ;
+                            mBytesRecv += mLOLength ;
+
+                        }
                         mLOBytes = 0 ;
                         mLOLength = 0 ;
                     }
@@ -375,7 +392,11 @@ bool ArsConnectionSocket::pushPacket()
                             if (mpPacketHandler && mbEnabled)
                                 mpPacketHandler->handleData(mLOBuffer, len, getChannel(), bMarkLastRead) ;
                             if (bMarkLastRead)
+                            {
                                 markReadTime() ;
+                                mPacketsRecv++ ;
+                                mBytesRecv += len ;
+                            }
                         }
                     }
                 }
@@ -425,6 +446,58 @@ void ArsConnectionSocket::setEnabled(bool bEnabled)
 
 //////////////////////////////////////////////////////////////////////////////
 
+int ArsConnectionSocket::write(const char* buffer,
+                               int bufferLength,
+                               const char* ipAddress,
+                               int port) 
+{
+    markWriteTime();
+    mPacketsSent++ ;
+    mBytesSent += bufferLength ;
+    return OsConnectionSocket::write(buffer, bufferLength, ipAddress, port) ;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+int ArsConnectionSocket::write(const char* buffer, int bufferLength) 
+{
+    markWriteTime();
+    mPacketsSent++ ;
+    mBytesSent += bufferLength ;
+    return OsConnectionSocket::write(buffer, bufferLength) ;
+}
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+int ArsConnectionSocket::write(const char* buffer, int bufferLength, long waitMilliseconds) 
+{
+    markWriteTime();
+    mPacketsSent++ ;
+    mBytesSent += bufferLength ;
+    return OsConnectionSocket::write(buffer, bufferLength, waitMilliseconds) ;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+bool ArsConnectionSocket::getSendRecvStats(int&     rPacketsSent,
+                                           int64_t& rBytesSent,
+                                           int&     rPacketsRecv,
+                                           int64_t  rBytesRecv) 
+{
+
+    rPacketsSent = mPacketsSent ;
+    rBytesSent = mBytesSent ;
+    rPacketsRecv = mPacketsRecv ;
+    rBytesRecv = mBytesRecv ;
+
+
+    return true ;
+}
+
+
+//////////////////////////////////////////////////////////////////////////////
+
 bool ArsConnectionSocket::doSetNoDelay()
 {
     int boolVal = 1 ;
@@ -464,7 +537,7 @@ bool ArsConnectionSocket::doListen()
                 this, mArsServer.data(), mArsPort, mUsername.data(), 
                 mArsMimeType == ARS_MIMETYPE_AUDIO ? "audio" : "video") ;
 
-        int len = write(encoder.getData(), encoder.getLength()) ;
+        int len = OsConnectionSocket::write(encoder.getData(), encoder.getLength()) ;
         bRC = (len  == encoder.getLength()) ;
         if (!bRC)
         {
@@ -517,7 +590,7 @@ bool ArsConnectionSocket::doConnect()
                 mFusionAddress.data(), mArsPort, mFusionSlot, mUsername.data(), 
                 mArsMimeType == ARS_MIMETYPE_AUDIO ? "audio" : "video") ;
 
-        int len = write(encoder.getData(), encoder.getLength()) ;
+        int len = OsConnectionSocket::write(encoder.getData(), encoder.getLength()) ;
         bRC = (len  == encoder.getLength()) ;
         if (!bRC)
         {
@@ -643,7 +716,7 @@ bool ArsConnectionSocket::doHttpsProxyConnect()
                 mArsServer.data(), mArsPort, mUsername.data(), 
                 mArsMimeType == ARS_MIMETYPE_AUDIO ? "audio" : "video") ;
 
-    int len = write(requestData.data(), requestLen) ;
+    int len =  OsConnectionSocket::write(requestData.data(), requestLen) ;
     bool bRC = (len  == requestLen) ;
     if (!bRC)
     {

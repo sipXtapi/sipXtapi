@@ -13,6 +13,8 @@ nobase_include_HEADERS =  \
     mediaBaseImpl/CpMediaDeviceMgr.h \
     mediaBaseImpl/CpMediaServer.h \
     mediaBaseImpl/CpMediaInStream.h \
+    mediaBaseImpl/MediaDeviceInfo.h \
+    mediaBaseImpl/MediaConnectivityInfo.h \
     mediaPlugin/MediaPluginFactory.h \
     mediaInterface/IMediaDeviceMgr.h \
     mediaInterface/IMediaPacketPusher.h \

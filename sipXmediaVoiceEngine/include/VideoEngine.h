@@ -13,7 +13,8 @@
 //
 // You should have received a copy of the GNU Lesser General Public
 // License along with this library; if not, write to the Free Software
-// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA. 
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
+// USA. 
 //
 // $$
 //////////////////////////////////////////////////////////////////////////////
@@ -47,40 +48,11 @@
 class VideoEngine;
 class VoiceEngineFactoryImpl ;
 
-//////////////////////////////////////////////////////////////////////////////
-
-#if 0
-class SetCaptureDeviceTask : public OsTask
-{
-public:
-    SetCaptureDeviceTask(VideoEngine*            pVideoEngine, 
-                         OsMutex*                pLock, 
-                         VoiceEngineFactoryImpl* pFactoryImpl, 
-                         const char*             szDevice) ;
-
-    virtual ~SetCaptureDeviceTask() ;
-
-    virtual int run(void* pArg) ;
-
-    bool isRunning() const ;
-
-protected:
-    VideoEngine* mpVideoEngine;
-    OsMutex* mpLock;
-    UtlString mCameraRequested ;
-    VoiceEngineFactoryImpl* mpFactoryImpl;   
-    bool mbIsRunning ;
-} ;
-#endif
 
 //////////////////////////////////////////////////////////////////////////////
 
 class VideoEngine
 {
-#if 0
-    friend SetCaptureDeviceTask ;
-#endif
-
     /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
     /* ============================ CREATORS ================================== */
@@ -114,13 +86,16 @@ public:
     
     GipsVideoEnginePlatform* getVideoEngine() const ;
     bool getCaptureError() const ;
-    void setCaptureError(bool bError) ;
+    void setCaptureError(bool bError, const char* szCause) ;
     bool setCaptureDevice(VoiceEngineFactoryImpl* pImpl, const char* szDevice)  ;
     void setPreviewDisplay(SIPXVE_VIDEO_DISPLAY previewDisplay)  ;
     void setRemoteDisplay(int voiceChannel, SIPXVE_VIDEO_DISPLAY remoteDisplay) ;
     bool getCameraCapabilities(GIPSCameraCapability* pCaps) const;
     bool getMaxFramerate(int& frameRate)  const;
     bool getMaxResolution(int& width, int& height) const ;
+    int  getRTCPStats(int channel, GIPSVideo_CallStatistics* stats) ;
+    MediaDeviceInfo& getVideoCaptureDeviceInfo();
+
 
     static void logCameraCapabilities(const char* szDevice, GIPSCameraCapability* pCaps) ;
     static void logCodec(const char* context, GIPSVideo_CodecInst* codec) ;
@@ -182,8 +157,6 @@ private:
     bool                     mbSendPaused[MAX_VE_CONNECTIONS] ;
     UtlString                mUserAgent[MAX_VE_CONNECTIONS] ;
 
-    UtlString                mCameraRequested;
-    UtlString                mCameraSelected;
     bool                     mbCameraError;
 
     bool                     mbHaveCameraCapabilities ;
@@ -192,6 +165,8 @@ private:
     static bool              sbConsoleTrace ;
     bool                     mbForceCodecReset ;   
     mutable OsMutex          mLock;
+
+    MediaDeviceInfo          mMediaDeviceInfo;
 } ;
 
 //////////////////////////////////////////////////////////////////////////////

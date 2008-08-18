@@ -22,7 +22,6 @@
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
-
 #ifndef _VoiceEngineFactoryImpl_h_
 #define _VoiceEngineFactoryImpl_h_
 
@@ -205,6 +204,10 @@ class VoiceEngineFactoryImpl : public CpMediaDeviceMgr, public GIPS_media_proces
 
     virtual VoiceEngineSocketFactory* getSocketFactory() { return mpFactory; } ;
 
+    MediaDeviceInfo& getAudioInputDeviceInfo() ;
+
+    MediaDeviceInfo& getAudioOutputDeviceInfo() ;
+
 /* ============================ INQUIRY =================================== */
 
     virtual OsStatus getAudioAECMode(MEDIA_AEC_MODE& mode) const ;
@@ -304,6 +307,8 @@ class VoiceEngineFactoryImpl : public CpMediaDeviceMgr, public GIPS_media_proces
     CpMediaNetTask* mpMediaNetTask;
 
     VoiceEngineSocketFactory* mpFactory ;
+    mutable MediaDeviceInfo mAudioDeviceInput ;
+    mutable MediaDeviceInfo mAudioDeviceOutput ;
 };
 
 /* ============================ INLINE METHODS ============================ */

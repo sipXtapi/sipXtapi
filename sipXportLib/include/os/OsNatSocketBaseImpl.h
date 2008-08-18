@@ -258,7 +258,21 @@ public:
    virtual UtlBoolean getBestDestinationAddress(UtlString& address, 
                                                 int&       iPort, 
                                                 bool&      bViaOurRelay, 
-                                                int&       priority) ;
+                                                int&       priority,
+                                                int&       totalTimeMS) ;
+
+    /**
+     * Set the UPNP Mapped port number for this socket
+     */
+    virtual void setUpnpMappedPort(int port); 
+
+    /**
+     * Get the UPNP Mapped port number for this socket, a value of PORT_NONE indicates
+     * that either UPNP failed or was not enabled.
+     */
+    virtual int getUpnpMappedPort() const ; 
+
+
 
 /* ============================ INQUIRY =================================== */
 
@@ -376,6 +390,19 @@ protected:
    
     OsNotification* mpStunNotification ; /** Notify on initial stun success or failure */
     bool            mbStunNotified ;     /** Have we notified the requestor? */
+
+    int miUpnpMappedPort ;
+
+    unsigned long mIceStartMS ;
+    unsigned long mIceEndMS ;
+    enum
+    {
+        IS_NOT_STARTED = -1,
+        IS_STARTED = 0,
+        IS_COMPLETED = 1
+    } mIceState ;
+    
+
 
 };
 

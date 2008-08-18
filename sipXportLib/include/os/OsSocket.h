@@ -222,7 +222,6 @@ public:
      */
     virtual void setReadNotification(OsNotification* pNotification) ;
 
-
    void markReadTime() ;
    void markWriteTime() ;
 

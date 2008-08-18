@@ -73,38 +73,26 @@ public:
 
 /* =========================== CREATORS =========================== */
 
+    CpMediaInterface();
+
      /// @brief Default constructor
-   CpMediaInterface();
    CpMediaInterface(IMediaDeviceMgr* pFactoryImpl,
-                                                     const char* publicAddress,
-                                                     const char* localAddress,
-                                                     int numCodecs,
-                                                     SdpCodec* sdpCodecArray[],
-                                                     const char* locale,
-                                                     int expeditedIpTos,
-                                                     const ProxyDescriptor& stunServer,
-                                                     const ProxyDescriptor& turnProxy,
-                                                     const ProxyDescriptor& arsProxy,
-                                                     const ProxyDescriptor& arsHttpProxy,
-                                                     UtlBoolean bDTMFOutOfBand,
-  	                                                 UtlBoolean bDTMFInBand,
-  	                                                 UtlBoolean bEnableRTCP,
-                                                     const char* szRtcpName,
-                                                     SIPX_MEDIA_PACKET_CALLBACK pMediaPacketCallback)
-                                                     :
-      mpSocketIdleSink(NULL),
+                    const char* publicAddress,
+                    const char* localAddress,
+                    int numCodecs,
+                    SdpCodec* sdpCodecArray[],
+                    const char* locale,
+                    int expeditedIpTos,
+                    const ProxyDescriptor& stunServer,
+                    const ProxyDescriptor& turnProxy,
+                    const ProxyDescriptor& arsProxy,
+                    const ProxyDescriptor& arsHttpProxy,
+                    UtlBoolean bDTMFOutOfBand,
+  	                UtlBoolean bDTMFInBand,
+  	                UtlBoolean bEnableRTCP,
+                    const char* szRtcpName,
+                    SIPX_MEDIA_PACKET_CALLBACK pMediaPacketCallback) ;
 
-      mbConferenceEnabled(false),
-      mbIsEncrypted(false),
-      mInitialCodecs(numCodecs, sdpCodecArray),
-
-      mSupportedCodecs(numCodecs, sdpCodecArray),
-      mPrimaryVideoCodec(NULL),
-      mpSecurityAttributes(NULL),
-      mpMediaPacketCallback(pMediaPacketCallback),
-      mpFactoryImpl(pFactoryImpl)
-   {
-   }
 /* ========================= DESTRUCTORS ========================== */
 
 protected:
@@ -217,8 +205,12 @@ public:
      *  @retval OS_FAILED if some other failure in queuing the message occurred.
      */
 
+    /// @brief Set the remote sip user agent for a connection
     virtual OsStatus setUserAgent(int         connectionId,
-                                 const char* szUserAgent) = 0 ;
+                                 const char* szUserAgent) ;
+
+    /// @brief Get the remote sip user agent for a connection (if set)
+    virtual const char* getUserAgent(int connectionId) ;
    
     virtual OsStatus setMediaData(const int data);
 
@@ -769,6 +761,13 @@ public:
        return OS_NOT_YET_IMPLEMENTED;
    }
 
+   virtual OsStatus getVideoRtcpStats(const int connectionId,
+      SIPX_RTCP_STATS* const pStats)
+   {
+       return OS_NOT_YET_IMPLEMENTED;
+   }
+
+
    virtual void* const getAudioEnginePtr() { return NULL; }
    virtual void* const getVideoEnginePtr() { return NULL; }
 
@@ -862,7 +861,6 @@ protected:
     SdpCodecList mInitialCodecs;
     UtlSList mMediaConnections ;
     IMediaDeviceMgr* mpFactoryImpl;
-    ProxyDescriptor mStunServer;
     int mStunOptions ;
     CpMediaNetTask* pNetTask ;
     ISocketEvent* mpSocketIdleSink;
@@ -872,9 +870,11 @@ protected:
     SdpCodec* mPrimaryVideoCodec;
     UtlBoolean mbLocalMute ;
     bool mbConsoleTrace ;
+    MediaConnectivityInfo mAudioMediaConnectivityInfo ;
+    MediaConnectivityInfo mVideoMediaConnectivityInfo ;
 
     ProxyDescriptor mTurnProxy ;
-    ProxyDescriptor mStunProxy ;
+    ProxyDescriptor mStunServer ;
     ProxyDescriptor mArsProxy ;
     ProxyDescriptor mArsHttpProxy ;       
 
@@ -937,22 +937,30 @@ protected:
     virtual OsStatus addLocalContacts(
             int connectionId,
             UtlSList& audioContacts,
-            UtlSList& videoContacts);
+            bool bAddAudioToConnInfo,
+            UtlSList& videoContacts,
+            bool bAddVideoToConnInfo) ;
 
     virtual OsStatus addNatedContacts(
             int connectionId,
             UtlSList& audioContacts,
-            UtlSList& videoContacts);
+            bool bAddAudioToConnInfo,
+            UtlSList& videoContacts,
+            bool bAddVideoToConnInfo) ;
 
     virtual OsStatus addRelayContacts(
             int connectionId,
             UtlSList& audioContacts,
-            UtlSList& videoContacts);
+            bool bAddAudioToConnInfo,
+            UtlSList& videoContacts,
+            bool bAddVideoToConnInfo) ;
 
     virtual OsStatus addArsContacts(
             int connectionId,
             UtlSList& audioContacts,
-            UtlSList& videoContacts);
+            bool bAddAudioToConnInfo,
+            UtlSList& videoContacts,
+            bool bAddVideoToConnInfo) ;
 
     virtual IMediaEventListener* getMediaListener(int connectionId);
     virtual void lookupResolution(int sdpVideoFormatId, unsigned short& width, unsigned short& height) const ;
@@ -975,6 +983,8 @@ protected:
     bool hasAudioOutputDevice();
     bool hasAudioInputDevice();
 
+    virtual bool getMediaConnectivityInfo(MediaConnectivityInfo::MediaConnectivityInfoType type,
+                                          MediaConnectivityInfo& rMediaConnectivityInfo) ;
 
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */

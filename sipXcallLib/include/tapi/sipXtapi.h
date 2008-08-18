@@ -2091,7 +2091,7 @@ SIPXTAPI_API SIPX_RESULT sipxCallGetAudioRtpSourceIds(const SIPX_CALL hCall,
                                                       unsigned int& iReceiveSSRC)  ;
 
 /**
- * Obtain RTCP stats for the specified call.
+ * Obtain RTCP audio stats for the specified call.
  *
  * This API is only supported when sipXtapi is bundled with VoiceEngine from 
  * GIPS.
@@ -2106,6 +2106,24 @@ SIPXTAPI_API SIPX_RESULT sipxCallGetAudioRtpSourceIds(const SIPX_CALL hCall,
  */
 SIPXTAPI_API SIPX_RESULT sipxCallGetAudioRtcpStats(const SIPX_CALL hCall,
                                                    SIPX_RTCP_STATS* pStats) ;
+
+/**
+ * Obtain RTCP video stats for the specified call.
+ *
+ * This API is only supported when sipXtapi is bundled with VoiceEngine from 
+ * GIPS.
+ *
+ * @param hCall Handle to a call.  Call handles are obtained either by 
+ *        invoking sipxCallCreate or passed to your application through
+ *        a listener interface.
+ *
+ * @param pStats Structure to place call stats, the structure's cbSize 
+ *        member must be filled out prior to calling this API.  For example:
+ *        myStats.cbSize = sizeof(SIPX_RTCP_STATS);
+ */
+SIPXTAPI_API SIPX_RESULT sipxCallGetVideoRtcpStats(const SIPX_CALL hCall,
+                                                   SIPX_RTCP_STATS* pStats) ;
+
 
 /**
  * Limits the codec preferences on a per-call basis.  This API will force a 

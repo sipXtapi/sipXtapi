@@ -438,11 +438,18 @@ enum SIPX_CONFIG_EVENT
                                        For a SIPX_CONFIG_EVENT type of CONFIG_STUN_SUCCESS, 
                                        the pData pointer of the info structure will point to a
                                        SIPX_CONTACT_ADDRESS structure. */
-    CONFIG_STUN_FAILURE  = 41000, /**< Unable to obtain a STUN binding for signaling purposes. */
+    CONFIG_STUN_FAILURE = 41000,  /**< Unable to obtain a STUN binding for signaling purposes. */
 
     CONFIG_NAT_CLASSIFICATION = 42000, /**< Results of NAT classification.  The pData pointer
                                             includes the NAT classification as defined by the 
                                             SIPX_NC_TYPE enum */
+    CONFIG_UPNP_SUCCESS = 43000,  /**< Event fired on initial UPNP success */
+
+    CONFIG_UPNP_FAILURE = 43001,  /**< Event fired on initial UPNP failure (not tried again) */
+
+    CONFIG_CALL_STATS   = 44000   /**< Event fired at the end of a call with various stats.
+                                       Cast the pData memeber of SIPX_CONFIG_INFO to a 
+                                       SIPX_CONFIG_CALLSTATS_INFO structure for more information */
 } ;
 
 
@@ -868,7 +875,7 @@ typedef struct
     SIPX_CONFIG_EVENT event ;   /**< Event code -- see SIPX_CONFIG_EVENT for 
                                      details. */
     void*             pData;    /**< Pointer to event data -- SEE SIPX_CONFIG_EVENT
-                                     for details. */
+                                     for details and what to cast this as. */
 } SIPX_CONFIG_INFO ;
 					      
 
@@ -899,6 +906,96 @@ typedef struct
                                                  to signify that the event is not associated with a call. */
     char*               remoteAddress;      /**< A remote address associated with the event.  Can be NULL. */
 } SIPX_SECURITY_INFO ;
+
+
+
+/**
+ * The SIPX_MEDIA_DEVICE_INFO structure defines a media device for basic
+ * reporting and diagnostics purposes.
+ */
+typedef struct 
+{
+    size_t      nSize;              /**< The size of this structure in bytes */
+    const char* szRequested ;       /**< Requested device; null may indicate default */
+    const char* szSelected ;        /**< What device was selected and used for a 
+                                         call.  If the device is changed mid-session,
+                                         the final device is shown */
+    const char* szParameters ;      /**< Any parameters associated with the device */
+    const char* szErrorInfo ;       /**< Any error information regarding the device */
+} SIPX_MEDIA_DEVICE_INFO ;
+
+
+/**
+ * SIPX_MEDIA_CONNECTIVITY_RELAY_TYPE is a enumeration of possible local
+ * media relays and is used as part of SIPX_MEDIA_CONNECTIVITY_INFO.
+ *
+ * @see SIPX_MEDIA_CONNECTIVITY_INFO
+ */
+typedef enum 
+{
+    SIPX_MCRT_NONE,       /**< No relay was used */
+    SIPX_MCRT_TURN_UDP,   /**< TURN UDP Relay */
+    SIPX_MCRT_TURN_TCP,   /**< TURN TCP Relay */
+    SIPX_MCRT_TURN_TLS,   /**< TURN TLS Relay */
+    SIPX_MCRT_ARS,        /**< AOL Relay Service (Direct) */
+    SIPX_MCRT_ARS_HTTP,   /**< AOL Relay Service (http proxy) */
+    SIPX_MCRT_ARS_HTTPS,  /**< AOL Relay Service (https) */
+    SIPX_MCRT_CUSTOM,     /**< Custom relay */
+} SIPX_MEDIA_CONNECTIVITY_RELAY_TYPE ;
+
+
+/**
+ * The SIPX_MEDIA_CONNECTIVITY_INFO structure includes information useful
+ * in diagnosing connectivity issues.
+ */
+typedef struct 
+{
+#define MAX_LOCAL_CONTACTS    8
+    size_t                             nSize; 
+    const char*                        szStunServer ;
+    const char*                        szTurnServer ;
+    const char*                        szArsServer ;
+    const char*                        szArsProxy ;
+    bool                               bUPNP ;
+    size_t                             nLocalContacts;
+    const char*                        szLocalContacts[MAX_LOCAL_CONTACTS] ;
+    SIPX_MEDIA_CONNECTIVITY_RELAY_TYPE eOurRelayType ;
+    const char*                        szRemoteIP ;
+    int                                iRemotePort ;
+    bool                               bICE ;
+    int                                iIceSelectionInMS ;
+} SIPX_MEDIA_CONNECTIVITY_INFO ;
+
+
+/**
+ * The SIPX_CONFIG_CALLSTATS_INFO includes stats and diagnostic information 
+ * for a completed call.  This structure is included in the pData member of
+ * the SIPX_CONFIG_INFO structure when receive a CONFIG_CALL_STATS event.
+ *
+ * Data includes signaling, codec, device, connectivity information along
+ * with connectivity diagnostics.
+ */
+typedef struct 
+{
+    size_t                       nSize ;
+    SIPX_TRANSPORT_TYPE          signalingTransport ;
+    const char*                  szCallId ;
+    const char*                  szLocalId ;
+    const char*                  szRemoteId ;
+    const char*                  szRemoteUserAgent ;
+
+    SIPX_RTCP_STATS              audioRtcpStats ;
+    SIPX_AUDIO_CODEC             audioCodec ;
+    SIPX_MEDIA_DEVICE_INFO       audioInputDevice ;
+    SIPX_MEDIA_DEVICE_INFO       audioOutputDevice ;
+    SIPX_MEDIA_CONNECTIVITY_INFO audioConnectivityInfo ;
+
+    SIPX_RTCP_STATS              videoRtcpStats ;
+    SIPX_VIDEO_CODEC             videoCodec ;
+    SIPX_MEDIA_DEVICE_INFO       videoCaptureDevice ;
+    SIPX_MEDIA_CONNECTIVITY_INFO videoConnectivityInfo ;
+   
+} SIPX_CONFIG_CALLSTATS_INFO ;
 
 
 /* ============================ FUNCTIONS ================================= */

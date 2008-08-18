@@ -177,7 +177,6 @@ public:
     
     UtlString mUserAgent ;
     UtlHashMap mConnectionProperties;
-
     
 /* //////////////////////////// PROTECTED ////////////////////////////////// */
 

@@ -138,6 +138,12 @@
 				<File
 					RelativePath=".\src\mediaBaseImpl\CpMediaSocketMonitorTask.cpp">
 				</File>
+				<File
+					RelativePath=".\src\mediaBaseImpl\MediaConnectivityInfo.cpp">
+				</File>
+				<File
+					RelativePath=".\src\mediaBaseImpl\MediaDeviceInfo.cpp">
+				</File>
 			</Filter>
 			<Filter
 				Name="ARS"
@@ -194,6 +200,43 @@
 				</File>
 				<File
 					RelativePath=".\include\ARS\SnacCodec.h">
+				</File>
+			</Filter>
+			<Filter
+				Name="mediaBaseImpl"
+				Filter="">
+				<File
+					RelativePath=".\include\mediaBaseImpl\CpMediaConnection.h">
+				</File>
+				<File
+					RelativePath=".\include\mediaBaseImpl\CpMediaConnectionSocket.h">
+				</File>
+				<File
+					RelativePath=".\include\mediaBaseImpl\CpMediaDeviceMgr.h">
+				</File>
+				<File
+					RelativePath=".\include\mediaBaseImpl\CpMediaInStream.h">
+				</File>
+				<File
+					RelativePath=".\include\mediaBaseImpl\CpMediaInterface.h">
+				</File>
+				<File
+					RelativePath=".\include\mediaBaseImpl\CpMediaNetTask.h">
+				</File>
+				<File
+					RelativePath=".\include\mediaBaseImpl\CpMediaServer.h">
+				</File>
+				<File
+					RelativePath=".\include\mediaBaseImpl\CpMediaSocketAdapter.h">
+				</File>
+				<File
+					RelativePath=".\include\mediaBaseImpl\CpMediaSocketMonitorTask.h">
+				</File>
+				<File
+					RelativePath=".\include\mediaBaseImpl\MediaConnectivityInfo.h">
+				</File>
+				<File
+					RelativePath=".\include\mediaBaseImpl\MediaDeviceInfo.h">
 				</File>
 			</Filter>
 		</Filter>

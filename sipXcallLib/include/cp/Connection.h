@@ -333,6 +333,7 @@ public:
                             SIPX_MEDIA_CAUSE cause, 
                             SIPX_MEDIA_TYPE  type, 
                             void*            pEventData=NULL) ;
+    void fireSipXEvent(const SIPX_EVENT_CATEGORY event, void *pInfo) ;
 
 /* ============================ ACCESSORS ================================= */
 

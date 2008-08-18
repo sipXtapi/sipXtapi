@@ -107,43 +107,6 @@ extern "C" __declspec(dllexport) int getReferenceCount()
 
 
 // STATIC FUNCTIONS
-/*
-extern "C" CpMediaInterfaceFactory* sipXmediaFactoryFactory(OsConfigDb* pConfigDb)
-{
-    OS_PERF_FUNC("sipXmediaFactoryFactory") ;
-
-    OsLock lock(sGuard) ;
-
-    if (spFactory == NULL)
-    {
-        spFactory = new CpMediaInterfaceFactory();
-        spFactory->setFactoryImplementation(new VoiceEngineFactoryImpl(pConfigDb));
-    }    
-    siInstanceCount++ ;
-    
-    // Assert some sane value
-    assert(siInstanceCount < 10) ;
-    return spFactory;
-}
-
-extern "C" void sipxDestroyMediaFactoryFactory()
-{
-    OS_PERF_FUNC("sipxDestroyMediaFactoryFactory") ;
-
-    OsLock lock(sGuard) ;
-
-    if (spFactory)
-    {
-        siInstanceCount-- ;
-        assert(siInstanceCount >= 0) ;
-        if (siInstanceCount == 0)
-        {        
-            delete spFactory ;
-            spFactory = NULL ;
-        }
-    }
-}
-*/
 static void VoiceEngineLogCallback(void* pObj, char *pData, int nLength)
 {
     if (pData != NULL)
@@ -205,9 +168,9 @@ VoiceEngineFactoryImpl::VoiceEngineFactoryImpl() :
     mpMediaNetTask(NULL),
     mpVideoEngine(NULL),
     mpVoiceEngine(NULL),
-    mLocalConnectionId(-1)
-
-
+    mLocalConnectionId(-1),
+    mAudioDeviceInput(MediaDeviceInfo::MDIT_AUDIO_INPUT),
+    mAudioDeviceOutput(MediaDeviceInfo::MDIT_AUDIO_OUTPUT) 
 {    
     OS_PERF_FUNC("VoiceEngineFactoryImpl::VoiceEngineFactoryImpl") ;
 
@@ -404,8 +367,7 @@ VoiceEngineFactoryImpl::~VoiceEngineFactoryImpl()
         delete mpStaticVideoEngine;
 # endif
 #else
-        DeleteGipsVideoEngineStub(mpStaticVideoEngine) ;
-        
+        DeleteGipsVideoEngineStub(mpStaticVideoEngine) ;        
 #endif
         mpStaticVideoEngine = NULL ;
     }
@@ -623,6 +585,14 @@ GipsVoiceEngineLib* VoiceEngineFactoryImpl::getNewVoiceEngineInstance() const
 
         rc = pVoiceEngine->GIPSVE_SetSoundDevices(mCurrentWaveInDevice, mCurrentWaveOutDevice);
         assert(rc == 0) ;
+
+        // Save the device info last used
+        UtlString results ;
+        inputDeviceIndexToString(results, mCurrentWaveInDevice) ;
+        mAudioDeviceInput.setSelected(results) ;
+        outputDeviceIndexToString(results, mCurrentWaveOutDevice) ;
+        mAudioDeviceOutput.setSelected(results) ;
+        
 
         if (!isSpeakerAdjustSet())
         {
@@ -869,12 +839,16 @@ OsStatus VoiceEngineFactoryImpl::setSpeakerDevice(const UtlString& device)
     UtlSListIterator iterator(mInterfaceList);
     VoiceEngineMediaInterface* pInterface = NULL;
     UtlInt* pInterfaceInt = NULL;
+
+    mAudioDeviceOutput.reset() ;
     
     if (outputDeviceStringToIndex(mCurrentWaveOutDevice, device) == OS_SUCCESS)
     {
+        mAudioDeviceOutput.setRequested(device) ;
+
         if (mpVoiceEngine)        
         {
-            if (0 == mpVoiceEngine->GIPSVE_SetSoundDevices(mCurrentWaveInDevice, mCurrentWaveOutDevice))
+            if (mpVoiceEngine->GIPSVE_SetSoundDevices(mCurrentWaveInDevice, mCurrentWaveOutDevice) == 0)
             {
                 rc = OS_SUCCESS;
             }
@@ -886,14 +860,13 @@ OsStatus VoiceEngineFactoryImpl::setSpeakerDevice(const UtlString& device)
             
             if (pInterface && pInterface->getAudioEnginePtr())
             {
-                pGips = (GipsVoiceEngineLib*)pInterface->getAudioEnginePtr();
-            }
-            
-            if (pGips && outputDeviceStringToIndex(mCurrentWaveOutDevice, device) == OS_SUCCESS)
-            {
-                if (0 == pGips->GIPSVE_SetSoundDevices(mCurrentWaveInDevice, mCurrentWaveOutDevice))
+                pGips = (GipsVoiceEngineLib*)pInterface->getAudioEnginePtr();            
+                if (pGips)
                 {
-                    rc = OS_SUCCESS;
+                    if (0 == pGips->GIPSVE_SetSoundDevices(mCurrentWaveInDevice, mCurrentWaveOutDevice))
+                    {
+                        rc = OS_SUCCESS;
+                    }
                 }
             }
         } 
@@ -941,11 +914,15 @@ OsStatus VoiceEngineFactoryImpl::setMicrophoneDevice(const UtlString& device)
     UtlSListIterator iterator(mInterfaceList);
     VoiceEngineMediaInterface* pInterface = NULL;
     UtlInt* pInterfaceInt = NULL;
-    
+
+    mAudioDeviceInput.reset() ;
+   
     assert(device.length() > 0);
     
     if (OS_SUCCESS == inputDeviceStringToIndex(mCurrentWaveInDevice, device))
     {
+        mAudioDeviceInput.setRequested(device) ;
+
         if (mpVoiceEngine)
         {                     
             if (0 == mpVoiceEngine->GIPSVE_SetSoundDevices(mCurrentWaveInDevice, mCurrentWaveOutDevice) )
@@ -959,14 +936,13 @@ OsStatus VoiceEngineFactoryImpl::setMicrophoneDevice(const UtlString& device)
             
             if (pInterface && pInterface->getAudioEnginePtr())
             {
-                pGips = (GipsVoiceEngineLib*)pInterface->getAudioEnginePtr();
-            }
-            
-            if (pGips && outputDeviceStringToIndex(mCurrentWaveOutDevice, device) == OS_SUCCESS)
-            {
-                if (0 == pGips->GIPSVE_SetSoundDevices(mCurrentWaveInDevice, mCurrentWaveOutDevice))
+                pGips = (GipsVoiceEngineLib*)pInterface->getAudioEnginePtr();            
+                if (pGips)
                 {
-                    rc = OS_SUCCESS;
+                    if (0 == pGips->GIPSVE_SetSoundDevices(mCurrentWaveInDevice, mCurrentWaveOutDevice))
+                    {
+                        rc = OS_SUCCESS;
+                    }
                 }
             }
         } 
@@ -1734,6 +1710,17 @@ void* const VoiceEngineFactoryImpl::getVideoEnginePtr() const
     return mpVideoEngine;
 }
 
+
+MediaDeviceInfo& VoiceEngineFactoryImpl::getAudioInputDeviceInfo() 
+{
+    return mAudioDeviceInput ;
+}
+
+
+MediaDeviceInfo& VoiceEngineFactoryImpl::getAudioOutputDeviceInfo()
+{
+    return mAudioDeviceOutput ;
+}
 
 
 OsStatus VoiceEngineFactoryImpl::getVideoCaptureDevice(UtlString& videoDevice)

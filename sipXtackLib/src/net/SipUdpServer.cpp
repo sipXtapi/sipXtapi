@@ -13,7 +13,8 @@
 //
 // You should have received a copy of the GNU Lesser General Public
 // License along with this library; if not, write to the Free Software
-// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA. 
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
+// USA. 
 //  
 // Copyright (C) 2007 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
@@ -48,6 +49,7 @@
 #include <utl/UtlHashMapIterator.h>
 #include <utl/UtlSListIterator.h>
 #include <upnp/UPnpAgent.h>
+#include <net/TapiMgr.h>
 
 #if defined(_VXWORKS)
 #   include <socket.h>
@@ -278,19 +280,9 @@ OsStatus SipUdpServer::createServerSocket(const char* szBoundIp,
                                           int udpReadBufferSize)
 {
     OsStatus rc = OS_FAILED;
-    if (UPnpAgent::getInstance()->isEnabled())
-    {
-        int boundPort = UPnpAgent::getInstance()->bindToAvailablePort(szBoundIp, 
-            port,
-            UPnpAgent::getInstance()->getTimeoutSeconds());
-        if (boundPort == -1)
-        {
-            UPnpAgent::getInstance()->setEnabled(false);
-        }
-    }
 
     OsNatDatagramSocket* pSocket =
-      new OsNatDatagramSocket(0, NULL, port, szBoundIp, NULL);
+            new OsNatDatagramSocket(0, NULL, port, szBoundIp, NULL);
    
     int actualPort = port;
     if (pSocket)
@@ -303,20 +295,30 @@ OsStatus SipUdpServer::createServerSocket(const char* szBoundIp,
             {
                 actualPort = port+i;
                 delete pSocket ;
-                if (UPnpAgent::getInstance()->isEnabled())
-                {
-                    if (UPnpAgent::getInstance()->bindToAvailablePort(szBoundIp, 
-                        port+i,
-                        UPnpAgent::getInstance()->getTimeoutSeconds()) == -1)
-                    {
-                        UPnpAgent::getInstance()->setEnabled(false);
-                    }
-                }
 
                 pSocket = new OsNatDatagramSocket(0, NULL, port+i, szBoundIp, NULL);
                 if (pSocket->isOk())
                 {
                     break ;
+                }
+            }
+        }
+
+        if (pSocket && pSocket->isOk())
+        {
+            if (UPnpAgent::getInstance()->isEnabled())
+            {
+                if (UPnpAgent::getInstance()->bindToAvailablePort(szBoundIp,
+                        actualPort,
+                        UPnpAgent::getInstance()->getTimeoutSeconds()) == -1)
+                {
+                    // Disable uPNP until restarted
+                    UPnpAgent::getInstance()->setEnabled(false);
+                    notifyUpnpStatus(false) ;
+                }
+                else
+                {
+                    notifyUpnpStatus(true) ;
                 }
             }
         }
@@ -353,14 +355,14 @@ OsStatus SipUdpServer::createServerSocket(const char* szBoundIp,
                     SOL_SOCKET,
                     SO_RCVBUF,
                     (char*)&sockbufsize,
-        #if defined(__pingtel_on_posix__)
-                    (socklen_t*) // caste
-        #endif
+#if defined(__pingtel_on_posix__)
+                    (socklen_t*) // cast
+#endif
                     &size);
-        #ifdef LOG_SIZE
+#ifdef LOG_SIZE
         OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipUdpServer::SipUdpServer UDP buffer size: %d size: %d\n",
                     sockbufsize, size);
-        #endif /* LOG_SIZE */
+#endif /* LOG_SIZE */
 
         if(udpReadBufferSize > 0)
         {
@@ -374,14 +376,14 @@ OsStatus SipUdpServer::createServerSocket(const char* szBoundIp,
                 SOL_SOCKET,
                 SO_RCVBUF,
                 (char*)&sockbufsize,
-        #if defined(__pingtel_on_posix__)
+#if defined(__pingtel_on_posix__)
                 (socklen_t*) // caste
-        #endif
+#endif
                 &size);
-        #ifdef LOG_SIZE
+#ifdef LOG_SIZE
             OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipUdpServer::SipUdpServer reset UDP buffer size: %d size: %d\n",
                         sockbufsize, size);
-        #endif /* LOG_SIZE */
+#endif /* LOG_SIZE */
         }
     }
     return rc;
@@ -566,6 +568,27 @@ OsSocket* SipUdpServer::buildClientSocket(int hostPort, const char* hostAddress,
     }
 
     return pSocket ;
+}
+
+void SipUdpServer::notifyUpnpStatus(bool bSuccess)
+{
+    static bool bNotified = false ;
+
+    if (!bNotified)
+    {
+        bNotified = true ;
+
+        SIPX_CONFIG_INFO configInfo ;
+        memset(&configInfo, 0, sizeof(SIPX_CONFIG_INFO)) ;
+        configInfo.nSize = sizeof(SIPX_CONFIG_INFO);
+        if (bSuccess)
+            configInfo.event = CONFIG_UPNP_SUCCESS;
+        else
+            configInfo.event = CONFIG_UPNP_FAILURE;
+        configInfo.pData = NULL ;
+        TapiMgr::getInstance().fireEvent(mSipUserAgent, EVENT_CATEGORY_CONFIG,
+                &configInfo) ;
+    }
 }
 
 

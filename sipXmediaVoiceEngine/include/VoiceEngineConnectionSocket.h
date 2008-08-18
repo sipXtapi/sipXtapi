@@ -83,6 +83,11 @@ public:
                    const char* ipAddress,
                    int port,
                    OS_NAT_PACKET_TYPE packetType=UNKNOWN_PACKET);
+
+    virtual bool getSendRecvStats(int&     rPacketsSent,
+                                  int64_t& rBytesSent,
+                                  int&     rPacketsRecv,
+                                  int64_t  rBytesRecv) ;
    
     
 /* ============================ INQUIRY =================================== */

@@ -2538,6 +2538,7 @@ UtlBoolean SipConnection::doHangUp(const char* dialString,
 
                 if (!mVoiceQualityReportTarget.isNull())
                     sendVoiceQualityReport(mVoiceQualityReportTarget) ;
+                fireCallStatsEvent() ;
             }
             hangUpOk = TRUE;
         }
@@ -4290,6 +4291,7 @@ void SipConnection::processByeRequest(const SipMessage* request)
 
     if (!mVoiceQualityReportTarget.isNull())
         sendVoiceQualityReport(mVoiceQualityReportTarget) ;
+    fireCallStatsEvent() ;
 
 } // End of processByeRequest
 
@@ -6211,6 +6213,257 @@ void SipConnection::setContactType(SIPX_CONTACT_TYPE eType, Url* pToUrl)
     UtlString localContact ;
     buildLocalContact(mFromUrl, localContact, pToUrl);
     mLocalContact = localContact ;
+}
+
+void SipConnection::fireCallStatsEvent() 
+{
+    if (mpMediaInterface && mpCall)
+    {
+        SIPX_CONFIG_CALLSTATS_INFO eventInfo ;
+        memset(&eventInfo, 0, sizeof(SIPX_CONFIG_CALLSTATS_INFO)) ;
+        eventInfo.nSize = sizeof(eventInfo) ;
+
+        // Signaling Transport
+        eventInfo.signalingTransport = TRANSPORT_UDP ;
+        if (mContactId > 0)
+        {
+            SIPX_CONTACT_ADDRESS* pContact = sipUserAgent->getContactDb().find(mContactId) ;
+            if (pContact)
+                eventInfo.signalingTransport = pContact->eTransportType ;
+        }
+
+        // Obtain Session Information
+        UtlString callId, remoteAddress, localAddress, userAgent ;
+        getCallId(&callId);
+        getLocalAddress(&localAddress) ;
+        getRemoteAddress(&remoteAddress, true) ;        
+        userAgent = mpMediaInterface->getUserAgent(mConnectionId) ;
+
+        eventInfo.szCallId = callId.data() ;
+        eventInfo.szLocalId = localAddress.data() ;
+        eventInfo.szRemoteId = remoteAddress.data() ;
+        eventInfo.szRemoteUserAgent = userAgent.data() ;
+    
+        // RTCP Stats
+        if (mpMediaInterface->getAudioRtcpStats(mConnectionId, &eventInfo.audioRtcpStats) != OS_SUCCESS)
+            eventInfo.audioRtcpStats.cbSize = sizeof(SIPX_RTCP_STATS) ;
+        if (mpMediaInterface->getVideoRtcpStats(mConnectionId, &eventInfo.videoRtcpStats) != OS_SUCCESS)
+            eventInfo.videoRtcpStats.cbSize = sizeof(SIPX_RTCP_STATS) ;
+
+        // Connectivity Info
+        MediaConnectivityInfo audioConnectivity, videoConnectivity ;
+        eventInfo.audioConnectivityInfo.nSize = sizeof(SIPX_MEDIA_CONNECTIVITY_INFO) ;
+        if (mpMediaInterface->getMediaConnectivityInfo(MediaConnectivityInfo::MCIT_AUDIO_RTP, audioConnectivity))
+        {
+            eventInfo.audioConnectivityInfo.szStunServer = audioConnectivity.getStunServer().data() ;
+            eventInfo.audioConnectivityInfo.szTurnServer = audioConnectivity.getTurnServer().data() ;
+            eventInfo.audioConnectivityInfo.szArsServer = audioConnectivity.getArsServer().data() ;
+            eventInfo.audioConnectivityInfo.szArsProxy = audioConnectivity.getArsHttpsProxy().data() ;
+            eventInfo.audioConnectivityInfo.bUPNP = audioConnectivity.getUPNP() ;
+            eventInfo.audioConnectivityInfo.nLocalContacts = audioConnectivity.getNumLocalCandidates() ; 
+            for (size_t i=0; i<eventInfo.audioConnectivityInfo.nLocalContacts; i++)                            
+                eventInfo.audioConnectivityInfo.szLocalContacts[i] = audioConnectivity.getLocalCandidate(i) ;
+            eventInfo.audioConnectivityInfo.eOurRelayType = 
+                    (SIPX_MEDIA_CONNECTIVITY_RELAY_TYPE) audioConnectivity.getOurRelayType() ;
+            eventInfo.audioConnectivityInfo.szRemoteIP = audioConnectivity.getRemoteMediaIP() ;
+            eventInfo.audioConnectivityInfo.iRemotePort = audioConnectivity.getRemoteMediaPort() ;
+            eventInfo.audioConnectivityInfo.bICE = audioConnectivity.getIce() ;
+            eventInfo.audioConnectivityInfo.iIceSelectionInMS = audioConnectivity.getIceTime() ;
+        }
+
+        eventInfo.videoConnectivityInfo.nSize = sizeof(SIPX_MEDIA_CONNECTIVITY_INFO) ;
+        if (mpMediaInterface->getMediaConnectivityInfo(MediaConnectivityInfo::MCIT_VIDEO_RTP, videoConnectivity))
+        {
+            eventInfo.videoConnectivityInfo.szStunServer = videoConnectivity.getStunServer().data() ;
+            eventInfo.videoConnectivityInfo.szTurnServer = videoConnectivity.getTurnServer().data() ;
+            eventInfo.videoConnectivityInfo.szArsServer = videoConnectivity.getArsServer().data() ;
+            eventInfo.videoConnectivityInfo.szArsProxy = videoConnectivity.getArsHttpsProxy().data() ;
+            eventInfo.videoConnectivityInfo.bUPNP = videoConnectivity.getUPNP() ;
+            eventInfo.videoConnectivityInfo.nLocalContacts = videoConnectivity.getNumLocalCandidates() ; 
+            for (size_t i=0; i<eventInfo.videoConnectivityInfo.nLocalContacts; i++)                            
+                eventInfo.videoConnectivityInfo.szLocalContacts[i] = videoConnectivity.getLocalCandidate(i) ;
+            eventInfo.videoConnectivityInfo.eOurRelayType = 
+                    (SIPX_MEDIA_CONNECTIVITY_RELAY_TYPE) videoConnectivity.getOurRelayType() ;
+            eventInfo.videoConnectivityInfo.szRemoteIP = videoConnectivity.getRemoteMediaIP() ;
+            eventInfo.videoConnectivityInfo.iRemotePort = videoConnectivity.getRemoteMediaPort() ;
+            eventInfo.videoConnectivityInfo.bICE = videoConnectivity.getIce() ;
+            eventInfo.videoConnectivityInfo.iIceSelectionInMS = videoConnectivity.getIceTime() ;
+        }
+             
+        // Device Info        
+        eventInfo.audioInputDevice.nSize = sizeof(SIPX_MEDIA_DEVICE_INFO) ;
+        MediaDeviceInfo audioIn, audioOut, videoCapture ;        
+        if (mpMediaInterface->getMediaDeviceInfo(mConnectionId, MediaDeviceInfo::MDIT_AUDIO_INPUT, audioIn) == OS_SUCCESS)
+        {            
+            eventInfo.audioInputDevice.szRequested = audioIn.getRequested().data() ;
+            eventInfo.audioInputDevice.szSelected = audioIn.getSelected().data() ;
+            eventInfo.audioInputDevice.szParameters = audioIn.getParameters().data() ;
+            eventInfo.audioInputDevice.szErrorInfo = audioIn.getErrors().data() ;
+        }
+
+        eventInfo.audioOutputDevice.nSize = sizeof(SIPX_MEDIA_DEVICE_INFO) ;
+        if (mpMediaInterface->getMediaDeviceInfo(mConnectionId, MediaDeviceInfo::MDIT_AUDIO_OUTPUT, audioOut) == OS_SUCCESS)
+        {
+            eventInfo.audioOutputDevice.szRequested = audioOut.getRequested().data() ;
+            eventInfo.audioOutputDevice.szSelected = audioOut.getSelected().data() ;
+            eventInfo.audioOutputDevice.szParameters = audioOut.getParameters().data() ;
+            eventInfo.audioOutputDevice.szErrorInfo = audioOut.getErrors().data() ;
+
+        }
+
+        eventInfo.videoCaptureDevice.nSize = sizeof(SIPX_MEDIA_DEVICE_INFO) ;
+        if (mpMediaInterface->getMediaDeviceInfo(mConnectionId, MediaDeviceInfo::MDIT_VIDEO_CAPTURE, videoCapture) == OS_SUCCESS)
+        {
+            eventInfo.videoCaptureDevice.szRequested = videoCapture.getRequested().data() ;
+            eventInfo.videoCaptureDevice.szSelected = videoCapture.getSelected().data() ;
+            eventInfo.videoCaptureDevice.szParameters = videoCapture.getParameters().data() ;
+            eventInfo.videoCaptureDevice.szErrorInfo = videoCapture.getErrors().data() ;
+        }
+        
+        // codec Info        
+        UtlString audioCodec, videoCodec ;
+        int audioPayloadId, videoPayloadId ;
+        bool bIgnored ;
+        if (mpMediaInterface->getPrimaryCodec(mConnectionId, audioCodec, videoCodec, 
+                &audioPayloadId, &videoPayloadId, bIgnored) == OS_SUCCESS)
+        {
+            strncpy(eventInfo.audioCodec.cName, audioCodec.data(), SIPXTAPI_CODEC_NAMELEN) ;
+            eventInfo.audioCodec.iPayloadType = audioPayloadId ;
+            strncpy(eventInfo.videoCodec.cName, videoCodec.data(), SIPXTAPI_CODEC_NAMELEN) ;
+            eventInfo.videoCodec.iPayloadType = videoPayloadId ;
+        }
+
+        SIPX_CONFIG_INFO configEvent ;
+        configEvent.nSize = sizeof(SIPX_CONFIG_INFO) ;
+        configEvent.event = CONFIG_CALL_STATS ;
+        configEvent.pData = &eventInfo ;
+
+        fireSipXEvent(EVENT_CATEGORY_CONFIG, &configEvent) ;
+
+        if (OsSysLog::willLog(FAC_CP, PRI_INFO))
+        {
+            UtlString logEntry, temp, candidates ;
+
+            // Session Info
+            temp.format("signaling transport=%d, callId=%s, localId=%s, remoteId=%s, userAgent=%s\n",
+                    eventInfo.signalingTransport,
+                    eventInfo.szCallId ? eventInfo.szCallId : "",
+                    eventInfo.szLocalId ? eventInfo.szLocalId : "",
+                    eventInfo.szRemoteId ? eventInfo.szRemoteId : "",
+                    eventInfo.szRemoteUserAgent ? eventInfo.szRemoteUserAgent : "") ;
+            logEntry.append(temp) ;
+
+            // Audio RTCP
+            temp.format("Audio RTCP: fl=%u cum_lost=%lu ext_max=%lu jitter=%lu RTT=%d bs=%d ps=%d br=%d, pr=%d\n",
+                    eventInfo.audioRtcpStats.fraction_lost,
+                    eventInfo.audioRtcpStats.cum_lost,
+                    eventInfo.audioRtcpStats.ext_max,
+                    eventInfo.audioRtcpStats.jitter,
+                    eventInfo.audioRtcpStats.RTT,
+                    eventInfo.audioRtcpStats.bytesSent,
+                    eventInfo.audioRtcpStats.packetsSent,
+                    eventInfo.audioRtcpStats.bytesReceived,
+                    eventInfo.audioRtcpStats.packetsReceived) ;
+            logEntry.append(temp) ;
+
+            // Audio Codec
+            temp.format("Audio Codec: %s (%d)\n",
+                    eventInfo.audioCodec.cName,
+                    eventInfo.audioCodec.iPayloadType) ;
+            logEntry.append(temp) ;
+
+            // Audio Input Device
+            temp.format("Audio Input: req=%s sel=%s param=%s errors=%s\n",
+                    eventInfo.audioInputDevice.szRequested ? eventInfo.audioInputDevice.szRequested : "",
+                    eventInfo.audioInputDevice.szSelected ? eventInfo.audioInputDevice.szSelected : "",
+                    eventInfo.audioInputDevice.szParameters ? eventInfo.audioInputDevice.szParameters : "",
+                    eventInfo.audioInputDevice.szErrorInfo ? eventInfo.audioInputDevice.szErrorInfo : "") ;
+            logEntry.append(temp) ;
+
+            // Audio Output Device
+            temp.format("Audio Output: req=%s sel=%s param=%s errors=%s\n",
+                    eventInfo.audioOutputDevice.szRequested ? eventInfo.audioOutputDevice.szRequested : "",
+                    eventInfo.audioOutputDevice.szSelected ? eventInfo.audioOutputDevice.szSelected : "",
+                    eventInfo.audioOutputDevice.szParameters ? eventInfo.audioOutputDevice.szParameters : "",
+                    eventInfo.audioOutputDevice.szErrorInfo ? eventInfo.audioOutputDevice.szErrorInfo : "") ;
+            logEntry.append(temp) ;
+
+            // Audio Connectivity
+            candidates.remove(0) ;
+            for (size_t i=0; i<eventInfo.audioConnectivityInfo.nLocalContacts; i++)
+            {
+                candidates.append(eventInfo.audioConnectivityInfo.szLocalContacts[i]) ;
+                candidates.append(" ") ;
+            }
+            temp.format("Audio Connectivity: stun=%s turn=%s ars=%s ars proxy=%s\n" \
+                    "uPNP=%d media relay=%d remote=%s:%d, ice=%d, iceMS=%d\n" \
+                    "local cand=%s\n",                    
+                    eventInfo.audioConnectivityInfo.szStunServer ? eventInfo.audioConnectivityInfo.szStunServer : "",
+                    eventInfo.audioConnectivityInfo.szTurnServer ? eventInfo.audioConnectivityInfo.szTurnServer : "", 
+                    eventInfo.audioConnectivityInfo.szArsServer ? eventInfo.audioConnectivityInfo.szArsServer : "",
+                    eventInfo.audioConnectivityInfo.szArsProxy ? eventInfo.audioConnectivityInfo.szArsProxy : "",
+                    eventInfo.audioConnectivityInfo.bUPNP,
+                    eventInfo.audioConnectivityInfo.eOurRelayType,
+                    eventInfo.audioConnectivityInfo.szRemoteIP ? eventInfo.audioConnectivityInfo.szRemoteIP : "",
+                    eventInfo.audioConnectivityInfo.iRemotePort,
+                    eventInfo.audioConnectivityInfo.bICE,
+                    eventInfo.audioConnectivityInfo.iIceSelectionInMS,
+                    candidates.data()) ;
+            logEntry.append(temp) ;
+           
+            // Video RTCP
+            temp.format("Video RTCP: fl=%u cum_lost=%lu ext_max=%lu jitter=%lu RTT=%d bs=%d ps=%d br=%d, pr=%d\n",
+                    eventInfo.videoRtcpStats.fraction_lost,
+                    eventInfo.videoRtcpStats.cum_lost,
+                    eventInfo.videoRtcpStats.ext_max,
+                    eventInfo.videoRtcpStats.jitter,
+                    eventInfo.videoRtcpStats.RTT,
+                    eventInfo.videoRtcpStats.bytesSent,
+                    eventInfo.videoRtcpStats.packetsSent,
+                    eventInfo.videoRtcpStats.bytesReceived,
+                    eventInfo.videoRtcpStats.packetsReceived) ;
+            logEntry.append(temp) ;
+
+            // Video Codec
+            temp.format("Video Codec: %s (%d)\n",
+                eventInfo.videoCodec.cName,
+                eventInfo.videoCodec.iPayloadType) ;
+            logEntry.append(temp) ;
+
+            // Video Capture Device
+            temp.format("Video Capture: req=%s sel=%s param=%s errors=%s\n",
+                    eventInfo.videoCaptureDevice.szRequested ? eventInfo.videoCaptureDevice.szRequested : "",
+                    eventInfo.videoCaptureDevice.szSelected ? eventInfo.videoCaptureDevice.szSelected : "",
+                    eventInfo.videoCaptureDevice.szParameters ? eventInfo.videoCaptureDevice.szParameters : "",
+                    eventInfo.videoCaptureDevice.szErrorInfo ? eventInfo.videoCaptureDevice.szErrorInfo : "") ;
+            logEntry.append(temp) ;
+
+            // Video Connectivity 
+            candidates.remove(0) ;
+            for (size_t i=0; i<eventInfo.videoConnectivityInfo.nLocalContacts; i++)
+            {
+                candidates.append(eventInfo.videoConnectivityInfo.szLocalContacts[i]) ;
+                candidates.append(" ") ;
+            }
+            temp.format("Video Connectivity: stun=%s turn=%s ars=%s ars proxy=%s\n" \
+                    "uPNP=%d media relay=%d remote=%s:%d, ice=%d, iceMS=%d\n" \
+                    "local cand=%s\n",                    
+                    eventInfo.videoConnectivityInfo.szStunServer ? eventInfo.videoConnectivityInfo.szStunServer : "",
+                    eventInfo.videoConnectivityInfo.szTurnServer ? eventInfo.videoConnectivityInfo.szTurnServer : "", 
+                    eventInfo.videoConnectivityInfo.szArsServer ? eventInfo.videoConnectivityInfo.szArsServer : "",
+                    eventInfo.videoConnectivityInfo.szArsProxy ? eventInfo.videoConnectivityInfo.szArsProxy : "",
+                    eventInfo.videoConnectivityInfo.bUPNP,
+                    eventInfo.videoConnectivityInfo.eOurRelayType,
+                    eventInfo.videoConnectivityInfo.szRemoteIP ? eventInfo.videoConnectivityInfo.szRemoteIP : "",
+                    eventInfo.videoConnectivityInfo.iRemotePort,
+                    eventInfo.videoConnectivityInfo.bICE,
+                    eventInfo.videoConnectivityInfo.iIceSelectionInMS,
+                    candidates.data()) ;
+            logEntry.append(temp) ;
+
+            OsSysLog::add(FAC_CP, PRI_INFO, "%s", logEntry.data()) ;
+        }
+    }
 }
 
 

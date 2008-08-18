@@ -13,7 +13,8 @@
 //
 // You should have received a copy of the GNU Lesser General Public
 // License along with this library; if not, write to the Free Software
-// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA. 
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
+// USA. 
 // 
 // Copyright (C) 2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -41,6 +42,7 @@ UPnpAgent* UPnpAgent::mpInstance = NULL;
 OsRWMutex* UPnpAgent::spMutex = new OsRWMutex(OsRWMutex::Q_PRIORITY);
 #ifndef _WIN32
 bool s_bEnabled = true ;
+int s_iTimeoutSecs = 10 ;
 #endif
 // MACROS
 
@@ -83,8 +85,8 @@ void UPnpAgent::release()
     mpInstance = NULL;
 }
 
-int UPnpAgent::loadPortSetting(const char * szClientIp, 
-                               const int internalPort) const
+int UPnpAgent::loadPortSetting(const char* szClientIp, 
+                               const int   internalPort) const
 {
    int externalPort = -1;
    char szInternalPort[16];
@@ -97,8 +99,6 @@ int UPnpAgent::loadPortSetting(const char * szClientIp,
    //        performing a costly registry read
   
 #ifdef _WIN32 
-   const char *strPathKey        = "SOFTWARE\\sipxUA\\uPnpPorts";
-
    HKEY hKey;
    DWORD    cbData;
    DWORD    dataType;
@@ -107,7 +107,7 @@ int UPnpAgent::loadPortSetting(const char * szClientIp,
    
    DWORD err = RegOpenKeyEx(
               HKEY_LOCAL_MACHINE,   // handle to open key
-              strPathKey,           // subkey name
+              WIN32_UPNP_REG_PATH,  // subkey name
               0,                    // reserved
               KEY_READ,             // security access mask
               &hKey                 // handle to open key
@@ -144,7 +144,6 @@ int UPnpAgent::loadPortSetting(const char * szClientIp,
 void UPnpAgent::savePortSetting(const char* szClientAddress, const int internalPort, const int externalPort) const
 {
 #ifdef _WIN32
-   const char *strPathKey        = "SOFTWARE\\sipxUA\\uPnpPorts";
    HKEY hKey;
    char szInternalPort[16];
    UtlString hostPort(szClientAddress);
@@ -154,9 +153,9 @@ void UPnpAgent::savePortSetting(const char* szClientAddress, const int internalP
 
    DWORD err = RegOpenKeyEx(
               HKEY_LOCAL_MACHINE,   // handle to open key
-              strPathKey,           // subkey name
+              WIN32_UPNP_REG_PATH,  // subkey name
               0,                    // reserved
-              KEY_WRITE,             // security access mask
+              KEY_WRITE,            // security access mask
               &hKey                 // handle to open key
               );
 
@@ -164,7 +163,7 @@ void UPnpAgent::savePortSetting(const char* szClientAddress, const int internalP
     if (err != ERROR_SUCCESS)
     {
         err = RegCreateKeyEx(HKEY_LOCAL_MACHINE,
-            strPathKey, 
+            WIN32_UPNP_REG_PATH, 
             0,
             NULL, 
             REG_OPTION_NON_VOLATILE, 
@@ -285,8 +284,6 @@ void UPnpAgent::initialize()
     if (!mpDiscovery)
     {
         mpDiscovery = new UPnpDiscovery(getTimeoutSeconds() * 1000);
-//        mpDiscovery->discoverRootLocation();
-//        mpDiscovery->discoverGatewayLocation();
         *mpLocation = mpDiscovery->discoverWANIPConnectionLocation();
         if (mpLocation->length() > 0)
         {
@@ -308,15 +305,14 @@ void UPnpAgent::initialize()
 void UPnpAgent::setEnabled(const bool enabled)
 {
 #ifdef _WIN32
-   const char *strPathKey        = "SOFTWARE\\sipxUA\\uPnpPorts";
    HKEY hKey;
    const char *strKey = "Enabled";
 
    DWORD err = RegOpenKeyEx(
               HKEY_LOCAL_MACHINE,   // handle to open key
-              strPathKey,           // subkey name
+              WIN32_UPNP_REG_PATH,  // subkey name
               0,                    // reserved
-              KEY_WRITE,             // security access mask
+              KEY_WRITE,            // security access mask
               &hKey                 // handle to open key
               );
 
@@ -324,7 +320,7 @@ void UPnpAgent::setEnabled(const bool enabled)
     if (err != ERROR_SUCCESS)
     {
         err = RegCreateKeyEx(HKEY_LOCAL_MACHINE,
-            strPathKey, 
+            WIN32_UPNP_REG_PATH, 
             0,
             NULL, 
             REG_OPTION_NON_VOLATILE, 
@@ -353,17 +349,15 @@ bool UPnpAgent::isEnabled()
 {
    bool enabled = true;
 #ifdef _WIN32
-   const char *strPathKey        = "SOFTWARE\\sipxUA\\uPnpPorts";
    const char* strKey = "Enabled";
    HKEY hKey;
    DWORD    cbData;
    DWORD    dataType;
    DWORD    dwValue;
-
    
    DWORD err = RegOpenKeyEx(
               HKEY_LOCAL_MACHINE,   // handle to open key
-              strPathKey,           // subkey name
+              WIN32_UPNP_REG_PATH,  // subkey name
               0,                    // reserved
               KEY_READ,             // security access mask
               &hKey                 // handle to open key
@@ -397,18 +391,19 @@ bool UPnpAgent::isEnabled()
 #endif
    return enabled;
 }
+
+
 void UPnpAgent::setTimeoutSeconds(const int timeoutSeconds)
 {
 #ifdef WIN32
-   const char *strPathKey        = "SOFTWARE\\sipxUA\\uPnpPorts";
    HKEY hKey;
    const char *strKey = "Timeout";
 
    DWORD err = RegOpenKeyEx(
               HKEY_LOCAL_MACHINE,   // handle to open key
-              strPathKey,           // subkey name
+              WIN32_UPNP_REG_PATH,  // subkey name
               0,                    // reserved
-              KEY_WRITE,             // security access mask
+              KEY_WRITE,            // security access mask
               &hKey                 // handle to open key
               );
 
@@ -416,7 +411,7 @@ void UPnpAgent::setTimeoutSeconds(const int timeoutSeconds)
     if (err != ERROR_SUCCESS)
     {
         err = RegCreateKeyEx(HKEY_LOCAL_MACHINE,
-            strPathKey, 
+            WIN32_UPNP_REG_PATH, 
             0,
             NULL, 
             REG_OPTION_NON_VOLATILE, 
@@ -436,14 +431,17 @@ void UPnpAgent::setTimeoutSeconds(const int timeoutSeconds)
             sizeof(&dwValue));
     }
    RegCloseKey(hKey);
+#else
+    s_iTimeoutSecs = timeoutSeconds ;
 #endif
 }
 
+
 int UPnpAgent::getTimeoutSeconds()
 {
-   int timeoutSeconds = 0;
+   int timeoutSeconds = 10 ;
+
 #ifdef _WIN32
-   const char *strPathKey        = "SOFTWARE\\sipxUA\\uPnpPorts";
    const char* strKey = "Timeout";
    HKEY hKey;
    DWORD    cbData;
@@ -453,7 +451,7 @@ int UPnpAgent::getTimeoutSeconds()
    
    DWORD err = RegOpenKeyEx(
               HKEY_LOCAL_MACHINE,   // handle to open key
-              strPathKey,           // subkey name
+              WIN32_UPNP_REG_PATH,  // subkey name
               0,                    // reserved
               KEY_READ,             // security access mask
               &hKey                 // handle to open key
@@ -479,9 +477,12 @@ int UPnpAgent::getTimeoutSeconds()
 
       RegCloseKey(hKey);
    }
+#else
+    timeoutSeconds = s_iTimeoutSecs ;
 #endif
    return timeoutSeconds;
 }
+
 
 void UPnpAgent::setLastStatus(const char* szInternalAddress,
                               const int nInternalPort,
@@ -510,6 +511,7 @@ void UPnpAgent::setLastStatus(const char* szInternalAddress,
     mLastInternalAddress = szInternalAddress;
 
 }
+
 
 SIPX_RESULT UPnpAgent::getLastResults(char* szInternalAddress,
                                       const size_t internalAddressSize,

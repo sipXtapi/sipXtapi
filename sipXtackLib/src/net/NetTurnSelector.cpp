@@ -104,15 +104,16 @@ NetTurnSelector::~NetTurnSelector()
 
 //////////////////////////////////////////////////////////////////////////////
 bool NetTurnSelector::selectBestTurnServer(OsHostPort& selectedServer,
-                                          int& numAvailable,
-                                                       UtlString* domainName[],
-                                                       const int numDomains,
-                                                       const char* szInterfaceForOutgoingDns,
-                                                       const char* szUsername,
-                                                       int& selectedRtt,
-                                                       int& selectedBandwidth,
-                                                       double& selectedPacketLossPercent,
-                                                       UtlSList& results) const
+                                           int& numAvailable,
+                                           UtlString* domainName[],
+                                           int ports[],
+                                           const int numDomains,
+                                           const char* szInterfaceForOutgoingDns,
+                                           const char* szUsername,
+                                           int& selectedRtt,
+                                           int& selectedBandwidth,
+                                           double& selectedPacketLossPercent,
+                                           UtlSList& results) const
 {
     OsHostPort* arrCandidates[MAX_TURN_SERVERS];
     OsSocket::IpProtocolSocketType transport = OsSocket::UDP;
@@ -125,7 +126,7 @@ bool NetTurnSelector::selectBestTurnServer(OsHostPort& selectedServer,
         server_list = SipSrvLookup::servers(domainName[i]->data(),
                                             "turn",
                                             transport,
-                                            PORT_NONE,
+                                            ports[i],
                                             szInterfaceForOutgoingDns);
         for (int j=0; server_list[j].isValidServerT(); j++)
         {

@@ -56,6 +56,7 @@ public:
     bool selectBestTurnServer(OsHostPort& selectedServer,
                               int& numAvailable,
                               UtlString* domainName[],
+                              int ports[],
                               const int numDomains,
                               const char* szInterfaceForOutgoingDns,
                               const char* szUsername,
@@ -65,12 +66,12 @@ public:
                               UtlSList& results) const;
 
     const OsHostPort* const selectBestTurnServer(OsHostPort* const arrHostPorts[],
-                                                       const int numHostPorts,
-                                                       const char* szUsername,
-                                                       int& selectedRtt,
-                                                       int& selectedBandwidth,
-                                                       double& selectedPacketLossPercent,
-                                                       UtlSList& results) const;
+                                                 const int numHostPorts,
+                                                 const char* szUsername,
+                                                 int& selectedRtt,
+                                                 int& selectedBandwidth,
+                                                 double& selectedPacketLossPercent,
+                                                 UtlSList& results) const;
     void setTransferTestPeriodSeconds(int seconds) { mTransferTestPeriodSeconds = seconds; }
     void setTransferTestThroughputKBS(int throughput) { mTransferTestThroughputKBS = throughput; }
 

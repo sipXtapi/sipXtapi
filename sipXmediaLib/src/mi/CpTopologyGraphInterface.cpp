@@ -53,12 +53,14 @@
 #include <mp/dtmflib.h>
 #include <mp/MpMediaTask.h>
 #include <mp/MpCodecFactory.h>
+#include <mp/DmaTask.h>
 #include "mi/CpTopologyGraphInterface.h"
 #include "mi/CpTopologyGraphFactoryImpl.h"
 #include "mi/CpTopologyPacketPusher.h"
 #include "mediaBaseImpl/CpMediaSocketAdapter.h"
 #include "ARS/ArsReceiveAdapter.h"
 #include "upnp/UPnpAgent.h"
+
 
 
 #if defined(_VXWORKS)
@@ -120,7 +122,7 @@ CpTopologyGraphInterface::CpTopologyGraphInterface(CpTopologyGraphFactoryImpl* p
    OsSysLog::add(FAC_CP, PRI_DEBUG, "CpTopologyGraphInterface::CpTopologyGraphInterface creating a new MpTopologyGraph %p",
                  mpTopologyGraph);
 
-   mStunProxy = stunServer;
+   mStunServer = stunServer;
    mTurnProxy = turnServer;
    mEnableIce = enableIce;
 
@@ -302,6 +304,10 @@ OsStatus CpTopologyGraphInterface::createConnection(int& connectionId,
                 mpMediaGuard) ;
 
         mediaConnection->mpArsAudioSocket->setPacketHandler(mediaConnection->mpArsAudioRAdapter) ;
+
+        mAudioMediaConnectivityInfo.setArsServer(mArsProxy.getAddress()) ;
+        mAudioMediaConnectivityInfo.setArsHttpsProxy(mArsHttpProxy.getAddress()) ;
+
     }
 
    
@@ -455,25 +461,28 @@ OsStatus CpTopologyGraphInterface::getCapabilities(int connectionId,
 
         if (pAudioContacts && pVideoContacts)
         {
+            bool bAddAudio = (mAudioMediaConnectivityInfo.getNumLocalCandidates() == 0) ;
+            bool bAddVideo = (mVideoMediaConnectivityInfo.getNumLocalCandidates() == 0) ;
+
             switch (pMediaConn->mContactType)
             {
                 case CONTACT_LOCAL:
-                    addLocalContacts(connectionId, *pAudioContacts, *pVideoContacts) ;
-                    addNatedContacts(connectionId, *pAudioContacts, *pVideoContacts) ;
-                    addRelayContacts(connectionId, *pAudioContacts, *pVideoContacts) ;
-                    addArsContacts(connectionId, *pAudioContacts, *pVideoContacts) ;
+                    addLocalContacts(connectionId, *pAudioContacts, bAddAudio, *pVideoContacts, bAddVideo) ;
+                    addNatedContacts(connectionId, *pAudioContacts, bAddAudio, *pVideoContacts, bAddVideo) ;
+                    addRelayContacts(connectionId, *pAudioContacts, bAddAudio, *pVideoContacts, bAddVideo) ;
+                    addArsContacts(connectionId, *pAudioContacts, bAddAudio, *pVideoContacts, bAddVideo) ;
                     break ;
                 case CONTACT_RELAY:
-                    addRelayContacts(connectionId, *pAudioContacts, *pVideoContacts) ;
-                    addLocalContacts(connectionId, *pAudioContacts, *pVideoContacts) ;
-                    addNatedContacts(connectionId, *pAudioContacts, *pVideoContacts) ;
-                    addArsContacts(connectionId, *pAudioContacts, *pVideoContacts) ;
+                    addRelayContacts(connectionId, *pAudioContacts, bAddAudio, *pVideoContacts, bAddVideo) ;
+                    addLocalContacts(connectionId, *pAudioContacts, bAddAudio, *pVideoContacts, bAddVideo) ;
+                    addNatedContacts(connectionId, *pAudioContacts, bAddAudio, *pVideoContacts, bAddVideo) ;
+                    addArsContacts(connectionId, *pAudioContacts, bAddAudio, *pVideoContacts, bAddVideo) ;
                     break ;
                 default:
-                    addNatedContacts(connectionId, *pAudioContacts, *pVideoContacts) ;
-                    addLocalContacts(connectionId, *pAudioContacts, *pVideoContacts) ;
-                    addRelayContacts(connectionId, *pAudioContacts, *pVideoContacts) ;
-                    addArsContacts(connectionId, *pAudioContacts, *pVideoContacts) ;
+                    addNatedContacts(connectionId, *pAudioContacts, bAddAudio, *pVideoContacts, bAddVideo) ;
+                    addLocalContacts(connectionId, *pAudioContacts, bAddAudio, *pVideoContacts, bAddVideo) ;
+                    addRelayContacts(connectionId, *pAudioContacts, bAddAudio, *pVideoContacts, bAddVideo) ;
+                    addArsContacts(connectionId, *pAudioContacts, bAddAudio, *pVideoContacts, bAddVideo) ;
                     break ;
             }
 
@@ -1589,8 +1598,8 @@ OsStatus CpTopologyGraphInterface::setMediaProperty(int connectionId,
 }
 
 OsStatus CpTopologyGraphInterface::getMediaProperty(int connectionId,
-                                                 const UtlString& propertyName,
-                                                 UtlString& propertyValue)
+                                                    const UtlString& propertyName,
+                                                    UtlString& propertyValue)
 {
     OsStatus returnCode = OS_NOT_FOUND;
     propertyValue = "";
@@ -1610,8 +1619,43 @@ OsStatus CpTopologyGraphInterface::getMediaProperty(int connectionId,
         }
     }
 
-    return OS_NOT_YET_IMPLEMENTED;//(returnCode);
+    return OS_NOT_YET_IMPLEMENTED ; // returnCode 
 }
+
+OsStatus CpTopologyGraphInterface::getMediaDeviceInfo(int connectionId,
+                                                      MediaDeviceInfo::MediaDeviceInfoType type,
+                                                      MediaDeviceInfo& info) 
+{
+    OsStatus rc = OS_FAILED ;
+    UtlString device ;
+
+    info.reset() ;
+    switch (type)
+    {
+        case MediaDeviceInfo::MDIT_AUDIO_INPUT: 
+            {
+                // getMediaProperty(connectionId, "audioInput1.device", device) ;
+                MediaDeviceInfo audioInput(MediaDeviceInfo::MDIT_AUDIO_INPUT) ;
+                audioInput.setSelected(DmaTask::getMicDevice().data()) ;
+                info = audioInput ;
+                rc = OS_SUCCESS ;
+            }
+            break ;
+        case MediaDeviceInfo::MDIT_AUDIO_OUTPUT: 
+            {
+                // getMediaProperty(connectionId, "audioOutput1.speakerDevice", device) ;
+                MediaDeviceInfo audioOutput(MediaDeviceInfo::MDIT_AUDIO_OUTPUT) ;
+                audioOutput.setSelected(DmaTask::getCallDevice().data()) ;
+                info = audioOutput ;
+                rc = OS_SUCCESS ;
+            }
+            break ;
+        default:
+            break ;
+    }
+    return rc ;
+}
+
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
 OsStatus CpTopologyGraphInterface::createRtpSocketPair(UtlString localAddress,
@@ -1767,59 +1811,47 @@ OsStatus CpTopologyGraphInterface::createRtpSocketPair(UtlString localAddress,
 
    if (!isMulticast)
    {
+      if (mStunServer.isValid() && pMediaConnection->mbEnableSTUN)
+      {
+         // Enable Stun if we have a server and either non-local contact type or 
+         // ICE is enabled.
+         if ((contactType != CONTACT_LOCAL) || mEnableIce)
+         {
+            ((OsNatDatagramSocket*)rtpSocket)->enableStun(mStunServer.getAddress(), mStunServer.getPort(),
+                  mStunServer.getKeepalive(), 0, false) ;
+            mAudioMediaConnectivityInfo.setStunServer(mStunServer.getAddress()) ;
+         }
 
-       if (mTurnProxy.isValid() != 0)
-       {
-          // Enable Stun if we have a stun server and either non-local contact type or 
-          // ICE is enabled.
-          if (mStunProxy.isValid() && ((contactType != CONTACT_LOCAL) || mEnableIce))
-          {
-              ((OsNatDatagramSocket*)rtpSocket)->enableStun(mTurnProxy.getAddress(), mTurnProxy.getPort(),
-                                                            mStunProxy.getKeepalive(), 0, false) ;
-          }
-
-           // Enable Turn if we have a stun server and either non-local contact type or 
-           // ICE is enabled.
-           if (mTurnProxy.isValid() && ((contactType != CONTACT_LOCAL) || mEnableIce))
-           {
-               ((OsNatDatagramSocket*)rtpSocket)->enableTurn(mTurnProxy.getAddress(), mTurnProxy.getPort(),
-                   mTurnProxy.getKeepalive(), mTurnProxy.getUsername(), mTurnProxy.getPassword(), false) ;
-           }
-
-            // Enable Stun if we have a stun server and either non-local contact type or 
-            // ICE is enabled.
-           if (mStunProxy.isValid() && ((contactType != CONTACT_LOCAL) || mEnableIce))
-            {
-                ((OsNatDatagramSocket*)rtcpSocket)->enableStun(mTurnProxy.getAddress(), mTurnProxy.getPort(),
-                    mStunProxy.getKeepalive(), 0, false) ;
-            }
-            // Enable Turn if we have a stun server and either non-local contact type or 
-            // ICE is enabled.
-            if (mTurnProxy.isValid() && ((contactType != CONTACT_LOCAL) || mEnableIce))
-            {
-               ((OsNatDatagramSocket*)rtcpSocket)->enableTurn(mTurnProxy.getAddress(), mTurnProxy.getPort(),
-                   mTurnProxy.getKeepalive(), mTurnProxy.getUsername(), mTurnProxy.getPassword(), false) ;
-            }
-       }
-       else
-       {
-            // Enable Stun if we have a stun server and either non-local contact type or 
-            // ICE is enabled.
-            if (mStunProxy.isValid() && ((contactType != CONTACT_LOCAL) || mEnableIce))
-            {
-                ((OsNatDatagramSocket*)rtpSocket)->enableStun(mStunServer.getAddress(), mStunServer.getPort(),
-                    mStunServer.getKeepalive(), 0, false) ;
-            }
-            // Enable Stun if we have a stun server and either non-local contact type or 
-            // ICE is enabled.
-            if (mStunProxy.isValid() && ((contactType != CONTACT_LOCAL) || mEnableIce))
-            {
-                ((OsNatDatagramSocket*)rtcpSocket)->enableStun(mStunServer.getAddress(), mStunServer.getPort(),
-                    mStunServer.getKeepalive(), 0, false) ;
-            }
-       }
+         // Enable Stun if we have a server and either non-local contact type or 
+         // ICE is enabled.
+         if ((contactType != CONTACT_LOCAL) || mEnableIce)
+         {
+            ((OsNatDatagramSocket*)rtcpSocket)->enableStun(mStunServer.getAddress(), mStunServer.getPort(),
+                  mStunServer.getKeepalive(), 0, false) ;
+         }
+      }
 
 
+      if (mTurnProxy.isValid() && pMediaConnection->mbEnableTURN)
+      {
+         // Enable Turn if we have a server and either non-local contact type or 
+         // ICE is enabled.
+         if ((contactType != CONTACT_LOCAL) || mEnableIce)
+         {
+            ((OsNatDatagramSocket*)rtpSocket)->enableTurn(mTurnProxy.getAddress(), mTurnProxy.getPort(),
+                  mTurnProxy.getKeepalive(), mTurnProxy.getUsername(), mTurnProxy.getPassword(), false) ;
+            mAudioMediaConnectivityInfo.setTurnServer(mTurnProxy.getAddress()) ;
+               
+         }
+
+         // Enable Turn if we have a server and either non-local contact type or 
+         // ICE is enabled.
+         if ((contactType != CONTACT_LOCAL) || mEnableIce)
+         {
+            ((OsNatDatagramSocket*)rtcpSocket)->enableTurn(mTurnProxy.getAddress(), mTurnProxy.getPort(),
+                  mTurnProxy.getKeepalive(), mTurnProxy.getUsername(), mTurnProxy.getPassword(), false) ;
+         }
+      }
    }
 
    return OS_SUCCESS;

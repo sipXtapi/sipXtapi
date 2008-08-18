@@ -44,6 +44,8 @@
 #include <net/ProxyDescriptor.h>
 #include <os/IOsNatSocket.h>
 #include <tapi/sipXtapi.h>
+#include <mediaBaseImpl/MediaDeviceInfo.h>
+#include <mediaBaseImpl/MediaConnectivityInfo.h>
 
 // DEFINES
 #define CPMI_FLAGS_ENABLE_LOCAL     0x00000001
@@ -136,9 +138,9 @@ typedef enum IMediaEvent_DeviceTypes
 } IMediaEvent_DeviceTypes;
 
 /**
-*  @brief Interface declaration for receiving device error 
-*  notifications/audio events
-*/
+ *  @brief Interface declaration for receiving device error 
+ *  notifications/audio events
+ */
 class IMediaEventListener
 {
 public:    
@@ -152,6 +154,7 @@ public:
 
    virtual ~IMediaEventListener() { } ;
 };
+
 
 // FORWARD DECLARATIONS
 class SdpCodec;
@@ -288,13 +291,17 @@ public:
      *  @retval OS_FAILED if some other failure in queuing the message occurred.
      */
 
+    /// @brief Set the remote sip user agent for a connection.   
     virtual OsStatus setUserAgent(int         connectionId,
                                  const char* szUserAgent) = 0 ;
+
+    /// @brief Get the remote sip user agent for a connection (if set)
+    virtual const char* getUserAgent(int connectionId) = 0 ;
    
     virtual OsStatus setMediaData(const int data) = 0;
 
      /// @brief Set the secure RTP parameters.
-   virtual OsStatus setSrtpParams(SdpSrtpParameters& srtpParameters) = 0;
+    virtual OsStatus setSrtpParams(SdpSrtpParameters& srtpParameters) = 0;
      /**<
      *  @param[in] srtpParameters - the parameter block to pull requested
      *             srtp settings from.
@@ -828,11 +835,34 @@ public:
                                          unsigned int& uiSendingSSRC,
                                          unsigned int& uiReceivingSSRC) = 0;
 
+   /**
+    * Get Audio RTCP stats
+    */
    virtual OsStatus getAudioRtcpStats(const int connectionId,
        SIPX_RTCP_STATS* const pStats) = 0;
 
-    virtual OsStatus setRemoteVolumeScale(const int connectionId,
-        const int scale = 100) = 0;     
+   /**
+    * Get Video RTCP stats
+    */
+   virtual OsStatus getVideoRtcpStats(const int connectionId,
+       SIPX_RTCP_STATS* const pStats) = 0;
+
+   /**
+    * Get media device info
+    */
+   virtual OsStatus getMediaDeviceInfo(int connectionId,
+                                       MediaDeviceInfo::MediaDeviceInfoType type,
+                                       MediaDeviceInfo& info) = 0;
+
+   /**
+    * Get media connectivity info
+    */
+   virtual bool getMediaConnectivityInfo(MediaConnectivityInfo::MediaConnectivityInfoType type,
+                                  MediaConnectivityInfo& rMediaConnectivityInfo) = 0;
+
+
+   virtual OsStatus setRemoteVolumeScale(const int connectionId,
+       const int scale = 100) = 0;
 
    //! Set a media property on the media interface
     /*

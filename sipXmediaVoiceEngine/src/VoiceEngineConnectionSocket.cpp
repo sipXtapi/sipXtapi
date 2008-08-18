@@ -171,6 +171,19 @@ int VoiceEngineConnectionSocket::socketWrite(const char* buffer, int bufferLengt
     return bytesWritten;
 }                               
 
+bool VoiceEngineConnectionSocket::getSendRecvStats(int&     rPacketsSent,
+                                                   int64_t& rBytesSent,
+                                                   int&     rPacketsRecv,
+                                                   int64_t  rBytesRecv) 
+{
+    rPacketsSent = 0 ;
+    rBytesSent = 0 ;
+    rPacketsRecv = 0 ;
+    rBytesRecv = 0 ;
+
+    return false ; // not implemented
+}
+
 
 /* ============================ MANIPULATORS ============================== */
 

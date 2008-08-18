@@ -449,27 +449,15 @@ OsStatus VoiceEngineMediaInterface::createConnection(int& connectionId,
 OsStatus VoiceEngineMediaInterface::setUserAgent(int         connectionId,
                                                  const char* szUserAgent) 
 {
-    OsStatus rc = OS_FAILED ;
-    CpMediaConnection* pMediaConn = getMediaConnection(connectionId);
-
-    if (pMediaConn && szUserAgent && strlen(szUserAgent))
-    {        
-        if (pMediaConn->mUserAgent.compareTo(szUserAgent, UtlString::ignoreCase) != 0)
-        {
-            pMediaConn->mUserAgent = szUserAgent ;
-            if (mpVideoEngine)
-            {
-                mpVideoEngine->setUserAgent(connectionId, szUserAgent) ;
-            }
-        }        
-    }
-    else if (pMediaConn == NULL)
+    OsStatus rc = CpMediaInterface::setUserAgent(connectionId, szUserAgent) ;
+    if (rc == OS_SUCCESS && mpVideoEngine)
     {
-        assert(FALSE) ;
+        mpVideoEngine->setUserAgent(connectionId, szUserAgent) ;
     }
 
     return rc ;
 }
+
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -594,31 +582,34 @@ OsStatus VoiceEngineMediaInterface::getCapabilities(int connectionId,
 
         if (pAudioContacts && pVideoContacts)
         {
+            bool bAddAudio = (mAudioMediaConnectivityInfo.getNumLocalCandidates() == 0) ;
+            bool bAddVideo = (mVideoMediaConnectivityInfo.getNumLocalCandidates() == 0) ;
+
             switch (pMediaConn->mContactType)
             {
                 case CONTACT_LOCAL:
-                    addLocalContacts(connectionId, *pAudioContacts, *pVideoContacts) ;
-                    addNatedContacts(connectionId, *pAudioContacts, *pVideoContacts) ;
-                    addRelayContacts(connectionId, *pAudioContacts, *pVideoContacts) ;
-                    addArsContacts(connectionId, *pAudioContacts, *pVideoContacts) ;
+                    addLocalContacts(connectionId, *pAudioContacts, bAddAudio, *pVideoContacts, bAddVideo) ;
+                    addNatedContacts(connectionId, *pAudioContacts, bAddAudio, *pVideoContacts, bAddVideo) ;
+                    addRelayContacts(connectionId, *pAudioContacts, bAddAudio, *pVideoContacts, bAddVideo) ;
+                    addArsContacts(connectionId, *pAudioContacts, bAddAudio, *pVideoContacts, bAddVideo) ;
                     break ;
                 case CONTACT_RELAY:
-                    addRelayContacts(connectionId, *pAudioContacts, *pVideoContacts) ;
-                    addLocalContacts(connectionId, *pAudioContacts, *pVideoContacts) ;
-                    addNatedContacts(connectionId, *pAudioContacts, *pVideoContacts) ;
-                    addArsContacts(connectionId, *pAudioContacts, *pVideoContacts) ;
+                    addRelayContacts(connectionId, *pAudioContacts, bAddAudio, *pVideoContacts, bAddVideo) ;
+                    addLocalContacts(connectionId, *pAudioContacts, bAddAudio, *pVideoContacts, bAddVideo) ;
+                    addNatedContacts(connectionId, *pAudioContacts, bAddAudio, *pVideoContacts, bAddVideo) ;
+                    addArsContacts(connectionId, *pAudioContacts, bAddAudio, *pVideoContacts, bAddVideo) ;
                     break ;
                 case CONTACT_ARS:
-                    addArsContacts(connectionId, *pAudioContacts, *pVideoContacts) ;
-                    addLocalContacts(connectionId, *pAudioContacts, *pVideoContacts) ;
-                    addNatedContacts(connectionId, *pAudioContacts, *pVideoContacts) ;
-                    addRelayContacts(connectionId, *pAudioContacts, *pVideoContacts) ;
+                    addArsContacts(connectionId, *pAudioContacts, bAddAudio, *pVideoContacts, bAddVideo) ;
+                    addLocalContacts(connectionId, *pAudioContacts, bAddAudio, *pVideoContacts, bAddVideo) ;
+                    addNatedContacts(connectionId, *pAudioContacts, bAddAudio, *pVideoContacts, bAddVideo) ;
+                    addRelayContacts(connectionId, *pAudioContacts, bAddAudio, *pVideoContacts, bAddVideo) ;
                     break ;
                 default:
-                    addNatedContacts(connectionId, *pAudioContacts, *pVideoContacts) ;
-                    addLocalContacts(connectionId, *pAudioContacts, *pVideoContacts) ;
-                    addRelayContacts(connectionId, *pAudioContacts, *pVideoContacts) ;
-                    addArsContacts(connectionId, *pAudioContacts, *pVideoContacts) ;
+                    addNatedContacts(connectionId, *pAudioContacts, bAddAudio, *pVideoContacts, bAddVideo) ;
+                    addLocalContacts(connectionId, *pAudioContacts, bAddAudio, *pVideoContacts, bAddVideo) ;
+                    addRelayContacts(connectionId, *pAudioContacts, bAddAudio, *pVideoContacts, bAddVideo) ;
+                    addArsContacts(connectionId, *pAudioContacts, bAddAudio, *pVideoContacts, bAddVideo) ;
                     break ;
             }
 
@@ -2125,38 +2116,6 @@ bool VoiceEngineMediaInterface::resetVideoCaptureDevice()
 
 //////////////////////////////////////////////////////////////////////////////
 
-/*
-void VoiceEngineMediaInterface::receiveMedia(int connectionId, 
-                                             bool bAudio, 
-                                             bool bRtp, 
-                                             const char* pData, 
-                                             int nData) 
-{
-    CpMediaConnection* pMediaConnection = getMediaConnection(connectionId);
-    if (pMediaConnection)
-    {
-        VoiceEngineDatagramSocket* pSocket = NULL ;
-
-        if (bAudio)
-        {
-            if (bRtp)
-                 pSocket = (VoiceEngineDatagramSocket*) pMediaConnection->mpRtpAudioSocketArray[0] ;
-            else
-                 pSocket = (VoiceEngineDatagramSocket*) pMediaConnection->mpRtcpAudioSocketArray[0] ;
-        }
-        else
-        {
-            if (bRtp)
-                 pSocket = (VoiceEngineDatagramSocket*) pMediaConnection->mpRtpVideoSocketArray[0] ;
-            else
-                 pSocket = (VoiceEngineDatagramSocket*) pMediaConnection->mpRtcpVideoSocketArray[0] ;
-        }
-
-        if (pSocket)
-            pSocket->doPushPacket((char*) pData, (size_t) nData, 8000) ;
-    }
-}
-*/
 
 /* ============================ ACCESSORS ================================= */
 
@@ -2298,6 +2257,8 @@ OsStatus VoiceEngineMediaInterface::getAudioRtcpStats(const int connectionId,
     {
         GIPSVE_CallStatistics stats ;
         memset(&stats, 0, sizeof(GIPSVE_CallStatistics)) ;
+        memset(pStats, 0, sizeof(SIPX_RTCP_STATS)) ;
+        pStats->cbSize = sizeof(SIPX_RTCP_STATS) ;
 
         if (mpVoiceEngine->GIPSVE_RTCPStat(connectionId, &stats) == 0)
         {
@@ -2316,6 +2277,78 @@ OsStatus VoiceEngineMediaInterface::getAudioRtcpStats(const int connectionId,
     }
     return rc;
 }
+
+//////////////////////////////////////////////////////////////////////////////
+OsStatus VoiceEngineMediaInterface::getVideoRtcpStats(const int connectionId,
+                                                      SIPX_RTCP_STATS* const pStats)
+{
+    OsStatus rc = OS_FAILED;
+
+    if (mpVideoEngine)
+    {
+        GIPSVideo_CallStatistics stats ;
+        memset(&stats, 0, sizeof(GIPSVideo_CallStatistics)) ;
+        memset(pStats, 0, sizeof(SIPX_RTCP_STATS)) ;
+        pStats->cbSize = sizeof(SIPX_RTCP_STATS) ;
+
+        if (mpVideoEngine->getRTCPStats(connectionId, &stats) == 0)
+        {
+            pStats->fraction_lost = stats.fraction_lost ;
+            pStats->cum_lost = stats.cum_lost ;
+            pStats->ext_max = stats.ext_max ;
+            pStats->jitter = stats.jitter ;
+            pStats->RTT = stats.RTT ;
+            pStats->bytesSent = stats.bytesSent ;
+            pStats->packetsSent = stats.packetsSent ;
+            pStats->bytesReceived = stats.bytesReceived ;
+            pStats->packetsReceived = stats.packetsReceived ;
+
+            rc = OS_SUCCESS;
+        }
+    }
+    return rc;
+}
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+OsStatus VoiceEngineMediaInterface::getMediaDeviceInfo(MediaDeviceInfo::MediaDeviceInfoType type,
+                                                       MediaDeviceInfo& info) 
+{
+    OsStatus rc = OS_FAILED;
+
+    switch (type)
+    {
+    case MediaDeviceInfo::MDIT_AUDIO_INPUT:
+        if (mpVEFactoryImpl)
+        {
+            info = mpVEFactoryImpl->getAudioInputDeviceInfo() ;
+            rc = OS_SUCCESS ;
+        }
+        break ;
+    case MediaDeviceInfo::MDIT_AUDIO_OUTPUT:
+        if (mpVEFactoryImpl)
+        {
+            info = mpVEFactoryImpl->getAudioOutputDeviceInfo() ;
+            rc = OS_SUCCESS ;
+        }
+        break ;
+    case MediaDeviceInfo::MDIT_VIDEO_CAPTURE:
+        if (mpVideoEngine)
+        {
+            info = mpVideoEngine->getVideoCaptureDeviceInfo() ;
+            rc = OS_SUCCESS ;
+        }
+        break ;
+    default:
+        assert(false) ; // unsupport typed
+        break ;
+    }
+
+    return rc ;
+
+}
+
 //////////////////////////////////////////////////////////////////////////////
 
 OsStatus VoiceEngineMediaInterface::generateVoiceQualityReport(int connectionId,
@@ -2443,6 +2476,13 @@ void VoiceEngineMediaInterface::startAudioSocketSupport(CpMediaConnection* pMedi
                 pMediaConn->mbEnableSTUN ? mStunServer : ProxyDescriptor(),
                 pMediaConn->mbEnableTURN ? mTurnProxy : ProxyDescriptor());
 
+        if (pMediaConn->mbEnableSTUN)
+            mAudioMediaConnectivityInfo.setStunServer(mStunServer.getAddress()) ;
+        if (pMediaConn->mbEnableTURN)
+            mAudioMediaConnectivityInfo.setTurnServer(mTurnProxy.getAddress()) ;
+        if (rtpAudioSocketArray[numAudioSockets])
+            mAudioMediaConnectivityInfo.setUPNP(rtpAudioSocketArray[numAudioSockets]->getUpnpMappedPort() != PORT_NONE) ;
+        
         if (mbEnableRTCP)
         {
             rtcpAudioSocketArray[numAudioSockets] = mpVEFactoryImpl->getSocketFactory()->getUdpSocket(
@@ -2490,6 +2530,9 @@ void VoiceEngineMediaInterface::startAudioSocketSupport(CpMediaConnection* pMedi
                     mpMediaGuard) ;
 
             pMediaConn->mpArsAudioSocket->setPacketHandler(pMediaConn->mpArsAudioRAdapter) ;
+        
+            mAudioMediaConnectivityInfo.setArsServer(mArsProxy.getAddress()) ;
+            mAudioMediaConnectivityInfo.setArsHttpsProxy(mArsHttpProxy.getAddress()) ;
         }
 
         /*
@@ -2579,6 +2622,13 @@ void VoiceEngineMediaInterface::startVideoSocketSupport(CpMediaConnection* pMedi
                 pMediaConn->mLocalAddress,
                 pMediaConn->mbEnableSTUN ? mStunServer : ProxyDescriptor(),
                 pMediaConn->mbEnableTURN ? mTurnProxy : ProxyDescriptor());
+
+        if (pMediaConn->mbEnableSTUN)
+            mVideoMediaConnectivityInfo.setStunServer(mStunServer.getAddress()) ;
+        if (pMediaConn->mbEnableTURN)
+            mVideoMediaConnectivityInfo.setTurnServer(mTurnProxy.getAddress()) ;
+        if (rtpVideoSocketArray[rtpVidSockIndex])
+            mVideoMediaConnectivityInfo.setUPNP(rtpVideoSocketArray[rtpVidSockIndex]->getUpnpMappedPort() != PORT_NONE) ;
             
         if (mbEnableRTCP)
         {                
@@ -2626,6 +2676,9 @@ void VoiceEngineMediaInterface::startVideoSocketSupport(CpMediaConnection* pMedi
                     mpMediaGuard) ;
 
             pMediaConn->mpArsVideoSocket->setPacketHandler(pMediaConn->mpArsVideoRAdapter) ;
+            mVideoMediaConnectivityInfo.setArsServer(mArsProxy.getAddress()) ;
+            mVideoMediaConnectivityInfo.setArsHttpsProxy(mArsHttpProxy.getAddress()) ;
+
         }
 
 

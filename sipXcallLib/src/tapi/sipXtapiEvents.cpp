@@ -499,7 +499,15 @@ static const char* convertConfigEventToString(SIPX_CONFIG_EVENT event)
         case CONFIG_NAT_CLASSIFICATION:
             str = "CONFIG_NAT_CLASSIFICATION" ;
             break ;
-
+        case CONFIG_UPNP_SUCCESS:
+            str = "CONFIG_UPNP_SUCCESS" ;
+            break ;
+        case CONFIG_UPNP_FAILURE:
+            str = "CONFIG_UPNP_FAILURE" ;
+            break ;
+        case CONFIG_CALL_STATS:
+            str = "CONFIG_CALL_STATS" ;
+            break ;
         default:
             break ;
     }
@@ -552,6 +560,47 @@ const char* convertSubscriptionCauseToString(SIPX_SUBSCRIPTION_CAUSE cause)
 }
 
 #define SAFE_STRDUP(X) (((X) == NULL) ? NULL : strdup((X)))
+
+static void dupConnectivityInfo(SIPX_MEDIA_CONNECTIVITY_INFO* pDst, const SIPX_MEDIA_CONNECTIVITY_INFO* pSrc)
+{
+    memcpy(pDst, pSrc, sizeof(SIPX_MEDIA_CONNECTIVITY_INFO)) ;
+    pDst->szStunServer = SAFE_STRDUP(pDst->szStunServer) ;
+    pDst->szTurnServer = SAFE_STRDUP(pDst->szTurnServer) ;
+    pDst->szArsServer = SAFE_STRDUP(pDst->szArsServer) ;
+    pDst->szArsProxy = SAFE_STRDUP(pDst->szArsProxy) ;
+    for (size_t i=0; i<pDst->nLocalContacts; i++)
+        pDst->szLocalContacts[i] = SAFE_STRDUP(pDst->szLocalContacts[i]) ;
+    pDst->szRemoteIP = SAFE_STRDUP(pDst->szRemoteIP) ;
+}
+
+static void freeConnectivityInfo(SIPX_MEDIA_CONNECTIVITY_INFO* pDst)
+{
+    free((void*) pDst->szStunServer) ;
+    free((void*) pDst->szTurnServer) ;
+    free((void*) pDst->szArsServer) ;
+    free((void*) pDst->szArsProxy) ;
+    for (size_t i=0; i<pDst->nLocalContacts; i++)
+        free((void*) pDst->szLocalContacts[i]) ;
+    free((void*) pDst->szRemoteIP) ;
+}
+
+static void dupMediaDeviceInfo(SIPX_MEDIA_DEVICE_INFO* pDst, const SIPX_MEDIA_DEVICE_INFO* pSrc)
+{
+    memcpy(pDst, pSrc, sizeof(SIPX_MEDIA_DEVICE_INFO)) ;
+    pDst->szRequested = SAFE_STRDUP(pDst->szRequested) ;
+    pDst->szSelected = SAFE_STRDUP(pDst->szSelected) ;
+    pDst->szParameters = SAFE_STRDUP(pDst->szParameters) ;
+    pDst->szErrorInfo = SAFE_STRDUP(pDst->szErrorInfo) ;
+}
+
+static void freeMediaDeviceInfo(SIPX_MEDIA_DEVICE_INFO* pDst)
+{
+    free((void*) pDst->szRequested) ;
+    free((void*) pDst->szSelected) ;
+    free((void*) pDst->szParameters) ;
+    free((void*) pDst->szErrorInfo) ;
+}
+
 
 SIPXTAPI_API SIPX_RESULT sipxDuplicateEvent(SIPX_EVENT_CATEGORY category, 
                                             const void*         pEventSource, 
@@ -707,16 +756,50 @@ SIPXTAPI_API SIPX_RESULT sipxDuplicateEvent(SIPX_EVENT_CATEGORY category,
                     memset(pInfo, 0, sizeof(SIPX_CONFIG_INFO)) ;                    
                     pInfo->nSize = pSourceInfo->nSize ;
                     pInfo->event = pSourceInfo->event ;
-                    
-                    if (pSourceInfo->pData)
-                    {
-                        pInfo->pData = new SIPX_CONTACT_ADDRESS(*((SIPX_CONTACT_ADDRESS*) pSourceInfo->pData)) ;
-                    }
-                    else
-                    {
-                        pInfo->pData = NULL ;
-                    }
 
+                    switch (pSourceInfo->event)
+                    {
+                    case CONFIG_STUN_SUCCESS:
+                        if (pSourceInfo->pData)
+                            pInfo->pData = new SIPX_CONTACT_ADDRESS(*((SIPX_CONTACT_ADDRESS*) pSourceInfo->pData)) ;
+                        break ;
+                    case CONFIG_NAT_CLASSIFICATION:
+                        pInfo->pData = pSourceInfo->pData ;
+                        break ;
+                    case CONFIG_CALL_STATS:
+                        {
+                            const SIPX_CONFIG_CALLSTATS_INFO* pSrcInfo = 
+                                    (const SIPX_CONFIG_CALLSTATS_INFO*) pSourceInfo->pData  ;
+                            if (pSrcInfo)
+                            {
+                                SIPX_CONFIG_CALLSTATS_INFO* pDstInfo = new SIPX_CONFIG_CALLSTATS_INFO ;
+                                memset(pDstInfo, 0, sizeof(SIPX_CONFIG_CALLSTATS_INFO)) ;
+                                pDstInfo->nSize = sizeof(SIPX_CONFIG_CALLSTATS_INFO) ;
+                                pDstInfo->signalingTransport = pSrcInfo->signalingTransport ;
+                                pDstInfo->szCallId = SAFE_STRDUP(pSrcInfo->szCallId) ;
+                                pDstInfo->szLocalId = SAFE_STRDUP(pSrcInfo->szLocalId) ;
+                                pDstInfo->szRemoteId = SAFE_STRDUP(pSrcInfo->szRemoteId) ;
+                                pDstInfo->szRemoteUserAgent = SAFE_STRDUP(pSrcInfo->szRemoteUserAgent) ;
+    
+                                memcpy(&pDstInfo->audioRtcpStats, &pSrcInfo->audioRtcpStats, sizeof(SIPX_RTCP_STATS)) ;
+                                memcpy(&pDstInfo->audioCodec, &pSrcInfo->audioCodec, sizeof(SIPX_AUDIO_CODEC)) ;
+
+                                dupMediaDeviceInfo(&pDstInfo->audioInputDevice, &pSrcInfo->audioInputDevice) ;
+                                dupMediaDeviceInfo(&pDstInfo->audioOutputDevice, &pSrcInfo->audioOutputDevice) ;
+                                dupConnectivityInfo(&pDstInfo->audioConnectivityInfo, &pSrcInfo->audioConnectivityInfo) ;
+                                    
+                                memcpy(&pDstInfo->videoRtcpStats, &pSrcInfo->videoRtcpStats, sizeof(SIPX_RTCP_STATS)) ;
+                                memcpy(&pDstInfo->videoCodec, &pSrcInfo->videoCodec, sizeof(SIPX_VIDEO_CODEC)) ;
+                                dupMediaDeviceInfo(&pDstInfo->videoCaptureDevice, &pSrcInfo->videoCaptureDevice) ;
+                                dupConnectivityInfo(&pDstInfo->videoConnectivityInfo, &pSrcInfo->videoConnectivityInfo) ;
+                            }
+                        }
+                        break ;
+                    default:  
+                        // nothing to do
+                        break;
+                    }
+                    
                     *pEventCopy = pInfo ;
 
                     rc = SIPX_RESULT_SUCCESS ;
@@ -852,6 +935,7 @@ SIPXTAPI_API SIPX_RESULT sipxFreeDuplicatedEvent(SIPX_EVENT_CATEGORY category,
             case EVENT_CATEGORY_INFO:
                 {
                     SIPX_INFO_INFO* pSourceInfo = (SIPX_INFO_INFO*) pEventCopy ;
+
                     if (pSourceInfo->szFromURL)
                     {
                         free((void*) pSourceInfo->szFromURL) ;
@@ -908,10 +992,39 @@ SIPXTAPI_API SIPX_RESULT sipxFreeDuplicatedEvent(SIPX_EVENT_CATEGORY category,
             case EVENT_CATEGORY_CONFIG:
                 {
                     SIPX_CONFIG_INFO* pSourceInfo = (SIPX_CONFIG_INFO*) pEventCopy ;                    
-                    if (pSourceInfo->pData)
+                    switch (pSourceInfo->event)
                     {
-                        delete ((SIPX_CONTACT_ADDRESS*) pSourceInfo->pData) ;
-                    }                    
+                    case CONFIG_STUN_SUCCESS:
+                        if (pSourceInfo->pData)
+                            delete ((SIPX_CONTACT_ADDRESS*) pSourceInfo->pData) ;
+                        break ;
+                    case CONFIG_CALL_STATS:
+
+                        if (pSourceInfo->pData)
+                        {
+                            SIPX_CONFIG_CALLSTATS_INFO* pCallStatsInfo = 
+                                    (SIPX_CONFIG_CALLSTATS_INFO*) pSourceInfo->pData ;
+                            free((void*) pCallStatsInfo->szCallId) ;
+                            free((void*) pCallStatsInfo->szLocalId) ;
+                            free((void*) pCallStatsInfo->szRemoteId) ;
+                            free((void*) pCallStatsInfo->szRemoteUserAgent) ;
+
+                            freeConnectivityInfo(&pCallStatsInfo->audioConnectivityInfo) ;
+                            freeMediaDeviceInfo(&pCallStatsInfo->audioInputDevice) ;
+                            freeMediaDeviceInfo(&pCallStatsInfo->audioOutputDevice) ;
+                           
+                            freeConnectivityInfo(&pCallStatsInfo->videoConnectivityInfo) ;
+                            freeMediaDeviceInfo(&pCallStatsInfo->videoCaptureDevice) ;
+
+                            delete pCallStatsInfo ;
+                        }                        
+
+                        break ;
+                    default:  
+                        // nothing to do
+                        break;
+                    }
+
                     delete pSourceInfo ;
                     rc = SIPX_RESULT_SUCCESS ;
                 }
@@ -1640,7 +1753,6 @@ SIPXTAPI_API SIPX_RESULT sipxLogEvent(EVENT_LISTENER_DATA* pListener,
         OsSysLog::add(FAC_SIPXTAPI_EVENT, PRI_INFO, "%p %s", 
                 pListener->pCallbackProc,
                 cData) ;
-        // printf("%p %s\n", pListener->pCallbackProc, cData) ;
     }
 
     return SIPX_RESULT_SUCCESS ;
@@ -1873,24 +1985,8 @@ static const char* convertLinestateCauseToString(SIPX_LINESTATE_CAUSE cause)
 SIPXTAPI_API char* sipxConfigEventToString(SIPX_CONFIG_EVENT event, 
                                            char* szBuffer, 
                                            size_t nBuffer) 
-{
-    switch (event)
-    {
-        case CONFIG_UNKNOWN:
-            SNPRINTF(szBuffer, nBuffer, "CONFIG_UNKNOWN") ;
-            break ;
-        case CONFIG_STUN_SUCCESS:
-            SNPRINTF(szBuffer, nBuffer, "CONFIG_STUN_SUCCESS") ;
-            break ;
-        case CONFIG_STUN_FAILURE:
-            SNPRINTF(szBuffer, nBuffer, "CONFIG_STUN_FAILURE") ;
-            break ;
-        default:
-            SNPRINTF(szBuffer, nBuffer, "ERROR -- UNKNOWN EVENT") ;
-            assert(FALSE) ;
-            break ;
-    }
-
+{   
+    SNPRINTF(szBuffer, nBuffer, convertConfigEventToString(event)) ;
     return szBuffer;
 }
 

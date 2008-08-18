@@ -3013,19 +3013,17 @@ SIPXTAPI_API SIPX_RESULT sipxCallGetAudioRtcpStats(const SIPX_CALL hCall,
     int connectionId ;
 
     // TODO: This should really be plumbed through the call manager
-
     if (pStats && pStats->cbSize == sizeof(SIPX_RTCP_STATS))
     {
         if (sipxCallGetConnectionId(hCall, connectionId) == SIPX_RESULT_SUCCESS)
         {
             rc = SIPX_RESULT_FAILURE ;
             SIPX_CALL_DATA* pCallData = sipxCallLookup(hCall, SIPX_LOCK_READ);
-            IMediaInterface* pMediaInterface = NULL;
             if (pCallData)
             {
                 if (pCallData->pMediaInterface)
                 {
-                    pMediaInterface->getAudioRtcpStats(connectionId, pStats);
+                    pCallData->pMediaInterface->getAudioRtcpStats(connectionId, pStats);
                 }
             }
         }
@@ -3034,6 +3032,33 @@ SIPXTAPI_API SIPX_RESULT sipxCallGetAudioRtcpStats(const SIPX_CALL hCall,
     return rc ;
 }
 
+
+SIPXTAPI_API SIPX_RESULT sipxCallGetVideoRtcpStats(const SIPX_CALL hCall,
+                                                   SIPX_RTCP_STATS* pStats) 
+{
+    OsStackTraceLogger stackLogger(FAC_SIPXTAPI, PRI_DEBUG, "sipxCallGetVideoRtcpStats");
+    SIPX_RESULT rc = SIPX_RESULT_INVALID_ARGS ;
+    int connectionId ;
+
+    // TODO: This should really be plumbed through the call manager
+    if (pStats && pStats->cbSize == sizeof(SIPX_RTCP_STATS))
+    {
+        if (sipxCallGetConnectionId(hCall, connectionId) == SIPX_RESULT_SUCCESS)
+        {
+            rc = SIPX_RESULT_FAILURE ;
+            SIPX_CALL_DATA* pCallData = sipxCallLookup(hCall, SIPX_LOCK_READ);
+            if (pCallData)
+            {
+                if (pCallData->pMediaInterface)
+                {
+                    pCallData->pMediaInterface->getVideoRtcpStats(connectionId, pStats);
+                }
+            }
+        }
+    }
+
+    return rc ;
+}
 
 SIPXTAPI_API SIPX_RESULT sipxCallAudioSetRemoteVolumeScale(const SIPX_CALL hCall,
                                                            float fVolumeScaling) 

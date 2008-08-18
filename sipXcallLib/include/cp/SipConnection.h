@@ -204,6 +204,7 @@ public:
 
     void setVoiceQualityReportTarget(const char* szTargetSipUrl) ;
     void sendVoiceQualityReport(const char* szTargetSipUrl) ;
+    void fireCallStatsEvent() ;
 
     void storeMatchingCodecs(int numEncoderCodecs,
                              SdpCodec** matchingEncoderCodecs,

@@ -4080,12 +4080,16 @@ void CallManager::doEnableTurn()
             OsHostPort selectedServer;
             UtlString turnDomain(mTurnProxy.getAddress().data());
             UtlString* turnDomains[1];
+            int turnPorts[1] ;
+
             turnDomains[0] = &turnDomain;
+            turnPorts[0] = mTurnProxy.getPort() ;
             NetTurnSelector turnSelector;
             int numAvailable = 0;
             bool bSuccess = turnSelector.selectBestTurnServer(selectedServer,
                 numAvailable,
                 turnDomains,
+                turnPorts,
                 1,
                 localAddress.data(),
                 mTurnProxy.getUsername(),
@@ -4111,8 +4115,8 @@ void CallManager::doEnableTurn()
             {
                 if (numAvailable == 1)
                 {
-                    mTurnProxy.setPort(selectedServer.getPort());
                     mTurnProxy.setAddress(selectedServer.getHost());
+                    mTurnProxy.setPort(selectedServer.getPort()) ;
                     doTest = true;
                 }
             }

@@ -13,7 +13,8 @@
 //
 // You should have received a copy of the GNU Lesser General Public
 // License along with this library; if not, write to the Free Software
-// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA. 
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
+// USA. 
 // 
 // Copyright (C) 2005-2006 SIPez LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.
@@ -51,14 +52,94 @@ int CpMediaInterface::sInvalidConnectionId = -1;
 
 /* ============================ CREATORS ================================== */
 
-// Constructor
+
+// Default Constructor
 CpMediaInterface::CpMediaInterface()
+    : mpSocketIdleSink(NULL)
+    , mbConferenceEnabled(false)
+    , mbIsEncrypted(false)
+    , mPrimaryVideoCodec(NULL)
+    , mpSecurityAttributes(NULL)
+    , mpMediaPacketCallback(NULL)
+    , mpFactoryImpl(NULL)
+    , mAudioMediaConnectivityInfo(MediaConnectivityInfo::MCIT_AUDIO_RTP)
+    , mVideoMediaConnectivityInfo(MediaConnectivityInfo::MCIT_VIDEO_RTP)
 {
+
 }
+
+// Constructor
+CpMediaInterface::CpMediaInterface(IMediaDeviceMgr* pFactoryImpl,
+                                   const char* publicAddress,
+                                   const char* localAddress,
+                                   int numCodecs,
+                                   SdpCodec* sdpCodecArray[],
+                                   const char* locale,
+                                   int expeditedIpTos,
+                                   const ProxyDescriptor& stunServer,
+                                   const ProxyDescriptor& turnProxy,
+                                   const ProxyDescriptor& arsProxy,
+                                   const ProxyDescriptor& arsHttpProxy,
+                                   UtlBoolean bDTMFOutOfBand,
+  	                               UtlBoolean bDTMFInBand,
+  	                               UtlBoolean bEnableRTCP,
+                                   const char* szRtcpName,
+                                   SIPX_MEDIA_PACKET_CALLBACK pMediaPacketCallback)
+    : mpSocketIdleSink(NULL)
+    , mbConferenceEnabled(false)
+    , mbIsEncrypted(false)
+    , mInitialCodecs(numCodecs, sdpCodecArray)
+    , mSupportedCodecs(numCodecs, sdpCodecArray)
+    , mPrimaryVideoCodec(NULL)
+    , mpSecurityAttributes(NULL)
+    , mpMediaPacketCallback(pMediaPacketCallback)
+    , mpFactoryImpl(pFactoryImpl)
+    , mAudioMediaConnectivityInfo(MediaConnectivityInfo::MCIT_AUDIO_RTP)
+    , mVideoMediaConnectivityInfo(MediaConnectivityInfo::MCIT_VIDEO_RTP)
+   {
+   }
+
 
 // Destructor
 CpMediaInterface::~CpMediaInterface()
 {
+}
+
+OsStatus CpMediaInterface::setUserAgent(int connectionId,
+                                        const char* szUserAgent)
+{
+    OsStatus rc = OS_FAILED ;
+    CpMediaConnection* pMediaConn = getMediaConnection(connectionId);
+
+    if (pMediaConn && szUserAgent && strlen(szUserAgent))
+    {        
+        if (pMediaConn->mUserAgent.compareTo(szUserAgent, UtlString::ignoreCase) != 0)
+        {
+            pMediaConn->mUserAgent = szUserAgent ;
+            rc = OS_SUCCESS ;
+        }
+    }
+    else if (pMediaConn == NULL)
+    {
+        assert(FALSE) ;
+    }
+
+    return rc ;
+
+}
+
+
+const char* CpMediaInterface::getUserAgent(int connectionId) 
+{
+    const char* szRC = NULL ;
+
+    CpMediaConnection* pMediaConn = getMediaConnection(connectionId);
+    if (pMediaConn)
+    {        
+        szRC = pMediaConn->mUserAgent.data() ;
+    }
+
+    return szRC ;
 }
 
 
@@ -204,11 +285,13 @@ void CpMediaInterface::doEnableTurn(CpMediaConnection* pMediaConnection,
             if (pMediaConnection->mpRtpAudioSocketArray[i])
             {
                 if (bEnable)
+                {
                     pMediaConnection->mpRtpAudioSocketArray[i]->enableTurn(
                             mTurnProxy.getAddress(), mTurnProxy.getPort(), 
                             mTurnProxy.getKeepalive(), 
                             mTurnProxy.getUsername(), mTurnProxy.getPassword(), 
                             false) ;
+                }
                 else
                     pMediaConnection->mpRtpAudioSocketArray[i]->disableTurn() ;
             }
@@ -228,11 +311,13 @@ void CpMediaInterface::doEnableTurn(CpMediaConnection* pMediaConnection,
             if (pMediaConnection->mpRtpVideoSocketArray[i])
             {
                 if (bEnable)
+                {
                     pMediaConnection->mpRtpVideoSocketArray[i]->enableTurn(
                             mTurnProxy.getAddress(), mTurnProxy.getPort(), 
                             mTurnProxy.getKeepalive(),
                             mTurnProxy.getUsername(), mTurnProxy.getPassword(), 
                             false) ;
+                }
                 else
                     pMediaConnection->mpRtpVideoSocketArray[i]->disableTurn() ;
             }
@@ -1060,8 +1145,9 @@ bool CpMediaInterface::applyAlternateDestinations(int connectionId, bool& bAudio
     {
         if (pMediaConnection->mIsMulticast)
         {
-           return false;
+            return false;
         }
+
         assert(!pMediaConnection->mDestinationSet) ;
         pMediaConnection->mDestinationSet = true ;
 
@@ -1177,13 +1263,14 @@ bool CpMediaInterface::applyAlternateDestinations(int connectionId, bool& bAudio
             }
         }
 
-
         // Get the real data
         for (int i = 0; (i < 2) && !bDone; i++)
         {
             if (pMediaConnection->mpRtpAudioSocketArray[i])
             {
-                if (pMediaConnection->mpRtpAudioSocketArray[i]->getBestDestinationAddress(destAddress, destPort, bViaOurAudioRelay, audioPriority))
+                int timeMS = 0 ;
+                mAudioMediaConnectivityInfo.setIce(true) ;
+                if (pMediaConnection->mpRtpAudioSocketArray[i]->getBestDestinationAddress(destAddress, destPort, bViaOurAudioRelay, audioPriority, timeMS))
                 {                    
                     rtpAudioSendHostAddress = destAddress;
                     rtpAudioSendHostPort = destPort;
@@ -1196,11 +1283,13 @@ bool CpMediaInterface::applyAlternateDestinations(int connectionId, bool& bAudio
                     bError = true ;
                     OsSysLog::add(FAC_MP, PRI_ERR, "ICE FAILURE: Unable to get audio rtp address") ;
                 }
+                mAudioMediaConnectivityInfo.setIceTime(timeMS) ;
             }
 
             if (pMediaConnection->mpRtcpAudioSocketArray[i] && mbEnableRTCP)
             {
-                if (pMediaConnection->mpRtcpAudioSocketArray[i]->getBestDestinationAddress(destAddress, destPort, bIgnore, iIgnore))
+                int timeMS = 0 ;
+                if (pMediaConnection->mpRtcpAudioSocketArray[i]->getBestDestinationAddress(destAddress, destPort, bIgnore, iIgnore, timeMS))
                 {
                     rtcpAudioSendHostPort = destPort;
                     if ((rtpAudioSendHostAddress.compareTo(destAddress) != 0) || (bViaOurAudioRelay != bIgnore))
@@ -1222,7 +1311,9 @@ bool CpMediaInterface::applyAlternateDestinations(int connectionId, bool& bAudio
             
             if (pMediaConnection->mpRtpVideoSocketArray[i])
             {
-                if (pMediaConnection->mpRtpVideoSocketArray[i]->getBestDestinationAddress(destAddress, destPort, bViaOurVideoRelay, videoPriority))
+                mVideoMediaConnectivityInfo.setIce(true) ;
+                int timeMS = 0 ;
+                if (pMediaConnection->mpRtpVideoSocketArray[i]->getBestDestinationAddress(destAddress, destPort, bViaOurVideoRelay, videoPriority, timeMS))
                 {
                     rtpVideoSendHostAddress = destAddress;
                     rtpVideoSendHostPort = destPort;
@@ -1238,11 +1329,13 @@ bool CpMediaInterface::applyAlternateDestinations(int connectionId, bool& bAudio
                     bVideoFailure = true ;
                     OsSysLog::add(FAC_MP, PRI_ERR, "ICE FAILURE: Unable to get video rtp address") ;
                 }
+                mVideoMediaConnectivityInfo.setIceTime(timeMS) ;
             }
 
             if (pMediaConnection->mpRtcpVideoSocketArray[i] && mbEnableRTCP)
             {
-                if (pMediaConnection->mpRtcpVideoSocketArray[i]->getBestDestinationAddress(destAddress, destPort, bIgnore, iIgnore))
+                int timeMS = 0 ;
+                if (pMediaConnection->mpRtcpVideoSocketArray[i]->getBestDestinationAddress(destAddress, destPort, bIgnore, iIgnore, timeMS))
                 {
                     rtcpVideoSendHostPort = destPort;
                     if ((rtpVideoSendHostAddress.compareTo(destAddress) != 0) || (bViaOurVideoRelay != bIgnore))
@@ -1297,7 +1390,6 @@ bool CpMediaInterface::applyAlternateDestinations(int connectionId, bool& bAudio
             }
         }
 
-
         if (bAudioSelectedArs && (pMediaConnection->mpArsVideoSocket == NULL || bVideoSelectedArs))
             bError = false ;
 
@@ -1312,14 +1404,14 @@ bool CpMediaInterface::applyAlternateDestinations(int connectionId, bool& bAudio
 }
 
 OsStatus CpMediaInterface::setConnectionDestination(int connectionId,
-                                                             const char* remoteAudioAddress,
-                                                             int remoteAudioRtpPort,
-                                                             int remoteAudioRtcpPort,
-                                                             int remoteAudioType,
-                                                             const char* remoteVideoAddress,
-                                                             int remoteVideoRtpPort,
-                                                             int remoteVideoRtcpPort,
-                                                             int remoteVideoType)
+                                                    const char* remoteAudioAddress,
+                                                    int remoteAudioRtpPort,
+                                                    int remoteAudioRtcpPort,
+                                                    int remoteAudioType,
+                                                    const char* remoteVideoAddress,
+                                                    int remoteVideoRtpPort,
+                                                    int remoteVideoRtcpPort,
+                                                    int remoteVideoType)
 {    
     OS_PERF_FUNC("VoiceEngineMediaInterface::setConnectionDestination") ;
     OsLock lock(*mpMediaGuard) ;
@@ -1337,11 +1429,55 @@ OsStatus CpMediaInterface::setConnectionDestination(int connectionId,
             remoteVideoRtpPort,
             remoteVideoRtcpPort,
             remoteVideoType == 1,
-            remoteVideoType == 2) ;                             
-
+            remoteVideoType == 2) ;
+   
     CpMediaConnection* pMediaConnection = getMediaConnection(connectionId);
     if (pMediaConnection)
     {
+        // Store connection destination Info for Audio
+        mAudioMediaConnectivityInfo.setRemoteMediaAddr(remoteAudioAddress, remoteAudioRtpPort) ;
+        switch (remoteAudioType)
+        {
+        case 0:
+            mAudioMediaConnectivityInfo.setOurRelayType(MediaConnectivityInfo::MCIRT_NONE) ;
+            break ;
+        case 1:
+            mAudioMediaConnectivityInfo.setOurRelayType(MediaConnectivityInfo::MCIRT_TURN_UDP) ;
+            break ;
+        case 2:
+            assert(pMediaConnection->mpArsAudioSocket != NULL) ;
+            if (pMediaConnection->mpArsAudioSocket && pMediaConnection->mpArsAudioSocket->isUsingHttpsProxy())
+                mAudioMediaConnectivityInfo.setOurRelayType(MediaConnectivityInfo::MCIRT_ARS_HTTPS) ;
+            else
+                mAudioMediaConnectivityInfo.setOurRelayType(MediaConnectivityInfo::MCIRT_ARS) ;
+            break ;
+        default:
+            assert(false) ;
+            break ;
+        }
+
+        // Store connection destination Info for Video
+        mVideoMediaConnectivityInfo.setRemoteMediaAddr(remoteVideoAddress, remoteVideoRtpPort) ;
+        switch (remoteVideoType)
+        {
+        case 0:
+            mVideoMediaConnectivityInfo.setOurRelayType(MediaConnectivityInfo::MCIRT_NONE) ;
+            break ;
+        case 1:
+            mVideoMediaConnectivityInfo.setOurRelayType(MediaConnectivityInfo::MCIRT_TURN_UDP) ;
+            break ;
+        case 2:
+            assert(pMediaConnection->mpArsVideoSocket != NULL) ;
+            if (pMediaConnection->mpArsVideoSocket && pMediaConnection->mpArsVideoSocket->isUsingHttpsProxy())
+                mVideoMediaConnectivityInfo.setOurRelayType(MediaConnectivityInfo::MCIRT_ARS_HTTPS) ;
+            else
+                mVideoMediaConnectivityInfo.setOurRelayType(MediaConnectivityInfo::MCIRT_ARS) ;
+            break ;
+        default:
+            assert(false) ;
+            break ;
+        }
+
         /*
          * Common setup
          */
@@ -1566,6 +1702,36 @@ bool CpMediaInterface::hasAudioOutputDevice()
 
     return bRet;
 }
+
+bool CpMediaInterface::getMediaConnectivityInfo(MediaConnectivityInfo::MediaConnectivityInfoType type,
+                                                MediaConnectivityInfo& rMediaConnectivityInfo) 
+{
+    bool bRC = false ;
+
+    switch (type)
+    {
+    case MediaConnectivityInfo::MCIT_AUDIO_RTP:
+        rMediaConnectivityInfo = mAudioMediaConnectivityInfo ;
+        bRC = true ;
+        break ;
+    case MediaConnectivityInfo::MCIT_AUDIO_RTCP:
+        // Not implemented
+        break ;
+    case MediaConnectivityInfo::MCIT_VIDEO_RTP:
+        rMediaConnectivityInfo = mVideoMediaConnectivityInfo ;
+        bRC = true ;
+        break ;
+    case MediaConnectivityInfo::MCIT_VIDEO_RTCP:
+        // Not implemented
+        break ;
+    default:
+        assert(false) ; // Bogus value
+        break ;
+
+    }
+    return bRC ;
+}
+
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -2026,8 +2192,10 @@ bool CpMediaInterface::getArsAddresses(int connectionId,
 //////////////////////////////////////////////////////////////////////////////
 
 OsStatus CpMediaInterface::addLocalContacts(int connectionId, 
-                                                     UtlSList& audioContacts,
-                                                     UtlSList& videoContacts)
+                                            UtlSList& audioContacts,
+                                            bool bAddAudioToConnInfo,
+                                            UtlSList& videoContacts,
+                                            bool bAddVideoToConnInfo)
 {
     UtlString hostIp ;
     int rtpAudioPort = PORT_NONE ;
@@ -2062,6 +2230,9 @@ OsStatus CpMediaInterface::addLocalContacts(int connectionId,
                     audioContacts.append(pAudioContact) ;
                 else
                     delete pAudioContact ;
+                
+                if (bAddAudioToConnInfo)
+                    mAudioMediaConnectivityInfo.addLocalCandidate("udp", hostIp, rtpAudioPort) ;
             }
 
             if (rtpVideoPort > 0)
@@ -2071,6 +2242,9 @@ OsStatus CpMediaInterface::addLocalContacts(int connectionId,
                     videoContacts.append(pVideoContact) ;
                 else
                     delete pVideoContact ;
+
+                if (bAddVideoToConnInfo)
+                    mVideoMediaConnectivityInfo.addLocalCandidate("udp", hostIp, rtpVideoPort) ;
             }           
             rc = OS_SUCCESS ;
         }
@@ -2100,6 +2274,10 @@ OsStatus CpMediaInterface::addLocalContacts(int connectionId,
                     audioContacts.append(pAudioContact) ;
                 else
                     delete pAudioContact ;
+
+                if (bAddAudioToConnInfo)
+                    mAudioMediaConnectivityInfo.addLocalCandidate("tcp", hostIp, rtpAudioPort) ;
+
             }
 
             if (rtpVideoPort > 0)
@@ -2109,6 +2287,9 @@ OsStatus CpMediaInterface::addLocalContacts(int connectionId,
                     videoContacts.append(pVideoContact) ;
                 else
                     delete pVideoContact ;
+
+                if (bAddVideoToConnInfo)
+                    mVideoMediaConnectivityInfo.addLocalCandidate("tcp", hostIp, rtpVideoPort) ;
             }           
             rc = OS_SUCCESS ;
         }    
@@ -2119,8 +2300,10 @@ OsStatus CpMediaInterface::addLocalContacts(int connectionId,
 //////////////////////////////////////////////////////////////////////////////
 
 OsStatus CpMediaInterface::addNatedContacts(int connectionId, 
-                                                     UtlSList& audioContacts,
-                                                     UtlSList& videoContacts)
+                                            UtlSList& audioContacts,
+                                            bool bAddAudioToConnInfo,
+                                            UtlSList& videoContacts,
+                                            bool bAddVideoToConnInfo)
 {
     UtlString hostIp ;
     int rtpAudioPort = PORT_NONE ;
@@ -2155,6 +2338,9 @@ OsStatus CpMediaInterface::addNatedContacts(int connectionId,
                     audioContacts.append(pAudioContact) ;
                 else
                     delete pAudioContact ;
+
+                if (bAddAudioToConnInfo)
+                    mAudioMediaConnectivityInfo.addLocalCandidate("udp_stun", hostIp, rtpAudioPort) ;
             }
 
             if (rtpVideoPort > 0)
@@ -2164,6 +2350,9 @@ OsStatus CpMediaInterface::addNatedContacts(int connectionId,
                     videoContacts.append(pVideoContact) ;
                 else
                     delete pVideoContact ;
+
+                if (bAddVideoToConnInfo)
+                    mVideoMediaConnectivityInfo.addLocalCandidate("udp_stun", hostIp, rtpVideoPort) ;
             }           
             rc = OS_SUCCESS ;
         }
@@ -2176,8 +2365,10 @@ OsStatus CpMediaInterface::addNatedContacts(int connectionId,
 //////////////////////////////////////////////////////////////////////////////
 
 OsStatus CpMediaInterface::addRelayContacts(int connectionId, 
-                                                     UtlSList& audioContacts,
-                                                     UtlSList& videoContacts)
+                                            UtlSList& audioContacts,
+                                            bool bAddAudioToConnInfo,
+                                            UtlSList& videoContacts,
+                                            bool bAddVideoToConnInfo)
 {
     UtlString audioHostIp, videoHostIp ;
     int rtpAudioPort = PORT_NONE ;
@@ -2213,6 +2404,9 @@ OsStatus CpMediaInterface::addRelayContacts(int connectionId,
                     audioContacts.append(pAudioContact) ;
                 else
                     delete pAudioContact ;
+
+                if (bAddAudioToConnInfo)
+                    mAudioMediaConnectivityInfo.addLocalCandidate("udp_turn", audioHostIp, rtpAudioPort) ;
             }
 
             if (rtpVideoPort > 0)
@@ -2222,6 +2416,9 @@ OsStatus CpMediaInterface::addRelayContacts(int connectionId,
                     videoContacts.append(pVideoContact) ;
                 else
                     delete pVideoContact ;
+
+                if (bAddVideoToConnInfo)
+                    mVideoMediaConnectivityInfo.addLocalCandidate("udp_turn", videoHostIp, rtpVideoPort) ;
             }           
             rc = OS_SUCCESS ;
         }
@@ -2253,6 +2450,9 @@ OsStatus CpMediaInterface::addRelayContacts(int connectionId,
                     audioContacts.append(pAudioContact) ;
                 else
                     delete pAudioContact ;
+
+                if (bAddAudioToConnInfo)
+                    mAudioMediaConnectivityInfo.addLocalCandidate("tcp_turn", audioHostIp, rtpAudioPort) ;
             }
 
             if (rtpVideoPort > 0)
@@ -2262,6 +2462,10 @@ OsStatus CpMediaInterface::addRelayContacts(int connectionId,
                     videoContacts.append(pVideoContact) ;
                 else
                     delete pVideoContact ;
+
+                if (bAddVideoToConnInfo)
+                    mVideoMediaConnectivityInfo.addLocalCandidate("tcp_turn", videoHostIp, rtpVideoPort) ;
+
             }           
             rc = OS_SUCCESS ;
         }
@@ -2274,8 +2478,10 @@ OsStatus CpMediaInterface::addRelayContacts(int connectionId,
 //////////////////////////////////////////////////////////////////////////////
 
 OsStatus CpMediaInterface::addArsContacts(int connectionId, 
-                                                   UtlSList& audioContacts,
-                                                   UtlSList& videoContacts)
+                                          UtlSList& audioContacts,
+                                          bool bAddAudioToConnInfo,
+                                          UtlSList& videoContacts,
+                                          bool bAddVideoToConnInfo)
 {
     UtlString audioHostIp, videoHostIp ;
     int rtpAudioPort = PORT_NONE ;
@@ -2299,6 +2505,10 @@ OsStatus CpMediaInterface::addArsContacts(int connectionId,
                     audioContacts.append(pAudioContact) ;
                 else
                     delete pAudioContact ;
+
+                if (bAddAudioToConnInfo)
+                    mAudioMediaConnectivityInfo.addLocalCandidate("ars", audioHostIp, rtpAudioPort) ;
+
             }
 
             if (rtpVideoPort > 0)
@@ -2308,6 +2518,9 @@ OsStatus CpMediaInterface::addArsContacts(int connectionId,
                     videoContacts.append(pVideoContact) ;
                 else
                     delete pVideoContact ;
+
+                if (bAddVideoToConnInfo)
+                    mVideoMediaConnectivityInfo.addLocalCandidate("ars", videoHostIp, rtpVideoPort) ;                
             }
             rc = OS_SUCCESS ;
         }

@@ -84,7 +84,12 @@ VoiceEngineSocketFactory::getUdpSocket(GipsVoiceEngineLib* pVoice,
     // Add to NetInTask
     if (pSocket)
     {
-        UPnpAgent::getInstance()->bindToAvailablePort(localHost, port, UPnpAgent::getInstance()->getTimeoutSeconds());
+        int iUpnpPort = UPnpAgent::getInstance()->bindToAvailablePort(localHost, port, UPnpAgent::getInstance()->getTimeoutSeconds());
+        if (iUpnpPort > 0)
+        {
+            pSocket->setUpnpMappedPort(iUpnpPort) ;
+        }
+
         pSocket->setTransparentStunRead(false);
         if (mpNetTask)
             mpNetTask->addInputSource(getMediaSocketPtr(pSocket)) ;

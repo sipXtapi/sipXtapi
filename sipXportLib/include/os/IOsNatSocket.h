@@ -13,7 +13,8 @@
 //
 // You should have received a copy of the GNU Lesser General Public
 // License along with this library; if not, write to the Free Software
-// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA. 
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
+// USA. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -219,7 +220,19 @@ public:
     virtual UtlBoolean getBestDestinationAddress(UtlString& address, 
                                                  int&       iPort, 
                                                  bool&      bViaOurRelay, 
-                                                 int&       priority) = 0;
+                                                 int&       priority,
+                                                 int&       totalTimeMS) = 0;
+
+    /**
+     * Set the UPNP Mapped port number for this socket
+     */
+    virtual void setUpnpMappedPort(int port) = 0; 
+
+    /**
+     * Get the UPNP Mapped port number for this socket, a value of PORT_NONE indicates
+     * that either UPNP failed or was not enabled.
+     */
+    virtual int getUpnpMappedPort() const = 0 ; 
 
 /* ============================ INQUIRY =================================== */
 

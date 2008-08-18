@@ -20,128 +20,11 @@
 // Author: Bob Andreasen
 // 
 
-
 // SYSTEM INCLUDES
 
 // APPLICATION INCLUDES
 #include "include/VideoEngine.h"
 
-#if 0
-
-//////////////////////////////////////////////////////////////////////////////
-
-SetCaptureDeviceTask::SetCaptureDeviceTask(VideoEngine*            pVideoEngine, 
-                                           OsMutex*                pLock, 
-                                           VoiceEngineFactoryImpl* pFactoryImpl, 
-                                           const char*             szDevice)
-    : OsTask("SetCaptureDeviceTask-%d")
-{
-    mpVideoEngine = pVideoEngine ;
-    mpLock = pLock ;
-    mCameraRequested = szDevice ;
-    mpFactoryImpl = pFactoryImpl ;
-    mbIsRunning = false ;
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
-
-SetCaptureDeviceTask::~SetCaptureDeviceTask()
-{
-
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
-int SetCaptureDeviceTask::run(void* pArg) 
-{
-    // Note that we have started running
-    mbIsRunning = true ;
-
-    OsLock lock(*mpLock) ;
-
-    mpVideoEngine->mpVideoEngine->GIPSVideo_InitThreadContext() ;
-    mpVideoEngine->mCameraSelected.remove(0) ;
-    mpVideoEngine->mCameraRequested = mCameraRequested  ;
-    mpVideoEngine->trace(PRI_DEBUG, "VideoEngine::setCaptureDevice") ;
-    mpVideoEngine->mbCaptureDeviceSet = false ;
-    if (mpVideoEngine->mpVideoEngine)        
-    {           
-        // Make sure we can get atleast 1 device
-        char cDevice[128] ;
-        memset(cDevice, 0, sizeof(cDevice)) ;
-        if (mpVideoEngine->mpVideoEngine->GIPSVideo_GetCaptureDevice(0, cDevice, sizeof(cDevice)-1) == 0)
-        {
-            // Use first camera if no camera is specified
-            if (mpVideoEngine->mCameraRequested.length() == 0)
-                mpVideoEngine->mCameraRequested = cDevice ;
-
-            // Set camera
-            if (mpVideoEngine->mpVideoEngine->GIPSVideo_SetCaptureDevice(
-                    mpVideoEngine->mCameraRequested.data(), 
-                    mpVideoEngine->mCameraRequested.length()) == 0)
-            {
-                mpVideoEngine->trace(PRI_DEBUG, "Capture Device set to %s", mpVideoEngine->mCameraRequested.data()) ;
-                mpVideoEngine->mCameraSelected = mpVideoEngine->mCameraRequested ;
-                mpVideoEngine->mbCaptureDeviceSet = true ;
-            }
-            else
-            {
-                mpVideoEngine->trace(PRI_DEBUG, "FAILED Capture Device %s", mpVideoEngine->mCameraRequested.data()) ;
-
-                // Find another device
-                int index=0;
-                while (mpVideoEngine->mpVideoEngine->GIPSVideo_GetCaptureDevice(index++, cDevice, sizeof(cDevice)-1) == 0)
-                {
-                    // Ignore what we just tried
-                    if (mpVideoEngine->mCameraRequested.compareTo(cDevice) != 0)
-                    {                           
-                        if (mpVideoEngine->mpVideoEngine->GIPSVideo_SetCaptureDevice(cDevice, strlen(cDevice)) == 0)
-                        {
-                            mpVideoEngine->trace(PRI_DEBUG, "Capture Device set to %s", cDevice) ;
-                            mpVideoEngine->mCameraSelected = cDevice ;
-                            mpVideoEngine->mbCaptureDeviceSet = true ;
-                            break ;
-                        }
-                        else
-                            mpVideoEngine->trace(PRI_DEBUG, "FAILED Capture Device %s", cDevice) ;
-                    }
-                }
-            }
-        }
-
-        if (!mpVideoEngine->mCameraSelected.isNull())
-        {
-            mpVideoEngine->mbHaveCameraCapabilities = mpVideoEngine->doGetCameraCapabilities(
-                    mpVideoEngine->mCameraSelected, 
-                    &mpVideoEngine->mCameraCapabilities) ;            
-        }
-        else
-        {
-            mpVideoEngine->setCaptureError(true) ;
-        }
-
-        mpVideoEngine->trace(PRI_INFO, 
-                "SetCaptureDevice requested=%s selected=%s, success=%d",
-                mpVideoEngine->mCameraRequested.data(),
-                mpVideoEngine->mCameraSelected.data(),
-                mpVideoEngine->mbCaptureDeviceSet) ;
-    }
-
-    delete this ;
-
-    return 0 ;
-}
-
-
-//////////////////////////////////////////////////////////////////////////////
-
-bool SetCaptureDeviceTask::isRunning() const 
-{
-    return mbIsRunning ;
-}
-
-#endif
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
@@ -149,6 +32,7 @@ bool SetCaptureDeviceTask::isRunning() const
 
 VideoEngine::VideoEngine(GipsVideoEnginePlatform* pVideoEngine, bool bConsoleTrace)
     : mLock(OsMutex::Q_FIFO)
+    , mMediaDeviceInfo(MediaDeviceInfo::MDIT_VIDEO_CAPTURE)
 {
     sbConsoleTrace = bConsoleTrace ;
     trace(PRI_DEBUG, "VideoEngine::VideoEngine") ;
@@ -526,6 +410,18 @@ bool VideoEngine::startSend(int voiceChannel, GIPSVideo_CodecInst* pVideoCodec)
         checkRC("GIPSVideo_StartSend", voiceChannel, rc, mbCaptureDeviceSet) ;
 
         mbSending[voiceChannel % MAX_VE_CONNECTIONS] = (rc == 0) || !mbCaptureDeviceSet ;
+
+        UtlString params ;
+        params.format("bitrate:%d maxbitrate:%d framerate:%d res:%dx%d, q:%d l:%d other:%d",
+                pVideoCodec->bitRate,
+                pVideoCodec->maxBitRate,
+                pVideoCodec->frameRate,
+                pVideoCodec->width,
+                pVideoCodec->height,
+                pVideoCodec->quality,
+                pVideoCodec->level,
+                pVideoCodec->codecSpecific) ;
+        mMediaDeviceInfo.setParameters(params) ;
     }
 
     return mbSending[voiceChannel % MAX_VE_CONNECTIONS] ;
@@ -692,10 +588,20 @@ bool VideoEngine::getCaptureError() const
 
 //////////////////////////////////////////////////////////////////////////////
 
-void VideoEngine::setCaptureError(bool bError)
+void VideoEngine::setCaptureError(bool bError, const char* szCause)
 { 
     OsLock lock(mLock) ;
     mbCameraError = bError ;
+
+    if (szCause && *szCause)
+    {
+
+        mMediaDeviceInfo.appendErrors(szCause) ;
+    }
+    else
+    {
+        mMediaDeviceInfo.appendErrors("Unknown Error\n") ;
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -704,19 +610,10 @@ bool VideoEngine::setCaptureDevice(VoiceEngineFactoryImpl* pImpl, const char* sz
 {
     OsLock lock(mLock) ;
 
-#if 0
-    SetCaptureDeviceTask* pTask = new SetCaptureDeviceTask(this, &mLock,
-        pImpl, szDevice) ;
-    pTask->start() ;
 
-    // Wait for startup?? 
-    while (!pTask->isRunning())
-        OsTask::yield() ;
-#endif
-
-    mCameraSelected.remove(0) ;
-    mCameraRequested = szDevice  ;
-
+    mMediaDeviceInfo.reset() ;
+    mMediaDeviceInfo.setRequested(szDevice) ;
+    
     trace(PRI_DEBUG, "VideoEngine::setCaptureDevice") ;
     mbCaptureDeviceSet = false ;
     if (mpVideoEngine)        
@@ -727,58 +624,74 @@ bool VideoEngine::setCaptureDevice(VoiceEngineFactoryImpl* pImpl, const char* sz
         if (mpVideoEngine->GIPSVideo_GetCaptureDevice(0, cDevice, sizeof(cDevice)-1) == 0)
         {
             // Use first camera if no camera is specified
-            if (mCameraRequested.length() == 0)
-                mCameraRequested = cDevice ;
+            if (mMediaDeviceInfo.getRequested().length() == 0)
+                mMediaDeviceInfo.setRequested(cDevice) ;
 
             // Set camera
-            if (mpVideoEngine->GIPSVideo_SetCaptureDevice(
-                    mCameraRequested.data(), 
-                    mCameraRequested.length()) == 0)
+            int setRC = 0 ;
+            if ((setRC = mpVideoEngine->GIPSVideo_SetCaptureDevice(
+                    mMediaDeviceInfo.getRequested().data(), 
+                    mMediaDeviceInfo.getRequested().length())) == 0)
             {
-                trace(PRI_DEBUG, "Capture Device set to %s", mCameraRequested.data()) ;
-                mCameraSelected = mCameraRequested ;
+                trace(PRI_DEBUG, "Capture Device set to %s", mMediaDeviceInfo.getRequested().data()) ;
+                mMediaDeviceInfo.setSelected(mMediaDeviceInfo.getRequested());
                 mbCaptureDeviceSet = true ;
             }
             else
             {
-                trace(PRI_DEBUG, "FAILED Capture Device %s", mCameraRequested.data()) ;
+                UtlString error ;
+                error.format("%s: rc=%d, lastError=%d",
+                        mMediaDeviceInfo.getRequested().data(),
+                        setRC,
+                        mpVideoEngine->GIPSVideo_GetLastError()) ;
+                mMediaDeviceInfo.appendErrors(error) ;
+
+                trace(PRI_DEBUG, "FAILED Capture Device %s", mMediaDeviceInfo.getRequested().data()) ;
 
                 // Find another device
                 int index=0;
                 while (mpVideoEngine->GIPSVideo_GetCaptureDevice(index++, cDevice, sizeof(cDevice)-1) == 0)
                 {
                     // Ignore what we just tried
-                    if (mCameraRequested.compareTo(cDevice) != 0)
+                    if (mMediaDeviceInfo.getRequested().compareTo(cDevice) != 0)
                     {                           
-                        if (mpVideoEngine->GIPSVideo_SetCaptureDevice(cDevice, strlen(cDevice)) == 0)
+                        if ((setRC = mpVideoEngine->GIPSVideo_SetCaptureDevice(cDevice, strlen(cDevice))) == 0)
                         {
                             trace(PRI_DEBUG, "Capture Device set to %s", cDevice) ;
-                            mCameraSelected = cDevice ;
+                            mMediaDeviceInfo.setSelected(cDevice) ;
                             mbCaptureDeviceSet = true ;
                             break ;
                         }
                         else
+                        {
                             trace(PRI_DEBUG, "FAILED Capture Device %s", cDevice) ;
+
+                            error.format("%s: rc=%d, lastError=%d\n",
+                                    cDevice,
+                                    setRC,
+                                    mpVideoEngine->GIPSVideo_GetLastError()) ;
+                            mMediaDeviceInfo.appendErrors(error) ;
+                        }
                     }
                 }
             }
         }
 
-        if (!mCameraSelected.isNull())
+        if (!mMediaDeviceInfo.getSelected().isNull())
         {
             mbHaveCameraCapabilities = doGetCameraCapabilities(
-                    mCameraSelected, 
+                    mMediaDeviceInfo.getSelected(), 
                     &mCameraCapabilities) ;            
         }
         else
         {
-            setCaptureError(true) ;
+            setCaptureError(true, "No usable cameras found") ;
         }
 
         trace(PRI_INFO, 
                 "SetCaptureDevice requested=%s selected=%s, success=%d",
-                mCameraRequested.data(),
-                mCameraSelected.data(),
+                mMediaDeviceInfo.getRequested().data(),
+                mMediaDeviceInfo.getSelected().data(),
                 mbCaptureDeviceSet) ;
     }
     
@@ -852,6 +765,26 @@ bool VideoEngine::getMaxResolution(int& width, int& height) const
     }
 
     return bRC ;        
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+int VideoEngine::getRTCPStats(int channel, GIPSVideo_CallStatistics* stats) 
+{
+    OsLock lock(mLock) ;
+    int rc = -1;
+    
+    if (mpVideoEngine)
+        rc = mpVideoEngine->GIPSVideo_RTCPStat(channel, stats) ;
+
+    return rc ;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+MediaDeviceInfo& VideoEngine::getVideoCaptureDeviceInfo()
+{
+    return mMediaDeviceInfo ;
 }
 
 //////////////////////////////////////////////////////////////////////////////

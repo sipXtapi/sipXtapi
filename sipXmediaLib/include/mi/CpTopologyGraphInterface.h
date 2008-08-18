@@ -138,7 +138,9 @@ public:
     OsStatus addArsContacts(
                 int connectionId,
                 UtlSList& audioContacts,
-                UtlSList& videoContacts)
+                bool bAddAudioToConnInfo,
+                UtlSList& videoContacts,
+                bool bAddVideoToConnInfo)
     {
         return OS_NOT_YET_IMPLEMENTED;
     }
@@ -442,6 +444,10 @@ public:
 
    virtual UtlString getType() { return "CpTopologyGraphInterface"; };
 
+   virtual OsStatus getMediaDeviceInfo(int connectionId,
+                                       MediaDeviceInfo::MediaDeviceInfoType type,
+                                       MediaDeviceInfo& info) ;
+
 /* ============================ INQUIRY =================================== */
    //! Query whether the specified media connection is enabled for 
    //! sending RTP.
@@ -469,11 +475,6 @@ public:
 
    //! Query if we are mixing a video conference
    virtual UtlBoolean isVideoConferencing(){return(FALSE);};
-
-   OsStatus setUserAgent(int connectionId, const char* szUserAgent)
-   {
-       return OS_NOT_SUPPORTED; 
-   };
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:

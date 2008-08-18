@@ -84,6 +84,12 @@ OsNatSocketBaseImpl::OsNatSocketBaseImpl()
     mbReceivedDI = false ;
     mbDelayedTurnShutdown = false ;
     miFallbackPriority = -1 ;
+
+    miUpnpMappedPort = PORT_NONE ;
+
+    mIceState = IS_NOT_STARTED ;
+    mIceStartMS = 0; 
+    mIceEndMS = 0 ;
 }
 
 
@@ -420,6 +426,13 @@ UtlBoolean OsNatSocketBaseImpl::getTurnIp(UtlString* ip, int* port)
 
 void OsNatSocketBaseImpl::addAlternateDestination(const char* szAddress, int iPort, int priority)
 {
+
+    if (mIceState == IS_NOT_STARTED)
+    {
+        mIceState = IS_STARTED ;
+        mIceStartMS = OsDateTime::getCurTimeInMS() ;
+    }
+
     if (priority > miFallbackPriority)
     {
         mFallbackContact.setAddress(szAddress) ;
@@ -431,7 +444,7 @@ void OsNatSocketBaseImpl::addAlternateDestination(const char* szAddress, int iPo
     }
 
     if (mpNatAgent)
-        mpNatAgent->sendStunProbe(this, szAddress, iPort, NULL, 0, priority) ;
+        mpNatAgent->sendStunProbe(this, szAddress, iPort, NULL, 0, priority) ;    
 }
 
 void OsNatSocketBaseImpl::setStunNotifier(OsNotification* pStunNotification) 
@@ -498,9 +511,18 @@ bool OsNatSocketBaseImpl::waitForBestDestination(bool       bLongWait,
 UtlBoolean OsNatSocketBaseImpl::getBestDestinationAddress(UtlString& address,
                                                           int&       iPort,
                                                           bool&      bViaOurRelay,
-                                                          int&       priority)
+                                                          int&       priority,
+                                                          int&       totalTimeMS)
 {
     UtlBoolean bRC = false ;
+
+    if (mIceEndMS == 0)
+    {
+        mIceEndMS = OsDateTime::getCurTimeInMS() ;
+    }
+    mIceState = IS_COMPLETED ;
+
+    totalTimeMS = (int) ((mIceEndMS - mIceStartMS) & 0x7FFFFFFFF);
    
     if (mpNatAgent)
         mpNatAgent->logProbeResults(this) ;
@@ -532,6 +554,18 @@ UtlBoolean OsNatSocketBaseImpl::getBestDestinationAddress(UtlString& address,
         mpNatAgent->removeStunProbes(this) ;
 
     return bRC ;
+}
+
+
+void OsNatSocketBaseImpl::setUpnpMappedPort(int port)
+{
+    miUpnpMappedPort = port ;
+}
+
+
+int OsNatSocketBaseImpl::getUpnpMappedPort() const 
+{
+    return miUpnpMappedPort ;
 }
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
@@ -736,6 +770,12 @@ void OsNatSocketBaseImpl::evaluateDestinationAddress(const UtlString& address,
                                                      int              priority,
                                                      bool             bViaOurRelay) 
 {
+    // Record last receive stun probe message
+    if (mIceState == IS_STARTED)
+    {
+        mIceEndMS = OsDateTime::getCurTimeInMS() ;
+    }
+
     if ((address.compareTo(mDestAddress, UtlString::ignoreCase) != 0) && 
             (iPort != miDestPort))
     {

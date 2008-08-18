@@ -572,7 +572,6 @@ void Connection::fireSipXMediaEvent(SIPX_MEDIA_EVENT event,
     UtlString callId ;
     UtlString remoteAddress ;
 
-
     getCallId(&callId) ;
     getRemoteAddress(&remoteAddress);
     if (remoteAddress == "" || remoteAddress == "sip:")
@@ -583,6 +582,11 @@ void Connection::fireSipXMediaEvent(SIPX_MEDIA_EVENT event,
     TapiMgr::getInstance().fireMediaEvent(mpCallManager, callId.data(), remoteAddress.data(), event, cause, type, pEventData) ;
 }
 
+
+void Connection::fireSipXEvent(const SIPX_EVENT_CATEGORY event, void *pInfo) 
+{
+    TapiMgr::getInstance().fireEvent(mpCallManager, event, pInfo) ;
+}
 
 
 void Connection::setTransferHeld(UtlBoolean bHeld)

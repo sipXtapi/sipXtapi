@@ -178,6 +178,8 @@ protected:
                                 const char* hostAddress,
                                 const char* localIp);
 
+    void notifyUpnpStatus(bool bSuccess);
+
     OsMutex mMapLock;
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
