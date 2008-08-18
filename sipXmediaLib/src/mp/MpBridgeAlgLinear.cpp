@@ -66,6 +66,7 @@ MpBridgeAlgLinear::MpBridgeAlgLinear(int inputs, int outputs,
    mMixDataStackLength = maxInputs()*maxOutputs()*mMixDataStackStep;
    mpMixDataStack = new MpBridgeAccum[mMixDataStackLength];
    mpMixDataSpeechType = new MpSpeechType[maxInputs()*maxOutputs()];
+   mpMixDataAmplitude = new MpBridgeAccum[maxInputs()*maxOutputs()];
    // Allocate array for mix temporary data info.
    mMixDataInfoStackStep = maxInputs()*maxOutputs();
    mMixDataInfoStackLength = maxInputs()*maxOutputs()*mMixDataInfoStackStep;
@@ -81,6 +82,7 @@ MpBridgeAlgLinear::~MpBridgeAlgLinear()
    delete[] mpMixActionsStack;
    delete[] mpMixDataStack;
    delete[] mpMixDataSpeechType;
+   delete[] mpMixDataAmplitude;
    delete[] mpMixDataInfoStack;
    delete[] mpMixDataInfoProcessedStack;
 }
@@ -520,13 +522,16 @@ UtlBoolean MpBridgeAlgLinear::doMix(MpBufPtr inBufs[], int inBufsSize,
       {
       case MixAction::DO_MIX:
          {
-            MpDspUtils::add(&mpMixDataStack[mMixDataStackStep * mpMixActionsStack[action].mSrc1],
-                            &mpMixDataStack[mMixDataStackStep * mpMixActionsStack[action].mSrc2],
-                            &mpMixDataStack[mMixDataStackStep * mpMixActionsStack[action].mDst],
+            const MixAction &mixAction = mpMixActionsStack[action];
+            MpDspUtils::add(&mpMixDataStack[mMixDataStackStep * mixAction.mSrc1],
+                            &mpMixDataStack[mMixDataStackStep * mixAction.mSrc2],
+                            &mpMixDataStack[mMixDataStackStep * mixAction.mDst],
                             mMixDataStackStep);
-            mpMixDataSpeechType[mpMixActionsStack[action].mDst] =
-               mixSpeechTypes(mpMixDataSpeechType[mpMixActionsStack[action].mSrc1],
-                              mpMixDataSpeechType[mpMixActionsStack[action].mSrc2]);
+            mpMixDataSpeechType[mixAction.mDst] =
+               mixSpeechTypes(mpMixDataSpeechType[mixAction.mSrc1],
+                              mpMixDataSpeechType[mixAction.mSrc2]);
+            mpMixDataAmplitude[mixAction.mDst] =
+               mpMixDataAmplitude[mixAction.mSrc1] + mpMixDataAmplitude[mixAction.mSrc2];
          }
 #ifdef TEST_PRINT_MIXING // [
          printf("DO_MIX:     %2d + %2d -> %2d [0x%08X + 0x%08X -> 0x%08X]\n",
@@ -564,6 +569,11 @@ UtlBoolean MpBridgeAlgLinear::doMix(MpBufPtr inBufs[], int inBufsSize,
                assert(pOutBuf.isValid());
                pOutBuf->setSamplesNumber(samplesPerFrame);
                pOutBuf->setSpeechType(mpMixDataSpeechType[src]);
+               pOutBuf->setAmplitude(MPF_SATURATE16(mpMixDataAmplitude[src]));
+               if (mpMixDataAmplitude[src] >= MpSpeechParams::MAX_AMPLITUDE)
+               {
+                  pOutBuf->setClipping(TRUE);
+               }
 
                MpDspUtils::convert_Att(&mpMixDataStack[mMixDataStackStep * src],
                                        pOutBuf->getSamplesWritePtr(),
@@ -584,19 +594,22 @@ UtlBoolean MpBridgeAlgLinear::doMix(MpBufPtr inBufs[], int inBufsSize,
       case MixAction::COPY_FROM_INPUT:
          {
             const int extInput = mpMixActionsStack[action].mSrc1;
+            const int extOutput = mpMixActionsStack[action].mDst;
             const int origInput = mExtendedInputs.getOrigin(extInput);
             const MpAudioBufPtr pInBuf(inBufs[origInput]);
             MpAudioSample prevAmplitude = mpPrevAmplitudes[origInput];
             MpAudioSample curAmplitude = pInBuf->getAmplitude();
 
-            mpMixDataSpeechType[mpMixActionsStack[action].mDst] = pInBuf->getSpeechType();
+            mpMixDataSpeechType[extOutput] = pInBuf->getSpeechType();
             if (  mExtendedInputs.getGain(extInput) == MP_BRIDGE_GAIN_PASSTHROUGH
                && prevAmplitude == MpSpeechParams::MAX_AMPLITUDE
                && curAmplitude == MpSpeechParams::MAX_AMPLITUDE)
             {
                MpDspUtils::convert_Gain(pInBuf->getSamplesPtr(),
-                                        &mpMixDataStack[mMixDataStackStep * mpMixActionsStack[action].mDst],
+                                        &mpMixDataStack[mMixDataStackStep * extOutput],
                                         mMixDataStackStep, MP_BRIDGE_FRAC_LENGTH);
+               // Update output amplitude value.
+               mpMixDataAmplitude[extOutput] = MpSpeechParams::MAX_AMPLITUDE;
 #ifdef DEBUG_AGC
                if ( debugFlag && (origInput==0 || origInput==3) )
                {
@@ -605,9 +618,9 @@ UtlBoolean MpBridgeAlgLinear::doMix(MpBufPtr inBufs[], int inBufsSize,
 #endif
 #ifdef TEST_PRINT_MIXING // [
                printf("COPY_FROM_INPUT: %2d <- %2d [0x%08X <- 0x%08X <<%d]\n",
-                      mpMixActionsStack[action].mDst,
-                      mpMixActionsStack[action].mSrc1,
-                      mpMixDataStack[mMixDataStackStep * mpMixActionsStack[action].mDst],
+                      extOutput,
+                      extInput,
+                      mpMixDataStack[mMixDataStackStep * extOutput],
                       *pInBuf->getSamplesPtr(),
                       MP_BRIDGE_FRAC_LENGTH);
 #endif // TEST_PRINT_MIXING ]
@@ -620,8 +633,10 @@ UtlBoolean MpBridgeAlgLinear::doMix(MpBufPtr inBufs[], int inBufsSize,
 
                MpDspUtils::mul(pInBuf->getSamplesPtr(),
                                scaledGain,
-                               &mpMixDataStack[mMixDataStackStep * mpMixActionsStack[action].mDst],
+                               &mpMixDataStack[mMixDataStackStep * extOutput],
                                mMixDataStackStep);
+               // Update output amplitude value.
+               mpMixDataAmplitude[extOutput] = (curAmplitude*scaledGain)>>MP_BRIDGE_FRAC_LENGTH;
 #ifdef DEBUG_AGC
                if ( debugFlag && (origInput==0 || origInput==3) )
                {
@@ -630,9 +645,9 @@ UtlBoolean MpBridgeAlgLinear::doMix(MpBufPtr inBufs[], int inBufsSize,
 #endif
 #ifdef TEST_PRINT_MIXING // [
                printf("COPY_FROM_INPUT: %2d <- %2d [0x%08X <- 0x%08X *%d]\n",
-                      mpMixActionsStack[action].mDst,
-                      mpMixActionsStack[action].mSrc1,
-                      mpMixDataStack[mMixDataStackStep * mpMixActionsStack[action].mDst],
+                      extOutput,
+                      extInput,
+                      mpMixDataStack[mMixDataStackStep * extOutput],
                       *pInBuf->getSamplesPtr(),
                       mExtendedInputs.getGain(extInput));
 #endif // TEST_PRINT_MIXING ]
@@ -650,8 +665,10 @@ UtlBoolean MpBridgeAlgLinear::doMix(MpBufPtr inBufs[], int inBufsSize,
                MpDspUtils::mulLinear(pInBuf->getSamplesPtr(),
                                      scaledGainStart,
                                      scaledGainEnd,
-                                     &mpMixDataStack[mMixDataStackStep * mpMixActionsStack[action].mDst],
+                                     &mpMixDataStack[mMixDataStackStep * extOutput],
                                      mMixDataStackStep);
+               MpBridgeGain scaledGainMax = MpDspUtils::maximum(scaledGainStart, scaledGainEnd);
+               mpMixDataAmplitude[extOutput] += (curAmplitude*scaledGainMax) >> MP_BRIDGE_FRAC_LENGTH;
 #ifdef DEBUG_AGC
                if ( debugFlag && (origInput==0 || origInput==3) )
                {
@@ -660,9 +677,9 @@ UtlBoolean MpBridgeAlgLinear::doMix(MpBufPtr inBufs[], int inBufsSize,
 #endif
 #ifdef TEST_PRINT_MIXING // [
                printf("COPY_FROM_INPUT: %2d <- %2d [0x%08X <- 0x%08X *%d/(%d->%d)]\n",
-                      mpMixActionsStack[action].mDst,
-                      mpMixActionsStack[action].mSrc1,
-                      mpMixDataStack[mMixDataStackStep * mpMixActionsStack[action].mDst],
+                      extOutput,
+                      extInput,
+                      mpMixDataStack[mMixDataStackStep * extOutput],
                       *pInBuf->getSamplesPtr(),
                       origGain,
                       prevAmplitude,
