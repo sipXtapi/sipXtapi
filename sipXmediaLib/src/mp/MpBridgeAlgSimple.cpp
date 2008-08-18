@@ -214,8 +214,12 @@ UtlBoolean MpBridgeAlgSimple::doMix(MpBufPtr inBufs[], int inBufsSize,
          }
       }
 
-      // Set amplitude of the output frame.
+      // Set amplitude and clipping flag of the output frame.
       pOutBuf->setAmplitude(MPF_SATURATE16(amplitude));
+      if (amplitude >= MpSpeechParams::MAX_AMPLITUDE)
+      {
+         pOutBuf->setClipping(TRUE);
+      }
 
 #ifdef DEBUG_AGC
       if (  debugCounter % 50 == 0
