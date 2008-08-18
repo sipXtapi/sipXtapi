@@ -439,10 +439,11 @@ public:
     virtual OsStatus getVideoRtcpStats(const int connectionId,
         SIPX_RTCP_STATS* const pStats);
 
-   virtual OsStatus getMediaDeviceInfo(MediaDeviceInfo::MediaDeviceInfoType type,
-       MediaDeviceInfo& info) ;
+   virtual OsStatus getMediaDeviceInfo(int connectionId,
+                                       MediaDeviceInfo::MediaDeviceInfoType type,
+                                       MediaDeviceInfo& info) ;
 
-    virtual OsStatus generateVoiceQualityReport(int         connectionId,
+    virtual OsStatus generateVoiceQualityReport(int connectionId,
         const char* callId,
         char*  szReport,
         size_t reprotSize) ;

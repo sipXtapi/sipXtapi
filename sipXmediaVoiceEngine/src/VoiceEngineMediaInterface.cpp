@@ -2312,7 +2312,8 @@ OsStatus VoiceEngineMediaInterface::getVideoRtcpStats(const int connectionId,
 
 //////////////////////////////////////////////////////////////////////////////
 
-OsStatus VoiceEngineMediaInterface::getMediaDeviceInfo(MediaDeviceInfo::MediaDeviceInfoType type,
+OsStatus VoiceEngineMediaInterface::getMediaDeviceInfo(int connectionId,
+                                                       MediaDeviceInfo::MediaDeviceInfoType type,
                                                        MediaDeviceInfo& info) 
 {
     OsStatus rc = OS_FAILED;
