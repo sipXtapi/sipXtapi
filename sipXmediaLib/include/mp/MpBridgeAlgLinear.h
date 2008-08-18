@@ -347,6 +347,7 @@ protected:
    MpBridgeAccum* mpMixDataStackTop;
    MpBridgeAccum* mpMixDataStack;
    MpSpeechType*  mpMixDataSpeechType; ///< Speech type of data frames in mpMixDataStack
+   MpBridgeAccum* mpMixDataAmplitude; ///< Amplitude of data frames in mpMixDataStack
    int            mMixDataInfoStackStep;
    int            mMixDataInfoStackLength;
    int*           mpMixDataInfoStackTop;
