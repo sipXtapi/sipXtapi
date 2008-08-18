@@ -522,7 +522,7 @@ UtlBoolean OsNatSocketBaseImpl::getBestDestinationAddress(UtlString& address,
     }
     mIceState = IS_COMPLETED ;
 
-    totalTimeMS = (int) ((mIceEndMS - mIceStartMS) & 0x7FFFFFFFF);
+    totalTimeMS = (int) ((mIceEndMS - mIceStartMS) & 0x7FFFFFFF);
    
     if (mpNatAgent)
         mpNatAgent->logProbeResults(this) ;
