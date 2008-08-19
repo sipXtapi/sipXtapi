@@ -221,7 +221,9 @@ bool MediaConnectivityInfo::addLocalCandidate(const char* szType,
         if (szIP)
             candidate.append(szIP) ;
         candidate.append(':') ;
-        candidate.append(itoa(port, cTemp, 10)) ;
+        UtlString temp ;
+        temp.format("%d", port) ;
+        candidate.append(temp) ;
 
         mLocalCandidates[mNumLocalCandidates] = candidate ;
         

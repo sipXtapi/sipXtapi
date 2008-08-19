@@ -53,7 +53,9 @@
 #include <mp/dtmflib.h>
 #include <mp/MpMediaTask.h>
 #include <mp/MpCodecFactory.h>
+#ifdef WIN32
 #include <mp/DmaTask.h>
+#endif
 #include "mi/CpTopologyGraphInterface.h"
 #include "mi/CpTopologyGraphFactoryImpl.h"
 #include "mi/CpTopologyPacketPusher.h"
@@ -1636,7 +1638,9 @@ OsStatus CpTopologyGraphInterface::getMediaDeviceInfo(int connectionId,
             {
                 // getMediaProperty(connectionId, "audioInput1.device", device) ;
                 MediaDeviceInfo audioInput(MediaDeviceInfo::MDIT_AUDIO_INPUT) ;
+#ifdef WIN32
                 audioInput.setSelected(DmaTask::getMicDevice().data()) ;
+#endif
                 info = audioInput ;
                 rc = OS_SUCCESS ;
             }
@@ -1645,7 +1649,9 @@ OsStatus CpTopologyGraphInterface::getMediaDeviceInfo(int connectionId,
             {
                 // getMediaProperty(connectionId, "audioOutput1.speakerDevice", device) ;
                 MediaDeviceInfo audioOutput(MediaDeviceInfo::MDIT_AUDIO_OUTPUT) ;
+#ifdef WIN32
                 audioOutput.setSelected(DmaTask::getCallDevice().data()) ;
+#endif
                 info = audioOutput ;
                 rc = OS_SUCCESS ;
             }

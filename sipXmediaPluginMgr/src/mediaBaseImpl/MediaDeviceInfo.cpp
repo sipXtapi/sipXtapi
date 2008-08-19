@@ -36,7 +36,7 @@
 
 MediaDeviceInfo::MediaDeviceInfo()
 {
-    mType = MediaDeviceInfoType::MDIT_UNKNOWN ;
+    mType = MediaDeviceInfo::MDIT_UNKNOWN ;
 }
 
 //////////////////////////////////////////////////////////////////////////////
