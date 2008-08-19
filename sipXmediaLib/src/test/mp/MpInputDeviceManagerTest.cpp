@@ -317,7 +317,7 @@ public:
 
             CPPUNIT_ASSERT_EQUAL_MESSAGE(frameMessage,
                                          0,
-                                         storedSignal[frameIndex].compareSamples(referenceFrame, tolerance));
+                                         storedSignal[frameIndex]->compareSamples(referenceFrame, tolerance));
             frameTime += framePeriodMilliseconds;
         }
 
