@@ -186,7 +186,14 @@ SdpCodec::SdpCodec(int payloadFormat,
       }
       else if(mMimeSubtype.compareTo("ilbc") == 0)
       {
-         setValue(SDP_CODEC_ILBC);
+         if(mFormatSpecificData.compareTo("mode=20", UtlString::ignoreCase) == 0)
+         {
+            setValue(SDP_CODEC_ILBC_20MS);
+         }
+         else
+         {
+            setValue(SDP_CODEC_ILBC);
+         }
          mCPUCost = SDP_CODEC_CPU_HIGH;
          mBWCost = SDP_CODEC_BANDWIDTH_LOW;
       }

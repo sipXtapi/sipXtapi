@@ -138,7 +138,8 @@ public:
         SDP_CODEC_SPEEX_UWB_22,    ///< Speex UWB 22,400bps
         SDP_CODEC_SPEEX_UWB_44,    ///< Speex UWB 44,000bps
 
-        SDP_CODEC_ILBC,            ///< Internet Low Bit Rate Codec  (RFC3951)
+        SDP_CODEC_ILBC,            ///< Internet Low Bit Rate Codec, 30ms (RFC3951)
+        SDP_CODEC_ILBC_20MS,       ///< Internet Low Bit Rate Codec, 20ms (RFC3951)
         SDP_CODEC_TONES,           ///< AVT/DTMF Tones, RFC 2833
         SDP_CODEC_G729A,           ///< G.729A
         SDP_CODEC_G7221,           ///< Siren

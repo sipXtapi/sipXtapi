@@ -54,8 +54,9 @@ static MpMimeInfoMapElement sgMimeInfoMap[] =
    { SdpCodec::SDP_CODEC_SPEEX_UWB_8,   "speex",  32000, 1,  "mode=1"  },
    { SdpCodec::SDP_CODEC_SPEEX_UWB_22,  "speex",  32000, 1,  "mode=6"  },
    { SdpCodec::SDP_CODEC_SPEEX_UWB_44,  "speex",  32000, 1,  "mode=10"  },
-   { SdpCodec::SDP_CODEC_ILBC,          "ilbc",    8000, 1,  "mode=30" },
    { SdpCodec::SDP_CODEC_ILBC,          "ilbc",    8000, 1,  ""        },
+   { SdpCodec::SDP_CODEC_ILBC,          "ilbc",    8000, 1,  "mode=30" },
+   { SdpCodec::SDP_CODEC_ILBC_20MS,     "ilbc",    8000, 1,  "mode=20" },
    { SdpCodec::SDP_CODEC_AMR_ALIGNED,   "amr",     8000, 1,  "octet-align=1" },
    { SdpCodec::SDP_CODEC_AMR,           "amr",     8000, 1,  "octet-align=0" },
    { SdpCodec::SDP_CODEC_AMR,           "amr",     8000, 1,  ""              },
@@ -112,6 +113,7 @@ static MpCodecNamesMapElement sgCodecNamesMap[] =
    { SdpCodec::SDP_CODEC_G726_40,         "G726-40" },
    { SdpCodec::SDP_CODEC_G722,            "G722" },
    { SdpCodec::SDP_CODEC_ILBC,            "ILBC" },
+   { SdpCodec::SDP_CODEC_ILBC_20MS,       "ILBC-20MS" },
    { SdpCodec::SDP_CODEC_GSM,             "GSM" },
    { SdpCodec::SDP_CODEC_SPEEX,           "SPEEX" },
    { SdpCodec::SDP_CODEC_SPEEX_5,         "SPEEX_5" },
@@ -500,6 +502,21 @@ SdpCodec SdpDefaultCodecFactory::getCodec(SdpCodec::SdpCodecTypes internalCodecI
                          30000,
                          1,
                          "",
+                         SdpCodec::SDP_CODEC_CPU_HIGH,
+                         SDP_CODEC_BANDWIDTH_LOW);
+      }
+      break;
+
+   case SdpCodec::SDP_CODEC_ILBC_20MS:
+      {
+         return SdpCodec(SdpCodec::SDP_CODEC_ILBC_20MS,
+                         SdpCodec::SDP_CODEC_UNKNOWN,
+                         MIME_TYPE_AUDIO,
+                         MIME_SUBTYPE_ILBC,
+                         8000,
+                         20000,
+                         1,
+                         "mode=20",
                          SdpCodec::SDP_CODEC_CPU_HIGH,
                          SDP_CODEC_BANDWIDTH_LOW);
       }

@@ -1813,11 +1813,6 @@ void SdpBody::addCodecParameters(int numRtpCodecs,
                }
             }
          }
-         if (codec->getCodecType() == SdpCodec::SDP_CODEC_ILBC)
-         {
-               sprintf(valueBuf, "mode=%d", codec->getPacketLength()/1000);
-               formatParameters = valueBuf;
-         }
          // Add the format specific parameters if present
          if(!formatParameters.isNull())
          {
