@@ -4,6 +4,7 @@
 	Version="8,00"
 	Name="sipXcallLib-msvc8"
 	ProjectGUID="{0EADF7C3-7D48-45BF-A00D-ECB94DC912EA}"
+	RootNamespace="sipXcallLib-msvc8"
 	>
 	<Platforms>
 		<Platform
@@ -49,7 +50,7 @@
 				Optimization="2"
 				InlineFunctionExpansion="1"
 				AdditionalIncludeDirectories="include;..\sipXportLib\include;..\sipXsdpLib\include;..\sipXtackLib\include;..\sipXmediaLib\include;..\sipXmediaAdapterLib\interface;..\sipXcallLib\include;&quot;..\sipXbuild\vendors\Mozilla\wnt\nspr-4.4.1\include&quot;;&quot;..\sipXbuild\vendors\Mozilla\wnt\nss-3.9\include&quot;"
-				PreprocessorDefinitions="NDEBUG;WIN32;_LIB;_CRT_SECURE_NO_DEPRECATE"
+				PreprocessorDefinitions="NDEBUG;WIN32;_LIB;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_WARNINGS"
 				StringPooling="true"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="false"
@@ -94,7 +95,7 @@
 		</Configuration>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
+			OutputDirectory="$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="4"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
@@ -121,14 +122,14 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="include;..\sipXportLib\include;..\sipXsdpLib\include;..\sipXtackLib\include;..\sipXmediaLib\include;..\sipXmediaAdapterLib\interface;&quot;..\sipXbuild\vendors\Mozilla\wnt\nspr-4.4.1_dbg\include&quot;;&quot;..\sipXbuild\vendors\Mozilla\wnt\nss-3.9_dbg\include&quot;"
-				PreprocessorDefinitions="_DEBUG;WIN32;_LIB;_CRT_SECURE_NO_DEPRECATE"
+				PreprocessorDefinitions="_DEBUG;WIN32;_LIB;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_WARNINGS"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
 				RuntimeTypeInfo="true"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				SuppressStartupBanner="true"
-				DebugInformationFormat="3"
+				DebugInformationFormat="4"
 				CompileAs="0"
 			/>
 			<Tool
