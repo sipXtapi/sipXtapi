@@ -88,15 +88,25 @@ int MpDecoderBase::decode(const MpRtpBufPtr &pPacket,
       return 0;
    }
 
-   if (pPacket.isValid() || mCodecInfo.haveInternalPLC()) 
+   if (pPacket.isValid())
    {   
       res = mCallInfo.mPlgDecode(plgHandle, 
-                                 (pPacket.isValid()) ? pPacket->getDataPtr() : NULL, 
+                                 pPacket->getDataPtr(),
                                  pPacket->getPayloadSize(), 
                                  samplesBuffer, 
                                  decodedBufferLength, 
                                  &decodedSize,
                                  &pPacket->getRtpHeader());
+   }
+   else if (mCodecInfo.haveInternalPLC())
+   {   
+      res = mCallInfo.mPlgDecode(plgHandle, 
+         NULL,
+         0, 
+         samplesBuffer, 
+         decodedBufferLength, 
+         &decodedSize,
+         NULL);
    }
    else
    {
