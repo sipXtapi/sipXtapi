@@ -22,8 +22,8 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory=".\Debug"
-			IntermediateDirectory=".\Debug"
+			OutputDirectory="$(ConfigurationName)_Test"
+			IntermediateDirectory="$(ConfigurationName)_Test"
 			ConfigurationType="1"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops"
 			UseOfMFC="0"
@@ -78,7 +78,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="Ws2_32.lib pcre.lib cppunitd.lib winmm.lib"
-				OutputFile="Debug/sipXcallLibTest.exe"
+				OutputFile="$(OutDir)/sipXcallLibTest.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories="lib;..\sipXtackLib\debug;..\sipXportLib\debug;..\CPPUnit\lib;..\..\libiLBC\Debug"
