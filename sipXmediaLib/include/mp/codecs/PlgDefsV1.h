@@ -224,10 +224,10 @@ typedef int   (*dlPlgFreeV1)(void* handle, int isDecoder);
                                     const char* codecModuleName,              \
                                     dlPlgInitV1_1 plgInit,                    \
                                     dlPlgGetInfoV1_1 plgGetInfo,              \
-                                    dlPlgGetPacketSamplesV1_2 plgGetPacketSamples, \
                                     dlPlgDecodeV1 plgDecode,                  \
                                     dlPlgEncodeV1 plgEncode,                  \
                                     dlPlgFreeV1 plgFree,                      \
+                                    dlPlgGetPacketSamplesV1_2 plgGetPacketSamples, \
                                     dlPlgGetSignalingDataV1 plgSignaling);
  
 #define REG_STATIC_NAME(y)          registerStatic_##y
