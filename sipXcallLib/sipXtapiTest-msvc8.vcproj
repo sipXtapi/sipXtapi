@@ -78,7 +78,7 @@
 				IgnoreDefaultLibraryNames="libcmt.lib;msvcrt.lib"
 				DelayLoadDLLs=""
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile=".\Debug/sipXtapiTest.pdb"
+				ProgramDatabaseFile="$(TargetDir)/sipXtapiTest.pdb"
 				SubSystem="1"
 				TargetMachine="1"
 			/>

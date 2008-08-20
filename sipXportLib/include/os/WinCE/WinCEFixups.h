@@ -1,16 +1,16 @@
+#ifndef _WINCEFIXUPS_H_ 
+#define _WINCEFIXUPS_H_
+
+
 // 
-// Copyright (C) 2006-2008 SIPfoundry Inc.
+// Copyright (C) 2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 // 
-// Copyright (C) 2006-2008 SIPez LLC.
+// Copyright (C) 2006 SIPez LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.
 // 
 // $$
 //////////////////////////////////////////////////////////////////////////////
-
-#ifndef _WINCEFIXUPS_H_ 
-#define _WINCEFIXUPS_H_
-
 #if _WIN32_WCE >= 0x0600
 #define _CRT_SECURE_NO_DEPRECATE
 #endif
@@ -88,12 +88,6 @@ struct _timeb
 #define BUFSIZ		2048
 #define	EINVAL		22 // Orig 1234
 #define EINTR		4  // Orig 1235
-
-//FIXME! Need to be sent with care
-#define ETIMEDOUT    100
-#define ECONNRESET   101
-#define EMSGSIZE     102
-#define ECONNREFUSED 103
 
 struct _finddata_t
 {

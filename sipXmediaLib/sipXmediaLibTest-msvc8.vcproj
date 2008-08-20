@@ -90,9 +90,9 @@
 				AdditionalLibraryDirectories="..\CPPUnit\lib;..\sipXmediaLib\contrib\libgsm\lib;..\sipXmediaLib\contrib\libspeex\lib;C:\work\libiLBC\Debug"
 				IgnoreDefaultLibraryNames="libcmt.lib;msvcrt.lib"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile=".\Debug/sipXmediaLibTest-msvc8.pdb"
-				GenerateMapFile="true"
-				MapFileName=".\Debug/sipXmediaLibTest-msvc8.map"
+				ProgramDatabaseFile="$(OutDir)/sipXmediaLibTest.pdb"
+				GenerateMapFile="false"
+				MapFileName=""
 				SubSystem="1"
 				TargetMachine="1"
 			/>

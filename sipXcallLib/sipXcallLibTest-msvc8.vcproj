@@ -84,7 +84,7 @@
 				AdditionalLibraryDirectories="lib;..\sipXtackLib\debug;..\sipXportLib\debug;..\CPPUnit\lib;..\..\libiLBC\Debug"
 				IgnoreDefaultLibraryNames="libcmt.lib;msvcrt.lib"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile=".\sipXcallLibTest___Win32_Debug/sipXcallLibTest.pdb"
+				ProgramDatabaseFile="$(OutDir)/sipXcallLibTest.pdb"
 				SubSystem="1"
 				TargetMachine="1"
 			/>
