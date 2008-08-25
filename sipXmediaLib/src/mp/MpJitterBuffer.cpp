@@ -214,7 +214,7 @@ OsStatus MpJitterBuffer::pushPacket(const MpRtpBufPtr &rtpPacket,
          mpAgc->processFrame(mDecodedData, decodedSamples);
          mpAgc->getAmplitude(packetSpeechParams.mAmplitude,
                              packetSpeechParams.mIsClipped);
-         packetSpeechParams.mSpeechType = mpVad->processFrame(rtpPacket->getRtpTimestamp(),
+         packetSpeechParams.mSpeechType = mpVad->processFrame(mStreamTimestamp,
                                                               mDecodedData, decodedSamples,
                                                               packetSpeechParams);
       }
