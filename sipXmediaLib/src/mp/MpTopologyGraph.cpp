@@ -359,7 +359,7 @@ int MpTopologyGraph::linkTopologyResources(MpResourceTopology& resourceTopology,
 
             if(inputResourcePortIndex == MpResourceTopology::MP_TOPOLOGY_NEXT_AVAILABLE_PORT)
             {
-                inputResourcePortIndex = outputResource->reserveFirstUnconnectedOutput();
+                inputResourcePortIndex = outputResource->reserveFirstUnconnectedInput();
             }
             else if(inputResourcePortIndex < MpResourceTopology::MP_TOPOLOGY_NEXT_AVAILABLE_PORT)
             {
