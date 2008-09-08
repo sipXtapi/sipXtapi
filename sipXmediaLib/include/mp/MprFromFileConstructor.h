@@ -1,8 +1,8 @@
 //  
-// Copyright (C) 2006-2007 SIPfoundry Inc.
+// Copyright (C) 2006-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
-// Copyright (C) 2006-2007 SIPez LLC. 
+// Copyright (C) 2006-2008 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // $$
@@ -28,8 +28,7 @@
 // FORWARD DECLARATIONS
 
 /**
-*  @brief MprFromFileConstructor is used to construct a FromFile resource
-*
+*  @brief MprFromFileConstructor is used to construct a FromFile resource.
 */
 class MprFromFileConstructor : public MpAudioResourceConstructor
 {
@@ -38,33 +37,31 @@ public:
 
 /* ============================ CREATORS ================================== */
 
-    /** Constructor
-     */
-    MprFromFileConstructor()
-    : MpAudioResourceConstructor(DEFAULT_FROM_FILE_RESOURCE_TYPE,
-                                 0, 1, //minInputs, maxInputs,
-                                 1, 1) //minOutputs, maxOutputs
-    {
-    };
+      /// Constructor
+   MprFromFileConstructor()
+   : MpAudioResourceConstructor(DEFAULT_FROM_FILE_RESOURCE_TYPE,
+                                0, 1, //minInputs, maxInputs,
+                                1, 1) //minOutputs, maxOutputs
+   {
+   }
 
-    /** Destructor
-     */
-    virtual ~MprFromFileConstructor(){};
+     /// Destructor
+   virtual ~MprFromFileConstructor() {}
 
 /* ============================ MANIPULATORS ============================== */
 
-    /// Create a new resource
-    virtual OsStatus newResource(const UtlString& resourceName,
-                                 int maxResourcesToCreate,
-                                 int& numResourcesCreated,
-                                 MpResource* resourceArray[])
-    {
-        assert(maxResourcesToCreate >= 1);
-        numResourcesCreated = 1;
-        resourceArray[0] = new MprFromFile(resourceName);
-        resourceArray[0]->disable();
-        return(OS_SUCCESS);
-    }
+     /// Create a new resource
+   virtual OsStatus newResource(const UtlString& resourceName,
+                                int maxResourcesToCreate,
+                                int& numResourcesCreated,
+                                MpResource* resourceArray[])
+   {
+      assert(maxResourcesToCreate >= 1);
+      numResourcesCreated = 1;
+      resourceArray[0] = new MprFromFile(resourceName);
+      resourceArray[0]->disable();
+      return(OS_SUCCESS);
+   }
 
 /* ============================ ACCESSORS ================================= */
 
@@ -76,14 +73,11 @@ protected:
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
 
-    /** Disabled copy constructor
-     */
-    MprFromFileConstructor(const MprFromFileConstructor& rMprFromFileConstructor);
+     /// Disabled copy constructor
+   MprFromFileConstructor(const MprFromFileConstructor& rMprFromFileConstructor);
 
-
-    /** Disable assignment operator
-     */
-    MprFromFileConstructor& operator=(const MprFromFileConstructor& rhs);
+     /// Disabled assignment operator
+   MprFromFileConstructor& operator=(const MprFromFileConstructor& rhs);
 
 };
 
