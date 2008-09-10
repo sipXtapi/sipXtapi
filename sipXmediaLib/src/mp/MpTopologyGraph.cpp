@@ -335,6 +335,7 @@ int MpTopologyGraph::linkTopologyResources(MpResourceTopology& resourceTopology,
             if(outputResourcePortIndex == MpResourceTopology::MP_TOPOLOGY_NEXT_AVAILABLE_PORT)
             {
                 outputResourcePortIndex = outputResource->reserveFirstUnconnectedOutput();
+                assert(outputResourcePortIndex >= 0);
             }
             else if(outputResourcePortIndex < MpResourceTopology::MP_TOPOLOGY_NEXT_AVAILABLE_PORT)
             {
@@ -350,6 +351,7 @@ int MpTopologyGraph::linkTopologyResources(MpResourceTopology& resourceTopology,
                 {
                     // Find an available port and add it to the map
                     int realPortNum = outputResource->reserveFirstUnconnectedOutput();
+                    assert(realPortNum >= 0);
                     UtlInt* portKey = new UtlInt(outputResourcePortIndex);
                     UtlInt* portValue = new UtlInt(realPortNum);
                     newConnectionIds.insertKeyAndValue(portKey, portValue);
@@ -359,7 +361,8 @@ int MpTopologyGraph::linkTopologyResources(MpResourceTopology& resourceTopology,
 
             if(inputResourcePortIndex == MpResourceTopology::MP_TOPOLOGY_NEXT_AVAILABLE_PORT)
             {
-                inputResourcePortIndex = outputResource->reserveFirstUnconnectedInput();
+                inputResourcePortIndex = inputResource->reserveFirstUnconnectedInput();
+                assert(inputResourcePortIndex >= 0);
             }
             else if(inputResourcePortIndex < MpResourceTopology::MP_TOPOLOGY_NEXT_AVAILABLE_PORT)
             {
@@ -375,6 +378,7 @@ int MpTopologyGraph::linkTopologyResources(MpResourceTopology& resourceTopology,
                 {
                     // Find an available port and add it to the map
                     int realPortNum = inputResource->reserveFirstUnconnectedInput();
+                    assert(realPortNum >= 0);
                     UtlInt* portKey = new UtlInt(inputResourcePortIndex);
                     UtlInt* portValue = new UtlInt(realPortNum);
                     newConnectionIds.insertKeyAndValue(portKey, portValue);
