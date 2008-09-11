@@ -29,7 +29,12 @@
 // TYPEDEFS
 // FORWARD DECLARATIONS
 
-/// The "Dejitter" media processing resource
+/**
+*  @brief The "Dejitter" utility class.
+*
+*  This class is not thread-safe. For thread-safety it relies on external
+*  synchronization mechanisms in MprDecode.
+*/
 class MprDejitter
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
