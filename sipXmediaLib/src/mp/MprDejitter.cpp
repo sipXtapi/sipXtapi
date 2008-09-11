@@ -43,7 +43,12 @@ static void debugPrintf(...) {}
 
 // Constructor
 MprDejitter::MprDejitter()
-: mNextPullTimerCount(0)
+: mNumPackets(0)
+, mNumLatePackets(0)
+, mNumDiscarded(0)
+, mLastPushed(0)
+, mIsFirstPulledPacket(TRUE)
+// mMaxPulledSeqNo will be initialized on first arrived packet
 {
 }
 
@@ -64,50 +69,51 @@ OsStatus MprDejitter::pushPacket(const MpRtpBufPtr &pRtp)
    index = pRtp->getRtpSequenceNumber() % MAX_RTP_PACKETS;
 
    // Place packet to the buffer
-   if (mStreamData.mpPackets[index].isValid())
+   if (mpPackets[index].isValid())
    {
       // Check for packets already in the buffer. Overwrite them if 
       // the just-arriving packet is newer than the existing packet
       // Don't overwrite if the just-arriving packet is older
-      RtpSeq iBufSeqNo = mStreamData.mpPackets[index]->getRtpSequenceNumber();
+      RtpSeq iBufSeqNo = mpPackets[index]->getRtpSequenceNumber();
       RtpSeq iNewSeqNo = pRtp->getRtpSequenceNumber();
 
       if (MpDspUtils::compareSerials(iNewSeqNo, iBufSeqNo) > 0) 
       {
          // Insert the new packet over the old packet
-         mStreamData.mNumDiscarded++;
-         if (mStreamData.mNumDiscarded < 40) 
+         mNumDiscarded++;
+         if (mNumDiscarded < 40) 
          {
             debugPrintf("Dej: discard#%d Seq: %d -> %d Pt:%d\n",
-                        mStreamData.mNumDiscarded, iBufSeqNo, iNewSeqNo,
+                        mNumDiscarded, iBufSeqNo, iNewSeqNo,
                         pRtp->getRtpPayloadType());
          }
-         mStreamData.mpPackets[index] = pRtp;
-         mStreamData.mLastPushed = index;  
+         mpPackets[index] = pRtp;
+         mLastPushed = index;  
 
-         if (  MpDspUtils::compareSerials(iBufSeqNo, mStreamData.mMaxPulledSeqNo) < 0
-            && MpDspUtils::compareSerials(iNewSeqNo, mStreamData.mMaxPulledSeqNo) > 0) 
+         if (  !mIsFirstPulledPacket
+            && MpDspUtils::compareSerials(iBufSeqNo, mMaxPulledSeqNo) < 0
+            && MpDspUtils::compareSerials(iNewSeqNo, mMaxPulledSeqNo) > 0) 
          {
-            mStreamData.mNumLatePackets--;
-            mStreamData.mNumPackets++;
+            mNumLatePackets--;
+            mNumPackets++;
          }
       } else {
-         // Don't insert the new packet - it is a old delayed packet
-         mStreamData.mNumDiscarded++;
+         // Don't insert the new packet - it is an old delayed packet
+         mNumDiscarded++;
          return OS_FAILED;
       }
    } else {
-      mStreamData.mLastPushed = index;
-      mStreamData.mpPackets[index] = pRtp;
-      if (  !mStreamData.mIsFirstPulledPacket
+      mLastPushed = index;
+      mpPackets[index] = pRtp;
+      if (  !mIsFirstPulledPacket
          && MpDspUtils::compareSerials( pRtp->getRtpSequenceNumber()
-                                      , mStreamData.mMaxPulledSeqNo) <= 0)
+                                      , mMaxPulledSeqNo) <= 0)
       {
-         mStreamData.mNumLatePackets++;
+         mNumLatePackets++;
       }
       else
       {
-         mStreamData.mNumPackets++;
+         mNumPackets++;
       }
    }
 
@@ -115,9 +121,9 @@ OsStatus MprDejitter::pushPacket(const MpRtpBufPtr &pRtp)
    debugPrintf("%5u (%2u) -> (", pRtp->getRtpSequenceNumber(), index);
    for (int i=0; i< MAX_RTP_PACKETS; i++)
    {
-      if (mStreamData.mpPackets[i].isValid())
+      if (mpPackets[i].isValid())
       {
-         debugPrintf("%5u ", mStreamData.mpPackets[i]->getRtpSequenceNumber());
+         debugPrintf("%5u ", mpPackets[i]->getRtpSequenceNumber());
       } 
       else
       {
@@ -144,23 +150,23 @@ MpRtpBufPtr MprDejitter::pullPacket(RtpTimestamp maxTimestamp,
    MpRtpBufPtr found; ///< RTP packet we will return
 
    // Return none if there are no packets
-   if (mStreamData.mNumPackets==0 && mStreamData.mNumLatePackets==0)
+   if (mNumPackets==0 && mNumLatePackets==0)
       return found;
 
    // Search for first available packet
    int minSeqIdx = 0;
    for (; minSeqIdx < MAX_RTP_PACKETS; minSeqIdx++)
-      if (mStreamData.mpPackets[minSeqIdx].isValid())
+      if (mpPackets[minSeqIdx].isValid())
          break;
 
    // Search for packet with minimum sequence number
    for (int i = minSeqIdx+1; i < MAX_RTP_PACKETS; i++)
    {
-      if (!mStreamData.mpPackets[i].isValid())
+      if (!mpPackets[i].isValid())
          continue;
 
-      if (MpDspUtils::compareSerials(mStreamData.mpPackets[minSeqIdx]->getRtpSequenceNumber(),
-                                     mStreamData.mpPackets[i]->getRtpSequenceNumber()) > 0)
+      if (MpDspUtils::compareSerials(mpPackets[minSeqIdx]->getRtpSequenceNumber(),
+                                     mpPackets[i]->getRtpSequenceNumber()) > 0)
       {
          minSeqIdx = i;
       }
@@ -168,30 +174,30 @@ MpRtpBufPtr MprDejitter::pullPacket(RtpTimestamp maxTimestamp,
 
    if (  minSeqIdx < MAX_RTP_PACKETS
       && (!lockToTimestamp
-         || MpDspUtils::compareSerials(mStreamData.mpPackets[minSeqIdx]->getRtpTimestamp(),
+         || MpDspUtils::compareSerials(mpPackets[minSeqIdx]->getRtpTimestamp(),
                                        maxTimestamp) <= 0
          )
       )
    {
       // Retrieve packet 
-      found.swap(mStreamData.mpPackets[minSeqIdx]);
+      found.swap(mpPackets[minSeqIdx]);
       RtpSeq foundRtpSeq = found->getRtpSequenceNumber();
-      if (mStreamData.mIsFirstPulledPacket)
+      if (mIsFirstPulledPacket)
       {
-         mStreamData.mIsFirstPulledPacket = FALSE;
-         mStreamData.mMaxPulledSeqNo = foundRtpSeq;
-         mStreamData.mNumPackets--;
+         mIsFirstPulledPacket = FALSE;
+         mMaxPulledSeqNo = foundRtpSeq;
+         mNumPackets--;
       }
       else
       {
-         if (MpDspUtils::compareSerials(foundRtpSeq, mStreamData.mMaxPulledSeqNo)<=0)
+         if (MpDspUtils::compareSerials(foundRtpSeq, mMaxPulledSeqNo)<=0)
          {
-            mStreamData.mNumLatePackets--;
+            mNumLatePackets--;
          }
          else
          {
-            mStreamData.mMaxPulledSeqNo = foundRtpSeq;
-            mStreamData.mNumPackets--;
+            mMaxPulledSeqNo = foundRtpSeq;
+            mNumPackets--;
          }
       }
 
@@ -199,7 +205,7 @@ MpRtpBufPtr MprDejitter::pullPacket(RtpTimestamp maxTimestamp,
       if (nextFrameAvailable)
       {
          int nextPacket = (minSeqIdx+1)%MAX_RTP_PACKETS;
-         *nextFrameAvailable = mStreamData.mpPackets[nextPacket].isValid();
+         *nextFrameAvailable = mpPackets[nextPacket].isValid();
       }
    }
 
@@ -214,6 +220,23 @@ MpRtpBufPtr MprDejitter::pullPacket(RtpTimestamp maxTimestamp,
 /* ============================ INQUIRY =================================== */
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
+
+void MprDejitter::reset()
+{
+   for (int i=0; i<MAX_RTP_PACKETS; i++)
+   {
+      if (mpPackets[i].isValid())
+      {
+         mpPackets[i].release();
+      }
+   }
+   mNumPackets = 0;
+   mNumLatePackets = 0;
+   mNumDiscarded = 0;
+   mLastPushed = 0;
+   mIsFirstPulledPacket = TRUE;
+   // mMaxPulledSeqNo will be initialized on first arrived packet
+}
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 

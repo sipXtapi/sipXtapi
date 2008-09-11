@@ -127,53 +127,27 @@ public:
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 
+                  /// Buffer for incoming RTP packets
+   MpRtpBufPtr   mpPackets[MAX_RTP_PACKETS];
+                  /// Number of packets in buffer, arrived in time.
+   int           mNumPackets;
+                  /// Number of packets in buffer, arrived late.
+   int           mNumLatePackets;
+                  /// Number of packets overwritten with newly came packets.
+   int           mNumDiscarded;
+                  /// Index of the last inserted packet.
+   int           mLastPushed;
+                  /// Have we returned first RTP packet or not?
+   UtlBoolean    mIsFirstPulledPacket;
+                  /// Keep track of the last sequence number returned, so that
+                  /// we can distinguish out-of-order packets.
+   RtpSeq        mMaxPulledSeqNo;
+
+     /// Reset dejitter to initial state and prepare for new stream.
+   void reset();
+
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-
-   /// Storage for all stream related data.
-   /**
-   *  We're able to handle several RTP streams with one instance of dejitter.
-   *  This structure encapsulate all data, specific to stream as opposite to
-   *  global dejitter data.
-   */
-   struct StreamData
-   {
-       /// Constructor, initialize data to meaningful initial state.
-      StreamData()
-      : mNumPackets(0)
-      , mNumLatePackets(0)
-      , mNumDiscarded(0)
-      , mLastPushed(0)
-      , mIsFirstPulledPacket(TRUE)
-      {
-      }
-
-                     /// Buffer for incoming RTP packets
-      MpRtpBufPtr   mpPackets[MAX_RTP_PACKETS];
-                     /// Number of packets in buffer, arrived in time.
-      int           mNumPackets;
-                     /// Number of packets in buffer, arrived late.
-      int           mNumLatePackets;
-                     /// Number of packets overwritten with newly came packets.
-      int           mNumDiscarded;
-                     /// Index of the last inserted packet.
-      int           mLastPushed;
-                     /// Have we returned first RTP packet or not?
-      UtlBoolean    mIsFirstPulledPacket;
-                     /// Keep track of the last sequence number returned, so that
-                     /// we can distinguish out-of-order packets.
-      RtpSeq        mMaxPulledSeqNo;
-   };
-
-                  /// Timestamp of frame we expect next
-   RtpTimestamp  mNextPullTimerCount;
-                  /**<
-                  *  This is kept global, because we should keep all streams
-                  *  in sync.
-                  */
-
-                  /// Storage for stream related data
-   StreamData    mStreamData;
 
      /// Copy constructor (not implemented for this class)
    MprDejitter(const MprDejitter& rMprDejitter);
@@ -187,12 +161,12 @@ private:
 
 int MprDejitter::getNumPackets() const
 {
-   return mStreamData.mNumPackets;
+   return mNumPackets;
 }
 
 int MprDejitter::getNumLatePackets() const
 {
-   return mStreamData.mNumLatePackets;
+   return mNumLatePackets;
 }
 
 #endif  // _MprDejitter_h_
