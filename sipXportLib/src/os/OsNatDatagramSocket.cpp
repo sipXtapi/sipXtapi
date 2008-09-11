@@ -100,9 +100,7 @@ void OsNatDatagramSocket::destroy()
 
 OsSocket* OsNatDatagramSocket::getSocket()
 {
-    OsSocket* pSocket = dynamic_cast<OsSocket*>(this);
-    assert(pSocket);
-    return pSocket;
+    return this;
 }
 
 int OsNatDatagramSocket::read(char* buffer, int bufferLength)

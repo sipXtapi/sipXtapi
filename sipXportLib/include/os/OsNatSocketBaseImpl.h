@@ -95,7 +95,7 @@ protected:
                                  UtlString& receivedIp,
                                  int&       receivedPort) ; 
 
-    virtual OsSocket* getSocket();                                 
+    virtual OsSocket* getSocket() =0;
 
 protected:
     unsigned int          miRecordTimes ;   // Bitmask populated w/ ONDS_MARK_*

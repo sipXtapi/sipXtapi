@@ -138,13 +138,6 @@ void OsNatSocketBaseImpl::markReadTime()
     }
 }
 
-OsSocket* OsNatSocketBaseImpl::getSocket()
-{
-    OsSocket* pSocket = dynamic_cast<OsSocket*>(this);
-    assert(pSocket);
-    return pSocket;
-}
-
 void OsNatSocketBaseImpl::markWriteTime()
 {
     // Always mark last write
