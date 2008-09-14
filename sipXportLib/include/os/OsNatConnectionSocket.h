@@ -76,6 +76,8 @@ public:
 
 /* ============================ MANIPULATORS ============================== */
 
+    virtual OsSocket* getSocket();
+
     virtual void setRole(const RtpTcpRoles role);
     virtual const RtpTcpRoles getRole() const;
     

@@ -173,6 +173,10 @@ void OsNatConnectionSocket::destroy()
 
 /* ============================ MANIPULATORS ============================== */
 
+OsSocket* OsNatConnectionSocket::getSocket()
+{
+   return this;
+}
 
 int OsNatConnectionSocket::read(char* buffer, int bufferLength)
 {
