@@ -20,6 +20,7 @@
 #endif
 
 #ifdef HAVE_SSL
+#define WIN32_LEAN_AND_MEAN
 #include <openssl/crypto.h>
 #include <openssl/x509.h>
 #include <openssl/pem.h>
@@ -27,6 +28,11 @@
 #include <openssl/evp.h>
 #include <openssl/err.h>
 #include <openssl/rand.h>
+
+#  ifdef WIN32
+#     pragma comment (lib, "libeay32.lib")
+#     pragma comment (lib, "ssleay32.lib")
+#  endif
 #endif
 
 #ifdef _VXWORKS
