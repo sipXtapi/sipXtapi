@@ -41,6 +41,9 @@
 
 typedef int UtlBoolean ;
 
+#if defined(_MSC_VER) && !defined(__cplusplus)
+#  define inline __inline
+#endif // _DEBUG
 
 /** FORMAT_INTLL is a string containing the format length specifier
  *  for printing an intll with the 'd', 'x', etc. format specifiers.  E.g.:

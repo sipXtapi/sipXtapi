@@ -53,7 +53,13 @@ typedef int MpOutputDeviceHandle; ///< Logical device ID identifying device
 typedef unsigned MpFrameTime;    ///< Time of frame begin relative to device
                                  ///< manager startup (in milliseconds).
 
-typedef int MpConnectionID;
+typedef int MpConnectionID;      ///< Flowgraph connection ID.
+#define MP_INVALID_CONNECTION_ID  -1
+
+typedef uint16_t RtpSeq;        ///< RTP sequence number
+typedef uint32_t RtpTimestamp;  ///< RTP timestamp
+typedef uint32_t RtpSRC;        ///< RTP SSRC or CSRC identifier
+
 
 /// Type of audio data.
 typedef enum {
@@ -65,25 +71,30 @@ typedef enum {
    MP_SPEECH_TONE            ///< filled with active (not silent) tone data
 } MpSpeechType;
 
-
 struct MpSpeechParams
 {
-   enum {
+#ifdef __cplusplus
+   typedef enum {
       MAX_AMPLITUDE = INT16_MAX ///< Maximum possible amplitude.
-   };
+   } MpSpeechParamsConsts;
 
      /// Constructor
    MpSpeechParams()
    : mSpeechType(MP_SPEECH_UNKNOWN)
    , mAmplitude(MAX_AMPLITUDE)
    , mIsClipped(FALSE)
+   , mFrameEnergy(-1)
    {
    };
-
+#else
+#  define MAX_AMPLITUDE INT16_MAX ///< Maximum possible amplitude.
+#endif
 
    MpSpeechType mSpeechType;  ///< Whether buffer contains speech.
    MpAudioSample mAmplitude;  ///< Amplitude of the audio data in this buffer.
    UtlBoolean mIsClipped;     ///< Is data in this buffer clipped or not?
+   int mFrameEnergy;          ///< Current frame energy (normalized to frame
+                              ///< length in ms).
 };
 
 /* ============================== FUNCTIONS ============================== */
