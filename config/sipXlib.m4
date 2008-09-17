@@ -194,8 +194,6 @@ AC_DEFUN([SFAC_LIB_STACK],
 
     if test ${disable_stream_player} != true; then
 
-        AC_MSG_RESULT(Stream player is enabled - linking with sipXtackLib required)
-    
         SFAC_ARG_WITH_LIB([libsipXtack.la],
                 [sipxtacklib],
                 [ --with-sipxtacklib=<dir> sip stack library path ],
