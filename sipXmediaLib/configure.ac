@@ -96,9 +96,15 @@ AM_CONDITIONAL(SPEEX_CONTRIB, [test "x$contrib_speex_enabled" == "xyes"])
 # declaring other codecs staff
 DECLARE_CODECS_STAFF
 
-# sipX dependencies
-SFAC_LIB_STACK
+# Check stream player setting 
+CHECK_STREAM_PLAYER
+if test ${disable_stream_player} = true; then
+   AC_MSG_RESULT(Stream player is disabled)
+   CXXFLAGS+=" -DDISABLE_STREAM_PLAYER "
+fi
 
+# sipX dependencies 
+SFAC_LIB_STACK
 SFAC_FEATURE_SIP_TLS
 
 # Enable local audio support (microphone / speaker)
