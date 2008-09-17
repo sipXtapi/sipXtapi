@@ -1704,6 +1704,21 @@ AC_DEFUN([CHECK_GRAPH_INTERFACE],
     AC_SUBST(INTERFACE_FLAGS)    
 ])dnl
 
+# === CHECK_STREAM_PLAYER
+AC_DEFUN([CHECK_STREAM_PLAYER],
+[
+    AC_ARG_ENABLE([stream-player],
+		  [AC_HELP_STRING([--disable-stream-player],
+				  [Disable stream player (removes sipXtack dependency on media layer) @<:@default=no@:>@])],
+		  [ case "${enableval}" in 
+			no)  disable_stream_player=true ;;                             
+			yes) disable_stream_player=false ;;
+			*) AC_MSG_ERROR(bad value ${enableval} for --disable-media-player) ;;
+		    esac],
+		  [ disable_stream_player=false ])
+    AM_CONDITIONAL(DISABLE_STREAM_PLAYER, test x$disable_stream_player = xtrue)
+])dnl
+
 # === AMR AMR_WB
 AC_DEFUN([AM_SET_AMR],
 [

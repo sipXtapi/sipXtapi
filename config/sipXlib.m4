@@ -192,22 +192,30 @@ AC_DEFUN([SFAC_LIB_STACK],
         CXXFLAGS="-I$SIPXTACKINC $CXXFLAGS"
     fi
 
-    SFAC_ARG_WITH_LIB([libsipXtack.la],
-            [sipxtacklib],
-            [ --with-sipxtacklib=<dir> sip stack library path ],
-            [sipXtackLib])
+    if test ${disable_stream_player} != true; then
 
-    if test x_$foundpath != x_; then
-        AC_MSG_RESULT($foundpath)
+        AC_MSG_RESULT(Stream player is enabled - linking with sipXtackLib required)
+    
+        SFAC_ARG_WITH_LIB([libsipXtack.la],
+                [sipxtacklib],
+                [ --with-sipxtacklib=<dir> sip stack library path ],
+                [sipXtackLib])
+
+        if test x_$foundpath != x_; then
+            AC_MSG_RESULT($foundpath)
+        else
+            AC_MSG_ERROR('libsipXtack.la' not found)
+        fi 
+
+        SIPXTACKLIB=$foundpath
+
+        AC_SUBST(SIPXTACK_LIBS,["$SIPXTACKLIB/libsipXtack.la"])
+        AC_SUBST(SIPXTACK_STATIC_LIBS,["$SIPXTACKLIB/libsipXtack.a"])
+        AC_SUBST(SIPXTACK_LDFLAGS,["-L$SIPXTACKLIB"])
+    
     else
-        AC_MSG_ERROR('libsipXtack.la' not found)
+        AC_MSG_RESULT(Stream player is disabled - linking with sipXtackLib not required)
     fi
-
-    SIPXTACKLIB=$foundpath
-
-    AC_SUBST(SIPXTACK_LIBS,["$SIPXTACKLIB/libsipXtack.la"])
-    AC_SUBST(SIPXTACK_STATIC_LIBS,["$SIPXTACKLIB/libsipXtack.a"])
-    AC_SUBST(SIPXTACK_LDFLAGS,["-L$SIPXTACKLIB"])
 
 ]) # SFAC_LIB_STACK
 
