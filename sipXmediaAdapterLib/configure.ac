@@ -56,6 +56,13 @@ AC_CHECK_FUNCS([clock_gettime getcwd gethostbyname gethostname gettimeofday inet
 # Check for toplogy flowgraph interface
 CHECK_GRAPH_INTERFACE
 
+# Check stream player setting 
+CHECK_STREAM_PLAYER
+if test ${disable_stream_player} = true; then
+   AC_MSG_RESULT(Stream player is disabled)
+   CXXFLAGS+=" -DDISABLE_STREAM_PLAYER "
+fi
+
 EXTERNAL_EXTENITIONS
 
 # Look for CPPUnit libraries
@@ -70,7 +77,9 @@ CHECK_SSL
 
 # sipX dependencies
 SFAC_INIT_FLAGS
+
 SFAC_LIB_MEDIA
+
 
 # Conditionally use the GIPS audio libraries
 CHECK_GIPSNEQ
