@@ -1,16 +1,15 @@
 //
-// Copyright (C) 2005-2006 SIPez LLC.
-// Licensed to SIPfoundry under a Contributor Agreement.
+// Copyright (C) 2007 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 
 // SYSTEM INCLUDES
@@ -27,29 +26,6 @@
 // CONSTANTS
 // STATIC VARIABLE INITIALIZATIONS
 
-// Message Queue implementation for OS's which do not have native message queues
-//
-// Two kinds of concurrent tasks, called "senders" and "receivers",
-// communicate using a message queue. When the queue is empty, receivers are
-// blocked until there are messages to receive. When the queue is full,
-// senders are blocked until some of the queued messages are received --
-// freeing up space in the queue for more messages.
-//
-// This implementation is based on the description from the book "Operating
-// Systems Principles" by Per Brinch Hansen, 1973.  This solution uses:
-//   - a counting semaphore (mEmpty) to control the delay of the sender in
-//     the following way:
-//       initially:      the "empty" semaphore count is set to maxMsgs
-//       before send:    acquire(empty)
-//       after receive:  release(empty)
-//   - a counting semaphore (mFull) to control the delay of the receiver in
-//     the following way:
-//       initially:      the "full" semaphore count is set to 0
-//       before receive: acquire(full)
-//       after send:     release(full)
-//   - a binary semaphore (mGuard) to ensure against concurrent access to
-//     internal object data
-
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
 /* ============================ CREATORS ================================== */
@@ -57,16 +33,17 @@
 // Constructor
 // If the name is specified but is already in use, throw an exception
 OsMsgQShared::OsMsgQShared(const int maxMsgs, const int maxMsgLen,
-                     const int options, const UtlString& name)
-   :
-   OsMsgQBase(name),
-   mGuard(OsMutex::Q_PRIORITY + OsMutex::INVERSION_SAFE +
-          OsMutex::DELETE_SAFE),
-   mEmpty(OsCSem::Q_PRIORITY, maxMsgs, maxMsgs),
-   mFull(OsCSem::Q_PRIORITY, maxMsgs, 0),
-   mDlist(),
-   mOptions(options),
-   mHighCnt(0)
+                           const int options, const UtlString& name)
+: OsMsgQBase(name)
+, mGuard(OsMutex::Q_PRIORITY + OsMutex::INVERSION_SAFE +
+         OsMutex::DELETE_SAFE)
+, mEmpty(OsCSem::Q_PRIORITY, maxMsgs, maxMsgs)
+, mFull(OsCSem::Q_PRIORITY, maxMsgs, 0)
+, mDlist()
+#ifdef MSGQ_IS_VALID_CHECK
+, mOptions(options)
+, mHighCnt(0)
+#endif
 {
    mMaxMsgs = maxMsgs;
 
@@ -233,45 +210,68 @@ OsStatus OsMsgQShared::doSend(const OsMsg& rMsg, const OsTime& rTimeout,
    {
       if (sendFromISR || rMsg.isMsgReusable())
       {
+         // If the message is sent from an ISR we cannot make a copy 
+         // (no allocation allowed), so in that case we just use the message.
+
+         // If the message is marked as reusable, it's safe to use the
+         // message without copying it.
+
+         // Just go ahead and use the message without copying it.
          pMsg = (OsMsg*) &rMsg;
       }
       else
       {
-         pMsg = rMsg.createCopy();      // we place a copy of the message on the
-                                        //  queue so that the caller is free to
-                                        //  destroy the original
+         // we place a copy of the message on the queue
+         // so that the caller is free to destroy the original
+         pMsg = rMsg.createCopy();
       }
 
-      pMsg->setSentFromISR(sendFromISR);// set flag in the msg to indicate
-                                        //  whether sent from an ISR
+      // set a flag in the msg to indicate if the message was sent 
+      // from an ISR
+      pMsg->setSentFromISR(sendFromISR);
 
-      ret = mGuard.acquire();           // start critical section
+      // start critical section
+      ret = mGuard.acquire();
       assert(ret == OS_SUCCESS);
 
       if (isUrgent)
-         insResult = mDlist.insertAt(0, pMsg); // insert msg at queue head
+      {
+         // If the message is urgent, insert it at the queue head
+         insResult = mDlist.insertAt(0, pMsg);
+      }
       else
-         insResult = mDlist.insert(pMsg);      // insert msg at queue tail
+      {
+         // If the message is not urgent, insert it at the queue tail
+         insResult = mDlist.insert(pMsg);
+      }
 
 #ifdef MSGQ_IS_VALID_CHECK
       msgCnt = mDlist.entries();
       if (msgCnt > mHighCnt)
+      {
          mHighCnt = msgCnt;
+      }
 #endif
 
       if (insResult == NULL)
-      {                                 // queue insert failed
+      {
+         // queue insertion failed
          OsSysLog::add(FAC_KERNEL, PRI_CRIT,
                        "OsMsgQShared::doSend message send failed - insert failed");
+
          if (!(sendFromISR || rMsg.isMsgReusable()))
-            delete pMsg;                // destroy the msg copy we made earlier
+         {
+            // destroy the msg copy we made earlier
+            delete pMsg;
+         }
          assert(FALSE);
 
          ret = OS_UNSPECIFIED;
       }
       else
       {
-         ret = mFull.release();            // signal rcvrs that a msg is available
+         // signal receivers that a msg is available
+         ret = mFull.release();
          assert(ret == OS_SUCCESS);
       }
 
@@ -347,6 +347,8 @@ OsStatus OsMsgQShared::doSend(const OsMsg& rMsg, const OsTime& rTimeout,
 OsStatus OsMsgQShared::doReceive(OsMsg*& rpMsg, const OsTime& rTimeout)
 {
    OsStatus ret;
+
+   rpMsg = NULL;
 
 #ifdef MSGQ_IS_VALID_CHECK /* [ */
    ret = mGuard.acquire();         // start critical section

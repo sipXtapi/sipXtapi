@@ -1,9 +1,12 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 // Derived from regex.hpp, the original copyright and license notice from regex.cpp:
 // ----------------
 // regex.hpp 1.0 Copyright (c) 2003 Peter Petersen (pp@on-time.de)
@@ -67,7 +70,7 @@ RegEx::RegEx(const char * regex, int options, unsigned long int maxDepth)
       re_size = 0;
       study_size = 0;
    }
-
+   
    if (!pe)
    {
       // pcre_study didn't return any study data,

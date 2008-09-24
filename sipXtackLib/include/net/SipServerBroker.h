@@ -1,8 +1,12 @@
-// 
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+//
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
 // $$
-//////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 #ifndef _INCLUDED_SipServerBroker_H /* [ */
 #define _INCLUDED_SipServerBroker_H
@@ -15,6 +19,8 @@
 #include "os/OsSocket.h"
 #include "os/OsRWMutex.h"
 #include "os/OsProtectEvent.h"
+#include "os/OsServerSocket.h"
+#include "os/OsServerTask.h"
 
 class OsNotification;
 // DEFINES

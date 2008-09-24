@@ -1,10 +1,12 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 
 // SYSTEM INCLUDES
@@ -183,18 +185,30 @@ UtlBoolean SipProtocolServerBase::startListener()
         if (!pServerContainer)
         {
             pServer = new SipClient(pSocket);
+
+            // This used to be done at the end of this else statement
+            // however there is a race and the userAgent must be set before
+            // starting this client.  I think the race occurs if there is
+            // immediately an incoming message on the socket.
+            if(mSipUserAgent)
+            {
+                if (pServer)
+                {
+                    pServer->setUserAgent(mSipUserAgent);
+                }
+            }
             this->mServers.insertKeyAndValue(new UtlString(localIp), new UtlVoidPtr((void*)pServer));
             pServer->start();
         }
         else
         {
             pServer = (SipClient*) pServerContainer->getValue();
-        }
-        if(mSipUserAgent)
-        {
-            if (pServer)
+            if(mSipUserAgent)
             {
-                pServer->setUserAgent(mSipUserAgent);
+                if (pServer)
+                {
+                    pServer->setUserAgent(mSipUserAgent);
+                }
             }
         }
     }
@@ -287,8 +301,8 @@ SipClient* SipProtocolServerBase::createClient(const char* hostAddress,
                 }
             }
 
-            OsSysLog::add(FAC_SIP, PRI_DEBUG, "Sip%sServer::createClient client: %p %s:%d",
-                mProtocolString.data(), client, hostAddress, hostPort);
+            OsSysLog::add(FAC_SIP, PRI_DEBUG, "Sip%sServer::createClient client: %p %s -> %s:%d",
+                mProtocolString.data(), client, localIp, hostAddress, hostPort);
 
             mClientList.push(client);
         }
@@ -306,8 +320,8 @@ SipClient* SipProtocolServerBase::createClient(const char* hostAddress,
                 clientSocket = NULL;
             }
             OsSysLog::add(FAC_SIP, PRI_WARNING,
-                          "Sip%sServer::createClient client %p Failed to create socket %s:%d",
-                          mProtocolString.data(), this, hostAddress, hostPort);
+                          "Sip%sServer::createClient client %p Failed to create socket %s -> %s:%d",
+                          mProtocolString.data(), this, localIp, hostAddress, hostPort);
         }
     }
 
@@ -330,7 +344,7 @@ SipClient* SipProtocolServerBase::createClient(const char* hostAddress,
     return(client);
 }
 
-int SipProtocolServerBase::isOk()
+UtlBoolean SipProtocolServerBase::isOk()
 {
     UtlBoolean bRet = true;
     
@@ -398,34 +412,34 @@ UtlBoolean SipProtocolServerBase::waitForClientToWrite(SipClient* client)
                               mProtocolString.data(), client, waitEvent, numTries);
 #endif
 
-                                // Do not block forever
-                                OsTime maxWaitTime(0, 500000);
+                // Do not block forever
+                OsTime maxWaitTime(0, 500000);
 
-                                // If the other side signalled
-            if(waitEvent->wait(maxWaitTime)  == OS_SUCCESS)
-                                {
-                                        // The other side is no longer referencing
-                                        // the event.  This side must clean it up
-                                        delete waitEvent;
-                                        waitEvent = NULL;
-                                }
-                                // A timeout occured and the otherside did not signal yet
-                                else
-                                {
-                                        // Signal the other side to indicate we are done
-                                        // with the event.  If already signaled, we lost
-                                        // a race and the other side was done first.
-                                        if(waitEvent->signal(0) == OS_ALREADY_SIGNALED)
-                                        {
-                                                delete waitEvent;
-                                                waitEvent = NULL;
-                                        }
-                                }
+                // If the other side signaled
+                if(waitEvent->wait(maxWaitTime)  == OS_SUCCESS)
+                {
+                    // The other side is no longer referencing
+                    // the event.  This side must clean it up
+                    delete waitEvent;
+                    waitEvent = NULL;
+                }
+                // A timeout occurred and the other side did not signal yet
+                else
+                {
+                    // Signal the other side to indicate we are done
+                    // with the event.  If already signaled, we lost
+                    // a race and the other side was done first.
+                    if(waitEvent->signal(0) == OS_ALREADY_SIGNALED)
+                    {
+                        delete waitEvent;
+                        waitEvent = NULL;
+                    }
+                }
 
 #ifdef TEST_PRINT
-            OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                          "Sip%sServerBase::waitForClientToWrite %p done waiting after %d tries",
-                          mProtocolString.data(), client, numTries);
+                OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                              "Sip%sServerBase::waitForClientToWrite %p done waiting after %d tries",
+                              mProtocolString.data(), client, numTries);
 #endif
             }
         }
@@ -532,9 +546,9 @@ void SipProtocolServerBase::deleteClient(SipClient* sipClient)
     // block here trying to delete the client forever.
     if(client)
     {
-        OsSysLog::add(FAC_SIP, PRI_DEBUG, "Sip%sServer::deleteClient(%p) done",
+         OsSysLog::add(FAC_SIP, PRI_DEBUG, "Sip%sServer::deleteClient(%p) done",
                       mProtocolString.data(), sipClient);
-        delete client;
+                delete client;
         client = NULL;
     }
 
@@ -575,7 +589,7 @@ void SipProtocolServerBase::removeOldClients(long oldTime)
                )
            )
         {
-           client->getClientNames(clientNames);
+            client->getClientNames(clientNames);
 #ifdef TEST_PRINT
             osPrintf("Removing %s client names:\n%s\r\n",
                 mProtocolString.data(), clientNames.data());

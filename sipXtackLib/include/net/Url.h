@@ -163,7 +163,7 @@ public:
 
 /* ============================ ACCESSORS ================================= */
 
-    /// Construct the canonical identity.
+    /// Construct the cannonical identity.
     void getIdentity(UtlString& identity) const;
     /**<
      * In some applications this is used to compare if this

@@ -1,9 +1,12 @@
 //
-// Copyright (C) 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 #ifndef _videopanel_h_
 #define _videopanel_h_
 
@@ -39,6 +42,8 @@ public:
     * VideoPanel destructor.
     */
    virtual ~VideoPanel();
+
+   void UpdateBackground(wxColor color);
 
 /* ============================ MANIPULATORS ============================== */
 /* ============================ ACCESSORS ================================= */

@@ -1,10 +1,12 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 
 #ifndef _OsTime_h_
@@ -34,12 +36,17 @@ class OsTime
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
-   static const OsTime OS_INFINITY;
-   static const OsTime NO_WAIT_TIME;
 
-   static const long MSECS_PER_SEC ; 
-   static const long USECS_PER_MSEC ;
-   static const long USECS_PER_SEC ;
+   /// Time quantity enum for special time values
+   typedef enum
+   {
+      OS_INFINITY = -1,
+      NO_WAIT_TIME = 0
+   } TimeQuantity;
+
+   static const long MSECS_PER_SEC;
+   static const long USECS_PER_MSEC;
+   static const long USECS_PER_SEC;
 
 /* ============================ CREATORS ================================== */
 
@@ -48,6 +55,9 @@ public:
 
    OsTime(const long msecs);
      //:Constructor specifying time/duration in terms of milliseconds
+
+   OsTime(TimeQuantity quantity);
+     //:Constructor specifying time/duration in terms of TimeQuantity enum
 
    OsTime(const long seconds, const long usecs);
      //:Constructor specifying time/duration in terms of seconds and microseconds
@@ -60,6 +70,9 @@ public:
      //:Destructor
 
 /* ============================ MANIPULATORS ============================== */
+
+   OsTime& operator=(TimeQuantity rhs);
+     //:Assignment operator
 
    OsTime& operator=(const OsTime& rhs);
      //:Assignment operator
@@ -76,22 +89,22 @@ public:
    OsTime operator-=(const OsTime& rhs);
      //:Decrement operator
 
-   bool operator==(const OsTime& rhs);
+   bool operator==(const OsTime& rhs) const;
      //:Test for equality operator
 
-   bool operator!=(const OsTime& rhs);
+   bool operator!=(const OsTime& rhs) const;
      //:Test for inequality operator
 
-   bool operator>(const OsTime& rhs);
+   bool operator>(const OsTime& rhs) const;
      //:Test for greater than
 
-   bool operator>=(const OsTime& rhs);
+   bool operator>=(const OsTime& rhs) const;
      //:Test for greater than or equal
 
-   bool operator<(const OsTime& rhs);
+   bool operator<(const OsTime& rhs) const;
      //:Test for less than
 
-   bool operator<=(const OsTime& rhs);
+   bool operator<=(const OsTime& rhs) const;
      //:Test for less than or equal
 
 /* ============================ ACCESSORS ================================= */
@@ -100,13 +113,13 @@ public:
    {
       return mSeconds;
    }
-   //:Return the seconds portion of the time interval
+     //:Return the seconds portion of the time interval
 
    virtual long usecs(void) const
    {
       return mUsecs;
    }
-   //:Return the microseconds portion of the time interval
+     //:Return the microseconds portion of the time interval
 
    virtual long cvtToMsecs(void) const;
      //:Convert the time interval to milliseconds

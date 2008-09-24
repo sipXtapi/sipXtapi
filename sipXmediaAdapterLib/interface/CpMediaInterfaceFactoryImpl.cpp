@@ -1,10 +1,15 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
+// Copyright (C) 2005-2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
 // 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 
 // SYSTEM INCLUDES
@@ -12,11 +17,20 @@
 // APPLICATION INCLUDES
 #include "mi/CpMediaInterfaceFactoryImpl.h"
 #include "os/OsLock.h"
+#include "os/OsDatagramSocket.h"
+#include "os/OsServerSocket.h"
+#include "os/OsFS.h"
+#include "os/OsSysLog.h"
+#include "utl/UtlString.h"
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
+#define DEFAULT_NUM_CODEC_PATHS 10;
 // STATIC VARIABLE INITIALIZATIONS
+size_t CpMediaInterfaceFactoryImpl::mnCodecPaths = 0;
+size_t CpMediaInterfaceFactoryImpl::mnAllocCodecPaths = 0;
+UtlString* CpMediaInterfaceFactoryImpl::mpCodecPaths = NULL;
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
@@ -37,6 +51,7 @@ CpMediaInterfaceFactoryImpl::~CpMediaInterfaceFactoryImpl()
     OsLock lock(mlockList) ;
     
     mlistFreePorts.destroyAll() ;
+    mlistBusyPorts.destroyAll() ;
 }
 
 /* =========================== DESTRUCTORS ================================ */
@@ -63,31 +78,61 @@ void CpMediaInterfaceFactoryImpl::setRtpPortRange(int startRtpPort, int lastRtpP
     miNextRtpPort = miStartRtpPort ;
 }
 
-
+#define MAX_PORT_CHECK_ATTEMPTS     miLastRtpPort - miStartRtpPort
+#define MAX_PORT_CHECK_WAIT_MS      50
 OsStatus CpMediaInterfaceFactoryImpl::getNextRtpPort(int &rtpPort) 
 {
     OsLock lock(mlockList) ;
+    bool bGoodPort = false ;
+    int iAttempts = 0 ;
 
-    // First attempt to get a free port for the free list, if that
-    // fails, return a new one. 
-    if (mlistFreePorts.entries()) 
+    // Re-add busy ports to end of free list
+    while (mlistBusyPorts.entries())
     {
-        UtlInt* pInt = (UtlInt*) mlistFreePorts.first() ;
-        mlistFreePorts.remove(pInt) ;                
-        rtpPort = pInt->getValue() ;
-        delete pInt ;
+        UtlInt* pInt = (UtlInt*) mlistBusyPorts.first() ;
+        mlistBusyPorts.remove(pInt) ;
+
+        mlistFreePorts.append(pInt) ;
     }
-    else
-    {
-        rtpPort = miNextRtpPort ;
 
-        // Only allocate if the nextRtpPort is greater then 0 -- otherwise we
-        // are allowing the system to allocate ports.
-        if (miNextRtpPort > 0)
+    while (!bGoodPort && (iAttempts < MAX_PORT_CHECK_ATTEMPTS))
+    {
+        iAttempts++ ;
+
+        // First attempt to get a free port for the free list, if that
+        // fails, return a new one. 
+        if (mlistFreePorts.entries())
         {
-            miNextRtpPort += 2 ; 
+            UtlInt* pInt = (UtlInt*) mlistFreePorts.first() ;
+            mlistFreePorts.remove(pInt) ;
+            rtpPort = pInt->getValue() ;
+            delete pInt ;
+        }
+        else
+        {
+            rtpPort = miNextRtpPort ;
+
+            // Only allocate if the nextRtpPort is greater then 0 -- otherwise we
+            // are allowing the system to allocate ports.
+            if (miNextRtpPort > 0)
+            {
+                miNextRtpPort += 2 ; 
+            }
+        }
+
+        bGoodPort = !isPortBusy(rtpPort, MAX_PORT_CHECK_WAIT_MS) ;
+        if (!bGoodPort)
+        {
+            mlistBusyPorts.insert(new UtlInt(rtpPort)) ;
         }
     }
+
+    // If unable to find a usable port, let the system pick one.
+    if (!bGoodPort)
+    {
+        rtpPort = 0 ;
+    }
+    
     return OS_SUCCESS ;
 }
 
@@ -100,11 +145,69 @@ OsStatus CpMediaInterfaceFactoryImpl::releaseRtpPort(const int rtpPort)
     // port)
     if (miNextRtpPort != 0)
     {
-        mlistFreePorts.insert(new UtlInt(rtpPort)) ;
+        // if it is not already in the list...
+        if (!mlistFreePorts.find(&UtlInt(rtpPort)))
+        {
+            // Release port to head of list (generally want to reuse ports)
+            mlistFreePorts.insert(new UtlInt(rtpPort)) ;
+        }
     }
 
     return OS_SUCCESS ;
 }
+
+// Static method to add codec paths
+OsStatus CpMediaInterfaceFactoryImpl::addCodecPaths(const size_t nCodecPaths, 
+                                                    const UtlString codecPaths[])
+{
+   size_t i;
+
+   // Check each codecPath to see if it is valid.  If any of them are invalid,
+   // return failure.
+   /*
+   for(i = 0; i < nCodecPaths; i++)
+   {
+      // This isn't correct..  We want to check if it's *syntactically* valid
+      // not checking for existence.
+      if(!OsPath(codecPaths[i]).isValid())
+      {
+         return OS_FAILED;
+      }
+   }
+   */
+
+   if(ensureCapacityCodecPaths(mnCodecPaths+nCodecPaths) == OS_FAILED)
+   {
+      OsSysLog::add(FAC_MP, PRI_ERR, "CpMediaInterfaceFactory::addCodecPaths "
+                    " - Error ensuring static codec path capacity when adding "
+                    "%d codec paths to %d already existing paths!", 
+                    nCodecPaths, mnCodecPaths);
+      return OS_FAILED;
+   }
+
+   // Add the new codecs to the static codec path list.
+   for (i = 0; i < nCodecPaths; i++)
+   {
+      mpCodecPaths[mnCodecPaths+i] = codecPaths[i];
+   }
+   // Now increase the indicated number of codecs stored by what we added.
+   mnCodecPaths += nCodecPaths;
+   
+   return OS_SUCCESS;
+}
+
+// Static method to clear all codec paths
+void CpMediaInterfaceFactoryImpl::clearCodecPaths()
+{
+   if(mpCodecPaths != NULL)
+   {
+      delete[] mpCodecPaths;
+   }
+   mpCodecPaths = NULL;
+   mnAllocCodecPaths = 0;
+   mnCodecPaths = 0;
+}
+
 
 /* ============================ ACCESSORS ================================= */
 
@@ -112,8 +215,110 @@ OsStatus CpMediaInterfaceFactoryImpl::releaseRtpPort(const int rtpPort)
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
+UtlBoolean CpMediaInterfaceFactoryImpl::isPortBusy(int iPort, int checkTimeMS) 
+{
+    UtlBoolean bBusy = FALSE ;
+
+    if (iPort > 0)
+    {
+        OsDatagramSocket* pSocket = new OsDatagramSocket(0, NULL, iPort, NULL) ;
+        if (pSocket != NULL)
+        {
+            if (!pSocket->isOk() || pSocket->isReadyToRead(checkTimeMS))
+            {
+                bBusy = true ;
+            }
+            pSocket->close() ;
+            delete pSocket ;
+        }
+        
+        // also check TCP port availability
+        OsServerSocket* pTcpSocket = new OsServerSocket(64, iPort, 0, 1);
+        if (pTcpSocket != NULL)
+        {
+            if (!pTcpSocket->isOk())
+            {
+                bBusy = TRUE;
+            }
+            pTcpSocket->close();
+            delete pTcpSocket;
+        }
+    }
+
+    return bBusy ;
+}
+
+OsStatus CpMediaInterfaceFactoryImpl::ensureCapacityCodecPaths(size_t newSize)
+{
+   if (newSize <= mnAllocCodecPaths)
+   {
+      return OS_SUCCESS;
+   }
+
+   size_t newArraySz = mnAllocCodecPaths;
+
+   // If this is the first time something has been added, 
+   // then we need to give an initial size.
+   if (newArraySz == 0)
+   {
+      newArraySz = DEFAULT_NUM_CODEC_PATHS;
+   }
+
+   if (newSize <= SIZE_MAX/2)
+   {
+      // if the requested new size is less than half the maximum capacity,
+      // then it's safe to keep doubling our current allocation size until it 
+      // is bigger than the requested new size, so this doesn't keep getting 
+      // re-allocated.
+      // (it's safe at least from the perspective of the maximum size that 
+      //  size_t can hold)
+      while (newArraySz <= newSize)
+      {
+         newArraySz *= 2;
+      }
+   }
+   else
+   {
+      // If we're beyond half the maximum possible capacity, 
+      // then just set the capacity to whatever the new requested size is,
+      // without any reserve space.
+      newArraySz = newSize;
+   }
+
+   // Allocate the new codec path array.
+   // If we run out of memory on windows, the app actually crashes unfortunately,
+   // and the NULL return actually never happens.
+   UtlString* newArray = new UtlString[newArraySz];
+
+   // If allocation failed, return OS_NO_MEMORY
+   if(newArray == NULL)
+   {
+      return OS_NO_MEMORY;
+   }
+
+   // And copy over the old array values to the new array
+   size_t i;
+   for (i = 0; i < mnCodecPaths; i++)
+   {
+      newArray[i] = mpCodecPaths[i];
+   }
+
+   if(mpCodecPaths != NULL)
+   {
+      // Now delete the old codec paths array,
+      delete[] mpCodecPaths;
+   }
+
+   // and copy over the new array pointer to the old array pointer var.
+   mpCodecPaths = newArray;
+   mnAllocCodecPaths = newArraySz;
+
+   return OS_SUCCESS;
+}
+
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 /* ============================ FUNCTIONS ================================= */
+
 
 

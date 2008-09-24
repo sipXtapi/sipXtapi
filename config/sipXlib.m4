@@ -1,49 +1,25 @@
 ##
 ## Libs from SipFoundry
 ##
+
 ## Common C and C++ flags for pingtel related source
 AC_DEFUN([SFAC_INIT_FLAGS],
 [
-    AC_SUBST(CPPUNIT_CFLAGS,  [])
-    AC_SUBST(CPPUNIT_LDFLAGS, [])
-
     ## TODO Remove cpu specifics and use make variables setup for this
     ##
     ## NOTES:
     ##   -D__pingtel_on_posix__   - really used for linux v.s. other
-    ##   -D_REENTRANT             - roguewave ?
+    ##   -D_REENTRANT             - rougewave ?
     ##   -fmessage-length=0       - ?
     ##
     AC_SUBST(SIPX_INCDIR, [${includedir}])
     AC_SUBST(SIPX_LIBDIR, [${libdir}])
-    AC_SUBST(SIPX_LIBEXECDIR, [${libexecdir}])
 
-    CFLAGS="-I${prefix}/include $CFLAGS"
-    CXXFLAGS="-I${prefix}/include $CXXFLAGS"
-    LDFLAGS="-L${prefix}/lib ${LDFLAGS}"
+    SF_CXX_C_FLAGS="-D__pingtel_on_posix__ -D_linux_ -D_REENTRANT -D_FILE_OFFSET_BITS=64 -fmessage-length=0"
 
-    if test x_"${ax_cv_c_compiler_vendor}" = x_gnu
-    then
-    	SF_CXX_C_FLAGS="-D__pingtel_on_posix__ -D_linux_ -D_REENTRANT -D_FILE_OFFSET_BITS=64 -fmessage-length=0"
-    	SF_CXX_WARNINGS="-Wall -Wformat -Wwrite-strings -Wpointer-arith"
-    	CXXFLAGS="$CXXFLAGS $SF_CXX_C_FLAGS $SF_CXX_WARNINGS"
-    	CFLAGS="$CFLAGS $SF_CXX_C_FLAGS $SF_CXX_WARNINGS -Wnested-externs -Wmissing-declarations -Wmissing-prototypes"
-    elif test x_"${ax_cv_c_compiler_vendor}" = x_sun
-    then
-        SF_CXX_C_FLAGS="-D__pingtel_on_posix__ -D_REENTRANT -D_FILE_OFFSET_BITS=64 -mt -fast -v"
-        SF_CXX_FLAGS="-D__pingtel_on_posix__ -D_REENTRANT -D_FILE_OFFSET_BITS=64 -mt -xlang=c99 -fast -v"
-        SF_CXX_WARNINGS=""
-        CXXFLAGS="$CXXFLAGS $SF_CXX_FLAGS $SF_CXX_WARNINGS"
-        CFLAGS="$CFLAGS $SF_CXX_C_FLAGS $SF_CXX_WARNINGS"
-    else
-        SF_CXX_C_FLAGS="-D__pingtel_on_posix__ -D_linux_ -D_REENTRANT -D_FILE_OFFSET_BITS=64"
-        SF_CXX_WARNINGS=""
-        CXXFLAGS="$CXXFLAGS $SF_CXX_C_FLAGS $SF_CXX_WARNINGS"
-        CFLAGS="$CFLAGS $SF_CXX_C_FLAGS $SF_CXX_WARNINGS"
-    fi
-
-    ## set flag for gcc
-    AM_CONDITIONAL(ISGCC, [test  x_"${GCC}" != x_])
+    SF_CXX_WARNINGS="-Wall -Wformat -Wwrite-strings -Wpointer-arith"
+    CXXFLAGS="$CXXFLAGS $SF_CXX_C_FLAGS $SF_CXX_WARNINGS"
+    CFLAGS="$CFLAGS $SF_CXX_C_FLAGS $SF_CXX_WARNINGS -Wnested-externs -Wmissing-declarations -Wmissing-prototypes"
 
     ## NOTE: These are not expanded (e.g. contain $(prefix)) and are only
     ## fit for Makefiles. You can however write a Makefile that transforms
@@ -57,14 +33,10 @@ AC_DEFUN([SFAC_INIT_FLAGS],
     AC_SUBST(SIPX_DATADIR, [${datadir}/sipxpbx])
     AC_SUBST(SIPX_LOGDIR,  [${localstatedir}/log/sipxpbx])
     AC_SUBST(SIPX_RUNDIR,  [${localstatedir}/run/sipxpbx])
-    AC_SUBST(SIPX_TMPDIR,  [${localstatedir}/sipxdata/tmp])
+    AC_SUBST(SIPX_TMPDIR,  [${localstatedir}/tmp])
     AC_SUBST(SIPX_DBDIR,   [${localstatedir}/sipxdata/sipdb])
-    AC_SUBST(SIPX_UPGRADEDIR,[${localstatedir}/sipxdata/upgrade])
     AC_SUBST(SIPX_SCHEMADIR, [${datadir}/sipx/schema])
     AC_SUBST(SIPX_DOCDIR,  [${datadir}/doc/sipx])
-    AC_SUBST(SIPX_VARDIR,  [${localstatedir}/sipxdata])
-    AC_SUBST(SIPX_PROCDIR, [${sysconfdir}/sipxpbx/process.d])
-    AC_SUBST(SIPX_VARLIB,  [${localstatedir}/lib/sipxpbx])
 
     # temporary - see http://track.sipfoundry.org/browse/XPB-33
     AC_SUBST(SIPX_VXMLDATADIR,[${localstatedir}/sipxdata/mediaserver/data])
@@ -81,8 +53,8 @@ AC_DEFUN([SFAC_INIT_FLAGS],
                         WARNING: Adjust accordingly when following INSTALL instructions])
     test -z $wwwdir && wwwdir='${datadir}/www'
 
-    AC_ARG_VAR(SIPXPBXUSER, [The sipX service daemon user name, default is 'sipx'])
-    test -z $SIPXPBXUSER && SIPXPBXUSER=sipx
+    AC_ARG_VAR(SIPXPBXUSER, [The user that sipXpbx runs under, default is 'sipxchange'])
+    test -z $SIPXPBXUSER && SIPXPBXUSER=sipxchange
 
     AC_SUBST(SIPXPHONECONF, [${sysconfdir}/sipxphone])
     AC_SUBST(SIPXPHONEDATA, [${datadir}/sipxphone])
@@ -95,44 +67,8 @@ AC_DEFUN([SFAC_INIT_FLAGS],
     AC_ARG_ENABLE(buildnumber,
                  [  --enable-buildnumber    enable build number as part of RPM name],
                  enable_buildnumber=yes)
-
-    AC_ARG_VAR(SIPXPBX_LABEL, [Label for sipxpbx, default is 'sipxpbx'])
-    test -z $SIPXPBX_LABEL && SIPXPBX_LABEL=sipxpbx
-
-    # Enable profiling via gprof
-    ENABLE_PROFILE
-
-    SFAC_DIST_DIR
-
-    SFAC_CONFIGURE_OPTIONS
 ])
 
-AC_DEFUN([SFAC_CONFIGURE_OPTIONS],
-[
-  ConfigureArgs=`sed \
-    -e '/^ *\$ .*\/configure/!d' \
-    -e 's/^ *\$ .*\/configure *//' \
-    config.log`
-
-  ## Strip out configure switched that cause issue in RPM spec file
-  ## configure switch. Does not support spaces in paths
-  for a in $ConfigureArgs; do
-    case ${a} in
-      --srcdir=*|--cache-file=*|--prefix=*)
-        ;;
-      *)
-        CleanedArgs="$CleanedArgs $a"
-        ;;
-    esac 
-  done
-
-  AC_SUBST(CONFIGURE_OPTIONS, $CleanedArgs)
-])
-
-AC_DEFUN([SFAC_SIPX_INSTALL_PREFIX],[
-   # set the install prefix
-   AC_PREFIX_DEFAULT(${SIPX_INSTALLDIR:-/usr/local/sipx})
-])
 
 ## Check to see that we are using the minimum required version of automake
 AC_DEFUN([SFAC_AUTOMAKE_VERSION],[
@@ -141,17 +77,6 @@ AC_DEFUN([SFAC_AUTOMAKE_VERSION],[
    AX_COMPARE_VERSION( [$1], [le], [$sf_am_version], AC_MSG_RESULT( $sf_am_version is ok), AC_MSG_ERROR( found $sf_am_version - you must upgrade automake ))
 ])
 
-AC_DEFUN([SFAC_REQUIRE_LIBWWWSSL],
-[
-   AC_MSG_CHECKING(W3C libwww ssl requirement)
-   AC_ARG_ENABLE(sipx-w3c-libwww-rpm,
-     AC_HELP_STRING([--enable-sipx-w3c-libwww-rpm],
-       [Forces RPM to require sipx-w3c-libwww, only required on RHE3 or RHE4]),
-       LIBWWW_RPM=sipx-w3c-libwww, 
-       LIBWWW_RPM=w3c-libwww)
-   AC_MSG_RESULT(${LIBWWW_RPM})
-   AC_SUBST(LIBWWW_RPM)
-])
 
 ## sipXportLib 
 # SFAC_LIB_PORT attempts to find the sf portability library and include
@@ -166,8 +91,72 @@ AC_DEFUN([SFAC_LIB_PORT],
     AC_REQUIRE([SFAC_INIT_FLAGS])
     AC_REQUIRE([CHECK_PCRE])
     AC_REQUIRE([CHECK_SSL])
-    AC_SUBST(SIPXPORT_LIBS, [-lsipXport])
-    AC_SUBST(SIPXUNIT_LIBS, [-lsipXunit])
+
+    SFAC_ARG_WITH_INCLUDE([os/OsDefs.h],
+            [sipxportinc],
+            [ --with-sipxportinc=<dir> portability include path ],
+            [sipXportLib])
+
+    if test x_$foundpath != x_; then
+        AC_MSG_RESULT($foundpath)
+    else
+        AC_MSG_ERROR('os/OsDefs.h' not found)
+    fi
+    SIPXPORTINC=$foundpath
+    AC_SUBST(SIPXPORTINC)
+
+    CFLAGS="-I$SIPXPORTINC $PCRE_CFLAGS $CFLAGS"
+    CXXFLAGS="-I$SIPXPORTINC $PCRE_CXXFLAGS $CXXFLAGS"
+
+    foundpath=""
+
+    SFAC_ARG_WITH_INCLUDE([sipxunit/TestUtilities.h],
+            [sipxportinc],
+            [ --with-sipxportinc=<dir> portability include path ],
+            [sipXportLib])
+
+    if test x_$foundpath != x_; then
+        AC_MSG_RESULT($foundpath)
+    else
+        AC_MSG_ERROR('sipxunit/TestUtilities.h' not found)
+    fi
+    SIPXUNITINC=$foundpath
+    AC_SUBST(SIPXUNITINC)
+
+    CFLAGS="-I$SIPXUNITINC $CFLAGS"
+    CXXFLAGS="-I$SIPXUNITINC $CXXFLAGS"
+
+    foundpath=""
+
+    SFAC_ARG_WITH_LIB([libsipXport.la],
+            [sipxportlib],
+            [ --with-sipxportlib=<dir> portability library path ],
+            [sipXportLib])
+
+    if test x_$foundpath != x_; then
+        AC_MSG_RESULT($foundpath)
+        AC_SUBST(SIPXPORT_LIBS,         "$foundpath/libsipXport.la")
+        AC_SUBST(SIPXPORT_STATIC_LIBS,  "$foundpath/libsipXport.a")
+        AC_SUBST(SIPXPORT_LDFLAGS,       "-L$foundpath")
+    else
+        AC_MSG_ERROR('libsipXport.la' not found)
+    fi
+ 
+    foundpath=""
+
+    SFAC_ARG_WITH_LIB([libsipXunit.la],
+            [sipxportlib],
+            [ --with-sipxportlib=<dir> portability library path ],
+            [sipXportLib])
+
+    if test x_$foundpath != x_; then
+        AC_MSG_RESULT($foundpath)
+        # sipXunit unitesting support
+        AC_SUBST(SIPXUNIT_LDFLAGS, "-L$foundpath")
+        AC_SUBST(SIPXUNIT_LIBS,    "$foundpath/libsipXunit.la")
+    else
+        AC_MSG_ERROR('libsipXunit.la' not found)
+    fi
 ]) # SFAC_LIB_PORT
 
 
@@ -182,8 +171,98 @@ AC_DEFUN([SFAC_LIB_PORT],
 AC_DEFUN([SFAC_LIB_STACK],
 [
     AC_REQUIRE([SFAC_LIB_PORT])
-    AC_SUBST([SIPXTACK_LIBS], [-lsipXtack])
+    AC_REQUIRE([SFAC_LIB_SDP])
+
+    SFAC_ARG_WITH_INCLUDE([net/SipUserAgent.h],
+            [sipxtackinc],
+            [ --with-sipxtackinc=<dir> sip stack include path ],
+            [sipXtackLib])
+
+    if test x_$foundpath != x_; then
+        AC_MSG_RESULT($foundpath)
+    else
+        AC_MSG_ERROR('net/SipUserAgent.h' not found)
+    fi
+    SIPXTACKINC=$foundpath
+    AC_SUBST(SIPXTACKINC)
+
+    if test "$SIPXTACKINC" != "$SIPXPORTINC"
+    then
+        CFLAGS="-I$SIPXTACKINC $CFLAGS"
+        CXXFLAGS="-I$SIPXTACKINC $CXXFLAGS"
+    fi
+
+    if test ${disable_stream_player} != true; then
+
+        SFAC_ARG_WITH_LIB([libsipXtack.la],
+                [sipxtacklib],
+                [ --with-sipxtacklib=<dir> sip stack library path ],
+                [sipXtackLib])
+
+        if test x_$foundpath != x_; then
+            AC_MSG_RESULT($foundpath)
+        else
+            AC_MSG_ERROR('libsipXtack.la' not found)
+        fi 
+
+        SIPXTACKLIB=$foundpath
+
+        AC_SUBST(SIPXTACK_LIBS,["$SIPXTACKLIB/libsipXtack.la"])
+        AC_SUBST(SIPXTACK_STATIC_LIBS,["$SIPXTACKLIB/libsipXtack.a"])
+        AC_SUBST(SIPXTACK_LDFLAGS,["-L$SIPXTACKLIB"])
+    
+    else
+        AC_MSG_RESULT(Stream player is disabled - linking with sipXtackLib not required)
+    fi
+
 ]) # SFAC_LIB_STACK
+
+## sipXsdpLib
+#
+# If not found, the configure is aborted.  Otherwise, variables are defined
+# for both the INC and LIB paths AND the paths are added to the CFLAGS,
+# CXXFLAGS, LDFLAGS, and LIBS.
+AC_DEFUN([SFAC_LIB_SDP],
+[
+    AC_REQUIRE([SFAC_LIB_PORT])
+
+    SFAC_ARG_WITH_INCLUDE([sdp/Sdp.h],
+            [sipxsdpinc],
+            [ --with-sipxsdpinc=<dir> sdp include path ],
+            [sipXsdpLib])
+
+    if test x_$foundpath != x_; then
+        AC_MSG_RESULT($foundpath)
+    else
+        AC_MSG_ERROR('sdp/Sdp.h' not found)
+    fi
+    SIPXSDPINC=$foundpath
+    AC_SUBST(SIPXSDPINC)
+
+    if test "$SIPXSDPINC" != "$SIPXPORTINC"
+    then
+        CFLAGS="-I$SIPXSDPINC $CFLAGS"
+        CXXFLAGS="-I$SIPXSDPINC $CXXFLAGS"
+    fi
+
+    SFAC_ARG_WITH_LIB([libsipXsdp.la],
+            [sipxsdplib],
+            [ --with-sipxsdplib=<dir> sdp library path ],
+            [sipXsdpLib])
+
+    if test x_$foundpath != x_; then
+        AC_MSG_RESULT($foundpath)
+    else
+        AC_MSG_ERROR('libsipXsdp.la' not found)
+    fi
+
+    SIPXSDPLIB=$foundpath
+
+    AC_SUBST(SIPXSDP_LIBS,["$SIPXSDPLIB/libsipXsdp.la"])
+    AC_SUBST(SIPXSDP_STATIC_LIBS,["$SIPXSDPLIB/libsipXsdp.a"])
+    AC_SUBST(SIPXSDP_LDFLAGS,["-L$SIPXSDPLIB"])
+
+]) # SFAC_LIB_SDP
 
 
 ## sipXmediaLib 
@@ -197,23 +276,92 @@ AC_DEFUN([SFAC_LIB_STACK],
 AC_DEFUN([SFAC_LIB_MEDIA],
 [
     AC_REQUIRE([SFAC_LIB_STACK])
-    AC_SUBST([SIPXMEDIA_LIBS], [-lsipXmedia])
+
+    SFAC_ARG_WITH_INCLUDE([mp/MpMediaTask.h],
+            [sipxmediainc],
+            [ --with-sipxmediainc=<dir> media library include path ],
+            [sipXmediaLib])
+
+    if test x_$foundpath != x_; then
+        AC_MSG_RESULT($foundpath)
+    else
+        AC_MSG_ERROR('mp/MpMediaTask.h' not found)
+    fi
+    SIPXMEDIAINC=$foundpath
+    AC_SUBST(SIPXMEDIAINC)
+
+    if test "$SIPXMEDIAINC" != "$SIPXTACKINC"
+    then
+        CFLAGS="-I$SIPXMEDIAINC $CFLAGS"
+        CXXFLAGS="-I$SIPXMEDIAINC $CXXFLAGS"
+    fi
+    
+    SFAC_ARG_WITH_LIB([libsipXmedia.la],
+            [sipxmedialib],
+            [ --with-sipxmedialib=<dir> media library path ],
+            [sipXmediaLib])
+
+    if test x_$foundpath != x_; then
+        AC_MSG_RESULT($foundpath)
+    else
+        AC_MSG_ERROR('libsipXmedia.la' not found)
+    fi
+    SIPXMEDIALIB=$foundpath
+
+    AC_SUBST(SIPXMEDIA_LIBS, ["$SIPXMEDIALIB/libsipXmedia.la"])
+    AC_SUBST(SIPXMEDIA_STATIC_LIBS, ["$SIPXMEDIALIB/libsipXmedia.a"])
+    AC_SUBST(SIPXMEDIA_LDFLAGS, ["-L$SIPXMEDIALIB"])
 ]) # SFAC_LIB_MEDIA
 
 
-## sipXmediaAdapterLib 
-# SFAC_LIB_MEDIAADAPTER attempts to find the sf media adapter library and include
+## sipXmediaProcessingLib 
+# SFAC_LIB_MEDIA_PROCESSING attempts to find the sf media processing library and include
 # files by looking in /usr/[lib|include], /usr/local/[lib|include], and
 # relative paths.
 #
 # If not found, the configure is aborted.  Otherwise, variables are defined
 # for both the INC and LIB paths AND the paths are added to the CFLAGS, 
 # CXXFLAGS, LDFLAGS, and LIBS.
-AC_DEFUN([SFAC_LIB_MEDIAADAPTER],
+AC_DEFUN([SFAC_LIB_MEDIA_PROCESSING],
 [
     AC_REQUIRE([SFAC_LIB_MEDIA])
-    AC_SUBST([SIPXMEDIAADAPTER_LIBS], [-lsipXmediaProcessing])
-]) # SFAC_LIB_MEDIAADAPTER
+
+    SFAC_ARG_WITH_INCLUDE([mi/CpMediaInterface.h],
+            [sipxmediainterfaceinc],
+            [ --with-sipxmediainterfaceinc=<dir> media interface library include path ],
+            [sipXmediaAdapterLib])
+
+    if test x_$foundpath != x_; then
+        AC_MSG_RESULT($foundpath)
+    else
+        AC_MSG_ERROR('mi/CpMediaInterface.h' not found)
+    fi
+    SIPXMEDIAINTERFACEINC=$foundpath
+    AC_SUBST(SIPXMEDIAINTERFACEINC)
+
+    if test "$SIPXMEDIAINTERFACEINC" != "$SIPXMEDIAINC"
+    then
+        CFLAGS="-I$SIPXMEDIAINTERFACEINC $CFLAGS"
+        CXXFLAGS="-I$SIPXMEDIAINTERFACEINC $CXXFLAGS"
+    fi
+    
+    SFAC_ARG_WITH_LIB([libsipXmediaProcessing.la],
+            [sipxmediaprocessinglib],
+            [ --with-sipxmediaprocessinglib=<dir> media library path ],
+            [sipXmediaAdapterLib])
+
+    if test x_$foundpath != x_; then
+        AC_MSG_RESULT($foundpath)
+    else
+        AC_MSG_ERROR('libsipXmediaProcessing.la' not found)
+    fi
+    SIPXMEDIAMPLIB=$foundpath
+
+    AC_SUBST(SIPXMEDIA_MP_LIBS, ["$SIPXMEDIAMPLIB/libsipXmediaProcessing.la"])
+    AC_SUBST(SIPXMEDIA_MP_STATIC_LIBS, ["$SIPXMEDIAMPLIB/libsipXmediaProcessing.a"])
+    AC_SUBST(SIPXMEDIA_MP_LDFLAGS, ["-L$SIPXMEDIAMPLIB"])
+]) # SFAC_LIB_MEDIA_PROCESSING
+
 
 ## Optionally compile in the GIPS library in the media subsystem
 # (sipXmediaLib project) and executables that link it in
@@ -224,10 +372,6 @@ AC_DEFUN([CHECK_GIPSNEQ],
       [  --with-gipsneq       Compile the media subsystem with the GIPS audio libraries
 ],
       compile_with_gips=yes)
-
-   gips_file_check=$withval/include/GIPS/Vendor_gips_typedefs.h
-
-   AC_REQUIRE([SFAC_LIB_MEDIAADAPTER])
 
    AC_MSG_CHECKING(if link in with gips NetEQ)
 
@@ -240,15 +384,15 @@ AC_DEFUN([CHECK_GIPSNEQ],
       AC_MSG_CHECKING(for gips includes)
       # Define HAVE_GIPS for c pre-processor
       GIPS_CPPFLAGS=-DHAVE_GIPS
-      if test -e $gips_file_check
+      if test -e $withval/include/GIPS/Vendor_gips_typedefs.h
       then
          gips_dir=$withval
+      elif test -e $abs_srcdir/../sipXbuild/vendors/gips/include/GIPS/Vendor_gips_typedefs.h
+      then
+         gips_dir=$abs_srcdir/../sipXbuild/vendors/gips
       else
-         AC_MSG_ERROR($gips_file_check not found)
+         AC_MSG_ERROR(GIPS/Vendor_gips_typedefs.h not found)
       fi
-
-      # Cascade flags into RPM build
-      DIST_FLAGS="$DIST_FLAGS --with-gipsneq=$gips_dir"
 
       AC_MSG_RESULT($gips_dir)
 
@@ -297,9 +441,13 @@ AC_DEFUN([CHECK_GIPSVE],
 
       # Add GIPS include path
       GIPSINC=$gips_dir/VoiceEngine/interface
-      CPPFLAGS="$CPPFLAGS -I$gips_dir/include -I$GIPSINC"
+      CPPFLAGS="$CPPFLAGS -I$gips_dir/include -I$GIPSINC -DVOICE_ENGINE"
       # Add GIPS objects to be linked in
-      GIPS_VE_OBJS="$gips_dir/VoiceEngine/libraries/VoiceEngine_Linux_gcc.a"
+      if test "`uname`" == "Darwin"; then
+         GIPS_VE_OBJS="$gips_dir/VoiceEngine/libraries/VoiceEngine_mac_ppc_gcc.a"
+      else
+         GIPS_VE_OBJS="$gips_dir/VoiceEngine/libraries/VoiceEngine_Linux_Alsa_gcc.a"
+      fi
 
    else
       AC_MSG_RESULT(no)
@@ -309,6 +457,7 @@ AC_DEFUN([CHECK_GIPSVE],
    AC_SUBST(GIPS_VE_OBJS)
 
    AC_SUBST(SIPXMEDIA_VE_LIBS, ["$SIPXMEDIALIB/libsipXvoiceEngine.la"])
+   AC_SUBST(SIPXMEDIA_VE_STATIC_LIBS, ["$SIPXMEDIALIB/libsipXvoiceEngine.a"])
 
    AM_CONDITIONAL(BUILDVE, test x$link_with_gipsve = xyes)
 
@@ -340,8 +489,8 @@ AC_DEFUN([CHECK_GIPSCE],
       AC_MSG_RESULT($gips_dir)
 
       # Add GIPS include path
-      GIPSINC=$gips_dir/ConferenceEngine/interface
-      CPPFLAGS="$CPPFLAGS -I$gips_dir/include -I$GIPSINC"
+      GIPSINC=$gips_dir/ConferenceEngine/interface 
+      CPPFLAGS="$CPPFLAGS -I$gips_dir/include -I$GIPSINC -DVOICE_ENGINE"
       # Add GIPS objects to be linked in
       GIPS_CE_OBJS="$gips_dir/ConferenceEngine/libraries/ConferenceEngine_Linux_gcc.a"
 
@@ -357,6 +506,24 @@ AC_DEFUN([CHECK_GIPSCE],
 
 ]) # CHECK_GIPSCE
 
+AC_DEFUN([CHECK_VIDEO],
+[
+   AC_ARG_ENABLE(video,
+      [ --enable-video Include video support (no)],
+      [],
+      [enable_video=no])
+
+   AC_MSG_CHECKING(for video (--enable-video))
+
+   if test x$enable_video != xno
+   then
+        AC_MSG_RESULT(yes)
+        VIDEO_DEFINE=-DVIDEO
+        AC_SUBST(VIDEO_DEFINE)
+   else
+        AC_MSG_RESULT(no)
+   fi
+]) # CHECK_VIDEO
 
 ## sipXcallLib
 # SFAC_LIB_CALL attempts to find the sf call processing library and include
@@ -368,8 +535,42 @@ AC_DEFUN([CHECK_GIPSCE],
 # CXXFLAGS, LDFLAGS, and LIBS.
 AC_DEFUN([SFAC_LIB_CALL],
 [
-    AC_REQUIRE([SFAC_LIB_MEDIA])
-    AC_SUBST([SIPXCALL_LIBS], [-lsipXcall])
+    AC_REQUIRE([SFAC_LIB_MEDIA_PROCESSING])
+
+    SFAC_ARG_WITH_INCLUDE([cp/CallManager.h],
+            [sipxcallinc],
+            [ --with-sipxcallinc=<dir> call processing library include path ],
+            [sipXcallLib])
+
+    if test x_$foundpath != x_; then
+        AC_MSG_RESULT($foundpath)
+    else
+        AC_MSG_ERROR('cp/CallManager.h' not found)
+    fi
+    SIPXCALLINC=$foundpath
+    AC_SUBST(SIPXCALLINC)
+
+    if test "$SIPXCALLINC" != "$SIPXPORTINC"
+    then
+        CFLAGS="-I$SIPXCALLINC $CFLAGS"
+        CXXFLAGS="-I$SIPXCALLINC $CXXFLAGS"
+    fi
+
+    SFAC_ARG_WITH_LIB([libsipXcall.la],
+            [sipxcalllib],
+            [ --with-sipxcalllib=<dir> call processing library path ],
+            [sipXcallLib])
+
+    if test x_$foundpath != x_; then
+        AC_MSG_RESULT($foundpath)
+    else
+        AC_MSG_ERROR('libsipXcall.la' not found)
+    fi
+    SIPXCALLLIB=$foundpath
+
+    AC_SUBST(SIPXCALL_LIBS,   ["$SIPXCALLLIB/libsipXcall.la"])
+    AC_SUBST(SIPXCALL_STATIC_LIBS,   ["$SIPXCALLLIB/libsipXcall.a"])
+    AC_SUBST(SIPXCALL_LDFLAGS,["-L$SIPXCALLLIB"])
 ]) # SFAC_LIB_CALL
 
 
@@ -385,106 +586,110 @@ AC_DEFUN([SFAC_LIB_CALL],
 AC_DEFUN([SFAC_LIB_COMMSERVER],
 [
     AC_REQUIRE([SFAC_LIB_STACK])
-    AC_SUBST([SIPXCOMMSERVER_LIBS], [-lsipXcommserver])
-    AC_SUBST(SIPXCOMMSERVERTEST_LIBS,   [-lsipXcommserverTest])
+
+    SFAC_ARG_WITH_INCLUDE([sipdb/SIPDBManager.h],
+            [sipxcommserverinc],
+            [ --with-sipxcommserverinc=<dir> call processing library include path ],
+            [sipXcommserverLib])
+
+    if test x_$foundpath != x_; then
+        AC_MSG_RESULT($foundpath)
+    else
+        AC_MSG_ERROR('sipdb/SIPDBManager.h' not found)
+    fi
+    SIPXCOMMSERVERINC=$foundpath
+    if test "$SIPXCOMMSERVERINC" != "$SIPXPORTINC"
+    then
+        CFLAGS="-I$SIPXCOMMSERVERINC $CFLAGS"
+        CXXFLAGS="-I$SIPXCOMMSERVERINC $CXXFLAGS"
+    fi
+    AC_SUBST(SIPXCOMMSERVERINC)
+
+    SFAC_ARG_WITH_LIB([libsipXcommserver.la],
+            [sipxcommserverlib],
+            [ --with-sipxcommserverlib=<dir> call processing library path ],
+            [sipXcommserverLib])
+
+    if test x_$foundpath != x_; then
+        AC_MSG_RESULT($foundpath)
+    else
+        AC_MSG_ERROR('libsipXcommserver.la' not found)
+    fi
+    SIPXCOMMSERVERLIB=$foundpath
+
+    AC_SUBST(SIPXCOMMSERVER_LIBS,   ["$SIPXCOMMSERVERLIB/libsipXcommserver.la"])
+    AC_SUBST(SIPXCOMMSERVER_LDFLAGS,["-L$SIPXCOMMSERVERLIB"])
+
 ]) # SFAC_LIB_COMMSERVER
 
 
-## resiprocate
-# CHECK_RESIPROCATE attempts to find the resiprocate project tree
-# 
-# If not found, the configure is aborted.  Otherwise, variables are defined for:
-# RESIPROCATE_PATH     - the top of the resiprocate tree
-# RESIPROCATE_CFLAGS   
-# RESIPROCATE_CXXFLAGS
-# RESIPROCATE_LIBS
-# RESIPROCATE_LDFLAGS
-AC_DEFUN([CHECK_RESIPROCATE],
+##  Generic find of an include
+#   Fed from AC_DEFUN([SFAC_INCLUDE_{module name here}],
+#
+# $1 - sample include file
+# $2 - variable name (for overridding with --with-$2
+# $3 - help text
+# $4 - directory name (assumed parallel with this script)
+AC_DEFUN([SFAC_ARG_WITH_INCLUDE],
 [
-    AC_REQUIRE([SFAC_INIT_FLAGS])
-    
-    AC_ARG_WITH([resiprocate],
-        [--with-resiprocate specifies the path to the top of a resiprocate project tree],
-        [resiprocate_path=$withval],
-        [resiprocate_path="$prefix /usr /usr/local"]
+    SFAC_SRCDIR_EXPAND()
+
+    AC_MSG_CHECKING(for [$4] includes)
+    AC_ARG_WITH( [$2],
+        [ [$3] ],
+        [ include_path=$withval ],
+        [ include_path="$includedir $prefix/include /usr/include /usr/local/include [$abs_srcdir]/../[$4]/interface [$abs_srcdir]/../[$4]/include [$abs_srcdir]/../[$4]/src/test" ]
     )
 
-    AC_ARG_WITH([resipobj],
-        [--with-resipobj specifies the object directory name to use from resiprocate],
-        [useresipobj=true; resipobj=$resiprocate_path/$withval],
-        [useresipobj=false]
-    )
-
-    AC_MSG_CHECKING([for resiprocate includes])
-    foundpath=NO
-    for dir in $resiprocate_path ; do
-        if test -f "$dir/include/resip/stack/SipStack.hxx"
-        then
-            foundpath=$dir/include;
-            break;
-        elif test -f "$dir/resip/stack/SipStack.hxx"
+    for dir in $include_path ; do
+        if test -f "$dir/[$1]";
         then
             foundpath=$dir;
             break;
         fi;
     done
-    if test x_$foundpath = x_NO
-    then
-       AC_MSG_ERROR([not found; searched '$resiprocate_path' for 'include/resip/stack/SipStack.hxx' or 'resip/stack/SipStack.hxx'])
-    else
-       AC_MSG_RESULT($foundpath)
-
-       RESIPROCATE_PATH=$foundpath
-
-       RESIPROCATE_CFLAGS="-I$RESIPROCATE_PATH"
-       RESIPROCATE_CXXFLAGS="-I$RESIPROCATE_PATH"
-
-       if test x$useresipobj = xtrue
-       then
-           RESIPROCATE_LDFLAGS=" -L$RESIPROCATE_PATH/resip/dum/$resipobj"
-           RESIPROCATE_LDFLAGS=" $RESIPROCATE_LDFLAGS -L$RESIPROCATE_PATH/resip/stack/$resipobj"
-           RESIPROCATE_LDFLAGS=" $RESIPROCATE_LDFLAGS -L$RESIPROCATE_PATH/rutil/$resipobj"
-           RESIPROCATE_LDFLAGS=" $RESIPROCATE_LDFLAGS -L$RESIPROCATE_PATH/contrib/ares"
-       else
-           AC_MSG_CHECKING([for resiprocate libraries])
-           foundpath=NO
-           for dir in $resiprocate_path ; do
-               if test -f "$dir/lib/libsipXresiprocateLib.la";
-               then
-                   foundpath=$dir/lib;
-                   break;
-               elif test -f "$dir/libsipXresiprocateLib.la";
-               then
-                   foundpath=$dir;
-                   break;
-               fi;
-           done
-           if test x_$foundpath = x_NO
-           then
-              AC_MSG_ERROR([not found; searched '$resiprocate_path' for 'lib/libsipXresiprocateLib.la' or 'libsipXresiprocateLib.la'])
-           else
-              AC_MSG_RESULT($foundpath)
-              RESIPROCATE_LIBDIR=$foundpath
-              RESIPROCATE_LDFLAGS=" -L$foundpath"
-           fi
-       fi
-
-       RESIPROCATE_LIBS="${RESIPROCATE_LIBDIR}/libsipXresiprocateLib.la -ldum -lresip -lrutil -lares"
-
-       AC_SUBST(RESIPROCATE_PATH)
-       AC_SUBST(RESIPROCATE_CFLAGS)
-       AC_SUBST(RESIPROCATE_CXXFLAGS)
-       AC_SUBST(RESIPROCATE_LIBS)
-       AC_SUBST(RESIPROCATE_LDFLAGS)
+    if test x_$foundpath = x_; then
+       AC_MSG_ERROR("'$1' not found; searched $include_path")
     fi
-]) # CHECK_RESIPROCATE
+        
+
+]) # SFAC_ARG_WITH_INCLUDE
+
+
+##  Generic find of a library
+#   Fed from AC_DEFUN([SFAC_LIB_{module name here}],
+#
+# $1 - sample lib file
+# $2 - variable name (for overridding with --with-$2
+# $3 - help text
+# $4 - directory name (assumed parallel with this script)
+AC_DEFUN([SFAC_ARG_WITH_LIB],
+[
+    SFAC_SRCDIR_EXPAND()
+
+    AC_MSG_CHECKING(for [$4] libraries)
+    AC_ARG_WITH( [$2],
+        [ [$3] ],
+        [ lib_path=$withval ],
+        [ lib_path="$libdir $prefix/lib /usr/lib /usr/local/lib `pwd`/../[$4]/src `pwd`/../[$4]/sipXmediaMediaProcessing/src `pwd`/../[$4]/src/test/sipxunit"]
+    )
+    foundpath=""
+    for dir in $lib_path ; do
+        if test -f "$dir/[$1]";
+        then
+            foundpath=$dir;
+            break;
+        fi;
+    done
+    if test x_$foundpath = x_; then
+       AC_MSG_ERROR("'$1' not found; searched $lib_path")
+    fi
+]) # SFAC_ARG_WITH_LIB
 
 
 AC_DEFUN([SFAC_SRCDIR_EXPAND], 
 [
     abs_srcdir=`cd $srcdir && pwd`
-    AC_SUBST(TOP_ABS_SRCDIR, $abs_srcdir)
-    AC_SUBST(TOP_SRCDIR, $srcdir)
 ])
 
 
@@ -501,6 +706,7 @@ AC_DEFUN([SFAC_FEATURE_SIP_TLS],
       CFLAGS="-DSIP_TLS $CFLAGS"
       CXXFLAGS="-DSIP_TLS $CXXFLAGS"
    fi
+   AM_CONDITIONAL(BUILDTLS, test x$enable_sip_tls = xyes)
 ])
 
 
@@ -528,65 +734,3 @@ AC_DEFUN([SFAC_FEATURE_SIPX_EZPHONE],
    AC_MSG_RESULT(${enable_sipx_ezphone})
 ])
 
-# Place to store RPM output files
-AC_DEFUN([SFAC_DIST_DIR],
-[
-  AC_ARG_WITH([distdir],
-    AC_HELP_STRING([--with-distdir=directory], 
-      [Directory to output distribution output files like tarballs, srpms and rpms, default is $(top_builddir)/dist]),
-    [DIST_DIR=${withval}],[DIST_DIR=dist])
-
-  mkdir -p "$DIST_DIR" 2>/dev/null
-  DIST_DIR=`cd "$DIST_DIR"; pwd`
-
-  # all distro tarballs
-  DEST_SRC="${DIST_DIR}/SRC"
-  mkdir "${DEST_SRC}"  2>/dev/null
-  AC_SUBST([DEST_SRC])
-
-  AC_ARG_VAR([LIBSRC], [Where downloaded files are kept between builds, default ~/libsrc])
-  test -z $LIBSRC && LIBSRC=~/libsrc
-
-  # RPM based distros
-  AC_PATH_PROG(RPM, rpm)
-  AM_CONDITIONAL(RPM_CAPABLE, [test "x$RPM" != "x"])
-  if test "x$RPM" != "x"
-  then
-    DEST_RPM="${DIST_DIR}/RPM"
-    mkdir "${DEST_RPM}" 2>/dev/null
-    AC_SUBST([DEST_RPM])
-
-    DEST_SRPM="${DIST_DIR}/SRPM"
-    mkdir "${DEST_SRPM}"  2>/dev/null
-    AC_SUBST([DEST_SRPM])
-
-    DEST_ISO="${DIST_DIR}/ISO"
-    mkdir "${DEST_ISO}"  2>/dev/null
-    AC_SUBST([DEST_ISO])
-    RPMBUILD_TOPDIR="\$(shell rpm --eval '%{_topdir}')"
-    AC_SUBST(RPMBUILD_TOPDIR)
-    RPM_TARGET_ARCH="\$(shell rpm --eval '%{_target_cpu}')"
-    AC_SUBST(RPM_TARGET_ARCH)
-  fi
-
-])
-
-AC_DEFUN([SFAC_DOWNLOAD_DEPENDENCIES],
-[  
-  # URLs to files pulled down files
-  AC_SUBST(RUBY_AUX_RPMS_URL, http://people.redhat.com/dlutter/yum)
-  AC_SUBST(MOD_CPLUSPLUS_URL, http://umn.dl.sourceforge.net/sourceforge/modcplusplus)
-  AC_SUBST(JPKG_NONFREE_URL, http://mirrors.dotsrc.org/jpackage/1.6/generic/non-free)
-  AC_SUBST(CGICC_URL, http://ftp.gnu.org/gnu/cgicc)
-  AC_SUBST(XERCES_C_URL, http://www.apache.org/dist/xml/xerces-c/source)
-  AC_SUBST(RUBY_RPM_URL, http://dev.centos.org/centos/4/testing)
-  AC_SUBST(FC4_RUBY_RPM_URL, http://download.fedora.redhat.com/pub/fedora/linux/core/updates/4)
-  AC_SUBST(W3C_URL, http://ftp.redhat.com/pub/redhat/linux/enterprise/4/en/os/i386)
-  AC_SUBST(W3C_SRC_URL, http://www.w3.org/Library/Distribution)
-  AC_SUBST(PCRE_URL, http://umn.dl.sourceforge.net/sourceforge/pcre)
-  #AC_SUBST(CPPUNIT_URL, ftp://download.fedora.redhat.com/pub/fedora/linux/extras/3/SRPMS)
-  AC_SUBST(CPPUNIT_URL, http://umn.dl.sourceforge.net/sourceforge/cppunit)
-  AC_SUBST(GRAPHVIZ_URL, ftp://194.199.20.114/linux/SuSE-Linux/i386/9.3/suse/src)
-  AC_SUBST(CENTOS_URL, http://mirrors.easynews.com/linux/centos)
-  AC_SUBST(DOWNLOAD_FILE, ${srcdir}/config/download-file)
-])

@@ -1,15 +1,12 @@
 //
-// Copyright (C) 2005-2006 SIPez LLC.
-// Licensed to SIPfoundry under a Contributor Agreement.
-//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
@@ -35,40 +32,55 @@ END_EVENT_TABLE()
 
 
 // Constructor
-ButtonPanel::ButtonPanel(wxWindow* parent, const wxPoint& pos, const wxSize& size) :
+ButtonPanel::ButtonPanel(wxWindow* parent, const wxPoint& pos, const wxSize& size, bool bLogo) :
    wxPanel(parent, IDR_BUTTON_PANEL, pos, size, wxTAB_TRAVERSAL, "ButtonPanel")
 {
    wxColor* pPanelColor = & (sipXezPhoneSettings::getInstance().getBackgroundColor());
    SetBackgroundColour(*pPanelColor);
 
    wxColor* wxLightBlue = wxTheColourDatabase->FindColour("LIGHT BLUE");
-   mpGridSizer = new wxGridSizer(1,4,5,5);
+   if (bLogo)
+   {
+      mpGridSizer = new wxGridSizer(2,2,5,5);
+   }
+   else
+   {
+      mpGridSizer = new wxGridSizer(1,4,5,5);
+   }
 
    wxBitmap bitmapHandset("res/handset.bmp",wxBITMAP_TYPE_BMP);
    bitmapHandset.SetMask(new wxMask(bitmapHandset, * (wxTheColourDatabase->FindColour("RED"))));
    mpButtonHandset = new wxBitmapButton(this, IDR_DIAL_BUTTON_HANDSET, bitmapHandset, wxDefaultPosition, wxSize(36,30));
    mpButtonHandset->SetBackgroundColour(*wxLightBlue);
-   mpButtonHandset->SetToolTip("Pick Up / Hang Up");
+#ifdef _WIN32
+   mpButtonHandset->SetToolTip("Pick Up / Hang Up.");
+#endif
    
    wxBitmap bitmapHold("res/hold.bmp",wxBITMAP_TYPE_BMP);
    bitmapHold.SetMask(new wxMask(bitmapHold, * (wxTheColourDatabase->FindColour("RED"))));
    mpButtonHold = new wxBitmapButton(this, IDR_DIAL_BUTTON_HOLD, bitmapHold, wxDefaultPosition, wxSize(36,30));
    mpButtonHold->SetBackgroundColour(*wxLightBlue);
-   mpButtonHold->SetToolTip("Hold");
+#ifdef _WIN32
+   mpButtonHold->SetToolTip("Hold.");
+#endif
 
 
    wxBitmap bitmapTransfer("res/xfer.bmp",wxBITMAP_TYPE_BMP);
    bitmapTransfer.SetMask(new wxMask(bitmapTransfer, * (wxTheColourDatabase->FindColour("RED"))));
    mpButtonTransfer = new wxBitmapButton(this, IDR_BUTTON_TRANSFER, bitmapTransfer, wxDefaultPosition, wxSize(36,30));
    mpButtonTransfer->SetBackgroundColour(*wxLightBlue);
-   mpButtonTransfer->SetToolTip("Transfer");
+#ifdef _WIN32
+   mpButtonTransfer->SetToolTip("Transfer.");
+#endif
 
 
    wxBitmap bitmapMute("res/mute.bmp",wxBITMAP_TYPE_BMP);
    bitmapMute.SetMask(new wxMask(bitmapMute, * (wxTheColourDatabase->FindColour("BLUE"))));
    mpButtonMute = new wxBitmapButton(this, IDR_MUTE_BUTTON, bitmapMute, wxDefaultPosition, wxSize(36,30));
    mpButtonMute->SetBackgroundColour(*wxLightBlue);
-   mpButtonMute->SetToolTip("Mute On/Off");
+#ifdef _WIN32
+   mpButtonMute->SetToolTip("Mute On/Off.");
+#endif
 
    mpGridSizer->Add(mpButtonHandset, 1);
    mpGridSizer->Add(mpButtonHold, 1);
@@ -103,5 +115,19 @@ void ButtonPanel::OnMuteButton(wxCommandEvent &event)
 
 void ButtonPanel::OnTransferButton(wxCommandEvent& event)
 {
-    PhoneStateMachine::getInstance().OnTransferRequested(thePhoneApp->getEnteredText());
+    wxString dialString = wxGetTextFromUser("Please enter the transfer address:", 
+            "Blind Transfer", 
+            "sip:", 
+            this) ;
+
+    if (dialString.Length() > 0)
+    {
+        PhoneStateMachine::getInstance().OnTransferRequested(dialString);
+    }
+}
+
+void ButtonPanel::UpdateBackground(wxColor color)
+{
+    SetBackgroundColour(color);
+    //mpGridSizer->SetBackgroundColour(color);
 }

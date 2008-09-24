@@ -1,10 +1,12 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
 #include <assert.h>
@@ -25,14 +27,14 @@
 /* ============================ CREATORS ================================== */
 
 // Constructor
-MimeBodyPart::MimeBodyPart(const HttpBody* parent, const char* bodyPart, int  parentBodyStartIndex, int rawBodyLength, const char* contentType)
-:  HttpBody(bodyPart,rawBodyLength,contentType),
-   mpParentBody(parent),
-   mParentBodyRawStartIndex(parentBodyStartIndex),
-   mRawBodyLength(rawBodyLength),
-   mParentBodyStartIndex(parentBodyStartIndex),
-   mBodyLength(0)
+MimeBodyPart::MimeBodyPart(const HttpBody* parent, int parentBodyStartIndex, int rawBodyLength)
 {
+   mpParentBody = parent;
+   mParentBodyRawStartIndex = parentBodyStartIndex;
+   mRawBodyLength = rawBodyLength;
+   mParentBodyStartIndex = parentBodyStartIndex;
+   mBodyLength = 0;
+
    if(rawBodyLength > 0 && parent)
    {
        const char* parentBodyBytes;
@@ -42,7 +44,7 @@ MimeBodyPart::MimeBodyPart(const HttpBody* parent, const char* bodyPart, int  pa
        bodyBytes = parentBodyBytes + parentBodyStartIndex;
        if(parentBodyLength >= parentBodyStartIndex + rawBodyLength)
        {
-
+            
            int parsedBytes = HttpMessage::parseHeaders(bodyBytes, rawBodyLength,
                     mNameValues);
 

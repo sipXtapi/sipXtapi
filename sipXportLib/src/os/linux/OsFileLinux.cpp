@@ -2,14 +2,14 @@
 // Copyright (C) 2005, 2007 SIPez LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
-// Copyright (C) 2004, 2005 SIPfoundry Inc.
+// Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 // 
 // Copyright (C) 2004, 2005 Pingtel Corp.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
 #include <stdio.h>
@@ -185,7 +185,7 @@ OsStatus OsFileLinux::getFileInfo(OsFileInfoBase& fileinfo) const
 
         fileinfo.mbIsReadOnly = (stats.st_mode & S_IWUSR) == 0;
 
-        OsTime createTime(stats.st_ctime, 0);
+        OsTime createTime(stats.st_ctime,0);
         fileinfo.mCreateTime = createTime;
 
         OsTime modifiedTime(stats.st_mtime, 0);

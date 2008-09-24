@@ -1,10 +1,12 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
 #include <assert.h>
@@ -24,6 +26,7 @@
 // Constructors
 OsTimerMessage::OsTimerMessage(OsTimer* pTimer, OsBSem* pSem)
 :  OsMsg(OsMsg::OS_TIMER, ADD),
+   mID(-1),
    mpTimer(pTimer),
    mpSynchSem(pSem)
 {
@@ -32,12 +35,15 @@ OsTimerMessage::OsTimerMessage(OsTimer* pTimer, OsBSem* pSem)
 OsTimerMessage::OsTimerMessage(int ID, OsBSem* pSem)
 :  OsMsg(OsMsg::OS_TIMER, REMOVE),
    mID(ID),
+   mpTimer(NULL),
    mpSynchSem(pSem)
 {
 }
 
 OsTimerMessage::OsTimerMessage(OsBSem* pSem)
 :  OsMsg(OsMsg::OS_TIMER, SHUTDOWN),
+   mID(-1),
+   mpTimer(NULL),
    mpSynchSem(pSem)
 {
 }

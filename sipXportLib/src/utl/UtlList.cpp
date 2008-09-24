@@ -1,10 +1,12 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
@@ -194,6 +196,19 @@ void UtlList::removeAll()
    while((node = head()))
    {
       removeLink(node);
+   }
+}
+
+
+// Re-calculates hashes for all items
+void UtlList::rehash()
+{
+   OsLock take(mContainerLock);
+   
+   UtlLink* link;
+   for (link = head(); link; link = link->next())
+   {
+      link->rehash() ;
    }
 }
 

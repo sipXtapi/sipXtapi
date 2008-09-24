@@ -1,10 +1,12 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 #ifndef _UtlHashMapIterator_h_
 #define _UtlHashMapIterator_h_
@@ -31,7 +33,7 @@ class UtlPair;
  * objects in a UtlHashMap.
  * 
  * @see UtlIterator
- * @see UtlSList
+ * @see UtlHashMap
  */
 class UtlHashMapIterator : public UtlIterator
 {

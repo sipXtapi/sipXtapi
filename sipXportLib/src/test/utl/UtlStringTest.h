@@ -1,9 +1,12 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 #include <cppunit/extensions/HelperMacros.h>
 #include <cppunit/TestCase.h>
@@ -19,10 +22,9 @@ protected :
     {
         const char* testDescription ; 
         const char* input ; 
-        int length ; 
+        size_t length ; 
     };
     
-    static const int INDEX_NOT_FOUND ; 
     static const char* longAlphaString  ;
     static const char* splCharString ;
     

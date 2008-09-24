@@ -1,9 +1,12 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 #ifndef _sipxmgr_h
 #define _sipxmgr_h
@@ -94,7 +97,7 @@ public:
     /**
     * Disconnect the currently connected call, if any.
     */
-    void disconnect();
+    bool disconnect(SIPX_CALL hCall, bool bDisconnectAll);
 
     /**
     * Sets the handle of the "current" call.
@@ -267,6 +270,28 @@ public:
     void* getPreviewWindow();
     void setVideoWindow(void* pWnd);
     void setPreviewWindow(void* pWnd);
+
+    void setSrtpKey(UtlString& key)
+        {mSrtpKey=key;}
+    void getSrtpKey(UtlString& key)
+        {key=mSrtpKey;}
+        
+    void readPublicKeyFile(UtlString& der, UtlString filename);
+    
+//    void readPkcs12File(UtlString& pkcs12, UtlString filename);
+
+    void getLocalContacts(size_t nMaxAddresses,
+                          SIPX_CONTACT_ADDRESS addresses[],
+                          size_t& nActualAddresses) ;
+
+    void enableLocationHeader(bool bEnable)
+        {mbLocationHeaderEnabled=bEnable;}
+    bool isLocationHeaderEnabled()
+        {return mbLocationHeaderEnabled;}
+
+    void prepareToHibernate();
+    void unHibernate();
+    
     /**
     * Destructor.
     */
@@ -346,6 +371,16 @@ private:
     bool handleInfoEvent(void* pInfo, void* pUserData);
 
     /**
+    * event handler for incoming Security events fired from the sipXtapi layer.
+    */
+    bool handleSecurityEvent(void* pInfo, void* pUserData);
+
+    /**
+    * event handler for incoming Media events fired from the sipXtapi layer.
+    */
+    bool handleMediaEvent(void* pInfo, void* pUserData);
+
+    /**
      * Add event data to the event log.
      */
     void addToEventLog(SIPX_EVENT_CATEGORY category, void* pInfo, void* pUserData);
@@ -377,6 +412,15 @@ private:
     SIPX_VIDEO_DISPLAY* mpPreviewDisplay;
     SIPX_VIDEO_DISPLAY* mpVideoDisplay;
 
+    /**
+     * Buffer for generated SRTP key
+     */
+    UtlString mSrtpKey;
+
+    /**
+     * State of location header
+     */
+    bool mbLocationHeaderEnabled;
 };
 
 #endif

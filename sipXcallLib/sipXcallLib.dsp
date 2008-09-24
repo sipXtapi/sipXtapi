@@ -42,7 +42,8 @@ RSC=rc.exe
 # PROP Intermediate_Dir "Release"
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /YX /FD /c
-# ADD CPP /nologo /MD /W3 /GR /GX /O1 /I "..\sipXportLib\include\glib" /I "..\gips\include" /I "include" /I "..\sipXportLib\include" /I "..\sipXtackLib\include" /I "..\sipXmediaLib\include" /I "..\sipXmediaAdapterLib\interface" /D "NDEBUG" /D "SIPXMEDIA_EXCLUDE" /D "SIPXTAPI_STATIC" /D "_LIB" /D "WIN32" /D "_MBCS" /YX /FD /c
+# ADD CPP /nologo /MD /W3 /GR /GX /O1 /I "..\gips\include" /I "include" /I "..\sipXportLib\include" /I "..\sipXsdpLib\include" /I "..\sipXtackLib\include" /I "..\sipXmediaLib\include" /I "..\sipXmediaAdapterLib\interface" /D "NDEBUG" /D "SIPXMEDIA_EXCLUDE" /D "SIPXTAPI_STATIC" /D "_LIB" /D "WIN32" /D "_MBCS" /FD /c
+# SUBTRACT CPP /YX
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
 # ADD RSC /l 0x409 /d "NDEBUG"
 BSC32=bscmake.exe
@@ -65,7 +66,8 @@ LIB32=link.exe -lib
 # PROP Intermediate_Dir "Debug"
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /YX /FD /GZ /c
-# ADD CPP /nologo /MDd /W3 /Gm /GR /GX /ZI /Od /I "..\gips\include" /I "include" /I "..\sipXportLib\include" /I "..\sipXtackLib\include" /I "..\sipXmediaLib\include" /I "..\sipXmediaAdapterLib\interface" /D "_DEBUG" /D "SIPXMEDIA_EXCLUDE" /D "SIPXTAPI_STATIC" /D "_LIB" /D "WIN32" /D "_MBCS" /YX /FD /GZ /c
+# ADD CPP /nologo /MDd /W3 /Gm /GR /GX /ZI /Od /I "..\gips\include" /I "include" /I "..\sipXportLib\include" /I "..\sipXsdpLib\include" /I "..\sipXtackLib\include" /I "..\sipXmediaLib\include" /I "..\sipXmediaAdapterLib\interface" /D "_DEBUG" /D "SIPXMEDIA_EXCLUDE" /D "SIPXTAPI_STATIC" /D "_LIB" /D "WIN32" /D "_MBCS" /FD /GZ /c
+# SUBTRACT CPP /YX
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
 # ADD RSC /l 0x409 /d "_DEBUG"
 BSC32=bscmake.exe
@@ -88,7 +90,8 @@ LIB32=link.exe -lib
 # PROP Intermediate_Dir "Debug_NoVE"
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MDd /W3 /Gm /GR /GX /ZI /Od /I "include" /I "..\sipXportLib\include" /I "..\sipXtackLib\include" /I "..\sipXmediaLib\include" /I "..\gips\include" /D "_DEBUG" /D "WIN32" /D "_MBCS" /D "_LIB" /D "DISABLE_MEM_POOLS" /D "HAVE_GIPS" /D "SIPXMEDIA_EXCLUDE" /YX /FD /GZ /c
-# ADD CPP /nologo /MDd /W3 /Gm /GR /GX /ZI /Od /I "include" /I "..\sipXportLib\include" /I "..\sipXtackLib\include" /I "..\sipXmediaLib\include" /I "..\sipXmediaAdapterLib\interface" /D "_DEBUG" /D "SIPXTAPI_EXPORTS" /D "_LIB" /D "WIN32" /D "_MBCS" /YX /FD /GZ /c
+# ADD CPP /nologo /MDd /W3 /Gm /GR /GX /ZI /Od /I "include" /I "..\sipXportLib\include" /I "..\sipXsdpLib\include" /I "..\sipXtackLib\include" /I "..\sipXmediaLib\include" /I "..\sipXmediaAdapterLib\interface" /D "_DEBUG" /D "SIPXTAPI_EXPORTS" /D "_LIB" /D "WIN32" /D "_MBCS" /FD /GZ /c
+# SUBTRACT CPP /YX
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
 # ADD RSC /l 0x409 /d "_DEBUG"
 BSC32=bscmake.exe
@@ -147,6 +150,10 @@ SOURCE=.\src\cp\CpPeerCall.cpp
 # Begin Source File
 
 SOURCE=.\src\cp\CpStringMessage.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\cp\CSeqManager.cpp
 # End Source File
 # Begin Source File
 
@@ -430,7 +437,7 @@ SOURCE=.\src\cp\SipConnection.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\cp\SipPresenceMonitor.cpp
+SOURCE=.\src\tapi\SipXEventDispatcher.cpp
 # End Source File
 # Begin Source File
 

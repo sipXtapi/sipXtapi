@@ -1,9 +1,12 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-//////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 
 #ifndef _TestRegistrar_h_
@@ -63,6 +66,7 @@ class TestRegistrar : public OsServerTask
      */
     UtlBoolean handleMessage(OsMsg& rMsg);   
 
+    void pause(bool bPause);
 /* ============================ MANIPULATORS ============================== */
 
    /**
@@ -88,6 +92,7 @@ class TestRegistrar : public OsServerTask
      * Message handler for register requests.
      */
     UtlBoolean handleRegisterRequest(SipMessage message);
+    bool mbPaused;
 
 };
 

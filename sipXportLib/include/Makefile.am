@@ -4,10 +4,11 @@
 nobase_includeHEADERS_INSTALL = $(INSTALL) -D -p -c -m 644
 
 nobase_include_HEADERS = \
-    os/HostAdapterAddress.h \
     os/fstream \
+    os/HostAdapterAddress.h \
     os/iostream \
     os/istream \
+    os/IStunSocket.h \
     os/linux/host_address.h \
     os/linux/AdapterInfo.h \
     os/linux/OsBSemLinux.h \
@@ -22,17 +23,21 @@ nobase_include_HEADERS = \
     os/linux/OsPathLinux.h \
     os/linux/OsProcessIteratorLinux.h \
     os/linux/OsProcessLinux.h \
+    os/linux/OsRWMutexLinux.h \
     os/linux/OsSharedLibMgrLinux.h \
     os/linux/OsTaskLinux.h \
     os/linux/OsUtilLinux.h \
     os/linux/pt_csem.h \
     os/linux/pt_mutex.h \
+    os/NatMsg.h \
     os/OsAssert.h \
     os/OsBSem.h \
     os/OsCallback.h \
     os/OsConfigDb.h \
     os/OsConfigEncryption.h \
     os/OsConnectionSocket.h \
+    os/OsContact.h \
+    os/OsContactList.h \
     os/OsCSem.h \
     os/OsDatagramSocket.h \
     os/OsDateTime.h \
@@ -47,14 +52,23 @@ nobase_include_HEADERS = \
     os/OsFileIteratorBase.h \
     os/OsFileSystem.h \
     os/OsFS.h \
+    os/OsIntPtrMsg.h \
+    os/OsIntTypes.h \
     os/OsLock.h \
     os/OsLockingList.h \
     os/OsMsg.h \
     os/OsMsgPool.h \
     os/OsMsgQ.h \
+    os/OsMsgDispatcher.h \
     os/OsMulticastSocket.h \
     os/OsMutex.h \
     os/OsNameDb.h \
+    os/OsNameDbInit.h \
+    os/OsNatAgentTask.h \
+    os/OsNatConnectionSocket.h \
+    os/OsNatDatagramSocket.h \
+    os/OsNatKeepaliveListener.h \
+    os/OsNatSocketBaseImpl.h \
     os/OsNotification.h \
     os/OsPathBase.h \
     os/OsProcess.h \
@@ -62,6 +76,7 @@ nobase_include_HEADERS = \
     os/OsProcessMgr.h \
     os/OsProtectEvent.h \
     os/OsProtectEventMgr.h \
+    os/OsProtectEventMgrInit.h \
     os/OsPtrMsg.h \
     os/OsQueuedEvent.h \
     os/OsReadLock.h \
@@ -86,26 +101,31 @@ nobase_include_HEADERS = \
     os/OsTimer.h \
     os/OsTimerMsg.h \
     os/OsTimerTask.h \
+    os/OsTLSServerSocket.h \
+    os/OsTLSConnectionSocket.h \
+    os/OsTLSClientConnectionSocket.h \
     os/OsTokenizer.h \
+    os/OsTLS.h \
     os/ostream \
     os/OsUtil.h \
     os/OsWriteLock.h \
     os/shared/OsMsgQShared.h \
     os/shared/OsTimerMessage.h \
-    os/OsStunAgentTask.h \
-    os/OsStunQueryAgent.h \
-    os/OsStunAgentTask.h \
-    os/OsStunDatagramSocket.h \
-    os/qsTypes.h \
-    xmlparser/ExtractContent.h \
+    os/StunMessage.h \
+    os/StunUtils.h \
+    os/TurnMessage.h \
     xmlparser/tinystr.h \
     xmlparser/tinyxml.h \
     xmlparser/TiXmlIterator.h \
+    utl/UtlLongLongInt.h \
+    utl/UtlNameValueTokenizer.h \
     utl/UtlBool.h \
+    utl/UtlCrc32.h \
     utl/UtlLink.h \
     utl/UtlContainable.h \
-    utl/UtlContainableAtomic.h \
+    utl/UtlCopyableContainable.h \
     utl/UtlContainer.h \
+    utl/UtlContainableAtomic.h \
     utl/UtlDateTime.h \
     utl/UtlDList.h \
     utl/UtlDListIterator.h \
@@ -115,17 +135,21 @@ nobase_include_HEADERS = \
     utl/UtlHashMap.h \
     utl/UtlHashMapIterator.h \
     utl/UtlHistogram.h \
+    utl/UtlInit.h \
     utl/UtlInt.h \
     utl/UtlIterator.h \
     utl/UtlList.h \
     utl/UtlListIterator.h \
-    utl/UtlLongLongInt.h \
+    utl/UtlObservable.h \
+    utl/UtlObservableImpl.h \
     utl/UtlRegex.h \
     utl/UtlRscStore.h \
     utl/UtlRscTrace.h \
     utl/UtlSList.h \
+    utl/UtlCopyableSList.h \
     utl/UtlSListIterator.h \
     utl/UtlSortedList.h \
+    utl/UtlCopyableSortedList.h \
     utl/UtlString.h \
     utl/UtlVoidPtr.h \
     utl/UtlTokenizer.h \
@@ -133,7 +157,8 @@ nobase_include_HEADERS = \
     utl/UtlSortedListIterator.h \
     utl/UtlRandom.h \
     utl/Plugin.h \
-    utl/PluginHooks.h
+    utl/PluginHooks.h \
+    SipXportLibInit.h
 
 EXTRA_DIST= \
     os/wnt/getWindowsDNSServers.h \
@@ -153,5 +178,3 @@ EXTRA_DIST= \
     os/wnt/OsTaskWnt.h \
     os/wnt/OsUtilWnt.h \
     os/wnt/WIndowsAdapterInfo.h 
-
-DISTCLEANFILES = Makefile.in

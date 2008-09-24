@@ -1,16 +1,21 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
 #include <assert.h>
 
 // APPLICATION INCLUDES
 #include "os/OsTime.h"
+
+// DEFINES 
+#define INFINITE_TIME 0x7FFFFFFF
 
 // EXTERNAL FUNCTIONS
 
@@ -19,12 +24,9 @@
 // CONSTANTS
 
 // STATIC VARIABLE INITIALIZATIONS
-const long OsTime::MSECS_PER_SEC   = (1000);
-const long OsTime::USECS_PER_MSEC  = (1000);
-const long OsTime::USECS_PER_SEC   = (1000000);
-
-const OsTime OsTime::OS_INFINITY(0x7FFFFFFF,(OsTime::USECS_PER_SEC-1)); // wdn - changed to use legal usec value
-const OsTime OsTime::NO_WAIT_TIME(0,0);
+const long OsTime::MSECS_PER_SEC   = 1000;
+const long OsTime::USECS_PER_MSEC  = 1000;
+const long OsTime::USECS_PER_SEC   = 1000000;
 
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
@@ -57,6 +59,24 @@ OsTime::OsTime(const long msecs)
    else     // 0 <= msecs < MSECS_PER_SEC
    {
        mUsecs = msecs * USECS_PER_MSEC;
+   }
+}
+
+// Constructor
+OsTime::OsTime(TimeQuantity quantity)
+{
+   init();
+
+   if (quantity == OS_INFINITY)
+   {
+      mSeconds = INFINITE_TIME;
+      mUsecs = INFINITE_TIME;
+   }
+   else
+   {
+      // NO_WAIT_TIME
+      mSeconds = 0;
+      mUsecs   = 0;
    }
 }
 
@@ -99,6 +119,24 @@ OsTime::~OsTime()
 }
 
 /* ============================ MANIPULATORS ============================== */
+
+// Assignment operator
+OsTime& OsTime::operator=(TimeQuantity rhs)
+{
+   if (rhs == OS_INFINITY)
+   {
+      mSeconds = INFINITE_TIME;
+      mUsecs = INFINITE_TIME;
+   }
+   else
+   {
+      // NO_WAIT_TIME
+      mSeconds = 0;
+      mUsecs   = 0;
+   }
+
+   return *this;
+}
 
 // Assignment operator
 OsTime& 
@@ -144,21 +182,21 @@ OsTime OsTime::operator-=(const OsTime& rhs)
 }
 
 // Test for equality operator
-bool OsTime::operator==(const OsTime& rhs)
+bool OsTime::operator==(const OsTime& rhs) const
 {
    return (this->mSeconds == rhs.mSeconds) &&
           (this->mUsecs   == rhs.mUsecs);
 }
 
 // Test for inequality operator
-bool OsTime::operator!=(const OsTime& rhs)
+bool OsTime::operator!=(const OsTime& rhs) const
 {
    return (this->mSeconds != rhs.mSeconds) ||
           (this->mUsecs   != rhs.mUsecs);
 }
 
 // Test for greater than
-bool OsTime::operator>(const OsTime& rhs)
+bool OsTime::operator>(const OsTime& rhs) const
 {
    if (this->mSeconds >= 0)
    {  // "this" is a positive time value
@@ -175,7 +213,7 @@ bool OsTime::operator>(const OsTime& rhs)
 }
 
 // Test for greater than or equal
-bool OsTime::operator>=(const OsTime& rhs)
+bool OsTime::operator>=(const OsTime& rhs) const
 {
    if (this->mSeconds >= 0)
    {  // "this" is a positive time value
@@ -192,7 +230,7 @@ bool OsTime::operator>=(const OsTime& rhs)
 }
 
 // Test for less than
-bool OsTime::operator<(const OsTime& rhs)
+bool OsTime::operator<(const OsTime& rhs) const
 {
    if (this->mSeconds >= 0)
    {  // "this" is a positive time value
@@ -209,7 +247,7 @@ bool OsTime::operator<(const OsTime& rhs)
 }
 
 // Test for less than or equal
-bool OsTime::operator<=(const OsTime& rhs)
+bool OsTime::operator<=(const OsTime& rhs) const
 {
    if (this->mSeconds >= 0)
    {  // "this" is a positive time value
@@ -238,9 +276,7 @@ long OsTime::cvtToMsecs(void) const
 // Return TRUE if the time interval is infinite
 UtlBoolean OsTime::isInfinite(void) const
 {
-   if (this == &OS_INFINITY ||
-       (seconds() == OS_INFINITY.seconds() &&
-        usecs()   == OS_INFINITY.usecs()))
+   if (mSeconds == INFINITE_TIME && mUsecs == INFINITE_TIME)
       return TRUE;
    else
       return FALSE;
@@ -249,8 +285,7 @@ UtlBoolean OsTime::isInfinite(void) const
 // Return TRUE if the time interval is zero (no wait)
 UtlBoolean OsTime::isNoWait(void) const
 {
-   if (this == &NO_WAIT_TIME || 
-       (seconds() == 0 && usecs() == 0))
+   if (mSeconds == 0 && mUsecs == 0)
       return TRUE;
    else
       return FALSE;

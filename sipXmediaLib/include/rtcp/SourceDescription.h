@@ -1,10 +1,15 @@
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2005 Pingtel Corp.
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 
 //  Border Guard
@@ -773,7 +778,7 @@ unsigned long FormatSDESReport(bool bHeader,
  * Description: Formulates the CNAME attribute by concatenating the NAME field
  *              with the IP address of the Pingtel Network Phone.  The
  *              resultant string shall take the following form
- *              'name@128.224.120.2' or 'name@host.pingtel.com'.
+ *              'name\@128.224.120.2' or 'name\@host.pingtel.com'.
  *
  * Usage Notes: This method shall be called once at object initialization.
  *              The CNAME attribute formed will be used in all successive
@@ -882,10 +887,10 @@ unsigned long FormatSDESReport(bool bHeader,
  * Method Name: LoadFieldInfo
  *
  *
- * Inputs:      unsigned char *puchReportBuffer
- *                             - Buffer containing the contents of SDES Report
- *              long lContentMask
- *                - Content mask used to determine what to include in a report
+ * Inputs:      unsigned char *puchReportBuffer -
+ *                             Buffer containing the contents of SDES Report
+ *              long lContentMask -
+ *                Content mask used to determine what to include in a report
  *
  * Outputs:     None
  *

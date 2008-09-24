@@ -1,10 +1,12 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
 #include <assert.h>
@@ -23,8 +25,10 @@
 #   include <../config/pingtel/pingtel.h>
 #   include <dosFsLib.h>
 #endif
+#ifndef WINCE
 #include <sys/types.h>
 #include <sys/stat.h>
+#endif
 #include <stdio.h>
 
 
@@ -1180,12 +1184,13 @@ int PsPhoneTask::activateGroup(int type)
         case PtComponentGroup::SOUND:
                 if (mpSpeakerPhoneGroup)
                 {
-                   //int low;
-                   //int high;
-                   //int nominal;     // low <= nominal <= high
-                   //int stepsize;    // in .1 dB
-                   //int mute;
-
+/*
+                   int low;
+                   int high;
+                   int nominal;     // low <= nominal <= high
+                   int stepsize;    // in .1 dB
+                   int mute;
+*/
                   assert(false);
                 }
                 break;

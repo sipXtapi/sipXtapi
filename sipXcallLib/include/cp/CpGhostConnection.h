@@ -1,18 +1,17 @@
+//
+// Copyright (C) 2005-2007 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
 // 
-// 
-// Copyright (C) 2005, 2006 SIPez LLC
+// Copyright (C) 2004-2007 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
-// Copyright (C) 2005, 2006 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
-// 
 // $$
-//////////////////////////////////////////////////////////////////////////////
-// Author: Dan Petrie (dpetrie AT SIPez DOT com)
+///////////////////////////////////////////////////////////////////////////////
 
+// Author: Daniel Petrie dpetrie AT SIPez DOT com
 
 #ifndef _CpGhostConnection_h_
 #define _CpGhostConnection_h_
@@ -58,19 +57,24 @@ public:
    virtual UtlBoolean dequeue(UtlBoolean callInFocus);
 
    virtual UtlBoolean dial(const char* dialString,
-                                                  const char* callerId,
-                                                  const char* callId,
-                          const char* callController = NULL,
-                          const char* originalCallConnection = NULL,
-                          UtlBoolean requestQueuedCall = FALSE,
-                          const void* pDisplay = NULL);
+                           const char* callerId,
+                           const char* callId,
+                           const char* callController = NULL,
+                           const char* originalCallConnection = NULL,
+                           UtlBoolean requestQueuedCall = FALSE,
+                           const void* pDisplay = NULL,
+                           const void* pSecurity = NULL,
+                           const char* locationHeader = NULL,
+                           const int bandWidth = AUDIO_MICODEC_BW_DEFAULT,
+                           UtlBoolean bOnHold = FALSE,
+                           const char* originalCallId = NULL,
+                           const RTP_TRANSPORT rtpTransportOptions = RTP_TRANSPORT_UDP);
+
    //! param: requestQueuedCall - indicates that the caller wishes to have the callee queue the call if busy
 
    virtual UtlBoolean originalCallTransfer(UtlString& transferTargetAddress,
-                                           const char* transferControllerAddress,
-                                           const char* targetCallId,
-                                           UtlBoolean  remoteHoldBeforeTransfer = TRUE
-                                           );
+                                                           const char* transferControllerAddress,
+                                   const char* targetCallId);
    // Initiate blind transfer on transfer controller connection in
    // the original call.
 
@@ -89,6 +93,8 @@ public:
 
    virtual UtlBoolean answer(const void* hWnd = NULL);
 
+   virtual void outOfFocus();
+
    virtual UtlBoolean hangUp();
 
    virtual UtlBoolean hold();
@@ -101,13 +107,13 @@ public:
 
    virtual UtlBoolean renegotiateCodecs();
 
-   virtual UtlBoolean accept(int forwardOnNoAnswerSeconds);
+   virtual UtlBoolean silentRemoteHold() ;
 
-   //! Change the local identity for the existing connection
-   /*! Not implemented for CpGhostCOnnections
-    */
-   virtual UtlBoolean changeLocalIdentity(const UtlString& newLocalIdentity,
-                                          const UtlBoolean& shouldSignalIdentityChangeNow);
+   virtual UtlBoolean accept(int forwardOnNoAnswerSeconds, 
+                             const void *pSecurity = NULL,
+                             const char* locationHeader = NULL,
+                             const int bandWidth = AUDIO_MICODEC_BW_DEFAULT,
+                             UtlBoolean sendEarlyMedia = FALSE);
 
    virtual UtlBoolean processMessage(OsMsg& eventMessage,
                                     UtlBoolean callInFocus, UtlBoolean onHook);
@@ -122,19 +128,16 @@ public:
    //: get Connection address
    //! returns: TRUE/FALSE if the connection has an address.  The connection may not have an address assigned yet (i.e. if it is not fully setup).
    
-    virtual UtlBoolean getSession(SipSession& session);
-
-    //! Stub not implemented!
-    virtual UtlBoolean sendInDialog(SipMessage& message, 
-                                    OsMsgQ* responseQueue,
-                                    void* responseListenerData);
+           virtual UtlBoolean getSession(SipSession& session);
 
     /**
      * Enumerate possible contact addresses
      */
-    virtual void getLocalContactAddresses( CONTACT_ADDRESS contacts[],
+    virtual void getLocalContactAddresses( SIPX_CONTACT_ADDRESS contacts[],
                                            size_t nMaxContacts,
                                            size_t& nActualContacts) ;
+
+    virtual void getRemoteUserAgent(UtlString* pUserAgent);
 
 
 /* ============================ INQUIRY =================================== */

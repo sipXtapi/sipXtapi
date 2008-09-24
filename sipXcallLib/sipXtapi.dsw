@@ -3,7 +3,7 @@ Microsoft Developer Studio Workspace File, Format Version 6.00
 
 ###############################################################################
 
-Project: "PlaceCall"=.\examples\PlaceCall\PlaceCall.dsp - Package Owner=<4>
+Project: "libgsm"=..\sipXmediaLib\contrib\libgsm\libgsm.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -11,24 +11,6 @@ Package=<5>
 
 Package=<4>
 {{{
-    Begin Project Dependency
-    Project_Dep_Name sipXtapi
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "ReceiveCall"=.\examples\ReceiveCall\ReceiveCall.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name sipXtapi
-    End Project Dependency
 }}}
 
 ###############################################################################
@@ -41,14 +23,35 @@ Package=<5>
 
 Package=<4>
 {{{
-    Begin Project Dependency
-    Project_Dep_Name sipxMediaVoiceEngine
-    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "sipXcallLibTest"=.\sipXcallLibTest.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
 }}}
 
 ###############################################################################
 
 Project: "sipXmediaAdapterLib"=..\sipXmediaAdapterLib\sipXmediaAdapterLib.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "sipXmediaAdapterLibTest"=..\sipXmediaAdapterLib\sipXmediaAdapterLibTest.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -72,7 +75,55 @@ Package=<4>
 
 ###############################################################################
 
+Project: "sipXmediaLibTest"=..\sipXmediaLib\sipXmediaLibTest.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
 Project: "sipXportLib"=..\sipXportLib\sipXportLib.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "sipXportLibTest"=..\sipXportLib\sipXportLibTest.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "sipXsdpLib"=..\sipXsdpLib\sipXsdpLib.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "sipXsdpLibTest"=..\sipXsdpLib\sipXsdpLibTest.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -96,7 +147,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "sipXtapi"=.\sipXtapi.dsp - Package Owner=<4>
+Project: "sipXtackLibTest"=..\sipXtackLib\sipXtackLibTest.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -104,41 +155,11 @@ Package=<5>
 
 Package=<4>
 {{{
-    Begin Project Dependency
-    Project_Dep_Name sipXcallLib
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name sipXportLib
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name sipXtackLib
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name sipxMediaVoiceEngine
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name sipXmediaLib
-    End Project Dependency
 }}}
 
 ###############################################################################
 
 Project: "sipXtapiTest"=.\sipXtapiTest.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name sipXtapi
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "sipxMediaVoiceEngine"=..\gips\sipXmediaVoiceEngine\sipxMediaVoiceEngine.dsp - Package Owner=<4>
 
 Package=<5>
 {{{

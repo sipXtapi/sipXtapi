@@ -1,10 +1,15 @@
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 
 #ifndef _PsButtonId_h_
@@ -124,7 +129,7 @@ enum PsButtonId
 
    FKEY_SKEY_B1 = 0x2c0,        // soft key<n> below the display
    FKEY_SKEY_B2,
-   FKEY_SKEY_B3,
+   FKEY_SKEY_B3
 // FKEY_SKEY_B...
 
 };

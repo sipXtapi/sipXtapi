@@ -1,9 +1,12 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
 #include <stdio.h>
@@ -82,10 +85,12 @@ int parseArgs(int argc, const char* argv[])
     return(0);
 }
 
-void imTextPrinter(const UtlString& fromAddress,
-                                 const char* textMessage,
-                                 int textLength,
-                                 const SipMessage& messageRequest)
+void imTextPrinter(void* param, 
+                   const UtlString& fromAddress, 
+                   const char* textMessage,
+                   int textLength,
+                   const char* subject, 
+                   const SipMessage& messageRequest)
 {
     Url fromUrl(fromAddress);
     UtlString displayName;
@@ -137,7 +142,7 @@ int main(int argc, const char* argv[])
     imClient.start();
 
     // Register a call back to print out the incoming message
-    imClient.setIncomingImTextHandler(imTextPrinter);
+    imClient.setIncomingImTextHandler(imTextPrinter, NULL);
 
     // Prompt if not running in batch mode
     UtlBoolean doPrompt = isatty(STDIN_FILENO);
@@ -194,7 +199,7 @@ int main(int argc, const char* argv[])
             int sipStatusCode = -1;
             UtlString sipStatusText;
 
-            imClient.sendPagerMessage(toUrl, commandLine,
+            imClient.sendPagerMessage(toUrl, commandLine, NULL,
                 sipStatusCode, sipStatusText);
 
             if(sipStatusCode >= 300)

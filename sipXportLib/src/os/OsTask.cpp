@@ -1,10 +1,12 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 
 // SYSTEM INCLUDES
@@ -29,9 +31,9 @@
 // CONSTANTS
 
 // STATIC VARIABLE INITIALIZATIONS
-const int OsTaskBase::DEF_OPTIONS   = 0;              // default task options
-const int OsTaskBase::DEF_PRIO      = 128;            // default task priority
-const int OsTaskBase::DEF_STACKSIZE = 16384;         // default task stacksize
+const int OsTaskBase::DEF_OPTIONS   = 0;             // default task options
+const int OsTaskBase::DEF_PRIO      = 128;           // default task priority
+const int OsTaskBase::DEF_STACKSIZE = 16384;         // default task stack size
 const UtlString OsTaskBase::TASK_PREFIX("Task.");     // Task name db prefix
 const UtlString OsTaskBase::TASKID_PREFIX("TaskID."); // TaskId name db prefix
 int OsTaskBase::taskCount = 0;
@@ -122,6 +124,15 @@ OsStatus OsTaskBase::delay(const int milliSecs)
 
 /* ============================ INQUIRY =================================== */
 
+// Return TRUE is the task is started and not suspended, otherwise FALSE.
+UtlBoolean OsTaskBase::isReady(void)
+{
+   if (!isStarted())
+      return FALSE;
+
+   return !isSuspended();
+}
+
 // Return TRUE if a task shutdown has been requested and acknowledged
 UtlBoolean OsTaskBase::isShutDown(void)
 {
@@ -175,6 +186,8 @@ OsTaskBase::OsTaskBase(const UtlString& name,
 OsTaskBase::~OsTaskBase()
 {
    OsStatus res;
+
+   assert(isUnInitialized());
 
    if (mName != "")
    {

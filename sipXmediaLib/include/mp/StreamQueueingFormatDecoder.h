@@ -1,10 +1,15 @@
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2005 Pingtel Corp.
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 
 #ifndef _StreamQueueingFormatDecoder_h_
@@ -39,7 +44,8 @@ class StreamQueueingFormatDecoder : public StreamFormatDecoder
 public:
 
 /* ============================ CREATORS ================================== */
-
+///@name Creators
+//@{
    StreamQueueingFormatDecoder(StreamDataSource* pDataSource, 
                                int               iQueueLength);
      //:Constructs a queueing format decoder given a data source and queue
@@ -49,8 +55,11 @@ public:
    ~StreamQueueingFormatDecoder();
      //:Destructor
 
-/* ============================ MANIPULATORS ============================== */
+//@}
 
+/* ============================ MANIPULATORS ============================== */
+///@name Manipulators
+//@{
    virtual OsStatus getFrame(unsigned short* samples);
      //: Gets the next available frame
      //! returns OS_SUCCESS if a frame is available
@@ -65,7 +74,11 @@ public:
    virtual OsStatus drain();
      //: Drains any queued frames
 
+//@}
+
 /* ============================ ACCESSORS ================================= */
+///@name Accessors
+//@{
 
    int getMaxQueueLength() ;
      //: Gets the maximum number of frames that can be queued before the
@@ -74,7 +87,13 @@ public:
    int getNumQueuedFrames() ;
      //: Gets the current number of queued frames.
 
+//@}
+
 /* ============================ INQUIRY =================================== */
+///@name Inquiry
+//@{
+
+//@}
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
@@ -116,9 +135,6 @@ private:
 
    static void reportStream() ;
      //:Reports that a stream has been created
-
-   virtual void checkThrottle() ;
-     //:Determines if throttling is needed
 };
 
 /* ============================ INLINE METHODS ============================ */

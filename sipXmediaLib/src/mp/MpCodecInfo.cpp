@@ -1,172 +1,126 @@
+//  
+// Copyright (C) 2006-2008 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2005 Pingtel Corp.
+// Copyright (C) 2004-2008 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 #include "mp/MpCodecInfo.h"
 
-MpCodecInfo::MpCodecInfo(SdpCodec::SdpCodecTypes codecType,
-                           UtlString       codecVersion,
-                           UtlBoolean      usesNetEq,
-                           unsigned int   samplingRate,
-                           unsigned int   numBitsPerSample,
-                           unsigned int   numChannels,
-                           unsigned int   interleaveBlockSize,
-                           unsigned int   bitRate,
-                           unsigned int   minPacketBits,
-                           unsigned int   avgPacketBits,
-                           unsigned int   maxPacketBits,
-                           unsigned int   numSamplesPerFrame,
-						   unsigned int   preCodecJitterBufferSize,
-                           UtlBoolean      signalingCodec,
-                           UtlBoolean      doesVadCng)
- : mCodecType(codecType),
-   mCodecVersion(codecVersion),
-   mUsesNetEq(usesNetEq),
-   mSamplingRate(samplingRate),
-   mNumBitsPerSample(numBitsPerSample),
-   mNumSamplesPerFrame( numSamplesPerFrame ),
-   mNumChannels(numChannels),
-   mInterleaveBlockSize(interleaveBlockSize),
-   mBitRate(bitRate),
-   mMinPacketBits(minPacketBits),
-   mAvgPacketBits(avgPacketBits),
-   mMaxPacketBits(maxPacketBits),
-   mPreCodecJitterBufferSize(preCodecJitterBufferSize),
-   mIsSignalingCodec(signalingCodec),
-   mDoesVadCng(doesVadCng)
-   
+MpCodecInfo::MpCodecInfo(const MppCodecInfoV1_1 &codecInfo,
+                         const MppCodecFmtpInfoV1_1 &fmtpInfo)
+: MppCodecInfoV1_1(codecInfo)
+, MppCodecFmtpInfoV1_1(fmtpInfo)
 {
 }
 
-//:Copy constructor
-MpCodecInfo::MpCodecInfo(const MpCodecInfo& rMpCodecInfo)
+MpCodecInfo::MpCodecInfo(const MppCodecInfoV1_1 &codecInfo)
+: MppCodecInfoV1_1(codecInfo)
 {
-   mCodecType=rMpCodecInfo.mCodecType;
-   mCodecVersion=rMpCodecInfo.mCodecVersion;
-   mUsesNetEq=rMpCodecInfo.mUsesNetEq;
-   mSamplingRate=rMpCodecInfo.mSamplingRate;
-   mNumBitsPerSample=rMpCodecInfo.mNumBitsPerSample;
-   mNumSamplesPerFrame=rMpCodecInfo.mNumSamplesPerFrame;
-   mNumChannels=rMpCodecInfo.mNumChannels;
-   mInterleaveBlockSize=rMpCodecInfo.mInterleaveBlockSize;
-   mBitRate=rMpCodecInfo.mBitRate;
-   mMinPacketBits=rMpCodecInfo.mMinPacketBits;
-   mAvgPacketBits=rMpCodecInfo.mAvgPacketBits;
-   mMaxPacketBits=rMpCodecInfo.mMaxPacketBits;
-   mPreCodecJitterBufferSize=rMpCodecInfo.mPreCodecJitterBufferSize;
-   mDoesVadCng=rMpCodecInfo.mDoesVadCng;
-   
 }
 
-MpCodecInfo::~MpCodecInfo(){}
-//:Destructor
+MpCodecInfo::~MpCodecInfo()
+{
+}
 
 /* ============================ MANIPULATORS ============================== */
 
-// $$$ MS VC++ does not like this.  I don't need it.
-//MpCodecInfo& MpCodecInfo::operator=(const MpCodecInfo& rhs){}
-//:Assignment operator
-
 /* ============================ ACCESSORS ================================= */
 
-SdpCodec::SdpCodecTypes MpCodecInfo::getCodecType(void) const
+const char* MpCodecInfo::getCodecManufacturer() const
 {
-//Returns the codec type
-   return (mCodecType);
+   return codecManufacturer;
 }
 
-UtlString MpCodecInfo::getCodecVersion(void) const
+const char* MpCodecInfo::getCodecName() const
 {
-//Returns a string identifying the codec version
-   return(mCodecVersion);
+   return codecName;
 }
 
-unsigned MpCodecInfo::getSamplingRate(void) const
+const char* MpCodecInfo::getCodecVersion() const
 {
-//Returns the sampling rate for the PCM data expected by the codec
-   return(mSamplingRate);
+   return codecVersion;
 }
 
-unsigned MpCodecInfo::getNumBitsPerSample(void) const
+unsigned MpCodecInfo::getCodecType() const
 {
-//Returns the PCM data sample size (in bits)
-   return(mNumBitsPerSample);
+   return codecType;
 }
 
-unsigned MpCodecInfo::getNumSamplesPerFrame(void) const
+
+const char* MpCodecInfo::getMimeSubtype() const
 {
-//Returns the number of PCM samples per input frame for this codec
-   return(mNumSamplesPerFrame);
+   return mimeSubtype;
 }
 
-unsigned MpCodecInfo::getNumChannels(void) const
+unsigned MpCodecInfo::getFmtpsNum() const
 {
-//Returns the number of channels supported by the codec
-   return(mNumChannels);
+   return fmtpsNum;
 }
 
-unsigned MpCodecInfo::getInterleaveBlockSize(void) const
+const char** MpCodecInfo::getFmtps() const
 {
-//Returns the size of the interleave block (in samples)
-// This value is not meaningful if the number of channels for the
-// codec is equal to 1.
-   return(mInterleaveBlockSize);
+   return fmtps;
 }
 
-unsigned MpCodecInfo::getBitRate(void) const
+unsigned MpCodecInfo::getSampleRate() const
 {
-//Returns the bit rate for this codec (in bits per second)
-// If the codec is variable rate, then the average expected bit rate
-// should be returned.
-   return(mBitRate);
+   return sampleRate;
 }
 
-unsigned MpCodecInfo::getMinPacketBits(void) const
+unsigned MpCodecInfo::getNumChannels() const
 {
-//Returns the minimum number of bits in an encoded frame
-   return(mMinPacketBits);
+   return numChannels;
 }
 
-unsigned MpCodecInfo::getAvgPacketBits(void) const
+unsigned MpCodecInfo::getFramePacking() const
 {
-//Returns the average number of bits in an encoded frame
-   return(mAvgPacketBits);
+   return framePacking;
 }
 
-unsigned MpCodecInfo::getMaxPacketBits(void) const
+
+unsigned MpCodecInfo::getMinBitrate() const
 {
-//Returns the maximum number of bits in an encoded frame
-   return(mMaxPacketBits);
+   return minBitrate;
 }
 
-unsigned MpCodecInfo::getPreCodecJitterBufferSize(void) const
+unsigned MpCodecInfo::getMaxBitrate() const
 {
-//Returns the maximum number of bits in an encoded frame
-   return(mPreCodecJitterBufferSize);
+   return maxBitrate;
 }
+
+unsigned MpCodecInfo::getNumSamplesPerFrame() const
+{
+   return numSamplesPerFrame;
+}
+
+unsigned MpCodecInfo::getMinFrameBytes() const
+{
+   return minFrameBytes;
+}
+
+unsigned MpCodecInfo::getMaxFrameBytes() const
+{
+   return maxFrameBytes;
+}
+
 /* ============================ INQUIRY =================================== */
 
-UtlBoolean MpCodecInfo::usesNetEq(void) const
+UtlBoolean MpCodecInfo::isSignalingCodec() const
 {
-//Returns TRUE if codec uses GIPS NetEq; otherwise returns FALSE
-   return(mUsesNetEq);
+   return signalingCodec;
 }
-
-
-UtlBoolean MpCodecInfo::isSignalingCodec (void) const
+UtlBoolean MpCodecInfo::doesVadCng() const
 {
-//Returns TRUE if codec is used for signaling; otherwise returns FALSE
-   return(mIsSignalingCodec);
+   return vadCng == CODEC_CNG_INTERNAL;
 }
-
-
-UtlBoolean MpCodecInfo::doesVadCng (void) const
+UtlBoolean MpCodecInfo::haveInternalPLC() const
 {
-//Returns TRUE if codec does its own VAD and CNG; otherwise returns FALSE
-   return(mDoesVadCng);
+   return packetLossConcealment == CODEC_PLC_INTERNAL;
 }
-

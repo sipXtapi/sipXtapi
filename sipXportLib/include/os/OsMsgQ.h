@@ -1,10 +1,12 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 #ifndef _OsMsgQ_h_
 #define _OsMsgQ_h_
@@ -126,6 +128,8 @@ public:
 
    virtual UtlBoolean isEmpty(void);
      //:Return TRUE if the message queue is empty, FALSE otherwise
+     
+   const UtlString& getName() const { return mName; }
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:

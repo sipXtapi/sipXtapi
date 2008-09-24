@@ -20,11 +20,15 @@
 
 /* Import. */
 
-#include <sys/types.h>
+#ifdef WINCE
+#   include <types.h>
+#else
+#   include <sys/types.h>
+#endif
 
 /* Reordered includes and separated into win/vx --GAT */
 #if defined (_WIN32) /* Use Columbia versions for win32 only --GAT */
-#       include <winsock.h>
+#       include <winsock2.h>
 #       include <resparse/wnt/netinet/in.h>
 #       include <resparse/wnt/arpa/nameser.h>
 #elif defined(_VXWORKS)

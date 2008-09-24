@@ -1,16 +1,12 @@
-// 
-// 
-// Copyright (C) 2005 SIPez LLC.
-// Licensed to SIPfoundry under a Contributor Agreement.
-// 
-// Copyright (C) 2005 SIPfoundry Inc.
+//
+// Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2005 Pingtel Corp.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
-//////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 // Author: Dan Petrie (dpetrie AT SIPez DOT com)
 
 // SYSTEM INCLUDES
@@ -44,6 +40,29 @@ public:
     // UtlString::data contains the Dialog Handle;
     SipSubscribeClient::SubscriptionState mState;
     void* mpApplicationData;
+    void fireStateCallback(SipSubscribeClient::SubscriptionState newState,
+                                           const char* earlyDialogHandle,
+                                           const char* dialogHandle,
+                                           void* applicationData,
+                                           int responseCode,
+                                           const char* responseText,
+                                           long expiration,
+                                           const SipMessage* subscribeResponse)
+    {
+        mState = newState;
+        if (mLastFiredState != newState)
+        {
+            (mpStateCallback)(newState,
+                            earlyDialogHandle,
+                            dialogHandle,
+                            applicationData,
+                            responseCode,
+                            responseText,
+                            expiration,
+                            subscribeResponse);
+            mLastFiredState = newState;
+        }
+    }
     SipSubscribeClient::SubscriptionStateCallback mpStateCallback;
     SipSubscribeClient::NotifyEventCallback mpNotifyCallback;
 
@@ -51,6 +70,7 @@ private:
     //! DISALLOWED accendental copying
     SubscribeClientState(const SubscribeClientState& rSubscribeClientState);
     SubscribeClientState& operator=(const SubscribeClientState& rhs);
+    SipSubscribeClient::SubscriptionState mLastFiredState;
 };
 
 
@@ -59,7 +79,8 @@ private:
 /* ============================ CREATORS ================================== */
 
 // Constructor for private class
-SubscribeClientState::SubscribeClientState()
+SubscribeClientState::SubscribeClientState() :
+    mLastFiredState(SipSubscribeClient::SUBSCRIPTION_UNKNOWN)
 {
     mpApplicationData = NULL;
     mpStateCallback = NULL;
@@ -127,7 +148,7 @@ SipSubscribeClient::SipSubscribeClient(const SipSubscribeClient& rSipSubscribeCl
 // Destructor
 SipSubscribeClient::~SipSubscribeClient()
 {
-    // Do not delete mpUserAgent, mpDialogMgr or mpRefreshMgr.  They
+    // Do not delete mpUserAgent ,mpDialogMgr or mpRefreshMgr.  They
     // may be used else where and need to be deleted outside the
     // SipSubscribeClient.
 
@@ -304,7 +325,7 @@ UtlBoolean SipSubscribeClient::endSubscription(const char* dialogHandle)
             UtlBoolean isEarlyDialog = mpDialogMgr->earlyDialogExists(matchDialog);
 
             // Indicate that the subscription was terminated
-            (clientState->mpStateCallback)(SUBSCRIPTION_TERMINATED,
+            clientState->fireStateCallback(SUBSCRIPTION_TERMINATED,
                                      isEarlyDialog ? dialogHandle : NULL,
                                      isEarlyDialog ? NULL : dialogHandle,
                                      clientState->mpApplicationData,
@@ -340,7 +361,7 @@ UtlBoolean SipSubscribeClient::endSubscription(const char* dialogHandle)
                    clientState->mpStateCallback)
                 {
                     // Indicate that the subscription was terminated
-                    (clientState->mpStateCallback)(SUBSCRIPTION_TERMINATED,
+                    clientState->fireStateCallback(SUBSCRIPTION_TERMINATED,
                                              earlyDialogHandle,
                                              dialogHandle,
                                              clientState->mpApplicationData,
@@ -386,7 +407,7 @@ void SipSubscribeClient::endAllSubscriptions()
                 mpDialogMgr->getEarlyDialogHandleFor(*dialogKey, earlyDialogHandle);
 
                 // Indicate that the subscription was terminated
-                (clientState->mpStateCallback)(SUBSCRIPTION_TERMINATED,
+                clientState->fireStateCallback(SUBSCRIPTION_TERMINATED,
                     clientState->mState == SUBSCRIPTION_INITIATED ? earlyDialogHandle.data() : NULL,
                     clientState->mState == SUBSCRIPTION_SETUP ? dialogKey->data() : NULL,
                     clientState->mpApplicationData,
@@ -614,7 +635,7 @@ void SipSubscribeClient::refreshCallback(SipRefreshManager::RefreshRequestState 
 
                     if(clientState->mpStateCallback)
                     {
-                        (clientState->mpStateCallback)(clientState->mState,
+                        clientState->fireStateCallback(clientState->mState,
                                      earlyDialogHandle,
                                      dialogHandle,
                                      clientState->mpApplicationData,
@@ -664,7 +685,7 @@ void SipSubscribeClient::refreshCallback(SipRefreshManager::RefreshRequestState 
 
                     if(clientState->mpStateCallback)
                     {
-                        (clientState->mpStateCallback)(clientState->mState,
+                        clientState->fireStateCallback(clientState->mState,
                                      earlyDialogHandle,
                                      dialogHandle,
                                      clientState->mpApplicationData,
@@ -718,8 +739,8 @@ void SipSubscribeClient::handleNotifyRequest(const SipMessage& notifyRequest)
     // routines.
     UtlString earlyDialogHandle;
     UtlBoolean foundEarlyDialog =
-       mpDialogMgr->getEarlyDialogHandleFor(notifyDialogHandle,
-                                            earlyDialogHandle);
+            mpDialogMgr->getEarlyDialogHandleFor(notifyDialogHandle,
+            earlyDialogHandle);
 
     UtlBoolean subscriptionFound = FALSE;
     UtlBoolean newTransaction = FALSE;
@@ -783,7 +804,7 @@ void SipSubscribeClient::handleNotifyRequest(const SipMessage& notifyRequest)
                 if(clientState->mpStateCallback)
                 {
                     // Indicate that the subscription was established
-                    (clientState->mpStateCallback)(SUBSCRIPTION_SETUP,
+                    clientState->fireStateCallback(SUBSCRIPTION_SETUP,
                                              earlyDialogHandle,
                                              notifyDialogHandle,
                                              clientState->mpApplicationData,

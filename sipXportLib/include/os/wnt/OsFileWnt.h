@@ -1,10 +1,12 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 
 #ifndef _OsFileWnt_h_
@@ -71,16 +73,26 @@ public:
 
 /* ============================ ACCESSORS ================================= */
 
+      /// Convert Windows FILETIME to an OsTime.
+    static OsTime OsFileWnt::fileTimeToOsTime(FILETIME ft);
+      /**<
+      *  This static function converts a windows FILETIME to a sipX OsTime
+      *  @param ft - The Windows FILETIME to convert
+      *  @returns an OsTime representing the FILETIME
+      */
+
+      /// Get information about a file.
+    virtual OsStatus getFileInfo(OsFileInfoBase& rFileinfo) const;
+      /**< 
+      *  Returns all the relevant info on this file
+      *  @param rFileInfo - [OUT] The object that is filled with the
+      *         file information.
+      */
 
 /* ============================ INQUIRY =================================== */
 
     UtlBoolean isReadonly() const;
     //: Returns TRUE if file is readonly
-
-
-
-    virtual OsStatus getFileInfo(OsFileInfoBase& rFileinfo) const;
-    //: Returns all the relevant info on this file
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:

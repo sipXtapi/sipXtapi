@@ -1,10 +1,15 @@
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 
 // SYSTEM INCLUDES
@@ -98,8 +103,9 @@ OsMsgPool::~OsMsgPool()
    delete[] mpElts;
    mpModel->setReusable(FALSE);
    delete mpModel;
-   delete mpMutex;
    delete mpName;
+   if (NULL != mpMutex) mpMutex->release();
+   delete mpMutex;
 }
 
 /* ============================ MANIPULATORS ============================== */

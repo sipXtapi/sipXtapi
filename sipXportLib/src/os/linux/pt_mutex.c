@@ -1,16 +1,19 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 /* The default LinuxThreads implementation does not have support for timing
 * out while waiting for a synchronization object. Since I've already ported
 * the rest of the OS dependent files to that interface, we can just drop in a
 * mostly-compatible replacement written in C (like pthreads itself) that uses
 * the pthread_cond_timedwait function and a mutex to build all the other
-* synchronization objecs with timeout capabilities. */
+* synchronization objects with timeout capabilities. */
 
 /* This is the mutex implementation. */
 
@@ -18,6 +21,8 @@
 #include <errno.h>
 #include <assert.h>
 #include "os/linux/pt_mutex.h"
+
+#ifndef SIPX_USE_NATIVE_PTHREADS // [
 
 int pt_mutex_init(pt_mutex_t *mutex)
 {
@@ -84,7 +89,7 @@ int pt_mutex_timedlock(pt_mutex_t *mutex,const struct timespec *timeout)
               break;
 
            case ETIMEDOUT:  // timed out waiting for count to be 0
-              errno = EAGAIN;
+              errno=EAGAIN;
               retval = -1;
               break;
 
@@ -120,7 +125,7 @@ int pt_mutex_trylock(pt_mutex_t *mutex)
            retval = -1;
         }
 
-        pthread_mutex_unlock(&mutex->mutex);        
+        pthread_mutex_unlock(&mutex->mutex);
         return retval;
 }
 
@@ -130,11 +135,11 @@ int pt_mutex_unlock(pt_mutex_t *mutex)
 
         if(mutex->count)
         {
-                mutex->count--;
-                if(!mutex->count)
-                {
-                   pthread_cond_broadcast(&mutex->cond);
-                }
+           mutex->count--;
+           if(!mutex->count)
+           {
+              pthread_cond_broadcast(&mutex->cond);
+           }
         }
         pthread_mutex_unlock(&mutex->mutex);
         return 0;
@@ -144,9 +149,11 @@ int pt_mutex_destroy(pt_mutex_t *mutex)
 {
         if(mutex->count)
         {
-                errno=EBUSY;
-                return -1;
+           errno=EBUSY;
+           return -1;
         }
         assert(0 == (pthread_mutex_destroy(&mutex->mutex) | pthread_cond_destroy(&mutex->cond)));
         return 0;
 }
+
+#endif // SIPX_USE_NATIVE_PTHREADS ]

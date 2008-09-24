@@ -1,13 +1,12 @@
-// 
-// 
-// Copyright (C) 2005 SIPfoundry Inc.
+//
+// Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2005 Pingtel Corp.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
-//////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 #ifndef _XMLRPCDISPATCH_H_
 #define _XMLRPCDISPATCH_H_
@@ -35,13 +34,13 @@
 class XmlRpcMethodContainer : public UtlContainable
 {
 public:
+   static const UtlContainableType TYPE ;    /** < Class type used for runtime checking */ 
+
    XmlRpcMethodContainer();
 
    virtual ~XmlRpcMethodContainer();
 
    virtual UtlContainableType getContainableType() const;
-
-   static const UtlContainableType TYPE;
 
    virtual unsigned int hash() const;
 
@@ -86,7 +85,7 @@ public:
    XmlRpcDispatch(int httpServerPort,           ///< port number for HttpServer
                   bool isSecureServer,          ///< option for HTTP or HTTPS
                   const char* uriPath = DEFAULT_URL_PATH          ///< uri path
-                  );
+                  ); 
 
    /// Destructor.
    virtual ~XmlRpcDispatch();
@@ -105,7 +104,7 @@ public:
 
    /// Remove a method from the RPC dispatch by name
    void removeMethod(const char* methodName);
-
+   
    /// Return the HTTP server that services RPC requests
    HttpServer* getHttpServer();
    

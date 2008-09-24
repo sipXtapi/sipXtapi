@@ -1,10 +1,15 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
+// Copyright (C) 2005-2008 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
 // 
+// Copyright (C) 2004-2008 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 
 // SYSTEM INCLUDES
@@ -64,8 +69,15 @@ CpMediaInterface* CpMediaInterfaceFactory::createMediaInterface(const char* publ
                                                                 const char* locale,
                                                                 int expeditedIpTos,
                                                                 const char* szStunServer,
-                                                                int stunOptions,
-                                                                int iStunKeepAlivePeriodSecs) 
+                                                                int iStunPort,
+                                                                int iStunKeepAlivePeriodSecs,
+                                                                const char* szTurnSever,
+                                                                int iTurnPort,
+                                                                const char* szTurnUsername,
+                                                                const char* szTurnPassword,
+                                                                int iTurnKeepAlivePeriodSecs,
+                                                                UtlBoolean bEnableICE,
+                                                                uint32_t samplesPerSec) 
 {
     CpMediaInterface* pInterface = NULL ;
 
@@ -73,10 +85,23 @@ CpMediaInterface* CpMediaInterfaceFactory::createMediaInterface(const char* publ
     {
         pInterface = mpFactoryImpl->createMediaInterface(publicAddress, 
                 localAddress, numCodecs, sdpCodecArray, locale, 
-                expeditedIpTos, szStunServer, stunOptions, iStunKeepAlivePeriodSecs) ;
+                expeditedIpTos, szStunServer, iStunPort, iStunKeepAlivePeriodSecs,
+                szTurnSever, iTurnPort, szTurnUsername, szTurnPassword,
+                iTurnKeepAlivePeriodSecs, bEnableICE, samplesPerSec);
     }
 
     return pInterface ;
+}
+
+// Static method to add codec paths
+OsStatus CpMediaInterfaceFactory::addCodecPaths(const size_t nCodecPaths, const UtlString codecPaths[])
+{
+   return CpMediaInterfaceFactoryImpl::addCodecPaths(nCodecPaths, codecPaths);
+}
+
+void CpMediaInterfaceFactory::clearCodecPaths()
+{
+   CpMediaInterfaceFactoryImpl::clearCodecPaths();
 }
 
 /* ============================ ACCESSORS ================================= */
@@ -94,5 +119,6 @@ CpMediaInterfaceFactory::getFactoryImplementation()
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 /* ============================ FUNCTIONS ================================= */
+
 
 

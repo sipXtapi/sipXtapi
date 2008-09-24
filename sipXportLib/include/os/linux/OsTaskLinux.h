@@ -1,9 +1,12 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 #ifndef _OsTaskLinux_h_
 #define _OsTaskLinux_h_
@@ -150,26 +153,6 @@ public:
      // rescheduling, but it is also useful when waiting for some external
      // condition that does not have an interrupt associated with it.
 
-   static OsStatus lock(void);
-     //:Disable rescheduling for the currently executing task
-     // This routine disables task context switching. The task that calls
-     // this routine will be the only task that is allowed to execute,
-     // unless the task explicitly gives up the CPU by making itself no
-     // longer ready. Typically this call is paired with unlock();
-     // together they surround a critical section of code. These
-     // preemption locks are implemented with a counting variable that
-     // allows nested preemption locks. Preemption will not be unlocked
-     // until unlock() has been called as many times as lock().
-
-   static OsStatus unlock(void);
-     //:Enable rescheduling for the currently executing task
-     // This routine decrements the preemption lock count. Typically
-     // this call is paired with lock() and concludes a critical
-     // section of code. Preemption will not be unlocked until
-     // unlock() has been called as many times as lock(). When
-     // the lock count is decremented to zero, any tasks that were
-     // eligible to preempt the current task will execute.
-
    static OsStatus safe(void);
      //:Make the calling task safe from deletion
      // This routine protects the calling task from deletion. Tasks that
@@ -232,11 +215,6 @@ public:
    virtual OsStatus id(int& rId);
      //:Get the task ID for this task
 
-   virtual UtlBoolean isReady(void);
-     //:Check if the task is ready to run
-     // Return TRUE is the task is ready, otherwise FALSE.
-     // Under Windows NT, this method returns the opposite of isSuspended()
-
    virtual UtlBoolean isSuspended(void);
      //:Check if the task is suspended
      // Return TRUE is the task is suspended, otherwise FALSE.
@@ -250,17 +228,35 @@ private:
    OsRWMutex mDeleteGuard; // RWMutex guard to prevent unwanted task deletion
    int       mSuspendCnt;  // Counts the nesting level of suspend() calls
 
+   pthread_mutex_t mStartupSyncMutex;  // Mutex, used with next two conditional
+                       // variables to synchronize thread startup.
+   pthread_cond_t  mTaskInitializedEvent; // Conditional variable, signaling
+                       // that this OsTask object initialization is completed
+                       // and thread could go on.
+   pthread_cond_t  mTaskStartedEvent; // Conditional variable, signaling
+                       // that thread is started and doLinuxCreateTask() could
+                       // return to caller.
+
+   enum {
+      OS_TASK_THREAD_STARTUP_TIMEOUT=5 // Time to wait for thread startup
+                                             // (in seconds).
+   };
+
    // saved initialization information (used for task restarts)
    int       mOptions;
    int       mPriority;
    int       mStackSize;
 
    UtlBoolean doLinuxCreateTask(const char* pTaskName);
-     //:Do the real work associated with creating a new VxWorks task
+     //:Do the real work associated with creating a new Linux task.
      // The mDataGuard lock should be held upon entry into this method.
+     //
+     // This method is blocking. It finishes only when thread is really
+     // started up. This is needed to avoid bad racing conditions. E.g.
+     // when thread may be stopped before really started, causing deadlock.
 
    void doLinuxTerminateTask(UtlBoolean doForce);
-     //:Do the real work associated with terminating a VxWorks task
+     //:Do the real work associated with terminating a Linux task.
      // The mDataGuard lock should be held upon entry into this method.
 
    /**

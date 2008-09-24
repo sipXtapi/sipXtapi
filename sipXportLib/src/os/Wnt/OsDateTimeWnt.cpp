@@ -1,25 +1,36 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 
 // SYSTEM INCLUDES
+#define WIN32_LEAN_AND_MEAN
 #include <assert.h>
 #include <windows.h>
+#include <MMSystem.h>
 #include <time.h>
 
+#ifndef WINCE // [
+   // winmm.lib is required for OsDateTimeWnt::getCurTime() implementation
+   // (for timeGetTime() and timeBeginPeriod() functions).
+#  pragma comment(lib, "winmm.lib")
+#endif // WINCE ]
+
 // APPLICATION INCLUDES
+#include "os/OsDefs.h"
 #include "os/Wnt/OsDateTimeWnt.h"
 #include "os/OsTime.h"
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
-const __int64 WINDOWSTIME2UNIXTIME = 11644473600L;
+const uint64_t WINDOWSTIME2UNIXTIME = UINT64_C(11644473600);
 const int MILLISECS_PER_SEC      = 1000;
 const int MICROSECS_PER_MILLISEC = 1000;
 const int FILETIME_UNITS_PER_SEC   = 10000000;  // 100 nanosecs per sec
@@ -65,7 +76,7 @@ OsDateTimeWnt::OsDateTimeWnt(const OsDateTimeWnt& rOsDateTimeWnt)
 OsDateTimeWnt::OsDateTimeWnt(const OsTime& toTime)
 {
    // first convert the OsTime to a Windows FILETIME
-   __int64 winTime_64;
+   int64_t winTime_64;
    winTime_64 =  toTime.seconds();
    winTime_64 += WINDOWSTIME2UNIXTIME;   // adjust for epoch difference
    winTime_64 *= FILETIME_UNITS_PER_SEC; // scale to windows ticks
@@ -81,10 +92,10 @@ OsDateTimeWnt::OsDateTimeWnt(const OsTime& toTime)
    // and last, SYSTEMTIME to OsDateTime
    mYear        = sysTime.wYear;
    mMonth       = sysTime.wMonth - 1; // windows is 1-based
-   mDay         = sysTime.wDay;
-   mHour        = sysTime.wHour;
-   mMinute      = sysTime.wMinute;
-   mSecond      = sysTime.wSecond;
+   mDay         = (unsigned char)sysTime.wDay;
+   mHour        = (unsigned char)sysTime.wHour;
+   mMinute      = (unsigned char)sysTime.wMinute;
+   mSecond      = (unsigned char)sysTime.wSecond;
    mMicrosecond = sysTime.wMilliseconds * MICROSECS_PER_MILLISEC;
 }
 
@@ -132,21 +143,21 @@ OsStatus OsDateTimeWnt::cvtToTimeSinceBoot(OsTime& rTime) const
    UtlBoolean     ntRes;
 
    FILETIME   bootFileTime;      // boot time in various representations
-   __int64    bootTime_i64;
+   int64_t    bootTime_i64;
 
    FILETIME   thisFileTime;      // this time in various representations
    SYSTEMTIME thisSysTime;
-   __int64    thisTime_i64;
+   int64_t    thisTime_i64;
 
-   __int64    deltaTime_i64;     // (this time - boot time) in various
-   __int64    deltaSecs_i64;     //  representations
-   __int64    deltaUsecs_i64;
+   int64_t    deltaTime_i64;     // (this time - boot time) in various
+   int64_t    deltaSecs_i64;     //  representations
+   int64_t    deltaUsecs_i64;
 
    // get the system boot time as a 64-bit integer recording the number of
    //  100-nanosecond intervals since January 1, 1601
    GetSystemTimeAsFileTime(&bootFileTime);          // get as FILETIME
-   bootTime_i64 = (bootFileTime.dwHighDateTime << 32) +
-                  bootFileTime.dwLowDateTime;       // convert to __int64
+   bootTime_i64 = (((int64_t)bootFileTime.dwHighDateTime) << 32) +
+                  bootFileTime.dwLowDateTime;       // convert to int64_t
 
    // convert this OsDateTime object to a 64-bit integer
    thisSysTime.wYear         = mYear;               // represent as SYSTEMTIME
@@ -161,8 +172,8 @@ OsStatus OsDateTimeWnt::cvtToTimeSinceBoot(OsTime& rTime) const
    ntRes = SystemTimeToFileTime(&thisSysTime, &thisFileTime);
    assert(ntRes == TRUE);
 
-   thisTime_i64 = (thisFileTime.dwHighDateTime << 32) +
-                  thisFileTime.dwLowDateTime;       // convert to __int64
+   thisTime_i64 = (((int64_t)thisFileTime.dwHighDateTime) << 32) +
+                  thisFileTime.dwLowDateTime;       // convert to int64_t
 
    // compute (thisFileTime - bootFileTime) and convert to an OsTime value
    deltaTime_i64  = thisTime_i64 - bootTime_i64;
@@ -183,28 +194,80 @@ OsStatus OsDateTimeWnt::cvtToTimeSinceBoot(OsTime& rTime) const
 // Return the current time as an OsTime value
 void OsDateTimeWnt::getCurTime(OsTime& rTime)
 {
-   FILETIME theTime;
-   GetSystemTimeAsFileTime(&theTime);
+    typedef union 
+    {
+        FILETIME  ft;
+        uint64_t  int64;
+    } g_FILETIME;
+    static g_FILETIME sOsFileTime ;
 
-   // convert to __int64
-   __int64 theTime_i64;
-   theTime_i64 = theTime.dwHighDateTime;
-   theTime_i64 <<= 32;
-   theTime_i64 += theTime.dwLowDateTime;
+#if WINCE
+    static bool       sbInitialized = false ;
+    static uint64_t sLastTicks = 0 ;
+    static uint64_t sResetTime = 0 ;
+    uint64_t ticks ;
+    uint64_t freq ;
 
-   // convert to seconds and microseconds since Jan 01 1601 (Windows time base)
-   __int64 osTimeSecs  = theTime_i64 / FILETIME_UNITS_PER_SEC;
-   int osTimeUsecs = (int)((theTime_i64 % FILETIME_UNITS_PER_SEC) / FILETIME_UNITS_PER_USEC);
+    QueryPerformanceCounter((LARGE_INTEGER*) &ticks) ;
+    QueryPerformanceFrequency((LARGE_INTEGER*) &freq) ;
 
-   // subtract to change the time base to since Jan 01 1970 (Unix/sipX time base)
-   osTimeSecs -= WINDOWSTIME2UNIXTIME;
+    if (!sbInitialized || sOsFileTime.int64 > sResetTime)
+    {
+        sbInitialized = true ;
+        GetSystemTimeAsFileTime(&sOsFileTime.ft);
+        sResetTime = -1 ; // sOsFileTime.int64 + (freq - 1) ;
+        sLastTicks = ticks ;
+    }
+    else
+    {
+        uint64_t delta = ticks - sLastTicks ;
 
-   //assert((osTimeSecs >> 32)  == 0);
-   //assert((osTimeUsecs >> 32) == 0);
+        sLastTicks = ticks ;
+        sOsFileTime.int64 = sOsFileTime.int64 + 
+                (((uint64_t) 10000000) * (delta / freq)) + 
+                (((uint64_t) 10000000) * (delta % freq)) / freq ;    
+        
+        SYSTEMTIME si ;
+        FileTimeToSystemTime(&sOsFileTime.ft, &si) ;
+    }
 
-   OsTime curTime((long)osTimeSecs, osTimeUsecs);
+#else
+    static bool       sbInitialized = false ;
+    static DWORD sLastSystemMSecs = 0 ;
 
-   rTime = curTime;
+    DWORD systemMSecs = timeGetTime();
+
+    if (!sbInitialized)
+    {
+        sbInitialized = true ;
+
+        // Set the precision of timings got from timeGetTime.
+        timeBeginPeriod(1);
+        // Resample time, since we changed the precision.
+        systemMSecs = timeGetTime();
+
+        FILETIME sft;
+        GetSystemTimeAsFileTime(&sft);
+        // Store in a temp and copy over to prevent data type misalignment issues.
+        sOsFileTime.ft = sft;
+        sLastSystemMSecs = systemMSecs ;
+    }
+    else
+    {
+        DWORD delta = systemMSecs - sLastSystemMSecs ;
+
+        sLastSystemMSecs = systemMSecs;
+        // convert delta msec to 100ns units and advance system time
+        sOsFileTime.int64 = sOsFileTime.int64 + 10000 * delta;
+        
+        SYSTEMTIME si ;
+        FileTimeToSystemTime(&sOsFileTime.ft, &si) ;
+    }
+#endif
+
+   rTime = OsTime((long) ((sOsFileTime.int64 - WINDOWSTIME2UNIXTIME*10000000)
+                          / UINT64_C(10000000)),
+                  (long) ((sOsFileTime.int64 / UINT64_C(10)) % UINT64_C(1000000)));
 }
 
 

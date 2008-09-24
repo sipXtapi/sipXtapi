@@ -1,10 +1,12 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 
 #ifndef _OsConfigDb_h_
@@ -106,7 +108,7 @@ public:
      * return OS_SUCCESS if one key or more keys were found in the database,
      * return OS_NOT_FOUND otherwise
      */
-    OsStatus removeByPrefix(const UtlString& rPrefix);
+    OsStatus removeByPrefix(const UtlString& rPrefix) ;
  
     /**
      * Insert the key/value pair into the config database If the
@@ -120,7 +122,7 @@ public:
      * database already contains an entry for this key, then set the
      * value for the existing entry to iNewValue.
      */
-    void set(const UtlString& rKey, const int iNewValue);
+    void set(const UtlString& rKey, const int iNewValue) ;
 
     /**
      * Sets rValue to the value in the database associated with rKey.
@@ -234,7 +236,7 @@ public:
      * @param rList List of UtlString values.
      */
     virtual void addList(const UtlString& rPrefix,
-                         UtlSList& rList);
+                         UtlSList& rList) ;
 
     /**
      * Loads a list of strings from the configuration datadase using the 
@@ -266,6 +268,11 @@ public:
      * @param szKey Key file to lookup.
      */
     int getPort(const char* szKey) const;
+
+    /**
+     * Delete all entries from the configuration database
+     */
+    void clear() ;
 
  protected:
 

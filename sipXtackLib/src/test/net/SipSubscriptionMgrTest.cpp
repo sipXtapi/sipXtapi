@@ -1,11 +1,13 @@
-// 
-// 
-// Copyright (C) 2005 SIPfoundry Inc.
+//  
+// Copyright (C) 2007 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement. 
+//
+// Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2005 Pingtel Corp.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.
 // Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 // Author: Dan Petrie (dpetrie AT SIPez DOT com)
@@ -142,7 +144,7 @@ Voice-Message: 0/0 (0/0)\r\n";
          UtlString resourceId;
          UtlString eventTypeKey, eventType;
          eventHandler.getKeys(mwiSubWithAuthRequest, 
-                              resourceId,
+                             resourceId,
                               eventTypeKey,
                               eventType);
          ASSERT_STR_EQUAL(resourceId.data(), "111@example.com");

@@ -1,16 +1,15 @@
-// 
-// 
+//
 // Copyright (C) 2005-2006 SIPez LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.
 // 
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2004-2006 Pingtel Corp.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
-//////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 #include <cppunit/extensions/HelperMacros.h>
 #include <cppunit/TestCase.h>
@@ -225,38 +224,38 @@ class SipMessageTest : public CppUnit::TestCase
    void testGetViaPort()
       {
          struct test {
-	   const char* string;	// Input string.
-	   int port;		// Expected returned viaPort.
-	   int rportSet;	// Expected returned receivedPortSet.
-	   int rport;		// Expected returned receivedPort.
+            const char* string;         // Input string.
+            int port;                   // Expected returned viaPort.
+            UtlBoolean rportSet;        // Expected returned receivedPortSet.
+            int rport;                  // Expected returned receivedPort.
          };
             
-	 struct test tests[] = {
-	   { "sip:foo@bar", PORT_NONE, 0, PORT_NONE },
-	   { "sip:foo@bar:5060", 5060, 0, PORT_NONE },
-	   { "sip:foo@bar:1", 1, 0, PORT_NONE },
-	   { "sip:foo@bar:100", 100, 0, PORT_NONE },
-	   { "sip:foo@bar:65535", 65535, 0, PORT_NONE },
-	   { "sip:foo@bar;rport=1", PORT_NONE, 1, 1 },
-	   { "sip:foo@bar:5060;rport=1", 5060, 1, 1 },
-	   { "sip:foo@bar:1;rport=1", 1, 1, 1 },
-	   { "sip:foo@bar:100;rport=1", 100, 1, 1 },
-	   { "sip:foo@bar:65535;rport=1", 65535, 1, 1 },
-	   { "sip:foo@bar;rport=100", PORT_NONE, 1, 100 },
-	   { "sip:foo@bar:5060;rport=100", 5060, 1, 100 },
-	   { "sip:foo@bar:1;rport=100", 1, 1, 100 },
-	   { "sip:foo@bar:100;rport=100", 100, 1, 100 },
-	   { "sip:foo@bar:65535;rport=100", 65535, 1, 100 },
-	   { "sip:foo@bar;rport=5060", PORT_NONE, 1, 5060 },
-	   { "sip:foo@bar:5060;rport=5060", 5060, 1, 5060 },
-	   { "sip:foo@bar:1;rport=5060", 1, 1, 5060 },
-	   { "sip:foo@bar:100;rport=5060", 100, 1, 5060 },
-	   { "sip:foo@bar:65535;rport=5060", 65535, 1, 5060 },
-	   { "sip:foo@bar;rport=65535", PORT_NONE, 1, 65535 },
-	   { "sip:foo@bar:5060;rport=65535", 5060, 1, 65535 },
-	   { "sip:foo@bar:1;rport=65535", 1, 1, 65535 },
-	   { "sip:foo@bar:100;rport=65535", 100, 1, 65535 },
-	   { "sip:foo@bar:65535;rport=65535", 65535, 1, 65535 },
+         struct test tests[] = {
+            { "sip:foo@bar", PORT_NONE, 0, PORT_NONE },
+            { "sip:foo@bar:5060", 5060, 0, PORT_NONE },
+            { "sip:foo@bar:1", 1, 0, PORT_NONE },
+            { "sip:foo@bar:100", 100, 0, PORT_NONE },
+            { "sip:foo@bar:65535", 65535, 0, PORT_NONE },
+            { "sip:foo@bar;rport=1", PORT_NONE, 1, 1 },
+            { "sip:foo@bar:5060;rport=1", 5060, 1, 1 },
+            { "sip:foo@bar:1;rport=1", 1, 1, 1 },
+            { "sip:foo@bar:100;rport=1", 100, 1, 1 },
+            { "sip:foo@bar:65535;rport=1", 65535, 1, 1 },
+            { "sip:foo@bar;rport=100", PORT_NONE, 1, 100 },
+            { "sip:foo@bar:5060;rport=100", 5060, 1, 100 },
+            { "sip:foo@bar:1;rport=100", 1, 1, 100 },
+            { "sip:foo@bar:100;rport=100", 100, 1, 100 },
+            { "sip:foo@bar:65535;rport=100", 65535, 1, 100 },
+            { "sip:foo@bar;rport=5060", PORT_NONE, 1, 5060 },
+            { "sip:foo@bar:5060;rport=5060", 5060, 1, 5060 },
+            { "sip:foo@bar:1;rport=5060", 1, 1, 5060 },
+            { "sip:foo@bar:100;rport=5060", 100, 1, 5060 },
+            { "sip:foo@bar:65535;rport=5060", 65535, 1, 5060 },
+            { "sip:foo@bar;rport=65535", PORT_NONE, 1, 65535 },
+            { "sip:foo@bar:5060;rport=65535", 5060, 1, 65535 },
+            { "sip:foo@bar:1;rport=65535", 1, 1, 65535 },
+            { "sip:foo@bar:100;rport=65535", 100, 1, 65535 },
+            { "sip:foo@bar:65535;rport=65535", 65535, 1, 65535 }
          };
 
          // Buffer to compose message.
@@ -304,7 +303,7 @@ class SipMessageTest : public CppUnit::TestCase
                                   &maddrSet,
                                   &receivedPortSet);
             CPPUNIT_ASSERT_EQUAL_MESSAGE(tests[i].string, tests[i].port,
-					 viaPort);
+                                              viaPort);
             CPPUNIT_ASSERT_EQUAL_MESSAGE(tests[i].string, tests[i].rportSet,
                                          receivedPortSet);
             CPPUNIT_ASSERT_EQUAL_MESSAGE(tests[i].string, tests[i].rport,
@@ -381,7 +380,7 @@ class SipMessageTest : public CppUnit::TestCase
             "a=rtpmap:0 PCMU/8000\r\n"
             "a=rtpmap:98 telephone-event/8000\r\n"
             "a=fmtp:98 0-16\r\n"
-            "a=ptime:20\r\n"
+            "a=ptime:20"
             ;
          
          SipMessage testMsg( MultipartBodyMessage, strlen( MultipartBodyMessage ) );
@@ -393,10 +392,8 @@ class SipMessageTest : public CppUnit::TestCase
          int theLength;
          
          sdpBody->getBytes(&theBody, &theLength);
-         sdpBody->findMediaType("audio", 0);
          
          ASSERT_STR_EQUAL(correctBody,theBody.data());
-         delete sdpBody;
       };
 
 
@@ -600,16 +597,16 @@ class SipMessageTest : public CppUnit::TestCase
    void testGetToAddress()
       {
          struct test {
-	   const char* string;	// Input string.
-	   int port;		// Expected returned to-address port.
+            const char* string;         // Input string.
+            int port;                   // Expected returned to-address port.
          };
             
-	 struct test tests[] = {
-	   { "sip:foo@bar", PORT_NONE },
-	   { "sip:foo@bar:5060", 5060 },
-	   { "sip:foo@bar:1", 1 },
-	   { "sip:foo@bar:100", 100 },
-	   { "sip:foo@bar:65535", 65535 },
+         struct test tests[] = {
+            { "sip:foo@bar", PORT_NONE },
+            { "sip:foo@bar:5060", 5060 },
+            { "sip:foo@bar:1", 1 },
+            { "sip:foo@bar:100", 100 },
+            { "sip:foo@bar:65535", 65535 }
          };
 
          UtlString address;
@@ -652,16 +649,16 @@ class SipMessageTest : public CppUnit::TestCase
    void testGetFromAddress()
       {
          struct test {
-	   const char* string;	// Input string.
-	   int port;		// Expected returned from-address port.
+            const char* string;         // Input string.
+            int port;                  // Expected returned from-address port.
          };
             
-	 struct test tests[] = {
-	   { "sip:foo@bar", PORT_NONE },
-	   { "sip:foo@bar:5060", 5060 },
-	   { "sip:foo@bar:1", 1 },
-	   { "sip:foo@bar:100", 100 },
-	   { "sip:foo@bar:65535", 65535 },
+         struct test tests[] = {
+            { "sip:foo@bar", PORT_NONE },
+            { "sip:foo@bar:5060", 5060 },
+            { "sip:foo@bar:1", 1 },
+            { "sip:foo@bar:100", 100 },
+            { "sip:foo@bar:65535", 65535 }
          };
 
          UtlString address;
@@ -752,7 +749,7 @@ class SipMessageTest : public CppUnit::TestCase
             { message_template2, "sip:foo@bar:0", 0 },
             { message_template2, "sip:foo@bar:100", 100 },
             { message_template2, "sip:foo@bar:5060", 5060 },
-            { message_template2, "sip:foo@bar:65535", 65535 },
+            { message_template2, "sip:foo@bar:65535", 65535 }
          };
 
          // Buffer to compose message.
@@ -781,16 +778,16 @@ class SipMessageTest : public CppUnit::TestCase
    void testParseAddressFromUriPort()
       {
          struct test {
-	   const char* string;	// Input string.
-	   int port;		// Expected returned port.
+            const char* string;         // Input string.
+            int port;                  // Expected returned port.
          };
             
-	 struct test tests[] = {
-	   { "sip:foo@bar", PORT_NONE },
-	   { "sip:foo@bar:5060", 5060 },
-	   { "sip:foo@bar:1", 1 },
-	   { "sip:foo@bar:100", 100 },
-	   { "sip:foo@bar:65535", 65535 },
+          struct test tests[] = {
+            { "sip:foo@bar", PORT_NONE },
+            { "sip:foo@bar:5060", 5060 },
+            { "sip:foo@bar:1", 1 },
+            { "sip:foo@bar:100", 100 },
+            { "sip:foo@bar:65535", 65535 }
          };
 
          UtlString address;
@@ -877,9 +874,6 @@ class SipMessageTest : public CppUnit::TestCase
                                  NULL,
                                  NULL,
                                  NULL,
-                                 0,
-                                 "PING",
-                                 NULL,
                                  SIP_DEFAULT_RTT,
                                  TRUE,
                                  -1,
@@ -914,7 +908,7 @@ class SipMessageTest : public CppUnit::TestCase
          // Figure out what the agent value should be.
          UtlString address;
          int port;
-         user_agent.getViaInfo(OsSocket::UDP, address, port);
+         user_agent.getViaInfo(OsSocket::UDP, address, port, NULL, NULL);
          char agent_expected[128];
          strcpy(agent_expected, address.data());
          if ((port != 5060) && (port > 0))      // PORT_NONE
@@ -966,8 +960,6 @@ class SipMessageTest : public CppUnit::TestCase
         CPPUNIT_ASSERT_MESSAGE("Null sdp copy serialized content", sdpCopyBytes != NULL);
         CPPUNIT_ASSERT_MESSAGE("SDP does not match expected content",
             strcmp(referenceSdp, sdpCopyBytes) == 0);
-        delete sdp;
-        delete sdpCopy;
    }
 
 
@@ -1070,7 +1062,7 @@ void testSdpShortHeaderNames()
             "Alert-Info",
             "Call-Info",
             SIP_WARNING_FIELD,
-            "Error-Info",
+            "Error-Info"
          };
 
       // For each field.
@@ -1093,15 +1085,7 @@ void testSdpShortHeaderNames()
                             "sip:remotecontact@example.com", // farEndContact
                             "sip:contact@example.com", // contactUrl
                             "callid@example.com", // callId
-                            NULL, // rtpAddress
-                            0, // rtpAudioPort
-                            0, // rtcpAudioPort
-                            0, // rtpVideoPort
-                            0, // rtcpVideoPort
-                            NULL, // srtpParams
                             0, // sequenceNumber
-                            0, // numRtpCodecs
-                            NULL, // rtpCodecs
                             17 // sessionReinviteTimer
             );
 
@@ -1127,15 +1111,7 @@ void testSdpShortHeaderNames()
                             "sip:remotecontact@example.com", // farEndContact
                             "sip:contact@example.com", // contactUrl
                             "callid@example.com", // callId
-                            NULL, // rtpAddress
-                            0, // rtpAudioPort
-                            0, // rtcpAudioPort
-                            0, // rtpVideoPort
-                            0, // rtcpVideoPort
-                            NULL, // srtpParams
                             0, // sequenceNumber
-                            0, // numRtpCodecs
-                            NULL, // rtpCodecs
                             17 // sessionReinviteTimer
             );
 
@@ -1166,7 +1142,7 @@ void testSdpShortHeaderNames()
       // message.
       const char* settable_unique_headers[] =
          {
-            SIP_EXPIRES_FIELD,
+            SIP_EXPIRES_FIELD
          };
 
       // For each field.
@@ -1189,15 +1165,7 @@ void testSdpShortHeaderNames()
                             "sip:remotecontact@example.com", // farEndContact
                             "sip:contact@example.com", // contactUrl
                             "callid@example.com", // callId
-                            NULL, // rtpAddress
-                            0, // rtpAudioPort
-                            0, // rtcpAudioPort
-                            0, // rtpVideoPort
-                            0, // rtcpVideoPort
-                            NULL, // srtpParams
                             0, // sequenceNumber
-                            0, // numRtpCodecs
-                            NULL, // rtpCodecs
                             17 // sessionReinviteTimer
             );
 
@@ -1223,15 +1191,7 @@ void testSdpShortHeaderNames()
                             "sip:remotecontact@example.com", // farEndContact
                             "sip:contact@example.com", // contactUrl
                             "callid@example.com", // callId
-                            NULL, // rtpAddress
-                            0, // rtpAudioPort
-                            0, // rtcpAudioPort
-                            0, // rtpVideoPort
-                            0, // rtcpVideoPort
-                            NULL, // srtpParams
                             0, // sequenceNumber
-                            0, // numRtpCodecs
-                            NULL, // rtpCodecs
                             17 // sessionReinviteTimer
             );
 
@@ -1269,6 +1229,7 @@ void testSdpShortHeaderNames()
             SIP_RECORD_ROUTE_FIELD
          };
 
+
       // For each field.
       for (unsigned int i = 0; i < sizeof (non_settable_headers) / sizeof (non_settable_headers[0]); i++)
       {
@@ -1289,15 +1250,7 @@ void testSdpShortHeaderNames()
                             "sip:remotecontact@example.com", // farEndContact
                             "sip:contact@example.com", // contactUrl
                             "callid@example.com", // callId
-                            NULL, // rtpAddress
-                            0, // rtpAudioPort
-                            0, // rtcpAudioPort
-                            0, // rtpVideoPort
-                            0, // rtcpVideoPort
-                            NULL, // srtpParams
-                            0, // sequenceNumber
-                            0, // numRtpCodecs
-                            NULL, // rtpCodecs
+                            100, // sequenceNumber
                             17 // sessionReinviteTimer
             );
 

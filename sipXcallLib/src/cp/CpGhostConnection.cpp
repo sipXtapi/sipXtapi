@@ -1,17 +1,17 @@
+//
+// Copyright (C) 2005-2007 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
 // 
-// 
-// Copyright (C) 2005, 2006 SIPez LLC
+// Copyright (C) 2004-2007 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
-// Copyright (C) 2005, 2006 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
-// 
 // $$
-//////////////////////////////////////////////////////////////////////////////
-// Author: Dan Petrie (dpetrie AT SIPez DOT com)
+///////////////////////////////////////////////////////////////////////////////
+
+// Author: Daniel Petrie dpetrie AT SIPez DOT com
 
 
 // SYSTEM INCLUDES
@@ -71,21 +71,26 @@ UtlBoolean CpGhostConnection::dequeue(UtlBoolean callInFocus)
     return(FALSE);
 }
 UtlBoolean CpGhostConnection::dial(const char* dialString,
-                                          const char* callerId,
-                                          const char* callId,
-                      const char* callController,
-                      const char* originalCallConnection,
-                      UtlBoolean requestQueuedCall,
-                      const void* pDisplay)
+                                   const char* callerId,
+                                   const char* callId,
+                                   const char* callController,
+                                   const char* originalCallConnection,
+                                   UtlBoolean requestQueuedCall,
+                                   const void* pDisplay,
+                                   const void* pSecurity,
+                                   const char* locationHeader,
+                                   const int bandWidth,
+                                   UtlBoolean bOnHold,
+                                   const char* originalCallId,
+                                   const RTP_TRANSPORT rtpTransportOptions)
 {
     unimplemented("CpGhostConnection::dial");
     return(FALSE);
 }
 
 UtlBoolean CpGhostConnection::originalCallTransfer(UtlString& transferTargetAddress,
-                                                   const char* transferControllerAddress,
-                                                   const char* targetCallId,
-                                                   UtlBoolean  remoteHoldBeforeTransfer)
+                                                       const char* transferControllerAddress,
+                               const char* targetCallId)
 {
     unimplemented("CpGhostConnection::originalCallBlindTransfer");
     return(FALSE);
@@ -134,6 +139,13 @@ UtlBoolean CpGhostConnection::answer(const void* hWnd)
     unimplemented("CpGhostConnection::answer");
     return(FALSE);
 }
+
+void CpGhostConnection::outOfFocus()
+{
+    unimplemented("CpGhostConnection::outOfFocus");
+}
+
+
 UtlBoolean CpGhostConnection::hangUp()
 {
     setState(CONNECTION_DISCONNECTED, CONNECTION_REMOTE, CONNECTION_CAUSE_TRANSFER);
@@ -169,16 +181,19 @@ UtlBoolean CpGhostConnection::renegotiateCodecs()
     return(FALSE);
 }
 
-UtlBoolean CpGhostConnection::accept(int forwardOnNoAnswerSeconds)
+UtlBoolean CpGhostConnection::silentRemoteHold()
 {
-    unimplemented("CpGhostConnection::accept");
+    unimplemented("CpGhostConnection::silentRemoteHold");
     return(FALSE);
 }
 
-UtlBoolean CpGhostConnection::changeLocalIdentity(const UtlString& newLocalIdentity,
-                                                  const UtlBoolean& shouldSignalIdentityChangeNow)
+UtlBoolean CpGhostConnection::accept(int forwardOnNoAnswerSeconds, 
+                                     const void* pSecurity,
+                                     const char * locationHeader,
+                                     const int bandWidth,
+                                     UtlBoolean sendEarlyMedia)
 {
-    unimplemented("CpGhostConnection::changeLocalIdentity");
+    unimplemented("CpGhostConnection::accept");
     return(FALSE);
 }
 
@@ -208,20 +223,18 @@ UtlBoolean CpGhostConnection::getSession(SipSession& session)
     return(FALSE);
 }
 
-UtlBoolean CpGhostConnection::sendInDialog(SipMessage& message, 
-                                           OsMsgQ* responseQueue,
-                                           void* responseListenerData)
-{
-    unimplemented("CpGhostConnection::sendInDialog");
-    return(FALSE);
-}
 
 // Enumerate possible contact addresses
-void CpGhostConnection::getLocalContactAddresses( CONTACT_ADDRESS contacts[],
+void CpGhostConnection::getLocalContactAddresses( SIPX_CONTACT_ADDRESS contacts[],
                                                   size_t nMaxContacts,
                                                   size_t& nActualContacts)
 {
     unimplemented("CpGhostConnection::getLocalContactAddresses");
+}
+
+void CpGhostConnection::getRemoteUserAgent(UtlString* pUserAgent)
+{
+    unimplemented("CpGhostConnection::getRemoteUserAgent");
 }
 
 

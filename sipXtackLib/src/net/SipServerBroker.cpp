@@ -1,8 +1,12 @@
-// 
-// Copyright (C) 2005 Pingtel Corp.
-// 
+//
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
 // $$
-//////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
 #include "os/OsDefs.h"
@@ -48,9 +52,9 @@ int SipServerBroker::run(void *pNotUsed)
 
         // post a message, containing the the client socket,
         // to the owner
-        if(clientSocket)
+        if(!isShuttingDown() && mpSocket && clientSocket)
         {
-            OsPtrMsg ptrMsg(OsMsg::OS_EVENT, SipTcpServer::SIP_SERVER_BROKER_NOTIFY, (void*)clientSocket);
+            OsPtrMsg ptrMsg(OsMsg::OS_EVENT, SIP_SERVER_BROKER_NOTIFY, (void*)clientSocket);
             mpOwnerTask->postMessage(ptrMsg);
         }
     }
@@ -60,6 +64,7 @@ int SipServerBroker::run(void *pNotUsed)
 // Destructor
 SipServerBroker::~SipServerBroker()
 {
+    requestShutdown();
     if (mpSocket)
     {
         mpSocket->close();

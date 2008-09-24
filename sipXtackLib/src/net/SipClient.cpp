@@ -1,10 +1,12 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 
 // SYSTEM INCLUDES
@@ -14,14 +16,18 @@
 
 // APPLICATION INCLUDES
 #include <net/SipMessage.h>
+#include <net/SipUserAgentBase.h>
 #include <net/SipClient.h>
 #include <net/SipMessageEvent.h>
-#include <net/SipUserAgentBase.h>
 
 #include <os/OsDateTime.h>
 #include <os/OsDatagramSocket.h>
 #include <os/OsSysLog.h>
 #include <os/OsEvent.h>
+#ifdef SIP_TLS
+#include "os/OsTLSConnectionSocket.h"
+#include "os/OsTLSClientConnectionSocket.h"
+#endif
 
 #define SIP_DEFAULT_RTT 500
 
@@ -54,18 +60,18 @@ l: 0 \n\r
 
 // Constructor
 SipClient::SipClient(OsSocket* socket) :
-   OsTask("SipClient-%d"),
+ OsTask("SipClient-%d"),
    clientSocket(socket),
    mSocketType(socket ? socket->getIpProtocol() : OsSocket::UNKNOWN),
    sipUserAgent(NULL),
    mRemoteViaPort(PORT_NONE),
    mRemoteReceivedPort(PORT_NONE),
-   mSocketLock(OsBSem::Q_PRIORITY, OsBSem::FULL),
-   mFirstResendTimeoutMs(SIP_DEFAULT_RTT * 4), // for first transcation time out
+   mSocketLock(OsBSem::Q_FIFO, OsBSem::FULL),
+   mFirstResendTimeoutMs(SIP_DEFAULT_RTT * 4), // for first transaction time out
    mInUseForWrite(0),
    mWaitingList(NULL),
    mbSharedSocket(FALSE)
-{
+ {
    touch();
 
    if(clientSocket)
@@ -87,7 +93,7 @@ SipClient::SipClient(OsSocket* socket) :
 
 // Copy constructor
 SipClient::SipClient(const SipClient& rSipClient) 
-    : mSocketLock(OsBSem::Q_PRIORITY, OsBSem::FULL)
+    : mSocketLock(OsBSem::Q_FIFO, OsBSem::FULL)
 {
 }
 
@@ -109,7 +115,7 @@ SipClient::~SipClient()
         // cause the run method to exit.
 #ifdef TEST_PRINT
         OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipClient::~SipClient 0%x socket 0%x closing %s socket",
-            this, clientSocket, ipProtocolString(mSocketType));
+           this, clientSocket, OsSocket::ipProtocolString(mSocketType));
 
         osPrintf("SipClient::~SipClient closing socket\n");
 #endif
@@ -138,6 +144,7 @@ SipClient::~SipClient()
         OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipClient::~SipClient 0%x socket 0%x deleting socket",
             this, clientSocket);
 #endif
+
         if (!mbSharedSocket)
         {
             delete clientSocket;
@@ -205,6 +212,15 @@ int SipClient::run(void* runArg)
 
             message = new SipMessage();
 
+            // first, if this is a TLS socket, make sure the handshake is complete
+#ifdef SIP_TLS
+            OsTLSClientConnectionSocket* pSslSocket = dynamic_cast<OsTLSClientConnectionSocket*> (clientSocket);
+            if (pSslSocket)
+            {
+                pSslSocket->waitForHandshake(-1);
+            }
+#endif
+
             // Block and wait for the socket to be ready to read
             // clientSocket shouldn't be null
             // in this case some sort of race with the destructor.  This should
@@ -215,7 +231,7 @@ int SipClient::run(void* runArg)
                           "buffer.length() = %d, clientSocket = %p",
                           readAMessage, buffer.length(), clientSocket);
 #endif
-            if (clientSocket
+            if(clientSocket 
                 && ((readAMessage
                      && buffer.length() >= MINIMUM_SIP_MESSAGE_SIZE)
                     || waitForReadyToRead()))
@@ -223,7 +239,7 @@ int SipClient::run(void* runArg)
 #ifdef LOG_TIME
                 eventTimes.addEvent("locking");
 #endif
-                // Lock to prevent multitreaded read or write
+                // Lock to prevent multi-treaded read or write
                 mSocketLock.acquire();
 
 #ifdef LOG_TIME
@@ -236,33 +252,25 @@ int SipClient::run(void* runArg)
                 {
                    if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
                    {
-                      OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                                    "SipClient::run %p socket %p host: %s "
-                                    "sock addr: %s via addr: %s rcv addr: %s "
+                       OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                                 "SipClient::run %p socket %p host: %s "
+                                 "sock addr: %s via addr: %s rcv addr: %s "
                                     "sock type: %s read ready %s",
-                                    this, clientSocket,
-                                    mRemoteHostName.data(),
-                                    mRemoteSocketAddress.data(),
-                                    mRemoteViaAddress.data(),
-                                    mReceivedAddress.data(),
+                                 this, clientSocket,
+                                 mRemoteHostName.data(),
+                                 mRemoteSocketAddress.data(),
+                                 mRemoteViaAddress.data(),
+                                 mReceivedAddress.data(),
                                     OsSocket::ipProtocolString(clientSocket->getIpProtocol()),
-                                    isReadyToRead() ? "READY" : "NOT READY"
-                         );
+                                 isReadyToRead() ? "READY" : "NOT READY"
+                                 );
                    }
 #ifdef LOG_TIME
                     eventTimes.addEvent("reading");
 #endif
+                    message->setFromThisSide(false);
                     bytesRead = message->read(clientSocket, readBufferSize, &buffer);
 
-#                   if 0 // turn on to check socket read problems
-                    OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                                  "SipClient::run client %p read %d bytes",
-                                  this, bytesRead);
-#                   endif
-
-#ifdef LOG_TIME
-                    eventTimes.addEvent("read");
-#endif
                 }
                 else
                 {
@@ -271,7 +279,6 @@ int SipClient::run(void* runArg)
                                  this);
                     bytesRead = 0;
                 }
-
                 mSocketLock.release();
 
 #ifdef LOG_TIME
@@ -301,12 +308,12 @@ int SipClient::run(void* runArg)
             if(clientSocket // This second check is in case there is
                 // some sort of race with the destructor.  This should
                 // not actually ever happen.
-               && (bytesRead <= 0 || !clientSocket->isOk()))
+               && (bytesRead < 0 || !clientSocket->isOk()))
             {
                 numFailures++;
                 readAMessage = FALSE;
 
-                if(numFailures > 8 || !clientSocket->isOk())
+                if(numFailures > 12 || !clientSocket->isOk())
                 {
                     // The socket has gone sour close down the client
                     remoteHostName.remove(0);
@@ -483,8 +490,8 @@ int SipClient::run(void* runArg)
                                   "SipClient::run buffer residual bytes: %d\n===>%s<===\n",
                                   buffer.length(), buffer.data());
                 }
-            } // if bytesRead > 0
-
+            } 
+            
 #ifdef LOG_TIME
             UtlString timeString;
             eventTimes.getLogString(timeString);
@@ -496,14 +503,14 @@ int SipClient::run(void* runArg)
                 delete message;
             }
             message = NULL;
-        }
-        else
-        {
-           OsSysLog::add(FAC_SIP, PRI_ERR, "SipClient::run client 0%p socket is NULL yielding",
-                         this);
-           yield();  // I do not know why this yield is here
-        }
-    } // while this client is ok
+                }
+                else
+                {
+            OsSysLog::add(FAC_SIP, PRI_ERR, "SipClient::run client 0%p socket is NULL yielding",
+                        this);
+            yield();  // I do not know why this yield is here
+                }
+        } // while this client is ok
 
     return(0);
 }
@@ -651,7 +658,7 @@ UtlBoolean SipClient::sendTo(const SipMessage& message,
        sendOk = FALSE;
     }
 
-    return(sendOk);
+        return(sendOk);
 }
 
 // Assignment operator

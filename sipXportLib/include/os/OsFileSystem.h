@@ -1,10 +1,12 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 
 #ifndef _OsFileSystem_h_
@@ -98,13 +100,15 @@ private:
      //: Removes a directory, files and all sub-dirs
      //: Specify bForce = TRUE to remove files and directories 
      //: even if read-only
-     
+
    static OsStatus createDirRecursive(const OsPath& rOsPath);
      //: Recursively creates a directory and its parents if non-existant
-     
+
 
 };
 
 /* ============================ INLINE METHODS ============================ */
 
 #endif  // _OsFileSystem_h_
+
+

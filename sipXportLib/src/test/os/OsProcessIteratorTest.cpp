@@ -1,9 +1,12 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 #include <cppunit/extensions/HelperMacros.h>
 #include <cppunit/TestCase.h>
@@ -31,7 +34,6 @@ public:
         OsProcessIterator pi;
 
         stat = pi.findFirst(process);
-        KNOWN_BUG("Unknown failure", "XPL-12");
         CPPUNIT_ASSERT_MESSAGE("First process", stat == OS_SUCCESS);
 
         while (stat == OS_SUCCESS)
@@ -52,5 +54,8 @@ public:
     }
 };
 
+#ifdef WINCE
+#pragma message( "OsProcessIteratorTest disabled undef Win CE" )
+#else
 CPPUNIT_TEST_SUITE_REGISTRATION(OsProcessIteratorTest);
-
+#endif

@@ -1,10 +1,12 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 
 // SYSTEM INCLUDES
@@ -150,7 +152,7 @@ OsStatus OsUtil::lookupKeyValue(const UtlString& rPrefix,
    assert(rName != "" || rPrefix != "");
 
    pDict = OsNameDb::getNameDb();
-   return pDict->lookup(rPrefix + rName, pValue);
+   return pDict?pDict->lookup(rPrefix + rName, pValue):OS_NOT_FOUND;
 }
 
 // Convert the value in rStr to an integer.

@@ -24,7 +24,9 @@ distribution.
 
 #include <ctype.h>
 #ifdef _WIN32
-#   include <io.h>
+#   ifndef WINCE
+#       include <io.h>
+#   endif
 #else
 #   include <unistd.h>
 #endif
@@ -1005,20 +1007,20 @@ bool TiXmlDocument::SaveFile( const char * filename ) const
       strcpy(newfilename,filename);
       strcat(newfilename,newsuffix);
    
-      // The old c stuff lives on...
+	// The old c stuff lives on...
       FILE* fp = fopen( newfilename, "w" );
-      if ( fp )
-      {
-         Print( fp, 0 );
+	if ( fp )
+	{
+		Print( fp, 0 );
          fflush( fp ); // flush user space buffers
          fflush(fp); // sync kernel buffers to disk
-         fclose( fp );
+		fclose( fp );
          // file is safe on disk - rename atomically changes it to filename,
          // ensuring that at all times there is a well-formed file on disk.xo
          OsFile tempFile(newfilename);
          tempFile.rename(filename);
          result = true;
-      }
+	}
       delete [] newfilename;
 	}
 	return result;

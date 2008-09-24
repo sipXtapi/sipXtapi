@@ -1,9 +1,12 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
 #include <assert.h>
@@ -11,7 +14,7 @@
 
 // APPLICATION INCLUDES
 #include "os/OsSysLog.h"
-#include <os/linux/OsSharedLibMgrLinux.h>
+#include "os/linux/OsSharedLibMgrLinux.h"
 #include "utl/UtlString.h"
 
 // EXTERNAL FUNCTIONS
@@ -170,23 +173,39 @@ OsStatus OsSharedLibMgrLinux::getSharedLibSymbol(const char* libName,
     return(status);
 }
 
-//: Not yet implemented
 OsStatus OsSharedLibMgrLinux::unloadSharedLib(const char* libName)
 {
-    OsStatus status = OS_NOT_YET_IMPLEMENTED;
+    OsStatus status = OS_INVALID;
+    UtlString collectableName(libName ? libName : "");
+    sLock.acquire();
+    OsSharedLibHandleLinux* collectableLibHandle =
+        (OsSharedLibHandleLinux*) mLibraryHandles.find(&collectableName);
+
+    if(!collectableLibHandle)
+    {
+
+        OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
+            "OsSharedLibMgrLinux::unloadSharedLib library: \"%s\" not loaded yet, nothing to do",
+            collectableName.data());
+
+       sLock.release();
+       return status;
+    }
+
+    if (dlclose(collectableLibHandle->mLibHandle) != 0)
+    {
+       status = OS_FAILED;
+    }
+    else
+    {
+       collectableLibHandle =
+           (OsSharedLibHandleLinux*) mLibraryHandles.remove(&collectableName);
+
+       status = OS_SUCCESS;
+    }
+
+    sLock.release();
     return(status);
-}
-
-
-
-// Assignment operator
-OsSharedLibMgrLinux&
-OsSharedLibMgrLinux::operator=(const OsSharedLibMgrLinux& rhs)
-{
-   if (this == &rhs)            // handle the assignment to self case
-      return *this;
-
-   return *this;
 }
 
 /* ============================ ACCESSORS ================================= */

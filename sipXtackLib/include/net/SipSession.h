@@ -1,10 +1,12 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 #ifndef _SipSession_h_
 #define _SipSession_h_
@@ -97,6 +99,8 @@ public:
    void setLocalRequestUri(UtlString& requestUri);
    void getRemoteRequestUri(UtlString& requestUri);
    void setRemoteRequestUri(UtlString& requestUri);
+   void getContactRequestUri(UtlString& requestContactUri);
+   void setContactRequestUri(UtlString& requestContactUri);
 
    int getSessionState() { return mSessionState;};
 
@@ -118,6 +122,7 @@ protected:
     UtlString mInitialMethod;
     UtlString msLocalRequestUri;
     UtlString msRemoteRequestUri;
+	UtlString msContactUriStr;
     int mInitialLocalCseq;
     int mInitialRemoteCseq;
     int mLastFromCseq;

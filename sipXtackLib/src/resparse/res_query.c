@@ -75,13 +75,19 @@ static char orig_rcsid = "From: Id: res_query.c,v 8.14 1997/06/09 17:47:05 halle
 static char rcsid[] = "";
 #endif /* LIBC_SCCS and not lint */
 
-#include <sys/types.h>
+#ifdef WINCE
+#   include <types.h>
+#else
+#   include <sys/types.h>
+#endif
+#ifndef WINCE /* no errno.h under WinCE */
 #include <errno.h>
+#endif
 
 /* Reordered includes and separated into win/vx --GAT */
 #if defined(_WIN32)
 #   include <resparse/wnt/sys/param.h>
-#   include <winsock.h>
+#   include <winsock2.h>
 #   include <resparse/wnt/netinet/in.h>
 #   include <resparse/wnt/arpa/inet.h>
 #   include <resparse/wnt/arpa/nameser.h>
@@ -398,6 +404,7 @@ char *
 hostalias(name)
     const char *name;
 {
+#ifndef WINCE
     register char *cp1, *cp2;
     FILE *fp;
     char *file;
@@ -433,6 +440,7 @@ hostalias(name)
 		}
 	}
 	fclose(fp);
+#endif
 	return (NULL);
 }
 #endif /* __pingtel_on_posix__ */

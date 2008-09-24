@@ -1,9 +1,15 @@
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 #include <cppunit/extensions/HelperMacros.h>
 #include <cppunit/TestCase.h>
@@ -81,7 +87,7 @@ private :
         const char* testDescription; 
         const char* searchString; 
         int startPosition;  // Specify -1 to ignore this parameter
-        int expectedValue;
+        size_t expectedValue;
     }; 
 
     struct TestCharIndexDataStructure
@@ -89,7 +95,7 @@ private :
         MEMBER_CONST char* testDescription; 
         MEMBER_CONST char searchCharacter; 
         int startPosition;  // Specify -1 to ignore this parameter
-        int expectedValue;
+        size_t expectedValue;
     }; 
 public:
 
@@ -374,7 +380,7 @@ public:
                // Then start + len == 2!
                ~(~((size_t) 0) >> 1) + 1,
                ~(~((size_t) 0) >> 1) + 1,
-               "" },
+               "" }
           }; 
 
        // Go through the table of tests.
@@ -827,14 +833,14 @@ public:
         
         const TestCharstarIndexDataStructure testData[] = { \
                { "Empty char* string", "", -1, 0 }, \
-               { "Non empty char* string", "Some", -1, INDEX_NOT_FOUND} \
+               { "Non empty char* string", "Some", -1, UtlString::UTLSTRING_NOT_FOUND} \
         }; 
 
         UtlString testString(""); 
         const int testCount = sizeof(testData) / sizeof(testData[0]); 
         for (int i =0; i <testCount; i++) 
         {
-            int result = testString.index(testData[i].searchString); 
+            size_t result = testString.index(testData[i].searchString); 
 
             TestUtilities::createMessage(2, &Message, prefix, testData[i].testDescription); 
             CPPUNIT_ASSERT_EQUAL_MESSAGE(Message.data(), testData[i].expectedValue, result); 
@@ -914,7 +920,7 @@ public:
            { "a string if the search were case-insensitive", "test", -1, 11 },  \
            { "a single-character char* string", "s", -1, 2 }, \
            { "a string that only matches once", "string", -1, 4 },  \
-           { "a string that doesn't match", "bzk", -1, INDEX_NOT_FOUND } \
+           { "a string that doesn't match", "bzk", -1, UtlString::UTLSTRING_NOT_FOUND } \
         }; 
         
         const int testCount = sizeof(testData)/sizeof(testData[0]); 
@@ -952,7 +958,7 @@ public:
                }
             }
 
-            int result;
+            size_t result;
             for(int j =0; j < testCount; j++)
             {
                 TestUtilities::createMessage(3, &Message, prefix, \
@@ -981,7 +987,7 @@ public:
                     {
                         bool isContained = (TRUE == testString.contains(testData[j].searchString));
                         bool wasExpectedToContain = (testData[j].expectedValue \
-                                                    != INDEX_NOT_FOUND);
+                                                    != UtlString::UTLSTRING_NOT_FOUND);
                         CPPUNIT_ASSERT_EQUAL_MESSAGE(Message.data(), \
                                           wasExpectedToContain, isContained);
                     }
@@ -1018,8 +1024,8 @@ public:
            { "string that matches, exactly at the position specified", \
                 "string",  4, 4 }, \
            { "string  that is found, but before the specified position", \
-                "string", 5, INDEX_NOT_FOUND}, \
-           { "string that doesn't match", "bad", 2, INDEX_NOT_FOUND }, \
+                "string", 5, UtlString::UTLSTRING_NOT_FOUND}, \
+           { "string that doesn't match", "bad", 2, UtlString::UTLSTRING_NOT_FOUND }, \
            { "string that matches, exactly at the position specified and " \
                 "is the last position", "test", 11, 11 } \
         };      
@@ -1040,7 +1046,7 @@ public:
             {
                suffix = ":- index(char*, pos)";
             }
-            int result;
+            size_t result;
             for(int j =0; j < testCount; j++)
             {
                 if (specifyCase)
@@ -1090,11 +1096,11 @@ public:
               { "an alphanumeric char* string that matches", "an#232", 0, 25}, \
               { "a char* string that matches case-insensitive after position " \
                   "n. Specify position", "and", 4, 16}, \
-              { "a char* string that doesn't match", "bad", 0, INDEX_NOT_FOUND } \
+              { "a char* string that doesn't match", "bad", 0, UtlString::UTLSTRING_NOT_FOUND } \
         }; 
         
         UtlString testString("Teststring test and test an#232 end"); 
-        int result; 
+        size_t result; 
         const int testCount = sizeof(testData) / sizeof(testData[0]) ;
         for (int i =0; i < testCount; i++)
         {
@@ -1140,15 +1146,15 @@ public:
            { "character that matches exactly at the position specified", \
              'n', 3, 3 }, \
            { "character's index is before the specified position", \
-             'n', 4, INDEX_NOT_FOUND }, \
-           { "character is not found in the string", 'z', 0, INDEX_NOT_FOUND } \
+             'n', 4, UtlString::UTLSTRING_NOT_FOUND }, \
+           { "character is not found in the string", 'z', 0, UtlString::UTLSTRING_NOT_FOUND } \
              
         }; 
 
         const int testCount = sizeof(testData)/sizeof(testData[0]);
         for(int j =0; j < testCount; j++)
         {
-            int result = ts.index(testData[j].searchCharacter, testData[j].startPosition);
+            size_t result = ts.index(testData[j].searchCharacter, testData[j].startPosition);
             TestUtilities::createMessage(3, &Message, prefix, \
                 testData[j].testDescription, suffix); 
             CPPUNIT_ASSERT_EQUAL_MESSAGE(Message.data(), \
@@ -1213,7 +1219,7 @@ public:
             { "a character that would have matched at 0 location if the search were " \
               "case-insensitive",  'D', 0, 6 }, \
             { "the last character", 'y', 0, 8}, \
-            { "a character that is not found in the string", 'z', 0, INDEX_NOT_FOUND } \
+            { "a character that is not found in the string", 'z', 0, UtlString::UTLSTRING_NOT_FOUND } \
         }; 
         
         bool specifyPosition = false; 
@@ -1247,7 +1253,7 @@ public:
                    suffix = ":- contains()"; 
                }
             }
-            int result;
+            size_t result;
             for(int j =0; j < testCount; j++)
             {
                 TestUtilities::createMessage(3, &Message, prefix, \
@@ -1307,13 +1313,13 @@ public:
            { "a character that would have matched multiple times, if " \
              "the search were case-insensitive", 'd', -1, 2 }, \
            { "a non alpha character", ' ', -1, 9 }, \
-           { "a character that is not present", 'z', -1, INDEX_NOT_FOUND } \
+           { "a character that is not present", 'z', -1, UtlString::UTLSTRING_NOT_FOUND } \
         }; 
         
         const int testCount = sizeof(testData)/sizeof(testData[0]); 
         for (int i = 0; i < testCount; i++)
         {
-            int result = testString.last(testData[i].searchCharacter); 
+            size_t result = testString.last(testData[i].searchCharacter); 
             TestUtilities::createMessage(2, &Message, prefix, \
                 testData[i].testDescription); 
             CPPUNIT_ASSERT_EQUAL_MESSAGE(Message.data(), \
@@ -1337,15 +1343,15 @@ public:
         for (int i = 0; i < commonTestSetLength; i++)
         {
             UtlString ts(commonTestSet[i].input); 
-            int originalLength = ts.length(); 
+            size_t originalLength = ts.length(); 
             // Do some operations which modifies the string's size
             ts.prepend("123"); 
             ts.append("45"); 
             ts.insert(3, UtlString("687")); 
             ts.replace(5, 1, "89"); 
 
-            int expectedMutate = commonTestSet[i].length + 9; 
-            int actualMutate = ts.length(); 
+            size_t expectedMutate = commonTestSet[i].length + 9; 
+            size_t actualMutate = ts.length(); 
              
             string Message;       
             TestUtilities::createMessage(3, &Message, prefix, \
@@ -1374,17 +1380,17 @@ public:
         testString1.capacity(256);  
         testString2.append("12", 4);
         
-        int actualLength;
+        size_t actualLength;
 
         actualLength = testString1.length(); 
         TestUtilities::createMessage(2, &Message, prefix, \
             "When the capacity as been explicitly set to a large value"); 
-        CPPUNIT_ASSERT_EQUAL_MESSAGE(Message.data(), 8, actualLength); 
+        CPPUNIT_ASSERT_EQUAL_MESSAGE(Message.data(), (size_t)8, actualLength); 
     
         actualLength = testString2.length(); 
         TestUtilities::createMessage(2, &Message, prefix, \
             "When a non-null terminated string has been appended"); 
-        CPPUNIT_ASSERT_EQUAL_MESSAGE(Message.data(), 8, actualLength); 
+        CPPUNIT_ASSERT_EQUAL_MESSAGE(Message.data(), (size_t)8, actualLength); 
     }
 
 

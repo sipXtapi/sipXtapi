@@ -1,9 +1,12 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
 
@@ -15,6 +18,7 @@
 #include "PhoneStateIdle.h"
 #include "PhoneStateDisconnectRequested.h"
 #include "../sipXezPhoneApp.h"
+#include "PhoneStateTransferRequested.h"
 
 
 // EXTERNAL FUNCTIONS
@@ -37,15 +41,27 @@ PhoneState* PhoneStateCallHeldRemotely::OnFlashButton()
    return (new PhoneStateDisconnectRequested());
 }
 
-PhoneState* PhoneStateCallHeldRemotely::OnDisconnected()
+PhoneState* PhoneStateCallHeldRemotely::OnDisconnected(const SIPX_CALL hCall)
 {
-   sipXmgr::getInstance().disconnect();
-   return (new PhoneStateIdle());
+   if (hCall == sipXmgr::getInstance().getCurrentCall())
+   {
+      sipXmgr::getInstance().disconnect(hCall, false);
+      return (new PhoneStateIdle());
+   }
+   else
+   {
+      return this;
+   }
 }
 
 PhoneState* PhoneStateCallHeldRemotely::OnConnected()
 {
     return (new PhoneStateConnected());    
+}
+
+PhoneState* PhoneStateCallHeldRemotely::OnTransferRequested(const wxString phoneNumber)
+{
+    return (new PhoneStateTransferRequested(phoneNumber));
 }
 
 PhoneState* PhoneStateCallHeldRemotely::Execute()

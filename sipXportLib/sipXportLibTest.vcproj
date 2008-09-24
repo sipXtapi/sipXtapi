@@ -19,7 +19,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="include;src/test"
+				AdditionalIncludeDirectories="include;src\test;..\CPPUnit\include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
@@ -28,17 +28,15 @@
 				UsePrecompiledHeader="2"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="TRUE"
-				DebugInformationFormat="4"/>
+				DebugInformationFormat="3"/>
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="msvcrtd.lib MSVCPRTD.lib wsock32.lib cppunitd.lib sipXportLib.lib libpcre.a"
-				OutputFile="$(OutDir)/sipXportLibTest.exe"
-				LinkIncremental="2"
-				AdditionalLibraryDirectories=".\Debug"
+				AdditionalDependencies="Ws2_32.lib cppunitd.lib pcre.lib"
+				LinkIncremental="1"
+				AdditionalLibraryDirectories="..\CPPUnit\lib"
 				GenerateDebugInformation="TRUE"
-				ProgramDatabaseFile="$(OutDir)/sipXportLibTest.pdb"
 				SubSystem="1"
 				TargetMachine="1"/>
 			<Tool
@@ -70,9 +68,10 @@
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalIncludeDirectories="include;src/test;..\CPPUnit\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
-				RuntimeLibrary="4"
-				UsePrecompiledHeader="3"
+				RuntimeLibrary="2"
+				UsePrecompiledHeader="2"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="TRUE"
 				DebugInformationFormat="3"/>
@@ -80,12 +79,10 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="$(OutDir)/sipXportLibTest.exe"
+				AdditionalDependencies="Ws2_32.lib cppunit.lib pcre.lib"
 				LinkIncremental="1"
-				GenerateDebugInformation="TRUE"
+				AdditionalLibraryDirectories="..\CPPUnit\lib"
 				SubSystem="1"
-				OptimizeReferences="2"
-				EnableCOMDATFolding="2"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCMIDLTool"/>
@@ -123,6 +120,12 @@
 				RelativePath=".\src\test\os\OsConfigDbTest.cpp">
 			</File>
 			<File
+				RelativePath=".\src\test\os\OsContactListTest.cpp">
+			</File>
+			<File
+				RelativePath=".\src\test\os\OsContactTest.cpp">
+			</File>
+			<File
 				RelativePath=".\src\test\os\OsDirTest.cpp">
 			</File>
 			<File
@@ -139,6 +142,9 @@
 			</File>
 			<File
 				RelativePath=".\src\test\os\OsLockTest.cpp">
+			</File>
+			<File
+				RelativePath=".\src\test\os\OsMsgDispatcherTest.cpp">
 			</File>
 			<File
 				RelativePath=".\src\test\os\OsMsgQTest.cpp">
@@ -165,6 +171,12 @@
 				RelativePath=".\src\test\os\OsSemTest.cpp">
 			</File>
 			<File
+				RelativePath=".\src\test\os\OsServerTaskTest.cpp">
+			</File>
+			<File
+				RelativePath=".\src\test\os\OsSharedLibMgrTest.cpp">
+			</File>
+			<File
 				RelativePath=".\src\test\os\OsSocketTest.cpp">
 			</File>
 			<File
@@ -174,37 +186,16 @@
 				RelativePath=".\src\test\os\OsTimerTaskTest.cpp">
 			</File>
 			<File
+				RelativePath=".\src\test\os\OsTimerTest.cpp">
+			</File>
+			<File
 				RelativePath=".\src\test\os\OsTimeTest.cpp">
 			</File>
 			<File
-				RelativePath=".\src\test\sipxunit\TestMonitor.cpp">
+				RelativePath=".\src\test\os\StunMessageTest.cpp">
 			</File>
 			<File
-				RelativePath=".\src\test\sipxunit\TestMonitor.h">
-			</File>
-			<File
-				RelativePath=".\src\test\sipxunit\TestOutputter.cpp">
-			</File>
-			<File
-				RelativePath=".\src\test\sipxunit\TestOutputter.h">
-			</File>
-			<File
-				RelativePath=".\src\test\sipxunit\TestRunner.cpp">
-			</File>
-			<File
-				RelativePath=".\src\test\sipxunit\TestRunner.h">
-			</File>
-			<File
-				RelativePath=".\src\test\sipxunit\TestTemplate.cpp">
-			</File>
-			<File
-				RelativePath=".\src\test\sipxunit\TestUtilities.cpp">
-			</File>
-			<File
-				RelativePath=".\src\test\sipxunit\TestUtilities.h">
-			</File>
-			<File
-				RelativePath=".\src\test\sipxunit\unitmain.cpp">
+				RelativePath=".\src\test\os\TurnMessageTest.cpp">
 			</File>
 			<File
 				RelativePath=".\src\test\utl\UtlChainTest.cpp">
@@ -213,22 +204,49 @@
 				RelativePath=".\src\test\utl\UtlContainableTestStub.cpp">
 			</File>
 			<File
-				RelativePath=".\src\test\utl\UtlContainableTestStub.h">
+				RelativePath=".\src\test\utl\UtlCrc32Test.cpp">
 			</File>
 			<File
-				RelativePath=".\src\test\utl\UtlPerformanceStrings.h">
+				RelativePath=".\src\test\utl\UtlDList.cpp">
+			</File>
+			<File
+				RelativePath=".\src\test\utl\UtlHashBag.cpp">
+			</File>
+			<File
+				RelativePath=".\src\test\utl\UtlHashBagIterator.cpp">
+			</File>
+			<File
+				RelativePath=".\src\test\utl\UtlHashMap.cpp">
+			</File>
+			<File
+				RelativePath=".\src\test\utl\UtlHashMapIterator.cpp">
+			</File>
+			<File
+				RelativePath=".\src\test\utl\UtlInt.cpp">
+			</File>
+			<File
+				RelativePath=".\src\test\utl\UtlLinkTest.cpp">
+			</File>
+			<File
+				RelativePath=".\src\test\utl\UtlLongLongInt.cpp">
+			</File>
+			<File
+				RelativePath=".\src\test\utl\UtlRegex.cpp">
+			</File>
+			<File
+				RelativePath=".\src\test\utl\UtlSList.cpp">
 			</File>
 			<File
 				RelativePath=".\src\test\utl\UtlSListIteratorTest.cpp">
+			</File>
+			<File
+				RelativePath=".\src\test\utl\UtlSortedList.cpp">
 			</File>
 			<File
 				RelativePath=".\src\test\utl\UtlSortedListIteratorTest.cpp">
 			</File>
 			<File
 				RelativePath=".\src\test\utl\UtlStringTest.cpp">
-			</File>
-			<File
-				RelativePath=".\src\test\utl\UtlStringTest.h">
 			</File>
 			<File
 				RelativePath=".\src\test\utl\UtlStringTest_ConstructiveManipulators.cpp">
@@ -243,6 +261,9 @@
 				RelativePath=".\src\test\utl\UtlTokenizerTest.cpp">
 			</File>
 			<File
+				RelativePath=".\src\test\utl\UtlVoidPtr.cpp">
+			</File>
+			<File
 				RelativePath=".\src\test\utl\XmlContentTest.cpp">
 			</File>
 		</Filter>
@@ -255,6 +276,21 @@
 			</File>
 			<File
 				RelativePath=".\stdafx.h">
+			</File>
+			<File
+				RelativePath=".\src\test\os\StunMessageTest.h">
+			</File>
+			<File
+				RelativePath=".\src\test\os\TurnMessageTest.h">
+			</File>
+			<File
+				RelativePath=".\src\test\utl\UtlContainableTestStub.h">
+			</File>
+			<File
+				RelativePath=".\src\test\utl\UtlPerformanceStrings.h">
+			</File>
+			<File
+				RelativePath=".\src\test\utl\UtlStringTest.h">
 			</File>
 		</Filter>
 		<Filter

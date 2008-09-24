@@ -12,7 +12,7 @@ PCRE - Perl Compatible Regular Expression Library
 Cppunit 1.10.2 - Unitesting framework for C++
   http://cppunit.sourceforge.net/
 
-OpenSSL 0.9.7a - Security Library
+OpenSSL 0.9.7.c - Security Library
   http://www.openssl.org
 
 *Autoconf 2.57 & Automake 1.6 - GNU build tool chain
@@ -401,7 +401,7 @@ In a shell type:
   fink update-all
 
 In a shell type:
-  fink install glib2-dev pkgconfig libtool pcre openssl097-dev ant
+  fink install pkgconfig libtool pcre openssl097-dev ant
 
 In a shell type:
   fink install svn-client-ssl

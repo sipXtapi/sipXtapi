@@ -1,9 +1,12 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 #ifndef _h_sipxezphoneframe
 #define _h_sipxezphoneframe
 
@@ -11,6 +14,7 @@
 // APPLICATION INCLUDES
 #include "sipXezPhoneAboutDlg.h"
 #include "ConferencePanel.h"
+#include "MainPanel.h"
 
 #ifdef _WIN32
 #include <windows.h>
@@ -20,6 +24,11 @@
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
+enum AUTO_POSITION {
+    POSITION_INIT,
+    POSITION_SAVE,
+    POSITION_STATE
+};
 // STRUCTS
 // TYPEDEFS
 // FORWARD DECLARATIONS
@@ -37,10 +46,16 @@ public:
    /**
     * Contructor.
     */
-    sipXezPhoneFrame(const wxString& title, const wxPoint& pos, const wxSize& size);
+    sipXezPhoneFrame(const wxString& title, const wxPoint& pos, const wxSize& size, bool bLogo);
 
  
 /* ============================ MANIPULATORS ============================== */
+
+   /**
+    * Auto-position windows
+    */
+    void autoPosition(enum AUTO_POSITION evt);
+
    /**
     * EventHandler for the Configuration menu item.
     */
@@ -72,6 +87,7 @@ public:
      */
     void OnTestDNS(wxCommandEvent& WXUNUSED(event));
 
+    void OnAVWizard(wxCommandEvent& WXUNUSED(event));
     
 #ifdef VOICE_ENGINE
     /** 
@@ -135,6 +151,16 @@ public:
     void OnSrtpSettings(wxCommandEvent& event);
 
    /**
+    * Event handler for importing a pkcs12 with a private key
+    */
+    void OnImportCertificate(wxCommandEvent& event);
+    
+    /**
+     * Event handler for selecting the capture device.
+     */
+    void OnCameraSettings(wxCommandEvent& event);
+    
+   /**
     * EventHandler for the Playfile menu item.
     */
     void OnPlayFile(wxCommandEvent& event);
@@ -155,10 +181,49 @@ public:
     void OnShowEventLog(wxCommandEvent& event);
 
     /**
+     * EventHandler for the renegotiate codecs item
+     */
+    void OnRenegotiate(wxCommandEvent& event);
+
+    /**
+     * EventHandler for the Prepare for Hibernate test
+     */
+    void OnPrepareForHibernate(wxCommandEvent& event);
+    
+    /**
+     * EventHandler for the UnHibernate test
+     */
+    void OnUnHibernate(wxCommandEvent& event);
+    /**
      * EventHandler for the Show Sys Log menu item.
      */
     void OnShowSysLog(wxCommandEvent& event) ;
-      
+
+    /**
+     * EventHandler for selecting a contact
+     */
+    void OnSelectContact(wxCommandEvent& event) ;
+
+    /** 
+     * Event updater (For checking) the selected contact
+     */
+    void OnUpdateContact(wxUpdateUIEvent& event) ;
+
+    /**
+     * EventHandler for displaying current contacts
+     */
+    void OnDisplayContacts(wxCommandEvent& event) ;
+
+    /**
+     * EventHandler for changing background color
+     */
+    void OnColorDialog(wxCommandEvent& event) ;
+
+    /**
+     * EventHandler for testing tabbed controls
+     */
+    void OnTabs(wxCommandEvent& event) ;
+     
     
 /* ============================ ACCESSORS ================================= */
 
@@ -208,14 +273,21 @@ private:
     sipXezPhoneAboutDlg* m_pAboutDlg;
     wxMenu *mpMenuSettings;
     wxMenu *mpMenuTest;
+    wxMenu *mpMenuContactSelection;
+    MainPanel *mpMainPanel;
     bool mBoolMinimalView;
-    wxDialog* mpCallHistoryWnd;
+    wxDialog* mpCallHistory;
     wxDialog* mpVideoPanel;
     ConferencePanel* mpConferencingWnd;
+    VideoPanel* mpVideoWindow;
+    CallHistoryPanel* mpCallHistoryWnd;
     bool mCallHistoryVisible;
     bool mVideoVisible;
     bool mConferencingVisible;
     EventLogDlg* mpEventLogDlg;
+    int mOrigWidth;
+    int mOrigHeight;
+    bool mbLogo;
 #ifdef _WIN32
     //void registerVideoWindowClasses();
     //HWND mhPreviewWnd;

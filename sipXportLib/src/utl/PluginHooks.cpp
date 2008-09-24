@@ -1,9 +1,12 @@
-// 
-// Copyright (C) 2005 Pingtel Corp.
+//
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
-//////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
 
@@ -30,22 +33,22 @@
 // FORWARD DECLARATIONS
 // GLOBAL VARIABLES
 
-// ConfiguredHook is the container used to hold each Plugin.
-/*
- * ConfiguredHook inherits from UtlString so that it will be a
- * UtlContainable and will be identifiable by its configured prefix name.
- */
+/// ConfiguredHook is the container used to hold each Plugin.
+/**
+*  ConfiguredHook inherits from UtlString so that it will be a
+*  UtlContainable and will be identifiable by its configured prefix name.
+*/
 class ConfiguredHook : public UtlString
 {
 public:
 
-   // load the library for a hook and use its factory to get a new instance.
+     // Load the library for a hook and use its factory to get a new instance.
    ConfiguredHook(const UtlString& hookPrefix,
                   const UtlString& hookFactoryName,
                   const UtlString& libName
                   )
-      : UtlString(hookPrefix),
-        hook(NULL)
+      : UtlString(hookPrefix)
+      , hook(NULL)
       {
          OsSharedLibMgrBase* sharedLibMgr = OsSharedLibMgr::getOsSharedLibMgr();
 
@@ -56,8 +59,7 @@ public:
             if (OS_SUCCESS == sharedLibMgr->getSharedLibSymbol(libName.data(),
                                                                hookFactoryName,
                                                                (void*&)factory
-                                                               )
-                )
+                                                               ))
             {
                // Use the factory to get an instance of the hook
                // and tell the new instance its own name.
@@ -86,13 +88,13 @@ public:
 
    ~ConfiguredHook()
       {
-         // don't try to unload any libraries
-         // it's not worth the complexity of reference counting it
+         // Don't try to unload any libraries.
+         // It does not worth the complexity of reference counting if
          // the same library could be configured more than once with
          // different hook names and parameters.
       }
    
-   /// Get the name of this hook.
+     /// Get the name of this hook.
    void name(UtlString* hookName) const
       {
          if (hookName)
@@ -102,13 +104,13 @@ public:
          }
       }
 
-   /// Get the actual hook object.
+     /// Get the actual hook object.
    Plugin* plugin() const
       {
          return hook;
       }
 
-   /// Construct the subhash for the hook and configure it.
+     /// Construct the subhash for the hook and configure it.
    void readConfig(const UtlString& prefix, OsConfigDb& configDb)
       {
          if (hook)
@@ -133,7 +135,7 @@ public:
             else
             {
                OsSysLog::add(FAC_KERNEL, PRI_CRIT,
-                             "PluginHooks no configuration found for instance '%s'",
+                             "ConfiguredHook:: no configuration found for instance '%s'",
                              data()
                              );
             }
@@ -146,11 +148,11 @@ private:
 };
 
 
-PluginHooks::PluginHooks(const char* hookFactoryName, // the prefix name for the OsConfigDb values
-                         const char* hookPrefix       // the prefix name for the OsConfigDb values
+PluginHooks::PluginHooks(const char* hookFactoryName,
+                         const char* hookPrefix
                          )
-   : mFactory(hookFactoryName),
-     mPrefix(hookPrefix)
+: mFactory(hookFactoryName)
+, mPrefix(hookPrefix)
 {
 }
 
@@ -236,8 +238,12 @@ size_t PluginHooks::entries() const
    return mConfiguredHooks.entries();
 }
 
-PluginIterator::PluginIterator( const PluginHooks& pluginHooks ) :
-   mConfiguredHooksIterator(pluginHooks.mConfiguredHooks)
+PluginIterator::PluginIterator(const PluginHooks& pluginHooks)
+: mConfiguredHooksIterator(pluginHooks.mConfiguredHooks)
+{
+}
+
+PluginIterator::~PluginIterator()
 {
 }
 
@@ -252,7 +258,8 @@ Plugin* PluginIterator::next(UtlString* name)
    }
    
    // step the parent iterator on the mConfiguredHooks list
-   ConfiguredHook* nextHook = static_cast<ConfiguredHook*>(mConfiguredHooksIterator());
+   ConfiguredHook* nextHook =
+         static_cast<ConfiguredHook*>(mConfiguredHooksIterator());
    if (nextHook)
    {
       nextHook->name(name); // return the name, if it's been asked for
@@ -260,8 +267,4 @@ Plugin* PluginIterator::next(UtlString* name)
    }
 
    return nextPlugin;
-}
-
-PluginIterator::~PluginIterator()
-{
 }

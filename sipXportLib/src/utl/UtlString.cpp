@@ -1,16 +1,12 @@
 //
-//
-// Copyright (C) 2005-2006 SIPez LLC.
-// Licensed to SIPfoundry under a Contributor Agreement.
-//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
-// Copyright (C) 2004-2006 Pingtel Corp.
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-//////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 
 // SYSTEM INCLUDES
@@ -96,6 +92,10 @@ UtlString::UtlString(const UtlString& source, size_t length)
     append(source.mpData, length);
 }
 
+UtlCopyableContainable* UtlString::clone() const
+{
+   return new UtlString(*this);
+}
 
 // Destructor
 UtlString::~UtlString()
@@ -114,13 +114,17 @@ UtlString::~UtlString()
 // Assignment operator, use append(const char*).
 UtlString& UtlString::operator=(const char* szStr)
 {
-    remove(0);
-    if(szStr && *szStr)
-    {
-        append(szStr);
-    }
+   // check for self assignment
+   if (mpData != szStr)
+   {
+      remove(0);
+      if(szStr && *szStr)
+      {
+         append(szStr);
+      }
+   }
 
-    return *this;
+   return *this;
 }
 
 
@@ -592,9 +596,8 @@ void UtlString::toUpper()
 
 // Resize the string to the specified size.
 // use capacity(size_t).
-void UtlString::resize(size_t N)
+void UtlString::resize(size_t N, UtlBoolean clearTail)
 {
-    // CHECK: is this what it is suppoesed to do???
     if(N > mSize)
     {
         if (mCapacity <= N)
@@ -602,13 +605,20 @@ void UtlString::resize(size_t N)
             capacity(N + 1);
         }
 
-        if(mpData)
+        if (clearTail)
         {
-            for (; mSize < N; mSize++)
+            if (mpData)
             {
+                for (; mSize < N; mSize++)
+                {
+                    mpData[mSize] = '\0';
+                }
                 mpData[mSize] = '\0';
             }
-            mpData[mSize] = '\0';
+        } 
+        else
+        {
+            mSize = N;
         }
     }
     else

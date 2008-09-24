@@ -1,9 +1,12 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 #include <cppunit/extensions/HelperMacros.h>
 #include <cppunit/TestCase.h>
@@ -14,6 +17,7 @@
 
 #include <os/OsDefs.h>
 
+#include <utl/UtlDefs.h>
 #include <utl/UtlInt.h>
 #include <utl/UtlString.h>
 #include <utl/UtlSList.h>
@@ -57,7 +61,6 @@ class UtlSListTest : public  CppUnit::TestCase
 
 private:
 
-    static const int INDEX_NOT_EXIST ; 
     static const int commonEntriesCount ; 
 
     UtlSList commonList ; 
@@ -544,7 +547,7 @@ public:
                  commonContainables_Clone[2], &noExist \
        } ; 
 
-       int expectedValues_Index[] = { 0, 7, 4, 1, 2, 4, INDEX_NOT_EXIST } ; 
+       size_t expectedValues_Index[] = { 0, 7, 4, 1, 2, 4, UTL_NOT_FOUND } ; 
  
        bool expectedValues_Contains[]    = {true, true, true, true, true, true, false } ;
        bool expectedValues_ContainsRef[] = {true, true, true, true, true, false, false} ; 
@@ -565,7 +568,7 @@ public:
            string msg ; 
            if (type == TEST_INDEX) 
            {
-               int actual = commonList.index(searchValues[i]) ; 
+               size_t actual = commonList.index(searchValues[i]) ; 
                TestUtilities::createMessage(2, &msg, prefixIndex, Msgs[i]) ; 
                CPPUNIT_ASSERT_EQUAL_MESSAGE(msg.data(), expectedValues_Index[i], actual) ; 
            } 
@@ -624,12 +627,12 @@ public:
                    commonContainables[2], commonContainables_Clone[3], \
                    commonContainables[4], &notExistCollectable \
         } ;        
-        int matchCount[] = { 1, 1, 1, 1, 3, 0 } ; 
+        size_t matchCount[] = { 1, 1, 1, 1, 3, 0 } ; 
         for (int i = 0 ; i < testCount ; i++)
         {
             string msg ; 
             TestUtilities::createMessage(2, &msg, prefix, Msgs[i]) ; 
-            int actual = commonList.occurrencesOf(searchValues[i]) ; 
+            size_t actual = commonList.occurrencesOf(searchValues[i]) ; 
             CPPUNIT_ASSERT_EQUAL_MESSAGE(msg.data(), matchCount[i], actual) ; 
         }
     } //testOccurancesOf
@@ -962,7 +965,6 @@ public:
 
 };
 
-const int UtlSListTest::INDEX_NOT_EXIST = -1; 
 const int UtlSListTest::commonEntriesCount = 6; 
 const char* UtlSListTest::longAlphaNumString = \
                    "abcdefghijklmnopqrstuvwzyz"

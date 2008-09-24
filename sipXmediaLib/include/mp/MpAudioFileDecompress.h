@@ -1,10 +1,15 @@
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2005 Pingtel Corp.
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 
 #ifndef MP_AUDIO_FILE_DECOMPRESS_H
@@ -16,6 +21,7 @@
 #include "mp/MpAudioAbstract.h"
 
 /* =========================CLASS AbstractDecompressor=========================== */
+
 class AbstractDecompressor {
 protected:
    MpAudioAbstract &_dataSource;  // The object to get raw bytes from
@@ -29,7 +35,7 @@ public:
 };
 
 /* ==========================CLASS DecompressPcm8Signed========================= */
-//:Class DecompressPcm8Signed
+
 class DecompressPcm8Signed: public AbstractDecompressor {
 public:
    DecompressPcm8Signed(MpAudioAbstract &a);
@@ -39,8 +45,8 @@ public:
 };
 
 /* ==========================CLASS DecompressPcm8Unsigned======================= */
+
 class DecompressPcm8Unsigned: public AbstractDecompressor 
-// class DecompressPcm8Unsigned 
 {
 public:
    DecompressPcm8Unsigned(MpAudioAbstract &a);
@@ -50,7 +56,7 @@ public:
 };
 
 /* ==================== CLASS DecompressPcm16MsbSigned=========================== */
-// class DecompressPcm16MsbSigned
+
 class DecompressPcm16MsbSigned: public AbstractDecompressor {
 public:
    DecompressPcm16MsbSigned(MpAudioAbstract &a);
@@ -60,7 +66,7 @@ public:
 };
 
 /* ==========================CLASS DecompressPcm16LsbSigned======================= */
-//:DecompressPcm16LsbSigned
+
 class DecompressPcm16LsbSigned: public AbstractDecompressor {
 public:
 
@@ -71,7 +77,7 @@ public:
 };
 
 /* ==========================CLASS DecompressG711MuLaw======================= */
-//:DecompressG711MuLaw
+
 class DecompressG711MuLaw: public AbstractDecompressor {
 public:
    DecompressG711MuLaw(MpAudioAbstract &a);
@@ -82,7 +88,6 @@ AudioSample MuLawDecode(AudioByte);
 AudioByte MuLawEncode(AudioSample);
 
 /* ==========================CLASS DecompressG711ALaw======================= */
-//:DecompressG711ALaw
 
 class DecompressG711ALaw: public AbstractDecompressor {
 private:

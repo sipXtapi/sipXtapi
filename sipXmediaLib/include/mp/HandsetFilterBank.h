@@ -1,10 +1,15 @@
+//  
+// Copyright (C) 2006-2007 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2005 Pingtel Corp.
+// Copyright (C) 2004-2007 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 #ifndef _HandsetFilterBank_ /* [ */
 #define _HandsetFilterBank_
@@ -19,13 +24,14 @@ class HandsetFilterBank
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
-   void DoHandsetFilterBank(short *, short *, short *); // (mic_out, mic_in, spkr)
+   void DoHandsetFilterBank(MpAudioSample *, MpAudioSample *, MpAudioSample *); // (mic_out, mic_in, spkr)
    void HandsetFilterBankInit();
    void HandsetFilterBankReinit();
 
 
 /* ============================ CREATORS ================================== */
-
+///@name Creators
+//@{
    HandsetFilterBank();
      //:Constructor
 
@@ -73,6 +79,7 @@ private:
 	void HandsetComputeLoudspeakerFade();
 	void HandsetEchoSuppress(icomplex [][HS_M+1],int);
 
+//@}
 
 };
 

@@ -1,10 +1,12 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 
 #ifndef _SipTransaction_h_
@@ -33,9 +35,12 @@
 // FORWARD DECLARATIONS
 class SipMessage;
 class SipUserAgent;
-class SipTransactionList;
 class OsEvent;
 class OsTimer;
+class SIPX_TRANSPORT_DATA;
+class SipTransactionList;
+
+//#include "tapi/sipXtapiInternal.h"
 
 /** SipTransaction correlates requests and responses.
  * 
@@ -110,31 +115,36 @@ public:
     UtlBoolean handleOutgoing(SipMessage& outgoingMessage,
                              SipUserAgent& userAgent,
                              SipTransactionList& transactionList,
-                             enum messageRelationship relationship);
+                             enum messageRelationship relationship,
+                             SIPX_TRANSPORT_DATA* pTransport = NULL);
 
     void handleResendEvent(const SipMessage& outgoingMessage,
                             SipUserAgent& userAgent,
                             enum messageRelationship relationship,
                             SipTransactionList& transactionList,
                             int& nextTimeout,
-                            SipMessage*& delayedDispatchedMessage);
+                            SipMessage*& delayedDispatchedMessage,
+                            SIPX_TRANSPORT_DATA* pTransport);
 
     void handleExpiresEvent(const SipMessage& outgoingMessage,
                             SipUserAgent& userAgent,
                             enum messageRelationship relationship,
                             SipTransactionList& transactionList,
                             int& nextTimeout,
-                            SipMessage*& delayedDispatchedMessage);
+                            SipMessage*& delayedDispatchedMessage,
+                            SIPX_TRANSPORT_DATA* pTransport);
 
     UtlBoolean handleIncoming(SipMessage& incomingMessage,
                              SipUserAgent& userAgent,
                              enum messageRelationship relationship,
                              SipTransactionList& transactionList,
-                             SipMessage*& delayedDispatchedMessage);
+                             SipMessage*& delayedDispatchedMessage,
+                             SIPX_TRANSPORT_DATA* pTransport);
 
     void removeTimer(OsTimer* timer);
 
     void stopTimers() ;
+    void startTimers();
     void deleteTimers();
 
 /* ============================ Deprecated ============================== */
@@ -255,6 +265,9 @@ public:
     // Has this URI been recursed anywhere at or below in this transaction tree already
     // Look at or below the current transaction in the transaction tree
 
+    void setTransport(SIPX_TRANSPORT_DATA* pTransport) { mpTransport = pTransport; }
+    // Mutator for mpTransport.
+
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
     void handleChildTimeoutEvent(SipTransaction& child,
@@ -263,7 +276,8 @@ protected:
                                  enum messageRelationship relationship,
                                  SipTransactionList& transactionList,
                                  int& nextTimeout,
-                                 SipMessage*& delayedDispatchedMessage);
+                                 SipMessage*& delayedDispatchedMessage,
+                                 SIPX_TRANSPORT_DATA* pTransport);
     //: tells the parent transaction the result of the timeout event
 
     UtlBoolean handleChildIncoming(//SipTransaction& child,
@@ -272,12 +286,14 @@ protected:
                                   enum messageRelationship relationship,
                                   SipTransactionList& transactionList,
                                   UtlBoolean childSaysShouldDispatch,
-                                  SipMessage*& delayedDispatchedMessage);
+                                  SipMessage*& delayedDispatchedMessage,
+                                  SIPX_TRANSPORT_DATA* pTransport);
     //: Tells the parent transaction the result of the incoming message
     //! returns: TRUE/FALSE as to whether the message should be dispatched to applications
 
     UtlBoolean startSequentialSearch(SipUserAgent& userAgent,
-                                    SipTransactionList& transactionList);
+                                    SipTransactionList& transactionList,
+                                    SIPX_TRANSPORT_DATA* pTransport);
     //: Checks to see if a final response can be sent or if sequential search should be started
 
     UtlBoolean recurseChildren(SipUserAgent& userAgent,
@@ -285,7 +301,8 @@ protected:
     //: Starts search on any immediate children of the highest unpursued Q value
 
     UtlBoolean recurseDnsSrvChildren(SipUserAgent& userAgent,
-                              SipTransactionList& transactionList);
+                              SipTransactionList& transactionList,
+                              SIPX_TRANSPORT_DATA* pTransport);
     //: Starts search on any immediate DNS SRV children of the highest unpursued Q value
 
     UtlBoolean findBestResponse(SipMessage& bestResponse);
@@ -311,14 +328,16 @@ private:
 
     UtlBoolean doResend(SipMessage& resendMessage,
                        SipUserAgent& userAgent,
-                       int& nextTimeoutMs);
+                       int& nextTimeoutMs,
+                       SIPX_TRANSPORT_DATA* pTransport);
 
     UtlBoolean doFirstSend(SipMessage& message,
                           enum messageRelationship relationship,
                           SipUserAgent& userAgent,
                           UtlString& toAddress,
                           int& port,
-                          OsSocket::IpProtocolSocketType& toProtocol);
+                          OsSocket::IpProtocolSocketType& toProtocol,
+                          SIPX_TRANSPORT_DATA* pTransport);
 
     void prepareRequestForSend(SipMessage& request,
                                SipUserAgent& userAgent,
@@ -374,6 +393,9 @@ private:
     UtlString mBusyTaskName;
     UtlSList* mWaitingList;    /**< Events waiting until this is available
                                 * Note only a parent tx should have a waiting list */
+    SIPX_TRANSPORT_DATA* mpTransport; 
+    //: An optional external transport mechanism pointer.  If this value is non-null, the
+    //: transaction will use the SipUserAgent::sendCustom method, instead of sendUdp, sendTcp, etc.
 
 };
 

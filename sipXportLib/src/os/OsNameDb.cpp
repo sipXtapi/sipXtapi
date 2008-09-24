@@ -1,16 +1,23 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 
 // SYSTEM INCLUDES
 #include <assert.h>
 
 // APPLICATION INCLUDES
+
+// Keep OsNameDbInit.h as the first include!
+// See OsNameDbInit class description for more information.
+#include "os/OsNameDbInit.h"
+
 #include "os/OsNameDb.h"
 #include "os/OsReadLock.h"
 #include "os/OsWriteLock.h"
@@ -25,23 +32,15 @@
 static const int DEFAULT_NAMEDB_SIZE = 100;
 
 // STATIC VARIABLE INITIALIZATIONS
-OsNameDb* OsNameDb::spInstance = NULL;
-OsBSem*   OsNameDb::spLock = new OsBSem(OsBSem::Q_PRIORITY, OsBSem::FULL);
+OsNameDb* OsNameDb::spInstance;
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
 /* ============================ CREATORS ================================== */
 
-// Return a pointer to the singleton object, creating it if necessary
+// Return a pointer to the singleton object
 OsNameDb* OsNameDb::getNameDb(void)
 {
-   spLock->acquire();
-   if (spInstance == NULL) // not created while getting lock?
-   {
-      spInstance = new OsNameDb();
-   }
-   spLock->release();
-   
    return spInstance;
 }
 

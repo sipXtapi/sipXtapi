@@ -1,14 +1,13 @@
-// 
-// 
-// Copyright (C) 2005-2006 SIPez LLC
+//  
+// Copyright (C) 2007 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement. 
+//
+// Copyright (C) 2004-2007 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
-// Copyright (C) 2005 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2005 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
-// 
 // $$
 //////////////////////////////////////////////////////////////////////////////
 // Author: Dan Petrie (dpetrie AT SIPez DOT com)
@@ -141,10 +140,6 @@ class SipSubscribeClientMgr : public CppUnit::TestCase
 
     void subscribeMwiClientTest()
     {
-#     ifdef __linux__
-        KNOWN_BUG("destructors executed in invalid order - test skipped", "XSL-151");
-        CPPUNIT_ASSERT(false);
-#     else
         smClientExpiration = -1;
         smNumClientNotifiesReceived = 0;
         smLastClientNotifyReceived = NULL;
@@ -352,6 +347,7 @@ class SipSubscribeClientMgr : public CppUnit::TestCase
             }
         }
         printf("v\n");
+        fflush(stdout);
         SipMessage* secondSubResponse = NULL;
         SipMessage* secondNotifyRequest = NULL;
 
@@ -370,6 +366,7 @@ class SipSubscribeClientMgr : public CppUnit::TestCase
                 smLastClientNotifyReceived = NULL;
             }
             printf(".");
+            fflush(stdout);
             waitIterations++;
             if(waitIterations >= secondMessageWait)
             {
@@ -405,6 +402,11 @@ class SipSubscribeClientMgr : public CppUnit::TestCase
        //       subResponseDump.data());
 
         CPPUNIT_ASSERT(secondNotifyRequest);
+/*
+        // bandreasen/2006-10-14: The latest SipSubscribeClient does not send 
+        // status updates when state has not changed -- we will need to assume
+        // that the sub response checks above are enough to validate resends.
+
         CPPUNIT_ASSERT(secondSubResponse);
         int secondSubCseq = -1;
         int secondNotifyCseq = -1;
@@ -414,7 +416,7 @@ class SipSubscribeClientMgr : public CppUnit::TestCase
         secondNotifyRequest->getCSeqField(&secondNotifyCseq, NULL);
         CPPUNIT_ASSERT(firstSubCseq < secondSubCseq);
         CPPUNIT_ASSERT(firstNotifyCseq < secondNotifyCseq);
-
+*/
         // Unregister the queues so we stop receiving messages on them
         userAgent.removeMessageObserver(incomingServerMsgQueue);
         userAgent.removeMessageObserver(incomingClientMsgQueue);
@@ -427,7 +429,6 @@ class SipSubscribeClientMgr : public CppUnit::TestCase
         OsTask::delay(1000);   // 1 second to let other threads clean up
 
         delete subServer;
-#     endif
     }
 
 

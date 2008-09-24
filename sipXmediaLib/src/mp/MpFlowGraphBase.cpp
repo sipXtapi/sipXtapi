@@ -1,10 +1,15 @@
+//  
+// Copyright (C) 2006-2008 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2005 Pingtel Corp.
+// Copyright (C) 2004-2008 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 
 // SYSTEM INCLUDES
@@ -16,15 +21,24 @@
 #include "os/OsTask.h"
 #include "os/OsReadLock.h"
 #include "os/OsWriteLock.h"
+#include <os/OsEvent.h>
 #include "mp/MpFlowGraphBase.h"
 #include "mp/MpFlowGraphMsg.h"
+#include "mp/MpResourceMsg.h"
 #include "mp/MpResourceSortAlg.h"
 #include "mp/MpMediaTask.h"
+#include <mp/MpMisc.h>
+
+#ifdef RTL_ENABLED
+#   include <rtl_macro.h>
+#endif
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
+
 // STATIC VARIABLE INITIALIZATIONS
+int MpFlowGraphBase::gFgMaxNumber = 0;
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
@@ -32,20 +46,21 @@
 
 // Constructor
 MpFlowGraphBase::MpFlowGraphBase(int samplesPerFrame, int samplesPerSec)
-: mRWMutex(OsRWMutex::Q_PRIORITY),
-  mResourceDict(),
-  mCurState(STOPPED),
-  mMessages(MAX_FLOWGRAPH_MESSAGES),
-  mPeriodCnt(0),
-  mLinkCnt(0),
-  mResourceCnt(0),
-  mRecomputeOrder(FALSE),
-  mSamplesPerFrame(samplesPerFrame),
-  mSamplesPerSec(samplesPerSec),
-  mpResourceInProcess(NULL)
+: mRWMutex(OsRWMutex::Q_PRIORITY)
+, mFgNumber(gFgMaxNumber++)
+, mResourceDict()
+, mCurState(STOPPED)
+, mMessages(MAX_FLOWGRAPH_MESSAGES)
+, mNotifyDispatcher(NULL)
+, mPeriodCnt(0)
+, mLinkCnt(0)
+, mResourceCnt(0)
+, mRecomputeOrder(FALSE)
+, mSamplesPerFrame(samplesPerFrame)
+, mSamplesPerSec(samplesPerSec)
+, mpResourceInProcess(NULL)
 {
    int i;
-
    for (i=0; i < MAX_FLOWGRAPH_RESOURCES; i++)
    {
       mUnsorted[i] = NULL;
@@ -86,7 +101,7 @@ MpFlowGraphBase::~MpFlowGraphBase()
 // Returns OS_UNSPECIFIED if the addLink attempt failed for some other
 // reason.
 OsStatus MpFlowGraphBase::addLink(MpResource& rFrom, int outPortIdx,
-                              MpResource& rTo,   int inPortIdx)
+                                  MpResource& rTo,   int inPortIdx)
 {
    OsWriteLock    lock(mRWMutex);
 
@@ -108,6 +123,14 @@ OsStatus MpFlowGraphBase::addLink(MpResource& rFrom, int outPortIdx,
       return OS_UNSPECIFIED;
 }
 
+OsMsgDispatcher* 
+MpFlowGraphBase::setNotificationDispatcher(OsMsgDispatcher* notifyDispatcher)
+{
+   OsMsgDispatcher* oldDispatcher = mNotifyDispatcher;
+   mNotifyDispatcher = notifyDispatcher;
+   return oldDispatcher;
+}
+
 // Adds the indicated media processing object to the flow graph.  If 
 // "makeNameUnique" is TRUE, then if a resource with the same name already
 // exists in the flow graph, the name for "rResource" will be changed (by
@@ -125,6 +148,18 @@ OsStatus MpFlowGraphBase::addResource(MpResource& rResource,
    UtlBoolean      handled;
    MpFlowGraphMsg msg(MpFlowGraphMsg::FLOWGRAPH_ADD_RESOURCE, NULL,
                       &rResource, NULL, makeNameUnique);
+
+   // Setting notification enabled/disabled status based on 
+   // what was already set on existing resources.
+   // Check to see if we have any resources already added to the flowgraph
+   if(numResources() > 0)
+   {
+      // and if so, get their notification enabled/disabled state,
+      UtlBoolean notfState = mUnsorted[0]->areNotificationsEnabled();
+
+      // and set it on this new resource.
+      rResource.setNotificationsEnabled(notfState);
+   }
 
    if (mCurState == STARTED)
       return postMessage(msg);
@@ -350,11 +385,30 @@ OsStatus MpFlowGraphBase::loseFocus(void)
    return OS_INVALID_ARGUMENT;
 }
 
+// Post a notification message to the dispatcher.
+OsStatus MpFlowGraphBase::postNotification(const MpResNotificationMsg& msg)
+{
+   // If there is no dispatcher, OS_NOT_FOUND is used.
+   OsStatus stat = OS_NOT_FOUND;
+   
+   if(mNotifyDispatcher != NULL)
+   {
+      // If the limit is reached on the queue, OS_LIMIT_REACHED is sent.
+      // otherwise success - OS_SUCCESS.
+      stat = mNotifyDispatcher->post(msg);
+   }
+   return stat;
+}
+
 // Processes the next frame interval's worth of media for the flow graph.
 // For now, this method always returns success.
 OsStatus MpFlowGraphBase::processNextFrame(void)
 {
-   UtlBoolean boolRes;
+#ifdef RTL_ENABLED
+    RTL_BLOCK("MpFlowGraphBase.processNextFrame");
+#endif
+    
+    UtlBoolean boolRes;
    int       i;
    OsStatus  res;
 
@@ -372,6 +426,21 @@ OsStatus MpFlowGraphBase::processNextFrame(void)
    {
       res = computeOrder();
       assert(res == OS_SUCCESS);
+
+//#define TEST_PRINT_TOPOLOGY
+#ifdef TEST_PRINT_TOPOLOGY
+      for(i=0; i < mResourceCnt; i++)
+      {
+           int outIndex;
+           for(outIndex = 0; outIndex < mExecOrder[i]->mMaxOutputs; outIndex++)
+           {
+               printf("%s[%d]==>%s[%d]\n",
+                   mExecOrder[i]->data(), outIndex, 
+                   mExecOrder[i]->mpOutConns[outIndex].pResource ? mExecOrder[i]->mpOutConns[outIndex].pResource->data() : "",
+                   mExecOrder[i]->mpOutConns[outIndex].portIndex);
+           }
+      }
+#endif
    }
 
    // If the flow graph is "STOPPED" then there is no further processing
@@ -387,7 +456,7 @@ OsStatus MpFlowGraphBase::processNextFrame(void)
          boolRes = mExecOrder[i]->processFrame();
          if (!boolRes) {
             osPrintf("MpMedia: called %s, which indicated failure\n",
-               mpResourceInProcess->mName.data());
+               mpResourceInProcess->data());
          }
       }
    }
@@ -449,52 +518,33 @@ OsStatus MpFlowGraphBase::removeResource(MpResource& rResource)
       return OS_UNSPECIFIED;
 }
 
-// Sets the number of samples expected per frame.
-// If the flow graph is not "started", this call takes effect
-// immediately.  Otherwise, the call takes effect at the start of the
-// next frame processing interval.
-// Returns OS_SUCCESS to indicate success or OS_INVALID_ARGUMENT if the
-// indicated "samples per frame" rate is not supported.
-OsStatus MpFlowGraphBase::setSamplesPerFrame(int samplesPerFrame)
+OsStatus MpFlowGraphBase::setNotificationsEnabled(bool enabled, 
+                                                  const UtlString& resourceName)
 {
-   OsWriteLock    lock(mRWMutex);
+   OsWriteLock lock(mRWMutex);
+   OsStatus res = OS_SUCCESS;
+   MpResource* pResource = NULL;
 
-   UtlBoolean      handled;
-   MpFlowGraphMsg msg(MpFlowGraphMsg::FLOWGRAPH_SET_SAMPLES_PER_FRAME, NULL,
-                      NULL, NULL, samplesPerFrame);
+   // Check to see if the resource name is null -- if it is, this means
+   // send it to all resources, so just leave the null name in when sending
+   // the message.  No need to validate that name.
 
-   if (mCurState == STARTED)
-      return postMessage(msg);
+   // Lookup the resource just to validate that the resource with that name exists
+   // in the flowgraph (if it isn't null).
+   if(!resourceName.isNull())
+   {
+      res = lookupResourcePrivate(resourceName, pResource);
+   }
 
-   handled = handleMessage(msg);
-   if (handled)
-      return OS_SUCCESS;
-   else
-      return OS_UNSPECIFIED;
-}
+   if(res == OS_SUCCESS)
+   {
+      // If the resource exists or all resources are selected, 
+      // then call the static method to send a notification enable/disable 
+      // message to the actual named resource (or all resources).
+      res = MpResource::setNotificationsEnabled(enabled, resourceName, *getMsgQ());
+   }
 
-// Sets the number of samples expected per second.
-// If the flow graph is not "started", this call takes effect
-// immediately.  Otherwise, the call takes effect at the start of the
-// next frame processing interval.
-// Returns OS_SUCCESS to indicate success or OS_INVALID_ARGUMENT if the
-// indicated "samples per second" rate is not supported.
-OsStatus MpFlowGraphBase::setSamplesPerSec(int samplesPerSec)
-{
-   OsWriteLock    lock(mRWMutex);
-
-   UtlBoolean      handled;
-   MpFlowGraphMsg msg(MpFlowGraphMsg::FLOWGRAPH_SET_SAMPLES_PER_SEC, NULL,
-                      NULL, NULL, samplesPerSec);
-
-   if (mCurState == STARTED)
-      return postMessage(msg);
-
-   handled = handleMessage(msg);
-   if (handled)
-      return OS_SUCCESS;
-   else
-      return OS_UNSPECIFIED;
+   return res;
 }
 
 // Start this flow graph.
@@ -528,7 +578,30 @@ OsStatus MpFlowGraphBase::stop(void)
    return postMessage(msg);
 }
 
+void MpFlowGraphBase::synchronize(const char* tag, int val1)
+{
+   OsTask* val2 = OsTask::getCurrentTask();
+   if (val2 != MpMediaTask::getMediaTask(0)) {
+      OsEvent event;
+      MpFlowGraphMsg msg(MpFlowGraphMsg::FLOWGRAPH_SYNCHRONIZE,
+         NULL, NULL, (void*) tag, val1, (int) val2);
+      OsStatus  res;
+
+      msg.setPtr1(&event);
+      res = postMessage(msg);
+      // if (NULL == tag) osPrintf("MpFlowGraphBase::synchronize()\n");
+      event.wait();
+   } else {
+      osPrintf("Note: synchronize called from within Media Task\n");
+   }
+}
+
 /* ============================ ACCESSORS ================================= */
+
+MpFlowGraphBase::FlowGraphType MpFlowGraphBase::getType()
+{
+    return MpFlowGraphBase::BASE_FLOWGRAPH;
+}
 
 // (static) Displays information on the console about the specified flow
 // graph.
@@ -546,31 +619,31 @@ void MpFlowGraphBase::flowGraphInfo(MpFlowGraphBase* pFlowGraph)
       }
    }
    if (NULL == pFlowGraph) {
-      printf("No flowGraph to display!\n");
+      osPrintf("No flowGraph to display!\n");
       return;
    }
-   printf("\nFlow graph information for %p\n", pFlowGraph);
-   printf("  State:                    %s\n",
+   osPrintf("\nFlow graph information for %p\n", pFlowGraph);
+   osPrintf("  State:                    %s\n",
              pFlowGraph->isStarted() ? "STARTED" : "STOPPED");
 
-   printf("  Processed Frame Count:    %d\n",
+   osPrintf("  Processed Frame Count:    %d\n",
              pFlowGraph->numFramesProcessed());
 
-   printf("  Samples Per Frame:        %d\n",
+   osPrintf("  Samples Per Frame:        %d\n",
              pFlowGraph->getSamplesPerFrame());
 
-   printf("  Samples Per Second:       %d\n",
+   osPrintf("  Samples Per Second:       %d\n",
              pFlowGraph->getSamplesPerSec());
 
    pResource = pFlowGraph->mpResourceInProcess;
    if (pResource == NULL)
-      printf("  Resource Being Processed: NULL\n");
+      osPrintf("  Resource Being Processed: NULL\n");
    else
-      printf("  Resource Being Processed: %p\n", pResource);
+      osPrintf("  Resource Being Processed: %p\n", pResource);
 
-   printf("\n  Resource Information\n");
-   printf("    Resources:   %d\n", pFlowGraph->numResources());
-   printf("    Links: %d\n", pFlowGraph->numLinks());
+   osPrintf("\n  Resource Information\n");
+   osPrintf("    Resources:   %d\n", pFlowGraph->numResources());
+   osPrintf("    Links: %d\n", pFlowGraph->numLinks());
    for (i=0; i < pFlowGraph->mResourceCnt; i++)
    {
       pResource = pFlowGraph->mUnsorted[i];
@@ -601,13 +674,28 @@ int MpFlowGraphBase::getState(void) const
    return mCurState;
 }
 
+OsMsgDispatcher* MpFlowGraphBase::getNotificationDispatcher(void) const
+{
+   return mNotifyDispatcher;
+}
+
 // Sets rpResource to point to the resource that corresponds to 
 // name  or to NULL if no matching resource is found.
 // Returns OS_SUCCESS if there is a match, otherwise returns OS_NOT_FOUND.
-OsStatus MpFlowGraphBase::lookupResource(UtlString name,
-                                     MpResource*& rpResource)
+OsStatus MpFlowGraphBase::lookupResource(const UtlString& name,
+                                         MpResource*& rpResource)
 {
-   OsReadLock          lock(mRWMutex);
+   OsReadLock lock(mRWMutex);
+   return lookupResourcePrivate(name, rpResource);
+}
+
+// Sets rpResource to point to the resource that corresponds to 
+// name  or to NULL if no matching resource is found.
+// Returns OS_SUCCESS if there is a match, otherwise returns OS_NOT_FOUND.
+OsStatus MpFlowGraphBase::lookupResourcePrivate(
+   const UtlString& name,
+   MpResource*& rpResource)
+{
    UtlString key(name);
 
    rpResource = (MpResource*) mResourceDict.findValue(&key);
@@ -727,6 +815,17 @@ UtlBoolean MpFlowGraphBase::disconnectAllOutputs(MpResource* pResource)
 // Returns TRUE if the message was handled, otherwise FALSE.
 UtlBoolean MpFlowGraphBase::handleMessage(OsMsg& rMsg)
 {
+   // Make sure that we have either a flowgraph message,
+   // or a resource message.
+   assert(rMsg.getMsgType() == OsMsg::MP_FLOWGRAPH_MSG);
+   if (!(rMsg.getMsgType() == OsMsg::MP_FLOWGRAPH_MSG))
+   {
+      // If we don't have a resource message, return 
+      // indicating the message wasn't handled.
+      // TODO: Should also probably log to syslog
+      return FALSE;
+   }
+
    MpFlowGraphMsg* pMsg = (MpFlowGraphMsg*) &rMsg ;
    UtlBoolean retCode;
    MpResource* ptr1;
@@ -764,11 +863,8 @@ UtlBoolean MpFlowGraphBase::handleMessage(OsMsg& rMsg)
    case MpFlowGraphMsg::FLOWGRAPH_REMOVE_RESOURCE:
       retCode = handleRemoveResource(ptr1);
       break;
-   case MpFlowGraphMsg::FLOWGRAPH_SET_SAMPLES_PER_FRAME:
-      retCode = handleSetSamplesPerFrame(int1);
-      break;
-   case MpFlowGraphMsg::FLOWGRAPH_SET_SAMPLES_PER_SEC:
-      retCode = handleSetSamplesPerSec(int1);
+   case MpFlowGraphMsg::FLOWGRAPH_SYNCHRONIZE:
+      retCode = handleSynchronize(*pMsg);
       break;
    case MpFlowGraphMsg::FLOWGRAPH_START:
       retCode = handleStart();
@@ -786,9 +882,28 @@ UtlBoolean MpFlowGraphBase::handleMessage(OsMsg& rMsg)
 static void complainAdd(const char *n1, int p1, const char *n2,
    int p2, const char *n3, int p3)
 {
-      Zprintf("MpFlowGraphBase::handleAddLink(%s:%d, %s:%d)\n"
-         " %s:%d is already connected!\n",
-         (int) n1, p1, (int) n2, p2, (int) n3, p3);
+   Zprintf("MpFlowGraphBase::handleAddLink(%s:%d, %s:%d)\n"
+           " %s:%d is already connected!\n",
+           (int) n1, p1, (int) n2, p2, (int) n3, p3);
+}
+
+UtlBoolean MpFlowGraphBase::handleSynchronize(MpFlowGraphMsg& rMsg)
+{
+   OsNotification* pSync = (OsNotification*) rMsg.getPtr1();
+   char* tag = (char*) rMsg.getPtr2();
+   int val1  = rMsg.getInt1();
+   int val2  = rMsg.getInt2();
+
+   if (0 != pSync) {
+      pSync->signal(val1);
+      // if (NULL != tag) osPrintf(tag, val1, val2);
+#ifdef DEBUG_POSTPONE /* [ */
+   } else {
+      // just delay (postPone()), for debugging race conditions...
+      OsTask::delay(rMsg.getInt1());
+#endif /* DEBUG_POSTPONE ] */
+   }
+   return TRUE;
 }
 
 // Handle the FLOWGRAPH_ADD_LINK message.
@@ -806,20 +921,18 @@ UtlBoolean MpFlowGraphBase::handleAddLink(MpResource* pFrom, int outPortIdx,
    // make sure both ports are free
    if (pFrom->isOutputConnected(outPortIdx))
    {
-         complainAdd(
-         pFrom->getName(), outPortIdx,
-         pTo->getName(), inPortIdx,
-         pFrom->getName(), outPortIdx);
+      complainAdd(pFrom->getName(), outPortIdx,
+                  pTo->getName(), inPortIdx,
+                  pFrom->getName(), outPortIdx);
       // assert(FALSE);
       return FALSE;
    }
 
    if (pTo->isInputConnected(inPortIdx))
    {
-         complainAdd(
-         pFrom->getName(), outPortIdx,
-         pTo->getName(), inPortIdx,
-         pTo->getName(), inPortIdx);
+      complainAdd(pFrom->getName(), outPortIdx,
+                  pTo->getName(), inPortIdx,
+                  pTo->getName(), inPortIdx);
       // assert(FALSE);
       return FALSE;
    }
@@ -1115,60 +1228,6 @@ UtlBoolean MpFlowGraphBase::handleRemoveResource(MpResource* pResource)
    return TRUE;
 }
 
-// Handle the FLOWGRAPH_SET_SAMPLES_PER_FRAME message.
-// Returns TRUE if the message was handled, otherwise FALSE.
-UtlBoolean MpFlowGraphBase::handleSetSamplesPerFrame(int samplesPerFrame)
-{
-   int            i;
-   MpFlowGraphMsg msg(MpFlowGraphMsg::RESOURCE_SET_SAMPLES_PER_FRAME,
-                      NULL, NULL, NULL, samplesPerFrame);
-   MpResource*    pResource;
-
-   // iterate over all resources
-   for (i=0; i < mResourceCnt; i++)
-   {
-      pResource = mUnsorted[i];
-
-      // make each resource handle a SET_SAMPLES_PER_FRAME message
-      msg.setMsgDest(pResource);
-      if (!pResource->handleMessage(msg))
-      {
-         assert(FALSE);
-         return FALSE;
-      }
-   }
-
-   mSamplesPerFrame = samplesPerFrame;
-   return TRUE;
-}
-
-// Handle the FLOWGRAPH_SET_SAMPLES_PER_SEC message.
-// Returns TRUE if the message was handled, otherwise FALSE.
-UtlBoolean MpFlowGraphBase::handleSetSamplesPerSec(int samplesPerSec)
-{
-   int            i;
-   MpFlowGraphMsg msg(MpFlowGraphMsg::RESOURCE_SET_SAMPLES_PER_SEC,
-                      NULL, NULL, NULL, samplesPerSec);
-   MpResource*    pResource;
-
-   // iterate over all resources
-   for (i=0; i < mResourceCnt; i++)
-   {
-      pResource = mUnsorted[i];
-
-      // make each resource handle a SET_SAMPLES_PER_SEC message
-      msg.setMsgDest(pResource);
-      if (!pResource->handleMessage(msg))
-      {
-         assert(FALSE);
-         return FALSE;
-      }
-   }
-
-   mSamplesPerSec = samplesPerSec;
-   return TRUE;
-}
-
 // Handle the FLOWGRAPH_START message.
 // Returns TRUE if the message was handled, otherwise FALSE.
 UtlBoolean MpFlowGraphBase::handleStart(void)
@@ -1202,12 +1261,15 @@ OsStatus MpFlowGraphBase::postMessage(const MpFlowGraphMsg& rMsg,
 // For now, this method always returns OS_SUCCESS.
 OsStatus MpFlowGraphBase::processMessages(void)
 {
+#ifdef RTL_ENABLED
+    RTL_BLOCK("MpFlowGraphBase.processMessages");
+#endif
+
    OsWriteLock     lock(mRWMutex);
 
-   UtlBoolean       done;
-   UtlBoolean       handled;
+   UtlBoolean       handled = FALSE;
    static MpFlowGraphMsg* pStopMsg = NULL;
-   MpResource*     pMsgDest;
+   MpResource*     pMsgDest = NULL;
    
    OsStatus        res;
 
@@ -1225,7 +1287,7 @@ OsStatus MpFlowGraphBase::processMessages(void)
    res = postMessage(*pStopMsg);
    assert(res == OS_SUCCESS);
 
-   done = FALSE;
+   UtlBoolean done = FALSE;
    while (!done)
    {                  
       // get the next message
@@ -1235,12 +1297,16 @@ OsStatus MpFlowGraphBase::processMessages(void)
 
       assert(res == OS_SUCCESS);
       
-      if (pMsg->getMsgType() == OsMsg::MP_FLOWGRAPH_MSG)
+      if (pMsg->getMsgType() == OsMsg::STREAMING_MSG)
       {
-         MpFlowGraphMsg* pRcvdMsg = (MpFlowGraphMsg*) pMsg ;
+         handleMessage(*pMsg);
+      }
+      else if (pMsg->getMsgType() == OsMsg::MP_FLOWGRAPH_MSG)
+      {
+         MpFlowGraphMsg* pFlowgraphMsg = (MpFlowGraphMsg*) pMsg ;
          // determine if this message is intended for a resource in the
          // flow graph (as opposed to a message for the flow graph itself)
-         pMsgDest = pRcvdMsg->getMsgDest();
+         pMsgDest = pFlowgraphMsg->getMsgDest();
 
 
          if (pMsgDest != NULL)
@@ -1248,38 +1314,110 @@ OsStatus MpFlowGraphBase::processMessages(void)
             // deliver the message if the resource is still part of this graph
             if (pMsgDest->getFlowGraph() == this)
             {
-               handled = pMsgDest->handleMessage(*pRcvdMsg);
+               handled = pMsgDest->handleMessage(*pFlowgraphMsg);
                assert(handled);
             }
          }
          else
          {
             // since pMsgDest is NULL, this msg is intended for the flow graph
-            switch (pRcvdMsg->getMsg())
+            switch (pFlowgraphMsg->getMsg())
             {
             case MpFlowGraphMsg::FLOWGRAPH_PROCESS_FRAME:
                done = TRUE;    // "stopper" message encountered -- we are done
                break;          //  processing messages for this frame interval
 
             default:
-               handled = handleMessage(*pRcvdMsg);
+               handled = handleMessage(*pFlowgraphMsg);
                assert(handled);
                break;
             }
          }
-         pRcvdMsg->releaseMsg();    // free the msg
+      }
+      else if (pMsg->getMsgType() == OsMsg::MP_RESOURCE_MSG)
+      {
+         MpResourceMsg* pResourceMsg = 
+            dynamic_cast<MpResourceMsg*>(pMsg);
+         assert(pResourceMsg != NULL);
+         if (pResourceMsg != NULL)
+         {
+            // If the destination resource name is null, 
+            // then treat that as a desire to send this message to all
+            // resources.
+            if(pResourceMsg->getDestResourceName().isNull())
+            {
+               // Send this message to all resources in the flowgraph.
+               int i;
+               for(i = 0; i < mResourceCnt; i++)
+               {
+                  handled = mUnsorted[i]->handleMessage(*pResourceMsg);
+                  assert(handled);
+                  if(!handled)
+                  {
+                     OsSysLog::add(FAC_MP, PRI_WARNING, 
+                                   "MpFlowGraphBase::processMessages: "
+                                   "Resource message subtype %d directed to all "
+                                   "resources failed when sending to resource %s.",
+                                   pResourceMsg->getMsgSubType(),
+                                   mUnsorted[i]->getName().data());
+                  }
+               }
+            }
+            else
+            {
+               // From the resource message, get the name of the resource, and look it up.
+               // If we find it, we call the resource's handleMessage method.
+               res = lookupResourcePrivate(pResourceMsg->getDestResourceName(), pMsgDest);
+               assert(res == OS_SUCCESS);
+               assert(pMsgDest != NULL);
+
+               if (pMsgDest != NULL)
+               {
+                  handled = pMsgDest->handleMessage(*pResourceMsg);
+                  assert(handled);
+               }
+               else
+               {
+                  OsSysLog::add(FAC_MP, PRI_DEBUG,
+                     "MpFlowGraphBase::processMessages - "
+                     "Failed looking up resource!: "
+                     "name=\"%s\", lookupResource status=0x%X, "
+                     "resource pointer returned = 0x%X",
+                     pResourceMsg->getDestResourceName().data(), 
+                     res, pMsgDest);
+               }
+            }
+         }
+         else // pResourceMsg == NULL
+         {
+            OsSysLog::add(FAC_MP, PRI_DEBUG,
+               "MpFlowGraphBase::processMessages - "
+               "message type field indicated it was an MP_RESOURCE_MSG "
+               "but actual language type was not an MP_RESOURCE_MSG: "
+               "msgType==0x%X, msgSubType=0x%X",
+               pMsg->getMsgType(), pMsg->getMsgSubType());
+         }
       }
       else
       {
-         handled = handleMessage(*pMsg);
-         assert(handled);
-         pMsg->releaseMsg() ;
+         // We shouldn't get here.  If we do, then someone was dumb
+         // and stuck some weird messages in the queue with types
+         // other than MP_FLOWGRAPH_MSG and MP_RESOURCE_MSG
+         assert(0);
+         OsSysLog::add(FAC_MP, PRI_DEBUG, 
+            "MpFlowGraphBase::processMessages - "
+            "SAW WEIRD MESSAGE!: "
+            "msgType==0x%X, msgSubType=0x%X",
+            pMsg->getMsgType(), pMsg->getMsgSubType());
       }
-      
+
+      // We're done with the message, we can release it now.
+      pMsg->releaseMsg();
    }
 
    return OS_SUCCESS;
 }
 
 /* ============================ FUNCTIONS ================================= */
+
 

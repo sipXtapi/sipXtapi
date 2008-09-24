@@ -1,9 +1,8 @@
 // 
-// 
-// Copyright (C) 2005-2006 SIPez LLC.
+// Copyright (C) 2005-2007 SIPez LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.
 // 
-// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 // 
 // Copyright (C) 2004-2006 Pingtel Corp.
@@ -27,7 +26,7 @@
 #include "net/SipNotifyStateTask.h"
 #include "net/SipUserAgent.h"
 #include "net/HttpBody.h"
-#include "net/NameValueTokenizer.h"
+#include "utl/UtlNameValueTokenizer.h"
 #include "os/OsTimer.h"
 #include "os/OsQueuedEvent.h"
 #include "os/OsEventMsg.h"
@@ -264,7 +263,7 @@ UtlBoolean SipNotifyStateTask::handleMessage(OsMsg& eventMessage)
                             // Get the number of new messages
                             UtlString numberString;
                             UtlBoolean absoluteValues = TRUE;
-                            NameValueTokenizer::getSubField(status.data(), 0,
+                            UtlNameValueTokenizer::getSubField(status.data(), 0,
                                                        " \t/;", &numberString);
 
                             // If there is a + or - the numbers are in delta values
@@ -293,14 +292,14 @@ UtlBoolean SipNotifyStateTask::handleMessage(OsMsg& eventMessage)
                             }
 
                             // Get the number of old messages
-                            NameValueTokenizer::getSubField(status.data(), 1,
+                            UtlNameValueTokenizer::getSubField(status.data(), 1,
                                                        " \t/;", &numberString);
                             if(!numberString.isNull())
                                 oldMessages = atoi(numberString.data());
 
                             int parameterIndex = 2;
                             UtlString flag;
-                            NameValueTokenizer::getSubField(status.data(), parameterIndex,
+                            UtlNameValueTokenizer::getSubField(status.data(), parameterIndex,
                                                        " \t/:;", &flag);
                             flag.toLower();
 
@@ -358,7 +357,7 @@ UtlBoolean SipNotifyStateTask::handleMessage(OsMsg& eventMessage)
                                 }
 
                                 parameterIndex+=2;
-                                NameValueTokenizer::getSubField(status.data(), parameterIndex,
+                                UtlNameValueTokenizer::getSubField(status.data(), parameterIndex,
                                                        " \t/:;", &flag);
                             }
                             while(!flag.isNull());
@@ -454,12 +453,12 @@ UtlBoolean SipNotifyStateTask::handleMessage(OsMsg& eventMessage)
                             status.toLower() ;
 
                             // Parse number of new messages
-                            NameValueTokenizer::getSubField(status.data(), 0,
+                            UtlNameValueTokenizer::getSubField(status.data(), 0,
                                                        " \t/;()", &numberString);
                             iNewMessages = atoi(numberString.data());
 
                             // Parse number of old messages
-                            NameValueTokenizer::getSubField(status.data(), 1,
+                            UtlNameValueTokenizer::getSubField(status.data(), 1,
                                                        " \t/;()", &numberString);
                             iOldMessages = atoi(numberString.data());
 
@@ -542,7 +541,7 @@ UtlBoolean SipNotifyStateTask::handleMessage(OsMsg& eventMessage)
                     (struct tagRunScriptInfo*) userData ;
             if (pInfo != NULL)
             {
-                // Ideally remove this dependency on phone library
+// Ideally remove this dependency on phone library
                 assert("OPENDEV PORT: Unexpected code path for softphone");
                 delete pInfo ;
             }
@@ -680,14 +679,14 @@ UtlBoolean SipNotifyStateTask::getStatusTotalUrgent(const char* status,
     UtlBoolean urgentFound = FALSE;
 
     // Get the total for this type of status
-    NameValueTokenizer::getSubField(status, parameterIndex,
+    UtlNameValueTokenizer::getSubField(status, parameterIndex,
                    " \t/;:", &numberString);
     if(!numberString.isNull())
     {
         total = atoi(numberString.data());
 
         // Get the total for this type of status
-        NameValueTokenizer::getSubField(status, parameterIndex + 1,
+        UtlNameValueTokenizer::getSubField(status, parameterIndex + 1,
                        " \t/;:", &numberString);
         if(!numberString.isNull() &&
             (isdigit(numberString.data()[0]) ||

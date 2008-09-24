@@ -1,8 +1,11 @@
 ## Process this file with automake to produce Makefile.in
 
+SUBDIRS = . test
+
 INCLUDES = \
 	-I$(top_srcdir)/interface \
-	-I$(top_srcdir)/sipXmediaMediaProcessing
+	-I$(top_srcdir)/sipXmediaMediaProcessing/include \
+	-I$(top_srcdir)/../sipXcallLib/include
 
 lib_LTLIBRARIES = libsipXmediaProcessing.la
 
@@ -19,6 +22,7 @@ version_Age=0
 libsipXmediaProcessing_la_LDFLAGS = -version-info ${version_Current}:${version_Revision}:${version_Age}
 
 libsipXmediaProcessing_la_CXXFLAGS = \
+	@INTERFACE_FLAGS@ \
 	@SSL_CXXFLAGS@ \
 	-DSIPX_LOGDIR=\"@SIPX_LOGDIR@\" \
 	-DSIPX_CONFDIR=\"@SIPX_CONFDIR@\"
@@ -31,4 +35,7 @@ libsipXmediaProcessing_la_LIBADD = \
 
 libsipXmediaProcessing_la_SOURCES =  \
     sipXmediaFactoryImpl.cpp \
-    CpPhoneMediaInterface.cpp
+    CpPhoneMediaInterface.cpp \
+    CpTopologyGraphFactoryImpl.cpp \
+    CpTopologyGraphInterface.cpp \
+    MaNotfTranslatorDispatcher.cpp

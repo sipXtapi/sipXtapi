@@ -24,7 +24,7 @@ Release Notes - sipXportLib - Version 2.6.2
 Release Notes - sipXportLib - Version 2.6.1
 
 ** Bug
-    * [XPL-36] - check for correctly built openssl libs
+    * [XPL-36] - check for correctly build openssl libs
     * [XPL-54] - Incorrect directory name in general.m4
     * [XPL-60] - Windows project file cannot be converted by VS .NET 2003/7.1
     * [XPL-69] - SIPX_HOME not compatible with multiple-rooted install

@@ -1,10 +1,12 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 
 #ifndef _SipLineMgr_h_
@@ -134,7 +136,7 @@ public:
         const Url& identity,
         const UtlString strRealm,
         const UtlString strUserID,
-        const UtlString md5Token,
+        const UtlString strPasswd,
         const UtlString type);
 
    UtlBoolean deleteCredentialForLine(const Url& identity,
@@ -300,6 +302,8 @@ protected:
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
+    void dumpLines();
+
     // MsgType categories defined for use by the system
     enum LineMsgTypes
     {

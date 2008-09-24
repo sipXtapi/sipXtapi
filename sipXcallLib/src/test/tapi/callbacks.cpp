@@ -1,8 +1,12 @@
 //
-// Copyright (C) 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
 // $$
-//////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 #include <cppunit/CompilerOutputter.h>
 #include <cppunit/extensions/TestFactoryRegistry.h>
@@ -39,18 +43,52 @@ SIPX_LINE g_hAutoRejectCallbackLine ;
 SIPX_CALL g_hAutoRedirectCallbackCall ;
 SIPX_LINE g_hAutoRedirectCallbackLine ;
 
+SIPX_CALL g_hAutoAnswerCallbackCallHolder ;
+SIPX_CALL g_hAutoAnswerCallbackCallOtherHolder ;
+SIPX_LINE g_hAutoAnswerCallbackLineHolder ;
 
-bool UniversalEventValidatorCallback(SIPX_EVENT_CATEGORY category,
+SIPX_CALL g_hNewCallDetectorCall1 ;
+SIPX_CALL g_hNewCallDetectorSourceCall1 ;
+SIPX_CALL g_hNewCallDetectorCall2 ;
+SIPX_CALL g_hNewCallDetectorSourceCall2 ;
+
+bool SIPX_CALLING_CONVENTION FlibbleTransportCallback(SIPX_TRANSPORT hTransport,
+                                      const char* szDestinationIp,
+                                      const int   iDestPort,
+                                      const char* szLocalIp,
+                                      const int   iLocalPort,
+                                      const void* pData,
+                                      const size_t nData,
+                                      const void* pUserData)
+{
+    bool bRet = true;
+    return bRet;
+}
+
+bool SIPX_CALLING_CONVENTION UniversalEventValidatorCallback(SIPX_EVENT_CATEGORY category,
                                      void* pInfo,
                                      void* pUserData)
 {
     EventValidator* pValidator = (EventValidator*) pUserData ;
     assert(pValidator) ;
     pValidator->addEvent(category, pInfo) ;
+    
 
     // Uncomment for debugging purposes...
-    // char cBuffer[1000]; 
-    // printf("%s: %s\n", pValidator->getTitle(), sipxEventToString(category, pInfo, cBuffer, 1000)) ;
+/*
+    char cBuffer[1000]; 
+    if (category == EVENT_CATEGORY_CALLSTATE) 
+    {
+        SIPX_CALLSTATE_INFO* pCallInfo = (SIPX_CALLSTATE_INFO*) pInfo ;
+
+        printf("%s: [hCall=%2d, hAssocCall=%2d] %s\n", pValidator->getTitle(), pCallInfo->hCall, pCallInfo->hAssociatedCall,
+            sipxEventToString(category, pInfo, cBuffer, 1000)) ;
+    }
+    else
+    {        
+        printf("%s: %s\n", pValidator->getTitle(), sipxEventToString(category, pInfo, cBuffer, 1000)) ;
+    }
+*/
 
     return true ;
 }
@@ -62,9 +100,9 @@ void resetAutoAnswerCallback()
 }
 
 
-bool AutoAnswerCallback(SIPX_EVENT_CATEGORY category, 
-                        void* pInfo, 
-                        void* pUserData)
+bool SIPX_CALLING_CONVENTION AutoAnswerCallback(SIPX_EVENT_CATEGORY category, 
+                                                void* pInfo, 
+                                                void* pUserData)
 {
     if (category == EVENT_CATEGORY_CALLSTATE)
     {
@@ -102,7 +140,152 @@ bool AutoAnswerCallback(SIPX_EVENT_CATEGORY category,
                 sipxCallAccept(pCallInfo->hCall) ;
                 break ;
             case CALLSTATE_ALERTING:
-                sipxCallAnswer(pCallInfo->hCall) ;
+                {
+                    int delay = rand() % 500 ;
+                    OsTask::delay(delay) ;
+                    sipxCallAnswer(pCallInfo->hCall) ;
+                }
+                break ;
+            case CALLSTATE_DISCONNECTED:
+                {
+                    SIPX_CALL hDestroy = pCallInfo->hCall ;
+                    sipxCallDestroy(hDestroy) ; 
+                }
+                break ;
+            default:
+                break ;
+        }
+    }     
+    
+    return true;
+}
+
+void resetAutoAnswerCallbackHolder() 
+{
+    g_hAutoAnswerCallbackCallHolder = 0 ;
+    g_hAutoAnswerCallbackCallOtherHolder = 0 ;
+}
+
+
+bool SIPX_CALLING_CONVENTION AutoAnswerCallbackHolder(SIPX_EVENT_CATEGORY category, 
+                                                        void* pInfo, 
+                                                        void* pUserData)
+{
+    if (category == EVENT_CATEGORY_CALLSTATE)
+    {
+        SIPX_CALLSTATE_INFO* pCallInfo = (SIPX_CALLSTATE_INFO*) pInfo;
+
+        if (g_hAutoAnswerCallbackCallHolder == 0)
+        {
+            g_hAutoAnswerCallbackCallHolder = pCallInfo->hCall;
+        }
+        else if (g_hAutoAnswerCallbackCallHolder != pCallInfo->hCall)
+        {
+            g_hAutoAnswerCallbackCallOtherHolder = pCallInfo->hCall ;
+        }
+        g_hAutoAnswerCallbackLineHolder = pCallInfo->hLine;
+        
+        
+        // If we have user data verify the line url against it
+        if (pUserData)
+        {
+            char szBuffer[500] ; 
+            size_t nBuffer ;
+
+            if (strlen((const char*) pUserData))
+            {
+                if (pCallInfo->hLine)  // hLine can be 0, and therefore, sipxLineGetURI should fail)
+                {
+                    CPPUNIT_ASSERT_EQUAL(sipxLineGetURI(pCallInfo->hLine, szBuffer, sizeof(szBuffer), nBuffer), SIPX_RESULT_SUCCESS) ;
+                }
+            }
+        }
+
+        switch(pCallInfo->event)
+        {
+            case CALLSTATE_OFFERING:
+                sipxCallAccept(pCallInfo->hCall) ;
+                break ;
+            case CALLSTATE_ALERTING:
+                {
+                    // printf("%d Alerting\n", GetTickCount()) ;
+                    int delay = rand() % 500 ;
+                    OsTask::delay(delay) ;
+                    // printf("%d Answering\n", GetTickCount()) ;
+                    sipxCallAnswer(pCallInfo->hCall) ;                    
+                    delay = rand() % 500 ;
+                    OsTask::delay(delay) ;
+                    // printf("%d Holding\n", GetTickCount()) ;
+                    sipxCallHold(pCallInfo->hCall, true) ;                   
+                }
+                break ;
+            case CALLSTATE_DISCONNECTED:
+                {
+                    // printf("%d Dropping\n", GetTickCount()) ;
+                    SIPX_CALL hDestroy = pCallInfo->hCall ;
+                    sipxCallDestroy(hDestroy) ; 
+                }
+                break ;
+            default:
+                break ;
+        }
+    }     
+    
+    return true;
+}
+
+
+SIPX_SECURITY_ATTRIBUTES* gpAcceptSecurity = NULL;
+void setAutoAnswerSecurity(SIPX_SECURITY_ATTRIBUTES* pSecurity)
+{
+    gpAcceptSecurity = pSecurity;
+}
+
+bool AutoAnswerCallback_Secure(SIPX_EVENT_CATEGORY category, 
+                        void* pInfo, 
+                        void* pUserData)
+{
+    if (category == EVENT_CATEGORY_CALLSTATE)
+    {
+        SIPX_CALLSTATE_INFO* pCallInfo = (SIPX_CALLSTATE_INFO*) pInfo;
+
+        if (g_hAutoAnswerCallbackCall == 0)
+        {
+            g_hAutoAnswerCallbackCall = pCallInfo->hCall;
+        }
+        else if (g_hAutoAnswerCallbackCall != pCallInfo->hCall)
+        {
+            g_hAutoAnswerCallbackCallOther = pCallInfo->hCall ;
+        }
+        g_hAutoAnswerCallbackLine = pCallInfo->hLine;
+        
+        
+        // If we have user data verify the line url against it
+        if (pUserData)
+        {
+            char szBuffer[500] ; 
+            size_t nBuffer ;
+
+            if (strlen((const char*) pUserData))
+            {
+                if (pCallInfo->hLine)  // hLine can be 0, and therefore, sipxLineGetURI should fail)
+                {
+                    CPPUNIT_ASSERT_EQUAL(sipxLineGetURI(pCallInfo->hLine, szBuffer, sizeof(szBuffer), nBuffer), SIPX_RESULT_SUCCESS) ;
+                }
+            }
+        }
+
+        switch(pCallInfo->event)
+        {
+            case CALLSTATE_OFFERING:
+                sipxCallAccept(pCallInfo->hCall, NULL, gpAcceptSecurity) ;
+                break ;
+            case CALLSTATE_ALERTING:
+                {
+                    int delay = rand() % 40 ;
+                    OsTask::delay(delay) ;
+                    sipxCallAnswer(pCallInfo->hCall) ;
+                }
                 break ;
             case CALLSTATE_DISCONNECTED:
                 {
@@ -125,7 +308,7 @@ void resetAutoAnswerCallback2()
     g_hAutoAnswerCallbackCall2Other = 0 ;
 }
 
-bool AutoAnswerCallback2(SIPX_EVENT_CATEGORY category, 
+bool SIPX_CALLING_CONVENTION AutoAnswerCallback2(SIPX_EVENT_CATEGORY category, 
                          void* pInfo, 
                          void* pUserData)
 {
@@ -144,8 +327,7 @@ bool AutoAnswerCallback2(SIPX_EVENT_CATEGORY category,
         }
         g_hAutoAnswerCallbackLine2 = pCallInfo->hLine;
 
-        
-        
+                
         // If we have user data verify the line url against it
         if (pUserData)
         {
@@ -190,7 +372,7 @@ bool AutoAnswerCallback2(SIPX_EVENT_CATEGORY category,
 }
 
 
-bool AutoAnswerHangupCallback(SIPX_EVENT_CATEGORY category, 
+bool SIPX_CALLING_CONVENTION AutoAnswerHangupCallback(SIPX_EVENT_CATEGORY category, 
                               void* pInfo, 
                               void* pUserData)
 {
@@ -238,7 +420,53 @@ bool AutoAnswerHangupCallback(SIPX_EVENT_CATEGORY category,
 }
 
 
-bool AutoRejectCallback(SIPX_EVENT_CATEGORY category, 
+bool SIPX_CALLING_CONVENTION AutoAnswerHangupRingingCallback(SIPX_EVENT_CATEGORY category, 
+                              void* pInfo, 
+                              void* pUserData)
+{
+    if (category == EVENT_CATEGORY_CALLSTATE)
+    {
+        SIPX_CALLSTATE_INFO* pCallInfo = (SIPX_CALLSTATE_INFO*) pInfo;
+        g_hAutoAnswerCallbackCall = pCallInfo->hCall;
+        g_hAutoAnswerCallbackLine = pCallInfo->hLine;
+        
+        
+        // If we have user data verify the line url against it
+        if (pUserData)
+        {
+            char szBuffer[500] ; 
+            size_t nBuffer ;
+
+            if (strlen((const char*) pUserData))
+            {
+                if (g_hAutoAnswerCallbackLine)  // hLine can be 0, and therefore, sipxLineGetURI should fail)
+                {
+                    CPPUNIT_ASSERT_EQUAL(sipxLineGetURI(g_hAutoAnswerCallbackLine, szBuffer, sizeof(szBuffer), nBuffer), SIPX_RESULT_SUCCESS) ;
+                }
+            }
+        }
+
+        switch(pCallInfo->event)
+        {
+            case CALLSTATE_OFFERING:
+                sipxCallAccept(g_hAutoAnswerCallbackCall) ;
+                break ;
+            case CALLSTATE_ALERTING:
+                {
+                    SIPX_CALL hDestroy = g_hAutoAnswerCallbackCall ;
+                    sipxCallDestroy(hDestroy) ;
+                }
+                break ;
+            default:
+               break ;
+        }
+    }     
+    
+    return true;
+}
+
+
+bool SIPX_CALLING_CONVENTION AutoRejectCallback(SIPX_EVENT_CATEGORY category, 
                         void* pInfo, 
                         void* pUserData) 
 {
@@ -284,7 +512,7 @@ bool AutoRejectCallback(SIPX_EVENT_CATEGORY category,
 }
 
 
-bool AutoRedirectCallback(SIPX_EVENT_CATEGORY category, 
+bool SIPX_CALLING_CONVENTION AutoRedirectCallback(SIPX_EVENT_CATEGORY category, 
                           void* pInfo, 
                           void* pUserData) 
 {
@@ -330,7 +558,7 @@ bool AutoRedirectCallback(SIPX_EVENT_CATEGORY category,
 }
 
 
-bool basicCall_CallBack_Place(SIPX_EVENT_CATEGORY category,
+bool SIPX_CALLING_CONVENTION basicCall_CallBack_Place(SIPX_EVENT_CATEGORY category,
                               void* pInfo,
                               void* pUserData)
 {
@@ -343,7 +571,7 @@ bool basicCall_CallBack_Place(SIPX_EVENT_CATEGORY category,
 }
 
 
-bool basicCall_CallBack_Receive(SIPX_EVENT_CATEGORY category, 
+bool SIPX_CALLING_CONVENTION basicCall_CallBack_Receive(SIPX_EVENT_CATEGORY category, 
                                          void* pInfo, 
                                          void* pUserData)
 {
@@ -400,7 +628,7 @@ bool basicCall_CallBack_Receive(SIPX_EVENT_CATEGORY category,
 }
 
 
-bool basicCall_CallBack_Receive3(SIPX_EVENT_CATEGORY category,
+bool SIPX_CALLING_CONVENTION basicCall_CallBack_Receive3(SIPX_EVENT_CATEGORY category,
                               void* pInfo,
                               void* pUserData)
 { 
@@ -450,7 +678,7 @@ bool basicCall_CallBack_Receive3(SIPX_EVENT_CATEGORY category,
 
 
 
-bool basicCall_CallBack_Receive3_hangup(SIPX_EVENT_CATEGORY category,
+bool SIPX_CALLING_CONVENTION basicCall_CallBack_Receive3_hangup(SIPX_EVENT_CATEGORY category,
                               void* pInfo,
                               void* pUserData)
 { 
@@ -501,7 +729,7 @@ bool basicCall_CallBack_Receive3_hangup(SIPX_EVENT_CATEGORY category,
 }
 
 
-bool basicCall_CallBack_Receive3_busy(SIPX_EVENT_CATEGORY category,
+bool SIPX_CALLING_CONVENTION basicCall_CallBack_Receive3_busy(SIPX_EVENT_CATEGORY category,
                               void* pInfo,
                               void* pUserData)
 { 
@@ -630,3 +858,40 @@ bool basicCall_CallBack_Redirect(SIPX_EVENT_CATEGORY category,
     return true;
 }
 
+
+bool SIPX_CALLING_CONVENTION NewCallDetector1(SIPX_EVENT_CATEGORY category, 
+                                              void* pInfo, 
+                                              void* pUserData)
+{
+    if (category == EVENT_CATEGORY_CALLSTATE)
+    {
+        SIPX_CALLSTATE_INFO* pCallInfo = (SIPX_CALLSTATE_INFO*) pInfo;
+
+        if (pCallInfo->event == CALLSTATE_NEWCALL)
+        {
+            g_hNewCallDetectorCall1 = pCallInfo->hCall ;
+            g_hNewCallDetectorSourceCall1 = pCallInfo->hAssociatedCall ;
+        }
+    }
+    
+    return true;
+}
+
+
+bool SIPX_CALLING_CONVENTION NewCallDetector2(SIPX_EVENT_CATEGORY category, 
+                                              void* pInfo, 
+                                              void* pUserData)
+{
+    if (category == EVENT_CATEGORY_CALLSTATE)
+    {
+        SIPX_CALLSTATE_INFO* pCallInfo = (SIPX_CALLSTATE_INFO*) pInfo;
+
+        if (pCallInfo->event == CALLSTATE_NEWCALL)
+        {
+            g_hNewCallDetectorCall2 = pCallInfo->hCall ;
+            g_hNewCallDetectorSourceCall2 = pCallInfo->hAssociatedCall ;
+        }
+    }
+    
+    return true;
+}

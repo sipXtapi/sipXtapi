@@ -1,5 +1,5 @@
 ## Process this file with automake to produce Makefile.in
-include $(top_srcdir)/config/subdir.am
+include $(top_builddir)/config/sipXcommon.mak
 
 ## HACK
 ##    We don't need these libraries installed, so we declare them noinst_
@@ -33,11 +33,8 @@ version_Age=0
 libtestpluginA_la_LIBADD = \
 	@RT_LIBS@  \
 	-ldl \
-	-lpthread  
-
-if ISGCC
-libtestpluginA_la_LIBADD += -lstdc++
-endif
+	-lpthread  \
+	-lstdc++
 
 libtestpluginB_la_LIBADD = $(libtestpluginA_la_LIBADD)
 
@@ -56,4 +53,4 @@ libtestpluginA_la_SOURCES =  \
 
 libtestpluginB_la_SOURCES =  $(libtestpluginA_la_SOURCES)
 
-DISTCLEANFILES = Makefile.in
+

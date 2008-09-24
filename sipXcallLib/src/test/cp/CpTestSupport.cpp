@@ -1,9 +1,12 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 #include <cppunit/extensions/HelperMacros.h>
 #include <cppunit/TestCase.h>
@@ -12,7 +15,7 @@
 #include <cp/CallManager.h>
 #include <os/OsSocket.h>
 #include <net/SipUserAgent.h>
-#include <net/SdpCodecFactory.h>
+#include <sdp/SdpCodecList.h>
 #include <cp/CpTestSupport.h>
 #include <mi/CpMediaInterfaceFactoryFactory.h>
 
@@ -34,9 +37,6 @@ SipUserAgent *CpTestSupport::newSipUserAgent()
                 NULL, // auth DB
                 NULL, // auth user IDs
                 NULL, // auth passwords
-                NULL, // nat ping URL
-                0, // nat ping frequency
-                "PING", // nat ping method
                 NULL, // line mgr
                 SIP_DEFAULT_RTT, // first resend timeout
                 TRUE, // default to UA transaction
@@ -54,21 +54,18 @@ CallManager *CpTestSupport::newCallManager(SipUserAgent* sua)
 
         // Enable PCMU, PCMA, Tones/RFC2833
         UtlString codecList("258 257 128");
-        SdpCodecFactory* pCodecFactory = new SdpCodecFactory();
+        SdpCodecList* pCodecList = new SdpCodecList();
         UtlString oneCodec;
-        pCodecFactory->buildSdpCodecFactory(codecList);
-
-        int rtpPortStart = 9000;
-        int rtpPortEnd = 9999; 
+        pCodecList->addCodecs(codecList);
 
     CallManager *callManager =
        new CallManager(
           FALSE,
           NULL,
           TRUE, // early media in 180 ringing
-          pCodecFactory,
-          rtpPortStart, //rtp start
-          rtpPortEnd, //rtp end
+          pCodecList,
+          9000, //rtp start
+          9999, //rtp end
           localAddress.data(),
           localAddress.data(),
           sua,

@@ -1,10 +1,15 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
 #include <time.h>
@@ -342,7 +347,6 @@ void OsDateTimeBase::getDayOfWeek(int year, int  month, int dayOfMonth, int& day
     int gy = year - a;
     
     int m = month + (12 * a) - 2;
-    //int julianDay = (5 + dayOfMonth + gy + gy/4 + 31 * m / 12) % 7;
     dayOfWeek = (dayOfMonth + gy + (gy/4) - (gy/100) + (gy/400) + (31 * m) / 12) % 7;
     
 //    osPrintf("Month: %d day: %d, %d is on day of week: %d \n",
@@ -368,6 +372,8 @@ OsStatus OsDateTimeBase::cvtToTimeSinceEpoch(OsTime& rTime) const
    thisTime.tm_hour  = mHour;
    thisTime.tm_min   = mMinute;
    thisTime.tm_sec   = mSecond;
+   thisTime.tm_wday  = 0;
+   thisTime.tm_yday  = 0;     
    thisTime.tm_isdst = 0;
 
    thisTimeAsTimeT  = tm2Epoch(&thisTime);
@@ -435,8 +441,7 @@ void OsDateTimeBase::getLocalTimeString(UtlString& dateString)
     char ampm[] = "AM";
     time_t ltime;
     struct tm *today;
-#ifndef _VXWORKS
-
+#if !defined(_VXWORKS) && !defined(WINCE)
     /* Set time zone from TZ environment variable. If TZ is not set,
      * the operating system is queried to obtain the default value 
      * for the variable. 
@@ -457,7 +462,7 @@ void OsDateTimeBase::getLocalTimeString(UtlString& dateString)
        today->tm_hour = 12;
 
     char tz[4] = {"   "};
-#ifndef _VXWORKS
+#if !defined(_VXWORKS) && !defined(WINCE)
     UtlString timezone = tzname[0];
 
     if (today->tm_isdst == 1)
@@ -506,11 +511,6 @@ void OsDateTimeBase::getCurTime(OsTime& rTime)
    OsTime curTime(time(NULL), 0);
 
    rTime = curTime;
-}
-
-int OsDateTimeBase::usecs()
-{
-    return(mMicrosecond);
 }
 
 /* ============================ INQUIRY =================================== */

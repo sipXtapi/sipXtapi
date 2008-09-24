@@ -1,9 +1,12 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
 #include <stdio.h>
@@ -187,9 +190,6 @@ int main(int argc, char* argv[])
                                             ,NULL         // default authenticateDb
                                             ,NULL         // default authorizeUserIds
                                             ,NULL         // default authorizePasswords
-                                            ,NULL         // default natPingUrl
-                                            ,0            // default natPingFrequency
-                                            ,"PING"       // natPingMethod
                                             ,lineMgr
       );
    sipUA->allowMethod(SIP_REGISTER_METHOD);

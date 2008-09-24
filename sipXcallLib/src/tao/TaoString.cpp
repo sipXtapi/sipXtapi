@@ -1,10 +1,13 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
+
 
 #include <stdlib.h>
 #include <string.h>
@@ -21,10 +24,6 @@ unsigned int getTaoStrCnt()
 {
         return TaoString::mStrCnt;
 }
-#endif
-
-#if defined(_VXWORKS)
-extern "C" char* strdup(const char*);
 #endif
 
 //////////////////////////////////////////////////////////////////////
@@ -91,7 +90,7 @@ TaoString::TaoString(const char *str, const char *delimiter)
    }
    else if ((mCnt == 0) && (*str != 0))
    {
-      mStrArray[mCnt++] = (char *)strdup(str) ;
+      mStrArray[mCnt++] = strdup(str) ;
    }
    mStrArray[mCnt] = NULL;
 }

@@ -1,9 +1,12 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
 #include <stdio.h>
@@ -11,6 +14,7 @@
 #include <dirent.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <fcntl.h>
 
 // APPLICATION INCLUDES
 #include "os/OsFS.h"
@@ -103,6 +107,34 @@ OsStatus OsDirLinux::rename(const char* name)
 
 /* ============================ ACCESSORS ================================= */
 
+OsStatus OsDirLinux::getFileInfo(OsFileInfoBase& fileinfo) const
+{
+    OsStatus ret = OS_INVALID;
+    struct stat stats;
+    if (stat((char *)mDirName.data(),&stats) == 0)
+    {
+        ret = OS_SUCCESS;
+        if (stats.st_mode & S_IFDIR)
+            fileinfo.mbIsDirectory = TRUE;
+        else
+            fileinfo.mbIsDirectory = FALSE;
+
+        if (stats.st_mode & S_IWUSR)
+            fileinfo.mbIsReadOnly = FALSE;
+        else
+            fileinfo.mbIsReadOnly = TRUE;
+
+        OsTime createTime(stats.st_ctime,0);
+        fileinfo.mCreateTime = createTime;
+
+        OsTime modifiedTime(stats.st_mtime,0);
+        fileinfo.mModifiedTime = modifiedTime;
+
+        fileinfo.mSize = stats.st_size;
+
+    }
+    return ret;
+}
 
 /* ============================ INQUIRY =================================== */
 

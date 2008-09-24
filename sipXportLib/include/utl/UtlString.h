@@ -1,10 +1,12 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 
 #ifndef _UtlString_h_
@@ -15,26 +17,13 @@
 
 // APPLICATION INCLUDES
 #include "utl/UtlDefs.h"
-#include "utl/UtlContainable.h"
+#include "utl/UtlCopyableContainable.h"
 
 // DEFINES
 #define DEFAULT_UTLSTRING_CAPACITY 100 ///< initial capacity unless overridden by the constructor
 
 // MACROS
 // EXTERNAL FUNCTIONS
-#if defined(_VXWORKS)
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-extern int strncasecmp( const char *s1, const char *s2, int N );
-
-#ifdef __cplusplus
-}
-#endif
-#endif
-
-
 // EXTERNAL VARIABLES
 // CONSTANTS
 // STRUCTS
@@ -52,10 +41,12 @@ extern int strncasecmp( const char *s1, const char *s2, int N );
  *
  * @nosubgrouping
  */
-class UtlString : public UtlContainable
+class UtlString : public UtlCopyableContainable
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
+    static const UtlContainableType TYPE;    /** < Class type used for runtime checking */
+
     static const char* ssNull;
 
     static const size_t UTLSTRING_NOT_FOUND; ///< Returned from a search that failed.
@@ -116,6 +107,9 @@ public:
      * this becomes a copy of source with the same data and length.
      */
 
+    /// Clone method for UtlCopyableContainable requirements
+    UtlCopyableContainable* clone() const;
+
 ///@}
 // ================================================================
 /** @name                Assignment Operators
@@ -171,8 +165,8 @@ public:
 ///@{
 
     /// Allows references of the form stringVar(start,length) - also see append
-    UtlString operator() (size_t start, ///< Starting character position
-                                        //   (zero based)
+    UtlString operator() (size_t start, /**< Starting character position
+                                         *   (zero based) */
                           size_t len    /**< Number of characters to copy or
                                          *   UTLSTRING_TO_END for
                                          *   "the rest of the string" */
@@ -181,8 +175,9 @@ public:
      * An empty string is returned if the start and/or len is invalid.
      *
      * @note
-     * This method constructs a temporary UtlString object.  It will usually be more efficient
-     * to use the append method taking a UtlString, postion, and length.
+     * This method constructs a temporary UtlString object.  It will usually
+     * be more efficient to use the append method taking a UtlString, position,
+     * and length.
      * 
      */
 
@@ -264,7 +259,8 @@ public:
     /// Find the first instance of a single character starting at a specified offset.
     size_t index(char c, size_t offset) const;
     /**<
-     * @return the offset from the beginning of the string of the first c after offset or UTL_NOT_FOUND
+     * @return the offset from the beginning of the string of the first c after
+     *         offset or UTL_NOT_FOUND
      */
 
     /// Find the first instance of a single character.
@@ -312,7 +308,8 @@ public:
     /**<
      * The search target value (match) may contain null characters.
      *
-     * @return the offset from the beginning of the string of the match value after offset or UTL_NOT_FOUND
+     * @return the offset from the beginning of the string of the match value
+     *         after offset or UTL_NOT_FOUND
      */
 
     /// Find a match for the specified string starting at offset, with case sensitivity control
@@ -320,7 +317,8 @@ public:
     /**<
      * The search target value (match) may contain null characters.
      *
-     * @return the offset from the beginning of the string of the match value after offset or UTL_NOT_FOUND
+     * @return the offset from the beginning of the string of the match value
+     *         after offset or UTL_NOT_FOUND
      */
 
     /// Find the first instance of a null terminated string
@@ -329,7 +327,7 @@ public:
      * @return the offset of the string or UTL_NOT_FOUND
      */
 
-    /// Find the last instance of a null terminated string
+    /// Find the last instance of a character
     size_t last(char s) const;
     /**<
      * @return the offset of the string or UTL_NOT_FOUND
@@ -372,14 +370,15 @@ public:
      * UtlString destB;
      * destB.append(source, 6, 2);
      * @endcode
-     * The assignment to destA actually constructs a temporary UtlString on the stack
-     * as the output of the source(1,3), invokes the copy constructor to copy
-     * its contents into destA, and then destructs it.
+     * The assignment to destA actually constructs a temporary UtlString on the
+     * stack as the output of the source(1,3), invokes the copy constructor to
+     * copy its contents into destA, and then destructs it.
      *
-     * The assignment to destB copies the string contents directly from source to destB.
+     * The assignment to destB copies the string contents directly from source
+     * to destB.
      */
 
-    /// Append upto N bytes of the designated string to the end of this string.
+    /// Append up to N bytes of the designated string to the end of this string.
     UtlString& append(const char* szStr, size_t N);
 
     /// Append a single character to the end of this string.
@@ -417,9 +416,9 @@ public:
      */
 
     /// Insert a null terminated string
-        UtlString& insert(size_t position,   ///< postion to insert src C string
-                          const char* src    ///< null terminated string to insert
-                          );
+    UtlString& insert(size_t position,   ///< position to insert src C string
+                      const char* src    ///< null terminated string to insert
+                      );
      /**<
       * If an invalid position is specified, nothing is performed.
       */
@@ -435,7 +434,7 @@ public:
                       );
     /**<
      * Insert the value at character position.
-     * nn
+     * 
      * If an invalid position is specified, nothing is performed.
      */
 
@@ -467,7 +466,7 @@ public:
      */
 
     /// Replace N characters from a char*, with specified length string.
-    UtlString& replace(size_t pos,             ///< starting postion of the replacement
+    UtlString& replace(size_t pos,             ///< starting position of the replacement
                        size_t N,               ///< number of characters to replace
                        const char* replaceStr, ///< target replacement string
                        size_t L                ///< maximum number of characters of the replacement string to use.
@@ -576,7 +575,7 @@ public:
 ///@{
 
     /// Set the minimum capacity a string can hold without reallocation.
-    size_t capacity(size_t );
+    size_t capacity(size_t N);
     /**<
      * Set the string's storage capacity to the designated value.
      * This does not modify the value of the string, but rather
@@ -591,11 +590,13 @@ public:
      */
 
     /// Set a new size for the string.
-    void resize(size_t );
+    void resize(size_t N, UtlBoolean clearTail=TRUE);
     /**<
      * Resize the string to the specified size.  If the requested size is less
      * then the the current size (string length), the string will be truncated.
-     * If larger, the string will be padded with nulls.
+     * If requested size is larger then current size and \a clearTail is TRUE
+     * (default), the string will be padded with nulls. If \a clearTail is
+     * FALSE, string will not be padded with nulls.
      */
 
 ///@}
@@ -617,8 +618,6 @@ public:
     /**<
      * This returns a unique type for UtlString
      */
-
-    static const UtlContainableType TYPE;    ///< Class type used for runtime checking 
 
     /// Compare to any other UtlContainable
     virtual int compareTo(UtlContainable const *other) const;

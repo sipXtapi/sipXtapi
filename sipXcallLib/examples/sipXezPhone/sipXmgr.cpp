@@ -1,9 +1,12 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
 #include "os/OsDefs.h"
@@ -11,16 +14,26 @@
 // APPLICATION INCLUDES
 #include "stdwx.h"
 #include "tapi/sipXtapi.h"
+#include "tapi/sipXtapiEvents.h"
+//#include "tapi/sipXtapiInternal.h"
 #include "sipXmgr.h"
 #include "sipXezPhoneSettings.h"
 #include "sipXezPhoneApp.h"
 #include "os/OsSocket.h"
+#include "os/OsFS.h"
 #include "states/PhoneStateMachine.h"
 #include "utl/UtlInt.h"
 #include "utl/UtlString.h"
+#ifdef HAVE_NSS
+#include <nspr.h>
+#endif
 
-#include "tapi/sipXtapiInternal.h"
+//#include "tapi/sipXtapiInternal.h"
 
+#ifdef DIRECT_SHOW_RENDER
+    #import "..\SampleGrabberCallback\Debug\SampleGrabberCallback.dll"
+    #include "debug\samplegrabbercallback.tlh"
+#endif
 
 extern sipXezPhoneApp* thePhoneApp;
 
@@ -41,7 +54,10 @@ sipXmgr::sipXmgr() :
    m_hTransferInProgress(0),
    m_hCallController(0),
    mpVideoDisplay(NULL),
-   mpPreviewDisplay(NULL)
+   mpPreviewDisplay(NULL),
+   mSrtpKey(""),
+   mbLocationHeaderEnabled(false),
+   mTransferInProgress(false)
 {
     mpVideoDisplay = new SIPX_VIDEO_DISPLAY;
     memset(mpVideoDisplay, 0, sizeof(SIPX_VIDEO_DISPLAY));
@@ -75,8 +91,6 @@ sipXmgr& sipXmgr::getInstance()
 // Initialization of sipXtapi
 UtlBoolean sipXmgr::Initialize(const int iSipPort, const int iRtpPort, const bool bUseRport)
 {
-    sipXezPhoneSettings::getInstance().loadSettings();
-
     sipxConfigSetLogLevel(LOG_LEVEL_DEBUG);
     sipxConfigSetLogFile("ezphone.log"); 
 
@@ -97,27 +111,88 @@ UtlBoolean sipXmgr::Initialize(const int iSipPort, const int iRtpPort, const boo
 //            break;
 //        }
 //    }
+  
+    UtlString dbLocation;
+    UtlString certNickname;
+    UtlString certDbPassword;
+    int iSipTlsPort = 5061;
+    sipXezPhoneSettings::getInstance().getSmimeParameters(dbLocation, certNickname, certDbPassword);
+
+    if (certNickname.length() == 0)
+    {
+        iSipTlsPort = -1 ;
+    }
+    
     if (SIPX_RESULT_SUCCESS != sipxInitialize(&m_hInst,
                                                 iSipPort,
                                                 iSipPort,
-                                                DEFAULT_TLS_PORT,
-                                                DEFAULT_RTP_START_PORT,
+                                                iSipTlsPort,
+                                                iRtpPort,
                                                 DEFAULT_CONNECTIONS,
                                                 sipXezPhoneSettings::getInstance().getIdentity(),
-                                                NULL
+                                                NULL,
+                                                false, 
+                                                certNickname,
+                                                certDbPassword,
+                                                "."
                                                 ))
     {
+        wxMessageBox("sipXezPhone failed to initialize sipXtapi (expiration or port in use?)", "Unable to start") ;
         return false;
     }
 
+    // set dns srv timeout to something reasonable
+    sipxConfigSetDnsSrvTimeouts(2, 2);
+
+    // Enable GIPS tracing by default
+    sipxConfigEnableGIPSTracing(m_hInst, true) ;
+
+    if (sipXezPhoneSettings::getInstance().getAudioInputDevice().length())
+    {
+        sipxAudioSetCallInputDevice(m_hInst, sipXezPhoneSettings::getInstance().getAudioInputDevice()) ;
+    }
+    if (sipXezPhoneSettings::getInstance().getAudioOutputDevice().length())
+    {
+        sipxAudioSetRingerOutputDevice(m_hInst, sipXezPhoneSettings::getInstance().getAudioOutputDevice()) ;
+        sipxAudioSetCallOutputDevice(m_hInst, sipXezPhoneSettings::getInstance().getAudioOutputDevice()) ;
+    }
+#ifdef VIDEO
+    if (sipXezPhoneSettings::getInstance().getVideoCaptureDevice().length())
+    {
+        sipxConfigSetVideoCaptureDevice(m_hInst, sipXezPhoneSettings::getInstance().getVideoCaptureDevice()) ;
+    }
+#endif
+
     sipxConfigSetUserAgentName(m_hInst, "sipXezPhone", false);
+    sipxConfigEnableSipDateHeader(m_hInst, false) ;    
+    // sipxConfigEnableSipAllowHeader(m_hInst, false) ;
 
     if (UtlString(sipXezPhoneSettings::getInstance().getStunServer()).strip(UtlString::both, ' ').length() > 0)
     {    
         sipxConfigEnableStun(m_hInst,
                              sipXezPhoneSettings::getInstance().getStunServer().data(), 
-                             DEFAULT_STUN_KEEPALIVE, SIPX_STUN_CHANGE_PORT); 
-        //sleep(2000); // kludge alert - wait for the stun response
+                             sipXezPhoneSettings::getInstance().getStunServerPort(), 
+                             DEFAULT_STUN_KEEPALIVE); 
+        //Sleep(2000); // kludge alert - wait for the stun response
+    }
+
+    if (UtlString(sipXezPhoneSettings::getInstance().getTurnServer()).strip(UtlString::both, ' ').length() > 0)
+    {    
+        sipxConfigEnableTurn(m_hInst,
+                             sipXezPhoneSettings::getInstance().getTurnServer().data(), 
+                             sipXezPhoneSettings::getInstance().getTurnServerPort(), 
+                             sipXezPhoneSettings::getInstance().getTurnUsername(),
+                             sipXezPhoneSettings::getInstance().getTurnPassword(),
+                             DEFAULT_STUN_KEEPALIVE); 
+    }
+
+    if (sipXezPhoneSettings::getInstance().getIceEnabled())
+    {
+        sipxConfigEnableIce(m_hInst) ;
+    }
+    else
+    {
+        sipxConfigDisableIce(m_hInst) ;
     }
 
     if (sipXezPhoneSettings::getInstance().getProxyServer().length() > 0)
@@ -142,37 +217,78 @@ UtlBoolean sipXmgr::Initialize(const int iSipPort, const int iRtpPort, const boo
     {
         return false;
     }
-    OsTask::delay(2000);
-    if (SIPX_RESULT_SUCCESS != sipxLineAdd(m_hInst, sipXezPhoneSettings::getInstance().getIdentity(), &m_hLine))
+
+    // Select Contact Id
+    SIPX_CONTACT_ID contactId = 0 ;
+    size_t numAddresses = 0;
+    SIPX_CONTACT_ADDRESS addresses[32];
+    sipxConfigGetLocalContacts(m_hInst, addresses, 32, numAddresses);    
+    for (unsigned int i = 0; i < numAddresses; i++)
+    {
+        if (addresses[i].eContactType == sipXezPhoneSettings::getInstance().getContactType())
+        {
+            contactId = addresses[i].id ;
+            break ;            
+        }
+    }
+        
+    if (SIPX_RESULT_SUCCESS != sipxLineAdd(m_hInst, sipXezPhoneSettings::getInstance().getIdentity(), &m_hLine, contactId))
     {
         return false;
     }
 
-    if (SIPX_RESULT_SUCCESS != sipxLineAddCredential(m_hLine, 
-                                                    sipXezPhoneSettings::getInstance().getUsername(),
-                                                    sipXezPhoneSettings::getInstance().getPassword(),
-                                                    sipXezPhoneSettings::getInstance().getRealm()) )
+    if (    (sipXezPhoneSettings::getInstance().getUsername().length() > 0) &&
+            (sipXezPhoneSettings::getInstance().getPassword().length() > 0))
     {
-        return false;
-    }
+        if (SIPX_RESULT_SUCCESS != sipxLineAddCredential(m_hLine, 
+                                                        sipXezPhoneSettings::getInstance().getUsername(),
+                                                        sipXezPhoneSettings::getInstance().getPassword(),
+                                                        sipXezPhoneSettings::getInstance().getRealm()) )
+        {
+            return false;
+        }
 
-    OsTask::delay(2000);
-    if (SIPX_RESULT_SUCCESS != sipxLineRegister(m_hLine, true))
-    {
-        return false;
+        if (SIPX_RESULT_SUCCESS != sipxLineRegister(m_hLine, true))
+        {
+            return false;
+        }
     }
+    
     
     sipXmgr::getInstance().setSpeakerVolume(sipXezPhoneSettings::getInstance().getSpeakerVolume());
     sipXmgr::getInstance().setMicGain(sipXezPhoneSettings::getInstance().getMicGain());
 
     sipXmgr::getInstance().enableAEC(sipXezPhoneSettings::getInstance().getEnableAEC());
     sipXmgr::getInstance().enableOutOfBandDTMF(sipXezPhoneSettings::getInstance().getEnableOOBDTMF());
-    sipXmgr::getInstance().setCodecPreferences(sipXezPhoneSettings::getInstance().getCodecPref());
 
-#ifdef TEST_GSM
-    sipxConfigSetAudioCodecByName(m_hInst, "GSM");
+    int audioPref = sipXezPhoneSettings::getInstance().getCodecPref();
+    if (audioPref == 4)
+    {
+        UtlString codecName = sipXezPhoneSettings::getInstance().getSelectedAudioCodecs();
+        sipXmgr::getInstance().setAudioCodecByName(codecName.data());
+    }
+    else
+    {
+        sipXmgr::getInstance().setCodecPreferences(sipXezPhoneSettings::getInstance().getCodecPref()); 
+    }
+
+
+#ifdef VIDEO
+    int iQuality, iBitRate, iFrameRate ;
+    sipXezPhoneSettings::getInstance().getVideoParameters(iQuality, iBitRate, iFrameRate) ;
+
+    sipxConfigSetVideoParameters(m_hInst, iBitRate, iFrameRate) ;
+    sipxConfigSetVideoCpuUsage(m_hInst, sipXezPhoneSettings::getInstance().getVideoCPU()) ;
 #endif
-
+    
+    sipxConfigEnableSipShortNames(m_hInst, sipXezPhoneSettings::getInstance().getShortNamesEnabled());
+    UtlString locationHeader = sipXezPhoneSettings::getInstance().getLocationHeader().data();
+    if (locationHeader.length() != 0)
+    {
+        sipxConfigSetLocationHeader(m_hInst, locationHeader.data());
+        enableLocationHeader(true);
+    }
+    sipxConfigSetDnsSrvTimeouts(2, 2);
     return true;
 }
 
@@ -183,19 +299,12 @@ void sipXmgr::UnInitialize()
     {
         sipxEventListenerRemove(sipXmgr::spSipXmgr->m_hInst, SipCallbackProc, NULL);
         sipxLineRemove(sipXmgr::spSipXmgr->m_hLine);
-        sipXmgr::spSipXmgr->m_hLine = 0;   
-
+        sipXmgr::spSipXmgr->m_hLine = 0;
+          
         // We need to wait for lines to unregister / calls to drop
-        for (int i=0; i<10; i++)
+        if (sipxUnInitialize(sipXmgr::spSipXmgr->m_hInst) != SIPX_RESULT_SUCCESS)
         {
-            if (sipxUnInitialize(sipXmgr::spSipXmgr->m_hInst) != SIPX_RESULT_SUCCESS)
-            {
-                OsTask::delay(1000) ;
-            }
-            else
-            {
-                break ;
-            }
+            sipxUnInitialize(sipXmgr::spSipXmgr->m_hInst, true) ;
         }
 
         sipXmgr::spSipXmgr->m_hInst = NULL;
@@ -219,6 +328,10 @@ bool sipXmgr::SipCallbackProc(SIPX_EVENT_CATEGORY category, void* pInfo, void* p
             return sipXmgr::getInstance().handleInfoStatusEvent(pInfo, pUserData);
         case EVENT_CATEGORY_INFO:
             return sipXmgr::getInstance().handleInfoEvent(pInfo, pUserData);
+        case EVENT_CATEGORY_SECURITY:
+            return sipXmgr::getInstance().handleSecurityEvent(pInfo, pUserData);
+        case EVENT_CATEGORY_MEDIA:
+            return sipXmgr::getInstance().handleMediaEvent(pInfo, pUserData);
         default:
             return false;
     }
@@ -231,7 +344,6 @@ bool sipXmgr::handleCallstateEvent(void* pInfo, void* pUserData)
     SIPX_CALLSTATE_INFO* pCallInfo = static_cast<SIPX_CALLSTATE_INFO*>(pInfo);   
 
     char szEventDesc[128] ;
-    char szPayloadType[5];
 
     sipxEventToString(EVENT_CATEGORY_CALLSTATE, pInfo, szEventDesc, sizeof(szEventDesc)) ;
     printf("<-> Received Event: %s \n", szEventDesc) ;
@@ -266,54 +378,39 @@ bool sipXmgr::handleCallstateEvent(void* pInfo, void* pUserData)
             break;
         }
         case CALLSTATE_NEWCALL:
-            if (pCallInfo->cause == CALLSTATE_NEW_CALL_TRANSFERRED)
+            if (pCallInfo->cause == CALLSTATE_CAUSE_TRANSFERRED)
             {
                 mTransferInProgress = true;
                 m_hTransferInProgress = pCallInfo->hCall;
                 m_hCallController = m_hCall;
                 m_hCall = m_hTransferInProgress;
             }
+            else if (pCallInfo->cause == CALLSTATE_CAUSE_TRANSFER)
+            {
+                m_hCall = pCallInfo->hCall;
+            }
             break;
         case CALLSTATE_CONNECTED:
-            if (pCallInfo->cause == CALLSTATE_CONNECTED_ACTIVE)
-            {
-                /*  FOR TESTING THE sipxCallGetVoiceEnginePtr 
-                class fred : public wxThread
-                {
-                    public:
-                        fred(SIPX_CALL hCall) { mhCall = hCall; }
-                        void* Entry()
-                        {   
-                            GipsVoiceEngineLib* pLib = sipxCallGetVoiceEnginePtr(mhCall);
-                            return NULL;
-                        }
-
-                        void OnExit() { }
-                    private:
-                        SIPX_CALL mhCall;
-                };
-                fred* f = new fred(pCallInfo->hCall);
-                f->Create();
-                f->Run();                
-                */
-                PhoneStateMachine::getInstance().OnConnected();
-            }
-            else if (pCallInfo->cause == CALLSTATE_CONNECTED_ACTIVE_HELD)
-            {
-                thePhoneApp->addLogMessage("Remote HOLD\n");
-            }
-            else if (pCallInfo->cause == CALLSTATE_CONNECTED_INACTIVE)
-            {
-                PhoneStateMachine::getInstance().OnConnectedInactive();
-            }
+            PhoneStateMachine::getInstance().OnConnected();            
             break;
+        case CALLSTATE_BRIDGED:
+            thePhoneApp->addLogMessage("Local HOLD (Bridging)\n");
+            break ;
+        case CALLSTATE_REMOTE_HELD:
+            PhoneStateMachine::getInstance().OnConnectedInactive();
+            //thePhoneApp->addLogMessage("Remote HOLD\n");
+            break ;
+        case CALLSTATE_HELD:
+            PhoneStateMachine::getInstance().OnConnectedInactive();
+            break ;
         case CALLSTATE_REMOTE_ALERTING:
             PhoneStateMachine::getInstance().OnRemoteAlerting();
             break;
         case CALLSTATE_DISCONNECTED:
-            if (CALLSTATE_DISCONNECTED_BUSY == pCallInfo->cause)
+            if (CALLSTATE_CAUSE_BUSY == pCallInfo->cause)
             {
                 PhoneStateMachine::getInstance().OnRemoteBusy();
+                sipXmgr::getInstance().disconnect(pCallInfo->hCall, false);
             }
             else if (mTransferInProgress && m_hTransferInProgress && pCallInfo->hCall == m_hCallController)
             {
@@ -323,7 +420,7 @@ bool sipXmgr::handleCallstateEvent(void* pInfo, void* pUserData)
             }
             else
             {
-                PhoneStateMachine::getInstance().OnDisconnected(hCall);
+                PhoneStateMachine::getInstance().OnDisconnected(pCallInfo->hCall);
             }
             break;
         case CALLSTATE_OFFERING: 
@@ -335,26 +432,41 @@ bool sipXmgr::handleCallstateEvent(void* pInfo, void* pUserData)
         case CALLSTATE_DESTROYED:
             break;
             break;
-        case CALLSTATE_AUDIO_EVENT:
-            if (pCallInfo->cause == CALLSTATE_AUDIO_START)
-            {
-                sprintf(szPayloadType, "%d", pCallInfo->codecs.audioCodec.iPayloadType);
-                thePhoneApp->addLogMessage("Audio codec: " + 
-                                            UtlString(pCallInfo->codecs.audioCodec.cName) +
-                                            ", Pl type: " +
-                                            UtlString(szPayloadType) +
-                                            "\n");
-                if (pCallInfo->codecs.videoCodec.iPayloadType != -1)
-                {
-                    sprintf(szPayloadType, "%d", pCallInfo->codecs.videoCodec.iPayloadType);
-                    thePhoneApp->addLogMessage("Video codec: " + 
-                                                UtlString(pCallInfo->codecs.videoCodec.cName) +
-                                                ", Pl type: " +
-                                                UtlString(szPayloadType) +
-                                                "\n");
-                }
-            }
-            break;
+// ::TODO:: FIXME with new media events
+//        case CALLSTATE_CONNECTION_IDLE:
+//            sprintf(szEventDesc, "Idle for %d seconds\n", pCallInfo->idleTime);
+//            thePhoneApp->addLogMessage(szEventDesc);
+//            break;
+//        case CALLSTATE_AUDIO_EVENT:
+//            if (pCallInfo->cause == CALLSTATE_CAUSE_AUDIO_START)
+//            {
+//                sprintf(szPayloadType, "%d", pCallInfo->codecs.audioCodec.iPayloadType);
+//                if (pCallInfo->codecs.bIsEncrypted)
+//                {
+//                    sprintf(szSrtpStatus, "encrypted");
+//                }
+//                else
+//                {
+//                    sprintf(szSrtpStatus, "unencrypted");
+//                }
+//                thePhoneApp->addLogMessage("Acodec: " + 
+//                                            UtlString(pCallInfo->codecs.audioCodec.cName) +
+//                                            " (" +
+//                                            UtlString(szPayloadType) +
+//                                            "," +
+//                                            UtlString(szSrtpStatus) +
+//                                            ")\n");
+//                if (pCallInfo->codecs.videoCodec.iPayloadType != -1)
+//                {
+//                    sprintf(szPayloadType, "%d", pCallInfo->codecs.videoCodec.iPayloadType);
+//                    thePhoneApp->addLogMessage("Vcodec: " + 
+//                                                UtlString(pCallInfo->codecs.videoCodec.cName) +
+//                                                " (" +
+//                                                UtlString(szPayloadType) +
+//                                                ")\n");
+//            }
+//            }
+//            break;
         default:
             break;      
     }
@@ -418,6 +530,66 @@ bool sipXmgr::handleInfoEvent(void* pInfo, void* pUserData)
     return true;
 }
 
+bool sipXmgr::handleSecurityEvent(void* pInfo, void* pUserData)
+{
+    SIPX_SECURITY_INFO* pSecurityMsg = static_cast<SIPX_SECURITY_INFO*>(pInfo);  
+    bool bRet = true;
+    char szMessage[768];
+    char szEvent[256];
+    char szCause[256];
+    
+    sipxSecurityEventToString(pSecurityMsg->event, szEvent, sizeof(szEvent));
+    sipxSecurityCauseToString(pSecurityMsg->cause, szCause, sizeof(szCause));
+
+    sprintf(szMessage, "%s - %s\n", szEvent, szCause);
+    
+    thePhoneApp->addLogMessage(szMessage);
+
+    // if this is a signature callback,
+    // or a TLS server certificate callback, 
+    // we can choose to
+    // reject the signature or certificate here
+    if   (pSecurityMsg->cause == SECURITY_CAUSE_SIGNATURE_NOTIFY ||
+         (pSecurityMsg->event == SECURITY_TLS &&
+         pSecurityMsg->cause == SECURITY_CAUSE_TLS_SERVER_CERTIFICATE ) ) 
+    {
+        if (pSecurityMsg->pCertificate)
+        {
+            bRet = true;
+        }
+        else
+        {
+            bRet = false;
+        }
+
+        sprintf(szMessage, "CERTIFICATE SIGNATURE: %s\n", pSecurityMsg->szSubjAltName);
+        thePhoneApp->addLogMessage(szMessage);
+
+        // do some check here with pSecurityMsg->szSubjAltName
+        // set bRet accordingly
+    }
+    else
+    {
+        bRet = false;
+    }
+    return bRet;
+}
+
+bool sipXmgr::handleMediaEvent(void* pInfo, void* pUserData)
+{
+    SIPX_MEDIA_INFO* pMediaInfo = static_cast<SIPX_MEDIA_INFO*>(pInfo);  
+    char szMessage[768];
+    char szEvent[256];
+    char szCause[256];
+    
+    sipxMediaEventToString(pMediaInfo->event, szEvent, sizeof(szEvent));
+    sipxMediaCauseToString(pMediaInfo->cause, szCause, sizeof(szCause));
+
+    sprintf(szMessage, "%s - %s\n", szEvent, szCause);
+    
+    thePhoneApp->addLogMessage(szMessage);
+    return true;
+}
 // Callback for handling line events
 /*
 void sipXmgr::SipLineCallbackProc(SIPX_LINE hLine,
@@ -506,50 +678,148 @@ void sipXmgr::placeCall(wxString szNumber)
 }
 
 
-void sipXmgr::disconnect()
+bool sipXmgr::disconnect(SIPX_CALL hCall, bool bDisconnectAll)
 {
+    SIPX_CALL aCall[10];
+    bool bDisconnected = true;
+    size_t numConnections;
+
     if (m_hConf != 0)
     {
-        sipxConferenceDestroy(m_hConf);
-        m_hConf = 0;
-        mConfCallHandleMap.destroyAll();
+        if (!bDisconnectAll)
+        {
+            sipxConferenceRemove(m_hConf, hCall);
+            sipxConferenceGetCalls(m_hConf, aCall, 10, numConnections);
+            if (numConnections == 0)
+            {
+                sipxConferenceDestroy(m_hConf);
+                m_hConf = 0;
+                mConfCallHandleMap.destroyAll();
+            }
+            else
+            {
+                bDisconnected = false;
+            }
+        }
+        else
+        {
+            sipxConferenceGetCalls(m_hConf, aCall, 10, numConnections);
+            for (int i=0; i<numConnections && i<10; i++)
+            {
+                sipxConferenceRemove(m_hConf, aCall[i]);
+            }
+            sipxConferenceDestroy(m_hConf);
+            m_hConf = 0;
+            mConfCallHandleMap.destroyAll();
+        }
     }
-    if (m_hCall != 0)
+    if (hCall != 0)
+    {
+        sipxCallDestroy(hCall);
+    }
+    else if (m_hCall != 0)
     {
         sipxCallDestroy(m_hCall);
     }
+    return bDisconnected;
 }
 
 // Place a call to szSipUrl as szFromIdentity
-bool sipXmgr::placeCall(const char* szSipUrl, const char* szFromIdentity, const char* szUsername, const char* szPassword, const char *szRealm)
+bool sipXmgr::placeCall(const char* szSipUrl,
+                        const char* szFromIdentity,
+                        const char* szUsername,
+                        const char* szPassword, 
+                        const char *szRealm)
 {
     bool bRC = false ;
 
-    sipxCallCreate(m_hInst, m_hLine, &m_hCall) ;    
-    
+    sipxCallCreate(m_hInst, m_hLine, &m_hCall) ;
+   
     SIPX_VIDEO_DISPLAY display;
-    // TODO - clean up the memory leak introduced above   
+    SIPX_SECURITY_ATTRIBUTES security;
     
     display.handle = sipXmgr::getInstance().getVideoWindow();
+#ifdef DIRECT_SHOW_RENDER    
+    display.type = DIRECT_SHOW_FILTER;
+#else
     display.type = SIPX_WINDOW_HANDLE_TYPE;
-        
-    /* for testing of the LOCAL address type
+#endif
+
+    // Select Contact Id
+    SIPX_CONTACT_ID contactId = 0 ;
     size_t numAddresses = 0;
     SIPX_CONTACT_ADDRESS addresses[32];
-    sipxConfigGetLocalContacts(m_hInst, addresses, 32, numAddresses);
-    
-    for (int i = 0; i < numAddresses; i++)
+    sipxConfigGetLocalContacts(m_hInst, addresses, 32, numAddresses);    
+    for (unsigned int i = 0; i < numAddresses; i++)
     {
-        if (addresses[i].eContactType == LOCAL)
+        if (addresses[i].eContactType == sipXezPhoneSettings::getInstance().getContactType())
         {
-            break;
+            contactId = addresses[i].id ;
+            break ;            
         }
     }
-    
-    sipxCallConnect(m_hCall, szSipUrl, addresses[i].id, pDisplay) ;
-    */
+        
+    // do a certficate lookup based on szSipUrl    
+    const UtlString* pCertFile = sipXezPhoneSettings::getInstance().lookupCertificate(szSipUrl);
+    int iSecurity;
+    UtlString srtpKey;
+    UtlString dbLocation;
+    UtlString certNickname;
+    UtlString certDbPassword;
 
-    sipxCallConnect(m_hCall, szSipUrl, 0, &display) ;
+    sipXezPhoneSettings::getInstance().getSrtpParameters(iSecurity);
+    bool bSecurity;
+    sipXezPhoneSettings::getInstance().getSecurityEnabled(bSecurity);
+
+    SIPX_CALL_OPTIONS options;
+    memset((void*)&options, 0, sizeof(SIPX_CALL_OPTIONS));
+    options.cbSize = sizeof(SIPX_CALL_OPTIONS);
+    options.sendLocation = sipXmgr::getInstance().isLocationHeaderEnabled();
+    options.bandwidthId =  AUDIO_CODEC_BW_DEFAULT;
+
+    if (pCertFile && bSecurity && iSecurity > 0)
+    {
+        sipXezPhoneSettings::getInstance().getSmimeParameters(dbLocation, certNickname, certDbPassword);
+
+        security.setSecurityLevel((SIPX_SRTP_LEVEL)iSecurity);
+
+        char szPublicKey[4096];
+        unsigned long actualRead = 0;
+    
+        OsFile publicKeyFile(pCertFile->data());
+
+        publicKeyFile.open();
+        publicKeyFile.read((void*)szPublicKey, 4096, actualRead);
+        publicKeyFile.close();
+    
+        UtlString der(szPublicKey, actualRead);
+
+        security.setSmimeKey(szPublicKey, actualRead);
+        
+        security.setSrtpKey(mSrtpKey.data(), 30);
+        security.setSecurityLevel((SIPX_SRTP_LEVEL)iSecurity);
+		if (thePhoneApp->getFrame().getVideoVisible())
+		{
+			sipxCallConnect(m_hCall, szSipUrl, contactId, &display, &security, true, &options) ;
+		}
+		else
+		{
+			sipxCallConnect(m_hCall, szSipUrl, contactId, NULL, &security, true, &options) ;
+		}
+    }
+    else
+    {
+        // options.rtpTransportOptions = SIPX_RTP_TRANSPORT_TCP;
+        options.rtpTransportFlags = SIPX_RTP_TRANSPORT_UDP;
+		if (thePhoneApp->getFrame().getVideoVisible())
+		{
+	        sipxCallConnect(m_hCall, szSipUrl, contactId, &display, NULL, true, &options);
+		}
+		else
+		{
+	        sipxCallConnect(m_hCall, szSipUrl, contactId, NULL, NULL, true, &options);
+		}
+    }
    
     return bRC ;
 }
@@ -562,9 +832,51 @@ void sipXmgr::release()
      
       delete sipXmgr::spSipXmgr;
       sipXmgr::spSipXmgr = NULL;
-      sipXezPhoneSettings::getInstance().saveSettings();
+      //sipXezPhoneSettings::getInstance().saveSettings();
    }
 }
+
+void sipXmgr::readPublicKeyFile(UtlString& der, UtlString filename)
+{
+    // read the remote party's public key for s/mime encryption
+    OsFile publicKeyFile(filename);
+    
+    char szPublicKey[4096];
+    unsigned long actualRead = 0;
+
+    publicKeyFile.open();
+    publicKeyFile.read((void*)szPublicKey, sizeof(szPublicKey), actualRead);
+    publicKeyFile.close();
+
+    der.append(szPublicKey, actualRead);
+
+}
+/*
+void sipXmgr::readPkcs12File(UtlString& pkcs12, UtlString filename)
+{
+    // now decrypt
+    OsFile privateKeyFile(filename);
+    // build a key
+    
+    char szPkcs12[4096];
+    unsigned long actualRead = 0;
+
+    privateKeyFile.open();
+    privateKeyFile.read((void*)szPkcs12, sizeof(szPkcs12), actualRead);
+    privateKeyFile.close();
+
+    UtlString myPkcs12(szPkcs12, actualRead);
+    pkcs12 = myPkcs12;
+}
+*/
+
+void sipXmgr::getLocalContacts(size_t nMaxAddresses,
+                               SIPX_CONTACT_ADDRESS addresses[],
+                               size_t& nActualAddresses) 
+{
+    sipxConfigGetLocalContacts(m_hInst, addresses, nMaxAddresses, nActualAddresses) ;
+}
+
 
 void sipXmgr::removeCurrentLine()
 {
@@ -653,7 +965,7 @@ void sipXmgr::setMicGain(const int gain)
    
    // not yet implemented in the Linux
    #ifdef _WIN32
-       sipxAudioSetGain(m_hInst, myGain);
+//       sipxAudioSetGain(m_hInst, myGain);
    #endif
    
 }
@@ -687,7 +999,7 @@ void sipXmgr::holdCurrentCall()
     else
     {
         // hold the 'main' call
-        sipxCallHold(m_hCall);
+        sipxCallHold(m_hCall) ;
     }
     
 }
@@ -762,10 +1074,74 @@ bool sipXmgr::addConfParty(const char* const szParty)
         
         pDisplay->cbSize = sizeof(SIPX_VIDEO_DISPLAY);
         pDisplay->handle = sipXmgr::getInstance().getVideoWindow();
+#ifdef DIRECT_SHOW_RENDER        
+        pDisplay->type = DIRECT_SHOW_FILTER;
+#else
         pDisplay->type = SIPX_WINDOW_HANDLE_TYPE;
+#endif         
+
+        // Select Contact Id
+        SIPX_CONTACT_ID contactId = 0 ;
+        size_t numAddresses = 0;
+        SIPX_CONTACT_ADDRESS addresses[32];
+        sipxConfigGetLocalContacts(m_hInst, addresses, 32, numAddresses);    
+        for (unsigned int i = 0; i < numAddresses; i++)
+        {
+            if (addresses[i].eContactType == sipXezPhoneSettings::getInstance().getContactType())
+            {
+                contactId = addresses[i].id ;
+                break ;            
+            }
+        }
         
-        if (SIPX_RESULT_SUCCESS == sipxConferenceAdd(m_hConf, getCurrentLine(), szParty, &hNewCall, 0,
-                                                     pDisplay ))
+        SIPX_SECURITY_ATTRIBUTES* pSecurity = NULL;
+        SIPX_SECURITY_ATTRIBUTES security;
+        bool bSecurityEnabled = false;
+        sipXezPhoneSettings::getInstance().getSecurityEnabled(bSecurityEnabled);
+        const UtlString* pCertFile = sipXezPhoneSettings::getInstance().lookupCertificate(szParty);
+
+        if (pCertFile && bSecurityEnabled)
+        {
+            // do a certficate lookup based on szSipUrl    
+            int iSecurity;
+            UtlString srtpKey;
+            UtlString dbLocation;
+            UtlString certNickname;
+            UtlString certDbPassword;
+
+            sipXezPhoneSettings::getInstance().getSrtpParameters(iSecurity);
+            sipXezPhoneSettings::getInstance().getSmimeParameters(dbLocation, certNickname, certDbPassword);
+
+            char szPublicKey[4096];
+            unsigned long actualRead = 0;
+        
+            OsFile publicKeyFile(pCertFile->data());
+
+            publicKeyFile.open();
+            publicKeyFile.read((void*)szPublicKey, 4096, actualRead);
+            publicKeyFile.close();
+        
+            UtlString der(szPublicKey, actualRead);
+
+            security.setSmimeKey(szPublicKey, actualRead);
+            
+            security.setSrtpKey(mSrtpKey.data(), 30);
+            security.setSecurityLevel((SIPX_SRTP_LEVEL)iSecurity);
+
+            if (pCertFile && iSecurity > 0)
+            {
+                pSecurity = &security;
+            }
+        }
+
+        SIPX_CALL_OPTIONS options;
+        memset((void*)&options, 0, sizeof(SIPX_CALL_OPTIONS));
+        options.cbSize = sizeof(SIPX_CALL_OPTIONS);
+        options.sendLocation = sipXmgr::getInstance().isLocationHeaderEnabled();
+        options.bandwidthId =  AUDIO_CODEC_BW_DEFAULT;
+
+        if (SIPX_RESULT_SUCCESS == sipxConferenceAdd(m_hConf, getCurrentLine(), szParty, &hNewCall, contactId,
+                                                     pDisplay, pSecurity, true, &options))
         {
             mConfCallHandleMap.insertKeyAndValue(new UtlString(szParty), new UtlInt(hNewCall));
             
@@ -858,7 +1234,7 @@ bool sipXmgr::getCodecList(UtlString& codecList)
 bool sipXmgr::getVideoCodecPreferences(int* pCodecPref)
 {
     bool rc = false;
-
+#ifdef VIDEO
     if (pCodecPref)
     {
         if (sipxConfigGetVideoCodecPreferences(m_hInst, (SIPX_VIDEO_BANDWIDTH_ID*)pCodecPref) == SIPX_RESULT_SUCCESS)
@@ -866,13 +1242,14 @@ bool sipXmgr::getVideoCodecPreferences(int* pCodecPref)
             rc = true;
         }
     }
+#endif    
     return rc;
 }
 
 bool sipXmgr::getVideoCodecList(UtlString& codecList)
 {
     bool rc = false;
-
+#ifdef VIDEO
     int numCodecs;
     SIPX_VIDEO_CODEC codec;
     UtlString sBandWidth;
@@ -905,6 +1282,7 @@ bool sipXmgr::getVideoCodecList(UtlString& codecList)
         }
         rc = true;
     }
+#endif    
     return rc;
 }
 
@@ -922,11 +1300,12 @@ bool sipXmgr::setAudioCodecByName(const char* name)
 bool sipXmgr::setVideoCodecByName(const char* name)
 {
     bool rc = false;
-
+#ifdef VIDEO
     if (sipxConfigSetVideoCodecByName(m_hInst, name) == SIPX_RESULT_SUCCESS)
     {
         rc = true;
     }
+#endif    
     return rc;
 }
 
@@ -943,10 +1322,49 @@ void* sipXmgr::getPreviewWindow()
 {
     return mpPreviewDisplay->handle;
 }
-
+#ifdef DIRECT_SHOW_RENDER
+    #include "Qedit.h"
+    #include "../samplegrabbercallback/_SampleGrabberCallback_i.c"
+#endif
 void sipXmgr::setVideoWindow(void* pWnd)
 {
-    mpVideoDisplay->handle = pWnd;
+#ifdef DIRECT_SHOW_RENDER
+    IBaseFilter* pBase = NULL;
+    ISampleGrabber* pGrabber = NULL;
+    HRESULT hr = CoCreateInstance(CLSID_SampleGrabber, NULL, CLSCTX_INPROC_SERVER,
+        IID_IBaseFilter, (void**)&pBase);
+        
+    pBase->QueryInterface(IID_ISampleGrabber, (void**)&pGrabber);        
+    pGrabber->AddRef();
+    //hr = pBase->Run(0);
+    
+    // create our own sample grabber callback obj
+    SampleGrabberCallback::ISampGrabCB* pCallback = NULL;
+    hr = CoCreateInstance(CLSID_CSampGrabCB, NULL, CLSCTX_INPROC_SERVER,
+        IID_ISampGrabCB, (void**)&pCallback);
+    pCallback->AddRef();
+    pCallback->SetWindow((LONG)pWnd);
+    ISampleGrabberCB* pCB = NULL;
+    pCallback->QueryInterface(IID_ISampleGrabberCB, (void**) &pCB);
+    pCB->AddRef();
+    
+    if (pGrabber)
+    {
+        hr = pGrabber->SetCallback(pCB, 1);
+    }
+        
+    if (FAILED(hr))
+    {
+        // Return an error.
+    }
+
+    mpVideoDisplay->type = DIRECT_SHOW_FILTER;
+    mpVideoDisplay->handle = (void*)pBase;
+    pBase->AddRef();
+#else
+    mpVideoDisplay->type = SIPX_WINDOW_HANDLE_TYPE;
+    mpVideoDisplay->handle = (void*)pWnd;
+#endif
 }
 
 void* sipXmgr::getVideoWindow()
@@ -968,11 +1386,12 @@ bool sipXmgr::setCodecPreferences(int codecPref)
 bool sipXmgr::setVideoCodecPreferences(int codecPref)
 {
     bool rc = false;
-
-    if (sipxConfigSetVideoCodecPreferences(m_hInst, (SIPX_VIDEO_BANDWIDTH_ID)codecPref) == SIPX_RESULT_SUCCESS)
+#ifdef VIDEO
+    if (sipxConfigSetVideoBandwidth(m_hInst, (SIPX_VIDEO_BANDWIDTH_ID)codecPref) == SIPX_RESULT_SUCCESS)
     {
         rc = true;
     }
+#endif    
     return rc;
 }
 
@@ -995,14 +1414,18 @@ bool sipXmgr::isAECEnabled()
 {
     bool rc = false;
 
-    sipxAudioIsAECEnabled(m_hInst, rc);
+    SIPX_AEC_MODE mode ;
+    if ((sipxAudioGetAECMode(m_hInst, mode) == SIPX_RESULT_SUCCESS) && (mode != SIPX_AEC_DISABLED))
+    {
+        rc = true ;
+    }
 
     return rc;
 }
 
 void sipXmgr::enableAEC(bool bEnable)
 {
-    sipxAudioEnableAEC(m_hInst, bEnable);
+    sipxAudioSetAECMode(m_hInst, SIPX_AEC_CANCEL_AUTO) ;
 }
 
 bool sipXmgr::isOutOfBandDTMFEnabled()
@@ -1064,16 +1487,17 @@ void sipXmgr::getEventLog(wxString& contents) const
 {
     contents.Clear() ;
 
-    int index = mEventLogIndex ;
-    while (index != abs((mEventLogIndex -1)) % MAX_EVENT_LOG_ENTRIES)
-    {
+    int index = (abs(mEventLogIndex -1) % MAX_EVENT_LOG_ENTRIES) ;
+    do
+    {   
+        index = (index + 1) % MAX_EVENT_LOG_ENTRIES ;
         if (mEventLog[index].Length())
         {
             contents.append(mEventLog[index]) ;
             contents.append("\r\n") ;
         }
-        index = (index + 1) % MAX_EVENT_LOG_ENTRIES ;
     }
+    while (index != abs((mEventLogIndex -1) % MAX_EVENT_LOG_ENTRIES)) ;
 }
 
 
@@ -1090,4 +1514,22 @@ void sipXmgr::clearEventLog()
 SIPX_INST sipXmgr::getSipxInstance()
 {
     return m_hInst;
+}
+
+void sipXmgr::prepareToHibernate()
+{
+    SIPX_INST hInst = getSipxInstance();
+    if (hInst)
+    {
+        sipxConfigPrepareToHibernate(hInst);
+    }
+}
+
+void sipXmgr::unHibernate()
+{
+    SIPX_INST hInst = getSipxInstance();
+    if (hInst)
+    {
+        sipxConfigUnHibernate(hInst);
+    }
 }

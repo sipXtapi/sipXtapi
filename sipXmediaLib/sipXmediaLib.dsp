@@ -41,7 +41,8 @@ RSC=rc.exe
 # PROP Intermediate_Dir "Release"
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /YX /FD /c
-# ADD CPP /nologo /MD /W3 /GR /GX /O1 /I "include" /I "..\sipXportLib\include" /I "..\sipXtackLib\include" /D "NDEBUG" /D "_LIB" /D "WIN32" /D "_MBCS" /D "SIPXTAPI_STATIC" /YX /FD /c
+# ADD CPP /nologo /MD /W3 /GR /GX /O1 /I "include" /I "..\sipXportLib\include" /I "..\sipXsdpLib\include" /I "..\sipXtackLib\include" /I "contrib\libgsm\inc" /I "contrib\libspeex\include" /D "HAVE_SPEEX" /D "HAVE_GSM" /D "NDEBUG" /D "_LIB" /D "WIN32" /D "_MBCS" /D "SIPXTAPI_STATIC" /FD /c
+# SUBTRACT CPP /YX
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
 # ADD RSC /l 0x409 /d "NDEBUG"
 BSC32=bscmake.exe
@@ -64,7 +65,8 @@ LIB32=link.exe -lib
 # PROP Intermediate_Dir "Debug"
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /YX /FD /GZ /c
-# ADD CPP /nologo /MDd /W3 /Gm /GR /GX /ZI /Od /I "include" /I "..\sipXportLib\include" /I "..\sipXtackLib\include" /D "_DEBUG" /D "_LIB" /D "WIN32" /D "_MBCS" /D "SIPXTAPI_STATIC" /YX /FD /GZ /c
+# ADD CPP /nologo /MDd /W3 /Gm /GR /GX /ZI /Od /I "include" /I "..\sipXportLib\include" /I "..\sipXsdpLib\include" /I "..\sipXtackLib\include" /I "contrib\libgsm\inc" /I "contrib\libspeex\include" /D "HAVE_SPEEX" /D "HAVE_GSM" /D "_DEBUG" /D "_LIB" /D "WIN32" /D "_MBCS" /D "SIPXTAPI_STATIC" /FD /GZ /c
+# SUBTRACT CPP /YX
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
 # ADD RSC /l 0x409 /d "_DEBUG"
 BSC32=bscmake.exe
@@ -105,10 +107,6 @@ SOURCE=.\src\mp\DSPlib.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\mp\DspResampling.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\src\mp\dtmflib.cpp
 # End Source File
 # Begin Source File
@@ -129,11 +127,27 @@ SOURCE=.\src\mp\MicThreadWnt.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\mp\MpAgcBase.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\mp\MpAgcSimple.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\mp\MpArrayBuf.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\mp\mpau.cpp
 # End Source File
 # Begin Source File
 
 SOURCE=.\src\mp\MpAudioAbstract.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\mp\MpAudioBuf.cpp
 # End Source File
 # Begin Source File
 
@@ -149,6 +163,14 @@ SOURCE=.\src\mp\MpAudioFileUtils.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\mp\MpAudioOutputConnection.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\mp\MpAudioResource.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\mp\MpAudioUtils.cpp
 # End Source File
 # Begin Source File
@@ -157,11 +179,23 @@ SOURCE=.\src\mp\MpAudioWaveFileRead.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\mp\MpBridgeAlgLinear.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\mp\MpBridgeAlgSimple.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\mp\MpBuf.cpp
 # End Source File
 # Begin Source File
 
 SOURCE=.\src\mp\MpBufferMsg.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\mp\MpBufPool.cpp
 # End Source File
 # Begin Source File
 
@@ -181,7 +215,7 @@ SOURCE=.\src\mp\MpCodecInfo.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\mp\MpConnection.cpp
+SOURCE=.\src\mp\MpDataBuf.cpp
 # End Source File
 # Begin Source File
 
@@ -189,87 +223,19 @@ SOURCE=.\src\mp\MpDecoderBase.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\mp\MpdGIPSG729ab.cpp
+SOURCE=.\src\mp\MpDecoderPayloadMap.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\mp\MpdGIPSiLBC.cpp
+SOURCE=.\src\mp\MpDspUtils.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\mp\MpdGIPSiPCMA.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\src\mp\MpdGIPSiPCMU.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\src\mp\MpdGIPSiPCMWB.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\src\mp\MpdGIPSPCMA.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\src\mp\MpdGIPSPCMU.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\src\mp\MpdPtAVT.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\src\mp\MpdSipxPcma.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\src\mp\MpdSipxPcmu.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\src\mp\MpeGIPSG729ab.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\src\mp\MpeGIPSiLBC.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\src\mp\MpeGIPSiPCMA.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\src\mp\MpeGIPSiPCMU.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\src\mp\MpeGIPSiPCMWB.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\src\mp\MpeGIPSPCMA.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\src\mp\MpeGIPSPCMU.cpp
+SOURCE=.\src\mp\MpDTMFDetector.cpp
 # End Source File
 # Begin Source File
 
 SOURCE=.\src\mp\MpEncoderBase.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\src\mp\MpePtAVT.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\src\mp\MpeSipxPcma.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\src\mp\MpeSipxPcmu.cpp
 # End Source File
 # Begin Source File
 
@@ -282,6 +248,18 @@ SOURCE=.\src\mp\MpFlowGraphMsg.cpp
 # Begin Source File
 
 SOURCE=.\src\mp\mpG711.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\mp\MpidWinMM.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\mp\MpInputDeviceDriver.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\mp\MpInputDeviceManager.cpp
 # End Source File
 # Begin Source File
 
@@ -301,6 +279,30 @@ SOURCE=.\src\mp\MpMisc.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\mp\MpMMTimer.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\mp\MpMMTimerWnt.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\mp\MpodBufferRecorder.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\mp\MpodWinMM.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\mp\MpOutputDeviceDriver.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\mp\MpOutputDeviceManager.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\mp\MpPlayer.cpp
 # End Source File
 # Begin Source File
@@ -309,7 +311,15 @@ SOURCE=.\src\mp\MpPlayerEvent.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\mp\MprAudioFrameBuffer.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\mp\MprBridge.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\mp\MprBufferRecorder.cpp
 # End Source File
 # Begin Source File
 
@@ -329,7 +339,23 @@ SOURCE=.\src\mp\MprEncode.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\mp\MpResampler.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\mp\MpResamplerSpeex.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\mp\MpResource.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\mp\MpResourceFactory.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\mp\MpResourceMsg.cpp
 # End Source File
 # Begin Source File
 
@@ -337,7 +363,19 @@ SOURCE=.\src\mp\MpResourceSortAlg.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\mp\MpResourceTopology.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\mp\MpResNotificationMsg.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\mp\MprFromFile.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\mp\MprFromInputDevice.cpp
 # End Source File
 # Begin Source File
 
@@ -357,7 +395,31 @@ SOURCE=.\src\mp\MprMixer.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\mp\MprnDTMFMsg.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\mp\MprnProgressMsg.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\mp\MprNull.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\mp\MprNullAec.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\mp\MprRecorder.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\mp\MprSpeexEchoCancel.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\mp\MprSpeexPreProcess.cpp
 # End Source File
 # Begin Source File
 
@@ -373,11 +435,39 @@ SOURCE=.\src\mp\MprToNet.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\mp\MprToOutputDevice.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\mp\MprToSpkr.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\mp\MpSipxDecoders.cpp
+SOURCE=.\src\mp\MpRtpBuf.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\mp\MpRtpInputAudioConnection.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\mp\MpRtpInputConnection.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\mp\MpRtpOutputAudioConnection.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\mp\MpRtpOutputConnection.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\mp\MpSineWaveGeneratorDeviceDriver.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\mp\MpStaticCodecInit.cpp
 # End Source File
 # Begin Source File
 
@@ -401,6 +491,34 @@ SOURCE=.\src\mp\MpStreamQueuePlayer.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\mp\MpPlcBase.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\mp\MpPlcSilence.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\mp\MpPlgStaffV1.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\mp\MpProgressResourceMsg.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\mp\MpTopologyGraph.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\mp\MpTypes.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\mp\MpUdpBuf.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\rtcp\MsgQueue.cpp
 # End Source File
 # Begin Source File
@@ -414,10 +532,6 @@ SOURCE=.\src\rtcp\NetworkChannel.cpp
 # Begin Source File
 
 SOURCE=.\src\rtcp\ReceiverReport.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\src\mp\resamplingby2.cpp
 # End Source File
 # Begin Source File
 
@@ -525,15 +639,7 @@ SOURCE=.\include\mp\dmaTask.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\mp\DSP_type.h
-# End Source File
-# Begin Source File
-
 SOURCE=.\include\mp\dsplib.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\include\mp\DspResampling.h
 # End Source File
 # Begin Source File
 
@@ -542,18 +648,6 @@ SOURCE=.\include\mp\dtmflib.h
 # Begin Source File
 
 SOURCE=.\include\mp\FilterBank.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\include\mp\GIPS\G729Interface.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\include\mp\GIPS\GIPS_API.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\include\mp\GIPS\gips_typedefs.h
 # End Source File
 # Begin Source File
 
@@ -669,15 +763,19 @@ SOURCE=.\include\rtcp\ISetSrcDescription.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\mp\JB\JB_API.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\include\mp\JB\jb_typedefs.h
-# End Source File
-# Begin Source File
-
 SOURCE=.\include\rtcp\Message.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MpAgcBase.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MpAgcSimple.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MpArrayBuf.h
 # End Source File
 # Begin Source File
 
@@ -686,6 +784,10 @@ SOURCE=.\include\mp\mpau.h
 # Begin Source File
 
 SOURCE=.\include\mp\MpAudioAbstract.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MpAudioBuf.h
 # End Source File
 # Begin Source File
 
@@ -701,6 +803,18 @@ SOURCE=.\include\mp\MpAudioFileUtils.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\include\mp\MpAudioOutputConnection.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MpAudioResource.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MpAudioResourceConstructor.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\include\mp\MpAudioUtils.h
 # End Source File
 # Begin Source File
@@ -709,11 +823,31 @@ SOURCE=.\include\mp\MpAudioWaveFileRead.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\include\mp\MpBridgeAlgBase.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MpBridgeAlgLinear.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MpBridgeAlgSimple.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\include\mp\MpBuf.h
 # End Source File
 # Begin Source File
 
 SOURCE=.\include\mp\MpBufferMsg.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MpBufPool.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MpBufRecStartResourceMsg.h
 # End Source File
 # Begin Source File
 
@@ -733,7 +867,7 @@ SOURCE=.\include\mp\MpCodecInfo.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\mp\MpConnection.h
+SOURCE=.\include\mp\MpDataBuf.h
 # End Source File
 # Begin Source File
 
@@ -745,35 +879,15 @@ SOURCE=.\include\mp\MpDefs.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\mp\MpdGIPSG729ab.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\include\mp\MpdGIPSiLBC.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\include\mp\MpdGIPSiPCMA.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\include\mp\MpdGIPSiPCMU.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\include\mp\MpdGIPSiPCMWB.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\include\mp\MpdGIPSPCMA.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\include\mp\MpdGIPSPCMU.h
-# End Source File
-# Begin Source File
-
 SOURCE=.\include\mp\MpdPtAVT.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MpdSipxGSM.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MpdSipxILBC.h
 # End Source File
 # Begin Source File
 
@@ -785,31 +899,39 @@ SOURCE=.\include\mp\MpdSipxPcmu.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\mp\MpeGIPSG729ab.h
+SOURCE=.\include\mp\MpdSipxSpeex.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\mp\MpeGIPSiLBC.h
+SOURCE=.\include\mp\MpDecoderPayloadMap.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\mp\MpeGIPSiPCMA.h
+SOURCE=.\include\mp\MpDspUtils.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\mp\MpeGIPSiPCMU.h
+SOURCE=.\include\mp\MpDspUtilsConvertVect.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\mp\MpeGIPSiPCMWB.h
+SOURCE=.\include\mp\MpDspUtilsSerials.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\mp\MpeGIPSPCMA.h
+SOURCE=.\include\mp\MpDspUtilsShift.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\mp\MpeGIPSPCMU.h
+SOURCE=.\include\mp\MpDspUtilsSum.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MpDspUtilsSumVect.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MpDTMFDetector.h
 # End Source File
 # Begin Source File
 
@@ -821,6 +943,14 @@ SOURCE=.\include\mp\MpePtAVT.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\include\mp\MpeSipxGSM.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MpeSipxILBC.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\include\mp\MpeSipxPcma.h
 # End Source File
 # Begin Source File
@@ -829,11 +959,31 @@ SOURCE=.\include\mp\MpeSipxPcmu.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\include\mp\MpeSipxSpeex.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\include\mp\MpFlowGraphBase.h
 # End Source File
 # Begin Source File
 
 SOURCE=.\include\mp\MpFlowGraphMsg.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MpFromFileStartResourceMsg.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MpidWinMM.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MpInputDeviceDriver.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MpInputDeviceManager.h
 # End Source File
 # Begin Source File
 
@@ -853,6 +1003,30 @@ SOURCE=.\include\mp\MpMisc.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\include\mp\MpMMTimer.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MpMMTimerWnt.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MpodBufferRecorder.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MpodWinMM.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MpOutputDeviceDriver.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MpOutputDeviceManager.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\include\mp\MpPlayer.h
 # End Source File
 # Begin Source File
@@ -869,7 +1043,27 @@ SOURCE=.\include\mp\MpQueuePlayerListener.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\include\mp\MprAudioFrameBuffer.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MpRawAudioBuffer.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\include\mp\MprBridge.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MprBridgeConstructor.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MprBufferRecorder.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MprBufferRecorderConstructor.h
 # End Source File
 # Begin Source File
 
@@ -889,7 +1083,31 @@ SOURCE=.\include\mp\MprEncode.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\include\mp\MpResampler.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MpResamplerSpeex.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\include\mp\MpResource.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MpResourceConstructor.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MpResourceFactory.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MpResourceMsg.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MpResNotificationMsg.h
 # End Source File
 # Begin Source File
 
@@ -897,7 +1115,23 @@ SOURCE=.\include\mp\MpResourceSortAlg.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\include\mp\MpResourceTopology.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\include\mp\MprFromFile.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MprFromFileConstructor.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MprFromInputDevice.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MprFromInputDeviceConstructor.h
 # End Source File
 # Begin Source File
 
@@ -917,7 +1151,55 @@ SOURCE=.\include\mp\MprMixer.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\include\mp\MprnDTMFMsg.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MprnProgressMsg.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MprNull.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MprNullAec.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MprNullAecConstructor.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MprNullConstructor.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\include\mp\MprRecorder.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MprRtpInputAudioConnectionConstructor.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MprRtpOutputAudioConnectionConstructor.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MprRtpStartReceiveMsg.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MprRtpStartSendMsg.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MprSpeexEchoCancel.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MprSpeexPreProcess.h
 # End Source File
 # Begin Source File
 
@@ -925,7 +1207,15 @@ SOURCE=.\include\mp\MprSplitter.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\include\mp\MprSplitterConstructor.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\include\mp\MprToneGen.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MprToneGenConstructor.h
 # End Source File
 # Begin Source File
 
@@ -933,11 +1223,43 @@ SOURCE=.\include\mp\MprToNet.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\include\mp\MprToOutputDevice.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MprToOutputDeviceConstructor.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\include\mp\MprToSpkr.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\mp\MpSipxDecoders.h
+SOURCE=.\include\mp\MpRtpBuf.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MpRtpInputAudioConnection.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MpRtpInputConnection.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MpRtpOutputAudioConnection.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MpRtpOutputConnection.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MpSineWaveGeneratorDeviceDriver.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MpStaticCodecInit.h
 # End Source File
 # Begin Source File
 
@@ -961,7 +1283,39 @@ SOURCE=.\include\mp\MpStreamQueuePlayer.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\include\mp\MpStringResourceMsg.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MpToneResourceMsg.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MpPlcBase.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MpPlcSilence.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MpPlgStaffV1.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MpProgressResourceMsg.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MpTopologyGraph.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\include\mp\MpTypes.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MpUdpBuf.h
 # End Source File
 # Begin Source File
 
@@ -978,10 +1332,6 @@ SOURCE=.\include\rtcp\NetworkChannel.h
 # Begin Source File
 
 SOURCE=.\include\rtcp\ReceiverReport.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\include\mp\resamplingby2.h
 # End Source File
 # Begin Source File
 
@@ -1018,6 +1368,10 @@ SOURCE=.\include\rtcp\RTCPTimer.h
 # Begin Source File
 
 SOURCE=.\include\rtcp\RTPHeader.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\RtpHeader.h
 # End Source File
 # Begin Source File
 

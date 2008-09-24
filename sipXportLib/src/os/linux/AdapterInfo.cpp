@@ -1,35 +1,37 @@
+//  
+// Copyright (C) 2007 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2005-2006 SIPez LLC.
-// Licensed to SIPfoundry under a Contributor Agreement.
-//
-// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
 #include <arpa/inet.h>
 #include <errno.h>
+#include <sys/socket.h>
 #include <netinet/in.h>
+#include <net/if.h>
 #include <sys/ioctl.h>
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <unistd.h>
-#include <net/if.h>
 
 // APPLICATION INCLUDES
 #include <os/HostAdapterAddress.h>
 #include <os/OsSysLog.h>
 
-/* Get the addresses associated with all of the IP interfaces.
- * The core work is done by the SIOCGIFCONF ioctl, documented in the
- * netdevice(7) manual page, with additional hints in ioctl(2), ip(7) and inet(3).
- */
+/**
+*  Get the addresses associated with all of the IP interfaces.
+*
+*  The core work is done by the SIOCGIFCONF ioctl, documented in the
+*  netdevice(7) manual page, with additional hints in ioctl(2), ip(7) and inet(3).
+*/
 bool getAllLocalHostIps(const HostAdapterAddress* localHostAddresses[],
                         int &numAddresses)
 {
@@ -56,7 +58,13 @@ bool getAllLocalHostIps(const HostAdapterAddress* localHostAddresses[],
    else
    {
       // Perform the SIOCGIFCONF ioctl to get the interface addresses.
+#ifdef __MACH__
+      // Under MacOS, SIOCFIGCONF assumes a variable length structure,
+      // using OSIOCGIFCONF appears to be the popular workaround.
+      int ret = ioctl(sock, OSIOCGIFCONF, (void*) &ifconf_structure);
+#else
       int ret = ioctl(sock, SIOCGIFCONF, (void*) &ifconf_structure);
+#endif
 
       if (ret < 0)
       {
@@ -68,13 +76,16 @@ bool getAllLocalHostIps(const HostAdapterAddress* localHostAddresses[],
       else
       {
          rc = TRUE;
-#ifndef __MACH__
          // Get the number of returned addresses from ifc_len.
          numAddresses = ifconf_structure.ifc_len / sizeof (struct ifreq);
          int j = 0;
          // Iterate through the returned addresses.
          for (int i = 0; i < numAddresses; i++)
          {
+            
+            if (ifreq_array[i].ifr_addr.sa_family != AF_INET)
+                continue;
+
             // Get transient pointer to address in text format.
             char* s = inet_ntoa(((struct sockaddr_in&) (ifreq_array[i].ifr_addr)).sin_addr);
 
@@ -85,68 +96,58 @@ bool getAllLocalHostIps(const HostAdapterAddress* localHostAddresses[],
             {
                // Put the interface name and address into a HostAdapterAddress.
                localHostAddresses[j] = new HostAdapterAddress(ifreq_array[i].ifr_name, s);
+/*
                OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
                              "getAllLocalHostIps entry %d, interface '%s', address '%s'",
                              j, ifreq_array[i].ifr_name, s);
+*/
                j++;
             }
          }
          numAddresses = j;
-#else
-         void* ptr;
-         for (ptr = ifreq_array; (int) ptr < ((int) ifreq_array) + ifconf_structure.ifc_len; )
-         {
-            struct ifreq* ifr = (struct ifreq*) ptr;
-            
-            int len = sizeof(struct sockaddr);
-            if (ifr->ifr_addr.sa_len > sizeof(struct sockaddr))
-               len = ifr->ifr_addr.sa_len;
-
-            ptr = (void *) ((int) ptr + sizeof(ifr->ifr_name) + len);
-
-            // The body of this if statement should mirror the for loop above...
-            if (ifr->ifr_addr.sa_family == AF_INET)
-            {
-               char* s = inet_ntoa(((struct sockaddr_in*) &ifr->ifr_addr)->sin_addr);
-               UtlString address(s);
-               if (address.compareTo("127.0.0.1") != 0 && address.compareTo("0.0.0.0") != 0)
-               {
-                  localHostAddresses[numAddresses] = new HostAdapterAddress(ifr->ifr_name, s);
-                  OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
-                                "getAllLocalHostIps entry %d, interface '%s', address '%s'",
-                                numAddresses, ifr->ifr_name, s);
-                  numAddresses++;
-               }
-            }
-         }
-#endif
       }
       close(sock);
    }
    return rc;
 }
 
-bool getContactAdapterName(char* szAdapter, const char* szIp)
+bool getContactAdapterName(UtlString &adapterName, const UtlString &ipAddress, bool unusedHere)
 {
    bool found = false;
-   
-   UtlString ipAddress(szIp);
-   
-   int numAddresses = 0;
-   const HostAdapterAddress* adapterAddresses[MAX_IP_ADDRESSES];
-   getAllLocalHostIps(adapterAddresses, numAddresses);
 
-   for (int i = 0; i < numAddresses; i++)
+   // Explicitly check for loopback adapter, because getAllLocalHostIps never
+   // name it.
+   if (ipAddress == "127.0.0.1")
    {
-      if (ipAddress.compareTo(adapterAddresses[i]->mAddress.data()) == 0)
+      found = true;
+      // TODO:: It is not always true. You may set any name to loopback
+      //        adapter, afaik. So we may want to do real search here.
+      adapterName = "lo";
+      return found;
+   }
+   else
+   {
+      int numAddresses = 0;
+      const HostAdapterAddress* adapterAddresses[MAX_IP_ADDRESSES];
+      getAllLocalHostIps(adapterAddresses, numAddresses);
+
+      // Return empty string if nothing will be found
+      adapterName.remove(0);
+
+      for (int i = 0; i < numAddresses; i++)
       {
-         strcpy(szAdapter, adapterAddresses[i]->mAdapter.data());
-         OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
-                       "getContactAdapterName found name %s for ip %s",
-                       szAdapter, szIp);
-         found = true;
+         if (ipAddress.compareTo(adapterAddresses[i]->mAddress.data()) == 0)
+         {
+            adapterName = adapterAddresses[i]->mAdapter;
+/*
+            OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
+                        "getContactAdapterName found name %s for ip %s",
+                        szAdapter, szIp);
+*/
+            found = true;
+         }
+         delete adapterAddresses[i];
       }
-      delete adapterAddresses[i];
    }
    
    return found;

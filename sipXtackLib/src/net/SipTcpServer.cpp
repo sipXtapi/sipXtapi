@@ -1,10 +1,15 @@
+//  
+// Copyright (C) 2007 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2007 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 
 // SYSTEM INCLUDES
@@ -45,6 +50,10 @@ SipTcpServer::SipTcpServer(int port,
    mServerPort = port ;
    mpServerBrokerListener = new SipServerBrokerListener(this);
 
+#ifdef _DISABLE_MULTIPLE_INTERFACE_SUPPORT
+   szBindAddr = "0.0.0.0" ;
+#endif
+
     if (szBindAddr && 0 != strcmp(szBindAddr, "0.0.0.0"))
     {
         mDefaultIp = szBindAddr;
@@ -52,7 +61,7 @@ SipTcpServer::SipTcpServer(int port,
     }
     else
     {
-        int numAddresses = 0;
+        int numAddresses = MAX_IP_ADDRESSES;
         const HostAdapterAddress* adapterAddresses[MAX_IP_ADDRESSES];
         getAllLocalHostIps(adapterAddresses, numAddresses);
 
@@ -130,16 +139,15 @@ OsStatus SipTcpServer::createServerSocket(const char* szBindAddr, int& port, con
         if (pSocket && pSocket->isOk())
         {
             port = pSocket->getLocalHostPort();
-            CONTACT_ADDRESS contact;
+            SIPX_CONTACT_ADDRESS contact;
             strcpy(contact.cIpAddress, szBindAddr);
             contact.iPort = port;
-            contact.eContactType = LOCAL_CONTACT;
-            char szAdapterName[16];
-            memset((void*)szAdapterName, 0, sizeof(szAdapterName)); // null out the string
-            
-            getContactAdapterName(szAdapterName, contact.cIpAddress);
+            contact.eContactType = CONTACT_LOCAL;
+            UtlString adapterName;
 
-            strcpy(contact.cInterface, szAdapterName);
+            getContactAdapterName(adapterName, contact.cIpAddress, false);
+            strcpy(contact.cInterface, adapterName.data());
+            contact.eTransportType = TRANSPORT_TCP;
             mSipUserAgent->addContactAddress(contact);
        
             // add address and port to the maps
@@ -234,12 +242,7 @@ int SipTcpServer::run(void* runArgument)
 
 void SipTcpServer::shutdownListener()
 {
-#   ifdef TEST_PRINT
-    osPrintf("Sip%sServer::shutdownListener() - before requestShutDown\n",
-        mProtocolString.data());
-#   endif
     requestShutdown();
-
     shutdownClients();
 }
 
@@ -248,7 +251,10 @@ OsSocket* SipTcpServer::buildClientSocket(int hostPort, const char* hostAddress,
 {
     // Create a socket in non-blocking mode while connecting
     OsConnectionSocket* socket = new OsConnectionSocket(hostPort, hostAddress, FALSE, localIp);
-    socket->makeBlocking();
+    if (socket)
+    {
+        socket->makeBlocking();
+    }
     return(socket);
 }
 
@@ -271,7 +277,7 @@ int SipTcpServer::getServerPort() const
 
 }
 
-UtlBoolean SipTcpServer::SipServerBrokerListener::handleMessage(OsMsg& eventMessage)
+UtlBoolean SipServerBrokerListener::handleMessage(OsMsg& eventMessage)
 {
     UtlBoolean bRet(FALSE);
     int msgType = eventMessage.getMsgType();

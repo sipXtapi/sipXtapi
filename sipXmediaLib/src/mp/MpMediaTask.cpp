@@ -1,10 +1,15 @@
+//  
+// Copyright (C) 2006-2007 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2005 Pingtel Corp.
+// Copyright (C) 2004-2007 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 
 /* There used to be #ifdef's here to do the same thing on WIN32/VXWORKS, but I
@@ -18,12 +23,14 @@
 #include "os/OsLock.h"
 #include "os/OsMsgPool.h"
 #include "mp/MpFlowGraphBase.h"
-#include "mp/MpCallFlowGraph.h"
+#include "mp/MpMisc.h"
 #include "mp/MpMediaTask.h"
 #include "mp/MpMediaTaskMsg.h"
 #include "mp/MpBufferMsg.h"
-#include "mp/MpCodecFactory.h"
-#include "mp/MpCodec.h"
+
+#ifdef RTL_ENABLED
+#   include <rtl_macro.h>
+#endif
 
 // Include sys/time.h if _PROFILE is set.
 // This #include has to be after the #include of mp/MpMediaTask.h, because
@@ -42,9 +49,9 @@
 #endif /* __pingtel_on_posix__ ] */
 
 // STATIC VARIABLE INITIALIZATIONS
-MpMediaTask* MpMediaTask::spInstance = 0;
+MpMediaTask* MpMediaTask::spInstance = NULL;
 OsBSem       MpMediaTask::sLock(OsBSem::Q_PRIORITY, OsBSem::FULL);
-int          MpMediaTask::mMaxFlowGraph = 0;
+int          MpMediaTask::mMaxFlowGraph = NULL;
 
 
 #ifdef _PROFILE /* [ */
@@ -68,9 +75,15 @@ MpMediaTask* MpMediaTask::getMediaTask(int maxFlowGraph)
    if (spInstance != NULL && spInstance->isStarted())
       return spInstance;
 
+   // If we can't find existing media task and maxFlowGraph is 0 then
+   // return NULL. We cannot proceed with creating new flowgraph, cause it
+   // asserts (mMaxFlowGraph > 0).
+   if (maxFlowGraph == 0)
+      return NULL;
+
    // If the task does not yet exist or hasn't been started, then acquire
    // the lock to ensure that only one instance of the task is started
-   sLock.acquire();
+   OsLock lock(sLock);
    if (spInstance == NULL)
        spInstance = new MpMediaTask(maxFlowGraph);
 
@@ -80,7 +93,6 @@ MpMediaTask* MpMediaTask::getMediaTask(int maxFlowGraph)
       isStarted = spInstance->start();
       assert(isStarted);
    }
-   sLock.release();
 
    return spInstance;
 }
@@ -92,6 +104,13 @@ MpMediaTask::~MpMediaTask()
    // $$$ unmanaging and destroying all of its flow graphs
 
    delete[] mManagedFGs;
+
+   if (mpBufferMsgPool != NULL)
+      delete mpBufferMsgPool;
+
+   if (mpSignalMsgPool != NULL)
+      delete mpSignalMsgPool;
+
    spInstance = NULL;
 }
 
@@ -215,7 +234,7 @@ OsStatus MpMediaTask::signalFrameStart(void)
    MpMediaTaskMsg* pMsg;
 
    // If the Media Task has been started
-   if (0 != spInstance) {
+   if (spInstance != NULL) {
       pMsg = (MpMediaTaskMsg*) spInstance->mpSignalMsgPool->findFreeMsg();
       if (NULL == pMsg) {
          ret = OS_LIMIT_REACHED;
@@ -377,41 +396,41 @@ MpFlowGraphBase* MpMediaTask::mediaInfo(void)
 
    pMediaTask = MpMediaTask::getMediaTask(0);
 
-   printf("\nMedia processing task information\n");
-   printf("  Debug mode:                      %s\n",
+   osPrintf("\nMedia processing task information\n");
+   osPrintf("  Debug mode:                      %s\n",
              pMediaTask->getDebugMode() ? "TRUE" : "FALSE");
 
-   printf("  Processed Frame Count:           %d\n",
+   osPrintf("  Processed Frame Count:           %d\n",
              pMediaTask->numProcessedFrames());
 
-   printf("  Processing Time Limit:           %d usecs\n",
+   osPrintf("  Processing Time Limit:           %d usecs\n",
              pMediaTask->getTimeLimit());
 
-   printf("  Processing Limit Exceeded Count: %d\n",
+   osPrintf("  Processing Limit Exceeded Count: %d\n",
              pMediaTask->getLimitExceededCnt());
 
    i = pMediaTask->getWaitTimeout();
    if (i < 0)
-      printf("  Frame Start Wait Timeout:        INFINITE\n");
+      osPrintf("  Frame Start Wait Timeout:        INFINITE\n");
    else
-      printf("  Frame Start Wait Timeout:        %d\n", i);
+      osPrintf("  Frame Start Wait Timeout:        %d\n", i);
 
-   printf("  Wait Timeout Exceeded Count:     %d\n",
+   osPrintf("  Wait Timeout Exceeded Count:     %d\n",
              pMediaTask->getWaitTimeoutCnt());
 
-   printf("\n  Flow Graph Information\n");
-   printf("    Managed:      %d\n", pMediaTask->numManagedFlowGraphs());
-   printf("    Started:      %d\n", pMediaTask->numStartedFlowGraphs());
+   osPrintf("\n  Flow Graph Information\n");
+   osPrintf("    Managed:      %d\n", pMediaTask->numManagedFlowGraphs());
+   osPrintf("    Started:      %d\n", pMediaTask->numStartedFlowGraphs());
 
    pFlowGraph = pMediaTask->getFocus();
    if (pFlowGraph == NULL)
-      printf("    Focus:        NULL\n");
+      osPrintf("    Focus:        NULL\n");
    else
-      printf("    Focus:        %p\n", pFlowGraph);
+      osPrintf("    Focus:        %p\n", pFlowGraph);
 
    res = pMediaTask->getManagedFlowGraphs(flowGraphs, 20, numItems);
    for (i=0; i < numItems; i++)
-      printf("    FlowGraph[%d]: %p\n", i, flowGraphs[i]);
+      osPrintf("    FlowGraph[%d]: %p\n", i, flowGraphs[i]);
    return pFlowGraph;
 }
 
@@ -473,7 +492,7 @@ void MpMediaTask::getQueueUsage(int& numMsgs, int& softLimit, int& hardLimit)
 // Default constructor (called only indirectly via getMediaTask())
 MpMediaTask::MpMediaTask(int maxFlowGraph)
 :  OsServerTask("MpMedia", NULL, MPMEDIA_DEF_MAX_MSGS,
-                MEDIA_TASK_PRIO_NORMAL),
+                MEDIA_TASK_PRIORITY),
    mMutex(OsMutex::Q_PRIORITY),  // create mutex for protecting data
    mDebugEnabled(FALSE),
    mTimeLimitCnt(0),
@@ -519,28 +538,31 @@ MpMediaTask::MpMediaTask(int maxFlowGraph)
       }
    }
    {
-      int totalNumBufs = MpBuf_getTotalBufferCount();
+      int totalNumBufs = MpMisc.AudioHeadersPool->getNumBlocks()
+                       + MpMisc.RtpHeadersPool->getNumBlocks()
+#ifdef REAL_RTCP // [
+                       + MpMisc.RtcpHeadersPool->getNumBlocks()
+#endif // ] TINY_MEDIALIB
+                       ;
       int soft;
       int incr;
-      MpBufferMsg* pMsg = new MpBufferMsg(MpBufferMsg::AUD_RECORDED);
+      MpBufferMsg msg(MpBufferMsg::AUD_RECORDED);
 
       soft = totalNumBufs/20;
       if (soft < 8) soft = 8;
       incr = soft / 2 + 1;
-      mpBufferMsgPool = new OsMsgPool("MediaBuffers", (*(OsMsg*)pMsg),
+      mpBufferMsgPool = new OsMsgPool("MediaBuffers", msg,
                           incr, soft, totalNumBufs, incr,
                           OsMsgPool::MULTIPLE_CLIENTS);
    }
 
    {
-      MpMediaTaskMsg* pMsg =
-         new MpMediaTaskMsg(MpMediaTaskMsg::WAIT_FOR_SIGNAL);
-      mpSignalMsgPool = new OsMsgPool("MediaSignals", (*(OsMsg*)pMsg),
+      MpMediaTaskMsg msg(MpMediaTaskMsg::WAIT_FOR_SIGNAL);
+      mpSignalMsgPool = new OsMsgPool("MediaSignals", msg,
                           2, 2*mMaxFlowGraph, 4*mMaxFlowGraph, 1,
                           OsMsgPool::MULTIPLE_CLIENTS);
    }
 
-   mpCodecFactory = MpCodecFactory::getMpCodecFactory();
 #ifdef _PROFILE /* [ */
    mStartTicks = 0;
    mStopTicks = 0;
@@ -810,8 +832,6 @@ UtlBoolean MpMediaTask::handleWaitForSignal(MpMediaTaskMsg* pMsg)
    }
 #endif /* _PROFILE ] */
 
-   MpCodec_doProcessFrame();
-
    // reset the handleMessage error count
    // mHandleMsgErrs = 0;
 
@@ -823,10 +843,11 @@ UtlBoolean MpMediaTask::handleWaitForSignal(MpMediaTaskMsg* pMsg)
              mProcessedCnt, mManagedCnt, 0,0,0,0);
    }
 
-   if (mManagedCnt != lastmMCnt) {
+   if (mManagedCnt != lastmMCnt)
+   {
       // PRINTF("handleWaitForSignal: %d frames, %d managed flow graphs\n",
       mProcessedCnt, mManagedCnt, 0,0,0,0);
-   lastmMCnt = mManagedCnt;
+      lastmMCnt = mManagedCnt;
    }
 #endif /* MEDIA_VERBOSE ] */
 
@@ -838,6 +859,9 @@ UtlBoolean MpMediaTask::handleWaitForSignal(MpMediaTaskMsg* pMsg)
    // Call processNextFrame() for each of the "started" flow graphs
    for (i=0; i < mManagedCnt; i++)
    {
+#ifdef RTL_ENABLED
+    RTL_EVENT("MpMediaTask.handleWaitForSignal", i+1);
+#endif
       pFlowGraph = mManagedFGs[i];
       if (pFlowGraph->isStarted())
       {
@@ -846,6 +870,9 @@ UtlBoolean MpMediaTask::handleWaitForSignal(MpMediaTaskMsg* pMsg)
       }
    }
 
+#ifdef RTL_ENABLED
+    RTL_EVENT("MpMediaTask.handleWaitForSignal", 0);
+#endif
 #ifdef _PROFILE /* [ */
    {
       timeval t;

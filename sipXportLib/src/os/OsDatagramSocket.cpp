@@ -1,16 +1,15 @@
+//  
+// Copyright (C) 2007 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2005-2006 SIPez LLC.
-// Licensed to SIPfoundry under a Contributor Agreement.
-//
-// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 
 // SYSTEM INCLUDES
@@ -21,7 +20,7 @@
 #define OPTIONAL_VXW_CHARSTAR_CAST
 #define resolvGetHostByName(a, b, c) gethostbyname(a)
 #if defined(_WIN32)
-#   include <winsock.h>
+#   include <winsock2.h>
 #   include <time.h>
 #elif defined(_VXWORKS)
 #   undef resolvGetHostByName
@@ -67,23 +66,62 @@
 /* ============================ CREATORS ================================== */
 
 // Constructor
-OsDatagramSocket::OsDatagramSocket(int remoteHostPortNum,
-       const char* remoteHost, int localHostPortNum, const char* localHost) :
-   mNumTotalWriteErrors(0),
-   mNumRecentWriteErrors(0),
-   mSimulatedConnect(FALSE)     // Simulated connection is off until
-                                // activated in doConnect.
+OsDatagramSocket::OsDatagramSocket(int remoteHostPortNum, const char* remoteHost,
+                                   int localHostPortNum, const char* localHost)
+: mNumTotalWriteErrors(0)
+, mNumRecentWriteErrors(0)
+, mSimulatedConnect(FALSE)     // Simulated connection is off until
+                               // activated in doConnect.
 {
-    OsSysLog::add(FAC_SIP, PRI_DEBUG, "OsDatagramSocket::_ attempt %s:%d"
-                  ,remoteHost, remoteHostPortNum);
+    int error = ctorCommonCode();
+    if (error != 0)
+    {
+        OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
+                      "OsDatagramSocket::OsDatagramSocket( %s:%d %s:%d) failed w/ errno %d)",
+                      remoteHost, remoteHostPortNum, localHost ? localHost : "NULL", 
+                      localHostPortNum, error);
+        goto EXIT;
+    }
 
-    int                error = 0;
-    struct sockaddr_in localAddr;
-
-    // Verify socket layer is initialized.
-    if(!socketInit())
+    // Bind to the socket
+    bind(localHostPortNum, localHost);
+    if (!isOk())
     {
         goto EXIT;
+    }
+
+    // Kick off connection
+    doConnect(remoteHostPortNum, remoteHost, mSimulatedConnect);
+
+EXIT:
+    return;
+}
+
+// Bare-bones Constructor
+// Callers will need to call bind & doConnect on their own when this returns
+// (This allows for children to set socket options before the bind call)
+OsDatagramSocket::OsDatagramSocket()
+: mNumTotalWriteErrors(0)
+, mNumRecentWriteErrors(0)
+{
+    int error = ctorCommonCode();
+    if (error != 0)
+    {
+        OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
+                "OsDatagramSocket::OsDatagramSocket() failed w/ errno %d)", error);
+    }
+}
+
+// Common code for both constructors
+// Returns 0 on success
+int OsDatagramSocket::ctorCommonCode()
+{
+    socketDescriptor = OS_INVALID_SOCKET_DESCRIPTOR;    
+
+    // Verify socket layer is initialized.
+    if (!socketInit())
+    {
+        return -1;
     }
 
     // Obtain time for throttling logging of write errors
@@ -94,78 +132,18 @@ OsDatagramSocket::OsDatagramSocket(int remoteHostPortNum,
     mpToSockaddr = (struct sockaddr_in*) malloc(sizeof(struct sockaddr_in));
     assert(NULL != mpToSockaddr);
     memset(mpToSockaddr, 0, sizeof(struct sockaddr_in));
-    socketDescriptor = OS_INVALID_SOCKET_DESCRIPTOR;    
-    localHostPort = localHostPortNum;    
-    if(localHost)
-    {
-        localHostName = localHost ;
-    }
 
     // Create the socket
     socketDescriptor = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-    if(socketDescriptor == OS_INVALID_SOCKET_DESCRIPTOR)
+    if (socketDescriptor == OS_INVALID_SOCKET_DESCRIPTOR)
     {
-        error = OsSocketGetERRNO();
+        int error = OsSocketGetERRNO();
         close();
-
-        OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
-                "OsDatagramSocket::OsDatagramSocket( %s:%d %s:%d) failed w/ errno %d)",
-                        remoteHost, remoteHostPortNum, localHost, 
-                        localHostPortNum, error);
-
-        goto EXIT;
+        return error;
     }
 
-    // Bind to the socket
-    memset(&localAddr, 0, sizeof(localAddr));
-    localAddr.sin_family = AF_INET;
-    localAddr.sin_port =
-       htons(localHostPort == PORT_DEFAULT ? 0 : localHostPort);
-
-    // Should use host address (if specified in localHost) but for now use any
-    if (!localHost)
-    {
-        localAddr.sin_addr.s_addr=OsSocket::getDefaultBindAddress(); // $$$
-        mLocalIp = inet_ntoa(localAddr.sin_addr);
-    }
-    else
-    {
-        struct in_addr  ipAddr;
-        ipAddr.s_addr = inet_addr (localHost);
-        localAddr.sin_addr.s_addr= ipAddr.s_addr;
-        mLocalIp = localHost;
-    }
-
-    
-#   if defined(_WIN32)
-    error = bind( socketDescriptor, (const struct sockaddr*) &localAddr,
-            sizeof(localAddr));
-#   elif defined(_VXWORKS) || defined(__pingtel_on_posix__)
-
-    error = bind( socketDescriptor, (struct sockaddr*) &localAddr,
-            sizeof(localAddr));
-#   endif
-    if(error == OS_INVALID_SOCKET_DESCRIPTOR)
-    {
-        close();
-        goto EXIT;
-    }
-    else
-    {
-        sockaddr_in addr ;
-        int addrSize = sizeof(struct sockaddr_in);
-        error = getsockname(socketDescriptor, (struct sockaddr*) &addr, SOCKET_LEN_TYPE& addrSize);
-        localHostPort = htons(addr.sin_port);
-    }
-
-    // Kick off connection
-    mSimulatedConnect = FALSE;
-    doConnect(remoteHostPortNum, remoteHost, mSimulatedConnect) ;
-
-EXIT:
-    return;
+    return 0;
 }
-
 
 // Destructor
 OsDatagramSocket::~OsDatagramSocket()
@@ -186,6 +164,62 @@ OsDatagramSocket::operator=(const OsDatagramSocket& rhs)
    return *this;
 }
 
+int OsDatagramSocket::bind(int localHostPortNum, const char* localHost)
+{
+    int error = 0;
+
+    localHostPort = localHostPortNum;    
+    if (localHost)
+    {
+        localHostName = localHost ;
+    }
+
+    struct sockaddr_in localAddr;
+    memset(&localAddr, 0, sizeof(localAddr));
+    localAddr.sin_family = AF_INET;
+    localAddr.sin_port = htons(localHostPort == PORT_DEFAULT ? 0 : localHostPort);
+
+#ifdef WIN32
+    localAddr.sin_addr.s_addr = htonl(INADDR_ANY);
+    mLocalIp = localHost;
+#else
+    // Should use host address (if specified in localHost) but for now use any
+    if (!localHost)
+    {
+        localAddr.sin_addr.s_addr=OsSocket::getDefaultBindAddress(); // $$$
+        mLocalIp = inet_ntoa(localAddr.sin_addr);
+    }
+    else
+    {
+        struct in_addr  ipAddr;
+        ipAddr.s_addr = inet_addr (localHost);
+        localAddr.sin_addr.s_addr= ipAddr.s_addr;
+        mLocalIp = localHost;
+    }
+#endif
+
+    
+    error = ::bind( socketDescriptor, (struct sockaddr*) &localAddr,
+                    sizeof(localAddr));
+
+    if(error == OS_INVALID_SOCKET_DESCRIPTOR)
+    {
+        error = OsSocketGetERRNO();
+        close();
+        OsSysLog::add(FAC_KERNEL, PRI_ERR, "OsDatagramSocket::bind to %s:%d failed w/errno %d\n",
+                 mLocalIp.data(), localHostPortNum, error);
+    }
+    else
+    {
+        sockaddr_in addr ;
+        int addrSize = sizeof(struct sockaddr_in);
+        error = getsockname(socketDescriptor, (struct sockaddr*) &addr, SOCKET_LEN_TYPE& addrSize);
+        localHostPort = htons(addr.sin_port);
+    }
+
+    return error;
+}
+
 UtlBoolean OsDatagramSocket::reconnect()
 {
     osPrintf("WARNING: reconnect NOT implemented!\n");
@@ -195,11 +229,7 @@ UtlBoolean OsDatagramSocket::reconnect()
 void OsDatagramSocket::doConnect(int remoteHostPortNum, const char* remoteHost,
                                  UtlBoolean simulateConnect)
 {
-    struct hostent* server;    
-#   if defined(_VXWORKS)
-    char hostentBuf[512];
-#   endif
-
+    struct hostent* server = NULL;
 
     mToSockaddrValid = FALSE;
     memset(mpToSockaddr, 0, sizeof(struct sockaddr_in));
@@ -219,14 +249,28 @@ void OsDatagramSocket::doConnect(int remoteHostPortNum, const char* remoteHost,
     // Connect to a remote host if given
     if(portIsValid(remoteHostPort) && remoteHost && !simulateConnect)
     {
-#       if defined(_WIN32) || defined(__pingtel_on_posix__)
-            server = gethostbyname(remoteHost);
-#       elif defined(_VXWORKS)
-            server = resolvGetHostByName((char*) remoteHost,
-                                         hostentBuf, sizeof(hostentBuf));
-#       else
-#       error Unsupported target platform.
-#       endif //_VXWORKS
+#if defined(_WIN32) || defined(__pingtel_on_posix__)
+        unsigned long ipAddr;
+
+        ipAddr = inet_addr(remoteHost);
+
+        if (ipAddr != INADDR_NONE) 
+        {
+           server = gethostbyaddr((char * )&ipAddr,sizeof(ipAddr),AF_INET);
+        }
+
+        if ( server == NULL ) 
+        { 
+           server = gethostbyname(remoteHost);
+        }
+
+#elif defined(_VXWORKS)
+        char hostentBuf[512];
+        server = resolvGetHostByName((char*) remoteHost,
+                                      hostentBuf, sizeof(hostentBuf));
+#else
+#  error Unsupported target platform.
+#endif //_VXWORKS
 
         if (server)
         {
@@ -237,15 +281,15 @@ void OsDatagramSocket::doConnect(int remoteHostPortNum, const char* remoteHost,
             serverSockAddr.sin_addr.s_addr = (serverAddr->s_addr);
 
             // Set the default destination address for the socket
-#       if defined(_WIN32) || defined(__pingtel_on_posix__)
+#if defined(_WIN32) || defined(__pingtel_on_posix__)
             if(connect(socketDescriptor, (const struct sockaddr*) 
                     &serverSockAddr, sizeof(serverSockAddr)))
-#       elif defined(_VXWORKS)
+#elif defined(_VXWORKS)
             if(connect(socketDescriptor, (struct sockaddr*) &serverSockAddr,
                        sizeof(serverSockAddr)))
-#       else
-#           error Unsupported target platform.
-#       endif
+#else
+#  error Unsupported target platform.
+#endif
 
 
 
@@ -327,7 +371,7 @@ int OsDatagramSocket::write(const char* buffer, int bufferLength,
 
         if(bytesSent != bufferLength)
         {
-           OsSysLog::add(FAC_SIP, PRI_ERR,
+           OsSysLog::add(FAC_KERNEL, PRI_ERR,
                          "OsDatagramSocket::write(4) bytesSent = %d, "
                          "bufferLength = %d, errno = %d",
                          bytesSent, bufferLength, errno);
@@ -515,7 +559,7 @@ void OsDatagramSocket::getRemoteHostIp(struct in_addr* remoteHostAddress,
 }
 
 // Return the external IP address for this socket.
-UtlBoolean OsDatagramSocket::getExternalIp(UtlString* ip, int* port) 
+UtlBoolean OsDatagramSocket::getMappedIp(UtlString* ip, int* port) 
 {
     return FALSE ;
 }

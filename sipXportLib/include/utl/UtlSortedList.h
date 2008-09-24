@@ -1,10 +1,12 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 
 #ifndef _UtlSortedList_h_
@@ -43,6 +45,7 @@ class UtlSortedList : public UtlList
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
+    static const UtlContainableType TYPE;
 
 /* ============================ CREATORS ================================== */
 
@@ -69,7 +72,7 @@ public:
 /* ============================ ACCESSORS ================================= */
 
     /**
-     * Find the first occurence of the designated object by equality (as 
+     * Find the first occurrence of the designated object by equality (as 
      * opposed to by reference).
      */
     virtual UtlContainable* find(const UtlContainable*) const;
@@ -93,8 +96,6 @@ public:
      */
     UtlContainableType getContainableType() const;
     
-    static const UtlContainableType TYPE; ///< constant for class type comparisons.
-
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:

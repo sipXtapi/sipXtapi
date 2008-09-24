@@ -1,0 +1,2205 @@
+# Microsoft eMbedded Visual Tools Project File - Name="sipXsdpLibTest" - Package Owner=<4>
+# Microsoft eMbedded Visual Tools Generated Build File, Format Version 6.02
+# ** DO NOT EDIT **
+
+# TARGTYPE "Win32 (WCE ARMV4I) Application" 0xa501
+# TARGTYPE "Win32 (WCE emulator) Application" 0xa601
+
+CFG=sipXsdpLibTest - Win32 (WCE emulator) Debug
+!MESSAGE This is not a valid makefile. To build this project using NMAKE,
+!MESSAGE use the Export Makefile command and run
+!MESSAGE 
+!MESSAGE NMAKE /f "sipXsdpLibTest.vcn".
+!MESSAGE 
+!MESSAGE You can specify a configuration when running NMAKE
+!MESSAGE by defining the macro CFG on the command line. For example:
+!MESSAGE 
+!MESSAGE NMAKE /f "sipXsdpLibTest.vcn" CFG="sipXsdpLibTest - Win32 (WCE emulator) Debug"
+!MESSAGE 
+!MESSAGE Possible choices for configuration are:
+!MESSAGE 
+!MESSAGE "sipXsdpLibTest - Win32 (WCE emulator) Release" (based on "Win32 (WCE emulator) Application")
+!MESSAGE "sipXsdpLibTest - Win32 (WCE emulator) Debug" (based on "Win32 (WCE emulator) Application")
+!MESSAGE "sipXsdpLibTest - Win32 (WCE ARMV4I) Release" (based on "Win32 (WCE ARMV4I) Application")
+!MESSAGE "sipXsdpLibTest - Win32 (WCE ARMV4I) Debug" (based on "Win32 (WCE ARMV4I) Application")
+!MESSAGE 
+
+# Begin Project
+# PROP AllowPerConfigDependencies 0
+# PROP Scc_ProjName ""
+# PROP Scc_LocalPath ""
+# PROP ATL_Project 2
+
+!IF  "$(CFG)" == "sipXsdpLibTest - Win32 (WCE emulator) Release"
+
+# PROP BASE Use_MFC 0
+# PROP BASE Use_Debug_Libraries 0
+# PROP BASE Output_Dir "emulatorRel"
+# PROP BASE Intermediate_Dir "emulatorRel"
+# PROP BASE CPU_ID "{32E52003-403E-442D-BE48-DE10F8C6131D}"
+# PROP BASE Platform_ID "{8A9A2F80-6887-11D3-842E-005004848CBA}"
+# PROP BASE Target_Dir ""
+# PROP Use_MFC 0
+# PROP Use_Debug_Libraries 0
+# PROP Output_Dir "emulatorRel"
+# PROP Intermediate_Dir "emulatorRel"
+# PROP CPU_ID "{32E52003-403E-442D-BE48-DE10F8C6131D}"
+# PROP Platform_ID "{8A9A2F80-6887-11D3-842E-005004848CBA}"
+# PROP Target_Dir ""
+RSC=rc.exe
+# ADD BASE RSC /l 0x409 /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "UNICODE" /d "_UNICODE" /d "NDEBUG" /d "$(CePlatform)" /d "_X86_" /d "x86" /d "_i386_" /r
+# ADD RSC /l 0x409 /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "UNICODE" /d "_UNICODE" /d "NDEBUG" /d "$(CePlatform)" /d "_X86_" /d "x86" /d "_i386_" /r
+CPP=cl.exe
+# ADD BASE CPP /nologo /W3 /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "_i386_" /D UNDER_CE=$(CEVersion) /D "i_386_" /D "UNICODE" /D "_UNICODE" /D "_X86_" /D "x86" /D "NDEBUG" /YX /Gs8192 /GF /O2 /c
+# ADD CPP /nologo /W3 /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "_i386_" /D UNDER_CE=$(CEVersion) /D "i_386_" /D "UNICODE" /D "_UNICODE" /D "_X86_" /D "x86" /D "NDEBUG" /YX /Gs8192 /GF /O2 /c
+MTL=midl.exe
+# ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
+# ADD MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
+BSC32=bscmake.exe
+# ADD BASE BSC32 /nologo
+# ADD BSC32 /nologo
+LINK32=link.exe
+# ADD BASE LINK32 commctrl.lib coredll.lib $(CEx86Corelibc) /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /nodefaultlib:"OLDNAMES.lib" /nodefaultlib:$(CENoDefaultLib) /subsystem:$(CESubsystem) /MACHINE:IX86
+# ADD LINK32 commctrl.lib coredll.lib $(CEx86Corelibc) /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /nodefaultlib:"OLDNAMES.lib" /nodefaultlib:$(CENoDefaultLib) /subsystem:$(CESubsystem) /MACHINE:IX86
+
+!ELSEIF  "$(CFG)" == "sipXsdpLibTest - Win32 (WCE emulator) Debug"
+
+# PROP BASE Use_MFC 0
+# PROP BASE Use_Debug_Libraries 1
+# PROP BASE Output_Dir "emulatorDbg"
+# PROP BASE Intermediate_Dir "emulatorDbg"
+# PROP BASE CPU_ID "{32E52003-403E-442D-BE48-DE10F8C6131D}"
+# PROP BASE Platform_ID "{8A9A2F80-6887-11D3-842E-005004848CBA}"
+# PROP BASE Target_Dir ""
+# PROP Use_MFC 0
+# PROP Use_Debug_Libraries 1
+# PROP Output_Dir "emulatorDbg"
+# PROP Intermediate_Dir "emulatorDbg"
+# PROP CPU_ID "{32E52003-403E-442D-BE48-DE10F8C6131D}"
+# PROP Platform_ID "{8A9A2F80-6887-11D3-842E-005004848CBA}"
+# PROP Ignore_Export_Lib 0
+# PROP Target_Dir ""
+RSC=rc.exe
+# ADD BASE RSC /l 0x409 /d "$(CePlatform)" /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "UNICODE" /d "_UNICODE" /d "DEBUG" /d "_X86_" /d "x86" /d "_i386_" /r
+# ADD RSC /l 0x409 /d "$(CePlatform)" /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "UNICODE" /d "_UNICODE" /d "DEBUG" /d "_X86_" /d "x86" /d "_i386_" /r
+CPP=cl.exe
+# ADD BASE CPP /nologo /W3 /Zi /Od /D "DEBUG" /D "_i386_" /D UNDER_CE=$(CEVersion) /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "i_386_" /D "UNICODE" /D "_UNICODE" /D "_X86_" /D "x86" /YX /Gs8192 /GF /c
+# ADD CPP /nologo /W3 /Zi /Od /I "include" /I "../sipXportLib/include" /I "../sipXportLib/src/test" /FI"os/WinCE/wincefixups.h" /D "DEBUG" /D "_i386_" /D UNDER_CE=$(CEVersion) /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "i_386_" /D "_MBCS" /D "_X86_" /D "x86" /D "WIN32" /D "WINCE" /D "DISABLE_MEM_POOLS" /D "PCRE_STATIC" /D "_STLP_USE_STATIC_LIB" /YX /Gs8192 /GF /c
+MTL=midl.exe
+# ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
+# ADD MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
+BSC32=bscmake.exe
+# ADD BASE BSC32 /nologo
+# ADD BSC32 /nologo
+LINK32=link.exe
+# ADD BASE LINK32 commctrl.lib coredll.lib $(CEx86Corelibc) /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /debug /nodefaultlib:"OLDNAMES.lib" /nodefaultlib:$(CENoDefaultLib) /subsystem:$(CESubsystem) /MACHINE:IX86
+# ADD LINK32 commctrl.lib coredll.lib $(CEx86Corelibc) ws2.lib toolhelp.lib lib_pcre.lib cppunit.lib sipXportLib.lib sipXsdpLib.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /debug /nodefaultlib:"OLDNAMES.lib" /nodefaultlib:$(CENoDefaultLib) /libpath:"../sipXportLib/emulatorDbg" /libpath:"../sipXsdpLib/emulatorDbg" /libpath:"../sipXtackLib/emulatorDbg" /subsystem:$(CESubsystem) /MACHINE:IX86
+
+!ELSEIF  "$(CFG)" == "sipXsdpLibTest - Win32 (WCE ARMV4I) Release"
+
+# PROP BASE Use_MFC 0
+# PROP BASE Use_Debug_Libraries 0
+# PROP BASE Output_Dir "ARMV4IRel"
+# PROP BASE Intermediate_Dir "ARMV4IRel"
+# PROP BASE CPU_ID "{DC70F430-E78B-494F-A9D5-62ADC56443B8}"
+# PROP BASE Platform_ID "{8A9A2F80-6887-11D3-842E-005004848CBA}"
+# PROP BASE Target_Dir ""
+# PROP Use_MFC 0
+# PROP Use_Debug_Libraries 0
+# PROP Output_Dir "ARMV4IRel"
+# PROP Intermediate_Dir "ARMV4IRel"
+# PROP CPU_ID "{DC70F430-E78B-494F-A9D5-62ADC56443B8}"
+# PROP Platform_ID "{8A9A2F80-6887-11D3-842E-005004848CBA}"
+# PROP Target_Dir ""
+RSC=rc.exe
+# ADD BASE RSC /l 0x409 /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "UNICODE" /d "_UNICODE" /d "NDEBUG" /d "$(CePlatform)" /d "THUMB" /d "_THUMB_" /d "ARM" /d "_ARM_" /d "ARMV4I" /r
+# ADD RSC /l 0x409 /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "UNICODE" /d "_UNICODE" /d "NDEBUG" /d "$(CePlatform)" /d "THUMB" /d "_THUMB_" /d "ARM" /d "_ARM_" /d "ARMV4I" /r
+CPP=clarm.exe
+# ADD BASE CPP /nologo /W3 /D _WIN32_WCE=$(CEVersion) /D "ARM" /D "_ARM_" /D "$(CePlatform)" /D "ARMV4I" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "NDEBUG" /YX /QRarch4T /QRinterwork-return /O2 /M$(CECrtMT) /c
+# ADD CPP /nologo /W3 /D _WIN32_WCE=$(CEVersion) /D "ARM" /D "_ARM_" /D "$(CePlatform)" /D "ARMV4I" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "NDEBUG" /YX /QRarch4T /QRinterwork-return /O2 /M$(CECrtMT) /c
+MTL=midl.exe
+# ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
+# ADD MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
+BSC32=bscmake.exe
+# ADD BASE BSC32 /nologo
+# ADD BSC32 /nologo
+LINK32=link.exe
+# ADD BASE LINK32 commctrl.lib coredll.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /nodefaultlib:"$(CENoDefaultLib)" /subsystem:$(CESubsystem) /MACHINE:THUMB
+# ADD LINK32 commctrl.lib coredll.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /nodefaultlib:"$(CENoDefaultLib)" /subsystem:$(CESubsystem) /MACHINE:THUMB
+
+!ELSEIF  "$(CFG)" == "sipXsdpLibTest - Win32 (WCE ARMV4I) Debug"
+
+# PROP BASE Use_MFC 0
+# PROP BASE Use_Debug_Libraries 1
+# PROP BASE Output_Dir "ARMV4IDbg"
+# PROP BASE Intermediate_Dir "ARMV4IDbg"
+# PROP BASE CPU_ID "{DC70F430-E78B-494F-A9D5-62ADC56443B8}"
+# PROP BASE Platform_ID "{8A9A2F80-6887-11D3-842E-005004848CBA}"
+# PROP BASE Target_Dir ""
+# PROP Use_MFC 0
+# PROP Use_Debug_Libraries 1
+# PROP Output_Dir "ARMV4IDbg"
+# PROP Intermediate_Dir "ARMV4IDbg"
+# PROP CPU_ID "{DC70F430-E78B-494F-A9D5-62ADC56443B8}"
+# PROP Platform_ID "{8A9A2F80-6887-11D3-842E-005004848CBA}"
+# PROP Ignore_Export_Lib 0
+# PROP Target_Dir ""
+RSC=rc.exe
+# ADD BASE RSC /l 0x409 /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "UNICODE" /d "_UNICODE" /d "DEBUG" /d "$(CePlatform)" /d "THUMB" /d "_THUMB_" /d "ARM" /d "_ARM_" /d "ARMV4I" /r
+# ADD RSC /l 0x409 /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "UNICODE" /d "_UNICODE" /d "DEBUG" /d "$(CePlatform)" /d "THUMB" /d "_THUMB_" /d "ARM" /d "_ARM_" /d "ARMV4I" /r
+CPP=clarm.exe
+# ADD BASE CPP /nologo /W3 /Zi /Od /D "DEBUG" /D "ARM" /D "_ARM_" /D "ARMV4I" /D UNDER_CE=$(CEVersion) /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "UNICODE" /D "_UNICODE" /YX /QRarch4T /QRinterwork-return /M$(CECrtMTDebug) /c
+# ADD CPP /nologo /W3 /Zi /Od /I "include" /I "../sipXportLib/include" /I "../sipXportLib/src/test" /FI"os/WinCE/wincefixups.h" /D "DEBUG" /D "ARM" /D "_ARM_" /D "ARMV4I" /D UNDER_CE=$(CEVersion) /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "_MBCS" /D "WIN32" /D "WINCE" /D "DISABLE_MEM_POOLS" /D "PCRE_STATIC" /D "_STLP_USE_STATIC_LIB" /YX /QRarch4T /QRinterwork-return /M$(CECrtMTDebug) /c
+MTL=midl.exe
+# ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
+# ADD MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
+BSC32=bscmake.exe
+# ADD BASE BSC32 /nologo
+# ADD BSC32 /nologo
+LINK32=link.exe
+# ADD BASE LINK32 commctrl.lib coredll.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /debug /nodefaultlib:"$(CENoDefaultLib)" /subsystem:$(CESubsystem) /MACHINE:THUMB
+# ADD LINK32 commctrl.lib coredll.lib ws2.lib toolhelp.lib lib_pcre.lib cppunit.lib sipXportLib.lib sipXsdpLib.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /debug /nodefaultlib:"$(CENoDefaultLib)" /libpath:"../sipXportLib/ARMV4IDbg" /libpath:"../sipXsdpLib/ARMV4IDbg" /libpath:"../sipXtackLib/ARMV4IDbg" /subsystem:$(CESubsystem) /MACHINE:THUMB
+
+!ENDIF 
+
+# Begin Target
+
+# Name "sipXsdpLibTest - Win32 (WCE emulator) Release"
+# Name "sipXsdpLibTest - Win32 (WCE emulator) Debug"
+# Name "sipXsdpLibTest - Win32 (WCE ARMV4I) Release"
+# Name "sipXsdpLibTest - Win32 (WCE ARMV4I) Debug"
+# Begin Group "Source Files"
+
+# PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
+# Begin Source File
+
+SOURCE=.\src\test\sdp\SdpSetGetTest.cpp
+
+!IF  "$(CFG)" == "sipXsdpLibTest - Win32 (WCE emulator) Release"
+
+!ELSEIF  "$(CFG)" == "sipXsdpLibTest - Win32 (WCE emulator) Debug"
+
+DEP_CPP_SDPSE=\
+	"..\sipXportLib\include\os\linux\OsBSemLinux.h"\
+	"..\sipXportLib\include\os\linux\OsDateTimeLinux.h"\
+	"..\sipXportLib\include\os\linux\OsLinuxDefs.h"\
+	"..\sipXportLib\include\os\linux\pt_csem.h"\
+	"..\sipXportLib\include\os\OsBSem.h"\
+	"..\sipXportLib\include\os\OsDateTime.h"\
+	"..\sipXportLib\include\os\OsDefs.h"\
+	"..\sipXportLib\include\os\OsStatus.h"\
+	"..\sipXportLib\include\os\OsSyncBase.h"\
+	"..\sipXportLib\include\os\OsTime.h"\
+	"..\sipXportLib\include\os\qsTypes.h"\
+	"..\sipXportLib\include\os\wnt\OsBSemWnt.h"\
+	"..\sipXportLib\include\os\wnt\OsDateTimeWnt.h"\
+	"..\sipXportLib\include\utl\UtlContainable.h"\
+	"..\sipXportLib\include\utl\UtlContainer.h"\
+	"..\sipXportLib\include\utl\UtlCopyableContainable.h"\
+	"..\sipXportLib\include\utl\UtlCopyableSList.h"\
+	"..\sipXportLib\include\utl\UtlCopyableSortedList.h"\
+	"..\sipXportLib\include\utl\UtlDefs.h"\
+	"..\sipXportLib\include\utl\UtlHashMap.h"\
+	"..\sipXportLib\include\utl\UtlInt.h"\
+	"..\sipXportLib\include\utl\UtlIterator.h"\
+	"..\sipXportLib\include\utl\UtlLink.h"\
+	"..\sipXportLib\include\utl\UtlList.h"\
+	"..\sipXportLib\include\utl\UtlListIterator.h"\
+	"..\sipXportLib\include\utl\UtlSList.h"\
+	"..\sipXportLib\include\utl\UtlSListIterator.h"\
+	"..\sipXportLib\include\utl\UtlSortedList.h"\
+	"..\sipXportLib\include\utl\UtlString.h"\
+	"..\sipXportLib\include\utl\UtlVoidPtr.h"\
+	".\include\sdp\Sdp.h"\
+	".\include\sdp\SdpCandidate.h"\
+	".\include\sdp\SdpCandidatePair.h"\
+	".\include\sdp\SdpCodec.h"\
+	".\include\sdp\SdpHelperResip.h"\
+	".\include\sdp\SdpMediaLine.h"\
+	
+NODEP_CPP_SDPSE=\
+	"..\sipXportLib\include\os\os\Vxw\OsBSemVxw.h"\
+	"..\sipXportLib\include\os\os\Vxw\OsDateTimeVxw.h"\
+	"..\sipXportLib\include\os\os\Vxw\OsVxwDefs.h"\
+	
+
+!ELSEIF  "$(CFG)" == "sipXsdpLibTest - Win32 (WCE ARMV4I) Release"
+
+DEP_CPP_SDPSE=\
+	{$(INCLUDE)}"\strstream"\
+	{$(INCLUDE)}"config\_epilog.h"\
+	{$(INCLUDE)}"config\_msvc_warnings_off.h"\
+	{$(INCLUDE)}"config\_prolog.h"\
+	{$(INCLUDE)}"config\stl_apcc.h"\
+	{$(INCLUDE)}"config\stl_apple.h"\
+	{$(INCLUDE)}"config\stl_as400.h"\
+	{$(INCLUDE)}"config\stl_bc.h"\
+	{$(INCLUDE)}"config\stl_como.h"\
+	{$(INCLUDE)}"config\stl_confix.h"\
+	{$(INCLUDE)}"config\stl_cray.h"\
+	{$(INCLUDE)}"config\stl_dec.h"\
+	{$(INCLUDE)}"config\stl_dec_vms.h"\
+	{$(INCLUDE)}"config\stl_dm.h"\
+	{$(INCLUDE)}"config\stl_evc.h"\
+	{$(INCLUDE)}"config\stl_fujitsu.h"\
+	{$(INCLUDE)}"config\stl_gcc.h"\
+	{$(INCLUDE)}"config\stl_hpacc.h"\
+	{$(INCLUDE)}"config\stl_ibm.h"\
+	{$(INCLUDE)}"config\stl_icc.h"\
+	{$(INCLUDE)}"config\stl_intel.h"\
+	{$(INCLUDE)}"config\stl_kai.h"\
+	{$(INCLUDE)}"config\stl_msvc.h"\
+	{$(INCLUDE)}"config\stl_mwerks.h"\
+	{$(INCLUDE)}"config\stl_mycomp.h"\
+	{$(INCLUDE)}"config\stl_sco.h"\
+	{$(INCLUDE)}"config\stl_sgi.h"\
+	{$(INCLUDE)}"config\stl_solaris.h"\
+	{$(INCLUDE)}"config\stl_sunpro.h"\
+	{$(INCLUDE)}"config\stl_symantec.h"\
+	{$(INCLUDE)}"config\stl_watcom.h"\
+	{$(INCLUDE)}"config\stl_wince.h"\
+	{$(INCLUDE)}"config\stlcomp.h"\
+	{$(INCLUDE)}"cppunit\AdditionalMessage.h"\
+	{$(INCLUDE)}"cppunit\Asserter.h"\
+	{$(INCLUDE)}"cppunit\config\config-bcb5.h"\
+	{$(INCLUDE)}"cppunit\config\config-msvc6.h"\
+	{$(INCLUDE)}"cppunit\config\CppUnitApi.h"\
+	{$(INCLUDE)}"cppunit\config\SelectDllLoader.h"\
+	{$(INCLUDE)}"cppunit\Exception.h"\
+	{$(INCLUDE)}"cppunit\extensions\AutoRegisterSuite.h"\
+	{$(INCLUDE)}"cppunit\extensions\ExceptionTestCaseDecorator.h"\
+	{$(INCLUDE)}"cppunit\extensions\HelperMacros.h"\
+	{$(INCLUDE)}"cppunit\extensions\TestCaseDecorator.h"\
+	{$(INCLUDE)}"cppunit\extensions\TestFactory.h"\
+	{$(INCLUDE)}"cppunit\extensions\TestFactoryRegistry.h"\
+	{$(INCLUDE)}"cppunit\extensions\TestFixtureFactory.h"\
+	{$(INCLUDE)}"cppunit\extensions\TestNamer.h"\
+	{$(INCLUDE)}"cppunit\extensions\TestSuiteBuilderContext.h"\
+	{$(INCLUDE)}"cppunit\extensions\TestSuiteFactory.h"\
+	{$(INCLUDE)}"cppunit\extensions\TypeInfoHelper.h"\
+	{$(INCLUDE)}"cppunit\Message.h"\
+	{$(INCLUDE)}"cppunit\Portability.h"\
+	{$(INCLUDE)}"cppunit\portability\CppUnitDeque.h"\
+	{$(INCLUDE)}"cppunit\portability\CppUnitMap.h"\
+	{$(INCLUDE)}"cppunit\portability\CppUnitSet.h"\
+	{$(INCLUDE)}"cppunit\portability\CppUnitVector.h"\
+	{$(INCLUDE)}"cppunit\SourceLine.h"\
+	{$(INCLUDE)}"cppunit\Test.h"\
+	{$(INCLUDE)}"cppunit\TestAssert.h"\
+	{$(INCLUDE)}"cppunit\TestCaller.h"\
+	{$(INCLUDE)}"cppunit\TestCase.h"\
+	{$(INCLUDE)}"cppunit\TestComposite.h"\
+	{$(INCLUDE)}"cppunit\TestFixture.h"\
+	{$(INCLUDE)}"cppunit\TestLeaf.h"\
+	{$(INCLUDE)}"cppunit\TestSuite.h"\
+	{$(INCLUDE)}"pthread.h"\
+	{$(INCLUDE)}"stl\_abbrevs.h"\
+	{$(INCLUDE)}"stl\_algobase.c"\
+	{$(INCLUDE)}"stl\_algobase.h"\
+	{$(INCLUDE)}"stl\_alloc.c"\
+	{$(INCLUDE)}"stl\_alloc.h"\
+	{$(INCLUDE)}"stl\_alloc_old.h"\
+	{$(INCLUDE)}"stl\_config.h"\
+	{$(INCLUDE)}"stl\_config_compat.h"\
+	{$(INCLUDE)}"stl\_config_compat_post.h"\
+	{$(INCLUDE)}"stl\_construct.h"\
+	{$(INCLUDE)}"stl\_ctraits_fns.h"\
+	{$(INCLUDE)}"stl\_cwchar.h"\
+	{$(INCLUDE)}"stl\_epilog.h"\
+	{$(INCLUDE)}"stl\_function.h"\
+	{$(INCLUDE)}"stl\_function_adaptors.h"\
+	{$(INCLUDE)}"stl\_function_base.h"\
+	{$(INCLUDE)}"stl\_ios_base.h"\
+	{$(INCLUDE)}"stl\_ioserr.h"\
+	{$(INCLUDE)}"stl\_iterator.h"\
+	{$(INCLUDE)}"stl\_iterator_base.h"\
+	{$(INCLUDE)}"stl\_iterator_old.h"\
+	{$(INCLUDE)}"stl\_locale.h"\
+	{$(INCLUDE)}"stl\_move_construct_fwk.h"\
+	{$(INCLUDE)}"stl\_pair.h"\
+	{$(INCLUDE)}"stl\_prolog.h"\
+	{$(INCLUDE)}"stl\_pthread_alloc.c"\
+	{$(INCLUDE)}"stl\_pthread_alloc.h"\
+	{$(INCLUDE)}"stl\_ptrs_specialize.h"\
+	{$(INCLUDE)}"stl\_range_errors.h"\
+	{$(INCLUDE)}"stl\_site_config.h"\
+	{$(INCLUDE)}"stl\_sparc_atomic.h"\
+	{$(INCLUDE)}"stl\_stlport_version.h"\
+	{$(INCLUDE)}"stl\_streambuf.c"\
+	{$(INCLUDE)}"stl\_streambuf.h"\
+	{$(INCLUDE)}"stl\_string.c"\
+	{$(INCLUDE)}"stl\_string.h"\
+	{$(INCLUDE)}"stl\_string_base.h"\
+	{$(INCLUDE)}"stl\_string_fwd.h"\
+	{$(INCLUDE)}"stl\_string_operators.h"\
+	{$(INCLUDE)}"stl\_string_sum.h"\
+	{$(INCLUDE)}"stl\_string_sum_methods.h"\
+	{$(INCLUDE)}"stl\_string_workaround.h"\
+	{$(INCLUDE)}"stl\_strstream.h"\
+	{$(INCLUDE)}"stl\_threads.c"\
+	{$(INCLUDE)}"stl\_threads.h"\
+	{$(INCLUDE)}"stl\_windows.h"\
+	{$(INCLUDE)}"stl\boost_type_traits.h"\
+	{$(INCLUDE)}"stl\debug\_debug.c"\
+	{$(INCLUDE)}"stl\debug\_debug.h"\
+	{$(INCLUDE)}"stl\debug\_iterator.h"\
+	{$(INCLUDE)}"stl\debug\_string.h"\
+	{$(INCLUDE)}"stl\debug\_string_workaround.h"\
+	{$(INCLUDE)}"stl\msl_string.h"\
+	{$(INCLUDE)}"stl\type_manips.h"\
+	{$(INCLUDE)}"stl\type_traits.h"\
+	{$(INCLUDE)}"stl_user_config.h"\
+	{$(INCLUDE)}"strstream.h"\
+	
+NODEP_CPP_SDPSE=\
+	"..\..\..\..\usr\include\pthread.h"\
+	
+
+!ELSEIF  "$(CFG)" == "sipXsdpLibTest - Win32 (WCE ARMV4I) Debug"
+
+DEP_CPP_SDPSE=\
+	"..\sipXportLib\include\os\linux\OsBSemLinux.h"\
+	"..\sipXportLib\include\os\linux\OsDateTimeLinux.h"\
+	"..\sipXportLib\include\os\linux\OsLinuxDefs.h"\
+	"..\sipXportLib\include\os\linux\pt_csem.h"\
+	"..\sipXportLib\include\os\OsBSem.h"\
+	"..\sipXportLib\include\os\OsDateTime.h"\
+	"..\sipXportLib\include\os\OsDefs.h"\
+	"..\sipXportLib\include\os\OsStatus.h"\
+	"..\sipXportLib\include\os\OsSyncBase.h"\
+	"..\sipXportLib\include\os\OsTime.h"\
+	"..\sipXportLib\include\os\qsTypes.h"\
+	"..\sipXportLib\include\os\wnt\OsBSemWnt.h"\
+	"..\sipXportLib\include\os\wnt\OsDateTimeWnt.h"\
+	"..\sipXportLib\include\utl\UtlContainable.h"\
+	"..\sipXportLib\include\utl\UtlContainer.h"\
+	"..\sipXportLib\include\utl\UtlCopyableContainable.h"\
+	"..\sipXportLib\include\utl\UtlCopyableSList.h"\
+	"..\sipXportLib\include\utl\UtlCopyableSortedList.h"\
+	"..\sipXportLib\include\utl\UtlDefs.h"\
+	"..\sipXportLib\include\utl\UtlHashMap.h"\
+	"..\sipXportLib\include\utl\UtlInt.h"\
+	"..\sipXportLib\include\utl\UtlIterator.h"\
+	"..\sipXportLib\include\utl\UtlLink.h"\
+	"..\sipXportLib\include\utl\UtlList.h"\
+	"..\sipXportLib\include\utl\UtlListIterator.h"\
+	"..\sipXportLib\include\utl\UtlSList.h"\
+	"..\sipXportLib\include\utl\UtlSListIterator.h"\
+	"..\sipXportLib\include\utl\UtlSortedList.h"\
+	"..\sipXportLib\include\utl\UtlString.h"\
+	"..\sipXportLib\include\utl\UtlVoidPtr.h"\
+	".\include\sdp\Sdp.h"\
+	".\include\sdp\SdpCandidate.h"\
+	".\include\sdp\SdpCandidatePair.h"\
+	".\include\sdp\SdpCodec.h"\
+	".\include\sdp\SdpHelperResip.h"\
+	".\include\sdp\SdpMediaLine.h"\
+	{$(INCLUDE)}"\strstream"\
+	{$(INCLUDE)}"config\_epilog.h"\
+	{$(INCLUDE)}"config\_msvc_warnings_off.h"\
+	{$(INCLUDE)}"config\_prolog.h"\
+	{$(INCLUDE)}"config\stl_apcc.h"\
+	{$(INCLUDE)}"config\stl_apple.h"\
+	{$(INCLUDE)}"config\stl_as400.h"\
+	{$(INCLUDE)}"config\stl_bc.h"\
+	{$(INCLUDE)}"config\stl_como.h"\
+	{$(INCLUDE)}"config\stl_confix.h"\
+	{$(INCLUDE)}"config\stl_cray.h"\
+	{$(INCLUDE)}"config\stl_dec.h"\
+	{$(INCLUDE)}"config\stl_dec_vms.h"\
+	{$(INCLUDE)}"config\stl_dm.h"\
+	{$(INCLUDE)}"config\stl_evc.h"\
+	{$(INCLUDE)}"config\stl_fujitsu.h"\
+	{$(INCLUDE)}"config\stl_gcc.h"\
+	{$(INCLUDE)}"config\stl_hpacc.h"\
+	{$(INCLUDE)}"config\stl_ibm.h"\
+	{$(INCLUDE)}"config\stl_icc.h"\
+	{$(INCLUDE)}"config\stl_intel.h"\
+	{$(INCLUDE)}"config\stl_kai.h"\
+	{$(INCLUDE)}"config\stl_msvc.h"\
+	{$(INCLUDE)}"config\stl_mwerks.h"\
+	{$(INCLUDE)}"config\stl_mycomp.h"\
+	{$(INCLUDE)}"config\stl_sco.h"\
+	{$(INCLUDE)}"config\stl_sgi.h"\
+	{$(INCLUDE)}"config\stl_solaris.h"\
+	{$(INCLUDE)}"config\stl_sunpro.h"\
+	{$(INCLUDE)}"config\stl_symantec.h"\
+	{$(INCLUDE)}"config\stl_watcom.h"\
+	{$(INCLUDE)}"config\stl_wince.h"\
+	{$(INCLUDE)}"config\stlcomp.h"\
+	{$(INCLUDE)}"cppunit\AdditionalMessage.h"\
+	{$(INCLUDE)}"cppunit\Asserter.h"\
+	{$(INCLUDE)}"cppunit\config\config-bcb5.h"\
+	{$(INCLUDE)}"cppunit\config\config-msvc6.h"\
+	{$(INCLUDE)}"cppunit\config\CppUnitApi.h"\
+	{$(INCLUDE)}"cppunit\config\SelectDllLoader.h"\
+	{$(INCLUDE)}"cppunit\Exception.h"\
+	{$(INCLUDE)}"cppunit\extensions\AutoRegisterSuite.h"\
+	{$(INCLUDE)}"cppunit\extensions\ExceptionTestCaseDecorator.h"\
+	{$(INCLUDE)}"cppunit\extensions\HelperMacros.h"\
+	{$(INCLUDE)}"cppunit\extensions\TestCaseDecorator.h"\
+	{$(INCLUDE)}"cppunit\extensions\TestFactory.h"\
+	{$(INCLUDE)}"cppunit\extensions\TestFactoryRegistry.h"\
+	{$(INCLUDE)}"cppunit\extensions\TestFixtureFactory.h"\
+	{$(INCLUDE)}"cppunit\extensions\TestNamer.h"\
+	{$(INCLUDE)}"cppunit\extensions\TestSuiteBuilderContext.h"\
+	{$(INCLUDE)}"cppunit\extensions\TestSuiteFactory.h"\
+	{$(INCLUDE)}"cppunit\extensions\TypeInfoHelper.h"\
+	{$(INCLUDE)}"cppunit\Message.h"\
+	{$(INCLUDE)}"cppunit\Portability.h"\
+	{$(INCLUDE)}"cppunit\portability\CppUnitDeque.h"\
+	{$(INCLUDE)}"cppunit\portability\CppUnitMap.h"\
+	{$(INCLUDE)}"cppunit\portability\CppUnitSet.h"\
+	{$(INCLUDE)}"cppunit\portability\CppUnitVector.h"\
+	{$(INCLUDE)}"cppunit\SourceLine.h"\
+	{$(INCLUDE)}"cppunit\Test.h"\
+	{$(INCLUDE)}"cppunit\TestAssert.h"\
+	{$(INCLUDE)}"cppunit\TestCaller.h"\
+	{$(INCLUDE)}"cppunit\TestCase.h"\
+	{$(INCLUDE)}"cppunit\TestComposite.h"\
+	{$(INCLUDE)}"cppunit\TestFixture.h"\
+	{$(INCLUDE)}"cppunit\TestLeaf.h"\
+	{$(INCLUDE)}"cppunit\TestSuite.h"\
+	{$(INCLUDE)}"pthread.h"\
+	{$(INCLUDE)}"stl\_abbrevs.h"\
+	{$(INCLUDE)}"stl\_algobase.c"\
+	{$(INCLUDE)}"stl\_algobase.h"\
+	{$(INCLUDE)}"stl\_alloc.c"\
+	{$(INCLUDE)}"stl\_alloc.h"\
+	{$(INCLUDE)}"stl\_alloc_old.h"\
+	{$(INCLUDE)}"stl\_config.h"\
+	{$(INCLUDE)}"stl\_config_compat.h"\
+	{$(INCLUDE)}"stl\_config_compat_post.h"\
+	{$(INCLUDE)}"stl\_construct.h"\
+	{$(INCLUDE)}"stl\_ctraits_fns.h"\
+	{$(INCLUDE)}"stl\_cwchar.h"\
+	{$(INCLUDE)}"stl\_epilog.h"\
+	{$(INCLUDE)}"stl\_function.h"\
+	{$(INCLUDE)}"stl\_function_adaptors.h"\
+	{$(INCLUDE)}"stl\_function_base.h"\
+	{$(INCLUDE)}"stl\_ios_base.h"\
+	{$(INCLUDE)}"stl\_ioserr.h"\
+	{$(INCLUDE)}"stl\_iterator.h"\
+	{$(INCLUDE)}"stl\_iterator_base.h"\
+	{$(INCLUDE)}"stl\_iterator_old.h"\
+	{$(INCLUDE)}"stl\_locale.h"\
+	{$(INCLUDE)}"stl\_move_construct_fwk.h"\
+	{$(INCLUDE)}"stl\_pair.h"\
+	{$(INCLUDE)}"stl\_prolog.h"\
+	{$(INCLUDE)}"stl\_pthread_alloc.c"\
+	{$(INCLUDE)}"stl\_pthread_alloc.h"\
+	{$(INCLUDE)}"stl\_ptrs_specialize.h"\
+	{$(INCLUDE)}"stl\_range_errors.h"\
+	{$(INCLUDE)}"stl\_site_config.h"\
+	{$(INCLUDE)}"stl\_sparc_atomic.h"\
+	{$(INCLUDE)}"stl\_stlport_version.h"\
+	{$(INCLUDE)}"stl\_streambuf.c"\
+	{$(INCLUDE)}"stl\_streambuf.h"\
+	{$(INCLUDE)}"stl\_string.c"\
+	{$(INCLUDE)}"stl\_string.h"\
+	{$(INCLUDE)}"stl\_string_base.h"\
+	{$(INCLUDE)}"stl\_string_fwd.h"\
+	{$(INCLUDE)}"stl\_string_operators.h"\
+	{$(INCLUDE)}"stl\_string_sum.h"\
+	{$(INCLUDE)}"stl\_string_sum_methods.h"\
+	{$(INCLUDE)}"stl\_string_workaround.h"\
+	{$(INCLUDE)}"stl\_strstream.h"\
+	{$(INCLUDE)}"stl\_threads.c"\
+	{$(INCLUDE)}"stl\_threads.h"\
+	{$(INCLUDE)}"stl\_windows.h"\
+	{$(INCLUDE)}"stl\boost_type_traits.h"\
+	{$(INCLUDE)}"stl\debug\_debug.c"\
+	{$(INCLUDE)}"stl\debug\_debug.h"\
+	{$(INCLUDE)}"stl\debug\_iterator.h"\
+	{$(INCLUDE)}"stl\debug\_string.h"\
+	{$(INCLUDE)}"stl\debug\_string_workaround.h"\
+	{$(INCLUDE)}"stl\msl_string.h"\
+	{$(INCLUDE)}"stl\type_manips.h"\
+	{$(INCLUDE)}"stl\type_traits.h"\
+	{$(INCLUDE)}"stl_user_config.h"\
+	{$(INCLUDE)}"strstream.h"\
+	
+NODEP_CPP_SDPSE=\
+	"..\..\..\..\usr\include\pthread.h"\
+	"..\sipXportLib\include\os\os\Vxw\OsBSemVxw.h"\
+	"..\sipXportLib\include\os\os\Vxw\OsDateTimeVxw.h"\
+	"..\sipXportLib\include\os\os\Vxw\OsVxwDefs.h"\
+	
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=..\sipXportLib\src\test\sipxunit\TestMonitor.cpp
+
+!IF  "$(CFG)" == "sipXsdpLibTest - Win32 (WCE emulator) Release"
+
+!ELSEIF  "$(CFG)" == "sipXsdpLibTest - Win32 (WCE emulator) Debug"
+
+DEP_CPP_TESTM=\
+	"..\sipXportLib\src\test\sipxunit\TestMonitor.h"\
+	"..\sipXportLib\src\test\sipxunit\TestUtilities.h"\
+	
+
+!ELSEIF  "$(CFG)" == "sipXsdpLibTest - Win32 (WCE ARMV4I) Release"
+
+DEP_CPP_TESTM=\
+	{$(INCLUDE)}"\strstream"\
+	{$(INCLUDE)}"config\_epilog.h"\
+	{$(INCLUDE)}"config\_msvc_warnings_off.h"\
+	{$(INCLUDE)}"config\_prolog.h"\
+	{$(INCLUDE)}"config\stl_apcc.h"\
+	{$(INCLUDE)}"config\stl_apple.h"\
+	{$(INCLUDE)}"config\stl_as400.h"\
+	{$(INCLUDE)}"config\stl_bc.h"\
+	{$(INCLUDE)}"config\stl_como.h"\
+	{$(INCLUDE)}"config\stl_confix.h"\
+	{$(INCLUDE)}"config\stl_cray.h"\
+	{$(INCLUDE)}"config\stl_dec.h"\
+	{$(INCLUDE)}"config\stl_dec_vms.h"\
+	{$(INCLUDE)}"config\stl_dm.h"\
+	{$(INCLUDE)}"config\stl_evc.h"\
+	{$(INCLUDE)}"config\stl_fujitsu.h"\
+	{$(INCLUDE)}"config\stl_gcc.h"\
+	{$(INCLUDE)}"config\stl_hpacc.h"\
+	{$(INCLUDE)}"config\stl_ibm.h"\
+	{$(INCLUDE)}"config\stl_icc.h"\
+	{$(INCLUDE)}"config\stl_intel.h"\
+	{$(INCLUDE)}"config\stl_kai.h"\
+	{$(INCLUDE)}"config\stl_msvc.h"\
+	{$(INCLUDE)}"config\stl_mwerks.h"\
+	{$(INCLUDE)}"config\stl_mycomp.h"\
+	{$(INCLUDE)}"config\stl_sco.h"\
+	{$(INCLUDE)}"config\stl_sgi.h"\
+	{$(INCLUDE)}"config\stl_solaris.h"\
+	{$(INCLUDE)}"config\stl_sunpro.h"\
+	{$(INCLUDE)}"config\stl_symantec.h"\
+	{$(INCLUDE)}"config\stl_watcom.h"\
+	{$(INCLUDE)}"config\stl_wince.h"\
+	{$(INCLUDE)}"config\stlcomp.h"\
+	{$(INCLUDE)}"cppunit\config\config-bcb5.h"\
+	{$(INCLUDE)}"cppunit\config\config-msvc6.h"\
+	{$(INCLUDE)}"cppunit\config\CppUnitApi.h"\
+	{$(INCLUDE)}"cppunit\config\SelectDllLoader.h"\
+	{$(INCLUDE)}"cppunit\Exception.h"\
+	{$(INCLUDE)}"cppunit\Message.h"\
+	{$(INCLUDE)}"cppunit\Portability.h"\
+	{$(INCLUDE)}"cppunit\portability\CppUnitDeque.h"\
+	{$(INCLUDE)}"cppunit\SourceLine.h"\
+	{$(INCLUDE)}"cppunit\SynchronizedObject.h"\
+	{$(INCLUDE)}"cppunit\Test.h"\
+	{$(INCLUDE)}"cppunit\TestFailure.h"\
+	{$(INCLUDE)}"cppunit\TestListener.h"\
+	{$(INCLUDE)}"cppunit\TestResultCollector.h"\
+	{$(INCLUDE)}"cppunit\TestSuccessListener.h"\
+	{$(INCLUDE)}"pthread.h"\
+	{$(INCLUDE)}"stl\_abbrevs.h"\
+	{$(INCLUDE)}"stl\_algobase.c"\
+	{$(INCLUDE)}"stl\_algobase.h"\
+	{$(INCLUDE)}"stl\_alloc.c"\
+	{$(INCLUDE)}"stl\_alloc.h"\
+	{$(INCLUDE)}"stl\_alloc_old.h"\
+	{$(INCLUDE)}"stl\_config.h"\
+	{$(INCLUDE)}"stl\_config_compat.h"\
+	{$(INCLUDE)}"stl\_config_compat_post.h"\
+	{$(INCLUDE)}"stl\_construct.h"\
+	{$(INCLUDE)}"stl\_ctraits_fns.h"\
+	{$(INCLUDE)}"stl\_cwchar.h"\
+	{$(INCLUDE)}"stl\_epilog.h"\
+	{$(INCLUDE)}"stl\_function.h"\
+	{$(INCLUDE)}"stl\_function_adaptors.h"\
+	{$(INCLUDE)}"stl\_function_base.h"\
+	{$(INCLUDE)}"stl\_ios_base.h"\
+	{$(INCLUDE)}"stl\_ioserr.h"\
+	{$(INCLUDE)}"stl\_iterator.h"\
+	{$(INCLUDE)}"stl\_iterator_base.h"\
+	{$(INCLUDE)}"stl\_iterator_old.h"\
+	{$(INCLUDE)}"stl\_locale.h"\
+	{$(INCLUDE)}"stl\_move_construct_fwk.h"\
+	{$(INCLUDE)}"stl\_pair.h"\
+	{$(INCLUDE)}"stl\_prolog.h"\
+	{$(INCLUDE)}"stl\_pthread_alloc.c"\
+	{$(INCLUDE)}"stl\_pthread_alloc.h"\
+	{$(INCLUDE)}"stl\_ptrs_specialize.h"\
+	{$(INCLUDE)}"stl\_range_errors.h"\
+	{$(INCLUDE)}"stl\_site_config.h"\
+	{$(INCLUDE)}"stl\_sparc_atomic.h"\
+	{$(INCLUDE)}"stl\_stlport_version.h"\
+	{$(INCLUDE)}"stl\_streambuf.c"\
+	{$(INCLUDE)}"stl\_streambuf.h"\
+	{$(INCLUDE)}"stl\_string.c"\
+	{$(INCLUDE)}"stl\_string.h"\
+	{$(INCLUDE)}"stl\_string_base.h"\
+	{$(INCLUDE)}"stl\_string_fwd.h"\
+	{$(INCLUDE)}"stl\_string_operators.h"\
+	{$(INCLUDE)}"stl\_string_sum.h"\
+	{$(INCLUDE)}"stl\_string_sum_methods.h"\
+	{$(INCLUDE)}"stl\_string_workaround.h"\
+	{$(INCLUDE)}"stl\_strstream.h"\
+	{$(INCLUDE)}"stl\_threads.c"\
+	{$(INCLUDE)}"stl\_threads.h"\
+	{$(INCLUDE)}"stl\_windows.h"\
+	{$(INCLUDE)}"stl\boost_type_traits.h"\
+	{$(INCLUDE)}"stl\debug\_debug.c"\
+	{$(INCLUDE)}"stl\debug\_debug.h"\
+	{$(INCLUDE)}"stl\debug\_iterator.h"\
+	{$(INCLUDE)}"stl\debug\_string.h"\
+	{$(INCLUDE)}"stl\debug\_string_workaround.h"\
+	{$(INCLUDE)}"stl\msl_string.h"\
+	{$(INCLUDE)}"stl\type_manips.h"\
+	{$(INCLUDE)}"stl\type_traits.h"\
+	{$(INCLUDE)}"stl_user_config.h"\
+	{$(INCLUDE)}"strstream.h"\
+	
+NODEP_CPP_TESTM=\
+	"..\..\..\..\usr\include\pthread.h"\
+	
+
+!ELSEIF  "$(CFG)" == "sipXsdpLibTest - Win32 (WCE ARMV4I) Debug"
+
+DEP_CPP_TESTM=\
+	"..\sipXportLib\src\test\sipxunit\TestMonitor.h"\
+	"..\sipXportLib\src\test\sipxunit\TestUtilities.h"\
+	{$(INCLUDE)}"\strstream"\
+	{$(INCLUDE)}"config\_epilog.h"\
+	{$(INCLUDE)}"config\_msvc_warnings_off.h"\
+	{$(INCLUDE)}"config\_prolog.h"\
+	{$(INCLUDE)}"config\stl_apcc.h"\
+	{$(INCLUDE)}"config\stl_apple.h"\
+	{$(INCLUDE)}"config\stl_as400.h"\
+	{$(INCLUDE)}"config\stl_bc.h"\
+	{$(INCLUDE)}"config\stl_como.h"\
+	{$(INCLUDE)}"config\stl_confix.h"\
+	{$(INCLUDE)}"config\stl_cray.h"\
+	{$(INCLUDE)}"config\stl_dec.h"\
+	{$(INCLUDE)}"config\stl_dec_vms.h"\
+	{$(INCLUDE)}"config\stl_dm.h"\
+	{$(INCLUDE)}"config\stl_evc.h"\
+	{$(INCLUDE)}"config\stl_fujitsu.h"\
+	{$(INCLUDE)}"config\stl_gcc.h"\
+	{$(INCLUDE)}"config\stl_hpacc.h"\
+	{$(INCLUDE)}"config\stl_ibm.h"\
+	{$(INCLUDE)}"config\stl_icc.h"\
+	{$(INCLUDE)}"config\stl_intel.h"\
+	{$(INCLUDE)}"config\stl_kai.h"\
+	{$(INCLUDE)}"config\stl_msvc.h"\
+	{$(INCLUDE)}"config\stl_mwerks.h"\
+	{$(INCLUDE)}"config\stl_mycomp.h"\
+	{$(INCLUDE)}"config\stl_sco.h"\
+	{$(INCLUDE)}"config\stl_sgi.h"\
+	{$(INCLUDE)}"config\stl_solaris.h"\
+	{$(INCLUDE)}"config\stl_sunpro.h"\
+	{$(INCLUDE)}"config\stl_symantec.h"\
+	{$(INCLUDE)}"config\stl_watcom.h"\
+	{$(INCLUDE)}"config\stl_wince.h"\
+	{$(INCLUDE)}"config\stlcomp.h"\
+	{$(INCLUDE)}"cppunit\AdditionalMessage.h"\
+	{$(INCLUDE)}"cppunit\Asserter.h"\
+	{$(INCLUDE)}"cppunit\config\config-bcb5.h"\
+	{$(INCLUDE)}"cppunit\config\config-msvc6.h"\
+	{$(INCLUDE)}"cppunit\config\CppUnitApi.h"\
+	{$(INCLUDE)}"cppunit\config\SelectDllLoader.h"\
+	{$(INCLUDE)}"cppunit\Exception.h"\
+	{$(INCLUDE)}"cppunit\extensions\AutoRegisterSuite.h"\
+	{$(INCLUDE)}"cppunit\extensions\ExceptionTestCaseDecorator.h"\
+	{$(INCLUDE)}"cppunit\extensions\HelperMacros.h"\
+	{$(INCLUDE)}"cppunit\extensions\TestCaseDecorator.h"\
+	{$(INCLUDE)}"cppunit\extensions\TestFactory.h"\
+	{$(INCLUDE)}"cppunit\extensions\TestFactoryRegistry.h"\
+	{$(INCLUDE)}"cppunit\extensions\TestFixtureFactory.h"\
+	{$(INCLUDE)}"cppunit\extensions\TestNamer.h"\
+	{$(INCLUDE)}"cppunit\extensions\TestSuiteBuilderContext.h"\
+	{$(INCLUDE)}"cppunit\extensions\TestSuiteFactory.h"\
+	{$(INCLUDE)}"cppunit\extensions\TypeInfoHelper.h"\
+	{$(INCLUDE)}"cppunit\Message.h"\
+	{$(INCLUDE)}"cppunit\Portability.h"\
+	{$(INCLUDE)}"cppunit\portability\CppUnitDeque.h"\
+	{$(INCLUDE)}"cppunit\portability\CppUnitMap.h"\
+	{$(INCLUDE)}"cppunit\portability\CppUnitSet.h"\
+	{$(INCLUDE)}"cppunit\portability\CppUnitVector.h"\
+	{$(INCLUDE)}"cppunit\SourceLine.h"\
+	{$(INCLUDE)}"cppunit\SynchronizedObject.h"\
+	{$(INCLUDE)}"cppunit\Test.h"\
+	{$(INCLUDE)}"cppunit\TestAssert.h"\
+	{$(INCLUDE)}"cppunit\TestCaller.h"\
+	{$(INCLUDE)}"cppunit\TestCase.h"\
+	{$(INCLUDE)}"cppunit\TestComposite.h"\
+	{$(INCLUDE)}"cppunit\TestFailure.h"\
+	{$(INCLUDE)}"cppunit\TestFixture.h"\
+	{$(INCLUDE)}"cppunit\TestLeaf.h"\
+	{$(INCLUDE)}"cppunit\TestListener.h"\
+	{$(INCLUDE)}"cppunit\TestResultCollector.h"\
+	{$(INCLUDE)}"cppunit\TestSuccessListener.h"\
+	{$(INCLUDE)}"cppunit\TestSuite.h"\
+	{$(INCLUDE)}"pthread.h"\
+	{$(INCLUDE)}"stl\_abbrevs.h"\
+	{$(INCLUDE)}"stl\_algobase.c"\
+	{$(INCLUDE)}"stl\_algobase.h"\
+	{$(INCLUDE)}"stl\_alloc.c"\
+	{$(INCLUDE)}"stl\_alloc.h"\
+	{$(INCLUDE)}"stl\_alloc_old.h"\
+	{$(INCLUDE)}"stl\_config.h"\
+	{$(INCLUDE)}"stl\_config_compat.h"\
+	{$(INCLUDE)}"stl\_config_compat_post.h"\
+	{$(INCLUDE)}"stl\_construct.h"\
+	{$(INCLUDE)}"stl\_ctraits_fns.h"\
+	{$(INCLUDE)}"stl\_cwchar.h"\
+	{$(INCLUDE)}"stl\_epilog.h"\
+	{$(INCLUDE)}"stl\_function.h"\
+	{$(INCLUDE)}"stl\_function_adaptors.h"\
+	{$(INCLUDE)}"stl\_function_base.h"\
+	{$(INCLUDE)}"stl\_ios_base.h"\
+	{$(INCLUDE)}"stl\_ioserr.h"\
+	{$(INCLUDE)}"stl\_iterator.h"\
+	{$(INCLUDE)}"stl\_iterator_base.h"\
+	{$(INCLUDE)}"stl\_iterator_old.h"\
+	{$(INCLUDE)}"stl\_locale.h"\
+	{$(INCLUDE)}"stl\_move_construct_fwk.h"\
+	{$(INCLUDE)}"stl\_pair.h"\
+	{$(INCLUDE)}"stl\_prolog.h"\
+	{$(INCLUDE)}"stl\_pthread_alloc.c"\
+	{$(INCLUDE)}"stl\_pthread_alloc.h"\
+	{$(INCLUDE)}"stl\_ptrs_specialize.h"\
+	{$(INCLUDE)}"stl\_range_errors.h"\
+	{$(INCLUDE)}"stl\_site_config.h"\
+	{$(INCLUDE)}"stl\_sparc_atomic.h"\
+	{$(INCLUDE)}"stl\_stlport_version.h"\
+	{$(INCLUDE)}"stl\_streambuf.c"\
+	{$(INCLUDE)}"stl\_streambuf.h"\
+	{$(INCLUDE)}"stl\_string.c"\
+	{$(INCLUDE)}"stl\_string.h"\
+	{$(INCLUDE)}"stl\_string_base.h"\
+	{$(INCLUDE)}"stl\_string_fwd.h"\
+	{$(INCLUDE)}"stl\_string_operators.h"\
+	{$(INCLUDE)}"stl\_string_sum.h"\
+	{$(INCLUDE)}"stl\_string_sum_methods.h"\
+	{$(INCLUDE)}"stl\_string_workaround.h"\
+	{$(INCLUDE)}"stl\_strstream.h"\
+	{$(INCLUDE)}"stl\_threads.c"\
+	{$(INCLUDE)}"stl\_threads.h"\
+	{$(INCLUDE)}"stl\_windows.h"\
+	{$(INCLUDE)}"stl\boost_type_traits.h"\
+	{$(INCLUDE)}"stl\debug\_debug.c"\
+	{$(INCLUDE)}"stl\debug\_debug.h"\
+	{$(INCLUDE)}"stl\debug\_iterator.h"\
+	{$(INCLUDE)}"stl\debug\_string.h"\
+	{$(INCLUDE)}"stl\debug\_string_workaround.h"\
+	{$(INCLUDE)}"stl\msl_string.h"\
+	{$(INCLUDE)}"stl\type_manips.h"\
+	{$(INCLUDE)}"stl\type_traits.h"\
+	{$(INCLUDE)}"stl_user_config.h"\
+	{$(INCLUDE)}"strstream.h"\
+	
+NODEP_CPP_TESTM=\
+	"..\..\..\..\usr\include\pthread.h"\
+	
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=..\sipXportLib\src\test\sipxunit\TestOsSysLogListener.cpp
+
+!IF  "$(CFG)" == "sipXsdpLibTest - Win32 (WCE emulator) Release"
+
+DEP_CPP_TESTO=\
+	"..\sipXportLib\src\test\sipxunit\TestOsSysLogListener.h"\
+	
+NODEP_CPP_TESTO=\
+	"..\sipXportLib\src\test\sipxunit\os\OsFileSystem.h"\
+	"..\sipXportLib\src\test\sipxunit\os\OsSysLog.h"\
+	
+
+!ELSEIF  "$(CFG)" == "sipXsdpLibTest - Win32 (WCE emulator) Debug"
+
+DEP_CPP_TESTO=\
+	"..\sipXportLib\include\os\linux\AdapterInfo.h"\
+	"..\sipXportLib\include\os\linux\OsBSemLinux.h"\
+	"..\sipXportLib\include\os\linux\OsCSemLinux.h"\
+	"..\sipXportLib\include\os\linux\OsDateTimeLinux.h"\
+	"..\sipXportLib\include\os\linux\OsDirLinux.h"\
+	"..\sipXportLib\include\os\linux\OsFileInfoLinux.h"\
+	"..\sipXportLib\include\os\linux\OsFileIteratorLinux.h"\
+	"..\sipXportLib\include\os\linux\OsFileLinux.h"\
+	"..\sipXportLib\include\os\linux\OsLinuxDefs.h"\
+	"..\sipXportLib\include\os\linux\OsMutexLinux.h"\
+	"..\sipXportLib\include\os\linux\OsPathLinux.h"\
+	"..\sipXportLib\include\os\linux\pt_csem.h"\
+	"..\sipXportLib\include\os\linux\pt_mutex.h"\
+	"..\sipXportLib\include\os\OsBSem.h"\
+	"..\sipXportLib\include\os\OsConfigDb.h"\
+	"..\sipXportLib\include\os\OsCSem.h"\
+	"..\sipXportLib\include\os\OsDateTime.h"\
+	"..\sipXportLib\include\os\OsDefs.h"\
+	"..\sipXportLib\include\os\OsDirBase.h"\
+	"..\sipXportLib\include\os\OsFileBase.h"\
+	"..\sipXportLib\include\os\OsFileInfoBase.h"\
+	"..\sipXportLib\include\os\OsFileIteratorBase.h"\
+	"..\sipXportLib\include\os\OsFileSystem.h"\
+	"..\sipXportLib\include\os\OsFS.h"\
+	"..\sipXportLib\include\os\OsLock.h"\
+	"..\sipXportLib\include\os\OsMutex.h"\
+	"..\sipXportLib\include\os\OsPathBase.h"\
+	"..\sipXportLib\include\os\OsRWMutex.h"\
+	"..\sipXportLib\include\os\OsSocket.h"\
+	"..\sipXportLib\include\os\OsStatus.h"\
+	"..\sipXportLib\include\os\OsSyncBase.h"\
+	"..\sipXportLib\include\os\OsSysLog.h"\
+	"..\sipXportLib\include\os\OsSysLogFacilities.h"\
+	"..\sipXportLib\include\os\OsTime.h"\
+	"..\sipXportLib\include\os\qsTypes.h"\
+	"..\sipXportLib\include\os\wnt\getWindowsDNSServers.h"\
+	"..\sipXportLib\include\os\wnt\OsBSemWnt.h"\
+	"..\sipXportLib\include\os\wnt\OsCSemWnt.h"\
+	"..\sipXportLib\include\os\wnt\OsDateTimeWnt.h"\
+	"..\sipXportLib\include\os\wnt\OsDirWnt.h"\
+	"..\sipXportLib\include\os\wnt\OsFileInfoWnt.h"\
+	"..\sipXportLib\include\os\wnt\OsFileIteratorWnt.h"\
+	"..\sipXportLib\include\os\wnt\OsFileSystemWnt.h"\
+	"..\sipXportLib\include\os\wnt\OsFileWnt.h"\
+	"..\sipXportLib\include\os\wnt\OsMutexWnt.h"\
+	"..\sipXportLib\include\os\wnt\OsPathWnt.h"\
+	"..\sipXportLib\include\os\wnt\WIndowsAdapterInfo.h"\
+	"..\sipXportLib\include\utl\UtlContainable.h"\
+	"..\sipXportLib\include\utl\UtlContainableAtomic.h"\
+	"..\sipXportLib\include\utl\UtlContainer.h"\
+	"..\sipXportLib\include\utl\UtlCopyableContainable.h"\
+	"..\sipXportLib\include\utl\UtlDefs.h"\
+	"..\sipXportLib\include\utl\UtlIterator.h"\
+	"..\sipXportLib\include\utl\UtlLink.h"\
+	"..\sipXportLib\include\utl\UtlList.h"\
+	"..\sipXportLib\include\utl\UtlRegex.h"\
+	"..\sipXportLib\include\utl\UtlSList.h"\
+	"..\sipXportLib\include\utl\UtlSortedList.h"\
+	"..\sipXportLib\include\utl\UtlString.h"\
+	"..\sipXportLib\src\test\sipxunit\TestOsSysLogListener.h"\
+	
+NODEP_CPP_TESTO=\
+	"..\sipXportLib\include\os\os\Vxw\OsBSemVxw.h"\
+	"..\sipXportLib\include\os\os\Vxw\OsCSemVxw.h"\
+	"..\sipXportLib\include\os\os\Vxw\OsDateTimeVxw.h"\
+	"..\sipXportLib\include\os\os\Vxw\OsDirVxw.h"\
+	"..\sipXportLib\include\os\os\Vxw\OsFileInfoVxw.h"\
+	"..\sipXportLib\include\os\os\Vxw\OsFileIteratorVxw.h"\
+	"..\sipXportLib\include\os\os\Vxw\OsFileVxw.h"\
+	"..\sipXportLib\include\os\os\Vxw\OsMutexVxw.h"\
+	"..\sipXportLib\include\os\os\Vxw\OsPathVxw.h"\
+	"..\sipXportLib\include\os\os\Vxw\OsVxwDefs.h"\
+	
+
+!ELSEIF  "$(CFG)" == "sipXsdpLibTest - Win32 (WCE ARMV4I) Release"
+
+DEP_CPP_TESTO=\
+	"..\sipXportLib\src\test\sipxunit\TestOsSysLogListener.h"\
+	{$(INCLUDE)}"\strstream"\
+	{$(INCLUDE)}"config\_epilog.h"\
+	{$(INCLUDE)}"config\_msvc_warnings_off.h"\
+	{$(INCLUDE)}"config\_prolog.h"\
+	{$(INCLUDE)}"config\stl_apcc.h"\
+	{$(INCLUDE)}"config\stl_apple.h"\
+	{$(INCLUDE)}"config\stl_as400.h"\
+	{$(INCLUDE)}"config\stl_bc.h"\
+	{$(INCLUDE)}"config\stl_como.h"\
+	{$(INCLUDE)}"config\stl_confix.h"\
+	{$(INCLUDE)}"config\stl_cray.h"\
+	{$(INCLUDE)}"config\stl_dec.h"\
+	{$(INCLUDE)}"config\stl_dec_vms.h"\
+	{$(INCLUDE)}"config\stl_dm.h"\
+	{$(INCLUDE)}"config\stl_evc.h"\
+	{$(INCLUDE)}"config\stl_fujitsu.h"\
+	{$(INCLUDE)}"config\stl_gcc.h"\
+	{$(INCLUDE)}"config\stl_hpacc.h"\
+	{$(INCLUDE)}"config\stl_ibm.h"\
+	{$(INCLUDE)}"config\stl_icc.h"\
+	{$(INCLUDE)}"config\stl_intel.h"\
+	{$(INCLUDE)}"config\stl_kai.h"\
+	{$(INCLUDE)}"config\stl_msvc.h"\
+	{$(INCLUDE)}"config\stl_mwerks.h"\
+	{$(INCLUDE)}"config\stl_mycomp.h"\
+	{$(INCLUDE)}"config\stl_sco.h"\
+	{$(INCLUDE)}"config\stl_sgi.h"\
+	{$(INCLUDE)}"config\stl_solaris.h"\
+	{$(INCLUDE)}"config\stl_sunpro.h"\
+	{$(INCLUDE)}"config\stl_symantec.h"\
+	{$(INCLUDE)}"config\stl_watcom.h"\
+	{$(INCLUDE)}"config\stl_wince.h"\
+	{$(INCLUDE)}"config\stlcomp.h"\
+	{$(INCLUDE)}"cppunit\config\config-bcb5.h"\
+	{$(INCLUDE)}"cppunit\config\config-msvc6.h"\
+	{$(INCLUDE)}"cppunit\config\CppUnitApi.h"\
+	{$(INCLUDE)}"cppunit\config\SelectDllLoader.h"\
+	{$(INCLUDE)}"cppunit\Portability.h"\
+	{$(INCLUDE)}"cppunit\Test.h"\
+	{$(INCLUDE)}"cppunit\TestListener.h"\
+	{$(INCLUDE)}"pthread.h"\
+	{$(INCLUDE)}"stl\_abbrevs.h"\
+	{$(INCLUDE)}"stl\_algobase.c"\
+	{$(INCLUDE)}"stl\_algobase.h"\
+	{$(INCLUDE)}"stl\_alloc.c"\
+	{$(INCLUDE)}"stl\_alloc.h"\
+	{$(INCLUDE)}"stl\_alloc_old.h"\
+	{$(INCLUDE)}"stl\_config.h"\
+	{$(INCLUDE)}"stl\_config_compat.h"\
+	{$(INCLUDE)}"stl\_config_compat_post.h"\
+	{$(INCLUDE)}"stl\_construct.h"\
+	{$(INCLUDE)}"stl\_ctraits_fns.h"\
+	{$(INCLUDE)}"stl\_cwchar.h"\
+	{$(INCLUDE)}"stl\_epilog.h"\
+	{$(INCLUDE)}"stl\_function.h"\
+	{$(INCLUDE)}"stl\_function_adaptors.h"\
+	{$(INCLUDE)}"stl\_function_base.h"\
+	{$(INCLUDE)}"stl\_ios_base.h"\
+	{$(INCLUDE)}"stl\_ioserr.h"\
+	{$(INCLUDE)}"stl\_iterator.h"\
+	{$(INCLUDE)}"stl\_iterator_base.h"\
+	{$(INCLUDE)}"stl\_iterator_old.h"\
+	{$(INCLUDE)}"stl\_locale.h"\
+	{$(INCLUDE)}"stl\_move_construct_fwk.h"\
+	{$(INCLUDE)}"stl\_pair.h"\
+	{$(INCLUDE)}"stl\_prolog.h"\
+	{$(INCLUDE)}"stl\_pthread_alloc.c"\
+	{$(INCLUDE)}"stl\_pthread_alloc.h"\
+	{$(INCLUDE)}"stl\_ptrs_specialize.h"\
+	{$(INCLUDE)}"stl\_range_errors.h"\
+	{$(INCLUDE)}"stl\_site_config.h"\
+	{$(INCLUDE)}"stl\_sparc_atomic.h"\
+	{$(INCLUDE)}"stl\_stlport_version.h"\
+	{$(INCLUDE)}"stl\_streambuf.c"\
+	{$(INCLUDE)}"stl\_streambuf.h"\
+	{$(INCLUDE)}"stl\_string.c"\
+	{$(INCLUDE)}"stl\_string.h"\
+	{$(INCLUDE)}"stl\_string_base.h"\
+	{$(INCLUDE)}"stl\_string_fwd.h"\
+	{$(INCLUDE)}"stl\_string_operators.h"\
+	{$(INCLUDE)}"stl\_string_sum.h"\
+	{$(INCLUDE)}"stl\_string_sum_methods.h"\
+	{$(INCLUDE)}"stl\_string_workaround.h"\
+	{$(INCLUDE)}"stl\_strstream.h"\
+	{$(INCLUDE)}"stl\_threads.c"\
+	{$(INCLUDE)}"stl\_threads.h"\
+	{$(INCLUDE)}"stl\_windows.h"\
+	{$(INCLUDE)}"stl\boost_type_traits.h"\
+	{$(INCLUDE)}"stl\debug\_debug.c"\
+	{$(INCLUDE)}"stl\debug\_debug.h"\
+	{$(INCLUDE)}"stl\debug\_iterator.h"\
+	{$(INCLUDE)}"stl\debug\_string.h"\
+	{$(INCLUDE)}"stl\debug\_string_workaround.h"\
+	{$(INCLUDE)}"stl\msl_string.h"\
+	{$(INCLUDE)}"stl\type_manips.h"\
+	{$(INCLUDE)}"stl\type_traits.h"\
+	{$(INCLUDE)}"stl_user_config.h"\
+	{$(INCLUDE)}"strstream.h"\
+	
+NODEP_CPP_TESTO=\
+	"..\..\..\..\usr\include\pthread.h"\
+	"..\sipXportLib\src\test\sipxunit\os\OsFileSystem.h"\
+	"..\sipXportLib\src\test\sipxunit\os\OsSysLog.h"\
+	
+
+!ELSEIF  "$(CFG)" == "sipXsdpLibTest - Win32 (WCE ARMV4I) Debug"
+
+DEP_CPP_TESTO=\
+	"..\sipXportLib\include\os\linux\AdapterInfo.h"\
+	"..\sipXportLib\include\os\linux\OsBSemLinux.h"\
+	"..\sipXportLib\include\os\linux\OsCSemLinux.h"\
+	"..\sipXportLib\include\os\linux\OsDateTimeLinux.h"\
+	"..\sipXportLib\include\os\linux\OsDirLinux.h"\
+	"..\sipXportLib\include\os\linux\OsFileInfoLinux.h"\
+	"..\sipXportLib\include\os\linux\OsFileIteratorLinux.h"\
+	"..\sipXportLib\include\os\linux\OsFileLinux.h"\
+	"..\sipXportLib\include\os\linux\OsLinuxDefs.h"\
+	"..\sipXportLib\include\os\linux\OsMutexLinux.h"\
+	"..\sipXportLib\include\os\linux\OsPathLinux.h"\
+	"..\sipXportLib\include\os\linux\pt_csem.h"\
+	"..\sipXportLib\include\os\linux\pt_mutex.h"\
+	"..\sipXportLib\include\os\OsBSem.h"\
+	"..\sipXportLib\include\os\OsConfigDb.h"\
+	"..\sipXportLib\include\os\OsCSem.h"\
+	"..\sipXportLib\include\os\OsDateTime.h"\
+	"..\sipXportLib\include\os\OsDefs.h"\
+	"..\sipXportLib\include\os\OsDirBase.h"\
+	"..\sipXportLib\include\os\OsFileBase.h"\
+	"..\sipXportLib\include\os\OsFileInfoBase.h"\
+	"..\sipXportLib\include\os\OsFileIteratorBase.h"\
+	"..\sipXportLib\include\os\OsFileSystem.h"\
+	"..\sipXportLib\include\os\OsFS.h"\
+	"..\sipXportLib\include\os\OsLock.h"\
+	"..\sipXportLib\include\os\OsMutex.h"\
+	"..\sipXportLib\include\os\OsPathBase.h"\
+	"..\sipXportLib\include\os\OsRWMutex.h"\
+	"..\sipXportLib\include\os\OsSocket.h"\
+	"..\sipXportLib\include\os\OsStatus.h"\
+	"..\sipXportLib\include\os\OsSyncBase.h"\
+	"..\sipXportLib\include\os\OsSysLog.h"\
+	"..\sipXportLib\include\os\OsSysLogFacilities.h"\
+	"..\sipXportLib\include\os\OsTime.h"\
+	"..\sipXportLib\include\os\qsTypes.h"\
+	"..\sipXportLib\include\os\wnt\getWindowsDNSServers.h"\
+	"..\sipXportLib\include\os\wnt\OsBSemWnt.h"\
+	"..\sipXportLib\include\os\wnt\OsCSemWnt.h"\
+	"..\sipXportLib\include\os\wnt\OsDateTimeWnt.h"\
+	"..\sipXportLib\include\os\wnt\OsDirWnt.h"\
+	"..\sipXportLib\include\os\wnt\OsFileInfoWnt.h"\
+	"..\sipXportLib\include\os\wnt\OsFileIteratorWnt.h"\
+	"..\sipXportLib\include\os\wnt\OsFileSystemWnt.h"\
+	"..\sipXportLib\include\os\wnt\OsFileWnt.h"\
+	"..\sipXportLib\include\os\wnt\OsMutexWnt.h"\
+	"..\sipXportLib\include\os\wnt\OsPathWnt.h"\
+	"..\sipXportLib\include\os\wnt\WIndowsAdapterInfo.h"\
+	"..\sipXportLib\include\utl\UtlContainable.h"\
+	"..\sipXportLib\include\utl\UtlContainableAtomic.h"\
+	"..\sipXportLib\include\utl\UtlContainer.h"\
+	"..\sipXportLib\include\utl\UtlCopyableContainable.h"\
+	"..\sipXportLib\include\utl\UtlDefs.h"\
+	"..\sipXportLib\include\utl\UtlIterator.h"\
+	"..\sipXportLib\include\utl\UtlLink.h"\
+	"..\sipXportLib\include\utl\UtlList.h"\
+	"..\sipXportLib\include\utl\UtlRegex.h"\
+	"..\sipXportLib\include\utl\UtlSList.h"\
+	"..\sipXportLib\include\utl\UtlSortedList.h"\
+	"..\sipXportLib\include\utl\UtlString.h"\
+	"..\sipXportLib\src\test\sipxunit\TestOsSysLogListener.h"\
+	{$(INCLUDE)}"\strstream"\
+	{$(INCLUDE)}"config\_epilog.h"\
+	{$(INCLUDE)}"config\_msvc_warnings_off.h"\
+	{$(INCLUDE)}"config\_prolog.h"\
+	{$(INCLUDE)}"config\stl_apcc.h"\
+	{$(INCLUDE)}"config\stl_apple.h"\
+	{$(INCLUDE)}"config\stl_as400.h"\
+	{$(INCLUDE)}"config\stl_bc.h"\
+	{$(INCLUDE)}"config\stl_como.h"\
+	{$(INCLUDE)}"config\stl_confix.h"\
+	{$(INCLUDE)}"config\stl_cray.h"\
+	{$(INCLUDE)}"config\stl_dec.h"\
+	{$(INCLUDE)}"config\stl_dec_vms.h"\
+	{$(INCLUDE)}"config\stl_dm.h"\
+	{$(INCLUDE)}"config\stl_evc.h"\
+	{$(INCLUDE)}"config\stl_fujitsu.h"\
+	{$(INCLUDE)}"config\stl_gcc.h"\
+	{$(INCLUDE)}"config\stl_hpacc.h"\
+	{$(INCLUDE)}"config\stl_ibm.h"\
+	{$(INCLUDE)}"config\stl_icc.h"\
+	{$(INCLUDE)}"config\stl_intel.h"\
+	{$(INCLUDE)}"config\stl_kai.h"\
+	{$(INCLUDE)}"config\stl_msvc.h"\
+	{$(INCLUDE)}"config\stl_mwerks.h"\
+	{$(INCLUDE)}"config\stl_mycomp.h"\
+	{$(INCLUDE)}"config\stl_sco.h"\
+	{$(INCLUDE)}"config\stl_sgi.h"\
+	{$(INCLUDE)}"config\stl_solaris.h"\
+	{$(INCLUDE)}"config\stl_sunpro.h"\
+	{$(INCLUDE)}"config\stl_symantec.h"\
+	{$(INCLUDE)}"config\stl_watcom.h"\
+	{$(INCLUDE)}"config\stl_wince.h"\
+	{$(INCLUDE)}"config\stlcomp.h"\
+	{$(INCLUDE)}"cppunit\config\config-bcb5.h"\
+	{$(INCLUDE)}"cppunit\config\config-msvc6.h"\
+	{$(INCLUDE)}"cppunit\config\CppUnitApi.h"\
+	{$(INCLUDE)}"cppunit\config\SelectDllLoader.h"\
+	{$(INCLUDE)}"cppunit\Portability.h"\
+	{$(INCLUDE)}"cppunit\Test.h"\
+	{$(INCLUDE)}"cppunit\TestListener.h"\
+	{$(INCLUDE)}"pcre.h"\
+	{$(INCLUDE)}"pthread.h"\
+	{$(INCLUDE)}"stl\_abbrevs.h"\
+	{$(INCLUDE)}"stl\_algobase.c"\
+	{$(INCLUDE)}"stl\_algobase.h"\
+	{$(INCLUDE)}"stl\_alloc.c"\
+	{$(INCLUDE)}"stl\_alloc.h"\
+	{$(INCLUDE)}"stl\_alloc_old.h"\
+	{$(INCLUDE)}"stl\_config.h"\
+	{$(INCLUDE)}"stl\_config_compat.h"\
+	{$(INCLUDE)}"stl\_config_compat_post.h"\
+	{$(INCLUDE)}"stl\_construct.h"\
+	{$(INCLUDE)}"stl\_ctraits_fns.h"\
+	{$(INCLUDE)}"stl\_cwchar.h"\
+	{$(INCLUDE)}"stl\_epilog.h"\
+	{$(INCLUDE)}"stl\_function.h"\
+	{$(INCLUDE)}"stl\_function_adaptors.h"\
+	{$(INCLUDE)}"stl\_function_base.h"\
+	{$(INCLUDE)}"stl\_ios_base.h"\
+	{$(INCLUDE)}"stl\_ioserr.h"\
+	{$(INCLUDE)}"stl\_iterator.h"\
+	{$(INCLUDE)}"stl\_iterator_base.h"\
+	{$(INCLUDE)}"stl\_iterator_old.h"\
+	{$(INCLUDE)}"stl\_locale.h"\
+	{$(INCLUDE)}"stl\_move_construct_fwk.h"\
+	{$(INCLUDE)}"stl\_pair.h"\
+	{$(INCLUDE)}"stl\_prolog.h"\
+	{$(INCLUDE)}"stl\_pthread_alloc.c"\
+	{$(INCLUDE)}"stl\_pthread_alloc.h"\
+	{$(INCLUDE)}"stl\_ptrs_specialize.h"\
+	{$(INCLUDE)}"stl\_range_errors.h"\
+	{$(INCLUDE)}"stl\_site_config.h"\
+	{$(INCLUDE)}"stl\_sparc_atomic.h"\
+	{$(INCLUDE)}"stl\_stlport_version.h"\
+	{$(INCLUDE)}"stl\_streambuf.c"\
+	{$(INCLUDE)}"stl\_streambuf.h"\
+	{$(INCLUDE)}"stl\_string.c"\
+	{$(INCLUDE)}"stl\_string.h"\
+	{$(INCLUDE)}"stl\_string_base.h"\
+	{$(INCLUDE)}"stl\_string_fwd.h"\
+	{$(INCLUDE)}"stl\_string_operators.h"\
+	{$(INCLUDE)}"stl\_string_sum.h"\
+	{$(INCLUDE)}"stl\_string_sum_methods.h"\
+	{$(INCLUDE)}"stl\_string_workaround.h"\
+	{$(INCLUDE)}"stl\_strstream.h"\
+	{$(INCLUDE)}"stl\_threads.c"\
+	{$(INCLUDE)}"stl\_threads.h"\
+	{$(INCLUDE)}"stl\_windows.h"\
+	{$(INCLUDE)}"stl\boost_type_traits.h"\
+	{$(INCLUDE)}"stl\debug\_debug.c"\
+	{$(INCLUDE)}"stl\debug\_debug.h"\
+	{$(INCLUDE)}"stl\debug\_iterator.h"\
+	{$(INCLUDE)}"stl\debug\_string.h"\
+	{$(INCLUDE)}"stl\debug\_string_workaround.h"\
+	{$(INCLUDE)}"stl\msl_string.h"\
+	{$(INCLUDE)}"stl\type_manips.h"\
+	{$(INCLUDE)}"stl\type_traits.h"\
+	{$(INCLUDE)}"stl_user_config.h"\
+	{$(INCLUDE)}"strstream.h"\
+	
+NODEP_CPP_TESTO=\
+	"..\..\..\..\usr\include\pthread.h"\
+	"..\sipXportLib\include\os\os\Vxw\OsBSemVxw.h"\
+	"..\sipXportLib\include\os\os\Vxw\OsCSemVxw.h"\
+	"..\sipXportLib\include\os\os\Vxw\OsDateTimeVxw.h"\
+	"..\sipXportLib\include\os\os\Vxw\OsDirVxw.h"\
+	"..\sipXportLib\include\os\os\Vxw\OsFileInfoVxw.h"\
+	"..\sipXportLib\include\os\os\Vxw\OsFileIteratorVxw.h"\
+	"..\sipXportLib\include\os\os\Vxw\OsFileVxw.h"\
+	"..\sipXportLib\include\os\os\Vxw\OsMutexVxw.h"\
+	"..\sipXportLib\include\os\os\Vxw\OsPathVxw.h"\
+	"..\sipXportLib\include\os\os\Vxw\OsVxwDefs.h"\
+	
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=..\sipXportLib\src\test\sipxunit\TestOutputter.cpp
+
+!IF  "$(CFG)" == "sipXsdpLibTest - Win32 (WCE emulator) Release"
+
+!ELSEIF  "$(CFG)" == "sipXsdpLibTest - Win32 (WCE emulator) Debug"
+
+DEP_CPP_TESTOU=\
+	"..\sipXportLib\src\test\sipxunit\TestOutputter.h"\
+	
+
+!ELSEIF  "$(CFG)" == "sipXsdpLibTest - Win32 (WCE ARMV4I) Release"
+
+DEP_CPP_TESTOU=\
+	{$(INCLUDE)}"\strstream"\
+	{$(INCLUDE)}"config\_epilog.h"\
+	{$(INCLUDE)}"config\_msvc_warnings_off.h"\
+	{$(INCLUDE)}"config\_prolog.h"\
+	{$(INCLUDE)}"config\stl_apcc.h"\
+	{$(INCLUDE)}"config\stl_apple.h"\
+	{$(INCLUDE)}"config\stl_as400.h"\
+	{$(INCLUDE)}"config\stl_bc.h"\
+	{$(INCLUDE)}"config\stl_como.h"\
+	{$(INCLUDE)}"config\stl_confix.h"\
+	{$(INCLUDE)}"config\stl_cray.h"\
+	{$(INCLUDE)}"config\stl_dec.h"\
+	{$(INCLUDE)}"config\stl_dec_vms.h"\
+	{$(INCLUDE)}"config\stl_dm.h"\
+	{$(INCLUDE)}"config\stl_evc.h"\
+	{$(INCLUDE)}"config\stl_fujitsu.h"\
+	{$(INCLUDE)}"config\stl_gcc.h"\
+	{$(INCLUDE)}"config\stl_hpacc.h"\
+	{$(INCLUDE)}"config\stl_ibm.h"\
+	{$(INCLUDE)}"config\stl_icc.h"\
+	{$(INCLUDE)}"config\stl_intel.h"\
+	{$(INCLUDE)}"config\stl_kai.h"\
+	{$(INCLUDE)}"config\stl_msvc.h"\
+	{$(INCLUDE)}"config\stl_mwerks.h"\
+	{$(INCLUDE)}"config\stl_mycomp.h"\
+	{$(INCLUDE)}"config\stl_sco.h"\
+	{$(INCLUDE)}"config\stl_sgi.h"\
+	{$(INCLUDE)}"config\stl_solaris.h"\
+	{$(INCLUDE)}"config\stl_sunpro.h"\
+	{$(INCLUDE)}"config\stl_symantec.h"\
+	{$(INCLUDE)}"config\stl_watcom.h"\
+	{$(INCLUDE)}"config\stl_wince.h"\
+	{$(INCLUDE)}"config\stlcomp.h"\
+	{$(INCLUDE)}"cppunit\config\config-bcb5.h"\
+	{$(INCLUDE)}"cppunit\config\config-msvc6.h"\
+	{$(INCLUDE)}"cppunit\config\CppUnitApi.h"\
+	{$(INCLUDE)}"cppunit\config\SelectDllLoader.h"\
+	{$(INCLUDE)}"cppunit\Portability.h"\
+	{$(INCLUDE)}"cppunit\portability\CppUnitDeque.h"\
+	{$(INCLUDE)}"cppunit\SynchronizedObject.h"\
+	{$(INCLUDE)}"cppunit\TestListener.h"\
+	{$(INCLUDE)}"cppunit\TestResultCollector.h"\
+	{$(INCLUDE)}"cppunit\TestSuccessListener.h"\
+	{$(INCLUDE)}"pthread.h"\
+	{$(INCLUDE)}"stl\_abbrevs.h"\
+	{$(INCLUDE)}"stl\_algobase.c"\
+	{$(INCLUDE)}"stl\_algobase.h"\
+	{$(INCLUDE)}"stl\_alloc.c"\
+	{$(INCLUDE)}"stl\_alloc.h"\
+	{$(INCLUDE)}"stl\_alloc_old.h"\
+	{$(INCLUDE)}"stl\_config.h"\
+	{$(INCLUDE)}"stl\_config_compat.h"\
+	{$(INCLUDE)}"stl\_config_compat_post.h"\
+	{$(INCLUDE)}"stl\_construct.h"\
+	{$(INCLUDE)}"stl\_ctraits_fns.h"\
+	{$(INCLUDE)}"stl\_cwchar.h"\
+	{$(INCLUDE)}"stl\_epilog.h"\
+	{$(INCLUDE)}"stl\_function.h"\
+	{$(INCLUDE)}"stl\_function_adaptors.h"\
+	{$(INCLUDE)}"stl\_function_base.h"\
+	{$(INCLUDE)}"stl\_ios_base.h"\
+	{$(INCLUDE)}"stl\_ioserr.h"\
+	{$(INCLUDE)}"stl\_iterator.h"\
+	{$(INCLUDE)}"stl\_iterator_base.h"\
+	{$(INCLUDE)}"stl\_iterator_old.h"\
+	{$(INCLUDE)}"stl\_locale.h"\
+	{$(INCLUDE)}"stl\_move_construct_fwk.h"\
+	{$(INCLUDE)}"stl\_pair.h"\
+	{$(INCLUDE)}"stl\_prolog.h"\
+	{$(INCLUDE)}"stl\_pthread_alloc.c"\
+	{$(INCLUDE)}"stl\_pthread_alloc.h"\
+	{$(INCLUDE)}"stl\_ptrs_specialize.h"\
+	{$(INCLUDE)}"stl\_range_errors.h"\
+	{$(INCLUDE)}"stl\_site_config.h"\
+	{$(INCLUDE)}"stl\_sparc_atomic.h"\
+	{$(INCLUDE)}"stl\_stlport_version.h"\
+	{$(INCLUDE)}"stl\_streambuf.c"\
+	{$(INCLUDE)}"stl\_streambuf.h"\
+	{$(INCLUDE)}"stl\_string.c"\
+	{$(INCLUDE)}"stl\_string.h"\
+	{$(INCLUDE)}"stl\_string_base.h"\
+	{$(INCLUDE)}"stl\_string_fwd.h"\
+	{$(INCLUDE)}"stl\_string_operators.h"\
+	{$(INCLUDE)}"stl\_string_sum.h"\
+	{$(INCLUDE)}"stl\_string_sum_methods.h"\
+	{$(INCLUDE)}"stl\_string_workaround.h"\
+	{$(INCLUDE)}"stl\_strstream.h"\
+	{$(INCLUDE)}"stl\_threads.c"\
+	{$(INCLUDE)}"stl\_threads.h"\
+	{$(INCLUDE)}"stl\_windows.h"\
+	{$(INCLUDE)}"stl\boost_type_traits.h"\
+	{$(INCLUDE)}"stl\debug\_debug.c"\
+	{$(INCLUDE)}"stl\debug\_debug.h"\
+	{$(INCLUDE)}"stl\debug\_iterator.h"\
+	{$(INCLUDE)}"stl\debug\_string.h"\
+	{$(INCLUDE)}"stl\debug\_string_workaround.h"\
+	{$(INCLUDE)}"stl\msl_string.h"\
+	{$(INCLUDE)}"stl\type_manips.h"\
+	{$(INCLUDE)}"stl\type_traits.h"\
+	{$(INCLUDE)}"stl_user_config.h"\
+	{$(INCLUDE)}"strstream.h"\
+	
+NODEP_CPP_TESTOU=\
+	"..\..\..\..\usr\include\pthread.h"\
+	
+
+!ELSEIF  "$(CFG)" == "sipXsdpLibTest - Win32 (WCE ARMV4I) Debug"
+
+DEP_CPP_TESTOU=\
+	"..\sipXportLib\src\test\sipxunit\TestOutputter.h"\
+	{$(INCLUDE)}"\strstream"\
+	{$(INCLUDE)}"config\_epilog.h"\
+	{$(INCLUDE)}"config\_msvc_warnings_off.h"\
+	{$(INCLUDE)}"config\_prolog.h"\
+	{$(INCLUDE)}"config\stl_apcc.h"\
+	{$(INCLUDE)}"config\stl_apple.h"\
+	{$(INCLUDE)}"config\stl_as400.h"\
+	{$(INCLUDE)}"config\stl_bc.h"\
+	{$(INCLUDE)}"config\stl_como.h"\
+	{$(INCLUDE)}"config\stl_confix.h"\
+	{$(INCLUDE)}"config\stl_cray.h"\
+	{$(INCLUDE)}"config\stl_dec.h"\
+	{$(INCLUDE)}"config\stl_dec_vms.h"\
+	{$(INCLUDE)}"config\stl_dm.h"\
+	{$(INCLUDE)}"config\stl_evc.h"\
+	{$(INCLUDE)}"config\stl_fujitsu.h"\
+	{$(INCLUDE)}"config\stl_gcc.h"\
+	{$(INCLUDE)}"config\stl_hpacc.h"\
+	{$(INCLUDE)}"config\stl_ibm.h"\
+	{$(INCLUDE)}"config\stl_icc.h"\
+	{$(INCLUDE)}"config\stl_intel.h"\
+	{$(INCLUDE)}"config\stl_kai.h"\
+	{$(INCLUDE)}"config\stl_msvc.h"\
+	{$(INCLUDE)}"config\stl_mwerks.h"\
+	{$(INCLUDE)}"config\stl_mycomp.h"\
+	{$(INCLUDE)}"config\stl_sco.h"\
+	{$(INCLUDE)}"config\stl_sgi.h"\
+	{$(INCLUDE)}"config\stl_solaris.h"\
+	{$(INCLUDE)}"config\stl_sunpro.h"\
+	{$(INCLUDE)}"config\stl_symantec.h"\
+	{$(INCLUDE)}"config\stl_watcom.h"\
+	{$(INCLUDE)}"config\stl_wince.h"\
+	{$(INCLUDE)}"config\stlcomp.h"\
+	{$(INCLUDE)}"cppunit\config\config-bcb5.h"\
+	{$(INCLUDE)}"cppunit\config\config-msvc6.h"\
+	{$(INCLUDE)}"cppunit\config\CppUnitApi.h"\
+	{$(INCLUDE)}"cppunit\config\SelectDllLoader.h"\
+	{$(INCLUDE)}"cppunit\Outputter.h"\
+	{$(INCLUDE)}"cppunit\Portability.h"\
+	{$(INCLUDE)}"cppunit\portability\CppUnitDeque.h"\
+	{$(INCLUDE)}"cppunit\SynchronizedObject.h"\
+	{$(INCLUDE)}"cppunit\TestListener.h"\
+	{$(INCLUDE)}"cppunit\TestResultCollector.h"\
+	{$(INCLUDE)}"cppunit\TestSuccessListener.h"\
+	{$(INCLUDE)}"cppunit\TextOutputter.h"\
+	{$(INCLUDE)}"pthread.h"\
+	{$(INCLUDE)}"stl\_abbrevs.h"\
+	{$(INCLUDE)}"stl\_algobase.c"\
+	{$(INCLUDE)}"stl\_algobase.h"\
+	{$(INCLUDE)}"stl\_alloc.c"\
+	{$(INCLUDE)}"stl\_alloc.h"\
+	{$(INCLUDE)}"stl\_alloc_old.h"\
+	{$(INCLUDE)}"stl\_config.h"\
+	{$(INCLUDE)}"stl\_config_compat.h"\
+	{$(INCLUDE)}"stl\_config_compat_post.h"\
+	{$(INCLUDE)}"stl\_construct.h"\
+	{$(INCLUDE)}"stl\_ctraits_fns.h"\
+	{$(INCLUDE)}"stl\_cwchar.h"\
+	{$(INCLUDE)}"stl\_epilog.h"\
+	{$(INCLUDE)}"stl\_function.h"\
+	{$(INCLUDE)}"stl\_function_adaptors.h"\
+	{$(INCLUDE)}"stl\_function_base.h"\
+	{$(INCLUDE)}"stl\_ios_base.h"\
+	{$(INCLUDE)}"stl\_ioserr.h"\
+	{$(INCLUDE)}"stl\_iterator.h"\
+	{$(INCLUDE)}"stl\_iterator_base.h"\
+	{$(INCLUDE)}"stl\_iterator_old.h"\
+	{$(INCLUDE)}"stl\_locale.h"\
+	{$(INCLUDE)}"stl\_move_construct_fwk.h"\
+	{$(INCLUDE)}"stl\_pair.h"\
+	{$(INCLUDE)}"stl\_prolog.h"\
+	{$(INCLUDE)}"stl\_pthread_alloc.c"\
+	{$(INCLUDE)}"stl\_pthread_alloc.h"\
+	{$(INCLUDE)}"stl\_ptrs_specialize.h"\
+	{$(INCLUDE)}"stl\_range_errors.h"\
+	{$(INCLUDE)}"stl\_site_config.h"\
+	{$(INCLUDE)}"stl\_sparc_atomic.h"\
+	{$(INCLUDE)}"stl\_stlport_version.h"\
+	{$(INCLUDE)}"stl\_streambuf.c"\
+	{$(INCLUDE)}"stl\_streambuf.h"\
+	{$(INCLUDE)}"stl\_string.c"\
+	{$(INCLUDE)}"stl\_string.h"\
+	{$(INCLUDE)}"stl\_string_base.h"\
+	{$(INCLUDE)}"stl\_string_fwd.h"\
+	{$(INCLUDE)}"stl\_string_operators.h"\
+	{$(INCLUDE)}"stl\_string_sum.h"\
+	{$(INCLUDE)}"stl\_string_sum_methods.h"\
+	{$(INCLUDE)}"stl\_string_workaround.h"\
+	{$(INCLUDE)}"stl\_strstream.h"\
+	{$(INCLUDE)}"stl\_threads.c"\
+	{$(INCLUDE)}"stl\_threads.h"\
+	{$(INCLUDE)}"stl\_windows.h"\
+	{$(INCLUDE)}"stl\boost_type_traits.h"\
+	{$(INCLUDE)}"stl\debug\_debug.c"\
+	{$(INCLUDE)}"stl\debug\_debug.h"\
+	{$(INCLUDE)}"stl\debug\_iterator.h"\
+	{$(INCLUDE)}"stl\debug\_string.h"\
+	{$(INCLUDE)}"stl\debug\_string_workaround.h"\
+	{$(INCLUDE)}"stl\msl_string.h"\
+	{$(INCLUDE)}"stl\type_manips.h"\
+	{$(INCLUDE)}"stl\type_traits.h"\
+	{$(INCLUDE)}"stl_user_config.h"\
+	{$(INCLUDE)}"strstream.h"\
+	
+NODEP_CPP_TESTOU=\
+	"..\..\..\..\usr\include\pthread.h"\
+	
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=..\sipXportLib\src\test\sipxunit\TestRunner.cpp
+
+!IF  "$(CFG)" == "sipXsdpLibTest - Win32 (WCE emulator) Release"
+
+!ELSEIF  "$(CFG)" == "sipXsdpLibTest - Win32 (WCE emulator) Debug"
+
+DEP_CPP_TESTR=\
+	"..\sipXportLib\src\test\sipxunit\TestMonitor.h"\
+	"..\sipXportLib\src\test\sipxunit\TestOsSysLogListener.h"\
+	"..\sipXportLib\src\test\sipxunit\TestOutputter.h"\
+	"..\sipXportLib\src\test\sipxunit\TestRunner.h"\
+	
+
+!ELSEIF  "$(CFG)" == "sipXsdpLibTest - Win32 (WCE ARMV4I) Release"
+
+DEP_CPP_TESTR=\
+	{$(INCLUDE)}"\strstream"\
+	{$(INCLUDE)}"config\_epilog.h"\
+	{$(INCLUDE)}"config\_msvc_warnings_off.h"\
+	{$(INCLUDE)}"config\_prolog.h"\
+	{$(INCLUDE)}"config\stl_apcc.h"\
+	{$(INCLUDE)}"config\stl_apple.h"\
+	{$(INCLUDE)}"config\stl_as400.h"\
+	{$(INCLUDE)}"config\stl_bc.h"\
+	{$(INCLUDE)}"config\stl_como.h"\
+	{$(INCLUDE)}"config\stl_confix.h"\
+	{$(INCLUDE)}"config\stl_cray.h"\
+	{$(INCLUDE)}"config\stl_dec.h"\
+	{$(INCLUDE)}"config\stl_dec_vms.h"\
+	{$(INCLUDE)}"config\stl_dm.h"\
+	{$(INCLUDE)}"config\stl_evc.h"\
+	{$(INCLUDE)}"config\stl_fujitsu.h"\
+	{$(INCLUDE)}"config\stl_gcc.h"\
+	{$(INCLUDE)}"config\stl_hpacc.h"\
+	{$(INCLUDE)}"config\stl_ibm.h"\
+	{$(INCLUDE)}"config\stl_icc.h"\
+	{$(INCLUDE)}"config\stl_intel.h"\
+	{$(INCLUDE)}"config\stl_kai.h"\
+	{$(INCLUDE)}"config\stl_msvc.h"\
+	{$(INCLUDE)}"config\stl_mwerks.h"\
+	{$(INCLUDE)}"config\stl_mycomp.h"\
+	{$(INCLUDE)}"config\stl_sco.h"\
+	{$(INCLUDE)}"config\stl_sgi.h"\
+	{$(INCLUDE)}"config\stl_solaris.h"\
+	{$(INCLUDE)}"config\stl_sunpro.h"\
+	{$(INCLUDE)}"config\stl_symantec.h"\
+	{$(INCLUDE)}"config\stl_watcom.h"\
+	{$(INCLUDE)}"config\stl_wince.h"\
+	{$(INCLUDE)}"config\stlcomp.h"\
+	{$(INCLUDE)}"cppunit\config\config-bcb5.h"\
+	{$(INCLUDE)}"cppunit\config\config-msvc6.h"\
+	{$(INCLUDE)}"cppunit\config\CppUnitApi.h"\
+	{$(INCLUDE)}"cppunit\config\SelectDllLoader.h"\
+	{$(INCLUDE)}"cppunit\Portability.h"\
+	{$(INCLUDE)}"cppunit\portability\CppUnitDeque.h"\
+	{$(INCLUDE)}"cppunit\portability\CppUnitVector.h"\
+	{$(INCLUDE)}"cppunit\SynchronizedObject.h"\
+	{$(INCLUDE)}"cppunit\Test.h"\
+	{$(INCLUDE)}"cppunit\TestComposite.h"\
+	{$(INCLUDE)}"cppunit\TestResult.h"\
+	{$(INCLUDE)}"cppunit\TestRunner.h"\
+	{$(INCLUDE)}"cppunit\TestSuite.h"\
+	{$(INCLUDE)}"pthread.h"\
+	{$(INCLUDE)}"stl\_abbrevs.h"\
+	{$(INCLUDE)}"stl\_algobase.c"\
+	{$(INCLUDE)}"stl\_algobase.h"\
+	{$(INCLUDE)}"stl\_alloc.c"\
+	{$(INCLUDE)}"stl\_alloc.h"\
+	{$(INCLUDE)}"stl\_alloc_old.h"\
+	{$(INCLUDE)}"stl\_config.h"\
+	{$(INCLUDE)}"stl\_config_compat.h"\
+	{$(INCLUDE)}"stl\_config_compat_post.h"\
+	{$(INCLUDE)}"stl\_construct.h"\
+	{$(INCLUDE)}"stl\_ctraits_fns.h"\
+	{$(INCLUDE)}"stl\_cwchar.h"\
+	{$(INCLUDE)}"stl\_epilog.h"\
+	{$(INCLUDE)}"stl\_function.h"\
+	{$(INCLUDE)}"stl\_function_adaptors.h"\
+	{$(INCLUDE)}"stl\_function_base.h"\
+	{$(INCLUDE)}"stl\_ios_base.h"\
+	{$(INCLUDE)}"stl\_ioserr.h"\
+	{$(INCLUDE)}"stl\_iterator.h"\
+	{$(INCLUDE)}"stl\_iterator_base.h"\
+	{$(INCLUDE)}"stl\_iterator_old.h"\
+	{$(INCLUDE)}"stl\_locale.h"\
+	{$(INCLUDE)}"stl\_move_construct_fwk.h"\
+	{$(INCLUDE)}"stl\_pair.h"\
+	{$(INCLUDE)}"stl\_prolog.h"\
+	{$(INCLUDE)}"stl\_pthread_alloc.c"\
+	{$(INCLUDE)}"stl\_pthread_alloc.h"\
+	{$(INCLUDE)}"stl\_ptrs_specialize.h"\
+	{$(INCLUDE)}"stl\_range_errors.h"\
+	{$(INCLUDE)}"stl\_site_config.h"\
+	{$(INCLUDE)}"stl\_sparc_atomic.h"\
+	{$(INCLUDE)}"stl\_stlport_version.h"\
+	{$(INCLUDE)}"stl\_streambuf.c"\
+	{$(INCLUDE)}"stl\_streambuf.h"\
+	{$(INCLUDE)}"stl\_string.c"\
+	{$(INCLUDE)}"stl\_string.h"\
+	{$(INCLUDE)}"stl\_string_base.h"\
+	{$(INCLUDE)}"stl\_string_fwd.h"\
+	{$(INCLUDE)}"stl\_string_operators.h"\
+	{$(INCLUDE)}"stl\_string_sum.h"\
+	{$(INCLUDE)}"stl\_string_sum_methods.h"\
+	{$(INCLUDE)}"stl\_string_workaround.h"\
+	{$(INCLUDE)}"stl\_strstream.h"\
+	{$(INCLUDE)}"stl\_threads.c"\
+	{$(INCLUDE)}"stl\_threads.h"\
+	{$(INCLUDE)}"stl\_windows.h"\
+	{$(INCLUDE)}"stl\boost_type_traits.h"\
+	{$(INCLUDE)}"stl\debug\_debug.c"\
+	{$(INCLUDE)}"stl\debug\_debug.h"\
+	{$(INCLUDE)}"stl\debug\_iterator.h"\
+	{$(INCLUDE)}"stl\debug\_string.h"\
+	{$(INCLUDE)}"stl\debug\_string_workaround.h"\
+	{$(INCLUDE)}"stl\msl_string.h"\
+	{$(INCLUDE)}"stl\type_manips.h"\
+	{$(INCLUDE)}"stl\type_traits.h"\
+	{$(INCLUDE)}"stl_user_config.h"\
+	{$(INCLUDE)}"strstream.h"\
+	
+NODEP_CPP_TESTR=\
+	"..\..\..\..\usr\include\pthread.h"\
+	
+
+!ELSEIF  "$(CFG)" == "sipXsdpLibTest - Win32 (WCE ARMV4I) Debug"
+
+DEP_CPP_TESTR=\
+	"..\sipXportLib\src\test\sipxunit\TestMonitor.h"\
+	"..\sipXportLib\src\test\sipxunit\TestOsSysLogListener.h"\
+	"..\sipXportLib\src\test\sipxunit\TestOutputter.h"\
+	"..\sipXportLib\src\test\sipxunit\TestRunner.h"\
+	{$(INCLUDE)}"\strstream"\
+	{$(INCLUDE)}"config\_epilog.h"\
+	{$(INCLUDE)}"config\_msvc_warnings_off.h"\
+	{$(INCLUDE)}"config\_prolog.h"\
+	{$(INCLUDE)}"config\stl_apcc.h"\
+	{$(INCLUDE)}"config\stl_apple.h"\
+	{$(INCLUDE)}"config\stl_as400.h"\
+	{$(INCLUDE)}"config\stl_bc.h"\
+	{$(INCLUDE)}"config\stl_como.h"\
+	{$(INCLUDE)}"config\stl_confix.h"\
+	{$(INCLUDE)}"config\stl_cray.h"\
+	{$(INCLUDE)}"config\stl_dec.h"\
+	{$(INCLUDE)}"config\stl_dec_vms.h"\
+	{$(INCLUDE)}"config\stl_dm.h"\
+	{$(INCLUDE)}"config\stl_evc.h"\
+	{$(INCLUDE)}"config\stl_fujitsu.h"\
+	{$(INCLUDE)}"config\stl_gcc.h"\
+	{$(INCLUDE)}"config\stl_hpacc.h"\
+	{$(INCLUDE)}"config\stl_ibm.h"\
+	{$(INCLUDE)}"config\stl_icc.h"\
+	{$(INCLUDE)}"config\stl_intel.h"\
+	{$(INCLUDE)}"config\stl_kai.h"\
+	{$(INCLUDE)}"config\stl_msvc.h"\
+	{$(INCLUDE)}"config\stl_mwerks.h"\
+	{$(INCLUDE)}"config\stl_mycomp.h"\
+	{$(INCLUDE)}"config\stl_sco.h"\
+	{$(INCLUDE)}"config\stl_sgi.h"\
+	{$(INCLUDE)}"config\stl_solaris.h"\
+	{$(INCLUDE)}"config\stl_sunpro.h"\
+	{$(INCLUDE)}"config\stl_symantec.h"\
+	{$(INCLUDE)}"config\stl_watcom.h"\
+	{$(INCLUDE)}"config\stl_wince.h"\
+	{$(INCLUDE)}"config\stlcomp.h"\
+	{$(INCLUDE)}"cppunit\config\config-bcb5.h"\
+	{$(INCLUDE)}"cppunit\config\config-msvc6.h"\
+	{$(INCLUDE)}"cppunit\config\CppUnitApi.h"\
+	{$(INCLUDE)}"cppunit\config\SelectDllLoader.h"\
+	{$(INCLUDE)}"cppunit\Outputter.h"\
+	{$(INCLUDE)}"cppunit\Portability.h"\
+	{$(INCLUDE)}"cppunit\portability\CppUnitDeque.h"\
+	{$(INCLUDE)}"cppunit\portability\CppUnitVector.h"\
+	{$(INCLUDE)}"cppunit\SynchronizedObject.h"\
+	{$(INCLUDE)}"cppunit\Test.h"\
+	{$(INCLUDE)}"cppunit\TestComposite.h"\
+	{$(INCLUDE)}"cppunit\TestListener.h"\
+	{$(INCLUDE)}"cppunit\TestResult.h"\
+	{$(INCLUDE)}"cppunit\TestResultCollector.h"\
+	{$(INCLUDE)}"cppunit\TestRunner.h"\
+	{$(INCLUDE)}"cppunit\TestSuccessListener.h"\
+	{$(INCLUDE)}"cppunit\TestSuite.h"\
+	{$(INCLUDE)}"cppunit\TextOutputter.h"\
+	{$(INCLUDE)}"pthread.h"\
+	{$(INCLUDE)}"stl\_abbrevs.h"\
+	{$(INCLUDE)}"stl\_algobase.c"\
+	{$(INCLUDE)}"stl\_algobase.h"\
+	{$(INCLUDE)}"stl\_alloc.c"\
+	{$(INCLUDE)}"stl\_alloc.h"\
+	{$(INCLUDE)}"stl\_alloc_old.h"\
+	{$(INCLUDE)}"stl\_config.h"\
+	{$(INCLUDE)}"stl\_config_compat.h"\
+	{$(INCLUDE)}"stl\_config_compat_post.h"\
+	{$(INCLUDE)}"stl\_construct.h"\
+	{$(INCLUDE)}"stl\_ctraits_fns.h"\
+	{$(INCLUDE)}"stl\_cwchar.h"\
+	{$(INCLUDE)}"stl\_epilog.h"\
+	{$(INCLUDE)}"stl\_function.h"\
+	{$(INCLUDE)}"stl\_function_adaptors.h"\
+	{$(INCLUDE)}"stl\_function_base.h"\
+	{$(INCLUDE)}"stl\_ios_base.h"\
+	{$(INCLUDE)}"stl\_ioserr.h"\
+	{$(INCLUDE)}"stl\_iterator.h"\
+	{$(INCLUDE)}"stl\_iterator_base.h"\
+	{$(INCLUDE)}"stl\_iterator_old.h"\
+	{$(INCLUDE)}"stl\_locale.h"\
+	{$(INCLUDE)}"stl\_move_construct_fwk.h"\
+	{$(INCLUDE)}"stl\_pair.h"\
+	{$(INCLUDE)}"stl\_prolog.h"\
+	{$(INCLUDE)}"stl\_pthread_alloc.c"\
+	{$(INCLUDE)}"stl\_pthread_alloc.h"\
+	{$(INCLUDE)}"stl\_ptrs_specialize.h"\
+	{$(INCLUDE)}"stl\_range_errors.h"\
+	{$(INCLUDE)}"stl\_site_config.h"\
+	{$(INCLUDE)}"stl\_sparc_atomic.h"\
+	{$(INCLUDE)}"stl\_stlport_version.h"\
+	{$(INCLUDE)}"stl\_streambuf.c"\
+	{$(INCLUDE)}"stl\_streambuf.h"\
+	{$(INCLUDE)}"stl\_string.c"\
+	{$(INCLUDE)}"stl\_string.h"\
+	{$(INCLUDE)}"stl\_string_base.h"\
+	{$(INCLUDE)}"stl\_string_fwd.h"\
+	{$(INCLUDE)}"stl\_string_operators.h"\
+	{$(INCLUDE)}"stl\_string_sum.h"\
+	{$(INCLUDE)}"stl\_string_sum_methods.h"\
+	{$(INCLUDE)}"stl\_string_workaround.h"\
+	{$(INCLUDE)}"stl\_strstream.h"\
+	{$(INCLUDE)}"stl\_threads.c"\
+	{$(INCLUDE)}"stl\_threads.h"\
+	{$(INCLUDE)}"stl\_windows.h"\
+	{$(INCLUDE)}"stl\boost_type_traits.h"\
+	{$(INCLUDE)}"stl\debug\_debug.c"\
+	{$(INCLUDE)}"stl\debug\_debug.h"\
+	{$(INCLUDE)}"stl\debug\_iterator.h"\
+	{$(INCLUDE)}"stl\debug\_string.h"\
+	{$(INCLUDE)}"stl\debug\_string_workaround.h"\
+	{$(INCLUDE)}"stl\msl_string.h"\
+	{$(INCLUDE)}"stl\type_manips.h"\
+	{$(INCLUDE)}"stl\type_traits.h"\
+	{$(INCLUDE)}"stl_user_config.h"\
+	{$(INCLUDE)}"strstream.h"\
+	
+NODEP_CPP_TESTR=\
+	"..\..\..\..\usr\include\pthread.h"\
+	
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=..\sipXportLib\src\test\sipxunit\TestUtilities.cpp
+
+!IF  "$(CFG)" == "sipXsdpLibTest - Win32 (WCE emulator) Release"
+
+!ELSEIF  "$(CFG)" == "sipXsdpLibTest - Win32 (WCE emulator) Debug"
+
+DEP_CPP_TESTU=\
+	"..\sipXportLib\src\test\sipxunit\TestMonitor.h"\
+	"..\sipXportLib\src\test\sipxunit\TestUtilities.h"\
+	
+
+!ELSEIF  "$(CFG)" == "sipXsdpLibTest - Win32 (WCE ARMV4I) Release"
+
+DEP_CPP_TESTU=\
+	{$(INCLUDE)}"\strstream"\
+	{$(INCLUDE)}"config\_epilog.h"\
+	{$(INCLUDE)}"config\_msvc_warnings_off.h"\
+	{$(INCLUDE)}"config\_prolog.h"\
+	{$(INCLUDE)}"config\stl_apcc.h"\
+	{$(INCLUDE)}"config\stl_apple.h"\
+	{$(INCLUDE)}"config\stl_as400.h"\
+	{$(INCLUDE)}"config\stl_bc.h"\
+	{$(INCLUDE)}"config\stl_como.h"\
+	{$(INCLUDE)}"config\stl_confix.h"\
+	{$(INCLUDE)}"config\stl_cray.h"\
+	{$(INCLUDE)}"config\stl_dec.h"\
+	{$(INCLUDE)}"config\stl_dec_vms.h"\
+	{$(INCLUDE)}"config\stl_dm.h"\
+	{$(INCLUDE)}"config\stl_evc.h"\
+	{$(INCLUDE)}"config\stl_fujitsu.h"\
+	{$(INCLUDE)}"config\stl_gcc.h"\
+	{$(INCLUDE)}"config\stl_hpacc.h"\
+	{$(INCLUDE)}"config\stl_ibm.h"\
+	{$(INCLUDE)}"config\stl_icc.h"\
+	{$(INCLUDE)}"config\stl_intel.h"\
+	{$(INCLUDE)}"config\stl_kai.h"\
+	{$(INCLUDE)}"config\stl_msvc.h"\
+	{$(INCLUDE)}"config\stl_mwerks.h"\
+	{$(INCLUDE)}"config\stl_mycomp.h"\
+	{$(INCLUDE)}"config\stl_sco.h"\
+	{$(INCLUDE)}"config\stl_sgi.h"\
+	{$(INCLUDE)}"config\stl_solaris.h"\
+	{$(INCLUDE)}"config\stl_sunpro.h"\
+	{$(INCLUDE)}"config\stl_symantec.h"\
+	{$(INCLUDE)}"config\stl_watcom.h"\
+	{$(INCLUDE)}"config\stl_wince.h"\
+	{$(INCLUDE)}"config\stlcomp.h"\
+	{$(INCLUDE)}"cppunit\AdditionalMessage.h"\
+	{$(INCLUDE)}"cppunit\Asserter.h"\
+	{$(INCLUDE)}"cppunit\config\config-bcb5.h"\
+	{$(INCLUDE)}"cppunit\config\config-msvc6.h"\
+	{$(INCLUDE)}"cppunit\config\CppUnitApi.h"\
+	{$(INCLUDE)}"cppunit\config\SelectDllLoader.h"\
+	{$(INCLUDE)}"cppunit\Exception.h"\
+	{$(INCLUDE)}"cppunit\Message.h"\
+	{$(INCLUDE)}"cppunit\Portability.h"\
+	{$(INCLUDE)}"cppunit\portability\CppUnitDeque.h"\
+	{$(INCLUDE)}"cppunit\SourceLine.h"\
+	{$(INCLUDE)}"cppunit\Test.h"\
+	{$(INCLUDE)}"cppunit\TestAssert.h"\
+	{$(INCLUDE)}"cppunit\TestCase.h"\
+	{$(INCLUDE)}"cppunit\TestFixture.h"\
+	{$(INCLUDE)}"cppunit\TestLeaf.h"\
+	{$(INCLUDE)}"pthread.h"\
+	{$(INCLUDE)}"stl\_abbrevs.h"\
+	{$(INCLUDE)}"stl\_algobase.c"\
+	{$(INCLUDE)}"stl\_algobase.h"\
+	{$(INCLUDE)}"stl\_alloc.c"\
+	{$(INCLUDE)}"stl\_alloc.h"\
+	{$(INCLUDE)}"stl\_alloc_old.h"\
+	{$(INCLUDE)}"stl\_config.h"\
+	{$(INCLUDE)}"stl\_config_compat.h"\
+	{$(INCLUDE)}"stl\_config_compat_post.h"\
+	{$(INCLUDE)}"stl\_construct.h"\
+	{$(INCLUDE)}"stl\_ctraits_fns.h"\
+	{$(INCLUDE)}"stl\_cwchar.h"\
+	{$(INCLUDE)}"stl\_epilog.h"\
+	{$(INCLUDE)}"stl\_function.h"\
+	{$(INCLUDE)}"stl\_function_adaptors.h"\
+	{$(INCLUDE)}"stl\_function_base.h"\
+	{$(INCLUDE)}"stl\_ios_base.h"\
+	{$(INCLUDE)}"stl\_ioserr.h"\
+	{$(INCLUDE)}"stl\_iterator.h"\
+	{$(INCLUDE)}"stl\_iterator_base.h"\
+	{$(INCLUDE)}"stl\_iterator_old.h"\
+	{$(INCLUDE)}"stl\_locale.h"\
+	{$(INCLUDE)}"stl\_move_construct_fwk.h"\
+	{$(INCLUDE)}"stl\_pair.h"\
+	{$(INCLUDE)}"stl\_prolog.h"\
+	{$(INCLUDE)}"stl\_pthread_alloc.c"\
+	{$(INCLUDE)}"stl\_pthread_alloc.h"\
+	{$(INCLUDE)}"stl\_ptrs_specialize.h"\
+	{$(INCLUDE)}"stl\_range_errors.h"\
+	{$(INCLUDE)}"stl\_site_config.h"\
+	{$(INCLUDE)}"stl\_sparc_atomic.h"\
+	{$(INCLUDE)}"stl\_stlport_version.h"\
+	{$(INCLUDE)}"stl\_streambuf.c"\
+	{$(INCLUDE)}"stl\_streambuf.h"\
+	{$(INCLUDE)}"stl\_string.c"\
+	{$(INCLUDE)}"stl\_string.h"\
+	{$(INCLUDE)}"stl\_string_base.h"\
+	{$(INCLUDE)}"stl\_string_fwd.h"\
+	{$(INCLUDE)}"stl\_string_operators.h"\
+	{$(INCLUDE)}"stl\_string_sum.h"\
+	{$(INCLUDE)}"stl\_string_sum_methods.h"\
+	{$(INCLUDE)}"stl\_string_workaround.h"\
+	{$(INCLUDE)}"stl\_strstream.h"\
+	{$(INCLUDE)}"stl\_threads.c"\
+	{$(INCLUDE)}"stl\_threads.h"\
+	{$(INCLUDE)}"stl\_windows.h"\
+	{$(INCLUDE)}"stl\boost_type_traits.h"\
+	{$(INCLUDE)}"stl\debug\_debug.c"\
+	{$(INCLUDE)}"stl\debug\_debug.h"\
+	{$(INCLUDE)}"stl\debug\_iterator.h"\
+	{$(INCLUDE)}"stl\debug\_string.h"\
+	{$(INCLUDE)}"stl\debug\_string_workaround.h"\
+	{$(INCLUDE)}"stl\msl_string.h"\
+	{$(INCLUDE)}"stl\type_manips.h"\
+	{$(INCLUDE)}"stl\type_traits.h"\
+	{$(INCLUDE)}"stl_user_config.h"\
+	{$(INCLUDE)}"strstream.h"\
+	
+NODEP_CPP_TESTU=\
+	"..\..\..\..\usr\include\pthread.h"\
+	
+
+!ELSEIF  "$(CFG)" == "sipXsdpLibTest - Win32 (WCE ARMV4I) Debug"
+
+DEP_CPP_TESTU=\
+	"..\sipXportLib\src\test\sipxunit\TestMonitor.h"\
+	"..\sipXportLib\src\test\sipxunit\TestUtilities.h"\
+	{$(INCLUDE)}"\strstream"\
+	{$(INCLUDE)}"config\_epilog.h"\
+	{$(INCLUDE)}"config\_msvc_warnings_off.h"\
+	{$(INCLUDE)}"config\_prolog.h"\
+	{$(INCLUDE)}"config\stl_apcc.h"\
+	{$(INCLUDE)}"config\stl_apple.h"\
+	{$(INCLUDE)}"config\stl_as400.h"\
+	{$(INCLUDE)}"config\stl_bc.h"\
+	{$(INCLUDE)}"config\stl_como.h"\
+	{$(INCLUDE)}"config\stl_confix.h"\
+	{$(INCLUDE)}"config\stl_cray.h"\
+	{$(INCLUDE)}"config\stl_dec.h"\
+	{$(INCLUDE)}"config\stl_dec_vms.h"\
+	{$(INCLUDE)}"config\stl_dm.h"\
+	{$(INCLUDE)}"config\stl_evc.h"\
+	{$(INCLUDE)}"config\stl_fujitsu.h"\
+	{$(INCLUDE)}"config\stl_gcc.h"\
+	{$(INCLUDE)}"config\stl_hpacc.h"\
+	{$(INCLUDE)}"config\stl_ibm.h"\
+	{$(INCLUDE)}"config\stl_icc.h"\
+	{$(INCLUDE)}"config\stl_intel.h"\
+	{$(INCLUDE)}"config\stl_kai.h"\
+	{$(INCLUDE)}"config\stl_msvc.h"\
+	{$(INCLUDE)}"config\stl_mwerks.h"\
+	{$(INCLUDE)}"config\stl_mycomp.h"\
+	{$(INCLUDE)}"config\stl_sco.h"\
+	{$(INCLUDE)}"config\stl_sgi.h"\
+	{$(INCLUDE)}"config\stl_solaris.h"\
+	{$(INCLUDE)}"config\stl_sunpro.h"\
+	{$(INCLUDE)}"config\stl_symantec.h"\
+	{$(INCLUDE)}"config\stl_watcom.h"\
+	{$(INCLUDE)}"config\stl_wince.h"\
+	{$(INCLUDE)}"config\stlcomp.h"\
+	{$(INCLUDE)}"cppunit\AdditionalMessage.h"\
+	{$(INCLUDE)}"cppunit\Asserter.h"\
+	{$(INCLUDE)}"cppunit\config\config-bcb5.h"\
+	{$(INCLUDE)}"cppunit\config\config-msvc6.h"\
+	{$(INCLUDE)}"cppunit\config\CppUnitApi.h"\
+	{$(INCLUDE)}"cppunit\config\SelectDllLoader.h"\
+	{$(INCLUDE)}"cppunit\Exception.h"\
+	{$(INCLUDE)}"cppunit\extensions\AutoRegisterSuite.h"\
+	{$(INCLUDE)}"cppunit\extensions\ExceptionTestCaseDecorator.h"\
+	{$(INCLUDE)}"cppunit\extensions\HelperMacros.h"\
+	{$(INCLUDE)}"cppunit\extensions\TestCaseDecorator.h"\
+	{$(INCLUDE)}"cppunit\extensions\TestFactory.h"\
+	{$(INCLUDE)}"cppunit\extensions\TestFactoryRegistry.h"\
+	{$(INCLUDE)}"cppunit\extensions\TestFixtureFactory.h"\
+	{$(INCLUDE)}"cppunit\extensions\TestNamer.h"\
+	{$(INCLUDE)}"cppunit\extensions\TestSuiteBuilderContext.h"\
+	{$(INCLUDE)}"cppunit\extensions\TestSuiteFactory.h"\
+	{$(INCLUDE)}"cppunit\extensions\TypeInfoHelper.h"\
+	{$(INCLUDE)}"cppunit\Message.h"\
+	{$(INCLUDE)}"cppunit\Portability.h"\
+	{$(INCLUDE)}"cppunit\portability\CppUnitDeque.h"\
+	{$(INCLUDE)}"cppunit\portability\CppUnitMap.h"\
+	{$(INCLUDE)}"cppunit\portability\CppUnitSet.h"\
+	{$(INCLUDE)}"cppunit\portability\CppUnitVector.h"\
+	{$(INCLUDE)}"cppunit\SourceLine.h"\
+	{$(INCLUDE)}"cppunit\SynchronizedObject.h"\
+	{$(INCLUDE)}"cppunit\Test.h"\
+	{$(INCLUDE)}"cppunit\TestAssert.h"\
+	{$(INCLUDE)}"cppunit\TestCaller.h"\
+	{$(INCLUDE)}"cppunit\TestCase.h"\
+	{$(INCLUDE)}"cppunit\TestComposite.h"\
+	{$(INCLUDE)}"cppunit\TestFixture.h"\
+	{$(INCLUDE)}"cppunit\TestLeaf.h"\
+	{$(INCLUDE)}"cppunit\TestListener.h"\
+	{$(INCLUDE)}"cppunit\TestResultCollector.h"\
+	{$(INCLUDE)}"cppunit\TestSuccessListener.h"\
+	{$(INCLUDE)}"cppunit\TestSuite.h"\
+	{$(INCLUDE)}"pthread.h"\
+	{$(INCLUDE)}"stl\_abbrevs.h"\
+	{$(INCLUDE)}"stl\_algobase.c"\
+	{$(INCLUDE)}"stl\_algobase.h"\
+	{$(INCLUDE)}"stl\_alloc.c"\
+	{$(INCLUDE)}"stl\_alloc.h"\
+	{$(INCLUDE)}"stl\_alloc_old.h"\
+	{$(INCLUDE)}"stl\_config.h"\
+	{$(INCLUDE)}"stl\_config_compat.h"\
+	{$(INCLUDE)}"stl\_config_compat_post.h"\
+	{$(INCLUDE)}"stl\_construct.h"\
+	{$(INCLUDE)}"stl\_ctraits_fns.h"\
+	{$(INCLUDE)}"stl\_cwchar.h"\
+	{$(INCLUDE)}"stl\_epilog.h"\
+	{$(INCLUDE)}"stl\_function.h"\
+	{$(INCLUDE)}"stl\_function_adaptors.h"\
+	{$(INCLUDE)}"stl\_function_base.h"\
+	{$(INCLUDE)}"stl\_ios_base.h"\
+	{$(INCLUDE)}"stl\_ioserr.h"\
+	{$(INCLUDE)}"stl\_iterator.h"\
+	{$(INCLUDE)}"stl\_iterator_base.h"\
+	{$(INCLUDE)}"stl\_iterator_old.h"\
+	{$(INCLUDE)}"stl\_locale.h"\
+	{$(INCLUDE)}"stl\_move_construct_fwk.h"\
+	{$(INCLUDE)}"stl\_pair.h"\
+	{$(INCLUDE)}"stl\_prolog.h"\
+	{$(INCLUDE)}"stl\_pthread_alloc.c"\
+	{$(INCLUDE)}"stl\_pthread_alloc.h"\
+	{$(INCLUDE)}"stl\_ptrs_specialize.h"\
+	{$(INCLUDE)}"stl\_range_errors.h"\
+	{$(INCLUDE)}"stl\_site_config.h"\
+	{$(INCLUDE)}"stl\_sparc_atomic.h"\
+	{$(INCLUDE)}"stl\_stlport_version.h"\
+	{$(INCLUDE)}"stl\_streambuf.c"\
+	{$(INCLUDE)}"stl\_streambuf.h"\
+	{$(INCLUDE)}"stl\_string.c"\
+	{$(INCLUDE)}"stl\_string.h"\
+	{$(INCLUDE)}"stl\_string_base.h"\
+	{$(INCLUDE)}"stl\_string_fwd.h"\
+	{$(INCLUDE)}"stl\_string_operators.h"\
+	{$(INCLUDE)}"stl\_string_sum.h"\
+	{$(INCLUDE)}"stl\_string_sum_methods.h"\
+	{$(INCLUDE)}"stl\_string_workaround.h"\
+	{$(INCLUDE)}"stl\_strstream.h"\
+	{$(INCLUDE)}"stl\_threads.c"\
+	{$(INCLUDE)}"stl\_threads.h"\
+	{$(INCLUDE)}"stl\_windows.h"\
+	{$(INCLUDE)}"stl\boost_type_traits.h"\
+	{$(INCLUDE)}"stl\debug\_debug.c"\
+	{$(INCLUDE)}"stl\debug\_debug.h"\
+	{$(INCLUDE)}"stl\debug\_iterator.h"\
+	{$(INCLUDE)}"stl\debug\_string.h"\
+	{$(INCLUDE)}"stl\debug\_string_workaround.h"\
+	{$(INCLUDE)}"stl\msl_string.h"\
+	{$(INCLUDE)}"stl\type_manips.h"\
+	{$(INCLUDE)}"stl\type_traits.h"\
+	{$(INCLUDE)}"stl_user_config.h"\
+	{$(INCLUDE)}"strstream.h"\
+	
+NODEP_CPP_TESTU=\
+	"..\..\..\..\usr\include\pthread.h"\
+	
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=..\sipXportLib\src\test\sipxunit\unitmain.cpp
+
+!IF  "$(CFG)" == "sipXsdpLibTest - Win32 (WCE emulator) Release"
+
+!ELSEIF  "$(CFG)" == "sipXsdpLibTest - Win32 (WCE emulator) Debug"
+
+DEP_CPP_UNITM=\
+	"..\sipXportLib\src\test\sipxunit\TestOsSysLogListener.h"\
+	"..\sipXportLib\src\test\sipxunit\TestOutputter.h"\
+	"..\sipXportLib\src\test\sipxunit\TestRunner.h"\
+	
+
+!ELSEIF  "$(CFG)" == "sipXsdpLibTest - Win32 (WCE ARMV4I) Release"
+
+DEP_CPP_UNITM=\
+	{$(INCLUDE)}"\strstream"\
+	{$(INCLUDE)}"config\_epilog.h"\
+	{$(INCLUDE)}"config\_msvc_warnings_off.h"\
+	{$(INCLUDE)}"config\_prolog.h"\
+	{$(INCLUDE)}"config\stl_apcc.h"\
+	{$(INCLUDE)}"config\stl_apple.h"\
+	{$(INCLUDE)}"config\stl_as400.h"\
+	{$(INCLUDE)}"config\stl_bc.h"\
+	{$(INCLUDE)}"config\stl_como.h"\
+	{$(INCLUDE)}"config\stl_confix.h"\
+	{$(INCLUDE)}"config\stl_cray.h"\
+	{$(INCLUDE)}"config\stl_dec.h"\
+	{$(INCLUDE)}"config\stl_dec_vms.h"\
+	{$(INCLUDE)}"config\stl_dm.h"\
+	{$(INCLUDE)}"config\stl_evc.h"\
+	{$(INCLUDE)}"config\stl_fujitsu.h"\
+	{$(INCLUDE)}"config\stl_gcc.h"\
+	{$(INCLUDE)}"config\stl_hpacc.h"\
+	{$(INCLUDE)}"config\stl_ibm.h"\
+	{$(INCLUDE)}"config\stl_icc.h"\
+	{$(INCLUDE)}"config\stl_intel.h"\
+	{$(INCLUDE)}"config\stl_kai.h"\
+	{$(INCLUDE)}"config\stl_msvc.h"\
+	{$(INCLUDE)}"config\stl_mwerks.h"\
+	{$(INCLUDE)}"config\stl_mycomp.h"\
+	{$(INCLUDE)}"config\stl_sco.h"\
+	{$(INCLUDE)}"config\stl_sgi.h"\
+	{$(INCLUDE)}"config\stl_solaris.h"\
+	{$(INCLUDE)}"config\stl_sunpro.h"\
+	{$(INCLUDE)}"config\stl_symantec.h"\
+	{$(INCLUDE)}"config\stl_watcom.h"\
+	{$(INCLUDE)}"config\stl_wince.h"\
+	{$(INCLUDE)}"config\stlcomp.h"\
+	{$(INCLUDE)}"cppunit\config\config-bcb5.h"\
+	{$(INCLUDE)}"cppunit\config\config-msvc6.h"\
+	{$(INCLUDE)}"cppunit\config\CppUnitApi.h"\
+	{$(INCLUDE)}"cppunit\config\SelectDllLoader.h"\
+	{$(INCLUDE)}"cppunit\extensions\TestFactory.h"\
+	{$(INCLUDE)}"cppunit\extensions\TestFactoryRegistry.h"\
+	{$(INCLUDE)}"cppunit\Portability.h"\
+	{$(INCLUDE)}"cppunit\portability\CppUnitSet.h"\
+	{$(INCLUDE)}"pthread.h"\
+	{$(INCLUDE)}"stl\_abbrevs.h"\
+	{$(INCLUDE)}"stl\_algobase.c"\
+	{$(INCLUDE)}"stl\_algobase.h"\
+	{$(INCLUDE)}"stl\_alloc.c"\
+	{$(INCLUDE)}"stl\_alloc.h"\
+	{$(INCLUDE)}"stl\_alloc_old.h"\
+	{$(INCLUDE)}"stl\_config.h"\
+	{$(INCLUDE)}"stl\_config_compat.h"\
+	{$(INCLUDE)}"stl\_config_compat_post.h"\
+	{$(INCLUDE)}"stl\_construct.h"\
+	{$(INCLUDE)}"stl\_ctraits_fns.h"\
+	{$(INCLUDE)}"stl\_cwchar.h"\
+	{$(INCLUDE)}"stl\_epilog.h"\
+	{$(INCLUDE)}"stl\_function.h"\
+	{$(INCLUDE)}"stl\_function_adaptors.h"\
+	{$(INCLUDE)}"stl\_function_base.h"\
+	{$(INCLUDE)}"stl\_ios_base.h"\
+	{$(INCLUDE)}"stl\_ioserr.h"\
+	{$(INCLUDE)}"stl\_iterator.h"\
+	{$(INCLUDE)}"stl\_iterator_base.h"\
+	{$(INCLUDE)}"stl\_iterator_old.h"\
+	{$(INCLUDE)}"stl\_locale.h"\
+	{$(INCLUDE)}"stl\_move_construct_fwk.h"\
+	{$(INCLUDE)}"stl\_pair.h"\
+	{$(INCLUDE)}"stl\_prolog.h"\
+	{$(INCLUDE)}"stl\_pthread_alloc.c"\
+	{$(INCLUDE)}"stl\_pthread_alloc.h"\
+	{$(INCLUDE)}"stl\_ptrs_specialize.h"\
+	{$(INCLUDE)}"stl\_range_errors.h"\
+	{$(INCLUDE)}"stl\_site_config.h"\
+	{$(INCLUDE)}"stl\_sparc_atomic.h"\
+	{$(INCLUDE)}"stl\_stlport_version.h"\
+	{$(INCLUDE)}"stl\_streambuf.c"\
+	{$(INCLUDE)}"stl\_streambuf.h"\
+	{$(INCLUDE)}"stl\_string.c"\
+	{$(INCLUDE)}"stl\_string.h"\
+	{$(INCLUDE)}"stl\_string_base.h"\
+	{$(INCLUDE)}"stl\_string_fwd.h"\
+	{$(INCLUDE)}"stl\_string_operators.h"\
+	{$(INCLUDE)}"stl\_string_sum.h"\
+	{$(INCLUDE)}"stl\_string_sum_methods.h"\
+	{$(INCLUDE)}"stl\_string_workaround.h"\
+	{$(INCLUDE)}"stl\_strstream.h"\
+	{$(INCLUDE)}"stl\_threads.c"\
+	{$(INCLUDE)}"stl\_threads.h"\
+	{$(INCLUDE)}"stl\_windows.h"\
+	{$(INCLUDE)}"stl\boost_type_traits.h"\
+	{$(INCLUDE)}"stl\debug\_debug.c"\
+	{$(INCLUDE)}"stl\debug\_debug.h"\
+	{$(INCLUDE)}"stl\debug\_iterator.h"\
+	{$(INCLUDE)}"stl\debug\_string.h"\
+	{$(INCLUDE)}"stl\debug\_string_workaround.h"\
+	{$(INCLUDE)}"stl\msl_string.h"\
+	{$(INCLUDE)}"stl\type_manips.h"\
+	{$(INCLUDE)}"stl\type_traits.h"\
+	{$(INCLUDE)}"stl_user_config.h"\
+	{$(INCLUDE)}"strstream.h"\
+	
+NODEP_CPP_UNITM=\
+	"..\..\..\..\usr\include\pthread.h"\
+	
+
+!ELSEIF  "$(CFG)" == "sipXsdpLibTest - Win32 (WCE ARMV4I) Debug"
+
+DEP_CPP_UNITM=\
+	"..\sipXportLib\src\test\sipxunit\TestOsSysLogListener.h"\
+	"..\sipXportLib\src\test\sipxunit\TestOutputter.h"\
+	"..\sipXportLib\src\test\sipxunit\TestRunner.h"\
+	{$(INCLUDE)}"\strstream"\
+	{$(INCLUDE)}"config\_epilog.h"\
+	{$(INCLUDE)}"config\_msvc_warnings_off.h"\
+	{$(INCLUDE)}"config\_prolog.h"\
+	{$(INCLUDE)}"config\stl_apcc.h"\
+	{$(INCLUDE)}"config\stl_apple.h"\
+	{$(INCLUDE)}"config\stl_as400.h"\
+	{$(INCLUDE)}"config\stl_bc.h"\
+	{$(INCLUDE)}"config\stl_como.h"\
+	{$(INCLUDE)}"config\stl_confix.h"\
+	{$(INCLUDE)}"config\stl_cray.h"\
+	{$(INCLUDE)}"config\stl_dec.h"\
+	{$(INCLUDE)}"config\stl_dec_vms.h"\
+	{$(INCLUDE)}"config\stl_dm.h"\
+	{$(INCLUDE)}"config\stl_evc.h"\
+	{$(INCLUDE)}"config\stl_fujitsu.h"\
+	{$(INCLUDE)}"config\stl_gcc.h"\
+	{$(INCLUDE)}"config\stl_hpacc.h"\
+	{$(INCLUDE)}"config\stl_ibm.h"\
+	{$(INCLUDE)}"config\stl_icc.h"\
+	{$(INCLUDE)}"config\stl_intel.h"\
+	{$(INCLUDE)}"config\stl_kai.h"\
+	{$(INCLUDE)}"config\stl_msvc.h"\
+	{$(INCLUDE)}"config\stl_mwerks.h"\
+	{$(INCLUDE)}"config\stl_mycomp.h"\
+	{$(INCLUDE)}"config\stl_sco.h"\
+	{$(INCLUDE)}"config\stl_sgi.h"\
+	{$(INCLUDE)}"config\stl_solaris.h"\
+	{$(INCLUDE)}"config\stl_sunpro.h"\
+	{$(INCLUDE)}"config\stl_symantec.h"\
+	{$(INCLUDE)}"config\stl_watcom.h"\
+	{$(INCLUDE)}"config\stl_wince.h"\
+	{$(INCLUDE)}"config\stlcomp.h"\
+	{$(INCLUDE)}"cppunit\config\config-bcb5.h"\
+	{$(INCLUDE)}"cppunit\config\config-msvc6.h"\
+	{$(INCLUDE)}"cppunit\config\CppUnitApi.h"\
+	{$(INCLUDE)}"cppunit\config\SelectDllLoader.h"\
+	{$(INCLUDE)}"cppunit\extensions\TestFactory.h"\
+	{$(INCLUDE)}"cppunit\extensions\TestFactoryRegistry.h"\
+	{$(INCLUDE)}"cppunit\Outputter.h"\
+	{$(INCLUDE)}"cppunit\Portability.h"\
+	{$(INCLUDE)}"cppunit\portability\CppUnitSet.h"\
+	{$(INCLUDE)}"cppunit\portability\CppUnitVector.h"\
+	{$(INCLUDE)}"cppunit\Test.h"\
+	{$(INCLUDE)}"cppunit\TestComposite.h"\
+	{$(INCLUDE)}"cppunit\TestListener.h"\
+	{$(INCLUDE)}"cppunit\TestRunner.h"\
+	{$(INCLUDE)}"cppunit\TestSuite.h"\
+	{$(INCLUDE)}"cppunit\TextOutputter.h"\
+	{$(INCLUDE)}"pthread.h"\
+	{$(INCLUDE)}"stl\_abbrevs.h"\
+	{$(INCLUDE)}"stl\_algobase.c"\
+	{$(INCLUDE)}"stl\_algobase.h"\
+	{$(INCLUDE)}"stl\_alloc.c"\
+	{$(INCLUDE)}"stl\_alloc.h"\
+	{$(INCLUDE)}"stl\_alloc_old.h"\
+	{$(INCLUDE)}"stl\_config.h"\
+	{$(INCLUDE)}"stl\_config_compat.h"\
+	{$(INCLUDE)}"stl\_config_compat_post.h"\
+	{$(INCLUDE)}"stl\_construct.h"\
+	{$(INCLUDE)}"stl\_ctraits_fns.h"\
+	{$(INCLUDE)}"stl\_cwchar.h"\
+	{$(INCLUDE)}"stl\_epilog.h"\
+	{$(INCLUDE)}"stl\_function.h"\
+	{$(INCLUDE)}"stl\_function_adaptors.h"\
+	{$(INCLUDE)}"stl\_function_base.h"\
+	{$(INCLUDE)}"stl\_ios_base.h"\
+	{$(INCLUDE)}"stl\_ioserr.h"\
+	{$(INCLUDE)}"stl\_iterator.h"\
+	{$(INCLUDE)}"stl\_iterator_base.h"\
+	{$(INCLUDE)}"stl\_iterator_old.h"\
+	{$(INCLUDE)}"stl\_locale.h"\
+	{$(INCLUDE)}"stl\_move_construct_fwk.h"\
+	{$(INCLUDE)}"stl\_pair.h"\
+	{$(INCLUDE)}"stl\_prolog.h"\
+	{$(INCLUDE)}"stl\_pthread_alloc.c"\
+	{$(INCLUDE)}"stl\_pthread_alloc.h"\
+	{$(INCLUDE)}"stl\_ptrs_specialize.h"\
+	{$(INCLUDE)}"stl\_range_errors.h"\
+	{$(INCLUDE)}"stl\_site_config.h"\
+	{$(INCLUDE)}"stl\_sparc_atomic.h"\
+	{$(INCLUDE)}"stl\_stlport_version.h"\
+	{$(INCLUDE)}"stl\_streambuf.c"\
+	{$(INCLUDE)}"stl\_streambuf.h"\
+	{$(INCLUDE)}"stl\_string.c"\
+	{$(INCLUDE)}"stl\_string.h"\
+	{$(INCLUDE)}"stl\_string_base.h"\
+	{$(INCLUDE)}"stl\_string_fwd.h"\
+	{$(INCLUDE)}"stl\_string_operators.h"\
+	{$(INCLUDE)}"stl\_string_sum.h"\
+	{$(INCLUDE)}"stl\_string_sum_methods.h"\
+	{$(INCLUDE)}"stl\_string_workaround.h"\
+	{$(INCLUDE)}"stl\_strstream.h"\
+	{$(INCLUDE)}"stl\_threads.c"\
+	{$(INCLUDE)}"stl\_threads.h"\
+	{$(INCLUDE)}"stl\_windows.h"\
+	{$(INCLUDE)}"stl\boost_type_traits.h"\
+	{$(INCLUDE)}"stl\debug\_debug.c"\
+	{$(INCLUDE)}"stl\debug\_debug.h"\
+	{$(INCLUDE)}"stl\debug\_iterator.h"\
+	{$(INCLUDE)}"stl\debug\_string.h"\
+	{$(INCLUDE)}"stl\debug\_string_workaround.h"\
+	{$(INCLUDE)}"stl\msl_string.h"\
+	{$(INCLUDE)}"stl\type_manips.h"\
+	{$(INCLUDE)}"stl\type_traits.h"\
+	{$(INCLUDE)}"stl_user_config.h"\
+	{$(INCLUDE)}"strstream.h"\
+	
+NODEP_CPP_UNITM=\
+	"..\..\..\..\usr\include\pthread.h"\
+	
+
+!ENDIF 
+
+# End Source File
+# End Group
+# Begin Group "Header Files"
+
+# PROP Default_Filter "h;hpp;hxx;hm;inl"
+# Begin Source File
+
+SOURCE=..\sipXportLib\src\test\sipxunit\TestMonitor.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\sipXportLib\src\test\sipxunit\TestOsSysLogListener.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\sipXportLib\src\test\sipxunit\TestOutputter.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\sipXportLib\src\test\sipxunit\TestRunner.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\sipXportLib\src\test\sipxunit\TestUtilities.h
+# End Source File
+# End Group
+# End Target
+# End Project

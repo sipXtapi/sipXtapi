@@ -1,9 +1,12 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
 
@@ -14,8 +17,6 @@
 // EXTERNAL VARIABLES
 // CONSTANTS
 // STATIC VARIABLE INITIALIZATIONS
-const UtlContainableType TYPE = "ActiveCall";
-
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
@@ -52,9 +53,12 @@ unsigned int ActiveCall::hash() const
     return mCallId.hash();
 }
 
+
+static UtlContainableType DB_ENTRY_TYPE = "ActiveCall";
+
 const UtlContainableType ActiveCall::getContainableType() const
 {
-    return TYPE;
+    return DB_ENTRY_TYPE;
 }
 
 
@@ -71,3 +75,4 @@ const UtlContainableType ActiveCall::getContainableType() const
 /* ============================ TESTING =================================== */
 
 /* ============================ FUNCTIONS ================================= */
+

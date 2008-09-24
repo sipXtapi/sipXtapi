@@ -1,18 +1,32 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
+#define WIN32_LEAN_AND_MEAN
 #include <stdio.h>
-#include <direct.h>
-#include <sys/types.h>
-#include <sys/stat.h>
+#ifndef WINCE
+#   include <direct.h>
+#endif
+#ifdef WINCE
+#   include <types.h>
+#else
+#   include <sys/types.h>
+#   include <sys/stat.h>
+#endif
 #include <windows.h>
-#include <process.h>
+#ifndef WINCE
+#   include <process.h>
+#endif
 #include <tlhelp32.h>
 
 // APPLICATION INCLUDES
@@ -216,10 +230,19 @@ OsStatus OsProcessWnt::launch(UtlString &rAppName, UtlString parameters[],OsPath
                     OsProcessPriorityClass prioClass, UtlBoolean bExeclusive)
 {
     OsStatus retval = OS_FAILED;
-        STARTUPINFO StartupInfo;
-        PROCESS_INFORMATION ProcessInformation;
-    UtlString cmdLine = startupDir + OsPath::separator;
-        cmdLine += rAppName;
+    STARTUPINFO StartupInfo;
+    PROCESS_INFORMATION ProcessInformation;
+    UtlString cmdLine;
+
+    if (startupDir.length() != 0)
+    {
+        cmdLine = startupDir + OsPath::separator;
+    }
+    else
+    {
+        startupDir = ".";
+    }
+    cmdLine += rAppName;
 /*
     int saved_stderr = dup(2);
     int saved_stdout = dup(1);
@@ -267,6 +290,26 @@ OsStatus OsProcessWnt::launch(UtlString &rAppName, UtlString parameters[],OsPath
 
 
     //3...2...1...  LAUNCH!!!!
+#ifdef WINCE
+        int retcode = CreateProcess(
+                                NULL,
+                // name of executable module (null because we want to execute all commands)
+                // even things such as dir
+                                (char *)cmdLine.data(),       // command line string
+                                NULL,
+                                NULL,
+                //this originally was TRUE but the web browser was never coming back.
+                                FALSE,       // handle inheritance flag
+//                CREATE_NEW_CONSOLE,
+                                0,      //  WinCE - must be zero or CREATE_SUSPENDED 
+                                NULL,   //  WinCE - must be NULL
+                                NULL,   //  WinCE - must be NULL
+                                NULL,   //  WinCE - must be NULL
+                                &ProcessInformation
+                                );
+
+#else
+
         int retcode = CreateProcess(
                                 NULL,
                 // name of executable module (null because we want to execute all commands)
@@ -283,9 +326,12 @@ OsStatus OsProcessWnt::launch(UtlString &rAppName, UtlString parameters[],OsPath
                                 &StartupInfo,
                                 &ProcessInformation
                                 );
+#endif
+
 
     if (retcode != 0)
     {
+#ifndef WINCE
         //translate the incoming priority to Wnt values
         DWORD wntPrio = NORMAL_PRIORITY_CLASS;
 
@@ -317,6 +363,10 @@ OsStatus OsProcessWnt::launch(UtlString &rAppName, UtlString parameters[],OsPath
 
         mPID = ProcessInformation.dwProcessId;
         mParentPID = getpid();
+#else
+        mPID = ProcessInformation.dwProcessId;
+        mParentPID = NULL;
+#endif
         mhProcess = ProcessInformation.hProcess;
         mhThread = ProcessInformation.hThread;
         retval = OS_SUCCESS;
@@ -407,18 +457,21 @@ OsStatus OsProcessWnt::getUpTime(OsTime &rUpTime)
 
     rUpTime = OsTime::OS_INFINITY;
 
+    HANDLE hProcess = OpenProcess(PROCESS_QUERY_INFORMATION,FALSE,mPID);
+
+#ifndef WINCE
     FILETIME creationTime;
     FILETIME exitTime;     // process exit time
     FILETIME kernelTime;   // process kernel-mode time
     FILETIME userTime;      // process user-mode time
 
-    HANDLE hProcess = OpenProcess(PROCESS_QUERY_INFORMATION,FALSE,mPID);
     if (GetProcessTimes(hProcess, &creationTime, &exitTime, &kernelTime, &userTime))
     {
 
         retval = OS_SUCCESS;
         CloseHandle(hProcess);
     }
+#endif
 
     return retval;
 }
@@ -426,6 +479,8 @@ OsStatus OsProcessWnt::getUpTime(OsTime &rUpTime)
 OsStatus OsProcessWnt::getPriorityClass(OsProcessPriorityClass &rPrioClass)
 {
     OsStatus retval = OS_FAILED;
+
+#ifndef WINCE
     OsProcessInfo processInfo;
 
     if (getInfo(processInfo))
@@ -445,6 +500,7 @@ OsStatus OsProcessWnt::getPriorityClass(OsProcessPriorityClass &rPrioClass)
                     break;
         }
     }
+#endif
 
     return retval;
 }
@@ -452,6 +508,8 @@ OsStatus OsProcessWnt::getPriorityClass(OsProcessPriorityClass &rPrioClass)
 OsStatus OsProcessWnt::getMinPriority(int &rMinPrio)
 {
     OsStatus retval = OS_FAILED;
+
+#ifndef WINCE
     OsProcessInfo processInfo;
 
     if (getInfo(processInfo))
@@ -471,6 +529,7 @@ OsStatus OsProcessWnt::getMinPriority(int &rMinPrio)
                     break;
         }
     }
+#endif
 
     return retval;
 }
@@ -493,7 +552,11 @@ OsStatus OsProcessWnt::getPriority(int &rPrio)
 
 int OsProcessWnt::getCurrentPID()
 {
+#ifndef WINCE
     return _getpid();
+#else
+    return NULL;
+#endif
 }
 
 /* ============================ INQUIRY =================================== */

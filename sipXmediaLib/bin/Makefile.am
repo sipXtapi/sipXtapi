@@ -1,4 +1,4 @@
-include $(top_srcdir)/config/subdir.am
+include $(top_builddir)/config/sipXcommon.mak
 
 bin_SCRIPTS = \
 	${PACKAGE}-config
@@ -15,4 +15,3 @@ ${PACKAGE}-config: $(top_srcdir)/config/sipX-config.in $(top_builddir)/BUILDSTAM
 	    $(top_srcdir)/config/sipX-config.in \
 	  > ${PACKAGE}-config
 	chmod +x ${PACKAGE}-config
-

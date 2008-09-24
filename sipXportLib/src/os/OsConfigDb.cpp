@@ -1,10 +1,12 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
 #include <assert.h>
@@ -136,9 +138,9 @@ void OsConfigDb::insertEntry(const char* fileLine)
 
    // Skip initial white space.
    while (*p != '\0' && isspace(*p))
-   {
+     {
       p++;
-   }
+     }
 
    // If the first non-whitespace character is '#', this is a comment line.
    // Similarly, if it is NUL, this line is empty.
@@ -150,9 +152,9 @@ void OsConfigDb::insertEntry(const char* fileLine)
 
       // The name continues till EOL, whitespace, or colon.
       while (*p != '\0' && !isspace(*p) && *p != ':')
-      {
+     {
          p++;
-      }
+     }
 
       // Save length of name.
       int name_len = p - name_start;
@@ -160,24 +162,24 @@ void OsConfigDb::insertEntry(const char* fileLine)
       // If the found name is null, do nothing.
       // (Probably due to an empty line.)
       if (name_len != 0)
-      {
+     {
          // Skip whitespace.
          while (*p != '\0' && isspace(*p))
-         {
+     {
             p++;
          }
          // Skip colon, if any.
          // (There should be a colon, but if the line's format is bad,
          // it might not be there.)
          if (*p == ':')
-         {
+        {
             p++;
 
             // Skip whitespace.
             while (*p != '\0' && isspace(*p))
-            {
+           {
                p++;
-            }
+     }
 
             // Save start of value.
             const char* value_start = p;
@@ -185,9 +187,9 @@ void OsConfigDb::insertEntry(const char* fileLine)
             // Scan string back from the end skipping whitespace.
             p = fileLine + strlen(fileLine);
             while (p > value_start && isspace(p[-1]))
-            {
+     {
                p--;
-            }
+     }
 
             // Save length of value.
             int value_len = p - value_start;
@@ -198,15 +200,15 @@ void OsConfigDb::insertEntry(const char* fileLine)
 
             // Capitalize the name if required.
             if (mCapitalizeName)
-            {
+     {
                name.toUpper();
-            }
+     }
 
             // Insert the entry.
             insertEntry(name, value);
          }
          else
-         {
+                 {
             // The colon was not found.
             OsSysLog::add(FAC_KERNEL, PRI_CRIT,
                           "Invalid config line format in file '%s', "
@@ -214,8 +216,8 @@ void OsConfigDb::insertEntry(const char* fileLine)
                           mIdentityLabel.data(),
                           fileLine);
          }
-      }
-      else
+                 }
+                 else
       {
          // The colon was not found.
          OsSysLog::add(FAC_KERNEL, PRI_CRIT,
@@ -224,7 +226,7 @@ void OsConfigDb::insertEntry(const char* fileLine)
                        mIdentityLabel.data(),
                        fileLine);
       }
-   }
+     }
 }
 
 void OsConfigDb::setCapitalizeName(UtlBoolean capitalizeName)
@@ -629,6 +631,19 @@ int OsConfigDb::getPort(const char* szKey) const
     return port ;
 }
 
+// Delete all entries from the configuration database
+void OsConfigDb::clear() 
+{
+   OsReadLock lock(mRWMutex);
+   
+    while (mDb.entries() > 0)   
+    {
+        DbEntry *e = (DbEntry *)mDb.at(0);
+        mDb.removeAt(0) ;
+        delete e ;
+    }
+}
+
 /* ============================ INQUIRY =================================== */
 
 // Return TRUE if the database is empty, otherwise FALSE.
@@ -958,7 +973,7 @@ OsStatus OsConfigDb::loadFromUnencryptedBuffer(const char *buf)
 // method. If the database already contains an entry for this key, then
 // set the value for the existing entry to rNewValue.
 void OsConfigDb::insertEntry(const UtlString& rKey,
-                             const UtlString& rNewValue)
+                              const UtlString& rNewValue)
 {
    DbEntry  tempEntry(rKey, rNewValue);
    DbEntry* pOldEntry;

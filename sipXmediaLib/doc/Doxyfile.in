@@ -557,7 +557,7 @@ GRAPHICAL_HIERARCHY   = YES
 # If left blank, it is assumed the dot tool can be found on the path. 
 
 DOT_PATH              = 
-MAX_DOT_GRAPH_DEPTH = 1
+MAX_DOT_GRAPH_DEPTH   = 1
 
 #---------------------------------------------------------------------------
 # Configuration::addtions related to the search engine   
@@ -569,7 +569,7 @@ MAX_DOT_GRAPH_DEPTH = 1
 SEARCHENGINE          = NO
 
 # Got these recommendations from Rich S.
-MULTILINE_CPP_IS_BRIEF = YES
+MULTILINE_CPP_IS_BRIEF = NO
 DETAILS_AT_TOP        = YES
 HIDE_SCOPE_NAMES      = YES
 SHOW_USED_FILES       = NO

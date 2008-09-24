@@ -1,10 +1,12 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 
 #ifndef _OsFileInfoBase_h_
@@ -34,9 +36,10 @@ class OsFileInfoBase
     friend class OsDirBase;
     friend class OsFileBase;
     friend class OsFileLinux;
+    friend class OsDirLinux;
     friend class OsFileVxw;
     friend class OsFileSystem;
-    friend class OsDirWnt;
+        friend class OsDirWnt;
     friend class OsFileWnt;
     friend class OsFileSystemWnt;
 

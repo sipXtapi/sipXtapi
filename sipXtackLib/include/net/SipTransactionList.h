@@ -1,10 +1,12 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 
 #ifndef _SipTransactionList_h_
@@ -14,8 +16,6 @@
 
 // APPLICATION INCLUDES
 #include <utl/UtlHashBag.h>
-
-#include <net/SipTransaction.h>
 
 #include <os/OsDefs.h>
 #include <os/OsMutex.h>
@@ -28,7 +28,7 @@
 // STRUCTS
 // TYPEDEFS
 // FORWARD DECLARATIONS
-class SipTransaction;
+
 class SipMessage;
 
 //:Class short description which may consist of multiple lines (note the ':')
@@ -81,6 +81,7 @@ public:
     //: Remove transactions not accessed after given time
 
     void stopTransactionTimers();
+    void startTransactionTimers();
 
     void deleteTransactionTimers();
 

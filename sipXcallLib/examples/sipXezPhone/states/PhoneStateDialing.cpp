@@ -1,9 +1,12 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
 
@@ -13,6 +16,7 @@
 #include "../DialerThread.h"
 #include "../sipXezPhoneApp.h"
 #include "PhoneStateDialing.h"
+#include "PhoneStateRemoteAlerting.h"
 #include "PhoneStateConnected.h"
 #include "PhoneStateIdle.h"
 
@@ -33,6 +37,7 @@ PhoneStateDialing::PhoneStateDialing(const wxString phoneNumber) :
 
 PhoneStateDialing::~PhoneStateDialing(void)
 {
+
 }
 
 PhoneState* PhoneStateDialing::OnConnected()
@@ -40,10 +45,24 @@ PhoneState* PhoneStateDialing::OnConnected()
    return (new PhoneStateConnected());
 }
 
+PhoneState* PhoneStateDialing::OnDisconnected(const SIPX_CALL hCall)
+{
+   if (hCall == sipXmgr::getInstance().getCurrentCall())
+   {
+      sipXmgr::getInstance().disconnect(hCall, false);
+   }
+   return (new PhoneStateIdle());
+}
+
 PhoneState* PhoneStateDialing::OnFlashButton()
 {
-   sipXmgr::getInstance().disconnect();
+   sipXmgr::getInstance().disconnect(0, true);
    return (new PhoneStateIdle());
+}
+
+PhoneState* PhoneStateDialing::OnRemoteAlerting()
+{
+    return (new PhoneStateRemoteAlerting());
 }
 
 PhoneState* PhoneStateDialing::Execute()

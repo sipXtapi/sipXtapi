@@ -1,10 +1,12 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 
 #ifndef SIPREFRESHMGR_H
@@ -136,7 +138,7 @@ public:
     void dumpMessageLists(UtlString& results) ;
       //:Appends the message contents of both the mRegisterList and 
       // mSubscribeList
-
+  
     virtual ~SipRefreshMgr();
 
     virtual UtlBoolean handleMessage( OsMsg& eventMessage );
@@ -304,6 +306,7 @@ protected:
     int mUdpPort;
     int mRestartCount;
     UtlRandom mRandomNumGenerator ;
+    UtlHashBag mTimerBag;
 };
 
 #endif // SIPREFRESHMGR_H

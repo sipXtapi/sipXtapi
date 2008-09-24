@@ -1,10 +1,12 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 
 #ifdef WIN32
@@ -12,6 +14,7 @@
 
 #include <stdlib.h>
 #include "os/OsDefs.h"
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include "os/wnt/WindowsAdapterInfo.h"
 #include <os/wnt/getWindowsDNSServers.h>

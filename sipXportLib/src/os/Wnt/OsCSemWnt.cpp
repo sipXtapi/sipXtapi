@@ -1,10 +1,12 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
 #include <assert.h>
@@ -106,7 +108,7 @@ OsStatus OsCSemWnt::release(void)
                         &prevCount))  // previous value
       res = OS_SUCCESS;
    else
-      res = OS_BUSY; // Changed from OS_UNSPECIFIED to OS_BUSY to be consistenty with other platforms
+      res = OS_BUSY;
 
 #ifdef OS_CSEM_DEBUG
    if (res == OS_SUCCESS)

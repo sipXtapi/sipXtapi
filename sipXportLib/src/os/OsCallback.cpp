@@ -1,10 +1,12 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 
 // SYSTEM INCLUDES
@@ -26,7 +28,7 @@
 /* ============================ CREATORS ================================== */
 
 // Constructor
-OsCallback::OsCallback(const int userData, const OsCallbackFunc func)
+OsCallback::OsCallback(const intptr_t userData, const OsCallbackFunc func)
 : mFunc(func),
   mUserData(userData)
 {
@@ -43,7 +45,7 @@ OsCallback::~OsCallback()
 
 // Signal the occurrence of the event by executing the callback function.
 // Always return OS_SUCCESS.
-OsStatus OsCallback::signal(const int eventData)
+OsStatus OsCallback::signal(const intptr_t eventData)
 {
    mFunc(mUserData, eventData);   // execute the callback function
 

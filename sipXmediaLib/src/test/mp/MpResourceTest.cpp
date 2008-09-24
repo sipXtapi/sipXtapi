@@ -1,18 +1,21 @@
-// 
+//  
+// Copyright (C) 2006-2007 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2004 SIPfoundry Inc.
+// Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
-// Copyright (C) 2004 Pingtel Corp.
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-//////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 #include <cppunit/extensions/HelperMacros.h>
 #include <cppunit/TestCase.h>
 
 #include <os/OsDefs.h>
+#include <os/OsMsgQ.h>
 #include <mp/MpResource.h>
 #include <mp/MpFlowGraphBase.h>
 #include <mp/MpTestResource.h>
@@ -24,22 +27,22 @@ class MpResourceTest : public CppUnit::TestCase
 {
     CPPUNIT_TEST_SUITE(MpResourceTest);
     CPPUNIT_TEST(testCreators);
+    CPPUNIT_TEST(testGetFlowGraph);
     CPPUNIT_TEST(testEnableAndDisable);
     CPPUNIT_TEST(testDoProcessFrame);
-    CPPUNIT_TEST(testSamplesPerFrameAndSec);
     CPPUNIT_TEST(testSetVisitState);
     CPPUNIT_TEST(testMessageHandling);
-    CPPUNIT_TEST(testGetFlowGraph);
     CPPUNIT_TEST(testInputOutputInfoAndCounts);
     CPPUNIT_TEST(testIsEnabled);
     CPPUNIT_TEST(testIsInputOutputConnectedDisconnected);
+    CPPUNIT_TEST(testNewEnableAndDisable);
     CPPUNIT_TEST_SUITE_END();
 
 public:
     void testCreators()
     {
-        MpTestResource* pResource1 = 0;
-        MpTestResource* pResource2 = 0;
+        MpTestResource* pResource1 = NULL;
+        MpTestResource* pResource2 = NULL;
         int             portIdx    = 0;
 
         // test the constructor
@@ -73,46 +76,64 @@ public:
 
     void testEnableAndDisable()
     {
-        MpTestResource* pResource = 0;
+        MpFlowGraphBase* pFlowGraph = NULL;
+        MpTestResource*  pResource  = NULL;
 
+        pFlowGraph = new MpFlowGraphBase(30, 30);
         pResource = new MpTestResource("Test", 0, 5, 1, 4);
 
         // verify that the resource starts out disabled
         CPPUNIT_ASSERT(pResource->isEnabled() == FALSE);
 
+        // add the resource to the flow graph
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pFlowGraph->addResource(*pResource));
+        // start flowgraph
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pFlowGraph->start());
+
         // verify that the isEnabled flag is getting passed properly via
         // doProcessFrame()
         CPPUNIT_ASSERT_EQUAL(0, pResource->numFramesProcessed());
-        pResource->processFrame();
+        pFlowGraph->processNextFrame();
         CPPUNIT_ASSERT_EQUAL(1, pResource->numFramesProcessed());
-        CPPUNIT_ASSERT(pResource->mLastDoProcessArgs.isEnabled == FALSE);
+        CPPUNIT_ASSERT_EQUAL(FALSE, pResource->mLastDoProcessArgs.isEnabled);
 
         // now call the enable() method for the resource
         pResource->enable();
+        pFlowGraph->processNextFrame();
         CPPUNIT_ASSERT(pResource->isEnabled());
-        pResource->processFrame();
         CPPUNIT_ASSERT_EQUAL(2, pResource->numFramesProcessed());
-        CPPUNIT_ASSERT(pResource->mLastDoProcessArgs.isEnabled);
+        CPPUNIT_ASSERT_EQUAL(TRUE, pResource->mLastDoProcessArgs.isEnabled);
 
         // now call the disable() method for the resource
         pResource->disable();
+        pFlowGraph->processNextFrame();
         CPPUNIT_ASSERT(pResource->isEnabled() == FALSE);
-        pResource->processFrame();
         CPPUNIT_ASSERT_EQUAL(3, pResource->numFramesProcessed());
-        CPPUNIT_ASSERT(pResource->mLastDoProcessArgs.isEnabled == FALSE);
+        CPPUNIT_ASSERT_EQUAL(FALSE, pResource->mLastDoProcessArgs.isEnabled);
 
-        delete pResource;
+        // stop flowgraph
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pFlowGraph->stop());
+        pFlowGraph->processNextFrame();
+        // delete flowgraph and destroy all resources.
+        delete pFlowGraph;
     }
 
     void testDoProcessFrame()
     {
-        MpTestResource* pResource = 0;
+        MpFlowGraphBase* pFlowGraph = NULL;
+        MpTestResource*  pResource  = NULL;
 
+        pFlowGraph = new MpFlowGraphBase(30, 30);
         pResource = new MpTestResource("Test", 0, 5, 1, 4);
+
+        // add the resource to the flow graph
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pFlowGraph->addResource(*pResource));
+        // start flowgraph
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pFlowGraph->start());
 
         // call processFrame() and then verify that doProcessFrame() is getting
         // invoked with sensible arguments
-        pResource->processFrame();
+        pFlowGraph->processNextFrame();
         CPPUNIT_ASSERT_EQUAL(1, pResource->numFramesProcessed());
         CPPUNIT_ASSERT(pResource->mLastDoProcessArgs.inBufs != NULL);
         CPPUNIT_ASSERT(pResource->mLastDoProcessArgs.outBufs != NULL);
@@ -124,44 +145,22 @@ public:
 
         CPPUNIT_ASSERT(pResource->mLastDoProcessArgs.isEnabled == FALSE);
 
-        CPPUNIT_ASSERT_EQUAL(80, 
+        CPPUNIT_ASSERT_EQUAL(30, 
                              pResource->mLastDoProcessArgs.samplesPerFrame);
 
-        CPPUNIT_ASSERT_EQUAL(8000, 
+        CPPUNIT_ASSERT_EQUAL(30, 
                              pResource->mLastDoProcessArgs.samplesPerSecond);
 
-        delete pResource;
-    }
-
-
-    void testSamplesPerFrameAndSec()
-    {
-        MpTestResource* pResource = 0;
-
-        pResource = new MpTestResource("Test", 0, 5, 1, 4);
-
-        // check initial value of samples per frame
-        pResource->processFrame();
-        CPPUNIT_ASSERT_EQUAL(1, pResource->numFramesProcessed());
-        CPPUNIT_ASSERT_EQUAL(80, pResource->mLastDoProcessArgs.samplesPerFrame);
-        CPPUNIT_ASSERT_EQUAL(8000, pResource->mLastDoProcessArgs.samplesPerSecond);
-
-        // change the samples per frame and samples per second
-        pResource->setSamplesPerFrame(160);
-        pResource->setSamplesPerSec(32000);
-
-        // make sure that the changes have taken effect
-        pResource->processFrame();
-        CPPUNIT_ASSERT_EQUAL(2, pResource->numFramesProcessed());
-        CPPUNIT_ASSERT_EQUAL(160, pResource->mLastDoProcessArgs.samplesPerFrame);
-        CPPUNIT_ASSERT_EQUAL(32000, pResource->mLastDoProcessArgs.samplesPerSecond);
-        
-        delete pResource;
+        // stop flowgraph
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pFlowGraph->stop());
+        pFlowGraph->processNextFrame();
+        // delete flowgraph
+        delete pFlowGraph;
     }
 
     void testSetVisitState()
     {
-        MpTestResource* pResource = 0;
+        MpTestResource* pResource = NULL;
 
         pResource = new MpTestResource("Test", 0, 5, 1, 4);
         
@@ -179,7 +178,7 @@ public:
 
     void testMessageHandling()
     {
-        MpTestResource* pResource = 0;
+        MpTestResource* pResource = NULL;
 
         pResource = new MpTestResource("Test", 0, 5, 1, 4);
         pResource->sendTestMessage((void*) 1, (void*) 2, 3, 4);
@@ -196,8 +195,8 @@ public:
 
     void testGetFlowGraph()
     {
-        MpFlowGraphBase* pFlowGraph  = 0;
-        MpTestResource*  pResource1  = 0;
+        MpFlowGraphBase* pFlowGraph  = NULL;
+        MpTestResource*  pResource1  = NULL;
         OsStatus         res;
 
         pFlowGraph = new MpFlowGraphBase(30, 30);
@@ -222,11 +221,11 @@ public:
 
     void testInputOutputInfoAndCounts()
     {
-        MpFlowGraphBase* pFlowGraph  = 0;
-        MpTestResource*  pResource1  = 0;
-        MpTestResource*  pResource2  = 0;
-        MpTestResource*  pDownstream = 0;
-        MpTestResource*  pUpstream   = 0;
+        MpFlowGraphBase* pFlowGraph  = NULL;
+        MpTestResource*  pResource1  = NULL;
+        MpTestResource*  pResource2  = NULL;
+        MpTestResource*  pDownstream = NULL;
+        MpTestResource*  pUpstream   = NULL;
         int              downstreamPortIdx;
         int              upstreamPortIdx;
         OsStatus         res;
@@ -326,7 +325,7 @@ public:
 
     void testIsEnabled()
     {
-        MpTestResource*  pResource1  = 0;
+        MpTestResource*  pResource1  = NULL;
 
         pResource1 = new MpTestResource("Test", 0, 5, 1, 4);
         CPPUNIT_ASSERT(!pResource1->isEnabled());  // should be disabled initially
@@ -349,9 +348,9 @@ public:
 
     void testIsInputOutputConnectedDisconnected()
     {
-        MpFlowGraphBase* pFlowGraph  = 0;
-        MpTestResource*  pResource1  = 0;
-        MpTestResource*  pResource2  = 0;
+        MpFlowGraphBase* pFlowGraph  = NULL;
+        MpTestResource*  pResource1  = NULL;
+        MpTestResource*  pResource2  = NULL;
         OsStatus         res;
 
         pFlowGraph = new MpFlowGraphBase(30, 30);
@@ -406,6 +405,62 @@ public:
         delete pResource1;
         delete pResource2;
         delete pFlowGraph;
+    }
+
+    void testNewEnableAndDisable()
+    {
+       MpFlowGraphBase* pFlowGraph = NULL;
+       MpTestResource*  pResource  = NULL;
+
+       pFlowGraph = new MpFlowGraphBase(30, 30);
+       pResource = new MpTestResource("test1", 0, 5, 1, 4);
+
+       // add the resource to the flow graph
+       CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pFlowGraph->addResource(*pResource));
+       // start flowgraph
+       CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pFlowGraph->start());
+
+       // verify that the resource starts out disabled
+       CPPUNIT_ASSERT(pResource->isEnabled() == FALSE);
+
+       // verify that the isEnabled flag is getting passed properly via
+       // doProcessFrame()
+       CPPUNIT_ASSERT_EQUAL(0, pResource->numFramesProcessed());
+       pFlowGraph->processNextFrame();
+       CPPUNIT_ASSERT_EQUAL(1, pResource->numFramesProcessed());
+       CPPUNIT_ASSERT(pResource->mLastDoProcessArgs.isEnabled == FALSE);
+
+       // Create a queue..
+       OsMsgQ msgQ;
+       // Have the resource create an enable message and stick it on
+       // the queue provided.
+       MpResource::enable("test1", msgQ);
+       // Then have it process the queue immediately, doing the enable.
+       pResource->handleMessages(msgQ);
+
+       // Check that it's enabled now.
+       CPPUNIT_ASSERT(pResource->isEnabled());
+
+       pFlowGraph->processNextFrame();
+       CPPUNIT_ASSERT_EQUAL(2, pResource->numFramesProcessed());
+       CPPUNIT_ASSERT(pResource->mLastDoProcessArgs.isEnabled);
+
+       // Have the resource create a disable message and stick it on
+       // the queue provided.
+       MpResource::disable("test1", msgQ);
+       // Then have it process the queue immediately, doing the disable.
+       pResource->handleMessages(msgQ);
+       CPPUNIT_ASSERT(pResource->isEnabled() == FALSE);
+
+       pFlowGraph->processNextFrame();
+       CPPUNIT_ASSERT_EQUAL(3, pResource->numFramesProcessed());
+       CPPUNIT_ASSERT(pResource->mLastDoProcessArgs.isEnabled == FALSE);
+
+       // stop flowgraph
+       CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pFlowGraph->stop());
+       pFlowGraph->processNextFrame();
+       // delete flowgraph
+       delete pFlowGraph;
     }
 };
 

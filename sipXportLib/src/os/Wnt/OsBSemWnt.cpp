@@ -1,15 +1,22 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 
 // SYSTEM INCLUDES
 #include <assert.h>
-#include <process.h>
+#ifndef WINCE
+#	include <process.h>
+#endif
 
 #include "utl/UtlRscTrace.h"
 
@@ -41,10 +48,10 @@ OsBSemWnt::OsBSemWnt(const int queueOptions, const int initState)
    //  no name for this semaphore object
    mSemImp = CreateSemaphore(NULL, initState, 1, NULL);
 
-#  ifdef OS_SYNC_DEBUG
+#ifdef OS_SYNC_DEBUG
    mTaskId = (initState == EMPTY) ? GetCurrentThreadId() : 0;
    mLastId = 0;
-#  endif
+#endif
 }
 
 // Destructor
@@ -54,9 +61,9 @@ OsBSemWnt::~OsBSemWnt()
     res = CloseHandle(mSemImp);
     mSemImp = NULL;
 
-    mOptions = 0;
+        mOptions = 0;
 
-    assert(res == TRUE);   // CloseHandle should always return TRUE
+        assert(res == TRUE);   // CloseHandle should always return TRUE
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -113,26 +120,26 @@ OsStatus OsBSemWnt::release(void)
 #     endif
 
       if (!ReleaseSemaphore(mSemImp,
-                            1,         // add one to the previous value
-                            NULL))     // don't return the old value
-      {
-         int lastErr;
+                        1,         // add one to the previous value
+                        NULL))     // don't return the old value
+   {
+      int lastErr;
 
-         lastErr = GetLastError();
+      lastErr = GetLastError();
 
-         if (ERROR_TOO_MANY_POSTS == lastErr) {
-            ret = OS_ALREADY_SIGNALED;
-         } else {
-            ret = OS_UNSPECIFIED;
-         }
-#        ifdef OS_SYNC_DEBUG
+      if (ERROR_TOO_MANY_POSTS == lastErr) {
+         ret = OS_ALREADY_SIGNALED;
+      } else {
+         ret = OS_UNSPECIFIED;
+   }
+#ifdef OS_SYNC_DEBUG
          // still holding it, so reset the status
          mTaskId = mLastId;
          mLastId = previousLast;
-#        endif
+#endif
       }
    }
-      return ret;
+   return ret;
 }
 
 /* ============================ INQUIRY =================================== */

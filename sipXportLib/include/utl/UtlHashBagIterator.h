@@ -1,10 +1,12 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 
 #ifndef _UtlHashBagIterator_h_
@@ -45,7 +47,7 @@ public:
     * If key is specified, iterate only over objects that match that key
     * (UtlHashBags may have any number of copies of a given object)
     */
-   UtlHashBagIterator(UtlHashBag& hashBag, UtlContainable* key = NULL);
+   UtlHashBagIterator(const UtlHashBag& hashBag, UtlContainable* key = NULL);
 
    /**
      * Destructor
@@ -91,7 +93,7 @@ protected:
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
 
-    void init(UtlHashBag& hashBag);
+    void init(const UtlHashBag& hashBag);
    
     UtlContainable* mpSubsetMatch; ///< if non-NULL, points to the key that defines the subset
     unsigned        mSubsetHash;   ///< if mpSubsetMatch != NULL, this is its hash code

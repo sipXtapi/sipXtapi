@@ -1,27 +1,26 @@
 //
-//
 // Copyright (C) 2005-2006 SIPez LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
-// Copyright (C) 2004-2006 Pingtel Corp.
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-//////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
 #include <assert.h>
 #include <stdio.h>
-#include <fcntl.h>
+#ifndef WINCE
+#   include <fcntl.h>
+#endif
 
 //uncomment and recompile to make the socket layer fail after 20 calls.
 //after that, every 10 calls
 //#define FORCE_SOCKET_ERRORS
-
-#include "utl/UtlRscTrace.h"
 
 #if defined(_WIN32)
 #   include <winsock2.h>
@@ -65,6 +64,8 @@
 // APPLICATION INCLUDES
 #include <os/OsSocket.h>
 #include <os/OsSysLog.h>
+#include <utl/UtlRscTrace.h>
+#include <os/HostAdapterAddress.h>
 
 // EXTERNAL FUNCTIONS
 #ifdef _VXWORKS
@@ -236,13 +237,18 @@ int OsSocket::read(char* buffer, int bufferLength)
    flags = MSG_NOSIGNAL;
 #endif
 
-   int error;
    int bytesRead = recv(socketDescriptor, buffer, bufferLength, flags);
-   if (bytesRead < 0)
+#ifdef _WIN32   
+   if ((bytesRead == 0) && (OsSocketGetERRNO() == 0))
    {
-      error = OsSocketGetERRNO();
-      // WIN32: 10038 WSAENOTSOCK not a valid socket descriptor
+       // Under windows, recv returns 0 and the errno is zero if the
+       // socket has been closed down.  We need to close it down for
+       // our bookwork.  We also need to -1 to signal the upper 
+       // layers (what unix returns).
+       close() ;
+       bytesRead = -1 ;
    }
+#endif
 
    return bytesRead;
 }
@@ -300,7 +306,14 @@ int OsSocket::read(char* buffer, int bufferLength,
       // 10038 WSAENOTSOCK not a valid socket descriptor
       if(error)
       {
+#ifdef _WIN32
+         if (error != WSAECONNRESET)
+         {
+            close();
+         }
+#else
          close();
+#endif
          // perror("OsSocket::read call to recvfrom failed\n");
          osPrintf("recvfrom call failed with error: %d\n", error);
       }
@@ -342,7 +355,7 @@ int OsSocket::read(char* buffer, int bufferLength,
 
    if (NULL != fromAddress) fromAddress->remove(0);
 
-   bytesRead = read(buffer, bufferLength, &fromSockAddress, fromPort);
+   bytesRead = OsSocket::read(buffer, bufferLength, &fromSockAddress, fromPort);
    if(bytesRead != -1)
    {
       if (NULL != fromAddress)
@@ -357,7 +370,7 @@ int OsSocket::read(char* buffer, int bufferLength, long waitMilliseconds)
     int numBytes = 0;
     if(isReadyToRead(waitMilliseconds))
     {
-        numBytes = read(buffer, bufferLength);
+        numBytes = OsSocket::read(buffer, bufferLength);
     }
 
         return(numBytes);
@@ -377,7 +390,6 @@ UtlBoolean OsSocket::isReadyToReadEx(long waitMilliseconds,UtlBoolean &rSocketEr
    {
       count = 0;
       numForFailure = 10;
-
 
       close();
       rSocketError = TRUE;
@@ -687,6 +699,7 @@ const char* socketType_TCP = "TCP";
 const char* socketType_UDP = "UDP";
 const char* socketType_MULTICAST = "MULTICAST";
 const char* socketType_SSL = "TLS";
+const char* socketType_custom = "CUSTOM";
 const char* socketType_invalid = "INVALID";
 
 const char* OsSocket::ipProtocolString(OsSocket::IpProtocolSocketType type)
@@ -708,6 +721,8 @@ const char* OsSocket::ipProtocolString(OsSocket::IpProtocolSocketType type)
    case OsSocket::SSL_SOCKET:
       return socketType_SSL;
       break;
+   case OsSocket::CUSTOM:
+	   return socketType_custom;
    default:
       return socketType_invalid;
    }
@@ -752,7 +767,7 @@ UtlBoolean OsSocket::socketInit()
             socketInitialized = TRUE;
             mInitializeSem.release();
            // Windows specific startup
-#               ifdef _WIN32
+#ifdef _WIN32
                 WORD wVersionRequested = MAKEWORD( 1, 1 );
                 WSADATA wsaData;
                 int error = WSAStartup(wVersionRequested, &wsaData);
@@ -763,7 +778,7 @@ UtlBoolean OsSocket::socketInit()
                                 HIBYTE( wsaData.wVersion ));
                         returnCode = FALSE;
                 }
-#               endif
+#endif
 
                 
         }
@@ -929,8 +944,22 @@ void OsSocket::getHostIp(UtlString* hostAddress)
 
       if (address_val == htonl(INADDR_ANY))
       {
-         getHostName(&thisHost);
-         getHostIpByName(thisHost.data(), hostAddress);
+        // get the first local address and
+        // make it the default address
+        const HostAdapterAddress* addresses[MAX_IP_ADDRESSES];
+        int numAddresses = MAX_IP_ADDRESSES;
+        memset(addresses, 0, sizeof(addresses));
+        getAllLocalHostIps(addresses, numAddresses);
+        assert(numAddresses > 0);
+        
+        if (numAddresses && hostAddress && addresses[0])
+        {
+            // Bind to the first address in the list.
+            *hostAddress = (char*)addresses[0]->mAddress.data();
+        }
+        // Now free up the list.
+        for (int i = 0; i < numAddresses; i++)
+        delete addresses[i];       
       }
       else
       {
@@ -1042,7 +1071,7 @@ UtlBoolean OsSocket::getHostIpByName(const char* hostName, UtlString* hostAddres
    {
 #if defined(_WIN32) || defined(__pingtel_on_posix__)
 	   
-	   server = gethostbyname(hostName);
+        server = gethostbyname(hostName);
 		
 
 #elif defined(_VXWORKS)
@@ -1054,28 +1083,26 @@ UtlBoolean OsSocket::getHostIpByName(const char* hostName, UtlString* hostAddres
 #endif //_VXWORKS
 
 
-	   if(server)
-	   {
-		   // hostAddress->append(inet_ntoa_pt(*((in_addr*) (server->h_addr))));
-		   inet_ntoa_pt(*((in_addr*) (server->h_addr)), *hostAddress);
-           bSuccess = TRUE ;
-	   }
-	   else
-		{
-
-			//osPrintf("getHostIpByName DNS look up failed: %s %s\n", 
-			//	      hostName, hostAddress->data());
+        if(server)
+        {
+            inet_ntoa_pt(*((in_addr*) (server->h_addr)), *hostAddress);
+            bSuccess = TRUE ;
+        }
+        else
+        {                                                
+            //osPrintf("getHostIpByName DNS look up failed: %s %s\n", 
+            //	      hostName, hostAddress->data());
 
             // if host name has valid ip, then use the name 
-			if(INADDR_NONE != inet_addr(hostName))
-			{
-				*hostAddress = hostName;
-			}
+            if(INADDR_NONE != inet_addr(hostName))
+            {
+                *hostAddress = hostName;
+            }
             else
             {
-			    *hostAddress = "0.0.0.0";
+                *hostAddress = "0.0.0.0";
             }
-		}
+        }
    }
 
    return bSuccess ;
@@ -1161,6 +1188,17 @@ UtlBoolean OsSocket::isIp4Address(const char* address)
     return(isIp4);
 }
 
+UtlBoolean OsSocket::isMcastAddr(const char* ipAddress)
+{
+    int a, b, c, d;
+    if (!ipAddress || sscanf(ipAddress, "%d.%d.%d.%d", &a, &b, &c, &d) != 4)
+        return FALSE;
+
+    if (a >= 224 && a <= 239)
+        return TRUE;
+    else
+        return FALSE;
+}
 
 UtlBoolean OsSocket::isSameHost(const char* host1, const char* host2)
 {
@@ -1237,8 +1275,9 @@ UtlBoolean OsSocket::isFramed(IpProtocolSocketType type)
    {
    case TCP:
    case SSL_SOCKET:
-      // UNKNOWN and all other values return TRUE for safety.
+      // UNKNOWN and all other values return FALSE for safety.
    case UNKNOWN:
+   case CUSTOM:
    default:
       r = FALSE;
       break;

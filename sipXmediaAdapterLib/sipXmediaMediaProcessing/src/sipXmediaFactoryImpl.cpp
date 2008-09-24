@@ -1,36 +1,41 @@
-// 
-// 
-// Copyright (C) 2005-2006 SIPez LLC.
+//
+// Copyright (C) 2005-2008 SIPez LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.
 // 
-// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Copyright (C) 2004-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2004-2006 Pingtel Corp.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
-//////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+
 
 // SYSTEM INCLUDES
 #include <stdlib.h>
 
 // APPLICATION INCLUDES
-#include "os/OsConfigDb.h"
-#include "include/sipXmediaFactoryImpl.h"
-#include "include/CpPhoneMediaInterface.h"
-#include "net/SdpCodec.h"
-#include "mp/MpMediaTask.h"
-#include "mp/MpMisc.h"
-#include "mp/MpCodec.h"
-#include "mp/MpCallFlowGraph.h"
-#include "mp/dmaTask.h"
-#include "net/SdpCodecFactory.h"
+#include <os/OsConfigDb.h>
+#include "sipXmediaFactoryImpl.h"
+#include "CpPhoneMediaInterface.h"
+#include <sdp/SdpCodec.h>
+#include <mp/MpMediaTask.h>
+#include <mp/MpMisc.h>
+#include <mp/MpCodec.h>
+#include <mp/MpCallFlowGraph.h>
+#include <mp/dmaTask.h>
+#include <mp/MpCodecFactory.h>
+#include <sdp/SdpCodecList.h>
 #include "mi/CpMediaInterfaceFactoryFactory.h"
 
 #ifdef INCLUDE_RTCP /* [ */
-#include "rtcp/RTCManager.h"
+#include <rtcp/RTCManager.h>
 #endif /* INCLUDE_RTCP ] */
+
+#ifdef ENABLE_TOPOLOGY_FLOWGRAPH_INTERFACE_FACTORY
+#include <mp/NetInTask.h>
+#endif
 
 
 // EXTERNAL FUNCTIONS
@@ -38,45 +43,62 @@
 // CONSTANTS
 // GLOBAL FUNCTION
 
-#define CONFIG_PHONESET_SEND_INBAND_DTMF  "PHONESET_SEND_INBAND_DTMF"
-#define MAX_MANAGED_FLOW_GRAPHS           16
+#define MAX_MANAGED_FLOW_GRAPHS 16
 
 // STATIC VARIABLE INITIALIZATIONS
 int sipXmediaFactoryImpl::miInstanceCount=0;
 
-static CpMediaInterfaceFactory* spFactory = NULL;
-static int siInstanceCount=0;
+CpMediaInterfaceFactory* spFactory = NULL;
+int siInstanceCount=0;
 
-extern "C" CpMediaInterfaceFactory* sipXmediaFactoryFactory(OsConfigDb* pConfigDb)
+#ifndef DISABLE_DEFAULT_PHONE_MEDIA_INTERFACE_FACTORY
+extern "C" CpMediaInterfaceFactory* cpDefaultMediaFactoryFactory(OsConfigDb* pConfigDb,
+                                                                 uint32_t frameSizeMs, 
+                                                                 uint32_t maxSamplesPerSec,
+                                                                 uint32_t defaultSamplesPerSec)
 {
-    // TODO: Add locking
+   // TODO: Add locking
 
-    if (spFactory == NULL)
-    {
-        spFactory = new CpMediaInterfaceFactory();
-        spFactory->setFactoryImplementation(new sipXmediaFactoryImpl(pConfigDb));
-    }    
-    siInstanceCount++ ;
-    
-    // Assert some sane value
-    assert(siInstanceCount < 11) ;
-    return spFactory;
+   if (spFactory == NULL)
+   {
+      spFactory = new CpMediaInterfaceFactory();
+      spFactory->setFactoryImplementation(new sipXmediaFactoryImpl(pConfigDb,
+                                                                   frameSizeMs, 
+                                                                   maxSamplesPerSec,
+                                                                   defaultSamplesPerSec));
+   }
+   siInstanceCount++;
+
+   // Assert some sane value
+   assert(siInstanceCount < 11);
+   return spFactory;
 }
+
+extern "C" CpMediaInterfaceFactory* sipXmediaFactoryFactory(OsConfigDb* pConfigDb,
+                                                            uint32_t frameSizeMs, 
+                                                            uint32_t maxSamplesPerSec,
+                                                            uint32_t defaultSamplesPerSec)
+{
+   return(cpDefaultMediaFactoryFactory(pConfigDb, frameSizeMs, maxSamplesPerSec, defaultSamplesPerSec));
+}
+#endif
 
 extern "C" void sipxDestroyMediaFactoryFactory()
 {
-    // TODO: Add locking
+   // TODO: Add locking
 
-    siInstanceCount-- ;
-    assert(siInstanceCount >= 0) ;
-    if (siInstanceCount == 0)
-    {
-        if (spFactory)
-        {
-            delete spFactory ;
-            spFactory = NULL ;
-        }
-    }
+   if (siInstanceCount > 0)
+   {
+      siInstanceCount--;
+      if (siInstanceCount == 0)
+      {
+         if (spFactory)
+         {
+            delete spFactory;
+            spFactory = NULL;
+         }
+      }
+   }
 }
 
 
@@ -85,237 +107,292 @@ extern "C" void sipxDestroyMediaFactoryFactory()
 /* ============================ CREATORS ================================== */
 
 // Constructor
-sipXmediaFactoryImpl::sipXmediaFactoryImpl(OsConfigDb* pConfigDb)
-{    
-    int maxFlowGraph = -1 ; 
-    UtlString strInBandDTMF ;
-    
-    if (pConfigDb)
-    {
-        pConfigDb->get("PHONESET_MAX_ACTIVE_CALLS_ALLOWED", maxFlowGraph) ;
-        pConfigDb->get(CONFIG_PHONESET_SEND_INBAND_DTMF, strInBandDTMF) ;
-        strInBandDTMF.toUpper() ;
+sipXmediaFactoryImpl::sipXmediaFactoryImpl(OsConfigDb* pConfigDb, 
+                                           uint32_t frameSizeMs, 
+                                           uint32_t maxSamplesPerSec,
+                                           uint32_t defaultSamplesPerSec)
+{
+   // See Doxygen comments for this constructor for information on the impact 
+   // of the values of maxSamplesPerFrame and maxSamplesPerSec.
+   mFrameSizeMs = (frameSizeMs == 0) ? 10 : frameSizeMs;
+   mMaxSamplesPerSec = (maxSamplesPerSec == 0) ? 8000 : maxSamplesPerSec;
 
-        OsSysLog::add(FAC_MP, PRI_DEBUG, 
-                      "sipXmediaFactoryImpl::sipXmediaFactoryImpl maxFlowGraph = %d",
-                      maxFlowGraph);
-    }
+   // Default the default sample rate to 8kHz, so NB users will be happy.
+   mDefaultSamplesPerSec = (defaultSamplesPerSec == 0) ? 8000 : defaultSamplesPerSec;
+   assert(mDefaultSamplesPerSec <= mMaxSamplesPerSec);
+   if(mDefaultSamplesPerSec > mMaxSamplesPerSec)
+   {
+      OsSysLog::add(FAC_MP, PRI_CRIT, 
+         "sipXmediaFactoryImpl constructor - %d > %d: "
+         "default sample rate is higher than max sample rate!", 
+         mDefaultSamplesPerSec, mMaxSamplesPerSec);
+   }
 
-    // Max Flow graphs
-    if (maxFlowGraph <=0 ) 
-    {
-        maxFlowGraph = MAX_MANAGED_FLOW_GRAPHS;
-    }
-    if (miInstanceCount == 0)
-    {
-        mpStartUp(8000, 80, 16*maxFlowGraph, pConfigDb);
-    }
+   int maxFlowGraph = -1; 
+   UtlString strInBandDTMF;
+   if (pConfigDb)
+   {
+      pConfigDb->get("PHONESET_MAX_ACTIVE_CALLS_ALLOWED", maxFlowGraph);
+      pConfigDb->get("PHONESET_SEND_INBAND_DTMF", strInBandDTMF);
+      strInBandDTMF.toUpper();
 
-    // Should we send inband DTMF by default?    
-    if (strInBandDTMF.compareTo("DISABLE") == 0)
-    {
-        MpCallFlowGraph::setInbandDTMF(false) ;
-    }
-    else
-    {
-        MpCallFlowGraph::setInbandDTMF(true) ;
-    }
+      OsSysLog::add(FAC_MP, PRI_DEBUG, 
+                    "sipXmediaFactoryImpl::sipXmediaFactoryImpl"
+                    " maxFlowGraph = %d",
+                    maxFlowGraph);
+   }
 
-    // init the media processing task
-    mpMediaTask = MpMediaTask::getMediaTask(maxFlowGraph); 
+   // Max Flow graphs
+   if (maxFlowGraph <=0 ) 
+   {
+      maxFlowGraph = MAX_MANAGED_FLOW_GRAPHS;
+   }
+
+   // Start audio subsystem if still not started.
+   if (miInstanceCount == 0)
+   {
+      mpStartUp(mMaxSamplesPerSec, (mFrameSizeMs*mMaxSamplesPerSec)/1000, 
+                16*maxFlowGraph, pConfigDb, mnCodecPaths, mpCodecPaths);
+   }
+
+   // Should we send inband DTMF by default?    
+   if (strInBandDTMF.compareTo("DISABLE") == 0)
+   {
+      MpCallFlowGraph::setInbandDTMF(false);
+   }
+   else
+   {
+      MpCallFlowGraph::setInbandDTMF(true);
+   }
+
+   // init the media processing task
+   mpMediaTask = MpMediaTask::getMediaTask(maxFlowGraph); 
 
 #ifdef INCLUDE_RTCP /* [ */
-    mpiRTCPControl = CRTCManager::getRTCPControl();
+   mpiRTCPControl = CRTCManager::getRTCPControl();
 #endif /* INCLUDE_RTCP ] */
 
-    if (miInstanceCount == 0)
-    {
-        mpStartTasks();  
-    }
+   if (miInstanceCount == 0)
+   {
+#ifndef ENABLE_TOPOLOGY_FLOWGRAPH_INTERFACE_FACTORY
+      mpStartTasks();  
+#else
+      if (OS_SUCCESS != startNetInTask()) 
+      {
+         OsSysLog::add(FAC_MP, PRI_ERR, "Could not start NetInTask!!");
+      }
+#endif
+   }
 
-    miGain = 7 ;
-    ++miInstanceCount;
+   miGain = 7;
+   ++miInstanceCount;
+
+   // We are missing synchronization -- give the tasks time to start
+   OsTask::delay(100);
 }
 
 
 // Destructor
 sipXmediaFactoryImpl::~sipXmediaFactoryImpl()
 {
-    // TODO: Shutdown
-    --miInstanceCount;
-    if (miInstanceCount == 0)
-    {
-        // Temporarily comment out this function because it causes the program hung.
-        //mpStopTasks();
-        mpShutdown();
-    }
+   // TODO: Shutdown
+   --miInstanceCount;
+   if (miInstanceCount == 0)
+   {
+#ifndef ENABLE_TOPOLOGY_FLOWGRAPH_INTERFACE_FACTORY
+      mpStopTasks();
+#else
+      shutdownNetInTask();
+#endif
+      mpShutdown();
+   }
 }
 
 /* ============================ MANIPULATORS ============================== */
 
-CpMediaInterface* sipXmediaFactoryImpl::createMediaInterface( const char* publicAddress,
-                                                              const char* localAddress,
-                                                              int numCodecs,
-                                                              SdpCodec* sdpCodecArray[],
-                                                              const char* locale,
-                                                              int expeditedIpTos,
-                                                              const char* szStunServer,
-                                                              int stunOptions,
-                                                              int iStunKeepAliveSecs 
-                                                            ) 
+CpMediaInterface* sipXmediaFactoryImpl::createMediaInterface(const char* publicAddress,
+                                                             const char* localAddress,
+                                                             int numCodecs,
+                                                             SdpCodec* sdpCodecArray[],
+                                                             const char* locale,
+                                                             int expeditedIpTos,
+                                                             const char* szStunServer,
+                                                             int iStunPort,
+                                                             int iStunKeepAliveSecs,
+                                                             const char* szTurnServer,
+                                                             int iTurnPort,
+                                                             const char* szTurnUsername,
+                                                             const char* szTurnPassword,
+                                                             int iTurnKeepAlivePeriodSecs,
+                                                             UtlBoolean bEnableICE,
+                                                             uint32_t samplesPerSec) 
 {
-    return new CpPhoneMediaInterface(this, publicAddress, localAddress, 
-            numCodecs, sdpCodecArray, locale, expeditedIpTos, szStunServer,
-            iStunKeepAliveSecs) ;
+   // if the sample rate passed in is zero, use the default.
+   samplesPerSec = (samplesPerSec == 0) ? mDefaultSamplesPerSec : samplesPerSec;
+
+   return new CpPhoneMediaInterface(this, (mFrameSizeMs*samplesPerSec)/1000, 
+      samplesPerSec, publicAddress, localAddress, numCodecs, sdpCodecArray, 
+      locale, expeditedIpTos, szStunServer, iStunPort, iStunKeepAliveSecs, 
+      szTurnServer, iTurnPort, szTurnUsername, szTurnPassword, 
+      iTurnKeepAlivePeriodSecs, bEnableICE);
 }
 
 
 OsStatus sipXmediaFactoryImpl::setSpeakerVolume(int iVolume) 
 {
-    OsStatus rc = OS_SUCCESS ;
-    MpCodec_setVolume(iVolume) ;
+   OsStatus rc = OS_SUCCESS;
+   MpCodec_setVolume(iVolume);
 
-    return rc ;
+   return rc;
 }
 
 OsStatus sipXmediaFactoryImpl::setSpeakerDevice(const UtlString& device) 
 {
-    OsStatus rc = OS_SUCCESS ;
-    DmaTask::setCallDevice(device.data()) ;
-    return rc ;    
+   OsStatus rc = OS_SUCCESS;
+   DmaTask::setCallDevice(device.data());
+   return rc;
 }
 
 OsStatus sipXmediaFactoryImpl::setMicrophoneGain(int iGain) 
 {
-    OsStatus rc ;
+   OsStatus rc;
 
-    miGain = iGain ;
-    rc = MpCodec_setGain(miGain) ;
-    return rc ;
+   miGain = iGain;
+   rc = MpCodec_setGain(miGain);
+   return rc;
 }
 
 OsStatus sipXmediaFactoryImpl::setMicrophoneDevice(const UtlString& device) 
 {
-    OsStatus rc = OS_SUCCESS ;
-    DmaTask::setInputDevice(device.data()) ;
-    return rc ;    
+   OsStatus rc = OS_SUCCESS;
+   DmaTask::setInputDevice(device.data());
+#ifdef WIN32
+   dmaSignalMicDeviceChange();
+#endif
+   return rc;
 }
 
 OsStatus sipXmediaFactoryImpl::muteMicrophone(UtlBoolean bMute) 
 {
-    if (bMute)
-    {
-        MpCodec_setGain(0) ;
-    }
-    else
-    {
-        MpCodec_setGain(miGain) ;
-    }
-    return OS_SUCCESS ;
+   if (bMute)
+   {
+      MpCodec_setGain(0);
+   }
+   else
+   {
+      MpCodec_setGain(miGain);
+   }
+   return OS_SUCCESS;
 }
 
-OsStatus sipXmediaFactoryImpl::enableAudioAEC(UtlBoolean bEnable)
+OsStatus sipXmediaFactoryImpl::setAudioAECMode(const MEDIA_AEC_MODE mode)
 {
-    return OS_SUCCESS;
+   if (MpCallFlowGraph::setAECMode((FLOWGRAPH_AEC_MODE)mode))
+   {
+      return OS_SUCCESS;
+   }
+   else
+   {
+      return OS_NOT_SUPPORTED;
+   }
 }
 
-OsStatus sipXmediaFactoryImpl::enableOutOfBandDTMF(UtlBoolean bEnable)
+OsStatus sipXmediaFactoryImpl::enableAGC(UtlBoolean bEnable) 
 {
-    return OS_SUCCESS;
+   if (MpCallFlowGraph::setAGC(bEnable)) 
+   {
+      return OS_SUCCESS;
+   }
+   else 
+   {
+      return OS_NOT_SUPPORTED; 
+   }
 }
 
-OsStatus sipXmediaFactoryImpl::buildCodecFactory(SdpCodecFactory *pFactory, 
-                                                 const UtlString& sPreferences,
+OsStatus sipXmediaFactoryImpl::setAudioNoiseReductionMode(const MEDIA_NOISE_REDUCTION_MODE mode) 
+{
+   if (mode == MEDIA_NOISE_REDUCTION_DISABLED)
+   {
+      if (MpCallFlowGraph::setAudioNoiseReduction(FALSE))
+      {
+         return OS_SUCCESS;
+      }
+   }
+   else
+   {
+      if (MpCallFlowGraph::setAudioNoiseReduction(TRUE))
+      {
+         return OS_SUCCESS;
+      }
+   }
+   return OS_NOT_SUPPORTED;
+}
+
+OsStatus sipXmediaFactoryImpl::buildCodecFactory(SdpCodecList* pFactory, 
+                                                 const UtlString& sAudioPreferences,
                                                  const UtlString& sVideoPreferences,
+                                                 int videoFormat,
                                                  int* iRejected)
 {
-    OsStatus rc = OS_FAILED;
+   OsStatus rc = OS_FAILED;
 
-    int numCodecs = 0;
-    UtlString codecName;
-    UtlString codecList;
+   *iRejected = 0;
 
-    *iRejected = 0;
+   if (pFactory)
+   {
+      pFactory->clearCodecs();
 
-#ifdef HAVE_GIPS /* [ */
-    numCodecs = 6;
-    SdpCodec::SdpCodecTypes codecs[6];
-            
-    codecs[0] = SdpCodec::SDP_CODEC_GIPS_PCMU;
-    codecs[1] = SdpCodec::SDP_CODEC_GIPS_PCMA;
-    codecs[2] = SdpCodec::SDP_CODEC_GIPS_IPCMU;
-    codecs[3] = SdpCodec::SDP_CODEC_GIPS_IPCMA;
-    codecs[4] = SdpCodec::SDP_CODEC_GIPS_IPCMWB;
-    codecs[5] = SdpCodec::SDP_CODEC_TONES;
-            
-#else /* HAVE_GIPS ] [ */
-    numCodecs = 3;
-    SdpCodec::SdpCodecTypes codecs[3];
-            
-    codecs[0] = SdpCodec::SDP_CODEC_GIPS_PCMU;
-    codecs[1] = SdpCodec::SDP_CODEC_GIPS_PCMA;
-    codecs[2] = SdpCodec::SDP_CODEC_TONES;
-#endif /* HAVE_GIPS ] */
+      // If preferred codecs supplied - add them, else add all supported
+      // codecs.
+      if (sAudioPreferences.length() > 0)
+      {
+         *iRejected = pFactory->addCodecs(sAudioPreferences);
+         OsSysLog::add(FAC_MP, PRI_DEBUG, 
+                       "sipXmediaFactoryImpl::buildCodecFactory: "
+                       "supported codecs = %s with NumReject %d",
+                       sAudioPreferences.data(), *iRejected);
+         rc = OS_SUCCESS;
+      }
+      else
+      {
+         // Build up the supported codecs
+         MpCodecFactory *pCodecFactory = MpCodecFactory::getMpCodecFactory();
+         pCodecFactory->addCodecsToList(*pFactory);
 
-    if (pFactory)
-    {
-        pFactory->clearCodecs();
+         *iRejected = 0;
+         rc = OS_SUCCESS;
+      }
 
-        // add preferred codecs first
-        if (sPreferences.length() > 0)
-        {
-            UtlString references = sPreferences;
-            *iRejected = pFactory->buildSdpCodecFactory(references);
-            OsSysLog::add(FAC_MP, PRI_DEBUG, 
-                          "sipXmediaFactoryImpl::buildCodecFactory: sReferences = %s with NumReject %d",
-                           references.data(), *iRejected);
-                           
-            // Now pick preferences out of all available codecs
-            SdpCodec** codecsArray = NULL;
-            pFactory->getCodecs(numCodecs, codecsArray);
-            
-            UtlString preferences;
-            int i;
-            for (i = 0; i < numCodecs; i++)
-            {
-                if (getCodecNameByType(codecsArray[i]->getCodecType(), codecName) == OS_SUCCESS)
-                {
-                    preferences = preferences + " " + codecName;
-                }
-            }
-            
-            pFactory->clearCodecs();
-            *iRejected = pFactory->buildSdpCodecFactory(preferences);
-            OsSysLog::add(FAC_MP, PRI_DEBUG, 
-                          "sipXmediaFactoryImpl::buildCodecFactory: supported codecs = %s with NumReject %d",
-                          preferences.data(), *iRejected);
-                          
-            // Free up the codecs and the array
-            for (i = 0; i < numCodecs; i++)
-            {
-                delete codecsArray[i];
-                codecsArray[i] = NULL;
-            }
-            delete[] codecsArray;
-            codecsArray = NULL;
-                          
-            rc = OS_SUCCESS;
-        }
-        else
-        {
-            // Build up the supported codecs
-            *iRejected = pFactory->buildSdpCodecFactory(numCodecs, codecs);
-            rc = OS_SUCCESS;
-        }
-    }            
+#ifdef VIDEO // [
+      // If preferred codecs supplied - add them, else add all supported
+      // codecs.
+      if (sVideoPreferences.length() > 0)
+      {
+         *iRejected = pFactory->addCodecs(sVideoPreferences);
+         OsSysLog::add(FAC_MP, PRI_DEBUG, 
+                       "sipXmediaFactoryImpl::buildCodecFactory: "
+                       "supported codecs = %s with NumReject %d",
+                       sVideoPreferences.data(), *iRejected);
+         rc = OS_SUCCESS;
+      }
+      else
+      {
+         // Build up the supported codecs
+         SdpCodec::SdpCodecTypes videoCodecs[] = {};
+         const int numVideoCodecs = sizeof(videoCodecs)/sizeof(SdpCodec::SdpCodecTypes);
 
-    return rc;
+         *iRejected = pFactory->addCodecs(numVideoCodecs, videoCodecs);
+         rc = OS_SUCCESS;
+      }
+#endif // VIDEO ]
+   }
+   return rc;
 }
 
 
 OsStatus sipXmediaFactoryImpl::updateVideoPreviewWindow(void* displayContext) 
 {
-    return OS_NOT_SUPPORTED ;
+   return OS_NOT_SUPPORTED;
 }
 
 
@@ -323,163 +400,76 @@ OsStatus sipXmediaFactoryImpl::updateVideoPreviewWindow(void* displayContext)
 
 OsStatus sipXmediaFactoryImpl::getSpeakerVolume(int& iVolume) const
 {
-    OsStatus rc = OS_SUCCESS ;
+   OsStatus rc = OS_SUCCESS;
 
-    iVolume = MpCodec_getVolume() ;
-    return rc ;
+   iVolume = MpCodec_getVolume();
+   if (iVolume==-1)
+   {
+      rc = OS_FAILED;
+      iVolume = 0;
+   }
+   return rc;
 }
 
 OsStatus sipXmediaFactoryImpl::getSpeakerDevice(UtlString& device) const
 {
-    OsStatus rc = OS_SUCCESS ;
-
-    device = DmaTask::getCallDevice() ;
-    return rc ;
+   OsStatus rc = OS_SUCCESS;
+   device = DmaTask::getCallDevice();
+   return rc;
 }
 
 
 OsStatus sipXmediaFactoryImpl::getMicrophoneGain(int& iGain) const
 {
-    OsStatus rc = OS_SUCCESS ;
-
-    iGain = MpCodec_getGain() ;
-    return rc ;
+   OsStatus rc = OS_SUCCESS;
+   iGain = MpCodec_getGain();
+   return rc;
 }
 
 
 OsStatus sipXmediaFactoryImpl::getMicrophoneDevice(UtlString& device) const
 {
-    OsStatus rc = OS_SUCCESS ;
-
-    device = DmaTask::getMicDevice() ;
-    return rc ;
+   OsStatus rc = OS_SUCCESS;
+   device = DmaTask::getMicDevice();
+   return rc;
 }
 
-
-OsStatus sipXmediaFactoryImpl::isAudioAECEnabled(UtlBoolean& bEnabled) const
-{
-    bEnabled = false;
-    return OS_SUCCESS;
-}
-
-
-OsStatus sipXmediaFactoryImpl::isOutOfBandDTMFEnabled(UtlBoolean& bEnabled) const
-{
-    bEnabled = false;
-    return OS_SUCCESS;
-}
-
-
-OsStatus sipXmediaFactoryImpl::getNumOfCodecs(int& iCodecs) const
-{
-    iCodecs = 3;
-    return OS_SUCCESS;
-}
-
-
-OsStatus sipXmediaFactoryImpl::getCodec(int iCodec, UtlString& codec, int &bandWidth) const
-{
-    OsStatus rc = OS_SUCCESS;
-
-    switch (iCodec)
-    {
-#ifdef HAVE_GIPS /* [ */
-    case 0: codec = (const char*) SdpCodec::SDP_CODEC_GIPS_PCMU;
-        break;
-    case 1: codec = (const char*) SdpCodec::SDP_CODEC_GIPS_PCMA;
-        break;
-#else /* HAVE_GIPS ] [ */
-    case 0: codec = (const char*) SdpCodec::SDP_CODEC_GIPS_PCMU;
-        break;
-    case 1: codec = (const char*) SdpCodec::SDP_CODEC_GIPS_PCMA;
-        break;
-#endif /* HAVE_GIPS ] */
-    case 2: codec = (const char*) SdpCodec::SDP_CODEC_TONES;
-        break;
-    default: rc = OS_FAILED;
-    }
-
-    return rc;
-}
 
 OsStatus sipXmediaFactoryImpl::setVideoPreviewDisplay(void* pDisplay)
 {
-    return OS_NOT_YET_IMPLEMENTED;
+   return OS_NOT_YET_IMPLEMENTED;
 }
 
 OsStatus sipXmediaFactoryImpl::setVideoQuality(int quality)
 {
-    return OS_NOT_YET_IMPLEMENTED;
+   return OS_NOT_YET_IMPLEMENTED;
 }
 
 OsStatus sipXmediaFactoryImpl::setVideoParameters(int bitRate, int frameRate)
 {
-    return OS_NOT_YET_IMPLEMENTED;
+   return OS_NOT_YET_IMPLEMENTED;
 }
 
 OsStatus sipXmediaFactoryImpl::getVideoQuality(int& quality) const
 {
-    return OS_NOT_YET_IMPLEMENTED;
+   return OS_NOT_YET_IMPLEMENTED;
 }
 
 OsStatus sipXmediaFactoryImpl::getVideoBitRate(int& bitRate) const
 {
-    return OS_NOT_YET_IMPLEMENTED;
+   return OS_NOT_YET_IMPLEMENTED;
 }
 
 OsStatus sipXmediaFactoryImpl::getVideoFrameRate(int& frameRate) const
 {
-    return OS_NOT_YET_IMPLEMENTED;
+   return OS_NOT_YET_IMPLEMENTED;
 }
 
-OsStatus sipXmediaFactoryImpl::getCodecNameByType(SdpCodec::SdpCodecTypes type, UtlString& codecName) const
+OsStatus sipXmediaFactoryImpl::getLocalAudioConnectionId(int& connectionId) const 
 {
-    OsStatus rc = OS_FAILED;
+   connectionId = -1;
+   return OS_NOT_SUPPORTED;
 
-    codecName = "";
-
-    switch (type)
-    {
-    case SdpCodec::SDP_CODEC_TONES:
-        codecName = GIPS_CODEC_ID_TELEPHONE;
-        break;
-    case SdpCodec::SDP_CODEC_G729A:
-        codecName = GIPS_CODEC_ID_G729;
-        break;
-    case SdpCodec::SDP_CODEC_GIPS_PCMA:
-        codecName = GIPS_CODEC_ID_PCMA;
-        break;
-    case SdpCodec::SDP_CODEC_GIPS_PCMU:
-        codecName = GIPS_CODEC_ID_PCMU;
-        break;
-    case SdpCodec::SDP_CODEC_GIPS_IPCMA:
-        codecName = GIPS_CODEC_ID_EG711A;
-        break;
-    case SdpCodec::SDP_CODEC_GIPS_IPCMU:
-        codecName = GIPS_CODEC_ID_EG711U;
-        break;
-    case SdpCodec::SDP_CODEC_GIPS_IPCMWB:
-        codecName = GIPS_CODEC_ID_IPCMWB;
-        break;
-    case SdpCodec::SDP_CODEC_GIPS_ILBC:
-        codecName = GIPS_CODEC_ID_ILBC;
-        break;
-    case SdpCodec::SDP_CODEC_GIPS_ISAC:
-        codecName = GIPS_CODEC_ID_ISAC;
-        break;
-    default:
-        OsSysLog::add(FAC_MP, PRI_WARNING,
-                      "sipXmediaFactoryImpl::getCodecNameByType unsupported type %d.",
-                      type);
-    
-    }
-
-    if (codecName != "")
-    {
-        rc = OS_SUCCESS;
-    }
-
-    return rc;
 }
 
 /* ============================ INQUIRY =================================== */
@@ -489,5 +479,3 @@ OsStatus sipXmediaFactoryImpl::getCodecNameByType(SdpCodec::SdpCodecTypes type, 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 /* ============================ FUNCTIONS ================================= */
-
-

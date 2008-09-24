@@ -1,17 +1,12 @@
-// 
-// 
-// Copyright (C) 2005-2006 SIPez LLC.
-// Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2004-2006 Pingtel Corp.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
-//////////////////////////////////////////////////////////////////////////////
-
+///////////////////////////////////////////////////////////////////////////////
 
 #ifndef _EVENTVALIDATOR_H /* [ */
 #define _EVENTVALIDATOR_H
@@ -22,13 +17,11 @@
 #include "os/OsBSem.h"
 #include "os/OsMutex.h"
 #include "os/OsLock.h"
+#include "os/OsDefs.h" // for min macro
 #include "utl/UtlSList.h"
 
-#define DEFAULT_TIMEOUT         -1 
+#define DEFAULT_TIMEOUT         -1
 #define MAX_EVENT_CATEGORIES    16  // room for growth
-#ifndef MIN
-#define MIN(a,b) (((a) < (b)) ? (a) : (b))
-#endif
 
 typedef enum 
 {
@@ -43,6 +36,7 @@ class EventValidator
 protected:
     bool m_filterCategories[MAX_EVENT_CATEGORIES] ;
     int  m_iDefaultTimeoutInSecs ;
+    bool m_bIgnoreMessages ;
     int  m_iMaxLookAhead ;
 
     UtlSList   m_unprocessedEvents ;
@@ -60,7 +54,9 @@ public:
     ~EventValidator() ;
 
     void ignoreEventCategory(SIPX_EVENT_CATEGORY category) ;
-    bool isIgnoredCateogry(SIPX_EVENT_CATEGORY category) ;
+    bool isIgnoredCateogry(SIPX_EVENT_CATEGORY category) ;    
+    void ignoreMessages() ;
+    bool isMessageIgnored() ;
     void setDefaultTimeout(int iTimeoutInSecs) ;
     void setMaxLookhead(int iMaxLookAhead) ;
     void reset() ;
@@ -71,9 +67,13 @@ public:
                           SIPX_CALLSTATE_EVENT event,
                           SIPX_CALLSTATE_CAUSE cause,
                           bool bStrictOrderMatch = true,
-                          int iTimeoutInSecs = DEFAULT_TIMEOUT,
-                          const char* remoteAssertedIdentity = NULL);
+                          int iTimeoutInSecs = DEFAULT_TIMEOUT) ;
 
+    bool waitUntilCallEvent(SIPX_LINE hLine,
+                            SIPX_CALL hCall,
+                            SIPX_CALLSTATE_EVENT event,
+                            SIPX_CALLSTATE_CAUSE cause,
+                            int iTimeoutInSecs = DEFAULT_TIMEOUT) ;
 
     bool waitForMessage(SIPX_LINE hLine, 
                         const char* szMsg,
@@ -109,6 +109,25 @@ public:
                             bool bStrictOrderMatch = true, 
                             int iTimeoutInSecs = DEFAULT_TIMEOUT) ;
 
+    bool waitForSubStatusEvent(SIPX_SUBSCRIPTION_STATE state, 
+                            SIPX_SUBSCRIPTION_CAUSE cause, 
+                            bool bStrictOrderMatch = true, 
+                            int iTimeoutInSecs = DEFAULT_TIMEOUT) ; 
+                            
+    bool waitForNotifyEvent(SIPX_NOTIFY_INFO* pInfo, 
+                            bool bStrictOrderMatch = true, 
+                            int iTimeoutInSecs = DEFAULT_TIMEOUT) ; 
+
+    bool waitForSecurityEvent(SIPX_SECURITY_EVENT event,
+                              SIPX_SECURITY_CAUSE cause,
+                              bool bStrictOrderMatch = true,
+                              int iTimeoutInSecs = DEFAULT_TIMEOUT);
+
+    bool waitForMediaEvent(SIPX_MEDIA_EVENT event,
+                           SIPX_MEDIA_CAUSE cause,
+                           SIPX_MEDIA_TYPE  type,
+                           bool bStrictOrderMatch = true,
+                           int iTimeoutInSecs = DEFAULT_TIMEOUT);
 
     bool hasUnprocessedEvents() ;
 
@@ -126,8 +145,7 @@ protected:
     UtlString* allocCallStateEntry(SIPX_CALL hCall,
                                    SIPX_LINE hLine,
                                    SIPX_CALLSTATE_EVENT event,
-                                   SIPX_CALLSTATE_CAUSE cause,
-                                   const char* remoteAssertedIdentity);
+                                   SIPX_CALLSTATE_CAUSE cause) ;
     UtlString* allocLineStateEntry(SIPX_LINE hLine,
                                    SIPX_LINESTATE_EVENT event,
                                    SIPX_LINESTATE_CAUSE cause) ;
@@ -149,12 +167,25 @@ protected:
                               int nContentLength) ;
 
     UtlString* allocConfigEvent(SIPX_CONFIG_EVENT hEvent) ;
-
- 
+    UtlString* allocSecurityEvent(SIPX_SECURITY_EVENT hEvent,
+                                  SIPX_SECURITY_CAUSE cause) ;
+    UtlString* allocMediaEvent(SIPX_MEDIA_EVENT hEvent,
+                               SIPX_MEDIA_CAUSE cause,
+                               SIPX_MEDIA_TYPE type) ;
+    UtlString* allocKeepaliveEvent(SIPX_KEEPALIVE_EVENT hEvent,
+                                   SIPX_KEEPALIVE_CAUSE cause,
+                                   SIPX_KEEPALIVE_TYPE type) ;
+    UtlString* allocNotifyEvent(SIPX_NOTIFY_INFO* pInfo); 
+    UtlString* allocSubStatusEvent(SIPX_SUBSCRIPTION_STATE state, 
+                                    SIPX_SUBSCRIPTION_CAUSE cause); 
+                                  
     bool findEvent(const char* szEvent, int nMaxLookAhead, int &nActualLookAhead) ;
 
 
     bool waitForEvent(const char* szEvent, bool bStrictOrderMatch, int iTimeoutInSecs) ;
+    
+    bool waitUntilEvent(const char* szEvent, int iTimeoutInSecs);
+    
 
 
 

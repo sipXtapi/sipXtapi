@@ -10,33 +10,29 @@ check_PROGRAMS = testsuite
 
 testsuite_LDADD = \
     @SIPXUNIT_LIBS@ \
-    @SIPXMEDIAADAPTER_LIBS@ \
+    @SIPXMEDIA_LIBS@ \
+    @SIPXMEDIA_MP_LIBS@ \
+    @SIPXTACK_LIBS@ \
+    @SIPXPORT_LIBS@ \
+    @CA_LIBS@ \
     ../libsipXcall.la
 
 testsuite_SOURCES = \
     jnibutton.cpp \
     cp/CpTestSupport.cpp \
     cp/CpTestSupport.h \
-    cp/CallManagerTest.cpp \
-    cp/CpCallManagerTest.cpp \
-    ptapi/PtAddressForwardingTest.cpp \
-    ptapi/PtAddressTest.cpp \
-    ptapi/PtAudioCodecTest.cpp \
-    ptapi/PtCallEventTest.cpp \
-    ptapi/PtCallTest.cpp \
-    ptapi/PtConnectionEventTest.cpp \
-    ptapi/PtConnectionTest.cpp \
-    ptapi/PtEventTest.cpp \
-    ptapi/PtMediaCapabilities.cpp \
-    ptapi/PtPhoneTerminalTest.cpp \
-    ptapi/PtTerminalTest.cpp
+    cp/CallManagerTest.cpp 
 
 ## Full regression test and not meant for 'make check'
 noinst_PROGRAMS = regression
 
 regression_LDADD = \
     @SIPXUNIT_LIBS@ \
-    @SIPXMEDIAADAPTER_LIBS@ \
+    @SIPXMEDIA_LIBS@ \
+    @SIPXMEDIA_MP_LIBS@ \
+    @SIPXTACK_LIBS@ \
+    @SIPXPORT_LIBS@ \
+    @CA_LIBS@ \
     ../libsipXcall.la
 
 regression_SOURCES = \
@@ -51,11 +47,3 @@ regression_SOURCES = \
     mp/MyStreamQueueHistoryKeeper.cpp
 
 DISTCLEANFILES = Makefile.in
-
-# [DEBUG ASSISTANT] List a single unittest to isolate a unittest for
-# debugging or when developing a new unittest. As courtesy remove all
-# unittests before checking in, although forgetting to has no ill
-# effects.
-# sandbox_LDADD = $(testsuite_LDADD)
-# sandbox_CXXFLAGS = $(testsuite_CXXFLAGS)
-# sandbox_SOURCES = 

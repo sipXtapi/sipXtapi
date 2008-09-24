@@ -1,10 +1,15 @@
 //
-// Copyright (C) 2005 Pingtel Corp.
+// Copyright (C) 2007 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
+//
+// Copyright (C) 2004-2007 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 
 #include "mp/MpAudioWaveFileRead.h"
@@ -371,7 +376,9 @@ void MpAudioWaveFileRead::nextChunk(void)
    }
 
    char code[5] = "CODE";
-   code[0] = (type>>24)&255;   code[1] = (type>>16)&255;
-   code[2] = (type>>8 )&255;   code[3] = (type    )&255;
+   code[0] = (char)((type>>24) & 0xFF);
+   code[1] = (char)((type>>16) & 0xFF);
+   code[2] = (char)((type>>8 ) & 0xFF);
+   code[3] = (char)((type    ) & 0xFF);
    osPrintf("Ignoring unrecognized `");
 }

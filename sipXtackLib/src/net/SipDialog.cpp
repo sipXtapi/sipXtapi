@@ -1,12 +1,12 @@
-// 
-// 
-// Copyright (C) 2005 SIPfoundry Inc.
+//
+// Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2005 Pingtel Corp.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
+///////////////////////////////////////////////////////////////////////////////
 // Author: Dan Petrie (dpetrie AT SIPez DOT com)
 //////////////////////////////////////////////////////////////////////////////
 
@@ -339,6 +339,8 @@ void SipDialog::setRequestData(SipMessage& request, const char* method)
     }
     // The request URI should be the remote contact
     UtlString remoteContact;
+    mRemoteContact.removeAngleBrackets();
+    mRemoteContact.removeUrlParameters();
     mRemoteContact.toString(remoteContact);
     
     // If the remote contact is empty, use the remote request uri
@@ -350,9 +352,9 @@ void SipDialog::setRequestData(SipMessage& request, const char* method)
     }
     else
     {
-         request.setSipRequestFirstHeaderLine(methodString, remoteContact);     
+    request.setSipRequestFirstHeaderLine(methodString, remoteContact);
     }
-    
+
     // The local field is the From field
     UtlString fromField;
     mLocalField.toString(fromField);

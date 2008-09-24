@@ -1,10 +1,14 @@
 //
-// Copyright (C) 2005 SIPfoundry Inc.
+// Copyright (C) 2005-2007 SIPfoundry Inc.
 // License by SIPfoundry under the LGPL license.
 // 
 // Copyright (C) 2004 Pingtel Corp.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
+// Copyright (C) 2007 SIPez, LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// $$
 ////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
@@ -96,7 +100,7 @@ void NetBase64Codec::encode(int dataSize, const char data[], UtlString& encodedD
    encodedData.remove(0);
    encodedData.append(encodeBuffer, numEncodeBytes);
 
-   delete encodeBuffer;
+   delete[] encodeBuffer;
    encodeBuffer = NULL;
 }
 
@@ -194,24 +198,25 @@ bool NetBase64Codec::decode(int encodedDataSize, const char encodedData[],
 }
 
 // Decode from one UtlString into another
-bool NetBase64Codec::decode(const UtlString encodedData, /* sizeis data.length(),
-                                                          * not null terminated */
+bool NetBase64Codec::decode(const UtlString& encodedData, /* size is encodedData.length(),
+                                                           * not null terminated */
                             UtlString& data        // output: the decoded data
                             )
 {
-   data.remove(0);
-
    bool valid = isValid(encodedData);
    if (valid)
    {
       size_t sizeNeeded = decodedSize(encodedData.length(), encodedData.data());
-      {
-         char* decodeBuffer = new char[sizeNeeded+1];
-         int size;
-         decode(encodedData.length(), encodedData.data(), size, decodeBuffer);
-         data.append(decodeBuffer, size);
-         delete decodeBuffer;
-      }
+      int size;
+
+      // Resize output string to get space for decoded data.
+      data.resize(sizeNeeded);
+
+      // Do decode
+      decode(encodedData.length(), encodedData.data(), size, (char*)data.data());
+
+      // Resize output string to value, returned by decode().
+      data.resize(size);
    }
    return valid;
 }

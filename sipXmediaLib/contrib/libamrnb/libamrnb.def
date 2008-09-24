@@ -1,0 +1,37 @@
+LIBRARY libamrnb
+EXPORTS
+
+
+;
+;	interf_dec.h
+;
+GP3Decoder_Interface_Decode
+IF2Decoder_Interface_Decode
+ETSIDecoder_Interface_Decode
+Decoder_Interface_init
+Decoder_Interface_exit
+
+;
+;	interf_enc.h
+;
+GP3VADxEncoder_Interface_Encode
+IF2VADxEncoder_Interface_Encode
+ETSIVADxEncoder_Interface_Encode
+VADxEncoder_Interface_init
+Encoder_Interface_exit
+
+;
+;	sp_dec.h
+;
+Speech_Decode_Frame_init
+Speech_Decode_Frame_exit
+Speech_Decode_Frame
+Speech_Decode_Frame_reset
+
+;
+;	sp_enc.h
+;
+VADxSpeech_Encode_Frame_init
+VADxSpeech_Encode_Frame_reset
+Speech_Encode_Frame_exit
+VADxSpeech_Encode_Frame

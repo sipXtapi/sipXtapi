@@ -1,9 +1,12 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 #include <utl/UtlStringTest.h>
 #include <string.h>
@@ -403,13 +406,13 @@ public:
         // construct a string with only the longAlphaString and leading) spaces
         UtlString tmpStringForTrailing("         ") ; 
         tmpStringForTrailing.append(longAlphaString) ; 
-        int tmpStrTrailLen = strlen( tmpStringForTrailing.data() );
-            
+        size_t tmpStrTrailLen = strlen( tmpStringForTrailing.data() );
+        
         // To evaluate the expected string resulting out of a strip(leading), 
         // construct a string with only the longAlphaString and trailing spaces
         UtlString tmpStringForLeading(longAlphaString) ; 
         tmpStringForLeading.append("        ") ;
-        int tmpStrLeadLen = strlen( tmpStringForLeading.data() );
+        size_t tmpStrLeadLen = strlen( tmpStringForLeading.data() );
 
         
         const char* expectedForLeading = tmpStringForLeading.data() ; 
@@ -417,7 +420,7 @@ public:
         // If both sides are striped then  the expected
         // string would just be longAlphaString
         const char* expectedForBoth = longAlphaString ; 
-        int tmpStrBothLen = strlen( expectedForBoth ) ;
+        size_t tmpStrBothLen = strlen( expectedForBoth ) ;
 
         const TestStripDataStructure testData[] = { \
                { "empty char*", "", ' ', \
@@ -473,9 +476,9 @@ public:
             UtlString testString(testData[i].input) ;
 
 
-            int datalength = strlen( testData[i].input );
-            int utlTestStrLen = testString.length();
-            int utlTestCharLen = strlen( testString.data() );
+            size_t datalength = strlen( testData[i].input );
+            size_t utlTestStrLen = testString.length();
+            size_t utlTestCharLen = strlen( testString.data() );
 
 
            CPPUNIT_ASSERT_EQUAL_MESSAGE("Test dataLen Not equal UtlString::Length", \
@@ -518,11 +521,11 @@ public:
             }
             TestUtilities::createMessage(2, &Message, prefix.data(), \
                             testData[i].testDescription) ; 
-
+            
             if (strcmp(expectedValue, returnString.data()))
             {
-               int expStrlen = strlen( expectedValue );
-               int actStrlen = strlen( returnString.data() );
+               size_t expStrlen = strlen( expectedValue );
+               size_t actStrlen = strlen( returnString.data() );
 
                printf("\nNon-matching strings[%d]:\n", i );               
                printf("[%d]%s\n", expStrlen, expectedValue );               

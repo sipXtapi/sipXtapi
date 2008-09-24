@@ -1,17 +1,17 @@
+//
+// Copyright (C) 2005-2007 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
 // 
-// 
-// Copyright (C) 2005, 2006 SIPez LLC
+// Copyright (C) 2004-2007 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
-// Copyright (C) 2005, 2006 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
-// 
 // $$
-//////////////////////////////////////////////////////////////////////////////
-// Author: Dan Petrie (dpetrie AT SIPez DOT com)
+///////////////////////////////////////////////////////////////////////////////
+
+// Author: Daniel Petrie dpetrie AT SIPez DOT com
 
 #ifndef _CallManager_h_
 #define _CallManager_h_
@@ -27,6 +27,7 @@
 
 #include <tao/TaoObjectMap.h>
 #include <os/OsProtectEventMgr.h>
+#include <tapi/sipXtapiInternal.h>
 
 // DEFINES
 #ifdef LONG_EVENT_RESPONSE_TIMEOUTS
@@ -38,11 +39,6 @@
 #define CP_CALL_HISTORY_LENGTH 50
 
 #define CP_MAXIMUM_RINGING_EXPIRE_SECONDS 180
-
-#define CALL_DELETE_DELAY_SECS  10    // Number of seconds between a drop
-                                      // request (call) and call deletion
-                                      // (call manager)
-
 // MACROS
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -56,9 +52,10 @@ class SdpCodec;
 class CpCall;
 class SipUserAgent;
 class OsConfigDb;
+class PtMGCP;
 class TaoObjectMap;
 class TaoReference;
-class SdpCodecFactory;
+class SdpCodecList;
 class CpMultiStringMessage;
 class SipSession;
 class SipDialog;
@@ -77,14 +74,14 @@ public:
    CallManager(UtlBoolean isRequiredUserIdMatch,
                SipLineMgr* lineMgrTask,
                UtlBoolean isEarlyMediaFor180Enabled,
-               SdpCodecFactory* pCodecFactory,
+               SdpCodecList* pCodecFactory,
                int rtpPortStart,
                int rtpPortEnd,
                const char* localAddress,
                const char* publicAddress,
                SipUserAgent* userAgent,
                int sipSessionReinviteTimer,               // Suggested value: 0
-               void* mgcpStackTask,                       // Deprecated, Suggested value: NULL
+               PtMGCP* mgcpStackTask,                     // Suggested value: NULL
                const char* defaultCallExtension,          // Suggested value: NULL
                int availableBehavior,                     // Suggested value: Connection::RING
                const char* unconditionalForwardUrl,       // Suggested value: NULL
@@ -119,7 +116,7 @@ public:
     virtual void requestShutdown(void);
 
     virtual void setOutboundLine(const char* lineUrl);
-    virtual void setOutboundLineForCall(const char* callId, const char* address, CONTACT_TYPE eType = AUTO);
+    virtual void setOutboundLineForCall(const char* callId, const char* address, SIPX_CONTACT_TYPE eType = CONTACT_AUTO);
 
     // Operations for calls
     virtual void createCall(UtlString* callId,
@@ -134,8 +131,13 @@ public:
                              const char* toAddress,
                              const char* fromAddress = NULL,
                              const char* desiredConnectionCallId = NULL,
-                             CONTACT_ID contactId = 0,
-                             const void* pDisplay = NULL) ;
+                             SIPX_CONTACT_ID contactId = 0,
+                             const void* pDisplay = NULL,
+                             const void* pSecurity = NULL,
+                             const char* locationHeader = NULL,
+                             const int bandWidth=AUDIO_CODEC_BW_DEFAULT,
+                             SIPX_TRANSPORT_DATA* pTransportData = NULL,
+                             const RTP_TRANSPORT rtpTransportOptions = RTP_TRANSPORT_UDP) ;
 
     virtual PtStatus consult(const char* idleTargetCallId,
         const char* activeOriginalCallId, const char* originalCallControllerAddress,
@@ -143,10 +145,8 @@ public:
         UtlString& targetCallControllerAddress, UtlString& targetCallConsultAddress);
     virtual void drop(const char* callId);
     virtual PtStatus transfer_blind(const char* callId, const char* transferToUrl,
-                                    UtlString* targetCallId,
-                                    UtlString* targetConnectionAddress = NULL,
-                                    bool       remoteHoldBeforeTransfer = true
-                                    );
+                          UtlString* targetCallId,
+                          UtlString* targetConnectionAddress = NULL);
     // Blind transfer
 
     virtual PtStatus transfer(const char* targetCallId, const char* originalCallId);
@@ -158,9 +158,7 @@ public:
     PtStatus transfer(const char* sourceCallId, 
                       const char* sourceAddress, 
                       const char* targetCallId,
-                      const char* targetAddress,
-                      bool        remoteHoldBeforeTransfer = true
-                      ) ;
+                      const char* targetAddress) ;
     //: Transfer an individual participant from one end point to another using 
     //: REFER w/replaces.
 
@@ -175,44 +173,15 @@ public:
 
     virtual void toneStart(const char* callId, int toneId, UtlBoolean local, UtlBoolean remote);
     virtual void toneStop(const char* callId);
-    virtual void audioPlay(const char* callId, const char* audioUrl, UtlBoolean repeat, UtlBoolean local, UtlBoolean remote);
-    virtual void bufferPlay(const char* callId, int audiobuf, int bufSize, int type, UtlBoolean repeat, UtlBoolean local, UtlBoolean remote);
+    virtual void toneChannelStart(const char* callId, const char* szRemoteAddress, int toneId, UtlBoolean local, UtlBoolean remote);
+    virtual void toneChannelStop(const char* callId, const char* szRemoteAddress);    
+    virtual void audioPlay(const char* callId, const char* audioUrl, UtlBoolean repeat, UtlBoolean local, UtlBoolean remote, UtlBoolean mixWithMic = false, int downScaling = 100);
     virtual void audioStop(const char* callId);
-    virtual void stopPremiumSound(const char* callId);
-
-    //: Set a media property on the media interface for the given call
-    /*
-     * @param callId - call id string for the conference
-     * @param propertyName string id for the property to set
-     * @param propertyValue for the new value of the property
-     * Media interfaces that wish to interoperate should implement the following properties
-     * and values:
-     *
-     * Property Name                  Property Values
-     * =======================        ===============
-     * "audioInput1.muteState"        "true", "false" for systems that may have a microphone for each conference or 2-way call
-     * "audioInput1.device"           same value as szDevice in sipxAudioSetCallInputDevice
-     * "audioOutput1.deviceType"      "speaker", "ringer" same as sipxAudioEnableSpeaker, but for specific conference or 2-way call
-     * "audioOutput1.ringerDevice"    same value as szDevice in sipxAudioSetRingerOutputDevice 
-     * "audioOutput1.speakerDevice"   same values as szDevice in sipxAudioSetCallOutputDevice
-     * "audioOutput1.volume"          string value of iLevel in sipxAudioSetVolume
-     */
-    virtual OsStatus setCallMediaProperty(const char* callId,
-                                          const char* propertyName,
-                                          const char* propertyValue);
-
-    //: Get the media property from the media interface for the given call
-    /*
-     * Retrieve the property value for the propertyName in the media 
-     * interface associated with the call indicated by the given callId.
-     * @param callId - call id string for the conference
-     * @param propertyName - string id for the property to get
-     * @param propertyValue - the retrieved value of the property
-     */
-
-    virtual OsStatus getCallMediaProperty(const char* callId,
-                                          const char* propertyName,
-                                          UtlString& propertyValue);
+    virtual void audioChannelPlay(const char* callId, const char* szRemoteAddress, const char* audioUrl, UtlBoolean repeat, UtlBoolean local, UtlBoolean remote, UtlBoolean mixWithMic = false, int downScaling = 100);
+    virtual void audioChannelStop(const char* callId, const char* szRemoteAddress);
+    virtual OsStatus audioChannelRecordStart(const char* callId, const char* szRemoteAddress, const char* szFile) ;
+    virtual OsStatus audioChannelRecordStop(const char* callId, const char* szRemoteAddress) ;
+    virtual void bufferPlay(const char* callId, int audiobuf, int bufSize, int type, UtlBoolean repeat, UtlBoolean local, UtlBoolean remote);
 
 #ifndef EXCLUDE_STREAMING
     virtual void createPlayer(const char* callid, MpStreamPlaylistPlayer** ppPlayer) ;
@@ -225,8 +194,12 @@ public:
     // Operations for calls & connections
     virtual void acceptConnection(const char* callId,
                                   const char* address,
-                                  CONTACT_TYPE contactType = AUTO,
-                                  const void* hWnd = NULL);
+                                  SIPX_CONTACT_ID contactId = 0,
+                                  const void* hWnd = NULL,
+                                  const void* security = NULL,
+                                  const char* locationHeader = NULL,
+                                  const int bandWidth=AUDIO_CODEC_BW_DEFAULT,
+                                  UtlBoolean sendEarlyMedia = FALSE);
                                   
     virtual void rejectConnection(const char* callId, const char* address);
     virtual PtStatus redirectConnection(const char* callId, const char* address, const char* forwardAddressUrl);
@@ -241,36 +214,24 @@ public:
 
     // Operations for calls & terminal connections
     virtual void answerTerminalConnection(const char* callId, const char* address, const char* terminalId, 
-                                          const void* pDisplay = NULL);
+                                          const void* pDisplay = NULL, const void* pSecurity = NULL);
     virtual void holdTerminalConnection(const char* callId, const char* address, const char* terminalId);
     virtual void holdAllTerminalConnections(const char* callId);
     virtual void holdLocalTerminalConnection(const char* callId);
     virtual void unholdLocalTerminalConnection(const char* callId);
     virtual void unholdAllTerminalConnections(const char* callId);
     virtual void unholdTerminalConnection(const char* callId, const char* addresss, const char* terminalId);
+    virtual void limitCodecPreferences(const char* callId, const char* remoteAddr, const int audioBandwidth, const int videoBandwidth, const char* szVideoCodecName);
+    virtual void limitCodecPreferences(const char* callId, const int audioBandwidth, const int videoBandwidth, const char* szVideoCodecName);
+    virtual void silentRemoteHold(const char* callId) ;
     virtual void renegotiateCodecsTerminalConnection(const char* callId, const char* addresss, const char* terminalId);
     virtual void renegotiateCodecsAllTerminalConnections(const char* callId);
-
-    //! Change the identity used in SIP PAssertedIdentity header for INVITEs sent
-    /*! Set the SIP AOR which used in the SIP PAssertedIdentity header for
-     * INVITE requests send from this side.  The callId and remoteAddress
-     * identity the SIP dialog to which the local identity is to be changed.
-     * signalNow TRUE indicates that a SIP reINVITE should be forced to occur now
-     * as opposed when the next reINVITE occurs during a on/off hold operation.
-     *
-     * This method is used to change the identity when some local operation 
-     * occurs that does not get reflected in the SIP signalling.  Setting
-     * the PAssertedIdentity allows the signalling to indicate the the
-     * identity change has occurred.
-     */
-    virtual UtlBoolean setLocalPAssertedIdentity(const char* callId, 
-                                                 const char* remoteAddress,
-                                                 const char* newPAssertedId,
-                                                 const UtlBoolean signalNow);
-    virtual void getNumTerminalConnections(const char* callId, const char* address, int& numTerminalConnections);
-    virtual OsStatus getTerminalConnections(const char* callId, const char* address,
-    int maxTerminalConnections, int& numTerminalConnections, UtlString terminalNames[]);
+         virtual void getNumTerminalConnections(const char* callId, const char* address, int& numTerminalConnections);
+         virtual OsStatus getTerminalConnections(const char* callId, const char* address,
+                int maxTerminalConnections, int& numTerminalConnections, UtlString terminalNames[]);
     virtual UtlBoolean isTerminalConnectionLocal(const char* callId, const char* address, const char* terminalId);
+    virtual void doGetFocus(CpCall* call);
+    
     virtual OsStatus getSession(const char* callId,
                                 const char* address,
                                 SipSession& session);
@@ -278,21 +239,6 @@ public:
     virtual OsStatus getSipDialog(const char* callId,
                                   const char* address,
                                   SipDialog& dialog);
-
-    virtual OsStatus getInvite(const char* callId,
-                               const char* address,
-                               SipMessage& invite);
-
-    //! Send a SIP request in the context of the dialog of the given call/session
-    /*! The response gets queued to the optional response message queue.
-     *  \param responseQueue - optional queue in which to put response(s) to request
-     *  \param requestListenerData - data to be attached to response(s) added to queue
-     */
-    virtual UtlBoolean sendInDialog(const char* callId,
-                                    const char* address,
-                                    SipMessage& request,
-                                    OsMsgQ* responseQueue = NULL,
-                                    void* requestListenerData = NULL);
 
     // Stimulus based operations DEPRICATED DO NOT USE
     virtual void unhold(const char* callId);
@@ -302,7 +248,7 @@ public:
 
     virtual void setTransferType(int type);
 
-        virtual void addToneListener(const char* callId, int pListener);
+    virtual void addToneListener(const char* callId, int pListener);
 
     virtual void removeToneListener(const char* callId, int pListener);
 
@@ -336,7 +282,6 @@ public:
                         int silenceLength,
                         int& duration,
                         const char* fileName,
-                        int& dtmfterm,
                         OsProtectedEvent* recordEvent = NULL);
 
     virtual OsStatus setCodecCPULimitCall(const char* callId, int limit, UtlBoolean bRenegotiate) ;
@@ -349,43 +294,27 @@ public:
     virtual OsStatus stopRecording(const char* callId);
     //: tells media system stop stop a curretn recording
 
-    //: Set a media property on the media connection for the given call
-    /*
-     * @param callId - call id string for the conference or SIP dialog
-     * @param remoteAddress - address on the remote leg of the connection on which to set property
-     * @param propertyName - string id for the property to set
-     * @param propertyValue - for the new value of the property
-     */
-    virtual OsStatus setConnectionMediaProperty(const char* callId,
-                                                  const char* remoteAddress,
-                                                  const char* propertyName,
-                                                  const char* propertyValue);
-
-    //: Get a media property on the media connection for the given call
-    /*
-     * @param callId - call id string for the conference or SIP dialog
-     * @param remoteAddress - address on the remote leg of the connection on which to get property
-     * @param propertyName - string id for the property to get
-     * @param propertyValue - the retrieved value of the property
-     */
-    virtual OsStatus getConnectionMediaProperty(const char* callId,
-                                                const char* remoteAddress,
-                                                const char* propertyName,
-                                                UtlString& propertyValue);
-
     virtual void setMaxCalls(int maxCalls);
     //:Set the maximum number of calls to admit to the system.
 
     virtual void enableStun(const char* szStunServer, 
-                            int iKeepAlivePeriodSecs, 
-                            int stunOptions,
+                            int iStunPort,
+                            int iKeepAlivePeriodSecs,
                             OsNotification *pNotification = NULL) ;
     //:Enable STUN for NAT/Firewall traversal
+
+    virtual void enableTurn(const char* szTurnServer,
+                            int iTurnPort,
+                            const char* szUsername,
+                            const char* szPassword,
+                            int iKeepAlivePeriodSecs) ;
+
     
-    virtual void sendInfo(const char* callId, 
-                           const char* szContentType,
-                           const size_t nContenLength,
-                           const char*  szContent);
+    virtual UtlBoolean sendInfo(const char* callId, 
+                                const char* szRemoteAddress,
+                                const char* szContentType,
+                                const size_t nContenLength,
+                                const char*  szContent);
    //: Sends an INFO message to the other party(s) on the call
 
 /* ============================ ACCESSORS ================================= */
@@ -466,7 +395,7 @@ public:
      //:calls to be admitted to the system.
 
    virtual OsStatus getLocalContactAddresses(const char* callid,
-                                             CONTACT_ADDRESS addresses[],
+                                             SIPX_CONTACT_ADDRESS addresses[],
                                              size_t  nMaxAddresses,
                                              size_t& nActaulAddresses) ;
      //:The available local contact addresses
@@ -478,23 +407,41 @@ public:
    //: Gets the Media Connection ID
    //: @param szCallId The call-id string of the call with which the connection id is associated
    //: @param remoteAddress The remote address of the call's connection, with which the connection id is associated
-   //: @param ppInstData Reserved for future use.
+   //: @param ppInstData Pointer to the media interface
+
+   virtual UtlBoolean getAudioEnergyLevels(const char*   szCallId, 
+                                           const char*   szRemoteAddress,
+                                           int&          iInputEnergyLevel,
+                                           int&          iOutputEnergyLevel,
+                                           int&          nContributors,
+                                           unsigned int* pContributorSRCIds,
+                                           int*          pContributorEngeryLevels) ;
+
+   virtual UtlBoolean getAudioEnergyLevels(const char*   szCallId,                                            
+                                           int&          iInputEnergyLevel,
+                                           int&          iOutputEnergyLevel) ;
+
+    virtual UtlBoolean getAudioRtpSourceIDs(const char*   szCallId, 
+                                            const char*   szRemoteAddress,
+                                            unsigned int& uiSendingSSRC,
+                                            unsigned int& uiReceivingSSRC) ;
+
+    virtual void getRemoteUserAgent(const char* callId, 
+                                    const char* remoteAddress,
+                                    UtlString& userAgent);
+
+
 
    virtual UtlBoolean canAddConnection(const char* szCallId);
    //: Can a new connection be added to the specified call?  This method is 
    //: delegated to the media interface.
    
-   virtual void setDelayInDeleteCall(int delayInDeleteCall);
-   //: Set the number of seconds to delay in deleting the call
-
-   virtual int getDelayInDeleteCall();
-   //: Get the number of seconds to delay in deleting the call
-   
 /* ============================ INQUIRY =================================== */
    int getTotalNumberOutgoingCalls() { return mnTotalOutgoingCalls;}
    int getTotalNumberIncomingCalls() { return mnTotalIncomingCalls;}
-   
-   SipUserAgent* getUserAgent() { return sipUserAgent;}
+
+   virtual void onCallDestroy(CpCall* pCall);
+   virtual void yieldFocus(CpCall* call);
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
@@ -529,9 +476,10 @@ private:
     UtlSList callStack;
     UtlString mDialString;
     int mOutGoingCallType;
+    PtMGCP* mpMgcpStackTask;
     int mNumDialPlanDigits;
     int mHoldType;
-    SdpCodecFactory* mpCodecFactory;
+    SdpCodecList* mpCodecFactory;
     int mTransferType;
     UtlString mLocale;
     int mMessageEventCount;
@@ -544,14 +492,16 @@ private:
     UtlBoolean mIsRequredUserIdMatch;
     // mMaxCalls can be changed by code running in other threads.
     volatile int mMaxCalls;    
-
     UtlString mStunServer ;
-    int mStunOptions ;
+    int mStunPort ;
     int mStunKeepAlivePeriodSecs ;
+    UtlString mTurnServer ;
+    int mTurnPort ;
+    UtlString mTurnUsername; 
+    UtlString mTurnPassword;
+    int mTurnKeepAlivePeriodSecs ;
+
     CpMediaInterfaceFactory* mpMediaFactory;
-    
-    // Delay in deleting the call
-    int mDelayInDeleteCall;
 
     // Private accessors
     void pushCall(CpCall* call);
@@ -578,19 +528,26 @@ private:
     void doConnect(const char* callId,
                    const char* addressUrl,
                    const char* szDesiredConnectionCallId,
-                   CONTACT_ID contactId = 0,
-                   const void* pDisplay = NULL) ;
-    void doSendInfo(const char* callId, 
-                           const char* szContentType,
-                           UtlString   sContent);
-    //:Called by the handleMessage method, this method posts a message to the Call object's
-    //:message handler, passing along the content type and content.  
+                   SIPX_CONTACT_ID contactId = 0,
+                   const void* pDisplay = NULL,
+                   const void* pSecurity = NULL,
+                   const char* locationHeader = NULL,
+                   const int bandWidth = AUDIO_CODEC_BW_DEFAULT,
+                   SIPX_TRANSPORT_DATA* pTransport = NULL,
+                   const RtpTransportOptions rtpTransportOptions = RTP_TRANSPORT_UDP) ;
 
-    void doEnableStun(const char* szStunServer, 
-                      int iKeepAlivePeriodSecs, 
-                      int stunOptions,
-                      OsNotification* pNotification) ;
+    void doEnableStun(const UtlString& szStunServer, 
+                      int              iServerPort,
+                      int              iKeepAlivePeriodSecs, 
+                      OsNotification*  pNotification) ;
     //:Enable STUN for NAT/Firewall traversal                           
+
+    void doEnableTurn(const UtlString& turnServer, 
+                      int              iTurnPort,
+                      const UtlString& turnUsername,
+                      const UtlString& szTurnPassword,
+                      int              iKeepAlivePeriodSecs) ;
+    //:Enable TURN for NAT/Firewall traversal                           
 
     void releaseEvent(const char* callId, 
                      OsProtectEventMgr* eventMgr, 
@@ -602,6 +559,9 @@ private:
            CallManager& operator=(const CallManager& rhs);
      //:Assignment operator (disabled)
 
+#ifdef _WIN32
+    UtlBoolean IsTroubleShootingModeEnabled();
+#endif
 };
 
 /* ============================ INLINE METHODS ============================ */

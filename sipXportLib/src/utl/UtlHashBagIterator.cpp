@@ -1,10 +1,12 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 
 // SYSTEM INCLUDES
@@ -46,7 +48,7 @@
 /* ============================ CREATORS ================================== */
 
 // Constructor
-UtlHashBagIterator::UtlHashBagIterator(UtlHashBag& hashBag, UtlContainable* key) :
+UtlHashBagIterator::UtlHashBagIterator(const UtlHashBag& hashBag, UtlContainable* key) :
    UtlIterator(hashBag),
    mpSubsetMatch(key)
 {
@@ -240,7 +242,7 @@ void UtlHashBagIterator::removing(const UtlLink* link)
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
-void UtlHashBagIterator::init(UtlHashBag& hashBag)
+void UtlHashBagIterator::init(const UtlHashBag& hashBag)
 {
    // caller is holding the mContainerLock
 

@@ -1,10 +1,12 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 
 // SYSTEM INCLUDES
@@ -14,8 +16,8 @@
 #include <utl/UtlString.h>
 #include <utl/UtlHashBagIterator.h>
 
-#include <net/SipTransactionList.h>
 #include <net/SipTransaction.h>
+#include <net/SipTransactionList.h>
 #include <net/SipMessage.h>
 #include <os/OsTask.h>
 #include <os/OsEvent.h>
@@ -223,7 +225,7 @@ void SipTransactionList::removeOldTransactions(long oldTransaction,
 
 
         // Pull all of the transactions to be deleted out of the list
-        while ((transactionFound = (SipTransaction*) iterator()))
+        while((transactionFound = (SipTransaction*) iterator()))
         {
             if(transactionFound->isBusy()) busyCount++;
 
@@ -277,19 +279,23 @@ void SipTransactionList::removeOldTransactions(long oldTransaction,
        gcTimes.addEvent("start delete");
 #      endif
 
-       for(int txIndex = 0; txIndex < deleteCount; txIndex++)
-       {
-          delete transactionsToBeDeleted[txIndex];
+    for(int txIndex = 0; txIndex < deleteCount; txIndex++)
+    {
+        delete transactionsToBeDeleted[txIndex];
 #         ifdef TIME_LOG
           gcTimes.addEvent("transaction deleted");
 #         endif
-       }
+    }
 
 #      ifdef TIME_LOG
        gcTimes.addEvent("finish delete");
 #      endif
-
-       delete[] transactionsToBeDeleted;
+/*
+        while((transactionFound = (SipTransaction*) iterator()))
+        {
+            transactionFound->stopTimers();
+        }
+*/
     }
 
 #   ifdef TIME_LOG
@@ -314,6 +320,25 @@ void SipTransactionList::stopTransactionTimers()
         while((transactionFound = (SipTransaction*) iterator()))
         {
             transactionFound->stopTimers();
+        }
+    }
+
+    unlock();
+}
+
+void SipTransactionList::startTransactionTimers()
+{
+    lock();
+
+    int numTransactions = mTransactions.entries();
+    if(numTransactions > 0)
+    {
+        UtlHashBagIterator iterator(mTransactions);
+        SipTransaction* transactionFound = NULL;
+
+        while((transactionFound = (SipTransaction*) iterator()))
+        {
+            transactionFound->startTimers();
         }
     }
 
@@ -434,7 +459,7 @@ UtlBoolean SipTransactionList::waitUntilAvailable(SipTransaction* transaction,
                 OsEvent* waitEvent = new OsEvent;
                 transaction->notifyWhenAvailable(waitEvent);
 
-                // Must unlock while we wait or there is a deadlock
+                // Must unlock while we wait or there is a dead lock
                 unlock();
 
 //#ifdef TEST_PRINT

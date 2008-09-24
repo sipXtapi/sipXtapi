@@ -3,13 +3,16 @@ Version: @VERSION@
 Release: %{buildno}
 
 Summary:  This project provides an RFC 3261, 3263 complient SIP stack
-License: LGPL
+License: Pingtel Commercial License
 Group: Development/Libraries
-Vendor: SIPfoundry
-Packager: SIPfoundry <sipx-dev@sipfoundry.org>
-Url: http://www.sipfoundry.org/sipXtackLib
+Vendor: Pingtel Corp.
+Packager: Pingtel <support@pingtel.com>
+Url: http://www.pingtel.com
 
-Requires: sipxportlib >= 3.7
+Requires: sipxportlib >= 2.9
+# TODO: Figure out how to require jre OR jdk
+# Requires: j2re >= 1.4
+Requires: j2sdk >= 1.4
 
 Source: %name-%version.tar.gz
 
@@ -28,7 +31,7 @@ class. This project depends upon the sipXportLib OS abstraction layer.
 # Install header files
 %package devel
 Requires: %name
-Requires: sipxportlib-devel >= 3.7
+Requires: sipxportlib-devel >= 2.9
 
 Group: Development/Libraries
 Vendor: SIPfoundry
@@ -70,18 +73,16 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
-%doc CONTRIBUTORS LICENSE INSTALL README NEWS TODO ChangeLog %name.configlog
+%doc CONTRIBUTORS INSTALL README NEWS TODO ChangeLog %name.configlog
 %docdir doc/license
-%attr(755,root,root) %{_bindir}/dialogdisplay
-%attr(755,root,root) %{_bindir}/dialogwatch
 %attr(755,root,root) %{_bindir}/siplog2siptrace
 %attr(755,root,root) %{_bindir}/siptest
 %attr(755,root,root) %{_bindir}/sipviewer
 %attr(755,root,root) %{_bindir}/subscribe-dialog-test
 %attr(755,root,root) %{_bindir}/%name-config
-%attr(755,root,root) %{_bindir}/merge-logs
 %attr(755,root,root) %{_bindir}/siptrace-merge
 %attr(755,root,root) %{_bindir}/syslog2siptrace
+%attr(755,root,root) %{_bindir}/basicImClient
 %attr(755,root,root) %{_libdir}/libsipXtack.la
 %attr(755,root,root) %{_libdir}/libsipXtack.so*
 %attr(755,root,root) %{_datadir}/sipx/schema/sip_types.xsd

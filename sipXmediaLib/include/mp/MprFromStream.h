@@ -1,10 +1,15 @@
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2005 Pingtel Corp.
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 
 #ifndef _MprFromStream_h_
@@ -15,7 +20,7 @@
 // APPLICATION INCLUDES
 #include "mp/dtmflib.h"
 #include "mp/MpFlowGraphMsg.h"
-#include "mp/MpResource.h"
+#include "mp/MpAudioResource.h"
 #include "mp/StreamDefs.h"
 
 #include "mp/MpStreamFeeder.h"
@@ -37,48 +42,54 @@ typedef struct tagSTREAMDESC
 // FORWARD DECLARATIONS
 
 
-//:This resource as an insertion point for the streaming 
-//:infrastructure byconnecting the flowgraph to MpStreamFeeders.
-//
-// Whenever requested to "realize" a stream, this code will create a 
-// MpStreamFeeder which inturn creates a StreamDataSource and a 
-// StreamFormatDecoder.  Many MpStreamFeeders may be managed/created by
-// a single MprFromStream, however, only one can be active at only one
-// point.
-// 
-// For thread safety, all operations (play, destroy, rewind, etc.) 
-// result in a message being posted to itself.  This forces all of the
-// tasks to be performed on the same task context.  The "realize" 
-// operation is an exception, where it is processed on the called 
-// context.
-//
-// Additionally, the code creates a level of indirection between between
-// the implementation and calling parties (application layer).  All 
-// MpStreamFeeders created by this resource are collected within a list 
-// (mStreamList) and only a handle to the resource is exposed to 
-// application layer.  Handles are unique for an instance of a
-// MprFromStream.  If the destruct is called for MprFromStream and the
-// mStreamList is not null, the list is purged.
-//
-//
-// This class bubbles events to the MpStreamFeeder by calling the 
-// fromStreamUpdate callback on the feeder itself.
-//
-class MprFromStream : public MpResource
+/// @brief This resource is an insertion point for the streaming 
+/// infrastructure by connecting the flowgraph to MpStreamFeeders.
+/**
+*  Whenever requested to "realize" a stream, this code will create a 
+*  MpStreamFeeder which inturn creates a StreamDataSource and a 
+*  StreamFormatDecoder.  Many MpStreamFeeders may be managed/created by
+*  a single MprFromStream, however, only one can be active at only one
+*  point.
+*  
+*  For thread safety, all operations (play, destroy, rewind, etc.) 
+*  result in a message being posted to itself.  This forces all of the
+*  tasks to be performed on the same task context.  The "realize" 
+*  operation is an exception, where it is processed on the called 
+*  context.
+* 
+*  Additionally, the code creates a level of indirection between between
+*  the implementation and calling parties (application layer).  All 
+*  MpStreamFeeders created by this resource are collected within a list 
+*  (mStreamList) and only a handle to the resource is exposed to 
+*  application layer.  Handles are unique for an instance of a
+*  MprFromStream.  If the destruct is called for MprFromStream and the
+*  mStreamList is not null, the list is purged.
+* 
+* 
+*  This class bubbles events to the MpStreamFeeder by calling the 
+*  fromStreamUpdate callback on the feeder itself.
+*/
+class MprFromStream : public MpAudioResource
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
 /* ============================ CREATORS ================================== */
+///@name Creators
+//@{
 
-   MprFromStream(const UtlString& rName, int samplesPerFrame, int samplesPerSec);
+   MprFromStream(const UtlString& rName);
      //:Constructor
 
    virtual
    ~MprFromStream();
      //:Destructor
 
+//@}
+
 /* ============================ MANIPULATORS ============================== */
+///@name Manipulators
+//@{
 
    OsStatus realize(Url urlSource,
                     int flags,
@@ -104,9 +115,19 @@ public:
 
    OsStatus getFlags(StreamHandle handle, int& flags) ;
 
+//@}
+
 /* ============================ ACCESSORS ================================= */
+///@name Accessors
+//@{
+
+//@}
 
 /* ============================ INQUIRY =================================== */
+///@name Inquiry
+//@{
+
+//@}
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
@@ -115,7 +136,7 @@ protected:
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-   enum AddlMsgTypes
+   typedef enum
    {     
       SOURCE_PLAY = MpFlowGraphMsg::RESOURCE_SPECIFIC_START,
       SOURCE_PAUSE,
@@ -123,26 +144,26 @@ private:
       SOURCE_STOP,
       SOURCE_DESTROY,
       SOURCE_RENDER
-   };
+   } AddlMsgTypes;
 
 
-   OsNotification* mpNotify ;
-   MpStreamFeeder* mpStreamRenderer ;
-   FeederEvent     mEventState ;
-   UtlBoolean       mbStreamChange ;
-   int             miStreamCount ;      // Count for generating unique handles
-   OsLockingList   mStreamList ;        // List of stream players
+   OsNotification* mpNotify;
+   MpStreamFeeder* mpStreamRenderer;
+   FeederEvent     mEventState;
+   UtlBoolean      mbStreamChange;
+   int             miStreamCount;      ///< Count for generating unique handles
+   OsLockingList   mStreamList;        ///< List of stream players
 
    virtual UtlBoolean doProcessFrame(MpBufPtr inBufs[],
-                                    MpBufPtr outBufs[],
-                                    int inBufsSize,
-                                    int outBufsSize,
-                                    UtlBoolean isEnabled,
-                                    int samplesPerFrame=80,
-                                    int samplesPerSecond=8000);
+                                     MpBufPtr outBufs[],
+                                     int inBufsSize,
+                                     int outBufsSize,
+                                     UtlBoolean isEnabled,
+                                     int samplesPerFrame,
+                                     int samplesPerSecond);
 
+     /// Handle messages for this resource.
    virtual UtlBoolean handleMessage(MpFlowGraphMsg& rMsg);
-     //:Handle messages for this resource.
 
    UtlBoolean handleRender(MpStreamFeeder* pFeeder);
    UtlBoolean handlePlay(MpStreamFeeder* pFeeder);
@@ -152,22 +173,24 @@ private:
    UtlBoolean handleDestroy(MpStreamFeeder* pFeeder);
    
 
+     /// Copy constructor (not implemented for this class)
    MprFromStream(const MprFromStream& rMprFromStream);
-     //:Copy constructor (not implemented for this class)
 
+     /// Assignment operator (not implemented for this class)
    MprFromStream& operator=(const MprFromStream& rhs);
-     //:Assignment operator (not implemented for this class)
 
+     /// Get the stream feeder for the given handle
    MpStreamFeeder* getStreamFeeder(StreamHandle handle) ;
-     //:Get the stream feeder for the given handle
 
+     /// Removes the stream feeder from the stream list.
    MpStreamFeeder* removeStreamFeeder(StreamHandle handle) ;
-     //:Removes the stream feeder from the stream list.
-     // The Stream feeder is returned if found, someone else
-     // is responsible for deleting it.
+     /**<
+     *  The Stream feeder is returned if found, someone else is responsible for
+     *  deleting it.
+     */
 
+     /// Stops, destroys, and frees all stream feeders
    void destroyFeeders() ;
-     //:Stops, destroys, and frees all stream feeders
 
 };
 

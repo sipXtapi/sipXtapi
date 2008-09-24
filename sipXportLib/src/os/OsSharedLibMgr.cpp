@@ -1,10 +1,12 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 
 // SYSTEM INCLUDES
@@ -58,16 +60,6 @@ OsSharedLibMgrBase::~OsSharedLibMgrBase()
 }
 
 /* ============================ MANIPULATORS ============================== */
-
-// Assignment operator
-OsSharedLibMgrBase&
-OsSharedLibMgrBase::operator=(const OsSharedLibMgrBase& rhs)
-{
-   if (this == &rhs)            // handle the assignment to self case
-      return *this;
-
-   return *this;
-}
 
 /* ============================ ACCESSORS ================================= */
 

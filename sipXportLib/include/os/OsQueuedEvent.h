@@ -1,10 +1,12 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 
 #ifndef _OsQueuedEvent_h_
@@ -56,7 +58,7 @@ public:
 
 /* ============================ CREATORS ================================== */
 
-   OsQueuedEvent(OsMsgQ& rMsgQ, const int userData);
+   OsQueuedEvent(OsMsgQ& rMsgQ, const intptr_t userData);
      //:Constructor
 
    virtual
@@ -65,17 +67,17 @@ public:
 
 /* ============================ MANIPULATORS ============================== */
 
-   virtual OsStatus signal(const int eventData);
+   virtual OsStatus signal(const intptr_t eventData);
      //:Set the event data and send an event message to the designated queue
      // Return the result of the message send operation.
 
-   virtual OsStatus setUserData(int userData);
+   virtual OsStatus setUserData(intptr_t userData);
      //:Set the user data value for this object
      // Always returns OS_SUCCESS.
 
 /* ============================ ACCESSORS ================================= */
 
-   virtual OsStatus getUserData(int& rUserData) const;
+   virtual OsStatus getUserData(intptr_t& rUserData) const;
      //:Return the user data specified when this object was constructed
      // Always returns OS_SUCCESS.
 
@@ -87,14 +89,14 @@ protected:
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
 
-   int     mUserData;      // data specified on behalf of the user and
+   intptr_t  mUserData;    // data specified on behalf of the user and
                            //  not otherwise used by this class -- the user
                            //  data is specified as an argument to the class
                            //  constructor
-   OsMsgQ* mpMsgQ;         // message queue where event notifications will
+   OsMsgQ*   mpMsgQ;       // message queue where event notifications will
                            //  be sent
 
-   OsStatus doSendEventMsg(const int msgType, const int eventData) const;
+   OsStatus doSendEventMsg(const int msgType, const intptr_t eventData) const;
      //:Send an event message to the designated message queue
      // Return the result of the message send operation.
 

@@ -41,7 +41,8 @@ RSC=rc.exe
 # PROP Intermediate_Dir "Release"
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /YX /FD /c
-# ADD CPP /nologo /MD /W3 /GR /GX /O1 /I "include" /I "..\sipXportLib\include" /I "..\sipXtackLib\include" /I "sipXmediaMediaProcessing" /I "interface" /I "..\sipXmediaLib\include" /D "NDEBUG" /D "_LIB" /D "WIN32" /D "_MBCS" /D "SIPXTAPI_STATIC" /YX /FD /c
+# ADD CPP /nologo /MD /W3 /GR /GX /O1 /I "include" /I "..\sipXportLib\include" /I "..\sipXtackLib\include" /I "..\sipXsdpLib\include" /I "sipXmediaMediaProcessing" /I "sipXmediaMediaProcessing\include" /I "interface" /I "..\sipXmediaLib\include" /D "NDEBUG" /D "_LIB" /D "WIN32" /D "_MBCS" /D "SIPXTAPI_STATIC" /D "xDISABLE_DEFAULT_PHONE_MEDIA_INTERFACE_FACTORY" /D "xENABLE_TOPOLOGY_FLOWGRAPH_INTERFACE_FACTORY" /FD /c
+# SUBTRACT CPP /YX
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
 # ADD RSC /l 0x409 /d "NDEBUG"
 BSC32=bscmake.exe
@@ -64,7 +65,8 @@ LIB32=link.exe -lib
 # PROP Intermediate_Dir "Debug"
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /YX /FD /GZ /c
-# ADD CPP /nologo /MDd /W3 /Gm /GR /GX /ZI /Od /I "include" /I "..\sipXportLib\include" /I "..\sipXtackLib\include" /I "sipXmediaMediaProcessing" /I "interface" /I "..\sipXmediaLib\include" /D "_DEBUG" /D "_LIB" /D "WIN32" /D "_MBCS" /D "SIPXTAPI_STATIC" /YX /FD /GZ /c
+# ADD CPP /nologo /MDd /W3 /Gm /GR /GX /ZI /Od /I "include" /I "..\sipXportLib\include" /I "..\sipXtackLib\include" /I "..\sipXsdpLib\include" /I "sipXmediaMediaProcessing" /I "sipXmediaMediaProcessing\include" /I "interface" /I "..\sipXmediaLib\include" /D "_DEBUG" /D "_LIB" /D "WIN32" /D "_MBCS" /D "SIPXTAPI_STATIC" /D "xDISABLE_DEFAULT_PHONE_MEDIA_INTERFACE_FACTORY" /D "xENABLE_TOPOLOGY_FLOWGRAPH_INTERFACE_FACTORY" /FD /GZ /c
+# SUBTRACT CPP /YX
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
 # ADD RSC /l 0x409 /d "_DEBUG"
 BSC32=bscmake.exe
@@ -101,6 +103,30 @@ SOURCE=.\sipXmediaMediaProcessing\src\CpPhoneMediaInterface.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\sipXmediaMediaProcessing\src\CpTopologyGraphFactoryImpl.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\sipXmediaMediaProcessing\src\CpTopologyGraphInterface.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\sipXmediaMediaProcessing\src\MaNotfTranslatorDispatcher.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\interface\MiDtmfNotf.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\interface\MiNotification.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\interface\MiProgressNotf.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\sipXmediaMediaProcessing\src\sipXmediaFactoryImpl.cpp
 # End Source File
 # End Group
@@ -126,6 +152,30 @@ SOURCE=.\interface\mi\CpMediaInterfaceFactoryImpl.h
 # Begin Source File
 
 SOURCE=.\sipXmediaMediaProcessing\include\CpPhoneMediaInterface.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\sipXmediaMediaProcessing\include\CpTopologyGraphFactoryImpl.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\sipXmediaMediaProcessing\include\CpTopologyGraphInterface.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\sipXmediaMediaProcessing\include\MaNotfTranslatorDispatcher.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\interface\mi\MiDtmfNotf.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\interface\mi\MiNotification.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\interface\mi\MiProgressNotf.h
 # End Source File
 # Begin Source File
 

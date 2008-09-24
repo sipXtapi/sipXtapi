@@ -161,8 +161,8 @@ extern "C" {
 #define	T_GPOS		27		/* geographical position (withdrawn) */
 #define	T_AAAA		28		/* IP6 Address */
 #define	T_LOC		29		/* Location Information */
-#define T_SRV		33              /* Server Selection */
-#define T_NAPTR         35              /* Naming Authority PoinTeR */
+#define T_SRV		33      /* Server Selection */
+#define T_NAPTR     35      /* Naming Authority PoinTeR */
 	/* non standard */
 #define T_UINFO		100		/* user (finger) information */
 #define T_UID		101		/* user ID */

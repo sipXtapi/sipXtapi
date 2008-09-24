@@ -1,8 +1,8 @@
 // 
-// Copyright (C) 2005-2006 SIPez LLC.
+// Copyright (C) 2005-2007 SIPez LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.
 // 
-// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 // 
 // Copyright (C) 2004-2006 Pingtel Corp.
@@ -31,7 +31,7 @@
 // Needed for SIP_SHORT_CONTENT_LENGTH_FIELD.
 #include <net/SipMessage.h>
 
-#include <net/NameValueTokenizer.h>
+#include <utl/UtlNameValueTokenizer.h>
 #include <net/NetAttributeTokenizer.h>
 #include <os/OsDateTime.h>
 #include <os/OsUtil.h>
@@ -64,9 +64,6 @@
 int HttpMessage::smHttpMessageCount = 0;
 
 // LOCAL MACROS
-#ifndef MIN
-#define MIN(a,b) (((a) < (b)) ? (a) : (b))
-#endif
 #ifdef _VXWORKS
 #define iswspace(a) ((((a) >= 0x09) && ((a) <= 0x0D)) || ((a) == 0x20))
 #endif
@@ -78,123 +75,123 @@ int HttpMessage::smHttpMessageCount = 0;
 // Constructor
 HttpMessage::HttpMessage(const char* messageBytes, int byteCount)
 {
-    smHttpMessageCount++;
+   smHttpMessageCount++;
 
-    mHeaderCacheClean = FALSE;
+   mHeaderCacheClean = FALSE;
 
-        //nameValues = new UtlHashBag(100);
-        body = NULL;
-        transportTimeStamp = 0;
-        lastResendDuration = 0;
-        timesSent = 0;
-        transportProtocol = OsSocket::UNKNOWN;
-    mFirstSent = FALSE;
-    mSendPort = PORT_NONE;
-    mpResponseListenerQueue = NULL;
-    mResponseListenerData = NULL;
+   //nameValues = new UtlHashBag(100);
+   body = NULL;
+   transportTimeStamp = 0;
+   lastResendDuration = 0;
+   timesSent = 0;
+   transportProtocol = OsSocket::UNKNOWN;
+   mFirstSent = FALSE;
+   mSendPort = PORT_NONE;
+   mpResponseListenerQueue = NULL;
+   mResponseListenerData = NULL;
 #ifdef HTTP_TIMELOG
-    mTimeLog.addEvent("CREATED");
+   mTimeLog.addEvent("CREATED");
 #endif
 
 
-        parseMessage(messageBytes, byteCount);
+   parseMessage(messageBytes, byteCount);
 }
 
 HttpMessage::HttpMessage(OsSocket* inSocket, int bufferSize)
 {
-    smHttpMessageCount++;
+   smHttpMessageCount++;
 
-    mHeaderCacheClean = FALSE;
+   mHeaderCacheClean = FALSE;
 
-        //mNameValues = new UtlHashBag(100);
-        body = NULL;
-        transportTimeStamp = 0;
-        lastResendDuration = 0;
-        timesSent = 0;
-        transportProtocol = OsSocket::UNKNOWN;
-    mFirstSent = FALSE;
-    mSendPort = PORT_NONE;
-    mpResponseListenerQueue = NULL;
-    mResponseListenerData = NULL;
+   //mNameValues = new UtlHashBag(100);
+   body = NULL;
+   transportTimeStamp = 0;
+   lastResendDuration = 0;
+   timesSent = 0;
+   transportProtocol = OsSocket::UNKNOWN;
+   mFirstSent = FALSE;
+   mSendPort = PORT_NONE;
+   mpResponseListenerQueue = NULL;
+   mResponseListenerData = NULL;
 #ifdef HTTP_TIMELOG
-    mTimeLog.addEvent("READ FROM SOCKET");
+   mTimeLog.addEvent("READ FROM SOCKET");
 #endif
 
-        read(inSocket, bufferSize);
+   read(inSocket, bufferSize);
 }
 
 
 // Copy constructor
 HttpMessage::HttpMessage(const HttpMessage& rHttpMessage)
 {
-    smHttpMessageCount++;
-        //UtlString messageBytes;
-        //int len;
-    mHeaderCacheClean = rHttpMessage.mHeaderCacheClean;
-        mFirstHeaderLine = rHttpMessage.mFirstHeaderLine;
-        body = NULL;
-    if(rHttpMessage.body)
-    {
-        body = HttpBody::copyBody(*(rHttpMessage.body));
-    }
-        //nameValues = new UtlHashBag(100);
-        transportTimeStamp = rHttpMessage.transportTimeStamp;
-        lastResendDuration = rHttpMessage.lastResendDuration;
-        transportProtocol = rHttpMessage.transportProtocol;
-        timesSent = rHttpMessage.timesSent;
-    mFirstSent = rHttpMessage.mFirstSent;
-    mSendPort = rHttpMessage.mSendPort;
-    mpResponseListenerQueue = rHttpMessage.mpResponseListenerQueue;
-    mResponseListenerData = rHttpMessage.mResponseListenerData;
-    // Hugely inefficient, but it was easy to code
-        //rHttpMessage.getBytes(&messageBytes, &len);
-        //parseMessage(messageBytes.data(), len);
+   smHttpMessageCount++;
+   //UtlString messageBytes;
+   //int len;
+   mHeaderCacheClean = rHttpMessage.mHeaderCacheClean;
+   mFirstHeaderLine = rHttpMessage.mFirstHeaderLine;
+   body = NULL;
+   if(rHttpMessage.body)
+   {
+      body = HttpBody::copyBody(*(rHttpMessage.body));
+   }
+   //nameValues = new UtlHashBag(100);
+   transportTimeStamp = rHttpMessage.transportTimeStamp;
+   lastResendDuration = rHttpMessage.lastResendDuration;
+   transportProtocol = rHttpMessage.transportProtocol;
+   timesSent = rHttpMessage.timesSent;
+   mFirstSent = rHttpMessage.mFirstSent;
+   mSendPort = rHttpMessage.mSendPort;
+   mpResponseListenerQueue = rHttpMessage.mpResponseListenerQueue;
+   mResponseListenerData = rHttpMessage.mResponseListenerData;
+   // Hugely inefficient, but it was easy to code
+   //rHttpMessage.getBytes(&messageBytes, &len);
+   //parseMessage(messageBytes.data(), len);
 
-    NameValuePair* headerField;
-    NameValuePair* copiedHeader = NULL;
-    UtlDListIterator iterator((UtlDList&)rHttpMessage.mNameValues);
-    while((headerField = (NameValuePair*) iterator()))
-        {
-        copiedHeader = new NameValuePair(*headerField);
-        mNameValues.append(copiedHeader);
-    }
+   NameValuePair* headerField;
+   NameValuePair* copiedHeader = NULL;
+   UtlDListIterator iterator((UtlDList&)rHttpMessage.mNameValues);
+   while((headerField = (NameValuePair*) iterator()))
+   {
+      copiedHeader = new NameValuePair(*headerField);
+      mNameValues.append(copiedHeader);
+   }
 
 #ifdef HTTP_TIMELOG
-    mTimeLog = rHttpMessage.mTimeLog;
+   mTimeLog = rHttpMessage.mTimeLog;
 #endif
-    mSendAddress = rHttpMessage.mSendAddress;
-    mSendPort = rHttpMessage.mSendPort;
+   mSendAddress = rHttpMessage.mSendAddress;
+   mSendPort = rHttpMessage.mSendPort;
 
-         //messageBytes = OsUtil::NULL_OS_STRING;
+   //messageBytes = OsUtil::NULL_OS_STRING;
 }
 
 // Destructor
 HttpMessage::~HttpMessage()
 {
-    smHttpMessageCount--;
-    //mFirstHeaderLine = OsUtil::NULL_OS_STRING;
+   smHttpMessageCount--;
+   //mFirstHeaderLine = OsUtil::NULL_OS_STRING;
 
-    //UtlDListIterator iterator((UtlDList&)nameValues);
-        NameValuePair* headerField = NULL;
+   //UtlDListIterator iterator((UtlDList&)nameValues);
+   NameValuePair* headerField = NULL;
 
-    mHeaderCacheClean = FALSE;
+   mHeaderCacheClean = FALSE;
 
-        // For each name value:
-        while((headerField = (NameValuePair*) mNameValues.get()))
-        {
-        //iterator.remove();
-        delete headerField;
-        headerField = NULL;
-    }
+   // For each name value:
+   while((headerField = (NameValuePair*) mNameValues.get()))
+   {
+      //iterator.remove();
+      delete headerField;
+      headerField = NULL;
+   }
 
-    // This appears to be very slow
-        //nameValues.destroyAll();
+   // This appears to be very slow
+   //nameValues.destroyAll();
 
-        if(body)
-        {
-                delete body;
-                body = 0;
-        }
+   if(body)
+   {
+      delete body;
+      body = 0;
+   }
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -204,66 +201,65 @@ HttpMessage::~HttpMessage()
 HttpMessage&
 HttpMessage::operator=(const HttpMessage& rHttpMessage)
 {
-   if (this == &rHttpMessage)            // handle the assignment to self case
+   // handle the assignment to self case
+   if (this == &rHttpMessage)
       return *this;
-   else
+
+   smHttpMessageCount--;
+   mHeaderCacheClean = rHttpMessage.mHeaderCacheClean;
+   mFirstHeaderLine = rHttpMessage.mFirstHeaderLine;
+   //nameValues.destroyAll();
+   // Get rid of any headers which exist in this message
+   NameValuePair* headerField = NULL;
+   while((headerField = (NameValuePair*) mNameValues.get()))
    {
-       smHttpMessageCount--;
-       mHeaderCacheClean = rHttpMessage.mHeaderCacheClean;
-       mFirstHeaderLine = rHttpMessage.mFirstHeaderLine;
-           //nameValues.destroyAll();
-       // Get rid of any headers which exist in this message
-       NameValuePair* headerField = NULL;
-       while((headerField = (NameValuePair*) mNameValues.get()))
-       {
-           delete headerField;
-           headerField = NULL;
-       }
+      delete headerField;
+      headerField = NULL;
+   }
 
-       if(body)
-       {
-           delete body;
-           body = NULL;
-       }
+   if(body)
+   {
+      delete body;
+      body = NULL;
+   }
 
-       if(rHttpMessage.body)
-       {
-           body = HttpBody::copyBody(*(rHttpMessage.body));
-       }
+   if(rHttpMessage.body)
+   {
+      body = HttpBody::copyBody(*(rHttpMessage.body));
+   }
 
-      //use copy constructor to copy values
-       smHttpMessageCount++;
-           //UtlString messageBytes;
-           //int len;
-           transportTimeStamp = rHttpMessage.transportTimeStamp;
-           lastResendDuration = rHttpMessage.lastResendDuration;
-           transportProtocol = rHttpMessage.transportProtocol;
-           timesSent = rHttpMessage.timesSent;
-       mFirstSent = rHttpMessage.mFirstSent;
-       mSendPort = rHttpMessage.mSendPort;
-       mpResponseListenerQueue = rHttpMessage.mpResponseListenerQueue;
-       mResponseListenerData = rHttpMessage.mResponseListenerData;
+   //use copy constructor to copy values
+   smHttpMessageCount++;
+   //UtlString messageBytes;
+   //int len;
+   transportTimeStamp = rHttpMessage.transportTimeStamp;
+   lastResendDuration = rHttpMessage.lastResendDuration;
+   transportProtocol = rHttpMessage.transportProtocol;
+   timesSent = rHttpMessage.timesSent;
+   mFirstSent = rHttpMessage.mFirstSent;
+   mSendPort = rHttpMessage.mSendPort;
+   mpResponseListenerQueue = rHttpMessage.mpResponseListenerQueue;
+   mResponseListenerData = rHttpMessage.mResponseListenerData;
 
-       // Hugely ineffient
-           //rHttpMessage.getBytes(&messageBytes, &len);
-           //parseMessage(messageBytes.data(), len);
+   // Hugely inefficient
+   //rHttpMessage.getBytes(&messageBytes, &len);
+   //parseMessage(messageBytes.data(), len);
 
-       NameValuePair* copiedHeader = NULL;
-       UtlDListIterator iterator((UtlDList&)rHttpMessage.mNameValues);
-       while((headerField = (NameValuePair*) iterator()))
-           {
-           copiedHeader = new NameValuePair(*headerField);
-           mNameValues.append(copiedHeader);
-       }
+   NameValuePair* copiedHeader = NULL;
+   UtlDListIterator iterator((UtlDList&)rHttpMessage.mNameValues);
+   while((headerField = (NameValuePair*) iterator()))
+   {
+      copiedHeader = new NameValuePair(*headerField);
+      mNameValues.append(copiedHeader);
+   }
 
 #ifdef HTTP_TIMELOG
-       mTimeLog = rHttpMessage.mTimeLog;
+   mTimeLog = rHttpMessage.mTimeLog;
 #endif
-       mSendAddress = rHttpMessage.mSendAddress;
-       mSendPort = rHttpMessage.mSendPort;
+   mSendAddress = rHttpMessage.mSendAddress;
+   mSendPort = rHttpMessage.mSendPort;
 
-           //messageBytes = OsUtil::NULL_OS_STRING;
-   }
+   //messageBytes = OsUtil::NULL_OS_STRING;
 
    return *this;
 }
@@ -291,29 +287,29 @@ int HttpMessage::parseFirstLine(const char* messageBytesPtr, int byteCount)
    mFirstHeaderLine = OsUtil::NULL_OS_STRING;
    int bytesConsumed = 0;
 
-    // Read the first header line
+   // Read the first header line
    int nextLineOffset;
-        int headerLineLength =
-      NameValueTokenizer::findNextLineTerminator(messageBytesPtr,
-                                                                                        byteCount,
-                                                                                        &nextLineOffset);
+   int headerLineLength =
+      UtlNameValueTokenizer::findNextLineTerminator(messageBytesPtr,
+                                                 byteCount,
+                                                 &nextLineOffset);
 
-        if(headerLineLength < 0)
-        {
-                headerLineLength = byteCount;
-        }
+   if(headerLineLength < 0)
+   {
+      headerLineLength = byteCount;
+   }
 
-        if(headerLineLength > 0)
-        {
-                mFirstHeaderLine.append(messageBytesPtr, headerLineLength);
+   if(headerLineLength > 0)
+   {
+      mFirstHeaderLine.append(messageBytesPtr, headerLineLength);
 
-                if(nextLineOffset > 0)
-                {
-                        bytesConsumed += nextLineOffset;
-                }
-                else
-                {
-                        bytesConsumed = byteCount;
+      if(nextLineOffset > 0)
+      {
+         bytesConsumed += nextLineOffset;
+      }
+      else
+      {
+         bytesConsumed = byteCount;
       }
    }
 
@@ -325,208 +321,214 @@ int HttpMessage::parseFirstLine(const char* messageBytesPtr, int byteCount)
 // the need arrises for it atomic functionality
 void HttpMessage::parseMessage(const char* messageBytes, int byteCount)
 {
-    mHeaderCacheClean = FALSE;
+   mHeaderCacheClean = FALSE;
 
-    if(byteCount <= 0)
-    {
-       if(messageBytes)
-       {
-                    byteCount = strlen(messageBytes);
-       }
-       else
-       {
-                    byteCount = 0;
-                        mFirstHeaderLine = OsUtil::NULL_OS_STRING;
-            if(body) delete body;
-                    body = NULL;
-       }
-    }
+   if(byteCount <= 0)
+   {
+      if(messageBytes)
+      {
+         byteCount = strlen(messageBytes);
+      }
+      else
+      {
+         byteCount = 0;
+         mFirstHeaderLine = OsUtil::NULL_OS_STRING;
+         if(body) delete body;
+         body = NULL;
+      }
+   }
 
-        if(byteCount > 0)
-        {
-                int bytesConsumed = 0;
-                const char* messageBytesPtr = messageBytes;
+   if(byteCount > 0)
+   {
+      int bytesConsumed = 0;
+      const char* messageBytesPtr = messageBytes;
 
-                // Read the first header line
-        bytesConsumed = parseFirstLine(messageBytes, byteCount);
+      // Read the first header line
+      bytesConsumed = parseFirstLine(messageBytes, byteCount);
 
-        // Parse the headers out and add them to the list
-                bytesConsumed += parseHeaders(messageBytes + bytesConsumed, byteCount - bytesConsumed,
-            mNameValues);
+      // Parse the headers out and add them to the list
+      bytesConsumed += parseHeaders(messageBytes + bytesConsumed, byteCount - bytesConsumed,
+         mNameValues);
 
-                // Create the body if there is stuff left
-                if(byteCount > bytesConsumed)
-                {
-                        messageBytesPtr = messageBytes + bytesConsumed;
+      // Create the body if there is stuff left
+      if(byteCount > bytesConsumed)
+      {
+         messageBytesPtr = messageBytes + bytesConsumed;
 
-                        if(body)
-                        {
-                                delete body;
-                        }
+         if(body)
+         {
+            delete body;
+         }
 
-            // Construct the body from the remaining bytes
-            parseBody(messageBytesPtr, byteCount - bytesConsumed);
+         // Construct the body from the remaining bytes
+         parseBody(messageBytesPtr, byteCount - bytesConsumed);
 
-        }
-        }
+      }
+   }
 }
 
 void HttpMessage::parseBody(const char* messageBytesPtr, int bodyLength)
 {
-    if (bodyLength <= 1 && 
-        messageBytesPtr && 
-        (messageBytesPtr[0] == '\n' || 
-         messageBytesPtr[0] == '\r'))
-    {
-        // do nothing
-    }
+   if (bodyLength <= 1 && 
+       messageBytesPtr && 
+       (messageBytesPtr[0] == '\n' || 
+       messageBytesPtr[0] == '\r'))
+   {
+      // do nothing
+   }
 
-    // Need to use a body factory
-    const char* contentType = getHeaderValue(0, HTTP_CONTENT_TYPE_FIELD);
-    if (NULL == contentType)
-    {
-        // "C" => SIP_SHORT_CONTENT_TYPE_FIELD); cannot use sipMessage.h
-        //
-        //        Could not find full header field name, so check for
-        //        short header field names.
-        //
-        contentType = getHeaderValue(0, "C");  
-    }
+   // Need to use a body factory
+   const char* contentType = getHeaderValue(0, HTTP_CONTENT_TYPE_FIELD);
+   if (NULL == contentType)
+   {
+      // "C" => SIP_SHORT_CONTENT_TYPE_FIELD); cannot use sipMessage.h
+      //
+      //        Could not find full header field name, so check for
+      //        short header field names.
+      //
+      contentType = getHeaderValue(0, "C");
+   }
 
-    // HTTP_CONTENT_TRANSFER_ENCODING_FIELD  does not have a short form.
-    const char* contentEncodingString = 
-            getHeaderValue(0, HTTP_CONTENT_TRANSFER_ENCODING_FIELD);
-    body = HttpBody::createBody(messageBytesPtr,
-                                bodyLength,
-                                contentType,
-                                contentEncodingString);
+   // HTTP_CONTENT_TRANSFER_ENCODING_FIELD  does not have a short form.
+   const char* contentEncodingString = 
+                      getHeaderValue(0, HTTP_CONTENT_TRANSFER_ENCODING_FIELD);
+   if (contentEncodingString == NULL)
+   {
+      contentEncodingString = getHeaderValue(0, "E");
+   }
+
+   body = HttpBody::createBody(messageBytesPtr,
+                               bodyLength,
+                               contentType,
+                               contentEncodingString);
 }
 
 int HttpMessage::findHeaderEnd(const char* headerBytes, int messageLength)
 {
-    int lineLength = 0;
-    int nextLineIndex = 0;
-    int bytesConsumed = 0;
-    while(messageLength - bytesConsumed > 0 &&
-          (lineLength =
-            NameValueTokenizer::findNextLineTerminator(&headerBytes[bytesConsumed],
-                messageLength - bytesConsumed, &nextLineIndex)))
-    {
-            if(nextLineIndex > 0)
-            {
-                    bytesConsumed += nextLineIndex;
-            }
-            else
-            {
-            if(lineLength < 0)
-            {
-                bytesConsumed += messageLength - bytesConsumed;
-            }
-            else
-            {
-                    bytesConsumed += lineLength;
-            }
-            }
-    }
+   int lineLength = 0;
+   int nextLineIndex = 0;
+   int bytesConsumed = 0;
+   while(messageLength - bytesConsumed > 0 &&
+         (lineLength =
+           UtlNameValueTokenizer::findNextLineTerminator(&headerBytes[bytesConsumed],
+               messageLength - bytesConsumed, &nextLineIndex)))
+   {
+      if(nextLineIndex > 0)
+      {
+         bytesConsumed += nextLineIndex;
+      }
+      else
+      {
+         if(lineLength < 0)
+         {
+            bytesConsumed += messageLength - bytesConsumed;
+         }
+         else
+         {
+            bytesConsumed += lineLength;
+         }
+      }
+   }
 
-    // If we found a blank line:
-    if(nextLineIndex == 1 && (headerBytes[bytesConsumed] == NEWLINE ||
-        headerBytes[bytesConsumed] == CARRIAGE_RETURN))
-    {
-        bytesConsumed++;
-    }
-    else if(nextLineIndex == 2 && (headerBytes[bytesConsumed] == NEWLINE ||
-        headerBytes[bytesConsumed] == CARRIAGE_RETURN) &&
-        ((headerBytes[bytesConsumed + 1] == NEWLINE ||
-        headerBytes[bytesConsumed + 1] == CARRIAGE_RETURN)))
-    {
-        bytesConsumed += 2;
-    }
+   // If we found a blank line:
+   if(nextLineIndex == 1 && (headerBytes[bytesConsumed] == NEWLINE ||
+       headerBytes[bytesConsumed] == CARRIAGE_RETURN))
+   {
+       bytesConsumed++;
+   }
+   else if(nextLineIndex == 2 && (headerBytes[bytesConsumed] == NEWLINE ||
+           headerBytes[bytesConsumed] == CARRIAGE_RETURN) &&
+           ((headerBytes[bytesConsumed + 1] == NEWLINE ||
+           headerBytes[bytesConsumed + 1] == CARRIAGE_RETURN)))
+   {
+       bytesConsumed += 2;
+   }
+   else
+   {
+      // If we did not find a terminator, there is no explicit end to the
+      // headers
+      bytesConsumed = -1;
+   }
 
-    // If we did not find a terminator, there is no explicit end to the
-    // headers
-    else
-        bytesConsumed = -1;
-
-    return(bytesConsumed);
+   return(bytesConsumed);
 }
 
 int HttpMessage::parseHeaders(const char* headerBytes, int messageLength,
                               UtlDList& headerNameValues)
 {
-        UtlString name;
-        UtlString value;
-        char nameFirstChar;
-        NameValuePair* headerField = NULL;
-        NameValuePair* previousHeaderField = NULL;
-        NameValueTokenizer parser(headerBytes, messageLength);
-        int nameFound;
+   UtlString name;
+   UtlString value;
+   char nameFirstChar;
+   NameValuePair* headerField = NULL;
+   NameValuePair* previousHeaderField = NULL;
+   UtlNameValueTokenizer parser(headerBytes, messageLength);
+   int nameFound;
 
-        // If this is a zero length line the rest is the body
-        do
-        {
-                nameFound = parser.getNextPair(HTTP_NAME_VALUE_DELIMITER,
-                        &name, & value);
-                if(nameFound)
-                {
-                        // If this is a line continuation
-                        nameFirstChar = name(0);
-                        if(previousHeaderField != NULL &&
-                                (nameFirstChar == ' ' || nameFirstChar == '\t'))
-                        {
-                                // Re-join the name and value if there is anything
-                                // in value
-                                if(!value.isNull())
-                                {
-                                        name.append(HTTP_NAME_VALUE_DELIMITER);
-                                        name.append(value.data());
-                                }
+   // If this is a zero length line the rest is the body
+   do
+   {
+      nameFound = parser.getNextPair(HTTP_NAME_VALUE_DELIMITER,
+                                     &name, & value);
+      if(nameFound)
+      {
+         // If this is a line continuation
+         nameFirstChar = name(0);
+         if(previousHeaderField != NULL &&
+            (nameFirstChar == ' ' || nameFirstChar == '\t'))
+         {
+            // Re-join the name and value if there is anything
+            // in value
+            if(!value.isNull())
+            {
+               name.append(HTTP_NAME_VALUE_DELIMITER);
+               name.append(value.data());
+            }
 
-                                // Append this to the previous headers's value
-                                name.insert(0, previousHeaderField->getValue());
-                                previousHeaderField->setValue(name.data());
-                        }
+            // Append this to the previous headers's value
+            name.insert(0, previousHeaderField->getValue());
+            previousHeaderField->setValue(name.data());
+         }
 
-                        // Create a new name value pair for the header line
-                        else
-                        {
-                                name.toUpper();
+         // Create a new name value pair for the header line
+         else
+         {
+            name.toUpper();
 
-                                // Remove trailing white space
-                                NameValueTokenizer::backTrim(&name, " \t");
+            // Remove trailing white space
+            name.strip(UtlString::leading);
 
-                                headerField = new NameValuePair(name.data(), value.data());
-                                headerNameValues.append(headerField);
-                                previousHeaderField = headerField;
-                        }
-                }
-                //name = OsUtil::NULL_OS_STRING;
-                //value = OsUtil::NULL_OS_STRING;
-        }
-        while(nameFound);
+            headerField = new NameValuePair(name.data(), value.data());
+            headerNameValues.append(headerField);
+            previousHeaderField = headerField;
+         }
+      }
+      //name = OsUtil::NULL_OS_STRING;
+      //value = OsUtil::NULL_OS_STRING;
+   }
+   while(nameFound);
 
-        //name = OsUtil::NULL_OS_STRING;
-        //value= OsUtil::NULL_OS_STRING;
+   //name = OsUtil::NULL_OS_STRING;
+   //value= OsUtil::NULL_OS_STRING;
 
-        return(parser.getProcessedIndex());
+   return(parser.getProcessedIndex());
 }
 
 int HttpMessage::get(Url& httpUrl,
                      int maxWaitMilliSeconds,
                      bool bPersistent)
 {
-    OsSysLog::add(FAC_HTTP, PRI_DEBUG, "HttpMessage::get(2) httpUrl = '%s'",
-                  httpUrl.toString().data());
+   OsSysLog::add(FAC_HTTP, PRI_DEBUG, "HttpMessage::get(2) httpUrl = '%s'",
+                 httpUrl.toString().data());
 
-    HttpMessage request;
-    UtlString uriString;
-    
-    httpUrl.getPath(uriString, TRUE);
-    
-    request.setRequestFirstHeaderLine(HTTP_GET_METHOD,
-                                      uriString,
-                                      HTTP_PROTOCOL_VERSION);
-    return(get(httpUrl, request, maxWaitMilliSeconds, bPersistent));
+   HttpMessage request;
+   UtlString uriString;
+
+   httpUrl.getPath(uriString, TRUE);
+
+   request.setRequestFirstHeaderLine(HTTP_GET_METHOD,
+                                     uriString,
+                                     HTTP_PROTOCOL_VERSION);
+   return(get(httpUrl, request, maxWaitMilliSeconds, bPersistent));
 }
 
 OsStatus HttpMessage::get(Url& httpUrl,
@@ -541,7 +543,7 @@ OsStatus HttpMessage::get(Url& httpUrl,
    UtlString uriString;
    httpUrl.getPath(uriString, TRUE); // Put CGI variable in PATH as this is GET
 
-   // Construnct a request
+   // Construct a request
    HttpMessage request;
    request.setRequestFirstHeaderLine(HTTP_GET_METHOD,
                                      uriString,
@@ -683,7 +685,7 @@ int HttpMessage::get(Url& httpUrl,
 
     UtlString urlType;
     httpUrl.getUrlType(urlType);
-    
+
     // Construct the key for the persistent connection mapping
     UtlString key;    
     if (bPersistent)
@@ -692,7 +694,7 @@ int HttpMessage::get(Url& httpUrl,
     }
  
     // preserve these fields if they are already set
-    if (request.getHeaderValue(0, HTTP_HOST_FIELD) == NULL)
+    if ( request.getHeaderValue(0, HTTP_HOST_FIELD) == NULL)
     {
         UtlString hostPort(httpHost);
         httpPort = httpUrl.getHostPort();
@@ -719,7 +721,7 @@ int HttpMessage::get(Url& httpUrl,
     OsConnectionSocket *httpSocket = NULL;
     int connected = 0;    
     int httpStatus = -1;
-   
+
     int bytesRead = 0;
     int bytesSent = 0;    
     int sendTries = 0;
@@ -739,46 +741,46 @@ int HttpMessage::get(Url& httpUrl,
     {        
         if (httpSocket == NULL)
         {
-            int tries = 0;
+    int tries = 0;
     
-            int exp = 1;
+    int exp = 1;
             while (tries++ < HttpMessageRetries)
-            {
-               if (urlType == "https")
-               {
-        #ifdef HAVE_SSL
-                  httpSocket = (OsConnectionSocket *)new OsSSLConnectionSocket(httpPort, httpHost, maxWaitMilliSeconds/1000);
-        #else /* ! HAVE_SSL */
-                  // SSL is not configured in, so we cannot do https: gets.
-                  OsSysLog::add(FAC_SIP, PRI_CRIT,
-                                "HttpMessage::get(Url&,HttpMessage&,int) SSL not configured; "
-                                "cannot get URL '%s'", httpUrl.toString().data());
-                  httpSocket = NULL;
-        #endif /* HAVE_SSL */
-               }
-               else
-               {
-                  httpSocket = new OsConnectionSocket(httpPort, httpHost);
-               }
-               if (httpSocket)
-               {
-                  connected = httpSocket->isConnected();
-                  if (!connected)
-                  {
-                     OsSysLog::add(FAC_SIP, PRI_ERR,
-                                   "HttpMessage::get socket connection to %s:%d failed, try again %d ...\n",
-                                   httpHost.data(), httpPort, tries);
-                     delete httpSocket;
-                     httpSocket = 0;
-                     OsTask::delay(20*exp);
-                     exp = exp*2;
-                  }
-                  else
-                  {
-                     break;
-                  }
-               }
-            }
+    {
+       if (urlType == "https")
+       {
+#ifdef HAVE_SSL
+          httpSocket = (OsConnectionSocket *)new OsSSLConnectionSocket(httpPort, httpHost, maxWaitMilliSeconds/1000);
+#else /* ! HAVE_SSL */
+          // SSL is not configured in, so we cannot do https: gets.
+          OsSysLog::add(FAC_SIP, PRI_CRIT,
+                        "HttpMessage::get(Url&,HttpMessage&,int) SSL not configured; "
+                        "cannot get URL '%s'", httpUrl.toString().data());
+          httpSocket = NULL;
+#endif /* HAVE_SSL */
+       }
+       else
+       {
+          httpSocket = new OsConnectionSocket(httpPort, httpHost);
+       }
+       if (httpSocket)
+       {
+          connected = httpSocket->isConnected();
+          if (!connected)
+          {
+             OsSysLog::add(FAC_SIP, PRI_ERR,
+                           "HttpMessage::get socket connection to %s:%d failed, try again %d ...\n",
+                           httpHost.data(), httpPort, tries);
+             delete httpSocket;
+             httpSocket = 0;
+             OsTask::delay(20*exp);
+             exp = exp*2;
+          }
+          else
+          {
+             break;
+          }
+       }
+    }
             // If we created a new connection and are persistent then remember the socket in the map
             // and mark connection as being used
             if (pConnectionMapEntry)
@@ -791,27 +793,27 @@ int HttpMessage::get(Url& httpUrl,
         {
             connected = httpSocket->isConnected();          
         }
-        if (!connected)
-        {
-           OsSysLog::add(FAC_SIP, PRI_ERR,
-                         "HttpMessage::get socket connection to %s:%d failed, give up...\n",
-                         httpHost.data(), httpPort);
+    if (!connected)
+    {
+       OsSysLog::add(FAC_SIP, PRI_ERR,
+                     "HttpMessage::get socket connection to %s:%d failed, give up...\n",
+                     httpHost.data(), httpPort);
            if (pConnectionMap)
            {
                // Release lock on persistent connection
                pConnectionMapEntry->mLock.release();             
            }              
-           return httpStatus;
-        }
-      
+       return httpStatus;
+    }
+
         // Send the request - most of the time returns 1 for some reason, 0 indicates problem
-        if (httpSocket->isReadyToWrite(maxWaitMilliSeconds))
+    if (httpSocket->isReadyToWrite(maxWaitMilliSeconds))
         {
-            bytesSent = request.write(httpSocket);
+        bytesSent = request.write(httpSocket);
         }
 
         if (bytesSent == 0)            
-        {
+    {
             if (pConnectionMap)
             {
                 // No bytes were sent .. if this is a persistent connection and it failed on retry
@@ -821,14 +823,14 @@ int HttpMessage::get(Url& httpUrl,
                     pConnectionMapEntry->mbInUse = false;
                 }
                 // Close socket to avoid timeouts in subsequent calls
-                httpSocket->close();
+        httpSocket->close();
                 delete httpSocket;
                 pConnectionMapEntry->mpSocket = NULL;
                 httpSocket = NULL;
                 OsSysLog::add(FAC_HTTP, PRI_DEBUG, 
                               "HttpMessage::get Sending failed sending on persistent connection on try %d",
                               sendTries);      
-            }
+    }
         }
         else if(   bytesSent > 0
                 && httpSocket->isReadyToRead(maxWaitMilliSeconds))
@@ -1015,7 +1017,7 @@ int HttpMessage::readHeader(OsSocket* inSocket, UtlString& buffer)
    // If there are no residual bytes in the buffer
    if (inSocket->isOk() &&
        ((socketType != OsSocket::TCP && socketType != OsSocket::SSL_SOCKET) ||
-        inSocket->isReadyToRead(HTTP_READ_TIMEOUT_MSECS)))
+            inSocket->isReadyToRead(HTTP_READ_TIMEOUT_MSECS)))
    {
       while (inSocket->isOk() &&
              inSocket->isReadyToRead(HTTP_READ_TIMEOUT_MSECS))
@@ -1076,7 +1078,7 @@ int HttpMessage::readBody(OsSocket* inSocket, int iLength, GetDataCallbackProc p
       while (inSocket->isOk() && inSocket->isReadyToRead(HTTP_READ_TIMEOUT_MSECS) &&
             (iBytesRead < iLength))
       {
-         int iMaxRead = MIN(sizeof(buffer), (unsigned int) (iLength - iBytesRead)) ;
+         int iMaxRead = sipx_min(sizeof(buffer), (unsigned int) (iLength - iBytesRead)) ;
          iRead = inSocket->read(buffer, iMaxRead, &remoteHost, &remotePort);
          if (iRead > 0)
          {
@@ -1188,12 +1190,18 @@ int HttpMessage::read(OsSocket* inSocket, int bufferSize,
       if (bytesTotal <= 0 &&
           inSocket->isOk() &&
           (OsSocket::isFramed(socketType) ||
-           inSocket->isReadyToRead(HTTP_READ_TIMEOUT_MSECS)))
+          inSocket->isReadyToRead(HTTP_READ_TIMEOUT_MSECS)))
       {
          bytesRead = inSocket->read(buffer, bufferSize,
                                     &remoteHost, &remotePort);
 
          setSendAddress(remoteHost.data(), remotePort);
+
+         if (bytesRead <= 0)
+         {
+            delete[] buffer;
+            return bytesRead;
+         }
       }
 
       do
@@ -1272,10 +1280,10 @@ int HttpMessage::read(OsSocket* inSocket, int bufferSize,
                      contentLength = atoi(value);
                   } else if ((value =
                               getHeaderValue(0, SIP_SHORT_CONTENT_LENGTH_FIELD)) != NULL)
-                  {
-                     contentLengthSet = TRUE;
+                    {
+                        contentLengthSet = TRUE;
                      contentLength = atoi(value);
-                  } 
+                  }
                }
 
                // Get the content type
@@ -1380,8 +1388,8 @@ int HttpMessage::read(OsSocket* inSocket, int bufferSize,
          // Read more of the message and continue processing it.
       } while (inSocket->isOk() &&
                (OsSocket::isFramed(socketType) ||
-                inSocket->isReadyToRead(HTTP_READ_TIMEOUT_MSECS)) &&
-               (bytesRead = inSocket->read(buffer, bufferSize)) > 0);
+              inSocket->isReadyToRead(HTTP_READ_TIMEOUT_MSECS)) &&
+             (bytesRead = inSocket->read(buffer, bufferSize)) > 0);
 
       //
       // We have reached one of the conditions that indicates to stop
@@ -1393,7 +1401,7 @@ int HttpMessage::read(OsSocket* inSocket, int bufferSize,
       unsigned int bodyLength = 0;
       unsigned int messageLength = 0;
       if (headerEnd > 0 &&
-          (!contentLengthSet ||
+         (!contentLengthSet ||
            OsSocket::isFramed(socketType)))
       {
          messageLength = allBytes->length();
@@ -1686,7 +1694,14 @@ void HttpMessage::escapeOneChar(UtlString& unEscapedText, char tobeEscapedChar)
         unEscapedChar = *unescapedTextPtr;
         if(unEscapedChar == tobeEscapedChar )
         {
-            sprintf(escapedChar, "%%%02X", (int) (unEscapedChar & 0xff));
+            if (' ' == unEscapedChar)
+            {
+                strcpy(escapedChar, "+");
+            }
+            else
+            {
+                sprintf(escapedChar, "%%%02X", (int) (unEscapedChar & 0xff));
+            }
 #ifdef TEST_PRINT
             osPrintf("%d escaped: %s\n", (int) unEscapedChar,
                 escapedChar);
@@ -1720,30 +1735,33 @@ void HttpMessage::cannonizeToken(UtlString& token)
     UtlBoolean capNextChar = TRUE;
     const char* tokenPtr = token.data();
     char thisChar;
-    for(int capCharIndex = 0; capCharIndex < len; capCharIndex++)
+    // If len == 1 we assume short names are being used - don't cannonize them
+    if (len > 1)
     {
-        thisChar = tokenPtr[capCharIndex];
-        if(capNextChar)
+        for(int capCharIndex = 0; capCharIndex < len; capCharIndex++)
         {
-            if(thisChar >= 'a' &&
-               thisChar <= 'z')
+            thisChar = tokenPtr[capCharIndex];
+            if(capNextChar)
             {
-               token.replaceAt(capCharIndex, toupper(thisChar));
+                if(thisChar >= 'a' &&
+                thisChar <= 'z')
+                {
+                token.replaceAt(capCharIndex, toupper(thisChar));
+                }
+                capNextChar = FALSE;
             }
-            capNextChar = FALSE;
-        }
-        else if(thisChar >= 'A' &&
-               thisChar <= 'Z')
-        {
-            token.replaceAt(capCharIndex, tolower(thisChar));
-        }
+            else if(thisChar >= 'A' &&
+                thisChar <= 'Z')
+            {
+                token.replaceAt(capCharIndex, tolower(thisChar));
+            }
 
-        if(thisChar == '-')
-        {
-            capNextChar = TRUE;
+            if(thisChar == '-')
+            {
+                capNextChar = TRUE;
+            }
         }
     }
-
 #ifdef TEST_PRINT
     //osPrintf("HttpMessage::cannonizeToken \"%s\"\n",
     //    token.data());
@@ -1950,17 +1968,17 @@ NameValuePair* HttpMessage::getHeaderField(int index, const char* name) const
                 // Go to the next header field
                 if(name)
                 {
-                   // Too slow and too much overhead (i.e. needs UtlContainable string
-                   // to be constructed and destroyed)
-                   // headerField = (NameValuePair*) iterator.findNext(&headerFieldName);
+            // Too slow and too much overhead (i.e. needs UtlContainable string
+            // to be constructed and destroyed)
+            // headerField = (NameValuePair*) iterator.findNext(&headerFieldName);
 
-                   // Find a header with a matching name
-                   do
-                   {
-                      headerField = (NameValuePair*) iterator();
-                   }
-                   while(headerField &&
-                         strcasecmp(name, headerField->data()) != 0);
+            // Find a header with a matching name
+            do
+            {
+                headerField = (NameValuePair*) iterator();
+            }
+            while(headerField &&
+                  strcasecmp(name, headerField->data()) != 0);
                 }
 
                 else
@@ -2280,8 +2298,11 @@ void HttpMessage::getBytes(UtlString* bufferString, int* length) const
                 value = headerField->getValue();
 
         // Keep track while we are looping through if we see a
-        // content-length header or not
-        if(name.compareTo(HTTP_CONTENT_LENGTH_FIELD, UtlString::ignoreCase) == 0)
+        // content-length header or not - also test for a SIP short name
+        // content length header so we don't add one if there is a short
+        // name header.
+        if((name.compareTo(HTTP_CONTENT_LENGTH_FIELD, UtlString::ignoreCase) == 0) ||
+           (name.compareTo("l", UtlString::ignoreCase) == 0))
         {
             foundContentLengthHeader = TRUE;
             int fieldBodyLengthValue = atoi(value ? value : "");
@@ -2309,21 +2330,27 @@ void HttpMessage::getBytes(UtlString* bufferString, int* length) const
         // Make sure the content length is set
         if(!foundContentLengthHeader)
         {
-                UtlString ContentLen(HTTP_CONTENT_LENGTH_FIELD);
-                cannonizeToken(ContentLen);
-                bufferString->append(ContentLen);
-                bufferString->append(HTTP_NAME_VALUE_DELIMITER);
-        char bodyLengthString[40];
-        sprintf(bodyLengthString, " %d", bodyLen);
-                bufferString->append(bodyLengthString);
-                bufferString->append(END_OF_LINE_DELIMITOR);
+            HttpBody* pBody = (HttpBody*)getBody();
+                        
+            UtlString ContentLen(HTTP_CONTENT_LENGTH_FIELD);
+            cannonizeToken(ContentLen);
+            bufferString->append(ContentLen);
+            bufferString->append(HTTP_NAME_VALUE_DELIMITER);
+            char bodyLengthString[40];
+            if (pBody)
+                sprintf(bodyLengthString, " %d", pBody->getLength());
+            else
+                sprintf(bodyLengthString, " %d", bodyLen);
+            
+            bufferString->append(bodyLengthString);
+            bufferString->append(END_OF_LINE_DELIMITOR);
         }
 
         bufferString->append(END_OF_LINE_DELIMITOR);
 
         if(body)
         {
-                bufferString->append(bodyBytes.data(), bodyLen);
+                bufferString->append(bodyBytes.data(), body->getLength());
         }
 
         *length = bufferString->length();
@@ -3254,7 +3281,7 @@ UtlBoolean HttpMessage::getAuthorizationScheme(UtlString* scheme) const
     UtlString fieldValue;
     UtlBoolean fieldSet = getAuthorizationField(&fieldValue, SERVER);
 
-    NameValueTokenizer::getSubField(fieldValue.data(), 0, " \t",
+    UtlNameValueTokenizer::getSubField(fieldValue.data(), 0, " \t",
         scheme);
     scheme->toUpper();
     return(fieldSet);
@@ -3266,14 +3293,14 @@ UtlBoolean HttpMessage::getBasicAuthorizationData(UtlString* encodedCookie) cons
     UtlBoolean fieldSet = getAuthorizationField(&fieldValue, SERVER);
     UtlString scheme;
 
-    NameValueTokenizer::getSubField(fieldValue.data(), 0, " \t",
+    UtlNameValueTokenizer::getSubField(fieldValue.data(), 0, " \t",
         &scheme);
     scheme.toUpper();
 
     // If the scheme is not basic, then the second token is probably not a cookie
     if(scheme.compareTo(HTTP_BASIC_AUTHENTICATION, UtlString::ignoreCase) == 0)
     {
-        NameValueTokenizer::getSubField(fieldValue.data(), 1, " \t",
+        UtlNameValueTokenizer::getSubField(fieldValue.data(), 1, " \t",
             encodedCookie);
     }
     else

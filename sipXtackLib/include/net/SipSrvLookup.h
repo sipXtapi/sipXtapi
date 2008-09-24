@@ -1,10 +1,15 @@
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 
 #ifndef _SipSrvLookup_h_
@@ -57,8 +62,10 @@ public:
                             ///< "sip" or "sips"
                             OsSocket::IpProtocolSocketType socketType,
                             ///< types of transport
-                            int port
+                            int port,
                             ///< port number from URI, or PORT_NONE
+                            const char* srcIp
+                            ///< the outgoing interface ip to send the request on
       );
    /**<
     * Returns the list of server entries for SIP domain name 'domain'.
@@ -104,7 +111,7 @@ public:
       OptionCodeCNAMELimit,     ///< Max. number of CNAMEs to follow.
       OptionCodeNoDefaultTCP,   /**< If 1, do not add TCP contacts by default,
                                  *   for better RFC 3263 conformance. */
-      OptionCodeLast           ///< End of range
+      OptionCodeLast            ///< End of range
    };
    /**<
     * All options have a code name in this enumeration.  All codes are in the
@@ -215,7 +222,7 @@ class server_t {
    /// Initializer for server_t
    server_t();
    static UtlBoolean mDnsSrvResolveEnabled;
-
+   
    /// Copy constructor for server_t
    server_t(const server_t& rserver_t);
 

@@ -10,6 +10,7 @@
 #define _TESTOSSYSLOGLISTENER_H_
 
 // SYSTEM INCLUDES
+#include <utl/UtlString.h>
 #include <cppunit/Portability.h>
 #include <cppunit/TestListener.h>
 
@@ -34,6 +35,8 @@ class TestOsSysLogListener : public CPPUNIT_NS::TestListener
 
    /// Destructor.
    virtual ~TestOsSysLogListener();
+
+   static UtlString getLogFilename(const UtlString& testName);
 
    virtual void startTest( CPPUNIT_NS::Test *test );
 

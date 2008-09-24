@@ -68,13 +68,13 @@ BEGIN
         BLOCK "040904b0"
         BEGIN
             VALUE "Comments", "Credits:  Bob Andreasen, Andy Jorde, Mike Cohen, Dan Petrie"
-            VALUE "CompanyName", "Pingtel Corp."
+            VALUE "CompanyName", "SIPFoundry Inc. (www.sipfoundry.org)"
             VALUE "FileDescription", "SIP User-Agent API"
             VALUE "FileVersion", SIPXTAPI_FULL_VERSION
             VALUE "InternalName", "sipXtapi"
-            VALUE "LegalCopyright", "Copyright (C) 2005 Pingtel Corp."
+            VALUE "LegalCopyright", "Copyright (C) 2005-2006 SIPFoundry Inc."
             VALUE "OriginalFilename", "sipXtapi.dll"
-            VALUE "ProductName", "SIPxua SDK"
+            VALUE "ProductName", "sipXtapi SDK"
             VALUE "ProductVersion", SIPXTAPI_FULL_VERSION
         END
     END

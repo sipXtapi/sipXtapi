@@ -1,9 +1,12 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 #ifndef _OsDir_h_
 #define _OsDir_h_
@@ -62,7 +65,12 @@ public:
 
 /* ============================ ACCESSORS ================================= */
 
-
+   OsStatus getFileInfo(OsFileInfoBase& rFileInfo) const;
+     //: Returns the file information for this objects path (see 
+     //:        OsFileInfo for more detail)
+     //  Returns: 
+     //         OS_SUCCESS if successful
+     //         OS_INVALID if failed
 
 /* ============================ INQUIRY =================================== */
 

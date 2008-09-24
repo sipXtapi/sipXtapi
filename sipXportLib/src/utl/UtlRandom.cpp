@@ -1,10 +1,15 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 
 // SYSTEM INCLUDES
@@ -14,6 +19,7 @@
 #include "utl/UtlRandom.h"
 #include "os/OsTime.h"
 #include "os/OsDateTime.h"
+#include "os/OsTask.h"
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -27,16 +33,25 @@
 // Constructor
 UtlRandom::UtlRandom()
 {
+    static int siCounter = 0 ;
+
+    int iTaskId = 0 ;
     OsTime now ;
+    unsigned int seed ;
+
+    OsTask::getCurrentTaskId(iTaskId) ;      
     OsDateTime::getCurTime(now) ;
-    srand((int) (now.cvtToMsecs() % INT_MAX)) ;
+
+    seed = (now.cvtToMsecs() ^ (now.usecs() + (now.usecs() << 16)) ^ 
+            iTaskId) + siCounter++ ;
+
+    srand(seed) ;
 }
 
 // Constructor
 UtlRandom::UtlRandom(int seed)
 {
     srand(seed) ;
-
 }
 
 // Destructor

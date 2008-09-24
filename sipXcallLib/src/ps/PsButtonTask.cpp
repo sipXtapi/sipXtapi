@@ -1,10 +1,12 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
 #include <assert.h>
@@ -419,6 +421,7 @@ void PsButtonTask::disableTimer(int index)
 // A write lock should be acquired before calling this method.
 void PsButtonTask::enableTimer(int index)
 {
+// OsQueuedEvent* pNotifier;
    OsTime         repInterval;
    OsStatus       res;
 

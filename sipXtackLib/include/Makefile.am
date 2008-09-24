@@ -19,8 +19,6 @@ EXTRA_DIST = \
 
 nobase_include_HEADERS =  \
     net/HttpBody.h \
-    net/HttpConnection.h \
-    net/HttpConnectionMap.h \
     net/HttpMessage.h \
     net/HttpRequestContext.h \
     net/HttpServer.h \
@@ -30,19 +28,16 @@ nobase_include_HEADERS =  \
     net/MimeBodyPart.h \
     net/NameValuePair.h \
     net/NameValuePairInsensitive.h \
-    net/NameValueTokenizer.h \
     net/NetAttributeTokenizer.h \
     net/NetBase64Codec.h \
     net/NetMd5Codec.h \
-    net/PidfBody.h \
     net/ProvisioningAgent.h \
     net/ProvisioningAgentXmlRpcAdapter.h \
     net/ProvisioningAttrList.h \
     net/ProvisioningClass.h \
     net/QoS.h \
     net/SdpBody.h \
-    net/SdpCodecFactory.h \
-    net/SdpCodec.h \
+    net/SdpHelper.h \
     net/SipClient.h \
     net/SipContactDb.h \
     net/SipDialog.h \
@@ -101,6 +96,9 @@ nobase_include_HEADERS =  \
     net/XmlRpcMethod.h \
     net/XmlRpcRequest.h \
     net/XmlRpcResponse.h \
+    net/HttpConnection.h \
+    net/HttpConnectionMap.h \
+    net/PidfBody.h \
     resparse/bzero.h \
     resparse/ns_name.h \
     resparse/poll.h \
@@ -110,7 +108,7 @@ nobase_include_HEADERS =  \
     resparse/types.h \
     tapi/SipXHandleMap.h \
     tapi/SipXMessageObserver.h \
-    tapi/SipXtapiEventDispatcher.h \
+    tapi/SipXEventDispatcher.h \
     tapi/doxyfile \
     tapi/sipXtapi.h \
     tapi/sipXtapiEvents.h \

@@ -1,10 +1,12 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 #ifndef _OsSysLogFacilities_h_
 #define _OsSysLogFacilities_h_
@@ -72,14 +74,18 @@ enum tagOsSysLogFacility
    FAC_ODBC,               // ODBC related
    FAC_CDR,                // CDR generating related
    FAC_RLS,                // Resource list server
+   FAC_VOICEENGINE,        // GIPS VoiceEngine-specific logging
+   FAC_VIDEOENGINE,        // GIPS VideoEngine-specific logging
+   FAC_APP,                // Generic application facility
+   FAC_SIP_CUSTOM,         // Custom transport messages 
    FAC_MAX_FACILITY        // Last Facility (used to for length)
 
    //
    // *** READ THIS ***
    //
    // NOTE:  If adding a facility, please:
-   //        1) Insert it before FAC_MAX_FACILITY.
-   //        2) Updatd OsSysLogFacilties.cpp to include the
+   //        1) Insert it before the FAC_MAX_FACILITY.
+   //        2) Update OsSysLogFacilties.cpp to include the
    //           string name.
    //        3) Update the !enum comments below.
    //
@@ -114,7 +120,7 @@ enum tagOsSysLogFacility
   //!enumcode: FAC_UPGRADE - Update/Upgrade related
   //!enumcode: FAC_PROCESSCGI - Process Management CGI (process.cgi)
   //!enumcode: FAC_DB - Database related (sipdb)
-  //!enumcode: FAC_REPLICATION_CGI - replication cgi (replicates databases across components)
+  //!enumcode: FAC_REPLICATION_CGI - replication cgi( replicates databases across components )
   //!enumcode: FAC_PROCESSMGR - os processmanager related
   //!enumcode: FAC_PROCESS - process related
   //!enumcode: FAC_SIPXTAPI - sipXtapi related
@@ -123,6 +129,10 @@ enum tagOsSysLogFacility
   //!enumcode: FAC_ODBC - ODBC related
   //!enumcode: FAC_CDR - CDR generating related
   //!enumcode: FAC_RLS - Resource list server
+  //!enumcode: FAC_VOICEENGINE - GIPS VoiceEngine related
+  //!enumcode: FAC_VIDEOENGINE - GIPS VideoEngine related
+  //!enumcode: FAC_APP - Generic application messages
+  //!enumcode: FAC_SIP_CUSTOM - custom transport message (in/out)
 
 // TYPEDEFS
 typedef enum tagOsSysLogFacility OsSysLogFacility ;

@@ -41,7 +41,8 @@ RSC=rc.exe
 # PROP Intermediate_Dir "Release"
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /YX /FD /c
-# ADD CPP /nologo /MD /W3 /GR /GX /O1 /I "include" /I "..\..\sipXportLib\include" /D "NDEBUG" /D "_LIB" /D "WIN32" /D "_MBCS" /D "SIPXTAPI_STATIC" /YX /FD /c
+# ADD CPP /nologo /MD /W3 /GR /GX /O1 /I "include" /I "..\..\sipXportLib\include" /D "NDEBUG" /D "_LIB" /D "WIN32" /D "_MBCS" /D "SIPXTAPI_STATIC" /D "HAVE_SSL" /FD /c
+# SUBTRACT CPP /YX
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
 # ADD RSC /l 0x409 /d "NDEBUG"
 BSC32=bscmake.exe
@@ -64,7 +65,8 @@ LIB32=link.exe -lib
 # PROP Intermediate_Dir "Debug"
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /YX /FD /GZ /c
-# ADD CPP /nologo /MDd /W3 /Gm /GR /GX /ZI /Od /I "include" /I "..\..\sipXportLib\include" /D "_DEBUG" /D "_LIB" /D "WIN32" /D "_MBCS" /D "SIPXTAPI_STATIC" /FR /YX /FD /GZ /c
+# ADD CPP /nologo /MDd /W3 /Gm /GR /GX /ZI /Od /I "include" /I "..\..\sipXportLib\include" /D "_DEBUG" /D "_LIB" /D "WIN32" /D "_MBCS" /D "SIPXTAPI_STATIC" /FR /FD /GZ /c
+# SUBTRACT CPP /YX
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
 # ADD RSC /l 0x409 /d "_DEBUG"
 BSC32=bscmake.exe
@@ -89,6 +91,14 @@ SOURCE=.\src\os\Wnt\getWindowsDNSServers.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=".\src\hmac-sha1\hmac-sha1.c"
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\os\NatMsg.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\os\OsAssert.c
 # End Source File
 # Begin Source File
@@ -106,6 +116,14 @@ SOURCE=.\src\os\OsConfigDb.cpp
 # Begin Source File
 
 SOURCE=.\src\os\OsConnectionSocket.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\os\OsContact.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\os\OsContactList.cpp
 # End Source File
 # Begin Source File
 
@@ -185,6 +203,10 @@ SOURCE=.\src\os\Wnt\OsFileWnt.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\os\OsIntPtrMsg.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\os\OsLockingList.cpp
 # End Source File
 # Begin Source File
@@ -201,6 +223,10 @@ SOURCE=.\src\os\OsMsgQ.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\os\OsMsgDispatcher.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\os\shared\OsMsgQShared.cpp
 # End Source File
 # Begin Source File
@@ -214,6 +240,22 @@ SOURCE=.\src\os\Wnt\OsMutexWnt.cpp
 # Begin Source File
 
 SOURCE=.\src\os\OsNameDb.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\os\OsNameDbInit.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\os\OsNatAgentTask.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\os\OsNatDatagramSocket.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\os\OsNatSocketBaseImpl.cpp
 # End Source File
 # Begin Source File
 
@@ -257,6 +299,10 @@ SOURCE=.\src\os\OsProtectEventMgr.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\os\OsProtectEventMgrInit.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\os\OsPtrMsg.cpp
 # End Source File
 # Begin Source File
@@ -269,7 +315,7 @@ SOURCE=.\src\os\OsRpcMsg.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\os\OsRWMutex.cpp
+SOURCE=.\src\os\shared\OsRWMutexShared.cpp
 # End Source File
 # Begin Source File
 
@@ -302,18 +348,6 @@ SOURCE=.\src\os\OsSSLConnectionSocket.cpp
 # Begin Source File
 
 SOURCE=.\src\os\OsSSLServerSocket.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\src\os\OsStunAgentTask.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\src\os\OsStunDatagramSocket.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\src\os\OsStunQueryAgent.cpp
 # End Source File
 # Begin Source File
 
@@ -381,6 +415,18 @@ SOURCE=.\src\utl\PluginHooks.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=".\src\hmac-sha1\sha1.c"
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\os\StunMessage.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\os\StunUtils.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\xmlparser\tinystr.cpp
 # End Source File
 # Begin Source File
@@ -401,7 +447,15 @@ SOURCE=.\src\xmlparser\TiXmlIterator.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\os\TurnMessage.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\utl\UtlBool.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\utl\UtlChainPool.cpp
 # End Source File
 # Begin Source File
 
@@ -414,6 +468,18 @@ SOURCE=.\src\utl\UtlContainableAtomic.cpp
 # Begin Source File
 
 SOURCE=.\src\utl\UtlContainer.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\utl\UtlCopyableSList.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\utl\UtlCopyableSortedList.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\utl\UtlCrc32.cpp
 # End Source File
 # Begin Source File
 
@@ -445,6 +511,10 @@ SOURCE=.\src\utl\UtlHashMapIterator.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\utl\UtlInit.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\utl\UtlInt.cpp
 # End Source File
 # Begin Source File
@@ -466,6 +536,10 @@ SOURCE=.\src\utl\UtlListIterator.cpp
 # Begin Source File
 
 SOURCE=.\src\utl\UtlLongLongInt.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\utl\UtlNameValueTokenizer.cpp
 # End Source File
 # Begin Source File
 
@@ -533,6 +607,14 @@ SOURCE=.\include\os\HostAdapterAddress.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\include\os\IStunSocket.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\os\NatMsg.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\include\os\OsAssert.h
 # End Source File
 # Begin Source File
@@ -558,6 +640,14 @@ SOURCE=.\include\os\OsConfigEncryption.h
 # Begin Source File
 
 SOURCE=.\include\os\OsConnectionSocket.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\os\OsContact.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\os\OsContactList.h
 # End Source File
 # Begin Source File
 
@@ -645,6 +735,14 @@ SOURCE=.\include\os\OsFS.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\include\os\OsIntPtrMsg.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\os\OsIntTypes.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\include\os\OsLock.h
 # End Source File
 # Begin Source File
@@ -665,6 +763,10 @@ SOURCE=.\include\os\OsMsgQ.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\include\os\OsMsgDispatcher.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\include\os\OsMulticastSocket.h
 # End Source File
 # Begin Source File
@@ -678,6 +780,30 @@ SOURCE=.\include\os\wnt\OsMutexWnt.h
 # Begin Source File
 
 SOURCE=.\include\os\OsNameDb.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\os\OsNameDbInit.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\os\OsNatAgentTask.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\os\OsNatConnectionSocket.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\os\OsNatDatagramSocket.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\os\OsNatKeepaliveListener.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\os\OsNatSocketBaseImpl.h
 # End Source File
 # Begin Source File
 
@@ -721,6 +847,10 @@ SOURCE=.\include\os\OsProtectEventMgr.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\include\os\OsProtectEventMgrInit.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\include\os\OsPtrMsg.h
 # End Source File
 # Begin Source File
@@ -738,6 +868,10 @@ SOURCE=.\include\os\OsRpcMsg.h
 # Begin Source File
 
 SOURCE=.\include\os\OsRWMutex.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\os\shared\OsRWMutexShared.h
 # End Source File
 # Begin Source File
 
@@ -845,6 +979,26 @@ SOURCE=.\include\os\OsTimerTask.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\include\os\OsTLS.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\os\OsTLSClientConnectionSocket.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\os\OsTLSConnectionSocket.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\os\OsTLSServerConnectionSocket.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\os\OsTLSServerSocket.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\include\os\OsTokenizer.h
 # End Source File
 # Begin Source File
@@ -861,6 +1015,10 @@ SOURCE=.\include\os\OsWriteLock.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\include\SipXportLibInit.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\include\utl\Plugin.h
 # End Source File
 # Begin Source File
@@ -873,7 +1031,15 @@ SOURCE=.\include\utl\PtTest.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\os\qsTypes.h
+SOURCE=".\src\hmac-sha1\sha1.h"
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\os\StunMessage.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\os\StunUtils.h
 # End Source File
 # Begin Source File
 
@@ -889,11 +1055,19 @@ SOURCE=.\include\xmlparser\TiXmlIterator.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\include\os\TurnMessage.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\include\aes\uitypes.h
 # End Source File
 # Begin Source File
 
 SOURCE=.\include\utl\UtlBool.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\utl\UtlChainPool.h
 # End Source File
 # Begin Source File
 
@@ -906,6 +1080,10 @@ SOURCE=.\include\utl\UtlContainableAtomic.h
 # Begin Source File
 
 SOURCE=.\include\utl\UtlContainer.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\utl\UtlCrc32.h
 # End Source File
 # Begin Source File
 
@@ -945,6 +1123,10 @@ SOURCE=.\include\utl\UtlHistogram.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\include\utl\UtlInit.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\include\utl\UtlInt.h
 # End Source File
 # Begin Source File
@@ -966,6 +1148,18 @@ SOURCE=.\include\utl\UtlListIterator.h
 # Begin Source File
 
 SOURCE=.\include\utl\UtlLongLongInt.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\utl\UtlNameValueTokenizer.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\utl\UtlObservable.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\utl\UtlObservableImpl.h
 # End Source File
 # Begin Source File
 
@@ -1018,6 +1212,14 @@ SOURCE=.\include\os\wnt\WIndowsAdapterInfo.h
 # Begin Source File
 
 SOURCE=.\include\utl\XmlContent.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\os\msinttypes\inttypes.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\os\msinttypes\stdint.h
 # End Source File
 # End Group
 # End Target

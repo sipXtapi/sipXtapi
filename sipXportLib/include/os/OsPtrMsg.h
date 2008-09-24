@@ -1,10 +1,12 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 
 #ifndef _OsPtrMsg_h_
@@ -33,11 +35,14 @@ class OsPtrMsg : public OsMsg
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
-
+   static const UtlContainableType TYPE ;    /** < Class type used for runtime checking */
 
 /* ============================ CREATORS ================================== */
 
-   OsPtrMsg(const unsigned char msgType, const unsigned char msgSubType, void* pData);
+   OsPtrMsg(const unsigned char msgType, 
+            const unsigned char msgSubType, 
+            void* pData, 
+            void* pData2 = NULL);
      //:Constructor
 
    OsPtrMsg(const OsPtrMsg& rOsMsg);
@@ -54,14 +59,15 @@ public:
 
 /* ============================ ACCESSORS ================================= */
    void* getPtr();
+   void* getPtr2();
    
 
 /* ============================ INQUIRY =================================== */
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
-   static const UtlContainableType TYPE ;    /** < Class type used for runtime checking */
    void* mpData;
+   void* mpData2;
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:

@@ -1,9 +1,12 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 #include <cppunit/extensions/HelperMacros.h>
 #include <cppunit/TestCase.h>
@@ -19,7 +22,6 @@ class OsConfigDbTest : public CppUnit::TestCase
 {
     CPPUNIT_TEST_SUITE(OsConfigDbTest);
     CPPUNIT_TEST(testCreators);
-    CPPUNIT_TEST(testInsert);
     CPPUNIT_TEST(testManipulators);
     CPPUNIT_TEST(testAccessors);
     CPPUNIT_TEST_SUITE_END();
@@ -28,53 +30,10 @@ public:
 
     void testCreators()
     {
-        OsConfigDb db;       // create an empty database
-        CPPUNIT_ASSERT_MESSAGE("verify that it looks empty", db.isEmpty());
-        CPPUNIT_ASSERT_MESSAGE("has zero entries", db.numEntries()==0);
-    }
-
-    void testInsert()
-    {
-        OsConfigDb db;       // create an empty database
-        typedef struct
-            {
-               const char* line;
-               const char* name;
-               const char* value;
-            }
-            table_entry;
-        table_entry test_table[] =
-        {
-           { "N1:V1\n", "N1", "V1" },
-           { " N2:V2\n", "N2", "V2" },
-           { "\tN3:V3\n", "N3", "V3" },
-           { "N4 :V4\n", "N4", "V4" },
-           { "N5\t:V5\n", "N5", "V5" },
-           { "N6: V6\n", "N6", "V6" },
-           { "N7:\tV7\n", "N7", "V7" },
-           { "N8:V8 \n", "N8", "V8" },
-           { "N9:V9\t\n", "N9", "V9" },
-           { "Na:Va\r\n", "Na", "Va" },
-        };
-
-        for (int i = 0; i < sizeof (test_table) / sizeof (test_table[0]); i++)
-        {
-           char msg[1024];
-           db.insertEntry(test_table[i].line);
-           UtlString k(test_table[i].name);
-           UtlString v;
-           OsStatus ret = db.get(k, v);
-           sprintf(msg,
-                   "Setting and retrieving an OsConfigDb entry from line: %s\n"
-                   "get() returned %d",
-                   test_table[i].line, ret);
-           CPPUNIT_ASSERT_EQUAL_MESSAGE(msg, ret, OS_SUCCESS);
-           sprintf(msg,
-                   "Setting and retrieving an OsConfigDb entry from line: %s\n"
-                   "get() returned '%s'",
-                   test_table[i].line, v.data());
-           CPPUNIT_ASSERT_MESSAGE(msg, v.compareTo(test_table[i].value) == 0);
-        }
+        OsConfigDb *pDb = new OsConfigDb();       // create an empty database
+        CPPUNIT_ASSERT_MESSAGE("verify that it looks empty", pDb->isEmpty());
+        CPPUNIT_ASSERT_MESSAGE("has zero entries", pDb->numEntries()==0);
+        delete pDb;
     }
 
     void testManipulators()
@@ -226,5 +185,8 @@ public:
     }
 };
 
+#ifdef WINCE
+#pragma message( "OsConfigDbTest disabled undef Win CE" )
+#else
 CPPUNIT_TEST_SUITE_REGISTRATION(OsConfigDbTest);
-
+#endif

@@ -1,9 +1,12 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
 
@@ -26,11 +29,11 @@ CallHistoryPanel::CallHistoryPanel(wxWindow* parent, const wxPoint& pos, const w
 {
         mpNotebook = new wxNotebook(this, IDR_CALL_HISTORY_NOTEBOOK, pos, size);
         mpContactListPanel = new ContactListPanel(mpNotebook, pos, size);
-        mpReceivedCallListCtrl = new ReceivedCallList(mpNotebook, pos, size);
-        mpPlacedCallListCtrl = new PlacedCallList(mpNotebook, pos, size);        
+//        mpReceivedCallListCtrl = new ReceivedCallList(mpNotebook, pos, size);
+//        mpPlacedCallListCtrl = new PlacedCallList(mpNotebook, pos, size);        
         mpNotebook->AddPage(mpContactListPanel, "Contacts");
-        mpNotebook->AddPage(mpReceivedCallListCtrl, "Received Calls");
-        mpNotebook->AddPage(mpPlacedCallListCtrl, "Placed Calls");
+//        mpNotebook->AddPage(mpReceivedCallListCtrl, "Received Calls");
+//        mpNotebook->AddPage(mpPlacedCallListCtrl, "Placed Calls");
         
 
 }
@@ -43,4 +46,9 @@ void CallHistoryPanel::OnPageChanged( wxNotebookEvent &event )
 // Destructor
 CallHistoryPanel::~CallHistoryPanel()
 {
+}
+
+void CallHistoryPanel::UpdateBackground(wxColor color)
+{
+    mpContactListPanel->SetBackgroundColour(color);
 }

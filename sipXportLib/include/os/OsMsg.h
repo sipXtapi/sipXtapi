@@ -1,10 +1,15 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2007 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
+//
+// Copyright (C) 2004-2007 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 
 #ifndef _OsMsg_h_
@@ -42,7 +47,10 @@ public:
       PHONE_APP,             // Phone application messages
       MP_TASK_MSG,           // Media processing task messages
       MP_FLOWGRAPH_MSG,      // Media processing flowgraph messages
+      MP_RESOURCE_MSG,       // Media resource messages
+      MP_RES_NOTF_MSG,       // Media resource notification messages
       MP_BUFFER_MSG,         // Media processing buffer queue messages
+      MI_NOTF_MSG,           // Media Interface notification messages
       SIP_PROXY_STATE,       // SIP proxy call state message
       TAO_MSG,               // Tao messages
       TAO_EVENT,             // Tao listener event messages
@@ -61,11 +69,13 @@ public:
    //!enumcode: PHONE_APP - Phone application class of messages
    //!enumcode: MP_TASK_MSG - Media processing task class of messages
    //!enumcode: MP_FLOWGRAPH_MSG - Media processing flowgraph class of messages
+   //!enumcode: MP_RESOURCE_MSG - Media processing resource class of messages for new (2007-03) resource framework
    //!enumcode: MP_BUFFER_MSG - Media processing buffer queue messages
    //!enumcode: SIP_PROXY_STATE - SIP proxy call state message
    //!enumcode: OS_SYSLOG - OS SysLog Messages
    //!enumcode: USER_START - User defined message type categories start at USER_START
 
+   static const UtlContainableType TYPE ;    /** < Class type used for runtime checking */
 /* ============================ CREATORS ================================== */
 
    OsMsg(const unsigned char msgType, const unsigned char msgSubType);
@@ -135,7 +145,6 @@ public:
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
-   static const UtlContainableType TYPE;    /** < Class type used for runtime checking */
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:

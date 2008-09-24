@@ -1,10 +1,15 @@
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2005 Pingtel Corp.
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 
 #ifndef _MpPlayerEvent_h_
@@ -33,7 +38,8 @@ class MpPlayerEvent
 public:
 
 /* ============================ CREATORS ================================== */
-
+///@name Creators
+//@{
    MpPlayerEvent() ;
      //:Default Constructor
 
@@ -49,8 +55,11 @@ public:
    ~MpPlayerEvent();
      //:Destructor
 
-/* ============================ MANIPULATORS ============================== */
+//@}
 
+/* ============================ MANIPULATORS ============================== */
+///@name Manipulators
+//@{
    MpPlayerEvent& operator=(const MpPlayerEvent& rhs);
      //:Assignment operator
 
@@ -64,7 +73,13 @@ public:
    PlayerState getState() const ;
      //: Gets the state of player snapshotted when the event was fired.
 
+//@}
+
 /* ============================ INQUIRY =================================== */
+///@name Inquiry
+//@{
+
+//@}
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:

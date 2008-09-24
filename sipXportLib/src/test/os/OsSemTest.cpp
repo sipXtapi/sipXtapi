@@ -1,9 +1,12 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 #include <cppunit/extensions/HelperMacros.h>
 #include <cppunit/TestCase.h>
@@ -49,7 +52,11 @@ public:
         CPPUNIT_ASSERT_EQUAL(OS_WAIT_TIMEOUT, pCSem->acquire(100));  
         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pCSem->release());  // release once
         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pCSem->release());  // release twice
-        CPPUNIT_ASSERT_EQUAL(OS_BUSY, pCSem->release());     // release thrice
+
+        // This check work fine under Windows and with sipX implementation
+        // of semaphores on Linux. But native pthread's semaphores behave
+        // differently. So we could not rely on this property.
+//        CPPUNIT_ASSERT_EQUAL(OS_BUSY, pCSem->release());     // release thrice
 
         delete pCSem;
     }

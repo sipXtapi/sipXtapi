@@ -26,6 +26,9 @@ static wxListBox* codecListControl = NULL;
 static wxChoice* codecPrefControl = NULL;
 static wxStaticText* helpControl = NULL;
 static wxButton* selectButton = NULL;
+static wxTextCtrl* qualityControl = NULL;
+static wxTextCtrl* bitrateControl = NULL;
+static wxTextCtrl* framerateControl = NULL;
 static int g_bandWidth;
 
 static wxString bwChoices[] = {
@@ -41,12 +44,28 @@ BEGIN_EVENT_TABLE(sipXVideoSettingsDlg,wxDialog)
 END_EVENT_TABLE()
 
 
-wxSizer *sipXVideoSettingsDlgFunc( wxWindow *parent, bool call_fit, bool set_sizer )
+wxSizer *sipXVideoSettingsDlgFunc(wxWindow *parent, bool call_fit, bool set_sizer )
 {
     codecListControl = NULL;
     wxGridSizer *grid0 = new wxGridSizer( 1, 0, 0 );
+    char buffer[32];
+
+    int iQuality, iBitrate, iFramerate;
+
+    sipXezPhoneSettings::getInstance().getVideoParameters(iQuality, iBitrate, iFramerate);
 
     new wxStaticBox(parent, -1, wxT("Video"), wxDefaultPosition, wxSize(314, 75), wxALIGN_LEFT);
+    new wxStaticText(parent, -1, wxT("Quality (1-3)"), wxPoint(15,20), wxSize(70,20), wxALIGN_LEFT);
+    sprintf(buffer, "%d", iQuality);
+    wxTextCtrl *quality = new wxTextCtrl(parent, ID_VIDEO_QUALITY, wxT(buffer), wxPoint(90, 18), wxSize(50, 20), wxALIGN_LEFT);
+
+    new wxStaticText(parent, -1, wxT("Bit rate"), wxPoint(15,43), wxSize(70,20), wxALIGN_LEFT);
+    sprintf(buffer, "%d", iBitrate);
+    wxTextCtrl *bitRate = new wxTextCtrl(parent, ID_VIDEO_BITRATE, wxT(buffer), wxPoint(90, 41), wxSize(50, 20), wxALIGN_LEFT);
+
+    new wxStaticText(parent, -1, wxT("Frame rate"), wxPoint(170,20), wxSize(70,20), wxALIGN_LEFT);
+    sprintf(buffer, "%d", iFramerate);
+    wxTextCtrl *frameRate = new wxTextCtrl(parent, ID_VIDEO_FRAMERATE, wxT(buffer), wxPoint(240, 20), wxSize(50, 20), wxALIGN_LEFT);
 
     new wxStaticBox(parent, -1, wxT("Codecs"), wxPoint(-1,80), wxSize(314, 180), wxALIGN_LEFT);
 
@@ -58,6 +77,9 @@ wxSizer *sipXVideoSettingsDlgFunc( wxWindow *parent, bool call_fit, bool set_siz
     codecPrefControl = item5;
     wxStaticText* item6 = new wxStaticText(parent, ID_TEXT, wxT(""), wxPoint(10,205), wxSize(130, 40), wxALIGN_LEFT );
     helpControl = item6;
+    qualityControl =  quality;
+    bitrateControl = bitRate;
+    framerateControl = frameRate;
 
     if (sipXmgr::getInstance().getVideoCodecPreferences(&g_bandWidth))
     {
@@ -111,6 +133,26 @@ void sipXVideoSettingsDlg::OnOk(wxCommandEvent &event)
     wxChoice* pChoice;
     int pos;
 
+    int iQuality;
+    int iBitRate;
+    int iFrameRate;
+
+    x = qualityControl->GetLineText(0);
+    iQuality = atoi(x);
+
+    if (iQuality<1 || iQuality>3)
+    {
+        iQuality = 2;
+    }
+
+    x = bitrateControl->GetLineText(0);
+    iBitRate = atoi(x);
+
+    x = framerateControl->GetLineText(0);
+    iFrameRate = atoi(x);
+
+    sipXmgr::getInstance().setVideoParameters(iQuality, iBitRate, iFrameRate);
+
     pChoice = (wxChoice*)sipXVideoSettingsDlg::FindWindowById(ID_VIDEO_BANDWIDTH_CHOICE, this);
     pos = pChoice->GetSelection();
     
@@ -119,10 +161,10 @@ void sipXVideoSettingsDlg::OnOk(wxCommandEvent &event)
     {
         sipXmgr::getInstance().setVideoCodecPreferences(pos+1);
         sipXezPhoneSettings::getInstance().setVideoCodecPref(pos+1);
-
-        sipXezPhoneSettings::getInstance().saveSettings();
     }
-    
+
+    sipXezPhoneSettings::getInstance().setVideoParameters(iQuality, iBitRate, iFrameRate);
+    sipXezPhoneSettings::getInstance().saveSettings();
     event.Skip();
 }
 
@@ -153,6 +195,8 @@ void sipXVideoSettingsDlg::OnCodec(wxCommandEvent &event)
             codecListControl->Append(wxT(tokTmp));
             tokTmp = strtok(NULL, "\n");
         }
+        // Count == 4 indicates we were working with one selected codec
+        // and are now changing back to bandwidth selection
         if (codecPrefControl->GetCount() == 4)
         {
             codecPrefControl->Delete(g_bandWidth-1);

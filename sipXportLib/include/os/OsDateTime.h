@@ -1,10 +1,12 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 
 #ifndef _OsDateTime_h_
@@ -23,7 +25,8 @@
 // CONSTANTS
 
 // STRUCTS
-#if defined(_WIN32)
+#if defined(_WIN32) && !defined(_TIMESPEC_T)
+#define _TIMESPEC_T
 struct timespec
 {
    time_t tv_sec;   // seconds
@@ -108,7 +111,7 @@ public:
    static void getDayOfWeek(int year, int  month, int dayOfMonth, int& dayOfWeek);
      //:Get the day of the week given the date
      //!param: (in) year - 4 digit year
-     //!param: (in) month - 1-12
+     //!param: (in) month - 0-11
      //!param: (in) dayOfMonth - the day of the month 1-31
      //!param: (out) dayOfWeek - the day of the week 0-6
 
@@ -116,8 +119,33 @@ public:
      //:Get the day of the week for this OsDateTime
      //!param: (out) dayOfWeek - the day of the week 0-6
 
-   int usecs();
-     //: Get the number of microseconds since the beginning of this second
+   inline
+   unsigned int getMicrosecond() const;
+     //:Microsecond, valid range: 0 - 999999
+
+   inline
+   unsigned short getYear() const;
+     //:4 digit year
+
+   inline
+   unsigned char  getMonth() const;
+     //:January = 0, February = 1, and so on
+
+   inline
+   unsigned char  getDay() const;
+     //:Day of month, valid range: 1-31
+
+   inline
+   unsigned char  getHour() const;
+     //:Hour, valid range: 0 - 23
+
+   inline
+   unsigned char  getMinute() const;
+     //:Minute, valid range 0 - 59
+
+   inline
+   unsigned char  getSecond() const;
+     //:Second, valid range 0 - 59
 
    virtual void getHttpTimeString(UtlString& dataString);
      //:Get the RFC 822/1123 format date string for this OsDateTime
@@ -128,7 +156,7 @@ public:
      //:Return the current local time as an OsDateTime value in the
      // following format:
      // Mon, 8/26/2002 07:21:32 PM EST
-     
+
    /// Set the dateString to the time as UTC time in a Postgres compatible format:
    ///   2002-08-26 19:21:32.000
    void getSqlTimeStringZ(UtlString& dateString);
@@ -169,13 +197,13 @@ protected:
    OsDateTimeBase();
      //:Default constructor
 
-   OsDateTimeBase(const unsigned short year,
-                const unsigned char  month,
-                const unsigned char  day,
-                const unsigned char  hour,
-                const unsigned char  minute,
-                const unsigned char  second,
-                const unsigned int   microsecond);
+   OsDateTimeBase(const unsigned short year,        /**< XXXX year */
+                const unsigned char  month,         /**< 0-based month; 0=JAN, 1=FEB */
+                const unsigned char  day,           /**< 1-based day (1..31) */
+                const unsigned char  hour,          /**< Hour is 24-hour format (0..23) */
+                const unsigned char  minute,        /**< Minute (0..59) */
+                const unsigned char  second,        /**< Second (0..59) */
+                const unsigned int   microsecond);  /**< Microseconds  (0 - 999999) */
      //:Constructor
 
    OsDateTimeBase(const OsDateTimeBase& rOsDateTime);
@@ -195,7 +223,7 @@ protected:
         //:4 digit year
 
    unsigned char  mMonth;
-        //:January = 1, February = 2, and so on
+        //:January = 0, February = 1, and so on
 
    unsigned char  mDay;
         //:Day of month, valid range: 1-31
@@ -218,6 +246,42 @@ private:
 };
 
 /* ============================ INLINE METHODS ============================ */
+
+unsigned int OsDateTimeBase::getMicrosecond() const
+{
+   return mMicrosecond;
+}
+
+unsigned short OsDateTimeBase::getYear() const
+{
+   return mYear;
+}
+
+unsigned char  OsDateTimeBase::getMonth() const
+{
+   return mMonth;
+}
+
+unsigned char  OsDateTimeBase::getDay() const
+{
+   return mDay;
+}
+
+unsigned char  OsDateTimeBase::getHour() const
+{
+   return mHour;
+}
+
+unsigned char  OsDateTimeBase::getMinute() const
+{
+   return mMinute;
+}
+
+unsigned char  OsDateTimeBase::getSecond() const
+{
+   return mSecond;
+}
+
 
 // Depending on the native OS that we are running on, we include the class
 // declaration for the appropriate lower level implementation and use a

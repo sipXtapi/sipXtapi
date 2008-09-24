@@ -1,15 +1,12 @@
 //
-// Copyright (C) 2005-2006 SIPez LLC.
-// Licensed to SIPfoundry under a Contributor Agreement.
-//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 #ifndef _mainpanel_h_
 #define _mainpanel_h_
 
@@ -46,7 +43,7 @@ public:
    /**
     * MainPanel contructor.
     */
-   MainPanel(wxWindow* parent, const wxPoint& pos, const wxSize& size);
+   MainPanel(wxWindow* parent, const wxPoint& pos, const wxSize& size, bool bLogo);
 
    /**
     * MainPanel destructor.
@@ -74,6 +71,14 @@ public:
     */
    void OnVideoButton(wxCommandEvent& event);
 
+   void UpdateBackground();
+
+   /** 
+    * Timer handler 
+    */
+   void OnTimer(wxTimerEvent& event);
+
+
 /* ============================ ACCESSORS ================================= */
 /* ============================ INQUIRY =================================== */
 
@@ -89,6 +94,7 @@ private:
         ButtonPanel* mpButtonPanel;
         CallHistoryPanel* mpCallHistoryPanel;
         VideoPanel*       mpVideoPanel;
+        wxTimer m_timer ;
 
         /**
          * Text control for displaying the phone's state.
@@ -101,13 +107,13 @@ private:
     */
    wxTextCtrl* mpCallerID;
 
-   void CreateCallHistoryButton();
-   void CreateConferencingButton();
-   void CreateVideoButton();
+   void CreateCallHistoryButton(bool bLogo);
+   void CreateConferencingButton(bool bLogo);
+   void CreateVideoButton(bool bLogo);
    wxBitmapButton* mpCallHistoryBtn;
    wxBitmapButton* mpConferencingBtn;
    wxBitmapButton* mpVideoBtn;
-
+   wxStaticBitmap* mpLogo;
 };
 
 

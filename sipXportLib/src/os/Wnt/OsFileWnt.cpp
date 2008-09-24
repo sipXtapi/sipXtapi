@@ -1,15 +1,18 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 
 // SYSTEM INCLUDES
-#include <sys/utime.h>
-
 // APPLICATION INCLUDES
 #include "os/Wnt/OsFileSystemWnt.h"
 #include "os/Wnt/OsFileWnt.h"
@@ -79,30 +82,36 @@ OsStatus OsFileWnt::filelock(const bool wait)
     return retval;
 }
 
+OsTime OsFileWnt::fileTimeToOsTime(FILETIME ft)
+{
+    __int64 ll = (((__int64)ft.dwHighDateTime << 32) |
+                                 ft.dwLowDateTime) - 116444736000000000;
+    // See http://support.microsoft.com/?scid=kb%3Ben-us%3B167296&x=14&y=17
+
+    return OsTime((long)(ll / 10000000), (long)((ll / 10) % 1000000));
+}
+
 OsStatus OsFileWnt::getFileInfo(OsFileInfoBase& fileinfo) const
 {
     OsStatus ret = OS_INVALID;
 
-    struct stat stats;
-    if (stat(mFilename,&stats) == 0)
+    WIN32_FILE_ATTRIBUTE_DATA w32data;
+    BOOL bRes = GetFileAttributesEx(mFilename.data(), GetFileExInfoStandard, &w32data);
+    if (bRes)
     {
         ret = OS_SUCCESS;
-        if (stats.st_mode & _S_IWRITE)
-            fileinfo.mbIsReadOnly = FALSE;
-        else
-            fileinfo.mbIsReadOnly = TRUE;
 
-        OsTime createTime(stats.st_ctime,0);
-        fileinfo.mCreateTime = createTime;
+        fileinfo.mbIsReadOnly = 
+            (w32data.dwFileAttributes & FILE_ATTRIBUTE_READONLY) ? TRUE : FALSE;
 
-        OsTime modifiedTime(stats.st_ctime,0);
-        fileinfo.mCreateTime = modifiedTime;
+        fileinfo.mSize = ((ULONGLONG)w32data.nFileSizeHigh << 32) | w32data.nFileSizeLow;
+        fileinfo.mCreateTime = fileTimeToOsTime(w32data.ftCreationTime);
+        fileinfo.mModifiedTime = fileTimeToOsTime(w32data.ftLastWriteTime);
         
-        fileinfo.mSize = stats.st_size;
     }
-
     return ret;
 }
+
 
 OsStatus OsFileWnt::touch()
 {
@@ -110,8 +119,24 @@ OsStatus OsFileWnt::touch()
 
     if (exists() == OS_SUCCESS)
     {
-        if (_utime(mFilename,NULL) == 0)
+        FILETIME ft;
+        SYSTEMTIME st;
+        BOOL fileTimeOk;
+
+        // Grab the windows file handle for use in
+        // windows file system calls.
+        HANDLE fileHnd;
+        fileHnd = CreateFile(mFilename, GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, 
+                             NULL, OPEN_EXISTING, 0, NULL);
+
+        GetSystemTime(&st);               // gets current time
+        SystemTimeToFileTime(&st, &ft);   // converts to file time format
+        fileTimeOk = SetFileTime(fileHnd, // sets last-write time for file
+            (LPFILETIME) NULL, (LPFILETIME) NULL, &ft);
+        if (fileTimeOk)
+        {
             stat = OS_SUCCESS;
+        }
     }
     else
     {

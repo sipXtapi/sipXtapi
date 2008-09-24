@@ -1,10 +1,12 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
 #include <assert.h>
@@ -36,6 +38,10 @@ OsServerTask::OsServerTask(const UtlString& name,
 
    // other than initialization, no work required
 {
+/*
+   // Only useful when debugging queue problems -- very small case and doesn't
+   // warrant spam in general case -- my opinion anyways.
+
    if (OsSysLog::willLog(FAC_KERNEL, PRI_INFO))
    {
 
@@ -43,6 +49,7 @@ OsServerTask::OsServerTask(const UtlString& name,
                                 "OsServerTask::OsServerTask %s queue: %p queue limit: %d",
                                 mName.data(), &mIncomingQ, maxRequestQMsgs);
    }
+*/
 }
 
 // Destructor
@@ -101,10 +108,13 @@ OsStatus OsServerTask::postMessage(const OsMsg& rMsg, const OsTime& rTimeout,
 // to the incoming message queue to unblock the task.
 void OsServerTask::requestShutdown(void)
 {
+   OsStatus res;
+
    OsMsg msg(OsMsg::OS_SHUTDOWN, 0);
 
    OsTask::requestShutdown();
-   postMessage(msg);
+   res = postMessage(msg);
+   assert(res = OS_SUCCESS);
 }
 
 /* ============================ ACCESSORS ================================= */
@@ -159,7 +169,6 @@ int OsServerTask::run(void* pArg)
    }
    while (!doShutdown);
 
-   ackShutdown();   // acknowledge the task shutdown request
    return 0;        // and then exit
 }
 

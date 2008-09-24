@@ -1,16 +1,16 @@
 // 
-// 
 // Copyright (C) 2005-2006 SIPez LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.
 // 
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2004-2006 Pingtel Corp.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
-//////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+
 
 // Author: Dan Petrie (dpetrie AT SIPez DOT com)
 
@@ -43,6 +43,27 @@ CpMediaInterface::~CpMediaInterface()
 }
 
 /* ============================ MANIPULATORS ============================== */
+
+OsStatus CpMediaInterface::setSrtpParams(SdpSrtpParameters& srtpParameters)
+{
+    if (srtpParameters.masterKey[0] != '\0') // only set the key if it comes from the caller
+    {
+        memcpy((void*)&mSrtpParams, (void*)&srtpParameters, sizeof(SdpSrtpParameters));
+    }
+    return OS_SUCCESS;
+    
+}
+
+OsStatus CpMediaInterface::enableRtpReadNotification(int connectionId,
+                                                     UtlBoolean bEnable) 
+{
+   return OS_NOT_SUPPORTED;
+};
+
+OsStatus CpMediaInterface::recordMic(int ms, UtlString* pAudioBuf) 
+{ 
+   return OS_NOT_SUPPORTED; 
+};
 
 /* ============================ ACCESSORS ================================= */
 

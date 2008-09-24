@@ -1,17 +1,23 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 
 #ifndef _OsSocket_h_
 #define _OsSocket_h_
 
 // SYSTEM INCLUDES
-//#include <...>
+#if defined(__pingtel_on_posix__)
+// To get "struct sockaddr_in".
+#include <sys/socket.h>
+#include <netinet/in.h>
+#endif
 #include <stdarg.h>
 
 // APPLICATION INCLUDES
@@ -23,6 +29,7 @@
 
 // DEFINES
 #define MAX_IP_ADDRESSES 32
+#define MAX_ADAPTER_NAME_LENGTH 256
 
 //: constant indentifier indicating the maximum number of IP addresses on this host.
 #define OS_INVALID_SOCKET_DESCRIPTOR (-1)
@@ -56,77 +63,9 @@ extern "C" unsigned long osSocketGetDefaultBindAddress();
 // EXTERNAL VARIABLES
 // CONSTANTS
 // STRUCTS
-/**
- * CONTACT_TYPE is an enumeration of possible address type for use with
- * SIP contacts and SDP connection information.
- */
-typedef enum
-{
-    LOCAL_CONTACT,/**< Local address for a particular interface */
-    NAT_MAPPED, /**< NAT mapped address (e.g. STUN)           */
-    RELAY,      /**< Relay address (e.g. TURN)                */
-    CONFIG,     /**< Manually configured address              */
-
-    AUTO = -1,  /**< Automatic contact selection; used for API 
-                     parameters */
-    ALL  = -2  /**< Filter value for the SipContactDb, for looking
-                     up records of all types. */
-                     
-} CONTACT_TYPE ;
-
-
-/** Type for storing Contact Record identifiers */
-typedef int CONTACT_ID; 
-
-/**
- * The CONTACT_ADDRESS struct includes contact information (ip and port),
- * address source type, and interface.
- */
-struct CONTACT_ADDRESS
-{
-    CONTACT_ADDRESS()
-    {
-        memset((void*)cInterface, 0, sizeof(cInterface));
-        memset((void*)cIpAddress, 0, sizeof(cIpAddress));
-        eContactType = AUTO;
-        id = 0;
-        iPort = -1;
-    }
-    
-    // copy contstructor
-    CONTACT_ADDRESS(const CONTACT_ADDRESS& ref)
-    {
-        strcpy(this->cInterface, ref.cInterface);
-        strcpy(this->cIpAddress, ref.cIpAddress);
-        this->eContactType = ref.eContactType;
-        this->id = ref.id;
-        this->iPort = ref.iPort;
-    }
-    
-    // assignment operator
-    CONTACT_ADDRESS& operator=(const CONTACT_ADDRESS& ref)
-    {
-        // check for assignment to self
-        if (this == &ref) return *this;
-
-        strcpy(this->cInterface, ref.cInterface);
-        strcpy(this->cIpAddress, ref.cIpAddress);
-        this->eContactType = ref.eContactType;
-        this->id = ref.id;
-        this->iPort = ref.iPort;
-        
-        return *this;
-    }
-        
-    CONTACT_ID   id;              /**< Contact record Id */
-    CONTACT_TYPE eContactType ;   /**< Address type/source */
-    char              cInterface[32] ; /**< Source interface    */
-    char              cIpAddress[32] ; /**< IP Address          */
-    int               iPort ;          /**< Port                */
-};
 
 // TYPEDEFS
-
+// ENUMS
 // FORWARD DECLARATIONS
 
 //: Abstract Socket class
@@ -151,14 +90,14 @@ public:
 
    typedef enum 
    {
-      UNKNOWN = -1,
-      TCP = 0,
-      UDP = 1,
-      MULTICAST = 2,
-      SSL_SOCKET = 3
-   } IpProtocolSocketType;
+      UNKNOWN    = -1,
+      TCP        = 0,
+      UDP        = 1,
+      MULTICAST  = 2,
+      SSL_SOCKET = 3,
+      CUSTOM     = 4
+   } IpProtocolSocketType ;
    //: Protocol Types
-   //  Note: If you add a value to this enum, add a case in OsSocket::isFramed.
    
 /* ============================ CREATORS ================================== */
    OsSocket();
@@ -173,6 +112,16 @@ public:
    static UtlBoolean socketInit();
    static unsigned long initDefaultAdapterID(UtlString &adapter_id);
 
+
+   virtual int write(const char* buffer,
+                     int bufferLength,
+                     const char* ipAddress,
+                     int port)
+   {
+        // default implementation ignores ipAddress and port
+        return write(buffer, bufferLength);
+   }                                       
+                                        
    virtual int write(const char* buffer, int bufferLength);
    //:Blocking write to the socket
    // Write the characters in the given buffer to the socket.
@@ -187,7 +136,7 @@ public:
    //:Non-blocking or limited blocking write to socket
    // Same as blocking version except that this write will block
    // for no more than the specified length of time.
-   //!param: waitMilliseconds - The maximum number of milliseconds to block.  This may be set to zero, in which case it does not block.
+   //!param: waitMilliseconds - The maximum number of milliseconds to block. This may be set to zero, in which case it does not block.
 
    virtual int read(char* buffer, int bufferLength);
    //:Blocking read from the socket
@@ -250,7 +199,7 @@ public:
    virtual UtlBoolean reconnect() = 0;
    //:Set up the connection again, assuming the connection failed
 
-   int getSocketDescriptor() const;
+   virtual int getSocketDescriptor() const;
    //:Return the socket descriptor
    // Warning: Use of this method risks the creation of platform-dependent
    // code.
@@ -269,23 +218,23 @@ public:
    static void getHostIp(UtlString* hostAddress);
    //:Get this host's IP address
 
-   void getLocalHostName(UtlString* localHostName) const;
+//   virtual void getLocalHostName(UtlString* localHostName) const;
    //:Return this host's name
    // Returns a string containing the name of the host on which this socket
    // resides.  This may be the local name, a fully qualified domain name or
    // anything in between. This name may vary on the same host if it is
    // multi-homed, depending upon which NIC the Socket is associated with.
 
-   void getLocalHostIp(UtlString* localHostAddress) const;
+   virtual void getLocalHostIp(UtlString* localHostAddress) const;
    //:Return this host's ip address
    // Returns the ip address for this host on which this socket is communicating
    // On multi-homed machines, this is the address to the NIC over which the
    // socket communicates. The format is of the form: xx.x.xxx.x
    
-   const UtlString& getLocalIp() const;
+   virtual const UtlString& getLocalIp() const;
    //:Return this socket's Local Ip Address
    
-   void setLocalIp(const UtlString& localIp) { mLocalIp = localIp; }
+   virtual void setLocalIp(const UtlString& localIp) { mLocalIp = localIp; }
    
    virtual int getLocalHostPort() const;
    //:Return the local port number
@@ -341,6 +290,9 @@ public:
    static UtlBoolean isIp4Address(const char* address);
    //:Is the address a dotted IP4 address
    // (i.e., nnn.nnn.nnn.nnn where 0 <= nnn <= 255)
+
+   static UtlBoolean isMcastAddr(const char* ipAddress);
+   //:Is the given dotted IP4 address a multicast address
 
    static UtlBoolean isLocalHost(const char* hostAddress);
    //:Is the given host name this host

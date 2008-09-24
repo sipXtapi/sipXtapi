@@ -1,3 +1,6 @@
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -16,11 +19,12 @@
 #endif
 
 // APPLICATION INCLUDES
+#include "os/OsDefs.h"
 #include "os/OsSysLog.h"
 #include "utl/UtlDListIterator.h"
 #include "utl/UtlRegex.h"
 #include "net/Url.h"
-#include "net/NameValueTokenizer.h"
+#include "utl/UtlNameValueTokenizer.h"
 #include "net/NameValuePair.h"
 #include "net/NameValuePairInsensitive.h"
 #include "net/SipMessage.h"
@@ -114,7 +118,7 @@ const char* SchemeName[ Url::NUM_SUPPORTED_URL_SCHEMES ] =
    "https",
    "ftp",
    "file",
-   "mailto",
+   "mailto"
 };
 
 // UsernameAndPassword
@@ -125,16 +129,16 @@ const RegEx UsernameAndPassword(
    "("
       "(?:"
          "[a-zA-Z0-9_.!~*'()&=+$,;?/-]++"
-       "|"
+      "|"
          "%[0-9a-fA-F]{2}"
       ")+"
     ")"
    "(?:" ":"
-      "("
+        "("
         "(?:"
             "[a-zA-Z0-9_.!~*'()&=+$,-]++"
-         "|"
-            "%[0-9a-fA-F]{2}"
+        "|"
+           "%[0-9a-fA-F]{2}"
         ")*"
       ")"
     ")?"
@@ -149,12 +153,12 @@ const RegEx UsernameAndPassword(
 #define DOMAIN_LABEL "(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?)"
 const RegEx HostAndPort( 
    "("
-     "(?:" DOMAIN_LABEL "\\.)*" DOMAIN_LABEL "\\.?" // DNS name 
-      "|"
-        "(?:[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3})" // IPv4 address
-      "|"
+    "(?:" DOMAIN_LABEL "\\.)*" DOMAIN_LABEL "\\.?" // DNS name 
+   "|"
+    "(?:[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3})" // IPv4 address
+   "|"
         "(?:\\[[0-9a-fA-F:.]++\\])" // IPv6 address
-     ")"
+   ")"
    "(?:" ":" "([0-9]{1,6}))?" // port number
                         );
 
@@ -194,10 +198,6 @@ const RegEx TheEnd("^" SWS "$");
 
 // STATIC VARIABLE INITIALIZATIONS
 
-#ifndef min
-#define min(x,y) (((x) < (y)) ? (x) : (y))
-#endif
-
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
 /* ============================ CREATORS ================================== */
@@ -231,7 +231,7 @@ Url::Url(const Url& rUrl) :
    mpFieldParameters(NULL)
 {
    reset();
-   *this = rUrl;
+    *this = rUrl;
 }
 
 // Destructor
@@ -392,7 +392,7 @@ void Url::getDisplayName(UtlString& displayName) const
     displayName = mDisplayName;
     if (isDigitString(mDisplayName.data()))
     {
-       NameValueTokenizer::frontBackTrim(&displayName, "\"");
+       displayName.strip(UtlString::both, '\"');
     }
 }
 
@@ -611,7 +611,7 @@ UtlBoolean Url::getUrlParameters(int iMaxReturn, UtlString* pNames, UtlString *p
     }
     else
     {
-        iActualReturn = min(iMaxReturn, ((int)(mpUrlParameters->entries()))) ;
+        iActualReturn = sipx_min(iMaxReturn, ((int)(mpUrlParameters->entries()))) ;
 
         for (int i=0; i<iActualReturn; i++)
         {
@@ -642,9 +642,9 @@ void Url::setUrlParameter(const char* name, const char* value)
     }
     else
     {
-       mpUrlParameters->append(nv);
-    }
-    
+    mpUrlParameters->append(nv);
+}
+
 }
 
 UtlBoolean Url::getHeaderParameter(const char* name, UtlString& value, int index)
@@ -693,7 +693,7 @@ UtlBoolean Url::getHeaderParameters(int iMaxReturn, UtlString* pNames, UtlString
     }
     else
     {
-        iActualReturn = min(iMaxReturn, ((int)(mpHeaderOrQueryParameters->entries()))) ;
+        iActualReturn = sipx_min(iMaxReturn, ((int)(mpHeaderOrQueryParameters->entries()))) ;
 
         for (int i=0; i<iActualReturn; i++)
         {
@@ -775,7 +775,7 @@ void Url::getUri(UtlString& urlString)
 
     // Add the host
     urlString.append(mHostAddress);
-    if(portIsValid(mHostPort))
+    if(mHostPort > 0)
     {
        char portBuffer[20];
        sprintf(portBuffer, ":%d", mHostPort);
@@ -866,28 +866,28 @@ void Url::getUri(UtlString& urlString)
 
 void Url::setHeaderParameter(const char* name, const char* value)
 {
-   if ( name && *name )
-   {
-      NameValuePairInsensitive* nv = new NameValuePairInsensitive(name, value ? value : "");
+    if ( name && *name )
+    {
+        NameValuePairInsensitive* nv = new NameValuePairInsensitive(name, value ? value : "");
 
-      // ensure that mpHeaderOrQueryParameters is initialized
-      if (! (mpHeaderOrQueryParameters || parseHeaderOrQueryParameters()))
-      {
-         mpHeaderOrQueryParameters = new UtlDList;
-      }
+        // ensure that mpHeaderOrQueryParameters is initialized
+        if (! (mpHeaderOrQueryParameters || parseHeaderOrQueryParameters()))
+        {
+           mpHeaderOrQueryParameters = new UtlDList;
+        }
 
-      if (   (   SipUrlScheme  == mScheme
-              || SipsUrlScheme == mScheme
-              )
-          && ( SipMessage::isUrlHeaderUnique(name) )
-          )
-      {
-         removeHeaderParameter(name);
-      }
+        if (   (   SipUrlScheme  == mScheme
+                || SipsUrlScheme == mScheme
+                )
+                && ( SipMessage::isUrlHeaderUnique(name) )
+                )
+         {
+            removeHeaderParameter(name);
+         }
 
-      // for all other cases, assume that duplicate query parameters are ok
-      mpHeaderOrQueryParameters->append(nv);
-   }
+         // for all other cases, assume that duplicate query parameters are ok
+         mpHeaderOrQueryParameters->append(nv);
+    }
 }
 
 UtlBoolean Url::getHeaderParameter(int headerIndex, UtlString& name, UtlString& value)
@@ -1005,7 +1005,7 @@ UtlBoolean Url::getFieldParameters(int iMaxReturn, UtlString* pNames, UtlString 
     }
     else
     {
-        iActualReturn = min(iMaxReturn, ((int)(mpFieldParameters->entries()))) ;
+        iActualReturn = sipx_min(iMaxReturn, ((int)(mpFieldParameters->entries()))) ;
 
         for (int i=0; i<iActualReturn; i++)
         {
@@ -1039,7 +1039,7 @@ void Url::setFieldParameter(const char* name, const char* value)
     }
     else
     {
-       mpFieldParameters->append(nv);
+        mpFieldParameters->append(nv);
     }
 }
 
@@ -1314,24 +1314,24 @@ void Url::parseString(const char* urlString, UtlBoolean isAddrSpec)
       }
    }
 
-   /*
-    * AMBIGUITY - there is a potential ambiguity when parsing real URLs.
-    *
-    * Consider the url 'foo:333' - it could be:
-    *       scheme 'foo' host '333' ('333' is a valid local host name - bad idea, but legal)
-    *   or  host   'foo' port '333' (and scheme 'sip' is implied)
-    *
-    * Now make it worse by using 'sips' as a hostname:
-    *   'sips:333'     
-    *       scheme 'sips' host '333'
-    *   or  host   'sips' port '333' (and scheme 'sip' is implied)
-    *
-    * We resolve the first case by treating anything left of the colon as a scheme if
-    * it is one of the supported schemes.  Otherwise, we set the scheme to the
-    * default (sip) and go on so that it will be parsed as a hostname.  This does not
-    * do the right thing for the (scheme 'sips' host '333') case, but they get what
-    * they deserve.
-    */
+      /*
+       * AMBIGUITY - there is a potential ambiguity when parsing real URLs.
+       *
+       * Consider the url 'foo:333' - it could be:
+       *       scheme 'foo' host '333' ('333' is a valid local host name - bad idea, but legal)
+       *   or  host   'foo' port '333' (and scheme 'sip' is implied)
+       *
+       * Now make it worse by using 'sips' as a hostname:
+       *   'sips:333'     
+       *       scheme 'sips' host '333'
+       *   or  host   'sips' port '333' (and scheme 'sip' is implied)
+       *
+       * We resolve the first case by treating anything left of the colon as a scheme if
+       * it is one of the supported schemes.  Otherwise, we set the scheme to the
+       * default (sip) and go on so that it will be parsed as a hostname.  This does not
+       * do the right thing for the (scheme 'sips' host '333') case, but they get what
+       * they deserve.
+       */
    
    // Parse the scheme (aka url type)
    LOG_TIME("scheme   < ");
@@ -1339,7 +1339,7 @@ void Url::parseString(const char* urlString, UtlBoolean isAddrSpec)
    if (   (supportedScheme.SearchAt(urlString,workingOffset))
        && (supportedScheme.MatchStart(0) == workingOffset)
        )
-   {
+      {
       LOG_TIME("scheme   > ");
       // the scheme name matches one of the supported schemes
       mScheme = static_cast<Scheme>(supportedScheme.Matches()-1);
@@ -1357,7 +1357,7 @@ void Url::parseString(const char* urlString, UtlBoolean isAddrSpec)
        */
       mScheme = UnknownUrlScheme;
    }
-   
+
 
    // skip over any '//' following the scheme for the ones we know use that
    switch (mScheme)
@@ -1474,13 +1474,6 @@ void Url::parseString(const char* urlString, UtlBoolean isAddrSpec)
          urlPath.MatchString(&mPath,1);
          workingOffset = urlPath.AfterMatch(1);
       }
-#     ifdef _WIN32
-      {
-         // Massage Data under Windows:  C|/foo.txt --> C:\foo.txt
-         mPath.replace('|', ':');
-         mPath.replace('/', '\\');
-      }
-#     endif
    }
    break;
 
@@ -1488,7 +1481,7 @@ void Url::parseString(const char* urlString, UtlBoolean isAddrSpec)
    case SipsUrlScheme:
    {
       // it may have url parameters of the form ";" param "=" value ...
-      //                iff it meets the right conditions:
+      //                if it meets the right conditions:
       if (   isAddrSpec                          // in addr-spec, any param is a url param
           || afterAngleBrackets != UTL_NOT_FOUND // inside angle brackets there may be a url param
           ) 
@@ -1518,43 +1511,43 @@ void Url::parseString(const char* urlString, UtlBoolean isAddrSpec)
 
    if (UnknownUrlScheme != mScheme)
    {
-      // Parse any header or query parameters
+   // Parse any header or query parameters
       LOG_TIME("hdrparm   < ");
-      RegEx headerOrQueryParams(HeaderOrQueryParams);
-      if(   (headerOrQueryParams.SearchAt(urlString, workingOffset))
-         && (headerOrQueryParams.MatchStart(0) == workingOffset)
-         )
-      {
+   RegEx headerOrQueryParams(HeaderOrQueryParams);
+   if(   (headerOrQueryParams.SearchAt(urlString, workingOffset))
+      && (headerOrQueryParams.MatchStart(0) == workingOffset)
+      )
+   {
          LOG_TIME("hdrparm   > ");
-         headerOrQueryParams.MatchString(&mRawHeaderOrQueryParameters, 1);
-         workingOffset = headerOrQueryParams.AfterMatch(0);
+      headerOrQueryParams.MatchString(&mRawHeaderOrQueryParameters, 1);
+      workingOffset = headerOrQueryParams.AfterMatch(0);
             
-         // actual parsing of the parameters is in parseHeaderOrQueryParameters
-         // so that it only happens if someone asks for them.
-      }
+      // actual parsing of the parameters is in parseHeaderOrQueryParameters
+      // so that it only happens if someone asks for them.
+   }
 
-      // Parse the field parameters
-      if (!isAddrSpec) // can't have field parameters in an addrspec
+   // Parse the field parameters
+   if (!isAddrSpec) // can't have field parameters in an addrspec
+   {
+      if (afterAngleBrackets != UTL_NOT_FOUND)
       {
-         if (afterAngleBrackets != UTL_NOT_FOUND)
-         {
-            workingOffset = afterAngleBrackets;
-         }
+         workingOffset = afterAngleBrackets;
+      }
 
          LOG_TIME("fldparm   < ");
          RegEx fieldParameters(FieldParams);
-         if (   (fieldParameters.SearchAt(urlString, workingOffset))
-             && (fieldParameters.MatchStart(0) == workingOffset)
-             )
-         {
+      if (   (fieldParameters.SearchAt(urlString, workingOffset))
+          && (fieldParameters.MatchStart(0) == workingOffset)
+          )
+      {
             LOG_TIME("fldparm   > ");
-            fieldParameters.MatchString(&mRawFieldParameters, 1);
+         fieldParameters.MatchString(&mRawFieldParameters, 1);
 
-            // actual parsing of the parameters is in parseFieldParameters
-            // so that it only happens if someone asks for them.
-         }
+         // actual parsing of the parameters is in parseFieldParameters
+         // so that it only happens if someone asks for them.
       }
    }
+}
 #  ifdef TIME_PARSE
      UtlString timeDump;
    timeLog.getLogString(timeDump);

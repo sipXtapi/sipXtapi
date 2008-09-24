@@ -1,16 +1,23 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 
 // SYSTEM INCLUDES
 #include <assert.h>
 
 // APPLICATION INCLUDES
+
+// Keep OsProtectEventMgrInit.h as the first include!
+// See OsProtectEventMgrInit class description for more information.
+#include "os/OsProtectEventMgrInit.h"
+
 #include "os/OsProtectEventMgr.h"
 #include "os/OsSysLog.h"
 
@@ -18,27 +25,14 @@
 // EXTERNAL VARIABLES
 // CONSTANTS
 // STATIC VARIABLE INITIALIZATIONS
-OsProtectEventMgr* OsProtectEventMgr::spInstance = 0;
-OsBSem  OsProtectEventMgr::sLock(OsBSem::Q_PRIORITY, OsBSem::FULL);
+OsProtectEventMgr* OsProtectEventMgr::spInstance;
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
 /* ============================ CREATORS ================================== */
 
-OsProtectEventMgr* OsProtectEventMgr::getEventMgr(int userData)
+OsProtectEventMgr* OsProtectEventMgr::getEventMgr()
 {
-
-   if (spInstance != NULL)
-      return spInstance;
-
-   // If the task does not yet exist or hasn't been started, then acquire
-   // the lock to ensure that only one instance of the task is started
-   sLock.acquire();
-   if (spInstance == NULL)
-       spInstance = new OsProtectEventMgr(userData);
-
-   sLock.release();
-
    return spInstance;
 }
 

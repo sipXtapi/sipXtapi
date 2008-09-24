@@ -1,9 +1,12 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
 
@@ -39,4 +42,9 @@ VideoPanel::VideoPanel(wxWindow* parent, const wxPoint& pos, const wxSize& size)
 // Destructor
 VideoPanel::~VideoPanel()
 {
+}
+
+void VideoPanel::UpdateBackground(wxColor color)
+{
+    SetBackgroundColour(color);
 }

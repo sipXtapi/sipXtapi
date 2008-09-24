@@ -1,4 +1,4 @@
-include $(top_srcdir)/config/subdir.am
+include $(top_builddir)/config/sipXcommon.mak
 
 bin_SCRIPTS = \
 	${PACKAGE}-config

@@ -25,10 +25,12 @@ public:
     AddContactDlg( wxWindow *parent, wxWindowID id, const wxString &title) ;
     virtual ~AddContactDlg() ;
 
-    wxString getName() { return mName; } ;
-    wxString getUrl() { return mUrl; } ;
+    wxString getName() { return mName; }
+    wxString getUrl() { return mUrl; }
+    wxString getCert() { return mCert; }
 
     virtual void OnOK(wxCommandEvent& event) ;
+    virtual void OnCertFileButton(wxCommandEvent& event) ;
     
 protected:    
 
@@ -37,9 +39,11 @@ private:
 
     wxTextCtrl* mpNameCtrl ;
     wxTextCtrl* mpUrlCtrl ;
+    wxTextCtrl* mpCertCtrl ;
 
     wxString mName ;
     wxString mUrl ;
+    wxString mCert;
 };
 
 

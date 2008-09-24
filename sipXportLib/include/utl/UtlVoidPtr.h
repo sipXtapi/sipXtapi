@@ -1,10 +1,12 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 
 #ifndef _UtlVoidPtr_h_
@@ -40,6 +42,7 @@ class UtlVoidPtr : public UtlContainable
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
+    static const UtlContainableType TYPE ;   /** < Class type used for runtime checking */ 
 
 /* ============================ CREATORS ================================== */
 
@@ -80,8 +83,6 @@ public:
      * Get the ContainableType for a UtlContainable derived class.
      */
     virtual UtlContainableType getContainableType() const;
-
-    static const UtlContainableType TYPE ;   /**< Class type used for runtime checking */ 
 
 /* ============================ INQUIRY =================================== */
 

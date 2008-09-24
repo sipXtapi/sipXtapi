@@ -1,4 +1,4 @@
-include $(top_srcdir)/config/subdir.am
+include $(top_builddir)/config/sipXcommon.mak
 
 images = \
 	PluginUml.png
@@ -28,7 +28,7 @@ install-doc:
 	rm -rf $(DESTDIR)@SIPX_DOCDIR@/@PACKAGE@
 	@INSTALL@ -d $(DESTDIR)@SIPX_DOCDIR@/@PACKAGE@
 	find @PACKAGE@ -type f -print \
-	| xargs -i% @INSTALL@ -m u=rw,go=r % $(DESTDIR)@SIPX_DOCDIR@/%
+	| xargs --replace=% @INSTALL@ -m u=rw,go=r % $(DESTDIR)@SIPX_DOCDIR@/%
 
 clean: clean-doc
 
@@ -43,7 +43,6 @@ clean-doc:
 .PHONY: external-docs
 external-docs: @PACKAGE@ $(foreach img,$(images),@PACKAGE@/$(img))
 
-$(foreach img,$(images),@PACKAGE@/$(img)): @PACKAGE@/% : %
+$(foreach img,$(images),@PACKAGE@/$(img)): @PACKAGE@/% : % @PACKAGE@
 	cp $< $@
 
-DISTCLEANFILES = sipxportlib

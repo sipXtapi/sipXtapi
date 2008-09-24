@@ -1,9 +1,12 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 #include <cppunit/extensions/HelperMacros.h>
 #include <cppunit/TestCase.h>
@@ -13,6 +16,7 @@
 #include <os/OsServerTask.h>
 #include <os/OsRpcMsg.h>
 #include <os/OsDateTime.h>
+
 
 class RightEventThread : public OsServerTask
 {
@@ -62,11 +66,52 @@ class RightEventThread : public OsServerTask
     }
 };
 
+/// This thread begin firing passed notification with specified delay.
+class MultipleFireThread : public OsTask
+{
+public:
+
+     /**
+     *  @param delay - (in) - delay between fires. Pass -1 to get no-delay firing.
+     *  @param notification - (in) Notification to fire
+     */
+   MultipleFireThread(int delay, OsNotification *notification)
+   : OsTask("MultipleFireThread")
+   , mDelay(delay)
+   , mpNotification(notification)
+   {
+      CPPUNIT_ASSERT(mpNotification != NULL);
+   }
+
+   int run(void* pArg)
+   {
+      OsStatus status;
+
+      while(!isShuttingDown())
+      {
+         if (mDelay > 0)
+         {
+            delay(mDelay);
+         }
+         status = mpNotification->signal(0);
+      }
+
+      return 0;
+   }
+
+
+protected:
+   int mDelay;
+   OsNotification *mpNotification;
+
+};
+
 class OsEventTest : public CppUnit::TestCase
 {
     CPPUNIT_TEST_SUITE(OsEventTest);
     CPPUNIT_TEST(testTimedEvent);
     CPPUNIT_TEST(testThreadedEvent);
+    CPPUNIT_TEST(testThreadedMultipleFire);
     CPPUNIT_TEST_SUITE_END();
 
 
@@ -77,7 +122,7 @@ public:
         OsEvent* pEvent;
 
         pEvent = new OsEvent(12345);
-        int epochTime = time(NULL);
+        time_t epochTime = time(NULL);
         CPPUNIT_ASSERT(pEvent->wait(eventTimeout) != OS_SUCCESS);
         pEvent->signal(67890);
         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pEvent->wait(eventTimeout));
@@ -166,6 +211,22 @@ public:
         //        leftDeletes, rightDeletes);
 
         CPPUNIT_ASSERT(leftDeletes + rightDeletes == numTries);
+    }
+
+    void testThreadedMultipleFire()
+    {
+        OsEvent event;
+        MultipleFireThread fireThread(-1, &event);
+
+        fireThread.start();
+
+        for (int i=0; i<10000; i++)
+        {
+           CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, event.wait(500));
+           CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, event.reset());
+        }
+
+        fireThread.requestShutdown();
     }
 };
 

@@ -1,10 +1,12 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 
 // SYSTEM INCLUDES
@@ -25,19 +27,24 @@ UtlContainableType UtlInt::TYPE = "UtlInt" ;
 /* ============================ CREATORS ================================== */
 
 // Constructor accepting an optional default value.
-UtlInt::UtlInt(int value)
+UtlInt::UtlInt(int value) : mValue(value)
 {
-    mValue = value ;
 } 
 
 
 // Copy constructor
-
-
+UtlInt::UtlInt(const UtlInt& rhs) : mValue(rhs.mValue)
+{
+}
 
 // Destructor
 UtlInt::~UtlInt()
 {
+}
+
+UtlCopyableContainable* UtlInt::clone() const
+{
+   return new UtlInt(*this); 
 }
 
 /* ============================ OPERATORS ============================== */
@@ -66,6 +73,17 @@ UtlInt UtlInt::operator--(int) {
     UtlInt temp = *this;
     --*this;
     return temp;
+}
+
+UtlInt& UtlInt::operator=(const UtlInt& rhs)
+{
+   if (this == &rhs)            // handle the assignment to self case
+      return *this;
+
+   // Assign values
+   mValue = rhs.mValue;
+
+   return *this;
 }
 
 /* ============================ MANIPULATORS ============================== */

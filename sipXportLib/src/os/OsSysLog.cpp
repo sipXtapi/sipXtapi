@@ -1,10 +1,15 @@
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 
 // SYSTEM INCLUDES
@@ -14,6 +19,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <ctype.h>
+
 
 // APPLICATION INCLUDES
 #include "utl/UtlDefs.h"
@@ -34,23 +40,27 @@ extern char* strdup(const char*) ;
 #endif
 #endif
 
-#ifdef _WIN32  
-# ifndef va_copy  
-#  define va_copy(ap1, ap2) memcpy(&ap1, &ap2, sizeof(va_list))  
-# endif  
-# define vsnprintf      _vsnprintf  
-# define inline         _inline  
-#endif  
-
 
 // EXTERNAL VARIABLES
 // CONSTANTS
+#if defined(_WIN32)
+     // Windows va_arg function does not take a const 
+#    define OS_VA_ARG_CONST 
+#elif defined(__pingtel_on_posix__)
+     // Posix va_arg function takes a const
+#    define OS_VA_ARG_CONST const
+#elif _VXWORKS
+     // Vxworks va_arg function does not take a const 
+#    define OS_VA_ARG_CONST 
+#else
+#error Unsupported target platform.
+#endif
 // STATIC VARIABLE INITIALIZATIONS
 OsSysLogTask* OsSysLog::spOsSysLogTask = NULL;
 unsigned long OsSysLog::sEventCount = 0;
 UtlString OsSysLog::sProcessId = "" ;
 UtlString OsSysLog::sHostname = "" ;
-OsSysLogPriority* OsSysLog::spPriorities = new OsSysLogPriority[FAC_MAX_FACILITY] ;
+OsSysLogPriority OsSysLog::spPriorities[FAC_MAX_FACILITY] ;
 // Initial logging level is PRI_ERR.
 OsSysLogPriority OsSysLog::sLoggingPriority = PRI_ERR ;
 UtlBoolean OsSysLog::bPrioritiesInitialized = FALSE ;
@@ -65,12 +75,12 @@ const char* OsSysLog::sPriorityNames[] =
    "ERR",
    "CRIT",
    "ALERT",
-   "EMERG",
+   "EMERG"
 };
 
 // LOCAL FUNCTIONS
 static void mysprintf(UtlString& results, const char* format, ...) ;
-static void myvsprintf(UtlString& results, const char* format, va_list& args) ;
+static void myvsprintf(UtlString& results, const char* format, OS_VA_ARG_CONST va_list args) ;
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
@@ -101,6 +111,26 @@ OsStatus OsSysLog::initialize(const int   maxInMemoryLogEntries,
    return rc ;   
 }
      
+// Shutdown log
+OsStatus OsSysLog::shutdown()
+{
+   OsSysLogTask* pTask = spOsSysLogTask ;
+   spOsSysLogTask = NULL ;
+   if (pTask != NULL)
+   {
+      pTask->flush() ;
+      pTask->requestShutdown() ;
+      delete pTask ;
+   }
+
+   return OS_SUCCESS ;
+}
+
+     
+OsTimer* OsSysLog::getTimer()
+{
+    return spOsSysLogTask->getTimer();
+}
 
 // Set the output file target
 OsStatus OsSysLog::setOutputFile(const int minFlushPeriod,
@@ -238,18 +268,41 @@ OsStatus OsSysLog::add(const char*            taskName,
                        const char*            format,
                                               ...)
 {
-   OsStatus rc;
+   OsStatus rc = OS_UNSPECIFIED;
 
-   // Make sure we want to handle the log entry before we process
-   // the variable arguments.
-   if (willLog(facility, priority))
+   // If the log has not been initialized, print everything
+   if (spOsSysLogTask == NULL)
    {
+      // Convert the variable arguments into a single string
+      UtlString data ;
       va_list ap;
-      va_start(ap, format);
-      rc = vadd(taskName, taskId, facility, priority, format, ap);
+      va_start(ap, format); 
+      myvsprintf(data, format, ap) ;
+      data = escape(data) ;
       va_end(ap);
-   }  
 
+      // Display all of the data
+      osPrintf("%s %s %s 0x%08X %s\n", 
+            OsSysLog::sFacilityNames[facility], 
+            OsSysLog::sPriorityNames[priority],
+            (taskName == NULL) ? "" : taskName, 
+            taskId,
+            data.data()) ;
+
+      rc = OS_SUCCESS ;
+   }
+   // Otherwise make sure we want to handle the log entry before we process
+   // the variable arguments.
+   else
+   {
+      if (willLog(facility, priority))
+      {
+         va_list ap;
+         va_start(ap, format);
+         rc = vadd(taskName, taskId, facility, priority, format, ap);
+         va_end(ap);
+      }  
+   }
    return rc;
 }
 
@@ -260,26 +313,32 @@ OsStatus OsSysLog::add(const OsSysLogFacility facility,
                        const char*            format,
                                               ...)
 {
-   OsStatus rc=OS_SUCCESS;
+   OsStatus rc = OS_UNSPECIFIED;
 
-   if (willLog(facility, priority))
+   // If the log has not been initialized, print everything
+   if (spOsSysLogTask != NULL)
    {
-      UtlString taskName ;
-      int       taskId = 0 ;
-
-      va_list ap;
-      va_start(ap, format);
-
-      OsTaskBase* pBase = OsTask::getCurrentTask() ;
-      if (pBase != NULL)
+      if (willLog(facility, priority))
       {
-         taskName = pBase->getName() ;
-         pBase->id(taskId) ;
-      }
+         UtlString taskName ;
+         int      taskId = 0 ;
+
+         va_list ap;
+         va_start(ap, format);
+
+         OsTaskBase* pBase = OsTask::getCurrentTask() ;
+         if (pBase != NULL)
+         {
+            taskName = pBase->getName() ;
+            pBase->id(taskId) ;
+         }
          
-      rc = vadd(taskName.data(), taskId, facility, priority, format, ap);
-      va_end(ap);
+         rc = vadd(taskName.data(), taskId, facility, priority, format, ap);         
+         va_end(ap);
+      }  
    }
+   else
+      rc = OS_SUCCESS ;
 
    return rc;
 }
@@ -290,31 +349,17 @@ OsStatus OsSysLog::vadd(const char*            taskName,
                         const OsSysLogFacility facility,
                         const OsSysLogPriority priority,
                         const char*            format,
-                        va_list&               ap)
+                        const va_list          ap)
 {
-   if (willLog(facility, priority))
+   // If the log has not been initialized, print everything to the console
+   if (spOsSysLogTask != NULL)
    {
-      UtlString logData;
-      myvsprintf(logData, format, ap) ;
-      logData = escape(logData) ;
-
-      // If the log has not been initialized, print to the console in a
-      // shorter format.
-      if (spOsSysLogTask == NULL)
+      if (willLog(facility, priority))
       {
-         // Convert the variable arguments into a single string
-
-         // Display all of the data
-         osPrintf("%s %s %s 0x%08X %s\n", 
-                  OsSysLog::sFacilityNames[facility], 
-                  OsSysLog::sPriorityNames[priority],
-                  (taskName == NULL) ? "" : taskName, 
-                  taskId,
-                  logData.data()) ;
-      }
-      else
-      {
-         // Apply timestamps for messages that go into files.
+         UtlString logData;
+         UtlString logEntry;
+         myvsprintf(logData, format, ap) ;
+         logData = escape(logData) ;
 
          OsTime timeNow;
          OsDateTime::getCurTime(timeNow); 
@@ -323,46 +368,51 @@ OsStatus OsSysLog::vadd(const char*            taskName,
          UtlString   strTime ;
          logTime.getIsoTimeStringZus(strTime) ;
 
-         UtlString logEntry;
          mysprintf(logEntry, "\"%s\":%d:%s:%s:%s:%s:%08X:%s:\"%s\"",
-                   strTime.data(),
-                   ++sEventCount,
-                   OsSysLog::sFacilityNames[facility], 
-                   OsSysLog::sPriorityNames[priority],
-                   sHostname.data(),
-                   (taskName == NULL) ? "" : taskName,
-                   taskId,
-                   sProcessId.data(),
-                   logData.data()) ;         
+               strTime.data(),
+               ++sEventCount,
+               OsSysLog::sFacilityNames[facility], 
+               OsSysLog::sPriorityNames[priority],
+               sHostname.data(),
+               (taskName == NULL) ? "" : taskName,
+               taskId,
+               sProcessId.data(),
+               logData.data()) ;         
 
          // If the logger for some reason trys to log a message
          // there is a recursive problem.  Drop the message on the
          // floor for now.  This can occur if one of the os utilities
          // logs a message.
-         if (strcmp("syslog", taskName) == 0)
+         if(strcmp("syslog", taskName) == 0)
          {
-            // Just discard the log entry
-            //
-            // (rschaaf):
-            // NOTE: Don't try to use osPrintf() to emit the log entry since this
-            // can cause consternation for applications (e.g. CGIs) that expect to
-            // use stdout for further processing.
+             // Just discard the log entry
+             //
+             // (rschaaf):
+             // NOTE: Don't try to use osPrintf() to emit the log entry since this
+             // can cause consternation for applications (e.g. CGIs) that expect to
+             // use stdout for further processing.
          }
          else
          {
-            char* szPtr = strdup(logEntry.data()) ;
-        
-            OsSysLogMsg msg(OsSysLogMsg::LOG, szPtr) ;
-            spOsSysLogTask->postMessage(msg) ;                 
-         }
-      }
+             char* szPtr = strdup(logEntry.data()) ;
+             OsSysLogMsg msg(OsSysLogMsg::LOG, szPtr) ;
+             OsTime timeout(1000) ;
+             if ( spOsSysLogTask != NULL &&
+                  spOsSysLogTask->postMessage(msg, timeout) != OS_SUCCESS)
+             {
+                 printf("OsSysLog jamed: %s\n", szPtr) ;
+                 free(szPtr) ;
+                 OsTask::yield() ;
+              }
+          }
+       }
    }
 
    return OS_SUCCESS ;
 }
 
 
-// Clear the in-memory log buffer
+// Clear the in memory log buffer
 OsStatus OsSysLog::clearInMemoryLog()
 {
    OsStatus rc = OS_SUCCESS ;
@@ -418,7 +468,7 @@ OsSysLog::initSysLog(const OsSysLogFacility facility,
       { "ERR",     PRI_ERR},
       { "CRIT",    PRI_CRIT},
       { "ALERT",   PRI_ALERT},
-      { "EMERG",   PRI_EMERG},
+      { "EMERG",   PRI_EMERG}
    };
 
    logLevel.toUpper();
@@ -849,29 +899,29 @@ void mysprintf(UtlString& results, const char* format, ...)
 
 
 // a version of vsprintf that stores results in an UtlString
-void myvsprintf(UtlString& results, const char* format, va_list& args)
+void myvsprintf(UtlString& results, const char* format, OS_VA_ARG_CONST va_list args)
 {    
-    /* Start by alocating 900 bytes.  The logs from a production
-     *  system show that 90% of messages are shorter than 900 bytes.
-     */
-    int n, size = 900;
+    /* Guess we need no more than 384 bytes. */
+    int n, size = 384;
     char *p;
 
     results.remove(0) ;
     p = (char*) malloc(size) ;
-     
+
     while (p != NULL)
     {
+#ifdef _WIN32
+        n = _vsnprintf (p, size, format, args);
+#else
+        va_list args_copy;
+        /* Argument list must be copied, because we call vsnprintf in a loop
+         * and first call will invalidate list, so on second iteration it
+         * will contain junk. (this is not a problem for i386, but appears
+         * as such on e.g. x86_64) */
+        va_copy(args_copy, args);
         /* Try to print in the allocated space. */
-        {
-           // When printing the arguments, we must use a fresh copy of
-           // ap every time, because using a va_list in vsnprintf can
-           // modify it, and this vsnprintf is inside the while loop.
-           va_list ap;
-           va_copy (ap, args);
-           n = vsnprintf (p, size, format, ap);
-           va_end(ap);
-        }
+        n = vsnprintf (p, size, format, args_copy);
+#endif
 
         /* If that worked, return the string. */
         if (n > -1 && n < size)
@@ -897,3 +947,34 @@ void myvsprintf(UtlString& results, const char* format, va_list& args)
     }
 }
 
+OsStackTraceLogger::OsStackTraceLogger(const OsSysLogFacility facility,
+                    const OsSysLogPriority priority,
+                    const char* methodName) : 
+    mMethodName(methodName),
+    mFacility(facility),
+    mPriority(priority)
+{
+    OsTask::getCurrentTaskId(mTid);
+    OsSysLog::add(mFacility, mPriority, "ENTER FUNC (tid=%d) %s\n",
+        mTid, methodName);
+}
+
+OsStackTraceLogger::~OsStackTraceLogger()
+{
+    OsSysLog::add(mFacility, mPriority, "EXIT  FUNC (tid=%d) %s\n",
+        mTid, mMethodName.data());
+}
+
+OsStackTraceLogger::OsStackTraceLogger(const OsSysLogFacility facility,
+                    const OsSysLogPriority priority,
+                    const char* methodName,
+                    const OsStackTraceLogger& oneBackInStack) : 
+    mMethodName(methodName),
+    mFacility(facility),
+    mPriority(priority)
+{
+    mMethodName = UtlString(oneBackInStack.mMethodName) + UtlString("->") + mMethodName;
+    OsTask::getCurrentTaskId(mTid);
+    OsSysLog::add(mFacility, mPriority, "ENTER FUNC (tid=%d) %s\n",
+        mTid, mMethodName.data());
+}

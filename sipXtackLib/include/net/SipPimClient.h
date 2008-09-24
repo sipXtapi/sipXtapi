@@ -1,16 +1,15 @@
-// 
+//
 // Copyright (C) 2005 SIPez LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.
 // 
 // Copyright (C) 2004 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2004 Pingtel Corp.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
 //////////////////////////////////////////////////////////////////////////////
-
 // Author: Daniel Petrie (dpetrie AT SIPez DOTcom)
 
 
@@ -74,6 +73,7 @@ public:
         open
     } SipxRpidStates;
 
+    typedef void (*MessageCallback)(void* userData, const UtlString& fromAddress, const char* textMessage, int textLength, const char* subject, const SipMessage& messageRequest);
 /* ============================ CREATORS ================================== */
 
     //! Constructor
@@ -123,7 +123,7 @@ public:
      * \param responseCodeText - the response code text from the top header line
      */
     UtlBoolean sendPagerMessage(Url& destinationAor, 
-                                const char* messageText,
+                                const char* messageText, const char* subject,
                                 int& responseCode,
                                 UtlString& responseCodeText);
 
@@ -136,11 +136,7 @@ public:
      * \param textMessage - the text message from the request body
      * \param messageRequest - the MESSAGE request
      */
-    void setIncomingImTextHandler(
-                           void (*textHandler)(const UtlString& fromAddress,
-                                 const char* textMessage,
-                                 int textLength,
-                                 const SipMessage& messageRequest));
+    void setIncomingImTextHandler(MessageCallback callback, void* userData);
 
     //! Update the presence state of the presentity indicate 
     /*! Send a PUBLISH request to update the RPID document with the
@@ -183,14 +179,13 @@ private:
     Url mPresentityAor;
     UtlString mFromField;
     SipUserAgent* mpUserAgent;
+
+    MessageCallback mpTextHandlerFunction;
+    void* mpTextHandlerUserData;
+
     UtlString mPkcs12KeyCertContainer;
     UtlString mPkcs12Password;
     UtlString mDerRemoteCertificate;
-
-    void (*mpTextHandlerFunction)(const UtlString& fromAddress,
-                                 const char* textMessage,
-                                 int textLength,
-                                 const SipMessage& messageRequest);
 
 };
 

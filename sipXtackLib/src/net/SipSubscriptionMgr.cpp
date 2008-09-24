@@ -1,13 +1,12 @@
-// 
-// 
-// Copyright (C) 2005 SIPfoundry Inc.
+//
+// Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2005 Pingtel Corp.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
-//////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 // Author: Dan Petrie (dpetrie AT SIPez DOT com)
 
 // SYSTEM INCLUDES
@@ -248,12 +247,12 @@ UtlBoolean SipSubscriptionMgr::updateDialogInfo(const SipMessage& subscribeReque
             // Set the contact to the same request URI that came in
             UtlString contact;
             subscribeRequest.getRequestUri(&contact);
-            
+
             // Add the angle brackets for contact
             Url url(contact);
             url.includeAngleBrackets();
             contact = url.toString();
-            
+
             subscribeResponse.setResponseData(subscribeCopy, 
                                             SIP_ACCEPTED_CODE,
                                             SIP_ACCEPTED_TEXT, 
@@ -405,7 +404,7 @@ UtlBoolean SipSubscriptionMgr::updateDialogInfo(const SipMessage& subscribeReque
                 // Set the contact to the same request URI that came in
                 UtlString contact;
                 subscribeRequest.getRequestUri(&contact);
- 
+
                 // Add the angle brackets for contact
                 Url url(contact);
                 url.includeAngleBrackets();
@@ -455,14 +454,14 @@ UtlBoolean SipSubscriptionMgr::getNotifyDialogInfo(const UtlString& subscribeDia
     SubscriptionServerState* state = (SubscriptionServerState*)
         mSubscriptionStatesByDialogHandle.find(&subscribeDialogHandle);
 
-    if (state)
+    if(state)
     {
         notifyInfoSet = mDialogMgr.setNextLocalTransactionInfo(notifyRequest, 
-                                                               SIP_NOTIFY_METHOD,
-                                                               subscribeDialogHandle);
+                                                             SIP_NOTIFY_METHOD,
+                                                             subscribeDialogHandle);
 
         // Set the event header, if we know what it is.
-        if (state->mpLastSubscribeRequest)
+        if(state->mpLastSubscribeRequest)
         {
             UtlString eventHeader;
             state->mpLastSubscribeRequest->getEventField(eventHeader);
@@ -503,12 +502,12 @@ UtlBoolean SipSubscriptionMgr::createNotifiesDialogInfo(const char* resourceId,
     acceptHeaderValuesArray = NULL;
     notifyArray = NULL;
 
-    while (iterator())
+    while(iterator())
     {
         count++;
     }
 
-    if (count > 0)
+    if(count > 0)
     {
         SubscriptionServerStateIndex* contentTypeIndex = NULL;
         acceptHeaderValuesArray = new UtlString*[count];
@@ -531,7 +530,7 @@ UtlBoolean SipSubscriptionMgr::createNotifiesDialogInfo(const char* resourceId,
             }
             // Should not happen, the index should be created and
             // deleted with the state
-            else if (contentTypeIndex->mpState == NULL)
+            else if(contentTypeIndex->mpState == NULL)
             {
                 OsSysLog::add(FAC_SIP, PRI_ERR,
                     "SipSubscriptionMgr::createNotifiesDialogInfo SubscriptionServerStateIndex with NULL mpState");
@@ -568,7 +567,7 @@ UtlBoolean SipSubscriptionMgr::createNotifiesDialogInfo(const char* resourceId,
                               index, acceptHeaderValuesArray[index]->data(),
                               eventHeader.data());
 
-                index++;
+                 index++;
             }
         }
     }
@@ -584,21 +583,21 @@ void SipSubscriptionMgr::freeNotifies(int numNotifies,
                                       SipMessage** notifiesArray)
 {
    if (notifiesArray && acceptHeaderValues && numNotifies > 0)
-   {
-      for (int index = 0; index < numNotifies; index++)
-      {
-         if (acceptHeaderValues[index])
-         {
-            delete acceptHeaderValues[index];
-         }
-         if (notifiesArray[index])
-         {
-            delete notifiesArray[index];
-         }
-      }
-      delete[] acceptHeaderValues;
-      delete[] notifiesArray;
-   }
+        {
+            for(int index = 0; index < numNotifies; index++)
+            {
+                if(acceptHeaderValues[index])
+                {
+                    delete acceptHeaderValues[index];
+                }
+                if(notifiesArray[index])
+                {
+                    delete notifiesArray[index];
+                }
+            }
+            delete[] acceptHeaderValues;
+            delete[] notifiesArray;
+        }
 }
 
 UtlBoolean SipSubscriptionMgr::endSubscription(const UtlString& dialogHandle)

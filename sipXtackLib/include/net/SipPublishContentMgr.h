@@ -1,13 +1,12 @@
-// 
-// 
-// Copyright (C) 2005 SIPfoundry Inc.
+//
+// Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2005 Pingtel Corp.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
-//////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 // Author: Dan Petrie (dpetrie AT SIPez DOT com)
 
 #ifndef _SipPublishContentMgr_h_
@@ -52,7 +51,7 @@ class SipPublishContentMgrDefaultConstructor;
  *  1 (control-A), so that the concatenation of resourceId and
  *  eventTypeKey can be split unambiguously.
  *
- *  It is up to the application or event package to decide what the
+ *  It is up to the application or event package to decide what the 
  *  resourceId and eventTypeKey look like.  In addition, there is an
  *  eventType that may provide a coarser classification than
  *  eventTypeKey.  Callback functions are registered for eventTypes
@@ -154,8 +153,8 @@ public:
      *         they are no longer needed.
      */
     virtual void publishDefault(const char* eventTypeKey,
-                                const char* eventType,
-                                int numContentTypes,
+                                      const char* eventType,
+                                      int numContentTypes,
                                 HttpBody* eventContent[]);
 
     /** Add a default content constructor function.
@@ -164,7 +163,7 @@ public:
      *         which will delete it when it is no longer needed.
      */
     virtual void publishDefault(const char* eventTypeKey,
-                                const char* eventType,
+                                        const char* eventType,
                                 SipPublishContentMgrDefaultConstructor*
                                 defaultConstructor);
 
@@ -178,9 +177,9 @@ public:
      *  An application provides content (i.e. SIP event state bodies)
      *  through this interface for the given resourceId and eventTypeKey.
      *  The resourceId and eventTypeKey together compose a unique key which
-     *  identifies the provided content.  The resourceId is optained from
-     *  the PUBLISH or SUBSCRIBE request URI.  The eventTypeKey is obtained
-     *  from the SIP Event header field.
+     * identifies the provided content.  The resourceId is optained from
+     * the PUBLISH or SUBSCRIBE request URI.  The eventTypeKey is obtained
+     * from the SIP Event header field.
      *  \param resourceId - a unique id for the resource, typically the
      *         identity or AOR for the event type content.  There is no
      *         semantics enforced.  This is an opaque string used as part
@@ -213,10 +212,10 @@ public:
      *         methods.
      */
     virtual void publish(const char* resourceId,
-                         const char* eventTypeKey,
-                         const char* eventType,
-                         int numContentTypes,
-                         HttpBody* eventContent[],
+                               const char* eventTypeKey,
+                               const char* eventType,
+                               int numContentTypes,
+                               HttpBody* eventContent[],
                          UtlBoolean noNotify = FALSE);
 
     /** Remove the content for the given resourceId and eventTypeKey
@@ -237,7 +236,7 @@ public:
      *  \param eventType - SIP event type token
      */
     virtual void unpublish(const char* resourceId,
-                           const char* eventTypeKey,
+                                const char* eventTypeKey,
                            const char* eventType);
 
     /** Fetch the published content for a given resourceId/eventTypeKey.
@@ -335,8 +334,8 @@ public:
     /// Get some debug information
     void getStats(int& numDefaultContent,
                   int& numDefaultConstructor,
-                  int& numResourceSpecificContent,
-                  int& numCallbacksRegistered);
+                    int& numResourceSpecificContent,
+                    int& numCallbacksRegistered);
 
 /* ============================ INQUIRY =================================== */
 

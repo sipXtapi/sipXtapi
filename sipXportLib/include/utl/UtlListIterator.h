@@ -1,10 +1,12 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 #ifndef _UtlListIterator_h_
 #define _UtlListIterator_h_
@@ -95,6 +97,7 @@ protected:
     UtlLink* mpCurrentNode;
 
     friend class UtlList;
+    friend class UtlInit;
 
     /**
      * removing is called by the UtlList when an element is about to be
@@ -104,7 +107,6 @@ protected:
     virtual void removing(const UtlLink* node);
 
 
-    static const UtlLink*  NOWHERE;
     static UtlLink const* OFF_LIST_END;
     
 /* //////////////////////////// PRIVATE /////////////////////////////////// */

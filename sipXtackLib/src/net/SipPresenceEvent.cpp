@@ -1,12 +1,12 @@
-// 
-// Copyright (C) 2005 SIPfoundry Inc.
+//
+// Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2005 Pingtel Corp.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
-//////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
@@ -14,7 +14,7 @@
 #include <utl/UtlHashMapIterator.h>
 #include <utl/XmlContent.h>
 #include <net/SipPresenceEvent.h>
-#include <net/NameValueTokenizer.h>
+#include <utl/UtlNameValueTokenizer.h>
 #include <xmlparser/tinyxml.h>
 
 // EXTERNAL FUNCTIONS
@@ -214,7 +214,7 @@ void SipPresenceEvent::parseBody(const char* bodyBytes)
                      priority = ucElement->Attribute("priority");
                   }
                   
-               pTuple->setContact(contact, atof(priority));
+               pTuple->setContact(contact, (float)atof(priority));
                }
              
                // Insert it into the list

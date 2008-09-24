@@ -1,9 +1,12 @@
-// 
-// Copyright (C) 2005 Pingtel Corp.
+//
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
-//////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 #ifndef _PLUGIN_H_
 #define _PLUGIN_H_
 
@@ -97,7 +100,7 @@ class Plugin
     * examples in PluginHooks::readConfig).
     */
 
-  protected:
+protected:
 
    /// Derived constructors should be private so that only the Factory can call them.
    Plugin(const UtlString& instanceName) :
@@ -108,7 +111,7 @@ class Plugin
    /// The instance name from the configuration directive - for logging and other identification.
    UtlString   mInstanceName;
     
-  private:
+private:
 
    /// There is no copy constructor.
    Plugin(const Plugin&);

@@ -1,10 +1,12 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 
 #ifndef _UtlHashBag_h_
@@ -36,6 +38,7 @@ class UtlHashBag : public UtlContainer
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
   public:
+    static UtlContainableType TYPE;
 
 /* ============================ CREATORS ================================== */
 
@@ -122,8 +125,6 @@ class UtlHashBag : public UtlContainer
     * Get the ContainableType for the hash bag as a contained object.
     */
    virtual UtlContainableType getContainableType() const;
-
-   static UtlContainableType TYPE; ///< the type constant for this class
 
    /// The current number of buckets in the hash.
    size_t numberOfBuckets() const

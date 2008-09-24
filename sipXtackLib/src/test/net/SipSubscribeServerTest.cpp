@@ -1,11 +1,13 @@
-// 
-// 
-// Copyright (C) 2005 SIPfoundry Inc.
+//  
+// Copyright (C) 2007 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement. 
+//
+// Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2005 Pingtel Corp.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.
 // Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 // Author: Dan Petrie (dpetrie AT SIPez DOT com)
@@ -41,10 +43,6 @@ class SipSubscribeServerTest : public CppUnit::TestCase
 
    void subscriptionTest()
    {
-#    ifdef __linux__
-      KNOWN_BUG("SipSubscribeServerTest hangs on linux (skipped)", "XSL-150");
-      CPPUNIT_ASSERT(false);
-#    else
        UtlString hostIp;
        OsSocket::getHostIp(&hostIp);
 
@@ -393,7 +391,6 @@ Voice-Message: 0/0 (0/0)\r\n";
        
        delete subServer;
        subServer = NULL;
-#    endif
    }
 
 };

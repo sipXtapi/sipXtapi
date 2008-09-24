@@ -1,9 +1,12 @@
 //
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
 //
-// Copyright 2005 Pingtel Corp.
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-//////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
@@ -447,9 +450,9 @@ bool ProvisioningClass::setPSAttribute(TiXmlNode* pClassInstance, const char* pA
 
 bool ProvisioningClass::setPSAttribute(TiXmlNode* pClassInstance, const char* pAttribute, int value)
 {
-   char valueString[24];
+   char valueString[16];
 
-   sprintf( valueString, "%d", value);
+   snprintf(valueString, 16, "%d", value);
    return setPSAttribute(pClassInstance, pAttribute, valueString);
 }
 

@@ -1,16 +1,12 @@
-// 
-// 
-// Copyright (C) 2005-2006 SIPez LLC.
-// Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2004-2006 Pingtel Corp.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
-//////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
@@ -19,12 +15,13 @@
 // EXTERNAL VARIABLES
 // CONSTANTS
 // STATIC VARIABLE INITIALIZATIONS
-TapiMgr* TapiMgr::spTapiMgr = 0;
+TapiMgr TapiMgr::sTapiMgr;
 
 // Constructor - private, this is a singleton
 TapiMgr::TapiMgr() :
-    sipxCallEventCallbackPtr(0),
-    sipxLineEventCallbackPtr(0)
+    sipxCallEventCallbackPtr(NULL),
+    sipxLineEventCallbackPtr(NULL),
+    sipxMediaCallbackPtr(NULL)
 {
 }
 
@@ -36,17 +33,18 @@ TapiMgr::~TapiMgr()
 // static accessor for the singleton instance
 TapiMgr& TapiMgr::getInstance()
 {
-   if (TapiMgr::spTapiMgr == 0)
-   {
-      TapiMgr::spTapiMgr = new TapiMgr();
-   }
-   return *(TapiMgr::spTapiMgr);
+   return sTapiMgr;
 }
 
 // setting the Call event callback pointer
 void TapiMgr::setTapiCallCallback(sipxCallEventCallbackFn fp)
 {
     sipxCallEventCallbackPtr = fp;
+}
+
+void TapiMgr::setTapiMediaCallback(sipxMediaCallbackFn fp) 
+{
+    sipxMediaCallbackPtr = fp;
 }
 
 // setting the Line event callback pointer
@@ -61,27 +59,62 @@ void TapiMgr::setTapiCallback(sipxEventCallbackFn fp)
 }
 
 void TapiMgr::fireCallEvent(const void*          pSrc,
-                       const char*		    szCallId,
-                       SipSession*          pSession,
-				       const char*          szRemoteAddress,                   
-				       SIPX_CALLSTATE_EVENT eMajorState,
-				       SIPX_CALLSTATE_CAUSE eMinorState,
-                       void*                pEventData,
-                       const char*          remoteAssertedIdentity)
+                            const char*		 szCallId,
+                            SipSession*          pSession,
+                            const char*          szRemoteAddress,                   
+                            SIPX_CALLSTATE_EVENT event,
+                            SIPX_CALLSTATE_CAUSE cause,
+                            void*                pEventData,
+                            const char*          remoteAssertedIdentity)
 {
+    static SIPX_CALLSTATE_EVENT lastEvent = CALLSTATE_UNKNOWN;
+    static SIPX_CALLSTATE_CAUSE lastCause = CALLSTATE_CAUSE_UNKNOWN;
+    static char szLastCallId[256] = { 0 };
+    static char szLastRemoteAddress[256]  = { 0 };
+    static SipSession* pLastSession = NULL;
+    
     if (sipxCallEventCallbackPtr)
     {
-        (*sipxCallEventCallbackPtr)(pSrc, 
-                                    szCallId, 
-                                    pSession, 
-                                    szRemoteAddress, 
-                                    (SIPX_CALLSTATE_MAJOR)(int)eMajorState, 
-                                    (SIPX_CALLSTATE_MINOR)(int)eMinorState, 
-                                    pEventData,
-                                    remoteAssertedIdentity);
+        if (lastEvent == event &&
+            lastCause == cause &&
+            strcmp(szLastRemoteAddress, szRemoteAddress) == 0 &&
+            strcmp(szLastCallId, szCallId) == 0 ) 
+        {
+            // don't fire
+        }
+        else
+        {
+            (*sipxCallEventCallbackPtr)(pSrc, szCallId, pSession, szRemoteAddress,
+                                        event, cause, pEventData,
+                                        remoteAssertedIdentity);
+            lastEvent = event;
+            lastCause = cause;
+            strncpy(szLastCallId, szCallId, sizeof(szLastCallId));
+            strncpy(szLastRemoteAddress, szCallId, sizeof(szLastRemoteAddress));
+            pLastSession = pSession;
+        }
+                                    
     }
     return;
 }
+
+
+void TapiMgr::fireMediaEvent(const void*         pSrc,
+                             const char*         szCallId,
+                             const char*         szRemoteAddress,
+                             SIPX_MEDIA_EVENT    event,
+                             SIPX_MEDIA_CAUSE    cause,
+                             SIPX_MEDIA_TYPE     type,
+                             void*               pEventData) 
+{
+    if (sipxMediaCallbackPtr)
+    {
+            (*sipxMediaCallbackPtr)(pSrc, szCallId, szRemoteAddress, event, 
+                    cause, type, pEventData);
+
+    }
+}
+    
 
 void TapiMgr::fireLineEvent(const void* pSrc,
                         const char* szLineIdentifier,
@@ -91,17 +124,22 @@ void TapiMgr::fireLineEvent(const void* pSrc,
 {
     if (sipxLineEventCallbackPtr)
     {
-        (*sipxLineEventCallbackPtr)(pSrc, szLineIdentifier,
-                                    (SIPX_LINE_EVENT_TYPE_MAJOR)(int)event,
-                                    (SIPX_LINE_EVENT_TYPE_MINOR)(int)cause,
-                                    bodyBytes );
+        (*sipxLineEventCallbackPtr)(pSrc, 
+                szLineIdentifier, 
+                event, 
+                cause,
+                bodyBytes);
     }
 }
 
-void TapiMgr::fireEvent(const void* pSrc, const SIPX_EVENT_CATEGORY event, void *pInfo)
+bool TapiMgr::fireEvent(const void* pSrc, const SIPX_EVENT_CATEGORY event, void *pInfo)
 {
     if (sipxEventCallbackPtr)
     {
-        (*sipxEventCallbackPtr)(pSrc, event, pInfo);
+        return (*sipxEventCallbackPtr)(pSrc, event, pInfo);
+    }
+    else
+    {
+        return false;
     }
 }

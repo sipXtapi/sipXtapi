@@ -1,5 +1,0 @@
-SUBDIRS = \
-	etc \
-	src \
-	bin
-

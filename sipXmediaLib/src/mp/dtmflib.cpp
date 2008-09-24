@@ -1,10 +1,15 @@
+//  
+// Copyright (C) 2007 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2005 Pingtel Corp.
+// Copyright (C) 2004-2007 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 
 #include <stdio.h>
@@ -15,6 +20,7 @@
 #include "mp/MpTypes.h"
 #include "mp/MpMisc.h"
 #include "os/OsMutex.h"
+#include "os/OsDefs.h"
 
 #define PI  3.1415926
 #define PIt2 (2.0 * PI)
@@ -24,13 +30,6 @@
 #define DTMF_KEY_COL_AMP (.5490F * .25F)
 
 #include "mp/dtmflib.h"
-
-#ifndef max
-#define max(x,y) (((x)>(y))?(x):(y))
-#endif
-#ifndef min
-#define min(x,y) (((x)<(y))?(x):(y))
-#endif
 
 typedef struct __tone_tag {
         int Hz;
@@ -168,7 +167,7 @@ void MpToneGen_stopTone(MpToneGenPtr p)
 #define AUDIO_A2D_MAX ((1<<(AUDIO_A2D_BITS-1))-1) /* i.e. 2047 */
 
 //static int setsw(tonePtr t, short *d, int l)
-static int setsw(tonePairPtr p, short *d, int l)
+static int setsw(tonePairPtr p, MpAudioSample *d, int l)
 {
        // int y, sinm2, sinm1, costh, range;
         int y1, sinm12, sinm11, costh1;
@@ -244,7 +243,7 @@ static int addsw(tonePtr t, short *d, int l)
  * dtmfGenNext -- put the next n samples for a DTMF sequence into buffer b.
  */
 
-OsStatus MpToneGen_getNextBuff(MpToneGenPtr pThis, short *b, int N)
+OsStatus MpToneGen_getNextBuff(MpToneGenPtr pThis, MpAudioSample *b, int N)
 {
         dtmfPatternPtr d;
         int n = 0;
@@ -255,14 +254,15 @@ OsStatus MpToneGen_getNextBuff(MpToneGenPtr pThis, short *b, int N)
         pThis->mpMutex->acquire();
         d = pThis->currentDtmfSound;
         if (NULL == d) {
-                n = 0;
+            n = 0;
+            ret = OS_NO_MORE_DATA;
         } else {
             p = &(d->pairs[d->curpair]);
             while (n<N) {
                 i = (p->usecs - p->curusecs) / pThis->usecspersample;
                 if (i > 0) {
-                  /* for as many as remain, do setsw() and addsw() as needed */
-                    i = min(i, (N-n));
+                  /* for as many as remain, do setsw() as needed */
+                    i = sipx_min(i, (N-n));
                     if(NULL!=(p->low) || NULL!=(p->high)) {
                         setsw(p, b, i);
                     } else {
@@ -725,7 +725,7 @@ void playsilence(MpToneGenPtr p, int ms)
 void playdigit(MpToneGenPtr p, char digit, int ms)
 {
         MpToneGen_startTone(p, digit);
-        semTake(semDelay, ticks(max(60,ms)));
+        semTake(semDelay, ticks(sipx_max(60,ms)));
         playsilence(p, 80);
 }
 
@@ -793,25 +793,25 @@ int playnumb(MpToneGenPtr p, char *n)
 void playdial(MpToneGenPtr p, int ms)
 {
         MpToneGen_startTone(p, DTMF_TONE_DIALTONE);
-        semTake(semDelay, ticks(max(60,ms)));
+        semTake(semDelay, ticks(sipx_max(60,ms)));
 }
 
 void playbusy(MpToneGenPtr p, int ms)
 {
         MpToneGen_startTone(p, DTMF_TONE_BUSY);
-        semTake(semDelay, ticks(max(60,ms)));
+        semTake(semDelay, ticks(sipx_max(60,ms)));
 }
 
 void playringback(MpToneGenPtr p, int ms)
 {
         MpToneGen_startTone(p, DTMF_TONE_RINGBACK);
-        semTake(semDelay, ticks(max(60,ms)));
+        semTake(semDelay, ticks(sipx_max(60,ms)));
 }
 
 void playring(MpToneGenPtr p, int ms)
 {
         MpToneGen_startTone(p, DTMF_TONE_RINGTONE);
-        semTake(semDelay, ticks(max(60,ms)));
+        semTake(semDelay, ticks(sipx_max(60,ms)));
 }
 
 static int toning;

@@ -1,22 +1,18 @@
 //
-//
-// Copyright (C) 2005-2006 SIPez LLC.
-// Licensed to SIPfoundry under a Contributor Agreement.
-//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
-// Copyright (C) 2004-2006 Pingtel Corp.
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
-// 
 //
 // $$
-//////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 
 #include <cppunit/CompilerOutputter.h>
 #include <cppunit/extensions/TestFactoryRegistry.h>
 #include <cppunit/ui/text/TestRunner.h>
+#include "TestRegistrar.h"
 #include "sipXtapiTest.h"
 #include "EventRecorder.h"
 #include "EventValidator.h"
@@ -75,7 +71,7 @@ void sipXtapiTestSuite::testGainAPI()
     }
 
     // Does not create a call -- no need to pause
-    OsTask::delay(TEST_DELAY) ;    
+    // OsTask::delay(TEST_DELAY) ;    
     checkForLeaks();
 }
 
@@ -183,8 +179,7 @@ void sipXtapiTestSuite::testVolumeAPI()
         CPPUNIT_ASSERT_EQUAL(iLevel, VOLUME_MAX) ;
     }
 
-    // Does not create a call -- no need to pause
-    // OsTask::delay(TEST_DELAY) ;    
+    OsTask::delay(TEST_DELAY) ;    
     checkForLeaks() ;
 }
 
@@ -197,13 +192,42 @@ void sipXtapiTestSuite::testAudioSettings()
         printf("\ntestAudioSettings (%2d of %2d)", iStressFactor+1, STRESS_FACTOR);
 
         // Test Enable AEC
-        CPPUNIT_ASSERT_EQUAL( sipxAudioEnableAEC(g_hInst, true), SIPX_RESULT_SUCCESS);
-        bool bResult = false;
-        CPPUNIT_ASSERT_EQUAL( sipxAudioIsAECEnabled(g_hInst, bResult), SIPX_RESULT_SUCCESS);
-        CPPUNIT_ASSERT_EQUAL( bResult, true);
-        CPPUNIT_ASSERT_EQUAL( sipxAudioEnableAEC(g_hInst, false), SIPX_RESULT_SUCCESS);
-        CPPUNIT_ASSERT_EQUAL( sipxAudioIsAECEnabled(g_hInst, bResult), SIPX_RESULT_SUCCESS);
-        CPPUNIT_ASSERT_EQUAL( bResult, false);
+
+        SIPX_AEC_MODE mode ;
+        CPPUNIT_ASSERT_EQUAL( sipxAudioSetAECMode(g_hInst, SIPX_AEC_DISABLED), SIPX_RESULT_SUCCESS);
+        CPPUNIT_ASSERT_EQUAL( sipxAudioGetAECMode(g_hInst, mode), SIPX_RESULT_SUCCESS) ;
+        CPPUNIT_ASSERT_EQUAL( mode, SIPX_AEC_DISABLED) ;
+
+        CPPUNIT_ASSERT_EQUAL( sipxAudioSetAECMode(g_hInst, SIPX_AEC_SUPPRESS), SIPX_RESULT_SUCCESS);
+        CPPUNIT_ASSERT_EQUAL( sipxAudioGetAECMode(g_hInst, mode), SIPX_RESULT_SUCCESS) ;
+        CPPUNIT_ASSERT_EQUAL( mode, SIPX_AEC_SUPPRESS) ;
+
+        CPPUNIT_ASSERT_EQUAL( sipxAudioSetAECMode(g_hInst, SIPX_AEC_CANCEL), SIPX_RESULT_SUCCESS);
+        CPPUNIT_ASSERT_EQUAL( sipxAudioGetAECMode(g_hInst, mode), SIPX_RESULT_SUCCESS) ;
+        CPPUNIT_ASSERT_EQUAL( mode, SIPX_AEC_CANCEL) ;
+
+        CPPUNIT_ASSERT_EQUAL( sipxAudioSetAECMode(g_hInst, SIPX_AEC_CANCEL_AUTO), SIPX_RESULT_SUCCESS);
+        CPPUNIT_ASSERT_EQUAL( sipxAudioGetAECMode(g_hInst, mode), SIPX_RESULT_SUCCESS) ;
+        CPPUNIT_ASSERT_EQUAL( mode, SIPX_AEC_CANCEL_AUTO) ;
+
+        // Test Noise Reduction
+        SIPX_NOISE_REDUCTION_MODE nrMode ;
+        CPPUNIT_ASSERT_EQUAL( sipxAudioSetNoiseReductionMode(g_hInst, SIPX_NOISE_REDUCTION_DISABLED), SIPX_RESULT_SUCCESS);
+        CPPUNIT_ASSERT_EQUAL( sipxAudioGetNoiseReductionMode(g_hInst, nrMode), SIPX_RESULT_SUCCESS) ;
+        CPPUNIT_ASSERT_EQUAL( nrMode, SIPX_NOISE_REDUCTION_DISABLED) ;
+
+        CPPUNIT_ASSERT_EQUAL( sipxAudioSetNoiseReductionMode(g_hInst, SIPX_NOISE_REDUCTION_LOW), SIPX_RESULT_SUCCESS);
+        CPPUNIT_ASSERT_EQUAL( sipxAudioGetNoiseReductionMode(g_hInst, nrMode), SIPX_RESULT_SUCCESS) ;
+        CPPUNIT_ASSERT_EQUAL( nrMode, SIPX_NOISE_REDUCTION_LOW) ;
+
+        CPPUNIT_ASSERT_EQUAL( sipxAudioSetNoiseReductionMode(g_hInst, SIPX_NOISE_REDUCTION_MEDIUM), SIPX_RESULT_SUCCESS);
+        CPPUNIT_ASSERT_EQUAL( sipxAudioGetNoiseReductionMode(g_hInst, nrMode), SIPX_RESULT_SUCCESS) ;
+        CPPUNIT_ASSERT_EQUAL( nrMode, SIPX_NOISE_REDUCTION_MEDIUM) ;
+
+        CPPUNIT_ASSERT_EQUAL( sipxAudioSetNoiseReductionMode(g_hInst, SIPX_NOISE_REDUCTION_HIGH), SIPX_RESULT_SUCCESS);
+        CPPUNIT_ASSERT_EQUAL( sipxAudioGetNoiseReductionMode(g_hInst, nrMode), SIPX_RESULT_SUCCESS) ;
+        CPPUNIT_ASSERT_EQUAL( nrMode, SIPX_NOISE_REDUCTION_HIGH) ;
+
         size_t numOfDevices;
         const char* szDevice;
         const char* checker = NULL;
@@ -246,7 +270,7 @@ void sipXtapiTestSuite::testGetVersion()
         printf("\ntestGetVersion (%2d of %2d)", iStressFactor+1, STRESS_FACTOR);
 
         CPPUNIT_ASSERT_EQUAL(sipxConfigGetVersion(szBuffer, 64), SIPX_RESULT_SUCCESS);
-        CPPUNIT_ASSERT(strstr(szBuffer, "SIPxua")!=NULL);
+        CPPUNIT_ASSERT(strstr(szBuffer, "sipXtapi")!=NULL);
         CPPUNIT_ASSERT_EQUAL(sipxConfigGetVersion(szBuffer, 2), SIPX_RESULT_INSUFFICIENT_BUFFER);
     }
 
@@ -436,6 +460,44 @@ void sipXtapiTestSuite::testConfigLog()
     checkForLeaks() ;
 }
 
+void sipXtapiTestSuite::testConfigExternalTransport() 
+{
+    for (int iStressFactor = 0; iStressFactor<STRESS_FACTOR; iStressFactor++)
+    {
+        printf("\nConfigExternalTransport (%2d of %2d)", iStressFactor+1, STRESS_FACTOR);
+
+        SIPX_TRANSPORT hTransport = SIPX_TRANSPORT_NULL;
+
+        SIPX_CONTACT_ADDRESS addresses[32] ;
+        memset(addresses, 0, sizeof(SIPX_CONTACT_ADDRESS)*32);
+        size_t nContacts ;
+        size_t origContacts;
+        sipxConfigGetLocalContacts(g_hInst, addresses, 32, origContacts) ;
+
+        sipxConfigExternalTransportAdd(g_hInst,
+                                       hTransport, 
+                                       true, 
+                                       "flibble", 
+                                       "127.0.0.1", 
+                                       -1,                                        
+                                       FlibbleTransportCallback,
+                                       "fibble");
+        sipxConfigExternalTransportRouteByUser(hTransport, false) ;
+        CPPUNIT_ASSERT((int)hTransport > 3);
+        
+        memset(addresses, 0, sizeof(SIPX_CONTACT_ADDRESS)*32);
+        sipxConfigGetLocalContacts(g_hInst, addresses, 32, nContacts) ;
+        CPPUNIT_ASSERT(nContacts == origContacts + 1 );
+
+        sipxConfigExternalTransportRemove(hTransport);
+
+        memset(addresses, 0, sizeof(SIPX_CONTACT_ADDRESS)*32);
+        sipxConfigGetLocalContacts(g_hInst, addresses, 32, nContacts) ;
+        CPPUNIT_ASSERT(nContacts == origContacts);
+    }
+    checkForLeaks() ;
+}
+
 void sipXtapiTestSuite::testConfigOutOfBand()
 {
     for (int iStressFactor = 0; iStressFactor<STRESS_FACTOR; iStressFactor++)
@@ -477,11 +539,229 @@ void sipXtapiTestSuite::testTeardown()
 
     // Does not create a call -- no need to pause
     // OsTask::delay(TEST_DELAY) ;    
+
     checkForLeaks() ;
 } 
 
+void sipXtapiTestSuite::testReinitializeSimple() 
+{
+    SIPX_INST hInst1 = NULL ;
+    SIPX_INST hInst2 = NULL ;
+    SIPX_RESULT rc ;
 
-bool config_callback(SIPX_EVENT_CATEGORY category,
+    for (int iStressFactor = 0; iStressFactor<STRESS_FACTOR; iStressFactor++)
+    {
+        printf("\ntestReinitializeSimple (%2d of %2d)", iStressFactor+1, STRESS_FACTOR);
+
+        rc = sipxInitialize(&hInst1, 8000, 8000, 8001, 8050, 32, NULL, "127.0.0.1") ;
+        CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS) ;
+        rc = sipxInitialize(&hInst2, 9100, 9100, 9101, 9050, 32, NULL, "127.0.0.1") ;
+        CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS) ;
+
+        rc = sipxReInitialize(&hInst1, 8000, 8000, 8001, 8050, 32, NULL, "127.0.0.1") ;
+        CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS) ;
+        rc = sipxReInitialize(&hInst2, 9100, 9100, 9101, 9050, 32, NULL, "127.0.0.1") ;
+        CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS) ;
+
+        rc = sipxUnInitialize(hInst2);
+        CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS) ;
+        rc = sipxUnInitialize(hInst1);
+        CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS) ;
+    }
+
+    checkForLeaks() ;
+}
+
+
+void sipXtapiTestSuite::testReinitializeCall() 
+{
+    SIPX_RESULT rc ;
+    bool        bRC ;
+
+    for (int iStressFactor = 0; iStressFactor<STRESS_FACTOR; iStressFactor++)
+    {
+        printf("\ntestReinitializeCall (%2d of %2d)", iStressFactor+1, STRESS_FACTOR);
+
+        SIPX_INST hInst1 ;
+        SIPX_INST hInst2 ;
+
+        /*
+         * Create instances
+         */
+
+        rc = sipxInitialize(&hInst1, 8001, 8001, 8002, 8050, 32, NULL, "127.0.0.1") ;
+        CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS) ;
+
+        rc = sipxInitialize(&hInst2, 8003, 8003, 8004, 8060, 32, NULL, "127.0.0.1") ;
+        CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS) ;
+
+        /*
+         * Verify we can make a call
+         */
+        doCallBasic(hInst1, "sip:calling@127.0.0.1:8001", "sip:calling@127.0.0.1:8001",
+                    hInst2, "sip:called@127.0.0.1:8003", "sip:called@127.0.0.1:8003", 
+                    NULL) ;
+
+
+        /*
+         * Setup a call, but leave it up
+         */
+
+        SIPX_CALL hCallingCall, hCalledCall ;
+        SIPX_LINE hCallingLine, hCalledLine ;
+
+        doCallBasicSetup(hInst1, "sip:calling@127.0.0.1:8001", "sip:calling@127.0.0.1:8001",
+                         hInst2, "sip:called@127.0.0.1:8003", "sip:called@127.0.0.1:8003", 
+                         hCallingCall, hCallingLine,
+                         hCalledCall, hCalledLine) ;
+
+        OsTask::delay(TEST_DELAY) ;
+
+        EventValidator validatorCalling("testReinitializeCall.calling") ;
+        EventValidator validatorCalled("testReinitializeCall.called") ;
+
+        rc = sipxEventListenerAdd(hInst1, UniversalEventValidatorCallback, &validatorCalling) ;
+        CPPUNIT_ASSERT(rc == SIPX_RESULT_SUCCESS) ;
+
+        rc = sipxEventListenerAdd(hInst2, UniversalEventValidatorCallback, &validatorCalled) ;        
+        CPPUNIT_ASSERT(rc == SIPX_RESULT_SUCCESS) ;
+                    
+        /*
+         * Reinitialize again
+         */
+        rc = sipxReInitialize(&hInst1, 8001, 8001, 8002, 8050, 32, NULL, "127.0.0.1") ;
+        CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS) ;
+
+        rc = sipxReInitialize(&hInst2, 8003, 8003, 8004, 8060, 32, NULL, "127.0.0.1") ;
+        CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS) ;
+
+        rc = sipxEventListenerAdd(hInst1, UniversalEventValidatorCallback, &validatorCalling) ;
+        CPPUNIT_ASSERT(rc == SIPX_RESULT_SUCCESS) ;
+
+        rc = sipxEventListenerAdd(hInst2, UniversalEventValidatorCallback, &validatorCalled) ;        
+        CPPUNIT_ASSERT(rc == SIPX_RESULT_SUCCESS) ;
+
+        bRC = validatorCalling.waitForCallEvent(hCallingLine, hCallingCall, CALLSTATE_DESTROYED, CALLSTATE_CAUSE_SHUTDOWN, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+
+        bRC = validatorCalled.waitForCallEvent(hCalledLine, hCalledCall, CALLSTATE_DESTROYED, CALLSTATE_CAUSE_SHUTDOWN, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+
+        rc = sipxEventListenerRemove(hInst1, UniversalEventValidatorCallback, &validatorCalling) ;
+        CPPUNIT_ASSERT(rc == SIPX_RESULT_SUCCESS) ;
+        rc = sipxEventListenerRemove(hInst2, UniversalEventValidatorCallback, &validatorCalled) ;
+        CPPUNIT_ASSERT(rc == SIPX_RESULT_SUCCESS) ;   
+
+        /*
+         * Verify we can continue to make calls
+         */
+        doCallBasic(hInst1, "sip:calling@127.0.0.1:8001", "sip:calling@127.0.0.1:8001",
+                    hInst2, "sip:called@127.0.0.1:8003", "sip:called@127.0.0.1:8003", 
+                    NULL) ;
+
+
+
+        /**
+         * Cleanup
+         */
+        rc = sipxUnInitialize(hInst1) ;
+        rc = sipxUnInitialize(hInst2) ;
+    }
+
+    OsTask::delay(TEST_DELAY) ;
+    checkForLeaks() ;
+}
+
+void sipXtapiTestSuite::testReinitializeLine() 
+{
+    SIPX_INST hInst = NULL ;
+    SIPX_RESULT rc ;
+    SIPX_LINE hLine;
+
+    for (int iStressFactor = 0; iStressFactor<STRESS_FACTOR; iStressFactor++)
+    {
+        printf("\ntestReinitializeLine (%2d of %2d)", iStressFactor+1, STRESS_FACTOR);
+
+        TestRegistrar testRegistrar;
+        testRegistrar.init();
+
+        rc = sipxInitialize(&hInst, 8000, 8000, 8001, 8050, 32, NULL, "127.0.0.1") ;
+        CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS) ;
+
+        rc = sipxConfigSetOutboundProxy(hInst, "127.0.0.1:5070") ;
+        CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS) ;
+        
+        rc = sipxLineAdd(hInst, "sip:mike@127.0.0.1:8000", &hLine) ;
+        CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS) ;
+        
+        rc = sipxLineAddCredential(hLine, "mike", "1234", "TestRegistrar") ;
+        CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS) ;
+
+        rc = sipxLineRegister(hLine, true) ;
+        CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS) ;
+
+        rc = sipxLineRegister(hLine, false) ;
+        CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS) ;
+
+        sipxReInitialize(&hInst, 8000, 8000, 8001, 8050, 32, NULL, "127.0.0.1") ;
+
+        rc = sipxConfigSetOutboundProxy(hInst, "127.0.0.1:5070") ;
+        CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS) ;
+
+        rc = sipxLineAdd(hInst, "sip:mike@127.0.0.1:8000", &hLine) ;
+        CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS) ;
+        
+        rc = sipxLineAddCredential(hLine, "mike", "1234", "TestRegistrar") ;
+        CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS) ;
+
+        rc = sipxLineRegister(hLine, true) ;
+        CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS) ;
+
+        rc = sipxLineRegister(hLine, false) ;
+        CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS) ;
+
+        rc = sipxLineRemove(hLine) ;
+        CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS) ;
+        
+        sipxUnInitialize(hInst);
+    }
+
+    checkForLeaks() ;
+}
+
+
+void sipXtapiTestSuite::testReinitializeConference() 
+{
+    for (int iStressFactor = 0; iStressFactor<STRESS_FACTOR; iStressFactor++)
+    {
+        printf("\ntestReinitializeConference (%2d of %2d)", iStressFactor+1, STRESS_FACTOR);
+    }
+
+    checkForLeaks() ;
+}
+
+void sipXtapiTestSuite::testReinitializePub() 
+{
+    for (int iStressFactor = 0; iStressFactor<STRESS_FACTOR; iStressFactor++)
+    {
+        printf("\ntestReinitializePub (%2d of %2d)", iStressFactor+1, STRESS_FACTOR);
+    }
+
+    checkForLeaks() ;
+}
+
+void sipXtapiTestSuite::testReinitializeSub() 
+{
+    for (int iStressFactor = 0; iStressFactor<STRESS_FACTOR; iStressFactor++)
+    {
+        printf("\ntestReinitializeSub (%2d of %2d)", iStressFactor+1, STRESS_FACTOR);
+    }
+
+    checkForLeaks() ;
+}
+
+
+bool SIPX_CALLING_CONVENTION config_callback(SIPX_EVENT_CATEGORY category,
                      void* pInfo,
                      void* pUserData)
 {
@@ -496,15 +776,17 @@ bool config_callback(SIPX_EVENT_CATEGORY category,
 }
 
 
-bool codec_CallBack_Place(SIPX_EVENT_CATEGORY category,
+bool SIPX_CALLING_CONVENTION codec_CallBack_Place(SIPX_EVENT_CATEGORY category,
                           void* pInfo,
                           void* pUserData)
 {
+    // TODO - re-write this for the new Media events
+    /*
     if (category == EVENT_CATEGORY_CALLSTATE)
     {
         SIPX_CALLSTATE_INFO* pCallInfo = (SIPX_CALLSTATE_INFO*)pInfo;
         g_recorder.addEvent(pCallInfo->hLine, pCallInfo->event, pCallInfo->cause) ;
-        if (pCallInfo->cause == CALLSTATE_AUDIO_START)
+        if (pCallInfo->cause == CALLSTATE_CAUSE_AUDIO_START)
         {
             char szMsg[128];
 
@@ -512,10 +794,11 @@ bool codec_CallBack_Place(SIPX_EVENT_CATEGORY category,
             g_recorder.addMsgString(pCallInfo->hLine, (const char*)szMsg);
         }
     }
+    */
     return true;
 }
 
-bool codec_CallBack_Receive(SIPX_EVENT_CATEGORY category, 
+bool SIPX_CALLING_CONVENTION codec_CallBack_Receive(SIPX_EVENT_CATEGORY category, 
                             void* pInfo, 
                             void* pUserData)
 {
@@ -563,8 +846,9 @@ bool codec_CallBack_Receive(SIPX_EVENT_CATEGORY category,
             case CALLSTATE_DISCONNECTED:
                 sipxCallDestroy(hCall) ; 
                 break ;
+/*
             case CALLSTATE_AUDIO_EVENT:
-                if (pCallInfo->cause == CALLSTATE_AUDIO_START)
+                if (pCallInfo->cause == CALLSTATE_CAUSE_AUDIO_START)
                 {
                     char szMsg[128];
 
@@ -572,6 +856,7 @@ bool codec_CallBack_Receive(SIPX_EVENT_CATEGORY category,
                     g_recorder2.addMsgString(pCallInfo->hLine, (const char*)szMsg);
                 }
                 break;
+*/
             default:
                 break ;
         }
@@ -621,27 +906,27 @@ void sipXtapiTestSuite::testConfigCodecPreferences()
         CPPUNIT_ASSERT_EQUAL(sipxEventListenerRemove(g_hInst, codec_CallBack_Place, NULL), SIPX_RESULT_SUCCESS) ;
         CPPUNIT_ASSERT_EQUAL(sipxEventListenerRemove(g_hInst2, codec_CallBack_Receive, NULL), SIPX_RESULT_SUCCESS) ;
 
-        g_recorder.addCompareEvent(hLine, CALLSTATE_DIALTONE, CALLSTATE_DIALTONE_UNKNOWN) ;
-        g_recorder.addCompareEvent(hLine, CALLSTATE_REMOTE_OFFERING, CALLSTATE_REMOTE_OFFERING_NORMAL) ;
-        g_recorder.addCompareEvent(hLine, CALLSTATE_REMOTE_ALERTING, CALLSTATE_REMOTE_ALERTING_NORMAL) ;
-        g_recorder.addCompareEvent(hLine, CALLSTATE_CONNECTED, CALLSTATE_CONNECTED_ACTIVE) ;
-        g_recorder.addCompareEvent(hLine, CALLSTATE_AUDIO_EVENT, CALLSTATE_AUDIO_START) ;
-        g_recorder.addCompareMsgString(hLine, "Codec IPCMWB");
-        g_recorder.addCompareEvent(hLine, CALLSTATE_CONNECTED, CALLSTATE_CONNECTED_ACTIVE_HELD) ;
-        g_recorder.addCompareEvent(hLine, CALLSTATE_AUDIO_EVENT, CALLSTATE_AUDIO_STOP) ;
-        g_recorder.addCompareEvent(hLine, CALLSTATE_DISCONNECTED, CALLSTATE_DISCONNECTED_NORMAL) ;
-        g_recorder.addCompareEvent(hLine, CALLSTATE_DESTROYED, CALLSTATE_DESTROYED_NORMAL) ;    
+        g_recorder.addCompareEvent(hLine, CALLSTATE_DIALTONE, CALLSTATE_CAUSE_NORMAL) ;
+        g_recorder.addCompareEvent(hLine, CALLSTATE_REMOTE_OFFERING, CALLSTATE_CAUSE_NORMAL) ;
+        g_recorder.addCompareEvent(hLine, CALLSTATE_REMOTE_ALERTING, CALLSTATE_CAUSE_NORMAL) ;
+        g_recorder.addCompareEvent(hLine, CALLSTATE_CONNECTED, CALLSTATE_CAUSE_NORMAL) ;
+//        g_recorder.addCompareEvent(hLine, CALLSTATE_AUDIO_EVENT, CALLSTATE_CAUSE_AUDIO_START) ;
+//        g_recorder.addCompareMsgString(hLine, "Codec IPCMWB");
+//        g_recorder.addCompareEvent(hLine, CALLSTATE_BRIDGED, CALLSTATE_CAUSE_NORMAL) ;
+//        g_recorder.addCompareEvent(hLine, CALLSTATE_AUDIO_EVENT, CALLSTATE_CAUSE_AUDIO_STOP) ;
+        g_recorder.addCompareEvent(hLine, CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_NORMAL) ;
+        g_recorder.addCompareEvent(hLine, CALLSTATE_DESTROYED, CALLSTATE_CAUSE_NORMAL) ;    
         CPPUNIT_ASSERT(g_recorder.compare()) ;
 
-        g_recorder2.addCompareEvent(hReceivingLine, CALLSTATE_NEWCALL, CALLSTATE_NEW_CALL_NORMAL) ;
-        g_recorder2.addCompareEvent(hReceivingLine, CALLSTATE_OFFERING, CALLSTATE_OFFERING_ACTIVE) ;
-        g_recorder2.addCompareEvent(hReceivingLine, CALLSTATE_ALERTING, CALLSTATE_ALERTING_NORMAL) ;
-        g_recorder2.addCompareEvent(hReceivingLine, CALLSTATE_CONNECTED, CALLSTATE_CONNECTED_ACTIVE) ;
-        g_recorder2.addCompareEvent(hReceivingLine, CALLSTATE_AUDIO_EVENT, CALLSTATE_AUDIO_START) ;
-        g_recorder2.addCompareMsgString(hReceivingLine, "Codec IPCMWB");
-        g_recorder2.addCompareEvent(hReceivingLine, CALLSTATE_AUDIO_EVENT, CALLSTATE_AUDIO_STOP) ;
-        g_recorder2.addCompareEvent(hReceivingLine, CALLSTATE_DISCONNECTED, CALLSTATE_DISCONNECTED_NORMAL) ;
-        g_recorder2.addCompareEvent(hReceivingLine, CALLSTATE_DESTROYED, CALLSTATE_DESTROYED_NORMAL) ;
+        g_recorder2.addCompareEvent(hReceivingLine, CALLSTATE_NEWCALL, CALLSTATE_CAUSE_NORMAL) ;
+        g_recorder2.addCompareEvent(hReceivingLine, CALLSTATE_OFFERING, CALLSTATE_CAUSE_NORMAL) ;
+        g_recorder2.addCompareEvent(hReceivingLine, CALLSTATE_ALERTING, CALLSTATE_CAUSE_NORMAL) ;
+        g_recorder2.addCompareEvent(hReceivingLine, CALLSTATE_CONNECTED, CALLSTATE_CAUSE_NORMAL) ;
+//        g_recorder2.addCompareEvent(hReceivingLine, CALLSTATE_AUDIO_EVENT, CALLSTATE_CAUSE_AUDIO_START) ;
+//        g_recorder2.addCompareMsgString(hReceivingLine, "Codec IPCMWB");
+//        g_recorder2.addCompareEvent(hReceivingLine, CALLSTATE_AUDIO_EVENT, CALLSTATE_CAUSE_AUDIO_STOP) ;
+        g_recorder2.addCompareEvent(hReceivingLine, CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_NORMAL) ;
+        g_recorder2.addCompareEvent(hReceivingLine, CALLSTATE_DESTROYED, CALLSTATE_CAUSE_NORMAL) ;
         CPPUNIT_ASSERT(g_recorder2.compare()) ;
     
         CPPUNIT_ASSERT_EQUAL(sipxLineRemove(hLine), SIPX_RESULT_SUCCESS);
@@ -658,25 +943,467 @@ void sipXtapiTestSuite::testConfigEnableStunSuccess()
     bool bRC ;
 
     EventValidator validator("validator") ;
+    validator.ignoreEventCategory(EVENT_CATEGORY_MEDIA);
 
     for (int iStressFactor = 0; iStressFactor<STRESS_FACTOR; iStressFactor++)
     {
         printf("\ntestConfigEnableStunSuccess (%2d of %2d)", iStressFactor+1, STRESS_FACTOR);        
 
-        rc = sipxInitialize(&hInst, 0, 0, 8031, 8050) ;
+        setupStunServer() ;
+        setStunServerValidator(&validator) ;
+        setStunServerMode(TEST_NORMAL) ;        
+        
+        rc = sipxInitialize(&hInst, 11234, 11234, 8031, 8050) ;
         CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS);
         rc = sipxEventListenerAdd(hInst, UniversalEventValidatorCallback, &validator) ;
         CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS);
 
-        validator.addMarker("Waiting for STUN success") ;
-        rc = sipxConfigEnableStun(hInst, "stun.fwdnet.net", 28) ;
-        CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS);
+        SIPX_CONTACT_ADDRESS addresses[10] ;
+        size_t nContacts ;
+        sipxConfigGetLocalContacts(hInst, addresses, 10, nContacts) ;
 
-        bRC = validator.waitForConfigEvent(CONFIG_STUN_SUCCESS) ;
-        CPPUNIT_ASSERT(bRC) ;
+        validator.addMarker("Waiting for STUN success") ;
+        rc = sipxConfigEnableStun(hInst, "127.0.0.1", DEFAULT_STUN_PORT, 2) ;
+        CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS) ;
+        
+        validator.setMaxLookhead(20) ;
+
+        // Get Initial
+        for (size_t i=0; i<nContacts; i++)
+        {
+            if ((strcmp(addresses[i].cInterface, "loopback")) != 0 && 
+                    addresses[i].eTransportType == TRANSPORT_UDP)
+            {
+                // SUCCESSes may come in in a different rate
+                bRC = validator.waitForMessage(0, "TestStunServerTask::handleStunMessage", false) ;
+                CPPUNIT_ASSERT(bRC) ;
+                bRC = validator.waitForMessage(0, "TestStunServerTask::Sending Response", false) ;
+                CPPUNIT_ASSERT(bRC) ;
+                bRC = validator.waitForConfigEvent(CONFIG_STUN_SUCCESS, false) ;
+                CPPUNIT_ASSERT(bRC) ;
+            }
+        }
+
+        // Wait for a few refreshes
+        for (size_t loop=0; loop<2; loop++)
+        {
+            for (size_t i=0; i<nContacts; i++)
+            {
+                if ((strcmp(addresses[i].cInterface, "loopback")) != 0 && 
+                    addresses[i].eTransportType == TRANSPORT_UDP)
+                {
+                    bRC = validator.waitForMessage(0, "TestStunServerTask::handleStunMessage", false) ;
+                    CPPUNIT_ASSERT(bRC) ;
+                    bRC = validator.waitForMessage(0, "TestStunServerTask::Sending Response", false) ;            
+                    CPPUNIT_ASSERT(bRC) ;
+                }
+            }            
+        }
+
+        setStunServerValidator(NULL) ;
 
         rc = sipxEventListenerRemove(hInst, UniversalEventValidatorCallback, &validator) ;
         CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS);
+
+        rc = sipxUnInitialize(hInst);
+        CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS);
+
+        teardownStunServer() ;
+    }
+
+    // Does not create a call -- no need to pause
+    // OsTask::delay(TEST_DELAY) ;    
+    checkForLeaks() ;
+}
+
+
+void sipXtapiTestSuite::testConfigEnableStunNoResponse() 
+{
+    SIPX_INST hInst = NULL ;
+    SIPX_RESULT rc ;
+    bool bRC ;
+
+    EventValidator validator("validator") ;
+    validator.ignoreEventCategory(EVENT_CATEGORY_MEDIA);
+
+    for (int iStressFactor = 0; iStressFactor<STRESS_FACTOR; iStressFactor++)
+    {
+        printf("\ntestConfigEnableStunNoResponse (%2d of %2d)", iStressFactor+1, STRESS_FACTOR);        
+
+        setupStunServer() ;
+        setStunServerValidator(&validator) ;
+        setStunServerMode(TEST_NO_RESPONSE) ;        
+        
+        rc = sipxInitialize(&hInst, 11234, 11234, 8031, 8050) ;
+        CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS);
+        rc = sipxEventListenerAdd(hInst, UniversalEventValidatorCallback, &validator) ;
+        CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS);
+
+        SIPX_CONTACT_ADDRESS addresses[10] ;
+        size_t nContacts ;
+        sipxConfigGetLocalContacts(hInst, addresses, 10, nContacts) ;
+
+        validator.addMarker("Waiting for STUN failure") ;
+        rc = sipxConfigEnableStun(hInst, "127.0.0.1", DEFAULT_STUN_PORT, 10) ;
+        CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS) ;
+
+        validator.setMaxLookhead(20) ;
+
+        // Get Initial
+        for (size_t i=0; i<nContacts; i++)
+        {
+            if ((strcmp(addresses[i].cInterface, "loopback")) != 0 && 
+                    addresses[i].eTransportType == TRANSPORT_UDP)
+            {
+                // SUCCESSes may come in in a different rate
+                bRC = validator.waitForMessage(0, "TestStunServerTask::handleStunMessage", false) ;
+                CPPUNIT_ASSERT(bRC) ;
+                bRC = validator.waitForMessage(0, "TestStunServerTask::Dropping Response", false) ;
+                CPPUNIT_ASSERT(bRC) ;
+                bRC = validator.waitForMessage(0, "TestStunServerTask::handleStunMessage", false) ;
+                CPPUNIT_ASSERT(bRC) ;
+                bRC = validator.waitForMessage(0, "TestStunServerTask::Dropping Response", false) ;
+                CPPUNIT_ASSERT(bRC) ;
+                bRC = validator.waitForMessage(0, "TestStunServerTask::handleStunMessage", false) ;
+                CPPUNIT_ASSERT(bRC) ;
+                bRC = validator.waitForMessage(0, "TestStunServerTask::Dropping Response", false) ;
+                CPPUNIT_ASSERT(bRC) ;
+                bRC = validator.waitForConfigEvent(CONFIG_STUN_FAILURE, false) ;
+                CPPUNIT_ASSERT(bRC) ;
+            }
+        }
+      
+        setStunServerValidator(NULL) ;
+
+        rc = sipxEventListenerRemove(hInst, UniversalEventValidatorCallback, &validator) ;
+        CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS);
+
+        rc = sipxUnInitialize(hInst);
+        CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS);
+
+        teardownStunServer() ;
+    }
+
+    // Does not create a call -- no need to pause
+    // OsTask::delay(TEST_DELAY) ;    
+    checkForLeaks() ;
+}
+
+
+void sipXtapiTestSuite::testConfigEnableStunError() 
+{
+    SIPX_INST hInst = NULL ;
+    SIPX_RESULT rc ;
+    bool bRC ;
+
+    EventValidator validator("validator") ;
+    validator.ignoreEventCategory(EVENT_CATEGORY_MEDIA);
+
+    for (int iStressFactor = 0; iStressFactor<STRESS_FACTOR; iStressFactor++)
+    {
+        printf("\ntestConfigEnableStunError (%2d of %2d)", iStressFactor+1, STRESS_FACTOR);        
+
+        setupStunServer() ;
+        setStunServerValidator(&validator) ;
+        setStunServerMode(TEST_RETURN_ERROR) ;        
+        
+        rc = sipxInitialize(&hInst, 11234, 11234, 8031, 8050) ;
+        CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS);
+        rc = sipxEventListenerAdd(hInst, UniversalEventValidatorCallback, &validator) ;
+        CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS);
+
+        SIPX_CONTACT_ADDRESS addresses[10] ;
+        size_t nContacts ;
+        sipxConfigGetLocalContacts(hInst, addresses, 10, nContacts) ;
+
+        validator.addMarker("Waiting for STUN failure") ;
+        rc = sipxConfigEnableStun(hInst, "127.0.0.1", DEFAULT_STUN_PORT, 10) ;
+        CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS) ;
+
+        validator.setMaxLookhead(20) ;
+
+        // Get Initial
+        for (size_t i=0; i<nContacts; i++)
+        {
+            if ((strcmp(addresses[i].cInterface, "loopback")) != 0 && 
+                    addresses[i].eTransportType == TRANSPORT_UDP)
+            {
+                // SUCCESSes may come in in a different rate
+                bRC = validator.waitForMessage(0, "TestStunServerTask::handleStunMessage", false) ;
+                CPPUNIT_ASSERT(bRC) ;
+                bRC = validator.waitForMessage(0, "TestStunServerTask::Send Error", false) ;
+                CPPUNIT_ASSERT(bRC) ;
+                bRC = validator.waitForConfigEvent(CONFIG_STUN_FAILURE, false) ;
+                CPPUNIT_ASSERT(bRC) ;
+            }
+        }
+      
+        setStunServerValidator(NULL) ;
+
+        rc = sipxEventListenerRemove(hInst, UniversalEventValidatorCallback, &validator) ;
+        CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS);
+
+        rc = sipxUnInitialize(hInst);
+        CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS);
+
+        teardownStunServer() ;
+    }
+
+    // Does not create a call -- no need to pause
+    // OsTask::delay(TEST_DELAY) ;    
+    checkForLeaks() ;
+}
+
+
+void sipXtapiTestSuite::testConfigEnableStunDropOdd() 
+{
+    SIPX_INST hInst = NULL ;
+    SIPX_RESULT rc ;
+    bool bRC ;
+
+    EventValidator validator("validator") ;
+    validator.ignoreEventCategory(EVENT_CATEGORY_MEDIA);
+
+    for (int iStressFactor = 0; iStressFactor<STRESS_FACTOR; iStressFactor++)
+    {
+        printf("\ntestConfigEnableStunDropOdd (%2d of %2d)", iStressFactor+1, STRESS_FACTOR);        
+
+        setupStunServer() ;
+        setStunServerValidator(&validator) ;
+        setStunServerMode(TEST_DROP_ODD_REQUEST) ;
+        
+        rc = sipxInitialize(&hInst, 11234, 11234, 8031, 8050) ;
+        CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS) ;
+        rc = sipxEventListenerAdd(hInst, UniversalEventValidatorCallback, &validator) ;
+        CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS) ;
+
+        SIPX_CONTACT_ADDRESS addresses[10] ;
+        size_t nContacts ;
+        sipxConfigGetLocalContacts(hInst, addresses, 10, nContacts) ;
+
+        if (nContacts == 3)
+        {
+            validator.addMarker("Waiting for STUN success") ;
+            rc = sipxConfigEnableStun(hInst, "127.0.0.1", DEFAULT_STUN_PORT, 2) ;
+            CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS) ;
+
+            // Get Initial
+            bRC = validator.waitForMessage(0, "TestStunServerTask::handleStunMessage", false) ;
+            CPPUNIT_ASSERT(bRC) ;
+            bRC = validator.waitForMessage(0, "TestStunServerTask::Sending Response (odd)", false) ;
+            CPPUNIT_ASSERT(bRC) ;
+            bRC = validator.waitForConfigEvent(CONFIG_STUN_SUCCESS, false) ;
+            CPPUNIT_ASSERT(bRC) ;
+
+            // Wait for a few refreshes
+            bRC = validator.waitForMessage(0, "TestStunServerTask::handleStunMessage", false) ;
+            CPPUNIT_ASSERT(bRC) ;
+            bRC = validator.waitForMessage(0, "TestStunServerTask::Dropping Response (odd)", false) ;            
+            CPPUNIT_ASSERT(bRC) ;
+            bRC = validator.waitForMessage(0, "TestStunServerTask::handleStunMessage", false) ;
+            CPPUNIT_ASSERT(bRC) ;
+            bRC = validator.waitForMessage(0, "TestStunServerTask::Sending Response (odd)", false) ;            
+            CPPUNIT_ASSERT(bRC) ;
+            bRC = validator.waitForMessage(0, "TestStunServerTask::handleStunMessage", false) ;
+            CPPUNIT_ASSERT(bRC) ;
+            bRC = validator.waitForMessage(0, "TestStunServerTask::Dropping Response (odd)", false) ;            
+            CPPUNIT_ASSERT(bRC) ;
+            bRC = validator.waitForMessage(0, "TestStunServerTask::handleStunMessage", false) ;
+            CPPUNIT_ASSERT(bRC) ;
+            bRC = validator.waitForMessage(0, "TestStunServerTask::Sending Response (odd)", false) ;            
+            CPPUNIT_ASSERT(bRC) ;
+        }
+        else
+        {
+            printf("\nWARNING: testConfigEnableStunDropOdd skipped -- doesn't work with multiple interfaces\n") ;
+        }
+
+        setStunServerValidator(NULL) ;
+
+        rc = sipxEventListenerRemove(hInst, UniversalEventValidatorCallback, &validator) ;
+        CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS);
+
+        rc = sipxUnInitialize(hInst);
+        CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS);
+
+        teardownStunServer() ;
+    }
+
+    // Does not create a call -- no need to pause
+    // OsTask::delay(TEST_DELAY) ;    
+    checkForLeaks() ;
+}
+
+void sipXtapiTestSuite::testConfigEnableStunDropEven() 
+{
+    SIPX_INST hInst = NULL ;
+    SIPX_RESULT rc ;
+    bool bRC ;
+
+    EventValidator validator("validator") ;
+    validator.ignoreEventCategory(EVENT_CATEGORY_MEDIA);
+
+    for (int iStressFactor = 0; iStressFactor<STRESS_FACTOR; iStressFactor++)
+    {
+        printf("\ntestConfigEnableStunDropEven (%2d of %2d)", iStressFactor+1, STRESS_FACTOR);        
+
+        setupStunServer() ;
+        setStunServerValidator(&validator) ;
+        setStunServerMode(TEST_DROP_EVEN_REQUEST) ;        
+        
+        rc = sipxInitialize(&hInst, 11234, 11234, 8031, 8050) ;
+        CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS);
+        rc = sipxEventListenerAdd(hInst, UniversalEventValidatorCallback, &validator) ;
+        CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS);
+
+        SIPX_CONTACT_ADDRESS addresses[10] ;
+        size_t nContacts ;
+        sipxConfigGetLocalContacts(hInst, addresses, 10, nContacts) ;
+
+        if (nContacts == 3)
+        {
+            validator.addMarker("Waiting for STUN success") ;
+            rc = sipxConfigEnableStun(hInst, "127.0.0.1", DEFAULT_STUN_PORT, 2) ;
+            CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS) ;
+
+            // Get Initial
+            bRC = validator.waitForMessage(0, "TestStunServerTask::handleStunMessage", false) ;
+            CPPUNIT_ASSERT(bRC) ;
+            bRC = validator.waitForMessage(0, "TestStunServerTask::Dropping Response (even)", false) ;            
+            CPPUNIT_ASSERT(bRC) ;
+            bRC = validator.waitForMessage(0, "TestStunServerTask::handleStunMessage", false) ;
+            CPPUNIT_ASSERT(bRC) ;
+            bRC = validator.waitForMessage(0, "TestStunServerTask::Sending Response (even)", false) ;
+            CPPUNIT_ASSERT(bRC) ;
+            bRC = validator.waitForConfigEvent(CONFIG_STUN_SUCCESS, false) ;
+            CPPUNIT_ASSERT(bRC) ;
+
+            // Wait for a few refreshes
+            bRC = validator.waitForMessage(0, "TestStunServerTask::handleStunMessage", false) ;
+            CPPUNIT_ASSERT(bRC) ;
+            bRC = validator.waitForMessage(0, "TestStunServerTask::Dropping Response (even)", false) ;            
+            CPPUNIT_ASSERT(bRC) ;
+            bRC = validator.waitForMessage(0, "TestStunServerTask::handleStunMessage", false) ;
+            CPPUNIT_ASSERT(bRC) ;
+            bRC = validator.waitForMessage(0, "TestStunServerTask::Sending Response (even)", false) ;            
+            CPPUNIT_ASSERT(bRC) ;
+            bRC = validator.waitForMessage(0, "TestStunServerTask::handleStunMessage", false) ;
+            CPPUNIT_ASSERT(bRC) ;
+            bRC = validator.waitForMessage(0, "TestStunServerTask::Dropping Response (even)", false) ;            
+            CPPUNIT_ASSERT(bRC) ;
+            bRC = validator.waitForMessage(0, "TestStunServerTask::handleStunMessage", false) ;
+            CPPUNIT_ASSERT(bRC) ;
+            bRC = validator.waitForMessage(0, "TestStunServerTask::Sending Response (even)", false) ;            
+            CPPUNIT_ASSERT(bRC) ;
+        }
+        else
+        {
+            printf("\nWARNING: testConfigEnableStunDropOdd skipped -- doesn't work with multiple interfaces\n") ;
+        }
+
+        setStunServerValidator(NULL) ;
+
+        rc = sipxEventListenerRemove(hInst, UniversalEventValidatorCallback, &validator) ;
+        CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS);
+
+        rc = sipxUnInitialize(hInst);
+        CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS);
+
+        teardownStunServer() ;
+    }
+
+    // Does not create a call -- no need to pause
+    // OsTask::delay(TEST_DELAY) ;    
+    checkForLeaks() ;
+}
+
+void sipXtapiTestSuite::testConfigEnableStunDelay() 
+{
+    SIPX_INST hInst = NULL ;
+    SIPX_RESULT rc ;
+    bool bRC ;
+
+    EventValidator validator("validator") ;
+    validator.ignoreEventCategory(EVENT_CATEGORY_MEDIA);
+
+    for (int iStressFactor = 0; iStressFactor<STRESS_FACTOR; iStressFactor++)
+    {
+        printf("\ntestConfigEnableStunDelay (%2d of %2d)", iStressFactor+1, STRESS_FACTOR);        
+
+        setupStunServer() ;
+        setStunServerValidator(&validator) ;
+        setStunServerMode(TEST_DELAY_RESPONSE) ;
+        validator.ignoreMessages() ;
+        
+        rc = sipxInitialize(&hInst, 11234, 11234, 8031, 8050) ;
+        CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS);
+        rc = sipxEventListenerAdd(hInst, UniversalEventValidatorCallback, &validator) ;
+        CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS);
+
+        SIPX_CONTACT_ADDRESS addresses[10] ;
+        size_t nContacts ;
+        sipxConfigGetLocalContacts(hInst, addresses, 10, nContacts) ;
+
+        validator.addMarker("Waiting for STUN success") ;
+        rc = sipxConfigEnableStun(hInst, "127.0.0.1", DEFAULT_STUN_PORT, 2) ;
+        CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS) ;             
+
+        // Get Initial
+        for (size_t i=0; i<nContacts; i++)
+        {
+            if ((strcmp(addresses[i].cInterface, "loopback")) != 0 && 
+                    addresses[i].eTransportType == TRANSPORT_UDP)
+            {
+                // SUCCESSes may come in in a different rate
+                bRC = validator.waitForConfigEvent(CONFIG_STUN_SUCCESS, true) ;
+                CPPUNIT_ASSERT(bRC) ;
+            }
+        }
+
+        setStunServerValidator(NULL) ;
+
+        rc = sipxEventListenerRemove(hInst, UniversalEventValidatorCallback, &validator) ;
+        CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS);
+
+        rc = sipxUnInitialize(hInst);
+        CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS);
+
+        teardownStunServer() ;
+    }
+
+    // Does not create a call -- no need to pause
+    // OsTask::delay(TEST_DELAY) ;    
+    checkForLeaks() ;
+}
+
+void sipXtapiTestSuite::testConfigCrlfKeepAlive() 
+{
+    SIPX_INST hInst = NULL ;
+    SIPX_RESULT rc ;
+    UtlString serverAddress ;
+
+    OsSocket::getHostIpByName("sbc.pingtel.com", &serverAddress) ;
+
+    for (int iStressFactor = 0; iStressFactor<STRESS_FACTOR; iStressFactor++)
+    {
+        printf("\ntestConfigCrlfKeepAlive (%2d of %2d)", iStressFactor+1, STRESS_FACTOR);        
+
+        rc = sipxInitialize(&hInst, 0, 0, 8031, 8050) ;
+        CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS);
+
+        rc = sipxConfigKeepAliveAdd(hInst, 1, SIPX_KEEPALIVE_CRLF, serverAddress, 5060, 1) ;
+        CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS);
+
+        OsTask::delay(5000) ;
+
+        rc = sipxConfigKeepAliveRemove(hInst, 1, SIPX_KEEPALIVE_STUN, serverAddress, 5060) ;
+        CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_FAILURE);
+
+        rc = sipxConfigKeepAliveRemove(hInst, 1, SIPX_KEEPALIVE_CRLF, serverAddress, 5060) ;
+        CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS);
+
+        rc = sipxConfigKeepAliveRemove(hInst, 1, SIPX_KEEPALIVE_CRLF, serverAddress, 5060) ;
+        CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_FAILURE);
 
         rc = sipxUnInitialize(hInst);
         CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS);
@@ -688,41 +1415,345 @@ void sipXtapiTestSuite::testConfigEnableStunSuccess()
 }
 
 
-void sipXtapiTestSuite::testConfigEnableStunFailure() 
+void sipXtapiTestSuite::testConfigStunKeepAlive()
 {
     SIPX_INST hInst = NULL ;
     SIPX_RESULT rc ;
     bool bRC ;
 
     EventValidator validator("validator") ;
+    validator.ignoreEventCategory(EVENT_CATEGORY_MEDIA);
 
     for (int iStressFactor = 0; iStressFactor<STRESS_FACTOR; iStressFactor++)
     {
-        printf("\ntestConfigEnableStunFailure (%2d of %2d)", iStressFactor+1, STRESS_FACTOR);        
+        printf("\ntestConfigStunKeepAlive (%2d of %2d)", iStressFactor+1, STRESS_FACTOR);        
 
-        validator.reset() ;
-
-        rc = sipxInitialize(&hInst, 0, 0, 8031, 8050) ;
+        setupStunServer() ;
+        setStunServerValidator(&validator) ;
+        setStunServerMode(TEST_NORMAL) ;        
+        
+        rc = sipxInitialize(&hInst, 11234, 11234, 8031, 8050) ;
         CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS);
         rc = sipxEventListenerAdd(hInst, UniversalEventValidatorCallback, &validator) ;
         CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS);
 
-        validator.addMarker("Waiting for STUN failure") ;
-        rc = sipxConfigEnableStun(hInst, "www.pingtel.com", 28) ;
+        rc = sipxConfigKeepAliveAdd(hInst, 1, SIPX_KEEPALIVE_STUN, "127.0.0.1", 3478, 1) ;
         CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS);
-
-        bRC = validator.waitForConfigEvent(CONFIG_STUN_FAILURE) ;
+        
+        bRC = validator.waitForMessage(0, "TestStunServerTask::handleStunMessage", true) ;
         CPPUNIT_ASSERT(bRC) ;
+        bRC = validator.waitForMessage(0, "TestStunServerTask::Sending Response", true) ;
+        CPPUNIT_ASSERT(bRC) ;
+        bRC = validator.waitForMessage(0, "TestStunServerTask::handleStunMessage", true) ;
+        CPPUNIT_ASSERT(bRC) ;
+        bRC = validator.waitForMessage(0, "TestStunServerTask::Sending Response", true) ;
+        CPPUNIT_ASSERT(bRC) ;
+        bRC = validator.waitForMessage(0, "TestStunServerTask::handleStunMessage", true) ;
+        CPPUNIT_ASSERT(bRC) ;
+        bRC = validator.waitForMessage(0, "TestStunServerTask::Sending Response", true) ;
+        CPPUNIT_ASSERT(bRC) ;
+
+        setStunServerValidator(NULL) ;
 
         rc = sipxEventListenerRemove(hInst, UniversalEventValidatorCallback, &validator) ;
         CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS);
 
         rc = sipxUnInitialize(hInst);
         CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS);
+
+        teardownStunServer() ;
     }
 
     // Does not create a call -- no need to pause
-    OsTask::delay(TEST_DELAY) ;    
-    checkForLeaks() ;   
+    // OsTask::delay(TEST_DELAY) ;    
+    checkForLeaks() ;
 }
 
+
+void sipXtapiTestSuite::testConfigStunKeepAliveOnce()
+{
+    SIPX_INST hInst = NULL ;
+    SIPX_RESULT rc ;
+    bool bRC ;
+
+    EventValidator validator("validator") ;
+    validator.ignoreEventCategory(EVENT_CATEGORY_MEDIA);
+
+    for (int iStressFactor = 0; iStressFactor<STRESS_FACTOR; iStressFactor++)
+    {
+        printf("\ntestConfigStunKeepAliveOnce (%2d of %2d)", iStressFactor+1, STRESS_FACTOR);        
+
+        setupStunServer() ;
+        setStunServerValidator(&validator) ;
+        setStunServerMode(TEST_NORMAL) ;        
+        
+        rc = sipxInitialize(&hInst, 11234, 11234, 8031, 8050) ;
+        CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS);
+        rc = sipxEventListenerAdd(hInst, UniversalEventValidatorCallback, &validator) ;
+        CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS);
+
+        rc = sipxConfigKeepAliveAdd(hInst, 1, SIPX_KEEPALIVE_STUN, "127.0.0.1", 3478, 0) ;
+        CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS);
+        
+        bRC = validator.waitForMessage(0, "TestStunServerTask::handleStunMessage", true) ;
+        CPPUNIT_ASSERT(bRC) ;
+        bRC = validator.waitForMessage(0, "TestStunServerTask::Sending Response", true) ;
+        CPPUNIT_ASSERT(bRC) ;
+
+        OsTask::delay(1000) ;
+
+        bRC = !validator.validateNoWaitingEvent() ;
+        CPPUNIT_ASSERT(bRC) ;
+
+        setStunServerValidator(NULL) ;
+
+        rc = sipxEventListenerRemove(hInst, UniversalEventValidatorCallback, &validator) ;
+        CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS);
+
+        rc = sipxUnInitialize(hInst);
+        CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS);
+
+        teardownStunServer() ;
+    }
+
+    // Does not create a call -- no need to pause
+    // OsTask::delay(TEST_DELAY) ;    
+    checkForLeaks() ;
+}
+
+void sipXtapiTestSuite::testConfigKeepAliveNoStop() 
+{
+    SIPX_INST hInst = NULL ;
+    SIPX_RESULT rc ;
+    UtlString serverAddress ;
+
+    OsSocket::getHostIpByName("sbc.pingtel.com", &serverAddress) ;
+
+    for (int iStressFactor = 0; iStressFactor<STRESS_FACTOR; iStressFactor++)
+    {
+        printf("\ntestConfigKeepAliveNoStop (%2d of %2d)", iStressFactor+1, STRESS_FACTOR);        
+
+        rc = sipxInitialize(&hInst, 0, 0, 8031, 8050) ;
+        CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS);
+
+        rc = sipxConfigKeepAliveAdd(hInst, 1, SIPX_KEEPALIVE_CRLF, serverAddress, 5060, 1) ;
+        CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS);
+
+        OsTask::delay(1000) ;
+
+        rc = sipxUnInitialize(hInst);
+        CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS);
+    }
+
+    // Does not create a call -- no need to pause
+    // OsTask::delay(TEST_DELAY) ;    
+    checkForLeaks() ;
+}
+
+// A calls B, B answers, A hangs up
+void sipXtapiTestSuite::testConfigEnableShortNames() 
+{
+    bool bRC ;
+    EventValidator validatorCalling("testConfigEnableShortNames.calling") ;
+    EventValidator validatorCalled("testConfigEnableShortNames.called") ;
+    validatorCalling.ignoreEventCategory(EVENT_CATEGORY_MEDIA);
+    validatorCalled.ignoreEventCategory(EVENT_CATEGORY_MEDIA);
+
+    for (int iStressFactor = 0; iStressFactor<STRESS_FACTOR; iStressFactor++)
+    {
+        printf("\ntestConfigEnableShortNames (%2d of %2d)", iStressFactor+1, STRESS_FACTOR);
+        SIPX_CALL hCall ;
+        SIPX_LINE hLine ;
+        SIPX_LINE hReceivingLine;     
+
+        validatorCalling.reset() ;
+        validatorCalled.reset() ;
+        validatorCalling.ignoreEventCategory(EVENT_CATEGORY_MEDIA);
+        validatorCalled.ignoreEventCategory(EVENT_CATEGORY_MEDIA);
+
+        sipxConfigEnableSipShortNames(g_hInst, true);
+
+        // Setup Auto-answer call back
+        resetAutoAnswerCallback() ;
+        sipxEventListenerAdd(g_hInst2, AutoAnswerCallback, NULL) ;
+        sipxEventListenerAdd(g_hInst2, UniversalEventValidatorCallback, &validatorCalled) ;        
+        sipxEventListenerAdd(g_hInst, UniversalEventValidatorCallback, &validatorCalling) ;
+
+        sipxLineAdd(g_hInst2, "sip:foo@127.0.0.1:9100", &hReceivingLine, CONTACT_LOCAL);
+        bRC = validatorCalled.waitForLineEvent(hReceivingLine, LINESTATE_PROVISIONED, LINESTATE_PROVISIONED_NORMAL, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+
+        createCall(&hLine, &hCall) ;
+        bRC = validatorCalling.waitForLineEvent(hLine, LINESTATE_PROVISIONED, LINESTATE_PROVISIONED_NORMAL, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+
+        sipxCallConnect(hCall, "sip:foo@127.0.0.1:9100") ;
+        
+
+        // Validate Calling Side
+        bRC = validatorCalling.waitForCallEvent(hLine, hCall, CALLSTATE_DIALTONE, CALLSTATE_CAUSE_NORMAL, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+        bRC = validatorCalling.waitForCallEvent(hLine, hCall, CALLSTATE_REMOTE_OFFERING, CALLSTATE_CAUSE_NORMAL, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+        bRC = validatorCalling.waitForCallEvent(hLine, hCall, CALLSTATE_REMOTE_ALERTING, CALLSTATE_CAUSE_NORMAL, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+        bRC = validatorCalling.waitForCallEvent(hLine, hCall, CALLSTATE_CONNECTED, CALLSTATE_CAUSE_NORMAL, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+//        bRC = validatorCalling.waitForCallEvent(hLine, hCall, CALLSTATE_AUDIO_EVENT, CALLSTATE_CAUSE_AUDIO_START, true) ;
+//        CPPUNIT_ASSERT(bRC) ;
+
+        // Validate Called Side
+        bRC = validatorCalled.waitForCallEvent(g_hAutoAnswerCallbackLine, g_hAutoAnswerCallbackCall, CALLSTATE_NEWCALL, CALLSTATE_CAUSE_NORMAL, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+        bRC = validatorCalled.waitForCallEvent(g_hAutoAnswerCallbackLine, g_hAutoAnswerCallbackCall, CALLSTATE_OFFERING, CALLSTATE_CAUSE_NORMAL, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+        bRC = validatorCalled.waitForCallEvent(g_hAutoAnswerCallbackLine, g_hAutoAnswerCallbackCall, CALLSTATE_ALERTING, CALLSTATE_CAUSE_NORMAL, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+        bRC = validatorCalled.waitForCallEvent(g_hAutoAnswerCallbackLine, g_hAutoAnswerCallbackCall, CALLSTATE_CONNECTED, CALLSTATE_CAUSE_NORMAL, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+//        bRC = validatorCalled.waitForCallEvent(g_hAutoAnswerCallbackLine, g_hAutoAnswerCallbackCall, CALLSTATE_AUDIO_EVENT, CALLSTATE_CAUSE_AUDIO_START, true) ;
+//        CPPUNIT_ASSERT(bRC) ;
+                
+        int connectionId = -1;
+        
+        CPPUNIT_ASSERT_EQUAL(sipxCallGetConnectionId(hCall, connectionId), SIPX_RESULT_SUCCESS);
+        CPPUNIT_ASSERT(connectionId != -1) ;
+                
+        SIPX_CALL hDestroyedCall = hCall ;
+        destroyCall(hCall) ;
+
+        // Validate Calling Side
+//        bRC = validatorCalling.waitForCallEvent(hLine, hDestroyedCall, CALLSTATE_AUDIO_EVENT, CALLSTATE_CAUSE_AUDIO_STOP, true) ;
+//        CPPUNIT_ASSERT(bRC) ;
+        bRC = validatorCalling.waitForCallEvent(hLine, hDestroyedCall, CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_NORMAL, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+        bRC = validatorCalling.waitForCallEvent(hLine, hDestroyedCall, CALLSTATE_DESTROYED, CALLSTATE_CAUSE_NORMAL, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+
+        // Validate Called Side
+//        bRC = validatorCalled.waitForCallEvent(g_hAutoAnswerCallbackLine, g_hAutoAnswerCallbackCall, CALLSTATE_AUDIO_EVENT, CALLSTATE_CAUSE_AUDIO_STOP, true) ;
+//        CPPUNIT_ASSERT(bRC) ;
+        bRC = validatorCalled.waitForCallEvent(g_hAutoAnswerCallbackLine, g_hAutoAnswerCallbackCall, CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_NORMAL, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+        bRC = validatorCalled.waitForCallEvent(g_hAutoAnswerCallbackLine, g_hAutoAnswerCallbackCall, CALLSTATE_DESTROYED, CALLSTATE_CAUSE_NORMAL, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+        
+        CPPUNIT_ASSERT_EQUAL(sipxEventListenerRemove(g_hInst, UniversalEventValidatorCallback, &validatorCalling), SIPX_RESULT_SUCCESS) ;
+        CPPUNIT_ASSERT_EQUAL(sipxEventListenerRemove(g_hInst2, AutoAnswerCallback, NULL), SIPX_RESULT_SUCCESS) ;
+        CPPUNIT_ASSERT_EQUAL(sipxEventListenerRemove(g_hInst2, UniversalEventValidatorCallback, &validatorCalled), SIPX_RESULT_SUCCESS) ;
+    
+        CPPUNIT_ASSERT_EQUAL(sipxLineRemove(hLine), SIPX_RESULT_SUCCESS);
+        CPPUNIT_ASSERT_EQUAL(sipxLineRemove(hReceivingLine), SIPX_RESULT_SUCCESS);
+
+        sipxConfigEnableSipShortNames(g_hInst, true);
+    }
+
+    OsTask::delay(TEST_DELAY) ;
+
+    checkForLeaks();
+}
+
+
+void sipXtapiTestSuite::testUtilUrlParse() 
+{
+    char szUsername[100] ;
+    char szHostname[100] ;
+    int  iPort ;
+    SIPX_RESULT rc ;
+
+    rc = sipxUtilUrlParse("sip:user@host:1000", szUsername, szHostname, &iPort) ;
+    CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS) ;
+    CPPUNIT_ASSERT(strcmp(szUsername, "user") == 0) ;
+    CPPUNIT_ASSERT(strcmp(szHostname, "host") == 0) ;
+    CPPUNIT_ASSERT(iPort == 1000) ;
+
+    rc = sipxUtilUrlParse("sip:user2@host2", szUsername, szHostname, &iPort) ;
+    CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS) ;
+    CPPUNIT_ASSERT(strcmp(szUsername, "user2") == 0) ;
+    CPPUNIT_ASSERT(strcmp(szHostname, "host2") == 0) ;
+    CPPUNIT_ASSERT(iPort == -1) ;
+
+    rc = sipxUtilUrlParse(NULL, szUsername, szHostname, &iPort) ;
+    CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_FAILURE) ;
+
+    rc = sipxUtilUrlParse("", szUsername, szHostname, &iPort) ;
+    CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_FAILURE) ;
+
+    rc = sipxUtilUrlParse("sip:user3@host3", NULL, NULL, NULL) ;
+    CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS) ;
+}
+
+
+void sipXtapiTestSuite::testUtilUrlUpdate() 
+{
+    char        szUrl[100] ;
+    size_t      nLength ;
+    SIPX_RESULT rc ;
+
+    strcpy(szUrl, "<sip:user@host:5060;urlparam=1234>;otherparam=3422") ;
+    nLength = sizeof(szUrl) ;
+    rc = sipxUtilUrlUpdate(szUrl, nLength, "user2", "host2", 2222) ;
+    CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS) ;
+    CPPUNIT_ASSERT(strcmp(szUrl, "<sip:user2@host2:2222;urlparam=1234>;otherparam=3422") == 0) ;
+
+    strcpy(szUrl, "<sip:user@host:5060;urlparam=1234>;otherparam=3422") ;
+    nLength = sizeof(szUrl) ;
+    rc = sipxUtilUrlUpdate(szUrl, nLength, NULL, NULL, -1) ;
+    CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS) ;
+    CPPUNIT_ASSERT(strcmp(szUrl, "<sip:user@host:5060;urlparam=1234>;otherparam=3422") == 0) ;
+
+    strcpy(szUrl, "<sip:user@host;urlparam=1234>;otherparam=3422") ;
+    nLength = sizeof(szUrl) ;
+    rc = sipxUtilUrlUpdate(szUrl, nLength, NULL, NULL, -1) ;
+    CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS) ;
+    CPPUNIT_ASSERT(strcmp(szUrl, "<sip:user@host;urlparam=1234>;otherparam=3422") == 0) ;
+
+    nLength = sizeof(szUrl) ;
+    rc = sipxUtilUrlUpdate(NULL, nLength, NULL, NULL, -1) ;
+    CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_FAILURE) ;
+}
+
+
+void sipXtapiTestSuite::testUtilUrlGetUrlParam() 
+{
+    char        szValue[100] ;
+    SIPX_RESULT rc ;
+ 
+    rc = sipxUtilUrlGetUrlParam("sip:user@host", "missing", 0, szValue, sizeof(szValue)) ;
+    CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_FAILURE) ;
+    rc = sipxUtilUrlGetUrlParam("sip:user@host", "missing", 1, szValue, sizeof(szValue)) ;
+    CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_FAILURE) ;
+    
+    rc = sipxUtilUrlGetUrlParam("sip:user@host;param=1234", "param", 0, szValue, sizeof(szValue)) ;
+    CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS) ;
+    CPPUNIT_ASSERT(strcmp(szValue, "1234") == 0) ;
+    rc = sipxUtilUrlGetUrlParam("sip:user@host;param=1234", "missing", 1, szValue, sizeof(szValue)) ;
+    CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_FAILURE) ;
+
+    rc = sipxUtilUrlGetUrlParam("<sip:user@host;param=1234>", "param", 0, szValue, sizeof(szValue)) ;
+    CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS) ;
+    CPPUNIT_ASSERT(strcmp(szValue, "1234") == 0) ;
+    rc = sipxUtilUrlGetUrlParam("<sip:user@host;param=1234>", "missing", 1, szValue, sizeof(szValue)) ;
+    CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_FAILURE) ;
+
+    rc = sipxUtilUrlGetUrlParam("<sip:user@host>;param=1234", "param", 0, szValue, sizeof(szValue)) ;
+    CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_FAILURE) ;
+    rc = sipxUtilUrlGetUrlParam("<sip:user@host>param=1234", "missing", 1, szValue, sizeof(szValue)) ;
+    CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_FAILURE) ;
+
+    rc = sipxUtilUrlGetUrlParam("<sip:user@host;param=1234;other=2;param=5678>", "param", 0, szValue, sizeof(szValue)) ;
+    CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS) ;
+    CPPUNIT_ASSERT(strcmp(szValue, "1234") == 0) ;
+    rc = sipxUtilUrlGetUrlParam("<sip:user@host;param=1234;other=2;param=5678>", "param", 1, szValue, sizeof(szValue)) ;
+    CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS) ;
+    CPPUNIT_ASSERT(strcmp(szValue, "5678") == 0) ;
+    rc = sipxUtilUrlGetUrlParam("<sip:user@host;param=1234;other=2;param=5678>", "param", 2, szValue, sizeof(szValue)) ;
+    CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_FAILURE) ;
+    rc = sipxUtilUrlGetUrlParam("<sip:user@host;param=1234;other=2;param=5678>", "other", 0, szValue, sizeof(szValue)) ;
+    CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS) ;
+    CPPUNIT_ASSERT(strcmp(szValue, "2") == 0) ;
+
+//@}
+
+
+}

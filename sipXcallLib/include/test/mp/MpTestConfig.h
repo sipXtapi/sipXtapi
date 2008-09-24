@@ -1,18 +1,21 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 #ifndef _MpTestConfig_h_
 #define _MpTestConfig_h_
 
 #include "mp/MpMediaTask.h"
 #include "ps/PsPhoneTask.h"
-#include "mp/MpCallFlowGraph.h"
 #include "net/SipUserAgent.h"
 #include "cp/CallManager.h"
+class MpCallFlowGraph;
 
 // Base URL to find data sources for this test program.  This software expects
 // to find the followings files:

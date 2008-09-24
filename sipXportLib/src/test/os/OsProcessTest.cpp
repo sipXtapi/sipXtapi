@@ -1,9 +1,12 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 #include <cppunit/extensions/HelperMacros.h>
 #include <cppunit/TestCase.h>
@@ -57,7 +60,6 @@ public:
         //std::cout << "Launching process: " << appName.data() << std::endl;
         stat = process.launch(appName,params,startupDir);
         CPPUNIT_ASSERT_MESSAGE("Launched application", stat == OS_SUCCESS);
-        KNOWN_BUG("Unknown failure", "XPL-12");
         CPPUNIT_ASSERT_MESSAGE("Application running", process.isRunning());
         
         int priority;
@@ -76,5 +78,8 @@ public:
     }
 };
 
+#ifdef WINCE
+#pragma message( "OsProcessTest disabled undef Win CE" )
+#else
 CPPUNIT_TEST_SUITE_REGISTRATION(OsProcessTest);
-
+#endif

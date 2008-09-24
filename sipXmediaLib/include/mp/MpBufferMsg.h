@@ -1,10 +1,15 @@
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2005 Pingtel Corp.
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 
 #ifndef _MpBufferMsg_h_
@@ -25,73 +30,94 @@
 // TYPEDEFS
 // FORWARD DECLARATIONS
 
-//:Message object used to communicate with the media processing task
+/**
+ * @brief Message object used to communicate with the media processing task.
+ */
 class MpBufferMsg : public OsMsg
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
-   // Phone set message types
-   enum MpBufferMsgType
+   /// Phone set message types
+   typedef enum
    {
-      AUD_RECORDED,
-      AUD_PLAYED,
+      AUD_RECORDED,  ///< Captured audio frame.
       AUD_RTP_RECV,
       AUD_RTCP_RECV,
       AUD_PLAY,
-      ACK_EOSTREAM
-   };
+      ACK_EOSTREAM,
+      VIDEO_FRAME    ///< Captured video frame.
+   } MpBufferMsgType;
 
 /* ============================ CREATORS ================================== */
+///@name Creators
+//@{
 
-   MpBufferMsg(int msg, int linenum=-1, MpBufPtr pTag=NULL,
-                        Sample* pBuf=NULL, int int1=-1);
-     //:Constructor
+     /// Constructor
+   MpBufferMsg(int msg, const MpBufPtr &pBuffer=MpBufPtr());
 
+     /// Copy constructor
    MpBufferMsg(const MpBufferMsg& rMpBufferMsg);
-     //:Copy constructor
 
-   virtual OsMsg* createCopy(void) const;
-     //:Create a copy of this msg object (which may be of a derived type)
+     /// Create a copy of this msg object (which may be of a derived type)
+   virtual OsMsg* createCopy() const;
 
+     /// Done with message, delete it or mark it unused
+   virtual void releaseMsg();
+
+     /// Destructor
    virtual
    ~MpBufferMsg();
-     //:Destructor
+
+//@}
 
 /* ============================ MANIPULATORS ============================== */
+///@name Manipulators
+//@{
 
+     /// Assignment operator
    MpBufferMsg& operator=(const MpBufferMsg& rhs);
-     //:Assignment operator
 
-   void setTag(MpBufPtr p, int index=0);
-     //:Set buffer object pointer of the buffer message
+     /// Copy buffer to this message
+   void setBuffer(const MpBufPtr &p);
+     /**<
+     *  Note, that this function create copy of the buffer! To avoid copying
+     *  use ownBuffer() function. Copying is needed to avoid racing conditions
+     *  in MpBuf::detach() code.
+     */
 
-   void setBuf(Sample* p, int index=0);
-     //:Set data pointer of the buffer message
+     /// Own provided buffer
+   void ownBuffer(MpBufPtr &p);
+     /**<
+     *  This function may be used to avoid buffer copying when passing buffer
+     *  to message object. It owns provided buffer and invalidates it, i.e.
+     *  after execution of this function MpBufPtr::isValid() will return false
+     *  for passed buffer pointer.
+     *
+     *  Note, that buffer will not be copied only if MpBufPtr::isWritable()
+     *  returns true for passed pointer. Copying is needed to avoid racing
+     *  conditions in MpBuf::detach() code.
+     */
 
-   void setLen(int i, int index=0);
-     //:Set length of buffer data in the buffer message
-
-   // the mpFrom is only set during construction
+//@}
 
 /* ============================ ACCESSORS ================================= */
+///@name Accessors
+//@{
 
-   int getMsg(void) const;
-     //:Return the type of the buffer message
+     /// Return the type of the buffer message
+   int getMsg() const;
 
-   MpBufPtr getTag(int index=0) const;
-     //:Return buffer object pointer from the buffer message
+     /// Return buffer object pointer from the buffer message
+   MpBufPtr &getBuffer();
 
-   Sample* getBuf(int index=0) const;
-     //:Return data pointer from the buffer message
-
-   int getLen(int index=0) const;
-     //:Return length of buffer data from the buffer message
-
-   int getFrom(void) const;
-     //:Return creation line number from the buffer message
+//@}
 
 /* ============================ INQUIRY =================================== */
+///@name Inquiry
+//@{
+
+//@}
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
@@ -99,15 +125,7 @@ protected:
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
 
-   enum {MAX_BUFFERS_IN_MSG = 4};      // size of arrays
-
-     // the descriptors of the buffers
-   MpBufPtr mpTag[MpBufferMsg::MAX_BUFFERS_IN_MSG];
-     // pointers to the data in the buffers
-   Sample*  mpBuf[MpBufferMsg::MAX_BUFFERS_IN_MSG];
-     // lengths of the data in the buffers
-   int      mLen[MpBufferMsg::MAX_BUFFERS_IN_MSG];
-   int      mFrom;      // the line number of the sender.
+   MpBufPtr mpBuffer; ///< Carried buffer
 
 };
 

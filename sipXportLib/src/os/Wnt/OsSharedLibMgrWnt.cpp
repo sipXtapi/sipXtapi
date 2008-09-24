@@ -1,10 +1,12 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 
 // SYSTEM INCLUDES
@@ -197,23 +199,33 @@ OsStatus OsSharedLibMgrWnt::getSharedLibSymbol(const char* libName,
     return(status);
 }
 
-//: Not yet implemented
 OsStatus OsSharedLibMgrWnt::unloadSharedLib(const char* libName)
 {
-    OsStatus status = OS_NOT_YET_IMPLEMENTED;
-    return(status);
-}
+   OsStatus status = OS_INVALID;
+   BOOL res;
+   // Check if we already have a handle for this lib
+   UtlString collectableName(libName ? libName : "");
+   sLock.acquire();
+   OsSharedLibHandleWnt* collectableLibHandle = 
+      (OsSharedLibHandleWnt*) mLibraryHandles.find(&collectableName);
 
+   // We do not already have a handle for this lib
+   if(!collectableLibHandle)
+   {
+      sLock.release();
+      return status;
+   }
 
+   res = FreeLibrary(collectableLibHandle->mLibHandle);
+   if (res) {
+      mLibraryHandles.remove(&collectableName);
+      status = OS_SUCCESS;
+   } else {
+      status = OS_FAILED;
+   }
 
-// Assignment operator
-OsSharedLibMgrWnt& 
-OsSharedLibMgrWnt::operator=(const OsSharedLibMgrWnt& rhs)
-{
-   if (this == &rhs)            // handle the assignment to self case
-      return *this;
-
-   return *this;
+   sLock.release();
+   return(status);
 }
 
 /* ============================ ACCESSORS ================================= */

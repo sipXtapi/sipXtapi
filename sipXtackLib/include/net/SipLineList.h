@@ -1,10 +1,12 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 #if !defined(AFX_SIPLINELIST_H__3822B7DD_69A6_44FC_B936_B75FACC65DC2__INCLUDED_)
 #define AFX_SIPLINELIST_H__3822B7DD_69A6_44FC_B936_B75FACC65DC2__INCLUDED_
@@ -57,6 +59,7 @@ public:
 
         SipLineList();
         virtual ~SipLineList();
+        void dumpLines();
 
 protected:
         OsLockingList m_LineList;

@@ -1,10 +1,15 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
+// Copyright (C) 2005-2008 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
 // 
+// Copyright (C) 2004-2008 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 
 #ifndef _CpMediaInterfaceFactory_h_
@@ -12,6 +17,10 @@
 
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
+#include <os/OsStatus.h>
+#include <utl/UtlDefs.h>
+#include <utl/UtlString.h>
+
 // DEFINES
 // MACROS
 // EXTERNAL FUNCTIONS
@@ -31,11 +40,13 @@ class SdpCodec ;
  *
  * The destructor of this factory will automatically destroy the 
  * CpMediaIntefaceFactoryInterface.
+ *
+ * @nosubgrouping
  */
 class CpMediaInterfaceFactory
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
-  public:
+public:
 
 /* ============================ CREATORS ================================== */
 
@@ -60,36 +71,61 @@ class CpMediaInterfaceFactory
      * The factory will automatically be deleted when the destructor of 
      * CpMediaInterfaceFactory is invoked.
      */
-    void setFactoryImplementation(CpMediaInterfaceFactoryImpl* pFactoryInterface) ;
+   void setFactoryImplementation(CpMediaInterfaceFactoryImpl* pFactoryInterface) ;
 
 
     /**
      * Create a media interface using the designated 
      * CpMediaIntefaceFactoryInterface.
      */ 
-    CpMediaInterface* createMediaInterface(const char* publicAddress,
-                                           const char* localAddress,
-                                           int numCodecs,
-                                           SdpCodec* sdpCodecArray[],
-                                           const char* locale,
-                                           int expeditedIpTos,
-                                           const char* szStunServer,
-                                           int stunOptions,
-                                           int iStunKeepAlivePeriodSecs) ;
+   CpMediaInterface* createMediaInterface(const char* publicAddress,
+                                          const char* localAddress,
+                                          int numCodecs,
+                                          SdpCodec* sdpCodecArray[],
+                                          const char* locale,
+                                          int expeditedIpTos,
+                                          const char* szStunServer,
+                                          int iStunPort,
+                                          int iStunKeepAlivePeriodSecs,
+                                          const char* szTurnServer,
+                                          int iTurnPort,
+                                          const char* szTurnUsername,
+                                          const char* szTurnPassword,
+                                          int iTurnKeepAlivePeriodSecs,
+                                          UtlBoolean bEnableICE,
+                                          uint32_t samplesPerSec = 0 ///< Zero takes default
+                                         );
+
+     /// Add directory paths to the codec search path.
+   static OsStatus addCodecPaths(const size_t nCodecPaths, const UtlString codecPaths[]);
+     /**<
+     *  Specify directories that will be added to the list of paths
+     *  used when searching for codecs to load.
+     *
+     *  @note The paths passed in should only contain syntactically valid 
+     *        directory paths.  
+     *        TODO: Syntactically invalid paths will be rejected returning OS_FAILED.
+     *
+     *  @param[in] codecPaths - array of paths to load. 
+     *  @retval OS_SUCCESS - if all of the paths passed in are properly stored.
+     */
+
+     /// Clear the static codec path list.
+   static void clearCodecPaths();
 
 
 /* ============================ ACCESSORS ================================= */
 
-    CpMediaInterfaceFactoryImpl* getFactoryImplementation() ;
+   CpMediaInterfaceFactoryImpl* getFactoryImplementation() ;
 
 /* ============================ INQUIRY =================================== */
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
-  protected:
-    CpMediaInterfaceFactoryImpl* mpFactoryImpl ; 
+protected:
+   CpMediaInterfaceFactoryImpl* mpFactoryImpl ; 
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
-  private:
+private:
 
    /**
     * Disabled equals operator

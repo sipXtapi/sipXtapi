@@ -1,10 +1,12 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 
 #ifndef _UtlContainer_h_
@@ -37,6 +39,9 @@ class UtlContainer : public UtlContainable
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
+
+    static const UtlContainableType TYPE ;    /** < Class type used for runtime checking */ 
+
 /* ============================ CREATORS ================================== */
    
     /**
@@ -102,7 +107,6 @@ public:
      */
     virtual UtlContainableType getContainableType() const;
 
-    static const UtlContainableType TYPE ;    /** < Class type used for runtime checking */ 
 
 /* ============================ INQUIRY =================================== */
 
@@ -146,6 +150,7 @@ public:
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
     friend class UtlIterator;
+    friend class UtlInit;
 
     /// Add an iterator to the list to be notified of changes to this container.
     void addIterator(UtlIterator* newIterator ///< to be notified of container changes

@@ -1,16 +1,15 @@
 //
-// Copyright (C) 2005-2006 SIPez LLC.
+// Copyright (C) 2005-2008 SIPez LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
-// Copyright (C) 2005-2006 SIPfoundry Inc.
+// Copyright (C) 2004-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
-// Copyright (C) 2005 Pingtel Corp.
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 
 // SYSTEM INCLUDES
@@ -29,7 +28,6 @@
 #endif /* _VXWORKS ] */
 
 // APPLICATION INCLUDES
-
 #ifdef _VXWORKS /* [ */
 #if CPU == ARMSA110 || (CPU == ARMARCH4) || (CPU == STRONGARM) /* [ [ */
 #include "mp/sa1100.h"
@@ -40,22 +38,45 @@
 #endif /* ] ] */
 #endif /* _VXWORKS ] */
 
+#include "os/OsDefs.h" // for min macro
 #include "os/OsMsgQ.h"
 #include "os/OsConfigDb.h"
 #include "mp/MpTypes.h"
 #include "mp/MpCodec.h"
 #include "mp/dmaTask.h"
 #include "mp/MpBuf.h"
+#include "mp/MpAudioBuf.h"
+#include "mp/MpRtpBuf.h"
+#include "mp/MpUdpBuf.h"
 #include "mp/MpBufferMsg.h"
 #include "mp/MpMisc.h"
 #include "mp/NetInTask.h"
 #include "mp/MprFromMic.h"
 #include "mp/MprToSpkr.h"
 #include "mp/MprDejitter.h"
-#include "mp/MprDecode.h"
+#include "mp/MpMediaTask.h"
+#include "mp/MpCodecFactory.h"
+#include "mp/MpStaticCodecInit.h"
+#include "os/OsDateTime.h"
+
+//#define RTL_ENABLED
+
+#ifdef RTL_ENABLED
+#  include <rtl_macro.h>
+#  ifdef INIT_EXTERNAL_RTL_COLLECTOR
+      extern "C" void setExternalRtlCollector(SeScopeDataCollector *rtlCollector);
+#  else
+#     define setExternalRtlCollector(x)
+#  endif
+#else
+#  define RTL_START(x)
+#  define RTL_STOP
+#  define RTL_WRITE(x)
+#  define setExternalRtlCollector(x)
+#endif
+
 
 // EXTERNAL FUNCTIONS
-extern long MpBuf_setMVE(long newMin);
 
 // EXTERNAL VARIABLES
 
@@ -63,12 +84,17 @@ extern long MpBuf_setMVE(long newMin);
 
 #define MIC_BUFFER_Q_LEN 10
 #define SPK_BUFFER_Q_LEN 14
+#define ECHO_BUFFER_Q_LEN MIC_BUFFER_Q_LEN+SPK_BUFFER_Q_LEN
 
 #ifdef _VXWORKS /* [ */
 #define LOG_MSGQ_MAX_MSGS 8000
 #define LOG_MSGQ_ITEM_LEN 60
 #define ABSOLUTE_MAX_LOG_MSG_LEN 2048
 #endif /* _VXWORKS ] */
+
+#define RTP_BUFS (MprDejitter::MAX_RTP_PACKETS + 20)
+#define RTCP_BUFS 16
+#define UDP_BUFS 10
 
 // STATIC VARIABLE INITIALIZATIONS
 
@@ -131,7 +157,7 @@ int Zprintf0(int force, char *buf)
         char junk;
 
         str = buf;
-        l = min(ABSOLUTE_MAX_LOG_MSG_LEN, strlen(buf));
+        l = sipx_min(ABSOLUTE_MAX_LOG_MSG_LEN, strlen(buf));
         ret = l;
         if (0 == MpMisc.LogQ) {
             ret = force ? fwrite(str, 1, ret, stderr) : 0;
@@ -142,13 +168,13 @@ int Zprintf0(int force, char *buf)
                 taskLock();
             }
             while (l > 0) {
-                n = min(l, MpMisc.logMsgSize);
+                n = sipx_min(l, MpMisc.logMsgSize);
                 msgret = msgQSend(MpMisc.LogQ, buf, n,
                                        VX_NO_WAIT, MSG_PRI_NORMAL);
                 if (ERROR == msgret) {
                     // int r2 =
                     msgQReceive(MpMisc.LogQ, &junk, 1, VX_NO_WAIT);
-                    // printf("discard message; r1=%d, r2=%d, q=0x%X: '%s'\n",
+                    // osPrintf("discard message; r1=%d, r2=%d, q=0x%X: '%s'\n",
                         // msgret, r2, MpMisc.LogQ, buf);
                     numDiscarded++;
                     msgret = msgQSend(MpMisc.LogQ, buf, n,
@@ -239,7 +265,7 @@ static int printTask(int t1, int t2, int t3, int t4, int t5,
                 msg[l] = 0;
                 fwrite(msg, 1, l, stderr);
             } else {
-                printf("\n\nLogger: quitting!\n\n");
+                osPrintf("\n\nLogger: quitting!\n\n");
                 return 0;
             }
         }
@@ -249,7 +275,7 @@ MSG_Q_ID startLogging(int nmsgs, int maxlen)
 {
         MpMisc.LogQ = msgQCreate(nmsgs, maxlen, MSG_Q_FIFO);
         if (NULL == MpMisc.LogQ) {
-                printf("cannot create LogQ!  Quitting\n");
+                osPrintf("cannot create LogQ!  Quitting\n");
         } else {
             Zprintf("logQ is 0x%X\n", (int) MpMisc.LogQ, 0,0,0,0,0);
             taskSpawn("Logger", logTaskPrio, 0, 8192, (FUNCPTR) printTask,
@@ -304,7 +330,6 @@ extern "C" {
 extern int showMpMisc(int justAddress);
 extern int setMaxMic(int v);
 extern int setMaxSpkr(int v);
-extern int setMinRtp(int v);
 extern int mpSetLatency(int maxMic, int maxSpkr, int minRtp);
 #ifdef _VXWORKS /* [ */
 extern int LoopBack(int on);
@@ -329,8 +354,6 @@ int LoopBack(int on) {
    while (0 < MpMisc.pLoopBackQ->numMsgs()) {
       if (OS_SUCCESS == MpMisc.pLoopBackQ->receive((OsMsg*&) pMsg,
                                                     OsTime::NO_WAIT_TIME)) {
-         MpBuf_delRef(pMsg->getTag());
-         MpBuf_delRef(pMsg->getTag(1));
          pMsg->releaseMsg();
       }
    }
@@ -354,15 +377,12 @@ int showMpMisc(int justAddress)
    Zprintf("&MpMisc = 0x%X\n", (int) &MpMisc, 0,0,0,0,0);
    if (!justAddress) {
       Zprintf(" MicQ=0x%X, SpkQ=0x%X, EchoQ=0x%X, silence=0x%X\n"
-         " micMuteStatus=%d, spkrMuteStatus=%d,",
          (int) MpMisc.pMicQ, (int) MpMisc.pSpkQ, (int) MpMisc.pEchoQ,
-         (int) MpMisc.XXXsilence, MpMisc.micMuteStatus, MpMisc.spkrMuteStatus);
-      Zprintf(" audio_on=%d\n frameSamples=%d,"
-         " frameBytes=%d, sampleBytes=%d,",
-         MpMisc.audio_on,
-         MpMisc.frameSamples, MpMisc.frameBytes, MpMisc.sampleBytes, 0,0);
-      Zprintf(" rtpMaxBytes=%d\n UcbPool=0x%X, RtpPool=0x%X, RtcpPool=0x%X\n",
-         MpMisc.rtpMaxBytes, (int) MpMisc.UcbPool, (int) MpMisc.RtpPool,
+         (int) MpMisc.mpFgSilence, 0, 0, 0);
+      Zprintf(" \n frameSamples=%d, frameBytes=%d, sampleBytes=%d,",
+         MpMisc.frameSamples, MpMisc.frameBytes, MpMisc.sampleBytes, 0,0,0);
+      Zprintf(" rtpMaxBytes=%d\n RawAudioPool=0x%X, RtpPool=0x%X, RtcpPool=0x%X\n",
+         MpMisc.rtpMaxBytes, (int) MpMisc.RawAudioPool, (int) MpMisc.RtpPool,
          (int) MpMisc.RtcpPool, 0,0);
 #ifdef _VXWORKS /* [ */
       Zprintf(" mem_page_size=%d, mem_page_mask=0x%08X\n"
@@ -370,9 +390,9 @@ int showMpMisc(int justAddress)
          MpMisc.mem_page_size, MpMisc.mem_page_mask,
          (int) MpMisc.LogQ, MpMisc.logMsgLimit, MpMisc.logMsgSize, 0);
 #endif /* _VXWORKS ] */
-      Zprintf(" Latency: maxMic=%d, maxSpkr=%d, minRtp=%d\n",
+      Zprintf(" Latency: maxMic=%d, maxSpkr=%d"
          MpMisc.max_mic_buffers, MpMisc.max_spkr_buffers,
-         MpMisc.min_rtp_packets, 0,0,0);
+         0,0,0,0,0);
    }
    return (int) &MpMisc;
 }
@@ -407,63 +427,24 @@ int setMaxSpkr(int v)
     return save;
 }
 
-int setMinRtp(int v)
-{
-    int save = MpMisc.min_rtp_packets;
+#ifndef CODEC_PLUGIN_PATH
+// Windows compilers do not allow definition of preprocessor macros with 
+// quotes in them within project files, so we need to stringify it here.
+// All platforms do this now.
+// Two levels of indirection are necessary to properly stringify a value in a macro.
+#  define STRINGIFY(s) #s
+#  define SSTRINGIFY(s) STRINGIFY(s)
+#  ifndef DEFAULT_CODECS_PATH
+#     define CODEC_PLUGIN_PATH  "."
+#  else
+#     define CODEC_PLUGIN_PATH  SSTRINGIFY(DEFAULT_CODECS_PATH)
+#  endif
+#endif
 
-    if (v >= MprDejitter::MAX_RTP_PACKETS) {
-        int vWas = v;
-        v = MprDejitter::MAX_RTP_PACKETS - 1;
-        osPrintf("\nmin_rtp_packets  MUST BE less than %d... setting to"
-            " %d instead of %d\n",
-            MprDejitter::MAX_RTP_PACKETS, v, vWas);
-    }
-    if (v > 0) MpMisc.min_rtp_packets = v;
-    return save;
-}
-
-int mpSetLatency(int maxMic, int maxSpkr, int minRtp)
-{
-    setMaxMic(maxMic);
-    setMaxSpkr(maxSpkr);
-    setMinRtp(minRtp);
-    return 0;
-}
-
-int mpSetHighLatency()
-{
-    return mpSetLatency(2, 2, 3);
-}
-
-int mpSetMedLatency()
-{
-    return mpSetLatency(1, 1, 2);
-}
-
-int mpSetLowLatency()
-{
-    return mpSetLatency(1, 1, 1);
-}
-
-int mpStartSawTooth()
-{
-    int save = MpMisc.micSawTooth;
-    MpMisc.micSawTooth = 1;
-    return save;
-}
-
-int mpStopSawTooth()
-{
-    int save = MpMisc.micSawTooth;
-    MpMisc.micSawTooth = 0;
-    return save;
-}
-
-extern void doFrameLoop(int sampleRate, int frame_samples);
-extern STATUS netStartup();
 
 OsStatus mpStartUp(int sampleRate, int samplesPerFrame,
-      int numAudioBuffers, OsConfigDb* pConfigDb)
+                   int numAudioBuffers, OsConfigDb* pConfigDb,
+                   const size_t numCodecPaths, const UtlString codecPaths[])
 {
 #ifdef _VXWORKS
         int defSilenceSuppressLevel = 10000;
@@ -475,11 +456,30 @@ OsStatus mpStartUp(int sampleRate, int samplesPerFrame,
         UtlString  silenceSuppressEnable;
         int       silenceSuppressLevel;
 
-        if (samplesPerFrame < 8) samplesPerFrame = 80;
-        samplesPerFrame = min(samplesPerFrame, FRAME_SAMPS);
+        assert(samplesPerFrame >= 8);
 
         showMpMisc(TRUE);
-        MpMisc.micMuteStatus = MpMisc.spkrMuteStatus = 0;
+
+        RTL_START(100000000);
+        setExternalRtlCollector(sRealtimeLogCollector);
+
+        // First initialize static codecs
+        mpStaticCodecInitializer();
+
+        MpCodecFactory* pcf = MpCodecFactory::getMpCodecFactory();
+
+        if(numCodecPaths != 0)
+        {
+           size_t i;
+           for(i = 0; i < numCodecPaths; i++)
+           {
+              pcf->loadAllDynCodecs(codecPaths[i].data(), CODEC_PLUGINS_FILTER);
+           }
+        }
+        else
+        {
+           pcf->loadAllDynCodecs(CODEC_PLUGIN_PATH, CODEC_PLUGINS_FILTER);
+        }
 
 #ifdef _VXWORKS /* [ */
         /* Rashly assumes page size is a power of two */
@@ -487,19 +487,138 @@ OsStatus mpStartUp(int sampleRate, int samplesPerFrame,
         MpMisc.mem_page_mask = MpMisc.mem_page_size - 1;
 #endif /* _VXWORKS ] */
 
-        MpMisc.sampleBytes = sizeof(short);
+        MpMisc.sampleBytes = sizeof(MpAudioSample);
         MpMisc.frameSamples = samplesPerFrame;
         MpMisc.frameBytes = MpMisc.sampleBytes * MpMisc.frameSamples;
-        MpMisc.rtpMaxBytes = /* sizeof(struct rtpHeader) */ 12 + 
+        MpMisc.rtpMaxBytes = /* sizeof(struct RtpHeader) */ 12 + 
             (((sampleRate + 24) / 25) * MpMisc.sampleBytes);
 
-        MpMisc.audio_on = 0;
-
-        if (OS_SUCCESS != MpBuf_init(samplesPerFrame, numAudioBuffers)) {
-            return OS_UNSPECIFIED;
+        // Create buffer for audio data in mediagraph
+        MpMisc.RawAudioPool = new MpBufPool( samplesPerFrame*sizeof(MpAudioSample)
+                                        +MpArrayBuf::getHeaderSize()
+                                      , numAudioBuffers);
+        Nprintf( "mpStartUp: MpMisc.RawAudioPool = 0x%X\n"
+               , (int) MpMisc.RawAudioPool, 0,0,0,0,0);
+        if (NULL == MpMisc.RawAudioPool) {
+            return OS_NO_MEMORY;
         }
 
-        // Use the config database to determine the silence supression level
+        // Create buffer for audio headers
+        int audioBuffers  = MpMisc.RawAudioPool->getNumBlocks();
+        MpMisc.AudioHeadersPool = new MpBufPool(sizeof(MpAudioBuf), audioBuffers);
+        Nprintf( "mpStartUp: MpMisc.AudioHeadersPool = 0x%X\n"
+               , (int) MpMisc.AudioHeadersPool, 0,0,0,0,0);
+        if (NULL == MpMisc.AudioHeadersPool) {
+            // TODO:: Think about proper resource deallocation on fail in mpStartUp()
+            return OS_NO_MEMORY;
+        }
+        MpAudioBuf::smpDefaultPool = MpMisc.AudioHeadersPool;
+
+        /*
+        * Go get a buffer and fill with silence.  We will use this for muting
+        * either or both of input and output, and whenever we are starved for
+        * audio data.
+        */
+        {
+            MpAudioBufPtr sb = MpMisc.RawAudioPool->getBuffer();
+            if (!sb.isValid()) {
+                Zprintf("\n\mpStartUp:"
+                        " MpBufPool::getBuffer() failed, quitting!\n\n\n",
+                        0,0,0,0,0,0);
+                delete MpMisc.RawAudioPool;
+                MpMisc.RawAudioPool = NULL;
+                return OS_LIMIT_REACHED;
+            }
+
+            sb->setSamplesNumber(samplesPerFrame);
+            memset(sb->getSamplesWritePtr(), 0, sb->getSamplesNumber()*sizeof(MpAudioSample));
+            sb->setSpeechType(MP_SPEECH_SILENT);
+            MpMisc.mpFgSilence = sb;
+            Zprintf("mpStartUp: MpMisc.silence = 0x%X\n",
+                (int) MpMisc.mpFgSilence, 0,0,0,0,0);
+        }
+
+        /*
+        * generate a buffer called comfort noise buffer. Even though the zero
+        * initiation is not necessary, we do it as the silence buffer for safety.
+        */
+        {
+            MpAudioBufPtr cnb = MpMisc.RawAudioPool->getBuffer();
+            if (!cnb.isValid()) {
+                Zprintf("\n\mpStartUp:"
+                        " MpBufPool::getBuffer() failed, quitting!\n\n\n",
+                        0,0,0,0,0,0);
+                delete MpMisc.RawAudioPool;
+                MpMisc.RawAudioPool = NULL;
+                return OS_LIMIT_REACHED;
+            }
+
+            cnb->setSamplesNumber(samplesPerFrame);
+            memset(cnb->getSamplesWritePtr(), 0, cnb->getSamplesNumber()*sizeof(MpAudioSample));
+            cnb->setSpeechType(MP_SPEECH_COMFORT_NOISE);
+            MpMisc.comfortNoise = cnb;
+            Zprintf("mpStartUp: MpMisc.comfortNoise = 0x%X\n",
+                    (int) MpMisc.comfortNoise, 0,0,0,0,0);
+        }
+
+        // Create buffer for RTP packets
+        MpMisc.RtpPool = new MpBufPool( RTP_MTU+MpArrayBuf::getHeaderSize()
+                                      , RTP_BUFS);
+        Nprintf("mpStartUp: MpMisc.RtpPool = 0x%X\n",
+                (int) MpMisc.RtpPool, 0,0,0,0,0);
+        if (NULL == MpMisc.RtpPool) {
+            delete MpMisc.RawAudioPool;
+            MpMisc.RawAudioPool = NULL;
+            return OS_NO_MEMORY;
+        }
+
+        // Create buffer for RTCP packets
+        MpMisc.RtcpPool = new MpBufPool( RTCP_MTU+MpArrayBuf::getHeaderSize()
+                                       , RTCP_BUFS);
+        Nprintf("mpStartUp: MpMisc.RtcpPool = 0x%X\n",
+                (int) MpMisc.RtcpPool, 0,0,0,0,0);
+        if (NULL == MpMisc.RtcpPool) {
+            delete MpMisc.RawAudioPool;
+            MpMisc.RawAudioPool = NULL;
+            delete MpMisc.RtpPool;
+            MpMisc.RtpPool = NULL;
+            return OS_NO_MEMORY;
+        }
+
+        // Create buffer for RTP and RTCP headers
+        MpMisc.RtpHeadersPool = new MpBufPool( sizeof(MpRtpBuf)
+                                             , MpMisc.RtpPool->getNumBlocks()
+                                               + MpMisc.RtcpPool->getNumBlocks());
+        Nprintf( "mpStartUp: MpMisc.RtpHeadersPool = 0x%X\n"
+               , (int) MpMisc.RtpHeadersPool, 0,0,0,0,0);
+        if (NULL == MpMisc.RtpHeadersPool) {
+            // TODO:: Think about proper resource deallocation on fail in mpStartUp()
+            return OS_NO_MEMORY;
+        }
+        MpRtpBuf::smpDefaultPool = MpMisc.RtpHeadersPool;
+
+        // Create buffer for UDP packets
+        MpMisc.UdpPool = new MpBufPool( UDP_MTU+MpArrayBuf::getHeaderSize()
+                                      , UDP_BUFS);
+        Nprintf("mpStartUp: MpMisc.UdpPool = 0x%X\n",
+                (int) MpMisc.UdpPool, 0,0,0,0,0);
+        if (NULL == MpMisc.UdpPool) {
+            // TODO:: Think about proper resource deallocation on fail in mpStartUp()
+            return OS_NO_MEMORY;
+        }
+
+        // Create buffer for UDP packet headers
+        MpMisc.UdpHeadersPool = new MpBufPool( sizeof(MpUdpBuf)
+                                              , MpMisc.UdpPool->getNumBlocks());
+        Nprintf( "mpStartUp: MpMisc.UdpHeadersPool = 0x%X\n"
+               , (int) MpMisc.UdpHeadersPool, 0,0,0,0,0);
+        if (NULL == MpMisc.UdpHeadersPool) {
+            // TODO:: Think about proper resource deallocation on fail in mpStartUp()
+            return OS_NO_MEMORY;
+        }
+        MpUdpBuf::smpDefaultPool = MpMisc.UdpHeadersPool;
+
+        // Use the config database to determine the silence suppression level
         silenceSuppressFlag  = FALSE;
         silenceSuppressLevel = defSilenceSuppressLevel;
         if (pConfigDb)
@@ -523,11 +642,6 @@ OsStatus mpStartUp(int sampleRate, int samplesPerFrame,
            }
         }
 
-        if (silenceSuppressFlag)
-           MpBuf_setMVE(silenceSuppressLevel);
-        else
-           MpBuf_setMVE(0);
-
 #ifdef WIN32 /* [ */
         // Adjust initial audio latency if specified in config files:
         if (pConfigDb)
@@ -548,7 +662,7 @@ OsStatus mpStartUp(int sampleRate, int samplesPerFrame,
            {
               frames = atoi(latency.data()) / MS_PER_FRAME;
               DmaTask_setMicQPreload(frames);
-           }
+          }
         }
 #endif /* WIN32 ] */
 
@@ -580,12 +694,11 @@ OsStatus mpStartUp(int sampleRate, int samplesPerFrame,
             delete q;
         }
 #endif /* _VXWORKS ] */
-        assert(
-            (MIC_BUFFER_Q_LEN+SPK_BUFFER_Q_LEN+MIC_BUFFER_Q_LEN) <
-                               (MpBufPool_getNumBufs(MpMisc.UcbPool)-3));
+        assert( (MIC_BUFFER_Q_LEN+SPK_BUFFER_Q_LEN+MIC_BUFFER_Q_LEN)
+                < (MpMisc.RawAudioPool->getNumBlocks()-3) );
         MpMisc.pMicQ = new OsMsgQ(MIC_BUFFER_Q_LEN);
         MpMisc.pSpkQ = new OsMsgQ(SPK_BUFFER_Q_LEN);
-        MpMisc.pEchoQ = new OsMsgQ(MIC_BUFFER_Q_LEN);
+        MpMisc.pEchoQ = new OsMsgQ(ECHO_BUFFER_Q_LEN);
 #ifdef _VXWORKS /* [ */
         MpMisc.doLoopBack = 0;
         MpMisc.pLoopBackQ = new OsMsgQ(MIC_BUFFER_Q_LEN);
@@ -593,18 +706,20 @@ OsStatus mpStartUp(int sampleRate, int samplesPerFrame,
 
         assert(MprFromMic::MAX_MIC_BUFFERS > 0);
         assert(MprToSpkr::MAX_SPKR_BUFFERS > 0);
-        assert(MprDecode::MIN_RTP_PACKETS > 0);
 
         setMaxMic(MprFromMic::MAX_MIC_BUFFERS - 1);
         setMaxSpkr(MprToSpkr::MAX_SPKR_BUFFERS);
-        setMinRtp(MprDecode::MIN_RTP_PACKETS);
-        mpStopSawTooth();
 
         return OS_SUCCESS;
 }
 
 OsStatus mpShutdown(void)
 {
+        if (NULL != MpMediaTask::getMediaTask(0)) {
+           // This will MpMediaTask::spInstance to NULL
+           delete MpMediaTask::getMediaTask(0);
+        }
+
         if (NULL != MpMisc.pMicQ) {
             OsMsgQ* q = MpMisc.pMicQ;
             MpMisc.pMicQ = NULL;
@@ -627,7 +742,58 @@ OsStatus mpShutdown(void)
             delete q;
         }
 #endif /* _VXWORKS ] */
-    return OS_SUCCESS;
+
+        MpMisc.mpFgSilence.release();
+        MpMisc.comfortNoise.release();
+
+        if (NULL != MpMisc.UdpHeadersPool) {
+            delete MpMisc.UdpHeadersPool;
+            MpMisc.UdpHeadersPool = NULL;
+        }
+
+        if (NULL != MpMisc.UdpPool) {
+            delete MpMisc.UdpPool;
+            MpMisc.UdpPool = NULL;
+        }
+
+        if (NULL != MpMisc.RtpHeadersPool) {
+            delete MpMisc.RtpHeadersPool;
+            MpMisc.RtpHeadersPool = NULL;
+        }
+
+        if (NULL != MpMisc.RtpPool) {
+            delete MpMisc.RtpPool;
+            MpMisc.RtpPool = NULL;
+        }
+
+        if (NULL != MpMisc.RtcpPool) {
+            delete MpMisc.RtcpPool;
+            MpMisc.RtcpPool = NULL;
+        }
+
+        if (NULL != MpMisc.AudioHeadersPool) {
+            delete MpMisc.AudioHeadersPool;
+            MpMisc.AudioHeadersPool = NULL;
+        }
+
+        if (NULL != MpMisc.RawAudioPool) {
+            delete MpMisc.RawAudioPool;
+            MpMisc.RawAudioPool = NULL;
+        }
+
+        MpCodecFactory::freeSingletonHandle();
+
+        OsDateTime curTime;
+        char rtl_filename[1024];
+        OsDateTime::getCurTime(curTime);
+        sprintf(rtl_filename, "%04u%02u%02u %02u-%02u-%02u.rtl",
+                curTime.getYear(), curTime.getMonth(), curTime.getDay(),
+                curTime.getHour(), curTime.getMinute(), curTime.getSecond());
+        setExternalRtlCollector(NULL);
+        RTL_WRITE(rtl_filename)
+        RTL_STOP
+
+        return OS_SUCCESS;
 }
 
 OsStatus mpStartTasks(void)
@@ -646,9 +812,8 @@ OsStatus mpStartTasks(void)
 OsStatus mpStopTasks(void)
 {
 
-    mpShutdown();
     shutdownNetInTask();
     dmaShutdown();
-    
+   
     return OS_SUCCESS;
 }

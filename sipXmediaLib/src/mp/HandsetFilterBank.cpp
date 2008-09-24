@@ -1,10 +1,15 @@
+//  
+// Copyright (C) 2006-2007 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2005 Pingtel Corp.
+// Copyright (C) 2004-2007 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 
 #ifndef __pingtel_on_posix__ /* [ */
@@ -98,7 +103,6 @@ static int HS_UpdateControl = 1;
 //#define HS_EXTRA_MIC_DELAY 72      // Probably, this would be 0 in the real-time product
 static int ExtraLoudspeakerDelay = 0;
 //#include "mp/DSPAEC.h"
-#include "mp/DSP_type.h"
 #include "mp/MpBuf.h"
 #include "mp/dsplib.h"
 #include "mp/MpCodec.h"
@@ -333,7 +337,7 @@ void HandsetFilterBankFinalReport(int total_simulations)
 
 /* ********************************************************************* */
 
-void HandsetFilterBank::DoHandsetFilterBank(short fbecmic[], short mic[], short ldspkr[])
+void HandsetFilterBank::DoHandsetFilterBank(MpAudioSample *fbecmic, MpAudioSample *mic, MpAudioSample *ldspkr)
 {
 
 #include "mp/HandsetFilterbankWindows.h"
@@ -817,9 +821,9 @@ void HandsetFilterBank::DoHandsetFilterBank(short fbecmic[], short mic[], short 
 
 // Window, overlap and add for HS_NUM_FRAMES_PER_10MS subframes. Then DFT each of the subframes.
 void HandsetFilterBank::MultiFrameHandsetFilterBankAnalysis(icomplex outFFTArray[][HS_M+1],
-                                                            int Input[],
-                                                            int AnalysisDL[],
-                                                            int AnalysisWindow[],
+                                                            int *Input,
+                                                            int *AnalysisDL,
+                                                            int *AnalysisWindow,
                                                             int iMicOrSpkrFlag)
 {
    int i;

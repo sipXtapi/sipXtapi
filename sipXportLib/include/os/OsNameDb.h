@@ -1,10 +1,12 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 
 #ifndef _OsNameDb_h_
@@ -78,6 +80,7 @@ public:
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
+   friend class OsNameDBInit;
 
    OsNameDb();
      //:Default constructor (only callable from within this class)
@@ -95,8 +98,6 @@ protected:
 private:
    static OsNameDb* spInstance;     // pointer to the single instance of the
                                     //  OsNameDb class
-   static OsBSem*   spLock;         // semaphore used to ensure that there is
-                                    //  only one instance of this class
    UtlHashMap mDict;          // hash table used to store the name/value
                                     //  mappings
    OsRWMutex        mRWLock;        // R/W mutex used to coordinate access to

@@ -1,10 +1,15 @@
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 #ifndef _OsCSem_h_
 #define _OsCSem_h_
@@ -32,7 +37,7 @@
 // TYPEDEFS
 // FORWARD DECLARATIONS
 
-//:Counting semaphore
+/// Counting semaphore
 class OsCSemBase : public OsSyncBase
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
@@ -40,35 +45,35 @@ public:
 
    enum QueueOptions
    {
-      Q_FIFO     = 0x0, // queue blocked tasks on a first-in, first-out basis
-      Q_PRIORITY = 0x1  // queue blocked tasks based on their priority
+      Q_FIFO     = 0x0, ///< queue blocked tasks on a first-in, first-out basis
+      Q_PRIORITY = 0x1  ///< queue blocked tasks based on their priority
    };
-     //!enumcode: Q_FIFO - queues blocked tasks on a first-in, first-out basis
-     //!enumcode: Q_PRIORITY - queues blocked tasks based on their priority
 
 /* ============================ CREATORS ================================== */
 
 /* ============================ MANIPULATORS ============================== */
 
+     /// Block the task until the semaphore is acquired or the timeout expires
    virtual OsStatus acquire(const OsTime& rTimeout = OsTime::OS_INFINITY) = 0;
-     //:Block the task until the semaphore is acquired or the timeout expires
 
+     /// Conditionally acquire the semaphore (i.e., don't block)
    virtual OsStatus tryAcquire(void) = 0;
-     //:Conditionally acquire the semaphore (i.e., don't block)
-     // Return OS_BUSY if the semaphore is held by some other task.
+     /**
+      * @return OS_BUSY if the semaphore is held by some other task.
+      */
 
+     /// Release the semaphore
    virtual OsStatus release(void) = 0;
-     //:Release the semaphore
 
 
 /* ============================ ACCESSORS ================================= */
 
 #ifdef OS_CSEM_DEBUG
+     /// Print statistics gathered
    virtual void show(void) ;
-     //:Print statistics gathered
 
+     /// Returns the current value of the semaphone
    virtual int getValue(void) ;
-     //:Returns the current value of the semaphone
 #endif
 
 /* ============================ INQUIRY =================================== */
@@ -77,8 +82,8 @@ public:
 protected:
 
 #ifdef OS_CSEM_DEBUG
-   OsBSem       mGuard;         // Guard to protect the statistics
-                                // used for debugging
+   OsBSem       mGuard;         ///< Guard to protect the statistics
+                                ///< used for debugging
    int          mQueueOptions;
    int          mInitialCount;
    int          mMaxCount;
@@ -89,39 +94,39 @@ protected:
    int          mNumReleases;
 #endif
 
+     /// Default constructor
    OsCSemBase(const int queueOptions, const int maxCount,
                      const int initCount) ;
-     //:Default constructor
 
+     /// Destructor
    virtual ~OsCSemBase()  {  };
-     //:Destructor
 
 #ifdef OS_CSEM_DEBUG
+     /// Update the statistics associated with acquiring a counting semaphore
    void updateAcquireStats(void);
-     //:Update the statistics associated with acquiring a counting semaphore
 
+     /// Update the statistics associated with releasing a counting semaphore
    void updateReleaseStats(void);
-     //:Update the statistics associated with releasing a counting semaphore
 #endif
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
 
 
+     /// Copy constructor (not implemented for this class)
    OsCSemBase(const OsCSemBase& rOsCSemBase);
-     //:Copy constructor (not implemented for this class)
 
+     /// Assignment operator (not implemented for this class) 
    OsCSemBase& operator=(const OsCSemBase& rhs);
-     //:Assignment operator (not implemented for this class) 
 
 };
 
 /* ============================ INLINE METHODS ============================ */
 
-// Depending on the native OS that we are running on, we include the class
-// declaration for the appropriate lower level implementation and use a
-// "typedef" statement to associate the OS-independent class name (OsCSem)
-// with the OS-dependent realization of that type (e.g., OsCSemWnt).
+/// Depending on the native OS that we are running on, we include the class
+/// declaration for the appropriate lower level implementation and use a
+/// "typedef" statement to associate the OS-independent class name (OsCSem)
+/// with the OS-dependent realization of that type (e.g., OsCSemWnt).
 #if defined(_WIN32)
 #  include "os/Wnt/OsCSemWnt.h"
    typedef class OsCSemWnt OsCSem;

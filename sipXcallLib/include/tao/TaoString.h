@@ -1,10 +1,12 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 
 #ifndef _TaoString_h_
@@ -31,7 +33,7 @@ public:
 
         virtual ~TaoString();
 
-        int getCnt() const { return mCnt; };
+        int getCnt() { return mCnt; };
 
    TaoString(const TaoString& rTaoString);
     //:Copy constructor (not implemented for this class)

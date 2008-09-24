@@ -1,9 +1,12 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 #include <cppunit/extensions/HelperMacros.h>
 #include <cppunit/TestCase.h>
@@ -569,7 +572,7 @@ public:
             const char* testDescription ; 
             UtlContainable* itemToRemove ; 
             int removeIndex ; 
-            int expectedIndex ; 
+            size_t expectedIndex ; 
             bool expectedResult ;
             size_t expectedEntries ; 
         };
@@ -640,7 +643,7 @@ public:
                 testData[i].testDescription, suffix2) ;
             CPPUNIT_ASSERT_EQUAL_MESSAGE(Message.data(), \
                  (int)testData[i].expectedEntries, (int)stringList.entries()) ; 
-            int indexAfterRemove = stringList.index(testData[i].itemToRemove) ; 
+            size_t indexAfterRemove = stringList.index(testData[i].itemToRemove) ; 
             TestUtilities::createMessage(3, &Message, prefix, \
                  testData[i].testDescription, suffix3) ; 
             CPPUNIT_ASSERT_EQUAL_MESSAGE(Message.data(), testData[i].expectedIndex, \

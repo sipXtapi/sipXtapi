@@ -1,10 +1,12 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 
 #ifndef _OsStatus_h_
@@ -117,7 +119,12 @@ enum OsStatus
         OS_FILE_EOF,
         OS_FILE_SEEK_ERROR,
 
-
+   // Tls initialization
+    OS_TLS_INIT_DATABASE_FAILURE,
+    OS_TLS_INIT_BAD_PASSWORD,
+    OS_TLS_INIT_TCP_IMPORT_FAILURE,
+    OS_TLS_INIT_NSS_FAILURE,
+   
    // Other
    OS_INTERRUPTED,            // operation was interrupted from completion
    OS_INVALID_ARGUMENT,       // invalid argument to subroutine

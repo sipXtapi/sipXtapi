@@ -5,13 +5,13 @@ ________________________________________________________________________
 1. Test Methods :-
 ________________________________________________________________________
 As in any CppUnit test, the tests are broken into different methods. Each test
-method tests one or two test cases of the implementation under test. The name of 
+method tests one or two test case of the implementation under test. The name of 
 the test method is self-explanatory as to what is being tested. 
 
 _______________________________________________________________________
 2. Formal Methods of testing in arriving at the Test Data:-
 ________________________________________________________________________
-To the extent possible, the formal methods of testing, namely, boundary value
+To the extent possible, the formal methods of testing, namely, boundry value
 analysis / equivalence partitioning have been applied while arriving at the
 test data for the unit tests. 
 For example, 
@@ -61,7 +61,7 @@ Some of the tests may have multiple CppUnit assert statements in them.
 This is usually the case when the call to a method may have more than 
 a single impact. For example, a method call may require to return a 
 particular value and modify the state of the instance. Or it may also
-be required that the call has not altered the state inadvertently. 
+be requried that the call has not altered the state inadvertently. 
 For example, say that the append method of string takes in a second
 string as the argument, appends itself with the argument and returns
 the appended string. Then all of the following need to be verified
@@ -202,8 +202,8 @@ Sometimes, the test case for the same method may be tested using
 more than one tester method. This is usually done if
 
 a) The test case requires a different setup for different test data
-b) If a test case is known to fail or has a high likelihood of failing, 
-then this may be put into a different method so that this failure
+b) If a test case is known to fail or has a high likelyhood of failing, 
+then this may be put into the a different method so that this failure
 doesn't cause the other tests to fail.
 
 

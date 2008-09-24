@@ -1,13 +1,12 @@
-// 
-// 
-// Copyright (C) 2005 SIPfoundry Inc.
+//
+// Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2005 Pingtel Corp.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
-//////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 #ifndef _PresenceDialInServer_h_
 #define _PresenceDialInServer_h_
@@ -16,15 +15,11 @@
 
 // APPLICATION INCLUDES
 #include <os/OsBSem.h>
-#include <os/OsConfigDb.h>
 #include <net/StateChangeNotifier.h>
 #include <tao/TaoAdaptor.h>
 #include <utl/UtlHashMap.h>
 
 // DEFINES
-#define DEFAULT_SIGNIN_FEATURE_CODE   "*88"
-#define DEFAULT_SIGNOUT_FEATURE_CODE  "*86"
-
 // MACROS
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -49,7 +44,7 @@ public:
 /* ============================ CREATORS ================================== */
 
    /// Constructor
-   PresenceDialInServer(CallManager* callMgr, OsConfigDb* configFile);
+   PresenceDialInServer(CallManager* callMgr, UtlString& configFile);
    
    /// Destructor
    virtual ~PresenceDialInServer();
@@ -90,15 +85,6 @@ private:
    UtlString mSignOutConfirmationAudio;
    UtlString mErrorAudio;
    
-   static const char    confirmationTone[];     // Confirmation Tone audio data
-   static unsigned long confirmationToneLength; // and length.  See: ConfirmationTone.h
-
-   static const char    dialTone[];     // Busy Tone audio data
-   static unsigned long dialToneLength; // and length.  See: BusyTone.h
-
-   static const char    busyTone[];     // Dial Tone audio data
-   static unsigned long busyToneLength; // and length.  See: DialTone.h
-
    OsMsgQ* mpIncomingQ;
 
    UtlHashMap mCalls;

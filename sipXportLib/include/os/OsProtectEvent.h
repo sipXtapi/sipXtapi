@@ -1,10 +1,12 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 
 #ifndef _OsProtectedEvent_h_
@@ -23,13 +25,15 @@ class OsProtectedEvent : public OsEvent
 public:
 
 /* ============================ CREATORS ================================== */
-        OsProtectedEvent(const int userData=0);
-        virtual ~OsProtectedEvent();
+
+   OsProtectedEvent(const intptr_t userData=0);
+
+   virtual ~OsProtectedEvent();
 
 /* ============================ MANIPULATORS ============================== */
 
 
-   virtual OsStatus signal(const int eventData);
+   virtual OsStatus signal(const intptr_t eventData);
      //:Set the event data and signal the occurrence of the event
      // Return OS_ALREADY_SIGNALED if the event has already been signaled
      // (and has not yet been cleared), otherwise return OS_SUCCESS.
@@ -43,25 +47,25 @@ public:
      //:Wait for the event to be signaled
      // Return OS_BUSY if the timeout expired, otherwise return OS_SUCCESS.
 
-        void setStringData(UtlString& rStringData);
+   void setStringData(UtlString& rStringData);
 
-        void setIntData(int rIntData);
+   void setIntData(int rIntData);
 
-        void setIntData2(int rIntData);
+   void setIntData2(int rIntData);
 
-        void setInUse(UtlBoolean inUse);
+   void setInUse(UtlBoolean inUse);
 
 /* ============================ ACCESSORS ================================= */
 
-        OsStatus getStringData(UtlString& data);
-         //:Return the user data specified when this object was constructed.
-         // Always returns OS_SUCCESS.
+   OsStatus getStringData(UtlString& data);
+   //:Return the user data specified when this object was constructed.
+   // Always returns OS_SUCCESS.
 
-        OsStatus getIntData(int& data);
+   OsStatus getIntData(int& data);
 
-        OsStatus getIntData2(int& data);
-         //:Return the user data specified when this object was constructed.
-         // Always returns OS_SUCCESS.
+   OsStatus getIntData2(int& data);
+   //:Return the user data specified when this object was constructed.
+   // Always returns OS_SUCCESS.
 
 /* ============================ INQUIRY =================================== */
 
@@ -71,11 +75,11 @@ public:
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
 
-        OsBSem          mRefSem;   // semaphore used to protect mRef
-        UtlString               mStringData;
-        int                     mIntData;
-        int                     mIntData2;
-        int                     mRef;                   // reference count
+   OsBSem          mRefSem;      ///< semaphore used to protect mRef
+   UtlString       mStringData;
+   int             mIntData;
+   int             mIntData2;
+   int             mRef;         ///< reference count
 
 
 };

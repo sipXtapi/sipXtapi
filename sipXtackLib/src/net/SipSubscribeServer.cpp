@@ -1,13 +1,12 @@
-// 
-// 
-// Copyright (C) 2005 SIPfoundry Inc.
+//
+// Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2005 Pingtel Corp.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
-//////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 // Author: Dan Petrie (dpetrie AT SIPez DOT com)
 
 // SYSTEM INCLUDES
@@ -129,6 +128,16 @@ SipSubscribeServer::~SipSubscribeServer()
     *   they are owned by whoever constructed this server.
     */
 
+   /*
+   * jaro: actually these are never deleted, and good habit is to delete
+   * objects in the same class where they are created if we keep pointer
+   * to them in member variables. This doesn't cause any problems in Windows.
+   * If it causes problems for someone, investigate it please, and don't solve
+   * it by not deleting something.
+   */
+   delete mpDefaultEventHandler;
+   delete mpDefaultSubscriptionMgr;
+   delete mpDefaultContentMgr;
     // Iterate through and delete all the event data
     // TODO:
 }
@@ -175,7 +184,7 @@ UtlBoolean SipSubscribeServer::notifySubscribers(const char* resourceId,
 
     // Get the event specific info to find subscriptions interested in
     // this content
-    if (eventData)
+    if(eventData)
     {
         OsSysLog::add(FAC_SIP, PRI_DEBUG,
              "SipSubscribeServer::notifySubscribers received the request for sending out the notification for resourceId '%s', event type '%s'",
@@ -187,34 +196,34 @@ UtlBoolean SipSubscribeServer::notifySubscribers(const char* resourceId,
 
         eventData->mpEventSpecificSubscriptionMgr->
            createNotifiesDialogInfo(resourceId,
-                                    eventTypeKey,
-                                    numSubscriptions,
-                                    acceptHeaderValuesArray,
-                                    notifyArray);
+                                                                            eventTypeKey,
+                                                                            numSubscriptions,
+                                                                            acceptHeaderValuesArray,
+                                                                            notifyArray);
 
         OsSysLog::add(FAC_SIP, PRI_DEBUG,
              "SipSubscribeServer::notifySubscribers numSubscriptions for %s = %d",
               resourceId, numSubscriptions);
 
-        // Set up and send a NOTIFY for each subscription interested in
+        // Setup and send a NOTIFY for each subscription interested in
         // this resourcesId and eventTypeKey
         SipMessage* notify = NULL;
-        for (int notifyIndex = 0; 
-             notifyArray != NULL && 
-                notifyIndex < numSubscriptions && 
-                notifyArray[notifyIndex] != NULL; 
-             notifyIndex++)
+        for(int notifyIndex = 0;
+            notifyArray != NULL && 
+              notifyIndex < numSubscriptions && 
+              notifyArray[notifyIndex] != NULL;
+            notifyIndex++)
         {
             notify = notifyArray[notifyIndex];
 
             // Fill in the NOTIFY request body/content
             eventData->mpEventSpecificHandler->
-               getNotifyContent(resourceId,
-                                eventTypeKey,
-                                eventType,
-                                *(eventData->mpEventSpecificContentMgr),
-                                *(acceptHeaderValuesArray[notifyIndex]),
-                                *notify);
+                    getNotifyContent(resourceId,
+                    eventTypeKey,
+                    eventType,
+                    *(eventData->mpEventSpecificContentMgr),
+                    *(acceptHeaderValuesArray[notifyIndex]),
+                    *notify);
 
             // Send the NOTIFY request
             eventData->mpEventSpecificUserAgent->send(*notify);
@@ -222,9 +231,9 @@ UtlBoolean SipSubscribeServer::notifySubscribers(const char* resourceId,
 
         // Free up the NOTIFY requests and accept header field values
         eventData->mpEventSpecificSubscriptionMgr->
-           freeNotifies(numSubscriptions, 
-                        acceptHeaderValuesArray,
-                        notifyArray);
+                freeNotifies(numSubscriptions, 
+                acceptHeaderValuesArray,
+                notifyArray);
     }
 
     // event type not enabled

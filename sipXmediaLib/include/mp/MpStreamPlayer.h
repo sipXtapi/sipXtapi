@@ -1,10 +1,15 @@
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2005 Pingtel Corp.
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 
 #ifndef _MpStreamPlayer_h_
@@ -43,14 +48,15 @@ class MpStreamPlayer : public OsServerTask, public MpPlayer
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
-   enum SourceType      // Type of source data (url or buffer)
+   typedef enum       // Type of source data (url or buffer)
    {
       SourceUrl,
       SourceBuffer
-   } ;
+   } SourceType;
 
 /* ============================ CREATORS ================================== */
-
+///@name Creators
+//@{
    MpStreamPlayer(OsMsgQ* pMsg, Url url, int flags, const char* pTarget = NULL) ;
      //:Contructs a stream player given a msgq, stream url, and 
      //:playing flags.
@@ -76,8 +82,11 @@ public:
    virtual ~MpStreamPlayer();
      //:Destructor
 
-/* ============================ MANIPULATORS ============================== */
+//@}
 
+/* ============================ MANIPULATORS ============================== */
+///@name Manipulators
+//@{
    virtual OsStatus realize(UtlBoolean bBlock = TRUE);
      //: Realizes the player by initiating a connection to the target,
      //: allocates buffers, etc.
@@ -123,7 +132,11 @@ public:
    virtual void waitForDestruction() ;
      //: Blocks until the the lower layer stream player is destroyed
 
+//@}
+
 /* ============================ ACCESSORS ================================= */
+///@name Accessors
+//@{
 
    virtual OsStatus getState(PlayerState& state) ;
      //: Gets the player state 
@@ -137,7 +150,13 @@ public:
    virtual OsStatus getSourceBuffer(UtlString*& pBuffer) const;
      //: Gets the source buffer if the source type is a SourceBuffer
 
+//@}
+
 /* ============================ INQUIRY =================================== */
+///@name Inquiry
+//@{
+
+//@}
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:

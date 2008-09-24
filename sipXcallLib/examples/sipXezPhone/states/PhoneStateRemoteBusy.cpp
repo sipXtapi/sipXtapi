@@ -1,9 +1,12 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
 
@@ -30,7 +33,7 @@ PhoneStateRemoteBusy::PhoneStateRemoteBusy(void)
 
 PhoneStateRemoteBusy::~PhoneStateRemoteBusy(void)
 {
-    sipXmgr::getInstance().stopTone();
+    sipxCallAudioPlayFileStop(sipXmgr::getInstance().getCurrentCall());
 }
 
 PhoneState* PhoneStateRemoteBusy::OnFlashButton()
@@ -42,7 +45,7 @@ PhoneState* PhoneStateRemoteBusy::Execute()
 {
     thePhoneApp->setStatusMessage("Busy.");
     
-    sipxCallStartTone(sipXmgr::getInstance().getCurrentCall(), ID_TONE_BUSY, true, false); 
+    sipxCallAudioPlayFileStart(sipXmgr::getInstance().getCurrentCall(), "res\\busy.wav", true, true, false);
    
     return this;
 }

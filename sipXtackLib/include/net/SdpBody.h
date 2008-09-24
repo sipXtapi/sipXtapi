@@ -1,16 +1,15 @@
-// 
+//
 // Copyright (C) 2005 SIPez LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.
 // 
 // Copyright (C) 2004 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2004 Pingtel Corp.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
 //////////////////////////////////////////////////////////////////////////////
-
 // Author: Daniel Petrie (dpetrie AT SIPez DOT com)
 
 #ifndef _SdpBody_h_
@@ -20,20 +19,32 @@
 // APPLICATION INCLUDES
 #include "utl/UtlDefs.h"
 #include "utl/UtlSListIterator.h"
+#include "os/OsSocket.h"
+#include "os/OsNatConnectionSocket.h"
+#include <tapi/sipXtapiEvents.h>
 
 #include <net/HttpBody.h>
 #include <net/NameValuePair.h>
-#include <net/SdpCodec.h>
+#include <sdp/SdpCodec.h>
 
 // DEFINES
+#define SDP_AUDIO_MEDIA_TYPE "audio"
+#define SDP_VIDEO_MEDIA_TYPE "video"
+#define SDP_APPLICATION_MEDIA_TYPE "application"
+
 // Crypto suites
 #define AES_CM_128_HMAC_SHA1_80   1
 #define AES_CM_128_HMAC_SHA1_32   2
 #define F8_128_HMAC_SHA1_80       3
 // Protection level
-#define ENCRYPTION                1
-#define AUTHENTICATION            2
-// Key length
+#define SRTP_ENCRYPTION           0x0001
+#define SRTP_AUTHENTICATION       0x0002
+#define SRTP_SEND                 0x0004
+#define SRTP_RECEIVE              0x0008
+#define SRTP_OFF                  0
+#define SRTP_ON                   (SRTP_ENCRYPTION|SRTP_AUTHENTICATION|SRTP_SEND|SRTP_RECEIVE)
+#define SRTP_SECURITY_MASK        (SRTP_ENCRYPTION|SRTP_AUTHENTICATION)
+// Key length       
 #define SRTP_KEY_LENGTH          30
 
 // MACROS
@@ -50,8 +61,9 @@ typedef struct SdpSrtpParameters
     unsigned char masterKey[SRTP_KEY_LENGTH+1];
 } SdpSrtpParameters;
 
+
 // FORWARD DECLARATIONS
-class SdpCodecFactory;
+class SdpCodecList;
 
 /// Container for MIME type application/sdp.
 /**
@@ -157,6 +169,10 @@ class SdpBody : public HttpBody
                    unsigned long ntpEndTime = 0
                    );
 
+   // set all media attributes to either a=setup:actpass, a=setup:active, or a=setup:passive
+   void setRtpTcpRole(RtpTcpRoles role);                   
+   UtlString getRtpTcpRole();
+
 ///@}
 
 /**
@@ -168,36 +184,51 @@ class SdpBody : public HttpBody
  */
 
    /// Create a set of media codec and address entries
-   void addAudioCodecs(const char* rtpAddress,
-                       int rtpPort,
-                       int rtcpPort,
-                       int videoRtpPort,
-                       int videoRtcpPort,
+   void addCodecsOffer(int iNumAddresses,
+                       UtlString mediaAddresses[],
+                       int rtpAudioPorts[],
+                       int rtcpAudioPorts[],
+                       int rtpVideoPorts[],
+                       int rtcpVideoPorts[],
+                       RTP_TRANSPORT transportTypes[],
                        int numRtpCodecs,
                        SdpCodec* rtpCodecs[],
-                       SdpSrtpParameters& srtpParams 
+                       SdpSrtpParameters& srtpParams,
+                       int videoBandwidth,
+                       int videoFramerate,
+                       RTP_TRANSPORT transportOffering
                        );
 
+   /**<
+    * This method is for building a SdpBody which is in response
+    * to a SdpBody send from the other side
+    */
+
    /// Create a response to a set of media codec and address entries.
-   void addAudioCodecs(const char* rtpAddress, 
-                       int rtpAudioPort,
-                       int rtcpAudioPort,
-                       int rtpVideoPort,
-                       int rtcpVideoPort,
+   void addCodecsAnswer(int iNumAddresses,
+                       UtlString mediaAddresses[],
+                       int rtpAudioPorts[],
+                       int rtcpAudioPorts[],
+                       int rtpVideoPorts[],
+                       int rtcpVideoPorts[],
+                       RTP_TRANSPORT transportTypes[],
                        int numRtpCodecs, 
                        SdpCodec* rtpCodecs[],
                        SdpSrtpParameters& srtpParams,
-                       const SdpBody* sdpRequest ///< Sdp we are responding to
-                       );
+                       int videoBandwidth,
+                       int videoFramerate,
+                       const SdpBody* sdpRequest  ///< Sdp we are responding to
+                       ); 
    /**<
     * This method is for building a SdpBody which is in response
     * to a SdpBody send from the other side
     */
 
 
+
    /// Create a new media set for SDP message.
    void addMediaData(const char* mediaType, ///< "audio", "video", "application", "data", "control"
-                     int portNumber,        ///< TCP or UDP poart number for the media stream
+                     int portNumber,        ///< TCP or UDP port number for the media stream
                      int portPairCount,     ///< the number of PAIRS of ports to be used for the media stream.
                      const char* mediaTransportType, ///< i.e. "RTP/AVP"
                      int numPayloadTypes,   ///< entries in the payloadType parameter 
@@ -210,11 +241,12 @@ class SdpBody : public HttpBody
 
    void addCodecParameters(int numRtpCodecs,
                            SdpCodec* rtpCodecs[],
-                           const char* szMimeType = "audio"
+                           const char* szMimeType = "audio",
+                           const int videoFramerate = 0
                            );
 
    /// Set address.
-   void addAddressData(const char* ipAddress /**< for IP4 this is of the format:
+   void addConnectionAddress(const char* ipAddress /**< for IP4 this is of the format:
                                               * nnn.nnn.nnn.nnn where nnn is 0 to 255 */
                        );
     /**<
@@ -222,7 +254,20 @@ class SdpBody : public HttpBody
      * after addAddressData.
      */
 
-   void addAddressData(const char* networkType, ///< network type - should be "IN"
+   void addConnectionAddress(const char* networkType, ///< network type - should be "IN"
+                       const char* addressType, ///< address type - should be "IP4"
+                       const char* ipAddress    ///< IP address
+                       );
+
+   /// Set address.
+   void setConnectionAddress(const char* ipAddress /**< for IP4 this is of the format:
+                                              * nnn.nnn.nnn.nnn where nnn is 0 to 255 */
+                       );
+    /**<
+     * Set address for SDP message header or specific media set if called
+     * after addAddressData.
+     */
+   void setConnectionAddress(const char* networkType, ///< network type - should be "IN"
                        const char* addressType, ///< address type - should be "IP4"
                        const char* ipAddress    ///< IP address
                        );
@@ -239,18 +284,18 @@ class SdpBody : public HttpBody
                             const char* formatParameters
                             );
 
+   /// Add a "a" field for the given ptime value in milliseconds
+   void addPtime(int pTime);
 
     /**
-     * Set the candidate attribute per draft-ietf-mmusic-ice-04
+     * Set the candidate attribute per draft-ietf-mmusic-ice-05
      */
-    void addCandidateAttribute(const char* id, 
-                               double qValue, 
-                               const char* userFrag, 
-                               const char* password, 
-                               const char* unicastIp, 
-                               int unicastPort, 
+    void addCandidateAttribute(int         candidateId, 
+                               const char* transportId, 
+                               const char* transportType,
+                               double      qValue, 
                                const char* candidateIp, 
-                               int candidatePort) ;
+                               int         candidatePort) ;
 
 ///@}
    
@@ -286,6 +331,11 @@ class SdpBody : public HttpBody
                            int* numPayloadTypes,
                            int payloadTypes[]) const;
 
+   /// Inspects whether the given transport type and media type combination is specified 
+   /// as an m-line in the sdp
+   const bool isTransportAvailable(const OsSocket::IpProtocolSocketType protocol,
+                                   const SIPX_MEDIA_TYPE mediaType) const;
+                                   
    /// Read whether the media network type is IP4 or IP6.
    UtlBoolean getMediaNetworkType(int mediaIndex, ///< which media description set to read
                                   UtlString* networkType) const;
@@ -328,6 +378,9 @@ class SdpBody : public HttpBody
                                   int payloadTypes[] ///< array of integer payload types
                                   ) const;
 
+   /// Get the ptime field for the given media set
+   UtlBoolean getPtime(int mediaInded, int& ptime) const;
+
    /// Media field accessor utility.
    UtlBoolean getMediaSubfield(int mediaIndex,
                                int subfieldIndex,
@@ -344,12 +397,20 @@ class SdpBody : public HttpBody
    // Get the fmtp parameter
    UtlBoolean getPayloadFormat(int payloadType,
                                UtlString& fmtp,
-                               int& videoFmtp) const;
+                               int& valueFmtp,
+                               int& numVideoSizes,
+                               int videoSizes[]) const;
 
    // Get the crypto field for SRTP
    UtlBoolean getSrtpCryptoField(int mediaIndex,                  ///< mediaIndex of crypto field
-                                          int index,                       ///< Index inside of media type
-                                          SdpSrtpParameters& params) const;
+                                 int index,                       ///< Index inside of media type
+                                 SdpSrtpParameters& params) const;
+
+   // Get the framerate field if there
+   UtlBoolean getFramerateField(int mediaIndex,
+                                int& videoFramerate) const;
+
+   UtlBoolean getBandwidthField(int& bandwidth) const;
 
    /**<
     * Find the "a" record containing an rtpmap for the given
@@ -369,43 +430,88 @@ class SdpBody : public HttpBody
 
 
    /// Find the send and receive codecs from the rtpCodecs array which are compatible with this SdpBody.
-   void getBestAudioCodecs(SdpCodecFactory& localRtpCodecs,
+   void getBestAudioCodecs(SdpCodecList& localRtpCodecs,
                            int& numCodecsInCommon,
-                           SdpCodec**& codecsInCommonArray,
+                           SdpCodec**& commonCodecsForEncoder,
+                           SdpCodec**& commonCodecsForDecoder,
                            UtlString& rtpAddress, 
                            int& rtpPort,
                            int& rtcpPort,
                            int& videoRtpPort,
-                           int& videoRtcpPort) const;
+                           int& videoRtcpPort,
+                           SdpSrtpParameters& localSrtpParams,
+                           SdpSrtpParameters& matchingSrtpParams,
+                           int localBandwidth,
+                           int& matchingBandwidth,
+                           int localVideoFramerate,
+                           int& matchingVideoFramerate) const;
+             
    ///< It is assumed that the best are matches are first in the body.
 
-
    void getCodecsInCommon(int audioPayloadIdCount,
-                          int videoPayloadCount,
+                          int videoPayloadIdCount,
                           int audioPayloadTypes[],
                           int videoPayloadTypes[],
-                          SdpCodecFactory& codecFactory,
+                          int videoRtpPort,
+                          SdpCodecList& localRtpCodecs,
                           int& numCodecsInCommon,
-                          SdpCodec* codecs[]) const;
+                          SdpCodec* commonCodecsForEncoder[],
+                          SdpCodec* commonCodecsForDecoder[]) const;
 
    // Find common encryption suites
    void getEncryptionInCommon(SdpSrtpParameters& audioParams,
-                              SdpSrtpParameters& videoParams,
-                              SdpSrtpParameters& commonAudioParms,
-                              SdpSrtpParameters& commonVideoParms);
+                              SdpSrtpParameters& remoteParams,
+                              SdpSrtpParameters& commonAudioParms) const;
+
+   // Find common bandwidth
+   void getBandwidthInCommon(int localBandwidth,
+                             int remoteBandwidth,
+                             int& commonBandwidth) const;
+
+   // Find a common video framerate
+   void getVideoFramerateInCommon(int localVideoFramerate,
+                                  int remoteVideoFramerate,
+                                  int& commonVideoFramerate) const;
 
     /**
-     * Get the candidate attribute per draft-ietf-mmusic-ice-04
+     * Get the candidate attribute per draft-ietf-mmusic-ice-05
      */
-    UtlBoolean getCandidateAttribute(int index,
-                                     UtlString& rId,
+    UtlBoolean getCandidateAttribute(int mediaIndex,
+                                     int candidateIndex,
+                                     int& rCandidateId,
+                                     UtlString& rTransportId,
+                                     UtlString& rTransportType,
                                      double& rQvalue, 
-                                     UtlString& rUserFrag, 
-                                     UtlString& rPassword, 
-                                     UtlString& rUnicastIp, 
-                                     int& rUnicastPort, 
                                      UtlString& rCandidateIp, 
                                      int& rCandidatePort) const ;
+
+
+   UtlBoolean getCandidateAttributes(const char* szMimeType,
+                                     int         nMaxAddresses,                                     
+                                     int         candidateIds[],
+                                     UtlString   transportIds[],
+                                     UtlString   transportTypes[],
+                                     double      qvalues[], 
+                                     UtlString   candidateIps[], 
+                                     int         candidatePorts[],
+                                     int&        nActualAddresses) const ;
+
+   UtlBoolean getCandidateAttributes(int         mediaIndex,
+                                     int         nMaxAddresses,                                     
+                                     int         candidateIds[],
+                                     UtlString   transportIds[],
+                                     UtlString   transportTypes[],
+                                     double      qvalues[], 
+                                     UtlString   candidateIps[], 
+                                     int         candidatePorts[],
+                                     int&        nActualAddresses) const ;
+
+   /**
+     * Locates a specific value for an attribute field
+     * Used to locate sendonly and recvonly in case if hold and unhold INVITE messages
+     */
+   UtlBoolean findValueInField(const char* pField, const char* pvalue) const;
+
 
 ///@}
 
@@ -472,7 +578,7 @@ class SdpBody : public HttpBody
    /// Add the given name/value pair to the body at the specified position.
    void addValue(const char* name, 
                  const char* value = NULL, 
-                 int fieldIndex = UTL_NOT_FOUND /**< UTL_NOT_FOUND == at the end */
+                 int fieldIndex = -1       ///< -1 means append to the end.
                  );
    
    UtlSList* sdpFields;

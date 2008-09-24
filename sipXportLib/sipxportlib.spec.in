@@ -3,11 +3,11 @@ Version: @VERSION@
 Release: %{buildno}
 
 Summary: OS Abstraction and OS Utilities library for sipX modules
-License: LGPL
+License: Pingtel Commercial License
 Group: Development/Libraries
-Vendor: SIPfoundry
-Packager: SIPfoundry <sipx-dev@sipfoundry.org>
-Url: http://www.sipfoundry.org/sipXportLib
+Vendor: Pingtel Corp
+Packager: Pingtel <support@pingtel.com>
+Url: http://www.pingtel.com
 
 # sipXphone would require 0.9.7c to decrypt profiles to get access to
 # certain new alg.  If this is still nec., this may need to be
@@ -17,6 +17,7 @@ Url: http://www.sipfoundry.org/sipXportLib
 # security package to a RH uncertified version.
 Requires: openssl >= 0.9.7a
 Requires: pcre >= 4.5
+Requires: sipx-w3c-libwww >= 5.4.0
 
 Source: %name-%version.tar.gz
 
@@ -43,6 +44,7 @@ encapsulate functions and operations for:
 
 # Install header files
 %package devel
+Requires: sipx-w3c-libwww-devel = 5.4.0
 Requires: openssl-devel >= 0.9.7a
 Requires: %name
 Group: Development/Libraries
@@ -96,7 +98,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
-%doc CONTRIBUTORS LICENSE INSTALL README NEWS TODO ChangeLog %name.configlog
+%doc CONTRIBUTORS INSTALL README NEWS TODO ChangeLog %name.configlog
 %attr(755,root,root) %{_bindir}/syslogviewer
 %attr(755,root,root) %{_bindir}/sipx-upgrade
 %attr(755,root,root) %{_libdir}/libsipXport.la

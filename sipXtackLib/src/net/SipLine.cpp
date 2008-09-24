@@ -1,10 +1,12 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 
 // SYSTEM INCLUDES
@@ -86,21 +88,24 @@ void SipLine::copyCredentials(const SipLine &rSipLine)
    {
       mCredentials.destroyAll();
    }
-   UtlHashBagIterator observerIterator(const_cast<UtlHashBag&> (rSipLine.mCredentials));
-   SipLineCredentials* credential = NULL;
-   do
+   if (! rSipLine.mCredentials.isEmpty())
    {
-     credential = (SipLineCredentials*) observerIterator();
-     if ( credential)
-     {
-         credential->getRealm(&Realm);
-         credential->getUserId(&UserID);
-         credential->getType(&Type);
-         credential->getPasswordToken(&Password);
-         addCredentials(Realm , UserID , Password , Type);
-     }
+        UtlHashBagIterator observerIterator(const_cast<UtlHashBag&> (rSipLine.mCredentials));
+        SipLineCredentials* credential = NULL;
+        do
+        {
+            credential = (SipLineCredentials*) observerIterator();
+            if ( credential)
+            {
+                credential->getRealm(&Realm);
+                credential->getUserId(&UserID);
+                credential->getType(&Type);
+                credential->getPasswordToken(&Password);
+                addCredentials(Realm , UserID , Password , Type);
+            }
+        }
+        while(credential != NULL) ;
    }
-   while(credential != NULL) ;
 }
 
 SipLine::SipLine(Url userEnteredUrl,
@@ -267,14 +272,14 @@ UtlBoolean SipLine::getCallHandling()
 
 UtlBoolean SipLine::addCredentials( const UtlString& strRealm,
                              const UtlString& strUserID,
-                             const UtlString& MD5_token,
+                             const UtlString& strPasswd,
                              const UtlString& Type)
 {
    UtlBoolean isAdded = FALSE;
 
    if(!IsDuplicateRealm(strRealm, Type))
    {
-      SipLineCredentials* credential = new SipLineCredentials(strRealm , strUserID, MD5_token , Type);
+      SipLineCredentials* credential = new SipLineCredentials(strRealm , strUserID, strPasswd, Type);
       mCredentials.insert((UtlString*)credential);
       isAdded = TRUE;
    }
@@ -294,15 +299,61 @@ UtlBoolean SipLine::getCredentials(const UtlString& type /*[in]*/,
 {
    UtlBoolean credentialsFound = FALSE;
    UtlString matchRealm(realm);
+   UtlString emptyRealm(NULL);
+   UtlString userPassword;
+   *MD5_token = "";
 
    SipLineCredentials* credential = (SipLineCredentials*) mCredentials.find(&matchRealm);
-   if(credential)
+   if (credential)
    {
       credential->getUserId(userID);
-      credential->getPasswordToken(MD5_token);
+      credential->getPasswordToken(&userPassword);
       credentialsFound = TRUE;
       credential = NULL;
+      HttpMessage::buildMd5UserPasswordDigest(userID->data(), matchRealm.data(), userPassword.data(), *MD5_token);
    }
+   else
+   {
+      credential = (SipLineCredentials*) mCredentials.find(&emptyRealm);
+      if (credential)
+      {
+          credential->getUserId(userID);
+          credential->getPasswordToken(&userPassword);
+          credentialsFound = TRUE;
+          credential = NULL;
+          HttpMessage::buildMd5UserPasswordDigest(userID->data(), realm.data(), userPassword.data(), *MD5_token);
+      }
+   }
+
+   return  credentialsFound ;
+}
+
+UtlBoolean SipLine::getDuplicateCredentials(const UtlString& type /*[in]*/,
+                                            const UtlString& realm /*[in]*/)
+{
+   UtlBoolean credentialsFound = FALSE;
+   UtlString matchRealm(realm);
+   UtlString emptyRealm(NULL);
+
+   if (realm.length() == 0)
+   {
+      SipLineCredentials* credential = (SipLineCredentials*) mCredentials.find(&emptyRealm);
+      if (credential)
+      {
+          credentialsFound = TRUE;
+          credential = NULL;
+      }
+   }
+   else
+   {
+      SipLineCredentials* credential = (SipLineCredentials*) mCredentials.find(&matchRealm);
+      if (credential)
+      {
+         credentialsFound = TRUE;
+         credential = NULL;
+      }
+   }
+
    return  credentialsFound ;
 }
 
@@ -366,6 +417,7 @@ UtlBoolean SipLine::getAllCredentials( int MaxEnteries/*[in]*/ ,
     UtlString Realm;
     UtlString UserID;
     UtlString Type;
+    UtlString Password;
     UtlString PassToken;
     int i = 0;
 
@@ -380,7 +432,9 @@ UtlBoolean SipLine::getAllCredentials( int MaxEnteries/*[in]*/ ,
             credential->getRealm(&Realm);
             credential->getUserId(&UserID);
             credential->getType(&Type);
-            credential->getPasswordToken(&PassToken) ;
+            credential->getPasswordToken(&Password) ;
+            PassToken = "";
+            HttpMessage::buildMd5UserPasswordDigest(UserID.data(), Realm.data(), Password.data(), PassToken);
             
             realm[i].remove(0);
             realm[i].append(Realm);
@@ -409,7 +463,7 @@ UtlBoolean SipLine::IsDuplicateRealm(const UtlString realm, const UtlString sche
 {
    UtlString userID;
    UtlString passToken;
-   if (getCredentials(scheme, realm, &userID, &passToken))
+   if (getDuplicateCredentials(scheme, realm))
       return TRUE;
    else
       return FALSE;
@@ -418,4 +472,7 @@ UtlBoolean SipLine::IsDuplicateRealm(const UtlString realm, const UtlString sche
 void SipLine::generateLineID(UtlString& lineId)
 {
    NetMd5Codec::encode(mIdentity.toString().data(), lineId);
+
+   // Shorten the line Ids to 12 chars (from 32)
+   lineId.remove(12) ;
 }

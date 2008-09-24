@@ -11,6 +11,7 @@ AC_DEFUN([CHECK_AUTOCONF],
     fi
 ])
 
+
 # ============ C L O V E R  =======================
 AC_DEFUN([CHECK_CLOVER],
 [
@@ -33,7 +34,6 @@ AC_DEFUN([CHECK_CLOVER],
        ],)
    fi
 ])
-
 
 # ============= C P P U N I T ==================
 dnl
@@ -58,7 +58,7 @@ AC_ARG_WITH(cppunit-exec-prefix,[  --with-cppunit-exec-prefix=PFX  Exec prefix w
      if test x${CPPUNIT_CONFIG+set} != xset ; then
         CPPUNIT_CONFIG=$cppunit_config_prefix/bin/cppunit-config
      fi
-  fi
+  fi          
 
   AC_PATH_PROG(CPPUNIT_CONFIG, cppunit-config, no)
   cppunit_version_min=$1
@@ -85,18 +85,18 @@ AC_ARG_WITH(cppunit-exec-prefix,[  --with-cppunit-exec-prefix=PFX  Exec prefix w
     if test "x${cppunit_major_min}" = "x" ; then
        cppunit_major_min=0
     fi
-    
+
     cppunit_minor_min=`echo $cppunit_version_min | \
            sed 's/\([[0-9]]*\).\([[0-9]]*\).\([[0-9]]*\)/\2/'`
     if test "x${cppunit_minor_min}" = "x" ; then
        cppunit_minor_min=0
     fi
-    
+
     cppunit_micro_min=`echo $cppunit_version_min | \
            sed 's/\([[0-9]]*\).\([[0-9]]*\).\([[0-9]]*\)/\3/'`
     if test "x${cppunit_micro_min}" = "x" ; then
        cppunit_micro_min=0
-    fi
+    fi                                                                                                                  
 
     cppunit_version_proper=`expr \
         $cppunit_major_version \> $cppunit_major_min \| \
@@ -115,7 +115,7 @@ AC_ARG_WITH(cppunit-exec-prefix,[  --with-cppunit-exec-prefix=PFX  Exec prefix w
   fi
 
   if test "x$no_cppunit" = x ; then
-     ifelse([$2], , :, [$2])     
+     ifelse([$2], , :, [$2])
   else
      CPPUNIT_CFLAGS=""
      CPPUNIT_LIBS=""
@@ -124,8 +124,7 @@ AC_ARG_WITH(cppunit-exec-prefix,[  --with-cppunit-exec-prefix=PFX  Exec prefix w
 
   AC_SUBST(CPPUNIT_CFLAGS)
   AC_SUBST(CPPUNIT_LIBS)
-])
-
+])   
 
 AC_DEFUN([CHECK_CPPUNIT],
 [
@@ -134,7 +133,7 @@ AC_DEFUN([CHECK_CPPUNIT],
       [AC_MSG_ERROR("cppunit not found")]
     )
 ])
-
+                                                                                                                        
 
 # ============ T O M C A T  =======================
 AC_DEFUN([CHECK_TOMCAT_HOME],
@@ -172,8 +171,8 @@ AC_DEFUN([CHECK_JDK],
     AC_ARG_VAR(JAVA_HOME, [Java Development Kit])
 
     TRY_JAVA_HOME=`ls -dr /usr/java/* 2> /dev/null | head -n 1`
-    for dir in $JAVA_HOME $JDK_HOME /usr/lib/jvm/java /usr/local/jdk /usr/local/java $TRY_JAVA_HOME; do
-        AC_CHECK_FILE([$dir/lib/dt.jar],[jar=$dir/lib/dt.jar])
+    for dir in $JAVA_HOME $JDK_HOME /usr/local/jdk /usr/local/java $TRY_JAVA_HOME; do
+        AC_PATH_PROG(jar, dt.jar, ,$dir/lib)
         if test x$jar != x; then
             found_jdk="yes";
             JAVA_HOME=$dir
@@ -227,7 +226,6 @@ AC_DEFUN([CHECK_JNI],
 AC_DEFUN([CHECK_ANT],
 [
    AC_REQUIRE([AC_EXEEXT])
-   AC_REQUIRE([CHECK_JDK])
    AC_ARG_VAR(ANT, [Ant program])
 
    test -z $ANT_HOME || ANT_HOME_BIN=$ANT_HOME/bin
@@ -243,9 +241,6 @@ AC_DEFUN([CHECK_ANT],
    if test x_$found_ant != x_yes; then
        AC_MSG_ERROR([Cannot find ant program. Try setting ANT_HOME environment variable or use 'configure ANT=<path to ant executable>])
    fi
-
-  AC_SUBST(ANT_FLAGS, '-e -Dtop.build.dir=$(shell cd $(top_builddir) && pwd) -f $(srcdir)/build.xml')
-  AC_SUBST(ANT_CMD, "JAVA_HOME=${JAVA_HOME} ${ANT}")
 ])
 
 
@@ -255,10 +250,13 @@ AC_DEFUN([CHECK_ANT],
 #
 AC_DEFUN([CHECK_SSL],
 [   AC_ARG_WITH(openssl,
-                [  --with-openssl=PATH to openssl source directory],
+                [  --with-openssl=PATH      to openssl source directory],
                 [openssl_path=$withval],
                 [openssl_path="/usr/local /usr/local/ssl /usr/ssl /usr/pkg /usr / /sw/lib"]
                 )
+    if test "$withval" != "no" ; then
+    
+    AC_MSG_RESULT(openssl option: ${with-openssl} withval: ${withval})
     AC_PATH_PROG([OPENSSL],[openssl])
     AC_MSG_CHECKING([for openssl includes])
     found_ssl_inc="no";
@@ -292,40 +290,34 @@ AC_DEFUN([CHECK_SSL],
 
     AC_MSG_CHECKING([for openssl libraries])
     found_ssl_lib="no";
-    for libsubdir in lib lib64 lib32; do
-      for dir in $openssl_path ; do
-        if test -f "$dir/$libsubdir/libssl.so" -o -f "$dir/$libsubdir/libssl.dylib" -o -f "$dir/$libsubdir/libssl.a"; then
+    for dir in $openssl_path ; do
+        if test -f "$dir/lib/libssl.so" -o "$dir/lib/libssl.a"; then
             found_ssl_lib="yes";
             ssllibdir="$dir/lib"
             break;
         # This test is an ugly hack to make sure that the current builds work.
         # But our test should be improved to allow libssl.so to have any version
         # and let the test succeed, since "-lssl" works with any version number.
-        elif test -f "$dir/$libsubdir/libssl.so.4"; then
+        elif test -f "$dir/lib/libssl.so.4"; then
             found_ssl_lib="yes";
             ssllibdir="$dir/lib"
             break;
-        elif test -f "$dir/$libsubdir/openssl/libssl.so"; then
+        elif test -f "$dir/lib/openssl/libssl.so"; then
             found_ssl_lib="yes";
-            ssllibdir="$dir/$libsubdir/openssl"
+            ssllibdir="$dir/lib/openssl"
             break;
-        elif test -f "$dir/$libsubdir/ssl/libssl.so"; then
+        elif test -f "$dir/lib/ssl/libssl.so"; then
             found_ssl_lib="yes";
-            ssllibdir="$dir/$libsubdir/ssl"
+            ssllibdir="$dir/lib/ssl"
             break;
         fi
-      done
     done
 
     if test x_$found_ssl_lib != x_yes ; then
         AC_MSG_ERROR(['libssl.so' not found; tried $openssl_path, each with lib, lib/openssl, and lib/ssl])
     else
         AC_MSG_RESULT($ssllibdir)
-       if test x_"`uname -s`" = x_SunOS ; then
-          AC_SUBST(SSL_LDFLAGS,"-L$ssllibdir -R$ssllibdir")
-	else
-	  AC_SUBST(SSL_LDFLAGS,"-L$ssllibdir")
-	fi
+        AC_SUBST(SSL_LDFLAGS,"-L$ssllibdir")
         AC_SUBST(SSL_LIBS,"-lssl -lcrypto")
     fi
 
@@ -347,6 +339,8 @@ AC_DEFUN([CHECK_SSL],
 
     AC_SUBST(SSL_CFLAGS,"$SSL_CFLAGS")
     AC_SUBST(SSL_CXXFLAGS,"$SSL_CFLAGS")
+
+    fi # end if with openssl
 ])
 
 
@@ -371,41 +365,34 @@ AC_DEFUN([CHECK_LIBRT],
    fi
 ])
 
-
-# ============ L I B O B J C  =====================
-AC_DEFUN([CHECK_LIBOBJC],
-[
-   AC_MSG_CHECKING([for libobjc])
-
-   objc_found="no"
-   for dir in /lib /usr/lib /usr/local/lib; do
-      if test -f "$dir/libobjc.dylib"; then
-        objc_found="yes"
-        break;
-      fi
-   done
-   if test x_$objc_found = x_yes; then
-        AC_SUBST(OBJC_LIBS,"-lobjc /usr/lib/libstdc++.6.dylib")
-        AC_MSG_RESULT([-lobjc])
-   else
-        AC_SUBST(OBJC_LIBS,"")
-        AC_MSG_RESULT([not needed])
-   fi
-])
-
-
 # ============ C O R E A U D I O =======================
+
 AC_DEFUN([CHECK_COREAUDIO],
 [
-   AC_MSG_CHECKING([for CoreAudio])
+    AC_MSG_CHECKING([for CoreAudio])
 
-   if test "`uname`" == "Darwin"; then
+    if test "`uname`" == "Darwin"; then
         AC_SUBST(CA_LIBS,"-framework CoreAudio -framework AudioToolbox")
-	AC_MSG_RESULT([yes])
-   else
+        AC_MSG_RESULT([yes])
+    else
         AC_SUBST(CA_LIBS,"")
-	AC_MSG_RESULT([not needed])
-   fi
+        AC_MSG_RESULT([not needed])
+    fi
+])
+
+# ============ C A R B O N ==================
+
+AC_DEFUN([CHECK_CARBON],
+[
+    AC_MSG_CHECKING([for Carbon])
+
+    if test "`uname`" == "Darwin"; then
+        AC_SUBST(CARBON_LIBS,"-framework Carbon")
+        AC_MSG_RESULT([yes])
+    else
+        AC_SUBST(CARBON_LIBS,"")
+        AC_MSG_RESULT([not needed])
+    fi
 ])
 
 
@@ -413,8 +400,8 @@ AC_DEFUN([CHECK_COREAUDIO],
 AC_DEFUN([CHECK_XERCES],
 [   AC_MSG_CHECKING([for xerces])
     AC_ARG_WITH(xerces,
-                [  --with-xerces=PATH to xerces source directory],
-                [xerces_path=$withval],
+                [--with-xerces=PATH to xerces source directory],
+                [xerces_path=$with_val],
                 [xerces_path="/usr/local/xercesc /usr/lib/xercesc /usr/xercesc /usr/pkg /usr/local /usr"]
                 )
     for dir in $xerces_path ; do
@@ -446,6 +433,7 @@ AC_DEFUN([CHECK_XERCES],
 [
     AC_MSG_RESULT(yes)
 ])
+])dnl
 
 # CHECK_APR is called from CHECK_APACHE2
 # ============ A P R ==============
@@ -457,7 +445,7 @@ AC_DEFUN([CHECK_APR],
     AC_ARG_WITH(apr,
                 [--with-apr=PATH to apr header files directory],
                 [apr_path=$withval],
-                [apr_path="/usr/include/httpd /usr/include/apr-1 /usr/include/apr-0 /usr/local/apache2/include /usr/apache2/include /etc/httpd/include /usr/include/apache2"
+                [apr_path="/usr/include/httpd /usr/include/apr-0 /usr/local/apache2/include /usr/apache2/include /etc/httpd/include /usr/include/apache2"
                 ]
                )
     for apr_dir in $apr_path ; do
@@ -507,8 +495,64 @@ AC_DEFUN([CHECK_APACHE2],
 
    CHECK_APR
 
-   ## Apache httpd executable
-   AC_MSG_CHECKING([for Apache2 httpd])
+   AC_ARG_WITH([apache-modules],
+               [--with-apache-modules=PATH where apache modules are installed],
+               [ apache2_mod_search_path="$withval"
+                 apache2_mod_override="$withval"
+                ],
+               [ apache2_mod_search_path="/usr/local/apache2/modules /usr/apache2/modules /etc/httpd/modules /usr/lib/httpd/modules /usr/lib/apache2 /usr/lib/apache2/modules"
+                 apache2_mod_override=""
+                ]
+              )
+
+   ## Get the version numbers for this Apache installation.
+   ## APACHE2_MMN is the module magic number, which is the version of
+   ## the API that modules have to interface to.
+   ## Some versions have a $incdir/.mmn file containing only the MMN, but
+   ## we can't depend on that.
+   apache2_mmn=`sed <$incdir/ap_mmn.h \
+                -e '/#define MODULE_MAGIC_NUMBER_MAJOR/!d' \
+                -e 's/#define MODULE_MAGIC_NUMBER_MAJOR //'`
+   AC_SUBST(APACHE2_MMN, $apache2_mmn)
+   AC_MSG_RESULT(apachd2_mmn=$apache2_mmn)
+   ## APACHE2_VERSION is the Apache version number.
+   ## This makes it easier for the uninitiated to see what versions of Apache
+   ## might be compatible with this mod_cplusplus.  But compatibility is really
+   ## controlled by the MMN value.
+   apache2_version=`awk -f $srcdir/config/apache_version.awk $incdir/ap_release.h`
+   AC_SUBST(APACHE2_VERSION, $apache2_version)
+   AC_MSG_RESULT(apache2_version=$apache2_version)
+   AC_MSG_RESULT(apache2_version=$apache2_version)
+
+   ## Apache Modules Directory
+   AC_MSG_CHECKING([for apache2 modules directory])
+   found_apache2_mod="no";
+   tried_path=""
+   ## Older versions of Apache seem to always have mod_access.so in their
+   ## modules directory.  Newer ones can have it linked into the httpd
+   ## executable, but they seem to have an httpd.exp file in the modules
+   ## directory.  So we check for either.
+   for apache2_moddir in $apache2_mod_search_path; do
+     if test -f "$apache2_moddir/mod_access.so"; then
+       found_apache2_mod="yes";
+       break;
+     elif test -f "$apache2_moddir/httpd.exp"; then
+       found_apache2_mod="yes";
+       break;
+     else
+       tried_path="${tried_path} $apache2_moddir"
+     fi
+   done
+   if test x_$found_apache2_mod = x_yes; then
+       AC_MSG_RESULT($apache2_moddir)
+       AC_SUBST(APACHE2_MOD, $apache2_moddir)
+   elif test x_$apache2_mod_override != x_; then
+       AC_SUBST(APACHE2_MOD, $apache2_mod_override)
+       AC_MSG_WARN('mod_access.so' and 'httpd.exp' not found; using explicit value: $apache2_mod_override)
+   else
+       AC_MSG_ERROR('mod_access.so' and 'httpd.exp' not found; tried: $tried_path)
+   fi
+
    AC_ARG_WITH([apache-httpd],
                [--with-apache-httpd=PATH the apache2 httpd executable],
                [ apache2_bin_search_path="$withval"
@@ -517,6 +561,8 @@ AC_DEFUN([CHECK_APACHE2],
                  ]
                )
 
+   ## Apache httpd executable
+   AC_MSG_CHECKING([for Apache2 httpd])
    found_apache2_httpd="no";
    for apache2_httpd_dir in $apache2_bin_search_path; do
      if test -x "$apache2_httpd_dir/httpd"; then
@@ -540,84 +586,6 @@ AC_DEFUN([CHECK_APACHE2],
        AC_MSG_ERROR('httpd' not found; tried: $apache2_bin_search_path)
    fi
 
-   ## Get the version numbers for this Apache installation.
-   ## APACHE2_MMN is the module magic number, which is the version of
-   ## the API that modules have to interface to.
-   ## Some versions have a $incdir/.mmn file containing only the MMN, but
-   ## we can't depend on that.
-   apache2_mmn=`sed <$incdir/ap_mmn.h \
-                -e '/#define MODULE_MAGIC_NUMBER_MAJOR/!d' \
-                -e 's/#define MODULE_MAGIC_NUMBER_MAJOR //'`
-   AC_SUBST(APACHE2_MMN, $apache2_mmn)
-   AC_MSG_RESULT(apachd2_mmn=$apache2_mmn)
-   ## APACHE2_VERSION is the Apache version number.
-   ## This makes it easier for the uninitiated to see what versions of Apache
-   ## might be compatible with this mod_cplusplus.  But compatibility is really
-   ## controlled by the MMN value.
-   apache2_version=`$apache2_httpd -version | sed -n -e 's,Server version: Apache/,,p'`
-   AC_SUBST(APACHE2_VERSION, $apache2_version)
-   AC_MSG_RESULT(apache2_version=$apache2_version)
-   AC_MSG_CHECKING(which apache host access module to use)
-   case $apache2_version in
-   2.2.*)
-      apache2_host_access="authz_host_module"
-      apache2_mod_access="mod_authz_host.so"
-      ;;
-   2.0.*)
-      apache2_host_access="access_module"
-      apache2_mod_access="mod_access.so"
-      ;;
-   *)
-      apache2_host_access="UNKNOWN"
-      apache2_mod_access="UNKNOWN"
-      AC_MSG_ERROR(Unknown apache version $apache2_version)
-      ;;
-   esac
-   AC_MSG_RESULT($apache2_host_access = $apache2_mod_access)
-   AC_SUBST(APACHE2_HOST_ACCESS, $apache2_host_access)
-   AC_SUBST(APACHE2_MOD_ACCESS, $apache2_mod_access)
-
-   ## Apache Modules Directory
-   AC_MSG_CHECKING([for apache2 modules directory])
-   AC_ARG_WITH([apache-modules],
-               [--with-apache-modules=PATH where apache modules are installed],
-               [ apache2_mod_search_path="$withval"
-                 apache2_mod_override="$withval"
-                ],
-               [ apache2_mod_search_path="/usr/local/apache2/modules /usr/apache2/modules /etc/httpd/modules /usr/lib/httpd/modules /usr/lib/apache2-prefork /usr/lib/apache2/modules"
-                 apache2_mod_override=""
-                ]
-              )
-   found_apache2_mod="no";
-   tried_path=""
-   ## Older versions of Apache seem to always have mod_access.so in their
-   ## modules directory.  Newer ones can have it linked into the httpd
-   ## executable, but they seem to have an httpd.exp file in the modules
-   ## directory.  apache 2.2 has mod_cgi.so, So we check for any of them.
-   for apache2_moddir in $apache2_mod_search_path; do
-     if test -f "$apache2_moddir/$apache2_mod_access"; then
-       found_apache2_mod="yes";
-       break;
-     elif test -f "$apache2_moddir/httpd.exp"; then
-       found_apache2_mod="yes";
-       break;
-     elif test -f "$apache2_moddir/mod_cgi.so"; then
-       found_apache2_mod="yes";
-       break;
-     else
-       tried_path="${tried_path} $apache2_moddir"
-     fi
-   done
-   if test x_$found_apache2_mod = x_yes; then
-       AC_MSG_RESULT($apache2_moddir)
-       AC_SUBST(APACHE2_MOD, $apache2_moddir)
-   elif test x_$apache2_mod_override != x_; then
-       AC_SUBST(APACHE2_MOD, $apache2_mod_override)
-       AC_MSG_WARN('$apache2_mod_access', 'mod_cgi.so', and 'httpd.exp' not found; using explicit value: $tried_path)
-   else
-       AC_MSG_ERROR('$apache2_mod_access' and 'httpd.exp' not found; tried: $tried_path)
-   fi
-
    ## Apache apxs executable
    AC_ARG_WITH([apache-apxs],
                [--with-apache-apxs=PATH the apache2 apxs executable],
@@ -636,7 +604,7 @@ AC_DEFUN([CHECK_APACHE2],
        apache2_apxs="$apache2_apxs_dir/apxs2";
        break;
 
-     ## Apache < 2.0.50 or Apache >= 2.2
+     ## Apache < 2.0.50
      elif test -x "$apache2_apxs_dir/apxs"; then
        found_apache2_apxs="yes";
        apache2_apxs="$apache2_apxs_dir/apxs";
@@ -656,7 +624,7 @@ AC_DEFUN([CHECK_APACHE2],
                [--with-apache-home=PATH the apache2 home directory],
                [ apache2_home_search_path="$withval"
                  ],
-               [ apache2_home_search_path="/usr/local/apache2 /usr/apache2 /etc/httpd /usr/local/sbin /usr/local /usr/sbin /usr /usr/lib/apache2 /usr/share/apache2 /usr/lib/httpd"
+               [ apache2_home_search_path="/usr/local/apache2 /usr/apache2 /etc/httpd /usr/local/sbin /usr/local /usr/sbin /usr /usr/lib/apache2 /usr/share/apache2"
                  ]
                )
    AC_MSG_CHECKING([for apache2 home])
@@ -674,6 +642,31 @@ AC_DEFUN([CHECK_APACHE2],
    else
        AC_MSG_ERROR('build/config_vars.mk' not found; tried: $apache2_home_search_path)
    fi
+])dnl
+
+# ============ M O D   C P L U S P L U S ==================
+AC_DEFUN([CHECK_MODCPLUSPLUS],
+[
+    AC_MSG_CHECKING([for mod_cplusplus])
+    AC_ARG_WITH(mod_cplusplus,
+                [--with-mod_cplusplus=PATH to mod_cplusplus source directory],
+                [mod_cplusplus_path=$withval],
+                [mod_cplusplus_path="/usr/local/apache2/include /usr/local/include /usr/include /usr/include/httpd /usr/include/apache2"],
+                )
+    for mod_cplusplusdir in $mod_cplusplus_path ; do
+            if test -f "$mod_cplusplusdir/mod_cplusplus.h";
+        then
+            found_mod_cplusplus="yes";
+            break;
+        fi
+    done
+
+    if test x_$found_mod_cplusplus != x_yes;
+    then
+        AC_MSG_ERROR(['mod_cplusplus.h' not found; tried $mod_cplusplus_path])
+    else
+        AC_MSG_RESULT($mod_cplusplusdir)
+    fi
 ])dnl
 
 # ==================== C G I C C  =========================
@@ -739,7 +732,6 @@ AC_DEFUN([CHECK_LIBWWW],
     if test x_$found_www != x_yes; then
         AC_MSG_ERROR(not found; 'include/w3c-libwww/WWWLib.h' and 'include/WWWLib.h' not in any of: $withval /usr/local/w3c-libwww /usr/lib/w3c-libwww /usr/w3c-libwww /usr/pkg /usr/local /usr)
     fi
-
     if test ! -e "$dir/lib/libwwwapp.so";then
         AC_MSG_ERROR(not found; 'libwwwapps.so' not in: $dir/lib)
     fi
@@ -752,24 +744,12 @@ AC_DEFUN([CHECK_LIBWWW],
         AC_SUBST(LIBWWW_CFLAGS)
         AC_SUBST(LIBWWW_CXXFLAGS)
 
-	# Several libraries appear in this list twice.  That is because there
-	# are circular dependencies between the libraries.
         LIBWWW_LIBS="-lwwwapp -lwwwfile -lwwwhttp -lwwwssl -lwwwcore";
         LIBWWW_LIBS="$LIBWWW_LIBS -lwwwinit -lwwwapp -lwwwhttp -lwwwcache -lwwwcore";
         LIBWWW_LIBS="$LIBWWW_LIBS -lwwwfile -lwwwutils -lwwwmime -lwwwstream -lmd5";
         LIBWWW_LIBS="$LIBWWW_LIBS -lpics -lwwwnews -lwwwdir -lwwwtelnet -lwwwftp";
         LIBWWW_LIBS="$LIBWWW_LIBS -lwwwmux -lwwwhtml -lwwwgopher -lwwwtrans -lwwwzip";
-        LIBWWW_LIBS="$LIBWWW_LIBS -lwwwssl -lwwwxml";
-        # These two have been moved into something else in FC5, so check to see if they are there
-        if test -f $lwwwdir/lib/libxmlparse.so -o -f $lwwwdir/lib/libxmlparse.a
-        then
-           LIBWWW_LIBS="$LIBWWW_LIBS -lxmlparse"
-        fi
-        if test -f $lwwwdir/lib/libxmltok.so -o -f $lwwwdir/lib/libxmltok.a
-        then
-           LIBWWW_LIBS="$LIBWWW_LIBS -lxmltok"
-        fi
-
+        LIBWWW_LIBS="$LIBWWW_LIBS -lwwwssl -lwwwxml -lxmlparse -lxmltok";
         AC_SUBST(LIBWWW_LIBS)
 
         LIBWWW_LDFLAGS="-L$lwwwdir/lib";
@@ -778,76 +758,38 @@ AC_DEFUN([CHECK_LIBWWW],
 ],
 [
     AC_MSG_RESULT(yes)
-])dnl
-
-# ================ ZLIB ================
-AC_DEFUN([CHECK_ZLIB],
-[
-    have_zlib='no'
-    LIB_ZLIB=''
-    if test "$with_zlib" != 'no'
-    then
-      LIB_ZLIB=''
-      AC_MSG_CHECKING(for ZLIB support )
-      AC_MSG_RESULT()
-      failed=0;
-      passed=0;
-      AC_CHECK_HEADER(zconf.h,passed=`expr $passed + 1`,failed=`expr $failed + 1`)
-      AC_CHECK_HEADER(zlib.h,passed=`expr $passed + 1`,failed=`expr $failed + 1`)
-      AC_CHECK_LIB(z,compress,passed=`expr $passed + 1`,failed=`expr $failed + 1`,)
-      AC_CHECK_LIB(z,uncompress,passed=`expr $passed + 1`,failed=`expr $failed + 1`,)
-      AC_CHECK_LIB(z,deflate,passed=`expr $passed + 1`,failed=`expr $failed + 1`,)
-      AC_CHECK_LIB(z,inflate,passed=`expr $passed + 1`,failed=`expr $failed + 1`,)
-      AC_CHECK_LIB(z,gzseek,passed=`expr $passed + 1`,failed=`expr $failed + 1`,)
-      AC_CHECK_LIB(z,gztell,passed=`expr $passed + 1`,failed=`expr $failed + 1`,)
-      AC_MSG_CHECKING(if ZLIB package is complete)
-      if test $passed -gt 0
-      then
-        if test $failed -gt 0
-        then
-          AC_MSG_RESULT(no -- some components failed test)
-          have_zlib='no (failed tests)'
-        else
-          LIB_ZLIB='-lz'
-          LIBS="$LIB_ZLIB $LIBS"
-          AC_DEFINE(HasZLIB,1,Define if you have zlib compression library)
-          AC_MSG_RESULT(yes)
-          have_zlib='yes'
-        fi
-      else
-        AC_MSG_RESULT(no)
-        AC_MSG_ERROR(ZLIB required)
-      fi
-    fi
-    AM_CONDITIONAL(HasZLIB, test "$have_zlib" = 'yes')
-    AC_SUBST(LIB_ZLIB)
 ])
+])dnl
 
 # ============ P C R E ==================
 AC_DEFUN([CHECK_PCRE],
-[   AC_MSG_CHECKING([for pcre])
+[   AC_MSG_CHECKING([for pcre >= 4.5])
     # Process the --with-pcre argument which gives the pcre base directory.
     AC_ARG_WITH(pcre,
-                [  --with-pcre=PATH path to pcre install directory],
-                   homeval=$withval,
-                   homeval=""
+                [  --with-pcre=PATH         path to pcre install directory],
                 )
+    homeval=$withval
+    # Have to unset withval so we can tell if --with-pcre-includedir was
+    # specified, as AC_ARG_WITH will not unset withval if the option is not
+    # there!
+    withval=
 
-    # Process the --with-pcre_includedir argument which gives the pcre include
+    # Process the --with-pcre-includedir argument which gives the pcre include
     # directory.
-    AC_ARG_WITH(pcre_includedir,
-                [  --with-pcre_includedir=PATH path to pcre include directory (containing pcre.h)],
-                   includeval=$withval,
-                   includeval="$homeval:$homeval/include"
+    AC_ARG_WITH(pcre-includedir,
+                [  --with-pcre-includedir=PATH path to pcre include directory (containing pcre.h)],
                 )
+    # If withval is set, use that.  If not and homeval is set, use
+    # $homeval/include.  If neither, use null.
+    includeval=${withval:-${homeval:+$homeval/include}}
+    withval=
 
-    # Process the --with-pcre_libdir argument which gives the pcre library
+    # Process the --with-pcre-libdir argument which gives the pcre library
     # directory.
-    AC_ARG_WITH(pcre_libdir,
-                [  --with-pcre_libdir=PATH path to pcre lib directory (containing libpcre.{so,a})],
-                   libval=$withval,
-                   libval="$homeval:$homeval/lib"
+    AC_ARG_WITH(pcre-libdir,
+                [  --with-pcre-libdir=PATH  path to pcre lib directory (containing libpcre.{so,a})],
                 )
+    libval=${withval:-${homeval:+$homeval/lib}}
 
     # Check for pcre.h in the specified include directory if any, and a number
     # of other likely places.
@@ -878,17 +820,15 @@ AC_DEFUN([CHECK_PCRE],
             AC_MSG_ERROR(Cannot find libpcre.so or libpcre.a libraries - looked in $libval)
         else
             ## Test for version
-	    if test x$homeval != x; then
-            pcre_ver=`$homeval/bin/pcre-config --version`
-	    else
             pcre_ver=`pcre-config --version`
-            fi
-            AX_COMPARE_VERSION([$pcre_ver],[ge],[4.5],
-                               [AC_MSG_RESULT($pcre_ver is ok)],
-                               [AC_MSG_ERROR([pcre version must be >= 4.5 - found $pcre_ver])])
+            AX_COMPARE_VERSION([$pcre_ver],[ge],[4.2])
 
-            AC_MSG_RESULT([    pcre includes found in $includeval])
-            AC_MSG_RESULT([    pcre libraries found in $libval])
+            if test "x_$ax_compare_version" = "x_false"; then
+               AC_MSG_ERROR(Found pcre version $pcre_ver)
+            else
+               AC_MSG_RESULT($pcre_ver is ok)
+            fi
+            AC_MSG_RESULT($includeval and $libval)
 
             PCRE_CFLAGS="-I$includeval"
             PCRE_CXXFLAGS="-I$includeval"
@@ -897,49 +837,1001 @@ AC_DEFUN([CHECK_PCRE],
 
             AC_SUBST(PCRE_LIBS, "-lpcre" )
             AC_SUBST(PCRE_LDFLAGS, "-L$libval")
-
-            CXXFLAGS="$CXXFLAGS $PCRE_CXXFLAGS"
-            CFLAGS="$CFLAGS $PCRE_CFLAGS"
         fi
     fi
+])dnl
+
+
+# ============ G S M ==================
+AC_DEFUN([AM_PATH_GSM],
+[
+    # Unset withval, as AC_ARG_WITH does not unset it
+    withval=
+    # Process the --with-gsm argument which gives the libgsm base directory.
+    AC_ARG_WITH(gsm,
+                [AS_HELP_STRING([--with-gsm=PATH],
+                                [path to libgsm install directory])],
+                [],
+                [with_gsm=]
+                )
+    homeval=$withval
+    # Have to unset withval so we can tell if --with-gsm-includedir was
+    # specified, as AC_ARG_WITH will not unset withval if the option is not
+    # there!
+    withval=
+
+    # Process the --with-gsm-includedir argument which gives the libgsm include
+    # directory.
+    AC_ARG_WITH(gsm-includedir,
+                [AS_HELP_STRING([--with-gsm-includedir=PATH],
+                                [path to libgsm include directory (containing gsm.h)])],
+                )
+    # If withval is set, use that.  If not and homeval is set, use
+    # $homeval/include.  If neither, use null.
+    includeval=${withval:-${homeval:+$homeval/inc}}
+    withval=
+
+    # Process the --with-gsm-libdir argument which gives the libgsm library
+    # directory.
+    AC_ARG_WITH(gsm-libdir,
+                [AS_HELP_STRING([--with-gsm-libdir=PATH],
+                                [path to libgsm lib directory (containing libgsm.{so,a})])],
+                )
+    libval=${withval:-${homeval:+$homeval/lib}}
+
+    # Check for gsm.h in the specified include directory if any, and a number
+    # of other likely places.
+    for dir in $includeval /usr/local/include /usr/local/gsm/inc /usr/include /usr/include/gsm /sw/include; do
+        if test -f "$dir/gsm.h"; then
+            found_gsm_include="yes";
+            includeval=$dir
+            break;
+        fi
+    done
+
+    # Check for libgsm.{so,a} in the specified lib directory if any, and a
+    # number of other likely places.
+    for dir in $libval /usr/local/lib /usr/local/gsm/lib /usr/lib /sw/lib; do
+        if test -f "$dir/libgsm.so" -o -f "$dir/libgsm.a"; then
+            found_gsm_lib="yes";
+            libval=$dir
+            break;
+        fi
+    done
+
+    # Test that we've been able to find both directories, and set the various
+    # makefile variables.
+    if test x_$found_gsm_include != x_yes -o x_$found_gsm_lib != x_yes; then
+        AC_MSG_RESULT(not found)
+    else
+        ## Test for version
+        gsm_major_version=`grep "GSM_MAJOR" $includeval/gsm.h | \
+               sed 's/^#define[ \t]\+GSM_MAJOR[ \t]\+\([0-9]\+\)/\1/'`
+        gsm_minor_version=`grep "GSM_MINOR" $includeval/gsm.h | \
+               sed 's/^#define[ \t]\+GSM_MINOR[ \t]\+\([0-9]\+\)/\1/'`
+        gsm_patchlevel_version=`grep "GSM_PATCHLEVEL" $includeval/gsm.h | \
+               sed 's/^#define[ \t]\+GSM_PATCHLEVEL[ \t]\+\([0-9]\+\)/\1/'`
+
+        gsm_ver="$gsm_major_version.$gsm_minor_version.$gsm_patchlevel_version"
+        AX_COMPARE_VERSION([$gsm_ver],[ge],[1.0.10])
+
+        if test "x_$ax_compare_version" = "x_false"; then
+            AC_MSG_RESULT(too old (found version $gsm_ver))
+        else
+            AC_MSG_RESULT($gsm_ver is ok)
+
+	    # Enable this when we begin using config.h
+            #AC_DEFINE(HAVE_GSM, [1], [Defined if libgsm is present])
+	    CFLAGS="${CFLAGS} -DHAVE_GSM"
+	    CXXFLAGS="${CXXFLAGS} -DHAVE_GSM"
+
+            GSM_CFLAGS="-I$includeval"
+            GSM_CXXFLAGS="-I$includeval"
+            GSM_LIBS="-lgsm"
+            GSM_LDFLAGS="-L$libval"
+
+            GSM_TARGET="plggsm"
+
+            PLUGINS="${PLUGINS} GSM"
+        fi
+    fi
+    AC_SUBST(GSM_TARGET)
+    AC_SUBST(GSM_CFLAGS)
+    AC_SUBST(GSM_CXXFLAGS)
+    AC_SUBST(GSM_LIBS)
+    AC_SUBST(GSM_LDFLAGS)
+])dnl
+
+AC_DEFUN([CHECK_GSM],
+[
+    AC_MSG_CHECKING([for libgsm >= 1.0.10])
+
+    AC_ARG_ENABLE(codec-gsm,
+    [AS_HELP_STRING([--enable-codec-gsm],
+                    [Enable support for GSM codec @<:@default=auto@:>@])],
+    [ case "${enableval}" in
+         auto) AM_PATH_GSM ;;
+         yes) AM_PATH_GSM ;;
+         no) AC_MSG_RESULT(disabled) ;;
+         *) AC_MSG_ERROR(bad value ${enableval} for --enable-codec-gsm) ;;
+      esac],
+    [AM_PATH_GSM])
+])dnl
+
+
+# ============ S P E E X ==================
+dnl
+dnl Enables use of speex dsp specific code within the project.
+dnl Callers of this macro need to check the contrib_speex_enabled shell variable
+dnl and supply the AC_CONFIG_SUBDIRS line that configures the
+dnl sipXmediaLib/contrib/libspeex package.  
+dnl See CHECK_SPEEX for more information.
+AC_DEFUN([ENABLE_SPEEX_DSP],
+[
+    AC_MSG_CHECKING([if speex dsp usage is enabled])
+    speex_dsp_enabled=no;
+    AC_ARG_ENABLE([speex-dsp],
+       [AS_HELP_STRING([--enable-speex-dsp],
+          [Enable SPEEX dsp library usage @<:@default=no@:>@])],
+       [ case "${enableval}" in
+            yes)  AC_MSG_RESULT(yes);
+                  speex_dsp_enabled=yes ;;
+            no) AC_MSG_RESULT(no) ;;
+            *) AC_MSG_ERROR(bad value ${enableval} for --enable-speex-dsp) ;;
+         esac],
+       [AC_MSG_RESULT(no)])
+
+    # Check to see if speex dsp was selected, and speex usage has not been
+    # checked and configured
+    if test "x$speex_dsp_enabled" == "xyes" -a "x$speex_detected" == "x"; then
+        CHECK_SPEEX
+    fi
+
+    dnl now the important part of this macro...
+    if test "x$speex_dsp_enabled" == "xyes"; then
+        # Specify to enable speex dsp code
+        CFLAGS="${CFLAGS} -DHAVE_SPEEX" ; CXXFLAGS="${CXXFLAGS} -DHAVE_SPEEX"
+    fi
+])dnl
+
+dnl
+dnl Enables the speex codec plugin to be built and linked to in sipXmediaLib.
+dnl Callers of this macro need to check the contrib_speex_enabled shell variable
+dnl and supply the AC_CONFIG_SUBDIRS line that configures the
+dnl sipXmediaLib/contrib/libspeex package.  
+dnl See CHECK_SPEEX for more information.
+AC_DEFUN([ENABLE_CODEC_SPEEX],
+[
+    codec_speex_enabled=no;
+    AC_ARG_ENABLE([codec-speex],
+       [AS_HELP_STRING([--enable-codec-speex],
+          [Enable support for SPEEX codec @<:@default=no@:>@])],
+       [ case "${enableval}" in
+            yes) codec_speex_enabled=yes ;;
+            no) ;;
+            *) AC_MSG_ERROR(bad value ${enableval} for --enable-codec-speex) ;;
+         esac])
+
+    # Check to see if speex dsp was selected, and speex usage has not been
+    # checked and configured
+    if test "x$codec_speex_enabled" == "xyes" -a "x$speex_detected" == "x"; then
+        CHECK_SPEEX
+    fi
+
+    dnl now the important part of this macro...
+    SPEEX_TARGET=
+    if test "x$codec_speex_enabled" == "xyes"; then
+        # Specify to build speex plugin
+        PLUGINS="${PLUGINS} SPEEX"
+        SPEEX_TARGET="plgspeex"
+    fi
+    AC_SUBST(SPEEX_TARGET)    
+])dnl
+
+dnl
+dnl Enables speex support, checks to make sure that it is present,
+dnl or needs to be built.  If it needs to be built, then the user that
+dnl calls this needs to check the contrib_speex_enabled shell variable
+dnl and supply the AC_CONFIG_SUBDIRS line that configures the
+dnl sipXmediaLib/contrib/libspeex package.  This cannot be done within
+dnl CHECK_SPEEX because it can only be specified once, and CHECK_SPEEX has the
+dnl possibility of being specified more than once (and does in sipXmediaLib).
+AC_DEFUN([CHECK_SPEEX],
+[
+    AC_MSG_CHECKING([for libspeex >= 1.2.0])
+
+    # Check if the user wished to force usage of contrib version of speex
+    contrib_speex_enabled=no;
+    AC_ARG_ENABLE([contrib-speex],
+        [AS_HELP_STRING([--enable-contrib-speex],
+            [Ignore any installed SPEEX libraries. Instead, build and use the ones in the contrib directory. @<:@default=no@:>@])],
+        [ case "${enableval}" in
+            yes) contrib_speex_enabled=yes ;;
+            no) contrib_speex_enabled=no ;;
+            *) AC_MSG_ERROR(bad value ${enableval} for --enable-contrib-speex) ;;
+          esac],
+        [contrib_speex_enabled=no])
+    
+    # Detect if speex is installed.
+    speex_detected=no;
+    if test "x$contrib_speex_enabled" == "xno"; then
+        PKG_CHECK_MODULES([SPEEX],
+                          [speex >= 1.2.0], 
+                          speex_detected=yes, 
+                          speex_detected=no; contrib_speex_enabled=yes)
+        pkg_failed=no
+        _PKG_CONFIG([SPEEX_LIBDIR], [variable=libdir], [speex >= 1.2.0])
+        if test "x$pkg_failed" = "xuntried"; then
+            AC_MSG_ERROR(Failed to get the speex library directory from pkg-config!)
+        else
+            SPEEX_STATIC_LIB=${SPEEX_LIBDIR}/libspeex.a
+        fi
+    fi
+
+    # if contrib speex is selected, use it.
+    if test "x$contrib_speex_enabled" == "xyes" ; then
+        AC_MSG_RESULT([using svn version])
+        SPEEX_ROOT='${top_srcdir}/../sipXmediaLib/contrib/libspeex'
+        SPEEX_CFLAGS="-I${SPEEX_ROOT}/include"
+        SPEEX_LIBS='${top_srcdir}/../sipXmediaLib/bin/libspeex.la'
+        SPEEX_STATIC_LIB="${SPEEX_ROOT}/libspeex/.libs/libspeex.a"
+        AC_SUBST(SPEEX_ROOT)
+        AC_SUBST(SPEEX_CFLAGS)
+        AC_SUBST(SPEEX_LIBS) 
+        AC_SUBST(SPEEX_STATIC_LIB)
+    elif test "x$speex_detected" == "xyes"; then
+        AC_MSG_RESULT([ok])
+        AC_SUBST(SPEEX_CFLAGS)
+        AC_SUBST(SPEEX_LIBS)
+        AC_SUBST(SPEEX_STATIC_LIB)
+    else
+        AC_MSG_ERROR([No speex found!])
+    fi
+])dnl
+
+# ========== P C M A  P C M U =================
+AC_DEFUN([AM_SET_STATIC_PCMA_PCMU],
+[
+    CODEC_PCMAPCMU_STATIC=true
+    AM_SET_PCMA_PCMU
+    AC_DEFINE(CODEC_PCMA_PCMU_STATIC, [1], [Select PCMA and PCMU codecs for static link])
+    STATIC_CODEC_LIBS="${STATIC_CODEC_LIBS} mp/codecs/plgpcmapcmu/codec_pcmapcmu.la"
+    AC_SUBST(STATIC_CODEC_LIBS)
+])dnl
+AC_DEFUN([AM_SET_PCMA_PCMU],
+[
+    PLUGINS="${PLUGINS} PCMA_PCMU"
+    PCMAPCMU_TARGET="plgpcmapcmu"
+    AC_SUBST(PCMAPCMU_TARGET)
+])dnl
+AC_DEFUN([CHECK_PCMA_PCMU],
+[
+    AC_ARG_ENABLE([codec-pcmapcmu],
+                  [AS_HELP_STRING([--enable-codec-pcmapcmu],
+                                  [Enable support for PCMA and PCMU codecs @<:@default=yes@:>@])],
+                  [ case "${enableval}" in
+                       static) AM_SET_STATIC_PCMA_PCMU ;;
+                       auto) AM_SET_PCMA_PCMU ;;
+                       yes) AM_SET_PCMA_PCMU ;;
+                       no) AC_MSG_RESULT(Codecs PCMA & PCMU was disabled) ;;
+                       *) AC_MSG_ERROR(bad value ${enableval} for --enable-codec-pcmapcmu) ;;
+                    esac],
+                  [AM_SET_PCMA_PCMU])
+    AM_CONDITIONAL(PCMAPCMU_STATIC, test "$CODEC_PCMAPCMU_STATIC" = true)
+])dnl
+
+# ==============  T O N E S  ==================
+AC_DEFUN([AM_SET_STATIC_TONES],
+[
+    CODEC_TONES_STATIC=true
+    AM_SET_TONES
+    AC_DEFINE(CODEC_TONES_STATIC, [1], [Select tones for static link])
+    STATIC_CODEC_LIBS="${STATIC_CODEC_LIBS} mp/codecs/plgtones/codec_tones.la"
+    AC_SUBST(STATIC_CODEC_LIBS)
+])dnl
+AC_DEFUN([AM_SET_TONES],
+[
+    PLUGINS="${PLUGINS} TONES"
+    TONES_TARGET="plgtones"
+    AC_SUBST(TONES_TARGET)
+])dnl
+AC_DEFUN([CHECK_TONES],
+[
+    AC_ARG_ENABLE([codec-tones],
+                  [AS_HELP_STRING([--enable-codec-tones],
+                                  [Enable support for Tones codec @<:@default=yes@:>@])],
+                  [ case "${enableval}" in
+                       static) AM_SET_STATIC_TONES ;;
+                       auto) AM_SET_TONES ;;
+                       yes) AM_SET_TONES ;;
+                       no) AC_MSG_RESULT(Codec Tones was disabled) ;;
+                       *) AC_MSG_ERROR(bad value ${enableval} for --enable-codec-tones) ;;
+                    esac],
+                  [AM_SET_TONES])
+    AM_CONDITIONAL(TONES_STATIC, test "$CODEC_TONES_STATIC" = true)
+])dnl
+
+# =============== I L B C =====================
+
+AC_DEFUN([AM_SET_ILBC],
+[
+# Currently only iLBC in contrib supported
+    PLUGINS="${PLUGINS} iLBC"
+
+    ILBC_INCLUDE="-I${PWD}/contrib/libilbc/include"
+    ILBC_LIB_ROOT="${PWD}/contrib/libilbc/"
+    ILBC_LIB_TARGET="lib/libilbc.a"
+    ILBC_TARGET="plgilbc"
+    AC_SUBST(ILBC_INCLUDE)
+    AC_SUBST(ILBC_LIB_ROOT)    
+    AC_SUBST(ILBC_LIB_TARGET)    
+    AC_SUBST(ILBC_TARGET)    
+    
+])dnl
+AC_DEFUN([CHECK_ILBC],
+[
+    AC_ARG_ENABLE([codec-ilbc],
+                  [AS_HELP_STRING([--enable-codec-ilbc],
+                                  [Enable support for ilbc codec @<:@default=yes@:>@])],
+                  [ case "${enableval}" in
+                       auto) AM_SET_ILBC ;;
+                       yes) AM_SET_ILBC ;;
+                       no) AC_MSG_RESULT(Codec iLBC was disabled) ;;
+                       *) AC_MSG_ERROR(bad value ${enableval} for --enable-codec-ilbc) ;;
+                    esac],
+                  [AM_SET_ILBC])
+])dnl
+
+
+# == D E C L A R E _ C O D E C S _ S T A F F ==
+AC_DEFUN([DECLARE_CODECS_STAFF],
+[
+    AC_MSG_CHECKING([Configured codecs: ])
+
+    DEFAULT_CODECS_PATH="${PWD}/bin"
+    AC_ARG_WITH([codecs-bin-path],
+                [AS_HELP_STRING([--with-codecs-bin-path=PATH],
+                                [Set installation binary codec path. Default is ${PWD}/bin])],
+                [DEFAULT_CODECS_PATH=${withval}],
+                [])
+
+    AC_MSG_RESULT( ${PLUGINS} )    
+    AC_SUBST(DEFAULT_CODECS_PATH)
+    
+    CFLAGS="${CFLAGS} -DDEFAULT_CODECS_PATH=\"${DEFAULT_CODECS_PATH}\" "
+    CXXFLAGS="${CXXFLAGS} -DDEFAULT_CODECS_PATH=\"${DEFAULT_CODECS_PATH}\" "    
+])dnl
+
+
+AC_DEFUN([CHECK_SPANDSP],
+[
+    AC_MSG_CHECKING([for libspandsp >= 0.0.2pre26])
+
+    # Unset withval, as AC_ARG_WITH does not unset it
+    withval=
+    AC_ARG_WITH(spandsp-includedir,
+                [AS_HELP_STRING([--with-spandsp-includedir=PATH],
+                                [path to libspandsp include directory (containing spandsp.h)])],
+                )
+    # If withval is set, use that.  If not and homeval is set, use
+    # $homeval/include.  If neither, use null.
+    includeval=${withval}
+    withval=
+
+    # Process the --with-spansdp-libdir argument which gives the libgsm library
+    # directory.
+    AC_ARG_WITH(spandsp-libdir,
+                [AS_HELP_STRING([--with-spandsp-libdir=PATH],
+                                [path to libspandsp lib directory (containing libspandsp.{so,la})])],
+                )
+    libval=${withval}
+
+    # Check for spansdp.h in the specified include directory if any, and a number
+    # of other likely places.
+    for dir in $includeval /usr/local/include /usr/include /sw/include; do
+        if test -f "$dir/spandsp.h"; then
+            found_spandsp_include="yes";
+            includeval=$dir
+            break;
+        fi
+    done
+
+    # Check for libspansdp.{so,a} in the specified lib directory if any, and a
+    # number of other likely places.
+    for dir in $libval /usr/local/lib /usr/lib /sw/lib; do
+        if test -f "$dir/libspandsp.so" -o -f "$dir/libspandsp.la"; then
+            found_spandsp_lib="yes";
+            libval=$dir
+            break;
+        fi
+    done
+
+    # Test that we've been able to find both directories, and set the various
+    # makefile variables.
+    if test x_$found_spandsp_include != x_yes -o x_$found_spandsp_lib != x_yes; then
+        AC_MSG_RESULT(not found)
+    else
+        # testing for proper version
+        ac_spandsp_ok=false
+        ac_spandsp_new=false
+        ac_spandsp_g726valid=false
+        
+        if test -f "$includeval/spandsp/g722.h" -o -f "$includeval/spandsp/g726.h"; then
+            AC_TRY_COMPILE([
+                    #if HAVE_STDINT_H
+                    #include <stdint.h>
+                    #endif
+                    #include <spandsp/bitstream.h>
+                    #include <spandsp/g722.h>
+                    #include <spandsp/g726.h>
+                ],[
+                    void* p = g726_init(0, 16000, G726_ENCODING_LINEAR, G726_PACKING_LEFT);
+                    void* q = g722_encode_init(0, 64000, 0);
+                    return p!=q;
+                ],
+                ac_libspandsp_newstyle=true,
+                ac_libspandsp_newstyle=false)
+            
+            if test "$ac_libspandsp_newstyle" = false; then
+                    AC_TRY_COMPILE([
+                        #if HAVE_STDINT_H
+                        #include <stdint.h>
+                        #endif
+                        #include <spandsp/g722.h>
+                        #include <spandsp/g726.h>
+                    ],[
+                        void* p = g726_init(0, 16000, G726_ENCODING_LINEAR, 1);
+                        void* q = g722_encode_init(0, 64000, 0);
+                        return p!=q;
+                    ],
+                    ac_libspandsp_oldstyle=true,
+                    ac_libspandsp_oldstyle=false)
+                
+                if test "$ac_libspandsp_oldstyle" = true; then
+                    AC_DEFINE(HAVE_OLD_LIBSPANDSP, [1], [Have old version of libspandsp])
+                    ac_spandsp_ok=true
+                fi
+            else
+                ac_spandsp_ok=true
+            fi
+        fi
+    
+        if test "$ac_spandsp_ok" = true -a "$ac_libspandsp_newstyle" = true; then
+            ac_spandsp_new=true
+            ac_spandsp_g726valid=true
+        fi
+    
+        if test "$ac_spandsp_ok" = true; then
+            if test "$ac_spandsp_new" = true; then
+                AC_MSG_RESULT(ok)
+            else
+                AC_MSG_RESULT(old version of libspandsp)
+            fi
+            SPANDSP_CFLAGS="-I$includeval"
+            SPANDSP_CXXFLAGS="-I$includeval"
+            SPANDSP_LIBS="-lspandsp"
+            SPANDSP_LDFLAGS="-L$libval"
+        else
+            AC_MSG_RESULT(invalid version of spandsplib)
+        fi
+
+
+        if test "$ac_spandsp_ok" = true -a "$ac_spandsp_new" = false; then
+                withval=
+                AC_ARG_WITH(spandsp-validg726,
+                [AS_HELP_STRING([--with-spandsp-validg726=VAL],
+                                [Set VAL to 'yes' or 'ok' to use G726 with old libspandsp (where packing mode parameter compiled in library)])],
+                )
+            
+            if test "$withval" = "yes" -o  "$withval" = "ok" ; then
+                ac_spandsp_g726valid=true
+            else
+                # Need to check G726 packing
+                AC_MSG_CHECKING([for libspandsp G726 packing])
+                
+                OLD_CFLAGS=$CFLAGS
+                OLD_LDFLAGS=$LDFLAGS
+                CFLAGS+=" $SPANDSP_CFLAGS"
+                LDFLAGS+=" $SPANDSP_LDFLAGS $SPANDSP_LIBS"
+                
+                AC_TRY_RUN([
+                        #if HAVE_STDINT_H
+                        #include <stdint.h>
+                        #endif
+                        #include <spandsp/g722.h>
+                        #include <spandsp/g726.h>
+                        
+                        int main() {
+                        void* p = g726_init(0, 16000, G726_ENCODING_LINEAR, 1);
+                        uint16_t data[16];
+                        const uint16_t vdata[4] = {0xc, 0xc, 0xc, 0x3c};
+                        uint8_t packed[4] = {1, 54};
+                        int len, i;
+                        
+                        len = g726_decode(p, data, packed, 2);
+                        
+                        for (i = 0; i < 4; i++) {
+                           if ( data[i] != vdata[i] )
+                              return -1;
+                        }
+                        return 0;
+                        }
+                    ],
+                    ac_spandsp_g726valid=true,
+                    ac_spandsp_g726valid=false,
+                    ac_spandsp_g726valid=false)
+
+
+                CFLAGS=$OLD_CFLAGS
+                LDFLAGS=$OLD_LDFLAGS
+
+                if test "$ac_spandsp_g726valid" = true; then
+                    AC_MSG_RESULT(ok)
+                else
+                    AC_MSG_RESULT(incorrect)
+                fi
+            fi
+            
+        fi
+        
+    fi
+    AC_SUBST(SPANDSP_CFLAGS)
+    AC_SUBST(SPANDSP_CXXFLAGS)
+    AC_SUBST(SPANDSP_LIBS)
+    AC_SUBST(SPANDSP_LDFLAGS)
+
+])dnl
+
+AC_DEFUN([EXTERNAL_EXTENITIONS],
+[
+
+# RTL Lib
+    RTL_LDFLAGS=""
+    RTL_CXXFLAGS=""
+    
+# RtlAudio    
+    withval=
+    AC_ARG_WITH(rtllibaudio,
+                [AS_HELP_STRING([--with-rtllibaudio=library],
+                                [Use specified library for RtlAudio])],
+                )
+    ac_external_rtlaudio=${withval}
+    if test x${ac_external_rtlaudio} != x; then
+    	RTL_LDFLAGS+=" -l${ac_external_rtlaudio} "
+    fi
+
+
+    withval=
+    AC_ARG_WITH(rtllibaudio-path,
+                [AS_HELP_STRING([--with-rtllibaudio-path=PATH],
+                                [Add path for RtlAudio])],
+                )
+    ac_external_rtlaudio_path=${withval}
+    if test x${ac_external_rtlaudio_path} != x; then
+    	RTL_LDFLAGS+=" -L${ac_external_rtlaudio_path} -Wl,--rpath -Wl,${ac_external_rtlaudio_path} "
+    fi
+
+    withval=
+    AC_ARG_WITH(rtllibaudio-inc-path,
+                [AS_HELP_STRING([--with-rtllibaudio-inc-path=PATH],
+                                [Add path for headers for RtlAudio])],
+                )
+    ac_external_rtlaudio_inc_path=${withval}
+    if test x${ac_external_rtlaudio_inc_path} != x; then
+    	RTL_CXXFLAGS+=" -I${ac_external_rtlaudio_inc_path} "
+    fi
+
+# Rtl
+    withval=
+    AC_ARG_WITH(rtllib,
+                [AS_HELP_STRING([--with-rtllib=library],
+                                [Use specified library for Rtl])],
+                )
+    ac_external_rtl=${withval}
+    if test x${ac_external_rtl} != x; then
+    	RTL_LDFLAGS+=" -l${ac_external_rtl} "
+    fi
+
+    
+    withval=
+    AC_ARG_WITH(rtllib-path,
+                [AS_HELP_STRING([--with-rtllib-path=PATH],
+                                [Add path for Rtl])],
+                )
+    ac_external_rtl_path=${withval}
+    if test x${ac_external_rtl_path} != x; then
+    	RTL_LDFLAGS+=" -L${ac_external_rtl_path} -Wl,--rpath -Wl,${ac_external_rtl_path} "
+    fi
+    
+    withval=
+    AC_ARG_WITH(rtllib-inc-path,
+                [AS_HELP_STRING([--with-rtllib-inc-path=PATH],
+                                [Add path for headers for Rtl])],
+                )
+    ac_external_rtl_inc_path=${withval}
+    if test x${ac_external_rtl_inc_path} != x; then
+    	RTL_CXXFLAGS+=" -I${ac_external_rtl_inc_path} "
+    fi
+
+# Rtl Defines
+    AC_ARG_ENABLE([external-rtl-init],
+                  [AS_HELP_STRING([--enable-external-rtl-init],
+                                  [Initialize external RTL collector with sipXmediaLib s internal one @<:@default=no@:>@])],
+                  [ case "${enableval}" in
+                       yes) ac_do_rtinit_define=true  ;;
+                       no)  ac_do_rtinit_define=false ;;
+                       *) AC_MSG_ERROR(bad value ${enableval} for --enable-external-rtl-init) ;;
+                    esac],
+                  [ac_do_rtinit_define=false ])
+    if test x${ac_do_rtinit_define} != xfalse; then
+	AC_DEFINE(INIT_EXTERNAL_RTL_COLLECTOR, [1], [Initialize external RTL collector with sipXmediaLib s internal one])
+	RTL_CXXFLAGS+=" -DINIT_EXTERNAL_RTL_COLLECTOR "
+    fi
+    
+    AC_ARG_ENABLE([rtl],
+                  [AS_HELP_STRING([--enable-rtl],
+                                  [Use external Rtl in whole library @<:@default=no@:>@])],
+                  [ case "${enableval}" in
+                       yes) ac_do_rtl_define=true  ;;
+                       no)  ac_do_rtl_define=false ;;
+                       *) AC_MSG_ERROR(bad value ${enableval} for --enable-rtl) ;;
+                    esac],
+                  [ac_do_rtl_define=false ])
+    if test x${ac_do_rtl_define} != xfalse; then
+	AC_DEFINE(RTL_ENABLED, [1], [Use external Rtl in whole library])
+	RTL_CXXFLAGS+=" -DRTL_ENABLED "
+    fi
+
+    AC_ARG_ENABLE([rtlaudio],
+                  [AS_HELP_STRING([--enable-rtlaudio],
+                                  [Use external RtlAudio in whole library @<:@default=no@:>@])],
+                  [ case "${enableval}" in
+                       yes) ac_do_rtlaudio_define=true  ;;
+                       no)  ac_do_rtlaudio_define=false ;;
+                       *) AC_MSG_ERROR(bad value ${enableval} for --enable-rtlaudio) ;;
+                    esac],
+                  [ac_do_rtlaudio_define=false ])
+    if test x${ac_do_rtlaudio_define} != xfalse; then
+	AC_DEFINE(RTL_AUDIO_ENABLED, [1], [Use external RtlAudio in whole library])    
+	RTL_CXXFLAGS+=" -DRTL_AUDIO_ENABLED "
+    fi
+
+# VAD
+    withval=
+    AC_ARG_WITH(external-vad,
+                [AS_HELP_STRING([--with-external-vad=library],
+                                [Use external library for VAD])],
+                )
+    ac_external_vad=${withval}
+
+    withval=
+    AC_ARG_WITH(external-vad-path,
+                [AS_HELP_STRING([--with-external-vad-path=PATH],
+                                [Add path for searching external library for VAD])],
+                )
+    ac_external_vad_path=${withval}
+
+    if test x${ac_external_vad} != x; then
+	AC_DEFINE(EXTERNAL_VAD, [1], [Use external library for VAD])
+	EVAD_LDFLAGS="-l${ac_external_vad} "
+	if test x${ac_external_vad_path} != x; then
+		EVAD_LDFLAGS+=" -L${ac_external_vad_path} -Wl,--rpath -Wl,${ac_external_vad_path} "
+	fi
+
+        LDFLAGS+=" $EVAD_LDFLAGS "
+        CXXFLAGS+=" -DEXTERNAL_VAD "	
+    fi
+    AC_SUBST(EVAD_LDFLAGS)
+
+# PLC
+    withval=
+    AC_ARG_WITH(external-plc,
+                [AS_HELP_STRING([--with-external-plc=library],
+                                [Use external library for PLC])],
+                )
+    ac_external_plc=${withval}
+
+    withval=
+    AC_ARG_WITH(external-plc-path,
+                [AS_HELP_STRING([--with-external-plc-path=PATH],
+                                [Add path for searching external library for PLC])],
+                )
+    ac_external_plc_path=${withval}
+
+    if test x${ac_external_plc} != x; then
+	AC_DEFINE(EXTERNAL_PLC, [1], [Use external library for PLC])
+	EPLC_LDFLAGS="-l${ac_external_plc} "
+	if test x${ac_external_plc_path} != x; then
+		EPLC_LDFLAGS+=" -L${ac_external_plc_path} -Wl,--rpath -Wl,${ac_external_plc_path} "
+	fi
+
+        LDFLAGS+=" $EPLC_LDFLAGS "
+        CXXFLAGS+=" -DEXTERNAL_PLC "	
+    fi
+    AC_SUBST(EPLC_LDFLAGS)
+
+# Jitter buffer estimation
+    withval=
+    AC_ARG_WITH(external-jbe,
+                [AS_HELP_STRING([--with-external-jbe=library],
+                                [Use external library for Jitter buffer estimation])],
+                )
+    ac_external_jbe=${withval}
+
+    withval=
+    AC_ARG_WITH(external-jbe-path,
+                [AS_HELP_STRING([--with-external-jbe-path=PATH],
+                                [Add path for searching external library for JBE])],
+                )
+    ac_external_jbe_path=${withval}
+
+    if test x${ac_external_jbe} != x; then
+	AC_DEFINE(EXTERNAL_JB_ESTIMATION, [1], [Use external library for jitter buffer estimation])
+	EJBE_LDFLAGS="-l${ac_external_jbe} "
+	if test x${ac_external_jbe_path} != x; then
+		EJBE_LDFLAGS+=" -L${ac_external_jbe_path} -Wl,--rpath -Wl,${ac_external_jbe_path} "
+	fi
+
+        LDFLAGS+=" $EJBE_LDFLAGS "
+        CXXFLAGS+=" -DEXTERNAL_JB_ESTIMATION "
+    fi
+    AC_SUBST(EJBE_LDFLAGS)
+
+# AGC
+    withval=
+    AC_ARG_WITH(external-agc,
+                [AS_HELP_STRING([--with-external-agc=library],
+                                [Use external library for AGC])],
+                )
+    ac_external_agc=${withval}
+
+    withval=
+    AC_ARG_WITH(external-agc-path,
+                [AS_HELP_STRING([--with-external-agc-path=PATH],
+                                [Add path for searching external library for AGC])],
+                )
+    ac_external_agc_path=${withval}
+
+    if test x${ac_external_agc} != x; then
+       AC_DEFINE(EXTERNAL_AGC, [1], [Use external library for AGC])
+       EAGC_LDFLAGS="-l${ac_external_agc} "
+       if test x${ac_external_agc_path} != x; then
+               EAGC_LDFLAGS+=" -L${ac_external_agc_path} -Wl,--rpath -Wl,${ac_external_agc_path} "
+       fi
+
+        LDFLAGS+=" $EAGC_LDFLAGS "
+        CXXFLAGS+=" -DEXTERNAL_AGC "
+    fi
+    AC_SUBST(EAGC_LDFLAGS)
+
+
+    CXXFLAGS+=" $RTL_CXXFLAGS "
+    LDFLAGS+=" ${RTL_LDFLAGS} "
+    AC_SUBST(RTL_CXXFLAGS)
+    AC_SUBST(RTL_LDFLAGS)
+    
+])dnl
+
+# =============== G726  =====================
+AC_DEFUN([AM_SET_STATIC_G726],
+[
+    CODEC_G726_STATIC=true
+    AM_SET_G726
+    if test "$G726_TARGET" != ""; then
+    AC_DEFINE(CODEC_G726_STATIC, [1], [Select G726 for static link])
+
+    LDFLAGS="$LDFLAGS $SPANDSP_LDFLAGS $SPANDSP_LIBS"
+    STATIC_CODEC_LIBS="${STATIC_CODEC_LIBS} mp/codecs/plgg726/codec_g726.la"
+    AC_SUBST(STATIC_CODEC_LIBS)
+    fi
+    
+])dnl
+AC_DEFUN([AM_SET_G726],
+[
+    if test x_$SPANDSP_CFLAGS != x_ -a "$ac_spandsp_g726valid" = true; then
+        PLUGINS="${PLUGINS} G.726"
+        G726_TARGET="plgg726"
+    fi
+    AC_SUBST(G726_TARGET)    
+])dnl
+AC_DEFUN([CHECK_G726],
+[
+    AC_ARG_ENABLE([codec-g726],
+                  [AS_HELP_STRING([--enable-codec-g726],
+                                  [Enable support for g726 codec @<:@default=yes@:>@])],
+                  [ case "${enableval}" in
+                       static) AM_SET_STATIC_G726 ;;
+                       auto) AM_SET_G726 ;;
+                       yes) AM_SET_G726 ;;
+                       no) AC_MSG_RESULT(Codec G.726 was disabled) ;;
+                       *) AC_MSG_ERROR(bad value ${enableval} for --enable-codec-g726) ;;
+                    esac],
+                  [AM_SET_G726])
+    AM_CONDITIONAL(G726_STATIC, test "$CODEC_G726_STATIC" = true)
+])dnl
+
+# =============== G722  =====================
+AC_DEFUN([AM_SET_STATIC_G722],
+[
+    CODEC_G722_STATIC=true
+    AM_SET_G722
+    if test "$G722_TARGET" != ""; then
+    AC_DEFINE(CODEC_G722_STATIC, [1], [Select G722 for static link])
+
+    LDFLAGS="$LDFLAGS $SPANDSP_LDFLAGS $SPANDSP_LIBS"
+    STATIC_CODEC_LIBS="${STATIC_CODEC_LIBS} mp/codecs/plgg722/codec_g722.la"
+    AC_SUBST(STATIC_CODEC_LIBS)
+    fi
+])dnl
+AC_DEFUN([AM_SET_G722],
+[
+# Currently only iLBC in contrib supported
+    if test x_$SPANDSP_CFLAGS != x_; then
+        PLUGINS="${PLUGINS} G.722"
+        G722_TARGET="plgg722"
+    fi
+    AC_SUBST(G722_TARGET)    
+])dnl
+AC_DEFUN([CHECK_G722],
+[
+    AC_ARG_ENABLE([codec-g722],
+                  [AS_HELP_STRING([--enable-codec-g722],
+                                  [Enable support for g722 codec @<:@default=yes@:>@])],
+                  [ case "${enableval}" in
+                       static) AM_SET_STATIC_G722 ;;
+                       auto) AM_SET_G722 ;;
+                       yes) AM_SET_G722 ;;
+                       no) AC_MSG_RESULT(Codec G.722 was disabled) ;;
+                       *) AC_MSG_ERROR(bad value ${enableval} for --enable-codec-g722) ;;
+                    esac],
+                  [AM_SET_G722])
+    AM_CONDITIONAL(G722_STATIC, test "$CODEC_G722_STATIC" = true)
+])dnl
+
+AC_DEFUN([CHECK_GRAPH_INTERFACE],
+[
+    AC_ARG_ENABLE([topology-graph],
+		  [AC_HELP_STRING([--enable-topology-graph],
+				  [Enable toplogy graph as default processing @<:@default=no@:>@])],
+		  [ case "${enableval}" in 
+			yes) INTERFACE_FLAGS=" -DENABLE_TOPOLOGY_FLOWGRAPH_INTERFACE_FACTORY "
+			     INTERFACE_FLAGS+="-DDISABLE_DEFAULT_PHONE_MEDIA_INTERFACE_FACTORY " ;;
+			no)  INTERFACE_FLAGS=" " ;;
+			*) AC_MSG_ERROR(bad value ${enableval} for --enable-topology-graph) ;;
+		    esac],
+		  [ enableval= ])
+					       
+    AC_SUBST(INTERFACE_FLAGS)    
+])dnl
+
+# === CHECK_STREAM_PLAYER
+AC_DEFUN([CHECK_STREAM_PLAYER],
+[
+    AC_ARG_ENABLE([stream-player],
+		  [AC_HELP_STRING([--disable-stream-player],
+				  [Disable stream player (removes sipXtack dependency on media layer) @<:@default=no@:>@])],
+		  [ case "${enableval}" in 
+			no)  disable_stream_player=true ;;                             
+			yes) disable_stream_player=false ;;
+			*) AC_MSG_ERROR(bad value ${enableval} for --disable-media-player) ;;
+		    esac],
+		  [ disable_stream_player=false ])
+    AM_CONDITIONAL(DISABLE_STREAM_PLAYER, test x$disable_stream_player = xtrue)
+])dnl
+
+# === AMR AMR_WB
+AC_DEFUN([AM_SET_AMR],
+[
+# Currently only iLBC in contrib supported
+    PLUGINS="${PLUGINS} AMR"
+    AMR_TARGET="plgamr"
+    AMRNB_INCLUDE="-I${PWD}/contrib/libamrnb/"
+    AMRNB_LIB_ROOT="${PWD}/contrib/libamrnb/"    
+    AC_SUBST(AMR_TARGET)    
+    AC_SUBST(AMRNB_INCLUDE)    
+    AC_SUBST(AMRNB_LIB_ROOT)
+
+    # amr narrowband codec has it's own configure, 
+    # so be sure to call it.
+    AC_CONFIG_SUBDIRS([contrib/libamrnb/])
+])dnl
+
+AC_DEFUN([AM_SET_AMRWB],
+[
+# Currently only iLBC in contrib supported
+    PLUGINS="${PLUGINS} AMR-WB"
+    AMRWB_TARGET="plgamrwb"
+    AMRWB_INCLUDE="-I${PWD}/contrib/libamrwb/"
+    AMRWB_LIB_ROOT="${PWD}/contrib/libamrwb/"
+    AC_SUBST(AMRWB_TARGET)    
+    AC_SUBST(AMRWB_INCLUDE)    
+    AC_SUBST(AMRWB_LIB_ROOT)
+
+    # amr wideband codec has it's own configure, 
+    # so be sure to call it.
+    AC_CONFIG_SUBDIRS([contrib/libamrwb/])
+])dnl
+
+AC_DEFUN([CHECK_AMR_AMRWB],
+[
+    amr_enable=false;
+    AC_ARG_ENABLE([codec-amr],
+                  [AS_HELP_STRING([--enable-codec-amr],
+                                  [Enable support for amr codec @<:@default=no@:>@])],
+                  [ if test ${enableval} = yes; 
+                    then
+                           amr_enable=true;
+                    else
+                       if test ${enableval} = no; then
+                           AC_MSG_RESULT(Codec AMR was disabled)
+                       else
+                           AC_MSG_ERROR(bad value ${enableval} for --enable-codec-amr)
+                       fi
+                    fi],
+                  amr_enable=false)
+    if (test "x$amr_enable" = "xtrue"); then 
+        AM_SET_AMR
+    fi
+    AM_CONDITIONAL(AMRNB, [test "x$amr_enable" == "xtrue"])    
+
+    amrwb_enable=false;
+    AC_ARG_ENABLE([codec-amrwb],
+                  [AS_HELP_STRING([--enable-codec-amrwb],
+                                  [Enable support for amrwb codec @<:@default=no@:>@])],
+                  [ if test ${enableval} = yes; 
+                    then
+                           amrwb_enable=true;
+                    else
+                       if test ${enableval} = no; then
+                           AC_MSG_RESULT(Codec AMRWB was disabled)
+                       else
+                           AC_MSG_ERROR(bad value ${enableval} for --enable-codec-amrwb)
+                       fi
+                    fi],
+                  amrwb_enable=false)
+    if (test "x$amrwb_enable" = "xtrue"); then 
+        AM_SET_AMRWB
+    fi
+    AM_CONDITIONAL(AMRWB, [test "x$amrwb_enable" == "xtrue"])    
+
 ])dnl
 
 
 # ============ D O X Y G E N ==================
 # Originaly from CppUnit BB_ENABLE_DOXYGEN
 
-AC_DEFUN([ENABLE_DOXYGEN],
+AC_DEFUN(ENABLE_DOXYGEN,
 [
-  AC_ARG_ENABLE(doxygen, [  --enable-doxygen        enable documentation generation with doxygen (yes)], [], [ enable_doxygen=yes])
-  AC_ARG_ENABLE(dot, [  --enable-dot            use 'dot' to generate graphs in doxygen (auto)])
-  AC_ARG_ENABLE(html-docs, [  --enable-html-docs      enable HTML generation with doxygen (yes)], [], [ enable_html_docs=yes])
-  AC_ARG_ENABLE(latex-docs, [  --enable-latex-docs     enable LaTeX documentation generation with doxygen (no)], [], [ enable_latex_docs=no])
-  if test "x$enable_doxygen" = xno; then
-          enable_doc=no
-  else
-          AC_MSG_CHECKING([for doxygen documentation processor])
-          AC_PATH_PROG(DOXYGEN, doxygen, , $PATH)
-          if test "x$DOXYGEN" = x; then
-                AC_MSG_WARN([could not find doxygen - disabled])
-                enable_doxygen=no
-                enable_doc=no
-          else
-                  enable_doc=yes
-                  AC_PATH_PROG(DOT, dot, , $PATH)
-          fi
-  fi
+AC_ARG_ENABLE(doxygen, [  --enable-doxygen        enable documentation generation with doxygen (yes)], [], [ enable_doxygen=yes])
+AC_ARG_ENABLE(dot, [  --enable-dot            use 'dot' to generate graphs in doxygen (auto)])
+AC_ARG_ENABLE(html-docs, [  --enable-html-docs      enable HTML generation with doxygen (yes)], [], [ enable_html_docs=yes])
+AC_ARG_ENABLE(latex-docs, [  --enable-latex-docs     enable LaTeX documentation generation with doxygen (no)], [], [ enable_latex_docs=no])
+if test "x$enable_doxygen" = xno; then
+        enable_doc=no
+else
+        AC_MSG_CHECKING([for doxygen documentation processor])
+        AC_PATH_PROG(DOXYGEN, doxygen, , $PATH)
+        if test "x$DOXYGEN" = x; then
+              AC_MSG_WARN([could not find doxygen - disabled])
+              enable_doxygen=no
+              enable_doc=no
+        else
+                enable_doc=yes
+                AC_PATH_PROG(DOT, dot, , $PATH)
+        fi
+fi
 
-  if test x$DOT = x; then
-          if test "x$enable_dot" = xyes; then
-                  AC_MSG_ERROR([could not find dot])
-          fi
-          enable_dot=no
-  else
-          enable_dot=yes
-  fi
-  AC_SUBST(enable_dot)
-  AC_SUBST(enable_html_docs)
-  AC_SUBST(enable_latex_docs)
+if test x$DOT = x; then
+        if test "x$enable_dot" = xyes; then
+                AC_MSG_ERROR([could not find dot])
+        fi
+        enable_dot=no
+else
+        enable_dot=yes
+fi
+AC_SUBST(enable_dot)
+AC_SUBST(enable_html_docs)
+AC_SUBST(enable_latex_docs)
 ])
 
 
@@ -1053,8 +1945,8 @@ x$B" | sed 's/^ *//' | sort -r | sed "s/x${A}/true/;s/x${B}/false/;1q"`
     [0],[
       # A count of zero means use the length of the shorter version.
       # Determine the number of characters in A and B.
-      ax_compare_version_len_A=`echo "$A" | $AWK '{print(length)}'`
-      ax_compare_version_len_B=`echo "$B" | $AWK '{print(length)}'`
+      ax_compare_version_len_A=`echo "$A" | awk '{print(length)}'`
+      ax_compare_version_len_B=`echo "$B" | awk '{print(length)}'`
 
       # Set A to no more than B's length and B to no more than A's length.
       A=`echo "$A" | sed "s/\(.\{$ax_compare_version_len_B\}\).*/\1/"`
@@ -1099,7 +1991,7 @@ x$B" | sed 's/^ *//' | sort -r | sed "s/x${A}/true/;s/x${B}/false/;1q"`
 
 
 # ============ Test the nature of the va_list type. ==================
-AC_DEFUN([CHECK_VA_LIST],
+AC_DEFUN(CHECK_VA_LIST,
 [
   # Check to see how the compiler defines va_list, as pointer or array.
   AC_MSG_CHECKING(whether va_lists can be copied by value)
@@ -1183,319 +2075,3 @@ AC_DEFUN([CHECK_NAMED],
     fi
 ])
 
-
-# ==================== SELinux ====================
-# Is selinux supported on this platform?
-# sets SELINUX_GETENFORCE to either 'NOT_SUPPORTED' or the path to the 'getenforce' program
-AC_DEFUN([CHECK_SELINUX],
-[
-    AC_MSG_CHECKING([for selinux support])
-    AC_PATH_PROG([SELINUX_GETENFORCE], [getenforce], [NOT_SUPPORTED],
-                   [$PATH:/sbin:/usr/sbin:/usr/local/sbin]
-                   )
-    if test "${SELINUX_GETENFORCE}" = "NOT_SUPPORTED"; then
-       AC_MSG_RESULT([selinux not supported - check disabled])
-    else
-       AC_MSG_RESULT([selinux supported - check enabled])
-    fi
-])
-
-
-# ==================== Ruby ====================
-AC_DEFUN([CHECK_RUBY],
-[
-  AC_PATH_PROG([RUBY], ruby)
-
-  if test "x$RUBY" == "x" ; then
-    AC_MSG_ERROR([ruby is required])
-  fi
-  
-  minRubyVersion=[$1]
-  AC_MSG_CHECKING([for ruby minimum version $minRubyVersion])
-
-  ## warning about line below: use $ 2 instead of $2 otherwise m4 trys to 
-  ## interpret, luckily awk doesn't care
-  rubyVersion=`$RUBY --version | awk '{print $ 2}'`
-
-  AX_COMPARE_VERSION([$rubyVersion],[ge],[$minRubyVersion],
-       [AC_MSG_RESULT($rubyVersion is ok)],
-       [AC_MSG_ERROR([ruby version must be >= $minRubyVersion - found $rubyVersion])])
-])
-
-# ==================== Ruby Gem ====================
-# Like Perl's CPAN
-AC_DEFUN([CHECK_GEM],
-[
-  AC_PATH_PROG([GEM], gem)
-
-  minGemVersion=[$1]
-  if test "x$GEM" == "x" ; then
-    AC_MSG_RESULT([* to install ruby gems follow your distro instructions, ])
-    AC_MSG_RESULT([* locate the rpm on pbone or run the following commands: ])
-cat 1>&2 <<GEMS_HOWTO
- wget http://rubyforge.org/frs/download.php/5207/rubygems-${minGemVersion}.tgz
- tar -xzf rubygems-${minGemVersion}.tgz
- cd rubygems-${minGemVersion}
- sudo ruby setup.rb config
- sudo ruby setup.rb install
-GEMS_HOWTO
-    AC_MSG_ERROR([ruby gem command is required])
-  fi
-  
-  AC_MSG_CHECKING([for gem minimum version $minGemVersion])
-
-  gemVersion=`$GEM --version`
-
-  AX_COMPARE_VERSION([$gemVersion],[ge],[$minGemVersion],
-       [AC_MSG_RESULT($gemVersion is ok)],
-       [AC_MSG_ERROR([gem version must be >= $minGemVersion - found $gemVersion])])
-])
-
-# ==================== Rake ====================
-# build files
-AC_DEFUN([CHECK_RAKE],
-[
-  AC_PATH_PROG([RAKE], rake)
-
-  if test "x$RAKE" == "x" ; then
-    AC_MSG_ERROR([rake is required.  type 'gem install rake --no-rdoc'])
-  fi
-  
-  minRakeVersion=[$1]
-  AC_MSG_CHECKING([for rake minimum version $minRakeVersion])
-
-  rakeVersion=`$RAKE --version | awk '{print $ 3}'`
-
-  AX_COMPARE_VERSION([$rakeVersion],[ge],[$minRakeVersion],
-       [AC_MSG_RESULT($rakeVersion is ok)],
-       [AC_MSG_ERROR([rake version must be >= $minRakeVersion - found $rakeVersion])])
-])
-
-##
-##  pass module path (e.g. wsdl/soap/wsl2ruby)
-##
-AC_DEFUN([CHECK_RUBY_MODULE],
-[
-  rubyModule=[$1]
-  AC_MSG_CHECKING([for ruby module $rubyModule])
-
-  if $RUBY -r $rubyModule -e '' 2> /dev/null
-  then
-    AC_MSG_RESULT([ok])
-  else
-    AC_MSG_ERROR([Required ruby $rubyModule is missing])
-  fi
-])
-
-##
-##  pass module path (e.g. wsdl/soap/wsl2ruby)
-##
-AC_DEFUN([CHECK_RUBY_GEM],
-[
-  rubyGem=[$1]
-  AC_MSG_CHECKING([for ruby gem $rubyGem])
-  
-  if $GEM list --local | egrep "^$rubyGem"
-  then
-    AC_MSG_RESULT([ok])
-  else
-    AC_MSG_RESULT([missing])
-    AC_MSG_ERROR([type 'gem install $rubyGem --no-rdoc' to install])
-  fi
-])
-
-# ==================== profile with gprof ====================
-AC_DEFUN([ENABLE_PROFILE],
-[
-  AC_ARG_ENABLE(profile,
-                [  --enable-profile        Enable profiling via gprof (no)],
-                [], [enable_profile=no])
-
-  if test x"$enable_profile" = xyes
-  then
-    # Add gprof flags
-    CFLAGS="$CFLAGS -pg -ggdb"
-    CXXFLAGS="$CXXFLAGS -pg -ggdb"
-    LDFLAGS="$LDFLAGS -pg"
-  fi
-])
-
-# ==================== unixODBC  =========================
-AC_DEFUN([CHECK_ODBC],
-[
-    AC_MSG_CHECKING([for unixODBC])
-
-    # Process the --with-odbc argument which gives the odbc base directory.
-    AC_ARG_WITH(odbc,
-                [  --with-odbc=PATH path to odbc install directory],
-                [odbc_homeval=$withval],
-                [odbc_homeval=""]
-                )
-    
-    # Process the --with-odbc_includedir argument which gives the odbc include
-    # directory.
-    AC_ARG_WITH(odbc_includedir,
-                [  --with-odbc_includedir=PATH path to odbc include directory (containing sql.h)],
-                [includeval=$withval],
-                [if test -n "$odbc_homeval";
-                 then includeval="$odbc_homeval/include";
-                 else includeval="/usr/include /usr/include/odbc /usr/local/include /usr/local/odbc/include";
-                 fi
-                ]
-                )
-    # Check for sql.h
-    found_odbc_include="no";
-    for dir in $includeval ; do
-        if test -f "$dir/sql.h"; then
-            found_odbc_include="yes";
-            includeval=$dir
-            break;
-        fi
-    done
-
-    # Process the --with-odbc_libdir argument which gives the odbc library
-    # directory.
-    AC_ARG_WITH(odbc_libdir,
-                [  --with-odbc_libdir=PATH path to odbc lib directory (containing libodbc.{so,a})],
-                [libval=$withval],
-                [if test -n "$odbc_homeval";
-                 then libval="$odbc_homeval/lib";
-                 else libval="/usr/lib /usr/lib/odbc /usr/local/lib /usr/local/odbc/lib";
-                 fi
-                ]
-                )
-    # Check for libodbc.{so,a}
-    found_odbc_lib="no";
-    for dir in $libval; do
-        if test -f "$dir/libodbc.so" -o -f "$dir/libodbc.a"; then
-            found_odbc_lib="yes";
-            libval=$dir
-            break;
-        fi
-    done
-
-    # Test that we've been able to find both directories, and set the various
-    # makefile variables.
-    if test x_$found_odbc_include != x_yes; then
-        AC_MSG_ERROR(Cannot find sql.h - looked in $includeval)
-    else
-        if test x_$found_odbc_lib != x_yes; then
-            AC_MSG_ERROR(Cannot find libodbc.so or libodbc.a libraries - looked in $libval)
-        else
-            ## Test for version
-            odbc_ver=`odbcinst --version`
-            AX_COMPARE_VERSION([$odbc_ver],[ge],[2.2],
-                               [AC_MSG_RESULT($odbc_ver is ok)],
-                               [AC_MSG_ERROR([unixODBC version must be >= 2.2 - found $odbc_ver])])
-
-            AC_MSG_RESULT([    odbc includes found in $includeval])
-            AC_MSG_RESULT([    odbc libraries found in $libval])
-
-            ODBC_CFLAGS="-I$includeval"
-            ODBC_CXXFLAGS="-I$includeval"
-            AC_SUBST(ODBC_CFLAGS)
-            AC_SUBST(ODBC_CXXFLAGS)
-
-            AC_SUBST(ODBC_LIBS, "-lodbc" )
-            AC_SUBST(ODBC_LDFLAGS, "-L$libval")
-        fi
-    fi
-])dnl
-
-# ================== COMPILER VENDOR ====================================
-
-AC_DEFUN([AX_COMPILER_VENDOR],
-[
-  AC_CACHE_CHECK([for _AC_LANG compiler vendor], ax_cv_[]_AC_LANG_ABBREV[]_compiler_vendor,
-                 [ax_cv_[]_AC_LANG_ABBREV[]_compiler_vendor=unknown
-  # note: don't check for gcc first since some other compilers define __GNUC__
-  for ventest in intel:__ICC,__ECC,__INTEL_COMPILER ibm:__xlc__,__xlC__,__IBMC__,__IBMCPP__ gnu:__GNUC__ sun:__SUNPRO_C,__SUNPRO_CC hp:__HP_cc,__HP_aCC dec:__DECC,__DECCXX,__DECC_VER,__DECCXX_VER borland:__BORLANDC__,__TURBOC__ comeau:__COMO__ cray:_CRAYC kai:__KCC lcc:__LCC__ metrowerks:__MWERKS__ sgi:__sgi,sgi microsoft:_MSC_VER watcom:__WATCOMC__ portland:__PGI; do
-    vencpp="defined("`echo $ventest | cut -d: -f2 | sed 's/,/) || defined(/g'`")"
-    AC_COMPILE_IFELSE([AC_LANG_PROGRAM(,[
-#if !($vencpp)
-      thisisanerror;
-#endif
-    ])], 
-    [ax_cv_]_AC_LANG_ABBREV[_compiler_vendor=`echo $ventest | cut -d: -f1`; break])
-  done
- ])
-])
-
-AC_DEFUN([CHECK_MSG_NOSIGNAL],
-[
-   AC_MSG_CHECKING(whether MSG_NOSIGNAL exists)
-   AC_TRY_COMPILE([#include <sys/socket.h>],
-   [
-   int main()
-   {
-    int f=MSG_NOSIGNAL;
-   }
-   ],
-    # Yes, we have it...
-    AC_MSG_RESULT(yes)
-   ,
-    # We'll have to use signals
-   [ AC_MSG_RESULT(no)
-    CPPFLAGS="$CPPFLAGS -DMSG_NOSIGNAL=0"
-   ])
-])
-
-# ============ REQUIRED RPM PKG ==============
-# Only useful for projects that are strictly rpm based, which should be
-# non-functional packaging based projects like making iso images for example
-AC_DEFUN([REQUIRE_RPM],
-[
-  required_rpm_pkg=[$1]
-  AC_MSG_CHECKING($required_rpm_pkg)
-  if ! rpm -q $required_rpm_pkg >/dev/null
-  then
-    AC_MSG_RESULT(no)
-    AC_MSG_ERROR([Required rpm pkg missing $required_rpm_pkg])    
-  fi
-  AC_MSG_RESULT(yes)
-])
-
-
-# ============ REQUIRED RPM PKG ==============
-AC_DEFUN([CHECK_CRON],
-[
-  AC_MSG_CHECKING([cron.d])
-  if test x$CRON_D == x ; then
-    CRON_D=/etc/cron.d
-  fi
-  if ! test -d $CRON_D; then
-    AC_MSG_ERROR([Required directory $CRON_D missing])
-  fi
-  AC_SUBST(CRON_D)
-  AC_MSG_RESULT(yes)
-])
-
-
-AC_DEFUN([CHECK_GENERATE_MANPAGES],
-[
-  AC_MSG_CHECKING([asciidoc])
-  AC_PATH_PROG([ASCIIDOC], asciidoc)
-  if test x$ASCIIDOC == x; then
-    AC_MSG_WARN([asciidoc not found, cannot generate man pages])
-    missing_dependency=yes
-  fi
-    
-  AC_PATH_PROG([XSLTPROC], xsltproc)
-  if test x$XSLTPROC == x; then
-    AC_MSG_WARN([xsltproc not found, cannot generate man pages])
-    missing_dependency=yes
-  fi
-
-  AC_ARG_VAR(DOCBOOK_2_MAN_XSL, [XSL Stylesheet to convert docbook to man page. (hint: docbook-style-xsl package)])
-  if test x$DOCBOOK_2_MAN_XSL == x; then
-    DOCBOOK_2_MAN_XSL=/usr/share/sgml/docbook/xsl-stylesheets/manpages/docbook.xsl
-  fi
-
-  AC_MSG_CHECKING(for $DOCBOOK_2_MAN_XSL)
-  if ! test -f $DOCBOOK_2_MAN_XSL; then
-    AC_MSG_WARN([docbook manpage xsl stylesheet not found, cannot generate man pages])
-    missing_dependency=yes
-  fi
-
-  AM_CONDITIONAL(GENERATE_MANPAGES, test x$missing_dependency != xyes)
-])

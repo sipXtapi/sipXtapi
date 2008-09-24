@@ -1,13 +1,13 @@
 Required Software
 =================
 
-sipXportLib 2.8 or later
+sipXportLib 2.5 or better
   http://www.sipfoundry.org/sipXportLib
 
-sipXtackLib 2.8 or later 
+sipXtackLib 2.5 or better
   http://www.sipfoundry.org/sipXtackLib
 
-sipXmediaLib 2.8 or later 
+sipXmediaLib 2.5 or better
   http://www.sipfoundry.org/sipXcommserverLib
 
 *Autoconf 2.57 & Automake 1.6 or better - GNU build tool chain
@@ -21,12 +21,11 @@ Doxygen - Source Code Documentation System
   http://www.doxygen.org
   tested with 1.3.5
 
-sipXcallLib Installation (not sipXtapi)
-=======================================
+Installation
+============
 Please see the sipXportLib INSTALL file for pointers on installing and 
 configuring all of the required software.  Once, the required libraries
-are installed and built, installing sipXcallLib under linux is relatively
-easy:
+are installed and built, installing sipXcallLib is relatively easy:
 
   autoreconf --install --force
   ./configure --prefix=<DIR_TO_INSTALL>
@@ -36,42 +35,3 @@ easy:
 
 Make sure to build all of required sipX libraries and install (make install)
 them before running configure on this project.
-
-Under Windows, please open the sipXcallLib.dsp and build.
-
-Building sipXtapi
-=================
-Under Windows, please open the "sipXtapi.dsw" project and build all.  The
-active project should be set to sipXtapi.  This workspace assumes that the
-all of the other sipX libraries are stored relative to this project.  I
-recommend checking out the source using the following commands:
-
-  svn checkout http://scm.sipfoundry.org/rep/sipXportLib/main sipXportLib
-  svn checkout http://scm.sipfoundry.org/rep/sipXtackLib/main sipXtackLib
-  svn checkout http://scm.sipfoundry.org/rep/sipXmediaLib/main sipXmediaLib
-  svn checkout http://scm.sipfoundry.org/rep/sipXcallLib/main sipXcallLib
-
-NOTE: You MUST configure your environment to include glib2 and PCRE before
-building these libraries.  Instructions are found in the sipXportLib INSTALL
-document.  (sipXportLib\INSTALL).
-
-Under Linux, please use automake and autoconf to build each project.  Basic
-instructions can be found in the sipXportLib INSTALL document
-(sipxPortLib/INSTALL).
-
-You will need to enable a few additional switches during the "configure" 
-step.
-
-sipXtackLib:
-    --enable-tapi
-
-sipXmediaLib:
-    --enable-local-audio
-   
-sipXcallLib:
-   --enable-tapi
-
-For example:
-  
-  cd sipXmediaLib
-  ./configure --prefix=/tmp/sipXtapi --enable-local-audio

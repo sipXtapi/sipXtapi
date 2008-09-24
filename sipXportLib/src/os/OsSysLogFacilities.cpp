@@ -1,10 +1,12 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 
 // SYSTEM INCLUDES
@@ -47,6 +49,7 @@ const char* OsSysLog::sFacilityNames[] =
    "MEDIASERVER_CGI",
    "MEDIASERVER_VXI",
    "ACD",
+   "PARK",
    "APACHE_AUTH",
    "UPGRADE",
    "LINE_MGR",
@@ -56,14 +59,18 @@ const char* OsSysLog::sFacilityNames[] =
    "REPLICATION_CGI",
    "SIPDB",
    "PROCESSMGR",
-   "OS",
+   "PROCESS",
    "SIPXTAPI",
    "AUDIO",
    "CONFERENCE",
    "ODBC",
    "CDR",
    "RLS",
-   "UNKNOWN",
+   "VOICEENGINE",
+   "VIDEOENGINE",
+   "APP",
+   "SIP_CUSTOM",
+   "UNKNOWN"
 } ;
 
 

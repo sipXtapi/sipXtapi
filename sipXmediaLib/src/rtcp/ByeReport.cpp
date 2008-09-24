@@ -1,14 +1,19 @@
 //
-// Copyright (C) 2005 Pingtel Corp.
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 
 //  Includes
 #include "rtcp/ByeReport.h"
+#ifdef WIN32
+#   include <winsock2.h>
+#endif
 #ifdef __pingtel_on_posix__
 #include <netinet/in.h>
 #endif

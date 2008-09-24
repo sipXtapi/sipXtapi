@@ -61,9 +61,14 @@
 #ifndef _RESOLV_H_
 #define	_RESOLV_H_
 
-#include <sys/types.h>
+#ifdef WINCE
+#   include <types.h>
+#else
+#   include <sys/types.h>
+#endif
+
 #include <stdio.h>
-#include <winsock.h>
+#include <winsock2.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -231,6 +236,7 @@ int	 dn_comp(const char *, u_char *, int, u_char **, u_char **);
 int	 dn_expand(const u_char *, const u_char *, const u_char *,
 			char *, int);
 int	 res_init(void);
+int  res_init_ip(const char* szIp);
 u_int16 res_randomid(void);
 int	 res_query(const char *, int, int, u_char *, int);
 int	 res_search(const char *, int, int, u_char *, int);

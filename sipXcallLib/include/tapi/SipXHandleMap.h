@@ -1,10 +1,12 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 
 #ifndef _SipXHandleMap_h_
@@ -46,7 +48,7 @@ class SipXHandleMap : public UtlHashMap
    /**
     * Default constructor
     */
-   SipXHandleMap();
+   SipXHandleMap(int startingHandle = 1);
 
    /**
     * Destructor
@@ -55,19 +57,6 @@ class SipXHandleMap : public UtlHashMap
 
 /* ============================ MANIPULATORS ============================== */
 
-    /**
-     * Lock/guard access to the allocHandle, findHandle, and removeHandle
-     * routines.  This is called automatically for those routines, however,
-     * should be called explicitly if using an external iterator on the map.
-     */
-    void lock() ;
-
-    /**
-     * Unlock access to the allocHandle, findHandle, and removeHandle
-     * routines.  This is called automatically for those routines, however,
-     * should be called explicitly if using an external iterator on the map.
-     */
-    void unlock() ;
     
     /**
      * Adds a reference count to the handle lock.  In this way, removeHandle is 
@@ -97,6 +86,19 @@ class SipXHandleMap : public UtlHashMap
      */
     const void* removeHandle(SIPXHANDLE handle) ;
 
+    /**
+     * Lock/guard access to the allocHandle, findHandle, and removeHandle
+     * routines.  This is called automatically for those routines, however,
+     * should be called explicitly if using an external iterator on the map.
+     */
+    void lock() ;
+
+    /**
+     * Unlock access to the allocHandle, findHandle, and removeHandle
+     * routines.  This is called automatically for those routines, however,
+     * should be called explicitly if using an external iterator on the map.
+     */
+    void unlock() ;
 /* ============================ ACCESSORS ================================= */
 
     void dump() ;
@@ -108,6 +110,7 @@ class SipXHandleMap : public UtlHashMap
     OsMutex    mLock ;       /**< Locked used for addEntry and removeEntry */
     SIPXHANDLE mNextHandle ; /**< Next available handle index */
 
+    
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
   private:
     UtlHashMap mLockCountHash;

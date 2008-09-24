@@ -1,9 +1,12 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 #ifndef _PhoneStateRinging_h_
 #define _PhoneStateRinging_h_
 
@@ -42,8 +45,8 @@ public:
    //virtual PhoneState* OnRemoteAlerting();
    //virtual PhoneState* OnRemoteBusy();
    virtual PhoneState* OnFlashButton();
-   //virtual PhoneState* OnConnected();
-   //virtual PhoneState* OnDisconnected();
+   virtual PhoneState* OnConnected();
+   virtual PhoneState* OnDisconnected(const SIPX_CALL hCall);
 
    virtual PhoneState* Execute();
 

@@ -1,10 +1,15 @@
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2005 Pingtel Corp.
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 
 #ifndef _MpPlayer_h_
@@ -89,12 +94,12 @@ class MpPlayer
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
-   enum playerType  // Type of players
+   typedef enum  // Type of players
    {
       STREAM_PLAYER,
       STREAM_PLAYLIST_PLAYER,
       STREAM_QUEUE_PLAYER
-   };
+   } playerType;
 
 /* ============================ CREATORS ================================== */
    MpPlayer();
@@ -103,8 +108,11 @@ public:
    virtual ~MpPlayer();
      //:Destructor
 
-/* ============================ MANIPULATORS ============================== */
+//@}
 
+/* ============================ MANIPULATORS ============================== */
+///@name Manipulators
+//@{
    virtual OsStatus realize(UtlBoolean bBlock = TRUE) = 0;
      //: Realizes the player by initiating a connection to the target,
      //: allocates buffers, etc.
@@ -144,12 +152,20 @@ public:
      // cease to receive state change notifications.
 
 
+//@}
+
 /* ============================ ACCESSORS ================================= */
+///@name Accessors
+//@{
 
    virtual OsStatus getState(PlayerState& state) = 0 ;
      //: Gets the player state 
 
+//@}
+
 /* ============================ INQUIRY =================================== */
+///@name Inquiry
+//@{
 
 /* ============================ TESTING =================================== */
 
@@ -157,6 +173,8 @@ public:
 static const char* getEventString(PlayerState event);
 #endif /* MP_STREAM_DEBUG ] */
 
+
+//@}
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:

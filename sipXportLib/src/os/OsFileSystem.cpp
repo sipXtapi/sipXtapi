@@ -1,23 +1,34 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
 #include <os/OsDefs.h>
-#include <sys/types.h>
-#include <sys/stat.h>
+#ifdef WINCE
+#   include <types.h>
+#else
+#   include <sys/types.h>
+#   include <sys/stat.h>
+#endif
 
 #ifdef __posix_under_pingtel__
 #include <unistd.h>
 #endif
 
 #ifdef _WIN32
-#include <io.h>
-#include <direct.h>
+#   ifndef WINCE
+#       include <io.h>
+#       include <direct.h>
+#   endif
 #endif
 
 #ifdef TEST
@@ -78,6 +89,7 @@ OsStatus OsFileSystem::setReadOnly(const OsPath& rPath, UtlBoolean isReadOnly)
 #ifdef _VXWORKS
 
 #else
+#ifndef WINCE
     int mode = S_IREAD;
 
     if (!isReadOnly)
@@ -85,6 +97,7 @@ OsStatus OsFileSystem::setReadOnly(const OsPath& rPath, UtlBoolean isReadOnly)
 
     if (chmod(rPath.data(),mode) != -1)
         retval = OS_SUCCESS;
+#endif
 #endif
 
     return retval;
@@ -105,7 +118,11 @@ OsStatus OsFileSystem::remove(const OsPath& path, UtlBoolean bRecursive, UtlBool
     OsStatus retval = OS_INVALID;
     OsFileInfo info;
     OsPath testpath = path;
-    getFileInfo(testpath,info);
+    OsStatus stat = getFileInfo(testpath,info);
+    if (stat == OS_INVALID)
+    {
+        return OS_INVALID;
+    }
 
     if (info.isDir())
     {
@@ -163,8 +180,8 @@ OsStatus OsFileSystem::createDir(const OsPath& path, const UtlBoolean createPare
         stat = createDirRecursive(path);
     }
     if ( stat == OS_SUCCESS)
-    {
-        OsDir dir(path);
+{
+    OsDir dir(path);
         stat = dir.create();
     }
     return stat;
@@ -296,7 +313,7 @@ OsStatus OsFileSystem::createDirRecursive(const OsPath& rOsPath)
         UtlString sep = OsPath::separator;
         
         int lastSep = -1;
-        unsigned int nextSep = rOsPath.index(sep);
+        size_t nextSep = rOsPath.index(sep);
         
         while (nextSep != UtlString::UTLSTRING_NOT_FOUND)
         {

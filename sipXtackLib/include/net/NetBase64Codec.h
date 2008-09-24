@@ -1,8 +1,11 @@
 //
-// Copyright (C) 2005 SIPfoundry Inc.
+// Copyright (C) 2005-2007 SIPfoundry Inc.
 // License by SIPfoundry under the LGPL license.
 // 
 // Copyright (C) 2004 Pingtel Corp.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// Copyright (C) 2007 SIPez, LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
 ////////////////////////////////////////////////////////////////////////
@@ -94,7 +97,7 @@ class NetBase64Codec
    
 
    /// @returns true iff the encoded data is syntactically valid.
-   static bool isValid(const UtlString encodedData ///< size is data.length(), not null terminated
+   static bool isValid(const UtlString& encodedData ///< size is data.length(), not null terminated
                        )
    {
       return validEncodingBytes(encodedData.length(), encodedData.data()) > 0;
@@ -109,8 +112,8 @@ class NetBase64Codec
    ///< @returns false and no data if the encodedData contains any invalid characters.
 
    /// Decode from one UtlString into another
-   static bool decode(const UtlString encodedData, ///< size is data.length(), not null terminated
-                      UtlString& data              ///< output: the decoded data
+   static bool decode(const UtlString& encodedData, ///< size is data.length(), not null terminated
+                      UtlString& data               ///< output: the decoded data
                       );
    ///< @returns false and no data if the encodedData contains any invalid characters.
    

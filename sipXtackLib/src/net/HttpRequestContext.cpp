@@ -1,10 +1,12 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 
 // SYSTEM INCLUDES
@@ -16,7 +18,7 @@
 #include <os/OsServerSocket.h>
 #include <net/HttpRequestContext.h>
 #include <net/HttpMessage.h>
-#include <net/NameValueTokenizer.h>
+#include <utl/UtlNameValueTokenizer.h>
 #include <net/NameValuePair.h>
 #include <net/NameValuePairInsensitive.h>
 
@@ -188,7 +190,7 @@ HttpRequestContext::operator=(const HttpRequestContext& rhs)
       //copy mCgiVariableList memebers individually
       mUsingInsensitive = rhs.mUsingInsensitive;
       UtlSListIterator iterator((UtlSList&)rhs.mCgiVariableList);
-      NameValuePair* nameValuePair = NULL;
+           NameValuePair* nameValuePair = NULL;
       UtlString value;
       UtlString name;
 
@@ -258,12 +260,12 @@ UtlBoolean HttpRequestContext::getCgiVariable(const char* name,
                                              int occurance) const
 {
    UtlSListIterator iterator((UtlSList&)mCgiVariableList);
-   NameValuePair* nameValuePair = NULL;
-   int fieldIndex = 0;
-   UtlString upperCaseName;
-   UtlBoolean foundName = FALSE;
-   
-   value.remove(0);
+        NameValuePair* nameValuePair = NULL;
+        int fieldIndex = 0;
+    UtlString upperCaseName;
+    UtlBoolean foundName = FALSE;
+
+    value.remove(0);
  
 #  ifdef TEST_DEBUG
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
@@ -272,22 +274,22 @@ UtlBoolean HttpRequestContext::getCgiVariable(const char* name,
                  );
 #  endif
 
-   if(name)
-   {
-      upperCaseName.append(name);
-      upperCaseName.toUpper();
-   }
+        if(name)
+        {
+                upperCaseName.append(name);
+                upperCaseName.toUpper();
+        }
    NameValuePair *matchName = ( mUsingInsensitive
                                ? new NameValuePair(upperCaseName)
                                : new NameValuePairInsensitive(upperCaseName)
                                );
 
-   // For each name value:
+        // For each name value:
    for (fieldIndex = 0, nameValuePair = (NameValuePair*) iterator.findNext(matchName);
         fieldIndex < occurance;
         fieldIndex++
         )
-   {
+        {
       nameValuePair = (NameValuePair*) iterator.findNext(matchName);
 
 #     ifdef TEST_DEBUG
@@ -299,7 +301,7 @@ UtlBoolean HttpRequestContext::getCgiVariable(const char* name,
                     nameValuePair ? nameValuePair->getValue() : "UNFOUND"
                     );
 #     endif
-   }
+        }
    delete matchName;
 
 #  ifdef TEST_DEBUG
@@ -311,13 +313,13 @@ UtlBoolean HttpRequestContext::getCgiVariable(const char* name,
                  );
 #  endif
 
-   if(fieldIndex == occurance && nameValuePair)
-   {
-      value.append(nameValuePair->getValue());
-      foundName = TRUE;
-   }
+    if(fieldIndex == occurance && nameValuePair)
+    {
+        value.append(nameValuePair->getValue());
+        foundName = TRUE;
+    }
 
-   return(foundName);
+    return(foundName);
 }
 
 UtlBoolean HttpRequestContext::getCgiVariable(int index, UtlString& name, UtlString& value) const
@@ -382,7 +384,7 @@ void HttpRequestContext::parseCgiVariables(const char* queryString,
       // Pull out a name value pair
       //osPrintf("HttpRequestContext::parseCgiVariables parseCgiVariables: \"%s\" lastCharIndex: %d",
       //    &(queryString[lastCharIndex]), lastCharIndex);
-      NameValueTokenizer::getSubField(&(queryString[lastCharIndex]),
+      UtlNameValueTokenizer::getSubField(&(queryString[lastCharIndex]),
                                       queryStringLength - lastCharIndex,
                                       0,
                                       pairSeparator,
@@ -394,7 +396,7 @@ void HttpRequestContext::parseCgiVariables(const char* queryString,
       if(nameAndValuePtr && nameAndValueLength > 0)
       {
          // Separate the name and value
-         NameValueTokenizer::getSubField(nameAndValuePtr,
+         UtlNameValueTokenizer::getSubField(nameAndValuePtr,
                                          nameAndValueLength,
                                          0,
                                          nameValueSeparator,
@@ -442,7 +444,7 @@ void HttpRequestContext::parseCgiVariables(const char* queryString,
             {
                value.remove(0);
                value.append(valuePtr, valueLength);
-               NameValueTokenizer::frontBackTrim(&value, " \t\n\r");
+               value.strip(UtlString::both);
                unescape(value);
                newNvPair->setValue(value);
             }
@@ -453,7 +455,7 @@ void HttpRequestContext::parseCgiVariables(const char* queryString,
 
             // Unescape the name.
             unescape(*newNvPair);
-            NameValueTokenizer::frontBackTrim(newNvPair, " \t\n\r");
+            newNvPair->strip(UtlString::both);
 
 #           ifdef TEST_DEBUG
             OsSysLog::add(FAC_SIP, PRI_DEBUG,

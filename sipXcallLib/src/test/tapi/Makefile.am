@@ -8,17 +8,17 @@ check_PROGRAMS = testsuite
 
 testsuite_LDADD = \
     @SIPXUNIT_LIBS@ \
-    ../../libsipXcall.la \
-    @SIPXMEDIAADAPTER_LIBS@
+    @SIPXMEDIA_LIBS@ \
+    @SIPXMEDIA_MP_LIBS@ \
+    @SIPXSDP_LIBS@ \
+    @SIPXTACK_LIBS@ \
+    @SIPXPORT_LIBS@ \
+    ../../libsipXcall.la
 
 testsuite_SOURCES = \
-  callbacks.h \
   callbacks.cpp \
-  EventRecorder.h \
   EventRecorder.cpp \
-  EventValidator.h \
   EventValidator.cpp \
-  sipXtapiTest.h \
   sipXtapiTest.cpp \
   sipXtapiTestCall.cpp \
   sipXtapiTestConference.cpp \
@@ -26,12 +26,12 @@ testsuite_SOURCES = \
   sipXtapiTestConfig.cpp \
   sipXtapiTestLine.cpp \
   sipXtapiTestTransfer.cpp \
-  TestRegistrar.h \
+  TestExternalTransport.cpp \
   TestRegistrar.cpp \
-  TestRegistryCollection.h \
   TestRegistryCollection.cpp \
-  TestRegistryData.h \
   TestRegistryData.cpp \
+  TestStunServerTask.cpp \
+  sipXtapiTestSubscribe.cpp \
   ../jnibutton.cpp
 
 DISTCLEANFILES = Makefile.in

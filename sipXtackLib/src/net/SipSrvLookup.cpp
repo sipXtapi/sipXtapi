@@ -1,23 +1,25 @@
+//  
+// Copyright (C) 2006-2007 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
-//
-// Copyright (C) 2005 SIPfoundry Inc.
+// Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
-// Copyright (C) 2005 Pingtel Corp.
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
 // Rewritten based on DomainSearch by Christian Zahl, and SipSrvLookup
 // by Henning Schulzrinne.
 //
 // $$
-//////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 #if defined(_WIN32)
 #       include "resparse/wnt/sysdep.h"
 #       include <resparse/wnt/netinet/in.h>
 #       include <resparse/wnt/arpa/nameser.h>
 #       include <resparse/wnt/resolv/resolv.h>
-#       include <winsock.h>
+#       include <winsock2.h>
 extern "C" {
 #       include "resparse/wnt/inet_aton.h"       
 }
@@ -50,8 +52,11 @@ extern "C" {
 #ifndef __pingtel_on_posix__
 extern struct __res_state _sip_res;
 #endif
-#include <sys/types.h>
-
+#ifdef WINCE
+#   include <types.h>
+#else
+#   include <sys/types.h>
+#endif
 // Standard C includes.
 #include <stdlib.h>
 #include <assert.h>
@@ -152,8 +157,9 @@ static void lookup_SRV(server_t*& list,
                        ///< "sip" or "sips"
                        const char *proto_string,
                        ///< protocol string for DNS lookup
-                       OsSocket::IpProtocolSocketType proto_code
+                       OsSocket::IpProtocolSocketType proto_code,
                        ///< protocol code for result list
+                       const char* srcIp
    );
 
 /**
@@ -229,7 +235,7 @@ int SipSrvLookup::options[OptionCodeLast+1] = {
    0,                           // OptionCodePrintAnswers
    DEFAULT_CNAME_LIMIT,         // OptionCodeCNAMELimit
    0,                           // OptionCodeNoDefaultTCP
-   0,                           // OptionCodeLast
+   0                            // OptionCodeLast
 };
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
@@ -241,8 +247,10 @@ server_t* SipSrvLookup::servers(const char* domain,
                                 ///< "sip" or "sips"
                                 OsSocket::IpProtocolSocketType socketType,
                                 ///< types of transport
-                                int port
+                                int port,
                                 ///< port number from URI, or PORT_NONE
+                                const char* srcIp
+                                ///< the outgoing interface ip to send the request on
    )
 {
    server_t* list;
@@ -307,7 +315,7 @@ server_t* SipSrvLookup::servers(const char* domain,
              strcmp(service, "sips") != 0)
          {
             lookup_SRV(list, list_length_allocated, list_length_used,
-                       domain, service, "udp", OsSocket::UDP);
+                       domain, service, "udp", OsSocket::UDP, srcIp);
          }
          // If TCP transport is acceptable.
          if ((socketType == OsSocket::UNKNOWN ||
@@ -315,7 +323,7 @@ server_t* SipSrvLookup::servers(const char* domain,
              strcmp(service, "sips") != 0)
          {
             lookup_SRV(list, list_length_allocated, list_length_used,
-                       domain, service, "tcp", OsSocket::TCP);
+                       domain, service, "tcp", OsSocket::TCP, srcIp);
          }
 
          // If TLS transport is acceptable.
@@ -323,7 +331,7 @@ server_t* SipSrvLookup::servers(const char* domain,
               socketType == OsSocket::SSL_SOCKET)
          {
             lookup_SRV(list, list_length_allocated, list_length_used,
-                       domain, service, "tls", OsSocket::SSL_SOCKET);
+                       domain, service, "tls", OsSocket::SSL_SOCKET, srcIp);
          }
       }
       // Case 3: Look for A records.
@@ -541,8 +549,9 @@ void lookup_SRV(server_t*& list,
                 ///< "sip" or "sips"
                 const char* proto_string,
                 ///< protocol string for DNS lookup
-                OsSocket::IpProtocolSocketType proto_code
+                OsSocket::IpProtocolSocketType proto_code,
                 ///< protocol code for result list
+                const char* srcIp
    )
 {
    // To hold the return of res_query_and_parse.
@@ -557,6 +566,13 @@ void lookup_SRV(server_t*& list,
 
    // Construct the domain name to search on.
    sprintf(lookup_name, "_%s._%s.%s", service, proto_string, domain);
+
+#if defined(_WIN32)
+   // set the srcIp, and populate the DNS server list
+   res_init_ip(srcIp);
+#else
+   res_init();
+#endif
 
    // Make the query and parse the response.
    SipSrvLookup::res_query_and_parse(lookup_name, T_SRV, NULL, canonical_name,
@@ -711,10 +727,10 @@ void lookup_A(server_t*& list,
 
 // Perform a DNS query and parse the results.  Follows CNAME records.
 void SipSrvLookup::res_query_and_parse(const char* in_name,
-                                       int type,
-                                       res_response* in_response,
-                                       const char*& out_name,
-                                       res_response*& out_response
+                         int type,
+                         res_response* in_response,
+                         const char*& out_name,
+                         res_response*& out_response
    )
 {
    // The number of CNAMEs we have followed.

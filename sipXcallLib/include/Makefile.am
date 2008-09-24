@@ -5,6 +5,7 @@ nobase_includeHEADERS_INSTALL = $(INSTALL) -D -p -c -m 644
 
 nobase_include_HEADERS =  \
     cp/CallManager.h \
+    cp/CSeqManager.h \
     cp/Connection.h \
     cp/CpCall.h \
     cp/CpCallManager.h \
@@ -14,14 +15,7 @@ nobase_include_HEADERS =  \
     cp/CpMultiStringMessage.h \
     cp/CpPeerCall.h \
     cp/CpStringMessage.h \
-    cp/DialogEventPublisher.h \
-    cp/LinePresenceBase.h \
-    cp/LinePresenceMonitor.h \
-    cp/LinePresenceMonitorMsg.h \
-    cp/PresenceDialInServer.h \
     cp/SipConnection.h \
-    cp/SipPresenceMonitor.h \
-    cp/XmlRpcSignIn.h \
     ps/PsButtonId.h \
     ps/PsButtonInfo.h \
     ps/PsButtonTask.h \
@@ -134,7 +128,7 @@ nobase_include_HEADERS =  \
     tao/TaoTransportTask.h \
     tapi/SipXHandleMap.h \
     tapi/SipXMessageObserver.h \
-    tapi/SipXtapiEventDispatcher.h \
+    tapi/SipXEventDispatcher.h \
     tapi/sipXtapi.h \
     tapi/sipXtapiEvents.h \
     tapi/sipXtapiInternal.h

@@ -1,11 +1,11 @@
 ## Process this file with automake to produce Makefile.in
-include $(top_srcdir)/config/subdir.am
+include $(top_builddir)/config/sipXcommon.mak
 
 SUBDIRS = . test
 
 lib_LTLIBRARIES = libsipXport.la
 
-INCLUDES = -I$(top_srcdir)/include
+INCLUDES = -I$(top_srcdir)/include -I$(top_srcdir)/../sipXcallLib/include
 
 ## Libtool version info - update only immediately before a release
 # Current - increment if any interfaces are added, removed, or changed
@@ -27,11 +27,8 @@ libsipXport_la_LIBADD = \
 	@SSL_LIBS@ \
 	@RT_LIBS@ \
 	-ldl \
-	-lpthread 
-
-if ISGCC
-libsipXport_la_LIBADD += -lstdc++
-endif
+	-lpthread  \
+	-lstdc++
 
 # this is helpful if you're debugging something with lots of inlines (like the UtlLink code)
 # 		-fno-gcse -O0 -fno-implement-inlines -fno-default-inline
@@ -43,26 +40,32 @@ libsipXport_la_CXXFLAGS = \
 	-DSIPX_CONFDIR=\"@SIPX_CONFDIR@\"
 
 libsipXport_la_SOURCES =  \
-    $(top_builddir)/config/sipxportlib-buildstamp.h \
-    $(top_builddir)/config/sipxportlib-buildstamp.cpp \
+    ../config/sipxportlib-buildstamp.h \
+    ../config/sipxportlib-buildstamp.cpp \
+    utl/UtlLongLongInt.cpp \
+    utl/UtlNameValueTokenizer.cpp \
     utl/UtlBool.cpp \
+    utl/UtlCrc32.cpp \
     utl/UtlDateTime.cpp \
     utl/UtlLink.cpp \
     utl/UtlVoidPtr.cpp \
     utl/UtlHistogram.cpp \
+    utl/UtlInit.cpp \
     utl/UtlInt.cpp \
     utl/UtlString.cpp \
+    utl/UtlChainPool.cpp \
     utl/UtlContainable.cpp \
-    utl/UtlContainableAtomic.cpp \
     utl/UtlContainer.cpp \
+    utl/UtlContainableAtomic.cpp \
     utl/UtlIterator.cpp \
     utl/UtlList.cpp \
     utl/UtlListIterator.cpp \
-    utl/UtlLongLongInt.cpp \
     utl/UtlSList.cpp \
+    utl/UtlCopyableSList.cpp \
     utl/UtlSListIterator.cpp \
     utl/UtlDList.cpp \
     utl/UtlDListIterator.cpp \
+    utl/UtlCopyableSortedList.cpp \
     utl/UtlSortedList.cpp \
     utl/UtlSortedListIterator.cpp \
     utl/UtlHashMap.cpp \
@@ -75,9 +78,12 @@ libsipXport_la_SOURCES =  \
     utl/XmlContent.cpp \
     utl/UtlRandom.cpp \
     utl/PluginHooks.cpp \
+    os/NatMsg.cpp \
     os/OsAssert.c \
     os/OsCallback.cpp \
     os/OsConfigDb.cpp \
+    os/OsContact.cpp \
+    os/OsContactList.cpp \
     os/OsConnectionSocket.cpp \
     os/OsCSemBase.cpp \
     os/OsDatagramSocket.cpp \
@@ -92,11 +98,18 @@ libsipXport_la_SOURCES =  \
     os/OsFileIteratorBase.cpp \
     os/OsFileSystem.cpp \
     os/OsLockingList.cpp \
+    os/OsIntPtrMsg.cpp \
     os/OsMsg.cpp \
     os/OsMsgPool.cpp \
     os/OsMsgQ.cpp \
+    os/OsMsgDispatcher.cpp \
     os/OsMulticastSocket.cpp \
     os/OsNameDb.cpp \
+    os/OsNameDbInit.cpp \
+    os/OsNatAgentTask.cpp \
+    os/OsNatDatagramSocket.cpp \
+    os/OsNatConnectionSocket.cpp \
+    os/OsNatSocketBaseImpl.cpp \
     os/OsPathBase.cpp \
     os/osPrintf.cpp \
     os/OsProcessBase.cpp \
@@ -104,10 +117,10 @@ libsipXport_la_SOURCES =  \
     os/OsProcessMgr.cpp \
     os/OsProtectEvent.cpp \
     os/OsProtectEventMgr.cpp \
+    os/OsProtectEventMgrInit.cpp \
     os/OsPtrMsg.cpp \
     os/OsQueuedEvent.cpp \
     os/OsRpcMsg.cpp \
-    os/OsRWMutex.cpp \
     os/OsServerSocket.cpp \
     os/OsServerTask.cpp \
     os/OsSharedLibMgr.cpp \
@@ -125,12 +138,16 @@ libsipXport_la_SOURCES =  \
     os/OsTimer.cpp \
     os/OsTimerMsg.cpp \
     os/OsTimerTask.cpp \
+    os/OsTLSServerSocket.cpp \
+    os/OsTLSConnectionSocket.cpp \
+    os/OsTLSClientConnectionSocket.cpp \
     os/OsTokenizer.cpp \
     os/OsUtil.cpp \
-    os/OsStunAgentTask.cpp \
-    os/OsStunQueryAgent.cpp \
-    os/OsStunDatagramSocket.cpp \
+    os/StunMessage.cpp \
+    os/StunUtils.cpp \
+    os/TurnMessage.cpp \
     os/shared/OsMsgQShared.cpp \
+    os/shared/OsTimerMessage.cpp \
     os/linux/clock_gettime.c \
     os/linux/host_address.c \
     os/linux/AdapterInfo.cpp \
@@ -145,17 +162,20 @@ libsipXport_la_SOURCES =  \
     os/linux/OsPathLinux.cpp \
     os/linux/OsProcessIteratorLinux.cpp \
     os/linux/OsProcessLinux.cpp \
+    os/linux/OsRWMutexLinux.cpp \
     os/linux/OsSharedLibMgrLinux.cpp \
     os/linux/OsTaskLinux.cpp \
     os/linux/OsUtilLinux.cpp \
     os/linux/pt_csem.c \
     os/linux/pt_mutex.c \
-    xmlparser/ExtractContent.cpp \
     xmlparser/tinystr.cpp \
     xmlparser/tinyxml.cpp \
     xmlparser/tinyxmlerror.cpp \
     xmlparser/tinyxmlparser.cpp \
-    xmlparser/TiXmlIterator.cpp
+    xmlparser/TiXmlIterator.cpp \
+    xmlparser/ExtractContent.cpp \
+    hmac-sha1/hmac-sha1.c \
+    hmac-sha1/sha1.c 
 
 EXTRA_DIST= \
     os/Wnt/getWindowsDNSServers.cpp \
@@ -173,7 +193,6 @@ EXTRA_DIST= \
     os/Wnt/OsProcessWnt.cpp \
     os/Wnt/OsSharedLibMgrWnt.cpp \
     os/Wnt/OsTaskWnt.cpp \
+    os/Wnt/OsTimerMessage.cpp \
     os/Wnt/OsUtilWnt.cpp \
     os/Wnt/WindowsAdapterInfo.cpp 
-
-DISTCLEANFILES = Makefile.in

@@ -1,10 +1,12 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 
 #ifndef _SipClient_h_
@@ -81,11 +83,11 @@ public:
 
 /* ============================ ACCESSORS ================================= */
 
-        //void getHostIp(UtlString* hostAddress) const;
-        void getClientNames(UtlString& clientNames) const;
-        long getLastTouchedTime() const;
-        //int getHostPort() const;
-        const UtlString& getLocalIp();
+    //void getHostIp(UtlString* hostAddress) const;
+    void getClientNames(UtlString& clientNames) const;
+    long getLastTouchedTime() const;
+    //int getHostPort() const;
+    const UtlString& getLocalIp();
 
     void markInUseForWrite();
     void markAvailbleForWrite();
@@ -106,7 +108,7 @@ protected:
 private:
 
     // Test whether the socket is ready to read.  (Does not block.)
-    UtlBoolean isReadyToRead();
+        UtlBoolean isReadyToRead();
     // Wait until the socket is ready to read (or has an error).
     UtlBoolean waitForReadyToRead();
 
@@ -120,7 +122,7 @@ private:
     int mRemoteViaPort;
     int mRemoteHostPort;
     int mRemoteReceivedPort;
-    long touchedTime;
+        long touchedTime;
     OsBSem mSocketLock;
     int mFirstResendTimeoutMs;
     int mInUseForWrite;

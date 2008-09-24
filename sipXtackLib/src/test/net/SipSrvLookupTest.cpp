@@ -1,33 +1,39 @@
-// 
-// 
-// Copyright (C) 2005 SIPfoundry Inc.
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
+//
+// Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2005 Pingtel Corp.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
-//////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 #include <cppunit/extensions/HelperMacros.h>
 #include <cppunit/TestCase.h>
-#include <sys/types.h>
 
-#ifndef _WIN32
+
+#if !defined(_WIN32) && !defined(WINCE)
+#include <sys/types.h>
 #include <unistd.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <sys/stat.h>
 
 #ifndef _VXWORKS
 #include <resolv.h>
-#endif
+#endif 
 
 #endif 
 
 #include <stdlib.h>
+#ifndef WINCE
 #include <signal.h>
-#include <sys/stat.h>
+#endif
+
 
 #include "net/SipSrvLookup.h"
 #include "os/OsSocket.h"
@@ -56,7 +62,9 @@ const char* printable_proto(OsSocket::IpProtocolSocketType type);
 class SipSrvLookupTest : public CppUnit::TestCase
 {
    CPPUNIT_TEST_SUITE(SipSrvLookupTest);
-   CPPUNIT_TEST(lookup);
+#ifndef WIN32
+    CPPUNIT_TEST(lookup);
+#endif
    CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -544,7 +552,7 @@ public:
            "2.1.4.0:8002,100,0.002,1,TCP\n" 
            "2.1.4.0:8003,10,0.093,1,UDP\n"
            "2.1.4.0:8004,1,0.225,1,TCP\n"
-           "" },
+           "" }
 
       };
          
@@ -596,7 +604,8 @@ public:
          // Call SipSrvLookup::servers.
          server_t* p;
          p = SipSrvLookup::servers(tests[test_no].name, tests[test_no].service,
-                                   tests[test_no].type, tests[test_no].port);
+                                   tests[test_no].type, tests[test_no].port,
+                                   NULL);
 
          // Construct a monster string containing the crucial parts of the
          // results.

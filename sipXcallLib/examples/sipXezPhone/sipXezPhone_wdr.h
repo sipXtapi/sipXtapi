@@ -29,15 +29,25 @@
 
 // Declare window functions
 
-#define ID_TEXT 10000
-#define ID_IDENTITY_CTRL 6002
-#define ID_REALM_CTRL 6001
-#define ID_USERNAME_CTRL 6003
-#define ID_PASSWORD_CTRL 6004
-#define ID_PROXY_SERVER_CTRL 6005
-#define ID_ENABLE_RPORT_CTRL 6006
-#define ID_STUN_SERVER_CTRL 6007
-#define ID_ENABLE_AUTO_ANSWER 6018
+#define ID_TEXT                     10000
+#define ID_REALM_CTRL               6001
+#define ID_IDENTITY_CTRL            6002
+#define ID_USERNAME_CTRL            6003
+#define ID_PASSWORD_CTRL            6004
+#define ID_PROXY_SERVER_CTRL        6005
+#define ID_ENABLE_RPORT_CTRL        6006
+#define ID_STUN_SERVER_CTRL         6007
+#define ID_STUN_SERVER_PORT_CTRL    6008
+#define ID_TURN_SERVER_CTRL         6009
+#define ID_TURN_SERVER_PORT_CTRL    6010
+#define ID_TURN_USERNAME_CTRL       6011
+#define ID_TURN_PASSWORD_CTRL       6012
+#define ID_ENABLE_ICE               6013
+#define ID_ENABLE_AUTO_ANSWER       6018
+#define ID_SIP_PORT                 6019
+#define ID_RTP_PORT                 6020
+#define ID_LOCATION_HEADER_CTRL     6021
+
 wxSizer *sipXezPhoneSettingsDlgFunc( wxWindow *parent, bool call_fit = TRUE, bool set_sizer = TRUE );
 
 #define ID_STATICBITMAP 10001

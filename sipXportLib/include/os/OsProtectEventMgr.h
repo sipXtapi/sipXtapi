@@ -1,10 +1,12 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 
 #ifndef _OsProtectEventMgr_h_
@@ -35,7 +37,7 @@ public:
 
 /* ============================ CREATORS ================================== */
 
-   static OsProtectEventMgr* getEventMgr(int userData = 0);
+   static OsProtectEventMgr* getEventMgr();
      //:Return a pointer to the OsProtectEventMgr, creating it if necessary
 
    virtual
@@ -64,6 +66,7 @@ public:
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
+   friend class OsProtectEventMgrInit;
 
 #if defined(_pingtel_on_posix_)
         OsProtectEventMgr(int userData = 0, int initialCount = 1000,
@@ -82,11 +85,8 @@ protected:
 private:
 
    // Static data members used to enforce Singleton behavior
-   static OsProtectEventMgr*    spInstance;             // pointer to the single instance of
-                                                                                                                                //  the OsProtectEventMgr class
-   static OsBSem     sLock;         // semaphore used to ensure that there
-                                    //  is only one instance of this class
-
+   static OsProtectEventMgr*    spInstance;  // pointer to the single instance of
+                                             //  the OsProtectEventMgr class
    OsBSem    mListSem;   // semaphore used to protect the list table
    int       mAllocs;    // number of allocations
    int       mFrees;    // number of freed events

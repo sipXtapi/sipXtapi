@@ -1,12 +1,11 @@
 // 
-// 
-// Copyright (C) 2005-2006 SIPez LLC.
+// Copyright (C) 2005-2007 SIPez LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.
 // 
-// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 // 
-// Copyright (C) 2004-2006 Pingtel Corp.
+// Copyright (C) 2004-2007 Pingtel Corp.
 // Licensed to SIPfoundry under a Contributor Agreement.
 // 
 // $$
@@ -29,8 +28,7 @@
 // CONSTANTS
 
 // STATIC VARIABLE INITIALIZATIONS
-const UtlContainableType OsTimer::TYPE = "OsTimer";
-const OsTimer::Interval OsTimer::nullInterval = 0;
+const UtlContainableType OsTimer::TYPE = "OsTimer" ;
 
 #ifdef VALGRIND_TIMER_ERROR
 // Dummy static variable to receive values from tracking variables.
@@ -51,9 +49,10 @@ OsTimer::OsTimer(OsMsgQ* pQueue, const int userData) :
    mTaskState(0),
    // Always initialize mDeleting, as we may print its value.
    mDeleting(FALSE),
-   mpNotifier(new OsQueuedEvent(*pQueue, userData)),
+   mpNotifier(new OsQueuedEvent(*pQueue, userData)) ,
    mbManagedNotifier(TRUE),
    mOutstandingMessages(0),
+   mWasFired(FALSE),
    mTimerQueueLink(0)
 {
 #ifdef VALGRIND_TIMER_ERROR
@@ -71,9 +70,10 @@ OsTimer::OsTimer(OsNotification& rNotifier) :
    mTaskState(0),
    // Always initialize mDeleting, as we may print its value.
    mDeleting(FALSE),
-   mpNotifier(&rNotifier),
+   mpNotifier(&rNotifier) ,
    mbManagedNotifier(FALSE),
    mOutstandingMessages(0),
+   mWasFired(FALSE),
    mTimerQueueLink(0)
 {
 #ifdef VALGRIND_TIMER_ERROR
@@ -126,7 +126,7 @@ OsTimer::~OsTimer()
       assert(res == OS_SUCCESS);
       event.wait();
    }
-
+   
    // If mbManagedNotifier, free *mpNotifier.
    if (mbManagedNotifier) {
       delete mpNotifier;
@@ -171,26 +171,33 @@ void OsTimer::deleteAsync(OsTimer* timer)
 // Arm the timer to fire once at the indicated date and time
 OsStatus OsTimer::oneshotAt(const OsDateTime& when)
 {
-   return startTimer(cvtToTime(when), FALSE, nullInterval);
+   OsTime whenTime;
+   when.cvtToTimeSinceEpoch(whenTime);
+   return startTimer(whenTime, FALSE, OsTime::NO_WAIT_TIME);
 }
-   
+     
 // Arm the timer to fire once at the current time + offset
 OsStatus OsTimer::oneshotAfter(const OsTime& offset)
 {
-   return startTimer(now() + cvtToInterval(offset), FALSE, nullInterval);
+   OsTime curTime;
+   OsDateTime::getCurTime(curTime);
+   return startTimer(curTime + offset, FALSE, OsTime::NO_WAIT_TIME);
 }
 
 // Arm the timer to fire periodically starting at the indicated date/time
 OsStatus OsTimer::periodicAt(const OsDateTime& when, OsTime period)
 {
-   return startTimer(cvtToTime(when), TRUE, cvtToInterval(period));
+   OsTime whenTime;
+   when.cvtToTimeSinceEpoch(whenTime);
+   return startTimer(whenTime, TRUE, period);
 }
 
 // Arm the timer to fire periodically starting at current time + offset
 OsStatus OsTimer::periodicEvery(OsTime offset, OsTime period)
 {
-   return startTimer(now() + cvtToInterval(offset), TRUE,
-                     cvtToInterval(period));
+   OsTime curTime;
+   OsDateTime::getCurTime(curTime);
+   return startTimer(curTime + offset, TRUE, period);
 }
 
 // Disarm the timer
@@ -214,6 +221,7 @@ OsStatus OsTimer::stop(UtlBoolean synchronous)
       // Determine whether the call is successful.
       if (isStarted(mApplicationState))
       {
+         mWasFired = FALSE;
          // Update state to stopped.
          mApplicationState++;
          result = OS_SUCCESS;
@@ -283,6 +291,13 @@ UtlContainableType OsTimer::getContainableType() const
     return OsTimer::TYPE;
 }
 
+
+UtlBoolean OsTimer::getWasFired()
+{
+   OsLock lock(mBSem);
+   return mWasFired;
+}
+
 /* ============================ INQUIRY =================================== */
 
 // Return the state value for this OsTimer object
@@ -311,17 +326,17 @@ int OsTimer::compareTo(UtlContainable const * inVal) const
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
 // Get the current time as a Time.
-OsTimer::Time OsTimer::now()
+/*OsTimer::Time OsTimer::now()
 {
    OsTime t;
    OsDateTime::getCurTime(t);
    return (Time)(t.seconds()) * 1000000 + t.usecs();
 }
-
+*/
 // Start the OsTimer object.
-OsStatus OsTimer::startTimer(Time start,
+OsStatus OsTimer::startTimer(OsTime start,
                              UtlBoolean periodic,
-                             Interval period)
+                             OsTime period)
 {
 #ifndef NDEBUG
    CHECK_VALIDITY(this);
@@ -333,7 +348,6 @@ OsStatus OsTimer::startTimer(Time start,
    // Update members.
    {
       OsLock lock(mBSem);
-
 #ifndef NDEBUG
       assert(!mDeleting);
 #endif
@@ -341,6 +355,7 @@ OsStatus OsTimer::startTimer(Time start,
       // Determine whether the call is successful.
       if (isStopped(mApplicationState))
       {
+         mWasFired = FALSE;
          // Update state to started.
          mApplicationState++;
          result = OS_SUCCESS;

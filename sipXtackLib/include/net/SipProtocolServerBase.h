@@ -1,10 +1,12 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 
 #ifndef _SipProtocolServerBase_h_
@@ -31,6 +33,7 @@
 // TYPEDEFS
 // FORWARD DECLARATIONS
 class SipUserAgent;
+class SipServerBrokerListener;
 
 //:Class short description which may consist of multiple lines (note the ':')
 // Class detailed description which may extend to multiple lines
@@ -71,12 +74,13 @@ public:
 
     virtual void printStatus();
 
-    virtual int isOk();
+    virtual UtlBoolean isOk();
 
 /* ============================ INQUIRY =================================== */
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
+    friend class SipServerBrokerListener;
 
     SipClient* createClient(const char* hostAddress,
                             int hostPort,
@@ -101,6 +105,7 @@ protected:
     UtlHashMap mServerSocketMap;
     UtlHashMap mServerPortMap;
     UtlHashMap mServers;
+    SipServerBrokerListener* mpServerBrokerListener;
     
 
 

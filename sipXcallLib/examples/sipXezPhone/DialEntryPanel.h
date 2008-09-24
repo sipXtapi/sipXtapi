@@ -1,15 +1,12 @@
 //
-// Copyright (C) 2005-2006 SIPez LLC.
-// Licensed to SIPfoundry under a Contributor Agreement.
-//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 #ifndef _DialEntrypanel_h_
 #define _DialEntrypanel_h_
 
@@ -18,6 +15,12 @@
 #include "states/PhoneStateMachineObserver.h"
 
 // DEFINES
+#define EVT_UPDATE_ADDRESS_COMBO(id, fn) \
+    DECLARE_EVENT_TABLE_ENTRY ( \
+        ezEVT_UPDATE_ADDRESS_COMBO, id, -1, \
+        (wxObjectEventFunction)(wxEventFunction)(wxCommandEventFunction)&fn, \
+        (wxObject*) NULL \
+    ),
 // MACROS
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -61,10 +64,14 @@ public:
     */
    const wxString getEnteredText();
 
+   void UpdateBackground(wxColor color);
+
    /**
     *
     */
    wxComboBox& getComboBox() {return *mpComboBox;};
+
+   void OnProcessUpdateAddressCombo(wxCommandEvent& event);
 
 /* ============================ MANIPULATORS ============================== */
 /* ============================ ACCESSORS ================================= */
@@ -81,6 +88,7 @@ private:
         wxBitmapButton* mpDialButton;
         wxComboBox* mpComboBox;
         wxStaticBox* mpOutline;
+        wxString mAddressString;
 
         /**
          * Specialized state machine observer class.  Allows us to listen for Dialing and Ringing state changes.
@@ -115,6 +123,8 @@ private:
          * Its the instance of the DialEntryPhoneStateMachineObserver.
          */
         DialEntryPhoneStateMachineObserver* mpListener;
+
+    
 
 };
 

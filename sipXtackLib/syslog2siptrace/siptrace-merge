@@ -64,9 +64,7 @@ $debug = 0;
 $subroutine = '1 ';
 while ($ARGV[0] =~ m/^-/) {
     $option = shift(@ARGV);
-    if ($option eq '--') {
-	last;
-    } elsif ($option eq '-d') {
+    if ($option eq '-d') {
 	$debug++;
     } elsif ($option =~ m/^--after=(.*)$/) {
 	$subroutine .= ' && ($time ge "' . quotemeta($1) . '") ';
@@ -214,44 +212,6 @@ sub insert_message_into_list {
             return;
         }
     }
-
-    # If there has been an earlier example of this packet, check to see if this
-    # looks like a delayed receive.
-    if ($#{$list_ref} >= 0) {
-	# No match found.  Check to see if it appears to be a delayed
-	# transmission.
-
-	# We distinguish resends because either the source or
-	# destination address that is recorded will be the same as
-	# this packet, due to this packet having the 'dominant' value
-	# of one or the other.  A packet which disagrees with the
-	# recorded values in both source and destination is likely to
-	# be a delayed receipt.
-	my($probable_resend) = 0;
-	for ($i = 0; $i <= $#{$list_ref}; $i++) {
-	    # Get reference to component.
-	    my($entry) = ${$list_ref}[$i];
-	    my($text) = ${$entry}[1];
-
-	    # Test to see if $element looks like a resent of the $i'th message in 
-	    # the list.
-	    my($s1) = $text =~ m%<source>(.*)</source>%;
-	    my($d1) = $text =~ m%<destination>(.*)</destination>%;
-	    my($s2) = $element =~ m%<source>(.*)</source>%;
-	    my($d2) = $element =~ m%<destination>(.*)</destination>%;
-
-	    if ($s1 eq $s2 || $d1 eq $d2) {
-		# Probably a resend.
-		$probable_resend = 1;
-		last;
-	    }
-	}
-	if (!$probable_resend) {
-	    $element =~ s%<method>(.*)</method>%<method>$1 delayed</method>% ||
-		$element =~ s%<responseCode>(.*)</responseCode>%<responseCode>$1 delayed</responseCode>%;
-	}
-    }
-
     # No match found, append this message to the list.
     push(@{$list}, [$time_value, $element]);
 }
@@ -269,31 +229,27 @@ sub combine_elements {
         $message1 =~ s%<time>.*</time>%<time>$t2</time>%;
     }
 
-    # Get a source that is not an IP address if we can.
-    ($t1) = $message1 =~ m%<source>(.*)</source>%;
-    if ($t1 =~ m%^[-:.0-9]*$%) {
-	($t2) = $message2 =~ m%<source>(.*)</source>%;
+    # Get a source that contains a hyphen.
+    ($t2) = $message2 =~ m%<source>(.*)</source>%;
+    if ($t2 =~ m%-%) {
         $message1 =~ s%<source>.*</source>%<source>$t2</source>%;
     }
 
-    # Get a destination that is not an IP address if we can.
-    ($t1) = $message1 =~ m%<destination>(.*)</destination>%;
-    if ($t1 =~ m%^[-:.0-9]*$%) {
-	($t2) = $message2 =~ m%<destination>(.*)</destination>%;
+    # Get a destination that contains a hyphen.
+    ($t2) = $message2 =~ m%<destination>(.*)</destination>%;
+    if ($t2 =~ m%-%) {
         $message1 =~ s%<destination>.*</destination>%<destination>$t2</destination>%;
     }
 
-    # Get a sourceAddress that is not an IP address if we can.
-    ($t1) = $message1 =~ m%<sourceAddress>(.*)</sourceAddress>%;
-    if ($t1 =~ m%^[-:.0-9]*$%) {
-	($t2) = $message2 =~ m%<sourceAddress>(.*)</sourceAddress>%; 
-       $message1 =~ s%<sourceAddress>.*</sourceAddress>%<sourceAddress>$t2</sourceAddress>%;
+    # Get a sourceAddress that contains a hyphen.
+    ($t2) = $message2 =~ m%<sourceAddress>(.*)</sourceAddress>%;
+    if ($t2 =~ m%-%) {
+        $message1 =~ s%<sourceAddress>.*</sourceAddress>%<sourceAddress>$t2</sourceAddress>%;
     }
 
-    # Get a destinationAddress that is not an IP address if we can.
-    ($t1) = $message1 =~ m%<destinationAddress>(.*)</destinationAddress>%;
-    if ($t1 =~ m%^[-:.0-9]*$%) {
-	($t2) = $message2 =~ m%<destinationAddress>(.*)</destinationAddress>%;
+    # Get a destinationAddress that contains a hyphen.
+    ($t2) = $message2 =~ m%<destinationAddress>(.*)</destinationAddress>%;
+    if ($t2 =~ m%-%) {
         $message1 =~ s%<destinationAddress>.*</destinationAddress>%<destinationAddress>$t2</destinationAddress>%;
     }
 

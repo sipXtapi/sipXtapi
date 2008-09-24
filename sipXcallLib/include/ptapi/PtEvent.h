@@ -1,10 +1,15 @@
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 
 #ifndef _PtEvent_h_
@@ -347,7 +352,7 @@ public:
                 META_CALL_MERGING                                       = 0x85,
                 META_CALL_TRANSFERRING                          = 0x86,
                 META_SNAPSHOT                                           = 0x87,
-                META_UNKNOWN                                            = 0x88,
+                META_UNKNOWN                                            = 0x88
         };
         /* meta events */
     //!enumcode: META_CALL_STARTING - Meta code description for the initiation or starting of a call. This implies that the call is a new call and in the active state with at least one Connection added to it.

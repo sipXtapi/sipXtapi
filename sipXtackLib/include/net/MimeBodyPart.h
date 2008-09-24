@@ -1,10 +1,12 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2007 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 
 #ifndef _MimeBodyPart_h_
@@ -37,12 +39,10 @@ public:
 /* ============================ CREATORS ================================== */
 
    MimeBodyPart(const HttpBody* parent = NULL,
-                const char* bytes = 0,
                 int parentBodyStartIndex = 0,
-                int rawBodyLength = 0,
-                const char* contentType = NULL);
+                int rawBodyLength = 0);
+     //:Default constructor
 
-   
    //! Construct a MimeBodyPart from an HttpBody and a list of parameters.
    MimeBodyPart(const HttpBody& httpBody,
                 //< Provides the bytes of the body.

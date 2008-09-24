@@ -1,13 +1,12 @@
-// 
-// 
-// Copyright (C) 2005 SIPfoundry Inc.
+//
+// Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2005 Pingtel Corp.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
-//////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 #ifndef _XMLRPCMETHOD_H_
 #define _XMLRPCMETHOD_H_
@@ -51,17 +50,17 @@ class XmlRpcDispatch;
  * the service in execute(). All the param values are stored in UtlContainable
  * types. The mapping between XML-RPC value types and UtlContainable types is:
  * 
- * - <i4> or <int> is UtlInt
- * - <i8> is UtlLongLongInt
- * - <boolean> is UtlBool
- * - <string> is UtlString
- * - <dateTime.iso8601> is UtlDateTime
- * - <array> is UtlSList
- * - <struct> is UtlHashMap
+ * - \<i4\> or \<int\> is UtlInt
+ * - \<i8\> is UtlLongLongInt
+ * - \<boolean\> is UtlBool
+ * - \<string\> is UtlString
+ * - \<dateTime.iso8601\> is UtlDateTime
+ * - \<array\> is UtlSList
+ * - \<struct\> is UtlHashMap
  * 
- * <i8> is a SIPfoundry extension to XML-RPC that is not compatible with other
+ * \<i8\> is a SIPfoundry extension to XML-RPC that is not compatible with other
  * XML-RPC implementations. 
- * <double> and <base64> are currently not supported.
+ * \<double\> and \<base64\> are currently not supported.
  * 
  */
 

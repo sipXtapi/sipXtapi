@@ -1,15 +1,14 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
 // $$
-//////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 #include "EventRecorder.h"
-
-#if defined(_VXWORKS)
-extern "C" char* strdup(const char*);
-#endif
-
 
 EventRecorder::EventRecorder()
 {
@@ -71,9 +70,7 @@ void EventRecorder::addEvent(SIPX_LINE hLine, SIPX_CALLSTATE_EVENT eMajor, SIPX_
     char szBuffer[256] ;
     char szBuffer2[256];
     
-    sipxCallEventToString((SIPX_CALLSTATE_MAJOR)(int)eMajor,
-        (SIPX_CALLSTATE_MINOR)(int)eMinor,
-        szBuffer, sizeof(szBuffer));
+    sipxCallEventToString(eMajor, eMinor, szBuffer, sizeof(szBuffer));
     sprintf(szBuffer2, "hLine-%d: %s", hLine, szBuffer);
     m_events[m_numEvents++] = strdup(szBuffer2) ;
 }
@@ -83,9 +80,7 @@ void EventRecorder::addCompareEvent(SIPX_LINE hLine, SIPX_CALLSTATE_EVENT eMajor
     char szBuffer[256] ;
     char szBuffer2[256];
     
-    sipxCallEventToString((SIPX_CALLSTATE_MAJOR)(int)eMajor,
-        (SIPX_CALLSTATE_MINOR)(int)eMinor,
-        szBuffer, sizeof(szBuffer));
+    sipxCallEventToString(eMajor, eMinor, szBuffer, sizeof(szBuffer));
     sprintf(szBuffer2, "hLine-%d: %s", hLine, szBuffer);
     m_compareEvents[m_numCompareEvents++] = strdup(szBuffer2) ;
 }
@@ -94,9 +89,7 @@ void EventRecorder::addEvent(SIPX_LINE hLine, SIPX_LINESTATE_EVENT event, SIPX_L
 {
     char szBuffer[256] ;
     char szBuffer2[256] ;
-    sipxLineEventToString((SIPX_LINE_EVENT_TYPE_MAJOR)(int)event, 
-                          (SIPX_LINE_EVENT_TYPE_MINOR)(int)cause,
-                          szBuffer, sizeof(szBuffer));
+    sipxLineEventToString(event, cause, szBuffer, sizeof(szBuffer));
     sprintf(szBuffer2, "hLine-%d: %s", hLine, szBuffer);
     m_events[m_numEvents++] = strdup(szBuffer2) ;
 }
@@ -105,7 +98,7 @@ void EventRecorder::addCompareEvent(SIPX_LINE hLine, SIPX_LINESTATE_EVENT event,
 {
     char szBuffer[256] ;
     char szBuffer2[256] ;
-    sipxLineEventToString((SIPX_LINE_EVENT_TYPE_MAJOR)(int)event, (SIPX_LINE_EVENT_TYPE_MINOR)(int)cause,szBuffer, sizeof(szBuffer));
+    sipxLineEventToString(event, cause, szBuffer, sizeof(szBuffer));
     sprintf(szBuffer2, "hLine-%d: %s", hLine, szBuffer);
     m_compareEvents[m_numCompareEvents++] = strdup(szBuffer2) ;
 }

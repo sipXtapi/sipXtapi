@@ -1,17 +1,22 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 
 // SYSTEM INCLUDES
 #include <stdio.h>
 
 #if defined(_WIN32)
-#   include <winsock.h>
+#   include <winsock2.h>
 #undef OsSS_CONST
 #define OsSS_CONST const
 #elif defined(_VXWORKS)
@@ -58,7 +63,8 @@
 // Constructor
 OsServerSocket::OsServerSocket(int connectionQueueSize,
     int serverPort,
-    const char* szBindAddr)
+    const char* szBindAddr,
+    const bool bPerformBind)
 {
    const int one = 1;
    int error = 0;
@@ -86,7 +92,7 @@ OsServerSocket::OsServerSocket(int connectionQueueSize,
       error = OsSocketGetERRNO();
       OsSysLog::add(FAC_KERNEL, PRI_ERR,
                     "OsServerSocket: socket call failed with error: %d=0x%x",
-                    error, error);
+         error, error);
       socketDescriptor = OS_INVALID_SOCKET_DESCRIPTOR;
       goto EXIT;
    }
@@ -115,7 +121,6 @@ OsServerSocket::OsServerSocket(int connectionQueueSize,
 #       endif
 
 
-
    memset(&localAddr, 0, sizeof(localAddr));
    localAddr.sin_family = AF_INET;
 
@@ -134,21 +139,22 @@ OsServerSocket::OsServerSocket(int connectionQueueSize,
       localAddr.sin_addr.s_addr=OsSocket::getDefaultBindAddress();
       mLocalIp = inet_ntoa(localAddr.sin_addr);
    }
-//   localAddr.sin_addr.s_addr=htonl(INADDR_ANY); // Allow IP in on
 
-   error = bind(socketDescriptor,
-                (OsSS_CONST struct sockaddr*) &localAddr,
-                sizeof(localAddr));
-   if (error == OS_INVALID_SOCKET_DESCRIPTOR)
+   if (bPerformBind)
    {
-      error = OsSocketGetERRNO();
-      OsSysLog::add(FAC_KERNEL, PRI_ERR,
+        error = bind(socketDescriptor,
+                        (OsSS_CONST struct sockaddr*) &localAddr,
+                        sizeof(localAddr));
+        if (error == OS_INVALID_SOCKET_DESCRIPTOR)
+        {
+            error = OsSocketGetERRNO();
+            OsSysLog::add(FAC_KERNEL, PRI_ERR,
                     "OsServerSocket:  bind to port %d failed with error: %d = 0x%x",
-                    ((PORT_DEFAULT == serverPort) ? 0 : serverPort), error, error);
-      socketDescriptor = OS_INVALID_SOCKET_DESCRIPTOR;
-      goto EXIT;
+                            ((PORT_DEFAULT == serverPort) ? 0 : serverPort), error, error);
+            socketDescriptor = OS_INVALID_SOCKET_DESCRIPTOR;
+            goto EXIT;
+        }
    }
-
    addrSize = sizeof(struct sockaddr_in);
    error = getsockname(socketDescriptor,
                            (struct sockaddr*) &localAddr, SOCKET_LEN_TYPE &addrSize);
@@ -160,15 +166,18 @@ OsServerSocket::OsServerSocket(int connectionQueueSize,
       localHostPort = htons(localAddr.sin_port);
    }
 
-   // Setup the queue for connection requests
-   error = listen(socketDescriptor,  connectionQueueSize);
-   if (error)
-   {
-      error = OsSocketGetERRNO();
-      OsSysLog::add(FAC_KERNEL, PRI_ERR, "OsServerSocket: listen call failed with error: %d=0x%x",
-         error, error);
-      socketDescriptor = OS_INVALID_SOCKET_DESCRIPTOR;
-   }
+    // Setup the queue for connection requests
+    if (bPerformBind)
+    {
+        error = listen(socketDescriptor,  connectionQueueSize);
+        if (error)
+        {
+            error = OsSocketGetERRNO();
+            OsSysLog::add(FAC_KERNEL, PRI_ERR, "OsServerSocket: listen call failed with error: %d=0x%x",
+                error, error);
+            socketDescriptor = OS_INVALID_SOCKET_DESCRIPTOR;
+        }
+    }
 
 EXIT:
    ;
@@ -211,15 +220,13 @@ OsConnectionSocket* OsServerSocket::accept()
       socketDescriptor = OS_INVALID_SOCKET_DESCRIPTOR;
       return NULL;
    }
-
-/*
-    Don't know why we don't want to route...we do support subnets, do we not?
    
+#ifdef WIN32
    const int one = 1 ;
    setsockopt(clientSocket, SOL_SOCKET, SO_DONTROUTE, (char *)&one, sizeof(one)) ;
-*/
+#endif
 
-   connectSock = new OsConnectionSocket(mLocalIp,clientSocket);
+   connectSock = createConnectionSocket(mLocalIp, clientSocket);
 
    return(connectSock);
 }
@@ -243,9 +250,22 @@ void OsServerSocket::close()
 
 /* ============================ ACCESSORS ================================= */
 
+// Returns the socket descriptor
+// Warning: use of this method risks the creation of platform
+// dependent code.
+int OsServerSocket::getSocketDescriptor() const
+{
+        return(socketDescriptor);
+}
+
 int OsServerSocket::getLocalHostPort() const
 {
    return(localHostPort);
+}
+
+void OsServerSocket::getBindIp(UtlString& ip) const
+{
+   ip = mLocalIp ;
 }
 
 /* ============================ INQUIRY =================================== */
@@ -257,6 +277,10 @@ UtlBoolean OsServerSocket::isOk() const
 
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
+OsConnectionSocket* OsServerSocket::createConnectionSocket(UtlString localIp, int descriptor)
+{
+    return new OsConnectionSocket(localIp, descriptor);
+}
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 

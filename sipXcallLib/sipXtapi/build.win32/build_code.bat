@@ -7,7 +7,7 @@ REM
 
 ECHO ??? Setting MSVC Vars...
 IF NOT "%SIPXPHONE_MSVC_BASE%" == "" GOTO SET_MSVC_VARS
-SET SIPXPHONE_MSVC_BASE=C:\Program Files\Microsoft Visual Studio\VC98
+SET SIPXPHONE_MSVC_BASE=C:\Program Files\Microsoft Visual Studio .NET 2003\VC7
 
 :SET_MSVC_VARS
 call "%SIPXPHONE_MSVC_BASE%\bin\VCVARS32.bat"
@@ -23,5 +23,7 @@ GOTO DONE
 ECHO .
 ECHO *** %0 Error detected, aborting ... ***
 ECHO .
+exit /b 1
 
 :DONE
+exit /b 0

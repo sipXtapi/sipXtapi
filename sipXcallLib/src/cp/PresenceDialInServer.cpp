@@ -1,13 +1,12 @@
-// 
-// 
-// Copyright (C) 2005 SIPfoundry Inc.
+//
+// Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2005 Pingtel Corp.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
-////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
 
@@ -24,9 +23,6 @@
 #include <os/OsDateTime.h>
 #include <os/OsTimer.h>
 #include <os/OsEventMsg.h>
-#include "ConfirmationTone.h"
-#include "DialTone.h"
-#include "BusyTone.h"
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -35,14 +31,7 @@
 #define TAO_OFFER_PARAM_ADDRESS            2
 #define TAO_OFFER_PARAM_LOCAL_CONNECTION   6
 
-#define SECONDS_DELAY 3
-
-#define CONFIG_SETTING_SIGN_IN_CODE        "SIP_PRESENCE_SIGN_IN_CODE"
-#define CONFIG_SETTING_SIGN_OUT_CODE       "SIP_PRESENCE_SIGN_OUT_CODE"
-#define CONFIG_SETTING_SIGN_IN_AUDIO       "SIP_PRESENCE_SIGN_IN_CONFIRMATION_AUDIO"
-#define CONFIG_SETTING_SIGN_OUT_AUDIO      "SIP_PRESENCE_SIGN_OUT_CONFIRMATION_AUDIO"
-#define CONFIG_SETTING_ERROR_AUDIO         "SIP_PRESENCE_ERROR_AUDIO"
-
+#define SECONDS_DELAY 1
 
 //#define DEBUGGING 1
 
@@ -97,45 +86,18 @@ CallContainer::~CallContainer()
 
 // Constructor
 PresenceDialInServer::PresenceDialInServer(CallManager* callManager,
-                                           OsConfigDb* configFile)
+                                           UtlString& configFile)
    : mLock(OsBSem::Q_PRIORITY, OsBSem::FULL)
 {
    mpCallManager = callManager;
-
-   if (configFile->get(CONFIG_SETTING_SIGN_IN_CODE, mSignInFC) != OS_SUCCESS)
-   {
-      mSignInFC  = DEFAULT_SIGNIN_FEATURE_CODE;
-   }
-
-   if (configFile->get(CONFIG_SETTING_SIGN_OUT_CODE, mSignOutFC) != OS_SUCCESS)
-   {
-      mSignOutFC = DEFAULT_SIGNOUT_FEATURE_CODE;
-   }
-
-   if (configFile->get(CONFIG_SETTING_SIGN_IN_AUDIO, mSignInConfirmationAudio) != OS_SUCCESS)
-   {
-      mSignInConfirmationAudio = NULL;
-   }
-
-   if (configFile->get(CONFIG_SETTING_SIGN_OUT_AUDIO, mSignOutConfirmationAudio) != OS_SUCCESS)
-   {
-      mSignOutConfirmationAudio = NULL;
-   }
-
-   if (configFile->get(CONFIG_SETTING_ERROR_AUDIO, mErrorAudio) != OS_SUCCESS)
-   {
-      mErrorAudio = NULL;
-   }
+   parseConfig(configFile);
 
    OsSysLog::add(FAC_SIP, PRI_DEBUG, "PresenceDialInServer:: configuration for PresenceDialIn:"); 
    OsSysLog::add(FAC_SIP, PRI_DEBUG, "PresenceDialInServer:: signInFeatureCode = %s", mSignInFC.data()); 
    OsSysLog::add(FAC_SIP, PRI_DEBUG, "PresenceDialInServer:: signOutFeatureCode = %s", mSignOutFC.data()); 
-   OsSysLog::add(FAC_SIP, PRI_DEBUG, "PresenceDialInServer:: signInConfirmationAudio = %s",
-                 (mSignInConfirmationAudio == NULL ? "confirmation tone" : mSignInConfirmationAudio.data())); 
-   OsSysLog::add(FAC_SIP, PRI_DEBUG, "PresenceDialInServer:: signOutConfirmationAudio = %s",
-                 (mSignOutConfirmationAudio == NULL ? "dial tone" : mSignOutConfirmationAudio.data())); 
-   OsSysLog::add(FAC_SIP, PRI_DEBUG, "PresenceDialInServer:: errorAudio = %s",
-                 (mErrorAudio == NULL ? "busy tone" : mErrorAudio.data())); 
+   OsSysLog::add(FAC_SIP, PRI_DEBUG, "PresenceDialInServer:: signInConfirmationAudio = %s", mSignInConfirmationAudio.data()); 
+   OsSysLog::add(FAC_SIP, PRI_DEBUG, "PresenceDialInServer:: signOutConfirmationAudio = %s", mSignOutConfirmationAudio.data()); 
+   OsSysLog::add(FAC_SIP, PRI_DEBUG, "PresenceDialInServer:: errorAudio = %s", mErrorAudio.data());
    
    mpIncomingQ = getMessageQueue();   
 }
@@ -189,29 +151,20 @@ UtlBoolean PresenceDialInServer::handleMessage(OsMsg& rMsg)
             mpCallManager->acceptConnection(callId, address);
             mpCallManager->answerTerminalConnection(callId, address, "*");
 
-            if (mpCallManager->getSipDialog(callId, address, sipDialog) ==
-                OS_SUCCESS)
-            {
+            mpCallManager->getSipDialog(callId, address, sipDialog);
 #ifdef DEBUGGING            
-               sipDialog.toString(sipDialogContent);
-               OsSysLog::add(FAC_SIP, PRI_DEBUG, "PresenceDialInServer::handleMessage sipDialog = %s", 
-                             sipDialogContent.data());
+            sipDialog.toString(sipDialogContent);
+            OsSysLog::add(FAC_SIP, PRI_DEBUG, "PresenceDialInServer:: sipDialog = %s", 
+                          sipDialogContent.data());
 #endif            
-               sipDialog.getRemoteRequestUri(entity);
+            sipDialog.getRemoteRequestUri(entity);
             
-               OsSysLog::add(FAC_SIP, PRI_DEBUG, "PresenceDialInServer::handleMessage Call arrived: callId %s address %s requestUrl %s", 
-                             callId.data(), address.data(), entity.data());
+            OsSysLog::add(FAC_SIP, PRI_DEBUG, "PresenceDialInServer:: Call arrived: callId %s address %s requestUrl %s", 
+                          callId.data(), address.data(), entity.data());
 
-               if (entity.isNull())
-               {
-                  OsSysLog::add(FAC_SIP, PRI_WARNING, "PresenceDialInServer::handleMessage Call arrived: callId %s address %s without requestUrl", 
-                                callId.data(), address.data());
-               }
-            }
-            else
+            if (entity.isNull())
             {
-               OsSysLog::add(FAC_SIP, PRI_ERR,
-                             "PresenceDialInServer::handleMessage CONNECTION_OFFERED Could not find dialog callId %s address %s", 
+               OsSysLog::add(FAC_SIP, PRI_WARNING, "PresenceDialInServer:: Call arrived: callId %s address %s without requestUrl", 
                              callId.data(), address.data());
             }
 
@@ -220,165 +173,89 @@ UtlBoolean PresenceDialInServer::handleMessage(OsMsg& rMsg)
          case PtEvent::CONNECTION_ESTABLISHED:
             if (localConnection) 
             {
-               if (mpCallManager->getSipDialog(callId, address, sipDialog) ==
-                   OS_SUCCESS)
-               {
+               mpCallManager->getSipDialog(callId, address, sipDialog);
 #ifdef DEBUGGING            
-                  sipDialog.toString(sipDialogContent);
-                  OsSysLog::add(FAC_SIP, PRI_DEBUG, "PresenceDialInServer::handleMessage sipDialog = %s", 
-                                sipDialogContent.data());
+               sipDialog.toString(sipDialogContent);
+               OsSysLog::add(FAC_SIP, PRI_DEBUG, "PresenceDialInServer:: sipDialog = %s", 
+                             sipDialogContent.data());
 #endif            
-                  sipDialog.getRemoteRequestUri(entity);
+               sipDialog.getRemoteRequestUri(entity);
 
-                  OsSysLog::add(FAC_SIP, PRI_DEBUG, "Call connected: callId %s address %s with request %s",
-                                callId.data(), address.data(), entity.data());
+               OsSysLog::add(FAC_SIP, PRI_DEBUG, "Call connected: callId %s address %s with request %s",
+                             callId.data(), address.data(), entity.data());
 
-                  if (entity.isNull())
-                  {
-                     OsSysLog::add(FAC_SIP, PRI_WARNING, "PresenceDialInServer::handleMessage Call connected: callId %s address %s without requestUrl", 
-                                   callId.data(), address.data());
-                  }
-                  else
-                  {
-                     // Create a CallContainer object and insert it into the call list
-                     CallContainer* thisCall = new CallContainer(callId, address, mpIncomingQ);
-                     mCalls.insertKeyAndValue(new UtlString(callId), thisCall);
-                  
-                     // Get the feature code from the request url
-                     requestUrl = Url(entity);
-                     requestUrl.getUserId(featureCode);
-                     contactUrl = Url(address);
-                     contactUrl.getIdentity(contact);
-                     OsSysLog::add(FAC_SIP, PRI_DEBUG, "PresenceDialInServer::handleMessage contact %s request for %s",
-                                   contact.data(), featureCode.data());
-                  
-                     if (featureCode.compareTo(mSignInFC) == 0)
-                     {
-                        if (notifyStateChange(contact, true))
-                        {
-                           if (mSignInConfirmationAudio == NULL)
-                           {
-                              // Play built-in default sign-in confirmation audio tone
-                              mpCallManager->bufferPlay(callId,
-                                                        (int)confirmationTone,
-                                                        confirmationToneLength,
-                                                        RAW_PCM_16,
-                                                        FALSE, FALSE, TRUE);
-                           }
-                           else
-                           {
-                              // Play user specified sign-in confirmation audio
-                              mpCallManager->audioPlay(callId,
-                                                       mSignInConfirmationAudio,
-                                                       FALSE, FALSE, TRUE);
-                           }
-                        }
-                        else
-                        {
-                           if (mErrorAudio == NULL)
-                           {
-                              // Play built-in default error audio tone
-                              mpCallManager->bufferPlay(callId,
-                                                        (int)busyTone,
-                                                        busyToneLength,
-                                                        RAW_PCM_16,
-                                                        FALSE, FALSE, TRUE);
-                           }
-                           else
-                           {
-                              // Play user specified error audio
-                              mpCallManager->audioPlay(callId,
-                                                       mErrorAudio,
-                                                       FALSE, FALSE, TRUE);
-                           }
-                           OsSysLog::add(FAC_SIP, PRI_DEBUG, "PresenceDialInServer::handleMessage contact %s has already signed in",
-                                         contact.data());
-                        }                        
-                     }
-                  
-                     if (featureCode.compareTo(mSignOutFC) == 0)
-                     {
-                        if (notifyStateChange(contact, false))
-                        {
-                           if (mSignOutConfirmationAudio == NULL)
-                           {
-                              // Play built-in default sign-out confirmation audio tone
-                              mpCallManager->bufferPlay(callId,
-                                                        (int)dialTone,
-                                                        dialToneLength,
-                                                        RAW_PCM_16,
-                                                        FALSE, FALSE, TRUE);
-                           }
-                           else
-                           {
-                              // Play user specified sign-out confirmation audio
-                              mpCallManager->audioPlay(callId, mSignOutConfirmationAudio, FALSE, FALSE, TRUE);
-                           }
-                        }
-                        else
-                        {
-                           if (mErrorAudio == NULL)
-                           {
-                              // Play built-in default error audio tone
-                              mpCallManager->bufferPlay(callId,
-                                                        (int)busyTone,
-                                                        busyToneLength,
-                                                        RAW_PCM_16,
-                                                        FALSE, FALSE, TRUE);
-                           }
-                           else
-                           {
-                              // Play user specified error audio
-                              mpCallManager->audioPlay(callId,
-                                                       mErrorAudio,
-                                                       FALSE, FALSE, TRUE);
-                           }
-                           OsSysLog::add(FAC_SIP, PRI_DEBUG, "PresenceDialInServer::handleMessage contact %s has already signed out",
-                                         contact.data());
-                        }
-                     }
-                  
-                     OsTime timerTime(SECONDS_DELAY, 0);
-                     thisCall->mTimer->oneshotAfter(timerTime);                                                            
-                  }
+               if (entity.isNull())
+               {
+                  OsSysLog::add(FAC_SIP, PRI_WARNING, "PresenceDialInServer:: Call connected: callId %s address %s without requestUrl", 
+                                callId.data(), address.data());
                }
                else
                {
-                  OsSysLog::add(FAC_SIP, PRI_ERR,
-                                "PresenceDialInServer::handleMessage CONNECTION_ESTABLISHED Could not find dialog callId %s address %s", 
-                                callId.data(), address.data());
+                  // Create a CallContainer object and insert it into the call list
+                  CallContainer* thisCall = new CallContainer(callId, address, mpIncomingQ);
+                  mCalls.insertKeyAndValue(new UtlString(callId), thisCall);
+                  
+                  // Get the feature code from the request url
+                  requestUrl = Url(entity);
+                  requestUrl.getUserId(featureCode);
+                  contactUrl = Url(address);
+                  contactUrl.getIdentity(contact);
+                  OsSysLog::add(FAC_SIP, PRI_DEBUG, "PresenceDialInServer:: contact %s request for %s",
+                                contact.data(), featureCode.data());
+                  
+                  if (featureCode.compareTo(mSignInFC) == 0)
+                  {
+                     if (notifyStateChange(contact, true))
+                     {
+                        mpCallManager->audioPlay(callId, mSignInConfirmationAudio, FALSE, FALSE, TRUE);
+                     }
+                     else
+                     {
+                        mpCallManager->audioPlay(callId, mErrorAudio, FALSE, FALSE, TRUE);
+                        OsSysLog::add(FAC_SIP, PRI_DEBUG, "PresenceDialInServer:: contact %s has already signed in",
+                                      contact.data());
+                     }                        
+                  }
+                  
+                  if (featureCode.compareTo(mSignOutFC) == 0)
+                  {
+                     if (notifyStateChange(contact, false))
+                     {
+                        mpCallManager->audioPlay(callId, mSignOutConfirmationAudio, FALSE, FALSE, TRUE);
+                     }
+                     else
+                     {
+                        mpCallManager->audioPlay(callId, mErrorAudio, FALSE, FALSE, TRUE);
+                        OsSysLog::add(FAC_SIP, PRI_DEBUG, "PresenceDialInServer:: contact %s has already signed out",
+                                      contact.data());
+                     }
+                  }
+                  
+                  OsTime timerTime(SECONDS_DELAY, 0);
+                  thisCall->mTimer->oneshotAfter(timerTime);                                                            
                }
             }
+
             break;
 
          case PtEvent::CONNECTION_DISCONNECTED:
             if (!localConnection) 
             {
                mpCallManager->getSipDialog(callId, address, sipDialog);
-               if (mpCallManager->getSipDialog(callId, address, sipDialog) ==
-                   OS_SUCCESS)
-               {
 #ifdef DEBUGGING            
-                  sipDialog.toString(sipDialogContent);
-                  OsSysLog::add(FAC_SIP, PRI_DEBUG, "PresenceDialInServer::handleMessage sipDialog = %s", 
-                                sipDialogContent.data());
+               sipDialog.toString(sipDialogContent);
+               OsSysLog::add(FAC_SIP, PRI_DEBUG, "PresenceDialInServer:: sipDialog = %s", 
+                             sipDialogContent.data());
 #endif            
-                  sipDialog.getLocalContact(requestUrl);
-                  requestUrl.getIdentity(entity);
+               sipDialog.getLocalContact(requestUrl);
+               requestUrl.getIdentity(entity);
 
-                  OsSysLog::add(FAC_SIP, PRI_DEBUG, "Call dropped: %s address %s with entity %s",
-                                callId.data(), address.data(), entity.data());
+               OsSysLog::add(FAC_SIP, PRI_DEBUG, "Call dropped: %s address %s with entity %s",
+                             callId.data(), address.data(), entity.data());
 
-                  if (entity.isNull())
-                  {
-                     OsSysLog::add(FAC_SIP, PRI_WARNING, "PresenceDialInServer::handleMessage Call dropped: callId %s address %s without requestUrl", 
-                                   callId.data(), address.data());
-                  }
-               }
-               else
+               if (entity.isNull())
                {
-                  OsSysLog::add(FAC_SIP, PRI_ERR,
-                                "PresenceDialInServer::handleMessage CONNECTION_DISCONNECTED Could not find dialog callId %s address %s", 
+                  OsSysLog::add(FAC_SIP, PRI_WARNING, "PresenceDialInServer:: Call dropped: callId %s address %s without requestUrl", 
                                 callId.data(), address.data());
                }
                
@@ -455,27 +332,66 @@ bool PresenceDialInServer::notifyStateChange(UtlString& contact, bool signIn)
    UtlVoidPtr* container;
    Url contactUrl(contact);
    mLock.acquire();
-   while ((listUri = dynamic_cast <UtlString *> (iterator())) != NULL)
+   while (listUri = dynamic_cast <UtlString *> (iterator()))
    {
       container = dynamic_cast <UtlVoidPtr *> (mStateChangeNotifiers.findValue(listUri));
       notifier = (StateChangeNotifier *) container->getValue();
 
       if (signIn)
       {
-         OsSysLog::add(FAC_SIP, PRI_INFO, "PresenceDialInServer::notifyStateChange contact %s ==> SIGN_IN",
-                       contact.data());
          result = notifier->setStatus(contactUrl, StateChangeNotifier::PRESENT);
       }
       else
       {
-         OsSysLog::add(FAC_SIP, PRI_INFO, "PresenceDialInServer::notifyStateChange contact %s ==> SIGN_OUT",
-                       contact.data());
          result = notifier->setStatus(contactUrl, StateChangeNotifier::AWAY);
       }
    }
    mLock.release();
    
    return result;
+}
+
+void PresenceDialInServer::parseConfig(UtlString& configFile)
+{
+   // Parse the XML formated confgiuration file
+   TiXmlDocument doc(configFile);      
+   if (doc.LoadFile())
+   {
+      TiXmlNode* rootNode = doc.FirstChild ("PresenceDialIn");
+      TiXmlNode* paramNode;      
+      if (rootNode != NULL)
+      {
+         paramNode = rootNode->FirstChild("signInFeatureCode");
+         if (paramNode)
+         {
+            mSignInFC = paramNode->FirstChild()->Value();
+         }
+         
+         paramNode = rootNode->FirstChild("signOutFeatureCode");
+         if (paramNode)
+         {
+            mSignOutFC = paramNode->FirstChild()->Value();
+         }
+               
+         paramNode = rootNode->FirstChild("signInConfirmationAudio");
+         if (paramNode)
+         {
+            mSignInConfirmationAudio = paramNode->FirstChild()->Value();
+         }
+         
+         paramNode = rootNode->FirstChild("signOutConfirmationAudio");
+         if (paramNode)
+         {
+             mSignOutConfirmationAudio = paramNode->FirstChild()->Value();
+         }
+
+         paramNode = rootNode->FirstChild("errorAudio");
+         if (paramNode)
+         {
+            mErrorAudio = paramNode->FirstChild()->Value();
+         }
+      }
+   }   
 }
 
 /* ============================ TESTING =================================== */

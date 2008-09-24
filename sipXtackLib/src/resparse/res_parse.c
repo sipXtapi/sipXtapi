@@ -1,4 +1,3 @@
-#include <stdio.h>
 /*
  *  res_parse.c
  *
@@ -21,7 +20,7 @@
  *              Handle network/host ordering
  *                      July 1997
  */
-
+#include <stdio.h>
 #include "resparse/rr.h"
 #ifdef __pingtel_on_posix__
 #include <resolv.h>

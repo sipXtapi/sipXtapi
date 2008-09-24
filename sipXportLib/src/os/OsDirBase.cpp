@@ -1,10 +1,15 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 
 // SYSTEM INCLUDES
@@ -17,11 +22,17 @@
 #endif
 
 #ifdef WIN32
- #include <direct.h>
+ #ifndef WINCE
+  #include <direct.h>
+ #endif
 #endif
 
-#include <sys/types.h>
-#include <sys/stat.h>
+#ifdef WINCE
+#   include <types.h>
+#else
+#   include <sys/types.h>
+#   include <sys/stat.h>
+#endif
 
 // APPLICATION INCLUDES
 #include "os/OsFS.h"
@@ -110,38 +121,7 @@ OsDirBase::operator=(const OsDirBase& rhs)
 
 
 
-  OsStatus OsDirBase::getFileInfo(OsFileInfoBase& fileinfo)
-  {
-    OsStatus ret = OS_INVALID;
 
-    struct stat stats;
-    if (stat((char *)mDirName.data(),&stats) == 0)
-    {
-        ret = OS_SUCCESS;
-        if (stats.st_mode & S_DIR)
-            fileinfo.mbIsDirectory = TRUE;
-        else
-            fileinfo.mbIsDirectory = FALSE;
-
-                if (stats.st_mode & S_READONLY)
-            fileinfo.mbIsReadOnly = FALSE;
-        else
-            fileinfo.mbIsReadOnly = TRUE;
-
-        OsTime createTime(stats.st_ctime,0);
-        fileinfo.mCreateTime = createTime;
-
-        OsTime modifiedTime(stats.st_ctime,0);
-        fileinfo.mCreateTime = modifiedTime;
-
-        fileinfo.mSize = stats.st_size;
-
-    }
-
-
-
-    return ret;
-  }
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 

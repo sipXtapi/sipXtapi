@@ -1,9 +1,15 @@
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 #include <utl/UtlStringTest.h>
 #include <string.h>
@@ -43,6 +49,7 @@ class UtlStringTest_ConstructiveManipulators : public UtlStringTest
     CPPUNIT_TEST(testConstructor_4) ;
     CPPUNIT_TEST(testCapacity) ;
     CPPUNIT_TEST(testAssign_charstar) ;
+    CPPUNIT_TEST(testAssign_selfcharstar);
     CPPUNIT_TEST(testCharstarCastOperator) ;
     CPPUNIT_TEST(testAssign_UtlString) ;
     CPPUNIT_TEST(testAppendWithInt);
@@ -669,10 +676,10 @@ public:
         string strExp ;
         for (int i = 0 ; i < commonTestSetLength ; i++)
         {
-            int len_baseString = strlen(commonTestSet[i].input) ;
+            size_t len_baseString = strlen(commonTestSet[i].input) ;
             for(int j =0 ; j < commonTestSetLength; j++)
             {
-                int len_stringToAppend = strlen(commonTestSet[j].input) ;
+                size_t len_stringToAppend = strlen(commonTestSet[j].input) ;
                 UtlString baseString(commonTestSet[i].input) ;
 
                 strExp.erase() ;
@@ -758,7 +765,7 @@ public:
 
          int charLength = 257 ;
          const char* stringToAppend ="AnotherString123O-abz@B\")";
-         int appendLength = strlen(stringToAppend) ;
+         size_t appendLength = strlen(stringToAppend) ;
 
          UtlString baseString(longAlphaString) ;
          baseString.capacity(charLength) ;
@@ -845,7 +852,7 @@ public:
             {"XYZ123", "INSERT", 100, "XYZ123"},        // Insert past end
             {"XYZ123", "INSERT", -3, "XYZ123"},         // Insret before start
             {"XYZ123", NULL, 3, "XYZ123"},              // Bogus source pointer
-            {"XYZ123", "INSERT", 3, "XYZINSERT123"},    // Insert in middle
+            {"XYZ123", "INSERT", 3, "XYZINSERT123"}     // Insert in middle
         } ;
 
         for (int i=0; i<INSERT_TEST_DATA_LENGTH; i++)
@@ -899,7 +906,7 @@ public:
         // every type (common) of string
         for (int i = 0 ; i < commonTestSetLength ; i++)
         {
-            int len_baseString = strlen(commonTestSet[i].input) ;
+            size_t len_baseString = strlen(commonTestSet[i].input) ;
             for(int j =0 ; j < commonTestSetLength; j++)
             {
                 UtlString baseString(commonTestSet[i].input) ;
@@ -1006,7 +1013,7 @@ public:
              const char* returnValue ;
              UtlString stringToAppend(commonTestSet[i].input) ;
 
-             int sizeToCopy = commonTestSet[i].length - 1 ;
+             int sizeToCopy = (int)commonTestSet[i].length - 1 ;
              sizeToCopy = sizeToCopy < 0 ? 0 : sizeToCopy ;
              if (type == TYPE_CHARSTAR)
              {
@@ -1063,8 +1070,8 @@ public:
         {
             const char* testDescription ;
             const char* input ;
-            int length ;
-            int lengthToCopy ;
+            size_t length ;
+            size_t lengthToCopy ;
             const char* expectedValue ;
         };
 
@@ -1087,8 +1094,8 @@ public:
 
         const char* expectedForSplChars = "Ð墀%$',+*\"?+*"   ;
 
-        const int lenLongString = strlen(longAlphaString) ;
-        const int lenSplChars = strlen(splCharString) ;
+        const size_t lenLongString = strlen(longAlphaString) ;
+        const size_t lenSplChars = strlen(splCharString) ;
         const LimitedSizeTestStructure testData[] = { \
             {"single character string", "g", 1, 0, ""}, \
             {"very long string", longAlphaString, lenLongString, \
@@ -1482,6 +1489,25 @@ public:
         }
     }
 
+    /**  Test the Assign(char*) operator - assigning internal data to itself.
+    *   The test data for this case is the same as the char* constructor
+    */
+    void testAssign_selfcharstar()
+    {
+       const char* prefix = " Test ( UtlString = UtlString.data() ) when the old string is ";
+       string Message;
+       for (int i = 0 ; i < commonTestSetLength; i++)
+       {
+          UtlString testString("Old String...");
+          testString = commonTestSet[i].input; // first set string to something
+          testString = testString.data(); // now assign itself
+
+          TestUtilities::createMessage(2, &Message, prefix, \
+             commonTestSet[i].testDescription) ;
+          CPPUNIT_ASSERT_EQUAL_MESSAGE(Message.data(), \
+             string(commonTestSet[i].input), string(testString.data())) ;
+       }
+    }
 
     /** Testcase for the '= UtlString' assignment operator
     *

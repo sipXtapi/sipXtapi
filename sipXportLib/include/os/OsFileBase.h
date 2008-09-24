@@ -2,14 +2,14 @@
 // Copyright (C) 2005, 2007 SIPez LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
-// Copyright (C) 2004 SIPfoundry Inc.
+// Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2004 Pingtel Corp.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
-//////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 #ifndef _OsFile_h_
 #define _OsFile_h_
@@ -85,6 +85,11 @@ public:
    //! Opens and write the given UtlString to the named file 
    static long openAndWrite(const char* filename, const UtlString& fileContentsToWrite);
 
+   //! Opens and write the given data to the named file 
+   static long openAndWrite(const char* filename, 
+                            const char* fileContentsToWrite,
+                            unsigned int contentLength);
+
    virtual OsStatus open(const int mode = READ_WRITE);
      //: Opens the specified file using the specified mode
      //: Returns:
@@ -111,7 +116,7 @@ public:
 
    virtual OsStatus write(const void* pBuf, unsigned long bufLen, unsigned long& rBytesWritten);
      //: Write X bytes to file
-     //: Rturns:
+     //: Returns:
      //:        OS_SUCCESS if successful
      //:        OS_FILE_DISKFULL if (you guessed it) disk full.  :)
      //:        OS_localFileLocks
@@ -185,25 +190,26 @@ public:
 
 /* ============================ INQUIRY =================================== */
 
-    UtlBoolean isReadonly() const;
-    //: Returns TRUE if file is readonly
+   UtlBoolean isReadonly() const;
+     //: Returns TRUE if file is readonly
 
 
-    UtlBoolean exists() ;
-    //: Returns TRUE if file object filename exists
+   UtlBoolean exists() ;
+     //: Returns TRUE if file object filename exists
 
 
-    virtual OsStatus getFileInfo(OsFileInfoBase& rFileinfo) const = 0;
-    //: Returns all the relevant info on this file
+   virtual OsStatus getFileInfo(OsFileInfoBase& rFileinfo) const = 0;
+     //: Returns all the relevant info on this file
 
-    UtlBoolean isEOF();
-    //: Returns TRUE if stream is past end of file
+   UtlBoolean isEOF();
+     //: Returns TRUE if stream is past end of file
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
+
    OsMutex fileMutex;
-   //: Block other methods like close
-   //  while we are busy reading,writing and close.
+     //: Block other methods like close
+     //  while we are busy reading,writing and close.
 
    OsFileBase(const OsFileBase& rOsFile);
      //:Copy constructor

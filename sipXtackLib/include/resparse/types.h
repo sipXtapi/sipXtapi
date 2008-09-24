@@ -1,17 +1,26 @@
 /*
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////*/
+///////////////////////////////////////////////////////////////////////////////
+*/
 
 #ifndef INCLUDE_RESPARSE_TYPES_H
 #define INCLUDE_RESPARSE_TYPES_H
 
 #include <limits.h>
-#include <sys/types.h>
+
+#ifdef WINCE
+#   include <types.h>
+#else
+#   include <sys/types.h>
+#endif
+
 #if defined (_WIN32) /* Use Columbia versions for win32 only --GAT */
 #       include "resparse/wnt/sysdep.h"
 #elif defined (_VXWORKS)

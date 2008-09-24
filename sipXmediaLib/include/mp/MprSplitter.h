@@ -1,10 +1,15 @@
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2005 Pingtel Corp.
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 
 #ifndef _MprSplitter_h_
@@ -13,7 +18,7 @@
 // SYSTEM INCLUDES
 
 // APPLICATION INCLUDES
-#include "mp/MpResource.h"
+#include "mp/MpAudioResource.h"
 
 // DEFINES
 // MACROS
@@ -24,27 +29,48 @@
 // TYPEDEFS
 // FORWARD DECLARATIONS
 
-//:The "Splitter" media processing resource
-class MprSplitter : public MpResource
+/**
+*  @brief The "Splitter" media processing resource
+*
+*  <H3>Enabled behaviour</H3>
+*  Copy first input to all connected outputs.
+*
+*  <H3>Disabled behaviour</H3>
+*  Copy first input to the first connected output.
+*/
+class MprSplitter : public MpAudioResource
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
 /* ============================ CREATORS ================================== */
+///@name Creators
+//@{
+     /// Constructor
+   MprSplitter(const UtlString& rName, int numOutputs);
 
-   MprSplitter(const UtlString& rName, int numOutputs,
-                               int samplesPerFrame, int samplesPerSec);
-     //:Constructor
-
+     /// Destructor
    virtual
    ~MprSplitter();
-     //:Destructor
+
+//@}
 
 /* ============================ MANIPULATORS ============================== */
+///@name Manipulators
+//@{
+//@}
 
 /* ============================ ACCESSORS ================================= */
+///@name Accessors
+//@{
+
+//@}
 
 /* ============================ INQUIRY =================================== */
+///@name Inquiry
+//@{
+
+//@}
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
@@ -53,18 +79,18 @@ protected:
 private:
 
    virtual UtlBoolean doProcessFrame(MpBufPtr inBufs[],
-                                    MpBufPtr outBufs[],
-                                    int inBufsSize,
-                                    int outBufsSize,
-                                    UtlBoolean isEnabled,
-                                    int samplesPerFrame=80,
-                                    int samplesPerSecond=8000);
+                                     MpBufPtr outBufs[],
+                                     int inBufsSize,
+                                     int outBufsSize,
+                                     UtlBoolean isEnabled,
+                                     int samplesPerFrame,
+                                     int samplesPerSecond);
 
+     /// Copy constructor (not implemented for this class)
    MprSplitter(const MprSplitter& rMprSplitter);
-     //:Copy constructor (not implemented for this class)
 
+     /// Assignment operator (not implemented for this class)
    MprSplitter& operator=(const MprSplitter& rhs);
-     //:Assignment operator (not implemented for this class)
 
 };
 

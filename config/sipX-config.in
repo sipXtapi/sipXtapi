@@ -37,7 +37,7 @@ do
             ;;
 
         --version)
-            Info="${Info} @SIPX_VERSION@"
+            Info="${Info} @VERSION@"
             ;;
 
         --build)
@@ -129,7 +129,7 @@ EOF
 
     ALL)
         cat <<EOF
-@PACKAGE@ version  @SIPX_VERSION@
+@PACKAGE@ version  @VERSION@
 @PACKAGE@ build    @SIPX_BUILDSTAMP@
 @PACKAGE@ bin      @SIPX_BINDIR@
 @PACKAGE@ include  @SIPX_INCDIR@

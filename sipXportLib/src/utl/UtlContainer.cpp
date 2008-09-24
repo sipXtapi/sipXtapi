@@ -1,13 +1,20 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
+
+// Keep UtlInit.h as the first include!
+// See UtlInit class description for more information.
+#include "utl/UtlInit.h"
+
 #include "utl/UtlContainer.h"
 #include "utl/UtlLink.h"
 #include "utl/UtlIterator.h"
@@ -16,18 +23,12 @@
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
-const UtlContainableType UtlContainer::TYPE = "UtlContainer" ;
+const UtlContainableType UtlContainer::TYPE = "UtlContainer";
 
 // STATIC VARIABLE INITIALIZATIONS
-/*
- * spIteratorConnectionLock is implemented as a pointer to a dynamically allocated
- * lock here so that it will be constructed at initialization time (the
- * 'new' below), but _never_ destructed (as it would be if declared an OsBSem rather
- * than an OsBSem*).  This is because we cannot control the order of destructors
- * between modules, and this lock needs to exist until all container and iterator
- * destructors have been run - so we deliberately leak it.
- */
-OsBSem* UtlContainer::spIteratorConnectionLock = new OsBSem(OsBSem::Q_PRIORITY, OsBSem::FULL);
+
+OsBSem* UtlContainer::spIteratorConnectionLock;
+
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 

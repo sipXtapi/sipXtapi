@@ -1,10 +1,12 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 
 #ifndef _CpCall_h_
@@ -18,7 +20,7 @@
 #include <os/OsRWMutex.h>
 #include "os/OsUtil.h"
 #include "os/OsLockingList.h"
-#include <net/SdpCodec.h>
+#include <sdp/SdpCodec.h>
 #include <ptapi/PtEvent.h>
 #include <ptapi/PtConnection.h>
 #include <ptapi/PtTerminalConnection.h>
@@ -173,7 +175,7 @@ public:
     void addToneListenerToFlowGraph(int pListener, Connection* connection);
     void removeToneListenerFromFlowGraph(int pListener, Connection* connection);
 
-    OsStatus ezRecord(int ms, int silenceLength, const char* fileName, double& duration, int& dtmfterm);
+    OsStatus ezRecord(int ms, int silenceLength, const char* fileName, double& duration);
     virtual OsStatus stopRecord();
     /* ============================ ACCESSORS ================================= */
     static int getCallTrackingListCount();
@@ -229,10 +231,13 @@ public:
 
     virtual UtlBoolean canDisconnectConnection(Connection* pConnection) = 0;
 
+    virtual UtlBoolean isInFocus() const { return mCallInFocus ;} ;
+
     /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
     virtual UtlBoolean handleMessage(OsMsg& eventMessage);
     virtual UtlBoolean handleCallMessage(OsMsg& eventMessage) = 0;
+    virtual UtlBoolean handleNotifyMessage(OsEventMsg& eventMsg) = 0 ;
     virtual void onHook() = 0;
 
     virtual UtlBoolean getConnectionState(const char* remoteAddress, int& state) = 0;
@@ -246,16 +251,17 @@ protected:
         const CpMultiStringMessage* multiStringMessage);
 
     OsStatus addListener(OsServerTask* pListener,
-        TaoListenerDb** pListeners,
-        int& listenerCnt,
-        char* callId = NULL,
-        int ConnectId = 0,
-        int mask = 0,
-        int pEv = 0);
+                         TaoListenerDb*** pListeners,
+                         int& listenerCnt,
+                         int& maxNumListeners,
+                         char* callId = NULL,
+                         int connectId = 0,
+                         int mask = 0,
+                         int pEv = 0);
 
     CpCallManager* mpManager;
     UtlString mCallId;
-    UtlBoolean mCallInFocus;
+    volatile UtlBoolean mCallInFocus;
     UtlBoolean mRemoteDtmf;
     UtlBoolean mDtmfEnabled;
     OsRWMutex mCallIdMutex;
@@ -277,8 +283,9 @@ protected:
     int                             mListenerCnt;
     int                             mMaxNumListeners;
 
-    TaoListenerDb*                  mpToneListeners[MAX_NUM_TONE_LISTENERS];
-    int                                             mToneListenerCnt;
+    TaoListenerDb**                 mpToneListeners;
+    int                             mToneListenerCnt;
+    int                             nMaxNumToneListeners;
 
     int mMessageEventCount;
     UtlString mCallHistory[CP_CALL_HISTORY_LENGTH];

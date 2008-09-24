@@ -1,9 +1,12 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-//////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 
 // SYSTEM INCLUDES
@@ -31,7 +34,8 @@ TestRegistrarUsers gUsers[] =
 
 // Constructor
 TestRegistrar::TestRegistrar() 
-    : OsServerTask("TestRegistrarServer", NULL, 2000)   
+    : OsServerTask("TestRegistrarServer", NULL, 2000)   ,
+      mbPaused(false)
 {
     mpUserAgent = new  SipUserAgent(
                 5070,                    // sipTcpPort
@@ -48,9 +52,6 @@ TestRegistrar::TestRegistrar()
                 NULL,                       // authenticateDb
                 NULL,                       // authorizeUserIds
                 NULL,                       // authorizePasswords
-                NULL,                       // natPingUrl
-                0,                          // natPingFrequency
-                "PING",                     // natPingMethod
                 NULL,                       // lineMgr
                 SIP_DEFAULT_RTT,            // sipFirstResendTimeout
                 TRUE,                       // defaultToUaTransactions
@@ -87,27 +88,38 @@ void TestRegistrar::init()
     this->start();
 }
 
+void TestRegistrar::pause(bool bPause)
+{
+    mbPaused = bPause;
+}
+
 UtlBoolean TestRegistrar::handleMessage(OsMsg& rMsg)
 {
     int msgType = rMsg.getMsgType();
-    int msgSubType = rMsg.getMsgSubType();
     UtlBoolean messageProcessed = FALSE;
 
     switch(msgType)
     {
         case OsMsg::PHONE_APP:
         {
-            const SipMessage& message = *((SipMessageEvent&)rMsg).getMessage();
-            UtlString method;
-            
-            if (!message.isResponse())
+            if (!mbPaused)
             {
-                message.getRequestMethod(&method);
+                const SipMessage& message = *((SipMessageEvent&)rMsg).getMessage();
+                UtlString method;
                 
-                if (SIP_REGISTER_METHOD == method)
+                if (!message.isResponse())
                 {
-                    messageProcessed = handleRegisterRequest(message);
+                    message.getRequestMethod(&method);
+                    
+                    if (SIP_REGISTER_METHOD == method)
+                    {
+                        messageProcessed = handleRegisterRequest(message);
+                    }
                 }
+            }
+            else
+            {
+                messageProcessed = true; // eat it
             }
             break;
         }

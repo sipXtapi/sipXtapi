@@ -1,10 +1,12 @@
 //
-// Copyright (C) 2005 Pingtel Corp.
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 
 #ifndef _INC_NETWORKCHANNEL_H_
@@ -17,7 +19,7 @@
 #endif
 
 #if defined(_WIN32)
-#include <winsock.h>
+#include <winsock2.h>
 #elif defined(_VXWORKS)
 #include <sockLib.h>
 #include <ioLib.h>

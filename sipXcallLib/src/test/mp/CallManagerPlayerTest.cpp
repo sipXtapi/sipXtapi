@@ -1,10 +1,13 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-
+///////////////////////////////////////////////////////////////////////////////
+#include <os/OsIntTypes.h>
 #include <cppunit/extensions/HelperMacros.h>
 #include <cppunit/TestCase.h>
 
@@ -535,16 +538,7 @@ public:
                    break ;
                 default:
                    {
-                      //////////////////////////////////////////////////////
-                      // TOO BAD!! $$$  I have no idea what this is supposed
-                      // to be accomplishing, but the compiler CORRECTLY
-                      // complains that there are too many arguments for the
-                      // format.  Is "i" superfluous, or are we not inserting
-                      // the index into the string when we, in fact, need to?
-
-                      sprintf(szUrl, "http://%s/nums/10.raw", BASE_URL, i) ;
-
-                      //////////////////////////////////////////////////////
+                      sprintf(szUrl, "http://%s/nums/%d.raw", BASE_URL, i) ;
                       Url url(szUrl) ;
                       pQPlayer->add(url, STREAM_SOUND_LOCAL | STREAM_FORMAT_RAW) ;
                    }

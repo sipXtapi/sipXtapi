@@ -1,20 +1,18 @@
 //
-// Copyright (C) 2005-2006 SIPez LLC.
-// Licensed to SIPfoundry under a Contributor Agreement.
-//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 #ifndef _Buttonpanel_h_
 #define _Buttonpanel_h_
 
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
+#include "stdwx.h"
 // DEFINES
 // MACROS
 // EXTERNAL FUNCTIONS
@@ -36,7 +34,7 @@ public:
    /**
     * ButtonPanel contructor.
     */
-   ButtonPanel(wxWindow* parent, const wxPoint& pos, const wxSize& size);
+   ButtonPanel(wxWindow* parent, const wxPoint& pos, const wxSize& size, bool bLogo);
 
    /**
     * ButtonPanel destructor.
@@ -62,6 +60,8 @@ public:
     * Mute button event hander
     */
    void OnMuteButton(wxCommandEvent& event);
+
+   void UpdateBackground(wxColor color);
 
 /* ============================ MANIPULATORS ============================== */
 /* ============================ ACCESSORS ================================= */

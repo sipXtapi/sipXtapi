@@ -1,10 +1,12 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 #ifndef _UtlContainable_h_
 #define _UtlContainable_h_
@@ -34,6 +36,8 @@ class UtlContainable
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
+    static const UtlContainableType TYPE ;    /** < Class type used for runtime checking */
+
 /* ============================ CREATORS ================================== */
 
     /**
@@ -45,8 +49,6 @@ public:
      * Get the ContainableType for a UtlContainable-derived class.
      */
     virtual UtlContainableType getContainableType() const = 0 ;
-
-    static const UtlContainableType TYPE ;    /** < Class type used for runtime checking */
 
     /// Calculate a hash code for this object.
     virtual unsigned hash() const = 0 ;
@@ -70,7 +72,7 @@ public:
      * To use this, define your hash function as just:<pre>
      * unsigned int Foo::hash() const
      * {
-     *    return directHash();
+     * return directHash();
      * }
      * </pre>
      *
@@ -78,7 +80,7 @@ public:
      * use pointer comparison as the compareTo method:<pre>
      * int Foo::compareTo(UtlContainable const* inVal) const
      * {
-     *    int result;
+     *    int result ; 
      * 
      *    result =
      *       this > other ? 1 :
@@ -96,7 +98,7 @@ public:
      * To use this, define your hash function as just:<pre>
      * Foo hash()
      * {
-     *    return stringHash(value);
+     * return stringHash(value);
      * }
      * </pre>
      */

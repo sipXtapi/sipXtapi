@@ -1,13 +1,12 @@
-// 
-// 
-// Copyright (C) 2005 SIPfoundry Inc.
+//
+// Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2005 Pingtel Corp.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
-//////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 #ifndef _SIPPRESENCEMONITOR_H_
 #define _SIPPRESENCEMONITOR_H_
@@ -17,7 +16,6 @@
 
 // APPLICATION INCLUDES
 #include <os/OsBSem.h>
-#include <os/OsConfigDb.h>
 #include <net/StateChangeNotifier.h>
 #include <cp/PresenceDialInServer.h>
 #include <net/SipUserAgent.h>
@@ -31,7 +29,6 @@
 #include <utl/UtlSList.h>
 #include <utl/UtlHashMap.h>
 #include <cp/CallManager.h>
-#include <cp/XmlRpcSignIn.h>
 #include <net/SdpCodecFactory.h>
 
 // DEFINES
@@ -62,7 +59,7 @@ class SipPresenceMonitor : public StateChangeNotifier
                                                */
                     UtlString& domainName,    ///< sipX domain name
                     int hostPort,             ///< Host port
-                    OsConfigDb*configFile,    ///< configuration
+                    UtlString& configFile,    ///< Xml formated configuration
                     bool toBePublished);      ///< option to publish for other subscriptions
 
    virtual ~SipPresenceMonitor();
@@ -73,17 +70,14 @@ class SipPresenceMonitor : public StateChangeNotifier
    /// Remove an extension from a group to be monitored
    bool removeExtension(UtlString& groupName, Url& contactUrl); 
 
-   /// Register a StateChangeNotifier
+   /// Registered a StateChangeNotifier
    void addStateChangeNotifier(const char* fileUrl, StateChangeNotifier* notifier);
 
-   /// Unregister a StateChangeNotifier
+   /// Unregistered a StateChangeNotifier
    void removeStateChangeNotifier(const char* fileUrl);
 
    /// Set the status value
    virtual bool setStatus(const Url& aor, const Status value);
-   
-   /// Get the state of the contact
-   void getState(const Url& aor, UtlString& status);
 
   protected:
 
@@ -103,17 +97,15 @@ class SipPresenceMonitor : public StateChangeNotifier
    PresenceDialInServer* mpDialInServer;
    SipUserAgent* mpUserAgent;  
    UtlString mDomainName;
-   UtlString mHostAndPort;
    bool mToBePublished;
    
    OsBSem mLock;
    
+   SipDialogMgr mDialogMgr;
    SipSubscriptionMgr* mpSubscriptionMgr;
    SipSubscribeServerEventHandler mPolicyHolder;
    SipPublishContentMgr mSipPublishContentMgr;
    SipSubscribeServer* mpSubscribeServer;
-   
-   XmlRpcSignIn* mpXmlRpcSignIn;
 
    UtlHashMap mMonitoredLists;
    UtlHashMap mPresenceEventList;

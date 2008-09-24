@@ -1,9 +1,12 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 #ifndef _DialPadButton_h_
 #define _DialPadButton_h_
 
@@ -32,7 +35,7 @@ public:
    /**
     * DialPadButton contructor.
     */
-   DialPadButton(wxWindow* parent, int id, const wxBitmap& bitmap, const wxPoint& pos, const wxSize& size, const enum TONE_ID toneId, const char charVal);
+   DialPadButton(wxWindow* parent, int id, const wxBitmap& bitmap, const wxPoint& pos, const wxSize& size, const enum SIPX_TONE_ID toneId, const char charVal);
 
    /**
     * DialPadButton destructor.
@@ -52,7 +55,7 @@ protected:
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
     DECLARE_EVENT_TABLE()
-    const enum TONE_ID mToneId;
+    const enum SIPX_TONE_ID mToneId;
     const char mCharVal;
 
 };

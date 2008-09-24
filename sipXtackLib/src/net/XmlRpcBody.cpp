@@ -1,15 +1,15 @@
-// 
+//
 // Copyright (C) 2005-2006 SIPez LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.
 // 
 // Copyright (C) 2005 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2005 Pingtel Corp.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
-//////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
 
@@ -103,7 +103,7 @@ bool XmlRpcBody::addValue(UtlContainable* value)
       UtlLongLongInt* pValue = (UtlLongLongInt *)value;
       // always encode these in hex - more readable for values this big
       char temp[19];
-      sprintf(temp, "%0#16llx", static_cast<UInt64>(pValue->getValue()));
+      sprintf(temp, "%0#16"PRIx64, pValue->getValue());
       paramValue.append(BEGIN_I8);
       paramValue.append(temp);
       paramValue.append(END_I8);
@@ -205,4 +205,3 @@ bool XmlRpcBody::addStruct(UtlHashMap* members)
 
 
 /* ============================ FUNCTIONS ================================= */
-

@@ -18,9 +18,6 @@ my($URI) = $ARGV[0];
 my($output_prefix) = '[start of body]';
 my($output_suffix) = '[end of body]';
 
-# Record the last subscription state update.
-my($last_subscription_state);
-
 # Set up dialogwatch.
 my($command) = "dialogwatch '$URI' 2>/dev/null";
 open(DIALOGWATCH, $command . '|') ||
@@ -118,7 +115,6 @@ while (1)
 }
 
 # We get here if dialogwatch terminates, which is usually due to an error.
-print "Last response code: $last_subscription_state\n";
 close DIALOGWATCH ||
     die "Error returned by dialogwatch: $!\n";
 
@@ -128,11 +124,7 @@ sub read_next_event {
     # Read until we see $output_suffix.
     my($body);
     while (<DIALOGWATCH>) {
-	my($x) = $_;
-        $body .= $x;
-	# Notice and save subscription state info.
-	$last_subscription_state = $1
-	    if $x =~ /^subscriptionStateCallback is called with responseCode =\s*(.*)$/;
+        $body .= $_;
         last if m%\Q$output_suffix\E%o;
     }
     # Remove the prefix and suffix and leading and trailing whitespace.

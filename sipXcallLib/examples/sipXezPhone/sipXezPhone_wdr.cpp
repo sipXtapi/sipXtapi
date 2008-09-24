@@ -16,6 +16,8 @@
 
 // Include private header
 #include "sipXezPhone_wdr.h"
+#include "tapi/sipXtapi.h"
+#include "sipXmgr.h"
 
 
 // Euro sign hack of the year
@@ -35,7 +37,7 @@
 
 wxSizer *sipXezPhoneSettingsDlgFunc( wxWindow *parent, bool call_fit, bool set_sizer )
 {
-    wxGridSizer *item0 = new wxGridSizer( 2, 0, 0 );
+    wxGridSizer *item0 = new wxGridSizer( 2, 0, 3 );
 
     wxStaticText *item1 = new wxStaticText( parent, ID_TEXT, wxT("Identity"), wxDefaultPosition, wxSize(100,-1), wxALIGN_RIGHT );
     item0->Add( item1, 0, wxALIGN_CENTER|wxALL, 5 );
@@ -43,11 +45,23 @@ wxSizer *sipXezPhoneSettingsDlgFunc( wxWindow *parent, bool call_fit, bool set_s
     wxTextCtrl *item2 = new wxTextCtrl( parent, ID_IDENTITY_CTRL, wxT(""), wxDefaultPosition, wxSize(150,-1), 0 );
     item0->Add( item2, 0, wxALIGN_CENTER|wxALL, 5 );
 
+    wxStaticText *item13 = new wxStaticText( parent, ID_TEXT, wxT("Stun Server"), wxDefaultPosition, wxSize(100,-1), wxALIGN_RIGHT );
+    item0->Add( item13, 0, wxALIGN_CENTER|wxALL, 5 );
+
+    wxTextCtrl *item14 = new wxTextCtrl( parent, ID_STUN_SERVER_CTRL, wxT(""), wxDefaultPosition, wxSize(150,-1), 0 );
+    item0->Add( item14, 0, wxALIGN_CENTER|wxALL, 5 );
+
     wxStaticText *item3 = new wxStaticText( parent, ID_TEXT, wxT("Realm"), wxDefaultPosition, wxSize(100,-1), wxALIGN_RIGHT );
     item0->Add( item3, 0, wxALIGN_CENTER|wxALL, 5 );
 
     wxTextCtrl *item4 = new wxTextCtrl( parent, ID_REALM_CTRL, wxT(""), wxDefaultPosition, wxSize(150,-1), 0 );
     item0->Add( item4, 0, wxALIGN_CENTER|wxALL, 5 );
+
+    wxStaticText *item15 = new wxStaticText( parent, ID_TEXT, wxT("Stun Port"), wxDefaultPosition, wxSize(100,-1), wxALIGN_RIGHT );
+    item0->Add( item15, 0, wxALIGN_CENTER|wxALL, 5 );
+
+    wxTextCtrl *item16 = new wxTextCtrl( parent, ID_STUN_SERVER_PORT_CTRL, wxT(""), wxDefaultPosition, wxSize(150,-1), 0 );
+    item0->Add( item16, 0, wxALIGN_CENTER|wxALL, 5 );
 
     wxStaticText *item5 = new wxStaticText( parent, ID_TEXT, wxT("Username"), wxDefaultPosition, wxSize(100,-1), wxALIGN_RIGHT );
     item0->Add( item5, 0, wxALIGN_CENTER|wxALL, 5 );
@@ -55,11 +69,23 @@ wxSizer *sipXezPhoneSettingsDlgFunc( wxWindow *parent, bool call_fit, bool set_s
     wxTextCtrl *item6 = new wxTextCtrl( parent, ID_USERNAME_CTRL, wxT(""), wxDefaultPosition, wxSize(150,-1), 0 );
     item0->Add( item6, 0, wxALIGN_CENTER|wxALL, 5 );
 
+    wxStaticText *item17 = new wxStaticText( parent, ID_TEXT, wxT("Turn Server"), wxDefaultPosition, wxSize(100,-1), wxALIGN_RIGHT );
+    item0->Add( item17, 0, wxALIGN_CENTER|wxALL, 5 );
+
+    wxTextCtrl *item18 = new wxTextCtrl( parent, ID_TURN_SERVER_CTRL, wxT(""), wxDefaultPosition, wxSize(150,-1), 0 );
+    item0->Add( item18, 0, wxALIGN_CENTER|wxALL, 5 );
+
     wxStaticText *item7 = new wxStaticText( parent, ID_TEXT, wxT("Password"), wxDefaultPosition, wxSize(100,-1), wxALIGN_RIGHT );
     item0->Add( item7, 0, wxALIGN_CENTER|wxALL, 5 );
 
     wxTextCtrl *item8 = new wxTextCtrl( parent, ID_PASSWORD_CTRL, wxT(""), wxDefaultPosition, wxSize(150,-1), wxTE_PASSWORD );
     item0->Add( item8, 0, wxALIGN_CENTER|wxALL, 5 );
+
+    wxStaticText *item19 = new wxStaticText( parent, ID_TEXT, wxT("Turn Port"), wxDefaultPosition, wxSize(100,-1), wxALIGN_RIGHT );
+    item0->Add( item19, 0, wxALIGN_CENTER|wxALL, 5 );
+
+    wxTextCtrl *item20 = new wxTextCtrl( parent, ID_TURN_SERVER_PORT_CTRL, wxT(""), wxDefaultPosition, wxSize(150,-1), 0 );
+    item0->Add( item20, 0, wxALIGN_CENTER|wxALL, 5 );
 
     wxStaticText *item9 = new wxStaticText( parent, ID_TEXT, wxT("Proxy Server"), wxDefaultPosition, wxSize(100,-1), wxALIGN_RIGHT );
     item0->Add( item9, 0, wxALIGN_CENTER|wxALL, 5 );
@@ -67,29 +93,63 @@ wxSizer *sipXezPhoneSettingsDlgFunc( wxWindow *parent, bool call_fit, bool set_s
     wxTextCtrl *item10 = new wxTextCtrl( parent, ID_PROXY_SERVER_CTRL, wxT(""), wxDefaultPosition, wxSize(150,-1), 0 );
     item0->Add( item10, 0, wxALIGN_CENTER|wxALL, 5 );
 
+    wxStaticText *item21 = new wxStaticText( parent, ID_TEXT, wxT("Enable ICE"), wxDefaultPosition, wxSize(100,-1), wxALIGN_RIGHT );
+    item0->Add( item21, 0, wxALIGN_CENTER|wxALL, 5 );
+
+    wxCheckBox *item22 = new wxCheckBox( parent, ID_ENABLE_ICE, wxT(""), wxDefaultPosition, wxDefaultSize, 0 );
+    item0->Add( item22, 0, wxALIGN_CENTER|wxALL, 5 );
+
+    wxStaticText *item31 = new wxStaticText( parent, ID_TEXT, wxT("Location"), wxDefaultPosition, wxSize(100,-1), wxALIGN_RIGHT );
+    item0->Add( item31, 0, wxALIGN_CENTER|wxALL, 5 );
+
+    wxTextCtrl *item32 = new wxTextCtrl( parent, ID_LOCATION_HEADER_CTRL, wxT(""), wxDefaultPosition, wxSize(150,-1), 0 );
+    item0->Add( item32, 0, wxALIGN_CENTER|wxALL, 5 );
+
+
     wxStaticText *item11 = new wxStaticText( parent, ID_TEXT, wxT("Enable r-port?"), wxDefaultPosition, wxSize(100,-1), wxALIGN_RIGHT );
     item0->Add( item11, 0, wxALIGN_CENTER|wxALL, 5 );
 
     wxCheckBox *item12 = new wxCheckBox( parent, ID_ENABLE_RPORT_CTRL, wxT(""), wxDefaultPosition, wxDefaultSize, 0 );
     item0->Add( item12, 0, wxALIGN_CENTER|wxALL, 5 );
 
-    wxStaticText *item13 = new wxStaticText( parent, ID_TEXT, wxT("Stun Server"), wxDefaultPosition, wxSize(100,-1), wxALIGN_RIGHT );
-    item0->Add( item13, 0, wxALIGN_CENTER|wxALL, 5 );
+    wxStaticText *item35 = new wxStaticText( parent, ID_TEXT, wxT(""), wxDefaultPosition, wxSize(100,-1), wxALIGN_RIGHT );
+    item0->Add( item35, 0, wxALIGN_CENTER|wxALL, 5 );
+    wxStaticText *item36 = new wxStaticText( parent, ID_TEXT, wxT(""), wxDefaultPosition, wxSize(100,-1), wxALIGN_RIGHT );
+    item0->Add( item36, 0, wxALIGN_CENTER|wxALL, 5 );
 
-    wxTextCtrl *item14 = new wxTextCtrl( parent, ID_STUN_SERVER_CTRL, wxT(""), wxDefaultPosition, wxSize(150,-1), 0 );
-    item0->Add( item14, 0, wxALIGN_CENTER|wxALL, 5 );
+    wxStaticText *item23 = new wxStaticText( parent, ID_TEXT, wxT("Auto Answer Mode?"), wxDefaultPosition, wxSize(100,-1), wxALIGN_RIGHT );
+    item0->Add( item23, 0, wxALIGN_CENTER|wxALL, 5 );
 
-    wxStaticText *item15 = new wxStaticText( parent, ID_TEXT, wxT("Auto Answer Mode?"), wxDefaultPosition, wxSize(100,-1), wxALIGN_RIGHT );
-    item0->Add( item15, 0, wxALIGN_CENTER|wxALL, 5 );
+    wxCheckBox *item24 = new wxCheckBox( parent, ID_ENABLE_AUTO_ANSWER, wxT(""), wxDefaultPosition, wxDefaultSize, 0 );
+    item0->Add( item24, 0, wxALIGN_CENTER|wxALL, 5 );
 
-    wxCheckBox *item16 = new wxCheckBox( parent, ID_ENABLE_AUTO_ANSWER, wxT(""), wxDefaultPosition, wxDefaultSize, 0 );
-    item0->Add( item16, 0, wxALIGN_CENTER|wxALL, 5 );
+    wxStaticText *item37 = new wxStaticText( parent, ID_TEXT, wxT(""), wxDefaultPosition, wxSize(100,-1), wxALIGN_RIGHT );
+    item0->Add( item37, 0, wxALIGN_CENTER|wxALL, 5 );
+    wxStaticText *item38 = new wxStaticText( parent, ID_TEXT, wxT(""), wxDefaultPosition, wxSize(100,-1), wxALIGN_RIGHT );
+    item0->Add( item38, 0, wxALIGN_CENTER|wxALL, 5 );
+
+    wxStaticText *item25 = new wxStaticText( parent, ID_TEXT, wxT("Default SIP port"), wxDefaultPosition, wxSize(100,-1), wxALIGN_RIGHT );
+    item0->Add( item25, 0, wxALIGN_CENTER|wxALL, 5 );
+
+    wxTextCtrl *item26 = new wxTextCtrl( parent, ID_SIP_PORT, wxT(""), wxDefaultPosition, wxSize(50,-1), 0 );
+    item0->Add( item26, 0, wxALIGN_CENTER|wxALL, 5 );
+
+    wxStaticText *item39 = new wxStaticText( parent, ID_TEXT, wxT(""), wxDefaultPosition, wxSize(100,-1), wxALIGN_RIGHT );
+    item0->Add( item39, 0, wxALIGN_CENTER|wxALL, 5 );
+    wxStaticText *item40 = new wxStaticText( parent, ID_TEXT, wxT(""), wxDefaultPosition, wxSize(100,-1), wxALIGN_RIGHT );
+    item0->Add( item40, 0, wxALIGN_CENTER|wxALL, 5 );
+
+    wxStaticText *item27 = new wxStaticText( parent, ID_TEXT, wxT("Default RTP port"), wxDefaultPosition, wxSize(100,-1), wxALIGN_RIGHT );
+    item0->Add( item27, 0, wxALIGN_CENTER|wxALL, 5 );
+
+    wxTextCtrl *item28 = new wxTextCtrl( parent, ID_RTP_PORT, wxT(""), wxDefaultPosition, wxSize(50,-1), 0 );
+    item0->Add( item28, 0, wxALIGN_CENTER|wxALL, 5 );
+
 
     item0->Add( 20, 20, 0, wxALIGN_CENTER|wxALL, 5 );
-
-    wxButton *item17 = new wxButton( parent, wxID_OK, wxT("OK"), wxDefaultPosition, wxDefaultSize, 0 );
-    item17->SetDefault();
-    item0->Add( item17, 0, wxALIGN_CENTER|wxALL, 5 );
+    wxButton *item29 = new wxButton( parent, wxID_OK, wxT("OK"), wxDefaultPosition, wxDefaultSize, 0 );
+    item29->SetDefault();
+    item0->Add( item29, 0, wxALIGN_CENTER|wxALL, 5 );
 
     if (set_sizer)
     {
@@ -108,6 +168,12 @@ wxSizer *sipXezPhoneAboutDlgFunc( wxWindow *parent, bool call_fit, bool set_size
     wxStaticBitmap *item1 = new wxStaticBitmap( parent, ID_STATICBITMAP, sipXezPhoneBitmapsFunc( 0 ), wxDefaultPosition, wxDefaultSize );
     item0->Add( item1, 0, wxALIGN_CENTER|wxALL, 5 );
 
+    char szVersion[128];
+    char szTemp[1024];
+    
+    sipxConfigGetVersion(szVersion, 128);
+    sprintf(szTemp, "running on %s", szVersion);
+
     wxStaticText *item2 = new wxStaticText( parent, ID_TEXT, 
         wxT("sipXezPhone\n")
         wxT("\n")
@@ -117,7 +183,10 @@ wxSizer *sipXezPhoneAboutDlgFunc( wxWindow *parent, bool call_fit, bool set_size
         wxT("Copyright (C) 2005 Pingtel Corp.\n")
         wxT("Licensed to SIPfoundry under a Contributor Agreement."),
         wxDefaultPosition, wxDefaultSize, wxALIGN_CENTRE );
+    wxStaticText *item3 = new wxStaticText( parent, ID_TEXT, 
+        wxT(szTemp));
     item0->Add( item2, 0, wxALIGN_CENTER|wxALL, 5 );
+    item0->Add( item3, 0, wxALIGN_CENTER|wxALL, 5 );
 
     if (set_sizer)
     {

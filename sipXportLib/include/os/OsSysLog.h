@@ -1,10 +1,12 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 #ifndef _OsSysLog_h_
 #define _OsSysLog_h_
@@ -21,7 +23,6 @@
 
 // DEFINES
 #define SYSLOG_NUM_PRIORITIES    8  // Number of OsSysLogPriority entries
-
 // MACROS
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -99,6 +100,7 @@ typedef void (*OsSysLogCallback)(const char* szPriority,
 
 // FORWARD DECLARATIONS
 class OsSysLogTask;
+class OsTimer;
 
 //:The OsSysLog provides a system wide logger and alternative to printf or
 //:osPrintf for error/informational/debugging purposes.
@@ -145,7 +147,7 @@ class OsSysLogTask;
 // Usage
 // =====
 //
-// Ideally, you should use the syslog method build on top of OsTask.  This will
+// Ideally, you should use the syslog method build ontop of OsTask.  This will
 // make sure that that task id, and task name are included as part of the
 // log entry.
 //
@@ -185,7 +187,7 @@ public:
    enum OsSysLogOptions
    {
         OPT_NONE           = 0x00000000,     // No Options
-        OPT_SHARED_LOGFILE = 0x00000001     // Assume a shared log file
+        OPT_SHARED_LOGFILE = 0x00000001      // Assume a shared log file
 
      // NOTE: Options are designed to be used as bitmasks (and ORed together).
      //       Make sure new additions are defined as power of twos (0x01,
@@ -225,6 +227,9 @@ public:
      //
      //!param options - This parameter defines instance specific options.  See
      //       the OsSysLogOptions enum defined above for valid settings.
+
+   static OsStatus shutdown() ;
+     //:Shutdown the OsSysLog task
 
    static OsStatus setOutputFile(const int minFlushPeriod,
                                  const char* logfile);
@@ -331,7 +336,7 @@ public:
                         const OsSysLogFacility facility,
                         const OsSysLogPriority priority,
                         const char*            format,
-                        va_list&               ap)
+                        const va_list          ap)
 #ifdef __GNUC__
        // with the -Wformat switch, this enables format string checking
        __attribute__ ((format (printf, 5, 0)))
@@ -430,12 +435,13 @@ public:
    static int getNumFacilities();
      //:Return the number of available facilities.
 
+   static OsTimer* getTimer();
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
    static OsSysLogTask* spOsSysLogTask;
 
    static unsigned long sEventCount;
-   static OsSysLogPriority* spPriorities;
+   static OsSysLogPriority spPriorities[FAC_MAX_FACILITY] ;
    static OsSysLogPriority sLoggingPriority;
    static UtlString sProcessId;
    static UtlString sHostname;
@@ -459,12 +465,46 @@ protected:
    static UtlString unescape(const UtlString& source) ;
      //:Unescapes previously escaped Quotes and CrLfs
 
+
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
 
    /** Protect against simple apps that do not call setLoggingPriority */
    static void initializePriorities() ;
 
+};
+
+class OsStackTraceLogger
+{
+public:
+    OsStackTraceLogger(const OsSysLogFacility facility,
+                       const OsSysLogPriority priority,
+                       const char* methodName);
+    OsStackTraceLogger(const OsSysLogFacility facility,
+                       const OsSysLogPriority priority,
+                       const char* methodName,
+                       const OsStackTraceLogger& oneBackInStack);
+    ~OsStackTraceLogger();
+private:
+    // disallow copy
+    OsStackTraceLogger(const OsStackTraceLogger& ref) :
+        mFacility(FAC_LOG),
+        mPriority(PRI_ERR)
+    {
+        // should never get here
+    }
+    
+    // disallow assignment
+    OsStackTraceLogger& operator=(const OsStackTraceLogger& ref)
+    {
+        // should never get here
+        return *this;  // avoid compiler warning
+    }
+    
+    UtlString mMethodName;
+    const OsSysLogFacility mFacility;
+    const OsSysLogPriority mPriority;    
+    int mTid;
 };
 
 /* ============================ INLINE METHODS ============================ */

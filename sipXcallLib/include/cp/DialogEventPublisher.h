@@ -1,13 +1,12 @@
-// 
-// 
-// Copyright (C) 2005 SIPfoundry Inc.
+//
+// Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2005 Pingtel Corp.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
-//////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 #ifndef _DialogEventPublisher_h_
 #define _DialogEventPublisher_h_
@@ -19,7 +18,6 @@
 #include <net/SipDialogEvent.h>
 #include <net/SipPublishContentMgr.h>
 #include <utl/UtlHashMap.h>
-#include <utl/UtlHashMapIterator.h>
 
 // DEFINES
 // MACROS
@@ -35,9 +33,9 @@ class TaoString;
 
 //! Class for publishing the dialog state change for each call
 /**
- * This class tracks the dialog state changes for each call and generates
- * a dialog event package as described in RFC 4235 (An
- * INVITE-Initiated Dialog Event Package for SIP) and sends it to a generic
+ * This class keeps tracking the dialog state changes for each call and generates
+ * a dialog event package as described in draft-ietf-sipping-dialog-package-06.txt
+ * (An INVITE Initiated Dialog Event Package for SIP) and sends it to a generic
  * RFC 3265 SUBSCRIBE server or NOTIFIER.
  */
 
@@ -71,12 +69,6 @@ protected:
     void insertEntry(UtlString& callId, SipDialogEvent* call);
     SipDialogEvent* getEntry(UtlString& callId);
     SipDialogEvent* removeEntry(UtlString& callId);
-
-    // Construct entity from requestUri and local address information    
-    void getEntity(UtlString& requestUri, UtlString& entity);
-    
-    // Delete entry if we get a failed or disconnected event without request Url
-    bool findEntryByCallId(UtlString& callId, UtlString& entity);
  
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:

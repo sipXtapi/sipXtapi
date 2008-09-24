@@ -1,13 +1,12 @@
-// 
-// 
-// Copyright (C) 2005 SIPfoundry Inc.
+//
+// Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2005 Pingtel Corp.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
-//////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 #include <cppunit/extensions/HelperMacros.h>
 #include <cppunit/TestCase.h>
@@ -56,8 +55,8 @@ public:
    // Service routine for UtlContainable.
    virtual const char* const getContainableType() const;
 
-protected:
-   static UtlContainableType TYPE;    /** < Class type used for runtime checking */
+public:
+   static const UtlContainableType TYPE;    /** < Class type used for runtime checking */
 };
 
 // Static identifier for the type.
@@ -253,7 +252,7 @@ public:
          }
 
          // See if getPublished returns the string.
-
+         
          publisher.getPublished(NULL, event_type, 1,
                                 numOldContents, oldContents, &constructor);
 
@@ -556,7 +555,7 @@ public:
 
          void* myAppData = NULL;
 
-         SipPublishContentMgr::SipPublisherContentChangeCallback myCallbackFunc;
+         SipPublishContentMgr::SipPublisherContentChangeCallback myCallbackFunc = NULL;
 
          publisher.removeContentChangeObserver(eventType, ((void*&)myAppData), myCallbackFunc);
 

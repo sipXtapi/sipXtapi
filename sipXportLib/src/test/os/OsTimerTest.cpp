@@ -1,17 +1,15 @@
 // 
-// 
 // Copyright (C) 2005-2006 SIPez LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.
 // 
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2004-2006 Pingtel Corp.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
-//////////////////////////////////////////////////////////////////////////////
-
+///////////////////////////////////////////////////////////////////////////////
 
 #include <cppunit/extensions/HelperMacros.h>
 #include <cppunit/TestCase.h>
@@ -55,14 +53,45 @@ typedef struct timeval GTimeVal;
 
 #if defined(WIN32)
 
-#include <sys/timeb.h>
 void g_get_current_time(GTimeVal* curTime)
 {
-    struct _timeb timeVal;
-    _ftime( &timeVal );
-    printf("sec: %ld %msec: %ld\n", timeVal.time, timeVal.millitm);
-    curTime->tv_sec = timeVal.time;
-    curTime->tv_usec = (timeVal.millitm) * 1000;
+    typedef union 
+    {
+        FILETIME         ft ;
+        unsigned __int64 int64 ;    
+    } g_FILETIME ;
+
+    unsigned __int64 ticks ;
+    unsigned __int64 freq ;
+    static bool       sbInitialized = false ;
+    static g_FILETIME sOsFileTime ;
+    static unsigned __int64 sLastTicks = 0 ;
+    static unsigned __int64 sResetTime = 0 ;
+
+    QueryPerformanceCounter((LARGE_INTEGER*) &ticks) ;
+    QueryPerformanceFrequency((LARGE_INTEGER*) &freq) ;
+
+    if (!sbInitialized || sOsFileTime.int64 > sResetTime)
+    {
+        sbInitialized = true ;
+        GetSystemTimeAsFileTime(&sOsFileTime.ft);
+        sResetTime = -1 ; // sOsFileTime.int64 + (freq - 1) ;
+        sLastTicks = ticks ;
+    }
+    else
+    {
+        unsigned __int64 delta = ticks - sLastTicks ;
+
+        sLastTicks = ticks ;
+        sOsFileTime.int64 = sOsFileTime.int64 + 
+                (((unsigned __int64) 10000000) * (delta / freq)) + 
+                (((unsigned __int64) 10000000) * (delta % freq)) / freq ;    
+        
+        SYSTEMTIME si ;
+        FileTimeToSystemTime(&sOsFileTime.ft, &si) ;
+    }
+    curTime->tv_sec = (long)  ((sOsFileTime.int64 - ((unsigned __int64) 116444736000000000)) / ((unsigned __int64) 10000000));
+    curTime->tv_usec = (long) ((sOsFileTime.int64 / ((unsigned __int64) 10)) % ((unsigned __int64) 1000000));
 }
 
 #elif defined(_VXWORKS)
@@ -94,9 +123,9 @@ void g_get_current_time(GTimeVal* curTime)
 #define OSTIMETOLERANCE 40
 
 #define REPORT_SKEW(x) printf x
-// #define REPORT_SKEW(x) /* x */
+//#define REPORT_SKEW(x) /* x */
 
-using namespace std;
+using namespace std ; 
 
 OsTime      tenMsec(0, 10000);// timer offset ten msec into the future
 OsTime      hundredMsec(0, 100000);// timer offset hundred msec into the future
@@ -111,12 +140,12 @@ class OsTimerTest : public CppUnit::TestCase
 
     CPPUNIT_TEST(testImmediateTimer);
     CPPUNIT_TEST(testOneShotAfter);
-    CPPUNIT_TEST(testTimerAccuracy);
-    CPPUNIT_TEST(testOneShotAt);
+    CPPUNIT_TEST(testTimerAccuracy) ; 
+    CPPUNIT_TEST(testOneShotAt) ; 
     CPPUNIT_TEST(testStopTimerAfterOneShot);
-    CPPUNIT_TEST(testPeriodicTimer);
-    CPPUNIT_TEST(testOneshotPeriodicComboTimer);
-    CPPUNIT_TEST(testStopPeriodicTimer);
+    CPPUNIT_TEST(testPeriodicTimer) ; 
+    CPPUNIT_TEST(testOneshotPeriodicComboTimer) ; 
+    CPPUNIT_TEST(testStopPeriodicTimer) ; 
     CPPUNIT_TEST(testPeriodicTimer_FractionalTime);
     CPPUNIT_TEST(testDeleteTimerBeforeExpires);
 
@@ -138,7 +167,7 @@ class OsTimerTest : public CppUnit::TestCase
 
     CPPUNIT_TEST_SUITE_END();
 
-private:
+private :
     static GTimeVal progStart;
 
     GTimeVal startTV;
@@ -162,35 +191,35 @@ public:
 
     void setTVCalled()
     {
-       g_get_current_time(&endTV);
+        g_get_current_time(&endTV);
        gCallBackCount++ ;
     }
 
     static void TVCallback(const int userData, const int eventData)
     {
-       OsTimerTest* foo = (OsTimerTest*) userData;
-       foo->setTVCalled();
+        OsTimerTest* foo = (OsTimerTest*) userData;
+        foo->setTVCalled();
     }
 
     long SecsToUsecs(long secs)
     {
-        return (secs*OsTime::USECS_PER_SEC);
+        return (secs*OsTime::USECS_PER_SEC) ; 
     }
 
     long MsecsToUsecs(long mSecs)
     {
-        return (mSecs*OsTime::USECS_PER_MSEC);
+        return (mSecs*OsTime::USECS_PER_MSEC) ; 
     }
 
     long SecsToMsecs(long secs)
     {
-        return (secs * OsTime::MSECS_PER_SEC);
+        return (secs * OsTime::MSECS_PER_SEC) ; 
     }
 
     long getTimeDeltaInUsecs()
     {
-        return (SecsToUsecs(endTV.tv_sec - startTV.tv_sec) +
-               (endTV.tv_usec - startTV.tv_usec));
+        return (SecsToUsecs(endTV.tv_sec - startTV.tv_sec) + 
+               (endTV.tv_usec - startTV.tv_usec)) ;
     }
 
     void DynaTest()
@@ -199,356 +228,368 @@ public:
 
     void testImmediateTimer()
     {
-#ifdef _WIN32
-        KNOWN_FATAL_BUG("Fails under Win32", "XPL-101");
-#endif
-       OsCallback* pNotifier;
-       OsTimer* pTimer;
-       OsStatus returnValue;
-       long diffUSecs;
-       pNotifier = new OsCallback((int)this, TVCallback);
-       pTimer = new OsTimer(*pNotifier);
-       gCallBackCount = 0;
-       g_get_current_time(&startTV);
-       returnValue = pTimer->oneshotAfter(OsTime::NO_WAIT_TIME);
-       // Although the message is supposed to be immediate, give a
-       // little extra time
-       OsTask::delay(OSTIMETOLERANCE);
-       CPPUNIT_ASSERT_MESSAGE("Handle timer 1 (immediate) - ReturnValue",
-                              returnValue == OS_SUCCESS);
-       CPPUNIT_ASSERT_MESSAGE("Handle timer 1 (immediate) - Timer was fired",
-                              gCallBackCount == 1);
-       diffUSecs = getTimeDeltaInUsecs();
-       REPORT_SKEW(("      Timing inaccuracy = %6ld us;\n", diffUSecs));
-       CPPUNIT_ASSERT_MESSAGE("Handle timer 1 (immediate) - Verify timer was "
-                              "fired immediately",
-                              diffUSecs > 0 &&
-                              diffUSecs <= MsecsToUsecs(OSTIMETOLERANCE));
-       delete pTimer;
-       delete pNotifier;
+        OsCallback* pNotifier ;
+        OsTimer* pTimer ;
+        OsStatus returnValue;
+        long diffUSecs ; 
+        pNotifier = new OsCallback((int)this, TVCallback);
+        pTimer = new OsTimer(*pNotifier);
+        gCallBackCount = 0;
+        g_get_current_time(&startTV);
+        returnValue = pTimer->oneshotAfter(OsTime::NO_WAIT_TIME);
+        // Although the message is supposed to be immediate, give a
+        // little extra time
+        OsTask::delay(OSTIMETOLERANCE);
+        CPPUNIT_ASSERT_MESSAGE("Handle timer 1 (immediate) - ReturnValue",
+                               returnValue == OS_SUCCESS);
+        CPPUNIT_ASSERT_MESSAGE("Handle timer 1 (immediate) - Timer was fired",
+                               gCallBackCount == 1);
+        CPPUNIT_ASSERT_MESSAGE("Handle timer 1 (immediate) - mWasFired = TRUE",
+                               pTimer->getWasFired() == TRUE);
+        diffUSecs = getTimeDeltaInUsecs() ; 
+        REPORT_SKEW(("      Timing inaccuracy = %6ld us;\n", diffUSecs));
+        CPPUNIT_ASSERT_MESSAGE("Handle timer 1 (immediate) - Verify timer was "
+                               "fired immediately",
+                               diffUSecs > 0 && 
+                               diffUSecs <= MsecsToUsecs(OSTIMETOLERANCE));
+        delete pTimer;
+        delete pNotifier;
     }
 
     void testOneShotAfter()
     {
-       struct TestOneShotStruct
-       {
-          const char* testDescription;
-          long seconds;
-          long milliseconds;
-          int tolerance;
-       };
+        struct TestOneShotStruct 
+        {
+            const char* testDescription ;
+            long seconds ; 
+            long milliseconds ; 
+            int tolerance ; 
+        } ;
 
-       OsCallback* pNotifier;
-       string Message;
-       int testCount;
+        OsCallback* pNotifier;
+        string Message ; 
+        int testCount ;
+        
+        TestOneShotStruct testData[] = {
+            { "Test one shot after when time is specified as 0", 0, 0, OSTIMETOLERANCE },
+            { "Test one shot after when time is equal to one second", 1, 0,
+              OSTIMETOLERANCE },
+            /* The next case was added to check if the inaccuracy applies ONLY to decimal
+               values or even to integers
+            */
+            { "Test one shot after when time is greater than one second", 2, 285,
+              OSTIMETOLERANCE },
+            { "Test one shot after when time is an integer > 1", 3, 0, OSTIMETOLERANCE },
+            { "Test one shot after when time is greater than 0 but less than 1", 0, 252,
+              OSTIMETOLERANCE }
+        } ;
+ 
+        testCount = sizeof(testData)/ sizeof(testData[0]) ; 
 
-       TestOneShotStruct testData[] = {
-          { "Test one shot after when time is specified as 0", 0, 0, OSTIMETOLERANCE },
-          { "Test one shot after when time is equal to one second", 1, 0,
-            OSTIMETOLERANCE },
-          /* The next case was added to check if the inaccuracy applies ONLY to decimal
-             values or even to integers
-          */
-          { "Test one shot after when time is greater than one second", 2, 285,
-            OSTIMETOLERANCE },
-          { "Test one shot after when time is an integer > 1", 3, 0, OSTIMETOLERANCE },
-          { "Test one shot after when time is greater than 0 but less than 1", 0, 252,
-            OSTIMETOLERANCE },
-       };
+        for (int i = 0 ; i < testCount ; i++)
+        {
+            long expectedWaitUSecs;
+            long diffUSecs;
+            OsTimer* pTimer;
+            UtlBoolean returnValue;
 
-       testCount = sizeof(testData)/ sizeof(testData[0]);
+            OsTime timeToWait(testData[i].seconds,
+                testData[i].milliseconds*OsTime::USECS_PER_MSEC) ; 
 
-       for (int i = 0; i < testCount; i++)
-       {
-          long expectedWaitUSecs;
-          long diffUSecs;
-          OsTimer* pTimer;
-          UtlBoolean returnValue;
+            pNotifier = new OsCallback((int)this, TVCallback);
+            pTimer = new OsTimer(*pNotifier);
 
-          OsTime timeToWait(testData[i].seconds,
-                            testData[i].milliseconds*OsTime::USECS_PER_MSEC);
+            expectedWaitUSecs= SecsToUsecs(testData[i].seconds) + 
+                MsecsToUsecs(testData[i].milliseconds) ; 
 
-          pNotifier = new OsCallback((int)this, TVCallback);
-          pTimer = new OsTimer(*pNotifier);
+            // Give a small delay so we synchronize with the timer. 
+            OsTask::delay(20);
+            g_get_current_time(&startTV);
+            gCallBackCount = 0;
+            returnValue = pTimer->oneshotAfter(timeToWait);
+            
+            OsTask::delay(expectedWaitUSecs / OsTime::USECS_PER_MSEC +
+                testData[i].tolerance) ; 
 
-          expectedWaitUSecs = SecsToUsecs(testData[i].seconds) +
-             MsecsToUsecs(testData[i].milliseconds);
-
-          // Give a small delay so we synchronize with the timer.
-          OsTask::delay(20);
-          g_get_current_time(&startTV);
-          gCallBackCount = 0;
-          returnValue = pTimer->oneshotAfter(timeToWait);
-
-          OsTask::delay(expectedWaitUSecs / OsTime::USECS_PER_MSEC +
-                        testData[i].tolerance);
-
-          TestUtilities::createMessage(2, &Message, testData[i].testDescription,
-                                       " - verify return value");
-          // gCallBackCount is reinitialized to 0 each iteration, so
-          // its value should be 1 now.
-          CPPUNIT_ASSERT_MESSAGE("Verify timer was fired for each iteration",
-                                 gCallBackCount == 1);
-          CPPUNIT_ASSERT_MESSAGE(Message.data(), returnValue);
-          TestUtilities::createMessage(2, &Message, testData[i].testDescription,
-                                       " - verify timer *was* fired");
-          diffUSecs = getTimeDeltaInUsecs();
-          REPORT_SKEW(("      Timing inaccuracy for iter %3d = %8ld us; Time = %ld.%03ld;\n",
-                       i,
-                       diffUSecs - expectedWaitUSecs,
-                       testData[i].seconds,
-                       testData[i].milliseconds
-                         ));
-          CPPUNIT_ASSERT_MESSAGE(Message.data(),
-                                 diffUSecs >= expectedWaitUSecs - MsecsToUsecs(testData[i].tolerance) &&
-                                 diffUSecs <= expectedWaitUSecs + MsecsToUsecs(testData[i].tolerance));
-          delete pTimer;
-          delete pNotifier;
-       }
+            TestUtilities::createMessage(2, &Message, testData[i].testDescription, 
+                " - verify return value") ; 
+            // gCallBackCount is reinitialized to 0 each iteration, so
+            // its value should be 1 now.
+            CPPUNIT_ASSERT_MESSAGE("Verify timer was fired for each iteration",
+                                   gCallBackCount == 1);
+            CPPUNIT_ASSERT_MESSAGE("mWasFired = TRUE in the current iteration",
+                                   pTimer->getWasFired() == TRUE);
+            CPPUNIT_ASSERT_MESSAGE(Message.data(), returnValue);
+            TestUtilities::createMessage(2, &Message, testData[i].testDescription, 
+                " - verify timer *was* fired") ; 
+            diffUSecs = getTimeDeltaInUsecs();
+            REPORT_SKEW(("      Timing inaccuracy for iter %3d = %8ld us; Time = %ld.%03ld;\n",
+                        i, 
+                        diffUSecs - expectedWaitUSecs, 
+                        testData[i].seconds,
+                        testData[i].milliseconds
+                        )); 
+            CPPUNIT_ASSERT_MESSAGE(Message.data(),
+                                   diffUSecs >= expectedWaitUSecs - MsecsToUsecs(testData[i].tolerance) &&
+                                   diffUSecs <= expectedWaitUSecs + MsecsToUsecs(testData[i].tolerance));
+            delete pTimer;
+            delete pNotifier;
+        }
     }
 
     void testTimerAccuracy()
     {
-       OsCallback* pNotifier;
-       OsTimer* pTimer;
-       long expectedWaitUSecs;
-       long diffUSecs;
+        OsCallback* pNotifier;
+        OsTimer* pTimer;
+        long expectedWaitUSecs;
+        long diffUSecs;
 
-       pNotifier = new OsCallback((int)this, TVCallback);
-       pTimer = new OsTimer(*pNotifier);
+        pNotifier = new OsCallback((int)this, TVCallback);
+        pTimer = new OsTimer(*pNotifier);
 
-       expectedWaitUSecs=(1*OsTime::USECS_PER_SEC) + (250*OsTime::USECS_PER_MSEC);
-       OsTime timeToWait(1, 250*OsTime::USECS_PER_MSEC);
+        expectedWaitUSecs=(1*OsTime::USECS_PER_SEC) + (250*OsTime::USECS_PER_MSEC) ;  
+        OsTime timeToWait(1, 250*OsTime::USECS_PER_MSEC) ; 
 
-       // Give a small delay so we synchronize with the timer.
-       OsTask::delay(20);
-       g_get_current_time(&startTV);
-       pTimer->oneshotAfter(timeToWait);
-       // Sleep for a slightly additional time
-       OsTask::delay(expectedWaitUSecs / OsTime::USECS_PER_MSEC +
-                     OSTIMETOLERANCE);
+        // Give a small delay so we synchronize with the timer. 
+        OsTask::delay(20);
+        g_get_current_time(&startTV);
+        pTimer->oneshotAfter(timeToWait);
+        //Sleep for a slightly additional time
+        OsTask::delay(expectedWaitUSecs / OsTime::USECS_PER_MSEC +
+                           OSTIMETOLERANCE) ; 
 
-       CPPUNIT_ASSERT_MESSAGE("Timer was fired",
-                              gCallBackCount == 1);
-       diffUSecs = getTimeDeltaInUsecs();
-       REPORT_SKEW(("      Timing inaccuracy = %8ld us; Time = %d.%03d;\n",
-                    diffUSecs - expectedWaitUSecs,
+        CPPUNIT_ASSERT_MESSAGE("Timer was fired",
+                               gCallBackCount == 1);
+        diffUSecs = getTimeDeltaInUsecs();
+        REPORT_SKEW(("      Timing inaccuracy = %8ld us; Time = %d.%03d;\n",
+                    diffUSecs - expectedWaitUSecs, 
                     1, 250
-                      ));
+                    )); 
 
-//       KNOWN_BUG("oneshotAfter not very precise for fractional times!", "XPL-39");
-
-       CPPUNIT_ASSERT_MESSAGE("Verify that the timer is fired accurately",
-                              diffUSecs >= expectedWaitUSecs - MsecsToUsecs(OSTIMETOLERANCE) &&
-                              diffUSecs <= expectedWaitUSecs + MsecsToUsecs(OSTIMETOLERANCE));
-       delete pTimer;
-       delete pNotifier;
+        CPPUNIT_ASSERT_MESSAGE("Verify that the timer is fired accurately",
+                diffUSecs >= expectedWaitUSecs - MsecsToUsecs(OSTIMETOLERANCE) &&
+                diffUSecs <= expectedWaitUSecs + MsecsToUsecs(OSTIMETOLERANCE));
+        delete pTimer;
+        delete pNotifier;
     }
 
     void testOneShotAt()
     {
-//       KNOWN_FATAL_BUG("Create tests for methods testOneShotAt and testPeriodicAt", "XPL-40");
-       OsCallback* pNotifier;
-       OsTimer* pTimer;
-       UtlBoolean returnValue;
-       long diffUSecs;
-       pNotifier = new OsCallback((int)this, TVCallback);
-       pTimer = new OsTimer(*pNotifier);
-       // Create an OsDateTime object for 2 seconds in the future
-       // and call oneShotAt.
-       // Get the current time in seconds.
-       time_t now = time(NULL);
-       now += 2;
-       // Split it into the components needed to construct an OsDateTime.
-       tm* gmtPlus2 = gmtime(&now);
-       // Get the current time to microsecond resolution.
-       OsDateTime current;
-       OsDateTime::getCurTime(current);
-       // Put the components of gmtime into an OsDateTime, and add the
-       // microseconds from "current".
-       OsDateTime odt(
+        OsCallback* pNotifier ;
+        OsTimer* pTimer ;
+        UtlBoolean returnValue ;  
+        long diffUSecs ; 
+        pNotifier = new OsCallback((int)this, TVCallback);
+        pTimer = new OsTimer(*pNotifier);
+        // Create an OsDateTime object for 2 seconds in the future
+        // and call oneShotAt.
+        // Get the current time in seconds.
+        time_t now = time(NULL) ;
+        now += 2 ; 
+        // Split it into the components needed to construct an OsDateTime.
+        tm* gmtPlus2 = gmtime(&now) ; 
+        // Get the current time to microsecond resolution.
+        OsDateTime current;
+        OsDateTime::getCurTime(current);
+        // Put the components of gmtime into an OsDateTime, and add the
+        // microseconds from "current".
+        OsDateTime odt( 
           // gmtime returns (year - 1900), but OsDateTime requires 4-digit year.
           (unsigned short) gmtPlus2->tm_year + 1900,
-          (unsigned char) gmtPlus2->tm_mon,
-          (unsigned char) gmtPlus2->tm_mday,
-          (unsigned char) gmtPlus2->tm_hour,
-          (unsigned char) gmtPlus2->tm_min,
-          (unsigned char) gmtPlus2->tm_sec,
-          (unsigned int) current.usecs()
-          );
-       g_get_current_time(&startTV);
-       gCallBackCount = 0;
-       returnValue = pTimer->oneshotAt(odt);
-       // Although the message is supposed to be immediate, give a little extra time
-       OsTask::delay(2000 + OSTIMETOLERANCE);
-       CPPUNIT_ASSERT_MESSAGE("Handle timer 1 - returnValue", returnValue);
-       CPPUNIT_ASSERT_MESSAGE("Timer was fired",
+                 (unsigned char)gmtPlus2->tm_mon, 
+                 (unsigned char)gmtPlus2->tm_mday, 
+                 (unsigned char)gmtPlus2->tm_hour, 
+                 (unsigned char)gmtPlus2->tm_min, 
+                 (unsigned char)gmtPlus2->tm_sec, 
+          (unsigned int) current.getMicrosecond()
+                 );
+        g_get_current_time(&startTV);
+        gCallBackCount = 0;
+        returnValue = pTimer->oneshotAt(odt);
+        //Although the message is supposed to be immediate, give a little extra time
+        OsTask::delay(2000 + OSTIMETOLERANCE);
+        CPPUNIT_ASSERT_MESSAGE("Handle timer 1 - returnValue", returnValue);
+        CPPUNIT_ASSERT_MESSAGE("Timer was fired",
                               gCallBackCount == 1);
-       diffUSecs = getTimeDeltaInUsecs();
-       REPORT_SKEW(("      Timing inaccuracy = %6ld us;\n",
+        CPPUNIT_ASSERT_MESSAGE("mWasFired = TRUE",
+                               pTimer->getWasFired() == TRUE);
+        diffUSecs = getTimeDeltaInUsecs();
+        REPORT_SKEW(("      Timing inaccuracy = %6ld us;\n",
                     diffUSecs - MsecsToUsecs(2000)));
-       CPPUNIT_ASSERT_MESSAGE("Handle timer 1 - Verify timer was fired "
-                              "after 2 secs",
-                              diffUSecs > MsecsToUsecs(2000 - OSTIMETOLERANCE) &&
-                              diffUSecs < MsecsToUsecs(2000 + OSTIMETOLERANCE));
-       delete pTimer;
-       delete pNotifier;
+        CPPUNIT_ASSERT_MESSAGE("Handle timer 1 - Verify timer was fired "  
+                               "after 2 secs",
+                               diffUSecs > MsecsToUsecs(2000 - OSTIMETOLERANCE) && 
+                               diffUSecs < MsecsToUsecs(2000 + OSTIMETOLERANCE));
+        delete pTimer;
+        delete pNotifier;
     }
 
     void testStopTimerAfterOneShot()
     {
-       OsCallback* pNotifier;
-       OsTimer* pTimer;
-       pNotifier = new OsCallback((int)this, TVCallback);
-       pTimer = new OsTimer(*pNotifier);
-       gCallBackCount = 0;
-       pTimer->oneshotAfter(oneSecond);
-       OsTask::delay(500);
-       pTimer->stop();
-       OsTask::delay(1200);
-       // We have waited for 1.7 sec after arming the timer, and the timer
-       // was scheduled to fire after 1.0 sec.  But we disarmed the timer
-       // after 0.5 sec, so gCallBackCount should be 0.
-       CPPUNIT_ASSERT_MESSAGE("Verify that canceling the timer disarms it",
-                              gCallBackCount == 0);
-       delete pTimer;
-       delete pNotifier;
+        OsCallback* pNotifier; 
+        OsTimer* pTimer ;
+        pNotifier = new OsCallback((int)this, TVCallback);
+        pTimer = new OsTimer(*pNotifier);
+        gCallBackCount = 0;
+        pTimer->oneshotAfter(oneSecond) ; 
+        OsTask::delay(500) ; 
+        pTimer->stop() ;  
+        OsTask::delay(1200) ;
+        // We have waited for 1.7 sec after arming the timer, and the timer
+        // was scheduled to fire after 1.0 sec.  But we disarmed the timer
+        // after 0.5 sec, so gCallBackCount should be 0.
+        CPPUNIT_ASSERT_MESSAGE("Verify that canceling the timer disarms it",
+                               gCallBackCount == 0);
+        CPPUNIT_ASSERT_MESSAGE("mWasFired = FALSE",
+                               pTimer->getWasFired() == FALSE);
+        delete pTimer ; 
+        delete pNotifier;
     }
 
     void testPeriodicTimer()
     {
-        OsCallback* pNotifier;
-        OsTimer* pTimer;
-        UtlBoolean returnValue;
+        OsCallback* pNotifier ;
+        OsTimer* pTimer ; 
+        UtlBoolean returnValue ; 
         pNotifier = new OsCallback((int)this, TVCallback);
         pTimer = new OsTimer(*pNotifier);
         gCallBackCount = 0;
-        returnValue = pTimer->periodicEvery(twoSeconds, twoSeconds);
-        // Give a delay of 10+ seconds . If all went well the call back method
-        // must have been called once every 2 seconds and hence the callbackcount
-        // must be up by 5.
-        OsTask::delay(11250);
-        CPPUNIT_ASSERT_MESSAGE("Test periodic timer - verify return value",
-            returnValue);
+        returnValue = pTimer->periodicEvery(twoSeconds, twoSeconds) ; 
+        //Give a delay of 10+ seconds . If all went well the call back method
+        //must have been called once every 2 seconds and hence the callback count 
+        //must be up by 5. 
+        OsTask::delay(11250) ; 
+        CPPUNIT_ASSERT_MESSAGE("Test periodic timer - verify return value", 
+            returnValue) ; 
         CPPUNIT_ASSERT_EQUAL_MESSAGE("Test periodic timer - verify that the "
                                      "timer is called periodically",
                                      5, gCallBackCount);
-        delete pTimer;
+        //we didn't stop the timer, and it fired, so flag should be TRUE
+        CPPUNIT_ASSERT_MESSAGE("mWasFired = TRUE",
+                               pTimer->getWasFired() == TRUE);
+        delete pTimer ; 
         delete pNotifier;
     }
 
     void testPeriodicTimer_FractionalTime()
     {
-       OsCallback* pNotifier;
-       OsTimer* pTimer;
-       pNotifier = new OsCallback((int)this, TVCallback);
-       pTimer = new OsTimer(*pNotifier);
-       gCallBackCount = 0;
-       pTimer->periodicEvery(OsTime::NO_WAIT_TIME, hundredMsec);
-       // Give a delay of 1+ seconds . If all went well the call back method
-       // must have been called once in the begining and every 100 milliseconds thereafter
-       // and hence the callbackcount must be up by 10+1.
-       OsTask::delay(1010);
-       KNOWN_BUG("Itermittent failure here; not predictable", "XPL-52");
-       CPPUNIT_ASSERT_EQUAL_MESSAGE("Test periodic timer - verify that the fractional timer is "
+        OsCallback* pNotifier ;
+        OsTimer* pTimer ; 
+        pNotifier = new OsCallback((int)this, TVCallback);
+        pTimer = new OsTimer(*pNotifier);
+        gCallBackCount = 0;
+        pTimer->periodicEvery(OsTime::NO_WAIT_TIME, hundredMsec);
+        //Give a delay of 1+ seconds . If all went well the call back method
+        //must have been called once in the beginning and every 100 milliseconds thereafter
+        //and hence the callback count must be up by 10+1. 
+        OsTask::delay(1010) ; 
+        KNOWN_BUG("Intermittent failure here; not predictable", "XPL-52");
+        CPPUNIT_ASSERT_EQUAL_MESSAGE("Test periodic timer - verify that the fractional timer is " 
                                     "*indeed* called periodically", 11, gCallBackCount);
-       delete pTimer;
-       delete pNotifier;
+        CPPUNIT_ASSERT_MESSAGE("mWasFired = TRUE",
+                               pTimer->getWasFired() == TRUE);
+        delete pTimer ; 
+        delete pNotifier;
     }
 
     void testOneshotPeriodicComboTimer()
     {
-       UtlBoolean returnValue;
-       OsCallback* pNotifier;
-       OsTimer* pTimer;
-       long diffUSecs;
-       pNotifier = new OsCallback((int)this, TVCallback);
-       pTimer = new OsTimer(*pNotifier);
-       gCallBackCount = 0;
-       g_get_current_time(&startTV);
-       returnValue = pTimer->periodicEvery(oneSecond, twoSeconds);
-       OsTask::delay(1000 + OSTIMETOLERANCE);
-       CPPUNIT_ASSERT_MESSAGE("Test oneshot & periodic timer combo - "
-                              "verify return value", returnValue);
-       CPPUNIT_ASSERT_MESSAGE("Timer was fired",
-                              gCallBackCount == 1);
-       diffUSecs = getTimeDeltaInUsecs();
-       REPORT_SKEW(("      Timing inaccuracy = %ld us;\n",
+        UtlBoolean returnValue ; 
+        OsCallback* pNotifier ;
+        OsTimer* pTimer ; 
+        long diffUSecs ; 
+        pNotifier = new OsCallback((int)this, TVCallback);
+        pTimer = new OsTimer(*pNotifier);
+        gCallBackCount = 0;
+        g_get_current_time(&startTV);
+        returnValue = pTimer->periodicEvery(oneSecond, twoSeconds) ; 
+        OsTask::delay(1000 + OSTIMETOLERANCE) ; 
+        CPPUNIT_ASSERT_MESSAGE("Test oneshot & periodic timer combo - "
+            "verify return value", returnValue) ; 
+        CPPUNIT_ASSERT_MESSAGE("Timer was fired",
+                               gCallBackCount == 1);
+        diffUSecs = getTimeDeltaInUsecs();
+        REPORT_SKEW(("      Timing inaccuracy = %ld us;\n",
                     diffUSecs - MsecsToUsecs(1000)));
-       CPPUNIT_ASSERT_MESSAGE("Test oneshot/periodic combo - "
-                              "Verify first call is based on first argument",
-                              diffUSecs > MsecsToUsecs(1000 - OSTIMETOLERANCE) &&
-                              diffUSecs < MsecsToUsecs(1000 + OSTIMETOLERANCE) );
-       // now wait for another 5+ seconds. The total time after starting the timer is
-       // 6 seconds.
-       OsTask::delay(5340);
-       CPPUNIT_ASSERT_EQUAL_MESSAGE("Test oneshot/periodic combo - Verify the timer is called "
+        CPPUNIT_ASSERT_MESSAGE("Test oneshot/periodic combo - "
+            "Verify first call is based on first argument",
+            diffUSecs > MsecsToUsecs(1000 - OSTIMETOLERANCE) && 
+            diffUSecs < MsecsToUsecs(1000 + OSTIMETOLERANCE) ) ;
+        // now wait for another 5+ seconds. The total time after starting the timer is 
+        // 6 seconds. 
+        OsTask::delay(5340) ; 
+        CPPUNIT_ASSERT_EQUAL_MESSAGE("Test oneshot/periodic combo - Verify the timer is called " 
                                     "repeatadly as per the second argument", 3, gCallBackCount);
-       delete pTimer;
-       delete pNotifier;
+        delete pTimer ; 
+        delete pNotifier;
     }
 
     void testStopPeriodicTimer()
     {
-       OsCallback* pNotifier;
-       OsTimer* pTimer;
-       OsTimer* pTimer2;
-       long diffUSecs;
-       pNotifier = new OsCallback((int)this, TVCallback);
-       pTimer = new OsTimer(*pNotifier);
-       gCallBackCount = 0;
-       pTimer->periodicEvery(oneSecond, twoSeconds);
-       // Test the case where the timer is stopped even before the first leg
-       // is fired
-       OsTask::delay(350);
-       pTimer->stop();
-       // Wait for another 5 seconds. Neither the first shot nor the repeat legs
-       // should ever have been called.
-       OsTask::delay(5000);
-       CPPUNIT_ASSERT_MESSAGE("Verify that a periodic timer can be stopped even "
+        OsCallback* pNotifier ;
+        OsTimer* pTimer ; 
+        OsTimer* pTimer2 ; 
+        long diffUSecs ; 
+        pNotifier = new OsCallback((int)this, TVCallback);
+        pTimer = new OsTimer(*pNotifier);
+        gCallBackCount = 0;
+        pTimer->periodicEvery(oneSecond, twoSeconds) ; 
+        // Test the case where the timer is stopped even before the first leg
+        // is fired
+        OsTask::delay(350) ; 
+        pTimer->stop() ; 
+        // Wait for another 5 seconds. Neither the first shot nor the repeat legs
+        // should ever have been called. 
+        OsTask::delay(5000) ; 
+        CPPUNIT_ASSERT_MESSAGE("Verify that a periodic timer can be stopped even " 
                               "before the first leg is called", gCallBackCount == 0);
-       delete pTimer;
+        CPPUNIT_ASSERT_MESSAGE("mWasFired = FALSE",
+                               pTimer->getWasFired() == FALSE);
+        delete pTimer ; 
 
-       pTimer2 = new OsTimer(*pNotifier);
-       gCallBackCount = 0;
-       g_get_current_time(&startTV);
-       pTimer2->periodicEvery(oneSecond, twoSeconds);
-       OsTask::delay(1000 + OSTIMETOLERANCE);
-       pTimer2->stop();
-       // Wait for another 5 seconds. Only the first shot should have been called.
-       OsTask::delay(5000);
-       CPPUNIT_ASSERT_MESSAGE("Timer was fired",
+        pTimer2 = new OsTimer(*pNotifier);
+        gCallBackCount = 0;
+        g_get_current_time(&startTV);
+        pTimer2->periodicEvery(oneSecond, twoSeconds) ; 
+        OsTask::delay(1000 + OSTIMETOLERANCE) ;
+        pTimer2->stop() ; 
+        // Wait for another 5 seconds. Only the first shot should have been called.
+        OsTask::delay(5000) ; 
+        CPPUNIT_ASSERT_MESSAGE("Timer was fired",
                               gCallBackCount == 1);
-       diffUSecs = getTimeDeltaInUsecs();
-       REPORT_SKEW(("      Timing inaccuracy = %ld us;\n",
+        diffUSecs = getTimeDeltaInUsecs() ; 
+        REPORT_SKEW(("      Timing inaccuracy = %ld us;\n",
                     diffUSecs - MsecsToUsecs(1000)));
-       CPPUNIT_ASSERT_MESSAGE("Test stoping periodic timer - Verify that the "
-                              "first leg was fired",
-                              diffUSecs > MsecsToUsecs(1000 - OSTIMETOLERANCE) &&
-                              diffUSecs < MsecsToUsecs(1000 + OSTIMETOLERANCE) );
-       // Also verify that only the first leg was called.
-       CPPUNIT_ASSERT_EQUAL_MESSAGE("Test stoping periodic timer - Verify that ONLY the first "
+        CPPUNIT_ASSERT_MESSAGE("Test stopping periodic timer - Verify that the " 
+            "first leg was fired", 
+            diffUSecs > MsecsToUsecs(1000 - OSTIMETOLERANCE) && 
+            diffUSecs < MsecsToUsecs(1000 + OSTIMETOLERANCE) ) ; 
+        // Also verify that only the first leg was called. 
+        CPPUNIT_ASSERT_EQUAL_MESSAGE("Test stopping periodic timer - Verify that ONLY the first " 
                                     "leg was fired", 1, gCallBackCount);
-       delete pTimer2;
-       delete pNotifier;
+        // timer was stopped manually, so FALSE
+        CPPUNIT_ASSERT_MESSAGE("mWasFired = FALSE",
+                               pTimer2->getWasFired() == FALSE);
+        delete pTimer2 ; 
+        delete pNotifier;
     }
 
     void testDeleteTimerBeforeExpires()
     {
-       OsCallback* pNotifier;
-       OsTimer* pTimer;
-       pNotifier = new OsCallback((int)this, TVCallback);
-       pTimer = new OsTimer(*pNotifier);
-       gCallBackCount = 0;
-       pTimer->periodicEvery(oneSecond, twoSeconds);
-       OsTask::delay(350);
-       delete pTimer;
-       // Wait for another 5 seconds. Neither the first shot nor the repeat legs
-       // should ever have been called.
-       OsTask::delay(5000);
-       CPPUNIT_ASSERT_MESSAGE("Verify that a periodictimer can be stopped even "
+        OsCallback* pNotifier ;
+        OsTimer* pTimer ; 
+        pNotifier = new OsCallback((int)this, TVCallback);
+        pTimer = new OsTimer(*pNotifier);
+        gCallBackCount = 0;
+        pTimer->periodicEvery(oneSecond, twoSeconds) ; 
+        OsTask::delay(350) ; 
+        delete pTimer ; 
+        // Wait for another 5 seconds. Neither the first shot nor the repeat legs
+        // should ever have been called. 
+        OsTask::delay(5000) ; 
+        CPPUNIT_ASSERT_MESSAGE("Verify that a periodic timer can be stopped even " 
                               "before the first leg is called", gCallBackCount == 0);
-       delete pNotifier;
+        delete pNotifier ; 
     }
 
     // Tests for various sequences of operations.
@@ -563,6 +604,8 @@ public:
        CPPUNIT_ASSERT_MESSAGE("oneshotAfter", returnValue == OS_SUCCESS);
        OsTask::delay(5000);
        CPPUNIT_ASSERT_MESSAGE("Test start/fire", gCallBackCount == 1);
+       CPPUNIT_ASSERT_MESSAGE("mWasFired = TRUE",
+                              timer.getWasFired() == TRUE);
     }
 
     void testStartStop()
@@ -576,6 +619,8 @@ public:
        OsTask::delay(500);
        returnValue = timer.stop();
        CPPUNIT_ASSERT_MESSAGE("stop", returnValue == OS_SUCCESS);
+       CPPUNIT_ASSERT_MESSAGE("mWasFired = FALSE",
+                              timer.getWasFired() == FALSE);
        OsTask::delay(5000);
        CPPUNIT_ASSERT_MESSAGE("Test start/stop", gCallBackCount == 0);
     }
@@ -590,8 +635,12 @@ public:
        CPPUNIT_ASSERT_MESSAGE("periodicEvery", returnValue == OS_SUCCESS);
        // Allow to fire 3 times
        OsTask::delay(6000);
+       CPPUNIT_ASSERT_MESSAGE("mWasFired = TRUE",
+                              timer.getWasFired() == TRUE);
        returnValue = timer.stop();
        CPPUNIT_ASSERT_MESSAGE("stop", returnValue == OS_SUCCESS);
+       CPPUNIT_ASSERT_MESSAGE("mWasFired = FALSE",
+                              timer.getWasFired() == FALSE);
        OsTask::delay(5000);
        CPPUNIT_ASSERT_MESSAGE("Test start-periodic/fire/stop",
                               gCallBackCount == 3);
@@ -606,6 +655,8 @@ public:
        returnValue = pTimer->oneshotAfter(oneSecond);
        CPPUNIT_ASSERT_MESSAGE("oneshotAfter", returnValue == OS_SUCCESS);
        OsTask::delay(500);
+       CPPUNIT_ASSERT_MESSAGE("mWasFired = FALSE",
+                              pTimer->getWasFired() == FALSE);
        // Delete the timer before it can fire.
        delete pTimer;
        // Make sure it did not fire.
@@ -623,6 +674,8 @@ public:
        CPPUNIT_ASSERT_MESSAGE("oneshotAfter 1", returnValue == OS_SUCCESS);
        OsTask::delay(500);
        returnValue = timer.stop();
+       CPPUNIT_ASSERT_MESSAGE("mWasFired = FALSE",
+                              timer.getWasFired() == FALSE);
        CPPUNIT_ASSERT_MESSAGE("stop", returnValue == OS_SUCCESS);
        OsTask::delay(500);
        returnValue = timer.oneshotAfter(oneSecond);
@@ -709,7 +762,8 @@ public:
             calls = 2;
             g_get_current_time(&tStart) ; 
             g_get_current_time(&tNow) ; 
-            while ((tNow.tv_usec - tStart.tv_usec) < 1000) {
+            while ((tNow.tv_usec - tStart.tv_usec) < 1000 && 
+                    (tNow.tv_usec - tStart.tv_usec) >= 0) {
                 g_get_current_time(&tNow) ; 
                 calls++;
             }

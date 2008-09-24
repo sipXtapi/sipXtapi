@@ -1,10 +1,12 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 
 #ifndef _UtlInt_h_
@@ -13,7 +15,7 @@
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
 #include "utl/UtlDefs.h"
-#include "utl/UtlContainable.h"
+#include "utl/UtlCopyableContainable.h"
 
 // DEFINES
 // MACROS
@@ -27,10 +29,11 @@
 /**
  * UtlInt is a UtlContainable wrapper for an int.
  */
-class UtlInt : public UtlContainable
+class UtlInt : public UtlCopyableContainable
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
+    static const UtlContainableType TYPE ;    /** < Class type used for runtime checking */ 
 
 /* ============================ CREATORS ================================== */
 
@@ -38,11 +41,14 @@ public:
      * Constructor accepting an optional default value.
      */
     UtlInt(int initialValue = 0) ;
+    UtlInt(const UtlInt& rhs) ;
       
     /**
      * Destructor
      */
     virtual ~UtlInt();
+
+    UtlCopyableContainable* clone() const;
 
 /* ============================ OPERATORS ============================== */
 
@@ -53,6 +59,8 @@ public:
     // Declare prefix and postfix decrement operators.
     UtlInt& operator--();       // Prefix decrement operator
     UtlInt operator--(int);     // Postfix decrement operator
+
+    UtlInt& operator=(const UtlInt& rhs); // assigment operator
 
     // Conversion to int
     operator int() { return mValue; }
@@ -84,9 +92,7 @@ public:
      * Get the ContainableType for a UtlContainable derived class.
      */
     virtual UtlContainableType getContainableType() const;
-
-    static const UtlContainableType TYPE ;    /**< Class type used for runtime checking */ 
-
+         
 /* ============================ INQUIRY =================================== */
 
     /**

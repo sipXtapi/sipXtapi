@@ -1,13 +1,15 @@
-// $Id$
 //
-// Copyright (C) 2005 SIPfoundry Inc.
-// License by SIPfoundry under the LGPL license.
+// Copyright (C) 2005-2008 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
 // 
-// Copyright (C) 2005 Pingtel Corp.
+// Copyright (C) 2004-2008 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-//////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 #ifndef _sipXmediaFactoryImpl_h_
 #define _sipXmediaFactoryImpl_h_
@@ -18,16 +20,6 @@
 #include <rtcp/RtcpConfig.h>
 
 // DEFINES
-#define GIPS_CODEC_ID_IPCMWB    "IPCMWB"
-#define GIPS_CODEC_ID_ISAC      "ISAC"
-#define GIPS_CODEC_ID_EG711U    "EG711U"
-#define GIPS_CODEC_ID_EG711A    "EG711A"
-#define GIPS_CODEC_ID_PCMA      "PCMA"
-#define GIPS_CODEC_ID_PCMU      "PCMU"
-#define GIPS_CODEC_ID_ILBC      "iLBC"
-#define GIPS_CODEC_ID_G729      "G729"
-#define GIPS_CODEC_ID_TELEPHONE "audio/telephone-event"
-
 // MACROS
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -52,10 +44,30 @@ class sipXmediaFactoryImpl : public CpMediaInterfaceFactoryImpl
 
 /* ============================ CREATORS ================================== */
 
-   /**
-    * Default constructor
-    */
-   sipXmediaFactoryImpl(OsConfigDb* pConfigDb);
+     /// @brief Default constructor
+   sipXmediaFactoryImpl(OsConfigDb* pConfigDb, 
+                        uint32_t frameSizeMs, uint32_t maxSamplesPerSec,
+                        uint32_t defaultSamplesPerSec);
+     /**<
+     *  @param pConfigDb - a configuration database to pass user-settable config
+     *         parameters to sipXmediaLib.  TODO: Someone that knows more, document this better!
+     *  @param frameSizeMs - This parameter is used for determining the 
+     *         frame size (in milliseconds) that the media subsystem will use.
+     *         It is used for initializing the size of audio buffers, and for 
+     *         configuring a default value for samples per frame in device 
+     *         managers (so that when devices are enabled without specifying 
+     *         samples per frame, the value configured here will be used).
+     *  @param maxSamplesPerSec - This is used for initializing audio buffers.
+     *         Lower sample rates can indeed be used for individual media 
+     *         interfaces (set later), since a lesser amount of these buffers 
+     *         can be used (i.e. not fully utilized).  Higher sample rates can 
+     *         be used by passing params here, but this will result in more 
+     *         memory being used.  For low-memory environments that do not 
+     *         require wideband support, one may wish to pass 8000kHz here, as 
+     *         the default is 16000kHz.
+     *  @param defaultSamplesPerSec - The sample rate that device managers and 
+     *         flowgraphs will use when no sample rate is specified.
+     */
      
 
    /**
@@ -72,8 +84,14 @@ class sipXmediaFactoryImpl : public CpMediaInterfaceFactoryImpl
                                                     int expeditedIpTos,
                                                     const char* szStunServer,
                                                     int stunOptions,
-                                                    int iStunKeepAliveSecs 
-                                                  ) ;
+                                                    int iStunKeepAliveSecs,
+                                                    const char* szTurnServer,
+                                                    int iTurnPort,
+                                                    const char* szTurnUsername,
+                                                    const char* szTurnPassword,
+                                                    int iTurnKeepAlivePeriodSecs,
+                                                    UtlBoolean bEnableICE, 
+                                                    uint32_t samplesPerSec);
 
     virtual OsStatus setSpeakerVolume(int iVolume) ;
     virtual OsStatus setSpeakerDevice(const UtlString& device) ;
@@ -81,14 +99,19 @@ class sipXmediaFactoryImpl : public CpMediaInterfaceFactoryImpl
     virtual OsStatus setMicrophoneGain(int iGain) ;
     virtual OsStatus setMicrophoneDevice(const UtlString& device) ;
     virtual OsStatus muteMicrophone(UtlBoolean bMute) ;
+    virtual OsStatus setAudioAECMode(const MEDIA_AEC_MODE mode) ;
+    virtual OsStatus enableAGC(UtlBoolean bEnable) ;
+    virtual OsStatus setAudioNoiseReductionMode(const MEDIA_NOISE_REDUCTION_MODE mode) ;
 
-    virtual OsStatus enableAudioAEC(UtlBoolean bEnable);
-    virtual OsStatus enableOutOfBandDTMF(UtlBoolean bEnable);
-
-    virtual OsStatus buildCodecFactory(SdpCodecFactory *pFactory, 
+    /// Populate the codec factory, return number of rejected codecs.
+    virtual OsStatus buildCodecFactory(SdpCodecList*     pFactory, 
                                        const UtlString& sPreferences,
                                        const UtlString& sVideoPreferences,
+                                       int videoFormat,
                                        int* iRejected);
+    /**<
+    *  Note, that current implementation ignore \p videoFormat parameter.
+    */
 
     virtual OsStatus updateVideoPreviewWindow(void* displayContext) ;
 
@@ -96,6 +119,7 @@ class sipXmediaFactoryImpl : public CpMediaInterfaceFactoryImpl
      * Set the global video preview window 
      */ 
     virtual OsStatus setVideoPreviewDisplay(void* pDisplay);
+
 
     virtual OsStatus setVideoQuality(int quality);
     virtual OsStatus setVideoParameters(int bitRate, int frameRate);
@@ -108,10 +132,7 @@ class sipXmediaFactoryImpl : public CpMediaInterfaceFactoryImpl
     virtual OsStatus getMicrophoneGain(int& iVolume) const ;
     virtual OsStatus getMicrophoneDevice(UtlString& device) const ;
 
-    virtual OsStatus getNumOfCodecs(int& iCodecs) const;
-    virtual OsStatus getCodec(int iCodec, UtlString& codec, int& bandWidth) const;
-
-    virtual OsStatus getCodecNameByType(SdpCodec::SdpCodecTypes codecType, UtlString& codecName) const;
+    virtual OsStatus getLocalAudioConnectionId(int& connectionId) const ;
 
     virtual OsStatus getVideoQuality(int& quality) const;
     virtual OsStatus getVideoBitRate(int& bitRate) const;
@@ -119,12 +140,12 @@ class sipXmediaFactoryImpl : public CpMediaInterfaceFactoryImpl
 
 /* ============================ INQUIRY =================================== */
 
-    virtual OsStatus isAudioAECEnabled(UtlBoolean& bEnabled) const;
-    virtual OsStatus isOutOfBandDTMFEnabled(UtlBoolean& bEnabled) const;
-
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
   protected:
-    MpMediaTask*    mpMediaTask ;     /**< Media task instance */
+    MpMediaTask*    mpMediaTask ; /**< Media task instance */
+    uint32_t mFrameSizeMs; //< The size of the smallest unit of audio that we process on, in milliseconds
+    uint32_t mMaxSamplesPerSec;   //< Maximum sample rate that any flowgraph may have set (used for initializing buffers)
+    uint32_t mDefaultSamplesPerSec;   //< Default sample rate that flowgraphs and devices may have set
 #ifdef INCLUDE_RTCP /* [ */
     IRTCPControl*   mpiRTCPControl;   /**< Realtime Control Interface */
 #endif /* INCLUDE_RTCP ] */

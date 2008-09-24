@@ -1,13 +1,20 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
+
+// Keep UtlInit.h as the first include!
+// See UtlInit class description for more information.
+#include "utl/UtlInit.h"
+
 #include "utl/UtlListIterator.h"
 #include "utl/UtlList.h"
 #include "utl/UtlContainable.h"
@@ -26,9 +33,8 @@
  * the iterator would return the first element on the list, because NULL
  * designates the state "before the first element".
  */
-const UtlLink*  UtlListIterator::NOWHERE = new UtlLink;
-UtlLink const* UtlListIterator::OFF_LIST_END = NOWHERE;
-                                              
+const UtlLink* UtlListIterator::OFF_LIST_END;
+
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
 /* ============================ CREATORS ================================== */

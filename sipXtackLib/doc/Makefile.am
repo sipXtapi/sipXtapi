@@ -1,4 +1,4 @@
-include $(top_srcdir)/config/subdir.am
+include $(top_srcdir)/config/sipXcommon.mak.in
 
 EXTRA_DIST = \
   Doxyfile.in \

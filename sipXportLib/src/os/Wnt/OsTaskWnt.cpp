@@ -1,10 +1,15 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 
 // SYSTEM INCLUDES
@@ -17,11 +22,15 @@
 #include "os/OsDateTime.h"
 #include "os/Wnt/OsTaskWnt.h"
 #include "os/Wnt/OsUtilWnt.h"
-#include <process.h>
+#ifndef WINCE
+#   include <process.h>
+#endif
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
 // STATIC VARIABLE INITIALIZATIONS
+// FORWARD DECLARATIONS
+static void SetThreadName(DWORD dwThreadID, LPCTSTR szThreadName);
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
@@ -48,6 +57,8 @@ OsTaskWnt::OsTaskWnt(const UtlString& name,
 // Destructor
 OsTaskWnt::~OsTaskWnt()
 {
+   waitUntilShutDown();
+
    OsLock lock(mDataGuard);
 
    doWntTerminateTask(FALSE);
@@ -87,7 +98,7 @@ UtlBoolean OsTaskWnt::restart(void)
 // the task operates in the remaining state.
 OsStatus OsTaskWnt::resume(void)
 {
-   int    ntResult;
+   BOOL    ntResult;
    OsLock lock(mDataGuard);
 
    if (!isStarted())
@@ -115,7 +126,7 @@ UtlBoolean OsTaskWnt::start(void)
    if (isStarted())
       return FALSE;
 
-   return doWntCreateTask();
+   return doWntCreateTask(); ;
 }
 
 // Suspend the task.
@@ -236,31 +247,6 @@ OsStatus OsTaskWnt::delay(const int milliSecs)
    return OS_SUCCESS;
 }
 
-// Disable rescheduling for the currently executing task.
-// This routine disables task context switching. The task that calls
-// this routine will be the only task that is allowed to execute,
-// unless the task explicitly gives up the CPU by making itself no
-// longer ready. Typically this call is paired with unlock();
-// together they surround a critical section of code. These
-// preemption locks are implemented with a counting variable that
-// allows nested preemption locks. Preemption will not be unlocked
-// until unlock() has been called as many times as lock().
-OsStatus OsTaskWnt::lock(void)
-{
-   return OS_NOT_YET_IMPLEMENTED;
-}
-
-// Enable rescheduling for the currently executing task.
-// This routine decrements the preemption lock count. Typically
-// this call is paired with lock() and concludes a critical
-// section of code. Preemption will not be unlocked until
-// unlock() has been called as many times as lock(). When
-// the lock count is decremented to zero, any tasks that were
-// eligible to preempt the current task will execute.
-OsStatus OsTaskWnt::unlock(void)
-{
-   return OS_NOT_YET_IMPLEMENTED;
-}
 
 // Make the calling task safe from deletion.
 // This routine protects the calling task from deletion. Tasks that
@@ -435,17 +421,6 @@ OsStatus OsTaskWnt::id(int& rId)
    return retVal;
 }
 
-// Check if the task is ready to run
-// Return TRUE is the task is ready, otherwise FALSE.
-// Under Windows NT, this method returns the opposite of isSuspended()
-UtlBoolean OsTaskWnt::isReady(void)
-{
-   if (!isStarted())
-      return FALSE;
-
-   return(!isSuspended());
-}
-
 // Check if the task is suspended.
 // Return TRUE is the task is suspended, otherwise FALSE.
 UtlBoolean OsTaskWnt::isSuspended(void)
@@ -466,17 +441,19 @@ UtlBoolean OsTaskWnt::isSuspended(void)
 // The mDataGuard lock should be held upon entry into this method.
 UtlBoolean OsTaskWnt::doWntCreateTask(void)
 {
+   //  JEP - TODO - implement this...
    char  idString[15];
    unsigned int threadId;
 
-   mThreadH = (void *)_beginthreadex(
+//   mThreadH = (void *)_beginthreadex(
+   mThreadH = (void *)CreateThread(
                 0,             // don't specify any thread attributes
                 mStackSize,    // stack size (in bytes)
-                threadEntry,   // starting address of the new thread
+                (LPTHREAD_START_ROUTINE) threadEntry,   // starting address of the new thread
                 (void*) this,  // parameter value that will be passed
                                //  to the new thread
                 CREATE_SUSPENDED, // suspend thread until priority is set
-                &threadId);    // thread identifier return value
+                (unsigned long *) &threadId);    // thread identifier return value
 
    mSuspendCnt = 0;
    mThreadId   = threadId;
@@ -506,7 +483,7 @@ UtlBoolean OsTaskWnt::doWntCreateTask(void)
 void OsTaskWnt::doWntTerminateTask(UtlBoolean force)
 {
    char      idString[15];
-   UtlBoolean ntResult;
+   BOOL      ntResult;
    OsStatus  res;
 
    if (mState == UNINITIALIZED)
@@ -576,6 +553,9 @@ unsigned int __stdcall OsTaskWnt::threadEntry(LPVOID arg)
 
    pTask = (OsTaskWnt*) arg;
 
+   // This is a trick for Visual Studio debugger only.
+   SetThreadName(-1, pTask->mName.data());
+
    // Windows uses a different random number generator  each
    // thread.  This means that you need to initialized the
    // random number generator seed in each thread as well
@@ -609,3 +589,34 @@ unsigned int __stdcall OsTaskWnt::threadEntry(LPVOID arg)
 }
 
 /* ============================ FUNCTIONS ================================= */
+
+#define MS_VC_EXCEPTION 0x406d1388
+
+typedef struct tagTHREADNAME_INFO
+{
+   DWORD dwType;        // must be 0x1000
+   LPCSTR szName;       // pointer to name (in same addr space)
+   DWORD dwThreadID;    // thread ID (-1 caller thread)
+   DWORD dwFlags;       // reserved for future use, most be zero
+} THREADNAME_INFO;
+
+/// This is a trick to show thread names in Visual Studio debugger. 
+void SetThreadName(DWORD dwThreadID, LPCTSTR szThreadName)
+{
+#if defined(_DEBUG) && defined(_MSC_VER) // [
+   THREADNAME_INFO info;
+   info.dwType = 0x1000;
+   info.szName = szThreadName;
+   info.dwThreadID = dwThreadID;
+   info.dwFlags = 0;
+
+   __try
+   {
+      RaiseException(MS_VC_EXCEPTION, 0, sizeof(info) / sizeof(DWORD),
+                     (DWORD *)&info);
+   }
+   __except (EXCEPTION_CONTINUE_EXECUTION)
+   {
+   }
+#endif // _DEBUG && _MSC_VER ]
+}

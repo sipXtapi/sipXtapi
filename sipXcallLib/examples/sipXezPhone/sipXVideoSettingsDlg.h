@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// Name:        sipXezVideoSettingsDlg.h
+// Name:        sipXezPhoneSettingsDlg.h
 // Author:      XX
 // Created:     XX/XX/XX
 // Copyright:   XX
@@ -19,8 +19,11 @@
 #include "sipXezPhone_wdr.h"
 
 #define ID_VIDEO_BANDWIDTH_CHOICE 8102
-#define ID_VIDEO_OK_BUTTON 8103
-#define ID_VIDEO_SELECT_SINGLE 8105
+#define ID_VIDEO_OK_BUTTON        8103
+#define ID_VIDEO_SELECT_SINGLE    8105
+#define ID_VIDEO_QUALITY          8106
+#define ID_VIDEO_BITRATE          8107
+#define ID_VIDEO_FRAMERATE        8108
 
 // WDR: class declarations
 

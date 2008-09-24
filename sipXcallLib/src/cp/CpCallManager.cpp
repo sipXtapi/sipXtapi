@@ -1,18 +1,17 @@
-// 
-// 
-// Copyright (C) 2005-2006 SIPez LLC.
+//
+// Copyright (C) 2005-2008 SIPez LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.
 // 
-// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Copyright (C) 2004-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2004-2006 Pingtel Corp.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
-//////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
-// Author: Dan Petrie (dpetrie AT SIPez DOT com)
+// Author: Daniel Petrie dpetrie AT SIPez DOT com
 
 // SYSTEM INCLUDES
 #include "os/OsDefs.h"
@@ -25,12 +24,9 @@
 #include <os/OsLock.h>
 #include <os/OsDateTime.h>
 #include <os/OsSocket.h>
-#include <os/OsSysLog.h>
 #include <os/OsReadLock.h>
 #include <os/OsWriteLock.h>
 #include <os/OsProcess.h>
-
-#include "ptapi/PtAddressForwarding.h"
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -42,7 +38,7 @@ const int    CpCallManager::CALLMANAGER_MAX_REQUEST_MSGS = 6000;
 const int    CpCallManager::CALLMANAGER_MAX_REQUEST_MSGS = 1000;
 #endif  
 
-unsigned int CpCallManager::mCallNum = 0;
+int64_t CpCallManager::mCallNum = 0;
 OsMutex CpCallManager::mCallNumMutex(OsMutex::Q_FIFO);
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
@@ -59,15 +55,12 @@ CpCallManager::CpCallManager(const char* taskName,
 OsServerTask(taskName, NULL, CALLMANAGER_MAX_REQUEST_MSGS),
 mManagerMutex(OsMutex::Q_FIFO),
 mCallListMutex(OsMutex::Q_FIFO),
-mCallIndices(),
-mAddressForwardMutex(OsMutex::Q_FIFO)
+mCallIndices()
 {
-    mpAddressForwards = 0;
     mDoNotDisturbFlag = FALSE;
     mMsgWaitingFlag = FALSE;
     mOfferedTimeOut = 0;
-    mAddressForwardingCnt = 0;
-
+    
    if(callIdPrefix)
    {
        mCallIdPrefix.append(callIdPrefix);
@@ -95,29 +88,27 @@ mAddressForwardMutex(OsMutex::Q_FIFO)
    }
 
    mLastMetaEventId = 0;
+   mbEnableICE = false ;
+
 }
 
 // Copy constructor
 CpCallManager::CpCallManager(const CpCallManager& rCpCallManager) :
 OsServerTask("badCallManagerCopy"),
 mManagerMutex(OsMutex::Q_FIFO),
-mCallListMutex(OsMutex::Q_FIFO),
-mAddressForwardMutex(OsMutex::Q_FIFO)
-
+mCallListMutex(OsMutex::Q_FIFO)
 {
-    // Copy of call manager not supported
-    assert(0);
+    mDoNotDisturbFlag = rCpCallManager.mDoNotDisturbFlag;
+    mMsgWaitingFlag = rCpCallManager.mMsgWaitingFlag;
+    mOfferedTimeOut = rCpCallManager.mOfferedTimeOut;
+
+    mLastMetaEventId = 0;
+    mbEnableICE = rCpCallManager.mbEnableICE ; 
 }
 
 // Destructor
 CpCallManager::~CpCallManager()
 {
-    if (mpAddressForwards)
-    {
-        delete mpAddressForwards;
-        mpAddressForwards = 0;
-        mAddressForwardingCnt = 0;
-    }
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -376,8 +367,10 @@ CpCallManager::operator=(const CpCallManager& rhs)
    if (this == &rhs)            // handle the assignment to self case
       return *this;
 
-    // Copy of call manager not supported
-    assert(0);
+    mDoNotDisturbFlag = rhs.mDoNotDisturbFlag;
+    mMsgWaitingFlag = rhs.mMsgWaitingFlag;
+    mOfferedTimeOut = rhs.mOfferedTimeOut;
+    mbEnableICE = rhs.mbEnableICE ;
 
     return *this;
 }
@@ -389,7 +382,7 @@ void CpCallManager::getNewCallId(UtlString* callId)
 
 void CpCallManager::getNewSessionId(UtlString* callId)
 {
-    getNewCallId("session", callId);
+    getNewCallId("s", callId);
 }
 
 // This implements a new strategy for generating Call-IDs after the
@@ -397,7 +390,7 @@ void CpCallManager::getNewSessionId(UtlString* callId)
 //
 // The Call-ID is composed of several fields:
 // - a prefix supplied by the caller
-// - a counter (in hexadecimal)
+// - a counter
 // - the Process ID
 // - a start time, to microsecond resolution
 //   (when getNewCallId was first called)
@@ -418,7 +411,7 @@ void CpCallManager::getNewSessionId(UtlString* callId)
 // (64 bits) should ensure no collisions until the number of
 // concurrent calls reaches 2^32.
 //
-// The sections of the Call-ID are separated with "/" because "/"
+// The sections of the Call-ID are separated with "/" because those
 // cannot otherwise appear in the final components, and so a generated
 // Call-ID can be unambiguously parsed into its components from back
 // to front, regardless of the user-supplied prefix, which ensures
@@ -436,20 +429,12 @@ void CpCallManager::getNewSessionId(UtlString* callId)
 // replaced it with "_", but I do not see why, as ":" is a "word"
 // character.  This version does not.
 //
-// The counter mCallNum is incremented by 0x23450001 rather than 1 so
+// The counter mCallNum is incremented by 19560001 rather than 1 so
 // that successive Call-IDs differ in more than 1 character, and so
 // hash better.  This does not reduce the cycle time of the counter,
-// since 0x23450001 is relatively prime to the limit of an int,
-// 2^32, so we can generate 2^32 Call-IDs before repeating.
-// Because the increment ends in "0001", the final four hex digits
+// since 19560001 is relatively prime to the limit of a long-long-int,
+// 2^64.  Because the increment ends in "0001", the final four digits
 // of this field of the Call-ID count in a human-readable way.
-// And because five digits of the hexadecimal representation change with
-// every Call-ID, even weak hash functions should not have excessive
-// collisions when hashing them.
-//
-// Unlike previous versions of this code, this version uses only int's and not
-// long-long-int's, which are supported differently by different compilers,
-// and cause much portability hassle.
 //
 // Ideally, Call-IDs would have crypto-quality randomness (as
 // recommended in RFC 3261 section 8.1.1.4), but the previous version
@@ -469,7 +454,11 @@ void CpCallManager::getNewCallId(const char* callIdPrefix, UtlString* callId)
    static UtlBoolean initialized = FALSE;
 
    // Increment the call number.
-   mCallNum += 0x23450001;
+#ifdef USE_LONG_CALL_IDS
+   mCallNum += 19560001;
+#else
+   mCallNum += 1201;
+#endif
     
    // callID prefix shouldn't contain an @.
    if (strchr(callIdPrefix, '@') != NULL)
@@ -483,12 +472,14 @@ void CpCallManager::getNewCallId(const char* callIdPrefix, UtlString* callId)
    if (!initialized)
    {
       // Get the start time.
-      OsTime currentTime;
-      OsDateTime::getCurTime(currentTime);
+      OsTime current_time;
+      OsDateTime::getCurTime(current_time);
+      int64_t start_time =
+         ((int64_t) current_time.seconds()) * 1000000 + current_time.usecs();
 
       // Get the process ID.
-      PID processId;
-      processId = OsProcess::getCurrentPID();
+      int process_id;
+      process_id = OsProcess::getCurrentPID();
 
       // Get the host identity.
       UtlString thisHost;
@@ -497,21 +488,26 @@ void CpCallManager::getNewCallId(const char* callIdPrefix, UtlString* callId)
       thisHost.replace('@','*');
 
       // Compose the static fields.
-      // Force usecs. to be 6 digits withleading zeros so that we do not have to do 64 bit integer math
-      // just to build a big unique string.
-      sprintf(buffer, "%d/%ld%.6ld/%s", processId, currentTime.seconds(), currentTime.usecs(), thisHost.data());
+      sprintf(buffer, "%d_%" FORMAT_INTLL "d_%s",
+              process_id, start_time, thisHost.data());
       // Hash them.
       NetMd5Codec encoder;
       encoder.encode(buffer, suffix);
+#ifdef USE_LONG_CALL_IDS
       // Truncate the hash to 16 characters.
       suffix.remove(16);
+#else
+      // Truncate the hash to 16 characters.
+      suffix.remove(12);
+#endif
 
       // Note initialization is done.
       initialized = TRUE;
    }
 
    // Compose the new Call-Id.
-   sprintf(buffer, "%s/%x/%s", callIdPrefix, mCallNum, suffix.data());
+   sprintf(buffer, "%s_%" FORMAT_INTLL "d_%s",
+           callIdPrefix, mCallNum, suffix.data());
 
    // Copy it to the destination.
    *callId = buffer;
@@ -553,131 +549,6 @@ void CpCallManager::pushCall(CpCall* call)
 }
 
 
-void CpCallManager::setAddressForwarding(int size, PtAddressForwarding *pForwards)
-{
-    if (size < 1) 
-        return;
-
-    OsWriteLock lock(mAddressForwardMutex);
-    if (mpAddressForwards == 0 && mAddressForwardingCnt == 0)
-    {
-        mpAddressForwards = new PtAddressForwarding[size];
-        mAddressForwardingCnt = size;
-        for (int i = 0; i < size; i++)
-            mpAddressForwards[i] = PtAddressForwarding(pForwards[i]);
-    }
-    else
-    {
-        // Dump the old list
-        delete[] mpAddressForwards ;
-        mpAddressForwards = NULL ;
-        mAddressForwardingCnt = 0 ;
-
-        // Create a new list
-        if (size > 0) {
-            mpAddressForwards = new PtAddressForwarding[size];
-            mAddressForwardingCnt = size;
-            for (int k = 0; k < size; k++)
-                mpAddressForwards[k] = PtAddressForwarding(pForwards[k]);
-        }
-
-    }
-
-    for (int i = 0; i < mAddressForwardingCnt; i++)
-    {
-        int type = pForwards[i].mForwardingType;
-
-        switch (type)
-        {
-        case PtAddressForwarding::FORWARD_ON_BUSY:
-            mLineBusyBehavior = Connection::FORWARD_ON_BUSY;
-            mSipForwardOnBusy = pForwards[i].mDestinationUrl;
-            break;
-        case PtAddressForwarding::FORWARD_ON_NOANSWER:
-            {
-                int timeout = pForwards[i].mNoAnswerTimeout;
-                mLineAvailableBehavior = Connection::FORWARD_ON_NO_ANSWER;
-                mForwardOnNoAnswer = pForwards[i].mDestinationUrl;
-                if (timeout > 0)
-                    mNoAnswerTimeout = timeout;
-                if (mNoAnswerTimeout <= 0)
-                    mNoAnswerTimeout = 24;
-            }
-            break;
-        case PtAddressForwarding::FORWARD_UNCONDITIONALLY:
-            mLineAvailableBehavior = Connection::FORWARD_UNCONDITIONAL;
-            mForwardUnconditional = pForwards[i].mDestinationUrl;
-            break;
-        }
-    }
-}
-
-void CpCallManager::cancelAddressForwarding(int size, PtAddressForwarding *pForwards)
-{
-    mLineBusyBehavior = Connection::BUSY;
-    mSipForwardOnBusy = OsUtil::NULL_OS_STRING;
-    mLineAvailableBehavior = Connection::RING;
-    mForwardOnNoAnswer = OsUtil::NULL_OS_STRING;
-    mForwardUnconditional = OsUtil::NULL_OS_STRING;
-
-    int i;
-    OsWriteLock lock(mAddressForwardMutex);
-    if (pForwards == 0) // cancel all address forwarding
-    {
-        delete[] mpAddressForwards ;
-        mpAddressForwards = NULL ;
-        mAddressForwardingCnt = 0 ;
-    }
-    else
-    {
-        if (mpAddressForwards && mAddressForwardingCnt > 0)
-        {
-            for (i = 0; i < size; i++)
-            {
-                for (int j = 0; j < mAddressForwardingCnt; j++)
-                {
-                    if (*pForwards == (PtAddressForwarding&) mpAddressForwards[j])
-                    {
-                        mAddressForwardingCnt--;
-                        for (int k = j; k < mAddressForwardingCnt; k++)
-                            mpAddressForwards[k] = mpAddressForwards[k + 1];
-                        break;
-                    }
-                }
-            }
-            if (mAddressForwardingCnt <= 0)
-            {
-                delete[] mpAddressForwards;
-                mpAddressForwards = 0;
-                mAddressForwardingCnt = 0;
-            }
-        }
-    }
-
-    for (i = 0; i < mAddressForwardingCnt; i++)
-    {
-        int type = pForwards[i].mForwardingType;
-
-        switch (type)
-        {
-        case PtAddressForwarding::FORWARD_ON_BUSY:
-            mLineBusyBehavior = Connection::FORWARD_ON_BUSY;
-            mSipForwardOnBusy = pForwards[i].mDestinationUrl;
-            break;
-        case PtAddressForwarding::FORWARD_ON_NOANSWER:
-            mLineAvailableBehavior = Connection::FORWARD_ON_NO_ANSWER;
-            mForwardOnNoAnswer = pForwards[i].mDestinationUrl;
-            if (mNoAnswerTimeout <= 0)
-                mNoAnswerTimeout = 24;
-            break;
-        case PtAddressForwarding::FORWARD_UNCONDITIONALLY:
-            mLineAvailableBehavior = Connection::FORWARD_UNCONDITIONAL;
-            mForwardUnconditional = pForwards[i].mDestinationUrl;
-            break;
-        }
-    }
-}
-
 void CpCallManager::setDoNotDisturb(int flag)
 {
     mDoNotDisturbFlag = flag;
@@ -693,6 +564,18 @@ void CpCallManager::setOfferedTimeout(int milisec)
     mOfferedTimeOut = milisec;
 }
 
+void CpCallManager::enableIce(UtlBoolean bEnable) 
+{
+    mbEnableICE = bEnable ;
+}
+
+
+void CpCallManager::setVoiceQualityReportTarget(const char* szTargetSipUrl) 
+{
+    mVoiceQualityReportTarget = szTargetSipUrl ;
+}
+
+
 /* ============================ ACCESSORS ================================= */
 
 int CpCallManager::getNewMetaEventId()
@@ -700,6 +583,32 @@ int CpCallManager::getNewMetaEventId()
     mLastMetaEventId++;
     return(mLastMetaEventId);
 }
+
+UtlBoolean CpCallManager::isIceEnabled() const
+{
+    return mbEnableICE ;
+}
+
+
+UtlBoolean CpCallManager::getVoiceQualityReportTarget(UtlString& reportSipUrl) 
+{
+    UtlBoolean bRC = false ;
+
+    if (!mVoiceQualityReportTarget.isNull())
+    {
+        reportSipUrl = mVoiceQualityReportTarget ;
+        bRC = true ;
+    }
+
+    return bRC ;
+}
+
+void CpCallManager::getLocalAddress(UtlString& address) 
+{
+    address = mLocalAddress ;
+}
+
+
 
 /* ============================ INQUIRY =================================== */
 UtlBoolean CpCallManager::isCallStateLoggingEnabled()
@@ -748,3 +657,4 @@ void CpCallManager::releaseCallIndex(int callIndex)
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 /* ============================ FUNCTIONS ================================= */
+

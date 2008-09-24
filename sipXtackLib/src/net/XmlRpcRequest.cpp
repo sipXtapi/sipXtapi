@@ -1,12 +1,12 @@
-// 
-// Copyright (C) 2005 SIPfoundry Inc.
+//
+// Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2005 Pingtel Corp.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
-//////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
 
@@ -28,7 +28,7 @@ XmlRpcRequest::XmlRpcRequest(Url& uri, const char* methodName)
 {
    mUrl = uri;
    
-   // Start to contruct the HTTP message
+   // Start to construct the HTTP message
    mpHttpRequest = new HttpMessage();
    
    mpHttpRequest->setFirstHeaderLine(HTTP_POST_METHOD, "/RPC2", HTTP_PROTOCOL_VERSION_1_1);
@@ -143,4 +143,3 @@ bool XmlRpcRequest::addParam(UtlContainable* value)
 
 
 /* ============================ FUNCTIONS ================================= */
-

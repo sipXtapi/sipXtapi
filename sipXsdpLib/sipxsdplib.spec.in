@@ -1,0 +1,80 @@
+Name: @PACKAGE@
+Version: @VERSION@
+Release: %{buildno}
+
+Summary: SDP container library
+License: LGPL
+Group: Development/Libraries
+Vendor: SIPfoundry
+Packager: SIPfoundry <sipx-dev@sipfoundry.org>
+Url: http://www.sipfoundry.org/sipSdpLib
+
+Requires: sipxtacklib >= 3.7
+
+Source: %name-%version.tar.gz
+
+Prefix: %_prefix
+BuildRoot: %{_tmppath}/%name-%version-root
+
+%description
+The sipXSdp library provides a set of classes that offer a
+semantic representation of SDP, including ICE candidates and
+componenets.  A helper is provided for converting from sipX 
+SdpBody or from resiprocate SdpContents.
+
+# Install header files
+%package devel
+Requires: openssl-devel >= 0.9.7a
+Requires: %name
+Group: Development/Libraries
+Vendor: SIPfoundry
+Summary: Header files for %name 
+
+%description devel
+The sipXSdp library provides a set of classes that offer a
+semantic representation of SDP, including ICE candidates and
+componenets.  A helper is provided for converting from sipX 
+SdpBody or from resiprocate SdpContents.
+
+This package contains the neccessary header files and static libraries
+helpful to build projects from the sipX library
+
+%prep
+%setup -q
+
+%build
+%configure @CONFIGURE_OPTIONS@
+cp config.log %name.configlog
+make all
+
+%install
+
+# makeinstall RPM macro doesn't leverage DESTDIR but instead overrides
+# libdir, bindir, etc just for make install. This not copesetic w/how
+# our makefiles are built, they'd rather preserve libdir, and use 
+# DESTDIR when copying/moving/creating files.  The approach we're taking
+# is quite standard, so it's surprising RPM's makeinstall macro is
+# the way it is.
+rm -rf $RPM_BUILD_ROOT
+make DESTDIR=$RPM_BUILD_ROOT install
+
+%clean
+# Do Not Clean - when we are building a set of sipX RPMs, we need the 
+#                dependencies to be here.
+rm -rf $RPM_BUILD_ROOT
+
+%files
+%defattr(644,root,root,755)
+%doc CONTRIBUTORS LICENSE INSTALL README NEWS TODO ChangeLog %name.configlog
+%attr(755,root,root) %{_libdir}/libsipXsdp.la
+%attr(755,root,root) %{_libdir}/libsipXsdp.so*
+%attr(755,root,root) %{_bindir}/sipx-config
+%attr(755,root,root) %{_bindir}/%name-config
+
+%files devel
+%defattr(644,root,root,755)
+%doc doc/*
+%doc %{_datadir}/doc/sipx/%name/*
+%attr(755,root,root) %{_libdir}/libsipXsdp.a
+
+%{_includedir}/sdp/*

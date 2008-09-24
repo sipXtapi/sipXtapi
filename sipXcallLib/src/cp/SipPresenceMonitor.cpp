@@ -1,13 +1,12 @@
-// 
-// 
-// Copyright (C) 2005 SIPfoundry Inc.
+//
+// Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2005 Pingtel Corp.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
-//////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
 
@@ -20,28 +19,23 @@
 #include <net/NetMd5Codec.h>
 #include <net/SipMessage.h>
 #include <cp/SipPresenceMonitor.h>
-#include <cp/XmlRpcSignIn.h>
 #include <mi/CpMediaInterfaceFactoryFactory.h>
-
-#ifndef EXCLUDE_STREAMING
 #include <mp/MpMediaTask.h>
 #include <mp/NetInTask.h>
-#endif
-
 #ifdef INCLUDE_RTCP
 #include <rtcp/RTCManager.h>
 #endif // INCLUDE_RTCP
 
 // DEFINES
 #define RTP_START_PORT          12000    // Starting RTP port
+
+#define CODEC_G711_PCMU         "258"   // ID for PCMU
+#define CODEC_G711_PCMA         "257"   // ID for PCMA
+#define CODEC_DTMF_RFC2833      "128"   // ID for RFC2833 DMTF 
+
 #define MAX_CONNECTIONS         200     // Max number of sim. conns
-
-#define CONFIG_SETTING_HTTP_PORT              "SIP_PRESENCE_HTTP_PORT"
-#define PRESENCE_DEFAULT_HTTP_PORT            8111
-
-// The presence status we attribute to resources that we have no
-// information about.
-#define DEFAULT_PRESENCE_STATUS STATUS_CLOSED
+#define MP_SAMPLE_RATE          8000    // Sample rate (don't change)
+#define MP_SAMPLES_PER_FRAME    80      // Frames per second (don't change)
 
 // MACROS
 // EXTERNAL FUNCTIONS
@@ -52,102 +46,34 @@
 // FORWARD DECLARATIONS
 // STATIC VARIABLE INITIALIZATIONS
 
-// Objects to construct default content for presence events.
-
-class PresenceDefaultConstructor : public SipPublishContentMgrDefaultConstructor
-{
-  public:
-
-   /** Generate the content for a resource and event.
-    */
-   virtual void generateDefaultContent(SipPublishContentMgr* contentMgr,
-                                       const char* resourceId,
-                                       const char* eventTypeKey,
-                                       const char* eventType);
-
-   /// Make a copy of this object according to its real type.
-   virtual SipPublishContentMgrDefaultConstructor* copy();
-
-   // Service routine for UtlContainable.
-   virtual const char* const getContainableType() const;
-
-protected:
-   static UtlContainableType TYPE;    /** < Class type used for runtime checking */
-};
-
-// Static identifier for the type.
-const UtlContainableType PresenceDefaultConstructor::TYPE = "PresenceDefaultConstructor";
-
-// Generate the default content for presence status.
-void PresenceDefaultConstructor::generateDefaultContent(SipPublishContentMgr* contentMgr,
-							const char* resourceId,
-							const char* eventTypeKey,
-							const char* eventType)
-{
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                 "PresenceDefaultConstructor::generateDefaultContent "
-                 "generating default content for resourceId '%s', "
-                 "eventTypeKey '%s', eventType '%s'",
-                 resourceId, eventTypeKey, eventType);
-
-   // Create a presence event package and store it in the publisher.
-   // This code parallels SipPresenceMonitor::setStatus.
-   SipPresenceEvent* sipPresenceEvent = new SipPresenceEvent(resourceId);
-      
-   UtlString id;
-   NetMd5Codec::encode(resourceId, id);
-   
-   Tuple* tuple = new Tuple(id.data());
-   tuple->setStatus(DEFAULT_PRESENCE_STATUS);
-   tuple->setContact(resourceId, 1.0);
-   
-   sipPresenceEvent->insertTuple(tuple); 
-
-   // Build its text version.
-   sipPresenceEvent->buildBody();
-
-   // Publish the event (storing it for the resource), but set
-   // noNotify to TRUE, because our caller will push the NOTIFYs.
-   contentMgr->publish(resourceId, eventTypeKey, eventType, 1,
-                       &(HttpBody*&)sipPresenceEvent, TRUE);
-}
-
-// Make a copy of this object according to its real type.
-SipPublishContentMgrDefaultConstructor* PresenceDefaultConstructor::copy()
-{
-   // Copying these objects is easy, since they have no member variables, etc.
-   return new PresenceDefaultConstructor;
-}
-
-// Get the ContainableType for a UtlContainable derived class.
-UtlContainableType PresenceDefaultConstructor::getContainableType() const
-{
-    return PresenceDefaultConstructor::TYPE;
-}
-
-
 // Constructor
 SipPresenceMonitor::SipPresenceMonitor(SipUserAgent* userAgent,
                                        UtlString& domainName,
                                        int hostPort,
-                                       OsConfigDb* configFile,
+                                       UtlString& configFile,
                                        bool toBePublished)
    : mLock(OsBSem::Q_PRIORITY, OsBSem::FULL)
 {
    mpUserAgent = userAgent;
    mDomainName = domainName;
    mToBePublished = toBePublished;
-   
-   char buffer[80];
-   sprintf(buffer, "@%s:%d", mDomainName.data(), hostPort);
-   mHostAndPort = UtlString(buffer);
 
    UtlString localAddress;
    OsSocket::getHostIp(&localAddress);
 
-   OsConfigDb configDb;
-   configDb.set("PHONESET_MAX_ACTIVE_CALLS_ALLOWED", 2*MAX_CONNECTIONS);
+   // Enable PCMU, PCMA, Tones/RFC2833 codecs
+   SdpCodec::SdpCodecTypes codecs[3];
+    
+   codecs[0] = SdpCodecFactory::getCodecType(CODEC_G711_PCMU) ;
+   codecs[1] = SdpCodecFactory::getCodecType(CODEC_G711_PCMA) ;
+   codecs[2] = SdpCodecFactory::getCodecType(CODEC_DTMF_RFC2833) ;
 
+   mCodecFactory.buildSdpCodecFactory(3, codecs);
+
+   // Initialize and start up the media subsystem
+   OsConfigDb dummyDb;
+   mpStartUp(MP_SAMPLE_RATE, MP_SAMPLES_PER_FRAME, 6 * MAX_CONNECTIONS, &dummyDb);
+   MpMediaTask::getMediaTask(MAX_CONNECTIONS);
 #ifdef INCLUDE_RTCP
    CRTCManager::getRTCPControl();
 #endif //INCLUDE_RTCP
@@ -181,7 +107,7 @@ SipPresenceMonitor::SipPresenceMonitor(SipUserAgent* userAgent,
                                    CP_MAXIMUM_RINGING_EXPIRE_SECONDS, // inviteExpiresSeconds
                                    QOS_LAYER3_LOW_DELAY_IP_TOS,       // expeditedIpTos
                                    MAX_CONNECTIONS,                   // maxCalls
-                                   sipXmediaFactoryFactory(&configDb));    // CpMediaInterfaceFactory
+                                   sipXmediaFactoryFactory(NULL));    // CpMediaInterfaceFactory
 
    mpDialInServer = new PresenceDialInServer(mpCallManager, configFile);    
    mpCallManager->addTaoListener(mpDialInServer);
@@ -196,25 +122,13 @@ SipPresenceMonitor::SipPresenceMonitor(SipUserAgent* userAgent,
    if (mToBePublished)
    {
       // Create the SIP Subscribe Server
-      mpSubscriptionMgr = new SipSubscriptionMgr(); // Component for holding the subscription data
+      mpSubscriptionMgr = new SipSubscriptionMgr(mDialogMgr); // Component for holding the subscription data
    
       mpSubscribeServer = new SipSubscribeServer(*mpUserAgent, mSipPublishContentMgr,
                                                  *mpSubscriptionMgr, mPolicyHolder);
-      // Arrange to generate default content for presence events.
-      mSipPublishContentMgr.publishDefault(PRESENCE_EVENT_TYPE, PRESENCE_EVENT_TYPE,
-                                           new PresenceDefaultConstructor);
       mpSubscribeServer->enableEventType(PRESENCE_EVENT_TYPE);
       mpSubscribeServer->start();
    }
-   
-   // Enable the xmlrpc sign-in/sign-out
-   int HttpPort;
-   if (configDb.get(CONFIG_SETTING_HTTP_PORT, HttpPort) != OS_SUCCESS)
-   {
-      HttpPort = PRESENCE_DEFAULT_HTTP_PORT;
-   }
-   
-   mpXmlRpcSignIn = new XmlRpcSignIn(this, HttpPort);   
 }
 
 // Destructor
@@ -246,11 +160,6 @@ SipPresenceMonitor::~SipPresenceMonitor()
    if (!mStateChangeNotifiers.isEmpty())
    {
       mStateChangeNotifiers.destroyAll();
-   }
-   
-   if (mpXmlRpcSignIn)
-   {
-      delete mpXmlRpcSignIn;
    }   
 }
 
@@ -369,10 +278,12 @@ bool SipPresenceMonitor::addPresenceEvent(UtlString& contact, SipPresenceEvent* 
       if (status.compareTo(oldStatus) != 0)
       {
          requiredPublish = true;
-
-         // Since we will be saving a new value, remove the old one.
          oldKey = mPresenceEventList.removeKeyAndValue(&contact, foundValue);
          delete oldKey;
+
+         OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipPresenceMonitor::addPresenceEvent remove the presenceEvent %p for contact %s",
+                       oldPresenceEvent, contact.data()); 
+
          if (oldPresenceEvent)
          {
             delete oldPresenceEvent;
@@ -395,12 +306,6 @@ bool SipPresenceMonitor::addPresenceEvent(UtlString& contact, SipPresenceEvent* 
       // Notify the state change
       notifyStateChange(contact, presenceEvent);
    }
-   else
-   {
-      // Since this presenceEvent will not be published (it does not
-      // change the state we've sent out), delete it now.
-      delete presenceEvent;
-   }
    
    return requiredPublish;
 }
@@ -408,7 +313,6 @@ bool SipPresenceMonitor::addPresenceEvent(UtlString& contact, SipPresenceEvent* 
 
 void SipPresenceMonitor::publishContent(UtlString& contact, SipPresenceEvent* presenceEvent)
 {
-#ifdef SUPPORT_RESOURCE_LIST
    bool contentChanged;
 
    // Loop through all the resource lists
@@ -444,7 +348,7 @@ void SipPresenceMonitor::publishContent(UtlString& contact, SipPresenceEvent* pr
             UtlString status;
             tuple->getStatus(status);
             
-            if (status.compareTo(STATUS_CLOSED) == 0)
+            if (status.compareTo(STATUS_CLOSE) == 0)
             {
                resource->setInstance(id, STATE_TERMINATED);
             }
@@ -460,22 +364,23 @@ void SipPresenceMonitor::publishContent(UtlString& contact, SipPresenceEvent* pr
 
       if (contentChanged)
       {
+         int numOldContents;
+         HttpBody* oldContent[1];           
+   
          // Publish the content to the subscribe server
-         // Make a copy, because mpSipPublishContentMgr will own it.
-         HttpBody* pHttpBody = new HttpBody(*(HttpBody*)list);
-         mSipPublishContentMgr.publish(listUri->data(),
-                                       PRESENCE_EVENT_TYPE, PRESENCE_EVENT_TYPE,
-                                       1, &pHttpBody);
+         if (!mSipPublishContentMgr.publish(listUri->data(), PRESENCE_EVENT_TYPE, DIALOG_EVENT_TYPE, 1, (HttpBody**)&list, 1, numOldContents, oldContent))
+         {
+            UtlString presenceContent;
+            int length;
+            
+            list->getBytes(&presenceContent, &length);
+            OsSysLog::add(FAC_SIP, PRI_ERR, "SipPresenceMonitor::publishContent PresenceEvent %s\n was not successfully published to the subscribe server",
+                          presenceContent.data());
+         }
       }
+      
+      
    }
-#endif
-
-   // Publish the content to the subscribe server
-   // Make a copy, because mpSipPublishContentMgr will own it.
-   HttpBody* pHttpBody = new HttpBody(*(HttpBody*)presenceEvent);
-   mSipPublishContentMgr.publish(contact.data(),
-                                 PRESENCE_EVENT_TYPE, PRESENCE_EVENT_TYPE,
-                                 1, &pHttpBody);
 }
 
 
@@ -522,7 +427,7 @@ void SipPresenceMonitor::notifyStateChange(UtlString& contact, SipPresenceEvent*
          UtlString status;
          tuple->getStatus(status);
             
-         if (status.compareTo(STATUS_CLOSED) == 0)
+         if (status.compareTo(STATUS_CLOSE) == 0)
          {
             notifier->setStatus(contactUrl, StateChangeNotifier::AWAY);
          }
@@ -537,25 +442,10 @@ void SipPresenceMonitor::notifyStateChange(UtlString& contact, SipPresenceEvent*
 
 bool SipPresenceMonitor::setStatus(const Url& aor, const Status value)
 {
-   if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
-   {
-      UtlString aorString;
-      aor.toString(aorString);
-      OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                    "SipPresenceMonitor::setStatus aor = '%s', value = %d %s",
-                    aorString.data(), value,
-                    (value == StateChangeNotifier::PRESENT ? "PRESENT" :
-                     value == StateChangeNotifier::AWAY ? "AWAY" :
-                     "UNKNOWN"));
-   }
-
    bool result = false;
    
    UtlString contact;
-   aor.getUserId(contact);
-   contact += mHostAndPort;
-   // Make the contact be a proper URI by prepending "sip:".
-   contact.prepend("sip:");
+   aor.getIdentity(contact);
    
    // Create a presence event package and store it in the publisher
    SipPresenceEvent* sipPresenceEvent = new SipPresenceEvent(contact);
@@ -570,10 +460,13 @@ bool SipPresenceMonitor::setStatus(const Url& aor, const Status value)
       tuple->setStatus(STATUS_OPEN);
       tuple->setContact(contact, 1.0);
    }
-   else if (value == StateChangeNotifier::AWAY)
+   else
    {
-      tuple->setStatus(STATUS_CLOSED);
-      tuple->setContact(contact, 1.0);
+      if (value == StateChangeNotifier::AWAY)
+      {
+         tuple->setStatus(STATUS_CLOSE);
+         tuple->setContact(contact, 1.0);
+      }
    }
 
    sipPresenceEvent->insertTuple(tuple); 
@@ -582,34 +475,4 @@ bool SipPresenceMonitor::setStatus(const Url& aor, const Status value)
    result = addPresenceEvent(contact, sipPresenceEvent);
    
    return result;
-}
-
-
-void SipPresenceMonitor::getState(const Url& aor, UtlString& status)
-{
-   UtlString contact;
-   aor.getUserId(contact);
-   contact += mHostAndPort;
-   // Make the contact be a proper URI by prepending "sip:".
-   contact.prepend("sip:");
-
-   UtlContainable* foundValue;
-   foundValue = mPresenceEventList.findValue(&contact);
-   
-   if (foundValue)
-   {
-      SipPresenceEvent* presenceEvent = dynamic_cast <SipPresenceEvent *> (foundValue);
-      UtlString id;
-      NetMd5Codec::encode(contact, id);
-      presenceEvent->getTuple(id)->getStatus(status);
-      OsSysLog::add(FAC_SIP, PRI_ERR, "SipPresenceMonitor::getState contact %s state = %s",
-                    contact.data(), status.data());
-   }
-   else
-   {
-      OsSysLog::add(FAC_SIP, PRI_ERR, "SipPresenceMonitor::getState contact %s does not exist",
-                    contact.data());
-                    
-      status = STATUS_CLOSED;
-   }   
-}
+} 

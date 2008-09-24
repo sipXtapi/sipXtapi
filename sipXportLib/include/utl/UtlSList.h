@@ -1,10 +1,12 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 
 #ifndef _UtlSList_h_
@@ -46,6 +48,7 @@ class UtlSList : public UtlList
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
+    static const UtlContainableType TYPE;
 
 /* ============================ CREATORS ================================== */
 
@@ -122,8 +125,6 @@ public:
      */
     virtual UtlContainableType getContainableType() const;
 
-    static const UtlContainableType TYPE; ///< constant for class type comparison.
-
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
     friend class UtlSListIterator;
@@ -134,7 +135,6 @@ protected:
      */
     virtual UtlContainable* insertAfter(UtlLink* afterNode, UtlContainable* object);
     
-
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
         

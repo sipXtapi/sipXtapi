@@ -1,9 +1,15 @@
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 #include <cppunit/extensions/HelperMacros.h>
 #include <cppunit/TestCase.h>
@@ -13,6 +19,16 @@
 #include <os/OsProcessMgr.h>
 
 #include <sipxunit/TestUtilities.h>
+
+// Short circuit the autotools config as the path will most likely not work
+// for cross compile test runs off the machine the unit tests were built on.
+//#ifndef TEST_DIR
+#ifdef WIN32
+#define TEST_DIR "C:\\windows\\temp\\"
+#else
+#define TEST_DIR "/tmp/"
+#endif
+//#endif
 
 class OsProcessMgrTest : public CppUnit::TestCase
 {
@@ -26,6 +42,7 @@ public:
     void testManager()
     {
         OsStatus stat;
+        printf("Creating process lock file in dir: %s\n", TEST_DIR);
         OsProcessMgr processManager(TEST_DIR);
 
         UtlString alias = "MyPing1";
@@ -46,12 +63,11 @@ public:
         
         UtlString MyPing1("MyPing1");
         UtlString MyPing2("MyPing2");
-        OsPath startupDir = ".";
+        OsPath startupDir = "";
 
         stat = processManager.startProcess(MyPing1, appName, params, startupDir);
         CPPUNIT_ASSERT_MESSAGE("Started first proccess", stat == OS_SUCCESS);
 
-        KNOWN_BUG("Unknown failure", "XPL-12");
         CPPUNIT_ASSERT_EQUAL_MESSAGE("Alias state", PROCESS_STARTED, 
             processManager.getAliasState(MyPing1));
         
@@ -76,5 +92,8 @@ public:
     }
 };
 
+#ifdef WINCE
+#pragma message( "OsProcessMgrTest disabled undef Win CE" )
+#else
 CPPUNIT_TEST_SUITE_REGISTRATION(OsProcessMgrTest);
-
+#endif

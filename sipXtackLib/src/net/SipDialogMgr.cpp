@@ -1,13 +1,12 @@
-// 
-// 
-// Copyright (C) 2005 SIPfoundry Inc.
+//
+// Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2005 Pingtel Corp.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
-//////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 // Author: Dan Petrie (dpetrie AT SIPez DOT com)
 
 // SYSTEM INCLUDES
@@ -167,6 +166,13 @@ UtlBoolean SipDialogMgr::setNextLocalTransactionInfo(SipMessage& request,
                dialogDump.data());
 #endif
 
+    }
+    else
+    {
+        OsSysLog::add(FAC_SIP,
+                      PRI_WARNING, 
+                      "SipDialogMgr::setNextLocalTransactionInfo could not find dialog with handle %s",
+                      dialogHandle);
     }
 
     unlock();

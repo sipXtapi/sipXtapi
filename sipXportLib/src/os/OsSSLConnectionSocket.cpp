@@ -1,10 +1,17 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
+#if defined(HAVE_SSL)
 // SYSTEM INCLUDES
 #include <assert.h>
 #include <stdio.h>
@@ -96,12 +103,12 @@ OsSSLConnectionSocket::OsSSLConnectionSocket(int serverPort, const char* serverN
     mbExternalSSLSocket = FALSE;
     if (mIsConnected)
     {
-       SSLInitSocket(socketDescriptor, timeoutInSecs);
-       OsSysLog::add(FAC_KERNEL, PRI_DEBUG, 
-                     "OsSSLConnectionSocket::_(port %d, name '%s', timeout %ld)",
-                     serverPort, serverName, timeoutInSecs
-                     );
-    }
+    SSLInitSocket(socketDescriptor, timeoutInSecs);
+    OsSysLog::add(FAC_KERNEL, PRI_DEBUG, 
+                  "OsSSLConnectionSocket::_(port %d, name '%s', timeout %ld)",
+                  serverPort, serverName, timeoutInSecs
+                  );
+}
 }
 
 
@@ -368,3 +375,4 @@ void OsSSLConnectionSocket::SSLInitSocket(int socket, long timeoutInSecs)
     }
 }
 /* ============================ FUNCTIONS ================================= */
+#endif // HAVE_SSL

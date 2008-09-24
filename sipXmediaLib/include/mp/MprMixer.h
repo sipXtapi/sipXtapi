@@ -1,10 +1,15 @@
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2005 Pingtel Corp.
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 
 #ifndef _MprMixer_h_
@@ -14,7 +19,7 @@
 
 // APPLICATION INCLUDES
 #include "mp/MpFlowGraphMsg.h"
-#include "mp/MpResource.h"
+#include "mp/MpAudioResource.h"
 
 // DEFINES
 // MACROS
@@ -25,35 +30,56 @@
 // TYPEDEFS
 // FORWARD DECLARATIONS
 
-//:The "Mixer" media processing resource
-class MprMixer : public MpResource
+/**
+*  @brief The "Mixer" media processing resource
+*/
+class MprMixer : public MpAudioResource
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
 /* ============================ CREATORS ================================== */
+///@name Creators
+//@{
 
-   MprMixer(const UtlString& rName, int numWeights,
-                               int samplesPerFrame, int samplesPerSec);
-     //:Constructor
+     /// Constructor
+   MprMixer(const UtlString& rName, int numWeights);
 
+     /// Destructor
    virtual
    ~MprMixer();
-     //:Destructor
+
+//@}
 
 /* ============================ MANIPULATORS ============================== */
+///@name Manipulators
+//@{
 
+     /// Sets the weighting factors for the first "numWeights" inputs.
    UtlBoolean setWeights(int *newWeights, int numWeights);
-     //:Sets the weighting factors for the first "numWeights" inputs.
-     // For now, this method always returns TRUE.
+     /**<
+     *  For now, this method always returns TRUE.
+     */
 
+     /// Sets the weighting factor for the "weightIndex" input.
    UtlBoolean setWeight(int newWeight, int weightIndex);
-     //:Sets the weighting factor for the "weightIndex" input.
-     // For now, this method always returns TRUE.
+     /**<
+     *  For now, this method always returns TRUE.
+     */
+
+//@}
 
 /* ============================ ACCESSORS ================================= */
+///@name Accessors
+//@{
+
+//@}
 
 /* ============================ INQUIRY =================================== */
+///@name Inquiry
+//@{
+
+//@}
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
@@ -61,11 +87,11 @@ protected:
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
 
-   enum AddlMsgTypes
+   typedef enum
    {
       SET_WEIGHT  = MpFlowGraphMsg::RESOURCE_SPECIFIC_START,
       SET_WEIGHTS
-   };
+   } AddlMsgTypes;
 
    enum { MAX_MIXER_INPUTS = 10 };
 
@@ -74,27 +100,27 @@ private:
    int mScale;
 
    virtual UtlBoolean doProcessFrame(MpBufPtr inBufs[],
-                                    MpBufPtr outBufs[],
-                                    int inBufsSize,
-                                    int outBufsSize,
-                                    UtlBoolean isEnabled,
-                                    int samplesPerFrame=80,
-                                    int samplesPerSecond=8000);
+                                     MpBufPtr outBufs[],
+                                     int inBufsSize,
+                                     int outBufsSize,
+                                     UtlBoolean isEnabled,
+                                     int samplesPerFrame,
+                                     int samplesPerSecond);
 
+     /// Handle messages for this resource.
    virtual UtlBoolean handleMessage(MpFlowGraphMsg& rMsg);
-     //:Handle messages for this resource.
 
+     /// Handle the @link MprMixer::SET_WEIGHT SET_WEIGHT @endlink message.
    UtlBoolean handleSetWeight(int newWeight, int weightIndex);
-     //:Handle the SET_WEIGHT message.
 
+     /// Handle the @link MprMixer::SET_WEIGHTS SET_WEIGHTS @endlink message.
    UtlBoolean handleSetWeights(int *newWeights, int numWeights);
-     //:Handle the SET_WEIGHTS message.
 
+     /// Copy constructor (not implemented for this class)
    MprMixer(const MprMixer& rMprMixer);
-     //:Copy constructor (not implemented for this class)
 
+     /// Assignment operator (not implemented for this class)
    MprMixer& operator=(const MprMixer& rhs);
-     //:Assignment operator (not implemented for this class)
 
 };
 

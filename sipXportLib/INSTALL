@@ -15,13 +15,16 @@ Cppunit 1.10.2 - Unitesting framework for C++
 OpenSSL 0.9.7.c - Security Library
   http://www.openssl.org
 
-*Autoconf 2.57 & Automake 1.6 - GNU build tool chain
+*Autoconf 2.59c & Automake 1.6 (not positive on automake prereq -- latest tested with 1.9.6) - GNU build tool chain
   http://www.gnu.org/directory/GNU/
   *ONLY if building from subversion
-  Note: autoconf 2.58 has a bug which does causes it not to work with
-  sipX.  Verion 2.59 works as well.
+  2.59c is required, as this is when C99 integer type checking was added.
 
-libtool 1.4.3
+*pkgconfig 0.20 - for use with Autoconf
+  http://pkgconfig.freedesktop.org/
+  *ONLY if building from subversion
+
+libtool 1.5.24
   http://www.gnu.org/software/libtool/
   On RedHat Enterprise 3 "up2date libtool libtool-libs"
 
@@ -33,11 +36,33 @@ Doxygen - Source Code Documentation System
   tested with 1.3.5
   On RedHat Enterprise 3 "up2date doxygen"
 
+Optional Codec Sources
+======================
+AMR Narrowband library - libamrnb v7.0.0.0
+  Under windows:
+    Download http://www.3gpp.org/ftp/Specs/archive/26_series/26.104/26104-700.zip
+    Expand amrnb sources to sipXmediaLib/contrib/libamrnb
+    Build using sipX supplied project file sipXmediaLib/contrib/libamrnb/libamrnb.dsp
+  Under OSes using GNU autoconf, this will be automatically done via configure/makefile process.
+  Included autoconf files checked in come from: http://www.penguin.cz/~utx/amr
+
+AMR Wideband library - libamrwb v7.0.0.2
+  Under windows:
+    Download http://www.3gpp.org/ftp/Specs/archive/26_series/26.204/26204-700.zip
+    Expand amrwb sources to sipXmediaLib/contrib/libamrwb
+    Build using sipX supplied project file sipXmediaLib/contrib/libamrwb/libamrwb.dsp
+  Under OSes using GNU autoconf, this will be automatically done via configure/makefile process.
+  Included autoconf files checked in come from: http://www.penguin.cz/~utx/amr
+
+SpanDSP library - spandsp 0.0.3
+  Download http://www.soft-switch.org/downloads/spandsp/
+  Expand to sipXmediaLib/contrib/libspandsp
+  Build using sipX supplied project file sipXmediaLib/contrib/libspandsp/libspandsp.dsp
 
 Prerequisite installation on Fedora Core 4
 ------------------------------------------
 yum should get every thing you need:
-yum install cppunit cppunit-devel autoconf automake pcre-devel openssl openssl-devel libtool doxygen subversion gcc-c++
+yum install cppunit cppunit-devel autoconf automake pkgconfig pcre-devel openssl openssl-devel libtool doxygen subversion gcc-c++
 
 
 PCRE Installation Instructions
@@ -137,6 +162,39 @@ C:\Program Files\GnuWin32):
    C:\Program Files\GnuWin32\include
 Next, select the "libraries" path and add the following:
    C:\Program Files\GnuWin32\lib
+
+WinCE (EVC4): Building from Source Code
+=======================================
+Make sure you have the following installed:
+	Microsoft eMbedded C++ 4.2 (eVC4) (this is a free download)
+	eVC4 Service Pack 4
+	* hotfix to fix "Datatype Misalignment" first chance exception when
+	  running things that use sipXmediaLib.
+	  Knowledge Base article: KB909973
+	  Fix: http://www.microsoft.com/downloads/details.aspx?FamilyID=a22ef691-f4f1-4d95-b1f7-8fb283e274d7
+
+After compiling or installing STLport, cppunit, and pcre, update your EVC4 environment.
+* Open up EVC4
+    * go to Tools->Options...->Directories
+        * Select the platform you want to build
+        * Select "Include files"
+            * Add path to STLport include directory.
+            * Add path to PCRE include directory.
+            * Add path to CPPUnit include directory.
+            * Move these new entries to top (included before all others), 
+              with STLport first.
+        * Select "Library Files"
+            * Add path to STLport library.
+            * Add path to PCRE library.
+            * Add path to CPPUnit library.
+            * Move these new entries to the top (linked before all others),
+              with STLport first.
+        * Click "Ok".
+    * Open project sipXportLib.vcp
+    * Choose your target.  
+      Currently emulator and ARMV4I have project settings set properly.
+    * Build.
+
 
 ================================================================================
 
@@ -372,51 +430,3 @@ operates.
 `configure' also accepts some other, not widely useful, options.  Run
 `configure --help' for more details.
 
-
-
-Mac OS X Development System Setup
----------------------------------
-The following set of instructions were known to work to
-set up an out-of-the-box new Mac OS X system running 10.3.
-Let me know if you have troubles with these instructions
-or if you have additional instructions for other OS X 
-versions.
-
-Cheers,
-Dan Petrie <dpetrie AT SIPez DOT com>
-
-Double-click the XcodeTools.mpkg icon on the OSX install cd
-  be sure to install gcc 3.3 AND 3.1 (subversion requires 3.1)
-
-Download xcode patch:
-November 2004 GCC 3.3 Updater (Disk Image)	 14.7 MB	18 Nov 2004 from:
-https://connect.apple.com/cgi-bin/WebObjects/MemberSite.woa/207/wo/1JkPHGAZ9IYI2hCHDbPRsfslYMu/12.1.17.2.1.3.3.1.1.1.3.3.3.3.1
-
-Double click on November2004GCCUpdater.pkg
-
-Download fink 0.7.1 from source forge:
-   http://sourceforge.net/projects/fink/files
-
-double click on fink 0.7.1 Installer.pkg
-
-In a shell type:
-  fink selfupdate
-select rsync (1) update method
-
-In a shell type:
-  fink update-all
-
-In a shell type:
-  fink install  pkgconfig libtool pcre openssl097-dev ant
-
-In a shell type:
-  fink install svn-client-ssl
-
-download cppunit-1.10.2.tar.gz
-(see URL at the top of this file)
-In the cppunit directory type:
-  ./configure
-  make install
-
-You should now be read to do a svn checkout on the
-sipXportLib project.

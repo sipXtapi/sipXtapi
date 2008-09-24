@@ -10,7 +10,13 @@
 #define _Resparse_RR_h_
 
 #include        <stdio.h>
-#include        <sys/types.h>
+
+#ifdef WINCE
+#   include        <types.h>
+#else
+#   include        <sys/types.h>
+#endif
+
 #include "resparse/types.h"
 
 /* #define RES_PARSE_NAPTR to define the NAPTR record support routines. */
@@ -20,7 +26,7 @@
 
 /* Reordered includes and separated into win/vx --GAT */
 #if defined(_WIN32)
-#       include <winsock.h>
+#       include <winsock2.h>
 #       include <resparse/wnt/netinet/in.h>
 #       include <resparse/wnt/arpa/inet.h>
 #       include <resparse/wnt/arpa/nameser.h>
@@ -218,7 +224,7 @@ union u_rdata
     struct s_MINFO      minfo;
     struct s_MX         mx;
     struct s_TXT        txt;
-    struct s_SRV        srv;
+    struct s_SRV    srv;
                                         /* RFC 2915 RR type */
     struct s_NAPTR      naptr;
                                         /* RFC 1183 RR types */

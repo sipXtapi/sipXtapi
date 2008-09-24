@@ -1,15 +1,12 @@
 //
-// Copyright (C) 2005-2006 SIPez LLC.
-// Licensed to SIPfoundry under a Contributor Agreement.
-//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
 
@@ -34,8 +31,7 @@ VideoWindow::VideoWindow(wxWindow* parent, const wxPoint& pos, const wxSize& siz
 {
     wxColor* wxBlack = wxTheColourDatabase->FindColour("BLACK");
     SetBackgroundColour(*wxBlack);
-    
-#ifdef WIN32
+#ifdef VIDEO    
     sipXmgr::getInstance().setVideoWindow((void*)GetHWND());
 #endif
 }
@@ -46,7 +42,7 @@ void VideoWindow::OnPaint(wxPaintEvent& event)
       wxPaintDC dc(this);
     }
 
-#if defined(VIDEO) && defined(WIN32)
+#ifdef VIDEO
     if (sipXmgr::getInstance().getCurrentCall())
     {
         sipxCallUpdateVideoWindow(sipXmgr::getInstance().getCurrentCall(), (SIPX_WINDOW_HANDLE)GetHWND());

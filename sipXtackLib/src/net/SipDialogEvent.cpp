@@ -1,22 +1,22 @@
-// 
+//
 // Copyright (C) 2005 SIPez LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.
 // 
 // Copyright (C) 2005 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2005 Pingtel Corp.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
-//////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
 #include <os/OsSysLog.h>
 #include <utl/XmlContent.h>
 #include <net/SipDialogEvent.h>
-#include <net/NameValueTokenizer.h>
+#include <utl/UtlNameValueTokenizer.h>
 #include <xmlparser/tinyxml.h>
 
 // EXTERNAL FUNCTIONS
@@ -289,8 +289,8 @@ SipDialogEvent::SipDialogEvent(const char* bodyBytes)
 SipDialogEvent::~SipDialogEvent()
 {
    // Clean up all the dialog elements
-   mDialogs.destroyAll();
-}
+      mDialogs.destroyAll();
+   }
 
 /* ============================ MANIPULATORS ============================== */
 
@@ -369,7 +369,7 @@ void SipDialogEvent::parseBody(const char* bodyBytes)
                {
                   pDialog->setDuration(0);
                }
-
+                  
                // Get the local element
                UtlString identity, display, target;
                subNode = groupNode->FirstChild("local");
@@ -548,8 +548,8 @@ Dialog* SipDialogEvent::getDialogByCallId(UtlString& callId)
       {
          OsSysLog::add(FAC_SIP, PRI_DEBUG,
                        "SipDialogEvent::getDialog found Dialog = %p for callId = '%s'", 
-                       pDialog, callId.data());
-
+                       pDialog, callId.data());                 
+            
          mLock.release();
          return pDialog;
       }
@@ -557,7 +557,7 @@ Dialog* SipDialogEvent::getDialogByCallId(UtlString& callId)
           
    OsSysLog::add(FAC_SIP, PRI_WARNING,
                  "SipDialogEvent::getDialog could not find the Dialog for callId = '%s'", 
-                 callId.data());
+                 callId.data());                 
    mLock.release();
    return NULL;
 }
@@ -702,7 +702,7 @@ void SipDialogEvent::buildBody() const
          dialogEvent.append(BEGIN_IDENTITY);
          if (!displayName.isNull())
          {
-            NameValueTokenizer::frontBackTrim(&displayName, "\"");
+            displayName.strip(UtlString::both, '\"');
             dialogEvent.append(DISPLAY_EQUAL);
             singleLine = DOUBLE_QUOTE + displayName + DOUBLE_QUOTE;
             dialogEvent += singleLine;
@@ -731,7 +731,7 @@ void SipDialogEvent::buildBody() const
          dialogEvent.append(BEGIN_IDENTITY);
          if (!displayName.isNull())
          {
-            NameValueTokenizer::frontBackTrim(&displayName, "\"");
+            displayName.strip(UtlString::both, '\"');
             dialogEvent.append(DISPLAY_EQUAL);
             singleLine = DOUBLE_QUOTE + displayName + DOUBLE_QUOTE;
             dialogEvent += singleLine;
@@ -763,7 +763,7 @@ void SipDialogEvent::buildBody() const
    ((SipDialogEvent*)this)->mVersion++;
 
    ((SipDialogEvent*)this)->mLock.release();
-
+  
    OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipDialogEvent::buildBody Dialog content = \n%s", 
                  mBody.data());
 }

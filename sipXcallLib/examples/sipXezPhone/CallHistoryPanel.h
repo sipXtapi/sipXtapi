@@ -1,9 +1,12 @@
 //
-// Copyright (C) 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 #ifndef _CallHistorypanel_h_
 #define _CallHistorypanel_h_
 
@@ -42,6 +45,8 @@ public:
     */
    virtual ~CallHistoryPanel();
    void OnPageChanged( wxNotebookEvent &event );
+
+   void UpdateBackground(wxColor color);
 
 /* ============================ MANIPULATORS ============================== */
 /* ============================ ACCESSORS ================================= */

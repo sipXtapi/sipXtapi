@@ -1,6 +1,7 @@
-include $(top_srcdir)/config/subdir.am
+include $(top_builddir)/config/sipXcommon.mak
 
-TESTS = sipx-upgrade-testsuite
+
+# TESTS = sipx-upgrade-testsuite
 
 bin_SCRIPTS = \
    ${PACKAGE}-config \
@@ -11,24 +12,8 @@ check_SCRIPTS = sipx-upgrade-testsuite
 
 EXTRA_DIST = \
     $(bin_SCRIPTS) \
-    sipx-upgrade-testsuite.in \
-    shell-unit.in \
-    sipx-upgrade.in
-
-install-exec-hook :
-
-sipx-upgrade: $(srcdir)/sipx-upgrade.in
-	$(LocalizeSipXconfig) $(srcdir)/sipx-upgrade.in > sipx-upgrade
-
-shell-unit: $(srcdir)/shell-unit.in
-	cp $(srcdir)/shell-unit.in shell-unit
-
-$(DESTDIR)$(bindir)/sipx-upgrade: sipx-upgrade
-	$(INSTALL) -D -m 755 $(srcdir)/sipx-upgrade $(DESTDIR)$(bindir)/sipx-upgrade
-
-sipx-upgrade-testsuite: sipx-upgrade shell-unit $(srcdir)/sipx-upgrade-testsuite.in
-	$(LocalizeSipXconfig) $(srcdir)/sipx-upgrade-testsuite.in > $@
-	chmod +x $@
+    sipx-upgrade-testsuite \
+    shell-unit
 
 $(top_builddir)/BUILDSTAMP:
 	${MAKE} -C $(top_builddir) BUILDSTAMP
@@ -40,4 +25,3 @@ ${PACKAGE}-config: $(top_srcdir)/config/sipX-config.in $(top_builddir)/BUILDSTAM
 	  > ${PACKAGE}-config
 	chmod +x ${PACKAGE}-config
 
-DISTCLEANFILES = Makefile.in sipxportlib-config config.h.in

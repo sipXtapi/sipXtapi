@@ -1,13 +1,12 @@
-// $Id$
 //
-// Copyright (C) 2005 SIPfoundry Inc.
-// License by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2005 Pingtel Corp.
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-//////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 #ifndef _UTLDATETIME_H_
 #define _UTLDATETIME_H_
@@ -34,6 +33,8 @@ class UtlDateTime : public UtlContainable
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
+
+    static const UtlContainableType TYPE ;    /** < Class type used for runtime checking */ 
 
 /* ============================ CREATORS ================================== */
 
@@ -74,8 +75,6 @@ public:
      */
     virtual UtlContainableType getContainableType() const;
          
-    static const UtlContainableType TYPE ;    /**< Class type used for runtime checking */ 
-
 /* ============================ INQUIRY =================================== */
 
     /**
@@ -85,6 +84,7 @@ public:
      * @returns 0 if equal, < 0 if less then and >0 if greater.
      */
     virtual int compareTo(UtlContainable const *) const ;    
+
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:

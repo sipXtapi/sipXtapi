@@ -1,16 +1,19 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 /* The default LinuxThreads implementation does not have support for timing
 * out while waiting for a synchronization object. Since I've already ported
 * the rest of the OS dependent files to that interface, we can just drop in a
 * mostly-compatible replacement written in C (like pthreads itself) that uses
 * the pthread_cond_timedwait function and a mutex to build all the other
-* synchronization objecs with timeout capabilities. */
+* synchronization objects with timeout capabilities. */
 
 /* This is the counting semaphore implementation. Binary semaphores are just
 * counting semaphores with a maximum count of 1. (Incidentally, pthreads
@@ -22,6 +25,8 @@
 #include <assert.h>
 
 #include "os/linux/pt_csem.h"
+
+#ifndef SIPX_USE_NATIVE_PTHREADS // [
 
 int pt_sem_init(pt_sem_t *sem, unsigned int max, unsigned int count)
 {
@@ -44,7 +49,7 @@ int pt_sem_wait(pt_sem_t *sem)
         switch ( retval )
         {
         case 0: // retval is 0 and sem->count is not, the sem is ours
-           sem->count--;
+        sem->count--;
            break ;
 
         default: // all error cases
@@ -72,11 +77,11 @@ int pt_sem_timedwait(pt_sem_t *sem,const struct timespec *timeout)
         switch ( retval )
         {
         case 0: // retval is 0 and sem->count is not, the sem is ours
-           sem->count--;
+                sem->count--;
            break ;
 
         case ETIMEDOUT: // timedout waiting for count to be not zero
-           errno = EAGAIN;
+        errno=EAGAIN;
            retval = -1;
            break ;
 
@@ -128,3 +133,5 @@ int pt_sem_destroy(pt_sem_t *sem)
 {
         return pthread_mutex_destroy(&sem->mutex) | pthread_cond_destroy(&sem->cond);
 }
+
+#endif // SIPX_USE_NATIVE_PTHREADS ]

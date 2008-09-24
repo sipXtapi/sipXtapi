@@ -1,10 +1,12 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 
 #ifndef _SipTcpServer_h_
@@ -27,6 +29,29 @@
 // TYPEDEFS
 // FORWARD DECLARATIONS
 class SipUserAgent;
+
+enum EventSubTypes
+{
+    SIP_SERVER_BROKER_NOTIFY = 1
+};
+
+class SipServerBrokerListener : public OsServerTask
+{
+public:
+    SipServerBrokerListener(SipProtocolServerBase* pOwner) :
+        OsServerTask("SipTcpServerBrokerListener-%d", (void*)pOwner),
+        mpOwner(pOwner)
+        {
+            start();
+        }
+        virtual ~SipServerBrokerListener()
+        {
+            waitUntilShutDown();
+        }
+        virtual UtlBoolean handleMessage(OsMsg& rMsg);
+    private:
+        SipProtocolServerBase* mpOwner;
+};
 
 //:Class short description which may consist of multiple lines (note the ':')
 // Class detailed description which may extend to multiple lines
@@ -69,10 +94,6 @@ public:
 
 
 /* ============================ Enumerations ============================== */
-    enum EventSubTypes
-    {
-        SIP_SERVER_BROKER_NOTIFY = 1
-    };
     
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
@@ -80,26 +101,6 @@ protected:
                                 int& port,
                                 const UtlBoolean& bUseNextAvailablePort);
                                 
-    class SipServerBrokerListener : public OsServerTask
-    {
-        public:
-            SipServerBrokerListener(SipTcpServer* pOwner) :
-               OsServerTask("SipTcpServerBrokerListener-%d", (void*)pOwner),
-               mpOwner(pOwner)
-            {
-                start();
-            }
-            virtual ~SipServerBrokerListener()
-            {
-                waitUntilShutDown();
-            }
-            virtual UtlBoolean handleMessage(OsMsg& rMsg);
-        private:
-            SipTcpServer* mpOwner;
-    };
-    
-    friend class SipServerBrokerListener;
-    SipServerBrokerListener* mpServerBrokerListener;
     
     virtual OsSocket* buildClientSocket(int hostPort, const char* hostAddress, const char* localIp);
     
@@ -117,6 +118,7 @@ private:
      //:disable Assignment operator
 
 };
+
 
 /* ============================ INLINE METHODS ============================ */
 

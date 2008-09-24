@@ -1,10 +1,15 @@
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 #ifndef _PsMsg_h_
 #define _PsMsg_h_
@@ -98,7 +103,7 @@ public:
 /* ----------------------------- TERMINAL --------------------------------- */
                 TERMINAL_GET_COMPONENT,
                 TERMINAL_GET_COMPONENTS,
-                TERMINAL_GET_COMPONENTGROUPS,
+                TERMINAL_GET_COMPONENTGROUPS
         };
 
 /* ============================ CREATORS ================================== */

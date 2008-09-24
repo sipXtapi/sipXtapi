@@ -17,9 +17,13 @@
 
 #include <os/OsFS.h>
 #include <os/OsTestUtilities.h>
+#include <os/OsTask.h>
 
 #include <stdlib.h>
+
+#ifndef WINCE
 #include <errno.h>
+#endif
 
 /**
  * Test Description
@@ -189,16 +193,20 @@ public:
         OsTime time1, time2;
         OsPath testFile = mRootPath + OsPath::separator + "testTouch";
         OsFile file(testFile);
+
         // Create the file
-        file.touch();
-        file.getFileInfo(info);
-        info.getModifiedTime(time1);
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, file.touch());
+
         // Get the modification time and sleep for a few seconds
-        sleep( 2 );
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, file.getFileInfo(info));
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, info.getModifiedTime(time1));
+        OsTask::delay(3000);
+
         // Touch the file and get the modification time again
-        file.touch();
-        file.getFileInfo(info);
-        info.getModifiedTime(time2);
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, file.touch());
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, file.getFileInfo(info));
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, info.getModifiedTime(time2));
+
         // The modification times must differ by the sleep amount
         CPPUNIT_ASSERT_MESSAGE("The time is the same", time1.seconds() != time2.seconds());
     }
@@ -247,6 +255,4 @@ public:
     
 };
 
-
 CPPUNIT_TEST_SUITE_REGISTRATION(OsFileTest);
-

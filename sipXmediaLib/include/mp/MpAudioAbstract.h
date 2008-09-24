@@ -1,10 +1,15 @@
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2005 Pingtel Corp.
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 #ifndef MP_AUDIO_ABSTRACT_H
 #define MP_AUDIO_ABSTRACT_H
@@ -26,83 +31,125 @@ class MpAudioAbstract {
 public:
 
 /* ============================ CREATORS ================================== */
+///@name Creators
+//@{
+
+    /// Default Constructor. 
     MpAudioAbstract(void);
-    //: Default Constructor. 
 
+    /// Copy Constructor 
     MpAudioAbstract(MpAudioAbstract *audio);
-    //: Copy Constructor 
 
+    /// Destructor 
     virtual ~MpAudioAbstract();
-    //: Destructor 
 
-public: //: general non classfied
+//@}
+
+public:
+///@name Non classfied
+//@{
+
+    /// Returns number of samples actually read, 0 on error.
     virtual size_t getSamples(AudioSample *, size_t) = 0;
-    // Returns number of samples actually read, 0 on error.
+
+    /// read length of bytes
     virtual size_t readBytes(AudioByte * buff, size_t length);
-    // read length of bytes
+
+    /// get bytes size of the audio file 
     virtual size_t getBytesSize();
-    // get bytes size of the audio file 
+
+    /// get decompression type of the audio file 
     virtual int getDecompressionType(); 
-    // get decompression type of the audio file 
 
-public: //: MpAudioAbstract related operations 
+//@}
+
+public:
+///@name MpAudioAbstract related operations
+//@{
+
+   /// get previous audio
    MpAudioAbstract *getPreviousAudio(void); 
-   //: get previous audio
+
+   /// set previous audio to a
    void setPreviousAudio(MpAudioAbstract *a); 
-   //: set previous audio to a
+
+   /// get next audio
    MpAudioAbstract *getNextAudio(void); 
-   //: get next audio
+
+   /// set next audio to a
    void setNextAudio(MpAudioAbstract *a);
-   //: set next audio to a
 
-public: //: sample related functions 
+//@}
+
+public:
+///@name Sample related functions 
+//@{
+
+    /// Set the sampling rate to s 
     virtual void setSamplingRate(long s);
-    //: Set the sampling rate to s 
+
+    /// Set sampling rate recursively 
     virtual void setSamplingRateRecursive(long s);
-    //: Set sampling rate recursively 
+
+    /// TODO: the meaning of this function, get the prefered Sampling rate
     virtual void minMaxSamplingRate(long *min, long *max, long *prefer);
-    //: TODO: the meaning of this function, get the prefered Sampling rate
+
+    /// negotiate the sampling rate
     virtual void negotiateSamplingRate(void);
-    //: negotiate the sampling rate
+
+    /// Return the sampling rate
     virtual long getSamplingRate(void);
-    //: Return the sampling rate
 
-public: //:Channel related functions 
+//@}
+
+public:
+///@name Channel related functions 
+//@{
+
+    ///Set channel to ch
     virtual void setChannels(int ch);
-    //:Set channel to ch
+
+    ///Set channel recusively
     virtual void setChannelsRecursive(int s);
-    //:Set channel recusively
+
+    ///Get prefered channel 
     virtual void minMaxChannels(int *min, int *max, int *preferred) ;
-    //:Get prefered channel 
+
+    /// negotiate channel 
     virtual void negotiateChannels(void);
-    //: negotiate channel 
+
+    /// Return the channels
     virtual int getChannels(void);
-    //: Return the channels
 
+    /// Set audio object format
     virtual void setAudioFormat(int type) { mDetectedFormat = type;}
-    virtual int  getAudioFormat() { return mDetectedFormat;}
-    //: Set and Get audio object format
 
+    /// Get audio object format
+    virtual int  getAudioFormat() { return mDetectedFormat;}
+
+    /// Return true if file loaded ok.
     bool isOk() {return mbIsOk;}
-    //: Return true if file loaded ok.
+
+//@}
+
 /* ============================ PRIVATE ================================== */
 private:
     // pointers to MpAudioAbstract itself then 
-   MpAudioAbstract *mPrevious; // object to get data from
-   MpAudioAbstract *mNext; // object pulling data from us
-private:
+   MpAudioAbstract *mPrevious; ///< object to get data from
+   MpAudioAbstract *mNext;     ///< object pulling data from us
+
+private: // sampling Rate related stuff    
    long mSamplingRate;
    bool mSamplingRateFrozen;
-   //: sampling Rate related stuff    
-private:
+
+private: // channel related stuff
    long mChannels;
    bool mChannelsFrozen;
-   //: channel related stuff
 
    int mDetectedFormat;
-   //:
+
 protected:
-   bool mbIsOk; //if file loaded ok.
+   bool mbIsOk; ///< If file loaded ok.
 };
 
 #endif

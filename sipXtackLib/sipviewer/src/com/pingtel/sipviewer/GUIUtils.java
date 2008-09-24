@@ -5,8 +5,8 @@ package com.pingtel.sipviewer;
  *
  * Copyright (c) 2000 Pingtel Corp.  (work in progress)
  *
- * This is an unpublished work containing Pingtel Corporation's
- * proprietary information.  Disclosure, use or reproduction without
+ * This is an unpublished work containing Pingtel Corporation's confidential
+ * and proprietary information.  Disclosure, use or reproduction without
  * written authorization of Pingtel Corp. is prohibited.
  */
 

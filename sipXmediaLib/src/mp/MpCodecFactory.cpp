@@ -1,72 +1,72 @@
+//  
+// Copyright (C) 2006-2008 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2005 Pingtel Corp.
+// Copyright (C) 2004-2008 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
+// SYSTEM INCLUDES
+#include <assert.h>
 
-//////////////////////////////////////////////////////////////////////////////
-//  G.729 enabling controls.  Currently only on VxWorks and Windows
-//////////////////////////////////////////////////////////////////////////////
+// APPLICATION INCLUDES
+#include <utl/UtlInit.h> // KEEP THIS ONE THE FIRST INCLUDE
 
-#undef PLATFORM_SUPPORTS_G729
+#include <mp/MpCodecFactory.h>
+#include <mp/MpEncoderBase.h>
+#include <mp/MpDecoderBase.h>
+#include <sdp/SdpDefaultCodecFactory.h>
+#include <os/OsSysLog.h>
+#include <os/OsSharedLibMgr.h>
+#include <os/OsFS.h>
+#include <utl/UtlHashBagIterator.h>
 
-#ifdef HAVE_G729
-#define PLATFORM_SUPPORTS_G729
-#endif
+// EXTERNAL FUNCTIONS
+// EXTERNAL VARIABLES
+// CONSTANTS
+// TYPEDEFS
+// DEFINES
+// MACROS
+// LOCAL TYPES DECLARATIONS
+class MpCodecSubInfo : public UtlString
+{
+public:
 
-//////////////////////////////////////////////////////////////////////////////
+   MpCodecSubInfo(const MpCodecCallInfoV1* pCodecCall,
+                  const MppCodecInfoV1_1 *pCodecInfo)
+   : UtlString(pCodecInfo->mimeSubtype)
+   , mpCodecCall(pCodecCall)
+   , mpCodecInfo(pCodecInfo)
+   {
+      // Store all MIME-subtypes in lower case to allow case insensitive
+      // compare.
+      toLower();
+   }
 
-#include "assert.h"
-#include "mp/MpCodecFactory.h"
-#include "os/OsSysLog.h"
+   ~MpCodecSubInfo()
+   {
+      if (!mpCodecCall->isStatic())
+         delete mpCodecCall;
+      // Do not delete mpCodecInfo - we're just keeping pointer to it.
+   }
 
-// all encoder child classes
-#include "mp/MpePtAVT.h"
+   const MpCodecCallInfoV1* getCodecCall() const
+   { return mpCodecCall; }
 
-#ifdef HAVE_GIPS /* [ */
-#include "mp/MpeGIPSPCMA.h"
-#include "mp/MpeGIPSPCMU.h"
-#include "mp/MpeGIPSiPCMA.h"
-#include "mp/MpeGIPSiPCMU.h"
-#include "mp/MpeGIPSiPCMWB.h"
+   const MppCodecInfoV1_1 *getCodecInfo() const
+   { return mpCodecInfo; }
 
-#ifdef PLATFORM_SUPPORTS_G729 /* [ */
-#include "mp/MpeGIPSG729ab.h"
-#endif /* PLATFORM_SUPPORTS_G729 ] */
+protected:
+   const MpCodecCallInfoV1 *mpCodecCall;
+   const MppCodecInfoV1_1    *mpCodecInfo;
+};
 
-#ifdef WIN32 /* [ */
-#include "mp/MpeGIPSiLBC.h"
-#endif /* WIN32 ] */
-#else /* HAVE_GIPS ] [ */
-#include "mp/MpeSipxPcma.h"
-#include "mp/MpeSipxPcmu.h"
-#endif /* HAVE_GIPS ] */
-
-// All decoder child classes
-#include "mp/MpdPtAVT.h"
-
-#ifdef HAVE_GIPS /* [ */
-#include "mp/MpdGIPSPCMA.h"
-#include "mp/MpdGIPSPCMU.h"
-#include "mp/MpdGIPSiPCMA.h"
-#include "mp/MpdGIPSiPCMU.h"
-#include "mp/MpdGIPSiPCMWB.h"
-
-#ifdef PLATFORM_SUPPORTS_G729 /* [ */
-#include "mp/MpdGIPSG729ab.h"
-#endif /* PLATFORM_SUPPORTS_G729 ] */
-
-#ifdef WIN32 /* [ */
-#include "mp/MpdGIPSiLBC.h"
-#endif /* WIN32 ] */
-#else /* HAVE_GIPS ] [ */
-#include "mp/MpdSipxPcma.h"
-#include "mp/MpdSipxPcmu.h"
-#endif /* HAVE_GIPS ] */
-
+// STATIC VARIABLE INITIALIZATIONS
 MpCodecFactory* MpCodecFactory::spInstance = NULL;
 OsBSem MpCodecFactory::sLock(OsBSem::Q_PRIORITY, OsBSem::FULL);
 
@@ -74,7 +74,6 @@ OsBSem MpCodecFactory::sLock(OsBSem::Q_PRIORITY, OsBSem::FULL);
 
 // Return a pointer to the MpCodecFactory singleton object, creating 
 // it if necessary
-
 MpCodecFactory* MpCodecFactory::getMpCodecFactory(void)
 {
    // If the object already exists, then use it
@@ -85,189 +84,487 @@ MpCodecFactory* MpCodecFactory::getMpCodecFactory(void)
       // created
       sLock.acquire();
       if (spInstance == NULL)
-	 spInstance = new MpCodecFactory();
+         spInstance = new MpCodecFactory();
       sLock.release();
+      spInstance->initializeStaticCodecs();
    }
    return spInstance;
 }
 
-MpCodecFactory::MpCodecFactory(void)
+void MpCodecFactory::freeSingletonHandle()
 {
+   sLock.acquire();
+   freeStaticCodecs();
+   if (spInstance != NULL)
+   {
+      delete spInstance;
+      spInstance = NULL;
+   }
+   sLock.release();
 }
 
-//:Destructor
+MpCodecFactory::MpCodecFactory(void)
+: mCodecInfoCacheValid(FALSE)
+, mCachedCodecInfoNum(0)
+, mpCodecInfoCache(NULL)
+{
+
+}
+
 MpCodecFactory::~MpCodecFactory()
 {
+   freeAllLoadedLibsAndCodec();
+
+   MpCodecSubInfo* pinfo;
+
+   UtlHashBagIterator iter(mCodecsInfo);
+   while ((pinfo = (MpCodecSubInfo*)iter()))
+   { 
+      if (!pinfo->getCodecCall()->isStatic()) {
+         assert(!"Dynamically loaded codecs must be unloaded already");
+      }
+      delete pinfo;     
+   }
+   mCodecsInfo.removeAll();
+
+   delete[] mpCodecInfoCache;
 }
 
-/* ============================ MANIPULATORS ============================== */
+/* ============================= MANIPULATORS ============================= */
 
-
-// Returns a new instance of a decoder of the indicated type
-// param: internalCodecId - (in) codec type identifier
-// param: payloadType - (in) RTP payload type associated with this decoder
-// param: rpDecoder - (out) Reference to a pointer to the new decoder object
-OsStatus MpCodecFactory::createDecoder(SdpCodec::SdpCodecTypes internalCodecId,
-                        int payloadType, MpDecoderBase*& rpDecoder)
+OsStatus MpCodecFactory::loadDynCodec(const char* name)
 {
-   rpDecoder=NULL;
-
-   switch (internalCodecId) {
-
-   case (SdpCodec::SDP_CODEC_TONES):
-      rpDecoder = new MpdPtAVT(payloadType);
-      break;
-
-#ifdef HAVE_GIPS /* [ */
-
-   case (SdpCodec::SDP_CODEC_GIPS_PCMA):
-      rpDecoder = new MpdGIPSPCMA(payloadType);
-      break;
-
-   case (SdpCodec::SDP_CODEC_GIPS_PCMU):
-      rpDecoder = new MpdGIPSPCMU(payloadType);
-      break;
-
-   case (SdpCodec::SDP_CODEC_GIPS_IPCMA):
-      rpDecoder = new MpdGIPSiPCMA(payloadType);
-      break;
-
-   case (SdpCodec::SDP_CODEC_GIPS_IPCMU):
-      rpDecoder = new MpdGIPSiPCMU(payloadType);
-      break;
-
-#ifdef WIN32 /* [ */
-   case (SdpCodec::SDP_CODEC_GIPS_ILBC):
-      rpDecoder = new MpdGIPSiLBC(payloadType);
-      break;
-#endif /* WIN32 ] */
-
-   case (SdpCodec::SDP_CODEC_GIPS_IPCMWB):
-      rpDecoder = new MpdGIPSiPCMWB(payloadType);
-      break;
-
-#ifdef PLATFORM_SUPPORTS_G729 /* [ */
-   case (SdpCodec::SDP_CODEC_G729A):
-      rpDecoder = new MpdGIPSG729ab(payloadType);
-      break;
-   case (SdpCodec::SDP_CODEC_G729AB):
-      rpDecoder = new MpdGIPSG729ab(payloadType);
-      break;
-   case (SdpCodec::SDP_CODEC_G729ACISCO7960):
-      rpDecoder = new MpdGIPSG729ab(payloadType);
-      break;
-#endif /* PLATFORM_SUPPORTS_G729 ] */
-
-#endif /* HAVE_GIPS ] */
-
-   case (SdpCodec::SDP_CODEC_GIPS_PCMA):
-      rpDecoder = new MpdSipxPcma(payloadType);
-      break;
-
-   case (SdpCodec::SDP_CODEC_GIPS_PCMU):
-      rpDecoder = new MpdSipxPcmu(payloadType);
-      break;
-
-   default:
-      OsSysLog::add(FAC_MP, PRI_WARNING, 
-                    "MpCodecFactory::createDecoder unknown codec type "
-                    "internalCodecId = (SdpCodec::SdpCodecTypes) %d, "
-                    "payloadType = %d",
-                    internalCodecId, payloadType);
-      assert(FALSE);
-      break;
+   OsStatus res;
+   OsSharedLibMgrBase* pShrMgr = OsSharedLibMgr::getOsSharedLibMgr();
+   
+   res = pShrMgr->loadSharedLib(name);
+   if (res != OS_SUCCESS)
+   {
+      return OS_FAILED;
+   }
+ 
+   void* address;   
+   res = pShrMgr->getSharedLibSymbol(name, MSK_GET_CODEC_NAME_V1, address);
+   if (res != OS_SUCCESS)
+   {
+      pShrMgr->unloadSharedLib(name);
+      return OS_FAILED;
    }
 
-   if (NULL != rpDecoder) {
-/*
-      osPrintf("MpCodecFactory::createDecoder(i:%d, x:%d, 0x%X)\n",
-         internalCodecId, payloadType, (int) rpDecoder);
-*/
+   dlGetCodecsV1 getCodecsV1 = (dlGetCodecsV1)address;
+   const char* codecName;
+   int i, r, count = 0;
+
+   // 100 is a watchdog value, should be enough for everyone.
+   for (i = 0; (i < 100); i++) 
+   {
+      r = getCodecsV1(i, &codecName);
+      if ((r != RPLG_SUCCESS) || (codecName == NULL)) 
+      {
+         if (count == 0)
+         {
+            pShrMgr->unloadSharedLib(name);
+            return OS_FAILED;
+         }
+         return OS_SUCCESS;
+      }
+
+      // Obtaining codecs functions
+      UtlBoolean st;
+      UtlBoolean stGetPacketSamples;
+      UtlBoolean stSignaling;
+
+      UtlString strCodecName = codecName;
+      UtlString dlNameInit = strCodecName + MSK_INIT_V1_1;
+      UtlString dlNameGetInfo = strCodecName + MSK_GET_INFO_V1_1;
+      UtlString dlNameGetPacketSamples = strCodecName + MSK_GET_PACKET_SAMPLES_V1_2;
+      UtlString dlNameDecode = strCodecName + MSK_DECODE_V1;
+      UtlString dlNameEncdoe = strCodecName + MSK_ENCODE_V1;
+      UtlString dlNameFree = strCodecName + MSK_FREE_V1;
+      UtlString dlNameSignaling = strCodecName + MSK_SIGNALING_V1;
+      
+      dlPlgInitV1_1 plgInitAddr;
+      dlPlgGetInfoV1_1 plgGetInfoAddr;
+      dlPlgGetPacketSamplesV1_2 plgGetPacketSamples;
+      dlPlgDecodeV1 plgDecodeAddr;
+      dlPlgEncodeV1 plgEncodeAddr;
+      dlPlgFreeV1 plgFreeAddr;
+      dlPlgGetSignalingDataV1 plgSignaling;
+
+      st = TRUE 
+         && (pShrMgr->getSharedLibSymbol(name, dlNameInit,
+                                         (void*&)plgInitAddr) == OS_SUCCESS)
+         && (plgInitAddr != NULL)
+         && (pShrMgr->getSharedLibSymbol(name, dlNameGetInfo,
+                                         (void*&)plgGetInfoAddr) == OS_SUCCESS)
+         && (plgGetInfoAddr != NULL)
+         && (pShrMgr->getSharedLibSymbol(name, dlNameDecode,
+                                         (void*&)plgDecodeAddr) == OS_SUCCESS)
+         && (plgDecodeAddr != NULL)
+         && (pShrMgr->getSharedLibSymbol(name, dlNameEncdoe,
+                                         (void*&)plgEncodeAddr) == OS_SUCCESS)
+         && (plgEncodeAddr != NULL)
+         && (pShrMgr->getSharedLibSymbol(name, dlNameFree,
+                                         (void*&)plgFreeAddr) == OS_SUCCESS)
+         && (plgFreeAddr != NULL);
+
+      if (st)
+      {
+         stGetPacketSamples = TRUE
+            && (pShrMgr->getSharedLibSymbol(name, dlNameGetPacketSamples,
+                                            (void*&)plgGetPacketSamples) == OS_SUCCESS)
+            && (plgGetPacketSamples != NULL);
+
+         stSignaling = TRUE
+            && (pShrMgr->getSharedLibSymbol(name, dlNameSignaling,
+                                            (void*&)plgSignaling) == OS_SUCCESS)
+            && (plgSignaling != NULL);
+
+         // Add codec to list if all basic (non-signaling) symbols are present.
+
+         MpCodecCallInfoV1* pCallInfo = new MpCodecCallInfoV1(name, codecName, 
+                                                              plgInitAddr,
+                                                              plgGetInfoAddr,
+                                                              plgGetPacketSamples,
+                                                              plgDecodeAddr,
+                                                              plgEncodeAddr,
+                                                              plgFreeAddr,
+                                                              plgSignaling,
+                                                              FALSE);
+
+         if (!pCallInfo)
+            continue;         
+
+         if (addCodecWrapperV1(pCallInfo) != OS_SUCCESS)
+         {
+            delete pCallInfo;
+            continue;
+         }
+
+         //Plugin has been added successfully, need to rebuild cache list
+         mCodecInfoCacheValid = FALSE;
+         count ++;
+      }
+   }
+   if (count == 0) {
+      pShrMgr->unloadSharedLib(name);
+      return OS_FAILED;
+   }
+   return OS_SUCCESS;
+}
+
+OsStatus MpCodecFactory::loadAllDynCodecs(const char* path, const char* regexFilter)
+{
+   OsPath ospath = path;
+   OsPath module;
+   OsFileIterator fi(ospath);
+
+   OsStatus res;
+   res = fi.findFirst(module, regexFilter);
+
+   if (res != OS_SUCCESS) 
+      return OS_NOT_FOUND;
+
+   do {
+      UtlString str = path;
+      str += OsPathBase::separator;
+      str += module.data();
+      loadDynCodec(str.data());
+   } while (fi.findNext(module) == OS_SUCCESS);
+
+   return OS_SUCCESS;
+}
+
+MpCodecCallInfoV1* MpCodecFactory::addStaticCodec(MpCodecCallInfoV1* sStaticCode)
+{
+    sStaticCodecsV1 = (MpCodecCallInfoV1 *)sStaticCode->bound(MpCodecFactory::sStaticCodecsV1);
+    return sStaticCodecsV1;
+}
+
+/* ============================== ACCESSORS =============================== */
+
+OsStatus MpCodecFactory::createDecoder(const UtlString &mime,
+                                       const UtlString &fmtp,
+                                       int sampleRate,
+                                       int numChannels,
+                                       int payloadType,
+                                       MpDecoderBase*& rpDecoder) const
+{
+   MpCodecSubInfo* codec = searchByMIME(mime, sampleRate, numChannels);
+ 
+   if (codec)
+   {      
+      rpDecoder = new MpDecoderBase(payloadType,
+                                    *codec->getCodecCall(),
+                                    *codec->getCodecInfo(),
+                                    fmtp);
+   }
+   else
+   {
+      OsSysLog::add(FAC_MP, PRI_WARNING, 
+                    "MpCodecFactory::createDecoder unknown codec type "
+                    "%s, fmtp=%s"
+                    "payloadType = %d",
+                    mime.data(), fmtp.data(), payloadType);
+
+      assert(!"Could not find codec of given type!");
+      rpDecoder=NULL;
+   }
+
+   if (NULL != rpDecoder) 
+   {
       return OS_SUCCESS;
    }
 
    return OS_INVALID_ARGUMENT;
 }
 
-// Returns a new instance of an encoder of the indicated type
-// param: internalCodecId - (in) codec type identifier
-// param: payloadType - (in) RTP payload type associated with this encoder
-// param: rpEncoder - (out) Reference to a pointer to the new encoder object
-
-OsStatus MpCodecFactory::createEncoder(SdpCodec::SdpCodecTypes internalCodecId,
-                          int payloadType, MpEncoderBase*& rpEncoder)
+OsStatus MpCodecFactory::createEncoder(const UtlString &mime,
+                                       const UtlString &fmtp,
+                                       int sampleRate,
+                                       int numChannels,
+                                       int payloadType,
+                                       MpEncoderBase*& rpEncoder) const
 {
-   rpEncoder=NULL;
-   switch (internalCodecId) {
+   MpCodecSubInfo* codec = searchByMIME(mime, sampleRate, numChannels);
 
-   case (SdpCodec::SDP_CODEC_TONES):
-      rpEncoder = new MpePtAVT(payloadType);
-      break;
-
-#ifdef HAVE_GIPS /* [ */
-   case (SdpCodec::SDP_CODEC_GIPS_PCMA):
-      rpEncoder = new MpeGIPSPCMA(payloadType);
-      break;
-
-   case (SdpCodec::SDP_CODEC_GIPS_PCMU):
-      rpEncoder = new MpeGIPSPCMU(payloadType);
-      break;
-
-   case (SdpCodec::SDP_CODEC_GIPS_IPCMA):
-      rpEncoder = new MpeGIPSiPCMA(payloadType);
-      break;
-
-   case (SdpCodec::SDP_CODEC_GIPS_IPCMU):
-      rpEncoder = new MpeGIPSiPCMU(payloadType);
-      break;
-
-#ifdef WIN32 /* [ */
-   case (SdpCodec::SDP_CODEC_GIPS_ILBC):
-      rpEncoder = new MpeGIPSiLBC(payloadType);
-      break;
-#endif /* WIN32 ] */
-
-   case (SdpCodec::SDP_CODEC_GIPS_IPCMWB):
-      rpEncoder = new MpeGIPSiPCMWB(payloadType);
-      break;
-
-#ifdef PLATFORM_SUPPORTS_G729 /* [ */
-   case (SdpCodec::SDP_CODEC_G729A):
-      rpEncoder = new MpeGIPSG729ab(payloadType);
-      ((MpeGIPSG729ab*) rpEncoder)->setVad(FALSE);
-      break;
-   case (SdpCodec::SDP_CODEC_G729AB):
-      rpEncoder = new MpeGIPSG729ab(payloadType);
-      ((MpeGIPSG729ab*) rpEncoder)->setVad(TRUE);
-      break;
-#endif /* PLATFORM_SUPPORTS_G729 ] */
-#else /* HAVE_GIPS ] [ */
-   case (SdpCodec::SDP_CODEC_GIPS_PCMA):
-      rpEncoder = new MpeSipxPcma(payloadType);
-      break;
-
-   case (SdpCodec::SDP_CODEC_GIPS_PCMU):
-      rpEncoder = new MpeSipxPcmu(payloadType);
-      break;
-#endif /* HAVE_GIPS*/
-   default:
+   if (codec)
+   {      
+      rpEncoder = new MpEncoderBase(payloadType,
+                                    *codec->getCodecCall(),
+                                    *codec->getCodecInfo(),
+                                    fmtp);
+   }
+   else
+   {
       OsSysLog::add(FAC_MP, PRI_WARNING, 
                     "MpCodecFactory::createEncoder unknown codec type "
-                    "internalCodecId = (SdpCodec::SdpCodecTypes) %d, "
+                    "%s, fmtp=%s"
                     "payloadType = %d",
-                    internalCodecId, payloadType);
-      assert(FALSE);
-      break;
+                    mime.data(), fmtp.data(), payloadType);
+      assert(!"Could not find codec of given type!");
+      rpEncoder=NULL;
    }
 
    if (NULL != rpEncoder) 
    {
-/*
-      osPrintf("MpCodecFactory::createEncoder(i:%d, x:%d, 0x%X)\n",
-         internalCodecId, payloadType, (int) rpEncoder);
-*/
       return OS_SUCCESS;
    }
 
    return OS_INVALID_ARGUMENT;
 }
+
+void MpCodecFactory::getCodecInfoArray(unsigned &count,
+                                       const MppCodecInfoV1_1 **&codecInfoArray) const
+{
+   if (!mCodecInfoCacheValid)
+   {
+      updateCodecInfoCache();
+   }
+
+   count = mCachedCodecInfoNum;
+   codecInfoArray = mpCodecInfoCache;
+}
+
+void MpCodecFactory::addCodecsToList(SdpCodecList &codecList) const
+{
+   UtlHashBagIterator iter(mCodecsInfo);
+
+   MpCodecSubInfo* pCodec;
+   while (pCodec = (MpCodecSubInfo*)iter())
+   {
+      const MppCodecInfoV1_1 *pCodecInfo = pCodec->getCodecInfo();
+      if (pCodecInfo->fmtpsNum == 0)
+      {
+         SdpCodec::SdpCodecTypes codecType;
+         OsStatus res = SdpDefaultCodecFactory::getCodecType(pCodecInfo->mimeSubtype,
+                                                             pCodecInfo->sampleRate,
+                                                             pCodecInfo->numChannels,
+                                                             "",
+                                                             codecType);
+         osPrintf("Codec added to list: [%3d]:%s/%d/%d fmtp=\"%s\"\n",
+                  res==OS_SUCCESS?codecType:-1,
+                  pCodecInfo->mimeSubtype, pCodecInfo->sampleRate, pCodecInfo->numChannels,
+                  "");
+
+         if (res == OS_SUCCESS)
+         {
+            codecList.addCodec(SdpDefaultCodecFactory::getCodec(codecType));
+         }
+      }
+      else
+      {
+         for (unsigned fmtpIdx=0; fmtpIdx<pCodecInfo->fmtpsNum; fmtpIdx++)
+         {
+            SdpCodec::SdpCodecTypes codecType;
+            OsStatus res = SdpDefaultCodecFactory::getCodecType(pCodecInfo->mimeSubtype,
+                                                                pCodecInfo->sampleRate,
+                                                                pCodecInfo->numChannels,
+                                                                pCodecInfo->fmtps[fmtpIdx],
+                                                                codecType);
+            osPrintf("Codec added to list: [%3d]:%s/%d/%d fmtp=\"%s\"\n",
+                     res==OS_SUCCESS?codecType:-1,
+                     pCodecInfo->mimeSubtype, pCodecInfo->sampleRate, pCodecInfo->numChannels,
+                     pCodecInfo->fmtps[fmtpIdx]);
+
+            if (res == OS_SUCCESS)
+            {
+               codecList.addCodec(SdpDefaultCodecFactory::getCodec(codecType));
+            }
+         }
+      }
+   }
+}
+
+/* =============================== INQUIRY ================================ */
+
+
+/* ////////////////////////////// PROTECTED /////////////////////////////// */
+
+
+MpCodecSubInfo* MpCodecFactory::searchByMIME(const UtlString& mime,
+                                             int sampleRate,
+                                             int numChannels) const
+{
+   // Create a lower case copy of MIME-subtype string.
+   UtlString mime_copy(mime);
+   mime_copy.toLower();
+
+   // Create iterator to list all codecs with given MIME subtype.
+   UtlHashBagIterator iter(mCodecsInfo, &mime_copy);
+
+   MpCodecSubInfo* pInfo;
+   while (pInfo = (MpCodecSubInfo*)iter())
+   { 
+      if (pInfo->getCodecInfo()->sampleRate == sampleRate &&
+          pInfo->getCodecInfo()->numChannels == numChannels)
+      {
+         return pInfo;
+      }
+   }
+
+   return NULL;
+/*
+   // Create a lower case copy of MIME-subtype string.
+   UtlString mime_copy(mime);
+   mime_copy.toLower();
+
+   // Perform search
+   return (MpCodecSubInfo*)mCodecsInfo.find(&mime_copy);
+*/
+}
+
+void MpCodecFactory::freeAllLoadedLibsAndCodec()
+{
+   OsSharedLibMgrBase* pShrMgr = OsSharedLibMgr::getOsSharedLibMgr();
+
+   UtlHashBagIterator iter(mCodecsInfo);
+   MpCodecSubInfo* pinfo;
+
+   UtlHashBag libLoaded;
+   UtlString* libName;
+
+   while ((pinfo = (MpCodecSubInfo*)iter()))
+   {  
+      if ((!pinfo->getCodecCall()->isStatic()) && 
+         (!libLoaded.find(&pinfo->getCodecCall()->getModuleName()))) {
+         libLoaded.insert(const_cast<UtlString*>(&pinfo->getCodecCall()->getModuleName()));
+      }    
+   }
+
+   UtlHashBagIterator iter2(libLoaded);
+   while ((libName = (UtlString*)iter2()))
+   {
+      pShrMgr->unloadSharedLib(libName->data());
+   }
+
+   iter.reset();
+   while ((pinfo = (MpCodecSubInfo*)iter()))
+   {  
+      if (!pinfo->getCodecCall()->isStatic()) {
+         mCodecsInfo.remove(pinfo);
+         delete pinfo;         
+      }
+   }
+
+   mCodecInfoCacheValid = FALSE;
+}
+
+void MpCodecFactory::initializeStaticCodecs()
+{
+   MpCodecCallInfoV1* codecCallInfo;
+   for (codecCallInfo = sStaticCodecsV1; codecCallInfo; codecCallInfo = codecCallInfo->getNext())
+   {
+      int i = (int)addCodecWrapperV1(codecCallInfo);
+   }
+}
+
+void MpCodecFactory::freeStaticCodecs()
+{
+   MpCodecCallInfoV1* tmp = sStaticCodecsV1;
+   MpCodecCallInfoV1* next;
+   if (tmp) {
+      for ( ;tmp; tmp = next)
+      {
+         next = tmp->getNext();
+         delete tmp;
+      }
+      sStaticCodecsV1 = NULL;
+   }
+}
+
+/* /////////////////////////////// PRIVATE //////////////////////////////// */
+
+void MpCodecFactory::updateCodecInfoCache() const
+{
+   // First delete old data.
+   delete[] mpCodecInfoCache;
+
+   // Allocate memory for new array.
+   mCachedCodecInfoNum = mCodecsInfo.entries();
+   mpCodecInfoCache = new const MppCodecInfoV1_1*[mCachedCodecInfoNum];
+
+   // Fill array with data.
+   UtlHashBagIterator iter(mCodecsInfo);
+   for (unsigned i=0; i<mCachedCodecInfoNum; i++)
+   {
+      MpCodecSubInfo* pInfo = (MpCodecSubInfo*)iter();
+      mpCodecInfoCache[i] = pInfo->getCodecInfo();
+   }
+
+   // Cache successfully updated.
+   mCodecInfoCacheValid = TRUE;
+}
+
+OsStatus MpCodecFactory::addCodecWrapperV1(MpCodecCallInfoV1* wrapper)
+{
+   MpCodecSubInfo* mpsi;
+
+   const MppCodecInfoV1_1 *pCodecInfo;
+   if (wrapper->mPlgGetInfo(&pCodecInfo) != RPLG_SUCCESS)
+   {
+      return OS_FAILED;
+   }
+
+   // If codec need special packing, it should provide GetPacketSamples() method
+   if (  (pCodecInfo->framePacking == CODEC_FRAME_PACKING_SPECIAL)
+      != (wrapper->mPlgGetPacketSamples != NULL))
+   {
+      return OS_FAILED;
+   }
+
+   mpsi = new MpCodecSubInfo(wrapper, pCodecInfo);
+   if (mpsi == NULL)
+   {
+      return OS_NO_MEMORY;
+   }
+
+   sLock.acquire();
+   mCodecsInfo.insert(mpsi);
+   sLock.release();
+
+   return OS_SUCCESS;
+}
+
+
+/* ============================== FUNCTIONS =============================== */

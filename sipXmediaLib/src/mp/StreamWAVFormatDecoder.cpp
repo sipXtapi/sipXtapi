@@ -1,16 +1,22 @@
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2005 Pingtel Corp.
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 
 // SYSTEM INCLUDES
 #include <assert.h>
 
 // APPLICATION INCLUDES
+#include "os/OsIntTypes.h"
 #include "os/OsSysLog.h"
 #include "mp/StreamWAVFormatDecoder.h"
 #include "mp/StreamDataSource.h"
@@ -189,44 +195,26 @@ StreamWAVFormatDecoder::operator=(const StreamWAVFormatDecoder& rhs)
 int StreamWAVFormatDecoder::run(void* pArgs)
 {
    int iSamplesInOutBuffer = 0;
-   Sample        partialFrame[80] ;
-   int   nSamplesPartialFrame = 0;   
+   MpAudioSample partialFrame[80] ;
+   int nSamplesPartialFrame = 0;   
    int numOutSamples = 0;
    int iDataLength ;
-   int nQueuedFrames = 0;
 
-   //used if the files are aLaw or uLaw encodec
+   //used if the files are aLaw or uLaw encoded
    InitG711Tables();
  
    StreamDataSource* pSrc = getDataSource() ;
+
    if (pSrc != NULL)
    {
-      int iRead = 0;
-      char buf[16]; 
-
-      // "pre-read" 4 bytes, to see if this is a 0 length file and should
-      // be skipped.  Alas, apparently one cannot just call getLength() 
-      // as an  http fetch might not have returned any info yet.
-      if (pSrc->peek(buf, 4, iRead) != OS_SUCCESS) // empty file
-      {
-         // If one doesn't queue at least one frame, then it seems things stall
-         // Queue one frame of a "click" to give some audible indication
-         // a file was played (even if it was empty)
-         Sample Click[80] = {0} ;  // one frame of "click" to give audible
-                                   // indication of some problem.
-         Click[39] = -200 ;
-         Click[40] = 20000 ;       // An impulse should do nicely
-         Click[41] = -200 ;
-
-         queueFrame((const unsigned short *)Click);
-         mbEnd = TRUE ;
-      }
+      // pSrc->open() ;
       while (!mbEnd && nextDataChunk(iDataLength))
       {
          //we really want 80 SAMPLES not 80 bytes
          unsigned char  InBuffer[NUM_SAMPLES*2] ;
-         Sample OutBuffer[4000] = {0} ;  //make room for lots of decompression
+         MpAudioSample OutBuffer[4000] ;  //make room for lots of decompression
          
+         memset(&OutBuffer,0,sizeof(OutBuffer));
          iSamplesInOutBuffer = 0;
          
          while ((iDataLength > 0) && !mbEnd)
@@ -240,7 +228,7 @@ int StreamWAVFormatDecoder::run(void* pArgs)
                 //we need to read 80 samples
                 iRead = __min(iDataLength, NUM_SAMPLES);
                  
-                retval = pSrc->read((char *)InBuffer, iRead, iRead);
+                retval = (pSrc->read((char *)InBuffer, iRead, iRead) == OS_SUCCESS);
                 
                 //now convert to 16bit unsigned, which is what we use internally
                 ConvertUnsigned8ToSigned16(InBuffer,OutBuffer,iRead);
@@ -252,7 +240,7 @@ int StreamWAVFormatDecoder::run(void* pArgs)
                 iRead = __min(iDataLength, NUM_SAMPLES*2);
                 
                 //just read in the data, because it's the format we need
-                retval = pSrc->read((char *)OutBuffer, iRead, iRead);
+                retval = (pSrc->read((char *)OutBuffer, iRead, iRead) == OS_SUCCESS);
                 numOutSamples = iRead/2;
             }
             else
@@ -261,12 +249,12 @@ int StreamWAVFormatDecoder::run(void* pArgs)
                 //we need to read 80 samples
                 iRead = __min(iDataLength, NUM_SAMPLES);
                  
-                retval = pSrc->read((char *)OutBuffer, iRead, iRead);
+                retval = (pSrc->read((char *)OutBuffer, iRead, iRead) == OS_SUCCESS);
                 //no conversion to 16bit will take place because we need to decompress this
             }
             else
             {
-                syslog(FAC_STREAMING, PRI_ERR, "StreamWAVFormatDecoder::run Unsupport bit per sample rate!");
+                syslog(FAC_STREAMING, PRI_ERR, "StreamWAVFormatDecoder::run Unsupport bit per MpAudioSample rate!");
             }
 
             iDataLength -= iRead;
@@ -292,7 +280,7 @@ int StreamWAVFormatDecoder::run(void* pArgs)
 
                 //we now should have a buffer filled with Samples, not bytes
                 
-                int numBytes = numOutSamples * sizeof(Sample);
+                int numBytes = numOutSamples * sizeof(MpAudioSample);
                 
                 //next we check if the sound file is stereo...at this point in our lives
                 //we only want to support mono
@@ -301,15 +289,15 @@ int StreamWAVFormatDecoder::run(void* pArgs)
                 {
                     numBytes = mergeChannels((char *)OutBuffer, numBytes, mFormatChunk.nChannels);
                     
-                    //now calculate how many sample we have
-                    numOutSamples = numBytes/sizeof(Sample);
+                    //now calculate how many MpAudioSample we have
+                    numOutSamples = numBytes/sizeof(MpAudioSample);
                 }
                 
                 //in the next fucntion we must pass bytes, NOT samples as second param
                 numBytes = reSample((char *)OutBuffer, numBytes, mFormatChunk.nSamplesPerSec, DESIRED_SAMPLE_RATE);
                 
-                //now calculate how many sample we have
-                numOutSamples = numBytes/sizeof(Sample);
+                //now calculate how many MpAudioSample we have
+                numOutSamples = numBytes/sizeof(MpAudioSample);
                 
                 //this next part will buffer the samples if under 80 samples
                 if (numOutSamples > 0)
@@ -326,12 +314,11 @@ int StreamWAVFormatDecoder::run(void* pArgs)
                              if (iToCopy >= 80)
                              {
                                 queueFrame((const unsigned short *)OutBuffer+iCount);
-                                nQueuedFrames++ ;
                              }
                              else
                              {
                                 nSamplesPartialFrame = iToCopy ;
-                                memcpy(partialFrame, (const unsigned short *)OutBuffer+iCount,iToCopy*sizeof(Sample)) ;
+                                memcpy(partialFrame, (const unsigned short *)OutBuffer+iCount,iToCopy*sizeof(MpAudioSample)) ;
                              }
                           }
                           else
@@ -339,14 +326,13 @@ int StreamWAVFormatDecoder::run(void* pArgs)
                              if (iToCopy > (80-nSamplesPartialFrame))
                                 iToCopy = 80-nSamplesPartialFrame ;
 
-                             memcpy(&partialFrame[nSamplesPartialFrame],(const unsigned short *)OutBuffer+iCount, iToCopy*sizeof(Sample)) ;
+                             memcpy(&partialFrame[nSamplesPartialFrame],(const unsigned short *)OutBuffer+iCount, iToCopy*sizeof(MpAudioSample)) ;
                              nSamplesPartialFrame += iToCopy ;
 
                              if (nSamplesPartialFrame == 80)
                              {
                                 queueFrame((const unsigned short *) partialFrame);
                                 nSamplesPartialFrame = 0 ;
-                                nQueuedFrames++ ;
                              }
                           }
                           iCount += iToCopy ;
@@ -356,7 +342,6 @@ int StreamWAVFormatDecoder::run(void* pArgs)
             else
             {
                // Truncated data source?
-               syslog(FAC_STREAMING, PRI_ERR, "StreamWAVFormatDecoder::run (FireEvent DecodingErrorEvent)");
                fireEvent(DecodingErrorEvent) ;
                break ;
             }
@@ -365,9 +350,7 @@ int StreamWAVFormatDecoder::run(void* pArgs)
       pSrc->close() ;
    }
 
-
    queueEndOfFrames() ;      
-   syslog(FAC_STREAMING, PRI_DEBUG, "StreamWAVFormatDecoder::run queued %d frames", nQueuedFrames);
    fireEvent(DecodingCompletedEvent) ;
 
    mSemExited.release() ;
@@ -441,10 +424,12 @@ UtlBoolean StreamWAVFormatDecoder::nextDataChunk(int& iLength)
                 {
                     // for streaming, we currently only support one format:
                     // 16 bit, 8khz, signed.
-                    if (formatChunkInfo.nSamplesPerSec != 8000 || formatChunkInfo.nBitsPerSample != 16 ||
+                    // !SLG! Enable 8 bit playback - seems to work fine - run method converts 8 bit to 16 bit                   
+                    if (formatChunkInfo.nSamplesPerSec != 8000 || 
+                        (formatChunkInfo.nBitsPerSample != 16 && formatChunkInfo.nBitsPerSample != 8) ||
                         formatChunkInfo.nChannels != 1)
                     {
-                        syslog(FAC_STREAMING, PRI_ERR, "StreamWAVFormatDecoder::nextDataChunk (File is not 16 bit, 8khz, mono, signed format!)");
+                         syslog(FAC_STREAMING, PRI_ERR, "StreamWAVFormatDecoder::nextDataChunk (File is not 8 or 16 bit, 8khz, mono, signed format!)");
                          mbEnd = TRUE;
                          break;
                     }
@@ -456,7 +441,6 @@ UtlBoolean StreamWAVFormatDecoder::nextDataChunk(int& iLength)
                     if (pDataSource->seek(iCurrentPosition + blockSize) != OS_SUCCESS)
                     {
                        // Kick out if we cannot seek
-                       syslog(FAC_STREAMING, PRI_ERR, "StreamWAVFormatDecoder::nextDataChunk (Error seeking past block \"fmt\"!)");
                        break ;
                     }
                 }
@@ -516,10 +500,7 @@ UtlBoolean StreamWAVFormatDecoder::nextDataChunk(int& iLength)
        pDataSource->getPosition(currentPosition);
 
        if (!bSuccess && (currentPosition < streamLength || streamLength == 0))
-       {
-           syslog(FAC_STREAMING, PRI_ERR, "StreamWAVFormatDecoder::nextDataChunk (FireEvent DecodingErrorEvent)");
           fireEvent(DecodingErrorEvent) ;
-       }
    }
    
 

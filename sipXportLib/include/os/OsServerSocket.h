@@ -1,10 +1,15 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 
 #ifndef _OsServerSocket_h_
@@ -38,7 +43,8 @@ public:
 
    OsServerSocket(int connectionQueueSize,
                   int serverPort=PORT_DEFAULT,
-                  const char* szBindAddr = NULL);
+                  const char* szBindAddr = NULL,
+                  const bool bPerformBind = true);
 
    //:Constructor to set up TCP socket server
    // Sets the socket connection queue and starts listening on the
@@ -66,14 +72,22 @@ public:
    //!returns: Returns a socket connected to the client requesting the
    //!returns: connection.  If an error occurs returns NULL.
 
-   void close();
+   virtual void close();
    //: Close down the server
 
 /* ============================ ACCESSORS ================================= */
 
+   virtual int getSocketDescriptor() const;
+   //:Return the socket descriptor
+   // Warning: Use of this method risks the creation of platform-dependent
+   // code.
+
    virtual int getLocalHostPort() const;
    //:Return the local port number
    // Returns the port to which this socket is bound on this host.
+
+   virtual void getBindIp(UtlString& ip) const ;
+   //:Gets the bind ip (could be 0.0.0.0)
 
 /* ============================ INQUIRY =================================== */
    virtual UtlBoolean isOk() const;
@@ -86,6 +100,8 @@ public:
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
+   virtual OsConnectionSocket* createConnectionSocket(UtlString localIp, int descriptor);
+
    int socketDescriptor;
    int localHostPort;
    UtlString mLocalIp;

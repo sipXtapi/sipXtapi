@@ -1,10 +1,12 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 
 #ifndef _OsSysLogTask_h_
@@ -65,6 +67,11 @@ public:
    OsStatus flush(const OsTime& rTimeout = OsTime::OS_INFINITY);
      //:Stores all of the in-memory log entries to storage
 
+   OsTimer* getTimer()
+   {
+      return mpTimer;   
+   }
+   
 /* ============================ ACCESSORS ================================= */
 
    OsStatus getMaxEntries(int& maxEntries);

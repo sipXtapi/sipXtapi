@@ -1,17 +1,12 @@
-// 
-// 
-// Copyright (C) 2005, 2006 SIPez LLC
+//
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
-// Copyright (C) 2005, 2006 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// Licensed to SIPfoundry under a Contributor Agreement.
-// 
 // $$
-//////////////////////////////////////////////////////////////////////////////
-// Author: Dan Petrie (dpetrie AT SIPez DOT com)
+///////////////////////////////////////////////////////////////////////////////
 
 
 #ifndef _CpPeerCall_h_
@@ -40,9 +35,6 @@
 // FORWARD DECLARATIONS
 class Connection;
 class SipUserAgent;
-class CpIntMessage;
-class OsQueuedEvent;
-class OsTimer;
 
 //:Class short description which may consist of multiple lines (note the ':')
 // Class detailed description which may extend to multiple lines
@@ -103,10 +95,20 @@ public:
 
     //virtual void conferenceAddParty();
 
-    Connection* addParty(const char* partyAddress, const char* callController,
-        const char* originalCallConnectionAddress, const char* pNewCallId,
-        CONTACT_ID contactId = 0,
-        const void* pDisplay = NULL);
+    Connection* addParty(const char* partyAddress,
+		const char* callController,
+        const char* originalCallConnectionAddress,
+		const char* pNewCallId,
+        SIPX_CONTACT_ID contactId = 0,
+        const void* pDisplay = NULL,
+        const void* pSecurity = NULL,
+        const char* locationHeader = NULL,
+        const int bandWidth = AUDIO_CODEC_BW_DEFAULT,
+        UtlBoolean bOnHold = false,
+		const char* originalCallId = NULL,
+        SIPX_TRANSPORT_DATA* pTransport = NULL,
+        const RTP_TRANSPORT rtpTransportOptions = RTP_TRANSPORT_UDP);
+
     Connection* stringDial(OsMsg& eventMessage, UtlString& dialString);
 
 
@@ -135,7 +137,7 @@ public:
 
     static UtlBoolean shouldCreateCall(SipUserAgent& sipUa,
         OsMsg& message,
-        SdpCodecFactory& codecFactory);
+        SdpCodecList& codecFactory);
 
     virtual UtlBoolean hasCallId(const char* callId);
 
@@ -150,9 +152,15 @@ public:
 
     virtual UtlBoolean canDisconnectConnection(Connection* pConnection);
 
+    UtlBoolean isConnectionLocallyInitiatedRemoteHold(const char* callId, 
+                                                      const char* toTag,
+                                                      const char* fromTag) ;
+
+
     /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
     virtual UtlBoolean handleCallMessage(OsMsg& eventMessage);
+    virtual UtlBoolean handleNotifyMessage(OsEventMsg& eventMsg) ;
     void addTaoListenerToConnection(Connection* connection);
     void addToneListenersToConnection(Connection* connection);
 
@@ -162,6 +170,9 @@ protected:
     //: message
     UtlBoolean handleRenegotiateCodecsAllConnections(OsMsg* pEventMessage);
     //: Handles the processing of a CallManager::CP_RENEGOTIATE_CODECS_ALL_CONNECTIONS
+    //: message
+    UtlBoolean handleSilentRemoteHold(OsMsg* pEventMessage);
+    //: Handles the processing of a CallManager::CP_SILENT_REMOTE_HOLD
     //: message
     UtlBoolean handleGetCodecCPULimit(OsMsg& eventMessage);
     //: Handles the processing of a CallManager::CP_GET_CODEC_CPU_LIMIT
@@ -237,13 +248,8 @@ protected:
     //: Handles the processing of a CallManager::CP_GET_CONNECTIONS
     //: message
     UtlBoolean handleGetSession(OsMsg* pEventMessage);
-    // Handles the processing of a CallManager::CP_GET_INVITE 
-    // message
-    UtlBoolean handleGetInvite(OsMsg* pEventMessage);
     //: Handles the processing of a CallManager::CP_GET_SESSION
     //: message
-    UtlBoolean handleSendSipRequest(OsMsg* pEventMessage);
-    //: Handles CallManager::CP_SEND_SIP_REQUEST
     UtlBoolean handleGetCallState(OsMsg* pEventMessage);
     //: Handles the processing of a CallManager::CP_GET_CALLSTATE
     //: message
@@ -286,23 +292,37 @@ protected:
     UtlBoolean handleGetMediaConnectionId(OsMsg* pEventMessage);
     //: Handles the processing of a CP_GET_MEDIA_CONNECTION_ID message
 
+    UtlBoolean handleLimitCodecPreferences(OsMsg* pEventMessage);
+    //: Handles the processing of the CP_LIMIT_CODEC_PREFERENCES message
+
+    UtlBoolean handleGetMediaEnergyLevels(OsMsg* pEventMessage);
+    //: Handles the processing of a CP_GET_MEDIA_ENERGY_LEVELS message
+
+    UtlBoolean handleGetCallMediaEnergyLevels(OsMsg* pEventMessage);
+    //: Handles the processing of a CP_GET_CALL_MEDIA_ENERGY_LEVELS message
+
+    UtlBoolean handleGetMediaRtpSourceIDs(OsMsg* pEventMessage);
+    //: Handles the processing of a CP_GET_MEDIA_RTP_SOURCE_IDS message
+
     UtlBoolean handleGetCanAddParty(OsMsg* pEventMessage);
     //: Handles the processing of a CP_GET_CAN_ADD_PARTY message
-
-    //: Handles the processing of a CP_SPLIT_CONNECTION message
+    
     UtlBoolean handleSplitConnection(OsMsg* pEventMessage) ;
-
-    //: Handles the processing of a CP_JOIN_CONNECTION message
+    //: Handles the processing of a CP_SPLIT_CONNECTION message
+    
     UtlBoolean handleJoinConnection(OsMsg* pEventMessage) ;
+    //: Handles the processing of a CP_JOIN_CONNECTION message
+    
+    UtlBoolean handleTransferOtherPartyHold(OsMsg* pEventMessage) ;
+    //: Handles the processing of a CP_TRANSFER_OTHER_PARTY_HOLD message
 
-    //: Handle the processing of a CP_NEW_PASSERTED_ID message
-    UtlBoolean handleChangeLocalIdentity(OsMsg* pEventMessage);
+    UtlBoolean handleTransferOtherPartyJoin(OsMsg* pEventMessage) ;
+    //: Handles the processing of a CP_TRANSFER_OTHER_PARTY_JOIN message
 
-    //: Handle processing of a CP_SET_MEDIA_PROPERTY message
-    UtlBoolean handleSetMediaProperty(OsMsg* eventMessage);
+    UtlBoolean handleTransferOtherPartyUnhold(OsMsg* pEventMessage) ;
+    //: Handles the processing of a CP_TRANSFER_OTHER_PARTY_UNHOLD message
 
-    //: Handle processing of a CP_GET_MEDIA_PROPERTY message
-    UtlBoolean handleGetMediaProperty(OsMsg* eventMessage);
+    UtlBoolean handleGetUserAgent(OsMsg* pEventMessage);
 
     virtual UtlBoolean getConnectionState(const char* remoteAddress, int& state);
 
@@ -322,6 +342,7 @@ protected:
         UtlBoolean  strictCompare);
 
     void addConnection(Connection* connection);
+    void removeConnection(Connection* connection);
     Connection* findQueuedConnection();
     UtlBoolean isConnectionLive(int* localConnectionState = NULL);
     void dropIfDead();
@@ -330,7 +351,7 @@ protected:
     void handleGetTermConnections(OsMsg* pEventMessage);
     void handleSetOutboundLine(OsMsg* pEventMessage);
 
-    void getLocalContactAddresses( CONTACT_ADDRESS contacts[],
+    void getLocalContactAddresses( SIPX_CONTACT_ADDRESS contacts[],
         size_t nMaxContacts,
         size_t& nActualContacts) ;
 
@@ -360,14 +381,10 @@ private:
     UtlString mLocalTerminalId;
     UtlBoolean mIsEarlyMediaFor180;
     UtlBoolean mbRequestedDrop;      // Have we requested to be dropped by the CallManager
+    SIPXTACK_SECURITY_ATTRIBUTES* mpSecurity;
 
     SIPX_CALLSTATE_EVENT eLastMajor ;
-    SIPX_CALLSTATE_CAUSE eLastMinor ;
-    
-    // For media server
-    CpIntMessage* pExitMsg;
-    OsQueuedEvent* queuedEvent;
-    OsTimer* timer;
+    SIPX_CALLSTATE_CAUSE eLastMinor ; 
 
     CpPeerCall(const CpPeerCall& rCpPeerCall);
     //:Copy constructor
@@ -375,12 +392,7 @@ private:
     CpPeerCall& operator=(const CpPeerCall& rhs);
     //:Assignment operator
 
-    /** Test if address has a "tag" URI parameter.
-     *  If so, set address_without_tag to the URI with the "tag" parameter
-     *  removed.
-     */
-    static UtlBoolean checkForTag(const UtlString& address,
-                                  UtlString& address_without_tag);
+   UtlBoolean checkForTag(UtlString &address);
 
 };
 

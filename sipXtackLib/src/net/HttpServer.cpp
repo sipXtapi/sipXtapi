@@ -1,17 +1,21 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 
 // SYSTEM INCLUDES
 #include <assert.h>
 #include <stdio.h>
 #if defined(_WIN32)
-#   include <io.h>
+#   ifndef WINCE
+#       include <io.h>
+#   endif
 #elif defined(_VXWORKS)
 #   include <unistd.h>
 #   include <dirent.h>
@@ -23,9 +27,15 @@
 #else
 #   error Unsupported target platform.
 #endif
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
+
+#ifdef WINCE
+#   include <types.h>
+#else
+#   include <sys/types.h>
+#   include <sys/stat.h>
+#   include <fcntl.h>
+#endif
+
 #include "os/OsDefs.h"
 #include "os/OsSysLog.h"
 
@@ -102,7 +112,7 @@ HttpServer::HttpServer(OsServerSocket *pSocket, OsConfigDb* userPasswordDb,
    {
       mbPersistentConnection = false;
       OsSysLog::add( FAC_SIP, PRI_ERR, "HttpServer failed to allocate mpHttpConnectionList");
-   }   
+   }
 }
 
 void HttpServer::loadValidIpAddrList()
@@ -218,7 +228,7 @@ int HttpServer::run(void* runArg)
                 httpStatus = OS_PORT_IN_USE;
     }
 
-    while(!isShuttingDown() && mpServerSocket->isOk())
+    while(! isShuttingDown() && mpServerSocket->isOk())
     {
         requestSocket = mpServerSocket->accept();
         
@@ -288,39 +298,39 @@ int HttpServer::run(void* runArg)
             }
             else
             {
-                HttpMessage request;
-                // Read a http request from the socket
-                request.read(requestSocket);
+            HttpMessage request;
+            // Read a http request from the socket
+            request.read(requestSocket);
 
-                UtlString remoteIp;
-                requestSocket->getRemoteHostIp(&remoteIp);
+             UtlString remoteIp;
+            requestSocket->getRemoteHostIp(&remoteIp);
 
-                HttpMessage* response = NULL;
+            HttpMessage* response = NULL;
 
-                // If request from Valid IP Address
-                if( processRequestIpAddr(remoteIp, request, response))
-                {
-                   // If the request is authorized
+            // If request from Valid IP Address
+            if( processRequestIpAddr(remoteIp, request, response))
+            {
+               // If the request is authorized
                    processRequest(request, response, requestSocket);
-                }
-
-                if(response)
-                {
-                    response->write(requestSocket);
-                    delete response;
-                    response = NULL;
-                }
-
-                requestSocket->close();
-                delete requestSocket;
-                requestSocket = NULL;
             }
+
+            if(response)
+            {
+                response->write(requestSocket);
+                delete response;
+                response = NULL;
+            }
+
+            requestSocket->close();
+            delete requestSocket;
+            requestSocket = NULL;
+        }
         }
         else
         {
            httpStatus = OS_PORT_IN_USE;
         }
-    } // while (!isShuttingDown && mpServerSocket->isOk()) 
+    } // while (! isShuttingDown && mpServerSocket->isOk()) 
 
     if ( !isShuttingDown() )
     {
@@ -627,7 +637,7 @@ void HttpServer::processRequest(const HttpMessage& request,
             if(body  && !body->isMultipart())
             {
                 requestContext.extractPostCgiVariables(*body);
-            }
+        }
         }
 
         if(   method.compareTo(HTTP_GET_METHOD) == 0
@@ -667,7 +677,7 @@ void HttpServer::processRequest(const HttpMessage& request,
         }
         else
         {
-           processNotSupportedRequest(requestContext, request, response);
+            processNotSupportedRequest(requestContext, request, response);
         }
     }
 }
@@ -1488,7 +1498,7 @@ void HttpServer::addRequestProcessor(const char* fileUrl,
 
    addUriMap( fileUrl, fileUrl );
    
-   UtlString* name = new UtlString(fileUrl);
+    UtlString* name = new UtlString(fileUrl);
     UtlInt* value = new UtlInt((int)requestProcessor);
     mRequestProcessorMethods.insertKeyAndValue(name, value);
 }
@@ -1498,7 +1508,7 @@ void HttpServer::addHttpService(const char* fileUrl, HttpService* service)
    OsSysLog::add(FAC_SIP, PRI_DEBUG, "HttpServer::addHttpService '%s' to %p",
                  fileUrl, service);
 
-   UtlString* name = new UtlString(fileUrl);
+    UtlString* name = new UtlString(fileUrl);
     UtlVoidPtr* value = new UtlVoidPtr(service);
     mHttpServices.insertKeyAndValue(name, value);
 }
@@ -1648,11 +1658,11 @@ UtlBoolean HttpServer::mapUri(OsConfigDb& uriMaps, const char* uri, UtlString& m
             if(dirSeparatorIndex == 0 && mapFromUri.length() > 1)
             {
                mapFromUri.remove(1);
-            }
+        }
             else if(dirSeparatorIndex >= 0)
             {
                mapFromUri.remove(dirSeparatorIndex);
-            }
+    }
             else
             {
                break;

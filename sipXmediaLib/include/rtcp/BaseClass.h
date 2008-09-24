@@ -1,10 +1,12 @@
 //
-// Copyright (C) 2005 Pingtel Corp.
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 //  Border Guard
 #ifndef _BaseClass_h /* [ */
@@ -14,7 +16,9 @@
 
 //  Includes
 #ifdef WIN32 /* [ */
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+#include <objbase.h>
 #include <stdio.h>
 
 #ifdef PINGTEL_PRINTF

@@ -1,15 +1,12 @@
-// 
-// Copyright (C) 2005-2006 SIPez LLC.
-// Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2004 Pingtel Corp.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-//////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 #include <cppunit/extensions/HelperMacros.h>
 #include <cppunit/TestCase.h>
@@ -130,7 +127,7 @@ public:
     {
         const char* szUrl =  "file://www.sipfoundry.org/dddd/ffff.txt";        
 #ifdef _WIN32
-        KNOWN_FATAL_BUG("Returned path separator is wrong under Win32", "XSL-74");
+        KNOWN_BUG("Returned path separator is wrong under Win32", "XSL-74");
 #endif        
         Url url(szUrl);
         char msg[1024];
@@ -147,7 +144,7 @@ public:
         const char* szUrl = "file://server:8080/dddd/ffff.txt";
 
 #ifdef _WIN32
-        KNOWN_FATAL_BUG("Returned path separator is wrong under Win32", "XSL-74");
+        KNOWN_BUG("Returned path separator is wrong under Win32", "XSL-74");
 #endif   
         char msg[1024];
         sprintf(msg, "file url w/path and port : %s", szUrl);
@@ -177,7 +174,7 @@ public:
       {
          const char* szUrl = "http://server:8080/dddd/ffff.txt";
 #ifdef _WIN32
-         KNOWN_FATAL_BUG("Returned path separator is wrong under Win32", "XSL-74");
+         KNOWN_BUG("Returned path separator is wrong under Win32", "XSL-74");
 #endif   
          char msg[1024];
          sprintf(msg, "url w/path and port : %s", szUrl);
@@ -195,7 +192,7 @@ public:
       {
          const char* szUrl = "http://server:8080/dddd/ffff.txt?p1=v1&p2=v2";
 #ifdef _WIN32
-         KNOWN_FATAL_BUG("Returned path separator is wrong under Win32", "XSL-74");
+         KNOWN_BUG("Returned path separator is wrong under Win32", "XSL-74");
 #endif   
          char msg[1024];
          sprintf(msg, "url w/path and port : %s", szUrl);
@@ -218,7 +215,7 @@ public:
       {
          const char* szUrl = "https://localhost:8091/cgi-bin/voicemail/mediaserver.cgi?action=deposit&mailbox=111&from=%22Dale+Worley%22%3Csip%3A173%40pingtel.com%3E%3Btag%253D3c11304";
 #ifdef _WIN32
-        KNOWN_FATAL_BUG("Returned path separator is wrong under Win32", "XSL-74");
+        KNOWN_BUG("Returned path separator is wrong under Win32", "XSL-74");
 #endif   
          Url url(szUrl);
          char msg[1024];
@@ -236,7 +233,7 @@ public:
       {
          const char* szUrl = "https://localhost:8091/cgi-bin/voicemail/mediaserver.cgi?action=deposit&mailbox=111&from=%22Dale+Worley%22%3Csip%3A173%40pingtel.com%3E%3Btag%253D3c11304";
 #ifdef _WIN32
-         KNOWN_FATAL_BUG("Returned path separator is wrong under Win32", "XSL-74");
+         KNOWN_BUG("Returned path separator is wrong under Win32", "XSL-74");
 #endif   
          Url url(szUrl, TRUE);
          char msg[1024];
@@ -1611,7 +1608,6 @@ public:
 
          UtlString component;
 
-         KNOWN_BUG("fails on FC6", "XPB-843");
          CPPUNIT_ASSERT(bigschemeUrl.getScheme() == Url::UnknownUrlScheme); 
 
          bigschemeUrl.getUserId(component);
@@ -1711,7 +1707,6 @@ public:
          
          PARSE(bighost);
 
-         KNOWN_BUG("fails on FC6", "XPB-843");
          CPPUNIT_ASSERT(bighostUrl.getScheme() == Url::UnknownUrlScheme);
       }
 

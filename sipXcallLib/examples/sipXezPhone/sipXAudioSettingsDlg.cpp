@@ -21,23 +21,18 @@
 #include "sipXmgr.h"
 
 // WDR: class implementations
-
-static wxListBox* codecListControl = NULL;
-static wxChoice* codecPrefControl = NULL;
-static wxStaticText* helpControl = NULL;
-static wxButton* selectButton = NULL;
-static int g_bandWidth;
+static    wxListBox* codecListControl = NULL;
+static    wxChoice* codecPrefControl = NULL;
 
 static wxString bwChoices[] = {
-    "Low Bandwidth", "Normal Bandwidth", "High Bandwidth"
+    "Low Bandwidth", "Normal Bandwidth", "High Bandwidth", "Custom"
 };
 
 
 BEGIN_EVENT_TABLE(sipXAudioSettingsDlg,wxDialog)
     EVT_BUTTON( wxID_OK, sipXAudioSettingsDlg::OnOk )
     EVT_BUTTON( wxID_CANCEL, sipXAudioSettingsDlg::OnCancel )
-    EVT_BUTTON( ID_SELECT_SINGLE, sipXAudioSettingsDlg::OnSelect )
-    EVT_CHOICE( ID_BANDWIDTH_CHOICE, sipXAudioSettingsDlg::OnCodec )
+    EVT_CHOICE( ID_BANDWIDTH_CHOICE, sipXAudioSettingsDlg::OnChangeBandwidth )
 END_EVENT_TABLE()
 
 
@@ -63,39 +58,11 @@ wxSizer *sipXAudioSettingsDlgFunc( wxWindow *parent, bool call_fit, bool set_siz
     new wxStaticBox(parent, -1, wxT("Codecs"), wxPoint(-1,80), wxSize(314, 180), wxALIGN_LEFT);
 
     new wxStaticText(parent, ID_TEXT, wxT("Codec preferences"), wxPoint(10,100), wxSize(180, 20), wxALIGN_LEFT );
-    wxChoice *item5 = new wxChoice(parent, ID_BANDWIDTH_CHOICE, wxPoint(180,98), wxSize(-1,-1), 3, bwChoices);
-
-    wxButton* item7 = new wxButton(parent, ID_SELECT_SINGLE, wxT("Select codec"), wxPoint(25, 177), wxDefaultSize);
-    selectButton = item7;
+    wxChoice *item5 = new wxChoice(parent, ID_BANDWIDTH_CHOICE, wxPoint(180,98), wxSize(-1,-1), 4, bwChoices);
     codecPrefControl = item5;
-    wxStaticText* item6 = new wxStaticText(parent, ID_TEXT, wxT(""), wxPoint(10,205), wxSize(130, 40), wxALIGN_LEFT );
-    helpControl = item6;
 
-    if (sipXmgr::getInstance().getCodecPreferences(&g_bandWidth))
-    {
-        codecPrefControl->SetSelection(g_bandWidth-1);
-    }
-
-    new wxStaticText(parent, ID_TEXT, wxT("Supported codecs for this codec preference\n"), wxPoint(10,130), wxSize(120,-1), wxALIGN_LEFT );
-
-    UtlString sData = "*sipXtapi error*";
-    sipXmgr::getInstance().getCodecList(sData);
-
-    wxListBox *item8 = new wxListBox(parent, ID_TEXT, wxPoint(140,130), wxSize(160, 120), 0, NULL, wxLB_ALWAYS_SB);
+    wxListBox *item8 = new wxListBox(parent, ID_TEXT, wxPoint(10,130), wxSize(295, 120), 0, NULL, wxLB_ALWAYS_SB | wxLB_MULTIPLE);
     codecListControl = item8;
-
-    char *tokTmp;
-    char *str = (char*)sData.data();
-    
-    tokTmp = strtok(str, "\n");
-
-    while (tokTmp != NULL)
-    {
-        item8->Append(wxT(tokTmp));
-        tokTmp = strtok(NULL, "\n");
-    }
-
-    ((sipXAudioSettingsDlg*)parent)->DeselectedCodec();
 
     new wxButton(parent, wxID_OK, wxT("OK"), wxPoint(200, 270), wxDefaultSize);
     
@@ -113,6 +80,14 @@ sipXAudioSettingsDlg::sipXAudioSettingsDlg( wxWindow *parent, wxWindowID id, con
     // WDR: dialog function sipXAudioSettingsDlgFunc for sipXAudioSettingsDlg
     sipXAudioSettingsDlgFunc(this, TRUE, TRUE ); 
 
+    sipXmgr::getInstance().getCodecPreferences((int*)&mOriginalBandwidth) ;
+    sipXmgr::getInstance().getCodecList(mOriginalCodecList);
+
+    if (sipXmgr::getInstance().getCodecPreferences((int*)&mBandwidth))
+    {
+        codecPrefControl->SetSelection(mBandwidth-1);
+        PopulateCodecList() ;
+    }
 }
 
 // WDR: handler implementations for sipXAudioSettingsDlg
@@ -143,97 +118,115 @@ void sipXAudioSettingsDlg::OnOk(wxCommandEvent &event)
     pChoice = (wxChoice*)sipXAudioSettingsDlg::FindWindowById(ID_BANDWIDTH_CHOICE, this);
     pos = pChoice->GetSelection();
     
-    // Don't change preferences on custom setting
-    if (g_bandWidth != 4)
+    sipXmgr::getInstance().setCodecPreferences(pos+1);
+    
+    // loop through the list box and save each as a selected codec
+    int count = codecListControl->GetCount();
+    wxString codecName;
+    UtlString codecList ;
+    UtlString cleanCodecList ;
+    for (int i = 0; i < count; i++)
     {
-        sipXmgr::getInstance().setCodecPreferences(pos+1);
-        sipXezPhoneSettings::getInstance().setCodecPref(pos+1);
+        if (codecListControl->Selected(i))
+        {
+            codecName = codecListControl->GetString(i);
+            codecList.append(codecName) ;
+            codecList.append(" " ) ;
 
-        sipXezPhoneSettings::getInstance().saveSettings();
+            UtlString temp = codecName.c_str() ;
+            int index = temp.first(' ') ;
+            if (index > 0)
+            {
+                temp.remove(index) ;
+            }
+
+            cleanCodecList.append(temp) ;
+            cleanCodecList.append(" ") ;
+        }
     }
     
+    sipXmgr::getInstance().setAudioCodecByName((const char *)codecList.data());
+        
+    sipXezPhoneSettings::getInstance().setSelectedAudioCodecs(cleanCodecList.data()) ;
+    sipXezPhoneSettings::getInstance().setCodecPref(pos+1);
+    sipXezPhoneSettings::getInstance().saveSettings();
+
     event.Skip();
 }
 
 void sipXAudioSettingsDlg::OnCancel(wxCommandEvent &event)
 {
+    sipXmgr::getInstance().setCodecPreferences(mOriginalBandwidth) ;
+    sipXezPhoneSettings::getInstance().setSelectedAudioCodecs(mOriginalCodecList) ;
+    sipXmgr::getInstance().setAudioCodecByName(mOriginalCodecList.data());
+    
     event.Skip();
 }
 
-void sipXAudioSettingsDlg::OnCodec(wxCommandEvent &event)
+void sipXAudioSettingsDlg::OnChangeBandwidth(wxCommandEvent &event)
 {
-    int i = event.GetSelection();
+    int sel = event.GetSelection();
 
-    if (codecListControl && i < 3)
+    mBandwidth = (bandwidth)(sel + 1);
+    PopulateCodecList() ;
+}
+
+void sipXAudioSettingsDlg::PopulateCodecList() 
+{
+    if (codecListControl)
     {
-        sipXmgr::getInstance().setCodecPreferences(i+1);
-        codecListControl->Clear();
-
-        UtlString sData = "*sipXtapi error*";
-        sipXmgr::getInstance().getCodecList(sData);
-
-        char *tokTmp;
-        char *str = (char*)sData.data();
-    
-        tokTmp = strtok(str, "\n");
-
-        while (tokTmp != NULL)
+        switch (mBandwidth)
         {
-            codecListControl->Append(wxT(tokTmp));
-            tokTmp = strtok(NULL, "\n");
+            case LOW:
+            case MEDIUM:
+            case HIGH:
+            {
+                // Unselect all
+                // codecListControl->Enable() ;
+                sipXmgr::getInstance().setCodecPreferences(mBandwidth);
+                codecListControl->Clear();
+
+                UtlString sData = "*sipXtapi error*";
+                sipXmgr::getInstance().getCodecList(sData);
+
+                char *tokTmp;
+                char *str = (char*)sData.data();
+
+                tokTmp = strtok(str, "\n");
+
+                while (tokTmp != NULL)
+                {
+                    int iID = codecListControl->Append(wxT(tokTmp));
+                    tokTmp = strtok(NULL, "\n");
+                }
+                break ;
+            }
+            case CUSTOM:
+            {
+                // codecListControl->Enable() ;
+
+                sipXmgr::getInstance().setCodecPreferences(HIGH-1);
+                codecListControl->Clear();
+
+                UtlString sData = "*sipXtapi error*";
+                sipXmgr::getInstance().getCodecList(sData);
+
+                char *tokTmp;
+                char *str = (char*)sData.data();
+
+                tokTmp = strtok(str, "\n");
+                while (tokTmp != NULL)
+                {
+                    int iID = codecListControl->Append(wxT(tokTmp));
+                    if (mOriginalCodecList.contains(tokTmp))
+                    {
+                        codecListControl->SetSelection(iID) ;
+                    }
+
+                    tokTmp = strtok(NULL, "\n");
+                }               
+                break ;
+            }
         }
-        if (codecPrefControl->GetCount() == 4)
-        {
-            codecPrefControl->Delete(g_bandWidth-1);
-            DeselectedCodec();
-        }
-        g_bandWidth = i + 1;
     }
 }
-
-void sipXAudioSettingsDlg::OnSelect(wxCommandEvent &event)
-{
-    wxString x;
-
-    int i = codecListControl->GetSelection();
-
-    if (i != -1)
-    {
-        x = codecListControl->GetStringSelection();
-        g_bandWidth = 4;
-
-        codecPrefControl->Append("By name:");
-        codecPrefControl->SetSelection(g_bandWidth-1);
-
-        sipXmgr::getInstance().setAudioCodecByName((const char *)x);
-        codecListControl->Clear();
-
-        UtlString sData = "*sipXtapi error*";
-        sipXmgr::getInstance().getCodecList(sData);
-
-        char *tokTmp;
-        char *str = (char*)sData.data();
-
-        tokTmp = strtok(str, "\n");
-
-        while (tokTmp != NULL)
-        {
-            codecListControl->Append(wxT(tokTmp));
-            tokTmp = strtok(NULL, "\n");
-        }
-        SelectedCodec();
-    }
-}
-
-void sipXAudioSettingsDlg::SelectedCodec()
-{
-    helpControl->SetLabel("(Reset single codec\nselection by selecting a\ndifferent bandwidth.)");
-    selectButton->Disable();
-}
-
-void sipXAudioSettingsDlg::DeselectedCodec()
-{
-    helpControl->SetLabel("(Select highlighted codec\nand use only that\ncodec.)");
-    selectButton->Enable();
-}
-

@@ -1,10 +1,12 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 #ifndef _REGEX_H
 #define _REGEX_H
@@ -14,7 +16,7 @@
 #include "utl/UtlString.h"
 
 /**
- * RegEx impelments Perl-compatible regular expressions
+ * RegEx implements Perl-compatible regular expressions
  *
  * A simple and small C++ wrapper for PCRE.
  * PCRE (or libprce) is the Perl Compatible Regular Expression library.
@@ -58,7 +60,7 @@ class RegEx
 ///@{
    
    /// Compile a regular expression to create the matching object.
-  RegEx( const char *      regex,       //< the regular expression
+  RegEx( const char * regex, //< the regular expression
          int               options = 0, //< any sum of PCRE options bits
          unsigned long int maxDepth = MAX_RECURSION // see MAX_RECURSION
          );

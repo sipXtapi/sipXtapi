@@ -3,100 +3,143 @@
 # projects
 nobase_includeHEADERS_INSTALL = $(INSTALL) -D -p -c -m 644
 
-# Should the subdirectory names (mp/GIPS mp/iG729 mp/JB) be in this
-# list, or is that just an unintended side effect of how this list
-# was generated automatically? (HZM, 20040616)
-
 nobase_include_HEADERS =  \
+    mp/codecs/PlgDefsV1.h \
     mp/dmaTask.h \
-    mp/DSP_type.h \
     mp/dsplib.h \
-    mp/DspResampling.h \
     mp/dtmflib.h \
     mp/FilterBank.h \
-    mp/GIPS \
-    mp/GIPS/G729Interface.h \
-    mp/GIPS/GIPS_API.h \
-    mp/GIPS/gips_typedefs.h \
     mp/HandsetFilterBank.h \
     mp/HandsetFilterbankWindows.h \
-    mp/JB \
-    mp/JB/JB_API.h \
-    mp/JB/jb_typedefs.h \
     mp/mpau.h \
+    mp/MpAgcBase.h \
+    mp/MpAgcSimple.h \
+    mp/MpArrayBuf.h \
     mp/MpAudioAbstract.h \
+    mp/MpAudioBuf.h \
     mp/MpAudioFileDecompress.h \
     mp/MpAudioFileOpen.h \
     mp/MpAudioFileUtils.h \
+    mp/MpAudioOutputConnection.h \
+    mp/MpAudioResource.h \
+    mp/MpAudioResourceConstructor.h \
     mp/MpAudioUtils.h \
     mp/MpAudioWaveFileRead.h \
+    mp/MpBridgeAlgBase.h \
+    mp/MpBridgeAlgLinear.h \
+    mp/MpBridgeAlgSimple.h \
     mp/MpBuf.h \
+    mp/MpBufPool.h \
     mp/MpBufferMsg.h \
     mp/MpCallFlowGraph.h \
     mp/MpCodec.h \
     mp/MpCodecFactory.h \
     mp/MpCodecInfo.h \
-    mp/MpConnection.h \
+    mp/MpDataBuf.h \
     mp/MpDecoderBase.h \
-    mp/MpDefs.h \
-    mp/MpdGIPSG729ab.h \
-    mp/MpdGIPSiLBC.h \
-    mp/MpdGIPSiPCMA.h \
-    mp/MpdGIPSiPCMU.h \
-    mp/MpdGIPSiPCMWB.h \
-    mp/MpdGIPSPCMA.h \
-    mp/MpdGIPSPCMU.h \
-    mp/MpdPtAVT.h \
-    mp/MpdSipxPcma.h \
-    mp/MpdSipxPcmu.h \
-    mp/MpeGIPSG729ab.h \
-    mp/MpeGIPSiLBC.h \
-    mp/MpeGIPSiPCMA.h \
-    mp/MpeGIPSiPCMU.h \
-    mp/MpeGIPSiPCMWB.h \
-    mp/MpeGIPSPCMA.h \
-    mp/MpeGIPSPCMU.h \
-    mp/MpeSipxPcma.h \
-    mp/MpeSipxPcmu.h \
+    mp/MpDecoderPayloadMap.h \
+    mp/MpDspUtils.h \
+    mp/MpDspUtilsConvertVect.h \
+    mp/MpDspUtilsSerials.h \
+    mp/MpDspUtilsShift.h \
+    mp/MpDspUtilsSum.h \
+    mp/MpDspUtilsSumVect.h \
+    mp/MpDTMFDetector.h \
     mp/MpEncoderBase.h \
-    mp/MpePtAVT.h \
     mp/MpFlowGraphBase.h \
     mp/MpFlowGraphMsg.h \
+    mp/MpFromFileStartResourceMsg.h \
+    mp/MpidOss.h \
+    mp/MpInputDeviceDriver.h \
+    mp/MpInputDeviceManager.h \
+    mp/MpJbeFixed.h \
     mp/MpJitterBuffer.h \
+    mp/MpJitterBufferEstimation.h \
     mp/MpMediaTask.h \
     mp/MpMediaTaskMsg.h \
     mp/MpMisc.h \
+    mp/MpMMTimer.h \
+    mp/MpodBufferRecorder.h \
+    mp/MpodOss.h \
+    mp/MpOss.h \
+    mp/MpOssContainer.h \
+    mp/MpOutputDeviceDriver.h \
+    mp/MpOutputDeviceManager.h \
     mp/MpPlayer.h \
     mp/MpPlayerEvent.h \
     mp/MpPlayerListener.h \
     mp/MpQueuePlayerListener.h \
-    mp/MpRawAudioBuffer.h \
+    mp/MpRtpBuf.h \
+    mp/MpUdpBuf.h \
+    mp/MprNullAec.h \
+    mp/MprNullAecConstructor.h \
+    mp/MprAudioFrameBuffer.h \
     mp/MprBridge.h \
+    mp/MprBridgeConstructor.h \
+    mp/MprBufferRecorder.h \
+    mp/MprBufferRecorderConstructor.h \
+    mp/MpBufRecStartResourceMsg.h \
     mp/MprDecode.h \
     mp/MprDejitter.h \
     mp/MprEchoSuppress.h \
     mp/MprEncode.h \
+    mp/MpResampler.h \
+    mp/MpResamplerSpeex.h \
     mp/MpResource.h \
+    mp/MpResourceConstructor.h \
+    mp/MpResourceFactory.h \
+    mp/MpResourceMsg.h \
+    mp/MpResNotificationMsg.h \
     mp/MpResourceSortAlg.h \
+    mp/MpResourceTopology.h \
     mp/MprFromFile.h \
+    mp/MprFromFileConstructor.h \
+    mp/MprFromInputDevice.h \
+    mp/MprFromInputDeviceConstructor.h \
     mp/MprFromMic.h \
     mp/MprFromNet.h \
     mp/MprFromStream.h \
     mp/MprMixer.h \
+    mp/MprnDTMFMsg.h \
+    mp/MprnProgressMsg.h \
+    mp/MprNull.h \
+    mp/MprNullConstructor.h \
     mp/MprRecorder.h \
+    mp/MprSpeexEchoCancel.h \
+    mp/MprSpeexPreProcess.h \
     mp/MprSplitter.h \
+    mp/MprSplitterConstructor.h \
     mp/MprToneGen.h \
+    mp/MprToneGenConstructor.h \
     mp/MprToNet.h \
+    mp/MprToOutputDeviceConstructor.h \
+    mp/MprToOutputDevice.h \
     mp/MprToSpkr.h \
-    mp/MpSipxDecoders.h \
+    mp/MpRtpInputAudioConnection.h \
+    mp/MprRtpInputAudioConnectionConstructor.h \
+    mp/MpRtpInputConnection.h \
+    mp/MpRtpOutputAudioConnection.h \
+    mp/MprRtpOutputAudioConnectionConstructor.h \
+    mp/MpRtpOutputConnection.h \
+    mp/MpSineWaveGeneratorDeviceDriver.h \
+    mp/MpStaticCodecInit.h \
     mp/MpStreamFeeder.h \
     mp/MpStreamMsg.h \
     mp/MpStreamPlayer.h \
     mp/MpStreamPlaylistPlayer.h \
     mp/MpStreamQueuePlayer.h \
+    mp/MpPlcBase.h \
+    mp/MpPlcSilence.h \
+    mp/MpPlgStaffV1.h \
+    mp/MpProgressResourceMsg.h \
+    mp/MpStringResourceMsg.h \
+    mp/MpToneResourceMsg.h \
+    mp/MpTopologyGraph.h \
     mp/MpTypes.h \
+    mp/MpVadBase.h \
+    mp/MpVadSimple.h \
     mp/NetInTask.h \
-    mp/resamplingby2.h \
+    mp/RtpHeader.h \
     mp/StreamBufferDataSource.h \
     mp/StreamDataSource.h \
     mp/StreamDataSourceListener.h \

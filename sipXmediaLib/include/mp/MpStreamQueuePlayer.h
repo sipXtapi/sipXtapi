@@ -1,10 +1,15 @@
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2005 Pingtel Corp.
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 
 #ifndef _MpStreamQueuePlayer_h_
@@ -50,14 +55,15 @@ class MpStreamQueuePlayer : public OsServerTask, protected MpPlayerListener
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
-   enum SourceType
+   typedef enum
    {
       SourceUrl,
       SourceBuffer
-   } ;
+   } SourceType;
 
 /* ============================ CREATORS ================================== */
-
+///@name Creators
+//@{
    MpStreamQueuePlayer(OsMsgQ* pMsgQ, const char* pTarget = NULL);
      //:Constructor accepting a msgQ
 
@@ -65,8 +71,11 @@ public:
    ~MpStreamQueuePlayer();
      //:Destructor
 
-/* ============================ MANIPULATORS ============================== */
+//@}
 
+/* ============================ MANIPULATORS ============================== */
+///@name Manipulators
+//@{
    virtual OsStatus add(Url& url, int flags) ;
      //:Queues a URL for playing
      //
@@ -109,13 +118,23 @@ public:
      // cease to receive state change notifications.
 
    
+//@}
+
 /* ============================ ACCESSORS ================================= */
+///@name Accessors
+//@{
+
+//@}
 
 /* ============================ INQUIRY =================================== */
+///@name Inquiry
+//@{
 
    UtlBoolean isPlaying() ;
      //:Is the Queue player playing (or about to play)
 
+
+//@}
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
@@ -175,7 +194,7 @@ private:
       EVENT_DEQUEUE,
       EVENT_PLAY_NEXT,
       EVENT_REMOVE_FAILED,
-      EVENT_RESET
+      EVENT_PLAY_RESET
    } ;
 
    struct PlaylistQueue             // Definition for a playlist entry

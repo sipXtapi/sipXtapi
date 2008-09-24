@@ -4,6 +4,7 @@
 	Version="7.10"
 	Name="sipXtackLibTest"
 	ProjectGUID="{AB8F7343-BC81-4077-B1A5-37CA389FCA93}"
+	RootNamespace="sipXtackLibTest"
 	Keyword="Win32Proj">
 	<Platforms>
 		<Platform
@@ -19,7 +20,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories=".\include;..\sipXportLib\include;..\sipXportLib\src\test"
+				AdditionalIncludeDirectories=".\include;.\include\nss;..\sipXportLib\include;..\sipXcallLib\include;..\sipXportLib\src\test;..\sipXsdpLib\include;..\CPPUnit\include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
@@ -33,10 +34,12 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="msvcrtd.lib MSVCPRTD.lib wsock32.lib cppunitd.lib sipXportLib.lib sipXtackLib.lib libpcre.a"
+				AdditionalDependencies="Ws2_32.lib cppunitd.lib pcre.lib"
 				OutputFile="$(OutDir)/sipXtackLibTest.exe"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories=".\Debug;..\sipXportLib\debug"
+				AdditionalLibraryDirectories=".\Debug;..\sipXportLib\debug;..\CPPUnit\lib"
+				IgnoreDefaultLibraryNames=""
+				DelayLoadDLLs="nss3.dll;smime3.dll;nspr4.dll;plc4.dll;ssl3.dll"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(OutDir)/sipXtackLibTest.pdb"
 				SubSystem="1"
@@ -70,9 +73,10 @@
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
-				RuntimeLibrary="4"
-				UsePrecompiledHeader="3"
+				AdditionalIncludeDirectories=".\include;.\include\nss;..\sipXportLib\include;..\sipXcallLib\include;..\sipXportLib\src\test;..\sipXsdpLib\include;..\CPPUnit\include"
+				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;"
+				RuntimeLibrary="2"
+				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="TRUE"
 				DebugInformationFormat="3"/>
@@ -80,8 +84,11 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="$(OutDir)/sipXportLibTest.exe"
+				AdditionalDependencies="Ws2_32.lib cppunit.lib pcre.lib"
+				OutputFile="$(OutDir)/sipXtackLibTest.exe"
 				LinkIncremental="1"
+				AdditionalLibraryDirectories=".\Release;..\sipXportLib\release;..\CPPUnit\lib"
+				IgnoreDefaultLibraryNames=""
 				GenerateDebugInformation="TRUE"
 				SubSystem="1"
 				OptimizeReferences="2"
@@ -117,6 +124,9 @@
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx"
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}">
 			<File
+				RelativePath=".\src\test\net\HttpBodyTest.cpp">
+			</File>
+			<File
 				RelativePath=".\src\test\net\HttpMessageTest.cpp">
 			</File>
 			<File
@@ -129,16 +139,25 @@
 				RelativePath=".\src\test\net\NetAttributeTokenizerTest.cpp">
 			</File>
 			<File
+				RelativePath=".\src\test\net\NetBase64CodecTest.cpp">
+			</File>
+			<File
 				RelativePath=".\src\test\net\NetMd5CodecTest.cpp">
 			</File>
 			<File
 				RelativePath=".\src\test\net\SdpBodyTest.cpp">
 			</File>
 			<File
+				RelativePath=".\src\test\SdpHelperTest.cpp">
+			</File>
+			<File
 				RelativePath=".\src\test\net\SipContactDbTest.cpp">
 			</File>
 			<File
 				RelativePath=".\src\test\net\SipDialogEventTest.cpp">
+			</File>
+			<File
+				RelativePath=".\src\test\net\SipDialogMonitorTest.cpp">
 			</File>
 			<File
 				RelativePath=".\src\test\net\SipDialogTest.cpp">
@@ -148,6 +167,9 @@
 			</File>
 			<File
 				RelativePath=".\src\test\net\SipPresenceEventTest.cpp">
+			</File>
+			<File
+				RelativePath=".\src\test\net\SipProxyMessageTest.cpp">
 			</File>
 			<File
 				RelativePath=".\src\test\net\SipPublishContentMgrTest.cpp">
@@ -162,49 +184,22 @@
 				RelativePath=".\src\test\net\SipSrvLookupTest.cpp">
 			</File>
 			<File
-				RelativePath=".\src\test\net\SipSubcribeServerTest.cpp">
+				RelativePath=".\src\test\net\SipSubscribeServerTest.cpp">
 			</File>
 			<File
-				RelativePath=".\src\test\net\SipSubcriptionClientTest.cpp">
+				RelativePath=".\src\test\net\SipSubscriptionClientTest.cpp">
 			</File>
 			<File
-				RelativePath=".\src\test\net\SipSubcriptionMgrTest.cpp">
+				RelativePath=".\src\test\net\SipSubscriptionMgrTest.cpp">
 			</File>
 			<File
 				RelativePath=".\src\test\net\SipUserAgentTest.cpp">
 			</File>
 			<File
-				RelativePath="..\sipXportLib\src\test\sipxunit\TestMonitor.cpp">
-			</File>
-			<File
-				RelativePath="..\sipXportLib\src\test\sipxunit\TestMonitor.h">
-			</File>
-			<File
-				RelativePath="..\sipXportLib\src\test\sipxunit\TestOutputter.cpp">
-			</File>
-			<File
-				RelativePath="..\sipXportLib\src\test\sipxunit\TestOutputter.h">
-			</File>
-			<File
-				RelativePath="..\sipXportLib\src\test\sipxunit\TestRunner.cpp">
-			</File>
-			<File
-				RelativePath="..\sipXportLib\src\test\sipxunit\TestRunner.h">
-			</File>
-			<File
-				RelativePath="..\sipXportLib\src\test\sipxunit\TestTemplate.cpp">
-			</File>
-			<File
-				RelativePath="..\sipXportLib\src\test\sipxunit\TestUtilities.cpp">
-			</File>
-			<File
-				RelativePath="..\sipXportLib\src\test\sipxunit\TestUtilities.h">
-			</File>
-			<File
-				RelativePath="..\sipXportLib\src\test\sipxunit\unitmain.cpp">
-			</File>
-			<File
 				RelativePath=".\src\test\net\UrlTest.cpp">
+			</File>
+			<File
+				RelativePath=".\src\test\net\XmlRpcTest.cpp">
 			</File>
 		</Filter>
 		<Filter
@@ -220,9 +215,6 @@
 			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx"
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}">
 		</Filter>
-		<File
-			RelativePath=".\ReadMe.txt">
-		</File>
 	</Files>
 	<Globals>
 	</Globals>

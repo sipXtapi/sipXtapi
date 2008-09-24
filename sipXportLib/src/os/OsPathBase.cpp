@@ -1,10 +1,12 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
 #include <assert.h>
@@ -96,8 +98,7 @@ int fnSplit(char *spec,             /* Original file spec         */
       int ret_code = 0;
       char *d = spec, *p, *e;
 
-
-      if (':' == spec[1])
+      if (spec[0] != '\0' && spec[1] == ':')
       {
             if (drive)
                   strncpy(drive, spec, 2);
@@ -208,8 +209,8 @@ OsPathBase::OsPathBase(const char *pathname)
     massage();
 }
 // Make one from a UtlStringchar string
-OsPathBase::OsPathBase(const UtlString &pathname) :
-UtlString(pathname)
+OsPathBase::OsPathBase(const UtlString &pathname)
+: UtlString(pathname)
 {
     massage();
 }
@@ -357,7 +358,7 @@ void OsPathBase::Split()
     char path[256];
     char fname[256];
     char name[256];
-    char ext[32];
+    char ext[256];
 
     fnSplit((char *)data(),             /* Original file spec         */
             drive,            /* Drive spec                 */

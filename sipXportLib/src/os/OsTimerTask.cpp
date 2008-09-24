@@ -1,12 +1,11 @@
 // 
-// 
-// Copyright (C) 2005-2006 SIPez LLC.
+// Copyright (C) 2005-2007 SIPez LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.
 // 
-// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 // 
-// Copyright (C) 2004-2006 Pingtel Corp.
+// Copyright (C) 2004-2007 Pingtel Corp.
 // Licensed to SIPfoundry under a Contributor Agreement.
 // 
 // $$
@@ -34,8 +33,7 @@ volatile OsTimerTask* OsTimerTask::spInstance = 0;
 // Create a semaphore at run time rather than declaring a static semaphore,
 // so that the shut-down code does not try to destroy the semaphore,
 // which can lead to problems with the ordering of destructors.
-OsBSem*      OsTimerTask::sLock =
-                 new OsBSem(OsBSem::Q_PRIORITY, OsBSem::FULL);
+OsBSem*      OsTimerTask::sLock = new OsBSem(OsBSem::Q_PRIORITY, OsBSem::FULL);
 const int    OsTimerTask::TIMER_MAX_REQUEST_MSGS = 10000;
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
@@ -58,6 +56,7 @@ OsTimerTask* OsTimerTask::getTimerTask(void)
       if (spInstance == NULL)
       {
          spInstance = new OsTimerTask();
+         assert( spInstance );
          // Have to cast spInstance to remove volatile, according to C++
          // rules.
          UtlBoolean isStarted = ((OsTimerTask*) spInstance)->start();
@@ -74,15 +73,15 @@ OsTimerTask* OsTimerTask::getTimerTask(void)
 // Destroy the singleton instance of the timer task.
 void OsTimerTask::destroyTimerTask(void)
 {
-    OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
-                  "OsTimerTask::destroyTimerTask entered");
-    sLock->acquire();
-    if (spInstance)
-    {
-        delete spInstance;
-        spInstance = NULL;
-    }
-    sLock->release();
+   OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
+                 "OsTimerTask::destroyTimerTask entered");
+   sLock->acquire();
+   if (spInstance)
+   {
+      delete spInstance ;
+      spInstance = NULL ;
+   }
+   sLock->release();
 }
 
 // Destructor
@@ -114,12 +113,10 @@ OsTimerTask::~OsTimerTask()
 
 // Default constructor (called only indirectly via getTimerTask())
 OsTimerTask::OsTimerTask(void)
-:  OsServerTask("OsTimer-%d", NULL, TIMER_MAX_REQUEST_MSGS
-#ifdef __pingtel_on_posix__
-                , 5 // high priority so that we get reasonable clock heartbeats for media
-#endif
-               ),
-   mTimerQueue(0)
+: OsServerTask("OsTimer-%d", NULL, TIMER_MAX_REQUEST_MSGS
+              , 5 // high priority so that we get reasonable clock heartbeats for media
+              )
+, mTimerQueue(0)
 {
 }
 
@@ -129,28 +126,25 @@ OsTimerTask::OsTimerTask(void)
 // is called.
 int OsTimerTask::run(void* pArg)
 {
-   UtlBoolean doShutdown;
-   OsMsg*    pMsg = NULL;
-   OsStatus  res;
+   UtlBoolean doShutdown = FALSE;
+   OsMsg*     pMsg = NULL;
+   OsStatus   res;
+   OsTime now;  // "now" is the current time.
 
-   // "now" is the current time.
-   OsTimer::Time now = OsTimer::now();
-   doShutdown = FALSE;
+   OsDateTime::getCurTime(now);
+
    do
    {
       // Do not attempt to receive message if a timer has already fired.
       // (This also avoids an edge case if the timeout value is zero
       // or negative.)
-      if (!(mTimerQueue &&
-            OsTimer::compareTimes(now, mTimerQueue->mQueuedExpiresAt) >= 0))
+      if (!mTimerQueue || (now < mTimerQueue->mQueuedExpiresAt))
       {
          // Set the timeout till the next timer fires.
          OsTime timeout;
          if (mTimerQueue)
          {
-            OsTimer::cvtToOsTime(timeout,
-                                 OsTimer::subtractTimes(mTimerQueue->mQueuedExpiresAt,
-                                                        now));
+            timeout = mTimerQueue->mQueuedExpiresAt - now;
          }
          else
          {
@@ -175,13 +169,17 @@ int OsTimerTask::run(void* pArg)
                pMsg->releaseMsg();                      // free the message
             }
          }
+         else
+         {
+            assert(pMsg==NULL);
+         }
 
-         now = OsTimer::now();     // Update our record of the current time.
+         OsDateTime::getCurTime(now);     // Update our record of the current time.
       }
 
       // Now check for timers that have expired.
       while (mTimerQueue &&
-             OsTimer::compareTimes(now, mTimerQueue->mQueuedExpiresAt) >= 0)
+             now >= mTimerQueue->mQueuedExpiresAt)
       {
          // Fire the the timer (and remove it from the queue).
          OsTimer* timer = mTimerQueue;
@@ -195,13 +193,17 @@ int OsTimerTask::run(void* pArg)
       if (OsSysLog::willLog(FAC_KERNEL, PRI_WARNING))
       {
          // Check to see if timer firing took too long.
-         OsTimer::Time after = OsTimer::now();
-         OsTimer::Time t = OsTimer::subtractTimes(after, now);
+         OsTime after;
+         OsDateTime::getCurTime(after);
+         OsTime t = after - now;
          if (t >= 1000000 /* 1 second */)
          {
             OsSysLog::add(FAC_KERNEL, PRI_WARNING,
-                          "OsTimerTask::run firing took %lld usecs, queue length = %d",
-                          t, getMessageQueue()->numMsgs());
+                          "OsTimerTask::run firing took %ld.%06ld usecs,"
+                          " queue length = %d, before fire = %ld.%06ld, after fire = %ld.%06ld",
+                          t.seconds(), t.usecs(), getMessageQueue()->numMsgs(),
+                          now.seconds(), now.usecs(),
+                          after.seconds(), after.usecs());
          }
       }
    }
@@ -210,7 +212,6 @@ int OsTimerTask::run(void* pArg)
    OsSysLog::add(FAC_KERNEL, PRI_INFO,
                  "OsTimerTask::run OsTimerTask shutting down");
 
-   ackShutdown();   // acknowledge the task shutdown request
    return 0;        // and then exit
 }
 
@@ -280,9 +281,9 @@ UtlBoolean OsTimerTask::handleMessage(OsMsg& rMsg)
    CHECK_VALIDITY(timer);
 #endif
    unsigned int applicationState;
-   OsTimer::Time expiresAt;
+   OsTime expiresAt;
    UtlBoolean periodic;
-   OsTimer::Interval period;
+   OsTime period;
    {
       OsLock lock(timer->mBSem);
 
@@ -298,7 +299,7 @@ UtlBoolean OsTimerTask::handleMessage(OsMsg& rMsg)
       expiresAt = timer->mExpiresAt;
       periodic = timer->mPeriodic;
       period = timer->mPeriod;
-   }	    
+   }
 
    // Determine whether the timer needs to be stopped.
    // (The comparison between applicationState and mTaskState is really
@@ -322,7 +323,7 @@ UtlBoolean OsTimerTask::handleMessage(OsMsg& rMsg)
       timer->mQueuedPeriod = period;
       insertTimer(timer);
    }
-	    
+
    // Update the task state.
    timer->mTaskState = applicationState;
 
@@ -378,39 +379,36 @@ UtlBoolean OsTimerTask::handleMessage(OsMsg& rMsg)
  */
 void OsTimerTask::fireTimer(OsTimer* timer)
 {
+   OsLock lock(timer->mBSem);
    UtlBoolean report;
+
+   // mDeleting may be true, if the destructor has started running.
+
+   // Determine if this firing should be reported, or whether the
+   // timer has been stopped since we were informed that it started.
+   report = timer->mTaskState == timer->mApplicationState;
+
+   if (!report)
    {
-      OsLock lock(timer->mBSem);
-
-      // mDeleting may be true, if the destructor has started running.
-
-      // Determine if this firing should be reported, or whether the
-      // timer has been stopped since we were informed that it started.
-      report = timer->mTaskState == timer->mApplicationState;
-
-      if (!report)
-      {
-         // If this firing is after the timer has been stopped by
-         // the application, advance mTaskState to a stopped state
-         // to recognize that the timer has been removed from the
-         // timer queue.
-         timer->mTaskState++;
-      }
-      else if (report && !timer->mQueuedPeriodic)
-      {
-         // If this firing should be reported, and this is a one-shot
-         // timer, stop the timer:
-         // advance both mTaskState and mApplicationState
-         timer->mTaskState = timer->mApplicationState = timer->mTaskState + 1;
-      }
+      // If this firing is after the timer has been stopped by
+      // the application, advance mTaskState to a stopped state
+      // to recognize that the timer has been removed from the
+      // timer queue.
+      timer->mTaskState++;
+   }
+   else if (report && !timer->mQueuedPeriodic)
+   {
+      // If this firing should be reported, and this is a one-shot
+      // timer, stop the timer:
+      // advance both mTaskState and mApplicationState
+      timer->mTaskState = timer->mApplicationState = timer->mTaskState + 1;
    }
 
    // If this firing should be reported, and this is a periodic
    // timer, re-set its firing time.
    if (report && timer->mQueuedPeriodic)
    {
-      timer->mQueuedExpiresAt = OsTimer::addInterval(timer->mQueuedExpiresAt,
-                                                     timer->mQueuedPeriod);
+      timer->mQueuedExpiresAt = timer->mQueuedExpiresAt + timer->mQueuedPeriod;
       // Insert the timer into the active timer queue.
       insertTimer(timer);
    }
@@ -419,6 +417,7 @@ void OsTimerTask::fireTimer(OsTimer* timer)
    if (report)
    {
       timer->mpNotifier->signal((int) timer);
+      timer->mWasFired = TRUE;
    }
 }
 
@@ -434,21 +433,23 @@ void OsTimerTask::insertTimer(OsTimer* timer)
    if (OsSysLog::willLog(FAC_KERNEL, PRI_WARNING))
    {
       // Check to see if timer firing took too long.
-      OsTimer::Time now = OsTimer::now();
-      if (OsTimer::compareTimes(timer->mQueuedExpiresAt, now) < 0)
+      OsTime now;
+      OsDateTime::getCurTime(now);
+      if (timer->mQueuedExpiresAt < now)
       {
          OsSysLog::add(FAC_KERNEL, PRI_WARNING,
-                       "OsTimerTask::insertTimer timer to fire %lld in the past",
-                       OsTimer::subtractTimes(now, timer->mQueuedExpiresAt));
+                       "OsTimerTask::insertTimer timer to fire %ldms in the past"
+                       " (now=%ld.%06ld, fire=%ld.%06ld)",
+                       (now - timer->mQueuedExpiresAt).cvtToMsecs(),
+                       now.seconds(), now.usecs(),
+                       timer->mQueuedExpiresAt.seconds(), timer->mQueuedExpiresAt.usecs());
       }
    }
 
    // Scan through the timer queue, looking for the right place to
    // insert the timer.
    for (previous_ptr = &mTimerQueue, current = mTimerQueue;
-        current &&
-           OsTimer::compareTimes(timer->mQueuedExpiresAt,
-                                 current->mQueuedExpiresAt) > 0;
+        current && (timer->mQueuedExpiresAt > current->mQueuedExpiresAt);
         previous_ptr = &current->mTimerQueueLink,
            current = current->mTimerQueueLink)
    {

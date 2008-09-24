@@ -1,0 +1,52 @@
+import "C:\Program Files\Microsoft Visual Studio .NET 2003\Vc7\PlatformSDK\include\prsht.idl";
+import "C:\Program Files\Microsoft Visual Studio .NET 2003\Vc7\PlatformSDK\include\mshtml.idl";
+import "c:\program files\microsoft visual studio .net 2003\vc7\platformsdk\include\dimm.idl";
+import "C:\Program Files\Microsoft Visual Studio .NET 2003\Vc7\PlatformSDK\include\mshtmhst.idl";
+import "c:\program files\microsoft visual studio .net 2003\vc7\platformsdk\include\docobj.idl";
+import "C:\Program Files\Microsoft Visual Studio .NET 2003\Vc7\PlatformSDK\include\exdisp.idl";
+import "C:\Program Files\Microsoft Visual Studio .NET 2003\Vc7\PlatformSDK\include\objsafe.idl";
+
+[
+	object,
+	uuid(50C3C252-E279-4767-AF54-4B3D5F922C19),
+	dual,
+	helpstring("ISampGrabCB Interface"),
+	pointer_default(unique)
+] 
+#line 14 "c:\\work\\pax737\\sipxcalllib\\examples\\samplegrabbercallback\\sampgrabcb.h"
+interface ISampGrabCB : IDispatch {
+#line 16 "c:\\work\\pax737\\sipxcalllib\\examples\\samplegrabbercallback\\sampgrabcb.h"
+	[id(1),helpstring("method SetWindow")] HRESULT  SetWindow([in] LONG hWnd);
+};
+
+
+[ version(1.0), uuid(702E3FAF-847D-4A5E-A280-1BAEBE6C681E), helpstring("SampleGrabberCallback 1.0 Type Library") ]
+library SampleGrabberCallback
+{
+	importlib("stdole2.tlb");
+	importlib("olepro32.dll");
+
+	[
+		uuid(D2975F1B-7D42-4B1A-AA47-23D6437364A3),
+		helpstring("_ISampGrabCBEvents Interface")
+	] 
+#line 27 "c:\\work\\pax737\\sipxcalllib\\examples\\samplegrabbercallback\\sampgrabcb.h"
+	dispinterface _ISampGrabCBEvents {
+	properties:
+
+	methods:
+	};
+
+	[
+		version(1.0),
+		uuid(31576FBD-7081-4D6D-9A08-9B94C213E653),
+		helpstring("SampGrabCB Class")
+	] 
+#line 44 "c:\\work\\pax737\\sipxcalllib\\examples\\samplegrabbercallback\\sampgrabcb.h"
+	coclass CSampGrabCB {
+		interface ISampGrabCB;
+		[default, source]	interface _ISampGrabCBEvents;
+	};
+
+}
+

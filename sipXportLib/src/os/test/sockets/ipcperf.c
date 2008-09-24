@@ -1,9 +1,12 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 #ifdef _VXWORKS
 
 // SYSTEM INCLUDES
@@ -62,7 +65,7 @@ int createDatagramSocket(int serverPort,
                 return errno;
         }
 
-
+        memset(&localAddr, 0, sizeof(localAddr));
         localAddr.sin_family = AF_INET;
         localAddr.sin_port = htons(serverPort);
         localAddr.sin_addr.s_addr=htonl(INADDR_ANY); /* Allow IP in on */
@@ -133,8 +136,8 @@ int createListenSocket(int serverPort,
                                            int connectionQueueSize,
                                            int *pSocketDescriptor)
 {
-        int error = 0;
-        struct sockaddr_in localAddr;
+   int error = 0;
+   struct sockaddr_in localAddr;
 
    /* Create the socket*/
    *pSocketDescriptor = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
@@ -148,7 +151,7 @@ int createListenSocket(int serverPort,
    }
 
    /* Bind to a specific server port if given*/
-
+   memset(&localAddr, 0, sizeof(localAddr));
    localAddr.sin_family = AF_INET;
    localAddr.sin_port = htons(serverPort);
    localAddr.sin_addr.s_addr=htonl(INADDR_ANY); /* Allow IP in on*/

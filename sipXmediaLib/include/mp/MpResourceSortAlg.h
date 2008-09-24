@@ -1,10 +1,15 @@
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2005 Pingtel Corp.
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 
 #ifndef _MpResourceSortAlg_h_
@@ -34,7 +39,8 @@ class MpResourceSortAlg
 public:
 
 /* ============================ CREATORS ================================== */
-
+///@name Creators
+//@{
    MpResourceSortAlg();
      //:Constructor
 
@@ -42,8 +48,11 @@ public:
    ~MpResourceSortAlg();
      //:Destructor
 
-/* ============================ MANIPULATORS ============================== */
+//@}
 
+/* ============================ MANIPULATORS ============================== */
+///@name Manipulators
+//@{
    OsStatus doSort(MpResource* unsorted[],
                    MpResource* sorted[], int numResources);
      //:Use a topological sort to order the resource pointers passed in via 
@@ -55,9 +64,19 @@ public:
      //!retcode: OS_SUCCESS - the sort operation was successful
      //!retcode: OS_LOOP_DETECTED - if a loop in the flow graph was detected
 
+//@}
+
 /* ============================ ACCESSORS ================================= */
+///@name Accessors
+//@{
+
+//@}
 
 /* ============================ INQUIRY =================================== */
+///@name Inquiry
+//@{
+
+//@}
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:

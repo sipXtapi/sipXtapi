@@ -1,10 +1,12 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 
 
 // SYSTEM INCLUDES
@@ -125,6 +127,7 @@ SipSession::SipSession(const SipSession& rSipSession)
    mSessionState = rSipSession.mSessionState;
    msLocalRequestUri = rSipSession.msLocalRequestUri;
    msRemoteRequestUri = rSipSession.msRemoteRequestUri;
+   msContactUriStr = rSipSession.msContactUriStr;
 }
 
 
@@ -157,6 +160,7 @@ SipSession::operator=(const SipSession& rhs)
    mSessionState = rhs.mSessionState;
    msLocalRequestUri = rhs.msLocalRequestUri;
    msRemoteRequestUri = rhs.msRemoteRequestUri;
+   msContactUriStr = rhs.msContactUriStr;
 
    return *this;
 }
@@ -312,6 +316,15 @@ void SipSession::setRemoteRequestUri(UtlString& requestUri)
    msRemoteRequestUri = requestUri;
 }
 
+void SipSession::getContactRequestUri(UtlString& requestContactUri)
+{
+   requestContactUri = msContactUriStr;
+}
+
+void SipSession::setContactRequestUri(UtlString& requestContactUri)
+{
+   msContactUriStr = requestContactUri;
+}
 
 void SipSession::getInitialMethod(UtlString& method)
 {

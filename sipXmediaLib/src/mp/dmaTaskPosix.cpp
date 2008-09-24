@@ -1,15 +1,15 @@
-// 
-// Copyright (C) 2005-2006 SIPez LLC.
-// Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
-// 
-// Copyright (C) 2004 Pingtel Corp.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
-//////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 #ifdef __pingtel_on_posix__ /* [ */
 /* OK, so here's how this file is supposed to work as I understand it - To
@@ -65,6 +65,38 @@
 
 #define timediff(early, late) ((late.tv_sec-early.tv_sec)*1000000+(late.tv_usec-early.tv_usec))
 
+// The following is a quick, short term abstraction of the audio device to allow
+// compile time plugin of different speaker and mike devices.  A second pass will
+// be made on this to make it dynamic.
+
+typedef UtlBoolean (*MpAudioDeviceInitFunc) (void);
+typedef int (*MpAudioSpeakerWriteFunc) (const MpAudioSample *writeBufferSamples, int numSamples);
+typedef int (*MpAudioMicReadFunc) (MpAudioSample *readBufferSamples, int numSamples);
+
+extern UtlBoolean defaultAudioDeviceInit();
+#ifdef MP_AUDIO_DEVICE_INIT_FUNC
+extern UtlBoolean MP_AUDIO_DEVICE_INIT_FUNC ();
+MpAudioDeviceInitFunc sMpAudioDeviceInitFuncPtr = MP_AUDIO_DEVICE_INIT_FUNC;
+#else
+MpAudioDeviceInitFunc sMpAudioDeviceInitFuncPtr = defaultAudioDeviceInit;
+#endif
+
+extern int defaultAudioSpeakerWrite(const MpAudioSample *writeBufferSamples, int numSamples);
+#ifdef MP_AUDIO_SPEAKER_WRITE_FUNC
+extern int MP_AUDIO_SPEAKER_WRITE_FUNC (const MpAudioSample *writeBufferSamples, int numSamples);
+MpAudioSpeakerWriteFunc sMpAudioSpeakerWriteFuncPtr = MP_AUDIO_SPEAKER_WRITE_FUNC;
+#else
+MpAudioSpeakerWriteFunc sMpAudioSpeakerWriteFuncPtr = defaultAudioSpeakerWrite;
+#endif
+
+extern int defaultAudioMicRead(MpAudioSample *readBufferSamples, int numSamples);
+#ifdef MP_AUDIO_MIC_READ_FUNC
+extern int MP_AUDIO_MIC_READ_FUNC (MpAudioSample *readBufferSamples, int numSamples);
+MpAudioMicReadFunc sMpAudioMicReadFuncPtr = MP_AUDIO_MIC_READ_FUNC;
+#else
+MpAudioMicReadFunc sMpAudioMicReadFuncPtr = defaultAudioMicRead;
+#endif
+
 // STATIC VARIABLE INITIALIZATIONS
 const int DmaTask::DEF_DMA_TASK_OPTIONS = 0; // default task options
 const int DmaTask::DEF_DMA_TASK_PRIORITY = 128; // default task priority
@@ -85,9 +117,10 @@ static OsMsgPool* DmaMsgPool = NULL;
 
 /* We want to keep these around to be able to shutdown... */
 /* in case we should ever decide to do that. */
-static pthread_mutex_t sNotifierMutex = PTHREAD_MUTEX_INITIALIZER;
-static pthread_cond_t sNotifierCond = PTHREAD_COND_INITIALIZER;
+static pthread_mutex_t sNotifierMutex;
+static pthread_cond_t sNotifierCond;
 static struct timespec sNotifierTime;
+static pthread_t sSignallerThread;
 
 static bool dmaOnline = 0;
 static int frameCount = 1;
@@ -96,6 +129,7 @@ static int soundCard = -1;
 #ifdef _INCLUDE_AUDIO_SUPPORT /* [ */
 /* Force the threads to alternate read/write */
 static sem_t read_sem, write_sem;
+static pthread_t mic_thread, spkr_thread;
 static void startAudioSupport(void);
 static void stopAudioSupport(void);
 #endif /* _INCLUDE_AUDIO_SUPPORT ] */
@@ -149,6 +183,7 @@ static void * mediaSignaller(void * arg)
 #endif
    pthread_mutex_lock(&sNotifierMutex);
 
+   osPrintf(" ***********START!**********\n");
    while(dmaOnline)
    {
       // Add 10 milliseconds onto the previous timeout
@@ -189,8 +224,6 @@ static void * mediaSignaller(void * arg)
    osPrintf(" ***********STOP!**********\n");
 
    pthread_mutex_unlock(&sNotifierMutex);
-   pthread_mutex_destroy(&sNotifierMutex);
-   pthread_cond_destroy(&sNotifierCond);
 
    return NULL;
 }
@@ -199,8 +232,6 @@ static void * mediaSignaller(void * arg)
 OsStatus dmaStartup(int samplesPerFrame)
 {
    int res;
-   pthread_t thread;
-   
 
    dmaOnline = 1;
 
@@ -209,10 +240,12 @@ OsStatus dmaStartup(int samplesPerFrame)
    timeA = getRDTSC();
 #endif /* _JITTER_PROFILE ] */
 
+   pthread_mutex_init(&sNotifierMutex, NULL);
+   pthread_cond_init(&sNotifierCond, NULL);
+
    // Start the mediaSignaller thread
-   res = pthread_create(&thread, NULL, mediaSignaller, NULL);
+   res = pthread_create(&sSignallerThread, NULL, mediaSignaller, NULL);
    assert(res == 0);
-   pthread_detach(thread);
 
 #ifdef _INCLUDE_AUDIO_SUPPORT /* [ */
    startAudioSupport();
@@ -228,6 +261,10 @@ void dmaShutdown(void)
       dmaOnline = 0;
       /* make sure the thread isn't wedged */
       pthread_cond_signal(&sNotifierCond);
+      pthread_join(sSignallerThread, NULL);
+
+      pthread_mutex_destroy(&sNotifierMutex);
+      pthread_cond_destroy(&sNotifierCond);
 
 #ifdef _INCLUDE_AUDIO_SUPPORT /* [ */
       stopAudioSupport();
@@ -235,39 +272,84 @@ void dmaShutdown(void)
    }
 }
 
-#ifdef _INCLUDE_AUDIO_SUPPORT /* [ */
+int defaultAudioMicRead(MpAudioSample *readBufferSamples, int numSamples)
+{
+#ifdef _INCLUDE_AUDIO_SUPPORT 
+   int justRead;
+   int recorded = 0;
+   while(recorded < N_SAMPLES)
+   {
+      justRead = read(soundCard, &readBufferSamples[recorded], BUFLEN - (recorded * sizeof(MpAudioSample)));
+
+      assert(justRead > 0);
+      recorded += justRead/sizeof(MpAudioSample);
+   }
+   return(recorded);
+#else
+   memset(readBufferSamples, 0, numSamples) ;
+   return numSamples ;
+#endif
+}
+
+int defaultAudioSpeakerWrite(const MpAudioSample *writeBufferSamples, int numSamples)
+{
+#ifdef _INCLUDE_AUDIO_SUPPORT 
+   int played = 0;
+   while(played < N_SAMPLES)
+   {
+      int justWritten;
+      justWritten = write(soundCard, &writeBufferSamples[played], BUFLEN - (played * sizeof(MpAudioSample)));
+      assert(justWritten > 0);
+      played += justWritten/sizeof(MpAudioSample);
+   }
+   return(played);
+#else
+   return numSamples;
+#endif
+}
+
 /* This will be defined by the OS-specific section below. */
 static int setupSoundCard(void);
+
+UtlBoolean defaultAudioDeviceInit()
+{
+#ifdef _INCLUDE_AUDIO_SUPPORT 
+   soundCard = setupSoundCard();
+
+   // Indicate if soundCard was setup successfully
+   return(soundCard >= 0);
+#else
+   return true;
+#endif
+}
+
+#ifdef _INCLUDE_AUDIO_SUPPORT /* [ */
 
 static void * soundCardReader(void * arg)
 {
    MpBufferMsg* pMsg;
    MpBufferMsg* pFlush;
-   MpBufPtr ob;
-   Sample* buffer;
+   MpAudioSample* buffer;
    int recorded;
-   int justRead;
 
    osPrintf(" **********START MIC!**********\n");
 
    while(dmaOnline)
    {
-      ob = MpBuf_getBuf(MpMisc.UcbPool, N_SAMPLES, 0, MP_FMT_T12);
-      assert(ob != NULL);
-      buffer = MpBuf_getSamples(ob);
+      MpAudioBufPtr ob;
+
+      ob = MpMisc.RawAudioPool->getBuffer();
+      assert(ob.isValid());
+      assert(ob->setSamplesNumber(N_SAMPLES));
+      buffer = ob->getSamplesWritePtr();
       recorded = 0;
       sem_wait(&read_sem);
-      while(recorded < N_SAMPLES)
-      {
-         justRead = read(soundCard, &buffer[recorded], BUFLEN - (recorded * sizeof(Sample)));
-
-         assert(justRead > 0);
-         recorded += justRead/sizeof(Sample);
-      }
+      assert(sMpAudioMicReadFuncPtr);
+      recorded = sMpAudioMicReadFuncPtr(buffer, N_SAMPLES);
       sem_post(&write_sem);
 
       if (DmaTask::isMuteEnabled())
-         memset(buffer, 0, sizeof(Sample) * N_SAMPLES); /* clear it out */
+         memset(buffer, 0, sizeof(MpAudioSample) * N_SAMPLES); /* clear it out */
 
       assert(recorded == N_SAMPLES);
 
@@ -276,29 +358,30 @@ static void * soundCardReader(void * arg)
          pMsg = new MpBufferMsg(MpBufferMsg::AUD_RECORDED);
 
       pMsg->setMsgSubType(MpBufferMsg::AUD_RECORDED);
-      pMsg->setTag(ob);
-      pMsg->setBuf(MpBuf_getSamples(ob));
-      pMsg->setLen(MpBuf_getNumSamples(ob));
+      
+      // Pass buffer to message. Buffer will be invalid after this!
+      pMsg->ownBuffer(ob);
 
       if(MpMisc.pMicQ && MpMisc.pMicQ->send(*pMsg, OsTime::NO_WAIT_TIME) != OS_SUCCESS)
       {
          OsStatus  res;
          res = MpMisc.pMicQ->receive((OsMsg*&) pFlush, OsTime::NO_WAIT_TIME);
          if (OS_SUCCESS == res) {
-            MpBuf_delRef(pFlush->getTag());
             pFlush->releaseMsg();
          } else {
             osPrintf("DmaTask: queue was full, now empty (5)!"
                " (res=%d)\n", res);
          }
          if(MpMisc.pMicQ->send(*pMsg, OsTime::NO_WAIT_TIME) != OS_SUCCESS)
-            MpBuf_delRef(ob);
+         {
+            osPrintf("pMicQ->send() failed!\n");
+         }
       }
       if(!pMsg->isMsgReusable())
          delete pMsg;
    }
 
-   osPrintf(" ***********STOP!**********\n");
+   osPrintf(" ***********STOP MIC!**********\n");
    return NULL;
 }
 
@@ -316,8 +399,7 @@ static void * soundCardWriter(void * arg)
    while(dmaOnline)
    {
       MpBufferMsg* pMsg;
-      MpBufPtr ob;
-      Sample last_buffer[N_SAMPLES] = {0};
+      MpAudioSample last_buffer[N_SAMPLES] = {0};
 
       /* write to the card */
 
@@ -352,24 +434,18 @@ static void * soundCardWriter(void * arg)
 
       if(MpMisc.pSpkQ && MpMisc.pSpkQ->receive((OsMsg*&) pMsg, OsTime::NO_WAIT_TIME) == OS_SUCCESS)
       {
-         ob = (MpBufPtr) pMsg->getTag();
+         MpAudioBufPtr ob = pMsg->getBuffer();
          assert(ob != NULL);
          if(playFrame)
          {
             int played = 0;
-            Sample* buffer = MpBuf_getSamples(ob);
+            const MpAudioSample* buffer = ob->getSamplesPtr();
             
             /* copy the buffer for skip protection */
             memcpy(&last_buffer[N_SAMPLES / 2], &buffer[N_SAMPLES / 2], BUFLEN / 2);
             
             sem_wait(&write_sem);
-            while(played < N_SAMPLES)
-            {
-               int justWritten;
-               justWritten = write(soundCard, &buffer[played], BUFLEN - (played * sizeof(Sample)));
-               assert(justWritten > 0);
-               played += justWritten/sizeof(Sample);
-            }
+            played = sMpAudioSpeakerWriteFuncPtr(buffer, N_SAMPLES);
             sem_post(&read_sem);
             assert(played == N_SAMPLES);
             framesPlayed++;
@@ -377,7 +453,6 @@ static void * soundCardWriter(void * arg)
          else
             osPrintf("soundCardWriter dropping sound packet\n");
 
-         MpBuf_delRef(ob);
          pMsg->releaseMsg();
       }
       else if(playFrame)
@@ -390,63 +465,73 @@ static void * soundCardWriter(void * arg)
             last_buffer[i] = last_buffer[N_SAMPLES - i - 1];
          
          sem_wait(&write_sem);
-         while(played < N_SAMPLES)
-         {
-            int justWritten;
-            justWritten = write(soundCard, &last_buffer[played], BUFLEN - (played * sizeof(Sample)));
-            assert(justWritten > 0);
-            played += justWritten/sizeof(Sample);
-         }
+         played = sMpAudioSpeakerWriteFuncPtr(last_buffer, N_SAMPLES);
          sem_post(&read_sem);
          assert(played == N_SAMPLES);
       }
    }
-   
-   osPrintf(" ***********STOP!**********\n");
+
+   osPrintf(" ***********STOP SPKR!**********\n"); 
    return NULL;
 }
 
 static void startAudioSupport(void)
 {
    int res;
-   pthread_t thread;
 
-   soundCard = setupSoundCard();
+   // Invoke the audio device initialization function if it is setup
+   if(sMpAudioDeviceInitFuncPtr)
+   {
+       // If the audio device initialization goes ok
+       if(sMpAudioDeviceInitFuncPtr())
+       {
 
-   if(soundCard == -1)
-      return;
+           /* OsMsgPool setup */
+           MpBufferMsg msg(MpBufferMsg::AUD_RECORDED);
+           DmaMsgPool = new OsMsgPool("DmaTask", msg,
+                 40, 60, 100, 5,
+                 OsMsgPool::SINGLE_CLIENT);
 
-   /* OsMsgPool setup */
-   MpBufferMsg* pMsg = new MpBufferMsg(MpBufferMsg::AUD_RECORDED);
-   DmaMsgPool = new OsMsgPool("DmaTask", *(OsMsg*)pMsg,
-         40, 60, 100, 5,
-         OsMsgPool::SINGLE_CLIENT);
-
-   /* let the read thread go first */
-   sem_init(&write_sem, 0, 0);
-   sem_init(&read_sem, 0, 1);
+           /* let the read thread go first */
+           sem_init(&write_sem, 0, 0);
+           sem_init(&read_sem, 0, 1);
    
-   /* Start the reader and writer threads */
-   res = pthread_create(&thread, NULL, soundCardReader, NULL);
-   assert(res == 0);
-   pthread_detach(thread);
-   res = pthread_create(&thread, NULL, soundCardWriter, NULL);
-   assert(res == 0);
-   pthread_detach(thread);
+           /* Start the reader and writer threads */
+           res = pthread_create(&mic_thread, NULL, soundCardReader, NULL);
+           assert(res == 0);
+           res = pthread_create(&spkr_thread, NULL, soundCardWriter, NULL);
+           assert(res == 0);
+       }
+   }
+   else
+   {
+       assert(sMpAudioDeviceInitFuncPtr);
+   }
 }
 
 static void stopAudioSupport(void)
 {
    if (soundCard != -1)
    {
-      /* make sure the threads aren't wedged */
+      // Stop MIC thread
       sem_post(&read_sem);
+      pthread_join(mic_thread, NULL);
+
+      // Stop SPKR thread
       sem_post(&write_sem);
-      close(soundCard);
-      soundCard = -1;
+      pthread_join(spkr_thread, NULL);
+
+      // MIC and SPKR threads are dead. Destroy mutexes.
       sem_destroy(&read_sem);
       sem_destroy(&write_sem);
+
+      // Ok, no one is reding or writing to soundcard. Close it.
+      close(soundCard);
+      soundCard = -1;
    }
+
+   if (DmaMsgPool != NULL)
+      delete DmaMsgPool;
 }
 
 
@@ -697,7 +782,7 @@ static int setupSoundCard(void)
    error = AudioDeviceAddIOProc(CoreAudio_output_id, CoreAudio_io, NULL);
    if(error != kAudioHardwareNoError)
       goto fail_convert_output;
-   
+
    error = AudioDeviceStart(CoreAudio_output_id, CoreAudio_io);
    if(error != kAudioHardwareNoError)
       goto fail_io_proc;

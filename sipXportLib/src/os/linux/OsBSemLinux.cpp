@@ -1,9 +1,12 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
 #include <assert.h>
@@ -38,14 +41,14 @@ OsBSemLinux::OsBSemLinux(const int queueOptions, const int initState)
    res = pt_sem_init(&mSemImp, 1, initState);
    assert(res == POSIX_OK);
    
-#  ifdef OS_SYNC_DEBUG
+#ifdef OS_SYNC_DEBUG
    int me = pthread_self();
    mSyncCrumbs.dropCrumb(me, crumbCreated);
    if (EMPTY == initState)
    {
       mSyncCrumbs.dropCrumb(me, crumbAcquired);
    }
-#  endif
+#endif
 }
 
 // Destructor

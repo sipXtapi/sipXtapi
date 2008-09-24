@@ -1,0 +1,18 @@
+LIBRARY libamrwb
+EXPORTS
+
+;
+;	dec_if.h
+;
+GP3D_IF_decode
+D_IF_init
+IF2D_IF_decode
+D_IF_exit
+
+;
+;	enc_if.h
+;
+GP3E_IF_encode
+IF2E_IF_encode
+E_IF_init
+E_IF_exit

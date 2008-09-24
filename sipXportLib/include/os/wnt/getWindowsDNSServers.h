@@ -1,17 +1,27 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2006-2007 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// Copyright (C) 2004-2007 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+///////////////////////////////////////////////////////////////////////////////
 #ifndef getWindowsDNSServers_h_
 #define getWindowsDNSServers_h_
 
 #ifdef WIN32
 #define MAXIPLEN 40 
 
+#include <winsock2.h>
 #include <time.h>
+
+#ifdef __cplusplus
+#  include <utl/UtlString.h>
+#endif
 
 // Definitions and structures used by getnetworkparams and getadaptersinfo apis
 
@@ -22,6 +32,7 @@
 #define MAX_HOSTNAME_LEN                128 // arb.
 #define MAX_DOMAIN_NAME_LEN             128 // arb.
 #define MAX_SCOPE_ID_LEN                256 // arb.
+#define MAX_ADAPTER_NAME 128
 
 //
 // types
@@ -53,6 +64,7 @@ typedef enum {
     IfOperStatusNotPresent,
     IfOperStatusLowerLayerDown
 } IF_OPER_STATUS;
+
 
 
 //
@@ -122,7 +134,7 @@ typedef enum {
     IpPrefixOriginManual,
     IpPrefixOriginWellKnown,
     IpPrefixOriginDhcp,
-    IpPrefixOriginRouterAdvertisement,
+    IpPrefixOriginRouterAdvertisement
 } IP_PREFIX_ORIGIN;
 
 typedef enum {
@@ -131,7 +143,7 @@ typedef enum {
     IpSuffixOriginWellKnown,
     IpSuffixOriginDhcp,
     IpSuffixOriginLinkLayerAddress,
-    IpSuffixOriginRandom,
+    IpSuffixOriginRandom
 } IP_SUFFIX_ORIGIN;
 
 typedef enum {
@@ -139,7 +151,7 @@ typedef enum {
     IpDadStateTentative,
     IpDadStateDuplicate,
     IpDadStateDeprecated,
-    IpDadStatePreferred,
+    IpDadStatePreferred
 } IP_DAD_STATE;
 
 typedef struct SOCKET_ADDRESS_XYZ {
@@ -255,15 +267,31 @@ typedef struct _IP_ADAPTER_ADDRESSES {
     PIP_ADAPTER_PREFIX FirstPrefix;
 } IP_ADAPTER_ADDRESSES, *PIP_ADAPTER_ADDRESSES;
 
-#ifdef __cplusplus
-    extern "C" int getWindowsDNSServers(char DNSServers[][MAXIPLEN], int max);
-    extern "C" bool getAllLocalHostIps(const class HostAdapterAddress* localHostAddresses[], int &numAddresses);
-    //: Return this host's ip addresses, as an array of UtlString references
+typedef struct _IP_ADAPTER_INDEX_MAP {
+    ULONG   Index;
+    WCHAR   Name[MAX_ADAPTER_NAME];
+} IP_ADAPTER_INDEX_MAP, *PIP_ADAPTER_INDEX_MAP;
 
-    extern "C" bool getContactAdapterName(char* szAdapter, const char* szIp);
+typedef struct _IP_INTERFACE_INFO {
+    LONG    NumAdapters;
+    IP_ADAPTER_INDEX_MAP Adapter[1];
+} IP_INTERFACE_INFO,*PIP_INTERFACE_INFO;
+
+#ifdef __cplusplus
+    extern "C" int getWindowsDNSServers(char DNSServers[][MAXIPLEN], int max, const char* szLocalIp);
+
+    /// Get this host's IP addresses.
+    extern "C" bool getAllLocalHostIps(const class HostAdapterAddress* localHostAddresses[], int &numAddresses);
+    /**<
+    *  @param localHostAddresses Preallocated array for determined IP addresses.
+    *  @param numAddresses Input: Size of the preallocated array.
+    *                      Output: Number of IPs found by the system.
+    */
+
+    extern "C" bool getContactAdapterName(UtlString &adapterName, const UtlString &ipAddress, bool trueName);
     //: Returns a generated adapter name associated with the IP address
 #else
-    int getWindowsDNSServers(char DNSServers[][MAXIPLEN], int max);
+    int getWindowsDNSServers(char DNSServers[][MAXIPLEN], int max, const char* szLocalIp);
 #endif
 
 
