@@ -197,8 +197,9 @@ function package_libs
   mkdir ${TARGET_DIR}
   mkdir ${TARGET_DIR}/lib
   cp ${PREFIX}/lib/*.so ${TARGET_DIR}/lib/ 
-  cp ${PREFIX}/lib/*.a ${TARGET_DIR}/lib/ 
-  rm ${TARGET_DIR}/lib/libsipXunit.a
+#  cp ${PREFIX}/lib/*.a ${TARGET_DIR}/lib/ 
+  cp ${PREFIX}/share/sipxmedialib/*.so ${TARGET_DIR}/lib/
+#  rm ${TARGET_DIR}/lib/libsipXunit.a
   
   mkdir ${TARGET_DIR}/include
   cp ${PREFIX}/include/tapi/sipXtapi.h ${TARGET_DIR}/include/
@@ -227,8 +228,8 @@ else
   build sipXmediaVoiceEngine ${PREFIX} --enable-local-audio
 fi
 
-# package_source
-# package_libs
+package_source
+package_libs
 
 revertVersion
 
