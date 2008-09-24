@@ -1,5 +1,5 @@
-//
-// Copyright (C) 2005 SIPez LLC.
+// 
+// Copyright (C) 2005, 2007 SIPez LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
@@ -51,10 +51,11 @@ public:
       CREATE = 8,
       TRUNCATE = 16,
       APPEND = 32,
-      FSLOCK_READ = 64,
-      FSLOCK_WRITE = 128,
-      FSLOCK_WAIT  = 256
+      FSLOCK = 64,
+      FSLOCK_WAIT = 128
    };
+     //!enumcode: FSLOCK       - Opens the file exclusively (advisory locking).
+     //!enumcode: FSLOCK_WAIT  - Waits to open the file locked rather than fail.
    
    //: Options for the origin in setting the file position.
     enum FilePositionOrigin {
@@ -84,34 +85,38 @@ public:
    //! Opens and write the given UtlString to the named file 
    static long openAndWrite(const char* filename, const UtlString& fileContentsToWrite);
 
+   //! Opens and write the given data to the named file 
+   static long openAndWrite(const char* filename, 
+                            const char* fileContentsToWrite,
+                            unsigned int contentLength);
+
    virtual OsStatus open(const int mode = READ_WRITE);
-     //: Opens the specified file using the specified  mode
+     //: Opens the specified file using the specified mode
      //: Returns:
      //:        OS_SUCCESS if successful
      //:        OS_FILE_ACCESS_DENIED if file is readonly or currently in use
      //:        OS_FILE_NOT_FOUND if the file specified was not found.
-     //: For file sharing use:
-     //:   SHARED_NONE to get exclusive lock
-     //:   SHARED_READ to allow others READ access
-     //:   SHARED_WAIT to lock and wait for the file to be free before the open will continue
+     //: For file locking, use FSLOCK or FSLOCK_WAIT in mode. Note that you
+     //: must open the file read-write to lock it, and that file locking is
+     //: advisory: other callers must also use FSLOCK or FSLOCK_WAIT.
    
    virtual OsStatus fileunlock();
-     //: Unlocks the file for across process access
+     //: Cross-process unlocks this file.
+     //: Notes: This method should only be called by OsFileBase::close()!
 
-   virtual OsStatus filelock(const int mode);
-     //: Locks the specified OPEN file using the specified  mode (one of the FSLOCK_ modes)
+   virtual OsStatus filelock(const bool wait);
+     //: Cross-process locks this file, optionally waiting for the lock.
      //: Returns:
      //:        OS_SUCCESS if successful
      //:        OS_FAILED if unsuccessful
-     //: Notes: Use FSLOCK_READ only on read or read/write files
-     //:        Use FSLOCK_WRITE only only files you can write to.
+     //: Notes: This method should only be called by OsFileBase::open()!
    
    virtual OsStatus flush();
      //: Flushes any pending output
 
    virtual OsStatus write(const void* pBuf, unsigned long bufLen, unsigned long& rBytesWritten);
      //: Write X bytes to file
-     //: Rturns:
+     //: Returns:
      //:        OS_SUCCESS if successful
      //:        OS_FILE_DISKFULL if (you guessed it) disk full.  :)
      //:        OS_localFileLocks
@@ -185,25 +190,26 @@ public:
 
 /* ============================ INQUIRY =================================== */
 
-    UtlBoolean isReadonly() const;
-    //: Returns TRUE if file is readonly
+   UtlBoolean isReadonly() const;
+     //: Returns TRUE if file is readonly
 
 
-    UtlBoolean exists() ;
-    //: Returns TRUE if file object filename exists
+   UtlBoolean exists() ;
+     //: Returns TRUE if file object filename exists
 
 
-    virtual OsStatus getFileInfo(OsFileInfoBase& rFileinfo) const = 0;
-    //: Returns all the relevant info on this file
+   virtual OsStatus getFileInfo(OsFileInfoBase& rFileinfo) const = 0;
+     //: Returns all the relevant info on this file
 
-    UtlBoolean isEOF();
-    //: Returns TRUE if stream is past end of file
+   UtlBoolean isEOF();
+     //: Returns TRUE if stream is past end of file
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
+
    OsMutex fileMutex;
-   //: Block other methods like close
-   //  while we are busy reading,writing and close.
+     //: Block other methods like close
+     //  while we are busy reading,writing and close.
 
    OsFileBase(const OsFileBase& rOsFile);
      //:Copy constructor
@@ -214,12 +220,11 @@ protected:
    FILE *mOsFileHandle;
      //: Handle to file
 
-   int mLocalLockThreadId;
-     //: ID for the thread that obtained a local lock as part of file open
-
    OsPathBase mFilename;
      //:Fully qualified name where file is (or will be) located
 
+   int mMode;
+     //: The open file's mode
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:

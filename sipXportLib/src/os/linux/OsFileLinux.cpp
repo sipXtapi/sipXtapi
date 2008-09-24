@@ -1,8 +1,11 @@
 //
-// Copyright (C) 2004-2006 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
+// Copyright (C) 2005, 2007 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
-// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Copyright (C) 2004-2007 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+// 
+// Copyright (C) 2004, 2005 Pingtel Corp.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
@@ -14,6 +17,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <utime.h>
 
 // APPLICATION INCLUDES
 #include "os/OsFS.h"
@@ -63,32 +67,21 @@ OsFileLinux::~OsFileLinux()
 
 /* ============================ MANIPULATORS ============================== */
 
-OsStatus OsFileLinux::filelock(int mode)
+OsStatus OsFileLinux::filelock(const bool wait)
 {
     OsStatus retval = OS_FAILED;
     struct flock f;
 
     if (mOsFileHandle)
     {
-
-        int setmode =  F_RDLCK;
-        int lockmode = F_SETLK;
-
-        if (mode & FSLOCK_WAIT)
-            lockmode = F_SETLKW;
-
-
-        if (mode & FSLOCK_WRITE)
-            setmode = F_WRLCK;
-
-        f.l_type = setmode;
+        f.l_type = F_WRLCK;
         f.l_start = 0;
         f.l_whence = SEEK_SET;
         f.l_len = 0;
         f.l_pid = getpid();
 
         int fd = fileno(mOsFileHandle);
-        if (fcntl(fd, lockmode,&f) != -1)
+        if (fcntl(fd, wait ? F_SETLKW : F_SETLK, &f) != -1);
             retval = OS_SUCCESS;
     }
 
@@ -99,22 +92,17 @@ OsStatus OsFileLinux::fileunlock()
 {
     OsStatus retval = OS_FAILED;
     struct flock f;
-    int setmode =  F_UNLCK;
-    int lockmode = F_SETLK;
-
 
     if (mOsFileHandle)
     {
-
-
-        f.l_type = setmode;
+        f.l_type = F_UNLCK;
         f.l_start = 0;
         f.l_whence = SEEK_SET;
         f.l_len = 0;
         f.l_pid = getpid();
 
         int fd = fileno(mOsFileHandle);
-        if (fcntl(fd, lockmode,&f) != -1)
+        if (fcntl(fd, F_SETLK, &f) != -1)
             retval = OS_SUCCESS;
     }
     else
@@ -149,6 +137,23 @@ OsStatus  OsFileLinux::setReadOnly(UtlBoolean bState)
     return stat;
 }
 
+OsStatus OsFileLinux::touch()
+{
+    OsStatus stat = OS_INVALID;
+
+    if (exists() == OS_SUCCESS)
+    {
+        if (utime(mFilename,NULL) == 0)
+            stat = OS_SUCCESS;
+    }
+    else
+    {
+        stat = open(CREATE);
+        close();
+    }
+
+    return stat;
+}
 
 
 /* ============================ ACCESSORS ================================= */

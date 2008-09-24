@@ -1,3 +1,19 @@
+// Copyright 2008 AOL LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -128,6 +144,19 @@ SipSubscribeServer::~SipSubscribeServer()
     *   they are owned by whoever constructed this server.
     */
 
+   /*
+   * jaro: actually these are never deleted, and good habit is to delete
+   * objects in the same class where they are created if we keep pointer
+   * to them in member variables. This doesn't cause any problems in Windows.
+   * If it causes problems for someone, investigate it please, and don't solve
+   * it by not deleting something.
+   */
+   delete mpDefaultEventHandler;
+   delete mpDefaultSubscriptionMgr;
+   delete mpDefaultContentMgr;
+
+
+    mEventDefinitions.destroyAll() ;
     // Iterate through and delete all the event data
     // TODO:
 }

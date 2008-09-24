@@ -1,5 +1,8 @@
+//  
+// Copyright (C) 2006-2008 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Copyright (C) 2004-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -15,8 +18,9 @@
 
 // APPLICATION INCLUDES
 #include "os/OsStatus.h"
-#include "mp/MpBuf.h"
+#include "mp/MpAudioBuf.h"
 #include "mp/MpCodecInfo.h"
+#include "mp/MpPlgStaffV1.h"
 
 // DEFINES
 // MACROS
@@ -25,87 +29,135 @@
 // CONSTANTS
 // STRUCTS
 // TYPEDEFS
-
 // FORWARD DECLARATIONS
-class MpConnection;
 
-//:Base class for all media processing encoders.
+/// Base class for all media processing encoders.
 class MpEncoderBase
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
 /* ============================ CREATORS ================================== */
+///@name Creators
+//@{
 
-   MpEncoderBase(int payloadType, const MpCodecInfo* pInfo);
-     //:Constructor
-     // Returns a new encoder object.
-     //!param: payloadType - (in) RTP payload type associated with this encoder
+     /// Constructor
+   MpEncoderBase(int payloadType,
+                 const MpCodecCallInfoV1& callInfo,
+                 const MppCodecInfoV1_1& codecInfo,
+                 const char* defaultFmtp);
+     /**<
+     *  @param[in] payloadType - RTP payload type associated with this encoder.
+     *  @param[in] callInfo - codec manipulator functions.
+     *  @param[in] codecInfo - codec information struct.
+     *  @param[in] defaultFmtp - default codec fmtp string.
+     */
 
-   virtual
+     /// Destructor
    ~MpEncoderBase();
-     //:Destructor
 
-   virtual OsStatus initEncode(void)=0;
-     //:Initializes a codec data structure for use as an encoder
-     //!param: pConnection - (in) Pointer to the MpConnection container
-     //!retcode: OS_SUCCESS - Success
-     //!retcode: OS_NO_MEMORY - Memory allocation failure
+     /// Initializes encoder with given fmtp parameters
+   OsStatus initEncode(const char* fmt);
+     /**<
+     *  @retval OS_SUCCESS - Success.
+     *  @retval OS_FAILED - Failure.
+     */
 
-   virtual OsStatus freeEncode(void)=0;
-     //:Frees all memory allocated to the encoder by <i>initEncode</i>
-     //!retcode: OS_SUCCESS - Success
-     //!retcode: OS_DELETED - Object has already been deleted
+     /// Initializes encoder with default fmtp parameters
+   OsStatus initEncode();
+     /**<
+     *  @retval OS_SUCCESS - Success.
+     *  @retval OS_FAILED - Failure.
+     */
+
+     /// Frees all memory allocated to the encoder by initEncode()
+   OsStatus freeEncode();
+     /**<
+     *  @retval OS_SUCCESS - Success.
+     *  @retval OS_INVALID_STATE - Object has already been freed.
+     */
+
+//@}
 
 /* ============================ MANIPULATORS ============================== */
+///@name Manipulators
+//@{
 
-   virtual OsStatus encode(const short* pAudioSamples,
-                           const int numSamples,
-                           int& rSamplesConsumed,
-                           unsigned char* pCodeBuf,
-                           const int bytesLeft,
-                           int& rSizeInBytes,
-                           UtlBoolean& sendNow,
-                           MpBufSpeech& rAudioCategory) = 0;
-     //:Encode audio samples
-     // Processes the array of audio samples.  If sufficient samples to encode
-     // a frame are now available, the encoded data will be written to the
-     // <i>pCodeBuf</i> array.  The number of bytes written to the
-     // <i>pCodeBuf</i> array is returned in <i>rSizeInBytes</i>.
-     //!param: pAudioSamples - (in) Pointer to array of PCM samples
-     //!param: numSamples - (in) number of samples at pAudioSamples
-     //!param: rSamplesConsumed - (out) Number of samples encoded
-     //!param: pCodeBuf - (out) Pointer to array for encoded data
-     //!param: bytesLeft - (in) number of bytes available at pCodeBuf
-     //!param: rSizeInBytes - (out) Number of bytes written to the <i>pCodeBuf</i> array
-     //!param: sendNow - (out) if true, the packet is complete, send it.
-     //!param: rAudioCategory - (out) Audio type (e.g., unknown, silence, comfort noise)
-     //!retcode: OS_SUCCESS - Success
+     /// Encode audio samples
+   OsStatus encode(const MpAudioSample* pAudioSamples,
+                   const int numSamples,
+                   int& rSamplesConsumed,
+                   unsigned char* pCodeBuf,
+                   const int bytesLeft,
+                   int& rSizeInBytes,
+                   UtlBoolean& isPacketReady,
+                   UtlBoolean& isPacketSilent);
+     /**<
+     *  Processes the array of audio samples.  If sufficient samples to encode
+     *  a frame are now available, the encoded data will be written to the
+     *  \p pCodeBuf array.  The number of bytes written to the
+     *  \p pCodeBuf array is returned in \p rSizeInBytes.
+     *
+     *  @param[in]  pAudioSamples - Pointer to array of PCM samples.
+     *  @param[in]  numSamples - Number of samples at pAudioSamples.
+     *  @param[out] rSamplesConsumed - Number of samples encoded.
+     *  @param[out] pCodeBuf - Pointer to array for encoded data.
+     *  @param[in]  bytesLeft - Number of bytes available at pCodeBuf.
+     *  @param[out] rSizeInBytes - Number of bytes written to the <i>pCodeBuf</i> array.
+     *  @param[out] isPacketReady - If TRUE, encoder finished encoding, so packet
+     *              may be sent. If DTX is enabled, \p sendNow should be set
+     *              to TRUE for all supressed packets too along with 
+     *              \p isPacketSilent set to TRUE.
+     *  @param[out] isPacketSilent - If TRUE, packet may be not transmitted
+     *              if DTX is enabled, if FALSE, packet contain active voice
+     *              data and should always be transmitted. Value of
+     *              \p isPacketSilent is ignored with \p isPacketReady is set
+     *              to FALSE.
+     *
+     *  @retval OS_SUCCESS - Success.
+     */
+
+
+//@}
 
 /* ============================ ACCESSORS ================================= */
+///@name Accessors
+//@{
 
-   virtual const MpCodecInfo* getInfo(void) const;
-     //:Get static information about the encoder
-     // Returns a pointer to an <i>MpCodecInfo</i> object that provides
-     // static information about the encoder.
+     /// Get static information about the encoder
+   const MpCodecInfo* getInfo() const;
+     /**<
+     *  @returns A pointer to an MpCodecInfo object that provides static
+     *           information about the encoder.
+     */
 
-   virtual int getPayloadType(void);
-     //:Returns the RTP payload type associated with this encoder.
+     /// Returns the RTP payload type associated with this encoder.
+   int getPayloadType();
+
+//@}
 
 /* ============================ INQUIRY =================================== */
+///@name Inquiry
+//@{
+
+//@}
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-   const MpCodecInfo* mpCodecInfo;
-   int mPayloadType;
+   int mPayloadType;           ///< RTP payload type, associated with this codec.
+   MpCodecInfo mCodecInfo;     ///< Codec info structure
+   void* plgHandle;            ///< Internal codec handle.
+   const MpCodecCallInfoV1& mCallInfo; ///< Actual codec's manipulator functions.
+   UtlBoolean mInitialized;    ///< Is codec initialized?
+   const char* mDefaultFmtp;   ///< Default fmtp string.
 
+     /// Copy constructor
    MpEncoderBase(const MpEncoderBase& rMpEncoderBase);
-     //:Copy constructor
 
+     /// Assignment operator
    MpEncoderBase& operator=(const MpEncoderBase& rhs);
-     //:Assignment operator
 
 };
 

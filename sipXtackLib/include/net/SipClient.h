@@ -83,11 +83,11 @@ public:
 
 /* ============================ ACCESSORS ================================= */
 
-        //void getHostIp(UtlString* hostAddress) const;
-        void getClientNames(UtlString& clientNames) const;
-        long getLastTouchedTime() const;
-        //int getHostPort() const;
-        const UtlString& getLocalIp();
+    //void getHostIp(UtlString* hostAddress) const;
+    void getClientNames(UtlString& clientNames) const;
+    long getLastTouchedTime() const;
+    //int getHostPort() const;
+    const UtlString& getLocalIp();
 
     void markInUseForWrite();
     void markAvailbleForWrite();
@@ -95,7 +95,7 @@ public:
 
 /* ============================ INQUIRY =================================== */
 
-        UtlBoolean isOk();
+    UtlBoolean isOk();
 
     UtlBoolean isConnectedTo(UtlString& hostName, int hostPort);
 

@@ -14,6 +14,7 @@
 #include <unistd.h>
 #include <signal.h>
 #include <sched.h>
+#include <sys/time.h>
 
 /* Make sure we get MCL_CURRENT and MCL_FUTURE (for mlockall) on OS X 10.3 */
 #define _P1003_1B_VISIBLE
@@ -55,7 +56,9 @@ OsTaskLinux::OsTaskLinux(const UtlString& name,
    mPriority(priority),
    mStackSize(stackSize)
 {
-   // other than initialization, no work required
+   pthread_mutex_init(&mStartupSyncMutex, NULL);
+   pthread_cond_init(&mTaskInitializedEvent, NULL);
+   pthread_cond_init(&mTaskStartedEvent, NULL);
 }
 
 // Destructor
@@ -424,17 +427,6 @@ OsStatus OsTaskLinux::id(int& rId)
    return retVal;
 }
 
-// Check if the task is ready to run
-// Return TRUE is the task is ready, otherwise FALSE.
-// Under Linux, this method returns the opposite of isSuspended()
-UtlBoolean OsTaskLinux::isReady(void)
-{
-   if (!isStarted())
-      return FALSE;
-   
-   return (!isSuspended());
-}
-
 // Check if the task is suspended.
 // Return TRUE is the task is suspended, otherwise FALSE.
 UtlBoolean OsTaskLinux::isSuspended(void)
@@ -457,6 +449,8 @@ UtlBoolean OsTaskLinux::doLinuxCreateTask(const char* pTaskName)
    int                       linuxRes;
    char                      idString[15];
    pthread_attr_t            attributes;
+   timeval                   threadStartTime;
+   timespec                  threadStartTimeout;
 
   // construct thread attribute
    linuxRes = pthread_attr_init(&attributes);
@@ -480,25 +474,67 @@ UtlBoolean OsTaskLinux::doLinuxCreateTask(const char* pTaskName)
    if (linuxRes != POSIX_OK) {
       OsSysLog::add(FAC_KERNEL, PRI_ERR, "OsTaskLinux:doLinuxCreateTask pthread_attr_setdetachstate error, returned %d", linuxRes);
    }
-   
+
+   // Lock startup synchronization mutex. It will be used in conjunction with
+   // mTaskInitializedEvent and mTaskStartedEvent conditional variables.
+   pthread_mutex_lock(&mStartupSyncMutex);
+
    linuxRes = pthread_create(&mTaskId, &attributes, taskEntry, (void *)this);
    pthread_attr_destroy(&attributes);
 
-   if (linuxRes == POSIX_OK)
+   if (linuxRes != POSIX_OK)
    {
-      // Enter the thread id into the global name database so that given the
-      // thread id we will be able to find the corresponding OsTask object
-      sprintf(idString, "%d", (int)mTaskId);   // convert the id to a string
-      OsUtil::insertKeyValue(TASKID_PREFIX, idString, (int) this);
+      OsSysLog::add(FAC_KERNEL, PRI_ERR, "OsTaskLinux:doLinuxCreateTask "
+                    "pthread_create failed, returned %d in %s (%p)",
+                    linuxRes, mName.data(), this);
 
-      mState = STARTED;
-      return TRUE;
-   }
-   else
-   {
-      OsSysLog::add(FAC_KERNEL, PRI_ERR, "OsTaskLinux:doLinuxCreateTask pthread_create failed, returned %d in %s (%p)", linuxRes, mName.data(), this);
+      // Unlock startup synchronization mutex. We do not need it more.
+      pthread_mutex_unlock(&mStartupSyncMutex);
+
       return FALSE;
    }
+
+   // Get current time and prepare thread startup timeout value.
+   // Note that we need an absolute time.
+   gettimeofday(&threadStartTime, NULL);
+   threadStartTimeout.tv_sec = threadStartTime.tv_sec + OS_TASK_THREAD_STARTUP_TIMEOUT;
+   // Timeval uses micro-seconds, while timespec uses nano-seconds.
+   threadStartTimeout.tv_nsec = threadStartTime.tv_usec * 1000;
+
+   // Wait for thread to startup.
+   int pt_res = pthread_cond_timedwait(&mTaskStartedEvent, &mStartupSyncMutex,
+                                       &threadStartTimeout);
+
+   // If it will not startup in OS_TASK_THREAD_STARTUP_TIMEOUT seconds then
+   // something gone terribly wrong.
+   if (pt_res == ETIMEDOUT)
+   {
+      OsSysLog::add(FAC_KERNEL, PRI_ERR, "OsTaskLinux:doLinuxCreateTask "
+                    "thread %s did not started up in %d seconds. Give up on it.",
+                    mName.data(), OS_TASK_THREAD_STARTUP_TIMEOUT);
+
+      // Unlock startup synchronization mutex. We do not need it more.
+      pthread_mutex_unlock(&mStartupSyncMutex);
+
+      return FALSE;
+   }
+
+
+   // Enter the thread id into the global name database so that given the
+   // thread id we will be able to find the corresponding OsTask object
+   sprintf(idString, "%d", (int)mTaskId);   // convert the id to a string
+   OsUtil::insertKeyValue(TASKID_PREFIX, idString, (int) this);
+
+   mState = STARTED;
+
+   // Startup initialization finished. Signal this to started thread, so
+   // it could go on.
+   pthread_cond_signal(&mTaskInitializedEvent);
+
+   // Unlock startup synchronization mutex. Synchronization finished.
+   pthread_mutex_unlock(&mStartupSyncMutex);
+
+   return TRUE;
 }
 
 // Do the real work associated with terminating a Linux task
@@ -514,7 +550,7 @@ void OsTaskLinux::doLinuxTerminateTask(UtlBoolean doForce)
    // if there is no low-level task, or entry in the name database, just return
    if ((mState != UNINITIALIZED) && ((int)mTaskId != 0))
    {
-      // DEBUGGING HACK:  Suspend requestor if target is suspended $$$
+      // DEBUGGING HACK:  Suspend requester if target is suspended $$$
       while (isSuspended())
       {
          suspend();
@@ -645,6 +681,27 @@ void * OsTaskLinux::taskEntry(void* arg)
          }
       }
    }
+
+   // Lock synchronization mutex. Begin synchronization of started thread with
+   // doLinuxCreateTask() which created it.
+   pthread_mutex_lock(&pTask->mStartupSyncMutex);
+
+   // Thread started up. Signal this to doLinuxCreateTask().
+   pthread_cond_signal(&pTask->mTaskStartedEvent);
+
+
+   // Wait until our init in doLinuxCreateTask() is finished.
+   //
+   // The actual thread is created and started with pthread_create(), then
+   // doLinuxCreateTask() enters the thread in the name database and
+   // sets mState=STARTED. However, if OsTaskLinux::taskEntry() runs before
+   // this initialization completes, callers might think (among other things)
+   // that the thread is not started.
+   pthread_cond_wait(&pTask->mTaskInitializedEvent, &pTask->mStartupSyncMutex);
+
+   // Unlock startup synchronization mutex. Synchronization finished.
+   pthread_mutex_unlock(&pTask->mStartupSyncMutex);
+
 
    // Run the code the task is supposed to run, namely the run()
    // method of its class.

@@ -19,6 +19,8 @@
 #include "mp/MpMisc.h"
 #include "mp/MpStreamPlaylistPlayer.h"
 #include "mp/MpStreamQueuePlayer.h"
+typedef int MpConnectionID;
+#include "mp/MpCallFlowGraph.h"
 #include "os/OsDefs.h"
 #include "mp/StreamDefs.h"
 #include "net/Url.h"
@@ -332,7 +334,8 @@ class MpStreamQueuePlayerTest : public CppUnit::TestCase
                 sprintf(szUrl, "http://%s/nums/8.wav", BASE_URL) ;
                 Url url2(szUrl);
 
-                for (int i = 0; i< 5; i++)
+                int i=0;
+                for (i = 0; i< 5; i++)
                 {
                     pPlayer->add(url2, STREAM_SOUND_LOCAL | STREAM_FORMAT_WAV) ;
                 }
@@ -341,7 +344,7 @@ class MpStreamQueuePlayerTest : public CppUnit::TestCase
                 sprintf(szUrl, "http://%s/nums/9.wav", BASE_URL) ;
                 Url url3(szUrl);
 
-                for (int i = 0; i< 5; i++)
+                for (i = 0; i< 5; i++)
                 {
                     pPlayer->add(url3, STREAM_SOUND_LOCAL | STREAM_FORMAT_WAV) ;
                 }

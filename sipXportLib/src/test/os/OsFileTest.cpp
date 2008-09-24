@@ -1,12 +1,15 @@
-//
-// Copyright (C) 2004-2006 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// 
+// Copyright (C) 2007 SIPez LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.
-//
+// 
+// Copyright (C) 2004-2005 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+// 
+// Copyright (C) 2004-2005 Pingtel Corp.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
 // $$
-///////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
 
 #include <cppunit/extensions/HelperMacros.h>
 #include <cppunit/TestCase.h>
@@ -14,8 +17,13 @@
 
 #include <os/OsFS.h>
 #include <os/OsTestUtilities.h>
+#include <os/OsTask.h>
 
 #include <stdlib.h>
+
+#ifndef WINCE
+#include <errno.h>
+#endif
 
 /**
  * Test Description
@@ -28,8 +36,9 @@ class OsFileTest : public CppUnit::TestCase
     CPPUNIT_TEST(testReadWriteBuffer);
     CPPUNIT_TEST(testCopyFile);
     CPPUNIT_TEST(testReadOnly);
+    CPPUNIT_TEST(testTouch);
 #ifndef _WIN32
-    CPPUNIT_TEST(testReadLock);
+    CPPUNIT_TEST(testFileLocking);
 #endif
     CPPUNIT_TEST_SUITE_END();
 
@@ -178,43 +187,72 @@ public:
         CPPUNIT_ASSERT_MESSAGE("Not Read only", !testFile.isReadonly());
     }
 
+    void testTouch()
+    {
+        OsFileInfoBase info;
+        OsTime time1, time2;
+        OsPath testFile = mRootPath + OsPath::separator + "testTouch";
+        OsFile file(testFile);
+
+        // Create the file
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, file.touch());
+
+        // Get the modification time and sleep for a few seconds
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, file.getFileInfo(info));
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, info.getModifiedTime(time1));
+        OsTask::delay(3000);
+
+        // Touch the file and get the modification time again
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, file.touch());
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, file.getFileInfo(info));
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, info.getModifiedTime(time2));
+
+        // The modification times must differ by the sleep amount
+        CPPUNIT_ASSERT_MESSAGE("The time is the same", time1.seconds() != time2.seconds());
+    }
+
     /**
      * Created dummy files and attempts to gain and deny access to locks
      */
-    void testReadLock()
+    void testFileLocking()
     {
         OsStatus stat;
-        OsPath testPath = mRootPath + OsPath::separator + "testReadLock";
-        OsFile testFile(testPath);
+        OsPath testPath = mRootPath + OsPath::separator + "testFileLocking";
+        OsFile testFile1(testPath);
         OsFile testFile2(testPath);
-        testFile.touch();
+        OsFile testFile3(testPath);
+        OsFile testFile4(testPath);
+        testFile1.touch();
 
-        stat = testFile.open(OsFile::READ_ONLY | OsFile::FSLOCK_READ);
-        CPPUNIT_ASSERT_MESSAGE("Get a read lock on a file", stat == OS_SUCCESS);
+        stat = testFile1.open(OsFile::READ_ONLY | OsFile::FSLOCK);
+        CPPUNIT_ASSERT_MESSAGE("Attempt to open a file read-only with a lock", stat != OS_SUCCESS);
 
-        stat = testFile2.open(OsFile::READ_ONLY | OsFile::FSLOCK_READ);
-        
-        // According to OsFile::open, two READs are allowed even though
-        // mode bitmask has locks.  This was discovered 07/08/04 by DLH
-        // it's conceivable that OsFile is wrong, but it explicitly says
-        // it's ok and it's possible changing it may have negative impact
-        CPPUNIT_ASSERT_MESSAGE("Should get a read lock even though a file already locked", 
-            stat == OS_SUCCESS);
+        stat = testFile1.open(OsFile::READ_ONLY);
+        CPPUNIT_ASSERT_MESSAGE("Open a file", stat == OS_SUCCESS);
 
-        stat = testFile.fileunlock();
-        CPPUNIT_ASSERT_MESSAGE("Release a read lock on a file", stat == OS_SUCCESS);
+        stat = testFile2.open(OsFile::READ_WRITE | OsFile::FSLOCK_WAIT);
+        CPPUNIT_ASSERT_MESSAGE("Wait to open a file with a lock", stat == OS_SUCCESS);
 
-        stat = testFile2.open(OsFile::READ_ONLY | OsFile::FSLOCK_READ);
-        CPPUNIT_ASSERT_MESSAGE("Read lock is release", stat == OS_SUCCESS);
+        stat = testFile3.open(OsFile::READ_WRITE);
+        CPPUNIT_ASSERT_MESSAGE("Open a locked file ignoring the lock", stat == OS_SUCCESS);
+
+        stat = testFile4.open(OsFile::READ_WRITE | OsFile::FSLOCK);
+        CPPUNIT_ASSERT_MESSAGE("Attempt to open a locked file with a lock", stat != OS_SUCCESS);
+
         testFile2.close();
 
-        // TODO: Test FSLOCK_WRITE and FSLOCK_WAIT 
+        stat = testFile4.open(OsFile::READ_WRITE | OsFile::FSLOCK);
+        CPPUNIT_ASSERT_MESSAGE("Open a file with a lock", stat == OS_SUCCESS);
+
+        testFile4.close();
+        testFile3.close();
+        testFile1.close();
+
+        testFile1.remove();
+
+        // TODO: Properly test FSLOCK_WAIT and cross-process locking
     }
     
 };
 
-#ifdef WINCE
-#pragma message( "OsFileTest disabled undef Win CE" )
-#else
 CPPUNIT_TEST_SUITE_REGISTRATION(OsFileTest);
-#endif

@@ -39,7 +39,9 @@
 #if defined(_VXWORKS)
 extern "C" char* strdup(const char* str);
 #else
+#ifndef WIN32
 extern char* strdup(const char*) ;
+#endif
 #endif
 
 
@@ -826,7 +828,7 @@ OsStatus OsSysLogTask::processFlushLog(OsEvent* pEvent)
 
                      if (status != OS_SUCCESS)
                      {
-                        syslog(FAC_LOG, PRI_ERR, "Error writting to logfile %s", mBoundedLogFile.data());
+                        syslog(FAC_LOG, PRI_ERR, "Error writing to logfile %s", mBoundedLogFile.data());
                      }
                   }
                }

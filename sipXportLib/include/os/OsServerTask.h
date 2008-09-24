@@ -40,13 +40,23 @@ public:
 
 /* ============================ CREATORS ================================== */
 
+     /// @brief Main constructor for OsServerTask
    OsServerTask(const UtlString& name="",
                 void* pArg=NULL,
                 const int maxRequestQMsgs=DEF_MAX_MSGS,
                 const int priority=DEF_PRIO,
                 const int options=DEF_OPTIONS,
                 const int stackSize=DEF_STACKSIZE);
-     //:Constructor
+     /**<
+     *  @param[in] name - the name of this OsServerTask
+     *  @param[in] pArg - argument that is passed to the new thread as a
+                   parameter of the thread run method.
+     *  @param[in] maxRequestQMsgs - defines the size of the request message queue.
+     *  @param[in] priority - the thread priority to use.  high = 0, low = 255
+     *  @param[in] options - Thread execution options to set, such as whether
+     *             to allow breakpoint debugging.
+     *  @param[in] stackSize - The stack size to use for this task.
+     */
 
    virtual
    ~OsServerTask();

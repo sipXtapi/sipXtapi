@@ -30,7 +30,7 @@ public:
     void testSipContactDb()
     {
         // first, create a new contact Db
-        SipContactDb* pDb = new SipContactDb();
+        SipContactDb pDb;
         
         // test the inserting of records
         SIPX_CONTACT_ADDRESS contact1;
@@ -39,7 +39,7 @@ public:
         strcpy(contact1.cIpAddress, "9.9.9.1");
         contact1.eContactType = CONTACT_NAT_MAPPED;
         contact1.iPort = 9991;
-        CPPUNIT_ASSERT(pDb->addContact(contact1));
+        CPPUNIT_ASSERT(pDb.addContact(contact1));
         CPPUNIT_ASSERT(contact1.id == 1);
         
         // test the addition of a duplicate (same IP and port)
@@ -50,7 +50,7 @@ public:
         strcpy(contact2.cIpAddress, "9.9.9.1");
         contact2.eContactType = CONTACT_LOCAL;
         contact2.iPort = 9991;
-        CPPUNIT_ASSERT(pDb->addContact(contact2) == false);
+        CPPUNIT_ASSERT(pDb.addContact(contact2) == false);
         CPPUNIT_ASSERT(contact2.id == 1);
         
         // test the addition of same IP, different port
@@ -61,7 +61,7 @@ public:
         strcpy(contact3.cIpAddress, "9.9.9.1");
         contact3.eContactType = CONTACT_LOCAL;
         contact3.iPort = 9992;
-        CPPUNIT_ASSERT(pDb->addContact(contact3) == true);
+        CPPUNIT_ASSERT(pDb.addContact(contact3) == true);
         CPPUNIT_ASSERT(contact3.id == 2);
         
         // test the addition of differnt IP
@@ -73,7 +73,7 @@ public:
         strcpy(contact4.cIpAddress, "9.9.9.2");
         contact4.eContactType = CONTACT_RELAY;
         contact4.iPort = 9993;
-        CPPUNIT_ASSERT(pDb->addContact(contact4) == true);
+        CPPUNIT_ASSERT(pDb.addContact(contact4) == true);
         CPPUNIT_ASSERT(contact4.id == 3);
         
         // test the addition of differnt IP
@@ -85,13 +85,13 @@ public:
         strcpy(contact5.cIpAddress, "10.10.10.5");
         contact5.eContactType = CONTACT_LOCAL;
         contact5.iPort = 9991;
-        CPPUNIT_ASSERT(pDb->addContact(contact5) == true);
+        CPPUNIT_ASSERT(pDb.addContact(contact5) == true);
         CPPUNIT_ASSERT(contact5.id == 4);
 
         // now test the finding of the records
         SIPX_CONTACT_ADDRESS* pFound = NULL;
         // search by ID - positive
-        pFound = pDb->find(4);
+        pFound = pDb.find(4);
         CPPUNIT_ASSERT(pFound != NULL);
         CPPUNIT_ASSERT(pFound->id == 4);
         CPPUNIT_ASSERT(strcmp(pFound->cInterface, "eth1") == 0);
@@ -99,28 +99,28 @@ public:
         CPPUNIT_ASSERT(pFound->iPort == 9991);
         
         // search by ID - negative
-        pFound = pDb->find(0);
+        pFound = pDb.find(0);
         CPPUNIT_ASSERT(pFound == NULL);
         
         // search by IP and port - positive
-        pFound = pDb->find("9.9.9.1", 9991, CONTACT_NAT_MAPPED);
+        pFound = pDb.find("9.9.9.1", 9991, CONTACT_NAT_MAPPED);
         CPPUNIT_ASSERT(pFound != NULL);
         CPPUNIT_ASSERT(pFound->id == 1);
         
         // search by IP and port - negative
         // bad IP
-        pFound = pDb->find("zaphod", 9991, CONTACT_NAT_MAPPED);
+        pFound = pDb.find("zaphod", 9991, CONTACT_NAT_MAPPED);
         CPPUNIT_ASSERT(pFound == NULL);
 
         // search by IP and port - negative
         // bad port
-        pFound = pDb->find("9.9.9.1", 42, CONTACT_NAT_MAPPED);
+        pFound = pDb.find("9.9.9.1", 42, CONTACT_NAT_MAPPED);
         CPPUNIT_ASSERT(pFound == NULL);
 
         // get All records
         SIPX_CONTACT_ADDRESS* addresses[MAX_IP_ADDRESSES];
         int num = 0;
-        pDb->getAll(addresses, num);
+        pDb.getAll(addresses, num);
         CPPUNIT_ASSERT(4 == num);
         
         for (int i = 0; i < num; i++)
@@ -129,14 +129,10 @@ public:
         }
         
         // remove records
-        CPPUNIT_ASSERT(pDb->deleteContact(1) == true);
-        CPPUNIT_ASSERT(pDb->deleteContact(2) == true);
-        CPPUNIT_ASSERT(pDb->deleteContact(3) == true);
-        CPPUNIT_ASSERT(pDb->deleteContact(4) == true);
-        
-
-        delete pDb;
-        
+        CPPUNIT_ASSERT(pDb.deleteContact(1) == true);
+        CPPUNIT_ASSERT(pDb.deleteContact(2) == true);
+        CPPUNIT_ASSERT(pDb.deleteContact(3) == true);
+        CPPUNIT_ASSERT(pDb.deleteContact(4) == true);
     };
 };
 

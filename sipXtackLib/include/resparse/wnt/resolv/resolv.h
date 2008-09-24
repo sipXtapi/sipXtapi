@@ -68,7 +68,7 @@
 #endif
 
 #include <stdio.h>
-#include <winsock.h>
+#include <winsock2.h>
 
 #ifdef __cplusplus
 extern "C" {

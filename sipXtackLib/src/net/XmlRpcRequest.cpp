@@ -28,7 +28,7 @@ XmlRpcRequest::XmlRpcRequest(Url& uri, const char* methodName)
 {
    mUrl = uri;
    
-   // Start to contruct the HTTP message
+   // Start to construct the HTTP message
    mpHttpRequest = new HttpMessage();
    
    mpHttpRequest->setFirstHeaderLine(HTTP_POST_METHOD, "/RPC2", HTTP_PROTOCOL_VERSION_1_1);

@@ -1,5 +1,24 @@
+// Copyright 2008 AOL LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
-// Copyright (C) 2004-2006 SIPfoundry Inc.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA. 
+//  
+// Copyright (C) 2006-2008 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
+//
+// Copyright (C) 2004-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -8,8 +27,9 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
-#define DEBUG_DECODING
-#undef DEBUG_DECODING
+// OsIntTypes.h must be first include to define correct macros before system
+// inttypes.h will be included.
+#include <os/OsIntTypes.h>
 
 // SYSTEM INCLUDES
 #include <assert.h>
@@ -26,28 +46,41 @@
 #include <string.h>
 
 // APPLICATION INCLUDES
-#include "os/OsDefs.h"
-#include "os/OsSysLog.h"
-#include "mp/MpDecoderBase.h"
-#include "os/OsLock.h"
 #include "mp/MpMisc.h"
+#include "mp/MpDspUtils.h"
 #include "mp/MpBuf.h"
-#include "mp/MpConnection.h"
+#include "mp/MpRtpInputAudioConnection.h"
 #include "mp/MprDecode.h"
 #include "mp/MprDejitter.h"
-#include "mp/MpJitterBuffer.h"
 #include "mp/MpDecoderBase.h"
 #include "mp/NetInTask.h"
 #include "mp/dmaTask.h"
 #include "mp/MpMediaTask.h"
 #include "mp/MpCodecFactory.h"
-#include "mp/JB/JB_API.h"
+#include "mp/MpJitterBuffer.h"
+#include "mp/MpPlcBase.h"
+#include "mp/MpFlowGraphBase.h"
+#include "mp/MprnDTMFMsg.h"
+#include "mp/MpStringResourceMsg.h"
+#include "os/OsDefs.h"
+#include "os/OsSysLog.h"
+#include "os/OsLock.h"
+#include "os/OsNotification.h"
+#include "mp/MprDejitter.h"
+
+#ifdef RTL_ENABLED
+#  include <rtl_macro.h>
+#  ifdef RTL_AUDIO_ENABLED
+#     include <SeScopeAudioBuffer.h>
+#  endif
+#else
+#  define RTL_BLOCK(x)
+#  define RTL_EVENT(x,y)
+#endif
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
-
 // CONSTANTS
-
 // STATIC VARIABLE INITIALIZATIONS
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
@@ -55,48 +88,46 @@
 /* ============================ CREATORS ================================== */
 
 // Constructor
-MprDecode::MprDecode(const UtlString& rName, MpConnection* pConn,
-                           int samplesPerFrame, int samplesPerSec)
-:  MpResource(rName, 1, 1, 1, 1, samplesPerFrame, samplesPerSec),
-   mpMyDJ(NULL),
-   mpCurrentCodecs(NULL),
-   mNumCurrentCodecs(0),
-   mpPrevCodecs(NULL),
-   mNumPrevCodecs(0),
-   mpConnection(pConn),
-   mLock(OsMutex::Q_PRIORITY|OsMutex::INVERSION_SAFE)
+MprDecode::MprDecode(const UtlString& rName, MpConnectionID connectionId,
+                     const UtlString &plcName)
+: MpAudioResource(rName, 0, 0, 1, 1)
+, mpJB(new MpJitterBuffer())
+, mpDtmfNotication(NULL)
+, mpMyDJ(NULL)
+, mIsStreamInitialized(FALSE)
+, mpPlc(MpPlcBase::createPlc(plcName))
+, mIsPlcInitialized(FALSE)
+, mIsJBInitialized(FALSE)
+, mpCurrentCodecs(NULL)
+, mNumCurrentCodecs(0)
+, mpPrevCodecs(NULL)
+, mNumPrevCodecs(0)
+, mConnectionId(connectionId)
 {
-   for(int i=0;i<MAX_PAYLOAD_TYPES;i++) 
-   {
-      mSavedRtp[i]=0;
-   }
+   assert(mpJB != NULL);
+   assert(mpPlc != NULL);
 }
 
 // Destructor
 MprDecode::~MprDecode()
 {
-   // Clean up decoder object
-   int i;
-#if 0
-   osPrintf("|~MprDecode(0x%X): calling handleDeselectCodecs (%d to free)\n",
-      (int) this, mNumCurrentCodecs);
-#endif
-   // Release our codecs (if any), and the array of pointers to them
+   // Release our codecs (if any), and the array of pointers to them.
    handleDeselectCodecs();
-#if 0
-   osPrintf("|~MprDecode(0x%X): deleting %d decoders, and array at 0x%X\n",
-      (int) this, mNumPrevCodecs, (int) mpPrevCodecs);
-#endif
+
+   // Free decoder buffer.
+   delete mpJB;
+   delete mpPlc;
+
    // Delete the list of codecs used in the past.
+   OsLock lock(mLock);
+   if (mNumPrevCodecs > 0)
    {
-      OsLock lock(mLock);
-      if (mNumPrevCodecs > 0) {
-         for (i=0; i<mNumPrevCodecs; i++) {
-            mpPrevCodecs[i]->freeDecode();
-            delete mpPrevCodecs[i];
-         }
-         delete[] mpPrevCodecs;
+      for (int i=0; i<mNumPrevCodecs; i++)
+      {
+         mpPrevCodecs[i]->freeDecode();
+         delete mpPrevCodecs[i];
       }
+      delete[] mpPrevCodecs;
    }
 }
 
@@ -107,16 +138,24 @@ OsStatus MprDecode::selectCodecs(SdpCodec* codecs[], int numCodecs)
    OsStatus ret = OS_SUCCESS;
    SdpCodec** codecArray;
    int i;
+   int audioCodecsNum=0;
+   UtlString codecMediaType;
    MpFlowGraphMsg msg(SELECT_CODECS, this, NULL, NULL, 0, 0);
 
    codecArray = new SdpCodec*[numCodecs];
 
+   // Copy all audio codecs to new array
    for (i=0; i<numCodecs; i++) {
-      codecArray[i] = new SdpCodec(*codecs[i]);
+      codecs[i]->getMediaType(codecMediaType);
+      if (codecMediaType.compareTo("audio") == 0)
+      {
+         codecArray[audioCodecsNum] = new SdpCodec(*codecs[i]);
+         audioCodecsNum++;
+      }
    }
 
    msg.setPtr1(codecArray);
-   msg.setInt1(numCodecs);
+   msg.setInt1(audioCodecsNum);
    ret = postMessage(msg);
 
    return ret;
@@ -133,9 +172,35 @@ OsStatus MprDecode::deselectCodec()
    return ret;
 }
 
+OsStatus MprDecode::setPlc(const UtlString& namedResource,
+                           OsMsgQ& fgQ,
+                           const UtlString& plcName)
+{
+   MpStringResourceMsg msg((MpResourceMsg::MpResourceMsgType)MPRM_SET_PLC, 
+                           namedResource, plcName);
+   return fgQ.send(msg, sOperationQueueTimeout);
+}
+
 void MprDecode::setMyDejitter(MprDejitter* pDJ)
 {
    mpMyDJ = pDJ;
+}
+
+OsStatus MprDecode::pushPacket(const MpRtpBufPtr &pRtp)
+{
+   // Lock access to dejitter and m*Codecs data
+   OsLock lock(mLock);
+   int pt = pRtp->getRtpPayloadType();
+   const MpCodecInfo* pDecoderInfo = NULL;;
+   if (mDecoderMap.mapPayloadType(pt))
+   {
+       pDecoderInfo = mDecoderMap.mapPayloadType(pt)->getInfo();
+       if (pDecoderInfo && mpMyDJ)
+       {
+           return mpMyDJ->pushPacket(pRtp, pDecoderInfo->isSignalingCodec());
+       }
+   }
+   return OS_SUCCESS;
 }
 
 /* ============================ ACCESSORS ================================= */
@@ -146,232 +211,247 @@ void MprDecode::setMyDejitter(MprDejitter* pDJ)
 
 UtlBoolean MprDecode::handleSetDtmfNotify(OsNotification* pNotify)
 {
-   MpDecoderBase** pMDB;
-   UtlBoolean ret = TRUE;
-   int i;
    OsLock lock(mLock);
 
-   pMDB = mpCurrentCodecs;
-   for (i=0; i<mNumCurrentCodecs; i++) {
-      if (((*pMDB)->getInfo())->isSignalingCodec()) {
-         (*pMDB)->handleSetDtmfNotify(pNotify);
-      }
-      pMDB++;
-   }
-   return ret;
-}
+   mpDtmfNotication = pNotify;
 
-UtlBoolean MprDecode::setDtmfTerm(MprRecorder *pRecorder)
-{
-   MpDecoderBase** pMDB;
-   UtlBoolean ret = TRUE;
-   int i;
-   OsLock lock(mLock);
-
-   pMDB = mpCurrentCodecs;
-   for (i=0; i<mNumCurrentCodecs; i++) {
-      if (((*pMDB)->getInfo())->isSignalingCodec()) {
-         (*pMDB)->setDtmfTerm(pRecorder);
-      }
-      pMDB++;
-   }
-   return ret;
+   return TRUE;
 }
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
-MprDejitter* MprDecode::getMyDejitter(void)
-{
-   assert(NULL != mpMyDJ);
-   return mpMyDJ;
-}
-
-#ifdef DEBUG /* [ */
-static void showRtpPacket(MpBufPtr rtp)
-{
-   struct rtpHeader rh, *rp;
-   int len;
-
-   rp = (struct rtpHeader *) (MpBuf_getStorage(rtp));
-   memcpy((char *) &rh, (char *) rp, sizeof(struct rtpHeader));
-   rh.vpxcc = rp->vpxcc;
-   rh.mpt = rp->mpt;
-   rh.seq = ntohs(rp->seq);
-   rh.timestamp = ntohl(rp->timestamp);
-   rh.ssrc = ntohl(rp->ssrc);
-   len = MpBuf_getNumSamples(rtp) - sizeof(struct rtpHeader);
-   Zprintf("RcvRTP: %02X, %02X, %d, %d, %08X, and %d bytes of data\n",
-      rh.vpxcc, rh.mpt, rh.seq, rh.timestamp, rh.ssrc, len);
-}
-#endif /* DEBUG ] */
-
-void MprDecode::pushIntoCodecBuffer(MpBufPtr pPacket, int packetLen)
-{
-   int res;
-   // The JB_ stuff is defined in header files and change when the commercial GIPS library is used. 
-   // THIS JitterBuffer is NOT the same as MprDejitter! This is more of a Decode Buffer 
-   JB_inst* pJBState = mpConnection->getJBinst();
-   unsigned char* pHeader = (unsigned char*)MpBuf_getStorage(pPacket);
-
-   res = JB_RecIn(pJBState, pHeader, packetLen, 0);
-   if (0 != res) {
-      osPrintf(
-         "\n\n *** JB_RecIn(0x%X, 0x%X, %d) returned %d\n",
-         (int) pJBState, (int) pHeader, packetLen, res);
-      osPrintf(" pt=%d, Ts=%d, Seq=%d (%2X %2X)\n\n",
-         MprDejitter::getPayloadType(pPacket),
-         MprDejitter::getTimestamp(pPacket), MprDejitter::getSeqNum(pPacket),
-         *pHeader, *(pHeader+1));
-   }
-}
-
-int iFramesSinceLastReport=0;
 UtlBoolean MprDecode::doProcessFrame(MpBufPtr inBufs[],
-                                    MpBufPtr outBufs[],
-                                    int inBufsSize,
-                                    int outBufsSize,
-                                    UtlBoolean isEnabled,
-                                    int samplesPerFrame,
-                                    int samplesPerSecond)
+                                     MpBufPtr outBufs[],
+                                     int inBufsSize,
+                                     int outBufsSize,
+                                     UtlBoolean isEnabled,
+                                     int samplesPerFrame,
+                                     int samplesPerSecond)
 {
-#ifdef DEBUG_DECODING /* [ */
-static int numFramesForWarnings = 0;
-static int numWarnings = 0;
-#endif /* DEBUG_DECODING ] */
+   MpAudioBufPtr out;
+   MpRtpBufPtr rtp;
 
-   MpBufPtr rtp;
-   MpBufPtr out;
-
-#ifdef DEBUG_DECODING /* [ */
-   numFramesForWarnings++;
-#endif /* DEBUG_DECODING ] */
-
-   MpDecoderBase* pCurDec;
-   Sample* pSamples;
-   //int iPacketOffered  = 0;
-   if (0 == outBufsSize) return FALSE;
+   if (outBufsSize == 0)
+      return FALSE;
 
    if (!isEnabled) {
-      *outBufs = MpBuf_getFgSilence();
       return TRUE;
    }
 
-      MprDejitter* pDej = getMyDejitter();
-      int packetLen;
-   int ii;
-
-   // Get the decoder now so we can make decisions about what to pull from MprDejitter
-   for(ii = 0; ii < mNumCurrentCodecs; ii++) 
+   // If mIsJBInitialized is FALSE, we haven't got selectCodecs() called.
+   // This is fine, but a long we do not know anything about codecs,
+   // we could not continue.
+   if (!mIsJBInitialized)
    {
-      MpDecoderBase *mpd = mpCurrentCodecs[ii];
-      int pt = mpd->getPayloadType();
-      if(mSavedRtp[pt]==NULL) {
-         mSavedRtp[pt] = pDej->pullPacket(pt);
-      }
+      return TRUE;
    }
-   for(ii = 0; ii < mNumCurrentCodecs; ii++) 
-   {
-      MpDecoderBase *mpd = mpCurrentCodecs[ii];
-      int pt = mpd->getPayloadType();
-      int frameCallCount=0;
-      while(mSavedRtp[pt] != NULL) 
-      {
-         pCurDec = mpConnection->mapPayloadType(pt);
-         if(pCurDec != NULL) 
-         {
-            // Inform the decoder that the next frame has happened. 
-            if(frameCallCount==0)
-            {
-               pCurDec->FrameIncrement();
-            }
-            frameCallCount++;
-            if(iFramesSinceLastReport >= 100) {
-               // One second has passed (internal clock is 10ms per frame)
-               // since time we reported the average number of packets
-               // in the jitter buffer
-				
-               int iAveLen = pDej->getAveBufferLength(pt);
-               int doAgain =  pCurDec->reportBufferLength(iAveLen);
-               if(doAgain <= 0) {
-                  iFramesSinceLastReport = 0;
-               }
-            }
 
-            rtp = mSavedRtp[pt];
-            // This call lets the codec decide if it wants this packet or not. If the codec rejects out-of-order packets, it will return a negative value.
-            // It may also (someday) dynamically adjust the size of the jitter buffer.
-            packetLen = pCurDec->decodeIn(rtp);
-            if (packetLen > 0) 
-            {
-            unsigned char* pRtpH;
-            pRtpH = ((unsigned char*) MpBuf_getStorage(rtp)) + 1;
-               /*			Any idea what this next section is for?
-                 if (0x80 == (0x80 & *pRtpH)) 
-                 {
-                 if ((mFrameLastMarkerNotice + MARKER_WAIT_FRAMES) < mFrameCounter) 
-                 {
-                  mNumMarkerNotices = 0;
-               }
-                 if (mNumMarkerNotices++ < MAX_MARKER_NOTICES) {
-                 osPrintf("MprDecode: RTP marker bit ON\n");
-                  mFrameLastMarkerNotice = mFrameCounter;
-               }
-            }
-               */
-               // The MpBuf at this point has data in the storage section. The codec processes it, and
-               // it will wind up in a Samples section of a new MpBuf (picked up later in this method)
-               // For internal codecs there really isn't any jitter buffering, although some codecs may
-               // may need to hold on to a packet or two in order to process properly (?)
-               pushIntoCodecBuffer(rtp, packetLen); 
-               mSavedRtp[pt] = NULL;
-               MpBuf_delRef(rtp);
-				 
-               mSavedRtp[pt] = pDej->pullPacket(pt);
-               // mSavedRtp can be NULL if there are no packets available
-            } else if (packetLen == 0) {
-               break;  // THe packet was not eaten by the codec, don't get any more now
-               // TKTK What would GIPS return for out-of-order packets? This or nothing? 
-            } else if (packetLen == -1) {
-               // packetLen < 0, this means that the codec wants us to discard the packet. Out of order packet.
-               //Same logic as when we consume a packet, except we don't put it into the codec buffer
-               mSavedRtp[pt] = NULL;
-               MpBuf_delRef(rtp);
-               mSavedRtp[pt] = pDej->pullPacket(pt);
-            }
-         } else {
-            // The codec is null. Do not continue. NEED ERROR HANDLING HERE.
-            break;
+   // Initialize PLC if it is not initialized yet.
+   if (!mIsPlcInitialized)
+   {
+      mpPlc->init(mpFlowGraph->getSamplesPerSec(), mpFlowGraph->getSamplesPerFrame());
+      mCurFrameNum = 0;
+      mIsPlcInitialized = TRUE;
+   }
+
+   // Lock access to dejitter and m*Codecs data
+   OsLock lock(mLock);
+   assert(mpMyDJ != NULL);
+
+   // Initialize stream, if not initialized yet
+   // and get latest RTP packet from dejitter queue.
+   if (mIsStreamInitialized == FALSE)
+   {
+      // Get first packet from queue. Return if queue is still empty.
+      rtp = mpMyDJ->pullPacket();
+      if (!rtp.isValid())
+      {
+         return TRUE;
+      }
+
+      // Initialize stream with this packet.
+      mLastPlayedSeq = rtp->getRtpSequenceNumber();
+
+      mIsStreamInitialized = TRUE;
+   }
+   else
+   {
+      MpRtpBufPtr tmpRtp;
+      while ((tmpRtp = mpMyDJ->pullPacket()).isValid())
+      {
+         // If delayed packet, drop it
+         if (MpDspUtils::compareSerials(mLastPlayedSeq, tmpRtp->getRtpSequenceNumber()) > 0)
+         {
+            // todo:: fix glitch!
+            printf("Dropping delayed packet with seq#%u, TS%u\n",
+                   tmpRtp->getRtpSequenceNumber(), tmpRtp->getRtpTimestamp());
+            continue;
+         }
+         // If signaling - decode it now.
+         if (tryDecodeAsSignalling(tmpRtp))
+         {
+            continue;
+         }
+         // Accept packet, if it is later then one we already have, else drop it.
+         if (  !rtp.isValid()
+            || (MpDspUtils::compareSerials(rtp->getRtpSequenceNumber(),
+                                           tmpRtp->getRtpSequenceNumber()) < 0))
+         {
+            rtp = tmpRtp;
          }
       }
    }
-   iFramesSinceLastReport++;
-   // The pull phase creates a buffer on every processFrame, so even if there are no actual speech frames available,
-   // this next line makes sure there is something to pass on.
-   // The Pull Phase operates on 80-sample frames (8000 samples/second / 10 msec/sample)
-   out = MpBuf_getBuf(MpMisc.UcbPool, samplesPerFrame, 0, MP_FMT_T12);
-   if (out)
+
+   // Decode RTP packet if we got one.
+   if (rtp.isValid())
    {
-      pSamples = MpBuf_getSamples(out);
-      memset(pSamples, 0, samplesPerFrame * sizeof(Sample));
-      MpBuf_setSpeech(out, MP_SPEECH_SILENT);
-   }
-   JB_inst* pJBState = mpConnection->getJBinst();
-   if (pJBState) {
-      // This should be a JB_something or other.  However the only
-      // current choices is a short or long equivalant and this needs
-      // to be a plain old int:
-      int outLen;
-      int res;
-      res = JB_RecOut(pJBState, pSamples, &outLen);
-      MpBuf_setSpeech(out, MP_SPEECH_UNKNOWN);
+      MpDecoderBase* pCurDec = mDecoderMap.mapPayloadType(rtp->getRtpPayloadType());
+
+      // Update last played sequence number.
+      mLastPlayedSeq = rtp->getRtpSequenceNumber();
+
+      if (pCurDec != NULL)
+      {
+//         printf("decoding RTP seq# %u   TS %u\n",
+//                rtp->getRtpSequenceNumber(), rtp->getRtpTimestamp());
+
+         // Flush decoder buffer, if there were unplayed frames.
+         // todo:: fix glitch!
+         if (mpJB->getSamplesNum() > 0)
+         {
+            printf("Flushing decode buffer with %d samples. Glitch!\n",
+                   mpJB->getSamplesNum());
+            mpJB->flush();
+         }
+
+         OsStatus res = mpJB->pushPacket(rtp);
+         if (res != OS_SUCCESS)
+         {
+            osPrintf("\n\n *** MprDecode::doProcessFrame() returned %d\n", res);
+            osPrintf(" pt=%d, Ts=%d, Seq=%d\n\n",
+                     rtp->getRtpPayloadType(),
+                     rtp->getRtpTimestamp(), rtp->getRtpSequenceNumber());
+         }
+      }
    }
 
-   *outBufs = out;
-   Nprintf("Decode_doPF: returning 0x%x\n", (int) out, 0,0,0,0,0);
+   // Get next decoded frame
+   int numOriginalSamples;
+   mpJB->getFrame(out, numOriginalSamples);
+
+   // Run frame through PLC algorithm
+   doPlc(out);
+
+   outBufs[0] = out;
    return TRUE;
 }
 
-// Handle messages for this resource.
+UtlBoolean MprDecode::tryDecodeAsSignalling(const MpRtpBufPtr &rtp)
+{
+   MpDecoderBase* pCurDec = mDecoderMap.mapPayloadType(rtp->getRtpPayloadType());
+
+   // The codec is null or is not signaling. Do not continue.
+   if (pCurDec == NULL || !pCurDec->getInfo()->isSignalingCodec())
+      return FALSE;
+
+   uint8_t event;
+   UtlBoolean isStarted;
+   UtlBoolean isStopped;
+   uint16_t duration;
+   OsStatus sigRes;
+
+   do {
+      sigRes = pCurDec->getSignalingData(event,
+                                         isStarted,
+                                         isStopped,
+                                         duration);
+      assert(sigRes != OS_NOT_SUPPORTED);
+      if (sigRes == OS_SUCCESS && isStarted)
+      {
+         // Post DTMF notification message to indicate key down.
+         MprnDTMFMsg dtmfMsg(getName(), mConnectionId,
+                             (MprnDTMFMsg::KeyCode)event,
+                             MprnDTMFMsg::KEY_DOWN);
+         sendNotification(dtmfMsg);
+
+         // Old way to indicate DTMF event. Will be removed soon, I hope.
+         if (mpDtmfNotication)
+         {
+            mpDtmfNotication->signal( duration
+                                    | (uint32_t)(event) << 16
+                                    | 0<<31);
+         }
+      }
+
+      if (sigRes == OS_SUCCESS && isStopped)
+      {
+         // Post DTMF notification message to indicate key up.
+         MprnDTMFMsg dtmfMsg(getName(), mConnectionId,
+                             (MprnDTMFMsg::KeyCode)event,
+                             MprnDTMFMsg::KEY_UP, duration);
+         sendNotification(dtmfMsg);
+
+         // Old way to indicate DTMF event. Will be removed soon, I hope.
+         if (mpDtmfNotication)
+         {
+            mpDtmfNotication->signal( duration
+                                    | (uint32_t)(event) << 16
+                                    | 1<<31);
+         }
+      }
+   } while (sigRes == OS_SUCCESS);
+
+   return TRUE;
+}
+
+void MprDecode::doPlc(MpAudioBufPtr &pFrame)
+{
+   const MpAudioSample *plcSamplesIn = NULL;
+   MpAudioSample *plcSamplesOut = NULL;
+   UtlBoolean plcIsFrameModified;
+   OsStatus plcResult;
+
+   RTL_EVENT("MprDecode_doPlc_loss_patern", !pFrame.isValid());
+
+   // Prepare pointers to input and output frames for PLC.
+   if (pFrame.isValid())
+   {
+      plcSamplesIn = pFrame->getSamplesPtr();
+   }
+   if (!mTempPlcFrame.isValid())
+   {
+      mTempPlcFrame = MpMisc.RawAudioPool->getBuffer();
+      assert(mTempPlcFrame.isValid());
+      mTempPlcFrame->setSamplesNumber(mpFlowGraph->getSamplesPerFrame());
+      mTempPlcFrame->setSpeechType(MpAudioBuf::MP_SPEECH_UNKNOWN);
+   }
+   plcSamplesOut = mTempPlcFrame->getSamplesWritePtr();
+
+   // Pass frame through PLC.
+   plcResult = mpPlc->processFrame(mCurFrameNum, mCurFrameNum,
+                                   plcSamplesIn, plcSamplesOut,
+                                   &plcIsFrameModified);
+   assert(plcResult == OS_SUCCESS);
+   if (plcResult == OS_SUCCESS && plcIsFrameModified)
+   {
+      pFrame.release();
+      pFrame.swap(mTempPlcFrame);
+   }
+
+#ifdef RTL_AUDIO_ENABLED
+   UtlString outputLabel("MpJitterBuffer_getSamples");
+   RTL_RAW_AUDIO(outputLabel,
+                 mpFlowGraph->getSamplesPerSec(),
+                 pFrame->getSamplesNumber(),
+                 pFrame->getSamplesPtr(),
+                 mCurFrameNum);
+#endif
+
+   // Advance frame number.
+   mCurFrameNum++;
+}
+
+// Handle old style messages for this resource.
 UtlBoolean MprDecode::handleMessage(MpFlowGraphMsg& rMsg)
 {
    UtlBoolean ret = FALSE;
@@ -386,10 +466,29 @@ UtlBoolean MprDecode::handleMessage(MpFlowGraphMsg& rMsg)
       ret = TRUE;
       break;
    default:
-      ret = MpResource::handleMessage(rMsg);
+      ret = MpAudioResource::handleMessage(rMsg);
       break;
    }
    return ret;
+}
+
+// Handle new style messages for this resource.
+UtlBoolean MprDecode::handleMessage(MpResourceMsg& rMsg)
+{
+   UtlBoolean msgHandled = FALSE;
+
+   switch (rMsg.getMsg()) 
+   {
+   case MPRM_SET_PLC:
+      msgHandled = handleSetPlc(((MpStringResourceMsg*)&rMsg)->getData());
+      break;
+
+   default:
+      // If we don't handle the message here, let our parent try.
+      msgHandled = MpResource::handleMessage(rMsg); 
+      break;
+   }
+   return msgHandled;
 }
 
 UtlBoolean MprDecode::handleSelectCodecs(SdpCodec* pCodecs[], int numCodecs)
@@ -397,13 +496,13 @@ UtlBoolean MprDecode::handleSelectCodecs(SdpCodec* pCodecs[], int numCodecs)
    int i;
    SdpCodec* pCodec;
    int payload;
-   SdpCodec::SdpCodecTypes ourCodec;
-   SdpCodec::SdpCodecTypes oldSdpType = SdpCodec::SDP_CODEC_UNKNOWN;
+   UtlString mime;
+   UtlString fmtp;
    OsStatus ret;
    MpDecoderBase* pNewDecoder;
    MpDecoderBase* pOldDecoder;
    MpCodecFactory* pFactory = MpCodecFactory::getMpCodecFactory();
-   int allReusable = 1;
+   int allReusable = 0;
    int canReuse;
 #if 0
    osPrintf("MprDecode::handleSelectCodecs(%d codec%s):\n",
@@ -422,27 +521,27 @@ UtlBoolean MprDecode::handleSelectCodecs(SdpCodec* pCodecs[], int numCodecs)
             }
    }
 
+#if 0 // [
    // Check to see if all codecs in pCodecs can be handled by codecs
    // in mpCurrentCodecs.
    for (i=0; i<numCodecs; i++) {
       pCodec = pCodecs[i];
-      ourCodec = pCodec->getCodecType();
+      pCodec->getEncodingName(mime);
+      pCodec->getSdpFmtpField(fmtp);
       payload = pCodec->getCodecPayloadFormat();
 #if 0
       osPrintf("  #%d: New=0x%X/i:%d/x:%d, ",
          i, (int)pCodec, ourCodec, payload);
 #endif
-      pOldDecoder = mpConnection->mapPayloadType(payload);
+      pOldDecoder = mDecoderMap.mapPayloadType(payload);
       if (NULL != pOldDecoder) {
-         oldSdpType = pOldDecoder->getInfo()->getCodecType();
+         UtlString oldMime;
+         UtlString oldFmtp;
+         pOldDecoder->getInfo()->getCodecType();
 #if 0
          osPrintf("  Old=0x%X/i:%d", (int)pOldDecoder, oldSdpType);
 #endif
-         canReuse = (ourCodec == oldSdpType)
-            || ((SdpCodec::SDP_CODEC_G729AB == ourCodec)
-                            && (SdpCodec::SDP_CODEC_G729A == oldSdpType))
-            || ((SdpCodec::SDP_CODEC_G729A == ourCodec)
-                            && (SdpCodec::SDP_CODEC_G729AB == oldSdpType));
+         canReuse = (ourCodec == oldSdpType);
       } else {
          // osPrintf("  no Old");
          canReuse = 0;
@@ -454,50 +553,63 @@ UtlBoolean MprDecode::handleSelectCodecs(SdpCodec* pCodecs[], int numCodecs)
          (canReuse && (ourCodec != oldSdpType) ? "[*]" : ""));
 #endif
    }
+#endif // 0 ]
+
+   // Lock the m*Codecs members.
+   OsLock lock(mLock);
 
    // If the new list is not a subset of the old list, we have to copy
    // pCodecs into mpCurrentCodecs.
-   if (!allReusable) {
-      // Lock the m*Codecs members.
-      OsLock lock(mLock);
-
+   if (!allReusable)
+   {
       // Delete the current codecs.
-      handleDeselectCodecs();
+      handleDeselectCodecs(FALSE);
 
-      mNumCurrentCodecs = numCodecs;
+      mNumCurrentCodecs = 0;
       mpCurrentCodecs = new MpDecoderBase*[numCodecs];
 
       for (i=0; i<numCodecs; i++) {
          pCodec = pCodecs[i];
-         ourCodec = pCodec->getCodecType();
+         pCodec->getEncodingName(mime);
+         pCodec->getSdpFmtpField(fmtp);
+         int sampleRate = pCodec->getSampleRate();
+         int numChannels = pCodec->getNumChannels();
          payload = pCodec->getCodecPayloadFormat();
-         ret = pFactory->createDecoder(ourCodec, payload, pNewDecoder);
+         ret = pFactory->createDecoder(mime, fmtp, sampleRate, numChannels,
+                                       payload, pNewDecoder);
          assert(OS_SUCCESS == ret);
          assert(NULL != pNewDecoder);
-         pNewDecoder->initDecode(mpConnection);
-         // Add this codec to mpConnection's payload type decoding table.
-         mpConnection->addPayloadType(payload, pNewDecoder);
-         mpCurrentCodecs[i] = pNewDecoder;
+         if (pNewDecoder->initDecode() == OS_SUCCESS)
+         {
+            // Add this codec to mpConnection's payload type decoding table.
+            mDecoderMap.addPayloadType(payload, pNewDecoder);
+            mpCurrentCodecs[mNumCurrentCodecs] = pNewDecoder;
+            mNumCurrentCodecs++;
+         }
+         else
+         {
+            delete pNewDecoder;
+         }
       }
 
       // Go back and add any signaling codecs to Jitter Buffer.
-      for (i=0; i<numCodecs; i++) {
+      for (i=0; i<mNumCurrentCodecs; i++) {
          if (mpCurrentCodecs[i]->getInfo()->isSignalingCodec()) {
-            mpCurrentCodecs[i]->initDecode(mpConnection);
+            mpCurrentCodecs[i]->initDecode();
          }
       }
    }
 
-#ifndef HAVE_GIPS
-   JB_inst* pJBState = mpConnection->getJBinst();   
-   pJBState->SetCodecList(mpCurrentCodecs,numCodecs);
-#endif
-
-   // Delete the list pCodecs.
-   for (i=0; i<numCodecs; i++) {
-      delete pCodecs[i];
+   // If decoder buffer is not yet initialized - lets go initialize it.
+   if (!mIsJBInitialized)
+   {
+      mpJB->init(mpFlowGraph->getSamplesPerSec(),
+                 mpFlowGraph->getSamplesPerFrame());
+      mIsJBInitialized= TRUE;
    }
-   delete[] pCodecs;
+
+   mpJB->setCodecList(&mDecoderMap);
+
    return TRUE;
 }
 
@@ -507,19 +619,33 @@ UtlBoolean MprDecode::handleDeselectCodec(MpDecoderBase* pDecoder)
 
    if (NULL != pDecoder) {
       payload = pDecoder->getPayloadType();
-      mpConnection->deletePayloadType(payload);
+      mDecoderMap.deletePayloadType(payload);
    }
    return TRUE;
 }
 
-UtlBoolean MprDecode::handleDeselectCodecs()
+UtlBoolean MprDecode::handleSetPlc(const UtlString &plcName)
+{
+   // Free old PLC
+   delete mpPlc;
+
+   // Set PLC to a new one
+   mpPlc = MpPlcBase::createPlc(plcName);
+   mIsPlcInitialized = FALSE;
+
+   return TRUE;
+}
+
+UtlBoolean MprDecode::handleDeselectCodecs(UtlBoolean shouldLock)
 {
    int i;
    MpDecoderBase** pCurrentCodecs;
    MpDecoderBase** pPrevCodecs;
    int newN;
-   OsLock lock(mLock);
-
+   if(shouldLock)
+   {
+       mLock.acquire();
+   }
    if (0 < mNumCurrentCodecs) {
 
       newN = mNumCurrentCodecs + mNumPrevCodecs;
@@ -549,6 +675,16 @@ UtlBoolean MprDecode::handleDeselectCodecs()
       delete[] pCurrentCodecs;
       mpPrevCodecs = pPrevCodecs;
       mNumPrevCodecs = newN;
+   }
+
+   if (mIsJBInitialized)
+   {
+      mpJB->setCodecList(NULL);
+   }
+
+   if(shouldLock)
+   {
+       mLock.release();
    }
    return TRUE;
 }

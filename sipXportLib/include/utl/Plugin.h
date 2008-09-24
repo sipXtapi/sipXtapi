@@ -100,7 +100,7 @@ class Plugin
     * examples in PluginHooks::readConfig).
     */
 
-  protected:
+protected:
 
    /// Derived constructors should be private so that only the Factory can call them.
    Plugin(const UtlString& instanceName) :
@@ -111,7 +111,7 @@ class Plugin
    /// The instance name from the configuration directive - for logging and other identification.
    UtlString   mInstanceName;
     
-  private:
+private:
 
    /// There is no copy constructor.
    Plugin(const Plugin&);

@@ -14,6 +14,7 @@
 
 #include <stdlib.h>
 #include "os/OsDefs.h"
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include "os/wnt/WindowsAdapterInfo.h"
 #include <os/wnt/getWindowsDNSServers.h>

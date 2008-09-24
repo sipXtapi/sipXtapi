@@ -21,6 +21,7 @@
 #include <net/SmimeBody.h>
 #include <net/HttpMessage.h>
 #include <os/OsSysLog.h>
+#include <os/OsDefs.h>
 
 //#define ENABLE_OPENSSL_SMIME
 #ifdef ENABLE_OPENSSL_SMIME
@@ -1252,7 +1253,7 @@ void SmimeBody::getSubjAltName(char* szSubjAltName,
             SECOidTag oidtag = SECOID_FindOIDTag(ext_oid);
             if (oidtag == SEC_OID_X509_SUBJECT_ALT_NAME) // this is the subject alt name
             {
-                strncpy(szSubjAltName, (const char*)ext_value->data, min(ext_value->len, length));
+                strncpy(szSubjAltName, (const char*)ext_value->data, sipx_min(ext_value->len, length));
                 break;
             }
 

@@ -1,3 +1,22 @@
+// Copyright 2008 AOL LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA. 
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -8,9 +27,11 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
+#ifdef MP_STREAMING
 
 // SYSTEM INCLUDES
 #include <assert.h>
+#include <os/fstream>
 #include <stdio.h>
 
 #ifdef __pingtel_on_posix__
@@ -27,11 +48,10 @@
 #include "mp/MpAudioFileOpen.h"
 #include "mp/MpAudioWaveFileRead.h"
 #include "mp/mpau.h"
-#include "mp/MpCallFlowGraph.h"
+#include "mp/MpMisc.h"
 
 #include "mp/MpStreamFeeder.h"
 
-#include <os/fstream>
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -44,13 +64,11 @@
 /* ============================ CREATORS ================================== */
 
 // Constructor
-MprFromStream::MprFromStream(const UtlString& rName,
-                             int samplesPerFrame, 
-                             int samplesPerSec)
-   : MpResource(rName, 0, 1, 1, 1, samplesPerFrame, samplesPerSec)   
-   , mpStreamRenderer(NULL)
-   , mEventState(FeederStreamStoppedEvent)
-   , miStreamCount(1)
+MprFromStream::MprFromStream(const UtlString& rName)
+: MpAudioResource(rName, 0, 1, 1, 1)
+, mpStreamRenderer(NULL)
+, mEventState(FeederStreamStoppedEvent)
+, miStreamCount(1)
 {
 }
 
@@ -317,41 +335,41 @@ MpStreamFeeder* MprFromStream::getStreamSource()
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 UtlBoolean MprFromStream::doProcessFrame(MpBufPtr inBufs[],
-                                        MpBufPtr outBufs[],
-                                        int inBufsSize,
-                                        int outBufsSize,
-                                        UtlBoolean isEnabled,
-                                        int samplesPerFrame,
-                                        int samplesPerSecond)
+                                         MpBufPtr outBufs[],
+                                         int inBufsSize,
+                                         int outBufsSize,
+                                         UtlBoolean isEnabled,
+                                         int samplesPerFrame,
+                                         int samplesPerSecond)
 {
    UtlBoolean bSentData = FALSE ;
-   MpBufPtr out = NULL;
-   Sample *outbuf;
+   MpAudioBufPtr out;
+   MpAudioSample *outbuf;
    int count;
 
    // Check params for sanity
-   if (0 == outBufsSize) return FALSE;
-   *outBufs = NULL;
-   if (0 == samplesPerFrame) return FALSE;
+   if (outBufsSize == 0)
+       return FALSE;
+
+   if (samplesPerFrame == 0)
+       return FALSE;
 
    if (isEnabled) 
    {
-      // Get ready to give data
-      out = MpBuf_getBuf(MpMisc.UcbPool, samplesPerFrame, 0, MP_FMT_T12);
-      assert(NULL != out);
+      // Get new buffer
+      out = MpMisc.RawAudioPool->getBuffer();
+      if (!out.isValid())
+          return FALSE;
+      out->setSamplesNumber(samplesPerFrame);
+      count = out->getSamplesNumber();
 
-      count = MpBuf_getByteLen(out) / sizeof(Sample);
-      count = min(samplesPerFrame, count);
-      MpBuf_setNumSamples(out, count);
-      
-      
       if (mpStreamRenderer)
       {
          mbStreamChange = FALSE ;
          if (!mpStreamRenderer->isMarkedPaused())
          {
-            MpBuf_setSpeech(out, MP_SPEECH_TONE);
-            outbuf = MpBuf_getSamples(out);
+            out->setSpeechType(MpAudioBuf::MP_SPEECH_TONE);
+            outbuf = out->getSamplesWritePtr();
 
             if (mpStreamRenderer->getFrame((unsigned short*) outbuf) == OS_SUCCESS)
             {
@@ -398,19 +416,19 @@ UtlBoolean MprFromStream::doProcessFrame(MpBufPtr inBufs[],
 
       if (!bSentData) 
       {
-         outbuf = MpBuf_getSamples(out);
-         memset(outbuf, 0, MpBuf_getByteLen(out));
-         MpBuf_setSpeech(out, MP_SPEECH_SILENT);      
+         outbuf = out->getSamplesWritePtr();
+         memset(outbuf, 0, out->getSamplesNumber()*sizeof(MpAudioSample));
+         out->setSpeechType(MpAudioBuf::MP_SPEECH_SILENT);      
       }
    }      
-         
-   if (NULL == out) 
+   else
    {
-      out = *inBufs;
-      *inBufs = NULL;
+      // Resource is disabled. Passthrough input data
+      out.swap(inBufs[0]);
    }
-   
-   *outBufs = out;
+
+   // Push audio data downstream
+   outBufs[0] = out;
 
    return (TRUE);
 }
@@ -592,7 +610,7 @@ UtlBoolean MprFromStream::handleMessage(MpFlowGraphMsg& rMsg)
          bHandled = handleDestroy((MpStreamFeeder*) rMsg.getPtr1()) ;
          break ;
       default:
-         bHandled = MpResource::handleMessage(rMsg);
+         bHandled = MpAudioResource::handleMessage(rMsg);
          break;
    }
    return bHandled ;
@@ -684,3 +702,4 @@ osPrintf("MpStreamFeeder destroy feeders\n") ;
 
 /* ============================ FUNCTIONS ================================= */
 
+#endif

@@ -32,8 +32,8 @@
 #define ERROR (-1)
 #endif
 
-#ifdef WINCE
-#   include <winsock.h>
+#ifdef WIN32
+#   include <winsock2.h>
 #endif
 
 #include "rtcp/ReceiverReport.h"

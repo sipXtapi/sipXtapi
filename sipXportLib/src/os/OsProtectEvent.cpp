@@ -23,13 +23,13 @@
 
 /* ============================ CREATORS ================================== */
 
-OsProtectedEvent::OsProtectedEvent(const int userData)
-: OsEvent(userData),
-  mRefSem(OsBSem::Q_PRIORITY, OsBSem::FULL)
+OsProtectedEvent::OsProtectedEvent(const intptr_t userData)
+: OsEvent(userData)
+, mRefSem(OsBSem::Q_PRIORITY, OsBSem::FULL)
+, mIntData(0)
+, mIntData2(0)
+, mRef(0)
 {
-        mIntData = 0;
-        mIntData2 = 0;
-        mRef = 0;
 }
 
 OsProtectedEvent::~OsProtectedEvent()
@@ -40,10 +40,10 @@ OsProtectedEvent::~OsProtectedEvent()
 
 /* ============================ MANIPULATORS ============================== */
 
-OsStatus OsProtectedEvent::signal(const int eventData)
+OsStatus OsProtectedEvent::signal(const intptr_t eventData)
 {
    assert(mRef > 0);
-        return OsEvent::signal(eventData);
+   return OsEvent::signal(eventData);
 }
 
 // Reset the event so that it may be signaled again.
@@ -51,82 +51,82 @@ OsStatus OsProtectedEvent::signal(const int eventData)
 // already been cleared), otherwise return OS_SUCCESS.
 OsStatus OsProtectedEvent::reset(void)
 {
-  OsStatus res;
-  res = OsEvent::reset();
-  mStringData = OsUtil::NULL_OS_STRING;
-        mIntData = 0;
-        mIntData2 = 0;
-        return res;
+   OsStatus res;
+   res = OsEvent::reset();
+   mStringData = OsUtil::NULL_OS_STRING;
+   mIntData = 0;
+   mIntData2 = 0;
+   return res;
 }
 
 // Wait for the event to be signaled.
 // Return OS_BUSY if the timeout expired, otherwise return OS_SUCCESS.
 OsStatus OsProtectedEvent::wait(int msgId, const OsTime& rTimeout)
 {
-        OsStatus res;
+   OsStatus res;
 
-        mIntData2 = msgId;
-        res = OsEvent::wait(rTimeout);
+   mIntData2 = msgId;
+   res = OsEvent::wait(rTimeout);
    assert(mRef > 0);
-        return res;
+   return res;
 }
 
 void OsProtectedEvent::setStringData(UtlString& rStringData)
 {
-        mStringData = OsUtil::NULL_OS_STRING;
-        if (!rStringData.isNull())
-        {
-                mStringData = rStringData;
-        }
+   mStringData = OsUtil::NULL_OS_STRING;
+   if (!rStringData.isNull())
+   {
+      mStringData = rStringData;
+   }
 }
 
 void OsProtectedEvent::setIntData(int data)
 {
-        mIntData = data;
+   mIntData = data;
 }
 
 void OsProtectedEvent::setIntData2(int data)
 {
-        mIntData2 = data;
+   mIntData2 = data;
 }
 
 void OsProtectedEvent::setInUse(UtlBoolean inUse)
 {
-        mRefSem.acquire();
-        mRef = inUse;
-        if (!inUse)
-                reset();
-        mRefSem.release();
+   mRefSem.acquire();
+   mRef = inUse;
+   if (!inUse)
+      reset();
+   mRefSem.release();
 }
 
 /* ============================ ACCESSORS ================================= */
 
 OsStatus OsProtectedEvent::getStringData(UtlString& data)
 {
-        if (!mStringData.isNull())
-        {
-                data.remove(0);
-                data.append(mStringData.data());
-        }
+   if (!mStringData.isNull())
+   {
+      data.remove(0);
+      data.append(mStringData.data());
+   }
 
-        return OS_SUCCESS;
+   return OS_SUCCESS;
 }
 
 OsStatus OsProtectedEvent::getIntData(int& data)
 {
-        data = mIntData;
-        return OS_SUCCESS;
+   data = mIntData;
+   return OS_SUCCESS;
 }
 
 OsStatus OsProtectedEvent::getIntData2(int& data)
 {
-        data = mIntData2;
-        return OS_SUCCESS;
+   data = mIntData2;
+   return OS_SUCCESS;
 }
 
 /* ============================ INQUIRY =================================== */
 
 UtlBoolean OsProtectedEvent::isInUse()
 {
-        return (mRef > 0);
+   return (mRef > 0);
 }

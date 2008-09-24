@@ -28,7 +28,13 @@ class UtlLinkTest :
    public UtlLink
 {
    CPPUNIT_TEST_SUITE(UtlLinkTest);
-   CPPUNIT_TEST(testEmptyPool); // must be first
+   /* CPPUNIT_TEST(testEmptyPool); - removed because with the addition of test logging
+                                     the pool has already been used by parts of the OsSysLog
+                                     infrastructure, so it's not empty.
+                                     If you really really want to run this test with this
+                                     enabled, see sipXportLib/src/test/sipxunit/TestRunner.cpp
+                                     and comment out the call to install the TestOsSysLogListener.
+   */
    CPPUNIT_TEST(testLinkBefore);
    CPPUNIT_TEST(testListBefore);
    CPPUNIT_TEST(testLinkAfter);
@@ -371,7 +377,7 @@ public:
             // 
             // cannot assume starting pool size to be zero.
             //
-            for (unsigned i = startingPoolSize; i < peakPoolSize; i++) 
+            for (size_t i = startingPoolSize; i < (peakPoolSize - startingPoolSize); i++) 
             {
                UtlLink::after(&start, &data1);
             }

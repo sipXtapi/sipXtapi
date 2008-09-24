@@ -164,27 +164,6 @@ sipXtapi[d].dll into the sipXezPhone build target directory.
 Troubleshooting: Build Problems
 -------------------------------
 
-error C2955: 'allocator' : use of class template requires template ...
-----------------------------------------------------------------------
-There seems to be a naming conflict between GLIB and and MSVC 6 (may also
-exist for 7.x).  If you run into this problem, please change the 4 GLIB
-references of "allocator" to something different.
-
-For example, change
-
-  "void g_node_push_allocator(GAllocator *allocator);"
-
-to
-
-  "void g_node_push_allocator(GAllocator *allocatorX);"
-
-If using GLIB 2.4.7, you will need to modify these references:
-...\glib\include\glib-2.0\glib\gmem.h - line 164
-...\glib\include\glib-2.0\glib\glist.h - line 45
-...\glib\include\glib-2.0\glib\gslist.h - line 44
-...\glib\include\glib-2.0\glib\gnode.h - line 77
-
-
 RTTI must be enabled
 --------------------
 Many of the projects are starting to use the dynamic_cast<>()  mechanism to

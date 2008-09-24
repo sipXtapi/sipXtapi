@@ -13,6 +13,7 @@
 
 // APPLICATION INCLUDES
 #include "os/OsEvent.h"
+#include "os/OsLock.h"
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -34,10 +35,11 @@
 /* ============================ CREATORS ================================== */
 
 // Constructor
-OsEvent::OsEvent(const int userData)
+OsEvent::OsEvent(const intptr_t userData)
 :  mEventData(-1),
    mIsSignaled(FALSE),
    mSignalSem(OsBSem::Q_PRIORITY, OsBSem::EMPTY),
+   mMutex(OsMutex::Q_FIFO),
    mUserData(userData)
 {
    // all work is done by the initializers, no other work required
@@ -46,7 +48,9 @@ OsEvent::OsEvent(const int userData)
 // Destructor
 OsEvent::~OsEvent()
 {
-   // no work required
+   // Take lock here to prevent destroying member variables while signal() is
+   // still running.
+   OsLock lock(mMutex);
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -54,9 +58,10 @@ OsEvent::~OsEvent()
 // Set the event data and signal the occurrence of the event.
 // Return OS_ALREADY_SIGNALED if the event has already been signaled
 // (and has not yet been cleared), otherwise return OS_SUCCESS.
-OsStatus OsEvent::signal(const int eventData)
+OsStatus OsEvent::signal(const intptr_t eventData)
 {
    OsStatus res;
+   OsLock lock(mMutex);
 
    if (mIsSignaled)
    {
@@ -81,6 +86,7 @@ OsStatus OsEvent::signal(const int eventData)
 OsStatus OsEvent::reset(void)
 {
    OsStatus res;
+   OsLock lock(mMutex);
 
    if (mIsSignaled)
    {                                 // if the event has been signaled
@@ -106,7 +112,7 @@ OsStatus OsEvent::wait(const OsTime& rTimeout)
    return mSignalSem.acquire(rTimeout);
 }
 
-OsStatus OsEvent::setUserData(int userData)
+OsStatus OsEvent::setUserData(intptr_t userData)
 {
    mUserData = userData;
    return OS_SUCCESS;
@@ -117,8 +123,10 @@ OsStatus OsEvent::setUserData(int userData)
 // Return the event data that was signaled by the notifier task.
 // Return OS_NOT_SIGNALED if the event has not been signaled (or has
 // already been cleared), otherwise return OS_SUCCESS.
-OsStatus OsEvent::getEventData(int& rEventData)
+OsStatus OsEvent::getEventData(intptr_t& rEventData)
 {
+   OsLock lock(mMutex);
+
    if (mIsSignaled)
    {
       rEventData = mEventData;
@@ -132,7 +140,7 @@ OsStatus OsEvent::getEventData(int& rEventData)
 
 // Return the user data specified when this object was constructed.
 // Always returns OS_SUCCESS.
-OsStatus OsEvent::getUserData(int& rUserData) const
+OsStatus OsEvent::getUserData(intptr_t& rUserData) const
 {
    rUserData = mUserData;
    return OS_SUCCESS;

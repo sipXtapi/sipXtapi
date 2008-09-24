@@ -1,3 +1,19 @@
+// Copyright 2008 AOL LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA. 
 //
 // Copyright (C) 2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -27,33 +43,84 @@ UtlContainableType OsContact::TYPE = "OsContact" ;
 /* ============================ CREATORS ================================== */
 
 // Constructor.
-OsContact::OsContact(UtlString address,
-                       int port,
-                       OsSocket::IpProtocolSocketType protocol,
-                       IpAddressType type)
+OsContact::OsContact(const char* szAddress,
+                     int port,
+                     OsSocket::IpProtocolSocketType protocol,
+                     IpAddressType type)
 {
-    mAddress = address;
+    mAddress = szAddress;
     mPort = port;
     mProtocol = protocol;
     mType = type;
 } 
 
 
+OsContact::OsContact()
+{
+    mPort = PORT_NONE ;
+    mProtocol = OsSocket::UDP ;
+    mType = IP4 ;
+}
+
+
 // Copy constructor
 OsContact::OsContact(const OsContact& ref)
 {
-    this->mAddress = ref.mAddress;
-    this->mPort = ref.mPort;
-    this->mProtocol = ref.mProtocol;
-    this->mType = ref.mType;
+    if (this != &ref)
+    {
+        mAddress = ref.mAddress;
+        mPort = ref.mPort;
+        mProtocol = ref.mProtocol;
+        mType = ref.mType;
+    }
 }
+
+
+// Equals operator
+OsContact& OsContact::operator=(const OsContact& rhs) 
+{
+    if (this != &rhs)
+    {
+        mAddress = rhs.mAddress;
+        mPort = rhs.mPort;
+        mProtocol = rhs.mProtocol;
+        mType = rhs.mType;
+    }
+
+    return *this ;
+}
+
 
 // Destructor
 OsContact::~OsContact()
 {
 }
 
+
 /* ============================ MANIPULATORS ============================== */
+
+void OsContact::setAddress(const char* szAddress) 
+{
+    mAddress = szAddress ;
+}
+
+
+void OsContact::setPort(int port) 
+{
+    mPort = port ;
+}
+
+
+void OsContact::setProtocol(OsSocket::IpProtocolSocketType protocolType) 
+{
+    mProtocol = protocolType ;
+}
+
+
+void OsContact::setAddressType(IpAddressType addressType) 
+{
+    mType = addressType ;
+}
 
 /* ============================ ACCESSORS ================================= */
 
@@ -124,6 +191,14 @@ UtlBoolean OsContact::isEqual(UtlContainable const * inVal) const
 const void OsContact::getAddress(UtlString& address) const
 {
     address = mAddress;
+}
+
+const char* OsContact::getAddress() const
+{
+    if (mAddress.length() == 0)
+        return NULL ;
+    else
+        return mAddress.data() ;
 }
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */

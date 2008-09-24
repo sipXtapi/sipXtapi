@@ -1,175 +1,407 @@
-//
-// Copyright (C) 2004-2006 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
-// Licensed to SIPfoundry under a Contributor Agreement.
-//
-// $$
-///////////////////////////////////////////////////////////////////////////////
+//  
+// Copyright (C) 2006 SIPfoundry Inc. 
+// Licensed by SIPfoundry under the LGPL license. 
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
+//  
+// $$ 
+////////////////////////////////////////////////////////////////////////////// 
 
-
-#ifndef _INCLUDED_MPBUF_H /* [ */
+#ifndef _INCLUDED_MPBUF_H // [
 #define _INCLUDED_MPBUF_H
 
-#define BUFFER_INSTRUMENTATION
-#undef  BUFFER_INSTRUMENTATION
-
-#ifdef BUFFER_INSTRUMENTATION /* [ */
-#ifdef _VXWORKS /* [ */
-#include <taskLib.h>
-#include <msgQLib.h>
-#endif /* _VXWORKS ] */
-#endif /* BUFFER_INSTRUMENTATION ] */
-
-#include "mp/MpTypes.h"
-#include "mp/MpMisc.h"
-
-/* Access Methods */
-
-#define MpBuf_getStorage(b) ((b)->pStorage)
-#define MpBuf_getSamples(b) ((b)->pSamples)
-#define MpBuf_getByteLen(b) ((b)->byteLen)
-#define MpBuf_getNumSamples(b) ((b)->numSamples)
-#define MpBuf_getContentLen(b) ((b)->contentLen)
-#define MpBuf_getFormat(b) ((b)->format)
-#define MpBuf_setFormat(b, f) ((b)->format = (f))
-#define MpBuf_getPool(b) ((b)->pPool)
-#define MpBuf_getOffset(b) ((b)->offset)
-
-#define MpBuf_getOsTC(b) ((b)->ostc)
-#define MpBuf_setOsTC(b, v) ((b)->ostc = (v))
-
-#define MpBuf_getAtten(b) ((b)->attenDb)
-#define MpBuf_setAtten(b, v) ((b)->attenDb = (v))
-
-#define MpBuf_getSpeech(b) ((b)->speech)
-#define MpBuf_setSpeech(b, v) ((b)->speech = (v))
-
-enum MpBufFormat {
-        MP_FMT_UNKNOWN,        /* as yet unspecified */
-        MP_FMT_T12,            /* Raw UCB1200 data, high 12 bits of 16 */
-        MP_FMT_RTPPKT,         /* Raw RTP packet */
-        MP_FMT_RTCPPKT,        /* Raw RTCP packet */
-        MP_FMT_G711M,          /* G711 mu, mu-law */
-        MP_FMT_G711A,          /* G711 A, A-law */
-        MP_FMT_L16,            /* Linear 16, in "network byte order" */
-        MP_FMT_G729           /* ITU-G729A standard */
-};
-typedef enum MpBufFormat MpBufFormat;
-
-enum MpBufSpeech {
-        MP_SPEECH_UNKNOWN,        /* as yet undetermined */
-        MP_SPEECH_SILENT,         /* found to contain no speech */
-        MP_SPEECH_COMFORT_NOISE,  /* to be replaced by comfort noise */
-        MP_SPEECH_ACTIVE,         /* found to contain speech */
-        MP_SPEECH_MUTED,          /* may contain speech, but must be muted */
-        MP_SPEECH_TONE           /* our tonegen filled with active (not silent) tone data */
-};
-typedef enum MpBufSpeech MpBufSpeech;
-
-/* Buffer management: */
-
-struct __MpBuf_tag {
-        int     byteLen;    /* length in bytes; fixed when created */
-        int     numSamples; /* actual current use, unit depends on format */
-        int     contentLen; /* only for RTP packet, total length of packet */
-        char   *pStorage;   /* pointer to beginning of storage; fixed */
-        Sample *pSamples;   /* pointer to beginning of data */
-        int     offset;     /* offset to first sample, eg. sizeof(RTPheader) */
-        short   status;     /* currently, 0 => free */
-        short   attenDb;    /* attenuation applied at speakerphone speaker */
-        MpBufSpeech speech; /* if we know, whether buffer contains speech */
-        MpBufPoolPtr pPool; /* the pool that this buffer belongs to */
-        int     refCnt;     /* use count */
-        MpBufFormat format; /* the type of the current content */
-        int     ostc;       /* OS Timer/Counter (3.6864 MHz) value */
-#ifdef BUFFER_INSTRUMENTATION /* [ */
-/*
- * These are used to track the usage of each buffer.  Each of the
- * following pairs has a source line number and a time stamp (which
- * is a sequence number incremented in each buffer operation).
+/**
+ *  @todo cache align - align pool beginning, buffer sizes (must be multiple of
+ *        the cache size) and data beginning in MpArrayBuf.
+ *  @todo error handling - return OsStatus may be?
  */
-        int line_taken; /* who took it last, and when */
-        int time_taken;
-        int line_freed; /* who freed it last, and when */
-        int time_freed;
-        int touched_by; /* who touched it last, and when */
-        int touched_at; /* set by "voluntary" calls to bufTouch() */
-#endif /* BUFFER_INSTRUMENTATION ] */
+
+// SYSTEM INCLUDES
+#include <stdlib.h>
+#include <assert.h>
+
+// APPLICATION INCLUDES
+#include "mp/MpBufPool.h"
+
+// DEFINES
+// MACROS
+// Uncomment MPBUF_DEBUG define to enable deep MpBuf debug with alot of messages
+// and more asserts.
+//#define MPBUF_DEBUG
+
+// EXTERNAL FUNCTIONS
+// EXTERNAL VARIABLES
+// CONSTANTS
+// STRUCTS
+
+/// Enum used for runtime type checks.
+/**
+*  This enum is used to determine the real type of the buffer. Also this helps
+*  us to decide is it possible to convert from one buffer to other.
+*  E.g. MpAudioBuf could be converted to MpDataBuf, but could not be converted
+*  to MpArrayBuf. This check is done inside MpBufPtr's child classes.
+*/
+typedef enum {
+    MP_BUF,               ///< Begin of the MpBuf type
+      MP_BUF_ARRAY,       ///< Begin of the MpArrayBuf type
+      MP_BUF_ARRAY_END,   ///< End of the MpArrayBuf type
+      MP_BUF_DATA,        ///< Begin of the MpDataBuf type
+        MP_BUF_AUDIO,     ///< Begin of the MpAudioBuf type
+        MP_BUF_AUDIO_END, ///< End of the MpAudioBuf type
+        MP_BUF_VIDEO,     ///< Begin of the MpVideoBuf type
+        MP_BUF_VIDEO_END, ///< End of the MpVideoBuf type
+        MP_BUF_RTP,       ///< Begin of the MpRtpBuf type
+        MP_BUF_RTP_END,   ///< End of the MpRtpBuf type
+        MP_BUF_UDP,       ///< Begin of the MpUdpBuf type
+        MP_BUF_UDP_END,   ///< End of the MpUdpBuf type
+      MP_BUF_DATA_END,    ///< End of the MpDataBuf type
+    MP_BUF_END            ///< End of the MpBuf type
+} MP_BUFFERS_TREE;
+
+// TYPEDEFS
+
+///  Base class for all media buffers.
+/**
+*  This class designed to be used with memory pool MpBufPool and smart pointer
+*  MpBufPoolPtr. It seems to be useless without them.
+*  
+*  This struct itself does not provide any data storage. It contain only
+*  reference counter and pointer to parent pool. To store data in this pool
+*  use MpArrayBuf. To store store data in the other pool use MpDataBuf or
+*  one of its children.
+*/
+struct MpBuf {
+    friend class MpBufPtr;
+    friend class MpBufPool;
+
+/* //////////////////////////// PUBLIC //////////////////////////////////// */
+public:
+/* ============================ CREATORS ================================== */
+///@name Creators
+//@{
+
+
+//@}
+
+/* ============================ MANIPULATORS ============================== */
+///@name Manipulators
+//@{
+
+    /// Increments reference counter.
+    void attach();
+
+    /// Decrements reference counter and free buffer if needed.
+    void detach();
+
+//@}
+
+/* ============================ ACCESSORS ================================= */
+///@name Accessors
+//@{
+
+    /// Get buffer type.
+    MP_BUFFERS_TREE getType() const {return mType;};
+
+    /// Get parent pool of this buffer.
+    MpBufPool *getBufferPool() const {return mpPool;};
+
+//@}
+
+/* ============================ INQUIRY =================================== */
+///@name Inquiry
+//@{
+
+//@}
+
+/* //////////////////////////// PROTECTED ///////////////////////////////// */
+protected:
+
+    MP_BUFFERS_TREE mType;     ///< Buffer class type. Used for type safety.
+    int mRefCounter;           ///< Reference counter for use with MpBufPtr.
+    MpBufPool* mpPool;         ///< Parent memory pool.
+    void (*mpDestroy)(MpBuf*); ///< Pointer to deinitialization method. Used as
+                               ///<  virtual destructor.
+    void (*mpInitClone)(MpBuf*); ///< Pointer to function that initialize buffer
+                                 ///<  after cloning. 
+
+    /// @brief Function that initialize buffer after cloning. It adjusts
+    /// reference counters.
+    static void sInitClone(MpBuf *pBuffer);
+
+/* //////////////////////////// PRIVATE /////////////////////////////////// */
+private:
+
+    /// Disable copy (and other) constructor.
+    MpBuf(const MpBuf &);
+    /**<
+    * This struct will be initialized by init() member.
+    */
+
+    /// Disable assignment operator.
+    MpBuf &operator=(const MpBuf &);
+    /**<
+    * Buffers may be copied. But do we need this?
+    */
 };
 
-extern OsStatus MpBuf_init(int samplesPerFrame, int numUcbBufs);
-extern void MpBuf_close(void);
+///  Smart pointer to MpBuf.
+/**
+*  You should only use this smart pointer, not #MpBuf* itself.
+*  The goal of this smart pointer is to care about reference counter and
+*  buffer deallocation.
+*/
+class MpBufPtr {
+    friend class MpBufPool;
 
-extern OsStatus MpBuf_setOffset(MpBufPtr b, int offset);
-extern OsStatus MpBuf_setSamples(MpBufPtr b, Sample *first);
-extern OsStatus MpBuf_setNumSamples(MpBufPtr b, int num);
-extern OsStatus MpBuf_setContentLen(MpBufPtr b, int num);
+/* //////////////////////////// PUBLIC //////////////////////////////////// */
+public:
 
-extern int MpBufPool_getNumBufs(MpBufPoolPtr p);
-extern int MpBuf_bufNum(MpBufPtr pBuf);
+/* ============================ CREATORS ================================== */
+///@name Creators
+//@{
 
-extern MpBufPoolPtr MpBufPool_MpBufPool(
-   int poolSize,       // number of bytes to malloc (including headers?)
-   int max_buffer_len, // bytes per buffer
-   int numBuffers,     // used if poolSize is 0
-   int cacheAlignment  // 0=>not aligned, otherwise power of 2 boundary
-);
+    /// Default constructor - construct invalid pointer.
+    MpBufPtr()
+        : mpBuffer(NULL)
+    {};
 
-extern STATUS MpBufPool_delete(MpBufPoolPtr pool, int force);
+    /// This constructor owns MpBuf object.
+    /**
+    *  @note THIS CONSTRUCTOR ARE ONLY USABLE BY POOLS
+    */
+    MpBufPtr(MpBuf *buffer)
+        : mpBuffer(buffer)
+    {
+        if (mpBuffer != NULL) {
+            mpBuffer->mType = MP_BUF;
+            mpBuffer->mpDestroy = NULL;
+            mpBuffer->mpInitClone = MpBuf::sInitClone;
+            mpBuffer->attach();
+        }
+#ifdef _DEBUG
+        else {
+            osPrintf("mpBuffer == NULL!\n");
+        }
+#endif
+    };
 
-extern void MpBuf_insertSawTooth(MpBufPtr buf);
+    /// Destructor. It decrements buffer's reference counter.
+    ~MpBufPtr()
+    {
+        if (mpBuffer != NULL)
+            mpBuffer->detach();
+    };
 
-extern MpBufPtr MpBuf_allowMods(MpBufPtr buf);
+    /// Copy buffer pointer and increment its reference counter.
+    MpBufPtr(const MpBufPtr &buffer) 
+        : mpBuffer(buffer.mpBuffer)
+    {
+        if (mpBuffer != NULL)
+            mpBuffer->attach();
+    }
 
-extern MpBufPtr MpBuf_getFgSilence(void);
-extern MpBufPtr MpBuf_getDmaSilence(void);
+    MpBufPtr clone() const
+    {
+       MpBufPtr clone;
 
-extern long MpBuf_setMVE(long newMin);
+       // Return invalid pointer as a copy of invalid pointer.
+       if (!isValid())
+          return clone;
 
-extern unsigned long MpBuf_getVAD(MpBufPtr buf);
-extern MpBufSpeech MpBuf_doVAD(MpBufPtr buf);
-extern UtlBoolean MpBuf_isActiveAudio(MpBufPtr buf);
-extern UtlBoolean MpBuf_isSilence(MpBufPtr buf);
-extern UtlBoolean MpBuf_isPoolSilent(MpBufPtr buf);
+       // Get fresh buffer
+       clone.mpBuffer = mpBuffer->getBufferPool()->getBuffer();
+       if (!clone.isValid())
+          return clone;
 
-extern int MpBuf_getTotalBufferCount(void);
+       // Copy raw buffer's content to new location
+       memcpy(clone.mpBuffer, mpBuffer, mpBuffer->getBufferPool()->getBlockSize());
 
-#ifdef BUFFER_INSTRUMENTATION /* [ */
+       // Init clone
+       clone->mpInitClone(clone.mpBuffer);
 
-/* prototypes for instrumented versions of routines: */
+       return clone;
+    }
 
-#define MpBuf_getBuf(Pool, Samples, Offset, Format) \
-                 (MpBuf_getBufX(Pool, Samples, Offset, Format, __LINE__))
+//@}
 
-#define MpBuf_touch(b) (MpBuf_touchX((b), __LINE__))
-#define MpBuf_delRef(b) (MpBuf_delRefX((b), __LINE__))
-#define MpBuf_addRef(b) (MpBuf_addRefX((b), __LINE__))
+/* ============================ MANIPULATORS ============================== */
+///@name Manipulators
+//@{
 
-extern MpBufPtr MpBuf_getBufX(MpBufPoolPtr pool,
-        int InitSamples, int Offset, MpBufFormat Format, int line_no);
-extern void MpBuf_touchX(MpBufPtr b, int line_no);
-extern void MpBuf_delRefX(MpBufPtr buf, int line);
-extern void MpBuf_addRefX(MpBufPtr buf, int line);
+    /// Smart assignment.
+    /**
+    * Decrement reference counter of our old buffer and increment in new one.
+    */
+    MpBufPtr &operator=(const MpBufPtr &bufferPtr)
+    {
+        // Check for a=a case;
+        if (&bufferPtr == this) {
+            return *this;
+        }
 
-#else /* BUFFER_INSTRUMENTATION ] [ */
+        if (mpBuffer != NULL)
+            mpBuffer->detach();
+        mpBuffer = bufferPtr.mpBuffer;
+        if (mpBuffer != NULL)
+            mpBuffer->attach();
 
-/* prototypes for production versions of routines: */
+        return *this;
+    }
 
-#define MpBuf_touch(b)
-#define MpBuf_getBuf(Pool, Samples, Offset, Format) \
-                        (MpBuf_getBufY(Pool, Samples, Offset, Format))
+    /// Compare two smart pointers
+    /**
+    *  Two pointers assumed equal if they point to the same buffer.
+    */
+    bool operator==(const MpBufPtr &pBuffer)
+    {
+        return (mpBuffer == pBuffer.mpBuffer);
+    }
 
-extern MpBufPtr MpBuf_getBufY(MpBufPoolPtr pool,
-                        int InitSamples, int Offset, MpBufFormat Format);
-extern void MpBuf_delRef(MpBufPtr buf);
-extern void MpBuf_addRef(MpBufPtr buf);
+    /// Compare two smart pointers
+    /**
+    *  Two pointers assumed equal if they point to the same buffer.
+    */
+    bool operator!=(const MpBufPtr &pBuffer)
+    {
+        return (mpBuffer != pBuffer.mpBuffer);
+    }
 
-extern MpBufSpeech MpBuf_checkSpeech(MpBufPtr buf);
+    /// Release buffer we are pointing to.
+    /**
+    *  If no one else is pointing to this buffer it will be freed.
+    */
+    void release()
+    {
+        if (mpBuffer != NULL)
+            mpBuffer->detach();
+        mpBuffer = NULL;
+    }
 
-#endif /* BUFFER_INSTRUMENTATION ] */
+    /// Swap to buffers.
+    /**
+    *  This pointer will point to buffer pointed by pBuffer, and pBuffer will
+    *  point to buffer, pointed by this pointer. Swap does not modify reference
+    *  counters of buffers.
+    */
+    void swap(MpBufPtr &pBuffer)
+    {
+        MpBuf *temp = pBuffer.mpBuffer;
+        pBuffer.mpBuffer = mpBuffer;
+        mpBuffer = temp;
+    }
 
-/*************************************************************************/
+    /// Check if buffer is writable and create copy if no.
+    /**
+    *  @returns <b>true</b> - on success.
+    *  @returns <b>false</b> - if buffer cannot be made writable. E.g. if buffer
+    *                          contain NULL pointer.
+    */
+    bool requestWrite()
+    {
+       // We already writable?
+       if (isWritable())
+          return true;
 
-#endif /* _INCLUDED_MPBUF_H ] */
+       // Cannot make buffer writable...
+       if (mpBuffer == NULL)
+          return false;
+
+       // Create the clone and own it.
+       MpBufPtr pBuf = clone();
+       swap(pBuf);
+
+       return true;
+    }
+
+//@}
+
+/* ============================ ACCESSORS ================================= */
+///@name Accessors
+//@{
+
+    /// Return number of the buffer in the pool. Use this for debug output.
+    int getBufferNumber() const
+    {
+        if (mpBuffer == NULL)
+            return -1;
+        else
+            return mpBuffer->mpPool->getBufferNumber(mpBuffer);
+    };
+
+    /// Return pointer to MpBuf.
+    MpBuf *operator->() {assert(mpBuffer!=NULL); return mpBuffer;};
+
+    /// Return readonly pointer to MpBuf.
+    const MpBuf *operator->() const {assert(mpBuffer!=NULL); return mpBuffer;};
+
+//@}
+
+/* ============================ INQUIRY =================================== */
+///@name Inquiry
+//@{
+
+    /// @brief Can this pointer be dereferenced? Use this function instead of
+    /// NULL comparison.
+    bool isValid() const {return mpBuffer != NULL;};
+
+    /// You should write to the buffer if and only if this function return true.
+    /**
+    * isWritable() check are you the only owner of this buffer.
+    */
+    bool isWritable() {return (mpBuffer != NULL) && (mpBuffer->mRefCounter == 1);};
+
+//@}
+
+/* //////////////////////////// PROTECTED ///////////////////////////////// */
+protected:
+
+    MpBuf *mpBuffer;  ///< Pointer to real buffer.
+
+/* //////////////////////////// PRIVATE /////////////////////////////////// */
+private:
+
+};
+
+/// Default constructor - construct invalid pointer.
+#define MPBUF_DEFAULT_CONSTRUCTOR(classname)                                \
+    classname##Ptr() {};
+
+#define MPBUF_FROM_BASE_CONSTRUCTOR_INIT(classname, buffer_type)            \
+            classname *pBuffer = (classname*)mpBuffer;                      \
+            assert(pBuffer->mpPool->getBlockSize() >= sizeof(classname));   \
+            pBuffer->mType = buffer_type;                                   \
+            pBuffer->init();                                                \
+
+/// This constructor owns MpBuf object.
+#define MPBUF_FROM_BASE_CONSTRUCTOR(classname, buffer_type, base_classname) \
+    classname##Ptr(MpBuf *buffer)                                           \
+        : base_classname##Ptr(buffer)                                       \
+    {                                                                       \
+        if (mpBuffer != NULL) {                                             \
+            MPBUF_FROM_BASE_CONSTRUCTOR_INIT(classname, buffer_type)        \
+        }                                                                   \
+    };
+
+/// Copy object from base type with type check.
+#define MPBUF_TYPECHECKED_COPY(classname, buffer_type, base_classname)      \
+    classname##Ptr(const MpBufPtr &buffer)                                  \
+        : base_classname##Ptr(buffer)                                       \
+    {                                                                       \
+        assert( (!buffer.isValid())                                         \
+              || (  buffer->getType() >= buffer_type                        \
+                 && buffer->getType() < buffer_type##_END));                \
+    };
+
+/// Return pointer to buffer.
+#define MPBUF_MEMBER_ACCESS_OPERATOR(classname)                             \
+   classname *operator->()                                                  \
+      {assert(mpBuffer!=NULL); return (classname*)mpBuffer;};
+
+/// Return readonly pointer to buffer.
+#define MPBUF_CONST_MEMBER_ACCESS_OPERATOR(classname)                       \
+   const classname *operator->() const                                      \
+      {assert(mpBuffer!=NULL); return (classname*)mpBuffer;};
+
+#endif // _INCLUDED_MPBUF_H  ]
+

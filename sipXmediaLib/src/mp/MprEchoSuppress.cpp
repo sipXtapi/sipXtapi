@@ -1,5 +1,8 @@
+//  
+// Copyright (C) 2006-2007 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -25,24 +28,21 @@
 
 #include "mp/MprEchoSuppress.h"
 #include "mp/MprToSpkr.h"
+#include "mp/MpMisc.h"
 #include "mp/MpBufferMsg.h"
-#include "mp/DspResampling.h"
+#include "mp/MpFlowGraphBase.h"
 #include "mp/FilterBank.h"
 #include "mp/HandsetFilterBank.h"
 
 // EXTERNAL FUNCTIONS
 
-#undef  DEBUG_TC
 #define DEBUG_TC
 #undef  DEBUG_TC
-
-#define MpCodec_isBaseSpeakerOn() FALSE
 
 #ifdef DEBUG_TC /* [ */
 
 
 static int showSome = 0;
-// static int hearRawMic = 0;
 
 extern "C" int doShowMe() {
    if (showSome > 0) {
@@ -83,17 +83,6 @@ extern "C" int Hand (int Flag)
 
 
 // EXTERNAL VARIABLES
-
-#ifdef _VXWORKS /* [ */
-#ifdef FLOWGRAPH_DOES_RESAMPLING /* [ */
-   int DmaExpectsEchoSupToResample = 0;
-   extern int EchoSupResamplesForDma;
-#else /* FLOWGRAPH_DOES_RESAMPLING ] [ */
-   int EchoSupExpectsDmaToResample = 0;
-   extern int DmaResamplesForEchoSup;
-#endif /* FLOWGRAPH_DOES_RESAMPLING ] */
-#endif /* _VXWORKS ] */
-
 // CONSTANTS
 
 #define GTABLE_SIZE                7  // 310 ms transit time
@@ -123,29 +112,19 @@ int bypassSub(int iFlag) {
 /* ============================ CREATORS ================================== */
 
 // Constructor
-MprEchoSuppress::MprEchoSuppress(const UtlString& rName,
-                           int samplesPerFrame, int samplesPerSec)
-#ifdef  FLOWGRAPH_DOES_RESAMPLING /* [ */
-:  MpResource(rName, 2, 2, 1, 3, samplesPerFrame, samplesPerSec),
-#else /* FLOWGRAPH_DOES_RESAMPLING ] [ */
-:  MpResource(rName, 1, 1, 1, 2, samplesPerFrame, samplesPerSec),
-#endif /* FLOWGRAPH_DOES_RESAMPLING ] */
+MprEchoSuppress::MprEchoSuppress(const UtlString& rName)
+:  MpAudioResource(rName, 1, 1, 1, 2),
 
-   mpDspResampSpk(0),
    mpFilterBank(0),
    mpHandsetFilterBank(0)
-
 {
    int  i;
    long lS;
    shpAttenTable[0] = 32768;
    for( i = 1; i < GTABLE_SIZE; i++) {
-      lS = (Word32) shpAttenTable[i-1] * 29205;  //29205 = 1.00 db in Q15
+      lS = (uint32_t) shpAttenTable[i-1] * 29205;  //29205 = 1.00 db in Q15
       shpAttenTable[i] = (short) ((lS >> 15));
    }
-#ifdef  FLOWGRAPH_DOES_RESAMPLING /* [ */
-   mpDspResampSpk = new DspResampling(4, samplesPerFrame);
-#endif /* FLOWGRAPH_DOES_RESAMPLING ] */
 
    mpFilterBank = new FilterBank();
    mpHandsetFilterBank = new HandsetFilterBank();
@@ -156,7 +135,8 @@ MprEchoSuppress::MprEchoSuppress(const UtlString& rName,
    mLastSpkrAtten = 0;
    mpPrev = NULL;
    mSpeechFake = 0;
-   mTicksPerFrame = (3686400 * samplesPerFrame) / samplesPerSec;
+   mTicksPerFrame = (3686400 * mpFlowGraph->getSamplesPerFrame())
+                     / mpFlowGraph->getSamplesPerSec();
 
    mshDelay = 0;
 
@@ -169,7 +149,6 @@ MprEchoSuppress::MprEchoSuppress(const UtlString& rName,
 // Destructor
 MprEchoSuppress::~MprEchoSuppress()
 {
-    MpBuf_delRef(mpPrev);
     if (mpFilterBank ) {
         delete mpFilterBank;
         mpFilterBank = 0;
@@ -179,21 +158,6 @@ MprEchoSuppress::~MprEchoSuppress()
        delete mpHandsetFilterBank;
        mpHandsetFilterBank = 0;
     }
-
-    if (mpDspResampSpk)
-    {
-        delete mpDspResampSpk;
-        mpDspResampSpk = 0;
-    }
-
-#ifdef _VXWORKS /* [ */
-#ifdef FLOWGRAPH_DOES_RESAMPLING /* [ */
-   EchoSupResamplesForDma = 1;
-#else /* FLOWGRAPH_DOES_RESAMPLING ] [ */
-   DmaResamplesForEchoSup = 1;
-#endif /* FLOWGRAPH_DOES_RESAMPLING ] */
-#endif /* _VXWORKS ] */
-
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -221,19 +185,19 @@ int MprEchoSuppress::endSpeech()
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
-void MprEchoSuppress::frame_match(MpBufPtr in)
+void MprEchoSuppress::frame_match(const MpAudioBufPtr &in)
 {
     MpBufferMsg*    pMsg;
     int             micStartTC;
     int             micEndTC;
     int             spkEndTC;
 
-    micEndTC = MpBuf_getOsTC(in);
+    micEndTC = in->getTimecode();
     micStartTC = micEndTC - mTicksPerFrame;
 
     // long lll = micEndTC - spkEndTC;
-    if (NULL != mpPrev) {
-        spkEndTC = MpBuf_getOsTC(mpPrev);
+    if (mpPrev.isValid()) {
+        spkEndTC = mpPrev->getTimecode();
         if (0 > (spkEndTC - micStartTC)) {
 #ifdef DEBUG_TC /* [ */
             if (doShowMe())  {
@@ -241,8 +205,7 @@ void MprEchoSuppress::frame_match(MpBufPtr in)
                     (int) mpPrev, micEndTC, spkEndTC, (spkEndTC-micStartTC));
             }
 #endif /* DEBUG_TC ] */
-            MpBuf_delRef(mpPrev);
-            mpPrev = NULL;
+            mpPrev.release();
 #ifdef DEBUG_TC /* [ */
         } else if (doShowMe())  {
             osPrintf("Keep       0x%X: Tm=%d, Ts=%d (delta=%d)\n",
@@ -250,25 +213,23 @@ void MprEchoSuppress::frame_match(MpBufPtr in)
 #endif /* DEBUG_TC ] */
         }
     }
-    while ((NULL == mpPrev) && (0 < MpMisc.pEchoQ->numMsgs())) {
+    while ((!mpPrev.isValid()) && (0 < MpMisc.pEchoQ->numMsgs())) {
         if (OS_SUCCESS == MpMisc.pEchoQ->receive((OsMsg*&) pMsg,
                                                           OsTime::NO_WAIT_TIME)) {
-            mpPrev = pMsg->getTag();
-            // MpBuf_delRef(pMsg->getTag(1));
+            mpPrev = pMsg->getBuffer();
             pMsg->releaseMsg();
-            if (mpPrev == MpMisc.XXXsilence) { // $$$ !
-                MpBuf_delRef(mpPrev);
-                mpPrev = NULL;
+            if (mpPrev == MpMisc.mpFgSilence) { // $$$ !
+                mpPrev.release();
             }
-            if (NULL != mpPrev) {
-                int t = MpBuf_getAtten(mpPrev);
+            if (mpPrev.isValid()) {
+                int t = mpPrev->getAttenDb();
                 if (mLastSpkrAtten != t) {
                     /*osPrintf(
                         "Echo: speaker attenuation stepped from %d to %d\n",
                          mLastSpkrAtten, t);*/
                     mLastSpkrAtten = t;
                 }
-                spkEndTC = MpBuf_getOsTC(mpPrev);
+                spkEndTC = mpPrev->getTimecode();
 #ifdef DEBUG_TC /* [ */
                 if (doShowMe())  {
                     osPrintf("Receive 0x%X:    Ts=%d (delta=%d)\n",
@@ -284,8 +245,7 @@ void MprEchoSuppress::frame_match(MpBufPtr in)
                             (spkEndTC - micStartTC));
                     }
 #endif /* DEBUG_TC ] */
-                    MpBuf_delRef(mpPrev);
-                    mpPrev = NULL;
+                    mpPrev.release();
                 } else {
                     if (iShowAudioSync) {
                         osPrintf("ShowAudioSync %ld\n", lll*8000/3686400);
@@ -306,16 +266,15 @@ void MprEchoSuppress::frame_match(MpBufPtr in)
 
 
 MpBufPtr MprEchoSuppress::LoudspeakerFade(MpBufPtr  in,
-                                             short&  shSpkState,
-                                                int  iLoudspeakerFadeDB)
+                                          short&  shSpkState,
+                                          int  iLoudspeakerFadeDB)
 {
-    Sample      *shpMicSig = NULL;
-    MpBufPtr    out = NULL;
+    MpAudioSample      *shpMicSig = NULL;
 
 /////////////////////////////////////////////////////////////////////
 
     if(iLoudspeakerFadeDB == 0) {
-       shSpkState = 0;//MprToSpkr::ATTEN_LOUDEST; // currently 0
+       shSpkState = MprToSpkr::ATTEN_LOUDEST; // currently 0
     }
     else if (iLoudspeakerFadeDB) {
        if (iLoudspeakerFadeDB < -6) iLoudspeakerFadeDB = -6;
@@ -328,15 +287,12 @@ MpBufPtr MprEchoSuppress::LoudspeakerFade(MpBufPtr  in,
     if((mState != shSpkState) ) {
         mState = shSpkState;
 
-        mpSpkrPal->setAttenuation(mState,1);
+//        mpSpkrPal->setAttenuation(mState);
     }
 
 ///////////////////////////////////////////////////////////////////////
 
-    MpBuf_addRef(in);
-    out = in;
-
-    return out;
+    return in;
 }
 
 
@@ -350,170 +306,127 @@ UtlBoolean MprEchoSuppress::doProcessFrame(MpBufPtr inBufs[],
                                      int samplesPerSecond)
 
 {
+   MpAudioBufPtr        out;
+   MpAudioBufPtr        in8;
+   MpAudioBufPtr        in32;
+   const MpAudioSample* shpMicSig;
 
+   static int Frame10msCount;
+   static short    shSpkState= MprToSpkr::ATTEN_LOUDEST;
 
-    MpBufPtr        out = NULL;
-    MpBufPtr        in8;
-    MpBufPtr        in32 = NULL;
-    Sample*         shpMicSig;
-
-    static int Frame10msCount;
-    static short    shSpkState= MprToSpkr::ATTEN_LOUDEST;
-
-    if ((1 > outBufsSize) || (3 < outBufsSize)) return FALSE;
-
-#if 0
-#ifdef  FLOWGRAPH_DOES_RESAMPLING /* [ */
-    if (2 != inBufsSize) return FALSE;
-    in32 = inBufs[1];
-#else /* FLOWGRAPH_DOES_RESAMPLING ] [ */
-    if (1 != inBufsSize) return FALSE;
-    in32 = NULL;
-#endif /* FLOWGRAPH_DOES_RESAMPLING ] */
-#else
-in32=NULL;	
-    
-#endif
-    in8 = inBufs[0];
-
-    if (1 < outBufsSize) outBufs[1] = NULL;
-    if (2 < outBufsSize) outBufs[2] = NULL;
-
-    if (in32 == NULL) {
-        out = MpBuf_getFgSilence();
-        *outBufs = out;
-        return TRUE;
-    }
-
-
-    /* If the object is not enabled, pass input to output */
-    if (!isEnabled) {
-         out = in8;
-         inBufs[0] = NULL;
-         if (NULL == out) {
-             out = MpBuf_getFgSilence();
-         }
-         *outBufs = out;
-         return TRUE;
-    }
-
-    frame_match(in8);               /* If match not found, mpPrev == NULL */
-
-
-    MpBufPtr   out2 = NULL;              /* To point to 8k speaker buffer */
-    if(mpPrev == NULL) 
-	{
-         out2 = MpBuf_getFgSilence();
-    }
-    else
-	{
-
-		/* Speaker signal down-sampling */
-		#ifdef FLOWGRAPH_DOES_RESAMPLING /* [ */
-			// To be removed when double-link available
-				 Sample*   shpSpkIn = MpBuf_getSamples(mpPrev);
-				 out2 = MpBuf_getBuf(MpMisc.UcbPool, samplesPerFrame, 0, MP_FMT_T12);
-				 assert(NULL != out2);
-				 short*     shpSpkOut = MpBuf_getSamples(out2);
-				 mpDspResampSpk->down(shpSpkOut,shpSpkIn, 0);
-
-				 if (1 < outBufsSize) {
-					 outBufs[1] = out2;
-					 MpBuf_addRef(out2);
-				 }
-				 if (2 < outBufsSize) {
-					 outBufs[2] = mpPrev;
-					 MpBuf_addRef(mpPrev);
-				 }
-
-		#else /* FLOWGRAPH_DOES_RESAMPLING ] [ */
-				 out2 = mpPrev;
-				 mpPrev = NULL;
-				 outBufs[1] = out2;
-				 MpBuf_addRef(out2);
-		#endif /* FLOWGRAPH_DOES_RESAMPLING ] */
-    }
-
-    if (!MpBuf_isPoolSilent(in8)) {
-        shpMicSig = MpBuf_getSamples(in8);
-		// short* shpSpkSig = MpBuf_getSamples(outBufs);
-        short* shpSpkSig = MpBuf_getSamples(out2);
-
-
+   if ((1 > outBufsSize) || (3 < outBufsSize))
    {
+      return FALSE;
+   }
+
+   in8.swap(inBufs[0]);
+
+   if (1 < outBufsSize)
+      outBufs[1] = NULL;
+   if (2 < outBufsSize)
+      outBufs[2] = NULL;
+
+   if (in32 == NULL)
+   {
+      out = MpMisc.mpFgSilence;
+      outBufs[0] = out;
+      return TRUE;
+   }
+
+
+   /* If the object is not enabled, pass input to output */
+   if (!isEnabled)
+   {
+      out = in8;
+      outBufs[0] = out;
+      return TRUE;
+   }
+
+   frame_match(in8);               /* If match not found, mpPrev == NULL */
+
+   MpAudioBufPtr   out2;           /* To point to 8k speaker buffer */
+   if(mpPrev == NULL) 
+   {
+      out2 = MpMisc.mpFgSilence;
+   }
+   else
+   {
+      out2.swap(mpPrev);
+      outBufs[1] = out2;
+   }
+
+   if (!in8->isActiveAudio())
+   {
+      shpMicSig = in8->getSamplesPtr();
+      MpAudioSample* shpSpkSig = out2->getSamplesWritePtr();
+
       if ( iSub == 0)
       {
          if (1) //speakers
          {
-            mpFilterBank->DoFilterBank(shpMicSig, shpSpkSig);
+            mpFilterBank->DoFilterBank((MpAudioSample*)shpMicSig, shpSpkSig);
          }
          else // handset
          {
-			 
+
             if (1 /*HandAEC == 1*/)
             {
-               mpHandsetFilterBank->DoHandsetFilterBank(shpMicSig, shpMicSig, shpSpkSig);
+               mpHandsetFilterBank->DoHandsetFilterBank((MpAudioSample*)shpMicSig, (MpAudioSample*)shpMicSig, shpSpkSig);
             }
-			
+
          }
 
       }
-   ///////////////////////////////////////////////////////////////////////////
-   //////////// Limiting signal //////////////////////////////////////////////
-   ///////////////////////////////////////////////////////////////////////////
+      ///////////////////////////////////////////////////////////////////////////
+      //////////// Limiting signal //////////////////////////////////////////////
+      ///////////////////////////////////////////////////////////////////////////
 
-      if (MpCodec_isBaseSpeakerOn()) {
+      // This code is commented out, because MpCodec_isBaseSpeakerOn() always
+      // return false now. And this code seems to operate on wrong array -
+      // shpMicSig is const and is not used in further calculations, so
+      // changing it is useless.
+#if 0 // [
+      if (MpCodec_isBaseSpeakerOn())
+      {
          int i;
          int Temp;
 
-         for ( i = 0; i < 80; i++) {
+         for ( i = 0; i < 80; i++)
+         {
             Temp = shpMicSig[i] << 2;  // +12dB boost AFTER AEC
 
-            if (Temp > sampleLimit) {
+            if (Temp > sampleLimit)
+            {
                Temp = sampleLimit;
-            } else if (Temp < -sampleLimit) {
+            }
+            else if (Temp < -sampleLimit)
+            {
                Temp = -sampleLimit;
             }
 
             shpMicSig[i] = Temp;
          }
       }
+#endif // 0 ]
 
-   ////////////////////////////////////////////////////////////////////////////
+      ////////////////////////////////////////////////////////////////////////////
+
+      {
+         int FadeDB = MpCodec_isBaseSpeakerOn() ?
+                         iLoudspeakerFadeDB : //speakerphone 
+                         0;                   //never fade earpiece
+         out = LoudspeakerFade(in8, shSpkState, FadeDB);
+      }
 
    }
 
-   {
-      int FadeDB = (MpCodec_isBaseSpeakerOn() ?
-                             iLoudspeakerFadeDB : //speakerphone 
-                             0);                  //never fade earpiece
-      out = LoudspeakerFade(in8, shSpkState, FadeDB);
+   if (!out.isValid()) {
+      out = MpMisc.mpFgSilence;
    }
 
-    }
-
-    if(out2 != NULL) {
-         MpBuf_delRef(out2);
-    }
-
-    if (NULL == out) {
-         out = MpBuf_getFgSilence();
-    }
-
-
-//  Toggles output to either Echo cancelled or Raw (unchanged)
-/*  if (hearRawMic) {
-        MpBuf_delRef(out);
-        out = *inBufs;
-        *inBufs = NULL;
-    }*/
-
-    *outBufs = out;
-    return TRUE;
-} // end doProcessFrame
-
-
-
+   *outBufs = out;
+   return TRUE;
+}
 
 
 /* ============================ FUNCTIONS ================================= */
@@ -579,7 +492,7 @@ in32=NULL;
       for (i = 0; i < iLength; i++)
       {
          //When there is no clipping the gain is 16/4 (12dB)
-         shpSamples[i] = ((Word32S)shpSamples[i] * iLoss) >> 2; 
+         shpSamples[i] = ((int32_t)shpSamples[i] * iLoss) >> 2; 
          
       }
 

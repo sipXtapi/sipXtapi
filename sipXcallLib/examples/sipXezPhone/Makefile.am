@@ -8,11 +8,11 @@ sipXezPhone_CXXFLAGS = \
 
 sipXezPhone_LDADD = \
 	$(top_builddir)/src/libsipXcall.la \
-    @SIPXMEDIA_MP_LIBS@ \
+        @SIPXMEDIA_MP_LIBS@ \
 	@WXWIDGETS_LIBS@
 
 sipXezPhone_SOURCES = \
-    AddContactDlg.cpp \
+        AddContactDlg.cpp \
 	ButtonPanel.cpp \
 	CallHistoryPanel.cpp \
 	CallList.cpp \
@@ -22,7 +22,7 @@ sipXezPhone_SOURCES = \
 	DialerThread.cpp \
 	DialPadButton.cpp \
 	DialPadPanel.cpp \
-    EventLogDlg.cpp \
+        EventLogDlg.cpp \
 	MainPanel.cpp \
 	PlacedCallList.cpp \
 	ReceivedCallList.cpp \
@@ -33,12 +33,12 @@ sipXezPhone_SOURCES = \
 	sipXezPhoneSettings.cpp \
 	sipXezPhoneSettingsDlg.cpp \
 	sipXezPhone_wdr.cpp \
-    ContactListPanel.cpp \
+        ContactListPanel.cpp \
 	sipXmgr.cpp \
-    PreviewWindow.cpp \
-    VideoPanel.cpp \
-    VideoWindow.cpp \
-    sipXVideoSettingsDlg.cpp \
+        PreviewWindow.cpp \
+        VideoPanel.cpp \
+        VideoWindow.cpp \
+        sipXVideoSettingsDlg.cpp \
 	VolumeControlPanel.cpp \
 	states/PhoneStateAccepted.cpp \
 	states/PhoneStateCallHeldLocally.cpp \
@@ -58,7 +58,7 @@ sipXezPhone_SOURCES = \
 	states/PhoneStateTransfering.cpp \
 	states/PhoneStateTransferRequested.cpp \
 	stdwx.cpp \
-    sipXSrtpSettingsDlg.cpp \
-	CameraSettingsDlg.cpp \ 
+        sipXSrtpSettingsDlg.cpp \
+	CameraSettingsDlg.cpp \
 	ImportCertificateDlg.cpp \
 	sipXTabbedDlg.cpp 

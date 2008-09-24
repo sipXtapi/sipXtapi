@@ -1,0 +1,11 @@
+EXPORTS
+g722_encode_init
+g722_encode_release
+g722_encode
+g722_decode_init
+g722_decode_release
+g722_decode
+g726_init
+g726_release
+g726_encode
+g726_decode

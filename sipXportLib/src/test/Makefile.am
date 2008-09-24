@@ -18,7 +18,7 @@ testsuite_CXXFLAGS = \
 	-I$(top_srcdir)/include \
 	@PCRE_CFLAGS@ \
 	@SSL_CXXFLAGS@ \
-    @CPPUNIT_CFLAGS@ \
+	@CPPUNIT_CFLAGS@ \
 	-DSIPX_TMPDIR=\"@SIPX_TMPDIR@\" \
 	-DTEST_DIR=\"@abs_builddir@\" \
 	-fno-gcse -O0
@@ -28,57 +28,64 @@ testsuite_CPPFLAGS = @CPPUNIT_CFLAGS@
 # ORDER NOTE: the utl/UtlLinkTest and utl/UtlChainTest must be before
 #             any test that uses any UtlContainer.
 testsuite_SOURCES = \
+    os/OsCallbackTest.cpp \
+    os/OsConfigDbTest.cpp \
+    os/OsContactListTest.cpp  \
+    os/OsContactTest.cpp \
+    os/OsDirTest.cpp \
+    os/OsEventTest.cpp \
+    os/OsFileIteratorTest.cpp \
+    os/OsFileSystemTest.cpp \
+    os/OsFileTest.cpp \
+    os/OsLockTest.cpp \
+    os/OsMsgQTest.cpp \
+    os/OsMsgDispatcherTest.cpp \
+    os/OsMutexTest.cpp \
+    os/OsNameDbTest.cpp \
+    os/OsPathTest.cpp \
+    os/OsProcessIteratorTest.cpp \
+    os/OsProcessMgrTest.cpp \
+    os/OsProcessTest.cpp \
+    os/OsSemTest.cpp \
+    os/OsServerTaskTest.cpp \
+    os/OsSharedLibMgrTest.cpp \
+    os/OsSocketTest.cpp \
+    os/OsTestUtilities.cpp \
+    os/OsTestUtilities.h \
+    os/OsTimerTaskTest.cpp \
+    os/OsTimerTest.cpp \
+    os/OsTimeTest.cpp \
+    os/StunMessageTest.cpp \
+    os/TurnMessageTest.cpp \
+    utl/PluginHooksTest.cpp \
+    utl/TestPlugin.h \
     utl/UtlChainTest.cpp \
-    utl/UtlCrc32Test.cpp \
-    utl/UtlLinkTest.cpp \
     utl/UtlContainableTestStub.cpp \
     utl/UtlContainableTestStub.h \
-    utl/UtlVoidPtr.cpp \
+    utl/UtlCrc32Test.cpp \
+    utl/UtlDList.cpp \
+    utl/UtlDListIterator.cpp \
+    utl/UtlHashBag.cpp \
+    utl/UtlHashBagIterator.cpp \
+    utl/UtlHashMap.cpp \
+    utl/UtlHashMapIterator.cpp \
     utl/UtlInt.cpp \
+    utl/UtlLinkTest.cpp \
+    utl/UtlLongLongInt.cpp \
+    utl/UtlRegex.cpp \
+    utl/UtlRegex.cpp \
+    utl/UtlSList.cpp \
+    utl/UtlSListIteratorTest.cpp \
+    utl/UtlSortedList.cpp \
+    utl/UtlSortedListIteratorTest.cpp \
     utl/UtlStringTest.cpp \
     utl/UtlStringTest.h \
     utl/UtlStringTest_ConstructiveManipulators.cpp \
     utl/UtlStringTest_DestructiveManipulators.cpp \
     utl/UtlStringTest_NonMutating.cpp \
-    utl/UtlSList.cpp \
-    utl/UtlSListIteratorTest.cpp \
-    utl/UtlDList.cpp \
-    utl/UtlDListIterator.cpp \
-    utl/UtlSortedList.cpp \
-    utl/UtlSortedListIteratorTest.cpp \
-    utl/UtlHashMap.cpp \
-    utl/UtlHashMapIterator.cpp \
-    utl/UtlRegex.cpp \
-    utl/UtlHashBag.cpp \
-    utl/UtlHashBagIterator.cpp \
-    utl/UtlRegex.cpp \
     utl/UtlTokenizerTest.cpp \
-    utl/XmlContentTest.cpp \
-    os/OsTestUtilities.cpp \
-    os/OsTestUtilities.h \
-    os/OsNameDbTest.cpp \
-    os/OsCallbackTest.cpp \
-    os/OsTimerTaskTest.cpp \
-    os/OsTimeTest.cpp \
-    os/OsEventTest.cpp \
-    os/OsLockTest.cpp \
-    os/OsMsgQTest.cpp \
-    os/OsMutexTest.cpp \
-    os/OsSemTest.cpp \
-    os/OsSocketTest.cpp \
-    os/OsConfigDbTest.cpp \
-    os/OsFileIteratorTest.cpp \
-    os/OsFileSystemTest.cpp \
-    os/OsFileTest.cpp \
-    os/OsPathTest.cpp \
-    os/OsDirTest.cpp \
-    os/OsProcessIteratorTest.cpp \
-    os/OsProcessTest.cpp \
-    os/OsProcessMgrTest.cpp \
-    utl/TestPlugin.h \
-    utl/PluginHooksTest.cpp \
-    os/OsContactListTest.cpp  \
-    os/OsContactTest.cpp
+    utl/UtlVoidPtr.cpp \
+    utl/XmlContentTest.cpp
 
 # :TODO: Removed because they depend on direct access to glib
 #    os/OsTimerTest.cpp

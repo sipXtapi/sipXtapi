@@ -30,7 +30,7 @@ static char rcsid[] = "";
 /* Reordered includes and separated into win/vx --GAT */
 #if defined(_WIN32)
 #       include <resparse/wnt/sys/param.h>
-#       include <winsock.h>
+#       include <winsock2.h>
 #       include <resparse/wnt/netinet/in.h>
 #       include <resparse/wnt/arpa/inet.h>
 #       include <resparse/wnt/arpa/nameser.h>
@@ -56,6 +56,7 @@ static char rcsid[] = "";
 
 #include "resparse/res_config.h"
 
+#if !defined(__MACH__)
 #if !defined(__pingtel_on_posix__) || defined(INCLUDE_SIPX_RESPARSE)
 const char *_res_opcodes[] = {
         "QUERY",
@@ -95,6 +96,7 @@ const char *_res_resultcodes[] = {
         "14",
         "NOCHANGE",
 };
+#endif
 
 #ifdef BIND_UPDATE
 const char *_res_sectioncodes[] = {

@@ -147,10 +147,9 @@ UtlContainable* UtlHashBag::insert(UtlContainable* insertedContainable)
       link = UtlLink::get();
       link->data  = insertedContainable;
       link->hash  = insertedContainable->hash();
-
+      
+      mElements++; 
       insert(link, &mpBucket[bucketNumber(link->hash)]);
-
-      mElements++;
    }
 
    return insertedContainable;

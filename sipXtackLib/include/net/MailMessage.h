@@ -84,6 +84,8 @@ public:
     
     bool Attach(const unsigned char *data, const int& rDatalength, const UtlString &rFilename );
 
+    // Send the message to the SMTP server specified in the constructor.
+    // Return either "" or an error message.
     UtlString Send();
 
 private:

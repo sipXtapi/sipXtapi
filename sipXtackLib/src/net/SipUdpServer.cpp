@@ -1,5 +1,25 @@
+// Copyright 2008 AOL LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
-// Copyright (C) 2004-2006 SIPfoundry Inc.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
+// USA. 
+//  
+// Copyright (C) 2007 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
+//
+// Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -28,6 +48,8 @@
 #include <os/OsTask.h>
 #include <utl/UtlHashMapIterator.h>
 #include <utl/UtlSListIterator.h>
+#include <upnp/UPnpAgent.h>
+#include <net/TapiMgr.h>
 
 #if defined(_VXWORKS)
 #   include <socket.h>
@@ -42,6 +64,9 @@
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
+#define UDP_SIGNALING_RATE_LIMIT        24
+#define UDP_SIGNALING_PENALTY_LENGTH    15 
+
 //#define TEST_PRINT
 //#define LOG_SIZE
 // STATIC VARIABLE INITIALIZATIONS
@@ -88,9 +113,9 @@ public:
     {
         OsNatKeepaliveEvent event ;
 
-        if (m_method.compareTo("OPTIONS"))
+        if (!m_method.compareTo("OPTIONS"))
             event.type = OS_NAT_KEEPALIVE_SIP_OPTIONS ;
-        else if (m_method.compareTo("PING"))
+        else if (!m_method.compareTo("PING"))
             event.type = OS_NAT_KEEPALIVE_SIP_PING ;        
         else
             event.type = OS_NAT_KEEPALIVE_INVALID ;
@@ -108,7 +133,7 @@ public:
     {
         if (m_pTimer == NULL)
         {            
-            m_pCallback = new OsCallback((int) pServer, SipUdpServer::SipKeepAliveCallback) ;
+            m_pCallback = new OsCallback((intptr_t) pServer, SipUdpServer::SipKeepAliveCallback) ;
             m_pTimer = new OsTimer(*m_pCallback) ;        
         }
 
@@ -178,8 +203,6 @@ SipUdpServer::SipUdpServer(int port,
                            UtlBoolean bUseNextAvailablePort,
                            const char* szBoundIp) :
    SipProtocolServerBase(userAgent, "UDP", "SipUdpServer-%d"),
-   mStunRefreshSecs(28), 
-   mStunPort(PORT_NONE),
         mKeepAliveMutex(OsRWMutex::Q_FIFO),
    mMapLock(OsMutex::Q_FIFO)   
 {
@@ -257,9 +280,11 @@ OsStatus SipUdpServer::createServerSocket(const char* szBoundIp,
                                           int udpReadBufferSize)
 {
     OsStatus rc = OS_FAILED;
+
     OsNatDatagramSocket* pSocket =
-      new OsNatDatagramSocket(0, NULL, port, szBoundIp, FALSE);
+            new OsNatDatagramSocket(0, NULL, port, szBoundIp, NULL);
    
+    int actualPort = port;
     if (pSocket)
     {
         // If the socket is busy or unbindable and the user requested using the
@@ -268,11 +293,32 @@ OsStatus SipUdpServer::createServerSocket(const char* szBoundIp,
         {
             for (int i=1; i<=SIP_MAX_PORT_RANGE; i++)
             {
+                actualPort = port+i;
                 delete pSocket ;
-                pSocket = new OsNatDatagramSocket(0, NULL, port+i, szBoundIp, FALSE);
+
+                pSocket = new OsNatDatagramSocket(0, NULL, port+i, szBoundIp, NULL);
                 if (pSocket->isOk())
                 {
                     break ;
+                }
+            }
+        }
+
+        if (pSocket && pSocket->isOk())
+        {
+            if (UPnpAgent::getInstance()->isEnabled())
+            {
+                if (UPnpAgent::getInstance()->bindToAvailablePort(szBoundIp,
+                        actualPort,
+                        UPnpAgent::getInstance()->getTimeoutSeconds()) == -1)
+                {
+                    // Disable uPNP until restarted
+                    UPnpAgent::getInstance()->setEnabled(false);
+                    notifyUpnpStatus(false) ;
+                }
+                else
+                {
+                    notifyUpnpStatus(true) ;
                 }
             }
         }
@@ -280,18 +326,19 @@ OsStatus SipUdpServer::createServerSocket(const char* szBoundIp,
     
     if (pSocket)
     {     
-        pSocket->enableTransparentReads(false);  
+        pSocket->setTransparentStunRead(false);  
+        pSocket->setReadRateLimiting(UDP_SIGNALING_RATE_LIMIT, 
+                UDP_SIGNALING_PENALTY_LENGTH) ;
         port = pSocket->getLocalHostPort();
         SIPX_CONTACT_ADDRESS contact;
         strcpy(contact.cIpAddress, szBoundIp);
         contact.iPort = port;
         contact.eContactType = CONTACT_LOCAL;
-        char szAdapterName[16];
-        memset((void*)szAdapterName, 0, sizeof(szAdapterName)); // null out the string
+        UtlString adapterName;
         
-        getContactAdapterName(szAdapterName, contact.cIpAddress, false);
+        getContactAdapterName(adapterName, contact.cIpAddress, false);
 
-        strcpy(contact.cInterface, szAdapterName);
+        strcpy(contact.cInterface, adapterName.data());
         contact.eTransportType = TRANSPORT_UDP;
         mSipUserAgent->addContactAddress(contact);
    
@@ -308,14 +355,14 @@ OsStatus SipUdpServer::createServerSocket(const char* szBoundIp,
                     SOL_SOCKET,
                     SO_RCVBUF,
                     (char*)&sockbufsize,
-        #if defined(__pingtel_on_posix__)
-                    (socklen_t*) // caste
-        #endif
+#if defined(__pingtel_on_posix__)
+                    (socklen_t*) // cast
+#endif
                     &size);
-        #ifdef LOG_SIZE
+#ifdef LOG_SIZE
         OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipUdpServer::SipUdpServer UDP buffer size: %d size: %d\n",
                     sockbufsize, size);
-        #endif /* LOG_SIZE */
+#endif /* LOG_SIZE */
 
         if(udpReadBufferSize > 0)
         {
@@ -329,14 +376,14 @@ OsStatus SipUdpServer::createServerSocket(const char* szBoundIp,
                 SOL_SOCKET,
                 SO_RCVBUF,
                 (char*)&sockbufsize,
-        #if defined(__pingtel_on_posix__)
+#if defined(__pingtel_on_posix__)
                 (socklen_t*) // caste
-        #endif
+#endif
                 &size);
-        #ifdef LOG_SIZE
+#ifdef LOG_SIZE
             OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipUdpServer::SipUdpServer reset UDP buffer size: %d size: %d\n",
                         sockbufsize, size);
-        #endif /* LOG_SIZE */
+#endif /* LOG_SIZE */
         }
     }
     return rc;
@@ -351,24 +398,14 @@ int SipUdpServer::run(void* runArg)
 }
 
 
-void SipUdpServer::enableStun(const char* szStunServer,
-                              int iStunPort,
+void SipUdpServer::enableStun(const ProxyDescriptor& stunServer,
                               const char* szLocalIp, 
-                              int refreshPeriodInSecs, 
                               OsNotification* pNotification) 
 {
     OsLock lock(mMapLock);
     // Store settings
-    mStunPort = iStunPort ;
-    mStunRefreshSecs = refreshPeriodInSecs ;   
-    if (szStunServer)
-    {
-        mStunServer = szStunServer ;
-    }
-    else
-    {
-        mStunServer.remove(0) ;
-    }
+
+    mStunServer = stunServer ;
     
     UtlHashMapIterator iterator(mServerSocketMap);
     UtlString* pKey = NULL;
@@ -409,10 +446,12 @@ void SipUdpServer::enableStun(const char* szStunServer,
             pSocket->disableStun() ;
             
             // Update server client
-            if (pSocket && mStunServer.length()) 
+            if (pSocket && mStunServer.isValid()) 
             {
-                pSocket->setNotifier(pNotification) ;
-                pSocket->enableStun(mStunServer,  mStunPort, refreshPeriodInSecs, 0, false) ;
+                pSocket->setStunNotifier(pNotification) ;
+                pSocket->enableStun(mStunServer.getAddress(), mStunServer.getPort(), 
+                        mStunServer.getKeepalive(), 0, false, 
+                        mStunServer.getIntParam()) ;
             }  
         }
         if (bStunAll)
@@ -518,14 +557,38 @@ OsSocket* SipUdpServer::buildClientSocket(int hostPort, const char* hostAddress,
     else
     {
         pSocket = new OsNatDatagramSocket(0, NULL, 0, localIp) ;
-        pSocket->enableTransparentReads(false);  
-        if (mStunServer.length() != 0)
+        pSocket->setTransparentStunRead(false);  
+        pSocket->setReadRateLimiting(UDP_SIGNALING_RATE_LIMIT, 
+                UDP_SIGNALING_PENALTY_LENGTH) ;
+        if (mStunServer.isValid())
         {
-            pSocket->enableStun(mStunServer, mStunPort, mStunRefreshSecs, 0, true) ;
+            pSocket->enableStun(mStunServer.getAddress(), mStunServer.getPort(), 
+                    mStunServer.getKeepalive(), 0, true) ;
         }
     }
 
     return pSocket ;
+}
+
+void SipUdpServer::notifyUpnpStatus(bool bSuccess)
+{
+    static bool bNotified = false ;
+
+    if (!bNotified)
+    {
+        bNotified = true ;
+
+        SIPX_CONFIG_INFO configInfo ;
+        memset(&configInfo, 0, sizeof(SIPX_CONFIG_INFO)) ;
+        configInfo.nSize = sizeof(SIPX_CONFIG_INFO);
+        if (bSuccess)
+            configInfo.event = CONFIG_UPNP_SUCCESS;
+        else
+            configInfo.event = CONFIG_UPNP_FAILURE;
+        configInfo.pData = NULL ;
+        TapiMgr::getInstance().fireEvent(mSipUserAgent, EVENT_CATEGORY_CONFIG,
+                &configInfo) ;
+    }
 }
 
 
@@ -713,18 +776,23 @@ UtlBoolean SipUdpServer::addSipKeepAlive(const char* szLocalIp,
                     }
                     else
                     {
-                        // If we found a binding, stop it to avoid multiple
-                        // timers.
-                        pBinding->stop() ;
+                        bSuccess = false ;
                     }
                     mKeepAliveMutex.releaseWrite() ;
 
-                    if (bSuccess && pBinding)
+                    if (bSuccess)
                     {
                         OsNatAgentTask::getInstance()->addExternalBinding(
                                 NULL, szRemoteIp, remotePort, "", 0) ;
 
-                        pBinding->start(this) ;
+                        mKeepAliveMutex.acquireRead() ;
+                        pBinding = (SipKeepAliveBinding*) findKeepAliveBinding(
+                                pSocket, szRemoteIp, remotePort, szMethod) ;
+
+                        if (pBinding)
+                            pBinding->start(this) ;
+
+                        mKeepAliveMutex.releaseRead() ;
                     }
                 }
             }
@@ -1083,8 +1151,8 @@ void SipUdpServer::sendSipKeepAlive(OsTimer* pTimer)
 
 /* ============================ FUNCTIONS ================================= */
 
-void SipUdpServer::SipKeepAliveCallback(const int userData, 
-                                        const int eventData)
+void SipUdpServer::SipKeepAliveCallback(const intptr_t userData, 
+                                        const intptr_t eventData)
 {  
     SipUdpServer* pUdpServer = (SipUdpServer*) userData ;
     OsTimer* pTimer = (OsTimer*) eventData ;

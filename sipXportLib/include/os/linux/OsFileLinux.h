@@ -1,8 +1,11 @@
 //
-// Copyright (C) 2004-2006 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
+// Copyright (C) 2005, 2007 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
-// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Copyright (C) 2004-2007 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+// 
+// Copyright (C) 2004, 2005 Pingtel Corp.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
@@ -45,14 +48,16 @@ public:
 
 /* ============================ MANIPULATORS ============================== */
 
-   OsStatus filelock(int mode);
-     //: Sets the locking mode of the file.  The file must be open.
-     //: Use SHARED_READ, SHARED_WRITE, SHARED_NONE
-     //: Returns OS_SUCCESS on success
-     //:         or OS_FAILED on failure
+   OsStatus filelock(const bool wait);
+     //: Cross-process locks this file, optionally waiting for the lock.
+     //: Returns:
+     //:        OS_SUCCESS if successful
+     //:        OS_FAILED if unsuccessful
+     //: Notes: This method should only be called by OsFileBase::open()!
 
    OsStatus fileunlock();
-     //: Unlocks the file locked by the function above
+     //: Cross-process unlocks this file.
+     //: Notes: This method should only be called by OsFileBase::close()!
 
    OsStatus setLength(unsigned long newLength);
      //: Sets the length of the file specified by the object to the new size
@@ -66,6 +71,9 @@ public:
      //:        OS_SUCCESS if successful
      //:         OS_INVALID if failed
 
+
+   OsStatus touch();
+     //: Updates the date and time on the file.  Creates if needed.
 
 /* ============================ ACCESSORS ================================= */
 

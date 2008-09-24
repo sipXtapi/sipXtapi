@@ -1,3 +1,6 @@
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -16,23 +19,8 @@ class OsConfigDb;
 
 #include "os/OsMsgQ.h"
 #include "mp/MpTypes.h"
-
-#define KBHIT
-#undef  KBHIT
-
-#ifndef MUTEX_OPS
-#define MUTEX_OPS (SEM_Q_PRIORITY|SEM_DELETE_SAFE|SEM_INVERSION_SAFE)
-#endif
-
-#define FRAME_SAMPS  320
-
-#ifndef max
-#define max(x,y) (((x)>(y))?(x):(y))
-#endif
-
-#ifndef min
-#define min(x,y) (((x)<(y))?(x):(y))
-#endif
+#include "mp/MpBufPool.h"
+#include "mp/MpAudioBuf.h"
 
 /* miscellaneous debugging support: */
 
@@ -45,7 +33,8 @@ class OsConfigDb;
 /* mpStartUp initializes the MpMisc struct and other MP data, for */
 /*    example, the buffer pools and tables */
 extern OsStatus mpStartUp(int sampleRate, int samplesPerFrame,
-		  int numAudioBuffers, OsConfigDb* pConfigDb);
+                          int numAudioBuffers, OsConfigDb* pConfigDb,
+                          const size_t numCodecPaths, const UtlString codecPaths[]);
 
 /* tears down whatever was created in mpStartUp */
 extern OsStatus mpShutdown(void);
@@ -56,28 +45,38 @@ extern OsStatus mpStartTasks(void);
 /* mpStopTasks stops the low level MP tasks */
 extern OsStatus mpStopTasks(void);
 
+/// This structure contain all static variables
 struct __MpGlobals {
-        OsMsgQ* pMicQ;
-        OsMsgQ* pSpkQ;
-        OsMsgQ* pEchoQ;
-        int micMuteStatus;
-        int spkrMuteStatus;
-        int audio_on;
-        int frameSamples;
-        int frameBytes;
-        int sampleBytes;
-        int rtpMaxBytes;
-        MpBufPoolPtr UcbPool;
-        MpBufPoolPtr DMAPool;
-        MpBufPoolPtr RtpPool;
-        MpBufPoolPtr RtcpPool;
-        MpBufPtr XXXsilence;
-        MpBufPtr XXXlongSilence;
-        MpBufPtr comfortNoise;
-        int max_mic_buffers;
-        int max_spkr_buffers;
-        int min_rtp_packets;
-        int micSawTooth;
+        OsMsgQ* pMicQ;          ///< Message queue for microphone data
+        OsMsgQ* pSpkQ;          ///< Message queue for speaker data
+        OsMsgQ* pEchoQ;         ///< Message queue for echo cancelation data
+                                ///<  (it is copy of speaker data).
+        int frameSamples;       ///< Number of samples in one audio frame
+        int frameBytes;         ///< Size of one audio frame 
+        int sampleBytes;        ///< Size of one audio sample (in bytes)
+        int rtpMaxBytes;        ///< Maximum bytes in an RTP packet
+        MpBufPool *RawAudioPool;     ///< Memory pool for raw audio data buffers
+        MpBufPool *AudioHeadersPool; ///< Memory pool for headers of raw audio
+                                     ///<  data buffers
+        MpBufPool *RtpPool;          ///< Memory pool for RTP data buffers
+        MpBufPool *RtcpPool;         ///< Memory pool for RTCP data buffers
+        MpBufPool *RtpHeadersPool;   ///< Memory pool for headers of RTP and
+                                     ///<  RTCP data buffers
+#ifdef REAL_RTCP // [   This is just a reminder - we should implement MpRtcpBuf
+        MpBufPool *RtcpHeadersPool;  ///< Memory pool for headers of RTCP
+#endif // REAL_RTCP ]
+        MpBufPool *UdpPool;          ///< Memory pool for raw UDP packets
+        MpBufPool *UdpHeadersPool;   ///< Memory pool for headers of UDP packets
+                                     ///<  buffers
+        MpAudioBufPtr mpFgSilence;   ///< Buffer filled with silence. Used for
+                                     ///<  mutting and as default output. You
+                                     ///<  should not modify this buffer, cause
+                                     ///<  it is used many times.
+        MpAudioBufPtr comfortNoise;  ///< Buffer filled with comfort noise. You
+                                     ///<  should not modify this buffer, cause
+                                     ///<  it is used many times.
+        int max_mic_buffers;    ///< Maximum messages in mic queue (soft limit)
+        int max_spkr_buffers;   ///< Maximum messages in spkr queue (soft limit)
 };
 
 extern struct __MpGlobals MpMisc;

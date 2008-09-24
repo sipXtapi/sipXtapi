@@ -1,5 +1,24 @@
+// Copyright 2008 AOL LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
-// Copyright (C) 2004-2006 SIPfoundry Inc.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA. 
+//
+// Copyright (C) 2007 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
+//
+// Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -14,7 +33,8 @@
 #include <stdio.h>
 
 #if defined(_WIN32)
-#   include <winsock.h>
+#   include <winsock2.h>
+#   include <Ws2tcpip.h>
 #elif defined(_VXWORKS)
 #   include <inetLib.h>
 #   include <netdb.h>
@@ -33,6 +53,7 @@
 
 // APPLICATION INCLUDES
 #include <os/OsMulticastSocket.h>
+#include <os/OsSysLog.h>
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -45,203 +66,134 @@
 
 // Constructor
 OsMulticastSocket::OsMulticastSocket(int multicastPortNum, const char* multicastHost,
-                        int localHostPortNum, const char* localHost)
+                                     int localHostPortNum, const char* localHost)
+: OsNatDatagramSocket(-1, NULL, localHostPortNum, localHost)
 {
-        int error = 0;
-        struct sockaddr_in localAddr;
-        struct hostent* server = NULL;
-        int iTmp = TRUE;
+    // Avoid EADDRINUSE error on bind()
+    int iTmp = TRUE;
+    if (setsockopt(socketDescriptor, SOL_SOCKET, SO_REUSEADDR, (char *)&iTmp,
+                   sizeof(iTmp)))
+    {
+        osPrintf("setsockopt SO_REUSEADDR call failed with error: %d\n", OsSocketGetERRNO());
+    }
+#ifdef SO_REUSEPORT
+    if (setsockopt(socketDescriptor, SOL_SOCKET, SO_REUSEPORT, (char *)&iTmp,
+                   sizeof(iTmp)))
+    {
+        osPrintf("setsockopt SO_REUSEPORT call failed with error: %d\n", OsSocketGetERRNO());
+    }
+#endif
 
-        socketDescriptor = OS_INVALID_SOCKET_DESCRIPTOR;
-        localHostPort = localHostPortNum;
-        if(localHost)
-        {
-                localHostName.append(localHost);
-        }
-        remoteHostPort = multicastPortNum;
-        if(multicastHost)
-        {
-                remoteHostName.append(multicastHost);
-        }
+    // Bind to the socket
+    bind(localHostPortNum, localHost);
+    if (!isOk())
+    {
+        goto EXIT;
+    }
 
+    // Simulate connect: Set multicast address as the default destination
+    doConnect(multicastPortNum, multicastHost, TRUE);
 
-        if(!socketInit())
-        {
-                goto EXIT;
-        }
-
-#       ifdef _VXWORKS
-        char hostentBuf[512];
-#       endif
-
-
-        // Create the socket
-        socketDescriptor = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-        if(socketDescriptor == OS_INVALID_SOCKET_DESCRIPTOR)
-        {
-                error = OsSocketGetERRNO();
-                close();
-                perror("call to socket failed in OsMulticastSocket::OsMulticastSocket\n");
-                osPrintf("socket call failed with error in OsMulticastSocket::OsMulticastSocket: 0x%x\n", error);
-                goto EXIT;
-        }
-
-         /* avoid EADDRINUSE error on bind() */
-        iTmp = TRUE;
-        if(setsockopt(socketDescriptor, SOL_SOCKET, SO_REUSEADDR, (char *)&iTmp,
-     sizeof(iTmp)))
-        {
-                error = OsSocketGetERRNO();
-                close();
-                perror("call to setsockopt failed\n");
-                osPrintf("setsockopt SO_REUSEADDR call failed with error: %d\n", error);
-                goto EXIT;
-        }
-
-
-        localAddr.sin_family = AF_INET;
-        localAddr.sin_port = htons(multicastPortNum);
-        if(localHost == NULL)
-        {
-                localAddr.sin_addr.s_addr=OsSocket::getDefaultBindAddress();
-//              localAddr.sin_addr.s_addr=htonl(INADDR_ANY); // Allow IP in on
-                // any of this hosts addresses or NICs.
-        }
-        else
-        {
-                // Should use host address specified, for now use any
-                localAddr.sin_addr.s_addr=OsSocket::getDefaultBindAddress();
-//              localAddr.sin_addr.s_addr=htonl(INADDR_ANY); // Allow IP in on
-                // any of this hosts addresses or NICs.
-        }
-
-#       if defined(_WIN32)
-        error = bind( socketDescriptor, (const struct sockaddr*) &localAddr,
-                        sizeof(localAddr));
-#       elif defined(_VXWORKS) || defined(__pingtel_on_posix__)
-
-        error = bind( socketDescriptor, (struct sockaddr*) &localAddr,
-                        sizeof(localAddr));
-#       else
-#       error Unsupported target platform.
-#       endif
-
-        if(error == OS_INVALID_SOCKET_DESCRIPTOR)
-        {
-                // error = OsSocketGetERRNO();
-                close();
-                // perror("bind to socket failed\n");
-                goto EXIT;
-        }
-
-
-        // Setup multicast options
-#       if defined(_WIN32) || defined(__pingtel_on_posix__)
-        server = gethostbyname(multicastHost);
-
-#       elif defined(_VXWORKS)
-        server = resolvGetHostByName((char*) multicastHost,
-                                hostentBuf, sizeof(hostentBuf));
-#       else
-#       error Unsupported target platform.
-#       endif //_VXWORKS
-
-        if(server == NULL)
-        {
-                error = OsSocketGetERRNO();
-                close();
-                perror("call to gethostbyname failed\n");
-                osPrintf("gethostbyname(%s) call failed with error: %d\n",multicastHost,
-                                error);
-                goto EXIT;
-        }
-        struct ip_mreq mreq;
-        mreq.imr_multiaddr = *((in_addr*) (server->h_addr));
-
-        mreq.imr_interface.s_addr = OsSocket::getDefaultBindAddress();
-//      mreq.imr_interface.s_addr = htonl(INADDR_ANY);
-
-   if(setsockopt(socketDescriptor, IPPROTO_IP, IP_ADD_MEMBERSHIP, (char*) &mreq, sizeof(mreq)))
-        {
-                error = OsSocketGetERRNO();
-                close();
-                perror("call to setsockopt failed\n");
-                osPrintf("setsockopt call failed with error: %d\n", error);
-                goto EXIT;
-        }
-
-   joinMulticast(multicastPortNum, multicastHost);
+    // Join the multicast group
+    joinGroup(multicastHost);
 
 EXIT:
-   ;
-}
-
-// Copy constructor
-OsMulticastSocket::OsMulticastSocket(const OsMulticastSocket& rOsMulticastSocket)
-{
+    return;
 }
 
 // Destructor
 OsMulticastSocket::~OsMulticastSocket()
 {
-        close();
+    close();
 }
 
 /* ============================ MANIPULATORS ============================== */
 
-// Assignment operator
-OsMulticastSocket&
-OsMulticastSocket::operator=(const OsMulticastSocket& rhs)
+int OsMulticastSocket::joinGroup(const char* multicastHostName)
 {
-   if (this == &rhs)            // handle the assignment to self case
-      return *this;
+    int error = 0;
+    struct hostent* server = NULL;
 
-   return *this;
+#if defined(_WIN32) || defined(__pingtel_on_posix__)
+    server = gethostbyname(multicastHostName);
+
+#elif defined(_VXWORKS)
+    char hostentBuf[512];
+    server = resolvGetHostByName((char*) multicastHostName,
+                                 hostentBuf, sizeof(hostentBuf));
+#else
+#   error Unsupported target platform.
+#endif //_VXWORKS
+
+    if (server == NULL)
+    {
+        error = OsSocketGetERRNO();
+        close();
+        osPrintf("gethostbyname(%s) call failed with error: %d\n",multicastHostName,
+                 error);
+        return error;
+    }
+
+    struct ip_mreq mreq;
+    mreq.imr_multiaddr = *((in_addr*) (server->h_addr));
+
+    mreq.imr_interface.s_addr = OsSocket::getDefaultBindAddress();
+    //mreq.imr_interface.s_addr = htonl(INADDR_ANY);
+
+    // NOTE: If this setsockopt() call return error 1042 under Windows, it mean
+    //       you linked your program with wsock32.lib instead of ws2_32.lib.
+    //       If you really want to link with wsock32.lib, change include
+    //       to point to <winsock.h> instead of <winsock2.h>. This is known
+    //       Winsock bug:
+    //       http://blogs.msdn.com/wndp/archive/2006/12/18/winsock-header-weirdness.aspx
+    if (setsockopt(socketDescriptor, IPPROTO_IP, IP_ADD_MEMBERSHIP, (char*)&mreq, sizeof(mreq)))
+    {
+        error = OsSocketGetERRNO();
+        //close();
+        osPrintf("setsockopt IP_ADD_MEMBERSHIP call failed with error: %d\n", error);
+    }
+
+    return error;
 }
 
-void OsMulticastSocket::joinMulticast(int multicastPort, const char* multicastHostName)
+int OsMulticastSocket::setHopCount(unsigned char hopCount)
 {
+    int error = 0;
+
+    if (setsockopt(socketDescriptor, IPPROTO_IP, IP_MULTICAST_TTL,
+                   (const char *)&hopCount, sizeof(hopCount)))
+    {
+        error = OsSocketGetERRNO();
+        //close();
+        osPrintf("setsockopt IP_MULTICAST_TTL call failed with error: %d\n", error);
+    }
+
+    return error;
 }
 
-UtlBoolean OsMulticastSocket::reconnect()
+int OsMulticastSocket::setLoopback(bool enabled)
 {
-        osPrintf("WARNING: reconnect NOT implemented!\n");
-        return(FALSE);
-}
+    int error = 0;
+    unsigned char loopValue = enabled ? 1 : 0;
 
-int OsMulticastSocket::read(char* buffer, int bufferLength)
-{
-        int error;
-        struct sockaddr_in serverSockAddr;
-        int fromStructLength = sizeof(serverSockAddr);
-        //int bytesRead = recv(socketDescriptor, buffer, bufferLength, 0);
-        int bytesRead = recvfrom(socketDescriptor, buffer, bufferLength,
-                0,
-                (struct sockaddr*) &serverSockAddr,
-#ifdef __pingtel_on_posix__
-                        (socklen_t *)
-#endif
-                        &fromStructLength);
+    if (setsockopt(socketDescriptor, IPPROTO_IP, IP_MULTICAST_LOOP,
+                   (const char *)&loopValue, sizeof(loopValue)))
+    {
+        error = OsSocketGetERRNO();
+        //close();
+        osPrintf("setsockopt IP_MULTICAST_LOOP call failed with error: %d\n", error);
+    }
 
-        if(bytesRead == -1)
-        {
-                error = OsSocketGetERRNO();
-                // WIN32: 10038 WSAENOTSOCK not a valid socket descriptor
-                if(error)
-                {
-                        close();
-                        perror("OsSocket::read call to recv failed\n");
-                }
-        }
-
-        return(bytesRead);
+    return error;
 }
 
 /* ============================ ACCESSORS ================================= */
+
 OsSocket::IpProtocolSocketType OsMulticastSocket::getIpProtocol() const
 {
-        return(MULTICAST);
+    return(MULTICAST);
 }
+
 /* ============================ INQUIRY =================================== */
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */

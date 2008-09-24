@@ -1,3 +1,6 @@
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -30,8 +33,17 @@
 #  define N_IN_BUFFERS        N_BUFFERS
 #  define N_OUT_BUFFERS       N_BUFFERS
 
+// N_OUT_PRIME was previously set to 8. however, we found that on windows 
+// vista this would cause a bad stutter. this is because after calling
+// 8 waveOpenOut we got a batch of 8 WOM_DONE and then called another
+// 8 waveOpenOut. hence there was a gap. by using 16 buffers we find
+// that vista sends 5 WOM_DONE at a time. windows xp and windows 2000
+// send WOM_DONE one at a time at regular intervals. this is surely
+// a bug in windows vista! that said we can't fix vista and there
+// doesn't appear to be any harm with setting N_OUT_PRIME to 16.
+
 #  define N_IN_PRIME          32 // must not be more than N_IN_BUFFERS:
-#  define N_OUT_PRIME         8 // must not be more than N_OUT_BUFFERS:
+#  define N_OUT_PRIME         16 // must not be more than N_OUT_BUFFERS:
 
 #  define N_SAMPLES           80
 
@@ -53,17 +65,20 @@ typedef void (*MuteListenerFuncPtr)(bool);
 // FORWARD DECLARATIONS
 extern OsStatus dmaStartup(int samplesPerFrame);/* initialize the DMA driver */
 extern void dmaShutdown(void);                  /* release the DMA driver */
+#ifdef _WIN32
+extern void dmaSignalMicDeviceChange(void);     /* Signal a device change to the Mic Thread */
+#endif
 
 extern int unMuteSpkr(void);
 extern int muteSpkr(void);
 extern int unMuteMic(void);
 extern int muteMic(void);
 
-enum MpDmaMicChoice {
+typedef enum {
     MP_MIC_SELECT_NEITHER,
     MP_MIC_SELECT_HANDSET,
     MP_MIC_SELECT_BASE
-};
+} MpDmaMicChoice;
 
 extern OsStatus MpDma_selectMic(MpDmaMicChoice choice);
 extern MpDmaMicChoice MpDma_getMicMode(void);
@@ -83,7 +98,8 @@ class DmaTask : public OsTask
 public:
 
 /* ============================ CREATORS ================================== */
-
+///@name Creators
+//@{
    static DmaTask* getDmaTask(int samplesPerFrame = 80);
      //:Return a pointer to the DMA task, creating it if necessary
 
@@ -95,7 +111,11 @@ public:
    virtual int run(void* pArg);
 
 
+//@}
+
 /* ============================ ACCESSORS ================================= */
+///@name Accessors
+//@{
 
     static bool setRingerEnabled(bool enabled)
     {
@@ -162,7 +182,7 @@ protected:
    DmaTask(MSG_Q_ID doneQ = NULL, int samplesPerFrame = 0,
       int prio    = DEF_DMA_TASK_PRIORITY,      // default task priority
       int options = DEF_DMA_TASK_OPTIONS,       // default task options
-      int stack   = DEF_DMA_TASK_STACKSIZE);    // default task stacksize
+      int stack   = DEF_DMA_TASK_STACKSIZE);    // default task stack size
      //:Default constructor
 
     static bool smIsRingerEnabled ;
@@ -174,14 +194,14 @@ private:
 
    static const int DEF_DMA_TASK_PRIORITY;      // default task priority
    static const int DEF_DMA_TASK_OPTIONS;       // default task options
-   static const int DEF_DMA_TASK_STACKSIZE;     // default task stacksize
+   static const int DEF_DMA_TASK_STACKSIZE;     // default task stack size
 
    int       mFrameSamples; // Number of samples per frame
    MSG_Q_ID  mDoneQ;        // Message queue to wait on
 
    static UtlString mRingDeviceName;   // Name of "ring" device (speaker)
    static UtlString mCallDeviceName;   // Name of in-call device (speaker)
-   static UtlString mMicDeviceName;    // Name of in-call input device (mic)
+   static UtlString mMicDeviceName;    // Name of in-call input device (microphone)
    static bool      mbOutputDevicesChanged;    // Has the output device changed?
    static bool      mbInputDeviceChanged;      // Has the output device changed?
 

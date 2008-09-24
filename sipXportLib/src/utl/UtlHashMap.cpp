@@ -255,9 +255,9 @@ UtlContainable* UtlHashMap::insertKeyAndValue(UtlContainable* key, UtlContainabl
          pair->data  = key;
          pair->hash  = key->hash();
          pair->value = value;
+         mElements++;
          insert(pair, bucket);
          insertedKey = key;
-         mElements++;
       }
       else
       {
@@ -469,7 +469,7 @@ size_t UtlHashMap::bucketNumber(unsigned hash) const
    for ( (foldedHash = hash & lowBitsMask, // get the low bits we want into the folded value
           highBits   = hash                // don't bother masking off the low bits
           );
-         highBits = highBits >> mBucketBits;  // shift out bits already used until zero 
+         (highBits = highBits >> mBucketBits);  // shift out bits already used until zero 
          foldedHash ^= highBits & lowBitsMask // incorporate non-zero
         )
    {

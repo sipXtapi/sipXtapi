@@ -265,11 +265,11 @@ SipLineMgr::deleteLine(const Url& identity)
     // we don't un-register any more
 //    if (line->getState() == SipLine::LINE_STATE_REGISTERED )
 //    {
-//        //add to temporary list - needed if chanllenged for credentials
+//        // Add to temporary list - needed if challenged for credentials.
 //        addToTempList(line);
 //        disableLine(identity, 0, identity.toString());
 //    }
-    else
+//    else
     {
         removeFromList(line);
         removeFromTempList(line);
@@ -349,8 +349,7 @@ SipLineMgr::disableLine(
     UtlBoolean onStartup,
     const UtlString& lineId)
 {
-    SipLine *line = NULL;
-    line = sLineList.getLine(identity) ;
+    SipLine *line = sLineList.getLine(identity) ;
     if ( line == NULL)
     {
         syslog(FAC_LINE_MGR, PRI_ERR, "SipLineMgr::disableLine unable to disable line (not found): %s",
@@ -369,15 +368,12 @@ SipLineMgr::disableLine(
 
     syslog(FAC_LINE_MGR, PRI_INFO, "SipLineMgr::disableLine disabled line: %s",
             identity.toString().data()) ;
-
-    line = NULL;
 }
 
 void
 SipLineMgr::notifyChangeInLineProperties(Url& identity)
 {
-    SipLine *line = NULL;
-    line = sLineList.getLine(identity) ;
+    SipLine *line = sLineList.getLine(identity) ;
     if (line == NULL)
     {
         // Ignore error, will be logged on remove/enable/disable/etc
@@ -385,21 +381,18 @@ SipLineMgr::notifyChangeInLineProperties(Url& identity)
 
     SipLineEvent lineEvent(line, SipLineEvent::SIP_LINE_EVENT_LINE_CHANGED);
     queueMessageToObservers(lineEvent);
-    line = NULL;
 }
 
 void
 SipLineMgr::notifyChangeInOutboundLine(Url& identity)
 {
-    SipLine *line = NULL;
-    line = sLineList.getLine(identity) ;
+    SipLine *line = sLineList.getLine(identity) ;
     if ( line == NULL)
     {
         // Ignore error, will be logged on remove/enable/disable/etc
     }
     SipLineEvent lineEvent(line, SipLineEvent::SIP_LINE_EVENT_OUTBOUND_CHANGED);
     queueMessageToObservers(lineEvent);
-    line = NULL;
 }
 
 

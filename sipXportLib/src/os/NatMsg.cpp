@@ -1,8 +1,24 @@
+// Copyright 2008 AOL LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
-// Copyright (C) 2006 SIPfoundry Inc.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA. 
+//
+// Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
-// Copyright (C) 2006 Pingtel Corp.  All rights reserved.
+// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
@@ -18,9 +34,11 @@
 NatMsg::NatMsg(int          type,
                char*        szBuffer, 
                int          nLength, 
-               IStunSocket* pSocket,
+               IOsNatSocket* pSocket,
                UtlString    receivedIp,
-               int          iReceivedPort)
+               int          iReceivedPort,
+               UtlString*   pRelayIp,
+               int*         pRelayPort)
     : OsMsg(NAT_MSG_TYPE, 0)
 {
     miType = type ;
@@ -30,6 +48,9 @@ NatMsg::NatMsg(int          type,
     mReceivedIp = receivedIp ;
     miReceivedPort = iReceivedPort ;
     mpContext = NULL ;
+    if (pRelayIp)
+        mRelayIp = *pRelayIp ;
+    miRelayPort = (pRelayPort == NULL) ? 0 : *pRelayPort ;
 }
 
 NatMsg::NatMsg(int   type,
@@ -40,8 +61,8 @@ NatMsg::NatMsg(int   type,
     mBuffer = NULL ;
     mLength = 0;
     mpSocket = NULL ;
-    mReceivedIp.remove(0) ;
     miReceivedPort = 0 ;
+    miRelayPort = 0 ;
     mpContext = pContext ;
 }
 
@@ -56,6 +77,8 @@ NatMsg::NatMsg(const NatMsg& rNatMsg)
     mReceivedIp = rNatMsg.mReceivedIp ;
     miReceivedPort = rNatMsg.miReceivedPort ;
     mpContext = rNatMsg.mpContext ;
+    mRelayIp = rNatMsg.mRelayIp ;
+    miRelayPort = rNatMsg.miRelayPort ;
 }
 
 
@@ -82,6 +105,8 @@ NatMsg& NatMsg::operator=(const NatMsg& rhs)
         mReceivedIp = rhs.mReceivedIp ;
         miReceivedPort = rhs.miReceivedPort ;
         mpContext = rhs.mpContext ;
+        mRelayIp = rhs.mRelayIp ;
+        miRelayPort = rhs.miRelayPort ;
     }
 
     return *this ;
@@ -100,11 +125,10 @@ int NatMsg::getLength() const
 }
 
 
-IStunSocket* NatMsg::getSocket() const 
+IOsNatSocket* NatMsg::getSocket() const 
 {
     return mpSocket ;
 }
-
 
 UtlString NatMsg::getReceivedIp() const 
 {
@@ -126,4 +150,16 @@ void* NatMsg::getContext() const
 {
     return mpContext ;
 }
+
+UtlString NatMsg::getRelayIp() const 
+{
+    return mRelayIp ;
+}
+
+
+int NatMsg::getRelayPort() const 
+{
+    return miRelayPort ;
+}
+
 

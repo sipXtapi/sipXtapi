@@ -86,7 +86,7 @@ static char rcsid[] = "";
 /* Reordered includes and separated into win/vx --GAT */
 #if defined(_WIN32)
 #       include <resparse/wnt/sys/param.h>
-#       include <winsock.h>
+#       include <winsock2.h>
 #       include <resparse/wnt/netinet/in.h>
 #       include <resparse/wnt/arpa/inet.h>
 #       include <resparse/wnt/arpa/nameser.h>
@@ -159,7 +159,7 @@ u_int res_random_id()
 {
         struct timeval now;
 
-	now.tv_sec = time((time_t*) &now.tv_sec);
+	now.tv_sec = (long)time((time_t*) &now.tv_sec);
     now.tv_usec = 0;
 #if defined(_WIN32)
         return (0xffff & (now.tv_sec ^ now.tv_usec ^ _getpid()));
@@ -243,9 +243,9 @@ int res_init_ip(const char* localIp)
         unsigned long defaultAddr = osSocketGetDefaultBindAddress();
         struct in_addr naddr;
     
-        if (localIp || localIp[0] == 0)
+        if (localIp == NULL || localIp[0] == 0)
         {
-            //osSocketGetHostIp(szBuff);
+            // localIp Not specified - use default
             naddr.S_un.S_addr = defaultAddr;
             szBuff = inet_ntoa(naddr);
             strncpy(szLocalIp, szBuff, 32);
@@ -254,9 +254,8 @@ int res_init_ip(const char* localIp)
         {
             if (localIp && localIp[0] != 0 && strcmp(szLocalIp, localIp) == 0)
             {
-                return 0; // no need to init again if the ip
-                        // address is the same as the last call
-                        // to this function.
+                return 0; // no need to init again if the ip address is the same
+                          // as the last call to this function.
             }
             strncpy(szLocalIp, localIp, 32);
         }

@@ -1,3 +1,19 @@
+// Copyright 2008 AOL LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -27,6 +43,7 @@
 #include <os/OsQueuedEvent.h>
 #ifdef SIP_TLS
 #include <net/SipTlsServer.h>
+#include <os/OsTLS.h>
 #endif
 #include <os/OsNatKeepaliveListener.h>
 
@@ -273,9 +290,7 @@ public:
 
     //! Enable stun lookups for UDP signaling.  Use a NULL szStunServer to 
     //! disable
-    virtual void enableStun(const char* szStunServer, 
-                            int iStunPort,
-                            int refreshPeriodInSecs, 
+    virtual void enableStun(const ProxyDescriptor& stunServer,
                             OsNotification* pNotification = NULL,
                             const char* szIp = NULL) ;
 
@@ -719,6 +734,7 @@ private:
     SipTlsServer* mSipTlsServer;
 #endif
     SipTransactionList mSipTransactions;
+    UtlString mDefaultAddress;
     UtlString defaultSipUser;
     UtlString defaultSipAddress;
     UtlString proxyServers;
@@ -773,6 +789,7 @@ private:
     bool mbIncludePlatformInUserAgentName;  // whether or not the platform name should
                                             // be appended to the user agent name
 
+
     /** check the acceptability of method, extensions, and encoding.
      * The default is TRUE; it may be set to false in applications such as a redirect server
      * that will never actually send a 2xx response, so the checks might cause errors that
@@ -780,7 +797,7 @@ private:
      */
     UtlBoolean mDoUaMessageChecks;
 
-    void garbageCollection();
+    void garbageCollection(bool bForceAll);
 
     void queueMessageToInterestedObservers(SipMessageEvent& event,
                                            const UtlString& method);

@@ -24,7 +24,7 @@
 #include <net/SipRefreshMgr.h>
 #include <mi/CpMediaInterfaceFactoryFactory.h>
 
-#ifdef _WIN32
+#if defined _WIN32 && !defined WINCE
   #define _CRTDBG_MAP_ALLOC
   #include <crtdbg.h>
 
@@ -127,7 +127,7 @@ public:
 
     void testSimpleTeardown()
     {
-#ifdef _WIN32
+#if defined _WIN32 && !defined WINCE
         _CrtMemCheckpoint(&MemStateBegin);
 #endif
         int i;
@@ -180,7 +180,7 @@ public:
             sipxDestroyMediaFactoryFactory() ;
         }
             
-#ifdef _WIN32
+#if defined _WIN32 && !defined WINCE
         _CrtMemCheckpoint(&MemStateEnd);
         if (_CrtMemDifference(&MemStateDiff, &MemStateBegin, &MemStateEnd))
         {
@@ -191,7 +191,8 @@ public:
 
     void testUATeardown()
     {
-        for (int i=0; i<NUM_OF_RUNS; ++i)
+       int i;
+        for (i=0; i<NUM_OF_RUNS; ++i)
         {
             SipUserAgent* sipUA = new SipUserAgent( 5090
                                                     ,5090

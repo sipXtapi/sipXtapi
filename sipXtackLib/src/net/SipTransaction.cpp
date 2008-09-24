@@ -1,3 +1,19 @@
+// Copyright 2008 AOL LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -427,7 +443,8 @@ UtlBoolean SipTransaction::handleOutgoing(SipMessage& outgoingMessage,
                                          enum messageRelationship relationship,
                                          SIPX_TRANSPORT_DATA* pTransport)
 {
-    if (!mpTransport) mpTransport = pTransport;
+    if (pTransport)
+        mpTransport = pTransport;
     
     UtlBoolean isResponse = outgoingMessage.isResponse();
     //UtlString toAddress;
@@ -2548,6 +2565,11 @@ UtlBoolean SipTransaction::recurseDnsSrvChildren(SipUserAgent& userAgent,
                                                  mSendToPort,
                                                  this->getRequest()->getLocalIp().data());
 
+            if (mpRequest == NULL)
+            {
+                return FALSE ;
+            }
+
             // HACK:
             // Add a via to this request so when we set a timer it is
             // identified (by branchId) which transaction it is related to
@@ -3462,7 +3484,8 @@ UtlBoolean SipTransaction::handleIncoming(SipMessage& incomingMessage,
                                          SipMessage*& delayedDispatchedMessage,
                                          SIPX_TRANSPORT_DATA* pTransport)
 {
-    if (!mpTransport) mpTransport = pTransport;
+    if (pTransport)
+        mpTransport = pTransport;
 
     if(delayedDispatchedMessage)
     {
@@ -3972,14 +3995,18 @@ void SipTransaction::deleteTimers()
 #ifdef TEST_PRINT
         osPrintf("SipTransaction::deleteTimers deleting timer %p\n", timer);
 #endif
+        // stop timer so it doesn't fire anymore
+        timer->stop();
+
+        // remove timer from transaction
         removeTimer(timer);
         
-        // Only delete the timer if not stopped -- the timer will be cleaned 
-        // up in handle message.  Delete it opens up a race (the timer could
-        // be queued up on the SipUserAgent already).
-        if (timer->getState() != OsTimer::STOPPED)
+        // delete timer if it's stopped and isn't stopped because it fired
+        // but because we stopped it manually. Such timers are safe to delete.
+        // Fired timers should be cleaned up in the message queue they posted
+        // message to (SipUserAgent).
+        if (timer->getState() == OsTimer::STOPPED && timer->getWasFired() == FALSE)
         {
-            timer->stop();
             SipMessageEvent* pMsgEvent = (SipMessageEvent*) timer->getUserData() ;
             delete pMsgEvent;
             delete timer;

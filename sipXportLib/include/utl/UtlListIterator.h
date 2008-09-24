@@ -97,6 +97,7 @@ protected:
     UtlLink* mpCurrentNode;
 
     friend class UtlList;
+    friend class UtlInit;
 
     /**
      * removing is called by the UtlList when an element is about to be
@@ -106,7 +107,6 @@ protected:
     virtual void removing(const UtlLink* node);
 
 
-    static const UtlLink*  NOWHERE;
     static UtlLink const* OFF_LIST_END;
     
 /* //////////////////////////// PRIVATE /////////////////////////////////// */

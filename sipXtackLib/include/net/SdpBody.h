@@ -1,3 +1,19 @@
+// Copyright 2008 AOL LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA. 
 //
 // Copyright (C) 2005 SIPez LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.
@@ -25,7 +41,7 @@
 
 #include <net/HttpBody.h>
 #include <net/NameValuePair.h>
-#include <net/SdpCodec.h>
+#include <sdp/SdpCodec.h>
 
 // DEFINES
 #define SDP_AUDIO_MEDIA_TYPE "audio"
@@ -34,7 +50,7 @@
 
 // Crypto suites
 #define AES_CM_128_HMAC_SHA1_80   1
-#define AES_CM_128_HAMC_SHA1_32   2
+#define AES_CM_128_HMAC_SHA1_32   2
 #define F8_128_HMAC_SHA1_80       3
 // Protection level
 #define SRTP_ENCRYPTION           0x0001
@@ -52,6 +68,11 @@
 // EXTERNAL VARIABLES
 // CONSTANTS
 #define SDP_CONTENT_TYPE "application/sdp"
+#ifdef ICE_USE_CALT
+#   define CANDIDATE_ATTRIBUTE "calt"
+#else
+#   define CANDIDATE_ATTRIBUTE "candidate"
+#endif
 // STRUCTS
 // TYPEDEFS
 typedef struct SdpSrtpParameters
@@ -63,7 +84,7 @@ typedef struct SdpSrtpParameters
 
 
 // FORWARD DECLARATIONS
-class SdpCodecFactory;
+class SdpCodecList;
 
 /// Container for MIME type application/sdp.
 /**
@@ -183,14 +204,8 @@ class SdpBody : public HttpBody
  * @{
  */
 
-   /// Create a set of media codec and address entries
-   void addCodecsOffer(int iNumAddresses,
-                       UtlString mediaAddresses[],
-                       int rtpAudioPorts[],
-                       int rtcpAudioPorts[],
-                       int rtpVideoPorts[],
-                       int rtcpVideoPorts[],
-                       RTP_TRANSPORT transportTypes[],
+   void addCodecsOffer(UtlSList& audioContacts,
+                       UtlSList& videoContacts,                                                    
                        int numRtpCodecs,
                        SdpCodec* rtpCodecs[],
                        SdpSrtpParameters& srtpParams,
@@ -204,14 +219,8 @@ class SdpBody : public HttpBody
     * to a SdpBody send from the other side
     */
 
-   /// Create a response to a set of media codec and address entries.
-   void addCodecsAnswer(int iNumAddresses,
-                       UtlString mediaAddresses[],
-                       int rtpAudioPorts[],
-                       int rtcpAudioPorts[],
-                       int rtpVideoPorts[],
-                       int rtcpVideoPorts[],
-                       RTP_TRANSPORT transportTypes[],
+   void addCodecsAnswer(UtlSList& audioContacts,
+                        UtlSList& videoContacts, 
                        int numRtpCodecs, 
                        SdpCodec* rtpCodecs[],
                        SdpSrtpParameters& srtpParams,
@@ -284,6 +293,8 @@ class SdpBody : public HttpBody
                             const char* formatParameters
                             );
 
+   /// Add a "a" field for the given ptime value in milliseconds
+   void addPtime(int pTime);
 
     /**
      * Set the candidate attribute per draft-ietf-mmusic-ice-05
@@ -376,6 +387,9 @@ class SdpBody : public HttpBody
                                   int payloadTypes[] ///< array of integer payload types
                                   ) const;
 
+   /// Get the ptime field for the given media set
+   UtlBoolean getPtime(int mediaInded, int& ptime) const;
+
    /// Media field accessor utility.
    UtlBoolean getMediaSubfield(int mediaIndex,
                                int subfieldIndex,
@@ -425,12 +439,14 @@ class SdpBody : public HttpBody
 
 
    /// Find the send and receive codecs from the rtpCodecs array which are compatible with this SdpBody.
-   void getBestAudioCodecs(SdpCodecFactory& localRtpCodecs,
+   void getBestAudioCodecs(SdpCodecList& localRtpCodecs,
                            int& numCodecsInCommon,
-                           SdpCodec**& codecsInCommonArray,
+                           SdpCodec**& commonCodecsForEncoder,
+                           SdpCodec**& commonCodecsForDecoder,
                            UtlString& rtpAddress, 
                            int& rtpPort,
                            int& rtcpPort,
+                           UtlString& videoAddress, 
                            int& videoRtpPort,
                            int& videoRtcpPort,
                            SdpSrtpParameters& localSrtpParams,
@@ -443,13 +459,14 @@ class SdpBody : public HttpBody
    ///< It is assumed that the best are matches are first in the body.
 
    void getCodecsInCommon(int audioPayloadIdCount,
-                          int videoPayloadCount,
+                          int videoPayloadIdCount,
                           int audioPayloadTypes[],
                           int videoPayloadTypes[],
                           int videoRtpPort,
-                          SdpCodecFactory& codecFactory,
+                          SdpCodecList& localRtpCodecs,
                           int& numCodecsInCommon,
-                          SdpCodec* codecs[]) const;
+                          SdpCodec* commonCodecsForEncoder[],
+                          SdpCodec* commonCodecsForDecoder[]) const;
 
    // Find common encryption suites
    void getEncryptionInCommon(SdpSrtpParameters& audioParams,
@@ -466,6 +483,8 @@ class SdpBody : public HttpBody
                                   int remoteVideoFramerate,
                                   int& commonVideoFramerate) const;
 
+   UtlBoolean hasCandidateAttributes() const ;
+
     /**
      * Get the candidate attribute per draft-ietf-mmusic-ice-05
      */
@@ -480,6 +499,16 @@ class SdpBody : public HttpBody
 
 
    UtlBoolean getCandidateAttributes(const char* szMimeType,
+                                     int         nMaxAddresses,                                     
+                                     int         candidateIds[],
+                                     UtlString   transportIds[],
+                                     UtlString   transportTypes[],
+                                     double      qvalues[], 
+                                     UtlString   candidateIps[], 
+                                     int         candidatePorts[],
+                                     int&        nActualAddresses) const ;
+
+   UtlBoolean getCandidateAttributes(int         mediaIndex,
                                      int         nMaxAddresses,                                     
                                      int         candidateIds[],
                                      UtlString   transportIds[],

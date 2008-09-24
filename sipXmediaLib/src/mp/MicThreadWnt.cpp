@@ -1,3 +1,6 @@
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -10,6 +13,7 @@
 
 
 // SYSTEM INCLUDES
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #ifndef WINCE
 #   include <process.h>
@@ -25,6 +29,11 @@
 #include "mp/MpMediaTask.h"
 #include "os/OsMsgPool.h"
 #include "os/OsDefs.h"
+#include "os/OsIntPtrMsg.h"
+
+#ifdef RTL_ENABLED
+#   include <rtl_macro.h>
+#endif
 
 // DEFINES
 // EXTERNAL FUNCTIONS
@@ -49,7 +58,8 @@ static int lastIn;
 #endif /* HISTORY ] */
 static HWAVEIN  audioInH;
 static OsMsgPool* DmaMsgPool = NULL;
-
+OsMsgPool* gMicStatusPool = NULL;
+OsMsgQ* gMicStatusQueue = NULL;
 
 /* ============================ FUNCTIONS ================================= */
 
@@ -63,23 +73,77 @@ void CALLBACK micOutCallBackProc(HANDLE h, UINT wMsg, DWORD dwInstance, DWORD dw
    }
 #endif /* HISTORY ] */
 
-   int retval = PostThreadMessage(dwInstance, wMsg, dwParam, GetTickCount());
+   OsIntPtrMsg *pMsg = (OsIntPtrMsg*)gMicStatusPool->findFreeMsg();
 
-   if (retval == 0)
+   if (pMsg)
    {
-      Sleep(500);
-      retval = PostThreadMessage(dwInstance, wMsg, dwParam, GetTickCount());
-      if (retval == 0)
-         osPrintf("Could not PostTheadMessage after two tries.\n");
+      // message was taken from pool
+      pMsg->setData1(wMsg);
+      pMsg->setData2(dwParam);
+      if (gMicStatusQueue->sendFromISR(*pMsg) != OS_SUCCESS)
+      {
+         osPrintf("Problem with sending message in micOutCallBackProc\n");
+      }
+   }
+   else
+   {
+      osPrintf("Could not create message in micOutCallBackProc\n");
    }
 }
 
+/**
+*  Detects ID of a mixer that can set gain on the wave input device
+*  identified by supplied handle. A sound card can have separate mixer
+*  for output devices and input devices. If we have multiple sound cards
+*  then we will have multiple wave input and wave output devices with several
+*  mixers possibly separate input and output mixers. Thus we need to detect
+*  the right mixer ID in order to set gain of the right microphone later.
+*  
+*  @param pAudioInH handle of the open wave input device
+*  @return result of detection of mixer ID
+*
+*  @see detectInputMixerId
+*  @see openAudioIn
+*/
+OsStatus detectInputMixerId(HWAVEIN *pAudioInH)
+{
+   MMRESULT mmresult;
+   unsigned int uMxId;
+
+   mmresult = mixerGetID((HMIXEROBJ)(*pAudioInH), &uMxId, MIXER_OBJECTF_HWAVEIN);
+
+   if (mmresult == MMSYSERR_NOERROR)
+   {
+      return MpCodec_setInputMixerId(uMxId);
+   }
+   else return OS_UNSPECIFIED;
+}
+
+// This function waits for given status message on mic device
+static void waitForMicStatusMessage(unsigned int message)
+{
+   UtlBoolean bSuccess = FALSE;
+   unsigned int micStatus = 0;
+   OsMsg *pMsg = NULL;
+   do 
+   {
+      bSuccess = (gMicStatusQueue->receive(pMsg) == OS_SUCCESS);
+      if (bSuccess && pMsg)
+      {
+         OsIntPtrMsg *pIntMsg = (OsIntPtrMsg*)pMsg;
+         micStatus = (unsigned int)pIntMsg->getData1();
+         pIntMsg->releaseMsg();
+         pMsg = NULL;
+      }
+   } while (bSuccess && (micStatus != message));
+}
 
 int openAudioIn(HWAVEIN *pAudioInH,
                 int nChannels, int nSamplesPerSec, int nBitsPerSample)
 {
    WAVEFORMATEX fmt;
    MMRESULT     res;
+   OsStatus osstatus = OS_UNSPECIFIED;
 
    *pAudioInH = NULL;
    
@@ -110,9 +174,20 @@ int openAudioIn(HWAVEIN *pAudioInH,
       (DWORD) micOutCallBackProc,// callback entry
       GetCurrentThreadId(),   // instance data
       CALLBACK_FUNCTION);     // callback function specified
+
+      if (res == MMSYSERR_NOERROR)
+      {
+         // when no error then detect input mixer id
+         osstatus = detectInputMixerId(pAudioInH);
+      }
+   }
+   else
+   {
+      // when no error then detect input mixer id
+      osstatus = detectInputMixerId(pAudioInH);
    }
 
-   if (res != MMSYSERR_NOERROR)
+   if (osstatus != OS_SUCCESS)
    {
       showWaveError("waveInOpen", res, -1, __LINE__);
       waveInClose(*pAudioInH);
@@ -156,10 +231,13 @@ WAVEHDR* inPrePrep(int n, DWORD bufLen)
 
 bool inPostUnprep(int n, int discard, DWORD bufLen, bool bFree)
 {
+#ifdef RTL_ENABLED
+   RTL_EVENT("MicThreadWnt.outPrePrep", 0);
+#endif
    bool retVal = false;  //assume we didn't succeed for now
 
    WAVEHDR* pWH;
-   MpBufPtr ob = NULL;
+   MpAudioBufPtr ob;
 
    static int iPU = 0;
    static int flushes = 0;
@@ -202,30 +280,34 @@ bool inPostUnprep(int n, int discard, DWORD bufLen, bool bFree)
 #endif /* DEBUG_WINDOZE ] */
 
       if (!discard) {
-         ob = MpBuf_getBuf(MpMisc.UcbPool, N_SAMPLES, 0, MP_FMT_T12);
+         ob = MpMisc.RawAudioPool->getBuffer();
+         if (!ob.isValid())
+            return false;
+         ob->setSamplesNumber(N_SAMPLES);
       }
       if (!discard) {
          MpBufferMsg* pFlush;
          MpBufferMsg* pMsg;
 
-   //    DWW took this assert out, because on windows, when you pull the usb dev out
-   //    you can receive 0 bytes back
-   //    assert(bufLen == pWH->dwBytesRecorded);
-		 if (NULL != ob)
-		 {
-	         memcpy(MpBuf_getSamples(ob), pWH->lpData, pWH->dwBytesRecorded);
-		 }
+         if (ob.isValid())
+         {
+            memcpy( ob->getSamplesWritePtr()
+                   , pWH->lpData
+                   , sipx_min( pWH->dwBytesRecorded
+                        , ob->getSamplesNumber()*sizeof(MpAudioSample)));
+         }
 #ifdef INSERT_SAWTOOTH /* [ */
          if (NULL == ob) { /* nothing in Q, or we are disabled */
-            ob = MpBuf_getBuf(MpMisc.UcbPool, MpMisc.frameSamples, 0, MP_FMT_T12);
-            if (NULL != ob) {
-               int i, n;
-               Sample *s;
+            ob = MpMisc.RawAudioPool->getBuffer();
+            if (ob.isValid()) {
+                ob->setSamplesNumber(MpMisc.frameSamples);
+                int i, n;
+                MpAudioSample *s;
 
-               s = MpBuf_getSamples(ob);
-               n = MpBuf_getNumSamples(ob);
-               for (i=0; i<n; i++)
-                   *s++= ((i % 80) << 10);
+                s = ob->getSamplesPtr();
+                n = ob->getSamplesNumber();
+                for (i=0; i<n; i++)
+                    *s++= ((i % 80) << 10);
             }
          }
 #endif /* INSERT_SAWTOOTH ] */
@@ -237,39 +319,28 @@ bool inPostUnprep(int n, int discard, DWORD bufLen, bool bFree)
 
          pMsg->setMsgSubType(MpBufferMsg::AUD_RECORDED);
 
-         pMsg->setTag(ob);
-         if (ob)
-         {            
-            pMsg->setBuf(MpBuf_getSamples(ob));
-            pMsg->setLen(MpBuf_getNumSamples(ob));
-         }
+         // Buffer is moved to the message. ob pointer is invalidated.
+         pMsg->ownBuffer(ob);
 
-         if (MpMisc.pMicQ && MpMisc.pMicQ->numMsgs() >= MpMisc.pMicQ->maxMsgs())
+         if (MpMisc.pMicQ)
          {
-            // if its full, flush one and send
-            OsStatus  res;
-            flushes++;
-            res = MpMisc.pMicQ->receive((OsMsg*&) pFlush, OsTime::NO_WAIT_TIME);
-            if (OS_SUCCESS == res) {
-               MpBuf_delRef(pFlush->getTag());
-               pFlush->releaseMsg();
-            } else {
-               osPrintf("DmaTask: queue was full, now empty (3)!"
-                  " (res=%d)\n", res);
-            }
-            if (MpMisc.pMicQ && OS_SUCCESS != MpMisc.pMicQ->send(*pMsg, OsTime::NO_WAIT_TIME))
+            if (MpMisc.pMicQ->numMsgs() >= MpMisc.pMicQ->maxMsgs())
             {
-               MpBuf_delRef(ob);
+                // if its full, flush one and send
+                OsStatus  res;
+                flushes++;
+                res = MpMisc.pMicQ->receive((OsMsg*&) pFlush, OsTime::NO_WAIT_TIME);
+                if (OS_SUCCESS == res) {
+                   pFlush->releaseMsg();
+                } else {
+                   osPrintf("DmaTask: queue was full, now empty (3)!"
+                            " (res=%d)\n", res);
+                }
             }
+            MpMisc.pMicQ->send(*pMsg, OsTime::NO_WAIT_TIME);
          }
-         else
-         {
-             if (MpMisc.pMicQ)
-             {
-                MpMisc.pMicQ->send(*pMsg, OsTime::NO_WAIT_TIME);
-             }
-         }
-         if (!pMsg->isMsgReusable()) delete pMsg;
+         if (!pMsg->isMsgReusable())
+             delete pMsg;
       }
       return true;
    }
@@ -291,17 +362,19 @@ bool inPostUnprep(int n, int discard, DWORD bufLen, bool bFree)
       }
    }
 
+#ifdef RTL_ENABLED
+   RTL_EVENT("MicThreadWnt.outPrePrep", 1);
+#endif
+
    return retVal;
 }
 
 int openMicDevice(bool& bRunning, WAVEHDR*& pWH)
 {
-	int        i, ii;
-	WAVEINCAPS devcaps;
+    int        i, ii;
+    WAVEINCAPS devcaps;
     DWORD      bufLen = ((N_SAMPLES * BITS_PER_SAMPLE) / 8);
     MMRESULT   ret;
-    MSG        tMsg;
-    BOOL       bSuccess ;
 
     gMicDeviceId = WAVE_MAPPER;
 
@@ -313,8 +386,8 @@ int openMicDevice(bool& bRunning, WAVEHDR*& pWH)
     }
 
         
-	int numberOfDevicesOnSystem = waveInGetNumDevs();
-	for(ii=0; ii<numberOfDevicesOnSystem; ii++)
+    int numberOfDevicesOnSystem = waveInGetNumDevs();
+    for(ii=0; ii<numberOfDevicesOnSystem; ii++)
     {
         waveInGetDevCaps(ii, &devcaps, sizeof(devcaps));
         if (strcmp(devcaps.szPname, DmaTask::getMicDevice())==0) 
@@ -333,10 +406,7 @@ int openMicDevice(bool& bRunning, WAVEHDR*& pWH)
         return 1;
     }
 
-    do 
-    {
-        bSuccess = GetMessage(&tMsg, NULL, 0, 0) ;
-    } while (bSuccess && (tMsg.message != WIM_OPEN)) ;
+    waitForMicStatusMessage(WIM_OPEN);
 
     ret = waveInStart(audioInH);
     if (ret != MMSYSERR_NOERROR)
@@ -373,16 +443,41 @@ int openMicDevice(bool& bRunning, WAVEHDR*& pWH)
     return 0 ;
 }
 
+static void waitForDeviceResetCompletion()
+{
+   int i;
+   bool bStillResetting;
+   int iterations = 0;
+
+   do
+   {
+      bStillResetting = false;
+
+      for (i = 0; i < N_OUT_BUFFERS; i++) 
+      {
+         if (hInHdr[i] && (pInHdr[i]->dwFlags & WHDR_INQUEUE))
+         {
+            bStillResetting = true;
+         }
+      }
+
+      if (bStillResetting)
+      {
+         Sleep(10);
+      }
+   }
+   while (bStillResetting && ++iterations < 100);
+}
 
 void closeMicDevice()
 {
     DWORD      bufLen = ((N_SAMPLES * BITS_PER_SAMPLE) / 8);
     MMRESULT   ret;
-    MSG        tMsg;
-    BOOL       bSuccess ; 
     int        i ;
 
     // Cleanup
+    if (!audioInH)
+        return;
     ret = waveInReset(audioInH);
     if (ret != MMSYSERR_NOERROR)
     {
@@ -393,7 +488,7 @@ void closeMicDevice()
     {
         showWaveError("waveInStop", ret, -1, __LINE__);
     }
-    Sleep(500) ;
+    waitForDeviceResetCompletion();
 
     for (i=0; i<N_IN_BUFFERS; i++) 
     {
@@ -407,7 +502,7 @@ void closeMicDevice()
             inPostUnprep(i, TRUE, bufLen, TRUE);
         }
     }
-    Sleep(500) ;
+    Sleep(50);
 
     ret = waveInClose(audioInH);
     if (ret != MMSYSERR_NOERROR)
@@ -415,10 +510,7 @@ void closeMicDevice()
         showWaveError("waveInClose", ret, -1, __LINE__);
     }
 
-    do 
-    {
-        bSuccess = GetMessage(&tMsg, NULL, 0, 0) ;
-    } while (bSuccess && (tMsg.message != WIM_CLOSE)) ;
+    waitForMicStatusMessage(WIM_CLOSE);
 
     audioInH = NULL;
 }
@@ -431,7 +523,8 @@ unsigned int __stdcall MicThread(LPVOID Unused)
     WAVEHDR* pWH;
     MMRESULT ret;
     int      recorded;
-    MSG      tMsg;
+    OsMsg *pMsg = NULL;
+    OsIntPtrMsg *pMicMsg = NULL;
     BOOL     bGotMsg ;
     int      n;
     bool     bDone ;
@@ -448,10 +541,11 @@ unsigned int __stdcall MicThread(LPVOID Unused)
         bRunning = true ;
     }
 
-    MpBufferMsg* pMsg = new MpBufferMsg(MpBufferMsg::AUD_RECORDED);
-    DmaMsgPool = new OsMsgPool("DmaTask", (*(OsMsg*)pMsg),
-            40, 60, 100, 5,
-            OsMsgPool::SINGLE_CLIENT);
+    MpBufferMsg *pBuffMsg = new MpBufferMsg(MpBufferMsg::AUD_RECORDED);
+    DmaMsgPool = new OsMsgPool("DmaTask", (*(OsMsg*)pBuffMsg),
+       40, 60, 100, 5,
+       OsMsgPool::SINGLE_CLIENT);
+    delete pBuffMsg;
 
     // Initialize Buffers
     for (i=0; i<N_IN_BUFFERS; i++) 
@@ -485,20 +579,37 @@ unsigned int __stdcall MicThread(LPVOID Unused)
     // Start up Speaker thread
     ResumeThread(hSpkrThread);
 
-#ifdef DEBUG_WINDOZE
-    frameCount = 0;
-#endif
     recorded = 0;
     bDone = false ;
     while (!bDone) 
     {
-        bGotMsg = GetMessage(&tMsg, NULL, 0, 0);
-        if (bGotMsg) 
+       bGotMsg = (gMicStatusQueue->receive(pMsg) == OS_SUCCESS);
+
+        if (bGotMsg && pMsg) 
         {
-            switch (tMsg.message) 
+           pMicMsg = (OsIntPtrMsg*)pMsg;
+           intptr_t msgType = pMicMsg->getData1();
+           intptr_t data2 = pMicMsg->getData2();
+           pMicMsg->releaseMsg();
+           pMicMsg = NULL;
+           pMsg = NULL;
+
+            switch (msgType) 
             {
             case WIM_DATA:
-                pWH = (WAVEHDR *) tMsg.wParam;
+                // Check if we got data - if not - then this signals a device change
+                if (!data2)
+                {
+                    if (DmaTask::isInputDeviceChanged())
+                    {
+                        DmaTask::clearInputDeviceChanged();
+
+                        closeMicDevice();
+                        openMicDevice(bRunning, pWH);
+                    }
+                    break;
+                }
+                pWH = (WAVEHDR *)data2;
                 n = (pWH->dwUser) & USER_BUFFER_MASK;
 
 #ifdef IHISTORY /* [ */
@@ -576,7 +687,9 @@ unsigned int __stdcall MicThread(LPVOID Unused)
 
     closeMicDevice() ;    
 
-    bRunning = false ;
+    bRunning = false;
+    delete DmaMsgPool;
+    DmaMsgPool = NULL;
 
     return 0;
 }

@@ -4,12 +4,22 @@
 //////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
-#include "os/OsDefs.h"
-#include "os/OsBSem.h"
-#include "os/OsLock.h"
 #include "assert.h"
 
 // APPLICATION INCLUDES
+
+/*
+ * Include UtlInit so that static members are initialized. This ensures UtlLink will be
+ * initialized whenever it is linked into program. If it is required to use UtlLink
+ * or UtlPair in a constructor or destructor of a static object, the corresponding .cpp
+ * file must also include UtlInit.h to safeguard proper constructor/destructor ordering.
+ * UtlInit.h should be the first include.
+ */
+#include "utl/UtlInit.h"
+
+#include "os/OsDefs.h"
+#include "os/OsLock.h"
+#include "utl/UtlChainPool.h"
 #include "utl/UtlLink.h"
 
 // DEFINES
@@ -17,13 +27,18 @@
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
-#ifndef UTLLINK_BLOCK_SIZE
-#define UTLLINK_BLOCK_SIZE 1000
-#endif
+// STATIC VARIABLE INITIALIZATIONS
+
+// The pool of available UtlLinks
+UtlChainPool* UtlLink::spLinkPool;
+
+// The pool of available UtlPairs
+UtlChainPool* UtlPair::spPairPool;
 
 // STRUCTS
 // TYPEDEFS
 // FORWARD DECLARATIONS
+
 
 /// Insert a new item into a list before an existing entry (before NULL == at the tail).
 void UtlChain::listBefore(UtlChain* list,
@@ -102,118 +117,6 @@ UtlChain* UtlChain::detachFromList(UtlChain* list)
    return this;
 }
 
-
-/// Pool of available objects derived from UtlChain.
-/**
- * This avoids excessive heap operations; rather than delete unused UtlChains, they are
- * stored on the mPool here.  To limit the heap overhead associated with allocating
- * UtlChain, they are allocated in mBlockSize blocks, which are chained on
- * mBlocks.
- *
- * The actual allocation of the blocks and initial chaining is done by the allocator
- * function supplied by the UtlChain subclass.
- */
-class UtlChainPool
-{
-public:
-
-protected:
-   friend class UtlLink;
-   friend class UtlPair;
-   
-   /// Allocate blocksize instances of the subclass and chain them into the pool. 
-   typedef void allocator(size_t    blocksize, ///< number of instances to allocate
-                          UtlChain* blockList, ///< list header for first instance
-                          UtlChain* pool       ///< list header for others
-                          );
-   /**<
-    * This function is supplied by the subclass to the UtlChainPool constructor.
-    * It is responsible for allocating a block of blocksize instances of its subclass.
-    * The first instance in each block is added to the blockList, so that the UtlChainPool
-    * destructor can delete the block.  The remaining (blocksize-1) instances are
-    * chained onto the pool list header.
-    */
-
-   /// Create a UtlChainPool that uses blockAllocator to create UtlChain derived objects.
-   UtlChainPool(allocator* blockAllocator, size_t blockSize) :
-      mLock(OsBSem::Q_PRIORITY, OsBSem::FULL),
-      mBlockSize(blockSize),
-      mAllocations(0),
-      mAllocator(blockAllocator)
-      {
-      }
-
-   /// Get a UtlLink with chain pointers NULL
-   UtlChain* get()
-      {
-         UtlChain* newChain;
-         {  // critical section for member variables
-            OsLock poolLock(mLock);
-   
-            if (mPool.isUnLinked()) // are there available objects in the pool?
-            {
-               // no - get the subclass to allocate some more
-               mAllocator(mBlockSize, &mBlocks, &mPool);
-               mAllocations++;
-            } 
-
-            // pull the first UtlChain off the mPool
-            newChain = mPool.listHead();
-            if (newChain)
-            {
-               newChain->detachFromList(&mPool);
-            }
-         }  // end of critical section
-         return newChain;
-      }
-
-   /// Return freeLink to the pool of available UtlLinks.
-   void release(UtlChain* freeChain)
-      {
-         OsLock poolLock(mLock);
-
-         // put this freed object on the tail of the pool list
-         freeChain->listBefore(&mPool, NULL);
-      }
-
-   /// Returns the total number of subclasses instances allocated by this pool.
-   /**
-    * The returned count does not include the 1 instance in each allocation that is
-    * consumed to manage the pool.
-    */
-   size_t totalAllocated()
-      {
-         return mAllocations * (mBlockSize-1); // one per block is overhead
-      }
-
-private:
-
-   /// Release all dynamic memory used by the UtlLinkPool.
-   ~UtlChainPool()
-      {
-         OsLock poolLock(mLock);
-
-         UtlChain* block;
-         while (!mBlocks.isUnLinked()) // blocks still on block list
-         {
-            block = mBlocks.listHead()->detachFromList(&mBlocks);
-            delete[] block;
-         }
-      }
-
-   OsBSem        mLock; ///< lock for all the other member variables
-   size_t        mBlockSize;
-   size_t        mAllocations;
-   allocator*    mAllocator;
-   UtlChain      mPool;     ///< list of available UtlLinks.
-   UtlChain      mBlocks;   /**< list of memory blocks allocated by the mAllocator.
-                             *   Each block is an mBlockSize array of objects derived from
-                             *   UtlChain. The 0th element is used to form the linked list
-                             *   of blocks.  The rest are made a part of the mPool.*/
-};
-
-// The pool of available UtlLinks
-UtlChainPool* UtlLink::spLinkPool = new UtlChainPool(UtlLink::allocate, UTLLINK_BLOCK_SIZE);
 
 UtlContainable* UtlLink::unlink()
 {
@@ -345,10 +248,6 @@ void UtlLink::allocate(size_t    blocksize, ///< number of instances to allocate
       newBlock[i].UtlChain::listBefore(pool, NULL);
    }
 }
-
-
-// The pool of available UtlPairs
-UtlChainPool* UtlPair::spPairPool = new UtlChainPool(UtlPair::allocate, UTLLINK_BLOCK_SIZE);
 
 void UtlPair::allocate(size_t    blocksize, ///< number of instances to allocate
                        UtlChain* blockList, ///< list header for first instance

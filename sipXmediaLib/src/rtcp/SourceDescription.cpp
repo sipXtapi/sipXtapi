@@ -18,8 +18,8 @@
 #include <unistd.h>
 #endif
 
-#ifdef WINCE
-#   include <winsock.h>
+#ifdef WIN32
+#   include <winsock2.h>
 #endif
 
 #ifdef INCLUDE_RTCP /* [ */

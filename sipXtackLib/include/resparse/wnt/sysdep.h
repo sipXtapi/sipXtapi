@@ -1,3 +1,13 @@
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
+//
+// Copyright (C) 2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// $$
+///////////////////////////////////////////////////////////////////////////////
+
 #ifndef SYSDEP_H
 #define SYSDEP_H
 
@@ -93,7 +103,7 @@ do { \
 #include <stdio.h>     /* required for compilation on win32.
                         * Probably types.h does not include WCHAR */
 
-#include <winsock.h> /* For NT socket */
+#include <winsock2.h> /* For NT socket */
 
 #ifndef WINCE
 #   include <sys/timeb.h> /* For _ftime() */
@@ -104,8 +114,10 @@ do { \
 #endif
 
 #include <resparse/wnt/crypt.h>
+#ifndef WINCE  /* WinCE doesn't have signal.h or errno.h */
 #include <signal.h>    /* SIGINT */
 #include <errno.h>
+#endif
 #include <resparse/wnt/nterrno.h>  /* Additional errors not in errno.h --GAT */
 
 
@@ -114,14 +126,6 @@ do { \
 
 #ifndef stat
 #define stat _stat
-#endif
-
-#ifndef strcasecmp
-#define strcasecmp _stricmp
-#endif
-
-#ifndef strncasecmp
-#define strncasecmp _strnicmp
 #endif
 
 #ifndef snprintf

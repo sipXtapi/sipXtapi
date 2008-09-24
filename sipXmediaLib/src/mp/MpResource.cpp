@@ -1,5 +1,8 @@
+//  
+// Copyright (C) 2006-2007 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -13,15 +16,18 @@
 #include <assert.h>
 
 // APPLICATION INCLUDES
-#include "os/OsDefs.h"
-#include "mp/MpFlowGraphBase.h"
-#include "mp/MpFlowGraphMsg.h"
-#include "mp/MpResource.h"
+#include <os/OsDefs.h>
+#include <os/OsLock.h>
+#include <mp/MpFlowGraphBase.h>
+#include <mp/MpFlowGraphMsg.h>
+#include <mp/MpResourceMsg.h>
+#include <mp/MpResource.h>
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
 const UtlContainableType MpResource::TYPE = "MpResource";
+const OsTime MpResource::sOperationQueueTimeout = OsTime::NO_WAIT_TIME;
 
 // STATIC VARIABLE INITIALIZATIONS
 
@@ -31,21 +37,20 @@ const UtlContainableType MpResource::TYPE = "MpResource";
 
 // Constructor
 MpResource::MpResource(const UtlString& rName, int minInputs, int maxInputs,
-                       int minOutputs, int maxOutputs,
-                       int samplesPerFrame, int samplesPerSec)
-:  mRWMutex(OsRWMutex::Q_PRIORITY),
-   mpFlowGraph(NULL),
-   mIsEnabled(FALSE),
-   mMaxInputs(maxInputs),
-   mMaxOutputs(maxOutputs),
-   mMinInputs(minInputs),
-   mMinOutputs(minOutputs),
-   mName(rName),
-   mNumActualInputs(0),
-   mNumActualOutputs(0),
-   mSamplesPerFrame(samplesPerFrame),
-   mSamplesPerSec(samplesPerSec),
-   mVisitState(NOT_VISITED)
+                       int minOutputs, int maxOutputs)
+: UtlString(rName) //,mName(rName) -- resource name is now stored in parent utlString
+, mpFlowGraph(NULL)
+, mIsEnabled(FALSE)
+, mRWMutex(OsRWMutex::Q_PRIORITY)
+, mMaxInputs(maxInputs)
+, mMaxOutputs(maxOutputs)
+, mMinInputs(minInputs)
+, mMinOutputs(minOutputs)
+, mNumActualInputs(0)
+, mNumActualOutputs(0)
+, mVisitState(NOT_VISITED)
+, mNotificationsEnabled(FALSE)
+, mLock(OsBSem::Q_FIFO, OsBSem::FULL)
 {
    int i;   
 
@@ -57,6 +62,7 @@ MpResource::MpResource(const UtlString& rName, int minInputs, int maxInputs,
    // Allocate arrays for input/output link objects and input/output
    // buffer.  Size the arrays so as to accommodate the maximum number of
    // input and output links supported for this resource.
+   OsLock lock(mLock);
    mpInConns  = new Conn[maxInputs];
    mpOutConns = new Conn[maxOutputs];
    mpInBufs   = new MpBufPtr[maxInputs];
@@ -66,16 +72,17 @@ MpResource::MpResource(const UtlString& rName, int minInputs, int maxInputs,
    {
       mpInConns[i].pResource = NULL;
       mpInConns[i].portIndex = -1;
-      mpInBufs[i] = NULL;
+      mpInConns[i].reserved = FALSE;
+      mpInBufs[i].release();
    }
 
    for (i=0; i < maxOutputs; i++)      // initialize the output port storage
    {
       mpOutConns[i].pResource = NULL;
       mpOutConns[i].portIndex = -1;
-      mpOutBufs[i] = NULL;
+      mpOutConns[i].reserved = FALSE;
+      mpOutBufs[i].release();
    }
-
 }
 
 // Destructor
@@ -84,20 +91,20 @@ MpResource::~MpResource()
    int i;
 
    for (i=0; i < mMaxInputs; i++)
-      MpBuf_delRef(mpInBufs[i]);       // free all input buffers
+      mpInBufs[i].release();       // free all input buffers
 
    for (i=0; i < mMaxOutputs; i++)
-      MpBuf_delRef(mpOutBufs[i]);      // free all output buffers
+      mpOutBufs[i].release();      // free all output buffers
 
    delete[] mpInConns;
-   mpInConns = 0;
+   mpInConns = NULL;
    delete[] mpOutConns;
-   mpOutConns = 0;
+   mpOutConns = NULL;
 
    delete[] mpInBufs;
-   mpInBufs = 0;
+   mpInBufs = NULL;
    delete[] mpOutBufs;
-   mpOutBufs = 0;
+   mpOutBufs = NULL;
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -118,6 +125,13 @@ UtlBoolean MpResource::disable(void)
    return (res == OS_SUCCESS);
 }
 
+OsStatus MpResource::disable(const UtlString& namedResource,
+                             OsMsgQ& fgQ)
+{
+   MpResourceMsg msg(MpResourceMsg::MPRM_RESOURCE_DISABLE, namedResource);
+   return fgQ.send(msg, sOperationQueueTimeout);
+}
+
 // Enable this resource.
 // Returns TRUE if successful, FALSE otherwise.
 // The "enabled" flag is passed to the doProcessFrame() method
@@ -135,116 +149,22 @@ UtlBoolean MpResource::enable(void)
    return (res == OS_SUCCESS);
 }
 
-// Wrapper around doProcessFrame().
-// Returns TRUE if successful, FALSE otherwise.
-// This method prepares the input buffers before calling
-// doProcessFrame() and distributes the output buffers to the
-// appropriate downstream resources after doProcessFrame()
-// returns.
-UtlBoolean MpResource::processFrame(void)
+OsStatus MpResource::enable(const UtlString& namedResource,
+                            OsMsgQ& fgQ)
 {
-   int       i;
-   UtlBoolean res;
-
-#define WATCH_FRAME_PROCESSING
-#undef  WATCH_FRAME_PROCESSING
-#ifdef WATCH_FRAME_PROCESSING /* [ */
-   char      z[500];
-   const char* pName;
-   int       len;
-#endif /* WATCH_FRAME_PROCESSING ] */
-
-#ifdef WATCH_FRAME_PROCESSING /* [ */
-   pName = mName;
-   len = sprintf(z, "%s(", pName);
-   for (i=0; i < mMaxInputs; i++)
-   {
-      if (mpInBufs[i] != NULL)
-      {
-         len += sprintf(z+len, "%d,", MpBuf_bufNum(mpInBufs[i]));
-      } else {
-         len += sprintf(z+len, "-,");
-      }
-   }
-   if (mMaxInputs > 0) len--;
-   len += sprintf(z+len, ")..(");
-#endif /* WATCH_FRAME_PROCESSING ] */
-
-   // call doProcessFrame to do any "real" work
-   res = doProcessFrame(mpInBufs, mpOutBufs,
-                        mMaxInputs, mMaxOutputs, mIsEnabled,
-                        mSamplesPerFrame, mSamplesPerSec);
-
-#ifdef WATCH_FRAME_PROCESSING /* [ */
-   for (i=0; i < mMaxInputs; i++)
-   {
-      if (mpInBufs[i] != NULL)
-      {
-         len += sprintf(z+len, "%d,", MpBuf_bufNum(mpInBufs[i]));
-      } else {
-         len += sprintf(z+len, "-,");
-      }
-   }
-   if (mMaxInputs > 0) len--;
-   len += sprintf(z+len, ")..(");
-
-   for (i=0; i < mMaxOutputs; i++)
-   {
-      if (mpOutBufs[i] != NULL)
-      {
-         len += sprintf(z+len, "%d,", MpBuf_bufNum(mpOutBufs[i]));
-      } else {
-         len += sprintf(z+len, "-,");
-      }
-   }
-   if (mMaxOutputs > 0) len--;
-   len += sprintf(z+len, ")\n");
-   z[len] = 0;
-   Zprintf("%s", (int) z, 0,0,0,0,0);
-#endif /* WATCH_FRAME_PROCESSING ] */
-
-   // delete any input buffers that were not consumed by doProcessFrame()
-   for (i=0; i < mMaxInputs; i++)
-   {
-      if (mpInBufs[i] != NULL)
-      {
-         MpBuf_delRef(mpInBufs[i]);
-         mpInBufs[i] = NULL;
-      }
-   }
-
-   // pass the output buffers downstream
-   for (i=0; i < mMaxOutputs; i++)
-   {
-      if (!setOutputBuffer(i, mpOutBufs[i])) MpBuf_delRef(mpOutBufs[i]);
-      mpOutBufs[i] = NULL;
-   }
-
-   return res;
+   MpResourceMsg msg(MpResourceMsg::MPRM_RESOURCE_ENABLE, namedResource);
+   return fgQ.send(msg, sOperationQueueTimeout);
 }
 
-// Sets the number of samples expected per frame.
-// Returns FALSE if the specified rate is not supported, TRUE otherwise.
-UtlBoolean MpResource::setSamplesPerFrame(int samplesPerFrame)
+OsStatus MpResource::setNotificationsEnabled(UtlBoolean enable,
+                                             const UtlString& namedResource, 
+                                             OsMsgQ& fgQ)
 {
-   MpFlowGraphMsg msg(MpFlowGraphMsg::RESOURCE_SET_SAMPLES_PER_FRAME, this,
-                      NULL, NULL, samplesPerFrame);
-   OsStatus       res;
+   MpResourceMsg msg(enable?MpResourceMsg::MPRM_ENABLE_ALL_NOTIFICATIONS
+                           :MpResourceMsg::MPRM_DISABLE_ALL_NOTIFICATIONS,
+                     namedResource);
 
-   res = postMessage(msg);
-   return (res == OS_SUCCESS);
-}
-
-// Sets the number of samples expected per second.
-// Returns FALSE if the specified rate is not supported, TRUE otherwise.
-UtlBoolean MpResource::setSamplesPerSec(int samplesPerSec)
-{
-   MpFlowGraphMsg msg(MpFlowGraphMsg::RESOURCE_SET_SAMPLES_PER_SEC, this,
-                      NULL, NULL, samplesPerSec);
-   OsStatus       res;
-
-   res = postMessage(msg);
-   return (res == OS_SUCCESS);
+   return fgQ.send(msg, sOperationQueueTimeout);
 }
 
 // Sets the visit state for this resource (used in performing a 
@@ -256,33 +176,78 @@ void MpResource::setVisitState(int newState)
    mVisitState = newState;
 }
 
+
+OsStatus MpResource::sendNotification(MpResNotificationMsg::RNMsgType msgType)
+{
+   MpResNotificationMsg msg(msgType, getName());
+   return sendNotification(msg);
+}
+
+OsStatus MpResource::sendNotification(MpResNotificationMsg& msg)
+{
+   OsStatus stat = OS_SUCCESS;
+   // Only send a notification if notifications are enabled.
+   if(areNotificationsEnabled() == TRUE)
+   {
+      MpFlowGraphBase* pFg = getFlowGraph();
+      assert(pFg != NULL);
+
+      stat = pFg->postNotification(msg);
+   }
+   return stat;
+}
+
 /* ============================ ACCESSORS ================================= */
 
 // (static) Displays information on the console about the specified flow
 // graph.
 void MpResource::resourceInfo(MpResource* pResource, int index)
 {
-   int         i;
-   const char*       name;
+   if(pResource)
+   {
+       int         i;
+       const char*       name;
 
-   name = pResource->getName();
-   printf("    Resource[%d]: %p, %s (%sabled)\n",
-          index, pResource, name, pResource->mIsEnabled ? "En" : "Dis");
-   
-   for (i=0; i<pResource->mMaxInputs; i++) {
-      if (NULL != pResource->mpInConns[i].pResource) {
-         name = pResource->mpInConns[i].pResource->getName();
-         printf("        Input %d from %s:%d\n", i, 
-            name, pResource->mpInConns[i].portIndex);
-      }
-   }
+       name = pResource->getName();
+       osPrintf("    Resource[%d]: %p, %s (%sabled)\n",
+              index, pResource, name, pResource->mIsEnabled ? "En" : "Dis");
 
-   for (i=0; i<pResource->mMaxOutputs; i++) {
-      if (NULL != pResource->mpOutConns[i].pResource) {
-         name = pResource->mpOutConns[i].pResource->getName();
-         printf("        Output %d to %s:%d\n", i, 
-            name, pResource->mpOutConns[i].portIndex);
-      }
+       OsLock lock(pResource->mLock);
+       for (i=0; i<pResource->mMaxInputs; i++) 
+       {
+          if (NULL != pResource->mpInConns[i].pResource) 
+          {
+             name = pResource->mpInConns[i].pResource->getName();
+             osPrintf("        Input %d from %s:%d\n", i, 
+                name, pResource->mpInConns[i].portIndex);
+          }
+          else if(pResource->mpInConns[i].reserved)
+          {
+             osPrintf("        Input %d reserved", i);
+          }
+          else
+          {
+             osPrintf("        Input %d  not reserved", i);
+          }
+       }
+
+       for (i=0; i<pResource->mMaxOutputs; i++) 
+       {
+          if (NULL != pResource->mpOutConns[i].pResource) 
+          {
+             name = pResource->mpOutConns[i].pResource->getName();
+             osPrintf("        Output %d to %s:%d\n", i, 
+                name, pResource->mpOutConns[i].portIndex);
+          }
+          else if(pResource->mpOutConns[i].reserved)
+          {
+             osPrintf("        Output %d reserved", i);
+          }
+          else
+          {
+             osPrintf("        Output %d  not reserved", i);
+          }
+       }
    }
 }
 
@@ -298,7 +263,7 @@ MpFlowGraphBase* MpResource::getFlowGraph(void) const
 // "inPortIdx" input on this resource.  If "inPortIdx" is invalid or
 // there is no link, then "rpUpstreamResource" will be set to NULL.
 void MpResource::getInputInfo(int inPortIdx, MpResource*& rpUpstreamResource,
-                              int& rUpstreamPortIdx) const
+                              int& rUpstreamPortIdx)
 {
    if (inPortIdx < 0 || inPortIdx >= mMaxInputs)
    {
@@ -307,6 +272,7 @@ void MpResource::getInputInfo(int inPortIdx, MpResource*& rpUpstreamResource,
    }
    else
    {
+      OsLock lock(mLock);
       rpUpstreamResource = mpInConns[inPortIdx].pResource;
       rUpstreamPortIdx   = mpInConns[inPortIdx].portIndex;
    }
@@ -315,7 +281,7 @@ void MpResource::getInputInfo(int inPortIdx, MpResource*& rpUpstreamResource,
 // Returns the name associated with this resource.
 UtlString MpResource::getName(void) const
 {
-   return mName;
+   return *this;
 }
 
 // Returns information about the downstream end of a link to the 
@@ -323,7 +289,7 @@ UtlString MpResource::getName(void) const
 // there is no link, then "rpDownstreamResource" will be set to NULL.
 void MpResource::getOutputInfo(int outPortIdx,
                                MpResource*& rpDownstreamResource,
-                               int& rDownstreamPortIdx) const
+                               int& rDownstreamPortIdx)
 {
    if (outPortIdx < 0 || outPortIdx >= mMaxOutputs)
    {
@@ -332,6 +298,7 @@ void MpResource::getOutputInfo(int outPortIdx,
    }
    else
    {
+      OsLock lock(mLock);
       rpDownstreamResource = mpOutConns[outPortIdx].pResource;
       rDownstreamPortIdx   = mpOutConns[outPortIdx].portIndex;
    }
@@ -380,17 +347,45 @@ int MpResource::numOutputs(void) const
    return mNumActualOutputs;
 }
 
-// Calculate a unique hash code for this object.
-unsigned MpResource::hash() const
+int MpResource::reserveFirstUnconnectedInput()
 {
-    return (unsigned) this ; 
+   int i;
+   int portIndex = -1;
+   OsLock lock(mLock);
+   for (i = 0; i < mMaxInputs; i++)       // initialize the input port storage
+   {
+      if(mpInConns[i].pResource == NULL && mpInConns[i].reserved == FALSE)
+      {
+          mpInConns[i].reserved = TRUE;
+          portIndex = i;
+          break;
+      }
+   }
+   return(portIndex);
+}
+
+int MpResource::reserveFirstUnconnectedOutput()
+{
+   int i;
+   int portIndex = -1;
+   OsLock lock(mLock);
+   for (i = 0; i < mMaxOutputs; i++)       // initialize the input port storage
+   {
+      if(mpOutConns[i].pResource == NULL && mpOutConns[i].reserved == FALSE)
+      {
+          mpOutConns[i].reserved = TRUE;
+          portIndex = i;
+          break;
+      }
+   }
+   return(portIndex);
 }
 
 // Get the ContainableType for a UtlContainable derived class.
-UtlContainableType MpResource::getContainableType() const
+/*UtlContainableType MpResource::getContainableType() const
 {
     return TYPE;
-}
+}*/
 
 /* ============================ INQUIRY =================================== */
 
@@ -402,116 +397,212 @@ UtlBoolean MpResource::isEnabled(void) const
 
 // Returns TRUE if portIdx is valid and the indicated input is connected,
 // FALSE otherwise.
-UtlBoolean MpResource::isInputConnected(int portIdx) const
+UtlBoolean MpResource::isInputConnected(int portIdx)
 {
    if (portIdx < 0 || portIdx >= mMaxInputs)  // portIdx out of range
       return FALSE;
 
-   return (mpInConns[portIdx].pResource != NULL);
+   OsLock lock(mLock);
+   UtlBoolean isConnected = (mpInConns[portIdx].pResource != NULL);
+   return(isConnected);
 }
 
 // Returns TRUE if portIdx is valid and the indicated input is not connected,
 // FALSE otherwise.
-UtlBoolean MpResource::isInputUnconnected(int portIdx) const
+UtlBoolean MpResource::isInputUnconnected(int portIdx)
 {
    if (portIdx < 0 || portIdx >= mMaxInputs)  // portIdx out of range
       return FALSE;
 
-   return (mpInConns[portIdx].pResource == NULL);
+   OsLock lock(mLock);
+   UtlBoolean isUnconnected = (mpInConns[portIdx].pResource == NULL);
+   return(isUnconnected);
 }
 
 // Returns TRUE if portIdx is valid and the indicated output is connected,
 // FALSE otherwise.
-UtlBoolean MpResource::isOutputConnected(int portIdx) const
+UtlBoolean MpResource::isOutputConnected(int portIdx)
 {
    if (portIdx < 0 || portIdx >= mMaxOutputs) // portIdx out of range
       return FALSE;
 
-   return (mpOutConns[portIdx].pResource != NULL);
+   OsLock lock(mLock);
+   UtlBoolean isConnected = (mpOutConns[portIdx].pResource != NULL);
+   return(isConnected);
 }
 
 // Returns TRUE if portIdx is valid and the indicated output is not connected,
 // FALSE otherwise.
-UtlBoolean MpResource::isOutputUnconnected(int portIdx) const
+UtlBoolean MpResource::isOutputUnconnected(int portIdx)
 {
    if (portIdx < 0 || portIdx >= mMaxOutputs) // portIdx out of range
       return FALSE;
 
-   return (mpOutConns[portIdx].pResource == NULL);
+   OsLock lock(mLock);
+   UtlBoolean isUnconnected = (mpOutConns[portIdx].pResource == NULL);
+   return(isUnconnected);
 }
 
-// Compare the this object to another like-object. 
-int MpResource::compareTo(UtlContainable const * inVal) const
+UtlBoolean MpResource::areNotificationsEnabled() const
 {
-   int result ; 
-   
-   if (inVal->isInstanceOf(getContainableType()))
-   {
-      result = ((unsigned) this) - ((unsigned) inVal);
-   }
-   else
-   {
-      result = -1; 
-   }
-
-   return result;
+   // No need for lock, as this is atomic.
+   return mNotificationsEnabled;
 }
-
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
-// Returns a pointer to the incoming buffer for the inPortIdx
-// input port if a buffer is available.  Returns NULL if either no 
-// buffer is available or there is no resource connected to the 
-// specified port or the inPortIdx is out of range.
-MpBufPtr MpResource::getInputBuffer(int inPortIdx) const
-{
-   if ((inPortIdx < 0) || (inPortIdx >= mMaxInputs) ||// port out of range
-       (mpInConns[inPortIdx].pResource == NULL))       // no connected resource
-      return NULL;
-
-   return mpInBufs[inPortIdx];
-}
-
-// Handles an incoming message for this media processing object.
+// Handles an incoming flowgraph message for this media processing object.
 // Returns TRUE if the message was handled, otherwise FALSE.
-UtlBoolean MpResource::handleMessage(MpFlowGraphMsg& rMsg)
+UtlBoolean MpResource::handleMessage(MpFlowGraphMsg& fgMsg)
 {
-   UtlBoolean msgHandled;
+   UtlBoolean msgHandled = FALSE;
 
-   msgHandled = TRUE;                       // assume we'll handle the msg
-   switch (rMsg.getMsg())
+   msgHandled = TRUE; // assume we'll handle the msg
+   switch (fgMsg.getMsg())
    {
    case MpFlowGraphMsg::RESOURCE_DISABLE:   // disable this resource
-      mIsEnabled = FALSE;
+      msgHandled = handleDisable();
       break;
    case MpFlowGraphMsg::RESOURCE_ENABLE:    // enable this resource
-      mIsEnabled = TRUE;
-      break;
-   case MpFlowGraphMsg::RESOURCE_SET_SAMPLES_PER_FRAME:
-      mSamplesPerFrame = rMsg.getInt1();    // set the samples per frame
-      break;
-   case MpFlowGraphMsg::RESOURCE_SET_SAMPLES_PER_SEC:
-      mSamplesPerSec = rMsg.getInt1();      // set the samples per second
+      msgHandled = handleEnable();
       break;
    default:
-      msgHandled = FALSE;                   // we didn't handle the msg
-      break;                                //  after all
+      msgHandled = FALSE; // we didn't handle the msg after all
+      break;
+   }
+   
+   return msgHandled;
+}
+
+// Handles an incoming resource message for this media processing object.
+// Returns TRUE if the message was handled, otherwise FALSE.
+UtlBoolean MpResource::handleMessage(MpResourceMsg& rMsg)
+{
+   UtlBoolean msgHandled = FALSE;
+
+   // Do stuff for resource messages.
+   msgHandled = TRUE; // assume we'll handle the msg
+   switch (rMsg.getMsg())
+   {
+   case MpResourceMsg::MPRM_RESOURCE_DISABLE:   // disable this resource
+      msgHandled = handleDisable();
+      break;
+   case MpResourceMsg::MPRM_RESOURCE_ENABLE:    // enable this resource
+      msgHandled = handleEnable();
+      break;
+   case MpResourceMsg::MPRM_DISABLE_ALL_NOTIFICATIONS:
+      // Disable all notifications sent out from this resource.
+      setNotificationsEnabled(FALSE);
+      break;
+   case MpResourceMsg::MPRM_ENABLE_ALL_NOTIFICATIONS:
+      // Enable all notifications sent out from this resource.
+      setNotificationsEnabled(TRUE);
+      break;
+   default:
+      msgHandled = FALSE; // we didn't handle the msg after all
+      break;
    }
 
    return msgHandled;
 }
 
+UtlBoolean MpResource::handleMessages(OsMsgQ& msgQ)
+{
+   UtlBoolean handledAllMsgs = FALSE;
+   while(!msgQ.isEmpty())
+   {
+      OsMsg* msg;
+      OsStatus recvStat = msgQ.receive(msg, OsTime::NO_WAIT_TIME);
+      UtlBoolean curMsgHandled = FALSE;
+      if (recvStat == OS_SUCCESS)
+      {
+         if (msg->getMsgType() == OsMsg::MP_FLOWGRAPH_MSG)
+         {
+            MpFlowGraphMsg* fgMsg = dynamic_cast<MpFlowGraphMsg*>(msg);
+            if (fgMsg != NULL)
+            {
+               curMsgHandled = handleMessage(*fgMsg);
+            }
+         }
+         else if (msg->getMsgType() == OsMsg::MP_RESOURCE_MSG)
+         {
+            MpResourceMsg* rMsg = dynamic_cast<MpResourceMsg*>(msg);
+            if (rMsg != NULL)
+            {
+               curMsgHandled = handleMessage(*rMsg);
+            }
+         }
+
+         // TODO: If message received is not handled, it might be good
+         //       to stuff the message back into the front of the queue
+         //       with msgQ.sendUrgent(msg, OsTime::NO_WAIT_TIME);
+         //       I haven't thought through the ramifications of this,
+         //       so I haven't implemented it yet.
+      }
+
+      // Stop at the first message we encounter that is not handled.
+      if (curMsgHandled == FALSE)
+      {
+         break;
+      }
+
+      // If the queue is empty at this point,
+      // then all messages have been handled.
+      if (msgQ.isEmpty())
+      {
+         handledAllMsgs = TRUE;
+      }
+   }
+   return handledAllMsgs;
+}
+
+UtlBoolean MpResource::handleEnable()
+{
+    mIsEnabled = TRUE;
+    return(TRUE);
+}
+
+UtlBoolean MpResource::handleDisable()
+{
+    mIsEnabled = FALSE;
+    return(TRUE);
+}
+
 // If there already is a buffer stored for this input port, delete it.
 // Then store pBuf for the indicated input port.
-void MpResource::setInputBuffer(int inPortIdx, MpBufPtr pBuf)
+void MpResource::setInputBuffer(int inPortIdx, const MpBufPtr &pBuf)
 {
    // make sure we have a valid port that is connected to a resource
+   // Not locking mpInConns here as we only lock for setting/accessing
+   // reservation state (the only thing set in mpInConns outside media task)
    assert((inPortIdx >= 0) && (inPortIdx < mMaxInputs) &&
           (mpInConns[inPortIdx].pResource != NULL));
 
-   MpBuf_delRef(mpInBufs[inPortIdx]);  // delete any existing buffer
-   mpInBufs[inPortIdx] = pBuf;         // store the new buffer
+   mpInBufs[inPortIdx] = pBuf;    // store the new buffer
+}
+
+// Makes pBuf available to resource connected to the outPortIdx output
+// port of this resource.
+// Returns TRUE if there is a resource connected to the specified output
+// port, FALSE otherwise.
+UtlBoolean MpResource::pushBufferDownsream(int outPortIdx, const MpBufPtr &pBuf)
+{
+   MpResource* pDownstreamInput;
+   int         downstreamPortIdx;
+
+   // Not locking mpOutConns here as we only lock for setting/accessing
+   // reservation state (the only thing set in mpOutConns outside media task)
+
+   if (outPortIdx < 0 || outPortIdx >= mMaxOutputs)  // port  out of range
+      return FALSE;
+
+   pDownstreamInput  = mpOutConns[outPortIdx].pResource;
+   downstreamPortIdx = mpOutConns[outPortIdx].portIndex;
+   if (pDownstreamInput == NULL)                     // no connected resource
+      return FALSE;
+
+   pDownstreamInput->setInputBuffer(downstreamPortIdx, pBuf);
+   return TRUE;
 }
 
 // Post a message to this resource.
@@ -538,37 +629,6 @@ OsStatus MpResource::postMessage(MpFlowGraphMsg& rMsg)
    }
 }
 
-// Makes pBuf available to resource connected to the outPortIdx output
-// port of this resource.
-// Returns TRUE if there is a resource connected to the specified output
-// port, FALSE otherwise.
-UtlBoolean MpResource::setOutputBuffer(int outPortIdx, MpBufPtr pBuf)
-{
-   MpResource* pDownstreamInput;
-   int         downstreamPortIdx;
-
-   if (outPortIdx < 0 || outPortIdx >= mMaxOutputs)  // port  out of range
-      return FALSE;
-
-   pDownstreamInput  = mpOutConns[outPortIdx].pResource;
-   downstreamPortIdx = mpOutConns[outPortIdx].portIndex;
-   if (pDownstreamInput == NULL)                     // no connected resource
-      return FALSE;
-
-   pDownstreamInput->setInputBuffer(downstreamPortIdx, pBuf);
-   return TRUE;
-}
-
-int MpResource::getSamplesPerFrame()
-{
-   return mSamplesPerFrame;
-}
-
-int MpResource::getSamplesPerSec()
-{
-   return mSamplesPerSec;
-}
-
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 // Connects the toPortIdx input port on this resource to the 
@@ -581,10 +641,11 @@ UtlBoolean MpResource::connectInput(MpResource& rFrom, int fromPortIdx,
        toPortIdx >= mMaxInputs)        // bad port index
       return FALSE;
 
-   MpBuf_delRef(mpInBufs[toPortIdx]);  // get rid of old buffer (if any)
-   mpInBufs[toPortIdx]            = NULL;
+   OsLock lock(mLock);
+   mpInBufs[toPortIdx].release();
    mpInConns[toPortIdx].pResource = &rFrom;
    mpInConns[toPortIdx].portIndex = fromPortIdx;
+   mpInConns[toPortIdx].reserved = FALSE;
 
    mNumActualInputs++;
 
@@ -601,10 +662,11 @@ UtlBoolean MpResource::connectOutput(MpResource& rTo, int toPortIdx,
        fromPortIdx >= mMaxOutputs)     // bad port index
       return FALSE;
 
-   MpBuf_delRef(mpOutBufs[fromPortIdx]);  // get rid of old buffer (if any)
-   mpOutBufs[fromPortIdx]            = NULL;
+   OsLock lock(mLock);
+   mpOutBufs[fromPortIdx].release();
    mpOutConns[fromPortIdx].pResource = &rTo;
    mpOutConns[fromPortIdx].portIndex = toPortIdx;
+   mpOutConns[fromPortIdx].reserved = FALSE;
 
    mNumActualOutputs++;
 
@@ -615,15 +677,16 @@ UtlBoolean MpResource::connectOutput(MpResource& rTo, int toPortIdx,
 // Returns TRUE if successful, FALSE otherwise.
 UtlBoolean MpResource::disconnectInput(int inPortIdx)
 {
+   OsLock lock(mLock);
    if (mpInConns[inPortIdx].pResource == NULL || // no connected resource
        inPortIdx < 0 ||                          // bad port index
        inPortIdx >= mMaxInputs)                  // bad port index
       return FALSE;
 
-   MpBuf_delRef(mpInBufs[inPortIdx]);        // get rid of old buffer (if any)
-   mpInBufs[inPortIdx]            = NULL;
+   mpInBufs[inPortIdx].release();
    mpInConns[inPortIdx].pResource = NULL;
    mpInConns[inPortIdx].portIndex = -1;
+   mpInConns[inPortIdx].reserved = FALSE;
 
    mNumActualInputs--;
 
@@ -634,15 +697,16 @@ UtlBoolean MpResource::disconnectInput(int inPortIdx)
 // Returns TRUE if successful, FALSE otherwise.
 UtlBoolean MpResource::disconnectOutput(int outPortIdx)
 {
+   OsLock lock(mLock);
    if (mpOutConns[outPortIdx].pResource == NULL || // no connected resource
        outPortIdx < 0 ||                           // bad port index
        outPortIdx >= mMaxOutputs)                  // bad port index
       return FALSE;
 
-   MpBuf_delRef(mpOutBufs[outPortIdx]);     // get rid of old buffer (if any)
-   mpOutBufs[outPortIdx]            = NULL;
+   mpOutBufs[outPortIdx].release();
    mpOutConns[outPortIdx].pResource = NULL;
    mpOutConns[outPortIdx].portIndex = -1;
+   mpOutConns[outPortIdx].reserved = FALSE;
 
    mNumActualOutputs--;
 
@@ -658,10 +722,19 @@ OsStatus MpResource::setFlowGraph(MpFlowGraphBase* pFlowGraph)
    return OS_SUCCESS;
 }
 
+// Sets whether or not this resource should send notifications.
+// For now, this method always returns success
+OsStatus MpResource::setNotificationsEnabled(UtlBoolean enable)
+{
+   mNotificationsEnabled = enable;
+
+   return OS_SUCCESS;
+}
+
 // Sets the name that is associated with this resource.
 void MpResource::setName(const UtlString& rName)
 {
-   mName = rName;
+   *((UtlString*)this) = rName;
 }
 
 /* ============================ FUNCTIONS ================================= */

@@ -1,3 +1,19 @@
+// Copyright 2008 AOL LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -104,43 +120,37 @@ RegEx::RegEx(const RegEx& regex)
       memcpy(re, regex.re, regex.re_size);
       re_size = regex.re_size;
          
+      pe = NULL;
+      study_size = 0;
+      allocated_study = false;
       if (regex.pe) // should always be true, because constructor allocates it
       {
          // allocate memory for the extra study information and recursion limit
          pe = (pcre_extra*)pcre_malloc(sizeof(pcre_extra));
          if (pe)
          {
-            void* copied_study_data = pcre_malloc(regex.study_size);
-            if (copied_study_data)
+            // copy the extra information
+            memcpy(pe, regex.pe, sizeof(pcre_extra)) ;
+
+            // copy any study information
+            if (regex.study_size > 0)
             {
-               // copy the extra and study information
-               memcpy(pe, regex.pe, sizeof(pcre_extra)) ;
-               pe->study_data = copied_study_data;
-               memcpy(pe->study_data, regex.pe->study_data, regex.study_size) ;
-               study_size = regex.study_size;
-               allocated_study = true;
+               void* copied_study_data = pcre_malloc(regex.study_size);
+
+               if (copied_study_data)
+               {
+                  pe->study_data = copied_study_data;
+                  memcpy(pe->study_data, regex.pe->study_data, regex.study_size) ;
+                  study_size = regex.study_size;
+                  allocated_study = true;
+               }
             }
-            else
-            {
-               // failed to allocate the study data - not optimal, but we can continue
-               study_size = 0;
-               allocated_study = false;
-            }
-         }
-         else
-         {
-            // failed to allocate extra data - not good, but try to continue
-            study_size = 0;
-            allocated_study = false;
          }
       }
       else
       {
          // no extra or study data to copy
          // this should not happen because we always want the recursion limit
-         pe = NULL;
-         study_size = 0;
-         allocated_study = false;
       }
       substrcount = regex.substrcount;
       ovector = new int[3*substrcount];
@@ -162,7 +172,7 @@ RegEx::~RegEx()
   }
   if (pe)
   {
-     if (allocated_study && study_size)
+     if (allocated_study && pe->study_data)
      {
         pcre_free(pe->study_data);
      }

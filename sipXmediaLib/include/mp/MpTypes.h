@@ -1,3 +1,6 @@
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -30,22 +33,23 @@
 #ifdef _VXWORKS /* [ */
 #include "vxWorks.h"
 #else /* _VXWORKS ] [ */
-typedef unsigned char UCHAR;
-typedef unsigned short USHORT;
-typedef unsigned int UINT;
 typedef int STATUS;
 typedef void * MSG_Q_ID;
 typedef void * SEM_ID;
 #endif /* _VXWORKS ] */
 
-typedef short Sample;
+#include <os/OsIntTypes.h>
 
-typedef struct __MpBuf_tag MpBuf;
-typedef struct __MpBuf_tag *MpBufPtr;
-typedef struct __MpBufPool_tag *MpBufPoolPtr;
+typedef int16_t MpAudioSample;    ///< Audio sample (16 bit, signed, little-endian)
 
-/* buffer message types */
+typedef int MpInputDeviceHandle;  ///< Logical device ID identifying device
+                                  ///< driver inside device manager.
+typedef int MpOutputDeviceHandle; ///< Logical device ID identifying device
+                                  ///< driver inside device manager.
+#define MP_INVALID_OUTPUT_DEVICE_HANDLE -1
+typedef unsigned MpFrameTime;    ///< Time of frame begin relative to device
+                                 ///< manager startup (in milliseconds).
 
-#define DMA_COMPLETE 103
+typedef int MpConnectionID;
 
 #endif /* _INCLUDED_MPTYPES_H ] */

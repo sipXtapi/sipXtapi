@@ -47,17 +47,17 @@ class ResultSetRpcTest; // unit test - see sipXcommserverLib/src/test/ResultSetR
  * All the param types must be UtlContainable. Here is the mapping from XML-RPC
  * types to UtlContainable types:
  * 
- * * <i4> or <int> is UtlInt.
- * * <i8> is UtlLongLongInt
- * * <boolean> is UtlBool.
- * * <string> is UtlString.
- * * <dateTime.iso8601> is UtlDateTime.
- * * <array> is UtlSList.
- * * <struct> is UtlHashMap.
+ * * \<i4\> or \<int\> is UtlInt.
+ * * \<i8\> is UtlLongLongInt
+ * * \<boolean\> is UtlBool.
+ * * \<string\> is UtlString.
+ * * \<dateTime.iso8601\> is UtlDateTime.
+ * * \<array\> is UtlSList.
+ * * \<struct\> is UtlHashMap.
  * 
- * <i8> is a SIPfoundry extension to XML-RPC that is not compatible with other
+ * \<i8\> is a SIPfoundry extension to XML-RPC that is not compatible with other
  * XML-RPC implementations. 
- * <double> and <base64> are currently not supported.
+ * \<double\> and \<base64\> are currently not supported.
  *  
  * The execute() function closes the XML-RPC request frame and sends the
  * request to the remote server specified in the Url. The execute() function

@@ -1,3 +1,6 @@
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -19,6 +22,8 @@
 
 #include "mp/MpMisc.h"
 #include "mp/MpStreamPlaylistPlayer.h"
+typedef int MpConnectionID;
+#include "mp/MpCallFlowGraph.h"
 #include "os/OsDefs.h"
 #include "mp/StreamDefs.h"
 #include "net/Url.h"
@@ -91,7 +96,7 @@ class MpStreamPlaylistPlayerTest : public CppUnit::TestCase
                         PlayerPrefetched,
                         PlayerPlaying,
                         PlayerStopped,
-                        -1,
+                        -1
                     } ;
 
                 UtlBoolean bMatches = pVerifier->matchesHistory((void*) i, expectedHistory) ;
@@ -181,7 +186,7 @@ class MpStreamPlaylistPlayerTest : public CppUnit::TestCase
                         PlayerPrefetched,
                         PlayerPlaying,
                         PlayerStopped,
-                        -1,
+                        -1
                     } ;
 
                 UtlBoolean bMatches = pVerifier->matchesHistory((void*) i, expectedHistory) ;
@@ -266,7 +271,7 @@ class MpStreamPlaylistPlayerTest : public CppUnit::TestCase
                         PlayerPrefetched,
                         PlayerPlaying,
                         PlayerStopped,
-                        -1,
+                        -1
                     } ;
 
                 UtlBoolean bMatches = pVerifier->matchesHistory((void*) i, expectedHistory) ;
@@ -347,7 +352,7 @@ class MpStreamPlaylistPlayerTest : public CppUnit::TestCase
                         PlayerPrefetched,
                         PlayerPlaying,
                         PlayerStopped,
-                        -1,
+                        -1
                     } ;
 
                 UtlBoolean bMatches = pVerifier->matchesHistory((void*) i, expectedHistory) ;
@@ -444,7 +449,7 @@ class MpStreamPlaylistPlayerTest : public CppUnit::TestCase
                         PlayerPrefetched,
                         PlayerPlaying,
                         PlayerStopped,
-                        -1,
+                        -1
                     } ;
 
                 UtlBoolean bMatches = pVerifier->matchesHistory((void*) i, expectedHistory) ;
@@ -524,7 +529,7 @@ class MpStreamPlaylistPlayerTest : public CppUnit::TestCase
                         PlayerPrefetched,
                         PlayerPlaying,
                         PlayerStopped,
-                        -1,
+                        -1
                     } ;
 
                 UtlBoolean bMatches = pVerifier->matchesHistory((void*) i, expectedHistory) ;
@@ -621,7 +626,7 @@ class MpStreamPlaylistPlayerTest : public CppUnit::TestCase
                         PlayerPaused,
                         PlayerPlaying,
                         PlayerStopped,
-                        -1,
+                        -1
                     } ;
 
                 UtlBoolean bMatches = pVerifier->matchesHistory((void*) i, expectedHistory) ;
@@ -719,7 +724,7 @@ class MpStreamPlaylistPlayerTest : public CppUnit::TestCase
                         PlayerPaused,
                         PlayerPlaying,
                         PlayerStopped,
-                        -1,
+                        -1
                     } ;
 
                 UtlBoolean bMatches = pVerifier->matchesHistory((void*) j, expectedHistory) ;

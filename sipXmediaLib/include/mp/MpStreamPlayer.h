@@ -1,3 +1,22 @@
+// Copyright 2008 AOL LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA. 
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -8,6 +27,7 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
+#ifdef MP_STREAMING
 
 #ifndef _MpStreamPlayer_h_
 #define _MpStreamPlayer_h_
@@ -45,14 +65,15 @@ class MpStreamPlayer : public OsServerTask, public MpPlayer
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
-   enum SourceType      // Type of source data (url or buffer)
+   typedef enum       // Type of source data (url or buffer)
    {
       SourceUrl,
       SourceBuffer
-   } ;
+   } SourceType;
 
 /* ============================ CREATORS ================================== */
-
+///@name Creators
+//@{
    MpStreamPlayer(OsMsgQ* pMsg, Url url, int flags, const char* pTarget = NULL) ;
      //:Contructs a stream player given a msgq, stream url, and 
      //:playing flags.
@@ -78,8 +99,11 @@ public:
    virtual ~MpStreamPlayer();
      //:Destructor
 
-/* ============================ MANIPULATORS ============================== */
+//@}
 
+/* ============================ MANIPULATORS ============================== */
+///@name Manipulators
+//@{
    virtual OsStatus realize(UtlBoolean bBlock = TRUE);
      //: Realizes the player by initiating a connection to the target,
      //: allocates buffers, etc.
@@ -125,7 +149,11 @@ public:
    virtual void waitForDestruction() ;
      //: Blocks until the the lower layer stream player is destroyed
 
+//@}
+
 /* ============================ ACCESSORS ================================= */
+///@name Accessors
+//@{
 
    virtual OsStatus getState(PlayerState& state) ;
      //: Gets the player state 
@@ -139,7 +167,13 @@ public:
    virtual OsStatus getSourceBuffer(UtlString*& pBuffer) const;
      //: Gets the source buffer if the source type is a SourceBuffer
 
+//@}
+
 /* ============================ INQUIRY =================================== */
+///@name Inquiry
+//@{
+
+//@}
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
@@ -183,3 +217,5 @@ private:
 /* ============================ INLINE METHODS ============================ */
 
 #endif  // _MpStreamPlayer_h_
+
+#endif

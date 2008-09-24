@@ -1,5 +1,8 @@
+//  
+// Copyright (C) 2006-2008 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Copyright (C) 2004-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -33,13 +36,15 @@
 #include "mp/dmaTask.h"
 #include "mp/MpMediaTask.h"
 #include "mp/MpCodecFactory.h"
+#include "mp/MpFlowGraphBase.h"
+
+// DEFINES
+#define DEBUG_DTMF_SEND
+#undef  DEBUG_DTMF_SEND
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
-
 // CONSTANTS
-static const int NO_WAIT = 0;
-
 // STATIC VARIABLE INITIALIZATIONS
    // At 10 ms each, 10 seconds.  We will send an RTP packet to each active
    // destination at least this often, even when muted.
@@ -50,72 +55,51 @@ static const int NO_WAIT = 0;
 /* ============================ CREATORS ================================== */
 
 // Constructor
-MprEncode::MprEncode(const UtlString& rName,
-                           int samplesPerFrame, int samplesPerSec)
-:  MpResource(rName, 1, 1, 1, 1, samplesPerFrame, samplesPerSec),
+MprEncode::MprEncode(const UtlString& rName)
+:  MpAudioResource(rName, 1, 1, 0, 0),
    mpPrimaryCodec(NULL),
-   mpPacket1Buffer(NULL),
    mpPacket1Payload(NULL),
    mPacket1PayloadBytes(0),
+   mPayloadBytesUsed(0),
+   mSamplesPacked(0),
    mActiveAudio1(FALSE),
    mMarkNext1(FALSE),
    mConsecutiveInactive1(0),
    mConsecutiveActive1(0),
    mConsecutiveUnsentFrames1(0),
+   mDoesVad1(FALSE),
+   mDisableDTX(TRUE),
+
+   mNeedResample(FALSE),
+   mpResampler(MpResamplerBase::createResampler(1, 8000, 8000)),
+   mResampleBufLen(0),
+   mpResampleBuf(NULL),
 
    mpDtmfCodec(NULL),
-   mpPacket2Buffer(NULL),
    mpPacket2Payload(NULL),
    mPacket2PayloadBytes(0),
 
    mCurrentTone(-1),
    mNumToneStops(-1),
    mTotalTime(0),
-   mNewTone(0),
+   mNewTone(FALSE),
 
-   mpSecondaryCodec(NULL),
-   mpPacket3Buffer(NULL),
-   mpPacket3Payload(NULL),
-   mPacket3PayloadBytes(0),
-   mActiveAudio3(FALSE),
-   mMarkNext3(FALSE),
-   mConsecutiveInactive3(0),
-   mConsecutiveActive3(0),
-   mConsecutiveUnsentFrames3(0),
+   mCurrentTimestamp(0),
+   mMaxPacketTime(20),
 
    mpToNet(NULL)
 {
-   mPacket1PayloadUsed = 0;
 }
 
 // Destructor
 MprEncode::~MprEncode()
 {
-   if (NULL != mpPacket1Buffer) {
-      delete[] mpPacket1Buffer;
-      mpPacket1Buffer = NULL;
-   }
-   if (NULL != mpPacket2Buffer) {
-      delete[] mpPacket2Buffer;
-      mpPacket2Buffer = NULL;
-   }
-   if (NULL != mpPacket3Buffer) {
-      delete[] mpPacket3Buffer;
-      mpPacket3Buffer = NULL;
-   }
-   if (NULL != mpPrimaryCodec) {
-      delete mpPrimaryCodec;
-      mpPrimaryCodec = NULL;
-   }
-   if (NULL != mpDtmfCodec) {
-      delete mpDtmfCodec;
-      mpDtmfCodec = NULL;
-   }
-   if (NULL != mpSecondaryCodec) {
-      delete mpSecondaryCodec;
-      mpSecondaryCodec = NULL;
-   }
-   mpToNet = NULL;
+   delete[] mpPacket1Payload;
+   delete[] mpResampleBuf;
+   delete[] mpPacket2Payload;
+   delete mpPrimaryCodec;
+   delete mpDtmfCodec;
+   delete mpResampler;
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -137,6 +121,18 @@ OsStatus MprEncode::stopTone(void)
    return postMessage(msg);
 }
 
+OsStatus MprEncode::enableDTX(UtlBoolean dtx)
+{
+   MpFlowGraphMsg msg(ENABLE_DTX, this, NULL, NULL, dtx, 0);
+   return postMessage(msg);
+}
+
+OsStatus MprEncode::setMaxPacketTime(unsigned int maxPacketTime)
+{
+   MpFlowGraphMsg msg(SET_MAX_PACKET_TIME, this, NULL, NULL, maxPacketTime, 0);
+   return postMessage(msg);
+}
+
 /* ============================ ACCESSORS ================================= */
 
 /* ============================ INQUIRY =================================== */
@@ -152,19 +148,18 @@ OsStatus MprEncode::deselectCodecs(void)
    return postMessage(msg);
 }
 
-OsStatus MprEncode::selectCodecs(SdpCodec* pPrimary, SdpCodec* pDtmf,
-   SdpCodec* pSecondary)
+OsStatus MprEncode::selectCodecs(SdpCodec* pPrimary, SdpCodec* pDtmf)
 {
    OsStatus res = OS_SUCCESS;
-   MpFlowGraphMsg msg(SELECT_CODECS, this, NULL, NULL, 3, 0);
-   SdpCodec** newCodecs;
+   MpFlowGraphMsg msg(SELECT_CODECS, this, NULL, NULL, 2, 0);
 
-   newCodecs = new SdpCodec*[3];
-   newCodecs[0] = newCodecs[1] = newCodecs[2] = NULL;
-   if (NULL != pPrimary)   newCodecs[0] = new SdpCodec(*pPrimary);
-   if (NULL != pDtmf)      newCodecs[1] = new SdpCodec(*pDtmf);
-   if (NULL != pSecondary) newCodecs[2] = new SdpCodec(*pSecondary);
+   int numNewCodecs = 2;
+   SdpCodec** newCodecs = new SdpCodec*[numNewCodecs];
+
+   newCodecs[0] = (NULL == pPrimary) ? NULL : new SdpCodec(*pPrimary);
+   newCodecs[1] = (NULL == pDtmf) ? NULL : new SdpCodec(*pDtmf);
    msg.setPtr1(newCodecs);
+   msg.setInt1(numNewCodecs);
    res = postMessage(msg);
 
    return res;
@@ -172,40 +167,31 @@ OsStatus MprEncode::selectCodecs(SdpCodec* pPrimary, SdpCodec* pDtmf,
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
-int MprEncode::payloadByteLength(MpEncoderBase& rEncoder)
-{
-   int maxBitsPerPacket = rEncoder.getInfo()->getMaxPacketBits();
-   int packetPayloadBytes = 0;
-
-   packetPayloadBytes = (maxBitsPerPacket + 7) / 8;
-/*
-   osPrintf(
-      "MprEncode::payloadByteLength: maxBitsPerPacket=%d, returning bytes=%d\n",
-      maxBitsPerPacket, packetPayloadBytes);
-*/
-   return packetPayloadBytes;
-}
-
-OsStatus MprEncode::allocPacketBuffer(MpEncoderBase& rEncoder,
-   unsigned char*& rpPacketBuffer, unsigned char*& rpPacketPayload,
-   int& rPacketPayloadBytes, int& rPacketPayloadUsed)
+OsStatus MprEncode::allocPacketBuffer(const MpEncoderBase& rEncoder,
+                                      unsigned char*& rpPacketPayload,
+                                      int& rPacketPayloadBytes)
 {
    OsStatus ret = OS_SUCCESS;
 
-   rPacketPayloadBytes = payloadByteLength(rEncoder);
-   int packetBytes =
-         MprToNet::RESERVED_RTP_PACKET_HEADER_BYTES + rPacketPayloadBytes;
-   rpPacketBuffer = new unsigned char[packetBytes+26];
-   if (NULL != rpPacketBuffer) {
-      rpPacketPayload = rpPacketBuffer +
-                              MprToNet::RESERVED_RTP_PACKET_HEADER_BYTES;
-      memset(rpPacketBuffer, 0, packetBytes+26);
-      memcpy(rpPacketBuffer+packetBytes, "DON'T TOUCH!!!!!!!!!!!!!!", 26);
-   } else {
+   // Set packet size to maximum possible size. Probably we could guess better,
+   // but to do so we need:
+   // 1) to know how much audio data we want to pack (10ms, 20ms, or more);
+   // 2) somehow negotiate packet size for codecs that require special
+   //    processing to pack several frames into one packet (like AMR, Speex, etc).
+   // One of possible solution would be to implement function to ask for
+   // packet size (not frame size!) for codecs. That is pass to it number of
+   // audio samples we want to pack and get packet size back from it, like this:
+   //    int get_packet_size(int numSamples, int* packetSize) const;
+   rPacketPayloadBytes = RTP_MTU;
+
+   // Allocate buffer for RTP packet data
+   rpPacketPayload = new unsigned char[rPacketPayloadBytes];
+   if (rpPacketPayload == NULL )
+   {
+      // No free memory. Return error.
       ret = OS_NO_MEMORY;
-      rpPacketPayload = NULL;
    }
-   rPacketPayloadUsed = 0;
+
    return ret;
 }
 
@@ -214,152 +200,121 @@ void MprEncode::handleDeselectCodecs(void)
    if (NULL != mpPrimaryCodec) {
       delete mpPrimaryCodec;
       mpPrimaryCodec = NULL;
-      if (NULL != mpPacket1Buffer) {
-         delete[] mpPacket1Buffer;
-         mpPacket1Buffer = NULL;
+      if (NULL != mpPacket1Payload) {
+         delete[] mpPacket1Payload;
          mpPacket1Payload = NULL;
          mPacket1PayloadBytes = 0;
+         mPayloadBytesUsed = 0;
+         mSamplesPacked = 0;
+      }
+      if (mNeedResample)
+      {
+         mNeedResample = FALSE;
+         mpResampler->resetStream();
+         mResampleBufLen = 0;
+         delete[] mpResampleBuf;
+         mpResampleBuf = NULL;
       }
    }
    if (NULL != mpDtmfCodec) {
       delete mpDtmfCodec;
       mpDtmfCodec = NULL;
-      if (NULL != mpPacket2Buffer) {
-         delete[] mpPacket2Buffer;
-         mpPacket2Buffer = NULL;
+      if (NULL != mpPacket2Payload) {
+         delete[] mpPacket2Payload;
          mpPacket2Payload = NULL;
          mPacket2PayloadBytes = 0;
       }
    }
-   if (NULL != mpSecondaryCodec) {
-      delete mpSecondaryCodec;
-      mpSecondaryCodec = NULL;
-      if (NULL != mpPacket3Buffer) {
-         delete[] mpPacket3Buffer;
-         mpPacket3Buffer = NULL;
-         mpPacket3Payload = NULL;
-         mPacket3PayloadBytes = 0;
-      }
-   }
 }
 
-static int sbAllowAvtCodec = 1;
-extern "C" {
-   extern int allowAvt(int flag);
-}
-int allowAvt(int flag) {
-   int save = sbAllowAvtCodec;
-   sbAllowAvtCodec = (flag ? 1 : 0);
-   return save;
-}
-
-void MprEncode::handleSelectCodecs(MpFlowGraphMsg& rMsg)
+void MprEncode::handleSelectCodecs(int newCodecsCount, SdpCodec** newCodecs)
 {
-   SdpCodec** newCodecs;
    SdpCodec* pPrimary;
    SdpCodec* pDtmf;
-   SdpCodec* pSecondary;
    MpEncoderBase* pNewEncoder;
    MpCodecFactory* pFactory = MpCodecFactory::getMpCodecFactory();
-   SdpCodec::SdpCodecTypes ourCodec;
+   UtlString mime;
+   UtlString fmtp;
    OsStatus ret;
    int payload;
 
-   newCodecs = (SdpCodec**) rMsg.getPtr1();
+   // We should be only given 2 codecs here right now --
+   // a data codec, and a signaling codec (for tones).
+   assert(newCodecsCount == 2);
    pPrimary = newCodecs[0];
    pDtmf = newCodecs[1];
-   pSecondary = newCodecs[2];
 
    handleDeselectCodecs();  // cleanup the old ones, if any
 
-   if (OsSysLog::willLog(FAC_MP, PRI_DEBUG))
+   if (NULL != pPrimary) 
    {
-      if (NULL != pPrimary) {
-         OsSysLog::add(FAC_MP, PRI_DEBUG,
-                       "MprEncode::handleSelectCodecs "
-                       "pPrimary->getCodecType() = %d, "
-                       "pPrimary->getCodecPayloadFormat() = %d",
-                       pPrimary->getCodecType(),
-                       pPrimary->getCodecPayloadFormat());
-      } else {
-         OsSysLog::add(FAC_MP, PRI_DEBUG,
-                       "MprEncode::handleSelectCodecs "
-                       "pPrimary == NULL");
-      }
-      if (sbAllowAvtCodec && NULL != pDtmf) {
-         OsSysLog::add(FAC_MP, PRI_DEBUG,
-                       "MprEncode::handleSelectCodecs "
-                       "pDtmf->getCodecType() = %d, "
-                       "pDtmf->getCodecPayloadFormat() = %d",
-                       pDtmf->getCodecType(),
-                       pDtmf->getCodecPayloadFormat());
-      } else {
-         OsSysLog::add(FAC_MP, PRI_DEBUG,
-                       "MprEncode::handleSelectCodecs "
-                       "sbAllowAvtCodec = %d, pDtmf = %p",
-                       sbAllowAvtCodec, pDtmf);
-      }
-      if (NULL != pSecondary) {
-         OsSysLog::add(FAC_MP, PRI_DEBUG,
-                       "MprEncode::handleSelectCodecs "
-                       "pSecondary->getCodecType() = %d, "
-                       "pSecondary->getCodecPayloadFormat() = %d",
-                       pSecondary->getCodecType(),
-                       pSecondary->getCodecPayloadFormat());
-      } else {
-         OsSysLog::add(FAC_MP, PRI_DEBUG,
-                       "MprEncode::handleSelectCodecs "
-                       "pSecondary == NULL");
-      }
-   }
-
-   if (NULL != pPrimary) {
-      ourCodec = pPrimary->getCodecType();
+      pPrimary->getEncodingName(mime);
+      pPrimary->getSdpFmtpField(fmtp);
+      int sampleRate = pPrimary->getSampleRate();
+      int numChannels = pPrimary->getNumChannels();
       payload = pPrimary->getCodecPayloadFormat();
-      ret = pFactory->createEncoder(ourCodec, payload, pNewEncoder);
+      ret = pFactory->createEncoder(mime, fmtp, sampleRate, numChannels,
+                                    payload, pNewEncoder);
       assert(OS_SUCCESS == ret);
       assert(NULL != pNewEncoder);
       pNewEncoder->initEncode();
       mpPrimaryCodec = pNewEncoder;
-      mDoesVad1 = (pNewEncoder->getInfo())->doesVadCng();
-      allocPacketBuffer(*mpPrimaryCodec, mpPacket1Buffer,
-         mpPacket1Payload, mPacket1PayloadBytes, mPacket1PayloadUsed);
-   }
+      mDoesVad1 = pNewEncoder->getInfo()->doesVadCng();
+      allocPacketBuffer(*mpPrimaryCodec, mpPacket1Payload, mPacket1PayloadBytes);
+      mPayloadBytesUsed = 0;
+      mSamplesPacked = 0;
 
-   if (sbAllowAvtCodec) {
-      if (NULL != pDtmf) {
-         ourCodec = pDtmf->getCodecType();
-         payload = pDtmf->getCodecPayloadFormat();
-         ret = pFactory->createEncoder(ourCodec, payload, pNewEncoder);
-         assert(OS_SUCCESS == ret);
-         assert(NULL != pNewEncoder);
-         pNewEncoder->initEncode();
-         mpDtmfCodec = pNewEncoder;
-         allocPacketBuffer(*mpDtmfCodec, mpPacket2Buffer,
-            mpPacket2Payload, mPacket2PayloadBytes, mPacket2PayloadUsed);
+      // Setup resampling
+      unsigned codecSamplesPerSec = mpPrimaryCodec->getInfo()->getSampleRate();
+      unsigned flowgraphSamplesPerSec = mpFlowGraph->getSamplesPerSec();
+      mNeedResample = UtlBoolean(flowgraphSamplesPerSec != codecSamplesPerSec);
+      if (mNeedResample)
+      {
+         mpResampler->setInputRate(flowgraphSamplesPerSec);
+         mpResampler->setOutputRate(codecSamplesPerSec);
+         mResampleBufLen = mpFlowGraph->getSamplesPerFrame()
+                           * codecSamplesPerSec/flowgraphSamplesPerSec;
+         mpResampleBuf = new MpAudioSample[mResampleBufLen];
       }
+
+      OsSysLog::add(FAC_MP, PRI_DEBUG,
+                    "MprEncode::handleSelectCodecs "
+                    "pPrimary->getEncodingName() = %s, "
+                    "pPrimary->getSdpFmtpField() = %s, "
+                    "pPrimary->getCodecPayloadFormat() = %d",
+                    mime.data(), fmtp.data(),
+                    pPrimary->getCodecPayloadFormat());
+   }
+   else 
+   {
+      OsSysLog::add(FAC_MP, PRI_DEBUG,
+                    "MprEncode::handleSelectCodecs "
+                    "pPrimary == NULL");
    }
 
-   if (NULL != pSecondary) {
-      ourCodec = pSecondary->getCodecType();
-      payload = pSecondary->getCodecPayloadFormat();
-      ret = pFactory->createEncoder(ourCodec, payload, pNewEncoder);
+   if (NULL != pDtmf) 
+   {
+      pDtmf->getEncodingName(mime);
+      pDtmf->getSdpFmtpField(fmtp);
+      int sampleRate = pDtmf->getSampleRate();
+      int numChannels = pDtmf->getNumChannels();
+      payload = pDtmf->getCodecPayloadFormat();
+      ret = pFactory->createEncoder(mime, fmtp, sampleRate, numChannels,
+                                    payload, pNewEncoder);
       assert(OS_SUCCESS == ret);
       assert(NULL != pNewEncoder);
       pNewEncoder->initEncode();
-      mpSecondaryCodec = pNewEncoder;
-      mDoesVad3 = (pNewEncoder->getInfo())->doesVadCng();
-      allocPacketBuffer(*mpSecondaryCodec, mpPacket3Buffer,
-         mpPacket3Payload, mPacket3PayloadBytes, mPacket3PayloadUsed);
+      mpDtmfCodec = pNewEncoder;
+      allocPacketBuffer(*mpDtmfCodec, mpPacket2Payload, mPacket2PayloadBytes);
+
+      OsSysLog::add(FAC_MP, PRI_DEBUG,
+                    "MprEncode::handleSelectCodecs "
+                    "pDtmf->getEncodingName() = %s, "
+                    "pDtmf->getSdpFmtpField() = %s, "
+                    "pDtmf->getCodecPayloadFormat() = %d",
+                    mime.data(), fmtp.data(),
+                    pDtmf->getCodecPayloadFormat());
    }
-
-   // delete any SdpCodec objects that we did not keep pointers to.
-   if (NULL != pPrimary)   delete pPrimary;
-   if (NULL != pDtmf)      delete pDtmf;
-   if (NULL != pSecondary) delete pSecondary;
-
-   // free the array we were sent
-   delete[] newCodecs;
 }
 
 void MprEncode::handleStartTone(int toneId)
@@ -367,8 +322,8 @@ void MprEncode::handleStartTone(int toneId)
    if (NULL == mpDtmfCodec) return;
    if ((mCurrentTone == -1) && (mNumToneStops < 1)) {
       mCurrentTone = lookupTone(toneId);
-      if (-1 != mCurrentTone) {
-         mNewTone = 1;
+      if (mCurrentTone != -1) {
+         mNewTone = TRUE;
       }
    }
 }
@@ -380,14 +335,40 @@ void MprEncode::handleStopTone(void)
    }
 }
 
+void MprEncode::handleEnableDTX(UtlBoolean dtx)
+{
+   mDisableDTX = !dtx;
+}
+
+void MprEncode::handleSetMaxPacketTime(unsigned maxPacketTime)
+{
+   mMaxPacketTime = maxPacketTime;
+}
+
 // Handle messages for this resource.
 UtlBoolean MprEncode::handleMessage(MpFlowGraphMsg& rMsg)
 {
    if (rMsg.getMsg() == SELECT_CODECS)
    {
-      handleSelectCodecs(rMsg);
+      int pNewCodecArrSz = rMsg.getInt1();
+      SdpCodec** pNewCodecArr = (SdpCodec**)rMsg.getPtr1();
+      // Note: handleSelectCodecs now does not free the data given to it.
+      handleSelectCodecs(pNewCodecArrSz, pNewCodecArr);
+
+      // Free the contents of the array we were sent, if not null.
+      int i;
+      for (i = 0; i < pNewCodecArrSz; i++)
+      {
+         if(NULL != pNewCodecArr[i])
+         {
+            delete pNewCodecArr[i];
+         }
+      }
+      // free the array we were sent
+      delete[] pNewCodecArr;
       return TRUE;
-   } else if (rMsg.getMsg() == DESELECT_CODECS) {
+   } 
+   else if (rMsg.getMsg() == DESELECT_CODECS) {
       handleDeselectCodecs();
       return TRUE;
    } else if (rMsg.getMsg() == START_TONE) {
@@ -396,9 +377,15 @@ UtlBoolean MprEncode::handleMessage(MpFlowGraphMsg& rMsg)
    } else if (rMsg.getMsg() == STOP_TONE) {
       handleStopTone();
       return TRUE;
+   } else if (rMsg.getMsg() == ENABLE_DTX) {
+      handleEnableDTX(rMsg.getInt1());
+      return TRUE;
+   } else if (rMsg.getMsg() == SET_MAX_PACKET_TIME) {
+      handleSetMaxPacketTime(rMsg.getInt1());
+      return TRUE;
    }
    else
-      return MpResource::handleMessage(rMsg);
+      return MpAudioResource::handleMessage(rMsg);
 }
 
 // Translate our tone ID into RFC2833 values.
@@ -447,64 +434,92 @@ int MprEncode::lookupTone(int toneId)
    return ret;
 }
 
-#ifdef DEBUG /* [ */
-static int NumberOfEncodes = 0;
-#endif /* DEBUG ] */
-
-void MprEncode::doPrimaryCodec(MpBufPtr in, unsigned int startTs)
+void MprEncode::doPrimaryCodec(MpAudioBufPtr in, unsigned int startTs)
 {
-   int numSamplesIn;
+   uint32_t numSamplesIn;
    int numSamplesOut;
-   Sample* pSamplesIn;
+   const MpAudioSample* pSamplesIn;
    int payloadBytesLeft;
    unsigned char* pDest;
-   int bytesAdded; //$$$
-   MpBufSpeech content = MP_SPEECH_UNKNOWN;
+   int bytesAdded;
    OsStatus ret;
-   UtlBoolean sendNow;
+   UtlBoolean isPacketReady;
+   UtlBoolean isPacketSilent;
+   unsigned int maxPacketSamples;
+   unsigned int codecFrameSamples;
 
-   if (NULL == mpPrimaryCodec) return;
+   if (mpPrimaryCodec == NULL)
+      return;
 
-   numSamplesIn = MpBuf_getNumSamples(in);
-   pSamplesIn = MpBuf_getSamples(in);
+   if (!in.isValid())
+      return;
 
-   while (numSamplesIn > 0) {
+   // Do resampling if needed.
+   if (mNeedResample)
+   {
+      uint32_t samplesConsumed;
+      mpResampler->resample(0,
+                            in->getSamplesPtr(), in->getSamplesNumber(), samplesConsumed,
+                            mpResampleBuf, mResampleBufLen, numSamplesIn);
+      assert(samplesConsumed == in->getSamplesNumber());
+      pSamplesIn = mpResampleBuf;
+   }
+   else
+   {
+      numSamplesIn = in->getSamplesNumber();
+      pSamplesIn = in->getSamplesPtr();
+   }
 
-      if (0 == mPacket1PayloadUsed) {
+   // Initialize variables
+   maxPacketSamples = mMaxPacketTime*mpFlowGraph->getSamplesPerSec()/1000;
+
+   while (numSamplesIn > 0)
+   {
+      if (mPayloadBytesUsed == 0)
+      {
          mStartTimestamp1 = startTs;
-         mActiveAudio1 = mDoesVad1;
+         mActiveAudio1 = mDoesVad1 || mDisableDTX;
       }
 
-      if (!mActiveAudio1) {
-         mActiveAudio1 = MpBuf_isActiveAudio(in);
-      }
+      mActiveAudio1 = mActiveAudio1 || in->isActiveAudio();
 
-      payloadBytesLeft = mPacket1PayloadBytes - mPacket1PayloadUsed;
-      // maxSamplesOut = payloadBytesLeft / bytesPerSample;
+      payloadBytesLeft = mPacket1PayloadBytes - mPayloadBytesUsed;
 
-      // n = (numSamplesIn > maxSamplesOut) ? maxSamplesOut : numSamplesIn;
-      pDest = mpPacket1Payload + mPacket1PayloadUsed;
+      pDest = mpPacket1Payload + mPayloadBytesUsed;
 
       bytesAdded = 0;
       ret = mpPrimaryCodec->encode(pSamplesIn, numSamplesIn, numSamplesOut,
-                        pDest, payloadBytesLeft, bytesAdded,
-                        sendNow, content);
-      mPacket1PayloadUsed += bytesAdded;
-      assert (mPacket1PayloadBytes >= mPacket1PayloadUsed);
+                                   pDest, payloadBytesLeft, bytesAdded,
+                                   isPacketReady, isPacketSilent);
+      mPayloadBytesUsed += bytesAdded;
+      assert (mPacket1PayloadBytes >= mPayloadBytesUsed);
 
       // In case the encoder does silence suppression (e.g. G.729 Annex B)
-      mMarkNext1 = mMarkNext1 | (0 == bytesAdded);
+      mMarkNext1 = mMarkNext1 || isPacketSilent;
 
+      mSamplesPacked += numSamplesOut;
       pSamplesIn += numSamplesOut;
       numSamplesIn -= numSamplesOut;
       startTs += numSamplesOut;
 
-      if (MP_SPEECH_ACTIVE == content) {
-         mActiveAudio1 = TRUE;
+      if (mpPrimaryCodec->getInfo()->getCodecType() == CODEC_TYPE_FRAME_BASED)
+      {
+         codecFrameSamples = mpPrimaryCodec->getInfo()->getNumSamplesPerFrame();
+      }
+      else if (mpPrimaryCodec->getInfo()->getCodecType() == CODEC_TYPE_SAMPLE_BASED)
+      {
+         codecFrameSamples = mpFlowGraph->getSamplesPerFrame();
+      }
+      else
+      {
+         assert(!"Unknown codec type!");
       }
 
-      if (sendNow || (mPacket1PayloadBytes == mPacket1PayloadUsed)) {
-         if (mActiveAudio1) {
+      if (  (mPayloadBytesUsed > 0)
+         && (isPacketReady || mSamplesPacked+codecFrameSamples > maxPacketSamples))
+      {
+         if (mActiveAudio1)
+         {
             mConsecutiveInactive1 = 0;
          } else {
             mConsecutiveInactive1++;
@@ -513,43 +528,40 @@ void MprEncode::doPrimaryCodec(MpBufPtr in, unsigned int startTs)
              (mConsecutiveUnsentFrames1 >= RTP_KEEP_ALIVE_FRAME_INTERVAL))
          {
             mpToNet->writeRtp(mpPrimaryCodec->getPayloadType(),
-               mMarkNext1,
-               mpPacket1Payload,
-               mPacket1PayloadUsed,
-               mStartTimestamp1,
-               NULL);
+                              mMarkNext1,
+                              mpPacket1Payload,
+                              mPayloadBytesUsed,
+                              mStartTimestamp1,
+                              NULL);
             mMarkNext1 = FALSE;
             mConsecutiveUnsentFrames1 = 0;
          } else {
             mMarkNext1 = TRUE;
          }
-         mPacket1PayloadUsed = 0;
+         mPayloadBytesUsed = 0;
+         mSamplesPacked = 0;
       }
    }
 }
 
 void MprEncode::doDtmfCodec(unsigned int startTs, int samplesPerFrame,
-   int samplesPerSecond)
+                            int samplesPerSecond)
 {
    int numSampleTimes;
-#ifdef _VXWORKS /* [ */
-   extern volatile int* pOsTC;
-#endif /* _VXWORKS ] */
 #ifdef DEBUG_DTMF_SEND /* [ */
    int skipped;
 #endif /* DEBUG_DTMF_SEND ] */
 
-   if (-1 == mCurrentTone) return;
-   if (NULL == mpDtmfCodec) return;
+   if (mCurrentTone == -1)
+      return;
 
-   if (mNewTone) {
+   if (mpDtmfCodec == NULL)
+      return;
+
+   if (mNewTone == TRUE) {
       mStartTimestamp2 = startTs;
       mDtmfSampleInterval = samplesPerFrame * 2;
       mNumToneStops = -1;
-#ifdef _VXWORKS /* [ */
-      OsSysLog::add(FAC_MP, PRI_INFO, "MprEncode::doDtmfCodec - key down,"
-         " key=%d, TS=0x%X, OsTC=0x%X\n", mNewTone, startTs, *pOsTC);
-#endif /* _VXWORKS ] */
    }
 
    if (TONE_STOP_PACKETS == mNumToneStops) {
@@ -557,7 +569,7 @@ void MprEncode::doDtmfCodec(unsigned int startTs, int samplesPerFrame,
    }
 
    if (mNumToneStops-- < 0) {
-      if (mNewTone ||
+      if (mNewTone == TRUE ||
           ((mLastDtmfSendTimestamp + mDtmfSampleInterval) <= startTs)) {
 
          numSampleTimes = (startTs + samplesPerFrame) - mStartTimestamp2;
@@ -568,94 +580,85 @@ void MprEncode::doDtmfCodec(unsigned int startTs, int samplesPerFrame,
          mpPacket2Payload[2] = (numSampleTimes >> 8) & 0xff; // Big Endian
          mpPacket2Payload[3] = numSampleTimes & 0xff; // Big Endian
          mpToNet->writeRtp(mpDtmfCodec->getPayloadType(),
-            (0 != mNewTone),  // set marker on first packet
-            mpPacket2Payload,
-            4,
-            mStartTimestamp2,
-            NULL);
+                           (FALSE != mNewTone),  // set marker on first packet
+                           mpPacket2Payload,
+                           4,
+                           mStartTimestamp2,
+                           NULL);
          mLastDtmfSendTimestamp = startTs;
-         mNewTone = 0;
+         mNewTone = FALSE;
 #ifdef DEBUG_DTMF_SEND /* [ */
          skipped = 0;
       } else {
          skipped = 1;
       }
-      if (mNumToneStops > -20) {
-         osPrintf("doDtmfCodec: %d + %d = %d, %d -- %s\n",
-            mLastDtmfSendTimestamp, mDtmfSampleInterval,
-            (mLastDtmfSendTimestamp + mDtmfSampleInterval),
-            startTs, (skipped ? "skipped" : "sent"));
+      {
+         osPrintf("doDtmfCodec(%p): %d + %d = %d, %d -- %s\n",
+                  this,
+                  mLastDtmfSendTimestamp, mDtmfSampleInterval,
+                  (mLastDtmfSendTimestamp + mDtmfSampleInterval),
+                  startTs, (skipped ? "skipped" : "sent"));
 #endif /* DEBUG_DTMF_SEND ] */
       }
    } else {
       numSampleTimes = mTotalTime;
       if (numSampleTimes > ((1<<16) - 1)) numSampleTimes = ((1<<16) - 1);
 
-#ifdef _VXWORKS /* [ */
-      OsSysLog::add(FAC_MP, PRI_DEBUG, "MprEncode::doDtmfCodec - key up (%d),"
-         " key=%d, TS=0x%X, OsTC=0x%X\n",
-         mNumToneStops, mNewTone, startTs, *pOsTC);
-#endif /* _VXWORKS ] */
-
       mpPacket2Payload[0] = mCurrentTone;
       mpPacket2Payload[1] = (1<<7) + 10; // -10 dBm0, with E bit
       mpPacket2Payload[2] = (numSampleTimes >> 8) & 0xff; // Big Endian
       mpPacket2Payload[3] = numSampleTimes & 0xff; // Big Endian
       mpToNet->writeRtp(mpDtmfCodec->getPayloadType(),
-         FALSE,
-         mpPacket2Payload,
-         4,
-         mStartTimestamp2,
-         NULL);
+                        FALSE,
+                        mpPacket2Payload,
+                        4,
+                        mStartTimestamp2,
+                        NULL);
       mLastDtmfSendTimestamp = startTs;
-      if (1 > mNumToneStops) { // all done, ready to start next tone.
+      if (mNumToneStops < 1) { // all done, ready to start next tone.
          mCurrentTone = -1;
          mNumToneStops = -1;
          mTotalTime = 0;
       }
+#ifdef DEBUG_DTMF_SEND /* [ */
+      osPrintf("doDtmfCodec(%p): %d + %d = %d, %d -- stop sent\n",
+               this,
+               mLastDtmfSendTimestamp, mDtmfSampleInterval,
+               (mLastDtmfSendTimestamp + mDtmfSampleInterval),
+               startTs);
+#endif /* DEBUG_DTMF_SEND ] */
    }
-}
-
-void MprEncode::doSecondaryCodec(MpBufPtr in, unsigned int startTs)
-{
-   assert(FALSE);
 }
 
 UtlBoolean MprEncode::doProcessFrame(MpBufPtr inBufs[],
-                                    MpBufPtr outBufs[],
-                                    int inBufsSize,
-                                    int outBufsSize,
-                                    UtlBoolean isEnabled,
-                                    int samplesPerFrame,
-                                    int samplesPerSecond)
+                                     MpBufPtr outBufs[],
+                                     int inBufsSize,
+                                     int outBufsSize,
+                                     UtlBoolean isEnabled,
+                                     int samplesPerFrame,
+                                     int samplesPerSecond)
 {
    MpBufPtr in;
-   unsigned int startTs;
 
    mConsecutiveUnsentFrames1++;
-   mConsecutiveUnsentFrames3++;
 
-   if (0 == inBufsSize) return FALSE;
+   if (inBufsSize == 0)
+      return FALSE;
 
-   if (!isEnabled) return TRUE;
+   if (!isEnabled)
+      return TRUE;
 
-   in = *inBufs;
+   in = inBufs[0];
 
-   startTs = (showFrameCount(1) * samplesPerFrame);
+   mCurrentTimestamp += samplesPerFrame;
 
    if (NULL != mpPrimaryCodec) {
-      doPrimaryCodec(in, startTs);
+      doPrimaryCodec(in, mCurrentTimestamp);
    }
 
    if (NULL != mpDtmfCodec) {
-      doDtmfCodec(startTs, samplesPerFrame, samplesPerSecond);
+      doDtmfCodec(mCurrentTimestamp, samplesPerFrame, samplesPerSecond);
    }
-
-   if (NULL != mpSecondaryCodec) {
-      doSecondaryCodec(in, startTs);
-   }
-
-   // mLastTimestamp = startTs;  // Unused?
 
    return TRUE;
 }

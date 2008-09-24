@@ -1,6 +1,6 @@
-//
-// Copyright (C) 2005-2006 SIPez LLC.
-// Licensed to SIPfoundry under a Contributor Agreement.
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -19,10 +19,8 @@
 
 // SYSTEM INCLUDES
 
-#include "os/OsDefs.h"
 #include <assert.h>
 #include <string.h>
-#include "os/OsTask.h"
 #ifdef _VXWORKS /* [ */
 #include <selectLib.h>
 #include <iosLib.h>
@@ -51,14 +49,8 @@
 #include "os/OsServerSocket.h"
 #include "os/OsConnectionSocket.h"
 #include "os/OsEvent.h"
-
-// #define SYMMETRIC_RTP_HACK
-
-#ifdef SYMMETRIC_RTP_HACK
-#include "os/OsSocket.h"
-#include "os/OsNatDatagramSocket.h"
-#endif
 #include "mp/NetInTask.h"
+#include "mp/MpUdpBuf.h"
 #include "mp/MprFromNet.h"
 #include "mp/MpBufferMsg.h"
 #include "mp/dmaTask.h"
@@ -75,14 +67,19 @@
 static int dummy0 = 0;
 #endif /* _VXWORKS ] */
 
+#ifdef RTL_ENABLED
+#  include <rtl_macro.h>
+#else
+#  define RTL_START(x)
+#  define RTL_BLOCK(x)
+#  define RTL_EVENT(x,y)
+#  define RTL_WRITE(x)
+#  define RTL_STOP
+#endif
+
 // EXTERNAL FUNCTIONS
-
 // EXTERNAL VARIABLES
-
 // CONSTANTS
-
-#define NET_TASK_PIPE_NAME "/pipe/tcas1NetInTask"
-#define NET_TASK_MAX_MSGS 10
 #define NET_TASK_MAX_MSG_LEN sizeof(netInTaskMsg)
 #define NET_TASK_MAX_FD_PAIRS 100
 
@@ -97,6 +94,19 @@ struct __netInTaskMsg {
 
 typedef struct __netInTaskMsg netInTaskMsg, *netInTaskMsgPtr;
 
+struct rtpSession {
+   uint8_t vpxcc; ///< Usually: ((2<<6) | (0<<5) | (0<<4) | 0)
+   uint8_t mpt;   ///< Usually: ((0<<7) | 0)
+   RtpSeq seq;
+   RtpTimestamp timestamp;
+   RtpSRC ssrc;
+   OsSocket* socket;
+   int dir;
+   uint32_t packets;
+   uint32_t octets;
+   uint16_t cycles;
+};
+
 // STATIC VARIABLE INITIALIZATIONS
 volatile int* pOsTC = OSTIMER_COUNTER_POINTER;
 
@@ -106,7 +116,7 @@ static  int numPairs;
 NetInTask* NetInTask::spInstance = 0;
 OsRWMutex     NetInTask::sLock(OsBSem::Q_PRIORITY);
 
-const int NetInTask::DEF_NET_IN_TASK_PRIORITY  = 100; // default task priority
+const int NetInTask::DEF_NET_IN_TASK_PRIORITY  = 0;   // default task priority: HIGHEST
 const int NetInTask::DEF_NET_IN_TASK_OPTIONS   = 0;   // default task options
 #ifdef USING_NET_EQ /* [ */
 const int NetInTask::DEF_NET_IN_TASK_STACKSIZE = 40960;//default task stacksize
@@ -114,30 +124,42 @@ const int NetInTask::DEF_NET_IN_TASK_STACKSIZE = 40960;//default task stacksize
 const int NetInTask::DEF_NET_IN_TASK_STACKSIZE = 4096;// default task stacksize
 #endif /* USING_NET_EQ ] */
 
-#define DEBUG
-#undef  DEBUG
+#define SIPX_DEBUG
+#undef  SIPX_DEBUG
 
 /************************************************************************/
 
-// This task is launched when getWriteFD() called from the same task as
-// the one that is about to call accept.
-
+/**
+*  @brief Help create writer side of connection for NetInTask internal use.
+*
+*  This task is used to create connection to socket we're listening. Main task
+*  create OsServerConnection and wait call OsServerConnection::accept() to
+*  get reader side of connection. On the side of this task writer side of
+*  connection is connected.
+*/
 class NetInTaskHelper : public OsTask
 {
 public:
-    NetInTaskHelper(NetInTask* task, OsNotification* notify);
+    NetInTaskHelper(int port);
     ~NetInTaskHelper();
+
+    /// Do the task.
     virtual int run(void* pArg);
+
+    /// Wait for helper task to finish and return connected socket.
+    inline OsConnectionSocket* getSocket();
+
 private:
-    int port;
-    OsNotification* mpNotify;
+   OsConnectionSocket* mpSocket;
+   int                 mPort;
 };
 
 
-NetInTaskHelper::NetInTaskHelper(NetInTask* pNIT, OsNotification* pNotify)
-:  OsTask("NetInTaskHelper-%d", (void*)pNIT, 25, 0, 2000)
+NetInTaskHelper::NetInTaskHelper(int port)
+: OsTask("NetInTaskHelper-%d", NULL, 25, 0, 2000)
+, mpSocket(NULL)
+, mPort(port)
 {
-    mpNotify = pNotify;
 }
 
 NetInTaskHelper::~NetInTaskHelper()
@@ -145,32 +167,37 @@ NetInTaskHelper::~NetInTaskHelper()
     waitUntilShutDown();
 }
 
-int NetInTaskHelper::run(void* pInst)
+int NetInTaskHelper::run(void*)
 {
-    // osPrintf("NetInTaskHelper::run: Start\n");
-    NetInTask* pNIT = (NetInTask*) pInst;
-    int trying = 1000;
-    OsConnectionSocket* pWriteSocket = NULL;
-    while (trying > 0)
+    int numTry = 0;
+    while (numTry < 1000)
     {
-       OsTask::delay(1);
-       pNIT->openWriteFD();
-       pWriteSocket = pNIT->getWriteSocket();
-       if (pWriteSocket && pWriteSocket->isConnected()) break;
-       trying--;
+       // Delay for some time on consecutive runs.
+       if (numTry > 0)
+       {
+          OsTask::delay(1);
+       }
+
+       // Connect...
+       mpSocket = new OsConnectionSocket(mPort, "127.0.0.1");
+       if (mpSocket && mpSocket->isConnected()) break;
+
+       numTry++;
     }
-    mpNotify->signal(0);
+
     OsSysLog::add(FAC_MP, PRI_INFO,
-       "NetInTaskHelper::run()... returning 0, after %d tries\n", (1001 - trying));
+       "NetInTaskHelper::run()... returning 0, after %d tries\n", numTry);
 
     return 0;
 }
 
-/************************************************************************/
-void NetInTask::openWriteFD()
+OsConnectionSocket* NetInTaskHelper::getSocket()
 {
-    mpWriteSocket = new OsConnectionSocket(mCmdPort, "127.0.0.1");
+   waitUntilShutDown();
+   return mpSocket;
 }
+
+/************************************************************************/
 
 int NetInTask::getWriteFD()
 {
@@ -179,40 +206,9 @@ int NetInTask::getWriteFD()
     {
         writeSocketDescriptor = mpWriteSocket->getSocketDescriptor();
     }
-
     else
     {
-        // connect to the socket
-        sLock.acquireWrite();
-        if (NULL != mpWriteSocket) 
-        {
-            // We lost a race for the lock, don't need to do anything
-        }
-
-        else if (OsTask::getCurrentTask() == NetInTask::spInstance) 
-        {
-            OsEvent* pNotify;
-            NetInTaskHelper* pHelper;
-
-            // Start our helper thread to go open the socket
-            pNotify = new OsEvent;
-            pHelper = new NetInTaskHelper(this, pNotify);
-            if (!pHelper->isStarted()) {
-                pHelper->start();
-            }
-            pNotify->wait();
-            delete pHelper;
-            delete pNotify;
-        } 
-        else 
-        {
-            // we are in a different thread already, go do it ourselves.
-            osPrintf("Not NetInTask: opening connection directly\n");
-            OsSysLog::add(FAC_MP, PRI_DEBUG, "Not NetInTask: opening connection directly\n");
-            openWriteFD();
-        }
-        writeSocketDescriptor = mpWriteSocket->getSocketDescriptor();
-        sLock.releaseWrite();
+       assert(FALSE);
     }
     return(writeSocketDescriptor);
 }
@@ -225,38 +221,19 @@ OsConnectionSocket* NetInTask::getWriteSocket()
     return mpWriteSocket;
 }
 
-OsConnectionSocket* NetInTask::getReadSocket()
-{
-    int i;
-
-    for (i=0; ((i<10) && (NULL == mpReadSocket)); i++) {
-        getWriteFD();
-        OsTask::delay(100);
-    }
-    return mpReadSocket;
-}
-
 /************************************************************************/
 
-static OsStatus get1Msg(OsSocket* pRxpSkt, MprFromNet* fwdTo, int rtpOrRtcp,
+static OsStatus get1Msg(OsSocket* pRxpSkt, MprFromNet* fwdTo, bool isRtcp,
     int ostc)
 {
-        MpBufPtr ib;
-        char junk[MAX_RTP_BYTES];
-        int ret, nRead;
-        struct rtpHeader *rp;
+        MpUdpBufPtr ib;
+        int nRead;
         struct in_addr fromIP;
         int      fromPort;
 
 static  int numFlushed = 0;
 static  int flushedLimit = 125;
 
-        rp = (struct rtpHeader *) &junk[0];
-        if (MpBufferMsg::AUD_RTP_RECV == rtpOrRtcp) {
-           ib = MpBuf_getBuf(MpMisc.RtpPool, 0, 0, MP_FMT_RTPPKT);
-        } else {
-           ib = MpBuf_getBuf(MpMisc.RtcpPool, 0, 0, MP_FMT_RTCPPKT);
-        }
         if (numFlushed >= flushedLimit) {
             Zprintf("get1Msg: flushed %d packets! (after %d DMA frames).\n",
                numFlushed, showFrameCount(1), 0,0,0,0);
@@ -267,45 +244,31 @@ static  int flushedLimit = 125;
                 flushedLimit = 125;
             }
         }
-        if (NULL != ib) {
-            nRead = ret = pRxpSkt->read(junk, MAX_RTP_BYTES, &fromIP, &fromPort);
-            MpBuf_setOsTC(ib, ostc);
-            if (ret > 0) 
-            {               
-                if (ret > MpBuf_getByteLen(ib)) {
-                    ret = MpBuf_getByteLen(ib);
-                    if (MpBufferMsg::AUD_RTP_RECV == rtpOrRtcp) {
-                        junk[0] &= ~0x20; /* must turn off Pad flag */
-                    }
-                }
-                memcpy((char *) MpBuf_getStorage(ib), junk, ret);
-                MpBuf_setNumSamples(ib, ret);
-                MpBuf_setContentLen(ib, ret);
-                fwdTo->pushPacket(ib, rtpOrRtcp, &fromIP, fromPort);
 
-#ifdef SYMMETRIC_RTP_HACK
-                // If we have a NAT datagram socket and we are receiving on 
-                // a different port then expected, reset the sending 
-                // destination.
-                OsNatDatagramSocket* pNatSocket = dynamic_cast<OsNatDatagramSocket*>(pRxpSkt) ;
-                if (pNatSocket)
-                {
-                    UtlString currAddr ;
-                    int       currPort ;
-                    if (pNatSocket->getDestinationAddress(currAddr, currPort))
-                    {
-                        UtlString fromAddr ;
-                        OsSocket::inet_ntoa_pt(fromIP, fromAddr);
-                        if (    (currAddr.compareTo(fromAddr) == 0) && 
-                                (currPort != fromPort))
-                            pNatSocket->applyDestinationAddress(fromAddr, fromPort) ;
-                    }
-               }
-#endif
+        // Get new buffer for incoming packet
+        ib = MpMisc.UdpPool->getBuffer();
+
+        if (ib.isValid()) {
+            // Read packet data.
+            // Note: nRead could not be greater then buffer size.
+            nRead = pRxpSkt->read(ib->getDataWritePtr(), ib->getMaximumPacketSize()
+                                 , &fromIP, &fromPort);
+            // Set size of received data
+            ib->setPacketSize(nRead);
+
+            // Set IP address and port of this packet
+            ib->setIP(fromIP);
+            ib->setUdpPort(fromPort);
+
+            // Set time we receive this packet.
+            ib->setTimecode(ostc);
+
+            if (nRead > 0) 
+            {
+                fwdTo->pushPacket(ib, isRtcp);
             } 
             else 
             {
-                MpBuf_delRef(ib);
                 if (!pRxpSkt->isOk())
                 {
                     Zprintf(" *** get1Msg: read(%d) returned %d, errno=%d=0x%X)\n",
@@ -314,7 +277,9 @@ static  int flushedLimit = 125;
                 }                                
             }
         } else {
-            nRead = pRxpSkt->read(junk, sizeof(junk));
+            // Flush packet if could not get buffer for it.
+            char buffer[UDP_MTU];
+            nRead = pRxpSkt->read(buffer, UDP_MTU, &fromIP, &fromPort);
             if (numFlushed++ < 10) {
                 Zprintf("get1Msg: flushing a packet! (%d, %d, %d)"
                     " (after %d DMA frames).\n",
@@ -345,7 +310,7 @@ int isFdPoison(int fd)
         ptv = &tv;
         fds = &fdset;
         FD_ZERO(fds);
-        FD_SET((UINT) fd, fds);
+        FD_SET((unsigned) fd, fds);
         numReady = select(fd+1, fds, NULL, NULL, ptv);
         return (0 > numReady) ? TRUE : FALSE;
 }
@@ -395,19 +360,15 @@ int showNetInTable() {
    int     i;
    netInTaskMsgPtr ppr;
    NetInTask* pInst = NetInTask::getNetInTask();
-   OsConnectionSocket* readSocket;
 
-   // pInst->getWriteFD();
-   readSocket = pInst->getReadSocket();
-
-   pipeFd = readSocket->getSocketDescriptor();
+   pipeFd = pInst->getWriteFD();
 
    for (i=0, ppr=pairs; i<NET_TASK_MAX_FD_PAIRS; i++) {
       if (NULL != ppr->fwdTo) {
          if (NULL != ppr->pRtpSocket)
-            last=max(last, ppr->pRtpSocket->getSocketDescriptor());
+            last=sipx_max(last, ppr->pRtpSocket->getSocketDescriptor());
          if (NULL != ppr->pRtcpSocket)
-            last=max(last, ppr->pRtcpSocket->getSocketDescriptor());
+            last=sipx_max(last, ppr->pRtcpSocket->getSocketDescriptor());
       }
       ppr++;
    }
@@ -423,18 +384,6 @@ int showNetInTable() {
    return last;
 }
 
-volatile int NetInWait = 0;
-
-int NetInHalt() {
-   NetInWait = 1;
-   return 0;
-}
-
-int NetInResume() {
-   NetInWait = 0;
-   return 0;
-}
-
 int NetInTask::run(void *pNotUsed)
 {
         fd_set fdset;
@@ -445,27 +394,7 @@ int NetInTask::run(void *pNotUsed)
         int     numReady;
         netInTaskMsg    msg;
         netInTaskMsgPtr ppr;
-        OsServerSocket* pBindSocket;
         int     ostc;
-
-        while (NetInWait) {
-            OsTask::yield();
-        }
-        pBindSocket = new OsServerSocket(1, PORT_DEFAULT, "127.0.0.1");
-        mCmdPort = pBindSocket->getLocalHostPort();
-        // osPrintf("\n NetInTask: local comm port is %d\n\n", mCmdPort);
-        assert(-1 != mCmdPort);
-        // osPrintf("NetInTask: getting WriteFD\n");
-        getWriteFD();
-        // osPrintf("NetInTask: calling accept\n");
-        mpReadSocket = pBindSocket->accept();
-        // osPrintf("NetInTask: accept returned, closing server socket\n");
-        pBindSocket->close();
-        delete pBindSocket;
-        if (NULL == mpReadSocket) {
-            Zprintf(" *** NetInTask: accept() failed!\n", 0,0,0,0,0,0);
-            return 0;
-        }
 
         for (i=0, ppr=pairs; i<NET_TASK_MAX_FD_PAIRS; i++) {
             ppr->pRtpSocket =  NULL;
@@ -488,15 +417,15 @@ int NetInTask::run(void *pNotUsed)
                for (i=0, ppr=pairs; i<NET_TASK_MAX_FD_PAIRS; i++) {
                   if (NULL != ppr->fwdTo) {
                     if (NULL != ppr->pRtpSocket)
-                       last=max(last, ppr->pRtpSocket->getSocketDescriptor());
+                       last=sipx_max(last, ppr->pRtpSocket->getSocketDescriptor());
                     if (NULL != ppr->pRtcpSocket)
-                       last=max(last, ppr->pRtcpSocket->getSocketDescriptor());
+                       last=sipx_max(last, ppr->pRtcpSocket->getSocketDescriptor());
                   }
                   ppr++;
                }
             }
             FD_ZERO(fds);
-            FD_SET((UINT) mpReadSocket->getSocketDescriptor(), fds);
+            FD_SET((unsigned) mpReadSocket->getSocketDescriptor(), fds);
             for (i=0, ppr=pairs; i<NET_TASK_MAX_FD_PAIRS; i++) {
               if (NULL != ppr->fwdTo) {
                 if (NULL != ppr->pRtpSocket)
@@ -556,21 +485,21 @@ int NetInTask::run(void *pNotUsed)
                     /* request to exit... */
                     Nprintf(" *** NetInTask: closing pipeFd (%d)\n",
                         mpReadSocket->getSocketDescriptor(), 0,0,0,0,0);
-                    OsSysLog::add(FAC_MP, PRI_ERR, " *** NetInTask: closing pipeFd (%d)\n",
+                    OsSysLog::add(FAC_MP, PRI_DEBUG, " *** NetInTask: closing pipeFd (%d)\n",
                         mpReadSocket->getSocketDescriptor());
-                    sLock.acquireWrite();
+                    getLockObj().acquireWrite();
                     if (mpReadSocket)
                     {
                         mpReadSocket->close();
-                       delete mpReadSocket;
+                        delete mpReadSocket;
                         mpReadSocket = NULL;
                     }
-                    sLock.releaseWrite();
+                    getLockObj().releaseWrite();
                 } else if (NULL != msg.fwdTo) {
                     if ((NULL != msg.pRtpSocket) || (NULL != msg.pRtcpSocket)) {
                         /* add a new pair of file descriptors */
-                        last = max(last,msg.pRtpSocket->getSocketDescriptor());
-                        last = max(last,msg.pRtcpSocket->getSocketDescriptor());
+                        last = sipx_max(last,msg.pRtpSocket->getSocketDescriptor());
+                        last = sipx_max(last,msg.pRtcpSocket->getSocketDescriptor());
 #define CHECK_FOR_DUP_DESCRIPTORS
 #ifdef CHECK_FOR_DUP_DESCRIPTORS
                         int newRtpFd  = (msg.pRtpSocket)  ? msg.pRtpSocket->getSocketDescriptor()  : -1;
@@ -658,7 +587,7 @@ int NetInTask::run(void *pNotUsed)
                 if ((NULL != ppr->pRtpSocket) &&
                   (FD_ISSET(ppr->pRtpSocket->getSocketDescriptor(), fds))) {
                     stat = get1Msg(ppr->pRtpSocket, ppr->fwdTo,
-                       MpBufferMsg::AUD_RTP_RECV, ostc);
+                       false, ostc);
                     if (OS_SUCCESS != stat) {
                         Zprintf(" *** NetInTask: removing RTP#%d pSkt=0x%x due"
                             " to read error.\n", ppr-pairs,
@@ -673,7 +602,7 @@ int NetInTask::run(void *pNotUsed)
                 if ((NULL != ppr->pRtcpSocket) &&
                   (FD_ISSET(ppr->pRtcpSocket->getSocketDescriptor(), fds))) {
                     stat = get1Msg(ppr->pRtcpSocket, ppr->fwdTo,
-                       MpBufferMsg::AUD_RTCP_RECV, ostc);
+                       true, ostc);
                     if (OS_SUCCESS != stat) {
                         Zprintf(" *** NetInTask: removing RTCP#%d pSkt=0x%x due"
                             " to read error.\n", ppr-pairs,
@@ -704,7 +633,6 @@ OsStatus startNetInTask()
 NetInTask* NetInTask::getNetInTask()
 {
    UtlBoolean isStarted;
-   // OsStatus  stat;
 
    // If the task object already exists, and the corresponding low-level task
    // has been started, then use it
@@ -713,7 +641,7 @@ NetInTask* NetInTask::getNetInTask()
 
    // If the task does not yet exist or hasn't been started, then acquire
    // the lock to ensure that only one instance of the task is started
-   sLock.acquireRead();
+   getLockObj().acquireRead();
    if (spInstance == NULL) {
        spInstance = new NetInTask();
    }
@@ -723,9 +651,9 @@ NetInTask* NetInTask::getNetInTask()
       isStarted = spInstance->start();
       assert(isStarted);
    }
-   sLock.releaseRead();
+   getLockObj().releaseRead();
 
-   // Synchronize with NetInTask starutp
+   // Synchronize with NetInTask startup
    int numDelays = 0;
    while (spInstance->mCmdPort == -1)
    {
@@ -738,22 +666,14 @@ NetInTask* NetInTask::getNetInTask()
 
 void NetInTask::shutdownSockets()
 {
-        getLockObj().acquireWrite();
-        
-        if (mpWriteSocket)
-        {
-            mpWriteSocket->close();
-            delete mpWriteSocket;
-            mpWriteSocket = NULL;
-        }
-        
-        /*if (mpReadSocket)
-        {
-            mpReadSocket->close();
-            delete mpReadSocket;
-            mpReadSocket =  NULL;
-        }*/
-        getLockObj().releaseWrite();
+   getLockObj().acquireWrite();
+   if (mpWriteSocket)
+   {
+      mpWriteSocket->close();
+      delete mpWriteSocket;
+      mpWriteSocket = NULL;
+   }
+   getLockObj().releaseWrite();
 
 }
 // Default constructor (called only indirectly via getNetInTask())
@@ -762,12 +682,41 @@ NetInTask::NetInTask(int prio, int options, int stack)
    mpWriteSocket(NULL),
    mpReadSocket(NULL)
 {
-    mCmdPort = -1;
+    // Create temporary listening socket.
+    OsServerSocket *pBindSocket = new OsServerSocket(1, PORT_DEFAULT, "127.0.0.1");
+    RTL_EVENT("NetInTask::NetInTask", 1);
+    mCmdPort = pBindSocket->getLocalHostPort();
+    assert(-1 != mCmdPort);
+
+    // Start our helper thread to go open the socket
+    RTL_EVENT("NetInTask::NetInTask", 2);
+    NetInTaskHelper* pHelper = new NetInTaskHelper(mCmdPort);
+    if (!pHelper->isStarted()) {
+       RTL_EVENT("NetInTask::NetInTask", 3);
+       pHelper->start();
+    }
+
+    RTL_EVENT("NetInTask::NetInTask", 4);
+    mpReadSocket = pBindSocket->accept();
+
+    RTL_EVENT("NetInTask::NetInTask", 5);
+    pBindSocket->close();
+
+    RTL_EVENT("NetInTask::NetInTask", 6);
+    delete pBindSocket;
+
+    // Create socket for write side of connection.
+    mpWriteSocket = pHelper->getSocket();
+    assert(mpWriteSocket != NULL && mpWriteSocket->isConnected());
+
+    RTL_EVENT("NetInTask::NetInTask", 7);
+    delete pHelper;
 }
 
 // Destructor
 NetInTask::~NetInTask()
 {
+   waitUntilShutDown();
    spInstance = NULL;
 }
 
@@ -775,30 +724,37 @@ NetInTask::~NetInTask()
 
 OsStatus shutdownNetInTask()
 {
-        NetInTask::getLockObj().acquireWrite();
+   int wrote;
 
-        netInTaskMsg msg;
-        int wrote;
-        NetInTask* pInst = NetInTask::getNetInTask();
-        OsConnectionSocket* writeSocket;
+   // Lock access to write socket.
+   NetInTask::getLockObj().acquireWrite();
 
-        // pInst->getWriteFD();
-        writeSocket = pInst->getWriteSocket();
+   NetInTask* pInst = NetInTask::getNetInTask();
 
-        msg.pRtpSocket = (OsSocket*) -2;
-        msg.pRtcpSocket = (OsSocket*) -1;
-        msg.fwdTo = NULL;
+   // Request shutdown here, so next msg will unblock select() and request
+   // will be processed.
+   pInst->requestShutdown();
 
-        wrote = writeSocket->write((char *) &msg, NET_TASK_MAX_MSG_LEN);
-        NetInTask::getLockObj().releaseWrite();
+   // Write message to socket to release sockets.
+   {
+      OsConnectionSocket* writeSocket = pInst->getWriteSocket();
 
-        pInst->shutdownSockets();
-        
-        NetInTask* pTask = NetInTask::getNetInTask();
-        NetInTask::getLockObj().acquireWrite();
-        pTask->requestShutdown();
-        NetInTask::getLockObj().releaseWrite();
-        return ((NET_TASK_MAX_MSG_LEN == wrote) ? OS_SUCCESS : OS_BUSY);
+      netInTaskMsg msg;
+      msg.pRtpSocket = (OsSocket*) -2;
+      msg.pRtcpSocket = (OsSocket*) -1;
+      msg.fwdTo = NULL;
+      msg.notify = NULL;
+
+      wrote = writeSocket->write((char *) &msg, NET_TASK_MAX_MSG_LEN);
+   }
+
+   NetInTask::getLockObj().releaseWrite();
+
+   pInst->shutdownSockets();
+
+   delete pInst;
+
+   return ((NET_TASK_MAX_MSG_LEN == wrote) ? OS_SUCCESS : OS_BUSY);
 }
 
 // $$$ This is quite Unix-centric; on Win/NT these are handles...
@@ -860,11 +816,6 @@ OsStatus removeNetInputSources(MprFromNet* fwdTo, OsNotification* notify)
             }
         }
 
-#ifdef WIN32 /* [ */
-        // Reduce the delay, not sure this is still needed
-      Sleep(100);
-#endif /* WIN32 ] */
-
         return ((NET_TASK_MAX_MSG_LEN == wrote) ? OS_SUCCESS : OS_BUSY);
 }
 
@@ -874,12 +825,12 @@ OsStatus removeNetInputSources(MprFromNet* fwdTo, OsNotification* notify)
 /************************************************************************/
 
 // return something random (32 bits)
-UINT rand_timer32()
+uint32_t rand_timer32()
 {
 #ifdef _VXWORKS /* [ */
 // On VxWorks, this is based on reading the 3.686400 MHz counter
-        UINT x;
-static  UINT last_timer = 0x12345678;
+        uint32_t x;
+static  uint32_t last_timer = 0x12345678;
 
         x = *pOsTC;
         if (x == last_timer) {
@@ -911,17 +862,12 @@ static  UINT last_timer = 0x12345678;
 #endif /* _WIN32 || __pingtel_on_posix__ ] */
 }
 
-struct rtcpSession {
-        int dir;
-        OsSocket* socket;
-};
-
 #define RTP_DIR_NEW 4
 
 rtpHandle StartRtpSession(OsSocket* socket, int direction, char type)
 {
         struct rtpSession *ret;
-        USHORT rseq;
+        RtpSeq rseq;
 
         rseq = 0xFFFF & rand_timer32();
 
@@ -945,58 +891,7 @@ rtpHandle StartRtpSession(OsSocket* socket, int direction, char type)
         return ret;
 }
 
-rtcpHandle StartRtcpSession(int direction)
-{
-        struct rtcpSession *ret;
-        USHORT rseq;
-
-        rseq = 0xFFFF & rand_timer32();
-
-        ret = (struct rtcpSession *) malloc(sizeof(struct rtcpSession));
-        if (ret) {
-                ret->dir = direction | RTP_DIR_NEW;
-                ret->socket = NULL;
-        }
-        return ret;
-}
-
-OsStatus setRtpType(rtpHandle h, int type)
-{
-        h->mpt = ((0<<7) | (type & 0x7f));
-        return OS_SUCCESS;
-}
-
-OsStatus setRtpSocket(rtpHandle h, OsSocket* socket)
-{
-        h->socket = socket;
-        return OS_SUCCESS;
-}
-
-OsSocket* getRtpSocket(rtpHandle h)
-{
-        return h->socket;
-}
-
-OsStatus setRtcpSocket(rtcpHandle h, OsSocket* socket)
-{
-        h->socket = socket;
-        return OS_SUCCESS;
-}
-
-OsSocket* getRtcpSocket(rtcpHandle h)
-{
-        return h->socket;
-}
-
 void FinishRtpSession(rtpHandle h)
-{
-        if (NULL != h) {
-            h->socket = NULL;
-            free(h);
-        }
-}
-
-void FinishRtcpSession(rtcpHandle h)
 {
         if (NULL != h) {
             h->socket = NULL;

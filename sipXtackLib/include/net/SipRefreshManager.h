@@ -38,7 +38,7 @@ class OsTimer;
 
 //! Class for refreshing SIP subscriptions and registrations
 /*! This is currently verified for SUBSCRIPTIONS ONLY.
- *  This class is intended to depricate the SipRefreshMgr class.
+ *  This class is intended to deprecate the SipRefreshMgr class.
  *
  * \par 
  */
@@ -56,7 +56,7 @@ public:
     };
 
     /*! Typedef defining the signature of the callback used to inform
-     *  applications of refresh subscritption and registration state
+     *  applications of refresh subscription and registration state
      *  changes.
      *  \param requestState - the state of the last SUBSCRIBE or NOTIFY
      *         transaction.  Note: this is not the same as the dialog state.
@@ -115,9 +115,9 @@ public:
      *  refresh state proceeded to REFRESH_INITIATED.
      *  Returns FALSE if the request was not able to
      *  be sent, the refresh state is set to REFRESH_FAILED.
-     *  The caller of this method must explictly call stopRefresh
+     *  The caller of this method must explicitly call stopRefresh
      *  to clean up the refresh state even if this method fails.
-     *  This meghod may fail if the dialog or refresh state already
+     *  This method may fail if the dialog or refresh state already
      *  exists or if the request immediately fails to send.  The
      *  refresh manager will attempt to resend the request to
      *  subscribe or register even if it fails the first time while
@@ -135,7 +135,7 @@ public:
      *  will end any established or early dialog subscriptions.  Typically 
      *  the application SHOULD use the established dialog handle.  This
      *  method can also be used to end one of the dialogs if multiple
-     *  subsription dialogs were created as a result of a single 
+     *  subscription dialogs were created as a result of a single 
      *  subscribe request.  The application will get multiple 
      *  REFRESH_SETUP RefreshStateCallback events when
      *  multiple dialogs are created as a result of a single SUBSCRIBE.

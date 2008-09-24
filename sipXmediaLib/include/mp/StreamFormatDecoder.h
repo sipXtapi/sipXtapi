@@ -1,3 +1,22 @@
+// Copyright 2008 AOL LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA. 
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -8,6 +27,7 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
+#ifdef MP_STREAMING
 
 #ifndef _StreamFormatDecoder_h_
 #define _StreamFormatDecoder_h_
@@ -33,7 +53,7 @@ typedef enum                  // Format Decoder Event
    DecodingUnderrunEvent,     // Supply cannot meet demand
    DecodingThrottledEvent,    // Being throttled in frame generation
    DecodingCompletedEvent,    // Completed decoding
-   DecodingErrorEvent        // Error while decoding
+   DecodingErrorEvent         // Error while decoding
 
 } StreamDecoderEvent;
 
@@ -50,15 +70,19 @@ class StreamFormatDecoder
 public:
 
 /* ============================ CREATORS ================================== */
-
+///@name Creators
+//@{
    StreamFormatDecoder(StreamDataSource* pDataSource);
      //:Constructs a decoder given a data source
 
    virtual ~StreamFormatDecoder();
      //:Destructor
 
-/* ============================ MANIPULATORS ============================== */
+//@}
 
+/* ============================ MANIPULATORS ============================== */
+///@name Manipulators
+//@{
    virtual OsStatus init() = 0 ;
      //:Initializes the decoder
 
@@ -78,7 +102,11 @@ public:
    void setListener(StreamDecoderListener* pListener);
      //:Sets a listener to receive StreamDecoderEvents.
 
+//@}
+
 /* ============================ ACCESSORS ================================= */
+///@name Accessors
+//@{
 
    virtual OsStatus toString(UtlString& string) = 0 ;
      //:Renders a string describing this decoder.  
@@ -87,7 +115,11 @@ public:
    StreamDataSource* getDataSource() ;
      //:Gets the the data source for this decoder
 
+//@}
+
 /* ============================ INQUIRY =================================== */
+///@name Inquiry
+//@{
 
    virtual UtlBoolean isDecoding() = 0 ;
      //:Gets the decoding status.  TRUE indicates decoding activity, false
@@ -105,6 +137,8 @@ public:
 static const char* getEventString(StreamDecoderEvent event);
 #endif /* MP_STREAM_DEBUG ] */
 
+
+//@}
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
@@ -128,3 +162,5 @@ private:
 /* ============================ INLINE METHODS ============================ */
 
 #endif  // _StreamFormatDecoder_h_
+
+#endif

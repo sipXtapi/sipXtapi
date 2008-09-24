@@ -1,8 +1,24 @@
+// Copyright 2008 AOL LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
-// Copyright (C) 2005-2006 SIPez LLC.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA. 
+//
+// Copyright (C) 2005-2007 SIPez LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.
 // 
-// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -42,7 +58,6 @@
 // TYPEDEFS
 // FORWARD DECLARATIONS
 class CpCall;
-class CpMediaInterface;
 class SipSession;
 class SipDialog;
 class MpStreamPlayer;
@@ -158,7 +173,6 @@ public:
         CP_UNHOLD_ALL_TERM_CONNECTIONS,
         CP_CANCEL_TIMER,
         CP_GET_NEXT_CSEQ,
-        CP_SET_PREMIUM_SOUND_CALL,
         CP_ADD_TONE_LISTENER,
         CP_REMOVE_TONE_LISTENER,
         CP_ENABLE_DTMF_EVENT,
@@ -205,6 +219,9 @@ public:
         CP_LIMIT_CODEC_PREFERENCES,
         CP_SILENT_REMOTE_HOLD,
         CP_GET_USERAGENT,
+        CP_SET_REMOTE_VOLUME_SCALE,
+        CP_START_VIDEO_PREVIEW,
+        CP_FORCE_DROP
     };
 
 /*
@@ -338,7 +355,9 @@ public:
                              const char* locationHeader = NULL,
                              const int bandWidth=AUDIO_CODEC_BW_DEFAULT,
                              SIPX_TRANSPORT_DATA* pTransportData = NULL,
-                             const RTP_TRANSPORT rtpTransportOptions = RTP_TRANSPORT_UDP) = 0;
+                             const RTP_TRANSPORT rtpTransportOptions = RTP_TRANSPORT_UDP,
+                             unsigned long flags = CPMI_FLAGS_DEFAULT,
+                             int callHandle=0) = 0;
 
     //! Create a new call and associate it with an existing call.
     /*! This is usually done to create the consultative call as a
@@ -439,56 +458,6 @@ public:
                             UtlBoolean local,
                             UtlBoolean remote) = 0;
 
-
-    //! For internal use
-    virtual void stopPremiumSound(const char* callId) = 0;
-
-    //! Create a MpStreamPlaylistPlayer media player associated with
-    /*! the specified call. The media player can subsequently be used
-     * to play media such as streamed audio to the connections
-     * (local and remote) in this call. The streamed audio source can
-     * be a set on one or more audio URLs that correspond to audio
-     * snippets that the player will stream in a concatenated set.
-     */
-    virtual void createPlayer(const char* callid,
-                              MpStreamPlaylistPlayer** ppPlayer) = 0 ;
-
-    //! Create a media player associated with the specified call.
-    /*! The media player can subsequently be used to play media
-     * such as streamed audio to the connections (local and remote)
-     * in this call. The streamed audio source can be a single
-     * audio URL or a set of URLs that correspond to audio
-     * snippets that the player will stream in a concatenated
-     * set. Currently two types of media players are supported:
-     * \par
-     * 1) A simple player that buffers some of the media and then
-     * starts playing a single media source (URL or stream).
-     * \par
-     * 2) A queued player that supports two buffered play lists
-     * where there is one active play list that can be played,
-     * paused or stopped. The active buffer list can be changed
-     * on the fly and sources can be added to either buffer list.
-     * The effect of this player is similar to graphical double
-     * buffering where one buffer can be filling while the other
-     * is playing.
-     */
-    virtual void createPlayer(int type,
-                              const char* callid,
-                              const char* szStream,
-                              int flags,
-                              MpStreamPlayer** ppPlayer) = 0 ;
-
-    //! Destroy the media player associated with a call.
-    virtual void destroyPlayer(const char* callid,
-                               MpStreamPlaylistPlayer* pPlayer) = 0 ;
-
-
-    //! Destroy the media player associated with a call.
-    virtual void destroyPlayer(int type,
-                               const char* callid,
-                               MpStreamPlayer* pPlayer) = 0 ;
-
-
     //!Sets the CPU codec limit for a call.
     /*! Each connection within the call
      * may only use codecs whose CPU requirements are less than or
@@ -514,7 +483,10 @@ public:
                                   const void* hWnd = NULL,
                                   const void* security = NULL,
                                   const char* locationHeader = NULL,
-                                  const int bandWidth=AUDIO_CODEC_BW_DEFAULT) = 0;
+                                  const int bandWidth=AUDIO_CODEC_BW_DEFAULT,
+                                  UtlBoolean sendEarlyMedia = FALSE,
+                                  unsigned long flags = CPMI_FLAGS_DEFAULT,
+                                  int callHandle = 0) = 0;
 
     virtual void setOutboundLineForCall(const char* callId, 
                                         const char* address, 
@@ -586,10 +558,11 @@ public:
      * connection (with SIP a 200 OK response is sent).
      */
     virtual void answerTerminalConnection(const char* callId,
-                                          const char* address,
-                                          const char* terminalId,
-                                          const void* pDisplay = NULL,
-                                          const void* pSecurity = NULL) = 0;
+                                                       const char* address,
+                                                       const char* terminalId,
+                                                       const void* pDisplay = NULL,
+                                                       const void* pSecurity = NULL) = 0;
+
 
     //! Put the specified terminal connection on hold
     /*! Change the terminal connection state from TALKING to HELD.
@@ -713,6 +686,10 @@ public:
      */
     virtual void setVoiceQualityReportTarget(const char* szTargetSipUrl) ;
 
+    virtual void enablePChargingVector(UtlBoolean bEnable,
+                                       const char* szIoi) ;
+
+
 
 /* ============================ ACCESSORS ================================= */
 
@@ -816,14 +793,22 @@ public:
      */
     virtual void getLocalAddress(UtlString& address) ;
 
+    /**
+     * Get the P-Charging-Vector local ioi for filling in the term-ioi or 
+     * orig-ioi per RFC3455.
+     */
+    virtual void getPChargingVectorIoi(UtlString& ioi) const ;
+
 /* ============================ INQUIRY =================================== */
 
     UtlBoolean isCallStateLoggingEnabled();
 
-
     virtual void onCallDestroy(CpCall* pCall) = 0;
     
    virtual void yieldFocus(CpCall* call) = 0;
+    
+    UtlBoolean isPChargingVectorEnabled()
+        { return mPChargingVectorEnabled; } ;
     
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -874,6 +859,11 @@ protected:
         UtlBoolean mCallStateLogAutoWrite;
     UtlString mCallStateLog;
 
+    UtlBoolean mPChargingVectorEnabled ;
+    UtlString  mPChargingVectorIoi ;
+    UtlBoolean mbEnableICE ;
+
+
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
@@ -889,12 +879,8 @@ private:
     UtlString mCallIdPrefix;    
     UtlDList mCallList;
     int mLastMetaEventId;
-    UtlBoolean mbEnableICE ;
     UtlString mVoiceQualityReportTarget ;
 
-    // Every CallManager shares the same call counter for generating Call-IDs.
-    static Int64 mCallNum;
- 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 };

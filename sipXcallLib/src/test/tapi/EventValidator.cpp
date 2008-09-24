@@ -1,3 +1,19 @@
+// Copyright 2008 AOL LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -337,6 +353,34 @@ bool EventValidator::waitForConfigEvent(SIPX_CONFIG_EVENT event,
     return bFound ;
 }
 
+bool EventValidator::waitForKeepaliveEvent(SIPX_KEEPALIVE_EVENT event,
+                                           SIPX_KEEPALIVE_CAUSE cause,
+                                           SIPX_KEEPALIVE_TYPE type,
+                                           bool bStrictOrderMatch, 
+                                           int iTimeoutInSecs) 
+{
+    bool bFound = true ;
+
+    if (!isIgnoredCateogry(EVENT_CATEGORY_KEEPALIVE))
+    {
+        UtlString* pString = allocKeepaliveEvent(event, cause, type) ;
+        bFound = waitForEvent(pString->data(), bStrictOrderMatch, iTimeoutInSecs) ;
+
+        delete pString ;
+    }
+
+    if (!bFound)
+    {
+        // Wait a second for any additional events to pour in -- useful for 
+        // debugging.
+        OsTask::delay(1000) ;
+
+        report() ;
+    }
+
+    return bFound ;
+}
+
 
 bool EventValidator::waitForSecurityEvent(SIPX_SECURITY_EVENT event,
                                           SIPX_SECURITY_CAUSE cause,
@@ -633,6 +677,7 @@ void EventValidator::addEvent(SIPX_EVENT_CATEGORY category, void* pInfo)
                     m_semUnprocessed.release() ;
 
                 }
+                break;
             case EVENT_CATEGORY_MEDIA:
                 {
                     SIPX_MEDIA_INFO* pMediaInfo = (SIPX_MEDIA_INFO*) pInfo;
@@ -644,6 +689,22 @@ void EventValidator::addEvent(SIPX_EVENT_CATEGORY category, void* pInfo)
                     m_unprocessedEvents.append(pString) ; 
                     m_semUnprocessed.release() ;
                 }
+                break;
+            case EVENT_CATEGORY_KEEPALIVE:
+                {
+                    SIPX_KEEPALIVE_INFO* pKeepaliveInfo = (SIPX_KEEPALIVE_INFO*) pInfo;
+
+                    UtlString* pString = allocKeepaliveEvent(pKeepaliveInfo->event,
+                                                             pKeepaliveInfo->cause,
+                                                             pKeepaliveInfo->type) ;
+
+                    m_unprocessedEvents.append(pString) ; 
+                    m_semUnprocessed.release() ;
+                }
+                break;
+            default:
+                assert(FALSE);
+                break;
         }
     }
 }
@@ -807,8 +868,8 @@ UtlString* EventValidator::allocSecurityEvent(SIPX_SECURITY_EVENT event,
 }
 
 UtlString* EventValidator::allocMediaEvent(SIPX_MEDIA_EVENT event,
-                                              SIPX_MEDIA_CAUSE cause,
-                                              SIPX_MEDIA_TYPE type)
+                                           SIPX_MEDIA_CAUSE cause,
+                                           SIPX_MEDIA_TYPE type)
 {
     char szBuffer[2048] ;
     char szBuffer2[1024];
@@ -826,6 +887,38 @@ UtlString* EventValidator::allocMediaEvent(SIPX_MEDIA_EVENT event,
     sprintf(szBuffer, "<MEDIA> event=%s, cause=%s type=%s",
             sipxMediaEventToString(event, szBuffer2, sizeof(szBuffer2)),
             sipxMediaCauseToString(cause, szBuffer3, sizeof(szBuffer3)),
+            szType) ;
+
+    return new UtlString(szBuffer) ;
+
+}
+
+UtlString* EventValidator::allocKeepaliveEvent(SIPX_KEEPALIVE_EVENT event,
+                                               SIPX_KEEPALIVE_CAUSE cause,
+                                               SIPX_KEEPALIVE_TYPE type)
+{
+    char szBuffer[2048] ;
+    char szBuffer2[1024];
+    char szType[256];
+    
+    switch(type)
+    {
+        case SIPX_KEEPALIVE_CRLF:
+           strcpy(szType, "CRLF");
+           break;
+        case SIPX_KEEPALIVE_STUN:
+           strcpy(szType, "STUN");
+           break;
+        case SIPX_KEEPALIVE_SIP_PING:
+           strcpy(szType, "SIP_PING");
+           break;
+        case SIPX_KEEPALIVE_SIP_OPTIONS:
+           strcpy(szType, "SIP_OPTIONS");
+           break;
+    }
+    sprintf(szBuffer, "<KEEPALIVE> event=%s, cause=%s type=%s",
+            sipxKeepaliveEventToString(event, szBuffer2, sizeof(szBuffer2)),
+            sipxKeepaliveCauseToString(cause, szBuffer2, sizeof(szBuffer2)),
             szType) ;
 
     return new UtlString(szBuffer) ;
@@ -885,7 +978,7 @@ bool EventValidator::findEvent(const char* szEvent, int nMaxLookAhead, int &nAct
     if (nEntries > 0)
     {
         // Figure out the max and actual look ahead capabilities
-        nActualLookAhead = MIN(nEntries, nMaxLookAhead) ;
+        nActualLookAhead = sipx_min(nEntries, nMaxLookAhead) ;
 
         // Try to find message
         for (int i=0; i<nActualLookAhead; i++)

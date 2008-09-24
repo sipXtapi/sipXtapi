@@ -1,5 +1,24 @@
+// Copyright 2008 AOL LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
-// Copyright (C) 2004-2006 SIPfoundry Inc.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA. 
+//  
+// Copyright (C) 2007-2008 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
+//
+// Copyright (C) 2004-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -15,20 +34,22 @@
 
 // APPLICATION INCLUDES
 #include <os/OsLock.h>
+#include <os/OsMediaContact.h>
 
 #include <utl/UtlSListIterator.h>
 #include <utl/UtlTokenizer.h>
-#include <net/SdpCodec.h>
+#include <sdp/SdpCodec.h>
 #include <net/SdpBody.h>
 #include <net/NameValuePair.h>
-#include <net/NameValueTokenizer.h>
-#include <net/SdpCodecFactory.h>
+#include <utl/UtlNameValueTokenizer.h>
+#include <sdp/SdpCodecList.h>
 #include <utl/UtlTokenizer.h>
 #include <net/NetBase64Codec.h>
+#include <net/SipMessage.h>
 
 #define MAXIMUM_LONG_INT_CHARS 20
 #define MAXIMUM_MEDIA_TYPES 30
-#define MAXIMUM_VIDEO_SIZES 6
+#define MAXIMUM_VIDEO_SIZES 10
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -40,6 +61,7 @@
 #define SDP_RTP_MEDIA_TRANSPORT_TYPE "RTP/AVP"
 #define SDP_RTP_TCP_MEDIA_TRANSPORT_TYPE "TCP/RTP/AVP"
 #define SDP_SRTP_MEDIA_TRANSPORT_TYPE "RTP/SAVP"
+#define SDP_RTP_ARS_MEDIA_TRANSPORT_TYPE "ARS/RTP/AVP"
 #define SDP_MLAW_PAYLOAD 0
 #define SDP_ALAW_PAYLOAD 8
 
@@ -142,7 +164,7 @@ void SdpBody::parseBody(const char* bodyBytes, int byteCount)
       int nameFound;
       NameValuePair* nameValue;
 
-      NameValueTokenizer parser(bodyBytes, byteCount);
+      UtlNameValueTokenizer parser(bodyBytes, byteCount);
       do
       {
          name.remove(0);
@@ -307,22 +329,22 @@ UtlBoolean SdpBody::getMediaRtcpPort(int mediaIndex, int* port) const
         NameValuePair* nv = positionFieldInstance(mediaIndex, &iterator, "m");
         if(nv)
         {
-            while (nv = findFieldNameBefore(&iterator, "a", "m"))
+            while ((nv = findFieldNameBefore(&iterator, "a", "m")))
             {
                 //printf("->%s:%s\n", nv->data(), nv->getValue()) ;
 
                 UtlString typeAttribute ;
                 UtlString portAttribute ;
 
-                NameValueTokenizer::getSubField(nv->getValue(), 0, 
+                UtlNameValueTokenizer::getSubField(nv->getValue(), 0, 
                         ":", &typeAttribute) ;
-                NameValueTokenizer::getSubField(nv->getValue(), 1,
+                UtlNameValueTokenizer::getSubField(nv->getValue(), 1,
                         ":", &portAttribute) ;
 
                 if (typeAttribute.compareTo("rtcp", UtlString::ignoreCase) == 0)
                 {
                     *port = atoi(portAttribute.data()) ;
-                    
+                    break ;
                 }
             }
         }
@@ -385,7 +407,7 @@ UtlBoolean SdpBody::getMediaSubfield(int mediaIndex, int subfieldIndex, UtlStrin
    if(nv)
    {
       value =  nv->getValue();
-      NameValueTokenizer::getSubField(value, subfieldIndex,
+      UtlNameValueTokenizer::getSubField(value, subfieldIndex,
                                       SDP_SUBFIELD_SEPARATORS, subField);
       if(!subField->isNull())
       {
@@ -401,7 +423,7 @@ UtlBoolean SdpBody::getPayloadRtpMap(int payloadType,
                                      int& numChannels) const
 {
    // an "a" record look something like:
-   // "a=rtpmap: <payloadType> <mimeSubtype/sampleRate[/numChannels]"
+   // "a=rtpmap:<payloadType> <mimeSubtype/sampleRate[/numChannels]"
 
    // Loop through all of the "a" records
    UtlBoolean foundRtpMap = FALSE;
@@ -420,32 +442,32 @@ UtlBoolean SdpBody::getPayloadRtpMap(int payloadType,
       value =  nv->getValue();
 
       // Verify this is an rtpmap "a" record
-      NameValueTokenizer::getSubField(value, 0,
-                                      " \t:/", // seperators
+      UtlNameValueTokenizer::getSubField(value, 0,
+                                      " \t:/", // separators
                                       &aFieldType);
       if(aFieldType.compareTo("rtpmap") == 0)
       {
          // If this is the rtpmap for the requested payload type
-         NameValueTokenizer::getSubField(value, 1,
-                                         " \t:/", // seperators
+         UtlNameValueTokenizer::getSubField(value, 1,
+                                         " \t:/", // separators
                                          &payloadString);
          if(atoi(payloadString.data()) == payloadType)
          {
             // The mime subtype is the 3nd subfield
-            NameValueTokenizer::getSubField(value, 2,
-                                            " \t:/", // seperators
+            UtlNameValueTokenizer::getSubField(value, 2,
+                                            " \t:/", // separators
                                             &mimeSubtype);
 
             // The sample rate is the 4rd subfield
-            NameValueTokenizer::getSubField(value, 3,
-                                            " \t:/", // seperators
+            UtlNameValueTokenizer::getSubField(value, 3,
+                                            " \t:/", // separators
                                             &sampleRateString);
             sampleRate = atoi(sampleRateString.data());
             if(sampleRate <= 0) sampleRate = -1;
 
             // The number of channels is the 5th subfield
-            NameValueTokenizer::getSubField(value, 4,
-                                            " \t:/", // seperators
+            UtlNameValueTokenizer::getSubField(value, 4,
+                                            " \t:/", // separators
                                             &numChannelString);
             numChannels = atoi(numChannelString.data());
             if(numChannels <= 0) numChannels = -1;
@@ -468,7 +490,7 @@ UtlBoolean SdpBody::getPayloadFormat(int payloadType,
                                      int videoSizes[]) const
 {
    // an "a" record look something like:
-   // "a=rtpmap: <payloadType> <mimeSubtype/sampleRate[/numChannels]"
+   // "a=fmtp:<payloadType> <fmtpdata>"
 
    // Loop through all of the "a" records
    UtlBoolean foundPayloadFmtp = FALSE;
@@ -492,38 +514,51 @@ UtlBoolean SdpBody::getPayloadFormat(int payloadType,
    {
       value =  nv->getValue();
 
-      // Verify this is an rtpmap "a" record
-      NameValueTokenizer::getSubField(value, 0,
-                                      " \t:/", // seperators
+      // Verify this is an fmtp "a" record
+      UtlNameValueTokenizer::getSubField(value, 0,
+                                      " \t:/", // separators
                                       &aFieldType);
       if(aFieldType.compareTo("fmtp") == 0)
       {
-         NameValueTokenizer::getSubField(value, 1,
-                                         " \t:/", // seperators
+         UtlNameValueTokenizer::getSubField(value, 1,
+                                         " \t:/", // separators
                                          &payloadString);
          if(atoi(payloadString.data()) == payloadType)
          {
+            const char *fmtpSubField;
+            int subFieldLen;
+            // If this is the fmtp for the requested payload type
+            foundField = UtlNameValueTokenizer::getSubField(value, -1, 2, 
+                                                         " \t:",  // separators
+                                                         fmtpSubField,
+                                                         subFieldLen,
+                                                         0);
+            if(foundField) 
+            {
+               fmtp = fmtpSubField;
+            }
+
             foundPayloadFmtp = TRUE;
             // Get modifier
-            NameValueTokenizer::getSubField(value, 2,
-                                                    " \t:=", // seperators
+            UtlNameValueTokenizer::getSubField(value, 2,
+                                                    " \t:=", // separators
                                                     &modifierString);
-            // If this is the rtpmap for the requested payload type
-            foundField = NameValueTokenizer::getSubField(value, 3,
-                                                    " \t:=", // seperators
-                                                    &fmtp);
+            // Get value
+            foundField = UtlNameValueTokenizer::getSubField(value, 3,
+                                                    " \t:=", // separators
+                                                    &temp);
 
 
             valueFmtp = 0;
             index = 3;
             if (modifierString.compareTo("mode") == 0)
             {
-                valueFmtp  = atoi(fmtp.data());
+                valueFmtp  = atoi(temp.data());
             }
             else if (modifierString.compareTo("imagesize") == 0)
             {
                 // Checking size information for imagesize modifier
-                valueFmtp = atoi(fmtp.data());
+                valueFmtp = atoi(temp.data());
                 switch (valueFmtp)
                 {
                 case 0: 
@@ -541,8 +576,8 @@ UtlBoolean SdpBody::getPayloadFormat(int payloadType,
                 // Checking size information for other modifier
                 while (foundField && index < 8 && videoIndex < MAXIMUM_VIDEO_SIZES)
                 {
-                    foundField = NameValueTokenizer::getSubField(value, index++,
-                                                                " \t/:", // seperators
+                    foundField = UtlNameValueTokenizer::getSubField(value, index++,
+                                                                " \t/:", // separators
                                                                 &temp);
                     if (temp.compareTo("CIF") == 0)
                     {
@@ -560,6 +595,19 @@ UtlBoolean SdpBody::getPayloadFormat(int payloadType,
                     {
                         videoSizes[videoIndex++] = SDP_VIDEO_FORMAT_SQCIF;
                     }
+                    else if (temp.compareTo("VGA") == 0)
+                    {
+                        videoSizes[videoIndex++] = SDP_VIDEO_FORMAT_VGA;
+                    }
+                    else if (temp.compareTo("4CIF") == 0)
+                    {
+                        videoSizes[videoIndex++] = SDP_VIDEO_FORMAT_4CIF;
+                    }
+                    else if (temp.compareTo("16CIF") == 0)
+                    {
+                        videoSizes[videoIndex++] = SDP_VIDEO_FORMAT_16CIF;
+                    }
+
                 }
                 numVideoSizes = videoIndex;
              }
@@ -587,7 +635,6 @@ UtlBoolean SdpBody::getSrtpCryptoField(int mediaIndex,
     UtlSListIterator iterator(*sdpFields);
     NameValuePair* nv = positionFieldInstance(mediaIndex, &iterator, "m");
     const char* value;
-    UtlString aFieldMatch("a");
     UtlString indexString;
     UtlString cryptoSuite;
     UtlString temp;
@@ -595,18 +642,18 @@ UtlBoolean SdpBody::getSrtpCryptoField(int mediaIndex,
     char srtpKey[SRTP_KEY_LENGTH+1];
 
     size = sdpFields->entries();
-    while((nv = (NameValuePair*) iterator.findNext(&aFieldMatch)) != NULL)
+    while ((nv = findFieldNameBefore(&iterator, "a", "m")))
     {
         value =  nv->getValue();
 
         // Verify this is an crypto "a" record
-        NameValueTokenizer::getSubField(value, 0,
-                                        " \t:/", // seperators
+        UtlNameValueTokenizer::getSubField(value, 0,
+                                        " \t:/", // separators
                                         &aFieldType);
         if(aFieldType.compareTo("crypto") == 0)
         {
-            NameValueTokenizer::getSubField(value, 1,
-                                            " \t:/", // seperators
+            UtlNameValueTokenizer::getSubField(value, 1,
+                                            " \t:/", // separators
                                             &indexString);
             if(atoi(indexString.data()) == index)
             {
@@ -615,17 +662,17 @@ UtlBoolean SdpBody::getSrtpCryptoField(int mediaIndex,
                 // Encryption & authentication on by default
                 params.securityLevel = SRTP_ENCRYPTION | SRTP_AUTHENTICATION;
 
-                NameValueTokenizer::getSubField(value, 2,
-                                                " \t:/", // seperators
+                UtlNameValueTokenizer::getSubField(value, 2,
+                                                " \t:/", // separators
                                                 &cryptoSuite);
                 // Check the crypto suite 
                 if (cryptoSuite.compareTo("AES_CM_128_HMAC_SHA1_80") == 0)
                 {
                     params.cipherType = AES_CM_128_HMAC_SHA1_80;
                 }
-                else if (cryptoSuite.compareTo("AES_CM_128_HAMC_SHA1_32") == 0)
+                else if (cryptoSuite.compareTo("AES_CM_128_HMAC_SHA1_32") == 0)
                 {
-                    params.cipherType = AES_CM_128_HAMC_SHA1_32;
+                    params.cipherType = AES_CM_128_HMAC_SHA1_32;
                 }
                 else if (cryptoSuite.compareTo("F8_128_HMAC_SHA1_80") == 0)
                 {
@@ -638,8 +685,8 @@ UtlBoolean SdpBody::getSrtpCryptoField(int mediaIndex,
                 }
 
                 // Get key
-                foundField = NameValueTokenizer::getSubField(value, 4,
-                                                             " \t/:|", // seperators
+                foundField = UtlNameValueTokenizer::getSubField(value, 4,
+                                                             " \t/:|", // separators
                                                              &temp);
                 NetBase64Codec::decode(temp.length(), temp.data(), size, srtpKey);
                 if (size <= SRTP_KEY_LENGTH)
@@ -655,8 +702,8 @@ UtlBoolean SdpBody::getSrtpCryptoField(int mediaIndex,
                 // Modify security level with session parameters
                 for (int index=5; foundField; ++index)
                 {
-                    foundField = NameValueTokenizer::getSubField(value, index,
-                                                                 " \t/:|", // seperators
+                    foundField = UtlNameValueTokenizer::getSubField(value, index,
+                                                                 " \t/:|", // separators
                                                                  &temp);
                     if (foundField)
                     {
@@ -670,9 +717,8 @@ UtlBoolean SdpBody::getSrtpCryptoField(int mediaIndex,
                         }
                     }
                 }
-
+                break;
             }
-            break;
         }
     }
     return foundCrypto;
@@ -698,13 +744,13 @@ UtlBoolean SdpBody::getFramerateField(int mediaIndex,
         value =  nv->getValue();
 
         // Verify this is an crypto "a" record
-        NameValueTokenizer::getSubField(value, 0,
-                                        " \t:/", // seperators
+        UtlNameValueTokenizer::getSubField(value, 0,
+                                        " \t:/", // separators
                                         &aFieldType);
         if(aFieldType.compareTo("framerate") == 0)
         {
-            NameValueTokenizer::getSubField(value, 1,
-                                            " \t:/", // seperators
+            UtlNameValueTokenizer::getSubField(value, 1,
+                                            " \t:/", // separators
                                             &rateString);
             videoFramerate = atoi(rateString.data());
             foundFramerate = TRUE;
@@ -724,7 +770,6 @@ UtlBoolean SdpBody::getBandwidthField(int& bandwidth) const
    UtlString aFieldMatch("b");
    UtlString aFieldModifier;
    UtlString temp;
-   int iTemp = 0;
 
    // Indicate no "b" field was sent with 0
    bandwidth  = 0;
@@ -734,16 +779,17 @@ UtlBoolean SdpBody::getBandwidthField(int& bandwidth) const
       value =  nv->getValue();
 
       // Verify this is an crypto "a" record
-      NameValueTokenizer::getSubField(value, 0,
-                                      " \t:/", // seperators
+      UtlNameValueTokenizer::getSubField(value, 0,
+                                      " \t:/", // separators
                                         &aFieldModifier);
       if(aFieldModifier.compareTo("CT") == 0)
       {
-            NameValueTokenizer::getSubField(value, 1,
-                                            " \t:/", // seperators
+            UtlNameValueTokenizer::getSubField(value, 1,
+                                            " \t:/", // separators
                                             &temp);
 
             bandwidth = atoi(temp.data());
+            bFound = TRUE;
       }
    }
    return bFound;
@@ -788,11 +834,11 @@ UtlBoolean SdpBody::getMediaData(int mediaIndex, UtlString* mediaType,
       value =  nv->getValue();
 
       // media Type
-      NameValueTokenizer::getSubField(value, 0,
+      UtlNameValueTokenizer::getSubField(value, 0,
                                       SDP_SUBFIELD_SEPARATORS, mediaType);
 
       // media port and media port pair count
-      NameValueTokenizer::getSubField(value, 1,
+      UtlNameValueTokenizer::getSubField(value, 1,
                                       SDP_SUBFIELD_SEPARATORS, &portString);
       if(!portString.isNull())
       {
@@ -830,18 +876,18 @@ UtlBoolean SdpBody::getMediaData(int mediaIndex, UtlString* mediaType,
       }
 
       // media transport type
-      NameValueTokenizer::getSubField(value, 2,
+      UtlNameValueTokenizer::getSubField(value, 2,
                                       SDP_SUBFIELD_SEPARATORS, mediaTransportType);
 
       // media payload/codec types
-      NameValueTokenizer::getSubField(value,  3 + typeCount,
+      UtlNameValueTokenizer::getSubField(value,  3 + typeCount,
                                       SDP_SUBFIELD_SEPARATORS, &payloadTypeString);
       while(typeCount < maxPayloadTypes &&
             !payloadTypeString.isNull())
       {
          payloadTypes[typeCount] = atoi(payloadTypeString.data());
          typeCount++;
-         NameValueTokenizer::getSubField(value,  3 + typeCount,
+         UtlNameValueTokenizer::getSubField(value,  3 + typeCount,
                                          SDP_SUBFIELD_SEPARATORS, &payloadTypeString);
       }
       *numPayloadTypes = typeCount;
@@ -898,7 +944,7 @@ UtlBoolean SdpBody::getMediaAddress(int mediaIndex, UtlString* address) const
          value = nv->getValue();
          if(value)
          {
-            NameValueTokenizer::getSubField(value, 2,
+            UtlNameValueTokenizer::getSubField(value, 2,
                                             SDP_SUBFIELD_SEPARATORS, address);
          }
       }
@@ -915,7 +961,7 @@ UtlBoolean SdpBody::getMediaAddress(int mediaIndex, UtlString* address) const
             value = nv->getValue();
             if(value)
             {
-               NameValueTokenizer::getSubField(value, 2,
+               UtlNameValueTokenizer::getSubField(value, 2,
                                                SDP_SUBFIELD_SEPARATORS, address);
             }
          }
@@ -935,9 +981,58 @@ UtlBoolean SdpBody::getMediaAddress(int mediaIndex, UtlString* address) const
    return(!address->isNull());
 }
 
+UtlBoolean SdpBody::getPtime(int mediaIndex, int& pTime) const
+{
+    UtlBoolean foundPtime = FALSE;
+    UtlSListIterator iterator(*sdpFields);
+    NameValuePair* nv;
+    pTime = 0;
+    const char* value = NULL;
 
-void SdpBody::getBestAudioCodecs(int numRtpCodecs, SdpCodec rtpCodecs[],
-                                 UtlString* rtpAddress, int* rtpPort,
+    // Try to find a specific address for the given media set
+    nv = positionFieldInstance(mediaIndex, &iterator, "m");
+    if(nv)
+    {
+        UtlString aParameterName;
+        UtlString pTimeValueString;
+        while((nv = findFieldNameBefore(&iterator, "a", "m")))
+        {
+            value = nv->getValue();
+            if(value)
+            {
+                // Get the a line parameter name
+                UtlNameValueTokenizer::getSubField(value, 0,
+                                      " \t:/", // separators
+                                      &aParameterName);
+                // See if this is a ptime parameter
+                if(aParameterName.compareTo("ptime") == 0)
+                {
+                     // get the ptime value
+                    UtlNameValueTokenizer::getSubField(value, 1,
+                                                    " \t:/", // separators, 
+                                                    &pTimeValueString);
+                    if(!pTimeValueString.isNull())
+                    {
+                        pTime = atoi(pTimeValueString);
+                        // should only be one ptime per media set (m line)
+                        // Ignore all but the first one.
+                        if(pTime > 0)
+                        {
+                            foundPtime = TRUE;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return(foundPtime);
+}
+
+void SdpBody::getBestAudioCodecs(int numRtpCodecs,
+                                 SdpCodec rtpCodecs[],
+                                 UtlString* rtpAddress,
+                                 int* rtpPort,
                                  int* sendCodecIndex,
                                  int* receiveCodecIndex) const
 {
@@ -1000,12 +1095,14 @@ void SdpBody::getBestAudioCodecs(int numRtpCodecs, SdpCodec rtpCodecs[],
 }
 
 
-void SdpBody::getBestAudioCodecs(SdpCodecFactory& localRtpCodecs,
+void SdpBody::getBestAudioCodecs(SdpCodecList& localRtpCodecs,
                                  int& numCodecsInCommon,
-                                 SdpCodec**& codecsInCommonArray,
+                                 SdpCodec**& commonCodecsForEncoder,
+                                 SdpCodec**& commonCodecsForDecoder,
                                  UtlString& rtpAddress, 
                                  int& rtpPort,
                                  int& rtcpPort,
+                                 UtlString& videoAddress,
                                  int& videoRtpPort,
                                  int& videoRtcpPort,
                                  SdpSrtpParameters& localSrtpParams,
@@ -1015,7 +1112,6 @@ void SdpBody::getBestAudioCodecs(SdpCodecFactory& localRtpCodecs,
                                  int localVideoFramerate,
                                  int& matchingVideoFramerate) const
 {
-
    int mediaAudioIndex = 0;
    int mediaVideoIndex = 0;
    int numAudioTypes;
@@ -1025,12 +1121,14 @@ void SdpBody::getBestAudioCodecs(SdpCodecFactory& localRtpCodecs,
    int audioPayloadTypes[MAXIMUM_MEDIA_TYPES];
    int videoPayloadTypes[MAXIMUM_MEDIA_TYPES];
    numCodecsInCommon = 0;
-   codecsInCommonArray = new SdpCodec*[localRtpCodecs.getCodecCount()];
+   commonCodecsForEncoder = new SdpCodec*[localRtpCodecs.getCodecCount()];
+   commonCodecsForDecoder = new SdpCodec*[localRtpCodecs.getCodecCount()];
    SdpSrtpParameters remoteSrtpParams;
 
    memset((void*)&remoteSrtpParams, 0, sizeof(SdpSrtpParameters));
    memset((void*)&matchingSrtpParams, 0, sizeof(SdpSrtpParameters));
    rtpAddress.remove(0);
+   videoAddress.remove(0) ;
    rtpPort = 0;
    videoRtpPort = 0 ;
 
@@ -1052,10 +1150,12 @@ void SdpBody::getBestAudioCodecs(SdpCodecFactory& localRtpCodecs,
          // port and address
          getMediaPort(mediaAudioIndex, &rtpPort);
          getMediaRtcpPort(mediaAudioIndex, &rtcpPort);
+         getMediaAddress(mediaAudioIndex, &rtpAddress);
          getSrtpCryptoField(mediaAudioIndex, 1, remoteSrtpParams);
          getMediaPort(mediaVideoIndex, &videoRtpPort);
          getMediaRtcpPort(mediaVideoIndex, &videoRtcpPort);
-         getMediaAddress(mediaAudioIndex, &rtpAddress);
+         getMediaAddress(mediaVideoIndex, &videoAddress);
+         
 
          if(rtpPort >= 0)
          {
@@ -1072,7 +1172,8 @@ void SdpBody::getBestAudioCodecs(SdpCodecFactory& localRtpCodecs,
                               videoRtpPort,
                               localRtpCodecs,
                               numCodecsInCommon,
-                              codecsInCommonArray);
+                              commonCodecsForEncoder,
+                              commonCodecsForDecoder);
 
             getEncryptionInCommon(localSrtpParams, remoteSrtpParams, matchingSrtpParams);
 
@@ -1143,9 +1244,10 @@ void SdpBody::getCodecsInCommon(int audioPayloadIdCount,
                                 int audioPayloadTypes[],
                                 int videoPayloadTypes[],
                                 int videoRtpPort,
-                                SdpCodecFactory& localRtpCodecs,
+                                SdpCodecList& localRtpCodecs,
                                 int& numCodecsInCommon,
-                                SdpCodec* codecsInCommonArray[]) const
+                                SdpCodec* commonCodecsForEncoder[],
+                                SdpCodec* commonCodecsForDecoder[]) const
 {
    UtlString mimeSubtype;
    UtlString fmtp;
@@ -1160,6 +1262,35 @@ void SdpBody::getCodecsInCommon(int audioPayloadIdCount,
    numCodecsInCommon = 0;
    memset((void*)videoSizes, 0, sizeof(videoSizes));
 
+   // TODO: properly support media sets
+   // This is a bit of a mess.  We have completely blurred over the
+   // concept of separate m lines other than the mime type separation
+   // of audio and video.  There may be different properties for the
+   // same codecs which may appear in more than one media section
+   // (m line)
+
+   // So for example the ptime property is specific to a media
+   // set (m line).  At this point we no longer know which codec
+   // comes from which media set.  So for now we search through the
+   // audio media sets until we find a ptime and assume the ptime
+   // applies to all audio codecs.  ptime mostly only make sense for
+   // audio
+   int mediaSetIndex = 0;
+   int defaultPtime = 0;
+   UtlString mediaType;
+   while(getMediaType(mediaSetIndex, &mediaType))
+   {
+       if(mediaType.compareTo(MIME_TYPE_AUDIO) == 0)
+       {
+           if(getPtime(mediaSetIndex, defaultPtime) &&
+               defaultPtime > 0)
+           {
+               break;
+           }
+       }
+       mediaSetIndex++;
+   }
+
    for(typeIndex = 0; typeIndex < audioPayloadIdCount; typeIndex++)
    {
       // Until the real SdpCodec is needed we assume all of
@@ -1173,17 +1304,16 @@ void SdpBody::getCodecsInCommon(int audioPayloadIdCount,
       {
          
          // Find a match for the mime type
-         matchingCodec = localRtpCodecs.getCodec(MIME_TYPE_AUDIO, mimeSubtype.data());
-         if((matchingCodec != NULL) &&
-            (matchingCodec->getSampleRate() == sampleRate ||
-             sampleRate == -1) &&
-            (matchingCodec->getNumChannels() == numChannels ||
-             numChannels == -1))
+         matchingCodec = localRtpCodecs.getCodec(MIME_TYPE_AUDIO,
+                                                 mimeSubtype.data(),
+                                                 sampleRate,
+                                                 numChannels);
+         if (matchingCodec != NULL)
          {
             commonCodec = TRUE;
             int frameSize = 0;
 
-            if (matchingCodec->getCodecType() == SdpCodec::SDP_CODEC_GIPS_ILBC)
+            if (matchingCodec->getCodecType() == SdpCodec::SDP_CODEC_ILBC)
             {
                 getPayloadFormat(audioPayloadTypes[typeIndex], fmtp, frameSize, 
                                  numVideoSizes, videoSizes);
@@ -1201,16 +1331,25 @@ void SdpBody::getCodecsInCommon(int audioPayloadIdCount,
                     commonCodec = FALSE;
                 }
             }
+            else if(defaultPtime > 0)
+            {
+                frameSize = defaultPtime;
+            }
+
             // Create a copy of the SDP codec and set
             // the payload type for it
             if (commonCodec)
             {
-               codecsInCommonArray[numCodecsInCommon] =
-                  new SdpCodec(*matchingCodec);
-               codecsInCommonArray[numCodecsInCommon]->setCodecPayloadFormat(audioPayloadTypes[typeIndex]);
+               commonCodecsForEncoder[numCodecsInCommon] = new SdpCodec(*matchingCodec);
+               commonCodecsForDecoder[numCodecsInCommon] = new SdpCodec(*matchingCodec);
+
+               commonCodecsForEncoder[numCodecsInCommon]->setCodecPayloadFormat(audioPayloadTypes[typeIndex]);
+               // decoder uses our own SDP payload IDs, not remote
+
                if (frameSize)
                {
-                  codecsInCommonArray[numCodecsInCommon]->setPacketSize(frameSize*1000);
+                  commonCodecsForEncoder[numCodecsInCommon]->setPacketSize(frameSize*1000);
+                  commonCodecsForDecoder[numCodecsInCommon]->setPacketSize(frameSize*1000);
                }
 
             }
@@ -1228,11 +1367,16 @@ void SdpBody::getCodecsInCommon(int audioPayloadIdCount,
       {
          if((matchingCodec = localRtpCodecs.getCodecByType(audioPayloadTypes[typeIndex])))
          {
-            // Create a copy of the SDP codec and set
-            // the payload type for it
-            codecsInCommonArray[numCodecsInCommon] =
-               new SdpCodec(*matchingCodec);
-            codecsInCommonArray[numCodecsInCommon]->setCodecPayloadFormat(audioPayloadTypes[typeIndex]);
+            // Create a copy of the SDP codec
+            commonCodecsForEncoder[numCodecsInCommon] = new SdpCodec(*matchingCodec);
+            commonCodecsForDecoder[numCodecsInCommon] = new SdpCodec(*matchingCodec);
+
+            // Set the preferred frame size if ptime was set
+            if (defaultPtime > 0)
+            {
+               commonCodecsForEncoder[numCodecsInCommon]->setPacketSize(defaultPtime*1000);
+               commonCodecsForDecoder[numCodecsInCommon]->setPacketSize(defaultPtime*1000);
+            }
 
             numCodecsInCommon++;
          }
@@ -1300,11 +1444,13 @@ void SdpBody::getCodecsInCommon(int audioPayloadIdCount,
                         {
                             // Create a copy of the SDP codec and set
                             // the payload type for it
-                            codecsInCommonArray[numCodecsInCommon] =
-                            new SdpCodec(*matchingCodec);
-                            codecsInCommonArray[numCodecsInCommon]->setCodecPayloadFormat(videoPayloadTypes[typeIndex]);
-                            numCodecsInCommon++;
+                            commonCodecsForEncoder[numCodecsInCommon] = new SdpCodec(*matchingCodec);
+                            commonCodecsForDecoder[numCodecsInCommon] = new SdpCodec(*matchingCodec);
 
+                            commonCodecsForEncoder[numCodecsInCommon]->setCodecPayloadFormat(videoPayloadTypes[typeIndex]);
+                            // decoder will use our SDP payload IDs, not those we received
+
+                            numCodecsInCommon++;
                         }
 
                     }
@@ -1331,9 +1477,8 @@ void SdpBody::getCodecsInCommon(int audioPayloadIdCount,
                 {
                     // Create a copy of the SDP codec and set
                     // the payload type for it
-                    codecsInCommonArray[numCodecsInCommon] =
-                    new SdpCodec(*matchingCodec);
-                    codecsInCommonArray[numCodecsInCommon]->setCodecPayloadFormat(videoPayloadTypes[typeIndex]);
+                    commonCodecsForEncoder[numCodecsInCommon] = new SdpCodec(*matchingCodec);
+                    commonCodecsForDecoder[numCodecsInCommon] = new SdpCodec(*matchingCodec);
 
                     numCodecsInCommon++;
                 }
@@ -1343,13 +1488,8 @@ void SdpBody::getCodecsInCommon(int audioPayloadIdCount,
 }
 
 
-void SdpBody::addCodecsOffer(int iNumAddresses,
-                             UtlString mediaAddresses[],
-                             int rtpAudioPorts[],
-                             int rtcpAudioPorts[],
-                             int rtpVideoPorts[],
-                             int rtcpVideoPorts[],
-                             RTP_TRANSPORT transportTypes[],
+void SdpBody::addCodecsOffer(UtlSList& audioContacts,
+                             UtlSList& videoContacts, 
                              int numRtpCodecs,
                              SdpCodec* rtpCodecs[],
                              SdpSrtpParameters& srtpParams,
@@ -1371,236 +1511,238 @@ void SdpBody::addCodecsOffer(int iNumAddresses,
     int numAudioCodecs=0;
     int numVideoCodecs=0;
     const char* szTransportType = NULL;
+    int numAudioContacts = audioContacts.entries() ;
+    int numVideoContacts = videoContacts.entries() ;
 
-    assert(iNumAddresses > 0) ;
+    OsMediaContact* pPrimaryAudioContact = (OsMediaContact*) audioContacts.at(0) ;
+    OsMediaContact* pPrimaryVideoContact = (OsMediaContact*) videoContacts.at(0) ;
 
+    assert(numAudioContacts > 0 || numVideoContacts > 0) ;
     memset(formatArray, 0, sizeof(int)*MAXIMUM_MEDIA_TYPES);
 
     // If there are not media fields we only need one global one
     // for the SDP body
     if(!preExistingMedia)
     {
-        setConnectionAddress(mediaAddresses[0]);
+//        if (pPrimaryAudioContact)
+//            setConnectionAddress(pPrimaryAudioContact->getAddress());
+//        else if (pPrimaryVideoContact)
+//            setConnectionAddress(pPrimaryVideoContact->getAddress());
+
         char timeString[100];
-        sprintf(timeString, "%d %d", 0, //OsDateTime::getSecsSinceEpoch(),
-            0);
+        sprintf(timeString, "%d %d", 0, 0);
         addValue("t", timeString);
     }
 
-    // Stuff the SDP audio codes in an integer array
-    for(codecIndex = 0, destIndex = 0;
-        codecIndex < MAXIMUM_MEDIA_TYPES && codecIndex < numRtpCodecs;
-        codecIndex++)
+    if (pPrimaryAudioContact)
     {
-        rtpCodecs[codecIndex]->getMediaType(mimeType);
-        if (mimeType.compareTo(SDP_AUDIO_MEDIA_TYPE) == 0 || mimeType.compareTo(SDP_VIDEO_MEDIA_TYPE) != 0)
+        // Stuff the SDP audio codes in an integer array
+        for(codecIndex = 0, destIndex = 0;
+            codecIndex < MAXIMUM_MEDIA_TYPES && codecIndex < numRtpCodecs;
+            codecIndex++)
         {
-            seenMimeType = mimeType;
-            ++numAudioCodecs;
-            codecArray[destIndex++] =
-                (rtpCodecs[codecIndex])->getCodecPayloadFormat();
+            rtpCodecs[codecIndex]->getMediaType(mimeType);
+            if (mimeType.compareTo(SDP_AUDIO_MEDIA_TYPE) == 0 || mimeType.compareTo(SDP_VIDEO_MEDIA_TYPE) != 0)
+            {
+                seenMimeType = mimeType;
+                ++numAudioCodecs;
+                codecArray[destIndex++] =
+                    (rtpCodecs[codecIndex])->getCodecPayloadFormat();
+            }
         }
-    }
 
-    if (rtpAudioPorts[0] > 0)
-    {
         // If any security is enabled we set RTP/SAVP and add a crypto field
         if (srtpParams.securityLevel)
         {
             // Add the media record
-            addMediaData(SDP_AUDIO_MEDIA_TYPE, rtpAudioPorts[0], 1,
+            addMediaData(SDP_AUDIO_MEDIA_TYPE, pPrimaryAudioContact->getPort(), 1,
                 SDP_SRTP_MEDIA_TRANSPORT_TYPE, numAudioCodecs,
                 codecArray);
             // If this is not the only media record we do need a local
             // address record for this media record
-            if(preExistingMedia)
-            {
-                addConnectionAddress(mediaAddresses[0]);
-            }
+            addConnectionAddress(pPrimaryAudioContact->getAddress());
             addSrtpCryptoField(srtpParams);
         }
         else
         {
-            if ((transportTypes[0] & RTP_TRANSPORT_UDP) == RTP_TRANSPORT_UDP)
-            {
+            if ((pPrimaryAudioContact->getTransportType() & RTP_TRANSPORT_UDP) == RTP_TRANSPORT_UDP)
                 szTransportType = SDP_RTP_MEDIA_TRANSPORT_TYPE;
-            }                        
-            else
-            {
+            else if ((pPrimaryAudioContact->getTransportType() & RTP_TRANSPORT_ARS) == RTP_TRANSPORT_ARS)
+                szTransportType = SDP_RTP_ARS_MEDIA_TRANSPORT_TYPE;
+            else 
                 szTransportType = SDP_RTP_TCP_MEDIA_TRANSPORT_TYPE;
-            }
+
             // Add the media record
-            addMediaData(SDP_AUDIO_MEDIA_TYPE, rtpAudioPorts[0], 1,
+            addMediaData(SDP_AUDIO_MEDIA_TYPE, pPrimaryAudioContact->getPort(), 1,
                 szTransportType, numAudioCodecs,
                 codecArray);
 
-            // If this is not the only media record we do need a local
-            // address record for this media record
-            if(preExistingMedia)
-            {
-                addConnectionAddress(mediaAddresses[0]);
-            }                        
+            addConnectionAddress(pPrimaryAudioContact->getAddress());
         }
         // It is assumed that rtcp is the odd port immediately after the rtp port.
         // If that is not true, we must add a parameter to specify the rtcp port.
-        if (  (rtcpAudioPorts[0] > 0) && ((rtcpAudioPorts[0] != rtpAudioPorts[0] + 1) 
-            || (rtcpAudioPorts[0] % 2) == 0))
+        if (  (pPrimaryAudioContact->getRtcpPort() > 0) && ((pPrimaryAudioContact->getRtcpPort() != pPrimaryAudioContact->getPort() + 1) 
+            || (pPrimaryAudioContact->getRtcpPort() % 2) == 0))
         {
             char cRtcpBuf[32] ;
-            sprintf(cRtcpBuf, "rtcp:%d", rtcpAudioPorts[0]) ;
+            sprintf(cRtcpBuf, "rtcp:%d", pPrimaryAudioContact->getRtcpPort()) ;
             addValue("a", cRtcpBuf) ;
         }
 
         // Add candidate addresses if available
-        if (iNumAddresses > 1)
+        if (numAudioContacts > 1)
         {
             char szTransportString[16];
+            // http://tools.ietf.org/html/draft-ietf-mmusic-ice-17
+            // currently only UDP is defined
+            strcpy(szTransportString, "UDP");
 
-            for (int i=0; i<iNumAddresses; i++)
+            for (int i=0; i<numAudioContacts; i++)
             {
-                if ((transportTypes[i] & RTP_TRANSPORT_UDP) == RTP_TRANSPORT_UDP)
-                {
-                    szTransportType = SDP_RTP_MEDIA_TRANSPORT_TYPE;
-                }                        
-                else
-                {
-                    szTransportType = SDP_RTP_TCP_MEDIA_TRANSPORT_TYPE;
-                }            
-                double priority = (double) (iNumAddresses-i) / (double) iNumAddresses ;
+                OsMediaContact* pContact = (OsMediaContact*) audioContacts.at(i) ;                
+                if (pContact)
+                { 
+                    if ((pContact->getTransportType() & RTP_TRANSPORT_UDP) == RTP_TRANSPORT_UDP)
+                        szTransportType = SIP_TRANSPORT_UDP;
+                    else if ((pContact->getTransportType() & RTP_TRANSPORT_ARS) == RTP_TRANSPORT_ARS)
+                        szTransportType = SIP_TRANSPORT_ARS;
+                    else 
+                        szTransportType = SIP_TRANSPORT_TCP;
 
-                assert(mediaAddresses[i].length() > 0) ;
-                if (rtpAudioPorts[0] && rtpAudioPorts[i] && mediaAddresses[i])
-                {
-                    addCandidateAttribute(i, "t", szTransportString, priority, mediaAddresses[i], rtpAudioPorts[i]) ;
-                }
+                    // NOTE: offering candidates have greater priority
+                    double priority = (double) (numAudioContacts-i) / (double) numAudioContacts ;
+                    priority += 0.1 ;
 
-                if (rtcpAudioPorts[0] && rtcpAudioPorts[i] && mediaAddresses[i])
-                {
-                    addCandidateAttribute(i, "t", szTransportString, priority, mediaAddresses[i], rtcpAudioPorts[i]) ;
+                    assert(pContact->getAddress() && strlen(pContact->getAddress()) > 0) ;
+                    assert(pContact->getPort() > 0) ;
+                    if (pContact->getPort() > 0 && pContact->getAddress())
+                    {
+                        addCandidateAttribute(i, "t", szTransportType, priority, pContact->getAddress(), pContact->getPort()) ;
+                    }
+                    if (pContact->getRtcpPort() > 0 && pContact->getAddress())
+                    {
+                        addCandidateAttribute(i, "t", szTransportType, priority, pContact->getAddress(), pContact->getRtcpPort()) ;
+                    }
                 }
             }
         }
-
         // add attribute records defining the extended types
         addCodecParameters(numRtpCodecs, rtpCodecs, seenMimeType.data(), videoFramerate);
-
     }
 
-    // Stuff the SDP video codecs codes in an integer array
-    for(codecIndex = 0, destIndex = -1;
-        codecIndex < MAXIMUM_MEDIA_TYPES && codecIndex < numRtpCodecs;
-        codecIndex++)
+
+
+    if (pPrimaryVideoContact)
     {
-        rtpCodecs[codecIndex]->getMediaType(mimeType);
-
-        if (mimeType.compareTo(SDP_VIDEO_MEDIA_TYPE) == 0)
+        // Stuff the SDP video codecs codes in an integer array
+        for(codecIndex = 0, destIndex = -1;
+            codecIndex < MAXIMUM_MEDIA_TYPES && codecIndex < numRtpCodecs;
+            codecIndex++)
         {
-            rtpCodecs[codecIndex]->getEncodingName(mimeSubType);
+            rtpCodecs[codecIndex]->getMediaType(mimeType);
 
-            if (mimeSubType.compareTo(prevMimeSubType) == 0)
+            if (mimeType.compareTo(SDP_VIDEO_MEDIA_TYPE) == 0)
             {
-                // If we still have the same mime type only change format. We're depending on the
-                // fact that codecs with the same mime subtype are added sequentially to the 
-                // codec factory. Otherwise this won't work.
-                formatArray[destIndex] |= (rtpCodecs[codecIndex])->getVideoFormat();
-                (rtpCodecs[firstMimeSubTypeIndex])->setVideoFmtp(formatArray[destIndex]);
-                (rtpCodecs[firstMimeSubTypeIndex])->setVideoFmtpString((rtpCodecs[codecIndex])->getVideoFormat());
-            }
-            else
-            {
-                // New mime subtype - add new codec to codec list. Mark this index and put all
-                // video format information into this codec because it will be looked at later.
-                firstMimeSubTypeIndex = codecIndex;
-                ++destIndex;
-                prevMimeSubType = mimeSubType;
-                ++numVideoCodecs;
-                formatArray[destIndex] = (rtpCodecs[codecIndex])->getVideoFormat();
-                codecArray[destIndex] =
-                    (rtpCodecs[codecIndex])->getCodecPayloadFormat();
-                (rtpCodecs[firstMimeSubTypeIndex])->setVideoFmtp(formatArray[destIndex]);
-                (rtpCodecs[firstMimeSubTypeIndex])->clearVideoFmtpString();
-                (rtpCodecs[firstMimeSubTypeIndex])->setVideoFmtpString((rtpCodecs[codecIndex])->getVideoFormat());
+                rtpCodecs[codecIndex]->getEncodingName(mimeSubType);
+
+                if (mimeSubType.compareTo(prevMimeSubType) == 0)
+                {
+                    // If we still have the same mime type only change format. We're depending on the
+                    // fact that codecs with the same mime subtype are added sequentially to the 
+                    // codec factory. Otherwise this won't work.
+                    formatArray[destIndex] |= (rtpCodecs[codecIndex])->getVideoFormat();
+                    (rtpCodecs[firstMimeSubTypeIndex])->setVideoFmtp(formatArray[destIndex]);
+                    (rtpCodecs[firstMimeSubTypeIndex])->setVideoFmtpString((rtpCodecs[codecIndex])->getVideoFormat());
+                }
+                else
+                {
+                    // New mime subtype - add new codec to codec list. Mark this index and put all
+                    // video format information into this codec because it will be looked at later.
+                    firstMimeSubTypeIndex = codecIndex;
+                    ++destIndex;
+                    prevMimeSubType = mimeSubType;
+                    ++numVideoCodecs;
+                    formatArray[destIndex] = (rtpCodecs[codecIndex])->getVideoFormat();
+                    codecArray[destIndex] =
+                        (rtpCodecs[codecIndex])->getCodecPayloadFormat();
+                    (rtpCodecs[firstMimeSubTypeIndex])->setVideoFmtp(formatArray[destIndex]);
+                    (rtpCodecs[firstMimeSubTypeIndex])->clearVideoFmtpString();
+                    (rtpCodecs[firstMimeSubTypeIndex])->setVideoFmtpString((rtpCodecs[codecIndex])->getVideoFormat());
+                }
             }
         }
-    }
 
-    if (rtpVideoPorts[0] > 0)
-    {
-        // If any security is enabled we set RTP/SAVP and add a crypto field - not for video at this time
-        if (0)
+        // If any security is enabled we set RTP/SAVP and add a crypto field
+        if (srtpParams.securityLevel)
         {
             // Add the media record
-            addMediaData(SDP_VIDEO_MEDIA_TYPE, rtpVideoPorts[0], 1,
+            addMediaData(SDP_VIDEO_MEDIA_TYPE, pPrimaryVideoContact->getPort(), 1,
                 SDP_SRTP_MEDIA_TRANSPORT_TYPE, numVideoCodecs,
                 codecArray);
             addSrtpCryptoField(srtpParams);
-            // If this is not the only media record we do need a local
-            // address record for this media record
-            if(preExistingMedia)
-            {
-                addConnectionAddress(mediaAddresses[1]);
-            }         
+            addConnectionAddress(pPrimaryVideoContact->getAddress());
         }
         else
         {
-            if ((transportTypes[0] & RTP_TRANSPORT_UDP) == RTP_TRANSPORT_UDP)
-            {
+            if ((pPrimaryVideoContact->getTransportType() & RTP_TRANSPORT_UDP) == RTP_TRANSPORT_UDP)
                 szTransportType = SDP_RTP_MEDIA_TRANSPORT_TYPE;
-            }                        
+            else if ((pPrimaryVideoContact->getTransportType() & RTP_TRANSPORT_ARS) == RTP_TRANSPORT_ARS)
+                szTransportType = SDP_RTP_ARS_MEDIA_TRANSPORT_TYPE;
             else
-            {
                 szTransportType = SDP_RTP_TCP_MEDIA_TRANSPORT_TYPE;
-            }
+
             // Add the media record
-            addMediaData(SDP_VIDEO_MEDIA_TYPE, rtpVideoPorts[0], 1,
+            addMediaData(SDP_VIDEO_MEDIA_TYPE, pPrimaryVideoContact->getPort(), 1,
                 szTransportType, numVideoCodecs,
                 codecArray);
             // If this is not the only media record we do need a local
             // address record for this media record
-            if(preExistingMedia)
-            {
-                addConnectionAddress(mediaAddresses[0]);
-            }
+            addConnectionAddress(pPrimaryVideoContact->getAddress());
         }
         // It is assumed that rtcp is the odd port immediately after the rtp port.
         // If that is not true, we must add a parameter to specify the rtcp port.
-        if ((rtcpVideoPorts[0] > 0) && ((rtcpVideoPorts[0] != rtpVideoPorts[0] + 1) 
-            || (rtcpVideoPorts[0] % 2) == 0))
+        if ((pPrimaryVideoContact->getRtcpPort() > 0) && ((pPrimaryVideoContact->getRtcpPort() != pPrimaryVideoContact->getPort() + 1) 
+            || (pPrimaryVideoContact->getRtcpPort() % 2) == 0))
         {
             char cRtcpBuf[32] ;
-            sprintf(cRtcpBuf, "rtcp:%d", rtcpVideoPorts[0]) ;
-
+            sprintf(cRtcpBuf, "rtcp:%d", pPrimaryVideoContact->getRtcpPort()) ;
             addValue("a", cRtcpBuf) ;
         }
 
         // Add candidate addresses if available
-        if (iNumAddresses > 1)
+        if (numVideoContacts > 1)
         {
-            char szTransportString[16];
-            for (int i=0; i<iNumAddresses; i++)
+            for (int i=0; i<numVideoContacts; i++)
             {
-                double priority = (double) (iNumAddresses-i) / (double) iNumAddresses ;
-                if ((transportTypes[0] & RTP_TRANSPORT_UDP) == RTP_TRANSPORT_UDP)
+                OsMediaContact* pContact = (OsMediaContact*) videoContacts.at(i) ;                
+                if (pContact)
                 {
-                    szTransportType = SDP_RTP_MEDIA_TRANSPORT_TYPE;
-                }                        
-                else
-                {
-                    szTransportType = SDP_RTP_TCP_MEDIA_TRANSPORT_TYPE;
-                }
-                assert(mediaAddresses[i].length() > 0) ;
-                if (rtpVideoPorts[0] && rtpVideoPorts[i] && mediaAddresses[i])
-                {
-                    addCandidateAttribute(i, "t", szTransportString, priority, mediaAddresses[i], rtpVideoPorts[i]) ;
-                }
+                    if ((pContact->getTransportType() & RTP_TRANSPORT_UDP) == RTP_TRANSPORT_UDP)
+                        szTransportType = SIP_TRANSPORT_UDP;
+                    else if ((pContact->getTransportType() & RTP_TRANSPORT_ARS) == RTP_TRANSPORT_ARS)
+                        szTransportType = SIP_TRANSPORT_ARS;
+                    else
+                        szTransportType = SIP_TRANSPORT_TCP;
 
-                if (rtcpVideoPorts[0] && rtcpVideoPorts[i] && mediaAddresses[i])
-                {
-                    addCandidateAttribute(i, "t", szTransportString, priority, mediaAddresses[i], rtcpVideoPorts[i]) ;
+                    // NOTE: offering candidates have greater priority
+                    double priority = (double) (numVideoContacts-i) / (double) (numVideoContacts+1.0) ;
+                    priority += 0.1 ;
+
+                    assert(pContact->getAddress() && strlen(pContact->getAddress()) > 0) ;
+                    assert(pContact->getPort() > 0) ;
+                    if (pContact->getPort() > 0 && pContact->getAddress())
+                    {
+                        addCandidateAttribute(i, "t", szTransportType, priority, pContact->getAddress(), pContact->getPort()) ;
+                    }
+
+                    if (pContact->getRtcpPort() > 0 && pContact->getAddress())
+                    {
+                        addCandidateAttribute(i, "t", szTransportType, priority, pContact->getAddress(), pContact->getRtcpPort()) ;
+                    }
+
                 }
             }
         }
-
         // add attribute records defining the extended types
         addCodecParameters(numRtpCodecs, rtpCodecs, SDP_VIDEO_MEDIA_TYPE, videoFramerate);
 
@@ -1632,6 +1774,8 @@ void SdpBody::addCodecParameters(int numRtpCodecs,
    UtlString prevMimeSubType = "none";
    UtlString formatTemp;
    UtlString formatString;
+   int pTime = 0;
+   int codecPtime = 0;
 
    for(int codecIndex = 0;
        codecIndex < MAXIMUM_MEDIA_TYPES && codecIndex < numRtpCodecs;
@@ -1645,39 +1789,49 @@ void SdpBody::addCodecParameters(int numRtpCodecs,
          // Only add to map if we have a new mime sub type
          if (mimeSubtype.compareTo(prevMimeSubType) != 0)
          {
-            prevMimeSubType = mimeSubtype;
-            sampleRate = codec->getSampleRate();
-            numChannels = codec->getNumChannels();
-            codec->getSdpFmtpField(formatParameters);
-            payloadType = codec->getCodecPayloadFormat();
+             prevMimeSubType = mimeSubtype;
+             sampleRate = codec->getSampleRate();
+             numChannels = codec->getNumChannels();
+             codec->getSdpFmtpField(formatParameters);
+             payloadType = codec->getCodecPayloadFormat();
 
-            // Build an rtpmap
-            addRtpmap(payloadType, mimeSubtype.data(),
-                       sampleRate, numChannels);
+             // Not sure what the right heuristic is for determining the
+             // correct ptime.  ptime is a media (m line) parameters.  As such
+             // it is a global property to all codecs for a single media
+             // (m line) section.  For now lets try using the largest one as
+             // SDP does not support different ptime for each codec.
+             codecPtime = (codec->getPacketLength()) / 1000; // converted to milliseconds
+             if(codecPtime > pTime)
+             {
+                 pTime = codecPtime;
+             }
 
-            if ((videoFmtp=codec->getVideoFmtp()) != 0)
-            {
+             // Build an rtpmap
+             addRtpmap(payloadType, mimeSubtype.data(), sampleRate, numChannels);
+
+             if ((videoFmtp=codec->getVideoFmtp()) != 0)
+             {
                 if (codec->getCodecPayloadFormat() != SdpCodec::SDP_CODEC_H263)
                 {
-                    codec->getVideoFmtpString(formatString);
-                    formatTemp = "size:" + formatString;
+                   codec->getVideoFmtpString(formatString);
+                   formatTemp = "size:" + formatString;
 
-                    formatParameters = formatTemp(0, formatTemp.length()-1);
+                   formatParameters = formatTemp(0, formatTemp.length()-1);
                 }
                 else
                 {
-                    switch (codec->getCodecType())
-                    {
-                    case SdpCodec::SDP_CODEC_H263_CIF:
-                        formatParameters = "imagesize 1";
-                        break;
-                    case SdpCodec::SDP_CODEC_H263_QCIF:
-                        formatParameters = "imagesize 0";
-                        break;
-                    }
+                   switch (codec->getCodecType())
+                   {
+                   case SdpCodec::SDP_CODEC_H263_CIF:
+                        formatParameters.format("imagesize 1 rules %d:352:288", videoFramerate) ;
+                       break;
+                   case SdpCodec::SDP_CODEC_H263_QCIF:
+                        formatParameters.format("imagesize 0 rules %d:176:144", videoFramerate) ;
+                      break;
+                   }
                 }
-            }
-            if (codec->getCodecType() == SdpCodec::SDP_CODEC_GIPS_ILBC)
+             }
+            if (codec->getCodecType() == SdpCodec::SDP_CODEC_ILBC)
             {
                 sprintf(valueBuf, "mode=%d", codec->getPacketLength()/1000);
                 formatParameters = valueBuf;
@@ -1685,30 +1839,30 @@ void SdpBody::addCodecParameters(int numRtpCodecs,
             // Add the format specific parameters if present
             if(!formatParameters.isNull())
             {
-                addFormatParameters(payloadType,
-                                    formatParameters.data());
-                /* Not quite sure if we want to send a global framerate limit
+                addFormatParameters(payloadType, formatParameters.data());
+                // Not quite sure if we want to send a global framerate limit
                 if (codec->getCodecPayloadFormat() == SdpCodec::SDP_CODEC_H263 &&
                     videoFramerate != 0)
                 {
-                     sprintf(valueBuf, "framerate:%d", videoFramerate);
-                     addValue("a", valueBuf);    
+                    sprintf(valueBuf, "framerate:%d", videoFramerate);
+                    addValue("a", valueBuf);    
                 }
-                */
             }
          }
       }
    }
+
+   // ptime only really make sense for audio
+   if(pTime > 0 &&
+      strcmp(szMimeType, SDP_AUDIO_MEDIA_TYPE) == 0 )
+   {
+       addPtime(pTime);
+   }
 }
 
 
-void SdpBody::addCodecsAnswer(int iNumAddresses,
-                             UtlString hostAddresses[],
-                             int rtpAudioPorts[],
-                             int rtcpAudioPorts[],
-                             int rtpVideoPorts[],
-                             int rtcpVideoPorts[],
-                             RTP_TRANSPORT transportTypes[],
+void SdpBody::addCodecsAnswer(UtlSList& audioContacts,
+                              UtlSList& videoContacts, 
                              int numRtpCodecs, 
                              SdpCodec* rtpCodecs[], 
                              SdpSrtpParameters& srtpParams,
@@ -1733,6 +1887,7 @@ void SdpBody::addCodecsAnswer(int iNumAddresses,
    int remoteTotalBandwidth;
    int matchingBandwidth;
    SdpCodec* codecsInCommon[MAXIMUM_MEDIA_TYPES];
+   SdpCodec* codecsDummy[MAXIMUM_MEDIA_TYPES]; // just a dummy codec array
    int supportedPayloadCount;
    int destIndex;
    int firstMimeSubTypeIndex;
@@ -1741,17 +1896,24 @@ void SdpBody::addCodecsAnswer(int iNumAddresses,
    SdpSrtpParameters receivedVideoSrtpParams;
    UtlString prevMimeSubType = "none";
    UtlString mimeSubType;
+    int numAudioContacts = audioContacts.entries() ;
+    int numVideoContacts = videoContacts.entries() ;
+
+    OsMediaContact* pPrimaryAudioContact = (OsMediaContact*) audioContacts.at(0) ;
+    OsMediaContact* pPrimaryVideoContact = (OsMediaContact*) videoContacts.at(0) ;
+
+    assert(numAudioContacts > 0 || numVideoContacts > 0) ;
 
    memset(formatArray, 0, sizeof(int)*MAXIMUM_MEDIA_TYPES); 
    memset(&receivedSrtpParams,0, sizeof(SdpSrtpParameters));
+
    // if there are no media fields already, add a global
    // address field
    if(!preExistingMedia)
    {
-      setConnectionAddress(hostAddresses[0]);
+//      setConnectionAddress(hostAddresses[0]);
       char timeString[100];
-      sprintf(timeString, "%d %d", 0, //OsDateTime::getSecsSinceEpoch(),
-              0);
+        sprintf(timeString, "%d %d", 0, 0);
       addValue("t", timeString);
    }
 
@@ -1791,6 +1953,7 @@ void SdpBody::addCodecsAnswer(int iNumAddresses,
                 (
                     mediaTransportType.compareTo(SDP_RTP_MEDIA_TRANSPORT_TYPE, UtlString::ignoreCase) != 0 &&
                     mediaTransportType.compareTo(SDP_RTP_TCP_MEDIA_TRANSPORT_TYPE, UtlString::ignoreCase) != 0 &&
+                    mediaTransportType.compareTo(SDP_RTP_ARS_MEDIA_TRANSPORT_TYPE, UtlString::ignoreCase) != 0 &&
                     mediaTransportType.compareTo(SDP_SRTP_MEDIA_TRANSPORT_TYPE, UtlString::ignoreCase) != 0
                 )
             )
@@ -1833,13 +1996,18 @@ void SdpBody::addCodecsAnswer(int iNumAddresses,
       mediaIndex++;
    }
 
-   SdpCodecFactory codecFactory(numRtpCodecs,
+   SdpCodecList codecFactory(numRtpCodecs,
                                     rtpCodecs);
 
    supportedPayloadCount = 0;
-   sdpRequest->getCodecsInCommon(numAudioPayloadTypes, numVideoPayloadTypes, 
-                                 audioPayloadTypes, videoPayloadTypes, videoPort,
-                                 codecFactory, supportedPayloadCount,
+   sdpRequest->getCodecsInCommon(numAudioPayloadTypes,
+                                 numVideoPayloadTypes, 
+                                 audioPayloadTypes,
+                                 videoPayloadTypes,
+                                 videoPort,
+                                 codecFactory,
+                                 supportedPayloadCount,
+                                 codecsDummy,
                                  codecsInCommon);
 
    SdpSrtpParameters commonAudioSrtpParams;
@@ -1854,75 +2022,96 @@ void SdpBody::addCodecsAnswer(int iNumAddresses,
     if (supportedPayloadCount && 
         srtpParams.securityLevel==commonAudioSrtpParams.securityLevel)
     {
-        // Do this for audio first
-        destIndex = 0;
-        int payloadIndex;
-        for(payloadIndex = 0;
-            payloadIndex < supportedPayloadCount;
-            payloadIndex++)
+        if (pPrimaryAudioContact)
         {
-            codecsInCommon[payloadIndex]->getMediaType(mediaType);
-            if (mediaType.compareTo(SDP_AUDIO_MEDIA_TYPE) == 0)
+            // Do this for audio first
+            destIndex = 0;
+            int payloadIndex;
+            for(payloadIndex = 0;
+                payloadIndex < supportedPayloadCount;
+                payloadIndex++)
             {
-                supportedPayloadTypes[destIndex++] =
-                        codecsInCommon[payloadIndex]->getCodecPayloadFormat();
-            }
-        }
-        addMediaData(SDP_AUDIO_MEDIA_TYPE, rtpAudioPorts[0], 1,
-                    audioTransportType.data(), destIndex,
-                    supportedPayloadTypes);
-        if (commonAudioSrtpParams.securityLevel)
-        {
-            addSrtpCryptoField(commonAudioSrtpParams);
-        }
-
-        if (    (audioTransportType.compareTo(SDP_RTP_MEDIA_TRANSPORT_TYPE, UtlString::ignoreCase) == 0) ||
-                (audioTransportType.compareTo(SDP_RTP_TCP_MEDIA_TRANSPORT_TYPE, UtlString::ignoreCase) == 0) ||
-                (audioTransportType.compareTo(SDP_SRTP_MEDIA_TRANSPORT_TYPE, UtlString::ignoreCase) == 0))
-        {
-            // It is assumed that rtcp is the odd port immediately after 
-            // the rtp port.  If that is not true, we must add a parameter 
-            // to specify the rtcp port.
-            if ((rtcpAudioPorts[0] > 0) && ((rtcpAudioPorts[0] != rtpAudioPorts[0] + 1) 
-                    || (rtcpAudioPorts[0] % 2) == 0))
-            {
-                char cRtcpBuf[32] ;
-                sprintf(cRtcpBuf, "rtcp:%d", rtcpAudioPorts[0]) ;
-                addValue("a", cRtcpBuf) ;
-            }
-            
-            if (mediaTransportType.compareTo(SDP_RTP_TCP_MEDIA_TRANSPORT_TYPE, UtlString::ignoreCase) == 0)
-            {
-                // if transport == TCP, add the a=setup:actpass
-                addValue("a", "setup:actpass");
-            }
-
-            // Add candidate addresses if available
-            if (iNumAddresses > 1)
-            {
-                for (int i=0; i<iNumAddresses; i++)
+                codecsInCommon[payloadIndex]->getMediaType(mediaType);
+                if (mediaType.compareTo(SDP_AUDIO_MEDIA_TYPE) == 0)
                 {
-                    double priority = (double) (iNumAddresses-i) / (double) iNumAddresses ;
+                    supportedPayloadTypes[destIndex++] =
+                            codecsInCommon[payloadIndex]->getCodecPayloadFormat();
+                }
+            }
+            addMediaData(SDP_AUDIO_MEDIA_TYPE, pPrimaryAudioContact->getPort(), 1,
+                        audioTransportType.data(), destIndex,
+                        supportedPayloadTypes);
+            addConnectionAddress(pPrimaryAudioContact->getAddress());
 
-                    assert(hostAddresses[i].length() > 0) ;
-                    if (rtpAudioPorts[0] && rtpAudioPorts[i] && hostAddresses[i])
-                    {
-                        addCandidateAttribute(i, "t", "UDP", priority, hostAddresses[i], rtpAudioPorts[i]) ;
-                    }
+            if (commonAudioSrtpParams.securityLevel)
+            {
+                addSrtpCryptoField(commonAudioSrtpParams);
+            }
 
-                    if (rtcpAudioPorts[0] && rtcpAudioPorts[i] && hostAddresses[i])
+            if (    (audioTransportType.compareTo(SDP_RTP_MEDIA_TRANSPORT_TYPE, UtlString::ignoreCase) == 0) ||
+                    (audioTransportType.compareTo(SDP_RTP_TCP_MEDIA_TRANSPORT_TYPE, UtlString::ignoreCase) == 0) ||
+                    (audioTransportType.compareTo(SDP_RTP_ARS_MEDIA_TRANSPORT_TYPE, UtlString::ignoreCase) == 0) ||
+                    (audioTransportType.compareTo(SDP_SRTP_MEDIA_TRANSPORT_TYPE, UtlString::ignoreCase) == 0))
+            {
+                // It is assumed that rtcp is the odd port immediately after 
+                // the rtp port.  If that is not true, we must add a parameter 
+                // to specify the rtcp port.
+                if ((pPrimaryAudioContact->getRtcpPort() > 0) && ((pPrimaryAudioContact->getRtcpPort() != pPrimaryAudioContact->getPort() + 1) 
+                        || (pPrimaryAudioContact->getRtcpPort() % 2) == 0))
+                {
+                    char cRtcpBuf[32] ;
+                    sprintf(cRtcpBuf, "rtcp:%d", pPrimaryAudioContact->getRtcpPort()) ;
+                    addValue("a", cRtcpBuf) ;
+                }
+            
+                if (mediaTransportType.compareTo(SDP_RTP_TCP_MEDIA_TRANSPORT_TYPE, UtlString::ignoreCase) == 0)
+                {
+                    // if transport == TCP, add the a=setup:actpass
+                    addValue("a", "setup:actpass");
+                }
+
+                // Add candidate addresses if available
+                if (numAudioContacts > 1)
+                {
+                    for (int i=0; i<numAudioContacts; i++)
                     {
-                        addCandidateAttribute(i, "t", "UDP", priority, hostAddresses[i], rtcpAudioPorts[i]) ;
+                        OsMediaContact* pContact = (OsMediaContact*) audioContacts.at(i) ;                
+                        if (pContact)
+                        {
+                            const char* szTransportType ;
+                            if ((pContact->getTransportType() & RTP_TRANSPORT_UDP) == RTP_TRANSPORT_UDP)
+                                szTransportType = SIP_TRANSPORT_UDP;
+                            else if ((pContact->getTransportType() & RTP_TRANSPORT_ARS) == RTP_TRANSPORT_ARS)
+                                szTransportType = SIP_TRANSPORT_ARS;
+                            else 
+                                szTransportType = SIP_TRANSPORT_TCP;
+
+
+                            // NOTE: offering candidates have greater priority
+                            double priority = (double) (numAudioContacts-i) / (double) (numAudioContacts+1.0) ;
+
+                            assert(pContact->getAddress() && strlen(pContact->getAddress()) > 0) ;
+                            assert(pContact->getPort() > 0) ;
+                            if (pContact->getPort() && pContact->getAddress())
+                            {
+                                addCandidateAttribute(i, "t", szTransportType, priority, pContact->getAddress(), pContact->getPort()) ;
+                            }
+
+                            if (pContact->getRtcpPort() > 0 && pContact->getAddress())
+                            {
+                                addCandidateAttribute(i, "t", szTransportType, priority, pContact->getAddress(), pContact->getRtcpPort()) ;
+                            }
+                        }
                     }
                 }
             }
         }
 
         addCodecParameters(supportedPayloadCount,
-                            codecsInCommon, SDP_AUDIO_MEDIA_TYPE, videoFramerate);
-
+                                codecsInCommon, SDP_AUDIO_MEDIA_TYPE, -1);
         // Then do this for video
         destIndex = -1;
+        int payloadIndex;
         for(payloadIndex = 0;
             payloadIndex < supportedPayloadCount;
             payloadIndex++)
@@ -1959,57 +2148,80 @@ void SdpBody::addCodecsAnswer(int iNumAddresses,
             }
         }
         // Only add m-line if we actually have common video codecs
-        if (commonVideo)
+        if (commonVideo && pPrimaryVideoContact)
         {
             addMediaData(SDP_VIDEO_MEDIA_TYPE,
-                        rtpVideoPorts[0], 1,
+                    pPrimaryVideoContact->getPort(), 1,
                         videoTransportType.data(),
                         destIndex+1,
                         supportedPayloadTypes);
-            // We do not support video encryption at this time 
-            //if (commonVideoSrtpParams.securityLevel)
-            //{
-            //    addSrtpCryptoField(commonAudioSrtpParams);
-            //}
+            addConnectionAddress(pPrimaryVideoContact->getAddress());
+
+            if (commonVideoSrtpParams.securityLevel)
+            {
+                addSrtpCryptoField(commonVideoSrtpParams);
+            }
 
             if (    (audioTransportType.compareTo(SDP_RTP_MEDIA_TRANSPORT_TYPE, UtlString::ignoreCase) == 0) ||
                     (audioTransportType.compareTo(SDP_RTP_TCP_MEDIA_TRANSPORT_TYPE, UtlString::ignoreCase) == 0) ||
+                    (audioTransportType.compareTo(SDP_RTP_ARS_MEDIA_TRANSPORT_TYPE, UtlString::ignoreCase) == 0) ||
                     (audioTransportType.compareTo(SDP_SRTP_MEDIA_TRANSPORT_TYPE, UtlString::ignoreCase) == 0))
             {
                 // It is assumed that rtcp is the odd port immediately after 
                 // the rtp port.  If that is not true, we must add a parameter 
                 // to specify the rtcp port.
-                if ((rtcpVideoPorts[0] > 0) && ((rtcpVideoPorts[0] != rtpVideoPorts[0] + 1) 
-                        || (rtcpVideoPorts[0] % 2) == 0))
+                if ((pPrimaryVideoContact->getRtcpPort() > 0) && ((pPrimaryVideoContact->getRtcpPort() != pPrimaryVideoContact->getPort() + 1) 
+                        || (pPrimaryVideoContact->getRtcpPort() % 2) == 0))
                 {
                     char cRtcpBuf[32] ;
-                    sprintf(cRtcpBuf, "rtcp:%d", rtcpVideoPorts[0]) ;
+                    sprintf(cRtcpBuf, "rtcp:%d", pPrimaryVideoContact->getRtcpPort()) ;
                     addValue("a", cRtcpBuf) ;
                 }
             }
 
-            // Add candidate addresses if available
-            if (iNumAddresses > 1)
-            {
-                for (int i=0; i<iNumAddresses; i++)
+            if (numVideoContacts > 1)
+            {            
+                for (int i=0; i<numVideoContacts; i++)
                 {
-                    double priority = (double) (iNumAddresses-i) / (double) iNumAddresses ;
-
-                    assert(hostAddresses[i].length() > 0) ;
-                    if (rtpVideoPorts[0] && rtpVideoPorts[i] && hostAddresses[i])
+                    OsMediaContact* pContact = (OsMediaContact*) videoContacts.at(i) ;                
+                    if (pContact)
                     {
-                        addCandidateAttribute(i, "t", "UDP", priority, hostAddresses[i], rtpVideoPorts[i]) ;
-                    }
+                        const char* szTransportType ;
+                        if ((pContact->getTransportType() & RTP_TRANSPORT_UDP) == RTP_TRANSPORT_UDP)
+                            szTransportType = SIP_TRANSPORT_UDP;
+                        else if ((pContact->getTransportType() & RTP_TRANSPORT_ARS) == RTP_TRANSPORT_ARS)
+                            szTransportType = SIP_TRANSPORT_ARS;
+                        else 
+                            szTransportType = SIP_TRANSPORT_TCP;
 
-                    if (rtcpVideoPorts[0] && rtcpVideoPorts[i] && hostAddresses[i])
-                    {
-                        addCandidateAttribute(i, "t", "UDP", priority, hostAddresses[i], rtcpVideoPorts[i]) ;
+                        // NOTE: offering candidates have greater priority
+                        double priority = (double) (numVideoContacts-i) / (double) (numVideoContacts+1.0) ;
+
+                        assert(pContact->getAddress() && strlen(pContact->getAddress()) > 0) ;
+                        assert(pContact->getPort() > 0) ;
+                        if (pContact->getPort() > 0 && pContact->getAddress())
+                        {
+                            addCandidateAttribute(i, "t", szTransportType, priority, pContact->getAddress(), pContact->getPort()) ;
+                        }
+
+                        if (pContact->getRtcpPort() > 0 && pContact->getAddress())
+                        {
+                            addCandidateAttribute(i, "t", szTransportType, priority, pContact->getAddress(), pContact->getRtcpPort()) ;
+                        }
                     }
                 }
             }
 
             addCodecParameters(supportedPayloadCount,
                                 codecsInCommon, SDP_VIDEO_MEDIA_TYPE, videoFramerate);
+
+            // Indicate a low bandwidth client if bw <= 64 kpbs
+            if (matchingBandwidth != 0 && matchingBandwidth <= 64)
+            {
+                char ct[16];
+                sprintf(ct, "CT:%d", matchingBandwidth);
+                setValue("b", ct);
+            }
         }
     }
 
@@ -2030,25 +2242,13 @@ void SdpBody::addCodecsAnswer(int iNumAddresses,
     }
 
     // Free up the codec copies
-    if (codecsInCommon != NULL) {
-        for(int codecIndex = 0; codecIndex < supportedPayloadCount; codecIndex++)
-        {
-            delete codecsInCommon[codecIndex];
-            codecsInCommon[codecIndex] = NULL;
-        }
-    }
-
-
-    if(preExistingMedia)
+    for(int codecIndex = 0; codecIndex < supportedPayloadCount; codecIndex++)
     {
-        addConnectionAddress(hostAddresses[0]);
-    }
-    // Indicate a low bandwidth client if bw <= 64 kpbs
-    if (matchingBandwidth != 0 && matchingBandwidth <= 64)
-    {
-        char ct[16];
-        sprintf(ct, "CT:%d", matchingBandwidth);
-        setValue("b", ct);
+        delete codecsInCommon[codecIndex];
+        codecsInCommon[codecIndex] = NULL;
+
+        delete codecsDummy[codecIndex];
+        codecsDummy[codecIndex] = NULL;
     }
 
     // Copy all atribute fields verbatum
@@ -2088,8 +2288,8 @@ void SdpBody::addSrtpCryptoField(SdpSrtpParameters& params)
     case AES_CM_128_HMAC_SHA1_80:
         fieldValue.append("AES_CM_128_HMAC_SHA1_80 ");
         break;
-    case AES_CM_128_HAMC_SHA1_32:
-        fieldValue.append("AES_CM_128_HAMC_SHA1_32 ");
+    case AES_CM_128_HMAC_SHA1_32:
+        fieldValue.append("AES_CM_128_HMAC_SHA1_32 ");
         break;
     case F8_128_HMAC_SHA1_80:
         fieldValue.append("F8_128_HMAC_SHA1_80 ");
@@ -2139,6 +2339,19 @@ void SdpBody::addFormatParameters(int payloadType,
    addValue("a", fieldValue.data());
 }
 
+void SdpBody::addPtime(int pTime)
+{
+    // Build "a" field for ptime"
+    // a=ptime: <milliseconds>
+    UtlString fieldValue("ptime:");
+    char buffer[100];
+    sprintf(buffer, "%d", pTime);
+    fieldValue.append(buffer);
+
+    // Add the "a" field
+    addValue("a", fieldValue);
+}
+
 void SdpBody::addCandidateAttribute(int         candidateId, 
                                     const char* transportId, 
                                     const char* transportType,
@@ -2149,7 +2362,8 @@ void SdpBody::addCandidateAttribute(int         candidateId,
     UtlString attributeData ;
     char buffer[64] ;    
     
-    attributeData.append("cand:") ;
+    attributeData.append(CANDIDATE_ATTRIBUTE) ;
+    attributeData.append(":") ;
 
     sprintf(buffer, "%d", candidateId) ;
     attributeData.append(buffer) ;
@@ -2161,7 +2375,7 @@ void SdpBody::addCandidateAttribute(int         candidateId,
     attributeData.append(transportType) ;
     attributeData.append(" ") ;
     
-    sprintf(buffer, "%.1f", qValue) ;
+    sprintf(buffer, "%.2f", qValue) ;
     attributeData.append(buffer) ;
     attributeData.append(" ") ;
 
@@ -2174,6 +2388,24 @@ void SdpBody::addCandidateAttribute(int         candidateId,
     addValue("a", attributeData) ;
 }
 
+UtlBoolean SdpBody::hasCandidateAttributes() const 
+{
+    int candidateIds[1] ;
+    UtlString transportIds[1] ;
+    UtlString transportTypes[1] ;
+    double  qValues[1] ;
+    UtlString candidateIps[1] ;
+    int candidatePorts[1] ;
+    int nActual ;
+
+    return (    getCandidateAttributes(SDP_AUDIO_MEDIA_TYPE, 1, candidateIds, 
+                    transportIds, transportTypes, qValues, candidateIps, 
+                    candidatePorts, nActual) 
+                ||
+                getCandidateAttributes(SDP_VIDEO_MEDIA_TYPE, 1, candidateIds, 
+                    transportIds, transportTypes, qValues, candidateIps, 
+                    candidatePorts, nActual)) ;
+}
 
 UtlBoolean SdpBody::getCandidateAttribute(int mediaIndex,
                                           int candidateIndex,
@@ -2195,7 +2427,7 @@ UtlBoolean SdpBody::getCandidateAttribute(int mediaIndex,
     nv = positionFieldInstance(mediaIndex, &iterator, "m");
     if(nv)
     {
-        while (nv = findFieldNameBefore(&iterator, aFieldMatch, "m"))
+        while ((nv = findFieldNameBefore(&iterator, aFieldMatch, "m")))
         {
             value =  nv->getValue();
             
@@ -2205,7 +2437,7 @@ UtlBoolean SdpBody::getCandidateAttribute(int mediaIndex,
             {
                 aFieldType.toLower() ;
                 aFieldType.strip(UtlString::both, ' ') ;
-                if(aFieldType.compareTo("cand") == 0)
+                if(aFieldType.contains(CANDIDATE_ATTRIBUTE))
                 {
                     if (aFieldIndex == candidateIndex)
                     {
@@ -2213,7 +2445,6 @@ UtlBoolean SdpBody::getCandidateAttribute(int mediaIndex,
                         UtlString tmpQvalue ;                        
                         UtlString tmpCandidatePort ;
 
-                        // candidate:id qValue userFrag password Ip port candidateIp candidatePort         
                         if (    tokenizer.next(tmpCandidateId, " \t")  &&
                                 tokenizer.next(rTransportId, " \t") &&
                                 tokenizer.next(rTransportType, " \t") &&
@@ -2253,6 +2484,21 @@ UtlBoolean SdpBody::getCandidateAttributes(const char* szMimeType,
                                            int&        nActualAddresses) const 
 {
     int mediaIndex = findMediaType(szMimeType, 0) ;
+    return getCandidateAttributes(mediaIndex, nMaxAddresses, candidateIds,
+                                  transportIds, transportTypes, qvalues,
+                                  candidateIps, candidatePorts, nActualAddresses);
+}
+
+UtlBoolean SdpBody::getCandidateAttributes(int         mediaIndex,
+                                           int         nMaxAddresses,
+                                           int         candidateIds[],
+                                           UtlString   transportIds[],
+                                           UtlString   transportTypes[],
+                                           double      qvalues[], 
+                                           UtlString   candidateIps[], 
+                                           int         candidatePorts[],
+                                           int&        nActualAddresses) const 
+{
     nActualAddresses = 0 ;
 
     while (nActualAddresses < nMaxAddresses)
@@ -2587,7 +2833,7 @@ UtlBoolean SdpBody::findValueInField(const char* pField, const char* pvalue) con
 {
    UtlSListIterator iterator(*sdpFields);
    NameValuePair* nv = positionFieldInstance(0, &iterator, "m");
-   UtlString aFieldMatch("a");
+   UtlString aFieldMatch(pField);
 
    while((nv = (NameValuePair*) iterator.findNext(&aFieldMatch)) != NULL)
    {

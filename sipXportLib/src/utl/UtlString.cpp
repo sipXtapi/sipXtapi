@@ -1,3 +1,19 @@
+// Copyright 2008 AOL LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -12,6 +28,7 @@
 // SYSTEM INCLUDES
 #include <assert.h>
 #include <string.h>
+#include <stdarg.h>
 #include <ctype.h>
 
 // APPLICATION INCLUDES
@@ -92,6 +109,10 @@ UtlString::UtlString(const UtlString& source, size_t length)
     append(source.mpData, length);
 }
 
+UtlCopyableContainable* UtlString::clone() const
+{
+   return new UtlString(*this);
+}
 
 // Destructor
 UtlString::~UtlString()
@@ -110,13 +131,17 @@ UtlString::~UtlString()
 // Assignment operator, use append(const char*).
 UtlString& UtlString::operator=(const char* szStr)
 {
-    remove(0);
-    if(szStr && *szStr)
-    {
-        append(szStr);
-    }
+   // check for self assignment
+   if (mpData != szStr)
+   {
+      remove(0);
+      if(szStr && *szStr)
+      {
+         append(szStr);
+      }
+   }
 
-    return *this;
+   return *this;
 }
 
 
@@ -125,12 +150,12 @@ UtlString& UtlString::operator=(const UtlString& str)
 {
     if (this != &str)
     {
-    remove(0);
-    if(str.mCapacity > mCapacity)
-    {
-        capacity(str.mCapacity);
-    }
-    append(str.mpData, str.mSize);
+       remove(0);
+       if(str.mCapacity > mCapacity)
+       {
+          capacity(str.mCapacity);
+       }
+       append(str.mpData, str.mSize);
     }
 
     return *this;
@@ -167,6 +192,60 @@ char UtlString::operator()(size_t N)
     }
 
     return foundChar;
+}
+
+
+int UtlString::format(const char* format, ...)
+{
+    va_list args;
+    va_start(args, format);
+
+    int n = -1 ;
+    int size = mCapacity;
+    
+    while (mpData != NULL)
+    {
+        /* Try to print in the allocated space. */
+#ifdef _WIN32
+        n = _vsnprintf (mpData, size, format, args);
+#else
+        n = vsnprintf (mpData, size, format, args);
+#endif
+
+        /* If that worked, return the string. */
+        if (n > -1 && n < size)
+        {
+
+            mSize = n;
+            break;
+        }
+        /* Else try again with more space. */
+        if (n > -1)    /* glibc 2.1 */
+            size = n+1; /* precisely what is needed */
+        else           /* glibc 2.0 */
+            size *= 2;  /* twice the old size */
+
+
+        // Free old
+        if(mpData && mpData != mBuiltIn)
+        {
+            delete[] mpData;
+        }
+        mpData = NULL;
+        mCapacity = 0;       
+
+        if ((mpData = (char*) new char[size]) == NULL)
+        {
+            break;
+        }
+        else
+        {
+            mCapacity = size ;
+        }
+    }
+
+    return n ;
+    
 }
 
 
@@ -224,13 +303,13 @@ UtlString& UtlString::append(const char* szStr, size_t N)
         {
             if (mpData)
             {
-            // Copy the N bytes after the existing mSize bytes in the string.
-            memcpy(&mpData[mSize], szStr, N);
-            // Update the size of the string.
-            mSize += N;
-            // Append a final zero byte.
-            mpData[mSize] = '\0';
-        }
+               // Copy the N bytes after the existing mSize bytes in the string.
+               memcpy(&mpData[mSize], szStr, N);
+               // Update the size of the string.
+               mSize += N;
+               // Append a final zero byte.
+               mpData[mSize] = '\0';
+            }
         }
         else
         {
@@ -295,17 +374,17 @@ UtlString& UtlString::insert(size_t position, const char* source, size_t sourceL
 
       if (mpData)
       {
-      memmove(&mpData[position + sourceLength],
-              &mpData[position],
-              mSize - position);
+         memmove(&mpData[position + sourceLength],
+                 &mpData[position],
+                  mSize - position);
 
-      memcpy(&mpData[position],
-             source,
-             sourceLength);
+         memcpy(&mpData[position],
+                 source,
+                 sourceLength);
 
-      mSize+= sourceLength;
-      mpData[mSize] = '\0';
-   }
+         mSize+= sourceLength;
+         mpData[mSize] = '\0';
+      }
    }
 
    // Else do nothing
@@ -588,9 +667,8 @@ void UtlString::toUpper()
 
 // Resize the string to the specified size.
 // use capacity(size_t).
-void UtlString::resize(size_t N)
+void UtlString::resize(size_t N, UtlBoolean clearTail)
 {
-    // CHECK: is this what it is suppoesed to do???
     if(N > mSize)
     {
         if (mCapacity <= N)
@@ -598,13 +676,20 @@ void UtlString::resize(size_t N)
             capacity(N + 1);
         }
 
-        if(mpData)
+        if (clearTail)
         {
-            for (; mSize < N; mSize++)
+            if (mpData)
             {
+                for (; mSize < N; mSize++)
+                {
+                    mpData[mSize] = '\0';
+                }
                 mpData[mSize] = '\0';
             }
-            mpData[mSize] = '\0';
+        } 
+        else
+        {
+            mSize = N;
         }
     }
     else
@@ -1200,10 +1285,10 @@ int UtlString::compareTo(const char* compareStr, CompareCase type) const
                              compareStr ? compareStr : "");
     }
     else
-        {
-      compareFlag = strcasecmp(mpData ? mpData : "",
-                               compareStr ? compareStr : "");
-        }
+    {
+       compareFlag = strcasecmp(mpData ? mpData : "",
+                                compareStr ? compareStr : "");
+    }
 
     return compareFlag;
 }
@@ -1310,3 +1395,4 @@ int strncasecmp( const char *s1, const char *s2, int N )
 
 
 /* ============================ INLINE METHODS ============================ */
+

@@ -13,7 +13,9 @@
 
 // APPLICATION INCLUDES
 
+#ifdef __linux__
 #include "sipxportlib-buildstamp.h"
+#endif
 #include "utl/UtlInt.h"
 #include "utl/UtlHashMap.h"
 #include "utl/UtlHashMapIterator.h"
@@ -93,9 +95,11 @@ int main()
 
    timer.addEvent("Done");
 
+#ifdef __linux__
    osPrintf("UtlHashMap Performance v=%s %s:\n",
             SipXportlibVersion, SipXportlibBuildStamp
             );
+#endif
    timer.dumpLog();
 
    return 0;

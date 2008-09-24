@@ -21,6 +21,7 @@
 #include <utl/UtlHashMapIterator.h>
 
 #ifdef SIP_TLS
+#  include <tapi/sipxtapi.h>
 #   ifdef SIP_TLS_NSS
 #   else
 #    include <os/OsSSLServerSocket.h>
@@ -179,17 +180,17 @@ OsStatus SipTlsServer::createServerSocket(const char* szBindAddr,
             mServerPort = pServerSocket->getLocalHostPort() ;
             
             port = pServerSocket->getLocalHostPort();
-            CONTACT_ADDRESS contact;
+            SIPX_CONTACT_ADDRESS contact;
             strcpy(contact.cIpAddress, szBindAddr);
             contact.iPort = port;
-            contact.eContactType = LOCAL;
+            contact.eContactType = CONTACT_LOCAL;
             char szAdapterName[16];
             memset((void*)szAdapterName, 0, sizeof(szAdapterName)); // null out the string
             
 
             getContactAdapterName(szAdapterName, contact.cIpAddress, false);
             strcpy(contact.cInterface, szAdapterName);
-            contact.eTransportType = OsSocket::SSL_SOCKET;
+            contact.eTransportType = TRANSPORT_TLS;
             mSipUserAgent->addContactAddress(contact);
        
             // add address and port to the maps

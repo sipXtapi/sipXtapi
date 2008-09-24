@@ -13,12 +13,30 @@
 #include "mp/MpMediaTask.h"
 #include "ps/PsPhoneTask.h"
 #include "ptapi/PtComponentGroup.h"
+typedef int MpConnectionID;
 #include "mp/MpCallFlowGraph.h"
 #include "net/SipUserAgent.h"
 #include "cp/CallManager.h"
-#include "net/SdpCodecFactory.h"
+#include "sdp/SdpCodecList.h"
 #include "os/OsConfigDb.h"
 #include "mi/CpMediaInterfaceFactoryFactory.h"
+
+
+// Setup codec paths..
+UtlString sgCodecPaths[] = {
+#ifdef WIN32
+                          "..\\sipXmediaLib\\bin",
+                          "..\\..\\sipXmediaLib\\bin",
+#elif __pingtel_on_posix__
+                          "../../../sipXmediaLib/bin",
+                          "../../../../sipXmediaLib/bin",
+#else
+#                         error "Unknown platform"
+#endif
+                          "."
+};
+int sgNumCodecPaths = sizeof(sgCodecPaths)/sizeof(sgCodecPaths[0]);
+
 
 //Default constructor (called only indirectly via getTestInstance())
 MpTestConfig* MpTestConfig::spInstance = 0;
@@ -80,7 +98,7 @@ void MpTestConfig::initializeMediaSystem()
 {
    OsConfigDb configDb;
 
-   mpStartUp(8000, 80, 64, &configDb);
+   mpStartUp(8000, 80, 64, &configDb, sgNumCodecPaths, sgCodecPaths);
 
    mMediaTask = MpMediaTask::getMediaTask(16); OsTask::delay(150) ;
 //   mPhoneTask = PsPhoneTask::getPhoneTask();   OsTask::delay(150) ;
@@ -127,16 +145,16 @@ void MpTestConfig::initializeCallManager()
         OsSocket::getHostIp(&localAddress);
 
         // Enable PCMU, PCMA, Tones/RFC2833
-        UtlString codecList("258 257 128");
-        SdpCodecFactory* pCodecFactory = new SdpCodecFactory();
+        UtlString codecList("PCMU PCMA TELEPHONE-EVENT");
+        SdpCodecList* pCodecList = new SdpCodecList();
         UtlString oneCodec;
-        pCodecFactory->buildSdpCodecFactory(codecList);
+        pCodecList->addCodecs(codecList);
 
          mCallManager = new CallManager(
             FALSE,
             NULL,
             TRUE,                              // early media in 180 ringing
-            pCodecFactory,
+            pCodecList,
             9000,                              // rtp start
             9999,                              // rtp end
             localAddress.data(),

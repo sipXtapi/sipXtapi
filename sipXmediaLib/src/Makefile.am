@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 
-SUBDIRS = test
+SUBDIRS = test mp/codecs
 
 INCLUDES = -I$(top_srcdir)/include 
 
@@ -17,17 +17,35 @@ version_Revision=0
 #       increment if any interfaces have been added
 version_Age=0
 
-libsipXmedia_la_LDFLAGS = -version-info ${version_Current}:${version_Revision}:${version_Age}
+libsipXmedia_la_LDFLAGS = \
+	-version-info ${version_Current}:${version_Revision}:${version_Age} \
+	@GSM_LDFLAGS@
 
 if ENABLE_LOCAL_AUDIO
 LOCAL_AUDIO_CXXFLAGS = -D_INCLUDE_AUDIO_SUPPORT
 endif
 
 libsipXmedia_la_CXXFLAGS = \
-	-D_REALTIME_LINUX_AUDIO_THREADS $(LOCAL_AUDIO_CXXFLAGS)
+	-D_REALTIME_LINUX_AUDIO_THREADS \
+        -DENABLE_TOPOLOGY_FLOWGRAPH_INTERFACE_FACTORY \
+	$(LOCAL_AUDIO_CXXFLAGS) \
+	@GSM_CXXFLAGS@ \
+	@SPEEX_CFLAGS@
 
 libsipXmedia_la_LIBADD = \
-	@SIPXTACK_LIBS@ @SIPXPORT_LIBS@ @CA_LIBS@ -lstdc++
+        @SIPXMEDIA_PLUGIN_STATIC_LIBS@ \
+	@SIPXTACK_STATIC_LIBS@ \
+	@SIPXSDP_STATIC_LIBS@ \
+	@SIPXPORT_STATIC_LIBS@ \
+	@CA_LIBS@ \
+	@GSM_LIBS@ \
+	@SPEEX_LIBS@ \
+	@STATIC_CODEC_LIBS@ \
+	-Lmp/codecs/ \
+	-lstdc++ \
+        -lresolv \
+        -lpcre \
+        -lpthread
 
 libsipXmedia_la_SOURCES =  \
     ../config/sipxmedialib-buildstamp.h \
@@ -35,53 +53,50 @@ libsipXmedia_la_SOURCES =  \
     mp/dft.cpp \
     mp/dmaTaskPosix.cpp \
     mp/DSPlib.cpp \
-    mp/DspResampling.cpp \
     mp/dtmflib.cpp \
     mp/FilterBank.cpp \
     mp/HandsetFilterBank.cpp \
     mp/mpau.cpp \
+    mp/MpArrayBuf.cpp \
     mp/MpAudioAbstract.cpp \
+    mp/MpAudioBuf.cpp \
     mp/MpAudioFileDecompress.cpp \
     mp/MpAudioFileOpen.cpp \
     mp/MpAudioFileUtils.cpp \
+    mp/MpAudioOutputConnection.cpp \
+    mp/MpAudioResource.cpp \
     mp/MpAudioUtils.cpp \
     mp/MpAudioWaveFileRead.cpp \
     mp/MpBuf.cpp \
+    mp/MpBufPool.cpp \
     mp/MpBufferMsg.cpp \
     mp/MpCallFlowGraph.cpp \
     mp/MpCodec.cpp \
     mp/MpCodecFactory.cpp \
     mp/MpCodecInfo.cpp \
-    mp/MpConnection.cpp \
+    mp/MpDataBuf.cpp \
     mp/MpDecoderBase.cpp \
-    mp/MpdGIPSG729ab.cpp \
-    mp/MpdGIPSiLBC.cpp \
-    mp/MpdGIPSiPCMA.cpp \
-    mp/MpdGIPSiPCMU.cpp \
-    mp/MpdGIPSiPCMWB.cpp \
-    mp/MpdGIPSPCMA.cpp \
-    mp/MpdGIPSPCMU.cpp \
-    mp/MpdPtAVT.cpp \
-    mp/MpdSipxPcma.cpp \
-    mp/MpdSipxPcmu.cpp \
-    mp/MpeGIPSG729ab.cpp \
-    mp/MpeGIPSiLBC.cpp \
-    mp/MpeGIPSiPCMA.cpp \
-    mp/MpeGIPSiPCMU.cpp \
-    mp/MpeGIPSiPCMWB.cpp \
-    mp/MpeGIPSPCMA.cpp \
-    mp/MpeGIPSPCMU.cpp \
-    mp/MpeSipxPcma.cpp \
-    mp/MpeSipxPcmu.cpp \
+    mp/MpDecoderPayloadMap.cpp \
+    mp/MpDspUtils.cpp \
+    mp/MpDTMFDetector.cpp \
     mp/MpEncoderBase.cpp \
-    mp/MpePtAVT.cpp \
     mp/MpFlowGraphBase.cpp \
     mp/MpFlowGraphMsg.cpp \
     mp/mpG711.cpp \
+    mp/MpidOss.cpp \
+    mp/MpInputDeviceDriver.cpp \
+    mp/MpInputDeviceManager.cpp \
     mp/MpJitterBuffer.cpp \
     mp/MpMediaTask.cpp \
     mp/MpMediaTaskMsg.cpp \
     mp/MpMisc.cpp \
+    mp/MpMMTimer.cpp \
+    mp/MpodBufferRecorder.cpp \
+    mp/MpodOss.cpp \
+    mp/MpOss.cpp \
+    mp/MpOssContainer.cpp \
+    mp/MpOutputDeviceDriver.cpp \
+    mp/MpOutputDeviceManager.cpp \
     mp/MpPlayer.cpp \
     mp/MpPlayerEvent.cpp \
     mp/MprBridge.cpp \
@@ -89,27 +104,53 @@ libsipXmedia_la_SOURCES =  \
     mp/MprDejitter.cpp \
     mp/MprEchoSuppress.cpp \
     mp/MprEncode.cpp \
-	mp/MpRawAudioBuffer.cpp \
+    mp/MpResampler.cpp \
+    mp/MpResamplerSpeex.cpp \
     mp/MpResource.cpp \
+    mp/MpResourceFactory.cpp \
+    mp/MpResourceMsg.cpp \
     mp/MpResourceSortAlg.cpp \
+    mp/MpResourceTopology.cpp \
+    mp/MpResNotificationMsg.cpp \
+    mp/MpRtpBuf.cpp \
+    mp/MpUdpBuf.cpp \
+    mp/MprAudioFrameBuffer.cpp \
     mp/MprFromFile.cpp \
+    mp/MprFromInputDevice.cpp \
     mp/MprFromMic.cpp \
     mp/MprFromNet.cpp \
     mp/MprFromStream.cpp \
     mp/MprMixer.cpp \
+    mp/MprnDTMFMsg.cpp \
+    mp/MprnProgressMsg.cpp \
+    mp/MprNull.cpp \
+    mp/MprNullAec.cpp \
     mp/MprRecorder.cpp \
+    mp/MpSineWaveGeneratorDeviceDriver.cpp \
+    mp/MpStaticCodecInit.cpp \
+    mp/MprSpeexEchoCancel.cpp \
+    mp/MprSpeexPreProcess.cpp \
     mp/MprSplitter.cpp \
     mp/MprToneGen.cpp \
     mp/MprToNet.cpp \
+    mp/MprToOutputDevice.cpp \
     mp/MprToSpkr.cpp \
+    mp/MprBufferRecorder.cpp \
+    mp/MpRtpInputAudioConnection.cpp \
+    mp/MpRtpInputConnection.cpp \
+    mp/MpRtpOutputAudioConnection.cpp \
+    mp/MpRtpOutputConnection.cpp \
     mp/MpStreamFeeder.cpp \
     mp/MpStreamMsg.cpp \
     mp/MpStreamPlayer.cpp \
     mp/MpStreamPlaylistPlayer.cpp \
     mp/MpStreamQueuePlayer.cpp \
+    mp/MpPlcBase.cpp \
+    mp/MpPlcSilence.cpp \
+    mp/MpPlgStaffV1.cpp \
+    mp/MpProgressResourceMsg.cpp \
+    mp/MpTopologyGraph.cpp \
     mp/NetInTask.cpp \
-    mp/resamplingby2.cpp \
-    mp/MpSipxDecoders.cpp \
     mp/StreamBufferDataSource.cpp \
     mp/StreamDataSource.cpp \
     mp/StreamDataSourceListener.cpp \
@@ -136,4 +177,14 @@ libsipXmedia_la_SOURCES =  \
     rtcp/RTCPTimer.cpp \
     rtcp/RTPHeader.cpp \
     rtcp/SenderReport.cpp \
-    rtcp/SourceDescription.cpp
+    rtcp/SourceDescription.cpp \
+    mi/CpMediaInterfaceFactoryImpl.cpp \
+    mi/CpTopologyGraphFactoryImpl.cpp \
+    mi/CpTopologyGraphInterface.cpp \
+    mi/CpTopologyPacketPusher.cpp \
+    mi/sipXmediaFactoryImpl.cpp \
+    mi/MaNotfTranslatorDispatcher.cpp \
+    mi/MiDtmfNotf.cpp \
+    mi/MiNotification.cpp \
+    mi/MiProgressNotf.cpp
+

@@ -36,6 +36,7 @@ class OsFileInfoBase
     friend class OsDirBase;
     friend class OsFileBase;
     friend class OsFileLinux;
+    friend class OsDirLinux;
     friend class OsFileVxw;
     friend class OsFileSystem;
         friend class OsDirWnt;

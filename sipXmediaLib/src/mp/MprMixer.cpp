@@ -1,3 +1,6 @@
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -19,15 +22,12 @@
 #include "mp/MprMixer.h"
 
 #ifndef ABS
-#define ABS(x) (max((x), -(x)))
+#define ABS(x) (sipx_max((x), -(x)))
 #endif
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
-
 // CONSTANTS
-static const int NO_WAIT = 0;
-
 // STATIC VARIABLE INITIALIZATIONS
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
@@ -35,14 +35,13 @@ static const int NO_WAIT = 0;
 /* ============================ CREATORS ================================== */
 
 // Constructor
-MprMixer::MprMixer(const UtlString& rName, int numWeights,
-                           int samplesPerFrame, int samplesPerSec)
-:  MpResource(rName, 1, numWeights, 1, 1, samplesPerFrame, samplesPerSec),
-   mScale(0)
+MprMixer::MprMixer(const UtlString& rName, int numWeights)
+:  MpAudioResource(rName, 1, numWeights, 1, 1)
+,  mScale(0)
 {
    int i;
 
-   mNumWeights = max(0, min(numWeights, MAX_MIXER_INPUTS));
+   mNumWeights = sipx_max(0, sipx_min(numWeights, MAX_MIXER_INPUTS));
    for (i=0; i<numWeights; i++)
       mWeights[i] = 0;
 }
@@ -71,7 +70,7 @@ UtlBoolean MprMixer::setWeights(int *newWeights, int numWeights)
    msg.setPtr1(weights);
 
    res = postMessage(msg);
-   return res;
+   return (res == OS_SUCCESS);
 }
 
 // Sets the weighting factor for the "weightIndex" input.
@@ -83,7 +82,7 @@ UtlBoolean MprMixer::setWeight(int newWeight, int weightIndex)
    OsStatus       res;
 
    res = postMessage(msg);
-   return res;
+   return (res == OS_SUCCESS);
 }
 
 /* ============================ ACCESSORS ================================= */
@@ -95,88 +94,86 @@ UtlBoolean MprMixer::setWeight(int newWeight, int weightIndex)
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 UtlBoolean MprMixer::doProcessFrame(MpBufPtr inBufs[],
-                                   MpBufPtr outBufs[],
-                                   int inBufsSize,
-                                   int outBufsSize,
-                                   UtlBoolean isEnabled,
-                                   int samplesPerFrame,
-                                   int samplesPerSecond)
+                                    MpBufPtr outBufs[],
+                                    int inBufsSize,
+                                    int outBufsSize,
+                                    UtlBoolean isEnabled,
+                                    int samplesPerFrame,
+                                    int samplesPerSecond)
 {
-   int i;
-   int in;
-   int wgt;
-   int n;
-   int N = samplesPerFrame;
-   MpBufPtr out;
-   Sample* input;
-   Sample* output;
-   Sample* outstart;
+   MpAudioBufPtr  out;
+   MpAudioSample* outstart;
 
-   if (0 == outBufsSize) return FALSE;
+   if (outBufsSize != 1)
+       return FALSE;
 
-   *outBufs = NULL;
+   // Don't waste the time if output is not connected
+   if (!isOutputConnected(0))
+       return TRUE;
 
-   if ((0 == mScale) || (0 == inBufsSize)) {
-      out = MpBuf_getFgSilence();
-      *outBufs = out;
-      return TRUE;       // scale factors are all zero, or
-                         // no input buffers, return silence
-   }
+   if (!isEnabled || (inBufsSize == 0)) {
+      // Disabled, return first input
 
-   if (!isEnabled)
-   { // Disabled, return first input
-      out = *inBufs;
-      *inBufs = NULL;
-      if (NULL == out) {
-         out = MpBuf_getFgSilence();
-      }
-      *outBufs = out;
+      outBufs[0].swap(inBufs[0]);
       return TRUE;
    }
 
-   if (1 == mScale) { // must be only one weight != 0, and it is == 1
-      out = NULL;
-      for (i=0; i < inBufsSize; i++)
+   if (mScale == 0) {
+      // scale factors are all zero, mute output
+      return TRUE;       
+   }
+
+   if (mScale == 1) {
+      // must be only one weight != 0, and it is == 1
+
+      for (int i=0; i < inBufsSize; i++)
       {
-         if (0 != mWeights[i])
+         if (mWeights[i] != 0)
          {
-            out = inBufs[i];
-            inBufs[i] = NULL;
-            i = inBufsSize;   // all done, exit loop
+            outBufs[0].swap(inBufs[i]);
+            return TRUE;
          }
       }
-      if (NULL == out) {
-         out = MpBuf_getFgSilence();
-      }
-      *outBufs = out;
       return TRUE; // even if we did not find it (mNWeights > inBufsSize)
    }
 
-   out = MpBuf_getBuf(MpMisc.UcbPool, N, 0, MP_FMT_T12);
-   assert(NULL != out);
-   *outBufs = out;
+   // Get new buffer for our output
+   out = MpMisc.RawAudioPool->getBuffer();
+   if (!out.isValid())
+      return FALSE;
+   out->setSamplesNumber(samplesPerFrame);
+   assert(out->getSamplesNumber() == samplesPerFrame);
+   out->setSpeechType(MpAudioBuf::MP_SPEECH_UNKNOWN);
 
-   outstart = MpBuf_getSamples(out);
-   memset((char *) outstart, 0, N * sizeof(Sample));
+   // Fill buffer with silence
+   outstart = out->getSamplesWritePtr();
+   memset((char *) outstart, 0, samplesPerFrame * sizeof(MpAudioSample));
 
-   for (in=0; in < inBufsSize; in++)
+   for (int i=0; i < inBufsSize; i++)
    {
-      wgt = mWeights[in];
-      if ((NULL != inBufs[in]) && (0 != wgt))
+      int wgt = mWeights[i];
+      if ((inBufs[i].isValid()) && (wgt != 0))
       {
-         output = outstart;
-         input = MpBuf_getSamples(inBufs[in]);
-         n = min(MpBuf_getNumSamples(inBufs[in]), samplesPerFrame);
-         if (1 == wgt)
+         MpAudioBufPtr  in = inBufs[i];
+         MpAudioSample* output = outstart;
+         const MpAudioSample* input = in->getSamplesPtr();
+         int n = sipx_min(in->getSamplesNumber(), samplesPerFrame);
+         if (wgt == 1)
          {
-            for (i=0; i<n; i++) *output++ += (*input++) / mScale;
+            for (int j=0; j<n; j++)
+                *output++ += (*input++) / mScale;
          }
          else
          {
-            for (i=0; i<n; i++) *output++ += (*input++ * wgt) / mScale;
+            for (int j=0; j<n; j++)
+                *output++ += (*input++ * wgt) / mScale;
          }
       }
    }
+
+   // push it downstream
+   outBufs[0].swap(out);
+
    return TRUE;
 }
 
@@ -200,7 +197,7 @@ UtlBoolean MprMixer::handleMessage(MpFlowGraphMsg& rMsg)
       return boolRes;
       break;
    default:
-      return MpResource::handleMessage(rMsg);
+      return MpAudioResource::handleMessage(rMsg);
       break;
    }
 }
@@ -224,7 +221,7 @@ UtlBoolean MprMixer::handleSetWeights(int *newWeights, int numWeights)
    int i;
    int wgt;
 
-   mNumWeights = max(0, min(numWeights, MAX_MIXER_INPUTS));
+   mNumWeights = sipx_max(0, sipx_min(numWeights, MAX_MIXER_INPUTS));
    mScale = 0;
    for (i=0; i < numWeights; i++)
    {

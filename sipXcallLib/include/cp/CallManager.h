@@ -1,8 +1,24 @@
+// Copyright 2008 AOL LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
-// Copyright (C) 2005-2006 SIPez LLC.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA. 
+//
+// Copyright (C) 2005-2007 SIPez LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.
 // 
-// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -22,12 +38,14 @@
 // APPLICATION INCLUDES
 #include <cp/CpCallManager.h>
 #include <cp/Connection.h>
-#include <mi/CpMediaInterfaceFactoryImpl.h>
 #include <net/QoS.h>
 
 #include <tao/TaoObjectMap.h>
 #include <os/OsProtectEventMgr.h>
 #include <tapi/sipXtapiInternal.h>
+#include "net/ProxyDescriptor.h"
+#include <mediaInterface/IMediaInterface.h>
+#include <mediaInterface/IMediaDeviceMgr.h>
 
 // DEFINES
 #ifdef LONG_EVENT_RESPONSE_TIMEOUTS
@@ -55,12 +73,11 @@ class OsConfigDb;
 class PtMGCP;
 class TaoObjectMap;
 class TaoReference;
-class SdpCodecFactory;
+class SdpCodecList;
 class CpMultiStringMessage;
 class SipSession;
 class SipDialog;
 class SipLineMgr;
-class CpMediaInterfaceFactory;
 
 //:Class short description which may consist of multiple lines (note the ':')
 // Class detailed description which may extend to multiple lines
@@ -74,7 +91,7 @@ public:
    CallManager(UtlBoolean isRequiredUserIdMatch,
                SipLineMgr* lineMgrTask,
                UtlBoolean isEarlyMediaFor180Enabled,
-               SdpCodecFactory* pCodecFactory,
+               SdpCodecList* pCodecFactory,
                int rtpPortStart,
                int rtpPortEnd,
                const char* localAddress,
@@ -98,7 +115,7 @@ public:
                int inviteExpireSeconds,                   // Suggested value: CP_MAXIMUM_RINGING_EXPIRE_SECONDS
                int expeditedIpTos,                        // Suggested value: QOS_LAYER3_LOW_DELAY_IP_TOS
                int maxCalls,                              // Suggested value: 10
-               CpMediaInterfaceFactory* pMediaFactory);   // Suggested value: NULL) ;
+               IMediaDeviceMgr* pDeviceMgr);              
 
    virtual
    ~CallManager();
@@ -115,6 +132,7 @@ public:
 
     virtual void requestShutdown(void);
 
+    virtual void setMediaPacketCallback(SIPX_MEDIA_PACKET_CALLBACK pCallback);
     virtual void setOutboundLine(const char* lineUrl);
     virtual void setOutboundLineForCall(const char* callId, const char* address, SIPX_CONTACT_TYPE eType = CONTACT_AUTO);
 
@@ -137,13 +155,18 @@ public:
                              const char* locationHeader = NULL,
                              const int bandWidth=AUDIO_CODEC_BW_DEFAULT,
                              SIPX_TRANSPORT_DATA* pTransportData = NULL,
-                             const RTP_TRANSPORT rtpTransportOptions = RTP_TRANSPORT_UDP) ;
+                             const RTP_TRANSPORT rtpTransportOptions = RTP_TRANSPORT_UDP,
+                             unsigned long flags = CPMI_FLAGS_DEFAULT,
+                             int callHandle = 0) ;
+
+    virtual IMediaInterface* getMediaInterface(const char* const callId);
 
     virtual PtStatus consult(const char* idleTargetCallId,
         const char* activeOriginalCallId, const char* originalCallControllerAddress,
         const char* originalCallControllerTerminalId, const char* consultAddressUrl,
         UtlString& targetCallControllerAddress, UtlString& targetCallConsultAddress);
     virtual void drop(const char* callId);
+    virtual void forceDrop(const char* callId) ;
     virtual PtStatus transfer_blind(const char* callId, const char* transferToUrl,
                           UtlString* targetCallId,
                           UtlString* targetConnectionAddress = NULL);
@@ -182,24 +205,19 @@ public:
     virtual OsStatus audioChannelRecordStart(const char* callId, const char* szRemoteAddress, const char* szFile) ;
     virtual OsStatus audioChannelRecordStop(const char* callId, const char* szRemoteAddress) ;
     virtual void bufferPlay(const char* callId, int audiobuf, int bufSize, int type, UtlBoolean repeat, UtlBoolean local, UtlBoolean remote);
-    virtual void stopPremiumSound(const char* callId);
-
-#ifndef EXCLUDE_STREAMING
-    virtual void createPlayer(const char* callid, MpStreamPlaylistPlayer** ppPlayer) ;
-    virtual void createPlayer(int type, const char* callid, const char* szStream, int flags, MpStreamPlayer** ppPlayer) ;
-    virtual void destroyPlayer(const char* callid, MpStreamPlaylistPlayer* pPlayer)  ;
-    virtual void destroyPlayer(int type, const char* callid, MpStreamPlayer* pPlayer)  ;
-#endif
-
+    virtual void setRemoteVolumeScale(const char* szCallId, const char* szRemoteAddress, int scaling = 100) ;
 
     // Operations for calls & connections
     virtual void acceptConnection(const char* callId,
                                   const char* address,
                                   SIPX_CONTACT_ID contactId = 0,
-                                  const void* hWnd = NULL,
-                                  const void* security = NULL,
+                                  const void*     pDisplay = NULL,
+                                  const void*     pSecurity = NULL,
                                   const char* locationHeader = NULL,
-                                  const int bandWidth=AUDIO_CODEC_BW_DEFAULT);
+                                  const int bandWidth=AUDIO_CODEC_BW_DEFAULT,
+                                  UtlBoolean sendEarlyMedia = FALSE,
+                                  unsigned long flags = CPMI_FLAGS_DEFAULT,
+                                  int callHandle=0);
                                   
     virtual void rejectConnection(const char* callId, const char* address);
     virtual PtStatus redirectConnection(const char* callId, const char* address, const char* forwardAddressUrl);
@@ -213,8 +231,11 @@ public:
                 int& numConnections, UtlString addresses[]);
 
     // Operations for calls & terminal connections
-    virtual void answerTerminalConnection(const char* callId, const char* address, const char* terminalId, 
-                                          const void* pDisplay = NULL, const void* pSecurity = NULL);
+    virtual void answerTerminalConnection(const char* callId,
+                                          const char* address,
+                                          const char* terminalId,
+                                          const void* pDisplay = NULL,
+                                          const void* pSecurity = NULL);
     virtual void holdTerminalConnection(const char* callId, const char* address, const char* terminalId);
     virtual void holdAllTerminalConnections(const char* callId);
     virtual void holdLocalTerminalConnection(const char* callId);
@@ -281,8 +302,8 @@ public:
                         int ms,
                         int silenceLength,
                         int& duration,
-                        const char* fileName,
                         int& dtmfterm,
+                        const char* fileName,
                         OsProtectedEvent* recordEvent = NULL);
 
     virtual OsStatus setCodecCPULimitCall(const char* callId, int limit, UtlBoolean bRenegotiate) ;
@@ -298,18 +319,14 @@ public:
     virtual void setMaxCalls(int maxCalls);
     //:Set the maximum number of calls to admit to the system.
 
-    virtual void enableStun(const char* szStunServer, 
-                            int iStunPort,
-                            int iKeepAlivePeriodSecs,
+    virtual void enableStun(const ProxyDescriptor& stunServer,
                             OsNotification *pNotification = NULL) ;
     //:Enable STUN for NAT/Firewall traversal
 
-    virtual void enableTurn(const char* szTurnServer,
-                            int iTurnPort,
-                            const char* szUsername,
-                            const char* szPassword,
-                            int iKeepAlivePeriodSecs) ;
+    virtual void enableTurn(const ProxyDescriptor& turnProxy) ;
 
+    virtual void enableArs(const ProxyDescriptor& arsProxy,
+                           const ProxyDescriptor& arsHttpProxy) ;
     
     virtual UtlBoolean sendInfo(const char* callId, 
                                 const char* szRemoteAddress,
@@ -347,6 +364,8 @@ public:
     // Note: this does not protect against transaction
 
     void printCalls();
+
+    void getCallStatus(UtlString& status) ;
 
     void setOutGoingCallType(int callType);
 
@@ -401,7 +420,7 @@ public:
                                              size_t& nActaulAddresses) ;
      //:The available local contact addresses
 
-   virtual CpMediaInterfaceFactory* getMediaInterfaceFactory() ;
+   virtual IMediaDeviceMgr* getMediaInterfaceFactory() ;
      //: Gets the media interface factory used by the call manager
      
    virtual int getMediaConnectionId(const char* szCallId, const char* remoteAddress, void** ppInstData = NULL);
@@ -449,6 +468,7 @@ protected:
         TaoListenerDb**                 mpListeners;
         int                                             mListenerCnt;
         int                                             mMaxNumListeners;
+        SIPX_MEDIA_PACKET_CALLBACK            mpMediaPacketCallback;
 
         void addTaoListenerToCall(CpCall* pCall);
 
@@ -480,7 +500,7 @@ private:
     PtMGCP* mpMgcpStackTask;
     int mNumDialPlanDigits;
     int mHoldType;
-    SdpCodecFactory* mpCodecFactory;
+    SdpCodecList* mpCodecFactory;
     int mTransferType;
     UtlString mLocale;
     int mMessageEventCount;
@@ -493,16 +513,13 @@ private:
     UtlBoolean mIsRequredUserIdMatch;
     // mMaxCalls can be changed by code running in other threads.
     volatile int mMaxCalls;    
-    UtlString mStunServer ;
-    int mStunPort ;
-    int mStunKeepAlivePeriodSecs ;
-    UtlString mTurnServer ;
-    int mTurnPort ;
-    UtlString mTurnUsername; 
-    UtlString mTurnPassword;
-    int mTurnKeepAlivePeriodSecs ;
 
-    CpMediaInterfaceFactory* mpMediaFactory;
+    ProxyDescriptor mStunServer;
+    ProxyDescriptor mTurnProxy ;
+    ProxyDescriptor mArsProxy ;
+    ProxyDescriptor mArsHttpProxy ;
+
+    IMediaDeviceMgr* mpMediaFactory;
 
     // Private accessors
     void pushCall(CpCall* call);
@@ -534,20 +551,15 @@ private:
                    const void* pSecurity = NULL,
                    const char* locationHeader = NULL,
                    const int bandWidth = AUDIO_CODEC_BW_DEFAULT,
-                   SIPX_TRANSPORT_DATA* pTransport = NULL,
-                   const RtpTransportOptions rtpTransportOptions = RTP_TRANSPORT_UDP) ;
+                   SIPX_TRANSPORT_DATA* pTransport = SIPX_TRANSPORT_NULL,
+                   const RtpTransportOptions rtpTransportOptions = RTP_TRANSPORT_UDP,
+                   unsigned long flags = CPMI_FLAGS_DEFAULT,
+                   int callHandle =0) ;
 
-    void doEnableStun(const UtlString& szStunServer, 
-                      int              iServerPort,
-                      int              iKeepAlivePeriodSecs, 
-                      OsNotification*  pNotification) ;
+    void doEnableStun(OsNotification*  pNotification) ;
     //:Enable STUN for NAT/Firewall traversal                           
 
-    void doEnableTurn(const UtlString& turnServer, 
-                      int              iTurnPort,
-                      const UtlString& turnUsername,
-                      const UtlString& szTurnPassword,
-                      int              iKeepAlivePeriodSecs) ;
+    void doEnableTurn() ;
     //:Enable TURN for NAT/Firewall traversal                           
 
     void releaseEvent(const char* callId, 

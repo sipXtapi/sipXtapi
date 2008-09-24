@@ -53,6 +53,8 @@ public:
 
     //! If not NULL, a binary prefix header on files to tell if files are encrypted or not
     // virtual const unsigned char *getFileHeader(int& headerLen) = 0;
+
+    virtual ~OsConfigEncryption(){};
 };
 
 /* ============================ INLINE METHODS ============================ */

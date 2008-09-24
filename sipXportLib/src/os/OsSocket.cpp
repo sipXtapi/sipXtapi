@@ -1,3 +1,19 @@
+// Copyright 2008 AOL LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA. 
 //
 // Copyright (C) 2005-2006 SIPez LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.
@@ -22,9 +38,6 @@
 //after that, every 10 calls
 //#define FORCE_SOCKET_ERRORS
 
-#include "utl/UtlRscTrace.h"
-
-#include "os/HostAdapterAddress.h"
 #if defined(_WIN32)
 #   include <winsock2.h>
 #elif defined(_VXWORKS)
@@ -67,6 +80,10 @@
 // APPLICATION INCLUDES
 #include <os/OsSocket.h>
 #include <os/OsSysLog.h>
+#include <utl/UtlRscTrace.h>
+#include <os/HostAdapterAddress.h>
+#include <os/OsNotification.h>
+#include <os/OsLock.h>
 
 // EXTERNAL FUNCTIONS
 #ifdef _VXWORKS
@@ -86,6 +103,8 @@ extern "C" int enetIsLinkActive(void);
 
 // EXTERNAL VARIABLES
 // CONSTANTS
+const UtlContainableType OsSocket::TYPE = "OsSocket";
+
 // STATIC VARIABLE INITIALIZATIONS
 UtlBoolean OsSocket::socketInitialized = FALSE;
 UtlString  OsSocket::m_DomainName = "";
@@ -101,20 +120,21 @@ OsBSem OsSocket::mInitializeSem(OsBSem::Q_PRIORITY, OsBSem::FULL);
 //static method for accessing the bind address from C source
 unsigned long osSocketGetDefaultBindAddress()
 {
-        return OsSocket::getDefaultBindAddress();
+    return OsSocket::getDefaultBindAddress();
 }
 
 /* ============================ CREATORS ================================== */
 
 // Constructor
-OsSocket::OsSocket()
-        
+OsSocket::OsSocket()        
+    : mReadNotificationLock(OsMutex::Q_FIFO)
 {
-        socketDescriptor = OS_INVALID_SOCKET_DESCRIPTOR;
+    socketDescriptor = OS_INVALID_SOCKET_DESCRIPTOR;
 
-        localHostPort = OS_INVALID_SOCKET_DESCRIPTOR;
-        remoteHostPort = OS_INVALID_SOCKET_DESCRIPTOR;
+    localHostPort = OS_INVALID_SOCKET_DESCRIPTOR;
+    remoteHostPort = OS_INVALID_SOCKET_DESCRIPTOR;
     mIsConnected = FALSE;
+    mpReadNotification = NULL;
 }
 
 
@@ -723,6 +743,10 @@ const char* OsSocket::ipProtocolString(OsSocket::IpProtocolSocketType type)
    case OsSocket::CUSTOM:
 	   return socketType_custom;
    default:
+      if (type > OsSocket::CUSTOM)
+      {
+        return socketType_custom;
+      }
       return socketType_invalid;
    }
 }
@@ -848,6 +872,13 @@ unsigned long OsSocket::initDefaultAdapterID(UtlString &interface_id)
     mInitializeSem.release();
     return retip;
 }
+
+void OsSocket::setReadNotification(OsNotification* pNotification) 
+{
+    OsLock lock(mReadNotificationLock) ;
+    mpReadNotification = pNotification ;
+}
+
 
 /* ============================ ACCESSORS ================================= */
 
@@ -1166,7 +1197,7 @@ UtlBoolean OsSocket::isIp4Address(const char* address)
     //       ^====== dot2
     //    ^========= dot1
 
-    const char* dot1 = strchr((char*) address, '.');
+    const char* dot1 = strchr(address, '.');
     UtlBoolean isIp4 = FALSE;
     if(dot1)
     {
@@ -1191,6 +1222,17 @@ UtlBoolean OsSocket::isIp4Address(const char* address)
     return(isIp4);
 }
 
+UtlBoolean OsSocket::isMcastAddr(const char* ipAddress)
+{
+    int a, b, c, d;
+    if (!ipAddress || sscanf(ipAddress, "%d.%d.%d.%d", &a, &b, &c, &d) != 4)
+        return FALSE;
+
+    if (a >= 224 && a <= 239)
+        return TRUE;
+    else
+        return FALSE;
+}
 
 UtlBoolean OsSocket::isSameHost(const char* host1, const char* host2)
 {
@@ -1267,7 +1309,7 @@ UtlBoolean OsSocket::isFramed(IpProtocolSocketType type)
    {
    case TCP:
    case SSL_SOCKET:
-      // UNKNOWN and all other values return TRUE for safety.
+      // UNKNOWN and all other values return FALSE for safety.
    case UNKNOWN:
    case CUSTOM:
    default:
@@ -1283,7 +1325,101 @@ UtlBoolean OsSocket::isFramed(IpProtocolSocketType type)
    return r;
 }
 
+UtlContainableType OsSocket::getContainableType() const
+{
+   return OsSocket::TYPE;
+}
+
+bool OsSocket::getFirstReadTime(OsDateTime& time) 
+{
+    bool bRC = (miRecordTimes & ONDS_MARK_FIRST_READ) == 
+            ONDS_MARK_FIRST_READ ;
+
+    if (bRC)
+    {
+        time = mFirstRead ;
+    }
+
+    return bRC ;
+}
+
+
+bool OsSocket::getLastReadTime(OsDateTime& time)
+{
+    bool bRC = (miRecordTimes & ONDS_MARK_LAST_READ) == 
+            ONDS_MARK_LAST_READ ;
+
+    if (bRC)
+    {
+        time = mLastRead ;
+    }
+
+    return bRC ;
+}
+
+
+bool OsSocket::getFirstWriteTime(OsDateTime& time) 
+{
+    bool bRC = (miRecordTimes & ONDS_MARK_FIRST_WRITE) == 
+            ONDS_MARK_FIRST_WRITE ;
+
+    if (bRC)
+    {
+        time = mFirstWrite ;
+    }
+
+    return bRC ;
+}
+
+bool OsSocket::getLastWriteTime(OsDateTime& time) 
+{
+    bool bRC = (miRecordTimes & ONDS_MARK_LAST_WRITE) == 
+            ONDS_MARK_LAST_WRITE ;
+
+    if (bRC)
+    {
+        time = mLastWrite ;
+    }
+
+    return bRC ;
+}
+
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
+
+void OsSocket::markReadTime()
+{
+    // Always mark last read
+    miRecordTimes |= ONDS_MARK_LAST_READ ;
+    OsDateTime::getCurTime(mLastRead) ;
+
+    // Mark first read if not already set
+    if ((miRecordTimes & ONDS_MARK_FIRST_READ) == 0)
+    {
+        miRecordTimes |= ONDS_MARK_FIRST_READ ;
+        mFirstRead = mLastRead ;
+    }
+
+    OsLock lock(mReadNotificationLock) ;
+    if (mpReadNotification)
+    {
+        mpReadNotification->signal((const intptr_t) this) ;
+        mpReadNotification = NULL ;
+    }    
+}
+
+void OsSocket::markWriteTime()
+{
+    // Always mark last write
+    miRecordTimes |= ONDS_MARK_LAST_WRITE ;
+    OsDateTime::getCurTime(mLastWrite) ;
+
+    // Mark first write if not already set
+    if ((miRecordTimes & ONDS_MARK_FIRST_WRITE) == 0)
+    {
+        miRecordTimes |= ONDS_MARK_FIRST_WRITE ;
+        mFirstWrite = mLastWrite ;
+    }
+}
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 

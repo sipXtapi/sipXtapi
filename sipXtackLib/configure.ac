@@ -8,6 +8,9 @@ AC_PREFIX_DEFAULT([/usr/local/sipx])
 AM_INIT_AUTOMAKE(foreign)
 SFAC_AUTOMAKE_VERSION([1.6])
 
+# Configure pkg-config
+PKG_PROG_PKG_CONFIG
+
 AC_CONFIG_SRCDIR([src/net/SipMessage.cpp])
 AM_CONFIG_HEADER([config.h])
 AC_PROG_LIBTOOL
@@ -46,12 +49,15 @@ AC_FUNC_STAT
 AC_FUNC_STRFTIME
 AC_CHECK_FUNCS([clock_gettime getcwd gethostbyname gethostname gettimeofday inet_ntoa localtime_r memchr memset mkdir putenv rmdir select setenv socket strchr strdup strerror strrchr strstr strtol strtoul tzset])
 
+# Look for CPPUnit libraries
 CHECK_CPPUNIT
+
+# Look for SSL libraries
 CHECK_SSL
 
-# sipX dependancies
-
+# sipX dependencies
 SFAC_LIB_PORT
+SFAC_LIB_SDP
 
 SFAC_FEATURE_SIP_TLS
 

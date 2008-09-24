@@ -13,7 +13,11 @@
 #include <stdio.h>
 
 #if defined(_WIN32)
-#   include <winsock.h>
+#   include <winsock2.h>
+#   include <os/msinttypes/stdint.h>
+// hack to define int32 for nss-3.9.1 as they have a bug
+typedef int32_t int32;
+
 #elif defined(_VXWORKS)
 #   include <inetLib.h>
 #   include <netdb.h>

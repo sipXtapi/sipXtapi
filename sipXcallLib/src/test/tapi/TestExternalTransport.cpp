@@ -108,7 +108,7 @@ int TransportTask::run(void* pArg)
         
         if (OS_SUCCESS == rc)
         {
-            SIPX_TRANSPORT hTransport = NULL;
+            SIPX_TRANSPORT hTransport = SIPX_TRANSPORT_NULL;
 
             if (1 == mId)
             {

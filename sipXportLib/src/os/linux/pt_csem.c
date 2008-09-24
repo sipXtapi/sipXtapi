@@ -13,7 +13,7 @@
 * the rest of the OS dependent files to that interface, we can just drop in a
 * mostly-compatible replacement written in C (like pthreads itself) that uses
 * the pthread_cond_timedwait function and a mutex to build all the other
-* synchronization objecs with timeout capabilities. */
+* synchronization objects with timeout capabilities. */
 
 /* This is the counting semaphore implementation. Binary semaphores are just
 * counting semaphores with a maximum count of 1. (Incidentally, pthreads
@@ -25,6 +25,8 @@
 #include <assert.h>
 
 #include "os/linux/pt_csem.h"
+
+#ifndef SIPX_USE_NATIVE_PTHREADS // [
 
 int pt_sem_init(pt_sem_t *sem, unsigned int max, unsigned int count)
 {
@@ -131,3 +133,5 @@ int pt_sem_destroy(pt_sem_t *sem)
 {
         return pthread_mutex_destroy(&sem->mutex) | pthread_cond_destroy(&sem->cond);
 }
+
+#endif // SIPX_USE_NATIVE_PTHREADS ]

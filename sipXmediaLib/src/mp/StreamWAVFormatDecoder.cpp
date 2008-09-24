@@ -1,3 +1,22 @@
+// Copyright 2008 AOL LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA. 
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -8,6 +27,7 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
+#ifdef MP_STREAMING
 
 // SYSTEM INCLUDES
 #include <assert.h>
@@ -191,12 +211,12 @@ StreamWAVFormatDecoder::operator=(const StreamWAVFormatDecoder& rhs)
 int StreamWAVFormatDecoder::run(void* pArgs)
 {
    int iSamplesInOutBuffer = 0;
-   Sample        partialFrame[80] ;
-   int   nSamplesPartialFrame = 0;   
+   MpAudioSample partialFrame[80] ;
+   int nSamplesPartialFrame = 0;   
    int numOutSamples = 0;
    int iDataLength ;
 
-   //used if the files are aLaw or uLaw encodec
+   //used if the files are aLaw or uLaw encoded
    InitG711Tables();
  
    StreamDataSource* pSrc = getDataSource() ;
@@ -208,7 +228,7 @@ int StreamWAVFormatDecoder::run(void* pArgs)
       {
          //we really want 80 SAMPLES not 80 bytes
          unsigned char  InBuffer[NUM_SAMPLES*2] ;
-         Sample OutBuffer[4000] ;  //make room for lots of decompression
+         MpAudioSample OutBuffer[4000] ;  //make room for lots of decompression
          
          memset(&OutBuffer,0,sizeof(OutBuffer));
          iSamplesInOutBuffer = 0;
@@ -224,7 +244,7 @@ int StreamWAVFormatDecoder::run(void* pArgs)
                 //we need to read 80 samples
                 iRead = __min(iDataLength, NUM_SAMPLES);
                  
-                retval = pSrc->read((char *)InBuffer, iRead, iRead);
+                retval = (pSrc->read((char *)InBuffer, iRead, iRead) == OS_SUCCESS);
                 
                 //now convert to 16bit unsigned, which is what we use internally
                 ConvertUnsigned8ToSigned16(InBuffer,OutBuffer,iRead);
@@ -236,7 +256,7 @@ int StreamWAVFormatDecoder::run(void* pArgs)
                 iRead = __min(iDataLength, NUM_SAMPLES*2);
                 
                 //just read in the data, because it's the format we need
-                retval = pSrc->read((char *)OutBuffer, iRead, iRead);
+                retval = (pSrc->read((char *)OutBuffer, iRead, iRead) == OS_SUCCESS);
                 numOutSamples = iRead/2;
             }
             else
@@ -245,12 +265,12 @@ int StreamWAVFormatDecoder::run(void* pArgs)
                 //we need to read 80 samples
                 iRead = __min(iDataLength, NUM_SAMPLES);
                  
-                retval = pSrc->read((char *)OutBuffer, iRead, iRead);
+                retval = (pSrc->read((char *)OutBuffer, iRead, iRead) == OS_SUCCESS);
                 //no conversion to 16bit will take place because we need to decompress this
             }
             else
             {
-                syslog(FAC_STREAMING, PRI_ERR, "StreamWAVFormatDecoder::run Unsupport bit per sample rate!");
+                syslog(FAC_STREAMING, PRI_ERR, "StreamWAVFormatDecoder::run Unsupport bit per MpAudioSample rate!");
             }
 
             iDataLength -= iRead;
@@ -276,7 +296,7 @@ int StreamWAVFormatDecoder::run(void* pArgs)
 
                 //we now should have a buffer filled with Samples, not bytes
                 
-                int numBytes = numOutSamples * sizeof(Sample);
+                int numBytes = numOutSamples * sizeof(MpAudioSample);
                 
                 //next we check if the sound file is stereo...at this point in our lives
                 //we only want to support mono
@@ -285,15 +305,15 @@ int StreamWAVFormatDecoder::run(void* pArgs)
                 {
                     numBytes = mergeChannels((char *)OutBuffer, numBytes, mFormatChunk.nChannels);
                     
-                    //now calculate how many sample we have
-                    numOutSamples = numBytes/sizeof(Sample);
+                    //now calculate how many MpAudioSample we have
+                    numOutSamples = numBytes/sizeof(MpAudioSample);
                 }
                 
                 //in the next fucntion we must pass bytes, NOT samples as second param
                 numBytes = reSample((char *)OutBuffer, numBytes, mFormatChunk.nSamplesPerSec, DESIRED_SAMPLE_RATE);
                 
-                //now calculate how many sample we have
-                numOutSamples = numBytes/sizeof(Sample);
+                //now calculate how many MpAudioSample we have
+                numOutSamples = numBytes/sizeof(MpAudioSample);
                 
                 //this next part will buffer the samples if under 80 samples
                 if (numOutSamples > 0)
@@ -314,7 +334,7 @@ int StreamWAVFormatDecoder::run(void* pArgs)
                              else
                              {
                                 nSamplesPartialFrame = iToCopy ;
-                                memcpy(partialFrame, (const unsigned short *)OutBuffer+iCount,iToCopy*sizeof(Sample)) ;
+                                memcpy(partialFrame, (const unsigned short *)OutBuffer+iCount,iToCopy*sizeof(MpAudioSample)) ;
                              }
                           }
                           else
@@ -322,7 +342,7 @@ int StreamWAVFormatDecoder::run(void* pArgs)
                              if (iToCopy > (80-nSamplesPartialFrame))
                                 iToCopy = 80-nSamplesPartialFrame ;
 
-                             memcpy(&partialFrame[nSamplesPartialFrame],(const unsigned short *)OutBuffer+iCount, iToCopy*sizeof(Sample)) ;
+                             memcpy(&partialFrame[nSamplesPartialFrame],(const unsigned short *)OutBuffer+iCount, iToCopy*sizeof(MpAudioSample)) ;
                              nSamplesPartialFrame += iToCopy ;
 
                              if (nSamplesPartialFrame == 80)
@@ -420,10 +440,12 @@ UtlBoolean StreamWAVFormatDecoder::nextDataChunk(int& iLength)
                 {
                     // for streaming, we currently only support one format:
                     // 16 bit, 8khz, signed.
-                    if (formatChunkInfo.nSamplesPerSec != 8000 || formatChunkInfo.nBitsPerSample != 16 ||
+                    // !SLG! Enable 8 bit playback - seems to work fine - run method converts 8 bit to 16 bit                   
+                    if (formatChunkInfo.nSamplesPerSec != 8000 || 
+                        (formatChunkInfo.nBitsPerSample != 16 && formatChunkInfo.nBitsPerSample != 8) ||
                         formatChunkInfo.nChannels != 1)
                     {
-                        syslog(FAC_STREAMING, PRI_ERR, "StreamWAVFormatDecoder::nextDataChunk (File is not 16 bit, 8khz, mono, signed format!)");
+                         syslog(FAC_STREAMING, PRI_ERR, "StreamWAVFormatDecoder::nextDataChunk (File is not 8 or 16 bit, 8khz, mono, signed format!)");
                          mbEnd = TRUE;
                          break;
                     }
@@ -507,3 +529,5 @@ UtlBoolean StreamWAVFormatDecoder::nextDataChunk(int& iLength)
 /* ============================ TESTING =================================== */
 
 /* ============================ FUNCTIONS ================================= */
+
+#endif

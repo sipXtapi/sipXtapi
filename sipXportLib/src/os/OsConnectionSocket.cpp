@@ -1,3 +1,19 @@
+// Copyright 2008 AOL LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -10,11 +26,10 @@
 
 
 // SYSTEM INCLUDES
-#include <assert.h>
 #include <stdio.h>
 
 #if defined(_WIN32)
-#   include <winsock.h>
+#   include <winsock2.h>
 #elif defined(_VXWORKS)
 #   include <inetLib.h>
 #   include <netdb.h>
@@ -76,7 +91,7 @@ OsConnectionSocket::OsConnectionSocket(int serverPort,
    socketDescriptor = OS_INVALID_SOCKET_DESCRIPTOR;
 
    remoteHostPort = serverPort;
-   
+
    if (!initialize(serverName, serverPort, blockingConnect))
    {
         goto EXIT;
@@ -179,14 +194,14 @@ bool OsConnectionSocket::initialize(const char* serverName, int serverPort, UtlB
     else
     {
         struct in_addr in;
-#       ifdef WIN32
+#       ifdef WIN32 // [
             in.S_un.S_addr = address_val;
-#       else
+#       else // WIN32 ]
             in.s_addr = address_val;
-#       endif        
+#       endif // WIN32 ]
         serverName = inet_ntoa(in);
     }
-#   else
+#else
     struct in_addr in;
     in.s_addr = address_val;
     serverName = inet_ntoa(in);
@@ -304,7 +319,7 @@ UtlBoolean OsConnectionSocket::reconnect()
         return(FALSE);
 }
 
-// Because we have overided one read method, we
+// Because we have overrode one read method, we
 // must implement them all in OsConnectionSocket or
 // we end up hiding some of the methods.
 int OsConnectionSocket::read(char* buffer, int bufferLength)
@@ -319,7 +334,7 @@ int OsConnectionSocket::read(char* buffer,
                              UtlString* ipAddress,
                              int* port)
 {
-    // Overide base class version as recvfrom does not
+    // Override base class version as recvfrom does not
     // seem to return host info correctly for TCP
     // Use base class version without the remote host info
     int bytesRead = OsSocket::read(buffer, bufferLength);

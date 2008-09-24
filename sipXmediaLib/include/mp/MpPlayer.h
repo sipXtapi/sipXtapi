@@ -1,3 +1,22 @@
+// Copyright 2008 AOL LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA. 
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -8,6 +27,7 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
+#ifdef MP_STREAMING
 
 #ifndef _MpPlayer_h_
 #define _MpPlayer_h_
@@ -91,12 +111,12 @@ class MpPlayer
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
-   enum playerType  // Type of players
+   typedef enum  // Type of players
    {
       STREAM_PLAYER,
       STREAM_PLAYLIST_PLAYER,
       STREAM_QUEUE_PLAYER
-   };
+   } playerType;
 
 /* ============================ CREATORS ================================== */
    MpPlayer();
@@ -105,8 +125,11 @@ public:
    virtual ~MpPlayer();
      //:Destructor
 
-/* ============================ MANIPULATORS ============================== */
+//@}
 
+/* ============================ MANIPULATORS ============================== */
+///@name Manipulators
+//@{
    virtual OsStatus realize(UtlBoolean bBlock = TRUE) = 0;
      //: Realizes the player by initiating a connection to the target,
      //: allocates buffers, etc.
@@ -146,12 +169,20 @@ public:
      // cease to receive state change notifications.
 
 
+//@}
+
 /* ============================ ACCESSORS ================================= */
+///@name Accessors
+//@{
 
    virtual OsStatus getState(PlayerState& state) = 0 ;
      //: Gets the player state 
 
+//@}
+
 /* ============================ INQUIRY =================================== */
+///@name Inquiry
+//@{
 
 /* ============================ TESTING =================================== */
 
@@ -159,6 +190,8 @@ public:
 static const char* getEventString(PlayerState event);
 #endif /* MP_STREAM_DEBUG ] */
 
+
+//@}
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
@@ -187,3 +220,5 @@ private:
 /* ============================ INLINE METHODS ============================ */
 
 #endif  // _MpPlayer_h_
+
+#endif

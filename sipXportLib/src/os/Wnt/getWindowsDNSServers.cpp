@@ -1,5 +1,8 @@
+//  
+// Copyright (C) 2006-2008 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Copyright (C) 2004-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -12,6 +15,7 @@
 #ifdef WIN32
 
 // SYSTEM INCLUDES
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <winreg.h>
 #include <stdio.h>
@@ -130,25 +134,30 @@ static HMODULE loadIPHelperAPI()
         else
         {
             //now find IPHelper functions
-            *(FARPROC*)&GetNetworkParams = GetProcAddress(hIpHelperModule,"GetNetworkParams");
-            if (GetNetworkParams == NULL)
+            int windowsVersion = getWindowsVersion();
+            if (windowsVersion >= WINDOWS_VERSION_2000)
             {
-                OsSysLog::add(FAC_KERNEL, PRI_ERR, "Could not get the proc address to GetNetworkParams!\n");
-                FreeLibrary(hIpHelperModule);
-                hIpHelperModule = NULL;
-            }   
-
-            *(FARPROC*)&GetPerAdapterInfo = GetProcAddress(hIpHelperModule,"GetPerAdapterInfo");
-            if (GetPerAdapterInfo == NULL)
+                *(FARPROC*)&GetPerAdapterInfo = GetProcAddress(hIpHelperModule,"GetPerAdapterInfo");
+                if (GetPerAdapterInfo == NULL)
+                {
+                    OsSysLog::add(FAC_KERNEL, PRI_ERR, "Could not get the proc address to GetPerAdapterInfo!\n");
+                    FreeLibrary(hIpHelperModule);
+                    hIpHelperModule = NULL;
+                }   
+            } 
+            else
             {
-                OsSysLog::add(FAC_KERNEL, PRI_ERR, "Could not get the proc address to GetPerAdapterInfo!\n");
-                FreeLibrary(hIpHelperModule);
-                hIpHelperModule = NULL;
-            }   
-
+                *(FARPROC*)&GetNetworkParams = GetProcAddress(hIpHelperModule,"GetNetworkParams");
+                if (GetNetworkParams == NULL)
+                {
+                    OsSysLog::add(FAC_KERNEL, PRI_ERR, "Could not get the proc address to GetNetworkParams!\n");
+                    FreeLibrary(hIpHelperModule);
+                    hIpHelperModule = NULL;
+                }   
+            }
 
             *(FARPROC*)&GetInterfaceInfo = GetProcAddress(hIpHelperModule,"GetInterfaceInfo");
-            if (GetPerAdapterInfo == NULL)
+            if (GetInterfaceInfo == NULL)
             {
                 OsSysLog::add(FAC_KERNEL, PRI_ERR, "Could not get the proc address to GetInterfaceInfo!\n");
                 FreeLibrary(hIpHelperModule);
@@ -180,125 +189,122 @@ static HMODULE loadIPHelperAPI()
 static int getIPHelperDNSEntries(char DNSServers[][MAXIPLEN], int max, const char* szLocalIp)
 {
     int ipHelperDNSServerCount = 0;
-    PFIXED_INFO pNetworkInfo;
-    PIP_ADDR_STRING pAddrStr;
-    DWORD dwNetworkInfoSize;
-    DWORD retErr;
-    int windowsVersion; 
 
-    windowsVersion = getWindowsVersion();
-
-    if (windowsVersion == WINDOWS_VERSION_98   || 
-        windowsVersion >= WINDOWS_VERSION_2000)
+    int windowsVersion = getWindowsVersion();
+    if (windowsVersion != WINDOWS_VERSION_98   && 
+        windowsVersion < WINDOWS_VERSION_2000)
     {
-        GetNetworkParams = NULL;
+        // iphlpapi.dll not supported
+        return ipHelperDNSServerCount;
+    }
 
-        HMODULE hModule = loadIPHelperAPI();
+    HMODULE hModule = loadIPHelperAPI();
+    if (!hModule)
+    {
+        // unabled to load iphlpapi.dll
+        return ipHelperDNSServerCount;
+    }
 
-        if (hModule)
+    if (windowsVersion >= WINDOWS_VERSION_2000 && GetAdaptersInfo && GetPerAdapterInfo)
+    {
+        // Get list of adapters and find the index of the one associated with szLocalIp
+        long index = -1;
+        unsigned long outBufLen = 0;
+        DWORD dwResult = GetAdaptersInfo(NULL, &outBufLen);
+        if (outBufLen)
         {
-            if (windowsVersion >= WINDOWS_VERSION_2000 && GetPerAdapterInfo && GetAdapterIndex)
+            PIP_ADAPTER_INFO pIpAdapterInfo = (PIP_ADAPTER_INFO)malloc(outBufLen);
+            dwResult = GetAdaptersInfo(pIpAdapterInfo, &outBufLen);
+                            
+            if (ERROR_SUCCESS == dwResult)
             {
-                DWORD dwError = 0;
-                IP_INTERFACE_INFO* pInfo = NULL;
-                unsigned long outBufLen = 0;
-                
-                GetInterfaceInfo(NULL, &outBufLen);
-                pInfo = (IP_INTERFACE_INFO*)malloc(outBufLen);
-                dwError = GetInterfaceInfo(pInfo, &outBufLen);
-                assert (dwError == 0);
-                
-                // get the adapter's true name
-                char szAdapter[MAX_ADAPTER_NAME_LENGTH + 4];
-                wchar_t szwAdapter[MAX_ADAPTER_NAME_LENGTH + 4];
-                unsigned long index = 0;
-                getContactAdapterName(szAdapter, szLocalIp, true);
-
-                // convert to a wide character string                
-                mbstowcs(szwAdapter, szAdapter, sizeof(szwAdapter));
-                
-                char szAdapterName[MAX_ADAPTER_NAME_LENGTH + 4];
-                for (int i = 0; i < pInfo->NumAdapters; i++)
+                PIP_ADAPTER_INFO pNextInfoRecord = pIpAdapterInfo;
+                while (pNextInfoRecord && index < 0)
                 {
-                    wcstombs(szAdapterName, pInfo->Adapter[i].Name, sizeof(szAdapterName));
-                    if (strstr(szAdapterName, szAdapter) != NULL)
+                    PIP_ADDR_STRING pIpAddrString = &(pNextInfoRecord->IpAddressList);
+                    while (pIpAddrString)
                     {
-                        // we found it
-                        index = pInfo->Adapter[i].Index;
-                        break;
-                    }
-                }
-                
-                // now that we have the index, we
-                // can call GetPerAdapterInfo
-                IP_PER_ADAPTER_INFO* pPerAdapterInfo = NULL;
-                outBufLen = 0;
-                
-                GetPerAdapterInfo(index, NULL, &outBufLen);
-                if (outBufLen)
-                {
-                    pPerAdapterInfo = (IP_PER_ADAPTER_INFO*) malloc(outBufLen);
-                    dwError = GetPerAdapterInfo(index, pPerAdapterInfo, &outBufLen);  
-                    if (0 == dwError)
-                    {
-                        IP_ADDR_STRING* pDns = &pPerAdapterInfo->DnsServerList;
-                        while (pDns)
+                        if (strcmp (szLocalIp,  pIpAddrString->IpAddress.String) == 0)
                         {
-                            strcpy(DNSServers[ipHelperDNSServerCount++], pDns->IpAddress.String);
-                            pDns = pDns->Next;
+                            index = static_cast<long>(pNextInfoRecord->Index);
+                            break;
                         }
-                    }              
-                    free(pPerAdapterInfo);
-                    free(pInfo);
+                        pIpAddrString = pIpAddrString->Next;
+                    }
+                    pNextInfoRecord = pNextInfoRecord->Next;
                 }
             }
-            else if (GetNetworkParams)
+            free(pIpAdapterInfo);
+        }
+
+        if (index >= 0)
+        {
+            // now that we have the index, we
+            // can call GetPerAdapterInfo
+            outBufLen = 0;
+            GetPerAdapterInfo(index, NULL, &outBufLen);
+            if (outBufLen)
             {
-                //force size to 0 so the GetNetworkParams gets the correct size
-                dwNetworkInfoSize = 0;
-                retErr = GetNetworkParams( NULL, &dwNetworkInfoSize );
-                if( retErr == ERROR_BUFFER_OVERFLOW )
+                IP_PER_ADAPTER_INFO* pPerAdapterInfo = (IP_PER_ADAPTER_INFO*) malloc(outBufLen);
+                dwResult = GetPerAdapterInfo(index, pPerAdapterInfo, &outBufLen);  
+                if (ERROR_SUCCESS == dwResult)
                 {
-                    // Allocate memory from sizing information
-                    if( ( pNetworkInfo = (PFIXED_INFO)GlobalAlloc( GPTR, dwNetworkInfoSize ) ) != NULL )
+                    IP_ADDR_STRING* pDns = &pPerAdapterInfo->DnsServerList;
+                    while (pDns && ipHelperDNSServerCount < max)
                     {
-                        // Get actual network params
-                        if( ( retErr = GetNetworkParams( pNetworkInfo, &dwNetworkInfoSize ) ) == 0 )
-                        {
-
-                            //point to the server list 
-                            pAddrStr = &(pNetworkInfo->DnsServerList);
-
-                            // first, add the 'current dns'
-                            if (pNetworkInfo && pNetworkInfo->CurrentDnsServer)
-                            {
-                                strcpy(DNSServers[ipHelperDNSServerCount++], pNetworkInfo->CurrentDnsServer->IpAddress.String);
-                            }
-                            //walk the list of IP addresses
-                            while( pAddrStr && ipHelperDNSServerCount < max )
-                            {
-                                //copy one of the ip addresses
-                                strcpy(DNSServers[ipHelperDNSServerCount++],pAddrStr->IpAddress.String);
-                                pAddrStr = pAddrStr->Next;
-                            }
-
-                            //free the memory
-                            GlobalFree(pNetworkInfo);   // handle to global memory object
-                        }
-                        else
-                        {
-                            OsSysLog::add(FAC_KERNEL, PRI_ERR,  "DNS ERROR: GetNetworkParams failed with error %d\n", retErr );
-                            GlobalFree(pNetworkInfo);   // handle to global memory object
-                        }
+                        strcpy(DNSServers[ipHelperDNSServerCount++], pDns->IpAddress.String);
+                        pDns = pDns->Next;
                     }
+                }              
+                free(pPerAdapterInfo);
+            }
+        }
+    }
+    else if (GetNetworkParams)
+    {
+        // use GetNetworkParams 
+
+        //force size to 0 so the GetNetworkParams gets the correct size
+        DWORD dwNetworkInfoSize = 0;
+        DWORD retErr = GetNetworkParams( NULL, &dwNetworkInfoSize );
+        if( retErr == ERROR_BUFFER_OVERFLOW )
+        {
+            // Allocate memory from sizing information
+            PFIXED_INFO pNetworkInfo;
+            if( ( pNetworkInfo = (PFIXED_INFO)GlobalAlloc( GPTR, dwNetworkInfoSize ) ) != NULL )
+            {
+                // Get actual network params
+                if( ( retErr = GetNetworkParams( pNetworkInfo, &dwNetworkInfoSize ) ) == 0 )
+                {
+                    //point to the server list 
+                    PIP_ADDR_STRING pAddrStr = &(pNetworkInfo->DnsServerList);
+
+                    // first, add the 'current dns'
+                    if (pNetworkInfo && pNetworkInfo->CurrentDnsServer)
+                    {
+                        strcpy(DNSServers[ipHelperDNSServerCount++], pNetworkInfo->CurrentDnsServer->IpAddress.String);
+                    }
+                    //walk the list of IP addresses
+                    while( pAddrStr && ipHelperDNSServerCount < max )
+                    {
+                        //copy one of the ip addresses
+                        strcpy(DNSServers[ipHelperDNSServerCount++],pAddrStr->IpAddress.String);
+                        pAddrStr = pAddrStr->Next;
+                    }
+                    //free the memory
+                    GlobalFree(pNetworkInfo);   // handle to global memory object
                 }
                 else
                 {
-                    OsSysLog::add(FAC_KERNEL, PRI_ERR,  "DNS ERROR: Memory allocation error\n" );
+                    OsSysLog::add(FAC_KERNEL, PRI_ERR,  "DNS ERROR: GetNetworkParams failed with error %d\n", retErr );
+                    GlobalFree(pNetworkInfo);   // handle to global memory object
                 }
             }
         }
-
+        else
+        {
+            OsSysLog::add(FAC_KERNEL, PRI_ERR,  "DNS ERROR: Memory allocation error\n" );
+        }
     }
 
     return ipHelperDNSServerCount;
@@ -455,17 +461,17 @@ extern "C" int getWindowsDNSServers(char DNSServers[][MAXIPLEN], int max, const 
 }
 
 
-bool getContactAdapterName(char* szAdapter, const char* szIp, bool trueName)
+bool getContactAdapterName(UtlString &adapterName, const UtlString &ipAddress, bool trueName)
 {
     bool rc = false;
-    if (0 == strcmp(szIp, "127.0.0.1"))
+
+    if (ipAddress == "127.0.0.1")
     {
         rc = true;
-        strcpy(szAdapter, "loopback");
+        adapterName = "loopback";
         return rc;
     }
-#ifdef _WIN32
-    if (loadIPHelperAPI())
+    else if (loadIPHelperAPI())
     {
         
         unsigned long outBufLen = 0;
@@ -475,8 +481,6 @@ bool getContactAdapterName(char* szAdapter, const char* szIp, bool trueName)
                                 
         if (ERROR_SUCCESS == dwResult)
         {
-            char szAddr[32];
-            
             rc = true;
             PIP_ADAPTER_INFO pNextInfoRecord = pIpAdapterInfo;
             unsigned int adapterId = 0;
@@ -485,34 +489,25 @@ bool getContactAdapterName(char* szAdapter, const char* szIp, bool trueName)
             while (pNextInfoRecord && !bFound)
             {
                 sprintf(szAdapterId, "eth%u", adapterId);
-                PIP_ADDRESS_STRING pNextAddress = &(pNextInfoRecord->IpAddressList.IpAddress);
+                PIP_ADDR_STRING pNextAddress = &(pNextInfoRecord->IpAddressList);
                 while (pNextAddress)
                 {
-                    strcpy(szAddr, pNextAddress->String);
-                    if (strcmp(szAddr, szIp) == 0 || strcmp(szIp, "0.0.0.0") == 0)// if the target
-                                                                             // matches this address
-                                                                             // or if the target
-                                                                             // is any
+                    const char *szAddr = pNextAddress->IpAddress.String;
+                    // if the target matches this address or if the target is any
+                    if (ipAddress == szAddr || ipAddress == "0.0.0.0")
                     {
                         if (trueName)
                         {
-                            strcpy(szAdapter, pNextInfoRecord->AdapterName);
+                            adapterName = pNextInfoRecord->AdapterName;
                         }
                         else
                         {
-                            strcpy(szAdapter, szAdapterId);
+                            adapterName = szAdapterId;
                         }
                         bFound = true;
                         break;
                     }                                            
-                    if (pNextInfoRecord->IpAddressList.Next)
-                    {
-                        pNextAddress = &(pNextInfoRecord->IpAddressList.Next->IpAddress);
-                    }
-                    else
-                    {
-                        pNextAddress = NULL;
-                    }
+                    pNextAddress = pNextAddress->Next;
                 }
                 adapterId++;
                 pNextInfoRecord = pNextInfoRecord->Next;
@@ -520,9 +515,6 @@ bool getContactAdapterName(char* szAdapter, const char* szIp, bool trueName)
         }
         free((void*)pIpAdapterInfo);
     }                
-#else
-        rc = false;
-#endif
     
     return rc;
 }
@@ -532,7 +524,6 @@ bool getAllLocalHostIps(const HostAdapterAddress* localHostAddresses[], int &num
 {
     bool rc = false;
 
-#ifdef _WIN32
     if (loadIPHelperAPI())
     {
         PIP_ADAPTER_INFO pIpAdapterInfo = (PIP_ADAPTER_INFO)malloc(sizeof(IP_ADAPTER_INFO) * MAX_IP_ADDRESSES);
@@ -542,9 +533,6 @@ bool getAllLocalHostIps(const HostAdapterAddress* localHostAddresses[], int &num
                                 
         if (ERROR_SUCCESS == dwResult)
         {
-            char szAddr[16];
-            
-            memset((void*)szAddr, 0, sizeof(szAddr));
             int maxAddresses = numAddresses;
             rc = true;
             numAddresses = 0;
@@ -556,35 +544,20 @@ bool getAllLocalHostIps(const HostAdapterAddress* localHostAddresses[], int &num
             while (pNextInfoRecord && (numAddresses<maxAddresses))
             {
                 sprintf(szAdapterId, "eth%u", adapterId);
-                PIP_ADDRESS_STRING pNextAddress = &(pNextInfoRecord->IpAddressList.IpAddress);
-                while (pNextAddress)
+                PIP_ADDR_STRING pNextAddress = &pNextInfoRecord->IpAddressList;
+                while (pNextAddress && (numAddresses<maxAddresses))
                 {
-                    strcpy(szAddr, pNextAddress->String);
+                    const char *szAddr = pNextAddress->IpAddress.String;
                     // ignore the loopback address
-                    if (	strcmp(szAddr, "127.0.0.1") == 0 || strcmp(szAddr, "0.0.0.0") == 0 ||
-							strncmp("169.154", szAddr, 7) == 0 || strncmp("0.", szAddr, 2) == 0)
+                    if (  strncmp(szAddr, "127.0.0.1", 9) != 0
+                       && strncmp(szAddr, "169.154", 7) != 0
+                       && strncmp(szAddr, "0.", 2) != 0
+                       )
                     {
-                        if (pNextInfoRecord->IpAddressList.Next)
-                        {
-                            pNextAddress = &(pNextInfoRecord->IpAddressList.Next->IpAddress);
-                        }
-                        else
-                        {
-                            pNextAddress = NULL;
-                        }
-                        continue;
+                        localHostAddresses[numAddresses] = new HostAdapterAddress(szAdapterId, szAddr);
+                        numAddresses++;
                     }
-                                    
-                    localHostAddresses[numAddresses] = new HostAdapterAddress(szAdapterId, szAddr);
-                    numAddresses++;
-                    if (pNextInfoRecord->IpAddressList.Next)
-                    {
-                        pNextAddress = &(pNextInfoRecord->IpAddressList.Next->IpAddress);
-                    }
-                    else
-                    {
-                        pNextAddress = NULL;
-                    }
+                    pNextAddress = pNextAddress->Next;
                 }
                 adapterId++;
                 pNextInfoRecord = pNextInfoRecord->Next;
@@ -592,9 +565,7 @@ bool getAllLocalHostIps(const HostAdapterAddress* localHostAddresses[], int &num
         }
         free((void*)pIpAdapterInfo);
     }                
-#else
-    rc = false;
-#endif    
+
     return rc;
 }
 

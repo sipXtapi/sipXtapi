@@ -72,7 +72,7 @@ public:
 /* ============================ ACCESSORS ================================= */
 
     /**
-     * Find the first occurence of the designated object by equality (as 
+     * Find the first occurrence of the designated object by equality (as 
      * opposed to by reference).
      */
     virtual UtlContainable* find(const UtlContainable*) const;

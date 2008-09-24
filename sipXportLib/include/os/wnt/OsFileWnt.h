@@ -49,16 +49,16 @@ public:
 /* ============================ MANIPULATORS ============================== */
 
    OsStatus fileunlock();
-     //: Unlocks the file for across process access
+     //: Cross-process unlocks this file.
+     //: Notes: This method should only be called by OsFileBase::close()!
 
 
-   OsStatus filelock(const int mode);
-     //: Locks the specified OPEN file using the specified  mode (one of the FSLOCK_ modes)
+   OsStatus filelock(const bool wait);
+     //: Cross-process locks this file, optionally waiting for the lock.
      //: Returns:
      //:        OS_SUCCESS if successful
      //:        OS_FAILED if unsuccessful
-     //: Notes: Use FSLOCK_READ only on read or read/write files
-     //:        Use FSLOCK_WRITE only only files you can write to.
+     //: Notes: This method should only be called by OsFileBase::open()!
    
 
    OsStatus setLength(unsigned long newLength);
@@ -67,20 +67,32 @@ public:
      //: Shrinking or Growing the file as needed.
 
 
- 
+   OsStatus touch();
+     //: Updates the date and time on the file.  Creates if needed.
+
 
 /* ============================ ACCESSORS ================================= */
 
+      /// Convert Windows FILETIME to an OsTime.
+    static OsTime OsFileWnt::fileTimeToOsTime(FILETIME ft);
+      /**<
+      *  This static function converts a windows FILETIME to a sipX OsTime
+      *  @param ft - The Windows FILETIME to convert
+      *  @returns an OsTime representing the FILETIME
+      */
+
+      /// Get information about a file.
+    virtual OsStatus getFileInfo(OsFileInfoBase& rFileinfo) const;
+      /**< 
+      *  Returns all the relevant info on this file
+      *  @param rFileInfo - [OUT] The object that is filled with the
+      *         file information.
+      */
 
 /* ============================ INQUIRY =================================== */
 
     UtlBoolean isReadonly() const;
     //: Returns TRUE if file is readonly
-
-
-
-    virtual OsStatus getFileInfo(OsFileInfoBase& rFileinfo) const;
-    //: Returns all the relevant info on this file
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:

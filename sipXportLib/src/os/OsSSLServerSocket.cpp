@@ -1,3 +1,19 @@
+// Copyright 2008 AOL LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA. 
 //
 // Copyright (C) 2006 SIPez LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.
@@ -14,12 +30,11 @@
 #if defined(HAVE_SSL)
 
 // SYSTEM INCLUDES
-#include <assert.h>
 #include <stdio.h>
 
 #define OsSS_CONST
 #if defined(_WIN32)
-#   include <winsock.h>
+#   include <winsock2.h>
 #undef OsSS_CONST
 #define OsSS_CONST const
 #elif defined(_VXWORKS)
@@ -58,15 +73,13 @@
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
-/* Make these what you want for cert & key files */
-
 /* ============================ CREATORS ================================== */
 
 // Constructor
 OsSSLServerSocket::OsSSLServerSocket(int connectionQueueSize, int serverPort)
    : OsServerSocket(connectionQueueSize,serverPort)
 {
-
+   OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsSSLServerSocket::_ %p", this );
 }
 
 // Destructor
@@ -89,7 +102,7 @@ OsSSLServerSocket::operator=(const OsSSLServerSocket& rhs)
 
 OsConnectionSocket* OsSSLServerSocket::accept()
 {
-   OsConnectionSocket* newSocket = NULL;
+   OsSSLConnectionSocket* newSocket = NULL;
    
    if (socketDescriptor == OS_INVALID_SOCKET_DESCRIPTOR)
    {
@@ -138,6 +151,13 @@ OsConnectionSocket* OsSSLServerSocket::accept()
                   OsSSL::logConnectParams(FAC_KERNEL, PRI_DEBUG
                                           ,"OsSSLServerSocket::accept"
                                           ,pSSL);
+
+                  OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
+                                "OsSSLServerSocket::accept connection %p",
+                                this
+                                );
+                  // test and cache the peer identity
+                  newSocket->peerIdentity(NULL, NULL);
                }
                else
                {

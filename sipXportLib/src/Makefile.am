@@ -5,7 +5,7 @@ SUBDIRS = . test
 
 lib_LTLIBRARIES = libsipXport.la
 
-INCLUDES = -I$(top_srcdir)/include
+INCLUDES = -I$(top_srcdir)/include -I$(top_srcdir)/../sipXcallLib/include
 
 ## Libtool version info - update only immediately before a release
 # Current - increment if any interfaces are added, removed, or changed
@@ -17,40 +17,60 @@ version_Revision=0
 #       increment if any interfaces have been added
 version_Age=0
 
+if BUILDTLS
+SECURITY_FILES=\
+    os/OsSSL.cpp \
+    os/OsEncryption.cpp \
+    os/OsSSLConnectionSocket.cpp \
+    os/OsSSLServerSocket.cpp
+SECURITY_LDFLAGS=@SSL_LDFLAGS@
+SECURITY_LIBADD=@SSL_LIBS@
+SECURITY_CXXFLAGS=@SSL_CXXFLAGS@
+else
+SECURITY_FILES=
+SECURITY_LDFLAGS=
+SECURITY_LIBADD=
+SECURITY_CXXFLAGS=
+endif
+
+
 libsipXport_la_LDFLAGS = \
 	-version-info ${version_Current}:${version_Revision}:${version_Age} \
 	@PCRE_LDFLAGS@ \
-	@SSL_LDFLAGS@
+	$(SECURITY_LDFLAGS)
 
 libsipXport_la_LIBADD = \
 	@PCRE_LIBS@ \
-	@SSL_LIBS@ \
 	@RT_LIBS@ \
 	-ldl \
 	-lpthread  \
-	-lstdc++
+	-lstdc++ \
+	$(SECURITY_LIBADD)
 
 # this is helpful if you're debugging something with lots of inlines (like the UtlLink code)
 # 		-fno-gcse -O0 -fno-implement-inlines -fno-default-inline
 
 libsipXport_la_CXXFLAGS = \
 	@PCRE_CFLAGS@ \
-	@SSL_CXXFLAGS@ \
 	-DSIPX_TMPDIR=\"@SIPX_TMPDIR@\" \
-	-DSIPX_CONFDIR=\"@SIPX_CONFDIR@\"
+	-DSIPX_CONFDIR=\"@SIPX_CONFDIR@\" \
+	$(SECURITY_CXXFLAGS)
 
 libsipXport_la_SOURCES =  \
     ../config/sipxportlib-buildstamp.h \
     ../config/sipxportlib-buildstamp.cpp \
     utl/UtlLongLongInt.cpp \
+    utl/UtlNameValueTokenizer.cpp \
     utl/UtlBool.cpp \
     utl/UtlCrc32.cpp \
     utl/UtlDateTime.cpp \
     utl/UtlLink.cpp \
     utl/UtlVoidPtr.cpp \
     utl/UtlHistogram.cpp \
+    utl/UtlInit.cpp \
     utl/UtlInt.cpp \
     utl/UtlString.cpp \
+    utl/UtlChainPool.cpp \
     utl/UtlContainable.cpp \
     utl/UtlContainer.cpp \
     utl/UtlContainableAtomic.cpp \
@@ -58,9 +78,11 @@ libsipXport_la_SOURCES =  \
     utl/UtlList.cpp \
     utl/UtlListIterator.cpp \
     utl/UtlSList.cpp \
+    utl/UtlCopyableSList.cpp \
     utl/UtlSListIterator.cpp \
     utl/UtlDList.cpp \
     utl/UtlDListIterator.cpp \
+    utl/UtlCopyableSortedList.cpp \
     utl/UtlSortedList.cpp \
     utl/UtlSortedListIterator.cpp \
     utl/UtlHashMap.cpp \
@@ -93,26 +115,33 @@ libsipXport_la_SOURCES =  \
     os/OsFileIteratorBase.cpp \
     os/OsFileSystem.cpp \
     os/OsLockingList.cpp \
+    os/OsIntPtrMsg.cpp \
     os/OsMsg.cpp \
     os/OsMsgPool.cpp \
     os/OsMsgQ.cpp \
+    os/OsMsgDispatcher.cpp \
     os/OsMulticastSocket.cpp \
     os/OsNameDb.cpp \
+    os/OsNameDbInit.cpp \
     os/OsNatAgentTask.cpp \
+    os/OsNatAgentContext.cpp \
+    os/OsNatServerSocket.cpp \
     os/OsNatDatagramSocket.cpp \
     os/OsNatConnectionSocket.cpp \
     os/OsNatSocketBaseImpl.cpp \
+    os/OsMediaContact.cpp \
     os/OsPathBase.cpp \
+    os/OsPerfLog.cpp \
     os/osPrintf.cpp \
     os/OsProcessBase.cpp \
     os/OsProcessIteratorBase.cpp \
     os/OsProcessMgr.cpp \
     os/OsProtectEvent.cpp \
     os/OsProtectEventMgr.cpp \
+    os/OsProtectEventMgrInit.cpp \
     os/OsPtrMsg.cpp \
     os/OsQueuedEvent.cpp \
     os/OsRpcMsg.cpp \
-    os/OsRWMutex.cpp \
     os/OsServerSocket.cpp \
     os/OsServerTask.cpp \
     os/OsSharedLibMgr.cpp \
@@ -138,6 +167,7 @@ libsipXport_la_SOURCES =  \
     os/StunMessage.cpp \
     os/StunUtils.cpp \
     os/TurnMessage.cpp \
+    os/OsHostPort.cpp \
     os/shared/OsMsgQShared.cpp \
     os/shared/OsTimerMessage.cpp \
     os/linux/clock_gettime.c \
@@ -154,6 +184,7 @@ libsipXport_la_SOURCES =  \
     os/linux/OsPathLinux.cpp \
     os/linux/OsProcessIteratorLinux.cpp \
     os/linux/OsProcessLinux.cpp \
+    os/linux/OsRWMutexLinux.cpp \
     os/linux/OsSharedLibMgrLinux.cpp \
     os/linux/OsTaskLinux.cpp \
     os/linux/OsUtilLinux.cpp \

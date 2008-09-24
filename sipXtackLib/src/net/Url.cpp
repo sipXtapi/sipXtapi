@@ -1,3 +1,22 @@
+// Copyright 2008 AOL LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA. 
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -16,11 +35,12 @@
 #endif
 
 // APPLICATION INCLUDES
+#include "os/OsDefs.h"
 #include "os/OsSysLog.h"
 #include "utl/UtlDListIterator.h"
 #include "utl/UtlRegex.h"
 #include "net/Url.h"
-#include "net/NameValueTokenizer.h"
+#include "utl/UtlNameValueTokenizer.h"
 #include "net/NameValuePair.h"
 #include "net/NameValuePairInsensitive.h"
 #include "net/SipMessage.h"
@@ -114,7 +134,7 @@ const char* SchemeName[ Url::NUM_SUPPORTED_URL_SCHEMES ] =
    "https",
    "ftp",
    "file",
-   "mailto",
+   "mailto"
 };
 
 // UsernameAndPassword
@@ -146,7 +166,7 @@ const RegEx UsernameAndPassword(
 //   $0 matches host:port
 //   $1 matches host
 //   $2 matches port
-#define DOMAIN_LABEL "(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?)"
+#define DOMAIN_LABEL "(?:[a-zA-Z0-9](?:[a-zA-Z0-9-!]*[a-zA-Z0-9])?)"    // HACK: Allow '!' in domain name
 const RegEx HostAndPort( 
    "("
     "(?:" DOMAIN_LABEL "\\.)*" DOMAIN_LABEL "\\.?" // DNS name 
@@ -193,10 +213,6 @@ const RegEx AllDigits("^\\+?[0-9*]++$");
 const RegEx TheEnd("^" SWS "$");
 
 // STATIC VARIABLE INITIALIZATIONS
-
-#ifndef min
-#define min(x,y) (((x) < (y)) ? (x) : (y))
-#endif
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
@@ -392,7 +408,7 @@ void Url::getDisplayName(UtlString& displayName) const
     displayName = mDisplayName;
     if (isDigitString(mDisplayName.data()))
     {
-       NameValueTokenizer::frontBackTrim(&displayName, "\"");
+       displayName.strip(UtlString::both, '\"');
     }
 }
 
@@ -479,7 +495,7 @@ void Url::setPath(const char* path)
    }
 }
 
-UtlBoolean Url::getPath(UtlString& path, UtlBoolean getStyle)
+UtlBoolean Url::getPath(UtlString& path, UtlBoolean getStyle) const
 {
     path = mPath;
 
@@ -611,7 +627,7 @@ UtlBoolean Url::getUrlParameters(int iMaxReturn, UtlString* pNames, UtlString *p
     }
     else
     {
-        iActualReturn = min(iMaxReturn, ((int)(mpUrlParameters->entries()))) ;
+        iActualReturn = sipx_min(iMaxReturn, ((int)(mpUrlParameters->entries()))) ;
 
         for (int i=0; i<iActualReturn; i++)
         {
@@ -693,7 +709,7 @@ UtlBoolean Url::getHeaderParameters(int iMaxReturn, UtlString* pNames, UtlString
     }
     else
     {
-        iActualReturn = min(iMaxReturn, ((int)(mpHeaderOrQueryParameters->entries()))) ;
+        iActualReturn = sipx_min(iMaxReturn, ((int)(mpHeaderOrQueryParameters->entries()))) ;
 
         for (int i=0; i<iActualReturn; i++)
         {
@@ -1005,7 +1021,7 @@ UtlBoolean Url::getFieldParameters(int iMaxReturn, UtlString* pNames, UtlString 
     }
     else
     {
-        iActualReturn = min(iMaxReturn, ((int)(mpFieldParameters->entries()))) ;
+        iActualReturn = sipx_min(iMaxReturn, ((int)(mpFieldParameters->entries()))) ;
 
         for (int i=0; i<iActualReturn; i++)
         {
@@ -1315,8 +1331,8 @@ void Url::parseString(const char* urlString, UtlBoolean isAddrSpec)
    }
 
       /*
-    * AMBIGUITY - there is a potential ambiguity when parsing real URLs.
-    *
+       * AMBIGUITY - there is a potential ambiguity when parsing real URLs.
+       *
        * Consider the url 'foo:333' - it could be:
        *       scheme 'foo' host '333' ('333' is a valid local host name - bad idea, but legal)
        *   or  host   'foo' port '333' (and scheme 'sip' is implied)
@@ -1477,8 +1493,11 @@ void Url::parseString(const char* urlString, UtlBoolean isAddrSpec)
 #     ifdef _WIN32
       {
          // Massage Data under Windows:  C|/foo.txt --> C:\foo.txt
-         mPath.replace('|', ':');
-         mPath.replace('/', '\\');
+         if (!isAddrSpec)
+         {
+            mPath.replace('|', ':');
+            mPath.replace('/', '\\');
+         }
       }
 #     endif
    }
@@ -1488,7 +1507,7 @@ void Url::parseString(const char* urlString, UtlBoolean isAddrSpec)
    case SipsUrlScheme:
    {
       // it may have url parameters of the form ";" param "=" value ...
-      //                iff it meets the right conditions:
+      //                if it meets the right conditions:
       if (   isAddrSpec                          // in addr-spec, any param is a url param
           || afterAngleBrackets != UTL_NOT_FOUND // inside angle brackets there may be a url param
           ) 

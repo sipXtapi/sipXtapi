@@ -1,3 +1,19 @@
+// Copyright 2008 AOL LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA. 
 //
 // Copyright (C) 2005 SIPez LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.
@@ -18,8 +34,9 @@
 #include <os/OsDefs.h>
 #include <net/HttpMessage.h>
 #include <net/SdpBody.h>
-#include <net/SdpCodecFactory.h>
+#include <sdp/SdpCodecList.h>
 #include <net/NetBase64Codec.h>
+#include <os/OsMediaContact.h>
 
 
 /**
@@ -38,6 +55,8 @@ class SdpBodyTest : public CppUnit::TestCase
     CPPUNIT_TEST(testRtcpPortParsing);
     // CPPUNIT_TEST(testCryptoParsing);
     CPPUNIT_TEST(testVideoCodecSelection);
+    CPPUNIT_TEST(testPtime);
+    CPPUNIT_TEST(testGetCodecsInCommon);
     CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -55,6 +74,7 @@ public:
             "t=2873397496 2873404696\r\n"
             "a=recvonly\r\n"
             "m=audio 49170 RTP/AVP 0\r\n"
+            "a=ptime: 30\r\n"
             "m=audio 59170 TCP/RTP/AVP 0\r\n"
             "m=video 51372 RTP/AVP 31\r\n"
             "m=video 61372 TCP/RTP/AVP 31\r\n"
@@ -103,6 +123,7 @@ public:
             "a=recvonly\r\n"
             "m=audio 49170 RTP/AVP 0\r\n"
             "m=audio 59170 TCP/RTP/AVP 0\r\n"
+            "a=ptime:22\r\n"
             "m=video 51372 RTP/AVP 31\r\n"
             "m=video 61372 TCP/RTP/AVP 31\r\n"
             "m=application 32416 udp wb\r\n"
@@ -114,7 +135,7 @@ public:
         /* Why are there not accessors for version or other standard fields !?! */
 
         int fields = body.SdpBody::getFieldCount();
-        CPPUNIT_ASSERT(fields == 15);
+        CPPUNIT_ASSERT(fields == 16);
 
         UtlString name;
         UtlString value;
@@ -164,22 +185,26 @@ public:
         ASSERT_STR_EQUAL(value.data(), "audio 59170 TCP/RTP/AVP 0");
 
         CPPUNIT_ASSERT(body.getValue(11, &name, &value));
-        ASSERT_STR_EQUAL(name.data(), "m");
-        ASSERT_STR_EQUAL(value.data(), "video 51372 RTP/AVP 31");
+        ASSERT_STR_EQUAL(name.data(), "a");
+        ASSERT_STR_EQUAL(value.data(), "ptime:22");
 
         CPPUNIT_ASSERT(body.getValue(12, &name, &value));
         ASSERT_STR_EQUAL(name.data(), "m");
-        ASSERT_STR_EQUAL(value.data(), "video 61372 TCP/RTP/AVP 31");
+        ASSERT_STR_EQUAL(value.data(), "video 51372 RTP/AVP 31");
 
         CPPUNIT_ASSERT(body.getValue(13, &name, &value));
         ASSERT_STR_EQUAL(name.data(), "m");
-        ASSERT_STR_EQUAL(value.data(), "application 32416 udp wb");
+        ASSERT_STR_EQUAL(value.data(), "video 61372 TCP/RTP/AVP 31");
 
         CPPUNIT_ASSERT(body.getValue(14, &name, &value));
+        ASSERT_STR_EQUAL(name.data(), "m");
+        ASSERT_STR_EQUAL(value.data(), "application 32416 udp wb");
+
+        CPPUNIT_ASSERT(body.getValue(15, &name, &value));
         ASSERT_STR_EQUAL(name.data(), "a");
         ASSERT_STR_EQUAL(value.data(), "orient:portrait");
 
-        CPPUNIT_ASSERT(!body.getValue(15, &name, &value));
+        CPPUNIT_ASSERT(!body.getValue(16, &name, &value));
         CPPUNIT_ASSERT(name.isNull());
         CPPUNIT_ASSERT(value.isNull());
 
@@ -601,6 +626,7 @@ public:
             "c=IN IP4 192.168.1.102\r\n"
             "t=0 0\r\n"
             "m=audio 8778 RTP/AVP 0 8 96\r\n"
+            "a=ptime: 33\r\n"
             "a=rtpmap:0 pcmu/8000/1\r\n"
             "a=rtpmap:8 pcma/8000/1\r\n"
             "a=rtpmap:96 telephone-event/8000/1\r\n" 
@@ -614,6 +640,7 @@ public:
             "a=candidate:0 tid1 TCP 0.4 10.1.1.104 9999\r\n"
             "a=candidate:1 tid2 TCP 0.5 10.1.1.104 10000\r\n"
             "a=candidate:2 tid3 TCP 0.6 10.1.1.105 9999\r\n" 
+            "a=ptime:22\r\n"
             "m=video 1234 RTP/AVP 0 8 96\r\n"
             "a=rtpmap:0 pcmu/8000/1\r\n"
             "a=rtpmap:8 pcma/8000/1\r\n"
@@ -759,14 +786,6 @@ public:
         SdpSrtpParameters testSrtp;
         UtlString strBody ;
         int nBody ;
-        UtlString hostAddresses[1];
-        int rtpAudioPorts[1];
-        int rtcpAudioPorts[1];
-        int rtpVideoPorts[1];
-        int rtcpVideoPorts[1];
-        RTP_TRANSPORT transportTypes[1];
-        
-
         testSrtp.securityLevel = 0;
 
         SdpCodec* pAudioCodec = new SdpCodec(SdpCodec::SDP_CODEC_PCMU, 99, "audio", "superaudio") ;
@@ -775,55 +794,119 @@ public:
 
         // This test case isn't exactly valid, but allows us to walk the m lines.
         testBody.setSessionNameField("foo") ;
-        hostAddresses[0] = "10.1.1.30";
-        rtpAudioPorts[0] = 8700;
-        rtcpAudioPorts[0] = 8701;
-        rtpVideoPorts[0] = 0;
-        rtcpVideoPorts[0] = 0;
-        transportTypes[0] = RTP_TRANSPORT_UDP;
-        testBody.addCodecsOffer(1, hostAddresses, rtpAudioPorts, rtcpAudioPorts, 
-                                rtpVideoPorts, rtcpVideoPorts, transportTypes,
-                                1, &pAudioCodec, testSrtp, 0, 0, RTP_TRANSPORT_UDP) ;
-                                
-                                
-        hostAddresses[0] = "10.1.1.30";
-        rtpAudioPorts[0] = 18700;
-        rtcpAudioPorts[0] = 18701;
-        rtpVideoPorts[0] = 0;
-        rtcpVideoPorts[0] = 0;
-        transportTypes[0] = RTP_TRANSPORT_TCP;
-        testBody.addCodecsOffer(1, hostAddresses, rtpAudioPorts, rtcpAudioPorts, 
-                                rtpVideoPorts, rtcpVideoPorts, transportTypes,
-                                1, &pAudioCodec, testSrtp, 0, 0, RTP_TRANSPORT_TCP) ;
-                                
-        hostAddresses[0] = "10.1.1.31";
-        rtpAudioPorts[0] = 0;
-        rtcpAudioPorts[0] = 0;
-        rtpVideoPorts[0] = 8801;
-        rtcpVideoPorts[0] = 8802;
-        testBody.addCodecsOffer(1, hostAddresses, rtpAudioPorts, rtcpAudioPorts, 
-                                rtpVideoPorts, rtcpVideoPorts, transportTypes,
-                                1, &pVideoCodec, testSrtp, 0, 0, RTP_TRANSPORT_TCP) ;
-        hostAddresses[0] = "10.1.1.32";
-        rtpAudioPorts[0] = 8900;
-        rtcpAudioPorts[0] = 8999;
-        rtpVideoPorts[0] = 0;
-        rtcpVideoPorts[0] = 0;
-        testBody.addCodecsOffer(1, hostAddresses, rtpAudioPorts, rtcpAudioPorts, 
-                                rtpVideoPorts, rtcpVideoPorts, transportTypes,
-                                1, &pAppCodec, testSrtp, 0, 0, RTP_TRANSPORT_TCP) ;
 
+
+        /*
+OsMediaContact::OsMediaContact(const char* szAddress,
+                                int rtpPort,
+                                int rtcpPort,
+                                OsSocket::IpProtocolSocketType protocol,
+                                RTP_TRANSPORT transportType,
+                                IpAddressType addressType)
+
+   void addCodecsOffer(UtlSList& audioContacts,
+                       UtlSList& videoContacts,                                                    
+                       int numRtpCodecs,
+                       SdpCodec* rtpCodecs[],
+                       SdpSrtpParameters& srtpParams,
+                       int videoBandwidth,
+                       int videoFramerate,
+                       RTP_TRANSPORT transportOffering
+                       );
+        */
+
+        // test audio UDP
+        UtlSList  nullContact;
+        UtlSList audioContacts1;
+        OsMediaContact audioContact1("10.1.1.30",
+                                    8700,
+                                    8701,
+                                    OsSocket::IpProtocolSocketType::UDP,
+                                    RTP_TRANSPORT_UDP);
+        audioContacts1.insert(&audioContact1);
+
+        testBody.addCodecsOffer(audioContacts1,
+                                nullContact,
+                                1,
+                                &pAudioCodec,
+                                testSrtp,
+                                0,
+                                0,
+                                RTP_TRANSPORT_UDP) ;
+                         
+        // test audio TCP
+        UtlSList audioContacts2;
+        OsMediaContact audioContact2;
+        audioContacts2.insert(&audioContact2);
+
+        audioContact2.setAddress("10.1.1.30");
+        audioContact2.setPort(18700);
+        audioContact2.setRtcpPort(18701);
+        audioContact2.setTransportType(RTP_TRANSPORT_TCP);
+
+        testBody.addCodecsOffer(audioContacts2,
+                                nullContact,
+                                1,
+                                &pAudioCodec,
+                                testSrtp,
+                                0,
+                                0,
+                                RTP_TRANSPORT_TCP) ;
+
+
+        // test video TCP
+        UtlSList videoContacts3;
+        OsMediaContact videoContact3;
+        videoContacts3.insert(&videoContact3);
+
+        videoContact3.setAddress("10.1.1.31");
+        videoContact3.setPort(8801);
+        videoContact3.setRtcpPort(8802);
+        videoContact3.setTransportType(RTP_TRANSPORT_TCP);
+        testBody.addCodecsOffer(nullContact,
+                                videoContacts3,
+                                1,
+                                &pVideoCodec,
+                                testSrtp,
+                                0,
+                                0,
+                                RTP_TRANSPORT_TCP) ;
+
+        // test audio, rtcp port, TCP
+        UtlSList audioContacts4;
+        OsMediaContact audioContact4;
+        audioContacts4.insert(&audioContact4);
+
+
+        audioContact4.setAddress("10.1.1.32");
+        audioContact4.setPort(8900);
+        audioContact4.setRtcpPort(8999);
+        audioContact4.setTransportType(RTP_TRANSPORT_TCP);
+        testBody.addCodecsOffer(audioContacts4,
+                                nullContact,
+                                1,
+                                &pAppCodec,
+                                testSrtp,
+                                0,
+                                0,
+                                RTP_TRANSPORT_TCP) ;
+
+        // TODO: there is a bug in addCodecsOffer.  The last m line (the one
+        // generated for pAppCodec) should be of app media type.  In the SDB
+        // string below the last m line is of audio media type.
         const char* testBodyExpected = 
             "v=0\r\n"
             "o=sipX 5 5 IN IP4 127.0.0.1\r\n"
             "s=foo\r\n"
-            "c=IN IP4 10.1.1.30\r\n"
             "t=0 0\r\n"
             "m=audio 8700 RTP/AVP 99\r\n"
+            "c=IN IP4 10.1.1.30\r\n"
             "a=rtpmap:99 superaudio/8000/1\r\n"
+            "a=ptime:20\r\n"
             "m=audio 18700 TCP/RTP/AVP 99\r\n"
             "c=IN IP4 10.1.1.30\r\n"
             "a=rtpmap:99 superaudio/8000/1\r\n"
+            "a=ptime:20\r\n"
             "m=video 8801 TCP/RTP/AVP 100\r\n"
             "c=IN IP4 10.1.1.31\r\n"
             "a=rtcp:8802\r\n"
@@ -876,14 +959,41 @@ public:
 
     void testVideoCodecSelection()
     {
-        SdpCodecFactory fac;
+        SdpCodecList fac;
 
-        SdpCodec* pQvgaCodec = new SdpCodec(SdpCodec::SDP_CODEC_VP71_QVGA, 99, "video", "vp71",
-            9000, 20000, 1, "", 0, 2, SDP_VIDEO_FORMAT_QVGA) ;
-        SdpCodec* pSqcifCodec = new SdpCodec(SdpCodec::SDP_CODEC_VP71_SQCIF, 100, "video", "vp71",
-            9000, 20000, 1, "", 0, 2, SDP_VIDEO_FORMAT_SQCIF) ;
-        SdpCodec* pQcifCodec = new SdpCodec(SdpCodec::SDP_CODEC_VP71_QCIF, 101, "video", "vp71",
-            9000, 20000, 1, "", 0, 2, SDP_VIDEO_FORMAT_QCIF) ;
+        SdpCodec* pQvgaCodec = new SdpCodec(SdpCodec::SDP_CODEC_VP71_QVGA,
+                                            99,
+                                            MIME_TYPE_VIDEO,
+                                            "vp71",
+                                            9000,
+                                            20000,
+                                            1,
+                                            "",
+                                            SdpCodec::SDP_CODEC_CPU_LOW,
+                                            SDP_CODEC_BANDWIDTH_NORMAL,
+                                            SDP_VIDEO_FORMAT_QVGA);
+        SdpCodec* pSqcifCodec = new SdpCodec(SdpCodec::SDP_CODEC_VP71_SQCIF,
+                                             100,
+                                             MIME_TYPE_VIDEO,
+                                             "vp71",
+                                             9000,
+                                             20000,
+                                             1,
+                                             "",
+                                             SdpCodec::SDP_CODEC_CPU_LOW,
+                                             SDP_CODEC_BANDWIDTH_NORMAL,
+                                             SDP_VIDEO_FORMAT_SQCIF);
+        SdpCodec* pQcifCodec = new SdpCodec(SdpCodec::SDP_CODEC_VP71_QCIF,
+                                            101,
+                                            MIME_TYPE_VIDEO,
+                                            "vp71",
+                                            9000,
+                                            20000,
+                                            1,
+                                            "",
+                                            SdpCodec::SDP_CODEC_CPU_LOW,
+                                            SDP_CODEC_BANDWIDTH_NORMAL,
+                                            SDP_VIDEO_FORMAT_QCIF);
 
         fac.addCodec(*pQvgaCodec);
         fac.addCodec(*pSqcifCodec);
@@ -937,13 +1047,336 @@ public:
         int audioPayloads[5] = {99,0,0,0,0};
         int videoPayloads[5] = {100,0,0,0,0};
         int numInCommon;
-        SdpCodec* codecsInCommon[5];
+        SdpCodec* codecsInCommonForEncoder[5];
+        SdpCodec* codecsInCommonForDecoder[5];
 
-        remote.getCodecsInCommon(1, 1, audioPayloads, videoPayloads, 8801, fac, numInCommon, codecsInCommon);
+        remote.getCodecsInCommon(1, 1, audioPayloads, videoPayloads, 8801, fac,
+                     numInCommon, codecsInCommonForEncoder, codecsInCommonForDecoder);
         CPPUNIT_ASSERT(numInCommon == 2);
 
-        CPPUNIT_ASSERT(codecsInCommon[0]->getVideoFormat() == SDP_VIDEO_FORMAT_QCIF);
-        CPPUNIT_ASSERT(codecsInCommon[1]->getVideoFormat() == SDP_VIDEO_FORMAT_SQCIF);
+        CPPUNIT_ASSERT(codecsInCommonForEncoder[0]->getVideoFormat() == SDP_VIDEO_FORMAT_QCIF);
+        CPPUNIT_ASSERT(codecsInCommonForEncoder[1]->getVideoFormat() == SDP_VIDEO_FORMAT_SQCIF);
+        CPPUNIT_ASSERT(codecsInCommonForDecoder[0]->getVideoFormat() == SDP_VIDEO_FORMAT_QCIF);
+        CPPUNIT_ASSERT(codecsInCommonForDecoder[1]->getVideoFormat() == SDP_VIDEO_FORMAT_SQCIF);
+    };
+
+    void testPtime()
+    {
+        // Body with no ptime
+        const char* noPtimeBodyString =
+                "v=0\r\n"
+                "o=sipX 5 5 IN IP4 127.0.0.1\r\n"
+                "s=foo\r\n"
+                "c=IN IP4 10.1.1.30\r\n"
+                "t=0 0\r\n"
+                "m=audio 8700 RTP/AVP 99\r\n"
+                "a=rtpmap:99 superaudio/8000/1\r\n"
+                "m=video 8801 RTP/AVP 100\r\n"
+                "a=rtpmap:100 vp71/9000/1\r\n"
+                "a=fmtp:100 size:QCIF/SQCIF\r\n"
+                "c=IN IP4 10.1.1.31\r\n";
+        SdpBody noPtimeSdpBody(noPtimeBodyString);
+
+        int ptimeValue = -1;
+        // ptime for first m line
+        CPPUNIT_ASSERT(!noPtimeSdpBody.getPtime(0, ptimeValue));
+        CPPUNIT_ASSERT_EQUAL(0, ptimeValue);
+
+        ptimeValue = -1;
+        // ptime for second m line
+        CPPUNIT_ASSERT(!noPtimeSdpBody.getPtime(1, ptimeValue));
+        CPPUNIT_ASSERT_EQUAL(0, ptimeValue);
+
+        ptimeValue = -1;
+        // ptime for third m line (m line does not exist)
+        CPPUNIT_ASSERT(!noPtimeSdpBody.getPtime(2, ptimeValue));
+        CPPUNIT_ASSERT_EQUAL(0, ptimeValue);
+
+        const char* sloppyPtimeBodyString =
+                "v=0\r\n"
+                "o=sipX 5 5 IN IP4 127.0.0.1\r\n"
+                "s=foo\r\n"
+                "c=IN IP4 10.1.1.30\r\n"
+                "t=0 0\r\n"
+                "m=audio 8700 RTP/AVP 96 97\r\n"
+                "a=ptime : 11\r\n"
+                "a=rtpmap:96 pcmu/8000/1\r\n"
+                "a=rtpmap:97 pcma/8000/1\r\n"
+                "a=ptime:12\r\n"   // second ptime for media set should be ignored
+                "m=audio 8710 RTP/AVP 98 99\r\n"
+                "a=rtpmap:98 superaudio/8000/1\r\n"
+                "a= ptime: 22 \r\n"
+                "a=rtpmap:99 superduperaudio/8000/1\r\n"
+                "m=video 8801 RTP/AVP 100\r\n"
+                "a=rtpmap:100 vp71/9000/1\r\n"
+                "a=ptime:33\r\n"
+                "a=fmtp:100 size:QCIF/SQCIF\r\n"
+                "c=IN IP4 10.1.1.31\r\n";
+        SdpBody sloppyPtimeSdpBody(sloppyPtimeBodyString);
+    
+        // ptime for first m line
+        ptimeValue = -1;
+        CPPUNIT_ASSERT(sloppyPtimeSdpBody.getPtime(0, ptimeValue));
+        CPPUNIT_ASSERT_EQUAL(11, ptimeValue);
+    
+        // ptime for second m line
+        ptimeValue = -1;
+        CPPUNIT_ASSERT(sloppyPtimeSdpBody.getPtime(1, ptimeValue));
+        CPPUNIT_ASSERT_EQUAL(22, ptimeValue);
+
+        // ptime for third m line
+        // Video does not usually have a ptime, by syntactically this should work
+        ptimeValue = -1;
+        CPPUNIT_ASSERT(sloppyPtimeSdpBody.getPtime(2, ptimeValue));
+        CPPUNIT_ASSERT_EQUAL(33, ptimeValue);
+
+
+        SdpCodecList sdpFactory;
+        SdpCodec* pPcmuCodec = new SdpCodec(SdpCodec::SDP_CODEC_PCMU, 
+                                            SdpCodec::SDP_CODEC_UNKNOWN, 
+                                            MIME_TYPE_AUDIO, 
+                                            MIME_SUBTYPE_PCMU,
+                                            8000, 
+                                            20000); // ptime
+        sdpFactory.addCodec(*pPcmuCodec);
+
+        SdpCodec* pPcmaCodec = new SdpCodec(SdpCodec::SDP_CODEC_PCMA, 
+                                            SdpCodec::SDP_CODEC_UNKNOWN, 
+                                            MIME_TYPE_AUDIO, 
+                                            MIME_SUBTYPE_PCMA,
+                                            8000, 
+                                            20000); // ptime
+        sdpFactory.addCodec(*pPcmaCodec);
+
+        SdpCodec* pSuperCodec = new SdpCodec((SdpCodec::SdpCodecTypes)333, 
+                                            SdpCodec::SDP_CODEC_UNKNOWN, 
+                                            MIME_TYPE_AUDIO, 
+                                            "superaudio",
+                                            8000, 
+                                            20000); // ptime
+        sdpFactory.addCodec(*pSuperCodec);
+
+        SdpCodec* pSuperDuperCodec = new SdpCodec((SdpCodec::SdpCodecTypes)334, 
+                                            SdpCodec::SDP_CODEC_UNKNOWN, 
+                                            MIME_TYPE_AUDIO, 
+                                            "superduperaudio",
+                                            8000, 
+                                            20000); // ptime
+        sdpFactory.addCodec(*pSuperDuperCodec);
+
+        SdpCodec* pQvgaCodec = new SdpCodec(SdpCodec::SDP_CODEC_VP71_QVGA, 
+                                            SdpCodec::SDP_CODEC_UNKNOWN, 
+                                            MIME_TYPE_VIDEO, 
+                                            "vp71", // MIME subtype
+                                            9000, 
+                                            20000, 
+                                            1, 
+                                            "", 
+                                            SdpCodec::SDP_CODEC_CPU_LOW, 
+                                            SDP_CODEC_BANDWIDTH_NORMAL, 
+                                            SDP_VIDEO_FORMAT_QCIF);
+        sdpFactory.addCodec(*pQvgaCodec);
+        CPPUNIT_ASSERT_EQUAL(5, sdpFactory.getCodecCount());
+
+        SdpCodec* codecArrayForEncoder[5];
+        SdpCodec* codecArrayForDecoder[5];
+        int numCodecsInCommon = 0;
+        int videoRtpPort = -1;
+        // This is insanely stupid.  I need to get the payload types from
+        // the body so that I can get the codecs which contain the payloads
+        int audioPayloads[4] = {96, 97, 98, 99};
+        int videoPayloads[1] = {100};
+        sloppyPtimeSdpBody.getCodecsInCommon(4, 1, audioPayloads, videoPayloads,
+            videoRtpPort, sdpFactory, numCodecsInCommon, codecArrayForEncoder,
+            codecArrayForDecoder);
+        CPPUNIT_ASSERT_EQUAL(5, numCodecsInCommon);
+
+        int codecIndex;
+        int encoderPayloadId;
+        int decoderPayloadId;
+        for(codecIndex = 0; codecIndex < numCodecsInCommon; codecIndex++)
+        {
+            encoderPayloadId = codecArrayForEncoder[codecIndex]->getCodecPayloadFormat();
+            decoderPayloadId = codecArrayForDecoder[codecIndex]->getCodecPayloadFormat();
+
+            // decoder codecs keep the payload Id of the factory
+            CPPUNIT_ASSERT_EQUAL(-1, decoderPayloadId);
+
+            switch(encoderPayloadId)
+            {
+            case 98:
+            case 99:
+                // Because of the broken nature of how media sets are treated
+                // in the SdpBody (codecs are considered global accross all
+                // media sets), the first ptime in the first media set becomes
+                // global accross all media sets
+                //CPPUNIT_ASSERT_EQUAL(codecArray[codecIndex]->getPacketLength(),
+                //                     22000);
+                //break;
+
+            case 96:
+            case 97:
+                CPPUNIT_ASSERT_EQUAL(11000,
+                                     codecArrayForEncoder[codecIndex]->getPacketLength());
+                CPPUNIT_ASSERT_EQUAL(11000,
+                                     codecArrayForDecoder[codecIndex]->getPacketLength());
+                break;
+
+            case 100:
+                // currently video ptime is ignored in SdpBody
+                // Should be 33000
+                CPPUNIT_ASSERT_EQUAL(20000, 
+                                     codecArrayForEncoder[codecIndex]->getPacketLength());
+                CPPUNIT_ASSERT_EQUAL(20000, 
+                                     codecArrayForDecoder[codecIndex]->getPacketLength());
+                break;
+
+            default:
+                CPPUNIT_ASSERT_EQUAL(-2, encoderPayloadId);
+                break;
+            }
+
+        }
+     }
+
+
+     void testGetCodecsInCommon()
+     {
+        const char* sloppyPtimeBodyString =
+           "v=0\r\n"
+           "o=sipX 5 5 IN IP4 127.0.0.1\r\n"
+           "s=foo\r\n"
+           "c=IN IP4 10.1.1.30\r\n"
+           "t=0 0\r\n"
+           "m=audio 8700 RTP/AVP 96 97\r\n"
+           "a=rtpmap:96 pcmu/8000/1\r\n"
+           "a=rtpmap:97 pcma/8000/1\r\n"
+           "m=audio 8710 RTP/AVP 98 99\r\n"
+           "a=rtpmap:98 superaudio/8000/1\r\n"
+           "a=rtpmap:99 superduperaudio/8000/1\r\n"
+           "m=video 8801 RTP/AVP 100\r\n"
+           "a=rtpmap:100 vp71/9000/1\r\n"
+           "a=fmtp:100 size:QCIF/SQCIF\r\n"
+           "c=IN IP4 10.1.1.31\r\n";
+        SdpBody sloppyPtimeSdpBody(sloppyPtimeBodyString);
+
+        SdpCodecList sdpFactory;
+        SdpCodec* pPcmuCodec = new SdpCodec(SdpCodec::SDP_CODEC_PCMU, 
+           SdpCodec::SDP_CODEC_PCMU, 
+           MIME_TYPE_AUDIO, 
+           MIME_SUBTYPE_PCMU,
+           8000, 
+           20000); // ptime
+        sdpFactory.addCodec(*pPcmuCodec);
+
+        SdpCodec* pPcmaCodec = new SdpCodec(SdpCodec::SDP_CODEC_PCMA, 
+           SdpCodec::SDP_CODEC_PCMA, 
+           MIME_TYPE_AUDIO, 
+           MIME_SUBTYPE_PCMA,
+           8000, 
+           20000); // ptime
+        sdpFactory.addCodec(*pPcmaCodec);
+
+        SdpCodec* pSuperCodec = new SdpCodec((SdpCodec::SdpCodecTypes)102, 
+           (SdpCodec::SdpCodecTypes)102, 
+           MIME_TYPE_AUDIO, 
+           "superaudio",
+           8000, 
+           20000); // ptime
+        sdpFactory.addCodec(*pSuperCodec);
+
+        SdpCodec* pSuperDuperCodec = new SdpCodec((SdpCodec::SdpCodecTypes)103, 
+           (SdpCodec::SdpCodecTypes)103, 
+           MIME_TYPE_AUDIO, 
+           "superduperaudio",
+           8000, 
+           20000); // ptime
+        sdpFactory.addCodec(*pSuperDuperCodec);
+
+        SdpCodec* pQvgaCodec = new SdpCodec(SdpCodec::SDP_CODEC_VP71_QVGA, 
+           (SdpCodec::SdpCodecTypes)104, 
+           MIME_TYPE_VIDEO, 
+           "vp71", // MIME subtype
+           9000, 
+           20000, 
+           1, 
+           "", 
+           SdpCodec::SDP_CODEC_CPU_LOW, 
+           SDP_CODEC_BANDWIDTH_NORMAL, 
+           SDP_VIDEO_FORMAT_QCIF);
+        sdpFactory.addCodec(*pQvgaCodec);
+        CPPUNIT_ASSERT_EQUAL(5, sdpFactory.getCodecCount());
+
+        SdpCodec* codecArrayForEncoder[5];
+        SdpCodec* codecArrayForDecoder[5];
+        int numCodecsInCommon = 0;
+        int videoRtpPort = -1;
+        // This is insanely stupid.  I need to get the payload types from
+        // the body so that I can get the codecs which contain the payloads
+        int audioPayloads[4] = {96, 97, 98, 99};
+        int videoPayloads[1] = {100};
+        sloppyPtimeSdpBody.getCodecsInCommon(4, 1, audioPayloads, videoPayloads,
+           videoRtpPort, sdpFactory, numCodecsInCommon, codecArrayForEncoder,
+           codecArrayForDecoder);
+        CPPUNIT_ASSERT_EQUAL(5, numCodecsInCommon);
+
+        int codecIndex;
+        int encoderPayloadId;
+        int decoderPayloadId;
+        for(codecIndex = 0; codecIndex < numCodecsInCommon; codecIndex++)
+        {
+           encoderPayloadId = codecArrayForEncoder[codecIndex]->getCodecPayloadFormat();
+           decoderPayloadId = codecArrayForDecoder[codecIndex]->getCodecPayloadFormat();
+
+           // decoder codecs keep the payload Id of the factory
+
+           switch(encoderPayloadId)
+           {
+           case 96:
+              CPPUNIT_ASSERT_EQUAL(20000,
+                 codecArrayForEncoder[codecIndex]->getPacketLength());
+              CPPUNIT_ASSERT_EQUAL(20000,
+                 codecArrayForDecoder[codecIndex]->getPacketLength());
+              CPPUNIT_ASSERT_EQUAL((int)SdpCodec::SDP_CODEC_PCMU, decoderPayloadId);
+              break;
+           case 97:
+              CPPUNIT_ASSERT_EQUAL(20000,
+                 codecArrayForEncoder[codecIndex]->getPacketLength());
+              CPPUNIT_ASSERT_EQUAL(20000,
+                 codecArrayForDecoder[codecIndex]->getPacketLength());
+              CPPUNIT_ASSERT_EQUAL((int)SdpCodec::SDP_CODEC_PCMA, decoderPayloadId);
+              break;
+           case 98:
+              CPPUNIT_ASSERT_EQUAL(20000,
+                 codecArrayForEncoder[codecIndex]->getPacketLength());
+              CPPUNIT_ASSERT_EQUAL(20000,
+                 codecArrayForDecoder[codecIndex]->getPacketLength());
+              CPPUNIT_ASSERT_EQUAL(102, decoderPayloadId);
+              break;
+           case 99:
+              CPPUNIT_ASSERT_EQUAL(20000,
+                 codecArrayForEncoder[codecIndex]->getPacketLength());
+              CPPUNIT_ASSERT_EQUAL(20000,
+                 codecArrayForDecoder[codecIndex]->getPacketLength());
+              CPPUNIT_ASSERT_EQUAL(103, decoderPayloadId);
+              break;
+
+           case 100:
+              // currently video ptime is ignored in SdpBody
+              // Should be 33000
+              CPPUNIT_ASSERT_EQUAL(20000, 
+                 codecArrayForEncoder[codecIndex]->getPacketLength());
+              CPPUNIT_ASSERT_EQUAL(20000, 
+                 codecArrayForDecoder[codecIndex]->getPacketLength());
+              CPPUNIT_ASSERT_EQUAL(104, decoderPayloadId);
+              break;
+
+           default:
+              CPPUNIT_ASSERT_EQUAL(-2, encoderPayloadId);
+              break;
+           }
+
+        }
     }
 };
 

@@ -19,7 +19,7 @@
 #endif
 
 #if defined(_WIN32)
-#include <winsock.h>
+#include <winsock2.h>
 #elif defined(_VXWORKS)
 #include <sockLib.h>
 #include <ioLib.h>

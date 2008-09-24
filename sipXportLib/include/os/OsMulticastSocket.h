@@ -1,5 +1,24 @@
+// Copyright 2008 AOL LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
-// Copyright (C) 2004-2006 SIPfoundry Inc.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA. 
+//
+// Copyright (C) 2007 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
+//
+// Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -13,10 +32,8 @@
 #define _OsMulticastSocket_h_
 
 // SYSTEM INCLUDES
-//#include <...>
-
 // APPLICATION INCLUDES
-#include <os/OsSocket.h>
+#include <os/OsNatDatagramSocket.h>
 
 // DEFINES
 // MACROS
@@ -27,11 +44,9 @@
 // TYPEDEFS
 // FORWARD DECLARATIONS
 
-//: Implements UDP version of OsSocket
-// This class provides the implementation of the UDP datagram
-// based socket class which may be instantiated.
-
-class OsMulticastSocket : public OsSocket
+//: Implements multicast version of OsDatagramSocket
+// This class provides the implementation of the multicast UDP datagram
+class OsMulticastSocket : public OsNatDatagramSocket
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
@@ -50,19 +65,16 @@ public:
 
 /* ============================ MANIPULATORS ============================== */
 
-   virtual UtlBoolean reconnect();
-   //: Sets up the connection again, assuming the connection failed
+     /// Joins a multicast group. Returns 0 on success.
+   int joinGroup(const char* multicastHostName);
 
-   void joinMulticast(int multicastPort, const char* multicastHostName);
+   //int leaveGroup(const char* multicastHostName);
 
-   virtual int read(char* buffer, int bufferLength);
-   //: Blocking read from the socket
-   // Read bytes into the buffer from the socket up to a maximum of
-   // bufferLength bytes.  This method will block until there is
-   // something to read from the socket.
-   //! param: buffer - Place to put bytes read from the socket.
-   //! param: bufferLength - The maximum number of bytes buffer will hold.
-   //! returns: The number of bytes actually read.
+     /// Sets the hop count (a.k.a. TimeToLive) for outgoing multicast packets.
+   int setHopCount(unsigned char hopCount);
+
+     /// Enables/disables local loopback of outgoing multicast packets.
+   int setLoopback(bool enabled);
 
 /* ============================ ACCESSORS ================================= */
    virtual OsSocket::IpProtocolSocketType getIpProtocol() const;

@@ -1,3 +1,6 @@
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -37,33 +40,36 @@
 
 // FORWARD DECLARATIONS
 
-//:Base class for the synchronization mechanisms in the OS abstraction layer
-
+/**
+ * @brief Base class for the synchronization mechanisms in the OS abstraction layer
+ */
 class OsSyncBase
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
+     /// Destructor
    virtual
       ~OsSyncBase() { };
-     //:Destructor
 
 /* ============================ CREATORS ================================== */
 
 /* ============================ MANIPULATORS ============================== */
 
+     /// Assignment operator
    OsSyncBase& operator=(const OsSyncBase& rhs);
-     //:Assignment operator
 
+     /// Block until the sync object is acquired or the timeout expires
    virtual OsStatus acquire(const OsTime& rTimeout = OsTime::OS_INFINITY) = 0;
-     //:Block until the sync object is acquired or the timeout expires
 
+     /// Conditionally acquire the semaphore (i.e., don't block)
    virtual OsStatus tryAcquire(void) = 0;
-     //:Conditionally acquire the semaphore (i.e., don't block)
-     // Return OS_BUSY if the sync object is held by some other task.
+     /**
+      * @return OS_BUSY if the sync object is held by some other task.
+      */
 
+     /// Release the sync object
    virtual OsStatus release(void) = 0;
-     //:Release the sync object
 
 /* ============================ ACCESSORS ================================= */
 
@@ -73,7 +79,7 @@ public:
 protected:
 
 #ifdef OS_SYNC_DEBUG
-/// Operations on an OsSyncBase object
+     /// Operations on an OsSyncBase object
    typedef enum
    {
       crumbUnused,   ///< array slot not yet used
@@ -134,14 +140,14 @@ protected:
    
 #  endif
 
+	 /// Default constructor
    OsSyncBase() { };
-     //:Default constructor
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
 
+     /// Copy constructor
    OsSyncBase(const OsSyncBase& rOsSyncBase);
-     //:Copy constructor
 
 };
 

@@ -1,5 +1,24 @@
+// Copyright 2008 AOL LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
-// Copyright (C) 2004-2006 SIPfoundry Inc.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA. 
+//
+// Copyright (C) 2005-2007 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
+// Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -7,6 +26,8 @@
 //
 // $$
 ///////////////////////////////////////////////////////////////////////////////
+
+// Author: Daniel Petrie dpetrie AT SIPez DOT com
 
 #ifndef _Connection_h_
 #define _Connection_h_
@@ -20,7 +41,7 @@
 #include <tapi/sipXtapiEvents.h>
 #include <tapi/sipXtapiInternal.h>
 #include <net/SipContactDb.h>
-#include <mi/CpMediaInterface.h>
+#include <mediaInterface/IMediaInterface.h>
 
 
 // DEFINES
@@ -37,9 +58,7 @@
 // FORWARD DECLARATIONS
 class CpCallManager;
 class CpCall;
-class CpMediaInterface;
 class OsDatagramSocket;
-class SdpCodec;
 class SipSession;
 class OsMsg;
 class TaoObjectMap;
@@ -179,7 +198,7 @@ public:
 
    Connection(CpCallManager* callMgr = NULL,
               CpCall* call = NULL,
-              CpMediaInterface* mediaInterface = NULL, 
+              IMediaInterface* mediaInterface = NULL, 
               int offeringDelayMilliSeconds = IMMEDIATE,
               int availableBehavior = RING, 
               const char* forwardUnconditionalUrl = NULL,
@@ -196,12 +215,15 @@ public:
 /* ============================ MANIPULATORS ============================== */
 
    virtual void prepareForSplit() ;
-   virtual void prepareForJoin(CpCall* pNewCall, const char* szLocalAddress, CpMediaInterface* pNewMediaInterface) ;
+   virtual void prepareForJoin(CpCall* pNewCall,
+       const char* szLocalAddress,
+       IMediaInterface* pNewMediaInterface,
+       int callHandle=0) ;
 
    virtual void forceHangUp(int connectionState = CONNECTION_DISCONNECTED)
    {
 	   setState(connectionState, CONNECTION_REMOTE);
-      fireSipXEvent(CALLSTATE_CONNECTED, CALLSTATE_CAUSE_NORMAL) ;
+      fireSipXCallEvent(CALLSTATE_CONNECTED, CALLSTATE_CAUSE_NORMAL) ;
    }
 
    virtual UtlBoolean dequeue(UtlBoolean callInFocus) = 0;
@@ -218,7 +240,10 @@ public:
                            const int bandWidth = AUDIO_MICODEC_BW_DEFAULT,
                            UtlBoolean bOnHold = FALSE,
                            const char* originalCallId = NULL,
-                           const RTP_TRANSPORT rtpTransportOptions = RTP_TRANSPORT_UDP) = 0;
+						  const RTP_TRANSPORT rtpTransportOptions = RTP_TRANSPORT_UDP,
+                          unsigned long flags = CPMI_FLAGS_DEFAULT,
+                          int callHandle = 0) = 0;
+
    //! param: requestQueuedCall - indicates that the caller wishes to have the callee queue the call if busy
 
    virtual UtlBoolean originalCallTransfer(UtlString& transferTargetAddress,
@@ -244,7 +269,7 @@ public:
 
    virtual void outOfFocus() = 0;
 
-   virtual UtlBoolean answer(const void* hWnd = NULL) = 0;
+   virtual UtlBoolean answer() = 0;
 
    virtual UtlBoolean hangUp() = 0;
 
@@ -256,10 +281,18 @@ public:
 
    virtual UtlBoolean silentRemoteHold() = 0 ;
 
+   /// Accept and incoming INVITE and change from OFFERING to ALERTING state
+   /**
+    *  @param sendEarlyMedia - send early media (startRTPSend and send SDP in 183)
+    */
    virtual UtlBoolean accept(int forwardOnNoAnswerTimeOut, 
+                             const void* pDisplay = NULL,
                              const void *pSecurity = NULL, 
                              const char* locationHeader = NULL,
-                             const int bandWidth = AUDIO_MICODEC_BW_DEFAULT) = 0;
+                             const int bandWidth = AUDIO_MICODEC_BW_DEFAULT,
+                             UtlBoolean sendEarlyMedia = FALSE,
+                             unsigned long flags = CPMI_FLAGS_DEFAULT,
+                             int callHandle = 0) = 0;
 
    virtual UtlBoolean reject() = 0;
 
@@ -287,19 +320,20 @@ public:
     void markForDeletion() ;
       //: Is this connection marked for deletion?
 
-    void setMediaInterface(CpMediaInterface* pMediaInterface) ;
+    void setMediaInterface(IMediaInterface* pMediaInterface) ;
       //:Set the media interface for this connection
       
-    CpMediaInterface* getMediaInterfacePtr();
+    IMediaInterface* getMediaInterfacePtr();
       //:Gets the media interface pointer for this connection.
 
     UtlBoolean validStateTransition(SIPX_CALLSTATE_EVENT eFrom, SIPX_CALLSTATE_EVENT eTo) ;
-    void fireSipXEvent(SIPX_CALLSTATE_EVENT eMajor, SIPX_CALLSTATE_CAUSE eMinor, void *pEventData=NULL) ;
+    void fireSipXCallEvent(SIPX_CALLSTATE_EVENT eMajor, SIPX_CALLSTATE_CAUSE eMinor, void *pEventData=NULL) ;
     void fireSipXSecurityEvent(SIPX_SECURITY_INFO *pEventData) ;
     void fireSipXMediaEvent(SIPX_MEDIA_EVENT event, 
                             SIPX_MEDIA_CAUSE cause, 
                             SIPX_MEDIA_TYPE  type, 
                             void*            pEventData=NULL) ;
+    void fireSipXEvent(const SIPX_EVENT_CATEGORY event, void *pInfo) ;
 
 /* ============================ ACCESSORS ================================= */
 
@@ -424,7 +458,7 @@ protected:
 
     CpCallManager* mpCallManager;
     CpCall* mpCall;
-    CpMediaInterface* mpMediaInterface;
+    IMediaInterface* mpMediaInterface;
     int mConnectionId;
 
 	UtlBoolean mRemoteIsCallee;
@@ -435,6 +469,8 @@ protected:
 	UtlString remoteRtpAddress;
 	int remoteRtpPort;
     int remoteRtcpPort;
+
+    UtlString remoteVideoRtpAddress;
 	int remoteVideoRtpPort;
 	int remoteVideoRtcpPort; 
 	int sendCodec;

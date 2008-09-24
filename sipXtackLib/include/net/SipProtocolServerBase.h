@@ -74,7 +74,7 @@ public:
 
     virtual void printStatus();
 
-    virtual int isOk();
+    virtual UtlBoolean isOk();
 
 /* ============================ INQUIRY =================================== */
 

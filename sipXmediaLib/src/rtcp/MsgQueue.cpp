@@ -251,7 +251,7 @@ bool CMsgQueue::Post(CMessage *poMessage)
     if(msgQSend(m_ulMsgQID,
                (char *)(&poMessage),
                 sizeof(CMessage *),
-                NO_WAIT,
+                NO_WAIT_TIME,
                 MSG_PRI_NORMAL) == ERROR)
     {
         return(FALSE);

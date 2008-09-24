@@ -1,3 +1,23 @@
+// Copyright 2008 AOL LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
+// USA. 
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -12,6 +32,7 @@
 #include <stdio.h>
 
 #if defined(_WIN32)
+#define WIN32_LEAN_AND_MEAN
 #  include <windows.h>
 #  define SLEEP(milliseconds) Sleep(milliseconds)
 #  include "ReceiveCallWntApp.h"
@@ -44,7 +65,6 @@ static SIPX_VIDEO_DISPLAY gPreviewDisplay;
 static bool  bVideo = false;
 
 #endif
-static bool  bVideo = false;
 bool bUseCustomTransportReliable = false;
 bool bUseCustomTransportUnreliable = false;
 SIPX_TRANSPORT ghTransport = SIPX_TRANSPORT_NULL;
@@ -88,6 +108,7 @@ void usage(const char* szExecutable)
     printf("   -f play file (default = none)\n") ;
     printf("   -p SIP port (default = 5060)\n") ;
     printf("   -r RTP port start (default = 9000)\n") ;
+    printf("   -B ip address to bind to\n");
     printf("   -l loopback audio (2 second delay)\n") ;
     printf("   -i line identity (e.g. sip:122@pingtel.com)\n") ;
     printf("   -u username (for authentication)\n") ;
@@ -96,7 +117,9 @@ void usage(const char* szExecutable)
     printf("   -x proxy (outbound proxy)\n");
     printf("   -S stun server\n") ;
     printf("   -v show sipXtapi version\n");
+#ifdef VIDEO
     printf("   -V receive video calls.\n");
+#endif
     printf("   -E use bogus custom external transport, reliable (transport=tribble)\n");
     printf("   -e use bogus custom external transport, unreliable (transport=flibble)\n");
 
@@ -110,6 +133,7 @@ bool parseArgs(int argc,
                int* pDuration,
                int* pSipPort,
                int* pRtpPort,
+               char** pszBindAddress,
                char** pszPlayTones,
                char** pszFile,
                bool* bLoopback,
@@ -127,6 +151,7 @@ bool parseArgs(int argc,
     *pDuration = 30 ;
     *pSipPort = 5060 ;
     *pRtpPort = 9000 ;
+    *pszBindAddress = NULL;
     *pszPlayTones = NULL ;
     *pszFile = NULL ;
     *bLoopback = false ;
@@ -191,6 +216,18 @@ bool parseArgs(int argc,
             if ((i+1) < argc)
             {
                 *pRtpPort = atoi(argv[++i]) ;
+            }
+            else
+            {
+                bRC = false ;
+                break ; // Error
+            }
+        }
+        else if (strcmp(argv[i], "-B") == 0)
+        {
+            if ((i+1) < argc)
+            {
+                *pszBindAddress = strdup(argv[++i]) ;
             }
             else
             {
@@ -286,10 +323,12 @@ bool parseArgs(int argc,
             printf("%s\n", szBuffer);
             exit(0);
         }
+#ifdef VIDEO
         else if (strcmp(argv[i], "-V") == 0)
         {
             bVideo = true;
         }
+#endif
         else if (strcmp(argv[i], "-E") == 0)
         {
             bUseCustomTransportReliable = true;            
@@ -382,7 +421,7 @@ void clearLoopback()
 }
 
 
-void initLoopback()
+void initLoopback(SIPX_INST hInst)
 {
     for (int i=0; i<LOOPBACK_LENGTH; i++)
     {
@@ -390,8 +429,8 @@ void initLoopback()
     }
     clearLoopback() ;
 
-    sipxConfigSetSpkrAudioHook(SpkrAudioHook) ;
-    sipxConfigSetMicAudioHook(MicAudioHook) ;
+    sipxConfigSetSpkrAudioHook(hInst, SpkrAudioHook) ;
+    sipxConfigSetMicAudioHook(hInst, MicAudioHook) ;
 }
 
 
@@ -454,16 +493,21 @@ bool EventCallBack(SIPX_EVENT_CATEGORY category,
         case CALLSTATE_DISCONNECTED:
             sipxCallDestroy(pCallInfo->hCall) ;
             break ;
-// ::TODO:: Fix me with new media event
-//        case CALLSTATE_AUDIO_EVENT:
-//            if (pCallInfo->cause == CALLSTATE_CAUSE_AUDIO_START)
-//            {
-//                printf("* Negotiated codec: %s, payload type %d\n", pCallInfo->codecs.audioCodec.cName, pCallInfo->codecs.audioCodec.iPayloadType);
-//            }
-//            break;
         case CALLSTATE_DESTROYED:
             break ;
         }
+    }
+    else if (category == EVENT_CATEGORY_MEDIA)
+    {
+       SIPX_MEDIA_INFO* pMediaInfo = static_cast<SIPX_MEDIA_INFO*>(pInfo);
+
+       switch(pMediaInfo->event)
+       {
+       case MEDIA_LOCAL_START:
+           printf("* Negotiated codec: %s, payload type %d\n",
+                  pMediaInfo->codec.audioCodec.cName, pMediaInfo->codec.audioCodec.iPayloadType);
+       	  break;
+       }
     }
     return true;
 }
@@ -535,6 +579,7 @@ int local_main(int argc, char* argv[])
 {
     bool bError = true ;
     int iDuration, iSipPort, iRtpPort ;
+    char* szBindAddr;
     bool bLoopback ;
     char* szIdentity ;
     char* szUsername ;
@@ -547,21 +592,22 @@ int local_main(int argc, char* argv[])
 
 
     // Parse Arguments
-    if (parseArgs(argc, argv, &iDuration, &iSipPort, &iRtpPort, &g_szPlayTones,
+    if (parseArgs(argc, argv, &iDuration, &iSipPort, &iRtpPort, &szBindAddr, &g_szPlayTones,
         &g_szFile, &bLoopback, &szIdentity, &szUsername, &szPassword, &szRealm, &szStunServer, &szProxy) &&
         (iDuration > 0) && (portIsValid(iSipPort)) && (portIsValid(iRtpPort)))
     {
-        if (bLoopback)
-        {
-            initLoopback() ;
-        }
-
-        // initialize sipx TAPI-like API
+        // Initialize sipX TAPI-like API
         sipxConfigSetLogLevel(LOG_LEVEL_DEBUG) ;
         sipxConfigSetLogFile("ReceiveCall.log");
-        if (sipxInitialize(&hInst, iSipPort, iSipPort, 5061, iRtpPort, 16, szIdentity) == SIPX_RESULT_SUCCESS)
+        if (sipxInitialize(&hInst, iSipPort, iSipPort, 5061, iRtpPort, 16, szIdentity, szBindAddr) == SIPX_RESULT_SUCCESS)
         {            
             g_hInst = hInst;
+
+            if (bLoopback)
+            {
+                initLoopback(g_hInst) ;
+            }
+
             if (szProxy)
             {
                 sipxConfigSetOutboundProxy(hInst, szProxy);

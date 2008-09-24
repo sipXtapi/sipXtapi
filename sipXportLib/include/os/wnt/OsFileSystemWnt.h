@@ -43,7 +43,9 @@
 #	include <fcntl.h> 
 #endif
 
+#ifndef WINCE
 #include <errno.h>
+#endif
 
 // APPLICATION INCLUDES
 #include "os/OsFS.h"

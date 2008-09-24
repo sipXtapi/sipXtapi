@@ -1,5 +1,8 @@
 //
-// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Copyright (C) 2007 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
+//
+// Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -55,12 +58,12 @@ void skipBytes(istream &in, int size) {
 void writeIntMsb(ostream &out, long l, int size) {
    if (size <= 0) return;
    writeIntMsb(out, l>>8, size-1); 
-   out.put(l&255); 
+   out.put((char)(l & 0xFF)); 
 }
 
 // Write int in Least Significant bytes
 void writeIntLsb(ostream &out, long l, int size) {
    if (size <= 0) return;
-   out.put(l&255);  
+   out.put((char)(l & 0xFF));  
    writeIntLsb(out, l>>8, size-1); 
 }

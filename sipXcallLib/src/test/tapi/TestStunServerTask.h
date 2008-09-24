@@ -1,3 +1,6 @@
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -32,7 +35,7 @@ typedef enum
     TEST_RETURN_ERROR,
     TEST_DROP_ODD_REQUEST,
     TEST_DROP_EVEN_REQUEST,
-    TEST_DELAY_RESPONSE,
+    TEST_DELAY_RESPONSE
 } STUN_TEST_MODE ;
 
 // FORWARD DECLARATIONS

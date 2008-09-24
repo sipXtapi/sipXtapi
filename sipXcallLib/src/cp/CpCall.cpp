@@ -1,3 +1,19 @@
+// Copyright 2008 AOL LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -13,6 +29,7 @@
 // SYSTEM INCLUDES
 #include <assert.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 // APPLICATION INCLUDES
 #include <os/OsReadLock.h>
@@ -21,14 +38,12 @@
 #include <os/OsEventMsg.h>
 #include "os/OsSysLog.h"
 #include <cp/CpCall.h>
-#include <mi/CpMediaInterface.h>
+#include <mediaInterface/IMediaInterface.h>
 #include <cp/CpMultiStringMessage.h>
 #include <cp/CpIntMessage.h>
-#include "ptapi/PtConnection.h"
-#include "ptapi/PtCall.h"
-#include "ptapi/PtTerminalConnection.h"
-#include "tao/TaoProviderAdaptor.h"
-#include "tao/TaoListenerEventMessage.h"
+#include "ptapi/PtDefs.h"
+//#include "tao/TaoProviderAdaptor.h"
+//#include "tao/TaoListenerEventMessage.h"
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -51,7 +66,7 @@ OsLockingList *CpCall::spCallTrackingList = NULL;
 
 // Constructor
 CpCall::CpCall(CpCallManager* manager,
-               CpMediaInterface* callMediaInterface,
+               IMediaInterface* callMediaInterface,
                int callIndex,
                const char* callId,
                int holdType) :
@@ -88,12 +103,21 @@ mDtmfQMutex(OsMutex::Q_FIFO)
     mListenerCnt = 0;
     mToneListenerCnt = 0;
     mMaxNumListeners = 20;
+    nMaxNumToneListeners = MAX_NUM_TONE_LISTENERS;
     mpListeners = (TaoListenerDb**) malloc(sizeof(TaoListenerDb *)*mMaxNumListeners);
 
     if (!mpListeners)
     {
-        osPrintf("***** ERROR ALLOCATING LISTENERS IN CPCALL **** \n");
+        osPrintf("***** ERROR ALLOCATING mpListeners IN CPCALL **** \n");
         return;
+    }
+
+    mpToneListeners = (TaoListenerDb**) malloc(sizeof(TaoListenerDb *)*nMaxNumToneListeners);
+
+    if (!mpToneListeners)
+    {
+       osPrintf("***** ERROR ALLOCATING mpToneListeners IN CPCALL **** \n");
+       return;
     }
 
     int i;
@@ -174,6 +198,12 @@ CpCall::~CpCall()
                 mpToneListeners[i] = 0;
             }
         }
+    }
+
+    if (mpToneListeners)
+    {
+       free(mpToneListeners);
+       mpToneListeners = NULL;
     }
 
     if(mpMetaEventCallIds)
@@ -302,8 +332,14 @@ UtlBoolean CpCall::handleMessage(OsMsg& eventMessage)
 
                 if(mpMediaInterface)
                 {
+                    // Hard code the sample rate to play at 8000Hz for now,
+                    // When wideband support at the callLib level is implemented,
+                    // you'll want to change this to the passed in rate of the
+                    // buffer.  The media interface currently understands how to
+                    // process a buffer of pretty much any rate.  tested rates are:
+                    // 8kHz, 16kHz, 32kHz, 48kHz.
                     mpMediaInterface->playBuffer((char*)buffer,
-                    bufSize, type, repeat, local, remote, ev);
+                    bufSize, 8000, type, repeat, local, remote, ev);
                 }
             }
             break;
@@ -481,14 +517,6 @@ UtlBoolean CpCall::handleMessage(OsMsg& eventMessage)
             }
             break;
 
-        case CallManager::CP_SET_PREMIUM_SOUND_CALL:
-            addHistoryEvent(msgSubType, multiStringMessage);
-            {
-                UtlBoolean enabled = ((CpMultiStringMessage&)eventMessage).getInt1Data();
-                mpMediaInterface->setPremiumSound(enabled);
-            }
-            break;
-
         case CallManager::CP_DROP:
             addHistoryEvent(msgSubType, multiStringMessage);
             {
@@ -565,7 +593,6 @@ UtlBoolean CpCall::handleMessage(OsMsg& eventMessage)
                 int ms = ((CpMultiStringMessage&)eventMessage).getInt2Data();
                 int silenceLength = ((CpMultiStringMessage&)eventMessage).getInt3Data();
                 int dtmfterm = ((CpMultiStringMessage&)eventMessage).getInt4Data();
-
                 double duration;
                 if (mpMediaInterface)
                 {
@@ -798,8 +825,9 @@ OsStatus CpCall::addTaoListener(OsServerTask* pListener,
                                 int pEv)
 {
     return addListener(pListener,
-        mpListeners,
+        &mpListeners,
         mListenerCnt,
+        mMaxNumListeners,
         callId,
         connectId,
         mask,
@@ -835,8 +863,9 @@ void CpCall::addToneListenerToFlowGraph(int pListener, Connection* connection)
     connection->getRemoteAddress(&remoteAddress);
 
     addListener((OsServerTask*) pListener,
-        mpToneListeners,
+        &mpToneListeners,
         mToneListenerCnt,
+        nMaxNumToneListeners,
         (char*)remoteAddress.data(),
         connection->getConnectionId(),
         0,
@@ -865,6 +894,11 @@ int CpCall::getCallState()
     return(mCallState);
 }
 
+IMediaInterface* const CpCall::getMediaInterface()
+{
+    return mpMediaInterface;
+}
+
 void CpCall::printCall()
 {
     UtlString callId;
@@ -882,6 +916,29 @@ void CpCall::printCall()
         }
     }
     osPrintf("=====================\n");
+}
+
+void CpCall::toString(UtlString& status)
+{
+    char cTemp[1024] ;
+
+    UtlString callId;
+    getCallId(callId);
+
+#ifdef WIN32
+    _snprintf(
+#else
+    snprintf(
+#endif
+            cTemp,
+            sizeof(cTemp),
+            "call[%d] id: %s state: %d%s\n", 
+            mCallIndex,
+            callId.data(), 
+            getCallState(), 
+            mDropping ? ", Dropping" : "") ;
+
+    status.append(cTemp) ;
 }
 
 void CpCall::getCallId(UtlString& callId)
@@ -1268,32 +1325,33 @@ void CpCall::addHistoryEvent(const int msgSubType,
 }
 
 OsStatus CpCall::addListener(OsServerTask* pListener,
-                             TaoListenerDb** pListeners,
+                             TaoListenerDb*** pListeners,
                              int& listenerCnt,
-                             char* callId,
-                             int connectId,
-                             int mask,
-                             int pEv)
+                             int& maxNumListeners,
+                             char* callId /*= NULL*/,
+                             int connectId /*= 0*/,
+                             int mask /*= 0*/,
+                             int pEv /*= 0*/)
 {
     for (int i = 0; i < listenerCnt; i++)
     {
-        if (pListeners[i] &&
-            pListeners[i]->mpListenerPtr == (int) pListener &&
-            (!callId || pListeners[i]->mName.compareTo(callId) == 0) &&
-            (pListeners[i]->mId == connectId))
+        if ((*pListeners)[i] &&
+            (*pListeners)[i]->mpListenerPtr == (int) pListener &&
+            (!callId || (*pListeners)[i]->mName.compareTo(callId) == 0) &&
+            ((*pListeners)[i]->mId == connectId))
         {
-            pListeners[i]->mRef++;
+            (*pListeners)[i]->mRef++;
             return OS_SUCCESS;
         }
     }
 
-    if (mListenerCnt == mMaxNumListeners)
+    if (listenerCnt == maxNumListeners)
     {
         //make more of em.
-        mMaxNumListeners += 20;
-        mpListeners = (TaoListenerDb **)realloc(mpListeners,sizeof(TaoListenerDb *)*mMaxNumListeners);
-        for (int loop = mListenerCnt;loop < mMaxNumListeners;loop++)
-            mpListeners[loop] = 0 ;
+        maxNumListeners += 20;
+        *pListeners = (TaoListenerDb **)realloc((*pListeners),sizeof(TaoListenerDb *)*maxNumListeners);
+        for (int loop = listenerCnt;loop < maxNumListeners;loop++)
+            (*pListeners)[loop] = 0 ;
     }
 
     // add to listenerDb
@@ -1304,7 +1362,7 @@ OsStatus CpCall::addListener(OsServerTask* pListener,
     pListenerDb->mRef = 1;
     pListenerDb->mId = connectId;
     pListenerDb->mIntData = pEv;
-    pListeners[listenerCnt++] = pListenerDb;
+    (*pListeners)[listenerCnt++] = pListenerDb;
 
     return OS_SUCCESS;
 }

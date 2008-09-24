@@ -12,7 +12,7 @@ EXTRA_DIST = \
     SVN-VERSION \
     sipxmedialib.spec
 
-unconditional_SUBDIRS = . src include bin
+unconditional_SUBDIRS = . contrib src include bin
 
 include $(srcdir)/config/sipXprojtop.mak
 

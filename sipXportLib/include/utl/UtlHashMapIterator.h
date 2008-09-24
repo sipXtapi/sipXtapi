@@ -33,7 +33,7 @@ class UtlPair;
  * objects in a UtlHashMap.
  * 
  * @see UtlIterator
- * @see UtlSList
+ * @see UtlHashMap
  */
 class UtlHashMapIterator : public UtlIterator
 {

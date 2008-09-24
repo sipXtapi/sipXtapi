@@ -13,6 +13,7 @@
 
 #include <cppunit/TestRunner.h>
 #include <sipxunit/TestOutputter.h>
+#include <sipxunit/TestOsSysLogListener.h>
 
 class CppUnit::TestResult;
 class TestMonitor;
@@ -33,6 +34,7 @@ class TestRunner : public CppUnit::TestRunner
  private:
 
     TestMonitor *m_monitor;
+    TestOsSysLogListener *m_logger;
 
     CppUnit::TestResult *m_result;
 

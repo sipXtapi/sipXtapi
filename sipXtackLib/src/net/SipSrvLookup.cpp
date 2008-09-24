@@ -1,5 +1,8 @@
+//  
+// Copyright (C) 2006-2007 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -16,7 +19,7 @@
 #       include <resparse/wnt/netinet/in.h>
 #       include <resparse/wnt/arpa/nameser.h>
 #       include <resparse/wnt/resolv/resolv.h>
-#       include <winsock.h>
+#       include <winsock2.h>
 extern "C" {
 #       include "resparse/wnt/inet_aton.h"       
 }
@@ -36,7 +39,6 @@ extern "C" {
 /* #include <sys/socket.h> used sockLib.h instead --GAT */
 #       include <sockLib.h>
 #       include <resolvLib.h>
-#       include <resparse/vxw/hd_string.h>
 #elif defined(__pingtel_on_posix__)
 #       include <arpa/inet.h>
 #       include <netinet/in.h>
@@ -65,11 +67,12 @@ extern struct __res_state _sip_res;
 #include <string.h>
 
 // Application includes.
-#include "os/OsSocket.h"
-#include "os/OsLock.h"
-#include "net/SipSrvLookup.h"
-#include "os/OsDefs.h"
-#include "os/OsSysLog.h"
+#include <os/OsDefs.h>
+#include <os/OsSocket.h>
+#include <os/OsLock.h>
+#include <net/SipSrvLookup.h>
+
+#include <os/OsSysLog.h>
 #include "resparse/rr.h"
 
 // The space allocated for returns from res_query.
@@ -232,7 +235,7 @@ int SipSrvLookup::options[OptionCodeLast+1] = {
    0,                           // OptionCodePrintAnswers
    DEFAULT_CNAME_LIMIT,         // OptionCodeCNAMELimit
    0,                           // OptionCodeNoDefaultTCP
-   0,                           // OptionCodeLast
+   0                            // OptionCodeLast
 };
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
@@ -678,6 +681,7 @@ void lookup_A(server_t*& list,
             // An A record has been found.
             // Assemble the needed information and add it to the server list.
             struct sockaddr_in sin;
+            memset(&sin, 0, sizeof(sin));
             sin.sin_addr = response->answer[i]->rdata.address;
             sin.sin_family = AF_INET;
             sin.sin_port = htons(port);
@@ -698,6 +702,7 @@ void lookup_A(server_t*& list,
             // An A record has been found.
             // Assemble the needed information and add it to the server list.
             struct sockaddr_in sin;
+            memset(&sin, 0, sizeof(sin));
             sin.sin_addr = response->additional[i]->rdata.address;
             sin.sin_family = AF_INET;
             sin.sin_port = htons(port);

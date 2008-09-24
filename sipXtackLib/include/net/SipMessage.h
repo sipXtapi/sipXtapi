@@ -1,4 +1,19 @@
+// Copyright 2008 AOL LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA. 
 // 
 // Copyright (C) 2005, 2006 SIPez LLC
 // Licensed to SIPfoundry under a Contributor Agreement.
@@ -25,7 +40,7 @@
 #include <os/OsSocket.h>
 #include <net/HttpMessage.h>
 #include <net/SdpBody.h>
-#include <net/SdpCodec.h>
+#include <sdp/SdpCodec.h>
 #include <net/Url.h>
 #include <net/SmimeBody.h>
 #include <tapi/sipXtapi.h>
@@ -122,6 +137,7 @@ class SipRegInfoBody;        // for RFC 3680
 #define SIP_SHORT_VIA_FIELD "v"
 #define SIP_WARNING_FIELD "WARNING"
 #define SIP_MIN_EXPIRES_FIELD "MIN-EXPIRES"
+#define SIP_P_CHARGING_VECTOR "p-charging-vector"
 
 ///custom fields
 #define SIP_LINE_IDENTIFIER "LINEID"
@@ -264,6 +280,7 @@ class SipRegInfoBody;        // for RFC 3680
 #define SIP_MULTIFIELD_SEPARATORS "\t ,"
 #define SIP_TRANSPORT_UDP "UDP"
 #define SIP_TRANSPORT_TCP "TCP"
+#define SIP_TRANSPORT_ARS "ARS"
 #define SIP_TRANSPORT_TLS "TLS"
 #define SIP_URL_TYPE "SIP:"
 #define SIPS_URL_TYPE "SIPS:"
@@ -370,6 +387,8 @@ public:
 
     static UtlBoolean getLongName( const char* shortFieldName,
                                   UtlString* longFieldName );
+
+    static void generateCallId(const char* callIdPrefix, UtlString* callId);
 
     void replaceShortFieldNames();
 
@@ -640,19 +659,14 @@ public:
 
     //@}
 
-    void addSdpBody(int nRtpContacts,
-                    UtlString hostAddresses[],
-                    int rtpAudioPorts[],
-                    int rtcpAudiopPorts[],
-                    int rtpVideoPorts[],
-                    int rtcpVideoPorts[],
-                    RTP_TRANSPORT transportTypes[],
+    void addSdpBody(UtlSList& audioContacts,
+                    UtlSList& videoContacts, 
                     int numRtpCodecs,
                     SdpCodec* rtpCodecs[],
                     SdpSrtpParameters* srtpParams,
                     int videoBandwidth,
                     int videoFramerate,
-                    SipMessage* pRequest = NULL,
+                    const SipMessage* pRequest = NULL,
                     const RTP_TRANSPORT rtpTransportOptions = RTP_TRANSPORT_UDP);
 
     void setSecurityAttributes(const SIPXTACK_SECURITY_ATTRIBUTES* const pSecurity);
@@ -793,6 +807,11 @@ public:
 
     void setViaFromRequest(const SipMessage* request);
 
+    /// fills in parameters in topmost via based on actual received information.
+    void setReceivedViaParams(const UtlString& fromIpAddress, ///< actual sender ip
+                              int              fromPort       ///< actual sender port
+                              );
+
     void addVia(const char* domainName,
                 int port,
                 const char* protocol,
@@ -816,6 +835,7 @@ public:
                       const char* fromProtocol = NULL,
                       const char* fromUser = NULL,
                       const char* fromLabel = NULL);
+
     void setRawToField(const char* toField);
 
     void setRawFromField(const char* toField);
@@ -1060,7 +1080,7 @@ public:
     UtlBoolean getReferredByField(UtlString& referredByField) const;
 
     UtlBoolean getReferredByUrls(UtlString* referrerUrl = NULL,
-                      UtlString* referredToUrl = NULL) const;
+                                 UtlString* referredToUrl = NULL) const;
 
     void setAllowField(const char* referToField);
 
@@ -1069,6 +1089,16 @@ public:
     UtlBoolean getReplacesData(UtlString& callId,
                               UtlString& toTag,
                               UtlString& fromTag) const;
+
+    UtlBoolean getPChargingVector(UtlString* icidValue,
+                                  UtlString* icidGenAddr,
+                                  UtlString* origIoi,
+                                  UtlString* termIoi) const ;
+
+    UtlBoolean setPChargingVector(const char* szIcidValue,
+                                  const char* icidGenAddr,
+                                  const char* origIoi,
+                                  const char* termIoi) ;
 
     /// @returns true if the message has either a User-Agent or Server header
     bool hasSelfHeader() const;
@@ -1220,6 +1250,7 @@ private:
          public:
 
           SipMessageFieldProps();
+          virtual ~SipMessageFieldProps();
 
           UtlHashBag mShortFieldNames;
           UtlHashBag mLongFieldNames;
@@ -1234,7 +1265,10 @@ private:
        };
 
     // Singleton object to carry the field properties.
-    static SipMessageFieldProps* spSipMessageFieldProps;
+    static SipMessageFieldProps sSipMessageFieldProps;
+    // Every oneshares the same call counter for generating Call-IDs.
+    static OsMutex sCallIdNumMutex ;
+    static intll   sCallIdNum;
 };
 
 /* ============================ INLINE METHODS ============================ */

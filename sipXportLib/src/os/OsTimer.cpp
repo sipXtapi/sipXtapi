@@ -1,12 +1,32 @@
-//
-// Copyright (C) 2004-2006 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-//
-// Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
+// Copyright 2008 AOL LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
+// USA. 
+//  
+// Copyright (C) 2005-2007 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
+// Copyright (C) 2004-2007 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+// 
+// Copyright (C) 2004-2007 Pingtel Corp.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
 // $$
-///////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
 
 
 // SYSTEM INCLUDES
@@ -26,7 +46,6 @@
 
 // STATIC VARIABLE INITIALIZATIONS
 const UtlContainableType OsTimer::TYPE = "OsTimer" ;
-const OsTimer::Interval OsTimer::nullInterval = 0;
 
 #ifdef VALGRIND_TIMER_ERROR
 // Dummy static variable to receive values from tracking variables.
@@ -45,10 +64,12 @@ OsTimer::OsTimer(OsMsgQ* pQueue, const int userData) :
    mBSem(OsBSem::Q_PRIORITY, OsBSem::FULL),
    mApplicationState(0),
    mTaskState(0),
+   // Always initialize mDeleting, as we may print its value.
    mDeleting(FALSE),
    mpNotifier(new OsQueuedEvent(*pQueue, userData)) ,
    mbManagedNotifier(TRUE),
    mOutstandingMessages(0),
+   mWasFired(FALSE),
    mTimerQueueLink(0)
 {
 #ifdef VALGRIND_TIMER_ERROR
@@ -64,10 +85,12 @@ OsTimer::OsTimer(OsNotification& rNotifier) :
    mBSem(OsBSem::Q_PRIORITY, OsBSem::FULL),
    mApplicationState(0),
    mTaskState(0),
+   // Always initialize mDeleting, as we may print its value.
    mDeleting(FALSE),
    mpNotifier(&rNotifier) ,
    mbManagedNotifier(FALSE),
    mOutstandingMessages(0),
+   mWasFired(FALSE),
    mTimerQueueLink(0)
 {
 #ifdef VALGRIND_TIMER_ERROR
@@ -80,6 +103,10 @@ OsTimer::OsTimer(OsNotification& rNotifier) :
 // Destructor
 OsTimer::~OsTimer()
 {
+#ifndef NDEBUG
+   CHECK_VALIDITY(this);
+#endif
+
    // Update members and determine whether we need to send an UPDATE_SYNC
    // to stop the timer or ensure that the timer task has no queued message
    // about this timer.
@@ -87,9 +114,9 @@ OsTimer::~OsTimer()
    {
       OsLock lock(mBSem);
 
+#ifndef NDEBUG
       assert(!mDeleting);
       // Lock out all further application methods.
-#ifndef NDEBUG
       mDeleting = TRUE;
 #endif
 
@@ -111,7 +138,7 @@ OsTimer::~OsTimer()
    // Send a message to the timer task if we need to.
    if (sendMessage) {
       OsEvent event;
-      OsTimerMsg msg(OsTimerMsg::UPDATE_SYNC, this, &event);
+      OsTimerMsg msg(OsTimerMsg::OS_TIMER_UPDATE_SYNC, this, &event);
       OsStatus res = OsTimerTask::getTimerTask()->postMessage(msg);
       assert(res == OS_SUCCESS);
       event.wait();
@@ -126,19 +153,23 @@ OsTimer::~OsTimer()
 // Non-blocking asynchronous delete operation
 void OsTimer::deleteAsync(OsTimer* timer)
 {
+#ifndef NDEBUG
+   CHECK_VALIDITY(timer);
+#endif
+
    // Update members.
    {
       OsLock lock(mBSem);
 
+#ifndef NDEBUG
       assert(!mDeleting);
       // Lock out all further application methods.
-#ifndef NDEBUG
       mDeleting = TRUE;
 #endif
 
       // Check if the timer needs to be stopped.
       if (isStarted(mApplicationState))
-{
+      {
          mApplicationState++;
       }
 
@@ -147,7 +178,7 @@ void OsTimer::deleteAsync(OsTimer* timer)
    }
 
    // Send the message.
-   OsTimerMsg msg(OsTimerMsg::UPDATE_DELETE, this, NULL);
+   OsTimerMsg msg(OsTimerMsg::OS_TIMER_UPDATE_DELETE, this, NULL);
    OsStatus res = OsTimerTask::getTimerTask()->postMessage(msg);
    assert(res == OS_SUCCESS);
 }
@@ -157,31 +188,42 @@ void OsTimer::deleteAsync(OsTimer* timer)
 // Arm the timer to fire once at the indicated date and time
 OsStatus OsTimer::oneshotAt(const OsDateTime& when)
 {
-   return startTimer(cvtToTime(when), FALSE, nullInterval);
+   OsTime whenTime;
+   when.cvtToTimeSinceEpoch(whenTime);
+   return startTimer(whenTime, FALSE, OsTime::NO_WAIT_TIME);
 }
      
 // Arm the timer to fire once at the current time + offset
 OsStatus OsTimer::oneshotAfter(const OsTime& offset)
 {
-   return startTimer(now() + cvtToInterval(offset), FALSE, nullInterval);
+   OsTime curTime;
+   OsDateTime::getCurTime(curTime);
+   return startTimer(curTime + offset, FALSE, OsTime::NO_WAIT_TIME);
 }
 
 // Arm the timer to fire periodically starting at the indicated date/time
 OsStatus OsTimer::periodicAt(const OsDateTime& when, OsTime period)
 {
-   return startTimer(cvtToTime(when), TRUE, cvtToInterval(period));
+   OsTime whenTime;
+   when.cvtToTimeSinceEpoch(whenTime);
+   return startTimer(whenTime, TRUE, period);
 }
 
 // Arm the timer to fire periodically starting at current time + offset
 OsStatus OsTimer::periodicEvery(OsTime offset, OsTime period)
 {
-   return startTimer(now() + cvtToInterval(offset), TRUE,
-                     cvtToInterval(period));
+   OsTime curTime;
+   OsDateTime::getCurTime(curTime);
+   return startTimer(curTime + offset, TRUE, period);
 }
 
 // Disarm the timer
 OsStatus OsTimer::stop(UtlBoolean synchronous)
 {
+#ifndef NDEBUG
+   CHECK_VALIDITY(this);
+#endif
+
    OsStatus result;
    UtlBoolean sendMessage = FALSE;
 
@@ -189,11 +231,14 @@ OsStatus OsTimer::stop(UtlBoolean synchronous)
    {
       OsLock lock(mBSem);
 
+#ifndef NDEBUG
       assert(!mDeleting);
+#endif
 
       // Determine whether the call is successful.
       if (isStarted(mApplicationState))
       {
+         mWasFired = FALSE;
          // Update state to stopped.
          mApplicationState++;
          result = OS_SUCCESS;
@@ -208,15 +253,15 @@ OsStatus OsTimer::stop(UtlBoolean synchronous)
       {
          result = OS_FAILED;
       }
-}
+   }
 
    // If we need to, send an UPDATE message to the timer task.
    if (sendMessage)
-{
+   {
       if (synchronous) {
          // Send message and wait.
          OsEvent event;
-         OsTimerMsg msg(OsTimerMsg::UPDATE_SYNC, this, &event);
+         OsTimerMsg msg(OsTimerMsg::OS_TIMER_UPDATE_SYNC, this, &event);
          OsStatus res = OsTimerTask::getTimerTask()->postMessage(msg);
          assert(res == OS_SUCCESS);
          event.wait();
@@ -224,7 +269,7 @@ OsStatus OsTimer::stop(UtlBoolean synchronous)
       else
       {
          // Send message.
-         OsTimerMsg msg(OsTimerMsg::UPDATE, this, NULL);
+         OsTimerMsg msg(OsTimerMsg::OS_TIMER_UPDATE, this, NULL);
          OsStatus res = OsTimerTask::getTimerTask()->postMessage(msg);
          assert(res == OS_SUCCESS);
       }
@@ -247,9 +292,9 @@ int OsTimer::getUserData()
    // Have to cast mpNotifier into OsQueuedEvent* to get the userData.
    OsQueuedEvent* e = dynamic_cast <OsQueuedEvent*> (mpNotifier);
    assert(e != 0);
-   int userData;
+   intptr_t userData;
    e->getUserData(userData);
-   return userData;
+   return (int) userData;
 }
 
 unsigned OsTimer::hash() const
@@ -261,6 +306,13 @@ unsigned OsTimer::hash() const
 UtlContainableType OsTimer::getContainableType() const
 {
     return OsTimer::TYPE;
+}
+
+
+UtlBoolean OsTimer::getWasFired()
+{
+   OsLock lock(mBSem);
+   return mWasFired;
 }
 
 /* ============================ INQUIRY =================================== */
@@ -291,57 +343,63 @@ int OsTimer::compareTo(UtlContainable const * inVal) const
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
 // Get the current time as a Time.
-OsTimer::Time OsTimer::now()
+/*OsTimer::Time OsTimer::now()
 {
    OsTime t;
    OsDateTime::getCurTime(t);
    return (Time)(t.seconds()) * 1000000 + t.usecs();
 }
-
+*/
 // Start the OsTimer object.
-OsStatus OsTimer::startTimer(Time start,
+OsStatus OsTimer::startTimer(OsTime start,
                              UtlBoolean periodic,
-                             Interval period)
+                             OsTime period)
 {
+#ifndef NDEBUG
+   CHECK_VALIDITY(this);
+#endif
+
    OsStatus result;
    UtlBoolean sendMessage = FALSE;
 
    // Update members.
-{
+   {
       OsLock lock(mBSem);
-     
+#ifndef NDEBUG
       assert(!mDeleting);
+#endif
 
       // Determine whether the call is successful.
       if (isStopped(mApplicationState))
-{
+      {
+         mWasFired = FALSE;
          // Update state to started.
          mApplicationState++;
          result = OS_SUCCESS;
          if (mOutstandingMessages == 0)
-{
+         {
             // We will send a message.
             sendMessage = TRUE;
             mOutstandingMessages++;
-}
+         }
          // Set time values.
          mExpiresAt = start;
          mPeriodic = periodic;
          mPeriod = period;
-}
+      }
       else
-{
+      {
          result = OS_FAILED;
-}
-}
+      }
+   }
 
    // If we need to, send an UPDATE message to the timer task.
    if (sendMessage)
-{
-      OsTimerMsg msg(OsTimerMsg::UPDATE, this, NULL);
+   {
+      OsTimerMsg msg(OsTimerMsg::OS_TIMER_UPDATE, this, NULL);
       OsStatus res = OsTimerTask::getTimerTask()->postMessage(msg);
       assert(res == OS_SUCCESS);
-}
+   }
 
    return result;
 }

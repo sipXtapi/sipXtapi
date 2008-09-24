@@ -1,3 +1,19 @@
+// Copyright 2008 AOL LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -67,7 +83,7 @@ SipClient::SipClient(OsSocket* socket) :
    mRemoteViaPort(PORT_NONE),
    mRemoteReceivedPort(PORT_NONE),
    mSocketLock(OsBSem::Q_FIFO, OsBSem::FULL),
-   mFirstResendTimeoutMs(SIP_DEFAULT_RTT * 4), // for first transcation time out
+   mFirstResendTimeoutMs(SIP_DEFAULT_RTT * 4), // for first transaction time out
    mInUseForWrite(0),
    mWaitingList(NULL),
    mbSharedSocket(FALSE)
@@ -115,7 +131,7 @@ SipClient::~SipClient()
         // cause the run method to exit.
 #ifdef TEST_PRINT
         OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipClient::~SipClient 0%x socket 0%x closing %s socket",
-            this, clientSocket, ipProtocolString(mSocketType));
+           this, clientSocket, OsSocket::ipProtocolString(mSocketType));
 
         osPrintf("SipClient::~SipClient closing socket\n");
 #endif
@@ -144,6 +160,7 @@ SipClient::~SipClient()
         OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipClient::~SipClient 0%x socket 0%x deleting socket",
             this, clientSocket);
 #endif
+
         if (!mbSharedSocket)
         {
             delete clientSocket;
@@ -238,7 +255,7 @@ int SipClient::run(void* runArg)
 #ifdef LOG_TIME
                 eventTimes.addEvent("locking");
 #endif
-                // Lock to prevent multitreaded read or write
+                // Lock to prevent multi-treaded read or write
                 mSocketLock.acquire();
 
 #ifdef LOG_TIME
@@ -249,21 +266,7 @@ int SipClient::run(void* runArg)
                 // not actually ever happen.
                 if(clientSocket)
                 {
-                   if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
-                   {
-                       OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                                 "SipClient::run %p socket %p host: %s "
-                                 "sock addr: %s via addr: %s rcv addr: %s "
-                                    "sock type: %s read ready %s",
-                                 this, clientSocket,
-                                 mRemoteHostName.data(),
-                                 mRemoteSocketAddress.data(),
-                                 mRemoteViaAddress.data(),
-                                 mReceivedAddress.data(),
-                                    OsSocket::ipProtocolString(clientSocket->getIpProtocol()),
-                                 isReadyToRead() ? "READY" : "NOT READY"
-                                 );
-                   }
+
 #ifdef LOG_TIME
                     eventTimes.addEvent("reading");
 #endif
@@ -392,36 +395,18 @@ int SipClient::run(void* runArg)
                     // If this is a request
                     if(!message->isResponse())
                     {
-                        int receivedPort;
-                        UtlBoolean receivedSet;
-                        UtlBoolean maddrSet;
-                        UtlBoolean receivedPortSet;
-                        // Check that the via is set to the address from whence
-                        // this message came
-                        message->getLastVia(&lastAddress, &lastPort, &lastProtocol,
-                            &receivedPort, &receivedSet, &maddrSet, &receivedPortSet);
+                       int receivedPort;
+                       UtlBoolean receivedSet;
+                       UtlBoolean maddrSet;
+                       UtlBoolean receivedPortSet;
 
-                        // The via address is different from that of the sockets
-                        if(strcmp(lastAddress.data(), fromIpAddress.data()) != 0)
-                        {
-                            // Add a receive from tag
-                            message->setLastViaTag(fromIpAddress.data());
-                        }
+                       // fill in 'received' and 'rport' in top via if needed.
+                       message->setReceivedViaParams(fromIpAddress, fromPort);
 
-                        // If the rport tag is present the sender wants to
-                        // know what port this message was received from
-                        int tempLastPort = lastPort;
-                        if (!portIsValid(lastPort))
-                        {
-                           tempLastPort = 5060;
-                        }
-
-                        if (receivedPortSet)
-                        {
-                            char portString[20];
-                            sprintf(portString, "%d", fromPort);
-                            message->setLastViaTag(portString, "rport");
-                        }
+                       // get the addresses from the topmost via.
+                       message->getLastVia(&lastAddress, &lastPort, &lastProtocol,
+                                           &receivedPort, &receivedSet, &maddrSet,
+                                           &receivedPortSet);
 
                         if (   (   mSocketType == OsSocket::TCP
                                 || mSocketType == OsSocket::SSL_SOCKET

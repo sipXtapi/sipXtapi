@@ -138,12 +138,7 @@ public:
     void dumpMessageLists(UtlString& results) ;
       //:Appends the message contents of both the mRegisterList and 
       // mSubscribeList
-
-    OsTimer* getTimer()
-    {
-        return mpTimer;
-    }
-    
+  
     virtual ~SipRefreshMgr();
 
     virtual UtlBoolean handleMessage( OsMsg& eventMessage );
@@ -311,7 +306,7 @@ protected:
     int mUdpPort;
     int mRestartCount;
     UtlRandom mRandomNumGenerator ;
-    OsTimer* mpTimer;
+    UtlHashBag mTimerBag;
 };
 
 #endif // SIPREFRESHMGR_H

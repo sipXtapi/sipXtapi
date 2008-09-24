@@ -10,6 +10,11 @@
 
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
+
+// Keep UtlInit.h as the first include!
+// See UtlInit class description for more information.
+#include "utl/UtlInit.h"
+
 #include "utl/UtlListIterator.h"
 #include "utl/UtlList.h"
 #include "utl/UtlContainable.h"
@@ -28,9 +33,8 @@
  * the iterator would return the first element on the list, because NULL
  * designates the state "before the first element".
  */
-const UtlLink*  UtlListIterator::NOWHERE = new UtlLink;
-UtlLink const* UtlListIterator::OFF_LIST_END = NOWHERE;
-                                              
+const UtlLink* UtlListIterator::OFF_LIST_END;
+
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
 /* ============================ CREATORS ================================== */

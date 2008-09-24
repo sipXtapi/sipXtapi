@@ -68,8 +68,4 @@ public:
 
 };
 
-#ifdef WINCE
-#pragma message( "OsPathTest disabled undef Win CE" )
-#else
 CPPUNIT_TEST_SUITE_REGISTRATION(OsPathTest);
-#endif

@@ -250,7 +250,7 @@ AC_DEFUN([CHECK_ANT],
 #
 AC_DEFUN([CHECK_SSL],
 [   AC_ARG_WITH(openssl,
-                [--with-openssl=PATH to openssl source directory],
+                [  --with-openssl=PATH      to openssl source directory],
                 [openssl_path=$withval],
                 [openssl_path="/usr/local /usr/local/ssl /usr/ssl /usr/pkg /usr / /sw/lib"]
                 )
@@ -766,28 +766,28 @@ AC_DEFUN([CHECK_PCRE],
 [   AC_MSG_CHECKING([for pcre >= 4.5])
     # Process the --with-pcre argument which gives the pcre base directory.
     AC_ARG_WITH(pcre,
-                [--with-pcre=PATH path to pcre install directory],
+                [  --with-pcre=PATH         path to pcre install directory],
                 )
     homeval=$withval
-    # Have to unset withval so we can tell if --with-pcre_includedir was
+    # Have to unset withval so we can tell if --with-pcre-includedir was
     # specified, as AC_ARG_WITH will not unset withval if the option is not
     # there!
     withval=
 
-    # Process the --with-pcre_includedir argument which gives the pcre include
+    # Process the --with-pcre-includedir argument which gives the pcre include
     # directory.
-    AC_ARG_WITH(pcre_includedir,
-                [--with-pcre_includedir=PATH path to pcre include directory (containing pcre.h)],
+    AC_ARG_WITH(pcre-includedir,
+                [  --with-pcre-includedir=PATH path to pcre include directory (containing pcre.h)],
                 )
     # If withval is set, use that.  If not and homeval is set, use
     # $homeval/include.  If neither, use null.
     includeval=${withval:-${homeval:+$homeval/include}}
     withval=
 
-    # Process the --with-pcre_libdir argument which gives the pcre library
+    # Process the --with-pcre-libdir argument which gives the pcre library
     # directory.
-    AC_ARG_WITH(pcre_libdir,
-                [--with-pcre_libdir=PATH path to pcre lib directory (containing libpcre.{so,a})],
+    AC_ARG_WITH(pcre-libdir,
+                [  --with-pcre-libdir=PATH  path to pcre lib directory (containing libpcre.{so,a})],
                 )
     libval=${withval:-${homeval:+$homeval/lib}}
 
@@ -839,6 +839,702 @@ AC_DEFUN([CHECK_PCRE],
             AC_SUBST(PCRE_LDFLAGS, "-L$libval")
         fi
     fi
+])dnl
+
+
+# ============ G S M ==================
+AC_DEFUN([AM_PATH_GSM],
+[
+    # Unset withval, as AC_ARG_WITH does not unset it
+    withval=
+    # Process the --with-gsm argument which gives the libgsm base directory.
+    AC_ARG_WITH(gsm,
+                [AS_HELP_STRING([--with-gsm=PATH],
+                                [path to libgsm install directory])],
+                [],
+                [with_gsm=]
+                )
+    homeval=$withval
+    # Have to unset withval so we can tell if --with-gsm-includedir was
+    # specified, as AC_ARG_WITH will not unset withval if the option is not
+    # there!
+    withval=
+
+    # Process the --with-gsm-includedir argument which gives the libgsm include
+    # directory.
+    AC_ARG_WITH(gsm-includedir,
+                [AS_HELP_STRING([--with-gsm-includedir=PATH],
+                                [path to libgsm include directory (containing gsm.h)])],
+                )
+    # If withval is set, use that.  If not and homeval is set, use
+    # $homeval/include.  If neither, use null.
+    includeval=${withval:-${homeval:+$homeval/inc}}
+    withval=
+
+    # Process the --with-gsm-libdir argument which gives the libgsm library
+    # directory.
+    AC_ARG_WITH(gsm-libdir,
+                [AS_HELP_STRING([--with-gsm-libdir=PATH],
+                                [path to libgsm lib directory (containing libgsm.{so,a})])],
+                )
+    libval=${withval:-${homeval:+$homeval/lib}}
+
+    # Check for gsm.h in the specified include directory if any, and a number
+    # of other likely places.
+    for dir in $includeval /usr/local/include /usr/local/gsm/inc /usr/include /usr/include/gsm /sw/include; do
+        if test -f "$dir/gsm.h"; then
+            found_gsm_include="yes";
+            includeval=$dir
+            break;
+        fi
+    done
+
+    # Check for libgsm.{so,a} in the specified lib directory if any, and a
+    # number of other likely places.
+    for dir in $libval /usr/local/lib /usr/local/gsm/lib /usr/lib /sw/lib; do
+        if test -f "$dir/libgsm.so" -o -f "$dir/libgsm.a"; then
+            found_gsm_lib="yes";
+            libval=$dir
+            break;
+        fi
+    done
+
+    # Test that we've been able to find both directories, and set the various
+    # makefile variables.
+    if test x_$found_gsm_include != x_yes -o x_$found_gsm_lib != x_yes; then
+        AC_MSG_RESULT(not found)
+    else
+        ## Test for version
+        gsm_major_version=`grep "GSM_MAJOR" $includeval/gsm.h | \
+               sed 's/^#define[ \t]\+GSM_MAJOR[ \t]\+\([0-9]\+\)/\1/'`
+        gsm_minor_version=`grep "GSM_MINOR" $includeval/gsm.h | \
+               sed 's/^#define[ \t]\+GSM_MINOR[ \t]\+\([0-9]\+\)/\1/'`
+        gsm_patchlevel_version=`grep "GSM_PATCHLEVEL" $includeval/gsm.h | \
+               sed 's/^#define[ \t]\+GSM_PATCHLEVEL[ \t]\+\([0-9]\+\)/\1/'`
+
+        gsm_ver="$gsm_major_version.$gsm_minor_version.$gsm_patchlevel_version"
+        AX_COMPARE_VERSION([$gsm_ver],[ge],[1.0.10])
+
+        if test "x_$ax_compare_version" = "x_false"; then
+            AC_MSG_RESULT(too old (found version $gsm_ver))
+        else
+            AC_MSG_RESULT($gsm_ver is ok)
+
+	    # Enable this when we begin using config.h
+            #AC_DEFINE(HAVE_GSM, [1], [Defined if libgsm is present])
+	    CFLAGS="${CFLAGS} -DHAVE_GSM"
+	    CXXFLAGS="${CXXFLAGS} -DHAVE_GSM"
+
+            GSM_CFLAGS="-I$includeval"
+            GSM_CXXFLAGS="-I$includeval"
+            GSM_LIBS="-lgsm"
+            GSM_LDFLAGS="-L$libval"
+
+            GSM_TARGET="plggsm"
+
+            PLUGINS="${PLUGINS} GSM"
+        fi
+    fi
+    AC_SUBST(GSM_TARGET)
+    AC_SUBST(GSM_CFLAGS)
+    AC_SUBST(GSM_CXXFLAGS)
+    AC_SUBST(GSM_LIBS)
+    AC_SUBST(GSM_LDFLAGS)
+])dnl
+
+AC_DEFUN([CHECK_GSM],
+[
+    AC_MSG_CHECKING([for libgsm >= 1.0.10])
+
+    AC_ARG_ENABLE(codec-gsm,
+    [AS_HELP_STRING([--enable-codec-gsm],
+                    [Enable support for GSM codec @<:@default=auto@:>@])],
+    [ case "${enableval}" in
+         auto) AM_PATH_GSM ;;
+         yes) AM_PATH_GSM ;;
+         no) AC_MSG_RESULT(disabled) ;;
+         *) AC_MSG_ERROR(bad value ${enableval} for --enable-codec-gsm) ;;
+      esac],
+    [AM_PATH_GSM])
+])dnl
+
+
+# ============ S P E E X ==================
+dnl
+dnl Enables use of speex dsp specific code within the project.
+dnl Callers of this macro need to check the contrib_speex_enabled shell variable
+dnl and supply the AC_CONFIG_SUBDIRS line that configures the
+dnl sipXmediaLib/contrib/libspeex package.  
+dnl See CHECK_SPEEX for more information.
+AC_DEFUN([ENABLE_SPEEX_DSP],
+[
+    AC_MSG_CHECKING([if speex dsp usage is enabled])
+    speex_dsp_enabled=no;
+    AC_ARG_ENABLE([speex-dsp],
+       [AS_HELP_STRING([--enable-speex-dsp],
+          [Enable SPEEX dsp library usage @<:@default=no@:>@])],
+       [ case "${enableval}" in
+            yes)  AC_MSG_RESULT(yes);
+                  speex_dsp_enabled=yes ;;
+            no) AC_MSG_RESULT(no) ;;
+            *) AC_MSG_ERROR(bad value ${enableval} for --enable-speex-dsp) ;;
+         esac],
+       [AC_MSG_RESULT(no)])
+
+    # Check to see if speex dsp was selected, and speex usage has not been
+    # checked and configured
+    if test "x$speex_dsp_enabled" == "xyes" -a "x$speex_detected" == "x"; then
+        CHECK_SPEEX
+    fi
+
+    dnl now the important part of this macro...
+    if test "x$speex_dsp_enabled" == "xyes"; then
+        # Specify to enable speex dsp code
+        CFLAGS="${CFLAGS} -DHAVE_SPEEX" ; CXXFLAGS="${CXXFLAGS} -DHAVE_SPEEX"
+    fi
+])dnl
+
+dnl
+dnl Enables the speex codec plugin to be built and linked to in sipXmediaLib.
+dnl Callers of this macro need to check the contrib_speex_enabled shell variable
+dnl and supply the AC_CONFIG_SUBDIRS line that configures the
+dnl sipXmediaLib/contrib/libspeex package.  
+dnl See CHECK_SPEEX for more information.
+AC_DEFUN([ENABLE_CODEC_SPEEX],
+[
+    codec_speex_enabled=no;
+    AC_ARG_ENABLE([codec-speex],
+       [AS_HELP_STRING([--enable-codec-speex],
+          [Enable support for SPEEX codec @<:@default=no@:>@])],
+       [ case "${enableval}" in
+            yes) codec_speex_enabled=yes ;;
+            no) ;;
+            *) AC_MSG_ERROR(bad value ${enableval} for --enable-codec-speex) ;;
+         esac])
+
+    # Check to see if speex dsp was selected, and speex usage has not been
+    # checked and configured
+    if test "x$codec_speex_enabled" == "xyes" -a "x$speex_detected" == "x"; then
+        CHECK_SPEEX
+    fi
+
+    dnl now the important part of this macro...
+    SPEEX_TARGET=
+    if test "x$codec_speex_enabled" == "xyes"; then
+        # Specify to build speex plugin
+        PLUGINS="${PLUGINS} SPEEX"
+        SPEEX_TARGET="plgspeex"
+    fi
+    AC_SUBST(SPEEX_TARGET)    
+])dnl
+
+dnl
+dnl Enables speex support, checks to make sure that it is present,
+dnl or needs to be built.  If it needs to be built, then the user that
+dnl calls this needs to check the contrib_speex_enabled shell variable
+dnl and supply the AC_CONFIG_SUBDIRS line that configures the
+dnl sipXmediaLib/contrib/libspeex package.  This cannot be done within
+dnl CHECK_SPEEX because it can only be specified once, and CHECK_SPEEX has the
+dnl possibility of being specified more than once (and does in sipXmediaLib).
+AC_DEFUN([CHECK_SPEEX],
+[
+    AC_MSG_CHECKING([for libspeex >= 1.2.0])
+
+    # Check if the user wished to force usage of contrib version of speex
+    contrib_speex_enabled=no;
+    AC_ARG_ENABLE([contrib-speex],
+        [AS_HELP_STRING([--enable-contrib-speex],
+            [Ignore any installed SPEEX libraries. Instead, build and use the ones in the contrib directory. @<:@default=no@:>@])],
+        [ case "${enableval}" in
+            yes) contrib_speex_enabled=yes ;;
+            no) contrib_speex_enabled=no ;;
+            *) AC_MSG_ERROR(bad value ${enableval} for --enable-contrib-speex) ;;
+          esac],
+        [contrib_speex_enabled=no])
+    
+    # Detect if speex is installed.
+    speex_detected=no;
+    if test "x$contrib_speex_enabled" == "xno"; then
+        PKG_CHECK_MODULES([SPEEX],
+                          [speex >= 1.2.0], 
+                          speex_detected=yes, 
+                          speex_detected=no; contrib_speex_enabled=yes)
+        pkg_failed=no
+        _PKG_CONFIG([SPEEX_LIBDIR], [variable=libdir], [speex >= 1.2.0])
+        if test "x$pkg_failed" = "xuntried"; then
+            AC_MSG_ERROR(Failed to get the speex library directory from pkg-config!)
+        else
+            SPEEX_STATIC_LIB=${SPEEX_LIBDIR}/libspeex.a
+        fi
+    fi
+
+    # if contrib speex is selected, use it.
+    if test "x$contrib_speex_enabled" == "xyes" ; then
+        AC_MSG_RESULT([using svn version])
+        SPEEX_ROOT='${top_srcdir}/../sipXmediaLib/contrib/libspeex'
+        SPEEX_CFLAGS="-I${SPEEX_ROOT}/include"
+        SPEEX_LIBS='${top_srcdir}/../sipXmediaLib/bin/libspeex.la'
+        SPEEX_STATIC_LIB="${SPEEX_ROOT}/libspeex/.libs/libspeex.a"
+        AC_SUBST(SPEEX_ROOT)
+        AC_SUBST(SPEEX_CFLAGS)
+        AC_SUBST(SPEEX_LIBS) 
+        AC_SUBST(SPEEX_STATIC_LIB)
+    elif test "x$speex_detected" == "xyes"; then
+        AC_MSG_RESULT([ok])
+        AC_SUBST(SPEEX_CFLAGS)
+        AC_SUBST(SPEEX_LIBS)
+        AC_SUBST(SPEEX_STATIC_LIB)
+    else
+        AC_MSG_ERROR([No speex found!])
+    fi
+])dnl
+
+# ========== P C M A  P C M U =================
+AC_DEFUN([AM_SET_STATIC_PCMA_PCMU],
+[
+    CODEC_PCMAPCMU_STATIC=true
+    AM_SET_PCMA_PCMU
+    AC_DEFINE(CODEC_PCMA_PCMU_STATIC, [1], [Select PCMA and PCMU codecs for static link])
+    STATIC_CODEC_LIBS="${STATIC_CODEC_LIBS} mp/codecs/plgpcmapcmu/codec_pcmapcmu.la"
+    AC_SUBST(STATIC_CODEC_LIBS)
+])dnl
+AC_DEFUN([AM_SET_PCMA_PCMU],
+[
+    PLUGINS="${PLUGINS} PCMA_PCMU"
+    PCMAPCMU_TARGET="plgpcmapcmu"
+    AC_SUBST(PCMAPCMU_TARGET)
+])dnl
+AC_DEFUN([CHECK_PCMA_PCMU],
+[
+    AC_ARG_ENABLE([codec-pcmapcmu],
+                  [AS_HELP_STRING([--enable-codec-pcmapcmu],
+                                  [Enable support for PCMA and PCMU codecs @<:@default=yes@:>@])],
+                  [ case "${enableval}" in
+                       static) AM_SET_STATIC_PCMA_PCMU ;;
+                       auto) AM_SET_PCMA_PCMU ;;
+                       yes) AM_SET_PCMA_PCMU ;;
+                       no) AC_MSG_RESULT(Codecs PCMA & PCMU was disabled) ;;
+                       *) AC_MSG_ERROR(bad value ${enableval} for --enable-codec-pcmapcmu) ;;
+                    esac],
+                  [AM_SET_PCMA_PCMU])
+    AM_CONDITIONAL(PCMAPCMU_STATIC, test "$CODEC_PCMAPCMU_STATIC" = true)
+])dnl
+
+# ==============  T O N E S  ==================
+AC_DEFUN([AM_SET_STATIC_TONES],
+[
+    CODEC_TONES_STATIC=true
+    AM_SET_TONES
+    AC_DEFINE(CODEC_TONES_STATIC, [1], [Select tones for static link])
+    STATIC_CODEC_LIBS="${STATIC_CODEC_LIBS} mp/codecs/plgtones/codec_tones.la"
+    AC_SUBST(STATIC_CODEC_LIBS)
+])dnl
+AC_DEFUN([AM_SET_TONES],
+[
+    PLUGINS="${PLUGINS} TONES"
+    TONES_TARGET="plgtones"
+    AC_SUBST(TONES_TARGET)
+])dnl
+AC_DEFUN([CHECK_TONES],
+[
+    AC_ARG_ENABLE([codec-tones],
+                  [AS_HELP_STRING([--enable-codec-tones],
+                                  [Enable support for Tones codec @<:@default=yes@:>@])],
+                  [ case "${enableval}" in
+                       static) AM_SET_STATIC_TONES ;;
+                       auto) AM_SET_TONES ;;
+                       yes) AM_SET_TONES ;;
+                       no) AC_MSG_RESULT(Codec Tones was disabled) ;;
+                       *) AC_MSG_ERROR(bad value ${enableval} for --enable-codec-tones) ;;
+                    esac],
+                  [AM_SET_TONES])
+    AM_CONDITIONAL(TONES_STATIC, test "$CODEC_TONES_STATIC" = true)
+])dnl
+
+# =============== I L B C =====================
+
+AC_DEFUN([AM_SET_ILBC],
+[
+# Currently only iLBC in contrib supported
+    PLUGINS="${PLUGINS} iLBC"
+
+    ILBC_INCLUDE="-I${PWD}/contrib/libilbc/include"
+    ILBC_LIB_ROOT="${PWD}/contrib/libilbc/"
+    ILBC_LIB_TARGET="lib/libilbc.a"
+    ILBC_TARGET="plgilbc"
+    AC_SUBST(ILBC_INCLUDE)
+    AC_SUBST(ILBC_LIB_ROOT)    
+    AC_SUBST(ILBC_LIB_TARGET)    
+    AC_SUBST(ILBC_TARGET)    
+    
+])dnl
+AC_DEFUN([CHECK_ILBC],
+[
+    AC_ARG_ENABLE([codec-ilbc],
+                  [AS_HELP_STRING([--enable-codec-ilbc],
+                                  [Enable support for ilbc codec @<:@default=yes@:>@])],
+                  [ case "${enableval}" in
+                       auto) AM_SET_ILBC ;;
+                       yes) AM_SET_ILBC ;;
+                       no) AC_MSG_RESULT(Codec iLBC was disabled) ;;
+                       *) AC_MSG_ERROR(bad value ${enableval} for --enable-codec-ilbc) ;;
+                    esac],
+                  [AM_SET_ILBC])
+])dnl
+
+
+# == D E C L A R E _ C O D E C S _ S T A F F ==
+AC_DEFUN([DECLARE_CODECS_STAFF],
+[
+    AC_MSG_CHECKING([Configured codecs: ])
+
+    DEFAULT_CODECS_PATH="${PWD}/bin"
+    AC_ARG_WITH([codecs-bin-path],
+                [AS_HELP_STRING([--with-codecs-bin-path=PATH],
+                                [Set installation binary codec path. Default is ${PWD}/bin])],
+                [DEFAULT_CODECS_PATH=${withval}],
+                [])
+
+    AC_MSG_RESULT( ${PLUGINS} )    
+    AC_SUBST(DEFAULT_CODECS_PATH)
+    
+    CFLAGS="${CFLAGS} -DDEFAULT_CODECS_PATH=\"${DEFAULT_CODECS_PATH}\" "
+    CXXFLAGS="${CXXFLAGS} -DDEFAULT_CODECS_PATH=\"${DEFAULT_CODECS_PATH}\" "    
+])dnl
+
+
+AC_DEFUN([CHECK_SPANDSP],
+[
+    AC_MSG_CHECKING([for libspandsp >= 0.0.2pre26])
+
+    # Unset withval, as AC_ARG_WITH does not unset it
+    withval=
+    AC_ARG_WITH(spandsp-includedir,
+                [AS_HELP_STRING([--with-spandsp-includedir=PATH],
+                                [path to libspandsp include directory (containing spandsp.h)])],
+                )
+    # If withval is set, use that.  If not and homeval is set, use
+    # $homeval/include.  If neither, use null.
+    includeval=${withval}
+    withval=
+
+    # Process the --with-spansdp-libdir argument which gives the libgsm library
+    # directory.
+    AC_ARG_WITH(spandsp-libdir,
+                [AS_HELP_STRING([--with-spandsp-libdir=PATH],
+                                [path to libspandsp lib directory (containing libspandsp.{so,la})])],
+                )
+    libval=${withval}
+
+    # Check for spansdp.h in the specified include directory if any, and a number
+    # of other likely places.
+    for dir in $includeval /usr/local/include /usr/include /sw/include; do
+        if test -f "$dir/spandsp.h"; then
+            found_spandsp_include="yes";
+            includeval=$dir
+            break;
+        fi
+    done
+
+    # Check for libspansdp.{so,a} in the specified lib directory if any, and a
+    # number of other likely places.
+    for dir in $libval /usr/local/lib /usr/lib /sw/lib; do
+        if test -f "$dir/libspandsp.so" -o -f "$dir/libspandsp.la"; then
+            found_spandsp_lib="yes";
+            libval=$dir
+            break;
+        fi
+    done
+
+    # Test that we've been able to find both directories, and set the various
+    # makefile variables.
+    if test x_$found_spandsp_include != x_yes -o x_$found_spandsp_lib != x_yes; then
+        AC_MSG_RESULT(not found)
+    else
+        # testing for proper version
+        ac_spandsp_ok=false
+        ac_spandsp_new=false
+        ac_spandsp_g726valid=false
+        
+        if test -f "$includeval/spandsp/g722.h" -o -f "$includeval/spandsp/g726.h"; then
+            AC_TRY_COMPILE([
+                    #if HAVE_STDINT_H
+                    #include <stdint.h>
+                    #endif
+                    #include <spandsp/bitstream.h>
+                    #include <spandsp/g722.h>
+                    #include <spandsp/g726.h>
+                ],[
+                    void* p = g726_init(0, 16000, G726_ENCODING_LINEAR, G726_PACKING_LEFT);
+                    void* q = g722_encode_init(0, 64000, 0);
+                    return p!=q;
+                ],
+                ac_libspandsp_newstyle=true,
+                ac_libspandsp_newstyle=false)
+            
+            if test "$ac_libspandsp_newstyle" = false; then
+                    AC_TRY_COMPILE([
+                        #if HAVE_STDINT_H
+                        #include <stdint.h>
+                        #endif
+                        #include <spandsp/g722.h>
+                        #include <spandsp/g726.h>
+                    ],[
+                        void* p = g726_init(0, 16000, G726_ENCODING_LINEAR, 1);
+                        void* q = g722_encode_init(0, 64000, 0);
+                        return p!=q;
+                    ],
+                    ac_libspandsp_oldstyle=true,
+                    ac_libspandsp_oldstyle=false)
+                
+                if test "$ac_libspandsp_oldstyle" = true; then
+                    AC_DEFINE(HAVE_OLD_LIBSPANDSP, [1], [Have old version of libspandsp])
+                    ac_spandsp_ok=true
+                fi
+            else
+                ac_spandsp_ok=true
+            fi
+        fi
+    
+        if test "$ac_spandsp_ok" = true -a "$ac_libspandsp_newstyle" = true; then
+            ac_spandsp_new=true
+            ac_spandsp_g726valid=true
+        fi
+    
+        if test "$ac_spandsp_ok" = true; then
+            if test "$ac_spandsp_new" = true; then
+                AC_MSG_RESULT(ok)
+            else
+                AC_MSG_RESULT(old version of libspandsp)
+            fi
+            SPANDSP_CFLAGS="-I$includeval"
+            SPANDSP_CXXFLAGS="-I$includeval"
+            SPANDSP_LIBS="-lspandsp"
+            SPANDSP_LDFLAGS="-L$libval"
+        else
+            AC_MSG_RESULT(invalid version of spandsplib)
+        fi
+
+
+        if test "$ac_spandsp_ok" = true -a "$ac_spandsp_new" = false; then
+                withval=
+                AC_ARG_WITH(spandsp-validg726,
+                [AS_HELP_STRING([--with-spandsp-validg726=VAL],
+                                [Set VAL to 'yes' or 'ok' to use G726 with old libspandsp (where packing mode parameter compiled in library)])],
+                )
+            
+            if test "$withval" = "yes" -o  "$withval" = "ok" ; then
+                ac_spandsp_g726valid=true
+            else
+                # Need to check G726 packing
+                AC_MSG_CHECKING([for libspandsp G726 packing])
+                
+                OLD_CFLAGS=$CFLAGS
+                OLD_LDFLAGS=$LDFLAGS
+                CFLAGS+=" $SPANDSP_CFLAGS"
+                LDFLAGS+=" $SPANDSP_LDFLAGS $SPANDSP_LIBS"
+                
+                AC_TRY_RUN([
+                        #if HAVE_STDINT_H
+                        #include <stdint.h>
+                        #endif
+                        #include <spandsp/g722.h>
+                        #include <spandsp/g726.h>
+                        
+                        int main() {
+                        void* p = g726_init(0, 16000, G726_ENCODING_LINEAR, 1);
+                        uint16_t data[16];
+                        const uint16_t vdata[4] = {0xc, 0xc, 0xc, 0x3c};
+                        uint8_t packed[4] = {1, 54};
+                        int len, i;
+                        
+                        len = g726_decode(p, data, packed, 2);
+                        
+                        for (i = 0; i < 4; i++) {
+                           if ( data[i] != vdata[i] )
+                              return -1;
+                        }
+                        return 0;
+                        }
+                    ],
+                    ac_spandsp_g726valid=true,
+                    ac_spandsp_g726valid=false,
+                    ac_spandsp_g726valid=false)
+
+
+                CFLAGS=$OLD_CFLAGS
+                LDFLAGS=$OLD_LDFLAGS
+
+                if test "$ac_spandsp_g726valid" = true; then
+                    AC_MSG_RESULT(ok)
+                else
+                    AC_MSG_RESULT(incorrect)
+                fi
+            fi
+            
+        fi
+        
+    fi
+    AC_SUBST(SPANDSP_CFLAGS)
+    AC_SUBST(SPANDSP_CXXFLAGS)
+    AC_SUBST(SPANDSP_LIBS)
+    AC_SUBST(SPANDSP_LDFLAGS)
+
+])dnl
+
+
+# =============== G726  =====================
+AC_DEFUN([AM_SET_STATIC_G726],
+[
+    CODEC_G726_STATIC=true
+    AM_SET_G726
+    if test "$G726_TARGET" != ""; then
+    AC_DEFINE(CODEC_G726_STATIC, [1], [Select G726 for static link])
+
+    LDFLAGS="$LDFLAGS $SPANDSP_LDFLAGS $SPANDSP_LIBS"
+    STATIC_CODEC_LIBS="${STATIC_CODEC_LIBS} mp/codecs/plgg726/codec_g726.la"
+    AC_SUBST(STATIC_CODEC_LIBS)
+    fi
+    
+])dnl
+AC_DEFUN([AM_SET_G726],
+[
+    if test x_$SPANDSP_CFLAGS != x_ -a "$ac_spandsp_g726valid" = true; then
+        PLUGINS="${PLUGINS} G.726"
+        G726_TARGET="plgg726"
+    fi
+    AC_SUBST(G726_TARGET)    
+])dnl
+AC_DEFUN([CHECK_G726],
+[
+    AC_ARG_ENABLE([codec-g726],
+                  [AS_HELP_STRING([--enable-codec-g726],
+                                  [Enable support for g726 codec @<:@default=yes@:>@])],
+                  [ case "${enableval}" in
+                       static) AM_SET_STATIC_G726 ;;
+                       auto) AM_SET_G726 ;;
+                       yes) AM_SET_G726 ;;
+                       no) AC_MSG_RESULT(Codec G.726 was disabled) ;;
+                       *) AC_MSG_ERROR(bad value ${enableval} for --enable-codec-g726) ;;
+                    esac],
+                  [AM_SET_G726])
+    AM_CONDITIONAL(G726_STATIC, test "$CODEC_G726_STATIC" = true)
+])dnl
+
+# =============== G722  =====================
+AC_DEFUN([AM_SET_STATIC_G722],
+[
+    CODEC_G722_STATIC=true
+    AM_SET_G722
+    if test "$G722_TARGET" != ""; then
+    AC_DEFINE(CODEC_G722_STATIC, [1], [Select G722 for static link])
+
+    LDFLAGS="$LDFLAGS $SPANDSP_LDFLAGS $SPANDSP_LIBS"
+    STATIC_CODEC_LIBS="${STATIC_CODEC_LIBS} mp/codecs/plgg722/codec_g722.la"
+    AC_SUBST(STATIC_CODEC_LIBS)
+    fi
+])dnl
+AC_DEFUN([AM_SET_G722],
+[
+# Currently only iLBC in contrib supported
+    if test x_$SPANDSP_CFLAGS != x_; then
+        PLUGINS="${PLUGINS} G.722"
+        G722_TARGET="plgg722"
+    fi
+    AC_SUBST(G722_TARGET)    
+])dnl
+AC_DEFUN([CHECK_G722],
+[
+    AC_ARG_ENABLE([codec-g722],
+                  [AS_HELP_STRING([--enable-codec-g722],
+                                  [Enable support for g722 codec @<:@default=yes@:>@])],
+                  [ case "${enableval}" in
+                       static) AM_SET_STATIC_G722 ;;
+                       auto) AM_SET_G722 ;;
+                       yes) AM_SET_G722 ;;
+                       no) AC_MSG_RESULT(Codec G.722 was disabled) ;;
+                       *) AC_MSG_ERROR(bad value ${enableval} for --enable-codec-g722) ;;
+                    esac],
+                  [AM_SET_G722])
+    AM_CONDITIONAL(G722_STATIC, test "$CODEC_G722_STATIC" = true)
+])dnl
+
+
+# === AMR AMR_WB
+AC_DEFUN([AM_SET_AMR],
+[
+# Currently only iLBC in contrib supported
+    PLUGINS="${PLUGINS} AMR"
+    AMR_TARGET="plgamr"
+    AMRNB_INCLUDE="-I${PWD}/contrib/libamrnb/"
+    AMRNB_LIB_ROOT="${PWD}/contrib/libamrnb/"    
+    AC_SUBST(AMR_TARGET)    
+    AC_SUBST(AMRNB_INCLUDE)    
+    AC_SUBST(AMRNB_LIB_ROOT)
+
+    # amr narrowband codec has it's own configure, 
+    # so be sure to call it.
+    AC_CONFIG_SUBDIRS([contrib/libamrnb/])
+])dnl
+
+AC_DEFUN([AM_SET_AMRWB],
+[
+# Currently only iLBC in contrib supported
+    PLUGINS="${PLUGINS} AMR-WB"
+    AMRWB_TARGET="plgamrwb"
+    AMRWB_INCLUDE="-I${PWD}/contrib/libamrwb/"
+    AMRWB_LIB_ROOT="${PWD}/contrib/libamrwb/"
+    AC_SUBST(AMRWB_TARGET)    
+    AC_SUBST(AMRWB_INCLUDE)    
+    AC_SUBST(AMRWB_LIB_ROOT)
+
+    # amr wideband codec has it's own configure, 
+    # so be sure to call it.
+    AC_CONFIG_SUBDIRS([contrib/libamrwb/])
+])dnl
+
+AC_DEFUN([CHECK_AMR_AMRWB],
+[
+    amr_enable=false;
+    AC_ARG_ENABLE([codec-amr],
+                  [AS_HELP_STRING([--enable-codec-amr],
+                                  [Enable support for amr codec @<:@default=no@:>@])],
+                  [ if test ${enableval} = yes; 
+                    then
+                           amr_enable=true;
+                    else
+                       if test ${enableval} = no; then
+                           AC_MSG_RESULT(Codec AMR was disabled)
+                       else
+                           AC_MSG_ERROR(bad value ${enableval} for --enable-codec-amr)
+                       fi
+                    fi],
+                  amr_enable=false)
+    if (test "x$amr_enable" = "xtrue"); then 
+        AM_SET_AMR
+    fi
+    AM_CONDITIONAL(AMRNB, [test "x$amr_enable" == "xtrue"])    
+
+    amrwb_enable=false;
+    AC_ARG_ENABLE([codec-amrwb],
+                  [AS_HELP_STRING([--enable-codec-amrwb],
+                                  [Enable support for amrwb codec @<:@default=no@:>@])],
+                  [ if test ${enableval} = yes; 
+                    then
+                           amrwb_enable=true;
+                    else
+                       if test ${enableval} = no; then
+                           AC_MSG_RESULT(Codec AMRWB was disabled)
+                       else
+                           AC_MSG_ERROR(bad value ${enableval} for --enable-codec-amrwb)
+                       fi
+                    fi],
+                  amrwb_enable=false)
+    if (test "x$amrwb_enable" = "xtrue"); then 
+        AM_SET_AMRWB
+    fi
+    AM_CONDITIONAL(AMRWB, [test "x$amrwb_enable" == "xtrue"])    
+
 ])dnl
 
 

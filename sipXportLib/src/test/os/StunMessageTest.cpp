@@ -254,7 +254,7 @@ void StunMessageTestSuite::testFingerPrint()
     check.encode(cBuf, sizeof(cBuf), length) ;
     cBuf[length-3] = cBuf[length-3] + 1;
     CPPUNIT_ASSERT(check.isStunMessage(cBuf, (unsigned short) length) == false) ;
-    check.reset ;
+    check.reset() ;
     check.parse(cBuf, length) ;
     CPPUNIT_ASSERT(check.isFingerPrintValid() == false) ;
 }

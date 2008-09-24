@@ -16,10 +16,6 @@ AC_DEFUN([SFAC_INIT_FLAGS],
     AC_SUBST(SIPX_LIBDIR, [${libdir}])
 
     SF_CXX_C_FLAGS="-D__pingtel_on_posix__ -D_linux_ -D_REENTRANT -D_FILE_OFFSET_BITS=64 -fmessage-length=0"
-    
-    if test "`uname`" == "Darwin"; then
-        SF_CXX_C_FLAGS="$SF_CXX_C_FLAGS -D_DISABLE_MULTIPLE_INTERFACE_SUPPORT"
-    fi
 
     SF_CXX_WARNINGS="-Wall -Wformat -Wwrite-strings -Wpointer-arith"
     CXXFLAGS="$CXXFLAGS $SF_CXX_C_FLAGS $SF_CXX_WARNINGS"
@@ -175,6 +171,7 @@ AC_DEFUN([SFAC_LIB_PORT],
 AC_DEFUN([SFAC_LIB_STACK],
 [
     AC_REQUIRE([SFAC_LIB_PORT])
+    AC_REQUIRE([SFAC_LIB_SDP])
 
     SFAC_ARG_WITH_INCLUDE([net/SipUserAgent.h],
             [sipxtackinc],
@@ -214,6 +211,53 @@ AC_DEFUN([SFAC_LIB_STACK],
 
 ]) # SFAC_LIB_STACK
 
+## sipXsdpLib
+#
+# If not found, the configure is aborted.  Otherwise, variables are defined
+# for both the INC and LIB paths AND the paths are added to the CFLAGS,
+# CXXFLAGS, LDFLAGS, and LIBS.
+AC_DEFUN([SFAC_LIB_SDP],
+[
+    AC_REQUIRE([SFAC_LIB_PORT])
+
+    SFAC_ARG_WITH_INCLUDE([sdp/Sdp.h],
+            [sipxsdpinc],
+            [ --with-sipxsdpinc=<dir> sdp include path ],
+            [sipXsdpLib])
+
+    if test x_$foundpath != x_; then
+        AC_MSG_RESULT($foundpath)
+    else
+        AC_MSG_ERROR('sdp/Sdp.h' not found)
+    fi
+    SIPXSDPINC=$foundpath
+    AC_SUBST(SIPXSDPINC)
+
+    if test "$SIPXSDPINC" != "$SIPXPORTINC"
+    then
+        CFLAGS="-I$SIPXSDPINC $CFLAGS"
+        CXXFLAGS="-I$SIPXSDPINC $CXXFLAGS"
+    fi
+
+    SFAC_ARG_WITH_LIB([libsipXsdp.la],
+            [sipxsdplib],
+            [ --with-sipxsdplib=<dir> sdp library path ],
+            [sipXsdpLib])
+
+    if test x_$foundpath != x_; then
+        AC_MSG_RESULT($foundpath)
+    else
+        AC_MSG_ERROR('libsipXsdp.la' not found)
+    fi
+
+    SIPXSDPLIB=$foundpath
+
+    AC_SUBST(SIPXSDP_LIBS,["$SIPXSDPLIB/libsipXsdp.la"])
+    AC_SUBST(SIPXSDP_STATIC_LIBS,["$SIPXSDPLIB/libsipXsdp.a"])
+    AC_SUBST(SIPXSDP_LDFLAGS,["-L$SIPXSDPLIB"])
+
+]) # SFAC_LIB_SDP
+
 
 ## sipXmediaLib 
 # SFAC_LIB_MEDIA attempts to find the sf media library and include
@@ -240,7 +284,7 @@ AC_DEFUN([SFAC_LIB_MEDIA],
     SIPXMEDIAINC=$foundpath
     AC_SUBST(SIPXMEDIAINC)
 
-    if test "$SIPXMEDIAINC" != "$SIPXPORTINC"
+    if test "$SIPXMEDIAINC" != "$SIPXTACKINC"
     then
         CFLAGS="-I$SIPXMEDIAINC $CFLAGS"
         CXXFLAGS="-I$SIPXMEDIAINC $CXXFLAGS"
@@ -264,151 +308,148 @@ AC_DEFUN([SFAC_LIB_MEDIA],
 ]) # SFAC_LIB_MEDIA
 
 
-## Optionally compile in the GIPS library in the media subsystem
-# (sipXmediaLib project) and executables that link it in
-# Conditionally use the GIPS audio libraries
-AC_DEFUN([CHECK_GIPSNEQ],
+## sipXmediaProcessingLib 
+# SFAC_LIB_MEDIA_PROCESSING attempts to find the sf media processing library and include
+# files by looking in /usr/[lib|include], /usr/local/[lib|include], and
+# relative paths.
+#
+# If not found, the configure is aborted.  Otherwise, variables are defined
+# for both the INC and LIB paths AND the paths are added to the CFLAGS, 
+# CXXFLAGS, LDFLAGS, and LIBS.
+AC_DEFUN([SFAC_LIB_MEDIA_PROCESSING],
 [
-   AC_ARG_WITH(gipsneq,
-      [  --with-gipsneq       Compile the media subsystem with the GIPS audio libraries
-],
-      compile_with_gips=yes)
+    AC_REQUIRE([SFAC_LIB_MEDIA])
 
-   AC_MSG_CHECKING(if link in with gips NetEQ)
+    SFAC_ARG_WITH_INCLUDE([mi/CpMediaInterface.h],
+            [sipxmediainterfaceinc],
+            [ --with-sipxmediainterfaceinc=<dir> media interface library include path ],
+            [sipXmediaAdapterLib])
 
-   if test x$compile_with_gips = xyes
+    if test x_$foundpath != x_; then
+        AC_MSG_RESULT($foundpath)
+    else
+        AC_MSG_ERROR('mi/CpMediaInterface.h' not found)
+    fi
+    SIPXMEDIAINTERFACEINC=$foundpath
+    AC_SUBST(SIPXMEDIAINTERFACEINC)
+
+    if test "$SIPXMEDIAINTERFACEINC" != "$SIPXMEDIAINC"
+    then
+        CFLAGS="-I$SIPXMEDIAINTERFACEINC $CFLAGS"
+        CXXFLAGS="-I$SIPXMEDIAINTERFACEINC $CXXFLAGS"
+    fi
+    
+    SFAC_ARG_WITH_LIB([libsipXmediaProcessing.la],
+            [sipxmediaprocessinglib],
+            [ --with-sipxmediaprocessinglib=<dir> media library path ],
+            [sipXmediaAdapterLib])
+
+    if test x_$foundpath != x_; then
+        AC_MSG_RESULT($foundpath)
+    else
+        AC_MSG_ERROR('libsipXmediaProcessing.la' not found)
+    fi
+    SIPXMEDIAMPLIB=$foundpath
+
+    AC_SUBST(SIPXMEDIA_MP_LIBS, ["$SIPXMEDIAMPLIB/libsipXmediaProcessing.la"])
+    AC_SUBST(SIPXMEDIA_MP_STATIC_LIBS, ["$SIPXMEDIAMPLIB/libsipXmediaProcessing.a"])
+    AC_SUBST(SIPXMEDIA_MP_LDFLAGS, ["-L$SIPXMEDIAMPLIB"])
+]) # SFAC_LIB_MEDIA_PROCESSING
+
+
+## sipXmediaPluginMgr
+# SFAC_LIB_MEDIA_PLUGIN_MGR attempts to find the sf media processing library and
+# include  files by looking in /usr/[lib|include], /usr/local/[lib|include], and
+# relative paths.
+#
+# If not found, the configure is aborted.  Otherwise, variables are defined
+# for both the INC and LIB paths AND the paths are added to the CFLAGS, 
+# CXXFLAGS, LDFLAGS, and LIBS.
+AC_DEFUN([SFAC_LIB_MEDIA_PLUGIN_MGR],
+[
+    AC_REQUIRE([SFAC_LIB_PORT])
+
+    SFAC_ARG_WITH_INCLUDE([mediaPlugin/MediaPluginFactory.h],
+            [sipxmediaplugininc],
+            [ --with-sipxmediainterfaceinc=<dir> media plugin library include path ],
+            [sipXmediaPluginMgr])
+
+    if test x_$foundpath != x_; then
+        AC_MSG_RESULT($foundpath)
+    else
+        AC_MSG_ERROR('mediaPlugin/MediaPluginFactory.h' not found)
+    fi
+    SIPXMEDIAPLUGININC=$foundpath
+    AC_SUBST(SIPXMEDIAPLUGININC)
+
+    if test "$SIPXMEDIAINTERFACEINC" != "$SIPXPORTINC"
+    then
+        CFLAGS="-I$SIPXMEDIAPLUGININC $CFLAGS"
+        CXXFLAGS="-I$SIPXMEDIAPLUGINEINC $CXXFLAGS"
+    fi
+    
+    SFAC_ARG_WITH_LIB([libsipXmediaPluginMgr.la],
+            [sipxmediapluginmgrlib],
+            [ --with-sipxmediapluginlib=<dir> media plugin library path ],
+            [sipXmediaPluginMgr])
+
+    if test x_$foundpath != x_; then
+        AC_MSG_RESULT($foundpath)
+    else
+        AC_MSG_ERROR('libsipXmediaPluginMgr.la' not found)
+    fi
+    SIPXMEDIAPLUGINLIB=$foundpath
+
+    AC_SUBST(SIPXMEDIA_PLUGIN_LIBS, ["$SIPXMEDIAPLUGINLIB/libsipXmediaPluginMgr.la"])
+    AC_SUBST(SIPXMEDIA_PLUGIN_STATIC_LIBS, ["$SIPXMEDIAPLUGINLIB/libsipXmediaPluginMgr.a"])
+    AC_SUBST(SIPXMEDIA_PLUGIN_LDFLAGS, ["-L$SIPXMEDIAPLUGINLIB"])
+]) # SFAC_LIB_MEDIA_PLUGIN_MGR
+
+
+AC_DEFUN([CHECK_GIPS_VEMM],
+[
+   AC_ARG_WITH(gips-vemm,
+      [  --with-gips-vemm Link to GIPS VoiceEngine MultiMedia if --with-gips-vemmis set],
+      link_with_gipsvemm=yes)
+
+   AC_MSG_CHECKING(if linking to gips voice engine multi media)
+
+   if test x$link_with_gipsvemm = xyes
    then
       AC_MSG_RESULT(yes)
       
       SFAC_SRCDIR_EXPAND
 
-      AC_MSG_CHECKING(for gips includes)
-      # Define HAVE_GIPS for c pre-processor
-      GIPS_CPPFLAGS=-DHAVE_GIPS
-      if test -e $withval/include/GIPS/Vendor_gips_typedefs.h
+      AC_MSG_CHECKING(for gips voice engine includes)
+
+      if test -e $abs_srcdir/../../contrib/gips/VoiceEngine/interface/mac/GipsVoiceEngineLib.h
       then
-         gips_dir=$withval
-      elif test -e $abs_srcdir/../sipXbuild/vendors/gips/include/GIPS/Vendor_gips_typedefs.h
-      then
-         gips_dir=$abs_srcdir/../sipXbuild/vendors/gips
+         gips_dir=$abs_srcdir/../../contrib/gips
       else
-         AC_MSG_ERROR(GIPS/Vendor_gips_typedefs.h not found)
+         AC_MSG_ERROR($abs_srcdir/../../contrib/gips/VoiceEngine/interface/mac/GipsVoiceEngineLib.h)
       fi
 
       AC_MSG_RESULT($gips_dir)
 
       # Add GIPS include path
-      GIPSINC=$gips_dir/include
-      # Add GIPS objects to be linked in
-      GIPS_NEQ_OBJS=$gips_dir/GIPS_SuSE_i386.a
-      CPPFLAGS="$CPPFLAGS $GIPS_CPPFLAGS -I$GIPSINC"
-      # GIPS needs to be at the end of the list
-      #LIBS="$LIBS $GIPS_OBJS"
-
-   else
-      AC_MSG_RESULT(no)
-   fi
-
-   AC_SUBST(GIPSINC)
-   AC_SUBST(GIPS_NEQ_OBJS)
-   AC_SUBST(GIPS_CPPFLAGS)
-
-   AC_SUBST(SIPXMEDIA_MP_LIBS, ["$SIPXMEDIALIB/libsipXmediaProcessing.la"])
-   AC_SUBST(SIPXMEDIA_MP_STATIC_LIBS, ["$SIPXMEDIALIB/libsipXmediaProcessing.a"])
-]) # CHECK_GIPSNEQ
-
-
-AC_DEFUN([CHECK_GIPSVE],
-[
-   AC_ARG_WITH(gipsve,
-      [  --with-gipsve       Link to GIPS voice engine if --with-gipsve is set],
-      link_with_gipsve=yes)
-
-   AC_MSG_CHECKING(if linking to gips voice engine)
-
-   if test x$link_with_gipsve = xyes
-   then
-      AC_MSG_RESULT(yes)
-      
-      SFAC_SRCDIR_EXPAND
-
-      AC_MSG_CHECKING(for gips includes)
-
-      if test -e $abs_srcdir/../sipXbuild/vendors/gips/VoiceEngine/interface/GipsVoiceEngineLib.h
-      then
-         gips_dir=$abs_srcdir/../sipXbuild/vendors/gips
-      else
-         AC_MSG_ERROR(sipXbuild/vendors/gips/VoiceEngine/interface/GipsVoiceEngineLib.h not found)
-      fi
-
-      AC_MSG_RESULT($gips_dir)
-
-      # Add GIPS include path
-      GIPSINC=$gips_dir/VoiceEngine/interface
-      CPPFLAGS="$CPPFLAGS -I$gips_dir/include -I$GIPSINC -DVOICE_ENGINE"
+      GIPSINC=$gips_dir/VoiceEngine/interface/mac
+      CPPFLAGS="$CPPFLAGS -I$GIPSINC"
       # Add GIPS objects to be linked in
       if test "`uname`" == "Darwin"; then
-         GIPS_VE_OBJS="$gips_dir/VoiceEngine/libraries/VoiceEngine_mac_ppc_gcc.a"
+         GIPS_VEMM_LIBS="$gips_dir/VoiceEngine/libraries/VoiceEngine_mac_intel_gcc.a $gips_dir/VoiceEngine/libraries/VideoEngineMac_mac_intel_gcc.a"
+# $gips_dir/VoiceEngine/libaries/on2vpplugin6_7.lib
       else
-         GIPS_VE_OBJS="$gips_dir/VoiceEngine/libraries/VoiceEngine_Linux_Alsa_gcc.a"
+         GIPS_VEMM_LIBS="$gips_dir/VoiceEngine/libraries/VoiceEngine_Linux_Alsa_gcc.a"
       fi
-
    else
       AC_MSG_RESULT(no)
    fi
 
-   AC_SUBST(GIPSINC)
-   AC_SUBST(GIPS_VE_OBJS)
+   AC_SUBST(GIPS_VEMM_LIBS)
 
-   AC_SUBST(SIPXMEDIA_VE_LIBS, ["$SIPXMEDIALIB/libsipXvoiceEngine.la"])
-   AC_SUBST(SIPXMEDIA_VE_STATIC_LIBS, ["$SIPXMEDIALIB/libsipXvoiceEngine.a"])
+   AM_CONDITIONAL(BUILDVEMM, test x$link_with_gipsvemm = xyes)
 
-   AM_CONDITIONAL(BUILDVE, test x$link_with_gipsve = xyes)
-
-]) # CHECK_GIPSVE
-
-AC_DEFUN([CHECK_GIPSCE],
-[
-   AC_ARG_WITH(gipsce,
-      [  --with-gipsce       Link to GIPS conference engine if --with-gipsce is set],
-      link_with_gipsce=yes)
-
-   AC_MSG_CHECKING(if linking to gips conference engine)
-
-   if test x$link_with_gipsce = xyes
-   then
-      AC_MSG_RESULT(yes)
-      
-      SFAC_SRCDIR_EXPAND
-
-      AC_MSG_CHECKING(for gips includes)
-
-      if test -e $abs_srcdir/../sipXbuild/vendors/gips/ConferenceEngine/interface/ConferenceEngine.h
-      then
-         gips_dir=$abs_srcdir/../sipXbuild/vendors/gips
-      else
-         AC_MSG_ERROR(sipXbuild/vendors/gips/ConferenceEngine/interface/ConferenceEngine.h not found)
-      fi
-
-      AC_MSG_RESULT($gips_dir)
-
-      # Add GIPS include path
-      GIPSINC=$gips_dir/ConferenceEngine/interface 
-      CPPFLAGS="$CPPFLAGS -I$gips_dir/include -I$GIPSINC -DVOICE_ENGINE"
-      # Add GIPS objects to be linked in
-      GIPS_CE_OBJS="$gips_dir/ConferenceEngine/libraries/ConferenceEngine_Linux_gcc.a"
-
-   else
-      AC_MSG_RESULT(no)
-   fi
-
-   AC_SUBST(GIPSINC)
-   AC_SUBST(GIPS_CE_OBJS)
-
-   AC_SUBST(SIPXMEDIA_CE_LIBS, ["$SIPXMEDIALIB/libsipXconferenceEngine.la"])
-   AM_CONDITIONAL(BUILDCE, test x$link_with_gipsce = xyes)
-
-]) # CHECK_GIPSCE
+]) # CHECK_GIPSVEMM
 
 AC_DEFUN([CHECK_VIDEO],
 [
@@ -439,7 +480,7 @@ AC_DEFUN([CHECK_VIDEO],
 # CXXFLAGS, LDFLAGS, and LIBS.
 AC_DEFUN([SFAC_LIB_CALL],
 [
-    AC_REQUIRE([SFAC_LIB_MEDIA])
+    AC_REQUIRE([SFAC_LIB_MEDIA_PROCESSING])
 
     SFAC_ARG_WITH_INCLUDE([cp/CallManager.h],
             [sipxcallinc],
@@ -542,7 +583,7 @@ AC_DEFUN([SFAC_ARG_WITH_INCLUDE],
     AC_ARG_WITH( [$2],
         [ [$3] ],
         [ include_path=$withval ],
-        [ include_path="$includedir $prefix/include /usr/include /usr/local/include [$abs_srcdir]/../[$4]/include [$abs_srcdir]/../[$4]/src/test" ]
+        [ include_path="$includedir $prefix/include /usr/include /usr/local/include [$abs_srcdir]/../[$4]/interface [$abs_srcdir]/../[$4]/include [$abs_srcdir]/../[$4]/src/test" ]
     )
 
     for dir in $include_path ; do

@@ -1,3 +1,19 @@
+// Copyright 2008 AOL LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -12,10 +28,6 @@
 // SYSTEM INCLUDES
 #if !defined(_WIN32)
 #  include <stddef.h>
-#endif
-
-#ifdef _WIN32
-#include <windows.h>
 #endif
 
 #include <assert.h>
@@ -177,6 +189,9 @@ static const char* convertCallstateCauseToString(SIPX_CALLSTATE_CAUSE eMinor)
         case CALLSTATE_CAUSE_EARLY_MEDIA:
             str = "CAUSE_EARLY_MEDIA" ;
             break ;
+        case CALLSTATE_CAUSE_REQUEST_NOT_ACCEPTED:
+            str = "REQUEST_NOT_ACCEPTED" ;
+            break ;
         case CALLSTATE_CAUSE_BAD_ADDRESS:
             str = "CAUSE_BADADDRESS" ;
             break ;
@@ -226,26 +241,31 @@ static const char* convertCallstateCauseToString(SIPX_CALLSTATE_CAUSE eMinor)
             str = "CAUSE_SHUTDOWN";
             break;
         case CALLSTATE_CAUSE_BAD_REFER:
-            str = "CALLSTATE_CAUSE_BAD_REFER";
+            str = "CAUSE_BAD_REFER";
             break;
         case CALLSTATE_CAUSE_NO_KNOWN_INVITE:
-            str = "CALLSTATE_CAUSE_NO_KNOWN_INVITE";
+            str = "CAUSE_NO_KNOWN_INVITE";
             break;
         case CALLSTATE_CAUSE_BYE_DURING_IDLE:
-            str = "CALLSTATE_CAUSE_BYE_DURING_IDLE";
+            str = "CAUSE_BYE_DURING_IDLE";
             break;
         case CALLSTATE_CAUSE_UNKNOWN_STATUS_CODE:
-            str = "CALLSTATE_CAUSE_UNKNOWN_STATUS_CODE";
+            str = "CAUSE_UNKNOWN_STATUS_CODE";
             break;
         case CALLSTATE_CAUSE_BAD_REDIRECT:
-            str = "CALLSTATE_CAUSE_BAD_REDIRECT";
+            str = "CAUSE_BAD_REDIRECT";
             break;
         case CALLSTATE_CAUSE_TRANSACTION_DOES_NOT_EXIST:
-            str = "CALLSTATE_CAUSE_TRANSACTION_DOES_NOT_EXIST";
+            str = "CAUSE_TRANSACTION_DOES_NOT_EXIST";
             break;
         case CALLSTATE_CAUSE_CANCEL:
             str = "CAUSE_CANCEL";
+            break;
+        case CALLSTATE_CAUSE_ICE_FAILURE:
+            str = "CAUSE_ICE_FAILURE" ;
+            break ;
         default:
+            assert(FALSE);
             break ;
     }
     return str;
@@ -287,10 +307,10 @@ static const char* convertMediaEventToString(SIPX_MEDIA_EVENT event)
             str = "REMOTE_DTMF" ;
             break ;
         case MEDIA_DEVICE_FAILURE:
-            str = "MEDIA_DEVICE_FAILURE";
+            str = "DEVICE_FAILURE";
             break ;
         case MEDIA_REMOTE_ACTIVE:
-            str = "MEDIA_REMOTE_ACTIVE" ;
+            str = "REMOTE_ACTIVE" ;
             break ;
         default:
             break ;
@@ -337,7 +357,7 @@ static const char* convertMediaCauseToString(SIPX_MEDIA_CAUSE cause)
             str = "CAUSE_DEVICE_UNAVAILABLE";
             break;
         case MEDIA_CAUSE_INCOMPATIBLE:
-            str = "CAUSE_DEVICE_UNAVAILABLE";
+            str = "CAUSE_INCOMPATIBLE";
             break ;
 	case MEDIA_CAUSE_DTMF_START:
             str = "CAUSE_DTMF_START";
@@ -345,6 +365,9 @@ static const char* convertMediaCauseToString(SIPX_MEDIA_CAUSE cause)
 	case MEDIA_CAUSE_DTMF_STOP:
             str = "CAUSE_DTMF_STOP";
             break ;
+        case MEDIA_CAUSE_ICE_FAILED:
+            str = "CAUSE_ICE_FAILED";
+            break;
         default:
             break ;
     }
@@ -473,6 +496,18 @@ static const char* convertConfigEventToString(SIPX_CONFIG_EVENT event)
         case CONFIG_STUN_FAILURE:
             str = "CONFIG_STUN_FAILURE" ;
             break ;
+        case CONFIG_NAT_CLASSIFICATION:
+            str = "CONFIG_NAT_CLASSIFICATION" ;
+            break ;
+        case CONFIG_UPNP_SUCCESS:
+            str = "CONFIG_UPNP_SUCCESS" ;
+            break ;
+        case CONFIG_UPNP_FAILURE:
+            str = "CONFIG_UPNP_FAILURE" ;
+            break ;
+        case CONFIG_CALL_STATS:
+            str = "CONFIG_CALL_STATS" ;
+            break ;
         default:
             break ;
     }
@@ -525,6 +560,47 @@ const char* convertSubscriptionCauseToString(SIPX_SUBSCRIPTION_CAUSE cause)
 }
 
 #define SAFE_STRDUP(X) (((X) == NULL) ? NULL : strdup((X)))
+
+static void dupConnectivityInfo(SIPX_MEDIA_CONNECTIVITY_INFO* pDst, const SIPX_MEDIA_CONNECTIVITY_INFO* pSrc)
+{
+    memcpy(pDst, pSrc, sizeof(SIPX_MEDIA_CONNECTIVITY_INFO)) ;
+    pDst->szStunServer = SAFE_STRDUP(pDst->szStunServer) ;
+    pDst->szTurnServer = SAFE_STRDUP(pDst->szTurnServer) ;
+    pDst->szArsServer = SAFE_STRDUP(pDst->szArsServer) ;
+    pDst->szArsProxy = SAFE_STRDUP(pDst->szArsProxy) ;
+    for (size_t i=0; i<pDst->nLocalContacts; i++)
+        pDst->szLocalContacts[i] = SAFE_STRDUP(pDst->szLocalContacts[i]) ;
+    pDst->szRemoteIP = SAFE_STRDUP(pDst->szRemoteIP) ;
+}
+
+static void freeConnectivityInfo(SIPX_MEDIA_CONNECTIVITY_INFO* pDst)
+{
+    free((void*) pDst->szStunServer) ;
+    free((void*) pDst->szTurnServer) ;
+    free((void*) pDst->szArsServer) ;
+    free((void*) pDst->szArsProxy) ;
+    for (size_t i=0; i<pDst->nLocalContacts; i++)
+        free((void*) pDst->szLocalContacts[i]) ;
+    free((void*) pDst->szRemoteIP) ;
+}
+
+static void dupMediaDeviceInfo(SIPX_MEDIA_DEVICE_INFO* pDst, const SIPX_MEDIA_DEVICE_INFO* pSrc)
+{
+    memcpy(pDst, pSrc, sizeof(SIPX_MEDIA_DEVICE_INFO)) ;
+    pDst->szRequested = SAFE_STRDUP(pDst->szRequested) ;
+    pDst->szSelected = SAFE_STRDUP(pDst->szSelected) ;
+    pDst->szParameters = SAFE_STRDUP(pDst->szParameters) ;
+    pDst->szErrorInfo = SAFE_STRDUP(pDst->szErrorInfo) ;
+}
+
+static void freeMediaDeviceInfo(SIPX_MEDIA_DEVICE_INFO* pDst)
+{
+    free((void*) pDst->szRequested) ;
+    free((void*) pDst->szSelected) ;
+    free((void*) pDst->szParameters) ;
+    free((void*) pDst->szErrorInfo) ;
+}
+
 
 SIPXTAPI_API SIPX_RESULT sipxDuplicateEvent(SIPX_EVENT_CATEGORY category, 
                                             const void*         pEventSource, 
@@ -680,16 +756,50 @@ SIPXTAPI_API SIPX_RESULT sipxDuplicateEvent(SIPX_EVENT_CATEGORY category,
                     memset(pInfo, 0, sizeof(SIPX_CONFIG_INFO)) ;                    
                     pInfo->nSize = pSourceInfo->nSize ;
                     pInfo->event = pSourceInfo->event ;
-                    
-                    if (pSourceInfo->pData)
-                    {
-                        pInfo->pData = new SIPX_CONTACT_ADDRESS(*((SIPX_CONTACT_ADDRESS*) pSourceInfo->pData)) ;
-                    }
-                    else
-                    {
-                        pInfo->pData = NULL ;
-                    }
 
+                    switch (pSourceInfo->event)
+                    {
+                    case CONFIG_STUN_SUCCESS:
+                        if (pSourceInfo->pData)
+                            pInfo->pData = new SIPX_CONTACT_ADDRESS(*((SIPX_CONTACT_ADDRESS*) pSourceInfo->pData)) ;
+                        break ;
+                    case CONFIG_NAT_CLASSIFICATION:
+                        pInfo->pData = pSourceInfo->pData ;
+                        break ;
+                    case CONFIG_CALL_STATS:
+                        {
+                            const SIPX_CONFIG_CALLSTATS_INFO* pSrcInfo = 
+                                    (const SIPX_CONFIG_CALLSTATS_INFO*) pSourceInfo->pData  ;
+                            if (pSrcInfo)
+                            {
+                                SIPX_CONFIG_CALLSTATS_INFO* pDstInfo = new SIPX_CONFIG_CALLSTATS_INFO ;
+                                memset(pDstInfo, 0, sizeof(SIPX_CONFIG_CALLSTATS_INFO)) ;
+                                pDstInfo->nSize = sizeof(SIPX_CONFIG_CALLSTATS_INFO) ;
+                                pDstInfo->signalingTransport = pSrcInfo->signalingTransport ;
+                                pDstInfo->szCallId = SAFE_STRDUP(pSrcInfo->szCallId) ;
+                                pDstInfo->szLocalId = SAFE_STRDUP(pSrcInfo->szLocalId) ;
+                                pDstInfo->szRemoteId = SAFE_STRDUP(pSrcInfo->szRemoteId) ;
+                                pDstInfo->szRemoteUserAgent = SAFE_STRDUP(pSrcInfo->szRemoteUserAgent) ;
+    
+                                memcpy(&pDstInfo->audioRtcpStats, &pSrcInfo->audioRtcpStats, sizeof(SIPX_RTCP_STATS)) ;
+                                memcpy(&pDstInfo->audioCodec, &pSrcInfo->audioCodec, sizeof(SIPX_AUDIO_CODEC)) ;
+
+                                dupMediaDeviceInfo(&pDstInfo->audioInputDevice, &pSrcInfo->audioInputDevice) ;
+                                dupMediaDeviceInfo(&pDstInfo->audioOutputDevice, &pSrcInfo->audioOutputDevice) ;
+                                dupConnectivityInfo(&pDstInfo->audioConnectivityInfo, &pSrcInfo->audioConnectivityInfo) ;
+                                    
+                                memcpy(&pDstInfo->videoRtcpStats, &pSrcInfo->videoRtcpStats, sizeof(SIPX_RTCP_STATS)) ;
+                                memcpy(&pDstInfo->videoCodec, &pSrcInfo->videoCodec, sizeof(SIPX_VIDEO_CODEC)) ;
+                                dupMediaDeviceInfo(&pDstInfo->videoCaptureDevice, &pSrcInfo->videoCaptureDevice) ;
+                                dupConnectivityInfo(&pDstInfo->videoConnectivityInfo, &pSrcInfo->videoConnectivityInfo) ;
+                            }
+                        }
+                        break ;
+                    default:  
+                        // nothing to do
+                        break;
+                    }
+                    
                     *pEventCopy = pInfo ;
 
                     rc = SIPX_RESULT_SUCCESS ;
@@ -825,6 +935,7 @@ SIPXTAPI_API SIPX_RESULT sipxFreeDuplicatedEvent(SIPX_EVENT_CATEGORY category,
             case EVENT_CATEGORY_INFO:
                 {
                     SIPX_INFO_INFO* pSourceInfo = (SIPX_INFO_INFO*) pEventCopy ;
+
                     if (pSourceInfo->szFromURL)
                     {
                         free((void*) pSourceInfo->szFromURL) ;
@@ -881,10 +992,39 @@ SIPXTAPI_API SIPX_RESULT sipxFreeDuplicatedEvent(SIPX_EVENT_CATEGORY category,
             case EVENT_CATEGORY_CONFIG:
                 {
                     SIPX_CONFIG_INFO* pSourceInfo = (SIPX_CONFIG_INFO*) pEventCopy ;                    
-                    if (pSourceInfo->pData)
+                    switch (pSourceInfo->event)
                     {
-                        delete ((SIPX_CONTACT_ADDRESS*) pSourceInfo->pData) ;
-                    }                    
+                    case CONFIG_STUN_SUCCESS:
+                        if (pSourceInfo->pData)
+                            delete ((SIPX_CONTACT_ADDRESS*) pSourceInfo->pData) ;
+                        break ;
+                    case CONFIG_CALL_STATS:
+
+                        if (pSourceInfo->pData)
+                        {
+                            SIPX_CONFIG_CALLSTATS_INFO* pCallStatsInfo = 
+                                    (SIPX_CONFIG_CALLSTATS_INFO*) pSourceInfo->pData ;
+                            free((void*) pCallStatsInfo->szCallId) ;
+                            free((void*) pCallStatsInfo->szLocalId) ;
+                            free((void*) pCallStatsInfo->szRemoteId) ;
+                            free((void*) pCallStatsInfo->szRemoteUserAgent) ;
+
+                            freeConnectivityInfo(&pCallStatsInfo->audioConnectivityInfo) ;
+                            freeMediaDeviceInfo(&pCallStatsInfo->audioInputDevice) ;
+                            freeMediaDeviceInfo(&pCallStatsInfo->audioOutputDevice) ;
+                           
+                            freeConnectivityInfo(&pCallStatsInfo->videoConnectivityInfo) ;
+                            freeMediaDeviceInfo(&pCallStatsInfo->videoCaptureDevice) ;
+
+                            delete pCallStatsInfo ;
+                        }                        
+
+                        break ;
+                    default:  
+                        // nothing to do
+                        break;
+                    }
+
                     delete pSourceInfo ;
                     rc = SIPX_RESULT_SUCCESS ;
                 }
@@ -1081,32 +1221,6 @@ SIPXTAPI_API char* sipxEventToString(const SIPX_EVENT_CATEGORY category,
 }
 
 
-void ReportCallback(SIPX_CALL hCall,
-                    SIPX_LINE hLine,
-                    SIPX_CALLSTATE_EVENT event,
-                    SIPX_CALLSTATE_CAUSE cause,
-                    void* pUserData)
-{
-    SIPX_INSTANCE_DATA* pInst ;
-    UtlString callId ;
-    UtlString remoteAddress ;
-    UtlString lineId ;
-    static size_t nCnt = 0 ;
-
-    if (sipxCallGetCommonData(hCall, &pInst, &callId, &remoteAddress, &lineId))
-    {
-        printf("<event i=%p, h=%04X, c=%4d, M=%25s, m=%25s, a=%s, c=%s l=%s/>\n",
-                pInst,
-                hCall,
-                (int) ++nCnt,
-                convertCallstateEventToString(event),
-                convertCallstateCauseToString(cause),
-                remoteAddress.data(),
-                callId.data(),
-                lineId.data()) ;
-    }
-}
-
 
 void sipxFireCallEvent(const void* pSrc,
                        const char* szCallId,
@@ -1118,6 +1232,7 @@ void sipxFireCallEvent(const void* pSrc,
                        const char* szRemoteAssertedIdentity)
 {
     OsStackTraceLogger stackLogger(FAC_SIPXTAPI, PRI_DEBUG, "sipxFireCallEvent");
+
     OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
             "sipxFireCallEvent Src=%p CallId=%s RemoteAddress=%s Event=%s:%s",
             pSrc, szCallId, szRemoteAddress, convertCallstateEventToString(event), convertCallstateCauseToString(cause)) ;
@@ -1141,6 +1256,8 @@ void sipxFireCallEvent(const void* pSrc,
     {
         pCallData = new SIPX_CALL_DATA;
         memset((void*) pCallData, 0, sizeof(SIPX_CALL_DATA));
+        pCallData->fRemoteVolumeScale = 1.0 ;
+        pCallData->display.cbSize = sizeof(pCallData->display) ;
         pCallData->state = SIPX_INTERNAL_CALLSTATE_UNKNOWN;
 
         pCallData->callId = new UtlString(szCallId) ;
@@ -1225,9 +1342,11 @@ void sipxFireCallEvent(const void* pSrc,
             // osPrintf("event M=%s m=%s\n", convertCallstateEventToString(major), convertCallstateCauseToString(minor)) ;
         }
         pCallData = sipxCallLookup(hCall, SIPX_LOCK_WRITE, stackLogger) ;
-        if (pCallData && pSession)
+        if (pCallData && pSession && !pCallData->contactAddress)
         {
             pSession->getContactRequestUri(contactAddress);
+            if (pCallData->contactAddress != NULL)
+                delete pCallData->contactAddress ;
             pCallData->contactAddress = new UtlString(contactAddress);
         }
         if (pCallData)
@@ -1300,14 +1419,12 @@ void sipxFireCallEvent(const void* pSrc,
                     callInfo.hAssociatedCall = hAssociatedCall ;
                     callInfo.nSize = sizeof(SIPX_CALLSTATE_INFO);
                     
+                    sipxLogEvent(pData, EVENT_CATEGORY_CALLSTATE, &callInfo, pData->pUserData) ;
                     pData->pCallbackProc(EVENT_CATEGORY_CALLSTATE, &callInfo, pData->pUserData);
                 }
             }
         }
         sipxCallSetState(hCall, event, cause) ;
-#ifdef DEBUG_SIPXTAPI_EVENTS
-        ReportCallback(hCall, hLine, event, cause, NULL) ;
-#endif
     }
 
     // If this is a DESTROY message, free up resources after all listeners
@@ -1493,6 +1610,8 @@ void sipxFireMediaEvent(const void* pSrc,
                     break ;
             }
         }
+
+        // Filter out SILENT events after STOP
         if (event == MEDIA_REMOTE_SILENT)
         {
             if (type == MEDIA_TYPE_AUDIO)
@@ -1551,6 +1670,7 @@ void sipxFireMediaEvent(const void* pSrc,
                             default:
                                 break ;
                         }                                                        
+                        sipxLogEvent(pData, EVENT_CATEGORY_MEDIA, &mediaInfo, pData->pUserData) ;
                         pData->pCallbackProc(EVENT_CATEGORY_MEDIA, &mediaInfo, pData->pUserData);
                     }
                 }
@@ -1611,17 +1731,38 @@ void sipxFireKeepaliveEvent(const void*          pSrc,
                 keepaliveInfo.szFeedbackAddress = SAFE_STRDUP(szFeedbackAddress) ;
                 keepaliveInfo.feedbackPort = feedbackPort ;
                                                 
+                sipxLogEvent(pData, EVENT_CATEGORY_KEEPALIVE, &keepaliveInfo, pData->pUserData) ;
                 pData->pCallbackProc(EVENT_CATEGORY_KEEPALIVE, &keepaliveInfo, pData->pUserData);
+                
             }
         }
     }                           
 }
 
 
+SIPXTAPI_API SIPX_RESULT sipxLogEvent(EVENT_LISTENER_DATA* pListener,
+                                      SIPX_EVENT_CATEGORY category,
+                                      void* pInfo,
+                                      void* pUserData)
+{
+    if (pInfo && pListener)
+    {
+        char cData[1024] ;
+        memset(cData, 0, sizeof(cData)) ;
+        sipxEventToString(category, pInfo, cData, sizeof(cData)-1) ;
+        OsSysLog::add(FAC_SIPXTAPI_EVENT, PRI_INFO, "%p %s", 
+                pListener->pCallbackProc,
+                cData) ;
+    }
+
+    return SIPX_RESULT_SUCCESS ;
+}
+
 SIPXTAPI_API SIPX_RESULT sipxEventListenerAdd(const SIPX_INST hInst,
                                               SIPX_EVENT_CALLBACK_PROC pCallbackProc,
                                               void* pUserData)
 {
+    OsStackTraceLogger stackLogger(FAC_SIPXTAPI, PRI_DEBUG, "sipxEventListenerAdd");
     OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
             "sipxEventListenerAdd hInst=%p pCallbackProc=%p pUserData=%p",
             hInst, pCallbackProc, pUserData);
@@ -1699,6 +1840,7 @@ SIPX_RESULT __sipxEventListenerRemove(const SIPX_INST hInst,
                                       SIPX_EVENT_CALLBACK_PROC pCallbackProc, 
                                       void* pUserData) 
 {
+    OsStackTraceLogger stackLogger(FAC_SIPXTAPI, PRI_DEBUG, "sipxEventListenerRemove");
     OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
         "__sipxEventListenerRemove hInst=%p pCallbackProc=%p pUserData=%p",
         hInst, pCallbackProc, pUserData);
@@ -1843,24 +1985,8 @@ static const char* convertLinestateCauseToString(SIPX_LINESTATE_CAUSE cause)
 SIPXTAPI_API char* sipxConfigEventToString(SIPX_CONFIG_EVENT event, 
                                            char* szBuffer, 
                                            size_t nBuffer) 
-{
-    switch (event)
-    {
-        case CONFIG_UNKNOWN:
-            SNPRINTF(szBuffer, nBuffer, "CONFIG_UNKNOWN") ;
-            break ;
-        case CONFIG_STUN_SUCCESS:
-            SNPRINTF(szBuffer, nBuffer, "CONFIG_STUN_SUCCESS") ;
-            break ;
-        case CONFIG_STUN_FAILURE:
-            SNPRINTF(szBuffer, nBuffer, "CONFIG_STUN_FAILURE") ;
-            break ;
-        default:
-            SNPRINTF(szBuffer, nBuffer, "ERROR -- UNKNOWN EVENT") ;
-            assert(FALSE) ;
-            break ;
-    }
-
+{   
+    SNPRINTF(szBuffer, nBuffer, convertConfigEventToString(event)) ;
     return szBuffer;
 }
 
@@ -1957,6 +2083,45 @@ SIPXTAPI_API char* sipxMediaCauseToString(SIPX_MEDIA_CAUSE cause,
 	case MEDIA_CAUSE_DTMF_STOP:
             SNPRINTF(szBuffer, nBuffer, "MEDIA_CAUSE_DTMF_STOP");
 	    break ;
+        case MEDIA_CAUSE_ICE_FAILED:
+            SNPRINTF(szBuffer, nBuffer, "MEDIA_CAUSE_ICE_FAILED");
+            break ;
+    }
+    return szBuffer;
+}
+
+
+SIPXTAPI_API char* sipxKeepaliveEventToString(SIPX_KEEPALIVE_EVENT event, 
+                                              char* szBuffer, 
+                                              size_t nBuffer) 
+{
+    switch (event)
+    {
+        case KEEPALIVE_START:
+            SNPRINTF(szBuffer, nBuffer, "KEEPALIVE_START") ;
+            break ;
+        case KEEPALIVE_FEEDBACK:
+            SNPRINTF(szBuffer, nBuffer, "KEEPALIVE_FEEDBACK") ;
+            break ;
+        case KEEPALIVE_FAILURE:
+            SNPRINTF(szBuffer, nBuffer, "KEEPALIVE_FAILURE") ;
+            break ;
+        case KEEPALIVE_STOP:
+            SNPRINTF(szBuffer, nBuffer, "KEEPALIVE_STOP") ;
+            break ;
+    }
+    return szBuffer;
+}
+
+SIPXTAPI_API char* sipxKeepaliveCauseToString(SIPX_KEEPALIVE_CAUSE cause, 
+                                              char* szBuffer, 
+                                              size_t nBuffer) 
+{
+    switch (cause)
+    {
+        case KEEPALIVE_CAUSE_NORMAL:
+            SNPRINTF(szBuffer, nBuffer, "KEEPALIVE_CAUSE_NORMAL") ;
+            break ;
     }
     return szBuffer;
 }
@@ -2146,6 +2311,7 @@ void sipxFireLineEvent(const void* pSrc,
                     lineInfo.hLine = hLine;
                     lineInfo.nSize = sizeof(SIPX_LINESTATE_INFO);
                     
+                    sipxLogEvent(pData, EVENT_CATEGORY_LINESTATE, &lineInfo, pData->pUserData) ;
                     pData->pCallbackProc(EVENT_CATEGORY_LINESTATE, &lineInfo, pData->pUserData);
                 }
             }      
@@ -2159,8 +2325,8 @@ bool sipxFireEvent(const void* pSrc,
                    void* pInfo)
 {
     OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
-        "sipxFireEvent pSrc=%p category=%d pInfo=%p",
-        pSrc, category, pInfo);
+            "sipxFireEvent pSrc=%p %s pInfo=%p",
+            pSrc, convertEventCategoryToString(category), pInfo);
 	OsLock eventLock(*g_pEventListenerLock) ;
 
     bool bRet = true;
@@ -2186,6 +2352,7 @@ bool sipxFireEvent(const void* pSrc,
                     pSecInfo->hCall = sipxCallLookupHandle(pSecInfo->callId, pSrc);
                 }
 
+                sipxLogEvent(pData, category, pInfo, pData->pUserData) ;
                 if (!pData->pCallbackProc(category, pInfo, pData->pUserData))
                 {
                     bRet = false;

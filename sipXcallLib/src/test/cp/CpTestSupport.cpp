@@ -15,7 +15,7 @@
 #include <cp/CallManager.h>
 #include <os/OsSocket.h>
 #include <net/SipUserAgent.h>
-#include <net/SdpCodecFactory.h>
+#include <sdp/SdpCodecList.h>
 #include <cp/CpTestSupport.h>
 #include <mi/CpMediaInterfaceFactoryFactory.h>
 
@@ -54,16 +54,16 @@ CallManager *CpTestSupport::newCallManager(SipUserAgent* sua)
 
         // Enable PCMU, PCMA, Tones/RFC2833
         UtlString codecList("258 257 128");
-        SdpCodecFactory* pCodecFactory = new SdpCodecFactory();
+        SdpCodecList* pCodecList = new SdpCodecList();
         UtlString oneCodec;
-        pCodecFactory->buildSdpCodecFactory(codecList);
+        pCodecList->addCodecs(codecList);
 
     CallManager *callManager =
        new CallManager(
           FALSE,
           NULL,
           TRUE, // early media in 180 ringing
-          pCodecFactory,
+          pCodecList,
           9000, //rtp start
           9999, //rtp end
           localAddress.data(),

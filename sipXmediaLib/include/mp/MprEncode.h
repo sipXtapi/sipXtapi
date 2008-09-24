@@ -1,5 +1,8 @@
+//  
+// Copyright (C) 2006-2008 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Copyright (C) 2004-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -12,15 +15,14 @@
 #ifndef _MprEncode_h_
 #define _MprEncode_h_
 
-#include "mp/MpMisc.h"
-
 // SYSTEM INCLUDES
-
 // APPLICATION INCLUDES
-#include "mp/MpResource.h"
-#include "net/SdpCodec.h"
+#include "mp/MpAudioResource.h"
+#include "sdp/SdpCodec.h"
 #include "mp/MpFlowGraphMsg.h"
 #include "mp/MprToNet.h"
+#include "mp/MpMisc.h"
+#include "mp/MpResampler.h"
 
 // DEFINES
 // MACROS
@@ -32,143 +34,191 @@
 // FORWARD DECLARATIONS
 class MpEncoderBase;
 
-//:The "Encode" media processing resource
-class MprEncode : public MpResource
+/**
+*  @brief The "Encode" media processing resource.
+*/
+class MprEncode : public MpAudioResource
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
+   friend class MpRtpOutputAudioConnection;
+
 /* ============================ CREATORS ================================== */
+///@name Creators
+//@{
 
-   MprEncode(const UtlString& rName, int samplesPerFrame, int samplesPerSec);
-     //:Constructor
+     // Constructor
+   MprEncode(const UtlString& rName);
 
+     // Destructor
    virtual
    ~MprEncode();
-     //:Destructor
+
+//@}
 
 /* ============================ MANIPULATORS ============================== */
+///@name Manipulators
+//@{
 
-OsStatus selectCodecs(SdpCodec* pPrimaryCodec, SdpCodec* pDtmfCodec,
-   SdpCodec* pSecondaryCodec);
+   OsStatus selectCodecs(SdpCodec* pPrimaryCodec,
+                         SdpCodec* pDtmfCodec);
 
-// OsStatus selectCodec(int codec);
+   OsStatus deselectCodecs(void);
 
-OsStatus deselectCodecs(void);
+     /// Set ToNet resource which will send generated RTP packets.
+   void setMyToNet(MprToNet* myToNet);
 
-OsStatus setNetFrameSize(int samples);
+     /// Send "begin tone" DTMF RTP packet.
+   OsStatus startTone(int toneId);
 
-void setMyToNet(MprToNet* myToNet);
+     /// Send "stop tone" DTMF RTP packet.
+   OsStatus stopTone(void);
 
-OsStatus startTone(int toneId);
+     /// Enable or disable internal DTX.
+   OsStatus enableDTX(UtlBoolean dtx);
+     /**<
+     *  @note Codec still may use its DTX features.
+     */
 
-OsStatus stopTone(void);
+     /// Set maximum duration of one packet in milliseconds.
+   OsStatus setMaxPacketTime(unsigned int maxPacketTime);
+
+//@}
 
 /* ============================ ACCESSORS ================================= */
+///@name Accessors
+//@{
+
+//@}
 
 /* ============================ INQUIRY =================================== */
+///@name Inquiry
+//@{
+
+//@}
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 
+   virtual UtlBoolean doProcessFrame(MpBufPtr inBufs[],
+                                     MpBufPtr outBufs[],
+                                     int inBufsSize,
+                                     int outBufsSize,
+                                     UtlBoolean isEnabled,
+                                     int samplesPerFrame,
+                                     int samplesPerSecond);
+
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-   enum AddlMsgTypes
+   typedef enum
    {
       SELECT_CODECS = MpFlowGraphMsg::RESOURCE_SPECIFIC_START,
       DESELECT_CODECS,
       START_TONE,
-      STOP_TONE
-   };
+      STOP_TONE,
+      ENABLE_DTX,
+      SET_MAX_PACKET_TIME
+   } AddlMsgTypes;
 
-   enum {TONE_STOP_PACKETS = 3}; // MUST BE > 0
-   enum {HANGOVER_PACKETS = 25}; // At 20 ms each, 500 ms.
+   enum {
+      TONE_STOP_PACKETS = 3, ///< MUST BE > 0
+      HANGOVER_PACKETS = 25  ///< At 20 ms each, 500 ms.
+   };
 
    static const int RTP_KEEP_ALIVE_FRAME_INTERVAL;
 
+///@name Audio codec state variables
+//@{
    MpEncoderBase* mpPrimaryCodec;
-   unsigned char* mpPacket1Buffer;  // packet buffer for primary RTP stream
-   unsigned char* mpPacket1Payload;
-   int   mPacket1PayloadBytes;
-   int   mPacket1PayloadUsed;
-   unsigned int mStartTimestamp1;
-   UtlBoolean mActiveAudio1;
-   UtlBoolean mMarkNext1;
-   int   mConsecutiveInactive1;
+   unsigned char* mpPacket1Payload; ///< Packet buffer for primary RTP stream
+   int   mPacket1PayloadBytes;      ///< Size of mpPacket1Payload buffer
+   int   mPayloadBytesUsed;         ///< Number of bytes in mpPacket1Payload,
+                                    ///<  already filled with encoded data
+   unsigned int mSamplesPacked;     ///< Number of samples already encoded
+                                    ///<  to current packet.
+   unsigned int mStartTimestamp1;   ///< Timestamp of packets being encoded.
+   UtlBoolean mActiveAudio1;        ///< Does current RTP packet contain active voice?
+   UtlBoolean mMarkNext1;           ///< Set Mark bit on next RTP packet
+   int   mConsecutiveInactive1;     ///< Number of RTP packets with active voice data
    int   mConsecutiveActive1;
    int   mConsecutiveUnsentFrames1;
-   UtlBoolean mDoesVad1;
+   UtlBoolean mDoesVad1;    ///< Does codec its own VAD?
+   UtlBoolean mDisableDTX;  ///< Disable internal DTX.
+//@}
 
+///@name Resampler-related variables.
+//@{
+   UtlBoolean  mNeedResample;    ///< Is resampling needed?
+   MpResamplerBase *mpResampler; ///< Resampler to convert flowgraph sample rate
+                                 ///<  to codec's sample rate.
+   unsigned int mResampleBufLen; ///< Length of mpResampleBuf.
+   MpAudioSample *mpResampleBuf; ///< Temporary buffer used to store resampled
+                                 ///< audio samples before passing them to encoder.
+//@}
+
+///@name DTMF codec state variables
+//@{
    MpEncoderBase* mpDtmfCodec;
-   unsigned char* mpPacket2Buffer;  // packet buffer for DTMF event RTP stream
-   unsigned char* mpPacket2Payload;
-   int   mPacket2PayloadBytes;      // 4
-   int   mPacket2PayloadUsed;       // not really needed
-   unsigned int   mStartTimestamp2; // sample time when tone starts
+   unsigned char* mpPacket2Payload; ///< packet buffer for DTMF event RTP stream
+   int   mPacket2PayloadBytes;      ///< 4
+   unsigned int   mStartTimestamp2; ///< sample time when tone starts
    unsigned int   mLastDtmfSendTimestamp;
-   int   mDtmfSampleInterval;  // # samples between AVT packets
-   int   mCurrentTone;  // AVT event code for current tone
-   int   mNumToneStops; // set to # of end packets to send when tone stops
-   int   mTotalTime;    // # samples tone was active, set when tone stops
-   int   mNewTone;      // set when tone starts
+   int   mDtmfSampleInterval;       ///< # samples between AVT packets
+   int   mCurrentTone;  ///< AVT event code for current tone
+   int   mNumToneStops; ///< set to # of end packets to send when tone stops
+   int   mTotalTime;    ///< # samples tone was active, set when tone stops
+   UtlBoolean mNewTone;      ///< set when tone starts
+//@}
 
-   MpEncoderBase* mpSecondaryCodec;
-   unsigned char* mpPacket3Buffer;  // packet buffer for secondary RTP stream
-   unsigned char* mpPacket3Payload;
-   int   mPacket3PayloadBytes;
-   int   mPacket3PayloadUsed;
-   unsigned int   mStartTimestamp3;
-   UtlBoolean mActiveAudio3;
-   UtlBoolean mMarkNext3;
-   int   mConsecutiveInactive3;
-   int   mConsecutiveActive3;
-   int   mConsecutiveUnsentFrames3;
-   UtlBoolean mDoesVad3;
 
-   unsigned int   mLastTimestamp;
+///@name General encoding state
+//@{
+   unsigned int   mCurrentTimestamp;
+   unsigned int   mMaxPacketTime;  ///< Maximum duration of one packet in milliseconds.
 
-   MprToNet* mpToNet;
+   MprToNet* mpToNet;  ///< Pointer to ToNet resource, which will send generated
+                       ///< RTP packets.
+//@}
 
-   virtual UtlBoolean doProcessFrame(MpBufPtr inBufs[],
-                                    MpBufPtr outBufs[],
-                                    int inBufsSize,
-                                    int outBufsSize,
-                                    UtlBoolean isEnabled,
-                                    int samplesPerFrame=80,
-                                    int samplesPerSecond=8000);
-
+     /// Handle messages for this resource.
    virtual UtlBoolean handleMessage(MpFlowGraphMsg& rMsg);
-     //:Handle messages for this resource.
 
-   int payloadByteLength(MpEncoderBase& rEncoder);
+     /// Allocate memory for RTP packet.
+   OsStatus allocPacketBuffer(const MpEncoderBase& rEncoder,
+                              unsigned char*& rpPacketPayload,
+                              int& rPacketPayloadBytes);
 
-   OsStatus allocPacketBuffer(MpEncoderBase& rEncoder,
-      unsigned char*& rpPacketBuffer,
-      unsigned char*& rpPacketPayload,
-      int& rPacketPayloadBytes,
-      int& rPacketPayloadUsed);
-
-   void handleSelectCodecs(MpFlowGraphMsg& rMsg);
+   void handleSelectCodecs(int newCodecsCount, SdpCodec** newCodecs);
 
    void handleDeselectCodecs(void);
 
+     /// Translate our tone ID into RFC2833 values.
    int lookupTone(int toneId);
 
+     /// Handle message to send "begin tone" DTMF RTP packet.
    void handleStartTone(int toneId);
 
+     /// Handle message to enable or disable internal DTX.
+   void handleEnableDTX(UtlBoolean dtx);
+
+     /// Handle message to set maximum duration of one packet.
+   void handleSetMaxPacketTime(unsigned maxPacketTime);
+
+     /// Handle message to send "stop tone" DTMF RTP packet.
    void handleStopTone(void);
 
-   void doPrimaryCodec(MpBufPtr in, unsigned int startTs);
+     /// Encode audio buffer and send it.
+   void doPrimaryCodec(MpAudioBufPtr in, unsigned int startTs);
 
+     /// Encode and send DTMF tone.
    void doDtmfCodec(unsigned int startTs, int sPFrame, int sPSec);
 
-   void doSecondaryCodec(MpBufPtr in, unsigned int startTs);
-
+     /// Copy constructor (not implemented for this class)
    MprEncode(const MprEncode& rMprEncode);
-     //:Copy constructor (not implemented for this class)
 
+     /// Assignment operator (not implemented for this class)
    MprEncode& operator=(const MprEncode& rhs);
-     //:Assignment operator (not implemented for this class)
 
 };
 

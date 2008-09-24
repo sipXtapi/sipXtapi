@@ -1,8 +1,24 @@
+// Copyright 2008 AOL LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
-// Copyright (C) 2005-2006 SIPez LLC.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA. 
+//
+// Copyright (C) 2005-2007 SIPez LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.
 // 
-// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -22,8 +38,8 @@
 #include <cp/CallManager.h>
 #include <net/SipMessageEvent.h>
 #include <net/SipUserAgent.h>
-#include <net/SdpCodec.h>
-#include <net/SdpCodecFactory.h>
+#include <sdp/SdpCodec.h>
+#include <sdp/SdpCodecList.h>
 #include <net/Url.h>
 #include <net/SipSession.h>
 #include <net/SipDialog.h>
@@ -32,7 +48,6 @@
 #include <cp/CpStringMessage.h>
 #include <cp/CpMultiStringMessage.h>
 #include <cp/Connection.h>
-#include <mi/CpMediaInterfaceFactory.h>
 #include <utl/UtlRegex.h>
 #include <os/OsUtil.h>
 #include <os/OsConfigDb.h>
@@ -42,24 +57,16 @@
 #include <os/OsEvent.h>
 #include <os/OsReadLock.h>
 #include <os/OsWriteLock.h>
-#include <net/NameValueTokenizer.h>
+#include <os/OsHostPort.h>
+#include <net/NetTurnSelector.h>
+#include <utl/UtlNameValueTokenizer.h>
 #include <cp/CpPeerCall.h>
 #include "tao/TaoMessage.h"
-#include "tao/TaoProviderAdaptor.h"
+//#include "tao/TaoProviderAdaptor.h"
 #include "tao/TaoString.h"
-#include "tao/TaoPhoneComponentAdaptor.h"
-#include "ptapi/PtCall.h"
+//#include "tao/TaoPhoneComponentAdaptor.h"
+#include "ptapi/PtDefs.h"
 #include "ptapi/PtEvent.h"
-
-// TO_BE_REMOVED
-#ifndef EXCLUDE_STREAMING
-#include "mp/MpPlayer.h"
-#include "mp/MpStreamMsg.h"
-#include "mp/MpStreamPlayer.h"
-#include "mp/MpStreamQueuePlayer.h"
-#include "mp/MpStreamPlaylistPlayer.h"
-#include <mp/MpMediaTask.h> 
-#endif
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -87,7 +94,7 @@ Flash                 16
 CallManager::CallManager(UtlBoolean isRequredUserIdMatch,
                          SipLineMgr* pLineMgrTask,
                          UtlBoolean isEarlyMediaFor180Enabled,
-                         SdpCodecFactory* pCodecFactory,
+                         SdpCodecList* pCodecFactory,
                          int rtpPortStart,
                          int rtpPortEnd,
                          const char* localAddress,
@@ -111,11 +118,12 @@ CallManager::CallManager(UtlBoolean isRequredUserIdMatch,
                          int inviteExpireSeconds,
                          int expeditedIpTos,
                          int maxCalls,
-                         CpMediaInterfaceFactory* pMediaFactory) 
+                         IMediaDeviceMgr* pDeviceMgr)
                          : CpCallManager("CallManager-%d", "c",
                          rtpPortStart, rtpPortEnd, localAddress, publicAddress)
                          , mIsEarlyMediaFor180(TRUE)
-                         , mpMediaFactory(NULL)
+                         , mpMediaFactory(pDeviceMgr)
+                         , mpMediaPacketCallback(NULL)
 {
     OsStackTraceLogger(FAC_CP, PRI_DEBUG, "CallManager");
 
@@ -129,18 +137,11 @@ CallManager::CallManager(UtlBoolean isRequredUserIdMatch,
     mnTotalIncomingCalls = 0;
     mnTotalOutgoingCalls = 0;
     mMaxCalls = maxCalls ;
-    
-    if (pMediaFactory)
-    {
-        mpMediaFactory = pMediaFactory;
-    }
-    else
-    {
-        assert(false);
-    }
+
+    assert(mpMediaFactory != NULL);
 
     // Instruct the factory to use the specified port range
-    mpMediaFactory->getFactoryImplementation()->setRtpPortRange(rtpPortStart, rtpPortEnd) ;
+    mpMediaFactory->setRtpPortRange(rtpPortStart, rtpPortEnd) ;
 
     mLineAvailableBehavior = availableBehavior;
     mOfferedTimeOut = offeringDelay;
@@ -284,11 +285,6 @@ CallManager::CallManager(UtlBoolean isRequredUserIdMatch,
         mCallManagerHistory[h].capacity(256);
 
     mMessageEventCount = -1 ;
-    mStunPort = PORT_NONE ;
-    mStunKeepAlivePeriodSecs = 0 ;
-
-    mTurnPort = PORT_NONE ;
-    mTurnKeepAlivePeriodSecs = 0 ;
 }
 
 // Copy constructor
@@ -307,11 +303,6 @@ CallManager::~CallManager()
     }
 
     waitUntilShutDown();   
-    if(sipUserAgent)
-    {
-        delete sipUserAgent;
-        sipUserAgent = NULL;
-    }
 
     if (mMaxNumListeners > 0)  // check if listener exists.
     {
@@ -331,6 +322,11 @@ CallManager::~CallManager()
 }
 
 /* ============================ MANIPULATORS ============================== */
+
+void CallManager::setMediaPacketCallback(SIPX_MEDIA_PACKET_CALLBACK pMediaPacketCallback)
+{
+    mpMediaPacketCallback = pMediaPacketCallback;
+}
 
 void CallManager::setOutboundLine(const char* lineUrl)
 {
@@ -443,7 +439,7 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
     UtlBoolean messageProcessed = TRUE;
     UtlString holdCallId;
     UtlBoolean messageConsumed = FALSE;
-    CpMediaInterface* pMediaInterface;
+    IMediaInterface* pMediaInterface;
 
     switch(msgType)
     {
@@ -567,24 +563,24 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
 
                                 UtlString localAddress;
                                 int port;
-                                char szAdapter[256];
-                                
-                    
-                                localAddress = sipMsg->getLocalIp();                                
+                                UtlString adapterName;
 
-                                getContactAdapterName(szAdapter, localAddress.data(), false);
+                                localAddress = sipMsg->getLocalIp();
+
+                                getContactAdapterName(adapterName, localAddress, false);
 
                                 SIPX_CONTACT_ADDRESS contact;
-                                sipUserAgent->getContactDb().getRecordForAdapter(contact, szAdapter, CONTACT_LOCAL);
+                                sipUserAgent->getContactDb().getRecordForAdapter(contact, adapterName.data(), CONTACT_LOCAL);
                                 port = contact.iPort;
-                                                                
+
                                 pMediaInterface = mpMediaFactory->createMediaInterface(
                                     NULL, 
                                     localAddress, numCodecs, codecArray, 
-                                    mLocale.data(), mExpeditedIpTos, mStunServer, 
-                                    mStunPort, mStunKeepAlivePeriodSecs, mTurnServer,
-                                    mTurnPort, mTurnUsername, mTurnPassword,
-                                    mTurnKeepAlivePeriodSecs, isIceEnabled());
+                                    mLocale.data(), mExpeditedIpTos, 
+                                    mStunServer, mTurnProxy,                                    
+                                    mArsProxy, mArsHttpProxy,
+                                    mpMediaPacketCallback,
+                                    mbEnableICE);
 
 
                                 int inviteExpireSeconds;
@@ -830,11 +826,13 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
                 int bandWidth = ((CpMultiStringMessage&)eventMessage).getInt4Data();
                 SIPX_TRANSPORT_DATA* pTransport = (SIPX_TRANSPORT_DATA*)((CpMultiStringMessage&)eventMessage).getInt5Data();
                 RtpTransportOptions rtpTransportFlags = (RtpTransportOptions)((CpMultiStringMessage&)eventMessage).getInt6Data();
-
+                unsigned long flags = ((CpMultiStringMessage&)eventMessage).getInt7Data();
+                int callHandle = ((CpMultiStringMessage&)eventMessage).getInt8Data();
                 const char* locationHeaderData = (locationHeader.length() == 0) ? NULL : locationHeader.data();
 
                 doConnect(callId.data(), addressUrl.data(), desiredConnectionCallId.data(), contactId, pDisplay, pSecurity, 
-                          locationHeaderData, bandWidth, pTransport, rtpTransportFlags) ;
+                          locationHeaderData, bandWidth, pTransport, rtpTransportFlags, flags, callHandle) ;
+
                 messageProcessed = TRUE;
                 break;
             }
@@ -848,41 +846,22 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
             }
         case CP_ENABLE_STUN:
             {
-                UtlString stunServer ;
-                int iRefreshPeriod ;
-                int iStunPort ;
                 OsNotification* pNotification ;
 
-
                 CpMultiStringMessage& enableStunMessage = (CpMultiStringMessage&)eventMessage;
-                enableStunMessage.getString1Data(stunServer) ;
-                iStunPort = enableStunMessage.getInt1Data() ;
-                iRefreshPeriod = enableStunMessage.getInt2Data() ;                
-                pNotification = (OsNotification*) enableStunMessage.getInt3Data() ;
+                pNotification = (OsNotification*) enableStunMessage.getInt1Data() ;
 
-                doEnableStun(stunServer, iStunPort, iRefreshPeriod, pNotification) ;
+                doEnableStun(pNotification) ;
                 break ;
             }
         case CP_ENABLE_TURN:
             {
-                UtlString turnServer ;
-                UtlString turnUsername ;
-                UtlString turnPassword ;
-                int iTurnPort ;
-                int iRefreshPeriod ;
-
-                CpMultiStringMessage& enableStunMessage = (CpMultiStringMessage&)eventMessage;
-                enableStunMessage.getString1Data(turnServer) ;
-                enableStunMessage.getString2Data(turnUsername) ;
-                enableStunMessage.getString3Data(turnPassword) ;
-                iTurnPort = enableStunMessage.getInt1Data() ;
-                iRefreshPeriod = enableStunMessage.getInt2Data() ;                
-
-                doEnableTurn(turnServer, iTurnPort, turnUsername, turnPassword, iRefreshPeriod) ;
+                doEnableTurn() ;
                 break ;
             }
         case CP_ANSWER_CONNECTION:
         case CP_DROP:
+        case CP_FORCE_DROP:
         case CP_BLIND_TRANSFER:
         case CP_CONSULT_TRANSFER:
         case CP_CONSULT_TRANSFER_ADDRESS:
@@ -920,7 +899,6 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
         case CP_DESTROY_PLAYLIST_PLAYER:
         case CP_DESTROY_QUEUE_PLAYER:
         case CP_CREATE_QUEUE_PLAYER:
-        case CP_SET_PREMIUM_SOUND_CALL:
         case CP_GET_NUM_CONNECTIONS:
         case CP_GET_CONNECTIONS:
         case CP_GET_CALLED_ADDRESSES:
@@ -1096,39 +1074,6 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
         }
         messageProcessed = TRUE;
         break;
-#ifndef EXCLUDE_STREAMING
-    case OsMsg::STREAMING_MSG:
-        {
-            // TO_BE_REMOVED
-            MpStreamMsg* pMsg = (MpStreamMsg*) &eventMessage ;
-            UtlString callId = pMsg->getTarget() ;
-
-            OsReadLock lock(mCallListMutex);
-            CpCall* call = findHandlingCall(callId);
-            if(!call)
-            {
-                // If we cannot find the call, then we must clean up
-                // and unblock the caller.
-                if (  (msgSubType == MpStreamMsg::STREAM_REALIZE_URL) ||
-                    (msgSubType == MpStreamMsg::STREAM_REALIZE_BUFFER))
-                {
-                    OsNotification* pNotifyHandle = (OsNotification*) pMsg->getPtr1() ;
-                    Url* pUrl = (Url*) pMsg->getInt2() ;
-                    delete pUrl ;
-                    pNotifyHandle->signal(0) ;
-                }
-
-            }
-            else
-            {
-                call->postMessage(eventMessage);
-            }
-            
-            //assert(false);
-            break;
-        }
-#endif 
-
     default:
         {
             OsSysLog::add(FAC_CP, PRI_ERR, "Unknown TYPE %d of CallManager message subtype: %d\n", msgType, msgSubType);
@@ -1329,7 +1274,9 @@ PtStatus CallManager::connect(const char* callId,
                               const char* locationHeader,
                               const int bandWidth,
                               SIPX_TRANSPORT_DATA* pTransportData,
-                              const RTP_TRANSPORT rtpTransportOptions)
+                              const RTP_TRANSPORT rtpTransportOptions,
+                              unsigned long flags,
+                              int callHandle)
 {
     UtlString toAddressUrl(toAddressString ? toAddressString : "");
     UtlString fromAddressUrl(fromAddressString ? fromAddressString : "");
@@ -1348,8 +1295,9 @@ PtStatus CallManager::connect(const char* callId,
     {
         CpMultiStringMessage callMessage(CP_CONNECT, callId,
             toAddressUrl, fromAddressUrl, desiredCallId, locationHeader,
-            contactId, (int)pDisplay, (int)pSecurity, 
-            (int)bandWidth, (int)pTransportDataCopy, rtpTransportOptions);
+                contactId, (int)pDisplay, (int)pSecurity, (int)bandWidth, 
+                (int)pTransportDataCopy, rtpTransportOptions,
+                flags, callHandle);
         postMessage(callMessage);
     }
     return(returnCode);
@@ -1389,6 +1337,24 @@ void CallManager::drop(const char* callId)
     postMessage(callMessage);
 }
 
+void CallManager::forceDrop(const char* callId)
+{
+    CpMultiStringMessage callMessage(CP_FORCE_DROP, callId);
+    postMessage(callMessage);
+}
+
+IMediaInterface* CallManager::getMediaInterface(const char* const callId)
+{
+    OsReadLock lock(mCallListMutex);
+    IMediaInterface* pMediaInterface = NULL;
+    CpCall* call = findHandlingCall(callId);
+    if(call)
+    {
+        pMediaInterface = call->getMediaInterface();
+    }
+    return pMediaInterface;
+}
+
 UtlBoolean CallManager::sendInfo(const char*  callId, 
                                  const char*  szRemoteAddress,
                                  const char*  szContentType,
@@ -1412,9 +1378,9 @@ UtlBoolean CallManager::sendInfo(const char*  callId,
 
     if (pSuccessEvent->wait(0, maxEventTime) == OS_SUCCESS)
     {
-        int success ;
+        intptr_t success ;
         pSuccessEvent->getEventData(success);
-        bRC = success ;
+        bRC = (success != 0) ;
         eventMgr->release(pSuccessEvent);
     }
     else
@@ -1561,7 +1527,7 @@ PtStatus CallManager::split(const char* szSourceCallId,
     // Wait until the call sets the number of connections
     if(splitSuccess->wait(0, maxEventTime) == OS_SUCCESS)
     {
-        int success ;
+        intptr_t success ;
         splitSuccess->getEventData(success);
         eventMgr->release(splitSuccess);
 
@@ -1701,7 +1667,7 @@ OsStatus CallManager::audioChannelRecordStart(const char* callId, const char* sz
     // Wait for error response
     if(pEvent->wait(0, maxEventTime) == OS_SUCCESS)
     {
-        int success ;
+        intptr_t success ;
         pEvent->getEventData(success);
         eventMgr->release(pEvent);
 
@@ -1745,7 +1711,7 @@ OsStatus CallManager::audioChannelRecordStop(const char* callId, const char* szR
     // Wait for error response
     if(pEvent->wait(0, maxEventTime) == OS_SUCCESS)
     {
-        int success ;
+        intptr_t success ;
         pEvent->getEventData(success);
         eventMgr->release(pEvent);
 
@@ -1787,7 +1753,7 @@ void CallManager::bufferPlay(const char* callId, int audioBuf, int bufSize, int 
     // Wait for error response
     if(pEvent->wait(0, maxEventTime) == OS_SUCCESS)
     {
-        int success ;
+        intptr_t success ;
         pEvent->getEventData(success);
         eventMgr->release(pEvent);
 
@@ -1807,197 +1773,14 @@ void CallManager::bufferPlay(const char* callId, int audioBuf, int bufSize, int 
     }
 }
 
-void CallManager::stopPremiumSound(const char* callId)
+void CallManager::setRemoteVolumeScale(const char* szCallId, const char* szRemoteAddress, int scaling)
 {
-    CpMultiStringMessage premiumSoundMessage(CP_SET_PREMIUM_SOUND_CALL,
-        callId, NULL, NULL, NULL, NULL, // strings
-        FALSE); // Disabled
-    postMessage(premiumSoundMessage);
+    CpMultiStringMessage message(CP_SET_REMOTE_VOLUME_SCALE,
+            szCallId, szRemoteAddress, NULL, NULL, NULL, // strings
+            scaling); // Disabled
+
+    postMessage(message);
 }
-
-
-#ifndef EXCLUDE_STREAMING
-void CallManager::createPlayer(const char* callId,
-                               MpStreamPlaylistPlayer** ppPlayer)
-{
-    // TO_BE_REMOVED
-    int msgtype = CP_CREATE_PLAYLIST_PLAYER;;
-
-    OsProtectEventMgr* eventMgr = OsProtectEventMgr::getEventMgr();
-    OsProtectedEvent* ev = eventMgr->alloc();
-    OsTime maxEventTime(CP_MAX_EVENT_WAIT_SECONDS, 0);
-
-    CpMultiStringMessage msg(msgtype,
-        callId, NULL, NULL, NULL, NULL, // strings
-        (int)ev, (int) ppPlayer, 0); // ints
-
-    postMessage(msg);
-
-    // Wait until the player is created by CpCall
-    if(ev->wait(0, maxEventTime) != OS_SUCCESS)
-    {
-        OsSysLog::add(FAC_CP, PRI_ERR, "CallManager::createPlayer(MpStreamPlaylistPlayer) TIMED OUT\n");
-
-        // If the event has already been signalled, clean up
-        if(OS_ALREADY_SIGNALED == ev->signal(0))
-        {
-            eventMgr->release(ev);
-        }
-    }
-    else
-    {
-        eventMgr->release(ev);
-    }
-    
-    //assert(false);
-}
-
-void CallManager::createPlayer(int type,
-                               const char* callId,
-                               const char* szStream,
-                               int flags,
-                               MpStreamPlayer** ppPlayer)
-{
-    // TO_BE_REMOVED
-    int msgtype;
-
-    switch (type)
-    {
-    case MpPlayer::STREAM_QUEUE_PLAYER:
-        msgtype = CP_CREATE_QUEUE_PLAYER;
-        break;
-
-    case MpPlayer::STREAM_PLAYER:
-    default:
-        msgtype = CP_CREATE_PLAYER;
-        break;
-    }
-
-    OsProtectEventMgr* eventMgr = OsProtectEventMgr::getEventMgr();
-    OsProtectedEvent* ev = eventMgr->alloc();
-    OsTime maxEventTime(CP_MAX_EVENT_WAIT_SECONDS, 0);
-    CpMultiStringMessage msg(msgtype,
-        callId, szStream, NULL, NULL, NULL, // strings
-        (int)ev, (int) ppPlayer, flags);   // ints
-
-    postMessage(msg);
-
-    // Wait until the player is created by CpCall
-    if(ev->wait(0, maxEventTime) != OS_SUCCESS)
-    {
-        OsSysLog::add(FAC_CP, PRI_ERR, "CallManager::createPlayer TIMED OUT\n");
-
-        // If the event has already been signalled, clean up
-        if(OS_ALREADY_SIGNALED == ev->signal(0))
-        {
-            eventMgr->release(ev);
-        }
-    }
-    else
-    {
-        eventMgr->release(ev);
-    }
-    
-    //assert(false);
-}
-
-
-void CallManager::destroyPlayer(const char* callId, MpStreamPlaylistPlayer* pPlayer)
-{
-    // TO_BE_REMOVED
-    int msgtype = CP_DESTROY_PLAYLIST_PLAYER;
-
-    OsProtectEventMgr* eventMgr = OsProtectEventMgr::getEventMgr();
-    OsProtectedEvent* ev = eventMgr->alloc();
-    OsTime maxEventTime(CP_MAX_EVENT_WAIT_SECONDS, 0);
-
-    CpMultiStringMessage msg(msgtype,
-        callId, NULL, NULL, NULL, NULL, // strings
-        (int) ev, (int) pPlayer);   // ints
-
-    postMessage(msg);
-
-    // Wait until the player is created by CpCall
-    if(ev->wait(0, maxEventTime) != OS_SUCCESS)
-    {
-        OsSysLog::add(FAC_CP, PRI_ERR, "CallManager::destroyPlayer(MpStreamPlaylistPlayer) TIMED OUT\n");
-
-        // If the event has already been signalled, clean up
-        if(OS_ALREADY_SIGNALED == ev->signal(0))
-        {
-            eventMgr->release(ev);
-        }
-    }
-    else
-    {
-        eventMgr->release(ev);
-    }
-
-    // Delete the object
-    delete pPlayer;
-    
-    //assert(false);
-}
-
-
-void CallManager::destroyPlayer(int type, const char* callId, MpStreamPlayer* pPlayer)
-{
-    // TO_BE_REMOVED
-    int msgtype;
-    switch (type)
-    {
-    case MpPlayer::STREAM_QUEUE_PLAYER:
-        msgtype = CP_DESTROY_QUEUE_PLAYER;
-        break;
-
-    case MpPlayer::STREAM_PLAYER:
-    default:
-        msgtype = CP_DESTROY_PLAYER;
-        break;
-    }
-
-    OsProtectEventMgr* eventMgr = OsProtectEventMgr::getEventMgr();
-    OsProtectedEvent* ev = eventMgr->alloc();
-    OsTime maxEventTime(CP_MAX_EVENT_WAIT_SECONDS, 0);
-
-    CpMultiStringMessage msg(msgtype,
-        callId, NULL, NULL, NULL, NULL, // strings
-        (int) ev, (int) pPlayer);   // ints
-
-    postMessage(msg);
-
-    // Wait until the player is created by CpCall
-    if(ev->wait(0, maxEventTime) != OS_SUCCESS)
-    {
-        OsSysLog::add(FAC_CP, PRI_ERR, "CallManager::destroyPlayer TIMED OUT\n");
-
-        // If the event has already been signalled, clean up
-        if(OS_ALREADY_SIGNALED == ev->signal(0))
-        {
-            eventMgr->release(ev);
-        }
-    }
-    else
-    {
-        eventMgr->release(ev);
-    }
-
-    // Delete the object
-    switch (type)
-    {
-    case MpPlayer::STREAM_QUEUE_PLAYER:
-        delete (MpStreamQueuePlayer*) pPlayer ;
-        break;
-    case MpPlayer::STREAM_PLAYER:
-    default:
-        pPlayer->waitForDestruction() ;
-        delete pPlayer ;
-        break;
-    }
-    
-    //assert(false);
-}
-#endif
 
 void CallManager::setOutboundLineForCall(const char* callId, const char* address, SIPX_CONTACT_TYPE eType)
 {
@@ -2010,13 +1793,18 @@ void CallManager::setOutboundLineForCall(const char* callId, const char* address
 void CallManager::acceptConnection(const char* callId,
                                    const char* address, 
                                    SIPX_CONTACT_ID contactId,
-                                   const void* hWnd,
-                                   const void* security,
+                                   const void* pDisplay,
+                                   const void* pSecurity,
                                    const char* locationHeader,
-                                   const int bandWidth)
+                                   const int bandWidth,
+                                   UtlBoolean sendEarlyMedia,
+                                   unsigned long flags,
+                                   int callHandle)
 {
-    CpMultiStringMessage acceptMessage(CP_ACCEPT_CONNECTION, callId, address, NULL, NULL, locationHeader, (int) contactId, 
-                                       (int) hWnd, (int) security, (int)bandWidth);
+    CpMultiStringMessage acceptMessage(CP_ACCEPT_CONNECTION, callId, address,
+            NULL, NULL, locationHeader, (int) contactId, (int) pDisplay, 
+            (int) pSecurity, (int)bandWidth, flags, (int)callHandle) ;
+
     postMessage(acceptMessage);
 }
 
@@ -2062,7 +1850,9 @@ void CallManager::getNumConnections(const char* callId, int& numConnections)
     // Wait until the call sets the number of connections
     if(numConnectionsSet->wait(0, maxEventTime) == OS_SUCCESS)
     {
-        numConnectionsSet->getEventData(numConnections);
+        intptr_t temp ;
+        numConnectionsSet->getEventData(temp);
+        numConnections = (int) temp;
         eventMgr->release(numConnectionsSet);
 
 #ifdef TEST_PRINT_EVENT
@@ -2539,7 +2329,9 @@ void CallManager::getNumTerminalConnections(const char* callId, const char* addr
     // Wait until the call sets the number of connections
     if(numConnectionsSet->wait(0, maxEventTime) == OS_SUCCESS)
     {
-        numConnectionsSet->getEventData(numConnections);
+        intptr_t temp ;
+        numConnectionsSet->getEventData(temp);
+        numConnections = (int) temp ;
 
 #ifdef TEST_PRINT_EVENT
         OsSysLog::add(FAC_CP, PRI_DEBUG, "CallManager::getNumTerminalConnections %d connections\n",
@@ -2645,7 +2437,9 @@ OsStatus CallManager::getCodecCPUCostCall(const char* callId, int& cost)
     // Wait until the call sets the number of connections
     if(getCodecCPUCostEvent->wait(0, maxEventTime) == OS_SUCCESS)
     {
-        getCodecCPUCostEvent->getEventData(cost);
+        intptr_t temp ;
+        getCodecCPUCostEvent->getEventData(temp);
+        cost = (int) temp ;
         eventMgr->release(getCodecCPUCostEvent);
     }
     else
@@ -2681,7 +2475,9 @@ OsStatus CallManager::getCodecCPULimitCall(const char* callId, int& cost)
     // Wait until the call sets the number of connections
     if(getCodecCPULimitEvent->wait(0, maxEventTime) == OS_SUCCESS)
     {
-        getCodecCPULimitEvent->getEventData(cost);
+        intptr_t temp ;
+        getCodecCPULimitEvent->getEventData(temp);
+        cost = (int) temp ;
         eventMgr->release(getCodecCPULimitEvent);
     }
     else
@@ -2822,9 +2618,9 @@ UtlBoolean CallManager::isTerminalConnectionLocal(const char* callId, const char
     // Wait until the call sets the number of connections
     if(isLocalSet->wait(0, maxEventTime) == OS_SUCCESS)
     {
-        int tmpIsLocal;
+        intptr_t tmpIsLocal;
         isLocalSet->getEventData(tmpIsLocal);
-        isLocal = tmpIsLocal;  // workaround conversion issue in newer RW library
+        isLocal = (int) tmpIsLocal;  // workaround conversion issue in newer RW library
 
 #ifdef TEST_PRINT_EVENT
         OsSysLog::add(FAC_CP, PRI_DEBUG, "CallManager::isTerminalConnectionLocal %d\n",
@@ -2879,13 +2675,13 @@ OsStatus CallManager::ezRecord(const char* callId,
                                int ms,
                                int silenceLength,
                                int& duration,
-                               const char* fileName,
                                int& dtmfterm,
+                               const char* fileName,
                                OsProtectedEvent* recordEvent)
 {
     CpMultiStringMessage recordMessage(CP_EZRECORD,
         callId, fileName, NULL, NULL, NULL,
-        (int)recordEvent, ms, silenceLength, dtmfterm);
+        (int)recordEvent, ms, silenceLength, duration, dtmfterm);
     postMessage(recordMessage);
 
     return OS_SUCCESS;
@@ -2949,7 +2745,7 @@ void CallManager::dialString(const char* url)
         OsSysLog::add(FAC_CP, PRI_DEBUG, "CallManager::dialString posting dial string\n");
 #endif
         UtlString trimmedUrl(url);
-        NameValueTokenizer::frontBackTrim(&trimmedUrl, " \t\n\r");
+        trimmedUrl.strip(UtlString::both);
         CpMultiStringMessage dialEvent(CP_DIAL_STRING, trimmedUrl.data());
         postMessage(dialEvent);
     }
@@ -2975,27 +2771,38 @@ void CallManager::setMaxCalls(int maxCalls)
 }
 
 // Enable STUN for NAT/Firewall traversal
-void CallManager::enableStun(const char* szStunServer, 
-                             int iServerPort,
-                             int iKeepAlivePeriodSecs, 
+void CallManager::enableStun(const ProxyDescriptor& stunServer,
                              OsNotification* pNotification)
 {
-    CpMultiStringMessage enableStunMessage(CP_ENABLE_STUN, szStunServer, NULL, 
-            NULL, NULL, NULL, iServerPort, iKeepAlivePeriodSecs, (int) pNotification) ;
+    // Set member variable and dispatch request for action to
+    // the correct thread context
+    mStunServer = stunServer ;
+
+    CpMultiStringMessage enableStunMessage(CP_ENABLE_STUN, NULL, NULL, 
+            NULL, NULL, NULL, (int) pNotification) ;
     postMessage(enableStunMessage);
 }
 
 
-void CallManager::enableTurn(const char* szTurnServer,
-                             int iTurnPort,
-                             const char* szUsername,
-                             const char* szPassword,
-                             int iKeepAlivePeriodSecs) 
+void CallManager::enableTurn(const ProxyDescriptor& turnProxy) 
 {
-    CpMultiStringMessage enableTurnMessage(CP_ENABLE_TURN, szTurnServer, szUsername,
-            szPassword, NULL, NULL, iTurnPort, iKeepAlivePeriodSecs) ;
+    // Set member variable and dispatch request for action to
+    // the correct thread context
+    mTurnProxy = turnProxy ;
+
+    CpMultiStringMessage enableTurnMessage(CP_ENABLE_TURN) ;
     postMessage(enableTurnMessage);
 }
+
+
+void CallManager::enableArs(const ProxyDescriptor& arsProxy,
+                            const ProxyDescriptor& arsHttpProxy) 
+{
+    // This is just setting a member variable, so no need to dispatch
+    mArsProxy = arsProxy ;
+    mArsHttpProxy = arsHttpProxy ;
+}
+
 
 /* ============================ ACCESSORS ================================= */
 int CallManager::getTransferType()
@@ -3015,7 +2822,9 @@ UtlBoolean CallManager::getCallState(const char* callId, int& state)
     // Wait until the call sets the call state
     if(callState->wait(0, maxEventTime) == OS_SUCCESS)
     {
-        callState->getEventData(state);
+        intptr_t temp ;
+        callState->getEventData(temp);
+        state = (int) temp ;
 
 #ifdef TEST_PRINT_EVENT
         OsSysLog::add(FAC_CP, PRI_DEBUG, "CallManager::getCallState state: %d\n",
@@ -3051,7 +2860,9 @@ UtlBoolean CallManager::getConnectionState(const char* callId, const char* remot
     // Wait until the call sets the call state
     if(connectionState->wait(0, maxEventTime) == OS_SUCCESS)
     {
-        connectionState->getEventData(state);
+        intptr_t temp ;
+        connectionState->getEventData(temp);
+        state = (int) temp ;
 
 #ifdef TEST_PRINT_EVENT
         OsSysLog::add(FAC_CP, PRI_DEBUG, "CallManager::getConnectionState state: %d\n",
@@ -3085,7 +2896,9 @@ UtlBoolean CallManager::getNextSipCseq(const char* callId, const char* remoteAdd
     // Wait until the call sets the call state
     if(connectionState->wait(0, maxEventTime) == OS_SUCCESS)
     {
-        connectionState->getEventData(nextCseq);
+        intptr_t temp ;
+        connectionState->getEventData(temp);
+        nextCseq = (int) temp ;
 
 #ifdef TEST_PRINT_EVENT
         OsSysLog::add(FAC_CP, PRI_DEBUG, "CallManager::getConnectionState state: %d\n",
@@ -3124,7 +2937,9 @@ UtlBoolean CallManager::getTermConnectionState(const char* callId,
     // Wait until the call sets the call state
     if(termConnectionState->wait(0, maxEventTime) == OS_SUCCESS)
     {
-        termConnectionState->getEventData(state);
+        intptr_t temp ;
+        termConnectionState->getEventData(temp);
+        state = (int) temp ;
 
 #ifdef TEST_PRINT_EVENT
         OsSysLog::add(FAC_CP, PRI_DEBUG, "CallManager::getTermConnectionState state: %d\n",
@@ -3404,7 +3219,8 @@ void CallManager::printCalls()
             OsSysLog::add(FAC_CP, PRI_DEBUG, "callStack[%d] = %p ", callIndex, call);
             OsSysLog::add(FAC_CP, PRI_DEBUG, "shutting down: %d started: %d suspended: %d\n",
                 call->isShuttingDown(),
-                call->isStarted(), call->isSuspended());
+                call->isStarted(), 
+                call->isSuspended());
             call->printCall();
         }
         callCollectable = (UtlInt*)iterator();
@@ -3415,6 +3231,32 @@ void CallManager::printCalls()
         OsSysLog::add(FAC_CP, PRI_DEBUG, "No calls on the stack\n");
     }
 
+}
+
+
+void CallManager::getCallStatus(UtlString& status) 
+{
+    UtlString callInfo ;
+
+    OsReadLock lock(mCallListMutex);
+    if(infocusCall)
+    {        
+        infocusCall->toString(callInfo) ; 
+        status.append(callInfo) ;
+    }
+
+    UtlSListIterator iterator(callStack);
+    UtlInt* callCollectable;    
+    while((callCollectable = (UtlInt*)iterator()) != NULL)
+    {
+        CpCall* call = (CpCall*)callCollectable->getValue();
+        if(call)
+        {
+            call->toString(callInfo) ;
+            status.append(callInfo) ;
+        }
+        
+    }
 }
 
 void CallManager::setOutGoingCallType(int callType)
@@ -3718,7 +3560,9 @@ int CallManager::getMediaConnectionId(const char* szCallId, const char* szRemote
     // Wait until the call sets the number of connections
     if(getIdEvent->wait(0, maxEventTime) == OS_SUCCESS)
     {
-        getIdEvent->getEventData(connectionId);
+        intptr_t temp ;
+        getIdEvent->getEventData(temp);
+        connectionId = (int) temp ;
         eventMgr->release(getIdEvent);
     }
     else
@@ -3761,7 +3605,7 @@ UtlBoolean CallManager::getAudioEnergyLevels(const char*   szCallId,
     // Wait until the call sets the number of connections
     if(getELEvent->wait(0, maxEventTime) == OS_SUCCESS)
     {
-        int status ;
+        intptr_t status ;
         getELEvent->getEventData(status);
         eventMgr->release(getELEvent);
 
@@ -3799,7 +3643,7 @@ UtlBoolean CallManager::getAudioEnergyLevels(const char*   szCallId,
     // Wait until the call sets the number of connections
     if(getELEvent->wait(0, maxEventTime) == OS_SUCCESS)
     {
-        int status ;
+        intptr_t status ;
         getELEvent->getEventData(status);
         eventMgr->release(getELEvent);
 
@@ -3838,7 +3682,7 @@ UtlBoolean CallManager::getAudioRtpSourceIDs(const char*   szCallId,
     // Wait until the call sets the number of connections
     if(getSourceIdEvent->wait(0, maxEventTime) == OS_SUCCESS)
     {
-        int status ;
+        intptr_t status ;
         getSourceIdEvent->getEventData(status);
         eventMgr->release(getSourceIdEvent);
 
@@ -3873,7 +3717,7 @@ UtlBoolean CallManager::canAddConnection(const char* szCallId)
     // Wait until the call sets the number of connections
     if(getIdEvent->wait(0, maxEventTime) == OS_SUCCESS)
     {
-        int eventData ;
+        intptr_t eventData ;
         getIdEvent->getEventData(eventData);
         eventMgr->release(getIdEvent);
         bCanAdd = (UtlBoolean) eventData ;
@@ -3894,7 +3738,7 @@ UtlBoolean CallManager::canAddConnection(const char* szCallId)
 }
 
 // Gets the media interface factory used by the call manager
-CpMediaInterfaceFactory* CallManager::getMediaInterfaceFactory() 
+IMediaDeviceMgr* CallManager::getMediaInterfaceFactory() 
 {
     return mpMediaFactory;
 }
@@ -4079,7 +3923,8 @@ void CallManager::doCreateCall(const char* callId,
         if(mOutGoingCallType == SIP_CALL)
         {
             int numCodecs;
-            SdpCodec** codecArray = NULL;
+            SdpCodec** codecArray;
+            mpCodecFactory->getCodecs(numCodecs, codecArray);
 #ifdef TEST_PRINT
             OsSysLog::add(FAC_CP, PRI_DEBUG, "CallManager::doCreateCall getting codec array copy\n");
 #endif
@@ -4097,12 +3942,19 @@ void CallManager::doCreateCall(const char* callId,
             int dummyPort;
             
             sipUserAgent->getLocalAddress(&localAddress, &dummyPort, TRANSPORT_UDP);
-            CpMediaInterface* mediaInterface = mpMediaFactory->createMediaInterface(
-                publicAddress.data(), localAddress.data(),
-                numCodecs, codecArray, mLocale.data(), mExpeditedIpTos,
-                mStunServer, mStunPort, mStunKeepAlivePeriodSecs, 
-                mTurnServer, mTurnPort, mTurnUsername, mTurnPassword, 
-                mTurnKeepAlivePeriodSecs, isIceEnabled());
+            IMediaInterface* mediaInterface = mpMediaFactory->createMediaInterface(
+                publicAddress.data(),
+                localAddress.data(),
+                numCodecs,
+                codecArray,
+                mLocale.data(),
+                mExpeditedIpTos,
+                mStunServer,
+                mTurnProxy, 
+                mArsProxy,
+                mArsHttpProxy,
+                mpMediaPacketCallback,
+                mbEnableICE);
 
             OsSysLog::add(FAC_CP, PRI_DEBUG, "Creating new SIP Call, mediaInterface: 0x%08x\n", (int)mediaInterface);
             call = new CpPeerCall(mIsEarlyMediaFor180,
@@ -4170,7 +4022,9 @@ void CallManager::doConnect(const char* callId,
                             const char* locationHeader,
                             const int bandWidth,
                             SIPX_TRANSPORT_DATA* pTransport,
-                            const RtpTransportOptions rtpTransportOptions)
+                            const RtpTransportOptions rtpTransportOptions,
+                            unsigned long flags,
+                            int callHandle)
 {
     OsWriteLock lock(mCallListMutex);
     CpCall* call = findHandlingCall(callId);
@@ -4182,43 +4036,125 @@ void CallManager::doConnect(const char* callId,
     else
     {
         // For now just send the call a dialString
-        CpMultiStringMessage dialStringMessage(CP_DIAL_STRING, addressUrl, desiredConnectionCallId, NULL, NULL, locationHeader,
-                                               contactId, (int)pDisplay, (int)pSecurity, bandWidth, (int) pTransport, rtpTransportOptions) ;
+        CpMultiStringMessage dialStringMessage(CP_DIAL_STRING, addressUrl, 
+                desiredConnectionCallId, NULL, NULL, locationHeader, 
+                contactId, (int)pDisplay, (int)pSecurity, bandWidth, 
+                (int)pTransport, rtpTransportOptions, flags, callHandle) ;
+
         call->postMessage(dialStringMessage);
         call->setLocalConnectionState(PtEvent::CONNECTION_ESTABLISHED);
         call->stopMetaEvent();
     }
 }
 
-void CallManager::doEnableStun(const UtlString& stunServer, 
-                               int              iStunPort,
-                               int              iKeepAlivePeriodSecs, 
-                               OsNotification*  pNotification)
+void CallManager::doEnableStun(OsNotification*  pNotification)
 {
-    mStunServer = stunServer ;
-    mStunPort = iStunPort ;
-    mStunKeepAlivePeriodSecs = iKeepAlivePeriodSecs ;
-
     if (sipUserAgent) 
     {
-        sipUserAgent->enableStun(mStunServer, mStunPort, mStunKeepAlivePeriodSecs, pNotification) ;
+        sipUserAgent->enableStun(mStunServer,
+            pNotification) ;
     }
 }
 
 
-void CallManager::doEnableTurn(const UtlString& turnServer, 
-                               int              iTurnPort,
-                               const UtlString& turnUsername,
-                               const UtlString& szTurnPassword,
-                               int              iKeepAlivePeriodSecs)
+void CallManager::doEnableTurn()
 {
-    mTurnServer = turnServer ;
-    mTurnPort = iTurnPort ;
-    mTurnUsername = turnUsername ;
-    mTurnPassword = szTurnPassword ;
-    mTurnKeepAlivePeriodSecs = iKeepAlivePeriodSecs ;
+    UtlString relayIp ;
+    int relayPort ;
+    OsNatDatagramSocket testSocket(0, NULL) ;
+    bool doTest = false;
 
-    bool bEnabled = (mTurnServer.length() > 0) && portIsValid(mTurnPort) ;
+    if (mTurnProxy.getAddress().length())
+
+    {
+        // if we have been passed a domain name,
+        // select the best turn server
+        if (!OsSocket::isIp4Address(mTurnProxy.getAddress().data()))
+        {
+            int rtt = -1;
+            int dummy = -1;
+            double packetLossPercent = 0.0;
+            UtlSList results;
+            UtlString localAddress;
+            OsSocket::getHostIp(&localAddress);
+            OsHostPort selectedServer;
+            UtlString turnDomain(mTurnProxy.getAddress().data());
+            UtlString* turnDomains[1];
+            int turnPorts[1] ;
+
+            turnDomains[0] = &turnDomain;
+            turnPorts[0] = mTurnProxy.getPort() ;
+            NetTurnSelector turnSelector;
+            int numAvailable = 0;
+            bool bSuccess = turnSelector.selectBestTurnServer(selectedServer,
+                numAvailable,
+                turnDomains,
+                turnPorts,
+                1,
+                localAddress.data(),
+                mTurnProxy.getUsername(),
+                rtt,
+                dummy,
+                packetLossPercent,
+                results);
+            if (bSuccess)
+            {
+                UtlSListIterator iterator(results);
+                UtlString* lineItem = NULL;
+
+                while ((lineItem = (UtlString*)iterator()))
+                {
+                    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+                        "CallManager::doEnableTurn selectBestTurnServer result: %s",
+                        lineItem->data());
+                }
+                mTurnProxy.setPort(selectedServer.getPort());
+                mTurnProxy.setAddress(selectedServer.getHost());
+            }
+            else
+            {
+                if (numAvailable == 1)
+                {
+                    mTurnProxy.setAddress(selectedServer.getHost());
+                    mTurnProxy.setPort(selectedServer.getPort()) ;
+                    doTest = true;
+                }
+            }
+        }
+        else
+        {
+            doTest = true;
+        }
+
+        if (doTest)
+        {
+            /*
+            * Test turn server and use what is reported (to lock onto a single instance)
+            */
+            testSocket.enableTurn(mTurnProxy.getAddress(), mTurnProxy.getPort(), 
+                    mTurnProxy.getKeepalive(), 
+                    mTurnProxy.getUsername(), mTurnProxy.getPassword(), 
+                    true) ;
+            if (testSocket.getTurnIp(&relayIp, &relayPort))
+            {
+                OsSysLog::add(FAC_NET, PRI_INFO, "Test turn allocation success, using %s:%d: success",
+                        relayIp.data(), mTurnProxy.getPort()) ;
+
+                mTurnProxy.setAddress(relayIp) ;
+            }
+            else
+            {  
+                OsSysLog::add(FAC_SIPXTAPI, PRI_ERR, "Test turn allocation failure, using %s:%d",
+                        mTurnProxy.getAddress().data(), mTurnProxy.getPort()) ;
+
+            }
+            testSocket.disableTurn() ;
+            testSocket.close() ;
+        }
+    }
+    
+
+    bool bEnabled = (mTurnProxy.getAddress().length()  > 0) && portIsValid(mTurnProxy.getPort()) ;
     sipUserAgent->getContactDb().enableTurn(bEnabled) ;
 }
 
@@ -4248,7 +4184,6 @@ void CallManager::getCodecs(int& numCodecs, SdpCodec**& codecArray)
 {
     mpCodecFactory->getCodecs(numCodecs,
         codecArray);
-
 }
 
 void CallManager::releaseEvent(const char* callId,

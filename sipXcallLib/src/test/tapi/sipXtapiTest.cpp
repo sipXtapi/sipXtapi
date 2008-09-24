@@ -1,3 +1,19 @@
+// Copyright 2008 AOL LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -295,15 +311,13 @@ void sipXtapiTestSuite::setupStunServer()
 
 void sipXtapiTestSuite::teardownStunServer() 
 {
+    /*
     g_pPrimaryStunServer->requestShutdown() ;
     g_pPrimaryStunServer2->requestShutdown() ;
     g_pSecondaryStunServer->requestShutdown() ;
     g_pSecondaryStunServer2->requestShutdown() ;
+    */
 
-    g_pPrimaryStunSeverSocket->close() ;
-    g_pPrimaryStunSeverSocket2->close() ;
-    g_pSecondaryStunServerSocket->close() ;
-    g_pSecondaryStunServerSocket2->close() ;
 
     delete g_pPrimaryStunServer ;
     g_pPrimaryStunServer = NULL ;
@@ -314,6 +328,11 @@ void sipXtapiTestSuite::teardownStunServer()
     delete g_pSecondaryStunServer2 ;
     g_pSecondaryStunServer2 = NULL ;
     
+    g_pPrimaryStunSeverSocket->close() ;
+    g_pPrimaryStunSeverSocket2->close() ;
+    g_pSecondaryStunServerSocket->close() ;
+    g_pSecondaryStunServerSocket2->close() ;
+
     delete g_pPrimaryStunSeverSocket ;
     g_pPrimaryStunSeverSocket = NULL ;
     delete g_pPrimaryStunSeverSocket2 ;

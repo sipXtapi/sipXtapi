@@ -14,10 +14,11 @@
 
 // APPLICATION INCLUDES
 #include <utl/UtlSListIterator.h>
+#include <os/OsSysLog.h>
 #include <os/OsServerSocket.h>
 #include <net/HttpRequestContext.h>
 #include <net/HttpMessage.h>
-#include <net/NameValueTokenizer.h>
+#include <utl/UtlNameValueTokenizer.h>
 #include <net/NameValuePair.h>
 #include <net/NameValuePairInsensitive.h>
 
@@ -85,13 +86,10 @@ HttpRequestContext::HttpRequestContext(const char* requestMethod,
    {
       mConnectionEncrypted = connection->isEncrypted();
       mPeerCertTrusted = connection->peerIdentity(&mPeerIdentities);
-#     ifdef TEST_DEBUG
       OsSysLog::add(FAC_SIP, PRI_DEBUG,
                     "HttpRequestContext::_( connection=%p ) %s",
                     connection, mPeerCertTrusted ? "Cert Trusted" : "Cert Not Trusted"
                     );
-#     endif
-
    }
 }
 
@@ -386,7 +384,7 @@ void HttpRequestContext::parseCgiVariables(const char* queryString,
       // Pull out a name value pair
       //osPrintf("HttpRequestContext::parseCgiVariables parseCgiVariables: \"%s\" lastCharIndex: %d",
       //    &(queryString[lastCharIndex]), lastCharIndex);
-      NameValueTokenizer::getSubField(&(queryString[lastCharIndex]),
+      UtlNameValueTokenizer::getSubField(&(queryString[lastCharIndex]),
                                       queryStringLength - lastCharIndex,
                                       0,
                                       pairSeparator,
@@ -398,7 +396,7 @@ void HttpRequestContext::parseCgiVariables(const char* queryString,
       if(nameAndValuePtr && nameAndValueLength > 0)
       {
          // Separate the name and value
-         NameValueTokenizer::getSubField(nameAndValuePtr,
+         UtlNameValueTokenizer::getSubField(nameAndValuePtr,
                                          nameAndValueLength,
                                          0,
                                          nameValueSeparator,
@@ -446,7 +444,7 @@ void HttpRequestContext::parseCgiVariables(const char* queryString,
             {
                value.remove(0);
                value.append(valuePtr, valueLength);
-               NameValueTokenizer::frontBackTrim(&value, " \t\n\r");
+               value.strip(UtlString::both);
                unescape(value);
                newNvPair->setValue(value);
             }
@@ -457,7 +455,7 @@ void HttpRequestContext::parseCgiVariables(const char* queryString,
 
             // Unescape the name.
             unescape(*newNvPair);
-            NameValueTokenizer::frontBackTrim(newNvPair, " \t\n\r");
+            newNvPair->strip(UtlString::both);
 
 #           ifdef TEST_DEBUG
             OsSysLog::add(FAC_SIP, PRI_DEBUG,

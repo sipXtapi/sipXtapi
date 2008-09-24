@@ -1,3 +1,19 @@
+// Copyright 2008 AOL LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -25,10 +41,10 @@
 // *** READ THIS ***
 //
 // NOTE:  If adding a facility, please:
-//        1) Inserted it before the FAC_MAX_FACILITY.
-//        2) Updated OsSysLogFacilties.cpp to include the
+//        1) Insert it before the FAC_MAX_FACILITY.
+//        2) Update OsSysLogFacilties.cpp to include the
 //           string name.
-//        3) Updated the !enum comments below.
+//        3) Update the !enum comments below.
 //
 // *** READ THIS ***
 //
@@ -73,20 +89,24 @@ enum tagOsSysLogFacility
    FAC_CONFERENCE,         // Conference bridge
    FAC_ODBC,               // ODBC related
    FAC_CDR,                // CDR generating related
+   FAC_RLS,                // Resource list server
    FAC_VOICEENGINE,        // GIPS VoiceEngine-specific logging
    FAC_VIDEOENGINE,        // GIPS VideoEngine-specific logging
    FAC_APP,                // Generic application facility
    FAC_SIP_CUSTOM,         // Custom transport messages 
+   FAC_SIPXTAPI_EVENT,     // sipXtapi event streams
+   FAC_ARS,                // ARS log events
+   FAC_NAT,                // Generic NAT messages
    FAC_MAX_FACILITY        // Last Facility (used to for length)
 
    //
    // *** READ THIS ***
    //
    // NOTE:  If adding a facility, please:
-   //        1) Inserted it before the FAC_MAX_FACILITY.
-   //        2) Updated OsSysLogFacilties.cpp to include the
+   //        1) Insert it before the FAC_MAX_FACILITY.
+   //        2) Update OsSysLogFacilties.cpp to include the
    //           string name.
-   //        3) Updated the !enum comments below.
+   //        3) Update the !enum comments below.
    //
    // *** READ THIS ***
    //
@@ -122,11 +142,16 @@ enum tagOsSysLogFacility
   //!enumcode: FAC_REPLICATION_CGI - replication cgi( replicates databases across components )
   //!enumcode: FAC_PROCESSMGR - os processmanager related
   //!enumcode: FAC_PROCESS - process related
+  //!enumcode: FAC_SIPXTAPI - sipXtapi related
+  //!enumcode: FAC_AUDIO - audio related
+  //!enumcode: FAC_CONFERENCE - Conference bridge
+  //!enumcode: FAC_ODBC - ODBC related
+  //!enumcode: FAC_CDR - CDR generating related
+  //!enumcode: FAC_RLS - Resource list server
   //!enumcode: FAC_VOICEENGINE - GIPS VoiceEngine related
   //!enumcode: FAC_VIDEOENGINE - GIPS VideoEngine related
   //!enumcode: FAC_APP - Generic application messages
   //!enumcode: FAC_SIP_CUSTOM - custom transport message (in/out)
-
 
 // TYPEDEFS
 typedef enum tagOsSysLogFacility OsSysLogFacility ;

@@ -1,3 +1,6 @@
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -10,6 +13,7 @@
 
 
 // SYSTEM INCLUDES
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #ifndef WINCE
 #   include <process.h>
@@ -24,7 +28,11 @@
 #include "mp/MprToSpkr.h"
 #include "mp/MpMediaTask.h"
 #include "os/OsDefs.h"
-#include "os/OsDateTime.h"
+#include "os/OsIntPtrMsg.h"
+
+#ifdef RTL_ENABLED
+#   include <rtl_macro.h>
+#endif
 
 // DEFINES
 #undef OHISTORY
@@ -51,13 +59,15 @@ static int gCallDeviceId;
 static HGLOBAL  hOutHdr[N_OUT_BUFFERS];
 static WAVEHDR* pOutHdr[N_OUT_BUFFERS];
 static HGLOBAL  hOutBuf[N_OUT_BUFFERS];
+OsMsgPool* gSpeakerStatusPool = NULL;
+OsMsgQ* gSpeakerStatusQueue = NULL;
+
 #ifdef OHISTORY /* [ */
 static int histOut[OHISTORY];
 static int lastOut;
 #endif /* OHISTORY ] */
 HWAVEOUT audioOutH;         // Referenced in MpCodec (vol)
 HWAVEOUT audioOutCallH;     // Referenced in MpCodec (vol)
-
 
 /* ============================ FUNCTIONS ================================= */
 
@@ -85,15 +95,22 @@ static HWAVEOUT selectSpeakerDevice()
 }
 
 static void CALLBACK TimerCallbackProc(UINT wTimerID, UINT msg, DWORD dwUser, DWORD dw1, DWORD dw2) 
-{    
-    int retval = PostThreadMessage(dwUser, WM_ALT_HEARTBEAT, 0, GetTickCount());
-    if (retval == 0)
-    {
-        Sleep(100);
-        retval = PostThreadMessage(dwUser, WM_ALT_HEARTBEAT, 0, GetTickCount());
-        if (retval == 0)
-            osPrintf("Could not PostTheadMessage after two tries.\n");
-    }
+{
+   OsIntPtrMsg *pMsg = (OsIntPtrMsg*)gSpeakerStatusPool->findFreeMsg();
+
+   if (pMsg)
+   {
+      // message was taken from pool
+      pMsg->setData1(WM_ALT_HEARTBEAT);
+      if (gSpeakerStatusQueue->sendFromISR(*pMsg) != OS_SUCCESS)
+      {
+         osPrintf("Problem with sending message in TimerCallbackProc\n");
+      }
+   }
+   else
+   {
+      osPrintf("Could not create message in TimerCallbackProc\n");
+   }      
 }
 
 // Call back for speaker audio
@@ -106,17 +123,42 @@ void CALLBACK speakerCallbackProc(HANDLE h, UINT wMsg, DWORD dwInstance, DWORD d
    }
 #endif /* OHISTORY ] */
 
-   int retval = PostThreadMessage(dwInstance, wMsg, dwParam, GetTickCount());
+   OsIntPtrMsg *pMsg = (OsIntPtrMsg*)gSpeakerStatusPool->findFreeMsg();
 
-   if (retval == 0)
+   if (pMsg)
    {
-      Sleep(500);
-      retval = PostThreadMessage(dwInstance, wMsg, dwParam, GetTickCount());
-      if (retval == 0)
-         osPrintf("Could not PostTheadMessage after two tries.\n");
+      // message was taken from pool
+      pMsg->setData1(wMsg);
+      pMsg->setData2(dwParam);
+      if (gSpeakerStatusQueue->sendFromISR(*pMsg) != OS_SUCCESS)
+      {
+         osPrintf("Problem with sending message in speakerCallbackProc\n");
+      }
+   }
+   else
+   {
+      osPrintf("Could not create message in speakerCallbackProc\n");
    }
 }
 
+// This function waits for given message on speaker device
+static void waitForSpeakerStatusMessage(unsigned int message)
+{
+   UtlBoolean bSuccess = FALSE;
+   unsigned int speakerStatus = 0;
+   OsMsg *pMsg = NULL;
+   do 
+   {
+      bSuccess = (gSpeakerStatusQueue->receive(pMsg) == OS_SUCCESS);
+      if (bSuccess && pMsg)
+      {
+         OsIntPtrMsg *pIntMsg = (OsIntPtrMsg*)pMsg;
+         speakerStatus = (unsigned int)pIntMsg->getData1();
+         pIntMsg->releaseMsg();
+         pMsg = NULL;
+      }
+   } while (bSuccess && (speakerStatus != message));
+}
 
 // This function will attempt to open a user specified audio device.
 // If it fails, we will try to open any audio device that meets our requested format
@@ -149,13 +191,13 @@ static int openAudioOut(int desiredDeviceId, HWAVEOUT *pAudioOutH,int nChannels,
    //if we fail to open the audio device above, then we 
    //will try to open any device that will hande the requested format
    if (res != MMSYSERR_NOERROR)
-	   res = waveOutOpen(
-		  pAudioOutH,             // handle (will be filled in)
-		  WAVE_MAPPER,            // select any device able to handle this format
-		  &fmt,                   // format
-		  (DWORD) speakerCallbackProc,// callback entry
-		  GetCurrentThreadId(),   // instance data
-		  CALLBACK_FUNCTION);     // callback function specified
+      res = waveOutOpen(
+         pAudioOutH,             // handle (will be filled in)
+         WAVE_MAPPER,            // select any device able to handle this format
+         &fmt,                   // format
+         (DWORD) speakerCallbackProc,// callback entry
+         GetCurrentThreadId(),   // instance data
+         CALLBACK_FUNCTION);     // callback function specified
    
    if (res != MMSYSERR_NOERROR)
    {
@@ -171,55 +213,19 @@ static int openAudioOut(int desiredDeviceId, HWAVEOUT *pAudioOutH,int nChannels,
    }
 }
 
-
-static MpBufPtr conceal(MpBufPtr prev, int concealed)
-{
-#ifdef XXX_DEBUG_WINDOZE /* [ */
-   MpBufPtr ret;
-   Sample* src;
-   Sample* dst;
-   int len;
-   int halfLen;
-   int i;
-
-   if (NULL == prev) {
-      ret = MpBuf_getFgSilence();
-      return ret;
-   }
-   len = MpBuf_getNumSamples(prev);
-   ret = MpBuf_getBuf(MpBuf_getPool(prev), len, 0, MpBuf_getFormat(prev));
-   src = MpBuf_getSamples(prev);
-   dst = MpBuf_getSamples(ret);
-   halfLen = (len + 1) >> 1;
-   for (i=0; i<halfLen; i++) {
-      dst[i] = src[len - i];
-   }
-   for (i=halfLen; i<len; i++) {
-      dst[i] = src[i];
-   }
-   if (concealed > 2) {
-      for (i=0; i<len; i++) {
-         dst[i] = dst[i] >> 1; // attenuate
-      }
-   }
-   return ret;
-#else /* DEBUG_WINDOZE ] [ */
-   return MpBuf_getFgSilence();
-#endif /* DEBUG_WINDOZE ] */
-}
-
-
 static WAVEHDR* outPrePrep(int n, DWORD bufLen)
 {
+#ifdef RTL_ENABLED
+   RTL_EVENT("SpeakerThreadWnt.outPrePrep", 1);
+#endif
+
    WAVEHDR* pWH;
    int doAlloc = (hOutHdr[n] == NULL);
    MpBufferMsg* msg;
    MpBufferMsg* pFlush;
-   MpBufPtr     ob;
+   MpAudioBufPtr ob;
 
    static int oPP = 0;
-   static MpBufPtr prev = NULL; // prev is for future concealment use
-   static int concealed = 0; 
 
    static int flushes = 0;
    static int skip = 0;
@@ -253,12 +259,11 @@ static WAVEHDR* outPrePrep(int n, DWORD bufLen)
       osPrintf("outPrePrep(): %d playbacks, %d flushes\n", oPP, flushes);
    }
 #endif /* DEBUG_WINDOZE ] */
-   while (MpMisc.pSpkQ && MprToSpkr::MAX_SPKR_BUFFERS < MpMisc.pSpkQ->numMsgs()) {
+   while (MpMisc.pSpkQ && MpMisc.pSpkQ->numMsgs() > MprToSpkr::MAX_SPKR_BUFFERS) {
       OsStatus  res;
       flushes++;
       res = MpMisc.pSpkQ->receive((OsMsg*&) pFlush, OsTime::NO_WAIT_TIME);
       if (OS_SUCCESS == res) {
-         MpBuf_delRef(pFlush->getTag());
          pFlush->releaseMsg();
       } else {
          osPrintf("DmaTask: queue was full, now empty (4)!"
@@ -270,29 +275,33 @@ static WAVEHDR* outPrePrep(int n, DWORD bufLen)
       }
    }
 
-   if (MpMisc.pSpkQ && (skip == 0) && (MprToSpkr::MIN_SPKR_BUFFERS > MpMisc.pSpkQ->numMsgs())) {
-      skip = MprToSpkr::SKIP_SPKR_BUFFERS;
-      assert(MprToSpkr::MAX_SPKR_BUFFERS >= skip);
+   if (MpMisc.pSpkQ) {
+      if (  (skip == 0)
+         && (MpMisc.pSpkQ->numMsgs() < MprToSpkr::MIN_SPKR_BUFFERS))
+      {
+         skip = MprToSpkr::SKIP_SPKR_BUFFERS;
+         assert(MprToSpkr::MAX_SPKR_BUFFERS >= skip);
 #ifdef DEBUG_WINDOZE /* [ */
-      osPrintf("Skip(%d,%d)\n", skip, oPP);
+         osPrintf("Skip(%d,%d)\n", skip, oPP);
 #endif /* DEBUG_WINDOZE ] */
-   }
-
-   ob = NULL;
-   if (0 == skip) {
-      if (MpMisc.pSpkQ && OS_SUCCESS == MpMisc.pSpkQ->receive((OsMsg*&)msg, OsTime::NO_WAIT_TIME)) {
-         ob = msg->getTag();
-         msg->releaseMsg();
       }
-   } else {
-      if (MpMisc.pSpkQ && MpMisc.pSpkQ->numMsgs() >= skip) skip = 0;
+
+      if (MpMisc.pSpkQ->numMsgs() >= skip)
+      {
+         skip = 0;
+         if (MpMisc.pSpkQ->receive((OsMsg*&)msg, OsTime::NO_WAIT_TIME) == OS_SUCCESS)
+         {
+            ob = (MpAudioBufPtr)(msg->getBuffer());
+            msg->releaseMsg();
+         }
+//         osPrintf("pSpkQ message received\n");
+      } else {
+//         osPrintf("pSpkQ message skipped\n");
+      }
    }
 
-   if (NULL == ob) {
-      ob = conceal(prev, concealed);
-      concealed++;
-   } else {
-      concealed = 0;
+   if (!ob.isValid()) {
+      ob = MpMisc.mpFgSilence;
    }
 
    if (doAlloc) {
@@ -312,9 +321,11 @@ static WAVEHDR* outPrePrep(int n, DWORD bufLen)
    pWH->dwLoops = 0;
    pWH->lpNext = 0;
    pWH->reserved = 0;
-   memcpy(pWH->lpData, MpBuf_getSamples(ob), bufLen);
-   MpBuf_delRef(prev);
-   prev = ob;
+   memcpy(pWH->lpData, ob->getSamplesPtr(), bufLen);
+
+#ifdef RTL_ENABLED
+   RTL_EVENT("SpeakerThreadWnt.outPrePrep", 0);
+#endif
    return pWH;
 }
 
@@ -345,12 +356,10 @@ static int openSpeakerDevices(WAVEHDR*& pWH, HWAVEOUT& hOut)
     DWORD    bufLen = ((N_SAMPLES * BITS_PER_SAMPLE) / 8);
     int i ;
     MMRESULT ret;
-    MSG tMsg;
-    BOOL bSuccess ;    
 
-	// set the different device ids
-	gRingDeviceId = WAVE_MAPPER;
-	gCallDeviceId = WAVE_MAPPER;
+    // set the different device ids
+    gRingDeviceId = WAVE_MAPPER;
+    gCallDeviceId = WAVE_MAPPER;
 
 
     // If either the ringer or call device is set to NONE, don't engage any audio devices
@@ -364,10 +373,10 @@ static int openSpeakerDevices(WAVEHDR*& pWH, HWAVEOUT& hOut)
     /*
      * Select in-call / ringer devices
      */
-	int ii;
-	WAVEOUTCAPS devcaps;
-	int numberOfDevicesOnSystem = waveOutGetNumDevs();
-	for(ii=0; ii<numberOfDevicesOnSystem; ii++)
+    int ii;
+    WAVEOUTCAPS devcaps;
+    int numberOfDevicesOnSystem = waveOutGetNumDevs();
+    for(ii=0; ii<numberOfDevicesOnSystem; ii++)
     {
         waveOutGetDevCaps(ii,&devcaps,sizeof(WAVEOUTCAPS));
         if (strcmp(devcaps.szPname, DmaTask::getRingDevice())==0) 
@@ -376,7 +385,7 @@ static int openSpeakerDevices(WAVEHDR*& pWH, HWAVEOUT& hOut)
             osPrintf("SpkrThread: Selected ring device: %s\n",devcaps.szPname);
         }
 
-		if (strcmp(devcaps.szPname, DmaTask::getCallDevice())==0) 
+        if (strcmp(devcaps.szPname, DmaTask::getCallDevice())==0) 
         {
             gCallDeviceId = ii;
             osPrintf("SpkrThread: Selected call device: %s\n",devcaps.szPname);
@@ -393,11 +402,7 @@ static int openSpeakerDevices(WAVEHDR*& pWH, HWAVEOUT& hOut)
         return 1;
     }
 
-    do 
-    {
-        bSuccess = GetMessage(&tMsg, NULL, 0, 0) ;
-    } while (bSuccess && (tMsg.message != WOM_OPEN)) ;
-
+    waitForSpeakerStatusMessage(WOM_OPEN);
 
     /*
      * Open in-call device
@@ -409,11 +414,7 @@ static int openSpeakerDevices(WAVEHDR*& pWH, HWAVEOUT& hOut)
         return 1;
     }
 
-    do 
-    {
-        bSuccess = GetMessage(&tMsg, NULL, 0, 0) ;
-    } while (bSuccess && tMsg.message != WOM_OPEN) ;
-
+    waitForSpeakerStatusMessage(WOM_OPEN);
 
     // Pre load some data    
     for (i=0; i<smSpkrQPreload; i++)
@@ -428,10 +429,10 @@ static int openSpeakerDevices(WAVEHDR*& pWH, HWAVEOUT& hOut)
             {
                 showWaveError("waveOutPrepareHeader", ret, i, __LINE__);
             }
-	        ret = waveOutWrite(hOut, pWH, sizeof(WAVEHDR));
+            ret = waveOutWrite(hOut, pWH, sizeof(WAVEHDR));
             if (ret != MMSYSERR_NOERROR)
             {
-   	            showWaveError("waveOutWrite", ret, i, __LINE__);
+                   showWaveError("waveOutWrite", ret, i, __LINE__);
             }
         }      
     }
@@ -439,23 +440,55 @@ static int openSpeakerDevices(WAVEHDR*& pWH, HWAVEOUT& hOut)
     return 0 ;
 }
 
+// wait until all the buffers have been reset. previously the code 
+// waited exactly 100ms, however this wasn't always enough. now
+// it will wait until there are no buffers in the queue.
+// in order to avoid an infinite loop (although this should only happen
+// if waveOutReset was not called) we give up after 100 iterations
+// (equals 1 second). if this happens then we could be left with some 
+// active data in the buffers.
+static void waitForDeviceResetCompletion()
+{
+    int i;
+    bool bStillResetting;
+    int iterations = 0;
+
+    do
+    {
+        bStillResetting = false;
+
+        for (i = 0; i < N_OUT_BUFFERS; i++) 
+        {
+            if (hOutHdr[i] && (pOutHdr[i]->dwFlags & WHDR_INQUEUE))
+            {
+                bStillResetting = true;
+            }
+        }
+
+        if (bStillResetting)
+        {
+            Sleep(10);
+        }
+    }
+    while (bStillResetting && ++iterations < 100);
+}
 
 void closeSpeakerDevices()
 {
     MMRESULT ret;
     int i ;
-    MSG tMsg;
-    BOOL bSuccess ;    
-
 
     // Clean up ringer audio
     if (audioOutH)
     {
         ret = waveOutReset(audioOutH);
-        Sleep(100) ;
         if (ret != MMSYSERR_NOERROR)
         {
             showWaveError("waveOutReset", ret, -1, __LINE__);
+        }
+        else
+        {
+            waitForDeviceResetCompletion();
         }
 
         for (i=0; i<N_OUT_BUFFERS; i++) 
@@ -478,20 +511,20 @@ void closeSpeakerDevices()
         }
         audioOutH = NULL;
 
-        do 
-        {
-            bSuccess = GetMessage(&tMsg, NULL, 0, 0) ;
-        } while (bSuccess && (tMsg.message != WOM_CLOSE)) ;
+        waitForSpeakerStatusMessage(WOM_CLOSE);
     }
 
     // Clean up call audio
     if (audioOutCallH)
     {
         ret = waveOutReset(audioOutCallH);
-        Sleep(100) ;
         if (ret != MMSYSERR_NOERROR)
         {
             showWaveError("waveOutReset", ret, -1, __LINE__);
+        }
+        else
+        {
+            waitForDeviceResetCompletion();
         }
 
         for (i=0; i<N_OUT_BUFFERS; i++) 
@@ -514,10 +547,7 @@ void closeSpeakerDevices()
         }
         audioOutCallH = NULL;
 
-        do 
-        {
-            bSuccess = GetMessage(&tMsg, NULL, 0, 0) ;
-        } while (bSuccess && (tMsg.message != WOM_CLOSE)) ;
+        waitForSpeakerStatusMessage(WOM_CLOSE);
     }
 }
 
@@ -528,7 +558,8 @@ unsigned int __stdcall SpkrThread(LPVOID Unused)
     WAVEHDR* pWH;
     MMRESULT ret;
     int      played;
-    MSG      tMsg;
+    OsMsg *pMsg = NULL;
+    OsIntPtrMsg *pSpeakerMsg = NULL;
     BOOL     bGotMsg ;
     int      n;
     bool     bDone ;
@@ -536,6 +567,7 @@ unsigned int __stdcall SpkrThread(LPVOID Unused)
     OsStatus res;
     static bool bRunning = false ;
     HWAVEOUT hOut = NULL;
+    UINT    timerId=0;
 
     // Verify that only 1 instance of the MicThread is running
     if (bRunning) 
@@ -572,16 +604,18 @@ unsigned int __stdcall SpkrThread(LPVOID Unused)
         pOutHdr[i] = NULL;
     }
     
-    openSpeakerDevices(pWH, hOut) ;
-
-    // Set up a 10ms timer to call back to this routine
-    timeSetEvent(10, 0, TimerCallbackProc, GetCurrentThreadId(), TIME_PERIODIC);
+    if (openSpeakerDevices(pWH, hOut))
+    {
+        // NOT using a sound card
+        // Set up a 10ms timer to call back to this routine
+        timerId = timeSetEvent(10, 0, TimerCallbackProc, GetCurrentThreadId(), TIME_PERIODIC);
+    }
 
     played = 0;   
     bDone = false ;
     while (!bDone)
     {
-        bGotMsg = GetMessage(&tMsg, NULL, 0, 0);
+       bGotMsg = (gSpeakerStatusQueue->receive(pMsg) == OS_SUCCESS);
               
         // when switching devices, ringer to in-call we need to make 
         // sure any outstanding buffers are flushed
@@ -589,35 +623,103 @@ unsigned int __stdcall SpkrThread(LPVOID Unused)
         {
             if (audioOutH)
             {
-                waveOutReset(audioOutH);
+                ret = waveOutReset(audioOutH);
             }
             if (audioOutCallH)
             {
-                waveOutReset(audioOutCallH);
+                ret = waveOutReset(audioOutCallH);
+            }
+
+            if (ret != MMSYSERR_NOERROR)
+            {
+                showWaveError("waveOutReset", ret, -1, __LINE__);
+            }
+            else
+            {
+                waitForDeviceResetCompletion();
             }
         }
 
-        if (bGotMsg) 
+        if (bGotMsg && pMsg) 
         {
-            switch (tMsg.message) 
+           pSpeakerMsg = (OsIntPtrMsg*)pMsg;
+           intptr_t msgType = pSpeakerMsg->getData1();
+           intptr_t data2 = pSpeakerMsg->getData2();
+           pSpeakerMsg->releaseMsg();
+           pSpeakerMsg = NULL;
+           pMsg = NULL;
+
+            switch (msgType) 
             {
             case WM_ALT_HEARTBEAT:
                 res = MpMediaTask::signalFrameStart();
                 switch (res) 
                 {
-                    case OS_SUCCESS:
+                   case OS_SUCCESS:
                         frameCount++;
                         break;
-                    case OS_LIMIT_REACHED:
-                    case OS_WAIT_TIMEOUT:
-                    case OS_ALREADY_SIGNALED:
-                    default:
-                        // Should bump missed frame statistic
-                        break;
+#ifdef DEBUG_WINDOZE /* [ */
+                   case OS_LIMIT_REACHED:
+                      // Should bump missed frame statistic
+                      osPrintf(" Frame %d: OS_LIMIT_REACHED\n", frameCount);
+                      break;
+                   case OS_WAIT_TIMEOUT:
+                      // Should bump missed frame statistic
+                      osPrintf(" Frame %d: OS_WAIT_TIMEOUT\n", frameCount);
+                      break;
+                   case OS_ALREADY_SIGNALED:
+                      // Should bump missed frame statistic
+                      osPrintf(" Frame %d: OS_ALREADY_SIGNALED\n", frameCount);
+                      break;
+                   default:
+                      osPrintf("Frame %d, signalFrameStart() returned %d\n",
+                               frameCount, res);
+                      break;
+#else /* DEBUG_WINDOZE ] [ */
+                   case OS_LIMIT_REACHED:
+                   case OS_WAIT_TIMEOUT:
+                   case OS_ALREADY_SIGNALED:
+                   default:
+                      // Should bump missed frame statistic
+                      break;
+#endif /* DEBUG_WINDOZE ] */
+                }
+                // Check for a changed speaker device
+                if (DmaTask::isOutputDeviceChanged())
+                {                    
+                    DmaTask::clearOutputDeviceChanged() ;
+                    closeSpeakerDevices() ;
+                    if (audioOutH)
+                    {
+                        ret = waveOutReset(audioOutH);
+                    }
+                    if (audioOutCallH)
+                    {
+                        ret = waveOutReset(audioOutCallH);
+                    }
+
+                    if (ret != MMSYSERR_NOERROR)
+                    {
+                        showWaveError("waveOutReset", ret, -1, __LINE__);
+                    }
+                    else
+                    {
+                        waitForDeviceResetCompletion();
+                    }
+
+                    // Kill the hearbeat timer if it exists
+                    if (timerId>0)
+                        timeKillEvent(timerId);
+                    if (openSpeakerDevices(pWH, hOut))
+                    {
+                        // Open failed - so start the heartbeat timer
+                        timerId = timeSetEvent(10, 0, TimerCallbackProc, GetCurrentThreadId(), TIME_PERIODIC);                    
+                    }
+                    continue ;                    
                 }
                 break ;
             case WOM_DONE:
-                pWH = (WAVEHDR *) tMsg.wParam;
+                pWH = (WAVEHDR *) data2;
                 n = (pWH->dwUser) & USER_BUFFER_MASK;
 #ifdef OHISTORY /* [ */
                 lastWH[last] = pWH;
@@ -644,43 +746,49 @@ unsigned int __stdcall SpkrThread(LPVOID Unused)
                 {                    
                     DmaTask::clearOutputDeviceChanged() ;
                     closeSpeakerDevices() ;
-                    openSpeakerDevices(pWH, hOut) ;
-                    // timeSetEvent(10, 0, TimerCallbackProc, GetCurrentThreadId(), TIME_PERIODIC);                    
+                    if (openSpeakerDevices(pWH, hOut))
+                    {
+                        if (timerId>0)
+                            timeKillEvent(timerId);
+                        timerId = timeSetEvent(10, 0, TimerCallbackProc, GetCurrentThreadId(), TIME_PERIODIC);                    
+                    }
                     continue ;                    
                 }
 
                 hOut = selectSpeakerDevice() ;
                 if (hOut)
                 {
-			        ret = waveOutUnprepareHeader(hOut, pWH, sizeof(WAVEHDR));
+                    ret = waveOutUnprepareHeader(hOut, pWH, sizeof(WAVEHDR));
                     if (ret != MMSYSERR_NOERROR)
                     {
-   				        showWaveError("waveOutUnprepareHeader", ret, played, __LINE__);
+                           showWaveError("waveOutUnprepareHeader", ret, played, __LINE__);
                     }
-				    outPostUnprep(n, false);
+                    outPostUnprep(n, false);
 
-				    pWH = outPrePrep(n, bufLen);
+                    pWH = outPrePrep(n, bufLen);
 
-				    ret = waveOutPrepareHeader(hOut, pWH, sizeof(WAVEHDR));
+                    ret = waveOutPrepareHeader(hOut, pWH, sizeof(WAVEHDR));
                     if (ret != MMSYSERR_NOERROR)
                     {
-   				        showWaveError("waveOutPrepareHeader", ret, played, __LINE__);
+                           showWaveError("waveOutPrepareHeader", ret, played, __LINE__);
                     }
-			    	ret = waveOutWrite(hOut, pWH, sizeof(WAVEHDR));
+                    ret = waveOutWrite(hOut, pWH, sizeof(WAVEHDR));
                     if (ret != MMSYSERR_NOERROR)
                     {
-   				        showWaveError("waveOutWrite", ret, played, __LINE__);
+                           showWaveError("waveOutWrite", ret, played, __LINE__);
                     }
                     played++;
-			    }
-#if 0
+                }
+
                 res = MpMediaTask::signalFrameStart();
+
                 switch (res) 
                 {
+#ifdef DEBUG_WINDOZE /* [ */
                 case OS_SUCCESS:
                     frameCount++;
+                    osPrintf(" Frame %d: OS_SUCCESSFUL\n", frameCount);
                     break;
-#ifdef DEBUG_WINDOZE /* [ */
                 case OS_LIMIT_REACHED:
                     // Should bump missed frame statistic
                     osPrintf(" Frame %d: OS_LIMIT_REACHED\n", frameCount);
@@ -698,6 +806,9 @@ unsigned int __stdcall SpkrThread(LPVOID Unused)
                             frameCount, res);
                     break;
 #else /* DEBUG_WINDOZE ] [ */
+                case OS_SUCCESS:
+                    frameCount++;
+                    break;
                 case OS_LIMIT_REACHED:
                 case OS_WAIT_TIMEOUT:
                 case OS_ALREADY_SIGNALED:
@@ -706,7 +817,6 @@ unsigned int __stdcall SpkrThread(LPVOID Unused)
                     break;
 #endif /* DEBUG_WINDOZE ] */
                 }
-#endif
                 break;
             case WOM_CLOSE:
                 // Audio device was closed on us (doesn't happen as far as I
@@ -727,6 +837,10 @@ unsigned int __stdcall SpkrThread(LPVOID Unused)
         // record our last ringer state
         sLastRingerEnabled = DmaTask::isRingerEnabled();
     }
+
+    // Stop heartbeat timer if it exist
+    if (timerId>0)
+        timeKillEvent(timerId);
 
     closeSpeakerDevices() ;
 

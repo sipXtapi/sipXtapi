@@ -27,24 +27,19 @@ version_Age=0
 
 libsipXtack_la_LDFLAGS = \
 	-version-info ${version_Current}:${version_Revision}:${version_Age} \
-	@SSL_LDFLAGS@
+	$(SECURITY_LDFLAGS)
 
 libsipXtack_la_CXXFLAGS = \
-	@SSL_CXXFLAGS@ \
+        -DICE_USE_CALT \
 	-DSIPX_LOGDIR=\"@SIPX_LOGDIR@\" \
-	-DSIPX_CONFDIR=\"@SIPX_CONFDIR@\"
+	-DSIPX_CONFDIR=\"@SIPX_CONFDIR@\" \
+    $(SECURITY_CXXFLAGS)
 
 libsipXtack_la_LIBADD = \
 	@SIPXPORT_LIBS@ \
-	@SSL_LIBS@ \
-	-lresolv -lstdc++
-
-if BUILDTLS
-SECURITY_FILES=\
-    net/SipTlsServer.cpp
-else
-SECURITY_FILES=
-endif
+    @SIPXSDP_LIBS@ \
+	-lresolv -lstdc++ \
+    $(SECURITY_LIBADD)
 
 libsipXtack_la_SOURCES =  \
     ../config/sipxtacklib-buildstamp.h \
@@ -59,17 +54,17 @@ libsipXtack_la_SOURCES =  \
     net/MimeBodyPart.cpp \
     net/NameValuePair.cpp \
     net/NameValuePairInsensitive.cpp \
-    net/NameValueTokenizer.cpp \
     net/NetAttributeTokenizer.cpp \
     net/NetBase64Codec.cpp \
     net/NetMd5Codec.cpp \
+    net/NetTurnSelector.cpp \
     net/ProvisioningAgent.cpp \
     net/ProvisioningAgentXmlRpcAdapter.cpp \
     net/ProvisioningAttrList.cpp \
     net/ProvisioningClass.cpp \
+    net/ProxyDescriptor.cpp \
     net/SdpBody.cpp \
-    net/SdpCodec.cpp \
-    net/SdpCodecFactory.cpp \
+    net/SdpHelper.cpp \
     net/SipClient.cpp \
     net/SipContactDb.cpp \
     net/SipConfigServerAgent.cpp \
@@ -141,5 +136,10 @@ libsipXtack_la_SOURCES =  \
     resparse/res_print.c \
     resparse/res_query.c \
     resparse/res_send.c \
+    upnp/UPnpAgent.cpp \
+    upnp/UPnpControl.cpp \
+    upnp/UPnpDevice.cpp \
+    upnp/UPnpDiscovery.cpp \
+    upnp/UPnpService.cpp \
     $(SECURITY_FILES)
 

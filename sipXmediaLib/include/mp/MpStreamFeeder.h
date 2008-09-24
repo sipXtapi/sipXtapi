@@ -1,3 +1,22 @@
+// Copyright 2008 AOL LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA. 
+//  
+// Copyright (C) 2006 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -8,6 +27,7 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
+#ifdef MP_STREAMING
 
 #ifndef _MpStreamFeeder_h_
 #define _MpStreamFeeder_h_
@@ -39,7 +59,7 @@
 
 //: Feeder states (match player states for the most part, but add a 
 //: realizing and rendering states)
-typedef enum tagFeederState
+typedef enum
 {
    UnrealizedState,
    RealizedState,
@@ -56,98 +76,111 @@ class StreamFormatDecoder ;
 class StreamDataSource ;
 class OsNotification ;
 
-//:The MpStreamFeed coordinates with the data source and decoder to ready the
-//:input stream and then plugs into the MprFromStream resource to supply 
-//:audio info the flowgraph.
-//     
-//                                                 ------------------
-//                                            +-> | StreamDataSource |
-//  ---------------           ----------------     ------------------
-// | MprFromStream | 1..N -> | MpStreamFeeder |   
-//  ---------------           ----------------    ---------------------
-//                                            +-> | StreamFormatDecoder |                 
-//                                                 ---------------------
-//
-// The MpStreamFeeder has its own state table that mostly matches the generic
-// player's state table:
-//
-// Unrealized -> Realized -> Prefetching -> Prefetched -> Rendering -> Stopped
-//        
-//            *->FailedState
-//
-// Communications:
-//
-// Events are send to the MpStreamPlayer resource indirectly through a 
-// settable OsNotifyEvent (setEventHandler).
-//
-// Events are received from the MprFromStream object by the fromStreamUpdate 
-// callback function.
-//
+/// @brief The MpStreamFeed coordinates with the data source and decoder to ready the
+/// input stream and then plugs into the MprFromStream resource to supply 
+/// audio info the flowgraph.
+/**
+*                                                  ------------------
+*                                             +-> | StreamDataSource |
+*   ---------------           ----------------     ------------------
+*  | MprFromStream | 1..N -> | MpStreamFeeder |   
+*   ---------------           ----------------    ---------------------
+*                                             +-> | StreamFormatDecoder |                 
+*                                                  ---------------------
+* 
+*  The MpStreamFeeder has its own state table that mostly matches the generic
+*  player's state table:
+* 
+*  Unrealized -> Realized -> Prefetching -> Prefetched -> Rendering -> Stopped
+*         
+*             *->FailedState
+* 
+*  Communications:
+* 
+*  Events are send to the MpStreamPlayer resource indirectly through a 
+*  settable OsNotifyEvent (setEventHandler).
+* 
+*  Events are received from the MprFromStream object by the fromStreamUpdate 
+*  callback function.
+*/
 class MpStreamFeeder : public StreamDataSourceListener, public StreamDecoderListener
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
 /* ============================ CREATORS ================================== */
-
+///@name Creators
+//@{
+     /// Constructor accepting a url resource, type, and cache all flag
    MpStreamFeeder(Url resource, int flags);
-     //:Constructor accepting a url resource, type, and cache all flag
 
+     /// Constructor accepting a pre-populated buffer, type and cache all flag
    MpStreamFeeder(UtlString* pBuffer, int flags);
-     //:Constructor accepting a pre-populated buffer, type and cache all flag
 
+     /// Destructor
    virtual ~MpStreamFeeder();
-     //:Destructor
-     // As part of destroying the task, flush all messages from the incoming
-     // OsMsgQ.
+     /**<
+     *  As part of destroying the task, flush all messages from the incoming
+     *  OsMsgQ.
+     */
 
 /* ============================ MANIPULATORS ============================== */
    
+     /// @brief Initiates the connection with the outbound party to validate the
+     /// connection.  Buffers are allocated at this point.
    OsStatus realize() ;
-     //: Initiates the connection with the outbound party to validate the
-     //: connection.  Buffers are allocated at this point.
 
+     ///  Begin downloading and decoding data. 
    OsStatus render() ;
-     //: Begin downloading and decoding data.  The state is not moved to
-     //  prefetched until a sensible amount of data has been received and 
-     //  decoded.
+     /**<
+     *  The state is not moved to prefetched until a sensible amount of data
+     *  has been received and decoded.
+     */
 
+     ///  Rewind the data source to the prefetched state.
    OsStatus rewind() ;
-     //: Rewind the data source to the prefetched state.  This may result
-     //  in re-prefetching data in cases.
+     //  This may result in re-prefetching data in cases.
 
    OsStatus stop();
-     //: Stop collecting/rendering data
+     ///  Stop collecting/rendering data
 
+     ///  Set the event handler for this renderer.
    OsStatus setEventHandler(OsNotification* pEventHandler) ;
-     //: Set the event handler for this renderer.  All events will be 
-     //: delievered to this handler
+     /**<  All events will be delievered to this handler. */
 
+     ///  Marks that playing is pauses; however, continues to render and 
+     ///  stream.
    void markPaused(UtlBoolean bPaused) ;
-     //: Marks that playing is pauses; however, continues to render and 
-     //: stream.
+
+//@}
 
 /* ============================ ACCESSORS ================================= */
+///@name Accessors
+//@{
 
+     ///  Get a frames worth of data (80 samples per frame) ;
    OsStatus getFrame(unsigned short *samples) ;
-     //: Get a frames worth of data (80 samples per frame) ;
 
+     ///  Has the rendered been marked as paused?
    UtlBoolean isMarkedPaused() ;
-     //: Has the rendered been marked as paused?
 
+     ///  Get the flags for this renderer
    OsStatus getFlags(int &flags) ;
-     //: Get the flags for this renderer
 
+     ///  Query the state for this renderer
    FeederState getState() ;
-     //: Query the state for this renderer
 
+     ///  Called by the MprFromStream resource when events changes.
    void fromStreamUpdate(FeederEvent event) ;
-     //: Called by the MprFromStream resource when events changes.
+
+//@}
 
 /* ============================ INQUIRY =================================== */
+///@name Inquiry
+//@{
 
+     ///  Is the transition from state source to target valid?
    UtlBoolean isValidStateChange(FeederState source, FeederState target) ;
-     //: Is the transition from state source to target valid?
 
 /* ============================ TESTING =================================== */
 
@@ -155,19 +188,21 @@ public:
 static const char* getEventString(FeederEvent event);
 #endif /* MP_STREAM_DEBUG ] */
 
+//@}
+
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
+     /// Fires renderer event to interested consumers
    void fireEvent(FeederEvent eventType) ;
-     //:Fires renderer event to interested consumers
 
+     /// Sets the internal renderer state
    void setState(FeederState state);
-     //:Sets the internal renderer state
 
+     /// Call back for decoder updates
    virtual void decoderUpdate(StreamFormatDecoder* pDecoder, StreamDecoderEvent event) ;
-     //:Call back for decoder updates
 
+     /// Call back for data source updates
    virtual void dataSourceUpdate(StreamDataSource* pDataSource, StreamDataSourceEvent event) ;   
-     //:Call back for data source updates
 
 #ifdef MP_STREAM_DEBUG /* [ */
    const char* getDataSourceEventString(StreamDataSourceEvent);
@@ -180,25 +215,25 @@ protected:
 private: 
    static int s_iInstanceCount ;
 
-   FeederState m_state;                      // State of the Feeder
-   StreamFormatDecoder* m_pFormatDecoder;    // Decoder
-   StreamDataSource* m_pDataSource ;         // Data Source
-   int mFlags ;                              // Flags given at creation
+   FeederState m_state;                      ///< State of the Feeder
+   StreamFormatDecoder* m_pFormatDecoder;    ///< Decoder
+   StreamDataSource* m_pDataSource ;         ///< Data Source
+   int mFlags ;                              ///< Flags given at creation
 
-   UtlBoolean m_bMarkedPaused;                // Is this marked as paused?
-   OsNotification* m_pEventHandler;          // Event sink.
+   UtlBoolean m_bMarkedPaused;               ///< Is this marked as paused?
+   OsNotification* m_pEventHandler;          ///< Event sink.
    int m_iInstanceId ;
-   OsMutex m_eventGuard;                     // Guards multiple threads from 
-                                             // calling fireEvent at same time
+   OsMutex m_eventGuard;                     ///< Guards multiple threads from 
+                                             ///< calling fireEvent at same time
 
-   
-   
-  
+
+     ///  Construction helper: initialize the decoding source
    void initDecodingSource() ;
-     //: Construction helper: initialize the decoding source
 
 };
 
 /* ============================ INLINE METHODS ============================ */
 
 #endif  // _MpStreamFeeder_h_
+
+#endif

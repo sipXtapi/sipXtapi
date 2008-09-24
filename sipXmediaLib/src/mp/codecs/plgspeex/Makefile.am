@@ -1,0 +1,25 @@
+## Process this file with automake to produce Makefile.in
+
+INCLUDES = -I$(top_srcdir)/include -I$(top_srcdir)/../sipXportLib/include @SPEEX_CFLAGS@
+
+pkgdata_LTLIBRARIES = codec_speex.la
+
+codec_speex_la_SOURCES = PlgSpeex.c speex_nb.c speex_uwb.c speex_wb.c frame_num.c
+
+# Below LIBADD line will pull in a statically built libspeex library.
+# Since this library is a shared library, the static speex library needs
+# to be built with -fPIC -DPIC
+codec_speex_la_LIBADD = @SPEEX_STATIC_LIB@
+
+# This will pull in shared lib, which automatically has -fPIC
+#codec_speex_la_LIBADD = @SPEEX_LIBS@ 
+
+codec_speex_la_LDFLAGS = -module -avoid-version
+
+all-local: codec_speex.la
+	echo "Installing plugin codec_speex.so ..."
+	cp -f .libs/codec_speex.so @DEFAULT_CODECS_PATH@
+
+clean-local:
+	rm -f @DEFAULT_CODECS_PATH@/codec_speex.so
+

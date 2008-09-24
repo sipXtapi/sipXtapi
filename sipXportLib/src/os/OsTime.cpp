@@ -1,3 +1,19 @@
+// Copyright 2008 AOL LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -14,6 +30,9 @@
 // APPLICATION INCLUDES
 #include "os/OsTime.h"
 
+// DEFINES 
+#define INFINITE_TIME 0x7FFFFFFF
+
 // EXTERNAL FUNCTIONS
 
 // EXTERNAL VARIABLES
@@ -21,12 +40,10 @@
 // CONSTANTS
 
 // STATIC VARIABLE INITIALIZATIONS
-const OsTime OsTime::OS_INFINITY(0x7FFFFFFF,0x7FFFFFFF);
-const OsTime OsTime::NO_WAIT(0,0);
-const OsTime OsTime::NO_WAIT_TIME(0,0);
 const long OsTime::MSECS_PER_SEC   = 1000;
 const long OsTime::USECS_PER_MSEC  = 1000;
 const long OsTime::USECS_PER_SEC   = 1000000;
+UtlContainableType OsTime::TYPE = "OsTime" ;
 
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
@@ -59,6 +76,24 @@ OsTime::OsTime(const long msecs)
    else     // 0 <= msecs < MSECS_PER_SEC
    {
        mUsecs = msecs * USECS_PER_MSEC;
+   }
+}
+
+// Constructor
+OsTime::OsTime(TimeQuantity quantity)
+{
+   init();
+
+   if (quantity == OS_INFINITY)
+   {
+      mSeconds = INFINITE_TIME;
+      mUsecs = INFINITE_TIME;
+   }
+   else
+   {
+      // NO_WAIT_TIME
+      mSeconds = 0;
+      mUsecs   = 0;
    }
 }
 
@@ -101,6 +136,24 @@ OsTime::~OsTime()
 }
 
 /* ============================ MANIPULATORS ============================== */
+
+// Assignment operator
+OsTime& OsTime::operator=(TimeQuantity rhs)
+{
+   if (rhs == OS_INFINITY)
+   {
+      mSeconds = INFINITE_TIME;
+      mUsecs = INFINITE_TIME;
+   }
+   else
+   {
+      // NO_WAIT_TIME
+      mSeconds = 0;
+      mUsecs   = 0;
+   }
+
+   return *this;
+}
 
 // Assignment operator
 OsTime& 
@@ -146,21 +199,21 @@ OsTime OsTime::operator-=(const OsTime& rhs)
 }
 
 // Test for equality operator
-bool OsTime::operator==(const OsTime& rhs)
+bool OsTime::operator==(const OsTime& rhs) const
 {
    return (this->mSeconds == rhs.mSeconds) &&
           (this->mUsecs   == rhs.mUsecs);
 }
 
 // Test for inequality operator
-bool OsTime::operator!=(const OsTime& rhs)
+bool OsTime::operator!=(const OsTime& rhs) const
 {
    return (this->mSeconds != rhs.mSeconds) ||
           (this->mUsecs   != rhs.mUsecs);
 }
 
 // Test for greater than
-bool OsTime::operator>(const OsTime& rhs)
+bool OsTime::operator>(const OsTime& rhs) const
 {
    if (this->mSeconds >= 0)
    {  // "this" is a positive time value
@@ -177,7 +230,7 @@ bool OsTime::operator>(const OsTime& rhs)
 }
 
 // Test for greater than or equal
-bool OsTime::operator>=(const OsTime& rhs)
+bool OsTime::operator>=(const OsTime& rhs) const
 {
    if (this->mSeconds >= 0)
    {  // "this" is a positive time value
@@ -194,7 +247,7 @@ bool OsTime::operator>=(const OsTime& rhs)
 }
 
 // Test for less than
-bool OsTime::operator<(const OsTime& rhs)
+bool OsTime::operator<(const OsTime& rhs) const
 {
    if (this->mSeconds >= 0)
    {  // "this" is a positive time value
@@ -211,7 +264,7 @@ bool OsTime::operator<(const OsTime& rhs)
 }
 
 // Test for less than or equal
-bool OsTime::operator<=(const OsTime& rhs)
+bool OsTime::operator<=(const OsTime& rhs) const
 {
    if (this->mSeconds >= 0)
    {  // "this" is a positive time value
@@ -235,14 +288,24 @@ long OsTime::cvtToMsecs(void) const
    return (mSeconds * MSECS_PER_SEC) + (mUsecs / USECS_PER_MSEC);
 }
 
+unsigned OsTime::hash() const
+{
+   return (unsigned) (mSeconds ^ mUsecs) ; 
+}
+
+
+UtlContainableType OsTime::getContainableType() const
+{
+    return OsTime::TYPE ;
+}
+
+
 /* ============================ INQUIRY =================================== */
 
 // Return TRUE if the time interval is infinite
 UtlBoolean OsTime::isInfinite(void) const
 {
-   if (this == &OS_INFINITY ||
-       (seconds() == OS_INFINITY.seconds() &&
-        usecs()   == OS_INFINITY.usecs()))
+   if (mSeconds == INFINITE_TIME && mUsecs == INFINITE_TIME)
       return TRUE;
    else
       return FALSE;
@@ -251,11 +314,38 @@ UtlBoolean OsTime::isInfinite(void) const
 // Return TRUE if the time interval is zero (no wait)
 UtlBoolean OsTime::isNoWait(void) const
 {
-   if (this == &NO_WAIT_TIME || 
-       (seconds() == 0 && usecs() == 0))
+   if (mSeconds == 0 && mUsecs == 0)
       return TRUE;
    else
       return FALSE;
+}
+
+int OsTime::compareTo(UtlContainable const * inVal) const
+{
+    int result ; 
+   
+    if (inVal->isInstanceOf(OsTime::TYPE))
+    {
+        OsTime* temp = (OsTime*)inVal ; 
+        if (this > temp)
+            result = 1 ;
+        else if (this < temp)
+            result = -1 ;
+        else
+            result = 0 ;        
+    }
+    else
+    {
+        result = -2 ; 
+    }
+
+    return result ;
+}
+
+
+UtlBoolean OsTime::isEqual(UtlContainable const * inVal) const
+{
+    return (compareTo(inVal) == 0) ; 
 }
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */

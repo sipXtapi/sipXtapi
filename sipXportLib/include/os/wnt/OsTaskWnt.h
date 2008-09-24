@@ -13,6 +13,7 @@
 #define _OsTaskWnt_h_
 
 // SYSTEM INCLUDES
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
 // APPLICATION INCLUDES
@@ -210,11 +211,6 @@ public:
 
    virtual OsStatus id(int& rId);
      //:Get the task ID for this task
-
-   virtual UtlBoolean isReady(void);
-     //:Check if the task is ready to run
-     // Return TRUE is the task is ready, otherwise FALSE.
-     // Under Windows NT, this method returns the opposite of isSuspended()
 
    virtual UtlBoolean isSuspended(void);
      //:Check if the task is suspended

@@ -19,30 +19,41 @@ version_Revision=0
 #       increment if any interfaces have been added
 version_Age=0
 
+if BUILDTLS
+SECURITY_LIBADD=@SSL_LIBS@
+else
+SECURITY_LIBADD=
+endif
+
 libsipXcall_la_LDFLAGS = -version-info ${version_Current}:${version_Revision}:${version_Age}
 libsipXtapi_la_LDFLAGS = -version-info ${version_Current}:${version_Revision}:${version_Age}
 
 libsipXcall_la_LIBADD = \
-	@SIPXMEDIA_MP_LIBS@ \
-        @SIPXMEDIA_LIBS@ \
-        @SIPXTACK_LIBS@ \
+	@SIPXTACK_LIBS@ \
         @SIPXPORT_LIBS@ \
-        -lstdc++
+        @SIPXMEDIA_PLUGIN_LIBS@ \
+        -lstdc++ 
+#        @SIPXMEDIA_VE_LIBS@ 
+#	@GIPS_VE_OBJS@ @SIPXTACK_LIBS@ @SIPXPORT_LIBS@ -lstdc++
+#	@SIPXMEDIA_LIBS@ @SIPXTACK_LIBS@ @SIPXPORT_LIBS@ -lstdc++
 
 libsipXtapi_la_LIBADD = \
-	@SIPXMEDIA_MP_STATIC_LIBS@ \
-        @SIPXMEDIA_STATIC_LIBS@ \
-        @SIPXTACK_STATIC_LIBS@ \
+	@SIPXTACK_STATIC_LIBS@ \
         @SIPXPORT_STATIC_LIBS@ \
-        -lstdc++ -lpthread -lresolv -lpcre -lssl
+	@SIPXMEDIA_PLUGIN_STATIC_LIBS@ \
+        -lstdc++ -lpthread -lresolv -lpcre \
+        @SIPXPORT_STATIC_LIBS@ \
+        $(SECURITY_LIBADD)
+#        @SIPXMEDIA_VE_STATIC_LIBS@ 
 
 libsipXcall_la_CXXFLAGS = \
-    -DSIPX_CONFDIR=\"@SIPX_CONFDIR@\" \
-    @VIDEO_DEFINE@
+	-DSIPX_CONFDIR=\"@SIPX_CONFDIR@\" 
+#    @VIDEO_DEFINE@ 
 
 libsipXtapi_la_CXXFLAGS = \
-    -DSIPX_CONFDIR=\"@SIPX_CONFDIR@\" \
-    @VIDEO_DEFINE@
+    -DSIPX_CONFDIR=\"@SIPX_CONFDIR@\" 
+#    -DEXCLUDE_STREAMING \
+#    @VIDEO_DEFINE@
 
 libsipXcall_la_SOURCES = \
     ../config/sipxcalllib-buildstamp.h \
@@ -60,17 +71,15 @@ libsipXcall_la_SOURCES = \
     cp/CpStringMessage.cpp \
     cp/SipConnection.cpp \
     tao/TaoEvent.cpp \
-    tao/TaoEventListener.cpp \
-    tao/TaoListenerEventMessage.cpp \
     tao/TaoMessage.cpp \
     tao/TaoObjectMap.cpp \
     tao/TaoReference.cpp \
     tao/TaoString.cpp \
     tapi/sipXtapi.cpp \
-    tapi/SipXEventDispatcher.cpp \
     tapi/sipXtapiEvents.cpp \
     tapi/sipXtapiInternal.cpp \
     tapi/SipXHandleMap.cpp \
+    tapi/SipXEventDispatcher.cpp \
     tapi/SipXMessageObserver.cpp
 
 libsipXtapi_la_SOURCES = \
@@ -89,8 +98,6 @@ libsipXtapi_la_SOURCES = \
     cp/CpStringMessage.cpp \
     cp/SipConnection.cpp \
     tao/TaoEvent.cpp \
-    tao/TaoEventListener.cpp \
-    tao/TaoListenerEventMessage.cpp \
     tao/TaoMessage.cpp \
     tao/TaoObjectMap.cpp \
     tao/TaoReference.cpp \
@@ -101,7 +108,5 @@ libsipXtapi_la_SOURCES = \
     tapi/sipXtapiInternal.cpp \
     tapi/SipXHandleMap.cpp \
     tapi/SipXMessageObserver.cpp
-
-DISTCLEANFILES = Makefile.in
 
 DISTCLEANFILES = Makefile.in

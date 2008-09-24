@@ -1,8 +1,24 @@
+// Copyright 2008 AOL LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
-// Copyright (C) 2005-2006 SIPez LLC.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA. 
+//
+// Copyright (C) 2005-2007 SIPez LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.
 // 
-// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -26,15 +42,13 @@
 #include <net/SipMessageEvent.h>
 #include <cp/SipConnection.h>
 #include <cp/CpGhostConnection.h>
-#include <mi/CpMediaInterface.h>
+#include <mediaInterface/IMediaInterface.h>
 #include <net/SipUserAgent.h>
-#include <net/NameValueTokenizer.h>
+#include <utl/UtlNameValueTokenizer.h>
 #include <net/Url.h>
 #include <net/SipSession.h>
-#include <ptapi/PtConnection.h>
-#include "ptapi/PtCall.h"
+#include <ptapi/PtDefs.h>
 #include "ptapi/PtEvent.h"
-#include <ptapi/PtTerminalConnection.h>
 #include <os/OsReadLock.h>
 #include <os/OsWriteLock.h>
 #include <os/OsProtectEvent.h>
@@ -43,7 +57,7 @@
 #include "os/OsTime.h"
 #include "os/OsDateTime.h"
 #include "os/OsEventMsg.h"
-#include "tao/TaoProviderAdaptor.h"
+//#include "tao/TaoProviderAdaptor.h"
 #include "net/SmimeBody.h"
 
 // EXTERNAL FUNCTIONS
@@ -69,7 +83,7 @@
 // Constructor
 CpPeerCall::CpPeerCall(UtlBoolean isEarlyMediaFor180Enabled,
                        CpCallManager* callManager,
-                       CpMediaInterface* callMediaInterface,
+                       IMediaInterface* callMediaInterface,
                        int callIndex,
                        const char* callId,
                        SipUserAgent* sipUA, 
@@ -137,7 +151,7 @@ CpCall(callManager, callMediaInterface, callIndex, callId,
     if(defaultCallExtension)
     {
         //extension.append(phoneExtension);
-        //NameValueTokenizer::frontBackTrim(&extension, " \t\n\r");
+        //UtlNameValueTokenizer::frontBackTrim(&extension, " \t\n\r");
         Url outboundLine(defaultCallExtension);
 
 
@@ -258,6 +272,9 @@ UtlBoolean CpPeerCall::handleDialString(OsMsg* pEventMessage)
     int bandWidth = ((CpMultiStringMessage*)pEventMessage)->getInt4Data();
     SIPX_TRANSPORT_DATA* pTransport = (SIPX_TRANSPORT_DATA*)((CpMultiStringMessage*)pEventMessage)->getInt5Data();
     RTP_TRANSPORT rtpTransportOptions = (RTP_TRANSPORT)((CpMultiStringMessage*)pEventMessage)->getInt6Data();
+    unsigned long flags = ((CpMultiStringMessage*)pEventMessage)->getInt7Data();
+    int callHandle = ((CpMultiStringMessage*)pEventMessage)->getInt8Data();
+
     const char* locationHeaderData = (locationHeader.length() == 0) ? NULL : locationHeader.data();
 
 #ifdef TEST_PRINT
@@ -292,14 +309,20 @@ UtlBoolean CpPeerCall::handleDialString(OsMsg* pEventMessage)
         if (desiredCallId.length() != 0)
         {
             // Use supplied callId
-            addParty(remoteHostName.data(), NULL, NULL, desiredCallId.data(), contactId, pDisplay, pSecurity, 
-                     locationHeaderData, bandWidth, false, NULL, pTransport, rtpTransportOptions);
+            addParty(remoteHostName.data(), NULL, NULL, desiredCallId.data(), 
+                    contactId, pDisplay, pSecurity, locationHeaderData, 
+                    bandWidth, false, NULL, pTransport, rtpTransportOptions, 
+                    flags,
+                    callHandle);
         }
         else
         {
             // Use default call id
-            addParty(remoteHostName.data(), NULL, NULL, NULL, contactId, pDisplay, pSecurity,
-                     locationHeaderData, bandWidth, false, NULL, pTransport, rtpTransportOptions);
+            addParty(remoteHostName.data(), NULL, NULL, NULL, contactId, 
+                    pDisplay, pSecurity, locationHeaderData, bandWidth, 
+                    false, NULL, pTransport, rtpTransportOptions, 
+                    flags,
+                    callHandle);
         }        
     } 
 	delete pTransport;  // (SipConnection should have a copy of it)
@@ -576,8 +599,17 @@ UtlBoolean CpPeerCall::handleTransfereeConnection(OsMsg* pEventMessage)
 #ifdef TEST_PRINT
             osPrintf("%s-CpPeerCall:CP_TRANSFEREE_CONNECTION creating connection via addParty\n", mName.data());
 #endif
-            addParty(referTo, referredBy, originalConnectionAddress, NULL, 0, 
-                    NULL, NULL, FALSE, AUDIO_CODEC_BW_DEFAULT, bOnHold, originalCallId);
+            addParty(referTo, 
+                     referredBy, 
+                     originalConnectionAddress, 
+                     NULL, 
+                     0, 
+                     NULL, 
+                     NULL, 
+                     NULL, // locationHeader
+                     AUDIO_CODEC_BW_DEFAULT, 
+                     bOnHold, 
+                     originalCallId);
             // Note: The connection is added to the call in addParty
         }
 #ifdef TEST_PRINT
@@ -736,11 +768,11 @@ UtlBoolean CpPeerCall::handleDropConnection(OsMsg* pEventMessage)
             // do not fire the taip event if it is a ghost connection
             CpGhostConnection* pGhost = NULL;
             pGhost = dynamic_cast<CpGhostConnection*>(connection);
+            connection->hangUp();
             if (!pGhost)
             {
-                connection->fireSipXEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_NORMAL) ;
+                connection->fireSipXCallEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_NORMAL) ;
             }
-            connection->hangUp();
         }
     }
 
@@ -845,15 +877,17 @@ UtlBoolean CpPeerCall::handleAcceptConnection(OsMsg* pEventMessage)
     UtlBoolean connectionFound = FALSE;
     ((CpMultiStringMessage*)pEventMessage)->getString2Data(remoteAddress);
     ((CpMultiStringMessage*)pEventMessage)->getString5Data(locationHeader);
+    const char* locationHeaderData = (locationHeader.length() == 0) ? NULL : locationHeader.data();
     SIPX_CONTACT_ID contactId = (SIPX_CONTACT_ID) ((CpMultiStringMessage*)pEventMessage)->getInt1Data();
     void* hWnd = (void*) ((CpMultiStringMessage*)pEventMessage)->getInt2Data();
     void* security = (void*) ((CpMultiStringMessage*)pEventMessage)->getInt3Data();
     int bandWidth = ((CpMultiStringMessage*)pEventMessage)->getInt4Data();
-    const char* locationHeaderData = (locationHeader.length() == 0) ? NULL : locationHeader.data();
+    unsigned long flags = ((CpMultiStringMessage*)pEventMessage)->getInt5Data();
+    int callHandle = ((CpMultiStringMessage*)pEventMessage)->getInt6Data();
+    
     
     if (hWnd && mpMediaInterface)
     {
-        mpMediaInterface->setVideoWindowDisplay(hWnd);
         if (security)
         {
             mpSecurity = (SIPXTACK_SECURITY_ATTRIBUTES*)security;
@@ -893,8 +927,18 @@ UtlBoolean CpPeerCall::handleAcceptConnection(OsMsg* pEventMessage)
 
         if(connectState == Connection::CONNECTION_OFFERING)
         {
+            if (!mpManager->isIceEnabled())
+                flags = flags & ~CPMI_FLAGS_ENABLE_ICE ;
+
             connection->setContactId(contactId) ;
-            connection->accept(noAnswerTimeout, security, locationHeaderData, bandWidth);
+            connection->accept(noAnswerTimeout,
+                hWnd,
+                security,
+                locationHeaderData,
+                bandWidth,
+                false,
+                flags,
+                callHandle);
             connectionFound = TRUE;
             break;
         }
@@ -1837,8 +1881,8 @@ UtlBoolean CpPeerCall::handleCancelTimer(OsMsg* pEventMessage)
     if(connection)
     {
         connection->forceHangUp();
-        dropIfDead();
     }
+    dropIfDead();
 
     return TRUE ;
 }
@@ -2120,12 +2164,8 @@ UtlBoolean CpPeerCall::handleCallMessage(OsMsg& eventMessage)
         break;
 
     case CallManager::CP_ANSWER_CONNECTION:
-    {
-        CpMultiStringMessage* pMessage = (CpMultiStringMessage*)&eventMessage;
-        const void* pDisplay = (void*) pMessage->getInt1Data();
-        offHook(pDisplay);
+        offHook();
         break;
-    }
     
     case CallManager::CP_BLIND_TRANSFER:
     case CallManager::CP_CONSULT_TRANSFER:
@@ -2442,6 +2482,28 @@ UtlBoolean CpPeerCall::handleCallMessage(OsMsg& eventMessage)
             }
         }
         break ;
+
+    case CallManager::CP_SET_REMOTE_VOLUME_SCALE:
+        {
+            UtlString callId ;
+            UtlString remoteAddress ;
+            ((CpMultiStringMessage&)eventMessage).getString2Data(callId) ;
+            ((CpMultiStringMessage&)eventMessage).getString2Data(remoteAddress) ;
+            int scale = ((CpMultiStringMessage&)eventMessage).getInt1Data() ;
+            Connection* connection = findHandlingConnection(remoteAddress);
+            if (connection && mpMediaInterface)
+            {
+                int connectionId = connection->getConnectionId() ;
+                OsStatus status = mpMediaInterface->setRemoteVolumeScale(connectionId, scale) ;                
+                if (status != OS_SUCCESS)
+                {
+                    syslog(FAC_CP, PRI_ERR, "Error setting remote volume scale for %s/%s (rc=%d)",
+                            callId.data(), remoteAddress.data(), status) ;
+                }
+            }
+        }
+        break ;
+
     case CallManager::CP_REFIRE_MEDIA_EVENT:
         {
             UtlString remoteAddress ;
@@ -2473,7 +2535,22 @@ UtlBoolean CpPeerCall::handleCallMessage(OsMsg& eventMessage)
     case CallManager::CP_TRANSFER_OTHER_PARTY_UNHOLD:
         handleTransferOtherPartyUnhold(&eventMessage) ;
         break ;
+    case CallManager::CP_FORCE_DROP:
+        {
+            UtlString callId;
+            int metaEventId = ((CpMultiStringMessage&)eventMessage).getInt1Data();
+            ((CpMultiStringMessage&)eventMessage).getString1Data(callId);
 
+            Connection* conn ;
+            OsReadLock lock(mConnectionMutex);
+            UtlDListIterator iterator(mConnections);
+            while ((conn = (Connection*) iterator()))
+            {
+                conn->forceHangUp() ;
+            }
+            dropIfDead() ;
+        }
+        break ;
     default:
         processedMessage = FALSE;
 #ifdef TEST_PRINT
@@ -2641,10 +2718,9 @@ UtlBoolean CpPeerCall::handleLimitCodecPreferences(OsMsg* pEventMessage)
             if (connectionId != -1)
             {
                 pInstData = connection->getMediaInterfacePtr();
-
                 if (pInstData != NULL)
                 {
-                    ((CpMediaInterface*)pInstData)->rebuildCodecFactory(connectionId, 
+                    ((IMediaInterface*)pInstData)->rebuildCodecFactory(connectionId, 
                                                                         audioBandwidth, 
                                                                         videoBandwidth, 
                                                                         videoCodec);
@@ -2688,7 +2764,7 @@ UtlBoolean CpPeerCall::handleGetMediaEnergyLevels(OsMsg* pEventMessage)
         if (connectionRemoteAddress == remoteAddress)
         {
             int connectionId = connection->getConnectionId() ;
-            CpMediaInterface* pInterface = connection->getMediaInterfacePtr() ;
+            IMediaInterface* pInterface = connection->getMediaInterfacePtr() ;
             if ((pInterface != NULL) && (connectionId >= 0))
             {
                 if (pInterface->getAudioEnergyLevels(
@@ -2777,7 +2853,7 @@ UtlBoolean CpPeerCall::handleGetMediaRtpSourceIDs(OsMsg* pEventMessage)
         if (connectionRemoteAddress == remoteAddress)
         {
             int connectionId = connection->getConnectionId() ;
-            CpMediaInterface* pInterface = connection->getMediaInterfacePtr() ;
+            IMediaInterface* pInterface = connection->getMediaInterfacePtr() ;
             if ((pInterface != NULL) && (connectionId >= 0))
             {
                 if (pInterface->getAudioRtpSourceIDs(connectionId, *piSendingSSRC, *piReceivingSSRC) == OS_SUCCESS)
@@ -3114,9 +3190,11 @@ Connection* CpPeerCall::addParty(const char* transferTargetAddress,
                                  UtlBoolean bOnHold,
 								 const char* originalCallId,
                                  SIPX_TRANSPORT_DATA* pTransport,
-                                 const RTP_TRANSPORT rtpTransportOptions)
+                                 const RTP_TRANSPORT rtpTransportOptions,
+                                 unsigned long flags,
+                                 int callHandle)
 {
-    UtlString tempAddress ;
+    UtlString tempAddress;
     SipConnection* connection = NULL;
 
     // add transport tag to target address, for custom transport
@@ -3187,6 +3265,9 @@ Connection* CpPeerCall::addParty(const char* transferTargetAddress,
     {
         callId = newCallId ;
     }
+    if (!mpManager->isIceEnabled())
+        flags = flags & ~CPMI_FLAGS_ENABLE_ICE ;
+
 
     connection->dial(transferTargetAddress,
         mLocalAddress.data(), 
@@ -3200,7 +3281,9 @@ Connection* CpPeerCall::addParty(const char* transferTargetAddress,
         bandWidth,
         bOnHold,
         originalCallId,
-        rtpTransportOptions); 
+		rtpTransportOptions,
+        flags,
+        callHandle); 
 
     addToneListenersToConnection(connection) ;
 
@@ -3316,11 +3399,11 @@ void CpPeerCall::inFocus(int talking)
             {
                 if (connection->isHeld())
                 {
-                    connection->fireSipXEvent(CALLSTATE_REMOTE_HELD, CALLSTATE_CAUSE_NORMAL) ;
+                    connection->fireSipXCallEvent(CALLSTATE_REMOTE_HELD, CALLSTATE_CAUSE_NORMAL) ;
                 }
                 else
                 {
-                    connection->fireSipXEvent(CALLSTATE_CONNECTED, CALLSTATE_CAUSE_NORMAL) ;
+                    connection->fireSipXCallEvent(CALLSTATE_CONNECTED, CALLSTATE_CAUSE_NORMAL) ;
                 }
             }
         }
@@ -3362,11 +3445,11 @@ void CpPeerCall::outOfFocus()
         {
             if (connection->isHeld())
             {
-                connection->fireSipXEvent(CALLSTATE_HELD, CALLSTATE_CAUSE_NORMAL) ;
+                connection->fireSipXCallEvent(CALLSTATE_HELD, CALLSTATE_CAUSE_NORMAL) ;
             }
             else
             {
-                connection->fireSipXEvent(CALLSTATE_BRIDGED, CALLSTATE_CAUSE_NORMAL) ;
+                connection->fireSipXCallEvent(CALLSTATE_BRIDGED, CALLSTATE_CAUSE_NORMAL) ;
             }
         }
     }
@@ -3397,11 +3480,10 @@ void CpPeerCall::onHook()
             pGhost = dynamic_cast<CpGhostConnection*>(connection);
             if (!pGhost)
             {
-                connection->fireSipXEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_NORMAL) ;
+                connection->fireSipXCallEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_NORMAL) ;
             }
         }       
     }
-
     dropIfDead();
 }
 
@@ -3417,6 +3499,7 @@ void CpPeerCall::hangUp(const char* callId,
     {
         connection->hangUp();
     }
+    dropIfDead();
 }
 
 
@@ -3493,7 +3576,7 @@ void CpPeerCall::dropIfDead()
                         pGhost = dynamic_cast<CpGhostConnection*>(connection);
                         if (!pGhost)
                         {
-                            connection->fireSipXEvent(CALLSTATE_DESTROYED, CALLSTATE_CAUSE_NORMAL) ;
+                            connection->fireSipXCallEvent(CALLSTATE_DESTROYED, CALLSTATE_CAUSE_NORMAL) ;
                         }
                     }                
                     // Drop the call immediately
@@ -3566,7 +3649,7 @@ void CpPeerCall::dropDeadConnections()
                     pGhost = dynamic_cast<CpGhostConnection*>(connection);
                     if (!pGhost)
                     {
-                        connection->fireSipXEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_NORMAL) ;
+                        connection->fireSipXCallEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_NORMAL) ;
                     }
 
                     postTaoListenerMessage(connection->getResponseCode(), responseText, PtEvent::TERMINAL_CONNECTION_DROPPED, TERMINAL_CONNECTION_STATE);
@@ -3584,7 +3667,7 @@ void CpPeerCall::dropDeadConnections()
                     // do not fire the tapi event if it is a ghost connection
                     if (!pGhost)
                     {
-                        connection->fireSipXEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_NORMAL) ;    
+                        connection->fireSipXCallEvent(CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_NORMAL) ;    
                     }
                 }               
 
@@ -3611,7 +3694,7 @@ void CpPeerCall::dropDeadConnections()
 }
 
 
-void CpPeerCall::offHook(const void* pDisplay)
+void CpPeerCall::offHook()
 {
     OsSysLog::add(FAC_CP, PRI_DEBUG,"%s-CpPeerCall::offHook\n", mName.data());
 
@@ -3624,7 +3707,7 @@ void CpPeerCall::offHook(const void* pDisplay)
         if(connection &&
             connection->getState() == Connection::CONNECTION_ALERTING)
         {
-            connection->answer(pDisplay);
+            connection->answer();
             mLocalConnectionState = PtEvent::CONNECTION_ESTABLISHED;
         }
     }
@@ -3785,6 +3868,54 @@ void CpPeerCall::printCall()
     }
 }
 
+void CpPeerCall::toString(UtlString& status) 
+{
+    OsReadLock lock(mConnectionMutex);
+    UtlDListIterator iterator(mConnections);
+
+    Connection* connection;
+    UtlString connectionAddress;
+    UtlString localConnectionState;
+    UtlString remoteConnectionState;
+    UtlString connectionCallId;
+    int connectionIndex = 0;
+    int localCause = 0;
+    int remoteCause = 0 ; 
+
+    CpCall::toString(status) ;
+
+    while ((connection = (Connection*) iterator()))
+    {
+        char cTemp[1024] ;
+        connection->getRemoteAddress(&connectionAddress);
+        Connection::getStateString(connection->getState(true, localCause), &localConnectionState);
+        Connection::getStateString(connection->getState(false, remoteCause), &remoteConnectionState);
+        connection->getCallId(&connectionCallId);
+#ifdef WIN32
+        _snprintf(
+#else
+        snprintf(
+#endif
+                cTemp, 
+                sizeof(cTemp),
+                "\t%s connection[%d]: %s callId: %s\n"
+                "\t\tlocal state: %s cause: %d\n"
+                "\t\tremote state: %s cause: %d\n",
+                mName.data(), 
+                connectionIndex, 
+                connectionAddress.data(),
+                connectionCallId.data(), 
+                localConnectionState.data(), 
+                localCause,
+                remoteConnectionState.data(),
+                remoteCause);
+
+        status.append(cTemp) ;
+
+        connectionIndex++;
+    }
+}
+
 void CpPeerCall::getLocalAddress(char* address, int maxLen)
 {
     int len = mLocalAddress.length();
@@ -3818,7 +3949,7 @@ void CpPeerCall::getLocalTerminalId(char* terminal, int maxLen)
 /* ============================ INQUIRY =================================== */
 
 UtlBoolean CpPeerCall::shouldCreateCall(SipUserAgent& sipUa, OsMsg& eventMessage,
-                                        SdpCodecFactory& codecFactory)
+                                        SdpCodecList& codecFactory)
 {
     UtlBoolean createCall = FALSE;
     int msgType = eventMessage.getMsgType();
@@ -3922,7 +4053,7 @@ UtlBoolean CpPeerCall::isConnectionLive(int* localConnectionState)
     OsReadLock lock(mConnectionMutex);
     UtlDListIterator iterator(mConnections);
     Connection* connection = NULL;
-    UtlBoolean connectionState;
+    int connectionState;
     if(localConnectionState) 
     {
         *localConnectionState = getLocalConnectionState(mLocalConnectionState);

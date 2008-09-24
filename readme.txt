@@ -6,9 +6,22 @@ Windows Build Hints
 
 Please see the instructions in the INSTALL doc in sipXportLib for all the required 3rd party dependencies.  Next, open sipXtapi.sln project within the sipXcallLib project.  This project will build sipXtapi, PlaceCall, ReceiveCall, and sipXezPhone.  You may need to copy the "sipXtapi[d].dll" into your working directory before you can run PlaceCall or ReceiveCall.  sipXezphone has a post-process build setup that copies those DLLs for you.
 
+For step-by-step guide read thi page:
+http://sipx-wiki.calivia.com/index.php/SipXtapi_and_sipXezPhone_Build_Environment_for_Windows
+
 Linux Build Hints
 =================
-The Linux build has been tested on Fedora Core 5 and gentoo.  Automake and autoconf should do the trick for you.  If you find any missing components, you will need to install those.  See the INSTALL doc in sipXportLib for more info on these dependences.  Under FC5, I needed to yum pcre-devel and cppunit-devel.
+The Linux build has been tested on Fedora Core 6 and Ubuntu 6.10 (Edgy).  Automake and autoconf should do the trick for you.  If you find any missing components, you will need to install those.  See the INSTALL doc in sipXportLib for more info on these dependences.
+
+Under FC6: 'yum install pcre-devel cppunit-devel'
+Under Ubunutu: 'apt-get install libpcre3-dev libcppunit-dev'.
+
+In order to build with GSM and Speex codec support you will need to install libgsm (version >= 1.0.10) and libspeex (version >= 1.1) development libraries.  Their presence will be detected during 'configure' stage automatically.  If do NOT want include GSM or Speex support even if appropriate libraries are present, use "--disable-codec-gsm" and "--disable-codec-speex" switch when configuring sipXtackLib, sipXmediaLib and sipXmediaAdapterLib.
+
+Under Ubunutu: 'apt-get install libspeex-dev libgsm1-dev' to install libgsm and libspeex.
+Under FC6: 'yum install speex-devel gsm-devel'
+   note: you may need to add the linva repository: 
+   'rpm -ivh http://rpm.livna.org/livna-release-6.rpm'
 
 1) Build 
 
@@ -16,35 +29,57 @@ cd sipXportLib
 autoreconf -fi
 ./configure --prefix=/tmp/stage
 make;make install
+cd ..
 
-cd ../sipXtackLib
-autoreconf -fi
-./configure --prefix=/tmp/stage --disable-sipviewer
-make;make install
-
-cd ../sipXmediaLib
-autoreconf -fi
-./configure --prefix=/tmp/stage --enable-local-audio
-make;make install
-
-cd ../sipXmediaAdapterLib
-autoreconf -fi
-./configure --prefix=/tmp/stage --enable-local-audio
-make;make install
-
-cd ../sipXcallLib
+cd sipXsdpLib
 autoreconf -fi
 ./configure --prefix=/tmp/stage
 make;make install
+cd ..
+
+cd sipXtackLib
+autoreconf -fi
+./configure --prefix=/tmp/stage --disable-sipviewer [--disable-codec-gsm] [--disable-codec-speex]
+make;make install
+cd ..
+
+cd sipXmediaLib
+autoreconf -fi
+./configure --prefix=/tmp/stage --enable-local-audio [--disable-codec-gsm] [--disable-codec-speex]
+make;make install
+cd ..
+
+cd sipXmediaAdapterLib
+autoreconf -fi
+./configure --prefix=/tmp/stage [--disable-codec-gsm] [--disable-codec-speex]
+make;make install
+cd ..
+
+cd sipXcallLib
+autoreconf -fi
+./configure --prefix=/tmp/stage
+make;make install
+cd ..
 
 2) Test using PlaceCall
 
-cd examples/PlaceCall/src
+cd examples/PlaceCall
 make
 ./PlaceCall <IP>
 
 PlaceCall and ReceiveCall are known to build/work with this source tree.
 sipXezPhone *should* work, but hasn't been tested with the latest source.
+--
+
+Makefile.gnu
+There is also a makefile in the root of sipXtapi used by an automated build
+system that does all steps necessary to build libraries and tests from a
+freshly checked out sandbox from the subversion repository.  While not built
+with normal users in mind, it can be used by them.  Find more information in
+the makefile itself.
+
+
+
 
 MacOs Build Hints
 =================
@@ -79,6 +114,11 @@ autoreconf -fi
 ./configure --prefix=/tmp/stage
 make;make install
 
+cd sipXsdpLib
+autoreconf -fi
+./configure --prefix=/tmp/stage
+make;make install
+
 cd ../sipXtackLib
 autoreconf -fi
 ./configure --prefix=/tmp/stage --disable-sipviewer
@@ -91,7 +131,7 @@ make;make install
 
 cd ../sipXmediaAdapterLib
 autoreconf -fi
-./configure --prefix=/tmp/stage --enable-local-audio
+./configure --prefix=/tmp/stage
 make;make install
 
 NOTE: for sipXmediaLib and sipXmediaAdapterLib to build you need the CoreAudio header files normally located in:
@@ -105,7 +145,7 @@ make;make install
 
 3) Test using PlaceCall
 
-cd examples/PlaceCall/src
+cd examples/PlaceCall
 make
 ./PlaceCall <IP>
 

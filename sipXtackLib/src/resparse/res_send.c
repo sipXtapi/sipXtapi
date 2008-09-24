@@ -84,16 +84,18 @@ static char rcsid[] = "";
 #else
 #   include <sys/types.h>
 #endif
+#ifndef WINCE /* no errno.h under WinCE */
+#include <errno.h>
+#endif 
 
 #include <stdio.h>
 #include "resparse/types.h" /* added to pick up NFDBITS and fd_mask --GAT */
-#include <errno.h>
 #include <time.h>
 
 /* Reordered includes and separated into win/vx --GAT */
 #if defined(_WIN32)
 #   include <resparse/wnt/sys/param.h>
-#   include <winsock.h>
+#   include <winsock2.h>
 #   include <resparse/wnt/netinet/in.h>
 #   include <resparse/wnt/arpa/nameser.h>
 #   include <resparse/wnt/arpa/inet.h>
@@ -120,7 +122,6 @@ static char rcsid[] = "";
 #   include <net/uio.h>
 #   include <ioLib.h>
 #   include <sockLib.h>
-#   include "resparse/vxw/hd_string.h" /* Added string functions not in VxWorks --GAT */
 #   include <signal.h> /* for sigaction --GAT */
 #endif
 
@@ -131,6 +132,7 @@ static char rcsid[] = "";
 
 #include "resparse/bzero.h"
 #include "resparse/res_config.h"
+#include <os/OsDefs.h>
 extern struct __res_state _sip_res ;
 /*defined in OsSocket*/
 unsigned long osSocketGetDefaultBindAddress();

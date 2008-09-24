@@ -69,9 +69,39 @@ MimeBodyPart::MimeBodyPart(const HttpBody* parent, int parentBodyStartIndex, int
 
 }
 
+// Construct a MimeBodyPart from an HttpBody and a list of parameters.
+MimeBodyPart::MimeBodyPart(const HttpBody& httpBody,
+                           //< Provides the bytes of the body.
+                           const UtlDList& parameters
+                           //< Provides the parameters.
+   ) :
+   HttpBody(httpBody),
+   mpParentBody(NULL),
+   mParentBodyRawStartIndex(-1),
+   mRawBodyLength(-1),
+   mParentBodyStartIndex(-1),
+   mBodyLength(-1)
+{
+   // Copy the parameters to mNameValues.
+   UtlDListIterator iterator(parameters);
+   NameValuePair* nvp;
+   while((nvp = (NameValuePair*) iterator()))
+   {
+      mNameValues.append(new NameValuePair(nvp->data(), nvp->getValue()));
+   }
+   // Add the Content-Type parameter, taken from the HttpBody.
+   mNameValues.append(new NameValuePair(HTTP_CONTENT_TYPE_FIELD,
+                                        httpBody.getContentType()));
+   // Add the Content-Transfer-Encoding parameter.
+   mNameValues.append(new NameValuePair(HTTP_CONTENT_TRANSFER_ENCODING_FIELD,
+                                        HTTP_CONTENT_TRANSFER_ENCODING_BINARY));
+
+   // Members that reference the parent will be corrected later.
+}
+
 // Copy constructor
 MimeBodyPart::MimeBodyPart(const MimeBodyPart& rMimeBodyPart) :
-HttpBody(rMimeBodyPart)
+   HttpBody(rMimeBodyPart)
 {
     UtlDListIterator iterator((UtlDList&)rMimeBodyPart.mNameValues);
     NameValuePair* nvp;
@@ -117,11 +147,21 @@ MimeBodyPart::operator=(const MimeBodyPart& rhs)
    return *this;
 }
 
-/* ============================ ACCESSORS ================================= */
-int MimeBodyPart::getLength() const
+/** Update the members that locate this MimeBodyPart within its parent
+ *  HttpBody.
+ */
+void MimeBodyPart::attach(HttpBody* parent,
+                          int rawPartStart, int rawPartLength,
+                          int partStart, int partLength)
 {
-   return(mBodyLength);
+   mpParentBody = parent;
+   mParentBodyRawStartIndex = rawPartStart;
+   mRawBodyLength = rawPartLength;
+   mParentBodyStartIndex = partStart;
+   mBodyLength = partLength;
 }
+
+/* ============================ ACCESSORS ================================= */
 
 void MimeBodyPart::getBytes(const char** bytes, int* length) const
 {
@@ -159,4 +199,3 @@ UtlBoolean MimeBodyPart::getPartHeaderValue(const char* headerName, UtlString& h
 
 
 /* ============================ FUNCTIONS ================================= */
-

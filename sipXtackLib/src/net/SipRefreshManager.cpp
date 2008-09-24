@@ -466,12 +466,10 @@ void SipRefreshManager::stopAllRefreshes()
     UtlHashMapIterator iterator(mRefreshes);
     while((dialogKey = (RefreshDialogState*) iterator()))
     {
-        // Unsubscribe or unregister
+        // Unsubscribe or unregister.
+        // This also deletes RefreshDialogState object, so it should not
+        // be touched afterwards.
         stopRefresh(*dialogKey);
-
-        // Remove the refresh state from the list
-        mRefreshes.removeReference(dialogKey);
-        
     }
     unlock();
 

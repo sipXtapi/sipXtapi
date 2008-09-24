@@ -109,8 +109,27 @@ OsStatus OsDirWnt::rename(const char* name)
 
 /* ============================ ACCESSORS ================================= */
 
+OsStatus OsDirWnt::getFileInfo(OsFileInfoBase& fileinfo) const
+{
+    OsStatus ret = OS_INVALID;
 
+    WIN32_FILE_ATTRIBUTE_DATA w32data;
+    BOOL bRes = GetFileAttributesEx(mDirName.data(), GetFileExInfoStandard, &w32data);
+    if (bRes)
+    {
+        ret = OS_SUCCESS;
 
+        fileinfo.mbIsDirectory = 
+            (w32data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) ? TRUE : FALSE;
+        fileinfo.mbIsReadOnly = 
+            (w32data.dwFileAttributes & FILE_ATTRIBUTE_READONLY) ? TRUE : FALSE;
+
+        fileinfo.mSize = ((ULONGLONG)w32data.nFileSizeHigh << 32) | w32data.nFileSizeLow;
+        fileinfo.mCreateTime = OsFileWnt::fileTimeToOsTime(w32data.ftCreationTime);
+        fileinfo.mModifiedTime = OsFileWnt::fileTimeToOsTime(w32data.ftLastWriteTime);
+    }
+    return ret;
+}
 
 /* ============================ INQUIRY =================================== */
 

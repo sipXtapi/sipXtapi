@@ -34,7 +34,6 @@ public:
         OsProcessIterator pi;
 
         stat = pi.findFirst(process);
-        KNOWN_BUG("Unknown failure", "XPL-12");
         CPPUNIT_ASSERT_MESSAGE("First process", stat == OS_SUCCESS);
 
         while (stat == OS_SUCCESS)

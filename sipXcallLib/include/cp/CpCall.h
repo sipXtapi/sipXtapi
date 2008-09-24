@@ -1,3 +1,19 @@
+// Copyright 2008 AOL LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -20,10 +36,9 @@
 #include <os/OsRWMutex.h>
 #include "os/OsUtil.h"
 #include "os/OsLockingList.h"
-#include <net/SdpCodec.h>
+#include <sdp/SdpCodec.h>
+#include <ptapi/PtDefs.h>
 #include <ptapi/PtEvent.h>
-#include <ptapi/PtConnection.h>
-#include <ptapi/PtTerminalConnection.h>
 #include <cp/CallManager.h>
 #include "tao/TaoObjectMap.h"
 
@@ -47,7 +62,6 @@ struct DtmfEvent {
 // TYPEDEFS
 // FORWARD DECLARATIONS
 class CpCallManager;
-class CpMediaInterface;
 
 //:Class short description which may consist of multiple lines (note the ':')
 // Class detailed description which may extend to multiple lines
@@ -111,7 +125,7 @@ public:
     /* ============================ CREATORS ================================== */
 
     CpCall(CpCallManager* manager = NULL,
-        CpMediaInterface* callMediaInterface = NULL,
+        IMediaInterface* callMediaInterface = NULL,
         int callIndex = -1,
         const char* callId = NULL,
         int holdType = CallManager::NEAR_END_HOLD);
@@ -185,7 +199,11 @@ public:
 
     int getCallState();
 
+    IMediaInterface* const getMediaInterface();
+
     virtual void printCall();
+
+    virtual void toString(UtlString& status) ;
 
     // This should go away
     void enableDtmf();
@@ -251,12 +269,13 @@ protected:
         const CpMultiStringMessage* multiStringMessage);
 
     OsStatus addListener(OsServerTask* pListener,
-        TaoListenerDb** pListeners,
-        int& listenerCnt,
-        char* callId = NULL,
-        int ConnectId = 0,
-        int mask = 0,
-        int pEv = 0);
+                         TaoListenerDb*** pListeners,
+                         int& listenerCnt,
+                         int& maxNumListeners,
+                         char* callId = NULL,
+                         int connectId = 0,
+                         int mask = 0,
+                         int pEv = 0);
 
     CpCallManager* mpManager;
     UtlString mCallId;
@@ -264,7 +283,7 @@ protected:
     UtlBoolean mRemoteDtmf;
     UtlBoolean mDtmfEnabled;
     OsRWMutex mCallIdMutex;
-    CpMediaInterface*   mpMediaInterface;
+    IMediaInterface*   mpMediaInterface;
     int mCallIndex;
     int mCallState;
     int mHoldType;
@@ -282,8 +301,9 @@ protected:
     int                             mListenerCnt;
     int                             mMaxNumListeners;
 
-    TaoListenerDb*                  mpToneListeners[MAX_NUM_TONE_LISTENERS];
-    int                                             mToneListenerCnt;
+    TaoListenerDb**                 mpToneListeners;
+    int                             mToneListenerCnt;
+    int                             nMaxNumToneListeners;
 
     int mMessageEventCount;
     UtlString mCallHistory[CP_CALL_HISTORY_LENGTH];

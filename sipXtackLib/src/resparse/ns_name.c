@@ -23,12 +23,13 @@
 #else
 #   include <sys/types.h>
 #endif
-
+#ifndef WINCE /* no errno.h under WinCE */
 #include <errno.h>
+#endif
 
 /* Reordered includes and separated into win/vx --GAT */
 #if defined (_WIN32) /* Use Columbia versions for win32 only --GAT */
-#       include <winsock.h>
+#       include <winsock2.h>
 #       include <resparse/wnt/netinet/in.h>
 #       include <resparse/wnt/arpa/nameser.h>
 #       include <resparse/wnt/resolv/resolv.h>

@@ -1,3 +1,19 @@
+// Copyright 2008 AOL LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -41,6 +57,7 @@
 
 // HTTP Methods
 #define HTTP_GET_METHOD "GET"
+#define HTTP_CONNECT_METHOD "CONNECT"
 #define HTTP_PUT_METHOD "PUT"
 #define HTTP_POST_METHOD "POST"
 
@@ -73,6 +90,7 @@
 #define HTTP_CONTENT_TRANSFER_ENCODING_FIELD "CONTENT-TRANSFER-ENCODING"
 #define HTTP_CONTENT_LENGTH_FIELD "CONTENT-LENGTH"
 #define HTTP_CONTENT_TYPE_FIELD "CONTENT-TYPE"
+#define HTTP_CONTENT_ID_FIELD "CONTENT-ID"
 #define HTTP_LOCATION_FIELD "LOCATION"
 #define HTTP_PROXY_AUTHENTICATE_FIELD "PROXY-AUTHENTICATE"
 #define HTTP_PROXY_AUTHORIZATION_FIELD "PROXY-AUTHORIZATION"
@@ -160,7 +178,7 @@ typedef UtlBoolean (*GetDataCallbackProc)(char* pData,
  *    -# the response status string is retrieved via getResponseStatusText()
  * \par
  * There are generic getters and setters for the header fields and values
- * However the design philosophy has been to create secialized get and
+ * However the design philosophy has been to create specialized get and
  * set methods for fields that require any special handling or parsing
  * (i.e. things that are more than opaque tokens or strings).  The generic
  * accessor methods are:
@@ -216,6 +234,7 @@ public:
      */
     int get(Url& httpUrl,
             int maxWaitMilliSeconds,
+            bool bUdp = false,
             bool bPersistent=true);
 
     //! Do an HTTP GET on the given URL
@@ -227,7 +246,9 @@ public:
     int get(Url& httpUrl,
             HttpMessage& request,
             int maxWaitMilliSeconds,
-            bool bPersistent=false);
+            bool bUdp= false,
+            bool bPersistent=false
+            );
             
 
     //!Perform an HTTP GET on the specified URL and pass data to the

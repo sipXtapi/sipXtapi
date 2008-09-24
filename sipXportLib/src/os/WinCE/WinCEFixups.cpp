@@ -1,3 +1,5 @@
+#ifdef WINCE
+
 #include <utl/UtlHashMap.h>  // for mapping file HANDLEs to "file descriptors"
 #include <utl/UtlInt.h>
 #include <utl/UtlVoidPtr.h>
@@ -7,6 +9,7 @@ extern "C" int errno = 1;
 #else
 extern int errno;
 #endif
+
 
 // Initialize the handle to "file descriptor" map.
 static UtlHashMap sFDtoHandleMap;
@@ -23,7 +26,8 @@ int destroyFD(int fd)
 int findUnusedFD()
 {
 	int found = 1;
-	for(int possFD = 3; // skip 0 since it's an error val of hashmap, 1 stdout, 2 stderr
+	int possFD;
+	for(possFD = 3; // skip 0 since it's an error val of hashmap, 1 stdout, 2 stderr
 	    sFDtoHandleMap.contains(&UtlInt(possFD));
 		possFD++) {}
 
@@ -297,9 +301,22 @@ DWORD FormatMessageB( DWORD dwFlags, void *lpVoid, DWORD dwMessageID, DWORD dwLa
 //****************************************************************
 struct tm * __cdecl localtime( const time_t *timer )
 {
-	printf( "localtime( ) NOT IMPLEMENTED\n" );
-	static struct tm staticTMlocalTime;
-	return &staticTMlocalTime;
+	static struct tm staticTMlocaltime;
+
+	SYSTEMTIME lt ;
+	GetLocalTime(&lt) ;
+
+	staticTMlocaltime.tm_sec = lt.wSecond;
+	staticTMlocaltime.tm_min = lt.wMinute;
+	staticTMlocaltime.tm_hour = lt.wHour;
+	staticTMlocaltime.tm_mday = lt.wDay;
+	staticTMlocaltime.tm_mon = lt.wMonth - 1;
+	staticTMlocaltime.tm_year = lt.wYear - 1900;
+	staticTMlocaltime.tm_wday = lt.wDayOfWeek;
+	staticTMlocaltime.tm_yday = 1;			// Not implemented
+	staticTMlocaltime.tm_isdst = 0;		// Not implemented 
+
+	return &staticTMlocaltime;
 }
 
 
@@ -367,7 +384,7 @@ time_t FileTimeToUnixTime( LPFILETIME pft, int *pMillisecs = NULL )
 time_t __cdecl time( time_t *ptt )
 {
 	BOOL		fRet;
-	int			iRet;
+	int			iRet = -1;
 	FILETIME	ft;
 	SYSTEMTIME	st;
 	//  get SYSTEMTIME
@@ -375,7 +392,8 @@ time_t __cdecl time( time_t *ptt )
 	//  convert SYSTEMTIME to FILETIME
 	fRet = SystemTimeToFileTime( &st, &ft );
 	//  convert FILETIME to UnixTime
-	iRet = FileTimeToUnixTime( &ft );
+    if (fRet)
+	iRet = (int)FileTimeToUnixTime( &ft );
 //	printf( "time( ) is about to return %d\n", iRet );
 	if( ptt )
 		*ptt = iRet;
@@ -405,7 +423,7 @@ void _ftime( struct _timeb *pTb )
 	{
 		Sleep( 0 );		//  give up the remainder of our current timeslice so we (hopefully)
 						//	won't get interrupted between the next two function calls.
-		iSavedTime = time( NULL );
+		iSavedTime = (int)time( NULL );
 		iSavedTicks = GetTickCount( );
 	}
 
@@ -441,14 +459,6 @@ void _ftime( struct _timeb *pTb )
 //	pTb->time = FileTimeToUnixTime( &ft, &iMilli );
 //	pTb->millitm = iMilli;
 ////	printf( "_ftime( ) is about to return %d - - -  millitm is %d\n", pTb->time, pTb->millitm );
-}
-
-
-//****************************************************************
-size_t __cdecl strftime( char *strDest, size_t maxSize, const char *pformat, const struct tm *timeptr )
-{
-	printf( "strftime( ) NOT IMPLEMENTED\n" );
-	return 0;
 }
 
 
@@ -643,20 +653,40 @@ int _mkdir( const char *p1 )
 
 
 //****************************************************************
-int rename( const char *p1, const char *p2 )
+int rename( const char *lpFileName, const char *lpFileName2 )
 {
-	printf( "rename( ) NOT IMPLEMENTED\n" );
-//	assert( 0 );
-	return 0;
+       wchar_t	wBuf[ MAX_PATH + 1 ];	
+       int iRet = 1;
+       iRet = MultiByteToWideChar( CP_ACP, 0, lpFileName, strlen( lpFileName ), wBuf, MAX_PATH );
+       wBuf[ iRet ] = 0;
+
+       wchar_t	wBuf2[ MAX_PATH + 1 ];	
+       int iRet2 = 1;
+
+       iRet2 = MultiByteToWideChar( CP_ACP, 0, lpFileName2, strlen( lpFileName2 ), wBuf2, MAX_PATH );
+       wBuf2[ iRet2 ] = 0;
+
+       if ((iRet > 0) && (iRet2 > 0)) {
+               BOOL bRet = MoveFileW(wBuf, wBuf2);
+               return (bRet) ? 0 : -1;
+       }	
+	return -1;
 }
 
 
 //****************************************************************
-int remove( const char *p1 )
+int remove( const char *lpFileName )
 {
-	printf( "remove( ) NOT IMPLEMENTED\n" );
-//	assert( 0 );
-	return 0;
+       wchar_t	wBuf[ MAX_PATH + 1 ];	
+       int iRet = 1;
+       iRet = MultiByteToWideChar( CP_ACP, 0, lpFileName, strlen( lpFileName ), wBuf, MAX_PATH );
+       wBuf[ iRet ] = 0;
+
+       if (iRet > 0) {
+              BOOL bRet = DeleteFileW(wBuf);
+              return (bRet) ? 0 : -1;
+       }	
+       return -1;
 }
 
 //#define _O_RDONLY		0x0000
@@ -865,18 +895,6 @@ long CE_RegOpenKeyExA (	 HKEY hKey,
 }
 
 
-/* Came from mmsystem.h */
-MMRESULT WINAPI timeSetEvent( UINT           uDelay,      
-                              UINT           uResolution, 
-                              LPTIMECALLBACK lpTimeProc,  
-                              DWORD_PTR      dwUser,      
-                              UINT           fuEvent      
-                            )
-{
-	printf( "timeSetEvent( ) NOT IMPLEMENTED\n" );
-	return NULL;
-}
-
 #ifdef __cplusplus
 extern "C" int _getpid()
 #else
@@ -886,3 +904,221 @@ extern int  _getpid();
 	return 1;
 }
 
+
+
+/////////////
+// mktime()
+int month_to_day[12] = {0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334};
+time_t mktime(struct tm *t)
+{
+        short  month, year;
+        time_t result;
+
+        month = t->tm_mon;
+        year = t->tm_year + month / 12 + 1900;
+        month %= 12;
+        if (month < 0)
+        {
+                year -= 1;
+                month += 12;
+        }
+        result = (year - 1970) * 365 + (year - 1969) / 4 + month_to_day[month];
+        result = (year - 1970) * 365 + month_to_day[month];
+        if (month <= 1)
+                year -= 1;
+        result += (year - 1968) / 4;
+        result -= (year - 1900) / 100;
+        result += (year - 1600) / 400;
+        result += t->tm_mday;
+        result -= 1;
+        result *= 24;
+        result += t->tm_hour;
+        result *= 60;
+        result += t->tm_min;
+        result *= 60;
+        result += t->tm_sec;
+        return(result);
+}
+
+#ifdef WINCE
+// Wince6 has the function prototype for GetFileAttributesA, but no definition,
+// so we'll define one here.
+DWORD
+WINAPI
+GetFileAttributesA(
+    LPCSTR lpFileName
+    )
+{
+	wchar_t	wBuf[ MAX_PATH + 1 ];
+	wchar_t	*pW			= NULL;
+	int		iRet		= 1;
+	if( lpFileName )
+	{
+		iRet = MultiByteToWideChar( CP_ACP, 0, lpFileName, strlen( lpFileName ), 
+                                    wBuf, MAX_PATH );
+		wBuf[ iRet ] = 0;
+//	printf( "  after MultiByteToWideChar( ) - it returned %d\n", iRet );
+//	printf( "  wBuf is *%S*\n", wBuf );
+		pW = wBuf;
+	}
+	if( iRet )
+	{
+		return GetFileAttributesW( pW );
+	}
+	else
+		return NULL;
+}
+
+BOOL
+WINAPI
+GetFileAttributesExA(LPCTSTR lpFileName, 
+  GET_FILEEX_INFO_LEVELS fInfoLevelId, 
+  LPVOID lpFileInformation 
+)
+{
+    wchar_t	wBuf[ MAX_PATH + 1 ];	
+    int     iRet = 1;
+    iRet = MultiByteToWideChar( CP_ACP, 0, lpFileName, strlen( lpFileName ), wBuf, MAX_PATH );
+    wBuf[ iRet ] = 0;
+
+    if (iRet > 0) {
+        return GetFileAttributesExW(wBuf, fInfoLevelId, lpFileInformation);
+    }
+    return FALSE;
+}
+
+
+// Wince6 has the function prototype for FindNextFileA, but no definition,
+// so we'll define one here.
+BOOL
+WINAPI
+FindNextFileA(
+    HANDLE hFindFile,
+    LPWIN32_FIND_DATAA lpFindFileData
+    )
+{
+    _WIN32_FIND_DATAW ffDataW;
+   	WCHAR* pW  = NULL;
+    int    iRet = 1;
+    if( lpFindFileData->cFileName )
+    {
+        iRet = MultiByteToWideChar(CP_ACP, 0, lpFindFileData->cFileName, 
+                                   strlen( lpFindFileData->cFileName ), 
+                                   ffDataW.cFileName, MAX_PATH );
+        ffDataW.cFileName[ iRet ] = 0;
+//  printf( "  after MultiByteToWideChar( ) - it returned %d\n", iRet );
+//  printf( "  ffDataW.cFileName is *%S*\n", ffDataW.cFileName );
+        pW = ffDataW.cFileName;
+    }
+    if( iRet )
+    {
+        // Ok, filename was converted fine, now we copy over the other info from A struct to W struct.
+        ffDataW.dwFileAttributes = lpFindFileData->dwFileAttributes;
+        ffDataW.ftCreationTime = lpFindFileData->ftCreationTime;
+        ffDataW.ftLastAccessTime = lpFindFileData->ftLastAccessTime;
+        ffDataW.ftLastWriteTime = lpFindFileData->ftLastWriteTime;
+        ffDataW.nFileSizeHigh = lpFindFileData->nFileSizeHigh;
+        ffDataW.nFileSizeLow = lpFindFileData->nFileSizeLow;
+        ffDataW.dwOID = NULL;
+
+        BOOL bRet;
+        bRet = FindNextFileW(hFindFile, &ffDataW);
+
+        // We have to convert over the new wide string in ffDataW to the A struct.
+        int iWtoMBRet = 0;
+        iWtoMBRet = WideCharToMultiByte(CP_ACP, 0, 
+                                        ffDataW.cFileName, wcslen(ffDataW.cFileName),
+                                        lpFindFileData->cFileName, MAX_PATH, NULL, NULL);
+        if(iWtoMBRet == 0)
+        {
+            printf("Couldn't convert resulting filename "
+                   "of FindNextFileW to multibyte! Returning 0.");
+        }
+        
+        // Now we copy over the data from the W struct to the A struct.
+        lpFindFileData->dwFileAttributes = ffDataW.dwFileAttributes;
+        lpFindFileData->ftCreationTime = ffDataW.ftCreationTime;
+        lpFindFileData->ftLastAccessTime = ffDataW.ftLastAccessTime;
+        lpFindFileData->ftLastWriteTime = ffDataW.ftLastWriteTime;
+        lpFindFileData->nFileSizeHigh = ffDataW.nFileSizeHigh;
+        lpFindFileData->nFileSizeLow = ffDataW.nFileSizeLow;
+        lpFindFileData->dwReserved0 = 0;
+        lpFindFileData->dwReserved1 = 0;
+        lpFindFileData->cAlternateFileName[0] = 0; // no alternate filename
+
+        printf( "FindNextFileA( *%S* ) returned %d\n", pW, bRet );
+        return bRet;
+    }
+    else
+    {
+        printf( "FindNextFileA( *%S* ) returned NULL\n", pW );
+        return 0;
+    }
+    return 0;
+}
+
+
+// Wince6 has the function prototype for FindFirstFileA, but no definition,
+// so we'll define one here.
+HANDLE
+WINAPI
+FindFirstFileA(
+    LPCSTR lpFileName,
+    LPWIN32_FIND_DATAA lpFindFileData
+    )
+{
+    WCHAR fnW[MAX_PATH+1];
+    _WIN32_FIND_DATAW ffDataW;
+   	WCHAR* pW  = NULL;
+    int    iRet = 1;
+    if( lpFileName )
+    {
+        iRet = MultiByteToWideChar(CP_ACP, 0, lpFileName, 
+                                   strlen( lpFileName ), 
+                                   fnW, MAX_PATH );
+        fnW[ iRet ] = 0;
+//  printf( "  after MultiByteToWideChar( ) - it returned %d\n", iRet );
+//  printf( "  fnW is *%S*\n", fnW );
+        pW = fnW;
+    }
+    if( iRet )
+    {
+        HANDLE hRet;
+        hRet = FindFirstFileW(fnW, &ffDataW);
+
+        // We have to convert over the new wide string in ffDataW to the A struct.
+        int iWtoMBRet = 0;
+        iWtoMBRet = WideCharToMultiByte(CP_ACP, 0, 
+                                        ffDataW.cFileName, wcslen(ffDataW.cFileName),
+                                        lpFindFileData->cFileName, MAX_PATH, NULL, NULL);
+        if(iWtoMBRet == 0)
+        {
+            printf("Couldn't convert resulting filename "
+                   "of FindFirstFileW to multibyte! Returning NULL.");
+        }
+        
+        // Now we copy over the data from the W struct to the A struct.
+        lpFindFileData->dwFileAttributes = ffDataW.dwFileAttributes;
+        lpFindFileData->ftCreationTime = ffDataW.ftCreationTime;
+        lpFindFileData->ftLastAccessTime = ffDataW.ftLastAccessTime;
+        lpFindFileData->ftLastWriteTime = ffDataW.ftLastWriteTime;
+        lpFindFileData->nFileSizeHigh = ffDataW.nFileSizeHigh;
+        lpFindFileData->nFileSizeLow = ffDataW.nFileSizeLow;
+        lpFindFileData->dwReserved0 = 0;
+        lpFindFileData->dwReserved1 = 0;
+        lpFindFileData->cAlternateFileName[0] = 0; // no alternate filename
+
+        printf( "FindFirstFileA( *%S* ) returned %d\n", pW, hRet );
+        return hRet;
+    }
+    else
+    {
+        printf( "FindFirstFileA( *%S* ) returned NULL\n", pW );
+        return NULL;
+    }
+    return NULL;
+}
+#endif
+
+
+#endif // WINCE

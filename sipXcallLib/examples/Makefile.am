@@ -8,4 +8,4 @@ else
 optional_SUBDIRS = 
 endif
 
-SUBDIRS = ${optional_SUBDIRS}
+SUBDIRS = ${optional_SUBDIRS} PlaceCall ReceiveCall

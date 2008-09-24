@@ -33,7 +33,7 @@
 #include "net/SipLineMgr.h"
 #include "net/SipRefreshMgr.h"
 #include "net/SipMessageEvent.h"
-#include "net/NameValueTokenizer.h"
+#include "utl/UtlNameValueTokenizer.h"
 #include "net/SipObserverCriteria.h"
 #include "net/Url.h"
 #include "net/SipUserAgent.h"
@@ -62,8 +62,7 @@ SipRefreshMgr::SipRefreshMgr():
     mIsStarted(FALSE),
     mObserverMutex(OsRWMutex::Q_FIFO),
     mUAReadyMutex(OsRWMutex::Q_FIFO),
-    mMyUserAgent(NULL),
-    mpTimer(NULL)
+    mMyUserAgent(NULL)
 {
 }
 
@@ -83,6 +82,17 @@ SipRefreshMgr::~SipRefreshMgr()
         mMessageObservers.remove(pObserver) ;
         delete pObserver ;
     }
+
+    // delete all unfired timers and their SipMessages
+    UtlHashBagIterator timerIterator(mTimerBag) ;
+    while (OsTimer* pTimer = (OsTimer*) timerIterator())
+    {
+       SipMessage *pMessage = (SipMessage *)pTimer->getUserData();
+       // get rid of them
+       delete pMessage;
+       delete pTimer;
+    }
+    mTimerBag.removeAll();
 }
 
 /*===================================================================*/
@@ -356,7 +366,7 @@ SipRefreshMgr::getFromAddress(
         }
 
         // If there is an address configured use it
-        NameValueTokenizer::getSubField(mDefaultSipAddress.data(), 0, ", \t", address);
+        UtlNameValueTokenizer::getSubField(mDefaultSipAddress.data(), 0, ", \t", address);
         // else use the local host ip address
         if ( address->isNull() )
         {
@@ -800,7 +810,7 @@ SipRefreshMgr::rescheduleRequest(
         SipMessage* timerRegisterMessage = new SipMessage(*request);
 
         OsTimer* timer = new OsTimer(&mIncomingQ, (int)timerRegisterMessage);
-        mpTimer = timer;
+        mTimerBag.insert(timer);
 
         int maxSipTransactionTimeSecs = 
             (mMyUserAgent->getSipStateTransactionTimeout()/1000);
@@ -1024,8 +1034,9 @@ SipRefreshMgr::processOKResponse(
                 fireSipXLineEvent(url, lineId.data(), LINESTATE_UNREGISTERED, LINESTATE_UNREGISTERED_NORMAL);
 
         } 
-        else if ( responseRefreshPeriod > 0 )
+        else
         {
+            // copying from response (this is why we set the To Field
             if ( !toTag.isNull() )
             {
                 request->setToFieldTag(toTag);
@@ -1037,23 +1048,26 @@ SipRefreshMgr::processOKResponse(
             url.getIdentity(lineId);            
             lineId = "sip:" + lineId; 
 
-                // extract the Message body and pass to apps
-                const char *bodyBytes = NULL;
-                int   nBodySize = 0;
-                const HttpBody *body = response->getBody();
-                if (body)
-                {
-                   body->getBytes( &bodyBytes, &nBodySize );
-                }
+            // extract the Message body and pass to apps
+            const char *bodyBytes = NULL;
+            int   nBodySize = 0;
+            const HttpBody *body = response->getBody();
+            if (body)
+            {
+               body->getBytes( &bodyBytes, &nBodySize );
+            }
 
-                fireSipXLineEvent(url, lineId.data(), LINESTATE_REGISTERED, LINESTATE_REGISTERED_NORMAL, bodyBytes );
+            fireSipXLineEvent(url, lineId.data(), LINESTATE_REGISTERED, LINESTATE_REGISTERED_NORMAL, bodyBytes );
 
-            rescheduleRequest(request, responseRefreshPeriod, SIP_REGISTER_METHOD);
-        }
-        else // could not find expires in 200 ok response , reschedule after default time
-        {   // copying from response (this is why we set the To Field
-            request->setToFieldTag(toTag);
-            rescheduleAfterTime(request);
+            if (responseRefreshPeriod > 0)
+            {
+               rescheduleRequest(request, responseRefreshPeriod, SIP_REGISTER_METHOD);
+            }
+            else
+            {
+               // could not find expires in 200 ok response , reschedule after default time
+               rescheduleAfterTime(request);
+            }
         }
     } else // subscribe
     {
@@ -1119,11 +1133,11 @@ SipRefreshMgr::parseContactFields(
             int subfieldIndex = 0;
             UtlString subfieldName;
             UtlString subfieldValue;
-            NameValueTokenizer::getSubField(contactField.data(), subfieldIndex, ";", &subfieldText);
+            UtlNameValueTokenizer::getSubField(contactField.data(), subfieldIndex, ";", &subfieldText);
             while ( !subfieldText.isNull() )
             {
-                NameValueTokenizer::getSubField(subfieldText.data(), 0, "=", &subfieldName);
-                NameValueTokenizer::getSubField(subfieldText.data(), 1, "=", &subfieldValue);
+                UtlNameValueTokenizer::getSubField(subfieldText.data(), 0, "=", &subfieldName);
+                UtlNameValueTokenizer::getSubField(subfieldText.data(), 1, "=", &subfieldValue);
 #ifdef TEST_PRINT
                 osPrintf("SipUserAgent::processRegisterResponce found contact parameter[%d]: \"%s\" value: \"%s\"\n",
                          subfieldIndex, subfieldName.data(), subfieldValue.data());
@@ -1133,7 +1147,7 @@ SipRefreshMgr::parseContactFields(
                 {
 
                     //see if more than one token in the expire value
-                    NameValueTokenizer::getSubField(
+                    UtlNameValueTokenizer::getSubField(
                         subfieldValue, 1,
                         " \t:;,", &subfieldText);
 
@@ -1165,7 +1179,7 @@ SipRefreshMgr::parseContactFields(
                     break;
                 }
                 subfieldIndex++;
-                NameValueTokenizer::getSubField(contactField.data(), subfieldIndex, ";", &subfieldText);
+                UtlNameValueTokenizer::getSubField(contactField.data(), subfieldIndex, ";", &subfieldText);
             }
         }
         indexContactField ++;
@@ -1443,6 +1457,8 @@ SipRefreshMgr::handleMessage( OsMsg& eventMessage )
 
         if ( timer )
         {
+            // remove timer from mTimerBag
+            mTimerBag.removeReference(timer);
             delete timer;
             timer = NULL;
         }

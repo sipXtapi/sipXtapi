@@ -1,5 +1,8 @@
 //
-// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Copyright (C) 2007 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
+//
+// Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -24,8 +27,8 @@
 #include "rtcp/SenderReport.h"
 #ifdef INCLUDE_RTCP /* [ */
 
-#ifdef WINCE
-#   include <winsock.h>
+#ifdef WIN32
+#   include <winsock2.h>
 #endif
 
 // Constants
@@ -198,7 +201,7 @@ void CSenderReport::SetRTPTimestamp(unsigned long ulRandomOffset,
         _ftime(&stLocalTime);
 
         // Load Most Significant word with Wall time seconds
-        m_aulNTPStartTime[0] = stLocalTime.time + WALLTIMEOFFSET;
+        m_aulNTPStartTime[0] = (unsigned long)stLocalTime.time + WALLTIMEOFFSET;
 
         // Load Least Significant word with Wall time microseconds
         dTimestamp = stLocalTime.millitm * MILLI2MICRO;
@@ -468,7 +471,7 @@ unsigned long CSenderReport::LoadTimestamps(unsigned long *aulTimestamps)
     _ftime(&stLocalTime);
 
     // Load Most Significant word with Wall time seconds
-    m_aulNTPTimestamp[0] = stLocalTime.time + WALLTIMEOFFSET;
+    m_aulNTPTimestamp[0] = (unsigned long)stLocalTime.time + WALLTIMEOFFSET;
 
     // Load Least Significant word with Wall time microseconds
     dTimestamp = stLocalTime.millitm * MILLI2MICRO;
@@ -623,7 +626,7 @@ unsigned long CSenderReport::ExtractTimestamps(unsigned long *paulTimestamps)
     _ftime(&stLocalTime);
 
     // Load Most Significant word with Wall time seconds
-    aulCurrentNTPTime[0] = stLocalTime.time + WALLTIMEOFFSET;
+    aulCurrentNTPTime[0] = (unsigned long)stLocalTime.time + WALLTIMEOFFSET;
 
     // Load Least Significant word with Wall time microseconds
     dTimestamp = stLocalTime.millitm * MILLI2MICRO;

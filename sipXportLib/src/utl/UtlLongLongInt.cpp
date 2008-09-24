@@ -1,14 +1,14 @@
-// 
-// 
+//
+//
 // Copyright (C) 2005-2006 SIPez LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
-// 
+//
 // Copyright (C) 2004-2006 Pingtel Corp.
 // Licensed to SIPfoundry under a Contributor Agreement.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -21,6 +21,24 @@
 // APPLICATION INCLUDES
 #include "utl/UtlLongLongInt.h"
 
+// DEFINES
+#if defined(_MSC_VER) && (_MSC_VER < 1300) 
+	// If < MSVC7(VS2003), _strtoi64 is not defined.
+	// Come up with a suitable replacement.
+#	include <assert.h>
+	static inline int64_t strtoll(const char* cStr, char** strEndPos, int base)
+	{
+		assert(strEndPos == 0);
+		assert(base == 10 || base == 0);
+		return _atoi64(cStr);
+	}
+#elif defined( WIN32 ) && !defined( WINCE )
+	// For all other windows variants except CE,
+	// use more appropriate _strtoi64
+#	define strtoll _strtoi64
+#endif
+
+// MACROS
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
@@ -32,10 +50,10 @@ UtlContainableType UtlLongLongInt::TYPE = "UtlLongLongInt" ;
 /* ============================ CREATORS ================================== */
 
 // Constructor accepting an optional default value.
-UtlLongLongInt::UtlLongLongInt(Int64 value)
+UtlLongLongInt::UtlLongLongInt(int64_t value)
 {
     mValue = value ;
-} 
+}
 
 
 // Copy constructor
@@ -50,26 +68,30 @@ UtlLongLongInt::~UtlLongLongInt()
 /* ============================ OPERATORS ============================== */
 
 // Prefix increment operator
-UtlLongLongInt& UtlLongLongInt::operator++() {
+UtlLongLongInt& UtlLongLongInt::operator++()
+{
     mValue++;
     return *this;
 }
 
 // Postfix increment operator
-UtlLongLongInt UtlLongLongInt::operator++(int) {
+UtlLongLongInt UtlLongLongInt::operator++(int)
+{
     UtlLongLongInt temp = *this;
     ++*this;
     return temp;
 }
 
 // Prefix decrement operator
-UtlLongLongInt& UtlLongLongInt::operator--() {
+UtlLongLongInt& UtlLongLongInt::operator--()
+{
     mValue--;
     return *this;
 }
 
 // Postfix decrement operator
-UtlLongLongInt UtlLongLongInt::operator--(int) {
+UtlLongLongInt UtlLongLongInt::operator--(int)
+{
     UtlLongLongInt temp = *this;
     --*this;
     return temp;
@@ -77,32 +99,29 @@ UtlLongLongInt UtlLongLongInt::operator--(int) {
 
 /* ============================ MANIPULATORS ============================== */
 
-Int64 UtlLongLongInt::setValue(Int64 iValue)
+int64_t UtlLongLongInt::setValue(int64_t iValue)
 {
-    Int64 iOldValue = mValue ;
+    int64_t iOldValue = mValue ;
     mValue = iValue ;
 
     return iOldValue ;
 }
 
-Int64 UtlLongLongInt::stringToLongLong(const char* longLongString)
+int64_t UtlLongLongInt::stringToLongLong(const char* longLongString)
 {
-#if defined(_WIN32)
-    return(_atoi64(longLongString));
-#elif defined(_VXWORKS)
+#if defined(_VXWORKS)
 
     int numDigits = strlen(longLongString);
-    Int64 sum = -1;
+    int64_t sum = -1;
 
     if(numDigits <= 9)
     {
         sum = strtol(longLongString, 0, 0);
     }
-
     else if(numDigits > 9)
     {
-        Int64 billions = 0;
-        Int64 first9digits = strtol(&longLongString[numDigits - 9], 0, 0);
+        int64_t billions = 0;
+        int64_t first9digits = strtol(&longLongString[numDigits - 9], 0, 0);
         char digitBuffer[10];
 
         if(numDigits <= 18)
@@ -120,10 +139,9 @@ Int64 UtlLongLongInt::stringToLongLong(const char* longLongString)
                 sum = billions * 1000000 + first9digits * -1;
             }
         }
-
         else //(numDigits > 18)
         {
-            Int64 gazillions = 0;
+            int64_t gazillions = 0;
             // Billions digits
             memcpy(digitBuffer, &longLongString[numDigits - 18], 9);
             digitBuffer[9] = '\0';
@@ -145,25 +163,25 @@ Int64 UtlLongLongInt::stringToLongLong(const char* longLongString)
             }
         }
     }
-    return(sum);
+    return sum;
 #else
     // We could use "atoll" here but it is obsolete, "strtoll" is the recommended function
     // See http://www.delorie.com/gnu/docs/glibc/libc_423.html .
-    return(strtoll(longLongString, 0, 0));
+    return strtoll(longLongString, 0, 0);
 #endif
 }
 
 /* ============================ ACCESSORS ================================= */
 
-Int64 UtlLongLongInt::getValue() const 
+int64_t UtlLongLongInt::getValue() const
 {
-    return mValue ; 
+    return mValue ;
 }
 
 
 unsigned UtlLongLongInt::hash() const
 {
-   return (unsigned)mValue ; 
+   return (unsigned)mValue ;
 }
 
 
@@ -176,28 +194,31 @@ UtlContainableType UtlLongLongInt::getContainableType() const
 
 int UtlLongLongInt::compareTo(UtlContainable const * inVal) const
 {
-   int result ; 
-   
-   if (inVal->isInstanceOf(UtlLongLongInt::TYPE))
+    int result ;
+
+    if (inVal->isInstanceOf(UtlLongLongInt::TYPE))
     {
-        UtlLongLongInt* temp = (UtlLongLongInt*)inVal ; 
-        Int64 inIntll = temp -> getValue() ;
-        if (mValue > inIntll) {
-        	result = 1 ;
+        UtlLongLongInt* temp = (UtlLongLongInt*)inVal ;
+        int64_t inIntll = temp -> getValue() ;
+        if (mValue > inIntll)
+        {
+            result = 1 ;
         }
-        else if (mValue == inIntll) {
-        	result = 0 ;
+        else if (mValue == inIntll)
+        {
+            result = 0 ;
         }
-        else {
-        	// mValue < inIntll
-        	result = -1 ;
+        else
+        {
+            // mValue < inIntll
+            result = -1 ;
         }
     }
     else
     {
-    	// The result for a non-like object is undefined except that we must
-    	// declare that the two objects are not equal
-    	result = INT_MAX ; 
+        // The result for a non-like object is undefined except that we must
+        // declare that the two objects are not equal
+        result = INT_MAX ;
     }
 
     return result ;
@@ -206,7 +227,7 @@ int UtlLongLongInt::compareTo(UtlContainable const * inVal) const
 
 UtlBoolean UtlLongLongInt::isEqual(UtlContainable const * inVal) const
 {
-    return (compareTo(inVal) == 0) ; 
+    return (compareTo(inVal) == 0);
 }
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */

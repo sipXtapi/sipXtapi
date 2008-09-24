@@ -14,11 +14,16 @@
 
 // SYSTEM INCLUDES
 #include "os/OsDefs.h"
+#include "os/OsBSem.h"
 
 // APPLICATION INCLUDES
 #include "utl/UtlContainable.h"
 
 // DEFINES
+#ifndef UTLLINK_BLOCK_SIZE
+#define UTLLINK_BLOCK_SIZE 1000
+#endif
+
 // MACROS
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -194,7 +199,7 @@ class UtlChain
     */
 
 
-   /// Insert this link into a list before an existing entry (after NULL == at the head).
+   /// Insert this link into a list after an existing entry (after NULL == at the head).
    void listAfter(UtlChain* list,     ///< the list to insert into
                   UtlChain* existing  /**< the UtlLink for the position in the
                                        *   list to insert after.  NULL means
@@ -220,6 +225,7 @@ class UtlChain
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
   private:
 };
+
 
 /**
  * UtlLink implements linked lists of data blocks.
@@ -313,6 +319,7 @@ class UtlLink : public UtlChain
    friend class UtlHashBag;
    friend class UtlHashBagIterator;
    friend class UtlLinkTest;
+   friend class UtlInit;
 
    // ================================================================
    /** @name                  Link Manipulation in a Chain
@@ -453,6 +460,7 @@ class UtlPair : public UtlLink
    friend class UtlHashMap;
    friend class UtlHashMapIterator;
    friend class UtlHashBagIterator;
+   friend class UtlInit;
 
    UtlContainable* value;
 

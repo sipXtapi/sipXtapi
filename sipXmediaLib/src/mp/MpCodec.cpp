@@ -1,9 +1,25 @@
+// Copyright 2008 AOL LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA. 
 // 
 // 
-// Copyright (C) 2005-2006 SIPez LLC.
+// Copyright (C) 2005-2007 SIPez LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.
 // 
-// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 // 
 // Copyright (C) 2004-2006 Pingtel Corp.
@@ -16,28 +32,112 @@
 
 #define DEF_HSVOLMAX 54
 #define DEF_HSVOLSTEP 2
+/// default value for input mixer = -1 -> not detected yet
+#define DEF_INPUTMIXER -1
 static int hsVolMax = DEF_HSVOLMAX;
 static int hsVolStep = DEF_HSVOLSTEP;
 
-// TODO
-// The rest of this file is really two independent platform-specific
-// implementations of the MpCodec module.  These should be broken out into
-// separate files.
+/**
+*  ID of the mixer containing microphone line
+*/
+static int sInputMixerId = DEF_INPUTMIXER;
+
+/**
+*  @file MpCodec.cpp
+*
+*  @TODO The rest of this file is really independent platform-specific
+*  implementations of the MpCodec module.  These should be broken out into
+*  separate files.
+*/
 
 #if defined(_WIN32) /* [ */
 
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
+#define WIN32_LEAN_AND_MEAN
+#include <Windows.h>
+#include <MMSystem.h>
 
 
 #include "os/OsUtil.h"
 #include "mp/dmaTask.h"
 #include "mp/MpCodec.h"
 
-extern "C" void setHandsetMuteState(UtlBoolean state);
 static int s_iGainLevel = 5 ;
 
+/**
+*  Gets the ID of the mixer containing microphone line.
+*  
+*  @return ID of mixer
+*
+*  @see MpCodec_setInputMixerId
+*  @see MpCodec_initInputMixerId
+*/
+int MpCodec_getInputMixerId(void)
+{
+   return sInputMixerId;
+}
+
+/**
+*  Sets the ID of the mixer containing microphone line. For systems
+*  with multiple mixer devices or multiple sound cards we need to
+*  know the ID of the right mixer device so that we set gain on
+*  the right one.
+*  
+*  @param newMixerId ID of the mixer containing microphone line
+*  @return result of setting mixer ID
+*
+*  @see MpCodec_initInputMixerId
+*/
+OsStatus MpCodec_setInputMixerId(unsigned int newMixerId)
+{
+   unsigned int devices = mixerGetNumDevs();
+
+   // to prevent setting invalid mixer id
+   if (newMixerId < devices)
+   {
+      sInputMixerId = newMixerId;
+      return OS_SUCCESS;
+   }
+   else return OS_INVALID_ARGUMENT;
+}
+
+/**
+*  Finds ID of a mixer of the first wave input device present in
+*  system. A sound card can have separate mixer for output devices
+*  and another one for input devices. If we have multiple sound cards
+*  then we will have multiple output and input devices with several
+*  mixers. This function is executed only if we haven't opened a
+*  wave input device as a fail-safe. First input device in the system
+*  is used to detect the mixer ID. Here we don't know yet which wave input
+*  device will be used so we have to make this simplification. Once
+*  wave input device is opened, we detect the mixer Id associated with it
+*  elsewhere. This ID is only used for setting gain.
+*  
+*  @return result of detection of mixer ID
+*
+*  @see detectInputMixerId
+*  @see openAudioIn
+*/
+OsStatus MpCodec_initInputMixerId(void)
+{
+   OsStatus ret = OS_UNSPECIFIED;
+   MMRESULT mmresult;
+   int uDeviceID = 0;
+   unsigned int uMxId;
+
+   // Mixer ID is also detected in MicThreadWnt.cpp, this one doesn't need
+   // wave input handle, but assumes we use wave input device 0
+   mmresult = mixerGetID((HMIXEROBJ)uDeviceID, &uMxId, MIXER_OBJECTF_WAVEIN);
+
+   if (mmresult == MMSYSERR_NOERROR)
+   {
+      ret = MpCodec_setInputMixerId(uMxId);
+   }
+   
+   return ret;
+}
 
 OsStatus MpCodec_setGain(int level)
 {
@@ -45,67 +145,82 @@ OsStatus MpCodec_setGain(int level)
    OsStatus ret = OS_UNSPECIFIED;
    MMRESULT mmresult;
 
+   // mixer id is not yet available, try to detect it by assuming we use
+   // wave input device 0
+   if (sInputMixerId == -1)
+   {
+      if (MpCodec_initInputMixerId() != OS_SUCCESS)
+      {
+         return ret;
+      }
+   }
+
    // Open the mixer device
    HMIXER hmx;
-   mmresult = mixerOpen(&hmx, 0, 0, 0, MIXER_OBJECTF_MIXER );
+   mmresult = mixerOpen(&hmx, sInputMixerId, 0, 0, MIXER_OBJECTF_MIXER );
 
    if (MMSYSERR_NOERROR == mmresult)
    {
-	   // Get the line info for the wave in destination line
-	   MIXERLINE mxl;
-	   memset(&mxl, 0, sizeof(MIXERLINE));
-	   mxl.cbStruct = sizeof(mxl);
-	   mxl.dwComponentType = MIXERLINE_COMPONENTTYPE_SRC_MICROPHONE;
-	   mmresult = mixerGetLineInfo((HMIXEROBJ)hmx, &mxl, MIXER_GETLINEINFOF_COMPONENTTYPE);
+       // Get the line info for the wave in destination line
+       MIXERLINE mxl;
+       memset(&mxl, 0, sizeof(MIXERLINE));
+       mxl.cbStruct = sizeof(mxl);
+       mxl.dwComponentType = MIXERLINE_COMPONENTTYPE_DST_WAVEIN;
+       mmresult = mixerGetLineInfo((HMIXEROBJ)hmx, &mxl, MIXER_GETLINEINFOF_COMPONENTTYPE);
 
-	   if (MMSYSERR_NOERROR == mmresult)
-	   {
-		   // Now find the microphone source line connected to this wave in
-		   // destination
-		   DWORD cConnections = mxl.cConnections;
+       if (MMSYSERR_NOERROR == mmresult)
+       {
+           // Now find the microphone source line connected to this wave in
+           // destination
+           DWORD cConnections = mxl.cConnections;
 
-		   for(DWORD j=0; j<cConnections; j++)
-		   {
-			  mxl.dwSource = j;
-			  mixerGetLineInfo((HMIXEROBJ)hmx, &mxl, MIXER_GETLINEINFOF_SOURCE);
-			  if (MIXERLINE_COMPONENTTYPE_SRC_MICROPHONE == mxl.dwComponentType)
-				 break;
-		   }
-		   
-		   // Find a volume control, if any, of the microphone line
-		   LPMIXERCONTROL pmxctrl = (LPMIXERCONTROL)calloc(1, sizeof MIXERCONTROL);
-		   MIXERLINECONTROLS mxlctrl = {sizeof mxlctrl, mxl.dwLineID, MIXERCONTROL_CONTROLTYPE_VOLUME, 1, sizeof MIXERCONTROL, pmxctrl};
-		   
-		   if(!mixerGetLineControls((HMIXEROBJ) hmx, &mxlctrl, MIXER_GETLINECONTROLSF_ONEBYTYPE))
-		   {
-			  // Found!
-			  DWORD cChannels = mxl.cChannels;
-			  if (MIXERCONTROL_CONTROLF_UNIFORM & pmxctrl->fdwControl)
-				 cChannels = 1;
+           for(DWORD j=0; j<cConnections; j++)
+           {
+              mxl.dwSource = j;
+              mixerGetLineInfo((HMIXEROBJ)hmx, &mxl, MIXER_GETLINEINFOF_SOURCE);
+              if (MIXERLINE_COMPONENTTYPE_SRC_MICROPHONE == mxl.dwComponentType)
+                 break;
+           }
+           
+           // Find a volume control, if any, of the microphone line
+           LPMIXERCONTROL pmxctrl = (LPMIXERCONTROL)calloc(1, sizeof(MIXERCONTROL));
+           MIXERLINECONTROLS mxlctrl = {sizeof(mxlctrl), mxl.dwLineID, MIXERCONTROL_CONTROLTYPE_VOLUME, 1, sizeof(MIXERCONTROL), pmxctrl};
+           
+           if(!mixerGetLineControls((HMIXEROBJ) hmx, &mxlctrl, MIXER_GETLINECONTROLSF_ONEBYTYPE))
+           {
+              // Found!
+              DWORD cChannels = mxl.cChannels;
+              if (MIXERCONTROL_CONTROLF_UNIFORM & pmxctrl->fdwControl)
+                 cChannels = 1;
 
-			  LPMIXERCONTROLDETAILS_UNSIGNED pUnsigned =
-			  (LPMIXERCONTROLDETAILS_UNSIGNED)  malloc(cChannels * sizeof MIXERCONTROLDETAILS_UNSIGNED);
-		      
-			  MIXERCONTROLDETAILS mxcd = {sizeof(mxcd), pmxctrl->dwControlID, cChannels, (HWND)0, 
-				 sizeof MIXERCONTROLDETAILS_UNSIGNED, (LPVOID) pUnsigned};
-			  mixerGetControlDetails((HMIXEROBJ)hmx, &mxcd, MIXER_SETCONTROLDETAILSF_VALUE);
+              LPMIXERCONTROLDETAILS_UNSIGNED pUnsigned =
+              (LPMIXERCONTROLDETAILS_UNSIGNED)  malloc(cChannels * sizeof(MIXERCONTROLDETAILS_UNSIGNED));
+              
+              MIXERCONTROLDETAILS mxcd = {sizeof(mxcd), pmxctrl->dwControlID, cChannels, (HWND)0, 
+                 sizeof(MIXERCONTROLDETAILS_UNSIGNED), (LPVOID) pUnsigned};
+              mixerGetControlDetails((HMIXEROBJ)hmx, &mxcd, MIXER_SETCONTROLDETAILSF_VALUE);
 
-			  // Set the volume to the the level  (for both channels as needed)
-			  pUnsigned[0].dwValue = pUnsigned[cChannels - 1].dwValue = (DWORD)((float)pmxctrl->Bounds.dwMinimum+(float)pmxctrl->Bounds.dwMaximum) * ( (float)((float)level-1.0f) / 9.0f )  ;
-			  mixerSetControlDetails((HMIXEROBJ)hmx, &mxcd, MIXER_SETCONTROLDETAILSF_VALUE);
+              // Set the volume to the the level  (for both channels as needed)
+              pUnsigned[0].dwValue 
+                 = pUnsigned[cChannels - 1].dwValue
+                 = pmxctrl->Bounds.dwMinimum
+                   + (DWORD)((double)(level - MIC_GAIN_MIN) / (MIC_GAIN_MAX - MIC_GAIN_MIN)
+                     * (pmxctrl->Bounds.dwMaximum - pmxctrl->Bounds.dwMinimum));
+              mixerSetControlDetails((HMIXEROBJ)hmx, &mxcd, MIXER_SETCONTROLDETAILSF_VALUE);
 
-			  free(pmxctrl);
-			  free(pUnsigned);
-		   }
-		   else
-		   {
-			  free(pmxctrl);
-		   }
-		   mixerClose(hmx);
+              free(pmxctrl);
+              free(pUnsigned);
+           }
+           else
+           {
+              free(pmxctrl);
+           }
 
-		   DmaTask::setMuteEnabled(s_iGainLevel <= 1); // if Mic level is 1 or less, mute
-		   ret = OS_SUCCESS;
-	   }
+           // mute if Mic level is less then 1
+           DmaTask::setMuteEnabled(s_iGainLevel <= 1);
+           ret = OS_SUCCESS;
+       }
+       mixerClose(hmx);
    }
 
    return ret;
@@ -137,18 +252,20 @@ OsStatus MpCodec_setVolume(int level)
    HWAVEOUT hOut = NULL ;
    if (DmaTask::isRingerEnabled())
    {
-      hOut = audioOutH ;		
+      hOut = audioOutH ;
    }
    else
    {
-	  hOut = audioOutCallH ;
+      hOut = audioOutCallH ;
    }
 
    
    if (hOut != NULL)
    {
-      waveOutSetVolume(hOut, bothVolume) ;
-      ret = OS_SUCCESS;
+      if (waveOutSetVolume(hOut, bothVolume) == MMSYSERR_NOERROR )
+        ret = OS_SUCCESS;
+      else
+        ret = OS_FAILED;
    }
 
    return ret;
@@ -157,27 +274,31 @@ OsStatus MpCodec_setVolume(int level)
 int MpCodec_getVolume() 
 {
    DWORD bothVolume;
-   int volume;
+   int volume=0;
    unsigned short volSeg = 0xFFFF/100;
 
    HWAVEOUT hOut = NULL ;
    if (DmaTask::isRingerEnabled())
    {
-      hOut = audioOutH ;	
+      hOut = audioOutH ;
    }
    else
    {
-	  hOut = audioOutCallH ;
+      hOut = audioOutCallH ;
    }
 
    
    if (hOut != NULL)
    {
-      waveOutGetVolume(hOut, &bothVolume) ;
-
-      //mask out one
-      unsigned short rightChannel = ((unsigned short) bothVolume & 0xFFFF) ;
-      volume = rightChannel /volSeg;         
+      MMRESULT mmret;
+      mmret = waveOutGetVolume(hOut, &bothVolume);
+      if (mmret == MMSYSERR_NOERROR )
+      {
+          //mask out one
+          unsigned short rightChannel = ((unsigned short) bothVolume & 0xFFFF) ;
+          volume = rightChannel /volSeg;         
+      } else
+          volume = -1;
    }
 
    return volume;
@@ -185,10 +306,7 @@ int MpCodec_getVolume()
 
 
 /* dummy routine */
-int MpCodec_isSpeakerOn() { return 0;}
-
-/* dummy routine */
-OsStatus MpCodec_doProcessFrame() { return OS_SUCCESS;}
+int MpCodec_isBaseSpeakerOn() { return 0;}
 
 #elif defined(__pingtel_on_posix__) /* WIN32 ] [ */
 
@@ -238,18 +356,13 @@ OsStatus MpCodec_setVolume(int level)
 
 int MpCodec_getVolume()
 {
-	return dummy_volume;
+   return dummy_volume;
 }
 
 int MpCodec_isBaseSpeakerOn()
 {
-	return 0;
+   return 0;
 }
-
-
-/* dummy routine */
-OsStatus MpCodec_doProcessFrame() { return OS_SUCCESS;}
-
 
 #endif /* ] */
 

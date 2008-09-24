@@ -15,7 +15,7 @@
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
 #include "utl/UtlDefs.h"
-#include "utl/UtlContainable.h"
+#include "utl/UtlCopyableContainable.h"
 
 // DEFINES
 // MACROS
@@ -29,7 +29,7 @@
 /**
  * UtlInt is a UtlContainable wrapper for an int.
  */
-class UtlInt : public UtlContainable
+class UtlInt : public UtlCopyableContainable
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
@@ -41,11 +41,14 @@ public:
      * Constructor accepting an optional default value.
      */
     UtlInt(int initialValue = 0) ;
+    UtlInt(const UtlInt& rhs) ;
       
     /**
      * Destructor
      */
     virtual ~UtlInt();
+
+    UtlCopyableContainable* clone() const;
 
 /* ============================ OPERATORS ============================== */
 
@@ -56,6 +59,8 @@ public:
     // Declare prefix and postfix decrement operators.
     UtlInt& operator--();       // Prefix decrement operator
     UtlInt operator--(int);     // Postfix decrement operator
+
+    UtlInt& operator=(const UtlInt& rhs); // assigment operator
 
     // Conversion to int
     operator int() { return mValue; }

@@ -71,10 +71,10 @@ public:
       //:+= operator
 
     static void setSeparator(UtlString &rSeparator);
-      //: Returns the path separator for this object
+      //: Set path separator for this platform
     
     void Split(); 
-    //: breaks path into it's parts
+    //: breaks path into its parts
 
 /* ============================ ACCESSORS ================================= */
     UtlString getVolume() const;
@@ -93,8 +93,8 @@ public:
       //: Returns TRUE if the full path for the specified platform was
       //: found to be valid. Returns the full path in rFullPath.
 
-    static UtlString getSeparator() ;
-      //: Returns the path separator for this object
+    static UtlString getSeparator();
+      //: Returns the path separator for this platform
 
 /* ============================ INQUIRY =================================== */
 

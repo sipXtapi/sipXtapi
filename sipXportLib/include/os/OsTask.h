@@ -48,6 +48,9 @@ class OsTime;
 // low-level task has been created.  Accordingly, before a successful call
 // to start(), most of the methods in this class return the
 // OS_TASK_NOT_STARTED status.
+//
+// <p>Note: carefully read documentation for ackShutdown() and waitUntilShutDown()
+//           methods, or you may get deadlocks.
 
 class OsTaskBase
 {
@@ -258,9 +261,9 @@ public:
    virtual OsStatus id(int& rId) = 0;
      //:Get the task ID for this task
 
-   virtual UtlBoolean isReady(void) = 0;
-     //:Check if the task is ready to run
-     // Return TRUE is the task is ready, otherwise FALSE.
+   virtual UtlBoolean isReady(void);
+     //:Check if the task is running
+     // Return TRUE is the task is started and not suspended, otherwise FALSE.
 
    virtual UtlBoolean isShutDown(void);
      //:Return TRUE if a task shutdown has been requested and acknowledged
@@ -284,7 +287,7 @@ protected:
    OsMutex   mDataGuard;  // Mutex guard to protect the OsTask internal data
    UtlString  mName;       // global name associated with the task
 
-   TaskState mState;      // Task object state
+   volatile TaskState mState;      // Task object state
 
    OsTaskBase(const UtlString& name,
               void* pArg,
@@ -309,8 +312,17 @@ protected:
 
    virtual void ackShutdown(void);
      //:Acknowledge a shutdown request
-     // The task should call this method just prior to returning from its
-     // run() method to indicate that it is now shut down.
+     // This method should only be called by OS specific derived, concrete thread
+     // classes in the threadEntry() static method that invoked the run method.
+     // The point of this method is to signal that no member variables are accessed
+     // by the run() method and that the run method has exited such that it is now
+     // safe to delete this class.  For this reason this method must be called
+     // AFTER run exits (not within).  Related to this handshake/signaling is
+     // the waitUntilShutDown() method.  The waitUntilShutDown() MUST be called by
+     // the destructors of all classes derived from OsTask.  waitUntilShutDown()
+     // should be the first thing invoked in the destructor before any members
+     // are destructed.
+
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:

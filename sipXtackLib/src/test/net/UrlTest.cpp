@@ -127,7 +127,7 @@ public:
     {
         const char* szUrl =  "file://www.sipfoundry.org/dddd/ffff.txt";        
 #ifdef _WIN32
-        KNOWN_FATAL_BUG("Returned path separator is wrong under Win32", "XSL-74");
+        KNOWN_BUG("Returned path separator is wrong under Win32", "XSL-74");
 #endif        
         Url url(szUrl);
         char msg[1024];
@@ -144,7 +144,7 @@ public:
         const char* szUrl = "file://server:8080/dddd/ffff.txt";
 
 #ifdef _WIN32
-        KNOWN_FATAL_BUG("Returned path separator is wrong under Win32", "XSL-74");
+        KNOWN_BUG("Returned path separator is wrong under Win32", "XSL-74");
 #endif   
         char msg[1024];
         sprintf(msg, "file url w/path and port : %s", szUrl);
@@ -174,7 +174,7 @@ public:
       {
          const char* szUrl = "http://server:8080/dddd/ffff.txt";
 #ifdef _WIN32
-         KNOWN_FATAL_BUG("Returned path separator is wrong under Win32", "XSL-74");
+         KNOWN_BUG("Returned path separator is wrong under Win32", "XSL-74");
 #endif   
          char msg[1024];
          sprintf(msg, "url w/path and port : %s", szUrl);
@@ -192,7 +192,7 @@ public:
       {
          const char* szUrl = "http://server:8080/dddd/ffff.txt?p1=v1&p2=v2";
 #ifdef _WIN32
-         KNOWN_FATAL_BUG("Returned path separator is wrong under Win32", "XSL-74");
+         KNOWN_BUG("Returned path separator is wrong under Win32", "XSL-74");
 #endif   
          char msg[1024];
          sprintf(msg, "url w/path and port : %s", szUrl);
@@ -215,7 +215,7 @@ public:
       {
          const char* szUrl = "https://localhost:8091/cgi-bin/voicemail/mediaserver.cgi?action=deposit&mailbox=111&from=%22Dale+Worley%22%3Csip%3A173%40pingtel.com%3E%3Btag%253D3c11304";
 #ifdef _WIN32
-        KNOWN_FATAL_BUG("Returned path separator is wrong under Win32", "XSL-74");
+        KNOWN_BUG("Returned path separator is wrong under Win32", "XSL-74");
 #endif   
          Url url(szUrl);
          char msg[1024];
@@ -233,7 +233,7 @@ public:
       {
          const char* szUrl = "https://localhost:8091/cgi-bin/voicemail/mediaserver.cgi?action=deposit&mailbox=111&from=%22Dale+Worley%22%3Csip%3A173%40pingtel.com%3E%3Btag%253D3c11304";
 #ifdef _WIN32
-         KNOWN_FATAL_BUG("Returned path separator is wrong under Win32", "XSL-74");
+         KNOWN_BUG("Returned path separator is wrong under Win32", "XSL-74");
 #endif   
          Url url(szUrl, TRUE);
          char msg[1024];

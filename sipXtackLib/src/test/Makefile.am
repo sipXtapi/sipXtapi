@@ -24,24 +24,30 @@ testsuite_LDADD = \
     @SIPXUNIT_LIBS@ \
     $(CPPUNIT_LIBS) \
     @SIPXPORT_LIBS@ \
+    @SIPXSDP_LIBS@ \
     ../libsipXtack.la
 
 testsuite_SOURCES = \
+    net/HttpBodyTest.cpp \
     net/HttpMessageTest.cpp \
     net/NameValuePairInsensitiveTest.cpp \
     net/NameValuePairTest.cpp \
     net/NetAttributeTokenizerTest.cpp \
+    net/NetBase64CodecTest.cpp \
     net/NetMd5CodecTest.cpp \
     net/SdpBodyTest.cpp \
     net/SipContactDbTest.cpp \
     net/SipDialogEventTest.cpp \
+    net/SipDialogMonitorTest.cpp \
     net/SipDialogTest.cpp \
     net/SipMessageTest.cpp \
     net/SipPresenceEventTest.cpp \
     net/SipPublishContentMgrTest.cpp \
     net/SipServerShutdownTest.cpp \
     net/SipSrvLookupTest.cpp \
-    net/SipSubcriptionMgrTest.cpp \
+    net/SipSubscribeServerTest.cpp \
+    net/SipSubscriptionClientTest.cpp \
+    net/SipSubscriptionMgrTest.cpp \
     net/SipUserAgentTest.cpp \
     net/UrlTest.cpp \
     net/XmlRpcTest.cpp

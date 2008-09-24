@@ -1,5 +1,24 @@
+// Copyright 2008 AOL LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
-// Copyright (C) 2004-2006 SIPfoundry Inc.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA. 
+//
+// Copyright (C) 2005-2007 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
+// Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -8,6 +27,7 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
+// Author: Daniel Petrie dpetrie AT SIPez DOT com
 
 #ifndef _CpGhostConnection_h_
 #define _CpGhostConnection_h_
@@ -64,7 +84,10 @@ public:
                            const int bandWidth = AUDIO_MICODEC_BW_DEFAULT,
                            UtlBoolean bOnHold = FALSE,
                            const char* originalCallId = NULL,
-                           const RTP_TRANSPORT rtpTransportOptions = RTP_TRANSPORT_UDP);
+                           const RTP_TRANSPORT rtpTransportOptions = RTP_TRANSPORT_UDP,
+                           unsigned long flags = CPMI_FLAGS_DEFAULT,
+                           int callHandle = 0) ;
+
 
    //! param: requestQueuedCall - indicates that the caller wishes to have the callee queue the call if busy
 
@@ -87,7 +110,7 @@ public:
    // Method to communicate status to target call on transfer
    // controller side
 
-   virtual UtlBoolean answer(const void* hWnd = NULL);
+   virtual UtlBoolean answer();
 
    virtual void outOfFocus();
 
@@ -106,9 +129,13 @@ public:
    virtual UtlBoolean silentRemoteHold() ;
 
    virtual UtlBoolean accept(int forwardOnNoAnswerSeconds, 
+                             const void* pDisplay = NULL,
                              const void *pSecurity = NULL,
                              const char* locationHeader = NULL,
-                             const int bandWidth = AUDIO_MICODEC_BW_DEFAULT);
+                             const int bandWidth = AUDIO_MICODEC_BW_DEFAULT,
+                             UtlBoolean sendEarlyMedia = FALSE,
+                             unsigned long flags = CPMI_FLAGS_DEFAULT,
+                             int callHandle = 0);
 
    virtual UtlBoolean processMessage(OsMsg& eventMessage,
                                     UtlBoolean callInFocus, UtlBoolean onHook);

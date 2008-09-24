@@ -1,3 +1,19 @@
+// Copyright 2008 AOL LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -51,15 +67,15 @@
   #define TEST_AUDIO              1
   #define TEST_LINE               1
   #define TEST_CALL               1
-  #define TEST_CALL_HOLD          1
-  #define TEST_CONF               1
+  #define TEST_CALL_HOLD          0
+  #define TEST_CONF               0
   #define TEST_REG                1
-  #define TEST_TRANSFER           1
-  #define TEST_TRANSFER_ADVANCED  1
-  #define TEST_CONFIG             1
-  #define TEST_SUBSCRIBE          1
+  #define TEST_TRANSFER           0
+  #define TEST_TRANSFER_ADVANCED  0
+  #define TEST_CONFIG             0
+  #define TEST_SUBSCRIBE          0
   #define TEST_NAT                1
-  #define TEST_UTILS              1
+  #define TEST_UTILS              0
   #define TEST_PROBLEMATIC_CASES  0  
 #else
   #define TEST_AUDIO              1
@@ -151,7 +167,7 @@ class sipXtapiTestSuite : public CppUnit::TestFixture
     CPPUNIT_TEST(testCallBusy) ;
 #endif
 #ifdef _WIN32
-    CPPUNIT_TEST(testCallMute);
+//    CPPUNIT_TEST(testCallMute);
 #endif
     CPPUNIT_TEST(testCallRedirect);
     CPPUNIT_TEST(testCallShutdown) ;
@@ -163,6 +179,7 @@ class sipXtapiTestSuite : public CppUnit::TestFixture
     CPPUNIT_TEST(testSendInfoExternalTransport);
     CPPUNIT_TEST(testSendInfoTimeout);
     CPPUNIT_TEST(testSendInfoFailure);
+
     CPPUNIT_TEST(testCallDestroyRinging);
     CPPUNIT_TEST(testCallGetRemoteUserAgent);
 
@@ -508,6 +525,7 @@ public:
 
     void testConfigCodecPreferences() ;
 
+    void testConfigGetUpnpResults();
     void testConfigEnableStunSuccess() ;
     void testConfigEnableStunNoResponse() ;
     void testConfigEnableStunError() ;

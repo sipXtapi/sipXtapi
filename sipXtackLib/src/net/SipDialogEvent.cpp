@@ -1,3 +1,19 @@
+// Copyright 2008 AOL LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA. 
 //
 // Copyright (C) 2005 SIPez LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.
@@ -16,7 +32,7 @@
 #include <os/OsSysLog.h>
 #include <utl/XmlContent.h>
 #include <net/SipDialogEvent.h>
-#include <net/NameValueTokenizer.h>
+#include <utl/UtlNameValueTokenizer.h>
 #include <xmlparser/tinyxml.h>
 
 // EXTERNAL FUNCTIONS
@@ -256,18 +272,17 @@ const UtlContainableType Dialog::getContainableType() const
 
 // Constructor
 SipDialogEvent::SipDialogEvent(const char* state, const char* entity)
-   : mLock(OsBSem::Q_PRIORITY, OsBSem::FULL)
+   : mLock(OsBSem::Q_PRIORITY, OsBSem::FULL),
+     // Generate the initial report with version 1, so we can generate
+     // the default report with version 0 in
+     // DialogDefaultConstructor::generateDefaultContent (in
+     // DialogEventPublisher.cpp).
+     mVersion(1),
+     mDialogState(state),
+     mEntity(entity)
 {
    remove(0);
    append(DIALOG_EVENT_CONTENT_TYPE);
-
-   // Generate the initial report with version 1, so we can generate
-   // the default report with version 0 in
-   // DialogDefaultConstructor::generateDefaultContent (in
-   // DialogEventPublisher.cpp).
-   mVersion = 1;
-   mDialogState = state;
-   mEntity = entity;
 }
 
 SipDialogEvent::SipDialogEvent(const char* bodyBytes)
@@ -703,7 +718,7 @@ void SipDialogEvent::buildBody() const
          dialogEvent.append(BEGIN_IDENTITY);
          if (!displayName.isNull())
          {
-            NameValueTokenizer::frontBackTrim(&displayName, "\"");
+            displayName.strip(UtlString::both, '\"');
             dialogEvent.append(DISPLAY_EQUAL);
             singleLine = DOUBLE_QUOTE + displayName + DOUBLE_QUOTE;
             dialogEvent += singleLine;
@@ -732,7 +747,7 @@ void SipDialogEvent::buildBody() const
          dialogEvent.append(BEGIN_IDENTITY);
          if (!displayName.isNull())
          {
-            NameValueTokenizer::frontBackTrim(&displayName, "\"");
+            displayName.strip(UtlString::both, '\"');
             dialogEvent.append(DISPLAY_EQUAL);
             singleLine = DOUBLE_QUOTE + displayName + DOUBLE_QUOTE;
             dialogEvent += singleLine;

@@ -1,5 +1,8 @@
+//  
+// Copyright (C) 2006-2007 SIPez LLC. 
+// Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Copyright (C) 2004-2007 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -21,7 +24,7 @@ static unsigned char numBits[] = {
    8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,
    8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,
    8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,
-   8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,
+   8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8
 };
 
 /* Mu-Law conversions */
@@ -62,7 +65,7 @@ AudioByte MuLawEncode(AudioSample s)
    adjusted += 128L+4L;
    if (adjusted > 32767) adjusted = 32767;
    unsigned char exponent = numBits[(adjusted>>7)&0xFF] - 1;
-   unsigned char mantissa = (adjusted >> (exponent + 3)) & 0xF;
+   unsigned char mantissa = (unsigned char)((adjusted >> (exponent + 3)) & 0xF);
    return ~(sign | (exponent << 4) | mantissa);
 }
 
@@ -107,7 +110,7 @@ AudioByte ALawEncode(AudioSample s)
    signed long adjusted = static_cast<long>(s)+8L; // Round it
    if (adjusted > 32767) adjusted = 32767; // Clip it
    unsigned char exponent = numBits[(adjusted>>8)&0x7F];
-   unsigned char mantissa = (adjusted >> (exponent + 4)) & 0xF;
+   unsigned char mantissa = (unsigned char)((adjusted >> (exponent + 4)) & 0xF);
    return sign | (((exponent << 4) | mantissa) ^ 0x55);
 }
 

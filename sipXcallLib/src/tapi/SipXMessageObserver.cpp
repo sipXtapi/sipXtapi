@@ -1,3 +1,19 @@
+// Copyright 2008 AOL LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA. 
 //
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -71,31 +87,13 @@ UtlBoolean SipXMessageObserver::handleMessage(OsMsg& rMsg)
                 bRet = TRUE ;
                 break ;
             default:
-                if ( rMsg.getMsgSubType() == OsEventMsg::NOTIFY)
-                {
-                     SIPX_CALL_DATA* pData = NULL;
-                     OsTimer* timer = NULL;
- 
-                     pEventMsg->getUserData((int&)pData);
-                     pEventMsg->getEventData((int&)timer);
- 
-                     if(timer)
-                     {
-                         timer->stop();
-                         delete timer;
-                         timer = NULL;
-                     }
-                     if(pData)
-                     {
-                         if (pData->pMutex)
-                         {
-                            pData->pMutex->acquireWrite();
-                            destroyCallData(pData) ;
-                            pData = NULL;
-                         }
-                     }
-                }
-               break;                
+               if (rMsg.getMsgSubType() == OsEventMsg::NOTIFY)
+               {
+                  // this shouldn't be used at all
+                  // (removed some timer deletion code here)
+                  assert(false);
+               }
+               break;
         }                
     }
     else
@@ -163,8 +161,6 @@ bool SipXMessageObserver::handleIncomingInfoMessage(SipMessage* pMessage)
         //if (0 != hLine)
         if (!pMessage->isResponse())
         {
-            
-        
             // find call
             UtlString callId;
             pMessage->getCallIdField(&callId);
@@ -200,8 +196,11 @@ bool SipXMessageObserver::handleIncomingInfoMessage(SipMessage* pMessage)
             UtlString body;
             int dummyLength = pMessage->getContentLength();
             const HttpBody* pBody = pMessage->getBody();
-            pBody->getBytes(&body, &dummyLength);    
-            pInfoData->infoData.pContent = body.data();
+            if (pBody)
+            {
+               pBody->getBytes(&body, &dummyLength);    
+               pInfoData->infoData.pContent = body.data();
+            }
             
             // set the Instance
             pInfoData->pInst = pInst;
@@ -217,6 +216,7 @@ bool SipXMessageObserver::handleIncomingInfoMessage(SipMessage* pMessage)
                 EVENT_LISTENER_DATA *pData = (EVENT_LISTENER_DATA*) ptr->getValue();
                 if (pData->pInst == pInfoData->pInst)
                 {
+                    sipxLogEvent(pData, EVENT_CATEGORY_INFO, &(pInfoData->infoData), pData->pUserData) ;
                     pData->pCallbackProc(EVENT_CATEGORY_INFO, &(pInfoData->infoData), pData->pUserData);
                 }
             }
@@ -280,6 +280,7 @@ bool SipXMessageObserver::handleIncomingInfoStatus(SipMessage* pSipMessage)
             EVENT_LISTENER_DATA *pData = (EVENT_LISTENER_DATA*) ptr->getValue();
             if (pInfoData->pInst == pData->pInst)
             {
+                sipxLogEvent(pData, EVENT_CATEGORY_INFO_STATUS, &infoStatus, pData->pUserData) ;
                 pData->pCallbackProc(EVENT_CATEGORY_INFO_STATUS, &infoStatus, pData->pUserData);
             }
         }
@@ -297,71 +298,83 @@ bool SipXMessageObserver::handleIncomingInfoStatus(SipMessage* pSipMessage)
 
 bool SipXMessageObserver::handleStunOutcome(OsEventMsg* pMsg) 
 {
-    SIPX_CONTACT_ADDRESS sipxContact; // contact structure for notifying
-                                      // sipxtapi event listeners
-    SIPX_CONTACT_ADDRESS* pContact = NULL;
-    pMsg->getEventData((int&)pContact) ;
-
     SIPX_CONFIG_INFO eventInfo ;
     memset(&eventInfo, 0, sizeof(SIPX_CONFIG_INFO)) ;
     eventInfo.nSize = sizeof(SIPX_CONFIG_INFO) ;
-    if (pContact)
+
+    SIPX_CONTACT_ADDRESS sipxContact;
+    NAT_CLASSIFICATION_TYPE natType = NAT_CLASSIFICATION_SERVER_ERROR;
+
+    OsNatOutcomeEvent* pEvent ;
+    pMsg->getEventData((int&)pEvent) ;
+    if (pEvent)
     {
-        // first, find the user-agent, and add the contact to
-        // the user-agent's db
-        SIPX_INSTANCE_DATA* pInst = (SIPX_INSTANCE_DATA*) mhInst;
-        assert(pInst != NULL) ;
-        pInst->pSipUserAgent->addContactAddress(*pContact);
-
-        // If we have an external transport, also create a record for the 
-        // external transport
-        SIPX_CONTACT_ADDRESS externalTransportContact ;
-        SIPX_CONTACT_ADDRESS* pNewContact = NULL ;
-
-        // TODO: At the point where we support multiple external 
-        // transports, this code needs to interate through ALL of
-        // the external transports.
-        if (pInst->pSipUserAgent->getContactDb().getRecordForAdapter(externalTransportContact, pContact->cInterface, CONTACT_LOCAL, TRANSPORT_CUSTOM))
+        switch (pEvent->getType())
         {
-            pNewContact = new SIPX_CONTACT_ADDRESS(externalTransportContact) ;
-            pNewContact->eContactType = CONTACT_NAT_MAPPED ;
-            pNewContact->id = 0 ;            
-            strcpy(pNewContact->cIpAddress, pContact->cIpAddress);
-            pNewContact->iPort = pContact->iPort ;
-            pInst->pSipUserAgent->addContactAddress(*pNewContact) ;
-        }
-                
-        // Fire off an event for the STUN contact (normal)
-        sipxContact.id = pContact->id;
-        sipxContact.eContactType = CONTACT_NAT_MAPPED;
-        strcpy(sipxContact.cInterface, pContact->cInterface);
-        strcpy(sipxContact.cIpAddress, pContact->cIpAddress);
-        sipxContact.iPort = pContact->iPort;               
-        eventInfo.pData = &sipxContact;
-        eventInfo.event = CONFIG_STUN_SUCCESS ;
-        sipxFireEvent(this, EVENT_CATEGORY_CONFIG, &eventInfo) ;        
-        delete pContact;
+            case NET_NOE_STUN_RESULTS:
+                {
+                    pEvent->getContact(&sipxContact) ;
+                    // first, find the user-agent, and add the contact to
+                    // the user-agent's db
+                    SIPX_INSTANCE_DATA* pInst = (SIPX_INSTANCE_DATA*) mhInst;
+                    assert(pInst != NULL) ;
+                    pInst->pSipUserAgent->addContactAddress(sipxContact);
 
-        // Fire off an event for the STUN contact (external transport)
-        if (pNewContact)
-        {
-            sipxContact.id = pNewContact->id;
-            sipxContact.eContactType = CONTACT_NAT_MAPPED;
-            strcpy(sipxContact.cInterface, pNewContact->cInterface);
-            strcpy(sipxContact.cIpAddress, pNewContact->cIpAddress);                        
-            sipxContact.iPort = pNewContact->iPort;                
-            eventInfo.pData = &sipxContact;
-            eventInfo.event = CONFIG_STUN_SUCCESS ;
-            sipxFireEvent(this, EVENT_CATEGORY_CONFIG, &eventInfo) ;
-            delete pNewContact;
-        }
-    }
-    else
-    {
+                    // If we have an external transport, also create a record for the 
+                    // external transport
+                    SIPX_CONTACT_ADDRESS externalTransportContact ;
+                    SIPX_CONTACT_ADDRESS* pNewContact = NULL ;
+
+                   // TODO: At the point where we support multiple external 
+                    // transports, this code needs to interate through ALL of
+                   // the external transports.
+                   if (pInst->pSipUserAgent->getContactDb().getRecordForAdapter(
+                            externalTransportContact, sipxContact.cInterface, 
+                            CONTACT_LOCAL, TRANSPORT_CUSTOM))
+                   {
+                       pNewContact = new SIPX_CONTACT_ADDRESS(externalTransportContact) ;
+                       pNewContact->eContactType = CONTACT_NAT_MAPPED ;
+                       pNewContact->id = 0 ;            
+                       strcpy(pNewContact->cIpAddress, sipxContact.cIpAddress);
+                       pNewContact->iPort = sipxContact.iPort ;
+                       pInst->pSipUserAgent->addContactAddress(*pNewContact) ;
+                   }
+              
+                   // Fire off an event for the STUN contact (normal)
+                   eventInfo.pData = &sipxContact;
+                   eventInfo.event = CONFIG_STUN_SUCCESS ;
+                   sipxFireEvent(this, EVENT_CATEGORY_CONFIG, &eventInfo) ;        
+
+                   // Fire off an event for the STUN contact (external transport)
+                   if (pNewContact)
+                   {
+                       sipxContact.id = pNewContact->id;
+                       sipxContact.eContactType = CONTACT_NAT_MAPPED;
+                       strcpy(sipxContact.cInterface, pNewContact->cInterface);
+                       strcpy(sipxContact.cIpAddress, pNewContact->cIpAddress);                        
+                       sipxContact.iPort = pNewContact->iPort;                
+                       eventInfo.pData = &sipxContact;
+                       eventInfo.event = CONFIG_STUN_SUCCESS ;
+                       sipxFireEvent(this, EVENT_CATEGORY_CONFIG, &eventInfo) ;
+                       delete pNewContact;
+                   }
+               }
+               break ;
+            case NET_NOE_STUN_FAILURE:
         eventInfo.event = CONFIG_STUN_FAILURE ;
         sipxFireEvent(this, EVENT_CATEGORY_CONFIG, &eventInfo) ;
+                break ;
+            case NET_NOE_NAT_CLASSIFICATION:
+                eventInfo.event = CONFIG_NAT_CLASSIFICATION ;
+                pEvent->getClassification(&natType) ;
+                eventInfo.pData = (void*) natType ;
+                sipxFireEvent(this, EVENT_CATEGORY_CONFIG, &eventInfo) ;
+                break ;
+            default:
+                assert(false);
+                break ;
+        }
+        delete pEvent ;
     }
-    
-
     return true ;
 }
