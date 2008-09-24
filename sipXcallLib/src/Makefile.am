@@ -33,9 +33,6 @@ libsipXcall_la_LIBADD = \
         @SIPXPORT_LIBS@ \
         @SIPXMEDIA_PLUGIN_LIBS@ \
         -lstdc++ 
-#        @SIPXMEDIA_VE_LIBS@ 
-#	@GIPS_VE_OBJS@ @SIPXTACK_LIBS@ @SIPXPORT_LIBS@ -lstdc++
-#	@SIPXMEDIA_LIBS@ @SIPXTACK_LIBS@ @SIPXPORT_LIBS@ -lstdc++
 
 libsipXtapi_la_LIBADD = \
 	@SIPXTACK_STATIC_LIBS@ \
@@ -44,16 +41,12 @@ libsipXtapi_la_LIBADD = \
         -lstdc++ -lpthread -lresolv -lpcre \
         @SIPXPORT_STATIC_LIBS@ \
         $(SECURITY_LIBADD)
-#        @SIPXMEDIA_VE_STATIC_LIBS@ 
 
 libsipXcall_la_CXXFLAGS = \
 	-DSIPX_CONFDIR=\"@SIPX_CONFDIR@\" 
-#    @VIDEO_DEFINE@ 
 
 libsipXtapi_la_CXXFLAGS = \
     -DSIPX_CONFDIR=\"@SIPX_CONFDIR@\" 
-#    -DEXCLUDE_STREAMING \
-#    @VIDEO_DEFINE@
 
 libsipXcall_la_SOURCES = \
     ../config/sipxcalllib-buildstamp.h \
