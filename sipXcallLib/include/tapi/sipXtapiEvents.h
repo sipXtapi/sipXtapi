@@ -431,7 +431,7 @@ enum SIPX_INFOSTATUS_EVENT
 /**
  * Enumeration of possible configuration events
  */
-enum SIPX_CONFIG_EVENT
+typedef enum SIPX_CONFIG_EVENT
 {
     CONFIG_UNKNOWN = 0,           /**< Unknown configuration event */
     CONFIG_STUN_SUCCESS  = 40000, /**< A STUN binding has been obtained for signaling purposes.
@@ -450,7 +450,7 @@ enum SIPX_CONFIG_EVENT
     CONFIG_CALL_STATS   = 44000   /**< Event fired at the end of a call with various stats.
                                        Cast the pData memeber of SIPX_CONFIG_INFO to a 
                                        SIPX_CONFIG_CALLSTATS_INFO structure for more information */
-} ;
+} SIPX_CONFIG_EVENT ;
 
 
 /**

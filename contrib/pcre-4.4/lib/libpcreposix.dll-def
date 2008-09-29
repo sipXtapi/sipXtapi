@@ -1,0 +1,14 @@
+EXPORTS
+    pcre_callout @1 DATA
+    pcre_compile @2
+    pcre_config @3
+    pcre_exec @4
+    pcre_free @5 DATA
+    pcre_fullinfo @6
+    pcre_info @7
+    pcre_malloc @8 DATA
+    pcre_version @9
+    regcomp @10
+    regerror @11
+    regexec @12
+    regfree @13
