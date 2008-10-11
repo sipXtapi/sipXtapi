@@ -685,6 +685,8 @@ int local_main(int argc, char* argv[])
             {
                 SLEEP(200) ;
             }
+
+            sipxUnInitialize(hInst, true);
         }
         else
         {
@@ -695,8 +697,6 @@ int local_main(int argc, char* argv[])
     {
         usage(argv[0]) ;
     }
-
-    sipxUnInitialize(hInst, true);
 
 #if defined(_WIN32) && defined(VIDEO)
     PostMessage(hMain, WM_CLOSE, 0, 0L);
