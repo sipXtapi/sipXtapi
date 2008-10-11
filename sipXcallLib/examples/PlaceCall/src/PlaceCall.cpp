@@ -997,13 +997,13 @@ int local_main(int argc, char* argv[])
             }
         }        
         sipxEventListenerRemove(g_hInst, EventCallBack, NULL) ;
+
+        sipxUnInitialize(g_hInst, true);
     }
     else
     {
         usage(argv[0]) ;
     }
-
-    sipxUnInitialize(g_hInst, true);
 
 #if defined(_WIN32) && defined(VIDEO)
     PostMessage(hMain, WM_CLOSE, 0, 0L);
