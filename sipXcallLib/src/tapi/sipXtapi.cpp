@@ -6528,13 +6528,15 @@ SIPXTAPI_API SIPX_RESULT sipxConfigGetNumAudioCodecs(const SIPX_INST hInst,
 
     if (pInst && pNumCodecs)
     {
-        assert(pInst->audioCodecSetting.bInitialized);
-
         if (pInst->audioCodecSetting.bInitialized)
         {
             *pNumCodecs = pInst->audioCodecSetting.numCodecs;
-            rc = SIPX_RESULT_SUCCESS;
         }
+        else
+        {
+            *pNumCodecs = 0;
+        }
+        rc = SIPX_RESULT_SUCCESS;
     }
     OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
         "sipxConfigGetNumAudioCodecs hInst=%p numCodecs=%d",
