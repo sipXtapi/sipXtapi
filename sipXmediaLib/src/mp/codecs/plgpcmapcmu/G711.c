@@ -11,6 +11,8 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
+#ifdef USE_BUGGY_G711 // [
+
 // APPLICATION INCLUDES
 #include <mp/codecs/PlgDefsV1.h>
 
@@ -268,4 +270,4 @@ int G711U_Encoder(int numSamples,
    return 0;
 }
 
-
+#endif // USE_BUGGY_G711 ]

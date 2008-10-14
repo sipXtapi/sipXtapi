@@ -1,10 +1,27 @@
 EXPORTS
+
+; G.711
+; linear_to_ulaw - inline
+; ulaw_to_linear - inline
+; linear_to_alaw - inline
+; alaw_to_linear - inline
+alaw_to_ulaw
+ulaw_to_alaw
+g711_decode
+g711_encode
+g711_transcode
+g711_init
+g711_release
+
+; G.722
 g722_encode_init
 g722_encode_release
 g722_encode
 g722_decode_init
 g722_decode_release
 g722_decode
+
+; G.726
 g726_init
 g726_release
 g726_encode

@@ -15,6 +15,12 @@
 
 // APPLICATION INCLUDES
 #include <mp/codecs/PlgDefsV1.h>
+#ifndef USE_BUGGY_G711 // [
+#  ifdef _MSC_VER // [
+#     define __inline__ inline // For gcc compatibility
+#   endif // _MSC_VER ]
+#  include <spandsp/g711.h>
+#endif // !USE_BUGGY_G711 ]
 
 // EXTERNAL VARIABLES
 // CONSTANTS
@@ -22,8 +28,10 @@
 typedef audio_sample_t MpAudioSample;
 
 // EXTERNAL FUNCTIONS
-extern int G711A_Decoder(int numSamples, const uint8_t* inBuff, MpAudioSample* outBuf);
-extern int G711A_Encoder(int numSamples, const MpAudioSample* inBuff, uint8_t* outBuf);
+#ifdef USE_BUGGY_G711 // [
+   extern int G711A_Decoder(int numSamples, const uint8_t* inBuff, MpAudioSample* outBuf);
+   extern int G711A_Encoder(int numSamples, const MpAudioSample* inBuff, uint8_t* outBuf);
+#endif // USE_BUGGY_G711 ]
 
 // DEFINES
 #define DECODER_HANDLE     ((void*)1)
@@ -34,9 +42,9 @@ extern int G711A_Encoder(int numSamples, const MpAudioSample* inBuff, uint8_t* o
 static const struct MppCodecInfoV1_1 sgCodecInfo = 
 {
 ///////////// Implementation and codec info /////////////
-   "SIPFoundry",                // codecManufacturer
+   "SpanDSP",                   // codecManufacturer
    "G.711A",                    // codecName
-   "1.0",                       // codecVersion
+   "0.0.5pre4",                 // codecVersion
    CODEC_TYPE_SAMPLE_BASED,     // codecType
 
 /////////////////////// SDP info ///////////////////////
@@ -106,7 +114,19 @@ CODEC_API int PLG_DECODE_V1(sipxPcma)(void* handle, const void* pCodedData,
       return RPLG_INVALID_ARGUMENT;
 
    samples = min(cbCodedPacketSize, cbBufferSize);
+#ifdef USE_BUGGY_G711 // [
    G711A_Decoder(samples, (uint8_t*)pCodedData, (MpAudioSample *)pAudioBuffer);
+#else // USE_BUGGY_G711 ][
+   {
+      int16_t *pSamples = (int16_t*)pAudioBuffer;
+      uint8_t *pEncoded = (uint8_t*)pCodedData;
+      int i;
+      for (i=0; i<samples; i++)
+      {
+         pSamples[i] = alaw_to_linear(pEncoded[i]);
+      }
+   }
+#endif // USE_BUGGY_G711 ]
    *pcbCodedSize = samples;
 
    return RPLG_SUCCESS;
@@ -120,7 +140,19 @@ CODEC_API int PLG_ENCODE_V1(sipxPcma)(void* handle, const void* pAudioBuffer,
    if (handle != ENCODER_HANDLE)
       return RPLG_BAD_HANDLE;
 
+#ifdef USE_BUGGY_G711 // [
    G711A_Encoder(cbAudioSamples, (MpAudioSample *)pAudioBuffer, (uint8_t*)pCodedData);
+#else // USE_BUGGY_G711 ][
+   {
+      int16_t *pSamples = (int16_t*)pAudioBuffer;
+      uint8_t *pEncoded = (uint8_t*)pCodedData;
+      unsigned i;
+      for (i=0; i<cbAudioSamples; i++)
+      {
+         pEncoded[i] = linear_to_alaw(pSamples[i]);
+      }
+   }
+#endif // USE_BUGGY_G711 ]
    *pcbCodedSize = cbAudioSamples;
 
    *pbSendNow = FALSE;
