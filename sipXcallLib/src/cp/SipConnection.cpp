@@ -4274,20 +4274,20 @@ UtlBoolean SipConnection::getInitialSdpCodecs(const SipMessage* sdpMessage,
 #endif
 
       sdpBody->getBestAudioCodecs(supportedCodecsArray,
-                   numCodecsInCommon,
-                   commonCodecsForEncoder,
-                   commonCodecsForDecoder,
-                   remoteAddress,
-                   remotePort,
-                   remoteRtcpPort,
-                   remoteVideoRtpPort,
-                   remoteVideoRtcpPort,
-                   localSrtpParams,
-                   matchingSrtpParams,
-                   localBandwidth,
-                   matchingBandwidth,
-                   localVideoFramerate,
-                   matchingVideoFramerate);
+                                  numCodecsInCommon,
+                                  commonCodecsForEncoder,
+                                  commonCodecsForDecoder,
+                                  remoteAddress,
+                                  remotePort,
+                                  remoteRtcpPort,
+                                  remoteVideoRtpPort,
+                                  remoteVideoRtcpPort,
+                                  localSrtpParams,
+                                  matchingSrtpParams,
+                                  localBandwidth,
+                                  matchingBandwidth,
+                                  localVideoFramerate,
+                                  matchingVideoFramerate);
 
       mpMediaInterface->setSrtpParams(matchingSrtpParams);
 

@@ -1922,14 +1922,15 @@ void SdpBody::addCodecsAnswer(int iNumAddresses,
       {
          // Check for unsupported stuff
          // i.e. non audio media, non RTP transported media, etc
-          if((mediaType.compareTo(SDP_AUDIO_MEDIA_TYPE, UtlString::ignoreCase) != 0 &&
-                mediaType.compareTo(SDP_VIDEO_MEDIA_TYPE, UtlString::ignoreCase) != 0) ||
-                mediaPort <= 0 || mediaPortPairs <= 0 ||
-                (
-                    mediaTransportType.compareTo(SDP_RTP_MEDIA_TRANSPORT_TYPE, UtlString::ignoreCase) != 0 &&
-                    mediaTransportType.compareTo(SDP_RTP_TCP_MEDIA_TRANSPORT_TYPE, UtlString::ignoreCase) != 0 &&
-                    mediaTransportType.compareTo(SDP_SRTP_MEDIA_TRANSPORT_TYPE, UtlString::ignoreCase) != 0
-                )
+          if(  (  mediaType.compareTo(SDP_AUDIO_MEDIA_TYPE, UtlString::ignoreCase) != 0
+               && mediaType.compareTo(SDP_VIDEO_MEDIA_TYPE, UtlString::ignoreCase) != 0
+               )
+            || mediaPort <= 0
+            || mediaPortPairs <= 0
+            || (  mediaTransportType.compareTo(SDP_RTP_MEDIA_TRANSPORT_TYPE, UtlString::ignoreCase) != 0
+               && mediaTransportType.compareTo(SDP_RTP_TCP_MEDIA_TRANSPORT_TYPE, UtlString::ignoreCase) != 0
+               && mediaTransportType.compareTo(SDP_SRTP_MEDIA_TRANSPORT_TYPE, UtlString::ignoreCase) != 0
+               )
             )
          {
             mediaPort = 0;
@@ -1970,8 +1971,7 @@ void SdpBody::addCodecsAnswer(int iNumAddresses,
       mediaIndex++;
    }
 
-   SdpCodecList codecFactory(numRtpCodecs,
-                                    rtpCodecs);
+   SdpCodecList codecFactory(numRtpCodecs, rtpCodecs);
 
    supportedPayloadCount = 0;
    sdpRequest->getCodecsInCommon(numAudioPayloadTypes,
@@ -2011,22 +2011,26 @@ void SdpBody::addCodecsAnswer(int iNumAddresses,
             }
         }
         addMediaData(SDP_AUDIO_MEDIA_TYPE, rtpAudioPorts[0], 1,
-                    audioTransportType.data(), destIndex,
-                    supportedPayloadTypes);
+                     audioTransportType.data(), destIndex,
+                     supportedPayloadTypes);
         if (commonAudioSrtpParams.securityLevel)
         {
             addSrtpCryptoField(commonAudioSrtpParams);
         }
 
-        if (    (audioTransportType.compareTo(SDP_RTP_MEDIA_TRANSPORT_TYPE, UtlString::ignoreCase) == 0) ||
-                (audioTransportType.compareTo(SDP_RTP_TCP_MEDIA_TRANSPORT_TYPE, UtlString::ignoreCase) == 0) ||
-                (audioTransportType.compareTo(SDP_SRTP_MEDIA_TRANSPORT_TYPE, UtlString::ignoreCase) == 0))
+        if (  audioTransportType.compareTo(SDP_RTP_MEDIA_TRANSPORT_TYPE, UtlString::ignoreCase) == 0
+           || audioTransportType.compareTo(SDP_RTP_TCP_MEDIA_TRANSPORT_TYPE, UtlString::ignoreCase) == 0
+           || audioTransportType.compareTo(SDP_SRTP_MEDIA_TRANSPORT_TYPE, UtlString::ignoreCase) == 0
+           )
         {
             // It is assumed that rtcp is the odd port immediately after 
             // the rtp port.  If that is not true, we must add a parameter 
             // to specify the rtcp port.
-            if ((rtcpAudioPorts[0] > 0) && ((rtcpAudioPorts[0] != rtpAudioPorts[0] + 1) 
-                    || (rtcpAudioPorts[0] % 2) == 0))
+            if (  rtcpAudioPorts[0] > 0
+               && (  rtcpAudioPorts[0] != rtpAudioPorts[0] + 1
+                  || (rtcpAudioPorts[0] % 2) == 0
+                  )
+               )
             {
                 char cRtcpBuf[32] ;
                 sprintf(cRtcpBuf, "rtcp:%d", rtcpAudioPorts[0]) ;
