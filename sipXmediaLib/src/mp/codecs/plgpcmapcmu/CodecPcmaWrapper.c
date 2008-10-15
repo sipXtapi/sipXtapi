@@ -17,7 +17,7 @@
 #include <mp/codecs/PlgDefsV1.h>
 #ifndef USE_BUGGY_G711 // [
 #  ifdef _MSC_VER // [
-#     define __inline__ inline // For gcc compatibility
+#     define __inline__ __inline // For gcc compatibility
 #   endif // _MSC_VER ]
 #  include <spandsp/g711.h>
 #endif // !USE_BUGGY_G711 ]
