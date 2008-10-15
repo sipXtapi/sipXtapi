@@ -85,39 +85,6 @@ static __inline__ int16_t dc_restore_estimate(dc_restore_state_t *dc)
 }
 /*- End of function --------------------------------------------------------*/
 
-#ifdef _MSC_VER
-__inline float rintf(float flt)
-{
-	_asm
-	{	fld flt
-		frndint
-	}
-}
-/*- End of function --------------------------------------------------------*/
-
-__inline double rint(double dbl)
-{
-    __asm 
-	{
-        fld dbl
-        frndint
-    }
-}
-/*- End of function --------------------------------------------------------*/
-
-__inline long lrintf(float flt)
-{
-	long retval;
-
-	_asm
-	{	fld flt
-		fistp retval
-	}
-	return retval;
-}
-/*- End of function --------------------------------------------------------*/
-#endif
-
 static __inline__ int16_t saturate(int32_t amp)
 {
     int16_t amp16;
