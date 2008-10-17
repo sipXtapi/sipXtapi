@@ -112,11 +112,12 @@ public:
      /// Get a codec given the payload type id.
    const SdpCodec* getCodecByType(int payloadTypeId);
 
-     /// Get a codec given the MIME type and subtype.
+     /// Get a codec given the MIME type, subtype and other parameters.
    const SdpCodec* getCodec(const char* MIMEType, 
                             const char* MIMESubType,
                             unsigned sampleRate,
-                            unsigned numChannels);
+                            unsigned numChannels,
+                            const UtlString &fmtp);
 
      /// Get the number of codecs.
    int getCodecCount();

@@ -1265,6 +1265,10 @@ void SdpBody::getCodecsInCommon(int audioPayloadIdCount,
       if(getPayloadRtpMap(audioPayloadTypes[typeIndex],
                           mimeSubtype, sampleRate, numChannels))
       {
+         int codecMode;
+         getPayloadFormat(audioPayloadTypes[typeIndex], fmtp, codecMode, 
+                          numVideoSizes, videoSizes);
+  
          // Workaround RFC bug with G.722 samplerate.
          // Read RFC 3551 Section 4.5.2 "G722" for details.
          if (mimeSubtype.compareTo("g722", UtlString::ignoreCase) == 0)
@@ -1276,16 +1280,16 @@ void SdpBody::getCodecsInCommon(int audioPayloadIdCount,
          matchingCodec = localRtpCodecs.getCodec(MIME_TYPE_AUDIO,
                                                  mimeSubtype.data(),
                                                  sampleRate,
-                                                 numChannels);
+                                                 numChannels,
+                                                 fmtp);
          if (matchingCodec != NULL)
          {
-            commonCodec = TRUE;
             int frameSize = 0;
+            commonCodec = TRUE;
 
             if (matchingCodec->getCodecType() == SdpCodec::SDP_CODEC_ILBC)
             {
-                getPayloadFormat(audioPayloadTypes[typeIndex], fmtp, frameSize, 
-                                 numVideoSizes, videoSizes);
+                frameSize = codecMode;
                 if (frameSize == 20 || frameSize == 30 || frameSize == 0)
                 {
                    if (frameSize == 0)

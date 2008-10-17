@@ -318,11 +318,13 @@ const SdpCodec* SdpCodecList::getCodecByType(int payloadTypeId)
 const SdpCodec* SdpCodecList::getCodec(const char* mimeType, 
                                        const char* mimeSubType,
                                        unsigned sampleRate,
-                                       unsigned numChannels)
+                                       unsigned numChannels,
+                                       const UtlString &fmtp)
 {
     const SdpCodec* codecFound = NULL;
     UtlString foundMimeType;
     UtlString foundMimeSubType;
+    UtlString foundFmtp;
     UtlString mimeTypeString(mimeType ? mimeType : "");
     mimeTypeString.toLower();
     UtlString mimeSubTypeString(mimeSubType ? mimeSubType : "");
@@ -336,11 +338,18 @@ const SdpCodec* SdpCodecList::getCodec(const char* mimeType,
         codecFound->getMediaType(foundMimeType);
         if(foundMimeType.compareTo(mimeTypeString, UtlString::ignoreCase) == 0)
         {
-            // and if the mime subtype matches
+            // and if the mime subtype, sample rate, number of channels
+            // and fmtp match.
+            // TODO:: checking for fmtp match must be made intelligent, e.g. by
+            //        defining isCompatible(fmtp) method for SdpCodec. Checking
+            //        by string comparison leads to errors when there are two
+            //        or more parameters and they're presented in random order.
             codecFound->getEncodingName(foundMimeSubType);
+            codecFound->getSdpFmtpField(foundFmtp);
             if(  (foundMimeSubType.compareTo(mimeSubTypeString, UtlString::ignoreCase) == 0)
               && (sampleRate == -1 || codecFound->getSampleRate() == sampleRate)
               && (numChannels == -1 || codecFound->getNumChannels() == numChannels)
+              && (fmtp == foundFmtp)
               && (codecFound->getCPUCost() <= mCodecCPULimit))
             {
                 // we found a match
