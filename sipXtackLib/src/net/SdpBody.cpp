@@ -1311,8 +1311,11 @@ void SdpBody::getCodecsInCommon(int audioPayloadIdCount,
                commonCodecsForEncoder[numCodecsInCommon] = new SdpCodec(*matchingCodec);
                commonCodecsForDecoder[numCodecsInCommon] = new SdpCodec(*matchingCodec);
 
+               // Let both decoder and encoder use the same payload type - this
+               // is a friendly thing to do and minimize problems with other
+               // clients.
                commonCodecsForEncoder[numCodecsInCommon]->setCodecPayloadFormat(audioPayloadTypes[typeIndex]);
-               // decoder uses our own SDP payload IDs, not remote
+               commonCodecsForDecoder[numCodecsInCommon]->setCodecPayloadFormat(audioPayloadTypes[typeIndex]);
 
                if (frameSize)
                {
