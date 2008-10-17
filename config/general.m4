@@ -1073,8 +1073,9 @@ AC_DEFUN([CHECK_SPEEX],
         AC_MSG_RESULT([using svn version])
         SPEEX_ROOT='${top_srcdir}/../sipXmediaLib/contrib/libspeex'
         SPEEX_CFLAGS="-I${SPEEX_ROOT}/include"
-        SPEEX_LIBS='${top_srcdir}/../sipXmediaLib/bin/libspeex.la'
-        SPEEX_STATIC_LIB="${SPEEX_ROOT}/libspeex/.libs/libspeex.a"
+        SPEEX_CFLAGS+=' -I${top_builddir}/contrib/libspeex/include'
+        SPEEX_STATIC_LIB='${top_builddir}/contrib/libspeex/libspeex/.libs/libspeex.a'
+        SPEEX_LIBS=${SPEEX_STATIC_LIB}
         AC_SUBST(SPEEX_ROOT)
         AC_SUBST(SPEEX_CFLAGS)
         AC_SUBST(SPEEX_LIBS) 
@@ -1708,14 +1709,14 @@ AC_DEFUN([CHECK_GRAPH_INTERFACE],
 AC_DEFUN([CHECK_STREAM_PLAYER],
 [
     AC_ARG_ENABLE([stream-player],
-		  [AC_HELP_STRING([--disable-stream-player],
-				  [Disable stream player (removes sipXtack dependency on media layer) @<:@default=no@:>@])],
-		  [ case "${enableval}" in 
-			no)  disable_stream_player=true ;;                             
-			yes) disable_stream_player=false ;;
-			*) AC_MSG_ERROR(bad value ${enableval} for --disable-media-player) ;;
-		    esac],
-		  [ disable_stream_player=false ])
+        [AC_HELP_STRING([--disable-stream-player],
+            [Disable stream player (removes sipXtack dependency on media layer) @<:@default=no@:>@])],
+            [ case "${enableval}" in
+                no)  disable_stream_player=true ;;
+                yes) disable_stream_player=false ;;
+                *) AC_MSG_ERROR(bad value ${enableval} for --disable-media-player) ;;
+                esac],
+            [ disable_stream_player=false ])
     AM_CONDITIONAL(DISABLE_STREAM_PLAYER, test x$disable_stream_player = xtrue)
 ])dnl
 
