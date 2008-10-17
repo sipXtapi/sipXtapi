@@ -405,6 +405,13 @@ UtlBoolean MprDecode::doProcessFrame(MpBufPtr inBufs[],
          }
       }
       dprintf("]");
+      // If DTMF packet is received before any audio packet, PLC is not ready
+      // and does not produce any samples. We need to gracefully handle this
+      // situation instead of infinite looping.
+      if (!rtp.isValid() && decodedSamples==0)
+      {
+         break;
+      }
 
       // Step 3. Get signaling data from packet if any.
       if (rtp.isValid())
