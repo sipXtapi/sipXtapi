@@ -39,28 +39,33 @@ static const int RESOURCE_MSG_TYPE = MpFlowGraphMsg::RESOURCE_SPECIFIC_START;
 /* ============================ INQUIRY =================================== */
 
 // Constructor
-MpTestResource::MpTestResource(const UtlString& rName
-                              , int minInputs, int maxInputs
-                              , int minOutputs, int maxOutputs)
-:  MpAudioResource(rName, minInputs, maxInputs, minOutputs, maxOutputs),
-   mGenOutBufMask(0),
-   mProcessInBufMask(0),
-   mLastMsg(0),
-   mProcessedCnt(0),
-   mMsgCnt(0),
-   mSignalType(MP_TEST_SIGNAL_NULL),
-   mpSignalPeriod(NULL),
-   mpSignalAmplitude(NULL)
+MpTestResource::MpTestResource(const UtlString& rName,
+                               int minInputs,
+                               int maxInputs,
+                               int minOutputs,
+                               int maxOutputs)
+: MpAudioResource(rName, minInputs, maxInputs, minOutputs, maxOutputs)
+, mGenOutBufMask(0)
+, mProcessInBufMask(0)
+, mLastMsg(0)
+, mProcessedCnt(0)
+, mMsgCnt(0)
+, mSignalType(MP_TEST_SIGNAL_NULL)
+, mpSignalPeriod(NULL)
+, mpSignalAmplitude(NULL)
+, mpSpeechType(NULL)
 {
    mLastDoProcessArgs.inBufs = new MpBufPtr[mMaxInputs];
    mLastDoProcessArgs.outBufs = new MpBufPtr[mMaxOutputs];
    mpSignalPeriod = new int[maxOutputs];
    mpSignalAmplitude = new int[maxOutputs];
+   mpSpeechType = new MpSpeechType[maxOutputs];
    int outIndex;
    for(outIndex = 0; outIndex < maxOutputs; outIndex++)
    {
       mpSignalPeriod[outIndex] = 0;
       mpSignalAmplitude[outIndex] = 0;
+      mpSpeechType[outIndex] = MP_SPEECH_UNKNOWN;
    }
 }
 
@@ -121,6 +126,12 @@ void MpTestResource::setSignalAmplitude(int outputIndex, int maxMinValue)
 {
    assert(outputIndex < maxOutputs());
    mpSignalAmplitude[outputIndex] = maxMinValue;
+}
+
+void MpTestResource::setSpeechType(int outputIndex, MpSpeechType speech)
+{
+   assert(outputIndex < maxOutputs());
+   mpSpeechType[outputIndex] = speech;
 }
 
 /* ============================ ACCESSORS ================================= */
@@ -249,7 +260,9 @@ UtlBoolean MpTestResource::doProcessFrame(MpBufPtr inBufs[],
                                          / samplesPerFrame;
                }
             }
-            outBufs[i] = pBuf;
+
+            pBuf->setSpeechType(mpSpeechType[i]);
+            outBufs[i] = pBuf;            
          }
       }
    }

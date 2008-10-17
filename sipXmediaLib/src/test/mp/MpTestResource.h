@@ -116,6 +116,9 @@ public:
      /// Set amplitude of signal (for signal types, supporting amplitude).
    void setSignalAmplitude(int outputIndex, int maxMinValue);
 
+     /// Set speech type of signal, generated on outputs.
+   void setSpeechType(int outputIndex, MpSpeechType speech);
+
 //@}
 
 /* ============================ ACCESSORS ================================= */
@@ -159,6 +162,7 @@ protected:
    MpTestOutSignal mSignalType;       ///< Output signal type
    int*           mpSignalPeriod;     ///< Period of signal if supported (in samples)
    int*           mpSignalAmplitude;  ///< Magnitude of signal if supported
+   MpSpeechType*  mpSpeechType;       ///< Speech type of signal
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
