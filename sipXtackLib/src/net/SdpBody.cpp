@@ -490,6 +490,7 @@ UtlBoolean SdpBody::getPayloadFormat(int payloadType,
 
    numVideoSizes = 0;
    valueFmtp = 0;
+   fmtp.remove(0);
 
    while((nv = (NameValuePair*) iterator.findNext(&aFieldMatch)) != NULL)
    {
