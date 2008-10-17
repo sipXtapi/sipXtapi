@@ -1,5 +1,5 @@
 
-INCLUDES = -Iinclude
+INCLUDES = -Iinclude -I$(top_srcdir)/contrib/libilbc/include
 
 lib_LTLIBRARIES = libilbc.la
 
