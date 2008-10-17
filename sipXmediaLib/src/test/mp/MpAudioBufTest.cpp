@@ -8,6 +8,8 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
+#include <os/OsIntTypes.h>
+
 #include <cppunit/extensions/HelperMacros.h>
 #include <cppunit/TestCase.h>
 #include <sipxunit/TestUtilities.h>
