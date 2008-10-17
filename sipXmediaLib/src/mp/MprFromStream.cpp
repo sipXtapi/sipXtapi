@@ -11,6 +11,7 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
+#ifndef DISABLE_STREAM_PLAYER // [
 
 // SYSTEM INCLUDES
 #include <assert.h>
@@ -686,3 +687,4 @@ osPrintf("MpStreamFeeder destroy feeders\n") ;
 
 /* ============================ FUNCTIONS ================================= */
 
+#endif // DISABLE_STREAM_PLAYER ]

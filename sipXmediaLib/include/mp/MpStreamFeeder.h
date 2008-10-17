@@ -11,6 +11,7 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
+#ifndef DISABLE_STREAM_PLAYER // [
 
 #ifndef _MpStreamFeeder_h_
 #define _MpStreamFeeder_h_
@@ -218,3 +219,5 @@ private:
 /* ============================ INLINE METHODS ============================ */
 
 #endif  // _MpStreamFeeder_h_
+
+#endif // DISABLE_STREAM_PLAYER ]

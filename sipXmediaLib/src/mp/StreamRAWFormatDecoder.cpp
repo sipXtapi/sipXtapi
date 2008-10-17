@@ -8,6 +8,7 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
+#ifndef DISABLE_STREAM_PLAYER // [
 
 // SYSTEM INCLUDES
 //#include <...>
@@ -186,3 +187,5 @@ int StreamRAWFormatDecoder::run(void* pArgs)
 /* ============================ TESTING =================================== */
 
 /* ============================ FUNCTIONS ================================= */
+
+#endif // DISABLE_STREAM_PLAYER ]

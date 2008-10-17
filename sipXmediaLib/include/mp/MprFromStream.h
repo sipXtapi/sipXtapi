@@ -11,6 +11,7 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
+#ifndef DISABLE_STREAM_PLAYER // [
 
 #ifndef _MprFromStream_h_
 #define _MprFromStream_h_
@@ -198,3 +199,4 @@ private:
 
 #endif  /* _MprFromStream_h_ */
 
+#endif // DISABLE_STREAM_PLAYER ]

@@ -8,6 +8,7 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
+#ifndef DISABLE_STREAM_PLAYER // [
 
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
@@ -216,3 +217,4 @@ StreamBufferDataSource::operator=(const StreamBufferDataSource& rhs)
 
 /* ============================ FUNCTIONS ================================= */
 
+#endif // DISABLE_STREAM_PLAYER ]

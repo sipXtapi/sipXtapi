@@ -11,6 +11,7 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
+#ifndef DISABLE_STREAM_PLAYER // [
 
 #ifndef _StreamWAVFormatDecoder_h_
 #define _StreamWAVFormatDecoder_h_
@@ -135,3 +136,5 @@ private:
 /* ============================ INLINE METHODS ============================ */
 
 #endif  // _StreamWAVFormatDecoder_h_
+
+#endif // DISABLE_STREAM_PLAYER ]

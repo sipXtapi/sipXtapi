@@ -11,6 +11,7 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
+#ifndef DISABLE_STREAM_PLAYER // [
 
 #ifndef _StreamBufferDataSource_h_
 #define _StreamBufferDataSource_h_
@@ -132,3 +133,5 @@ private:
 /* ============================ INLINE METHODS ============================ */
 
 #endif  // _StreamBufferDataSource_h_
+
+#endif // DISABLE_STREAM_PLAYER ]

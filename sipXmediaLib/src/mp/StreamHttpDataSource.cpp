@@ -8,6 +8,7 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
+#ifndef DISABLE_STREAM_PLAYER // [
 
 // SYSTEM INCLUDES
 #include <stdlib.h>
@@ -569,3 +570,5 @@ UtlBoolean DataCallbackProc(char* pData,
      
    return pSource->deliverData(pData, iLength, iTrueLength) ;
 }
+
+#endif // [DISABLE_STREAM_PLAYER ]

@@ -8,6 +8,7 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
+#ifndef DISABLE_STREAM_PLAYER // [
 
 // SYSTEM INCLUDES
 #include <stdio.h>
@@ -24,7 +25,6 @@
 #include "os/OsBSem.h"
 #include "os/OsWriteLock.h"
 #include "os/OsNotification.h"
-#include "net/HttpMessage.h"
 
 #ifdef INCL_RAW_DECODER
 #include "mp/StreamRAWFormatDecoder.h"
@@ -626,3 +626,4 @@ void MpStreamFeeder::initDecodingSource()
 
 /* ============================ FUNCTIONS ================================= */
 
+#endif // DISABLE_STREAM_PLAYER ]

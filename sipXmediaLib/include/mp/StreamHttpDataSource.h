@@ -11,6 +11,7 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
+#ifndef DISABLE_STREAM_PLAYER // [
 
 #ifndef _StreamHttpDataSource_h_
 #define _StreamHttpDataSource_h_
@@ -182,3 +183,5 @@ private:
 /* ============================ INLINE METHODS ============================ */
 
 #endif  // _StreamHttpDataSource_h_
+
+#endif // DISABLE_STREAM_PLAYER ]

@@ -36,7 +36,9 @@
 #include "mp/StreamHttpDataSource.h"
 #include "mp/MpAudioWaveFileRead.h"
 
-#include <os/fstream>
+#ifndef DISABLE_STREAM_PLAYER // [
+#  include <os/fstream>
+#endif // DISABLE_STREAM_PLAYER ]
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES

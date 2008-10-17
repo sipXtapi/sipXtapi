@@ -8,6 +8,8 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
+#ifndef DISABLE_STREAM_PLAYER // [
+
 // SYSTEM INCLUDES
 #include <assert.h>
 
@@ -1010,3 +1012,5 @@ void MpStreamQueuePlayer::swapQueues(struct PlaylistQueue*& pQueue1,
 /* ============================ TESTING =================================== */
 
 /* ============================ FUNCTIONS ================================= */
+
+#endif // DISABLE_STREAM_PLAYER ]

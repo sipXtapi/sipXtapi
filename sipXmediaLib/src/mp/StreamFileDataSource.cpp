@@ -8,6 +8,7 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
+#ifndef DISABLE_STREAM_PLAYER // [
 
 // SYSTEM INCLUDES
 #include <assert.h>
@@ -253,3 +254,5 @@ StreamFileDataSource::operator=(const StreamFileDataSource& rhs)
 /* ============================ TESTING =================================== */
 
 /* ============================ FUNCTIONS ================================= */
+
+#endif // DISABLE_STREAM_PLAYER ]

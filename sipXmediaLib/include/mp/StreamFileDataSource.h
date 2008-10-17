@@ -11,6 +11,7 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
+#ifndef DISABLE_STREAM_PLAYER // [
 
 #ifndef _StreamFileDataSource_h_
 #define _StreamFileDataSource_h_
@@ -130,20 +131,4 @@ private:
 
 #endif  // _StreamFileDataSource_h_
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+#endif // DISABLE_STREAM_PLAYER ]

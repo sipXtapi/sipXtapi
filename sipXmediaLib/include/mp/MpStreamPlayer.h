@@ -15,6 +15,8 @@
 #ifndef _MpStreamPlayer_h_
 #define _MpStreamPlayer_h_
 
+#ifndef DISABLE_STREAM_PLAYER // [
+
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
 #include "mp/MpPlayer.h"
@@ -198,5 +200,7 @@ private:
 };
 
 /* ============================ INLINE METHODS ============================ */
+
+#endif // DISABLE_STREAM_PLAYER ]
 
 #endif  // _MpStreamPlayer_h_

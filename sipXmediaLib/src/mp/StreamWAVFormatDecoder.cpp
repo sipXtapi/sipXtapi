@@ -11,6 +11,7 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
+#ifndef DISABLE_STREAM_PLAYER // [
 
 // SYSTEM INCLUDES
 #include <assert.h>
@@ -513,3 +514,5 @@ UtlBoolean StreamWAVFormatDecoder::nextDataChunk(int& iLength)
 /* ============================ TESTING =================================== */
 
 /* ============================ FUNCTIONS ================================= */
+
+#endif // DISABLE_STREAM_PLAYER ]

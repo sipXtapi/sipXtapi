@@ -11,6 +11,7 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
+#ifndef DISABLE_STREAM_PLAYER // [
 
 #ifndef _StreamRAWFormatDecoder_h_
 #define _StreamRAWFormatDecoder_h_
@@ -117,3 +118,5 @@ private:
 /* ============================ INLINE METHODS ============================ */
 
 #endif  // _StreamRAWFormatDecoder_h_
+
+#endif // DISABLE_STREAM_PLAYER ]

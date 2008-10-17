@@ -8,6 +8,8 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
+#ifndef DISABLE_STREAM_PLAYER // [
+
 // SYSTEM INCLUDES
 
 // APPLICATION INCLUDES
@@ -689,3 +691,5 @@ PlayerState MpStreamPlayer::getState()
 /* ============================ TESTING =================================== */
 
 /* ============================ FUNCTIONS ================================= */
+
+#endif // DISABLE_STREAM_PLAYER ]

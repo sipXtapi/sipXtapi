@@ -8,6 +8,7 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
+#ifndef DISABLE_STREAM_PLAYER // [
 
 // SYSTEM INCLUDES
 
@@ -1188,3 +1189,4 @@ const char* MpStreamPlaylistPlayer::getFeederEventString(int iEvent)
 
 /* ============================ FUNCTIONS ================================= */
 
+#endif // DISABLE_STREAM_PLAYER ]
