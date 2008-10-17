@@ -16,7 +16,7 @@ libspeex/libspeex/.libs/libspeex.so libspeex/libspeex/libspeex.la: libspeex/Make
 
 # Copy over the speex shared libtool .la file to the codec dir
 @DEFAULT_CODECS_PATH@/libspeex.la:  libspeex/libspeex/libspeex.la 
-	cp @SPEEX_ROOT@/libspeex/libspeex.la @DEFAULT_CODECS_PATH@/libspeex.la
+	cp -d libspeex/libspeex/libspeex.la @DEFAULT_CODECS_PATH@/libspeex.la
 if CROSS_COMPILING
 	$(MAKE) -C libspeex install
 endif
