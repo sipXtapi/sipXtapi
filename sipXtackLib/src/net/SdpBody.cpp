@@ -1749,7 +1749,6 @@ void SdpBody::addCodecParameters(int numRtpCodecs,
    int sampleRate;
    int numChannels;
    int videoFmtp;
-   char valueBuf[64];
    UtlString formatParameters;
    UtlString mimeType;
    UtlString formatTemp;
