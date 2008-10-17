@@ -34,6 +34,7 @@ libsipXmedia_la_CXXFLAGS = \
 libsipXmedia_la_LIBADD = \
 	@SIPXTACK_LIBS@ \
 	@SIPXPORT_LIBS@ \
+	@SIPXSDP_LIBS@ \
 	@CA_LIBS@ \
 	@GSM_LIBS@ \
 	@SPEEX_LIBS@ \

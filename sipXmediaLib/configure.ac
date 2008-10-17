@@ -85,7 +85,7 @@ EXTERNAL_EXTENITIONS
 # than once, so do it here, where we know it only happens once.
 if test "x$contrib_speex_enabled" == "xyes"; then
         # speex codec has it's own configure, so be sure to call it.
-        AC_CONFIG_SUBDIRS([contrib/libspeex/])
+        AC_CONFIG_SUBDIRS([contrib/libspeex])
 fi
 # Specify a SPEEX_CONTRIB make variable conditional upon using contrib speex.
 dnl Do not stick AM_CONDITIONAL inside a shell conditional.
@@ -96,14 +96,15 @@ AM_CONDITIONAL(SPEEX_CONTRIB, [test "x$contrib_speex_enabled" == "xyes"])
 # declaring other codecs staff
 DECLARE_CODECS_STAFF
 
-# Check stream player setting 
+# Check stream player setting
 CHECK_STREAM_PLAYER
 if test ${disable_stream_player} = true; then
    AC_MSG_RESULT(Stream player is disabled)
    CXXFLAGS+=" -DDISABLE_STREAM_PLAYER "
 fi
-
-# sipX dependencies 
+# sipX dependencies
+SFAC_LIB_PORT
+SFAC_LIB_SDP
 SFAC_LIB_STACK
 SFAC_FEATURE_SIP_TLS
 
