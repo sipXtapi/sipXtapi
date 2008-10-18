@@ -96,6 +96,7 @@ public:
          return(*this);
       }
 
+      MpResourceMsg::operator=(rhs);
       mPort = rhs.mPort;
       mType = rhs.mType;
 
