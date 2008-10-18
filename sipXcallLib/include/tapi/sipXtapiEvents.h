@@ -896,7 +896,7 @@ typedef struct
 /**
  * Duplicate the event information for a sipXtapi event.  This method is only
  * needed if you wish to post the event information to another thread context.
- * Once the event has been handle, you must call sipxFreeDuplicatedEvent on
+ * Once the event has been handled, you must call sipxFreeDuplicatedEvent on
  * the copy to avoid memory leaks.
  *
  * @param category Category type supplied by the sipXtapi event callback.
