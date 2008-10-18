@@ -65,6 +65,7 @@ class UtlStringTest_ConstructiveManipulators : public UtlStringTest
     CPPUNIT_TEST(testAppend_charstar_specifiedSize_toExistingString) ;
     CPPUNIT_TEST(testAppend_charstar_zero_bytes_toExistingString) ;
     CPPUNIT_TEST(testAppend_charstar_zero_bytes_toExistingString) ;
+    CPPUNIT_TEST(testAppend_format);
     CPPUNIT_TEST(testPlusEqual_charstar) ;
     CPPUNIT_TEST(testPlusEqual_UtlString) ;
     CPPUNIT_TEST(testPrepend) ;
@@ -554,6 +555,22 @@ public:
     {
         utlTestAppend_Charstar_to_ExistingString(true, TEST_APPEND) ;
         utlTestAppend_MaxCapacity(TYPE_CHARSTAR, true) ;
+    }
+
+    void testAppend_format()
+    {
+       int i = 0;
+       UtlString a("aa");
+       a.appendFormat("%d", 1234);
+
+       CPPUNIT_ASSERT_EQUAL_MESSAGE("incorrect appendFormat",
+          0, strcmp("aa1234", a.data()));
+
+       for (i = 0; i < 1000; i++)
+          a.appendFormat("%x", 255);
+
+       CPPUNIT_ASSERT_EQUAL_MESSAGE("incorrect appendFormat",
+          (size_t)(2000 + 6), a.length());
     }
 
     /** Test the replace(len-1, len-1, char*) method

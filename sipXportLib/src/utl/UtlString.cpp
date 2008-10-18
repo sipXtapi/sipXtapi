@@ -249,6 +249,49 @@ UtlString& UtlString::append(const char* szStr, size_t N)
     return *this;
 }
 
+UtlString& UtlString::appendFormat(const char* format, ...)
+{     
+   va_list args;
+   va_start(args, format);
+
+   int n;
+   int extraSize = 0;
+
+   for(;;)
+   {
+      size_t availableCap = capacity() - mSize;
+
+      /* Try to print in the allocated space. */
+#ifdef _WIN32
+      n = _vsnprintf (&mpData[mSize], availableCap, format, args);
+#else
+      n = vsnprintf (&mpData[mSize], availableCap, format, args);
+#endif
+
+      /* If that worked, return the string. */
+      if (n > -1 && n < (int)availableCap)
+      {
+         break;
+      }
+      /* Else try again with more space. */
+      if (n > -1)    /* glibc 2.1 */
+         extraSize = n+1; /* precisely what is needed */
+      else           /* glibc 2.0 */
+         if (extraSize == 0)
+            extraSize = availableCap;
+         else
+            extraSize *= 2;  /* twice the old size */
+
+      capacity(mSize + extraSize);
+   }
+
+   mSize += n;
+
+   va_end(args);
+
+   return *this;
+}
+
 // Append the designated string to the end of this string.
 // use append(const char* ).
 UtlString& UtlString::append(const UtlString& str)

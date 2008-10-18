@@ -13,6 +13,8 @@
 #define _UtlString_h_
 
 // SYSTEM INCLUDES
+#include <stdarg.h>
+
 #include "os/OsDefs.h"
 
 // APPLICATION INCLUDES
@@ -386,6 +388,14 @@ public:
 
     /// Append a single character to the end of this string.
     UtlString& append(const char c);
+
+    /// Append format string like pritnf
+    UtlString& appendFormat(const char* format, ... )
+#ifdef __GNUC__
+       /* with the -Wformat switch, this enables format string checking */
+       __attribute__ ((format(printf, 2, 3)))
+#endif
+       ;
 
 ///@}
 // ================================================================
