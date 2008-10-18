@@ -320,6 +320,7 @@ OsStatus MpJitterBuffer::pushPacket(const MpRtpBufPtr &rtpPacket,
    else
    {
       adjustment = 0;
+      outSamplesNum = decodedSamples;
    }
 #ifdef ENABLE_NON_PLC_ADJUSTMENT // [
    if (adjustment == 0)
