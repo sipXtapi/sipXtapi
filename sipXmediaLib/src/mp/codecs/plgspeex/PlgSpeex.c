@@ -138,7 +138,7 @@ void* universal_speex_init(const char* fmt, int isDecoder, int samplerate,
    /* Fill general codec information */
    pCodecInfo->signalingCodec = FALSE;
    /* It could do PLC, but wrapper should be fixed to support it. */
-   pCodecInfo->packetLossConcealment = CODEC_PLC_NONE;
+   pCodecInfo->packetLossConcealment = CODEC_PLC_INTERNAL;
    /* It could do DTX+CNG, but wrapper should be fixed to support it. */
    pCodecInfo->vadCng = CODEC_CNG_NONE;
 
@@ -370,32 +370,54 @@ int universal_speex_decode(void* handle, const void* pCodedData,
       return RPLG_INVALID_ARGUMENT;
    }
 
-   /* Prepare data for Speex decoder */
-   speex_bits_set_bit_buffer(&bits,(char*)pCodedData, cbCodedPacketSize);
-
    /* Reset number of decoded samples */
    *pcbDecodedSize = 0;
 
-   /* Decode while there are something to decode and enough space
-    * for decoded data. */
-   while (cbBufferSize >= mpSpeexDec->mNumSamplesPerFrame &&
-          (speex_bits_remaining(&bits) > 0))
+   /* Decode incoming packet if present. Do PLC if no packet. */
+   if (pCodedData)
+   {
+      /* Prepare data for Speex decoder */
+      speex_bits_set_bit_buffer(&bits,(char*)pCodedData, cbCodedPacketSize);
+
+      /* Decode while there are something to decode and enough space
+      * for decoded data. */
+      while (cbBufferSize >= mpSpeexDec->mNumSamplesPerFrame &&
+             (speex_bits_remaining(&bits) > 0))
+      {
+         int res;
+
+         /* Decode frame */
+         res = speex_decode_int(mpSpeexDec->mpDecoderState, &bits,
+                                ((spx_int16_t*)pAudioBuffer)+(*pcbDecodedSize));
+         if (res == 0)
+         {
+            /* Update number of decoded and available samples on success */
+            *pcbDecodedSize += mpSpeexDec->mNumSamplesPerFrame;
+            cbBufferSize -= mpSpeexDec->mNumSamplesPerFrame;
+         }
+         else
+         {
+            /* If it's the end of the stream or corrupted stream just return */
+            break;
+         }
+      }
+   }
+   else
    {
       int res;
 
-      /* Decode frame */
-      res = speex_decode_int(mpSpeexDec->mpDecoderState, &bits,
+      /* Do PLC */
+      res = speex_decode_int(mpSpeexDec->mpDecoderState, NULL,
                              ((spx_int16_t*)pAudioBuffer)+(*pcbDecodedSize));
       if (res == 0)
       {
          /* Update number of decoded and available samples on success */
          *pcbDecodedSize += mpSpeexDec->mNumSamplesPerFrame;
-         cbBufferSize -= mpSpeexDec->mNumSamplesPerFrame;
       }
       else
       {
-         /* If it's the end of the stream or corrupted stream just return */
-         break;
+         /* This mustn't happen for lost packet, but who knows... */
+         return RPLG_FAILED;
       }
    }
 
