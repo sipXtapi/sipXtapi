@@ -178,7 +178,10 @@ public:
       // Let media task to process unmanage message (we have stopped ticker, so
       // have to manually feed media task with ticks).
       MpMediaTask::signalFrameStart();
-      OsTask::delay(20);
+      while (pMediaTask->isManagedFlowGraph(pFlowgraph))
+      {
+         OsTask::delay(20);
+      }
 
       // Disable all of the devices..
       UtlInt* pCurHnd;
@@ -480,7 +483,7 @@ public:
                                                    pFlowgraph->getSamplesPerSec(),
                                                    0, FALSE, NULL));
 
-      int maxPlayLoops = (toneDurationMS * numFreqs)/100 + 10;
+      int maxPlayLoops = (toneDurationMS * numFreqs)/100 + 50;
       for(i = 0; i < maxPlayLoops && notfDisp.numMsgs() < 2; i++)
       {
          OsTask::delay(100);
@@ -522,7 +525,6 @@ public:
    void testMixerWBHelper(unsigned sampleRate, unsigned samplesPerFrame)
    {
       size_t mixer_buffers_lenms = 8000; // 8000 millisecond buffer play length hardcoded.
-      MpFrameTime outMgrDefaultMixerBufLen = 30;
 
       MpMediaTask* pMediaTask = NULL;
       MpFlowGraphBase* pFlowgraph = NULL;
@@ -548,103 +550,118 @@ public:
       setupWBMediaTask(sampleRate, samplesPerFrame, 
                        pInMgr, pOutMgr, pFlowgraph, pMediaTask);
 
+      try {
 
-      pSpkrOutDrv = new OUTPUT_DRIVER(OUTPUT_DRIVER_CONSTRUCTOR_PARAMS);
-      spkrDevHnd = pOutMgr->addDevice(pSpkrOutDrv);
-      CPPUNIT_ASSERT(spkrDevHnd > 0);
-      outDevHandles.append(new UtlInt(spkrDevHnd));
+         pSpkrOutDrv = new OUTPUT_DRIVER(OUTPUT_DRIVER_CONSTRUCTOR_PARAMS);
+         spkrDevHnd = pOutMgr->addDevice(pSpkrOutDrv);
+         CPPUNIT_ASSERT(spkrDevHnd > 0);
+         outDevHandles.append(new UtlInt(spkrDevHnd));
 
-      pPlayRFromFile = new MprFromFile("FromFile-1");
-      pPlayRFromFile2 = new MprFromFile("FromFile-2");
-      pPlayRMixer = new MprMixer("Play-Mixer", 2);
-      pPlayRToOutputDev =
-         new MprToOutputDevice("ToOutput-PlaySpkr", 
-                               pOutMgr, spkrDevHnd);
+         pPlayRFromFile = new MprFromFile("FromFile-1");
+         pPlayRFromFile2 = new MprFromFile("FromFile-2");
+         pPlayRMixer = new MprMixer("Play-Mixer", 2);
+         pPlayRToOutputDev =
+            new MprToOutputDevice("ToOutput-PlaySpkr", 
+                                  pOutMgr, spkrDevHnd);
 
 
-      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, 
-                           pFlowgraph->addResource(*pPlayRFromFile));
-      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, 
-                           pFlowgraph->addResource(*pPlayRFromFile2));
-      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, 
-                           pFlowgraph->addResource(*pPlayRMixer));
-      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, 
-                           pFlowgraph->addResource(*pPlayRToOutputDev));
+         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, 
+                              pFlowgraph->addResource(*pPlayRFromFile));
+         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, 
+                              pFlowgraph->addResource(*pPlayRFromFile2));
+         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, 
+                              pFlowgraph->addResource(*pPlayRMixer));
+         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, 
+                              pFlowgraph->addResource(*pPlayRToOutputDev));
 
-      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
-                           pFlowgraph->addLink(*pPlayRFromFile, 0, 
-                                               *pPlayRMixer, 0));
-      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
-                           pFlowgraph->addLink(*pPlayRFromFile2, 0, 
-                                               *pPlayRMixer, 1));
-      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
-                           pFlowgraph->addLink(*pPlayRMixer, 0, 
-                                               *pPlayRToOutputDev, 0));
+         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                              pFlowgraph->addLink(*pPlayRFromFile, 0, 
+                                                  *pPlayRMixer, 0));
+         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                              pFlowgraph->addLink(*pPlayRFromFile2, 0, 
+                                                  *pPlayRMixer, 1));
+         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
+                              pFlowgraph->addLink(*pPlayRMixer, 0, 
+                                                  *pPlayRToOutputDev, 0));
 
-      // Make sure that the mixer weights are set, and set equally.
-      pPlayRMixer->setWeight(1, 0);
-      pPlayRMixer->setWeight(1, 1);
+         // Make sure that the mixer weights are set, and set equally.
+         pPlayRMixer->setWeight(1, 0);
+         pPlayRMixer->setWeight(1, 1);
 
-      // Enable the speaker device.
-      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pOutMgr->enableDevice(spkrDevHnd));
+         // Enable the speaker device.
+         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pOutMgr->enableDevice(spkrDevHnd));
 
-      // Set the flowgraph ticker source..
-      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, 
-                           pOutMgr->setFlowgraphTickerSource(spkrDevHnd));
+         // Set the flowgraph ticker source..
+         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, 
+                              pOutMgr->setFlowgraphTickerSource(spkrDevHnd));
 
-      // Now we enable the flowgraph..  Which should enable resources.
-      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pFlowgraph->enable());
+         // Now we enable the flowgraph..  Which should enable resources.
+         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pFlowgraph->enable());
 
-      // Manage the flow graph so it flows, and finally start it flowing, 
-      // and bring it into focus
-      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pMediaTask->manageFlowGraph(*pFlowgraph));
-      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pMediaTask->startFlowGraph(*pFlowgraph));
+         // Manage the flow graph so it flows, and finally start it flowing, 
+         // and bring it into focus
+         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pMediaTask->manageFlowGraph(*pFlowgraph));
+         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pMediaTask->startFlowGraph(*pFlowgraph));
 
-      // Provide a notification dispatcher so we can get notifications.
-      OsMsgDispatcher notfDisp;
-      pFlowgraph->setNotificationDispatcher(&notfDisp);
+         // Provide a notification dispatcher so we can get notifications.
+         OsMsgDispatcher notfDisp;
+         pFlowgraph->setNotificationDispatcher(&notfDisp);
 
-      // Now we load up the buffers.
-      MprFromFile::playBuffer("FromFile-1", *pFlowgraph->getMsgQ(),
-                              (const char*)WBMixerTestTones,
-                              WBMixerTestTones_in_bytes,
-                              48000, pFlowgraph->getSamplesPerSec(),
-                              0, FALSE, NULL);
+         // Now we load up the buffers.
+         MprFromFile::playBuffer("FromFile-1", *pFlowgraph->getMsgQ(),
+                                 (const char*)WBMixerTestTones,
+                                 WBMixerTestTones_in_bytes,
+                                 48000, pFlowgraph->getSamplesPerSec(),
+                                 0, FALSE, NULL);
 
-      MprFromFile::playBuffer("FromFile-2", *pFlowgraph->getMsgQ(),
-                              (const char*)WBMixerTestReversedTones,
-                              WBMixerTestReversedTones_in_bytes,
-                              48000, pFlowgraph->getSamplesPerSec(),
-                              0, FALSE, NULL);
+         MprFromFile::playBuffer("FromFile-2", *pFlowgraph->getMsgQ(),
+                                 (const char*)WBMixerTestReversedTones,
+                                 WBMixerTestReversedTones_in_bytes,
+                                 48000, pFlowgraph->getSamplesPerSec(),
+                                 0, FALSE, NULL);
 
-      // Delay until tones are finished playing, adding in an extra second if the 
-      // notifications are late.
-      int notfsToExpect = 4;
-      size_t maxPlayLoops = mixer_buffers_lenms/100 + 10;
-      size_t i;
-      for(i = 0; i < maxPlayLoops && notfDisp.numMsgs() < notfsToExpect; i++)
-      {
-         OsTask::delay(100);
+         // Delay until tones are finished playing, adding in an extra five
+         // seconds if the notifications are late.
+         int notfsToExpect = 4;
+         size_t maxPlayLoops = mixer_buffers_lenms/100 + 50;
+         size_t i;
+         for(i = 0; i < maxPlayLoops && notfDisp.numMsgs() < notfsToExpect; i++)
+         {
+            OsTask::delay(100);
+         }
+
+         // Now grab the actual messages out of the queue.
+         OsMsg* pMsg;
+         CPPUNIT_ASSERT_EQUAL(notfsToExpect, notfDisp.numMsgs());
+         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, notfDisp.receive((OsMsg*&)pMsg, OsTime(10)));
+         CPPUNIT_ASSERT_EQUAL(MpResNotificationMsg::MPRNM_FROMFILE_STARTED, 
+                              (MpResNotificationMsg::RNMsgType)((MpResNotificationMsg*)pMsg)->getMsg());
+         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, notfDisp.receive((OsMsg*&)pMsg, OsTime(10)));
+         CPPUNIT_ASSERT_EQUAL(MpResNotificationMsg::MPRNM_FROMFILE_STARTED, 
+                              (MpResNotificationMsg::RNMsgType)((MpResNotificationMsg*)pMsg)->getMsg());
+         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, notfDisp.receive((OsMsg*&)pMsg, OsTime(10)));
+         CPPUNIT_ASSERT_EQUAL(MpResNotificationMsg::MPRNM_FROMFILE_FINISHED, 
+                              (MpResNotificationMsg::RNMsgType)((MpResNotificationMsg*)pMsg)->getMsg());
+         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, notfDisp.receive((OsMsg*&)pMsg, OsTime(10)));
+         CPPUNIT_ASSERT_EQUAL(MpResNotificationMsg::MPRNM_FROMFILE_FINISHED, 
+                              (MpResNotificationMsg::RNMsgType)((MpResNotificationMsg*)pMsg)->getMsg());
+      } catch(CppUnit::Exception& e) {
+         // Shutdown the test.
+         tearDownWBMediaTask(*pInMgr, inDevHandles, *pOutMgr, outDevHandles,
+                             pFlowgraph, pMediaTask);
+
+         // Delete all our data.
+         // No need to delete resources in the flowgraph explicitly, as the 
+         // flowgraph deletes any it has.
+         delete pFlowgraph;
+         delete pInMgr;
+         delete pOutMgr;
+         delete pSpkrOutDrv;
+
+         throw(e);
       }
 
-      // Now grab the actual messages out of the queue.
-      OsMsg* pMsg;
-      CPPUNIT_ASSERT_EQUAL(notfsToExpect, notfDisp.numMsgs());
-      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, notfDisp.receive((OsMsg*&)pMsg, OsTime(10)));
-      CPPUNIT_ASSERT_EQUAL(MpResNotificationMsg::MPRNM_FROMFILE_STARTED, 
-                           (MpResNotificationMsg::RNMsgType)((MpResNotificationMsg*)pMsg)->getMsg());
-      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, notfDisp.receive((OsMsg*&)pMsg, OsTime(10)));
-      CPPUNIT_ASSERT_EQUAL(MpResNotificationMsg::MPRNM_FROMFILE_STARTED, 
-                           (MpResNotificationMsg::RNMsgType)((MpResNotificationMsg*)pMsg)->getMsg());
-      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, notfDisp.receive((OsMsg*&)pMsg, OsTime(10)));
-      CPPUNIT_ASSERT_EQUAL(MpResNotificationMsg::MPRNM_FROMFILE_FINISHED, 
-                           (MpResNotificationMsg::RNMsgType)((MpResNotificationMsg*)pMsg)->getMsg());
-      CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, notfDisp.receive((OsMsg*&)pMsg, OsTime(10)));
-      CPPUNIT_ASSERT_EQUAL(MpResNotificationMsg::MPRNM_FROMFILE_FINISHED, 
-                           (MpResNotificationMsg::RNMsgType)((MpResNotificationMsg*)pMsg)->getMsg());
-
       // Shutdown the test.
-
       tearDownWBMediaTask(*pInMgr, inDevHandles, *pOutMgr, outDevHandles,
                           pFlowgraph, pMediaTask);
 
