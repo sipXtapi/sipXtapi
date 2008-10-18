@@ -44,6 +44,13 @@ public:
    {
    };
 
+     /// Copy constructor
+   MpStringResourceMsg(const MpStringResourceMsg &msg)
+   : MpResourceMsg(msg)
+   , mData(msg.mData)
+   {
+   };
+
      /// @copydoc MpResourceMsg::createCopy()
    OsMsg* createCopy() const 
    {
@@ -55,6 +62,21 @@ public:
 /* ============================ MANIPULATORS ============================== */
 ///@name Manipulators
 //@{
+
+   /// Assignment operator
+   MpStringResourceMsg& operator=(const MpStringResourceMsg& rhs)
+   {
+        if(&rhs == this)
+        {
+            return(*this);
+        }
+
+        MpResourceMsg::operator=(rhs);
+
+        mData = rhs.mData;
+
+        return *this;
+   }
 
 //@}
 
