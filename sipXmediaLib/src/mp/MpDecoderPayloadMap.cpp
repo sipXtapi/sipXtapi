@@ -37,7 +37,7 @@ void MpDecoderPayloadMap::addPayloadType(int payloadType, MpDecoderBase* pDecode
    if ((payloadType < 0) || (payloadType >= NUM_PAYLOAD_TYPES))
    {
       OsSysLog::add(FAC_MP, PRI_ERR,
-         "MpRtpInputAudioConnection::addPayloadType"
+         "MpDecoderPayloadMap::addPayloadType"
          " Attempting to add an invalid payload type %d",
          payloadType);
    }
@@ -47,7 +47,7 @@ void MpDecoderPayloadMap::addPayloadType(int payloadType, MpDecoderBase* pDecode
       // This condition probably indicates that the sender of SDP specified
       // two decoders for the same payload type number.
       OsSysLog::add(FAC_MP, PRI_ERR,
-         "MpRtpInputAudioConnection::addPayloadType"
+         "MpDecoderPayloadMap::addPayloadType"
          " Attempting to add a second decoder for payload type %d",
          payloadType);
    }
@@ -64,7 +64,7 @@ void MpDecoderPayloadMap::deletePayloadType(int payloadType)
    if ((payloadType < 0) || (payloadType >= NUM_PAYLOAD_TYPES))
    {
       OsSysLog::add(FAC_MP, PRI_ERR,
-         "MpRtpInputAudioConnection::deletePayloadType"
+         "MpDecoderPayloadMap::deletePayloadType"
          " Attempting to delete an invalid payload type %d",
          payloadType);
    }
@@ -73,7 +73,7 @@ void MpDecoderPayloadMap::deletePayloadType(int payloadType)
    {
       // Seems this payload type is already deleted.
       OsSysLog::add(FAC_MP, PRI_ERR,
-         "MpRtpInputAudioConnection::deletePayloadType"
+         "MpDecoderPayloadMap::deletePayloadType"
          " Attempting to delete again payload type %d",
          payloadType);
    }
@@ -91,7 +91,7 @@ MpDecoderBase* MpDecoderPayloadMap::mapPayloadType(int payloadType) const
    if ((payloadType < 0) || (payloadType >= NUM_PAYLOAD_TYPES))
    {
       OsSysLog::add(FAC_MP, PRI_ERR,
-         "MpRtpInputAudioConnection::mapPayloadType"
+         "MpDecoderPayloadMap::mapPayloadType"
          " Attempting to map an invalid payload type %d",
          payloadType);
       return NULL;
