@@ -524,7 +524,7 @@
 25:            handleSubStatusEvent(pSubInfo) ;<br>26:            break ;<br>27:        case EVENT_CATEGORY_NOTIFY:
 28:            SIPX_NOTIFY_INFO* pNotifyInfo = (SIPX_NOTIFY_INFO*) pInfo ;
 29:            handleNotifyEvent(pNotifyInfo) ;<br>30:            break ;<br>31:        case EVENT_CATEGORY_CONFIG:
-32:            SIPX_CONFIG_INFO* pConfigInfo - (SIPX_CONFIG_INFO*) pInfo ;
+32:            SIPX_CONFIG_INFO* pConfigInfo = (SIPX_CONFIG_INFO*) pInfo ;
 33:            handleConfigEvent(pConfigInfo) ;<br>34:            break ;<br>35:        case EVENT_CATEGORY_SECURITY: 
 36:            SIPX_SECURITY_INFO* pSecInfo = (SIPX_SECURITY_INFO*) pInfo ;
 37:            handleSecurityEvent(pSecInfo) ;<br>38:            break ;<br>39:        case EVENT_CATEGORY_MEDIA:
