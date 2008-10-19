@@ -77,6 +77,8 @@ const char* OsSysLog::sPriorityNames[] =
    "ALERT",
    "EMERG"
 };
+const int OsSysLog::sPriorityNamesNum =
+   sizeof(OsSysLog::sPriorityNames)/sizeof(OsSysLog::sPriorityNames[0]);
 
 // LOCAL FUNCTIONS
 static void mysprintf(UtlString& results, const char* format, ...) ;

@@ -73,6 +73,8 @@ const char* OsSysLog::sFacilityNames[] =
    "UNKNOWN"
 } ;
 
+const int OsSysLog::sFacilityNamesNum =
+   sizeof(OsSysLog::sFacilityNames)/sizeof(OsSysLog::sFacilityNames[0]);
 
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */

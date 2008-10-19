@@ -180,9 +180,13 @@ public:
 
    static const char* sPriorityNames[] ;
      //:List of Priority Names orders in the same order as OsSysLogPriority.
+   static const int sPriorityNamesNum;
+     //:Number of elements in sPriorityNames array;
 
    static const char* sFacilityNames[] ;
      //:List of Facility Names orders in the same order as OsSysLogFacility.
+   static const int sFacilityNamesNum;
+     //:Number of elements in sFacilityNames array;
 
    enum OsSysLogOptions
    {
