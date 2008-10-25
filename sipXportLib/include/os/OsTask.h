@@ -168,7 +168,7 @@ public:
                                                   ...)
 #ifdef __GNUC__
        // with the -Wformat switch, this enables format string checking
-       __attribute__ ((format (printf, 3, 4)))
+       __attribute__ ((format(printf, 4, 5)))
 #endif
        ;
 
