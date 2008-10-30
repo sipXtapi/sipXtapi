@@ -11,7 +11,7 @@ Url: http://www.sipfoundry.org/sipXmediaLib
 
 Source: %name-%version.tar.gz
 
-Requires: sipxtacklib >= 2.9
+Requires: sipxtacklib >= 3.2
 
 Prefix: %_prefix
 BuildRoot: %{_tmppath}/%name-%version-root
