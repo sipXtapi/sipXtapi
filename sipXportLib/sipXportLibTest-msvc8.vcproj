@@ -749,6 +749,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\src\test\utl\UtlCryptoTest.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\src\test\utl\UtlDList.cpp"
 				>
 			</File>

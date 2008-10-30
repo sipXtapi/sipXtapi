@@ -207,6 +207,9 @@
 				RelativePath=".\src\test\utl\UtlCrc32Test.cpp">
 			</File>
 			<File
+				RelativePath=".\src\test\utl\UtlCryptoTest.cpp">
+			</File>
+			<File
 				RelativePath=".\src\test\utl\UtlDList.cpp">
 			</File>
 			<File

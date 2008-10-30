@@ -290,6 +290,10 @@ SOURCE=.\src\test\utl\UtlContainableTestStub.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\test\utl\UtlCryptoTest.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\test\utl\UtlDList.cpp
 # End Source File
 # Begin Source File

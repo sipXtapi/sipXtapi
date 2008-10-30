@@ -339,6 +339,10 @@ SOURCE=.\src\os\OsSocket.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\os\OsSocketCrypto.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\os\OsSSL.cpp
 # End Source File
 # Begin Source File
@@ -480,6 +484,26 @@ SOURCE=.\src\utl\UtlCopyableSortedList.cpp
 # Begin Source File
 
 SOURCE=.\src\utl\UtlCrc32.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\utl\UtlCrc32.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\utl\UtlCryptoData.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\utl\UtlCryptoKey.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\utl\UtlCryptoKeyRsa.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\utl\UtlCryptoKeySym.cpp
 # End Source File
 # Begin Source File
 
@@ -895,6 +919,10 @@ SOURCE=.\include\os\OsSocket.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\include\os\OsSocketCrypto.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\include\os\OsSSL.h
 # End Source File
 # Begin Source File
@@ -1084,6 +1112,22 @@ SOURCE=.\include\utl\UtlContainer.h
 # Begin Source File
 
 SOURCE=.\include\utl\UtlCrc32.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\utl\UtlCryptoData.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\utl\UtlCryptoKey.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\utl\UtlCryptoKeyRsa.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\utl\UtlCryptoKeySym.h
 # End Source File
 # Begin Source File
 

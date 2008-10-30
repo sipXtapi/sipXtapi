@@ -55,7 +55,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="include,..\sipXcallLib\include"
-				PreprocessorDefinitions="_DEBUG;WIN32;_LIB;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_WARNINGS"
+				PreprocessorDefinitions="_DEBUG;WIN32;_LIB;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_WARNINGS;xxHAVE_SSL"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -84,9 +84,10 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
+				AdditionalDependencies="pcre.lib Ws2_32.lib"
 				OutputFile="$(OutDir)\sipXportLib.lib"
 				SuppressStartupBanner="true"
-				IgnoreDefaultLibraryNames="msvcrt.lib"
+				IgnoreDefaultLibraryNames=""
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -165,9 +166,10 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
+				AdditionalDependencies="pcre.lib Ws2_32.lib"
 				OutputFile="$(OutDir)\sipXportLib.lib"
 				SuppressStartupBanner="true"
-				IgnoreDefaultLibraryNames="msvcrt.lib"
+				IgnoreDefaultLibraryNames=""
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -250,6 +252,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
+				AdditionalDependencies="pcre.lib Ws2_32.lib"
 				OutputFile="$(OutDir)\sipXportLib.lib"
 				SuppressStartupBanner="true"
 			/>
@@ -330,6 +333,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
+				AdditionalDependencies="pcre.lib Ws2_32.lib"
 				OutputFile="$(OutDir)\sipXportLib.lib"
 				SuppressStartupBanner="true"
 			/>
@@ -1438,6 +1442,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\src\os\OsSocketCrypto.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\src\os\OsSSL.cpp"
 				>
 			</File>
@@ -1645,6 +1653,22 @@
 			</File>
 			<File
 				RelativePath=".\src\utl\UtlCrc32.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\src\utl\UtlCryptoData.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\src\utl\UtlCryptoKey.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\src\utl\UtlCryptoKeyRsa.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\src\utl\UtlCryptoKeySym.cpp"
 				>
 			</File>
 			<File
@@ -2065,6 +2089,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\include\os\OsSocketCrypto.h"
+				>
+			</File>
+			<File
 				RelativePath=".\include\os\OsSSL.h"
 				>
 			</File>
@@ -2246,6 +2274,22 @@
 			</File>
 			<File
 				RelativePath=".\include\utl\UtlCrc32.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\utl\UtlCryptoData.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\utl\UtlCryptoKey.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\utl\UtlCryptoKeyRsa.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\utl\UtlCryptoKeySym.h"
 				>
 			</File>
 			<File
