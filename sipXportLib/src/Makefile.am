@@ -46,6 +46,10 @@ libsipXport_la_SOURCES =  \
     utl/UtlNameValueTokenizer.cpp \
     utl/UtlBool.cpp \
     utl/UtlCrc32.cpp \
+    utl/UtlCryptoData.cpp \
+    utl/UtlCryptoKey.cpp \
+    utl/UtlCryptoKeyRsa.cpp \
+    utl/UtlCryptoKeySym.cpp \
     utl/UtlDateTime.cpp \
     utl/UtlLink.cpp \
     utl/UtlVoidPtr.cpp \
@@ -125,6 +129,7 @@ libsipXport_la_SOURCES =  \
     os/OsServerTask.cpp \
     os/OsSharedLibMgr.cpp \
     os/OsSocket.cpp \
+    os/OsSocketCrypto.cpp \
     os/OsSSL.cpp \
     os/OsSSLConnectionSocket.cpp \
     os/OsSSLServerSocket.cpp \

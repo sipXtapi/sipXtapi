@@ -63,6 +63,7 @@ testsuite_SOURCES = \
     utl/UtlContainableTestStub.cpp \
     utl/UtlContainableTestStub.h \
     utl/UtlCrc32Test.cpp \
+    utl/UtlCryptoTest.cpp \
     utl/UtlDList.cpp \
     utl/UtlDListIterator.cpp \
     utl/UtlHashBag.cpp \

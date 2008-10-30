@@ -86,6 +86,7 @@ nobase_include_HEADERS = \
     os/OsServerTask.h \
     os/OsSharedLibMgr.h \
     os/OsSocket.h \
+    os/OsSocketCrypto.h \
     os/OsSSL.h \
     os/OsSSLConnectionSocket.h \
     os/OsSSLServerSocket.h \
@@ -121,6 +122,10 @@ nobase_include_HEADERS = \
     utl/UtlNameValueTokenizer.h \
     utl/UtlBool.h \
     utl/UtlCrc32.h \
+    utl/UtlCryptoData.h \
+    utl/UtlCryptoKey.h \
+    utl/UtlCryptoKeyRsa.h \
+    utl/UtlCryptoKeySym.h \
     utl/UtlLink.h \
     utl/UtlContainable.h \
     utl/UtlCopyableContainable.h \
