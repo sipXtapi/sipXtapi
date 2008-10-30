@@ -18,7 +18,7 @@ sed -i -e "s/\(#define\s\+SIPXTAPI_FULL_VERSION\s\+\)\".*\"/\1\"$MAJOR_VER.$MINO
 
 # configure.ac files
 for libdir in $LIBRARIES ; do
-	sed -i -e "s/AC_INIT(.*)/AC_INIT($libdir, $MAJOR_VER.$MINOR_VER, $MAILING_LIST/g" $libdir/configure.ac
+	sed -i -e "s/AC_INIT(.*)/AC_INIT($libdir, $MAJOR_VER.$MINOR_VER, $MAILING_LIST)/g" $libdir/configure.ac
 done
 
 # spec.in files
