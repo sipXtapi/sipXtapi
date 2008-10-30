@@ -1,8 +1,8 @@
 //  
-// Copyright (C) 2007 SIPfoundry Inc. 
+// Copyright (C) 2007-2008 SIPfoundry Inc. 
 // Licensed by SIPfoundry under the LGPL license. 
 //  
-// Copyright (C) 2007 SIPez LLC. 
+// Copyright (C) 2007-2008 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //  
 // $$ 
@@ -196,6 +196,10 @@ public:
      /// Perform maximum value calculation
    static inline
    int32_t maximum(int32_t a, int32_t b);
+
+     /// Integer square root.
+   static inline
+   uint32_t sqrt(uint32_t val);
 
 //@}
 
@@ -494,9 +498,10 @@ public:
 
 /* ============================ INLINE METHODS ============================ */
 
+#include <mp/MpDspUtilsConvertVect.h>
+#include <mp/MpDspUtilsIntSqrt.h>
 #include <mp/MpDspUtilsSum.h>
 #include <mp/MpDspUtilsSumVect.h>
-#include <mp/MpDspUtilsConvertVect.h>
 #include <mp/MpDspUtilsShift.h>
 #include <mp/MpDspUtilsSerials.h>
 
