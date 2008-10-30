@@ -100,6 +100,7 @@ public:
             return(*this);
         }
 
+        MpResourceMsg::operator=(rhs);
         mAudioCodecSet = rhs.mAudioCodecSet;
         mDtmfCodecSet = rhs.mDtmfCodecSet;
         mAudioCodec = rhs.mAudioCodec;
