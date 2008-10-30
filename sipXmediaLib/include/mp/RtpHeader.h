@@ -14,6 +14,7 @@
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
 #include "os/OsIntTypes.h"
+#include "mp/MpTypes.h"
 
 // MACROS
 // EXTERNAL FUNCTIONS
@@ -21,10 +22,6 @@
 // CONSTANTS
 // STRUCTS
 // TYPEDEFS
-typedef uint16_t RtpSeq;        ///< RTP sequence number
-typedef uint32_t RtpTimestamp;  ///< RTP timestamp
-typedef uint32_t RtpSRC;        ///< RTP SSRC or CSRC identifier
-
 // DEFINES
 #define RTP_V_MASK    0xC0  ///< Mask for Version bit in RtpHeader::vpxcc
 #define RTP_V_SHIFT   6     ///< Shift for Version bit in RtpHeader::vpxcc
