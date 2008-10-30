@@ -11,8 +11,8 @@ Url: http://www.sipfoundry.org/sipXcallLib
 
 Source: %name-%version.tar.gz
 
-Requires: sipxtacklib >= 3.2
-Requires: sipxmedialib >= 3.2
+Requires: sipxtacklib >= 3.3
+Requires: sipxmedialib >= 3.3
 
 Prefix: %_prefix
 BuildRoot: %{_tmppath}/%name-%version-root

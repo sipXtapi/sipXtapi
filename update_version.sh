@@ -1,7 +1,7 @@
 #!/bin/sh
 
 MAJOR_VER=3
-MINOR_VER=2
+MINOR_VER=3
 REV_NUM=0
 BUILD_NUM=0
 

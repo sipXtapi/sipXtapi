@@ -9,7 +9,7 @@ Vendor: Pingtel Corp.
 Packager: Pingtel <support@pingtel.com>
 Url: http://www.pingtel.com
 
-Requires: sipxportlib >= 3.2
+Requires: sipxportlib >= 3.3
 # TODO: Figure out how to require jre OR jdk
 # Requires: j2re >= 1.4
 Requires: j2sdk >= 1.4

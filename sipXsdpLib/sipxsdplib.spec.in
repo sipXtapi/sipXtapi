@@ -9,7 +9,7 @@ Vendor: SIPfoundry
 Packager: SIPfoundry <sipx-dev@sipfoundry.org>
 Url: http://www.sipfoundry.org/sipSdpLib
 
-Requires: sipxtacklib >= 3.2
+Requires: sipxtacklib >= 3.3
 
 Source: %name-%version.tar.gz
 
