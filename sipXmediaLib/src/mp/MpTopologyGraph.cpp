@@ -41,8 +41,9 @@
 MpTopologyGraph::MpTopologyGraph(int samplesPerFrame, 
                                  int samplesPerSec,
                                  MpResourceTopology& initialResourceTopology,
-                                 MpResourceFactory& resourceFactory)
-: MpFlowGraphBase(samplesPerFrame, samplesPerSec)
+                                 MpResourceFactory& resourceFactory,
+                                 OsMsgDispatcher *pNotifDispatcher)
+: MpFlowGraphBase(samplesPerFrame, samplesPerSec, pNotifDispatcher)
 , mpResourceFactory(&resourceFactory)
 {
     OsStatus result;
@@ -113,6 +114,25 @@ OsStatus MpTopologyGraph::addResources(MpResourceTopology& incrementalTopology,
                           TRUE, 
                           resourceInstanceId);
 
+    return OS_SUCCESS;
+}
+
+OsStatus MpTopologyGraph::destroyResources(MpResourceTopology& resourceTopology,
+                                          int resourceInstanceId)
+{
+    // Add the resources
+    int resourceIndex = 0;
+    MpResource* resourcePtr = NULL;
+    UtlString resourceName;
+    OsStatus result;
+    while(resourceTopology.getResource(resourceIndex, resourceName)
+          == OS_SUCCESS)
+    {
+         resourceTopology.replaceNumInName(resourceName, resourceInstanceId);
+         result = destroyResource(resourceName);
+         assert(result == OS_SUCCESS);
+         resourceIndex++;
+    }
     return OS_SUCCESS;
 }
 
@@ -225,12 +245,15 @@ int MpTopologyGraph::addTopologyResources(MpResourceTopology& resourceTopology,
     MpResource* resourceArray[MAX_CONSTRUCTED_RESOURCES];
     UtlString resourceType;
     UtlString resourceName;
+    MpConnectionID resourceConnId;
+    int resourceStreamId;
     OsStatus result;
-    while(resourceTopology.getResource(resourceIndex, resourceType, resourceName) == OS_SUCCESS)
+    while(resourceTopology.getResource(resourceIndex, resourceType, resourceName,
+                                       resourceConnId, resourceStreamId) == OS_SUCCESS)
     {
         if(replaceNumInName)
         {
-            resourceTopology.replaceNumInName(resourceName, resourceNum);
+           MpResourceTopology::replaceNumInName(resourceName, resourceNum);
         }
 
         int numConstructorResources;
@@ -254,6 +277,15 @@ int MpTopologyGraph::addTopologyResources(MpResourceTopology& resourceTopology,
                          resourcePtr->getName().data(),
                          resourceType.data());
 #endif
+                  if(replaceNumInName && resourceConnId == MP_INVALID_CONNECTION_ID)
+                  {
+                     resourcePtr->setConnectionId(resourceNum);
+                  }
+                  else
+                  {
+                     resourcePtr->setConnectionId(resourceConnId);
+                  }
+                  resourcePtr->setStreamId(resourceStreamId);
                   newResources.insert(resourcePtr);
                   result = addResource(*resourcePtr, FALSE);
                   assert(result == OS_SUCCESS);

@@ -17,6 +17,13 @@
 #include "mp/MpVadBase.h"
 #include "mp/MpVadSimple.h"
 
+// DEFINES
+#define ENERGY_SHIFT    8
+
+// CONSTANTS
+#define MIN_SPEECH_ENERGY_THRESHOLD 20000
+#define MAX_SPEECH_ENERGY_THRESHOLD 70000
+
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
@@ -27,8 +34,22 @@ const char *MpVadSimple::name = "Simple";
 
 /* ============================ CREATORS ================================== */
 
+MpVadSimple::MpVadSimple()
+: mLastFrameSize(0)
+, mLastEnergy(0)
+, mSamplesPerSecond(0)
+{
+
+}
+
 OsStatus MpVadSimple::init(int samplesPerSec)
 {
+   mLastFrameSize = 0;
+   mLastEnergy = 0;
+   mSamplesPerSecond = samplesPerSec;
+
+   mMinEnergy = MIN_SPEECH_ENERGY_THRESHOLD;
+
    return OS_SUCCESS;
 }
 
@@ -37,12 +58,52 @@ MpVadSimple::~MpVadSimple()
 
 }
 
+void MpVadSimple::reset()
+{
+   mSamplesPerSecond = 0;
+}
+
 /* ============================ MANIPULATORS ============================== */
+
+void MpVadSimple::setMinimumEnergy(int minEnergy)
+{
+   mMinEnergy = minEnergy;
+}
+
+int MpVadSimple::getEnergy() const
+{
+   if ((mSamplesPerSecond == 0) || (mLastFrameSize == 0))
+      return 0;
+   return (mLastEnergy/mLastFrameSize) << ENERGY_SHIFT;
+}
+
 
 MpSpeechType MpVadSimple::processFrame(uint32_t packetTimeStamp,
                                        const MpAudioSample* pBuf,
                                        unsigned inSamplesNum,
-                                       const MpSpeechParams &speechParams)
+                                       const MpSpeechParams &speechParams,
+                                       UtlBoolean calcEnergyOnly)
 {
-   return MP_SPEECH_UNKNOWN;
+   int i;
+   int energy = 0;
+
+   if (mSamplesPerSecond == 0)
+      return MP_SPEECH_UNKNOWN;
+
+   mLastFrameSize = inSamplesNum;
+
+   for (i = 0; i < mLastFrameSize; i++)
+      energy += ((int)pBuf[i] * (int)pBuf[i]) >> ENERGY_SHIFT;
+
+   mLastEnergy = energy;
+
+   if (calcEnergyOnly)
+   {
+      return speechParams.mSpeechType;
+   }
+
+   if (energy > (mMinEnergy >> ENERGY_SHIFT))
+      return MP_SPEECH_ACTIVE;
+
+   return MP_SPEECH_SILENT;
 }

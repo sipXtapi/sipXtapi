@@ -40,6 +40,11 @@ MpPlcSilence::~MpPlcSilence()
 
 }
 
+void MpPlcSilence::reset()
+{
+
+}
+
 /* ============================ MANIPULATORS ============================== */
 
 OsStatus MpPlcSilence::insertToHistory(int frameNum,
@@ -71,6 +76,15 @@ OsStatus MpPlcSilence::processFrame(MpSpeechParams &speechParams,
       memset(pBuf+inSamplesNum,
              0,
             (wantedOutSamplesNum-inSamplesNum)*sizeof(MpAudioSample));
+
+      if (inSamplesNum == 0)
+      {
+         // This is pure PLC, i.e. frame is entirely lost.
+         speechParams.mSpeechType = MP_SPEECH_SILENT;
+         speechParams.mAmplitude = 0;
+         speechParams.mIsClipped = FALSE;
+         speechParams.mFrameEnergy = 0;
+      }
    }
 
    madeAdjustment = wantedOutSamplesNum - outSamplesNum;

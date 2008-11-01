@@ -75,20 +75,14 @@ typedef struct __MprRtcpStats* MprRtcpStatsPtr;
 typedef struct rtpSession *rtpHandle;
 
 // FORWARD DECLARATIONS
-extern uint32_t rand_timer32(void);
+extern uint32_t rand_timer32();
 extern rtpHandle StartRtpSession(OsSocket* socket, int direction, char type);
 extern void FinishRtpSession(rtpHandle h);
 
-extern OsStatus startNetInTask();
-extern OsStatus shutdownNetInTask();
-extern OsStatus addNetInputSources(OsSocket* pRtpSocket,
-                                   OsSocket* pRtcpSocket,
-                                   MprFromNet* fwdTo,
-                                   OsNotification* note);
-extern OsStatus removeNetInputSources(MprFromNet* fwdTo, OsNotification* note);
-
 /**
 *  @brief Task that listen for packets in incoming RTP streams.
+*
+*  @nosubgrouping
 */
 class NetInTask : public OsTask
 {
@@ -104,25 +98,30 @@ public:
 ///@name Creators
 //@{
 
-     /// Destructor
-   virtual
-   ~NetInTask();
-
-   int getWriteFD();
-   
-   
-   void shutdownSockets();   
-
-//@}
-
      /// Return a pointer to the NetIn task, creating it if necessary
    static NetInTask* getNetInTask();
+
+     /// Shutdown NetInTask instance and free it.
+   OsStatus destroy();
+
+     /// Destructor
+   virtual ~NetInTask();
+
+//@}
 
 /* ============================ MANIPULATORS ============================== */
 ///@name Manipulators
 //@{
 
+     /// Task loop
    virtual int run(void* pArg);
+
+   OsStatus addNetInputSources(OsSocket* pRtpSocket,
+                               OsSocket* pRtcpSocket,
+                               MprFromNet* fwdTo,
+                               OsNotification* note);
+
+   OsStatus removeNetInputSources(MprFromNet* fwdTo, OsNotification* note);
 
 //@}
 
@@ -130,11 +129,7 @@ public:
 ///@name Accessors
 //@{
 
-   OsConnectionSocket* getWriteSocket(void);
-
 //@}
-
-   static OsRWMutex& getLockObj() { return sLock; }
 
 /* ============================ INQUIRY =================================== */
 ///@name Inquiry
@@ -145,24 +140,27 @@ public:
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 
+   // Static data members used to enforce Singleton behavior
+   static NetInTask* spInstance;    ///< pointer to the single instance of
+                                    ///<  the MpNetInTask class
+   static OsRWMutex  sLock;         ///< semaphore used to ensure that there
+                                    ///<  is only one instance of this class
+
+   OsConnectionSocket* mpWriteSocket;
+   OsConnectionSocket* mpReadSocket;
+   int                 mCmdPort;    ///< internal socket port number
+
      /// Default constructor
    NetInTask(
       int prio    = DEF_NET_IN_TASK_PRIORITY,      ///< default task priority
       int options = DEF_NET_IN_TASK_OPTIONS,       ///< default task options
       int stack   = DEF_NET_IN_TASK_STACKSIZE);    ///< default task stack size
 
+     /// Return sLock object.
+   static OsRWMutex& getLockObj() { return sLock; }
+
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-
-   // Static data members used to enforce Singleton behavior
-   static NetInTask* spInstance;    ///< pointer to the single instance of
-                                    ///<  the MpNetInTask class
-   static OsRWMutex     sLock;      ///< semaphore used to ensure that there
-                                    ///<  is only one instance of this class
-
-   OsConnectionSocket* mpWriteSocket;
-   OsConnectionSocket* mpReadSocket;
-   int                 mCmdPort;    ///< internal socket port number
 
      /// Copy constructor (not implemented for this task)
    NetInTask(const NetInTask& rNetInTask);

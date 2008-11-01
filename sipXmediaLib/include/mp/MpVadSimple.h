@@ -30,11 +30,17 @@ public:
 ///@name Creators
 //@{
 
+     /// Constructor
+   MpVadSimple();
+
      /// @copydoc MpVadBase::init()
    OsStatus init(int samplesPerSec);
 
      /// Destructor
    ~MpVadSimple();
+
+     /// Reset
+   void reset();
 
 //@}
 
@@ -46,13 +52,19 @@ public:
    MpSpeechType processFrame(uint32_t packetTimeStamp,
                              const MpAudioSample* pBuf,
                              unsigned inSamplesNum,
-                             const MpSpeechParams &speechParams);
+                             const MpSpeechParams &speechParams,
+                             UtlBoolean calcEnergyOnly = FALSE);
+
+     /// Set thresould energy
+   void setMinimumEnergy(int minEnergy);
 
 //@}
 
 /* ============================ ACCESSORS ================================= */
 ///@name Accessors
 //@{
+     /// @copydoc MpVadBase::getEnergy()
+   int getEnergy() const;
 
 //@}
 
@@ -67,7 +79,11 @@ protected:
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
+   int mLastFrameSize;
+   int mLastEnergy;
+   int mSamplesPerSecond;
 
+   int mMinEnergy;
 };
 
 #endif // _MpVadSimple_h_

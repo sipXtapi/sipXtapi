@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 SIPez LLC. 
+// Copyright (C) 2007-2008 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2007 SIPfoundry Inc.
+// Copyright (C) 2007-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // $$
@@ -23,18 +23,17 @@
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
-// Connection ID that indicates invalid connection or no connection.
-const MpConnectionID MpResNotificationMsg::INVALID_CONNECTION_ID = -1;
-
 /* ============================ CREATORS ================================== */
 
 // Constructor
 MpResNotificationMsg::MpResNotificationMsg(RNMsgType msgType, 
                                            const UtlString& namedResOriginator,
-                                           MpConnectionID connId)
+                                           MpConnectionID connId,
+                                           int streamId)
    : OsMsg(OsMsg::MP_RES_NOTF_MSG, msgType)
    , mMsgOriginatorName(namedResOriginator)
    , mConnectionId(connId)
+   , mStreamId(streamId)
 {
 }
 
@@ -43,6 +42,7 @@ MpResNotificationMsg::MpResNotificationMsg(const MpResNotificationMsg& rMpResNot
    : OsMsg(rMpResNotifyMsg)
    , mMsgOriginatorName(rMpResNotifyMsg.mMsgOriginatorName)
    , mConnectionId(rMpResNotifyMsg.mConnectionId)
+   , mStreamId(rMpResNotifyMsg.mStreamId)
 {
 }
 
@@ -71,6 +71,7 @@ MpResNotificationMsg::operator=(const MpResNotificationMsg& rhs)
 
    mMsgOriginatorName = rhs.mMsgOriginatorName;
    mConnectionId = rhs.mConnectionId;
+   mStreamId = rhs.mStreamId;
 
    return *this;
 }
@@ -85,6 +86,11 @@ void MpResNotificationMsg::setOriginatingResourceName(const UtlString& resOrigin
 void MpResNotificationMsg::setConnectionId(MpConnectionID connId)
 {
    mConnectionId = connId;
+}
+
+void MpResNotificationMsg::setStreamId(int streamId)
+{
+   mStreamId = streamId;
 }
 
 /* ============================ ACCESSORS ================================= */
@@ -108,6 +114,10 @@ MpConnectionID MpResNotificationMsg::getConnectionId() const
    return mConnectionId;
 }
 
+int MpResNotificationMsg::getStreamId() const
+{
+   return mStreamId;
+}
 
 /* ============================ INQUIRY =================================== */
 

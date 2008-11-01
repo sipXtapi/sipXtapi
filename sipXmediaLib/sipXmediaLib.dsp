@@ -331,6 +331,14 @@ SOURCE=.\src\mp\MprDejitter.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\mp\MprDelay.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\mp\MprDelay.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\mp\MprEchoSuppress.cpp
 # End Source File
 # Begin Source File
@@ -399,7 +407,15 @@ SOURCE=.\src\mp\MprnDTMFMsg.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\mp\MprnIntMsg.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\mp\MprnProgressMsg.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\mp\MprnRtpStreamActivityMsg.cpp
 # End Source File
 # Begin Source File
 
@@ -412,6 +428,18 @@ SOURCE=.\src\mp\MprNullAec.cpp
 # Begin Source File
 
 SOURCE=.\src\mp\MprRecorder.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\mp\MprRtpDispatcher.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\mp\MprRtpDispatcherActiveSsrcs.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\mp\MprRtpDispatcherIpAffinity.cpp
 # End Source File
 # Begin Source File
 
@@ -447,19 +475,19 @@ SOURCE=.\src\mp\MpRtpBuf.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\mp\MpRtpInputAudioConnection.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\src\mp\MpRtpInputConnection.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\mp\MpRtpOutputAudioConnection.cpp
+SOURCE=.\src\mp\MpRtpOutputConnection.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\mp\MpRtpOutputConnection.cpp
+SOURCE=.\src\mp\MprVad.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\mp\MprVoiceActivityNotifier.cpp
 # End Source File
 # Begin Source File
 
@@ -915,6 +943,10 @@ SOURCE=.\include\mp\MpDspUtilsConvertVect.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\include\mp\MpDspUtilsIntSqrt.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\include\mp\MpDspUtilsSerials.h
 # End Source File
 # Begin Source File
@@ -984,6 +1016,10 @@ SOURCE=.\include\mp\MpInputDeviceDriver.h
 # Begin Source File
 
 SOURCE=.\include\mp\MpInputDeviceManager.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MpIntResourceMsg.h
 # End Source File
 # Begin Source File
 
@@ -1075,6 +1111,14 @@ SOURCE=.\include\mp\MprDejitter.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\include\mp\MprDelay.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MprDelayConstructor.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\include\mp\MprEchoSuppress.h
 # End Source File
 # Begin Source File
@@ -1155,7 +1199,15 @@ SOURCE=.\include\mp\MprnDTMFMsg.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\include\mp\MprnIntMsg.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\include\mp\MprnProgressMsg.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MprnRtpStreamActivityMsg.cpp
 # End Source File
 # Begin Source File
 
@@ -1179,15 +1231,23 @@ SOURCE=.\include\mp\MprRecorder.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\mp\MprRtpInputAudioConnectionConstructor.h
+SOURCE=.\include\mp\MprRtpDispatcher.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\mp\MprRtpOutputAudioConnectionConstructor.h
+SOURCE=.\include\mp\MprRtpDispatcherActiveSsrcs.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\mp\MprRtpStartReceiveMsg.h
+SOURCE=.\include\mp\MprRtpDispatcherIpAffinity.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MprRtpInputConnectionConstructor.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MprRtpOutputConnectionConstructor.h
 # End Source File
 # Begin Source File
 
@@ -1239,19 +1299,27 @@ SOURCE=.\include\mp\MpRtpBuf.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\mp\MpRtpInputAudioConnection.h
-# End Source File
-# Begin Source File
-
 SOURCE=.\include\mp\MpRtpInputConnection.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\mp\MpRtpOutputAudioConnection.h
+SOURCE=.\include\mp\MpRtpOutputConnection.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\mp\MpRtpOutputConnection.h
+SOURCE=.\include\mp\MprVad.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MprVadConstructor.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MprVoiceActivityNotifier.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MprVoiceActivityNotifierConstructor.h
 # End Source File
 # Begin Source File
 

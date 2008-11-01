@@ -495,7 +495,8 @@ UtlBoolean MpBridgeAlgLinear::doMix(MpBufPtr inBufs[], int inBufsSize,
       if (mpPrevAmplitudes[i] < 0 && inBufs[i].isValid())
       {
          MpAudioBufPtr pAudioBuf = inBufs[i];
-         mpPrevAmplitudes[i] = pAudioBuf->getAmplitude();
+         MpAudioSample amplitude = pAudioBuf->getAmplitude();
+         mpPrevAmplitudes[i] = amplitude == 0 ? 1 : amplitude;
       }
    }
 
@@ -569,6 +570,7 @@ UtlBoolean MpBridgeAlgLinear::doMix(MpBufPtr inBufs[], int inBufsSize,
                assert(pOutBuf.isValid());
                pOutBuf->setSamplesNumber(samplesPerFrame);
                pOutBuf->setSpeechType(mpMixDataSpeechType[src]);
+               pOutBuf->setEnergy(-1);
                pOutBuf->setAmplitude(MPF_SATURATE16(mpMixDataAmplitude[src]));
                if (mpMixDataAmplitude[src] >= MpSpeechParams::MAX_AMPLITUDE)
                {
@@ -599,6 +601,10 @@ UtlBoolean MpBridgeAlgLinear::doMix(MpBufPtr inBufs[], int inBufsSize,
             const MpAudioBufPtr pInBuf(inBufs[origInput]);
             MpAudioSample prevAmplitude = mpPrevAmplitudes[origInput];
             MpAudioSample curAmplitude = pInBuf->getAmplitude();
+            if (curAmplitude == 0)
+            {
+               curAmplitude = 1;
+            }
 
             mpMixDataSpeechType[extOutput] = pInBuf->getSpeechType();
             if (  mExtendedInputs.getGain(extInput) == MP_BRIDGE_GAIN_PASSTHROUGH

@@ -70,7 +70,7 @@ public:
       FINISHED
    } VisitState;
 
-static const UtlContainableType TYPE;
+static const UtlContainableType TYPE; ///< Class name, used for run-time checks.
 
 /* ============================ CREATORS ================================== */
 ///@name Creators
@@ -90,7 +90,7 @@ static const UtlContainableType TYPE;
 //@{
 
      /// Disable this resource.
-   virtual UtlBoolean disable(void);
+   virtual UtlBoolean disable();
      /**<
      *  If a resource is disabled, it will perform only minimal processing
      *  typically. For example, passing the input straight through
@@ -129,7 +129,7 @@ static const UtlContainableType TYPE;
      */
 
      /// Enable this resource.
-   virtual UtlBoolean enable(void);
+   virtual UtlBoolean enable();
      /**<
      *  If a resource is enabled, it will perform full featured processing
      *  typically. For example, apply gain, mix several frames, remove noise,
@@ -211,7 +211,7 @@ static const UtlContainableType TYPE;
      */
 
      /// This method is called in every flowgraph processing cycle.
-   virtual UtlBoolean processFrame(void) = 0;
+   virtual UtlBoolean processFrame() = 0;
      /**<
      *  This method is called for each resource during frame processing cycle
      *  to perform data processing and, hence, it should be implemented in all
@@ -247,6 +247,18 @@ static const UtlContainableType TYPE;
      *  @retval OS_SUCCESS if message send succeeded.
      */
 
+     /// Set the ID of a connection this resource belongs to.
+   virtual void setConnectionId(MpConnectionID connectionId);
+     /**<
+     *  @warning This method directly modifies resource structure.
+     */
+
+     /// Set the ID of a stream inside of the connection this resource belongs to.
+   virtual void setStreamId(int streamId);
+     /**<
+     *  @warning This method directly modifies resource structure.
+     */
+
 //@}
 
 /* ============================ ACCESSORS ================================= */
@@ -257,7 +269,7 @@ static const UtlContainableType TYPE;
    static void resourceInfo(MpResource* pResource, int index);
 
      /// Returns parent flowgraph.
-   MpFlowGraphBase* getFlowGraph(void) const;
+   MpFlowGraphBase* getFlowGraph() const;
      /**<
      *  @returns the flow graph that contains this resource or NULL if the 
      *           resource is not presently part of any flow graph.
@@ -277,7 +289,7 @@ static const UtlContainableType TYPE;
      */
 
      /// Returns the name associated with this resource.
-   UtlString getName(void) const;
+   const UtlString &getName() const;
 
      /// Returns information about the downstream end of a connection.
    void getOutputInfo(int outPortIdx, MpResource*& rpDownstreamResource,
@@ -293,29 +305,29 @@ static const UtlContainableType TYPE;
      */
 
      /// Returns the current visit state for this resource
-   int getVisitState(void);
+   int getVisitState();
      /**<
      *  Used in performing a topological sort on the resources contained within
      *  a flow graph.
      */
 
      /// Returns the maximum number of inputs supported by this resource.
-   int maxInputs(void) const;
+   int maxInputs() const;
 
      /// Returns the maximum number of outputs supported by this resource.
-   int maxOutputs(void) const;
+   int maxOutputs() const;
 
      /// Returns the minimum number of inputs required by this resource.
-   int minInputs(void) const;
+   int minInputs() const;
 
      /// Returns the minimum number of outputs required by this resource.
-   int minOutputs(void) const;
+   int minOutputs() const;
 
      /// Returns the number of resource inputs that are currently connected.
-   int numInputs(void) const;
+   int numInputs() const;
 
      /// Returns the number of resource outputs that are currently connected.
-   int numOutputs(void) const;
+   int numOutputs() const;
 
      /// Find the first unconnected input port and reserve it
    int reserveFirstUnconnectedInput();
@@ -340,7 +352,7 @@ static const UtlContainableType TYPE;
      */
 
      /// Get the ContainableType for a UtlContainable derived class.
-   //virtual UtlContainableType getContainableType() const ;
+   UtlContainableType getContainableType() const;
 
 //@}
 
@@ -349,7 +361,7 @@ static const UtlContainableType TYPE;
 //@{
 
      /// Returns TRUE is this resource is currently enabled, FALSE otherwise.
-   UtlBoolean isEnabled(void) const;
+   UtlBoolean isEnabled() const;
 
      /// Returns TRUE if portIdx is valid and the indicated input is connected, FALSE otherwise.
    UtlBoolean isInputConnected(int portIdx);
@@ -402,6 +414,9 @@ protected:
    };
 
    MpFlowGraphBase* mpFlowGraph;   ///< flow graph this resource belongs to
+   MpConnectionID mConnectionId;   ///< The ID of connection this resource belongs to.
+   int            mStreamId;       ///< The ID of the stream inside the connection
+                                   ///< this resource belongs to.
    UtlBoolean    mIsEnabled;       ///< TRUE if resource is enabled, FALSE otherwise
 
    OsRWMutex    mRWMutex;          ///< reader/writer lock for synchronization
@@ -466,7 +481,11 @@ protected:
 
      /// @brief Associates this resource with the indicated flow graph.
    virtual OsStatus setFlowGraph(MpFlowGraphBase* pFlowGraph);
-     /**< @retval OS_SUCCESS - for now, this method always returns success */
+     /**<
+     *  @param[in] pFlowGraph - pointer to a flowgraph owning this resource.
+     *
+     *  @retval OS_SUCCESS - for now, this method always returns success
+     */
 
      /// @brief Sets whether or not this resource should send notifications
    virtual OsStatus setNotificationsEnabled(UtlBoolean enable);
@@ -476,12 +495,10 @@ protected:
      *  @retval OS_SUCCESS if setting worked.
      *  @retval OS_FAILURe if setting failed.
      */
-/* //////////////////////////// PRIVATE /////////////////////////////////// */
-private:
 
      /// @brief Connects the \p toPortIdx input port on this resource to the 
      /// \p fromPortIdx output port of the \p rFrom resource.
-   UtlBoolean connectInput(MpResource& rFrom, int fromPortIdx, int toPortIdx);
+   virtual UtlBoolean connectInput(MpResource& rFrom, int fromPortIdx, int toPortIdx);
      /**<
      *  @note This method locks to avoid contention over port allocation.
      *        It SHOULD NOT be used in process frame.
@@ -491,7 +508,7 @@ private:
 
      /// @brief Connects the \p fromPortIdx output port on this resource to the 
      /// \p toPortIdx input port of the \p rTo resource.
-   UtlBoolean connectOutput(MpResource& rTo, int toPortIdx, int fromPortIdx);
+   virtual UtlBoolean connectOutput(MpResource& rTo, int toPortIdx, int fromPortIdx);
      /**<
      *  @note This method locks to avoid contention over port allocation.
      *        It SHOULD NOT be used in process frame.
@@ -501,7 +518,7 @@ private:
 
      /// @brief Removes the connection to the \p inPortIdx input port
      /// of this resource.
-   UtlBoolean disconnectInput(int inPortIdx);
+   virtual UtlBoolean disconnectInput(int inPortIdx);
      /**<
      *  @note This method locks to avoid contention over port allocation.
      *        It SHOULD NOT be used in process frame.
@@ -511,7 +528,7 @@ private:
 
      /// @brief Removes the connection to the \p outPortIdx output port
      /// of this resource.
-   UtlBoolean disconnectOutput(int outPortIdx);
+   virtual UtlBoolean disconnectOutput(int outPortIdx);
      /**<
      *  @note This method locks to avoid contention over port allocation.
      *        It SHOULD NOT be used in process frame.
@@ -521,6 +538,9 @@ private:
 
      /// Sets the name that is associated with this resource.
    void setName(const UtlString& rName);
+
+/* //////////////////////////// PRIVATE /////////////////////////////////// */
+private:
 
      /// Copy constructor (not implemented for this class)
    MpResource(const MpResource& rMpResource);

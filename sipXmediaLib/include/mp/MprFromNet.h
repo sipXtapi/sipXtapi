@@ -23,9 +23,6 @@
 #endif /* _WIN32 ] */
 
 // APPLICATION INCLUDES
-
-class MprDejitter;
-
 #include "os/OsDefs.h"
 #include "os/OsSocket.h"
 #include "mp/NetInTask.h"
@@ -45,6 +42,8 @@ class MprDejitter;
 // TYPEDEFS
 // FORWARD DECLARATIONS
 class MprDecode;
+class MprDejitter;
+class MprRtpDispatcher;
 
 /// The "From Network" media processing resource
 class MprFromNet
@@ -70,20 +69,33 @@ public:
 
      /// @brief Set the inbound RTP and RTCP sockets.
    OsStatus setSockets(OsSocket& rRtpSocket, OsSocket& rRtcpSocket);
-     /** @returns Always OS_SUCCESS for now. */
+     /**< @returns Always OS_SUCCESS for now. */
 
-     /// @brief Deregister the inbound RTP and RTCP sockets.
+     /// @brief Unregister the inbound RTP and RTCP sockets.
    OsStatus resetSockets();
-     /** @returns Always OS_SUCCESS for now. */
+     /**< @returns Always OS_SUCCESS for now. */
 
      /// Take in a buffer from the NetIn task
    OsStatus pushPacket(const MpUdpBufPtr &buf, bool isRtcp);
 
-     /// Inform this object of its sibling dejitter object.
-   void setMyDecoder(MprDecode* pDecoder);
+     /// Enable/disable discarding of given RTP stream.
+   OsStatus enableSsrcDiscard(UtlBoolean enable, RtpSRC ssrc);
+     /**<
+     *  @param[in] enable - should given stream be discarded or not.
+     *  @param[in] ssrc - SSRC of the stream to discard. If \p enable is
+     *             FALSE, then \p ssrc is ignored.
+     *
+     *  @note Only one stream at a time can be discarded. This functionality
+     *        is designed to discard looped local back packets.
+     *
+     *  @returns Always OS_SUCCESS for now.
+     */
 
-     /// Inform this object of its sibling ToNet's destination
-   void setDestIp(OsSocket& newDest);
+     /// Set RTP dispatcher instance
+   OsStatus setRtpDispatcher(MprRtpDispatcher *pRtpDispatcher);
+     /**<
+     *  @note Must be called right after object construction!
+     */
 
 //@}
 
@@ -93,7 +105,7 @@ public:
 
 #ifdef INCLUDE_RTCP /* [ */
      /// @brief These accessors were added by DMG to allow a Connection to access and modify
-     /// rtp and rtcp stream informations
+     /// RTP and RTCP stream informations
    void setDispatchers(IRTPDispatch *piRTPDispatch, INetDispatch *piRTCPDispatch);
 
 #else /* INCLUDE_RTCP ] [ */
@@ -115,8 +127,11 @@ protected:
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
    OsMutex          mMutex;
+   NetInTask*       mNetInTask;
    UtlBoolean       mRegistered;
-   MprDecode*       mpDecoder;
+   MprRtpDispatcher* mpRtpDispatcher;
+   UtlBoolean       mDiscardSelectedStream;
+   RtpSRC           mDiscardedSSRC;
 #ifdef INCLUDE_RTCP /* [ */
    INetDispatch*    mpiRTCPDispatch;
    IRTPDispatch*    mpiRTPDispatch;
@@ -125,47 +140,25 @@ private:
    int              mRtcpCount;
 #endif /* INCLUDE_RTCP ] */
 
-   unsigned long mPrevIP;
-   int mPrevPort;
-   int mNumPushed;
-   int mNumWarnings;
-
-   int mPrefSsrc;               ///< current "preferred SSRC"
-   UtlBoolean mPrefSsrcValid;
-   unsigned long mRtpDestIp;    ///< where this connection is sending to
-   int mRtpDestPort;
-
-   int mNumNonPrefPackets;
-   int mRtpRtcpMatchSsrc;
-   UtlBoolean mRtpRtcpMatchSsrcValid;
-   int mRtpDestMatchIpOnlySsrc;
-   UtlBoolean mRtpDestMatchIpOnlySsrcValid;
-   int mRtpOtherSsrc;
-   UtlBoolean mRtpOtherSsrcValid;
-   static const int SSRC_SWITCH_MISMATCH_COUNT;
-
-     /// Copy constructor (not implemented for this class)
-   MprFromNet(const MprFromNet& rMprFromNet);
-
-     /// Assignment operator (not implemented for this class)
-   MprFromNet& operator=(const MprFromNet& rhs);
+   int             mNumPushed;     ///< Total RTP+RTCP pkts received from NetIn
+   int             mNumPktsRtcp;   ///< Total RTCP packets received from NetIn
+   int             mNumPktsRtp;    ///< Total RTP packets received from NetIn
+   int             mNumEncDropped; ///< Encoded RTP packets dropped due to no key
+   int             mNumLoopDropped;///< Looped-back mcast RTP packets dropped
 
 #ifndef INCLUDE_RTCP /* [ */
      /// Update the RR info for the current incoming packet
    OsStatus rtcpStats(struct RtpHeader *h);
 #endif /* INCLUDE_RTCP ] */
 
-   MprDecode* getMyDecoder();
-
      /// Parse UDP packet and return filled RTP packet buffer.
    static MpRtpBufPtr parseRtpPacket(const MpUdpBufPtr &buf);
 
-     /// Set current "preferred SSRC".
-   int setPrefSsrc(int newSsrc);
+     /// Copy constructor (not implemented for this class)
+   MprFromNet(const MprFromNet& rMprFromNet);
 
-     /// Get current "preferred SSRC".
-   int getPrefSsrc(void);
-
+     /// Assignment operator (not implemented for this class)
+   MprFromNet& operator=(const MprFromNet& rhs);
 
 };
 

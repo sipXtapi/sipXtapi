@@ -65,6 +65,9 @@ public:
      /// Virtual base destructor.
    virtual ~MpPlcBase() {};
 
+     /// Reset
+   virtual void reset() = 0;
+
 //@}
 
 /* ============================ MANIPULATORS ============================== */

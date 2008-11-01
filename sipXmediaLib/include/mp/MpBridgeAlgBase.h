@@ -85,7 +85,7 @@ public:
      /// Destructor.
    virtual ~MpBridgeAlgBase()
    {
-      delete mpPrevAmplitudes;
+      delete[] mpPrevAmplitudes;
    };
 
 //@}
@@ -169,7 +169,8 @@ void MpBridgeAlgBase::saveAmplitudes(MpBufPtr inBufs[], int inBufsSize)
       if (inBufs[i].isValid())
       {
          MpAudioBufPtr pAudioBuf = inBufs[i];
-         mpPrevAmplitudes[i] = pAudioBuf->getAmplitude();
+         MpAudioSample amplitude = pAudioBuf->getAmplitude();
+         mpPrevAmplitudes[i] = amplitude == 0 ? 1 : amplitude;
       }
    }
 }

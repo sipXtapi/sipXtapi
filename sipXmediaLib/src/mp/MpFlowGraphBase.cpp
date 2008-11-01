@@ -45,13 +45,14 @@ int MpFlowGraphBase::gFgMaxNumber = 0;
 /* ============================ CREATORS ================================== */
 
 // Constructor
-MpFlowGraphBase::MpFlowGraphBase(int samplesPerFrame, int samplesPerSec)
+MpFlowGraphBase::MpFlowGraphBase(int samplesPerFrame, int samplesPerSec,
+                                 OsMsgDispatcher *pNotifDispatcher)
 : mRWMutex(OsRWMutex::Q_PRIORITY)
 , mFgNumber(gFgMaxNumber++)
 , mResourceDict()
 , mCurState(STOPPED)
 , mMessages(MAX_FLOWGRAPH_MESSAGES)
-, mNotifyDispatcher(NULL)
+, mNotifyDispatcher(pNotifDispatcher)
 , mPeriodCnt(0)
 , mLinkCnt(0)
 , mResourceCnt(0)
@@ -518,6 +519,24 @@ OsStatus MpFlowGraphBase::removeResource(MpResource& rResource)
       return OS_UNSPECIFIED;
 }
 
+OsStatus MpFlowGraphBase::destroyResource(const UtlString& resourceName)
+{
+   OsWriteLock    lock(mRWMutex);
+   UtlString *pName = new UtlString(resourceName);
+
+   MpFlowGraphMsg msg(MpFlowGraphMsg::FLOWGRAPH_DESTROY_RESOURCE, NULL,
+                     pName);
+
+   if (mCurState == STARTED)
+      return postMessage(msg);
+
+   UtlBoolean handled = handleMessage(msg);
+   if (handled)
+      return OS_SUCCESS;
+   else
+      return OS_UNSPECIFIED;
+}
+
 OsStatus MpFlowGraphBase::setNotificationsEnabled(bool enabled, 
                                                   const UtlString& resourceName)
 {
@@ -581,10 +600,17 @@ OsStatus MpFlowGraphBase::stop(void)
 void MpFlowGraphBase::synchronize(const char* tag, int val1)
 {
    OsTask* val2 = OsTask::getCurrentTask();
+/*   printf("synchronize in: ");
+   if (tag != NULL)
+   {
+      printf(tag, val1);
+   }
+   printf("\n");
+*/
    if (val2 != MpMediaTask::getMediaTask(0)) {
       OsEvent event;
       MpFlowGraphMsg msg(MpFlowGraphMsg::FLOWGRAPH_SYNCHRONIZE,
-         NULL, NULL, (void*) tag, val1, (int) val2);
+                         NULL, NULL, (void*) tag, val1, (int) val2);
       OsStatus  res;
 
       msg.setPtr1(&event);
@@ -594,6 +620,7 @@ void MpFlowGraphBase::synchronize(const char* tag, int val1)
    } else {
       osPrintf("Note: synchronize called from within Media Task\n");
    }
+//   printf("synchronize out\n");
 }
 
 /* ============================ ACCESSORS ================================= */
@@ -862,6 +889,13 @@ UtlBoolean MpFlowGraphBase::handleMessage(OsMsg& rMsg)
       break;
    case MpFlowGraphMsg::FLOWGRAPH_REMOVE_RESOURCE:
       retCode = handleRemoveResource(ptr1);
+      break;
+   case MpFlowGraphMsg::FLOWGRAPH_DESTROY_RESOURCE:
+      {
+         UtlString *pName = (UtlString*)ptr1;
+         retCode = handleDestroyResource(*pName);
+         delete pName;
+      }
       break;
    case MpFlowGraphMsg::FLOWGRAPH_SYNCHRONIZE:
       retCode = handleSynchronize(*pMsg);
@@ -1224,6 +1258,27 @@ UtlBoolean MpFlowGraphBase::handleRemoveResource(MpResource* pResource)
    mResourceCnt--;
    mUnsorted[mResourceCnt] = NULL;
    mRecomputeOrder = TRUE;
+
+   return TRUE;
+}
+
+UtlBoolean MpFlowGraphBase::handleDestroyResource(const UtlString &name)
+{
+   MpResource *pResource;
+   
+   // Lookup resource
+   OsStatus stat = lookupResourcePrivate(name, pResource);
+   if (stat != OS_SUCCESS)
+   {
+      assert(!"Trying to destroy unknown resource!");
+      return FALSE;
+   }
+
+   // Remove resource from the flowgraph
+   handleRemoveResource(pResource);
+
+   // Destroy resource
+   delete pResource;
 
    return TRUE;
 }

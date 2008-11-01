@@ -31,9 +31,12 @@
 #include "os/OsWriteLock.h"
 #include "os/OsProtectEventMgr.h"
 #include "os/OsProtectEvent.h"
-#include "mp/MpRtpInputAudioConnection.h"
+#include "mp/MpRtpInputConnection.h"
+#include "mp/MprDecode.h"
+#include "mp/MprDejitter.h"
 #include "mp/MpPlcSilence.h"
-#include "mp/MpRtpOutputAudioConnection.h"
+#include "mp/MpRtpOutputConnection.h"
+#include "mp/MprEncode.h"
 #include "mp/MpCallFlowGraph.h"
 #include "mp/MpMediaTask.h"
 #include "mp/MprBridge.h"
@@ -91,8 +94,9 @@ UtlBoolean MpCallFlowGraph::sbEnableNoiseReduction = false ;
 
 // Constructor
 MpCallFlowGraph::MpCallFlowGraph(const char* locale,
-                                 int samplesPerFrame, int samplesPerSec)
-: MpFlowGraphBase(samplesPerFrame, samplesPerSec)
+                                 int samplesPerFrame, int samplesPerSec,
+                                 OsMsgDispatcher *pNotifDispatcher)
+: MpFlowGraphBase(samplesPerFrame, samplesPerSec, pNotifDispatcher)
 , mConnTableLock(OsBSem::Q_FIFO, OsBSem::FULL)
 , mToneIsGlobal(FALSE)
 #ifdef INCLUDE_RTCP /* [ */
@@ -104,8 +108,14 @@ MpCallFlowGraph::MpCallFlowGraph(const char* locale,
    OsStatus     res;
    int          i;
 
-   for (i=0; i<MAX_CONNECTIONS; i++) mpInputConnections[i] = NULL;
-   for (i=0; i<MAX_CONNECTIONS; i++) mpOutputConnections[i] = NULL;
+   for (i=0; i<MAX_CONNECTIONS; i++)
+   {
+      mpInputConnections[i] = NULL;
+      mNumRtpStreams[i] = -1;
+      mpDecoders[i] = NULL;
+      mpMcastMixer[i] = NULL;
+      mpOutputConnections[i] = NULL;
+   }
    for (i=0; i<MAX_RECORDERS; i++) mpRecorders[i] = NULL;
 
    // create the resources and add them to the flow graph
@@ -725,8 +735,8 @@ void MpCallFlowGraph::startTone(int toneId, int toneOptions)
    if (toneOptions & TONE_TO_NET) { // "mToneIsGlobal"
       // Notify outbound leg of all connections that we are playing a tone
       for (i=0; i<MAX_CONNECTIONS; i++) {
-         if (NULL != mpOutputConnections[i]) 
-             mpOutputConnections[i]->startTone(toneId);
+         if (NULL != mpEncoders[i]) 
+            MprEncode::startTone(mpEncoders[i]->getName(), *getMsgQ(), toneId);
       }
    }
    // mpToneGen->enable();
@@ -752,8 +762,8 @@ void MpCallFlowGraph::stopTone(void)
       // boolRes = mpTFsMicMixer->enable();      assert(boolRes);
       // Notify outbound leg of all connections that we are playing a tone
       for (i=0; i<MAX_CONNECTIONS; i++) {
-         if (NULL != mpOutputConnections[i]) 
-             mpOutputConnections[i]->stopTone();
+         if (NULL != mpEncoders[i]) 
+            MprEncode::stopTone(mpEncoders[i]->getName(), *getMsgQ());
       }
    }
 }
@@ -1233,73 +1243,157 @@ void MpCallFlowGraph::stopFile(UtlBoolean closeFile)
    // boolRes = mpTFsBridgeMixer->enable();   assert(boolRes);
 }
 
-MpConnectionID MpCallFlowGraph::createConnection()
+MpConnectionID MpCallFlowGraph::createConnection(int maxRtpStreams,
+                                                 UtlBoolean isMcast)
 {
-   int            i;
+   MpRtpInputConnection* pInputConnection;
+   MprDecode**   pDecoders;
+   MprMixer*     pMcastMixer;
+   MpRtpOutputConnection* pOutputConnection;
+   MprEncode*    pEncode;
    MpConnectionID found = -1;
    int            bridgePort;
-   MpRtpInputAudioConnection*  pInputConnection;
-   MpRtpOutputAudioConnection*  pOutputConnection;
+   int            i;
 
-   mConnTableLock.acquire();
-   for (i=1; i<MAX_CONNECTIONS; i++) 
+   assert(isMcast || maxRtpStreams == 1);
+
    {
-      if (NULL == mpInputConnections[i] &&
-          NULL == mpOutputConnections[i]) 
+      // Acquire mConnTableLock lock to manipulate connections.
+      OsLock connectionsLock(mConnTableLock);
+
+      for (i=1; i<MAX_CONNECTIONS; i++) 
       {
-         mpInputConnections[i] = (MpRtpInputAudioConnection*) -1;
-         mpOutputConnections[i] = (MpRtpOutputAudioConnection*) -1;
-         found = i;
-         i = MAX_CONNECTIONS;
+         if (NULL == mpInputConnections[i] &&
+             NULL == mpOutputConnections[i]) 
+         {
+            mpInputConnections[i] = (MpRtpInputConnection*) -1;
+            mpOutputConnections[i] = (MpRtpOutputConnection*) -1;
+            found = i;
+            break;
+         }
       }
-   }
    
-   if (found < 0) {
-      mConnTableLock.release();
-      return -1;
+      if (found < 0)
+      {
+         return -1;
+      }
+
+      // Reserve Bridge port for this connection.
+      bridgePort = mpBridge->reserveFirstUnconnectedInput();
+      if (bridgePort < 0) 
+      {
+         mpInputConnections[found] = NULL;
+         mpOutputConnections[found] = NULL;
+         return -1;
+      }
+
+      Zprintf("bridgePort = %d\n", bridgePort, 0,0,0,0,0);
+
+      // Create resources for the input and output connections.
+      UtlString inConnectionName("InputConnection-");
+      UtlString decodeName("Decode-");
+      UtlString mixerName("InputRtpMixer-");
+      UtlString outConnectionName("OutputConnection-");
+      UtlString encodeName("Encode-");
+      char numBuf[20];
+      sprintf(numBuf, "%d", found);
+      inConnectionName.append(numBuf);
+      decodeName.append(numBuf);
+      decodeName.append("-");
+      mixerName.append(numBuf);
+      outConnectionName.append(numBuf);
+      encodeName.append(numBuf);
+      mpInputConnections[found] = 
+         new MpRtpInputConnection(inConnectionName, found, NULL,
+                                       maxRtpStreams,
+                                       isMcast?MpRtpInputConnection::MOST_RECENT_SSRC
+                                              :MpRtpInputConnection::ADDRESS_AND_PORT);
+      mNumRtpStreams[found] = maxRtpStreams;
+      mIsMcastConnection[found] = isMcast;
+      mpDecoders[found] = new MprDecode*[maxRtpStreams];
+      int decodeNameLen = decodeName.length();
+      for (i=0; i < maxRtpStreams; i++)
+      {
+         sprintf(numBuf, "%d", i);
+         decodeName.append(numBuf);
+         mpDecoders[found][i] = new MprDecode(decodeName);
+         mpDecoders[found][i]->setConnectionId(found);
+         mpDecoders[found][i]->setStreamId(i);
+         MprDejitter *pDejitter = new MprDejitter();
+         mpDecoders[found][i]->setMyDejitter(pDejitter, TRUE);
+         decodeName.resize(decodeNameLen);
+      }
+      // Don't create mixer if there is only one RTP stream.
+      if (maxRtpStreams > 1)
+      {
+         mpMcastMixer[found] = new MprMixer(mixerName, maxRtpStreams);
+      }
+      mpOutputConnections[found] = 
+         new MpRtpOutputConnection(outConnectionName, found, NULL);
+      mpEncoders[found] = new MprEncode(encodeName);
+      mpEncoders[found]->setConnectionId(found);
+
+      pInputConnection = mpInputConnections[found];
+      pDecoders = mpDecoders[found];
+      pMcastMixer = mpMcastMixer[found];
+      pOutputConnection = mpOutputConnections[found];
+      pEncode = mpEncoders[found];
    }
-   UtlString inConnectionName("InputConnection-");
-   UtlString outConnectionName("OutputConnection-");
-   char numBuf[20];
-   sprintf(numBuf, "%d", found);
-   inConnectionName.append(numBuf);
-   outConnectionName.append(numBuf);
-   mpInputConnections[found] = 
-      new MpRtpInputAudioConnection(inConnectionName, found);
-   mpOutputConnections[found] = 
-       new MpRtpOutputAudioConnection(outConnectionName, found);
 
-   pInputConnection = mpInputConnections[found];
-   pOutputConnection = mpOutputConnections[found];
-
-   bridgePort = mpBridge->reserveFirstUnconnectedInput();
-
-   if (bridgePort < 0) 
-   {
-      delete pInputConnection;
-      delete pOutputConnection;
-      mpInputConnections[found] = NULL;
-      mpOutputConnections[found] = NULL;
-      mConnTableLock.release();
-      return -1;
-   }
-
-   mConnTableLock.release();
-
-   Zprintf("bridgePort = %d\n", bridgePort, 0,0,0,0,0);
-
+   // Enable resources
    pInputConnection->enable();
+   // Don't enable decoders - they will be enabled automatically.
+   if (pMcastMixer != NULL)
+   {
+      pMcastMixer->enable();
+   }
    pOutputConnection->enable();
+   pEncode->enable();
 
+   // Add resources to the flowgraph
    OsStatus stat = addResource(*pInputConnection);
    assert(OS_SUCCESS == stat);
+   for (i=0; i<maxRtpStreams; i++)
+   {
+      stat = addResource(*pDecoders[i]);
+      assert(OS_SUCCESS == stat);
+   }
+   if (pMcastMixer != NULL)
+   {
+      stat = addResource(*pMcastMixer);
+      assert(OS_SUCCESS == stat);
+   }
    stat = addResource(*pOutputConnection);
    assert(OS_SUCCESS == stat);
+   stat = addResource(*pEncode);
+   assert(OS_SUCCESS == stat);
 
-   stat = addLink(*mpBridge, bridgePort, *pOutputConnection, 0);
+   // Link resources together.
+   stat = addLink(*mpBridge, bridgePort, *pEncode, 0);
    assert(OS_SUCCESS == stat);
-   stat = addLink(*pInputConnection, 0, *mpBridge, bridgePort);
+   stat = addLink(*pEncode, 0, *pOutputConnection, 0);
    assert(OS_SUCCESS == stat);
+   if (maxRtpStreams == 1)
+   {
+      // Single RTP stream, skip mpMcastMixer.
+      stat = addLink(*pInputConnection, 0, *pDecoders[0], 0);
+      assert(OS_SUCCESS == stat);
+      stat = addLink(*pDecoders[0], 0, *mpBridge, bridgePort);
+      assert(OS_SUCCESS == stat);
+   }
+   else
+   {
+      // Multiple RTP streams. Insert mpMcastMixer before the bridge.
+      for (i=0; i<maxRtpStreams; i++)
+      {
+         stat = addLink(*pInputConnection, i, *pDecoders[i], 0);
+         assert(OS_SUCCESS == stat);
+         stat = addLink(*pDecoders[i], 0, *pMcastMixer, i);
+         assert(OS_SUCCESS == stat);
+      }
+      stat = addLink(*pMcastMixer, 0, *mpBridge, bridgePort);
+      assert(OS_SUCCESS == stat);
+   }
 
    return found;
 }
@@ -1311,15 +1405,14 @@ OsStatus MpCallFlowGraph::deleteConnection(MpConnectionID connID)
    UtlBoolean      handled;
    OsStatus       ret;
 
-//   osPrintf("deleteConnection(%d)\n", connID);
    assert((0 < connID) && (connID < MAX_CONNECTIONS));
 
    if ((NULL == mpInputConnections[connID]) || 
-      (((MpRtpInputAudioConnection*) -1) == mpInputConnections[connID]))
+      (((MpRtpInputConnection*) -1) == mpInputConnections[connID]))
          return OS_INVALID_ARGUMENT;
 
    if ((NULL == mpOutputConnections[connID]) || 
-      (((MpRtpOutputAudioConnection*) -1) == mpOutputConnections[connID]))
+      (((MpRtpOutputConnection*) -1) == mpOutputConnections[connID]))
          return OS_INVALID_ARGUMENT;
 
    MpFlowGraphMsg msg(MpFlowGraphMsg::FLOWGRAPH_REMOVE_CONNECTION, NULL,
@@ -1350,72 +1443,112 @@ void MpCallFlowGraph::startSendRtp(OsSocket& rRtpSocket,
 {
    if(mpOutputConnections[connID])
    {
-       MpRtpOutputAudioConnection::startSendRtp(*(getMsgQ()),
-                                                mpOutputConnections[connID]->getName(),
-                                                rRtpSocket, 
-                                                rRtcpSocket,
-                                                pPrimaryCodec, 
-                                                pDtmfCodec);
+      // Set sockets to send to.
+      mpOutputConnections[connID]->setSockets(rRtpSocket, rRtcpSocket);
+
+      // Tell encoder which codecs to use (data codec and signaling codec)
+      // and enable it.
+      MprEncode::selectCodecs(mpEncoders[connID]->getName(), *getMsgQ(),
+                              pPrimaryCodec, pDtmfCodec);
+      MpResource::enable(mpEncoders[connID]->getName(), *getMsgQ());
+      MpResource::enable(mpOutputConnections[connID]->getName(), *getMsgQ());
    }
 }
 
 // Stop sending RTP and RTCP packets.
 void MpCallFlowGraph::stopSendRtp(MpConnectionID connID)
 {
-   // postPone(40); // testing...
    if(mpOutputConnections[connID])
    {
        if(mpOutputConnections[connID])
        {
-           MpRtpOutputAudioConnection::stopSendRtp(*(getMsgQ()),
-                                                mpOutputConnections[connID]->getName());
+          // Release sockets, deselect codecs and disable encoder.
+          mpOutputConnections[connID]->releaseSockets();
+          MprEncode::deselectCodecs(mpEncoders[connID]->getName(), *getMsgQ());
+          MpResource::disable(mpEncoders[connID]->getName(), *getMsgQ());
+          MpResource::disable(mpOutputConnections[connID]->getName(), *getMsgQ());
        }
    }
 }
 
 // Start receiving RTP and RTCP packets.
 void MpCallFlowGraph::startReceiveRtp(SdpCodec* pCodecs[],
-                                       int numCodecs,
-                                       OsSocket& rRtpSocket,
-                                       OsSocket& rRtcpSocket,
-                                       MpConnectionID connID)
+                                      int numCodecs,
+                                      OsSocket& rRtpSocket,
+                                      OsSocket& rRtcpSocket,
+                                      MpConnectionID connID)
 {
-    if(mpInputConnections[connID])
-    {
-        MpRtpInputAudioConnection::startReceiveRtp(*(getMsgQ()),
-                                mpInputConnections[connID]->getName(),
-                                pCodecs, 
-                                numCodecs, 
-                                rRtpSocket, 
-                                rRtcpSocket);
-    }
+   OsLock connLock(mConnTableLock);
+   if(mpInputConnections[connID])
+   {
+      // Setup codecs for decoding
+      if (numCodecs)
+      {
+         for (int i=0; i<mNumRtpStreams[connID]; i++)
+         {
+            MprDecode::selectCodecs(mpDecoders[connID][i]->getName(), *getMsgQ(),
+                                    pCodecs, numCodecs);
+         }
+      }
+
+      // Fence before calling asynchronous method setSockets().
+      synchronize("MpCallFlowGraph::startReceiveRtp() connID=%d", connID);
+
+      // Provide sockets
+      mpInputConnections[connID]->setSockets(rRtpSocket, rRtcpSocket);
+
+      // And finally enable decode resource, if this connection is unicast.
+      // For multicast connections decoders will be enabled on the fly
+      // to reduce CPU consumption.
+      if (numCodecs && !mIsMcastConnection[connID])
+      {
+         for (int i=0; i<mNumRtpStreams[connID]; i++)
+         {
+            mpDecoders[connID][i]->enable();
+         }
+      }
+   }
 }
 
 // Stop receiving RTP and RTCP packets.
 void MpCallFlowGraph::stopReceiveRtp(MpConnectionID connID)
 {
-    if(mpInputConnections[connID])
-    {
-        MpRtpInputAudioConnection::stopReceiveRtp(*(getMsgQ()),
-                                mpInputConnections[connID]->getName());
-    }
+   OsLock connLock(mConnTableLock);
+   if(mpInputConnections[connID])
+   {
+      mpInputConnections[connID]->releaseSockets();
+
+      for (int i=0; i<mNumRtpStreams[connID]; i++)
+      {
+         MprDecode::deselectCodecs(mpDecoders[connID][i]->getName(), *getMsgQ());
+         MprDecode::disable(mpDecoders[connID][i]->getName(), *getMsgQ());
+      }
+   }
 }
 
 OsStatus MpCallFlowGraph::addToneListener(OsNotification* pNotify,
-                                             MpConnectionID connectionId)
+                                          MpConnectionID connectionId)
 {
-   MpFlowGraphMsg msg(MpFlowGraphMsg::FLOWGRAPH_SET_DTMF_NOTIFY,
-      NULL, pNotify, NULL, connectionId);
+   OsLock connectionsLock(mConnTableLock);
 
-   return postMessage(msg);
+   for (int i=0; i<mNumRtpStreams[connectionId]; i++)
+   {
+      mpDecoders[connectionId][i]->setDtmfNotify(pNotify);
+   }
+
+   return OS_SUCCESS;
 }
 
 OsStatus MpCallFlowGraph::removeToneListener(MpConnectionID connectionId)
 {
-   MpFlowGraphMsg msg(MpFlowGraphMsg::FLOWGRAPH_SET_DTMF_NOTIFY,
-      NULL, NULL, NULL, connectionId);
+   OsLock connectionsLock(mConnTableLock);
 
-   return postMessage(msg);
+   for (int i=0; i<mNumRtpStreams[connectionId]; i++)
+   {
+      mpDecoders[connectionId][i]->clearDtmfNotify();
+   }
+
+   return OS_SUCCESS;
 }
 
 
@@ -1574,37 +1707,34 @@ void MpCallFlowGraph::RemoteSSRCCollision(IRTCPConnection  *piRTCPConnection,
                                           IRTCPSession     *piRTCPSession)
 {
 
-//  Ignore those events that are for a session other than ours
-    if(mpiRTCPSession != piRTCPSession)
-    {
-//      Release Interface References
-        piRTCPConnection->Release();
-        piRTCPSession->Release();
-        return;
-    }
+   // Ignore those events that are for a session other than ours
+   if(mpiRTCPSession != piRTCPSession)
+   {
+      // Release Interface References
+      piRTCPConnection->Release();
+      piRTCPSession->Release();
+      return;
+   }
 
-// According to standards, we are supposed to ignore remote sites that
-// have colliding SSRC IDS.
-    mConnTableLock.acquire();
-    for (int iConnection = 1; iConnection < MAX_CONNECTIONS; iConnection++) 
-    {
+   // According to standards, we are supposed to ignore remote sites that
+   // have colliding SSRC IDS.
+   mConnTableLock.acquire();
+   for (int iConnection = 1; iConnection < MAX_CONNECTIONS; iConnection++) 
+   {
       if (mpInputConnections[iConnection] &&
           mpInputConnections[iConnection]->getRTCPConnection() == piRTCPConnection) 
       {
-// We are supposed to ignore the media of the latter of two terminals
-// whose SSRC collides
-         MpRtpInputAudioConnection::stopReceiveRtp(*(getMsgQ()),
-                                mpInputConnections[iConnection]->getName());
+         // We are supposed to ignore the media of the latter of two terminals
+         // whose SSRC collides
+         stopReceiveRtp(iConnection);
          break;
       }
    }
    mConnTableLock.release();
 
-// Release Interface References
+   // Release Interface References
    piRTCPConnection->Release();
    piRTCPSession->Release();
-
-
 }
 #endif /* INCLUDE_RTCP ] */
 
@@ -1763,9 +1893,6 @@ UtlBoolean MpCallFlowGraph::handleMessage(OsMsg& rMsg)
       case MpFlowGraphMsg::FLOWGRAPH_STOP_TONE:
          retCode = handleStopToneOrPlay();
          break;
-      case MpFlowGraphMsg::FLOWGRAPH_SET_DTMF_NOTIFY:
-         retCode = handleSetDtmfNotify(*pMsg);
-         break;
       case MpFlowGraphMsg::ON_MPRRECORDER_ENABLED:
          retCode = handleOnMprRecorderEnabled(*pMsg);
          break;
@@ -1781,39 +1908,64 @@ UtlBoolean MpCallFlowGraph::handleMessage(OsMsg& rMsg)
    return retCode;
 }
 
-// Handle the FLOWGRAPH_REMOVE_CONNECTION message.
-// Returns TRUE if the message was handled, otherwise FALSE.
 UtlBoolean MpCallFlowGraph::handleRemoveConnection(MpFlowGraphMsg& rMsg)
 {
    MpConnectionID connID = rMsg.getInt1();
-   MpRtpInputAudioConnection* pInputConnection;
-   MpRtpOutputAudioConnection* pOutputConnection;
+   MpRtpInputConnection* pInputConnection;
+   int           numRtpStreams;
+   MprDecode**   pDecoders;
+   MprMixer*     pMcastMixer;
+   MpRtpOutputConnection* pOutputConnection;
+   MprEncode*    pEncode;
    UtlBoolean    res;
 
-   // Don't think this is needed as we make the ports available by
-   // releasing the ports on the connected resources
-   //mpBridge->disconnectPort(connID);
    mConnTableLock.acquire();
    pInputConnection = mpInputConnections[connID];
+   numRtpStreams = mNumRtpStreams[connID];
+   pDecoders = mpDecoders[connID];
+   pMcastMixer = mpMcastMixer[connID];
    pOutputConnection = mpOutputConnections[connID];
+   pEncode = mpEncoders[connID];
    mpInputConnections[connID] = NULL;
+   mNumRtpStreams[connID] = -1;
+   mpDecoders[connID] = NULL;
+   mpMcastMixer[connID] = NULL;
    mpOutputConnections[connID] = NULL;
+   mpEncoders[connID] = NULL;
    mConnTableLock.release();
 
-   // now remove synchronous resources from flow graph
-   if(pInputConnection)
+   assert(pInputConnection != NULL);
+   assert(pDecoders != NULL);
+   assert(pOutputConnection != NULL);
+   assert(pEncode != NULL);
+
+   res = handleRemoveResource(pInputConnection);
+   assert(res);
+   delete pInputConnection;
+
+   for (int i=0; i<numRtpStreams; i++)
    {
-       res = handleRemoveResource(pInputConnection);
-       assert(res);
-       delete pInputConnection;
+      res = handleRemoveResource(pDecoders[i]);
+      assert(res);
+      delete pDecoders[i];
+   }
+   delete[] pDecoders;
+
+   if (pMcastMixer != NULL)
+   {
+      res = handleRemoveResource(pInputConnection);
+      assert(res);
+      delete pInputConnection;
    }
 
-   if(pOutputConnection)
-   {
-       res = handleRemoveResource(pOutputConnection);
-       assert(res);
-       delete pOutputConnection;
-   }   
+   res = handleRemoveResource(pOutputConnection);
+   assert(res);
+   delete pOutputConnection;
+
+   res = handleRemoveResource(pEncode);
+   assert(res);
+   delete pEncode;
+
    return TRUE;
 }
 
@@ -1938,14 +2090,6 @@ UtlBoolean MpCallFlowGraph::handleStopToneOrPlay()
       // osPrintf("MpCallFlowGraph::postPone(%d)\n", ms);
    }
 #endif /* DEBUG_POSTPONE ] */
-
-UtlBoolean MpCallFlowGraph::handleSetDtmfNotify(MpFlowGraphMsg& rMsg)
-{
-   OsNotification* pNotify = (OsNotification*) rMsg.getPtr1();
-   MpConnectionID  connId  = rMsg.getInt1();
-
-   return mpInputConnections[connId]->handleSetDtmfNotify(pNotify);
-}
 
 #ifndef DISABLE_STREAM_PLAYER
 

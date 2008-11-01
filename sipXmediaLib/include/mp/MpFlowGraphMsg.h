@@ -48,6 +48,7 @@ public:
       FLOWGRAPH_REMOVE_CONNECTION,
       FLOWGRAPH_REMOVE_LINK,
       FLOWGRAPH_REMOVE_RESOURCE,
+      FLOWGRAPH_DESTROY_RESOURCE,
       FLOWGRAPH_START,
       FLOWGRAPH_STOP,
       RESOURCE_DISABLE,
@@ -62,8 +63,6 @@ public:
       FLOWGRAPH_STOP_RECORD,
       
       FLOWGRAPH_SYNCHRONIZE,
-
-      FLOWGRAPH_SET_DTMF_NOTIFY,
 
       // Resource notification messages using old flowgraph msg approach
       // NOTE: this is a temporary fix, and will be replaced by newer

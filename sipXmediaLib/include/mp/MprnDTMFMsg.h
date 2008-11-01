@@ -74,8 +74,12 @@ public:
    //@{
 
    /// Constructor
-   MprnDTMFMsg(const UtlString& namedResOriginator, MpConnectionID connId, 
-               KeyCode key, KeyPressState pressState, int32_t duration = DURATION_NOT_APPLICABLE);
+   MprnDTMFMsg(const UtlString& namedResOriginator,
+               KeyCode key,
+               KeyPressState pressState,
+               int32_t duration = DURATION_NOT_APPLICABLE,
+               MpConnectionID connId = MP_INVALID_CONNECTION_ID,
+               int streamId = -1);
 
    /// Copy constructor
    MprnDTMFMsg(const MprnDTMFMsg& rMsg);

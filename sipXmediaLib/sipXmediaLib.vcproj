@@ -25,7 +25,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="include;contrib\libgsm\inc;contrib\libspeex\include;contrib\libilbc\include;..\sipXportLib\include;..\sipXsdpLib\include;..\sipXtackLib\include;..\FFmpeg\include\ffmpeg"
-				PreprocessorDefinitions="HAVE_SPEEX;HAVE_GSM;HAVE_ILBC;SIPX_VIDEO;_DEBUG;WIN32;_LIB"
+				PreprocessorDefinitions="DISABLE_STREAM_PLAYER;HAVE_SPEEX;HAVE_GSM;HAVE_ILBC;SIPX_VIDEO;_DEBUG;WIN32;_LIB"
 				StringPooling="TRUE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -1714,6 +1714,80 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="src\mp\MprDelay.cpp">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="3"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug_NoVideo|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="3"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release_NoVideo|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="src\mp\MprDelay.cpp">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="3"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug_NoVideo|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="3"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release_NoVideo|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath="src\mp\MprEchoSuppress.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -2071,7 +2145,13 @@
 				RelativePath=".\src\mp\MprnDTMFMsg.cpp">
 			</File>
 			<File
+				RelativePath=".\src\mp\MprnIntMsg.cpp">
+			</File>
+			<File
 				RelativePath=".\src\mp\MprnProgressMsg.cpp">
+			</File>
+			<File
+				RelativePath=".\src\mp\MprnRtpStreamActivityMsg.cpp">
 			</File>
 			<File
 				RelativePath=".\src\mp\MprNull.cpp">
@@ -2115,6 +2195,15 @@
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\src\mp\MprRtpDispatcher.cpp">
+			</File>
+			<File
+				RelativePath=".\src\mp\MprRtpDispatcherActiveSsrcs.cpp">
+			</File>
+			<File
+				RelativePath=".\src\mp\MprRtpDispatcherIpAffinity.cpp">
 			</File>
 			<File
 				RelativePath=".\src\mp\MprSpeexEchoCancel.cpp">
@@ -2277,16 +2366,16 @@
 				RelativePath=".\src\mp\MpRtpBuf.cpp">
 			</File>
 			<File
-				RelativePath=".\src\mp\MpRtpInputAudioConnection.cpp">
-			</File>
-			<File
 				RelativePath=".\src\mp\MpRtpInputConnection.cpp">
 			</File>
 			<File
-				RelativePath=".\src\mp\MpRtpOutputAudioConnection.cpp">
+				RelativePath=".\src\mp\MpRtpOutputConnection.cpp">
 			</File>
 			<File
-				RelativePath=".\src\mp\MpRtpOutputConnection.cpp">
+				RelativePath=".\src\mp\MprVad.cpp">
+			</File>
+			<File
+				RelativePath=".\src\mp\MprVoiceActivityNotifier.cpp">
 			</File>
 			<File
 				RelativePath=".\src\mp\MpSineWaveGeneratorDeviceDriver.cpp">
@@ -3656,6 +3745,9 @@
 				RelativePath=".\include\mp\MpDspUtilsConvertVect.h">
 			</File>
 			<File
+				RelativePath=".\include\mp\MpDspUtilsIntSqrt.h">
+			</File>
+			<File
 				RelativePath=".\include\mp\MpDspUtilsSerials.h">
 			</File>
 			<File
@@ -3690,6 +3782,9 @@
 			</File>
 			<File
 				RelativePath=".\include\mp\MpInputDeviceManager.h">
+			</File>
+			<File
+				RelativePath=".\include\mp\MpIntResourceMsg.h">
 			</File>
 			<File
 				RelativePath=".\include\mp\MpJbeFixed.h">
@@ -3770,13 +3865,31 @@
 				RelativePath="include\mp\MprDecode.h">
 			</File>
 			<File
+				RelativePath=".\include\mp\MprDecodeConstructor.h">
+			</File>
+			<File
+				RelativePath=".\include\mp\MprDecodeSelectCodecsMsg.h">
+			</File>
+			<File
 				RelativePath="include\mp\MprDejitter.h">
+			</File>
+			<File
+				RelativePath="include\mp\MprDelay.h">
+			</File>
+			<File
+				RelativePath="include\mp\MprDelay.h">
+			</File>
+			<File
+				RelativePath=".\include\mp\MprDelayConstructor.h">
 			</File>
 			<File
 				RelativePath="include\mp\MprEchoSuppress.h">
 			</File>
 			<File
 				RelativePath="include\mp\MprEncode.h">
+			</File>
+			<File
+				RelativePath=".\include\mp\MprEncodeConstructor.h">
 			</File>
 			<File
 				RelativePath="include\mp\MpResampler.h">
@@ -3833,7 +3946,13 @@
 				RelativePath=".\include\mp\MprnDTMFMsg.h">
 			</File>
 			<File
+				RelativePath=".\include\mp\MprnIntMsg.h">
+			</File>
+			<File
 				RelativePath=".\include\mp\MprnProgressMsg.h">
+			</File>
+			<File
+				RelativePath=".\include\mp\MprnRtpStreamActivityMsg.h">
 			</File>
 			<File
 				RelativePath=".\include\mp\MprNull.h">
@@ -3851,13 +3970,19 @@
 				RelativePath="include\mp\MprRecorder.h">
 			</File>
 			<File
-				RelativePath=".\include\mp\MprRtpInputAudioConnectionConstructor.h">
+				RelativePath=".\include\mp\MprRtpDispatcher.h">
 			</File>
 			<File
-				RelativePath=".\include\mp\MprRtpOutputAudioConnectionConstructor.h">
+				RelativePath=".\include\mp\MprRtpDispatcherActiveSsrcs.h">
 			</File>
 			<File
-				RelativePath=".\include\mp\MprRtpStartReceiveMsg.h">
+				RelativePath=".\include\mp\MprRtpDispatcherIpAffinity.h">
+			</File>
+			<File
+				RelativePath=".\include\mp\MprRtpInputConnectionConstructor.h">
+			</File>
+			<File
+				RelativePath=".\include\mp\MprRtpOutputConnectionConstructor.h">
 			</File>
 			<File
 				RelativePath=".\include\mp\MprRtpStartSendMsg.h">
@@ -3896,16 +4021,22 @@
 				RelativePath=".\include\mp\MpRtpBuf.h">
 			</File>
 			<File
-				RelativePath=".\include\mp\MpRtpInputAudioConnection.h">
-			</File>
-			<File
 				RelativePath=".\include\mp\MpRtpInputConnection.h">
 			</File>
 			<File
-				RelativePath=".\include\mp\MpRtpOutputAudioConnection.h">
+				RelativePath=".\include\mp\MpRtpOutputConnection.h">
 			</File>
 			<File
-				RelativePath=".\include\mp\MpRtpOutputConnection.h">
+				RelativePath=".\include\mp\MprVad.h">
+			</File>
+			<File
+				RelativePath=".\include\mp\MprVadConstructor.h">
+			</File>
+			<File
+				RelativePath=".\include\mp\MprVoiceActivityNotifier.h">
+			</File>
+			<File
+				RelativePath=".\include\mp\MprVoiceActivityNotifierConstructor.h">
 			</File>
 			<File
 				RelativePath=".\include\mp\MpSineWaveGeneratorDeviceDriver.h">

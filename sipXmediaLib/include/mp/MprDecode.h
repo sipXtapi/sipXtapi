@@ -35,7 +35,6 @@
 // TYPEDEFS
 
 // FORWARD DECLARATIONS
-class MpRtpInputAudioConnection;
 class MpDecoderBase;
 class MprRecorder;
 class MpJitterBuffer;
@@ -49,7 +48,7 @@ class MprDecode : public MpAudioResource
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
-   friend class MpRtpInputAudioConnection;
+   static const UtlContainableType TYPE; ///< Class name, used for run-time checks.
 
 /* ============================ CREATORS ================================== */
 ///@name Creators
@@ -57,7 +56,6 @@ public:
 
      /// Constructor
    MprDecode(const UtlString &rName,
-             MpConnectionID connectionId,
              const UtlString &plcName = "");
 
      /// Destructor
@@ -70,11 +68,33 @@ public:
 ///@name Manipulators
 //@{
 
-   OsStatus selectCodecs(SdpCodec* codecs[], int numCodecs);
+     /// Reset decoder to the initial state to be able process new stream.
+   static OsStatus reset(const UtlString& namedResource, OsMsgQ& fgQ);
 
-   OsStatus selectCodec(SdpCodec& rCodec);
+     /// Reset decoder to the initial state to be able process new stream.
+   OsStatus reset();
 
-   OsStatus deselectCodec();
+     /// Provide set of codecs this decode resource will be able to decode.
+   static OsStatus selectCodecs(const UtlString& namedResource,
+                                OsMsgQ& fgQ,
+                                SdpCodec* codecs[],
+                                int numCodecs);
+
+     /// Clear set of codecs this resource is able to decode.
+   static OsStatus deselectCodecs(const UtlString& namedResource,
+                                  OsMsgQ& fgQ);
+
+     /// Set DTMF notification.
+   OsStatus setDtmfNotify(OsNotification *pNotify);
+     /**<
+     *  DEPRECATED! Listen for the DTMF notification messages instead.
+     */
+     
+     /// Clear DTMF notification.
+   OsStatus clearDtmfNotify();
+     /**<
+     *  DEPRECATED! Listen for the DTMF notification messages instead.
+     */
 
      /// Change PLC algorithm to one with given name. THIS METHOD DOES NOT WORK!
    static OsStatus setPlc(const UtlString& namedResource,
@@ -86,9 +106,6 @@ public:
      *  is received, the above resource will change PLC algorithm to
      *  chosen one.
      *
-     *  THIS METHOD DOES NOT WORK CURRENTLY, BECAUSE MprDecode IS NOT
-     *  IN FLOWGRAPH! USE MpRtpInputAudioConnection::setPlc() instead for now.
-     *
      *  @param[in] namedResource - the name of the resource to send a message to.
      *  @param[in] fgQ - the queue of the flowgraph containing the resource which
      *             the message is to be received by.
@@ -97,7 +114,12 @@ public:
      *  @returns the result of attempting to queue the message to this resource.
      */
 
-   void setMyDejitter(MprDejitter* newDJ);
+     /// Pair this decode resource with the dejitter resource.
+   void setMyDejitter(MprDejitter* newDJ, UtlBoolean ownDj);
+     /**<
+     *  If \p ownDj is TRUE, then dejitter instance will be freed in
+     *  the destructor of this decoder.
+     */
 
      /// Add incoming RTP packet to the decoding queue
    OsStatus pushPacket(const MpRtpBufPtr &pRtp);
@@ -112,6 +134,9 @@ public:
 ///@name Accessors
 //@{
 
+     /// @copydoc UtlContainable::getContainableType()
+   UtlContainableType getContainableType() const;
+
 //@}
 
 /* ============================ INQUIRY =================================== */
@@ -123,23 +148,18 @@ public:
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 
-     /// Handle the FLOWGRAPH_SET_DTMF_NOTIFY message.
-   UtlBoolean handleSetDtmfNotify(OsNotification* n);
-     /**<
-     *  @returns <b>TRUE</b>
-     */
-
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
    typedef enum
    {
-      SELECT_CODECS = MpFlowGraphMsg::RESOURCE_SPECIFIC_START,
-      DESELECT_CODECS
+      SET_DTMF_NOTIFY = MpFlowGraphMsg::RESOURCE_SPECIFIC_START
    } AddlMsgTypes;
 
    typedef enum
    {
-      MPRM_SET_PLC = MpResourceMsg::MPRM_EXTERNAL_MESSAGE_START
+      MPRM_SET_PLC = MpResourceMsg::MPRM_EXTERNAL_MESSAGE_START,
+      MPRM_DESELCT_CODECS,
+      MPRM_RESET
    } AddlResMsgTypes;
 
    MpJitterBuffer* mpJB;            ///< Pointer to JitterBuffer instance
@@ -147,6 +167,7 @@ private:
    OsNotification* mpDtmfNotication;
 
    MprDejitter* mpMyDJ;             ///< Dejitter instance, used by this decoder.
+   UtlBoolean   mOwnDJ;             ///< Is dejitter owned by this decoder?
    UtlBoolean mIsStreamInitialized; ///< Have we received at least one packet?
    struct StreamState
    {
@@ -174,8 +195,6 @@ private:
    int             mNumPrevCodecs; ///< Length of mpPrevCodecs array.
 
    MpDecoderPayloadMap mDecoderMap; ///< Mapping of payload types to decoder instances.
-
-   MpConnectionID  mConnectionId;   ///< ID of the parent Connection.
 
    virtual UtlBoolean doProcessFrame(MpBufPtr inBufs[],
                                      MpBufPtr outBufs[],
@@ -216,6 +235,15 @@ private:
 
      /// Change PLC algorithm to one provided.
    UtlBoolean handleSetPlc(const UtlString &plcName);
+
+     /// Handle the FLOWGRAPH_SET_DTMF_NOTIFY message.
+   UtlBoolean handleSetDtmfNotify(OsNotification* n);
+     /**<
+     *  @returns <b>TRUE</b>
+     */
+
+     /// Handle MPRM_RESET message.
+   UtlBoolean handleReset();
 
      /// Copy constructor (not implemented for this class)
    MprDecode(const MprDecode& rMprDecode);

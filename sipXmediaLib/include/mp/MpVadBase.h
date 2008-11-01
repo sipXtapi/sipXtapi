@@ -65,6 +65,9 @@ public:
      /// Destructor
    virtual ~MpVadBase() {};
 
+     /// Reset
+   virtual void reset() = 0;
+
 //@}
 
 /* ============================ MANIPULATORS ============================== */
@@ -74,13 +77,15 @@ public:
    virtual MpSpeechType processFrame(uint32_t packetTimeStamp,
                                      const MpAudioSample* pBuf,
                                      unsigned inSamplesNum,
-                                     const MpSpeechParams &speechParams) = 0;
+                                     const MpSpeechParams &speechParams,
+                                     UtlBoolean calcEnergyOnly = FALSE) = 0;
      /**<
      * @param[in] packetTimeStamp - RTP timestamp of packet.
      * @param[in] pBuf - buffer with input data.
      * @param[in] inSamplesNum - number of samples of actual data, passed to
      *            this function.
      * @param[in] speechParams - various parameters of speech.
+     * @param[in] calcEnergyOnly - if TRUE, VAD should calculate energy only.
      * @returns Method returns MP_SPEECH_ACTIVE or MP_SPEECH_SILENT mainly,
      *          but if algorithm doesn't handle some situations return value
      *          may be MP_SPEECH_UNKNOWN
@@ -91,6 +96,8 @@ public:
 /* ============================ ACCESSORS ================================= */
 ///@name Accessors
 //@{
+     /// Return weighted energy of current frame
+   virtual int getEnergy() const = 0;
 
 //@}
 

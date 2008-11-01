@@ -46,6 +46,11 @@ MpAgcSimple::~MpAgcSimple()
 
 }
 
+void MpAgcSimple::reset()
+{
+
+}
+
 /* ============================ MANIPULATORS ============================== */
 
 OsStatus MpAgcSimple::processFrame(const MpAudioSample* data, int count)

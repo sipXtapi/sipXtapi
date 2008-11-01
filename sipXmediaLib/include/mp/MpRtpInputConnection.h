@@ -1,8 +1,8 @@
 //  
-// Copyright (C) 2006-2007 SIPez LLC. 
+// Copyright (C) 2006-2008 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2004-2007 SIPfoundry Inc.
+// Copyright (C) 2004-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -17,20 +17,13 @@
 
 #include "rtcp/RtcpConfig.h"
 
-// FORWARD DECLARATIONS
-class MprDejitter;
-class MprFromNet;
-class OsSocket;
-#ifdef INCLUDE_RTCP /* [ */
-struct IRTCPSession;
-struct IRTCPConnection;
-#endif /* INCLUDE_RTCP ] */
-
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
-#include <os/OsMutex.h>
 #include <mp/MpResource.h>
+#include <mp/MpResourceMsg.h>
 #include <mp/MpTypes.h>
+#include <utl/UtlString.h>
+#include <os/OsMutex.h>
 
 // DEFINES
 // MACROS
@@ -39,6 +32,14 @@ struct IRTCPConnection;
 // CONSTANTS
 // STRUCTS
 // TYPEDEFS
+// FORWARD DECLARATIONS
+class MprFromNet;
+class MprRtpDispatcher;
+class OsSocket;
+#ifdef INCLUDE_RTCP /* [ */
+struct IRTCPSession;
+struct IRTCPConnection;
+#endif /* INCLUDE_RTCP ] */
 
 /**
 *  @brief Connection container for the inbound and outbound network paths to a
@@ -49,14 +50,26 @@ class MpRtpInputConnection : public MpResource
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
+   enum RtpStreamAffinity
+   {
+      ADDRESS_AND_PORT,
+      MOST_RECENT_SSRC
+   };
+
 /* ============================ CREATORS ================================== */
 ///@name Creators
 //@{
 
      /// Constructor
    MpRtpInputConnection(const UtlString& resourceName,
-                        MpConnectionID myID, 
-                        IRTCPSession *piRTCPSession);
+                        MpConnectionID myID,
+                        IRTCPSession *piRTCPSession = NULL,
+                        int maxRtpStreams = 1,
+                        RtpStreamAffinity rtpStreamAffinity = ADDRESS_AND_PORT);
+     /**<
+     *  @note If rtpStreamAffinity is set to ADDRESS_AND_PORT, then only one
+     *        RTP stream is allowed, i.e. maxRtpStreams must be 1.
+     */
 
      /// Destructor
    virtual
@@ -68,6 +81,35 @@ public:
 ///@name Manipulators
 //@{
 
+     /// Process one frame of audio
+   UtlBoolean processFrame();
+
+     /// Starts receiving RTP and RTCP packets.
+   void setSockets(OsSocket& rRtpSocket, OsSocket& rRtcpSocket);
+     /**<
+     *  @warning This method is not synchronous! I.e. it directly modifies
+     *           resource structure without message passing.
+     */
+
+     /// Stops receiving RTP and RTCP packets.
+   void releaseSockets();
+     /**<
+     *  @warning This method is not synchronous! I.e. it directly modifies
+     *           resource structure without message passing.
+     */
+
+     /// @copydoc MpResource::setConnectionId()
+   void setConnectionId(MpConnectionID connectionId);
+
+     /// @copydoc MpRtpDispatcher::setRtpInactivityTimeout()
+   static OsStatus setRtpInactivityTimeout(const UtlString& namedResource,
+                                           OsMsgQ& fgQ,
+                                           int timeoutMs);
+
+     /// @copydoc MprFromNet::setSsrcDiscard()
+   static OsStatus enableSsrcDiscard(const UtlString& namedResource,
+                                     OsMsgQ& fgQ,
+                                     UtlBoolean enable, RtpSRC ssrc);
 
 //@}
 
@@ -75,12 +117,9 @@ public:
 ///@name Accessors
 //@{
 
-     /// return the connection ID of this connection.
-   inline MpConnectionID getConnectionId(void) const;
-
 #ifdef INCLUDE_RTCP /* [ */
      /// Retrieve the RTCP Connection interface associated with this MpRtpInputConnection
-   IRTCPConnection *getRTCPConnection(void);
+   IRTCPConnection *getRTCPConnection();
 #endif /* INCLUDE_RTCP ] */
 
 //@}
@@ -94,37 +133,44 @@ public:
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 
-     /// Starts receiving RTP and RTCP packets.
-   void prepareStartReceiveRtp(OsSocket& rRtpSocket, OsSocket& rRtcpSocket);
-     /**<
-     *  @note: Someday may be made protected, if MpVideoCallFlowGraph will not
-     *         need access to it.
-     */
+   enum
+   {
+      MPRM_SET_INACTIVITY_TIMEOUT = MpResourceMsg::MPRM_EXTERNAL_MESSAGE_START,
+      MPRM_ENABLE_SSRC_DISCARD,
+      MPRM_DISABLE_SSRC_DISCARD
+   };
 
-     /// Stops receiving RTP and RTCP packets.
-   void prepareStopReceiveRtp();
-     /**<
-     *  @note: Someday may be made protected, if MpVideoCallFlowGraph will not
-     *         need access to it.
-     */
-
-   MprFromNet*        mpFromNet;       ///< Inbound component: FromNet
-   MprDejitter*       mpDejitter;      ///< Inbound component: Dejitter
-   MpConnectionID     mMyID;           ///< ID within parent flowgraph
-   UtlBoolean         mInRtpStarted;   ///< Are we currently receiving RTP stream?
-   OsMutex            mLock;
+   MprFromNet*        mpFromNet;       ///< UDP to RTP converter
+   MprRtpDispatcher*  mpRtpDispatcher; ///< RTP stream dispatcher
+   int                mMaxRtpStreams;  ///< Maximum number of RTP streams
+   RtpStreamAffinity  mRtpStreamAffinity; ///< Algorithm used to dispatch incoming RTP packets
+   UtlBoolean         mIsRtpStarted;   ///< Are we currently receiving RTP stream?
 
 #ifdef INCLUDE_RTCP /* [ */
    IRTCPSession    *mpiRTCPSession;    ///< RTCP Session Interface pointer
    IRTCPConnection *mpiRTCPConnection; ///< RTCP Connection Interface pointer
-
 #endif /* INCLUDE_RTCP ] */
+
+     /// @copydoc MpResource::connectOutput()
+   UtlBoolean connectOutput(MpResource& rTo, int toPortIdx, int fromPortIdx);
+
+     /// @copydoc MpResource::disconnectOutput()
+   UtlBoolean disconnectOutput(int outPortIdx);
+
+     /// @copydoc MpResource::setFlowGraph()
+   OsStatus setFlowGraph(MpFlowGraphBase* pFlowGraph);
+
+     /// Handle resource messages for this resource.
+   virtual UtlBoolean handleMessage(MpResourceMsg& rMsg);
+
+     /// Handle message to set MpRtpDispatcher inactivity timeout.
+   void handleSetInactivityTimeout(const OsTime &timeout);
+
+     /// Handle message to enable/disable stream discard.
+   void handleEnableSsrcDiscard(UtlBoolean enable, RtpSRC ssrc);
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-
-     /// Default constructor
-   MpRtpInputConnection();
 
      /// Copy constructor (not implemented for this type)
    MpRtpInputConnection(const MpRtpInputConnection& rMpRtpInputConnection);
@@ -134,10 +180,5 @@ private:
 };
 
 /* ============================ INLINE METHODS ============================ */
-
-MpConnectionID MpRtpInputConnection::getConnectionId(void) const
-{
-   return mMyID;
-}
 
 #endif  // _MpRtpInputConnection_h_

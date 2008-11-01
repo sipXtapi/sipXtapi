@@ -659,6 +659,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\src\test\mp\MprDelayTest.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\src\test\mp\MprBridgeTest.cpp"
 				>
 			</File>

@@ -802,7 +802,9 @@ OsStatus mpStartTasks(void)
             return OS_TASK_NOT_STARTED;
         }
 
-        if (OS_SUCCESS != startNetInTask()) {
+        NetInTask *pTask = NetInTask::getNetInTask();
+        if (NULL != pTask) {
+            dmaShutdown();
             return OS_TASK_NOT_STARTED;
         }
 
@@ -811,8 +813,9 @@ OsStatus mpStartTasks(void)
 
 OsStatus mpStopTasks(void)
 {
+    NetInTask *pTask = NetInTask::getNetInTask();
+    pTask->destroy();
 
-    shutdownNetInTask();
     dmaShutdown();
    
     return OS_SUCCESS;

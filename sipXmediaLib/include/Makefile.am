@@ -40,6 +40,7 @@ nobase_include_HEADERS =  \
     mp/MpDecoderPayloadMap.h \
     mp/MpDspUtils.h \
     mp/MpDspUtilsConvertVect.h \
+    mp/MpDspUtilsIntSqrt.h \
     mp/MpDspUtilsSerials.h \
     mp/MpDspUtilsShift.h \
     mp/MpDspUtilsSum.h \
@@ -52,6 +53,7 @@ nobase_include_HEADERS =  \
     mp/MpidOss.h \
     mp/MpInputDeviceDriver.h \
     mp/MpInputDeviceManager.h \
+    mp/MpIntResourceMsg.h \
     mp/MpJbeFixed.h \
     mp/MpJitterBuffer.h \
     mp/MpJitterBufferEstimation.h \
@@ -80,9 +82,11 @@ nobase_include_HEADERS =  \
     mp/MprBufferRecorderConstructor.h \
     mp/MpBufRecStartResourceMsg.h \
     mp/MprDecode.h \
+    mp/MprDecodeConstructor.h \
     mp/MprDejitter.h \
     mp/MprEchoSuppress.h \
     mp/MprEncode.h \
+    mp/MprEncodeConstructor.h \
     mp/MpResampler.h \
     mp/MpResamplerSpeex.h \
     mp/MpResource.h \
@@ -92,6 +96,8 @@ nobase_include_HEADERS =  \
     mp/MpResNotificationMsg.h \
     mp/MpResourceSortAlg.h \
     mp/MpResourceTopology.h \
+    mp/MprDelay.h \
+    mp/MprDelayConstructor.h \
     mp/MprFromFile.h \
     mp/MprFromFileConstructor.h \
     mp/MprFromInputDevice.h \
@@ -101,10 +107,15 @@ nobase_include_HEADERS =  \
     mp/MprFromStream.h \
     mp/MprMixer.h \
     mp/MprnDTMFMsg.h \
+    mp/MprnIntMsg.h \
     mp/MprnProgressMsg.h \
+    mp/MprnRtpStreamActivityMsg.h \
     mp/MprNull.h \
     mp/MprNullConstructor.h \
     mp/MprRecorder.h \
+    mp/MprRtpDispatcher.h \
+    mp/MprRtpDispatcherActiveSsrcs.h \
+    mp/MprRtpDispatcherIpAffinity.h \
     mp/MprSpeexEchoCancel.h \
     mp/MprSpeexPreProcess.h \
     mp/MprSplitter.h \
@@ -115,12 +126,14 @@ nobase_include_HEADERS =  \
     mp/MprToOutputDeviceConstructor.h \
     mp/MprToOutputDevice.h \
     mp/MprToSpkr.h \
-    mp/MpRtpInputAudioConnection.h \
-    mp/MprRtpInputAudioConnectionConstructor.h \
+    mp/MprRtpInputConnectionConstructor.h \
     mp/MpRtpInputConnection.h \
-    mp/MpRtpOutputAudioConnection.h \
-    mp/MprRtpOutputAudioConnectionConstructor.h \
+    mp/MprRtpOutputConnectionConstructor.h \
     mp/MpRtpOutputConnection.h \
+    mp/MprVad.h \
+    mp/MprVadConstructor.h \
+    mp/MprVoiceActivityNotifier.h \
+    mp/MprVoiceActivityNotifierConstructor.h \
     mp/MpSineWaveGeneratorDeviceDriver.h \
     mp/MpStaticCodecInit.h \
     mp/MpStreamFeeder.h \

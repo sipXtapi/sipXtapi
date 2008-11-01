@@ -88,8 +88,10 @@ class MprSplitter;
 class MprToSpkr;
 class MprToneGen;
 class SdpCodec;
-class MpRtpInputAudioConnection;
-class MpRtpOutputAudioConnection;
+class MpRtpInputConnection;
+class MpRtpOutputConnection;
+class MprEncode;
+class MprDecode;
 
 /// Flow graph used to handle a basic call
 #ifdef INCLUDE_RTCP /* [ */
@@ -132,7 +134,8 @@ public:
      /// Default constructor
    MpCallFlowGraph(const char* pLocale = "",
                    int samplesPerFrame=0,
-                   int samplesPerSec=0);
+                   int samplesPerSec=0,
+                   OsMsgDispatcher *pNotifDispatcher= NULL);
 
      /// Destructor
    virtual
@@ -252,8 +255,8 @@ public:
 
      /// Starts receiving RTP and RTCP packets.
    void startReceiveRtp(SdpCodec* pCodecs[], int numCodecs,
-                  OsSocket& rRtpSocket, OsSocket& rRtcpSocket,
-                  MpConnectionID connID=1);
+                        OsSocket& rRtpSocket, OsSocket& rRtcpSocket,
+                        MpConnectionID connID=1);
 
      /// Stops receiving RTP and RTCP packets.
    void stopReceiveRtp(MpConnectionID connID=1);
@@ -282,7 +285,8 @@ public:
    OsStatus postNotification(const MpResNotificationMsg& msg);
 
      /// Creates a new MpAudioConnection; returns -1 if failure.
-   MpConnectionID createConnection(void);
+   MpConnectionID createConnection(int maxRtpStreams = 1,
+                                   UtlBoolean isMcast = FALSE);
 
      /// enables hearing audio data from a source
    UtlBoolean unmuteInput(MpConnectionID connID);
@@ -492,9 +496,14 @@ private:
    MprToneGen*   mpToneGen;
    OsBSem        mConnTableLock;
    UtlBoolean    mToneIsGlobal;
-   MpRtpInputAudioConnection* mpInputConnections[MAX_CONNECTIONS];
-   MpRtpOutputAudioConnection* mpOutputConnections[MAX_CONNECTIONS];
-   UtlBoolean     mToneGenDefocused; ///< disabled during defocused state flag
+   MpRtpInputConnection* mpInputConnections[MAX_CONNECTIONS];
+   int           mNumRtpStreams[MAX_CONNECTIONS];
+   UtlBoolean    mIsMcastConnection[MAX_CONNECTIONS];
+   MprDecode**   mpDecoders[MAX_CONNECTIONS];
+   MprMixer*     mpMcastMixer[MAX_CONNECTIONS];
+   MpRtpOutputConnection* mpOutputConnections[MAX_CONNECTIONS];
+   MprEncode*    mpEncoders[MAX_CONNECTIONS];
+   UtlBoolean    mToneGenDefocused; ///< disabled during defocused state flag
 #ifdef INCLUDE_RTCP /* [ */
    IRTCPSession* mpiRTCPSession;
    /// Event Interest Attribute for RTCP Notifications
@@ -583,12 +592,6 @@ private:
      /// sends a message requesting a delay for race condition detection...
    void postPone(int ms);
 #endif /* DEBUG_POSTPONE ] */
-
-     /// Handle the FLOWGRAPH_SET_DTMF_NOTIFY message.
-   UtlBoolean handleSetDtmfNotify(MpFlowGraphMsg& rMsg);
-     /**<
-     *  @returns <b>TRUE</b>
-     */
 
 #ifndef DISABLE_STREAM_PLAYER
      /// Handle the FLOWGRAPH_STREAM_REALIZE_URL message.

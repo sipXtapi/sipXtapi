@@ -60,6 +60,9 @@ public:
      /// Destructor
    virtual ~MpAgcBase() {};
 
+     /// Reset
+   virtual void reset() = 0;
+
 //@}
 
 /* ============================= MANIPULATORS ============================= */

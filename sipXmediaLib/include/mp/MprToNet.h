@@ -105,9 +105,8 @@ public:
 ///@name Accessors
 //@{
 
-// These accessors were added by DMG to allow a Connection to access and modify
-// rtp and rtcp stream information
-   void   setSSRC(int iSSRC);
+   void setSSRC(int iSSRC);
+   inline RtpSRC getSSRC() const;
 #ifdef INCLUDE_RTCP /* [ */
    void   setRTPAccumulator(ISetSenderStatistics *piRTPAccumulator);
 #endif /* INCLUDE_RTCP ] */
@@ -160,5 +159,10 @@ private:
 };
 
 /* ============================ INLINE METHODS ============================ */
+
+RtpSRC MprToNet::getSSRC() const
+{
+   return mSSRC;
+}
 
 #endif  // _MprToNet_h_

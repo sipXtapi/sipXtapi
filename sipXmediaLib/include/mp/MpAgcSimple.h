@@ -53,6 +53,9 @@ public:
      /// Destructor
    ~MpAgcSimple();
 
+     /// Reset
+   void reset();
+
 //@}
 
 /* ============================= MANIPULATORS ============================= */

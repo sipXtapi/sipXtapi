@@ -61,6 +61,9 @@ public:
 ///@name Manipulators
 //@{
 
+     /// Reset dejitter to initial state and prepare for new stream.
+   void reset();
+
      /// Add an incoming RTP packet to the dejitter pool
    OsStatus pushPacket(const MpRtpBufPtr &pRtp);
      /**<
@@ -147,9 +150,6 @@ protected:
                   /// Keep track of the last sequence number returned, so that
                   /// we can distinguish out-of-order packets.
    RtpSeq        mMaxPulledSeqNo;
-
-     /// Reset dejitter to initial state and prepare for new stream.
-   void reset();
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:

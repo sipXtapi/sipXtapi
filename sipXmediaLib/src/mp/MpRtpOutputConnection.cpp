@@ -41,16 +41,16 @@
 MpRtpOutputConnection::MpRtpOutputConnection(const UtlString& resourceName,
                                              MpConnectionID myID, 
                                              IRTCPSession *piRTCPSession)
-: MpResource(resourceName, 0, 1, 0, 0)
+: MpResource(resourceName, 1, 1, 0, 0)
 ,mpToNet(NULL)
-, mMyID(myID)
 , mOutRtpStarted(FALSE)
 #ifdef INCLUDE_RTCP /* [ */
 , mpiRTCPSession(piRTCPSession)
 , mpiRTCPConnection(NULL)
 #endif /* INCLUDE_RTCP ] */
 {
-   char         name[50];
+   // Save connection ID
+   mConnectionId = myID;
 
 #ifdef INCLUDE_RTCP /* [ */
 // Let's create an RTCP Connection to accompany the MP Connection just created.
@@ -75,9 +75,8 @@ MpRtpOutputConnection::MpRtpOutputConnection(const UtlString& resourceName,
    }
 #endif /* INCLUDE_RTCP ] */
 
-   // Create our resources
-   sprintf(name, "ToNet-%d", myID);
-   mpToNet     = new MprToNet();
+   // Create ToNet resource
+   mpToNet = new MprToNet();
 
 #ifdef INCLUDE_RTCP /* [ */
    if(mpiRTCPSession)
@@ -124,8 +123,8 @@ MpRtpOutputConnection::~MpRtpOutputConnection()
 
 /* ============================ MANIPULATORS ============================== */
 
-void MpRtpOutputConnection::prepareStartSendRtp(OsSocket& rRtpSocket,
-                                       OsSocket& rRtcpSocket)
+void MpRtpOutputConnection::setSockets(OsSocket& rRtpSocket,
+                                                OsSocket& rRtcpSocket)
 {
    mpToNet->setSockets(rRtpSocket, rRtcpSocket);
    // TODO: mpFromNet->setDestIp(rRtpSocket);
@@ -142,7 +141,7 @@ void MpRtpOutputConnection::prepareStartSendRtp(OsSocket& rRtpSocket,
    mOutRtpStarted = TRUE;
 }
 
-void MpRtpOutputConnection::prepareStopSendRtp()
+void MpRtpOutputConnection::releaseSockets()
 {
 #ifdef INCLUDE_RTCP /* [ */
 // Terminate the RTCP Connection which shall include stopping the RTCP
@@ -183,6 +182,25 @@ IRTCPConnection *MpRtpOutputConnection::getRTCPConnection(void)
 /* ============================ INQUIRY =================================== */
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
+
+UtlBoolean MpRtpOutputConnection::processFrame()
+{
+   return TRUE;
+}
+
+UtlBoolean MpRtpOutputConnection::connectInput(MpResource& rFrom,
+                                                int fromPortIdx,
+                                                int toPortIdx)
+{
+   UtlBoolean res = MpResource::connectInput(rFrom, fromPortIdx, toPortIdx);
+   if (res)
+   {
+      assert(rFrom.getContainableType() == MprEncode::TYPE);
+      MprEncode *pEncode = (MprEncode*)&rFrom;
+      pEncode->setMyToNet(mpToNet);
+   }
+   return res;
+}
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 

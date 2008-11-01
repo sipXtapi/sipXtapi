@@ -20,6 +20,7 @@
 #include "mp/MpAudioResource.h"
 #include "sdp/SdpCodec.h"
 #include "mp/MpFlowGraphMsg.h"
+#include "mp/MpResourceMsg.h"
 #include "mp/MprToNet.h"
 #include "mp/MpMisc.h"
 #include "mp/MpResampler.h"
@@ -42,7 +43,7 @@ class MprEncode : public MpAudioResource
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
-   friend class MpRtpOutputAudioConnection;
+   static const UtlContainableType TYPE; ///< Class name, used for run-time checks.
 
 /* ============================ CREATORS ================================== */
 ///@name Creators
@@ -61,34 +62,53 @@ public:
 ///@name Manipulators
 //@{
 
-   OsStatus selectCodecs(SdpCodec* pPrimaryCodec,
-                         SdpCodec* pDtmfCodec);
+     /// Tell encoder which codecs to use.
+   static OsStatus selectCodecs(const UtlString& namedResource,
+                                OsMsgQ& fgQ,
+                                SdpCodec* pPrimaryCodec,
+                                SdpCodec* pDtmfCodec);
 
-   OsStatus deselectCodecs(void);
+     /// Free selected codecs.
+   static OsStatus deselectCodecs(const UtlString& namedResource,
+                                  OsMsgQ& fgQ);
 
      /// Set ToNet resource which will send generated RTP packets.
    void setMyToNet(MprToNet* myToNet);
+     /**<
+     *  @warning This method is not synchronous! I.e. it directly modifies
+     *           resource structure without message passing.
+     */
 
      /// Send "begin tone" DTMF RTP packet.
-   OsStatus startTone(int toneId);
+   static OsStatus startTone(const UtlString& namedResource,
+                             OsMsgQ& fgQ,
+                             int toneId);
 
      /// Send "stop tone" DTMF RTP packet.
-   OsStatus stopTone(void);
+   static OsStatus stopTone(const UtlString& namedResource,
+                            OsMsgQ& fgQ);
 
      /// Enable or disable internal DTX.
-   OsStatus enableDTX(UtlBoolean dtx);
+   static OsStatus enableDtx(const UtlString& namedResource,
+                             OsMsgQ& fgQ,
+                             UtlBoolean dtx);
      /**<
      *  @note Codec still may use its DTX features.
      */
 
      /// Set maximum duration of one packet in milliseconds.
-   OsStatus setMaxPacketTime(unsigned int maxPacketTime);
+   static OsStatus setMaxPacketTime(const UtlString& namedResource,
+                                    OsMsgQ& fgQ,
+                                    unsigned int maxPacketTime);
 
 //@}
 
 /* ============================ ACCESSORS ================================= */
 ///@name Accessors
 //@{
+
+     /// @copydoc UtlContainable::getContainableType()
+   UtlContainableType getContainableType() const;
 
 //@}
 
@@ -111,15 +131,17 @@ protected:
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
+
    typedef enum
    {
-      SELECT_CODECS = MpFlowGraphMsg::RESOURCE_SPECIFIC_START,
-      DESELECT_CODECS,
-      START_TONE,
-      STOP_TONE,
-      ENABLE_DTX,
-      SET_MAX_PACKET_TIME
-   } AddlMsgTypes;
+      MPRM_DESELECT_CODECS = MpResourceMsg::MPRM_EXTERNAL_MESSAGE_START,
+      MPRM_START_TONE,
+      MPRM_STOP_TONE,
+      MPRM_SET_MAX_PACKET_TIME,
+      MPRM_ENABLE_DTX,
+      MPRM_DISABLE_DTX
+   } AddlResMsgTypes;
+
 
    enum {
       TONE_STOP_PACKETS = 3, ///< MUST BE > 0
@@ -182,8 +204,8 @@ private:
                        ///< RTP packets.
 //@}
 
-     /// Handle messages for this resource.
-   virtual UtlBoolean handleMessage(MpFlowGraphMsg& rMsg);
+     /// Handle resource messages for this resource.
+   virtual UtlBoolean handleMessage(MpResourceMsg& rMsg);
 
      /// Allocate memory for RTP packet.
    OsStatus allocPacketBuffer(const MpEncoderBase& rEncoder,
@@ -214,6 +236,12 @@ private:
 
      /// Encode and send DTMF tone.
    void doDtmfCodec(int samplesPerFrame, int samplesPerSecond);
+
+     /// Send notification about TX start.
+   void notifyStartTx();
+
+     /// Send notification about TX stop.
+   void notifyStopTx();
 
      /// Copy constructor (not implemented for this class)
    MprEncode(const MprEncode& rMprEncode);

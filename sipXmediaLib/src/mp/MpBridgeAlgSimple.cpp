@@ -80,7 +80,8 @@ UtlBoolean MpBridgeAlgSimple::doMix(MpBufPtr inBufs[], int inBufsSize,
       if (mpPrevAmplitudes[i] < 0 && inBufs[i].isValid())
       {
          MpAudioBufPtr pAudioBuf = inBufs[i];
-         mpPrevAmplitudes[i] = pAudioBuf->getAmplitude();
+         MpAudioSample amplitude = pAudioBuf->getAmplitude();
+         mpPrevAmplitudes[i] = amplitude == 0 ? 1 : amplitude;
       }
    }
 
@@ -129,6 +130,7 @@ UtlBoolean MpBridgeAlgSimple::doMix(MpBufPtr inBufs[], int inBufsSize,
       assert(pOutBuf.isValid());
       pOutBuf->setSamplesNumber(samplesPerFrame);
       pOutBuf->setSpeechType(MP_SPEECH_SILENT);
+      pOutBuf->setEnergy(-1);
 
       // Mix input data to accumulator
       for (int inputNum=0; inputNum<inBufsSize; inputNum++)
@@ -147,6 +149,10 @@ UtlBoolean MpBridgeAlgSimple::doMix(MpBufPtr inBufs[], int inBufsSize,
 
             MpAudioSample prevAmplitude = mpPrevAmplitudes[inputNum];
             MpAudioSample curAmplitude = pFrame->getAmplitude();
+            if (curAmplitude == 0)
+            {
+               curAmplitude = 1;
+            }
 
             if (  pInputGains[inputNum] == MP_BRIDGE_GAIN_PASSTHROUGH
                && prevAmplitude == MpSpeechParams::MAX_AMPLITUDE

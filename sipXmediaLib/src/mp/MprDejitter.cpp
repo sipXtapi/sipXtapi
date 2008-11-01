@@ -59,8 +59,23 @@ MprDejitter::~MprDejitter()
 
 /* ============================ MANIPULATORS ============================== */
 
-// Add a buffer containing an incoming RTP packet to the dejitter pool.
-// This method places the packet to the pool depending the modulo division value.
+void MprDejitter::reset()
+{
+   for (int i=0; i<MAX_RTP_PACKETS; i++)
+   {
+      if (mpPackets[i].isValid())
+      {
+         mpPackets[i].release();
+      }
+   }
+   mNumPackets = 0;
+   mNumLatePackets = 0;
+   mNumDiscarded = 0;
+   mLastPushed = 0;
+   mIsFirstPulledPacket = TRUE;
+   // mMaxPulledSeqNo will be initialized on first arrived packet
+}
+
 OsStatus MprDejitter::pushPacket(const MpRtpBufPtr &pRtp)
 {
    int index;
@@ -136,13 +151,11 @@ OsStatus MprDejitter::pushPacket(const MpRtpBufPtr &pRtp)
    return OS_SUCCESS;
 }
 
-// Get a pointer to the next RTP packet, or NULL if none is available.
 MpRtpBufPtr MprDejitter::pullPacket()
 {
    return pullPacket(0, NULL, false);
 }
 
-// Get next RTP packet with given timestamp, or NULL if none is available.
 MpRtpBufPtr MprDejitter::pullPacket(RtpTimestamp maxTimestamp,
                                     UtlBoolean *nextFrameAvailable,
                                     bool lockToTimestamp)
@@ -220,23 +233,6 @@ MpRtpBufPtr MprDejitter::pullPacket(RtpTimestamp maxTimestamp,
 /* ============================ INQUIRY =================================== */
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
-
-void MprDejitter::reset()
-{
-   for (int i=0; i<MAX_RTP_PACKETS; i++)
-   {
-      if (mpPackets[i].isValid())
-      {
-         mpPackets[i].release();
-      }
-   }
-   mNumPackets = 0;
-   mNumLatePackets = 0;
-   mNumDiscarded = 0;
-   mLastPushed = 0;
-   mIsFirstPulledPacket = TRUE;
-   // mMaxPulledSeqNo will be initialized on first arrived packet
-}
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 

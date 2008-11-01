@@ -74,6 +74,9 @@ public:
     /// Is data in the buffer clipped?
     void setClipping(UtlBoolean clipping) {mParams.mIsClipped = clipping;}
 
+    /// Set normalized frame energy level.
+    void setEnergy(int energy) {mParams.mFrameEnergy = energy;}
+
     /// Set all speech parameters at once
     void setSpeechParams(const MpSpeechParams &params) {mParams = params;}
 
@@ -103,6 +106,9 @@ public:
 
     /// Is data in the buffer clipped?
     UtlBoolean getClipping() const {return mParams.mIsClipped;}
+
+    /// Get normalized frame energy.
+    int getEnergy() const {return mParams.mFrameEnergy;}
 
     /// Get speech parameters as a structure
     const MpSpeechParams &getSpeechParams() const {return mParams;}

@@ -53,11 +53,7 @@ public:
 
       MPRM_BRIDGE_SET_GAINS,    ///< MprBridge: Set row or column in mix matrix.
 
-      // Connection Resource messages
-      MPRM_START_RECEIVE_RTP,   ///< MpRtpInputAudioConnection: Start receiving RTP.
-      MPRM_STOP_RECEIVE_RTP,    ///< MpRtpInputAudioConnection: Stop receiving RTP.
-      MPRM_START_SEND_RTP,      ///< MpRtpOutputAudioConnection: Start sending RTP.
-      MPRM_STOP_SEND_RTP,       ///< MpRtpOutputAudioConnection: Stop sending RTP.
+      MPRM_DECODE_SELECT_CODECS,  ///< MprDecode/MprEncode: Select codecs.
 
       // Add new built in resource operation messages above
 
@@ -77,7 +73,7 @@ public:
    MpResourceMsg(const MpResourceMsg& rMpResourceMsg);
 
      /// Create a copy of this msg object (which may be of a derived type)
-   virtual OsMsg* createCopy(void) const;
+   virtual OsMsg* createCopy() const;
 
      /// Destructor
    virtual
@@ -104,10 +100,10 @@ public:
 //@{
 
      /// Returns the type of the media resource message
-   int getMsg(void) const;
+   int getMsg() const;
 
      /// Get the name of the resource this message applies to.
-   UtlString getDestResourceName(void) const;
+   UtlString getDestResourceName() const;
      /**<
      *  Returns the name of the MpResource object that is the intended 
      *  recipient for this message.

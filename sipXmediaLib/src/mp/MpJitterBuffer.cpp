@@ -29,7 +29,7 @@
 // MACROS
 //#define RTL_ENABLED
 //#define RTL_AUDIO_ENABLED
-//#define ENABLE_NON_PLC_ADJUSTMENT
+#define ENABLE_NON_PLC_ADJUSTMENT
 
 #ifdef RTL_ENABLED
 #  include <rtl_macro.h>
@@ -71,7 +71,6 @@ MpJitterBuffer::MpJitterBuffer(MpDecoderPayloadMap *pPayloadMap)
 , mpPlc(NULL)
 , mpVad(NULL)
 , mpAgc(NULL)
-, mIsInitialized(FALSE)
 {
    mpVad = MpVadBase::createVad();
    mpAgc = MpAgcBase::createAgc();
@@ -96,9 +95,6 @@ void MpJitterBuffer::init(unsigned int samplesPerSec, unsigned int samplesPerFra
       OsStatus status = mpAgc->init(mOutputSampleRate);
       assert(status == OS_SUCCESS);
    }
-
-   // Initialization is done.
-   mIsInitialized = TRUE;
 }
 
 MpJitterBuffer::~MpJitterBuffer()
@@ -110,6 +106,46 @@ MpJitterBuffer::~MpJitterBuffer()
 }
 
 /* ============================ MANIPULATORS ============================== */
+
+void MpJitterBuffer::reset()
+{
+   OsStatus status;
+
+   // Release audio buffers.
+   for (int i=0; i<FRAMES_TO_STORE; i++)
+   {
+      if (mFrames[i].isValid())
+      {
+         mFrames[i].release();
+      }
+   }
+
+   // Reset variables to initial values.
+   mCurFrameNum = 0;
+   mRemainingSamplesNum = 0;
+   mIsFirstPacket = TRUE;
+   mStreamRtpPayload = -1;
+   mSamplesPerPacket = 0;
+
+   // Reset VAD
+   delete mpVad;
+   mpVad = MpVadBase::createVad();
+   status = mpVad->init(mOutputSampleRate);
+   assert(status == OS_SUCCESS);
+
+   // Reset AGC
+   delete mpAgc;
+   mpAgc = MpAgcBase::createAgc();
+   status = mpAgc->init(mOutputSampleRate);
+   assert(status == OS_SUCCESS);
+
+   // Reset PLC and resampler
+   setPlc(mPlcName);
+   if (mpResampler != NULL)
+   {
+      mpResampler->resetStream();
+   }
+}
 
 OsStatus MpJitterBuffer::pushPacket(const MpRtpBufPtr &rtpPacket,
                                     int minBufferSamples,
@@ -217,6 +253,7 @@ OsStatus MpJitterBuffer::pushPacket(const MpRtpBufPtr &rtpPacket,
          packetSpeechParams.mSpeechType = mpVad->processFrame(mStreamTimestamp,
                                                               mDecodedData, decodedSamples,
                                                               packetSpeechParams);
+         packetSpeechParams.mFrameEnergy = mpVad->getEnergy();
       }
       else if (decoder->getInfo()->isSignalingCodec())
       {
@@ -245,7 +282,7 @@ OsStatus MpJitterBuffer::pushPacket(const MpRtpBufPtr &rtpPacket,
    case MP_SPEECH_TONE:
       break;
    case MP_SPEECH_ACTIVE:
-      // In case if active speech allow only big adjustments.
+      // In case of active speech allow only big adjustments.
       // TODO:: Make this heuristic better!
       if (  wantedAdjustment < N_POS*(int)mSamplesPerPacket
          && wantedAdjustment > -N_NEG*(int)mSamplesPerPacket)
@@ -256,7 +293,7 @@ OsStatus MpJitterBuffer::pushPacket(const MpRtpBufPtr &rtpPacket,
    case MP_SPEECH_UNKNOWN:
       if (decodedSamples > 0)
       {
-         // Do nothing if VAD didn't tell us about speech type.
+         // Do nothing if VAD haven't determined speech type.
          break;
       }
       // But in case of lost packet, we need to round down wantedAdjustment.
@@ -402,7 +439,8 @@ void MpJitterBuffer::setPlc(const UtlString &plcName)
    delete mpPlc;
 
    // Set PLC to a new one
-   mpPlc = MpPlcBase::createPlc(plcName);
+   mPlcName = plcName;
+   mpPlc = MpPlcBase::createPlc(mPlcName);
    if (mStreamSampleRate != 0)
    {
       // If (mStreamSampleRate > 0), then we've got first RTP packet

@@ -19,7 +19,6 @@
 
 // FORWARD DECLARATIONS
 class MprDejitter;
-class MprToNet;
 class MprFromNet;
 class OsSocket;
 class SdpCodec;
@@ -33,6 +32,7 @@ struct IRTCPConnection;
 #include <os/OsMutex.h>
 #include <mp/MpResource.h>
 #include <mp/MpTypes.h>
+#include <mp/MprToNet.h>
 
 // DEFINES
 // MACROS
@@ -75,6 +75,20 @@ public:
 ///@name Manipulators
 //@{
 
+     /// Set sockets to which data will be sent.
+   void setSockets(OsSocket& rRtpSocket, OsSocket& rRtcpSocket);
+     /**<
+     *  @warning This method is not synchronous! I.e. it directly modifies
+     *           resource structure without message passing.
+     */
+
+     /// Release sockets to which data will be sent.
+   void releaseSockets();
+     /**<
+     *  @warning This method is not synchronous! I.e. it directly modifies
+     *           resource structure without message passing.
+     */
+
 #ifdef INCLUDE_RTCP /* [ */
      /// A new SSRC has been generated for the Session
    void reassignSSRC(int iSSRC);
@@ -86,13 +100,12 @@ public:
 ///@name Accessors
 //@{
 
-     /// return the connection ID of this connection.
-   inline MpConnectionID getConnectionId(void) const;
-
 #ifdef INCLUDE_RTCP /* [ */
      /// Retrieve the RTCP Connection interface associated with this MpRtpOutputConnection
    IRTCPConnection *getRTCPConnection(void);
 #endif /* INCLUDE_RTCP ] */
+
+   inline RtpSRC getSSRC() const;
 
 //@}
 
@@ -105,22 +118,7 @@ public:
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 
-     /// Starts sending RTP and RTCP packets.
-   void prepareStartSendRtp(OsSocket& rRtpSocket, OsSocket& rRtcpSocket);
-     /**<
-     *  @note: Someday may be made protected, if MpVideoCallFlowGraph will not
-     *         need access to it.
-     */
-
-     /// Stops sending RTP and RTCP packets.
-   void prepareStopSendRtp();
-     /**<
-     *  @note: Someday may be made protected, if MpVideoCallFlowGraph will not
-     *         need access to it.
-     */
-
    MprToNet*          mpToNet;         ///< Outbound component: ToNet
-   MpConnectionID     mMyID;           ///< ID within parent flowgraph
    UtlBoolean         mOutRtpStarted;  ///< Are we currently sending RTP stream?
 
 #ifdef INCLUDE_RTCP /* [ */
@@ -128,6 +126,14 @@ protected:
    IRTCPConnection *mpiRTCPConnection; ///< RTCP Connection Interface pointer
 
 #endif /* INCLUDE_RTCP ] */
+
+     /// @copydoc MpResource::processFrame()
+   UtlBoolean processFrame();
+
+     /// @copydoc MpResource::connectInput()
+   UtlBoolean connectInput(MpResource& rFrom,
+                           int fromPortIdx,
+                           int toPortIdx);
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
@@ -144,9 +150,9 @@ private:
 
 /* ============================ INLINE METHODS ============================ */
 
-MpConnectionID MpRtpOutputConnection::getConnectionId(void) const
+RtpSRC MpRtpOutputConnection::getSSRC() const
 {
-   return mMyID;
+   return mpToNet->getSSRC();
 }
 
 #endif  // _MpRtpOutputConnection_h_

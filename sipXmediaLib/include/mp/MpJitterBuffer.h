@@ -38,6 +38,9 @@ class MpAgcBase;
 /**
 *  @brief Class for decoding of incoming RTP, resampling it to target
 *         sample rate and slicing to frames of target size.
+*
+*  This class is not thread-safe. For thread-safety it relies on external
+*  synchronization mechanisms in MprDecode.
 */
 class MpJitterBuffer
 {
@@ -55,7 +58,11 @@ public:
      *             types.
      */
 
+     /// Initialize with given sample rate and frame size.
    void init(unsigned int samplesPerSec, unsigned int samplesPerFrame);
+     /**<
+     *  Should be called only once upon construction of an object.
+     */
 
      /// Destructor
    ~MpJitterBuffer();
@@ -65,6 +72,9 @@ public:
 /* ============================ MANIPULATORS ============================== */
 ///@name Manipulators
 //@{
+
+     /// Reset class to the initial state, preparing for handling new stream.
+   void reset();
 
      /// Push packet into decoder buffer.
    OsStatus pushPacket(const MpRtpBufPtr &rtpPacket,
@@ -194,10 +204,10 @@ private:
    unsigned mSamplesPerPacket;      ///< Number of samples in RTP packet.
 //@}
 
+   UtlString  mPlcName;             ///< Packet Loss Concealer algorithm name.
    MpPlcBase *mpPlc;                ///< Packet Loss Concealer instance.
    MpVadBase *mpVad;                ///< Voice Activity Detector instance.
    MpAgcBase *mpAgc;                ///< Automatic Gain Calculator instance.
-   UtlBoolean mIsInitialized;       ///< Is JB initialized or not?
 
    /// Copy constructor
    MpJitterBuffer(const MpJitterBuffer& rMpJitterBuffer);

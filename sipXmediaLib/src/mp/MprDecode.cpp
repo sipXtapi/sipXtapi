@@ -30,21 +30,17 @@
 #include <string.h>
 
 // APPLICATION INCLUDES
-#include "mp/MpMisc.h"
+#include "mp/MprDecode.h"
 #include "mp/MpDspUtils.h"
 #include "mp/MpBuf.h"
-#include "mp/MpRtpInputAudioConnection.h"
-#include "mp/MprDecode.h"
 #include "mp/MprDejitter.h"
 #include "mp/MpDecoderBase.h"
-#include "mp/NetInTask.h"
-#include "mp/dmaTask.h"
-#include "mp/MpMediaTask.h"
 #include "mp/MpCodecFactory.h"
 #include "mp/MpJitterBuffer.h"
 #include "mp/MpPlcBase.h"
 #include "mp/MpFlowGraphBase.h"
 #include "mp/MprnDTMFMsg.h"
+#include "mp/MprDecodeSelectCodecsMsg.h"
 #include "mp/MpStringResourceMsg.h"
 #include "os/OsDefs.h"
 #include "os/OsSysLog.h"
@@ -73,18 +69,20 @@ static void dprintf(const char *, ...) {};
 // EXTERNAL VARIABLES
 // CONSTANTS
 // STATIC VARIABLE INITIALIZATIONS
+const UtlContainableType MprDecode::TYPE = "MprDecode";
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
 /* ============================ CREATORS ================================== */
 
 // Constructor
-MprDecode::MprDecode(const UtlString& rName, MpConnectionID connectionId,
+MprDecode::MprDecode(const UtlString& rName,
                      const UtlString &plcName)
-: MpAudioResource(rName, 0, 0, 1, 1)
+: MpAudioResource(rName, 1, 1, 1, 1)
 , mpJB(new MpJitterBuffer())
 , mpDtmfNotication(NULL)
 , mpMyDJ(NULL)
+, mOwnDJ(FALSE)
 , mIsStreamInitialized(FALSE)
 , mpJbEstimationState(MpJitterBufferEstimation::createJbe())
 , mIsJBInitialized(FALSE)
@@ -92,7 +90,6 @@ MprDecode::MprDecode(const UtlString& rName, MpConnectionID connectionId,
 , mNumCurrentCodecs(0)
 , mpPrevCodecs(NULL)
 , mNumPrevCodecs(0)
-, mConnectionId(connectionId)
 {
    assert(mpJB != NULL);
    mpJB->setPlc(plcName);
@@ -110,8 +107,13 @@ MprDecode::~MprDecode()
    // Free JB estimation state.
    delete mpJbEstimationState;
 
+   // Free dejitter if it is owned by this decoder.
+   if (mOwnDJ)
+   {
+      delete mpMyDJ;
+   }
+
    // Delete the list of codecs used in the past.
-   OsLock lock(mLock);
    if (mNumPrevCodecs > 0)
    {
       for (int i=0; i<mNumPrevCodecs; i++)
@@ -125,43 +127,45 @@ MprDecode::~MprDecode()
 
 /* ============================ MANIPULATORS ============================== */
 
-OsStatus MprDecode::selectCodecs(SdpCodec* codecs[], int numCodecs)
+OsStatus MprDecode::reset(const UtlString& namedResource,
+                          OsMsgQ& fgQ)
 {
-   OsStatus ret = OS_SUCCESS;
-   SdpCodec** codecArray;
-   int i;
-   int audioCodecsNum=0;
-   UtlString codecMediaType;
-   MpFlowGraphMsg msg(SELECT_CODECS, this, NULL, NULL, 0, 0);
-
-   codecArray = new SdpCodec*[numCodecs];
-
-   // Copy all audio codecs to new array
-   for (i=0; i<numCodecs; i++) {
-      codecs[i]->getMediaType(codecMediaType);
-      if (codecMediaType.compareTo("audio") == 0)
-      {
-         codecArray[audioCodecsNum] = new SdpCodec(*codecs[i]);
-         audioCodecsNum++;
-      }
-   }
-
-   msg.setPtr1(codecArray);
-   msg.setInt1(audioCodecsNum);
-   ret = postMessage(msg);
-
-   return ret;
+   MpResourceMsg msg((MpResourceMsg::MpResourceMsgType)MPRM_RESET, namedResource);
+   return fgQ.send(msg, sOperationQueueTimeout);
 }
 
-OsStatus MprDecode::deselectCodec()
+OsStatus MprDecode::reset()
 {
-   MpFlowGraphMsg msg(DESELECT_CODECS, this, NULL, NULL, 0, 0);
-   OsStatus ret = OS_SUCCESS;
+   return reset(this->getName(), *mpFlowGraph->getMsgQ());
+}
 
-//   osPrintf("MprDecode::deselectCodec\n");
-   ret = postMessage(msg);
+OsStatus MprDecode::selectCodecs(const UtlString& namedResource,
+                                 OsMsgQ& fgQ,
+                                 SdpCodec* codecs[],
+                                 int numCodecs)
+{
+   MprDecodeSelectCodecsMsg msg(namedResource, codecs, numCodecs);
+   return fgQ.send(msg, sOperationQueueTimeout);
+}
 
-   return ret;
+OsStatus MprDecode::deselectCodecs(const UtlString& namedResource,
+                                   OsMsgQ& fgQ)
+{
+   MpResourceMsg msg((MpResourceMsg::MpResourceMsgType)MPRM_DESELCT_CODECS, namedResource);
+   return fgQ.send(msg, sOperationQueueTimeout);
+}
+
+OsStatus MprDecode::setDtmfNotify(OsNotification *pNotify)
+{
+   MpFlowGraphMsg msg(SET_DTMF_NOTIFY, this, pNotify);
+   assert(pNotify != NULL);
+   return postMessage(msg);
+}
+
+OsStatus MprDecode::clearDtmfNotify()
+{
+   MpFlowGraphMsg msg(SET_DTMF_NOTIFY, this, NULL);
+   return postMessage(msg);
 }
 
 OsStatus MprDecode::setPlc(const UtlString& namedResource,
@@ -173,9 +177,10 @@ OsStatus MprDecode::setPlc(const UtlString& namedResource,
    return fgQ.send(msg, sOperationQueueTimeout);
 }
 
-void MprDecode::setMyDejitter(MprDejitter* pDJ)
+void MprDecode::setMyDejitter(MprDejitter* pDJ, UtlBoolean ownDj)
 {
    mpMyDJ = pDJ;
+   mOwnDJ = ownDj;
 }
 
 OsStatus MprDecode::pushPacket(const MpRtpBufPtr &pRtp)
@@ -197,6 +202,7 @@ OsStatus MprDecode::pushPacket(const MpRtpBufPtr &pRtp)
    if (pDecoder == NULL)
    {
       // No decoder for this packet - just return error.
+      dprintf(" No decoder for payload type %d!\n", pt);
       return OS_NOT_FOUND;
    }
    const MpCodecInfo* pDecoderInfo = pDecoder->getInfo();
@@ -252,18 +258,14 @@ OsStatus MprDecode::pushPacket(const MpRtpBufPtr &pRtp)
 
 /* ============================ ACCESSORS ================================= */
 
+UtlContainableType MprDecode::getContainableType() const
+{
+   return TYPE;
+}
+
 /* ============================ INQUIRY =================================== */
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
-
-UtlBoolean MprDecode::handleSetDtmfNotify(OsNotification* pNotify)
-{
-   OsLock lock(mLock);
-
-   mpDtmfNotication = pNotify;
-
-   return TRUE;
-}
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
@@ -454,7 +456,7 @@ UtlBoolean MprDecode::tryDecodeAsSignalling(const MpRtpBufPtr &rtp)
       if (sigRes == OS_SUCCESS && isStarted)
       {
          // Post DTMF notification message to indicate key down.
-         MprnDTMFMsg dtmfMsg(getName(), mConnectionId,
+         MprnDTMFMsg dtmfMsg(getName(),
                              (MprnDTMFMsg::KeyCode)event,
                              MprnDTMFMsg::KEY_DOWN);
          sendNotification(dtmfMsg);
@@ -471,7 +473,7 @@ UtlBoolean MprDecode::tryDecodeAsSignalling(const MpRtpBufPtr &rtp)
       if (sigRes == OS_SUCCESS && isStopped)
       {
          // Post DTMF notification message to indicate key up.
-         MprnDTMFMsg dtmfMsg(getName(), mConnectionId,
+         MprnDTMFMsg dtmfMsg(getName(),
                              (MprnDTMFMsg::KeyCode)event,
                              MprnDTMFMsg::KEY_UP, duration);
          sendNotification(dtmfMsg);
@@ -495,20 +497,10 @@ UtlBoolean MprDecode::handleMessage(MpFlowGraphMsg& rMsg)
    UtlBoolean ret = FALSE;
 
    switch (rMsg.getMsg()) {
-   case DESELECT_CODECS:
-      handleDeselectCodecs();
-      ret = TRUE;
-      break;
-   case SELECT_CODECS:
+   case SET_DTMF_NOTIFY:
       {
-         SdpCodec** pCodecs = (SdpCodec**)rMsg.getPtr1();
-         int numCodecs = rMsg.getInt1();
-         handleSelectCodecs(pCodecs, numCodecs);
-         // Delete the list pCodecs.
-         for (int i=0; i<numCodecs; i++) {
-            delete pCodecs[i];
-         }
-         delete[] pCodecs;
+         OsNotification* pNotify = (OsNotification*)rMsg.getPtr1();
+         handleSetDtmfNotify(pNotify);
          ret = TRUE;
       }
       break;
@@ -528,6 +520,21 @@ UtlBoolean MprDecode::handleMessage(MpResourceMsg& rMsg)
    {
    case MPRM_SET_PLC:
       msgHandled = handleSetPlc(((MpStringResourceMsg*)&rMsg)->getData());
+      break;
+
+   case MpResourceMsg::MPRM_DECODE_SELECT_CODECS:
+      {
+         MprDecodeSelectCodecsMsg *pMsg = (MprDecodeSelectCodecsMsg*)&rMsg;
+         msgHandled = handleSelectCodecs(pMsg->getCodecs(), pMsg->getNumCodecs());
+      }
+      break;
+
+   case MPRM_DESELCT_CODECS:
+      msgHandled = handleDeselectCodecs();
+      break;
+
+   case MPRM_RESET:
+      msgHandled = handleReset();
       break;
 
    default:
@@ -727,6 +734,33 @@ UtlBoolean MprDecode::handleDeselectCodecs(UtlBoolean shouldLock)
    {
        mLock.release();
    }
+   return TRUE;
+}
+
+UtlBoolean MprDecode::handleSetDtmfNotify(OsNotification* pNotify)
+{
+   mpDtmfNotication = pNotify;
+   return TRUE;
+}
+
+UtlBoolean MprDecode::handleReset()
+{
+   OsLock lock(mLock);
+
+   // Reset JB and dejitter
+   mpJB->reset();
+   if (mpMyDJ != NULL)
+   {
+      mpMyDJ->reset();
+   }
+
+   // Reset JBE
+   delete mpJbEstimationState;
+   mpJbEstimationState = MpJitterBufferEstimation::createJbe();
+
+   mIsStreamInitialized = FALSE;
+   mNumPrevCodecs = 0;
+
    return TRUE;
 }
 

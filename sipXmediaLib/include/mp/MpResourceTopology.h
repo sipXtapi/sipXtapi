@@ -14,6 +14,7 @@
 #define _MpResourceTopology_h_
 
 // SYSTEM INCLUDES
+#include <mp/MpTypes.h>
 #include <os/OsStatus.h>
 #include <utl/UtlString.h>
 #include <utl/UtlDList.h>
@@ -27,12 +28,27 @@
 #define DEFAULT_TO_OUTPUT_DEVICE_RESOURCE_NAME "ToSpeaker1"
 #define DEFAULT_NULL_RESOURCE_NAME "Null1"
 #define DEFAULT_RTP_INPUT_RESOURCE_NAME "InRtp-%d"
+#define DEFAULT_DECODE_RESOURCE_NAME "Decode-%d"
 #define DEFAULT_RTP_OUTPUT_RESOURCE_NAME "OutRtp-%d"
+#define DEFAULT_ENCODE_RESOURCE_NAME "Encode-%d"
 #define DEFAULT_BUFFER_RECORDER_RESOURCE_NAME "BufferRecorder1"
 #define DEFAULT_TO_OUTPUT_SPLITTER_RESOURCE_NAME "ToOutputSplitter1"
 #define DEFAULT_AEC_RESOURCE_NAME "Aec1"
+#define DEFAULT_VAD_RESOURCE_NAME "Vad"
+#define DEFAULT_VOICE_ACTIVITY_NOTIFIER_RESOURCE_NAME "VoiceActivityNotifier"
+#define DEFAULT_DELAY_RESOURCE_NAME "Delay"
 
+#define CONNECTION_NAME_SUFFIX "-%d"
+#define STREAM_NAME_SUFFIX "-%d"
+#define MIC_NAME_SUFFIX "-Mic"
+#define SPEAKER_NAME_SUFFIX "-Spkr"
 #define AEC_OUTPUT_BUFFER_RESOURCE_NAME_SUFFIX "-outBuffer"
+
+#ifdef INSERT_DELAY_RESOURCE // [
+#  define DEFAULT_STREAM_LAST_RESOURCE_NAME DEFAULT_DELAY_RESOURCE_NAME CONNECTION_NAME_SUFFIX
+#else // INSERT_DELAY_RESOURCE ][
+#  define DEFAULT_STREAM_LAST_RESOURCE_NAME DEFAULT_VOICE_ACTIVITY_NOTIFIER_RESOURCE_NAME CONNECTION_NAME_SUFFIX
+#endif // INSERT_DELAY_RESOURCE ]
 
 // MACROS
 // EXTERNAL FUNCTIONS
@@ -93,11 +109,18 @@ public:
 
      /// Add a new resource definition to the topology
    OsStatus addResource(const UtlString& resourceType,
-                        const UtlString& resourceName);
+                        const UtlString& resourceName,
+                        MpConnectionID connectionId = MP_INVALID_CONNECTION_ID,
+                        int streamId = -1);
      /**<
-     *  @param resourceType - type for MpResourceFactory construction
-     *  @param resourceName - unique name for resource in this topology and
-     *         ultimately in flowgraph.
+     *  @param[in] resourceType - type for MpResourceFactory construction
+     *  @param[in] resourceName - unique name for resource in this topology and
+     *             ultimately in flowgraph.
+     *  @param[in] connectionId - the ID of a connection this resource will
+     *             belong to. If set to MP_INVALID_CONNECTION_ID then it will be
+     *             replaced with the concrete ID if requested.
+     *  @param[in] streamId = the ID of a stream in a connection this resource
+     *             will belong to.
      *  @returns OS_NAME_IN_USE if resourceName already exists in this topology
      */
 
@@ -142,6 +165,12 @@ public:
      /// Get the resource definition indicated by the resourceIndex
    OsStatus getResource(int resourceIndex,
                         UtlString& resourceType,
+                        UtlString& resourceName,
+                        MpConnectionID& connectionId,
+                        int& streamId) const;
+
+     /// Get the resource name by the resourceIndex
+   OsStatus getResource(int resourceIndex,
                         UtlString& resourceName) const;
 
      /// Get the connection definition indicated by the connectionIndex

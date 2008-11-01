@@ -61,11 +61,11 @@ typedef struct __MpToneGen_tag {
     dtmfPatternPtr currentDtmfSound;
     tone st350, st400, st425, st440, st450, st480, st620, st697, st770, st852,
         st941, st1209h, st1209l, st1336, st1477h, st1477l, st1633, misc,
-        st480Loud, st620Loud;
+        st480Loud, st620Loud, st1000;
     dtmfPattern key1, key2, key3, keya, key4, key5, key6, keyb, key7,
         key8, key9, keyc, keystar, key0, keysharp, keyd, dial, busy, ringback,
         ringtone, callfailed, silence, callwait, backspace, callheld,
-        loudFastBusy;
+        loudFastBusy, testtone;
 } MpToneGen;
 
 static int sineWaveHz = 0;
@@ -151,6 +151,7 @@ void MpToneGen_startTone(MpToneGenPtr p, int toneID)
             case DTMF_TONE_CALLWAITING: pNew = &(p->callwait); break;
             case DTMF_TONE_CALLHELD: pNew = &(p->callheld); break;
             case DTMF_TONE_LOUD_FAST_BUSY: pNew = &(p->loudFastBusy); break;
+            case DTMF_TONE_TEST_TONE: pNew = &(p->testtone); break;
 
             default: ret = OS_INVALID_ARGUMENT; break;
         }
@@ -497,6 +498,7 @@ static void setuptones(MpToneGenPtr p, int samprate,
         setupsw(1477, &(p->st1477h), samprate, .47F);
         setupsw(1477, &(p->st1477l), samprate, DTMF_KEY_COL_AMP);
         setupsw(1633, &(p->st1633), samprate, DTMF_KEY_COL_AMP);
+        setupsw(1000, &(p->st1000), samprate, (DTMF_LOUD_BUSY_AMP / 4));
 
         setupsw(sineWaveHz, &(p->misc), samprate, sineWaveAmp);
 
@@ -522,6 +524,7 @@ static void setuptones(MpToneGenPtr p, int samprate,
         dtmfReset(&(p->callwait), FALSE);
         dtmfReset(&(p->callheld), TRUE);
         dtmfReset(&(p->loudFastBusy), TRUE);
+        dtmfReset(&(p->testtone), TRUE);
         dtmfReset(&(p->silence), TRUE);
         dtmfResetCallProgressTones(p);
 
@@ -555,6 +558,7 @@ static void setuptones(MpToneGenPtr p, int samprate,
         dtmfAddTone(&(p->callheld), NULL, NULL, 1950);
         dtmfAddTone(&(p->loudFastBusy), &(p->st480Loud), &(p->st620Loud), 250);
         dtmfAddTone(&(p->loudFastBusy), NULL, NULL, 250);
+        dtmfAddTone(&(p->testtone), &(p->st1000), NULL, 1000);
         dtmfAddTone(&(p->silence), NULL, NULL, 1000);
         dtmfSetupCallProgressTones(p, toneLocale);
         p->mpMutex->release();

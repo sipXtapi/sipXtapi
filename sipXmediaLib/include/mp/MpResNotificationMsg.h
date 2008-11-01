@@ -1,8 +1,8 @@
 //  
-// Copyright (C) 2007 SIPez LLC. 
+// Copyright (C) 2007-2008 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2007 SIPfoundry Inc.
+// Copyright (C) 2007-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // $$
@@ -45,22 +45,19 @@ public:
       MPRNM_FROMFILE_RESUMED,
       MPRNM_FROMFILE_STOPPED,
       MPRNM_FROMFILE_FINISHED,
-      MPRNM_FROMFILE_PROGRESS,
+      MPRNM_FROMFILE_PROGRESS,  ///< Value for MprnProgressMsg notifications.
       MPRNM_BUFRECORDER_STOPPED,
       MPRNM_BUFRECORDER_FINISHED,
       MPRNM_BUFRECORDER_NOINPUTDATA,
-      MPRNM_DTMF_RECEIVED,
-      // MPRNM_MIXER_NEWFOCUS,
-
-      // Add new built in resource notification messages above
-
-      // Non-builtin resource notification messages
-      MPRNM_EXTERNAL_MESSAGE_START = 128
-      // Do not add new message types after this
+      MPRNM_DTMF_RECEIVED,      ///< Value for MprnDTMFMsg notifications.
+      MPRNM_DELAY_SPEECH_STARTED,
+      MPRNM_DELAY_NO_DELAY,
+      MPRNM_DELAY_QUIESCENCE,
+      MPRNM_RX_STREAM_ACTIVITY, ///< Value for MprnRtpStreamActivityMsg notifications.
+      MPRNM_ENERGY_LEVEL,       ///< Audio energy level (MprnIntMsg)
+      MPRNM_VOICE_STARTED,
+      MPRNM_VOICE_STOPPED
    } RNMsgType;
-
-     /// Connection ID that indicates invalid connection or no connection.
-   static const MpConnectionID INVALID_CONNECTION_ID;
 
    /* ============================ CREATORS ================================== */
    ///@name Creators
@@ -69,7 +66,8 @@ public:
    /// Constructor
    MpResNotificationMsg(RNMsgType msgType, 
                         const UtlString& namedResOriginator,
-                        MpConnectionID connId = INVALID_CONNECTION_ID);
+                        MpConnectionID connId = MP_INVALID_CONNECTION_ID,
+                        int streamId = -1);
 
    /// Copy constructor
    MpResNotificationMsg(const MpResNotificationMsg& rMpResNotifyMsg);
@@ -78,8 +76,7 @@ public:
    virtual OsMsg* createCopy(void) const;
 
    /// Destructor
-   virtual
-      ~MpResNotificationMsg();
+   virtual ~MpResNotificationMsg();
 
    //@}
 
@@ -96,8 +93,12 @@ public:
    *  Sets the name of the intended recipient for this message.
    */
 
-   /// Set the connection ID that this message is associated with.
+   /// Set the connection ID that this notification is associated with.
    void setConnectionId(MpConnectionID connId);
+
+   /// @brief Set the stream number inside the connection this notification
+   /// is associated with.
+   void setStreamId(int streamId);
 
    //@}
 
@@ -106,10 +107,10 @@ public:
    //@{
 
    /// Returns the type of the media resource notification message
-   int getMsg(void) const;
+   int getMsg() const;
 
    /// Get the name of the resource that originated this message.
-   UtlString getOriginatingResourceName(void) const;
+   UtlString getOriginatingResourceName() const;
    /**<
    *  Returns the name of the MpResource object that originated this
    *  message.
@@ -117,6 +118,10 @@ public:
 
    /// Get the connection ID that this message is associated with.
    MpConnectionID getConnectionId() const;
+
+   /// @brief Get the stream number inside the connection this notification
+   /// is associated with.
+   int getStreamId() const;
 
    //@}
 
@@ -132,7 +137,10 @@ protected:
    /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
    UtlString mMsgOriginatorName; ///< Name of the resource that originated this message.
-   MpConnectionID mConnectionId; ///< The ID of the connection this is associated with.
+   MpConnectionID mConnectionId; ///< The ID of the connection this notification
+                                 ///< is associated with.
+   int mStreamId;                ///< The ID of the stream inside connection
+                                 ///< this notification is associated with.
 };
 
 /* ============================ INLINE METHODS ============================ */

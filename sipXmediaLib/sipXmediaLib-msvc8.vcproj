@@ -1324,6 +1324,14 @@
 					>
 				</File>
 				<File
+					RelativePath=".\src\mp\MprDelay.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\src\mp\MprDelay.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\src\mp\MprEchoSuppress.cpp"
 					>
 				</File>
@@ -1392,7 +1400,15 @@
 					>
 				</File>
 				<File
+					RelativePath=".\src\mp\MprnIntMsg.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\src\mp\MprnProgressMsg.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\src\mp\MprnRtpStreamActivityMsg.cpp"
 					>
 				</File>
 				<File
@@ -1405,6 +1421,18 @@
 				</File>
 				<File
 					RelativePath=".\src\mp\MprRecorder.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\src\mp\MprRtpDispatcher.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\src\mp\MprRtpDispatcherActiveSsrcs.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\src\mp\MprRtpDispatcherIpAffinity.cpp"
 					>
 				</File>
 				<File
@@ -1440,19 +1468,19 @@
 					>
 				</File>
 				<File
-					RelativePath=".\src\mp\MpRtpInputAudioConnection.cpp"
-					>
-				</File>
-				<File
 					RelativePath=".\src\mp\MpRtpInputConnection.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\src\mp\MpRtpOutputAudioConnection.cpp"
+					RelativePath=".\src\mp\MpRtpOutputConnection.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\src\mp\MpRtpOutputConnection.cpp"
+					RelativePath=".\src\mp\MprVad.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\src\mp\MprVoiceActivityNotifier.cpp"
 					>
 				</File>
 				<File
@@ -1777,6 +1805,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\include\mp\MpDspUtilsIntSqrt.h"
+					>
+				</File>
+				<File
 					RelativePath=".\include\mp\MpDspUtilsSerials.h"
 					>
 				</File>
@@ -1822,6 +1854,10 @@
 				</File>
 				<File
 					RelativePath=".\include\mp\MpInputDeviceManager.h"
+					>
+				</File>
+				<File
+					RelativePath=".\include\mp\MpIntResourceMsg.h"
 					>
 				</File>
 				<File
@@ -1937,6 +1973,14 @@
 					>
 				</File>
 				<File
+					RelativePath=".\include\mp\MprDelay.h"
+					>
+				</File>
+				<File
+					RelativePath=".\include\mp\MprDelayConstructor.h"
+					>
+				</File>
+				<File
 					RelativePath=".\include\mp\MprEchoSuppress.h"
 					>
 				</File>
@@ -2017,9 +2061,17 @@
 					>
 				</File>
 				<File
+					RelativePath=".\include\mp\MprnIntMsg.h"
+					>
+				</File>
+				<File
 					RelativePath=".\include\mp\MprnProgressMsg.h"
 					>
 				</File>
+				<File
+					RelativePath=".\include\mp\MprnRtpStreamActivityMsg.h"
+					>
+				</File>				
 				<File
 					RelativePath=".\include\mp\MprNull.h"
 					>
@@ -2041,15 +2093,23 @@
 					>
 				</File>
 				<File
-					RelativePath=".\include\mp\MprRtpInputAudioConnectionConstructor.h"
+					RelativePath=".\include\mp\MprRtpDispatcher.h"
 					>
 				</File>
 				<File
-					RelativePath=".\include\mp\MprRtpOutputAudioConnectionConstructor.h"
+					RelativePath=".\include\mp\MprRtpDispatcherActiveSsrcs.h"
 					>
 				</File>
 				<File
-					RelativePath=".\include\mp\MprRtpStartReceiveMsg.h"
+					RelativePath=".\include\mp\MprRtpDispatcherIpAffinity.h"
+					>
+				</File>				
+				<File
+					RelativePath=".\include\mp\MprRtpInputConnectionConstructor.h"
+					>
+				</File>
+				<File
+					RelativePath=".\include\mp\MprRtpOutputConnectionConstructor.h"
 					>
 				</File>
 				<File
@@ -2101,19 +2161,27 @@
 					>
 				</File>
 				<File
-					RelativePath=".\include\mp\MpRtpInputAudioConnection.h"
-					>
-				</File>
-				<File
 					RelativePath=".\include\mp\MpRtpInputConnection.h"
 					>
 				</File>
 				<File
-					RelativePath=".\include\mp\MpRtpOutputAudioConnection.h"
+					RelativePath=".\include\mp\MpRtpOutputConnection.h"
 					>
 				</File>
 				<File
-					RelativePath=".\include\mp\MpRtpOutputConnection.h"
+					RelativePath=".\include\mp\MprVad.h"
+					>
+				</File>
+				<File
+					RelativePath=".\include\mp\MprVadConstructor.h"
+					>
+				</File>
+				<File
+					RelativePath=".\include\mp\MprVoiceActivityNotifier.h"
+					>
+				</File>
+				<File
+					RelativePath=".\include\mp\MprVoiceActivityNotifierConstructor.h"
 					>
 				</File>
 				<File

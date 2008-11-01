@@ -40,6 +40,8 @@ MpResource::MpResource(const UtlString& rName, int minInputs, int maxInputs,
                        int minOutputs, int maxOutputs)
 : UtlString(rName) //,mName(rName) -- resource name is now stored in parent utlString
 , mpFlowGraph(NULL)
+, mConnectionId(MP_INVALID_CONNECTION_ID)
+, mStreamId(-1)
 , mIsEnabled(FALSE)
 , mRWMutex(OsRWMutex::Q_PRIORITY)
 , mMaxInputs(maxInputs)
@@ -49,7 +51,7 @@ MpResource::MpResource(const UtlString& rName, int minInputs, int maxInputs,
 , mNumActualInputs(0)
 , mNumActualOutputs(0)
 , mVisitState(NOT_VISITED)
-, mNotificationsEnabled(FALSE)
+, mNotificationsEnabled(TRUE)
 , mLock(OsBSem::Q_FIFO, OsBSem::FULL)
 {
    int i;   
@@ -187,14 +189,27 @@ OsStatus MpResource::sendNotification(MpResNotificationMsg& msg)
 {
    OsStatus stat = OS_SUCCESS;
    // Only send a notification if notifications are enabled.
-   if(areNotificationsEnabled() == TRUE)
+   if (areNotificationsEnabled() == TRUE)
    {
       MpFlowGraphBase* pFg = getFlowGraph();
       assert(pFg != NULL);
 
+      msg.setConnectionId(mConnectionId);
+      msg.setStreamId(mStreamId);
+
       stat = pFg->postNotification(msg);
    }
    return stat;
+}
+
+void MpResource::setConnectionId(MpConnectionID connectionId)
+{
+   mConnectionId = connectionId;
+}
+
+void MpResource::setStreamId(int streamId)
+{
+   mStreamId = streamId;
 }
 
 /* ============================ ACCESSORS ================================= */
@@ -279,7 +294,7 @@ void MpResource::getInputInfo(int inPortIdx, MpResource*& rpUpstreamResource,
 }
 
 // Returns the name associated with this resource.
-UtlString MpResource::getName(void) const
+const UtlString &MpResource::getName(void) const
 {
    return *this;
 }
@@ -381,11 +396,10 @@ int MpResource::reserveFirstUnconnectedOutput()
    return(portIndex);
 }
 
-// Get the ContainableType for a UtlContainable derived class.
-/*UtlContainableType MpResource::getContainableType() const
+UtlContainableType MpResource::getContainableType() const
 {
     return TYPE;
-}*/
+}
 
 /* ============================ INQUIRY =================================== */
 
@@ -635,7 +649,7 @@ OsStatus MpResource::postMessage(MpFlowGraphMsg& rMsg)
 // fromPortIdx output port of the rFrom resource.
 // Returns TRUE if successful, FALSE otherwise.
 UtlBoolean MpResource::connectInput(MpResource& rFrom, int fromPortIdx,
-                                   int toPortIdx)
+                                    int toPortIdx)
 {
    if (toPortIdx < 0 ||                // bad port index
        toPortIdx >= mMaxInputs)        // bad port index
@@ -656,7 +670,7 @@ UtlBoolean MpResource::connectInput(MpResource& rFrom, int fromPortIdx,
 // toPortIdx input port of the rTo resource.
 // Returns TRUE if successful, FALSE otherwise.
 UtlBoolean MpResource::connectOutput(MpResource& rTo, int toPortIdx,
-                                    int fromPortIdx)
+                                     int fromPortIdx)
 {
    if (fromPortIdx < 0 ||              // bad port index
        fromPortIdx >= mMaxOutputs)     // bad port index

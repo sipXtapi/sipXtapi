@@ -18,7 +18,12 @@
 // APPLICATION INCLUDES
 #include "mp/MpRtpInputConnection.h"
 #include "mp/MprFromNet.h"
-#include "mp/MprDejitter.h"
+#include "mp/MprDecode.h"
+#include "mp/MprRtpDispatcher.h"
+#include "mp/MprRtpDispatcherIpAffinity.h"
+#include "mp/MprRtpDispatcherActiveSsrcs.h"
+#include "mp/MpFlowGraphBase.h"
+#include "mp/MpIntResourceMsg.h"
 #include "os/OsLock.h"
 #ifdef INCLUDE_RTCP /* [ */
 #include "rtcp/RtcpConfig.h"
@@ -42,18 +47,22 @@
 // Constructor
 MpRtpInputConnection::MpRtpInputConnection(const UtlString& resourceName,
                                            MpConnectionID myID, 
-                                           IRTCPSession *piRTCPSession)
-: MpResource(resourceName, 0, 0, 0, 1)
+                                           IRTCPSession *piRTCPSession,
+                                           int maxRtpStreams,
+                                           RtpStreamAffinity rtpStreamAffinity)
+: MpResource(resourceName, 0, 0, 0, maxRtpStreams)
 , mpFromNet(NULL)
-, mpDejitter(NULL)
-, mMyID(myID)
-, mInRtpStarted(FALSE)
-, mLock(OsMutex::Q_PRIORITY|OsMutex::INVERSION_SAFE)
+, mpRtpDispatcher(NULL)
+, mMaxRtpStreams(maxRtpStreams)
+, mRtpStreamAffinity(rtpStreamAffinity)
+, mIsRtpStarted(FALSE)
 #ifdef INCLUDE_RTCP /* [ */
 , mpiRTCPSession(piRTCPSession)
 , mpiRTCPConnection(NULL)
 #endif /* INCLUDE_RTCP ] */
 {
+   mConnectionId = myID;
+
 #ifdef INCLUDE_RTCP /* [ */
 // Let's create an RTCP Connection to accompany the MP Connection just created.
    if(mpiRTCPSession)
@@ -78,8 +87,26 @@ MpRtpInputConnection::MpRtpInputConnection(const UtlString& resourceName,
 #endif /* INCLUDE_RTCP ] */
 
    // Create our resources
-   mpDejitter  = new MprDejitter();
-   mpFromNet   = new MprFromNet();
+   {
+      UtlString name = getName() + "-RtpDispatcher";
+      switch (mRtpStreamAffinity)
+      {
+      case ADDRESS_AND_PORT:
+         // We may accept only one RTP stream in this case.
+         assert(mMaxRtpStreams == 1);
+         mpRtpDispatcher = new MprRtpDispatcherIpAffinity(name, mConnectionId);
+         break;
+      case MOST_RECENT_SSRC:
+         mpRtpDispatcher = new MprRtpDispatcherActiveSsrcs(name, mConnectionId,
+                                                           mMaxRtpStreams);
+         break;
+      default:
+         assert(false);
+         break;
+      }
+   }
+   mpFromNet = new MprFromNet();
+   mpFromNet->setRtpDispatcher(mpRtpDispatcher);
 
 #ifdef INCLUDE_RTCP /* [ */
 
@@ -96,13 +123,8 @@ MpRtpInputConnection::MpRtpInputConnection(const UtlString& resourceName,
 // Destructor
 MpRtpInputConnection::~MpRtpInputConnection()
 {
-   if (mpDejitter != NULL)
-      delete mpDejitter;
-   mpDejitter = NULL;
-
-   if (mpFromNet != NULL)
-      delete mpFromNet;
-   mpFromNet = NULL;
+   delete mpFromNet;
+   delete mpRtpDispatcher;
 
 #ifdef INCLUDE_RTCP /* [ */
 // Let's free our RTCP Connection
@@ -115,21 +137,53 @@ MpRtpInputConnection::~MpRtpInputConnection()
 
 /* ============================ MANIPULATORS ============================== */
 
-// Start receiving RTP and RTCP packets.
-void MpRtpInputConnection::prepareStartReceiveRtp(OsSocket& rRtpSocket,
-                                          OsSocket& rRtcpSocket)
+UtlBoolean MpRtpInputConnection::processFrame()
 {
-   mpFromNet->setSockets(rRtpSocket, rRtcpSocket);
-   mInRtpStarted = TRUE;
+   mpRtpDispatcher->checkRtpStreamsActivity();
+
+   return TRUE;
 }
 
-// TODO:  mpFromNet->setDestIp(rRtpSocket);
+void MpRtpInputConnection::setSockets(OsSocket& rRtpSocket,
+                                      OsSocket& rRtcpSocket)
+{
+   mpFromNet->setSockets(rRtpSocket, rRtcpSocket);
+   mIsRtpStarted = TRUE;
+}
 
-// Stop receiving RTP and RTCP packets.
-void MpRtpInputConnection::prepareStopReceiveRtp()
+void MpRtpInputConnection::releaseSockets()
 {
    mpFromNet->resetSockets();
-   mInRtpStarted = FALSE;
+   mIsRtpStarted = FALSE;
+}
+
+
+void MpRtpInputConnection::setConnectionId(MpConnectionID connectionId)
+{
+   // Set connection ID for this resource.
+   MpResource::setConnectionId(connectionId);
+   // Set connection ID to contained resources.
+//   mpFromNet->setConnectionId(connectionId); FromNet does not worry connection ID.
+   mpRtpDispatcher->setConnectionId(connectionId);
+}
+
+OsStatus MpRtpInputConnection::setRtpInactivityTimeout(const UtlString& namedResource,
+                                                       OsMsgQ& fgQ,
+                                                       int timeoutMs)
+{
+   MpIntResourceMsg msg((MpResourceMsg::MpResourceMsgType)MPRM_SET_INACTIVITY_TIMEOUT,
+                        namedResource, timeoutMs);
+   return fgQ.send(msg, sOperationQueueTimeout);
+}
+
+OsStatus MpRtpInputConnection::enableSsrcDiscard(const UtlString& namedResource,
+                                                 OsMsgQ& fgQ,
+                                                 UtlBoolean enable, RtpSRC ssrc)
+{
+   MpIntResourceMsg msg(enable?(MpResourceMsg::MpResourceMsgType)MPRM_ENABLE_SSRC_DISCARD
+                              :(MpResourceMsg::MpResourceMsgType)MPRM_DISABLE_SSRC_DISCARD,
+                        namedResource, ssrc);
+   return fgQ.send(msg, sOperationQueueTimeout);
 }
 
 /* ============================ ACCESSORS ================================= */
@@ -145,6 +199,106 @@ IRTCPConnection *MpRtpInputConnection::getRTCPConnection(void)
 /* ============================ INQUIRY =================================== */
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
+
+UtlBoolean MpRtpInputConnection::connectOutput(MpResource& rTo,
+                                               int toPortIdx,
+                                               int fromPortIdx)
+{
+   UtlBoolean res = MpResource::connectOutput(rTo, toPortIdx, fromPortIdx);
+   if (res)
+   {
+      assert(rTo.getContainableType() == MprDecode::TYPE);
+      MprDecode *pDecode = (MprDecode*)&rTo;
+      res = mpRtpDispatcher->connectOutput(fromPortIdx, pDecode);
+   }
+   return res;
+}
+
+UtlBoolean MpRtpInputConnection::disconnectOutput(int outPortIdx)
+{
+   UtlBoolean res = MpResource::disconnectOutput(outPortIdx);
+   if (res)
+   {
+      res = mpRtpDispatcher->disconnectOutput(outPortIdx);
+   }
+   return res;
+}
+
+OsStatus MpRtpInputConnection::setFlowGraph(MpFlowGraphBase* pFlowGraph)
+{
+   OsStatus stat = MpResource::setFlowGraph(pFlowGraph);
+
+   // If the parent's call was successful, then call
+   // setFlowGraph on any child resources we have.
+   if(stat == OS_SUCCESS)
+   {
+      if (pFlowGraph != NULL)
+      {
+         mpRtpDispatcher->setNotificationDispatcher(pFlowGraph->getNotificationDispatcher());
+      }
+      else
+      {
+         mpRtpDispatcher->setNotificationDispatcher(NULL);
+      }
+   }
+   return stat;
+}
+
+
+UtlBoolean MpRtpInputConnection::handleMessage(MpResourceMsg& rMsg)
+{
+   UtlBoolean msgHandled = FALSE;
+
+   switch (rMsg.getMsg()) 
+   {
+   case MPRM_SET_INACTIVITY_TIMEOUT:
+      {
+         MpIntResourceMsg *pMsg = (MpIntResourceMsg*)&rMsg;
+         OsTime timeout(pMsg->getData());
+         handleSetInactivityTimeout(timeout);
+      }
+      msgHandled = TRUE;
+      break;
+
+   case MPRM_ENABLE_SSRC_DISCARD:
+   case MPRM_DISABLE_SSRC_DISCARD:
+      {
+         MpIntResourceMsg *pMsg = (MpIntResourceMsg*)&rMsg;
+         RtpSRC ssrc = pMsg->getData();
+         UtlBoolean enable = (rMsg.getMsg() == MPRM_ENABLE_SSRC_DISCARD);
+         handleEnableSsrcDiscard(enable, ssrc);
+      }
+      msgHandled = TRUE;
+      break;
+
+   case MpResourceMsg::MPRM_DISABLE_ALL_NOTIFICATIONS:
+   case MpResourceMsg::MPRM_ENABLE_ALL_NOTIFICATIONS:
+      // Enable/disable all notifications sent out from this resource.
+      msgHandled = MpResource::handleMessage(rMsg); 
+      if (msgHandled)
+      {
+         UtlBoolean enabled = (rMsg.getMsg() == MpResourceMsg::MPRM_ENABLE_ALL_NOTIFICATIONS);
+         mpRtpDispatcher->setNotificationsEnabled(enabled);
+      }
+      break;
+
+   default:
+      // If we don't handle the message here, let our parent try.
+      msgHandled = MpResource::handleMessage(rMsg); 
+      break;
+   }
+   return msgHandled;
+}
+
+void MpRtpInputConnection::handleSetInactivityTimeout(const OsTime &timeout)
+{
+   mpRtpDispatcher->setRtpInactivityTimeout(timeout);
+}
+
+void MpRtpInputConnection::handleEnableSsrcDiscard(UtlBoolean enable, RtpSRC ssrc)
+{
+   mpFromNet->enableSsrcDiscard(enable, ssrc);
+}
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 

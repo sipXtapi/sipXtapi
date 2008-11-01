@@ -31,9 +31,13 @@ const int32_t MprnDTMFMsg::DURATION_NOT_APPLICABLE = -1;
 /* ============================ CREATORS ================================== */
 
 // Constructor
-MprnDTMFMsg::MprnDTMFMsg(const UtlString& namedResOriginator, MpConnectionID connId,
-                         KeyCode key, KeyPressState pressState, int32_t duration)
-: MpResNotificationMsg(MPRNM_DTMF_RECEIVED, namedResOriginator, connId)
+MprnDTMFMsg::MprnDTMFMsg(const UtlString& namedResOriginator,
+                         KeyCode key,
+                         KeyPressState pressState,
+                         int32_t duration,
+                         MpConnectionID connId,
+                         int streamId)
+: MpResNotificationMsg(MPRNM_DTMF_RECEIVED, namedResOriginator, connId, streamId)
 , mKey(key)
 , mPressState(pressState)
 , mDuration(duration)

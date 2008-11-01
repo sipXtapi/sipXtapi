@@ -111,8 +111,8 @@ public:
 
      /// Constructor
    MpFlowGraphBase(int samplesPerFrame = 0, ///< Zero takes default
-                   int samplesPerSec = 0 ///< Zero takes default
-                  );
+                   int samplesPerSec = 0, ///< Zero takes default
+                   OsMsgDispatcher *pNotifDispatcher = NULL);
 
      /// Destructor
    virtual
@@ -313,6 +313,18 @@ public:
      *  @retval OS_UNSPECIFIED - remove resource operation failed.
      */
 
+     /// @brief Removes the indicated media processing object from the flowgraph
+     /// and destroys it.
+   OsStatus destroyResource(const UtlString& resourceName);
+     /**<
+     *  If the flow graph is not "started", this call takes effect
+     *  immediately.  Otherwise, the call takes effect at the start of the
+     *  next frame processing interval.
+     *
+     *  @retval OS_SUCCESS - success, resource has been removed and destroyed.
+     *  @retval OS_UNSPECIFIED - destroy resource operation failed.
+     */
+
      /// @copydoc CpMediaInterface::setMediaNotificationsEnabled()
    OsStatus setNotificationsEnabled(bool enabled, 
                                     const UtlString& resourceName = NULL);
@@ -436,6 +448,13 @@ protected:
 
      /// Handle the @link MpFlowGraphMsg::FLOWGRAPH_REMOVE_RESOURCE FLOWGRAPH_REMOVE_RESOURCE @endlink message.
    UtlBoolean handleRemoveResource(MpResource* pResource);
+     /**<
+     * @retval TRUE if the message was handled.
+     * @retval FALSE otherwise.
+     */
+
+     /// Handle the @link MpFlowGraphMsg::FLOWGRAPH_DESTROY_RESOURCE FLOWGRAPH_DESTROY_RESOURCE @endlink message.
+   UtlBoolean handleDestroyResource(const UtlString &name);
      /**<
      * @retval TRUE if the message was handled.
      * @retval FALSE otherwise.

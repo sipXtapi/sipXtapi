@@ -38,10 +38,18 @@
 #include "mp/MpMediaTask.h"
 #include "mp/MpCodecFactory.h"
 #include "mp/MpFlowGraphBase.h"
+#include "mp/MprnRtpStreamActivityMsg.h"
+#include "mp/MprDecodeSelectCodecsMsg.h"
+#include "mp/MpIntResourceMsg.h"
 
 // DEFINES
 #define DEBUG_DTMF_SEND
 #undef  DEBUG_DTMF_SEND
+#ifdef DEBUG_PRINT
+#  define dprintf printf
+#else
+  static inline void dprintf(...) {};
+#endif
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -50,6 +58,7 @@
    // At 10 ms each, 10 seconds.  We will send an RTP packet to each active
    // destination at least this often, even when muted.
    const int MprEncode::RTP_KEEP_ALIVE_FRAME_INTERVAL = 1000;
+   const UtlContainableType MprEncode::TYPE = "MprEncode";
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
@@ -57,14 +66,14 @@
 
 // Constructor
 MprEncode::MprEncode(const UtlString& rName)
-:  MpAudioResource(rName, 1, 1, 0, 0),
+:  MpAudioResource(rName, 1, 1, 1, 1),
    mpPrimaryCodec(NULL),
    mpPacket1Payload(NULL),
    mPacket1PayloadBytes(0),
    mPayloadBytesUsed(0),
    mSamplesPacked(0),
    mActiveAudio1(FALSE),
-   mMarkNext1(FALSE),
+   mMarkNext1(TRUE),
    mConsecutiveInactive1(0),
    mConsecutiveActive1(0),
    mConsecutiveUnsentFrames1(0),
@@ -105,66 +114,71 @@ MprEncode::~MprEncode()
 
 /* ============================ MANIPULATORS ============================== */
 
+OsStatus MprEncode::selectCodecs(const UtlString& namedResource, OsMsgQ& fgQ,
+                                 SdpCodec* pPrimary, SdpCodec* pDtmf)
+{
+   SdpCodec* newCodecs[2];
+   newCodecs[0] = pPrimary;
+   newCodecs[1] = pDtmf;
+   MprDecodeSelectCodecsMsg msg(namedResource, newCodecs, 2);
+   return fgQ.send(msg, sOperationQueueTimeout);
+}
+
+OsStatus MprEncode::deselectCodecs(const UtlString& namedResource, OsMsgQ& fgQ)
+{
+   MpResourceMsg msg((MpResourceMsg::MpResourceMsgType)MPRM_DESELECT_CODECS, namedResource);
+   return fgQ.send(msg, sOperationQueueTimeout);
+}
+
 void MprEncode::setMyToNet(MprToNet* myToNet)
 {
    mpToNet = myToNet;
 }
 
-OsStatus MprEncode::startTone(int toneId)
+OsStatus MprEncode::startTone(const UtlString& namedResource, OsMsgQ& fgQ,
+                              int toneId)
 {
-   MpFlowGraphMsg msg(START_TONE, this, NULL, NULL, toneId, 0);
-   return postMessage(msg);
+   MpIntResourceMsg msg((MpResourceMsg::MpResourceMsgType)MPRM_START_TONE,
+                        namedResource, toneId);
+   return fgQ.send(msg, sOperationQueueTimeout);
 }
 
-OsStatus MprEncode::stopTone(void)
+OsStatus MprEncode::stopTone(const UtlString& namedResource, OsMsgQ& fgQ)
 {
-   MpFlowGraphMsg msg(STOP_TONE, this, NULL, NULL, 0, 0);
-   return postMessage(msg);
+   MpResourceMsg msg((MpResourceMsg::MpResourceMsgType)MPRM_STOP_TONE, namedResource);
+   return fgQ.send(msg, sOperationQueueTimeout);
 }
 
-OsStatus MprEncode::enableDTX(UtlBoolean dtx)
+OsStatus MprEncode::enableDtx(const UtlString& namedResource, 
+                              OsMsgQ& fgQ,
+                              UtlBoolean dtx)
 {
-   MpFlowGraphMsg msg(ENABLE_DTX, this, NULL, NULL, dtx, 0);
-   return postMessage(msg);
+   MpResourceMsg msg((MpResourceMsg::MpResourceMsgType)(dtx?MPRM_ENABLE_DTX
+                                                           :MPRM_DISABLE_DTX),
+                     namedResource);
+   return fgQ.send(msg, sOperationQueueTimeout);
 }
 
-OsStatus MprEncode::setMaxPacketTime(unsigned int maxPacketTime)
+OsStatus MprEncode::setMaxPacketTime(const UtlString& namedResource, OsMsgQ& fgQ,
+                                     unsigned int maxPacketTime)
 {
-   MpFlowGraphMsg msg(SET_MAX_PACKET_TIME, this, NULL, NULL, maxPacketTime, 0);
-   return postMessage(msg);
+   MpIntResourceMsg msg((MpResourceMsg::MpResourceMsgType)MPRM_SET_MAX_PACKET_TIME,
+                        namedResource, maxPacketTime);
+   return fgQ.send(msg, sOperationQueueTimeout);
 }
 
 /* ============================ ACCESSORS ================================= */
+
+UtlContainableType MprEncode::getContainableType() const
+{
+   return TYPE;
+}
 
 /* ============================ INQUIRY =================================== */
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
 /* ============================ FUNCTIONS ================================= */
-
-OsStatus MprEncode::deselectCodecs(void)
-{
-   MpFlowGraphMsg msg(DESELECT_CODECS, this, NULL, NULL, 0, 0);
-
-   return postMessage(msg);
-}
-
-OsStatus MprEncode::selectCodecs(SdpCodec* pPrimary, SdpCodec* pDtmf)
-{
-   OsStatus res = OS_SUCCESS;
-   MpFlowGraphMsg msg(SELECT_CODECS, this, NULL, NULL, 2, 0);
-
-   int numNewCodecs = 2;
-   SdpCodec** newCodecs = new SdpCodec*[numNewCodecs];
-
-   newCodecs[0] = (NULL == pPrimary) ? NULL : new SdpCodec(*pPrimary);
-   newCodecs[1] = (NULL == pDtmf) ? NULL : new SdpCodec(*pDtmf);
-   msg.setPtr1(newCodecs);
-   msg.setInt1(numNewCodecs);
-   res = postMessage(msg);
-
-   return res;
-}
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
@@ -215,6 +229,11 @@ void MprEncode::handleDeselectCodecs(void)
          mResampleBufLen = 0;
          delete[] mpResampleBuf;
          mpResampleBuf = NULL;
+      }
+      if (mMarkNext1 == FALSE)
+      {
+         // Codecs were deselected in the middle of the stream. Send notification.
+         notifyStopTx();
       }
    }
    if (NULL != mpDtmfCodec) {
@@ -279,6 +298,7 @@ void MprEncode::handleSelectCodecs(int newCodecsCount, SdpCodec** newCodecs)
       }
 
       mMaxPacketSamples = mMaxPacketTime*codecSamplesPerSec/1000;
+      mMarkNext1 = TRUE;
 
       OsSysLog::add(FAC_MP, PRI_DEBUG,
                     "MprEncode::handleSelectCodecs "
@@ -348,47 +368,62 @@ void MprEncode::handleSetMaxPacketTime(unsigned maxPacketTime)
    mMaxPacketTime = maxPacketTime;
 }
 
-// Handle messages for this resource.
-UtlBoolean MprEncode::handleMessage(MpFlowGraphMsg& rMsg)
+UtlBoolean MprEncode::handleMessage(MpResourceMsg& rMsg)
 {
-   if (rMsg.getMsg() == SELECT_CODECS)
-   {
-      int pNewCodecArrSz = rMsg.getInt1();
-      SdpCodec** pNewCodecArr = (SdpCodec**)rMsg.getPtr1();
-      // Note: handleSelectCodecs now does not free the data given to it.
-      handleSelectCodecs(pNewCodecArrSz, pNewCodecArr);
+   UtlBoolean msgHandled = FALSE;
 
-      // Free the contents of the array we were sent, if not null.
-      int i;
-      for (i = 0; i < pNewCodecArrSz; i++)
+   switch (rMsg.getMsg()) 
+   {
+   case MpResourceMsg::MPRM_DECODE_SELECT_CODECS:
       {
-         if(NULL != pNewCodecArr[i])
-         {
-            delete pNewCodecArr[i];
-         }
+         MprDecodeSelectCodecsMsg *pMsg = (MprDecodeSelectCodecsMsg*)&rMsg;
+         handleSelectCodecs(pMsg->getNumCodecs(), pMsg->getCodecs());
       }
-      // free the array we were sent
-      delete[] pNewCodecArr;
-      return TRUE;
-   } 
-   else if (rMsg.getMsg() == DESELECT_CODECS) {
+      msgHandled = TRUE;
+      break;
+
+   case MPRM_DESELECT_CODECS:
       handleDeselectCodecs();
-      return TRUE;
-   } else if (rMsg.getMsg() == START_TONE) {
-      handleStartTone(rMsg.getInt1());
-      return TRUE;
-   } else if (rMsg.getMsg() == STOP_TONE) {
+      msgHandled = TRUE;
+      break;
+
+   case MPRM_START_TONE:
+      {
+         MpIntResourceMsg *pMsg = (MpIntResourceMsg*)&rMsg;
+         handleStartTone(pMsg->getData());
+      }
+      msgHandled = TRUE;
+      break;
+
+   case MPRM_STOP_TONE:
       handleStopTone();
-      return TRUE;
-   } else if (rMsg.getMsg() == ENABLE_DTX) {
-      handleEnableDTX(rMsg.getInt1());
-      return TRUE;
-   } else if (rMsg.getMsg() == SET_MAX_PACKET_TIME) {
-      handleSetMaxPacketTime(rMsg.getInt1());
-      return TRUE;
+      msgHandled = TRUE;
+      break;
+
+   case MPRM_SET_MAX_PACKET_TIME:
+      {
+         MpIntResourceMsg *pMsg = (MpIntResourceMsg*)&rMsg;
+         handleSetMaxPacketTime(pMsg->getData());
+      }
+      msgHandled = TRUE;
+      break;
+
+   case MPRM_ENABLE_DTX:
+      handleEnableDTX(TRUE);
+      msgHandled = TRUE;
+      break;
+
+   case MPRM_DISABLE_DTX:
+      handleEnableDTX(FALSE);
+      msgHandled = TRUE;
+      break;
+
+   default:
+      // If we don't handle the message here, let our parent try.
+      msgHandled = MpResource::handleMessage(rMsg); 
+      break;
    }
-   else
-      return MpAudioResource::handleMessage(rMsg);
+   return msgHandled;
 }
 
 // Translate our tone ID into RFC2833 values.
@@ -450,11 +485,16 @@ void MprEncode::doPrimaryCodec(MpAudioBufPtr in)
    UtlBoolean isPacketSilent;
    unsigned int codecFrameSamples;
 
-   if (mpPrimaryCodec == NULL)
+   if (mpPrimaryCodec == NULL || !in.isValid())
+   {
+      if (mMarkNext1 == FALSE)
+      {
+         // This is the first empty frame after active stream.
+         notifyStopTx();
+         mMarkNext1 = TRUE;
+      }
       return;
-
-   if (!in.isValid())
-      return;
+   }
 
    // Do resampling if needed.
    if (mNeedResample)
@@ -523,8 +563,9 @@ void MprEncode::doPrimaryCodec(MpAudioBufPtr in)
          } else {
             mConsecutiveInactive1++;
          }
-         if ((mConsecutiveInactive1 < HANGOVER_PACKETS) ||
-             (mConsecutiveUnsentFrames1 >= RTP_KEEP_ALIVE_FRAME_INTERVAL))
+         if ((  mConsecutiveInactive1 < HANGOVER_PACKETS)
+             || (  mConsecutiveUnsentFrames1
+                && mConsecutiveUnsentFrames1 >= RTP_KEEP_ALIVE_FRAME_INTERVAL))
          {
             mpToNet->writeRtp(mpPrimaryCodec->getPayloadType(),
                               mMarkNext1,
@@ -532,9 +573,21 @@ void MprEncode::doPrimaryCodec(MpAudioBufPtr in)
                               mPayloadBytesUsed,
                               mStartTimestamp1,
                               NULL);
+
+            if (mMarkNext1 == TRUE)
+            {
+               // This is the first packet in the stream. Send notification.
+               notifyStartTx();
+            }
+
             mMarkNext1 = FALSE;
             mConsecutiveUnsentFrames1 = 0;
          } else {
+            if (mMarkNext1 == FALSE)
+            {
+               // This is the first packet after the stream. Send notification.
+               notifyStopTx();
+            }
             mMarkNext1 = TRUE;
          }
          mPayloadBytesUsed = 0;
@@ -659,3 +712,22 @@ UtlBoolean MprEncode::doProcessFrame(MpBufPtr inBufs[],
    return TRUE;
 }
 
+void MprEncode::notifyStartTx()
+{
+   MprnRtpStreamActivityMsg msg(getName(),
+                                MprnRtpStreamActivityMsg::STREAM_START,
+                                mpToNet->getSSRC(), 0, -1);
+   OsStatus stat = sendNotification(msg);
+   assert(stat == OS_SUCCESS || stat == OS_NOT_FOUND);
+   dprintf("Start TX\n");
+}
+
+void MprEncode::notifyStopTx()
+{
+   MprnRtpStreamActivityMsg msg(getName(),
+                                MprnRtpStreamActivityMsg::STREAM_STOP,
+                                mpToNet->getSSRC(), 0, -1);
+   OsStatus stat = sendNotification(msg);
+   assert(stat == OS_SUCCESS || stat == OS_NOT_FOUND);
+   dprintf("Stop TX\n");
+}

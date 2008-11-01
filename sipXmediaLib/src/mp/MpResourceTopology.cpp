@@ -28,15 +28,21 @@ class MpResourceDefinition : public UtlString
 {
 public:
    MpResourceDefinition(const UtlString& resourceType,
-                        const UtlString& resourceName)
+                        const UtlString& resourceName,
+                        MpConnectionID connectionId,
+                        int streamId)
    : UtlString(resourceName)
    , mResourceType(resourceType)
+   , mConnectionId(connectionId)
+   , mStreamId(streamId)
    {
    }
 
    virtual ~MpResourceDefinition(){};
 
    UtlString mResourceType;
+   MpConnectionID mConnectionId;
+   int mStreamId;
 
 private:
    // Disable the following
@@ -92,7 +98,9 @@ MpResourceTopology::~MpResourceTopology()
 
 /* ============================ MANIPULATORS ============================== */
 OsStatus MpResourceTopology::addResource(const UtlString& resourceType,
-                                         const UtlString& resourceName)
+                                         const UtlString& resourceName,
+                                         MpConnectionID connectionId,
+                                         int streamId)
 {
    OsStatus result;
 
@@ -102,7 +110,8 @@ OsStatus MpResourceTopology::addResource(const UtlString& resourceType,
    }
    else
    {
-      mResources.append(new MpResourceDefinition(resourceType, resourceName));
+      mResources.append(new MpResourceDefinition(resourceType, resourceName,
+                                                 connectionId, streamId));
       result = OS_SUCCESS;
    }
    return result;
@@ -260,7 +269,9 @@ OsStatus MpResourceTopology::validateResourceTypes(MpResourceFactory& resourceFa
 
 OsStatus MpResourceTopology::getResource(int resourceIndex,
                                          UtlString& resourceType,
-                                         UtlString& resourceName) const
+                                         UtlString& resourceName,
+                                         MpConnectionID& connectionId,
+                                         int& streamId) const
 {
    MpResourceDefinition* resourceDef =
       (MpResourceDefinition*) mResources.at(resourceIndex);
@@ -270,6 +281,27 @@ OsStatus MpResourceTopology::getResource(int resourceIndex,
       result = OS_SUCCESS;
       resourceName = *resourceDef;
       resourceType = resourceDef->mResourceType;
+      connectionId = resourceDef->mConnectionId;
+      streamId = resourceDef->mStreamId;
+   }
+   else
+   {
+      result = OS_NOT_FOUND;
+   }
+   return result;
+}
+
+
+OsStatus MpResourceTopology::getResource(int resourceIndex,
+                                         UtlString& resourceName) const
+{
+   MpResourceDefinition* resourceDef =
+      (MpResourceDefinition*) mResources.at(resourceIndex);
+   OsStatus result;
+   if(resourceDef)
+   {
+      result = OS_SUCCESS;
+      resourceName = *resourceDef;
    }
    else
    {

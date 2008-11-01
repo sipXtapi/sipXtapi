@@ -103,6 +103,7 @@ libsipXmedia_la_SOURCES =  \
     mp/MprBridge.cpp \
     mp/MprDecode.cpp \
     mp/MprDejitter.cpp \
+    mp/MprDelay.cpp \
     mp/MprEchoSuppress.cpp \
     mp/MprEncode.cpp \
     mp/MpResampler.cpp \
@@ -123,10 +124,15 @@ libsipXmedia_la_SOURCES =  \
     mp/MprFromStream.cpp \
     mp/MprMixer.cpp \
     mp/MprnDTMFMsg.cpp \
+    mp/MprnIntMsg.cpp \
     mp/MprnProgressMsg.cpp \
+    mp/MprnRtpStreamActivityMsg.cpp \
     mp/MprNull.cpp \
     mp/MprNullAec.cpp \
     mp/MprRecorder.cpp \
+    mp/MprRtpDispatcher.cpp \
+    mp/MprRtpDispatcherActiveSsrcs.cpp \
+    mp/MprRtpDispatcherIpAffinity.cpp \
     mp/MpSineWaveGeneratorDeviceDriver.cpp \
     mp/MpStaticCodecInit.cpp \
     mp/MprSpeexEchoCancel.cpp \
@@ -137,10 +143,10 @@ libsipXmedia_la_SOURCES =  \
     mp/MprToOutputDevice.cpp \
     mp/MprToSpkr.cpp \
     mp/MprBufferRecorder.cpp \
-    mp/MpRtpInputAudioConnection.cpp \
     mp/MpRtpInputConnection.cpp \
-    mp/MpRtpOutputAudioConnection.cpp \
     mp/MpRtpOutputConnection.cpp \
+    mp/MprVad.cpp \
+    mp/MprVoiceActivityNotifier.cpp \
     mp/MpStreamFeeder.cpp \
     mp/MpStreamMsg.cpp \
     mp/MpStreamPlayer.cpp \

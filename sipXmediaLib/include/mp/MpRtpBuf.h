@@ -21,7 +21,7 @@
 #endif
 
 // APPLICATION INCLUDES
-#include "mp/MpDataBuf.h"
+#include "mp/MpUdpBuf.h"
 //#include "mp/MpTypes.h"
 #include "mp/RtpHeader.h"
 
@@ -38,7 +38,7 @@
 *  This is only the header for RTP data. It contain some RTP-related
 *  parameters and pointer to external data (cause it is based on MpDataBuf).
 */
-struct MpRtpBuf : public MpDataBuf
+struct MpRtpBuf : public MpUdpBuf
 {
     friend class MpRtpBufPtr;
 
@@ -327,7 +327,7 @@ private:
 *  The goal of this smart pointer is to care about reference counter and
 *  buffer deallocation.
 */
-class MpRtpBufPtr : public MpDataBufPtr {
+class MpRtpBufPtr : public MpUdpBufPtr {
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
@@ -340,10 +340,10 @@ public:
     MPBUF_DEFAULT_CONSTRUCTOR(MpRtpBuf)
 
     /// This constructor owns MpBuf object.
-    MPBUFDATA_FROM_BASE_CONSTRUCTOR(MpRtpBuf, MP_BUF_RTP, MpDataBuf)
+    MPBUFDATA_FROM_BASE_CONSTRUCTOR(MpRtpBuf, MP_BUF_RTP, MpUdpBuf)
 
     /// Copy object from base type with type check.
-    MPBUF_TYPECHECKED_COPY(MpRtpBuf, MP_BUF_RTP, MpDataBuf)
+    MPBUF_TYPECHECKED_COPY(MpRtpBuf, MP_BUF_RTP, MpUdpBuf)
 
 //@}
 

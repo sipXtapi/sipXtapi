@@ -58,7 +58,8 @@ public:
    MpTopologyGraph(int samplesPerFrame, 
                    int samplesPerSec,
                    MpResourceTopology& initialResourceTopology,
-                   MpResourceFactory& resourceFactory);
+                   MpResourceFactory& resourceFactory,
+                   OsMsgDispatcher *pNotifDispatcher = NULL);
 
      /// Destructor
    virtual ~MpTopologyGraph();
@@ -78,13 +79,33 @@ public:
      *  If the resourceFactory is NULL, the factory provided when constructing this
      *  flowgraph is used as the default factory.
      *
-     *  @param incrementalTopology - defines the resources to be added to the
-     *         flowgraph and the in which they are connected.
-     *  @param resourceFactory - factory to construct the resources added named in the incrementalTopology
-     *  @param resourceInstanceId - instance ID to be used to make resource names
-     *         unique in the flowgraph.
+     *  @param[in] incrementalTopology - defines the resources to be added to the
+     *             flowgraph and the order in which they are connected.
+     *  @param[in] resourceFactory - factory to construct the resources added named
+     *             in the incrementalTopology
+     *  @param[in] resourceInstanceId - instance ID to be used to make resource names
+     *             unique in the flowgraph.
+     *
+     *  @returns OS_SUCCESS always.
      */
 
+
+     /// @brief Delete resources from existing flowgraph as defined by
+     /// given topology.
+   OsStatus destroyResources(MpResourceTopology& resourceTopology,
+                            int resourceInstanceId);
+     /**<
+     *  @warning At the moment \p resourceTopology must not contain "paired"
+     *           resources, that is resource, whose constructor returns two or
+     *           more resource instances.
+     *
+     *  @param[in] incrementalTopology - defines the resources to be deleted from
+     *             the flowgraph.
+     *  @param[in] resourceInstanceId - instance ID used to make resource names
+     *             unique in the flowgraph.
+     *
+     *  @returns OS_SUCCESS always.
+     */
 
      /// Extended processNextFrame() for diagnostic reasons.
    virtual OsStatus processNextFrame();

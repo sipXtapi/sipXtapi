@@ -37,6 +37,9 @@ public:
      /// Destructor
    ~MpPlcSilence();
 
+     /// Reset
+   void reset();
+
 //@}
 
 /* ============================ MANIPULATORS ============================== */

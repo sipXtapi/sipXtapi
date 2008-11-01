@@ -81,6 +81,7 @@ void MpAudioBuf::init()
     mParams.mSpeechType = MP_SPEECH_UNKNOWN;
     mParams.mAmplitude = MpSpeechParams::MAX_AMPLITUDE;
     mParams.mIsClipped = FALSE;
+    mParams.mFrameEnergy = -1;
 #ifdef MPBUF_DEBUG
     osPrintf(">>> MpAudioBuf::init()\n");
 #endif
