@@ -32,6 +32,7 @@
 class CpMediaInterfaceFactoryImpl ;
 class CpMediaInterface ;
 class SdpCodec ;
+class OsMsgDispatcher ;
 
 /**
  * The CpMediaInterfaceFactory is responsible for create media interfaces.  
@@ -93,7 +94,8 @@ public:
                                           const char* szTurnPassword,
                                           int iTurnKeepAlivePeriodSecs,
                                           UtlBoolean bEnableICE,
-                                          uint32_t samplesPerSec = 0 ///< Zero takes default
+                                          uint32_t samplesPerSec = 0, ///< Zero takes default
+                                          OsMsgDispatcher* pDispatcher = NULL
                                          );
 
      /// Add directory paths to the codec search path.

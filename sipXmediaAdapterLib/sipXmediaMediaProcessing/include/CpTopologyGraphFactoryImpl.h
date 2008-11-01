@@ -40,6 +40,8 @@ class MpOutputDeviceManager;
 *  by the MpResourceTopology last set via setInitialResourceTopology.  The
 *  specific resources are instantiated using the MpResourceFactory last set
 *  via setResourceFactory.
+*
+*  @nosubgrouping
 */
 class CpTopologyGraphFactoryImpl : public sipXmediaFactoryImpl
 {
@@ -84,7 +86,8 @@ public:
                                            const char* turnPassword,
                                            int turnKeepAlivePeriodSecs,
                                            UtlBoolean enableIce, 
-                                           uint32_t samplesPerSec);
+                                           uint32_t samplesPerSec,
+                                           OsMsgDispatcher* pDispatcher);
 
     // For now inherit all of the modification methods from parent
     // Eventually they will all need to be replaced with specific 
@@ -118,33 +121,45 @@ public:
     MpResourceFactory* getResourceFactory() const;
 
       /// @brief Set the resource topology to be added to the flow graph when
-      /// adding an RTP connection.
+      /// adding an unicast RTP connection.
     virtual
     void setConnectionResourceTopology(MpResourceTopology& connectionTopology);
 
       /// @brief Get the resource topology defining what resources get added
-      /// when adding an RTP connection.
+      /// when adding an unicast RTP connection.
     virtual
     MpResourceTopology* getConnectionResourceTopology() const;
+
+      /// @brief Set the resource topology to be added to the flow graph when
+      /// adding an multicast RTP connection.
+    virtual
+    void setMcastConnectionResourceTopology(MpResourceTopology& connectionTopology);
+
+      /// @brief Get the resource topology defining what resources get added
+      /// when adding an multicast RTP connection.
+    virtual
+    MpResourceTopology* getMcastConnectionResourceTopology() const;
+
+      /// Return number of RTP streams multicast connection supports
+    inline
+    int getNumMcastRtpStreams() const;
 
     MpInputDeviceManager* getInputDeviceManager() const;
 
       /// Build a resource factory with the default set of resource constructors.
     MpResourceFactory* buildDefaultResourceFactory();
 
-    // For now inherit all of the accessors methods from parent
-    // Eventually they will all need to be replaced with specific 
-    // implementations
-
-//@}
-
       /// Build a default initial resource topology.
     static
     MpResourceTopology* buildDefaultInitialResourceTopology();
 
-      /// Build a default incremental resource topology for RTP connections.
-    static
-    MpResourceTopology* buildDefaultIncrementalResourceTopology();
+      /// Build an incremental resource topology for unicast RTP connections.
+    MpResourceTopology* buildUnicastConnectionResourceTopology();
+
+      /// Build an incremental resource topology for multicast RTP connections.
+    MpResourceTopology* buildMulticastConnectionResourceTopology();
+
+//@}
 
 /* ============================ INQUIRY =================================== */
 ///@name Inquiry
@@ -155,17 +170,27 @@ public:
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 
+   MpResourceTopology    *mpInitialResourceTopology;
+   MpResourceFactory     *mpResourceFactory;
+   MpResourceTopology    *mpConnectionResourceTopology;
+   MpResourceTopology    *mpMcastConnectionResourceTopology;
+   MpInputDeviceManager  *mpInputDeviceManager;
+   MpOutputDeviceManager *mpOutputDeviceManager;
+   int                    mNumMcastStreams;
+
+   void addOutputConnectionTopology(MpResourceTopology* resourceTopology,
+                                    int logicalPortNum);
+
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-
-    MpResourceTopology    *mpInitialResourceTopology;
-    MpResourceFactory     *mpResourceFactory;
-    MpResourceTopology    *mpConnectionResourceTopology;
-    MpInputDeviceManager  *mpInputDeviceManager;
-    MpOutputDeviceManager *mpOutputDeviceManager;
 
 };
 
 /* ============================ INLINE METHODS ============================ */
+
+int CpTopologyGraphFactoryImpl::getNumMcastRtpStreams() const
+{
+   return mNumMcastStreams;
+}
 
 #endif  // _CpTopologyGraphFactoryImpl_h_

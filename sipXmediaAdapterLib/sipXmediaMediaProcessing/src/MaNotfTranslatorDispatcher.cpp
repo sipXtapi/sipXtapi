@@ -14,12 +14,16 @@
 #include <mp/MpResNotificationMsg.h>
 #include <mp/MprnDTMFMsg.h>
 #include <mp/MprnProgressMsg.h>
+#include <mp/MprnRtpStreamActivityMsg.h>
+#include <mp/MprnIntMsg.h>
 
 // APPLICATION INCLUDES
 #include "MaNotfTranslatorDispatcher.h"
 #include "mi/MiNotification.h"
 #include "mi/MiDtmfNotf.h"
 #include "mi/MiProgressNotf.h"
+#include "mi/MiRtpStreamActivityNotf.h"
+#include "mi/MiIntNotf.h"
 #include <mp/MpResNotificationMsg.h>
 
 // EXTERNAL FUNCTIONS
@@ -80,32 +84,66 @@ OsStatus MaNotfTranslatorDispatcher::post(const OsMsg& msg)
       case MpResNotificationMsg::MPRNM_BUFRECORDER_STOPPED:
       case MpResNotificationMsg::MPRNM_BUFRECORDER_FINISHED:
       case MpResNotificationMsg::MPRNM_BUFRECORDER_NOINPUTDATA:
+      case MpResNotificationMsg::MPRNM_DELAY_SPEECH_STARTED:
+      case MpResNotificationMsg::MPRNM_DELAY_NO_DELAY:
+      case MpResNotificationMsg::MPRNM_DELAY_QUIESCENCE:
+      case MpResNotificationMsg::MPRNM_VOICE_STARTED:
+      case MpResNotificationMsg::MPRNM_VOICE_STOPPED:
          {
             MiNotification miNotf(lookupNotfType(notfType), 
-                                  resNotf.getOriginatingResourceName());
+                                  resNotf.getOriginatingResourceName(),
+                                  resNotf.getConnectionId(),
+                                  resNotf.getStreamId());
             stat = mpAbstractedMsgDispatcher->post(miNotf);
          }
          break;
       case MpResNotificationMsg::MPRNM_DTMF_RECEIVED:
          {
             // In this case we know the message received is a DTMF notification..
-            MprnDTMFMsg& dtmfMLibNotf = (MprnDTMFMsg&)resNotf;
-            MiDtmfNotf dtmfMINotf(dtmfMLibNotf.getOriginatingResourceName(),
-                                  (int)(dtmfMLibNotf.getConnectionId()),
-                                  (MiDtmfNotf::KeyCode)dtmfMLibNotf.getKeyCode(), 
-                                  (MiDtmfNotf::KeyPressState)dtmfMLibNotf.getKeyPressState(), 
-                                  dtmfMLibNotf.getDuration());
-            stat = mpAbstractedMsgDispatcher->post(dtmfMINotf);
+            MprnDTMFMsg& mediaLibNotf = (MprnDTMFMsg&)resNotf;
+            MiDtmfNotf miNotf(mediaLibNotf.getOriginatingResourceName(),
+                              (MiDtmfNotf::KeyCode)mediaLibNotf.getKeyCode(), 
+                              (MiDtmfNotf::KeyPressState)mediaLibNotf.getKeyPressState(), 
+                              mediaLibNotf.getDuration(),
+                              (int)(mediaLibNotf.getConnectionId()),
+                              mediaLibNotf.getStreamId());
+            stat = mpAbstractedMsgDispatcher->post(miNotf);
          }
          break;
       case MpResNotificationMsg::MPRNM_FROMFILE_PROGRESS:
          {
             // In this case we know the message received is a progress notification.
-            MprnProgressMsg& prgMLibNotf = (MprnProgressMsg&)resNotf;
-            MiProgressNotf prgMINotf(prgMLibNotf.getOriginatingResourceName(),
-                                     prgMLibNotf.getPositionMS(), 
-                                     prgMLibNotf.getTotalMS());
-            stat = mpAbstractedMsgDispatcher->post(prgMINotf);
+            MprnProgressMsg& mediaLibNotf = (MprnProgressMsg&)resNotf;
+            MiProgressNotf miNotf(mediaLibNotf.getOriginatingResourceName(),
+                                  mediaLibNotf.getPositionMS(), 
+                                  mediaLibNotf.getTotalMS());
+            stat = mpAbstractedMsgDispatcher->post(miNotf);
+         }
+         break;
+      case MpResNotificationMsg::MPRNM_RX_STREAM_ACTIVITY:
+         {
+            // In this case we know the message received is a progress notification.
+            MprnRtpStreamActivityMsg& mediaLibNotf = (MprnRtpStreamActivityMsg&)resNotf;
+            MiRtpStreamActivityNotf miNotf(mediaLibNotf.getOriginatingResourceName(),
+                                           (MiRtpStreamActivityNotf::StreamState)mediaLibNotf.getState(),
+                                           mediaLibNotf.getSsrc(),
+                                           mediaLibNotf.getAddress(),
+                                           mediaLibNotf.getPort(),
+                                           (int)(mediaLibNotf.getConnectionId()),
+                                           mediaLibNotf.getStreamId());
+            stat = mpAbstractedMsgDispatcher->post(miNotf);
+         }
+         break;
+      case MpResNotificationMsg::MPRNM_ENERGY_LEVEL:
+         {
+            // In this case we know the message received is a progress notification.
+            MprnIntMsg& mediaLibNotf = (MprnIntMsg&)resNotf;
+            MiIntNotf miNotf(MiNotification::MI_NOTF_ENERGY_LEVEL,
+                             mediaLibNotf.getOriginatingResourceName(),
+                             mediaLibNotf.getValue(),
+                             (int)(mediaLibNotf.getConnectionId()),
+                             mediaLibNotf.getStreamId());
+            stat = mpAbstractedMsgDispatcher->post(miNotf);
          }
          break;
       default:
@@ -174,8 +212,23 @@ MiNotification::NotfType lookupNotfType( MpResNotificationMsg::RNMsgType rnMsgTy
    case MpResNotificationMsg::MPRNM_DTMF_RECEIVED:
       miNotfType = MiNotification::MI_NOTF_DTMF_RECEIVED;
       break;
+   case MpResNotificationMsg::MPRNM_DELAY_SPEECH_STARTED:
+      miNotfType = MiNotification::MI_NOTF_DELAY_SPEECH_STARTED;
+      break;
+   case MpResNotificationMsg::MPRNM_DELAY_NO_DELAY:
+      miNotfType = MiNotification::MI_NOTF_DELAY_NO_DELAY;
+      break;
+   case MpResNotificationMsg::MPRNM_DELAY_QUIESCENCE:
+      miNotfType = MiNotification::MI_NOTF_DELAY_QUIESCENCE;
+      break;
    case MpResNotificationMsg::MPRNM_FROMFILE_PROGRESS:
       miNotfType = MiNotification::MI_NOTF_PROGRESS;
+      break;
+   case MpResNotificationMsg::MPRNM_VOICE_STARTED:
+      miNotfType = MiNotification::MI_NOTF_VOICE_STARTED;
+      break;
+   case MpResNotificationMsg::MPRNM_VOICE_STOPPED:
+      miNotfType = MiNotification::MI_NOTF_VOICE_STOPPED;
       break;
    default:
       miNotfType = MiNotification::MI_NOTF_MESSAGE_INVALID;

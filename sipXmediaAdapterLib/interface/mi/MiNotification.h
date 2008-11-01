@@ -28,7 +28,21 @@
 // TYPEDEFS
 // FORWARD DECLARATIONS
 
-  /// Message notification class used to communicate media notification events. 
+/**
+*  @brief Message notification class used to communicate media notification events. 
+*
+*  To determine the source of the notification use the following information:
+*  1) Test getConnectionId() - if it is >=1, then notification is sent from
+*     the selected input or output connection. If it is equal to -1, then
+*     notification is sent from local part (mic and speaker sides).
+*  2) If notification belongs to input part of connection, then getStreamId()
+*     will give you a number of stream in the connection (starting from 0).
+*     In other cases (output part of connection or local flowgraph part)
+*     stream ID equals -1.
+*  3) getSourceId() returns the name of the resource which sent this notification.
+*     Use this value to distinguish between several possible senders inside
+*     one part of the flowgraph, e.g. mic part from speaker part.
+*/
 class MiNotification : public OsMsg
 {
    /* //////////////////////////// PUBLIC //////////////////////////////////// */
@@ -44,11 +58,18 @@ public:
       MI_NOTF_PLAY_RESUMED,
       MI_NOTF_PLAY_STOPPED,
       MI_NOTF_PLAY_FINISHED,
-      MI_NOTF_PROGRESS,
+      MI_NOTF_PROGRESS,          ///< Value for MiProgressNotf notifications.
       MI_NOTF_RECORD_STOPPED,
       MI_NOTF_RECORD_FINISHED,
       MI_NOTF_RECORD_NOINPUTDATA,
-      MI_NOTF_DTMF_RECEIVED,
+      MI_NOTF_DTMF_RECEIVED,      ///< Value for MiDtmfNotf notifications.
+      MI_NOTF_DELAY_SPEECH_STARTED,
+      MI_NOTF_DELAY_NO_DELAY,
+      MI_NOTF_DELAY_QUIESCENCE,
+      MI_NOTF_RX_STREAM_ACTIVITY, ///< Value for MiRtpStreamActivityNotf notifications.
+      MI_NOTF_ENERGY_LEVEL,       ///< Audio energy level (MiIntNotf)
+      MI_NOTF_VOICE_STARTED,
+      MI_NOTF_VOICE_STOPPED
    } NotfType;
 
      /// Connection ID that indicates invalid connection or no connection.
@@ -59,9 +80,10 @@ public:
    //@{
 
    /// Constructor
-   MiNotification(NotfType msgType, 
+   MiNotification(NotfType msgType,
                   const UtlString& sourceId,
-                  int connectionId = INVALID_CONNECTION_ID);
+                  int connectionId = INVALID_CONNECTION_ID,
+                  int streamId = -1);
 
    /// Copy constructor
    MiNotification(const MiNotification& rNotf);
@@ -88,8 +110,12 @@ public:
      *  notification.
      */
 
-     /// Store the ID of the connection that this notification is associated with.
+     /// Set the connection ID that this notification is associated with.
    void setConnectionId(int connId);
+
+     /// @brief Set the stream number inside the connection this notification
+     /// is associated with.
+   void setStreamId(int streamId);
 
    //@}
 
@@ -107,8 +133,12 @@ public:
      *  notification.
      */
 
-     /// Get the ID of the connection that this notification is associated with.
+     /// Get the connection ID that this message is associated with.
    int getConnectionId() const;
+
+     /// @brief Get the stream number inside the connection this notification
+     /// is associated with.
+   int getStreamId() const;
 
    //@}
 
@@ -123,9 +153,11 @@ protected:
 
    /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-   UtlString mSourceId; ///< Unique identifier of the thing that originated this message.
+   UtlString mSourceId; ///< Unique identifier of the thing that originated this notification.
    int mConnectionId;   ///< If applicable, stores the ID of the connection this
-                        ///< message is associated with.  (-1 if N/A)
+                        ///< notification is associated with.  (-1 if N/A)
+   int mStreamId;       ///< If applicable, stores the ID of the stream inside
+                        ///< connection this notification is associated with. (-1 if N/A)
 };
 
 /* ============================ INLINE METHODS ============================ */

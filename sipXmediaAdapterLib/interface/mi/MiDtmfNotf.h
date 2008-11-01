@@ -72,8 +72,12 @@ public:
    //@{
 
    /// Constructor
-   MiDtmfNotf(const UtlString& sourceId, int connId, KeyCode key, 
-              KeyPressState pressState, int32_t duration = DURATION_NOT_APPLICABLE);
+   MiDtmfNotf(const UtlString& sourceId,
+              KeyCode key, 
+              KeyPressState pressState,
+              int32_t duration = DURATION_NOT_APPLICABLE,
+              int connId = -1,
+              int streamId = -1);
 
    /// Copy constructor
    MiDtmfNotf(const MiDtmfNotf& rNotf);

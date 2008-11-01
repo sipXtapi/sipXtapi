@@ -54,6 +54,7 @@ typedef enum MEDIA_NOISE_REDUCTION_MODE
 // FORWARD DECLARATIONS
 class CpMediaInterface ;
 class SdpCodec ;
+class OsMsgDispatcher ;
 
 /**
  *
@@ -96,7 +97,8 @@ public:
                                                   const char* szTurnPassword,
                                                   int iTurnKeepAliveSecs,
                                                   UtlBoolean bEnableICE, 
-                                                  uint32_t samplesPerSec
+                                                  uint32_t samplesPerSec,
+                                                  OsMsgDispatcher* pDispatcher
                                                  ) = 0 ;
 
 

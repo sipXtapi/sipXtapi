@@ -29,9 +29,13 @@ const int32_t MiDtmfNotf::DURATION_NOT_APPLICABLE = -1;
 /* ============================ CREATORS ================================== */
 
 // Constructor
-MiDtmfNotf::MiDtmfNotf(const UtlString& sourceId, int connId, KeyCode key, 
-                       KeyPressState pressState, int32_t duration)
-: MiNotification(MI_NOTF_DTMF_RECEIVED, sourceId, connId)
+MiDtmfNotf::MiDtmfNotf(const UtlString& sourceId,
+                       KeyCode key, 
+                       KeyPressState pressState,
+                       int32_t duration,
+                       int connId,
+                       int streamId)
+: MiNotification(MI_NOTF_DTMF_RECEIVED, sourceId, connId, streamId)
 , mKey(key)
 , mPressState(pressState)
 , mDuration(duration)

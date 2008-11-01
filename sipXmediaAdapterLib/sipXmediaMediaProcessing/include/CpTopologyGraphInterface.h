@@ -24,6 +24,8 @@
 #include "MaNotfTranslatorDispatcher.h"
 
 // DEFINES
+//#define HAVE_DELAY_API
+
 // MACROS
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -67,7 +69,8 @@ public:
                              const char* turnUsername = NULL,
                              const char* turnPassword = NULL,
                              int turnKeepAlivePeriodSecs = 28,
-                             UtlBoolean enableIce = FALSE
+                             UtlBoolean enableIce = FALSE,
+                             OsMsgDispatcher* pDispatcher = NULL
                             );
      
 
@@ -88,9 +91,16 @@ public:
                                      IMediaEventListener* pMediaEventListener = NULL,
                                      const RtpTransportOptions rtpTransportOptions=RTP_TRANSPORT_UDP);
 
+     /// @brief This is non-standard version of createConnection() to be used
+     /// with custom OsSocket.
    virtual OsStatus createConnection(int& connectionId,
                                      OsSocket* rtpSocket,
-                                     OsSocket* rtcpSocket);
+                                     OsSocket* rtcpSocket,
+                                     UtlBoolean isMulticast);
+     /**<
+     *  This version of createConnection() can be used if you want to override
+     *  the OsSocket class in order to provide an external socket implementation.
+     */
 
      /// @copydoc CpMediaInterface::setPlcMethod()
    virtual OsStatus setPlcMethod(int connectionId,
@@ -104,10 +114,33 @@ public:
    virtual OsStatus setNotificationsEnabled(bool enabled, 
                                             const UtlString& resourceName = NULL);
 
+     /// Get number of bridge ports (-1 on failure).
+   int getNumBridgePorts();
 
-   /// Look up the port on the bridge to which the indicated connection is connected
-   OsStatus getConnectionPortOnBridge(int connectionId, 
+     /// Look up the port on the bridge to which the indicated connection is connected.
+   OsStatus getConnectionPortOnBridge(int connectionId,
+                                      int streamNum,
                                       int& portOnBridge);
+     /**<
+     *  @param[in]  connectionId - ID of connection to lookup.
+     *  @param[in]  streamNum - number of an input RTP stream to lookup.
+     *              Numbering starts from 0, and stream 0 is always present. 
+     *  @param[out] portOnBridge - found bridge port or -1 on failure.
+     *
+     *  @note Output bridge port is always the same as input bridge port for
+     *        stream 0.
+     *
+     *  @retval OS_SUCCESS on success
+     *  @retval OS_NOT_FOUND if some error occurs.
+     */
+
+     /// Look up the port on the bridge to which the indicated resource is connected.
+   OsStatus getResourceInputPortOnBridge(const UtlString &resourceName,
+                                         int& portOnBridge);
+     /**<
+     *  @warning You must be sure, that this resource is actually connected
+     *           to the bridge.
+     */
 
      /// @copydoc CpMediaInterface::setConnectionDestination()
    virtual OsStatus setConnectionDestination(int connectionId,
@@ -293,9 +326,15 @@ public:
         // NOT IMPLEMENTED
     }
 
-	virtual OsStatus generateVoiceQualityReport(int         connectiond,
+ 	 virtual OsStatus generateVoiceQualityReport(int         connectiond,
                                                 const char* callId,
                                                 UtlString&  report) ;
+
+      /// Enable/disable discontinuous transmission for given connection.
+    OsStatus enableDtx(int connectionId, UtlBoolean enable);
+
+      /// Set inactive time (in ms) after which RTP stream is actually marked inactive.
+    OsStatus setRtpInactivityTimeout(int connectionId, int timeoutMs);
 
 /* ============================ ACCESSORS ================================= */
 
@@ -382,10 +421,14 @@ public:
                                          int* pContributorEngeryLevels) 
         { return OS_NOT_SUPPORTED ;} ;
 
+     /// Get receiving and sending SSRCs for given connection.
    virtual OsStatus getAudioRtpSourceIDs(int connectionId,
                                          unsigned int& uiSendingSSRC,
-                                         unsigned int& uiReceivingSSRC) 
-        { return OS_NOT_SUPPORTED ;} ;
+                                         unsigned int& uiReceivingSSRC);
+     /**<
+     *  WARNING! uiReceivingSSRC is not filled right now. Someday it should
+     *  be made an array and then we'll be able to fill it in.
+     */
 
    virtual OsStatus enableAudioTransport(int connectionId, UtlBoolean bEnable)
    {
@@ -527,6 +570,7 @@ protected:
       /// Create socket pair for RTP/RTCP streams.
     OsStatus createRtpSocketPair(UtlString localAddress,
                                  int localPort,
+                                 UtlBoolean isMulticast,
                                  SIPX_CONTACT_TYPE contactType,
                                  OsSocket* &rtpSocket,
                                  OsSocket* &rtcpSocket);
@@ -535,6 +579,7 @@ protected:
       *  
       *  @param[in] localAddress - Address to bind to (for multihomed hosts).
       *  @param[in] localPort - Local port to bind to (0 for auto select).
+      *  @param[in] isMulticast - Is requested stream multicast or not?
       *  @param[in] contactType - Contact type (see SIPX_CONTACT_TYPE).
       *  @param[out] rtpSocket - Created socket for RTP stream.
       *  @param[out] rtcpSocket - Created socket for RTCP stream.
@@ -543,48 +588,73 @@ protected:
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
 
-    /** Get the next unique connection Id scoped to this flowgraph
-     */
+   int mLastConnectionId;
+   MpResourceTopology* mpInitialResourceTopology;
+   MpResourceFactory* mpResourceFactory;
+   MpTopologyGraph* mpTopologyGraph;
+   SdpCodecList mSupportedCodecs;
+   UtlDList mMediaConnections;
+   int mExpeditedIpTos;
+
+   UtlString mStunServer;
+   int mStunPort;
+   int mStunRefreshPeriodSecs;
+   UtlString mTurnServer;
+   int mTurnPort;
+   int mTurnRefreshPeriodSecs;
+   UtlString mTurnUsername;
+   UtlString mTurnPassword;
+   UtlBoolean mEnableIce;
+
+   UtlString mRtpReceiveHostAddress;
+   UtlString mLocalAddress;
+   UtlHashMap mInterfaceProperties;
+   MaNotfTranslatorDispatcher mTranslatorDispatcher;  ///< Dispatcher for translating
+             ///< mediaLib notification messages into abstract MediaAdapter ones.
+             ///< Only used if a dispatcher is set on this interface.
+
+      /// Get the next unique connection Id scoped to this flowgraph
     int getNextConnectionId();
 
-    CpTopologyMediaConnection* createMediaConnection(int& connectionId);
-    CpTopologyMediaConnection* getMediaConnection(int connectionId);
-    CpTopologyMediaConnection* removeMediaConnection(int connectionId);
-    OsStatus doDeleteConnection(CpTopologyMediaConnection* mediaConnection);
+      /// Create media connection structure to store connection params.
+    CpTopologyMediaConnection* createMediaConnection(int& connectionId, UtlBoolean isMcast);
 
-    /** Disabled copy constructor
-     */
+      /// Free media connection structure.
+    OsStatus deleteMediaConnection(CpTopologyMediaConnection* mediaConnection);
+
+      /// Get media connection structure by its connectionID.
+    CpTopologyMediaConnection* getMediaConnection(int connectionId);
+
+      /// Enable discarding of our RTP stream, looped back to us.
+    OsStatus discardLoopbackRtp(CpTopologyMediaConnection* mediaConnection);
+      /**<
+      *  This is the case, when you have to turn off similar OS functionality.
+      *  E.g. this is the case, when you're running two or more connections
+      *  on the same computer with the same multicast address and want to
+      *  receive each others packets.
+      */
+
+      /// Stop receiving RTP on selected media connection.
+    void stopRtpReceive(CpTopologyMediaConnection* mediaConnection);
+
+      /// Stop receiving RTP on selected media connection.
+    void stopRtpSend(CpTopologyMediaConnection* mediaConnection);
+
+      /// Set mixing weight from all connection's streams to the given output port.
+    OsStatus setConnectionWeightOnBridge(CpTopologyMediaConnection *mediaConnection,
+                                         int destPort,
+                                         float weight);
+
+      /// Set mixing weight from all connection's streams to the given output port.
+    OsStatus setConnectionToConnectionWeight(CpTopologyMediaConnection *srcConnection,
+                                             int destConnectionId,
+                                             float weight);
+
+      /// Disabled copy constructor
     CpTopologyGraphInterface(CpTopologyGraphInterface&);
 
-    /** Disabled assignment operator
-     */
+      /// Disabled assignment operator
     CpTopologyGraphInterface& operator=(const CpTopologyGraphInterface&);
-
-
-    int mLastConnectionId;
-    MpResourceTopology* mpInitialResourceTopology;
-    MpResourceFactory* mpResourceFactory;
-    MpTopologyGraph* mpTopologyGraph;
-    SdpCodecList mSupportedCodecs;
-    UtlDList mMediaConnections;
-    int mExpeditedIpTos;
-
-    UtlString mStunServer;
-    int mStunPort;
-    int mStunRefreshPeriodSecs;
-    UtlString mTurnServer;
-    int mTurnPort;
-    int mTurnRefreshPeriodSecs;
-    UtlString mTurnUsername;
-    UtlString mTurnPassword;
-    UtlBoolean mEnableIce;
-
-    UtlString mRtpReceiveHostAddress;
-    UtlString mLocalAddress;
-    UtlHashMap mInterfaceProperties;
-    MaNotfTranslatorDispatcher mTranslatorDispatcher;  ///< Dispatcher for translating
-      ///< mediaLib notification messages into abstract MediaAdapter ones.
-      ///< Only used if a dispatcher is set on this interface.
 };
 
 /* ============================ INLINE METHODS ============================ */

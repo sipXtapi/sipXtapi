@@ -177,7 +177,8 @@ sipXmediaFactoryImpl::sipXmediaFactoryImpl(OsConfigDb* pConfigDb,
 #ifndef ENABLE_TOPOLOGY_FLOWGRAPH_INTERFACE_FACTORY
       mpStartTasks();  
 #else
-      if (OS_SUCCESS != startNetInTask()) 
+      NetInTask *pTask = NetInTask::getNetInTask();
+      if (NULL != pTask) 
       {
          OsSysLog::add(FAC_MP, PRI_ERR, "Could not start NetInTask!!");
       }
@@ -202,7 +203,8 @@ sipXmediaFactoryImpl::~sipXmediaFactoryImpl()
 #ifndef ENABLE_TOPOLOGY_FLOWGRAPH_INTERFACE_FACTORY
       mpStopTasks();
 #else
-      shutdownNetInTask();
+      NetInTask *pTask = NetInTask::getNetInTask();
+      pTask->destroy();
 #endif
       mpShutdown();
    }
@@ -225,7 +227,8 @@ CpMediaInterface* sipXmediaFactoryImpl::createMediaInterface(const char* publicA
                                                              const char* szTurnPassword,
                                                              int iTurnKeepAlivePeriodSecs,
                                                              UtlBoolean bEnableICE,
-                                                             uint32_t samplesPerSec) 
+                                                             uint32_t samplesPerSec,
+                                                             OsMsgDispatcher* pDispatcher) 
 {
    // if the sample rate passed in is zero, use the default.
    samplesPerSec = (samplesPerSec == 0) ? mDefaultSamplesPerSec : samplesPerSec;
@@ -234,7 +237,7 @@ CpMediaInterface* sipXmediaFactoryImpl::createMediaInterface(const char* publicA
       samplesPerSec, publicAddress, localAddress, numCodecs, sdpCodecArray, 
       locale, expeditedIpTos, szStunServer, iStunPort, iStunKeepAliveSecs, 
       szTurnServer, iTurnPort, szTurnUsername, szTurnPassword, 
-      iTurnKeepAlivePeriodSecs, bEnableICE);
+      iTurnKeepAlivePeriodSecs, bEnableICE, pDispatcher);
 }
 
 

@@ -24,11 +24,16 @@
 #include <mp/MprFromFileConstructor.h>
 #include <mp/MprNullConstructor.h>
 #include <mp/MprBridgeConstructor.h>
-#include <mp/MprRtpOutputAudioConnectionConstructor.h>
-#include <mp/MprRtpInputAudioConnectionConstructor.h>
+#include <mp/MprRtpOutputConnectionConstructor.h>
+#include <mp/MprEncodeConstructor.h>
+#include <mp/MprRtpInputConnectionConstructor.h>
+#include <mp/MprDecodeConstructor.h>
 #include <mp/MprBufferRecorderConstructor.h>
 #include <mp/MprSplitterConstructor.h>
 #include <mp/MprNullAecConstructor.h>
+#include <mp/MprVadConstructor.h>
+#include <mp/MprVoiceActivityNotifierConstructor.h>
+#include <mp/MprDelayConstructor.h>
 #include "CpTopologyGraphFactoryImpl.h"
 #include "mi/CpMediaInterfaceFactory.h"
 #include "CpTopologyGraphInterface.h"
@@ -139,8 +144,10 @@ CpTopologyGraphFactoryImpl::CpTopologyGraphFactoryImpl(OsConfigDb* pConfigDb,
 , mpInitialResourceTopology(NULL)
 , mpResourceFactory(NULL)
 , mpConnectionResourceTopology(NULL)
+, mpMcastConnectionResourceTopology(NULL)
 , mpInputDeviceManager(NULL)
 , mpOutputDeviceManager(NULL)
+, mNumMcastStreams(3)
 {
     assert(MpMisc.RawAudioPool);
     uint32_t mgrSamplesPerFrame = (mFrameSizeMs*mDefaultSamplesPerSec)/1000;
@@ -190,7 +197,8 @@ CpTopologyGraphFactoryImpl::CpTopologyGraphFactoryImpl(OsConfigDb* pConfigDb,
     assert(result == OS_SUCCESS);
     assert(firstInvalidResourceIndex == -1);
 
-    mpConnectionResourceTopology = buildDefaultIncrementalResourceTopology();
+    mpConnectionResourceTopology = buildUnicastConnectionResourceTopology();
+    mpMcastConnectionResourceTopology = buildMulticastConnectionResourceTopology();
 }
 
 
@@ -203,6 +211,9 @@ CpTopologyGraphFactoryImpl::~CpTopologyGraphFactoryImpl()
    // Clear flowgraph ticker
    result = mpOutputDeviceManager->setFlowgraphTickerSource(MP_INVALID_OUTPUT_DEVICE_HANDLE);
    assert(result == OS_SUCCESS);
+
+   // Wait for last frame processing cycle call to complete.
+   OsTask::delay(30);
 
    // Disable devices
    result = mpInputDeviceManager->disableDevice(1);
@@ -225,6 +236,7 @@ CpTopologyGraphFactoryImpl::~CpTopologyGraphFactoryImpl()
    delete mpResourceFactory;
    delete mpInitialResourceTopology;
    delete mpConnectionResourceTopology;
+   delete mpMcastConnectionResourceTopology;
 
    // Free input and output device managers.
    delete mpInputDeviceManager;
@@ -249,7 +261,8 @@ CpTopologyGraphFactoryImpl::createMediaInterface(const char* publicAddress,
                                                  const char* turnPassword,
                                                  int turnKeepAliveSecs,
                                                  UtlBoolean enableIce, 
-                                                 uint32_t samplesPerSec)
+                                                 uint32_t samplesPerSec,
+                                                 OsMsgDispatcher* pDispatcher)
 {
     // if the sample rate passed in is zero, use the default.
     samplesPerSec = (samplesPerSec == 0) ? mDefaultSamplesPerSec : samplesPerSec;
@@ -263,7 +276,8 @@ CpTopologyGraphFactoryImpl::createMediaInterface(const char* publicAddress,
                                        stunServer, stunPort, stunKeepAliveSecs, 
                                        turnServer, turnPort, turnUserName, 
                                        turnPassword, turnKeepAliveSecs, 
-                                       enableIce));
+                                       enableIce,
+                                       pDispatcher));
 }
 
 MpResourceFactory* CpTopologyGraphFactoryImpl::buildDefaultResourceFactory()
@@ -289,10 +303,19 @@ MpResourceFactory* CpTopologyGraphFactoryImpl::buildDefaultResourceFactory()
     resourceFactory->addConstructor(*(new MprBridgeConstructor()));
 
     // Output RTP connection
-    resourceFactory->addConstructor(*(new MprRtpOutputAudioConnectionConstructor()));
+    resourceFactory->addConstructor(*(new MprRtpOutputConnectionConstructor()));
+
+    // Encoder
+    resourceFactory->addConstructor(*(new MprEncodeConstructor()));
 
     // Input RTP connection
-    resourceFactory->addConstructor(*(new MprRtpInputAudioConnectionConstructor()));
+    resourceFactory->addConstructor(*(new MprRtpInputConnectionConstructor(FALSE)));
+
+    // Input RTP connection (multicast version)
+    resourceFactory->addConstructor(*(new MprRtpInputConnectionConstructor(TRUE, mNumMcastStreams)));
+
+    // Decoder
+    resourceFactory->addConstructor(*(new MprDecodeConstructor()));
 
     // Buffer Recorder
     resourceFactory->addConstructor(*(new MprBufferRecorderConstructor()));
@@ -302,6 +325,15 @@ MpResourceFactory* CpTopologyGraphFactoryImpl::buildDefaultResourceFactory()
 
     // NULL AEC
     resourceFactory->addConstructor(*(new MprNullAecConstructor()));
+
+    // VAD
+    resourceFactory->addConstructor(*(new MprVadConstructor()));
+
+    // Voice Activity Notifier
+    resourceFactory->addConstructor(*(new MprVoiceActivityNotifierConstructor()));
+
+    // Delay resource
+    resourceFactory->addConstructor(*(new MprDelayConstructor()));
 
     return(resourceFactory);
 }
@@ -321,12 +353,44 @@ MpResourceTopology* CpTopologyGraphFactoryImpl::buildDefaultInitialResourceTopol
                                            DEFAULT_FROM_INPUT_DEVICE_RESOURCE_NAME);
     assert(result == OS_SUCCESS);
 
+    UtlString micVadName = DEFAULT_VAD_RESOURCE_NAME;
+    micVadName.append(MIC_NAME_SUFFIX);
+    result = resourceTopology->addResource(DEFAULT_VAD_RESOURCE_TYPE,
+                                           micVadName);
+    assert(result == OS_SUCCESS);
+
+    UtlString micVaNotifName = DEFAULT_VOICE_ACTIVITY_NOTIFIER_RESOURCE_NAME;
+    micVaNotifName.append(MIC_NAME_SUFFIX);
+    result = resourceTopology->addResource(DEFAULT_VOICE_ACTIVITY_NOTIFIER_RESOURCE_TYPE,
+                                           micVaNotifName);
+    assert(result == OS_SUCCESS);
+
+#ifdef INSERT_DELAY_RESOURCE // [
+    UtlString delayName = DEFAULT_DELAY_RESOURCE_NAME;
+    delayName.append(MIC_NAME_SUFFIX);
+    result = resourceTopology->addResource(DEFAULT_DELAY_RESOURCE_TYPE,
+                                           delayName);
+    assert(result == OS_SUCCESS);
+#endif // INSERT_DELAY_RESOURCE ]
+
     result = resourceTopology->addResource(DEFAULT_BRIDGE_RESOURCE_TYPE, 
                                            DEFAULT_BRIDGE_RESOURCE_NAME);
     assert(result == OS_SUCCESS);
 
     result = resourceTopology->addResource(DEFAULT_TONE_GEN_RESOURCE_TYPE, 
                                            DEFAULT_TONE_GEN_RESOURCE_NAME);
+    assert(result == OS_SUCCESS);
+
+    UtlString spkrVadName = DEFAULT_VAD_RESOURCE_NAME;
+    spkrVadName.append(SPEAKER_NAME_SUFFIX);
+    result = resourceTopology->addResource(DEFAULT_VAD_RESOURCE_TYPE,
+                                           spkrVadName);
+    assert(result == OS_SUCCESS);
+
+    UtlString spkrVaNotifName = DEFAULT_VOICE_ACTIVITY_NOTIFIER_RESOURCE_NAME;
+    spkrVaNotifName.append(SPEAKER_NAME_SUFFIX);
+    result = resourceTopology->addResource(DEFAULT_VOICE_ACTIVITY_NOTIFIER_RESOURCE_TYPE,
+                                           spkrVaNotifName);
     assert(result == OS_SUCCESS);
 
     result = resourceTopology->addResource(DEFAULT_TO_OUTPUT_DEVICE_RESOURCE_TYPE, 
@@ -350,33 +414,70 @@ MpResourceTopology* CpTopologyGraphFactoryImpl::buildDefaultInitialResourceTopol
     assert(result == OS_SUCCESS);
 
     // Link fromFile to bridge
-    result = resourceTopology->addConnection(DEFAULT_FROM_FILE_RESOURCE_NAME, 0, DEFAULT_BRIDGE_RESOURCE_NAME, 1);
+    result = resourceTopology->addConnection(DEFAULT_FROM_FILE_RESOURCE_NAME, 0,
+                                             DEFAULT_BRIDGE_RESOURCE_NAME, 1);
     assert(result == OS_SUCCESS);
 
-    // Link mic to AEC
-    result = resourceTopology->addConnection(DEFAULT_FROM_INPUT_DEVICE_RESOURCE_NAME, 0, DEFAULT_AEC_RESOURCE_NAME, 0);
+    // Link mic to VAD
+    result = resourceTopology->addConnection(DEFAULT_FROM_INPUT_DEVICE_RESOURCE_NAME, 0,
+                                             micVadName, 0);
+    assert(result == OS_SUCCESS);
+    UtlString &lastResourceName = micVadName;
+
+    // -> Voice Activity Notifier
+    result = resourceTopology->addConnection(lastResourceName, 0,
+                                             micVaNotifName, 0);
+    assert(result == OS_SUCCESS);
+    lastResourceName = micVaNotifName;
+
+#ifdef INSERT_DELAY_RESOURCE // [
+    // -> Delay
+    result = resourceTopology->addConnection(lastResourceName, 0,
+                                             delayName, 0);
+    assert(result == OS_SUCCESS);
+    lastResourceName = delayName;
+#endif // INSERT_DELAY_RESOURCE ]
+
+    // -> AEC
+    result = resourceTopology->addConnection(lastResourceName, 0,
+                                             DEFAULT_AEC_RESOURCE_NAME, 0);
     assert(result == OS_SUCCESS);
 
     // Link AEC to bridge
-    result = resourceTopology->addConnection(DEFAULT_AEC_RESOURCE_NAME, 0, DEFAULT_BRIDGE_RESOURCE_NAME, 0);
+    result = resourceTopology->addConnection(DEFAULT_AEC_RESOURCE_NAME, 0,
+                                             DEFAULT_BRIDGE_RESOURCE_NAME, 0);
     assert(result == OS_SUCCESS);
 
     // TODO: add a mixer for locally generated audio (e.g. tones, fromFile, etc)
-    result = resourceTopology->addConnection(DEFAULT_TONE_GEN_RESOURCE_NAME, 0, DEFAULT_BRIDGE_RESOURCE_NAME, 2);
+    result = resourceTopology->addConnection(DEFAULT_TONE_GEN_RESOURCE_NAME, 0,
+                                             DEFAULT_BRIDGE_RESOURCE_NAME, 2);
     assert(result == OS_SUCCESS);
 
     // Link bridge to splitter, the splitter leaves a tap for AEC to see the output to speaker
-    result = resourceTopology->addConnection(DEFAULT_BRIDGE_RESOURCE_NAME, 0, DEFAULT_TO_OUTPUT_SPLITTER_RESOURCE_NAME, 0);
+    result = resourceTopology->addConnection(DEFAULT_BRIDGE_RESOURCE_NAME, 0,
+                                             DEFAULT_TO_OUTPUT_SPLITTER_RESOURCE_NAME, 0);
     assert(result == OS_SUCCESS);
 
-    // Link splitter to speaker
-    result = resourceTopology->addConnection(DEFAULT_TO_OUTPUT_SPLITTER_RESOURCE_NAME, 0, DEFAULT_TO_OUTPUT_DEVICE_RESOURCE_NAME, 0);
+    // Link splitter to VAD
+    result = resourceTopology->addConnection(DEFAULT_TO_OUTPUT_SPLITTER_RESOURCE_NAME, 0,
+                                             spkrVadName, 0);
+    assert(result == OS_SUCCESS);
+
+    // Link VAD to Voice Activity Notifier
+    result = resourceTopology->addConnection(spkrVadName, 0,
+                                             spkrVaNotifName, 0);
+    assert(result == OS_SUCCESS);
+
+    // Link Voice Activity Notifier to speaker
+    result = resourceTopology->addConnection(spkrVaNotifName, 0,
+                                             DEFAULT_TO_OUTPUT_DEVICE_RESOURCE_NAME, 0);
     assert(result == OS_SUCCESS);
     
     // Link splitter to output buffer resource (part of AEC)
     UtlString outBufferResourceName(DEFAULT_AEC_RESOURCE_NAME);
     outBufferResourceName.append(AEC_OUTPUT_BUFFER_RESOURCE_NAME_SUFFIX);
-    result = resourceTopology->addConnection(DEFAULT_TO_OUTPUT_SPLITTER_RESOURCE_NAME, 1, outBufferResourceName, 0);
+    result = resourceTopology->addConnection(DEFAULT_TO_OUTPUT_SPLITTER_RESOURCE_NAME, 1,
+                                             outBufferResourceName, 0);
     assert(result == OS_SUCCESS);
 
     // Link bridge to buffer recorder
@@ -408,29 +509,164 @@ MpResourceTopology* CpTopologyGraphFactoryImpl::buildDefaultInitialResourceTopol
     return(resourceTopology);
 }
 
-MpResourceTopology* CpTopologyGraphFactoryImpl::buildDefaultIncrementalResourceTopology()
+MpResourceTopology* CpTopologyGraphFactoryImpl::buildUnicastConnectionResourceTopology()
 {
     MpResourceTopology* resourceTopology = new MpResourceTopology();
 
     OsStatus result;
-    result = resourceTopology->addResource(DEFAULT_RTP_INPUT_RESOURCE_TYPE, 
+    result = resourceTopology->addResource(DEFAULT_RTP_INPUT_RESOURCE_TYPE,
                                            DEFAULT_RTP_INPUT_RESOURCE_NAME);
     assert(result == OS_SUCCESS);
 
-    result = resourceTopology->addResource(DEFAULT_RTP_OUTPUT_RESOURCE_TYPE, 
-                                           DEFAULT_RTP_OUTPUT_RESOURCE_NAME);
+    // Add decoder resource
+    UtlString decodeName = DEFAULT_DECODE_RESOURCE_NAME;
+    decodeName.append("-0");
+    result = resourceTopology->addResource(DEFAULT_DECODE_RESOURCE_TYPE,
+                                           decodeName,
+                                           MP_INVALID_CONNECTION_ID,
+                                           0);
     assert(result == OS_SUCCESS);
 
+#ifdef INSERT_DELAY_RESOURCE // [
+    // Add delay resource
+    UtlString delayName = DEFAULT_DELAY_RESOURCE_NAME;
+    delayName.append(CONNECTION_NAME_SUFFIX "-0");
+    result = resourceTopology->addResource(DEFAULT_DELAY_RESOURCE_TYPE,
+                                           delayName,
+                                           MP_INVALID_CONNECTION_ID,
+                                           0);
+    assert(result == OS_SUCCESS);
+#endif // INSERT_DELAY_RESOURCE ]
+
+    // Add Voice Activity Notifier resource
+    UtlString activityNotifName = DEFAULT_VOICE_ACTIVITY_NOTIFIER_RESOURCE_NAME;
+    activityNotifName.append(CONNECTION_NAME_SUFFIX "-0");
+    result = resourceTopology->addResource(DEFAULT_VOICE_ACTIVITY_NOTIFIER_RESOURCE_TYPE,
+                                           activityNotifName,
+                                           MP_INVALID_CONNECTION_ID,
+                                           0);
+    assert(result == OS_SUCCESS);
+
+    // Abstract port number to be used when connecting to bridge.
     int logicalPortNum = resourceTopology->getNextLogicalPortNumber();
-    // Link RTP input to bridge
+
+    // Link RTP input -> decoder
     result = resourceTopology->addConnection(DEFAULT_RTP_INPUT_RESOURCE_NAME, 0, 
-        DEFAULT_BRIDGE_RESOURCE_NAME, logicalPortNum);
+                                             decodeName, 0);
+    assert(result == OS_SUCCESS);
+    UtlString &prevResourceName = decodeName;
+
+    // -> Input connection Voice Activity Notifier
+    result = resourceTopology->addConnection(prevResourceName, 0, 
+                                             activityNotifName, 0);
+    assert(result == OS_SUCCESS);
+    prevResourceName = activityNotifName;
+
+#ifdef INSERT_DELAY_RESOURCE // [
+    // -> Delay
+    result = resourceTopology->addConnection(prevResourceName, 0, 
+                                             delayName, 0);
+    assert(result == OS_SUCCESS);
+    prevResourceName = delayName;
+#endif // INSERT_DELAY_RESOURCE ]
+
+    // -> bridge
+    result = resourceTopology->addConnection(prevResourceName, 0, 
+                                             DEFAULT_BRIDGE_RESOURCE_NAME, logicalPortNum);
     assert(result == OS_SUCCESS);
 
-    // Link RTP output to bridge
-    result = resourceTopology->addConnection(DEFAULT_BRIDGE_RESOURCE_NAME, logicalPortNum, 
-        DEFAULT_RTP_OUTPUT_RESOURCE_NAME, 0);
+    addOutputConnectionTopology(resourceTopology, logicalPortNum);
+
+    return(resourceTopology);
+}
+
+MpResourceTopology* CpTopologyGraphFactoryImpl::buildMulticastConnectionResourceTopology()
+{
+    MpResourceTopology* resourceTopology = new MpResourceTopology();
+    OsStatus result;
+
+    // Get abstract port number to be used when connecting to bridge.
+    int logicalPortNum = resourceTopology->getNextLogicalPortNumber();
+
+    // Add multicast RTP input
+    result = resourceTopology->addResource(DEFAULT_MCAST_RTP_INPUT_RESOURCE_TYPE,
+                                           DEFAULT_RTP_INPUT_RESOURCE_NAME);
     assert(result == OS_SUCCESS);
+
+    // Add stream resources and link them with RTP input and bridge
+    UtlString decodeName = DEFAULT_DECODE_RESOURCE_NAME;
+    UtlString activityNotifName = DEFAULT_VOICE_ACTIVITY_NOTIFIER_RESOURCE_NAME;
+    activityNotifName.append(CONNECTION_NAME_SUFFIX);
+#ifdef INSERT_DELAY_RESOURCE // [
+    UtlString delayName = DEFAULT_DELAY_RESOURCE_NAME;
+    delayName.append(CONNECTION_NAME_SUFFIX);
+#endif // INSERT_DELAY_RESOURCE ]
+    for (int i=0; i<mNumMcastStreams; i++)
+    {
+       // Construct names of resources for this stream
+       UtlString streamSuffix;
+       streamSuffix.appendFormat(STREAM_NAME_SUFFIX, i);
+       UtlString tmpDecodeName(decodeName);
+       tmpDecodeName.append(streamSuffix);
+       UtlString tmpActivityNotifName(activityNotifName);
+       tmpActivityNotifName.append(streamSuffix);
+#ifdef INSERT_DELAY_RESOURCE // [
+       UtlString tmpDelayName(delayName);
+       tmpDelayName.append(streamSuffix);
+#endif // INSERT_DELAY_RESOURCE ]
+
+       // Add decoder
+       result = resourceTopology->addResource(DEFAULT_DECODE_RESOURCE_TYPE,
+                                              tmpDecodeName,
+                                              MP_INVALID_CONNECTION_ID,
+                                              i);
+       assert(result == OS_SUCCESS);
+
+       // Add Voice Activity Notifier
+       result = resourceTopology->addResource(DEFAULT_VOICE_ACTIVITY_NOTIFIER_RESOURCE_TYPE,
+                                              tmpActivityNotifName,
+                                              MP_INVALID_CONNECTION_ID,
+                                              i);
+       assert(result == OS_SUCCESS);
+
+#ifdef INSERT_DELAY_RESOURCE // [
+       // Add delay resource
+       result = resourceTopology->addResource(DEFAULT_DELAY_RESOURCE_TYPE,
+                                              tmpDelayName,
+                                              MP_INVALID_CONNECTION_ID,
+                                              i);
+       assert(result == OS_SUCCESS);
+#endif // INSERT_DELAY_RESOURCE ]
+
+       // Link RTP input -> decoder
+       result = resourceTopology->addConnection(DEFAULT_RTP_INPUT_RESOURCE_NAME, i,
+                                                tmpDecodeName, 0);
+       assert(result == OS_SUCCESS);
+       UtlString &lastResourceName = tmpDecodeName;
+
+       // -> Voice Activity Notifier
+       result = resourceTopology->addConnection(lastResourceName, 0,
+                                                tmpActivityNotifName, 0);
+       assert(result == OS_SUCCESS);
+       lastResourceName = tmpActivityNotifName;
+
+#ifdef INSERT_DELAY_RESOURCE // [
+       // -> Delay
+       result = resourceTopology->addConnection(lastResourceName, 0,
+                                                tmpDelayName, 0);
+       assert(result == OS_SUCCESS);
+       lastResourceName = tmpDelayName;
+#endif // INSERT_DELAY_RESOURCE ]
+
+       // -> bridge
+       result = resourceTopology->addConnection(lastResourceName, 0,
+                                                DEFAULT_BRIDGE_RESOURCE_NAME,
+                                                MpResourceTopology::MP_TOPOLOGY_NEXT_AVAILABLE_PORT);
+       assert(result == OS_SUCCESS);
+    }
+
+
+    addOutputConnectionTopology(resourceTopology, logicalPortNum);
 
     return(resourceTopology);
 }
@@ -467,6 +703,16 @@ MpResourceTopology* CpTopologyGraphFactoryImpl::getConnectionResourceTopology() 
     return(mpConnectionResourceTopology);
 }
 
+void CpTopologyGraphFactoryImpl::setMcastConnectionResourceTopology(MpResourceTopology& connectionResourceTopology)
+{
+    mpMcastConnectionResourceTopology = &connectionResourceTopology;
+}
+
+MpResourceTopology* CpTopologyGraphFactoryImpl::getMcastConnectionResourceTopology() const
+{
+    return(mpMcastConnectionResourceTopology);
+}
+
 MpInputDeviceManager* CpTopologyGraphFactoryImpl::getInputDeviceManager() const
 {
     return(mpInputDeviceManager);
@@ -475,6 +721,43 @@ MpInputDeviceManager* CpTopologyGraphFactoryImpl::getInputDeviceManager() const
 /* ============================ INQUIRY =================================== */
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
+
+void CpTopologyGraphFactoryImpl::addOutputConnectionTopology(MpResourceTopology* resourceTopology,
+                                                             int logicalPortNum)
+{
+    OsStatus result;
+
+    UtlString outConnectionVaNotitName = DEFAULT_VOICE_ACTIVITY_NOTIFIER_RESOURCE_NAME;
+    outConnectionVaNotitName.append(CONNECTION_NAME_SUFFIX);
+    result = resourceTopology->addResource(DEFAULT_VOICE_ACTIVITY_NOTIFIER_RESOURCE_TYPE,
+                                           outConnectionVaNotitName,
+                                           MP_INVALID_CONNECTION_ID,
+                                           0);
+    assert(result == OS_SUCCESS);
+
+    result = resourceTopology->addResource(DEFAULT_ENCODE_RESOURCE_TYPE,
+                                           DEFAULT_ENCODE_RESOURCE_NAME);
+    assert(result == OS_SUCCESS);
+
+    result = resourceTopology->addResource(DEFAULT_RTP_OUTPUT_RESOURCE_TYPE,
+                                           DEFAULT_RTP_OUTPUT_RESOURCE_NAME);
+    assert(result == OS_SUCCESS);
+
+    // Link bridge -> Output connection Voice Activity Notifier
+    result = resourceTopology->addConnection(DEFAULT_BRIDGE_RESOURCE_NAME, logicalPortNum, 
+                                             outConnectionVaNotitName, 0);
+    assert(result == OS_SUCCESS);
+
+    // Output connection Voice Activity Notifier -> encoder
+    result = resourceTopology->addConnection(outConnectionVaNotitName, 0, 
+                                             DEFAULT_ENCODE_RESOURCE_NAME, 0);
+    assert(result == OS_SUCCESS);
+
+    // Link encoder -> RTP output
+    result = resourceTopology->addConnection(DEFAULT_ENCODE_RESOURCE_NAME, 0, 
+                                             DEFAULT_RTP_OUTPUT_RESOURCE_NAME, 0);
+    assert(result == OS_SUCCESS);
+}
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 

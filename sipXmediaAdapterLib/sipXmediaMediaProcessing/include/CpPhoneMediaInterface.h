@@ -69,7 +69,8 @@ public:
                          const char* szTurnUsername = NULL,
                          const char* szTurnPassword = NULL,
                          int iTurnKeepAlivePeriodSecs = 28,
-                         UtlBoolean bEnableICE = FALSE
+                         UtlBoolean bEnableICE = FALSE,
+                         OsMsgDispatcher* pDispatcher = NULL
                         );
 
 protected:
@@ -453,6 +454,7 @@ private:
    UtlBoolean mRingToneFromFile;
    SdpCodecList mSupportedCodecs;
    UtlDList mMediaConnections;
+   int mDefaultMaxMcastRtpStreams;
    int mExpeditedIpTos;
    UtlString mStunServer ;
    int mStunPort;

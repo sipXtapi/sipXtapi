@@ -162,13 +162,16 @@ CpPhoneMediaInterface::CpPhoneMediaInterface(CpMediaInterfaceFactoryImpl* pFacto
                                              const char* szTurnUsername,
                                              const char* szTurnPassword,
                                              int iTurnKeepAlivePeriodSecs,
-                                             UtlBoolean bEnableICE)
-    : CpMediaInterface(pFactoryImpl)
+                                             UtlBoolean bEnableICE,
+                                             OsMsgDispatcher* pDispatcher)
+: CpMediaInterface(pFactoryImpl)
+, mDefaultMaxMcastRtpStreams(3)
 {
    OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPhoneMediaInterface::CpPhoneMediaInterface creating a new CpMediaInterface %p",
                  this);
 
-   mpFlowGraph = new MpCallFlowGraph(locale, samplesPerFrame, samplesPerSec);
+   mpFlowGraph = new MpCallFlowGraph(locale, samplesPerFrame, samplesPerSec,
+                                     pDispatcher);
    OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPhoneMediaInterface::CpPhoneMediaInterface creating a new MpCallFlowGraph %p",
                  mpFlowGraph);
    
@@ -279,14 +282,31 @@ OsStatus CpPhoneMediaInterface::createConnection(int& connectionId,
 {
    OsStatus retValue = OS_SUCCESS;
    CpPhoneMediaConnection* mediaConnection=NULL;
+   UtlString localAddress;
+   UtlBoolean isMulticast;
 
-   connectionId = mpFlowGraph->createConnection();
+   // Set Local address
+   if (szLocalAddress && strlen(szLocalAddress))
+   {
+      localAddress = szLocalAddress ;
+   }
+   else
+   {
+      localAddress = mLocalAddress ;
+   }
+   
+   // Is this address unicast or multicast?
+   isMulticast = OsSocket::isMcastAddr(localAddress);
+
+   // Create connection in flowgraph
+   connectionId = mpFlowGraph->createConnection(isMulticast?mDefaultMaxMcastRtpStreams:1,
+                                                isMulticast);
    if (connectionId == -1)
    {
       return OS_LIMIT_REACHED;
    }
 
-
+   // Create local structure for connection information
    mediaConnection = new CpPhoneMediaConnection(connectionId);
    OsSysLog::add(FAC_CP, PRI_DEBUG,
                  "CpPhoneMediaInterface::createConnection "
@@ -295,16 +315,8 @@ OsStatus CpPhoneMediaInterface::createConnection(int& connectionId,
    mMediaConnections.append(mediaConnection);
 
    // Set Local address
-   if (szLocalAddress && strlen(szLocalAddress))
-   {
-      mediaConnection->mLocalAddress = szLocalAddress ;
-   }
-   else
-   {
-      mediaConnection->mLocalAddress = mLocalAddress ;
-   }
-
-   mediaConnection->mIsMulticast = OsSocket::isMcastAddr(mediaConnection->mLocalAddress);
+   mediaConnection->mLocalAddress = localAddress;
+   mediaConnection->mIsMulticast = isMulticast;
    if (mediaConnection->mIsMulticast)
    {
       mediaConnection->mContactType = CONTACT_LOCAL;
@@ -1140,7 +1152,8 @@ OsStatus CpPhoneMediaInterface::doDeleteConnection(CpPhoneMediaConnection* media
    {
       mpFlowGraph->deleteConnection(mediaConnection->getValue());
       mediaConnection->setValue(-1);
-      mpFlowGraph->synchronize();
+      mpFlowGraph->synchronize("doDeleteConnection() conID=%d",
+                               mediaConnection->getValue());
    }
 
    mpFactoryImpl->releaseRtpPort(mediaConnection->mRtpAudioReceivePort) ;

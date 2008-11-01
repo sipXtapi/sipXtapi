@@ -32,18 +32,21 @@ const int MiNotification::INVALID_CONNECTION_ID = -1;
 // Constructor
 MiNotification::MiNotification(NotfType msgType, 
                                const UtlString& sourceId,
-                               int connId)
-   : OsMsg(OsMsg::MI_NOTF_MSG, msgType)
-   , mSourceId(sourceId)
-   , mConnectionId(connId)
+                               int connId,
+                               int streamId)
+: OsMsg(OsMsg::MI_NOTF_MSG, msgType)
+, mSourceId(sourceId)
+, mConnectionId(connId)
+, mStreamId(streamId)
 {
 }
 
 // Copy constructor
 MiNotification::MiNotification(const MiNotification& rNotf)
-   : OsMsg(rNotf)
-   , mSourceId(rNotf.mSourceId)
-   , mConnectionId(rNotf.mConnectionId)
+: OsMsg(rNotf)
+, mSourceId(rNotf.mSourceId)
+, mConnectionId(rNotf.mConnectionId)
+, mStreamId(rNotf.mStreamId)
 {
 }
 
@@ -88,6 +91,11 @@ void MiNotification::setConnectionId(int connId)
    mConnectionId = connId;
 }
 
+void MiNotification::setStreamId(int streamId)
+{
+   mStreamId = streamId;
+}
+
 /* ============================ ACCESSORS ================================= */
 
 // Returns the type of the notification message
@@ -106,6 +114,11 @@ UtlString MiNotification::getSourceId(void) const
 int MiNotification::getConnectionId() const
 {
    return mConnectionId;
+}
+
+int MiNotification::getStreamId() const
+{
+   return mStreamId;
 }
 
 /* ============================ INQUIRY =================================== */

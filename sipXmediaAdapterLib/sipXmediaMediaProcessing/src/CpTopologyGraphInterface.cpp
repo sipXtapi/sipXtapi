@@ -31,8 +31,12 @@
 #include <mp/MprBufferRecorder.h>
 #include <mp/MprToneGen.h>
 #include <mp/MprFromFile.h>
-#include <mp/MpRtpInputAudioConnection.h>
-#include <mp/MpRtpOutputAudioConnection.h>
+#include <mp/MprDecode.h>
+#include <mp/MprDelay.h>
+#include <mp/MpRtpInputConnection.h>
+#include <mp/MpRtpOutputConnection.h>
+#include <mp/MprEncode.h>
+#include <mp/MprBridge.h>
 #include <mp/dtmflib.h>
 #include <mp/MpMediaTask.h>
 #include <mp/MpCodecFactory.h>
@@ -66,10 +70,12 @@ class CpTopologyMediaConnection : public UtlInt
 public:
     CpTopologyMediaConnection(int connectionId = -1)
     : UtlInt(connectionId)
+    , mpResourceTopology(NULL)
     , mRtpSendHostAddress()
     , mDestinationSet(FALSE)
     , mIsMulticast(FALSE)
     , mIsCustomSockets(FALSE)
+    , mNumRtpStreams(0)
     , mpRtpAudioSocket(NULL)
     , mpRtcpAudioSocket(NULL)
     , mRtpAudioSendHostPort(0)
@@ -130,10 +136,12 @@ public:
         mConnectionProperties.destroyAll();
     }
 
+    MpResourceTopology *mpResourceTopology;
     UtlString mRtpSendHostAddress;
     UtlBoolean mDestinationSet;
     UtlBoolean mIsMulticast;
     UtlBoolean mIsCustomSockets;
+    int mNumRtpStreams;
     OsSocket* mpRtpAudioSocket;
     OsSocket* mpRtcpAudioSocket;
     int mRtpAudioSendHostPort;
@@ -172,7 +180,8 @@ CpTopologyGraphInterface::CpTopologyGraphInterface(CpTopologyGraphFactoryImpl* p
                                                    const char* turnUsername,
                                                    const char* turnPassword,
                                                    int turnKeepAlivePeriodSecs,
-                                                   UtlBoolean enableIce
+                                                   UtlBoolean enableIce,
+                                                   OsMsgDispatcher* pDispatcher
                                                   )
     : CpMediaInterface(pFactoryImpl)
 {
@@ -181,10 +190,22 @@ CpTopologyGraphInterface::CpTopologyGraphInterface(CpTopologyGraphFactoryImpl* p
    OsSysLog::add(FAC_CP, PRI_DEBUG, "CpTopologyGraphInterface::CpTopologyGraphInterface creating a new CpMediaInterface %p",
                  this);
 
+   OsMsgDispatcher *pTmpDispatcherPtr;
+   mTranslatorDispatcher.setDispatcher(pDispatcher);
+   if(pDispatcher != NULL)
+   {
+      pTmpDispatcherPtr = &mTranslatorDispatcher;
+   }
+   else
+   {
+      pTmpDispatcherPtr = NULL;
+   }
+
    mpTopologyGraph = new MpTopologyGraph(samplesPerFrame,
                                          samplesPerSec,
                                          *(pFactoryImpl->getInitialResourceTopology()),
-                                         *(pFactoryImpl->getResourceFactory()));
+                                         *(pFactoryImpl->getResourceFactory()),
+                                         pTmpDispatcherPtr);
    OsSysLog::add(FAC_CP, PRI_DEBUG, "CpTopologyGraphInterface::CpTopologyGraphInterface creating a new MpTopologyGraph %p",
                  mpTopologyGraph);
    
@@ -242,8 +263,8 @@ CpTopologyGraphInterface::~CpTopologyGraphInterface()
     CpTopologyMediaConnection* mediaConnection = NULL;
     while ((mediaConnection = (CpTopologyMediaConnection*) mMediaConnections.get()))
     {
-        doDeleteConnection(mediaConnection);
-        delete mediaConnection;
+        deleteMediaConnection(mediaConnection);
+//        delete mediaConnection;
         mediaConnection = NULL;
     }
 
@@ -296,37 +317,47 @@ OsStatus CpTopologyGraphInterface::createConnection(int& connectionId,
                                                     const RtpTransportOptions rtpTransportOptions)
 {
    OsStatus retValue = OS_SUCCESS;
-   CpTopologyMediaConnection* mediaConnection = createMediaConnection(connectionId);
+   UtlString localAddress;
+   UtlBoolean isMulticast;
 
+   // Determine local address
+   if (szLocalAddress && strlen(szLocalAddress))
+   {
+      localAddress = szLocalAddress ;
+   }
+   else
+   {
+      localAddress = mLocalAddress ;
+   }
+
+   // Is multicast stream requested?
+   isMulticast = OsSocket::isMcastAddr(localAddress);
+
+   // Create connection.
+   CpTopologyMediaConnection* mediaConnection = createMediaConnection(connectionId,
+                                                                      isMulticast);
    if (connectionId == -1)
    {
       return OS_LIMIT_REACHED;
    }
 
-   // Set Local address
-   if (szLocalAddress && strlen(szLocalAddress))
-   {
-      mediaConnection->mLocalAddress = szLocalAddress ;
-   }
-   else
-   {
-      mediaConnection->mLocalAddress = mLocalAddress ;
-   }
-
-   mediaConnection->mIsMulticast = OsSocket::isMcastAddr(mediaConnection->mLocalAddress);
+   // Save connection properties.
+   mediaConnection->mLocalAddress = localAddress;
+   mediaConnection->mIsMulticast = isMulticast;
    if (mediaConnection->mIsMulticast)
    {
       mediaConnection->mContactType = CONTACT_LOCAL;
    }
 
-   // Create the sockets for audio stream
+   // Create the sockets for the audio stream
    retValue = createRtpSocketPair(mediaConnection->mLocalAddress, localPort,
+                                  mediaConnection->mIsMulticast,
                                   mediaConnection->mContactType,
                                   mediaConnection->mpRtpAudioSocket, 
                                   mediaConnection->mpRtcpAudioSocket);
    if (retValue != OS_SUCCESS)
    {
-       return retValue;
+      return retValue;
    }
 
    // Store audio stream settings
@@ -334,35 +365,40 @@ OsStatus CpTopologyGraphInterface::createConnection(int& connectionId,
    mediaConnection->mRtcpAudioReceivePort = mediaConnection->mpRtcpAudioSocket->getLocalHostPort() ;
 
    OsSysLog::add(FAC_CP, PRI_DEBUG, 
-            "CpTopologyGraphInterface::createConnection creating a new RTP socket: %p descriptor: %d",
-            mediaConnection->mpRtpAudioSocket, mediaConnection->mpRtpAudioSocket->getSocketDescriptor());
+      "CpTopologyGraphInterface::createConnection creating a new RTP socket: %p descriptor: %d",
+      mediaConnection->mpRtpAudioSocket, mediaConnection->mpRtpAudioSocket->getSocketDescriptor());
    OsSysLog::add(FAC_CP, PRI_DEBUG, 
-            "CpTopologyGraphInterface::createConnection creating a new RTCP socket: %p descriptor: %d",
-            mediaConnection->mpRtcpAudioSocket, mediaConnection->mpRtcpAudioSocket->getSocketDescriptor());
+      "CpTopologyGraphInterface::createConnection creating a new RTCP socket: %p descriptor: %d",
+      mediaConnection->mpRtcpAudioSocket, mediaConnection->mpRtcpAudioSocket->getSocketDescriptor());
 
-   // Start the audio packet pump
+   // Fence between calls to synchronous flowgraph methods and asynchronous.
+   // Also this is required to ensure that the connection has completed being
+   // created before exiting this function. This will allow API's such as
+   // getConnectionPortOnBridge() to be used immediately upon return from this
+   // function.
+   mpTopologyGraph->synchronize();
+
+   // Provide sockets to input connection
    UtlString inConnectionName(DEFAULT_RTP_INPUT_RESOURCE_NAME);
    MpResourceTopology::replaceNumInName(inConnectionName, connectionId);
-   MpRtpInputAudioConnection::startReceiveRtp(*(mpTopologyGraph->getMsgQ()),
-                                              inConnectionName,
-                                              NULL,
-                                              0,
-                                              *(mediaConnection->mpRtpAudioSocket),
-                                              *(mediaConnection->mpRtcpAudioSocket));
+   MpRtpInputConnection *pInputConnection;
+   OsStatus tmpStat = mpTopologyGraph->lookupResource(inConnectionName,
+                                                      (MpResource*&)pInputConnection);
+   assert(tmpStat == OS_SUCCESS);
+   pInputConnection->setSockets(*(mediaConnection->mpRtpAudioSocket),
+                                *(mediaConnection->mpRtcpAudioSocket));
 
-    return retValue;
+   return retValue;
 }
 
-/**
- * This version of createConnection can be used if you want override
-   the OsSocket class in order to provide an external socket implementation.
- */ 
 OsStatus CpTopologyGraphInterface::createConnection(int& connectionId,
-                                                      OsSocket* rtpSocket,
-                                                      OsSocket* rtcpSocket)
+                                                    OsSocket* rtpSocket,
+                                                    OsSocket* rtcpSocket,
+                                                    UtlBoolean isMulticast)
 {
    OsStatus retValue = OS_SUCCESS;
-   CpTopologyMediaConnection* mediaConnection = createMediaConnection(connectionId);
+   CpTopologyMediaConnection* mediaConnection = createMediaConnection(connectionId,
+                                                                      isMulticast);
 
    if (connectionId == -1)
    {
@@ -377,15 +413,22 @@ OsStatus CpTopologyGraphInterface::createConnection(int& connectionId,
    mediaConnection->mContactType = CONTACT_LOCAL;
    mediaConnection->mIsCustomSockets = TRUE;
 
-   // Start the audio packet pump
+   // Fence between calls to synchronous flowgraph methods and asynchronous.
+   // Also this is required to ensure that the connection has completed being
+   // created before exiting this function. This will allow API's such as
+   // getConnectionPortOnBridge() to be used immediately upon return from this
+   // function.
+   mpTopologyGraph->synchronize();
+
+   // Provide sockets to input connection
    UtlString inConnectionName(DEFAULT_RTP_INPUT_RESOURCE_NAME);
    MpResourceTopology::replaceNumInName(inConnectionName, connectionId);
-   MpRtpInputAudioConnection::startReceiveRtp(*(mpTopologyGraph->getMsgQ()),
-                                              inConnectionName,
-                                              NULL,
-                                              0,
-                                              *(mediaConnection->mpRtpAudioSocket),
-                                              *(mediaConnection->mpRtcpAudioSocket));
+   MpRtpInputConnection *pInputConnection;
+   OsStatus tmpStat = mpTopologyGraph->lookupResource(inConnectionName,
+                                                      (MpResource*&)pInputConnection);
+   assert(tmpStat == OS_SUCCESS);
+   pInputConnection->setSockets(*(mediaConnection->mpRtpAudioSocket),
+                                *(mediaConnection->mpRtcpAudioSocket));
 
    return retValue;
 }
@@ -402,12 +445,19 @@ OsStatus CpTopologyGraphInterface::setPlcMethod(int connectionId,
 
    if (mpTopologyGraph)
    {
-      UtlString inConnectionName(DEFAULT_RTP_INPUT_RESOURCE_NAME);
-      MpResourceTopology::replaceNumInName(inConnectionName, connectionId);
+      UtlString decoderName(DEFAULT_DECODE_RESOURCE_NAME);
+      MpResourceTopology::replaceNumInName(decoderName, connectionId);
+      decoderName.append(STREAM_NAME_SUFFIX);
 
-      MpRtpInputAudioConnection::setPlc(inConnectionName,
-                                        *(mpTopologyGraph->getMsgQ()),
-                                        methodName);
+      // Loop over all decoders and set PLC method.
+      for (int i=0; i<mediaConnection->mNumRtpStreams; i++)
+      {
+         UtlString tmpName(decoderName);
+         MpResourceTopology::replaceNumInName(tmpName, i);
+         MprDecode::setPlc(tmpName,
+                           *(mpTopologyGraph->getMsgQ()),
+                           methodName);
+      }
 
       returnCode = OS_SUCCESS;
    }
@@ -454,18 +504,38 @@ CpTopologyGraphInterface::setNotificationsEnabled(bool enabled,
       OS_FAILED;
 }  
 
+int CpTopologyGraphInterface::getNumBridgePorts()
+{
+   UtlString bridgeName(DEFAULT_BRIDGE_RESOURCE_NAME);
+   MpResource *pBridge;
+   if (mpTopologyGraph->lookupResource(bridgeName, pBridge) != OS_SUCCESS)
+   {
+      assert(!"Can't find Bride in the flowgraph!");
+      return -1;
+   }
+   return pBridge->numInputs();
+}
 
-OsStatus CpTopologyGraphInterface::getConnectionPortOnBridge(int connectionId, 
+OsStatus CpTopologyGraphInterface::getConnectionPortOnBridge(int connectionId,
+                                                             int streamNum,
                                                              int& portOnBridge)
 {
    assert(connectionId >=0);
 
-   UtlString connectionName(DEFAULT_RTP_INPUT_RESOURCE_NAME);
+   UtlString connectionName(DEFAULT_STREAM_LAST_RESOURCE_NAME);
    MpResourceTopology::replaceNumInName(connectionName, connectionId);
+   connectionName.append(STREAM_NAME_SUFFIX);
+   MpResourceTopology::replaceNumInName(connectionName, streamNum);
 
+   return getResourceInputPortOnBridge(connectionName, portOnBridge);
+}
+
+OsStatus CpTopologyGraphInterface::getResourceInputPortOnBridge(const UtlString &resourceName,
+                                                                int& portOnBridge)
+{
    MpResource* inConnection = NULL;
 
-   OsStatus retStatus = mpTopologyGraph->lookupResource(connectionName, inConnection);
+   OsStatus retStatus = mpTopologyGraph->lookupResource(resourceName, inConnection);
    if(OS_SUCCESS == retStatus)
    {
       MpResource* doNotTouchResource = NULL;
@@ -478,7 +548,7 @@ OsStatus CpTopologyGraphInterface::getConnectionPortOnBridge(int connectionId,
    {
       portOnBridge = -1;
    }
-   return(retStatus);
+   return retStatus;
 }
 
 OsStatus CpTopologyGraphInterface::getCapabilities(int connectionId,
@@ -1067,23 +1137,29 @@ OsStatus CpTopologyGraphInterface::startRtpSend(int connectionId,
          dtmfCodecString.data());
 #endif
 
-      if (!mediaConnection->mRtpSendHostAddress.isNull() && mediaConnection->mRtpSendHostAddress.compareTo("0.0.0.0"))
+      // Start sending RTP if destination address is present.
+      if ( !mediaConnection->mRtpSendHostAddress.isNull()
+         && mediaConnection->mRtpSendHostAddress.compareTo("0.0.0.0"))
       {
-         // This is the new interface for parallel codecs
-         //mpTopologyGraph->startSendRtp(*(mediaConnection->mpRtpAudioSocket),
-         //                          *(mediaConnection->mpRtcpAudioSocket),
-         //                          connectionId,
-         //                          audioCodec,
-         //                          dtmfCodec);
          UtlString outConnectionName(DEFAULT_RTP_OUTPUT_RESOURCE_NAME);
+         UtlString encodeName(DEFAULT_ENCODE_RESOURCE_NAME);
          MpResourceTopology::replaceNumInName(outConnectionName, connectionId);
+         MpResourceTopology::replaceNumInName(encodeName, connectionId);
+         MpRtpOutputConnection *pConnection;
+         OsStatus stat = mpTopologyGraph->lookupResource(outConnectionName,
+                                                         (MpResource*&)pConnection);
+         assert(stat == OS_SUCCESS);
 
-         MpRtpOutputAudioConnection::startSendRtp(*(mpTopologyGraph->getMsgQ()),
-                                                  outConnectionName,
-                                                  *(mediaConnection->mpRtpAudioSocket),
-                                                  *(mediaConnection->mpRtcpAudioSocket),
-                                                  audioCodec,
-                                                  dtmfCodec);
+         // Set sockets to send to.
+         pConnection->setSockets(*mediaConnection->mpRtpAudioSocket,
+                                 *mediaConnection->mpRtcpAudioSocket);
+
+         // Tell encoder which codecs to use (data codec and signaling codec)
+         // and enable it.
+         MprEncode::selectCodecs(encodeName, *mpTopologyGraph->getMsgQ(),
+                                 audioCodec, dtmfCodec);
+         MpResource::enable(encodeName, *mpTopologyGraph->getMsgQ());
+         MpResource::enable(outConnectionName, *mpTopologyGraph->getMsgQ());
 
          mediaConnection->mRtpAudioSending = TRUE;
          returnCode = OS_SUCCESS;
@@ -1094,8 +1170,8 @@ OsStatus CpTopologyGraphInterface::startRtpSend(int connectionId,
 
 
 OsStatus CpTopologyGraphInterface::startRtpReceive(int connectionId,
-                                                int numCodecs,
-                                                SdpCodec* receiveCodecs[])
+                                                   int numCodecs,
+                                                   SdpCodec* receiveCodecs[])
 {
    OsStatus returnCode = OS_NOT_FOUND;
 
@@ -1131,9 +1207,6 @@ OsStatus CpTopologyGraphInterface::startRtpReceive(int connectionId,
       }
 #endif
 
-      UtlString inConnectionName(DEFAULT_RTP_INPUT_RESOURCE_NAME);
-      MpResourceTopology::replaceNumInName(inConnectionName, connectionId);
-
       if(mediaConnection->mRtpAudioReceiving)
       {
          // This is not supposed to be necessary and may be
@@ -1141,13 +1214,49 @@ OsStatus CpTopologyGraphInterface::startRtpReceive(int connectionId,
          //mpTopologyGraph->stopReceiveRtp(connectionId);
       }
 
+      UtlString inConnectionName(DEFAULT_RTP_INPUT_RESOURCE_NAME);
+      MpResourceTopology::replaceNumInName(inConnectionName, connectionId);
+      UtlString decoderName(DEFAULT_DECODE_RESOURCE_NAME);
+      MpResourceTopology::replaceNumInName(decoderName, connectionId);
+      decoderName.append(STREAM_NAME_SUFFIX);
 
-      MpRtpInputAudioConnection::startReceiveRtp(*(mpTopologyGraph->getMsgQ()),
-                                                 inConnectionName,
-                                                 receiveCodecs,
-                                                 numCodecs,
-                                                 *(mediaConnection->mpRtpAudioSocket),
-                                                 *(mediaConnection->mpRtcpAudioSocket));
+      if (numCodecs)
+      {
+         // Loop over all decoders and select codecs.
+         for (int i=0; i<mediaConnection->mNumRtpStreams; i++)
+         {
+            UtlString tmpName(decoderName);
+            MpResourceTopology::replaceNumInName(tmpName, i);
+            MprDecode::selectCodecs(tmpName,
+                                    *mpTopologyGraph->getMsgQ(),
+                                    receiveCodecs,
+                                    numCodecs);
+         }
+      }
+
+      // Fence before calling asynchronous method setSockets().
+      mpTopologyGraph->synchronize();
+
+      MpRtpInputConnection *pInputConnection;
+      OsStatus tmpStat = mpTopologyGraph->lookupResource(inConnectionName,
+                                                         (MpResource*&)pInputConnection);
+      assert(tmpStat == OS_SUCCESS);
+      pInputConnection->setSockets(*(mediaConnection->mpRtpAudioSocket),
+                                   *(mediaConnection->mpRtcpAudioSocket));
+
+      // And finally enable decode resource, if this connection is unicast.
+      // For multicast connections decoders will be enabled on the fly
+      // to reduce CPU consumption.
+      if (numCodecs && !mediaConnection->mIsMulticast)
+      {
+         // Loop over all decoders and enable them.
+         for (int i=0; i<mediaConnection->mNumRtpStreams; i++)
+         {
+            UtlString tmpName(decoderName);
+            MpResourceTopology::replaceNumInName(tmpName, i);
+            MprDecode::enable(tmpName, *mpTopologyGraph->getMsgQ());
+         }
+      }
 
       mediaConnection->mRtpAudioReceiving = TRUE;
 
@@ -1165,12 +1274,7 @@ OsStatus CpTopologyGraphInterface::stopRtpSend(int connectionId)
    if (mpTopologyGraph && mediaConnection &&
        mediaConnection->mRtpAudioSending)
    {
-      UtlString outConnectionName(DEFAULT_RTP_OUTPUT_RESOURCE_NAME);
-      MpResourceTopology::replaceNumInName(outConnectionName, connectionId);
-      MpRtpOutputAudioConnection::stopSendRtp(*(mpTopologyGraph->getMsgQ()),
-                                               outConnectionName);
-
-      mediaConnection->mRtpAudioSending = FALSE;
+      stopRtpSend(mediaConnection);
       returnCode = OS_SUCCESS;
    }
    return(returnCode);
@@ -1193,18 +1297,14 @@ OsStatus CpTopologyGraphInterface::stopRtpReceive(int connectionId)
    if (mpTopologyGraph && mediaConnection &&
        mediaConnection->mRtpAudioReceiving)
    {
-      UtlString inConnectionName(DEFAULT_RTP_INPUT_RESOURCE_NAME);
-      MpResourceTopology::replaceNumInName(inConnectionName, connectionId);
-
 #ifdef TEST_PRINT
       printf("sending stopReceiveRtp message RTP socket: %p RTCP socket: %p\n",
              mediaConnection->mpRtpAudioSocket,
              mediaConnection->mpRtcpAudioSocket);
 #endif
 
-      MpRtpInputAudioConnection::stopReceiveRtp(*(mpTopologyGraph->getMsgQ()),
-                                                inConnectionName);
-      
+      stopRtpReceive(mediaConnection);
+
       mediaConnection->mRtpAudioReceiving = FALSE;
       returnCode = OS_SUCCESS;
    }
@@ -1220,138 +1320,10 @@ OsStatus CpTopologyGraphInterface::deleteConnection(int connectionId)
    UtlInt matchConnectionId(connectionId);
    mMediaConnections.remove(&matchConnectionId) ;
 
-   returnCode = doDeleteConnection(mediaConnection);
-
-   delete mediaConnection ;
+   returnCode = deleteMediaConnection(mediaConnection);
 
    return(returnCode);
 }
-
-OsStatus CpTopologyGraphInterface::doDeleteConnection(CpTopologyMediaConnection* mediaConnection)
-{
-   OsStatus returnCode = OS_NOT_FOUND;
-
-   if(mediaConnection == NULL)
-   {
-      OsSysLog::add(FAC_CP, PRI_DEBUG, 
-                  "CpTopologyGraphInterface::doDeleteConnection mediaConnection is NULL!");
-      return OS_NOT_FOUND;
-   }
-
-   OsSysLog::add(FAC_CP, PRI_DEBUG, "CpTopologyGraphInterface::deleteConnection deleting the connection %p",
-      mediaConnection);
-
-   returnCode = OS_SUCCESS;
-   mediaConnection->mDestinationSet = FALSE;
-#ifdef TEST_PRINT
-   if (mediaConnection && mediaConnection->mpRtpAudioSocket && mediaConnection->mpRtcpAudioSocket)
-      OsSysLog::add(FAC_CP, PRI_DEBUG, 
-                    "stopping RTP/RTCP send & receive sockets %p/%p descriptors: %d/%d",
-                    mediaConnection->mpRtpAudioSocket,
-                    mediaConnection->mpRtcpAudioSocket,
-                    mediaConnection->mpRtpAudioSocket->getSocketDescriptor(),
-                    mediaConnection->mpRtcpAudioSocket->getSocketDescriptor());
-   else 
-      OsSysLog::add(FAC_CP, PRI_DEBUG, 
-                    "CpTopologyGraphInterface::doDeleteConnection NULL socket: mpRtpAudioSocket=0x%08x, mpRtpAudioSocket=0x%08x",
-                    mediaConnection->mpRtpAudioSocket,
-                    mediaConnection->mpRtcpAudioSocket);
-#endif
-
-
-   // The connections may be removed from the list, so we cannot use
-   // the method that takes a connection id
-   //returnCode = stopRtpSend(mediaConnection->getValue());
-      UtlString outConnectionName(DEFAULT_RTP_OUTPUT_RESOURCE_NAME);
-      MpResourceTopology::replaceNumInName(outConnectionName, mediaConnection->getValue());
-      MpRtpOutputAudioConnection::stopSendRtp(*(mpTopologyGraph->getMsgQ()),
-                                               outConnectionName);
-   //returnCode = stopRtpReceive(mediaConnection->getValue());
-      UtlString inConnectionName(DEFAULT_RTP_INPUT_RESOURCE_NAME);
-      MpResourceTopology::replaceNumInName(inConnectionName, mediaConnection->getValue());
-//      printf("doDeleteConnection sending stopReceiveRtp message RTP socket: %p RTCP socket: %p\n",
-//             mediaConnection->mpRtpAudioSocket,
-//             mediaConnection->mpRtcpAudioSocket);
-      MpRtpInputAudioConnection::stopReceiveRtp(*(mpTopologyGraph->getMsgQ()),
-                                                inConnectionName);
-
-   // Make sure the sockets are no longer used before further operations
-   mpTopologyGraph->synchronize();
-
-   if(mediaConnection->getValue() >= 0)
-   {
-       UtlString inConnectionName(DEFAULT_RTP_INPUT_RESOURCE_NAME);
-       MpResourceTopology::replaceNumInName(inConnectionName, mediaConnection->getValue());
-       UtlString outConnectionName(DEFAULT_RTP_OUTPUT_RESOURCE_NAME);
-       MpResourceTopology::replaceNumInName(outConnectionName, mediaConnection->getValue());
-
-       MpResource* inConnectionResource = NULL;
-       returnCode = mpTopologyGraph->lookupResource(inConnectionName,
-                                                    inConnectionResource);
-       // If we failed to find the connection resource, sync. in case we
-       // are deleting before the resources got linked into the flowgraph
-       if(returnCode != OS_SUCCESS)
-       {
-           mpTopologyGraph->synchronize();
-           returnCode = mpTopologyGraph->lookupResource(inConnectionName,
-                                                        inConnectionResource);
-       }
-       assert(returnCode == OS_SUCCESS);
-       assert(inConnectionResource);
-
-       if(inConnectionResource)
-       {
-           mpTopologyGraph->removeResource(*inConnectionResource);
-       }
-       MpResource* outConnectionResource = NULL;
-       returnCode = mpTopologyGraph->lookupResource(outConnectionName,
-                                                    outConnectionResource);
-       assert(returnCode == OS_SUCCESS);
-       assert(outConnectionResource);
-
-       if(outConnectionResource)
-       {
-           mpTopologyGraph->removeResource(*outConnectionResource);
-       }
-       mediaConnection->setValue(-1);
-       mpTopologyGraph->synchronize();
-
-       delete inConnectionResource;
-       delete outConnectionResource;
-   }
-
-   mpFactoryImpl->releaseRtpPort(mediaConnection->mRtpAudioReceivePort) ;
-
-   if(mediaConnection->mpRtpAudioSocket)
-   {
-#ifdef TEST_PRINT
-      OsSysLog::add(FAC_CP, PRI_DEBUG, 
-      //printf(
-                    "CpTopologyGraphInterface::doDeleteConnection deleting RTP socket: %p descriptor: %d",
-                    mediaConnection->mpRtpAudioSocket,
-                    mediaConnection->mpRtpAudioSocket->getSocketDescriptor());
-#endif
-
-      delete mediaConnection->mpRtpAudioSocket;
-      mediaConnection->mpRtpAudioSocket = NULL;
-   }
-   if(mediaConnection->mpRtcpAudioSocket)
-   {
-#ifdef TEST_PRINT
-      OsSysLog::add(FAC_CP, PRI_DEBUG, 
-      //printf(
-                    "deleting RTCP socket: %p descriptor: %d",
-         mediaConnection->mpRtcpAudioSocket,
-         mediaConnection->mpRtcpAudioSocket->getSocketDescriptor());
-#endif
-
-      delete mediaConnection->mpRtcpAudioSocket;
-      mediaConnection->mpRtcpAudioSocket = NULL;
-   }
-
-   return(returnCode);
-}
-
 
 OsStatus CpTopologyGraphInterface::playAudio(const char* url,
                                           UtlBoolean repeat,
@@ -1384,15 +1356,15 @@ OsStatus CpTopologyGraphInterface::playAudio(const char* url,
 }
 
 OsStatus CpTopologyGraphInterface::playBuffer(char* buf,
-                                           unsigned long bufSize,
-                                           uint32_t bufRate,
-                                           int type, 
-                                           UtlBoolean repeat,
-                                           UtlBoolean local,
-                                           UtlBoolean remote, 
-                                           OsProtectedEvent* pEvent,
-                                           UtlBoolean mixWithMic,
-                                           int downScaling)
+                                              unsigned long bufSize,
+                                              uint32_t bufRate,
+                                              int type, 
+                                              UtlBoolean repeat,
+                                              UtlBoolean local,
+                                              UtlBoolean remote, 
+                                              OsProtectedEvent* pEvent,
+                                              UtlBoolean mixWithMic,
+                                              int downScaling)
 {
     OsStatus stat = OS_NOT_FOUND;
     if(mpTopologyGraph && buf)
@@ -1402,25 +1374,9 @@ OsStatus CpTopologyGraphInterface::playBuffer(char* buf,
        // I also don't know what to do with this blasted protected event.. sending NULL now.
        // If it was an OsNotification -- no problem..
        stat = MprFromFile::playBuffer(DEFAULT_FROM_FILE_RESOURCE_NAME, 
-          *mpTopologyGraph->getMsgQ(), buf, bufSize, bufRate, fgRate, type, repeat, NULL);
-
-       /*
-         old stuff:
-         int toneOptions=0;
-
-         if (local)
-         {
-            toneOptions |= MpCallFlowGraph::TONE_TO_SPKR;
-         }                  
-         
-         if(remote)
-         {
-            toneOptions |= MpCallFlowGraph::TONE_TO_NET;
-         }
-
-        // Start playing the audio file
-        stat = mpTopologyGraph->playBuffer(buf, bufSize, type, repeat, toneOptions, NULL);
-        */
+                                      *mpTopologyGraph->getMsgQ(),
+                                      buf, bufSize, bufRate, fgRate,
+                                      type, repeat, NULL);
     }
 
     if(stat != OS_SUCCESS)
@@ -1750,6 +1706,43 @@ OsStatus CpTopologyGraphInterface::generateVoiceQualityReport(int         connec
 	return OS_NOT_SUPPORTED ;
 }
 
+OsStatus CpTopologyGraphInterface::enableDtx(int connectionId, UtlBoolean enable)
+{
+   OsStatus returnCode = OS_NOT_FOUND;
+   CpTopologyMediaConnection* mediaConnection = getMediaConnection(connectionId);
+
+   if (mpTopologyGraph && mediaConnection)
+   {
+      UtlString encodeName(DEFAULT_ENCODE_RESOURCE_NAME);
+      MpResourceTopology::replaceNumInName(encodeName, connectionId);
+      MprEncode::enableDtx(encodeName,
+                           *mpTopologyGraph->getMsgQ(),
+                           enable);
+
+      returnCode = OS_SUCCESS;
+   }
+
+   return returnCode;
+}
+
+OsStatus CpTopologyGraphInterface::setRtpInactivityTimeout(int connectionId,
+                                                           int timeoutMs)
+{
+   OsStatus returnCode = OS_NOT_FOUND;
+   CpTopologyMediaConnection* mediaConnection = getMediaConnection(connectionId);
+
+   if (mpTopologyGraph && mediaConnection)
+   {
+      UtlString rtpInputName(DEFAULT_RTP_INPUT_RESOURCE_NAME);
+      MpResourceTopology::replaceNumInName(rtpInputName, connectionId);
+      MpRtpInputConnection::setRtpInactivityTimeout(rtpInputName,
+                                                    *mpTopologyGraph->getMsgQ(),
+                                                    timeoutMs);
+      returnCode = OS_SUCCESS;
+   }
+
+   return returnCode;
+}
 
 /* ============================ ACCESSORS ================================= */
 
@@ -2493,8 +2486,36 @@ void CpTopologyGraphInterface::applyAlternateDestinations(int connectionId)
     }
 }
 
+OsStatus CpTopologyGraphInterface::getAudioRtpSourceIDs(int connectionId,
+                                                        unsigned int& uiSendingSSRC,
+                                                        unsigned int& uiReceivingSSRC)
+{
+   OsStatus returnCode = OS_NOT_FOUND;
+   CpTopologyMediaConnection* mediaConnection = getMediaConnection(connectionId);
+
+   uiReceivingSSRC = 0;
+
+   if (mpTopologyGraph && mediaConnection)
+   {
+      UtlString outConnectionName(DEFAULT_RTP_OUTPUT_RESOURCE_NAME);
+      MpResourceTopology::replaceNumInName(outConnectionName, connectionId);
+      MpRtpOutputConnection *pOutConn;
+      returnCode = mpTopologyGraph->lookupResource(outConnectionName,
+                                             (MpResource*&)pOutConn);
+
+      if (returnCode == OS_SUCCESS)
+      {
+         uiSendingSSRC = pOutConn->getSSRC();
+
+         mediaConnection->mRtpAudioSending = FALSE;
+      }
+   }
+
+   return returnCode;
+}
+
 OsStatus CpTopologyGraphInterface::setMediaProperty(const UtlString& propertyName,
-                                                 const UtlString& propertyValue)
+                                                    const UtlString& propertyValue)
 {
     OsSysLog::add(FAC_CP, PRI_ERR, 
         "CpTopologyGraphInterface::setMediaProperty %p propertyName=\"%s\" propertyValue=\"%s\"",
@@ -2601,13 +2622,13 @@ OsStatus CpTopologyGraphInterface::getMediaProperty(int connectionId,
 
 OsStatus CpTopologyGraphInterface::createRtpSocketPair(UtlString localAddress,
                                                        int localPort,
+                                                       UtlBoolean isMulticast,
                                                        SIPX_CONTACT_TYPE contactType,
                                                        OsSocket* &rtpSocket,
                                                        OsSocket* &rtcpSocket)
 {
    int firstRtpPort;
    bool localPortGiven = (localPort != 0); // Does user specified the local port?
-   UtlBoolean isMulticast = OsSocket::isMcastAddr(localAddress);
 
    if (!localPortGiven)
    {
@@ -2770,17 +2791,21 @@ int CpTopologyGraphInterface::getNextConnectionId()
     return(++mLastConnectionId);
 }
 
-CpTopologyMediaConnection* CpTopologyGraphInterface::createMediaConnection(int& connectionId)
+CpTopologyMediaConnection* CpTopologyGraphInterface::createMediaConnection(int& connectionId,
+                                                                           UtlBoolean isMcast)
 {
    CpTopologyMediaConnection* mediaConnection=NULL;
    CpTopologyGraphFactoryImpl* pTopologyFactoryImpl = (CpTopologyGraphFactoryImpl*)mpFactoryImpl;
+   MpResourceTopology *pResourceTopology;
 
    connectionId = getNextConnectionId();
    if (connectionId == -1)
    {
       return NULL;
    }
-   mpTopologyGraph->addResources(*pTopologyFactoryImpl->getConnectionResourceTopology(),
+   pResourceTopology = isMcast ? pTopologyFactoryImpl->getMcastConnectionResourceTopology()
+                               : pTopologyFactoryImpl->getConnectionResourceTopology();
+   mpTopologyGraph->addResources(*pResourceTopology,
                                  pTopologyFactoryImpl->getResourceFactory(),
                                  connectionId);
 
@@ -2791,19 +2816,119 @@ CpTopologyMediaConnection* CpTopologyGraphInterface::createMediaConnection(int& 
                  mediaConnection);
    mMediaConnections.append(mediaConnection);
 
+   // Save resource topology and RTP streams number
+   mediaConnection->mpResourceTopology = pResourceTopology;
+   mediaConnection->mNumRtpStreams = isMcast ? pTopologyFactoryImpl->getNumMcastRtpStreams()
+                                             : 1;
+
    // Set codec factory
    mediaConnection->mpCodecFactory = new SdpCodecList(mSupportedCodecs);
    mediaConnection->mpCodecFactory->bindPayloadTypes();
    OsSysLog::add(FAC_CP, PRI_DEBUG, 
-            "CpTopologyGraphInterface::createMediaConnection creating a new mpCodecFactory %p",
-            mediaConnection->mpCodecFactory);
+                 "CpTopologyGraphInterface::createMediaConnection creating a new mpCodecFactory %p",
+                 mediaConnection->mpCodecFactory);
 
-   // Ensure that the connection has completed being created before exiting this function. 
-   // This will allow API's such as getConnectionPortOnBridge to be used immediately upon
-   // return from this function.
+   // discardLoopbackRtp() and setConnectionToConnectionWeight() use
+   // asynchronous call lookupResource(), so fence is needed.
    mpTopologyGraph->synchronize();
 
+   // Discard looped back RTP packets if multicast is used.
+   if (isMcast)
+   {
+      discardLoopbackRtp(mediaConnection);
+   }
+
+   // Disable echoing of local connection to itself. This is the problem
+   // if connection have more then one stream (like in multicast case).
+   // Then default bridge matrix tries to mix 2nd, 3rd, etc streams
+   // to output connection, which is definitely not what we want.
+   setConnectionToConnectionWeight(mediaConnection, connectionId, 0);
+
    return mediaConnection;
+}
+
+OsStatus CpTopologyGraphInterface::deleteMediaConnection(CpTopologyMediaConnection* mediaConnection)
+{
+   if(mediaConnection == NULL)
+   {
+      OsSysLog::add(FAC_CP, PRI_DEBUG, 
+                    "CpTopologyGraphInterface::deleteMediaConnection mediaConnection is NULL!");
+      return OS_NOT_FOUND;
+   }
+
+   OsSysLog::add(FAC_CP, PRI_DEBUG,
+                 "CpTopologyGraphInterface::deleteConnection deleting the connection %p",
+                 mediaConnection);
+
+#ifdef TEST_PRINT
+   if (mediaConnection && mediaConnection->mpRtpAudioSocket && mediaConnection->mpRtcpAudioSocket)
+      OsSysLog::add(FAC_CP, PRI_DEBUG, 
+                    "stopping RTP/RTCP send & receive sockets %p/%p descriptors: %d/%d",
+                    mediaConnection->mpRtpAudioSocket,
+                    mediaConnection->mpRtcpAudioSocket,
+                    mediaConnection->mpRtpAudioSocket->getSocketDescriptor(),
+                    mediaConnection->mpRtcpAudioSocket->getSocketDescriptor());
+   else 
+      OsSysLog::add(FAC_CP, PRI_DEBUG, 
+                    "CpTopologyGraphInterface::deleteMediaConnection NULL socket: mpRtpAudioSocket=0x%08x, mpRtpAudioSocket=0x%08x",
+                    mediaConnection->mpRtpAudioSocket,
+                    mediaConnection->mpRtcpAudioSocket);
+#endif
+
+   OsStatus returnCode = OS_SUCCESS;
+   mediaConnection->mDestinationSet = FALSE;
+
+   // Stop sending RTP
+   stopRtpSend(mediaConnection);
+
+   // Stop receiving RTP
+   stopRtpReceive(mediaConnection);
+
+   // No need for the fence, because releaseSockets()
+   // is an asynchronous call.
+   //mpTopologyGraph->synchronize();
+
+   if(mediaConnection->getValue() >= 0)
+   {
+       mpTopologyGraph->destroyResources(*mediaConnection->mpResourceTopology,
+                                         mediaConnection->getValue());
+       mediaConnection->setValue(-1);
+       // I don't think this fence is required.
+//       mpTopologyGraph->synchronize();
+   }
+
+   mpFactoryImpl->releaseRtpPort(mediaConnection->mRtpAudioReceivePort);
+
+   if(mediaConnection->mpRtpAudioSocket)
+   {
+#ifdef TEST_PRINT
+      OsSysLog::add(FAC_CP, PRI_DEBUG, 
+      //printf(
+                    "CpTopologyGraphInterface::deleteMediaConnection deleting RTP socket: %p descriptor: %d",
+                    mediaConnection->mpRtpAudioSocket,
+                    mediaConnection->mpRtpAudioSocket->getSocketDescriptor());
+#endif
+
+      delete mediaConnection->mpRtpAudioSocket;
+      mediaConnection->mpRtpAudioSocket = NULL;
+   }
+   if(mediaConnection->mpRtcpAudioSocket)
+   {
+#ifdef TEST_PRINT
+      OsSysLog::add(FAC_CP, PRI_DEBUG, 
+      //printf(
+                    "deleting RTCP socket: %p descriptor: %d",
+         mediaConnection->mpRtcpAudioSocket,
+         mediaConnection->mpRtcpAudioSocket->getSocketDescriptor());
+#endif
+
+      delete mediaConnection->mpRtcpAudioSocket;
+      mediaConnection->mpRtcpAudioSocket = NULL;
+   }
+
+   delete mediaConnection;
+
+   return(returnCode);
 }
 
 CpTopologyMediaConnection* CpTopologyGraphInterface::getMediaConnection(int connectionId)
@@ -2812,7 +2937,146 @@ CpTopologyMediaConnection* CpTopologyGraphInterface::getMediaConnection(int conn
    return((CpTopologyMediaConnection*) mMediaConnections.find(&matchConnectionId));
 }
 
+OsStatus CpTopologyGraphInterface::discardLoopbackRtp(CpTopologyMediaConnection* mediaConnection)
+{
+   MpConnectionID connectionId = mediaConnection->getValue();
+   UtlString inConnectionName(DEFAULT_RTP_INPUT_RESOURCE_NAME);
+   MpResourceTopology::replaceNumInName(inConnectionName, connectionId);
+   UtlString outConnectionName(DEFAULT_RTP_OUTPUT_RESOURCE_NAME);
+   MpResourceTopology::replaceNumInName(outConnectionName, connectionId);
+   MpRtpOutputConnection *pOutputConnection;
+   OsStatus stat = mpTopologyGraph->lookupResource(outConnectionName,
+                                                   (MpResource*&)pOutputConnection);
+   assert(stat == OS_SUCCESS);
+   if (stat == OS_SUCCESS)
+   {
+      // Get our SSRC and start discarding stream with it.
+      RtpSRC ssrc = pOutputConnection->getSSRC();
+      stat = MpRtpInputConnection::enableSsrcDiscard(inConnectionName,
+                                                     *mpTopologyGraph->getMsgQ(),
+                                                     TRUE, ssrc);
+      assert(stat == OS_SUCCESS);
+   }
+
+   return stat;
+}
+
+void CpTopologyGraphInterface::stopRtpReceive(CpTopologyMediaConnection* mediaConnection)
+{
+   MpConnectionID connectionId = mediaConnection->getValue();
+
+   // Stop receiving data from the network (asynchronous call!)
+   UtlString inConnectionName(DEFAULT_RTP_INPUT_RESOURCE_NAME);
+   MpResourceTopology::replaceNumInName(inConnectionName, connectionId);
+   MpRtpInputConnection *pInputConnection;
+   OsStatus tmpStat = mpTopologyGraph->lookupResource(inConnectionName,
+                                                      (MpResource*&)pInputConnection);
+   assert(tmpStat == OS_SUCCESS);
+   pInputConnection->releaseSockets();
+
+   // Deselect codecs and disable decoders
+   UtlString decoderName(DEFAULT_DECODE_RESOURCE_NAME);
+   MpResourceTopology::replaceNumInName(decoderName, connectionId);
+   decoderName.append(STREAM_NAME_SUFFIX);
+   for (int i=0; i<mediaConnection->mNumRtpStreams; i++)
+   {
+      UtlString tmpName(decoderName);
+      MpResourceTopology::replaceNumInName(tmpName, i);
+      MprDecode::deselectCodecs(tmpName, *mpTopologyGraph->getMsgQ());
+      MprDecode::disable(tmpName, *mpTopologyGraph->getMsgQ());
+   }
+}
+
+void CpTopologyGraphInterface::stopRtpSend(CpTopologyMediaConnection* mediaConnection)
+{
+   MpConnectionID connectionId = mediaConnection->getValue();
+   UtlString outConnectionName(DEFAULT_RTP_OUTPUT_RESOURCE_NAME);
+   UtlString encodeName(DEFAULT_ENCODE_RESOURCE_NAME);
+   MpResourceTopology::replaceNumInName(outConnectionName, connectionId);
+   MpResourceTopology::replaceNumInName(encodeName, connectionId);
+   MpRtpOutputConnection *pConnection;
+   OsStatus stat = mpTopologyGraph->lookupResource(outConnectionName,
+                                                   (MpResource*&)pConnection);
+   assert(stat == OS_SUCCESS);
+
+   // Release sockets, deselect codecs and disable encoder.
+   pConnection->releaseSockets();
+   MprEncode::deselectCodecs(encodeName, *getMsgQ());
+   MpResource::disable(encodeName, *getMsgQ());
+   MpResource::disable(outConnectionName, *getMsgQ());
+
+   mediaConnection->mRtpAudioSending = FALSE;
+}
+
+OsStatus CpTopologyGraphInterface::setConnectionWeightOnBridge(CpTopologyMediaConnection *mediaConnection,
+                                                               int destPort,
+                                                               float weight)
+{
+   int i;
+   MpConnectionID connectionId = mediaConnection->getValue();
+
+   // Prepare input RTP streams names.
+   UtlString inStreamName(DEFAULT_STREAM_LAST_RESOURCE_NAME);
+   MpResourceTopology::replaceNumInName(inStreamName, connectionId);
+   inStreamName.append(STREAM_NAME_SUFFIX);
+
+   // Determine number of bridge ports and allocate array for weights
+   int numBridgePorts = getNumBridgePorts();
+   if (numBridgePorts<0)
+   {
+      assert(!"Can't determine number of bridge ports!");
+      return OS_NOT_FOUND;
+   }
+   MpBridgeGain *weights = new MpBridgeGain[numBridgePorts];
+   MpBridgeGain bridgeWeight = MPF_BRIDGE_FLOAT(weight);
+
+   for (i=0; i<numBridgePorts; i++)
+   {
+      weights[i] = MP_BRIDGE_GAIN_UNDEFINED;
+   }
+
+   for (i=0; i<mediaConnection->mNumRtpStreams; i++)
+   {
+      UtlString tmpName(inStreamName);
+      MpResourceTopology::replaceNumInName(tmpName, i);
+      int port;
+      OsStatus stat = getResourceInputPortOnBridge(tmpName, port);
+      if (stat != OS_SUCCESS)
+      {
+         assert(!"Can't determine bridge port number for stream!");
+         delete[] weights;
+         return OS_FAILED;
+      }
+      assert(port>=0 && port<numBridgePorts);
+      weights[port] = bridgeWeight;
+   }
+
+   MprBridge::setMixWeightsForOutput(DEFAULT_BRIDGE_RESOURCE_NAME,
+                                     *mpTopologyGraph->getMsgQ(),
+                                     destPort,
+                                     numBridgePorts,
+                                     weights);
+
+   delete[] weights;
+
+   return OS_SUCCESS;
+}
+
+OsStatus CpTopologyGraphInterface::setConnectionToConnectionWeight(CpTopologyMediaConnection *srcConnection,
+                                                                   int destConnectionId,
+                                                                   float weight)
+{
+   CpTopologyMediaConnection* pDestConnection = getMediaConnection(destConnectionId);
+   int destPort;
+   OsStatus stat = getConnectionPortOnBridge(destConnectionId, 0, destPort);
+   if (stat != OS_SUCCESS)
+   {
+      return stat;
+   }
+   assert(destPort > 0);
+
+   stat = setConnectionWeightOnBridge(srcConnection, destPort, weight);
+   return stat;
+}
+
 /* ============================ FUNCTIONS ================================= */
-
-
-

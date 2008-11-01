@@ -601,6 +601,10 @@
 			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 			>
 			<File
+				RelativePath=".\sipXmediaMediaProcessing\src\test\CpCryptoTest.cpp"
+				>
+			</File>
+			<File
 				RelativePath="sipXmediaMediaProcessing\src\test\CpPhoneMediaInterfaceTest.cpp"
 				>
 				<FileConfiguration

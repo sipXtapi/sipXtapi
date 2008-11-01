@@ -10,6 +10,8 @@
 
 // Author: Keith Kyzivat (kkyzivat AT SIPez DOT com)
 
+#include <os/OsIntTypes.h>
+
 #include <cppunit/extensions/HelperMacros.h>
 #include <cppunit/TestCase.h>
 #include "mi/CpMediaInterfaceFactory.h"

@@ -127,6 +127,10 @@ SOURCE=.\interface\MiProgressNotf.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\interface\MiRtpStreamActivityNotf.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\sipXmediaMediaProcessing\src\sipXmediaFactoryImpl.cpp
 # End Source File
 # End Group
@@ -176,6 +180,10 @@ SOURCE=.\interface\mi\MiNotification.h
 # Begin Source File
 
 SOURCE=.\interface\mi\MiProgressNotf.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\interface\mi\MiRtpStreamActivityNotf.h
 # End Source File
 # Begin Source File
 
