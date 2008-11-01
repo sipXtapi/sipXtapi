@@ -18,8 +18,6 @@
 // EXTERNAL VARIABLES
 // CONSTANTS
 // TYPEDEFS
-typedef audio_sample_t MpAudioSample;
-
 // EXTERNAL FUNCTIONS
 // DEFINES
 #define DECODER_HANDLE     ((void*)1)
