@@ -25,8 +25,6 @@
 // EXTERNAL VARIABLES
 // CONSTANTS
 // TYPEDEFS
-typedef audio_sample_t MpAudioSample;
-
 // EXTERNAL FUNCTIONS
 #ifdef USE_BUGGY_G711 // [
    extern int G711U_Decoder(int numSamples, const uint8_t* inBuff, MpAudioSample* outBuf);

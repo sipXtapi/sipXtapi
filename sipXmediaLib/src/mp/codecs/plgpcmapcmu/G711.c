@@ -23,8 +23,6 @@
 
 #define BIAS            (0x84)          /* Bias for linear code. */
 
-typedef audio_sample_t MpAudioSample;
-
 static MpAudioSample hzm_ULaw2linear(uint8_t u)
 {
    int L;
