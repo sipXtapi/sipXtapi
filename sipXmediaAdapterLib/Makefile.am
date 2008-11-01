@@ -13,7 +13,7 @@ EXTRA_DIST = \
     SVN-VERSION \
     sipxmediaadapterlib.spec
 
-unconditional_SUBDIRS = . interface sipXmediaMediaProcessing
+unconditional_SUBDIRS = . interface sipXmediaMediaProcessing examples
 
 include $(srcdir)/config/sipXprojtop.mak
 
