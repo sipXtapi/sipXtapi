@@ -99,6 +99,7 @@ AC_CONFIG_FILES([
   sipXmediaMediaProcessing/src/Makefile
   sipXmediaMediaProcessing/src/test/Makefile
   sipXmediaMediaProcessing/include/Makefile
+  examples/Makefile
 ])
 
 AC_OUTPUT
