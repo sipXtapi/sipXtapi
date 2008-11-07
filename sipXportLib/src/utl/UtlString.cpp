@@ -729,9 +729,9 @@ size_t UtlString::capacity(size_t N)
         }
         else
         {
-            osPrintf("******** ERROR******* : UtlString::capacity failed (%d). Memory not allocated!\n", N);
+            osPrintf("******** ERROR******* : UtlString::capacity failed (%"PRIuMAX"). Memory not allocated!\n", N);
 #ifdef _VXWORKS
-            osPrintf("******** ERROR******* : Largest block = %d, requested size = %d\n",maxFreeBlockSize, N);
+            osPrintf("******** ERROR******* : Largest block = %"PRIuMAX", requested size = %"PRIuMAX"\n",maxFreeBlockSize, N);
 #endif
             newSize = 0;
         }
