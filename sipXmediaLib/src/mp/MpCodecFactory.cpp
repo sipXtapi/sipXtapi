@@ -495,7 +495,7 @@ void MpCodecFactory::initializeStaticCodecs()
    MpCodecCallInfoV1* codecCallInfo;
    for (codecCallInfo = sStaticCodecsV1; codecCallInfo; codecCallInfo = codecCallInfo->getNext())
    {
-      int i = (int)addCodecWrapperV1(codecCallInfo);
+      addCodecWrapperV1(codecCallInfo);
    }
 }
 
