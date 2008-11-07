@@ -69,12 +69,15 @@ extern "C" void osPrintf(const char* format, ...)
      
         while (p != NULL)
         {
+            va_list tmp;
+            /* Argument list must be copied, because we call vsnprintf in a loop
+            * and first call will invalidate list, so on second iteration it
+            * will contain junk. (this is not a problem for i386, but appears
+            * as such on e.g. x86_64) */
+            va_copy(tmp, args);
             /* Try to print in the allocated space. */
-#ifdef _WIN32
-            n = _vsnprintf (p, size, format, args);
-#else
-            n = vsnprintf (p, size, format, args);
-#endif
+            n = vsnprintf(p, size, format, tmp);
+            va_end(tmp);
 
             /* If that worked, return the string. */
             if (n > -1 && n < size)

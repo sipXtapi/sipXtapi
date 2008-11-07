@@ -912,9 +912,6 @@ void myvsprintf(UtlString& results, const char* format, OS_VA_ARG_CONST va_list 
 
     while (p != NULL)
     {
-#ifdef _WIN32
-        n = _vsnprintf (p, size, format, args);
-#else
         va_list args_copy;
         /* Argument list must be copied, because we call vsnprintf in a loop
          * and first call will invalidate list, so on second iteration it
@@ -923,7 +920,7 @@ void myvsprintf(UtlString& results, const char* format, OS_VA_ARG_CONST va_list 
         va_copy(args_copy, args);
         /* Try to print in the allocated space. */
         n = vsnprintf (p, size, format, args_copy);
-#endif
+        va_end(args_copy);
 
         /* If that worked, return the string. */
         if (n > -1 && n < size)
