@@ -1712,6 +1712,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\src\utl\UtlIntPtr.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\src\utl\UtlIterator.cpp"
 				>
 			</File>
@@ -2334,6 +2338,10 @@
 			</File>
 			<File
 				RelativePath="include\utl\UtlInt.h"
+				>
+			</File>
+			<File
+				RelativePath="include\utl\UtlIntPtr.h"
 				>
 			</File>
 			<File

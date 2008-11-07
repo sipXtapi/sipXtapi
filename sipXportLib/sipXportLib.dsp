@@ -543,6 +543,10 @@ SOURCE=.\src\utl\UtlInt.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\utl\UtlIntPtr.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\utl\UtlIterator.cpp
 # End Source File
 # Begin Source File
@@ -1172,6 +1176,10 @@ SOURCE=.\include\utl\UtlInit.h
 # Begin Source File
 
 SOURCE=.\include\utl\UtlInt.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\utl\UtlIntPtr.h
 # End Source File
 # Begin Source File
 

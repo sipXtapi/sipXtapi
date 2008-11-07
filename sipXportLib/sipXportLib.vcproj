@@ -3520,6 +3520,9 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\src\utl\UtlIntPtr.cpp">
+			</File>
+			<File
 				RelativePath="src\utl\UtlIterator.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -4584,6 +4587,9 @@
 			</File>
 			<File
 				RelativePath="include\utl\UtlInt.h">
+			</File>
+			<File
+				RelativePath=".\include\utl\UtlIntPtr.h">
 			</File>
 			<File
 				RelativePath="include\utl\UtlIterator.h">
