@@ -2612,7 +2612,7 @@ int SdpBody::getLength() const
    const char* value;
    int length = 0;
    
-   while((nv = dynamic_cast<NameValuePair*>(iterator())))
+   while((nv = static_cast<NameValuePair*>(iterator())))
    {
       value = nv->getValue();
       if(value)
@@ -2650,7 +2650,7 @@ void SdpBody::getBytes(UtlString* bytes, int* length) const
    NameValuePair* nv = NULL;
    const char* value;
    bytes->remove(0);
-   while((nv = dynamic_cast<NameValuePair*>(iterator())))
+   while((nv = static_cast<NameValuePair*>(iterator())))
    {
       value = nv->getValue();
       if(value)
