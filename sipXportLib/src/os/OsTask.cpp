@@ -179,7 +179,7 @@ OsTaskBase::OsTaskBase(const UtlString& name,
     mName.append(nameBuffer);
 
    if (mName != "")
-      OsUtil::insertKeyValue(TASK_PREFIX, mName, (int) this);
+      OsUtil::insertKeyValue(TASK_PREFIX, mName, (intptr_t) this);
 }
 
 // Destructor

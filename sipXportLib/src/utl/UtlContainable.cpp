@@ -13,6 +13,7 @@
 
 // APPLICATION INCLUDES
 #include "utl/UtlContainable.h"
+#include "os/OsIntTypes.h"
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -62,7 +63,7 @@ UtlBoolean UtlContainable::isEqual(UtlContainable const * compareContainable) co
 /// Provides a hash function that uses the object pointer as the hash value.
 unsigned UtlContainable::directHash() const
 {
-   return (unsigned) this;
+   return (uintptr_t) this;
 }
 
 /// Provides a hash function appropriate for null-terminated string values.

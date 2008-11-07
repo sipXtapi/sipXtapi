@@ -42,7 +42,7 @@ class RightEventThread : public OsServerTask
         CPPUNIT_ASSERT(event);
    
         mNumEvents++;
-        int eventIndex =-1;
+        intptr_t eventIndex =-1;
         event->getUserData(eventIndex);
         //CPPUNIT_ASSERT(mNumEvents == eventIndex);
         CPPUNIT_ASSERT(mNumEvents < mMaxEvents);
@@ -165,7 +165,7 @@ public:
             if(eventStat == OS_ALREADY_SIGNALED)
             {
                 // We (Left) lost the other side is done
-                int eventData;
+                intptr_t eventData;
                 event->getEventData(eventData);
                 CPPUNIT_ASSERT(eventData == index);
 

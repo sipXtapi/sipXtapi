@@ -146,7 +146,7 @@ public:
     *  @endcode
     */
    OsTimer(OsMsgQ* pQueue,      ///< Queue to send OsEventMsg::NOTIFY message
-           int userData         ///< userData value to store in OsQueuedEvent
+           intptr_t userData    ///< userData value to store in OsQueuedEvent
       );
 
    /// @}
@@ -222,7 +222,7 @@ public:
      */
 
    /// Get the userData value of a timer constructed with OsTimer(OsMsgQ*, int).
-   virtual int getUserData();
+   virtual intptr_t getUserData();
 
    /// Calculate a unique hash code for this object.
    virtual unsigned hash() const;
@@ -253,7 +253,7 @@ public:
     */
 
    /// Return the state value for this OsTimer object
-   virtual OsTimerState getState(void);
+   virtual OsTimerState getState();
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:

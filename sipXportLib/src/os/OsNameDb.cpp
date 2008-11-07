@@ -21,7 +21,7 @@
 #include "os/OsNameDb.h"
 #include "os/OsReadLock.h"
 #include "os/OsWriteLock.h"
-#include "utl/UtlInt.h"
+#include "utl/UtlIntPtr.h"
 #include "utl/UtlString.h"
 
 // EXTERNAL FUNCTIONS
@@ -39,7 +39,7 @@ OsNameDb* OsNameDb::spInstance;
 /* ============================ CREATORS ================================== */
 
 // Return a pointer to the singleton object
-OsNameDb* OsNameDb::getNameDb(void)
+OsNameDb* OsNameDb::getNameDb()
 {
    return spInstance;
 }
@@ -58,15 +58,15 @@ OsNameDb::~OsNameDb()
 // Return OS_SUCCESS if successful, OS_NAME_IN_USE if the key is already in
 // the database.
 OsStatus OsNameDb::insert(const UtlString& rKey,
-                          const int value)
+                          const intptr_t value)
 {
    OsWriteLock          lock(mRWLock);
    UtlString* pDictKey;
-   UtlInt*    pDictValue;
+   UtlIntPtr* pDictValue;
    UtlString* pInsertedKey;
 
    pDictKey   = new UtlString(rKey);
-   pDictValue = new UtlInt(value);
+   pDictValue = new UtlIntPtr(value);
    pInsertedKey = (UtlString*)
                   mDict.insertKeyAndValue(pDictKey, pDictValue);
 
@@ -89,12 +89,12 @@ OsStatus OsNameDb::insert(const UtlString& rKey,
 // Return OS_SUCCESS if the lookup is successful, return OS_NOT_FOUND
 // if there is no match for the specified key.
 OsStatus OsNameDb::remove(const UtlString& rKey,
-                          int* pValue)
+                          intptr_t* pValue)
 {
    OsWriteLock          lock(mRWLock);
    OsStatus   result = OS_NOT_FOUND;
    UtlString* pDictKey;
-   UtlInt*    pDictValue;
+   UtlIntPtr* pDictValue;
 
    pDictKey =
       (UtlString*)
@@ -128,13 +128,13 @@ OsStatus OsNameDb::remove(const UtlString& rKey,
 // Return OS_SUCCESS if the lookup is successful, return OS_NOT_FOUND if
 // there is no match for the specified key.
 OsStatus OsNameDb::lookup(const UtlString& rKey,
-                          int* pValue)
+                          intptr_t* pValue)
 {
    OsReadLock lock(mRWLock);
    OsStatus   result = OS_NOT_FOUND;
-   UtlInt*    pDictValue;
+   UtlIntPtr* pDictValue;
 
-   pDictValue = (UtlInt*)
+   pDictValue = (UtlIntPtr*)
                 mDict.findValue(&rKey); // perform the lookup
 
    if (pDictValue != NULL)
@@ -174,10 +174,6 @@ OsNameDb::OsNameDb() :
    mDict(),
    mRWLock(OsRWMutex::Q_PRIORITY)
 {
-   // since we plan to store object pointers as well as integer values in the
-   //  database, we make sure the sizes are compatible
-   assert(sizeof(void*) <= sizeof(int));
-
    // no other work required
 }
 

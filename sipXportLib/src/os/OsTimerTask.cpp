@@ -416,7 +416,7 @@ void OsTimerTask::fireTimer(OsTimer* timer)
    // Call the event routine if we are supposed to.
    if (report)
    {
-      timer->mpNotifier->signal((int) timer);
+      timer->mpNotifier->signal((intptr_t) timer);
       timer->mWasFired = TRUE;
    }
 }

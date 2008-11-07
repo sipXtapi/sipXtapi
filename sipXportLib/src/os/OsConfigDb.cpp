@@ -278,7 +278,7 @@ OsStatus OsConfigDb::remove(const UtlString& rKey)
    OsWriteLock lock(mRWMutex);
    DbEntry    lookupPair(rKey);
    DbEntry*   pEntryToRemove;
-   unsigned int i = mDb.index(&lookupPair);
+   size_t i = mDb.index(&lookupPair);
    if (i == UTL_NOT_FOUND)
    {
       return OS_NOT_FOUND;
@@ -393,9 +393,8 @@ OsStatus OsConfigDb::get(const UtlString& rKey, UtlString& rValue) const
 {
    OsReadLock lock(mRWMutex);
    DbEntry   lookupPair(rKey);
-   unsigned int        i;
    DbEntry*  pEntry;
-   i = mDb.index(&lookupPair);
+   size_t i = mDb.index(&lookupPair);
    if (i == UTL_NOT_FOUND)
    {
       rValue = "";     // entry not found
@@ -482,7 +481,6 @@ OsStatus OsConfigDb::getNext(const UtlString& rKey,
    UtlBoolean  foundMatch;
    int        nextIdx = 0;
    DbEntry   lookupPair(rKey);
-   unsigned int        idx;
    DbEntry*  pEntry;
 
    foundMatch = FALSE;
@@ -493,7 +491,7 @@ OsStatus OsConfigDb::getNext(const UtlString& rKey,
    }
    else
    {
-      idx = mDb.index(&lookupPair);
+      size_t idx = mDb.index(&lookupPair);
       if (idx != UTL_NOT_FOUND)
       {
          foundMatch = TRUE;
@@ -769,7 +767,7 @@ OsStatus OsConfigDb::storeToFile(FILE* fp)
       pEntry = (DbEntry *)mDb.at(i);
 
       //remove any  \n or \r at the ends of the lines
-      unsigned int remove_char_loc = 0;
+      size_t remove_char_loc = 0;
       while (remove_char_loc != UTL_NOT_FOUND)
       {
       remove_char_loc = pEntry->key.first('\r');
@@ -977,8 +975,7 @@ void OsConfigDb::insertEntry(const UtlString& rKey,
 {
    DbEntry  tempEntry(rKey, rNewValue);
    DbEntry* pOldEntry;
-   unsigned int       i;
-   i = mDb.index(&tempEntry);
+   size_t i = mDb.index(&tempEntry);
    if (i != UTL_NOT_FOUND)
    {                             // we already have an entry with this key
           pOldEntry = (DbEntry *)mDb.at(i);        //  just change its value

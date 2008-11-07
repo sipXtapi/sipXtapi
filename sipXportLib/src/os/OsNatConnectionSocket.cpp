@@ -31,7 +31,7 @@
 #include "tapi/sipXtapi.h"
 #include "os/OsProtectEvent.h"
 #include "os/OsProtectEventMgr.h"
-#include "utl/UtlInt.h"
+#include "utl/UtlVoidPtr.h"
 #include "utl/UtlHashMapIterator.h"
 
 
@@ -787,7 +787,7 @@ void OsNatConnectionSocket::addClientConnection(const char* ipAddress, const int
     sprintf(szPort, "%d", port);
     UtlString* key = new UtlString();;
     *key = UtlString(ipAddress) + UtlString(":") + UtlString(szPort);
-    UtlInt* container = new UtlInt((int) pClient);
+    UtlVoidPtr* container = new UtlVoidPtr(pClient);
     mClientConnectionSockets.insertKeyAndValue(key, container);
 
 }
@@ -819,13 +819,13 @@ OsNatConnectionSocket* OsNatConnectionSocket::getClientConnection(const char* sz
 {
     OsNatConnectionSocket* pClient = NULL;
     
-    UtlInt* pSocketContainer = NULL;
+    UtlVoidPtr* pSocketContainer = NULL;
     UtlString key(szServer);
     key += ":";
     char szPort[16];
     sprintf(szPort, "%d", port);
     key += szPort;
-    pSocketContainer = (UtlInt*)mClientConnectionSockets.findValue(&key);
+    pSocketContainer = (UtlVoidPtr*)mClientConnectionSockets.findValue(&key);
     if (pSocketContainer)
     {
         pClient = (OsNatConnectionSocket*)pSocketContainer->getValue();

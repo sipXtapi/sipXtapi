@@ -80,12 +80,12 @@ void OsProtectedEvent::setStringData(UtlString& rStringData)
    }
 }
 
-void OsProtectedEvent::setIntData(int data)
+void OsProtectedEvent::setIntData(intptr_t data)
 {
    mIntData = data;
 }
 
-void OsProtectedEvent::setIntData2(int data)
+void OsProtectedEvent::setIntData2(intptr_t data)
 {
    mIntData2 = data;
 }
@@ -112,13 +112,13 @@ OsStatus OsProtectedEvent::getStringData(UtlString& data)
    return OS_SUCCESS;
 }
 
-OsStatus OsProtectedEvent::getIntData(int& data)
+OsStatus OsProtectedEvent::getIntData(intptr_t& data)
 {
    data = mIntData;
    return OS_SUCCESS;
 }
 
-OsStatus OsProtectedEvent::getIntData2(int& data)
+OsStatus OsProtectedEvent::getIntData2(intptr_t& data)
 {
    data = mIntData2;
    return OS_SUCCESS;

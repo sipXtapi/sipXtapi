@@ -394,7 +394,7 @@ void OsPathBase::massage()
     else if (separator.compareTo("\\") == 0)
         char_to_replace = "/";
 
-    unsigned int pos = index(char_to_replace);
+    size_t pos = index(char_to_replace);
     while (pos != UTLSTRING_NOT_FOUND)
     {
         replace(pos,1,separator);

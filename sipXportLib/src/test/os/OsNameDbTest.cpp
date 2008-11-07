@@ -28,7 +28,7 @@ public:
     {
         OsNameDb* pNameDb;
         
-        int storedInt;
+        intptr_t storedInt;
 
         pNameDb = OsNameDb::getNameDb();
         /*
@@ -50,9 +50,9 @@ public:
 
         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pNameDb->lookup("test1", NULL));
         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pNameDb->lookup("test1", &storedInt));
-        CPPUNIT_ASSERT_EQUAL(1, storedInt);
+        CPPUNIT_ASSERT_EQUAL(intptr_t(1), storedInt);
         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pNameDb->lookup("test2", &storedInt));
-        CPPUNIT_ASSERT_EQUAL(2, storedInt);
+        CPPUNIT_ASSERT_EQUAL(intptr_t(2), storedInt);
         CPPUNIT_ASSERT_EQUAL(OS_NOT_FOUND, pNameDb->lookup("test3", NULL));
         
         pNameDb->remove("test1");

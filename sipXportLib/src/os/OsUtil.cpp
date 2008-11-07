@@ -83,7 +83,7 @@ char *OsUtil::memscan(const char *lookIn,
 // error from within an object constructor.
 OsStatus OsUtil::insertKeyValue(const UtlString& rPrefix,
                                 const UtlString& rName,
-                                const int value,
+                                const intptr_t value,
                                 UtlBoolean exceptOnErr)
 {
    OsNameDb* pDict;
@@ -125,7 +125,7 @@ OsStatus OsUtil::insertKeyValue(const UtlString& rPrefix,
 // OS_NOT_FOUND if there is no match for the specified key.
 OsStatus OsUtil::deleteKeyValue(const UtlString& rPrefix,
                                 const UtlString& rName,
-                                int* pValue)
+                                intptr_t* pValue)
 {
    OsNameDb* pDict;
 
@@ -145,7 +145,7 @@ OsStatus OsUtil::deleteKeyValue(const UtlString& rPrefix,
 // OS_NOT_FOUND if there is no match for the specified key.
 OsStatus OsUtil::lookupKeyValue(const UtlString& rPrefix,
                                 const UtlString& rName,
-                                int* pValue)
+                                intptr_t* pValue)
 {
    OsNameDb* pDict;
 

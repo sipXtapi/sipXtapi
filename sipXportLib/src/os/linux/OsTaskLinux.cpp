@@ -318,7 +318,7 @@ OsStatus OsTaskLinux::getCurrentTaskId(int &rid)
 OsTaskLinux* OsTaskLinux::getTaskByName(const UtlString& taskName)
 {
    OsStatus res;
-   int      val;
+   intptr_t val;
 
    res = OsUtil::lookupKeyValue(TASK_PREFIX, taskName, &val);
    assert(res == OS_SUCCESS || res == OS_NOT_FOUND);
@@ -338,7 +338,7 @@ OsTaskLinux* OsTaskLinux::getTaskById(const int taskId)
 {
    char     idString[15];
    OsStatus res;
-   int      val;
+   intptr_t val;
 
    sprintf(idString, "%d", taskId);   // convert the id to a string
    res = OsUtil::lookupKeyValue(TASKID_PREFIX, idString, &val);
@@ -523,7 +523,7 @@ UtlBoolean OsTaskLinux::doLinuxCreateTask(const char* pTaskName)
    // Enter the thread id into the global name database so that given the
    // thread id we will be able to find the corresponding OsTask object
    sprintf(idString, "%d", (int)mTaskId);   // convert the id to a string
-   OsUtil::insertKeyValue(TASKID_PREFIX, idString, (int) this);
+   OsUtil::insertKeyValue(TASKID_PREFIX, idString, (intptr_t) this);
 
    mState = STARTED;
 

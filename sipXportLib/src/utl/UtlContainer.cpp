@@ -87,7 +87,7 @@ void UtlContainer::invalidateIterators()
 unsigned UtlContainer::hash() const
 {
    // default implementation
-   return (unsigned) this;
+   return (uintptr_t) this;
 }
 
 
@@ -110,7 +110,7 @@ UtlContainableType UtlContainer::getContainableType() const
  */
 int UtlContainer::compareTo(const UtlContainable* otherObject) const
 {
-   return ((unsigned) this) - ((unsigned) otherObject);
+   return ((uintptr_t) this) - ((uintptr_t) otherObject);
 }
 
 

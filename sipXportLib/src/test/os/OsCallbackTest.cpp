@@ -17,7 +17,7 @@
 /** Flag that callback function was called */
 UtlBoolean gCallbackCalled;
 
-void setCallbackFlag(const int userData, const int eventData)
+void setCallbackFlag(const intptr_t userData, const intptr_t eventData)
 {
     gCallbackCalled = TRUE;
 }

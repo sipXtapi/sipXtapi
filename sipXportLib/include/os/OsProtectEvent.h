@@ -49,9 +49,9 @@ public:
 
    void setStringData(UtlString& rStringData);
 
-   void setIntData(int rIntData);
+   void setIntData(intptr_t rIntData);
 
-   void setIntData2(int rIntData);
+   void setIntData2(intptr_t rIntData);
 
    void setInUse(UtlBoolean inUse);
 
@@ -61,9 +61,9 @@ public:
    //:Return the user data specified when this object was constructed.
    // Always returns OS_SUCCESS.
 
-   OsStatus getIntData(int& data);
+   OsStatus getIntData(intptr_t& data);
 
-   OsStatus getIntData2(int& data);
+   OsStatus getIntData2(intptr_t& data);
    //:Return the user data specified when this object was constructed.
    // Always returns OS_SUCCESS.
 
@@ -77,8 +77,8 @@ private:
 
    OsBSem          mRefSem;      ///< semaphore used to protect mRef
    UtlString       mStringData;
-   int             mIntData;
-   int             mIntData2;
+   intptr_t        mIntData;
+   intptr_t        mIntData2;
    int             mRef;         ///< reference count
 
 

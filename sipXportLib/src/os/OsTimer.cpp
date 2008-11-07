@@ -43,7 +43,7 @@ static char dummy;
 // Timer expiration event notification happens using the 
 // newly created OsQueuedEvent object
 
-OsTimer::OsTimer(OsMsgQ* pQueue, const int userData) :
+OsTimer::OsTimer(OsMsgQ* pQueue, intptr_t userData) :
    mBSem(OsBSem::Q_PRIORITY, OsBSem::FULL),
    mApplicationState(0),
    mTaskState(0),
@@ -270,19 +270,19 @@ OsNotification* OsTimer::getNotifier(void) const
 }
 
 // Get the userData value of a timer constructed with OsTimer(OsMsgQ*, int).
-int OsTimer::getUserData()
+intptr_t OsTimer::getUserData()
 {
    // Have to cast mpNotifier into OsQueuedEvent* to get the userData.
    OsQueuedEvent* e = dynamic_cast <OsQueuedEvent*> (mpNotifier);
    assert(e != 0);
-   int userData;
+   intptr_t userData;
    e->getUserData(userData);
    return userData;
 }
 
 unsigned OsTimer::hash() const
 {
-    return (unsigned) this;
+    return (uintptr_t) this;
 }
 
 
@@ -301,7 +301,7 @@ UtlBoolean OsTimer::getWasFired()
 /* ============================ INQUIRY =================================== */
 
 // Return the state value for this OsTimer object
-OsTimer::OsTimerState OsTimer::getState(void)
+OsTimer::OsTimerState OsTimer::getState()
 {
    OsLock lock(mBSem);
    return isStarted(mApplicationState) ? STARTED : STOPPED;
@@ -313,7 +313,7 @@ int OsTimer::compareTo(UtlContainable const * inVal) const
 
    if (inVal->isInstanceOf(OsTimer::TYPE))
    {
-      result = ((unsigned) this) - ((unsigned) inVal);
+      result = ((uintptr_t) this) - ((uintptr_t) inVal);
    }
    else
    {

@@ -133,7 +133,7 @@ void OsNatSocketBaseImpl::markReadTime()
     OsLock lock(mReadNotificationLock) ;
     if (mpReadNotification)
     {
-        mpReadNotification->signal((int) this) ;
+        mpReadNotification->signal((intptr_t) this) ;
         mpReadNotification = NULL ;
     }
 }

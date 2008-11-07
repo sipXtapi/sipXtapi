@@ -161,7 +161,7 @@ UtlBoolean OsNatAgentTask::handleMessage(OsMsg& rMsg)
             {
                 // Pull out context
                 NAT_AGENT_CONTEXT* pContext = NULL ;
-                OsStatus rc = ((OsEventMsg&)rMsg).getUserData((int&) pContext) ;
+                OsStatus rc = ((OsEventMsg&)rMsg).getUserData((intptr_t&) pContext) ;
                 assert(rc == OS_SUCCESS) ;    
 
                 if ((rc == OS_SUCCESS) && (pContext != NULL))

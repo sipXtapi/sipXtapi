@@ -71,7 +71,7 @@ public:
 
    static OsStatus insertKeyValue(const UtlString& rPrefix,
                                   const UtlString& rName,
-                                  const int value,
+                                  const intptr_t value,
                                   UtlBoolean exceptOnErr=TRUE);
      //:Insert a key-value pair into the name database
      // The key is constructed by concatenating rPrefix and rName.
@@ -81,7 +81,7 @@ public:
 
    static OsStatus deleteKeyValue(const UtlString& rPrefix,
                                   const UtlString& rName,
-                                  int* pValue=NULL);
+                                  intptr_t* pValue=NULL);
      //:Remove the indicated key-value pair from the name database
      // The key is constructed by concatenating rPrefix and rName.
      // If pValue is non-NULL, the value for the key-value pair is returned
@@ -91,7 +91,7 @@ public:
 
    static OsStatus lookupKeyValue(const UtlString& rPrefix,
                                   const UtlString& rName,
-                                  int* pValue=NULL);
+                                  intptr_t* pValue=NULL);
      //:Retrieve the value associated with the specified key
      // The key is constructed by concatenating rPrefix and rName.
      // If pValue is non-NULL, the value is returned via pValue.
