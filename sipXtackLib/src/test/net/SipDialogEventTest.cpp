@@ -45,7 +45,7 @@ public:
             "</dialog>\n"
             "</dialog-info>\n"
             ;
-       
+
          // Construct a SipDialogEvent from the XML.
          SipDialogEvent body(package);
 
