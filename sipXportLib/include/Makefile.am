@@ -142,6 +142,7 @@ nobase_include_HEADERS = \
     utl/UtlHistogram.h \
     utl/UtlInit.h \
     utl/UtlInt.h \
+    utl/UtlIntPtr.h \
     utl/UtlIterator.h \
     utl/UtlList.h \
     utl/UtlListIterator.h \

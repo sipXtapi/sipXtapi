@@ -56,6 +56,7 @@ libsipXport_la_SOURCES =  \
     utl/UtlHistogram.cpp \
     utl/UtlInit.cpp \
     utl/UtlInt.cpp \
+    utl/UtlIntPtr.cpp \
     utl/UtlString.cpp \
     utl/UtlChainPool.cpp \
     utl/UtlContainable.cpp \
