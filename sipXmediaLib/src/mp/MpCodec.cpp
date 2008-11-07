@@ -21,10 +21,12 @@
 static int hsVolMax = DEF_HSVOLMAX;
 static int hsVolStep = DEF_HSVOLSTEP;
 
+#ifdef WIN32 // [
 /**
 *  ID of the mixer containing microphone line
 */
 static int sInputMixerId = DEF_INPUTMIXER;
+#endif // WIN32 ]
 
 /**
 *  @file MpCodec.cpp
