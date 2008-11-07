@@ -318,7 +318,7 @@ protected:
 
      /// Call this when driver become ready for the next frame.
    static
-   void tickerCallback(const int userData, const int eventData);
+   void tickerCallback(const intptr_t userData, const intptr_t eventData);
      /**<
      *  @param userData - (in) Contain pointer connection it is associated with.
      *  @param eventData - (in) contain 0 for now.

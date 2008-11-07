@@ -324,14 +324,14 @@ int findPoisonFds(int pipeFD)
         for (i=0, ppr=pairs; i<NET_TASK_MAX_FD_PAIRS; i++) {
             if (ppr->pRtpSocket && // not NULL socket and
                 isFdPoison(ppr->pRtpSocket->getSocketDescriptor())) {
-                OsSysLog::add(FAC_MP, PRI_ERR, " *** NetInTask: Removing fdRtp[%d], socket=0x%08x, socketDescriptor=%d\n", ppr-pairs,(int)ppr->pRtpSocket, (int)ppr->pRtpSocket->getSocketDescriptor());
+                OsSysLog::add(FAC_MP, PRI_ERR, " *** NetInTask: Removing fdRtp[%"PRIdPTR"], socket=%p, socketDescriptor=%d\n", ppr-pairs, ppr->pRtpSocket, ppr->pRtpSocket->getSocketDescriptor());
                 n++;
                 ppr->pRtpSocket = NULL;
                 if (NULL == ppr->pRtcpSocket) ppr->fwdTo = NULL;
             }
             if (ppr->pRtcpSocket && // not NULL socket and
                 isFdPoison(ppr->pRtcpSocket->getSocketDescriptor())) {
-                OsSysLog::add(FAC_MP, PRI_ERR, " *** NetInTask: Removing fdRtcp[%d], socket=0x%08x, socketDescriptor=%d\n", ppr-pairs,(int)ppr->pRtcpSocket, (int)ppr->pRtcpSocket->getSocketDescriptor());
+                OsSysLog::add(FAC_MP, PRI_ERR, " *** NetInTask: Removing fdRtcp[%"PRIdPTR"], socket=%p, socketDescriptor=%d\n", ppr-pairs, ppr->pRtcpSocket, ppr->pRtcpSocket->getSocketDescriptor());
                 n++;
                 ppr->pRtcpSocket = NULL;
                 if (NULL == ppr->pRtpSocket) ppr->fwdTo = NULL;
@@ -468,7 +468,7 @@ int NetInTask::run(void *pNotUsed)
                 if (NET_TASK_MAX_MSG_LEN !=
                      mpReadSocket->read((char *) &msg, NET_TASK_MAX_MSG_LEN)) {
                     osPrintf("NetInTask::run: Invalid request!\n");
-                } else if (-2 == (int) msg.pRtpSocket) {
+                } else if (-2 == (intptr_t) msg.pRtpSocket) {
                     /* request to exit... */
                     Nprintf(" *** NetInTask: closing pipeFd (%d)\n",
                         mpReadSocket->getSocketDescriptor(), 0,0,0,0,0);
@@ -720,8 +720,8 @@ OsStatus NetInTask::addNetInputSources(OsSocket* pRtpSocket, OsSocket* pRtcpSock
       if (wrote != NET_TASK_MAX_MSG_LEN)
       {
          OsSysLog::add(FAC_MP, PRI_ERR,
-                       "addNetInputSources - writeSocket error: 0x%08x,%d wrote %d",
-                       (int)mpWriteSocket, mpWriteSocket->getSocketDescriptor(),
+                       "addNetInputSources - writeSocket error: %p,%d wrote %d",
+                       mpWriteSocket, mpWriteSocket->getSocketDescriptor(),
                        wrote);
       }
    }
@@ -749,8 +749,8 @@ OsStatus NetInTask::removeNetInputSources(MprFromNet* fwdTo, OsNotification* not
       if (wrote != NET_TASK_MAX_MSG_LEN)
       {
          OsSysLog::add(FAC_MP, PRI_ERR,
-                       "removeNetInputSources - writeSocket error: 0x%08x,%d wrote %d",
-                       (int)mpWriteSocket, mpWriteSocket->getSocketDescriptor(),
+                       "removeNetInputSources - writeSocket error: %p,%d wrote %d",
+                       mpWriteSocket, mpWriteSocket->getSocketDescriptor(),
                        wrote);
       }
    }

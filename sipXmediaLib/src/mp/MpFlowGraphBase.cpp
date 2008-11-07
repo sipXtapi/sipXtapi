@@ -599,7 +599,7 @@ OsStatus MpFlowGraphBase::stop(void)
 
 void MpFlowGraphBase::synchronize(const char* tag, int val1)
 {
-   OsTask* val2 = OsTask::getCurrentTask();
+   OsTask* ptr = OsTask::getCurrentTask();
 /*   printf("synchronize in: ");
    if (tag != NULL)
    {
@@ -607,13 +607,11 @@ void MpFlowGraphBase::synchronize(const char* tag, int val1)
    }
    printf("\n");
 */
-   if (val2 != MpMediaTask::getMediaTask(0)) {
+   if (ptr != MpMediaTask::getMediaTask(0)) {
       OsEvent event;
       MpFlowGraphMsg msg(MpFlowGraphMsg::FLOWGRAPH_SYNCHRONIZE,
-                         NULL, NULL, (void*) tag, val1, (int) val2);
+                         NULL, (void*)&event, (void*) tag, val1, (intptr_t) ptr);
       OsStatus  res;
-
-      msg.setPtr1(&event);
       res = postMessage(msg);
       // if (NULL == tag) osPrintf("MpFlowGraphBase::synchronize()\n");
       event.wait();
@@ -924,17 +922,25 @@ static void complainAdd(const char *n1, int p1, const char *n2,
 UtlBoolean MpFlowGraphBase::handleSynchronize(MpFlowGraphMsg& rMsg)
 {
    OsNotification* pSync = (OsNotification*) rMsg.getPtr1();
-   char* tag = (char*) rMsg.getPtr2();
    int val1  = rMsg.getInt1();
-   int val2  = rMsg.getInt2();
 
-   if (0 != pSync) {
+   if (0 != pSync)
+   {
       pSync->signal(val1);
-      // if (NULL != tag) osPrintf(tag, val1, val2);
+/*
+      char* tag = (char*)rMsg.getPtr2();
+      void* ptr = (void*)rMsg.getInt2();
+      if (NULL != tag)
+      {
+         osPrintf(tag, val1, ptr);
+      }
+*/
 #ifdef DEBUG_POSTPONE /* [ */
-   } else {
+   }
+   else
+   {
       // just delay (postPone()), for debugging race conditions...
-      OsTask::delay(rMsg.getInt1());
+      OsTask::delay(val1);
 #endif /* DEBUG_POSTPONE ] */
    }
    return TRUE;
@@ -1437,7 +1443,7 @@ OsStatus MpFlowGraphBase::processMessages(void)
                      "MpFlowGraphBase::processMessages - "
                      "Failed looking up resource!: "
                      "name=\"%s\", lookupResource status=0x%X, "
-                     "resource pointer returned = 0x%X",
+                     "resource pointer returned = %p",
                      pResourceMsg->getDestResourceName().data(), 
                      res, pMsgDest);
                }

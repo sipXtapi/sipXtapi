@@ -351,7 +351,7 @@ OsStatus MprFromFile::readAudioFile(uint32_t fgSampleRate,
    if (trueFilesize > MAXFILESIZE)
    {
       osPrintf("playFile('%s') WARNING:\n"
-         "    length (%lu) exceeds size limit (%d)\n",
+         "    length (%u) exceeds size limit (%d)\n",
          audioFileName, trueFilesize, MAXFILESIZE);
       filesize = MAXFILESIZE;
    }
@@ -359,7 +359,7 @@ OsStatus MprFromFile::readAudioFile(uint32_t fgSampleRate,
    if (trueFilesize < MINFILESIZE)
    {
       osPrintf("playFile('%s') WARNING:\n"
-         "    length (%lu) is suspiciously short!\n",
+         "    length (%u) is suspiciously short!\n",
          audioFileName, trueFilesize);
    }
 

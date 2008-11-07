@@ -142,7 +142,7 @@ bool CRTCPTimer::Initialize(void)
     
     if(m_pCallback != NULL)
         delete m_pCallback;
-    m_pCallback = new OsCallback((int)this, ReportingAlarm);
+    m_pCallback = new OsCallback((intptr_t)this, ReportingAlarm);
     
     if(m_pTimer != NULL)
         delete m_pTimer;
@@ -356,7 +356,7 @@ unsigned int __stdcall CRTCPTimer::TimerThreadProc(void * lpParameter)
  *
  *
  */
-void  CRTCPTimer::ReportingAlarm(timer_t tTimer, int iArgument)
+void  CRTCPTimer::ReportingAlarm(timer_t tTimer, intptr_t iArgument)
 {
     CRTCPTimer   *poRTCPTimer = (CRTCPTimer  *)iArgument;
 
@@ -370,7 +370,7 @@ void  CRTCPTimer::ReportingAlarm(timer_t tTimer, int iArgument)
 #include <sys/time.h>
 #endif
 
-void CRTCPTimer::ReportingAlarm(const int userData, const int eventData)
+void CRTCPTimer::ReportingAlarm(const intptr_t userData, const intptr_t eventData)
 {
 #ifdef RTCP_LINUX_DEBUG
     struct timeval tv;

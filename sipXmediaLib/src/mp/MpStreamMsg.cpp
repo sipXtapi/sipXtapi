@@ -29,7 +29,7 @@
 
 // Constructor
 MpStreamMsg::MpStreamMsg(int msg, UtlString& target, StreamHandle handle,
-                         void* pPtr1, void* pPtr2, int int1, int int2)
+                         void* pPtr1, void* pPtr2, intptr_t int1, intptr_t int2)
 :  OsMsg(OsMsg::STREAMING_MSG, msg),
    mTarget(target),
    mHandle(handle),
@@ -54,7 +54,7 @@ MpStreamMsg::MpStreamMsg(const MpStreamMsg& rMpStreamMsg)
 }
 
 // Create a copy of this msg object (which may be of a derived type)
-OsMsg* MpStreamMsg::createCopy(void) const
+OsMsg* MpStreamMsg::createCopy() const
 {
    return new MpStreamMsg(*this);
 }
@@ -112,13 +112,13 @@ void MpStreamMsg::setPtr2(void* p)
 }
 
 // Set integer 1 of the stream message
-void MpStreamMsg::setInt1(int i)
+void MpStreamMsg::setInt1(intptr_t i)
 {
    mInt1 = i;
 }
 
 // Set integer 2 of the stream message
-void MpStreamMsg::setInt2(int i)
+void MpStreamMsg::setInt2(intptr_t i)
 {
    mInt2 = i;
 }
@@ -126,43 +126,43 @@ void MpStreamMsg::setInt2(int i)
 /* ============================ ACCESSORS ================================= */
 
 // Return the type of the stream message
-int MpStreamMsg::getMsg(void) const
+int MpStreamMsg::getMsg() const
 {
    return OsMsg::getMsgSubType();
 }
 
 // Return target id of the stream message
-UtlString MpStreamMsg::getTarget(void) const
+UtlString MpStreamMsg::getTarget() const
 {
    return mTarget;
 }
 
 // Return stream handle of the stream message
-StreamHandle MpStreamMsg::getHandle(void) const
+StreamHandle MpStreamMsg::getHandle() const
 {
    return mHandle;
 }
 
 // Return pointer 1 (void*) of the stream message
-void* MpStreamMsg::getPtr1(void) const
+void* MpStreamMsg::getPtr1() const
 {
    return mpPtr1;
 }
 
 // Return pointer 2 (void*) of the stream message
-void* MpStreamMsg::getPtr2(void) const
+void* MpStreamMsg::getPtr2() const
 {
    return mpPtr2;
 }
 
 // Return integer 1 of the stream message
-int MpStreamMsg::getInt1(void) const
+intptr_t MpStreamMsg::getInt1() const
 {
    return mInt1;
 }
 
 // Return integer 2 of the stream message
-int MpStreamMsg::getInt2(void) const
+intptr_t MpStreamMsg::getInt2() const
 {
    return mInt2;
 }

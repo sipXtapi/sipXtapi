@@ -327,7 +327,7 @@ static int goGetThePageSize()
 
 /************************************************************************/
 extern "C" {
-extern int showMpMisc(int justAddress);
+extern intptr_t showMpMisc(int justAddress);
 extern int setMaxMic(int v);
 extern int setMaxSpkr(int v);
 extern int mpSetLatency(int maxMic, int maxSpkr, int minRtp);
@@ -372,7 +372,7 @@ int Spkr2Off() {*gpsr = (1<<26); return 0;}
 #endif /* StrongARM ] */
 #endif /* _VXWORKS ] */
 
-int showMpMisc(int justAddress)
+intptr_t showMpMisc(int justAddress)
 {
    Zprintf("&MpMisc = 0x%X\n", (int) &MpMisc, 0,0,0,0,0);
    if (!justAddress) {
@@ -394,7 +394,7 @@ int showMpMisc(int justAddress)
          MpMisc.max_mic_buffers, MpMisc.max_spkr_buffers,
          0,0,0,0,0);
    }
-   return (int) &MpMisc;
+   return (intptr_t) &MpMisc;
 }
 
 int setMaxMic(int v)

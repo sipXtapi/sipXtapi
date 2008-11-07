@@ -30,7 +30,7 @@
 // Constructor
 MpFlowGraphMsg::MpFlowGraphMsg(int msg, MpResource* pMsgDest,
                                void* pPtr1, void* pPtr2,
-                               int int1, int int2)
+                               intptr_t int1, intptr_t int2)
 :  OsMsg(OsMsg::MP_FLOWGRAPH_MSG, msg),
    mpMsgDest(pMsgDest),
    mpPtr1(pPtr1),
@@ -105,13 +105,13 @@ void MpFlowGraphMsg::setPtr2(void* p)
 }
 
 // Set integer 1 of the media flow graph message
-void MpFlowGraphMsg::setInt1(int i)
+void MpFlowGraphMsg::setInt1(intptr_t i)
 {
    mInt1 = i;
 }
 
 // Set integer 2 of the media flow graph message
-void MpFlowGraphMsg::setInt2(int i)
+void MpFlowGraphMsg::setInt2(intptr_t i)
 {
    mInt2 = i;
 }
@@ -145,13 +145,13 @@ void* MpFlowGraphMsg::getPtr2(void) const
 }
 
 // Return integer 1 of the media flow graph message
-int MpFlowGraphMsg::getInt1(void) const
+intptr_t MpFlowGraphMsg::getInt1(void) const
 {
    return mInt1;
 }
 
 // Return integer 2 of the media flow graph message
-int MpFlowGraphMsg::getInt2(void) const
+intptr_t MpFlowGraphMsg::getInt2(void) const
 {
    return mInt2;
 }

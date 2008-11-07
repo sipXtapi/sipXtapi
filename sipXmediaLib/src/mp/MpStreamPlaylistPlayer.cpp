@@ -160,7 +160,7 @@ OsStatus MpStreamPlaylistPlayer::realize(UtlBoolean bBlock)
                             &eventHandle,
                             mPlayListDb[i].pQueuedEvent,
                             mPlayListDb[i].flags,
-                            (int) new Url(mPlayListDb[i].url));                   
+                            (intptr_t) new Url(mPlayListDb[i].url));                   
             status = mpMsgQ->send(msg);
             if (status != OS_SUCCESS)
             {
@@ -177,7 +177,7 @@ OsStatus MpStreamPlaylistPlayer::realize(UtlBoolean bBlock)
                             &eventHandle,
                             mPlayListDb[i].pQueuedEvent,
                             mPlayListDb[i].flags,
-                            (int) mPlayListDb[i].pBuffer);                            
+                            (intptr_t) mPlayListDb[i].pBuffer);                            
             status = mpMsgQ->send(msg);
             if (status != OS_SUCCESS)
             {
@@ -192,7 +192,7 @@ OsStatus MpStreamPlaylistPlayer::realize(UtlBoolean bBlock)
          if (status == OS_SUCCESS)
          {
             // Wait for a response
-            int eventData;
+            intptr_t eventData;
             status = eventHandle.wait(mRealizeTimeout);
             if (status == OS_SUCCESS)
                status = eventHandle.getEventData(eventData);
@@ -918,9 +918,9 @@ UtlBoolean MpStreamPlaylistPlayer::handleMessage(OsMsg& rMsg)
    {
       case OsMsg::OS_EVENT:
          OsEventMsg* pMsg = (OsEventMsg*) &rMsg;
-         int status;
+         intptr_t status;
          PlayerState oldState;         
-         int index;
+         intptr_t index;
 
          pMsg->getUserData(index);
          if (pMsg->getEventData(status) == OS_SUCCESS)

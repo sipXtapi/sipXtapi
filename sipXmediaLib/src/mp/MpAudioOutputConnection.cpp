@@ -415,7 +415,7 @@ OsStatus MpAudioOutputConnection::setDeviceTicker()
    }
 
    // Create callback and register it with device driver
-   mpTickerCallback = new OsCallback((int)this, tickerCallback);
+   mpTickerCallback = new OsCallback((intptr_t)this, tickerCallback);
    assert(mpTickerCallback != NULL);
    if (mpDeviceDriver->setTickerNotification(mpTickerCallback) != OS_SUCCESS)
    {
@@ -439,7 +439,7 @@ OsStatus MpAudioOutputConnection::clearDeviceTicker()
    return OS_SUCCESS;
 }
 
-void MpAudioOutputConnection::tickerCallback(const int userData, const int eventData)
+void MpAudioOutputConnection::tickerCallback(const intptr_t userData, const intptr_t eventData)
 {
    OsStatus result;
    MpAudioOutputConnection *pConnection = (MpAudioOutputConnection*)userData;

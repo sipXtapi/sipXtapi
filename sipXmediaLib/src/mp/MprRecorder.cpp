@@ -190,8 +190,8 @@ UtlBoolean MprRecorder::disable(Completion code)
    mConsecutiveInactive = 0;
 
    OsSysLog::add(FAC_MP, PRI_DEBUG, 
-                 "MprRecorder::disable setting mpEvent (0x%08x) to NULL", 
-                 (int)mpEvent);
+                 "MprRecorder::disable setting mpEvent (%p) to NULL", 
+                 mpEvent);
    
    {
       if (mpEvent != NULL)
@@ -396,7 +396,7 @@ UtlBoolean MprRecorder::doProcessFrame(MpBufPtr inBufs[],
 
 void MprRecorder::progressReport(Completion code)
 {
-   int ud;
+   intptr_t ud;
 
    mStatus = code;
 
@@ -408,8 +408,8 @@ void MprRecorder::progressReport(Completion code)
          mpEvent->getUserData(ud);
          OsSysLog::add(FAC_MP, PRI_DEBUG, 
                        "MprRecorder::progressReport(%d), "
-                       "event=0x%x, &data=0x%X",
-                       code, (int) mpEvent, ud);
+                       "event=%p, &data=0x%"PRIxPTR,
+                       code, mpEvent, ud);
          if (0 != ud)
          {
             MprRecorderStats *rs = (MprRecorderStats*) ud;
@@ -438,12 +438,12 @@ void MprRecorder::progressReport(Completion code)
                // the event was probably just reset, 
                // try again after waiting for 10 ms.
                OsTask::delay(10);
-               int userdata;
+               intptr_t userdata;
                mpEvent->getUserData(userdata);
                OsSysLog::add(FAC_MP, PRI_WARNING, 
-                             "user data - old (0x%08x), "
-                             "new (0x%08x), event (0x%08x) ", 
-                             ud, userdata, (int)mpEvent);
+                             "user data - old (0x%08"PRIxPTR"), "
+                             "new (0x%08"PRIxPTR"), event (0x%p) ", 
+                             ud, userdata, mpEvent);
 
 // Comment out the assert for production system
 //	            assert(userdata == ud);
@@ -462,7 +462,7 @@ void MprRecorder::progressReport(Completion code)
                OsSysLog::add(FAC_MP, PRI_WARNING, 
                              "MprRecorder::progressReport "
                              "did not signal user data is 0 "
-                             "for event 0x%08x", (int)mpEvent);
+                             "for event 0x%p", mpEvent);
          }
       }
       else
@@ -519,8 +519,8 @@ UtlBoolean MprRecorder::handleSetup(int file, int timeMS,
 
    mStatus = RECORD_IDLE;
    OsSysLog::add(FAC_MP, PRI_DEBUG, 
-                 "MprRecorder::handleSetup(%d, %d, 0x%X)... #frames=%d",
-                 file, timeMS, (int) event, mFramesToRecord);
+                 "MprRecorder::handleSetup(%d, %d, %p)... #frames=%d",
+                 file, timeMS, event, mFramesToRecord);
    return TRUE;
 }
 
@@ -553,7 +553,7 @@ UtlBoolean MprRecorder::handleMessage(MpFlowGraphMsg& rMsg)
          int file = rMsg.getInt1();
          int iMSec = rMsg.getInt2();
          OsProtectedEvent* pEvent = (OsProtectedEvent*) rMsg.getPtr1();
-         int silenceLength = (int) rMsg.getPtr2();
+         int silenceLength = (intptr_t) rMsg.getPtr2();
          return handleSetup(file, iMSec, silenceLength, pEvent);
       }
       break;

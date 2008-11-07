@@ -252,7 +252,7 @@ UtlBoolean MprBufferRecorder::handleStartRecording(int ms, UtlString* pBuffer)
 
    OsSysLog::add(FAC_MP, PRI_DEBUG, 
                  "MprRecorder::handleStartRecording"
-                 "(0x%08X, %d)... #samplesUsed=%d",
+                 "(%p, %"PRIuPTR")... #samplesUsed=%d",
                  mpBuffer->data(), mpBuffer->length(), 
                  mBufferSamplesUsed);
    return TRUE;

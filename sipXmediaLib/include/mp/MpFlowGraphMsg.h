@@ -81,7 +81,7 @@ public:
      /// Constructor
    MpFlowGraphMsg(int msg, MpResource* pMsgDest=NULL,
                   void* pPtr1=NULL, void* pPtr2=NULL,
-                  int int1=-1, int int2=-1);
+                  intptr_t int1=-1, intptr_t int2=-1);
 
      /// Copy constructor
    MpFlowGraphMsg(const MpFlowGraphMsg& rMpFlowGraphMsg);
@@ -117,10 +117,10 @@ public:
    void setPtr2(void* p);
 
      /// Sets integer 1 of the media flow graph message
-   void setInt1(int i);
+   void setInt1(intptr_t i);
 
      /// Sets integer 2 of the media flow graph message
-   void setInt2(int i);
+   void setInt2(intptr_t i);
 
 //@}
 
@@ -146,10 +146,10 @@ public:
    void* getPtr2(void) const;
 
      /// Return integer 1 of the media flow graph message
-   int getInt1(void) const;
+   intptr_t getInt1(void) const;
 
      /// Return integer 2 of the media flow graph message
-   int getInt2(void) const;
+   intptr_t getInt2(void) const;
 
 //@}
 
@@ -167,8 +167,8 @@ private:
    MpResource* mpMsgDest; ///< Intended recipient for this message
    void*       mpPtr1;    ///< Pointer to data 1
    void*       mpPtr2;    ///< Pointer to data 2
-   int         mInt1;     ///< Integer data 1
-   int         mInt2;     ///< Integer data 2
+   intptr_t    mInt1;     ///< Integer data 1
+   intptr_t    mInt2;     ///< Integer data 2
 
 };
 

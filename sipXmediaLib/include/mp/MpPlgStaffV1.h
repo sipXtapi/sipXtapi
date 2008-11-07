@@ -199,15 +199,15 @@ MpCodecCallInfoV1::MpCodecCallInfoV1(const char* moduleName,
                                      const dlPlgFreeV1 plgFree,
                                      const dlPlgGetSignalingDataV1 plgSignaling,
                                      UtlBoolean bStatic)
-: mbStatic(bStatic)
-, mModuleName(moduleName)
-, mPlgInit(plgInit)
+: mPlgInit(plgInit)
 , mPlgGetInfo(plgGetInfo)
 , mPlgGetPacketSamples(plgGetPacketSamples)
 , mPlgDecode(plgDecode)
 , mPlgEncode(plgEncode)
 , mPlgFree(plgFree)
 , mPlgSignaling(plgSignaling)
+, mbStatic(bStatic)
+, mModuleName(moduleName)
 {}
 
 const UtlBoolean MpCodecCallInfoV1::isStatic() const
