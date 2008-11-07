@@ -836,7 +836,6 @@ OsStatus MpInputDeviceManager::getTimeDerivatives(MpInputDeviceHandle deviceId,
 
 UtlBoolean MpInputDeviceManager::isDeviceEnabled(MpInputDeviceHandle deviceId) const
 {
-   OsStatus status = OS_NOT_FOUND;
    UtlBoolean enabledState = FALSE;
    OsReadLock lock(mRwMutex);
 
