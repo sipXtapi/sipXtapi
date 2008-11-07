@@ -23,6 +23,7 @@
 
 // DEFINES
 #define SYSLOG_NUM_PRIORITIES    8  // Number of OsSysLogPriority entries
+
 // MACROS
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -340,7 +341,7 @@ public:
                         const OsSysLogFacility facility,
                         const OsSysLogPriority priority,
                         const char*            format,
-                        const va_list          ap)
+                        va_list                ap)
 #ifdef __GNUC__
        // with the -Wformat switch, this enables format string checking
        __attribute__ ((format (printf, 5, 0)))

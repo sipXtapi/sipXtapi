@@ -43,18 +43,6 @@ extern char* strdup(const char*) ;
 
 // EXTERNAL VARIABLES
 // CONSTANTS
-#if defined(_WIN32)
-     // Windows va_arg function does not take a const 
-#    define OS_VA_ARG_CONST 
-#elif defined(__pingtel_on_posix__)
-     // Posix va_arg function takes a const
-#    define OS_VA_ARG_CONST const
-#elif _VXWORKS
-     // Vxworks va_arg function does not take a const 
-#    define OS_VA_ARG_CONST 
-#else
-#error Unsupported target platform.
-#endif
 // STATIC VARIABLE INITIALIZATIONS
 OsSysLogTask* OsSysLog::spOsSysLogTask = NULL;
 unsigned long OsSysLog::sEventCount = 0;
@@ -82,7 +70,7 @@ const int OsSysLog::sPriorityNamesNum =
 
 // LOCAL FUNCTIONS
 static void mysprintf(UtlString& results, const char* format, ...) ;
-static void myvsprintf(UtlString& results, const char* format, OS_VA_ARG_CONST va_list args) ;
+static void myvsprintf(UtlString& results, const char* format, va_list args) ;
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
@@ -334,7 +322,7 @@ OsStatus OsSysLog::add(const OsSysLogFacility facility,
             taskName = pBase->getName() ;
             pBase->id(taskId) ;
          }
-         
+
          rc = vadd(taskName.data(), taskId, facility, priority, format, ap);         
          va_end(ap);
       }  
@@ -351,7 +339,7 @@ OsStatus OsSysLog::vadd(const char*            taskName,
                         const OsSysLogFacility facility,
                         const OsSysLogPriority priority,
                         const char*            format,
-                        const va_list          ap)
+                        va_list                ap)
 {
    // If the log has not been initialized, print everything to the console
    if (spOsSysLogTask != NULL)
@@ -901,7 +889,7 @@ void mysprintf(UtlString& results, const char* format, ...)
 
 
 // a version of vsprintf that stores results in an UtlString
-void myvsprintf(UtlString& results, const char* format, OS_VA_ARG_CONST va_list args)
+void myvsprintf(UtlString& results, const char* format, va_list args)
 {    
     /* Guess we need no more than 384 bytes. */
     int n, size = 384;
