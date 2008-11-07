@@ -196,9 +196,9 @@ SipConnection::~SipConnection()
 
     // tell all media event emitters that we are going away
     UtlSListIterator iterator(mMediaEventEmitters);
-    UtlInt* pEmitterContainer;
+    UtlVoidPtr* pEmitterContainer;
     IMediaEventEmitter* pEmitter;
-    while ((pEmitterContainer = (UtlInt*)iterator()))
+    while ((pEmitterContainer = (UtlVoidPtr*)iterator()))
     {
         pEmitter = (IMediaEventEmitter*)pEmitterContainer->getValue();
         pEmitter->onListenerRemoved();
@@ -1853,7 +1853,7 @@ UtlBoolean SipConnection::renegotiateCodecs()
 
         CpMultiStringMessage* retryTimerMessage =
                 new CpMultiStringMessage(CpCallManager::CP_RENEGOTIATE_CODECS_CONNECTION, callId, remoteAddress) ;
-        OsTimer* timer = new OsTimer(mpCallManager->getMessageQueue(), (int)retryTimerMessage);
+        OsTimer* timer = new OsTimer(mpCallManager->getMessageQueue(), (intptr_t)retryTimerMessage);
 
         OsTime timerTime(500) ;
         timer->oneshotAfter(timerTime);
@@ -2771,7 +2771,7 @@ UtlBoolean SipConnection::extendSessionReinvite()
                     SipMessageEvent::SESSION_REINVITE_TIMER);
 
             OsTimer* timer = new OsTimer((mpCallManager->getMessageQueue()),
-                    (int)sipMsgEvent);
+                                         (intptr_t)sipMsgEvent);
 
             OsTime timerTime(3, 0);
             timer->oneshotAfter(timerTime);
@@ -3702,7 +3702,7 @@ void SipConnection::processReferRequest(const SipMessage* request)
         // the new call
         if (mpCall->isInFocus())
         {
-            CpIntMessage yieldFocus(CallManager::CP_YIELD_FOCUS, (int)mpCall);
+            CpIntMessage yieldFocus(CallManager::CP_YIELD_FOCUS, (intptr_t)mpCall);
             mpCallManager->postMessage(yieldFocus);
             bTakeFocus = true ;
         }
@@ -4513,7 +4513,7 @@ UtlBoolean SipConnection::processResponse(const SipMessage* response,
                 getRemoteAddress(&remoteAddr);
                 CpMultiStringMessage* CancelTimerMessage =
                     new CpMultiStringMessage(CpCallManager::CP_CANCEL_TIMER, callId.data(), remoteAddr.data());
-                OsTimer* timer = new OsTimer(mpCallManager->getMessageQueue(), (int)CancelTimerMessage);
+                OsTimer* timer = new OsTimer(mpCallManager->getMessageQueue(), (intptr_t)CancelTimerMessage);
 
                 // HACK: Changing this value to 2 to fix a problem in tear down.  We need to do the following:
                 //       1) Figure out why 487 responses are not dispatched to this listener (SipTransaction::whatRelationship)
@@ -4763,7 +4763,7 @@ void SipConnection::processInviteResponseRequestPending(const SipMessage* respon
             new SipMessageEvent(new SipMessage(*response),
             SipMessageEvent::SESSION_REINVITE_TIMER);
     OsTimer* timer = new OsTimer((mpCallManager->getMessageQueue()),
-            (int)sipMsgEvent);
+            (intptr_t)sipMsgEvent);
 
     OsTime timerTime((rand() % 3), (rand() % 1000) * 1000);
     timer->oneshotAfter(timerTime);
@@ -5066,7 +5066,7 @@ void SipConnection::processInviteResponseNormal(const SipMessage* response)
                 new SipMessageEvent(new SipMessage(sipRequest),
                 SipMessageEvent::SESSION_REINVITE_TIMER);
             OsTimer* timer = new OsTimer((mpCallManager->getMessageQueue()),
-                (int)sipMsgEvent);
+                (intptr_t)sipMsgEvent);
             // Convert from mSeconds to uSeconds
             OsTime timerTime(timerSeconds, 0);
             timer->oneshotAfter(timerTime);
@@ -5821,7 +5821,7 @@ void SipConnection::processByeResponse(const SipMessage* response)
                 new CpMultiStringMessage(CallManager::CP_FORCE_DROP_CONNECTION,
                 callId.data(), remoteAddress.data(), localAddress.data());
             OsTimer* timer = new OsTimer((mpCallManager->getMessageQueue()),
-                (int)expiredBye);
+                (intptr_t)expiredBye);
 
             // Convert from mSeconds to uSeconds
             OsTime timerTime(sipUserAgent->getSipStateTransactionTimeout() / 1000, 0);
@@ -5880,7 +5880,7 @@ void SipConnection::processCancelResponse(const SipMessage* response)
                 callId.data(), remoteAddress.data(), localAddress.data());
 
             OsTimer* timer = new OsTimer((mpCallManager->getMessageQueue()),
-                (int)expiredBye);
+                (intptr_t)expiredBye);
             // Convert from mSeconds to uSeconds
             OsTime timerTime(sipUserAgent->getSipStateTransactionTimeout() / 1000, 0);
             timer->oneshotAfter(timerTime);
@@ -6130,7 +6130,7 @@ void SipConnection::sendVoiceQualityReport(const char* szTargetSipUrl)
             thisHost.replace('@','*');
 
             // Compose the static fields.
-            sprintf(buffer, "%d_%" FORMAT_INTLL "d_%s",
+            sprintf(buffer, "%d_%"PRId64"d_%s",
                     process_id, start_time, thisHost.data());
             // Hash them.
             NetMd5Codec encoder;
@@ -7104,7 +7104,7 @@ void SipConnection::onDeviceError(IMediaEvent_DeviceTypes type, IMediaEvent_Devi
 
 void SipConnection::onListenerAddedToEmitter(IMediaEventEmitter *pEmitter)
 {
-    UtlInt value((int) pEmitter) ;
+    UtlVoidPtr value((void*) pEmitter) ;
     mMediaEventEmitters.insert(&value);
 }
 
@@ -7114,7 +7114,7 @@ void SipConnection::onListenerAddedToEmitter(IMediaEventEmitter *pEmitter)
 */
 void SipConnection::registerObserver(UtlObserver* observer)
 {
-    mObservers.insert(new UtlInt((int) observer));
+    mObservers.insert(new UtlVoidPtr((void*) observer));
 }
 
 /**
@@ -7122,7 +7122,7 @@ void SipConnection::registerObserver(UtlObserver* observer)
 */
 void SipConnection::removeObserver(UtlObserver* observer)
 {
-    UtlInt value((int) observer) ;
+    UtlVoidPtr value((void*) observer) ;
     mObservers.destroy(&value);
 }
 
@@ -7134,8 +7134,8 @@ void SipConnection::notify(int code, void *pUserData)
 {
     UtlSListIterator iterator(mObservers);
     UtlObserver* pObserver = NULL;
-    UtlInt* pContainer = NULL;
-    while ((pContainer = (UtlInt*)iterator()))
+    UtlVoidPtr* pContainer = NULL;
+    while ((pContainer = (UtlVoidPtr*)iterator()))
     {
         pObserver = (UtlObserver*)pContainer->getValue();
         pObserver->onNotify(this, code, pUserData);

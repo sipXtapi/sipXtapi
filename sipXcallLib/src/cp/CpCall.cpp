@@ -614,8 +614,8 @@ UtlBoolean CpCall::handleMessage(OsMsg& eventMessage)
                 {
                     if (!handleNotifyMessage((OsEventMsg&)eventMessage))
                     {
-                        int eventData;
-                        int pListener;
+                        intptr_t eventData;
+                        intptr_t pListener;
                         ((OsEventMsg&)eventMessage).getEventData(eventData);
                         ((OsEventMsg&)eventMessage).getUserData(pListener);
                         if (pListener)
@@ -627,7 +627,7 @@ UtlBoolean CpCall::handleMessage(OsMsg& eventMessage)
 
                             getCallId(arg);
                             arg.append(TAOMESSAGE_DELIMITER);
-                            sprintf(buf, "%d", eventData);
+                            sprintf(buf, "%"PRIdPTR, eventData);
                             arg.append(buf);
 
                             for (i = 0; i < mToneListenerCnt; i++)
@@ -658,24 +658,24 @@ UtlBoolean CpCall::handleMessage(OsMsg& eventMessage)
                                 OsWriteLock lock(mDtmfQMutex);
 
                                 //#ifdef TEST_PRINT
-                                OsSysLog::add(FAC_CP, PRI_INFO, "CpCall %s - received dtmf event 0x%08x QLen=%d\n",
-                                    mCallId.data(), eventData, mDtmfQLen);
+                                OsSysLog::add(FAC_CP, PRI_INFO, "CpCall %s - received dtmf event 0x%08"PRIxPTR" QLen=%d",
+                                              mCallId.data(), eventData, mDtmfQLen);
                                 //#endif
 
                                 for (i = 0; i < mDtmfQLen; i++)
                                 {
                                     if (mDtmfEvents[i].enabled == FALSE)
                                     {
-                                        OsSysLog::add(FAC_CP, PRI_INFO, "CpCall %s - event %p is disabled\n",
-                                            mCallId.data(), &mDtmfEvents[i]);
+                                        OsSysLog::add(FAC_CP, PRI_INFO, "CpCall %s - event %p is disabled",
+                                                      mCallId.data(), &mDtmfEvents[i]);
                                         continue;
                                     }
 
                                     if (mDtmfEvents[i].ignoreKeyUp && (eventData & 0x80000000))
                                     {
                                         //#ifdef TEST_PRINT
-                                        OsSysLog::add(FAC_CP, PRI_INFO, "CpCall %s - ignore KEYUP event 0x%08x\n",
-                                            mCallId.data(), eventData);
+                                        OsSysLog::add(FAC_CP, PRI_INFO, "CpCall %s - ignore KEYUP event 0x%08"PRIxPTR,
+                                                      mCallId.data(), eventData);
                                         //#endif
                                         continue; // ignore keyup event
                                     }
@@ -683,8 +683,8 @@ UtlBoolean CpCall::handleMessage(OsMsg& eventMessage)
                                     if (eventData & 0x0000ffff)
                                     {
                                         //#ifdef TEST_PRINT
-                                        OsSysLog::add(FAC_CP, PRI_INFO, "CpCall %s - ignore KEYDOWN event 0x%08x\n",
-                                            mCallId.data(), eventData);
+                                        OsSysLog::add(FAC_CP, PRI_INFO, "CpCall %s - ignore KEYDOWN event 0x%08"PRIxPTR,
+                                                      mCallId.data(), eventData);
                                         //#endif
                                         continue; // previous key still down, ignore long key event
                                     }
@@ -700,13 +700,13 @@ UtlBoolean CpCall::handleMessage(OsMsg& eventMessage)
                                         while ((tries++ < 10) && (res != OS_SUCCESS))
                                         {
                                             res = dtmfEvent->signal((eventData & 0xfffffff0));
-                                            OsSysLog::add(FAC_CP, PRI_INFO, "CpCall %s - resend dtmfEvent event 0x%08x to %p, res=%d\n",
-                                                mCallId.data(), eventData, dtmfEvent, res);
+                                            OsSysLog::add(FAC_CP, PRI_INFO, "CpCall %s - resend dtmfEvent event 0x%08"PRIxPTR" to %p, res=%d",
+                                                          mCallId.data(), eventData, dtmfEvent, res);
                                         }
                                         if (res != OS_SUCCESS && tries >= 10)
                                         {
-                                            OsSysLog::add(FAC_CP, PRI_ERR, "CpCall %s - failed to notify DTMF event 0x%08x to %p, res=%d\n",
-                                                mCallId.data(), eventData, dtmfEvent, res);
+                                            OsSysLog::add(FAC_CP, PRI_ERR, "CpCall %s - failed to notify DTMF event 0x%08"PRIxPTR" to %p, res=%d",
+                                                          mCallId.data(), eventData, dtmfEvent, res);
                                         }
                                     }
                                 }
@@ -839,7 +839,7 @@ OsStatus CpCall::ezRecord(int ms, int silenceLength, const char* fileName, doubl
     return mpMediaInterface->ezRecord(ms, silenceLength, fileName, duration);
 }
 
-void CpCall::addToneListenerToFlowGraph(int pListener, Connection* connection)
+void CpCall::addToneListenerToFlowGraph(intptr_t pListener, Connection* connection)
 {
     OsQueuedEvent *pEv;
     pEv = new OsQueuedEvent(mIncomingQ, pListener);
@@ -854,13 +854,13 @@ void CpCall::addToneListenerToFlowGraph(int pListener, Connection* connection)
         (char*)remoteAddress.data(),
         connection->getConnectionId(),
         0,
-        (int)pEv);
+        (intptr_t)pEv);
 
     mpMediaInterface->addToneListener(pEv, connection->getConnectionId());
 }
 
 
-void CpCall::removeToneListenerFromFlowGraph(int pListener, Connection* connection)
+void CpCall::removeToneListenerFromFlowGraph(intptr_t pListener, Connection* connection)
 {
     mpMediaInterface->removeToneListener(connection->getConnectionId()) ;
 }
@@ -1288,12 +1288,12 @@ OsStatus CpCall::addListener(OsServerTask* pListener,
                              char* callId /*= NULL*/,
                              int connectId /*= 0*/,
                              int mask /*= 0*/,
-                             int pEv /*= 0*/)
+                             intptr_t pEv /*= 0*/)
 {
     for (int i = 0; i < listenerCnt; i++)
     {
         if ((*pListeners)[i] &&
-            (*pListeners)[i]->mpListenerPtr == (int) pListener &&
+            (*pListeners)[i]->mpListenerPtr == (intptr_t) pListener &&
             (!callId || (*pListeners)[i]->mName.compareTo(callId) == 0) &&
             ((*pListeners)[i]->mId == connectId))
         {
@@ -1315,7 +1315,7 @@ OsStatus CpCall::addListener(OsServerTask* pListener,
     TaoListenerDb *pListenerDb = new TaoListenerDb();
     if (callId)
         pListenerDb->mName.append(callId);
-    pListenerDb->mpListenerPtr = (int) pListener;
+    pListenerDb->mpListenerPtr = (intptr_t) pListener;
     pListenerDb->mRef = 1;
     pListenerDb->mId = connectId;
     pListenerDb->mIntData = pEv;

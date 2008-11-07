@@ -27,8 +27,8 @@
 #define TAOMESSAGE_DELIMITER    UtlString("$d$")
 
 // TYPEDEFS
-typedef unsigned int TaoObjHandle;
-//:A 32-bit integer that has local meaning for a given TaoServer and represents
+typedef uintptr_t TaoObjHandle;
+//:An integer that has local meaning for a given TaoServer and represents
 //:a PTAPI object or a TaoObject.
 
 typedef unsigned int  IPAddress;

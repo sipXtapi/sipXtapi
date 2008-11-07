@@ -798,7 +798,7 @@ const SIPX_CALL SIPX_CALL_NULL = 0; /**< Represents a null call handle */
  * (mixed) audio.  Application developers can manipulate each leg of the 
  * conference through various conference functions.
  */
-typedef unsigned int SIPX_CONF ;
+typedef unsigned long SIPX_CONF ;
 const SIPX_CONF SIPX_CONF_NULL = 0; /**< Represents a null conference handle */
 
 /**
@@ -811,7 +811,7 @@ const SIPX_CONF SIPX_CONF_NULL = 0; /**< Represents a null conference handle */
  * automatically deallocate this handle immediately after the status
  * call back.
  */
-typedef unsigned int SIPX_INFO;
+typedef unsigned long SIPX_INFO;
 
 /**
  * The SIPX_PUB handle represent a publisher context.  Publisher are used
@@ -822,7 +822,7 @@ typedef unsigned int SIPX_INFO;
  * SIPX_PUB handles are created by using sipxCreatePublisher.
  * SIPX_PUB handles should be torn down using sipxDestroyPublisher.
  */
-typedef unsigned int SIPX_PUB;
+typedef unsigned long SIPX_PUB;
 
 const SIPX_PUB SIPX_PUB_NULL = 0; /**< Represents a null publisher handle */
 
@@ -834,14 +834,14 @@ const SIPX_PUB SIPX_PUB_NULL = 0; /**< Represents a null publisher handle */
  * SIPX_SUB handles are created by using the sipxCallSubscribe function.
  * SIPX_SUB handles should be destroyed using the sipxCallUnsubscribe function.
  */
-typedef unsigned int SIPX_SUB ;
+typedef unsigned long SIPX_SUB ;
 
 
 /** 
  * The SIPX_TRANSPORT handle represents a user-implementation of 
  * a network transport mechanism to be used for SIP signaling.
  */
-typedef unsigned int SIPX_TRANSPORT ;
+typedef unsigned long SIPX_TRANSPORT ;
 const SIPX_TRANSPORT SIPX_TRANSPORT_NULL = 0; /**< Represents a null transport handle */
 
 /** 

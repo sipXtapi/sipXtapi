@@ -61,7 +61,7 @@ UtlBoolean SipXMessageObserver::handleMessage(OsMsg& rMsg)
     if (rMsg.getMsgType() == OsMsg::OS_EVENT)
     {
         OsEventMsg* pEventMsg = (OsEventMsg*) &rMsg ;
-        int eventType ;
+        intptr_t eventType ;
         pEventMsg->getUserData(eventType) ;
 
         switch (eventType)
@@ -281,7 +281,7 @@ bool SipXMessageObserver::handleStunOutcome(OsEventMsg* pMsg)
     SIPX_CONTACT_ADDRESS sipxContact; // contact structure for notifying
                                       // sipxtapi event listeners
     SIPX_CONTACT_ADDRESS* pContact = NULL;
-    pMsg->getEventData((int&)pContact) ;
+    pMsg->getEventData((intptr_t&)pContact) ;
 
     SIPX_CONFIG_INFO eventInfo ;
     memset(&eventInfo, 0, sizeof(SIPX_CONFIG_INFO)) ;

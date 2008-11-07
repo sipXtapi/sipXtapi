@@ -2209,7 +2209,7 @@ SIPXTAPI_API SIPX_RESULT sipxCallPlayBufferStart(const SIPX_CALL hCall,
         }
         if (szBuffer)
         {
-            pInst->pCallManager->bufferPlay(callId.data(), (int)szBuffer, bufSize, bufType, bRepeat, bLocal, bRemote) ;
+            pInst->pCallManager->bufferPlay(callId.data(), (const void*)szBuffer, bufSize, bufType, bRepeat, bLocal, bRemote) ;
             sr = SIPX_RESULT_SUCCESS ;
         }
         else
@@ -2410,7 +2410,7 @@ SIPXTAPI_API SIPX_RESULT sipxCallUnsubscribe(const SIPX_SUB hSub)
    OsStackTraceLogger stackLogger(FAC_SIPXTAPI, PRI_DEBUG, "sipxCallUnsubscribe");
    SIPX_RESULT sipXresult = SIPX_RESULT_FAILURE;
    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
-      "sipxCallSubscribe hSub=%x", hSub);
+      "sipxCallSubscribe hSub=%lx", hSub);
 
    gSubscribeAccessLock.acquire(); // we need global lock to delete mutex
    SIPX_SUBSCRIPTION_DATA* subscriptionData = sipxSubscribeLookup(hSub, SIPX_LOCK_WRITE, stackLogger);
@@ -2439,7 +2439,7 @@ SIPXTAPI_API SIPX_RESULT sipxCallUnsubscribe(const SIPX_SUB hSub)
       else
       {
          OsSysLog::add(FAC_SIPXTAPI, PRI_ERR,
-            "sipxCallUnsubscribe endSubscription failed for subscription handle: %d dialog handle: \"%s\"",
+            "sipxCallUnsubscribe endSubscription failed for subscription handle: %ld dialog handle: \"%s\"",
             hSub,
             dialogHandle.data());
          sipXresult = SIPX_RESULT_INVALID_ARGS;
@@ -2449,7 +2449,7 @@ SIPXTAPI_API SIPX_RESULT sipxCallUnsubscribe(const SIPX_SUB hSub)
    {
       gSubscribeAccessLock.release();
       OsSysLog::add(FAC_SIPXTAPI, PRI_ERR,
-         "sipxCallUnsubscribe: cannot find subscription data for handle: %d",
+         "sipxCallUnsubscribe: cannot find subscription data for handle: %ld",
          hSub);
       sipXresult = SIPX_RESULT_INVALID_ARGS;
       // no other lock to release, since handle wasn't found
@@ -2935,7 +2935,7 @@ SIPXTAPI_API SIPX_RESULT sipxPublisherCreate(const SIPX_INST hInst,
 {
     OsStackTraceLogger stackLogger(FAC_SIPXTAPI, PRI_DEBUG, "sipxPublisherCreate");
     OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
-        "sipxCreatePublisher hInst=%p phPub=%d szResourceId=\"%s\" szEventType=\"%s\" szContentType=\"%s\" pContent=\"%s\" nContentLength=%d", 
+        "sipxCreatePublisher hInst=%p phPub=%ld szResourceId=\"%s\" szEventType=\"%s\" szContentType=\"%s\" pContent=\"%s\" nContentLength=%d", 
         hInst,
         *phPub,
         szResourceId ? szResourceId : "<null>",
@@ -3078,7 +3078,7 @@ SIPXTAPI_API SIPX_RESULT sipxPublisherUpdate(const SIPX_PUB hPub,
 {
     OsStackTraceLogger stackLogger(FAC_SIPXTAPI, PRI_DEBUG, "sipxPublisherUpdate");
     OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
-        "sipxUpdatePublisher hPub=%d szContentType=\"%s\" pContent=\"%s\" nContentLength=%d", 
+        "sipxUpdatePublisher hPub=%ld szContentType=\"%s\" pContent=\"%s\" nContentLength=%d", 
         hPub,
         szContentType ? szContentType : "<null>",
         pContent ? pContent : "<null>",
@@ -3135,7 +3135,7 @@ SIPXTAPI_API SIPX_RESULT sipxPublisherDestroy(const SIPX_PUB hPub,
 {
     OsStackTraceLogger stackLogger(FAC_SIPXTAPI, PRI_DEBUG, "sipxPublisherDestroy");
     OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
-        "sipxDestroyPublisher hPub=%d szContentType=\"%s\" pFinalContent=\"%s\" nContentLength=%d", 
+        "sipxDestroyPublisher hPub=%ld szContentType=\"%s\" pFinalContent=\"%s\" nContentLength=%d", 
         hPub,
         szContentType ? szContentType : "<null>",
         pFinalContent ? pFinalContent : "<null>",
@@ -3258,7 +3258,7 @@ SIPXTAPI_API SIPX_RESULT sipxConferenceJoin(const SIPX_CONF hConf,
 {
     OsStackTraceLogger stackLogger(FAC_SIPXTAPI, PRI_DEBUG, "sipxConferenceJoin");
     OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
-        "sipxConferenceJoin hConf=%d hCall=%d",
+        "sipxConferenceJoin hConf=%ld hCall=%d",
         hConf, hCall);
 
     SIPX_RESULT rc = SIPX_RESULT_SUCCESS ;
@@ -3369,7 +3369,7 @@ SIPXTAPI_API SIPX_RESULT sipxConferenceSplit(const SIPX_CONF hConf,
 {
     OsStackTraceLogger stackLogger(FAC_SIPXTAPI, PRI_DEBUG, "sipxConferenceSplit");
     OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
-        "sipxConferenceSplit hConf=%d hCall=%d",
+        "sipxConferenceSplit hConf=%ld hCall=%d",
         hConf, hCall);
 
     SIPX_RESULT rc = SIPX_RESULT_INVALID_ARGS ;
@@ -3475,7 +3475,7 @@ SIPXTAPI_API SIPX_RESULT sipxConferenceAdd(const SIPX_CONF hConf,
     }
 
     OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
-        "sipxConferenceAdd hConf=%d hLine=%d szAddress=%s contactId=%d, pDisplay=%p "
+        "sipxConferenceAdd hConf=%ld hLine=%d szAddress=%s contactId=%d, pDisplay=%p "
         "bEnableLocationHeader=%d bandWidth=%d",
         hConf, hLine, szAddress, contactId, pDisplay, bEnableLocationHeader, bandWidth);
 
@@ -3800,7 +3800,7 @@ SIPXTAPI_API SIPX_RESULT sipxConferenceRemove(const SIPX_CONF hConf,
 {
     OsStackTraceLogger stackLogger(FAC_SIPXTAPI, PRI_DEBUG, "sipxConferenceRemove");
     OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
-        "sipxConferenceRemove hConf=%d hCall=%d",
+        "sipxConferenceRemove hConf=%ld hCall=%d",
         hConf, hCall);
 
     SIPX_RESULT rc = SIPX_RESULT_INVALID_ARGS ;
@@ -3847,7 +3847,7 @@ SIPXTAPI_API SIPX_RESULT sipxConferenceGetCalls(const SIPX_CONF hConf,
 {
     OsStackTraceLogger stackLogger(FAC_SIPXTAPI, PRI_DEBUG, "sipxConferenceGetCalls");
     OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
-        "sipxConferenceGetCalls hConf=%d",
+        "sipxConferenceGetCalls hConf=%ld",
         hConf);
 
     SIPX_RESULT rc = SIPX_RESULT_INVALID_ARGS ;
@@ -3886,7 +3886,7 @@ SIPXTAPI_API SIPX_RESULT sipxConferenceHold(const SIPX_CONF hConf, bool bBridgin
     SIPX_RESULT sr = SIPX_RESULT_FAILURE ;
     
     OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
-        "sipxConferenceHold hConf=%d bBridging=%d",
+        "sipxConferenceHold hConf=%ld bBridging=%d",
         hConf,
         bBridging);
 
@@ -3936,7 +3936,7 @@ SIPXTAPI_API SIPX_RESULT sipxConferenceUnhold(const SIPX_CONF hConf)
     SIPX_RESULT sr = SIPX_RESULT_FAILURE ;
     
     OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
-        "sipxConferenceUnHold hConf=%d",
+        "sipxConferenceUnHold hConf=%ld",
         hConf);
 
     if (hConf)
@@ -3980,7 +3980,7 @@ SIPXTAPI_API SIPX_RESULT sipxConferencePlayAudioFileStart(const SIPX_CONF hConf,
 {
     OsStackTraceLogger stackLogger(FAC_SIPXTAPI, PRI_DEBUG, "sipxConferencePlayAudioFileStart");
     OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
-        "sipxConferencePlayAudioFileStart hConf=%d File=%s bLocal=%d bRemote=%d bRepeat=%d",
+        "sipxConferencePlayAudioFileStart hConf=%ld File=%s bLocal=%d bRemote=%d bRepeat=%d",
         hConf, szFile, bLocal, bRemote, bRepeat);
 
     SIPX_RESULT sr = SIPX_RESULT_INVALID_ARGS ;
@@ -4022,7 +4022,7 @@ SIPXTAPI_API SIPX_RESULT sipxConferencePlayAudioFileStop(const SIPX_CONF hConf)
 {
     OsStackTraceLogger stackLogger(FAC_SIPXTAPI, PRI_DEBUG, "sipxConferencePlayAudioFileStop");
     OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
-        "sipxConferencePlayAudioFileStop hConf=%d", hConf);
+        "sipxConferencePlayAudioFileStop hConf=%ld", hConf);
 
     SIPX_RESULT sr = SIPX_RESULT_INVALID_ARGS ;
 
@@ -4053,7 +4053,7 @@ SIPXTAPI_API SIPX_RESULT sipxConferenceDestroy(SIPX_CONF hConf)
 {
     OsStackTraceLogger stackLogger(FAC_SIPXTAPI, PRI_DEBUG, "sipxConferenceDestroy");
     OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
-        "sipxConferenceDestroy hConf=%d",
+        "sipxConferenceDestroy hConf=%ld",
         hConf);
 
     SIPX_CALL hCalls[CONF_MAX_CONNECTIONS] ;
@@ -4140,7 +4140,7 @@ SIPXTAPI_API SIPX_RESULT sipxConferenceLimitCodecPreferences(const SIPX_CONF hCo
 {
     OsStackTraceLogger stackLogger(FAC_SIPXTAPI, PRI_DEBUG, "sipxConferenceLimitCodecPreferences");
     OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
-        "sipxConferenceLimitCodecPreferences hCall=%d audioBandwidth=%d videoBandwidth=%d szVideoCodecName=\"%s\"", 
+        "sipxConferenceLimitCodecPreferences hCall=%ld audioBandwidth=%d videoBandwidth=%d szVideoCodecName=\"%s\"", 
         hConf,
         audioBandwidth,
         videoBandwidth,

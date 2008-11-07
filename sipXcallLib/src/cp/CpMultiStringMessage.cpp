@@ -30,8 +30,8 @@ CpMultiStringMessage::CpMultiStringMessage(unsigned char messageSubtype,
                                  const char* str1, const char* str2,
                                  const char* str3, const char* str4,
                                  const char* str5,
-                                 int int1, int int2, int int3, int int4,
-                                 int int5, int int6, int int7) :
+                                 intptr_t int1, intptr_t int2, intptr_t int3, intptr_t int4,
+                                 intptr_t int5, intptr_t int6, intptr_t int7) :
 OsMsg(OsMsg::PHONE_APP, messageSubtype)
 {
    mInt1 = int1;
@@ -43,33 +43,33 @@ OsMsg(OsMsg::PHONE_APP, messageSubtype)
    mInt7 = int7;
 
    if (str1)
-                mString1Data.append(str1);
+      mString1Data.append(str1);
    if (str2)
-                mString2Data.append(str2);
+      mString2Data.append(str2);
    if (str3)
-                mString3Data.append(str3);
+      mString3Data.append(str3);
    if (str4)
-                mString4Data.append(str4);
+      mString4Data.append(str4);
    if (str5)
-            mString5Data.append(str5);
+      mString5Data.append(str5);
 }
 
 // Copy constructor
 CpMultiStringMessage::CpMultiStringMessage(const CpMultiStringMessage& rCpMultiStringMessage):
 OsMsg(OsMsg::PHONE_APP, rCpMultiStringMessage.getMsgType())
 {
-        mString1Data = rCpMultiStringMessage.mString1Data;
-        mString2Data = rCpMultiStringMessage.mString2Data;
-        mString3Data = rCpMultiStringMessage.mString3Data;
-        mString4Data = rCpMultiStringMessage.mString4Data;
-        mString5Data = rCpMultiStringMessage.mString5Data;
-    mInt1 = rCpMultiStringMessage.mInt1;
-    mInt2 = rCpMultiStringMessage.mInt2;
-    mInt3 = rCpMultiStringMessage.mInt3;
-    mInt4 = rCpMultiStringMessage.mInt4;
-    mInt5 = rCpMultiStringMessage.mInt5;
-    mInt6 = rCpMultiStringMessage.mInt6;
-    mInt7 = rCpMultiStringMessage.mInt7;
+   mString1Data = rCpMultiStringMessage.mString1Data;
+   mString2Data = rCpMultiStringMessage.mString2Data;
+   mString3Data = rCpMultiStringMessage.mString3Data;
+   mString4Data = rCpMultiStringMessage.mString4Data;
+   mString5Data = rCpMultiStringMessage.mString5Data;
+   mInt1 = rCpMultiStringMessage.mInt1;
+   mInt2 = rCpMultiStringMessage.mInt2;
+   mInt3 = rCpMultiStringMessage.mInt3;
+   mInt4 = rCpMultiStringMessage.mInt4;
+   mInt5 = rCpMultiStringMessage.mInt5;
+   mInt6 = rCpMultiStringMessage.mInt6;
+   mInt7 = rCpMultiStringMessage.mInt7;
 }
 
 // Destructor
@@ -121,62 +121,62 @@ CpMultiStringMessage::operator=(const CpMultiStringMessage& rhs)
 
 void CpMultiStringMessage::getString1Data(UtlString& str1) const
 {
-        str1 = mString1Data;
+   str1 = mString1Data;
 }
 
 void CpMultiStringMessage::getString2Data(UtlString& str2) const
 {
-        str2 = mString2Data;
+   str2 = mString2Data;
 }
 
 void CpMultiStringMessage::getString3Data(UtlString& str3) const
 {
-        str3 = mString3Data;
+   str3 = mString3Data;
 }
 
 void CpMultiStringMessage::getString4Data(UtlString& str4) const
 {
-        str4 = mString4Data;
+   str4 = mString4Data;
 }
 
 void CpMultiStringMessage::getString5Data(UtlString& str5) const
 {
-        str5 = mString5Data;
+   str5 = mString5Data;
 }
 
-int CpMultiStringMessage::getInt1Data() const
+intptr_t CpMultiStringMessage::getInt1Data() const
 {
-        return(mInt1);
+   return(mInt1);
 }
 
-int CpMultiStringMessage::getInt2Data() const
+intptr_t CpMultiStringMessage::getInt2Data() const
 {
-        return(mInt2);
+   return(mInt2);
 }
 
-int CpMultiStringMessage::getInt3Data() const
+intptr_t CpMultiStringMessage::getInt3Data() const
 {
-        return(mInt3);
+   return(mInt3);
 }
 
-int CpMultiStringMessage::getInt4Data() const
+intptr_t CpMultiStringMessage::getInt4Data() const
 {
-        return(mInt4);
+   return(mInt4);
 }
 
-int CpMultiStringMessage::getInt5Data() const
+intptr_t CpMultiStringMessage::getInt5Data() const
 {
-        return(mInt5);
+   return(mInt5);
 }
 
-int CpMultiStringMessage::getInt6Data() const
+intptr_t CpMultiStringMessage::getInt6Data() const
 {
-        return(mInt6);
+   return(mInt6);
 }
 
-int CpMultiStringMessage::getInt7Data() const
+intptr_t CpMultiStringMessage::getInt7Data() const
 {
-        return(mInt7);
+   return(mInt7);
 }
 
 void CpMultiStringMessage::toString(UtlString& dumpString, const char* term) const
@@ -214,37 +214,37 @@ void CpMultiStringMessage::toString(UtlString& dumpString, const char* term) con
     char intDataString[100];
     if(mInt1)
     {
-        sprintf(intDataString, "Int1: %d", mInt1);
+        sprintf(intDataString, "Int1: %"PRIdPTR, mInt1);
         dumpString += intDataString;
         dumpString += terminator;
     }
     if(mInt2)
     {
-        sprintf(intDataString, "Int2: %d", mInt2);
+        sprintf(intDataString, "Int2: %"PRIdPTR, mInt2);
         dumpString += intDataString;
         dumpString += terminator;
     }
     if(mInt3)
     {
-        sprintf(intDataString, "Int3: %d", mInt3);
+        sprintf(intDataString, "Int3: %"PRIdPTR, mInt3);
         dumpString += intDataString;
         dumpString += terminator;
     }
     if(mInt4)
     {
-        sprintf(intDataString, "Int4: %d", mInt4);
+        sprintf(intDataString, "Int4: %"PRIdPTR, mInt4);
         dumpString += intDataString;
         dumpString += terminator;
     }
     if(mInt5)
     {
-        sprintf(intDataString, "Int5: %d", mInt5);
+        sprintf(intDataString, "Int5: %"PRIdPTR, mInt5);
         dumpString += intDataString;
         dumpString += terminator;
     }
     if(mInt6)
     {
-        sprintf(intDataString, "Int6: %d", mInt6);
+        sprintf(intDataString, "Int6: %"PRIdPTR, mInt6);
         dumpString += intDataString;
         dumpString += terminator;
     }

@@ -360,9 +360,9 @@ OsStatus CallManager::addTaoListener(OsServerTask* pListener,
         {
             // Create an iterator to sequence through callStack.
             UtlSListIterator iterator(callStack);
-            UtlInt* callCollectable;
+            UtlVoidPtr* callCollectable;
             CpCall* call;
-            callCollectable = (UtlInt*)iterator();
+            callCollectable = (UtlVoidPtr*)iterator();
             while (callCollectable)
             {
                 call = (CpCall*)callCollectable->getValue();
@@ -372,7 +372,7 @@ OsStatus CallManager::addTaoListener(OsServerTask* pListener,
                     call->addTaoListener(pListener, callId, ConnectId, mask);
                     rc = OS_SUCCESS;
                 }
-                callCollectable = (UtlInt*)iterator();
+                callCollectable = (UtlVoidPtr*)iterator();
             }
         }
     }
@@ -393,7 +393,7 @@ OsStatus CallManager::addThisListener(OsServerTask* pListener,
         // Check whether this listener (defined by PListener and callId) is
         // already in mpListners[].
         if (mpListeners[i] &&
-            mpListeners[i]->mpListenerPtr == (int) pListener &&
+            mpListeners[i]->mpListenerPtr == (intptr_t) pListener &&
             (!callId || mpListeners[i]->mName.compareTo(callId) == 0))
         {
             // If so, increment the count for this listener.
@@ -422,7 +422,7 @@ OsStatus CallManager::addThisListener(OsServerTask* pListener,
     {
         pListenerDb->mName.append(callId);
     }
-    pListenerDb->mpListenerPtr = (int) pListener;
+    pListenerDb->mpListenerPtr = (intptr_t) pListener;
     pListenerDb->mRef = 1;
     // Add it to mpListeners[].
     mpListeners[mListenerCnt++] = pListenerDb;
@@ -655,7 +655,7 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
         case CP_CALL_EXITED:
             {
                 CpCall* call;
-                ((CpIntMessage&)eventMessage).getIntData((int&) call);
+                ((CpIntMessage&)eventMessage).getIntData((intptr_t&) call);
 
                 OsSysLog::add(FAC_CP, PRI_DEBUG, "Call EXITING message received: %p infofocus: %p\r\n", 
                         (void*)call, (void*) infocusCall);
@@ -703,7 +703,7 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
         case CP_YIELD_FOCUS:
             {
                 CpCall* call;
-                ((CpIntMessage&)eventMessage).getIntData((int&) call);
+                ((CpIntMessage&)eventMessage).getIntData((intptr_t&) call);
 
                 OsSysLog::add(FAC_CP, PRI_DEBUG, "Call YIELD FOCUS message received: %p\r\n", (void*)call);
                 OsSysLog::add(FAC_CP, PRI_DEBUG, "infocusCall: %p\r\n", infocusCall);
@@ -715,7 +715,7 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
         case CP_GET_FOCUS:
             {
                 CpCall* call;
-                ((CpIntMessage&)eventMessage).getIntData((int&) call);
+                ((CpIntMessage&)eventMessage).getIntData((intptr_t&) call);
                 OsSysLog::add(FAC_CP, PRI_DEBUG, "Call GET FOCUS message received: %p\r\n", (void*)call);
                 OsSysLog::add(FAC_CP, PRI_DEBUG, "infocusCall: %p\r\n", infocusCall);
                 doGetFocus(call);
@@ -760,9 +760,9 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
                 int numCalls = 0;
                 UtlString callId;
                 UtlSList* callList;
-                UtlInt* callCollectable;
+                UtlVoidPtr* callCollectable;
                 OsProtectedEvent* getCallsEvent = (OsProtectedEvent*) ((CpMultiStringMessage&)eventMessage).getInt1Data();
-                getCallsEvent->getIntData((int&)callList);
+                getCallsEvent->getIntData((intptr_t&)callList);
 
                 if(getCallsEvent)
                 {
@@ -779,7 +779,7 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
                     CpCall* call = NULL;
 
                     UtlSListIterator iterator(callStack);
-                    callCollectable = (UtlInt*) iterator();
+                    callCollectable = (UtlVoidPtr*) iterator();
                     while(callCollectable)
                     {
                         call = (CpCall*) callCollectable->getValue();
@@ -789,7 +789,7 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
                             callList->append(new UtlString(callId));
                             numCalls++;
                         }
-                        callCollectable = (UtlInt*) iterator();
+                        callCollectable = (UtlVoidPtr*) iterator();
                     }
 
                     // Signal the caller that we are done.
@@ -1066,8 +1066,8 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
             OsMsg* timerMsg;
             OsTimer* timer;
 
-            ((OsEventMsg&)eventMessage).getUserData((int&)timerMsg);
-            ((OsEventMsg&)eventMessage).getEventData((int&)timer);
+            ((OsEventMsg&)eventMessage).getUserData((intptr_t&)timerMsg);
+            ((OsEventMsg&)eventMessage).getEventData((intptr_t&)timer);
 
             if(timer)
             {
@@ -1142,11 +1142,11 @@ void CallManager::requestShutdown()
 
     UtlSListIterator iterator(callStack);
     CpCall* call = NULL;
-    UtlInt* callCollectable;
+    UtlVoidPtr* callCollectable;
 
     while(! callStack.isEmpty() && ! iterator.atLast())
     {
-        callCollectable = (UtlInt*) iterator();
+        callCollectable = (UtlVoidPtr*) iterator();
         if(callCollectable)
         {
             call = (CpCall*) callCollectable->getValue();
@@ -1222,11 +1222,11 @@ OsStatus CallManager::getCalls(int maxCalls, int& numCalls,
     OsProtectEventMgr* eventMgr = OsProtectEventMgr::getEventMgr();
     UtlSList* addressList = new UtlSList;
     OsProtectedEvent* callsSet = eventMgr->alloc();
-    callsSet->setIntData((int) addressList);
+    callsSet->setIntData((intptr_t) addressList);
     OsTime maxEventTime(CP_MAX_EVENT_WAIT_SECONDS, 0);
     OsStatus returnCode = OS_WAIT_TIMEOUT;
     CpMultiStringMessage getCallsMessage(CP_GET_CALLS, NULL, NULL, NULL,
-        NULL, NULL, (int)callsSet);
+        NULL, NULL, (intptr_t)callsSet);
     postMessage(getCallsMessage);
 
     // Wait until the call manager sets the callIDs
@@ -1288,9 +1288,9 @@ void CallManager::getRemoteUserAgent(const char* callId, const char* remoteAddre
     OsProtectedEvent* agentSet = eventMgr->alloc();
     OsTime maxEventTime(CP_MAX_EVENT_WAIT_SECONDS, 0);
     UtlString* pUserAgent = new UtlString;
-    agentSet->setIntData((int) pUserAgent);
+    agentSet->setIntData((intptr_t) pUserAgent);
     CpMultiStringMessage getAgentMessage(CP_GET_USERAGENT, callId, remoteAddress, NULL,
-        NULL, NULL, (int)agentSet);
+        NULL, NULL, (intptr_t)agentSet);
     postMessage(getAgentMessage);
 
     // Wait until the call manager sets the callIDs
@@ -1342,8 +1342,8 @@ PtStatus CallManager::connect(const char* callId,
     {
         CpMultiStringMessage callMessage(CP_CONNECT, callId,
             toAddressUrl, fromAddressUrl, desiredCallId, locationHeader,
-            contactId, (int)pDisplay, (int)pSecurity, 
-            (int)bandWidth, (int)pTransportDataCopy, rtpTransportOptions);
+            contactId, (intptr_t)pDisplay, (intptr_t)pSecurity, 
+            (intptr_t)bandWidth, (intptr_t)pTransportDataCopy, rtpTransportOptions);
         postMessage(callMessage);
     }
     return(returnCode);
@@ -1401,12 +1401,12 @@ UtlBoolean CallManager::sendInfo(const char*  callId,
             szContentType, 
             UtlString(szContent, nContentLength),
             NULL, 
-            (int) pSuccessEvent) ;
+            (intptr_t)pSuccessEvent) ;
     postMessage(infoMessage);
 
     if (pSuccessEvent->wait(0, maxEventTime) == OS_SUCCESS)
     {
-        int success ;
+        intptr_t success ;
         pSuccessEvent->getEventData(success);
         bRC = success ;
         eventMgr->release(pSuccessEvent);
@@ -1549,13 +1549,13 @@ PtStatus CallManager::split(const char* szSourceCallId,
             szTargetCallId, 
             NULL, 
             NULL,
-            (int) splitSuccess);
+            (intptr_t) splitSuccess);
     postMessage(splitMessage);
 
     // Wait until the call sets the number of connections
     if(splitSuccess->wait(0, maxEventTime) == OS_SUCCESS)
     {
-        int success ;
+        intptr_t success ;
         splitSuccess->getEventData(success);
         eventMgr->release(splitSuccess);
 
@@ -1689,13 +1689,13 @@ OsStatus CallManager::audioChannelRecordStart(const char* callId, const char* sz
             szFile, 
             NULL, 
             NULL,
-            (int) pEvent);
+            (intptr_t) pEvent);
     postMessage(message);
 
     // Wait for error response
     if(pEvent->wait(0, maxEventTime) == OS_SUCCESS)
     {
-        int success ;
+        intptr_t success;
         pEvent->getEventData(success);
         eventMgr->release(pEvent);
 
@@ -1732,14 +1732,14 @@ OsStatus CallManager::audioChannelRecordStop(const char* callId, const char* szR
             NULL,
             NULL, 
             NULL,
-            (int) pEvent);
+            (intptr_t) pEvent);
 
     postMessage(message);
 
     // Wait for error response
     if(pEvent->wait(0, maxEventTime) == OS_SUCCESS)
     {
-        int success ;
+        intptr_t success;
         pEvent->getEventData(success);
         eventMgr->release(pEvent);
 
@@ -1762,7 +1762,7 @@ OsStatus CallManager::audioChannelRecordStop(const char* callId, const char* szR
 }
 
 
-void CallManager::bufferPlay(const char* callId, int audioBuf, int bufSize, int type, UtlBoolean repeat, UtlBoolean local, UtlBoolean remote)
+void CallManager::bufferPlay(const char* callId, const void* audioBuf, int bufSize, int type, UtlBoolean repeat, UtlBoolean local, UtlBoolean remote)
 {
     OsProtectEventMgr* eventMgr = OsProtectEventMgr::getEventMgr();
     OsProtectedEvent* pEvent = eventMgr->alloc();
@@ -1774,14 +1774,14 @@ void CallManager::bufferPlay(const char* callId, int audioBuf, int bufSize, int 
 
     CpMultiStringMessage startToneMessage(CP_PLAY_BUFFER_TERM_CONNECTION,
        callId, NULL, NULL, NULL, NULL,
-       (int)pEvent, repeat, local, remote, audioBuf, bufSize, type);
+       (intptr_t)pEvent, repeat, local, remote, (intptr_t)audioBuf, bufSize, type);
 
     postMessage(startToneMessage);
 
     // Wait for error response
     if(pEvent->wait(0, maxEventTime) == OS_SUCCESS)
     {
-        int success ;
+        intptr_t success ;
         pEvent->getEventData(success);
         eventMgr->release(pEvent);
 
@@ -1815,7 +1815,7 @@ void CallManager::createPlayer(const char* callId,
 
     CpMultiStringMessage msg(msgtype,
         callId, NULL, NULL, NULL, NULL, // strings
-        (int)ev, (int) ppPlayer, 0); // ints
+        (intptr_t)ev, (intptr_t) ppPlayer, 0); // ints
 
     postMessage(msg);
 
@@ -1864,7 +1864,7 @@ void CallManager::createPlayer(int type,
     OsTime maxEventTime(CP_MAX_EVENT_WAIT_SECONDS, 0);
     CpMultiStringMessage msg(msgtype,
         callId, szStream, NULL, NULL, NULL, // strings
-        (int)ev, (int) ppPlayer, flags);   // ints
+        (intptr_t)ev, (intptr_t) ppPlayer, flags);   // ints
 
     postMessage(msg);
 
@@ -1899,7 +1899,7 @@ void CallManager::destroyPlayer(const char* callId, MpStreamPlaylistPlayer* pPla
 
     CpMultiStringMessage msg(msgtype,
         callId, NULL, NULL, NULL, NULL, // strings
-        (int) ev, (int) pPlayer);   // ints
+        (intptr_t) ev, (intptr_t) pPlayer);   // ints
 
     postMessage(msg);
 
@@ -1948,7 +1948,7 @@ void CallManager::destroyPlayer(int type, const char* callId, MpStreamPlayer* pP
 
     CpMultiStringMessage msg(msgtype,
         callId, NULL, NULL, NULL, NULL, // strings
-        (int) ev, (int) pPlayer);   // ints
+        (intptr_t) ev, (intptr_t) pPlayer);   // ints
 
     postMessage(msg);
 
@@ -2003,7 +2003,7 @@ void CallManager::acceptConnection(const char* callId,
                                    UtlBoolean sendEarlyMedia)
 {
     CpMultiStringMessage acceptMessage(CP_ACCEPT_CONNECTION, callId, address, NULL, NULL, locationHeader, (int) contactId, 
-                                       (int) hWnd, (int) security, (int)bandWidth, sendEarlyMedia);
+                                       (intptr_t) hWnd, (intptr_t) security, (intptr_t)bandWidth, sendEarlyMedia);
     postMessage(acceptMessage);
 }
 
@@ -2043,13 +2043,15 @@ void CallManager::getNumConnections(const char* callId, int& numConnections)
     OsTime maxEventTime(CP_MAX_EVENT_WAIT_SECONDS, 0);
     CpMultiStringMessage getNumMessage(CP_GET_NUM_CONNECTIONS, callId, NULL,
         NULL, NULL, NULL,
-        (int)numConnectionsSet);
+        (intptr_t)numConnectionsSet);
     postMessage(getNumMessage);
 
     // Wait until the call sets the number of connections
     if(numConnectionsSet->wait(0, maxEventTime) == OS_SUCCESS)
     {
-        numConnectionsSet->getEventData(numConnections);
+        intptr_t temp;
+        numConnectionsSet->getEventData(temp);
+        numConnections = temp;
         eventMgr->release(numConnectionsSet);
 
 #ifdef TEST_PRINT_EVENT
@@ -2075,12 +2077,12 @@ OsStatus CallManager::getConnections(const char* callId, int maxConnections,
     OsProtectEventMgr* eventMgr = OsProtectEventMgr::getEventMgr();
     UtlSList* addressList = new UtlSList;
     OsProtectedEvent* numConnectionsSet = eventMgr->alloc();
-    numConnectionsSet->setIntData((int) addressList);
+    numConnectionsSet->setIntData((intptr_t)addressList);
     OsTime maxEventTime(CP_MAX_EVENT_WAIT_SECONDS, 0);
     OsStatus returnCode = OS_WAIT_TIMEOUT;
     CpMultiStringMessage getNumMessage(CP_GET_CONNECTIONS, callId, NULL, NULL,
         NULL, NULL,
-        (int)numConnectionsSet);
+        (intptr_t)numConnectionsSet);
     postMessage(getNumMessage);
 
     // Wait until the call sets the number of connections
@@ -2139,12 +2141,12 @@ OsStatus CallManager::getCalledAddresses(const char* callId, int maxConnections,
     OsProtectEventMgr* eventMgr = OsProtectEventMgr::getEventMgr();
     UtlSList* addressList = new UtlSList;
     OsProtectedEvent* numConnectionsSet = eventMgr->alloc();
-    numConnectionsSet->setIntData((int) addressList);
+    numConnectionsSet->setIntData((intptr_t) addressList);
     OsTime maxEventTime(CP_MAX_EVENT_WAIT_SECONDS, 0);
     OsStatus returnCode = OS_WAIT_TIMEOUT;
     CpMultiStringMessage getNumMessage(CP_GET_CALLED_ADDRESSES, callId, NULL,
         NULL, NULL, NULL,
-        (int)numConnectionsSet);
+        (intptr_t)numConnectionsSet);
     postMessage(getNumMessage);
 
     // Wait until the call sets the number of connections
@@ -2202,12 +2204,12 @@ OsStatus CallManager::getCallingAddresses(const char* callId, int maxConnections
     OsProtectEventMgr* eventMgr = OsProtectEventMgr::getEventMgr();
     UtlSList* addressList = new UtlSList;
     OsProtectedEvent* numConnectionsSet = eventMgr->alloc();
-    numConnectionsSet->setIntData((int) addressList);
+    numConnectionsSet->setIntData((intptr_t) addressList);
     OsTime maxEventTime(CP_MAX_EVENT_WAIT_SECONDS, 0);
     OsStatus returnCode = OS_WAIT_TIMEOUT;
     CpMultiStringMessage getNumMessage(CP_GET_CALLING_ADDRESSES, callId, NULL,
         NULL, NULL, NULL,
-        (int)numConnectionsSet);
+        (intptr_t)numConnectionsSet);
     postMessage(getNumMessage);
 
     // Wait until the call sets the number of connections
@@ -2330,12 +2332,12 @@ OsStatus CallManager::getSession(const char* callId,
 #endif
     OsProtectEventMgr* eventMgr = OsProtectEventMgr::getEventMgr();
     OsProtectedEvent* getSessionEvent = eventMgr->alloc();
-    getSessionEvent->setIntData((int) sessionPtr);
+    getSessionEvent->setIntData((intptr_t) sessionPtr);
     OsTime maxEventTime(CP_MAX_EVENT_WAIT_SECONDS, 0);
     OsStatus returnCode = OS_WAIT_TIMEOUT;
     CpMultiStringMessage getFieldMessage(CP_GET_SESSION, callId, address,
         NULL, NULL, NULL,
-        (int)getSessionEvent);
+        (intptr_t)getSessionEvent);
     postMessage(getFieldMessage);
 
     // Wait until the call sets the number of connections
@@ -2520,13 +2522,15 @@ void CallManager::getNumTerminalConnections(const char* callId, const char* addr
     OsTime maxEventTime(CP_MAX_EVENT_WAIT_SECONDS, 0);
     CpMultiStringMessage getNumMessage(CP_GET_NUM_TERM_CONNECTIONS, callId,
         address, NULL, NULL, NULL,
-        (int)numConnectionsSet);
+        (intptr_t)numConnectionsSet);
     postMessage(getNumMessage);
 
     // Wait until the call sets the number of connections
     if(numConnectionsSet->wait(0, maxEventTime) == OS_SUCCESS)
     {
-        numConnectionsSet->getEventData(numConnections);
+        intptr_t temp;
+        numConnectionsSet->getEventData(temp);
+        numConnections = temp;
 
 #ifdef TEST_PRINT_EVENT
         OsSysLog::add(FAC_CP, PRI_DEBUG, "CallManager::getNumTerminalConnections %d connections\n",
@@ -2553,12 +2557,12 @@ OsStatus CallManager::getTerminalConnections(const char* callId, const char* add
     OsProtectEventMgr* eventMgr = OsProtectEventMgr::getEventMgr();
     UtlSList* addressList = new UtlSList;
     OsProtectedEvent* numConnectionsSet = eventMgr->alloc();
-    numConnectionsSet->setIntData((int) addressList);
+    numConnectionsSet->setIntData((intptr_t) addressList);
     OsTime maxEventTime(CP_MAX_EVENT_WAIT_SECONDS, 0);
     OsStatus returnCode = OS_WAIT_TIMEOUT;
     CpMultiStringMessage getNumMessage(CP_GET_TERM_CONNECTIONS, callId, address,
         NULL, NULL, NULL,
-        (int)numConnectionsSet);
+        (intptr_t)numConnectionsSet);
     postMessage(getNumMessage);
 
     // Wait until the call sets the number of connections
@@ -2625,14 +2629,16 @@ OsStatus CallManager::getCodecCPUCostCall(const char* callId, int& cost)
     OsTime maxEventTime(CP_MAX_EVENT_WAIT_SECONDS, 0);
     CpMultiStringMessage getCodecCPUCostMsg(CP_GET_CODEC_CPU_COST, callId, NULL,
         NULL, NULL, NULL,
-        (int)getCodecCPUCostEvent);
+        (intptr_t)getCodecCPUCostEvent);
     postMessage(getCodecCPUCostMsg);
 
 
     // Wait until the call sets the number of connections
     if(getCodecCPUCostEvent->wait(0, maxEventTime) == OS_SUCCESS)
     {
-        getCodecCPUCostEvent->getEventData(cost);
+        intptr_t temp;
+        getCodecCPUCostEvent->getEventData(temp);
+        cost = temp;
         eventMgr->release(getCodecCPUCostEvent);
     }
     else
@@ -2661,14 +2667,16 @@ OsStatus CallManager::getCodecCPULimitCall(const char* callId, int& cost)
     OsTime maxEventTime(CP_MAX_EVENT_WAIT_SECONDS, 0);
     CpMultiStringMessage getCodecCPULimitMsg(CP_GET_CODEC_CPU_LIMIT, callId, NULL,
         NULL, NULL, NULL,
-        (int)getCodecCPULimitEvent);
+        (intptr_t)getCodecCPULimitEvent);
     postMessage(getCodecCPULimitMsg);
 
 
     // Wait until the call sets the number of connections
     if(getCodecCPULimitEvent->wait(0, maxEventTime) == OS_SUCCESS)
     {
-        getCodecCPULimitEvent->getEventData(cost);
+        intptr_t temp;
+        getCodecCPULimitEvent->getEventData(temp);
+        cost = temp;
         eventMgr->release(getCodecCPULimitEvent);
     }
     else
@@ -2732,7 +2740,7 @@ void CallManager::answerTerminalConnection(const char* callId, const char* addre
         pSecurityCopy = new SIPX_SECURITY_ATTRIBUTES(*(SIPX_SECURITY_ATTRIBUTES*)pSecurity);
     }
     
-    CpMultiStringMessage callConnectionMessage(CP_ANSWER_CONNECTION, callId, address, NULL, NULL, NULL, (int)pDisplayCopy, (int)pSecurityCopy);
+    CpMultiStringMessage callConnectionMessage(CP_ANSWER_CONNECTION, callId, address, NULL, NULL, NULL, (intptr_t)pDisplayCopy, (intptr_t)pSecurityCopy);
     postMessage(callConnectionMessage);
     mnTotalIncomingCalls++;
 
@@ -2803,13 +2811,13 @@ UtlBoolean CallManager::isTerminalConnectionLocal(const char* callId, const char
     OsTime maxEventTime(CP_MAX_EVENT_WAIT_SECONDS, 0);
     CpMultiStringMessage getNumMessage(CP_IS_LOCAL_TERM_CONNECTION, callId,
         address, terminalId, NULL, NULL,
-        (int)isLocalSet);
+        (intptr_t)isLocalSet);
     postMessage(getNumMessage);
 
     // Wait until the call sets the number of connections
     if(isLocalSet->wait(0, maxEventTime) == OS_SUCCESS)
     {
-        int tmpIsLocal;
+        intptr_t tmpIsLocal;
         isLocalSet->getEventData(tmpIsLocal);
         isLocal = tmpIsLocal;  // workaround conversion issue in newer RW library
 
@@ -2840,7 +2848,7 @@ OsStatus CallManager::stopRecording(const char* callId)
     OsTime maxEventTime(CP_MAX_EVENT_WAIT_SECONDS, 0);
 
     CpMultiStringMessage recordMessage(CP_STOPRECORD, callId,
-        NULL, NULL, NULL, NULL, (int)stoprecEvent,0,0,0);
+        NULL, NULL, NULL, NULL, (intptr_t)stoprecEvent,0,0,0);
     postMessage(recordMessage);
 
     // Wait until the call sets the number of connections
@@ -2871,7 +2879,7 @@ OsStatus CallManager::ezRecord(const char* callId,
 {
     CpMultiStringMessage recordMessage(CP_EZRECORD,
         callId, fileName, NULL, NULL, NULL,
-        (int)recordEvent, ms, silenceLength);
+        (intptr_t)recordEvent, ms, silenceLength);
     postMessage(recordMessage);
 
     return OS_SUCCESS;
@@ -2885,20 +2893,22 @@ OsStatus CallManager::enableDtmfEvent(const char* callId,
 {
     CpMultiStringMessage dtmfMessage(CP_ENABLE_DTMF_EVENT, callId,
         NULL, NULL, NULL, NULL,
-        (int)dtmfEvent, interDigitSecs, ignoreKeyUp);
+        (intptr_t)dtmfEvent, interDigitSecs, ignoreKeyUp);
     postMessage(dtmfMessage);
     return OS_SUCCESS;
 }
 
-void CallManager::disableDtmfEvent(const char* callId, int dtmfEvent)
+void CallManager::disableDtmfEvent(const char* callId, OsEvent* dtmfEvent)
 {
-    CpMultiStringMessage msg(CP_DISABLE_DTMF_EVENT, callId, NULL, NULL, NULL, NULL, dtmfEvent);
+    CpMultiStringMessage msg(CP_DISABLE_DTMF_EVENT, callId, NULL, NULL, NULL, NULL,
+                             (intptr_t)dtmfEvent);
     postMessage(msg);
 }
 
-void CallManager::removeDtmfEvent(const char* callId, int dtmfEvent)
+void CallManager::removeDtmfEvent(const char* callId, OsEvent* dtmfEvent)
 {
-    CpMultiStringMessage msg(CP_REMOVE_DTMF_EVENT, callId, NULL, NULL, NULL, NULL, dtmfEvent);
+    CpMultiStringMessage msg(CP_REMOVE_DTMF_EVENT, callId, NULL, NULL, NULL, NULL,
+                             (intptr_t)dtmfEvent);
     postMessage(msg);
 }
 
@@ -2967,7 +2977,7 @@ void CallManager::enableStun(const char* szStunServer,
                              OsNotification* pNotification)
 {
     CpMultiStringMessage enableStunMessage(CP_ENABLE_STUN, szStunServer, NULL, 
-            NULL, NULL, NULL, iServerPort, iKeepAlivePeriodSecs, (int) pNotification) ;
+            NULL, NULL, NULL, iServerPort, iKeepAlivePeriodSecs, (intptr_t) pNotification) ;
     postMessage(enableStunMessage);
 }
 
@@ -2995,13 +3005,15 @@ UtlBoolean CallManager::getCallState(const char* callId, int& state)
     OsProtectedEvent* callState = eventMgr->alloc();
     OsTime maxEventTime(CP_MAX_EVENT_WAIT_SECONDS, 0);
     CpMultiStringMessage getCallStateMessage(CP_GET_CALLSTATE, callId, NULL, NULL,
-        NULL, NULL, (int)callState);
+        NULL, NULL, (intptr_t)callState);
     postMessage(getCallStateMessage);
 
     // Wait until the call sets the call state
     if(callState->wait(0, maxEventTime) == OS_SUCCESS)
     {
-        callState->getEventData(state);
+        intptr_t temp;
+        callState->getEventData(temp);
+        state = temp;
 
 #ifdef TEST_PRINT_EVENT
         OsSysLog::add(FAC_CP, PRI_DEBUG, "CallManager::getCallState state: %d\n",
@@ -3031,13 +3043,15 @@ UtlBoolean CallManager::getConnectionState(const char* callId, const char* remot
     OsProtectedEvent* connectionState = eventMgr->alloc();
     OsTime maxEventTime(CP_MAX_EVENT_WAIT_SECONDS, 0);
     CpMultiStringMessage getConnectionStateMessage(CP_GET_CONNECTIONSTATE, callId, remoteAddress, NULL,
-        NULL, NULL, (int)connectionState);
+        NULL, NULL, (intptr_t)connectionState);
     postMessage(getConnectionStateMessage);
 
     // Wait until the call sets the call state
     if(connectionState->wait(0, maxEventTime) == OS_SUCCESS)
     {
-        connectionState->getEventData(state);
+        intptr_t temp;
+        connectionState->getEventData(temp);
+        state = temp;
 
 #ifdef TEST_PRINT_EVENT
         OsSysLog::add(FAC_CP, PRI_DEBUG, "CallManager::getConnectionState state: %d\n",
@@ -3065,13 +3079,15 @@ UtlBoolean CallManager::getNextSipCseq(const char* callId, const char* remoteAdd
     OsProtectedEvent* connectionState = eventMgr->alloc();
     OsTime maxEventTime(CP_MAX_EVENT_WAIT_SECONDS, 0);
     CpMultiStringMessage getConnectionStateMessage(CP_GET_NEXT_CSEQ, callId, remoteAddress, NULL,
-        NULL, NULL, (int)connectionState);
+        NULL, NULL, (intptr_t)connectionState);
     postMessage(getConnectionStateMessage);
 
     // Wait until the call sets the call state
     if(connectionState->wait(0, maxEventTime) == OS_SUCCESS)
     {
-        connectionState->getEventData(nextCseq);
+        intptr_t temp;
+        connectionState->getEventData(temp);
+        nextCseq = temp;
 
 #ifdef TEST_PRINT_EVENT
         OsSysLog::add(FAC_CP, PRI_DEBUG, "CallManager::getConnectionState state: %d\n",
@@ -3104,13 +3120,15 @@ UtlBoolean CallManager::getTermConnectionState(const char* callId,
     OsTime maxEventTime(CP_MAX_EVENT_WAIT_SECONDS, 0);
     CpMultiStringMessage getTermConnectionStateMessage(CP_GET_TERMINALCONNECTIONSTATE,
         callId, address, terminal,
-        NULL, NULL, (int)termConnectionState);
+        NULL, NULL, (intptr_t)termConnectionState);
     postMessage(getTermConnectionStateMessage);
 
     // Wait until the call sets the call state
     if(termConnectionState->wait(0, maxEventTime) == OS_SUCCESS)
     {
-        termConnectionState->getEventData(state);
+        intptr_t temp;
+        termConnectionState->getEventData(temp);
+        state = temp;
 
 #ifdef TEST_PRINT_EVENT
         OsSysLog::add(FAC_CP, PRI_DEBUG, "CallManager::getTermConnectionState state: %d\n",
@@ -3161,13 +3179,13 @@ UtlBoolean CallManager::changeCallFocus(CpCall* callToTakeFocus)
 
 void CallManager::pushCall(CpCall* call)
 {
-    callStack.insertAt(0, new UtlInt((int) call));
+    callStack.insertAt(0, new UtlVoidPtr((void*)call));
 }
 
 CpCall* CallManager::popCall()
 {
     CpCall* call = NULL;
-    UtlInt* callCollectable = (UtlInt*) callStack.get();
+    UtlVoidPtr* callCollectable = (UtlVoidPtr*) callStack.get();
     if(callCollectable)
     {
         call = (CpCall*) callCollectable->getValue();
@@ -3179,8 +3197,8 @@ CpCall* CallManager::popCall()
 
 CpCall* CallManager::removeCall(CpCall* call)
 {
-    UtlInt matchCall((int)call);
-    UtlInt* callCollectable = (UtlInt*) callStack.remove(&matchCall);
+    UtlVoidPtr matchCall((void*)call);
+    UtlVoidPtr* callCollectable = (UtlVoidPtr*) callStack.remove(&matchCall);
     if(callCollectable)
     {
         call = (CpCall*) callCollectable->getValue();
@@ -3225,9 +3243,9 @@ CpCall* CallManager::findHandlingCall(const char* callId)
     if(!handlingCall)
     {
         UtlSListIterator iterator(callStack);
-        UtlInt* callCollectable;
+        UtlVoidPtr* callCollectable;
         CpCall* call;
-        callCollectable = (UtlInt*)iterator();
+        callCollectable = (UtlVoidPtr*)iterator();
         while(callCollectable &&
             !handlingCall)
         {
@@ -3236,7 +3254,7 @@ CpCall* CallManager::findHandlingCall(const char* callId)
             {
                 handlingCall = call;
             }
-            callCollectable = (UtlInt*)iterator();
+            callCollectable = (UtlVoidPtr*)iterator();
         }
 
     }
@@ -3259,9 +3277,9 @@ CpCall* CallManager::findHandlingCall(int callIndex)
     if(!handlingCall)
     {
         UtlSListIterator iterator(callStack);
-        UtlInt* callCollectable;
+        UtlVoidPtr* callCollectable;
         CpCall* call;
-        callCollectable = (UtlInt*)iterator();
+        callCollectable = (UtlVoidPtr*)iterator();
         while(callCollectable &&
             !handlingCall)
         {
@@ -3270,7 +3288,7 @@ CpCall* CallManager::findHandlingCall(int callIndex)
             {
                 handlingCall = call;
             }
-            callCollectable = (UtlInt*)iterator();
+            callCollectable = (UtlVoidPtr*)iterator();
         }
 
     }
@@ -3297,9 +3315,9 @@ CpCall* CallManager::findHandlingCall(const OsMsg& eventMessage)
     if(handlingWeight != CpCall::CP_DEFINITELY_WILL_HANDLE)
     {
         UtlSListIterator iterator(callStack);
-        UtlInt* callCollectable;
+        UtlVoidPtr* callCollectable;
         CpCall* call;
-        callCollectable = (UtlInt*)iterator();
+        callCollectable = (UtlVoidPtr*)iterator();
         while(callCollectable)
         {
             call = (CpCall*)callCollectable->getValue();
@@ -3319,7 +3337,7 @@ CpCall* CallManager::findHandlingCall(const OsMsg& eventMessage)
                     break;
                 }
             }
-            callCollectable = (UtlInt*)iterator();
+            callCollectable = (UtlVoidPtr*)iterator();
         }
 
     }
@@ -3331,9 +3349,9 @@ CpCall* CallManager::findFirstQueuedCall()
 {
     CpCall* queuedCall = NULL;
     UtlSListIterator iterator(callStack);
-    UtlInt* callCollectable;
+    UtlVoidPtr* callCollectable;
     CpCall* call;
-    callCollectable = (UtlInt*)iterator();
+    callCollectable = (UtlVoidPtr*)iterator();
 
     // Go all the way through, the last queued call is the first in line
     while(callCollectable)
@@ -3343,7 +3361,7 @@ CpCall* CallManager::findFirstQueuedCall()
         {
             queuedCall = call;
         }
-        callCollectable = (UtlInt*)iterator();
+        callCollectable = (UtlVoidPtr*)iterator();
     }
 
     return(queuedCall);
@@ -3379,9 +3397,9 @@ void CallManager::printCalls()
     int callIndex = 0;
 
     UtlSListIterator iterator(callStack);
-    UtlInt* callCollectable;
+    UtlVoidPtr* callCollectable;
     CpCall* call;
-    callCollectable = (UtlInt*)iterator();
+    callCollectable = (UtlVoidPtr*)iterator();
     while(callCollectable)
     {
         call = (CpCall*)callCollectable->getValue();
@@ -3393,7 +3411,7 @@ void CallManager::printCalls()
                 call->isStarted(), call->isSuspended());
             call->printCall();
         }
-        callCollectable = (UtlInt*)iterator();
+        callCollectable = (UtlVoidPtr*)iterator();
         callIndex++;
     }
     if(callIndex == 0)
@@ -3667,7 +3685,8 @@ OsStatus CallManager::getLocalContactAddresses(const char* callId,
     OsProtectedEvent* getLocalContacts = eventMgr->alloc();
     OsTime maxEventTime(CP_MAX_EVENT_WAIT_SECONDS, 0);
     CpMultiStringMessage msg(CP_GET_LOCAL_CONTACTS, callId, NULL, NULL,
-        NULL, NULL, (int) getLocalContacts, (int) addresses, (int) nMaxAddresses, (int) &nActaulAddresses);
+        NULL, NULL, (intptr_t)getLocalContacts, (intptr_t)addresses, (intptr_t)nMaxAddresses,
+        (intptr_t)&nActaulAddresses);
     postMessage(msg);
 
     // Wait until the call sets the call state
@@ -3694,11 +3713,11 @@ OsStatus CallManager::getLocalContactAddresses(const char* callId,
 
 int CallManager::getMediaConnectionId(const char* szCallId, const char* szRemoteAddress, void** ppInstData)
 {
-    int connectionId = -1;
+    intptr_t connectionId = -1;
     OsProtectEventMgr* eventMgr = OsProtectEventMgr::getEventMgr();
     OsProtectedEvent* getIdEvent = eventMgr->alloc();
     OsTime maxEventTime(CP_MAX_EVENT_WAIT_SECONDS, 0);
-    CpMultiStringMessage getIdMessage(CP_GET_MEDIA_CONNECTION_ID, szCallId, szRemoteAddress, NULL, NULL, NULL, (int) getIdEvent, (int) ppInstData);
+    CpMultiStringMessage getIdMessage(CP_GET_MEDIA_CONNECTION_ID, szCallId, szRemoteAddress, NULL, NULL, NULL, (intptr_t) getIdEvent, (intptr_t) ppInstData);
     postMessage(getIdMessage);
 
     // Wait until the call sets the number of connections
@@ -3736,18 +3755,18 @@ UtlBoolean CallManager::getAudioEnergyLevels(const char*   szCallId,
     OsTime maxEventTime(CP_MAX_EVENT_WAIT_SECONDS, 0);
     CpMultiStringMessage getELMessage(CP_GET_MEDIA_ENERGY_LEVELS, 
             szCallId, szRemoteAddress, NULL, NULL, NULL, 
-            (int) getELEvent,
-            (int) &iInputEnergyLevel, 
-            (int) &iOutputEnergyLevel, 
-            (int) &nContributors,
-            (int) pContributorSRCIds,
-            (int) pContributorEngeryLevels);
+            (intptr_t) getELEvent,
+            (intptr_t) &iInputEnergyLevel, 
+            (intptr_t) &iOutputEnergyLevel, 
+            (intptr_t) &nContributors,
+            (intptr_t) pContributorSRCIds,
+            (intptr_t) pContributorEngeryLevels);
     postMessage(getELMessage);
 
     // Wait until the call sets the number of connections
     if(getELEvent->wait(0, maxEventTime) == OS_SUCCESS)
     {
-        int status ;
+        intptr_t status ;
         getELEvent->getEventData(status);
         eventMgr->release(getELEvent);
 
@@ -3777,15 +3796,15 @@ UtlBoolean CallManager::getAudioEnergyLevels(const char*   szCallId,
     OsTime maxEventTime(CP_MAX_EVENT_WAIT_SECONDS, 0);
     CpMultiStringMessage getELMessage(CP_GET_CALL_MEDIA_ENERGY_LEVELS, 
             szCallId, NULL, NULL, NULL, NULL, 
-            (int) getELEvent,
-            (int) &iInputEnergyLevel, 
-            (int) &iOutputEnergyLevel);
+            (intptr_t) getELEvent,
+            (intptr_t) &iInputEnergyLevel, 
+            (intptr_t) &iOutputEnergyLevel);
     postMessage(getELMessage);
 
     // Wait until the call sets the number of connections
     if(getELEvent->wait(0, maxEventTime) == OS_SUCCESS)
     {
-        int status ;
+        intptr_t status ;
         getELEvent->getEventData(status);
         eventMgr->release(getELEvent);
 
@@ -3816,15 +3835,15 @@ UtlBoolean CallManager::getAudioRtpSourceIDs(const char*   szCallId,
     OsTime maxEventTime(CP_MAX_EVENT_WAIT_SECONDS, 0);
     CpMultiStringMessage getSourceIdMessage(CP_GET_MEDIA_RTP_SOURCE_IDS, 
             szCallId, szRemoteAddress, NULL, NULL, NULL, 
-            (int) getSourceIdEvent,
-            (int) &uiSendingSSRC, 
-            (int) &uiReceivingSSRC);
+            (intptr_t) getSourceIdEvent,
+            (intptr_t) &uiSendingSSRC, 
+            (intptr_t) &uiReceivingSSRC);
     postMessage(getSourceIdMessage);
 
     // Wait until the call sets the number of connections
     if(getSourceIdEvent->wait(0, maxEventTime) == OS_SUCCESS)
     {
-        int status ;
+        intptr_t status ;
         getSourceIdEvent->getEventData(status);
         eventMgr->release(getSourceIdEvent);
 
@@ -3853,13 +3872,13 @@ UtlBoolean CallManager::canAddConnection(const char* szCallId)
     OsProtectEventMgr* eventMgr = OsProtectEventMgr::getEventMgr();
     OsProtectedEvent* getIdEvent = eventMgr->alloc();
     OsTime maxEventTime(CP_MAX_EVENT_WAIT_SECONDS, 0);
-    CpMultiStringMessage getIdMessage(CP_GET_CAN_ADD_PARTY, szCallId, NULL, NULL, NULL, NULL, (int) getIdEvent);
+    CpMultiStringMessage getIdMessage(CP_GET_CAN_ADD_PARTY, szCallId, NULL, NULL, NULL, NULL, (intptr_t)getIdEvent);
     postMessage(getIdMessage);
 
     // Wait until the call sets the number of connections
     if(getIdEvent->wait(0, maxEventTime) == OS_SUCCESS)
     {
-        int eventData ;
+        intptr_t eventData ;
         getIdEvent->getEventData(eventData);
         eventMgr->release(getIdEvent);
         bCanAdd = (UtlBoolean) eventData ;
@@ -4090,7 +4109,7 @@ void CallManager::doCreateCall(const char* callId,
                 mTurnServer, mTurnPort, mTurnUsername, mTurnPassword, 
                 mTurnKeepAlivePeriodSecs, isIceEnabled(), 8000);
 
-            OsSysLog::add(FAC_CP, PRI_DEBUG, "Creating new SIP Call, mediaInterface: 0x%08x\n", (int)mediaInterface);
+            OsSysLog::add(FAC_CP, PRI_DEBUG, "Creating new SIP Call, mediaInterface: %p\n", mediaInterface);
             call = new CpPeerCall(mIsEarlyMediaFor180,
                 this,
                 mediaInterface,
@@ -4169,7 +4188,7 @@ void CallManager::doConnect(const char* callId,
     {
         // For now just send the call a dialString
         CpMultiStringMessage dialStringMessage(CP_DIAL_STRING, addressUrl, desiredConnectionCallId, NULL, NULL, locationHeader,
-                                               contactId, (int)pDisplay, (int)pSecurity, bandWidth, (int) pTransport, rtpTransportOptions) ;
+                                               contactId, (intptr_t)pDisplay, (intptr_t)pSecurity, bandWidth, (intptr_t) pTransport, rtpTransportOptions) ;
         call->postMessage(dialStringMessage);
         call->setLocalConnectionState(PtEvent::CONNECTION_ESTABLISHED);
         call->stopMetaEvent();
@@ -4241,7 +4260,7 @@ void CallManager::releaseEvent(const char* callId,
                                OsProtectEventMgr* eventMgr,
                                OsProtectedEvent* dtmfEvent)
 {
-    removeDtmfEvent(callId, (int)dtmfEvent);
+    removeDtmfEvent(callId, dtmfEvent);
 
     // If the event has already been signalled, clean up
     if(OS_ALREADY_SIGNALED == dtmfEvent->signal(0))

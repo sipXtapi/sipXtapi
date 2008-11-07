@@ -172,8 +172,8 @@ public:
     int getLocalConnectionState() { return mLocalConnectionState; };
     //: Sets the local connection state for this call
 
-    void addToneListenerToFlowGraph(int pListener, Connection* connection);
-    void removeToneListenerFromFlowGraph(int pListener, Connection* connection);
+    void addToneListenerToFlowGraph(intptr_t pListener, Connection* connection);
+    void removeToneListenerFromFlowGraph(intptr_t pListener, Connection* connection);
 
     OsStatus ezRecord(int ms, int silenceLength, const char* fileName, double& duration);
     virtual OsStatus stopRecord();
@@ -257,7 +257,7 @@ protected:
                          char* callId = NULL,
                          int connectId = 0,
                          int mask = 0,
-                         int pEv = 0);
+                         intptr_t pEv = 0);
 
     CpCallManager* mpManager;
     UtlString mCallId;

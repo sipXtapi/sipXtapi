@@ -431,7 +431,7 @@ public:
     /*! Direct the media subsystem to play audio from a data buffer.
      */
     virtual void bufferPlay(const char* callId,
-                            int audiobuf,
+                            const void* audiobuf,
                             int bufSize,
                             int type,
                             UtlBoolean repeat,

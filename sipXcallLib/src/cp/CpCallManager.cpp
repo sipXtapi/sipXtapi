@@ -488,7 +488,7 @@ void CpCallManager::getNewCallId(const char* callIdPrefix, UtlString* callId)
       thisHost.replace('@','*');
 
       // Compose the static fields.
-      sprintf(buffer, "%d_%" FORMAT_INTLL "d_%s",
+      sprintf(buffer, "%d_%"PRId64"_%s",
               process_id, start_time, thisHost.data());
       // Hash them.
       NetMd5Codec encoder;
@@ -506,7 +506,7 @@ void CpCallManager::getNewCallId(const char* callIdPrefix, UtlString* callId)
    }
 
    // Compose the new Call-Id.
-   sprintf(buffer, "%s_%" FORMAT_INTLL "d_%s",
+   sprintf(buffer, "%s_%"PRId64"d_%s",
            callIdPrefix, mCallNum, suffix.data());
 
    // Copy it to the destination.
@@ -518,9 +518,9 @@ CpCall* CpCallManager::findCall(const char* callId)
     OsReadLock lock(mCallListMutex);
     UtlDListIterator callIterator(mCallList);
     CpCall* call = NULL;
-    UtlInt* callCollectable = NULL;
+    UtlVoidPtr* callCollectable = NULL;
 
-    while ((callCollectable = (UtlInt*) callIterator()))
+    while ((callCollectable = (UtlVoidPtr*) callIterator()))
     {
         call = (CpCall*) callCollectable->getValue();
         if(call && call->hasCallId(callId))
@@ -537,14 +537,14 @@ CpCall* CpCallManager::findCall(const char* callId)
 void CpCallManager::appendCall(CpCall* call)
 {
     OsWriteLock lock(mCallListMutex);
-    UtlInt* callCollectable = new UtlInt((int)call);
+    UtlVoidPtr* callCollectable = new UtlVoidPtr((void*)call);
     mCallList.append(callCollectable);
 }
 
 void CpCallManager::pushCall(CpCall* call)
 {
     OsWriteLock lock(mCallListMutex);
-    UtlInt* callCollectable = new UtlInt((int)call);
+    UtlVoidPtr* callCollectable = new UtlVoidPtr((void*)call);
     mCallList.insertAt(0, callCollectable);
 }
 

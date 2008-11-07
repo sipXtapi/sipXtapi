@@ -1545,11 +1545,11 @@ void sipxFireMediaEvent(const void* pSrc,
                                 }
                                 break ;
                             case MEDIA_REMOTE_SILENT:
-                                mediaInfo.idleTime = (int) pEventData ;
+                                mediaInfo.idleTime = (intptr_t) pEventData ;
                                 break ;
 							case MEDIA_REMOTE_DTMF:
-								mediaInfo.toneId = (SIPX_TONE_ID) (int) pEventData ;
-                            default:
+                                mediaInfo.toneId = (SIPX_TONE_ID) (intptr_t) pEventData ;
+                     default:
                                 break ;
                         }                                                        
                         pData->pCallbackProc(EVENT_CATEGORY_MEDIA, &mediaInfo, pData->pUserData);

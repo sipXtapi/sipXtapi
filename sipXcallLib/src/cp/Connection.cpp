@@ -74,7 +74,7 @@ Connection::Connection(CpCallManager* callMgr,
        OsSysLog::add(FAC_CP, PRI_DEBUG, "Connection constructed: call is Null\n");
 #endif
 
-    mpDtmfQueuedEvent = new OsQueuedEvent(*call->getMessageQueue(), (int) this) ;
+    mpDtmfQueuedEvent = new OsQueuedEvent(*call->getMessageQueue(), (intptr_t)this) ;
     mOfferingDelay = offeringDelayMilliSeconds;
     mLineAvailableBehavior = availableBehavior;
     if(mLineAvailableBehavior == FORWARD_UNCONDITIONAL &&
@@ -950,7 +950,7 @@ void Connection::setOfferingTimer(int milliSeconds)
         new CpMultiStringMessage(CpCallManager::CP_OFFERING_EXPIRED,
                     callId.data(), remoteAddr.data());
     OsTimer* timer = new OsTimer((mpCallManager->getMessageQueue()),
-            (int)offeringExpiredMessage);
+                                 (intptr_t)offeringExpiredMessage);
     // Convert from mSeconds to uSeconds
     OsTime timerTime(milliSeconds / 1000, milliSeconds % 1000);
     timer->oneshotAfter(timerTime);
@@ -978,7 +978,7 @@ void Connection::setRingingTimer(int seconds)
         new CpMultiStringMessage(CpCallManager::CP_RINGING_EXPIRED,
                     callId.data(), remoteAddr.data());
     OsTimer* timer = new OsTimer((mpCallManager->getMessageQueue()),
-            (int)offeringExpiredMessage);
+                                 (intptr_t)offeringExpiredMessage);
 
 #ifdef TEST_PRINT
     osPrintf("Setting ringing timeout in %d seconds\n",

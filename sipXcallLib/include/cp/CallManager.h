@@ -181,7 +181,7 @@ public:
     virtual void audioChannelStop(const char* callId, const char* szRemoteAddress);
     virtual OsStatus audioChannelRecordStart(const char* callId, const char* szRemoteAddress, const char* szFile) ;
     virtual OsStatus audioChannelRecordStop(const char* callId, const char* szRemoteAddress) ;
-    virtual void bufferPlay(const char* callId, int audiobuf, int bufSize, int type, UtlBoolean repeat, UtlBoolean local, UtlBoolean remote);
+    virtual void bufferPlay(const char* callId, const void* audiobuf, int bufSize, int type, UtlBoolean repeat, UtlBoolean local, UtlBoolean remote);
 
 #ifndef EXCLUDE_STREAMING
     virtual void createPlayer(const char* callid, MpStreamPlaylistPlayer** ppPlayer) ;
@@ -268,21 +268,21 @@ public:
          //                     CpCall's mDtmfEvents list and delete the event object.
 
     virtual OsStatus enableDtmfEvent(const char* callId,
-                                                                           int interDigitSecs,
-                     OsQueuedEvent* dtmfEvent,
-                     UtlBoolean ignoreKeyUp);
+                                     int interDigitSecs,
+                                     OsQueuedEvent* dtmfEvent,
+                                     UtlBoolean ignoreKeyUp);
 
-    virtual void disableDtmfEvent(const char* callId, int dtmfEvent);
+    virtual void disableDtmfEvent(const char* callId, OsEvent* dtmfEvent);
 
-    virtual void removeDtmfEvent(const char* callId, int dtmfEvent);
+    virtual void removeDtmfEvent(const char* callId, OsEvent* dtmfEvent);
 
 
     virtual OsStatus ezRecord(const char* callId,
-                        int ms,
-                        int silenceLength,
-                        int& duration,
-                        const char* fileName,
-                        OsProtectedEvent* recordEvent = NULL);
+                              int ms,
+                              int silenceLength,
+                              int& duration,
+                              const char* fileName,
+                              OsProtectedEvent* recordEvent = NULL);
 
     virtual OsStatus setCodecCPULimitCall(const char* callId, int limit, UtlBoolean bRenegotiate) ;
       //:Sets the CPU codec limit for a call.  Each connection within the call

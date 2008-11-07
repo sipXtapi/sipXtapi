@@ -170,7 +170,7 @@ void SipXHandleMap::dump()
     while ((pKey = (UtlInt*) itor()))
     {
         pValue = (UtlVoidPtr*) findValue(pKey) ;
-        printf("\tkey=%08X, value=%08X\n", pKey->getValue(), 
+        printf("\tkey=%08X, value=%p\n", pKey->getValue(), 
                 pValue ? pValue->getValue() : 0) ;                        
     }       
 }
