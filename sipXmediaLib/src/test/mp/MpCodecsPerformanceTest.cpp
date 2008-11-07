@@ -8,6 +8,10 @@
 // $$ 
 ////////////////////////////////////////////////////////////////////////////// 
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
 #include <mp/MpCodecFactory.h>
 #include <os/OsTime.h>
 #include <os/OsDateTime.h>
@@ -152,6 +156,11 @@ protected:
 
       // Allocate buffer for raw audio data
       pOriginal = new MpAudioSample[frameSize];
+      srand(time(NULL));
+      for (int k=0; k<frameSize; k++)
+      {
+         pOriginal[k] = rand()%32000 - 16000;
+      }
 
       // Create and initialize decoder and encoder
       CPPUNIT_ASSERT_EQUAL(OS_SUCCESS,
@@ -217,7 +226,7 @@ protected:
             OsDateTime::getCurTime(stop);
             CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, result);
             
-            // Print timing in TSV format
+            // Print timing in CSV format
             diff = stop - start;
             printf("encode %s/%d/%d %s;%d;%ld.%06ld;%ld.%06ld\n",
                    codecMime.data(), sampleRate, numChannels, codecFmtp.data(),
