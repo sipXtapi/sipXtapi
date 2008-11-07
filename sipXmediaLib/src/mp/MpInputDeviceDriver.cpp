@@ -30,10 +30,10 @@ MpInputDeviceDriver::MpInputDeviceDriver(const UtlString& name,
 : UtlString(name)
 , mpInputDeviceManager(&deviceManager)
 , mIsEnabled(FALSE)
+, mDeviceId(-1)
 , mSamplesPerFrame(0)
 , mSamplesPerSec(0)
 , mCurrentFrameTime(0)
-, mDeviceId(-1)
 {
 }
 
