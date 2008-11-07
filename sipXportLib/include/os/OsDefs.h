@@ -42,7 +42,18 @@
 
 #ifdef WIN32
 #  define snprintf _snprintf
+#  define vsnprintf _vsnprintf
 #endif
+
+#if defined(va_copy)
+#elif defined(__va_copy)
+#  define va_copy(dst, src) __va_copy((dst), (src))
+#else
+//#  define va_copy(dst, src) (memcpy(&(dst), &(src), sizeof (va_list)))
+#  define va_copy(dst, src) ((dst) = (src))
+#endif
+
+
 
 /*
  * Handle the case-insensitive string comparison functions, by making 
