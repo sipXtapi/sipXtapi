@@ -385,7 +385,7 @@ void SipLineList::dumpLines()
    {
       // compare the line identities
       Url nextLineUrl = nextline->getIdentity();
-      OsSysLog::add(FAC_LINE_MGR, PRI_DEBUG, "LineList %x [%d]: %s",
+      OsSysLog::add(FAC_LINE_MGR, PRI_DEBUG, "LineList %p [%d]: %s",
             this, i++, nextLineUrl.toString().data() ) ;
    }
    m_LineList.releaseIteratorHandle(iteratorHandle);

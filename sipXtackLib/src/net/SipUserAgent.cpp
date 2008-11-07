@@ -510,7 +510,7 @@ void SipUserAgent::shutdown(UtlBoolean blockingShutdown)
     {
         OsEvent shutdownEvent;
         OsStatus res;
-        int rpcRetVal;
+        intptr_t rpcRetVal;
 
         mbBlockingShutdown = TRUE;
 
@@ -2364,7 +2364,7 @@ void SipUserAgent::queueMessageToInterestedObservers(SipMessageEvent& event,
                   {
                      OsSysLog::add(FAC_SIP, PRI_ERR,
                            "queueMessageToInterestedObservers - queue full (name=%s, numMsgs=%d)",
-                           observerQueue->getName(), numMsgs);
+                           observerQueue->getName().data(), numMsgs);
                   }
                }
             }
@@ -2410,7 +2410,7 @@ UtlBoolean SipUserAgent::handleMessage(OsMsg& eventMessage)
                     msgType, msgSubType, 
                     // Only extract msgEventType if msgType and msgSubType are right.
                     msgType == OsMsg::OS_EVENT && msgSubType == OsEventMsg::NOTIFY ?
-                    (((OsEventMsg&)eventMessage).getUserData((int&)sipEvent),
+                    (((OsEventMsg&)eventMessage).getUserData((intptr_t&)sipEvent),
                      sipEvent ? sipEvent->getMessageStatus() : -98) :
                     -99 /* dummy value */,
                     getMessageQueue()->numMsgs());
@@ -2481,8 +2481,8 @@ UtlBoolean SipUserAgent::handleMessage(OsMsg& eventMessage)
       OsTimer* timer;
       SipMessageEvent* sipEvent = NULL;
 
-      ((OsEventMsg&)eventMessage).getUserData((int&)sipEvent);
-      ((OsEventMsg&)eventMessage).getEventData((int&)timer);
+      ((OsEventMsg&)eventMessage).getUserData((intptr_t&)sipEvent);
+      ((OsEventMsg&)eventMessage).getEventData((intptr_t&)timer);
 
       if(sipEvent)
       {
@@ -4358,7 +4358,7 @@ void SipUserAgent::prepareVia(SipMessage& message,
 void SipUserAgent::addExternalTransport(const UtlString transportName, const SIPX_TRANSPORT_DATA* const pTransport)
 {
     const UtlString key = transportName + "|" + UtlString(pTransport->szLocalIp);
-    mExternalTransports.insertKeyAndValue((UtlContainable*)new UtlString(key), new UtlInt((int)pTransport));
+    mExternalTransports.insertKeyAndValue((UtlContainable*)new UtlString(key), new UtlVoidPtr((void*)pTransport));
     return;
 }
 
@@ -4373,9 +4373,9 @@ void SipUserAgent::removeExternalTransport(const UtlString transportName, const 
 const SIPX_TRANSPORT_DATA* const SipUserAgent::lookupExternalTransport(const UtlString transportName, const UtlString ipAddress) const
 {
     const UtlString key = transportName + "|" + ipAddress;
-    UtlInt* pTransportContainer;
+    UtlVoidPtr* pTransportContainer;
     
-    pTransportContainer = (UtlInt*) mExternalTransports.findValue(&key);
+    pTransportContainer = (UtlVoidPtr*) mExternalTransports.findValue(&key);
     
     if (pTransportContainer)
     {

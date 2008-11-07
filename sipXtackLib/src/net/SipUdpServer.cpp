@@ -111,7 +111,7 @@ public:
     {
         if (m_pTimer == NULL)
         {            
-            m_pCallback = new OsCallback((int) pServer, SipUdpServer::SipKeepAliveCallback) ;
+            m_pCallback = new OsCallback((intptr_t)pServer, SipUdpServer::SipKeepAliveCallback) ;
             m_pTimer = new OsTimer(*m_pCallback) ;        
         }
 
@@ -1085,8 +1085,8 @@ void SipUdpServer::sendSipKeepAlive(OsTimer* pTimer)
 
 /* ============================ FUNCTIONS ================================= */
 
-void SipUdpServer::SipKeepAliveCallback(const int userData, 
-                                        const int eventData)
+void SipUdpServer::SipKeepAliveCallback(const intptr_t userData, 
+                                        const intptr_t eventData)
 {  
     SipUdpServer* pUdpServer = (SipUdpServer*) userData ;
     OsTimer* pTimer = (OsTimer*) eventData ;

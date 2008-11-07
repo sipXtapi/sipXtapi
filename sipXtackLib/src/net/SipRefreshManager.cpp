@@ -484,10 +484,10 @@ UtlBoolean SipRefreshManager::handleMessage(OsMsg &eventMessage)
     if(msgType == OsMsg::OS_EVENT &&
        msgSubType == OsEventMsg::NOTIFY)
     {
-        int eventData = 0;
+        intptr_t eventData = 0;
         RefreshDialogState* state = NULL;
 
-        ((OsEventMsg&)eventMessage).getUserData((int&)state);
+        ((OsEventMsg&)eventMessage).getUserData((intptr_t&)state);
         ((OsEventMsg&)eventMessage).getEventData(eventData);
 
         lock();
@@ -581,7 +581,7 @@ UtlBoolean SipRefreshManager::handleMessage(OsMsg &eventMessage)
             else
             {
                 OsSysLog::add(FAC_SIP, PRI_ERR,
-                    "SipRefreshManager::handleMessage timer: %x does not match states timer: %p",
+                    "SipRefreshManager::handleMessage timer: %"PRIxPTR" does not match states timer: %p",
                     eventData, state->mpRefreshTimer);
             }
         }
@@ -1010,7 +1010,7 @@ void SipRefreshManager::setRefreshTimer(RefreshDialogState& state,
 
     OsMsgQ* incomingQ = getMessageQueue();
     OsTimer* resendTimer = new OsTimer(incomingQ,
-        (int)&state);
+        (intptr_t)&state);
     state.mpRefreshTimer = resendTimer;
     OsTime timerTime(nextResendSeconds, 0);
     resendTimer->oneshotAfter(timerTime);                

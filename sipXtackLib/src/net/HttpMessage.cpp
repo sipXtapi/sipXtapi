@@ -3336,10 +3336,10 @@ UtlBoolean HttpMessage::getBasicAuthorizationData(UtlString* userId,
             decodedCookie);
 #endif
         // Parse out the userId and password
-        int userPasswordSeparatorIndex = (int) strchr(decodedCookie, ':');
+        intptr_t userPasswordSeparatorIndex = (intptr_t) strchr(decodedCookie, ':');
         if(userPasswordSeparatorIndex)
         {
-            userPasswordSeparatorIndex -= (int) decodedCookie;
+            userPasswordSeparatorIndex -= (intptr_t) decodedCookie;
 
             userId->append(decodedCookie, userPasswordSeparatorIndex);
             password->append(&decodedCookie[userPasswordSeparatorIndex + 1],

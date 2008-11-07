@@ -2102,7 +2102,7 @@ void SipMessage::addViaField(const char* viaField, UtlBoolean afterOtherVias)
 
    NameValuePair* nv = new NameValuePair(SIP_VIA_FIELD, viaField);
     // Look for other via fields
-    unsigned int fieldIndex = mNameValues.index(nv);
+    size_t fieldIndex = mNameValues.index(nv);
 
     //osPrintf("SipMessage::addViaField via: %s after: %s fieldIndex: %d headername: %s\n",
     //    viaField, afterOtherVias ? "true" : "false", fieldIndex,
@@ -2490,9 +2490,8 @@ void SipMessage::setWarningField(int code, const char* hostname, const char* tex
    else
    {
       OsSysLog::add(FAC_SIP, PRI_WARNING,
-                    "SipMessage::setWarningField value too large (max %d) host '%s' text '%s'",
-                    allocated, hostname, text
-                    );
+                    "SipMessage::setWarningField value too large (max %"PRIuPTR") host '%s' text '%s'",
+                    allocated, hostname, text);
    }
 }
 
@@ -2879,8 +2878,6 @@ void SipMessage::getFromUri(UtlString* uri) const
 
    getFromField(&field);
 
-   unsigned int uriEnd;
-
    uri->remove(0);
 
    if(!field.isNull())
@@ -2894,7 +2891,7 @@ void SipMessage::getFromUri(UtlString* uri) const
          field.remove(0, labelEnd);
 
          // Find the URI terminator
-         uriEnd = field.index(">");
+         size_t uriEnd = field.index(">");
 
          // No URI terminator found, assume the whole thing
          if(uriEnd == UTL_NOT_FOUND)
@@ -3054,7 +3051,7 @@ UtlBoolean SipMessage::removeLastVia()
 
    if ( getViaField( &viaField , 0))
    {
-      unsigned int posSubField = viaField.first(SIP_MULTIFIELD_SEPARATOR);
+      size_t posSubField = viaField.first(SIP_MULTIFIELD_SEPARATOR);
       if (posSubField != UTL_NOT_FOUND)
       {
          viaField.remove(0, posSubField + strlen(SIP_MULTIFIELD_SEPARATOR));
@@ -4110,7 +4107,7 @@ UtlBoolean SipMessage::getSessionExpires(int* sessionExpiresSeconds, UtlString* 
         *sessionExpiresSeconds = atoi(value);
 
         UtlString expiresParams(value) ;
-        int iIndex = expiresParams.first(';') ;
+        size_t iIndex = expiresParams.first(';') ;
         if (iIndex != UTL_NOT_FOUND)
         {
             expiresParams.remove(0, iIndex+1) ;

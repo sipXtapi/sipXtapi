@@ -24,6 +24,7 @@
 #include <os/OsDatagramSocket.h>
 #include <os/OsSysLog.h>
 #include <os/OsEvent.h>
+#include <utl/UtlVoidPtr.h>
 #ifdef SIP_TLS
 #include "os/OsTLSConnectionSocket.h"
 #include "os/OsTLSClientConnectionSocket.h"
@@ -487,7 +488,7 @@ int SipClient::run(void* runArg)
                                   // for TCP or TLS.
                                   (clientSocket->getIpProtocol() ==
                                    OsSocket::UDP) ? PRI_ERR : PRI_DEBUG,
-                                  "SipClient::run buffer residual bytes: %d\n===>%s<===\n",
+                                  "SipClient::run buffer residual bytes: %"PRIuPTR"\n===>%s<===\n",
                                   buffer.length(), buffer.data());
                 }
             } 
@@ -679,7 +680,7 @@ void SipClient::notifyWhenAvailableForWrite(OsEvent& availableEvent)
         mWaitingList = new UtlSList();
     }
 
-    UtlInt* eventNode = new UtlInt((int)&availableEvent);
+    UtlVoidPtr* eventNode = new UtlVoidPtr((void*)&availableEvent);
 
     mWaitingList->append(eventNode);
 }
@@ -694,7 +695,7 @@ void SipClient::signalNextAvailableForWrite()
 #endif
 
         // Remove the first event that is waiting for this transaction
-        UtlInt* eventNode = (UtlInt*) mWaitingList->get();
+        UtlVoidPtr* eventNode = (UtlVoidPtr*) mWaitingList->get();
 
         if(eventNode)
         {
@@ -730,8 +731,8 @@ void SipClient::signalAllAvailableForWrite()
 #endif
 
         // Remove the first event that is waiting for this transaction
-        UtlInt* eventNode = NULL;
-        while((eventNode = (UtlInt*) mWaitingList->get()))
+        UtlVoidPtr* eventNode = NULL;
+        while((eventNode = (UtlVoidPtr*) mWaitingList->get()))
         {
             if(eventNode)
             {

@@ -15,6 +15,7 @@
 // APPLICATION INCLUDES
 #include <net/SipUserAgentBase.h>
 #include <os/OsWriteLock.h>
+#include <utl/UtlVoidPtr.h>
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -50,7 +51,7 @@ SipUserAgentBase::~SipUserAgentBase()
 
 void SipUserAgentBase::addConfigChangeConsumer(OsMsgQ& messageQueue)
 {
-    UtlInt* observer = new UtlInt((int) &messageQueue);
+    UtlVoidPtr* observer = new UtlVoidPtr((void*) &messageQueue);
     OsWriteLock lock(mObserverMutex);
     mConfigChangeObservers.insert(observer);
 }

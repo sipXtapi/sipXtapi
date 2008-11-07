@@ -1499,7 +1499,7 @@ void HttpServer::addRequestProcessor(const char* fileUrl,
    addUriMap( fileUrl, fileUrl );
    
     UtlString* name = new UtlString(fileUrl);
-    UtlInt* value = new UtlInt((int)requestProcessor);
+    UtlVoidPtr* value = new UtlVoidPtr((void*)requestProcessor);
     mRequestProcessorMethods.insertKeyAndValue(name, value);
 }
 
@@ -1594,11 +1594,11 @@ UtlBoolean HttpServer::findRequestProcessor(const char* fileUri,
                                             )
 {
     UtlString uriCollectable(fileUri);
-    UtlInt* processorCollectable;
+    UtlVoidPtr* processorCollectable;
 
     requestProcessor = NULL;
     processorCollectable =
-        (UtlInt*) mRequestProcessorMethods.findValue(&uriCollectable);
+        (UtlVoidPtr*) mRequestProcessorMethods.findValue(&uriCollectable);
     if(processorCollectable)
     {
         requestProcessor = (RequestProcessor*)processorCollectable->getValue();
@@ -1610,10 +1610,10 @@ UtlBoolean HttpServer::findRequestProcessor(const char* fileUri,
 UtlBoolean HttpServer::findHttpService(const char* fileUri, HttpService*& pService)
 {
     UtlString uriCollectable(fileUri);
-    UtlInt* processorCollectable;
+    UtlVoidPtr* processorCollectable;
 
     processorCollectable =
-        (UtlInt*) mHttpServices.findValue(&uriCollectable);
+        (UtlVoidPtr*) mHttpServices.findValue(&uriCollectable);
     if(processorCollectable)
     {
         pService = (HttpService *) processorCollectable->getValue();

@@ -492,7 +492,7 @@ UtlBoolean SipSubscriptionMgr::createNotifiesDialogInfo(const char* resourceId,
     contentKey.append(eventTypeKey);
 
     OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                 "SipSubscriptionMgr::createNotifiesDialogInfo try to find contentKey '%s' in mSubscriptionStateResourceIndex (%d entries)",
+                 "SipSubscriptionMgr::createNotifiesDialogInfo try to find contentKey '%s' in mSubscriptionStateResourceIndex (%"PRIuPTR" entries)",
                  contentKey.data(), mSubscriptionStateResourceIndex.entries());
 
     lock();

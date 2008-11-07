@@ -129,8 +129,8 @@ public:
 
     void sendSipKeepAlive(OsTimer* pTimer) ; 
 
-    static void SipKeepAliveCallback(const int userData, 
-                                     const int eventData) ;
+    static void SipKeepAliveCallback(const intptr_t userData, 
+                                     const intptr_t eventData) ;
 
 /* ============================ ACCESSORS ================================= */
 

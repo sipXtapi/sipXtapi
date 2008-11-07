@@ -204,8 +204,8 @@ SipTransaction::~SipTransaction()
         {
             // Cannot call signalAllAvailable as it traverses what
             // may be a broken (i.e. partially deleted) tree
-            UtlInt* eventNode = NULL;
-            while ((eventNode = (UtlInt*) mWaitingList->get()))
+            UtlVoidPtr* eventNode = NULL;
+            while ((eventNode = (UtlVoidPtr*) mWaitingList->get()))
             {
                 if(eventNode)
                 {
@@ -1206,7 +1206,7 @@ UtlBoolean SipTransaction::doFirstSend(SipMessage& message,
             // queue a message on this OsServerTask
             OsMsgQ* incomingQ = userAgent.getMessageQueue();
             OsTimer* timer = new OsTimer(incomingQ,
-                (int)resendEvent);
+                (intptr_t)resendEvent);
             mTimers.append(timer);
 #ifdef TEST_PRINT
             osPrintf("SipTransaction::doFirstSend added timer %p to timer list.\n", timer);
@@ -1272,7 +1272,7 @@ UtlBoolean SipTransaction::doFirstSend(SipMessage& message,
                                 SipMessageEvent::TRANSACTION_EXPIRATION);
 
                 OsTimer* expiresTimer = new OsTimer(incomingQ,
-                        (int)expiresEvent);
+                        (intptr_t)expiresEvent);
                 mTimers.append(expiresTimer);
 #ifdef TEST_PRINT
                 osPrintf("SipTransaction::doFirstSend added timer %p to timer list.\n", expiresTimer);
@@ -1379,7 +1379,7 @@ void SipTransaction::handleResendEvent(const SipMessage& outgoingMessage,
                 OsMsgQ* incomingQ = userAgent.getMessageQueue();
 
                 OsTimer* timer = new OsTimer(incomingQ,
-                    (int)resendEvent);
+                    (intptr_t)resendEvent);
 
                 mTimers.append(timer);
 #ifdef TEST_PRINT
@@ -1494,7 +1494,7 @@ void SipTransaction::handleResendEvent(const SipMessage& outgoingMessage,
                 OsMsgQ* incomingQ = userAgent.getMessageQueue();
 
                 OsTimer* timer = new OsTimer(incomingQ,
-                    (int)resendEvent);
+                    (intptr_t)resendEvent);
                 mTimers.append(timer);
 #ifdef TEST_PRINT
                 osPrintf("SipTransaction::handleResendEvent added timer %p to timer list.\n", timer);
@@ -2607,7 +2607,7 @@ UtlBoolean SipTransaction::recurseDnsSrvChildren(SipUserAgent& userAgent,
 
             OsMsgQ* incomingQ = userAgent.getMessageQueue();
             OsTimer* expiresTimer = new OsTimer(incomingQ, 
-                    (int)expiresEvent);
+                    (intptr_t)expiresEvent);
                     
             mTimers.append(expiresTimer);
 #ifdef TEST_PRINT
@@ -3384,7 +3384,7 @@ UtlBoolean SipTransaction::doResend(SipMessage& resendMessage,
 
                OsMsgQ* incomingQ = userAgent.getMessageQueue();
                OsTimer* timer = new OsTimer(incomingQ,
-                   (int)resendEvent);
+                   (intptr_t)resendEvent);
                mTimers.append(timer);
 #ifdef TEST_PRINT
                osPrintf("SipTransaction::doResend added timer %p to timer list.\n", timer);
@@ -4004,14 +4004,13 @@ void SipTransaction::stopTimers()
 
 void SipTransaction::startTimers()
 {
-    UtlSListIterator iterator(mTimers);
-    OsTimer* timer = NULL;
-
 /*
     // As if 2006-10-06 -- The timer subsystem has been rewritten and no 
     // longer supports the ability to restart timers -- work is needed
     // to add this (not sure how much), but until then, disabling this
     // functionality.
+    UtlSListIterator iterator(mTimers);
+    OsTimer* timer = NULL;
 
     while ((timer = (OsTimer*)iterator()))
     {
@@ -4418,7 +4417,7 @@ void SipTransaction::toString(UtlString& dumpString,
     dumpString.append(numBuffer);
     if(mWaitingList)
     {
-        sprintf(numBuffer, "(%d)", mWaitingList->entries());
+        sprintf(numBuffer, "(%"PRIuPTR")", mWaitingList->entries());
         dumpString.append(numBuffer);
     }
 
@@ -4440,7 +4439,7 @@ void SipTransaction::notifyWhenAvailable(OsEvent* availableEvent)
 
         UtlSList* list = parent->mWaitingList;
 
-        UtlInt* eventNode = new UtlInt((int)availableEvent);
+        UtlVoidPtr* eventNode = new UtlVoidPtr((void*)availableEvent);
 
         list->append(eventNode);
     }
@@ -4459,7 +4458,7 @@ void SipTransaction::signalNextAvailable()
     if(parent && parent->mWaitingList)
     {
         // Remove the first event that is waiting for this transaction
-        UtlInt* eventNode = (UtlInt*) parent->mWaitingList->get();
+        UtlVoidPtr* eventNode = (UtlVoidPtr*) parent->mWaitingList->get();
 
         if(eventNode)
         {
@@ -4494,8 +4493,8 @@ void SipTransaction::signalAllAvailable()
     {
         UtlSList* list = parent->mWaitingList;
         // Remove the first event that is waiting for this transaction
-        UtlInt* eventNode = NULL;
-        while ((eventNode = (UtlInt*) list->get()))
+        UtlVoidPtr* eventNode = NULL;
+        while ((eventNode = (UtlVoidPtr*) list->get()))
         {
             if(eventNode)
             {

@@ -50,7 +50,7 @@ SipContactDb::~SipContactDb()
         pValue = (UtlVoidPtr*)iterator.value();
         if (pValue)
         {
-            delete pValue->getValue();
+            delete (SIPX_CONTACT_ADDRESS*)pValue->getValue();
         }
     }
     mContacts.destroyAll();

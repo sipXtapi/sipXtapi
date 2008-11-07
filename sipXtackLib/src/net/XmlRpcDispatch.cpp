@@ -57,7 +57,7 @@ int XmlRpcMethodContainer::compareTo(const UtlContainable *b) const
 
 unsigned int XmlRpcMethodContainer::hash() const
 {
-    return (unsigned int) mpUserData;
+    return (uintptr_t) mpUserData;
 }
 
 

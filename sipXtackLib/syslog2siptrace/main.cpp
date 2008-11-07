@@ -203,7 +203,7 @@ void getMessageData(UtlString& content,
         remoteHost.append(remotePort);
 
         int messageIndex = portEnd + 5;
-        unsigned int messageEnd;
+        size_t messageEnd;
         if(isOutgoing)
         {
             messageEnd = content.index("--------------------END", messageIndex);

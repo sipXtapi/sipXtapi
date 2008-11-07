@@ -529,12 +529,12 @@ UtlBoolean SipNotifyStateTask::handleMessage(OsMsg& eventMessage)
     else if (eventMessage.getMsgType() == OsMsg::OS_EVENT)
     {
         OsEventMsg* pEventMsg = (OsEventMsg*) &eventMessage;
-        int userData ;
-        int eventData ;
+        intptr_t userData ;
+        intptr_t eventData ;
         pEventMsg->getEventData(eventData);
         pEventMsg->getUserData(userData);
 
-        if (eventData == ((int) mpRunScriptTimer))
+        if (eventData == ((intptr_t) mpRunScriptTimer))
         {
             // Restart Event: handle the event and clean up the temp data
             struct tagRunScriptInfo* pInfo =

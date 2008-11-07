@@ -809,7 +809,7 @@ SipRefreshMgr::rescheduleRequest(
         // Make a copy for the timer
         SipMessage* timerRegisterMessage = new SipMessage(*request);
 
-        OsTimer* timer = new OsTimer(&mIncomingQ, (int)timerRegisterMessage);
+        OsTimer* timer = new OsTimer(&mIncomingQ, (intptr_t)timerRegisterMessage);
         mTimerBag.insert(timer);
 
         int maxSipTransactionTimeSecs = 
@@ -1452,8 +1452,8 @@ SipRefreshMgr::handleMessage( OsMsg& eventMessage )
         OsTimer* timer;
         int protocolType;
 
-        ((OsEventMsg&)eventMessage).getUserData((int&)sipMessage);
-        ((OsEventMsg&)eventMessage).getEventData((int&)timer);
+        ((OsEventMsg&)eventMessage).getUserData((intptr_t&)sipMessage);
+        ((OsEventMsg&)eventMessage).getEventData((intptr_t&)timer);
 
         if ( timer )
         {
