@@ -71,7 +71,6 @@ OsStatus MpResamplerSpeex::resample(uint32_t channelIndex,
                                     MpAudioSample* pOutBuf, uint32_t outBufLength, 
                                     uint32_t& outSamplesWritten)
 {
-   OsStatus ret = OS_FAILED;
    if(channelIndex >= mNumChannels)
    {
       // Specified a channel number that was outside the defined number of channels!
