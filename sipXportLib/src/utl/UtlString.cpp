@@ -268,7 +268,7 @@ UtlString& UtlString::appendFormat(const char* format, ...)
       * as such on e.g. x86_64) */
       va_copy(tmp, args);
       /* Try to print in the allocated space. */
-      n = vsnprintf (&mpData[mSize], availableCap, format, args);
+      n = vsnprintf (&mpData[mSize], availableCap, format, tmp);
       va_end(tmp);
 
       /* If that worked, return the string. */
