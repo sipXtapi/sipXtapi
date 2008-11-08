@@ -16,6 +16,7 @@
 #include <iostream>
 #include <string>
 #include <cstdarg>
+#include <string.h>
 
 // Application Includes
 #include <sipxunit/TestUtilities.h>

@@ -9,6 +9,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include <iostream>
+#include <string.h>
 #include <cppunit/Test.h>
 #include <cppunit/TestResultCollector.h>
 #include <cppunit/Message.h>
