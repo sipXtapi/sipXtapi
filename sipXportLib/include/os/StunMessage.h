@@ -119,48 +119,49 @@
 // TYPEDEFS
 typedef struct
 {
-    unsigned int id ;
+    uint32_t id ;
 } STUN_MAGIC_ID ;
 
 typedef struct {
-    unsigned char id[12];
+    uint8_t id[12];
 } STUN_TRANSACTION_ID;
 
 typedef struct
 {
-    unsigned short      type ;
-    unsigned short      length ;
+    uint16_t      type ;
+    uint16_t      length ;
     STUN_MAGIC_ID       magicId ;
     STUN_TRANSACTION_ID transactionId ;
 } STUN_MESSAGE_HEADER ;
 
 typedef struct
 {
-    unsigned short type;
-    unsigned short length;
+    uint16_t type;
+    uint16_t length;
 } STUN_ATTRIBUTE_HEADER ;
 
 typedef struct
 {
-    unsigned char unused ;
-    unsigned char family ;  /* unused today */
-    unsigned short port;
-    unsigned long address ;    
+    uint8_t unused ;
+    uint8_t family ;  /* unused today */
+    uint16_t port;
+    uint32_t address ;    
 } STUN_ATTRIBUTE_ADDRESS;
 
 typedef struct
 {
-    unsigned short unused ;
-    unsigned char unused2:4 ;
-    unsigned char errorClass:4 ;   // between 1 and 6
-    unsigned char errorNumber ; // between 0 and 99
+    uint16_t unused ;
+    uint8_t unused2:4 ;
+    uint8_t errorClass:4 ;   // between 1 and 6
+    uint8_t errorNumber ; // between 0 and 99
     char szReasonPhrase[STUN_MAX_STRING_LENGTH+1] ;  
 } STUN_ATTRIBUTE_ERROR ;
 
 typedef struct
 {
-    size_t nTypes ;
-    unsigned short type[STUN_MAX_UNKNOWN_ATTRIBUTES] ;
+    //size_t nTypes ;
+    uint32_t nTypes ;
+    uint16_t type[STUN_MAX_UNKNOWN_ATTRIBUTES] ;
 } STUN_ATTRIBUTE_UNKNOWN ;
 
 
@@ -241,19 +242,19 @@ class StunMessage
 
     void allocTransactionId() ;
 
-    void setType(unsigned short type) ;
+    void setType(uint16_t type) ;
 
-    void setMappedAddress(const char* szIp, const unsigned short port) ;
+    void setMappedAddress(const char* szIp, const uint16_t port) ;
 
-    void setResponseAddress(const char* szIp, const unsigned short port) ;
+    void setResponseAddress(const char* szIp, const uint16_t port) ;
 
     void setChangePort(const bool bChange) ;
 
     void setChangeIp(const bool bChange) ;
 
-    void setSourceAddress(const char* szIp, const unsigned short port) ;
+    void setSourceAddress(const char* szIp, const uint16_t port) ;
 
-    void setChangedAddress(const char* szIp, const unsigned short port) ;
+    void setChangedAddress(const char* szIp, const uint16_t port) ;
 
     void setUsername(const char* szUsername) ;
 
@@ -263,11 +264,11 @@ class StunMessage
 
     void setNonce(const char* szNonce) ;
 
-    void setError(const unsigned short code, const char* szReason) ;
+    void setError(const uint16_t code, const char* szReason) ;
 
-    void addUnknownAttribute(unsigned short attributeId) ;
+    void addUnknownAttribute(uint16_t attributeId) ;
 
-    void setReflectedFrom(const char* szIp, const unsigned short port) ;
+    void setReflectedFrom(const char* szIp, const uint16_t port) ;
 
     void setServer(const char* szServer) ;
 
@@ -279,7 +280,7 @@ class StunMessage
 
     void setIncludeFingerPrint(bool bInclude) ;
 
-    void setAltServer(const char* szIp, unsigned short port) ;
+    void setAltServer(const char* szIp, uint16_t port) ;
 
 /* ============================ ACCESSORS ================================= */
 
@@ -287,19 +288,19 @@ class StunMessage
 
     void getTransactionId(STUN_TRANSACTION_ID* pTransactionId) ;
 
-    unsigned short getType() ;
+    uint16_t getType() ;
 
-    bool getMappedAddress(char* szIp, unsigned short& rPort) ;
+    bool getMappedAddress(char* szIp, uint16_t& rPort) ;
 
-    bool getResponseAddress(char* szIp, unsigned short& rPort) ;
+    bool getResponseAddress(char* szIp, uint16_t& rPort) ;
 
     bool getChangePort() ;
 
     bool getChangeIp() ;
 
-    bool getSourceAddress(char* szIp, unsigned short& rPort) ;
+    bool getSourceAddress(char* szIp, uint16_t& rPort) ;
 
-    bool getChangedAddress(char* szIp, unsigned short& rPort) ;
+    bool getChangedAddress(char* szIp, uint16_t& rPort) ;
 
     bool getUsername(char* szUsername) ;
 
@@ -311,29 +312,29 @@ class StunMessage
 
     bool getMessageIntegrity(char* cMessageIntegrity) ;
 
-    bool getError(unsigned short& rCode, char* szReason) ;
+    bool getError(uint16_t& rCode, char* szReason) ;
 
-    bool getUnknownAttributes(unsigned short* pList, size_t nMaxItems, size_t& nActualItems) ;
+    bool getUnknownAttributes(uint16_t* pList, size_t nMaxItems, size_t& nActualItems) ;
 
-    bool getReflectedFrom(char* szIp, unsigned short& rPort) ;
+    bool getReflectedFrom(char* szIp, uint16_t& rPort) ;
 
     bool getServer(char* szServer) ;
 
-    bool getUnknownParsedAttributes(unsigned short* pList, size_t nMaxItems, size_t& nActualItems) ;
+    bool getUnknownParsedAttributes(uint16_t* pList, size_t nMaxItems, size_t& nActualItems) ;
 
     bool getRequestXorOnly() ;
 
-    bool getAltServer(char* szIp, unsigned short& rPort) ;
+    bool getAltServer(char* szIp, uint16_t& rPort) ;
 
     bool getFingerPrint(bool& bValid) ;
 
 /* ============================ INQUIRY =================================== */
 
-    virtual bool validateMessageType(unsigned short type) ;
+    virtual bool validateMessageType(uint16_t type) ;
 
-    static bool isStunMessage(const char* pBuf, unsigned short nBufLength) ;
+    static bool isStunMessage(const char* pBuf, uint16_t nBufLength) ;
 
-    static bool isFingerPrintValid(const char* pBuf, unsigned short nBufLength, bool bMissingOk) ;
+    static bool isFingerPrintValid(const char* pBuf, uint16_t nBufLength, bool bMissingOk) ;
 
     virtual bool isRequestOrNonErrorResponse() ;
 
@@ -346,21 +347,21 @@ class StunMessage
 
     bool encodeByte(char c, char*& pBuf, size_t& nBytesLeft) ;
 
-    bool encodeShort(unsigned short value, char*& pBuf, size_t& nBytesLeft) ;
+    bool encodeShort(uint16_t value, char*& pBuf, size_t& nBytesLeft) ;
 
-    bool encodeLong(unsigned long value, char*& pBuf, size_t& nBytesLeft) ;
+    bool encodeLong(uint32_t value, char*& pBuf, size_t& nBytesLeft) ;
 
     bool encodeRaw(const char* cRaw, size_t length, char*& pBuf, size_t& nBytesLeft) ;
 
     bool encodeHeader(STUN_MESSAGE_HEADER* pHeader, char*& pBuf, size_t& nBytesLeft) ;
 
-    bool encodeAttributeHeader(short type, short length, char*& pBuf, size_t& nBytesLeft) ;
+    bool encodeAttributeHeader(int16_t type, int16_t length, char*& pBuf, size_t& nBytesLeft) ;
 
-    bool encodeAttributeAddress(unsigned short type, STUN_ATTRIBUTE_ADDRESS* pAddress, char*& pBuf, size_t& nBytesLeft) ;
+    bool encodeAttributeAddress(uint16_t type, STUN_ATTRIBUTE_ADDRESS* pAddress, char*& pBuf, size_t& nBytesLeft) ;
 
-    bool encodeXorAttributeAddress(unsigned short type, STUN_ATTRIBUTE_ADDRESS* pAddress, char*& pBuf, size_t& nBytesLeft) ;
+    bool encodeXorAttributeAddress(uint16_t type, STUN_ATTRIBUTE_ADDRESS* pAddress, char*& pBuf, size_t& nBytesLeft) ;
 
-    bool encodeString(unsigned short type, const char* szString, char*& pBuf, size_t& nBytesLeft) ;
+    bool encodeString(uint16_t type, const char* szString, char*& pBuf, size_t& nBytesLeft) ;
 
     bool encodeAttributeError(STUN_ATTRIBUTE_ERROR* pError, char*& pBuf, size_t& nBytesLeft) ;
 
@@ -372,9 +373,9 @@ class StunMessage
 
     bool parseXorAddressAttribute(char *pBuf, size_t nLength, STUN_ATTRIBUTE_ADDRESS* pAddress) ;
 
-    bool parseShortAttribute(char *pBuf, size_t nLength, unsigned short* pShort) ;
+    bool parseShortAttribute(char *pBuf, size_t nLength, uint16_t* pShort) ;
 
-    bool parseLongAttribute(char *pBuf, size_t nLength, unsigned long* pLong) ;
+    bool parseLongAttribute(char *pBuf, size_t nLength, uint32_t* pLong) ;
 
     bool parseStringAttribute(char* pBuf, size_t nLength, char* pString) ;
 
@@ -403,7 +404,7 @@ class StunMessage
     bool                   mbResponseAddressValid ;
     STUN_ATTRIBUTE_ADDRESS mChangedAddress ;
     bool                   mbChangedAddressValid ;
-    unsigned long          mChangeRequest ;
+    uint32_t          mChangeRequest ;
     bool                   mbChangeRequestValid ;
     STUN_ATTRIBUTE_ADDRESS mSourceAddress ;
     bool                   mbSourceAddressValid ;
@@ -433,7 +434,7 @@ class StunMessage
     bool                   mbAltServerValid ;
     bool                   mbIncludeFingerPrint ;
     char                   mbFingerPrintValid ;
-    unsigned long          mFingerPrint ;
+    uint32_t          mFingerPrint ;
     char*                  mpRawData ;
     size_t                 mnRawData ;
     bool                   mbLegacyMode ;

@@ -8,6 +8,9 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
+// OS INT TYPES
+#include "os/OsIntTypes.h"
+
 // SYSTEM INCLUDES
 #if defined(__pingtel_on_posix__)
 #   include <sys/types.h>
@@ -122,7 +125,7 @@ bool StunUtils::allocateTurnAddress(OsDatagramSocket* pSocket,
                                     const int port,
                                     char* szRelayIp,
                                     unsigned short* piRelayPort,
-                                    unsigned long* plLifetime)
+                                    uint32_t* plLifetime)
 {
     bool bSuccess = false ;
 

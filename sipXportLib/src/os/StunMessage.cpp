@@ -11,6 +11,9 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
+// OS INT TYPES
+#include "os/OsIntTypes.h"
+
 // SYSTEM INCLUDES
 #include <assert.h>
 #if defined(__pingtel_on_posix__)
@@ -194,6 +197,7 @@ bool StunMessage::parse(const char* pBuf, size_t nBufLength)
     return bValid ;
 }
 
+#include <stdio.h>
 
 bool StunMessage::encode(char* pBuf, size_t nBufLength, size_t& nActualLength)
 {
@@ -254,7 +258,7 @@ bool StunMessage::encode(char* pBuf, size_t nBufLength, size_t& nActualLength)
     {
         char* pStart = pBuf ;
         size_t nIgnore = nBufLength ;
-        mMsgHeader.length = (unsigned short) nActualLength - sizeof(STUN_MESSAGE_HEADER) ;
+        mMsgHeader.length = (uint16_t) nActualLength - sizeof(STUN_MESSAGE_HEADER) ;
         bError = !encodeHeader(&mMsgHeader, pStart, nIgnore) ;
     }
 
@@ -348,7 +352,7 @@ bool StunMessage::encodeBody(char* pBuf, size_t nBufLength, size_t& nBytesUsed)
         if ((!bError) && mbChangeRequestValid)
         {
             bError = !(encodeAttributeHeader(ATTR_STUN_CHANGE_REQUEST, 
-                sizeof(unsigned long), pTraverse, nBytesLeft) &&
+                sizeof(uint32_t), pTraverse, nBytesLeft) &&
                 encodeLong(mChangeRequest, pTraverse, nBytesLeft)) ;
         }
 
@@ -450,13 +454,13 @@ void StunMessage::allocTransactionId()
 }
 
 
-void StunMessage::setType(unsigned short type)
+void StunMessage::setType(uint16_t type)
 {
     mMsgHeader.type = type ;
 }
 
 
-void StunMessage::setMappedAddress(const char* szIp, const unsigned short port) 
+void StunMessage::setMappedAddress(const char* szIp, const uint16_t port) 
 {
     mMappedAddress.family = ATTR_ADDRESS_FAMILY_IPV4 ;
     mMappedAddress.address = ntohl(inet_addr(szIp)) ;
@@ -465,7 +469,7 @@ void StunMessage::setMappedAddress(const char* szIp, const unsigned short port)
 }
 
 
-void StunMessage::setResponseAddress(const char* szIp, const unsigned short port)
+void StunMessage::setResponseAddress(const char* szIp, const uint16_t port)
 {
     mResponseAddress.family = ATTR_ADDRESS_FAMILY_IPV4 ;
     mResponseAddress.address = ntohl(inet_addr(szIp)) ;
@@ -503,7 +507,7 @@ void StunMessage::setChangeIp(const bool bChange)
     mbChangeRequestValid = true ; 
 }
 
-void StunMessage::setSourceAddress(const char* szIp, const unsigned short port) 
+void StunMessage::setSourceAddress(const char* szIp, const uint16_t port) 
 {
     mSourceAddress.family = ATTR_ADDRESS_FAMILY_IPV4 ;
     mSourceAddress.address = ntohl(inet_addr(szIp)) ;
@@ -511,7 +515,7 @@ void StunMessage::setSourceAddress(const char* szIp, const unsigned short port)
     mbSourceAddressValid = true ;
 }
 
-void StunMessage::setChangedAddress(const char* szIp, const unsigned short port) 
+void StunMessage::setChangedAddress(const char* szIp, const uint16_t port) 
 {
     mChangedAddress.family = ATTR_ADDRESS_FAMILY_IPV4 ;
     mChangedAddress.address = ntohl(inet_addr(szIp)) ;
@@ -555,7 +559,7 @@ void StunMessage::setNonce(const char* szNonce)
     }
 }
 
-void StunMessage::setError(const unsigned short code, const char* szReason) 
+void StunMessage::setError(const uint16_t code, const char* szReason) 
 {
     mError.errorClass = code / 100 ;
     mError.errorNumber = code % 100 ;
@@ -564,7 +568,7 @@ void StunMessage::setError(const unsigned short code, const char* szReason)
     mbErrorValid = true ;
 }
 
-void StunMessage::addUnknownAttribute(unsigned short attributeId) 
+void StunMessage::addUnknownAttribute(uint16_t attributeId) 
 {        
     if (mUnknownAttributes.nTypes < STUN_MAX_UNKNOWN_ATTRIBUTES)
     {
@@ -573,7 +577,7 @@ void StunMessage::addUnknownAttribute(unsigned short attributeId)
     mbUnknownAttributesValid = true ;
 }
 
-void StunMessage::setReflectedFrom(const char* szIp, const unsigned short port)
+void StunMessage::setReflectedFrom(const char* szIp, const uint16_t port)
 {
     mReflectedFrom.family = ATTR_ADDRESS_FAMILY_IPV4 ;
     mReflectedFrom.address = ntohl(inet_addr(szIp)) ;
@@ -610,7 +614,7 @@ void StunMessage::setIncludeFingerPrint(bool bInclude)
     mbIncludeFingerPrint = bInclude ;
 }
 
-void StunMessage::setAltServer(const char* szIp, unsigned short port) 
+void StunMessage::setAltServer(const char* szIp, uint16_t port) 
 {
     mAltServer.family = ATTR_ADDRESS_FAMILY_IPV4 ;
     mAltServer.address = ntohl(inet_addr(szIp)) ;
@@ -631,16 +635,16 @@ void StunMessage::getTransactionId(STUN_TRANSACTION_ID* pTransactionId)
     memcpy(pTransactionId, &mMsgHeader.transactionId, sizeof(STUN_TRANSACTION_ID)) ;
 }
 
-unsigned short StunMessage::getType() 
+uint16_t StunMessage::getType() 
 {
     return mMsgHeader.type ; 
 }
 
-bool StunMessage::getMappedAddress(char* szIp, unsigned short& rPort) 
+bool StunMessage::getMappedAddress(char* szIp, uint16_t& rPort) 
 {
     if (mbMappedAddressValid)
     {
-        unsigned long address = htonl(mMappedAddress.address) ;
+        uint32_t address = htonl(mMappedAddress.address) ;
         strcpy(szIp, inet_ntoa(*((in_addr*) &address))) ;
         rPort = mMappedAddress.port ;
     }
@@ -649,11 +653,11 @@ bool StunMessage::getMappedAddress(char* szIp, unsigned short& rPort)
 }
 
 
-bool StunMessage::getResponseAddress(char* szIp, unsigned short& rPort)
+bool StunMessage::getResponseAddress(char* szIp, uint16_t& rPort)
 {
     if (mbResponseAddressValid)
     {
-        unsigned long address = htonl(mResponseAddress.address) ;
+        uint32_t address = htonl(mResponseAddress.address) ;
         strcpy(szIp, inet_ntoa(*((in_addr*) &address))) ;        
         rPort = mResponseAddress.port ;
     }
@@ -693,11 +697,11 @@ bool StunMessage::getChangeIp()
     return  bChange ; 
 }
 
-bool StunMessage::getSourceAddress(char* szIp, unsigned short& rPort) 
+bool StunMessage::getSourceAddress(char* szIp, uint16_t& rPort) 
 {
     if (mbSourceAddressValid)
     {
-        unsigned long address = htonl(mSourceAddress.address) ;
+        uint32_t address = htonl(mSourceAddress.address) ;
         strcpy(szIp, inet_ntoa(*((in_addr*) &address))) ;        
         rPort = mSourceAddress.port ;
     }
@@ -705,11 +709,11 @@ bool StunMessage::getSourceAddress(char* szIp, unsigned short& rPort)
     return mbSourceAddressValid ;
 }
 
-bool StunMessage::getChangedAddress(char* szIp, unsigned short& rPort) 
+bool StunMessage::getChangedAddress(char* szIp, uint16_t& rPort) 
 {
     if (mbChangedAddressValid)
     {
-        unsigned long address = htonl(mChangedAddress.address) ;
+        uint32_t address = htonl(mChangedAddress.address) ;
         strcpy(szIp, inet_ntoa(*((in_addr*) &address))) ;        
         rPort = mChangedAddress.port ;
     }
@@ -766,7 +770,7 @@ bool StunMessage::getMessageIntegrity(char* cMessageIntegrity)
     return mbMessageIntegrityValid ;
 }
 
-bool StunMessage::getError(unsigned short& rCode, char* szReason) 
+bool StunMessage::getError(uint16_t& rCode, char* szReason) 
 {
     if (mbErrorValid)
     {
@@ -777,7 +781,7 @@ bool StunMessage::getError(unsigned short& rCode, char* szReason)
     return mbErrorValid ;
 }
 
-bool StunMessage::getUnknownAttributes(unsigned short* pList, size_t nMaxItems, size_t& nActualItems)
+bool StunMessage::getUnknownAttributes(uint16_t* pList, size_t nMaxItems, size_t& nActualItems)
 {
     nActualItems = 0 ;        
     if (mbUnknownAttributesValid)
@@ -793,11 +797,11 @@ bool StunMessage::getUnknownAttributes(unsigned short* pList, size_t nMaxItems, 
 }
 
 
-bool StunMessage::getReflectedFrom(char* szIp, unsigned short& rPort)
+bool StunMessage::getReflectedFrom(char* szIp, uint16_t& rPort)
 {
     if (mbReflectedFromValid)
     {
-        unsigned long address = htonl(mReflectedFrom.address) ;
+        uint32_t address = htonl(mReflectedFrom.address) ;
         strcpy(szIp, inet_ntoa(*((in_addr*) &address))) ;        
         rPort = mReflectedFrom.port ;
     }
@@ -822,7 +826,7 @@ bool StunMessage::getRequestXorOnly()
 }
 
 
-bool StunMessage::getUnknownParsedAttributes(unsigned short* pList, size_t nMaxItems, size_t& nActualItems)
+bool StunMessage::getUnknownParsedAttributes(uint16_t* pList, size_t nMaxItems, size_t& nActualItems)
 {
     nActualItems = 0 ;
     if (mUnknownParsedAttributes.nTypes)
@@ -837,11 +841,11 @@ bool StunMessage::getUnknownParsedAttributes(unsigned short* pList, size_t nMaxI
     return (nActualItems > 0) ;
 }
 
-bool StunMessage::getAltServer(char* szIp, unsigned short& rPort) 
+bool StunMessage::getAltServer(char* szIp, uint16_t& rPort) 
 {
     if (mbAltServerValid)
     {
-        unsigned long address = htonl(mAltServer.address) ;
+        uint32_t address = htonl(mAltServer.address) ;
         strcpy(szIp, inet_ntoa(*((in_addr*) &address))) ;        
         rPort = mAltServer.port ;          
     } 
@@ -852,7 +856,7 @@ bool StunMessage::getAltServer(char* szIp, unsigned short& rPort)
 
 /* ============================ INQUIRY =================================== */
 
-bool StunMessage::validateMessageType(unsigned short type) 
+bool StunMessage::validateMessageType(uint16_t type) 
 {
     bool bValid = false ;
     switch (type)
@@ -873,7 +877,7 @@ bool StunMessage::validateMessageType(unsigned short type)
 }
 
 
-bool StunMessage::isStunMessage(const char* pBuf, unsigned short nBufLength) 
+bool StunMessage::isStunMessage(const char* pBuf, uint16_t nBufLength) 
 {
     bool bValid = false ;
 
@@ -895,7 +899,7 @@ bool StunMessage::isStunMessage(const char* pBuf, unsigned short nBufLength)
                 case MSG_STUN_SHARED_SECRET_REQUEST:
                     // Is using bis4+, finger print is required with magic 
                     // cookie
-                    if (ntohl(header.magicId.id) == (unsigned long) STUN_MAGIC_COOKIE)
+                    if (ntohl(header.magicId.id) == (uint32_t) STUN_MAGIC_COOKIE)
                     {
                         bValid = isFingerPrintValid(pBuf, nBufLength, false) ;
                     }
@@ -909,7 +913,7 @@ bool StunMessage::isStunMessage(const char* pBuf, unsigned short nBufLength)
                 case MSG_STUN_BIND_ERROR_RESPONSE:                
                 case MSG_STUN_SHARED_SECRET_RESPONSE:
                 case MSG_STUN_SHARED_SECRET_ERROR_RESPONSE:
-                    if (ntohl(header.magicId.id) == (unsigned long) STUN_MAGIC_COOKIE)
+                    if (ntohl(header.magicId.id) == (uint32_t) STUN_MAGIC_COOKIE)
                     {
                         // Not requiring the FINGERPRINT in responses to  
                         // provide some backwards compatibility -- in reality,
@@ -933,28 +937,28 @@ bool StunMessage::isStunMessage(const char* pBuf, unsigned short nBufLength)
     return bValid ;
 }
 
-bool StunMessage::isFingerPrintValid(const char* pBuf, unsigned short nBufLength, bool bMissingOk) 
+bool StunMessage::isFingerPrintValid(const char* pBuf, uint16_t nBufLength, bool bMissingOk) 
 {
     bool bValid = false ;
 
     // Make sure we have enough room to check for the finger print
     if (    pBuf && (nBufLength >= (sizeof(STUN_MESSAGE_HEADER) + 
             sizeof(STUN_ATTRIBUTE_HEADER) + 
-            sizeof(unsigned long))))
+            sizeof(uint32_t))))
     {
         // Assume this is the last parameter (required)
         const char* pLoc = pBuf + (nBufLength -
-                (sizeof(STUN_ATTRIBUTE_HEADER) + sizeof(unsigned long))) ;
+                (sizeof(STUN_ATTRIBUTE_HEADER) + sizeof(uint32_t))) ;
 
         // Make sure the attributes indicate a FingerPrint
         STUN_ATTRIBUTE_HEADER* pHeader = (STUN_ATTRIBUTE_HEADER*) pLoc ;
         if ((ntohs(pHeader->type) == ATTR_STUN_FINGERPRINT) && 
-                ntohs(pHeader->length) == sizeof(unsigned long))
+                ntohs(pHeader->length) == sizeof(uint32_t))
         {    
-            unsigned long fingerPrintValue = 0 ;
+            uint32_t fingerPrintValue = 0 ;
             memcpy(&fingerPrintValue, 
                     ((char*) pHeader) + sizeof(STUN_ATTRIBUTE_HEADER), 
-                    sizeof(unsigned long)) ;
+                    sizeof(uint32_t)) ;
             fingerPrintValue = ntohl(fingerPrintValue) ;
             
             UtlCrc32 crc32 ;
@@ -1028,17 +1032,17 @@ bool StunMessage::encodeByte(char c, char*& pBuf, size_t& nBytesLeft)
     return bRC ;
 }
 
-bool StunMessage::encodeShort(unsigned short value, char*& pBuf, size_t& nBytesLeft)
+bool StunMessage::encodeShort(uint16_t value, char*& pBuf, size_t& nBytesLeft)
 {
     bool bRC = false ;
 
-    if (nBytesLeft >= sizeof(unsigned short))
+    if (nBytesLeft >= sizeof(uint16_t))
     {
         value = htons(value) ;
-        memcpy(pBuf, &value, sizeof(unsigned short)) ;
+        memcpy(pBuf, &value, sizeof(uint16_t)) ;
 
-        nBytesLeft -= sizeof(unsigned short) ;
-        pBuf += sizeof(unsigned short) ;
+        nBytesLeft -= sizeof(uint16_t) ;
+        pBuf += sizeof(uint16_t) ;
         
         bRC = true ;
     }
@@ -1047,17 +1051,17 @@ bool StunMessage::encodeShort(unsigned short value, char*& pBuf, size_t& nBytesL
 }
 
 
-bool StunMessage::encodeLong(unsigned long value, char*& pBuf, size_t& nBytesLeft)
+bool StunMessage::encodeLong(uint32_t value, char*& pBuf, size_t& nBytesLeft)
 {
     bool bRC = false ;
 
-    if (nBytesLeft >= sizeof(unsigned long))
+    if (nBytesLeft >= sizeof(uint32_t))
     {
         value = htonl(value) ;
-        memcpy(pBuf, &value, sizeof(unsigned long)) ;
+        memcpy(pBuf, &value, sizeof(uint32_t)) ;
 
-        nBytesLeft -= sizeof(unsigned long) ;
-        pBuf += sizeof(unsigned long) ;
+        nBytesLeft -= sizeof(uint32_t) ;
+        pBuf += sizeof(uint32_t) ;
         
         bRC = true ;
     }
@@ -1103,7 +1107,7 @@ bool StunMessage::encodeHeader(STUN_MESSAGE_HEADER* pHeader, char*& pBuf, size_t
     return bRC ;
 }
 
-bool StunMessage::encodeAttributeHeader(short type, short length, char*& pBuf, size_t& nBytesLeft)
+bool StunMessage::encodeAttributeHeader(int16_t type, int16_t length, char*& pBuf, size_t& nBytesLeft)
 {
     bool bRC = false ;
 
@@ -1117,7 +1121,7 @@ bool StunMessage::encodeAttributeHeader(short type, short length, char*& pBuf, s
     return bRC ;
 }
 
-bool StunMessage::encodeAttributeAddress(unsigned short type, STUN_ATTRIBUTE_ADDRESS* pAddress, char*& pBuf, size_t& nBytesLeft)
+bool StunMessage::encodeAttributeAddress(uint16_t type, STUN_ATTRIBUTE_ADDRESS* pAddress, char*& pBuf, size_t& nBytesLeft)
 {
     bool bRC = false ;
 
@@ -1134,14 +1138,14 @@ bool StunMessage::encodeAttributeAddress(unsigned short type, STUN_ATTRIBUTE_ADD
     return bRC ;
 }
 
-bool StunMessage::encodeXorAttributeAddress(unsigned short type, STUN_ATTRIBUTE_ADDRESS* pAddress, char*& pBuf, size_t& nBytesLeft)
+bool StunMessage::encodeXorAttributeAddress(uint16_t type, STUN_ATTRIBUTE_ADDRESS* pAddress, char*& pBuf, size_t& nBytesLeft)
 {
     bool bRC = false ;
 
-    unsigned short usPort = pAddress->port ;
-    unsigned long ulLong = pAddress->address ;
+    uint16_t usPort = pAddress->port ;
+    uint32_t ulLong = pAddress->address ;
 
-    usPort = htons(usPort) ^ ((unsigned short) (htonl(mMsgHeader.magicId.id) & 0x0000FFFF)) ;
+    usPort = htons(usPort) ^ ((uint16_t) (htonl(mMsgHeader.magicId.id) & 0x0000FFFF)) ;
     ulLong = htonl(ulLong) ^ htonl(mMsgHeader.magicId.id) ;
 
     if (    (nBytesLeft >= (sizeof(STUN_ATTRIBUTE_ADDRESS) + sizeof(STUN_ATTRIBUTE_HEADER))) &&
@@ -1158,7 +1162,7 @@ bool StunMessage::encodeXorAttributeAddress(unsigned short type, STUN_ATTRIBUTE_
 }
 
 
-bool StunMessage::encodeString(unsigned short type, const char* szString, char*& pBuf, size_t& nBytesLeft)
+bool StunMessage::encodeString(uint16_t type, const char* szString, char*& pBuf, size_t& nBytesLeft)
 {
     bool bRC = false ;    
 
@@ -1173,7 +1177,7 @@ bool StunMessage::encodeString(unsigned short type, const char* szString, char*&
                 STUN_MIN_CHAR_PAD ;
         memset(cPadding, 0x20, sizeof(cPadding)) ;
         if (    (nBytesLeft >= (nPaddedLength + sizeof(STUN_ATTRIBUTE_HEADER))) &&
-                encodeAttributeHeader(type, (short) nPaddedLength, pBuf, nBytesLeft) &&
+                encodeAttributeHeader(type, (int16_t) nPaddedLength, pBuf, nBytesLeft) &&
                 encodeRaw(szString, nActualLength, pBuf, nBytesLeft) &&
                 encodeRaw(cPadding, nPaddedLength - nActualLength, pBuf, nBytesLeft))
         {
@@ -1191,7 +1195,7 @@ bool StunMessage::encodeString(unsigned short type, const char* szString, char*&
                 STUN_MIN_CHAR_PAD ;
         memset(cPadding, 0x00, sizeof(cPadding)) ;
         if (    (nBytesLeft >= (nPaddedLength + sizeof(STUN_ATTRIBUTE_HEADER))) &&
-                encodeAttributeHeader(type, (short) nActualLength, pBuf, nBytesLeft) &&
+                encodeAttributeHeader(type, (int16_t) nActualLength, pBuf, nBytesLeft) &&
                 encodeRaw(szString, nActualLength, pBuf, nBytesLeft) &&
                 encodeRaw(cPadding, nPaddedLength - nActualLength, pBuf, nBytesLeft))
         {
@@ -1217,7 +1221,7 @@ bool StunMessage::encodeAttributeError(STUN_ATTRIBUTE_ERROR* pError, char*& pBuf
 
     if (    (nBytesLeft >= nTotalLength) &&
             encodeAttributeHeader(ATTR_STUN_ERROR_CODE, 
-                (short) nTotalLength - sizeof(STUN_ATTRIBUTE_HEADER), pBuf, 
+                (int16_t) nTotalLength - sizeof(STUN_ATTRIBUTE_HEADER), pBuf, 
                 nBytesLeft) &&
             encodeShort(pError->unused, pBuf, nBytesLeft) &&
             encodeByte(pError->errorClass & 0x0F, pBuf, nBytesLeft) &&
@@ -1238,7 +1242,7 @@ bool StunMessage::encodeAttributesUnknown(STUN_ATTRIBUTE_UNKNOWN* pAttributes, c
     size_t nAttributes = pAttributes->nTypes ;
     size_t nPaddedAttributes = ((nAttributes + 1) / 2) * 2 ;
 
-    if (nBytesLeft >= (sizeof(STUN_ATTRIBUTE_HEADER) + nPaddedAttributes * sizeof(unsigned short)))
+    if (nBytesLeft >= (sizeof(STUN_ATTRIBUTE_HEADER) + nPaddedAttributes * sizeof(uint16_t)))
     {
         // Repeat last attribute if an odd number
         if (nPaddedAttributes != nAttributes)
@@ -1247,7 +1251,7 @@ bool StunMessage::encodeAttributesUnknown(STUN_ATTRIBUTE_UNKNOWN* pAttributes, c
         }
 
         bRC = encodeAttributeHeader(ATTR_STUN_UNKNOWN_ATTRIBUTE, 
-                (short) (nPaddedAttributes * sizeof(unsigned short)),
+                (int16_t) (nPaddedAttributes * sizeof(uint16_t)),
                 pBuf, nBytesLeft) ;
 
         for (size_t i = 0; (i<nPaddedAttributes) && bRC; i++)
@@ -1383,7 +1387,7 @@ bool StunMessage::parseXorAddressAttribute(char *pBuf, size_t nLength, STUN_ATTR
     {
         memcpy(pAddress, pBuf, sizeof(STUN_ATTRIBUTE_ADDRESS)) ;
 
-        pAddress->port ^= (unsigned short) (htonl(mMsgHeader.magicId.id) & 0x0000FFFF) ;
+        pAddress->port ^= (uint16_t) (htonl(mMsgHeader.magicId.id) & 0x0000FFFF) ;
         pAddress->address ^= htonl(mMsgHeader.magicId.id) ;
         
         pAddress->port = ntohs(pAddress->port) ;
@@ -1395,13 +1399,13 @@ bool StunMessage::parseXorAddressAttribute(char *pBuf, size_t nLength, STUN_ATTR
 }
 
 
-bool StunMessage::parseShortAttribute(char *pBuf, size_t nLength, unsigned short* pShort)
+bool StunMessage::parseShortAttribute(char *pBuf, size_t nLength, uint16_t* pShort)
 {
     bool bValid = false ;
 
-    if (nLength == sizeof(unsigned short)) 
+    if (nLength == sizeof(uint16_t)) 
     {
-        memcpy(pShort, pBuf, sizeof(unsigned short)) ;
+        memcpy(pShort, pBuf, sizeof(uint16_t)) ;
         *pShort = ntohs(*pShort) ;
 
         bValid = true ;
@@ -1409,13 +1413,13 @@ bool StunMessage::parseShortAttribute(char *pBuf, size_t nLength, unsigned short
     return bValid ;
 }
 
-bool StunMessage::parseLongAttribute(char *pBuf, size_t nLength, unsigned long* pLong)
+bool StunMessage::parseLongAttribute(char *pBuf, size_t nLength, uint32_t* pLong)
 {
     bool bValid = false ;
 
-    if (nLength == sizeof(unsigned long)) 
+    if (nLength == sizeof(uint32_t)) 
     {
-        memcpy(pLong, pBuf, sizeof(unsigned long)) ;
+        memcpy(pLong, pBuf, sizeof(uint32_t)) ;
         *pLong = ntohl(*pLong) ;
 
         bValid = true ;
@@ -1466,7 +1470,7 @@ bool StunMessage::parseErrorAttribute(char *pBuf, size_t nLength, STUN_ATTRIBUTE
 {
     bool bValid = false ;
 
-    if (nLength > sizeof(unsigned long) && ((nLength % STUN_MIN_CHAR_PAD) == 0))
+    if (nLength > sizeof(uint32_t) && ((nLength % STUN_MIN_CHAR_PAD) == 0))
     {                 
         pError->unused = 0 ;
         pError->unused2 = 0 ;
@@ -1490,7 +1494,7 @@ bool StunMessage::parseUnknownAttribute(char* pBuf, size_t nLength, STUN_ATTRIBU
     {
         size_t i ;
 
-        unsigned short* pShort = (unsigned short*) pBuf ;
+        uint16_t* pShort = (uint16_t*) pBuf ;
         for (i=0; (i<nLength/2) && (i<STUN_MAX_UNKNOWN_ATTRIBUTES); i++)
         {                  
             pAttributes->type[i] = *pShort++ ;

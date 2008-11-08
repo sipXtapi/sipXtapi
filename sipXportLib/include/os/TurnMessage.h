@@ -127,48 +127,48 @@ class TurnMessage : public StunMessage
     
     virtual bool encodeBody(char* pBuf, size_t nBufLength, size_t& nBytesUsed) ;
 
-    void setLifetime(unsigned long secs) ;
+    void setLifetime(uint32_t secs) ;
 
-    void setBandwidth(unsigned long rKBPS) ;
+    void setBandwidth(uint32_t rKBPS) ;
 
     /** deprecated */
-    void setDestinationAddress(const char* szIp, unsigned short port) ;
+    void setDestinationAddress(const char* szIp, uint16_t port) ;
 
-    void setTurnRemoteAddress(const char* szIp, unsigned short port) ;
+    void setTurnRemoteAddress(const char* szIp, uint16_t port) ;
 
-    void setData(const char* pData, unsigned short nLength) ;
+    void setData(const char* pData, uint16_t nLength) ;
 
-    void setRelayAddress(const char* szIp, unsigned short port) ;
+    void setRelayAddress(const char* szIp, uint16_t port) ;
 
     void setRequestedTransport(TURN_TRANSPORT_TYPE transportType) ;
 
-    void setRequestedIp(const char* szIp, unsigned short port) ;
+    void setRequestedIp(const char* szIp, uint16_t port) ;
 
 /* ============================ ACCESSORS ================================= */
 
-    bool getLifetime(unsigned long& rSecs) ;
+    bool getLifetime(uint32_t& rSecs) ;
 
-    bool getBandwidth(unsigned long& rKBPS) ;
+    bool getBandwidth(uint32_t& rKBPS) ;
 
     /** deprecated */
-    bool getDestinationAddress(char* szIp, unsigned short& rPort) ;
+    bool getDestinationAddress(char* szIp, uint16_t& rPort) ;
 
-    bool getTurnRemoteAddress(char* szIp, unsigned short& rPort) ;
+    bool getTurnRemoteAddress(char* szIp, uint16_t& rPort) ;
 
-    bool getData(char*& rpData, unsigned short& nLength) ;
+    bool getData(char*& rpData, uint16_t& nLength) ;
 
-    bool getRelayAddress(char* szIp, unsigned short& rPort) ;
+    bool getRelayAddress(char* szIp, uint16_t& rPort) ;
 
     bool getRequestedTransport(TURN_TRANSPORT_TYPE& rTransportType) ;
 
-    bool getRequestedIp(char* szIp, unsigned short& rPort) ;
+    bool getRequestedIp(char* szIp, uint16_t& rPort) ;
 
 /* ============================ INQUIRY =================================== */
 
-    virtual bool validateMessageType(unsigned short type) ;
+    virtual bool validateMessageType(uint16_t type) ;
 
     static bool isTurnMessage(const char*    pBuf, 
-                             unsigned short nBufLength, 
+                             uint16_t nBufLength, 
                              bool*          pbDataIndication = NULL) ;  
 
     virtual bool isRequestOrNonErrorResponse() ;
@@ -178,12 +178,12 @@ class TurnMessage : public StunMessage
 
     virtual bool parseAttribute(STUN_ATTRIBUTE_HEADER* pHeader, char* pBuf) ;
 
-    bool encodeAttributeLong(unsigned short type, 
-                             unsigned long value, 
+    bool encodeAttributeLong(uint16_t type, 
+                             uint32_t value, 
                              char*& pBuf, 
                              size_t& nBytesLeft) ;
 
-    bool encodeAttributeRaw(unsigned short type, 
+    bool encodeAttributeRaw(uint16_t type, 
                             const char* cBuf, 
                             size_t length, 
                             char*& pBuf, 
@@ -191,10 +191,10 @@ class TurnMessage : public StunMessage
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
   private:
-    unsigned long mLifetime ;                       // ATTR_TURN_LIFETIME
+    uint32_t mLifetime ;                       // ATTR_TURN_LIFETIME
     bool mbLifetimeValid ;
 
-    unsigned long mBandwidth ;                      // ATTR_TURN_BANDWIDTH
+    uint32_t mBandwidth ;                      // ATTR_TURN_BANDWIDTH
     bool mbBandwidthValid ;
 
     STUN_ATTRIBUTE_ADDRESS mDestinationAddress ;    // ATTR_TURN_DESTINATION_ADDRESS
@@ -210,7 +210,7 @@ class TurnMessage : public StunMessage
     STUN_ATTRIBUTE_ADDRESS mRelayAddress ;          // ATTR_TURN_RELAY_ADDRESS
     bool mbRelayAddressValid ;
     
-    unsigned long mTransport ;                      // ATTR_TURN_REQUESTED_TRANSPORT
+    uint32_t mTransport ;                      // ATTR_TURN_REQUESTED_TRANSPORT
     bool mbTransportValid ;
 
     STUN_ATTRIBUTE_ADDRESS mRequestedIp ;           // ATTR_TURN_REQUESTED_IP

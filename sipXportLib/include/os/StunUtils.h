@@ -69,7 +69,7 @@ static bool allocateTurnAddress(OsDatagramSocket* pSocket,
                                 const int port,
                                 char* szRelayIp,
                                 unsigned short* piRelayPort,
-                                unsigned long* plLifetime) ;
+                                uint32_t* plLifetime) ;
 
 
 static const char* natTypeToString(STUN_NAT_TYPE type) ;

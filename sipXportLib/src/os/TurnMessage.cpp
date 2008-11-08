@@ -14,6 +14,9 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
+// OS INT TYPES
+#include "os/OsIntTypes.h"
+
 // SYSTEM INCLUDES
 #include <stdio.h>
 #include <stdlib.h>
@@ -187,20 +190,20 @@ bool TurnMessage::encodeBody(char* pBuf, size_t nBufLength, size_t& nBytesUsed)
 }
 
 
-void TurnMessage::setLifetime(unsigned long secs) 
+void TurnMessage::setLifetime(uint32_t secs) 
 {
     mLifetime = secs ;
     mbLifetimeValid = true ;
 }
 
 
-void TurnMessage::setBandwidth(unsigned long rKBPS) 
+void TurnMessage::setBandwidth(uint32_t rKBPS) 
 {
     mBandwidth = rKBPS ;
     mbBandwidthValid = true ;
 }
 
-void TurnMessage::setDestinationAddress(const char* szIp, unsigned short port) 
+void TurnMessage::setDestinationAddress(const char* szIp, uint16_t port) 
 {
     mDestinationAddress.family = ATTR_ADDRESS_FAMILY_IPV4 ;
     mDestinationAddress.address = ntohl(inet_addr(szIp)) ;
@@ -208,7 +211,7 @@ void TurnMessage::setDestinationAddress(const char* szIp, unsigned short port)
     mbDestinationAddressValid = true ;
 }
 
-void TurnMessage::setTurnRemoteAddress(const char* szIp, unsigned short port) 
+void TurnMessage::setTurnRemoteAddress(const char* szIp, uint16_t port) 
 {
     mTurnRemoteAddress.family = ATTR_ADDRESS_FAMILY_IPV4 ;
     mTurnRemoteAddress.address = ntohl(inet_addr(szIp)) ;
@@ -216,7 +219,7 @@ void TurnMessage::setTurnRemoteAddress(const char* szIp, unsigned short port)
     mbTurnRemoteAddressValid = true ;
 }
 
-void TurnMessage::setData(const char* pData, unsigned short nLength) 
+void TurnMessage::setData(const char* pData, uint16_t nLength) 
 {
     if (mszTurnData)
     {
@@ -230,7 +233,7 @@ void TurnMessage::setData(const char* pData, unsigned short nLength)
 }
 
 
-void TurnMessage::setRelayAddress(const char* szIp, unsigned short port) 
+void TurnMessage::setRelayAddress(const char* szIp, uint16_t port) 
 {
     mRelayAddress.family = ATTR_ADDRESS_FAMILY_IPV4 ;
     mRelayAddress.address = ntohl(inet_addr(szIp)) ;
@@ -241,14 +244,14 @@ void TurnMessage::setRelayAddress(const char* szIp, unsigned short port)
 
 void TurnMessage::setRequestedTransport(TURN_TRANSPORT_TYPE transportType)
 {
-    mTransport = (unsigned long) transportType ;
+    mTransport = (uint32_t) transportType ;
     mbTransportValid = true ;
 
     assert( (mTransport == 0) || (mTransport == 1) )  ;
 }
 
 
-void TurnMessage::setRequestedIp(const char* szIp, unsigned short port) 
+void TurnMessage::setRequestedIp(const char* szIp, uint16_t port) 
 {
     mRequestedIp.family = ATTR_ADDRESS_FAMILY_IPV4 ;
     mRequestedIp.address = ntohl(inet_addr(szIp)) ;
@@ -259,7 +262,7 @@ void TurnMessage::setRequestedIp(const char* szIp, unsigned short port)
 
 /* ============================ ACCESSORS ================================= */
 
-bool TurnMessage::getLifetime(unsigned long& rSecs) 
+bool TurnMessage::getLifetime(uint32_t& rSecs) 
 {
     if (mbLifetimeValid)
     {
@@ -269,7 +272,7 @@ bool TurnMessage::getLifetime(unsigned long& rSecs)
     return mbLifetimeValid ;    
 }
 
-bool TurnMessage::getBandwidth(unsigned long& rKBPS) 
+bool TurnMessage::getBandwidth(uint32_t& rKBPS) 
 {
     if (mbBandwidthValid)
     {
@@ -280,11 +283,11 @@ bool TurnMessage::getBandwidth(unsigned long& rKBPS)
 }
 
 
-bool TurnMessage::getDestinationAddress(char* szIp, unsigned short& rPort) 
+bool TurnMessage::getDestinationAddress(char* szIp, uint16_t& rPort) 
 {
     if (mbDestinationAddressValid)
     {
-        unsigned long address = htonl(mDestinationAddress.address) ;
+        uint32_t address = htonl(mDestinationAddress.address) ;
         strcpy(szIp, inet_ntoa(*((in_addr*) &address))) ;        
         rPort = mDestinationAddress.port ;          
     } 
@@ -292,11 +295,11 @@ bool TurnMessage::getDestinationAddress(char* szIp, unsigned short& rPort)
     return mbDestinationAddressValid ;
 }
 
-bool TurnMessage::getTurnRemoteAddress(char* szIp, unsigned short& rPort) 
+bool TurnMessage::getTurnRemoteAddress(char* szIp, uint16_t& rPort) 
 {
     if (mbTurnRemoteAddressValid)
     {
-        unsigned long address = htonl(mTurnRemoteAddress.address) ;
+        uint32_t address = htonl(mTurnRemoteAddress.address) ;
         strcpy(szIp, inet_ntoa(*((in_addr*) &address))) ;        
         rPort = mTurnRemoteAddress.port ;          
     } 
@@ -304,23 +307,23 @@ bool TurnMessage::getTurnRemoteAddress(char* szIp, unsigned short& rPort)
     return mbTurnRemoteAddressValid ;
 }
 
-bool TurnMessage::getData(char*& rpData, unsigned short& nLength) 
+bool TurnMessage::getData(char*& rpData, uint16_t& nLength) 
 {
     if (mbTurnDataValid)
     {
         rpData = mszTurnData ;
-        nLength = (unsigned short) mnTurnData ;
+        nLength = (uint16_t) mnTurnData ;
     }
 
     return mbTurnDataValid ;        
 }
 
 
-bool TurnMessage::getRelayAddress(char* szIp, unsigned short& rPort) 
+bool TurnMessage::getRelayAddress(char* szIp, uint16_t& rPort) 
 {
     if (mbRelayAddressValid)
     {
-        unsigned long address = htonl(mRelayAddress.address) ;
+        uint32_t address = htonl(mRelayAddress.address) ;
         strcpy(szIp, inet_ntoa(*((in_addr*) &address))) ;        
         rPort = mRelayAddress.port ;          
     } 
@@ -340,11 +343,11 @@ bool TurnMessage::getRequestedTransport(TURN_TRANSPORT_TYPE& rTransportType)
 }
 
 
-bool TurnMessage::getRequestedIp(char* szIp, unsigned short& rPort)
+bool TurnMessage::getRequestedIp(char* szIp, uint16_t& rPort)
 {
     if (mbRequestedIpValid)
     {
-        unsigned long address = htonl(mRequestedIp.address) ;
+        uint32_t address = htonl(mRequestedIp.address) ;
         strcpy(szIp, inet_ntoa(*((in_addr*) &address))) ;        
         rPort = mRequestedIp.port ;          
     } 
@@ -355,7 +358,7 @@ bool TurnMessage::getRequestedIp(char* szIp, unsigned short& rPort)
 
 /* ============================ INQUIRY =================================== */
 
-bool TurnMessage::validateMessageType(unsigned short type) 
+bool TurnMessage::validateMessageType(uint16_t type) 
 {
     bool bValid = false ;
 
@@ -387,13 +390,13 @@ bool TurnMessage::validateMessageType(unsigned short type)
 
 
 bool TurnMessage::isTurnMessage(const char*    pBuf, 
-                                unsigned short nBufLength, 
+                                uint16_t nBufLength, 
                                 bool*          pbDataIndication) 
 {
     bool bValid = false ;
 
     if (nBufLength >= (sizeof(STUN_MESSAGE_HEADER) + 
-            sizeof(STUN_ATTRIBUTE_HEADER) + sizeof(unsigned long)))
+            sizeof(STUN_ATTRIBUTE_HEADER) + sizeof(uint32_t)))
     {
         STUN_MESSAGE_HEADER header ;
         char* pTraverse = (char*) pBuf ;
@@ -426,18 +429,18 @@ bool TurnMessage::isTurnMessage(const char*    pBuf,
                     // Validate Magic Cookie
 /*
 			        STUN_ATTRIBUTE_HEADER attrHeader ;
-			        unsigned long magicCookie ;
+			        uint32_t magicCookie ;
 
                     pTraverse += sizeof(STUN_MESSAGE_HEADER) ;
                     memcpy(&attrHeader, pTraverse, sizeof(STUN_ATTRIBUTE_HEADER)) ;
                     attrHeader.type = ntohs(attrHeader.type) ;
                     attrHeader.length = ntohs(attrHeader.length) ;
                     pTraverse += sizeof(STUN_ATTRIBUTE_HEADER) ;
-                    memcpy(&magicCookie, pTraverse, sizeof(unsigned long)) ;
+                    memcpy(&magicCookie, pTraverse, sizeof(uint32_t)) ;
                     magicCookie = ntohl(magicCookie) ;
 
                     if (    (attrHeader.type == ATTR_TURN_MAGIC_COOKIE) &&
-                            (attrHeader.length == sizeof(unsigned long)) &&
+                            (attrHeader.length == sizeof(uint32_t)) &&
                             (magicCookie == ATTR_MAGIC_COOKIE)  )
                     {                    
 */
@@ -496,7 +499,7 @@ bool TurnMessage::isRequestOrNonErrorResponse()
 
 bool TurnMessage::parseAttribute(STUN_ATTRIBUTE_HEADER* pHeader, char* pBuf) 
 {
-    unsigned long magicCookie ;
+    uint32_t magicCookie ;
     bool bValid = false ;
 
     switch (pHeader->type)
@@ -566,12 +569,12 @@ bool TurnMessage::parseAttribute(STUN_ATTRIBUTE_HEADER* pHeader, char* pBuf)
     return bValid ;
 }
 
-bool TurnMessage::encodeAttributeLong(unsigned short type, unsigned long value, char*& pBuf, size_t& nBytesLeft)
+bool TurnMessage::encodeAttributeLong(uint16_t type, uint32_t value, char*& pBuf, size_t& nBytesLeft)
 {
     bool bRC = false ;
 
-    if (    (nBytesLeft >= (sizeof(unsigned long) + sizeof(STUN_ATTRIBUTE_HEADER))) &&
-            encodeAttributeHeader(type, sizeof(unsigned long), pBuf, nBytesLeft) &&
+    if (    (nBytesLeft >= (sizeof(uint32_t) + sizeof(STUN_ATTRIBUTE_HEADER))) &&
+            encodeAttributeHeader(type, sizeof(uint32_t), pBuf, nBytesLeft) &&
             encodeLong(value, pBuf, nBytesLeft))
     {
         bRC = true ;
@@ -580,13 +583,13 @@ bool TurnMessage::encodeAttributeLong(unsigned short type, unsigned long value, 
     return bRC ;
 }
 
-bool TurnMessage::encodeAttributeRaw(unsigned short type, const char* cBuf, size_t nBuf, char*& pBuf, size_t& nBytesLeft) 
+bool TurnMessage::encodeAttributeRaw(uint16_t type, const char* cBuf, size_t nBuf, char*& pBuf, size_t& nBytesLeft) 
 {
     bool bRC = false;
 
     size_t nTotalLength = sizeof(STUN_ATTRIBUTE_HEADER) + nBuf ;
     if (    (nBytesLeft >= nTotalLength) &&
-            encodeAttributeHeader(type, (unsigned short) nBuf, pBuf, nBytesLeft) &&
+            encodeAttributeHeader(type, (uint16_t) nBuf, pBuf, nBytesLeft) &&
             encodeRaw(cBuf, nBuf, pBuf, nBytesLeft))
     {
         bRC = true ;
