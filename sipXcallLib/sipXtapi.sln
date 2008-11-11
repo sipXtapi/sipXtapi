@@ -194,6 +194,14 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "plgl16", "..\sipXmediaLib\s
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "mstream", "..\sipXmediaAdapterLib\examples\mstream\mstream.vcproj", "{DEFDF925-5567-4E4E-B3B6-E737BEAF65CD}"
+	ProjectSection(ProjectDependencies) = postProject
+		{0E229E54-9234-44DC-8B74-8C6BA553D3C5} = {0E229E54-9234-44DC-8B74-8C6BA553D3C5}
+		{14631055-9D3F-47E5-B6A7-16BFC0CC8091} = {14631055-9D3F-47E5-B6A7-16BFC0CC8091}
+		{0EC8287A-481E-45DC-8F95-BAD940AE1038} = {0EC8287A-481E-45DC-8F95-BAD940AE1038}
+		{E1D81EA9-4AC3-4CF5-B600-090FD822B1F6} = {E1D81EA9-4AC3-4CF5-B600-090FD822B1F6}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfiguration) = preSolution
 		Debug = Debug
@@ -595,6 +603,18 @@ Global
 		{A9C94D26-C90D-4860-8195-56929E893757}.SSL-Debug.Build.0 = Debug|Win32
 		{A9C94D26-C90D-4860-8195-56929E893757}.SSL-Release.ActiveCfg = Release|Win32
 		{A9C94D26-C90D-4860-8195-56929E893757}.SSL-Release.Build.0 = Release|Win32
+		{DEFDF925-5567-4E4E-B3B6-E737BEAF65CD}.Debug.ActiveCfg = Debug|Win32
+		{DEFDF925-5567-4E4E-B3B6-E737BEAF65CD}.Debug.Build.0 = Debug|Win32
+		{DEFDF925-5567-4E4E-B3B6-E737BEAF65CD}.Debug_NoVideo.ActiveCfg = Debug|Win32
+		{DEFDF925-5567-4E4E-B3B6-E737BEAF65CD}.Debug_NoVideo.Build.0 = Debug|Win32
+		{DEFDF925-5567-4E4E-B3B6-E737BEAF65CD}.Release.ActiveCfg = Release|Win32
+		{DEFDF925-5567-4E4E-B3B6-E737BEAF65CD}.Release.Build.0 = Release|Win32
+		{DEFDF925-5567-4E4E-B3B6-E737BEAF65CD}.Release_NoVideo.ActiveCfg = Release|Win32
+		{DEFDF925-5567-4E4E-B3B6-E737BEAF65CD}.Release_NoVideo.Build.0 = Release|Win32
+		{DEFDF925-5567-4E4E-B3B6-E737BEAF65CD}.SSL-Debug.ActiveCfg = Debug|Win32
+		{DEFDF925-5567-4E4E-B3B6-E737BEAF65CD}.SSL-Debug.Build.0 = Debug|Win32
+		{DEFDF925-5567-4E4E-B3B6-E737BEAF65CD}.SSL-Release.ActiveCfg = Release|Win32
+		{DEFDF925-5567-4E4E-B3B6-E737BEAF65CD}.SSL-Release.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionItems) = postSolution
 	EndGlobalSection
