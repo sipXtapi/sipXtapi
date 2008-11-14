@@ -152,6 +152,7 @@ libsipXmedia_la_SOURCES =  \
     mp/MpStreamPlayer.cpp \
     mp/MpStreamPlaylistPlayer.cpp \
     mp/MpStreamQueuePlayer.cpp \
+    mp/MpSpeakerSelectBase.cpp \
     mp/MpPlcBase.cpp \
     mp/MpPlcSilence.cpp \
     mp/MpPlgStaffV1.cpp \

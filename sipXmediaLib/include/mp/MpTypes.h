@@ -84,6 +84,7 @@ struct MpSpeechParams
    , mAmplitude(MAX_AMPLITUDE)
    , mIsClipped(FALSE)
    , mFrameEnergy(-1)
+   , mSpkSelectRang(0)
    {
    };
 #else
@@ -95,6 +96,8 @@ struct MpSpeechParams
    UtlBoolean mIsClipped;     ///< Is data in this buffer clipped or not?
    int mFrameEnergy;          ///< Current frame energy (normalized to frame
                               ///< length in ms).
+   unsigned mSpkSelectRang;   ///< Speacker selection rang, 0 is the highest
+                              ///< priority, UINT32_MAX is for silent participants.
 };
 
 /* ============================== FUNCTIONS ============================== */
