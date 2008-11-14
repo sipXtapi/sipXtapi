@@ -21,8 +21,7 @@
 #define ENERGY_SHIFT    8
 
 // CONSTANTS
-#define MIN_SPEECH_ENERGY_THRESHOLD 20000
-#define MAX_SPEECH_ENERGY_THRESHOLD 70000
+#define MIN_SPEECH_ENERGY_THRESHOLD 10000
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -102,8 +101,18 @@ MpSpeechType MpVadSimple::processFrame(uint32_t packetTimeStamp,
       return speechParams.mSpeechType;
    }
 
-   if (energy > (mMinEnergy >> ENERGY_SHIFT))
+   if (getEnergy() > mMinEnergy)
       return MP_SPEECH_ACTIVE;
 
    return MP_SPEECH_SILENT;
+}
+
+OsStatus MpVadSimple::setParam(const char* paramName, void* value)
+{
+   if (strcmp(paramName, "MinimumEnergy") == 0)
+   {
+      setMinimumEnergy((int)value);
+      return OS_SUCCESS;
+   }
+   return OS_FAILED;
 }

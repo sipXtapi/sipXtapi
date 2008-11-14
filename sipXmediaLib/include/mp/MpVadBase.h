@@ -91,6 +91,15 @@ public:
      *          may be MP_SPEECH_UNKNOWN
      */
 
+     /// Set algorithm parameter
+   virtual OsStatus setParam(const char* paramName, void* value) = 0;
+     /**<
+     * @param[in] paramName - name of parameter
+     * @param[in] value - value, can be any type, before call cast it to void*
+     * @returns Method returns OS_SUCCESS if parameter has been set,
+     *          otherwise OS_FAILED
+     */ 
+
 //@}
 
 /* ============================ ACCESSORS ================================= */

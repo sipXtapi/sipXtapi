@@ -16,9 +16,10 @@
 #include <mp/MpVadBase.h>
 
 /**
-*  Simple VAD.
+*  Simple Energy-basede VAD.
 *
-*  Simplest possible VAD - it is doing nothing yet.
+*  This VAD is simplest possible - it just compare mean frame energy with given
+*  threshold.
 */
 class MpVadSimple : public MpVadBase
 {
@@ -55,7 +56,10 @@ public:
                              const MpSpeechParams &speechParams,
                              UtlBoolean calcEnergyOnly = FALSE);
 
-     /// Set thresould energy
+     /// @copydoc MpVadBase::setParam()
+   OsStatus setParam(const char* paramName, void* value);
+
+     /// Set threshold energy
    void setMinimumEnergy(int minEnergy);
 
 //@}
