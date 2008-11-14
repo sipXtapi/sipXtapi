@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2007-2008 SIPez LLC  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -84,6 +87,13 @@ UtlInt& UtlInt::operator=(const UtlInt& rhs)
    mValue = rhs.mValue;
 
    return *this;
+}
+
+void UtlInt::toString(UtlString& stringInt, int valueToStringify)
+{
+    char buf[20];
+    sprintf(buf, "%d", valueToStringify);
+    stringInt = buf;
 }
 
 /* ============================ MANIPULATORS ============================== */

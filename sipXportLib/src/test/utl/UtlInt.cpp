@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2007-2008 SIPez LLC  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -389,6 +392,13 @@ public:
         // test conversion operator
         UtlInt testInt2(11);
         CPPUNIT_ASSERT(testInt2 == 11);
+
+        UtlString stringifiedInt;
+        UtlInt::toString(stringifiedInt, 123456);
+        CPPUNIT_ASSERT(stringifiedInt.compareTo("123456") == 0);
+        UtlInt::toString(stringifiedInt, -98765);
+        CPPUNIT_ASSERT(stringifiedInt.compareTo("-98765") == 0);
+
     } //testOperators
 };
 

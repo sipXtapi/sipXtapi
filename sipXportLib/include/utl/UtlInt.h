@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2007-2008 SIPez LLC  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -14,8 +17,9 @@
 
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
-#include "utl/UtlDefs.h"
-#include "utl/UtlCopyableContainable.h"
+#include <utl/UtlDefs.h>
+#include <utl/UtlCopyableContainable.h>
+#include <utl/UtlString.h>
 
 // DEFINES
 // MACROS
@@ -64,6 +68,11 @@ public:
 
     // Conversion to int
     operator int() { return mValue; }
+
+    /**
+     * Convert the given int to a string representation
+     */
+    static void toString(UtlString& stringInt, int valueToStringify);
 
 /* ============================ MANIPULATORS ============================== */
 
