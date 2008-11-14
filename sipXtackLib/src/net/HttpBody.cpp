@@ -1,8 +1,8 @@
 // 
-// Copyright (C) 2005-2007 SIPez LLC.
+// Copyright (C) 2005-2008 SIPez LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.
 // 
-// Copyright (C) 2004-2007 SIPfoundry Inc.
+// Copyright (C) 2004-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 // 
 // Copyright (C) 2004 Pingtel Corp.
@@ -290,33 +290,40 @@ HttpBody* HttpBody::copyBody(const HttpBody& sourceBody)
 // Pseudo factory
 HttpBody* HttpBody::createBody(const char* bodyBytes,
                                int bodyLength,
-                               const char* contentType,
+                               const char* contentTypeField,
                                const char* contentEncoding)
 {
     HttpBody* body = NULL;
 
     UtlString contentTypeString;
-    if(contentType)
+    if(contentTypeField)
     {
-        contentTypeString.append(contentType);
+        contentTypeString.append(contentTypeField);
         contentTypeString.toLower();
+        // Find parameter seporator if there is one
+        int paramIndex = contentTypeString.index(';');
+        if (paramIndex > 0)
+        {
+            contentTypeString.remove(paramIndex);
+        }
+        contentTypeString.strip(UtlString::both);
     }
-    if(contentType && 
+    if(contentTypeField && 
        strcmp(contentTypeString.data(), SDP_CONTENT_TYPE) == 0)
     {
         body = new SdpBody(bodyBytes, bodyLength);
     }
-    else if(contentType && 
+    else if(contentTypeField && 
             strcmp(contentTypeString.data(), CONTENT_SMIME_PKCS7) == 0)
     {
         body = new SmimeBody(bodyBytes, bodyLength, contentEncoding);
     }
-    else if(contentType &&
+    else if(contentTypeField &&
             strcmp(contentTypeString.data(), CONTENT_TYPE_PIDF) == 0)
     {
         body = new PidfBody(bodyBytes, bodyLength, contentEncoding);
     }
-    //else if(contentTYpe &&
+    //else if(contentTypeField &&
     //        strcmp(contentTypeString.data(), DIALOG_EVENT_CONTENT_TYPE) == 0)
     //{
     //    body = new SipDialogEvent(bodyBytes, bodyLength, contentEncoding);
@@ -325,7 +332,7 @@ HttpBody* HttpBody::createBody(const char* bodyBytes,
              (bodyBytes[0] != '\n'))
     {
         body = new HttpBody(bodyBytes, bodyLength,
-                            contentType);
+                            contentTypeField);
     }
 
     return(body);
