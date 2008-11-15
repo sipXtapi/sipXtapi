@@ -1801,7 +1801,7 @@ AC_DEFUN([CHECK_AMR_AMRWB],
 # ============ D O X Y G E N ==================
 # Originaly from CppUnit BB_ENABLE_DOXYGEN
 
-AC_DEFUN(ENABLE_DOXYGEN,
+AC_DEFUN([ENABLE_DOXYGEN],
 [
 AC_ARG_ENABLE(doxygen, [  --enable-doxygen        enable documentation generation with doxygen (yes)], [], [ enable_doxygen=yes])
 AC_ARG_ENABLE(dot, [  --enable-dot            use 'dot' to generate graphs in doxygen (auto)])
@@ -1992,7 +1992,7 @@ x$B" | sed 's/^ *//' | sort -r | sed "s/x${A}/true/;s/x${B}/false/;1q"`
 
 
 # ============ Test the nature of the va_list type. ==================
-AC_DEFUN(CHECK_VA_LIST,
+AC_DEFUN([CHECK_VA_LIST],
 [
   # Check to see how the compiler defines va_list, as pointer or array.
   AC_MSG_CHECKING(whether va_lists can be copied by value)
