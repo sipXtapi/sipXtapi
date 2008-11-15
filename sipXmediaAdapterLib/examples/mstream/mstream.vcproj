@@ -4,6 +4,7 @@
 	Version="7.10"
 	Name="mstream"
 	ProjectGUID="{DEFDF925-5567-4E4E-B3B6-E737BEAF65CD}"
+	RootNamespace="mstream"
 	Keyword="Win32Proj">
 	<Platforms>
 		<Platform
@@ -33,7 +34,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="ws2_32.lib pcre.lib winmm.lib"
-				OutputFile="$(OutDir)/mstream.exe"
+				OutputFile="bin\mstream.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
 				AdditionalLibraryDirectories="..\..\..\CPPUnit\lib;..\..\..\sipXmediaLib\contrib\libgsm\lib;..\..\..\sipXmediaLib\contrib\libspeex\lib"
@@ -44,7 +45,9 @@
 			<Tool
 				Name="VCMIDLTool"/>
 			<Tool
-				Name="VCPostBuildEventTool"/>
+				Name="VCPostBuildEventTool"
+				Description="Copy required files to bin directory"
+				CommandLine="copy /Y ..\..\..\sipXmediaLib\bin\*.dll bin"/>
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
@@ -82,7 +85,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="ws2_32.lib pcre.lib winmm.lib"
-				OutputFile="$(OutDir)/mstream.exe"
+				OutputFile="bin\mstream.exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="..\..\..\CPPUnit\lib;..\..\..\sipXmediaLib\contrib\libgsm\lib;..\..\..\sipXmediaLib\contrib\libspeex\lib"
 				GenerateDebugInformation="TRUE"
@@ -93,7 +96,9 @@
 			<Tool
 				Name="VCMIDLTool"/>
 			<Tool
-				Name="VCPostBuildEventTool"/>
+				Name="VCPostBuildEventTool"
+				Description="Copy required files to bin directory"
+				CommandLine="copy /Y ..\..\..\sipXmediaLib\bin\*.dll bin"/>
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
