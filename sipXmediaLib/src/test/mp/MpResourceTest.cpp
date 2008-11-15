@@ -189,8 +189,8 @@ public:
         CPPUNIT_ASSERT(pResource->mLastMsg.getMsgDest() == pResource);
         CPPUNIT_ASSERT(pResource->mLastMsg.getPtr1() == (void*) 1);
         CPPUNIT_ASSERT(pResource->mLastMsg.getPtr2() == (void*) 2);
-        CPPUNIT_ASSERT_EQUAL(3, pResource->mLastMsg.getInt1());
-        CPPUNIT_ASSERT_EQUAL(4, pResource->mLastMsg.getInt2());
+        CPPUNIT_ASSERT_EQUAL((intptr_t)3, pResource->mLastMsg.getInt1());
+        CPPUNIT_ASSERT_EQUAL((intptr_t)4, pResource->mLastMsg.getInt2());
 
         delete pResource;
     }
