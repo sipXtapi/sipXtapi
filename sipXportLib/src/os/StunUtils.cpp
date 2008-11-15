@@ -76,7 +76,7 @@ STUN_NAT_TYPE StunUtils::determineStunNatType(const char* szServer, const int po
                 else
                 {
                     char cMappedIp2[64] ;
-                    unsigned short usMappedPort2 ;
+                    uint16_t usMappedPort2 ;
 
                     if (sendStunNatTest(pSocket, cChangedIp, usChangedPort, false, false, cMappedIp2, &usMappedPort2,
                             NULL, NULL))
