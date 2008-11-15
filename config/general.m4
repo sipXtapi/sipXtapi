@@ -42,11 +42,20 @@ dnl
 AC_DEFUN([AM_PATH_CPPUNIT],
 [
 
+AC_ARG_WITH(cppunit-config,[  --with-cppunit-config=PATH  Path to cppunit-config (optional)],
+            cppunit_config_path="$withval", cppunit_config_path="")
 AC_ARG_WITH(cppunit-prefix,[  --with-cppunit-prefix=PFX   Prefix where CppUnit is installed (optional)],
             cppunit_config_prefix="$withval", cppunit_config_prefix="")
 AC_ARG_WITH(cppunit-exec-prefix,[  --with-cppunit-exec-prefix=PFX  Exec prefix where CppUnit is installed (optional)],
             cppunit_config_exec_prefix="$withval", cppunit_config_exec_prefix="")
 
+  if test x$cppunit_config_path != x ; then
+     if test -f "$cppunit_config_path/cppunit-config" ; then
+        CPPUNIT_CONFIG=$cppunit_config_path/cppunit-config
+     elif test -f "$cppunit_config_path" ; then
+        CPPUNIT_CONFIG=$cppunit_config_path
+     fi
+  fi
   if test x$cppunit_config_exec_prefix != x ; then
      cppunit_config_args="$cppunit_config_args --exec-prefix=$cppunit_config_exec_prefix"
      if test x${CPPUNIT_CONFIG+set} != xset ; then
