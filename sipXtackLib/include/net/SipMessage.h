@@ -282,6 +282,12 @@ class SipRegInfoBody;        // for RFC 3680
 #define SIP_EVENT_REGISTER                  "reg" //  RFC 3680 
 #define SIP_EVENT_PRESENCE                  "presence"
 
+// Event Header Parameters
+#define SIP_EVENT_PARAMETER_PROFILE_TYPE    "profile-type"
+#define SIP_EVENT_PARAMETER_VENDOR          "vendor"
+#define SIP_EVENT_PARAMETER_MODEL           "model"
+#define SIP_EVENT_PARAMETER_VERSION         "version"
+
 // NOTIFY Subscription-State values
 #define SIP_SUBSCRIPTION_ACTIVE             "active"
 #define SIP_SUBSCRIPTION_PENDING            "pending"
