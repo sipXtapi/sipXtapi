@@ -38,9 +38,9 @@ void TurnMessageTestSuite::testStunEncodeParse()
     TurnMessage check ;
     bool bRC ;
     char szString[1024] ;
-    unsigned short usValue ;
+    uint16_t usValue ;
     bool bValue ;
-    unsigned short values[16] ;
+    uint16_t values[16] ;
     size_t size ;
 
     // Valid empty state
@@ -199,7 +199,7 @@ void TurnMessageTestSuite::testTurnEncodeParseBasic()
     TurnMessage check ;
     bool bRC ;
     char szString[1024] ;
-    unsigned short usValue ;
+    uint16_t usValue ;
     uint32_t ulValue ;
     char* ptr ;
 

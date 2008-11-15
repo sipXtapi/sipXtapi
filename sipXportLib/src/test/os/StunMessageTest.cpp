@@ -35,9 +35,9 @@ void StunMessageTestSuite::testFullEncodeParse()
     StunMessage check ;
     bool bRC ;
     char szString[1024] ;
-    unsigned short usValue ;
+    uint16_t usValue ;
     bool bValue ;
-    unsigned short values[16] ;
+    uint16_t values[16] ;
     size_t size ;
 
     // Valid empty state
