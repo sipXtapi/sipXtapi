@@ -1,8 +1,8 @@
 //  
-// Copyright (C) 2007 SIPez LLC. 
+// Copyright (C) 2007-2008 SIPez LLC. 
 // Licensed to SIPfoundry under a Contributor Agreement. 
 //
-// Copyright (C) 2004-2007 SIPfoundry Inc.
+// Copyright (C) 2004-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -2286,7 +2286,7 @@ void SipUserAgent::queueMessageToInterestedObservers(SipMessageEvent& event,
       // Find all of the observers which are interested in
       // this method and post the message
       UtlString messageEventName;
-      message->getEventField(messageEventName);
+      message->getEventField(&messageEventName, NULL, NULL);
 
       // do these constructors before taking the lock
       UtlString observerMatchingMethod(method);
