@@ -352,7 +352,14 @@ void SipDialog::setRequestData(SipMessage& request, const char* method)
     }
     else
     {
-    request.setSipRequestFirstHeaderLine(methodString, remoteContact);
+        // Need to convert the remoteContact to a URI as it may be in
+        // name-addr format
+        Url remoteContactUrl(remoteContact);
+        UtlString remoteContactInUriFormat;
+        remoteContactUrl.getUri(remoteContactInUriFormat);
+        printf("remoteContact: \"%s\"\nURI formated: \"%s\"\n",
+               remoteContact.data(), remoteContactInUriFormat.data());
+        request.setSipRequestFirstHeaderLine(methodString, remoteContactInUriFormat);
     }
 
     // The local field is the From field
@@ -377,6 +384,12 @@ void SipDialog::setRequestData(SipMessage& request, const char* method)
 
     // Set the call-id
     request.setCallIdField(*this);
+
+    // Set the contact to the incoming request URI
+    if(!msLocalRequestUri.isNull())
+    {
+       request.setContactField(msLocalRequestUri);
+    }
 }
 
 /* ============================ ACCESSORS ================================= */
