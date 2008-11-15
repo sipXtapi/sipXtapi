@@ -1,5 +1,8 @@
 //
-// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Copyright (C) 2008 SIPez LLC  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// Copyright (C) 2004-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -155,7 +158,7 @@ const bool SipContactDb::deleteContact(const SIPX_CONTACT_ID id)
 {
     OsLock lock(mLock);
     UtlInt idKey(id);
-    return mContacts.destroy(&idKey);
+    return mContacts.destroy(&idKey) ? true : false;
 }
 
 SIPX_CONTACT_ADDRESS* SipContactDb::find(SIPX_CONTACT_ID id)
