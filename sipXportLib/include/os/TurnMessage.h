@@ -19,6 +19,7 @@
 
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
+#include "os/OsIntTypes.h"
 #include "os/StunMessage.h"
 
 // DEFINES

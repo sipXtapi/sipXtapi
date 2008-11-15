@@ -16,6 +16,7 @@
 
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
+#include "os/OsIntTypes.h"
 #include "utl/UtlRandom.h"
 
 // DEFINES
