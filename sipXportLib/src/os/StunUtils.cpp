@@ -43,9 +43,9 @@ STUN_NAT_TYPE StunUtils::determineStunNatType(const char* szServer, const int po
     UtlString localIp; 
     STUN_NAT_TYPE rc = STUN_NAT_ERROR_BAD_SERVER ;
     char cMappedIp[64] ;
-    unsigned short usMappedPort ;
+    uint16_t usMappedPort ;
     char cChangedIp[64] ;
-    unsigned short usChangedPort ;
+    uint16_t usChangedPort ;
 
     OsSocket::getHostIp(&localIp) ;
     if (OsSocket::getHostIpByName(szServer, &stunIp))
@@ -124,7 +124,7 @@ bool StunUtils::allocateTurnAddress(OsDatagramSocket* pSocket,
                                     const char* szServerIp,
                                     const int port,
                                     char* szRelayIp,
-                                    unsigned short* piRelayPort,
+                                    uint16_t* piRelayPort,
                                     uint32_t* plLifetime)
 {
     bool bSuccess = false ;
@@ -197,9 +197,9 @@ bool StunUtils::sendStunNatTest(OsDatagramSocket* pSocket,
                                 bool bChangePort,
                                 bool bChangeIP,
                                 char* szMappedIp,
-                                unsigned short* piMappedPort,
+                                uint16_t* piMappedPort,
                                 char* szChangedIp,
-                                unsigned short* piChangedPort) 
+                                uint16_t* piChangedPort) 
 {
     StunMessage msgSend ;
     char cMsgSend[2048] ;

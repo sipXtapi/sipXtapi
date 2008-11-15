@@ -194,8 +194,8 @@ int OsNatSocketBaseImpl::handleTurnDataIndication(char*      buffer,
 
     if (msg.parse(buffer, bufferLength))
     {
-        char*          pData ;
-        unsigned short nData ;
+        char*    pData ;
+        uint16_t nData ;
 
         if (msg.getData(pData, nData))
         {
@@ -208,8 +208,8 @@ int OsNatSocketBaseImpl::handleTurnDataIndication(char*      buffer,
 
                 if (pRecvFromIp || pRecvFromPort)
                 {
-                    char           remoteAddr[32] ;
-                    unsigned short remotePort ;
+                    char     remoteAddr[32] ;
+                    uint16_t remotePort ;
                     if (msg.getTurnRemoteAddress(remoteAddr, remotePort))
                     {
                         if (pRecvFromIp)

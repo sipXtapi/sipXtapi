@@ -187,7 +187,7 @@ UtlBoolean OsNatAgentTask::handleStunMessage(NatMsg& rMsg)
     IStunSocket* pSocket = rMsg.getSocket() ;
     UtlString sendToAddress ;
     unsigned short sendToPort ;
-    unsigned short unknownAttributes[STUN_MAX_UNKNOWN_ATTRIBUTES] ;
+    uint16_t unknownAttributes[STUN_MAX_UNKNOWN_ATTRIBUTES] ;
     size_t nUnknownAttributes ;
 
     if (OsSysLog::willLog(FAC_NET, PRI_DEBUG))
@@ -250,7 +250,7 @@ UtlBoolean OsNatAgentTask::handleStunMessage(NatMsg& rMsg)
 
                         // Check for response address
                         char cResponseAddress[64] ;
-                        unsigned short responsePort ;
+                        uint16_t responsePort ;
                         if (msg.getResponseAddress(cResponseAddress, responsePort))
                         {
                             respMsg.setReflectedFrom(pSocket->getSocket()->getLocalIp(), pSocket->getSocket()->getLocalHostPort()) ;
@@ -276,7 +276,7 @@ UtlBoolean OsNatAgentTask::handleStunMessage(NatMsg& rMsg)
                     if (pContext)
                     {
                         char mappedAddress[64] ;
-                        unsigned short mappedPort ;
+                        uint16_t mappedPort ;
 
                         if (msg.getMappedAddress(mappedAddress, mappedPort))
                         {
@@ -364,7 +364,7 @@ UtlBoolean OsNatAgentTask::handleTurnMessage(NatMsg& rMsg)
                     if ((pContext) && pContext->type == TURN_ALLOCATION)
                     {
                         char relayAddress[64] ;
-                        unsigned short relayPort ;
+                        uint16_t relayPort ;
 
                         if (msg.getMappedAddress(relayAddress, relayPort))
                         {

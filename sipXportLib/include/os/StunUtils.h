@@ -60,15 +60,15 @@ static bool sendStunNatTest(OsDatagramSocket* pSocket,
                         bool bChangePort,
                         bool bChangeIP,
                         char* szMappedIp,
-                        unsigned short* piMappedPort,
+                        uint16_t* piMappedPort,
                         char* szChangedIp,
-                        unsigned short* piChangedPort) ;
+                        uint16_t* piChangedPort) ;
 
 static bool allocateTurnAddress(OsDatagramSocket* pSocket,
                                 const char* szServerIp,
                                 const int port,
                                 char* szRelayIp,
-                                unsigned short* piRelayPort,
+                                uint16_t* piRelayPort,
                                 uint32_t* plLifetime) ;
 
 
