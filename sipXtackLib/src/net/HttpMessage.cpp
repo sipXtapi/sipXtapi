@@ -1,8 +1,8 @@
 // 
-// Copyright (C) 2005-2007 SIPez LLC.
+// Copyright (C) 2005-2008 SIPez LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.
 // 
-// Copyright (C) 2004-2007 SIPfoundry Inc.
+// Copyright (C) 2004-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 // 
 // Copyright (C) 2004-2006 Pingtel Corp.
@@ -2090,7 +2090,7 @@ void HttpMessage::addHeaderField(const char* name, const char* value)
     NameValuePair* headerField =
         new NameValuePair(name ? name : "", value);
     headerField->toUpper();
-        mNameValues.insert(headerField);
+    mNameValues.insert(headerField);
 }
 
 void HttpMessage::insertHeaderField(const char* name,
@@ -2101,38 +2101,144 @@ void HttpMessage::insertHeaderField(const char* name,
     NameValuePair* headerField =
         new NameValuePair(name ? name : "", value);
     headerField->toUpper();
-        mNameValues.insertAt(index, headerField);
+    mNameValues.insertAt(index, headerField);
 }
 
 const HttpBody* HttpMessage::getBody() const
 {
-        return(body);
+    return(body);
 }
 
 void HttpMessage::setBody(HttpBody* newBody)
 {
-        if(body)
-        {
-                delete body;
-        }
-        body = newBody;
+    if(body)
+    {
+        delete body;
+    }
+    body = newBody;
 }
 
-UtlBoolean HttpMessage::getContentType(UtlString* contentTypeString) const
+UtlBoolean HttpMessage::getContentType(UtlString* contentTypeString, UtlHashMap* parameters) const
 {
-        const char* contentType = getHeaderValue(0, HTTP_CONTENT_TYPE_FIELD);
-        contentTypeString->remove(0);
-        if(contentType)
+    const char* contentType = getHeaderValue(0, HTTP_CONTENT_TYPE_FIELD);
+    contentTypeString->remove(0);
+    if(contentType)
+    {
+
+        UtlNameValueTokenizer::getSubField(contentType, 0, ";", contentTypeString);
+        contentTypeString->strip(UtlString::both);
+
+        if(parameters)
         {
-                contentTypeString->append(contentType);
-                contentTypeString->strip(UtlString::both);
+            // Might consider using this instead of the following code
+            // HttpRequestContext::parseCgiVariables(mRawFieldParameters,
+            //                                    *mpFieldParameters, ";", "=",
+            //                                    TRUE, &Url::gen_value_unescape);
+
+            // The following is a bit inefficient in that it reparses looking for the ; param separator each time
+            UtlString contentTypeParam;
+            for (int param_idx = 1;
+                 UtlNameValueTokenizer::getSubField(contentType, param_idx, ";", &contentTypeParam);
+                 param_idx++
+                )
+            {
+                UtlString name;
+                UtlString value;
+
+                UtlNameValueTokenizer paramPair(contentTypeParam);
+                UtlString* nameString = NULL;
+                UtlString* valueString = NULL;
+                if (paramPair.getNextPair('=',&name,&value))
+                {
+                    nameString =  new UtlString(name);
+                    nameString->toLower(); // Cannonize as lower case
+                    nameString->strip(UtlString::both);
+                    valueString = new UtlString(value);
+                    Url::gen_value_unescape(*valueString);
+                    parameters->insertKeyAndValue(nameString, valueString);
+                    nameString = NULL;
+                }
+                else
+                {
+                    // No text between semicolins
+                    OsSysLog::add(FAC_SIP,PRI_WARNING,"invalid content-type parameter '%s'", contentTypeParam.data());
+                }
+            }
         }
-        return(contentType != NULL);
+    }
+    return(contentType != NULL);
 }
 
-void HttpMessage::setContentType(const char* contentTypeString)
+void HttpMessage::setContentType(const char* contentTypeString, 
+                                 const char* accessType,
+                                 const char* expirationDate,
+                                 const char* url,
+                                 int size,
+                                 const char* hash)
 {
-        setHeaderValue(HTTP_CONTENT_TYPE_FIELD, contentTypeString);
+    UtlString contentHeaderValue(contentTypeString);
+    UtlString escapedValue;
+
+    if(accessType)
+    {
+        escapedValue = accessType;
+        Url::gen_value_escape(escapedValue);
+        char* quoteFound = strchr(escapedValue, '"');
+        contentHeaderValue.append(';');
+        contentHeaderValue.append(HTTP_CONTENT_TYPE_PARAM_ACCESS_TYPE);
+        contentHeaderValue.append('=');
+        if(!quoteFound)
+        {
+            contentHeaderValue.append('"');
+        }
+        contentHeaderValue.append(escapedValue);
+        if(!quoteFound)
+        {
+            contentHeaderValue.append('"');
+        }
+    }
+    if(expirationDate)
+    {
+        contentHeaderValue.append(';');
+        contentHeaderValue.append(HTTP_CONTENT_TYPE_PARAM_EXPIRATION);
+        contentHeaderValue.append('=');
+        escapedValue = expirationDate;
+        Url::gen_value_escape(escapedValue);
+        contentHeaderValue.append(escapedValue);
+    }
+    if(url)
+    {
+        contentHeaderValue.append(';');
+        // Looks like Motorola might be case sensative
+        //contentHeaderValue.append(HTTP_CONTENT_TYPE_PARAM_URL);
+        contentHeaderValue.append("URL");
+        contentHeaderValue.append('=');
+        escapedValue = url;
+        Url::gen_value_escape(escapedValue);
+        contentHeaderValue.append(escapedValue);
+    }
+    if(size > 0)
+    {
+        UtlString sizeString;
+        UtlInt::toString(sizeString, size);
+        contentHeaderValue.append(';');
+        contentHeaderValue.append(HTTP_CONTENT_TYPE_PARAM_SIZE);
+        contentHeaderValue.append('=');
+        escapedValue = sizeString;
+        Url::gen_value_escape(escapedValue);
+        contentHeaderValue.append(escapedValue);
+    }
+    if(hash)
+    {
+        contentHeaderValue.append(';');
+        contentHeaderValue.append(HTTP_CONTENT_TYPE_PARAM_HASH);
+        contentHeaderValue.append('=');
+        escapedValue = hash;
+        Url::gen_value_escape(escapedValue);
+        contentHeaderValue.append(escapedValue);
+    }
+
+    setHeaderValue(HTTP_CONTENT_TYPE_FIELD, contentHeaderValue);
 }
 
 void HttpMessage::setDateField()
@@ -2146,33 +2252,33 @@ void HttpMessage::setDateField()
 
 int HttpMessage::getContentLength() const
 {
-        const char* contentLength = getHeaderValue(0, HTTP_CONTENT_LENGTH_FIELD);
-        int length = 0;
-        if (contentLength)
-                length = atoi(contentLength);
-        return(length);
+    const char* contentLength = getHeaderValue(0, HTTP_CONTENT_LENGTH_FIELD);
+    int length = 0;
+    if (contentLength)
+        length = atoi(contentLength);
+    return(length);
 }
 
 void HttpMessage::setContentLength(int contentLength)
 {
-        char contentLengthString[HTTP_LONG_INT_CHARS];
-        sprintf(contentLengthString, "%d", contentLength);
-        setHeaderValue(HTTP_CONTENT_LENGTH_FIELD, contentLengthString);
+    char contentLengthString[HTTP_LONG_INT_CHARS];
+    sprintf(contentLengthString, "%d", contentLength);
+    setHeaderValue(HTTP_CONTENT_LENGTH_FIELD, contentLengthString);
 }
 
 void HttpMessage::getUserAgentField(UtlString* userAgentField) const
 {
-        const char* userAgent = getHeaderValue(0, HTTP_USER_AGENT_FIELD);
-        userAgentField->remove(0);
-        if(userAgent)
-        {
-                userAgentField->append(userAgent);
-        }
+    const char* userAgent = getHeaderValue(0, HTTP_USER_AGENT_FIELD);
+    userAgentField->remove(0);
+    if(userAgent)
+    {
+        userAgentField->append(userAgent);
+    }
 }
 
 void HttpMessage::setUserAgentField(const char* userAgentField)
 {
-        setHeaderValue(HTTP_USER_AGENT_FIELD, userAgentField);
+    setHeaderValue(HTTP_USER_AGENT_FIELD, userAgentField);
 }
 
 void HttpMessage::setRefresh(int seconds, const char* refreshUrl)

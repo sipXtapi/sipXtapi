@@ -1,5 +1,8 @@
 //
-// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Copyright (C) 2007-2008 SIPez LLC  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// Copyright (C) 2004-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -110,6 +113,13 @@
 #define HTTP_CONTENT_TRANSFER_ENCODING_BINARY "binary"
 #define HTTP_CONTENT_TRANSFER_ENCODING_BASE64 "base64"
 
+// Content-Type field parameters
+#define HTTP_CONTENT_TYPE_PARAM_ACCESS_TYPE "access-type"
+#define HTTP_CONTENT_TYPE_PARAM_EXPIRATION "expiration"
+#define HTTP_CONTENT_TYPE_PARAM_HASH "hash"
+#define HTTP_CONTENT_TYPE_PARAM_SIZE "size"
+#define HTTP_CONTENT_TYPE_PARAM_URL "url"
+
 // MACROS
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -123,6 +133,7 @@ class UtlString;
 class Url;
 class HttpMessage;
 class OsConnectionSocket;
+class UtlHashMap;
 
 // TYPEDEFS
 //! Callback method used as part of HttpMessage::get.
@@ -480,9 +491,14 @@ public:
 
     //! @name Specialized header field accessors
     //@{
-    void setContentType(const char* contentType);
+    void setContentType(const char* contentTypeString, 
+                        const char* accessType = NULL,
+                        const char* expirationDate = NULL,
+                        const char* url = NULL,
+                        int size = -1,
+                        const char* hash = NULL);
 
-    UtlBoolean getContentType(UtlString* contentType) const;
+    UtlBoolean getContentType(UtlString* contentType, UtlHashMap* parameters = NULL) const;
 
     void setContentLength(int contentLength);
 

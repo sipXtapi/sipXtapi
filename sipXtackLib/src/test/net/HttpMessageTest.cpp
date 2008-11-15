@@ -1,5 +1,8 @@
 //
-// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Copyright (C) 2007-2008 SIPez LLC  All rights reserved.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// Copyright (C) 2004-2008 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
 // Copyright (C) 2004-2006 Pingtel Corp.  All rights reserved.
@@ -13,8 +16,10 @@
 #include <sipxunit/TestUtilities.h>
 
 #include <os/OsDefs.h>
+#include <utl/UtlHashMapIterator.h>
 #include <net/HttpMessage.h>
 #include <net/SdpBody.h>
+#include <net/HttpBody.h>
 
 
 /**
@@ -26,6 +31,7 @@ class HttpMessageTest : public CppUnit::TestCase
     CPPUNIT_TEST(testCreator);
     CPPUNIT_TEST(testMessage);
     CPPUNIT_TEST(testHeader);
+    CPPUNIT_TEST(testContentIndirection);
     CPPUNIT_TEST(testSdp);
     CPPUNIT_TEST(testMd5Digest);
     CPPUNIT_TEST(testEscape);
@@ -368,10 +374,208 @@ public:
         delete msg;
     }
 
+    void testContentIndirection()
+    {
+        const char* sip1 = "NOTIFY sip:1@a.com SIP/2.0\nContent-Type: message/external-body; access-type=\"URL\";expiration=\"Mon, 24 June 2002 09:00:00 GMT\";URL=\"http://www.example.com/the-indirect-content.au\";size=52723;hash=10AB568E91245681AC1B\n\nContent-Disposition: render\n";
+        HttpMessage *msg1 = new HttpMessage(sip1);
+
+        UtlString contentType;
+        UtlString sdpType(CONTENT_TYPE_CONTENT_INDIRECTION);
+        msg1->getContentType(&contentType);
+        CPPUNIT_ASSERT_EQUAL_MESSAGE("invalid content type string",
+            contentType, sdpType);
+
+        UtlHashMap contentTypeParameters;
+        contentType="";
+        msg1->getContentType(&contentType, &contentTypeParameters);
+        CPPUNIT_ASSERT_EQUAL_MESSAGE("invalid number of content-type parameters", 
+            (int)contentTypeParameters.entries(), 5);
+        
+        //UtlHashMapIterator iterator(contentTypeParameters);
+        UtlString* paramName = NULL;
+        UtlString* paramValue = NULL;
+        //while(paramName = (UtlString*)iterator())
+        {
+            //paramValue = (UtlString*)contentTypeParameters.findValue(paramName);
+            //printf("%s=\"%s\"\n", paramName->data(), paramValue->data());
+        }
+
+        CPPUNIT_ASSERT_EQUAL_MESSAGE("invalid content type string",
+            contentType, sdpType);
+        UtlString paramKey;
+        //printf("passed \"%s\"==\"%s\"\n", contentType.data(), sdpType.data());
+
+        paramKey = HTTP_CONTENT_TYPE_PARAM_ACCESS_TYPE;
+        paramValue = (UtlString*)contentTypeParameters.findValue(&paramKey);
+        CPPUNIT_ASSERT_MESSAGE("Content-Type accessType parameter not found", paramValue);
+        paramValue->toLower();
+        CPPUNIT_ASSERT_EQUAL_MESSAGE("Content-Type accessType parameter", 
+            (UtlString) HTTP_CONTENT_TYPE_PARAM_URL, *paramValue);
+        //printf("passed %s=\"%s\"\n", paramKey.data(), paramValue->data());
+
+        paramKey = HTTP_CONTENT_TYPE_PARAM_URL;
+        paramValue = (UtlString*)contentTypeParameters.findValue(&paramKey);
+        CPPUNIT_ASSERT_MESSAGE("Content-Type URL parameter not found", paramValue);
+        CPPUNIT_ASSERT_EQUAL_MESSAGE("Content-Type URL parameter", 
+            (UtlString) "http://www.example.com/the-indirect-content.au", *paramValue);
+        //printf("passed %s=\"%s\"\n", paramKey.data(), paramValue->data());
+
+        paramKey = HTTP_CONTENT_TYPE_PARAM_EXPIRATION;
+        paramValue = (UtlString*)contentTypeParameters.findValue(&paramKey);
+        CPPUNIT_ASSERT_MESSAGE("Content-Type expiration parameter not found", paramValue);
+        CPPUNIT_ASSERT_EQUAL_MESSAGE("Content-Type expiration parameter", 
+            (UtlString) "Mon, 24 June 2002 09:00:00 GMT", *paramValue);
+        //printf("passed %s=\"%s\"\n", paramKey.data(), paramValue->data());
+
+        paramKey = HTTP_CONTENT_TYPE_PARAM_HASH;
+        paramValue = (UtlString*)contentTypeParameters.findValue(&paramKey);
+        CPPUNIT_ASSERT_MESSAGE("Content-Type hash parameter not found", paramValue);
+        CPPUNIT_ASSERT_EQUAL_MESSAGE("Content-Type hash parameter", 
+            (UtlString) "10AB568E91245681AC1B", *paramValue);
+        //printf("passed %s=\"%s\"\n", paramKey.data(), paramValue->data());
+    
+        paramKey = HTTP_CONTENT_TYPE_PARAM_SIZE;
+        paramValue = (UtlString*)contentTypeParameters.findValue(&paramKey);
+        CPPUNIT_ASSERT_MESSAGE("Content-Type size parameter not found", paramValue);
+        CPPUNIT_ASSERT_EQUAL_MESSAGE("Content-Type size parameter", 
+            (UtlString) "52723", *paramValue);
+        //printf("passed %s=\"%s\"\n", paramKey.data(), paramValue->data());
+
+
+        const char* sip2="NOTIFY sip:1@a.com SIP/2.0\nContent-Type: message/external-body;access-type=\"URL\";expiration=\"Unlimited\";URL=\"https://iconfig135:7002/fttp-profile/profile?profileName=DEVICE&port=1&vendorDeviceID=B2-DBGM&aor=\";\nContent-ID: <B2-DBGM_1_DEVICE2007-09-05 00:00:00.0>";
+        HttpMessage *msg2 = new HttpMessage(sip2);
+
+        msg2->getContentType(&contentType);
+        CPPUNIT_ASSERT_EQUAL_MESSAGE("invalid content type string",
+            contentType, sdpType);
+
+        contentTypeParameters.destroyAll();
+        contentType="";
+        //printf("reset contentTypeParameters has %d entries\n", contentTypeParameters.entries());
+        msg2->getContentType(&contentType, &contentTypeParameters);
+        //printf("msg2 has %d content-type parameters\n", contentTypeParameters.entries());
+        CPPUNIT_ASSERT_EQUAL_MESSAGE("invalid number of content-type parameters", 
+            (int)contentTypeParameters.entries(), 3);
+        
+        //UtlHashMapIterator iterator2(contentTypeParameters);
+        paramName = NULL;
+        paramValue = NULL;
+        //while(paramName = (UtlString*)iterator2())
+        {
+            //paramValue = (UtlString*)contentTypeParameters.findValue(paramName);
+            //printf("%s=\"%s\"\n", paramName->data(), paramValue->data());
+        }
+
+        CPPUNIT_ASSERT_EQUAL_MESSAGE("invalid content type string",
+            contentType, sdpType);
+        paramKey = "";;
+        //printf("passed \"%s\"==\"%s\"\n", contentType.data(), sdpType.data());
+
+        paramKey = HTTP_CONTENT_TYPE_PARAM_ACCESS_TYPE;
+        paramValue = (UtlString*)contentTypeParameters.findValue(&paramKey);
+        CPPUNIT_ASSERT_MESSAGE("Content-Type accessType parameter not found", paramValue);
+        paramValue->toLower();
+        CPPUNIT_ASSERT_EQUAL_MESSAGE("Content-Type accessType parameter", 
+            (UtlString) HTTP_CONTENT_TYPE_PARAM_URL, *paramValue);
+        //printf("passed %s=\"%s\"\n", paramKey.data(), paramValue->data());
+
+        paramKey = HTTP_CONTENT_TYPE_PARAM_URL;
+        paramValue = (UtlString*)contentTypeParameters.findValue(&paramKey);
+        CPPUNIT_ASSERT_MESSAGE("Content-Type URL parameter not found", paramValue);
+        //printf("testing %s=\"%s\"\n", paramKey.data(), paramValue->data());
+        CPPUNIT_ASSERT_EQUAL_MESSAGE("Content-Type URL parameter", 
+            (UtlString) "https://iconfig135:7002/fttp-profile/profile?profileName=DEVICE&port=1&vendorDeviceID=B2-DBGM&aor=", *paramValue);
+        //printf("passed %s=\"%s\"\n", paramKey.data(), paramValue->data());
+
+        paramKey = HTTP_CONTENT_TYPE_PARAM_EXPIRATION;
+        paramValue = (UtlString*)contentTypeParameters.findValue(&paramKey);
+        CPPUNIT_ASSERT_MESSAGE("Content-Type expiration parameter not found", paramValue);
+        CPPUNIT_ASSERT_EQUAL_MESSAGE("Content-Type expiration parameter", 
+            (UtlString) "Unlimited", *paramValue);
+        //printf("passed %s=\"%s\"\n", paramKey.data(), paramValue->data());
+
+        HttpMessage msg3;
+        UtlString expiration("Unlimited");
+        UtlString contentUrl("http://m123054@config.example.com:1234/profiles?vendor=zenith&model=z-100&version=1.2.3&");
+        int contentSize = 1234;
+        UtlString contentSizeString;
+        UtlInt::toString(contentSizeString, contentSize);
+        UtlString hash("1234567890ABCDEF");
+        msg3.setContentType(CONTENT_TYPE_CONTENT_INDIRECTION, 
+                            HTTP_CONTENT_TYPE_PARAM_URL,
+                            expiration,
+                            contentUrl,
+                            contentSize,
+                            hash);
+
+        const char* rawField = msg3.getHeaderValue(0, HTTP_CONTENT_TYPE_FIELD);
+        CPPUNIT_ASSERT_MESSAGE("Could not find content-type header", rawField);
+        //printf("Content-Type: =>%s<=\n", rawField);
+
+        contentTypeParameters.destroyAll();
+        contentType="";
+        //printf("reset contentTypeParameters has %d entries\n", contentTypeParameters.entries());
+        msg3.getContentType(&contentType, &contentTypeParameters);
+        //printf("msg3 has %d content-type parameters\n", contentTypeParameters.entries());
+        CPPUNIT_ASSERT_EQUAL_MESSAGE("invalid number of content-type parameters", 
+            (int)contentTypeParameters.entries(), 5);
+        
+        //UtlHashMapIterator iterator3(contentTypeParameters);
+        paramName = NULL;
+        paramValue = NULL;
+        //while(paramName = (UtlString*)iterator3())
+        {
+            //paramValue = (UtlString*)contentTypeParameters.findValue(paramName);
+            //printf("%s=\"%s\"\n", paramName->data(), paramValue->data());
+        }
+
+        CPPUNIT_ASSERT_EQUAL_MESSAGE("invalid content type string",
+            contentType, (UtlString) CONTENT_TYPE_CONTENT_INDIRECTION);
+        paramKey = "";;
+        //printf("passed \"%s\"==\"%s\"\n", contentType.data(), sdpType.data());
+
+        paramKey = HTTP_CONTENT_TYPE_PARAM_ACCESS_TYPE;
+        paramValue = (UtlString*)contentTypeParameters.findValue(&paramKey);
+        CPPUNIT_ASSERT_MESSAGE("Content-Type accessType parameter not found", paramValue);
+        paramValue->toLower();
+        //printf("testing %s=\"%s\"\n", paramKey.data(), paramValue->data());
+        CPPUNIT_ASSERT_EQUAL_MESSAGE("Content-Type accessType parameter", 
+            (UtlString) HTTP_CONTENT_TYPE_PARAM_URL, *paramValue);
+        //printf("passed %s=\"%s\"\n", paramKey.data(), paramValue->data());
+
+        paramKey = HTTP_CONTENT_TYPE_PARAM_URL;
+        paramValue = (UtlString*)contentTypeParameters.findValue(&paramKey);
+        CPPUNIT_ASSERT_MESSAGE("Content-Type URL parameter not found", paramValue);
+        //printf("testing %s=\"%s\"\n", paramKey.data(), paramValue->data());
+        CPPUNIT_ASSERT_EQUAL_MESSAGE("Content-Type URL parameter", 
+            contentUrl, *paramValue);
+        //printf("passed %s=\"%s\"\n", paramKey.data(), paramValue->data());
+
+        paramKey = HTTP_CONTENT_TYPE_PARAM_EXPIRATION;
+        paramValue = (UtlString*)contentTypeParameters.findValue(&paramKey);
+        CPPUNIT_ASSERT_MESSAGE("Content-Type expiration parameter not found", paramValue);
+        CPPUNIT_ASSERT_EQUAL_MESSAGE("Content-Type expiration parameter", 
+            expiration, *paramValue);
+        //printf("passed %s=\"%s\"\n", paramKey.data(), paramValue->data());
+
+        paramKey = HTTP_CONTENT_TYPE_PARAM_HASH;
+        paramValue = (UtlString*)contentTypeParameters.findValue(&paramKey);
+        CPPUNIT_ASSERT_MESSAGE("Content-Type hash parameter not found", paramValue);
+        CPPUNIT_ASSERT_EQUAL_MESSAGE("Content-Type hash parameter", 
+            hash, *paramValue);
+        //printf("passed %s=\"%s\"\n", paramKey.data(), paramValue->data());
+    
+        paramKey = HTTP_CONTENT_TYPE_PARAM_SIZE;
+        paramValue = (UtlString*)contentTypeParameters.findValue(&paramKey);
+        CPPUNIT_ASSERT_MESSAGE("Content-Type size parameter not found", paramValue);
+        CPPUNIT_ASSERT_EQUAL_MESSAGE("Content-Type size parameter", 
+            contentSizeString, *paramValue);
+        //printf("passed %s=\"%s\"\n", paramKey.data(), paramValue->data());
+    }
 
     void testSdp()
     {
-        const char* sip = "INVITE 14 SIP/2.0\nContent-Type:application/sdp\n\n"
+        const char* sip = "INVITE 14 SIP/2.0\nContent-Type:application/sdp;fubar\n\n"
             "v=0\nm=audio 49170 RTP/AVP 0\nc=IN IP4 224.2.17.12/127";
 
         HttpMessage *msg = new HttpMessage(sip);
@@ -379,8 +583,28 @@ public:
 
         CPPUNIT_ASSERT_MESSAGE("Null sdp buffer", sdp != NULL);
 
+        HttpBodyMultipart::BodyClassTypes bodyClassType = sdp->getClassType();
+        CPPUNIT_ASSERT_EQUAL_MESSAGE("HttpBody type incorrect", bodyClassType, HttpBodyMultipart::SDP_BODY_CLASS);
+
         int mediaCount = sdp->getMediaSetCount();
         CPPUNIT_ASSERT_EQUAL_MESSAGE("incorrect media count", 1, mediaCount);
+
+        UtlString contentType;
+        UtlString sdpType("application/sdp");
+        msg->getContentType(&contentType);
+        CPPUNIT_ASSERT_EQUAL_MESSAGE("invalid content type string",
+            contentType, sdpType);
+
+        UtlHashMap contentTypeParameters;
+        contentType="";
+        msg->getContentType(&contentType, &contentTypeParameters);
+        CPPUNIT_ASSERT_EQUAL_MESSAGE("invalid content type string",
+            contentType, sdpType);
+        UtlString fubarName("fubar");
+        CPPUNIT_ASSERT_MESSAGE("lost Content-Type header fubar parameter",
+            contentTypeParameters.find(&fubarName));
+        CPPUNIT_ASSERT_MESSAGE("invalid number of content-type parameters", 
+            contentTypeParameters.entries() == 1);
 
         const char* referenceSdp = 
             "v=0\r\nm=audio 49170 RTP/AVP 0\r\nc=IN IP4 224.2.17.12/127\r\n";
