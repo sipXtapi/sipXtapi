@@ -2121,7 +2121,7 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
         RTL_EVENT("Prompt", 1);
         printf("playing prompt in source 1\n");
         int waveHeaderSize = 116;
-        CPPUNIT_ASSERT_EQUAL((unsigned)160116, sizeof(sine_330hz_16b_8k_signed));
+        CPPUNIT_ASSERT_EQUAL((size_t)160116, sizeof(sine_330hz_16b_8k_signed));
         source1Interface->playBuffer((char*)&sine_330hz_16b_8k_signed[waveHeaderSize], 
                                      sizeof(sine_330hz_16b_8k_signed) - waveHeaderSize, 
                                      PROMPTBUF_SAMPLERATE,
@@ -2264,7 +2264,7 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
 
         RTL_EVENT("Prompt", 1);
         printf("playing prompt in source 1\n");
-        CPPUNIT_ASSERT_EQUAL((unsigned)160116, sizeof(sine_330hz_16b_8k_signed));
+        CPPUNIT_ASSERT_EQUAL((size_t)160116, sizeof(sine_330hz_16b_8k_signed));
         source1Interface->playBuffer((char*)&sine_330hz_16b_8k_signed[waveHeaderSize], 
                                      sizeof(sine_330hz_16b_8k_signed) - waveHeaderSize, 
                                      PROMPTBUF_SAMPLERATE,
@@ -2318,7 +2318,7 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
 
         RTL_EVENT("Prompt", 1);
         printf("playing prompt in source 1\n");
-        CPPUNIT_ASSERT_EQUAL((unsigned)160116, sizeof(sine_330hz_16b_8k_signed));
+        CPPUNIT_ASSERT_EQUAL((size_t)160116, sizeof(sine_330hz_16b_8k_signed));
         source1Interface->playBuffer((char*)&sine_330hz_16b_8k_signed[waveHeaderSize], 
                                      sizeof(sine_330hz_16b_8k_signed) - waveHeaderSize, 
                                      PROMPTBUF_SAMPLERATE,
@@ -2376,7 +2376,7 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
 
         RTL_EVENT("Prompt", 1);
         printf("playing prompt in source 1\n");
-        CPPUNIT_ASSERT_EQUAL((unsigned)160116, sizeof(sine_330hz_16b_8k_signed));
+        CPPUNIT_ASSERT_EQUAL((size_t)160116, sizeof(sine_330hz_16b_8k_signed));
         source1Interface->playBuffer((char*)&sine_330hz_16b_8k_signed[waveHeaderSize], 
                                      sizeof(sine_330hz_16b_8k_signed) - waveHeaderSize, 
                                      PROMPTBUF_SAMPLERATE,
@@ -2434,7 +2434,7 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
 
         RTL_EVENT("Prompt", 1);
         printf("playing prompt in source 1\n");
-        CPPUNIT_ASSERT_EQUAL((unsigned)160116, sizeof(sine_330hz_16b_8k_signed));
+        CPPUNIT_ASSERT_EQUAL((size_t)160116, sizeof(sine_330hz_16b_8k_signed));
         source1Interface->playBuffer((char*)&sine_330hz_16b_8k_signed[waveHeaderSize], 
                                      sizeof(sine_330hz_16b_8k_signed) - waveHeaderSize, 
                                      PROMPTBUF_SAMPLERATE,
