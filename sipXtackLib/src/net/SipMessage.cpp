@@ -288,7 +288,7 @@ void SipMessage::setReinviteData(SipMessage* invite,
     UtlString callId;
     UtlString contactUri;
     UtlString lastResponseContact;
-    mbFromThisSide = inviteFromThisSide;
+    mbFromThisSide = inviteFromThisSide ? true : false;
 
     setTransportInfo(invite) ;
 
