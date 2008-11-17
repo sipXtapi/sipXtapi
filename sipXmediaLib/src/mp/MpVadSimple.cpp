@@ -111,7 +111,7 @@ OsStatus MpVadSimple::setParam(const char* paramName, void* value)
 {
    if (strcmp(paramName, "MinimumEnergy") == 0)
    {
-      setMinimumEnergy((int)value);
+      setMinimumEnergy(*(int*)value);
       return OS_SUCCESS;
    }
    return OS_FAILED;
