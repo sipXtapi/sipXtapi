@@ -44,7 +44,7 @@ public:
    /**
     * Constructor accepting a source UtlDList 
     */
-   UtlDListIterator(const UtlDList& list) ;
+   UtlDListIterator(UtlDList& list) ;
 
 
    /**

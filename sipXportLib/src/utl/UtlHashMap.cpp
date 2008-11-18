@@ -301,7 +301,7 @@ UtlContainable* UtlHashMap::removeKeyAndValue(const UtlContainable* key, UtlCont
 
 void UtlHashMap::copyInto(UtlHashMap& into) const
 {
-    UtlHashMapIterator i(*this);
+    UtlHashMapIterator i(const_cast<UtlHashMap &>(*this));
     while (i() != NULL)
     {
        into.insertKeyAndValue(i.key(), i.value());

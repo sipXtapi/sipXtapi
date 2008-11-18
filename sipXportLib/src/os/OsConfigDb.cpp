@@ -415,11 +415,11 @@ OsStatus OsConfigDb::get(const UtlString& rKey, UtlString& rValue) const
 OsStatus OsConfigDb::getSubHash(const UtlString& rHashSubKey,
                                 OsConfigDb& rSubDb) const
 {
-   UtlSortedListIterator itor(mDb);
+   UtlSortedListIterator itor(const_cast<UtlSortedList&>(mDb));
 
    DbEntry* entry;
    // Skip the initial entries in the list that do not match.
-   while (entry = dynamic_cast <DbEntry*> (itor()))
+   while (entry = static_cast <DbEntry*> (itor()))
    {
       if (strncmp(entry->key.data(), rHashSubKey.data(),
                   rHashSubKey.length()) >= 0)
@@ -432,7 +432,7 @@ OsStatus OsConfigDb::getSubHash(const UtlString& rHashSubKey,
    for (; entry &&
            strncmp(entry->key.data(), rHashSubKey.data(),
                    rHashSubKey.length()) == 0;
-        entry = dynamic_cast <DbEntry*> (itor()))
+        entry = static_cast <DbEntry*> (itor()))
    {
       // Construct and add the entry to the subhash.
       // Make temporary UtlString, because that's what insertEntry demands

@@ -26,8 +26,8 @@
 /* ============================ CREATORS ================================== */
 
 // Constructor
-UtlSListIterator::UtlSListIterator(const UtlSList& list)
-   : UtlListIterator(list)
+UtlSListIterator::UtlSListIterator(UtlSList& list)
+: UtlListIterator(list)
 {
 }
 
@@ -43,38 +43,31 @@ UtlContainable* UtlSListIterator::findNext(const UtlContainable* containableToMa
 
    UtlContainer::acquireIteratorConnectionLock();
    OsLock takeContainer(mContainerRefLock);
-   UtlSList* myList = dynamic_cast<UtlSList*>(mpMyContainer);
+   UtlSList* myList = static_cast<UtlSList*>(mpMyContainer);
    
-   if (myList != NULL) // list still valid?
+   OsLock take(myList->mContainerLock);
+   UtlContainer::releaseIteratorConnectionLock();
+
+   // advance the iterator
+   UtlLink* nextLink = (mpCurrentNode == NULL
+                        ? myList->head()
+                        : mpCurrentNode->next()
+                        );
+
+   // search for the next match forward
+   while (nextLink && !match)
    {
-      OsLock take(myList->mContainerLock);
-      UtlContainer::releaseIteratorConnectionLock();
-
-      // advance the iterator
-      UtlLink* nextLink = (mpCurrentNode == NULL
-                           ? myList->head()
-                           : mpCurrentNode->next()
-                           );
-
-      // search for the next match forward
-      while (nextLink && !match)
+      UtlContainable *candidate = (UtlContainable*)nextLink->data;
+      if (candidate && candidate->compareTo(containableToMatch) == 0)
       {
-         UtlContainable *candidate = (UtlContainable*)nextLink->data;
-         if (candidate && candidate->compareTo(containableToMatch) == 0)
-         {
-            mpCurrentNode = nextLink;
-            match = candidate;
-         }
-         else
-         {
-            nextLink = nextLink->next();
-         }
+         mpCurrentNode = nextLink;
+         match = candidate;
+      }
+      else
+      {
+         nextLink = nextLink->next();
       }
    }
-   else
-   {
-      UtlContainer::releaseIteratorConnectionLock();
-   }   
    
    return match;
 }
@@ -86,28 +79,21 @@ UtlContainable* UtlSListIterator::insertAfterPoint(UtlContainable* insertedObjec
 
    UtlContainer::acquireIteratorConnectionLock();
    OsLock takeContainer(mContainerRefLock);
-   UtlSList* myList = dynamic_cast<UtlSList*>(mpMyContainer);
+   UtlSList* myList = static_cast<UtlSList*>(mpMyContainer);
 
-   if (myList)
+   OsLock take(myList->mContainerLock);
+   UtlContainer::releaseIteratorConnectionLock();
+
+   if (mpCurrentNode == UtlListIterator::OFF_LIST_END)
    {
-      OsLock take(myList->mContainerLock);
-      UtlContainer::releaseIteratorConnectionLock();
-
-      if (mpCurrentNode == UtlListIterator::OFF_LIST_END)
-      {
-         mpCurrentNode = UtlLink::listBefore(myList, NULL, insertedObject); /* append to tail */
-      }
-      else
-      {
-         UtlLink::listAfter(myList, mpCurrentNode, insertedObject);
-      }
-      
-      result = insertedObject; 
+      mpCurrentNode = UtlLink::listBefore(myList, NULL, insertedObject); /* append to tail */
    }
    else
    {
-      UtlContainer::releaseIteratorConnectionLock();
-   }   
+      UtlLink::listAfter(myList, mpCurrentNode, insertedObject);
+   }
+   
+   result = insertedObject; 
    
    return result;
 }

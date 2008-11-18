@@ -61,7 +61,7 @@ public:
 
 /* ============================ CREATORS ================================== */
 
-   UtlIterator(const UtlContainer& container);
+   UtlIterator(UtlContainer& container);
    
     /**
      * Destructor

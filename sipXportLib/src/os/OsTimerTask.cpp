@@ -230,7 +230,7 @@ UtlBoolean OsTimerTask::handleMessage(OsMsg& rMsg)
 
    // Process an OS_TIMER message.
 
-   OsTimerMsg& message = dynamic_cast <OsTimerMsg&> (rMsg);
+   OsTimerMsg& message = static_cast <OsTimerMsg&> (rMsg);
 
    // Process a OS_TIMER_SHUTDOWN message, which is special
    if (message.getMsgSubType() == OsTimerMsg::OS_TIMER_SHUTDOWN)

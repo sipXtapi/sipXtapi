@@ -154,7 +154,7 @@ class PluginIterator
 public:
 
      /// Create an iterator that returns each instance managed by a PluginHooks object.
-   PluginIterator(const PluginHooks& pluginHooks);
+   PluginIterator(PluginHooks& pluginHooks);
 
    ~PluginIterator();
 

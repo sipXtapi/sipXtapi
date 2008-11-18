@@ -28,8 +28,8 @@
 /* ============================ CREATORS ================================== */
 
 // Constructor
-UtlHashMapIterator::UtlHashMapIterator(const UtlHashMap& mapSource)
-   : UtlIterator(mapSource)
+UtlHashMapIterator::UtlHashMapIterator(UtlHashMap& mapSource)
+: UtlIterator(mapSource)
 {
    OsLock container(const_cast<OsBSem&>(mapSource.mContainerLock));
    addToContainer(&mapSource);
@@ -43,7 +43,7 @@ UtlHashMapIterator::~UtlHashMapIterator()
 {
    UtlContainer::acquireIteratorConnectionLock();
    OsLock take(mContainerRefLock);
-   UtlHashMap* myHashMap = dynamic_cast<UtlHashMap*>(mpMyContainer);
+   UtlHashMap* myHashMap = static_cast<UtlHashMap*>(mpMyContainer);
    if (myHashMap)
    {
       OsLock container(myHashMap->mContainerLock);
@@ -77,41 +77,34 @@ UtlContainable* UtlHashMapIterator::operator()()
 
    UtlContainer::acquireIteratorConnectionLock();
    OsLock take(mContainerRefLock);
-   UtlHashMap* myHashMap = dynamic_cast<UtlHashMap*>(mpMyContainer);
-   if (myHashMap)
+   UtlHashMap* myHashMap = static_cast<UtlHashMap*>(mpMyContainer);
+   OsLock container(myHashMap->mContainerLock);
+   UtlContainer::releaseIteratorConnectionLock();
+
+   if (mPosition < myHashMap->numberOfBuckets())
    {
-      OsLock container(myHashMap->mContainerLock);
-      UtlContainer::releaseIteratorConnectionLock();
-
-      if (mPosition < myHashMap->numberOfBuckets())
+      UtlPair* pair;
+      for ( pair = (  mpCurrentPair
+                    ? static_cast<UtlPair*>(mpCurrentPair->UtlChain::next)
+                    : static_cast<UtlPair*>(myHashMap->mpBucket[mPosition].listHead())
+                    );
+            !pair && ++mPosition < myHashMap->numberOfBuckets();
+            pair = static_cast<UtlPair*>(myHashMap->mpBucket[mPosition].listHead())
+           )
       {
-         UtlPair* pair;
-         for ( pair = (  mpCurrentPair
-                       ? static_cast<UtlPair*>(mpCurrentPair->UtlChain::next)
-                       : static_cast<UtlPair*>(myHashMap->mpBucket[mPosition].listHead())
-                       );
-               !pair && ++mPosition < myHashMap->numberOfBuckets();
-               pair = static_cast<UtlPair*>(myHashMap->mpBucket[mPosition].listHead())
-              )
-         {
-         }
-
-         if(pair)
-         {
-            mpCurrentPair = pair;
-            foundKey = pair->data;
-         }
       }
-      else
+
+      if(pair)
       {
-         // mPosition >= myHashMap->numberOfBuckets(), so we've run off the end of the entries.
-         mpCurrentPair = NULL;
+         mpCurrentPair = pair;
+         foundKey = pair->data;
       }
    }
    else
    {
-      UtlContainer::releaseIteratorConnectionLock();
-   }   
+      // mPosition >= myHashMap->numberOfBuckets(), so we've run off the end of the entries.
+      mpCurrentPair = NULL;
+   }
 
    return foundKey;
 }
@@ -121,19 +114,11 @@ void UtlHashMapIterator::reset()
 {
    UtlContainer::acquireIteratorConnectionLock();
    OsLock take(mContainerRefLock);
-   UtlHashMap* myHashMap = dynamic_cast<UtlHashMap*>(mpMyContainer);
-   if (myHashMap)
-   {
-      OsLock container(myHashMap->mContainerLock);
-      UtlContainer::releaseIteratorConnectionLock();
+   UtlHashMap* myHashMap = static_cast<UtlHashMap*>(mpMyContainer);
+   OsLock container(myHashMap->mContainerLock);
+   UtlContainer::releaseIteratorConnectionLock();
 
-      init();
-   }
-   else
-   {
-      UtlContainer::releaseIteratorConnectionLock();
-   }   
-
+   init();
 }
 
 
@@ -146,24 +131,17 @@ UtlContainable* UtlHashMapIterator::key() const
    
    UtlContainer::acquireIteratorConnectionLock();
    OsLock take(const_cast<OsBSem&>(mContainerRefLock));
-   UtlHashMap* myHashMap = dynamic_cast<UtlHashMap*>(mpMyContainer);
-   if (myHashMap)
-   {
-      OsLock container(myHashMap->mContainerLock);
-      UtlContainer::releaseIteratorConnectionLock();
+   UtlHashMap* myHashMap = static_cast<UtlHashMap*>(mpMyContainer);
+   OsLock container(myHashMap->mContainerLock);
+   UtlContainer::releaseIteratorConnectionLock();
 
-      if (   (mPosition < myHashMap->numberOfBuckets())
-          && (mpCurrentPair)
-          && (mPairIsValid)
-          )
-      {
-         currentKey = mpCurrentPair->data;
-      }
-   }
-   else
+   if (   (mPosition < myHashMap->numberOfBuckets())
+       && (mpCurrentPair)
+       && (mPairIsValid)
+       )
    {
-      UtlContainer::releaseIteratorConnectionLock();
-   }   
+      currentKey = mpCurrentPair->data;
+   }
 
    return currentKey;
 }
@@ -175,27 +153,20 @@ UtlContainable* UtlHashMapIterator::value() const
    
    UtlContainer::acquireIteratorConnectionLock();
    OsLock take(const_cast<OsBSem&>(mContainerRefLock));
-   UtlHashMap* myHashMap = dynamic_cast<UtlHashMap*>(mpMyContainer);
-   if (myHashMap)
-   {
-      OsLock container(myHashMap->mContainerLock);
-      UtlContainer::releaseIteratorConnectionLock();
+   UtlHashMap* myHashMap = static_cast<UtlHashMap*>(mpMyContainer);
+   OsLock container(myHashMap->mContainerLock);
+   UtlContainer::releaseIteratorConnectionLock();
 
-      if (   (mPosition < myHashMap->numberOfBuckets())
-          && (mpCurrentPair)
-          && (mPairIsValid)
-          )
-      {
-         currentValue = (  mpCurrentPair->value != UtlHashMap::INTERNAL_NULL
-                         ? mpCurrentPair->value
-                         : NULL
-                         );
-      }
-   }
-   else
+   if (   (mPosition < myHashMap->numberOfBuckets())
+       && (mpCurrentPair)
+       && (mPairIsValid)
+       )
    {
-      UtlContainer::releaseIteratorConnectionLock();
-   }   
+      currentValue = (  mpCurrentPair->value != UtlHashMap::INTERNAL_NULL
+                      ? mpCurrentPair->value
+                      : NULL
+                      );
+   }
 
    return currentValue;
 }

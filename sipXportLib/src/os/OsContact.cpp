@@ -87,9 +87,9 @@ UtlContainableType OsContact::getContainableType() const
 
 int OsContact::compareTo(UtlContainable const * inVal) const
 {
-   int result ; 
+    int result ; 
    
-    const OsContact* pContact = dynamic_cast<const OsContact*>(inVal);
+    const OsContact* pContact = static_cast<const OsContact*>(inVal);
     if (inVal->isInstanceOf(OsContact::TYPE) && pContact)
     {
         UtlString address;

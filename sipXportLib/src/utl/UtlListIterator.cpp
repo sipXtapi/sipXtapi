@@ -40,9 +40,9 @@ const UtlLink* UtlListIterator::OFF_LIST_END;
 /* ============================ CREATORS ================================== */
 
 // Constructor
-UtlListIterator::UtlListIterator(const UtlList& list)
-   : UtlIterator(list),
-     mpCurrentNode(NULL)
+UtlListIterator::UtlListIterator(UtlList& list)
+: UtlIterator(list)
+, mpCurrentNode(NULL)
 {
    OsLock container(const_cast<OsBSem&>(list.mContainerLock));
    
@@ -56,7 +56,7 @@ UtlListIterator::~UtlListIterator()
    UtlContainer::acquireIteratorConnectionLock();
    OsLock take(mContainerRefLock);
 
-   UtlList* myList = dynamic_cast<UtlList*>(mpMyContainer);
+   UtlList* myList = static_cast<UtlList*>(mpMyContainer);
    if (myList != NULL)
    {
       OsLock take(myList->mContainerLock);
@@ -83,31 +83,24 @@ UtlContainable* UtlListIterator::operator()()
 
    UtlContainer::acquireIteratorConnectionLock();
    OsLock take(mContainerRefLock);
-   UtlList* myList = dynamic_cast<UtlList*>(mpMyContainer);
+   UtlList* myList = static_cast<UtlList*>(mpMyContainer);
 
-   if (myList)
+   OsLock container(myList->mContainerLock);
+   UtlContainer::releaseIteratorConnectionLock();
+
+   mpCurrentNode = (mpCurrentNode == NULL
+                    ? myList->head()
+                    : mpCurrentNode->next()
+                    );
+
+   if(mpCurrentNode) // not end of list
    {
-      OsLock container(myList->mContainerLock);
-      UtlContainer::releaseIteratorConnectionLock();
-
-      mpCurrentNode = (mpCurrentNode == NULL
-                       ? myList->head()
-                       : mpCurrentNode->next()
-                       );
-
-      if(mpCurrentNode) // not end of list
-      {
-         nextVal = (UtlContainable*) mpCurrentNode->data;
-      }
-      else
-      {
-         // reset position so that subsequent calls will also return end of list
-         mpCurrentNode = const_cast<UtlLink*>(OFF_LIST_END);
-      }
+      nextVal = (UtlContainable*) mpCurrentNode->data;
    }
    else
    {
-      UtlContainer::releaseIteratorConnectionLock();
+      // reset position so that subsequent calls will also return end of list
+      mpCurrentNode = const_cast<UtlLink*>(OFF_LIST_END);
    }
     
    return(nextVal);
@@ -119,18 +112,11 @@ void UtlListIterator::reset()
 {
    UtlContainer::acquireIteratorConnectionLock();
    OsLock take(mContainerRefLock);
-   UtlList* myList = dynamic_cast<UtlList*>(mpMyContainer);
-   if (myList)
-   {
-      OsLock container(myList->mContainerLock);
-      UtlContainer::releaseIteratorConnectionLock();
+   UtlList* myList = static_cast<UtlList*>(mpMyContainer);
+   OsLock container(myList->mContainerLock);
+   UtlContainer::releaseIteratorConnectionLock();
 
-      mpCurrentNode = NULL;
-   }
-   else
-   {
-      UtlContainer::releaseIteratorConnectionLock();
-   }   
+   mpCurrentNode = NULL;
 }
 
 
@@ -140,19 +126,12 @@ UtlContainable* UtlListIterator::toLast()
    
    UtlContainer::acquireIteratorConnectionLock();
    OsLock take(mContainerRefLock);
-   UtlList* myList = dynamic_cast<UtlList*>(mpMyContainer);
-   if (myList)
-   {
-      OsLock container(myList->mContainerLock);
-      UtlContainer::releaseIteratorConnectionLock();
+   UtlList* myList = static_cast<UtlList*>(mpMyContainer);
+   OsLock container(myList->mContainerLock);
+   UtlContainer::releaseIteratorConnectionLock();
 
-      mpCurrentNode = myList->tail();
-      last = static_cast<UtlContainable*>(mpCurrentNode ? mpCurrentNode->data : NULL);
-   }
-   else
-   {
-      UtlContainer::releaseIteratorConnectionLock();
-   }   
+   mpCurrentNode = myList->tail();
+   last = static_cast<UtlContainable*>(mpCurrentNode ? mpCurrentNode->data : NULL);
 
    return last;
 }
@@ -168,20 +147,13 @@ UtlContainable* UtlListIterator::item() const
    UtlContainer::acquireIteratorConnectionLock();
    OsLock take(const_cast<OsBSem&>(mContainerRefLock));
 
-   UtlList* myList = dynamic_cast<UtlList*>(mpMyContainer);
-   if (myList)
-   {
-      OsLock container(myList->mContainerLock);
-      UtlContainer::releaseIteratorConnectionLock();
+   UtlList* myList = static_cast<UtlList*>(mpMyContainer);
+   OsLock container(myList->mContainerLock);
+   UtlContainer::releaseIteratorConnectionLock();
 
-      currentItem = static_cast<UtlContainable*>(mpCurrentNode->data);
-   }
-   else
-   {
-      UtlContainer::releaseIteratorConnectionLock();
-   }   
+   currentItem = static_cast<UtlContainable*>(mpCurrentNode->data);
 
-    return currentItem;
+   return currentItem;
 }
 
 /* ============================ INQUIRY =================================== */
@@ -194,18 +166,11 @@ UtlBoolean UtlListIterator::atLast() const
    UtlContainer::acquireIteratorConnectionLock();
 
    OsLock take(const_cast<OsBSem&>(mContainerRefLock));
-   UtlList* myList = dynamic_cast<UtlList*>(mpMyContainer);
-   if (myList)
-   {
-      OsLock container(myList->mContainerLock);
-      UtlContainer::releaseIteratorConnectionLock();
-      
-      isAtLast = (mpCurrentNode && mpCurrentNode == myList->tail());
-   }
-   else
-   {
-      UtlContainer::releaseIteratorConnectionLock();
-   }   
+   UtlList* myList = static_cast<UtlList*>(mpMyContainer);
+   OsLock container(myList->mContainerLock);
+   UtlContainer::releaseIteratorConnectionLock();
+   
+   isAtLast = (mpCurrentNode && mpCurrentNode == myList->tail());
 
    return isAtLast;
 }       

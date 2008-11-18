@@ -45,7 +45,7 @@ class UtlHashMapIterator : public UtlIterator
    /**
     * Constructor accepting a source UtlHashMap 
     */
-   UtlHashMapIterator(const UtlHashMap& hashMap);
+   UtlHashMapIterator(UtlHashMap& hashMap);
 
 
    /**

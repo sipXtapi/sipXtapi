@@ -206,7 +206,7 @@ void PluginHooks::readConfig(OsConfigDb& configDb)
       {
          ConfiguredHook* thisHook;
          
-         if (NULL == (thisHook = dynamic_cast<ConfiguredHook*>(existingHooks.remove(&hookName))))
+         if (NULL == (thisHook = static_cast<ConfiguredHook*>(existingHooks.remove(&hookName))))
          {
             // not an existing hook, so create a new one
             OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
@@ -238,7 +238,7 @@ size_t PluginHooks::entries() const
    return mConfiguredHooks.entries();
 }
 
-PluginIterator::PluginIterator(const PluginHooks& pluginHooks)
+PluginIterator::PluginIterator(PluginHooks& pluginHooks)
 : mConfiguredHooksIterator(pluginHooks.mConfiguredHooks)
 {
 }

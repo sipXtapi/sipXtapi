@@ -86,7 +86,7 @@ void* OsLockingList::pop()
 
         if (list.entries())
         {
-            UtlVoidPtr* elementContainer = dynamic_cast<UtlVoidPtr*>(list.last());
+            UtlVoidPtr* elementContainer = static_cast<UtlVoidPtr*>(list.last());
             list.removeReference(elementContainer);
             element = (void*) elementContainer->getValue();
             delete elementContainer;

@@ -27,8 +27,8 @@
 
 /* ============================ CREATORS ================================== */
 
-UtlSortedListIterator::UtlSortedListIterator(const UtlSortedList& list) 
-   : UtlListIterator(list)
+UtlSortedListIterator::UtlSortedListIterator(UtlSortedList& list) 
+: UtlListIterator(list)
 {
 }
 
@@ -47,7 +47,7 @@ UtlContainable* UtlSortedListIterator::findNext(const UtlContainable* objectToFi
    
    UtlContainer::acquireIteratorConnectionLock();
    OsLock take(mContainerRefLock);
-   UtlSortedList* myList = dynamic_cast<UtlSortedList*>(mpMyContainer);
+   const UtlSortedList* myList = static_cast<const UtlSortedList*>(mpMyContainer);
    if (myList)
    {
       OsLock container(myList->mContainerLock);

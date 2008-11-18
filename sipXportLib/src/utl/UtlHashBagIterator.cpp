@@ -48,9 +48,9 @@
 /* ============================ CREATORS ================================== */
 
 // Constructor
-UtlHashBagIterator::UtlHashBagIterator(const UtlHashBag& hashBag, UtlContainable* key) :
-   UtlIterator(hashBag),
-   mpSubsetMatch(key)
+UtlHashBagIterator::UtlHashBagIterator(UtlHashBag& hashBag, UtlContainable* key)
+: UtlIterator(hashBag)
+, mpSubsetMatch(key)
 {
    OsLock container(const_cast<OsBSem&>(hashBag.mContainerLock));
    addToContainer(mpMyContainer);
@@ -64,7 +64,7 @@ UtlHashBagIterator::~UtlHashBagIterator()
 {
    UtlContainer::acquireIteratorConnectionLock();
    OsLock take(mContainerRefLock);
-   UtlHashBag* myHashBag = dynamic_cast<UtlHashBag*>(mpMyContainer);
+   UtlHashBag* myHashBag = static_cast<UtlHashBag*>(mpMyContainer);
    if (myHashBag)
    {
       OsLock container(myHashBag->mContainerLock);
@@ -92,87 +92,80 @@ UtlContainable* UtlHashBagIterator::operator()()
 
    UtlContainer::acquireIteratorConnectionLock();
    OsLock take(mContainerRefLock);
-   UtlHashBag* myHashBag = dynamic_cast<UtlHashBag*>(mpMyContainer);
-   if (myHashBag)
-   {
-      OsLock container(myHashBag->mContainerLock);
-      UtlContainer::releaseIteratorConnectionLock();
+   UtlHashBag* myHashBag = static_cast<UtlHashBag*>(mpMyContainer);
+   OsLock container(myHashBag->mContainerLock);
+   UtlContainer::releaseIteratorConnectionLock();
 
-      if (mPosition < myHashBag->numberOfBuckets())
+   if (mPosition < myHashBag->numberOfBuckets())
+   {
+      if (mpSubsetMatch)
       {
-         if (mpSubsetMatch)
+         /*
+          * This iterator only returns elements matching mpSubsetMatch
+          * so mPosition (the bucket index) never changes - all matches
+          * are by definition in the same bucket.
+          */
+         UtlLink* link;
+         for ( link = (  mpCurrentLink
+                       ? static_cast<UtlLink*>(mpCurrentLink->UtlChain::next)
+                       : static_cast<UtlLink*>(myHashBag->mpBucket[mPosition].listHead())
+                       );
+               (   !foundObject              // no match found yet
+                && link                      // but we have a link
+                && link->hash <= mSubsetHash /* bucket list is sorted by hash code,
+                                              * so when link->hash > mSubsetHash
+                                              * there will be no more matches */
+                );
+               link = link->next()
+              )
          {
-            /*
-             * This iterator only returns elements matching mpSubsetMatch
-             * so mPosition (the bucket index) never changes - all matches
-             * are by definition in the same bucket.
-             */
-            UtlLink* link;
-            for ( link = (  mpCurrentLink
-                          ? static_cast<UtlLink*>(mpCurrentLink->UtlChain::next)
-                          : static_cast<UtlLink*>(myHashBag->mpBucket[mPosition].listHead())
-                          );
-                  (   !foundObject              // no match found yet
-                   && link                      // but we have a link
-                   && link->hash <= mSubsetHash /* bucket list is sorted by hash code,
-                                                 * so when link->hash > mSubsetHash
-                                                 * there will be no more matches */
-                   );
-                  link = link->next()
-                 )
+            if (   link->hash == mSubsetHash          // save the call to isEqual
+                && link->data->isEqual(mpSubsetMatch) // the real test of equality
+                )
             {
-               if (   link->hash == mSubsetHash          // save the call to isEqual
-                   && link->data->isEqual(mpSubsetMatch) // the real test of equality
-                   )
-               {
-                  mpCurrentLink = link;
-                  foundObject   = link->data;
-               }
-            }
-            if (!foundObject)
-            {
-               mPosition = myHashBag->numberOfBuckets(); // that's it - no more matches
+               mpCurrentLink = link;
+               foundObject   = link->data;
             }
          }
-         else
+         if (!foundObject)
          {
-            // this iterator has no subset to match - it walks all elements in the hash
-
-            for ( mpCurrentLink = (  mpCurrentLink
-                                   ? static_cast<UtlLink*>(mpCurrentLink->UtlChain::next)
-                                   : static_cast<UtlLink*>(
-                                      myHashBag->mpBucket[mPosition].listHead())
-                                   );
-                  (   !mpCurrentLink // there was a next - this bucket has another item in it
-                   && (  ++mPosition // if not, bump the bucket 
-                       < myHashBag->numberOfBuckets() // have we looked at the last bucket?
-                       )
-                   );
-                  mpCurrentLink = static_cast<UtlLink*>(myHashBag->mpBucket[mPosition].listHead()) 
-                 )
-            {
-            }
-
-            if(mpCurrentLink)
-            {
-               foundObject = mpCurrentLink->data;
-            }
-            else
-            {
-               // this iterator is done - mPosition walked off the end.
-            }
+            mPosition = myHashBag->numberOfBuckets(); // that's it - no more matches
          }
       }
       else
       {
-         // mPosition >= myHashMap->numberOfBuckets(), so we've run off the end of the entries.
-         mpCurrentLink = NULL;
+         // this iterator has no subset to match - it walks all elements in the hash
+
+         for ( mpCurrentLink = (  mpCurrentLink
+                                ? static_cast<UtlLink*>(mpCurrentLink->UtlChain::next)
+                                : static_cast<UtlLink*>(
+                                   myHashBag->mpBucket[mPosition].listHead())
+                                );
+               (   !mpCurrentLink // there was a next - this bucket has another item in it
+                && (  ++mPosition // if not, bump the bucket 
+                    < myHashBag->numberOfBuckets() // have we looked at the last bucket?
+                    )
+                );
+               mpCurrentLink = static_cast<UtlLink*>(myHashBag->mpBucket[mPosition].listHead()) 
+              )
+         {
+         }
+
+         if(mpCurrentLink)
+         {
+            foundObject = mpCurrentLink->data;
+         }
+         else
+         {
+            // this iterator is done - mPosition walked off the end.
+         }
       }
    }
    else
    {
-      UtlContainer::releaseIteratorConnectionLock();
-   }   
+      // mPosition >= myHashMap->numberOfBuckets(), so we've run off the end of the entries.
+      mpCurrentLink = NULL;
+   }
 
    return foundObject;
 }
@@ -181,18 +174,11 @@ void UtlHashBagIterator::reset()
 {
    UtlContainer::acquireIteratorConnectionLock();
    OsLock take(mContainerRefLock);
-   UtlHashBag* myHashBag = dynamic_cast<UtlHashBag*>(mpMyContainer);
-   if (myHashBag)
-   {
-      OsLock container(myHashBag->mContainerLock);
-      UtlContainer::releaseIteratorConnectionLock();
+   UtlHashBag* myHashBag = static_cast<UtlHashBag*>(mpMyContainer);
+   OsLock container(myHashBag->mContainerLock);
+   UtlContainer::releaseIteratorConnectionLock();
 
-      init(*myHashBag);
-   }
-   else
-   {
-      UtlContainer::releaseIteratorConnectionLock();
-   }   
+   init(*myHashBag);
 }
 
 /* ============================ ACCESSORS ================================= */
@@ -204,21 +190,14 @@ UtlContainable* UtlHashBagIterator::key() const
 
    UtlContainer::acquireIteratorConnectionLock();
    OsLock take(const_cast<OsBSem&>(mContainerRefLock));
-   UtlHashBag* myHashBag = dynamic_cast<UtlHashBag*>(mpMyContainer);
-   if (myHashBag)
-   {
-      OsLock container(myHashBag->mContainerLock);
-      UtlContainer::releaseIteratorConnectionLock();
+   UtlHashBag* myHashBag = static_cast<UtlHashBag*>(mpMyContainer);
+   OsLock container(myHashBag->mContainerLock);
+   UtlContainer::releaseIteratorConnectionLock();
 
-      if (mLinkIsValid && mpCurrentLink) // current position is defined
-      {
-         current = mpCurrentLink->data;
-      }
-   }
-   else
+   if (mLinkIsValid && mpCurrentLink) // current position is defined
    {
-      UtlContainer::releaseIteratorConnectionLock();
-   }   
+      current = mpCurrentLink->data;
+   }
 
    return current;
 }

@@ -53,9 +53,9 @@ UtlCopyableSortedList& UtlCopyableSortedList::operator=(const UtlCopyableSortedL
       return *this;
 
    destroyAll();
-   UtlSortedListIterator it(rhs);
+   UtlSortedListIterator it(const_cast<UtlCopyableSortedList&>(rhs));
    UtlCopyableContainable* item;
-   while(item = dynamic_cast<UtlCopyableContainable*>(it()))
+   while(item = static_cast<UtlCopyableContainable*>(it()))
    {
       insert(item->clone());
    }

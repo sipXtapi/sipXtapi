@@ -187,7 +187,7 @@ protected:
      */
 
     /// Must be taken when making any change to container state
-    OsBSem mContainerLock;
+    mutable OsBSem mContainerLock;
 
 
     /**
@@ -240,18 +240,11 @@ private:
      *   UtlContainer::acquireIteratorConnectionLock();
      *   OsLock take(mContainerRefLock);
      *
-     *   UtlList* myList = dynamic_cast<UtlList*>(mpMyContainer);
-     *   if (myList != NULL)
-     *   {
-     *      OsLock take(myList->mContainerLock);
-     *      UtlContainer::releaseIteratorConnectionLock(); // as soon as both locks are taken
+     *   UtlList* myList = static_cast<UtlList*>(mpMyContainer);
+     *   OsLock take(myList->mContainerLock);
+     *   UtlContainer::releaseIteratorConnectionLock(); // as soon as both locks are taken
      *
-     *      // ... whatever the method does ...
-     *   }
-     *   else
-     *   {
-     *      UtlContainer::releaseIteratorConnectionLock();
-     *   }
+     *   // ... whatever the method does ...
      *
      * Container operations (that does not affect mpMyContainer in any iterator):
      *
@@ -266,19 +259,12 @@ private:
      *   UtlContainer::acquireIteratorConnectionLock();
      *   OsLock take(mContainerRefLock);
      *  
-     *   UtlList* myList = dynamic_cast<UtlList*>(mpMyContainer);
-     *   if (myList != NULL)
-     *   {
-     *      OsLock take(myList->mContainerLock);
-     *      UtlContainer::releaseIteratorConnectionLock(); // as soon as both locks are taken
+     *   UtlList* myList = static_cast<UtlList*>(mpMyContainer);
+     *   OsLock take(myList->mContainerLock);
+     *   UtlContainer::releaseIteratorConnectionLock(); // as soon as both locks are taken
      *  
-     *      myList->removeIterator(this);
-     *      mpMyContainer = NULL;
-     *   }
-     *   else
-     *   {
-     *      UtlContainer::releaseIteratorConnectionLock();
-     *   }
+     *   myList->removeIterator(this);
+     *   mpMyContainer = NULL;
      */
 
     /**

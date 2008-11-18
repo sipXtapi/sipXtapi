@@ -53,9 +53,9 @@ UtlCopyableSList& UtlCopyableSList::operator=(const UtlCopyableSList& rhs)
       return *this;
 
    destroyAll();
-   UtlSListIterator it(rhs);
+   UtlSListIterator it(const_cast<UtlCopyableSList&>(rhs));
    UtlCopyableContainable* item;
-   while(item = dynamic_cast<UtlCopyableContainable*>(it()))
+   while(item = static_cast<UtlCopyableContainable*>(it()))
    {
       insert(item->clone());
    }
