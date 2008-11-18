@@ -41,10 +41,8 @@
 
 // S_IREAD and S_IWRITE are not always defined, e.g. they're not
 // defined in in bionic (Android's libc).
-#ifndef S_IREAD
+#ifdef DEFINE_S_IREAD_IWRITE
 #  define S_IREAD  (S_IRUSR | S_IRGRP | S_IROTH)
-#endif
-#ifndef S_IWRITE
 #  define S_IWRITE (S_IWUSR)
 #endif
 
