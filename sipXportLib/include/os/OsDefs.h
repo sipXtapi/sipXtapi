@@ -39,6 +39,14 @@
 #  define IS_INET_RETURN_OK( x )    (x > 0)
 #endif
 
+// S_IREAD and S_IWRITE are not always defined, e.g. they're not
+// defined in in bionic (Android's libc).
+#ifndef S_IREAD
+#  define S_IREAD  (S_IRUSR | S_IRGRP | S_IROTH)
+#endif
+#ifndef S_IWRITE
+#  define S_IWRITE (S_IWUSR)
+#endif
 
 #ifdef WIN32
 #  define snprintf _snprintf
