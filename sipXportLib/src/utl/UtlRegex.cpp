@@ -44,18 +44,8 @@ RegEx::RegEx(const char * regex, int options, unsigned long int maxDepth)
    re = pcre_compile(regex, options, &pcre_error, &erroffset, NULL);
    if (re == NULL)
    {
-      UtlString errorMsg("Regular Expression compile error: ");
-      errorMsg.append(pcre_error);
-      errorMsg.append(" at offset ");
-      char offsetStr[10];
-      sprintf(offsetStr, "%9d", erroffset);
-      errorMsg.append(offsetStr);
-      errorMsg.append(" in expression '");
-      errorMsg.append(regex);
-      errorMsg.append("'");
-
-      throw errorMsg.data();
-      assert(FALSE); // regex failed to compile
+      assert(!"Regular expression failed to compile!");
+      abort();
    }
    pe = pcre_study(re, 0, &pcre_error);
    if ( pcre_error == NULL )
@@ -94,8 +84,6 @@ RegEx::RegEx(const char * regex, int options, unsigned long int maxDepth)
 /////////////////////////////////
 RegEx::RegEx(const RegEx& regex)
 {
-   const char * error = __FILE__ ": unknown error in RegEx(RegEx)";
-
    // allocate memory for the compiled regular expression information
    re = (pcre*)pcre_malloc(regex.re_size); 
    if (re)
@@ -142,7 +130,8 @@ RegEx::RegEx(const RegEx& regex)
    }
    else
    {
-      throw error;
+      assert(!"Cannot malloc regular expression!");
+      abort();
    }
 };
 
