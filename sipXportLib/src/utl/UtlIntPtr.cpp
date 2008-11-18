@@ -90,7 +90,7 @@ UtlIntPtr& UtlIntPtr::operator=(const UtlIntPtr& rhs)
 
 intptr_t UtlIntPtr::setValue(intptr_t iValue)
 {
-    int iOldValue = mValue ;
+    intptr_t iOldValue = mValue ;
     mValue = iValue ;
 
     return iOldValue ;
@@ -106,7 +106,7 @@ intptr_t UtlIntPtr::getValue() const
 
 unsigned UtlIntPtr::hash() const
 {
-   return mValue ; 
+   return (unsigned)mValue ; 
 }
 
 
@@ -125,7 +125,7 @@ int UtlIntPtr::compareTo(UtlContainable const * inVal) const
     {
         UtlIntPtr* temp = (UtlIntPtr*)inVal ; 
         intptr_t inInt = temp->getValue() ; 
-        result = mValue - inInt ; 
+        result = (int)(mValue - inInt); 
     }
     else
     {
