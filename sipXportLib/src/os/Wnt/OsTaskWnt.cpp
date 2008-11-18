@@ -319,7 +319,7 @@ OsStatus OsTaskWnt::getCurrentTaskId(int &rid)
 OsTaskWnt* OsTaskWnt::getTaskByName(const UtlString& taskName)
 {
    OsStatus res;
-   int      val;
+   intptr_t val;
 
    res = OsUtil::lookupKeyValue(TASK_PREFIX, taskName, &val);
    assert(res == OS_SUCCESS || res == OS_NOT_FOUND);
@@ -339,7 +339,7 @@ OsTaskWnt* OsTaskWnt::getTaskById(const int taskId)
 {
    char     idString[15];
    OsStatus res;
-   int      val;
+   intptr_t val;
 
    itoa((int) taskId, idString, 10);   // convert the id to a string
    res = OsUtil::lookupKeyValue(TASKID_PREFIX, idString, &val);
@@ -463,7 +463,7 @@ UtlBoolean OsTaskWnt::doWntCreateTask(void)
       // Enter the thread id into the global name database so that given the
       // thread id we will be able to find the corresponding OsTask object
       itoa((int) mThreadId, idString, 10);  // convert the id to a string
-      OsUtil::insertKeyValue(TASKID_PREFIX, idString, (int) this);
+      OsUtil::insertKeyValue(TASKID_PREFIX, idString, (intptr_t) this);
 
       mState = STARTED;
 
@@ -569,7 +569,7 @@ unsigned int __stdcall OsTaskWnt::threadEntry(LPVOID arg)
    int lower16Thread = taskId % (256 * 256);
    // move the lower 16 bits (most varying) of the current time
    // to the upper 16 bits
-   int lower16TaskPtr = ((int)pTask) << 16;
+   int lower16TaskPtr = ((intptr_t)pTask) << 16;
 
    int randSeed = lower16Time + lower16Thread + lower16TaskPtr;
    //osPrintf("OsTaskWnt::threadEntry time: %d id: %d task: %d randSeed: %u\n",

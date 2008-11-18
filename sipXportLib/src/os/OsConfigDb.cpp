@@ -13,6 +13,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stddef.h>
 
 // APPLICATION INCLUDES
 #include "os/OsConfigDb.h"
@@ -138,9 +139,9 @@ void OsConfigDb::insertEntry(const char* fileLine)
 
    // Skip initial white space.
    while (*p != '\0' && isspace(*p))
-     {
+   {
       p++;
-     }
+   }
 
    // If the first non-whitespace character is '#', this is a comment line.
    // Similarly, if it is NUL, this line is empty.
@@ -152,34 +153,34 @@ void OsConfigDb::insertEntry(const char* fileLine)
 
       // The name continues till EOL, whitespace, or colon.
       while (*p != '\0' && !isspace(*p) && *p != ':')
-     {
+      {
          p++;
-     }
+      }
 
       // Save length of name.
-      int name_len = p - name_start;
+      ptrdiff_t name_len = p - name_start;
 
       // If the found name is null, do nothing.
       // (Probably due to an empty line.)
       if (name_len != 0)
-     {
+      {
          // Skip whitespace.
          while (*p != '\0' && isspace(*p))
-     {
+         {
             p++;
          }
          // Skip colon, if any.
          // (There should be a colon, but if the line's format is bad,
          // it might not be there.)
          if (*p == ':')
-        {
+         {
             p++;
 
             // Skip whitespace.
             while (*p != '\0' && isspace(*p))
-           {
+            {
                p++;
-     }
+            }
 
             // Save start of value.
             const char* value_start = p;
@@ -187,12 +188,12 @@ void OsConfigDb::insertEntry(const char* fileLine)
             // Scan string back from the end skipping whitespace.
             p = fileLine + strlen(fileLine);
             while (p > value_start && isspace(p[-1]))
-     {
+            {
                p--;
-     }
+            }
 
             // Save length of value.
-            int value_len = p - value_start;
+            ptrdiff_t value_len = p - value_start;
 
             // Construct UtlString's, which insertEntry(*, *) needs as arguments.
             UtlString name(name_start, name_len);
@@ -200,15 +201,15 @@ void OsConfigDb::insertEntry(const char* fileLine)
 
             // Capitalize the name if required.
             if (mCapitalizeName)
-     {
+            {
                name.toUpper();
-     }
+            }
 
             // Insert the entry.
             insertEntry(name, value);
          }
          else
-                 {
+         {
             // The colon was not found.
             OsSysLog::add(FAC_KERNEL, PRI_CRIT,
                           "Invalid config line format in file '%s', "
@@ -216,8 +217,8 @@ void OsConfigDb::insertEntry(const char* fileLine)
                           mIdentityLabel.data(),
                           fileLine);
          }
-                 }
-                 else
+      }
+      else
       {
          // The colon was not found.
          OsSysLog::add(FAC_KERNEL, PRI_CRIT,
@@ -226,7 +227,7 @@ void OsConfigDb::insertEntry(const char* fileLine)
                        mIdentityLabel.data(),
                        fileLine);
       }
-     }
+   }
 }
 
 void OsConfigDb::setCapitalizeName(UtlBoolean capitalizeName)
@@ -418,7 +419,7 @@ OsStatus OsConfigDb::getSubHash(const UtlString& rHashSubKey,
 
    DbEntry* entry;
    // Skip the initial entries in the list that do not match.
-   while ((entry = dynamic_cast <DbEntry*> (itor())))
+   while (entry = dynamic_cast <DbEntry*> (itor()))
    {
       if (strncmp(entry->key.data(), rHashSubKey.data(),
                   rHashSubKey.length()) >= 0)
@@ -477,11 +478,11 @@ OsStatus OsConfigDb::getNext(const UtlString& rKey,
                              UtlString& rNextKey,
                              UtlString& rNextValue) const
 {
-   OsReadLock lock(mRWMutex);
+   OsReadLock  lock(mRWMutex);
    UtlBoolean  foundMatch;
-   int        nextIdx = 0;
-   DbEntry   lookupPair(rKey);
-   DbEntry*  pEntry;
+   size_t      nextIdx = 0;
+   DbEntry     lookupPair(rKey);
+   DbEntry*    pEntry;
 
    foundMatch = FALSE;
    if (rKey.compareTo("") == 0)
@@ -524,7 +525,7 @@ void OsConfigDb::addList(const UtlString& rPrefix,
                          UtlSList& rList) 
 {
     OsWriteLock lock(mRWMutex);
-    int iNumEntries ;
+    size_t iNumEntries ;
     UtlString key ;
     UtlString* pValue ;
 
@@ -681,7 +682,7 @@ void OsConfigDb::storeToBuffer(char *buff) const
 int OsConfigDb::calculateBufferSize() const
 {
     int n = numEntries();
-    int size = n * strlen(DB_LINE_FORMAT);
+    size_t size = n * strlen(DB_LINE_FORMAT);
     for (int i = 0; i < n; i++)
     {
         DbEntry *pEntry = (DbEntry *)mDb.at(i);
@@ -737,7 +738,7 @@ OsStatus OsConfigDb::storeToEncryptedFile(const char *filename)
     OsStatus retval = OS_SUCCESS;
 
     // store to buffer
-    int buffLen = calculateBufferSize();
+    size_t buffLen = calculateBufferSize();
     char *buff = new char[buffLen];
     storeToBuffer(buff);
     buffLen = strlen(buff);
@@ -919,8 +920,8 @@ OsStatus OsConfigDb::loadFromUnencryptedBuffer(const char *buf)
 
    // step through the file writing out one entry per line
    // each entry is of the form "%s: %s\n"
-   int start = 0;
-   int size ;
+   size_t start = 0;
+   size_t size ;
    size_t pos;
    while (1)
    {
@@ -946,7 +947,7 @@ OsStatus OsConfigDb::loadFromUnencryptedBuffer(const char *buf)
          configLine[size] = 0 ;
 
          start = pos + 1;
-         int len = config.length();
+         size_t len = config.length();
          if (len > start)
             config = config(start, len - start);
          else
