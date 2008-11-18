@@ -269,17 +269,6 @@ OsNotification* OsTimer::getNotifier(void) const
    return mpNotifier;
 }
 
-// Get the userData value of a timer constructed with OsTimer(OsMsgQ*, int).
-intptr_t OsTimer::getUserData()
-{
-   // Have to cast mpNotifier into OsQueuedEvent* to get the userData.
-   OsQueuedEvent* e = dynamic_cast <OsQueuedEvent*> (mpNotifier);
-   assert(e != 0);
-   intptr_t userData;
-   e->getUserData(userData);
-   return userData;
-}
-
 unsigned OsTimer::hash() const
 {
     return (uintptr_t) this;

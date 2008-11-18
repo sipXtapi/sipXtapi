@@ -221,9 +221,6 @@ public:
     * it returns the address of an internally allocated OsNotification.
      */
 
-   /// Get the userData value of a timer constructed with OsTimer(OsMsgQ*, int).
-   virtual intptr_t getUserData();
-
    /// Calculate a unique hash code for this object.
    virtual unsigned hash() const;
    /**<

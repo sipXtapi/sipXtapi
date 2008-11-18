@@ -3984,7 +3984,10 @@ void SipTransaction::deleteTimers()
         // message to (SipUserAgent).
         if (timer->getState() == OsTimer::STOPPED && timer->getWasFired() == FALSE)
         {
-            SipMessageEvent* pMsgEvent = (SipMessageEvent*) timer->getUserData() ;
+            OsQueuedEvent *pEvent = (OsQueuedEvent*)timer->getNotifier();
+            intptr_t userData;
+            pEvent->getUserData(userData);
+            SipMessageEvent* pMsgEvent = (SipMessageEvent*) userData;
             delete pMsgEvent;
             delete timer;
         }

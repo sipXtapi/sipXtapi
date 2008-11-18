@@ -87,7 +87,10 @@ SipRefreshMgr::~SipRefreshMgr()
     UtlHashBagIterator timerIterator(mTimerBag) ;
     while (OsTimer* pTimer = (OsTimer*) timerIterator())
     {
-       SipMessage *pMessage = (SipMessage *)pTimer->getUserData();
+       OsQueuedEvent *pEvent = (OsQueuedEvent*)pTimer->getNotifier();
+       intptr_t userData;
+       pEvent->getUserData(userData);
+       SipMessage *pMessage = (SipMessage *)userData;
        // get rid of them
        delete pMessage;
        delete pTimer;
