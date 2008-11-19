@@ -187,7 +187,7 @@ protected:
      */
 
     /// Must be taken when making any change to container state
-    OsBSem mContainerLock;
+    mutable OsBSem mContainerLock;
 
 
     /**
