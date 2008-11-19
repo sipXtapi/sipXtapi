@@ -47,7 +47,7 @@ public:
     * If key is specified, iterate only over objects that match that key
     * (UtlHashBags may have any number of copies of a given object)
     */
-   UtlHashBagIterator(UtlHashBag& hashBag, UtlContainable* key = NULL);
+   UtlHashBagIterator(const UtlHashBag& hashBag, UtlContainable* key = NULL);
 
    /**
      * Destructor

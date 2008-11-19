@@ -26,8 +26,8 @@
 /* ============================ CREATORS ================================== */
 
 // Constructor
-UtlSListIterator::UtlSListIterator(UtlSList& list)
-: UtlListIterator(list)
+UtlSListIterator::UtlSListIterator(const UtlSList& list)
+   : UtlListIterator(list)
 {
 }
 

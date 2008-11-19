@@ -30,9 +30,9 @@
 // mContainerRefLock because this is constructor,
 // so no one has the pointer to this iterator yet.
 
-UtlIterator::UtlIterator(UtlContainer& container)
-: mContainerRefLock(OsBSem::Q_PRIORITY, OsBSem::FULL)
-, mpMyContainer(&container)
+UtlIterator::UtlIterator(const UtlContainer& container)
+   : mContainerRefLock(OsBSem::Q_PRIORITY, OsBSem::FULL),
+     mpMyContainer(const_cast<UtlContainer*>(&container))
 {
 }
   

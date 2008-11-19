@@ -40,9 +40,9 @@ const UtlLink* UtlListIterator::OFF_LIST_END;
 /* ============================ CREATORS ================================== */
 
 // Constructor
-UtlListIterator::UtlListIterator(UtlList& list)
-: UtlIterator(list)
-, mpCurrentNode(NULL)
+UtlListIterator::UtlListIterator(const UtlList& list)
+   : UtlIterator(list),
+     mpCurrentNode(NULL)
 {
    OsLock container(const_cast<OsBSem&>(list.mContainerLock));
    

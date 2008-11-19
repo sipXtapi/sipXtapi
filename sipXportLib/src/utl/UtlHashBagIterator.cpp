@@ -48,9 +48,9 @@
 /* ============================ CREATORS ================================== */
 
 // Constructor
-UtlHashBagIterator::UtlHashBagIterator(UtlHashBag& hashBag, UtlContainable* key)
-: UtlIterator(hashBag)
-, mpSubsetMatch(key)
+UtlHashBagIterator::UtlHashBagIterator(const UtlHashBag& hashBag, UtlContainable* key) :
+   UtlIterator(hashBag),
+   mpSubsetMatch(key)
 {
    OsLock container(const_cast<OsBSem&>(hashBag.mContainerLock));
    addToContainer(mpMyContainer);

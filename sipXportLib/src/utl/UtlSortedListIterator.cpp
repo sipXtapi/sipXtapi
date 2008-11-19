@@ -27,8 +27,8 @@
 
 /* ============================ CREATORS ================================== */
 
-UtlSortedListIterator::UtlSortedListIterator(UtlSortedList& list) 
-: UtlListIterator(list)
+UtlSortedListIterator::UtlSortedListIterator(const UtlSortedList& list) 
+   : UtlListIterator(list)
 {
 }
 

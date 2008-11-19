@@ -28,8 +28,8 @@
 /* ============================ CREATORS ================================== */
 
 // Constructor
-UtlHashMapIterator::UtlHashMapIterator(UtlHashMap& mapSource)
-: UtlIterator(mapSource)
+UtlHashMapIterator::UtlHashMapIterator(const UtlHashMap& mapSource)
+   : UtlIterator(mapSource)
 {
    OsLock container(const_cast<OsBSem&>(mapSource.mContainerLock));
    addToContainer(&mapSource);

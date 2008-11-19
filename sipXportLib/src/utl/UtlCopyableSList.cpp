@@ -53,7 +53,7 @@ UtlCopyableSList& UtlCopyableSList::operator=(const UtlCopyableSList& rhs)
       return *this;
 
    destroyAll();
-   UtlSListIterator it(const_cast<UtlCopyableSList&>(rhs));
+   UtlSListIterator it(rhs);
    UtlCopyableContainable* item;
    while(item = static_cast<UtlCopyableContainable*>(it()))
    {

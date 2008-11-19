@@ -45,7 +45,7 @@ public:
     /**
      * Constructor accepting a source UtlSortedList 
      */
-    UtlSortedListIterator(UtlSortedList& list);
+    UtlSortedListIterator(const UtlSortedList& list);
    
 
 

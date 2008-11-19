@@ -53,7 +53,7 @@ UtlCopyableSortedList& UtlCopyableSortedList::operator=(const UtlCopyableSortedL
       return *this;
 
    destroyAll();
-   UtlSortedListIterator it(const_cast<UtlCopyableSortedList&>(rhs));
+   UtlSortedListIterator it(rhs);
    UtlCopyableContainable* item;
    while(item = static_cast<UtlCopyableContainable*>(it()))
    {

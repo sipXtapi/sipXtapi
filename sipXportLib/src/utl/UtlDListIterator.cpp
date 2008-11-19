@@ -27,8 +27,8 @@
     
  
 // Copy constructor
-UtlDListIterator::UtlDListIterator(UtlDList & list)
-: UtlSListIterator(list) 
+UtlDListIterator::UtlDListIterator(const UtlDList & list)
+    : UtlSListIterator(list) 
 {
 }
 
