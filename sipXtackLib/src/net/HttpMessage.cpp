@@ -2183,7 +2183,7 @@ void HttpMessage::setContentType(const char* contentTypeString,
     {
         escapedValue = accessType;
         Url::gen_value_escape(escapedValue);
-        char* quoteFound = strchr(escapedValue, '"');
+        const char* quoteFound = strchr(escapedValue, '"');
         contentHeaderValue.append(';');
         contentHeaderValue.append(HTTP_CONTENT_TYPE_PARAM_ACCESS_TYPE);
         contentHeaderValue.append('=');
