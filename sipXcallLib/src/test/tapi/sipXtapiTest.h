@@ -203,6 +203,7 @@ class sipXtapiTestSuite : public CppUnit::TestFixture
     CPPUNIT_TEST(testConferenceLegBusy);
     CPPUNIT_TEST(testConfHoldIndividual) ;
     CPPUNIT_TEST(testConfJoin) ;
+    CPPUNIT_TEST(testConfIncomingJoin) ;
     CPPUNIT_TEST(testConfHoldNoBridge) ;
     CPPUNIT_TEST(testConfHoldBridge) ;
     CPPUNIT_TEST(testConfReAdd) ;
@@ -459,6 +460,7 @@ public:
     void testConfBasic5() ;
     void testConfBasic6() ;
     void testConfJoin() ;
+    void testConfIncomingJoin() ;
     void testConfHoldIndividual() ;    
     void testConfHoldNoBridge() ;
     void testConfHoldBridge() ;
