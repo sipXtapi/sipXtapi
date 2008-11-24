@@ -3261,7 +3261,7 @@ SIPXTAPI_API SIPX_RESULT sipxConferenceJoin(const SIPX_CONF hConf,
         "sipxConferenceJoin hConf=%ld hCall=%d",
         hConf, hCall);
 
-    SIPX_RESULT rc = SIPX_RESULT_SUCCESS ;
+    SIPX_RESULT rc = SIPX_RESULT_FAILURE ;
     bool bDoSplit = false ;
     UtlString sourceCallId ;
     UtlString sourceAddress ;
@@ -3278,6 +3278,8 @@ SIPXTAPI_API SIPX_RESULT sipxConferenceJoin(const SIPX_CONF hConf,
             {
                 if (pCallData->hConf == SIPX_CALL_NULL)
                 {
+                    rc = SIPX_RESULT_SUCCESS ;
+
                     if (pConfData->strCallId.isNull())
                     {
                         assert(pConfData->nCalls == 0) ; 
