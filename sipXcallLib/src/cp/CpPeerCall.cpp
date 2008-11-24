@@ -742,7 +742,7 @@ UtlBoolean CpPeerCall::handleDropConnection(OsMsg* pEventMessage)
 
         if(connection)
         {
-            // do not fire the taip event if it is a ghost connection
+            // do not fire the tapi event if it is a ghost connection
             CpGhostConnection* pGhost = NULL;
             pGhost = dynamic_cast<CpGhostConnection*>(connection);
             if (!pGhost)
@@ -3406,7 +3406,7 @@ void CpPeerCall::onHook()
             connection->hangUp();
             connection->setMediaInterface(NULL) ;
             
-            // do not fire the taip event if it is a ghost connection
+            // do not fire the tapi event if it is a ghost connection
             CpGhostConnection* pGhost = NULL;
             pGhost = dynamic_cast<CpGhostConnection*>(connection);
             if (!pGhost)
@@ -3502,7 +3502,7 @@ void CpPeerCall::dropIfDead()
                     Connection* connection = NULL;
                     while ((connection = (Connection*) iterator()))
                     {              
-                        // do not fire the taip event if it is a ghost connection
+                        // do not fire the tapi event if it is a ghost connection
                         CpGhostConnection* pGhost = NULL;
                         pGhost = dynamic_cast<CpGhostConnection*>(connection);
                         if (!pGhost)
@@ -3575,7 +3575,7 @@ void CpPeerCall::dropDeadConnections()
                     connection->getResponseText(responseText);
                     postTaoListenerMessage(connection->getResponseCode(), responseText, PtEvent::CONNECTION_DISCONNECTED, CONNECTION_STATE);
 
-                    // do not fire the taip event if it is a ghost connection
+                    // do not fire the tapi event if it is a ghost connection
                     CpGhostConnection* pGhost = NULL;
                     pGhost = dynamic_cast<CpGhostConnection*>(connection);
                     if (!pGhost)
