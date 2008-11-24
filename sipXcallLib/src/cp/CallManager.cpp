@@ -3380,7 +3380,8 @@ void CallManager::printCalls()
     }
     OsSysLog::add(FAC_CP, PRI_DEBUG, "============================\n");
 
-    OsReadLock lock(mCallListMutex);
+    // mCallListMutex is already locked by caller.
+//    OsReadLock lock(mCallListMutex);
     if(infocusCall)
     {
         OsSysLog::add(FAC_CP, PRI_DEBUG, "infocusCall: %p ", infocusCall);
