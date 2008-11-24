@@ -176,6 +176,27 @@ void SipXHandleMap::dump()
     }       
 }
 
+#include "tapi/sipXtapiInternal.h"
+
+void SipXHandleMap::dumpCalls()
+{
+   UtlHashMapIterator itor(*this) ;
+   UtlInt* pKey ;
+   UtlVoidPtr* pValue ;
+
+   while ((pKey = (UtlInt*) itor()))
+   {
+      pValue = (UtlVoidPtr*) findValue(pKey) ;
+      assert(pValue != NULL);
+      SIPX_CALL_DATA* pCallData = (SIPX_CALL_DATA*)pValue->getValue();
+      printf("\tkey=%08d, value=0x%p, CallId=%s SessiocCallId=%s\n",
+         pKey->getValue(), 
+         pValue->getValue(),
+         pCallData->callId?pCallData->callId->data():"NULL",
+         pCallData->sessionCallId?pCallData->sessionCallId->data():"NULL") ;
+   }
+}
+
 /* ============================ INQUIRY =================================== */
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */

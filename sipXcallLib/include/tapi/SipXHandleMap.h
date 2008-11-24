@@ -102,6 +102,7 @@ class SipXHandleMap : public UtlHashMap
 /* ============================ ACCESSORS ================================= */
 
     void dump() ;
+    void dumpCalls();
 
 /* ============================ INQUIRY =================================== */
 
