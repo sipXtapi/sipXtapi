@@ -1101,15 +1101,12 @@ static SIPX_RESULT sipxCallCreateHelper(const SIPX_INST hInst,
 
             if (pData)
             {
-                UtlString callId ;
-
-                pInst->pCallManager->createCall(&callId) ;
-
                 // Set Call ID
-                pData->callId = new UtlString(callId) ;
+                pData->callId = new UtlString() ;
                 assert(pData->callId != NULL) ;
+                pInst->pCallManager->createCall(&pData->callId) ;
 
-                // Set Conf handle
+                // Set Conference handle
                 pData->hConf = hConf ;
 
                 // Set Line URI
@@ -1451,7 +1448,9 @@ SIPXTAPI_API SIPX_RESULT sipxCallHold(const SIPX_CALL hCall,
     if (sipxCallGetCommonData(hCall, &pInst, &callId, &remoteAddress, NULL))
     {
         SIPX_CALL_DATA* pCallData = sipxCallLookup(hCall, SIPX_LOCK_READ, stackLogger);
-        if (pCallData && pCallData->state == SIPX_INTERNAL_CALLSTATE_HELD && !pCallData->bHoldAfterConnect)
+        if (  pCallData
+           && pCallData->state == SIPX_INTERNAL_CALLSTATE_HELD
+           && !pCallData->bHoldAfterConnect)
         {
             sipxCallReleaseLock(pCallData, SIPX_LOCK_READ, stackLogger);
             sr = SIPX_RESULT_INVALID_STATE;
