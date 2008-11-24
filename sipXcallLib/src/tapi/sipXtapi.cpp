@@ -3546,7 +3546,7 @@ SIPXTAPI_API SIPX_RESULT sipxConferenceAdd(const SIPX_CONF hConf,
             if (pData->nCalls == 0)
             {
                 /*
-                 * No existings legs, create one and connect
+                 * No existing legs, create one and connect
                  */
 
                 // Create new call
