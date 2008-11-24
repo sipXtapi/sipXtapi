@@ -178,7 +178,7 @@ sipXmediaFactoryImpl::sipXmediaFactoryImpl(OsConfigDb* pConfigDb,
       mpStartTasks();  
 #else
       NetInTask *pTask = NetInTask::getNetInTask();
-      if (NULL != pTask) 
+      if (NULL == pTask) 
       {
          OsSysLog::add(FAC_MP, PRI_ERR, "Could not start NetInTask!!");
       }
