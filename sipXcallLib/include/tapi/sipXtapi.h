@@ -2111,7 +2111,7 @@ SIPXTAPI_API SIPX_RESULT sipxConferenceCreate(const SIPX_INST hInst,
  * Additional calls, must be connected and on remote hold for this operation 
  * to succeed.   A remote hold can be accomplished by calling sipxCallHold on
  * the joining party.  The application layer must wait for the 
- * CALLSTATE_CONNECTION_INACTIVE event prior to calling join. No events 
+ * CALLSTATE_HELD event prior to calling join. No events 
  * are fired as part of the operation and the newly joined call is left on 
  * hold.  The application layer should call sipxCallUnhold on the new 
  * participant to finalize the join.
@@ -2130,7 +2130,7 @@ SIPXTAPI_API SIPX_RESULT sipxConferenceJoin(const SIPX_CONF hConf,
  * succeed.   A remote hold can be accomplished by calling sipxCallHold on 
  * the conference participant or by placing the entire conference on hold 
  * with bridging disabled.  The application layer must wait for the 
- * CALLSTATE_CONNECTION_INACTIVE event prior to calling split. No events 
+ * CALLSTATE_HELD event prior to calling split. No events 
  * are fired as part of the operation and the split call is left on hold.
  *
  * @param hConf Handle to a conference.  Conference handles are obtained 
