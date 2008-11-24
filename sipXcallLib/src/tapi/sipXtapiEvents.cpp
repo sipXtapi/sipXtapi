@@ -1255,6 +1255,8 @@ void sipxFireCallEvent(const void* pSrc,
     // call handle.
     if (!bDuplicateEvent && hCall != 0)
     {
+        sipxCallSetState(hCall, event, cause) ;
+
         // Find Line
         UtlString requestUri; 
         pSession->getRemoteRequestUri(requestUri); 
@@ -1305,7 +1307,6 @@ void sipxFireCallEvent(const void* pSrc,
                 }
             }
         }
-        sipxCallSetState(hCall, event, cause) ;
 #ifdef DEBUG_SIPXTAPI_EVENTS
         ReportCallback(hCall, hLine, event, cause, NULL) ;
 #endif
