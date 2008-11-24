@@ -44,6 +44,7 @@
 class MprDecode;
 class MprDejitter;
 class MprRtpDispatcher;
+class OsEvent;
 
 /// The "From Network" media processing resource
 class MprFromNet
@@ -150,6 +151,15 @@ private:
      /// Update the RR info for the current incoming packet
    OsStatus rtcpStats(struct RtpHeader *h);
 #endif /* INCLUDE_RTCP ] */
+
+     /// @brief Unregister the inbound RTP and RTCP sockets.
+   UtlBoolean resetSocketsInternal(OsEvent *pEvent = NULL);
+     /**<
+     *  @retval TRUE - operation have been performed, caller can wait for
+     *          \p pEvent to be signaled
+     *  @retval FALSE - operation havn't been performed and pEvent will
+     *          never be signaled.
+     */
 
      /// Parse UDP packet and return filled RTP packet buffer.
    static MpRtpBufPtr parseRtpPacket(const MpUdpBufPtr &buf);

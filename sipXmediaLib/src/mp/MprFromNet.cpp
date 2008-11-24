@@ -107,36 +107,38 @@ OsStatus MprFromNet::setSockets(OsSocket& rRtpSocket, OsSocket& rRtcpSocket)
 {
    OsStatus res;
    OsEvent notify;
-   OsLock lock(mMutex);
 
-   resetSockets();
-   res = mNetInTask->addNetInputSources(&rRtpSocket, &rRtcpSocket, this, &notify);
-   assert(res == OS_SUCCESS);
+   // We should release mutex before blocking on notify event to avoid deadlock.
+   {
+      OsLock lock(mMutex);
+
+      resetSocketsInternal();
+      res = mNetInTask->addNetInputSources(&rRtpSocket, &rRtcpSocket, this, &notify);
+      assert(res == OS_SUCCESS);
+
+      mRegistered = TRUE;
+   }
    notify.wait();
-   mRegistered = TRUE;
 
    return OS_SUCCESS;
 }
 
 OsStatus MprFromNet::resetSockets()
 {
-   OsLock lock(mMutex);
-   if (mRegistered)
-   {
-      OsStatus res;
-      OsEvent notify;
+   UtlBoolean needWait;
+   OsEvent notify;
 
-      mRegistered = FALSE;
-      res = mNetInTask->removeNetInputSources(this, &notify);
-      if (res == OS_SUCCESS)
-      {
-         notify.wait();
-      }
-      else
-      {
-         assert(FALSE);
-      }
+   // We should release mutex before blocking on notify event to avoid deadlock.
+   {
+      OsLock lock(mMutex);
+      needWait = resetSocketsInternal(&notify);
    }
+
+   if (needWait)
+   {
+      notify.wait();
+   }
+
    return OS_SUCCESS;
 }
 
@@ -336,6 +338,28 @@ MpRtpBufPtr MprFromNet::parseRtpPacket(const MpUdpBufPtr &buf)
          , rtpBuf->getPayloadSize());
 
    return rtpBuf;
+}
+
+UtlBoolean MprFromNet::resetSocketsInternal(OsEvent *pEvent)
+{
+   if (!mRegistered)
+   {
+      return FALSE;
+   }
+
+   OsStatus res;
+
+   mRegistered = FALSE;
+   res = mNetInTask->removeNetInputSources(this, pEvent);
+   if (res == OS_SUCCESS)
+   {
+      return TRUE;
+   }
+   else
+   {
+      assert(FALSE);
+      return FALSE;
+   }
 }
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
