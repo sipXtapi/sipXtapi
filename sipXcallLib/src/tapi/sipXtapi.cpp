@@ -1220,7 +1220,7 @@ SIPXTAPI_API SIPX_RESULT sipxCallConnect(SIPX_CALL hCall,
         }
         else
         {
-            // try to provide some drop-in compability.
+            // try to provide some drop-in compatibility.
             rtpTransportOptions = RTP_TRANSPORT_UDP;
         }
     }
