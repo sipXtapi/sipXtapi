@@ -357,8 +357,9 @@ void SipDialog::setRequestData(SipMessage& request, const char* method)
         Url remoteContactUrl(remoteContact);
         UtlString remoteContactInUriFormat;
         remoteContactUrl.getUri(remoteContactInUriFormat);
-        printf("remoteContact: \"%s\"\nURI formated: \"%s\"\n",
-               remoteContact.data(), remoteContactInUriFormat.data());
+        OsSysLog::add(FAC_ACD, PRI_DEBUG, 
+                      "SipDialog::setRequestData - remoteContact: \"%s\" URI formated: \"%s\"",
+                      remoteContact.data(), remoteContactInUriFormat.data());
         request.setSipRequestFirstHeaderLine(methodString, remoteContactInUriFormat);
     }
 
