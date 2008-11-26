@@ -235,7 +235,7 @@ SIPXTAPI_API SIPX_RESULT sipxInitialize(SIPX_INST*  phInst,
 #ifdef LOG_TO_FILE
     // Start up logger thread
     initLogger() ;
-    OsSysLog::setLoggingPriority((const enum tagOsSysLogPriority) LOG_LEVEL_DEBUG) ;  
+    OsSysLog::setLoggingPriority((OsSysLogPriority) LOG_LEVEL_DEBUG) ;  
     OsSysLog::setOutputFile(0, "sipXtapi.log");
 #endif
 
@@ -5534,7 +5534,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigSetLogLevel(SIPX_LOG_LEVEL logLevel)
     initLogger() ;
 
     logLevel = (logLevel == LOG_LEVEL_NONE) ? LOG_LEVEL_EMERG : logLevel;
-    OsSysLog::setLoggingPriority((const enum tagOsSysLogPriority) logLevel) ;  
+    OsSysLog::setLoggingPriority((OsSysLogPriority) logLevel) ;  
 #endif    
 
     return SIPX_RESULT_SUCCESS ;
