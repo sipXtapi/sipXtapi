@@ -3470,7 +3470,7 @@ SIPXTAPI_API SIPX_RESULT sipxConferenceAdd(const SIPX_CONF hConf,
         }
         else
         {
-            // try to provide some drop-in compability.
+            // try to provide some drop-in compatibility.
             rtpTransportOptions = RTP_TRANSPORT_UDP;
         }
     }
