@@ -646,6 +646,14 @@ void sipXtapiTestSuite::testCallDestroyRinging()
         bRC = validatorCalled.waitForCallEvent(g_hAutoAnswerCallbackLine, g_hAutoAnswerCallbackCall, CALLSTATE_ALERTING, CALLSTATE_CAUSE_NORMAL, true);
         CPPUNIT_ASSERT(bRC);
 
+        // Validate Called Side
+        bRC = validatorCalled.waitForCallEvent(g_hAutoAnswerCallbackLine, g_hAutoAnswerCallbackCall, CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_NORMAL, true);
+        CPPUNIT_ASSERT(bRC);
+        bRC = validatorCalled.waitForCallEvent(g_hAutoAnswerCallbackLine, g_hAutoAnswerCallbackCall, CALLSTATE_DESTROYED, CALLSTATE_CAUSE_NORMAL, true);
+        CPPUNIT_ASSERT(bRC);
+        bRC = validatorCalling.waitForCallEvent(hLine, hCall, CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_REQUEST_NOT_ACCEPTED, true);
+        CPPUNIT_ASSERT(bRC);
+
         int connectionId = -1;
 
         CPPUNIT_ASSERT_EQUAL(sipxCallGetConnectionId(hCall, connectionId), SIPX_RESULT_SUCCESS);
@@ -654,15 +662,7 @@ void sipXtapiTestSuite::testCallDestroyRinging()
         SIPX_CALL hDestroyedCall = hCall;
         destroyCall(hCall);
 
-        bRC = validatorCalling.waitForCallEvent(hLine, hDestroyedCall, CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_REQUEST_NOT_ACCEPTED, true);
-        CPPUNIT_ASSERT(bRC);
         bRC = validatorCalling.waitForCallEvent(hLine, hDestroyedCall, CALLSTATE_DESTROYED, CALLSTATE_CAUSE_NORMAL, true);
-        CPPUNIT_ASSERT(bRC);
-
-        // Validate Called Side
-        bRC = validatorCalled.waitForCallEvent(g_hAutoAnswerCallbackLine, g_hAutoAnswerCallbackCall, CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_NORMAL, true);
-        CPPUNIT_ASSERT(bRC);
-        bRC = validatorCalled.waitForCallEvent(g_hAutoAnswerCallbackLine, g_hAutoAnswerCallbackCall, CALLSTATE_DESTROYED, CALLSTATE_CAUSE_NORMAL, true);
         CPPUNIT_ASSERT(bRC);
 
         CPPUNIT_ASSERT_EQUAL(sipxEventListenerRemove(g_hInst, UniversalEventValidatorCallback, &validatorCalling), SIPX_RESULT_SUCCESS);
