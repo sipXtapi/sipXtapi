@@ -783,6 +783,8 @@ OsStatus mpShutdown(void)
 
         MpCodecFactory::freeSingletonHandle();
 
+        mpStaticCodecUninitializer();
+
         OsDateTime curTime;
         char rtl_filename[1024];
         OsDateTime::getCurTime(curTime);

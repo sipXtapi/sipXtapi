@@ -50,3 +50,8 @@ void mpStaticCodecInitializer(void)
       gStaticCodecInitialized = TRUE;
    }
 }
+
+void mpStaticCodecUninitializer(void)
+{
+   gStaticCodecInitialized = FALSE;
+}

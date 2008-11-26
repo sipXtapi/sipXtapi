@@ -40,5 +40,6 @@
 #endif /* __pingtel_on_posix__ ] */
 
 void mpStaticCodecInitializer(void);
+void mpStaticCodecUninitializer(void);
 
 #endif
