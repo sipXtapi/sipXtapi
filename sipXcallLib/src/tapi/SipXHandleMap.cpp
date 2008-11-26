@@ -189,7 +189,7 @@ void SipXHandleMap::dumpCalls()
       pValue = (UtlVoidPtr*) findValue(pKey) ;
       assert(pValue != NULL);
       SIPX_CALL_DATA* pCallData = (SIPX_CALL_DATA*)pValue->getValue();
-      printf("\tkey=%08d, value=0x%p, CallId=%s SessiocCallId=%s\n",
+      printf("\tkey=%08d, value=0x%p, CallId=%s SessionCallId=%s\n",
          pKey->getValue(), 
          pValue->getValue(),
          pCallData->callId?pCallData->callId->data():"NULL",
