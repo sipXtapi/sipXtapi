@@ -1104,7 +1104,7 @@ static SIPX_RESULT sipxCallCreateHelper(const SIPX_INST hInst,
                 // Set Call ID
                 pData->callId = new UtlString() ;
                 assert(pData->callId != NULL) ;
-                pInst->pCallManager->createCall(&pData->callId) ;
+                pInst->pCallManager->createCall(pData->callId) ;
 
                 // Set Conference handle
                 pData->hConf = hConf ;
