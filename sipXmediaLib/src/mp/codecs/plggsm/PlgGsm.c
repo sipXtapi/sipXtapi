@@ -34,11 +34,15 @@
 // EXTERNAL VARIABLES
 // CONSTANTS
 // TYPEDEFS
+// CONSTANTS
+#define GSM_FRAME_BYTES   33
+#define GSM_FRAME_SAMPLES 160
+
 // LOCAL DATA TYPES
 struct libgsm_codec_data
 {
-   audio_sample_t mpBuffer[160];    ///< Buffer used to store input samples
-   int mBufferLoad;                 ///< How much data there is in the buffer
+   audio_sample_t mpBuffer[GSM_FRAME_SAMPLES]; ///< Buffer used to store input samples
+   int mBufferLoad;                            ///< How much data there is in the buffer
    gsm mpGsmState;
 };
 
@@ -85,9 +89,9 @@ CODEC_API void *PLG_INIT_V1_1(libgsm)(const char* fmtp, int isDecoder,
    pCodecInfo->signalingCodec = FALSE;
    pCodecInfo->minBitrate = 13200;
    pCodecInfo->maxBitrate = 13200;
-   pCodecInfo->numSamplesPerFrame = 160;
-   pCodecInfo->minFrameBytes = 33;
-   pCodecInfo->maxFrameBytes = 33;
+   pCodecInfo->numSamplesPerFrame = GSM_FRAME_SAMPLES;
+   pCodecInfo->minFrameBytes = GSM_FRAME_BYTES;
+   pCodecInfo->maxFrameBytes = GSM_FRAME_BYTES;
    pCodecInfo->packetLossConcealment = CODEC_PLC_NONE;
    pCodecInfo->vadCng = CODEC_CNG_NONE;
 
@@ -127,12 +131,12 @@ CODEC_API int PLG_DECODE_V1(libgsm)(void* handle,
    struct libgsm_codec_data *mpGsm = (struct libgsm_codec_data *)handle;
    gsm_byte *pIn = (gsm_byte * ) pCodedData;
    gsm_signal *pOut = ( gsm_signal * ) pAudioBuffer;
-   unsigned outSize   = ( cbCodedPacketSize / 33 ) * 160;
+   unsigned outSize   = ( cbCodedPacketSize / GSM_FRAME_BYTES ) * GSM_FRAME_SAMPLES;
    unsigned remaining = cbCodedPacketSize; 
 
    assert(handle != NULL);
    /* Assert that payload have correct size. */
-   if ( (cbCodedPacketSize % 33) != 0 )
+   if ( (cbCodedPacketSize % GSM_FRAME_BYTES) != 0 )
    {
       return RPLG_CORRUPTED_DATA;
    }
@@ -146,9 +150,9 @@ CODEC_API int PLG_DECODE_V1(libgsm)(void* handle,
    while ( remaining > 0 )
    {
        gsm_decode(mpGsm->mpGsmState, pIn, pOut);
-       pIn += 33;
-       pOut +=160;
-       remaining -= 33; 
+       pIn += GSM_FRAME_BYTES;
+       pOut += GSM_FRAME_SAMPLES;
+       remaining -= GSM_FRAME_BYTES; 
    }
 
    *pcbDecodedSize = outSize; 
@@ -161,21 +165,21 @@ CODEC_API int PLG_ENCODE_V1(libgsm)(void* handle, const void* pAudioBuffer, unsi
 {
    struct libgsm_codec_data *mpGsm = (struct libgsm_codec_data *)handle;
    assert(handle != NULL);
-   if (cbMaxCodedData < 33)
+   if (cbMaxCodedData < GSM_FRAME_BYTES)
    {
       return RPLG_INVALID_ARGUMENT;
    }
    memcpy(&mpGsm->mpBuffer[mpGsm->mBufferLoad], pAudioBuffer, SIZE_OF_SAMPLE*cbAudioSamples);
    mpGsm->mBufferLoad = mpGsm->mBufferLoad + cbAudioSamples;
 
-   assert(mpGsm->mBufferLoad <= 160);
+   assert(mpGsm->mBufferLoad <= GSM_FRAME_SAMPLES);
 
    /* Check for necessary number of samples */
-   if (mpGsm->mBufferLoad == 160)
+   if (mpGsm->mBufferLoad == GSM_FRAME_SAMPLES)
    {
       gsm_encode(mpGsm->mpGsmState, (gsm_signal*)mpGsm->mpBuffer, (gsm_byte*)pCodedData);
       mpGsm->mBufferLoad = 0;
-      *pcbCodedSize = 33;
+      *pcbCodedSize = GSM_FRAME_BYTES;
       *pbSendNow = TRUE;
    } else {
       *pcbCodedSize = 0;
