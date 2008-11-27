@@ -116,23 +116,42 @@ CODEC_API int PLG_FREE_V1(libgsm)(void* handle, int isDecoder)
    return RPLG_SUCCESS;
 }
 
-CODEC_API int PLG_DECODE_V1(libgsm)(void* handle, const void* pCodedData, unsigned cbCodedPacketSize, void* pAudioBuffer, unsigned cbBufferSize, unsigned *pcbDecodedSize, const struct RtpHeader* pRtpHeader)
+CODEC_API int PLG_DECODE_V1(libgsm)(void* handle,
+                                    const void* pCodedData,
+                                    unsigned cbCodedPacketSize,
+                                    void* pAudioBuffer,
+                                    unsigned cbBufferSize,
+                                    unsigned *pcbDecodedSize,
+                                    const struct RtpHeader* pRtpHeader)
 {
    struct libgsm_codec_data *mpGsm = (struct libgsm_codec_data *)handle;
+   gsm_byte *pIn = (gsm_byte * ) pCodedData;
+   gsm_signal *pOut = ( gsm_signal * ) pAudioBuffer;
+   unsigned outSize   = ( cbCodedPacketSize / 33 ) * 160;
+   unsigned remaining = cbCodedPacketSize; 
+
    assert(handle != NULL);
+   /* Assert that payload have correct size. */
+   if ( (cbCodedPacketSize % 33) != 0 )
+   {
+      return RPLG_CORRUPTED_DATA;
+   }
+
    /* Assert that available buffer size is enough for the packet. */
-   if (cbCodedPacketSize != 33)
+   if (cbBufferSize < outSize )
    {
-      return RPLG_INVALID_ARGUMENT;
+      return RPLG_BUFFER_TOO_SMALL;
    }
 
-   if (cbBufferSize < 160)
+   while ( remaining > 0 )
    {
-      return RPLG_INVALID_ARGUMENT;
+       gsm_decode(mpGsm->mpGsmState, pIn, pOut);
+       pIn += 33;
+       pOut +=160;
+       remaining -= 33; 
    }
 
-   gsm_decode(mpGsm->mpGsmState, (gsm_byte*)pCodedData, (gsm_signal*)pAudioBuffer);
-   *pcbDecodedSize = 160;
+   *pcbDecodedSize = outSize; 
 
    return RPLG_SUCCESS;
 }
