@@ -83,6 +83,8 @@ extern "C" {
 #  define RPLG_CORRUPTED_DATA             (-4) ///< Encoded data is corrupted
 #  define RPLG_BAD_HANDLE                 (-5)
 #  define RPLG_NO_MORE_DATA               (-6)
+#  define RPLG_BUFFER_TOO_SMALL           (-7) ///< Encoding/decoding buffer
+                                               ///< is too small for output data.
 //@}
 
 ///@name Values for PLG_INIT_V1() and PLG_FREE_V1() isDecoder argument
