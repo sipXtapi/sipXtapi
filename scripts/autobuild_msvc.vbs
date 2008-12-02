@@ -1,8 +1,16 @@
 option explicit
-WScript.echo "Copyright (C) 2005-2006 SIPfoundry Inc."
+
+'determine if we're running in cscript mode, and bitch if not.
+if UCase(Right(WScript.FullName, 11)) <> "CSCRIPT.EXE" then
+   WScript.echo("Running autobuild in wscript mode unsupported." & vbCrLf _
+         & "Please re-run using cscript")
+   WScript.Quit(1)
+end if
+
+WScript.echo "Copyright (C) 2005-2008 SIPfoundry Inc."
 WScript.echo "Licensed by SIPfoundry under the LGPL license."
 WScript.echo ""
-WScript.echo "Copyright (C) 2005-2006 SIPez LLC."
+WScript.echo "Copyright (C) 2005-2008 SIPez LLC."
 WScript.echo "Licensed to SIPfoundry under a Contributor Agreement."
 WScript.echo ""
 WScript.echo "Building sipX using MS Visual Studio"
@@ -20,9 +28,10 @@ doClean = ""
 if args.Count > 0 then
    select case args.Item(0)
    case "clean"
-      set doClean="/CLEAN"
+      doClean="/CLEAN"
    case "check"
-      set unittest_errcode = runUnittests()
+      dim unittest_errcode
+      unittest_errcode = runUnittests()
       WScript.Quit(unittest_errcode)
    case else
       WScript.echo "Invalid arguments!"
@@ -74,14 +83,36 @@ end if
 
 ' For compile steps, if we're compiling using vc6, then 'msdev' is used for
 ' compiling, else if compiling with vc8, 'devenv' is used.
-WScript.echo("Compiling with msvc " & vcVer)
 
+' For now we say vc8 isn't supported, since priority is on getting vc6 working.
+' Only vc6 is currently supported.
+'if vcVer = "8.0" then
+'   WScript.stderr.writeline("Visual Studio 2005 is not currently supported")
+'   WScript.Quit(3)
+'elseif vcVer <> "6.0" then
+'   WScript.stderr.writeline("Only Visual Studio 6.0 is currently supported")
+'   WScript.Quit(3)
+'end if 
 
+'WScript.echo("PATH = " & objShell.environment("process")("PATH")) ' Debug
+'WScript.Quit(0) ' Debug
 
-'dim compileExec
-'objShell.CurrentDirectory = cDir & "/sipXportLib"
-'objFS.deleteFile(releaseType & "\sipXportLib" & libPrefix & ".lib")
-'set compileExec = objShell.exec("msdev sipXportLib.dsp ")
+dim compileExec, errCode
+if vcVer = "6.0" then
+   objShell.CurrentDirectory = cDir & "/sipXportLib"
+   objFS.deleteFile(releaseType & "\sipXportLib" & libPrefix & ".lib")
+   errCode = runWithOutput("msdev sipXportLib.dsp /USEENV /MAKE ""sipXportLib - Win32 " & releaseType & """" & doClean)
+
+elseif vcVer = "8.0" then
+   dim compileMode
+   compileMode = "/build"
+   if doClean <> "" then
+      compileMode = "/rebuild"
+   end if 
+   ' Devenv.com needs to be specified specifically, so that output will
+   ' go to the console
+   errCode = runWithOutput("devenv.com sipX-msvc8.sln /Project ""sipXportLib-msvc8"" /ProjectConfig """ & releaseType & "|Win32"" " & compileMode)
+end if 
 
 
 'cd sipXportLib
@@ -263,11 +294,32 @@ Function callBatchfile(batchFile)
    ' TODO: Still needs to be converted from powershell script to 
    ' WScript/vbscript.
    dim batchExec
-   set batchExec = objShell.Exec("%COMSPEC% /c " & batchFile & " & set")
+   ' below doesn't work by itself, despite what the above referenced page
+   ' says.  Try it yourself -- open shell window and type 
+   '    cmd /c <path to batch> & set
+   ' and see that it *doesn't* print the env vars set in the batch file :(
+   ' set batchExec = objShell.Exec("%COMSPEC% /c " & batchFile & " & set")
+   
+   ' Create a new batch file to call the referenced batch file and then
+   ' print out the env vars
+   dim f, fStream
+   f = "tmp" & int(rnd * 1000) & ".bat"
+   set fStream = objFS.CreateTextFile(f, TRUE)
+   fStream.writeline("call """ & batchFile & """ >nul")
+   fStream.writeline("set")
+   fStream.close()
+   set fStream = Nothing
+   
+
+   set batchExec = objShell.Exec(f)
    ' Wait till the exec is finished
    do while batchExec.status = 0
       wscript.sleep 100
    loop
+
+   ' Can delete the temporary batch file now.
+   objFS.deleteFile(f)
+   f=""
 
    dim line
    do while not batchExec.stdout.AtEndOfStream
@@ -275,6 +327,7 @@ Function callBatchfile(batchFile)
       if InStr(line, "=") > 0 then
          dim splitline
          splitline=Split(line, "=", 2)
+         'WScript.echo("setting " & splitline(0) & "=" & splitline(1))
          env(splitline(0)) = splitline(1)
       end if 
    loop
@@ -283,13 +336,14 @@ End Function
 
 Function getFullExePath(exe)
    dim f, fStream
-   f = "which.bat"
+   f = "which" & int(rnd * 1000) & ".bat"
    set fStream = objFS.CreateTextFile(f, FALSE)
    fStream.writeline("@set argonefullpath=%~$PATH:1")
    fStream.writeline("@if ""%argonefullpath%"" == """" goto end")
    fStream.writeline("@echo %argonefullpath%")
    fStream.writeline(":end")
    fStream.close()
+   set fStream = Nothing
 
    dim batchExec
    set batchExec = objShell.exec(f & " " & exe)
@@ -305,6 +359,30 @@ Function getFullExePath(exe)
       getFullExePath = batchExec.stdout.readline 
    end if 
    set batchExec = Nothing
+End Function
+
+Function runWithOutput(cmdline)
+   dim cmdExec
+   'cmdLine = "devenv.com /?" ' Debug
+   'WScript.echo("runWithOutput(" & cmdLine & ")") ' Debug
+   ' Run the command and wait for it to finish
+   set cmdExec = objShell.exec(cmdline)
+   do while cmdExec.status = 0
+      wscript.sleep 100
+   loop
+
+   ' Copy over it's stdout to this processes stdout
+   do while not cmdExec.stdout.AtEndOfStream
+      WScript.stdout.writeline(cmdExec.stdout.readline)
+   loop
+   ' Now copy over it's stderr to this processes stderr
+   do while not cmdExec.stderr.AtEndOfStream
+      WScript.stderr.writeline(cmdExec.stderr.readline)
+   loop
+
+   ' Return the error code/return code from the executed command.
+   runWithOutput = cmdExec.ExitCode
+   set cmdExec = Nothing
 End Function
 
 
