@@ -227,7 +227,7 @@ OsStatus MprBridge::setMixWeightsForInput(int bridgeInputPort,
    MpBridgeGain *pGainsCopy = new MpBridgeGain[numWeights];
    memcpy(pGainsCopy, gains, numWeights*sizeof(MpBridgeGain));
 
-   MpFlowGraphMsg msg(SET_WEIGHTS_FOR_OUTPUT, this,
+   MpFlowGraphMsg msg(SET_WEIGHTS_FOR_INPUT, this,
                       (void*)pGainsCopy, NULL,
                       bridgeInputPort, numWeights);
    return postMessage(msg);
