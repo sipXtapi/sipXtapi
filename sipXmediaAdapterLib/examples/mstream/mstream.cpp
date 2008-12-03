@@ -43,8 +43,8 @@ namespace
     {
         ACTION_RX, ACTION_TX, ACTION_RXTX,
         ACTION_RXSTOP, ACTION_TXSTOP, ACTION_RXSTART, ACTION_TXSTART,
-        ACTION_PORT, ACTION_PLAY, ACTION_DELAY, ACTION_REPEAT,
-        ACTION_STATS, ACTION_NOSTATS,
+        ACTION_PORT_LOCAL, ACTION_PORT_REMOTE, ACTION_PLAY, ACTION_DELAY,
+        ACTION_REPEAT, ACTION_STATS, ACTION_NOSTATS,
         ACTION_FOCUS, ACTION_NOFOCUS,
         ACTION_EXIT, NUM_ACTION_TYPES
     } ActionType;
@@ -66,7 +66,8 @@ namespace
         { "txstop",   ACTION_TXSTOP,      0  },
         { "rxstart",  ACTION_RXSTART,     0  },
         { "txstart",  ACTION_TXSTART,     0  },
-        { "port",     ACTION_PORT,        1  },
+        { "lport",    ACTION_PORT_LOCAL,  1  },
+        { "rport",    ACTION_PORT_REMOTE, 1  },
         { "play",     ACTION_PLAY,        1  },
         { "delay",    ACTION_DELAY,       1  },
         { "repeat",   ACTION_REPEAT,      2  },
@@ -92,7 +93,8 @@ namespace
     bool txRtpEnabled = false;
     CpMediaInterface* pIf = 0;
     const int DEF_RTP_PORT = 6000;
-    int rtpPort = DEF_RTP_PORT;
+    int rtpPort_local = DEF_RTP_PORT;
+    int rtpPort_remote = DEF_RTP_PORT;
     int lastConnId = -1;
     bool showStats = false;
     bool exitApp = false;
@@ -118,8 +120,10 @@ void showUsage()
     cout << "         txstop           = Stops Tx for the last RTP action" << endl;
     cout << "         rxstart          = Starts Rx for the last RTP action" << endl;
     cout << "         txstart          = Starts Tx for the last RTP action" << endl;
-    cout << "         port <rtp_port>  = Sets port for next RTP action"
-                        << " (default=" << DEF_RTP_PORT << ")" << endl;
+    cout << "         lport <local_rtp_port>  = Sets port for next RTP action"
+         << " (default=" << DEF_RTP_PORT << ")" << endl;
+    cout << "         rport <remote_rtp_port>  = Sets port for next RTP action"
+         << " (default=" << DEF_RTP_PORT << ")" << endl;
     cout << "         play <file> [loop] = Plays audio file to RTP if tx is" << endl
          << "                              active, else local speaker" << endl;
     cout << "         delay <msecs>    = Delay a number of milliseconds" << endl;
@@ -497,9 +501,14 @@ int executeAction(Action* pAction)
             cout << "Started RTP Send OK " << endl;
         break;
 
-    case ACTION_PORT:
-        rtpPort = atoi(pAction->args[0].c_str());
-        cout << "Next RTP port set to " << rtpPort << "." << endl;
+    case ACTION_PORT_LOCAL:
+        rtpPort_local = atoi(pAction->args[0].c_str());
+        cout << "Next RTP local port set to " << rtpPort_local << "." << endl;
+        break;
+
+    case ACTION_PORT_REMOTE:
+        rtpPort_remote = atoi(pAction->args[0].c_str());
+        cout << "Next RTP remote port set to " << rtpPort_remote << "." << endl;
         break;
 
     case ACTION_PLAY:
@@ -573,7 +582,8 @@ OsStatus createConnection(const char* pRtpAddr)
 
     OsStatus ret;
     UtlBoolean isMcast = OsSocket::isMcastAddr(pRtpAddr);
-    ret = pIf->createConnection(lastConnId, isMcast?pRtpAddr:NULL, rtpPort);
+    ret = pIf->createConnection(lastConnId, isMcast?pRtpAddr:NULL, 
+                                                    rtpPort_local);
     if (ret != OS_SUCCESS)
     {
         cerr << "***ERROR creating connection to " << pRtpAddr
@@ -588,8 +598,8 @@ OsStatus createConnection(const char* pRtpAddr)
     // Enable DTX
     ((CpTopologyGraphInterface*)pIf)->enableDtx(lastConnId, TRUE);
 
-    ret = pIf->setConnectionDestination(lastConnId,
-                                        pRtpAddr, rtpPort, rtpPort+1, 0, 0);
+    ret = pIf->setConnectionDestination(lastConnId, pRtpAddr,
+                                        rtpPort_remote, rtpPort_remote+1, 0, 0);
     if (ret != OS_SUCCESS)
     {
         cerr << "***ERROR setting connection destination: ret=" << ret << endl;
