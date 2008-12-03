@@ -335,10 +335,6 @@ SOURCE=.\src\mp\MprDelay.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\mp\MprDelay.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\src\mp\MprEchoSuppress.cpp
 # End Source File
 # Begin Source File
@@ -412,10 +408,6 @@ SOURCE=.\src\mp\MprnIntMsg.cpp
 # Begin Source File
 
 SOURCE=.\src\mp\MprnProgressMsg.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\src\mp\MprnRtpStreamActivityMsg.cpp
 # End Source File
 # Begin Source File
 
