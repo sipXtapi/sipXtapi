@@ -37,6 +37,30 @@ const int FILETIME_UNITS_PER_SEC   = 10000000;  // 100 nanosecs per sec
 const int FILETIME_UNITS_PER_USEC  = 10;        // 100 nanosecs per microsec
 
 // STATIC VARIABLE INITIALIZATIONS
+struct CriticalSectionWrapper
+{
+   CRITICAL_SECTION CriticalSection;
+   CriticalSectionWrapper()
+   {
+      InitializeCriticalSection(&CriticalSection);
+   }
+
+   ~CriticalSectionWrapper()
+   {
+      DeleteCriticalSection(&CriticalSection);
+   }
+
+   void Enter()
+   {
+      EnterCriticalSection(&CriticalSection);
+   }
+
+   void Leave()
+   {
+      LeaveCriticalSection(&CriticalSection);
+   }
+};
+
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
@@ -194,6 +218,12 @@ OsStatus OsDateTimeWnt::cvtToTimeSinceBoot(OsTime& rTime) const
 // Return the current time as an OsTime value
 void OsDateTimeWnt::getCurTime(OsTime& rTime)
 {
+    static CriticalSectionWrapper criticalSection;
+
+    // This function may be accessed from multiple threads, so we must
+    // synchronize access to all these static variables.
+    criticalSection.Enter();
+
     typedef union 
     {
         FILETIME  ft;
@@ -268,6 +298,7 @@ void OsDateTimeWnt::getCurTime(OsTime& rTime)
    rTime = OsTime((long) ((sOsFileTime.int64 - WINDOWSTIME2UNIXTIME*10000000)
                           / UINT64_C(10000000)),
                   (long) ((sOsFileTime.int64 / UINT64_C(10)) % UINT64_C(1000000)));
+   criticalSection.Leave();
 }
 
 
