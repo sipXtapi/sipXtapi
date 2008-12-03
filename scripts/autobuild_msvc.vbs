@@ -120,9 +120,9 @@ end if
 'WScript.echo("PATH = " & objShell.environment("process")("PATH")) ' Debug
 'WScript.Quit(0) ' Debug
 
-dim compileExec, errCode
+dim errCode, staticlibfile, exe
+' Compile sipXportLib
 if vcVer = "6.0" then
-   dim staticlibfile
    staticlibfile = releaseType & "\sipXportLib" & libPrefix & ".lib"
    objShell.CurrentDirectory = cDir & "\sipXportLib"
    if objFS.FileExists(staticlibfile) then
@@ -131,54 +131,77 @@ if vcVer = "6.0" then
    errCode = runWithOutput("msdev sipXportLib.dsp /USEENV /MAKE ""sipXportLib - Win32 " & releaseType & """" & doClean)
 
 elseif vcVer = "8.0" then
-   dim compileMode
-   compileMode = "/build"
-   if doClean <> "" then
-      compileMode = "/rebuild"
-   end if 
-   ' Devenv.com needs to be specified specifically, so that output will
-   ' go to the console
-   errCode = runWithOutput("devenv.com sipX-msvc8.sln /Project ""sipXportLib-msvc8"" /ProjectConfig """ & releaseType & "|Win32"" " & compileMode)
+'   dim compileMode
+'   compileMode = "/build"
+'   if doClean <> "" then
+'      compileMode = "/rebuild"
+'   end if 
+'   ' Devenv.com needs to be specified specifically, so that output will
+'   ' go to the console
+'   errCode = runWithOutput("devenv.com sipX-msvc8.sln /Project ""sipXportLib-msvc8"" /ProjectConfig """ & releaseType & "|Win32"" " & compileMode)
 end if
 quitIfError(errCode)
 
 
-'cd sipXportLib
-'del %releaseType%\sipXportLib%libPrefix%.lib
-'msdev sipXportLib.dsp /USEENV /MAKE "sipXportLib - Win32 %releaseType%" %doClean%
-'@if %ERRORLEVEL% GTR 0 goto end
-'cd ..
-'
-'cd sipXportLib
-'del %releaseType%\sipXportLibTest.exe
-'msdev sipXportLibTest.dsp /USEENV /MAKE "sipXportLibTest - Win32 %releaseType%" %doClean%
-'@if %ERRORLEVEL% GTR 0 goto end
-'cd ..
-'
-'cd sipXsdpLib
-'del %releaseType%\sipXsdpLib%libPrefix%.lib
-'msdev sipXsdpLib.dsp /MAKE "sipXsdpLib - Win32 %releaseType%" %doClean%
-'@if %ERRORLEVEL% GTR 0 goto end
-'cd ..
-'
-'cd sipXtackLib
-'del %releaseType%\sipXtackLib%libPrefix%.lib
-'msdev sipXtackLib.dsp /USEENV /MAKE "sipXtackLib - Win32 %releaseType%" %doClean%
-'@if %ERRORLEVEL% GTR 0 goto end
-'cd ..
-'
-'cd sipXsdpLib
-'del %releaseType%\sipXsdpLibTest.exe
-'msdev sipXsdpLibTest.dsp /MAKE "sipXsdpLibTest - Win32 %releaseType%" %doClean%
-'@if %ERRORLEVEL% GTR 0 goto end
-'cd ..
-'
-'cd sipXtackLib
-'del %releaseType%\sipXtackLibTest.exe
-'msdev sipXtackLibTest.dsp /USEENV /MAKE "sipXtackLibTest - Win32 %releaseType%" %doClean%
-'@if %ERRORLEVEL% GTR 0 goto end
-'cd ..
-'
+' Compile sipXportLibTest
+if vcVer = "6.0" then
+   exe = releaseType & "\sipXportLibTest.exe"
+   objShell.CurrentDirectory = cDir & "\sipXportLib"
+   if objFS.FileExists(exe) then
+      objFS.deleteFile(exe)
+   end if
+   errCode = runWithOutput("msdev sipXportLibTest.dsp /MAKE ""sipXportLibTest - Win32 " & releaseType & """" & doClean)
+end if
+quitIfError(errCode)
+
+
+' Compile sipXsdpLib
+if vcVer = "6.0" then
+   staticlibfile = releaseType & "\sipXsdpLib" & libPrefix & ".lib"
+   objShell.CurrentDirectory = cDir & "\sipXsdpLib"
+   if objFS.FileExists(staticlibfile) then
+      objFS.deleteFile(staticlibfile)
+   end if
+   errCode = runWithOutput("msdev sipXsdpLib.dsp /USEENV /MAKE ""sipXsdpLib - Win32 " & releaseType & """" & doClean)
+end if
+quitIfError(errCode)
+
+
+' Compile sipXtackLib
+if vcVer = "6.0" then
+   staticlibfile = releaseType & "\sipXtackLib" & libPrefix & ".lib"
+   objShell.CurrentDirectory = cDir & "\sipXtackLib"
+   if objFS.FileExists(staticlibfile) then
+      objFS.deleteFile(staticlibfile)
+   end if
+   errCode = runWithOutput("msdev sipXtackLib.dsp /USEENV /MAKE ""sipXtackLib - Win32 " & releaseType & """" & doClean)
+end if
+quitIfError(errCode)
+
+
+' Compile sipXsdpLibTest
+if vcVer = "6.0" then
+   exe = releaseType & "\sipXsdpLibTest.exe"
+   objShell.CurrentDirectory = cDir & "\sipXsdpLib"
+   if objFS.FileExists(exe) then
+      objFS.deleteFile(exe)
+   end if
+   errCode = runWithOutput("msdev sipXsdpLibTest.dsp /MAKE ""sipXsdpLibTest - Win32 " & releaseType & """" & doClean)
+end if
+quitIfError(errCode)
+
+
+' Compile sipXtackLibTest
+if vcVer = "6.0" then
+   exe = releaseType & "\sipXtackLibTest.exe"
+   objShell.CurrentDirectory = cDir & "\sipXtackLib"
+   if objFS.FileExists(exe) then
+      objFS.deleteFile(exe)
+   end if
+   errCode = runWithOutput("msdev sipXtackLibTest.dsp /MAKE ""sipXtackLibTest - Win32 " & releaseType & """" & doClean)
+end if
+quitIfError(errCode)
+
 'cd sipXmediaLib
 'del %releaseType%\sipXmediaLib%libPrefix%.lib
 'msdev sipXmediaLib.dsp /USEENV /MAKE "sipXmediaLib - Win32 %releaseType%" %doClean%
