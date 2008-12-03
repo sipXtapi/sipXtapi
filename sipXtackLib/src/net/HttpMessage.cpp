@@ -61,7 +61,7 @@
 #undef TEST
 
 // STATIC VARIABLE INITIALIZATIONS
-int HttpMessage::smHttpMessageCount = 0;
+OsAtomicInt HttpMessage::smHttpMessageCount(0);
 
 // LOCAL MACROS
 #ifdef _VXWORKS
