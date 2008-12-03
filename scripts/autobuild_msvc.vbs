@@ -139,7 +139,8 @@ elseif vcVer = "8.0" then
    ' Devenv.com needs to be specified specifically, so that output will
    ' go to the console
    errCode = runWithOutput("devenv.com sipX-msvc8.sln /Project ""sipXportLib-msvc8"" /ProjectConfig """ & releaseType & "|Win32"" " & compileMode)
-end if 
+end if
+quitIfError(errCode)
 
 
 'cd sipXportLib
@@ -410,6 +411,12 @@ Function runWithOutput(cmdline)
    ' Return the error code/return code from the executed command.
    runWithOutput = cmdExec.ExitCode
    set cmdExec = Nothing
+End Function
+
+Function quitIfError(errCode)
+   if errCode <> 0 then
+      WScript.Quit(errCode)
+   end if
 End Function
 
 
