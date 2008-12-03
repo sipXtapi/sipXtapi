@@ -45,7 +45,7 @@ extern char* strdup(const char*) ;
 // CONSTANTS
 // STATIC VARIABLE INITIALIZATIONS
 OsSysLogTask* OsSysLog::spOsSysLogTask = NULL;
-OsAtomicULong OsSysLog::sEventCount(0L);
+unsigned long OsSysLog::sEventCount = 0;
 UtlString OsSysLog::sProcessId = "" ;
 UtlString OsSysLog::sHostname = "" ;
 OsSysLogPriority OsSysLog::spPriorities[FAC_MAX_FACILITY] ;

@@ -27,23 +27,20 @@ const UtlContainableType OsMsg::TYPE = "OsMsg" ;
 
 // Constructor
 OsMsg::OsMsg(const unsigned char msgType, const unsigned char msgSubType)
-: mMsgType(msgType)
-, mMsgSubType(msgSubType)
-, mSentFromISR(FALSE)
-, mReusable(FALSE)
-, mInUse(TRUE)
+: mMsgType(msgType), mMsgSubType(msgSubType), mSentFromISR(FALSE),
+   mReusable(FALSE), mInUse(TRUE)
 {
    // all of the required work is done by the initializers
 }
 
 // Copy constructor
 OsMsg::OsMsg(const OsMsg& rOsMsg)
-: mMsgType(rOsMsg.mMsgType)
-, mMsgSubType(rOsMsg.mMsgSubType)
-, mSentFromISR(rOsMsg.mSentFromISR)
-, mReusable(rOsMsg.mReusable)
-, mInUse((bool)rOsMsg.mInUse)
 {
+   mMsgType     = rOsMsg.mMsgType;
+   mMsgSubType  = rOsMsg.mMsgSubType;
+   mSentFromISR = rOsMsg.mSentFromISR;
+   mReusable    = rOsMsg.mReusable;
+   mInUse       = rOsMsg.mInUse;
 }
 
 // Create a copy of this msg object (which may be of a derived type)
@@ -81,7 +78,7 @@ OsMsg::operator=(const OsMsg& rhs)
       mMsgSubType  = rhs.mMsgSubType;
       mSentFromISR = rhs.mSentFromISR;
       mReusable    = rhs.mReusable;
-      mInUse       = (bool)rhs.mInUse;
+      mInUse       = rhs.mInUse;
    }
 
    return *this;

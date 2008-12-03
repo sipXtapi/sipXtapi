@@ -26,7 +26,6 @@
 #include <os/OsSocket.h>
 #include <os/OsTimeLog.h>
 #include <os/OsMsgQ.h>
-#include <os/OsAtomics.h>
 #include <utl/UtlDList.h>
 
 // DEFINES
@@ -353,7 +352,7 @@ public:
     //@}
 /* ============================ ACCESSORS ================================= */
 
-    static OsAtomicInt smHttpMessageCount;
+    static int smHttpMessageCount;
     static int getHttpMessageCount();
 
     const char* getFirstHeaderLine() const;

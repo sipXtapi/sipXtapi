@@ -19,7 +19,6 @@
 #include "os/OsMutex.h"
 #include "os/OsStatus.h"
 #include "os/OsSysLog.h"
-#include "os/OsAtomics.h"
 
 // DEFINES
 #define OSTASK_STACK_SIZE_1M 1024*1024
@@ -66,7 +65,7 @@ public:
    static const UtlString TASKID_PREFIX; // prefix for taskID stored in the
                                         //  name database.
 
-   static OsAtomicInt taskCount;
+   static int taskCount;
 
    enum TaskState
    {

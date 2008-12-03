@@ -25,7 +25,6 @@
 #include "utl/UtlContainableAtomic.h"
 #include "utl/UtlString.h"
 #include "os/OsBSem.h"
-#include "os/OsAtomics.h"
 
 
 // DEFINES
@@ -316,7 +315,7 @@ public:
 protected:
    static const UtlContainableType TYPE;    ///< Class type used for runtime checking 
    static OsBSem mInitializeSem;
-   OsAtomicLightInt socketDescriptor;
+   int socketDescriptor;
 
    int localHostPort;
    int remoteHostPort;
