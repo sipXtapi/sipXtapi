@@ -101,7 +101,9 @@ OsStatus OsRWMutexShared::releaseRead(void)
 {
    OsStatus res;
 
-   assert(mRunningReadersCnt > 0);
+   // This assert accesses shared variable outside of synchronized
+   // area and should not be ever enabled.
+//   assert(mRunningWritersCnt > 0);
 
    res = mGuard.acquire();         // start critical section
    assert(res == OS_SUCCESS);
@@ -120,7 +122,9 @@ OsStatus OsRWMutexShared::releaseWrite(void)
 {
    OsStatus res;
 
-   assert(mRunningWritersCnt > 0);
+   // This assert accesses shared variable outside of synchronized
+   // area and should not be ever enabled.
+//   assert(mRunningWritersCnt > 0);
 
    res = doReleaseExclWrite();     // release the semaphore used to ensure
    assert(res == OS_SUCCESS);      //  exclusive access among multiple writers
