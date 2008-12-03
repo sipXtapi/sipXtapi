@@ -414,19 +414,31 @@ End Function
 
 Function runWithOutput(cmdline)
    dim cmdExec
-   'cmdLine = "devenv.com /?" ' Debug
    'WScript.echo("runWithOutput(" & cmdLine & ")") ' Debug
    ' Run the command and wait for it to finish
    set cmdExec = objShell.exec(cmdline)
    do while cmdExec.status = 0
+      ' For each loop, empty out the stdout and stderr
+      ' and print them out to the screen.
+
+      ' Copy over it's stdout to this processes stdout
+      do while not cmdExec.stdout.AtEndOfStream
+         WScript.stdout.writeline(cmdExec.stdout.readline)
+      loop
+      ' Now copy over it's stderr to this processes stderr
+      do while not cmdExec.stderr.AtEndOfStream
+         WScript.stderr.writeline(cmdExec.stderr.readline)
+      loop
+
+      ' Sleep for 100ms
       wscript.sleep 100
    loop
 
-   ' Copy over it's stdout to this processes stdout
+   ' Now that it's done, do one last look at stderr and stdout
+   ' and copy the data over to this processes stderr and stdout
    do while not cmdExec.stdout.AtEndOfStream
       WScript.stdout.writeline(cmdExec.stdout.readline)
    loop
-   ' Now copy over it's stderr to this processes stderr
    do while not cmdExec.stderr.AtEndOfStream
       WScript.stderr.writeline(cmdExec.stderr.readline)
    loop
