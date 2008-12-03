@@ -160,8 +160,17 @@ CpTopologyGraphFactoryImpl::CpTopologyGraphFactoryImpl(OsConfigDb* pConfigDb,
     mpOutputDeviceManager =
         new MpOutputDeviceManager(mgrSamplesPerFrame,    // samples per frame
                                   mDefaultSamplesPerSec, // samples per second
-                                  mFrameSizeMs*2);  // mixer buffer length (ms)
-
+#ifdef WIN32 // [
+                                  // On Windows (especially on Vista)
+                                  // audio is consumed by 50ms chunks, causing
+                                  // bursts of ticker notifications. So we
+                                  // should set mixer size big enough to
+                                  // iron out this jitter.
+                                  mFrameSizeMs*7         // mixer buffer length (ms)
+#else // WIN32 ][
+                                  mFrameSizeMs*2         // mixer buffer length (ms)
+#endif // !WIN32 ]
+                                  );
 
 
 #ifdef USE_DEVICE_ADD_HACK // [
