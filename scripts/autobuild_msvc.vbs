@@ -128,7 +128,7 @@ if vcVer = "6.0" then
    if objFS.FileExists(staticlibfile) then
       objFS.deleteFile(staticlibfile)
    end if
-   errCode = runWithOutput("msdev sipXportLib.dsp /USEENV /MAKE ""sipXportLib - Win32 " & releaseType & """" & doClean)
+   errCode = runWithOutput("msdev sipXportLib.dsp /MAKE ""sipXportLib - Win32 " & releaseType & """" & doClean)
 
 elseif vcVer = "8.0" then
 '   dim compileMode
@@ -162,7 +162,7 @@ if vcVer = "6.0" then
    if objFS.FileExists(staticlibfile) then
       objFS.deleteFile(staticlibfile)
    end if
-   errCode = runWithOutput("msdev sipXsdpLib.dsp /USEENV /MAKE ""sipXsdpLib - Win32 " & releaseType & """" & doClean)
+   errCode = runWithOutput("msdev sipXsdpLib.dsp /MAKE ""sipXsdpLib - Win32 " & releaseType & """" & doClean)
 end if
 quitIfError(errCode)
 
@@ -174,7 +174,7 @@ if vcVer = "6.0" then
    if objFS.FileExists(staticlibfile) then
       objFS.deleteFile(staticlibfile)
    end if
-   errCode = runWithOutput("msdev sipXtackLib.dsp /USEENV /MAKE ""sipXtackLib - Win32 " & releaseType & """" & doClean)
+   errCode = runWithOutput("msdev sipXtackLib.dsp /MAKE ""sipXtackLib - Win32 " & releaseType & """" & doClean)
 end if
 quitIfError(errCode)
 
