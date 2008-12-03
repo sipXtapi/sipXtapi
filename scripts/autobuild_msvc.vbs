@@ -15,6 +15,29 @@ WScript.echo "Licensed to SIPfoundry under a Contributor Agreement."
 WScript.echo ""
 WScript.echo "Building sipX using MS Visual Studio"
 
+
+' Put this class and it's primitive singleton-like initializer
+' at the top of your script.
+' This class makes sure that wsh/vbscript runtime errors are caught
+' and returned as ERRORLEVEL when the script exits.  If you don't
+' do this, runtime errors will still result in the caller of this
+' script receiving 0 (success) error code.
+Class QuitErrorlevelOnRuntimeError
+   Private Sub Class_Terminate()
+      ' When 'WScript.Quit' is called, it seems to set err.Number 
+      ' to -2147155971.  Since we want the quit to return it's 
+      ' error code, don't return err.number if this err.number is 
+      ' seen
+      dim quitErrNum : quitErrNum = -2147155971
+      if Err.Number <> 0 and Err.Number <> quitErrNum then
+        WScript.Quit Err.Number
+      end if 
+   End Sub
+End Class
+Dim qeloreObj : Set qeloreObj = New QuitErrorlevelOnRuntimeError
+
+
+
 dim objShell, objFS, env, args, doClean, releaseType, libPrefix
 dim cDir, vcVer
 
@@ -99,8 +122,12 @@ end if
 
 dim compileExec, errCode
 if vcVer = "6.0" then
-   objShell.CurrentDirectory = cDir & "/sipXportLib"
-   objFS.deleteFile(releaseType & "\sipXportLib" & libPrefix & ".lib")
+   dim staticlibfile
+   staticlibfile = releaseType & "\sipXportLib" & libPrefix & ".lib"
+   objShell.CurrentDirectory = cDir & "\sipXportLib"
+   if objFS.FileExists(staticlibfile) then
+      objFS.deleteFile(staticlibfile)
+   end if
    errCode = runWithOutput("msdev sipXportLib.dsp /USEENV /MAKE ""sipXportLib - Win32 " & releaseType & """" & doClean)
 
 elseif vcVer = "8.0" then
@@ -394,3 +421,4 @@ End Function
 ' http://www.microsoft.com/technet/scriptcenter/resources/qanda/jun05/hey0620.mspx
 ' http://www.tavaresstudios.com/Blog/post/The-last-vsvars32ps1-Ill-ever-need.aspx
 
+' vim:ts=3:sts=3:sw=3:expandtab:cindent:
