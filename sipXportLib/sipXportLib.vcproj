@@ -4215,6 +4215,9 @@
 				RelativePath="include\os\OsAssert.h">
 			</File>
 			<File
+				RelativePath=".\include\os\OsAtomics.h">
+			</File>
+			<File
 				RelativePath="include\os\OsBSem.h">
 			</File>
 			<File

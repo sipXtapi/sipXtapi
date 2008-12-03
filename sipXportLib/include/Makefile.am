@@ -31,6 +31,7 @@ nobase_include_HEADERS = \
     os/linux/pt_mutex.h \
     os/NatMsg.h \
     os/OsAssert.h \
+    os/OsAtomics.h \
     os/OsBSem.h \
     os/OsCallback.h \
     os/OsConfigDb.h \

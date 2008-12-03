@@ -647,6 +647,10 @@ SOURCE=.\include\os\OsAssert.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\include\os\OsAtomics.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\include\os\OsBSem.h
 # End Source File
 # Begin Source File
