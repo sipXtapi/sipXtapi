@@ -24,6 +24,7 @@
 #include "os/OsLock.h"
 #include "os/OsSocket.h"
 #include "os/OsRWMutex.h"
+#include "os/OsMutex.h"
 #include "mp/MpTypes.h"
 #include "mp/MpRtpBuf.h"
 #include "mp/MpMisc.h"
@@ -149,6 +150,7 @@ protected:
    OsConnectionSocket* mpWriteSocket;
    OsConnectionSocket* mpReadSocket;
    int                 mCmdPort;    ///< internal socket port number
+   OsMutex             mEventMutex;
 
      /// Default constructor
    NetInTask(

@@ -465,8 +465,12 @@ int NetInTask::run(void *pNotUsed)
             /* is it a request to modify the set of file descriptors? */
             if (FD_ISSET(mpReadSocket->getSocketDescriptor(), fds)) {
                 numReady--;
-                if (NET_TASK_MAX_MSG_LEN !=
-                     mpReadSocket->read((char *) &msg, NET_TASK_MAX_MSG_LEN)) {
+                int readBytes;
+                {
+                   OsLock lock(mEventMutex);
+                   readBytes = mpReadSocket->read((char *) &msg, NET_TASK_MAX_MSG_LEN);
+                }
+                if (NET_TASK_MAX_MSG_LEN != readBytes) {
                     osPrintf("NetInTask::run: Invalid request!\n");
                 } else if (-2 == (intptr_t) msg.pRtpSocket) {
                     /* request to exit... */
@@ -663,7 +667,8 @@ NetInTask* NetInTask::getNetInTask()
 NetInTask::NetInTask(int prio, int options, int stack)
 :  OsTask("NetInTask", NULL, prio, options, stack),
    mpWriteSocket(NULL),
-   mpReadSocket(NULL)
+   mpReadSocket(NULL),
+   mEventMutex(0)
 {
     // Create temporary listening socket.
     OsServerSocket *pBindSocket = new OsServerSocket(1, PORT_DEFAULT, "127.0.0.1");
@@ -711,10 +716,13 @@ OsStatus NetInTask::addNetInputSources(OsSocket* pRtpSocket, OsSocket* pRtcpSock
 
    if (NULL != fwdTo)
    {
-      msg.pRtpSocket = pRtpSocket;
-      msg.pRtcpSocket = pRtcpSocket;
-      msg.fwdTo = fwdTo;
-      msg.notify = notify;
+      {
+         OsLock lock(mEventMutex);
+         msg.pRtpSocket = pRtpSocket;
+         msg.pRtcpSocket = pRtcpSocket;
+         msg.fwdTo = fwdTo;
+         msg.notify = notify;
+      }
 
       wrote = mpWriteSocket->write((char*)&msg, NET_TASK_MAX_MSG_LEN);
       if (wrote != NET_TASK_MAX_MSG_LEN)
@@ -741,10 +749,13 @@ OsStatus NetInTask::removeNetInputSources(MprFromNet* fwdTo, OsNotification* not
 
    if (NULL != fwdTo)
    {
-      msg.pRtpSocket = NULL;
-      msg.pRtcpSocket = NULL;
-      msg.fwdTo = fwdTo;
-      msg.notify = notify;
+      {
+         OsLock lock(mEventMutex);
+         msg.pRtpSocket = NULL;
+         msg.pRtcpSocket = NULL;
+         msg.fwdTo = fwdTo;
+         msg.notify = notify;
+      }
       wrote = mpWriteSocket->write((char*)&msg, NET_TASK_MAX_MSG_LEN);
       if (wrote != NET_TASK_MAX_MSG_LEN)
       {
