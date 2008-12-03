@@ -127,6 +127,7 @@ OsStatus OsTaskBase::delay(const int milliSecs)
 // Return TRUE is the task is started and not suspended, otherwise FALSE.
 UtlBoolean OsTaskBase::isReady(void)
 {
+   OsLock lock(mDataGuard);
    if (!isStarted())
       return FALSE;
 
@@ -136,12 +137,14 @@ UtlBoolean OsTaskBase::isReady(void)
 // Return TRUE if a task shutdown has been requested and acknowledged
 UtlBoolean OsTaskBase::isShutDown(void)
 {
+   OsLock lock(mDataGuard);
    return (mState == SHUT_DOWN);
 }
 
 // Return TRUE if a task shutdown has been requested but not acknowledged
 UtlBoolean OsTaskBase::isShuttingDown(void)
 {
+   OsLock lock(mDataGuard);
    return (mState == SHUTTING_DOWN);
 }
 
@@ -149,12 +152,14 @@ UtlBoolean OsTaskBase::isShuttingDown(void)
 // Return TRUE if the task has been started (and has not been shut down)
 UtlBoolean OsTaskBase::isStarted(void)
 {
+   OsLock lock(mDataGuard);
    return (mState == STARTED);
 }
 
 // Return TRUE if the task is un-initialized
 UtlBoolean OsTaskBase::isUnInitialized(void)
 {
+   OsLock lock(mDataGuard);
    return (mState == UNINITIALIZED);
 }
 
