@@ -487,10 +487,6 @@ SOURCE=.\src\utl\UtlCrc32.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\utl\UtlCrc32.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\src\utl\UtlCryptoData.cpp
 # End Source File
 # Begin Source File
