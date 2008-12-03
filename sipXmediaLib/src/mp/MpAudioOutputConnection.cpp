@@ -219,6 +219,9 @@ OsStatus MpAudioOutputConnection::pushFrame(unsigned int numSamples,
 
    assert(numSamples > 0);
 
+   // From now we access internal data. Take lock.
+   OsLock lock(mMutex);
+
    // Check for late frame. Check for too early frame is done inside mixFrame()
    // function (if mixer mode is used) and will not be done if direct write
    // mode is used.
@@ -232,8 +235,6 @@ OsStatus MpAudioOutputConnection::pushFrame(unsigned int numSamples,
       return result;
    }
 
-   // From now we access internal data. Take lock.
-   OsLock lock(mMutex);
    RTL_EVENT("MpAudioOutputConnection::pushFrame", this->getValue());
 
    // Do we have mixer buffer, i.e. are we in direct write mode or not?
@@ -276,6 +277,12 @@ OsStatus MpAudioOutputConnection::pushFrame(unsigned int numSamples,
 };
 
 /* ============================ ACCESSORS ================================= */
+
+MpFrameTime MpAudioOutputConnection::getCurrentFrameTime() const
+{
+   OsLock lock(mMutex);
+   return mCurrentFrameTime;
+}
 
 /* ============================ INQUIRY =================================== */
 

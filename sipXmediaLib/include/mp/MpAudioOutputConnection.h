@@ -214,7 +214,6 @@ public:
    inline
    unsigned getSamplesPerFrame() const;
 
-   inline
    MpFrameTime getCurrentFrameTime() const;
 
 //@}
@@ -327,7 +326,7 @@ protected:
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
 
-   OsMutex mMutex;                ///< Mutex to synchronize access to connection.
+   mutable OsMutex mMutex;        ///< Mutex to synchronize access to connection.
    int mUseCount;                 ///< Use counter, used to implement safe delete.
 
    MpOutputDeviceDriver* mpDeviceDriver; ///< Device driver associated with this
@@ -384,11 +383,6 @@ unsigned MpAudioOutputConnection::getUseCount() const
 unsigned MpAudioOutputConnection::getSamplesPerFrame() const
 {
    return getDeviceDriver()->getSamplesPerFrame();
-}
-
-MpFrameTime MpAudioOutputConnection::getCurrentFrameTime() const
-{
-   return mCurrentFrameTime;
 }
 
 UtlBoolean MpAudioOutputConnection::isMixerBufferAvailable() const
