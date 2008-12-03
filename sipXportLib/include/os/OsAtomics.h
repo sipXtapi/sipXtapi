@@ -228,7 +228,7 @@ public:
 //   bool compare_exchange(T* &, T* , memory_order mo = memory_order_seq_cst);
 
    void fence(memory_order mo) const
-   {OsAtomicPtr::fence(mo)};
+   {OsAtomicPtr::fence(mo);}
 
    T* fetch_add(ptrdiff_t val, memory_order mo = memory_order_seq_cst)
    {return (T*)OsAtomicPtr::fetch_add(val, mo);}
@@ -256,7 +256,7 @@ private:
 };
 
 
-#if defined(_M_IX86) || defined(_M_X64) // [
+#if defined(_M_IX86) || defined(_M_X64) || defined(__i386__) || defined(__amd64__) // [
 template<class T>
 class OsAtomicLight
 {
