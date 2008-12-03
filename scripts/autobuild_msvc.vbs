@@ -202,54 +202,102 @@ if vcVer = "6.0" then
 end if
 quitIfError(errCode)
 
-'cd sipXmediaLib
-'del %releaseType%\sipXmediaLib%libPrefix%.lib
-'msdev sipXmediaLib.dsp /USEENV /MAKE "sipXmediaLib - Win32 %releaseType%" %doClean%
-'@if %ERRORLEVEL% GTR 0 goto end
-'cd ..
-'
-'cd sipXmediaLib\contrib\libgsm
-'del %releaseType%\gsm%libPrefix%.lib
-'msdev libgsm.dsp /USEENV /MAKE "libgsm - Win32 %releaseType%" %doClean%
-'@if %ERRORLEVEL% GTR 0 goto end
-'cd ..\..\..
-'
-'cd sipXmediaLib
-'del %releaseType%\sipXmediaLibTest.exe
-'msdev sipXmediaLibTest.dsp /USEENV /MAKE "sipXmediaLibTest - Win32 %releaseType%" %doClean%
-'@if %ERRORLEVEL% GTR 0 goto end
-'cd ..
-'
-'cd sipXmediaAdapterLib
-'del %releaseType%\sipXmediaAdapterLib%libPrefix%.lib
-'msdev sipXmediaAdapterLib.dsp /USEENV /MAKE "sipXmediaAdapterLib - Win32 %releaseType%" %doClean%
-'@if %ERRORLEVEL% GTR 0 goto end
-'cd ..
-'
-'cd sipXmediaAdapterLib
-'del %releaseType%\sipXmediaAdapterLibTest.exe
-'msdev sipXmediaAdapterLibTest.dsp /USEENV /MAKE "sipXmediaAdapterLibTest - Win32 %releaseType%" %doClean%
-'@if %ERRORLEVEL% GTR 0 goto end
-'cd ..
-'
-'cd sipXcallLib 
-'del %releaseType%\sipXcallLib%libPrefix%.lib
-'msdev sipXcallLib.dsp /USEENV /MAKE "sipXcallLib - Win32 %releaseType%" %doClean%
-'@if %ERRORLEVEL% GTR 0 goto end
-'cd ..
-'
-'cd sipXcallLib 
-'del %releaseType%\sipXcallLibTest.exe
-'msdev sipXcallLibTest.dsp /USEENV /MAKE "sipXcallLibTest - Win32 %releaseType%" %doClean%
-'@if %ERRORLEVEL% GTR 0 goto end
-'cd ..
-'
-'cd sipXcallLib 
-'del %releaseType%\sipXtapiTest.exe
-'msdev sipXtapiTest.dsp /USEENV /MAKE "sipXtapiTest - Win32 %releaseType%" %doClean%
-'@if %ERRORLEVEL% GTR 0 goto end
-'cd ..
-'
+
+' Compile libgsm (for medialib)
+if vcVer = "6.0" then
+   staticlibfile = releaseType & "\gsm" & libPrefix & ".lib"
+   objShell.CurrentDirectory = cDir & "\sipXmediaLib\contrib\libgsm"
+   if objFS.FileExists(staticlibfile) then
+      objFS.deleteFile(staticlibfile)
+   end if
+   errCode = runWithOutput("msdev libgsm.dsp /MAKE ""libgsm - Win32 " & releaseType & """" & doClean)
+end if
+quitIfError(errCode)
+
+
+' Compile sipXmediaLib
+if vcVer = "6.0" then
+   staticlibfile = releaseType & "\sipXmediaLib" & libPrefix & ".lib"
+   objShell.CurrentDirectory = cDir & "\sipXmediaLib"
+   if objFS.FileExists(staticlibfile) then
+      objFS.deleteFile(staticlibfile)
+   end if
+   errCode = runWithOutput("msdev sipXmediaLib.dsp /MAKE ""sipXmediaLib - Win32 " & releaseType & """" & doClean)
+end if
+quitIfError(errCode)
+
+
+' Compile sipXmediaLibTest
+if vcVer = "6.0" then
+   exe = releaseType & "\sipXmediaLibTest.exe"
+   objShell.CurrentDirectory = cDir & "\sipXmediaLib"
+   if objFS.FileExists(exe) then
+      objFS.deleteFile(exe)
+   end if
+   errCode = runWithOutput("msdev sipXmediaLibTest.dsp /MAKE ""sipXmediaLibTest - Win32 " & releaseType & """" & doClean)
+end if
+quitIfError(errCode)
+
+
+' Compile sipXmediaAdapterLib
+if vcVer = "6.0" then
+   staticlibfile = releaseType & "\sipXmediaAdapterLib" & libPrefix & ".lib"
+   objShell.CurrentDirectory = cDir & "\sipXmediaAdapterLib"
+   if objFS.FileExists(staticlibfile) then
+      objFS.deleteFile(staticlibfile)
+   end if
+   errCode = runWithOutput("msdev sipXmediaAdapterLib.dsp /MAKE ""sipXmediaAdapterLib - Win32 " & releaseType & """" & doClean)
+end if
+quitIfError(errCode)
+
+
+' Compile sipXmediaAdapterLibTest
+if vcVer = "6.0" then
+   exe = releaseType & "\sipXmediaAdapterLibTest.exe"
+   objShell.CurrentDirectory = cDir & "\sipXmediaAdapterLib"
+   if objFS.FileExists(exe) then
+      objFS.deleteFile(exe)
+   end if
+   errCode = runWithOutput("msdev sipXmediaAdapterLibTest.dsp /MAKE ""sipXmediaAdapterLibTest - Win32 " & releaseType & """" & doClean)
+end if
+quitIfError(errCode)
+
+
+' Compile sipXcallLib
+if vcVer = "6.0" then
+   staticlibfile = releaseType & "\sipXcallLib" & libPrefix & ".lib"
+   objShell.CurrentDirectory = cDir & "\sipXcallLib"
+   if objFS.FileExists(staticlibfile) then
+      objFS.deleteFile(staticlibfile)
+   end if
+   errCode = runWithOutput("msdev sipXcallLib.dsp /MAKE ""sipXcallLib - Win32 " & releaseType & """" & doClean)
+end if
+quitIfError(errCode)
+
+
+' Compile sipXcallLibTest
+if vcVer = "6.0" then
+   exe = releaseType & "\sipXcallLibTest.exe"
+   objShell.CurrentDirectory = cDir & "\sipXcallLib"
+   if objFS.FileExists(exe) then
+      objFS.deleteFile(exe)
+   end if
+   errCode = runWithOutput("msdev sipXcallLibTest.dsp /MAKE ""sipXcallLibTest - Win32 " & releaseType & """" & doClean)
+end if
+quitIfError(errCode)
+
+
+' Compile sipXtapiTest
+if vcVer = "6.0" then
+   exe = releaseType & "\sipXtapiTest.exe"
+   objShell.CurrentDirectory = cDir & "\sipXcallLib"
+   if objFS.FileExists(exe) then
+      objFS.deleteFile(exe)
+   end if
+   errCode = runWithOutput("msdev sipXtapiTest.dsp /MAKE ""sipXtapiTest - Win32 " & releaseType & """" & doClean)
+end if
+quitIfError(errCode)
+
 'goto end
 '
 'cd sipXcallLib\examples\sipXezPhone 
@@ -334,6 +382,7 @@ quitIfError(errCode)
 
 Function runUnittests()
    WScript.echo("Function runUnittests running")
+   WScript.echo("Running unit tests is not implemented yet.")
 End Function
 
 Function callBatchfile(batchFile)
