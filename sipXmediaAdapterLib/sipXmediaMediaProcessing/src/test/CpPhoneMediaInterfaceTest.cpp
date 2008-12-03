@@ -204,9 +204,9 @@ class CpPhoneMediaInterfaceTest : public CppUnit::TestCase
 
        while (true)
        {
-         for(curMsecsDelayed = 0; 
-            notfDispatcher.isEmpty() && curMsecsDelayed < maxTotalDelayTime;
-            curMsecsDelayed += delayPeriod)
+         for(; 
+             notfDispatcher.isEmpty() && curMsecsDelayed < maxTotalDelayTime;
+             curMsecsDelayed += delayPeriod)
          {
             // Delay just a bit
             OsTask::delay(delayPeriod);
