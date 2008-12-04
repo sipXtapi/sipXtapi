@@ -127,6 +127,17 @@ public:
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 
+// The below define is to work around brokenness in VC6.  Details follow.
+// In MSVC6, MprRtpDispatcherActiveSsrcs::lookupRtpStream fails to compile
+// properly with MpRtpStream defined here as protected, as VC6 erroneously
+// specifies that it 'cannot access protected struct decalred in class 'MprRtpDispatcher'
+// despite the fact that MprRtpDispatcherActiveSrcs derives from 
+// this class, and defines lookupRtpStream as protected.
+// So, to work around this, if we're compiling with VC6, then make the
+// struct public (which exposes it more than we want)...
+#if defined(_MSC_VER) && (_MSC_VER <= 1200)
+public:
+#endif
    /**
    *  @brief Information, specific for an RTP stream.
    *
@@ -184,6 +195,11 @@ protected:
                                MpConnectionID connId,
                                MprnRtpStreamActivityMsg::StreamState state) const;
    };
+// The below define is to work around brokenness in VC6.  Details above the 
+// struct definition.
+#if defined(_MSC_VER) && (_MSC_VER <= 1200)
+protected:
+#endif
 
    OsMutex          mMutex;          ///< Mutex to synchronize access to this resource.
    UtlString        mResourceName;   ///< Name of the owner resource to be used
