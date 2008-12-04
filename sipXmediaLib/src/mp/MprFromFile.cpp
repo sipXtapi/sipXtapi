@@ -685,7 +685,7 @@ UtlBoolean MprFromFile::allocateAndResample(const char* audBuf,
    uint32_t inSamplesProcessed = 0;
    uint32_t outSamplesWritten = 0;
    OsStatus resampleStat = OS_SUCCESS;
-   MpResamplerBase *pResampler(MpResamplerBase::createResampler(1, inRate, outRate));
+   MpResamplerBase* pResampler = MpResamplerBase::createResampler(1, inRate, outRate);
    resampleStat = pResampler->resample(0, (const MpAudioSample*)audBuf, audBufSz/sizeof(MpAudioSample), 
                                        inSamplesProcessed, 
                                        (MpAudioSample*)outAudBuf, outAudBufSz/sizeof(MpAudioSample), 
