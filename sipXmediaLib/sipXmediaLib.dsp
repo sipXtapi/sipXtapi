@@ -411,6 +411,10 @@ SOURCE=.\src\mp\MprnProgressMsg.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\mp\MprnRtpStreamActivityMsg.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\mp\MprNull.cpp
 # End Source File
 # Begin Source File
@@ -1199,7 +1203,7 @@ SOURCE=.\include\mp\MprnProgressMsg.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\mp\MprnRtpStreamActivityMsg.cpp
+SOURCE=.\include\mp\MprnRtpStreamActivityMsg.h
 # End Source File
 # Begin Source File
 
