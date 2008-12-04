@@ -195,21 +195,21 @@ OsStatus MpDspUtils::mulLinear(const int16_t *pSrc, float valStart, float valEnd
 
 int MpDspUtils::maxAbs(const int16_t *pSrc, int dataLength)
 {
-   int startValue = pSrc[0];
+   int16_t startValue = pSrc[0];
    if (startValue < 0)
       startValue = -startValue;
 
    for (int i = 1; i < dataLength; i++)
    {
       startValue = maximum(startValue, 
-         ((int)pSrc[i] > 0) ? (int)pSrc[i] : -((int)pSrc[i]));
+         ((int16_t)pSrc[i] > 0) ? (int16_t)pSrc[i] : -((int16_t)pSrc[i]));
    }
    return startValue;
 }
 
 int32_t MpDspUtils::maximum(const int32_t *pSrc, int dataLength)
 {
-   int val = pSrc[0];
+   int32_t val = pSrc[0];
    for (int i = 0; i < dataLength; i++)
       if (pSrc[i] > val) 
          val = pSrc[i];
