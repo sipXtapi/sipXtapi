@@ -40,6 +40,7 @@ RSC=rc.exe
 # PROP Output_Dir "Release"
 # PROP Intermediate_Dir "Release"
 # PROP Target_Dir ""
+F90=df.exe
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /YX /FD /c
 # ADD CPP /nologo /MD /W3 /GR /GX /O1 /I "include" /I "..\sipXportLib\include" /I "..\sipXsdpLib\include" /I "..\sipXtackLib\include" /I "contrib\libgsm\inc" /I "contrib\libspeex\include" /D "HAVE_SPEEX" /D "HAVE_GSM" /D "NDEBUG" /D "_LIB" /D "WIN32" /D "_MBCS" /D "SIPXTAPI_STATIC" /FD /c
 # SUBTRACT CPP /YX
@@ -64,6 +65,7 @@ LIB32=link.exe -lib
 # PROP Output_Dir "Debug"
 # PROP Intermediate_Dir "Debug"
 # PROP Target_Dir ""
+F90=df.exe
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /YX /FD /GZ /c
 # ADD CPP /nologo /MDd /W3 /Gm /GR /GX /ZI /Od /I "include" /I "..\sipXportLib\include" /I "..\sipXsdpLib\include" /I "..\sipXtackLib\include" /I "contrib\libgsm\inc" /I "contrib\libspeex\include" /D "HAVE_SPEEX" /D "HAVE_GSM" /D "_DEBUG" /D "_LIB" /D "WIN32" /D "_MBCS" /D "SIPXTAPI_STATIC" /FD /GZ /c
 # SUBTRACT CPP /YX
@@ -85,14 +87,9 @@ LIB32=link.exe -lib
 # Begin Group "Source Files"
 
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
-# Begin Source File
+# Begin Group "mp Source Files"
 
-SOURCE=.\src\rtcp\BaseClass.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\src\rtcp\ByeReport.cpp
-# End Source File
+# PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
 SOURCE=.\src\mp\dft.cpp
@@ -116,10 +113,6 @@ SOURCE=.\src\mp\FilterBank.cpp
 # Begin Source File
 
 SOURCE=.\src\mp\HandsetFilterBank.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\src\rtcp\Message.cpp
 # End Source File
 # Begin Source File
 
@@ -311,6 +304,22 @@ SOURCE=.\src\mp\MpPlayerEvent.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\mp\MpPlcBase.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\mp\MpPlcSilence.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\mp\MpPlgStaffV1.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\mp\MpProgressResourceMsg.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\mp\MprAudioFrameBuffer.cpp
 # End Source File
 # Begin Source File
@@ -351,6 +360,10 @@ SOURCE=.\src\mp\MpResamplerSpeex.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\mp\MpResNotificationMsg.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\mp\MpResource.cpp
 # End Source File
 # Begin Source File
@@ -368,10 +381,6 @@ SOURCE=.\src\mp\MpResourceSortAlg.cpp
 # Begin Source File
 
 SOURCE=.\src\mp\MpResourceTopology.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\src\mp\MpResNotificationMsg.cpp
 # End Source File
 # Begin Source File
 
@@ -515,22 +524,6 @@ SOURCE=.\src\mp\MpStreamQueuePlayer.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\mp\MpPlcBase.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\src\mp\MpPlcSilence.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\src\mp\MpPlgStaffV1.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\src\mp\MpProgressResourceMsg.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\src\mp\MpTopologyGraph.cpp
 # End Source File
 # Begin Source File
@@ -543,59 +536,7 @@ SOURCE=.\src\mp\MpUdpBuf.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\rtcp\MsgQueue.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\src\mp\NetInTask.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\src\rtcp\NetworkChannel.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\src\rtcp\ReceiverReport.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\src\rtcp\RTCManager.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\src\rtcp\RTCPConnection.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\src\rtcp\RTCPHeader.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\src\rtcp\RTCPRender.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\src\rtcp\RTCPSession.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\src\rtcp\RTCPSource.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\src\rtcp\RTCPTimer.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\src\rtcp\RTPHeader.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\src\rtcp\SenderReport.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\src\rtcp\SourceDescription.cpp
 # End Source File
 # Begin Source File
 
@@ -646,7 +587,79 @@ SOURCE=.\src\mp\StreamRAWFormatDecoder.cpp
 SOURCE=.\src\mp\StreamWAVFormatDecoder.cpp
 # End Source File
 # End Group
+# Begin Group "rtcp Source Files"
+
+# PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
+# Begin Source File
+
+SOURCE=.\src\rtcp\BaseClass.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\rtcp\ByeReport.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\rtcp\Message.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\rtcp\MsgQueue.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\rtcp\NetworkChannel.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\rtcp\ReceiverReport.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\rtcp\RTCManager.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\rtcp\RTCPConnection.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\rtcp\RTCPHeader.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\rtcp\RTCPRender.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\rtcp\RTCPSession.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\rtcp\RTCPSource.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\rtcp\RTCPTimer.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\rtcp\RTPHeader.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\rtcp\SenderReport.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\rtcp\SourceDescription.cpp
+# End Source File
+# End Group
+# End Group
 # Begin Group "Header Files"
+
+# PROP Default_Filter "h;hpp;hxx;hm;inl"
+# Begin Group "rtcp Header Files"
 
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
 # Begin Source File
@@ -656,30 +669,6 @@ SOURCE=.\include\rtcp\BaseClass.h
 # Begin Source File
 
 SOURCE=.\include\rtcp\ByeReport.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\include\mp\dmaTask.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\include\mp\dsplib.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\include\mp\dtmflib.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\include\mp\FilterBank.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\include\mp\HandsetFilterBank.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\include\mp\HandsetFilterbankWindows.h
 # End Source File
 # Begin Source File
 
@@ -791,6 +780,98 @@ SOURCE=.\include\rtcp\Message.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\include\rtcp\MsgQueue.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\rtcp\NetworkChannel.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\rtcp\ReceiverReport.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\rtcp\RTCManager.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\rtcp\RtcpConfig.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\rtcp\RTCPConnection.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\rtcp\RTCPHeader.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\rtcp\RTCPRender.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\rtcp\RTCPSession.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\rtcp\RTCPSource.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\rtcp\RTCPTimer.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\rtcp\RTPHeader.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\rtcp\SenderReport.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\rtcp\SourceDescription.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\rtcp\TLink.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\rtcp\TLinkedList.h
+# End Source File
+# End Group
+# Begin Group "mp Header Files"
+
+# PROP Default_Filter "h;hpp;hxx;hm;inl"
+# Begin Source File
+
+SOURCE=.\include\mp\dmaTask.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\dsplib.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\dtmflib.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\FilterBank.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\HandsetFilterBank.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\HandsetFilterbankWindows.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\include\mp\MpAgcBase.h
 # End Source File
 # Begin Source File
@@ -899,6 +980,10 @@ SOURCE=.\include\mp\MpDecoderBase.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\include\mp\MpDecoderPayloadMap.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\include\mp\MpDefs.h
 # End Source File
 # Begin Source File
@@ -924,10 +1009,6 @@ SOURCE=.\include\mp\MpdSipxPcmu.h
 # Begin Source File
 
 SOURCE=.\include\mp\MpdSipxSpeex.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\include\mp\MpDecoderPayloadMap.h
 # End Source File
 # Begin Source File
 
@@ -1071,6 +1152,22 @@ SOURCE=.\include\mp\MpPlayerListener.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\include\mp\MpPlcBase.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MpPlcSilence.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MpPlgStaffV1.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MpProgressResourceMsg.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\include\mp\MpQueuePlayerListener.h
 # End Source File
 # Begin Source File
@@ -1131,6 +1228,10 @@ SOURCE=.\include\mp\MpResamplerSpeex.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\include\mp\MpResNotificationMsg.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\include\mp\MpResource.h
 # End Source File
 # Begin Source File
@@ -1144,10 +1245,6 @@ SOURCE=.\include\mp\MpResourceFactory.h
 # Begin Source File
 
 SOURCE=.\include\mp\MpResourceMsg.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\include\mp\MpResNotificationMsg.h
 # End Source File
 # Begin Source File
 
@@ -1355,22 +1452,6 @@ SOURCE=.\include\mp\MpToneResourceMsg.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\mp\MpPlcBase.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\include\mp\MpPlcSilence.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\include\mp\MpPlgStaffV1.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\include\mp\MpProgressResourceMsg.h
-# End Source File
-# Begin Source File
-
 SOURCE=.\include\mp\MpTopologyGraph.h
 # End Source File
 # Begin Source File
@@ -1383,67 +1464,11 @@ SOURCE=.\include\mp\MpUdpBuf.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\rtcp\MsgQueue.h
-# End Source File
-# Begin Source File
-
 SOURCE=.\include\mp\NetInTask.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\rtcp\NetworkChannel.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\include\rtcp\ReceiverReport.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\include\rtcp\RTCManager.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\include\rtcp\RtcpConfig.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\include\rtcp\RTCPConnection.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\include\rtcp\RTCPHeader.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\include\rtcp\RTCPRender.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\include\rtcp\RTCPSession.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\include\rtcp\RTCPSource.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\include\rtcp\RTCPTimer.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\include\rtcp\RTPHeader.h
-# End Source File
-# Begin Source File
-
 SOURCE=.\include\mp\RtpHeader.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\include\rtcp\SenderReport.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\include\rtcp\SourceDescription.h
 # End Source File
 # Begin Source File
 
@@ -1493,14 +1518,7 @@ SOURCE=.\include\mp\StreamRAWFormatDecoder.h
 
 SOURCE=.\include\mp\StreamWAVFormatDecoder.h
 # End Source File
-# Begin Source File
-
-SOURCE=.\include\rtcp\TLink.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\include\rtcp\TLinkedList.h
-# End Source File
+# End Group
 # End Group
 # End Target
 # End Project
