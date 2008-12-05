@@ -202,7 +202,7 @@ int MpDspUtils::maxAbs(const int16_t *pSrc, int dataLength)
    for (int i = 1; i < dataLength; i++)
    {
       startValue = maximum(startValue, 
-         ((int16_t)pSrc[i] > 0) ? (int16_t)pSrc[i] : -((int16_t)pSrc[i]));
+         (int16_t)( (pSrc[i] > 0) ? pSrc[i] : -(pSrc[i]) ));
    }
    return startValue;
 }
