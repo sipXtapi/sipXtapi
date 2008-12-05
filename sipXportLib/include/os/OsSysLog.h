@@ -20,6 +20,7 @@
 #include "os/OsDefs.h"
 #include "os/OsStatus.h"
 #include "os/OsTime.h"
+#include "os/OsAtomics.h"
 
 // DEFINES
 #define SYSLOG_NUM_PRIORITIES    8  // Number of OsSysLogPriority entries
@@ -443,9 +444,9 @@ public:
    static OsTimer* getTimer();
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
-   static OsSysLogTask* spOsSysLogTask;
+   static OsAtomicLightPtr<OsSysLogTask> spOsSysLogTask;
 
-   static unsigned long sEventCount;
+   static OsAtomicULong sEventCount;
    static OsSysLogPriority spPriorities[FAC_MAX_FACILITY] ;
    static OsSysLogPriority sLoggingPriority;
    static UtlString sProcessId;

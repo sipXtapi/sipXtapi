@@ -20,6 +20,7 @@
 // APPLICATION INCLUDES
 #include "os/OsDefs.h"
 #include "utl/UtlContainable.h"
+#include "os/OsAtomics.h"
 
 // DEFINES
 // MACROS
@@ -152,7 +153,11 @@ private:
    unsigned char mMsgSubType;
    UtlBoolean     mSentFromISR;
    UtlBoolean     mReusable;
-   UtlBoolean     mInUse;
+   OsAtomicLightBool mInUse;       ///< Access to mInUse should be synchronized,
+                                ///< because it can be accessed from different
+                                ///< threads - e.g. one thread can call setInUse()
+                                ///< freeing message, while other will call
+                                ///< isMsgInUse() seeking for free OsMsg.
 
 };
 

@@ -44,8 +44,8 @@ extern char* strdup(const char*) ;
 // EXTERNAL VARIABLES
 // CONSTANTS
 // STATIC VARIABLE INITIALIZATIONS
-OsSysLogTask* OsSysLog::spOsSysLogTask = NULL;
-unsigned long OsSysLog::sEventCount = 0;
+OsAtomicLightPtr<OsSysLogTask> OsSysLog::spOsSysLogTask(NULL);
+OsAtomicULong OsSysLog::sEventCount(0L);
 UtlString OsSysLog::sProcessId = "" ;
 UtlString OsSysLog::sHostname = "" ;
 OsSysLogPriority OsSysLog::spPriorities[FAC_MAX_FACILITY] ;
@@ -119,7 +119,8 @@ OsStatus OsSysLog::shutdown()
      
 OsTimer* OsSysLog::getTimer()
 {
-    return spOsSysLogTask->getTimer();
+    OsSysLogTask *pOsSysLogTask = spOsSysLogTask;
+    return pOsSysLogTask->getTimer();
 }
 
 // Set the output file target
@@ -127,21 +128,22 @@ OsStatus OsSysLog::setOutputFile(const int minFlushPeriod,
                                  const char* logfile)
 {
    OsStatus rc = OS_SUCCESS ;
+   OsSysLogTask *pOsSysLogTask = spOsSysLogTask;
 
-   if (spOsSysLogTask != NULL)
+   if (pOsSysLogTask != NULL)
    {
       OsSysLogMsg msgFlush(OsSysLogMsg::SET_FLUSH_PERIOD, (void*) minFlushPeriod) ;
-      spOsSysLogTask->postMessage(msgFlush) ;
+      pOsSysLogTask->postMessage(msgFlush) ;
 
 	  if (logfile)
 	  {
 	     OsSysLogMsg msgSetFile(OsSysLogMsg::SET_FILE, strdup(logfile)) ;
-         spOsSysLogTask->postMessage(msgSetFile) ;
+         pOsSysLogTask->postMessage(msgSetFile) ;
 	  }
 	  else
 	  {
 	     OsSysLogMsg msgSetFile(OsSysLogMsg::SET_FILE, NULL) ;
-         spOsSysLogTask->postMessage(msgSetFile) ;
+         pOsSysLogTask->postMessage(msgSetFile) ;
       }
    }
    else
@@ -154,11 +156,12 @@ OsStatus OsSysLog::setOutputFile(const int minFlushPeriod,
 OsStatus OsSysLog::setCallbackFunction(OsSysLogCallback pCallback)
 {
    OsStatus rc = OS_SUCCESS ;
+   OsSysLogTask *pOsSysLogTask = spOsSysLogTask;
 
-   if (spOsSysLogTask != NULL)
+   if (pOsSysLogTask != NULL)
    {
       OsSysLogMsg msgSetCallback(OsSysLogMsg::SET_CALLBACK, (void*) pCallback);
-      spOsSysLogTask->postMessage(msgSetCallback);
+      pOsSysLogTask->postMessage(msgSetCallback);
    }
    else
    {
@@ -173,11 +176,12 @@ OsStatus OsSysLog::setCallbackFunction(OsSysLogCallback pCallback)
 OsStatus OsSysLog::addOutputSocket(const char* remoteHost)
 {
    OsStatus rc = OS_SUCCESS ;
+   OsSysLogTask *pOsSysLogTask = spOsSysLogTask;
 
-   if (spOsSysLogTask != NULL)
+   if (pOsSysLogTask != NULL)
    {
       OsSysLogMsg msg(OsSysLogMsg::ADD_SOCKET, (void*) strdup(remoteHost)) ;
-      spOsSysLogTask->postMessage(msg) ;
+      pOsSysLogTask->postMessage(msg) ;
    }
    else
       rc = OS_UNSPECIFIED ;
@@ -189,12 +193,13 @@ OsStatus OsSysLog::addOutputSocket(const char* remoteHost)
 OsStatus OsSysLog::enableConsoleOutput(const UtlBoolean enable)
 {
    OsStatus rc = OS_SUCCESS ;
+   OsSysLogTask *pOsSysLogTask = spOsSysLogTask;
 
-   if (spOsSysLogTask != NULL)
+   if (pOsSysLogTask != NULL)
    {      
       OsSysLogMsg msg(enable ? OsSysLogMsg::ENABLE_CONSOLE : 
             OsSysLogMsg::DISABLE_CONSOLE, NULL) ;
-      spOsSysLogTask->postMessage(msg) ;
+      pOsSysLogTask->postMessage(msg) ;
    }
    else
       rc = OS_UNSPECIFIED ;
@@ -215,9 +220,10 @@ OsStatus OsSysLog::setLoggingPriority(const OsSysLogPriority priority)
    bPrioritiesInitialized = TRUE;
 
    sLoggingPriority = priority;
-   if (spOsSysLogTask != NULL)
+   OsSysLogTask *pOsSysLogTask = spOsSysLogTask;
+   if (pOsSysLogTask != NULL)
    {
-      spOsSysLogTask->syslog(FAC_LOG, PRI_INFO, "logging priority changed to %s (%d)", OsSysLog::sPriorityNames[priority], priority) ;
+      pOsSysLogTask->syslog(FAC_LOG, PRI_INFO, "logging priority changed to %s (%d)", OsSysLog::sPriorityNames[priority], priority) ;
    }
    
    return rc ;
@@ -233,9 +239,10 @@ OsStatus OsSysLog::setLoggingPriorityForFacility(const OsSysLogFacility facility
    {
       spPriorities[facility] = priority ;
 
-      if (spOsSysLogTask != NULL)
+      OsSysLogTask *pOsSysLogTask = spOsSysLogTask;
+      if (pOsSysLogTask != NULL)
       {
-         spOsSysLogTask->syslog(FAC_LOG, PRI_INFO, 
+         pOsSysLogTask->syslog(FAC_LOG, PRI_INFO, 
                "priority changed to %s for facility %s", 
                OsSysLog::sPriorityNames[priority],
                OsSysLog::sFacilityNames[facility]);
@@ -387,8 +394,9 @@ OsStatus OsSysLog::vadd(const char*            taskName,
              char* szPtr = strdup(logEntry.data()) ;
              OsSysLogMsg msg(OsSysLogMsg::LOG, szPtr) ;
              OsTime timeout(1000) ;
-             if ( spOsSysLogTask != NULL &&
-                  spOsSysLogTask->postMessage(msg, timeout) != OS_SUCCESS)
+             OsSysLogTask *pOsSysLogTask = spOsSysLogTask;
+             if ( pOsSysLogTask != NULL &&
+                  pOsSysLogTask->postMessage(msg, timeout) != OS_SUCCESS)
              {
                  printf("OsSysLog jamed: %s\n", szPtr) ;
                  free(szPtr) ;
@@ -407,9 +415,10 @@ OsStatus OsSysLog::clearInMemoryLog()
 {
    OsStatus rc = OS_SUCCESS ;
 
-   if (spOsSysLogTask != NULL)
+   OsSysLogTask *pOsSysLogTask = spOsSysLogTask;
+   if (pOsSysLogTask != NULL)
    {      
-      spOsSysLogTask->clear() ;
+      pOsSysLogTask->clear() ;
    }
    else
       rc = OS_UNSPECIFIED ;
@@ -422,9 +431,10 @@ OsStatus OsSysLog::flush(const OsTime& rTimeout)
 {
    OsStatus rc = OS_UNSPECIFIED ;
 
-   if (spOsSysLogTask != NULL)
+   OsSysLogTask *pOsSysLogTask = spOsSysLogTask;
+   if (pOsSysLogTask != NULL)
    {      
-      rc = spOsSysLogTask->flush(rTimeout) ;
+      rc = pOsSysLogTask->flush(rTimeout) ;
    }
    
    return rc ;
@@ -485,9 +495,10 @@ OsStatus OsSysLog::getMaxInMemoryLogEntries(int& maxEntries)
 {
    OsStatus rc = OS_SUCCESS ;
 
-   if (spOsSysLogTask != NULL)
+   OsSysLogTask *pOsSysLogTask = spOsSysLogTask;
+   if (pOsSysLogTask != NULL)
    {      
-      spOsSysLogTask->getMaxEntries(maxEntries);
+      pOsSysLogTask->getMaxEntries(maxEntries);
    }
    else
       rc = OS_UNSPECIFIED ;
@@ -500,10 +511,11 @@ OsStatus OsSysLog::tailMemoryLog(const int numEntries)
 {
    OsStatus rc = OS_SUCCESS ;
 
-   if (spOsSysLogTask != NULL)
+   OsSysLogTask *pOsSysLogTask = spOsSysLogTask;
+   if (pOsSysLogTask != NULL)
    {      
       OsSysLogMsg msg(OsSysLogMsg::TAIL, (void*) numEntries) ;
-      spOsSysLogTask->postMessage(msg) ;
+      pOsSysLogTask->postMessage(msg) ;
    }
    else
       rc = OS_UNSPECIFIED ;
@@ -516,10 +528,11 @@ OsStatus OsSysLog::headMemoryLog(const int numEntries)
 {
    OsStatus rc = OS_SUCCESS ;
 
-   if (spOsSysLogTask != NULL)
+   OsSysLogTask *pOsSysLogTask = spOsSysLogTask;
+   if (pOsSysLogTask != NULL)
    {      
       OsSysLogMsg msg(OsSysLogMsg::HEAD, (void*) numEntries) ;
-      spOsSysLogTask->postMessage(msg) ;
+      pOsSysLogTask->postMessage(msg) ;
    }
    else
       rc = OS_UNSPECIFIED ;
@@ -534,9 +547,10 @@ OsStatus OsSysLog::getLogEntries(  const int maxEntries,
 {
    OsStatus rc = OS_SUCCESS ;
 
-   if (spOsSysLogTask != NULL)
+   OsSysLogTask *pOsSysLogTask = spOsSysLogTask;
+   if (pOsSysLogTask != NULL)
    {
-      spOsSysLogTask->getLogEntries(maxEntries, entries, actualEntries);
+      pOsSysLogTask->getLogEntries(maxEntries, entries, actualEntries);
    }
    else
       rc = OS_UNSPECIFIED ;

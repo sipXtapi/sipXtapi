@@ -20,6 +20,7 @@
 
 // APPLICATION INCLUDES
 #include <os/OsConnectionSocket.h>
+#include <os/OsAtomics.h>
 
 // DEFINES
 // MACROS
@@ -102,7 +103,7 @@ public:
 protected:
    virtual OsConnectionSocket* createConnectionSocket(UtlString localIp, int descriptor);
 
-   int socketDescriptor;
+   OsAtomicLightInt socketDescriptor;
    int localHostPort;
    UtlString mLocalIp;
 

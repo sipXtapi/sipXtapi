@@ -36,7 +36,7 @@ const int OsTaskBase::DEF_PRIO      = 128;           // default task priority
 const int OsTaskBase::DEF_STACKSIZE = 16384;         // default task stack size
 const UtlString OsTaskBase::TASK_PREFIX("Task.");     // Task name db prefix
 const UtlString OsTaskBase::TASKID_PREFIX("TaskID."); // TaskId name db prefix
-int OsTaskBase::taskCount = 0;
+OsAtomicInt OsTaskBase::taskCount(0);
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
