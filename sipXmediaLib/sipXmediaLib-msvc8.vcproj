@@ -1488,6 +1488,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\src\mp\MpSpeakerSelectBase.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\src\mp\MpStaticCodecInit.cpp"
 					>
 				</File>
@@ -2186,6 +2190,10 @@
 				</File>
 				<File
 					RelativePath=".\include\mp\MpSineWaveGeneratorDeviceDriver.h"
+					>
+				</File>
+				<File
+					RelativePath=".\include\mp\MpSpeakerSelectBase.h"
 					>
 				</File>
 				<File
