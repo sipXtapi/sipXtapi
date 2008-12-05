@@ -54,7 +54,7 @@ void UtlCryptoData::resize(int newSize)
 UtlString UtlCryptoData::dumpHex() const
 {
    UtlString str;
-   for (unsigned i=0; i <size(); i++)
+   for (int i=0; i <size(); i++)
       str.appendFormat("%02x ", (unsigned)((*this)[i]));
 
    return str;
