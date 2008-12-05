@@ -104,29 +104,30 @@ public:
       pCodecFactory->getCodecInfoArray(codecInfoNum, pCodecInfo);
       CPPUNIT_ASSERT(codecInfoNum>0);
 
-      for (unsigned i=0; i<codecInfoNum; i++)
+      unsigned j;
+      for (j=0; j<codecInfoNum; j++)
       {
          const char **pCodecFmtps;
          unsigned     codecFmtpsNum;
-         codecFmtpsNum = pCodecInfo[i]->fmtpsNum;
-         pCodecFmtps = pCodecInfo[i]->fmtps;
+         codecFmtpsNum = pCodecInfo[j]->fmtpsNum;
+         pCodecFmtps = pCodecInfo[j]->fmtps;
          if (codecFmtpsNum == 0)
          {
             testOneCodecPreformance(pCodecFactory,
-                                    pCodecInfo[i]->mimeSubtype,
+                                    pCodecInfo[j]->mimeSubtype,
                                     "",
-                                    pCodecInfo[i]->sampleRate,
-                                    pCodecInfo[i]->numChannels);
+                                    pCodecInfo[j]->sampleRate,
+                                    pCodecInfo[j]->numChannels);
          } 
          else
          {
             for (unsigned fmtpNum=0; fmtpNum<codecFmtpsNum; fmtpNum++)
             {
                testOneCodecPreformance(pCodecFactory,
-                                       pCodecInfo[i]->mimeSubtype,
+                                       pCodecInfo[j]->mimeSubtype,
                                        pCodecFmtps[fmtpNum],
-                                       pCodecInfo[i]->sampleRate,
-                                       pCodecInfo[i]->numChannels);
+                                       pCodecInfo[j]->sampleRate,
+                                       pCodecInfo[j]->numChannels);
             }
          }
       }

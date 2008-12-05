@@ -13,8 +13,16 @@
 
 // SYSTEM INCLUDES
 #include <assert.h>
-// Under Visual Studio we have to define _USE_MATH_DEFINES to get M_PI define.
-#define _USE_MATH_DEFINES
+
+#if defined(_MSC_VER) && (_MSC_VER <= 1200)
+   // Under VC6, we need to define M_PI ourselves.
+#  define M_PI 3.14159265358979323846264338327950288419716939937510
+#else
+   // Under Visual Studio (above VC6) we have to define _USE_MATH_DEFINES 
+   // to get M_PI define.
+#  define _USE_MATH_DEFINES
+#endif
+
 #include <math.h>
 
 // APPLICATION INCLUDES
@@ -252,7 +260,7 @@ UtlBoolean MpTestResource::doProcessFrame(MpBufPtr inBufs[],
                MpAudioSample* samples = pBuf->getSamplesWritePtr();
                int samplesNum = pBuf->getSamplesNumber();
                assert(samples);
-               for(sampleIndex = 0; sampleIndex < samplesNum; sampleIndex++)
+               for(sampleIndex = 0; sampleIndex < (unsigned)samplesNum; sampleIndex++)
                {
                   samples[sampleIndex] =   mpSignalAmplitude[i]
                                          * (samplesPerFrame-sampleIndex)

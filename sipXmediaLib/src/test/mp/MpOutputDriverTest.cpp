@@ -282,7 +282,8 @@ public:
 
          // Create buffers for capturing jitter data
          OsTime* jitterTimes[MEASURE_JITTER_TEST_RUNS_NUMBER];
-         for(int i = 0; i< MEASURE_JITTER_TEST_RUNS_NUMBER; i++)
+         int i;
+         for(i = 0; i< MEASURE_JITTER_TEST_RUNS_NUMBER; i++)
             jitterTimes[i] = new OsTime[numFrames];
 
          // Collect a number of runs of test data defined at the top of the test file.
@@ -353,7 +354,7 @@ public:
          }
 
          // Clean up - delete each of the second arrays of the jitterTimes multidimensional array.
-         for(int i = 0; i< MEASURE_JITTER_TEST_RUNS_NUMBER; i++)
+         for(i = 0; i< MEASURE_JITTER_TEST_RUNS_NUMBER; i++)
             delete[] jitterTimes[i];
 
          delete[] sampleData;
