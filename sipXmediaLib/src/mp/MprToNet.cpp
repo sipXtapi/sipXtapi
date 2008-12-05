@@ -134,7 +134,7 @@ OsStatus MprToNet::resetSockets(void)
 
 void MprToNet::setSSRC(int iSSRC)
 {
-   mSSRC = htonl(iSSRC);
+   mSSRC = iSSRC;
    mSeqNum = rand_timer32() | 0xfc00;
    mTimestampDelta = rand_timer32();
 }
