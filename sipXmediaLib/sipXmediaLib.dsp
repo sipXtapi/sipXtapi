@@ -256,7 +256,15 @@ SOURCE=.\src\mp\MpInputDeviceManager.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\mp\MpJbeFixed.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\mp\MpJitterBuffer.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\mp\MpJitterBufferEstimation.cpp
 # End Source File
 # Begin Source File
 
@@ -321,6 +329,10 @@ SOURCE=.\src\mp\MpProgressResourceMsg.cpp
 # Begin Source File
 
 SOURCE=.\src\mp\MprAudioFrameBuffer.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\mp\MpRawAudioBuffer.cpp
 # End Source File
 # Begin Source File
 
@@ -500,6 +512,10 @@ SOURCE=.\src\mp\MpSineWaveGeneratorDeviceDriver.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\mp\MpSpeakerSelectBase.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\mp\MpStaticCodecInit.cpp
 # End Source File
 # Begin Source File
@@ -533,6 +549,14 @@ SOURCE=.\src\mp\MpTypes.cpp
 # Begin Source File
 
 SOURCE=.\src\mp\MpUdpBuf.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\mp\MpVadBase.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\mp\MpVadSimple.cpp
 # End Source File
 # Begin Source File
 
@@ -1100,7 +1124,15 @@ SOURCE=.\include\mp\MpIntResourceMsg.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\include\mp\MpJbeFixed.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\include\mp\MpJitterBuffer.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MpJitterBufferEstimation.h
 # End Source File
 # Begin Source File
 
@@ -1188,6 +1220,10 @@ SOURCE=.\include\mp\MprBridgeConstructor.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\include\mp\MprBridgeSetGainsMsg.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\include\mp\MprBufferRecorder.h
 # End Source File
 # Begin Source File
@@ -1197,6 +1233,14 @@ SOURCE=.\include\mp\MprBufferRecorderConstructor.h
 # Begin Source File
 
 SOURCE=.\include\mp\MprDecode.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MprDecodeConstructor.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MprDecodeSelectCodecsMsg.h
 # End Source File
 # Begin Source File
 
@@ -1217,6 +1261,10 @@ SOURCE=.\include\mp\MprEchoSuppress.h
 # Begin Source File
 
 SOURCE=.\include\mp\MprEncode.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MprEncodeConstructor.h
 # End Source File
 # Begin Source File
 
@@ -1344,6 +1392,10 @@ SOURCE=.\include\mp\MprRtpOutputConnectionConstructor.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\include\mp\MprRtpStartReceiveMsg.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\include\mp\MprRtpStartSendMsg.h
 # End Source File
 # Begin Source File
@@ -1420,6 +1472,10 @@ SOURCE=.\include\mp\MpSineWaveGeneratorDeviceDriver.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\include\mp\MpSpeakerSelectBase.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\include\mp\MpStaticCodecInit.h
 # End Source File
 # Begin Source File
@@ -1461,6 +1517,14 @@ SOURCE=.\include\mp\MpTypes.h
 # Begin Source File
 
 SOURCE=.\include\mp\MpUdpBuf.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MpVadBase.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\mp\MpVadSimple.h
 # End Source File
 # Begin Source File
 
