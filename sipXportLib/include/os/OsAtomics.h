@@ -20,7 +20,7 @@ typedef atomic_int OsAtomicInt;
 typedef atomic_uint OsAtomicUInt;
 typedef atomic_long OsAtomicLong;
 typedef atomic_ulong OsAtomicULong;
-typedef atomic_address OsAtomicPtr;
+typedef atomic_address OsAtomicVoidPtr;
 
 #else // HAVE_C_ATOMICS ][
 
@@ -157,7 +157,7 @@ private:
    OsAtomicBool& operator=(const OsAtomicBool&);
 };
 
-class OsAtomicPtr
+class OsAtomicVoidPtr
 {
 public:
    bool is_lock_free() const
@@ -185,9 +185,9 @@ public:
    void* fetch_sub(ptrdiff_t val, memory_order = memory_order_seq_cst)
    {OsLock lock(mMutex); void* temp = mVal; mVal = (int8_t*)mVal - val; return temp;}
 
-   OsAtomicPtr() : mMutex(0) {};
+   OsAtomicVoidPtr() : mMutex(0) {};
 
-   explicit OsAtomicPtr(void* val) : mVal(val), mMutex(0) {};
+   explicit OsAtomicVoidPtr(void* val) : mVal(val), mMutex(0) {};
 
    void* operator=(void* val)
    {store(val); return val;}
@@ -203,60 +203,60 @@ private:
    mutable OsMutex mMutex;
 
    // Prohibit use of copy constructor and operator=
-   OsAtomicPtr(const OsAtomicPtr&);
-   OsAtomicPtr& operator=(const OsAtomicPtr&);
+   OsAtomicVoidPtr(const OsAtomicVoidPtr&);
+   OsAtomicVoidPtr& operator=(const OsAtomicVoidPtr&);
 };
 
 template<class T>
-class OsAtomic<T*> : public OsAtomicPtr
+class OsAtomicPtr : public OsAtomicVoidPtr
 {
 public:
    bool is_lock_free() const
    {return false;}
 
    void store(T* val, memory_order mo = memory_order_seq_cst)
-   {OsAtomicPtr::store((void*)val, mo);}
+   {OsAtomicVoidPtr::store((void*)val, mo);}
 
    T* load(memory_order mo = memory_order_seq_cst) const
-   {return (T*)OsAtomicPtr::load(mo);}
+   {return (T*)OsAtomicVoidPtr::load(mo);}
 
    operator T*() const
-   {return (T*)OsAtomicPtr::operator void*();}
+   {return (T*)OsAtomicVoidPtr::operator void*();}
 
 //   T* exchange(T* val, memory_order mo = memory_order_seq_cst);
 //   bool compare_exchange(T* &, T* , memory_order mo, memory_order mo);
 //   bool compare_exchange(T* &, T* , memory_order mo = memory_order_seq_cst);
 
    void fence(memory_order mo) const
-   {OsAtomicPtr::fence(mo)};
+   {OsAtomicVoidPtr::fence(mo);}
 
    T* fetch_add(ptrdiff_t val, memory_order mo = memory_order_seq_cst)
-   {return (T*)OsAtomicPtr::fetch_add(val, mo);}
+   {return (T*)OsAtomicVoidPtr::fetch_add(val, mo);}
 
    T* fetch_sub(ptrdiff_t val, memory_order mo = memory_order_seq_cst)
-   {return (T*)OsAtomicPtr::fetch_sub(val, mo);}
+   {return (T*)OsAtomicVoidPtr::fetch_sub(val, mo);}
 
-   OsAtomic<T*>() {};
+   OsAtomicPtr() {};
 
-   explicit OsAtomic<T*>(T* val) : OsAtomicPtr((void*)val) {};
+   explicit OsAtomicPtr(T* val) : OsAtomicVoidPtr((void*)val) {};
 
    T* operator=(T* val)
-   {return (T*)OsAtomicPtr::operator=((void*)val);}
+   {return (T*)OsAtomicVoidPtr::operator=((void*)val);}
 
    T* operator+=(ptrdiff_t val)
-   {return (T*)OsAtomicPtr::operator+=(val);}
+   {return (T*)OsAtomicVoidPtr::operator+=(val);}
 
    T* operator-=(ptrdiff_t val)
-   {return (T*)OsAtomicPtr::operator-=(val);}
+   {return (T*)OsAtomicVoidPtr::operator-=(val);}
 
 private:
    // Prohibit use of copy constructor and operator=
-   OsAtomic<T*>(const OsAtomic<T*>&);
-   OsAtomic<T*>& operator=(const OsAtomic<T*>&);
+   OsAtomicPtr(const OsAtomicPtr&);
+   OsAtomicPtr& operator=(const OsAtomicPtr&);
 };
 
 
-#if defined(_M_IX86) || defined(_M_X64) // [
+#if defined(_M_IX86) || defined(_M_X64) || defined(__i386__) || defined(__amd64__) // [
 template<class T>
 class OsAtomicLight
 {
@@ -264,10 +264,10 @@ public:
    bool is_lock_free() const
    {return true;}
 
-   void store(T val, memory_order  = memory_order_seq_cst)
+   void store(T val, memory_order  = memory_order_relaxed)
    {mVal = val;}
 
-   T load(memory_order = memory_order_seq_cst) const
+   T load(memory_order = memory_order_relaxed) const
    {return mVal;}
 
    operator T() const
@@ -291,9 +291,50 @@ private:
    OsAtomicLight<T>& operator=(const OsAtomicLight<T>&);
 };
 
+
+template<class T>
+class OsAtomicLightPtr
+{
+public:
+   bool is_lock_free() const
+   {return true;}
+
+   void store(T* val, memory_order mo = memory_order_relaxed)
+   {mVal = val;}
+
+   const T* load(memory_order mo = memory_order_relaxed) const
+   {return mVal;}
+
+   T* load(memory_order mo = memory_order_relaxed)
+   {return mVal;}
+
+   operator const T*() const
+   {return load();}
+
+   operator T*()
+   {return load();}
+
+   void fence(memory_order mo) const
+   {}
+
+   OsAtomicLightPtr() {};
+
+   explicit OsAtomicLightPtr(T* val) : mVal(val) {};
+
+   T* operator=(T* val)
+   {store(val); return val;}
+
+private:
+   T * volatile mVal;
+
+   // Prohibit use of copy constructor and operator=
+   OsAtomicLightPtr(const OsAtomicLightPtr&);
+   OsAtomicLightPtr& operator=(const OsAtomicLightPtr&);
+};
+
 #else // X86/X86_64 ][
 
-typedef OsAtomic OsAtomicLight;
+#define OsAtomicLight OsAtomic
 
 #endif // !X86/X86_64
 
