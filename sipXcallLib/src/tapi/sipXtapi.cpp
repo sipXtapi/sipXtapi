@@ -1183,10 +1183,9 @@ SIPXTAPI_API SIPX_RESULT sipxCallCreate(const SIPX_INST hInst,
         sipxCallReleaseLock(pData, SIPX_LOCK_READ, stackLogger);
 
         // Notify Listeners
-        SipSession session ;
         sipxFireCallEvent(pInst->pCallManager, 
                 callId.data(), 
-                &session, 
+                NULL,
                 NULL, 
                 CALLSTATE_DIALTONE, 
                 CALLSTATE_CAUSE_NORMAL) ;
@@ -1412,10 +1411,9 @@ SIPXTAPI_API SIPX_RESULT sipxCallConnect(SIPX_CALL hCall,
             }
             else
             {
-                SipSession session ;
                 sipxFireCallEvent(pInst->pCallManager, 
                         callId.data(), 
-                        &session, 
+                        NULL,
                         szAddress, 
                         CALLSTATE_DISCONNECTED, 
                         CALLSTATE_CAUSE_BAD_ADDRESS) ;   
@@ -3591,22 +3589,25 @@ SIPXTAPI_API SIPX_RESULT sipxConferenceAdd(const SIPX_CONF hConf,
                     UtlString sessionId ;
                     pData->pInst->pCallManager->getNewSessionId(&sessionId) ;
                     pCallData->sessionCallId = new UtlString(sessionId);
+
+                    // Save some data for later use
+                    SIPX_INSTANCE_DATA* pInst = pCallData->pInst;
+                    UtlString lineId = *pCallData->lineURI;
                     sipxCallReleaseLock(pCallData, SIPX_LOCK_WRITE, stackLogger) ;
 
-
-                    // Notify Listeners of new call
-                    SipSession session ;
-                    UtlString callId ;
-                    SIPX_INSTANCE_DATA* pInst ;
-                    UtlString lineId;
-                    sipxCallGetCommonData(hNewCall, &pInst, &callId, NULL, &lineId) ;
 
                     // set outbound line id
                     pInst->pCallManager->setOutboundLineForCall(legCallId.data(), lineId.data()) ;
 
+                    // THIS IS A HACK!
+                    // We should pass sessionId directly to sipxFireCallEvent()
+                    // instead of faking SipSession.
+                    SipSession session;
+                    session.setCallId(sessionId);
+                    // Notify Listeners of new call
                     sipxFireCallEvent(pInst->pCallManager, 
-                            sessionId.data(), 
-                            &session, 
+                            legCallId.data(), 
+                            &session,
                             NULL, 
                             CALLSTATE_DIALTONE, 
                             CALLSTATE_CAUSE_CONFERENCE) ;   
@@ -3650,8 +3651,8 @@ SIPXTAPI_API SIPX_RESULT sipxConferenceAdd(const SIPX_CONF hConf,
                     else
                     {
                         sipxFireCallEvent(pData->pInst->pCallManager, 
-                                sessionId.data(),
-                                &session, 
+                                legCallId.data(),
+                                &session,
                                 szAddress, 
                                 CALLSTATE_DISCONNECTED, 
                                 CALLSTATE_CAUSE_BAD_ADDRESS) ;
@@ -3677,10 +3678,9 @@ SIPXTAPI_API SIPX_RESULT sipxConferenceAdd(const SIPX_CONF hConf,
                  * Use existing call id to find call
                  */
                 SIPX_INSTANCE_DATA* pInst ;
-                UtlString callId ;
                 UtlString dummy ;
 
-                if (sipxCallGetCommonData(pData->hCalls[0], &pInst, &callId, NULL, &dummy))
+                if (sipxCallGetCommonData(pData->hCalls[0], &pInst, NULL, NULL, &dummy))
                 {
                     SIPX_CALL_DATA* pNewCallData = new SIPX_CALL_DATA ;
                     SIPX_CONTACT_ADDRESS* pContactAddress = pInst->pSipUserAgent->getContactDb().find(contactId) ;
@@ -3699,11 +3699,12 @@ SIPXTAPI_API SIPX_RESULT sipxConferenceAdd(const SIPX_CONF hConf,
                     memset((void*) pNewCallData, 0, sizeof(SIPX_CALL_DATA));
 
                     UtlString sessionId ;
+                    UtlString callId = pData->strCallId;
                     pData->pInst->pCallManager->getNewSessionId(&sessionId) ;
 
                     pNewCallData->pInst = pInst ;
                     pNewCallData->hConf = hConf ;
-                    pNewCallData->callId = new UtlString(pData->strCallId);
+                    pNewCallData->callId = new UtlString(callId);
                     pNewCallData->sessionCallId = new UtlString(sessionId);
                     pNewCallData->remoteAddress = NULL ;
                     pNewCallData->hLine = hLine ;
@@ -3724,11 +3725,15 @@ SIPXTAPI_API SIPX_RESULT sipxConferenceAdd(const SIPX_CONF hConf,
                     pInst->nCalls++ ;
                     pInst->pLock->release() ;
 
-                    // Notify Listeners
-                    SipSession session ;
+                    // THIS IS A HACK!
+                    // We should pass sessionId directly to sipxFireCallEvent()
+                    // instead of faking SipSession.
+                    SipSession session;
+                    session.setCallId(sessionId);
+                    // Notify Listeners of new call
                     sipxFireCallEvent(pData->pInst->pCallManager, 
-                            sessionId.data(), 
-                            &session, 
+                            callId.data(), 
+                            &session,
                             NULL, 
                             CALLSTATE_DIALTONE, 
                             CALLSTATE_CAUSE_CONFERENCE) ;
@@ -3763,8 +3768,8 @@ SIPXTAPI_API SIPX_RESULT sipxConferenceAdd(const SIPX_CONF hConf,
                     else
                     {
                         sipxFireCallEvent(pData->pInst->pCallManager, 
-                                sessionId.data(), 
-                                &session, 
+                                callId.data(), 
+                                &session,
                                 szAddress, 
                                 CALLSTATE_DISCONNECTED, 
                                 CALLSTATE_CAUSE_BAD_ADDRESS) ;

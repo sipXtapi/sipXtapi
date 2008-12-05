@@ -520,7 +520,7 @@ void Connection::fireSipXCallEvent(SIPX_CALLSTATE_EVENT eventCode, SIPX_CALLSTAT
         m_eLastMajor = eventCode;
         m_eLastMinor = causeCode;
 
-        getCallId(&callId) ;
+        mpCall->getCallId(callId);
         getRemoteAddress(&remoteAddress);
         getSession(session) ;
 

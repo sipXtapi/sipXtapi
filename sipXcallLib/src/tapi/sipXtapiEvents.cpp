@@ -1125,16 +1125,34 @@ void sipxFireCallEvent(const void* pSrc,
      
     SIPX_CALL hCall = SIPX_CALL_NULL;
 
+    UtlString sessionCallId;
+
     SIPX_CALL_DATA* pCallData = NULL;
     SIPX_LINE hLine = SIPX_LINE_NULL ;
     UtlVoidPtr* ptr = NULL;
 
     SIPX_INSTANCE_DATA* pInst ;
-    UtlString callId ;
     UtlString remoteAddress ;
     UtlString lineId ;
     UtlString contactAddress ;
     SIPX_CALL hAssociatedCall = SIPX_CALL_NULL ;
+
+    SIPX_CONF _hConf = 0;
+
+    assert(szCallId[0] == 'c');
+    if (pSession)
+    {
+       pSession->getCallId(sessionCallId);
+       if (event == CALLSTATE_DIALTONE && cause != CALLSTATE_CAUSE_CONFERENCE)
+       {
+          assert(sessionCallId.isNull());
+       }
+       else
+       {
+          assert(!sessionCallId.isNull());
+          assert(sessionCallId[0] == 's');
+       }
+    }
 
     // If this is an NEW inbound call (first we are hearing of it), then create
     // a call handle/data structure for it.
@@ -1144,23 +1162,28 @@ void sipxFireCallEvent(const void* pSrc,
         memset((void*) pCallData, 0, sizeof(SIPX_CALL_DATA));
         pCallData->state = SIPX_INTERNAL_CALLSTATE_UNKNOWN;
 
+        pCallData->pInst = findSessionByCallManager(pSrc) ;                    
+        pInst = pCallData->pInst ;
+
         pCallData->callId = new UtlString(szCallId) ;
+        pCallData->sessionCallId = new UtlString(sessionCallId) ;
         pCallData->remoteAddress = new UtlString(szRemoteAddress) ;
         pCallData->pMutex = new OsRWMutex(OsRWMutex::Q_FIFO) ;
 
         Url urlFrom;
-        pSession->getFromUrl(urlFrom) ;
+        if (pSession)
+        {
+           pSession->getFromUrl(urlFrom) ;
+        }
 
         pCallData->lineURI = new UtlString(urlFrom.toString()) ;
-        pCallData->pInst = findSessionByCallManager(pSrc) ;                    
 
         hCall = gpCallHandleMap->allocHandle(pCallData) ;
-        pInst = pCallData->pInst ;
 
         if (pEventData)
         {
-            char* szOriginalCallId = (char*) pEventData ;                
-            hAssociatedCall = sipxCallLookupHandle(UtlString(szOriginalCallId), pSrc) ;
+            const char* szOriginalCallId = (const char*) pEventData ;                
+            hAssociatedCall = sipxCallLookupHandle(szOriginalCallId, pSrc) ;
 
             // Make sure we remove the call instead of allowing a drop.  When acting
             // as a transfer target, we are performing surgery on a CpPeerCall.  We
@@ -1212,18 +1235,27 @@ void sipxFireCallEvent(const void* pSrc,
         pInst->nCalls++ ;
         pInst->pLock->release() ;
 
-        callId = szCallId ;
         remoteAddress = szRemoteAddress ;
         lineId = urlFrom.toString() ;
     }
     else
     {
-        hCall = sipxCallLookupHandle(szCallId, pSrc);
-        if (!sipxCallGetCommonData(hCall, &pInst, &callId, &remoteAddress, &lineId))
+        if (sessionCallId.isNull())
         {
-            // osPrintf("event sipXtapiEvents: Unable to find call data for handle: %d\n", hCall) ;
-            // osPrintf("event callid=%s address=%s", szCallId, szRemoteAddress) ;
-            // osPrintf("event M=%s m=%s\n", convertCallstateEventToString(major), convertCallstateCauseToString(minor)) ;
+           hCall = sipxCallLookupHandle(szCallId, pSrc);
+        }
+        else
+        {
+           hCall = sipxCallLookupHandle(sessionCallId, pSrc);
+        }
+        if (!sipxCallGetCommonData(hCall, &pInst, NULL, &remoteAddress, &lineId)
+           && CALLSTATE_DESTROYED != event)
+        {
+           osPrintf("event sipXtapiEvents: Unable to find call data for handle: %d\n", hCall) ;
+           osPrintf("event %s:%s callId=%s address=%s\n",
+                    convertCallstateEventToString(event),
+                    convertCallstateCauseToString(cause),
+                    szCallId, szRemoteAddress) ;
         }
         pCallData = sipxCallLookup(hCall, SIPX_LOCK_WRITE, stackLogger) ;
         if (pCallData && pSession && !pCallData->contactAddress)
@@ -1233,9 +1265,19 @@ void sipxFireCallEvent(const void* pSrc,
         }
         if (pCallData)
         {
+            _hConf = pCallData->hConf;
             sipxCallReleaseLock(pCallData, SIPX_LOCK_WRITE, stackLogger) ;
         }
     }
+
+//    printf("sipxFireCallEvent(hCall=%d, hConf=%d) event %s::%s\n",
+//           hCall, _hConf,
+//           convertCallstateEventToString(event), convertCallstateCauseToString(cause));;
+
+//     if (event == CALLSTATE_NEWCALL)
+//     {
+//        gpCallHandleMap->dumpCalls();
+//     }
 
     // Filter duplicate events
     UtlBoolean bDuplicateEvent = FALSE ;
@@ -1259,7 +1301,10 @@ void sipxFireCallEvent(const void* pSrc,
 
         // Find Line
         UtlString requestUri; 
-        pSession->getRemoteRequestUri(requestUri); 
+        if (pSession)
+        {
+           pSession->getRemoteRequestUri(requestUri); 
+        }
         hLine = sipxLineLookupHandle(lineId.data(), requestUri.data()) ; 
         if (0 == hLine) 
         {
@@ -1338,20 +1383,21 @@ void sipxFireCallEvent(const void* pSrc,
         SIPX_CALL_DATA* pCallData = sipxCallLookup(hCall, SIPX_LOCK_READ, stackLogger) ;
         if (pCallData)
         {
-            pCallData->pInst->pCallManager->dropConnection(szCallId, szRemoteAddress) ;
+            pCallData->pInst->pCallManager->dropConnection(sessionCallId.data(),
+                                                           szRemoteAddress) ;
             sipxCallReleaseLock(pCallData, SIPX_LOCK_READ, stackLogger) ;
         }
 
         if (pCallData->lastLocalMediaAudioEvent == MEDIA_LOCAL_START)
         {
-            sipxFireMediaEvent(pSrc, szCallId, szRemoteAddress, 
+            sipxFireMediaEvent(pSrc, sessionCallId.data(), szRemoteAddress, 
                     MEDIA_LOCAL_STOP, MEDIA_CAUSE_NORMAL, MEDIA_TYPE_AUDIO,
                     NULL) ;
         }
 
         if (pCallData->lastLocalMediaVideoEvent == MEDIA_LOCAL_START)
         {
-            sipxFireMediaEvent(pSrc, szCallId, szRemoteAddress, 
+            sipxFireMediaEvent(pSrc, sessionCallId.data(), szRemoteAddress, 
                     MEDIA_LOCAL_STOP, MEDIA_CAUSE_NORMAL, MEDIA_TYPE_VIDEO,
                     NULL) ;
         }
@@ -1360,7 +1406,7 @@ void sipxFireCallEvent(const void* pSrc,
             (pCallData->lastRemoteMediaAudioEvent == MEDIA_REMOTE_SILENT) ||
             (pCallData->lastRemoteMediaAudioEvent == MEDIA_REMOTE_ACTIVE))
         {
-            sipxFireMediaEvent(pSrc, szCallId, szRemoteAddress, 
+            sipxFireMediaEvent(pSrc, sessionCallId.data(), szRemoteAddress, 
                     MEDIA_REMOTE_STOP, MEDIA_CAUSE_NORMAL, MEDIA_TYPE_AUDIO,
                     NULL) ;
         }
@@ -1369,7 +1415,7 @@ void sipxFireCallEvent(const void* pSrc,
             (pCallData->lastRemoteMediaVideoEvent == MEDIA_REMOTE_SILENT) ||
             (pCallData->lastRemoteMediaVideoEvent == MEDIA_REMOTE_ACTIVE))
         {
-            sipxFireMediaEvent(pSrc, szCallId, szRemoteAddress, 
+            sipxFireMediaEvent(pSrc, sessionCallId.data(), szRemoteAddress, 
                     MEDIA_REMOTE_STOP, MEDIA_CAUSE_NORMAL, MEDIA_TYPE_VIDEO,
                     NULL) ;
         }

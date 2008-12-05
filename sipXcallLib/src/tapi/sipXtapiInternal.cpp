@@ -103,12 +103,14 @@ void sipxEnableListeners()
 // Destroy all calls and send simulated DESTROY events
 void sipxCallDestroyAll(const SIPX_INST hInst) 
 {
+    OsStackTraceLogger stackLogger(FAC_SIPXTAPI, PRI_DEBUG, "sipxCallDestroyAll");
     int nCalls = 0 ;
     UtlString callIds[SIPX_MAX_CALLS];
-    UtlString callId;
+    UtlString sessionId;
     UtlString remoteAddress ;
     SIPX_CALL hCall = 0;        
     UtlBoolean bGotCommonData = false ;
+    SipSession session;
 
     SIPX_INSTANCE_DATA* pInst = (SIPX_INSTANCE_DATA*) hInst ;
     if (pInst)
@@ -119,17 +121,28 @@ void sipxCallDestroyAll(const SIPX_INST hInst)
             hCall = sipxCallLookupHandle(callIds[index], pInst->pCallManager);
             if (hCall)
             {
-                SIPX_INSTANCE_DATA* pCallInst = NULL ;
-
-                bGotCommonData = sipxCallGetCommonData(hCall, &pCallInst, &callId, &remoteAddress, NULL, NULL) ;                
+                SIPX_CALL_DATA* pData = sipxCallLookup(hCall, SIPX_LOCK_READ, stackLogger);
+                if (pData)
+                {
+                   remoteAddress = *pData->remoteAddress;
+                   sessionId = *pData->sessionCallId;
+                   sipxCallReleaseLock(pData, SIPX_LOCK_READ, stackLogger) ;
+                   bGotCommonData = TRUE;
+                }
                 
                 if (bGotCommonData)
                 {
-                    assert(pCallInst == pInst) ;
-
-                    SipSession session ;
-                    sipxFireCallEvent(pInst->pCallManager, callId, &session, remoteAddress, 
-                            CALLSTATE_DESTROYED, CALLSTATE_CAUSE_SHUTDOWN, NULL) ;
+                    // THIS IS A HACK!
+                    // We should pass sessionId directly to sipxFireCallEvent()
+                    // instead of faking SipSession.
+                    session.setCallId(sessionId);
+                    sipxFireCallEvent(pInst->pCallManager,
+                                      callIds[index],
+                                      &session,
+                                      remoteAddress,
+                                      CALLSTATE_DESTROYED,
+                                      CALLSTATE_CAUSE_SHUTDOWN,
+                                      NULL) ;
                 }
 
                 sipxCallDestroy(hCall) ;

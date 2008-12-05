@@ -3194,12 +3194,13 @@ Connection* CpPeerCall::addParty(const char* transferTargetAddress,
     addConnection(connection);
 
     UtlString callId;
-    // Get the call-id from the call
-    getCallId(callId);
-
     if (newCallId != NULL)
     {
         callId = newCallId ;
+    }
+    else
+    {
+        callId = *connection;
     }
 
     connection->dial(transferTargetAddress,

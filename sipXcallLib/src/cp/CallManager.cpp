@@ -475,20 +475,10 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
                         const SipMessage* sipMsg = ((SipMessageEvent&)eventMessage).getMessage();
                         if(sipMsg)
                         {
-                           UtlString method;
-                           sipMsg->getRequestMethod(&method);
-                           if(method == SIP_REFER_METHOD)
-                           {
-                              // If the message is a REFER, generate a new call id for it.
-                              // :TODO: Explain why.
-                              getNewCallId(&callId);
-                           }
-                           else
-                           {
-                              // Otherwise, get the call id from the message.
-                              sipMsg->getCallIdField(&callId);
-                           }
-                           OsSysLog::add(FAC_CP, PRI_DEBUG, "Message callid: %s\n", callId.data());
+                           // Generate a new call id for new call.
+                           getNewCallId(&callId);
+                           OsSysLog::add(FAC_CP, PRI_DEBUG,
+                                         "New CallID: %s\n", callId.data());
                         }
 
                         /////////////////
