@@ -15,6 +15,18 @@ Package=<4>
 
 ###############################################################################
 
+Project: "libspeex"=..\sipXmediaLib\contrib\libspeex\win32\libspeex\libspeex.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
 Project: "sipXcallLib"=.\sipXcallLib.dsp - Package Owner=<4>
 
 Package=<5>
