@@ -16,6 +16,7 @@
 // SYSTEM INCLUDES
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
+#include <malloc.h>
 #include <MMSystem.h>
 #include <os/OsMutex.h>
 #include <utl/UtlSList.h>
@@ -187,6 +188,21 @@ protected:
    int      mUnderrunLength;   ///< Length of underrun, taking place now (in frames).
    DWORD    mTotSampleCount;   ///< A count of the samples coming in via pushFrame.
 
+   HANDLE   mCallbackThread;
+   HANDLE   mCallbackEvent;
+   OsAtomicLightBool mExitFlag;
+
+   struct WinAudioDataChain
+   {
+      SLIST_ENTRY ItemEntry;
+      UINT mCbParamMsg;
+      WAVEHDR* mCbParamHdr;
+      CRITICAL_SECTION mSection;
+   };
+
+   SLIST_HEADER mPoolSignaled;
+   SLIST_HEADER mPoolFree;
+
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
 
@@ -195,6 +211,8 @@ private:
 
      /// Assignment operator (not implemented for this class)
    MpodWinMM& operator=(const MpodWinMM& rhs);
+
+   static DWORD WINAPI ThreadMMProc(LPVOID lpMessage);
 };
 
 

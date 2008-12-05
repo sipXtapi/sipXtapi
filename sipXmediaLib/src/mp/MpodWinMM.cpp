@@ -34,7 +34,9 @@
 #include "mp/MpOutputDeviceManager.h"
 
 // DEFINES
-#define LOW_WAVEBUF_LVL 5
+#define LOW_WAVEBUF_LVL 7
+#define LOW_MESSAGE_QUEUE_LEN (2*LOW_WAVEBUF_LVL + 5)
+
 //#define TEST_PRINT
 /// This define enable use of MpCodec_set/getVolume() and MpCodec_set/getGain().
 /// Note, this is a temporary hack, enabling volume regulation with new audio IO
@@ -128,6 +130,32 @@ MpodWinMM::MpodWinMM(const UtlString& name,
       // add mNumOutBuffers new void pointers to the list.
       mUnusedVPtrList.insert(new UtlVoidPtr());
    }
+
+   // Create synchronization thread
+   mCallbackEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
+   mExitFlag = FALSE;
+
+   mCallbackThread = CreateThread(NULL, 0, ThreadMMProc, this, 0, NULL);
+   SetThreadPriority(mCallbackThread, REALTIME_PRIORITY_CLASS);
+   //THREAD_PRIORITY_HIGHEST);
+  // SetThreadPriority(mCallbackThread, THREAD_PRIORITY_LOWEST );
+
+   // Initialize the list header.
+   InitializeSListHead(&mPoolFree);
+   InitializeSListHead(&mPoolSignaled);
+
+   // Insert items into the list.
+   for( i = 0; i < LOW_MESSAGE_QUEUE_LEN; i++)
+   {
+      WinAudioDataChain* ProgramItem = (WinAudioDataChain*)_aligned_malloc(sizeof(*ProgramItem),
+         MEMORY_ALLOCATION_ALIGNMENT);
+      ProgramItem->mCbParamHdr = NULL;
+      ProgramItem->mCbParamMsg = 0;
+      InitializeCriticalSection(&ProgramItem->mSection);
+
+      InterlockedPushEntrySList(&mPoolFree, 
+         &ProgramItem->ItemEntry); 
+   }
 }
 
 
@@ -162,6 +190,36 @@ MpodWinMM::~MpodWinMM()
    }
    delete[] mpWaveBuffers;
    delete[] mpWaveHeaders;
+
+   // Delete synchronization thread
+   mExitFlag = TRUE;
+   SetEvent(mCallbackEvent);
+   WaitForSingleObject(mCallbackThread, INFINITE);
+
+
+   for (;;)
+   {
+      WinAudioDataChain* pListEntry = 
+         (WinAudioDataChain*)InterlockedPopEntrySList(&mPoolSignaled);
+
+      if( NULL == pListEntry )
+         break;
+
+      DeleteCriticalSection(&pListEntry->mSection);
+      _aligned_free(pListEntry);
+   }
+
+   for (;;)
+   {
+      WinAudioDataChain* pListEntry = 
+         (WinAudioDataChain*)InterlockedPopEntrySList(&mPoolFree);
+
+      if( NULL == pListEntry )
+         break;
+
+      DeleteCriticalSection(&pListEntry->mSection);
+      _aligned_free(pListEntry);
+   }
 }
 
 /* ============================ MANIPULATORS ================================ */
@@ -295,6 +353,21 @@ OsStatus MpodWinMM::enableDevice(unsigned samplesPerFrame,
       return OS_FAILED;
    }
 
+   for (;;)
+   {
+      WinAudioDataChain* pListEntry = 
+         (WinAudioDataChain*)InterlockedPopEntrySList(&mPoolSignaled);
+
+      if( NULL == pListEntry )
+         break;
+
+      pListEntry->mCbParamHdr = NULL;
+      pListEntry->mCbParamMsg = 0;
+
+      InterlockedPushEntrySList(&mPoolFree, 
+         &pListEntry->ItemEntry);
+   }
+//   mSignals = 0;
    return OS_SUCCESS;
 }
 
@@ -429,9 +502,11 @@ OsStatus MpodWinMM::pushFrame(unsigned int numSamples,
    {
       // Collect some metrics -- the sample number that windows is on 
       // since waveOutOpen was called.
+      MMRESULT   res;
       MMTIME mmt;
       mmt.wType = TIME_SAMPLES;
-      waveOutGetPosition(mDevHandle, &mmt, sizeof(mmt));
+      res = waveOutGetPosition(mDevHandle, &mmt, sizeof(mmt));
+      assert(res == MMSYSERR_NOERROR);
       assert(mmt.wType == TIME_SAMPLES);
 
       // Write out some statistics, if enabled.
@@ -463,7 +538,7 @@ OsStatus MpodWinMM::pushFrame(unsigned int numSamples,
       //       insertion in this frequent case we're taking into account only
       //       underruns with long enough length.
       // P.S. Number 3 here is took from my mind as a small number bigger then 1.
-      if (mUnderrunLength > 3)
+      if (mUnderrunLength > LOW_WAVEBUF_LVL - 3)
       {
          RTL_BLOCK("MpodWinMM::pushFrame::inject");
 #ifdef TEST_PRINT // [
@@ -642,8 +717,8 @@ WAVEHDR* MpodWinMM::initWaveHeader(int n)
 
 void MpodWinMM::finalizeProcessedHeader(WAVEHDR* pWaveHdr)
 {
-   // CAUTION: THIS IS CALLED FROM THE WAVE CALLBACK CONTEXT!
    OsLock lock(mEmptyHdrVPtrListsMutex);
+
    // Check to see if we have any free pointers, and if we're enabled.
    if(isEnabled() && mUnusedVPtrList.entries() > 0)
    {
@@ -659,6 +734,64 @@ void MpodWinMM::finalizeProcessedHeader(WAVEHDR* pWaveHdr)
          mpNotifier->signal(mCurFrameTime);
       }
    }
+
+}
+
+DWORD WINAPI MpodWinMM::ThreadMMProc(LPVOID lpMessage)
+{
+   MpodWinMM* oddWinMMPtr = (MpodWinMM*)lpMessage;
+
+   for (;;)
+   {
+      DWORD res = WaitForSingleObject(oddWinMMPtr->mCallbackEvent, INFINITE);
+      assert (WAIT_OBJECT_0 == res);
+
+      if (oddWinMMPtr->mExitFlag == TRUE)
+         return 0;
+
+      for (;;)
+      {
+         WinAudioDataChain* pListEntry = 
+            (WinAudioDataChain*)InterlockedPopEntrySList(&oddWinMMPtr->mPoolSignaled);
+
+         if (pListEntry == NULL)
+            break;
+
+//         EnterCriticalSection(&pListEntry->mSection);
+         UINT msg = pListEntry->mCbParamMsg;
+         WAVEHDR* hdr = pListEntry->mCbParamHdr;
+//         LeaveCriticalSection(&pListEntry->mSection);
+
+         InterlockedPushEntrySList(&oddWinMMPtr->mPoolFree, &pListEntry->ItemEntry);
+
+         switch(msg)
+         {
+         case WOM_OPEN:
+#ifdef TEST_PRINT // [
+            printf("WOM_OPEN\n");
+#endif // TEST_PRINT ]
+            OsSysLog::add(FAC_MP, PRI_INFO, 
+               "Windows output device driver callback "
+               "device open (WOM_OPEN).");
+            break;
+         case WOM_DONE:
+            oddWinMMPtr->finalizeProcessedHeader(hdr);
+            break;
+         case WOM_CLOSE:
+#ifdef TEST_PRINT // [
+            printf("WOM_CLOSE\n");
+#endif // TEST_PRINT ]
+            OsSysLog::add(FAC_MP, PRI_INFO, 
+               "Windows output device driver callback "
+               "device closed (WOM_CLOSE).");
+            break;
+         default:
+            OsSysLog::add(FAC_MP, PRI_WARNING, 
+               "Windows output device driver callback "
+               "sending unknown message!");
+         }
+      }
+   }
 }
 
 /* //////////////////////// PROTECTED STATIC //////////////////////////////// */
@@ -669,37 +802,33 @@ MpodWinMM::waveOutCallbackStatic(HWAVEOUT hwo,
                                  void* dwParam1, 
                                  void* dwParam2)
 {
+   // It's no good to use asserts there 
    assert(dwInstance != NULL);
    MpodWinMM* oddWinMMPtr = (MpodWinMM*)dwInstance;
-   assert(uMsg == WOM_OPEN || hwo == oddWinMMPtr->mDevHandle);
-   
-   switch(uMsg)
+  // assert(uMsg == WOM_OPEN || hwo == oddWinMMPtr->mDevHandle);
+   if (!((uMsg == WOM_OPEN) || (hwo == oddWinMMPtr->mDevHandle)))
    {
-   case WOM_OPEN:
-#ifdef TEST_PRINT // [
-      printf("WOM_OPEN\n");
-#endif // TEST_PRINT ]
-      OsSysLog::add(FAC_MP, PRI_INFO, 
-                    "Windows output device driver callback "
-                    "device open (WOM_OPEN).");
-      break;
-   case WOM_DONE:
-      // dwParam1 is a WAVEHDR* when uMsg == WOM_DONE, per windows documentation
-      oddWinMMPtr->finalizeProcessedHeader((WAVEHDR*)dwParam1);
-      break;
-   case WOM_CLOSE:
-#ifdef TEST_PRINT // [
-      printf("WOM_CLOSE\n");
-#endif // TEST_PRINT ]
-      OsSysLog::add(FAC_MP, PRI_INFO, 
-                    "Windows output device driver callback "
-                    "device closed (WOM_CLOSE).");
-      break;
-   default:
-      OsSysLog::add(FAC_MP, PRI_WARNING, 
-                    "Windows output device driver callback "
-                    "sending unknown message!");
+      OutputDebugStringA("[MpodWinMM::waveOutCallbackStatic] msg_failed\n");
+      return;
    }
+
+   WinAudioDataChain* pListEntry = 
+      (WinAudioDataChain*)InterlockedPopEntrySList(&oddWinMMPtr->mPoolFree);
+
+   if( NULL == pListEntry )
+   {
+      assert(!"All list exhousted");
+   }
+
+//   EnterCriticalSection(&pListEntry->mSection);
+   pListEntry->mCbParamHdr = (WAVEHDR*)dwParam1;
+   pListEntry->mCbParamMsg = uMsg;
+//   LeaveCriticalSection(&pListEntry->mSection);
+
+   InterlockedPushEntrySList(&oddWinMMPtr->mPoolSignaled, 
+      &pListEntry->ItemEntry);
+
+   SetEvent(oddWinMMPtr->mCallbackEvent);
 }
 
 /* ///////////////////////////// PRIVATE //////////////////////////////////// */
