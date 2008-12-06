@@ -30,27 +30,30 @@
 // TYPEDEFS
 // FORWARD DECLARATIONS
 
-//:Queued events are used to send event notifications using a message queue
-// When the corresponding event occurs, the Notifier sends a message the
-// designated message queue. The Listener must wait on the queue to receive
-// the event messages.
-// <p><b>Background</b>
-// <p>First, a little bit of terminology.  The task that wishes to be notified
-// when an event occurs is the "Listener" task. The task that signals when
-// a given event occurs is the "Notifier" task.  A Notifier informs the
-// Listener that a given event has occurred by sending an "Event
-// Notification".
-//
-// <p><b>Expected Usage</b>
-// <p>The Listener passes an OsQueuedEvent object to the Notifier which
-// includes a message queue identifier for that message queue that will be
-// used for event notifications.  When the corresponding event occurs,
-// the Notifier sends a message the designated message queue.  The
-// Listener waits on the queue to receive the event notification.
-// This mechanism allows a task to receive notifications for multiple
-// events. The same message queue that is used to receive event
-// notifications may also be used to receive other types of messages.
-
+/**
+*  @brief Queued events are used to send event notifications using a message queue.
+*
+*  When the corresponding event occurs, the Notifier sends a message the
+*  designated message queue. The Listener must wait on the queue to receive
+*  the event messages.
+*
+*     <h3>Background</h3>
+*  First, a little bit of terminology.  The task that wishes to be notified
+*  when an event occurs is the "Listener" task. The task that signals when
+*  a given event occurs is the "Notifier" task.  A Notifier informs the
+*  Listener that a given event has occurred by sending an "Event
+*  Notification".
+*
+*     <h3>Expected Usage</h3>
+*  The Listener passes an OsQueuedEvent object to the Notifier which
+*  includes a message queue identifier for that message queue that will be
+*  used for event notifications.  When the corresponding event occurs,
+*  the Notifier sends a message the designated message queue.  The
+*  Listener waits on the queue to receive the event notification.
+*  This mechanism allows a task to receive notifications for multiple
+*  events. The same message queue that is used to receive event
+*  notifications may also be used to receive other types of messages.
+*/
 class OsQueuedEvent : public OsNotification
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
@@ -58,28 +61,33 @@ public:
 
 /* ============================ CREATORS ================================== */
 
+     /// Constructor
    OsQueuedEvent(OsMsgQ& rMsgQ, const intptr_t userData);
-     //:Constructor
 
-   virtual
-   ~OsQueuedEvent();
-     //:Destructor
+     /// Destructor
+   virtual ~OsQueuedEvent();
 
 /* ============================ MANIPULATORS ============================== */
 
+     /// Set the event data and send an event message to the designated queue.
    virtual OsStatus signal(const intptr_t eventData);
-     //:Set the event data and send an event message to the designated queue
-     // Return the result of the message send operation.
+     /**<
+     *  @return The result of the message send operation.
+     */
 
+     /// Set the user data value for this object.
    virtual OsStatus setUserData(intptr_t userData);
-     //:Set the user data value for this object
-     // Always returns OS_SUCCESS.
+     /**<
+     *  @returns Always OS_SUCCESS.
+     */
 
 /* ============================ ACCESSORS ================================= */
 
+     /// Return the user data specified when this object was constructed.
    virtual OsStatus getUserData(intptr_t& rUserData) const;
-     //:Return the user data specified when this object was constructed
-     // Always returns OS_SUCCESS.
+     /**<
+     *  @returns Always OS_SUCCESS.
+     */
 
 /* ============================ INQUIRY =================================== */
 
@@ -89,22 +97,24 @@ protected:
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
 
-   intptr_t  mUserData;    // data specified on behalf of the user and
-                           //  not otherwise used by this class -- the user
-                           //  data is specified as an argument to the class
-                           //  constructor
-   OsMsgQ*   mpMsgQ;       // message queue where event notifications will
-                           //  be sent
+   intptr_t  mUserData;    ///< Data specified on behalf of the user and
+                           ///<  not otherwise used by this class -- the user
+                           ///<  data is specified as an argument to the class
+                           ///<  constructor.
+   OsMsgQ*   mpMsgQ;       ///< Message queue where event notifications will
+                           ///<  be sent.
 
+     /// Send an event message to the designated message queue.
    OsStatus doSendEventMsg(const int msgType, const intptr_t eventData) const;
-     //:Send an event message to the designated message queue
-     // Return the result of the message send operation.
+     /**
+     *  @return The result of the message send operation.
+     */
 
+     /// Copy constructor (not implemented for this class).
    OsQueuedEvent(const OsQueuedEvent& rOsQueuedEvent);
-     //:Copy constructor (not implemented for this class)
 
+     /// Assignment operator (not implemented for this class).
    OsQueuedEvent& operator=(const OsQueuedEvent& rhs);
-     //:Assignment operator (not implemented for this class)
 
 };
 
