@@ -131,9 +131,7 @@ protected:
    UtlBoolean processFrame();
 
      /// @copydoc MpResource::connectInput()
-   UtlBoolean connectInput(MpResource& rFrom,
-                           int fromPortIdx,
-                           int toPortIdx);
+   UtlBoolean connectInput(MpResource& rFrom, int fromPortIdx, int toPortIdx);
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
