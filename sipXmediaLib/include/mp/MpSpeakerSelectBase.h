@@ -76,6 +76,15 @@ public:
 ///@name Manipulators
 //@{
 
+     /// Reset algorithm state to initial and prepare for processing of new data.
+   virtual OsStatus reset() = 0;
+     /**<
+     *  It's supposed that init() will not be called after reset(). So reset()
+     *  must turn algorithm to the state as right after calling init().
+     *  Maximum number of participants intentionally is not changed, to prevent
+     *  memory reallocation.
+     */
+
      /// Change status of selected participant
    virtual OsStatus enableParticipant(int num, UtlBoolean newState) = 0;
      /**<
@@ -94,7 +103,7 @@ public:
                                  int frameSize) = 0;
      /**<
      * @param[in] speechParams - parameters of bridges
-     * @param[in] frameSize - number of miliseconds in frame
+     * @param[in] frameSize - number of milliseconds in frame
      * @returns Method returns OS_SUCCESS if processing is ok,
      *          otherwise OS_FAILED
      */
