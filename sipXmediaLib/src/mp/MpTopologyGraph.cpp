@@ -320,16 +320,21 @@ int MpTopologyGraph::linkTopologyResources(MpResourceTopology& resourceTopology,
     UtlHashMap newConnectionIds;
 
 #ifdef TEST_PRINT
-    printf("%d new resources in the list\n", newResources.entries());
+    osPrintf("%d new resources in the list\n", newResources.entries());
     UtlHashBagIterator iterator(newResources);
     MpResource* containerResource = NULL;
     while(containerResource = (MpResource*) iterator())
     {
-        printf("found list resource: \"%s\" value: \"%s\"\n", containerResource->getName().data(), containerResource->data());
+        osPrintf("found list resource: \"%s\" value: \"%s\"\n",
+                 containerResource->getName().data(), containerResource->data());
     }
 #endif
 
-    while(resourceTopology.getConnection(connectionIndex, outputResourceName, outputResourcePortIndex, inputResourceName, inputResourcePortIndex) == OS_SUCCESS)
+    while(resourceTopology.getConnection(connectionIndex,
+    	                                 outputResourceName,
+    	                                 outputResourcePortIndex,
+    	                                 inputResourceName,
+    	                                 inputResourcePortIndex) == OS_SUCCESS)
     {
         if(replaceNumInName)
         {
@@ -343,8 +348,7 @@ int MpTopologyGraph::linkTopologyResources(MpResourceTopology& resourceTopology,
         outputResource = (MpResource*) newResources.find(&outputResourceName);
         if(outputResource == NULL)
         {
-            result = lookupResource(outputResourceName,
-                                    outputResource);
+            result = lookupResource(outputResourceName, outputResource);
             if(result != OS_SUCCESS)
             {
                 printf("MpTopologyGraph::linkTopologyResources could not find output resource: \"%s\"\n",
@@ -355,8 +359,7 @@ int MpTopologyGraph::linkTopologyResources(MpResourceTopology& resourceTopology,
         inputResource = (MpResource*) newResources.find(&inputResourceName);
         if(inputResource == NULL)
         {
-            result = lookupResource(inputResourceName,
-                                    inputResource);
+            result = lookupResource(inputResourceName, inputResource);
             assert(result == OS_SUCCESS);
         }
         assert(outputResource);
