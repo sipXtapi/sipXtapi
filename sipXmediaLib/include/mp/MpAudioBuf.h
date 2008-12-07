@@ -110,8 +110,11 @@ public:
     /// Get normalized frame energy.
     int getEnergy() const {return mParams.mFrameEnergy;}
 
-    /// Get speech parameters as a structure
+    /// Get speech parameters as a structure (const version)
     const MpSpeechParams &getSpeechParams() const {return mParams;}
+
+    /// Get speech parameters as a structure
+    MpSpeechParams &getSpeechParams() {return mParams;}
 
 //@}
 
