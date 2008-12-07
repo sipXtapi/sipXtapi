@@ -16,6 +16,7 @@
 // SYSTEM INCLUDES
 //#include <utl/UtlDefs.h>
 #include <os/OsStatus.h>
+#include <os/OsAtomics.h>
 #include <utl/UtlString.h>
 
 // APPLICATION INCLUDES
@@ -218,10 +219,10 @@ public:
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 
-   UtlBoolean mIsEnabled;         ///< Whether this device driver is enabled or not.
-   unsigned mSamplesPerFrame;     ///< Device produce audio frame with this
+   OsAtomicLightBool mIsEnabled;         ///< Whether this device driver is enabled or not.
+   OsAtomicLightUInt mSamplesPerFrame;     ///< Device produce audio frame with this
                    ///< number of samples.
-   unsigned mSamplesPerSec;       ///< Device produce audio with this number
+   OsAtomicLightUInt mSamplesPerSec;       ///< Device produce audio with this number
                    ///< of samples per second.
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
