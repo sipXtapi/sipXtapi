@@ -27,10 +27,10 @@
 // FORWARD DECLARATIONS
 
 /**
- * UtlCopyableContainable is a containble that must a clone method, that is 
+ * UtlCopyableContainable is a containable that must a clone method, that is 
  * used by UtlCopyableSList in order to assign/copy list elements on list copy.
  *
- * Derived classes should also implement a copy contructor and an equals 
+ * Derived classes should also implement a copy constructor and an equals 
  * operator.
  *
  * Sample clone implementation:

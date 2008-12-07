@@ -47,7 +47,7 @@ MpInputDeviceDriver::~MpInputDeviceDriver()
 /* ============================ MANIPULATORS ============================== */
 
 // I have no clue why this is necessary.  disableDevice is
-// pure virutal and should not be implemented, but MSVS6 is bitching
+// pure virtual and should not be implemented, but MSVS6 is bitching
 // about it being undefined.
 OsStatus MpInputDeviceDriver::disableDevice()
 {
