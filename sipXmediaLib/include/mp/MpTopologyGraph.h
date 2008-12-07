@@ -135,8 +135,9 @@ public:
 /* ============================ ACCESSORS ================================= */
 ///@name Accessors
 //@{
-     /// Returns the type of this flow graph.
-   virtual MpFlowGraphBase::FlowGraphType getType();
+
+     /// @copydoc MpResource::getType()
+   MpFlowGraphBase::FlowGraphType getType();
 
 //@}
 
@@ -160,7 +161,7 @@ protected:
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
 
-   MpResourceFactory* mpResourceFactory;
+   MpResourceFactory* mpResourceFactory; ///< Factory for resources.
 
      /// Adds all new resources defined in a topology.
    int addTopologyResources(MpResourceTopology& resourceTopology,

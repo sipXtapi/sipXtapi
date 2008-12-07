@@ -132,7 +132,7 @@ public:
 
      /// Validate that the connections are connect the resources
    OsStatus validateConnections(UtlString& firstUnconnectedResourceName,
-                                UtlString&  firstDanglingResourceName,
+                                UtlString& firstDanglingResourceName,
                                 UtlBoolean allowExternalResources = FALSE) const;
      /**<
      *  A full topology MUST NOT have connections that reference resources
@@ -141,20 +141,25 @@ public:
      *  connections that reference resources outside of this topology AND
      *  all resources in this topology MUST have at least one connection.
      *
-     *  @param firstUnconnectedResourceName - first resource found to not
-     *         have any connections.
-     *  @param firstDanglingResourceName - first resource found to not be
-     *         connected topologically to the rest of the resources.  The
-     *         can only be tested in full topologies.  We do not know the
-     *         pre-existing topology in the flowgraph for incremental topologies.
-     *  @param allowExternalResources - FALSE = full topology, TRUE = increment
-     *         topology (see definitions at top of this class)
+     *  @param[out] firstUnconnectedResourceName - first resource found to not
+     *              have any connections.
+     *  @param[out] firstDanglingResourceName - first resource found to not be
+     *              connected topologically to the rest of the resources.  The
+     *              can only be tested in full topologies.  We do not know the
+     *              pre-existing topology in the flowgraph for incremental
+     *              topologies.
+     *  @param[in] allowExternalResources - FALSE = full topology, TRUE =
+     *              incremental topology (see definitions at top of this class).
      */
 
      /// Validate that all the resource types in this topology have a constructor in the factory
    OsStatus validateResourceTypes(MpResourceFactory& resourceFactory,
                                   int& firstInvalidResourceIndex) const;
-
+      /**<
+      *  @param[in]  resourceFactory - resource factory yo test against.
+      *  @param[out] firstInvalidResourceIndex - index of the first resource
+      *              found to lack constructor in the provided factory.
+      */
 
      /// Utility to replace "%d" in resource name with an integer
    static void replaceNumInName(UtlString& resourceName,
