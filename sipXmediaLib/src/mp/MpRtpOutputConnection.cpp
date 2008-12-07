@@ -192,6 +192,7 @@ UtlBoolean MpRtpOutputConnection::connectInput(MpResource& rFrom,
                                                 int fromPortIdx,
                                                 int toPortIdx)
 {
+   // TODO:: Move this to MprEncode and implement disconnect!
    UtlBoolean res = MpResource::connectInput(rFrom, fromPortIdx, toPortIdx);
    if (res)
    {
