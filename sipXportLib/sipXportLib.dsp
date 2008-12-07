@@ -471,6 +471,10 @@ SOURCE=.\src\utl\UtlContainableAtomic.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\utl\UtlContainablePair.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\utl\UtlContainer.cpp
 # End Source File
 # Begin Source File
@@ -1108,6 +1112,10 @@ SOURCE=.\include\utl\UtlContainable.h
 # Begin Source File
 
 SOURCE=.\include\utl\UtlContainableAtomic.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\utl\UtlContainablePair.h
 # End Source File
 # Begin Source File
 

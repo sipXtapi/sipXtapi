@@ -3179,6 +3179,9 @@
 				RelativePath=".\src\utl\UtlContainableAtomic.cpp">
 			</File>
 			<File
+				RelativePath=".\src\utl\UtlContainablePair.cpp">
+			</File>
+			<File
 				RelativePath="src\utl\UtlContainer.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -4531,6 +4534,9 @@
 			</File>
 			<File
 				RelativePath=".\include\utl\UtlContainableAtomic.h">
+			</File>
+			<File
+				RelativePath=".\include\utl\UtlContainablePair.h">
 			</File>
 			<File
 				RelativePath="include\utl\UtlContainer.h">

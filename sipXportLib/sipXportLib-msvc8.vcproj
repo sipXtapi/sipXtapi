@@ -1640,6 +1640,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\src\utl\UtlContainablePair.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\src\utl\UtlContainer.cpp"
 				>
 			</File>
@@ -2262,6 +2266,10 @@
 			</File>
 			<File
 				RelativePath=".\include\utl\UtlContainableAtomic.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\utl\UtlContainablePair.h"
 				>
 			</File>
 			<File

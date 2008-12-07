@@ -132,6 +132,7 @@ nobase_include_HEADERS = \
     utl/UtlCopyableContainable.h \
     utl/UtlContainer.h \
     utl/UtlContainableAtomic.h \
+    utl/UtlContainablePair.h \
     utl/UtlDateTime.h \
     utl/UtlDList.h \
     utl/UtlDListIterator.h \
