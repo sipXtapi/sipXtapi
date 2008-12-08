@@ -538,8 +538,7 @@ MpResourceTopology* CpTopologyGraphFactoryImpl::buildUnicastConnectionResourceTo
 
 #ifdef INSERT_DELAY_RESOURCE // [
     // Add delay resource
-    UtlString delayName = DEFAULT_DELAY_RESOURCE_NAME;
-    delayName.append(CONNECTION_NAME_SUFFIX "-0");
+    UtlString delayName = DEFAULT_DELAY_RESOURCE_NAME CONNECTION_NAME_SUFFIX "-0";
     result = resourceTopology->addResource(DEFAULT_DELAY_RESOURCE_TYPE,
                                            delayName,
                                            MP_INVALID_CONNECTION_ID,
@@ -548,8 +547,8 @@ MpResourceTopology* CpTopologyGraphFactoryImpl::buildUnicastConnectionResourceTo
 #endif // INSERT_DELAY_RESOURCE ]
 
     // Add Voice Activity Notifier resource
-    UtlString activityNotifName = DEFAULT_VOICE_ACTIVITY_NOTIFIER_RESOURCE_NAME;
-    activityNotifName.append(CONNECTION_NAME_SUFFIX "-0");
+    UtlString activityNotifName = DEFAULT_VOICE_ACTIVITY_NOTIFIER_RESOURCE_NAME
+                                  CONNECTION_NAME_SUFFIX "-0";
     result = resourceTopology->addResource(DEFAULT_VOICE_ACTIVITY_NOTIFIER_RESOURCE_TYPE,
                                            activityNotifName,
                                            MP_INVALID_CONNECTION_ID,
