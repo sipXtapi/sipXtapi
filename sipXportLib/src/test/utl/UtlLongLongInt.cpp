@@ -58,8 +58,7 @@ private:
     static const int64_t llint_Zero ;
     static const int64_t llint_Positive ;
     static const int64_t llint_Negative ;
-    //LLONG_MAX
-    //LLONG_MIN
+
     static const int INDEX_NOT_FOUND  ; 
     // An indication that the test should be ignored. 
     static const int IGNORE_TEST ; 
@@ -178,8 +177,8 @@ public:
             { "zero", 0, 0, 10, -10 }, \
             { "positive integer", llint_Positive, llint_Positive, llint_Positive+10, llint_Positive-10 }, \
             { "negative integer", llint_Negative, llint_Negative, llint_Negative+10, llint_Negative-10 }, \
-            { "integer at its maximum allowed value", LLONG_MAX, LLONG_MAX, IGNORE_TEST, LLONG_MAX-10 }, \
-            { "integer at its minimum allowed value", LLONG_MIN, LLONG_MIN, LLONG_MIN+10, IGNORE_TEST } 
+            { "integer at its maximum allowed value", INT64_MAX, INT64_MAX, IGNORE_TEST, INT64_MAX-10 }, \
+            { "integer at its minimum allowed value", INT64_MIN, INT64_MIN, INT64_MIN+10, IGNORE_TEST } 
         } ; 
         const int testCount = sizeof(testData)/sizeof(testData[0]) ; 
         int64_t expectedForEquals = 0 ;
@@ -214,7 +213,7 @@ public:
             // In this case we SHOULD not try to compare for a llint which is at the 
             // MINIMUM value that any llint can assume as such a llint cannot be greater
             // than anything else. This is bound to cause overruns thus yielding unexpected results. 
-            if (testData[i].baseValue != LLONG_MIN)
+            if (testData[i].baseValue != INT64_MIN)
             {
                 llintForCompare = UtlLongLongInt(testData[i].lessThanBase) ; 
                 TestUtilities::createMessage(3, &msg, prefix, \
@@ -237,7 +236,7 @@ public:
             // In this case we SHOULD not try to compare for an integer which is at the 
             // MAXIMUM value that any integer can assume as such an integer cannot be less than
             // anything else. This is bound to cause overruns thus yielding unexpected results. 
-            if (testData[i].baseValue != LLONG_MAX)
+            if (testData[i].baseValue != INT64_MAX)
             {
                 llintForCompare = UtlLongLongInt(testData[i].greaterThanBase) ; 
                 TestUtilities::createMessage(3, &msg, prefix, \
@@ -263,7 +262,7 @@ public:
     void testCompareTo_NonIntll()
     {
         UtlString testUtlString("Test String") ; 
-        UtlLongLongInt testUtlLongLongInt(LLONG_MAX) ; 
+        UtlLongLongInt testUtlLongLongInt(INT64_MAX) ; 
         int64_t actual = testUtlLongLongInt.compareTo(&testUtlString) ; 
         // If a collectable is *NOT* an Integer, then the only thing that is predictible is
         // that this is not equal to the argument
@@ -364,8 +363,8 @@ public:
         CPPUNIT_ASSERT((testIntll--).getValue() == 2);
 
         // test conversion operator
-        UtlLongLongInt testIntll2(LLONG_MAX);
-        CPPUNIT_ASSERT(testIntll2 == LLONG_MAX);
+        UtlLongLongInt testIntll2(INT64_MAX);
+        CPPUNIT_ASSERT(testIntll2 == INT64_MAX);
     } //testOperators
 };
 
@@ -379,8 +378,8 @@ const UtlLongLongIntTests::BasicIntllVerifier \
          {"Zero", llint_Zero, llint_Zero},  \
          {"Positive Long Long Integer", llint_Positive, llint_Positive}, \
          {"Negative Long Long Integer", llint_Negative, llint_Negative}, \
-         {"MAX VALUE Positive Long Long Integer", LLONG_MAX, LLONG_MAX}, \
-         {"MIN VALUE Negative Long Long Integer", LLONG_MIN, LLONG_MIN} \
+         {"MAX VALUE Positive Long Long Integer", INT64_MAX, INT64_MAX}, \
+         {"MIN VALUE Negative Long Long Integer", INT64_MIN, INT64_MIN} \
       } ; 
 
 const int UtlLongLongIntTests::commonTestSetLength = 5 ; 
