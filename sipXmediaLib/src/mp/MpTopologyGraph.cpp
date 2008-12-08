@@ -138,7 +138,7 @@ OsStatus MpTopologyGraph::addResources(MpResourceTopology& incrementalTopology,
 OsStatus MpTopologyGraph::destroyResources(MpResourceTopology& resourceTopology,
                                           int resourceInstanceId)
 {
-    // Add the resources
+    // Destroy the resources
     int resourceIndex = 0;
     MpResource* resourcePtr = NULL;
     UtlString resourceName;
@@ -151,6 +151,11 @@ OsStatus MpTopologyGraph::destroyResources(MpResourceTopology& resourceTopology,
          assert(result == OS_SUCCESS);
          resourceIndex++;
     }
+
+    // Remove virtual ports
+    removeVirtualInputs(resourceTopology, TRUE, resourceInstanceId);
+    removeVirtualOutputs(resourceTopology, TRUE, resourceInstanceId);
+
     return OS_SUCCESS;
 }
 
@@ -511,6 +516,46 @@ int MpTopologyGraph::addVirtualInputs(MpResourceTopology& resourceTopology,
    return portsAdded;
 }
 
+int MpTopologyGraph::removeVirtualInputs(MpResourceTopology& resourceTopology,
+                                         UtlBoolean replaceNumInName,
+                                         int resourceNum)
+{
+   int portsDestroyed = 0;
+   MpResourceTopology::VirtualPortIterator portIter;
+   UtlString realResourceName;
+   int realPortIdx;
+   UtlString virtualResourceName;
+   int virtualPortIdx;
+   UtlInt keyPortIdx;
+   UtlContainablePair keyPair(&virtualResourceName, &keyPortIdx);
+
+   resourceTopology.initVirtualInputIterator(portIter);
+   while (resourceTopology.getNextVirtualInput(portIter,
+                                               realResourceName, realPortIdx,
+                                               virtualResourceName, virtualPortIdx)
+          == OS_SUCCESS)
+   {
+      if(replaceNumInName)
+      {
+         MpResourceTopology::replaceNumInName(virtualResourceName, resourceNum);
+      }
+
+      // Destroy entry in the virtual ports map.
+      keyPortIdx.setValue(virtualPortIdx);
+      if (mVirtualInputs.destroy(&keyPair))
+      {
+         portsDestroyed++;
+      }
+   }
+   resourceTopology.freeVirtualInputIterator(portIter);
+
+   // Prevent deletion of stack objects.
+   keyPair.setFirst(NULL);
+   keyPair.setSecond(NULL);
+
+   return portsDestroyed;
+}
+
 int MpTopologyGraph::addVirtualOutputs(MpResourceTopology& resourceTopology,
                                        UtlHashBag& newResources,
                                        UtlBoolean replaceNumInName,
@@ -564,6 +609,46 @@ int MpTopologyGraph::addVirtualOutputs(MpResourceTopology& resourceTopology,
    resourceTopology.freeVirtualOutputIterator(portIter);
 
    return portsAdded;
+}
+
+int MpTopologyGraph::removeVirtualOutputs(MpResourceTopology& resourceTopology,
+                                          UtlBoolean replaceNumInName,
+                                          int resourceNum)
+{
+   int portsDestroyed = 0;
+   MpResourceTopology::VirtualPortIterator portIter;
+   UtlString realResourceName;
+   int realPortIdx;
+   UtlString virtualResourceName;
+   int virtualPortIdx;
+   UtlInt keyPortIdx;
+   UtlContainablePair keyPair(&virtualResourceName, &keyPortIdx);
+
+   resourceTopology.initVirtualOutputIterator(portIter);
+   while (resourceTopology.getNextVirtualOutput(portIter,
+                                               realResourceName, realPortIdx,
+                                               virtualResourceName, virtualPortIdx)
+          == OS_SUCCESS)
+   {
+      if(replaceNumInName)
+      {
+         MpResourceTopology::replaceNumInName(virtualResourceName, resourceNum);
+      }
+
+      // Destroy entry in the virtual ports map.
+      keyPortIdx.setValue(virtualPortIdx);
+      if (mVirtualOutputs.destroy(&keyPair))
+      {
+         portsDestroyed++;
+      }
+   }
+   resourceTopology.freeVirtualOutputIterator(portIter);
+
+   // Prevent deletion of stack objects.
+   keyPair.setFirst(NULL);
+   keyPair.setSecond(NULL);
+
+   return portsDestroyed;
 }
 
 int MpTopologyGraph::linkTopologyResources(MpResourceTopology& resourceTopology,

@@ -258,11 +258,21 @@ private:
                         UtlBoolean replaceNumInName = FALSE,
                         int resourceNum = -1);
 
+     /// Remove all virtual inputs defined in a topology from the flowgraph.
+   int removeVirtualInputs(MpResourceTopology& resourceTopology,
+                           UtlBoolean replaceNumInName,
+                           int resourceNum);
+
      /// Adds all virtual outputs defined in a topology.
    int addVirtualOutputs(MpResourceTopology& resourceTopology,
                          UtlHashBag& newResources,
                          UtlBoolean replaceNumInName = FALSE,
                          int resourceNum = -1);
+
+     /// Remove all virtual outputs defined in a topology from the flowgraph.
+   int removeVirtualOutputs(MpResourceTopology& resourceTopology,
+                            UtlBoolean replaceNumInName,
+                            int resourceNum);
 
      /// Adds links defined for resources in resource topology.
    int linkTopologyResources(MpResourceTopology& resourceTopology,
